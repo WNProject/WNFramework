@@ -1,0 +1,59 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Source Files\Windows">
+      <UniqueIdentifier>{1dd42ead-5d46-4db2-8e85-b84587e214dd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Android">
+      <UniqueIdentifier>{346ffa95-1f92-4a17-9556-bfa942c8c6b2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Posix">
+      <UniqueIdentifier>{be3fd981-7153-4172-b630-1452720e060a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Android">
+      <UniqueIdentifier>{1e12dc9a-ee4b-49a9-a14d-c14617c3712a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\inc\WNCrashHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Android\WNAndroidEventPump.h">
+      <Filter>Header Files\Android</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Android\WNAppData.h">
+      <Filter>Header Files\Android</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Android\WNLoggingData.h">
+      <Filter>Header Files\Android</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\Android\WNAndroidEventPump.cpp">
+      <Filter>Source Files\Android</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\Android\WNAppData.cpp">
+      <Filter>Source Files\Android</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\Android\WNCrashHandler.cpp">
+      <Filter>Source Files\Android</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\Android\WNLoggingData.cpp">
+      <Filter>Source Files\Android</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\Posix\WNCrashHandler.cpp">
+      <Filter>Source Files\Posix</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\Windows\WNCrashHandler.cpp">
+      <Filter>Source Files\Windows</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

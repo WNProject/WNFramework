@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pcre", "pcre.vcxproj", "{781606A4-C6F9-4014-8409-B3CF18DBF84F}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dftables", "deftables.vcxproj", "{CE0983EC-E041-458C-86D8-B61D66ED8F43}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Debug|x64 = Debug|x64
+		Release|Win32 = Release|Win32
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{781606A4-C6F9-4014-8409-B3CF18DBF84F}.Debug|Win32.ActiveCfg = Debug|Win32
+		{781606A4-C6F9-4014-8409-B3CF18DBF84F}.Debug|Win32.Build.0 = Debug|Win32
+		{781606A4-C6F9-4014-8409-B3CF18DBF84F}.Debug|x64.ActiveCfg = Debug|x64
+		{781606A4-C6F9-4014-8409-B3CF18DBF84F}.Debug|x64.Build.0 = Debug|x64
+		{781606A4-C6F9-4014-8409-B3CF18DBF84F}.Release|Win32.ActiveCfg = Release|Win32
+		{781606A4-C6F9-4014-8409-B3CF18DBF84F}.Release|Win32.Build.0 = Release|Win32
+		{781606A4-C6F9-4014-8409-B3CF18DBF84F}.Release|x64.ActiveCfg = Release|x64
+		{781606A4-C6F9-4014-8409-B3CF18DBF84F}.Release|x64.Build.0 = Release|x64
+		{CE0983EC-E041-458C-86D8-B61D66ED8F43}.Debug|Win32.ActiveCfg = Debug|Win32
+		{CE0983EC-E041-458C-86D8-B61D66ED8F43}.Debug|Win32.Build.0 = Debug|Win32
+		{CE0983EC-E041-458C-86D8-B61D66ED8F43}.Debug|x64.ActiveCfg = Debug|x64
+		{CE0983EC-E041-458C-86D8-B61D66ED8F43}.Debug|x64.Build.0 = Debug|x64
+		{CE0983EC-E041-458C-86D8-B61D66ED8F43}.Release|Win32.ActiveCfg = Release|Win32
+		{CE0983EC-E041-458C-86D8-B61D66ED8F43}.Release|Win32.Build.0 = Release|Win32
+		{CE0983EC-E041-458C-86D8-B61D66ED8F43}.Release|x64.ActiveCfg = Release|x64
+		{CE0983EC-E041-458C-86D8-B61D66ED8F43}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

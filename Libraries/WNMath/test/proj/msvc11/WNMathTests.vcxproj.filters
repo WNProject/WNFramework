@@ -1,0 +1,557 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Source Files\Tests">
+      <UniqueIdentifier>{b805fbe7-56a8-4fb0-a06e-c645523a92df}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Tests\WNVector2">
+      <UniqueIdentifier>{806ff9c8-4afd-49ee-9d1a-44a1a1da60b7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Tests\WNVector2\Operators">
+      <UniqueIdentifier>{108f77ea-4ac4-43f2-929f-929a43f46c7e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Tests\WNVector2\Methods">
+      <UniqueIdentifier>{84837041-f099-4d4b-9ff9-61b646cfd58e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Tests\WNVector3">
+      <UniqueIdentifier>{84c00e7d-7098-476d-8bdb-5eac8f86bed3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Tests\WNVector3\Methods">
+      <UniqueIdentifier>{8149b956-c2df-4dcd-8043-133d8f9c191e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Tests\WNVector3\Operators">
+      <UniqueIdentifier>{81081e30-a7c2-496f-b9f0-77bab4385760}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Tests\WNVector4">
+      <UniqueIdentifier>{0eac5143-b720-4698-b37e-7d5b59ede9d6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Tests\WNVector4\Operators">
+      <UniqueIdentifier>{78e4a655-5d1d-45c8-ae0d-4afdb1cbe13c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Tests\WNVector4\Methods">
+      <UniqueIdentifier>{5ebaa15d-9436-4648-bd5a-794d7a672dbb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Tests\WNMatrix2">
+      <UniqueIdentifier>{a4bafa62-e8ee-44f5-9e6f-f24c473d475b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Tests\WNMatrix2\Operators">
+      <UniqueIdentifier>{01192b32-cb08-4cfd-89cc-9b0a4e96868a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Tests\WNMatrix2\Methods">
+      <UniqueIdentifier>{bdef26b9-09e5-4a2c-ab05-e73a4eeab583}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Tests\WNMatrix3">
+      <UniqueIdentifier>{b42a043d-8c25-4ab1-be17-29e0ce2459d9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Tests\WNMatrix4">
+      <UniqueIdentifier>{84016beb-8e16-4316-b038-941e72d148f8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Tests\WNMatrixX">
+      <UniqueIdentifier>{9555d8c2-f1ee-4e7b-8dac-37575a9b42e4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Tests\WNMatrix3\Operators">
+      <UniqueIdentifier>{896c7eeb-0d15-4f5b-bba8-e30e60d469ae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Tests\WNMatrix3\Methods">
+      <UniqueIdentifier>{ad971c79-ac7a-40b0-b688-9f46f3f3170b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Tests\WNMatrix4\Methods">
+      <UniqueIdentifier>{920cdac5-7d57-40fa-a406-35c7f2689b95}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Tests\WNMatrix4\Operators">
+      <UniqueIdentifier>{7b3667e2-5c7b-409a-af20-63f6741bcdfe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Tests\WNMatrixX\Methods">
+      <UniqueIdentifier>{f8569a5d-9389-4569-a404-2bde0253b33b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Tests\WNMatrixX\Operators">
+      <UniqueIdentifier>{bd362c8f-75f0-469a-a741-f17a5bf4abb0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Tests\WNBounds2">
+      <UniqueIdentifier>{b877b8a0-234c-4491-b661-d2e7b4457c00}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Tests\WNBounds3">
+      <UniqueIdentifier>{cd7590f1-cc90-47f8-96c2-dac0effeacdc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Tests\WNBounds3\Methods">
+      <UniqueIdentifier>{e783161d-e19b-4793-a001-505d37f5172d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Tests\WNBounds3\Operators">
+      <UniqueIdentifier>{a67b6a44-4c1e-4981-ad20-7e8c54bdd37f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Tests\WNBounds2\Operators">
+      <UniqueIdentifier>{a553d939-3aa5-4bcc-91b9-7c7ce30d7549}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Tests\WNBounds2\Methods">
+      <UniqueIdentifier>{609e7c3c-8c67-407f-b115-b2d0f375367e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Tests\WNVectorX">
+      <UniqueIdentifier>{9b07975e-cfc0-4f94-ad10-74a84e0ebc96}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Tests\WNVectorX\Operators">
+      <UniqueIdentifier>{3cf40cc6-fc1d-4add-9186-dd393cd59348}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Tests\WNVectorX\Methods">
+      <UniqueIdentifier>{2860ba7f-321e-4077-a1b4-0c89e4e6d41a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\inc\Common.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\Main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNAbsTests.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNCeilTests.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNFloorTests.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNInvSqrtTests.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNRoundTests.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNSqrtTests.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNTruncTests.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\Common.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector2ConstructorTests.cpp">
+      <Filter>Source Files\Tests\WNVector2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector2CreateZeroTests.cpp">
+      <Filter>Source Files\Tests\WNVector2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector2AddAssignTests.cpp">
+      <Filter>Source Files\Tests\WNVector2\Operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector2AddAssignVectorTests.cpp">
+      <Filter>Source Files\Tests\WNVector2\Operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector2AddTests.cpp">
+      <Filter>Source Files\Tests\WNVector2\Operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector2ArraySubscriptTests.cpp">
+      <Filter>Source Files\Tests\WNVector2\Operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector2DivideAssignTests.cpp">
+      <Filter>Source Files\Tests\WNVector2\Operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector2DivideAssignVectorTests.cpp">
+      <Filter>Source Files\Tests\WNVector2\Operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector2DivideTests.cpp">
+      <Filter>Source Files\Tests\WNVector2\Operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector2FuntionCallTests.cpp">
+      <Filter>Source Files\Tests\WNVector2\Operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector2MultiplyAssignTests.cpp">
+      <Filter>Source Files\Tests\WNVector2\Operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector2MultiplyAssignVectorTests.cpp">
+      <Filter>Source Files\Tests\WNVector2\Operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector2MultiplyTests.cpp">
+      <Filter>Source Files\Tests\WNVector2\Operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector2SubtractAssignTests.cpp">
+      <Filter>Source Files\Tests\WNVector2\Operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector2SubtractAssignVectorTests.cpp">
+      <Filter>Source Files\Tests\WNVector2\Operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector2SubtractTests.cpp">
+      <Filter>Source Files\Tests\WNVector2\Operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector2AverageTests.cpp">
+      <Filter>Source Files\Tests\WNVector2\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector2ClampTests.cpp">
+      <Filter>Source Files\Tests\WNVector2\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector2ConvertToTests.cpp">
+      <Filter>Source Files\Tests\WNVector2\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector2DotTests.cpp">
+      <Filter>Source Files\Tests\WNVector2\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector2LengthSquaredTests.cpp">
+      <Filter>Source Files\Tests\WNVector2\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector2LengthTests.cpp">
+      <Filter>Source Files\Tests\WNVector2\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector2MultiplyAddTests.cpp">
+      <Filter>Source Files\Tests\WNVector2\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector2MultiplyAddVectorTests.cpp">
+      <Filter>Source Files\Tests\WNVector2\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector2MultiplySubtractTests.cpp">
+      <Filter>Source Files\Tests\WNVector2\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector2MultiplySubtractVectorTests.cpp">
+      <Filter>Source Files\Tests\WNVector2\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector2NormalizeTests.cpp">
+      <Filter>Source Files\Tests\WNVector2\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector2OneTests.cpp">
+      <Filter>Source Files\Tests\WNVector2\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector2RecipricolTests.cpp">
+      <Filter>Source Files\Tests\WNVector2\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector2ZeroTests.cpp">
+      <Filter>Source Files\Tests\WNVector2\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector2GetNormalizedTests.cpp">
+      <Filter>Source Files\Tests\WNVector2\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector3ConstructorTests.cpp">
+      <Filter>Source Files\Tests\WNVector3</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector3CreateZeroTests.cpp">
+      <Filter>Source Files\Tests\WNVector3</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector3AddAssignTests.cpp">
+      <Filter>Source Files\Tests\WNVector3\Operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector3AddAssignVectorTests.cpp">
+      <Filter>Source Files\Tests\WNVector3\Operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector3AddTests.cpp">
+      <Filter>Source Files\Tests\WNVector3\Operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector3ArraySubscriptTests.cpp">
+      <Filter>Source Files\Tests\WNVector3\Operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector3DivideAssignTests.cpp">
+      <Filter>Source Files\Tests\WNVector3\Operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector3DivideAssignVectorTests.cpp">
+      <Filter>Source Files\Tests\WNVector3\Operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector3DivideTests.cpp">
+      <Filter>Source Files\Tests\WNVector3\Operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector3FuntionCallTests.cpp">
+      <Filter>Source Files\Tests\WNVector3\Operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector3MultiplyAssignTests.cpp">
+      <Filter>Source Files\Tests\WNVector3\Operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector3MultiplyAssignVectorTests.cpp">
+      <Filter>Source Files\Tests\WNVector3\Operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector3MultiplyTests.cpp">
+      <Filter>Source Files\Tests\WNVector3\Operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector3SubtractAssignTests.cpp">
+      <Filter>Source Files\Tests\WNVector3\Operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector3SubtractAssignVectorTests.cpp">
+      <Filter>Source Files\Tests\WNVector3\Operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector3SubtractTests.cpp">
+      <Filter>Source Files\Tests\WNVector3\Operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector3AverageTests.cpp">
+      <Filter>Source Files\Tests\WNVector3\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector3ClampTests.cpp">
+      <Filter>Source Files\Tests\WNVector3\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector3ConvertToTests.cpp">
+      <Filter>Source Files\Tests\WNVector3\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector3DotTests.cpp">
+      <Filter>Source Files\Tests\WNVector3\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector3GetNormalizedTests.cpp">
+      <Filter>Source Files\Tests\WNVector3\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector3LengthSquaredTests.cpp">
+      <Filter>Source Files\Tests\WNVector3\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector3LengthTests.cpp">
+      <Filter>Source Files\Tests\WNVector3\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector3MultiplyAddTests.cpp">
+      <Filter>Source Files\Tests\WNVector3\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector3MultiplyAddVectorTests.cpp">
+      <Filter>Source Files\Tests\WNVector3\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector3MultiplySubtractTests.cpp">
+      <Filter>Source Files\Tests\WNVector3\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector3MultiplySubtractVectorTests.cpp">
+      <Filter>Source Files\Tests\WNVector3\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector3NormalizeTests.cpp">
+      <Filter>Source Files\Tests\WNVector3\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector3OneTests.cpp">
+      <Filter>Source Files\Tests\WNVector3\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector3RecipricolTests.cpp">
+      <Filter>Source Files\Tests\WNVector3\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector3ZeroTests.cpp">
+      <Filter>Source Files\Tests\WNVector3\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector4ConstructorTests.cpp">
+      <Filter>Source Files\Tests\WNVector4</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector4CreateZeroTests.cpp">
+      <Filter>Source Files\Tests\WNVector4</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector4AddAssignTests.cpp">
+      <Filter>Source Files\Tests\WNVector4\Operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector4AddAssignVectorTests.cpp">
+      <Filter>Source Files\Tests\WNVector4\Operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector4AddTests.cpp">
+      <Filter>Source Files\Tests\WNVector4\Operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector4ArraySubscriptTests.cpp">
+      <Filter>Source Files\Tests\WNVector4\Operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector4DivideAssignTests.cpp">
+      <Filter>Source Files\Tests\WNVector4\Operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector4DivideAssignVectorTests.cpp">
+      <Filter>Source Files\Tests\WNVector4\Operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector4DivideTests.cpp">
+      <Filter>Source Files\Tests\WNVector4\Operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector4FuntionCallTests.cpp">
+      <Filter>Source Files\Tests\WNVector4\Operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector4MultiplyAddTests.cpp">
+      <Filter>Source Files\Tests\WNVector4\Operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector4MultiplyAddVectorTests.cpp">
+      <Filter>Source Files\Tests\WNVector4\Operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector4MultiplyTests.cpp">
+      <Filter>Source Files\Tests\WNVector4\Operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector4SubtractAssignTests.cpp">
+      <Filter>Source Files\Tests\WNVector4\Operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector4SubtractAssignVectorTests.cpp">
+      <Filter>Source Files\Tests\WNVector4\Operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector4SubtractTests.cpp">
+      <Filter>Source Files\Tests\WNVector4\Operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector4AverageTests.cpp">
+      <Filter>Source Files\Tests\WNVector4\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector4ClampTests.cpp">
+      <Filter>Source Files\Tests\WNVector4\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector4ConvertToTests.cpp">
+      <Filter>Source Files\Tests\WNVector4\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector4DotTests.cpp">
+      <Filter>Source Files\Tests\WNVector4\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector4GetNormalizedTests.cpp">
+      <Filter>Source Files\Tests\WNVector4\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector4LengthSquaredTests.cpp">
+      <Filter>Source Files\Tests\WNVector4\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector4LengthTests.cpp">
+      <Filter>Source Files\Tests\WNVector4\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector4MultiplyAssignTests.cpp">
+      <Filter>Source Files\Tests\WNVector4\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector4MultiplyAssignVectorTests.cpp">
+      <Filter>Source Files\Tests\WNVector4\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector4MultiplySubtractTests.cpp">
+      <Filter>Source Files\Tests\WNVector4\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector4MultiplySubtractVectorTests.cpp">
+      <Filter>Source Files\Tests\WNVector4\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector4NormalizeTests.cpp">
+      <Filter>Source Files\Tests\WNVector4\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector4OneTests.cpp">
+      <Filter>Source Files\Tests\WNVector4\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector4RecipricolTests.cpp">
+      <Filter>Source Files\Tests\WNVector4\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVector4ZeroTests.cpp">
+      <Filter>Source Files\Tests\WNVector4\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNMatrix2CreateIdentityTests.cpp">
+      <Filter>Source Files\Tests\WNMatrix2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNMatrix2CreateZeroTests.cpp">
+      <Filter>Source Files\Tests\WNMatrix2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNMatrix2IdentityTests.cpp">
+      <Filter>Source Files\Tests\WNMatrix2\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNMatrix2ZeroTests.cpp">
+      <Filter>Source Files\Tests\WNMatrix2\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNMatrix3CreateIdentityTests.cpp">
+      <Filter>Source Files\Tests\WNMatrix3</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNMatrix3CreateZeroTests.cpp">
+      <Filter>Source Files\Tests\WNMatrix3</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNMatrix3ZeroTests.cpp">
+      <Filter>Source Files\Tests\WNMatrix3\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNMatrix3IdentityTests.cpp">
+      <Filter>Source Files\Tests\WNMatrix3\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNMatrix4CreateIdentityTests.cpp">
+      <Filter>Source Files\Tests\WNMatrix4</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNMatrix4CreateZeroTests.cpp">
+      <Filter>Source Files\Tests\WNMatrix4</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNMatrix4IdentityTests.cpp">
+      <Filter>Source Files\Tests\WNMatrix4\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNMatrix4ZeroTests.cpp">
+      <Filter>Source Files\Tests\WNMatrix4\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNMatrixXCreateIdentityTests.cpp">
+      <Filter>Source Files\Tests\WNMatrixX</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNMatrixXCreateZeroTests.cpp">
+      <Filter>Source Files\Tests\WNMatrixX</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNMatrixXZeroTests.cpp">
+      <Filter>Source Files\Tests\WNMatrixX\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNMatrixXIdentityTests.cpp">
+      <Filter>Source Files\Tests\WNMatrixX\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNBounds2ConstructorTests.cpp">
+      <Filter>Source Files\Tests\WNBounds2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNBounds3ConstructorTests.cpp">
+      <Filter>Source Files\Tests\WNBounds3</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVectorXConstructorTests.cpp">
+      <Filter>Source Files\Tests\WNVectorX</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVectorXCreateZeroTests.cpp">
+      <Filter>Source Files\Tests\WNVectorX</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVectorXAddAssignTests.cpp">
+      <Filter>Source Files\Tests\WNVectorX\Operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVectorXAddAssignVectorTests.cpp">
+      <Filter>Source Files\Tests\WNVectorX\Operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVectorXAddTests.cpp">
+      <Filter>Source Files\Tests\WNVectorX\Operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVectorXArraySubscriptTests.cpp">
+      <Filter>Source Files\Tests\WNVectorX\Operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVectorXDivideAssignTests.cpp">
+      <Filter>Source Files\Tests\WNVectorX\Operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVectorXDivideAssignVectorTests.cpp">
+      <Filter>Source Files\Tests\WNVectorX\Operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVectorXDivideTests.cpp">
+      <Filter>Source Files\Tests\WNVectorX\Operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVectorXFuntionCallTests.cpp">
+      <Filter>Source Files\Tests\WNVectorX\Operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVectorXMultiplyAddTests.cpp">
+      <Filter>Source Files\Tests\WNVectorX\Operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVectorXMultiplyAddVectorTests.cpp">
+      <Filter>Source Files\Tests\WNVectorX\Operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVectorXMultiplyTests.cpp">
+      <Filter>Source Files\Tests\WNVectorX\Operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVectorXSubtractAssignTests.cpp">
+      <Filter>Source Files\Tests\WNVectorX\Operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVectorXSubtractAssignVectorTests.cpp">
+      <Filter>Source Files\Tests\WNVectorX\Operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVectorXSubtractTests.cpp">
+      <Filter>Source Files\Tests\WNVectorX\Operators</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVectorXConvertToTests.cpp">
+      <Filter>Source Files\Tests\WNVectorX\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVectorXDotTests.cpp">
+      <Filter>Source Files\Tests\WNVectorX\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVectorXGetNormalizedTests.cpp">
+      <Filter>Source Files\Tests\WNVectorX\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVectorXLengthSquaredTests.cpp">
+      <Filter>Source Files\Tests\WNVectorX\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVectorXLengthTests.cpp">
+      <Filter>Source Files\Tests\WNVectorX\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVectorXMultiplyAssignTests.cpp">
+      <Filter>Source Files\Tests\WNVectorX\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVectorXMultiplyAssignVectorTests.cpp">
+      <Filter>Source Files\Tests\WNVectorX\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVectorXMultiplySubtractTests.cpp">
+      <Filter>Source Files\Tests\WNVectorX\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVectorXMultiplySubtractVectorTests.cpp">
+      <Filter>Source Files\Tests\WNVectorX\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVectorXNormalizeTests.cpp">
+      <Filter>Source Files\Tests\WNVectorX\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVectorXOneTests.cpp">
+      <Filter>Source Files\Tests\WNVectorX\Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNVectorXZeroTests.cpp">
+      <Filter>Source Files\Tests\WNVectorX\Methods</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

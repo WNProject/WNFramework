@@ -1,0 +1,79 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Inline Files">
+      <UniqueIdentifier>{ccd104d9-d770-4167-a554-f22f142e73be}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Internal">
+      <UniqueIdentifier>{99eda94b-3220-490c-a12b-03477beef8f6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Internal\x86">
+      <UniqueIdentifier>{7e25f90b-26c0-4bce-9628-8031a6503d04}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Internal\x86\SSE">
+      <UniqueIdentifier>{2c6f5f1e-eeb6-4427-8785-2f7af8107b53}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Internal\x86\SSE2">
+      <UniqueIdentifier>{87fedd5a-5901-4b32-92ed-2f773708ca5d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Internal\x86\AVX">
+      <UniqueIdentifier>{8334465c-f698-416e-90a3-f78b2c8071a0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Internal\x86\MMX">
+      <UniqueIdentifier>{b22c1e7e-d8e4-452c-8c83-0e117f5c8646}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\inc\WNAllocation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNManipulation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNMemory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\WNConfig.h">
+      <Filter>Header Files\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\WNMemSet.h">
+      <Filter>Header Files\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\WNMemSetHelper.h">
+      <Filter>Header Files\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNConfig.h">
+      <Filter>Header Files\Internal\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNMemSet.h">
+      <Filter>Header Files\Internal\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNUtilities_YMM.h">
+      <Filter>Header Files\Internal\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNMemSet_AVX.h">
+      <Filter>Header Files\Internal\x86\AVX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNMemSet_MMX.h">
+      <Filter>Header Files\Internal\x86\MMX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNMemSet_SSE.h">
+      <Filter>Header Files\Internal\x86\SSE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNMemSet_SSE2.h">
+      <Filter>Header Files\Internal\x86\SSE2</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\inc\Internal\WNAllocation.inl">
+      <Filter>Inline Files</Filter>
+    </None>
+    <None Include="..\..\inc\Internal\WNManipulation.inl">
+      <Filter>Inline Files</Filter>
+    </None>
+  </ItemGroup>
+</Project>

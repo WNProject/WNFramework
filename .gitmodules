@@ -1,0 +1,7 @@
+[submodule "Externals/gtest"]
+	path = Externals/gtest
+	url = https://chromium.googlesource.com/external/googletest.git
+[submodule "Externals/llvm"]
+	path = Externals/llvm
+	url = https://github.com/llvm-mirror/llvm.git
+	branch = release_35

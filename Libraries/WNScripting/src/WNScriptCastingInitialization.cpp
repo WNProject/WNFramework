@@ -1,0 +1,127 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                                                                                                            //
+//                                                         WNProject                                                          //
+//                                                                                                                            //
+//         This file is distributed under the BSD 2-Clause open source license. See Licenses/License.txt for details.         //
+//                                                                                                                            //
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#include "WNScripting/inc/WNScriptingErrors.h"
+#include "WNScripting/inc/WNTypeManager.h"
+#include "WNScripting/inc/WNExpression.h"
+#include "WNScripting/inc/WNBuiltinTypeInitialization.h"
+
+#ifdef _WN_MSVC
+    #pragma warning(push)
+    #pragma warning(disable: 4100)
+    #pragma warning(disable: 4127)
+    #pragma warning(disable: 4152)
+    #pragma warning(disable: 4244)
+    #pragma warning(disable: 4245)
+    #pragma warning(disable: 4267)
+    #pragma warning(disable: 4355)
+    #pragma warning(disable: 4512)
+    #pragma warning(disable: 4800)
+#endif
+
+#include "llvm/IR/IRBuilder.h"
+
+#ifdef _WN_MSVC
+    #pragma warning(pop)
+#endif
+
+namespace WNScripting {
+    struct GenerateFPToIntCast: public GenerateCastingOperation {
+        GenerateFPToIntCast(WNScriptType _destType, WN_BOOL _destSigned) :
+            mDestInt(_destType),
+            mDestSigned(_destSigned) {
+        }
+        virtual ~GenerateFPToIntCast() {}
+        virtual eWNTypeError Execute(llvm::IRBuilderBase* _builder, llvm::Value* _expr1, llvm::Value*& _outReturnValue) const {
+            llvm::IRBuilder<>* builder = reinterpret_cast<llvm::IRBuilder<>* >(_builder);       
+            if(mDestSigned) {
+                _outReturnValue = builder->CreateFPToSI(_expr1, mDestInt->mLLVMType, "");
+            } else {
+                _outReturnValue = builder->CreateFPToUI(_expr1, mDestInt->mLLVMType, "");
+            }
+        
+            return(eWNOK);
+        }
+    private:
+        WNScriptType mDestInt;
+        WN_BOOL mDestSigned;
+    };
+
+    struct GenerateIntToFPCast: public GenerateCastingOperation {
+        GenerateIntToFPCast(WNScriptType _destType, WN_BOOL _srcSigned) :
+            mDestInt(_destType),
+            mSrcSigned(_srcSigned) {
+        }
+        virtual ~GenerateIntToFPCast() {}
+        virtual eWNTypeError Execute(llvm::IRBuilderBase* _builder, llvm::Value*_expr1, llvm::Value*& _outReturnValue) const {
+            llvm::IRBuilder<>* builder = reinterpret_cast<llvm::IRBuilder<>* >(_builder);       
+            if(mSrcSigned) {
+                _outReturnValue = builder->CreateSIToFP(_expr1, mDestInt->mLLVMType, "");
+            } else {
+                _outReturnValue = builder->CreateUIToFP(_expr1, mDestInt->mLLVMType, "");
+            }
+        
+            return(eWNOK);
+        }
+    private:
+        WNScriptType mDestInt;
+        WN_BOOL mSrcSigned;
+    };
+
+    struct GenerateIntToIntCast: public GenerateCastingOperation {
+        GenerateIntToIntCast(WNScriptType _destType, WN_BOOL _srcSigned) :
+            mDestInt(_destType),
+            mSrcSigned(_srcSigned) {
+        }
+        virtual ~GenerateIntToIntCast() {}
+        virtual eWNTypeError Execute(llvm::IRBuilderBase* _builder, llvm::Value* _expr1, llvm::Value*& _outReturnValue) const {
+            llvm::IRBuilder<>* builder = reinterpret_cast<llvm::IRBuilder<>* >(_builder);       
+            _outReturnValue = builder->CreateIntCast(_expr1, mDestInt->mLLVMType, mSrcSigned, "");
+            return(eWNOK);
+        }
+    private:
+        WNScriptType mDestInt;
+        WN_BOOL mSrcSigned;
+    };
+
+    eWNTypeError WNBuiltInInitializer::InitializeScriptingCasts(WNScriptingEngine*, WNTypeManager& _manager) {
+        eWNTypeError err = eWNOK;
+        WNScriptType nullType; if((err = _manager.GetTypeByName("-Null", nullType)) != eWNOK) { return err; } 
+        _manager.RegisterAllocationOperator(nullType, WN_NEW GenerateDefaultAllocation());
+
+        WNScriptType floatType;  if((err = _manager.GetTypeByName("Float", floatType)) != eWNOK) { return err; } 
+        WNScriptType intType; if((err = _manager.GetTypeByName("Int", intType)) != eWNOK) { return err; }
+        WNScriptType charType;  if((err = _manager.GetTypeByName("Char", charType)) != eWNOK) { return err; }
+        WNScriptType boolType; if((err = _manager.GetTypeByName("Bool", boolType)) != eWNOK) { return err; }
+        WNScriptType sizeTType; if((err = _manager.GetTypeByName("-SizeT", sizeTType)) != eWNOK) { return err; }
+        _manager.RegisterCastingOperator(intType, charType,
+            WN_NEW GenerateIntToIntCast(charType, true));
+        _manager.RegisterCastingOperator(intType, floatType,
+            WN_NEW GenerateIntToFPCast(floatType, true));
+        _manager.RegisterCastingOperator(intType, boolType,
+            WN_NEW GenerateIntToIntCast(boolType, true));
+        _manager.RegisterCastingOperator(charType, intType,
+            WN_NEW GenerateIntToIntCast(intType, false));
+        _manager.RegisterCastingOperator(intType, sizeTType,
+            WN_NEW GenerateIntToIntCast(sizeTType, false));
+        _manager.RegisterCastingOperator(charType, sizeTType,
+            WN_NEW GenerateIntToIntCast(sizeTType, false));
+        _manager.RegisterCastingOperator(charType, floatType,
+            WN_NEW GenerateIntToFPCast(floatType, false));
+        _manager.RegisterCastingOperator(charType, boolType,
+            WN_NEW GenerateIntToIntCast(boolType, false));
+        _manager.RegisterCastingOperator(floatType, intType,
+            WN_NEW GenerateFPToIntCast(intType, true));
+        _manager.RegisterCastingOperator(floatType, charType,
+            WN_NEW GenerateFPToIntCast(charType, false));
+        _manager.RegisterCastingOperator(floatType, boolType,
+            WN_NEW GenerateFPToIntCast(boolType, false));
+    
+        return(eWNOK);
+    }
+}

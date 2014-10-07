@@ -1,0 +1,32 @@
+Char[] function func1(){
+	Char[] s = new "\n\n\n\n";
+	return s;
+}
+
+Int function test1(){
+	Char[] s = "";
+	s = func1();
+	Char ret = s[1];
+	delete s;
+	return ret;
+}
+
+Int function test2(){
+	Char[] s = "";
+	s = func2();
+	return s[1];
+}
+
+stackret Char[] function func2(){
+	Char[] s = "asdf";
+	return s;
+}
+
+Int function test3(){
+	Char[] s = "asdf";
+	return(func3(s));
+}
+
+Int function func3(Char[] string){
+	return(string[1]);
+}

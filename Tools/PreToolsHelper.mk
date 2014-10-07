@@ -1,0 +1,10 @@
+SHELL=/bin/sh
+CXX?=g++
+AR?=ar
+INCLUDES := $(INCLUDES) -I. -I../.. -I../../../Libraries/
+TARGET ?= Release
+SOURCEDIR=../src/
+OBJDIR = ../build/
+BINDIR ?= ../../bin/
+WNLIBDIR = ../../../Libraries/bin/$(TARGET)/
+DEPENDENCYDIR = ../../../Dependencies/Linux/$(shell uname -m)/$(TARGET)/

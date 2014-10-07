@@ -1,0 +1,6 @@
+WN_BUILD_HELPER_ROOT:=../TestApp3/
+WN_PROJECT_PATH:=/home/andrew/Workspace/WNProject
+WN_LIBRARIES:=WNFileSystem WNScripting
+
+
+include $(WN_BUILD_HELPER_ROOT)Makefile

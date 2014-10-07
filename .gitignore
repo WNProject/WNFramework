@@ -1,0 +1,10 @@
+/Externals/bin
+/Libraries/bin
+/Tools/bin
+/Libraries/*/build
+/Tools/*/build
+ipch
+*.opensdf
+*.sdf
+*.suo
+*.user
