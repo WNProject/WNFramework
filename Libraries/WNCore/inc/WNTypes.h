@@ -1,10 +1,6 @@
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//                                                                                                                            //
-//                                                         WNProject                                                          //
-//                                                                                                                            //
-//         This file is distributed under the BSD 2-Clause open source license. See Licenses/License.txt for details.         //
-//                                                                                                                            //
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2014, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
 
 // Types -----------------------------------------------------------------------------------------------------------------------
 //      WN_VOID
@@ -115,6 +111,12 @@ typedef char WN_CHAR;
 typedef bool WN_BOOL;
 
 typedef size_t WN_SIZE_T;
+
+#ifdef _WN_64_BIT 
+    typedef long long WN_SIGNED_T;
+#else
+    typedef long WN_SIGNED_T;
+#endif
 
 typedef WN_BYTE* WN_POINTER;
 

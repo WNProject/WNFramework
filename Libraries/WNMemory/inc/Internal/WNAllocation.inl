@@ -1,10 +1,6 @@
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//                                                                                                                            //
-//                                                         WNProject                                                          //
-//                                                                                                                            //
-//         This file is distributed under the BSD 2-Clause open source license. See Licenses/License.txt for details.         //
-//                                                                                                                            //
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2014, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
 
 #pragma once
 
@@ -57,8 +53,8 @@ namespace WNMemory {
     }
 
     template <typename Type>
-    WN_FORCE_INLINE Type* WNCallocT(const WN_SIZE_T _count, const WN_SIZE_T _amount) {
-        return(static_cast<Type*>(WNCalloc(_count, _amount * sizeof(Type))));
+    WN_FORCE_INLINE Type* WNCallocT(const WN_SIZE_T _count) {
+        return(static_cast<Type*>(WNCalloc(sizeof(Type), _count)));
     }
 
     template <typename Type>

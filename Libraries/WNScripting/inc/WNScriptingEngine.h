@@ -1,10 +1,6 @@
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//                                                                                                                            //
-//                                                         WNProject                                                          //
-//                                                                                                                            //
-//         This file is distributed under the BSD 2-Clause open source license. See Licenses/License.txt for details.         //
-//                                                                                                                            //
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2014, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
 
 
 #ifndef __WN_SCRIPTING_ENGINE_H__
@@ -29,8 +25,9 @@ namespace WNScripting {
         virtual eWNTypeError GetFunctionPointer(const WN_CHAR* _file, const WN_CHAR* _functionName, WNScriptType& _retParam, const std::vector<WNScriptType>& _params, void*& _ptr) = 0;
         virtual WN_INT32 GetVirtualFunctionIndex(const WN_CHAR* _functionName, WNScriptType& _type, const std::vector<WNScriptType>& _params) = 0;
         virtual eWNTypeError Initialize() = 0;
-        virtual WNScriptType GetTypeByName(const WN_CHAR* _typeName) = 0;
+        virtual WNScriptType GetTypeByName(const WN_CHAR* _typeName) const = 0;
         virtual WNScriptType GetArrayOf(WNScriptType _type) = 0;
+        virtual WNScriptType GetExistingArrayOf(WNScriptType _type) const = 0;
         virtual eWNTypeError RegisterFunction(const WN_CHAR* _functionName, const WNScriptType _retParam, const std::vector<WNScriptType>& _params, void* _ptr) = 0;
         virtual eWNTypeError RegisterMemberFunction(const WN_CHAR* _functionName, const WNScriptType _thisType, const WNScriptType _retParam, const std::vector<WNScriptType>& _params, void* _ptr) = 0;
         virtual eWNTypeError RegisterMember(const WN_CHAR* _varName, const WNScriptType _thisType, const WNScriptType _varType, WN_SIZE_T _offset) = 0;
@@ -41,9 +38,14 @@ namespace WNScripting {
         virtual eWNTypeError RegisterExternalType(const WN_CHAR* _typeName, void(*ptr)(void*)) = 0;
         virtual eWNTypeError RegisterExternalType(const WN_CHAR* _typeName, const WN_CHAR* _parentType, void(*ptr)(void*)) = 0;
         virtual eWNTypeError CompileFile(const WN_CHAR* _file) = 0;
-        
+        virtual eWNTypeError ConstructScriptingObject(WNScriptType _type, WN_VOID*& _retVal) const = 0;
+        virtual eWNTypeError ConstructScriptingArray(WNScriptType _type, WN_SIZE_T _size, WN_VOID*& _retVal) const = 0;
         virtual eWNTypeError AddExternalLibs(eWNTypeError(*)(WNTypeManager&, void*), void*) = 0;
-        
+
+        template<typename T1, typename T2>
+        eWNTypeError ConstructScriptingObject(WNScriptingObject<T1, T2>& _outType);
+        template<typename T>
+        eWNTypeError ConstructScriptingArray(WNScriptingArray<T>& _array, WN_SIZE_T _size);
         template<typename T>
         eWNTypeError RegisterCPPType();
         template<typename T, typename TParent>

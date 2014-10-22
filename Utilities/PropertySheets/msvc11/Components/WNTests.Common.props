@@ -4,7 +4,6 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <OutDir>$(ProjectDir)..\..\..\..\bin\msvc11\$(Platform)\$(Configuration)\tests\</OutDir>
-    <IntDir>$(ProjectDir)..\..\..\build\msvc11\$(Platform)\$(Configuration)\tests\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
@@ -16,7 +15,7 @@
       <SubSystem>Console</SubSystem>
     </Link>
     <PostBuildEvent>
-      <Command>$(OutDir)$(TargetName)$(TargetExt)</Command>
+      <Command>"$(TargetPath)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup />

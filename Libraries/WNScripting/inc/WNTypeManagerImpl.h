@@ -1,10 +1,6 @@
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//                                                                                                                            //
-//                                                         WNProject                                                          //
-//                                                                                                                            //
-//         This file is distributed under the BSD 2-Clause open source license. See Licenses/License.txt for details.         //
-//                                                                                                                            //
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2014, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
 
 #pragma once
 
@@ -36,6 +32,7 @@ namespace WNScripting {
         virtual eWNTypeError RegisterCopyConstructionOperator(WNScriptType _type, GenerateCopyConstruction* operation);
         virtual eWNTypeError GetTypeByName(const WN_CHAR* name, WNScriptType& _outType) const;
         virtual eWNTypeError GetArrayOf(WNScriptType& _type, WNScriptType& _outType);
+        virtual eWNTypeError GetExistingArrayOf(WNScriptType& _type, WNScriptType& _outType) const;
         virtual const GenerateArithmeticOperation* GetArithmeticOperation(WNArithmeticType _arith, WNScriptType _lhs, WNScriptType _rhs) const;
         virtual const GenerateCastingOperation* GetCastingOperation(WNScriptType _lhs, WNScriptType _rhs) const;
         virtual const GeneratePreUnaryOperation* GetPreUnaryOperation(WNUnaryType _type, WNScriptType _lhs) const;

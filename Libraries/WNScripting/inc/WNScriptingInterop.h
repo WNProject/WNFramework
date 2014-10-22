@@ -1,10 +1,6 @@
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//                                                                                                                            //
-//                                                         WNProject                                                          //
-//                                                                                                                            //
-//         This file is distributed under the BSD 2-Clause open source license. See Licenses/License.txt for details.         //
-//                                                                                                                            //
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2014, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
 
 #ifndef __WN_SCRIPTING_INTEROP_H__
 #define __WN_SCRIPTING_INTEROP_H__
@@ -115,6 +111,9 @@ namespace WNScripting {
     class WNMemberVariablePointer;
 
    template<typename T, typename T_Parent = DummyType<0>>
+   class WNScriptingObjectRef;
+   
+   template<typename T, typename T_Parent = DummyType<0>>
     class WNScriptingObject {
     public:
         typedef T_Parent ParentType;
@@ -132,6 +131,12 @@ namespace WNScripting {
             Destroy();
         }
 
+        WNScriptingObjectRef<T, T_Parent>* DetachOut() {
+            WNScriptingObject<T, T_Parent>* ptr = reinterpret_cast<WNScriptingObject<T, T_Parent>*>(refData);
+            WNConcurrency::WNAtomicDecrement(reinterpret_cast<WN_ATOM_T*>(&refData->refCount));
+            refData = WN_NULL;
+            return(ptr);
+        }
         WNScriptingObject<T, T_Parent>& operator=(WNScriptingObject<T, T_Parent>&& _other) {
             Destroy();
             refData = _other.refData;
@@ -194,6 +199,13 @@ namespace WNScripting {
             return(ParentType::ParentType::ParentType::ParentType::ParentType::ParentType::ParentType::ParentType::ParentType::ParentType::ParentType(refData));
         }
 
+        WNScriptingObject(WNScriptingObjectRef<T, T_Parent>* _ptr) {
+            refData = reinterpret_cast<StructInternalType*>(_ptr);
+            if(refData->owner == WN_NULL) {
+                refData->owner = this;
+            }
+            WNConcurrency::WNAtomicIncrement(reinterpret_cast<WN_ATOM_T*>(&refData->refCount));
+        } 
         WNScriptingObject(void* _ptr) {
             refData = reinterpret_cast<StructInternalType*>(_ptr);
             if(refData->owner == WN_NULL) {
@@ -247,13 +259,14 @@ namespace WNScripting {
             void* v =   reinterpret_cast<void*>(reinterpret_cast<WN_SIZE_T>(x.refData->structLoc) + mOffset);
             return(*reinterpret_cast<T*>(v));
         }
-        WNMemberVariablePointer(WN_CHAR* _name) {
+        WNMemberVariablePointer(const WN_CHAR* _name) :
+            mEngine(WN_NULL) {
             mVariableName = WNStrings::WNStrNDup(_name, 1024);
         }
         WN_VOID SetEngine(WNScriptingEngine* _engine) {
             mEngine = _engine;
         }
-        WNMemberVariablePointer(WN_CHAR* _name, WNScriptingEngine* _engine) : mOffset(-1) {
+        WNMemberVariablePointer(const WN_CHAR* _name, WNScriptingEngine* _engine) : mOffset(-1) {
             mEngine = _engine;
             mVariableName = WNStrings::WNStrNDup(_name, 1024);
             mResolution = eUnresolved;
@@ -297,6 +310,8 @@ namespace WNScripting {
     };
 
     template<typename T>
+    class WNScriptingArrayRef;
+    template<typename T>
     class WNScriptingArray {
     public:
         WNScriptingArray() : refData(WN_NULL) {
@@ -309,11 +324,27 @@ namespace WNScripting {
             refData = _other.refData;
             _other.refData = WN_NULL;
         }
+        
         ~WNScriptingArray() {
             Destroy();
         }
         WN_VOID Resize(WN_SIZE_T _newLength) {
             WNScripting::Resize(refData, _newLength);
+        }
+        WNScriptingArrayRef<T>* DetachOut() {
+            if(refData) {
+                WNScriptingArrayRef<T>* ptr = reinterpret_cast<WNScriptingArrayRef<T>*>(refData);
+                WNConcurrency::WNAtomicDecrement(reinterpret_cast<WN_ATOM_T*>(&refData->refCount));
+                refData = WN_NULL;
+                return(ptr);
+            }
+            return(WN_NULL);
+        }
+        WNScriptingArray<T>& ReleaseOwnership() {
+            if(refData) {
+                refData->owner = reinterpret_cast<void*>(0);
+            }
+            return(*this);
         }
         WNScriptingArray<T>& operator=(WNScriptingArray<T>&& _other) {
             Destroy();
@@ -324,7 +355,9 @@ namespace WNScripting {
             _other.refData = WN_NULL;
             return(*this);
         }
-        
+        bool operator!() {
+            return(refData && refData->structLoc);
+        }
         WNScriptingArray<T>& operator=(WNScriptingArray<T>& _other) {
             Destroy();
             refData = _other.refData;
@@ -337,6 +370,14 @@ namespace WNScripting {
             WNConcurrency::WNAtomicIncrement(reinterpret_cast<WN_ATOM_T*>(&refData->refCount));
             refData->owner = this;
         }
+        
+        WNScriptingArray(WNScriptingArrayRef<T>* _ptr) {
+            refData = reinterpret_cast<StructInternalType*>(_ptr);
+            if(refData->owner == WN_NULL) {
+                refData->owner = this;
+            }
+            WNConcurrency::WNAtomicIncrement(reinterpret_cast<WN_ATOM_T*>(&refData->refCount));
+        }
 
         WNScriptingArray(void* _ptr) {
             refData = reinterpret_cast<StructInternalType*>(_ptr);
@@ -346,6 +387,16 @@ namespace WNScripting {
             WNConcurrency::WNAtomicIncrement(reinterpret_cast<WN_ATOM_T*>(&refData->refCount));
         }
         
+        WNScriptType GetType() {
+            if(WN_NULL == refData || WN_NULL == refData->structLoc) {
+                return(WN_NULL);;
+            }
+            //WN_SIZE_T curSize = *(reinterpret_cast<WN_SIZE_T*>(refData->structLoc));
+            WNScriptType type = *reinterpret_cast<WNScriptType*>((reinterpret_cast<WN_SIZE_T>(refData->structLoc) + sizeof(WN_SIZE_T)));
+            return(type); 
+        }
+
+
         T& operator[](WN_SIZE_T i) {
             void* v = reinterpret_cast<void*>(reinterpret_cast<WN_SIZE_T>(refData->structLoc) + 2 * sizeof(WN_SIZE_T) + (i * sizeof(T)));
             return(*reinterpret_cast<T*>(v));
@@ -390,10 +441,20 @@ namespace WNScripting {
     
     template<typename T>
     struct TypeMapping<WNScriptingArray<T>> {
+        static const WN_BOOL RawInputType = WN_FALSE;
+        static const WN_BOOL RawOutputType = WN_TRUE;
         static const WN_CHAR * GetTypeName() { return TypeMapping<T>::GetTypeName(); }
         static WNScriptType GetModifiedType(WNScriptType t, WNScriptingEngine* e){ return e->GetArrayOf(TypeMapping<T>::GetModifiedType(t, e)); }
     };
-    
+
+    template<typename T>
+    struct TypeMapping<WNScriptingArrayRef<T>*> {
+        static const WN_BOOL RawInputType = WN_TRUE;
+        static const WN_BOOL RawOutputType = WN_FALSE;
+        static const WN_CHAR * GetTypeName() { return TypeMapping<T>::GetTypeName(); }
+        static WNScriptType GetModifiedType(WNScriptType t, WNScriptingEngine* e){ return e->GetArrayOf(TypeMapping<T>::GetModifiedType(t, e)); }
+    };
+
     template<typename T>
     struct InCaster<WNScriptingArray<T>> {
         typedef void* OutType;
@@ -409,6 +470,10 @@ namespace WNScripting {
             return(WNScriptingArray<T>(tVal));
         }
     };
+
+    template<typename T, typename T_Parent = DummyType<0>>
+    class ScriptPointerRef;
+
     template<typename T, typename T_Parent = DummyType<0>>
     class ScriptPointer {
     public:
@@ -428,6 +493,13 @@ namespace WNScripting {
         ScriptPointer(StructInternalType* _ptr) {
             refData = _ptr;
         }
+        ScriptPointer(ScriptPointerRef<T, T_Parent>* _ptr) {
+            refData = reinterpret_cast<StructInternalType*>(_ptr);
+            WNConcurrency::WNAtomicIncrement(reinterpret_cast<WN_ATOM_T*>(&refData->refCount));
+            if(refData->owner == WN_NULL) {
+                refData->owner = this;
+            }
+        }
         ScriptPointer(const ScriptPointer<T, T_Parent>& _other) {
             refData = _other.refData;
             WNConcurrency::WNAtomicIncrement(reinterpret_cast<WN_ATOM_T*>(&refData->refCount));
@@ -435,6 +507,12 @@ namespace WNScripting {
         ScriptPointer(ScriptPointer<T, T_Parent>&& _other) {
             refData = _other.refData;
             _other.refData = WN_NULL;
+        }
+        ScriptPointerRef<T, T_Parent>* DetachOut() {
+            ScriptPointerRef<T, T_Parent>* ptr = reinterpret_cast<ScriptPointerRef<T, T_Parent>*>(refData);
+            WNConcurrency::WNAtomicDecrement(reinterpret_cast<WN_ATOM_T*>(&refData->refCount));
+            refData = WN_NULL;
+            return(ptr);
         }
         ~ScriptPointer() {
             Destroy();
@@ -572,6 +650,8 @@ namespace WNScripting {
         namespace WNScripting { \
         template<> \
         struct TypeMapping<_type> { \
+            static const WN_BOOL RawInputType = WN_TRUE; \
+            static const WN_BOOL RawOutputType = WN_TRUE; \
             static const WN_CHAR * GetTypeName() { return #_name; } \
             static WNScriptType GetModifiedType(WNScriptType t, WNScriptingEngine*){return t; } \
         }; \
@@ -857,11 +937,21 @@ namespace WNScripting{
 #define DEFINE_TYPED_SCRIPT_CHILD(_name, _parent) \
     namespace WNScripting {\
         struct ScriptTypePT_##_name; \
+        typedef  WNScriptingObjectRef<ScriptTypePT_##_name*, ScriptType_##_parent>* ScriptType_##_name##_ref; \
         typedef  WNScriptingObject<ScriptTypePT_##_name*, ScriptType_##_parent> ScriptType_##_name; \
         template<> \
         struct TypeMapping<ScriptType_##_name> { \
-        static const WN_CHAR * GetTypeName() { return #_name; } \
-        static WNScriptType GetModifiedType(WNScriptType t, WNScriptingEngine*){return t; } \
+            static const WN_BOOL RawOutputType = WN_TRUE; \
+            static const WN_BOOL RawInputType = WN_FALSE; \
+            static const WN_CHAR * GetTypeName() { return #_name; } \
+            static WNScriptType GetModifiedType(WNScriptType t, WNScriptingEngine*){return t; } \
+        }; \
+        template<> \
+        struct TypeMapping<ScriptType_##_name##_ref> { \
+            static const WN_BOOL RawInputType = WN_TRUE; \
+            static const WN_BOOL RawOutputType = WN_FALSE; \
+            static const WN_CHAR * GetTypeName() { return #_name; } \
+            static WNScriptType GetModifiedType(WNScriptType t, WNScriptingEngine*){return t; } \
         }; \
         template<> \
         struct InCaster<ScriptType_##_name> { \
@@ -882,11 +972,21 @@ namespace WNScripting{
 #define DEFINE_TYPED_SCRIPT_OBJECT(_name) \
     namespace WNScripting {\
         struct ScriptTypePT_##_name; \
+        typedef  WNScriptingObjectRef<ScriptTypePT_##_name>* ScriptType_##_name##_ref; \
         typedef  WNScriptingObject<ScriptTypePT_##_name*> ScriptType_##_name; \
         template<> \
         struct TypeMapping<ScriptType_##_name> { \
-        static const WN_CHAR * GetTypeName() { return #_name; } \
-        static WNScriptType GetModifiedType(WNScriptType t, WNScriptingEngine*){return t; } \
+            static const WN_BOOL RawInputType = WN_FALSE; \
+            static const WN_BOOL RawOutputType = WN_TRUE; \
+            static const WN_CHAR * GetTypeName() { return #_name; } \
+            static WNScriptType GetModifiedType(WNScriptType t, WNScriptingEngine*){return t; } \
+        }; \
+        template<> \
+        struct TypeMapping<ScriptType_##_name##_ref> { \
+            static const WN_BOOL RawInputType = WN_TRUE; \
+            static const WN_BOOL RawOutputType = WN_FALSE; \
+            static const WN_CHAR * GetTypeName() { return #_name; } \
+            static WNScriptType GetModifiedType(WNScriptType t, WNScriptingEngine*){return t; } \
         }; \
         template<> \
         struct InCaster<ScriptType_##_name> { \
@@ -906,14 +1006,26 @@ namespace WNScripting{
 
 #define DEFINE_CPP_TYPE(_type) \
     namespace WNScripting {\
+        typedef ScriptPointerRef<_type> ScriptPointer_##_type##_ref; \
         typedef ScriptPointer<_type> ScriptPointer_##_type;  \
         template<> \
         struct TypeMapping<_type> { \
+            static const WN_BOOL RawInputType = WN_FALSE; \
+            static const WN_BOOL RawOutputType = WN_FALSE; \
             static const WN_CHAR * GetTypeName() { return #_type; } \
             static WNScriptType GetModifiedType(WNScriptType t, WNScriptingEngine*){return t; } \
         };\
         template<> \
-            struct TypeMapping<ScriptPointer_##_type> { \
+        struct TypeMapping<ScriptPointer_##_type> { \
+            static const WN_BOOL RawInputType = WN_FALSE; \
+            static const WN_BOOL RawOutputType = WN_TRUE; \
+            static const WN_CHAR * GetTypeName() { return #_type; } \
+            static WNScriptType GetModifiedType(WNScriptType t, WNScriptingEngine*){return t; } \
+        };\
+        template<> \
+            struct TypeMapping<ScriptPointer_##_type##_ref> { \
+            static const WN_BOOL RawInputType = WN_TRUE; \
+            static const WN_BOOL RawOutputType = WN_FALSE; \
             static const WN_CHAR * GetTypeName() { return #_type; } \
             static WNScriptType GetModifiedType(WNScriptType t, WNScriptingEngine*){return t; } \
         };\
@@ -935,14 +1047,26 @@ namespace WNScripting{
 
 #define DEFINE_CPP_TYPE_CHILD(_type, _parent) \
     namespace WNScripting {\
+        typedef ScriptPointerRef<_type, ScriptPointer_##_parent> ScriptPointer_##_type##_ref; \
         typedef ScriptPointer<_type, ScriptPointer_##_parent> ScriptPointer_##_type;  \
         template<> \
         struct TypeMapping<_type> { \
+            static const WN_BOOL RawInputType = WN_FALSE; \
+            static const WN_BOOL RawOutputType = WN_FALSE; \
             static const WN_CHAR * GetTypeName() { return #_type; } \
             static WNScriptType GetModifiedType(WNScriptType t, WNScriptingEngine*){return t; } \
         };\
         template<> \
-            struct TypeMapping<ScriptPointer_##_type> { \
+        struct TypeMapping<ScriptPointer_##_type> { \
+            static const WN_BOOL RawInputType = WN_FALSE; \
+            static const WN_BOOL RawOutputType = WN_TRUE; \
+            static const WN_CHAR * GetTypeName() { return #_type; } \
+            static WNScriptType GetModifiedType(WNScriptType t, WNScriptingEngine*){return t; } \
+        };\
+        template<> \
+        struct TypeMapping<ScriptPointer_##_type##_ref> { \
+            static const WN_BOOL RawInputType = WN_TRUE; \
+            static const WN_BOOL RawOutputType = WN_FALSE; \
             static const WN_CHAR * GetTypeName() { return #_type; } \
             static WNScriptType GetModifiedType(WNScriptType t, WNScriptingEngine*){return t; } \
         };\

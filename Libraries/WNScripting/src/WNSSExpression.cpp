@@ -1,10 +1,6 @@
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//                                                                                                                            //
-//                                                         WNProject                                                          //
-//                                                                                                                            //
-//         This file is distributed under the BSD 2-Clause open source license. See Licenses/License.txt for details.         //
-//                                                                                                                            //
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2014, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
 
 #include "WNScripting/inc/WNSSExpression.h"
 #include "WNScripting/inc/WNCodeModule.h"
@@ -28,6 +24,7 @@
 #ifdef _WN_MSVC
     #pragma warning(pop)
 #endif
+
 
 using namespace WNScripting;
 

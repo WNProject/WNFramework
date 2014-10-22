@@ -1,10 +1,6 @@
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//                                                                                                                            //
-//                                                         WNProject                                                          //
-//                                                                                                                            //
-//         This file is distributed under the BSD 2-Clause open source license. See Licenses/License.txt for details.         //
-//                                                                                                                            //
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2014, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
 
 #include "WNScripting/inc/WNFunctionCallExpression.h"
 #include "WNScripting/inc/WNCodeModule.h"
@@ -97,6 +93,11 @@ eWNTypeError WNFunctionCallExpr::GenerateCode(WNCodeModule& _module, const WNFun
     for(WNScriptLinkedList<WNFunctionExpression>::WNScriptLinkedListNode* i = localExpressionList.first; i != WN_NULL; i = i->next) {
         if(eWNOK != (err = i->value->expr->GenerateCode(_module, _def, _compilationLog))) {
             return(err);
+        }
+        if(i->value->expr->RequiredUse()) {
+            _compilationLog.Log(WNLogging::eError, 0, "You must assign parameter before passing to subsequent function");
+            LogLine(_compilationLog, WNLogging::eError);
+            return(eWNError);
         }
         scriptTypes.push_back(FunctionParam());
         scriptTypes.back().mValue = i->value->expr->GetValue();

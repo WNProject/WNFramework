@@ -1,10 +1,6 @@
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//                                                                                                                            //
-//                                                         WNProject                                                          //
-//                                                                                                                            //
-//         This file is distributed under the BSD 2-Clause open source license. See Licenses/License.txt for details.         //
-//                                                                                                                            //
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2014, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
 
 #include "WNScripting/inc/WNScriptingEngineImpl.h"
 #include "WNScripting/inc/WNBuiltinTypeInitialization.h"
@@ -109,11 +105,11 @@ eWNTypeError WNScriptingEngineImpl::Initialize() {
     return(eWNOK);
 }
 
-WNCodeModule* WNScriptingEngineImpl::GetCompiledModule(const WN_CHAR* _file) {
+WNCodeModule* WNScriptingEngineImpl::GetCompiledModule(const WN_CHAR* _file) const {
     WN_CHAR* c = WNStrings::WNStrNDup(_file, 1024);
     WNFileSystem::WNFile::CollapseFolderStructure(c);
 
-    for(std::vector<std::pair<WN_CHAR*, WNCodeModule*> >::iterator i = mFileList.begin(); i != mFileList.end(); ++i) {
+    for(std::vector<std::pair<WN_CHAR*, WNCodeModule*> >::const_iterator i = mFileList.begin(); i != mFileList.end(); ++i) {
         if(WNStrings::WNStrCmp(c, i->first) == 0){
             WNMemory::WNFree(c);
             return(i->second);
@@ -497,6 +493,35 @@ WN_INT32 WNScriptingEngineImpl::GetVirtualFunctionIndex(const WN_CHAR* _function
     return(WNScripting::GetVirtualFunctionIndex(*mTypeManager, _functionName, _params, _type, false));
 }
 
+eWNTypeError WNScriptingEngineImpl::GetExistingFunctionPointer(const WN_CHAR* _file, const WN_CHAR* _functionName, WNScriptType& _retParam, const std::vector<WNScriptType>& _params, void*& _ptr) const {
+    
+    WNCodeModule* codeModule = WN_NULL;
+    if((codeModule = GetCompiledModule(_file)) != WN_NULL) {
+        return(eWNDoesNotExist);
+    }
+    WNFunctionDefinition* f = codeModule->GetFunctionDefinition(_functionName, _params);
+    if(!f) {
+        mInternalLogger.Log(WNLogging::eWarning, 0, "Function ", _functionName, " does not exist in file", _file);
+        return(eWNDoesNotExist);
+    }
+    WNScriptType mObjectType = GetTypeByName("-Object");
+    
+    if(f->mReturn->mLLVMStructType && _retParam == mObjectType) {
+        _retParam = f->mReturn;
+        _ptr = f->mFunctionPointer;
+        return(eWNOK);
+    }
+    if(!(f->mReturn == _retParam)) {
+        mInternalLogger.Log(WNLogging::eWarning, 0, "Function ", _functionName, " does not exist in file", _file);
+        return(eWNDoesNotExist);
+    }
+    
+    _ptr = f->mFunctionPointer;
+   
+    return(eWNOK);
+}
+
+
 eWNTypeError WNScriptingEngineImpl::GetFunctionPointer(const WN_CHAR* _file, const WN_CHAR* _functionName, WNScriptType& _retParam, const std::vector<WNScriptType>& _params, void*& _ptr) {
     
     WNCodeModule* codeModule = WN_NULL;
@@ -528,7 +553,7 @@ eWNTypeError WNScriptingEngineImpl::GetFunctionPointer(const WN_CHAR* _file, con
     return(eWNOK);
 }
 
-WNScriptType WNScriptingEngineImpl::GetTypeByName(const WN_CHAR* _typeName) {
+WNScriptType WNScriptingEngineImpl::GetTypeByName(const WN_CHAR* _typeName) const {
     if(!mTypeManager) {
         return(0);
     }
@@ -545,6 +570,17 @@ WNScriptType WNScriptingEngineImpl::GetArrayOf(WNScriptType _type) {
     }
     WNScriptType t;
     if(eWNOK != mTypeManager->GetArrayOf(_type, t)) {
+        return(0);
+    }
+    return(t);
+}
+
+WNScriptType WNScriptingEngineImpl::GetExistingArrayOf(WNScriptType _type) const {
+    if(!mTypeManager) {
+        return(0);
+    }
+    WNScriptType t;
+    if(eWNOK != mTypeManager->GetExistingArrayOf(_type, t)) {
         return(0);
     }
     return(t);
@@ -795,3 +831,57 @@ eWNTypeError WNScriptingEngineImpl::AddExternalLibs(eWNTypeError(*fPtr)(WNTypeMa
     }
     return(fPtr(*mTypeManager, context));
 }
+
+//virtual eWNTypeError GetFunctionPointer(const WN_CHAR* _file, const WN_CHAR* _functionName, WNScriptType& _retParam, const std::vector<WNScriptType>& _params, void*& _ptr);
+
+eWNTypeError WNScriptingEngineImpl::ConstructScriptingObject(WNScriptType _type, WN_VOID*& _retVal) const {
+    StructInternalType* tp = WNMemory::WNMallocT<StructInternalType>();
+    WNMemory::WNMemClrT(tp);
+    WN_SIZE_T size = 0;
+    for(WN_SIZE_T i = 0; i < _type->mStructTypes.size(); ++i) {
+        size += _type->mStructTypes[i].mType->mTypeSize;
+    }
+    void* sType = malloc(size);
+    tp->structLoc = sType;
+    void* fPtr;
+    WN_CHAR strName[1024];
+    WN_SIZE_T nameLen = WNStrings::WNStrLen(_type->mName);
+    WNMemory::WNMemCpy(strName, _type->mName, nameLen);
+    WNMemory::WNMemCpy(strName + nameLen, "Const", 6);
+    std::vector<WNScriptType> params;
+    params.push_back(_type);
+    WNScriptType retType = WN_NULL;
+    eWNTypeError err = eWNOK;
+    if(WN_NULL == (retType = GetTypeByName("Void"))) {
+        return(eWNPlatformError);
+    }
+    if(eWNOK != (err = GetExistingFunctionPointer(_type->mContainedFile->mFileName, strName, retType, params, fPtr))) {
+        return(err);
+    }
+    WN_VOID(*castedPtr)(void*) = reinterpret_cast<WN_VOID(*)(void*)>(fPtr);
+    castedPtr(tp);
+    _retVal = tp;
+    return(eWNOK);
+}
+
+eWNTypeError WNScriptingEngineImpl::ConstructScriptingArray(WNScriptType _type, WN_SIZE_T _size, WN_VOID*& _retVal) const {
+    StructInternalType* tp = WNMemory::WNMallocT<StructInternalType>();
+    WNMemory::WNMemClrT(tp);
+    WN_SIZE_T typeSize = _type->mArrayType->mTypeSize;
+    void* sType = malloc(sizeof(WN_SIZE_T) * 2 + (_size * typeSize));
+    tp->structLoc = sType;
+    *reinterpret_cast<WN_SIZE_T*>(sType) = _size;
+    reinterpret_cast<WN_VOID**>(sType)[1] = _type;
+    if(_type->mArrayType->mArrayType || _type->mArrayType->mLLVMStructType) {
+        WN_VOID** items = reinterpret_cast<WN_VOID**>(sType);
+        for(WN_SIZE_T i = 0; i < _size; ++i){
+            StructInternalType* nt = WNMemory::WNCallocT<StructInternalType>();
+            nt->owner = &(items[i+2]);
+            nt->refCount++;
+            items[i+2] = nt;
+        }
+    }
+    _retVal = tp;
+    return(eWNOK);
+}
+

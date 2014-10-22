@@ -1,10 +1,6 @@
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//                                                                                                                            //
-//                                                         WNProject                                                          //
-//                                                                                                                            //
-//         This file is distributed under the BSD 2-Clause open source license. See Licenses/License.txt for details.         //
-//                                                                                                                            //
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2014, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
 
 #include "WNFileSystem/inc/WNFile.h"
 #include "WNMemory/inc/WNMemory.h"
@@ -180,7 +176,7 @@ WN_VOID WNFileSystem::WNFile::CollapseFolderStructure(WN_CHAR* _name) {
         if(*it == '/') {
             if(lastDoubleDot) { //We have found a /something/../ ..destroy it
                 if(olderSeperator) {
-                    WNMemory::WNMemMove(olderSeperator, it, WNStrings::WNStrLen(it));
+                    WNMemory::WNMemMove(olderSeperator, it, WNStrings::WNStrLen(it) + 1);
                     collapsed = true;
                     break;
                 } else {
@@ -189,7 +185,7 @@ WN_VOID WNFileSystem::WNFile::CollapseFolderStructure(WN_CHAR* _name) {
                 }
             } else if (lastDot) {
                 if(it - _name > 2) { //we have found a ./ destroy it
-                    WNMemory::WNMemMove(it - 2, it, WNStrings::WNStrLen(it));
+                    WNMemory::WNMemMove(it - 2, it, WNStrings::WNStrLen(it) + 1);
                     collapsed = true;
                     break;
                 }

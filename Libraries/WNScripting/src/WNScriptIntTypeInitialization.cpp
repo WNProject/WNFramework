@@ -1,10 +1,6 @@
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//                                                                                                                            //
-//                                                         WNProject                                                          //
-//                                                                                                                            //
-//         This file is distributed under the BSD 2-Clause open source license. See Licenses/License.txt for details.         //
-//                                                                                                                            //
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2014, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
 
 #include "WNScripting/inc/WNScriptingErrors.h"
 #include "WNScripting/inc/WNBuiltinTypeInitialization.h"
@@ -533,6 +529,8 @@ namespace WNScripting {
             WN_NEW GenerateDefaultAllocation());
         _manager.RegisterAssignmentOperator(intType, AT_EQ,
             WN_NEW GenerateDefaultAssignment());
+        _manager.RegisterAssignmentOperator(intType, AT_CHOWN,
+            WN_NEW GenerateDefaultAssignment());
         
         _manager.RegisterArithmeticOperator(AR_ADD, charType, charType,
                 WN_NEW GenerateIntArithmetic<&llvm::IRBuilder<>::CreateAdd >(charType));
@@ -586,6 +584,8 @@ namespace WNScripting {
             WN_NEW GenerateDefaultAllocation());
         _manager.RegisterAssignmentOperator(charType, AT_EQ,
             WN_NEW GenerateDefaultAssignment());
+        _manager.RegisterAssignmentOperator(charType, AT_CHOWN,
+            WN_NEW GenerateDefaultAssignment());
         
         _manager.RegisterConstantOperator(boolType, 
             WN_NEW GenerateBoolConstant(boolType));
@@ -594,6 +594,8 @@ namespace WNScripting {
         _manager.RegisterAllocationOperator(boolType,
             WN_NEW GenerateDefaultAllocation());
         _manager.RegisterAssignmentOperator(boolType, AT_EQ,
+            WN_NEW GenerateDefaultAssignment());
+        _manager.RegisterAssignmentOperator(boolType, AT_CHOWN,
             WN_NEW GenerateDefaultAssignment());
         
         _manager.RegisterConstantOperator(voidType, 

@@ -37,6 +37,18 @@
     <ClInclude Include="..\..\inc\WNAlgorithm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\inc\WNAllocator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNDeque.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNDynamicArray.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNAutoCleaner.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\inc\Internal\WNCallback.inl">
@@ -49,6 +61,9 @@
       <Filter>Inline Files</Filter>
     </None>
     <None Include="..\..\inc\Internal\WNSingleton.inl">
+      <Filter>Inline Files</Filter>
+    </None>
+    <None Include="..\..\inc\Internal\WNAutoCleaner.inl">
       <Filter>Inline Files</Filter>
     </None>
   </ItemGroup>

@@ -1,10 +1,6 @@
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//                                                                                                                            //
-//                                                         WNProject                                                          //
-//                                                                                                                            //
-//         This file is distributed under the BSD 2-Clause open source license. See Licenses/License.txt for details.         //
-//                                                                                                                            //
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2014, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
 
 #pragma once
 
@@ -51,6 +47,8 @@ namespace WNStrings {
     WN_FORCE_INLINE WN_SIZE_T WNWStrLen(const WN_WCHAR* _string);
     WN_FORCE_INLINE WN_INT32  WNSnPrintf(WN_CHAR* _buffer, WN_SIZE_T _count, const WN_CHAR* _formatter, ...);
     WN_FORCE_INLINE WN_INT32  WNWSnPrintf(WN_WCHAR* _buffer, WN_SIZE_T _count, const WN_WCHAR* _formatter, ...);
+    WN_FORCE_INLINE WN_CHAR   WNToLower(WN_CHAR);
+    WN_FORCE_INLINE WN_CHAR   WNToUpper(WN_CHAR);
 
     template<typename T>
     WN_INLINE WN_INT32  WNTSnPrintf(T* _buffer, WN_SIZE_T _count, const T* _formatter, ...);

@@ -1,18 +1,14 @@
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//                                                                                                                            //
-//                                                         WNProject                                                          //
-//                                                                                                                            //
-//         This file is distributed under the BSD 2-Clause open source license. See Licenses/License.txt for details.         //
-//                                                                                                                            //
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2014, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
 
 #pragma once
 
 #ifndef __WN_CORE_INTERNAL_BASE_MSVC_H__
 #define __WN_CORE_INTERNAL_BASE_MSVC_H__
 
-#if _MSC_VER < 1600
-    #error "Compiler not supported: MSVC 10 (Visual Studio 2010) or higher must be used"
+#if _MSC_VER < 1700
+    #error "Compiler not supported: MSVC 11 (Visual Studio 2012) or higher must be used"
 #endif
 
 #ifdef _MSC_FULL_VER
@@ -36,16 +32,17 @@
 
 #define WN_ALIGN(_x) __declspec(align(_x))
 
-#if _MSC_VER >= 1600 || (defined _MSC_EXTENSIONS && defined _NATIVE_NULLPTR_SUPPORTED)
-    #define __WN_HAS_NULLPTR
-    #define __WN_HAS_NULLPTR_CUSTOM
+#define __WN_HAS_NULLPTR
+#define __WN_HAS_NULLPTR_CUSTOM
+#define __WN_HAS_STATIC_ASSERT
+#define __WN_HAS_RVALUE_REFERENCES
+#define __WN_HAS_TYPE_TRAITS
+
+#ifdef _VARIADIC_MAX
+    #undef _VARIADIC_MAX
 #endif
 
-#if _MSC_VER >= 1600
-    #define __WN_HAS_STATIC_ASSERT
-    #define __WN_HAS_RVALUE_REFERENCES
-    #define __WN_HAS_TYPE_TRAITS
-#endif
+#define _VARIADIC_MAX 10
 
 #if defined _M_X64 || defined _M_AMD64
     #define _WN_X86

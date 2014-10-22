@@ -161,6 +161,8 @@ namespace WNScripting {
             WN_NEW GenerateDefaultAllocation());
         _manager.RegisterAssignmentOperator(scriptType, AT_EQ,
             WN_NEW GenerateDefaultAssignment());
+        _manager.RegisterAssignmentOperator(scriptType, AT_CHOWN,
+            WN_NEW GenerateDefaultAssignment());
         return(eWNOK);
     }
 }

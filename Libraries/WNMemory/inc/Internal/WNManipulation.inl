@@ -1,10 +1,6 @@
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//                                                                                                                            //
-//                                                         WNProject                                                          //
-//                                                                                                                            //
-//         This file is distributed under the BSD 2-Clause open source license. See Licenses/License.txt for details.         //
-//                                                                                                                            //
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2014, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
 
 #pragma once
 
@@ -39,7 +35,6 @@ namespace WNMemory {
     WN_FORCE_INLINE WN_VOID* WNMemCpy(WN_VOID* _destination, const WN_VOID* _source, const WN_SIZE_T _number) {
         WN_DEBUG_ASSERT(_destination != WN_NULL);
         WN_DEBUG_ASSERT(_source != WN_NULL);
-        WN_DEBUG_ASSERT(_number != 0);
         WN_DEBUG_ASSERT(_destination != _source);
 
         return(memcpy(_destination, _source, _number));

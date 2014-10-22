@@ -1,8 +1,13 @@
 /Externals/bin
+/Externals/llvm
+/Externals/gtest
+/Externals/pcre
 /Libraries/bin
-/Tools/bin
 /Libraries/*/build
+/Libraries/*/test/build
+/Tools/bin
 /Tools/*/build
+/Tools/*/test/build
 ipch
 *.opensdf
 *.sdf

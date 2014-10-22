@@ -82,7 +82,7 @@ WN_INT32 WNMain(WN_INT32 _argc, WN_CHAR* _argv[]) {
     device2->Release();
     manager->Release();
 
-
     WN_DELETE(manager);
+
     return(0);
 }

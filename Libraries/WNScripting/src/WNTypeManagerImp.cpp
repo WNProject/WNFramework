@@ -1,10 +1,6 @@
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//                                                                                                                            //
-//                                                         WNProject                                                          //
-//                                                                                                                            //
-//         This file is distributed under the BSD 2-Clause open source license. See Licenses/License.txt for details.         //
-//                                                                                                                            //
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2014, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
 
 #include "WNScripting/inc/WNTypeManagerImpl.h"
 #include "WNScripting/inc/WNCodeModule.h"
@@ -225,6 +221,16 @@ eWNTypeError WNTypeManagerImpl::RegisterCopyConstructionOperator(WNScriptType _t
     return(eWNOK);
 }
 
+eWNTypeError WNTypeManagerImpl::GetExistingArrayOf(WNScriptType& _type, WNScriptType& _outType) const {
+    if(!_type) {
+        return(eWNDoesNotExist);
+    }
+    if(_type->mArrayParent) {
+        _outType = _type->mArrayParent;
+        return(eWNOK);
+    }
+    return(eWNDoesNotExist);
+}
 eWNTypeError WNTypeManagerImpl::GetArrayOf(WNScriptType& _type, WNScriptType& _outType) {
     if(!_type) {
         return(eWNDoesNotExist);

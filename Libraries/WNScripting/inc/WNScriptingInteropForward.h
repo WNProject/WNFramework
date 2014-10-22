@@ -1,10 +1,6 @@
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//                                                                                                                            //
-//                                                         WNProject                                                          //
-//                                                                                                                            //
-//         This file is distributed under the BSD 2-Clause open source license. See Licenses/License.txt for details.         //
-//                                                                                                                            //
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2014, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
 
 #ifndef __WN_SCRIPTING_INTEROP_FORWARD_H__
 #define __WN_SCRIPTING_INTEROP_FORWARD_H__
@@ -13,7 +9,10 @@ namespace WNScripting {
     struct DummyType {//this is so we can generate dummy functions to cast up the chain
         typedef DummyType<i+1> ParentType;
     };
-
+    template<typename T1, typename T2>
+    class WNScriptingObject;
+    template<typename T>
+    class WNScriptingArray;
     template<typename T, typename R, typename T1=DummyType<0>, typename T2=DummyType<0>, typename T3=DummyType<0>, typename T4=DummyType<0>, typename T5=DummyType<0>, typename T6=DummyType<0>>
     class WNMemberFunctionPointer;
     template<typename R, typename T1=DummyType<0>, typename T2=DummyType<0>, typename T3=DummyType<0>, typename T4=DummyType<0>, typename T5=DummyType<0>, typename T6=DummyType<0>>

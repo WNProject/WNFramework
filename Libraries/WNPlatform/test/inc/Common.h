@@ -10,10 +10,6 @@
 #ifdef _WN_MSVC
     #pragma warning(push)
     #pragma warning(disable: 4275)
-
-    #if _WN_MSVC_MAJOR > 16
-        #define _VARIADIC_MAX 10
-    #endif
 #endif
 
 #ifdef _HAS_EXCEPTIONS

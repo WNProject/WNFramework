@@ -1,10 +1,6 @@
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//                                                                                                                            //
-//                                                         WNProject                                                          //
-//                                                                                                                            //
-//         This file is distributed under the BSD 2-Clause open source license. See Licenses/License.txt for details.         //
-//                                                                                                                            //
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2014, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
 
 #include "WNCore/inc/WNTypes.h"
 #include "WNCore/inc/WNAssert.h"
@@ -27,6 +23,8 @@ extern eWNTypeError RegisterExternalString(WNScripting::WNTypeManager& _manager,
 WNLogging::WNDefaultLogParameters<WNLogging::eLogMax, 1024, true> mParams;
 WNLogging::WNConsoleLogger<> mConsoleLogger;
 static WNLogging::WNLog mMyLog(&mConsoleLogger, mParams);
+
+WNScripting::WNScriptingEngine* g_Engine;
 
 WN_CHAR* getLine(WN_CHAR*_line, WN_UINT32 _sz){
    if (fgets(_line, _sz, stdin)) {
@@ -77,6 +75,20 @@ struct Foo {
     WNScripting::ScriptPointer_X spX;
 };
 
+WN_VOID PrintString(WNScripting::WNScriptingArrayRef<WN_CHAR>* mArray) {
+    WNScripting::WNScriptingArray<WN_CHAR> inArray(mArray);
+    printf("%*s", static_cast<WN_INT32>(inArray.GetLength()), &(inArray[0]));
+}
+
+WNScripting::WNScriptingArrayRef<WN_CHAR>* GetHelloWorld() {
+    WNScripting::WNScriptingArray<WN_CHAR> newArray;
+    const char* hw = "hello world";
+    WN_SIZE_T strLen = 12;
+    g_Engine->ConstructScriptingArray(newArray, strLen);
+    memcpy(&newArray[0], hw, strLen);
+    return(newArray.ReleaseOwnership().DetachOut());
+}
+
 DEFINE_CPP_TYPE(Foo);
 
 WN_INT32 WNMain(WN_INT32 _argc, WN_CHAR* _argv[]) {
@@ -101,22 +113,47 @@ WN_INT32 WNMain(WN_INT32 _argc, WN_CHAR* _argv[]) {
     
 #endif 
     WNScripting::WNScriptingEngine* scriptingEngine = WNScripting::WNScriptingEngineFactory::CreateScriptingEngine();
+    g_Engine = scriptingEngine;
     scriptingEngine->SetCompilationLog(&mMyLog);
-    scriptingEngine->SetLogLevel(WNLogging::eLogMax);
-    scriptingEngine->SetInternalLogLevel(WNLogging::eLogMax);
+    scriptingEngine->SetLogLevel(WNLogging::eNone);
+    scriptingEngine->SetInternalLogLevel(WNLogging::eNone);
     WN_RELEASE_ASSERT(scriptingEngine->Initialize() == eWNOK);
     scriptingEngine->AddExternalLibs(&RegisterExternalString, WN_NULL);
     scriptingEngine->RegisterCFunction("get23", &get23);
     scriptingEngine->RegisterCFunction("add", &add);
     scriptingEngine->RegisterCFunction("printInt", &print);
-
-    WNScripting::WNFunctionPointer<WN_CHAR> fPtr;
+    scriptingEngine->RegisterCFunction("printString", &PrintString);
+    scriptingEngine->RegisterCFunction("hello", &GetHelloWorld);
     
-   if(eWNOK == scriptingEngine->GetPointerToFunction(tests,  func, fPtr)) {
+    WNScripting::WNFunctionPointer<WN_INT32, WNScripting::WNScriptingArray<WN_CHAR> > fPtr;
+    WNScripting::ScriptType_A  mAType;
+    WNScripting::WNScriptingArray<WN_CHAR> mArray;
+    if(eWNOK != scriptingEngine->CompileFile(tests)) {
+        return(-1);
+    }
+    WNScripting::WNMemberVariablePointer<WN_INT32, WNScripting::ScriptType_A> mVar("y", scriptingEngine);
+    if(WNScripting::eResolved!= mVar.GetResolution()) {
+        return(-1);
+    }
+
+    if(eWNOK != scriptingEngine->ConstructScriptingObject(mAType)) {
+        return(-1);
+    }
+
+    if(eWNOK != scriptingEngine->ConstructScriptingArray(mArray, 10)) {
+        return(-1);
+    }
+    for(int i = 0; i < 10; ++i) {
+        mArray[i] = i;
+    }
+
+    printf("%d", mAType->*mVar);
+
+    if(eWNOK == scriptingEngine->GetPointerToFunction(tests,  func, fPtr)) {
        //WN_RELEASE_ASSERT(mVPtr.GetResolution() == WNScripting::eResolved);
         mMyLog.Log(WNLogging::eInfo, 0, "Got function pointer");
-        WN_CHAR ch = fPtr();
-        printf("%c", ch);
+        WN_INT32 ch = fPtr(mArray);
+        printf("\n\n%d\n\n", ch);
     }
     WN_DELETE(scriptingEngine);
     return(0);

@@ -1,10 +1,6 @@
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//                                                                                                                            //
-//                                                         WNProject                                                          //
-//                                                                                                                            //
-//         This file is distributed under the BSD 2-Clause open source license. See Licenses/License.txt for details.         //
-//                                                                                                                            //
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2014, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
 
 #pragma once
 
@@ -54,38 +50,28 @@
 
 #ifdef _WN_CORE_CONFIG_MSVC_X86_ENABLE_AVX
     #define __WN_AES_AVAILABLE
+    #define __WN_FMA3_AVAILABLE
+    #define __WN_F16C_AVAILABLE
+    #define __WN_AVX_AVAILABLE
 
-    #if _MSC_VER >= 1700
-        #define __WN_FMA3_AVAILABLE
-        #define __WN_F16C_AVAILABLE
-    #endif
-
-    #if _MSC_VER >= 1700 || _MSC_FULL_VER >= 160040219
-        #define __WN_AVX_AVAILABLE
-
-        #ifdef _WN_CORE_CONFIG_MSVC_X86_USING_VEX
-            #define __WN_VEX_AVAILABLE
-        #endif
-
-        #ifdef _WN_CORE_CONFIG_MSVC_X86_USING_AMD
-            #define __WN_FMA4_AVAILABLE
-        #endif
-
-        #define __WN_XOP_AVAILABLE
-    #endif
-#endif
-
-#ifdef _WN_CORE_CONFIG_MSVC_X86_FORCE_AVX2
-    #if _MSC_VER >= 1700
-        #define __WN_AVX2_AVAILABLE
-        #define __WN_FMA3_AVAILABLE
-        #define __WN_F16C_AVAILABLE
+    #ifdef _WN_CORE_CONFIG_MSVC_X86_USING_VEX
+        #define __WN_VEX_AVAILABLE
     #endif
 
     #ifdef _WN_CORE_CONFIG_MSVC_X86_USING_AMD
-        #if _MSC_VER >= 1700 || _MSC_FULL_VER >= 160040219
-            #define __WN_FMA4_AVAILABLE
-        #endif
+        #define __WN_FMA4_AVAILABLE
+    #endif
+
+    #define __WN_XOP_AVAILABLE
+#endif
+
+#ifdef _WN_CORE_CONFIG_MSVC_X86_FORCE_AVX2
+    #define __WN_AVX2_AVAILABLE
+    #define __WN_FMA3_AVAILABLE
+    #define __WN_F16C_AVAILABLE
+
+    #ifdef _WN_CORE_CONFIG_MSVC_X86_USING_AMD
+        #define __WN_FMA4_AVAILABLE
     #endif
 #endif
 

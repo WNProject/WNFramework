@@ -50,7 +50,7 @@ Int test(Foo f) {
 }*/
 
 class A {
-	Int y = 0;
+	Int y = 32;
 	virtual Int testFunc() {
 		return(++y);
 	}
@@ -76,7 +76,9 @@ Int[][] test() {
 	return<==(x);
 }*/
 
-Char test() {
-	String s = "test";
-	return(s[0]);
+Int test(Char[] cArr) {
+    Char[] c = hello();
+    printString(c);
+    return(10);
 }
+
