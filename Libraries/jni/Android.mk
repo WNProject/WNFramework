@@ -1,5 +1,5 @@
 WN_LIBS := $(call my-dir)/../
-WN_DEPENDENCY_DIR := $(call my-dir)/../../Dependencies/
+WN_DEPENDENCY_DIR := $(call my-dir)/../../Externals/
 
 include $(WN_LIBS)WNScripting/proj/jni/Android.mk
 include $(WN_LIBS)WNFileSystem/proj/jni/Android.mk

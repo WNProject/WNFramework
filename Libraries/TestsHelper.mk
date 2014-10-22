@@ -86,7 +86,7 @@ ifeq ($(TARGET), Release)
 	@objcopy --only-keep-debug $(BINDIR)$(TARGET)/$(TOOL) $(BINDIR)$(TARGET)/Symbols/$(TOOL).debug
 	@strip -s $(BINDIR)$(TARGET)/$(TOOL)
 endif
-	$(BINDIR)$(TARGET)/$(TOOL)
+	(xset q > /dev/null && $(BINDIR)$(TARGET)/$(TOOL)) || xvfb-run --auto-servernum --server-num=1 --server-args="-screen 0 1024x768x24 +extension GLX +render -noreset" $(BINDIR)$(TARGET)/$(TOOL)
 
 clean:
 	rm -rf $(OBJDIR)

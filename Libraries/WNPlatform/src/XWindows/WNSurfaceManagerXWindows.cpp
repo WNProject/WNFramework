@@ -37,8 +37,9 @@ WNSurfaceManagerReturnCode::Type WNSurfaceManagerXWindows::Initialize() {
         GLX_DEPTH_SIZE, 24,
         GLX_STENCIL_SIZE, 8,
         GLX_DOUBLEBUFFER, True,
-        GLX_SAMPLE_BUFFERS, 1,
-        GLX_SAMPLES, 1,
+//TODO: Try to create multisampled first, and if that fails use non MSAA.
+//        GLX_SAMPLE_BUFFERS, 1,
+//        GLX_SAMPLES, 1,
         None
     };
 

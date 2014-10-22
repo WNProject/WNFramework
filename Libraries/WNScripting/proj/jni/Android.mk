@@ -20,8 +20,8 @@ include $(CLEAR_VARS)
 
 WN_LIBS ?= ../../
 
-LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../ $(LOCAL_PATH)/../../../Dependencies/antlr/
-LOCAL_CFLAGS := $(shell $(WN_DEPENDENCY_DIR)llvm/Android/BuildTools/Debug+Asserts/bin/llvm-config --cxxflags) -std=c++11
+LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../ $(LOCAL_PATH)/../../../Externals/antlr/
+LOCAL_CFLAGS := $(shell $(WN_DEPENDENCY_DIR)bin/Android/arm/Release/BuildTools/Release+Asserts/bin/llvm-config --cxxflags) -std=c++11
 LOCAL_CPP_EXTENSION := .cpp
 LOCAL_MODULE    := WNScripting
 LOCAL_STATIC_LIBRARIES := WNLogging

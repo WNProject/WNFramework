@@ -7,4 +7,4 @@ SOURCEDIR=../src/
 OBJDIR = ../build/
 BINDIR ?= ../../bin/
 WNLIBDIR = ../../../Libraries/bin/$(TARGET)/
-DEPENDENCYDIR = ../../../Dependencies/Linux/$(shell uname -m)/$(TARGET)/
+DEPENDENCYDIR = ../../../Externals/bin/Linux/$(shell uname -m)/$(TARGET)/

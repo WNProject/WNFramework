@@ -15,7 +15,7 @@ WNLIBS    := WNEntryPoint WNScripting WNFileSystem WNUtils
 LINKFLAGS := $(shell $(LLVM_CONFIG) --ldflags)
 CXXFLAGS += -fno-rtti
 
-TOOL_ADDITIONAL_LIBS := $(shell $(LLVM_CONFIG) --libs)
+TOOL_ADDITIONAL_LIBS :=  $(shell $(LLVM_CONFIG) --ldflags --libs --system-libs) 
 
 include ../../ToolsHelper.mk
 

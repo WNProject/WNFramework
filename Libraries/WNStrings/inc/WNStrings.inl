@@ -148,7 +148,7 @@ namespace WNStrings {
     WN_FORCE_INLINE WN_CHAR* WNStrNChr(WN_CHAR* _string, WN_SIZE_T _length, WN_CHAR _char) {
         WN_DEBUG_ASSERT(_string != NULL);
         WN_SIZE_T cnt = 0;
-        for(WN_CHAR* first = _string; first != '\0' && cnt < _length; ++first) {
+        for(WN_CHAR* first = _string; *first != '\0' && cnt < _length; ++first) {
             if(*first == _char) {
                 return(first);
             }
@@ -163,7 +163,7 @@ namespace WNStrings {
     WN_FORCE_INLINE const WN_CHAR* WNStrNChr(const WN_CHAR* _string, WN_SIZE_T _length, WN_CHAR _char) {
         WN_DEBUG_ASSERT(_string != NULL);
         WN_SIZE_T cnt = 0;
-        for(const WN_CHAR* first = _string; first != '\0' && cnt < _length; ++first) {
+        for(const WN_CHAR* first = _string; *first != '\0' && cnt < _length; ++first) {
             if(*first == _char) {
                 return(first);
             }

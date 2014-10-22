@@ -41,13 +41,14 @@ WNGraphics::WNGraphicsDeviceReturnCode::Type WNGraphics::WNGraphicsDeviceGLX::In
         GLX_DEPTH_SIZE, 24,
         GLX_STENCIL_SIZE, 8,
         GLX_DOUBLEBUFFER, True,
-        GLX_SAMPLE_BUFFERS, 1,
-        GLX_SAMPLES, 1,
+//TODO: Try to create with samples, and fall back to none
+//        GLX_SAMPLE_BUFFERS, 1,
+//        GLX_SAMPLES, 1,
         None
     };
 
     int context_attribs[] = {
-        GLX_CONTEXT_MAJOR_VERSION_ARB, 3,
+        GLX_CONTEXT_MAJOR_VERSION_ARB, 2,
         GLX_CONTEXT_MINOR_VERSION_ARB, 0,
         None
     };

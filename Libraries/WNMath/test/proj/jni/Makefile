@@ -1,5 +1,5 @@
 WN_BUILD_HELPER_ROOT:=../../../../../Utilities/AndroidBuild/
-WN_PROJECT_PATH:=../../../../../../
+WN_PROJECT_PATH:=../../../../../
 WN_SOURCES :=Main.cpp WNAbsTests.cpp WNBounds2ConstructorTests.cpp WNBounds3ConstructorTests.cpp WNCeilTests.cpp WNFloorTests.cpp WNInvSqrtTests.cpp WNMatrix2CreateIdentityTests.cpp \
 			 WNMatrix2CreateZeroTests.cpp WNMatrix2IdentityTests.cpp WNMatrix2ZeroTests.cpp WNMatrix3CreateIdentityTests.cpp WNMatrix3CreateZeroTests.cpp WNMatrix3IdentityTests.cpp \
 			 WNMatrix3ZeroTests.cpp WNMatrix4CreateIdentityTests.cpp WNMatrix4CreateZeroTests.cpp WNMatrix4IdentityTests.cpp WNMatrix4ZeroTests.cpp WNMatrixXCreateIdentityTests.cpp \
@@ -27,11 +27,13 @@ WN_SOURCES :=Main.cpp WNAbsTests.cpp WNBounds2ConstructorTests.cpp WNBounds3Cons
 			 WNVectorXGetNormalizedTests.cpp WNVectorXLengthSquaredTests.cpp WNVectorXLengthTests.cpp WNVectorXMultiplyAddTests.cpp WNVectorXMultiplyAddVectorTests.cpp \
 			 WNVectorXMultiplyAssignTests.cpp WNVectorXMultiplyAssignVectorTests.cpp WNVectorXMultiplySubtractTests.cpp WNVectorXMultiplySubtractVectorTests.cpp WNVectorXMultiplyTests.cpp \
 			 WNVectorXNormalizeTests.cpp WNVectorXOneTests.cpp WNVectorXSubtractAssignTests.cpp WNVectorXSubtractAssignVectorTests.cpp WNVectorXSubtractTests.cpp WNVectorXZeroTests.cpp
-WN_LIBRARIES:=gtest WNEntryPoint
+WN_LIBRARIES:=WNEntryPoint
 PROJECT_NAME:= WNMathTest
 PROGRAM_NAME:= WNMathTest
 LIB_NAME:=WNMathTest
 ACTIVITY_NAME:=WNMathTest
 PACKAGE_NAME:=org.WNProject.WNMathTest
+WN_ADDITIONAL_ANDROID_LIBS:=android_native_app_glue googletest_static
+WN_ADDITIONAL_ANDROID_MODULES:=android/native_app_glue third_party/googletest
 WN_SOURCES:=$(addprefix ../../src/,$(WN_SOURCES)) 
 include $(WN_BUILD_HELPER_ROOT)Makefile

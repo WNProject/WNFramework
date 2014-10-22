@@ -182,11 +182,6 @@ WN_VOID WNNetworkManagerLinux::ListenThread() {
     while(1){
         numEvents = epoll_wait(mListenEPollInstance, events, MAX_EPOLL_EVENTS, 100);
         
-        if(numEvents == -1) {
-            char buff[1024];
-            strerror_r(errno, buff, 1023);
-            printf("%s", buff);
-        }
         if(mShuttingDown) {
             return;
         }

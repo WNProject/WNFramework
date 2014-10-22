@@ -369,6 +369,7 @@ eWNTypeError WNScriptingEngineImpl::CompileFile(const WN_CHAR* _file, WNCodeModu
         return(eWNError);
     }
     
+
     eWNTypeError err = eWNOK;
     WNPreprocessedFile* preFile = WN_NULL;
     std::list<WNStruct*> unlinkedStructs;

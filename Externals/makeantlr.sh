@@ -1,8 +1,10 @@
 #!/bin/bash
-
+cd antlr
 MACHINE_TYPE=`uname -m`
-mkdir -p ../Linux/
-INSTALL_DIR=`readlink -f ../Linux/`/
+mkdir -p ../bin/Linux/
+mkdir -p ../bin/Android/
+INSTALL_DIR=`readlink -f ../bin/Linux/`/
+ANDROID_DIR=`readlink -f ../bin/Android/`/
 declare -a arr=(Debug Release)
 for i in ${arr[@]}
 do
@@ -21,4 +23,10 @@ do
         cp -R -f *.hpp ${INSTALL_DIR}x86/$i/include/
         cp -R -f *.inl ${INSTALL_DIR}x86/$i/include/
     fi
+    mkdir -p ${ANDROID_DIR}arm/$i 
+    mkdir -p ${ANDROID_DIR}arm/$i/include
+    cp -R -f *.hpp ${ANDROID_DIR}arm/$i/include/
+    cp -R -f *.inl ${ANDROID_DIR}arm/$i/include/
 done
+
+cd ..

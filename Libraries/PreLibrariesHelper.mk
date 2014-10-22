@@ -9,7 +9,8 @@ LANGDIR   := ../lang/
 BINDIR    ?= ../../bin/
 GENDIR    := ../gen/
 SEDDIR    ?= ..\/build\/
-DEPENDENCYDIR ?= ../../../Dependencies/Linux/$(shell uname -m)/$(TARGET)/
+DEPENDENCYDIR ?= ../../../Externals/bin/Linux/$(shell uname -m)/$(TARGET)/
+
 
 ifeq ($(CXX), g++)
 	GCC_MAJOR := $(shell $(CXX) -v 2>&1 | grep " version " | cut -d' ' -f3  | cut -d'.' -f1)
