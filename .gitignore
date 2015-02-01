@@ -1,8 +1,8 @@
 /Externals/bin
 /Externals/install
-/Externals/llvm
-/Externals/gtest
-/Externals/pcre
+/Externals/llvm/*
+/Externals/gtest/*
+/Externals/pcre/*
 /Libraries/bin
 /Libraries/*/build
 /Libraries/*/test/build
@@ -14,3 +14,5 @@ ipch
 *.sdf
 *.suo
 *.user
+*.orig
+*.rej
