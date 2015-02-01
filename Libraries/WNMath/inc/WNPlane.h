@@ -10,29 +10,29 @@
 #include "WNCore/inc/WNTypes.h"
 #include "WNMath/inc/WNConfig.h"
 
-namespace WNMath {
-    namespace __WNInternal {
-        template <typename Type>
+namespace wn {
+    namespace internal {
+        template <typename type>
         struct __WNPlaneBase {
-            Type mA;
-            Type mB;
-            Type mC;
-            Type mD;
+            type mA;
+            type mB;
+            type mC;
+            type mD;
         };
     }
 
-    template <typename Type> class WNVector3;
+    template <typename type> class vector3;
 
-    template <typename Type>
-    class WNPlane : public __WNInternal::__WNPlaneBase<Type> {
+    template <typename type>
+    class WNPlane : public internal::__WNPlaneBase<type> {
     public:
         WNPlane();
-        explicit WNPlane(const Type* _numbers);
-        explicit WNPlane(const WNVector3<Type>& _normal, Type _distance);
-        explicit WNPlane(Type _a, Type _b, Type _c, Type _d);
+        explicit WNPlane(const type* _numbers);
+        explicit WNPlane(const vector3<type>& _normal, type _distance);
+        explicit WNPlane(type _a, type _b, type _c, type _d);
 
-        operator Type* ();
-        operator const Type* () const;
+        operator type* ();
+        operator const type* () const;
 
         WNPlane& operator += (const WNPlane& _plane);
         WNPlane& operator -= (const WNPlane& _plane);
@@ -43,29 +43,29 @@ namespace WNMath {
         WNPlane operator + (const WNPlane& _plane) const;
         WNPlane operator - (const WNPlane& _plane) const;
 
-        WN_BOOL operator == (const WNPlane& _plane) const;
-        WN_BOOL operator != (const WNPlane& _plane) const;
+        wn_bool operator == (const WNPlane& _plane) const;
+        wn_bool operator != (const WNPlane& _plane) const;
 
-        WN_VOID Zero();
-        WN_VOID Normalize();
-        WN_VOID Translate(const WNVector3<Type>& _translation);
+        wn_void Zero();
+        wn_void Normalize();
+        wn_void Translate(const vector3<type>& _translation);
 
-        WNVector3<Type> Normal() const;
-        Type Distance() const;
+        vector3<type> Normal() const;
+        type Distance() const;
 
-        WN_BOOL IsZero() const;
+        wn_bool IsZero() const;
 
-        WN_VOID Set(const Type* _numbers);
-        WN_VOID Set(Type _a, Type _b, Type _c, Type _d);
+        wn_void Set(const type* _numbers);
+        wn_void Set(type _a, type _b, type _c, type _d);
 
-        WN_VOID Define(const WNVector3<Type>& _vector1, const WNVector3<Type>& _vector2, const WNVector3<Type>& _vector3);
+        wn_void Define(const vector3<type>& _vector1, const vector3<type>& _vector2, const vector3<type>& _vector3);
 
         WNPlane GetNormalized() const;
-        WNPlane GetTranslated(const WNVector3<Type>& _translation) const;
+        WNPlane GetTranslated(const vector3<type>& _translation) const;
 
-        Type* RetrieveRaw(Type* _numbers);
+        type* RetrieveRaw(type* _numbers);
 
-        WN_VOID Prefetch() const;
+        wn_void Prefetch() const;
 
         template <typename NewType>
         WNPlane<NewType> ConvertTo() const;

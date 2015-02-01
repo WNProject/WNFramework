@@ -6,13 +6,13 @@
 //                                                                                                                            //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-eWNOK,
-eWNError,
-eWNInvalidParameters,
+ok,
+error,
+invalid_parameters,
 eWNOutOfRange,
 eWNBadType,
 eWNDoesNotExist,
 eWNPlatformError,
-eWNReInitialized,
-eWNUninitialized,
+already_initialized,
+uninitialized,
 eWNInvalidFile,

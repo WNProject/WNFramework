@@ -23,7 +23,7 @@ using namespace WNConcurrency;
 WNConnectionLinux::WNConnectionLinux(WNNetworkManager& _manager) :
     WNConnection(),
     mManager(_manager),
-    mReadyToWrite(WN_FALSE),
+    mReadyToWrite(wn_false),
     mSockFD(-1),
     mBufferChunkCount(0),
     mBufferWritten(0),
@@ -33,7 +33,7 @@ WNConnectionLinux::WNConnectionLinux(WNNetworkManager& _manager) :
     mReadHead(0),
     mOverflowAmount(0),
     mBufferBase(0) {
-    mReadLocation = WNAllocateResource<WNBufferResource, WNNetworkManager&>(_manager);
+    mReadLocation = make_intrusive<WNBufferResource, WNNetworkManager&>(_manager);
 }
 
 WNConnectionLinux::~WNConnectionLinux() {
@@ -44,7 +44,7 @@ WNConnectionLinux::~WNConnectionLinux() {
     }
 }
 
-WN_VOID WNConnectionLinux::Invalidate() {
+wn_void WNConnectionLinux::Invalidate() {
     WNConnection::Invalidate();
 
     if (mSockFD >= 0) {
@@ -54,20 +54,20 @@ WN_VOID WNConnectionLinux::Invalidate() {
     }
 }
 
-WN_INT32 WNConnectionLinux::GetLinuxSocket() {
+wn_int32 WNConnectionLinux::GetLinuxSocket() {
     return(mSockFD);
 }
 
-WN_VOID WNConnectionLinux::SendBuffer(WNNetworkWriteBuffer& _buffer) {
+wn_void WNConnectionLinux::SendBuffer(WNNetworkWriteBuffer& _buffer) {
     _buffer.FlushWrite();
     mSendBufferLock.Lock();
     mSendBuffers.push_back(_buffer);
     mSendBufferLock.Unlock();
 
-    NotifyReadyToSend(WN_FALSE);
+    NotifyReadyToSend(wn_false);
 }
 
-WN_VOID WNConnectionLinux::NotifyReadyToSend(WN_BOOL socketFree) {
+wn_void WNConnectionLinux::NotifyReadyToSend(wn_bool socketFree) {
     if (socketFree) {
         WNAtomicSwap(&mWriteAtomic, 1);
     }
@@ -93,17 +93,17 @@ WN_VOID WNConnectionLinux::NotifyReadyToSend(WN_BOOL socketFree) {
     }
 }
 
-WN_BOOL WNConnectionLinux::Send() {
+wn_bool WNConnectionLinux::Send() {
     {
         WNLockGuard<WNSpinLock> guard(mSendBufferLock);
 
         if (mSendBuffers.empty()) {
-            return(WN_FALSE);
+            return(wn_false);
         }
     }
 
     for(;;) {
-        WN_SIZE_T count;
+        wn_size_t count;
 
         mSendBufferLock.Lock();
 
@@ -114,40 +114,40 @@ WN_BOOL WNConnectionLinux::Send() {
         const WNNetworkWriteBuffer::WNBufferQueue& q = buff.GetChunks();
 
         WN_RELEASE_ASSERT(q.size() > 0);
-        WN_SIZE_T buffLeft = q.size() - mBufferChunkCount;
-        WN_SIZE_T writeLeft =  q[mBufferChunkCount]->GetWritten() - mBufferWritten;
+        wn_size_t buffLeft = q.size() - mBufferChunkCount;
+        wn_size_t writeLeft =  q[mBufferChunkCount]->GetWritten() - mBufferWritten;
         WN_RELEASE_ASSERT(writeLeft > 0);
         do{
-            WN_INT32 s = write(mSockFD, q[mBufferChunkCount]->GetBaseLocation() + mBufferWritten, writeLeft);
+            wn_int32 s = write(mSockFD, q[mBufferChunkCount]->GetBaseLocation() + mBufferWritten, writeLeft);
             if(s > 0) {
                 mBufferWritten += s;
                 writeLeft -= s;
                 mTotalSent += s;
             } else if(s == -1) {
                 if(errno == EAGAIN) {
-                    return(WN_TRUE);
+                    return(wn_true);
                 }
                 char* s = strerror(errno);
                 perror(NULL);
                 mManager.DestroyConnection(this);
-                return(WN_TRUE);
+                return(wn_true);
             } else { 
                 char* s = strerror(errno);
                 perror(NULL);
                 // SOME REALLY BAD ERROR
-                WN_RELEASE_ASSERT_DESC(WN_FALSE, "WTF?");
+                WN_RELEASE_ASSERT_DESC(wn_false, "WTF?");
             }
             if(writeLeft == 0) {
                 buffLeft -= 1;
                 if(buffLeft == 0) {
-                    WN_BOOL empty = WN_FALSE;
+                    wn_bool empty = wn_false;
                     mSendBufferLock.Lock();
                     mSendBuffers.pop_front();
                     empty = mSendBuffers.empty();
                     mSendBufferLock.Unlock();
                     mBufferWritten = 0;
                     if(mSendBuffers.empty()){
-                        return(WN_FALSE);
+                        return(wn_false);
                     } 
                     break;
                 } else {
@@ -156,12 +156,12 @@ WN_BOOL WNConnectionLinux::Send() {
                    writeLeft = q[mBufferChunkCount]->GetWritten(); 
                 }
             }
-       } while(WN_TRUE);
+       } while(wn_true);
    }
-   return(WN_TRUE);
+   return(wn_true);
 }
 
-WN_VOID WNConnectionLinux::NotifyReadReady() {
+wn_void WNConnectionLinux::NotifyReadReady() {
     WNAtomicSwap(&mReadAtomic, 1);
 
     while(WNAtomicCompareSwap(&mReadAtomic, 1, 1) == 1) {
@@ -174,11 +174,11 @@ WN_VOID WNConnectionLinux::NotifyReadReady() {
     }
 }
     
-WN_VOID WNConnectionLinux::ReadReady() {
-   WN_SIZE_T processedBytes = 0;
+wn_void WNConnectionLinux::ReadReady() {
+   wn_size_t processedBytes = 0;
 
    while(1){
-        WN_UINT32 transferred = read(mSockFD, mReadLocation->GetPointer(), mReadLocation->GetSize() - mReadLocation->GetWritten());
+        wn_uint32 transferred = read(mSockFD, mReadLocation->GetPointer(), mReadLocation->GetSize() - mReadLocation->GetWritten());
         if(transferred == -1){
             if(errno != EAGAIN) {
                 char* s = strerror(errno);
@@ -192,11 +192,11 @@ WN_VOID WNConnectionLinux::ReadReady() {
             return;
         }
 
-        WN_SIZE_T processedBytes = 0;
+        wn_size_t processedBytes = 0;
         WN_RELEASE_ASSERT(mReadHead <= MAX_DATA_WRITE);
         while(processedBytes != transferred) {
             WN_RELEASE_ASSERT(processedBytes < transferred);
-            WN_SIZE_T transferToOverflow = WNMin<WN_SIZE_T>(8 - mOverflowAmount, transferred);
+            wn_size_t transferToOverflow = wn::min<wn_size_t>(8 - mOverflowAmount, transferred);
             WNMemCpy(mOverflowLocation + mOverflowAmount, (mReadLocation->GetBaseLocation()) + mReadHead, transferToOverflow);
             mOverflowAmount += transferToOverflow;
             processedBytes += transferToOverflow;
@@ -208,20 +208,20 @@ WN_VOID WNConnectionLinux::ReadReady() {
                 mReadHead += transferToOverflow;
                 WN_RELEASE_ASSERT(processedBytes == transferred);
                 if(mBufferBase == MAX_DATA_WRITE) {
-                    mReadLocation = WNConcurrency::WNAllocateResource<WNBufferResource, WNNetworkManager&>(mManager);
+                    mReadLocation = wn::make_intrusive<WNBufferResource, WNNetworkManager&>(mManager);
                     mReadHead = 0;
                     mBufferBase = 0;
                 }
                 break;
             }
         
-            WN_UINT32 num = *reinterpret_cast<WN_UINT32*>(mOverflowLocation);
-            WN_UINT32 callback = *reinterpret_cast<WN_UINT32*>(mOverflowLocation + 4);
+            wn_uint32 num = *reinterpret_cast<wn_uint32*>(mOverflowLocation);
+            wn_uint32 callback = *reinterpret_cast<wn_uint32*>(mOverflowLocation + 4);
 
             WNCore::WNFromBigEndian(callback);
             WNCore::WNFromBigEndian(num);
 
-            WN_SIZE_T mMaxWrite = WNMin<WN_SIZE_T>(transferred, (num - mInProcessedBytes));
+            wn_size_t mMaxWrite = wn::min<wn_size_t>(transferred, (num - mInProcessedBytes));
 
             mReadHead += mMaxWrite;
             processedBytes += mMaxWrite;
@@ -242,7 +242,7 @@ WN_VOID WNConnectionLinux::ReadReady() {
                 }
             }
             if(mReadHead == MAX_DATA_WRITE) {
-                mReadLocation = WNAllocateResource<WNBufferResource, WNNetworkManager&>(mManager);
+                mReadLocation = make_intrusive<WNBufferResource, WNNetworkManager&>(mManager);
                 mReadHead = 0;
                 mBufferBase = 0;
             } else {

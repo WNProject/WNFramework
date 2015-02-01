@@ -7,267 +7,164 @@
 #ifndef __WN_CORE_TYPE_TRAITS_H__
 #define __WN_CORE_TYPE_TRAITS_H__
 
-#include "WNExtendedTypes.h"
+#include "WNCore/inc/Internal/WNExtendedTypes.h"
 
-namespace WNCore {
-    template <typename Type>
-    class WNAlignment {
-        struct __WNAlignmentHelper {
-            const WN_BYTE mPadding;
-            const Type mType;
+#include <type_traits>
+
+namespace wn {
+    namespace internal {
+        template <typename _type>
+        struct is_floating_point : std::is_floating_point<_type> {};
+
+        template <typename _type, typename conversion_type>
+        struct is_floating_point<arithmetic_type<floating_point_traits<_type, conversion_type>>> : std::true_type{};
+
+        template <typename _type>
+        struct is_fixed_point : std::false_type {};
+
+        template <typename _type, const wn_uint32 _precision>
+        struct is_fixed_point<arithmetic_type<fixed_point_traits<_type, _precision>>> : std::true_type{};
+    }
+
+    template <typename _type, const _type _value>
+    struct integral_constant : std::integral_constant<_type, _value> {};
+
+    template <const wn_size_t _value>
+    struct index_constant : integral_constant<wn_size_t, _value> {};
+
+    template <const wn_bool _value>
+    struct boolean_constant : integral_constant<wn_bool, _value> {};
+
+    #ifdef __WN_HAS_CPP14_STL_INTEGER_SEQUENCE
+        template <typename _type, const _type... _values>
+        struct integral_sequence : std::integer_sequence<_type, _values...> {};
+
+        template <const wn_size_t... _values>
+        struct index_sequence : std::index_sequence<_values...> {};
+    #else
+        template <typename _type, const _type... _values>
+        struct integral_sequence {
+            typedef _type value_type;
+
+            static WN_FORCE_INLINE wn_size_t size() {
+                return(sizeof...(_values));
+            }
         };
 
-    public:
-        enum {
-            Value = sizeof(__WNAlignmentHelper) - sizeof(Type)
-        };
-    };
+        template <const wn_size_t... _values>
+        struct index_sequence : integral_sequence<wn_size_t, _values...> {};
+    #endif
 
-    template <typename Type>
-    struct WNIsInteger {
-        enum {
-            Value = WN_FALSE
-        };
-    };
+    template <const wn_bool... _values>
+    struct boolean_sequence : integral_sequence<wn_bool, _values...> {};
 
-    template <>
-    struct WNIsInteger<WN_UINT8> {
-        enum {
-            Value = WN_TRUE
-        };
-    };
+    template <typename _type>
+    struct decay : std::decay<_type> {};
 
-    template <>
-    struct WNIsInteger<WN_UINT16> {
-        enum {
-            Value = WN_TRUE
-        };
-    };
+    #ifdef __WN_HAS_CPP14_STL_DECAY_T
+        template <typename _type>
+        using decay_t = std::decay_t<_type>;
+    #else
+        template <typename _type>
+        using decay_t = typename decay<_type>::type;
+    #endif
 
-    template <>
-    struct WNIsInteger<WN_UINT32> {
-        enum {
-            Value = WN_TRUE
-        };
-    };
+    namespace internal {
+        template <typename _type>
+        struct is_signed : boolean_constant<(std::is_signed<_type>::value || is_floating_point<_type>::value)> {};
 
-    template <>
-    struct WNIsInteger<WN_UINT64> {
-        enum {
-            Value = WN_TRUE
-        };
-    };
+        template <typename _type, const wn_uint32 _precision>
+        struct is_signed<arithmetic_type<fixed_point_traits<_type, _precision>>> : std::is_signed<_type>{};
 
-    template <>
-    struct WNIsInteger<WN_INT8> {
-        enum {
-            Value = WN_TRUE
-        };
-    };
+        template <typename _type>
+        struct is_unsigned : std::is_unsigned<_type> {};
 
-    template <>
-    struct WNIsInteger<WN_INT16> {
-        enum {
-            Value = WN_TRUE
-        };
-    };
+        template <typename _type, const wn_uint32 _precision>
+        struct is_unsigned<arithmetic_type<fixed_point_traits<_type, _precision>>> : std::is_unsigned<_type>{};
 
-    template <>
-    struct WNIsInteger<WN_INT32> {
-        enum {
-            Value = WN_TRUE
-        };
-    };
+        template <typename _type>
+        struct is_arithmetic : std::is_arithmetic<_type> {};
 
-    template <>
-    struct WNIsInteger<WN_INT64> {
-        enum {
-            Value = WN_TRUE
-        };
-    };
+        template <typename traits_type>
+        struct is_arithmetic<arithmetic_type<traits_type>> : std::true_type {};
+    }
 
-    template <typename Type>
-    struct WNIsFixedPoint {
-        enum {
-            Value = WN_FALSE
-        };
-    };
+    template <typename _type>
+    struct is_floating_point : internal::is_floating_point<typename decay<_type>::type> {};
 
-    template <>
-    struct WNIsFixedPoint<WN_FIXED8> {
-        enum {
-            Value = WN_TRUE
-        };
-    };
+    template <typename _type>
+    struct is_fixed_point : internal::is_fixed_point<typename decay<_type>::type> {};
 
-    template <>
-    struct WNIsFixedPoint<WN_FIXED16> {
-        enum {
-            Value = WN_TRUE
-        };
-    };
+    template <typename _type>
+    struct is_signed : internal::is_signed<typename decay<_type>::type> {};
 
-    template <>
-    struct WNIsFixedPoint<WN_FIXED32> {
-        enum {
-            Value = WN_TRUE
-        };
-    };
+    template <typename _type>
+    struct is_unsigned : internal::is_unsigned<typename decay<_type>::type> {};
 
-    template <>
-    struct WNIsFixedPoint<WN_FIXED64> {
-        enum {
-            Value = WN_TRUE
-        };
-    };
+    template <typename _type>
+    struct is_arithmetic : internal::is_arithmetic<typename decay<_type>::type> {};
 
-    template <typename Type>
-    struct WNIsFloatingPoint {
-        enum {
-            Value = WN_FALSE
-        };
-    };
+    template <typename _type>
+    struct is_real : boolean_constant<(is_fixed_point<_type>::value || is_floating_point<_type>::value)> {};
 
-    template <>
-    struct WNIsFloatingPoint<WN_FLOAT8> {
-        enum {
-            Value = WN_TRUE
-        };
-    };
+    template <typename _type1, typename _type2>
+    struct is_same : std::is_same<_type1, _type2> {};
 
-    template <>
-    struct WNIsFloatingPoint<WN_FLOAT16> {
-        enum {
-            Value = WN_TRUE
-        };
-    };
+    template <typename _type1, typename _type2>
+    struct is_same_decayed : is_same<typename decay<_type1>::type, typename decay<_type2>::type> {};
 
-    template <>
-    struct WNIsFloatingPoint<WN_FLOAT32> {
-        enum {
-            Value = WN_TRUE
-        };
-    };
+    template <const wn_bool... _values>
+    struct boolean_and : is_same<boolean_sequence<_values...>, boolean_sequence<(_values || wn_true)...>> {};
 
-    template <>
-    struct WNIsFloatingPoint<WN_FLOAT64> {
-        enum {
-            Value = WN_TRUE
-        };
-    };
+    template <const wn_bool... _values>
+    struct boolean_or : boolean_constant<!boolean_and<_values...>::value> {};
 
-    template <typename Type>
-    struct WNIsReal {
-        enum {
-            Value = WNIsFloatingPoint<Type>::Value || WNIsFixedPoint<Type>::Value
-        };
-    };
+    template <typename _type, typename... _types>
+    struct are_same : boolean_and<is_same<_type, _types>::value...> {};
 
-    template <typename Type>
-    struct WNIsSigned {
-        enum {
-            Value = WN_FALSE
-        };
-    };
+    template <typename _type, typename... _types>
+    struct are_same_decayed : are_same<typename decay<_type>::type, typename decay<_types>::type...> {};
 
-    template <>
-    struct WNIsSigned<WN_INT8> {
-        enum {
-            Value = WN_TRUE
-        };
-    };
+    #ifdef __WN_HAS_CPP14_STL_IS_NULL_POINTER
+        template <typename _type>
+        struct is_null_pointer : std::is_null_pointer<_type> {};
+    #else
+        template <typename _type>
+        struct is_null_pointer : is_same_decayed<wn_nullptr_t, _type> {};
+    #endif
 
-    template <>
-    struct WNIsSigned<WN_INT16> {
-        enum {
-            Value = WN_TRUE
-        };
-    };
+    template <const wn_bool _value, typename _type = wn_void>
+    struct enable_if : std::enable_if<_value, _type> {};
 
-    template <>
-    struct WNIsSigned<WN_INT32> {
-        enum {
-            Value = WN_TRUE
-        };
-    };
+    #ifdef __WN_HAS_CPP14_STL_ENABLE_IF_T
+        template <const wn_bool _value, typename _type = wn_void>
+        using enable_if_t = std::enable_if_t<_value, _type>;
+    #else
+        template <const wn_bool _value, typename _type = wn_void>
+        using enable_if_t = typename enable_if<_value, _type>::type;
+    #endif
 
-    template <>
-    struct WNIsSigned<WN_INT64> {
-        enum {
-            Value = WN_TRUE
-        };
-    };
+    template <typename... _types>
+    struct common_type : std::common_type<_types...> {};
 
-    template <>
-    struct WNIsSigned<WN_FLOAT8> {
-        enum {
-            Value = WN_TRUE
-        };
-    };
+    #ifdef __WN_HAS_CPP14_STL_COMMON_TYPE_T
+        template <typename... _types>
+        using common_type_t = std::common_type_t<_types...>;
+    #else
+        template <typename... _type>
+        using common_type_t = typename common_type<_type...>::type;
+    #endif
 
-    template <>
-    struct WNIsSigned<WN_FLOAT16> {
-        enum {
-            Value = WN_TRUE
-        };
-    };
+    template <typename _type>
+    struct result_of : std::result_of<_type> {};
 
-    template <>
-    struct WNIsSigned<WN_FLOAT32> {
-        enum {
-            Value = WN_TRUE
-        };
-    };
-
-    template <>
-    struct WNIsSigned<WN_FLOAT64> {
-        enum {
-            Value = WN_TRUE
-        };
-    };
-
-    template <>
-    struct WNIsSigned<WN_FIXED8> {
-        enum {
-            Value = WN_TRUE
-        };
-    };
-
-    template <>
-    struct WNIsSigned<WN_FIXED16> {
-        enum {
-            Value = WN_TRUE
-        };
-    };
-
-    template <>
-    struct WNIsSigned<WN_FIXED32> {
-        enum {
-            Value = WN_TRUE
-        };
-    };
-
-    template <>
-    struct WNIsSigned<WN_FIXED64> {
-        enum {
-            Value = WN_TRUE
-        };
-    };
-
-    template <typename Type>
-    struct WNIsUnsigned {
-        enum {
-            Value = !WNIsSigned<Type>::Value
-        };
-    };
-
-    template <WN_BOOL, typename = WN_VOID>
-    struct WNEnableWhen {};
-
-    template <typename Type>
-    struct WNEnableWhen<WN_TRUE, Type> {
-        typedef Type Value;
-    };
+    #ifdef __WN_HAS_CPP14_STL_RESULT_OF_T
+        template <typename _type>
+        using result_of_t = std::result_of_t<_type>;
+    #else
+        template <typename _type>
+        using result_of_t = typename result_of<_type>::type;
+    #endif
 }
 
 #endif // __WN_CORE_TYPE_TRAITS_H__

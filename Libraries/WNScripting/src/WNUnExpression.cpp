@@ -23,8 +23,8 @@ eWNTypeError WNUNExpression::GenerateCode(WNCodeModule& _module, const WNFunctio
         LogLine(_compilationLog, WNLogging::eError);
         return(eWNInvalidOperation);
     }
-    eWNTypeError err = eWNOK;
-    if(eWNOK != (err = mExpression->GenerateCode(_module, _def, _compilationLog))) {
+    eWNTypeError err = ok;
+    if(ok != (err = mExpression->GenerateCode(_module, _def, _compilationLog))) {
         return(err);
     }
     const GeneratePreUnaryOperation* preOp = _module.GetTypeManager().GetPreUnaryOperation(mType, mExpression->GetType());
@@ -33,13 +33,13 @@ eWNTypeError WNUNExpression::GenerateCode(WNCodeModule& _module, const WNFunctio
         LogLine(_compilationLog, WNLogging::eError);
         return(eWNInvalidOperation);
     }
-    if(eWNOK != (err = preOp->Execute(_module.GetBuilder(), *mExpression, mValue))) {
+    if(ok != (err = preOp->Execute(_module.GetBuilder(), *mExpression, mValue))) {
         return(err);
     }
     if(mType != UN_NEG) {
         mValueLocation = mExpression->GetValueLocation();
     }
     mScriptType = mExpression->GetType();
-    return(eWNOK);
+    return(ok);
 }
 

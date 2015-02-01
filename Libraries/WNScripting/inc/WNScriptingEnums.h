@@ -69,7 +69,7 @@ static const char* WNScriptTypeNames[SC_MAX] = {
     "Custom"
 };
 
-static const WN_SIZE_T WNScriptTypeLevels[SC_MAX] = {
+static const wn_size_t WNScriptTypeLevels[SC_MAX] = {
     0,
     0,
     0,

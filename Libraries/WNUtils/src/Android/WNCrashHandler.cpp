@@ -49,10 +49,10 @@ struct StackUnwinder {
         pthread_key_create(&mProcessingKey, NULL);
     }
     static void error_func(int signo, siginfo_t* info, void* context);
-    WN_BOOL InitializeHandler() {
+    wn_bool InitializeHandler() {
         void* const lib = dlopen("libcorkscrew.so", RTLD_LAZY|RTLD_LOCAL); 
         if(!lib) { //libcorkscrew does not exist on this machine
-            return(WN_FALSE);
+            return(wn_false);
         }
         acquire_my_map_info_list = reinterpret_cast<acquire_my_map_info_list_func>(dlsym(lib, "acquire_my_map_info_list"));
         release_my_map_info_list = reinterpret_cast<release_my_map_info_list_func>(dlsym(lib, "release_my_map_info_list"));
@@ -138,6 +138,6 @@ void StackUnwinder::error_func(int sig, siginfo_t* info, void* context) {
     }
 }
 
-WN_VOID WNUtils::InitializeCrashHandler() {
+wn_void WNUtils::InitializeCrashHandler() {
     g_CrashHandler = new(StackUnwinder);
 }

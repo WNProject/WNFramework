@@ -18,74 +18,74 @@
 #include <string.h>
 
 namespace WNMemory {
-    WN_FORCE_INLINE WN_VOID* WNMemClr(WN_VOID* _memory, const WN_SIZE_T _size) {
-        WN_DEBUG_ASSERT(_memory != WN_NULL);
+    WN_FORCE_INLINE wn_void* WNMemClr(wn_void* _memory, const wn_size_t _size) {
+        WN_DEBUG_ASSERT(_memory != wn_nullptr);
         WN_DEBUG_ASSERT(_size != 0);
 
         return(WNMemSet(_memory, 0, _size));
     }
 
-    WN_FORCE_INLINE WN_VOID* WNMemSet(WN_VOID* _memory, const WN_UINT8 _value, const WN_SIZE_T _size) {
-        WN_DEBUG_ASSERT(_memory != WN_NULL);
+    WN_FORCE_INLINE wn_void* WNMemSet(wn_void* _memory, const wn_uint8 _value, const wn_size_t _size) {
+        WN_DEBUG_ASSERT(_memory != wn_nullptr);
         WN_DEBUG_ASSERT(_size != 0);
 
-        return(__WNInternal::__WNMemSet(_memory, _value, _size));
+        return(internal::__WNMemSet(_memory, _value, _size));
     }
 
-    WN_FORCE_INLINE WN_VOID* WNMemCpy(WN_VOID* _destination, const WN_VOID* _source, const WN_SIZE_T _number) {
-        WN_DEBUG_ASSERT(_destination != WN_NULL);
-        WN_DEBUG_ASSERT(_source != WN_NULL);
+    WN_FORCE_INLINE wn_void* WNMemCpy(wn_void* _destination, const wn_void* _source, const wn_size_t _number) {
+        WN_DEBUG_ASSERT(_destination != wn_nullptr);
+        WN_DEBUG_ASSERT(_source != wn_nullptr);
         WN_DEBUG_ASSERT(_destination != _source);
 
         return(memcpy(_destination, _source, _number));
     }
 
-    WN_FORCE_INLINE WN_UINT32 WNMemCmp(const WN_VOID* _memory1, const WN_VOID* _memory2, const WN_SIZE_T _number) {
-        WN_DEBUG_ASSERT(_memory1 != WN_NULL);
-        WN_DEBUG_ASSERT(_memory2 != WN_NULL);
+    WN_FORCE_INLINE wn_uint32 WNMemCmp(const wn_void* _memory1, const wn_void* _memory2, const wn_size_t _number) {
+        WN_DEBUG_ASSERT(_memory1 != wn_nullptr);
+        WN_DEBUG_ASSERT(_memory2 != wn_nullptr);
         WN_DEBUG_ASSERT(_number != 0);
         WN_DEBUG_ASSERT(_memory1 != _memory2);
 
         return(memcmp(_memory1, _memory2, _number));
     }
 
-    WN_FORCE_INLINE WN_VOID* WNMemMove(WN_VOID* _destination, const WN_VOID* _source, const WN_SIZE_T _number) {
-        WN_DEBUG_ASSERT(_destination != WN_NULL);
-        WN_DEBUG_ASSERT(_source != WN_NULL);
+    WN_FORCE_INLINE wn_void* WNMemMove(wn_void* _destination, const wn_void* _source, const wn_size_t _number) {
+        WN_DEBUG_ASSERT(_destination != wn_nullptr);
+        WN_DEBUG_ASSERT(_source != wn_nullptr);
         WN_DEBUG_ASSERT(_number != 0);
         WN_DEBUG_ASSERT(_destination != _source);
 
         return(memmove(_destination, _source, _number));
     }
 
-    template <typename Type>
-    WN_FORCE_INLINE Type* WNMemClrT(Type* _memory, const WN_SIZE_T _amount) {
-        return(static_cast<Type*>(WNMemClr(static_cast<WN_VOID*>(_memory), _amount * sizeof(Type))));
+    template <typename type>
+    WN_FORCE_INLINE type* WNMemClrT(type* _memory, const wn_size_t _amount) {
+        return(static_cast<type*>(WNMemClr(static_cast<wn_void*>(_memory), _amount * sizeof(type))));
     }
 
-    template <typename Type>
-    WN_FORCE_INLINE Type* WNMemSetT(Type* _memory, WN_UINT8 _value, const WN_SIZE_T _amount) {
-        return(static_cast<Type*>(WNMemSet(static_cast<WN_VOID*>(_memory), _value, _amount * sizeof(Type))));
+    template <typename type>
+    WN_FORCE_INLINE type* WNMemSetT(type* _memory, wn_uint8 _value, const wn_size_t _amount) {
+        return(static_cast<type*>(WNMemSet(static_cast<wn_void*>(_memory), _value, _amount * sizeof(type))));
     }
 
     template <>
-    WN_FORCE_INLINE WN_VOID* WNMemSetT(WN_VOID* _memory, WN_UINT8 _value, const WN_SIZE_T _amount) {
+    WN_FORCE_INLINE wn_void* WNMemSetT(wn_void* _memory, wn_uint8 _value, const wn_size_t _amount) {
         return(WNMemSet(_memory, _value, _amount));    
     }
 
-    template <typename Type>
-    WN_FORCE_INLINE Type* WNMemCpyT(Type* _destination, const Type* _source, const WN_SIZE_T _number) {
-        return(static_cast<Type*>(WNMemCpy(static_cast<WN_VOID*>(_destination), static_cast<const WN_VOID*>(_source), _number * sizeof(Type))));
+    template <typename type>
+    WN_FORCE_INLINE type* WNMemCpyT(type* _destination, const type* _source, const wn_size_t _number) {
+        return(static_cast<type*>(WNMemCpy(static_cast<wn_void*>(_destination), static_cast<const wn_void*>(_source), _number * sizeof(type))));
     }
 
-    template <typename Type>
-    WN_FORCE_INLINE WN_UINT32 WNMemCmpT(const Type* _memory1, const Type* _memory2, const WN_SIZE_T _number) {
-        return(WNMemCmp(static_cast<WN_VOID*>(_memory1), static_cast<const WN_VOID*>(_memory2), _number * sizeof(Type)));
+    template <typename type>
+    WN_FORCE_INLINE wn_uint32 WNMemCmpT(const type* _memory1, const type* _memory2, const wn_size_t _number) {
+        return(WNMemCmp(static_cast<wn_void*>(_memory1), static_cast<const wn_void*>(_memory2), _number * sizeof(type)));
     }
 
-    template <typename Type>
-    WN_FORCE_INLINE Type* WNMemMoveT(Type* _destination, const Type* _source, const WN_SIZE_T _number) {
-        return(static_cast<Type*>(WNMemMove(static_cast<WN_VOID*>(_destination), static_cast<const WN_VOID*>(_source), _number * sizeof(Type))));
+    template <typename type>
+    WN_FORCE_INLINE type* WNMemMoveT(type* _destination, const type* _source, const wn_size_t _number) {
+        return(static_cast<type*>(WNMemMove(static_cast<wn_void*>(_destination), static_cast<const wn_void*>(_source), _number * sizeof(type))));
     }
 }
 

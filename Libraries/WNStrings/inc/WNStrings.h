@@ -24,48 +24,48 @@
 typedef std::string WNString;
 
 namespace WNStrings {
-    WN_FORCE_INLINE WN_SIZE_T WNStrLen(const WN_CHAR* _string);
-    WN_FORCE_INLINE WN_CHAR* WNStrCpy(WN_CHAR* _destination, const WN_CHAR* _source);
-    WN_FORCE_INLINE WN_CHAR* WNStrCat(WN_CHAR* _destination, const WN_CHAR* _source);
-    WN_FORCE_INLINE WN_UINT32 WNStrCmp(const WN_CHAR* _string1, const WN_CHAR* _string2);
-    WN_FORCE_INLINE WN_CHAR* WNStrNCpy(WN_CHAR* _destination, const WN_CHAR* _source, WN_SIZE_T _count);
-    WN_FORCE_INLINE WN_CHAR* WNStrNCat(WN_CHAR* _destination, const WN_CHAR* _source, WN_SIZE_T _count);
-    WN_FORCE_INLINE WN_UINT32 WNStrNCmp(const WN_CHAR* _string1, const WN_CHAR* _string2, WN_SIZE_T _count);
-    WN_FORCE_INLINE WN_CHAR* WNStrNDup(const WN_CHAR* _string, WN_SIZE_T _length);
-    WN_FORCE_INLINE WN_CHAR* WNStrChr(WN_CHAR* _string, WN_UINT32 _char);
-    WN_FORCE_INLINE const WN_CHAR* WNStrChr(const WN_CHAR* _string, WN_UINT32 _char);
-    WN_FORCE_INLINE WN_CHAR* WNStrStr(WN_CHAR* _string1, const WN_CHAR* _string2);
-    WN_FORCE_INLINE const WN_CHAR* WNStrStr(const WN_CHAR* _string1, const WN_CHAR* _string2);
-    WN_FORCE_INLINE WN_SIZE_T WNStrHash(const WN_CHAR* _string);
-    WN_FORCE_INLINE WN_UINT32 WNStrToInt(const WN_CHAR* _string);
-    WN_FORCE_INLINE WN_INT64 WNStrToLL(const WN_CHAR* _string);
-    WN_FORCE_INLINE WN_FLOAT32 WNStrToFlt(WN_CHAR* _string);
+    WN_FORCE_INLINE wn_size_t WNStrLen(const wn_char* _string);
+    WN_FORCE_INLINE wn_char* WNStrCpy(wn_char* _destination, const wn_char* _source);
+    WN_FORCE_INLINE wn_char* WNStrCat(wn_char* _destination, const wn_char* _source);
+    WN_FORCE_INLINE wn_uint32 WNStrCmp(const wn_char* _string1, const wn_char* _string2);
+    WN_FORCE_INLINE wn_char* WNStrNCpy(wn_char* _destination, const wn_char* _source, wn_size_t _count);
+    WN_FORCE_INLINE wn_char* WNStrNCat(wn_char* _destination, const wn_char* _source, wn_size_t _count);
+    WN_FORCE_INLINE wn_uint32 WNStrNCmp(const wn_char* _string1, const wn_char* _string2, wn_size_t _count);
+    WN_FORCE_INLINE wn_char* WNStrNDup(const wn_char* _string, wn_size_t _length);
+    WN_FORCE_INLINE wn_char* WNStrChr(wn_char* _string, wn_uint32 _char);
+    WN_FORCE_INLINE const wn_char* WNStrChr(const wn_char* _string, wn_uint32 _char);
+    WN_FORCE_INLINE wn_char* WNStrStr(wn_char* _string1, const wn_char* _string2);
+    WN_FORCE_INLINE const wn_char* WNStrStr(const wn_char* _string1, const wn_char* _string2);
+    WN_FORCE_INLINE wn_size_t WNStrHash(const wn_char* _string);
+    WN_FORCE_INLINE wn_uint32 WNStrToInt(const wn_char* _string);
+    WN_FORCE_INLINE wn_int64 WNStrToLL(const wn_char* _string);
+    WN_FORCE_INLINE wn_float32 WNStrToFlt(wn_char* _string);
 
-    WN_FORCE_INLINE WN_WCHAR* WNStrToWStr(const WN_CHAR* _string);
-    WN_FORCE_INLINE WN_CHAR* WNWStrToStr(const WN_WCHAR* _string);
+    WN_FORCE_INLINE wn_wchar* WNStrToWStr(const wn_char* _string);
+    WN_FORCE_INLINE wn_char* WNWStrToStr(const wn_wchar* _string);
 
-    WN_FORCE_INLINE WN_SIZE_T WNWStrLen(const WN_WCHAR* _string);
-    WN_FORCE_INLINE WN_INT32  WNSnPrintf(WN_CHAR* _buffer, WN_SIZE_T _count, const WN_CHAR* _formatter, ...);
-    WN_FORCE_INLINE WN_INT32  WNWSnPrintf(WN_WCHAR* _buffer, WN_SIZE_T _count, const WN_WCHAR* _formatter, ...);
-    WN_FORCE_INLINE WN_CHAR   WNToLower(WN_CHAR);
-    WN_FORCE_INLINE WN_CHAR   WNToUpper(WN_CHAR);
+    WN_FORCE_INLINE wn_size_t WNWStrLen(const wn_wchar* _string);
+    WN_FORCE_INLINE wn_int32  WNSnPrintf(wn_char* _buffer, wn_size_t _count, const wn_char* _formatter, ...);
+    WN_FORCE_INLINE wn_int32  WNWSnPrintf(wn_wchar* _buffer, wn_size_t _count, const wn_wchar* _formatter, ...);
+    WN_FORCE_INLINE wn_char   WNToLower(wn_char);
+    WN_FORCE_INLINE wn_char   WNToUpper(wn_char);
 
     template<typename T>
-    WN_INLINE WN_INT32  WNTSnPrintf(T* _buffer, WN_SIZE_T _count, const T* _formatter, ...);
+    WN_INLINE wn_int32  WNTSnPrintf(T* _buffer, wn_size_t _count, const T* _formatter, ...);
     
     // Since a float is only precise to about 7 decimal digits, we have a simple float to write out
     // certain floats without needing an exponent (easier to read)
-    WN_FORCE_INLINE WN_SIZE_T WNWriteSimpleFloat32(WN_CHAR* _buff, WN_FLOAT32 _number, WN_SIZE_T _maxSize);
-    WN_FORCE_INLINE WN_SIZE_T WNWriteInt32(WN_CHAR* _buff, WN_INT32 _number, WN_SIZE_T _maxSize);
-    WN_FORCE_INLINE WN_SIZE_T WNWriteUInt32(WN_CHAR* _buff, WN_UINT32 _number, WN_SIZE_T _maxSize);
-    WN_FORCE_INLINE WN_SIZE_T WNWriteFloat32(WN_CHAR* _buff, WN_FLOAT32 _number, WN_SIZE_T _maxSize);
-    WN_FORCE_INLINE WN_SIZE_T WNWriteInt64(WN_CHAR* _buff, WN_INT64 _number, WN_SIZE_T _maxSize);
-    WN_FORCE_INLINE WN_SIZE_T WNWriteUInt64(WN_CHAR* _buff, WN_UINT64 _number, WN_SIZE_T _maxSize);
-    WN_FORCE_INLINE WN_SIZE_T WNReadInt32(WN_CHAR* _buff, WN_INT32& _number, WN_SIZE_T _maxSize);
-    WN_FORCE_INLINE WN_SIZE_T WNReadUInt32(WN_CHAR* _buff, WN_UINT32& _number, WN_SIZE_T _maxSize);
-    WN_FORCE_INLINE WN_SIZE_T WNReadFloat32(WN_CHAR* _buff, WN_FLOAT32& _number, WN_SIZE_T _maxSize);
-    WN_FORCE_INLINE WN_SIZE_T WNReadInt64(WN_CHAR* _buff, WN_INT64& _number, WN_SIZE_T _maxSize);
-    WN_FORCE_INLINE WN_SIZE_T WNReadUInt64(WN_CHAR* _buff, WN_UINT64& _number, WN_SIZE_T _maxSize);
+    WN_FORCE_INLINE wn_size_t WNWriteSimpleFloat32(wn_char* _buff, wn_float32 _number, wn_size_t _maxSize);
+    WN_FORCE_INLINE wn_size_t WNWriteInt32(wn_char* _buff, wn_int32 _number, wn_size_t _maxSize);
+    WN_FORCE_INLINE wn_size_t WNWriteUInt32(wn_char* _buff, wn_uint32 _number, wn_size_t _maxSize);
+    WN_FORCE_INLINE wn_size_t WNWriteFloat32(wn_char* _buff, wn_float32 _number, wn_size_t _maxSize);
+    WN_FORCE_INLINE wn_size_t WNWriteInt64(wn_char* _buff, wn_int64 _number, wn_size_t _maxSize);
+    WN_FORCE_INLINE wn_size_t WNWriteUInt64(wn_char* _buff, wn_uint64 _number, wn_size_t _maxSize);
+    WN_FORCE_INLINE wn_size_t WNReadInt32(wn_char* _buff, wn_int32& _number, wn_size_t _maxSize);
+    WN_FORCE_INLINE wn_size_t WNReadUInt32(wn_char* _buff, wn_uint32& _number, wn_size_t _maxSize);
+    WN_FORCE_INLINE wn_size_t WNReadFloat32(wn_char* _buff, wn_float32& _number, wn_size_t _maxSize);
+    WN_FORCE_INLINE wn_size_t WNReadInt64(wn_char* _buff, wn_int64& _number, wn_size_t _maxSize);
+    WN_FORCE_INLINE wn_size_t WNReadUInt64(wn_char* _buff, wn_uint64& _number, wn_size_t _maxSize);
 }
 
 #include "WNStrings/inc/WNStrings.inl"

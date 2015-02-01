@@ -13,8 +13,8 @@ namespace WNScripting {
     public:
         WNStructAllocation();
         virtual ~WNStructAllocation();
-        WN_VOID SetType(WNTypeNode* _type);
-        WN_VOID SetCopyInitializer(WNExpression* _expression); 
+        wn_void SetType(WNTypeNode* _type);
+        wn_void SetCopyInitializer(WNExpression* _expression); 
         eWNTypeError GenerateCode(WNCodeModule& _module, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog);
     private:
         WNTypeNode* mType;

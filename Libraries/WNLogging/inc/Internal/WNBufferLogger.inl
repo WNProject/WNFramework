@@ -6,16 +6,16 @@
 #define __WN_BUFFER_LOGGER_INL__
 #include "WNLogging/inc/WNBufferLogger.h"
 
-template<WN_VOID (*T_FlushCB)(WN_VOID*, const WN_CHAR*, WN_SIZE_T, const std::vector<WNLogging::WNLogColorElement>&)>
-WNLogging::WNBufferLogger<T_FlushCB>::WNBufferLogger(WN_VOID* _context):mContext(_context){
+template<wn_void (*T_FlushCB)(wn_void*, const wn_char*, wn_size_t, const std::vector<WNLogging::WNLogColorElement>&)>
+WNLogging::WNBufferLogger<T_FlushCB>::WNBufferLogger(wn_void* _context):mContext(_context){
 }
 
-template<WN_VOID (*T_FlushCB)(WN_VOID*, const WN_CHAR*, WN_SIZE_T, const std::vector<WNLogging::WNLogColorElement>&)>
+template<wn_void (*T_FlushCB)(wn_void*, const wn_char*, wn_size_t, const std::vector<WNLogging::WNLogColorElement>&)>
 WNLogging::WNBufferLogger<T_FlushCB>::~WNBufferLogger() {
 }
 
-template<WN_VOID (*T_FlushCB)(WN_VOID*, const WN_CHAR*, WN_SIZE_T, const std::vector<WNLogging::WNLogColorElement>&)>
-WN_VOID WNLogging::WNBufferLogger<T_FlushCB>::FlushBuffer(const WN_CHAR* _buffer, WN_SIZE_T _bufferSize, const std::vector<WNLogColorElement>& _colors) {
+template<wn_void (*T_FlushCB)(wn_void*, const wn_char*, wn_size_t, const std::vector<WNLogging::WNLogColorElement>&)>
+wn_void WNLogging::WNBufferLogger<T_FlushCB>::FlushBuffer(const wn_char* _buffer, wn_size_t _bufferSize, const std::vector<WNLogColorElement>& _colors) {
     T_FlushCB(mContext, _buffer, _bufferSize, _colors);
 }
 

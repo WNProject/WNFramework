@@ -28,7 +28,7 @@
 
 namespace WNScripting {
     struct GenerateFPToIntCast: public GenerateCastingOperation {
-        GenerateFPToIntCast(WNScriptType _destType, WN_BOOL _destSigned) :
+        GenerateFPToIntCast(WNScriptType _destType, wn_bool _destSigned) :
             mDestInt(_destType),
             mDestSigned(_destSigned) {
         }
@@ -41,15 +41,15 @@ namespace WNScripting {
                 _outReturnValue = builder->CreateFPToUI(_expr1, mDestInt->mLLVMType, "");
             }
         
-            return(eWNOK);
+            return(ok);
         }
     private:
         WNScriptType mDestInt;
-        WN_BOOL mDestSigned;
+        wn_bool mDestSigned;
     };
 
     struct GenerateIntToFPCast: public GenerateCastingOperation {
-        GenerateIntToFPCast(WNScriptType _destType, WN_BOOL _srcSigned) :
+        GenerateIntToFPCast(WNScriptType _destType, wn_bool _srcSigned) :
             mDestInt(_destType),
             mSrcSigned(_srcSigned) {
         }
@@ -62,15 +62,15 @@ namespace WNScripting {
                 _outReturnValue = builder->CreateUIToFP(_expr1, mDestInt->mLLVMType, "");
             }
         
-            return(eWNOK);
+            return(ok);
         }
     private:
         WNScriptType mDestInt;
-        WN_BOOL mSrcSigned;
+        wn_bool mSrcSigned;
     };
 
     struct GenerateIntToIntCast: public GenerateCastingOperation {
-        GenerateIntToIntCast(WNScriptType _destType, WN_BOOL _srcSigned) :
+        GenerateIntToIntCast(WNScriptType _destType, wn_bool _srcSigned) :
             mDestInt(_destType),
             mSrcSigned(_srcSigned) {
         }
@@ -78,23 +78,23 @@ namespace WNScripting {
         virtual eWNTypeError Execute(llvm::IRBuilderBase* _builder, llvm::Value* _expr1, llvm::Value*& _outReturnValue) const {
             llvm::IRBuilder<>* builder = reinterpret_cast<llvm::IRBuilder<>* >(_builder);       
             _outReturnValue = builder->CreateIntCast(_expr1, mDestInt->mLLVMType, mSrcSigned, "");
-            return(eWNOK);
+            return(ok);
         }
     private:
         WNScriptType mDestInt;
-        WN_BOOL mSrcSigned;
+        wn_bool mSrcSigned;
     };
 
     eWNTypeError WNBuiltInInitializer::InitializeScriptingCasts(WNScriptingEngine*, WNTypeManager& _manager) {
-        eWNTypeError err = eWNOK;
-        WNScriptType nullType; if((err = _manager.GetTypeByName("-Null", nullType)) != eWNOK) { return err; } 
+        eWNTypeError err = ok;
+        WNScriptType nullType; if((err = _manager.GetTypeByName("-Null", nullType)) != ok) { return err; } 
         _manager.RegisterAllocationOperator(nullType, WN_NEW GenerateDefaultAllocation());
 
-        WNScriptType floatType;  if((err = _manager.GetTypeByName("Float", floatType)) != eWNOK) { return err; } 
-        WNScriptType intType; if((err = _manager.GetTypeByName("Int", intType)) != eWNOK) { return err; }
-        WNScriptType charType;  if((err = _manager.GetTypeByName("Char", charType)) != eWNOK) { return err; }
-        WNScriptType boolType; if((err = _manager.GetTypeByName("Bool", boolType)) != eWNOK) { return err; }
-        WNScriptType sizeTType; if((err = _manager.GetTypeByName("-SizeT", sizeTType)) != eWNOK) { return err; }
+        WNScriptType floatType;  if((err = _manager.GetTypeByName("Float", floatType)) != ok) { return err; } 
+        WNScriptType intType; if((err = _manager.GetTypeByName("Int", intType)) != ok) { return err; }
+        WNScriptType charType;  if((err = _manager.GetTypeByName("Char", charType)) != ok) { return err; }
+        WNScriptType boolType; if((err = _manager.GetTypeByName("Bool", boolType)) != ok) { return err; }
+        WNScriptType sizeTType; if((err = _manager.GetTypeByName("-SizeT", sizeTType)) != ok) { return err; }
         _manager.RegisterCastingOperator(intType, charType,
             WN_NEW GenerateIntToIntCast(charType, true));
         _manager.RegisterCastingOperator(intType, floatType,
@@ -118,6 +118,6 @@ namespace WNScripting {
         _manager.RegisterCastingOperator(floatType, boolType,
             WN_NEW GenerateFPToIntCast(boolType, false));
     
-        return(eWNOK);
+        return(ok);
     }
 }

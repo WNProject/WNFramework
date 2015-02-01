@@ -13,8 +13,8 @@
     #endif
 #else
     namespace WNMemory {
-        namespace __WNInternal {
-            WN_FORCE_INLINE WN_VOID* __WNMemSet(WN_VOID* _memory, const WN_UINT8 _value, const WN_SIZE_T _size) {
+        namespace internal {
+            WN_FORCE_INLINE wn_void* __WNMemSet(wn_void* _memory, const wn_uint8 _value, const wn_size_t _size) {
                 return(memset(_memory, _value, _size));
             }
         }

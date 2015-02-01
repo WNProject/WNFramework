@@ -15,7 +15,7 @@ namespace WNScripting {
     public:    
         WNDeclaration(WNTypeNode* _type, const char* _name);
         virtual ~WNDeclaration();
-        const WN_CHAR* GetName(); 
+        const wn_char* GetName(); 
 
         eWNTypeError GetType(WNTypeManager& _manager, WNScriptType& _scriptType, WNLogging::WNLog& _compilationLog); 
 
@@ -33,8 +33,8 @@ namespace WNScripting {
         WNExpression* mExpr;
         WNTypeNode* mScalarType;
         WNScriptLinkedList<WNExpression> mSizedArrayInitializers;
-        WN_SIZE_T mUnsizedArrayInitializers;
-        WN_BOOL mInitAssign;
+        wn_size_t mUnsizedArrayInitializers;
+        wn_bool mInitAssign;
     };
 }
 #endif//__WN_DECLARATION_H__

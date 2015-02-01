@@ -10,7 +10,7 @@ struct GenerateStringIDOperator: public WNScripting::GenerateIDAccessOperation {
         mFunctionType(_functionType) {
     }
     
-    virtual eWNTypeError Execute(llvm::IRBuilderBase* _builder, llvm::Value* _expr1, llvm::Value* _expr2, WN_CHAR* _id,  WNScripting::WNScriptType &_outType, llvm::Value*& _outValue, llvm::Value*& _outLocation) const {
+    virtual eWNTypeError Execute(llvm::IRBuilderBase* _builder, llvm::Value* _expr1, llvm::Value* _expr2, wn_char* _id,  WNScripting::WNScriptType &_outType, llvm::Value*& _outValue, llvm::Value*& _outLocation) const {
         return(mArrayOperator.Execute(_builder, _expr1, _expr2, _id, _outType, _outValue, _outLocation)); 
     }
 private:
@@ -20,9 +20,9 @@ private:
     WNScripting::GenerateArrayIDOperator mArrayOperator;
 };
 
-WN_VOID AppendString(WNScripting::WNScriptingArrayRef<WN_CHAR>* _inRef, WNScripting::WNScriptingArrayRef<WN_CHAR>* _toAppend) {
-    WNScripting::WNScriptingArray<WN_CHAR> inArray(_inRef);
-    WNScripting::WNScriptingArray<WN_CHAR> appendArray(_toAppend);
+wn_void AppendString(WNScripting::WNScriptingArrayRef<wn_char>* _inRef, WNScripting::WNScriptingArrayRef<wn_char>* _toAppend) {
+    WNScripting::WNScriptingArray<wn_char> inArray(_inRef);
+    WNScripting::WNScriptingArray<wn_char> appendArray(_toAppend);
     if(!inArray|| !appendArray) {
         return;
     }
@@ -30,22 +30,22 @@ WN_VOID AppendString(WNScripting::WNScriptingArrayRef<WN_CHAR>* _inRef, WNScript
     memcpy(&inArray[inArray.GetLength()], &appendArray[0], appendArray.GetLength());
 }
 
-WNScripting::WNScriptingArrayRef<WNScripting::WNScriptingArray<WN_CHAR> >* Split(WNScripting::WNScriptingArrayRef<WN_CHAR>* _string, WN_CHAR _split, WN_BOOL _ignoreEmpty) {
-    WNScripting::WNScriptingArray<WN_CHAR> string(_string);
+WNScripting::WNScriptingArrayRef<WNScripting::WNScriptingArray<wn_char> >* Split(WNScripting::WNScriptingArrayRef<wn_char>* _string, wn_char _split, wn_bool _ignoreEmpty) {
+    WNScripting::WNScriptingArray<wn_char> string(_string);
     if(!string) {
-        return(WN_NULL);
+        return(wn_nullptr);
     }
     WNScripting::WNScriptType _arrayArrayType =  string.GetType()->mScriptingEngine->GetExistingArrayOf(string.GetType());
     WNScripting::WNScriptType _stringType = string.GetType();
     const WNScripting::WNScriptingEngine* engine = string.GetType()->mScriptingEngine;
     if(!_arrayArrayType) {
-        return(WN_NULL);
+        return(wn_nullptr);
     }
-    WN_SIGNED_T splitCount= 0;
-    WN_SIGNED_T index = 0;
-    WN_SIGNED_T previousIndex = -1;
-    WN_SIGNED_T strLen = string.GetLength();
-    for(WN_SIGNED_T i = 0; i < strLen; ++i){
+    wn_signed_t splitCount= 0;
+    wn_signed_t index = 0;
+    wn_signed_t previousIndex = -1;
+    wn_signed_t strLen = string.GetLength();
+    for(wn_signed_t i = 0; i < strLen; ++i){
         if(string[i] == _split) {
             if((i - previousIndex) > 1 || !_ignoreEmpty){
                 splitCount += 1;
@@ -58,17 +58,17 @@ WNScripting::WNScriptingArrayRef<WNScripting::WNScriptingArray<WN_CHAR> >* Split
     }
     previousIndex = -1;
     //now we have the number of splits we need time to allocate that array
-    WN_VOID* outPtr;
+    wn_void* outPtr;
     engine->ConstructScriptingArray(_arrayArrayType, splitCount, outPtr);
-    WNScripting::WNScriptingArray<WNScripting::WNScriptingArray<WN_CHAR> > newArray(outPtr);
+    WNScripting::WNScriptingArray<WNScripting::WNScriptingArray<wn_char> > newArray(outPtr);
 
-    for(WN_SIGNED_T i = 0; i < strLen; ++i){
+    for(wn_signed_t i = 0; i < strLen; ++i){
         if(string[i] == _split) {
             if((i - previousIndex) > 1 || !_ignoreEmpty){
-                WN_SIGNED_T len = (i - previousIndex - 1);
-                WN_VOID* dat;
+                wn_signed_t len = (i - previousIndex - 1);
+                wn_void* dat;
                 engine->ConstructScriptingArray(_stringType, len, dat);
-                newArray[index] = WNScripting::WNScriptingArray<WN_CHAR>(dat);
+                newArray[index] = WNScripting::WNScriptingArray<wn_char>(dat);
                 if(len > 0) {
                     memcpy(&newArray[index][0], &string[previousIndex + 1], len);
                 }
@@ -79,10 +79,10 @@ WNScripting::WNScriptingArrayRef<WNScripting::WNScriptingArray<WN_CHAR> >* Split
     }
     
     if(previousIndex < strLen - 1 || !_ignoreEmpty) {
-        WN_SIZE_T len = (strLen - previousIndex - 1);
-        WN_VOID* dat;
+        wn_size_t len = (strLen - previousIndex - 1);
+        wn_void* dat;
         engine->ConstructScriptingArray(_stringType, len, dat);
-        newArray[index] = WNScripting::WNScriptingArray<WN_CHAR>(dat);
+        newArray[index] = WNScripting::WNScriptingArray<wn_char>(dat);
         if(len > 0) {
             memcpy(&newArray[index][0], &string[previousIndex + 1], len);
         }
@@ -90,25 +90,25 @@ WNScripting::WNScriptingArrayRef<WNScripting::WNScriptingArray<WN_CHAR> >* Split
     return(newArray.DetachOut());
 }
 
-WNScripting::WNScriptingArrayRef<WNScripting::WNScriptingArray<WN_CHAR> >* SplitFrom(WNScripting::WNScriptingArrayRef<WN_CHAR>* _string, WNScripting::WNScriptingArrayRef<WN_CHAR>* _splitString, WN_BOOL _ignoreEmpty) {
-    WNScripting::WNScriptingArray<WN_CHAR> string(_string);
-    WNScripting::WNScriptingArray<WN_CHAR> splitString(_splitString);
+WNScripting::WNScriptingArrayRef<WNScripting::WNScriptingArray<wn_char> >* SplitFrom(WNScripting::WNScriptingArrayRef<wn_char>* _string, WNScripting::WNScriptingArrayRef<wn_char>* _splitString, wn_bool _ignoreEmpty) {
+    WNScripting::WNScriptingArray<wn_char> string(_string);
+    WNScripting::WNScriptingArray<wn_char> splitString(_splitString);
     if(!string || !splitString) {
-        return(WN_NULL);
+        return(wn_nullptr);
     }
     WNScripting::WNScriptType _arrayArrayType =  string.GetType()->mScriptingEngine->GetExistingArrayOf(string.GetType());
     WNScripting::WNScriptType _stringType = string.GetType();
     const WNScripting::WNScriptingEngine* engine = string.GetType()->mScriptingEngine;
     if(!_arrayArrayType) {
-        return(WN_NULL);
+        return(wn_nullptr);
     }
-    WN_SIGNED_T splitLength = splitString.GetLength();
-    WN_SIGNED_T splitCount= 0;
-    WN_SIGNED_T index = 0;
-    WN_SIGNED_T previousIndex = -1;
-    WN_SIGNED_T strLen = string.GetLength();
-    for(WN_SIGNED_T i = 0; i < strLen; ++i){
-        for(WN_SIGNED_T j = 0; j < splitLength; ++j) {
+    wn_signed_t splitLength = splitString.GetLength();
+    wn_signed_t splitCount= 0;
+    wn_signed_t index = 0;
+    wn_signed_t previousIndex = -1;
+    wn_signed_t strLen = string.GetLength();
+    for(wn_signed_t i = 0; i < strLen; ++i){
+        for(wn_signed_t j = 0; j < splitLength; ++j) {
             if(string[i] == splitString[j]) {
                 if((i - previousIndex) > 1 || !_ignoreEmpty){
                     splitCount += 1;
@@ -123,18 +123,18 @@ WNScripting::WNScriptingArrayRef<WNScripting::WNScriptingArray<WN_CHAR> >* Split
     }
     previousIndex = -1;
     //now we have the number of splits we need time to allocate that array
-    WN_VOID* outPtr;
+    wn_void* outPtr;
     engine->ConstructScriptingArray(_arrayArrayType, splitCount, outPtr);
-    WNScripting::WNScriptingArray<WNScripting::WNScriptingArray<WN_CHAR> > newArray(outPtr);
+    WNScripting::WNScriptingArray<WNScripting::WNScriptingArray<wn_char> > newArray(outPtr);
 
-    for(WN_SIGNED_T i = 0; i < strLen; ++i){
-        for(WN_SIGNED_T j = 0; j < splitLength; ++j) {
+    for(wn_signed_t i = 0; i < strLen; ++i){
+        for(wn_signed_t j = 0; j < splitLength; ++j) {
             if(string[i] == splitString[j]) {
                 if((i - previousIndex) > 1 || !_ignoreEmpty){
-                    WN_SIGNED_T len = (i - previousIndex - 1);
-                    WN_VOID* dat;
+                    wn_signed_t len = (i - previousIndex - 1);
+                    wn_void* dat;
                     engine->ConstructScriptingArray(_stringType, len, dat);
-                    newArray[index] = WNScripting::WNScriptingArray<WN_CHAR>(dat);
+                    newArray[index] = WNScripting::WNScriptingArray<wn_char>(dat);
                     if(len > 0) {
                         memcpy(&newArray[index][0], &string[previousIndex + 1], len);
                     }
@@ -147,10 +147,10 @@ WNScripting::WNScriptingArrayRef<WNScripting::WNScriptingArray<WN_CHAR> >* Split
     }
     
     if(previousIndex < strLen - 1 || !_ignoreEmpty) {
-        WN_SIZE_T len = (strLen - previousIndex - 1);
-        WN_VOID* dat;
+        wn_size_t len = (strLen - previousIndex - 1);
+        wn_void* dat;
         engine->ConstructScriptingArray(_stringType, len, dat);
-        newArray[index] = WNScripting::WNScriptingArray<WN_CHAR>(dat);
+        newArray[index] = WNScripting::WNScriptingArray<wn_char>(dat);
         if(len > 0) {
             memcpy(&newArray[index][0], &string[previousIndex + 1], len);
         }
@@ -158,284 +158,284 @@ WNScripting::WNScriptingArrayRef<WNScripting::WNScriptingArray<WN_CHAR> >* Split
     return(newArray.DetachOut());
 }
 
-WN_VOID ToLower(WNScripting::WNScriptingArrayRef<WN_CHAR>* _string) {
-    WNScripting::WNScriptingArray<WN_CHAR> string(_string);
+wn_void ToLower(WNScripting::WNScriptingArrayRef<wn_char>* _string) {
+    WNScripting::WNScriptingArray<wn_char> string(_string);
     if(!string) {
         return;
     }
-    for(WN_SIZE_T i = 0; i < string.GetLength(); ++i) {
+    for(wn_size_t i = 0; i < string.GetLength(); ++i) {
         string[i] = WNStrings::WNToLower(string[i]);
     }
     return;
 }
 
-WN_VOID ToUpper(WNScripting::WNScriptingArrayRef<WN_CHAR>* _string) {
-    WNScripting::WNScriptingArray<WN_CHAR> string(_string);
+wn_void ToUpper(WNScripting::WNScriptingArrayRef<wn_char>* _string) {
+    WNScripting::WNScriptingArray<wn_char> string(_string);
     if(!string) {
         return;
     }
-    for(WN_SIZE_T i = 0; i < string.GetLength(); ++i) {
+    for(wn_size_t i = 0; i < string.GetLength(); ++i) {
         string[i] = WNStrings::WNToUpper(string[i]);
     }
     return;
 }
 
-WN_INT32 FindFirstIn(WNScripting::WNScriptingArrayRef<WN_CHAR>* _string, WNScripting::WNScriptingArrayRef<WN_CHAR>* _findee) {
-    WNScripting::WNScriptingArray<WN_CHAR> string(_string);
-    WNScripting::WNScriptingArray<WN_CHAR> findee(_findee);
+wn_int32 FindFirstIn(WNScripting::WNScriptingArrayRef<wn_char>* _string, WNScripting::WNScriptingArrayRef<wn_char>* _findee) {
+    WNScripting::WNScriptingArray<wn_char> string(_string);
+    WNScripting::WNScriptingArray<wn_char> findee(_findee);
     if(!string || !findee) {
         return(-1);
     }
-    WN_SIZE_T searchLen = findee.GetLength();
-    for(WN_SIZE_T i = 0; i < string.GetLength(); ++i) {
-        for(WN_SIZE_T j = 0; j < searchLen; ++j) {
+    wn_size_t searchLen = findee.GetLength();
+    for(wn_size_t i = 0; i < string.GetLength(); ++i) {
+        for(wn_size_t j = 0; j < searchLen; ++j) {
             if(string[i] == findee[j]) {
-                return(i);
+                return(static_cast<wn_int32>(i));
             }
         }
     }
     return(-1);
 }
 
-WN_INT32 FindFirstNotIn(WNScripting::WNScriptingArrayRef<WN_CHAR>* _string, WNScripting::WNScriptingArrayRef<WN_CHAR>* _findee) {
-    WNScripting::WNScriptingArray<WN_CHAR> string(_string);
-    WNScripting::WNScriptingArray<WN_CHAR> findee(_findee);
+wn_int32 FindFirstNotIn(WNScripting::WNScriptingArrayRef<wn_char>* _string, WNScripting::WNScriptingArrayRef<wn_char>* _findee) {
+    WNScripting::WNScriptingArray<wn_char> string(_string);
+    WNScripting::WNScriptingArray<wn_char> findee(_findee);
     if(!string || !findee) {
         return(-1);
     }
-    WN_SIZE_T searchLen = findee.GetLength();
-    for(WN_SIZE_T i = 0; i < string.GetLength(); ++i) {
-        WN_SIZE_T j = 0;
+    wn_size_t searchLen = findee.GetLength();
+    for(wn_size_t i = 0; i < string.GetLength(); ++i) {
+        wn_size_t j = 0;
         for(j = 0; j < searchLen; ++j) {
             if(string[i] == findee[j]) {
                break; 
             }
         }
         if(j == searchLen) {
-            return(i);
+            return(static_cast<wn_int32>(i));
         }
     }
     return(-1);
 }
 
-WN_INT32 FindFirstOf(WNScripting::WNScriptingArrayRef<WN_CHAR>* _string, WN_CHAR _char) {
-    WNScripting::WNScriptingArray<WN_CHAR> string(_string);
+wn_int32 FindFirstOf(WNScripting::WNScriptingArrayRef<wn_char>* _string, wn_char _char) {
+    WNScripting::WNScriptingArray<wn_char> string(_string);
     if(!string) {
         return(-1);
     }
-    for(WN_SIZE_T i = 0; i < string.GetLength(); ++i) {
+    for(wn_size_t i = 0; i < string.GetLength(); ++i) {
         if(string[i] == _char) {
-            return(i);
+            return(static_cast<wn_int32>(i));
         }
     }
     return(-1);
 }
 
-WN_INT32 FindLastIn(WNScripting::WNScriptingArrayRef<WN_CHAR>* _string, WNScripting::WNScriptingArrayRef<WN_CHAR>* _findee) {
-    WNScripting::WNScriptingArray<WN_CHAR> string(_string);
-    WNScripting::WNScriptingArray<WN_CHAR> findee(_findee);
+wn_int32 FindLastIn(WNScripting::WNScriptingArrayRef<wn_char>* _string, WNScripting::WNScriptingArrayRef<wn_char>* _findee) {
+    WNScripting::WNScriptingArray<wn_char> string(_string);
+    WNScripting::WNScriptingArray<wn_char> findee(_findee);
     if(!string || !findee) {
         return(-1);
     }
-    WN_INT32 searchLen = static_cast<WN_INT32>(findee.GetLength());
-    for(WN_INT32 i = static_cast<WN_INT32>(string.GetLength()) - 1; i >= 0; --i) {
-        for(WN_INT32 j = 0; j < searchLen; ++j) {
+    wn_int32 searchLen = static_cast<wn_int32>(findee.GetLength());
+    for(wn_int32 i = static_cast<wn_int32>(string.GetLength()) - 1; i >= 0; --i) {
+        for(wn_int32 j = 0; j < searchLen; ++j) {
             if(string[i] == findee[j]) {
-                return(i);
+                return(static_cast<wn_int32>(i));
             }
         }
     }
     return(-1);
 }
 
-WN_INT32 FindLastNotIn(WNScripting::WNScriptingArrayRef<WN_CHAR>* _string, WNScripting::WNScriptingArrayRef<WN_CHAR>* _findee) {
-    WNScripting::WNScriptingArray<WN_CHAR> string(_string);
-    WNScripting::WNScriptingArray<WN_CHAR> findee(_findee);
+wn_int32 FindLastNotIn(WNScripting::WNScriptingArrayRef<wn_char>* _string, WNScripting::WNScriptingArrayRef<wn_char>* _findee) {
+    WNScripting::WNScriptingArray<wn_char> string(_string);
+    WNScripting::WNScriptingArray<wn_char> findee(_findee);
     if(!string || !findee) {
         return(-1);
     }
-    WN_SIZE_T searchLen = findee.GetLength();
-    for(WN_SIZE_T i = string.GetLength() - 1; i >= 0; --i) {
-        WN_SIZE_T j = 0;
+    wn_size_t searchLen = findee.GetLength();
+    for(wn_size_t i = string.GetLength() - 1; i >= 0; --i) {
+        wn_size_t j = 0;
         for(j = 0; j < searchLen; ++j) {
             if(string[i] == findee[j]) {
                 break;
             }
         }
         if(j == searchLen) {
-            return(i);
+            return(static_cast<wn_int32>(i));
         }
     }
     return(-1);
 }
 
-WN_INT32 FindLastOf(WNScripting::WNScriptingArrayRef<WN_CHAR>* _string, WN_CHAR _char) {
-    WNScripting::WNScriptingArray<WN_CHAR> string(_string);
+wn_int32 FindLastOf(WNScripting::WNScriptingArrayRef<wn_char>* _string, wn_char _char) {
+    WNScripting::WNScriptingArray<wn_char> string(_string);
     if(!string) {
         return(-1);
     }
-    for(WN_INT32 i = static_cast<WN_INT32>(string.GetLength()) - 1; i >= 0; --i) {
+    for(wn_int32 i = static_cast<wn_int32>(string.GetLength()) - 1; i >= 0; --i) {
         if(string[i] == _char) {
-            return(i);
+            return(static_cast<wn_int32>(i));
         }
     }
     return(-1);
 }
 
-WN_INT32 FindNextIn(WNScripting::WNScriptingArrayRef<WN_CHAR>* _string, WNScripting::WNScriptingArrayRef<WN_CHAR>* _findee, WN_INT32 index) {
-    WNScripting::WNScriptingArray<WN_CHAR> string(_string);
-    WNScripting::WNScriptingArray<WN_CHAR> findee(_findee);
+wn_int32 FindNextIn(WNScripting::WNScriptingArrayRef<wn_char>* _string, WNScripting::WNScriptingArrayRef<wn_char>* _findee, wn_int32 index) {
+    WNScripting::WNScriptingArray<wn_char> string(_string);
+    WNScripting::WNScriptingArray<wn_char> findee(_findee);
     if(!string || !findee || index < 0) {
         return(-1);
     }
-    WN_SIZE_T searchLen = findee.GetLength();
-    for(WN_SIZE_T i = index; i < string.GetLength(); ++i) {
-        for(WN_SIZE_T j = 0; j < searchLen; ++j) {
+    wn_size_t searchLen = findee.GetLength();
+    for(wn_size_t i = index; i < string.GetLength(); ++i) {
+        for(wn_size_t j = 0; j < searchLen; ++j) {
             if(string[i] == findee[j]) {
-                return(i);
+                return(static_cast<wn_int32>(i));
             }
         }
     }
     return(-1);
 }
 
-WN_INT32 FindNextNotIn(WNScripting::WNScriptingArrayRef<WN_CHAR>* _string, WNScripting::WNScriptingArrayRef<WN_CHAR>* _findee, WN_INT32 index) {
-    WNScripting::WNScriptingArray<WN_CHAR> string(_string);
-    WNScripting::WNScriptingArray<WN_CHAR> findee(_findee);
+wn_int32 FindNextNotIn(WNScripting::WNScriptingArrayRef<wn_char>* _string, WNScripting::WNScriptingArrayRef<wn_char>* _findee, wn_int32 index) {
+    WNScripting::WNScriptingArray<wn_char> string(_string);
+    WNScripting::WNScriptingArray<wn_char> findee(_findee);
     if(!string || !findee || index < 0) {
         return(-1);
     }
-    WN_SIZE_T searchLen = findee.GetLength();
-    for(WN_SIZE_T i = index; i < string.GetLength(); ++i) {
-        WN_SIZE_T j = 0;
+    wn_size_t searchLen = findee.GetLength();
+    for(wn_size_t i = index; i < string.GetLength(); ++i) {
+        wn_size_t j = 0;
         for(j = 0; j < searchLen; ++j) {
             if(string[i] == findee[j]) {
                 break;
             }
         }
         if(j == searchLen) {
-            return(i);
+            return(static_cast<wn_int32>(i));
         }
     }
     return(-1);
 }
-WN_INT32 FindNextOf(WNScripting::WNScriptingArrayRef<WN_CHAR>* _string, WN_CHAR _char, WN_INT32 index) {
-    WNScripting::WNScriptingArray<WN_CHAR> string(_string);
+wn_int32 FindNextOf(WNScripting::WNScriptingArrayRef<wn_char>* _string, wn_char _char, wn_int32 index) {
+    WNScripting::WNScriptingArray<wn_char> string(_string);
     if(!string || index < 0) {
         return(-1);
     }
-    for(WN_SIZE_T i = index; i < string.GetLength(); ++i) {
+    for(wn_size_t i = index; i < string.GetLength(); ++i) {
         if(string[i] == _char) {
-            return(i);
+            return(static_cast<wn_int32>(i));
         }
     }
     return(-1);
 }
 
-WN_INT32 FindNextLastIn(WNScripting::WNScriptingArrayRef<WN_CHAR>* _string, WNScripting::WNScriptingArrayRef<WN_CHAR>* _findee, WN_INT32 index) {
-    WNScripting::WNScriptingArray<WN_CHAR> string(_string);
-    WNScripting::WNScriptingArray<WN_CHAR> findee(_findee);
-    if(!string || !findee || static_cast<WN_SIZE_T>(index) > string.GetLength()) {
+wn_int32 FindNextLastIn(WNScripting::WNScriptingArrayRef<wn_char>* _string, WNScripting::WNScriptingArrayRef<wn_char>* _findee, wn_int32 index) {
+    WNScripting::WNScriptingArray<wn_char> string(_string);
+    WNScripting::WNScriptingArray<wn_char> findee(_findee);
+    if(!string || !findee || static_cast<wn_size_t>(index) > string.GetLength()) {
         return(-1);
     }
-    WN_SIZE_T searchLen = findee.GetLength();
-    for(WN_SIZE_T i = index; i >= 0; --i) {
-        for(WN_SIZE_T j = 0; j < searchLen; ++j) {
+    wn_size_t searchLen = findee.GetLength();
+    for(wn_size_t i = index; i >= 0; --i) {
+        for(wn_size_t j = 0; j < searchLen; ++j) {
             if(string[i] == findee[j]) {
-                return(i);
+                return(static_cast<wn_int32>(i));
             }
         }
     }
     return(-1);
 }
 
-WN_INT32 FindNextLastNotIn(WNScripting::WNScriptingArrayRef<WN_CHAR>* _string, WNScripting::WNScriptingArrayRef<WN_CHAR>* _findee, WN_INT32 index) {
-    WNScripting::WNScriptingArray<WN_CHAR> string(_string);
-    WNScripting::WNScriptingArray<WN_CHAR> findee(_findee);
-    if(!string || !findee || static_cast<WN_SIZE_T>(index) > string.GetLength()) {
+wn_int32 FindNextLastNotIn(WNScripting::WNScriptingArrayRef<wn_char>* _string, WNScripting::WNScriptingArrayRef<wn_char>* _findee, wn_int32 index) {
+    WNScripting::WNScriptingArray<wn_char> string(_string);
+    WNScripting::WNScriptingArray<wn_char> findee(_findee);
+    if(!string || !findee || static_cast<wn_size_t>(index) > string.GetLength()) {
         return(-1);
     }
-    WN_SIZE_T searchLen = findee.GetLength();
-    for(WN_SIZE_T i = index; i >= 0; --i) {
-        WN_SIZE_T j = 0;
+    wn_size_t searchLen = findee.GetLength();
+    for(wn_size_t i = index; i >= 0; --i) {
+        wn_size_t j = 0;
         for(j = 0; j < searchLen; ++j) {
             if(string[i] == findee[j]) {
                 break;
             }
         }
         if(j == searchLen) {
-            return(i);
+            return(static_cast<wn_int32>(i));
         }
     }
     return(-1);
 }
 
-WN_INT32 FindNextLastOf(WNScripting::WNScriptingArrayRef<WN_CHAR>* _string, WN_CHAR _char, WN_INT32 index) {
-    WNScripting::WNScriptingArray<WN_CHAR> string(_string);
-    if(!string || static_cast<WN_SIZE_T>(index) > string.GetLength()) {
+wn_int32 FindNextLastOf(WNScripting::WNScriptingArrayRef<wn_char>* _string, wn_char _char, wn_int32 index) {
+    WNScripting::WNScriptingArray<wn_char> string(_string);
+    if(!string || static_cast<wn_size_t>(index) > string.GetLength()) {
         return(-1);
     }
     for(int i = index; i >= 0; --i) {
         if(string[i] == _char) {
-            return(i);
+            return(static_cast<wn_int32>(i));
         }
     }
     return(-1);
 }
 
-WN_INT32 FindString(WNScripting::WNScriptingArrayRef<WN_CHAR>* _string, WNScripting::WNScriptingArrayRef<WN_CHAR>* _substr) {
-    WNScripting::WNScriptingArray<WN_CHAR> string(_string);
-    WNScripting::WNScriptingArray<WN_CHAR> substr(_substr);
+wn_int32 FindString(WNScripting::WNScriptingArrayRef<wn_char>* _string, WNScripting::WNScriptingArrayRef<wn_char>* _substr) {
+    WNScripting::WNScriptingArray<wn_char> string(_string);
+    WNScripting::WNScriptingArray<wn_char> substr(_substr);
     if(!string || !substr) {
         return(-1);
     }
 
-    for(WN_INT32 i = 0; i < static_cast<WN_INT32>(string.GetLength()) - static_cast<WN_INT32>(substr.GetLength()); ++i){
+    for(wn_int32 i = 0; i < static_cast<wn_int32>(string.GetLength()) - static_cast<wn_int32>(substr.GetLength()); ++i){
         if(WNStrings::WNStrNCmp(&string[i], &substr[0], substr.GetLength()) == 0) {
-            return(i);
+            return(static_cast<wn_int32>(i));
         }
     }
 
     return(-1);
 }
 
-WN_INT32 FindLastString(WNScripting::WNScriptingArrayRef<WN_CHAR>* _string, WNScripting::WNScriptingArrayRef<WN_CHAR>* _substr) {
-    WNScripting::WNScriptingArray<WN_CHAR> string(_string);
-    WNScripting::WNScriptingArray<WN_CHAR> substr(_substr);
+wn_int32 FindLastString(WNScripting::WNScriptingArrayRef<wn_char>* _string, WNScripting::WNScriptingArrayRef<wn_char>* _substr) {
+    WNScripting::WNScriptingArray<wn_char> string(_string);
+    WNScripting::WNScriptingArray<wn_char> substr(_substr);
     if(!string || !substr) {
         return(-1);
     }
 
-    for(WN_INT32 i = static_cast<WN_INT32>(string.GetLength()) - static_cast<WN_INT32>(substr.GetLength()) - 1; i >= 0 ; --i){
+    for(wn_int32 i = static_cast<wn_int32>(string.GetLength()) - static_cast<wn_int32>(substr.GetLength()) - 1; i >= 0 ; --i){
         if(WNStrings::WNStrNCmp(&string[i], &substr[0], substr.GetLength()) == 0) {
-            return(i);
+            return(static_cast<wn_int32>(i));
         }
     }
     return(-1);
 }
 
-WNScripting::WNScriptingArrayRef<WN_CHAR>* ConcatenateStrings(WNScripting::WNScriptingArrayRef<WN_CHAR>* _string1, WNScripting::WNScriptingArrayRef<WN_CHAR>* _string2) {
-    WNScripting::WNScriptingArray<WN_CHAR> string1(_string1);
-    WNScripting::WNScriptingArray<WN_CHAR> string2(_string2);
+WNScripting::WNScriptingArrayRef<wn_char>* ConcatenateStrings(WNScripting::WNScriptingArrayRef<wn_char>* _string1, WNScripting::WNScriptingArrayRef<wn_char>* _string2) {
+    WNScripting::WNScriptingArray<wn_char> string1(_string1);
+    WNScripting::WNScriptingArray<wn_char> string2(_string2);
     if(!string1 || !string2) {
-        return(WN_NULL);
+        return(wn_nullptr);
     }
     void* outPtr;
     string1.GetType()->mScriptingEngine->ConstructScriptingArray(string1.GetType(), string1.GetLength() + string2.GetLength(), outPtr);
-    WNScripting::WNScriptingArray<WN_CHAR> outArray(outPtr);
+    WNScripting::WNScriptingArray<wn_char> outArray(outPtr);
     memcpy(&outArray[0], &string1[0], string1.GetLength());
     memcpy(&outArray[string1.GetLength()], &string2[0], string2.GetLength());
     return(outArray.DetachOut());
 }
 
-WNScripting::WNScriptingArrayRef<WN_CHAR>* CopyString(WNScripting::WNScriptingArrayRef<WN_CHAR>* _string1) {
-    WNScripting::WNScriptingArray<WN_CHAR> string1(_string1);
+WNScripting::WNScriptingArrayRef<wn_char>* CopyString(WNScripting::WNScriptingArrayRef<wn_char>* _string1) {
+    WNScripting::WNScriptingArray<wn_char> string1(_string1);
     if(!string1) {
-        return(WN_NULL);
+        return(wn_nullptr);
     }
     void* outPtr;
     string1.GetType()->mScriptingEngine->ConstructScriptingArray(string1.GetType(), string1.GetLength(), outPtr);
-    WNScripting::WNScriptingArray<WN_CHAR> outArray(outPtr);
+    WNScripting::WNScriptingArray<wn_char> outArray(outPtr);
     memcpy(&outArray[0], &string1[0], string1.GetLength());
     return(outArray.DetachOut());
 }
@@ -450,36 +450,36 @@ eWNTypeError RegisterExternalString(WNScripting::WNScriptingEngine* _engine, WNS
     WNScripting::WNScriptType _voidType;
     WNScripting::WNScriptType _functionType;
     WNScripting::WNScriptType _arrayOfArrayOfString;
-    if(eWNOK != _manager.GetTypeByName("Char", _char)) {
-        return(eWNError);
+    if(ok != _manager.GetTypeByName("Char", _char)) {
+        return(error);
     }
-    if(eWNOK != _manager.GetTypeByName("Int", _intType)) {
-        return(eWNError);
+    if(ok != _manager.GetTypeByName("Int", _intType)) {
+        return(error);
     }
-    if(eWNOK != _manager.GetTypeByName("-Null", _nullType)) {
-        return(eWNError);
+    if(ok != _manager.GetTypeByName("-Null", _nullType)) {
+        return(error);
     }
-    if(eWNOK != _manager.GetTypeByName("Bool", _boolType)) {
-        return(eWNError);
+    if(ok != _manager.GetTypeByName("Bool", _boolType)) {
+        return(error);
     }
-    if(eWNOK != _manager.GetTypeByName("-Function", _functionType)) {
-        return(eWNError);
+    if(ok != _manager.GetTypeByName("-Function", _functionType)) {
+        return(error);
     }
-    if(eWNOK != _manager.GetTypeByName("Void", _voidType)) {
-        return(eWNError);
+    if(ok != _manager.GetTypeByName("Void", _voidType)) {
+        return(error);
     }
-    if(eWNOK != _manager.GetArrayOf(_char, _charArray)) {
-        return(eWNError);
+    if(ok != _manager.GetArrayOf(_char, _charArray)) {
+        return(error);
     }
     
-    if(eWNOK != _manager.GetArrayOf(_charArray, _arrayOfArrayOfString)) { //We use this here so that is
+    if(ok != _manager.GetArrayOf(_charArray, _arrayOfArrayOfString)) { //We use this here so that is
                                                                           //is populated so we can get it through
                                                                           //a const ScriptingEngine later
-        return(eWNError);
+        return(error);
     }
 
-    if(eWNOK != _manager.RegisterAliasedStruct("String", _charArray, _myType)) {
-        return(eWNError);
+    if(ok != _manager.RegisterAliasedStruct("String", _charArray, _myType)) {
+        return(error);
     }
     
     _manager.RegisterCastingOperator(_charArray, _myType, WN_NEW WNScripting::GenerateReinterpretCastOperation(_myType));
@@ -491,8 +491,8 @@ eWNTypeError RegisterExternalString(WNScripting::WNScriptingEngine* _engine, WNS
     _manager.RegisterAssignmentOperator(_myType, AT_CHOWN, WN_NEW WNScripting::GenerateStructTransfer());
     _manager.RegisterCastingOperator(_nullType, _myType, WN_NEW WNScripting::GenerateReinterpretCastOperation(_myType));
     _manager.RegisterCastingOperator(_myType, _nullType, WN_NEW WNScripting::GenerateReinterpretCastOperation(_nullType));
-    _manager.RegisterArithmeticOperator(AR_EQ, _myType, _myType, WN_NEW WNScripting::GenerateStructCompare(_boolType, WN_TRUE));
-    _manager.RegisterArithmeticOperator(AR_NEQ, _myType, _myType, WN_NEW WNScripting::GenerateStructCompare(_boolType, WN_FALSE));
+    _manager.RegisterArithmeticOperator(AR_EQ, _myType, _myType, WN_NEW WNScripting::GenerateStructCompare(_boolType, wn_true));
+    _manager.RegisterArithmeticOperator(AR_NEQ, _myType, _myType, WN_NEW WNScripting::GenerateStructCompare(_boolType, wn_false));
     _manager.RegisterIDAccessOperator(_myType, WN_NEW WNScripting::GenerateArrayIDOperator(_myType, _intType, _functionType));
 
     std::vector<WNScripting::WNScriptType> params;
@@ -525,5 +525,5 @@ eWNTypeError RegisterExternalString(WNScripting::WNScriptingEngine* _engine, WNS
     _engine->RegisterFunction("$FindNextOf", _intType, params, reinterpret_cast<void*>(&FindNextOf));
     _engine->RegisterFunction("$FindNextLastOf", _intType, params, reinterpret_cast<void*>(&FindNextLastOf));
 
-    return(eWNOK);
+    return(ok);
 }

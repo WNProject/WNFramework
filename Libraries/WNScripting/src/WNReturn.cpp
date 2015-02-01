@@ -36,7 +36,7 @@ WNReturn::WNReturn(WNExpression* _expr, bool _changeOwnership):
 }
 
 WNReturn::WNReturn() :
-    mExpression(WN_NULL) {
+    mExpression(wn_nullptr) {
 }
 
 WNReturn::~WNReturn() {
@@ -50,8 +50,8 @@ eWNTypeError WNReturn::GenerateCode(WNCodeModule& _module, const WNFunctionDefin
     mReturns = true;
     eWNTypeError err;
     if(mExpression) {
-        llvm::Value* v = WN_NULL;
-        if(eWNOK != (err = mExpression->GenerateCode(_module, _def, _compilationLog)) ) {
+        llvm::Value* v = wn_nullptr;
+        if(ok != (err = mExpression->GenerateCode(_module, _def, _compilationLog)) ) {
             return(err);
         }
         v  = mExpression->GetValue();
@@ -62,7 +62,7 @@ eWNTypeError WNReturn::GenerateCode(WNCodeModule& _module, const WNFunctionDefin
                 LogLine(_compilationLog, WNLogging::eError);
                 return(eWNInvalidCast);
             }
-            if(eWNOK != (err = castOp->Execute(_module.GetBuilder(), mExpression->GetValue(), v))) {
+            if(ok != (err = castOp->Execute(_module.GetBuilder(), mExpression->GetValue(), v))) {
                 _compilationLog.Log(WNLogging::eCritical, 0, "Error generating casting operation ", mExpression->GetType()->mName, " to ", _def->mReturn->mName);
                 LogLine(_compilationLog, WNLogging::eCritical);
                 return(err);
@@ -78,7 +78,7 @@ eWNTypeError WNReturn::GenerateCode(WNCodeModule& _module, const WNFunctionDefin
             if(!((_def->mReturn->mLLVMStructType || _def->mReturn->mArrayType) && mExpression->GetValueLocation())) {
                 _compilationLog.Log(WNLogging::eCritical, 0, "Cannot change of type ", mExpression->GetType()->mName);
                 LogLine(_compilationLog, WNLogging::eCritical);
-                return(eWNError);
+                return(error);
             }
             llvm::Value* structLoc = mExpression->GetValueLocation();
             std::vector<llvm::Value*> GepArray;
@@ -122,7 +122,7 @@ eWNTypeError WNReturn::GenerateCode(WNCodeModule& _module, const WNFunctionDefin
         }
         
 
-        if(eWNOK != (err = _module.GetScopedVariableList().GenerateReturn(_module, _def, _compilationLog))) {
+        if(ok != (err = _module.GetScopedVariableList().GenerateReturn(_module, _def, _compilationLog))) {
             _compilationLog.Log(WNLogging::eCritical, 0, "Error generating return");
             LogLine(_compilationLog, WNLogging::eCritical);
             return(err);
@@ -142,17 +142,17 @@ eWNTypeError WNReturn::GenerateCode(WNCodeModule& _module, const WNFunctionDefin
 
         builder->CreateRet(v);
     } else {
-        if(eWNOK != (err = _module.GetScopedVariableList().GenerateReturn(_module, _def, _compilationLog))) {
+        if(ok != (err = _module.GetScopedVariableList().GenerateReturn(_module, _def, _compilationLog))) {
             _compilationLog.Log(WNLogging::eCritical, 0, "Error generating return");
             LogLine(_compilationLog, WNLogging::eCritical);
             return(err);
         }
-        if(eWNOK != (err = GenerateVOIDReturn(_module, _def))) {
+        if(ok != (err = GenerateVOIDReturn(_module, _def))) {
             _compilationLog.Log(WNLogging::eCritical, 0, "Error generating void return");
             LogLine(_compilationLog, WNLogging::eCritical);
             return(err);
         }
     }
-    return(eWNOK);
+    return(ok);
 }
 

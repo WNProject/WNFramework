@@ -25,9 +25,9 @@ namespace WNContainers {
         WNCallback0<Return>& operator = (const WNCallback0<Return>& _callback);
 
         Return Execute() const;
-        WN_BOOL IsValid();
+        wn_bool IsValid();
     private:
-        __WNInternal::__WNCallbackBase0<Return>* mBaseCallback;
+        internal::__WNCallbackBase0<Return>* mBaseCallback;
     };
 
     template <typename Return, typename Parameter>
@@ -45,9 +45,9 @@ namespace WNContainers {
         WNCallback1<Return, Parameter>& operator = (const WNCallback1<Return, Parameter>& _callback);
 
         Return Execute(const Parameter& _parameter) const;
-        WN_BOOL IsValid();
+        wn_bool IsValid();
     private:
-        __WNInternal::__WNCallbackBase1<Return, Parameter>* mBaseCallback;
+        internal::__WNCallbackBase1<Return, Parameter>* mBaseCallback;
     };
 
     template <typename Return, typename Parameter1, typename Parameter2>
@@ -65,9 +65,9 @@ namespace WNContainers {
         WNCallback2<Return, Parameter1, Parameter2>& operator = (const WNCallback2<Return, Parameter1, Parameter2>& _callback);
 
         Return Execute(const Parameter1& _parameter1, const Parameter2& _parameter2) const;
-        WN_BOOL IsValid();
+        wn_bool IsValid();
     private:
-        __WNInternal::__WNCallbackBase2<Return, Parameter1, Parameter2>* mBaseCallback;
+        internal::__WNCallbackBase2<Return, Parameter1, Parameter2>* mBaseCallback;
     };
 
     template <typename Return, typename Parameter1, typename Parameter2, typename Parameter3>
@@ -84,9 +84,9 @@ namespace WNContainers {
         WNCallback3<Return, Parameter1, Parameter2, Parameter3>& operator = (const WNCallback3<Return, Parameter1, Parameter2, Parameter3>& _callback);
 
         Return Execute(const Parameter1& _parameter1, const Parameter2& _parameter2, const Parameter3& _parameter3) const;
-        WN_BOOL IsValid();
+        wn_bool IsValid();
     private:
-        __WNInternal::__WNCallbackBase3<Return, Parameter1, Parameter2, Parameter3>* mBaseCallback;
+        internal::__WNCallbackBase3<Return, Parameter1, Parameter2, Parameter3>* mBaseCallback;
     };
 }
 

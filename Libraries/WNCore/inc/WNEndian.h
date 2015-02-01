@@ -10,17 +10,17 @@
 #include "WNCore/inc/WNTypes.h"
 
 namespace WNCore {
-    template <typename Type>
-    Type& WNToBigEndian(Type& _value);
+    template <typename type>
+    type& WNToBigEndian(type& _value);
 
-    template <typename Type>
-    Type& WNFromBigEndian(Type& _value);
+    template <typename type>
+    type& WNFromBigEndian(type& _value);
 
-    template <typename Type>
-    Type& WNToLittleEndian(Type& _value);
+    template <typename type>
+    type& WNToLittleEndian(type& _value);
 
-    template <typename Type>
-    Type& WNFromLittleEndian(Type& _value);
+    template <typename type>
+    type& WNFromLittleEndian(type& _value);
 }
 
 #include "WNCore/inc/Internal/WNEndian.inl"

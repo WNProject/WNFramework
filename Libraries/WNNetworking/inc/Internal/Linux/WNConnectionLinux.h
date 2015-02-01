@@ -22,35 +22,35 @@ namespace WNNetworking {
         WNConnectionLinux(WNNetworkManager& _manager);
         virtual ~WNConnectionLinux();
 
-        virtual WN_VOID Invalidate();
-        virtual WN_VOID SendBuffer(WNNetworkWriteBuffer& _buffer);
-        WN_INT32 GetLinuxSocket();
-        WN_VOID NotifyReadyToSend(WN_BOOL socketFree);
-        WN_VOID NotifyReadReady();
+        virtual wn_void Invalidate();
+        virtual wn_void SendBuffer(WNNetworkWriteBuffer& _buffer);
+        wn_int32 GetLinuxSocket();
+        wn_void NotifyReadyToSend(wn_bool socketFree);
+        wn_void NotifyReadReady();
 
     protected:
-        WN_VOID ReadReady();
-        WN_BOOL Send();
+        wn_void ReadReady();
+        wn_bool Send();
         WNNetworkManager& mManager;
-        WN_BOOL mReadyToWrite;
-        WN_INT32 mSockFD;
-        WN_SIZE_T mBufferChunkCount;
-        WN_SIZE_T mBufferWritten;
-        WN_SIZE_T mTotalSent;
-        WN_ATOM_T mReadAtomic;
-        WN_ATOM_T mWriteAtomic;
-        WNConcurrency::WNSpinLock mReadLock;
-        WNConcurrency::WNSpinLock mWriteLock;
-        WNConcurrency::WNSpinLock mSendBufferLock;
+        wn_bool mReadyToWrite;
+        wn_int32 mSockFD;
+        wn_size_t mBufferChunkCount;
+        wn_size_t mBufferWritten;
+        wn_size_t mTotalSent;
+        wn_atom_t mReadAtomic;
+        wn_atom_t mWriteAtomic;
+        wn::spin_lock mReadLock;
+        wn::spin_lock mWriteLock;
+        wn::spin_lock mSendBufferLock;
         std::deque<WNNetworkWriteBuffer> mSendBuffers;
 
         WNNetworkReadBuffer mCurrentReadBuffer;
-        WN_SIZE_T mInProcessedBytes;
-        WN_SIZE_T mReadHead;
-        WN_SIZE_T mBufferBase;
-        WNConcurrency::WNResourcePointer<WNBufferResource> mReadLocation;
-        WN_SIZE_T mOverflowAmount;
-        WN_CHAR mOverflowLocation[8];
+        wn_size_t mInProcessedBytes;
+        wn_size_t mReadHead;
+        wn_size_t mBufferBase;
+        wn::intrusive_ptr<WNBufferResource> mReadLocation;
+        wn_size_t mOverflowAmount;
+        wn_char mOverflowLocation[8];
     };
 };
 

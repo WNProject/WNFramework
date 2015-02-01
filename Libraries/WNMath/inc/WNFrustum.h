@@ -14,35 +14,35 @@
 #include "WNMath/inc/WNMatrix4.h"
 #include "WNMath/inc/WNCommon.h"
 
-namespace WNMath {
-    template <typename Type> class WNBox;
-    template <typename Type> class WNSphere;
-    template <typename Type> class WNBounds3;
+namespace wn {
+    template <typename type> class WNBox;
+    template <typename type> class sphere;
+    template <typename type> class WNBounds3;
 
-    template <typename Type>
+    template <typename type>
     class WNFrustum {
-        WN_STATIC_ASSERT_DESC(WNCore::WNIsReal<Type>::Value == WN_TRUE, "Frustums of non real number types don't make sense.  Please use one of the available real number types.");
+        static_assert(wn::is_real<type>::value == wn_true, "Frustums of non real number types don't make sense.  Please use one of the available real number types.");
 
     public:
-        explicit WNFrustum(const WNMatrix4<Type>& _transform, Type _near, Type _far, Type _aspect, Type _fov, WNFieldOfView::WNHorizontal _horizontal);
-        explicit WNFrustum(const WNMatrix4<Type>& _transform, Type _near, Type _far, Type _aspect, Type _fov, WNFieldOfView::WNVertical _vertical);
-        explicit WNFrustum(Type _near, Type _far, Type _fov, Type _aspect, WNFieldOfView::WNHorizontal _horizontal);
-        explicit WNFrustum(Type _near, Type _far, Type _fov, Type _aspect, WNFieldOfView::WNVertical _vertical);
+        explicit WNFrustum(const WNMatrix4<type>& _transform, type _near, type _far, type _aspect, type _fov, WNFieldOfView::WNHorizontal _horizontal);
+        explicit WNFrustum(const WNMatrix4<type>& _transform, type _near, type _far, type _aspect, type _fov, WNFieldOfView::WNVertical _vertical);
+        explicit WNFrustum(type _near, type _far, type _fov, type _aspect, WNFieldOfView::WNHorizontal _horizontal);
+        explicit WNFrustum(type _near, type _far, type _fov, type _aspect, WNFieldOfView::WNVertical _vertical);
 
-        WN_VOID Transform(const WNMatrix4<Type>& _updateTransform);
-        WN_VOID SetTransform(const WNMatrix4<Type>& _setTransform);
+        wn_void Transform(const WNMatrix4<type>& _updateTransform);
+        wn_void SetTransform(const WNMatrix4<type>& _setTransform);
 
-        WN_BOOL Intersects(const WNBox<Type>& _box) const;
-        WN_BOOL Intersects(const WNSphere<Type>& _sphere) const;
-        WN_BOOL Intersects(const WNBounds3<Type>& _bounds) const;
+        wn_bool Intersects(const WNBox<type>& _box) const;
+        wn_bool Intersects(const sphere<type>& _sphere) const;
+        wn_bool Intersects(const WNBounds3<type>& _bounds) const;
 
     public:
-        WNVector3<Type> mPoints[8];
-        WNMatrix4<Type> mTransform;
-        Type mNearPlane;
-        Type mFarPlane;
-        Type mHorizontalFOV;
-        Type mVerticalFOV;
+        vector3<type> mPoints[8];
+        WNMatrix4<type> mTransform;
+        type mNearPlane;
+        type mFarPlane;
+        type mHorizontalFOV;
+        type mVerticalFOV;
     };
 }
 

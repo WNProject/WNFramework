@@ -5,18 +5,20 @@
 #include "WNScripting/inc/WNArgList.h"
 #include "WNMemory/inc/WNAllocation.h"
 #include "WNScripting/inc/WNExpression.h"
+
 using namespace WNScripting; 
+
 WNArgList::WNArgList() {
 }
 
 WNArgList::~WNArgList() {
-    for(WNScriptLinkedList<WNFunctionExpression>::WNScriptLinkedListNode * i = mExpressionList.first; i != WN_NULL; i = i->next) {
+    for(WNScriptLinkedList<WNFunctionExpression>::WNScriptLinkedListNode * i = mExpressionList.first; i != wn_nullptr; i = i->next) {
         WN_DELETE(i->value->expr);
         WN_DELETE(i->value);
     }
 }
 
-void WNArgList::AddExpression(WNExpression* _expr, WN_BOOL _handOwnership) {
+void WNArgList::AddExpression(WNExpression* _expr, wn_bool _handOwnership) {
     mExpressionList.PushBack(new WNFunctionExpression(_expr, _handOwnership));
 }
 

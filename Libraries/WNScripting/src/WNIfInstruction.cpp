@@ -41,7 +41,7 @@ WNElseIf::~WNElseIf() {
 }
 
 eWNTypeError WNElseIf::GenerateCode(WNCodeModule&, const WNFunctionDefinition*, WNLogging::WNLog&) {
-    return(eWNError); //The code for the Elseif is actually generated in WNIFInstruction
+    return(error); //The code for the Elseif is actually generated in WNIFInstruction
 }
 
 WNExpression* WNElseIf::GetCondition() {
@@ -55,7 +55,7 @@ WNInstructionList* WNElseIf::GetBody() {
 WNIFInstruction::WNIFInstruction(WNExpression* _cond, WNInstructionList* _body) :
     mCondition(_cond),
     mBody(_body),
-    mElse(WN_NULL) {
+    mElse(wn_nullptr) {
 }
 
 WNIFInstruction::~WNIFInstruction() {
@@ -64,7 +64,7 @@ WNIFInstruction::~WNIFInstruction() {
     if(mElse) {
         WN_DELETE(mElse);
     }
-    for(WNScriptLinkedList<WNElseIf>::WNScriptLinkedListNode*i =  mElseIfNodes.first; i != WN_NULL; i = i->next) {
+    for(WNScriptLinkedList<WNElseIf>::WNScriptLinkedListNode*i =  mElseIfNodes.first; i != wn_nullptr; i = i->next) {
         WN_DELETE(i->value);
     }
 }
@@ -79,7 +79,7 @@ void WNIFInstruction::AddElse(WNInstructionList* _else) {
 
 eWNTypeError WNIFInstruction::GenerateCode(WNCodeModule& _module, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog) {
     llvm::IRBuilder<>* builder = reinterpret_cast<llvm::IRBuilder<>*>(_module.GetBuilder());
-    eWNTypeError err = eWNOK;
+    eWNTypeError err = ok;
     llvm::BasicBlock* ifBlock = llvm::BasicBlock::Create(llvm::getGlobalContext(), "", _def->mFunction);
     llvm::BasicBlock* elseBlock = llvm::BasicBlock::Create(llvm::getGlobalContext(), "", _def->mFunction);
     llvm::BasicBlock* endBlock = elseBlock;
@@ -88,8 +88,8 @@ eWNTypeError WNIFInstruction::GenerateCode(WNCodeModule& _module, const WNFuncti
         endBlock = 0;
     }
 
-    WNScriptType boolType = WN_NULL;
-    if(eWNOK != (err = _module.GetTypeManager().GetTypeByName("Bool", boolType))) {
+    WNScriptType boolType = wn_nullptr;
+    if(ok != (err = _module.GetTypeManager().GetTypeByName("Bool", boolType))) {
         return(err);
     }
 
@@ -97,8 +97,8 @@ eWNTypeError WNIFInstruction::GenerateCode(WNCodeModule& _module, const WNFuncti
     WNInstructionList* curBody = mBody;
     
     llvm::Value* cv = llvm::ConstantInt::get(boolType->mLLVMType, 0);
-    for(WNScriptLinkedList<WNElseIf>::WNScriptLinkedListNode * i = mElseIfNodes.first; i != WN_NULL; i = i->next) {
-        if(eWNOK != (err = curCondition->GenerateCode(_module, _def, _compilationLog))) {
+    for(WNScriptLinkedList<WNElseIf>::WNScriptLinkedListNode * i = mElseIfNodes.first; i != wn_nullptr; i = i->next) {
+        if(ok != (err = curCondition->GenerateCode(_module, _def, _compilationLog))) {
             return(err);
         }
         if(curCondition->GetType() != boolType) {
@@ -111,7 +111,7 @@ eWNTypeError WNIFInstruction::GenerateCode(WNCodeModule& _module, const WNFuncti
         v = builder->CreateICmpNE(cv, v, "");
         builder->CreateCondBr(v, ifBlock, bb);
         builder->SetInsertPoint(ifBlock);
-        if(eWNOK != (err = curBody->GenerateCode(_module, _def, _compilationLog))) {
+        if(ok != (err = curBody->GenerateCode(_module, _def, _compilationLog))) {
             return(err);
         }
         bool returns = (curBody->Returns());
@@ -128,7 +128,7 @@ eWNTypeError WNIFInstruction::GenerateCode(WNCodeModule& _module, const WNFuncti
         curBody = i->value->GetBody();
     }
     
-    if(eWNOK != (err = curCondition->GenerateCode(_module, _def, _compilationLog))) {
+    if(ok != (err = curCondition->GenerateCode(_module, _def, _compilationLog))) {
         return(err);
     }
     if(curCondition->GetType() != boolType) {
@@ -140,7 +140,7 @@ eWNTypeError WNIFInstruction::GenerateCode(WNCodeModule& _module, const WNFuncti
     v = builder->CreateICmpNE(cv, v, "");
     builder->CreateCondBr(v, ifBlock, elseBlock);
     builder->SetInsertPoint(ifBlock);
-    if(eWNOK != (err = curBody->GenerateCode(_module, _def, _compilationLog))) {
+    if(ok != (err = curBody->GenerateCode(_module, _def, _compilationLog))) {
         return(err);
     }
     bool returns = (curBody->Returns());
@@ -168,6 +168,6 @@ eWNTypeError WNIFInstruction::GenerateCode(WNCodeModule& _module, const WNFuncti
     if(!mReturns) {
         builder->SetInsertPoint(endBlock);
     }
-    return(eWNOK);
+    return(ok);
 }
 
