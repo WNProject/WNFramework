@@ -1,0 +1,69 @@
+#!/bin/sh
+
+ANDROID_LIB_LOCATION=${ANDROID_LLVM_TREE}/build/android/lib/
+if [ "$1" = "--cppflags" ] 
+then
+   echo \-I${ANDROID_LLVM_TREE}/include \-I${ANDROID_LLVM_TREE}/build/android/include  \-D_GNU_SOURCE \-D__STDC_CONSTANT_MACROS \-D__STDC_FORMAT_MACROS \-D__STDC_LIMIT_MACROS
+fi
+
+if [ "$1" = "--libfiles" ] 
+then
+    echo \
+       ${ANDROID_LIB_LOCATION}libLLVMAnalysis.a \
+       ${ANDROID_LIB_LOCATION}libLLVMARMAsmPrinter.a \
+       ${ANDROID_LIB_LOCATION}libLLVMARMCodeGen.a \
+       ${ANDROID_LIB_LOCATION}libLLVMARMDesc.a \
+       ${ANDROID_LIB_LOCATION}libLLVMARMDisassembler.a \
+       ${ANDROID_LIB_LOCATION}libLLVMARMInfo.a \
+       ${ANDROID_LIB_LOCATION}libLLVMAsmParser.a \
+       ${ANDROID_LIB_LOCATION}libLLVMAsmPrinter.a \
+       ${ANDROID_LIB_LOCATION}libLLVMBitReader_2_7.a \
+       ${ANDROID_LIB_LOCATION}libLLVMBitReader.a \
+       ${ANDROID_LIB_LOCATION}libLLVMBitWriter.a \
+       ${ANDROID_LIB_LOCATION}libLLVMCodeGen.a \
+       ${ANDROID_LIB_LOCATION}libLLVMCore.a \
+       ${ANDROID_LIB_LOCATION}libLLVMInstCombine.a \
+       ${ANDROID_LIB_LOCATION}libLLVMipa.a \
+       ${ANDROID_LIB_LOCATION}libLLVMipo.a \
+       ${ANDROID_LIB_LOCATION}libLLVMJIT.a \
+       ${ANDROID_LIB_LOCATION}libLLVMLinker.a \
+       ${ANDROID_LIB_LOCATION}libLLVMMC.a \
+       ${ANDROID_LIB_LOCATION}libLLVMMCParser.a \
+       ${ANDROID_LIB_LOCATION}libLLVMScalarOpts.a \
+       ${ANDROID_LIB_LOCATION}libLLVMSelectionDAG.a \
+       ${ANDROID_LIB_LOCATION}libLLVMSupport.a \
+       ${ANDROID_LIB_LOCATION}libLLVMTarget.a \
+       ${ANDROID_LIB_LOCATION}libLLVMTransformUtils.a \
+       ${ANDROID_LIB_LOCATION}libLLVMX86Utils.a
+fi
+
+if [ "$1" = "--libs" ] 
+then
+    echo \
+       LLVMAnalysis \
+       LLVMARMAsmPrinter \
+       LLVMARMCodeGen \
+       LLVMARMDesc \
+       LLVMARMDisassembler \
+       LLVMARMInfo \
+       LLVMAsmParser \
+       LLVMAsmPrinter \
+       LLVMBitReader_2_7 \
+       LLVMBitReader \
+       LLVMBitWriter \
+       LLVMCodeGen \
+       LLVMCore \
+       LLVMInstCombine \
+       LLVMipa \
+       LLVMipo \
+       LLVMJIT \
+       LLVMLinker \
+       LLVMMC \
+       LLVMMCParser \
+       LLVMScalarOpts \
+       LLVMSelectionDAG \
+       LLVMSupport \
+       LLVMTarget \
+       LLVMTransformUtils \
+       LLVMX86Utils
+fi

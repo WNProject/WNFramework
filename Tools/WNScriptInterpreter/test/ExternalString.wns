@@ -1,0 +1,66 @@
+Int function test(){
+    Char[] c = "asdf\nasdfasfdasdf\n\n\nasdf\nWOOT";
+	Int x = 0;
+    for(Int i = 0; i < 29; i = i + 1;){
+		putCh(c[i]);
+	}
+	return(x);
+}
+
+Int function test2(){
+	Int stay = 1;
+	while(1 == stay){
+		Char c = getCh();
+		if(c == '.'){
+			stay = 0;
+		} else {
+			putCh(c);
+			putCh(c);
+		}		
+	}
+	return(1);
+}
+
+Int function test3(){
+	Char[] c = "asdfasdfasdfasdfasdfTHISISONESTRING\n";
+	writeString(c);
+	return(1);
+}
+
+Int function test4(){
+	Char[] c = Char[100];
+	Int line = readLine(c);
+	return(line);
+}
+
+Int function test5(){
+	Char[] c = stackReadLine(1024);
+	return(c[0]);
+}
+
+Int function test6(){
+	Char[] c = stackReadLine(1024);
+	return(#c);
+}
+
+Int function test7(){
+	Char[] c = Char[100];
+	Int line = readLine(c);
+	return(#c);
+}
+
+Int function test8(){
+	Char[] c = Char[10000];
+	Int pos = 0;
+	for(Int i = 0; i < 100; i = i + 1;){
+		pos = pos + appendToBuff(c, pos, i / 3.0, 5, 5);
+		if((i % 10) == 9){
+			pos = pos + appendToBuff(c, pos, '\n');
+		} else {
+		    pos = pos + appendToBuff(c, pos, " .. ", 5);
+		}
+	}
+	writeString(c, pos);
+	return(#c);
+}
+

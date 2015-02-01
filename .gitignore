@@ -1,0 +1,16 @@
+/Externals/bin
+/Externals/install
+/Externals/llvm
+/Externals/gtest
+/Externals/pcre
+/Libraries/bin
+/Libraries/*/build
+/Libraries/*/test/build
+/Tools/bin
+/Tools/*/build
+/Tools/*/test/build
+ipch
+*.opensdf
+*.sdf
+*.suo
+*.user

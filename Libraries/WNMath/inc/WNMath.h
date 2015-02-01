@@ -1,0 +1,36 @@
+// Copyright (c) 2014, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+#pragma once
+
+#ifndef __WN_MATH_H__
+#define __WN_MATH_H__
+
+#include "WNMath/inc/WNBasic.h"
+#include "WNMath/inc/WNBounds2.h"
+#include "WNMath/inc/WNBounds3.h"
+#include "WNMath/inc/WNBox.h"
+#include "WNMath/inc/WNCircle.h"
+#include "WNMath/inc/WNConstants.h"
+#include "WNMath/inc/WNFrustum.h"
+#include "WNMath/inc/WNLine2.h"
+#include "WNMath/inc/WNLine3.h"
+#include "WNMath/inc/WNMatrix2.h"
+#include "WNMath/inc/WNMatrix3.h"
+#include "WNMath/inc/WNMatrix4.h"
+#include "WNMath/inc/WNMatrixX.h"
+#include "WNMath/inc/WNPlane.h"
+#include "WNMath/inc/WNQuaternion.h"
+#include "WNMath/inc/WNRay2.h"
+#include "WNMath/inc/WNRay3.h"
+#include "WNMath/inc/WNRectangle.h"
+#include "WNMath/inc/WNSegment2.h"
+#include "WNMath/inc/WNSegment3.h"
+#include "WNMath/inc/WNSphere.h"
+#include "WNMath/inc/WNVector2.h"
+#include "WNMath/inc/WNVector3.h"
+#include "WNMath/inc/WNVector4.h"
+#include "WNMath/inc/WNVectorX.h"
+
+#endif // __WN_MATH_H__

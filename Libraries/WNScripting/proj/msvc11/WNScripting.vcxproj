@@ -1,0 +1,321 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{08972A40-3752-4BA3-A0CF-AEB9F7174705}</ProjectGuid>
+    <RootNamespace>WNScripting</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v110</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v110</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v110</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v110</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\..\..\Utilities\PropertySheets\msvc11\WNLibraries.Debug.Win32.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\..\..\Utilities\PropertySheets\msvc11\WNLibraries.Debug.x64.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\..\..\Utilities\PropertySheets\msvc11\WNLibraries.Release.Win32.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\..\..\Utilities\PropertySheets\msvc11\WNLibraries.Release.x64.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <CustomBuildBeforeTargets>ClCompile</CustomBuildBeforeTargets>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <CustomBuildBeforeTargets>ClCompile</CustomBuildBeforeTargets>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <CustomBuildBeforeTargets>ClCompile</CustomBuildBeforeTargets>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <CustomBuildBeforeTargets>ClCompile</CustomBuildBeforeTargets>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\..\Externals\llvm\include;$(ProjectDir)..\..\..\..\Externals\bin\msvc11\llvm\$(Platform)\include;$(ProjectDir)..\..\..\..\Externals\antlr\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <DisableSpecificWarnings>4005</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <CustomBuildStep>
+      <Command>
+      </Command>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Outputs>
+      </Outputs>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Inputs>
+      </Inputs>
+    </CustomBuildStep>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+    <Lib>
+      <AdditionalDependencies>LLVMSupport.lib;LLVMOption.lib;LLVMTableGen.lib;LLVMObject.lib;LLVMRuntimeDyld.lib;LLVMDebugInfo.lib;LLVMMC.lib;LLVMMCParser.lib;LLVMMCDisassembler.lib;LLVMCore.lib;LLVMX86Utils.lib;LLVMBitWriter.lib;LLVMAsmParser.lib;LLVMBitReader.lib;LLVMX86AsmPrinter.lib;LLVMTarget.lib;LLVMIRReader.lib;LLVMX86Info.lib;LLVMExecutionEngine.lib;LLVMX86Desc.lib;LLVMX86Disassembler.lib;LLVMX86AsmParser.lib;LLVMAnalysis.lib;LLVMipa.lib;LLVMTransformUtils.lib;LLVMLinker.lib;LLVMInstrumentation.lib;LLVMObjCARCOpts.lib;LLVMInstCombine.lib;LLVMVectorize.lib;LLVMScalarOpts.lib;LLVMipo.lib;LLVMLTO.lib;LLVMCodeGen.lib;LLVMInterpreter.lib;LLVMJIT.lib;LLVMMCJIT.lib;LLVMAsmPrinter.lib;LLVMSelectionDAG.lib;LLVMX86CodeGen.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)..\..\..\..\Externals\bin\msvc11\llvm\$(PlatformName)\$(ConfigurationName)\lib</AdditionalLibraryDirectories>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\..\Externals\llvm\include;$(ProjectDir)..\..\..\..\Externals\bin\msvc11\llvm\$(Platform)\include;$(ProjectDir)..\..\..\..\Externals\antlr\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>4005</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <CustomBuildStep>
+      <Command>
+      </Command>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Outputs>
+      </Outputs>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Inputs>
+      </Inputs>
+    </CustomBuildStep>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+    <Lib>
+      <AdditionalDependencies>LLVMSupport.lib;LLVMOption.lib;LLVMTableGen.lib;LLVMObject.lib;LLVMRuntimeDyld.lib;LLVMDebugInfo.lib;LLVMMC.lib;LLVMMCParser.lib;LLVMMCDisassembler.lib;LLVMCore.lib;LLVMX86Utils.lib;LLVMBitWriter.lib;LLVMAsmParser.lib;LLVMBitReader.lib;LLVMX86AsmPrinter.lib;LLVMTarget.lib;LLVMIRReader.lib;LLVMX86Info.lib;LLVMExecutionEngine.lib;LLVMX86Desc.lib;LLVMX86Disassembler.lib;LLVMX86AsmParser.lib;LLVMAnalysis.lib;LLVMipa.lib;LLVMTransformUtils.lib;LLVMLinker.lib;LLVMInstrumentation.lib;LLVMObjCARCOpts.lib;LLVMInstCombine.lib;LLVMVectorize.lib;LLVMScalarOpts.lib;LLVMipo.lib;LLVMLTO.lib;LLVMCodeGen.lib;LLVMInterpreter.lib;LLVMJIT.lib;LLVMMCJIT.lib;LLVMAsmPrinter.lib;LLVMSelectionDAG.lib;LLVMX86CodeGen.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)..\..\..\..\Externals\bin\msvc11\llvm\$(PlatformName)\$(ConfigurationName)\lib</AdditionalLibraryDirectories>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\..\Externals\llvm\include;$(ProjectDir)..\..\..\..\Externals\bin\msvc11\llvm\$(Platform)\include;$(ProjectDir)..\..\..\..\Externals\antlr\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>4005</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <CustomBuildStep>
+      <Command>
+      </Command>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Outputs>
+      </Outputs>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Inputs>
+      </Inputs>
+    </CustomBuildStep>
+    <Lib>
+      <AdditionalDependencies>LLVMSupport.lib;LLVMOption.lib;LLVMTableGen.lib;LLVMObject.lib;LLVMRuntimeDyld.lib;LLVMDebugInfo.lib;LLVMMC.lib;LLVMMCParser.lib;LLVMMCDisassembler.lib;LLVMCore.lib;LLVMX86Utils.lib;LLVMBitWriter.lib;LLVMAsmParser.lib;LLVMBitReader.lib;LLVMX86AsmPrinter.lib;LLVMTarget.lib;LLVMIRReader.lib;LLVMX86Info.lib;LLVMExecutionEngine.lib;LLVMX86Desc.lib;LLVMX86Disassembler.lib;LLVMX86AsmParser.lib;LLVMAnalysis.lib;LLVMipa.lib;LLVMTransformUtils.lib;LLVMLinker.lib;LLVMInstrumentation.lib;LLVMObjCARCOpts.lib;LLVMInstCombine.lib;LLVMVectorize.lib;LLVMScalarOpts.lib;LLVMipo.lib;LLVMLTO.lib;LLVMCodeGen.lib;LLVMInterpreter.lib;LLVMJIT.lib;LLVMMCJIT.lib;LLVMAsmPrinter.lib;LLVMSelectionDAG.lib;LLVMX86CodeGen.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)..\..\..\..\Externals\bin\msvc11\llvm\$(PlatformName)\$(ConfigurationName)\lib</AdditionalLibraryDirectories>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\..\..\Externals\llvm\include;$(ProjectDir)..\..\..\..\Externals\bin\msvc11\llvm\$(Platform)\include;$(ProjectDir)..\..\..\..\Externals\antlr\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>4005</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <CustomBuildStep>
+      <Command>
+      </Command>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Outputs>
+      </Outputs>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Inputs>
+      </Inputs>
+    </CustomBuildStep>
+    <Lib>
+      <AdditionalDependencies>LLVMSupport.lib;LLVMOption.lib;LLVMTableGen.lib;LLVMObject.lib;LLVMRuntimeDyld.lib;LLVMDebugInfo.lib;LLVMMC.lib;LLVMMCParser.lib;LLVMMCDisassembler.lib;LLVMCore.lib;LLVMX86Utils.lib;LLVMBitWriter.lib;LLVMAsmParser.lib;LLVMBitReader.lib;LLVMX86AsmPrinter.lib;LLVMTarget.lib;LLVMIRReader.lib;LLVMX86Info.lib;LLVMExecutionEngine.lib;LLVMX86Desc.lib;LLVMX86Disassembler.lib;LLVMX86AsmParser.lib;LLVMAnalysis.lib;LLVMipa.lib;LLVMTransformUtils.lib;LLVMLinker.lib;LLVMInstrumentation.lib;LLVMObjCARCOpts.lib;LLVMInstCombine.lib;LLVMVectorize.lib;LLVMScalarOpts.lib;LLVMipo.lib;LLVMLTO.lib;LLVMCodeGen.lib;LLVMInterpreter.lib;LLVMJIT.lib;LLVMMCJIT.lib;LLVMAsmPrinter.lib;LLVMSelectionDAG.lib;LLVMX86CodeGen.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)..\..\..\..\Externals\bin\msvc11\llvm\$(PlatformName)\$(ConfigurationName)\lib</AdditionalLibraryDirectories>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\inc\WNArgList.h" />
+    <ClInclude Include="..\..\inc\WNArrayAccessExpression.h" />
+    <ClInclude Include="..\..\inc\WNArrayAllocation.h" />
+    <ClInclude Include="..\..\inc\WNAssignment.h" />
+    <ClInclude Include="..\..\inc\WNBinExpression.h" />
+    <ClInclude Include="..\..\inc\WNBuiltinTypeInitialization.h" />
+    <ClInclude Include="..\..\inc\WNCodeModule.h" />
+    <ClInclude Include="..\..\inc\WNCondExpression.h" />
+    <ClInclude Include="..\..\inc\WNConstantExpression.h" />
+    <ClInclude Include="..\..\inc\WNDeclaration.h" />
+    <ClInclude Include="..\..\inc\WNDeclList.h" />
+    <ClInclude Include="..\..\inc\WNDoInstruction.h" />
+    <ClInclude Include="..\..\inc\WNExpression.h" />
+    <ClInclude Include="..\..\inc\WNForInstruction.h" />
+    <ClInclude Include="..\..\inc\WNFunction.h" />
+    <ClInclude Include="..\..\inc\WNFunctionCallExpression.h" />
+    <ClInclude Include="..\..\inc\WNFunctionParam.h" />
+    <ClInclude Include="..\..\inc\WNFunctionTemplates.inl" />
+    <ClInclude Include="..\..\inc\WNIDExpression.h" />
+    <ClInclude Include="..\..\inc\WNIfInstruction.h" />
+    <ClInclude Include="..\..\inc\WNInstruction.h" />
+    <ClInclude Include="..\..\inc\WNInstructionList.h" />
+    <ClInclude Include="..\..\inc\WNLValue.h" />
+    <ClInclude Include="..\..\inc\WNMemberAccessExpression.h" />
+    <ClInclude Include="..\..\inc\WNNode.h" />
+    <ClInclude Include="..\..\inc\WNNodeHelpers.h" />
+    <ClInclude Include="..\..\inc\WNNullAllocation.h" />
+    <ClInclude Include="..\..\inc\WNParameter.h" />
+    <ClInclude Include="..\..\inc\WNPostExpression.h" />
+    <ClInclude Include="..\..\inc\WNPostUNExpression.h" />
+    <ClInclude Include="..\..\inc\WNReturn.h" />
+    <ClInclude Include="..\..\inc\WNScopedVaraiableListImpl.h" />
+    <ClInclude Include="..\..\inc\WNScopedVariableList.h" />
+    <ClInclude Include="..\..\inc\WNScriptFile.h" />
+    <ClInclude Include="..\..\inc\WNScripting.h" />
+    <ClInclude Include="..\..\inc\WNScriptingAdditionalTypes.h" />
+    <ClInclude Include="..\..\inc\WNScriptingAllocations.h" />
+    <ClInclude Include="..\..\inc\WNScriptingConfig.h" />
+    <ClInclude Include="..\..\inc\WNScriptingEngine.h" />
+    <ClInclude Include="..\..\inc\WNScriptingEngineFactory.h" />
+    <ClInclude Include="..\..\inc\WNScriptingEngineImpl.h" />
+    <ClInclude Include="..\..\inc\WNScriptingEnums.h" />
+    <ClInclude Include="..\..\inc\WNScriptingErrors.h" />
+    <ClInclude Include="..\..\inc\WNScriptingFactoryInternal.h" />
+    <ClInclude Include="..\..\inc\WNScriptingInterop.h" />
+    <ClInclude Include="..\..\inc\WNScriptingMemoryManager.h" />
+    <ClInclude Include="..\..\inc\WNScriptLinkedList.h" />
+    <ClInclude Include="..\..\inc\WNSSExpression.h" />
+    <ClInclude Include="..\..\inc\WNStruct.h" />
+    <ClInclude Include="..\..\inc\WNStructAllocation.h" />
+    <ClInclude Include="..\..\inc\WNTypeElement.h" />
+    <ClInclude Include="..\..\inc\WNTypeManager.h" />
+    <ClInclude Include="..\..\inc\WNTypeManagerImpl.h" />
+    <ClInclude Include="..\..\inc\WNTypeNode.h" />
+    <ClInclude Include="..\..\inc\WNUnExpression.h" />
+    <ClInclude Include="..\..\inc\WNWhileInstruction.h" />
+    <ClInclude Include="..\..\src\WNScriptASTLexer.hpp" />
+    <ClInclude Include="..\..\src\WNScriptASTParser.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\WNArgList.cpp" />
+    <ClCompile Include="..\..\src\WNArrayAccessExpression.cpp" />
+    <ClCompile Include="..\..\src\WNArrayAllocation.cpp" />
+    <ClCompile Include="..\..\src\WNAssignment.cpp" />
+    <ClCompile Include="..\..\src\WNBinExpression.cpp" />
+    <ClCompile Include="..\..\src\WNCodeModule.cpp" />
+    <ClCompile Include="..\..\src\WNCondExpression.cpp" />
+    <ClCompile Include="..\..\src\WNConstantExpression.cpp" />
+    <ClCompile Include="..\..\src\WNDeclaration.cpp" />
+    <ClCompile Include="..\..\src\WNDeclList.cpp" />
+    <ClCompile Include="..\..\src\WNDoInstruction.cpp" />
+    <ClCompile Include="..\..\src\WNExpression.cpp" />
+    <ClCompile Include="..\..\src\WNForInstruction.cpp" />
+    <ClCompile Include="..\..\src\WNFunction.cpp" />
+    <ClCompile Include="..\..\src\WNFunctionCallExpression.cpp" />
+    <ClCompile Include="..\..\src\WNIDExpression.cpp" />
+    <ClCompile Include="..\..\src\WNIfInstruction.cpp" />
+    <ClCompile Include="..\..\src\WNInstruction.cpp" />
+    <ClCompile Include="..\..\src\WNInstructionList.cpp" />
+    <ClCompile Include="..\..\src\WNLValue.cpp" />
+    <ClCompile Include="..\..\src\WNMemberAccessExpression.cpp" />
+    <ClCompile Include="..\..\src\WNNullAllocation.cpp" />
+    <ClCompile Include="..\..\src\WNPostExpression.cpp" />
+    <ClCompile Include="..\..\src\WNPostUNExpression.cpp" />
+    <ClCompile Include="..\..\src\WNReturn.cpp" />
+    <ClCompile Include="..\..\src\WNScopedVariableListImpl.cpp" />
+    <ClCompile Include="..\..\src\WNScriptASTLexer.cpp" />
+    <ClCompile Include="..\..\src\WNScriptASTParser.cpp" />
+    <ClCompile Include="..\..\src\WNScriptCastingInitialization.cpp" />
+    <ClCompile Include="..\..\src\WNScriptFile.cpp" />
+    <ClCompile Include="..\..\src\WNScriptFloatTypeInitialiization.cpp" />
+    <ClCompile Include="..\..\src\WNScriptFunctionInitialization.cpp" />
+    <ClCompile Include="..\..\src\WNScriptingEngineFactory.cpp" />
+    <ClCompile Include="..\..\src\WNScriptingEngineImpl.cpp" />
+    <ClCompile Include="..\..\src\WNScriptingFactoryInternal.cpp" />
+    <ClCompile Include="..\..\src\WNScriptIntTypeInitialization.cpp" />
+    <ClCompile Include="..\..\src\WNSSExpression.cpp" />
+    <ClCompile Include="..\..\src\WNStringType.cpp" />
+    <ClCompile Include="..\..\src\WNStruct.cpp" />
+    <ClCompile Include="..\..\src\WNStructAllocation.cpp" />
+    <ClCompile Include="..\..\src\WNTypeManagerImp.cpp" />
+    <ClCompile Include="..\..\src\WNTypeNode.cpp" />
+    <ClCompile Include="..\..\src\WNUnExpression.cpp" />
+    <ClCompile Include="..\..\src\WNWhileInstruction.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\WNFileSystem\proj\msvc11\WNFileSystem.vcxproj">
+      <Project>{256fc52b-514b-4161-973a-40da6e6d314a}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\lang\WNScriptAST.g" />
+    <None Include="..\..\src\WNScriptAST.tokens" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

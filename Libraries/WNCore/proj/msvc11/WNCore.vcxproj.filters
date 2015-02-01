@@ -1,0 +1,139 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Include Files">
+      <UniqueIdentifier>{328bf695-793d-4a22-a061-976682715fd2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Inline Files">
+      <UniqueIdentifier>{552638d9-4cd3-4d4d-b623-c01cc29578f4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Internal">
+      <UniqueIdentifier>{e0b81793-494f-43e3-97e5-3e2785fb1d3a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Internal\x86">
+      <UniqueIdentifier>{f0c72d76-fef7-4e25-aecd-9cc9dbcd4542}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Internal\x86\SSE">
+      <UniqueIdentifier>{a9876c20-ca69-4c05-8cb5-4843f5eee77e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Internal\x86\3DNow">
+      <UniqueIdentifier>{219678f1-c867-42d4-8b31-f866fdcde62f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Internal\ARM">
+      <UniqueIdentifier>{9d269eba-6e23-43ce-8502-5899c8b9000d}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\inc\Internal\WNErrors.inc">
+      <Filter>Include Files</Filter>
+    </None>
+    <None Include="..\..\inc\Internal\WNAssert.inl">
+      <Filter>Inline Files</Filter>
+    </None>
+    <None Include="..\..\inc\Internal\WNEndian.inl">
+      <Filter>Inline Files</Filter>
+    </None>
+    <None Include="..\..\inc\Internal\WNExtendedTypes.inl">
+      <Filter>Inline Files</Filter>
+    </None>
+    <None Include="..\..\inc\Internal\WNPrefetch.inl">
+      <Filter>Inline Files</Filter>
+    </None>
+    <None Include="..\..\inc\Internal\WNTypes.inl">
+      <Filter>Inline Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\inc\Internal\x86\WNPrefetch_3DNow.h">
+      <Filter>Header Files\Internal\x86\3DNow</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNPrefetch_SSE.h">
+      <Filter>Header Files\Internal\x86\SSE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNAssert.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNConfig.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNCore.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNEndian.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNExtendedTypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNMacros.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNPrefetch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNTypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNTypeTraits.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\WNConfig.h">
+      <Filter>Header Files\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\WNPrefetch.h">
+      <Filter>Header Files\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNBase.h">
+      <Filter>Header Files\Internal\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNConfig.h">
+      <Filter>Header Files\Internal\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNPrefetch.h">
+      <Filter>Header Files\Internal\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\WNBase_Clang.h">
+      <Filter>Header Files\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\WNBase_Clang_GCC.h">
+      <Filter>Header Files\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\WNBase_GCC.h">
+      <Filter>Header Files\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\WNBase_MSVC.h">
+      <Filter>Header Files\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNBase_Clang.h">
+      <Filter>Header Files\Internal\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNBase_GCC.h">
+      <Filter>Header Files\Internal\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNBase_MSVC.h">
+      <Filter>Header Files\Internal\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\ARM\WNBase.h">
+      <Filter>Header Files\Internal\ARM</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\ARM\WNBase_Clang.h">
+      <Filter>Header Files\Internal\ARM</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\ARM\WNBase_GCC.h">
+      <Filter>Header Files\Internal\ARM</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\ARM\WNBase_MSVC.h">
+      <Filter>Header Files\Internal\ARM</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\ARM\WNConfig.h">
+      <Filter>Header Files\Internal\ARM</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

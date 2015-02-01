@@ -1,0 +1,306 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{46A6107A-80A0-45F0-A0F4-5F8C55708469}</ProjectGuid>
+    <RootNamespace>WNMathTests</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v110</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v110</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v110</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v110</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\..\..\..\Utilities\PropertySheets\msvc11\WNTests.Debug.Win32.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\..\..\..\Utilities\PropertySheets\msvc11\WNTests.Debug.x64.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\..\..\..\Utilities\PropertySheets\msvc11\WNTests.Release.Win32.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\..\..\..\Utilities\PropertySheets\msvc11\WNTests.Release.x64.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile />
+    <Link />
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile />
+    <Link />
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile />
+    <Link />
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile />
+    <Link />
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeaderFile>WNMath/test/inc/Common.h</PrecompiledHeaderFile>
+      <PreprocessorDefinitions>__WN_USE_PRECOMPILED_HEADER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link />
+    <Link />
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PrecompiledHeaderFile>WNMath/test/inc/Common.h</PrecompiledHeaderFile>
+      <PreprocessorDefinitions>__WN_USE_PRECOMPILED_HEADER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link />
+    <Link />
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeaderFile>WNMath/test/inc/Common.h</PrecompiledHeaderFile>
+      <PreprocessorDefinitions>__WN_USE_PRECOMPILED_HEADER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link />
+    <Link />
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <PrecompiledHeaderFile>WNMath/test/inc/Common.h</PrecompiledHeaderFile>
+      <PreprocessorDefinitions>__WN_USE_PRECOMPILED_HEADER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link />
+    <Link />
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\inc\Common.h">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </PrecompiledHeaderFile>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\Main.cpp" />
+    <ClCompile Include="..\..\src\WNAbsTests.cpp" />
+    <ClCompile Include="..\..\src\WNBounds2ConstructorTests.cpp" />
+    <ClCompile Include="..\..\src\WNBounds3ConstructorTests.cpp" />
+    <ClCompile Include="..\..\src\WNCeilTests.cpp" />
+    <ClCompile Include="..\..\src\WNFloorTests.cpp" />
+    <ClCompile Include="..\..\src\WNInvSqrtTests.cpp" />
+    <ClCompile Include="..\..\src\WNMatrix2CreateIdentityTests.cpp" />
+    <ClCompile Include="..\..\src\WNMatrix2CreateZeroTests.cpp" />
+    <ClCompile Include="..\..\src\WNMatrix2IdentityTests.cpp" />
+    <ClCompile Include="..\..\src\WNMatrix2ZeroTests.cpp" />
+    <ClCompile Include="..\..\src\WNMatrix3CreateIdentityTests.cpp" />
+    <ClCompile Include="..\..\src\WNMatrix3CreateZeroTests.cpp" />
+    <ClCompile Include="..\..\src\WNMatrix3IdentityTests.cpp" />
+    <ClCompile Include="..\..\src\WNMatrix3ZeroTests.cpp" />
+    <ClCompile Include="..\..\src\WNMatrix4CreateIdentityTests.cpp" />
+    <ClCompile Include="..\..\src\WNMatrix4CreateZeroTests.cpp" />
+    <ClCompile Include="..\..\src\WNMatrix4IdentityTests.cpp" />
+    <ClCompile Include="..\..\src\WNMatrix4ZeroTests.cpp" />
+    <ClCompile Include="..\..\src\WNMatrixXCreateIdentityTests.cpp" />
+    <ClCompile Include="..\..\src\WNMatrixXCreateZeroTests.cpp" />
+    <ClCompile Include="..\..\src\WNMatrixXIdentityTests.cpp" />
+    <ClCompile Include="..\..\src\WNMatrixXZeroTests.cpp" />
+    <ClCompile Include="..\..\src\WNRoundTests.cpp" />
+    <ClCompile Include="..\..\src\WNSqrtTests.cpp" />
+    <ClCompile Include="..\..\src\WNTruncTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector2AddAssignTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector2AddAssignVectorTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector2AddTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector2ArraySubscriptTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector2AverageTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector2ClampTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector2ConstructorTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector2ConvertToTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector2CreateZeroTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector2DivideAssignTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector2DivideAssignVectorTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector2DivideTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector2DotTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector2FuntionCallTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector2GetNormalizedTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector2LengthSquaredTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector2LengthTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector2MultiplyAddTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector2MultiplyAddVectorTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector2MultiplyAssignTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector2MultiplyAssignVectorTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector2MultiplySubtractTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector2MultiplySubtractVectorTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector2MultiplyTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector2NormalizeTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector2OneTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector2RecipricolTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector2SubtractAssignTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector2SubtractAssignVectorTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector2SubtractTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector2ZeroTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector3AddAssignTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector3AddAssignVectorTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector3AddTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector3ArraySubscriptTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector3AverageTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector3ClampTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector3ConstructorTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector3ConvertToTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector3CreateZeroTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector3DivideAssignTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector3DivideAssignVectorTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector3DivideTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector3DotTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector3FuntionCallTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector3GetNormalizedTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector3LengthSquaredTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector3LengthTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector3MultiplyAddTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector3MultiplyAddVectorTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector3MultiplyAssignTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector3MultiplyAssignVectorTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector3MultiplySubtractTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector3MultiplySubtractVectorTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector3MultiplyTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector3NormalizeTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector3OneTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector3RecipricolTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector3SubtractAssignTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector3SubtractAssignVectorTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector3SubtractTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector3ZeroTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector4AddAssignTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector4AddAssignVectorTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector4AddTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector4ArraySubscriptTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector4AverageTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector4ClampTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector4ConstructorTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector4ConvertToTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector4CreateZeroTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector4DivideAssignTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector4DivideAssignVectorTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector4DivideTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector4DotTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector4FuntionCallTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector4GetNormalizedTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector4LengthSquaredTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector4LengthTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector4MultiplyAddTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector4MultiplyAddVectorTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector4MultiplyAssignTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector4MultiplyAssignVectorTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector4MultiplySubtractTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector4MultiplySubtractVectorTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector4MultiplyTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector4NormalizeTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector4OneTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector4RecipricolTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector4SubtractAssignTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector4SubtractAssignVectorTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector4SubtractTests.cpp" />
+    <ClCompile Include="..\..\src\WNVector4ZeroTests.cpp" />
+    <ClCompile Include="..\..\src\WNVectorXAddAssignTests.cpp" />
+    <ClCompile Include="..\..\src\WNVectorXAddAssignVectorTests.cpp" />
+    <ClCompile Include="..\..\src\WNVectorXAddTests.cpp" />
+    <ClCompile Include="..\..\src\WNVectorXArraySubscriptTests.cpp" />
+    <ClCompile Include="..\..\src\WNVectorXConstructorTests.cpp" />
+    <ClCompile Include="..\..\src\WNVectorXConvertToTests.cpp" />
+    <ClCompile Include="..\..\src\WNVectorXCreateZeroTests.cpp" />
+    <ClCompile Include="..\..\src\WNVectorXDivideAssignTests.cpp" />
+    <ClCompile Include="..\..\src\WNVectorXDivideAssignVectorTests.cpp" />
+    <ClCompile Include="..\..\src\WNVectorXDivideTests.cpp" />
+    <ClCompile Include="..\..\src\WNVectorXDotTests.cpp" />
+    <ClCompile Include="..\..\src\WNVectorXFuntionCallTests.cpp" />
+    <ClCompile Include="..\..\src\WNVectorXGetNormalizedTests.cpp" />
+    <ClCompile Include="..\..\src\WNVectorXLengthSquaredTests.cpp" />
+    <ClCompile Include="..\..\src\WNVectorXLengthTests.cpp" />
+    <ClCompile Include="..\..\src\WNVectorXMultiplyAddTests.cpp" />
+    <ClCompile Include="..\..\src\WNVectorXMultiplyAddVectorTests.cpp" />
+    <ClCompile Include="..\..\src\WNVectorXMultiplyAssignTests.cpp" />
+    <ClCompile Include="..\..\src\WNVectorXMultiplyAssignVectorTests.cpp" />
+    <ClCompile Include="..\..\src\WNVectorXMultiplySubtractTests.cpp" />
+    <ClCompile Include="..\..\src\WNVectorXMultiplySubtractVectorTests.cpp" />
+    <ClCompile Include="..\..\src\WNVectorXMultiplyTests.cpp" />
+    <ClCompile Include="..\..\src\WNVectorXNormalizeTests.cpp" />
+    <ClCompile Include="..\..\src\WNVectorXOneTests.cpp" />
+    <ClCompile Include="..\..\src\WNVectorXSubtractAssignTests.cpp" />
+    <ClCompile Include="..\..\src\WNVectorXSubtractAssignVectorTests.cpp" />
+    <ClCompile Include="..\..\src\WNVectorXSubtractTests.cpp" />
+    <ClCompile Include="..\..\src\WNVectorXZeroTests.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\WNEntryPoint\proj\msvc11\WNEntryPoint.vcxproj">
+      <Project>{8780e818-183a-425e-a474-25a4c72658e5}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

@@ -1,0 +1,36 @@
+#ifndef __WN_USE_PRECOMPILED_HEADER
+    #pragma once
+#endif
+
+#ifndef __WN_CONCURRENCY_TESTS_COMMON_H__
+#define __WN_CONCURRENCY_TESTS_COMMON_H__
+
+#include "WNCore/inc/WNTypes.h"
+
+#ifdef _WN_MSVC
+    #pragma warning(push)
+    #pragma warning(disable: 4275)
+#endif
+
+#ifdef _HAS_EXCEPTIONS
+    #undef _HAS_EXCEPTIONS
+#endif
+
+#define _HAS_EXCEPTIONS 0
+
+#define GTEST_HAS_RTTI 0
+
+#include <gtest/gtest.h>
+
+#ifdef _WN_MSVC
+    #pragma warning(pop)
+#endif
+
+#define RANDOM_TIME(_high, _low) (rand() % ((_high) - (_low) + 1) + (_low))
+
+#ifdef __WN_USE_PRECOMPILED_HEADER
+    #include "WNConcurrency/inc/WNConcurrency.h"
+    #include "WNPlatform/inc/WNTime.h"
+#endif
+
+#endif // __WN_CONCURRENCY_TESTS_COMMON_H__

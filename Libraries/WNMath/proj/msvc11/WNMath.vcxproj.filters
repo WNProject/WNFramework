@@ -1,0 +1,706 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Inline Files">
+      <UniqueIdentifier>{cd19b803-9bb2-4680-bf2d-3a97e94dd432}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Internal">
+      <UniqueIdentifier>{c3cc8d10-f161-43c6-96a9-3ccc74a35731}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Internal\x86">
+      <UniqueIdentifier>{bd310004-1e11-49d1-baf3-73389167305c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Internal\x86\SSE">
+      <UniqueIdentifier>{14a900fe-b5bb-4abc-8f4f-4ccc5af6663c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Internal\x86\SSE2">
+      <UniqueIdentifier>{4bc40cdd-8254-41d0-90f7-14e5a2ae0395}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Internal\x86\AVX">
+      <UniqueIdentifier>{0be48a63-a43c-4add-ac05-b13e44a9cc32}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Internal\x86\SSE\NoAVX">
+      <UniqueIdentifier>{a4183cba-3902-4c8f-bb50-e2bdfc7af095}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Internal\x86\SSE2\NoAVX">
+      <UniqueIdentifier>{bc5f95d4-f138-42c2-a3d7-1a1eea088774}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Internal\x86\3DNow">
+      <UniqueIdentifier>{2f623262-6f1d-40ce-b860-dbb7a83a2a91}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Internal\x86\MMX">
+      <UniqueIdentifier>{22b111ed-4f6d-4858-8897-d5acb726e7b4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Internal\x86\SSE3">
+      <UniqueIdentifier>{d44eb87f-cae2-454b-a7f6-569f89c34ac9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Internal\x86\SSE4.1">
+      <UniqueIdentifier>{739d67db-879f-4147-84b9-e21f86d6d6ea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Internal\x86\SSE\NoSSE3">
+      <UniqueIdentifier>{858111ef-eb5a-40a7-a5ef-59e4146f1c47}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Internal\ARM">
+      <UniqueIdentifier>{684f94c1-9ee4-4226-83af-65b1ee7b11c8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Internal\ARM\NEON">
+      <UniqueIdentifier>{81a5784a-1486-440c-8f17-0f394c1d13f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Internal\x86\SSE2\NoSSE3">
+      <UniqueIdentifier>{36a7a55f-19ab-4515-9d67-4f7e9615c4a4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Internal\x86\SSE2\NoSSE4.1">
+      <UniqueIdentifier>{a10b13c4-f543-43bd-92b2-26c0e528bb73}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Internal\x86\AVX2">
+      <UniqueIdentifier>{984f41ff-d4c2-459f-abe7-85bfb8646b77}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\inc\WNBasic.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNBounds2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNBounds3.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNBox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNCircle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNCommon.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNConfig.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNConstants.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNFrustum.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNLine2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNLine3.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNMath.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNMatrix2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNMatrix3.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNMatrix4.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNMatrixX.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNPlane.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNQuaternion.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNRay2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNRay3.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNRectangle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNSegment2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNSegment3.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNSphere.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNVector2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNVector3.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNVector4.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNVectorX.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNElements.h">
+      <Filter>Header Files\Internal\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpAdd.h">
+      <Filter>Header Files\Internal\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpAddNumber.h">
+      <Filter>Header Files\Internal\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpDivideNumber.h">
+      <Filter>Header Files\Internal\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpInitialize.h">
+      <Filter>Header Files\Internal\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpMultiplyNumber.h">
+      <Filter>Header Files\Internal\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpOne.h">
+      <Filter>Header Files\Internal\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpSubtract.h">
+      <Filter>Header Files\Internal\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpZero.h">
+      <Filter>Header Files\Internal\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNVectorOpLengthSquared.h">
+      <Filter>Header Files\Internal\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNElements_AVX.h">
+      <Filter>Header Files\Internal\x86\AVX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpAdd_AVX.h">
+      <Filter>Header Files\Internal\x86\AVX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpAddNumber_AVX.h">
+      <Filter>Header Files\Internal\x86\AVX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpDivideNumber_AVX.h">
+      <Filter>Header Files\Internal\x86\AVX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpMultiplyNumber_AVX.h">
+      <Filter>Header Files\Internal\x86\AVX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpOne_AVX.h">
+      <Filter>Header Files\Internal\x86\AVX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpInitialize_SSE.h">
+      <Filter>Header Files\Internal\x86\SSE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpAddNumber_SSE.h">
+      <Filter>Header Files\Internal\x86\SSE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpAdd_SSE.h">
+      <Filter>Header Files\Internal\x86\SSE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNElements_SSE.h">
+      <Filter>Header Files\Internal\x86\SSE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpDivideNumber_SSE.h">
+      <Filter>Header Files\Internal\x86\SSE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpMultiplyNumber_SSE.h">
+      <Filter>Header Files\Internal\x86\SSE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNElements_SSE2.h">
+      <Filter>Header Files\Internal\x86\SSE2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpAdd_SSE2.h">
+      <Filter>Header Files\Internal\x86\SSE2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpAddNumber_SSE2.h">
+      <Filter>Header Files\Internal\x86\SSE2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpDivideNumber_SSE2.h">
+      <Filter>Header Files\Internal\x86\SSE2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpInitialize_SSE2.h">
+      <Filter>Header Files\Internal\x86\SSE2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpMultiplyNumber_SSE2.h">
+      <Filter>Header Files\Internal\x86\SSE2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpOne_SSE2.h">
+      <Filter>Header Files\Internal\x86\SSE2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpSubtract_SSE2.h">
+      <Filter>Header Files\Internal\x86\SSE2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpZero_SSE2.h">
+      <Filter>Header Files\Internal\x86\SSE2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpZero_SSE.h">
+      <Filter>Header Files\Internal\x86\SSE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpSubtract_SSE.h">
+      <Filter>Header Files\Internal\x86\SSE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpOne_SSE.h">
+      <Filter>Header Files\Internal\x86\SSE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpZero_AVX.h">
+      <Filter>Header Files\Internal\x86\AVX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpSubtract_AVX.h">
+      <Filter>Header Files\Internal\x86\AVX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpAdd_SSE-NoAVX.h">
+      <Filter>Header Files\Internal\x86\SSE\NoAVX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpAddNumber_SSE-NoAVX.h">
+      <Filter>Header Files\Internal\x86\SSE\NoAVX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpDivideNumber_SSE-NoAVX.h">
+      <Filter>Header Files\Internal\x86\SSE\NoAVX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpMultiplyNumber_SSE-NoAVX.h">
+      <Filter>Header Files\Internal\x86\SSE\NoAVX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpOne_SSE-NoAVX.h">
+      <Filter>Header Files\Internal\x86\SSE\NoAVX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpSubtract_SSE-NoAVX.h">
+      <Filter>Header Files\Internal\x86\SSE\NoAVX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpZero_SSE-NoAVX.h">
+      <Filter>Header Files\Internal\x86\SSE\NoAVX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpAdd_SSE2-NoAVX.h">
+      <Filter>Header Files\Internal\x86\SSE2\NoAVX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpAddNumber_SSE2-NoAVX.h">
+      <Filter>Header Files\Internal\x86\SSE2\NoAVX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpDivideNumber_SSE2-NoAVX.h">
+      <Filter>Header Files\Internal\x86\SSE2\NoAVX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpMultiplyNumber_SSE2-NoAVX.h">
+      <Filter>Header Files\Internal\x86\SSE2\NoAVX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpOne_SSE2-NoAVX.h">
+      <Filter>Header Files\Internal\x86\SSE2\NoAVX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpSubtract_SSE2-NoAVX.h">
+      <Filter>Header Files\Internal\x86\SSE2\NoAVX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpZero_SSE2-NoAVX.h">
+      <Filter>Header Files\Internal\x86\SSE2\NoAVX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpMultiply.h">
+      <Filter>Header Files\Internal\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpMultiply_SSE.h">
+      <Filter>Header Files\Internal\x86\SSE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpMultiply_SSE-NoAVX.h">
+      <Filter>Header Files\Internal\x86\SSE\NoAVX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpMultiply_SSE2.h">
+      <Filter>Header Files\Internal\x86\SSE2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpMultiply_SSE2-NoAVX.h">
+      <Filter>Header Files\Internal\x86\SSE2\NoAVX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\WNConfig.h">
+      <Filter>Header Files\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\WNElements.h">
+      <Filter>Header Files\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\WNGeneralOpAdd.h">
+      <Filter>Header Files\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\WNGeneralOpAddNumber.h">
+      <Filter>Header Files\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\WNGeneralOpDivide.h">
+      <Filter>Header Files\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\WNGeneralOpDivideNumber.h">
+      <Filter>Header Files\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\WNGeneralOpEqual.h">
+      <Filter>Header Files\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\WNGeneralOpInitialize.h">
+      <Filter>Header Files\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\WNGeneralOpMultiply.h">
+      <Filter>Header Files\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\WNGeneralOpMultiplyAdd.h">
+      <Filter>Header Files\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\WNGeneralOpMultiplyAddNumbers.h">
+      <Filter>Header Files\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\WNGeneralOpMultiplyNumber.h">
+      <Filter>Header Files\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\WNGeneralOpMultiplySubtract.h">
+      <Filter>Header Files\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\WNGeneralOpMultiplySubtractNumbers.h">
+      <Filter>Header Files\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\WNGeneralOpNegate.h">
+      <Filter>Header Files\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\WNGeneralOpNotEqual.h">
+      <Filter>Header Files\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\WNGeneralOpOne.h">
+      <Filter>Header Files\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\WNGeneralOps.h">
+      <Filter>Header Files\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\WNGeneralOpSetNumber.h">
+      <Filter>Header Files\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\WNGeneralOpSetNumbers.h">
+      <Filter>Header Files\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\WNGeneralOpSubtract.h">
+      <Filter>Header Files\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\WNGeneralOpSubtractNumber.h">
+      <Filter>Header Files\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\WNGeneralOpZero.h">
+      <Filter>Header Files\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\WNMatrix3Base.h">
+      <Filter>Header Files\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\WNMatrix4Base.h">
+      <Filter>Header Files\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\WNMatrixBase.h">
+      <Filter>Header Files\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\WNQuaternionBase.h">
+      <Filter>Header Files\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\WNVectorBase.h">
+      <Filter>Header Files\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\WNVectorOpLength.h">
+      <Filter>Header Files\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\WNVectorOpLengthSquared.h">
+      <Filter>Header Files\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\WNVectorOpNormalize.h">
+      <Filter>Header Files\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\WNVectorOps.h">
+      <Filter>Header Files\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpDivide.h">
+      <Filter>Header Files\Internal\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpSubtractNumber.h">
+      <Filter>Header Files\Internal\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpDivide_SSE.h">
+      <Filter>Header Files\Internal\x86\SSE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpSubtractNumber_SSE.h">
+      <Filter>Header Files\Internal\x86\SSE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\WNGeneralOpClamp.h">
+      <Filter>Header Files\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\WNGeneralOpClampNumbers.h">
+      <Filter>Header Files\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpAdd_3DNow.h">
+      <Filter>Header Files\Internal\x86\3DNow</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNElements_3DNow.h">
+      <Filter>Header Files\Internal\x86\3DNow</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpAddNumber_3DNow.h">
+      <Filter>Header Files\Internal\x86\3DNow</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpInitialize_3DNow.h">
+      <Filter>Header Files\Internal\x86\3DNow</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpMultiply_3DNow.h">
+      <Filter>Header Files\Internal\x86\3DNow</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpMultiplyNumber_3DNow.h">
+      <Filter>Header Files\Internal\x86\3DNow</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpOne_3DNow.h">
+      <Filter>Header Files\Internal\x86\3DNow</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpSubtract_3DNow.h">
+      <Filter>Header Files\Internal\x86\3DNow</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpSubtractNumber_3DNow.h">
+      <Filter>Header Files\Internal\x86\3DNow</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpZero_3DNow.h">
+      <Filter>Header Files\Internal\x86\3DNow</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNConstants_MM.h">
+      <Filter>Header Files\Internal\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNConstants_XMM.h">
+      <Filter>Header Files\Internal\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNConstants_YMM.h">
+      <Filter>Header Files\Internal\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNUtilities_MM.h">
+      <Filter>Header Files\Internal\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNUtilities_XMM.h">
+      <Filter>Header Files\Internal\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNUtilities_YMM.h">
+      <Filter>Header Files\Internal\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpDivide_3DNow.h">
+      <Filter>Header Files\Internal\x86\3DNow</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpDivideNumber_3DNow.h">
+      <Filter>Header Files\Internal\x86\3DNow</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNElements_MMX.h">
+      <Filter>Header Files\Internal\x86\MMX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNElements_SSE2-NoAVX.h">
+      <Filter>Header Files\Internal\x86\SSE2\NoAVX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNElements_SSE-NoAVX.h">
+      <Filter>Header Files\Internal\x86\SSE\NoAVX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNVectorOpLength_SSE3.h">
+      <Filter>Header Files\Internal\x86\SSE3</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNVectorOpLengthSquared_SSE3.h">
+      <Filter>Header Files\Internal\x86\SSE3</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNVectorOpNormalize_SSE3.h">
+      <Filter>Header Files\Internal\x86\SSE3</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNVectorOpLength_SSE4.1.h">
+      <Filter>Header Files\Internal\x86\SSE4.1</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNVectorOpLengthSquared_SSE4.1.h">
+      <Filter>Header Files\Internal\x86\SSE4.1</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNVectorOpNormalize_SSE4.1.h">
+      <Filter>Header Files\Internal\x86\SSE4.1</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNVectorOpLength_SSE.h">
+      <Filter>Header Files\Internal\x86\SSE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNVectorOpLengthSquared_SSE.h">
+      <Filter>Header Files\Internal\x86\SSE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNVectorOpNormalize_SSE.h">
+      <Filter>Header Files\Internal\x86\SSE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNVectorOpNormalize.h">
+      <Filter>Header Files\Internal\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNVectorOpLength.h">
+      <Filter>Header Files\Internal\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNVectorOpLengthSquared_SSE-NoSSE3.h">
+      <Filter>Header Files\Internal\x86\SSE\NoSSE3</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\ARM\WNConfig.h">
+      <Filter>Header Files\Internal\ARM</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\ARM\WNElements.h">
+      <Filter>Header Files\Internal\ARM</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\ARM\WNElements_NEON.h">
+      <Filter>Header Files\Internal\ARM\NEON</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\ARM\WNUtilities_NEON.h">
+      <Filter>Header Files\Internal\ARM\NEON</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpNegate_3DNow.h">
+      <Filter>Header Files\Internal\x86\3DNow</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpNegate_AVX.h">
+      <Filter>Header Files\Internal\x86\AVX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpAdd_MMX.h">
+      <Filter>Header Files\Internal\x86\MMX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpSubtract_MMX.h">
+      <Filter>Header Files\Internal\x86\MMX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpNegate_SSE.h">
+      <Filter>Header Files\Internal\x86\SSE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpDivide_SSE2.h">
+      <Filter>Header Files\Internal\x86\SSE2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpNegate_SSE2.h">
+      <Filter>Header Files\Internal\x86\SSE2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNVectorOpLength_SSE2.h">
+      <Filter>Header Files\Internal\x86\SSE2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNVectorOpLengthSquared_SSE2.h">
+      <Filter>Header Files\Internal\x86\SSE2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpDivide_SSE2-NoAVX.h">
+      <Filter>Header Files\Internal\x86\SSE2\NoAVX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNVectorOpLength_SSE2-NoAVX.h">
+      <Filter>Header Files\Internal\x86\SSE2\NoAVX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNVectorOpLengthSquared_SSE2-NoSSE3.h">
+      <Filter>Header Files\Internal\x86\SSE2\NoSSE3</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpMultiply_SSE2-NoSSE4.1.h">
+      <Filter>Header Files\Internal\x86\SSE2\NoSSE4.1</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNConfig.h">
+      <Filter>Header Files\Internal\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpNegate.h">
+      <Filter>Header Files\Internal\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpClamp_SSE.h">
+      <Filter>Header Files\Internal\x86\SSE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpClampNumbers_SSE.h">
+      <Filter>Header Files\Internal\x86\SSE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpEqual_SSE.h">
+      <Filter>Header Files\Internal\x86\SSE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpMultiplyAdd_SSE.h">
+      <Filter>Header Files\Internal\x86\SSE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpMultiplyAddNumbers_SSE.h">
+      <Filter>Header Files\Internal\x86\SSE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpMultiplySubtract_SSE.h">
+      <Filter>Header Files\Internal\x86\SSE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpMultiplySubtractNumbers_SSE.h">
+      <Filter>Header Files\Internal\x86\SSE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpNotEqual_SSE.h">
+      <Filter>Header Files\Internal\x86\SSE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpSetNumber_SSE.h">
+      <Filter>Header Files\Internal\x86\SSE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNGeneralOpSetNumbers_SSE.h">
+      <Filter>Header Files\Internal\x86\SSE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\x86\WNElements_AVX2.h">
+      <Filter>Header Files\Internal\x86\AVX2</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\inc\Internal\WNBasic.inl">
+      <Filter>Inline Files</Filter>
+    </None>
+    <None Include="..\..\inc\Internal\WNBounds2.inl">
+      <Filter>Inline Files</Filter>
+    </None>
+    <None Include="..\..\inc\Internal\WNBounds3.inl">
+      <Filter>Inline Files</Filter>
+    </None>
+    <None Include="..\..\inc\Internal\WNBox.inl">
+      <Filter>Inline Files</Filter>
+    </None>
+    <None Include="..\..\inc\Internal\WNCircle.inl">
+      <Filter>Inline Files</Filter>
+    </None>
+    <None Include="..\..\inc\Internal\WNFrustum.inl">
+      <Filter>Inline Files</Filter>
+    </None>
+    <None Include="..\..\inc\Internal\WNLine2.inl">
+      <Filter>Inline Files</Filter>
+    </None>
+    <None Include="..\..\inc\Internal\WNLine3.inl">
+      <Filter>Inline Files</Filter>
+    </None>
+    <None Include="..\..\inc\Internal\WNMatrix2.inl">
+      <Filter>Inline Files</Filter>
+    </None>
+    <None Include="..\..\inc\Internal\WNMatrix3.inl">
+      <Filter>Inline Files</Filter>
+    </None>
+    <None Include="..\..\inc\Internal\WNMatrix3Base.inl">
+      <Filter>Inline Files</Filter>
+    </None>
+    <None Include="..\..\inc\Internal\WNMatrix4.inl">
+      <Filter>Inline Files</Filter>
+    </None>
+    <None Include="..\..\inc\Internal\WNMatrix4Base.inl">
+      <Filter>Inline Files</Filter>
+    </None>
+    <None Include="..\..\inc\Internal\WNMatrixBase.inl">
+      <Filter>Inline Files</Filter>
+    </None>
+    <None Include="..\..\inc\Internal\WNMatrixX.inl">
+      <Filter>Inline Files</Filter>
+    </None>
+    <None Include="..\..\inc\Internal\WNPlane.inl">
+      <Filter>Inline Files</Filter>
+    </None>
+    <None Include="..\..\inc\Internal\WNQuaternion.inl">
+      <Filter>Inline Files</Filter>
+    </None>
+    <None Include="..\..\inc\Internal\WNQuaternionBase.inl">
+      <Filter>Inline Files</Filter>
+    </None>
+    <None Include="..\..\inc\Internal\WNRay2.inl">
+      <Filter>Inline Files</Filter>
+    </None>
+    <None Include="..\..\inc\Internal\WNRay3.inl">
+      <Filter>Inline Files</Filter>
+    </None>
+    <None Include="..\..\inc\Internal\WNRectangle.inl">
+      <Filter>Inline Files</Filter>
+    </None>
+    <None Include="..\..\inc\Internal\WNSegment2.inl">
+      <Filter>Inline Files</Filter>
+    </None>
+    <None Include="..\..\inc\Internal\WNSegment3.inl">
+      <Filter>Inline Files</Filter>
+    </None>
+    <None Include="..\..\inc\Internal\WNSphere.inl">
+      <Filter>Inline Files</Filter>
+    </None>
+    <None Include="..\..\inc\Internal\WNVector2.inl">
+      <Filter>Inline Files</Filter>
+    </None>
+    <None Include="..\..\inc\Internal\WNVector3.inl">
+      <Filter>Inline Files</Filter>
+    </None>
+    <None Include="..\..\inc\Internal\WNVector4.inl">
+      <Filter>Inline Files</Filter>
+    </None>
+    <None Include="..\..\inc\Internal\WNVectorBase.inl">
+      <Filter>Inline Files</Filter>
+    </None>
+    <None Include="..\..\inc\Internal\WNVectorX.inl">
+      <Filter>Inline Files</Filter>
+    </None>
+  </ItemGroup>
+</Project>

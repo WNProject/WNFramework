@@ -1,0 +1,102 @@
+diff --git a/include/llvm/Target/TargetLibraryInfo.h b/include/llvm/Target/TargetLibraryInfo.h
+index d4f9f23..2aafde1 100644
+--- a/include/llvm/Target/TargetLibraryInfo.h
++++ b/include/llvm/Target/TargetLibraryInfo.h
+@@ -302,7 +302,7 @@ namespace llvm {
+       /// int fstat(int fildes, struct stat *buf);
+       fstat,
+       /// int fstat64(int filedes, struct stat64 *buf)
+-      fstat64,
++      //fstat64,
+       /// int fstatvfs(int fildes, struct statvfs *buf);
+       fstatvfs,
+       /// int fstatvfs64(int fildes, struct statvfs64 *buf);
+@@ -393,7 +393,7 @@ namespace llvm {
+       /// int lstat(const char *path, struct stat *buf);
+       lstat,
+       /// int lstat64(const char *path, struct stat64 *buf);
+-      lstat64,
++      //lstat64,
+       /// void *malloc(size_t size);
+       malloc,
+       /// void *memalign(size_t boundary, size_t size);
+@@ -538,7 +538,7 @@ namespace llvm {
+       /// int stat(const char *path, struct stat *buf);
+       stat,
+       /// int stat64(const char *path, struct stat64 *buf);
+-      stat64,
++      //stat64,
+       /// int statvfs(const char *path, struct statvfs *buf);
+       statvfs,
+       /// int statvfs64(const char *path, struct statvfs64 *buf)
+diff --git a/lib/Target/TargetLibraryInfo.cpp b/lib/Target/TargetLibraryInfo.cpp
+index 616ff90..9188a5e 100644
+--- a/lib/Target/TargetLibraryInfo.cpp
++++ b/lib/Target/TargetLibraryInfo.cpp
+@@ -165,7 +165,7 @@ const char* TargetLibraryInfo::StandardNames[LibFunc::NumLibFuncs] =
+     "fseeko64",
+     "fsetpos",
+     "fstat",
+-    "fstat64",
++    //"fstat64",
+     "fstatvfs",
+     "fstatvfs64",
+     "ftell",
+@@ -210,7 +210,7 @@ const char* TargetLibraryInfo::StandardNames[LibFunc::NumLibFuncs] =
+     "logf",
+     "logl",
+     "lstat",
+-    "lstat64",
++    //"lstat64",
+     "malloc",
+     "memalign",
+     "memccpy",
+@@ -281,7 +281,7 @@ const char* TargetLibraryInfo::StandardNames[LibFunc::NumLibFuncs] =
+     "sqrtl",
+     "sscanf",
+     "stat",
+-    "stat64",
++    //"stat64"
+     "statvfs",
+     "statvfs64",
+     "stpcpy",
+@@ -663,12 +663,12 @@ static void initialize(TargetLibraryInfo &TLI, const Triple &T,
+     TLI.setUnavailable(LibFunc::memalign);
+     TLI.setUnavailable(LibFunc::fopen64);
+     TLI.setUnavailable(LibFunc::fseeko64);
+-    TLI.setUnavailable(LibFunc::fstat64);
++//  TLI.setUnavailable(LibFunc::fstat64);
+     TLI.setUnavailable(LibFunc::fstatvfs64);
+     TLI.setUnavailable(LibFunc::ftello64);
+-    TLI.setUnavailable(LibFunc::lstat64);
++//  TLI.setUnavailable(LibFunc::lstat64);
+     TLI.setUnavailable(LibFunc::open64);
+-    TLI.setUnavailable(LibFunc::stat64);
++//  TLI.setUnavailable(LibFunc::stat64);
+     TLI.setUnavailable(LibFunc::statvfs64);
+     TLI.setUnavailable(LibFunc::tmpfile64);
+   }
+diff --git a/lib/Transforms/IPO/FunctionAttrs.cpp b/lib/Transforms/IPO/FunctionAttrs.cpp
+index 8174df9..a02a0de 100644
+--- a/lib/Transforms/IPO/FunctionAttrs.cpp
++++ b/lib/Transforms/IPO/FunctionAttrs.cpp
+@@ -1593,8 +1593,8 @@ bool FunctionAttrs::inferPrototypeAttributes(Function &F) {
+     setDoesNotCapture(F, 1);
+     setOnlyReadsMemory(F, 1);
+     break;
+-  case LibFunc::stat64:
+-  case LibFunc::lstat64:
++  // case LibFunc::stat64:
++  // case LibFunc::lstat64:
+   case LibFunc::statvfs64:
+     if (FTy->getNumParams() < 1 ||
+         !FTy->getParamType(0)->isPointerTy() ||
+@@ -1642,7 +1642,7 @@ bool FunctionAttrs::inferPrototypeAttributes(Function &F) {
+     setDoesNotThrow(F);
+     setDoesNotAlias(F, 0);
+     break;
+-  case LibFunc::fstat64:
++  // case LibFunc::fstat64:
+   case LibFunc::fstatvfs64:
+     if (FTy->getNumParams() != 2 || !FTy->getParamType(1)->isPointerTy())
+       return false;

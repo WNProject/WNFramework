@@ -1,0 +1,145 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Inline Files">
+      <UniqueIdentifier>{4a9ee84b-c0c8-4ad3-8e51-db572923943b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Linux">
+      <UniqueIdentifier>{5ccec482-ee3a-4aac-9051-21c0dc892665}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Windows">
+      <UniqueIdentifier>{1bc40d64-91e4-4be3-922d-88119203f801}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Internal">
+      <UniqueIdentifier>{f28c7996-e20d-4846-a6c1-780fd46888b3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Internal\Linux">
+      <UniqueIdentifier>{32f59699-d0ba-4a0e-84a6-77207a1afe10}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Internal\Windows">
+      <UniqueIdentifier>{f37b6637-6e0f-484e-8636-a6c67d422c63}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Inline Files\Windows">
+      <UniqueIdentifier>{bae0533d-9e0c-4b2b-9391-eabe0f54984d}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\inc\WNBufferResource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNNetworkManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNNetworkReadBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNNetworkWriteBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNConnection.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNConnectionGroup.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNNetworkFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\Linux\WNConnectionLinux.h">
+      <Filter>Header Files\Internal\Linux</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\Linux\WNInConnectionLinux.h">
+      <Filter>Header Files\Internal\Linux</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\Linux\WNListenConnectionLinux.h">
+      <Filter>Header Files\Internal\Linux</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\Linux\WNNetworkManagerLinux.h">
+      <Filter>Header Files\Internal\Linux</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\Linux\WNOutConnectionLinux.h">
+      <Filter>Header Files\Internal\Linux</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\Windows\WNConnectionWindows.h">
+      <Filter>Header Files\Internal\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\Windows\WNInConnectionWindows.h">
+      <Filter>Header Files\Internal\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\Windows\WNListenConnectionWindows.h">
+      <Filter>Header Files\Internal\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\Windows\WNNetworkManagerWindows.h">
+      <Filter>Header Files\Internal\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\Windows\WNOutConnectionWindows.h">
+      <Filter>Header Files\Internal\Windows</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\WNBufferResource.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNNetworkReadBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNNetworkWriteBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNConnectionGroup.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNNetworkFactory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNNetworkManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\WNConnection.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\Linux\WNConnectionLinux.cpp">
+      <Filter>Source Files\Linux</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\Linux\WNInConnectionLinux.cpp">
+      <Filter>Source Files\Linux</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\Linux\WNListenConnectionLinux.cpp">
+      <Filter>Source Files\Linux</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\Linux\WNNetworkManagerLinux.cpp">
+      <Filter>Source Files\Linux</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\Linux\WNOutConnectionLinux.cpp">
+      <Filter>Source Files\Linux</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\Windows\WNConnectionWindows.cpp">
+      <Filter>Source Files\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\Windows\WNInConnectionWindows.cpp">
+      <Filter>Source Files\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\Windows\WNListenConnectionWindows.cpp">
+      <Filter>Source Files\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\Windows\WNNetworkManagerWindows.cpp">
+      <Filter>Source Files\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\Windows\WNOutConnectionWindows.cpp">
+      <Filter>Source Files\Windows</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\inc\Internal\Windows\WNBufferResource.inl">
+      <Filter>Inline Files\Windows</Filter>
+    </None>
+  </ItemGroup>
+</Project>
