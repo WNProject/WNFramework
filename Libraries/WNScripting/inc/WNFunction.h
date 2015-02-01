@@ -23,7 +23,7 @@ namespace WNScripting {
         WNFunction(WNDeclaration* _decl, WNDeclList* _params, WNInstructionList* _body);
         virtual ~WNFunction();
         virtual eWNTypeError GenerateCode(WNCodeModule& _module, WNScriptType owningType, WNLogging::WNLog& _compilationLog);
-    
+
         eWNTypeError ExportFunctions(WNCodeModule& _module, WNScriptType owningType, std::vector<WNFunctionDefinition*>& _definitions, WNLogging::WNLog& _compilationLog);
 
         eWNTypeError GenerateHeader(WNCodeModule& _module, WNScriptType owningType, WNLogging::WNLog& _compilationLog);
@@ -40,4 +40,4 @@ namespace WNScripting {
         bool mIsVirtual;
     };
 }
-#endif //__WN_FUNCTION_H__ 
+#endif //__WN_FUNCTION_H__

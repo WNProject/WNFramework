@@ -14,10 +14,10 @@ namespace WNScripting {
     public:
         WNTypeManagerImpl();
         virtual ~WNTypeManagerImpl();
-        virtual eWNTypeError RegisterScalarType(const WN_CHAR* name, const WNScriptingEngine* _engine, WN_FLOAT32 priority, WNScriptType& _outType, llvm::Type* _type, WN_SIZE_T _size);
-        virtual eWNTypeError RegisterStructType(const WN_CHAR* name, const WNScriptingEngine* _engine, WNScriptType& _outType);
-        virtual eWNTypeError RegisterCStruct(const WNScriptingEngine* _engine, const WN_CHAR* _type, WNScriptType& _outType);
-        virtual eWNTypeError RegisterAliasedStruct(const WN_CHAR* name, WNScriptType copyType, WNScriptType& _outType);
+        virtual eWNTypeError RegisterScalarType(const wn_char* name, const WNScriptingEngine* _engine, wn_float32 priority, WNScriptType& _outType, llvm::Type* _type, wn_size_t _size);
+        virtual eWNTypeError RegisterStructType(const wn_char* name, const WNScriptingEngine* _engine, WNScriptType& _outType);
+        virtual eWNTypeError RegisterCStruct(const WNScriptingEngine* _engine, const wn_char* _type, WNScriptType& _outType);
+        virtual eWNTypeError RegisterAliasedStruct(const wn_char* name, WNScriptType copyType, WNScriptType& _outType);
         virtual eWNTypeError RegisterArithmeticOperator(WNArithmeticType _type, WNScriptType _operand1, WNScriptType _operand2,  GenerateArithmeticOperation* _operation);
         virtual eWNTypeError RegisterCastingOperator(WNScriptType _fromType, WNScriptType _toType, GenerateCastingOperation* operation);
         virtual eWNTypeError RegisterPreUnaryOperator(WNUnaryType _type, WNScriptType _operand, GeneratePreUnaryOperation* operation);
@@ -30,7 +30,7 @@ namespace WNScripting {
         virtual eWNTypeError RegisterDestructionOperator(WNScriptType _type, GenerateDestruction* operation);
         virtual eWNTypeError RegisterConstructionOperator(WNScriptType _type, GenerateConstruction* operation);
         virtual eWNTypeError RegisterCopyConstructionOperator(WNScriptType _type, GenerateCopyConstruction* operation);
-        virtual eWNTypeError GetTypeByName(const WN_CHAR* name, WNScriptType& _outType) const;
+        virtual eWNTypeError GetTypeByName(const wn_char* name, WNScriptType& _outType) const;
         virtual eWNTypeError GetArrayOf(WNScriptType& _type, WNScriptType& _outType);
         virtual eWNTypeError GetExistingArrayOf(WNScriptType& _type, WNScriptType& _outType) const;
         virtual const GenerateArithmeticOperation* GetArithmeticOperation(WNArithmeticType _arith, WNScriptType _lhs, WNScriptType _rhs) const;
@@ -47,13 +47,13 @@ namespace WNScripting {
         virtual const GenerateCopyConstruction* GetCopyConstructionOperation(WNScriptType _type) const;
 
 
-        virtual WN_VOID RemoveType(const WNScriptType _type);
+        virtual wn_void RemoveType(const WNScriptType _type);
    private:
        void IncrementTag();
-       
+
        std::list<WNScriptType> mScriptTypes;
         struct GenerateArithmeticStruct {
-            GenerateArithmeticStruct() : mOperation(WN_NULL) {}
+            GenerateArithmeticStruct() : mOperation(wn_nullptr) {}
             ~GenerateArithmeticStruct() {
                 WN_DELETE(mOperation);
             }
@@ -63,7 +63,7 @@ namespace WNScripting {
             GenerateArithmeticOperation* mOperation;
         };
         struct GenerateCastingStruct {
-            GenerateCastingStruct() : mOperation(WN_NULL) {}
+            GenerateCastingStruct() : mOperation(wn_nullptr) {}
             ~GenerateCastingStruct() {
                 WN_DELETE(mOperation);
             }
@@ -72,7 +72,7 @@ namespace WNScripting {
             GenerateCastingOperation* mOperation;
         };
         struct GeneratePreUnaryStruct {
-            GeneratePreUnaryStruct() : mOperation(WN_NULL) {}
+            GeneratePreUnaryStruct() : mOperation(wn_nullptr) {}
             ~GeneratePreUnaryStruct() {
                 WN_DELETE(mOperation);
             }
@@ -81,7 +81,7 @@ namespace WNScripting {
             GeneratePreUnaryOperation* mOperation;
         };
         struct GeneratePostUnaryStruct {
-            GeneratePostUnaryStruct() : mOperation(WN_NULL) {}
+            GeneratePostUnaryStruct() : mOperation(wn_nullptr) {}
             ~GeneratePostUnaryStruct() {
                 WN_DELETE(mOperation);
             }
@@ -90,7 +90,7 @@ namespace WNScripting {
             GeneratePostUnaryOperation* mOperation;
         };
         struct GenerateArrayAccessStruct {
-            GenerateArrayAccessStruct() : mOperation(WN_NULL) {}
+            GenerateArrayAccessStruct() : mOperation(wn_nullptr) {}
             ~GenerateArrayAccessStruct() {
                 WN_DELETE(mOperation);
             }
@@ -99,7 +99,7 @@ namespace WNScripting {
             GenerateArrayAccessOperation* mOperation;
         };
         struct GenerateIDAccessStruct {
-            GenerateIDAccessStruct() : mOperation(WN_NULL) {}
+            GenerateIDAccessStruct() : mOperation(wn_nullptr) {}
             ~GenerateIDAccessStruct() {
                 WN_DELETE(mOperation);
             }
@@ -107,7 +107,7 @@ namespace WNScripting {
             GenerateIDAccessOperation* mOperation;
         };
         struct GenerateConstantStruct {
-            GenerateConstantStruct() : mOperation(WN_NULL) {}
+            GenerateConstantStruct() : mOperation(wn_nullptr) {}
             ~GenerateConstantStruct() {
                 WN_DELETE(mOperation);
             }
@@ -115,7 +115,7 @@ namespace WNScripting {
             GenerateConstantOperation* mOperation;
         };
         struct GenerateAllocationStruct {
-            GenerateAllocationStruct() : mOperation(WN_NULL) {}
+            GenerateAllocationStruct() : mOperation(wn_nullptr) {}
             ~GenerateAllocationStruct() {
                 WN_DELETE(mOperation);
             }
@@ -123,7 +123,7 @@ namespace WNScripting {
             GenerateAllocation* mOperation;
         };
         struct GenerateAssignmentStruct {
-            GenerateAssignmentStruct() : mOperation(WN_NULL) {}
+            GenerateAssignmentStruct() : mOperation(wn_nullptr) {}
             ~GenerateAssignmentStruct() {
                 WN_DELETE(mOperation);
             }
@@ -132,7 +132,7 @@ namespace WNScripting {
             GenerateAssignment* mOperation;
         };
         struct GenerateDestructionStruct {
-            GenerateDestructionStruct() : mOperation(WN_NULL) {}
+            GenerateDestructionStruct() : mOperation(wn_nullptr) {}
             ~GenerateDestructionStruct() {
                 WN_DELETE(mOperation);
             }
@@ -140,7 +140,7 @@ namespace WNScripting {
             GenerateDestruction* mOperation;
         };
         struct GenerateConstructionStruct {
-            GenerateConstructionStruct() : mOperation(WN_NULL) {}
+            GenerateConstructionStruct() : mOperation(wn_nullptr) {}
             ~GenerateConstructionStruct() {
                 WN_DELETE(mOperation);
             }
@@ -148,7 +148,7 @@ namespace WNScripting {
             GenerateConstruction* mOperation;
         };
         struct GenerateCopyConstructionStruct{
-            GenerateCopyConstructionStruct() : mOperation(WN_NULL) {}
+            GenerateCopyConstructionStruct() : mOperation(wn_nullptr) {}
             ~GenerateCopyConstructionStruct() {
                 WN_DELETE(mOperation);
             }
@@ -167,7 +167,7 @@ namespace WNScripting {
         std::list<GenerateDestructionStruct> mDestructionStructs;
         std::list<GenerateConstructionStruct> mConstructionStructs;
         std::list<GenerateCopyConstructionStruct> mCopyConstructionStructs;
-        WN_CHAR mNextTag[4];
+        wn_char mNextTag[4];
     };
 }
 #endif // __WN_SCRIPTING_TYPE_MANAGER_IMPL_H__

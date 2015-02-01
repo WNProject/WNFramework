@@ -10,6 +10,7 @@
 #include "WNCore/inc/WNTypes.h"
 #include "WNStrings/inc/WNStrings.h"
 #include "WNMemory/inc/WNManipulation.h"
+
 #include <vector>
 
 namespace llvm {
@@ -29,14 +30,14 @@ namespace WNScripting {
     struct WNPreprocessedFile;
     class WNScriptingEngine;
     struct WNContainedStructType {
-        WN_CHAR* mName;
+        wn_char* mName;
         WNScriptTypeInternal* mType;
-        WN_INT32 mCppOffset;
+        wn_int32 mCppOffset;
     };
 
     struct WNScriptTypeInternal {
-        WN_CHAR* mName;
-        WN_FLOAT32 mPriority;
+        wn_char* mName;
+        wn_float32 mPriority;
         WNScriptTypeInternal* mArrayType;
         WNScriptTypeInternal* mArrayParent;
         WNScriptTypeInternal* mParentClass;
@@ -45,15 +46,15 @@ namespace WNScripting {
         std::vector<WNFunctionDefinition*> mVTable;
         std::vector<WNFunctionDefinition*> mOverridenFunctions;
         void* mStoredVTable;
-        WN_SIZE_T mAlignment;
-        WN_CHAR mTag[4];
+        wn_size_t mAlignment;
+        wn_char mTag[4];
         llvm::Type* mLLVMType;
         llvm::StructType* mLLVMStructType;
-        WN_BOOL mFinalizedStruct;
+        wn_bool mFinalizedStruct;
         WNPreprocessedFile* mContainedFile;
-        WN_VOID (*mCDestructor)(WN_VOID*);
-        WN_SIZE_T mTypeSize;
-        WNScriptTypeInternal(WNScriptTypeInternal* _internal, const WN_CHAR* _name, const WN_CHAR* _tag) :
+        wn_void (*mCDestructor)(wn_void*);
+        wn_size_t mTypeSize;
+        WNScriptTypeInternal(WNScriptTypeInternal* _internal, const wn_char* _name, const wn_char* _tag) :
             mAlignment(_internal->mAlignment),
             mPriority(_internal->mPriority),
             mLLVMType(_internal->mLLVMType),
@@ -68,63 +69,63 @@ namespace WNScripting {
             mTypeSize(_internal->mTypeSize),
             mScriptingEngine(_internal->mScriptingEngine){
             mName = WNStrings::WNStrNDup(_name, 256);
-            WNMemory::WNMemCpy(mTag, _tag, 4*sizeof(WN_CHAR));
-            
+            WNMemory::WNMemCpy(mTag, _tag, 4*sizeof(wn_char));
+
         }
-        WNScriptTypeInternal(const WN_CHAR* _name, const WNScriptingEngine* _engine, WN_INT32 _alignment, WN_FLOAT32 _priority, llvm::Type* _type,const WN_CHAR* _tag, WN_SIZE_T _typeSize) :
+        WNScriptTypeInternal(const wn_char* _name, const WNScriptingEngine* _engine, wn_int32 _alignment, wn_float32 _priority, llvm::Type* _type,const wn_char* _tag, wn_size_t _typeSize) :
             mAlignment(_alignment),
             mPriority(_priority),
             mLLVMType(_type),
             mLLVMStructType(0),
-            mParentClass(WN_NULL),
+            mParentClass(wn_nullptr),
             mArrayType(0),
             mArrayParent(0),
-            mFinalizedStruct(WN_FALSE),
-            mContainedFile(WN_NULL),
-            mStoredVTable(WN_NULL),
-            mCDestructor(WN_NULL),
+            mFinalizedStruct(wn_false),
+            mContainedFile(wn_nullptr),
+            mStoredVTable(wn_nullptr),
+            mCDestructor(wn_nullptr),
             mTypeSize(_typeSize),
             mScriptingEngine(_engine){
             mName = WNStrings::WNStrNDup(_name, 256);
-            WNMemory::WNMemCpy(mTag, _tag, 4*sizeof(WN_CHAR));
-            
+            WNMemory::WNMemCpy(mTag, _tag, 4*sizeof(wn_char));
+
         }
-        WNScriptTypeInternal(const WN_CHAR* _name, const WNScriptingEngine* _engine, WN_INT32 _alignment, WN_FLOAT32 _priority, llvm::Type* _type, llvm::StructType* _sType, const WN_CHAR* _tag, WN_SIZE_T _typeSize) :
+        WNScriptTypeInternal(const wn_char* _name, const WNScriptingEngine* _engine, wn_int32 _alignment, wn_float32 _priority, llvm::Type* _type, llvm::StructType* _sType, const wn_char* _tag, wn_size_t _typeSize) :
             mAlignment(_alignment),
             mPriority(_priority),
             mLLVMStructType(_sType),
             mLLVMType(_type),
-            mParentClass(WN_NULL),
+            mParentClass(wn_nullptr),
             mArrayType(0),
             mArrayParent(0),
-            mFinalizedStruct(WN_FALSE),
-            mContainedFile(WN_NULL),
-            mStoredVTable(WN_NULL),
-            mCDestructor(WN_NULL),
+            mFinalizedStruct(wn_false),
+            mContainedFile(wn_nullptr),
+            mStoredVTable(wn_nullptr),
+            mCDestructor(wn_nullptr),
             mTypeSize(_typeSize),
             mScriptingEngine(_engine){
             mName = WNStrings::WNStrNDup(_name, 256);
-            WNMemory::WNMemCpy(mTag, _tag, 4*sizeof(WN_CHAR));
+            WNMemory::WNMemCpy(mTag, _tag, 4*sizeof(wn_char));
         }
-        WNScriptTypeInternal(WNScriptTypeInternal* _containedType, const WNScriptingEngine* _engine, llvm::Type* _llvmType, WN_FLOAT32 _priority, const WN_CHAR* _tag, WN_SIZE_T _typeSize) :
+        WNScriptTypeInternal(WNScriptTypeInternal* _containedType, const WNScriptingEngine* _engine, llvm::Type* _llvmType, wn_float32 _priority, const wn_char* _tag, wn_size_t _typeSize) :
             mArrayType(_containedType),
-            mName(WN_NULL),
+            mName(wn_nullptr),
             mAlignment(_containedType->mAlignment),
             mPriority(_priority),
             mLLVMType(_llvmType),
             mLLVMStructType(0),
-            mParentClass(WN_NULL),
+            mParentClass(wn_nullptr),
             mArrayParent(0),
-            mFinalizedStruct(WN_FALSE),
-            mContainedFile(WN_NULL),
-            mStoredVTable(WN_NULL),
-            mCDestructor(WN_NULL),
+            mFinalizedStruct(wn_false),
+            mContainedFile(wn_nullptr),
+            mStoredVTable(wn_nullptr),
+            mCDestructor(wn_nullptr),
             mTypeSize(_typeSize),
             mScriptingEngine(_engine){
             _containedType->mArrayParent = this;
-            WNMemory::WNMemCpy(mTag, _tag, 4*sizeof(WN_CHAR));
-            WN_SIZE_T mNameSize = WNStrings::WNStrLen(_containedType->mName);
-            mName = WNMemory::WNMallocT<WN_CHAR>(mNameSize + 1 /*NULL*/ + 2 /*"[]"*/);
+            WNMemory::WNMemCpy(mTag, _tag, 4*sizeof(wn_char));
+            wn_size_t mNameSize = WNStrings::WNStrLen(_containedType->mName);
+            mName = wn::malloc<wn_char>(mNameSize + 1 /*NULL*/ + 2 /*"[]"*/);
             memcpy(mName, _containedType->mName, mNameSize);
             mName[mNameSize] = '[';
             mName[mNameSize+1] = ']';
@@ -132,15 +133,15 @@ namespace WNScripting {
         }
     };
     typedef WNScriptTypeInternal* WNScriptType;
-    WN_INLINE WN_BOOL IsAncestor(WNScriptType _testType, WNScriptType _anc) {
+    WN_INLINE wn_bool IsAncestor(WNScriptType _testType, WNScriptType _anc) {
         while(_testType) {
             if(_testType == _anc) {
-                return(WN_TRUE);
+                return(wn_true);
             }
             _testType = _testType->mParentClass;
         }
-        return(WN_FALSE);
+        return(wn_false);
     }
-    
+
 }
 #endif // __WN_SCRIPTING_TYPE_ELEMENT_H__

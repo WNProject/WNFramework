@@ -10,7 +10,6 @@
 #include "WNPlatform/inc/WNPlatformFactory.h"
 #include "WNPlatform/inc/WNSurface.h"
 #include "WNPlatform/inc/WNSurfaceManager.h"
-#include "WNPlatform/inc/WNSystem.h"
 #include "WNPlatform/inc/WNTime.h"
 
 #endif // __WN_PLATFORM_H__

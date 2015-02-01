@@ -1,213 +1,169 @@
+// Copyright (c) 2014, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 #include "WNConcurrency/test/inc/Common.h"
+#include "WNConcurrency/inc/WNThread.h"
 
-#ifndef __WN_USE_PRECOMPILED_HEADER
-    #include "WNConcurrency/inc/WNThread.h"
-#endif
-
-using namespace WNConcurrency;
-
-static WN_VOID TestFunc1() {
-    WN_PRINTF("               Start: TestFunc1\n");
-
-    WNThreadSleep(RANDOM_TIME(0, 1000));
-
-    WN_PRINTF("               End: TestFunc1\n");
+static wn_void test_function1() {
+    wn::this_thread::sleep_for(std::chrono::milliseconds(RANDOM_TIME(0, 1000)));
 }
 
-static WN_UINT32 TestFunc2() {
-    WN_PRINTF("               Start: TestFunc2\n");
+static wn_uint32 test_function2() {
+    wn::this_thread::sleep_for(std::chrono::milliseconds(RANDOM_TIME(0, 1000)));
 
-    WNThreadSleep(RANDOM_TIME(0, 1000));
-
-    WN_PRINTF("               End: TestFunc2\n");
-
-    return(5);
+    return(1);
 }
 
-static WN_VOID TestFunc3(WN_VOID* _input) {
-    WN_UNUSED_ARG(_input);
+static wn_void test_function3(wn_void* _input) {
+    WN_UNUSED_ARGUMENT(_input);
 
-    WN_PRINTF("               Start: TestFunc3\n");
-
-    WNThreadSleep(RANDOM_TIME(0, 1000));
-
-    WN_PRINTF("               End: TestFunc3\n");
+    wn::this_thread::sleep_for(std::chrono::milliseconds(RANDOM_TIME(0, 1000)));
 }
 
-static WN_VOID* TestFunc4(WN_VOID* _input) {
-    WN_PRINTF("               Start: TestFunc4\n");
-
-    WNThreadSleep(RANDOM_TIME(0, 1000));
-
-    WN_PRINTF("               End: TestFunc4\n");
+static wn_void* test_function4(wn_void* _input) {
+    wn::this_thread::sleep_for(std::chrono::milliseconds(RANDOM_TIME(0, 1000)));
 
     return(_input);
 }
 
-static WN_VOID TestFunc5(WN_UINT32 _input) {
-    WN_UNUSED_ARG(_input);
+static wn_void test_function5(wn_uint32 _input) {
+    WN_UNUSED_ARGUMENT(_input);
 
-    WN_PRINTF("               Start: TestFunc5\n");
-
-    WNThreadSleep(RANDOM_TIME(0, 1000));
-
-    WN_PRINTF("               End: TestFunc5\n");
+    wn::this_thread::sleep_for(std::chrono::milliseconds(RANDOM_TIME(0, 1000)));
 }
 
-static WN_UINT32 TestFunc6(WN_UINT32 _input) {
-    WN_PRINTF("               Start: TestFunc6\n");
-
-    WNThreadSleep(RANDOM_TIME(0, 1000));
-
-    WN_PRINTF("               End: TestFunc6\n");
+static wn_uint32 test_function6(wn_uint32 _input) {
+    wn::this_thread::sleep_for(std::chrono::milliseconds(RANDOM_TIME(0, 1000)));
 
     return(_input);
 }
 
-static WN_UINT32 TestFunc7(WN_UINT32* _input) {
-    WN_PRINTF("               Start: TestFunc7\n");
-
-    WNThreadSleep(RANDOM_TIME(0, 1000));
-
-    WN_PRINTF("               End: TestFunc7\n");
+static wn_uint32 test_function7(wn_uint32* _input) {
+    wn::this_thread::sleep_for(std::chrono::milliseconds(RANDOM_TIME(0, 1000)));
 
     return(*_input);
 }
 
-static WN_UINT32* TestFunc8(WN_UINT32* _input) {
-    WN_PRINTF("               Start: TestFunc8\n");
-
-    WNThreadSleep(RANDOM_TIME(0, 1000));
-
-    WN_PRINTF("               End: TestFunc8\n");
+static wn_uint32* test_function8(wn_uint32* _input) {
+    wn::this_thread::sleep_for(std::chrono::milliseconds(RANDOM_TIME(0, 1000)));
 
     return(_input);
 }
 
-static WN_VOID TestFunc9(WN_UINT32& _input) {
-    WN_PRINTF("               Start: TestFunc9\n");
+static wn_void test_function9(wn_uint32& _input) {
+    _input = 1;
 
-    _input = 1000;
-
-    WNThreadSleep(RANDOM_TIME(0, 1000));
-
-    WN_PRINTF("               End: TestFunc9\n");
+    wn::this_thread::sleep_for(std::chrono::milliseconds(RANDOM_TIME(0, 1000)));
 }
 
-class TestObject {
+class test_object {
 public:
-    TestObject() :
+    test_object() :
         mTestVar(0) {
     }
 
-    WN_VOID TestFunc1() {
-        WN_PRINTF("               Start: Test::TestFunc1\n");
-
+    wn_void test_function1() {
         mTestVar++;
 
-        WNThreadSleep(RANDOM_TIME(0, 1000));
-
-        WN_PRINTF("               End: Test::TestFunc1\n");
+        wn::this_thread::sleep_for(std::chrono::milliseconds(RANDOM_TIME(0, 1000)));
     }
 
-    WN_UINT32 TestFunc2() {
-        WN_PRINTF("               Start: Test::TestFunc2\n");
-
-        WNThreadSleep(RANDOM_TIME(0, 1000));
-
-        WN_PRINTF("               End: Test::TestFunc2\n");
+    wn_uint32 test_function2() {
+        wn::this_thread::sleep_for(std::chrono::milliseconds(RANDOM_TIME(0, 1000)));
 
         return(mTestVar + 1);
     }
 
 public:
-    WN_UINT32 mTestVar;
+    wn_uint32 mTestVar;
 };
 
-TEST(WNTheadValidation, StaticFunctionsCreationExecution) {
-    WN_VOID* temp;
-    WN_VOID* pointerTest = &temp;
-    WN_UINT32 numberTest1 = 5;
-    WN_UINT32 numberTest2 = 0;
+TEST(thread, basic_usage) {
+    wn_void* temp;
+    wn_void* pointer_test = &temp;
+    wn_uint32 number_test1 = 5;
+    wn_uint32 number_test2 = 0;
 
-    WNThread<WN_VOID> test1;
-    WNThread<WN_UINT32> test2;
-    WNThread<WN_VOID> test3;
-    WNThread<WN_VOID*> test4;
-    WNThread<WN_VOID> test5;
-    WNThread<WN_UINT32> test6;
-    WNThread<WN_UINT32> test7;
-    WNThread<WN_UINT32*> test8;
-    WNThread<WN_VOID> test9;
+    wn::thread<wn_void> test1(&test_function1);
+    wn::thread<wn_uint32> test2(&test_function2);
+    wn::thread<wn_void> test3(&test_function3, pointer_test);
+    wn::thread<wn_void*> test4(&test_function4, pointer_test);
+    wn::thread<wn_void> test5(&test_function5, number_test1);
+    wn::thread<wn_uint32> test6(&test_function6, number_test1);
+    wn::thread<wn_uint32> test7(&test_function7, &number_test1);
+    wn::thread<wn_uint32*> test8(&test_function8, &number_test1);
+    wn::thread<wn_void> test9(&test_function9, std::ref(number_test2));
 
-    test1.Initialize(&TestFunc1);
-    test2.Initialize(&TestFunc2);
-    test3.Initialize(&TestFunc3, pointerTest);
-    test4.Initialize(&TestFunc4, pointerTest);
-    test5.Initialize(&TestFunc5, numberTest1);
-    test6.Initialize(&TestFunc6, numberTest1);
-    test7.Initialize(&TestFunc7, &numberTest1);
-    test8.Initialize(&TestFunc8, &numberTest1);
-    test9.Initialize(&TestFunc9, numberTest2);
+    ASSERT_TRUE(test1.join());
+    ASSERT_TRUE(test3.join());
+    ASSERT_TRUE(test5.join());
+    ASSERT_TRUE(test9.join());
 
-    test1.WaitForCompletion();
-    test2.WaitForCompletion();
-    test3.WaitForCompletion();
-    test4.WaitForCompletion();
-    test5.WaitForCompletion();
-    test6.WaitForCompletion();
-    test7.WaitForCompletion();
-    test8.WaitForCompletion();
-    test9.WaitForCompletion();
+    wn_uint32 test2_result;
+    wn_void* test4_result;
+    wn_uint32 test6_result;
+    wn_uint32 test7_result;
+    wn_uint32* test8_result;
 
-    WN_UINT32 test2Result;
-    WN_VOID* test4Result;
-    WN_UINT32 test6Result;
-    WN_UINT32 test7Result;
-    WN_UINT32* test8Result;
+    ASSERT_TRUE(test2.join(test2_result));
+    ASSERT_TRUE(test4.join(test4_result));
+    ASSERT_TRUE(test6.join(test6_result));
+    ASSERT_TRUE(test7.join(test7_result));
+    ASSERT_TRUE(test8.join(test8_result));
+    ASSERT_EQ(test2_result, 1);
+    ASSERT_EQ(test4_result, pointer_test);
+    ASSERT_EQ(test6_result, number_test1);
+    ASSERT_EQ(test7_result, number_test1);
+    ASSERT_EQ(test8_result, &number_test1);
+    ASSERT_EQ(number_test2, 1);
 
-    const WN_BOOL test2GetReturn = test2.GetReturn(&test2Result);
-    const WN_BOOL test4GetReturn = test4.GetReturn(&test4Result);
-    const WN_BOOL test6GetReturn = test6.GetReturn(&test6Result);
-    const WN_BOOL test7GetReturn = test7.GetReturn(&test7Result);
-    const WN_BOOL test8GetReturn = test8.GetReturn(&test8Result);
+    test_object test_object1;
+    test_object test_object2;
 
-    ASSERT_TRUE(test2GetReturn);
-    ASSERT_TRUE(test4GetReturn);
-    ASSERT_TRUE(test6GetReturn);
-    ASSERT_TRUE(test7GetReturn);
-    ASSERT_TRUE(test8GetReturn);
+    wn::thread<wn_void> test10(&test_object::test_function1, &test_object1);
+    wn::thread<wn_uint32> test11(&test_object::test_function2, &test_object2);
 
-    ASSERT_EQ(5, test2Result);
-    ASSERT_EQ(pointerTest, test4Result);
-    ASSERT_EQ(numberTest1, test6Result);
-    ASSERT_EQ(numberTest1, test7Result);
-    ASSERT_EQ(&numberTest1, test8Result);
+    ASSERT_TRUE(test10.join());
+    ASSERT_TRUE(test11.join());
+
+    wn_uint32 test11_result;
+
+    ASSERT_TRUE(test11.join(test11_result));
+    ASSERT_EQ(test_object1.mTestVar, 1);
+    ASSERT_EQ(test_object2.mTestVar, 0);
+    ASSERT_EQ(test11_result, 1);
 }
 
-TEST(WNTheadValidation, MemberFunctionCreationExecution) {
-    TestObject testObject1;
-    TestObject testObject2;
+TEST(thread, joinable) {
+    wn::thread<wn_void> thread;
 
-    WNThread<WN_VOID> test1;
-    WNThread<WN_UINT32> test2;
+    ASSERT_FALSE(thread.joinable());
 
-    test1.Initialize(&testObject1, &TestObject::TestFunc1);
-    test2.Initialize(&testObject2, &TestObject::TestFunc2);
+    wn_bool executed = wn_false;
 
-    test1.WaitForCompletion();
-    test2.WaitForCompletion();
+    thread = wn::thread<wn_void>([](wn_bool& _executed) { _executed = wn_true; }, std::ref(executed));
 
-    WN_PRINTF("               testObject1::mTestVar: %d\n", testObject1.mTestVar);
-    WN_PRINTF("               testObject2::mTestVar: %d\n", testObject2.mTestVar);
+    ASSERT_TRUE(thread.joinable());
+    ASSERT_TRUE(thread.join());
+    ASSERT_TRUE(executed);
+}
 
-    WN_UINT32 test2Result;
+TEST(thread, detach) {
+    wn::thread<wn_void> thread;
 
-    const WN_BOOL test2GetReturn = test2.GetReturn(&test2Result);
+    ASSERT_FALSE(thread.joinable());
 
-    ASSERT_TRUE(test2GetReturn);
+    wn_bool executed = wn_false;
 
-    ASSERT_EQ(1, testObject1.mTestVar);
-    ASSERT_EQ(0, testObject2.mTestVar);
-    ASSERT_EQ(1, test2Result);
+    thread = wn::thread<wn_void>([](wn_bool& _executed) { _executed = wn_true; }, std::ref(executed));
+
+    ASSERT_TRUE(thread.joinable());
+    ASSERT_TRUE(thread.join());
+    ASSERT_TRUE(executed);
+
+    thread.detach();
+
+    ASSERT_FALSE(thread.joinable());
+    ASSERT_FALSE(thread.join());
 }

@@ -4,37 +4,37 @@
 
 #include "WNPlatform/inc/Internal/Windows/WNSurfaceWindows.h"
 
-WNPlatform::WNSurfaceWindows::WNSurfaceWindows(WNPlatform::WNSurfaceManagerWindows& _manager) :
-    WNSurface(),
+wn::WNSurfaceWindows::WNSurfaceWindows(wn::WNSurfaceManagerWindows& _manager) :
+    surface(),
     mSurfaceManager(_manager),
     mNativeWindowHandle(NULL),
     mWidth(0),
     mHeight(0) {
 }
 
-WN_VOID WNPlatform::WNSurfaceWindows::SetNativeHandle(HWND _handle) {
+wn_void wn::WNSurfaceWindows::SetNativeHandle(HWND _handle) {
     mNativeWindowHandle = _handle;
 }
 
-WNPlatform::WNSurfaceNativeHandle WNPlatform::WNSurfaceWindows::GetNativeHandle() const {
+wn::WNSurfaceNativeHandle wn::WNSurfaceWindows::GetNativeHandle() const {
     return(mNativeWindowHandle);
 }
 
-WN_VOID WNPlatform::WNSurfaceWindows::ProcessCallback(UINT _msg, LPARAM _lparam, WPARAM _wparam) {
-    WN_UNUSED_ARG(_wparam);
+wn_void wn::WNSurfaceWindows::ProcessCallback(UINT _msg, LPARAM _lparam, WPARAM _wparam) {
+    WN_UNUSED_ARGUMENT(_wparam);
 
     switch (_msg) {
     case WM_SIZE:
         mWidth = _lparam & 0x0000FFFF;
         mHeight = (_lparam >> 16) & 0x0000FFFF;
 
-        FireCallback(WNSurface::eWNSETResize);
+        FireCallback(surface::eWNSETResize);
 
         break;
     }
 }
 
-WNPlatform::WNSurface::WNSurfaceError WNPlatform::WNSurfaceWindows::Resize(WN_UINT32 _width, WN_UINT32 _height) {
+wn::surface::WNSurfaceError wn::WNSurfaceWindows::Resize(wn_uint32 _width, wn_uint32 _height) {
     if (mNativeWindowHandle != NULL) {
         RECT rcClient, rcWind;
         POINT ptDiff;
@@ -51,38 +51,38 @@ WNPlatform::WNSurface::WNSurfaceError WNPlatform::WNSurfaceWindows::Resize(WN_UI
         mHeight = _height;
     }
 
-    return(eWNOK);
+    return(ok);
 }
 
-WNPlatform::WNSurface::WNSurfaceError WNPlatform::WNSurfaceWindows::Move(WN_UINT32 _x, WN_UINT32 _y) {
-    WN_UNUSED_ARG(_x);
-    WN_UNUSED_ARG(_y);
+wn::surface::WNSurfaceError wn::WNSurfaceWindows::Move(wn_uint32 _x, wn_uint32 _y) {
+    WN_UNUSED_ARGUMENT(_x);
+    WN_UNUSED_ARGUMENT(_y);
 
-    return(eWNOK);
+    return(ok);
 }
 
-WN_BOOL WNPlatform::WNSurfaceWindows::IsFullscreen() const {
-    return(WN_FALSE);
+wn_bool wn::WNSurfaceWindows::IsFullscreen() const {
+    return(wn_false);
 }
 
-WNPlatform::WNSurface::WNSurfaceError WNPlatform::WNSurfaceWindows::SetFullscreen(WN_BOOL _fullscreen) {
-    WN_UNUSED_ARG(_fullscreen);
+wn::surface::WNSurfaceError wn::WNSurfaceWindows::SetFullscreen(wn_bool _fullscreen) {
+    WN_UNUSED_ARGUMENT(_fullscreen);
 
-    return(eWNOK);
+    return(ok);
 }
 
-WN_UINT32 WNPlatform::WNSurfaceWindows::GetWidth() const {
+wn_uint32 wn::WNSurfaceWindows::GetWidth() const {
     return(mWidth);
 }
 
-WN_UINT32 WNPlatform::WNSurfaceWindows::GetHeight() const {
+wn_uint32 wn::WNSurfaceWindows::GetHeight() const {
     return(mHeight);
 }
 
-WN_UINT32 WNPlatform::WNSurfaceWindows::GetX() const {
+wn_uint32 wn::WNSurfaceWindows::GetX() const {
     return(0);
 }
 
-WN_UINT32 WNPlatform::WNSurfaceWindows::GetY() const {
+wn_uint32 wn::WNSurfaceWindows::GetY() const {
     return(0);
 }

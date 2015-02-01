@@ -17,7 +17,7 @@ namespace WNScripting {
         virtual ~WNAssignment();
         void AddValue(WNAssignType _type, WNExpression* value);
 
-        virtual eWNTypeError GenerateCode(WNCodeModule& _module, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog); 
+        virtual eWNTypeError GenerateCode(WNCodeModule& _module, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog);
     private:
         WNAssignType mAssignType;
         WNLValue* mLValue;

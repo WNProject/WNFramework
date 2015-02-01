@@ -92,36 +92,14 @@
                 #ifndef __WN_SSE_AVAILABLE
                     #define __WN_SSE_AVAILABLE
                 #endif
-            #endif
 
-            #if _M_IX86_FP >= 2
-                #ifndef __WN_SSE2_AVAILABLE
-                    #define __WN_SSE2_AVAILABLE
+                #if _M_IX86_FP >= 2
+                    #ifndef __WN_SSE2_AVAILABLE
+                        #define __WN_SSE2_AVAILABLE
+                    #endif
                 #endif
             #endif
         #endif
-    #endif
-#endif
-
-#if defined _WIN32_WINNT && _WIN32_WINNT == 0x0602
-    #ifdef _WN_32_BIT
-        #ifndef __WN_MMX_AVAILABLE
-            #define __WN_MMX_AVAILABLE
-        #endif
-
-        #ifdef _WN_CORE_CONFIG_MSVC_X86_USING_AMD
-            #ifndef __WN_3DNOW_AVAILABLE
-                #define __WN_3DNOW_AVAILABLE
-            #endif
-        #endif
-    #endif
-
-    #ifndef __WN_SSE_AVAILABLE
-        #define __WN_SSE_AVAILABLE
-    #endif
-
-    #ifndef __WN_SSE2_AVAILABLE
-        #define __WN_SSE2_AVAILABLE
     #endif
 #endif
 

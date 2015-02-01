@@ -6,26 +6,26 @@
 #include "WNMemory/inc/WNMemory.h"
 
 WNNetworking::WNConnection::WNConnection() :
-    mConnectionName(WN_NULL),
-    mIsValid(WN_TRUE) {
+    mConnectionName(wn_nullptr),
+    mIsValid(wn_true) {
 }
 
-const WN_CHAR* WNNetworking::WNConnection::GetName() {
+const wn_char* WNNetworking::WNConnection::GetName() {
     return(mConnectionName);
 }
 
 WNNetworking::WNConnection::~WNConnection() {
-    if (mConnectionName != WN_NULL) {
+    if (mConnectionName != wn_nullptr) {
         WN_DELETE(mConnectionName);
 
-        mConnectionName = WN_NULL;
+        mConnectionName = wn_nullptr;
     }
 }
 
-WN_VOID WNNetworking::WNConnection::Invalidate() {
-    mIsValid = WN_FALSE;
+wn_void WNNetworking::WNConnection::Invalidate() {
+    mIsValid = wn_false;
 }
 
-WN_BOOL WNNetworking::WNConnection::IsValid() {
+wn_bool WNNetworking::WNConnection::IsValid() {
     return(mIsValid);
 }

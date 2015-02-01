@@ -19,12 +19,12 @@ namespace WNContainers {
         eWNWriteText
     };
 
-    static const WN_SIZE_T MAX_DATA_WRITE = 1024;
+    static const wn_size_t MAX_DATA_WRITE = 1024;
 
     class WNDataBuffer {
     public:
-        virtual WN_BOOL Serialize(const WN_UINT32 _flags, const WNSerializerBase& _serializer) = 0;
-        virtual WN_CHAR* ReserveBytes(const WN_SIZE_T _numBytes, WN_SIZE_T& _returnedBytes) = 0;
+        virtual wn_bool Serialize(const wn_uint32 _flags, const WNSerializerBase& _serializer) = 0;
+        virtual wn_char* ReserveBytes(const wn_size_t _numBytes, wn_size_t& _returnedBytes) = 0;
         virtual WNDataBufferType GetType() = 0;
     };
 }

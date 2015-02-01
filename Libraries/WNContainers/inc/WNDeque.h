@@ -4,26 +4,27 @@
 
 //#pragma once
 
-#ifndef __WN_DEQUE_H__
-#define __WN_DEQUE_H__
+#ifndef __WN_CONTAINERS_DEQUE_H__
+#define __WN_CONTAINERS_DEQUE_H__
+
 #include "WNCore/inc/WNTypes.h"
-#include "WNContainers/inc/WNAllocator.h"
+#include "WNMemory/inc/WNAllocator.h"
 #include "WNContainers/inc/WNDynamicArray.h"
-#include "WNMath/inc/WNBasic.h"
 #include "WNMemory/inc/WNManipulation.h"
+#include "WNMath/inc/WNBasic.h"
 
 namespace WNContainers {
-    template<typename T, WN_SIZE_T BlockSize = 10, typename T_Allocator=WNDefaultAllocator>
-    class WNDeque {
+    template <typename type, wn_size_t block_size = 10, typename allocator_type = wn::default_allocator>
+    class deque {
     public:
-        typedef WNDeque<T, BlockSize, T_Allocator> thisType;
+        typedef deque<type, block_size, allocator_type> self_type;
 
         template<typename T_It>
         class iter {
         public:
             iter(): mDeque(NULL), mElement(0) {
             }
-        
+
             iter(const iter& _other): mDeque(_other.mDeque), mElement(_other.mElement) {
             }
 
@@ -31,29 +32,30 @@ namespace WNContainers {
                 mDeque = _other.mDeque;
                 mElement = _other.mElement;
             }
-            WN_SIGNED_T operator-(const iter& _other) {
+
+            wn_signed_t operator-(const iter& _other) {
                 return(mElement - _other.mElement);
             }
 
-            iter& operator+=(WN_SIZE_T _num) {
+            iter& operator+=(wn_size_t _num) {
                 mElement += _num;
                 return(*this);
             }
 
-            iter& operator-=(WN_SIZE_T _num) {
+            iter& operator-=(wn_size_t _num) {
                 mElement -= _num;
                 return(*this);
             }
 
-            iter operator+(WN_SIZE_T _num) {
+            iter operator+(wn_size_t _num) {
                 iter it(*this);
                 return(it += _num);
             }
-            iter operator-(WN_SIZE_T _num) {
+            iter operator-(wn_size_t _num) {
                iter it(*this);
                return(it -= _num);
             }
-            
+
             T_It& operator*(){
                 return(mDeque->operator[](mElement));
             }
@@ -79,30 +81,30 @@ namespace WNContainers {
             }
         private:
 
-            template<typename T1, WN_SIZE_T, typename T2>
-            friend class WNDeque;
+            template<typename T1, wn_size_t, typename T2>
+            friend class deque;
             template<typename T1>
             iter(const iter<T1>& _other): mDeque(_other.mDeque), mElement(_other.mElement) {
             }
-            
-            iter(thisType* _deq, WN_SIZE_T _element):
+
+            iter(self_type* _deq, wn_size_t _element):
                 mDeque(_deq), mElement(_element) {
             }
-            thisType* mDeque;
-            WN_SIZE_T mElement;
+            self_type* mDeque;
+            wn_size_t mElement;
         };
-        typedef iter<T> iterator;
-        typedef iter<const T> const_iterator;
+        typedef iter<type> iterator;
+        typedef iter<const type> const_iterator;
 
-        WNDeque(WNAllocator* _allocator = &sAllocator): 
+        deque(wn::WNAllocator* _allocator = &sAllocator) :
             mAllocator(_allocator),
             mUsedBlocks(0),
             mStartBlock(0),
             mStartLocation(0),
             mAllocatedBlocks(0),
-            mNumElements(0){            
+            mNumElements(0){
         }
-        WNDeque(WN_SIZE_T _initialSize, const T& _initialValue, WNAllocator* _allocator = &sAllocator) :
+        deque(wn_size_t _initialSize, const type& _initialValue, wn::WNAllocator* _allocator = &sAllocator) :
             mAllocator(_allocator),
             mUsedBlocks(0),
             mStartBlock(0),
@@ -112,19 +114,19 @@ namespace WNContainers {
             insert(cbegin(), _initialSize, _initialValue);
         }
 
-        ~WNDeque() {
+        ~deque() {
             clear();
-            for(WN_SIZE_T i = 0; i < mAllocatedBlocks; ++i) {
+            for(wn_size_t i = 0; i < mAllocatedBlocks; ++i) {
                 mAllocator->Free(mBlockList[(mStartBlock + i) % mBlockList.size()]);
             }
         }
 
-        WN_SIZE_T size() {
+        wn_size_t size() {
             return(mNumElements);
         }
 
-        WN_SIZE_T capacity() {
-            return(mAllocatedBlocks * BlockSize);
+        wn_size_t capacity() {
+            return(mAllocatedBlocks * block_size);
         }
 
         iterator begin() {
@@ -140,17 +142,17 @@ namespace WNContainers {
             return(tEnd<const_iterator>());
         }
 
-        T& operator[](WN_SIZE_T elem) {
-            WN_SIZE_T pos = mStartLocation + elem;
-            WN_SIZE_T block = pos / BlockSize;
+        type& operator[](wn_size_t elem) {
+            wn_size_t pos = mStartLocation + elem;
+            wn_size_t block = pos / block_size;
             block = (block + mStartBlock) % mBlockList.size();
-            pos %= BlockSize;
+            pos %= block_size;
             return(mBlockList[block][pos]);
         }
-        
+
         template<typename T_It>
         T_It erase(T_It _location, T_It _endIt) {
-            WN_SIZE_T numElements = (_endIt - _location);
+            wn_size_t numElements = (_endIt - _location);
             return(erase(_location, numElements));
         }
 
@@ -160,19 +162,19 @@ namespace WNContainers {
         }
 
         template<typename T_It>
-        T_It erase(T_It _location, WN_SIZE_T _num) {
+        T_It erase(T_It _location, wn_size_t _num) {
             T_It erase_start = _location;
-            for(WN_SIZE_T i = 0; i < _num; ++i) {
-                (*erase_start).~T();
+            for(wn_size_t i = 0; i < _num; ++i) {
+                (*erase_start).~type();
             }
 
             if(closerToFront(_location)) {
                 T_It copy_to = _location + _num - 1;
                 T_It copy_from = _location - 1;
-                WN_SIZE_T copy_count = _location - tBegin<T_It>();
-                for(WN_SIZE_T i = 0; i < copy_count; ++i) {
-                    new(&(*copy_to))T(*copy_from);
-                    (*copy_from).~T();
+                wn_size_t copy_count = _location - tBegin<T_It>();
+                for(wn_size_t i = 0; i < copy_count; ++i) {
+                    new(&(*copy_to))type(*copy_from);
+                    (*copy_from).~type();
                     --copy_to;
                     --copy_from;
                 }
@@ -181,11 +183,11 @@ namespace WNContainers {
             } else {
                 T_It copy_to = _location;
                 T_It copy_from = _location + _num;
-                WN_SIZE_T location = (_location - tBegin<T_It>());
-                WN_SIZE_T copy_count = mNumElements - location;
-                for(WN_SIZE_T i = 0; i < copy_count; ++i) {
-                    new(&(*copy_to))T(*copy_from);
-                    (*copy_from).~T();
+                wn_size_t location = (_location - tBegin<T_It>());
+                wn_size_t copy_count = mNumElements - location;
+                for(wn_size_t i = 0; i < copy_count; ++i) {
+                    new(&(*copy_to))type(*copy_from);
+                    (*copy_from).~type();
                     ++copy_to;
                     ++copy_from;
                 }
@@ -193,12 +195,12 @@ namespace WNContainers {
                 return(copy_from);
             }
         }
-        
-        void push_back(const T& _value) {
+
+        void push_back(const type& _value) {
             insert(begin() + mNumElements);
         }
-        
-        void push_front(const T& _value) {
+
+        void push_front(const type& _value) {
             insert(cbegin(), 1, _value);
         }
 
@@ -214,56 +216,56 @@ namespace WNContainers {
             erase(begin(), end());
         }
 
-        template <typename T_Gen> 
-        iterator generate(const_iterator _position, WN_SIZE_T _n, const T_Gen& _gen) {
+        template <typename T_Gen>
+        iterator generate(const_iterator _position, wn_size_t _n, const T_Gen& _gen) {
             iterator position = generate_gap(_position, _n);
             iterator newposition = position;
-            WN_SIZE_T i = 0;
+            wn_size_t i = 0;
             while(_n--) {
-                new(&(*(position++))) T(_gen(i++));
+                new(&(*(position++))) type(_gen(i++));
             }
             return(newposition);
         }
 
         template<typename T_It>
-        iterator insert(T_It _location, const T& _value) {
+        iterator insert(T_It _location, const type& _value) {
             return(insert(_location, 1, _value));
         }
 
         template<typename T_It>
-        iterator insert(T_It _location, WN_SIZE_T _num, const T& _value) {
+        iterator insert(T_It _location, wn_size_t _num, const type& _value) {
             iterator iter = generate_gap(_location, _num);
             iterator newIter = iter;
-            for(WN_SIZE_T i = 0; i < _num; ++i) {
-                new(&(*(newIter++)))T(_value);
+            for(wn_size_t i = 0; i < _num; ++i) {
+                new(&(*(newIter++)))type(_value);
             }
             return(iter);
         }
     private:
         template<typename T_It>
-        iterator generate_gap(T_It _location, WN_SIZE_T _num) {
+        iterator generate_gap(T_It _location, wn_size_t _num) {
             if(closerToFront(_location)) {
-                WN_SIZE_T location = (_location - tBegin<T_It>());
+                wn_size_t location = (_location - tBegin<T_It>());
                 allocate_elements_at_begin(_num);
                 iterator copy_to = begin();
                 iterator copy_from = begin() + _num;
-                for(WN_SIZE_T i = 0;  i < location; ++i) {
-                    new(&(*copy_to))T(*copy_from);
-                    (*copy_from).~T();
+                for(wn_size_t i = 0;  i < location; ++i) {
+                    new(&(*copy_to))type(*copy_from);
+                    (*copy_from).~type();
                     ++copy_to;
                     ++copy_from;
                 }
                 return(copy_to);
             } else {
-                WN_SIZE_T location = (_location - tBegin<T_It>());
-                WN_SIZE_T elements_to_end = mNumElements - location;
+                wn_size_t location = (_location - tBegin<T_It>());
+                wn_size_t elements_to_end = mNumElements - location;
                 allocate_elements_at_end(_num);
                 iterator copy_to = end() - 1;
                 iterator copy_from = begin() + location + elements_to_end - 1;
-                    
-                for(WN_SIZE_T i = 0; i < elements_to_end; ++i) {
-                    new (&(*copy_to))T(*copy_from);
-                    (*copy_from).~T();
+
+                for(wn_size_t i = 0; i < elements_to_end; ++i) {
+                    new (&(*copy_to))type(*copy_from);
+                    (*copy_from).~type();
                     --copy_to;
                     --copy_from;
                 }
@@ -271,11 +273,11 @@ namespace WNContainers {
             }
         }
 
-        template<typename T_It> 
+        template<typename T_It>
         T_It tBegin() {
             return(T_It(this, 0));
         }
-        
+
         template<typename T_It>
         T_It tEnd() {
             return(T_It(this, mNumElements));
@@ -285,9 +287,9 @@ namespace WNContainers {
         bool closerToFront(T_It _iter) {
             return(_iter - tBegin<T_It>() < tEnd<T_It>() - _iter);
         }
-        
-        WN_VOID erase_from_beginning(WN_SIZE_T _elements) {
-            WN_SIZE_T elements_in_first_block = mStartLocation;
+
+        wn_void erase_from_beginning(wn_size_t _elements) {
+            wn_size_t elements_in_first_block = mStartLocation;
             if(elements_in_first_block < _elements) {
                 while(_elements > elements_in_first_block && elements_in_first_block > 0) {
                     _elements -= elements_in_first_block;
@@ -299,7 +301,7 @@ namespace WNContainers {
                     mStartBlock += 1;
                     mUsedBlocks -= 1;
                     mNumElements -= elements_in_first_block;
-                    elements_in_first_block = WNMath::WNMin(BlockSize, mNumElements);
+                    elements_in_first_block = wn::min(block_size, mNumElements);
                 }
                 mNumElements -= _elements;
                 mStartLocation += _elements;
@@ -309,15 +311,15 @@ namespace WNContainers {
             }
         }
 
-        WN_VOID erase_from_end(WN_SIZE_T _elements) {
-            WN_SIZE_T elements_in_last_block = (mStartLocation + mNumElements) % BlockSize;
+        wn_void erase_from_end(wn_size_t _elements) {
+            wn_size_t elements_in_last_block = (mStartLocation + mNumElements) % block_size;
 
             if(elements_in_last_block < _elements) {
                 while(_elements > elements_in_last_block && elements_in_last_block > 0) {
                     _elements -= elements_in_last_block;
                     mUsedBlocks -= 1;
                     mNumElements -= elements_in_last_block;
-                    elements_in_last_block = WNMath::WNMin(BlockSize, mNumElements);
+                    elements_in_last_block = wn::min(block_size, mNumElements);
                 }
                 mNumElements -= _elements;
             } else {
@@ -325,24 +327,24 @@ namespace WNContainers {
             }
         }
 
-        WN_VOID allocate_elements_at_end(WN_SIZE_T _elements) {
-            WN_SIZE_T unused_blocks = total_unused_blocks();
-            WN_SIZE_T extra_last_elements = total_extra_elements_in_last_block();
-            WN_SIZE_T totalElements = (extra_last_elements + unused_blocks * BlockSize);
+        wn_void allocate_elements_at_end(wn_size_t _elements) {
+            wn_size_t unused_blocks = total_unused_blocks();
+            wn_size_t extra_last_elements = total_extra_elements_in_last_block();
+            wn_size_t totalElements = (extra_last_elements + unused_blocks * block_size);
             if(totalElements > _elements) {
-                WN_SIZE_T extraElements = _elements;
-                extraElements -= WNMath::WNMin(extra_last_elements, extraElements);
-                WN_SIZE_T extra_used_blocks = ((extraElements  + BlockSize - 1)/ BlockSize);
+                wn_size_t extraElements = _elements;
+                extraElements -= wn::min(extra_last_elements, extraElements);
+                wn_size_t extra_used_blocks = ((extraElements  + block_size - 1)/ block_size);
                 mUsedBlocks += extra_used_blocks;
             } else {
                 //we need more blocks;
-                WN_SIZE_T neededExtraBlocks = (_elements - totalElements + BlockSize - 1) / BlockSize;
+                wn_size_t neededExtraBlocks = (_elements - totalElements + block_size - 1) / block_size;
                 if(mAllocatedBlocks + neededExtraBlocks > mBlockList.size()) {
                     add_block_space(mAllocatedBlocks + neededExtraBlocks - mBlockList.size());
                 }
-                for(WN_SIZE_T i = 0; i < neededExtraBlocks; ++i) {
-                    WNAllocationPair p = mAllocator->Allocate(sizeof(T*), BlockSize);
-                    mBlockList[(mStartBlock + mAllocatedBlocks) % mBlockList.size()] = static_cast<T*>(p.m_pLocation);
+                for(wn_size_t i = 0; i < neededExtraBlocks; ++i) {
+                    wn::WNAllocationPair p = mAllocator->Allocate(sizeof(type*), block_size);
+                    mBlockList[(mStartBlock + mAllocatedBlocks) % mBlockList.size()] = static_cast<type*>(p.m_pLocation);
                     mAllocatedBlocks += 1;
                 }
                 mUsedBlocks = mAllocatedBlocks;
@@ -350,27 +352,27 @@ namespace WNContainers {
             mNumElements += _elements;
         }
 
-        WN_VOID allocate_elements_at_begin(WN_SIZE_T _elements) {
-            WN_SIZE_T leftovers_in_block = mStartLocation;
+        wn_void allocate_elements_at_begin(wn_size_t _elements) {
+            wn_size_t leftovers_in_block = mStartLocation;
             if(leftovers_in_block < _elements) {
-                WN_SIZE_T accountedElements = leftovers_in_block;
-                WN_SIZE_T additional_blocks = (_elements - accountedElements);
-                additional_blocks = (additional_blocks + BlockSize) / BlockSize;
-                WN_SIZE_T haveBlocks = total_unused_blocks();
+                wn_size_t accountedElements = leftovers_in_block;
+                wn_size_t additional_blocks = (_elements - accountedElements);
+                additional_blocks = (additional_blocks + block_size) / block_size;
+                wn_size_t haveBlocks = total_unused_blocks();
                 if(haveBlocks < additional_blocks) {
                     //We need at least some more blocks
-                    WN_SIZE_T neededBlocks = additional_blocks - haveBlocks;
+                    wn_size_t neededBlocks = additional_blocks - haveBlocks;
                     if(mBlockList.size() - mAllocatedBlocks < neededBlocks) {
                         add_block_space(mAllocatedBlocks + neededBlocks - mBlockList.size());
                     }
-                    for(WN_SIZE_T i = 0; i < neededBlocks; ++i) {
-                        WNAllocationPair p = mAllocator->Allocate(sizeof(T*), BlockSize);
-                        mBlockList[(mStartBlock + mAllocatedBlocks) % mBlockList.size()] = static_cast<T*>(p.m_pLocation);
+                    for(wn_size_t i = 0; i < neededBlocks; ++i) {
+                        wn::WNAllocationPair p = mAllocator->Allocate(sizeof(type*), block_size);
+                        mBlockList[(mStartBlock + mAllocatedBlocks) % mBlockList.size()] = static_cast<type*>(p.m_pLocation);
                         mAllocatedBlocks += 1;
                     }
                 }
-                
-                for(WN_SIZE_T i = 0; i < additional_blocks; ++i) {
+
+                for(wn_size_t i = 0; i < additional_blocks; ++i) {
                     if(mStartBlock == 0) {
                         mStartBlock = mBlockList.size() - 1;
                     } else {
@@ -381,52 +383,52 @@ namespace WNContainers {
                         mBlockList[mStartBlock] = mBlockList[(mStartBlock + mAllocatedBlocks) % mBlockList.size()];
                         mBlockList[(mStartBlock + mAllocatedBlocks) % mBlockList.size()] = NULL;
                     }
-                    accountedElements += BlockSize;
+                    accountedElements += block_size;
                 }
                 mStartLocation = accountedElements - _elements;
             } else {
-                mStartLocation -= WNMath::WNMin(leftovers_in_block, _elements);
+                mStartLocation -= wn::min(leftovers_in_block, _elements);
             }
             mNumElements += _elements;
         }
 
 
-        WN_VOID add_block_space(WN_SIZE_T _numBlocks){ 
-            WN_SIZE_T oldLength = mBlockList.size();
+        wn_void add_block_space(wn_size_t _numBlocks){
+            wn_size_t oldLength = mBlockList.size();
             mBlockList.insert(mBlockList.end(), _numBlocks, NULL);
-            WN_SIZE_T totalBlocks = mBlockList.capacity();
+            wn_size_t totalBlocks = mBlockList.capacity();
             mBlockList.insert(mBlockList.end(), mBlockList.capacity() - mBlockList.size(), NULL);
             if(0 != mStartBlock) {
-                WN_SIZE_T mAddedSize = mBlockList.size() - oldLength;
-                WN_SIZE_T mCopySize = (oldLength - mStartBlock);
-                WNMemory::WNMemMove(&mBlockList[mStartBlock + mAddedSize], &mBlockList[mStartBlock], mCopySize * sizeof(T*));
+                wn_size_t mAddedSize = mBlockList.size() - oldLength;
+                wn_size_t mCopySize = (oldLength - mStartBlock);
+                WNMemory::WNMemMove(&mBlockList[mStartBlock + mAddedSize], &mBlockList[mStartBlock], mCopySize * sizeof(type*));
 #ifdef _WN_DEBUG
-                WNMemory::WNMemClr(&mBlockList[mStartBlock], sizeof(T*) * mAddedSize);
+                WNMemory::WNMemClr(&mBlockList[mStartBlock], sizeof(type*) * mAddedSize);
 #endif
                 mStartBlock += mAddedSize;
             }
-            
+
         }
 
-        WN_SIZE_T total_unused_blocks() {
+        wn_size_t total_unused_blocks() {
             return(mAllocatedBlocks - mUsedBlocks);
         }
-        WN_SIZE_T total_extra_elements_in_last_block() {
-            WN_SIZE_T num = BlockSize - (mStartLocation + mNumElements) % BlockSize;
-            return((num == BlockSize)? 0 : num);
+        wn_size_t total_extra_elements_in_last_block() {
+            wn_size_t num = block_size - (mStartLocation + mNumElements) % block_size;
+            return((num == block_size)? 0 : num);
         }
 
-        WNDynamicArray<T*> mBlockList;
-        WN_SIZE_T mUsedBlocks;
-        WN_SIZE_T mAllocatedBlocks;
-        WN_SIZE_T mStartLocation;
-        WN_SIZE_T mNumElements;
-        WN_SIZE_T mStartBlock;
-        WNAllocator* mAllocator;
-        static T_Allocator sAllocator;
+        dynamic_array<type*> mBlockList;
+        wn_size_t mUsedBlocks;
+        wn_size_t mAllocatedBlocks;
+        wn_size_t mStartLocation;
+        wn_size_t mNumElements;
+        wn_size_t mStartBlock;
+        wn::WNAllocator* mAllocator;
+        static allocator_type sAllocator;
     };
 
-    template<typename T, WN_SIZE_T BlockSize, typename T_Alloc> T_Alloc WNDeque<T, BlockSize, T_Alloc>::sAllocator;
+    template<typename type, wn_size_t block_size, typename T_Alloc> T_Alloc deque<type, block_size, T_Alloc>::sAllocator;
 };
 
 #endif

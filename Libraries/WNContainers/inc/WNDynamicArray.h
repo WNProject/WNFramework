@@ -4,95 +4,96 @@
 
 #pragma once
 
-#ifndef __WN_DYNAMIC_ARRAY_H__
-#define __WN_DYNAMIC_ARRAY_H__
+#ifndef __WN_CONTAINERS_DYNAMIC_ARRAY_H__
+#define __WN_CONTAINERS_DYNAMIC_ARRAY_H__
+
 #include "WNCore/inc/WNTypes.h"
-#include "WNContainers/inc/WNAllocator.h"
+#include "WNMemory/inc/WNAllocator.h"
 #include "WNMath/inc/WNBasic.h"
 
 namespace WNContainers {
-    template<typename T, typename T_Allocator=WNDefaultExpandingAllocator<50, 10>>
-    class WNDynamicArray {
+    template<typename type, typename T_Allocator = wn::default_expanding_allocator<50, 10>>
+    class dynamic_array {
     public:
-        typedef T* iterator;
-        typedef T const * const_iterator;
+        typedef type* iterator;
+        typedef type const* const_iterator;
 
-        WNDynamicArray(WNAllocator* _allocator = &WNDynamicArray::sAllocator): mSize(0), mMaxSize(0), mData(WN_NULL) {
+        dynamic_array(wn::WNAllocator* _allocator = &dynamic_array::sAllocator): mSize(0), mMaxSize(0), mData(wn_nullptr) {
             mAllocator = _allocator;
         }
 
-        WNDynamicArray(WN_SIZE_T _size, WNAllocator* _allocator = &WNDynamicArray::sAllocator): mSize(0), mMaxSize(0), mData(nullptr) {
+        dynamic_array(wn_size_t _size, wn::WNAllocator* _allocator = &dynamic_array::sAllocator): mSize(0), mMaxSize(0), mData(nullptr) {
             mAllocator = _allocator;
             reserve(_size);
         }
 
-        WNDynamicArray(WN_SIZE_T _size, const T& _elem, WNAllocator* _allocator = &WNDynamicArray::sAllocator): mSize(0), mData(nullptr), mMaxSize(0) {
+        dynamic_array(wn_size_t _size, const type& _elem, wn::WNAllocator* _allocator = &dynamic_array::sAllocator) : mSize(0), mData(nullptr), mMaxSize(0) {
             mAllocator = _allocator;
             insert(mData, _size, _elem);
         }
 
-        ~WNDynamicArray() {
+        ~dynamic_array() {
             if(mData) {
-                for(WN_SIZE_T i = 0; i < mSize; ++i) {
-                    mData[i].~T();
+                for(wn_size_t i = 0; i < mSize; ++i) {
+                    mData[i].~type();
                 }
                 mAllocator->Free(mData);
             }
         }
-        
+
         template<typename T_Alloc>
-        WNDynamicArray(const WNDynamicArray<T, T_Alloc>& _other) {
+        dynamic_array(const dynamic_array<type, T_Alloc>& _other) {
             mAllocator = &sAllocator;
             (*this) = _other;
         }
 
-        WNDynamicArray(const WNDynamicArray& _other) {
+        dynamic_array(const dynamic_array& _other) {
             mAllocator = &sAllocator;
             (*this) = _other;
         }
 
-        WNDynamicArray(WNDynamicArray&& _other) {
+        dynamic_array(dynamic_array&& _other) {
             mAllocator = &sAllocator;
             (*this) = std::move(_other);
         }
 
         template<typename T_Alloc>
-        WNDynamicArray(WNDynamicArray<T, T_Alloc>&& _other) {
+        dynamic_array(dynamic_array<type, T_Alloc>&& _other) {
             mAllocator = &sAllocator;
             (*this) = std::move(_other);
         }
 
         template<typename T_Alloc>
-        WNDynamicArray& operator=(const WNDynamicArray<T, T_Alloc>& _other) {
+        dynamic_array& operator=(const dynamic_array<type, T_Alloc>& _other) {
             if(&_other == this) {
                 return(*this);
             }
             if(mData) {
-                for(WN_SIZE_T i = 0; i < mSize; ++i) {
-                    mData[i].~T();
+                for(wn_size_t i = 0; i < mSize; ++i) {
+                    mData[i].~type();
                 }
             }
             mSize = 0;
             reserve(_other.mSize);
-            for(WN_SIZE_T i = 0; i < _other.mSize; ++i) {
-                new(reinterpret_cast<void*>(&mData[i])) T(_other.mData[i]);
+            for(wn_size_t i = 0; i < _other.mSize; ++i) {
+                new(reinterpret_cast<void*>(&mData[i])) type(_other.mData[i]);
             }
             mSize = _other.mSize;
         }
 
         template<typename T_Alloc>
-        WNDynamicArray& operator=(const WNDynamicArray<T, T_Alloc>&& _other) {
+        dynamic_array& operator=(const dynamic_array<type, T_Alloc>&& _other) {
             if(&_other == this) {
                 return(*this);
             }
             if(mData) {
-                for(WN_SIZE_T i = 0; i < mSize; ++i) {
-                    mData[i].~T();
+                for(wn_size_t i = 0; i < mSize; ++i) {
+                    mData[i].~type();
                 }
                 mAllocator->Free(mData);
             }
             mAllocator = _other.mAllocator;
-            _other.mAllocator = &WNDynamicArray<T, T_Alloc>::sAllocator;
+            _other.mAllocator = &dynamic_array<type, T_Alloc>::sAllocator;
             mMaxSize = _other.mMaxSize;
             _other.mMaxSize = 0;
             mData = _other.mData;
@@ -101,53 +102,53 @@ namespace WNContainers {
             _other.mSize = 0;
         }
 
-        WN_SIZE_T size() {
+        wn_size_t size() {
             return(mSize);
         }
-        WN_SIZE_T capacity() {
+        wn_size_t capacity() {
             return(mMaxSize);
         }
-        WN_BOOL empty() {
+        wn_bool empty() {
             return(mSize != 0);
         }
 
-        WN_VOID swap_elements(iterator _first, iterator _second) {
+        wn_void swap_elements(iterator _first, iterator _second) {
             WN_DEBUG_ASSERT(_first >= mData && _first < mData + mSize);
             WN_DEBUG_ASSERT(_second >= mData && _second < mData + mSize);
-            T t(std::move(*_first));
+            type t(std::move(*_first));
             *_first = std::move(*_second);
             *_second = std::move(t);
         }
 
-        iterator emplace(const_iterator _position, T&& val) {
+        iterator emplace(const_iterator _position, type&& val) {
             iterator position = mData + (_position - mData);
             iterator newposition = shift(position, 1);
             position = newposition;
-            new(reinterpret_cast<void*>(position)) T(std::move(val));
+            new(reinterpret_cast<void*>(position)) type(std::move(val));
             return(newposition);
         }
 
-        iterator insert(const_iterator _position, const T& val) {
+        iterator insert(const_iterator _position, const type& val) {
             iterator position = mData + (_position - mData);
             iterator newposition = shift(position, 1);
             position = newposition;
-            new(reinterpret_cast<void*>(position)) T(val);
+            new(reinterpret_cast<void*>(position)) type(val);
             return(newposition);
         }
 
-        template <typename T_Gen> 
-        iterator generate(const_iterator _position, WN_SIZE_T _n, const T_Gen& _gen) {
+        template <typename T_Gen>
+        iterator generate(const_iterator _position, wn_size_t _n, const T_Gen& _gen) {
             iterator position = mData + (_position - mData);
             iterator newposition = shift(position, _n);
             position = newposition;
-            WN_SIZE_T i = 0;
+            wn_size_t i = 0;
             while(_n--) {
-                new(reinterpret_cast<void*>(position++)) T(_gen(i++));
+                new(reinterpret_cast<void*>(position++)) type(_gen(i++));
             }
             return(newposition);
         }
-        
-        void resize(WN_SIZE_T _numElements) {
+
+        void resize(wn_size_t _numElements) {
             if(_numElements > mSize) {
                 shift(mData, mSize - _numElements);
             } else {
@@ -155,12 +156,12 @@ namespace WNContainers {
             }
         }
 
-        iterator insert(const_iterator _position, WN_SIZE_T _n, const T& val) {
+        iterator insert(const_iterator _position, wn_size_t _n, const type& val) {
             iterator position = mData + (_position - mData);
             iterator newposition = shift(position, _n);
             position = newposition;
             while(_n--) {
-                new(reinterpret_cast<void*>(position++)) T(val);
+                new(reinterpret_cast<void*>(position++)) type(val);
             }
             return(newposition);
         }
@@ -170,12 +171,12 @@ namespace WNContainers {
             iterator newposition = shift(position, end - start);
             position = newposition;
             while(start != end) {
-                new(reinterpret_cast<void*>(position++)) T(*start);
+                new(reinterpret_cast<void*>(position++)) type(*start);
                 ++start;
             }
             return(newposition);
         }
-        
+
         iterator erase(const_iterator _position) {
             WN_DEBUG_ASSERT(_position >= mData && _position < mData + mSize);
             return(unshift(_position, 1));
@@ -183,15 +184,15 @@ namespace WNContainers {
         iterator erase(const_iterator _position, const_iterator _endPos) {
             WN_DEBUG_ASSERT(_position >= mData && _position <= mData + mSize);
             WN_DEBUG_ASSERT(_endPos >= mData && _endPos <= mData + mSize);
-            WN_SIZE_T i = _endPos - _position;
+            wn_size_t i = _endPos - _position;
             return(unshift(_position, i));
         }
-        iterator erase(const_iterator _position, WN_SIZE_T _numElements) {
+        iterator erase(const_iterator _position, wn_size_t _numElements) {
             WN_DEBUG_ASSERT(_position >= mData && _position <= mData + mSize);
             return(unshift(_position, _numElements));
         }
         template<typename T_Alloc>
-        WN_VOID swap(WNDynamicArray<T, T_Alloc>& _other) {
+        wn_void swap(dynamic_array<type, T_Alloc>& _other) {
             if(&_other == this) {
                 return;
             }
@@ -201,43 +202,43 @@ namespace WNContainers {
             std::swap(mSize, _other.mSize);
         }
 
-        WN_VOID reserve(WN_SIZE_T _count) {
+        wn_void reserve(wn_size_t _count) {
             if(_count < mMaxSize) {
                 return;
             }
             if(!mData) {
-                WNAllocationPair pair = mAllocator->Allocate(sizeof(T), _count);
+                wn::WNAllocationPair pair = mAllocator->Allocate(sizeof(type), _count);
                 mMaxSize = pair.count;
-                mData = reinterpret_cast<T*>(pair.m_pLocation);
+                mData = reinterpret_cast<type*>(pair.m_pLocation);
             } else {
                 //TODO optimize this based on type traits
-                WNAllocationPair pair = mAllocator->AllocateForResize(sizeof(T), _count, mMaxSize);
+                wn::WNAllocationPair pair = mAllocator->AllocateForResize(sizeof(type), _count, mMaxSize);
                 mMaxSize = pair.count;
-                T* newData = reinterpret_cast<T*>(pair.m_pLocation);
-                for(WN_SIZE_T i = 0; i < mSize; ++i) {
-                    new(reinterpret_cast<void*>(newData[i])) T(std::move(mData[i]));
-                    mData[i].~T(); 
+                type* newData = reinterpret_cast<type*>(pair.m_pLocation);
+                for(wn_size_t i = 0; i < mSize; ++i) {
+                    new(reinterpret_cast<void*>(newData[i])) type(std::move(mData[i]));
+                    mData[i].~type();
                 }
                 mAllocator->Free(mData);
                 mData = newData;
             }
         }
 
-        void push_back(const T& val) {
+        void push_back(const type& val) {
             insert(mData + mSize, val);
         }
-        void push_back(T&& val) {
+        void push_back(type&& val) {
             emplace(mData + mSize, std::move(val));
-        } 
+        }
 
         void pop_back() {
             erase(mData + mSize - 1);
         }
 
-        T& operator[](WN_SIZE_T i) {
+        type& operator[](wn_size_t i) {
             return(mData[i]);
         }
-        const T& operator[](WN_SIZE_T i) const {
+        const type& operator[](wn_size_t i) const {
             return(mData[i]);
         }
 
@@ -255,62 +256,62 @@ namespace WNContainers {
         }
 
     private:
-        iterator shift(const_iterator _startPt, WN_SIZE_T _count) {
+        iterator shift(const_iterator _startPt, wn_size_t _count) {
             WN_DEBUG_ASSERT(_startPt <= mData + mSize && (_startPt >= mData));
-            WN_SIZE_T originalPosition = _startPt - mData;
+            wn_size_t originalPosition = _startPt - mData;
             if(mMaxSize < (mSize + _count)) {
                 iterator startPt =  mData + (_startPt - mData);;
-                WNAllocationPair alloc = mAllocator->AllocateForResize(sizeof(T), mSize + _count, mMaxSize);
+                wn::WNAllocationPair alloc = mAllocator->AllocateForResize(sizeof(type), mSize + _count, mMaxSize);
                 mMaxSize = alloc.count;
-                T* newData = reinterpret_cast<T*>(alloc.m_pLocation);
-                T* allocated = newData;
-                for(T* i = mData; i < startPt; ++i) {
-                    new(reinterpret_cast<void*>(newData++)) T(std::move(*i));
-                    i->~T();
+                type* newData = reinterpret_cast<type*>(alloc.m_pLocation);
+                type* allocated = newData;
+                for(type* i = mData; i < startPt; ++i) {
+                    new(reinterpret_cast<void*>(newData++)) type(std::move(*i));
+                    i->~type();
                 }
                 newData+=_count;
-                for(T* i = startPt; i < mData + mSize; ++i) {
-                    new(reinterpret_cast<void*>(newData++)) T(std::move(*i));
-                    i->~T();
+                for(type* i = startPt; i < mData + mSize; ++i) {
+                    new(reinterpret_cast<void*>(newData++)) type(std::move(*i));
+                    i->~type();
                 }
                 mAllocator->Free(mData);
                 mData = allocated;
             } else {
-                for(T* i = mData + mSize + _count - 1; i > (_startPt + _count - 1); --i) {
-                    new(reinterpret_cast<void*>(i))T(std::move(*(i - _count - 1)));
-                    (i - _count - 1)->~T();
+                for(type* i = mData + mSize + _count - 1; i > (_startPt + _count - 1); --i) {
+                    new(reinterpret_cast<void*>(i))type(std::move(*(i - _count - 1)));
+                    (i - _count - 1)->~type();
                 }
             }
             mSize = mSize + _count;
             return(mData + originalPosition);
         }
 
-        iterator unshift(const_iterator _startPt, WN_SIZE_T _count) {
+        iterator unshift(const_iterator _startPt, wn_size_t _count) {
             WN_DEBUG_ASSERT(_startPt <= mData + mSize && (_startPt >= mData));
             WN_DEBUG_ASSERT(_startPt + _count <= mData + mSize);
             iterator startPt = mData + (_startPt - mData);
-            for(T* i = startPt; i < startPt + _count; ++i){
-                i->~T();
+            for(type* i = startPt; i < startPt + _count; ++i){
+                i->~type();
             }
-            for(T* i = startPt + _count; i < mData + mSize; ++i) {
-                new(reinterpret_cast<void*>(i - _count)) T(std::move(*i));
-                i->~T();
+            for(type* i = startPt + _count; i < mData + mSize; ++i) {
+                new(reinterpret_cast<void*>(i - _count)) type(std::move(*i));
+                i->~type();
             }
             mSize = mSize - _count;
             return(startPt);
         }
 
         template<typename T1, typename T2>
-        friend class WNDynamicArray;
+        friend class dynamic_array;
 
         static T_Allocator sAllocator;
-        WNAllocator* mAllocator;
-        T* mData;
-        WN_SIZE_T mMaxSize;
-        WN_SIZE_T mSize;
+        wn::WNAllocator* mAllocator;
+        type* mData;
+        wn_size_t mMaxSize;
+        wn_size_t mSize;
     };
 
-    template<typename T, typename T_Alloc> T_Alloc WNDynamicArray<T, T_Alloc>::sAllocator;
+    template<typename type, typename T_Alloc> T_Alloc dynamic_array<type, T_Alloc>::sAllocator;
 };
 
 #endif

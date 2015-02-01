@@ -26,7 +26,7 @@
     #pragma warning(pop)
 #endif
 
-using namespace WNScripting; 
+using namespace WNScripting;
 
 WNArrayAccessExpr::WNArrayAccessExpr(WNExpression* _expr) {
     mArrayAccess = _expr;
@@ -39,16 +39,16 @@ WNArrayAccessExpr::~WNArrayAccessExpr() {
 eWNTypeError WNArrayAccessExpr::GenerateCode(WNCodeModule& _module, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog) {
     llvm::IRBuilder<>* builder = reinterpret_cast<llvm::IRBuilder<>*>(_module.GetBuilder());
     eWNTypeError err;
-    if(eWNOK != (err = mBaseExpression->GenerateCode(_module, _def, _compilationLog))) {
+    if(ok != (err = mBaseExpression->GenerateCode(_module, _def, _compilationLog))) {
         return(err);
     }
-    if(eWNOK != (err = mArrayAccess->GenerateCode(_module, _def, _compilationLog))) {
+    if(ok != (err = mArrayAccess->GenerateCode(_module, _def, _compilationLog))) {
         return(err);
     }
 
     WNScriptType intType = NULL;
-    if(eWNOK != (err = _module.GetTypeManager().GetTypeByName("Int", intType))) {
-         _compilationLog.Log(WNLogging::eCritical, 0, "Cannot find Int Type");
+    if(ok != (err = _module.GetTypeManager().GetTypeByName("Int", intType))) {
+         _compilationLog.Log(WNLogging::eCritical, 0, "Cannot find Int type");
         LogLine(_compilationLog, WNLogging::eCritical);
         return(eWNInvalidCast);
     }
@@ -62,24 +62,24 @@ eWNTypeError WNArrayAccessExpr::GenerateCode(WNCodeModule& _module, const WNFunc
             LogLine(_compilationLog, WNLogging::eError);
             return(eWNInvalidCast);
         }
-        if(eWNOK != (err = castOp->Execute(builder, mArrayAccess->GetValue(), rhs))) {
+        if(ok != (err = castOp->Execute(builder, mArrayAccess->GetValue(), rhs))) {
             return(err);
         }
     }
 
     const GenerateArrayAccessOperation* arrayOp = _module.GetTypeManager().GetArrayAccessOperation(mBaseExpression->GetType(), intType);
-    if(!arrayOp){ 
+    if(!arrayOp){
         _compilationLog.Log(WNLogging::eError, 0, "No valid array access operator exists for ", mBaseExpression->GetType()->mName);
         LogLine(_compilationLog, WNLogging::eError);
         return(eWNInvalidOperation);
     }
 
-    if(eWNOK != (err = arrayOp->Execute(_module, mBaseExpression->GetValue(), rhs, mValue, mValueLocation, _def))) {
+    if(ok != (err = arrayOp->Execute(_module, mBaseExpression->GetValue(), rhs, mValue, mValueLocation, _def))) {
         _compilationLog.Log(WNLogging::eCritical, 0, "Error generating array access operation ");
         LogLine(_compilationLog, WNLogging::eCritical);
         return(err);
     }
     mScriptType = mBaseExpression->GetType()->mArrayType;
-    return(eWNOK);
+    return(ok);
 }
 

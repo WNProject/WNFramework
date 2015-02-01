@@ -4,60 +4,15 @@
 
 #pragma once
 
-
 #ifndef __WN_CONCURRENCY_CONDITION_VARIABLE_H__
 #define __WN_CONCURRENCY_CONDITION_VARIABLE_H__
 
-#include "WNCore/inc/WNTypes.h"
+#include "WNCore/inc/WNBase.h"
 
-#ifdef _WN_WINDOWS
-    #include <windows.h>
-#elif defined _WN_POSIX
-    #include <pthread.h>
-#endif
+#include <condition_variable>
 
-#include "WNConcurrency/inc/WNSpinLock.h"
-#include "WNConcurrency/inc/WNSemaphore.h"
-
-namespace WNConcurrency {
-    template <typename Lock>
-    class WNConditionVariable {
-    public:
-        WNConditionVariable();
-
-        WN_VOID Wait(Lock& _lock);
-
-        WN_VOID Signal();
-        WN_VOID Broadcast();
-
-    private:
-        volatile WN_UINT32 mWaitCount;
-        WNSpinLock mSpinLock;
-        WNSemaphore mSemaphore;
-    };
-
-    class WNRecursiveMutex;
-
-    template <>
-    class WNConditionVariable<WNRecursiveMutex> {
-    public:
-        WNConditionVariable();
-        ~WNConditionVariable();
-
-        WN_VOID Wait(WNRecursiveMutex& _lock);
-
-        WN_VOID Signal();
-        WN_VOID Broadcast();
-
-    private:
-        #ifdef _WN_WINDOWS
-            CONDITION_VARIABLE mConditionVariable;
-        #elif defined _WN_POSIX
-            pthread_cond_t mConditionVariable;
-        #endif
-    };
+namespace wn {
+    typedef std::condition_variable_any condition_variable;
 }
-
-#include "WNConcurrency/inc/Internal/WNConditionVariable.inl"
 
 #endif // __WN_CONCURRENCY_CONDITION_VARIABLE_H__

@@ -6,17 +6,17 @@
 #include "WNCore/inc/WNTypes.h"
 
 namespace WNMemory {
-    namespace __WNInternal {
-        template <WN_SIZE_T Alignment>
-        WN_FORCE_INLINE WN_VOID __WNMemSetHelperSetUnaligned(WN_UINT8*& _memory, const WN_UINT8& _value, WN_SIZE_T& _count) {
-            while (_count > 0 && (reinterpret_cast<WN_SIZE_T>(_memory) & (Alignment - 1))) {
+    namespace internal {
+        template <wn_size_t Alignment>
+        WN_FORCE_INLINE wn_void __WNMemSetHelperSetUnaligned(wn_uint8*& _memory, const wn_uint8& _value, wn_size_t& _count) {
+            while (_count > 0 && (reinterpret_cast<wn_size_t>(_memory) & (Alignment - 1))) {
                 *(_memory++) = _value;
 
                 _count--;
             }
         }
 
-        WN_FORCE_INLINE WN_VOID __WNMemSetHelperSetRemaining(WN_UINT8*& _memory, const WN_UINT8& _value, WN_SIZE_T& _count) {
+        WN_FORCE_INLINE wn_void __WNMemSetHelperSetRemaining(wn_uint8*& _memory, const wn_uint8& _value, wn_size_t& _count) {
             while (_count > 0) {
                 *(_memory++) = _value;
 

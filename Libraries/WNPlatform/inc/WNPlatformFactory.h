@@ -9,7 +9,7 @@
 
 #include "WNCore/inc/WNBase.h"
 
-namespace WNPlatform {
+namespace wn {
     class WNSurfaceManager;
 
     class WNPlatformFactory {

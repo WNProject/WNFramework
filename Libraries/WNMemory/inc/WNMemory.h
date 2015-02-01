@@ -8,6 +8,9 @@
 #define __WN_MEMORY_H__
 
 #include "WNMemory/inc/WNAllocation.h"
+#include "WNMemory/inc/WNAllocator.h"
+#include "WNMemory/inc/WNIntrusivePtr.h"
+#include "WNMemory/inc/WNIntrusivePtrBase.h"
 #include "WNMemory/inc/WNManipulation.h"
 
 #endif // __WN_MEMORY_H__

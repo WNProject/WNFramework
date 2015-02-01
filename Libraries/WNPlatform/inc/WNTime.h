@@ -9,15 +9,15 @@
 
 #include "WNCore/inc/WNTypes.h"
 
-typedef WN_UINT32 (*WN_TICK_COUNT_FUNCTION_T)();
-typedef WN_UINT64 (*WN_BIG_TICK_COUNT_FUNCTION_T)();
+typedef wn_uint32 (*WN_TICK_COUNT_FUNCTION_T)();
+typedef wn_uint64 (*WN_BIG_TICK_COUNT_FUNCTION_T)();
 
-namespace WNPlatform {
-    WN_UINT32 WNGetTime();
-    WN_UINT64 WNGetBigTime();
+namespace wn {
+    wn_uint32 WNGetTime();
+    wn_uint64 WNGetBigTime();
 
-    WN_UINT32 WNGetTickCount();
-    WN_UINT64 WNGetBigTickCount();
+    wn_uint32 WNGetTickCount();
+    wn_uint64 WNGetBigTickCount();
 }
 
 #include "WNPlatform/inc/Internal/WNTime.inl"

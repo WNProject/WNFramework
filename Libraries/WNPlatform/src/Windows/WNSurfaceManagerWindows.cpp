@@ -11,13 +11,12 @@
 #include <tchar.h>
 #include <vector>
 
-using namespace WNPlatform;
+using namespace wn;
 using namespace WNMemory;
-using namespace WNConcurrency;
 
 #define WN_WINDOW_CLASS_NAME _T("WNWindowClass")
 
-WNSurfaceManagerReturnCode::Type WNSurfaceManagerWindows::Initialize() {
+WNSurfaceManagerReturnCode::type WNSurfaceManagerWindows::Initialize() {
     WNDCLASSEX wcex;
 
     wcex.cbSize = sizeof(WNDCLASSEX);
@@ -41,69 +40,63 @@ WNSurfaceManagerReturnCode::Type WNSurfaceManagerWindows::Initialize() {
         }
     }
 
-    return(WNSurfaceManagerReturnCode::eWNOK);
+    return(WNSurfaceManagerReturnCode::ok);
 }
 
 WNSurfaceManagerWindows::WNSurfaceManagerWindows() :
     mPendingHwnd(0) {
 }
 
-WNSurfaceManagerReturnCode::Type WNSurfaceManagerWindows::Release() {
-    for (WN_SIZE_T i = 0; i < mMessagePumps.size(); ++i) {
+WNSurfaceManagerReturnCode::type WNSurfaceManagerWindows::Release() {
+    for (wn_size_t i = 0; i < mMessagePumps.size(); ++i) {
         SendNotifyMessage(mMessagePumps[i]->mWindow->GetNativeHandle(), WM_USER, 0, 0);
     }
 
-    for (WN_SIZE_T i = 0; i < mMessagePumps.size(); ++i) {
-        mMessagePumps[i]->mThread->WaitForCompletion();
+    for (wn_size_t i = 0; i < mMessagePumps.size(); ++i) {
+        mMessagePumps[i]->mThread->join();
 
         WN_DELETE(mMessagePumps[i]);
     }
 
     mMessagePumps.clear();
 
-    return(WNSurfaceManagerReturnCode::eWNOK);
+    return(WNSurfaceManagerReturnCode::ok);
 }
 
-WNSurfaceManagerReturnCode::Type WNSurfaceManagerWindows::CreateSurface(WN_UINT32 _x, WN_UINT32 _y, WN_UINT32 _width, WN_UINT32 _height, WNResourcePointer<WNSurface>& _surface) {
-    WNResourcePointer<WNSurfaceWindows> ptr = WNAllocateResource<WNSurfaceWindows, WNSurfaceManagerWindows&>(*this);
+WNSurfaceManagerReturnCode::type WNSurfaceManagerWindows::CreateSurface(wn_uint32 _x, wn_uint32 _y, wn_uint32 _width, wn_uint32 _height, wn::intrusive_ptr<surface>& _surface) {
+    wn::intrusive_ptr<WNSurfaceWindows> ptr = wn::make_intrusive<WNSurfaceWindows, WNSurfaceManagerWindows&>(*this);
 
     ptr->Resize(_width, _height);
     ptr->Move(_x, _y);
 
     WNWindowThreadData* dat = WN_NEW WNWindowThreadData(ptr);
 
-    mWindowCreationLock.Lock();
+    mWindowCreationLock.lock();
     mPendingHwnd = 0;
 
-    WNConcurrency::WNThread<WN_BOOL>* thread = WN_NEW WNConcurrency::WNThread<WN_BOOL>();
-
-    if (thread->Initialize(MessagePump, dat) != WNConcurrency::WNThreadReturnCode::eWNOK) {
-        WN_DELETE(thread);
-
-        return(WNSurfaceManagerReturnCode::eWNError);
-    }
+    wn::thread<wn_bool>* thread = WN_NEW wn::thread<wn_bool>(MessagePump, dat);
 
     dat->mThread = thread;
 
-    mCreatedWindowLock.Wait();
+    mCreatedWindowLock.wait();
 
     const HWND wnd = mPendingHwnd;
 
-    mWindowCreationLock.Unlock();
+    mWindowCreationLock.unlock();
 
     if (wnd == 0) {
-        thread->WaitForCompletion();
+        thread->join();
 
         WN_DELETE(thread);
 
-        return(WNSurfaceManagerReturnCode::eWNError);
+        return(WNSurfaceManagerReturnCode::error);
     }
 
     mMessagePumps.push_back(dat);
 
     _surface = ptr;
 
-    return(WNSurfaceManagerReturnCode::eWNOK);
+    return(WNSurfaceManagerReturnCode::ok);
 }
 
 LRESULT CALLBACK WNSurfaceManagerWindows::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
@@ -117,14 +110,14 @@ LRESULT CALLBACK WNSurfaceManagerWindows::WindowProc(HWND hwnd, UINT uMsg, WPARA
         case WM_USER:
             if (wParam == static_cast<WPARAM>(lParam) && wParam == 0) {
                 if (data) {
-                    data->mExit = WN_TRUE;
+                    data->mExit = wn_true;
                 }
 
                 return(-1);
             }
         case WM_DESTROY:
             if (data) {
-                data->mExit = WN_TRUE;
+                data->mExit = wn_true;
 
                 return(DefWindowProc(hwnd, uMsg, wParam, lParam));
             }
@@ -134,7 +127,7 @@ LRESULT CALLBACK WNSurfaceManagerWindows::WindowProc(HWND hwnd, UINT uMsg, WPARA
 }
 
 
-WN_BOOL WNSurfaceManagerWindows::MessagePump(WNWindowThreadData* _data) {
+wn_bool WNSurfaceManagerWindows::MessagePump(WNWindowThreadData* _data) {
     WNSurfaceManagerWindows& manager = _data->mWindow->mSurfaceManager;
     RECT r;
 
@@ -152,13 +145,13 @@ WN_BOOL WNSurfaceManagerWindows::MessagePump(WNWindowThreadData* _data) {
     const HWND wnd = manager.mPendingHwnd;
 
     if (manager.mPendingHwnd == 0) {
-        manager.mCreatedWindowLock.Post();
+        manager.mCreatedWindowLock.notify();
 
-        return(WN_FALSE);
+        return(wn_false);
     }
 
     _data->mWindow->SetNativeHandle(wnd);
-    manager.mCreatedWindowLock.Post();
+    manager.mCreatedWindowLock.notify();
 
     SetWindowLongPtr(wnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(_data));
     ShowWindow(wnd, SW_SHOW);
@@ -178,11 +171,11 @@ WN_BOOL WNSurfaceManagerWindows::MessagePump(WNWindowThreadData* _data) {
         Sleep(1);
     }
 
-    return(WN_TRUE);
+    return(wn_true);
 }
 
 
-WNSurfaceManagerWindows::WNWindowThreadData::WNWindowThreadData(WNResourcePointer<WNSurfaceWindows> _wnd) :
+WNSurfaceManagerWindows::WNWindowThreadData::WNWindowThreadData(wn::intrusive_ptr<WNSurfaceWindows> _wnd) :
     mWindow(_wnd),
-    mExit(WN_FALSE) {
+    mExit(wn_false) {
 }

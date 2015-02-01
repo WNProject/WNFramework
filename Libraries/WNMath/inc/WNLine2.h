@@ -9,34 +9,34 @@
 
 #include "WNCore/inc/WNTypes.h"
 
-namespace WNMath {
-    template <typename Type> class WNVector2;
+namespace wn {
+    template <typename type> class vector2;
 
-    template <typename Type>
+    template <typename type>
     class WNLine2 {
     public:
         WNLine2();
         WNLine2(const WNLine2& _line);
-        explicit WNLine2(const Type* _numbers);
-        explicit WNLine2(const WNVector2<Type>& _point1, const WNVector2<Type>& _point2);
+        explicit WNLine2(const type* _numbers);
+        explicit WNLine2(const vector2<type>& _point1, const vector2<type>& _point2);
 
         WNLine2 operator + () const;
         WNLine2 operator - () const;
 
-        WN_BOOL operator == (const WNLine2& _line) const;
-        WN_BOOL operator != (const WNLine2& _line) const;
+        wn_bool operator == (const WNLine2& _line) const;
+        wn_bool operator != (const WNLine2& _line) const;
 
-        WN_VOID Zero();
+        wn_void Zero();
 
-        WNVector2<Type> Direction() const;
+        vector2<type> Direction() const;
 
-        WN_VOID Set(const WNLine2& _line);
-        WN_VOID Set(const Type* _numbers);
-        WN_VOID Set(const WNVector2<Type>& _point1, const WNVector2<Type>& _point2);
+        wn_void Set(const WNLine2& _line);
+        wn_void Set(const type* _numbers);
+        wn_void Set(const vector2<type>& _point1, const vector2<type>& _point2);
 
     public:
-        WNVector2<Type> mPoint1;
-        WNVector2<Type> mPoint2;
+        vector2<type> mPoint1;
+        vector2<type> mPoint2;
     };
 }
 

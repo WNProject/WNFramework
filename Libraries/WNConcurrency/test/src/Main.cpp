@@ -4,13 +4,12 @@
     #include "WNPlatform/inc/WNTime.h"
 #endif
 
-WN_INT32 WNMain(WN_INT32 _argc, WN_CHAR* _argv[]) {
-    testing::GTEST_FLAG(print_time) = false;
+wn_int32 wn_main(wn_int32 _argc, wn_char* _argv[]) {
     testing::InitGoogleTest(&_argc, _argv);
 
-    srand(WNPlatform::WNGetTime());
+    srand(wn::WNGetTime());
 
-    const WN_INT32 result = RUN_ALL_TESTS();
+    const wn_int32 result = RUN_ALL_TESTS();
 
     return(result);
 }

@@ -28,14 +28,14 @@
     #pragma warning(pop)
 #endif
 
-using namespace WNScripting; 
+using namespace WNScripting;
 WNDeclaration::WNDeclaration(WNTypeNode* _type, const char* _name) :
     mType(_type),
-    mName(WN_NULL),
-    mExpr(WN_NULL),
-    mScalarType(WN_NULL),
+    mName(wn_nullptr),
+    mExpr(wn_nullptr),
+    mScalarType(wn_nullptr),
     mUnsizedArrayInitializers(0),
-    mInitAssign(WN_FALSE) {
+    mInitAssign(wn_false) {
     COPY_STRING(_name, mName);
 }
 
@@ -50,7 +50,7 @@ WNDeclaration::~WNDeclaration() {
     }
 }
 
-const WN_CHAR* WNDeclaration::GetName() {
+const wn_char* WNDeclaration::GetName() {
     return(mName);
 }
 
@@ -74,8 +74,8 @@ void WNDeclaration::AddUnsizedArrayInitializer() {
 eWNTypeError WNDeclaration::GenerateCode(WNCodeModule& _module, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog) {
     llvm::IRBuilder<>* builder = reinterpret_cast<llvm::IRBuilder<>*>(_module.GetBuilder());
     WNScriptType t;
-    llvm::Value* allocLocation = WN_NULL;
-    eWNTypeError err = eWNOK;
+    llvm::Value* allocLocation = wn_nullptr;
+    eWNTypeError err = ok;
 
     if(_module.GetScopedVariableList().GetVariable(mName)){
         _compilationLog.Log(WNLogging::eError, 0, "Error ", mName, " already exists");
@@ -83,7 +83,7 @@ eWNTypeError WNDeclaration::GenerateCode(WNCodeModule& _module, const WNFunction
         return(eWNAlreadyExists);
     }
 
-    if(eWNOK != (err = mType->GetType(_module.GetTypeManager(), t, _compilationLog))) {
+    if(ok != (err = mType->GetType(_module.GetTypeManager(), t, _compilationLog))) {
         _compilationLog.Log(WNLogging::eError, 0, "Error, cannot find type");
         LogLine(_compilationLog, WNLogging::eError);
         return(err);
@@ -94,15 +94,15 @@ eWNTypeError WNDeclaration::GenerateCode(WNCodeModule& _module, const WNFunction
         LogLine(_compilationLog, WNLogging::eError);
         return(eWNCannotCreateType);
     }
-    if(eWNOK != (err = alloc->Execute(_module, t, mName, false, allocLocation))) {
+    if(ok != (err = alloc->Execute(_module, t, mName, false, allocLocation))) {
         _compilationLog.Log(WNLogging::eCritical, 0, "Error, creating allocation for type", t->mName);
         LogLine(_compilationLog, WNLogging::eCritical);
         return(err);
     }
 
     if(mExpr) {
-        
-        if(eWNOK != (err = mExpr->GenerateCode(_module, _def, _compilationLog))) {
+
+        if(ok != (err = mExpr->GenerateCode(_module, _def, _compilationLog))) {
             return(err);
         }
         if(!mExpr->GetValue()){
@@ -124,21 +124,21 @@ eWNTypeError WNDeclaration::GenerateCode(WNCodeModule& _module, const WNFunction
                 mExpr->LogLine(_compilationLog, WNLogging::eError);
                 return(eWNInvalidCast);
             }
-            if(eWNOK != (err = cast->Execute(builder, val, val))) {
+            if(ok != (err = cast->Execute(builder, val, val))) {
                 _compilationLog.Log(WNLogging::eCritical, 0, "Error, generating cast from ", mExpr->GetType()->mName, " to ", t->mName);
                 mExpr->LogLine(_compilationLog, WNLogging::eCritical);
                 return(err);
             }
         }
-        if(eWNOK != (err = assign->Execute(_module, true, t, val, allocLocation, _def, _compilationLog))) {
+        if(ok != (err = assign->Execute(_module, true, t, val, allocLocation, _def, _compilationLog))) {
             return(err);
         }
     }
     WNScriptVariable* var = WN_SCRIPTNODE_NEW(WNScriptVariable(t, mName, allocLocation));
-    if(eWNOK != (err = _module.GetScopedVariableList().PushVariable(var))) {
+    if(ok != (err = _module.GetScopedVariableList().PushVariable(var))) {
         return(err);
     }
-    return(eWNOK);
+    return(ok);
 }
 
 WNExpression* WNDeclaration::GetExpression() {

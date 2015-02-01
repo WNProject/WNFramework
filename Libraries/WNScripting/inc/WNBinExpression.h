@@ -12,7 +12,7 @@ namespace WNScripting {
     public:
         WNBinExpression(WNArithmeticType _type, WNExpression* _lhs, WNExpression* _rhs);
         virtual ~WNBinExpression();
-        virtual eWNTypeError GenerateCode(WNCodeModule& _module, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog); 
+        virtual eWNTypeError GenerateCode(WNCodeModule& _module, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog);
     private:
         WNArithmeticType mType;
         WNExpression* mLHS;

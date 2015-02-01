@@ -32,13 +32,13 @@
     #pragma warning(pop)
 #endif
 
-using namespace WNScripting; 
+using namespace WNScripting;
 
 WNFunction::WNFunction(WNDeclaration* _decl, WNDeclList* _params, WNInstructionList* _body) :
     mDeclaration(_decl),
     mParameters(_params),
     mBody(_body),
-    mThisType(WN_NULL),
+    mThisType(wn_nullptr),
     mIsOverride(false),
     mIsVirtual(false){
 }
@@ -55,24 +55,24 @@ eWNTypeError WNFunction::GenerateCode(WNCodeModule& _module, WNScriptType owning
     if(mIsOverride && mIsVirtual) {
         _compilationLog.Log(WNLogging::eError,0, "Error: Function ", mDeclaration->GetName(), " can not be both virtual and override");
         LogLine(_compilationLog, WNLogging::eError);
-        return(eWNInvalidParameters);
+        return(invalid_parameters);
     }
     mThisType = owningType;
     llvm::IRBuilder<>* builder = reinterpret_cast<llvm::IRBuilder<>*>(_module.GetBuilder());
-    eWNTypeError err = eWNOK;
+    eWNTypeError err = ok;
     WNScriptType returnType;
-    WN_CHAR funcName[2048];
+    wn_char funcName[2048];
     funcName[0] = '\0';
-    
+
     if(owningType && owningType->mName) {
         WNStrings::WNStrNCat(funcName, owningType->mName, 1024);
         WN_DEBUG_ASSERT(WNStrings::WNStrLen(funcName) == WNStrings::WNStrLen(owningType->mName));
         WNStrings::WNStrCat(funcName, "$");
     }
     WNStrings::WNStrNCat(funcName, mDeclaration->GetName(), 1024);
-    
-    
-    if(eWNOK != (err = mDeclaration->GetType(_module.GetTypeManager(), returnType, _compilationLog))) {
+
+
+    if(ok != (err = mDeclaration->GetType(_module.GetTypeManager(), returnType, _compilationLog))) {
         _compilationLog.Log(WNLogging::eError, 0, "Error cannot resolve type");
         LogLine(_compilationLog, WNLogging::eError);
         return(err);
@@ -83,18 +83,18 @@ eWNTypeError WNFunction::GenerateCode(WNCodeModule& _module, WNScriptType owning
     }
 
     if(mParameters) {
-        if(eWNOK != (err = mParameters->GetTypeList(_module.GetTypeManager(), parameterTypes, _compilationLog))) {
+        if(ok != (err = mParameters->GetTypeList(_module.GetTypeManager(), parameterTypes, _compilationLog))) {
             _compilationLog.Log(WNLogging::eError, 0, "Error invalid parameters");
             LogLine(_compilationLog, WNLogging::eError);
             return(err);
         }
     }
-    
+
     WNFunctionDefinition * def = _module.GetFunctionDefinition(funcName, parameterTypes);
     if(!def) {
         _compilationLog.Log(WNLogging::eError, 0, "Function Definition does not exist: ", funcName);
         LogLine(_compilationLog, WNLogging::eError);
-        return(eWNError);
+        return(error);
     }
     llvm::BasicBlock* bb = llvm::BasicBlock::Create(llvm::getGlobalContext(), "", def->mFunction);
     builder->SetInsertPoint(bb);
@@ -105,25 +105,25 @@ eWNTypeError WNFunction::GenerateCode(WNCodeModule& _module, WNScriptType owning
         llvm::Value* mThis = builder->CreateAlloca(owningType->mLLVMType);
         builder->CreateStore(fIter, mThis);
         WNScriptVariable* var = WN_SCRIPTNODE_NEW(WNScriptVariable(owningType, "this", mThis, true));
-        if(eWNOK != (err = _module.GetScopedVariableList().PushVariable(var))) {
+        if(ok != (err = _module.GetScopedVariableList().PushVariable(var))) {
             _compilationLog.Log(WNLogging::eError, 0, "Variable already exists ", "this");
             LogLine(_compilationLog, WNLogging::eError);
             return(err);
         }
-        
+
         std::vector<llvm::Value*> GepArray;
         GepArray.push_back(llvm::ConstantInt::get(llvm::IntegerType::getInt32Ty(llvm::getGlobalContext()), 0));
         GepArray.push_back(llvm::ConstantInt::get(llvm::IntegerType::getInt32Ty(llvm::getGlobalContext()), 1));
         llvm::Value* tempValue = builder->CreateLoad(builder->CreateGEP(fIter, GepArray));
 
-    
+
         for(size_t i = 0; i < owningType->mStructTypes.size(); ++i) {
             GepArray.clear();
             GepArray.push_back(llvm::ConstantInt::get(llvm::IntegerType::getInt32Ty(llvm::getGlobalContext()), 0));
             GepArray.push_back(llvm::ConstantInt::get(llvm::IntegerType::getInt32Ty(llvm::getGlobalContext()), i));
             llvm::Value* val = builder->CreateGEP(tempValue, GepArray);
             WNContainedStructType& st = owningType->mStructTypes[i];
-            if(eWNOK != (err = _module.GetScopedVariableList().PushVariable(new WNScriptVariable(st.mType, st.mName, val, true)))) {
+            if(ok != (err = _module.GetScopedVariableList().PushVariable(new WNScriptVariable(st.mType, st.mName, val, true)))) {
                 _compilationLog.Log(WNLogging::eError, 0, "Variable already exists ", st.mName);
                 LogLine(_compilationLog, WNLogging::eError);
                 return(err);
@@ -134,18 +134,18 @@ eWNTypeError WNFunction::GenerateCode(WNCodeModule& _module, WNScriptType owning
 
     if(mParameters) {
         const WNScriptLinkedList<WNDeclaration>* declarations = NULL;
-        if(eWNOK != (err = mParameters->GetDeclarations(declarations))) {
+        if(ok != (err = mParameters->GetDeclarations(declarations))) {
             _compilationLog.Log(WNLogging::eError, 0, "Cannot find declarations for parameters ");
             LogLine(_compilationLog, WNLogging::eError);
             return(err);
         }
-        
+
         WNScriptLinkedList<WNDeclaration>::WNScriptLinkedListNode* iter = declarations->first;
-        for(;iter != WN_NULL && fIter != def->mFunction->arg_end(); 
+        for(;iter != wn_nullptr && fIter != def->mFunction->arg_end();
                                             iter = iter->next, ++fIter) {
             fIter->setName(iter->value->GetName());
-            WNScriptType t = WN_NULL;
-            if(eWNOK != (err = iter->value->GetType(_module.GetTypeManager(), t, _compilationLog))) {
+            WNScriptType t = wn_nullptr;
+            if(ok != (err = iter->value->GetType(_module.GetTypeManager(), t, _compilationLog))) {
                 _compilationLog.Log(WNLogging::eError, 0, "Cannot find type for declaration: ", iter->value->GetName());
                 LogLine(_compilationLog, WNLogging::eError);
                 return(err);
@@ -156,8 +156,8 @@ eWNTypeError WNFunction::GenerateCode(WNCodeModule& _module, WNScriptType owning
                 LogLine(_compilationLog, WNLogging::eError);
                 return(eWNCannotCreateType);
             }
-            llvm::Value* allocLoc = WN_NULL;
-            if(eWNOK != (err = alloc->Execute(_module, t, iter->value->GetName(), false, allocLoc))) {
+            llvm::Value* allocLoc = wn_nullptr;
+            if(ok != (err = alloc->Execute(_module, t, iter->value->GetName(), false, allocLoc))) {
                 _compilationLog.Log(WNLogging::eCritical, 0, "Error allocating a variable of type: ", t->mName);
                 LogLine(_compilationLog, WNLogging::eCritical);
                 return(err);
@@ -168,35 +168,35 @@ eWNTypeError WNFunction::GenerateCode(WNCodeModule& _module, WNScriptType owning
                 _compilationLog.Log(WNLogging::eError, 0, "Cannot assign a variable of type: ", t->mName);
                 LogLine(_compilationLog, WNLogging::eError);
             }
-            if(eWNOK != (err = assign->Execute(_module, true, t, fIter, allocLoc, def, _compilationLog))) {
+            if(ok != (err = assign->Execute(_module, true, t, fIter, allocLoc, def, _compilationLog))) {
                 _compilationLog.Log(WNLogging::eCritical, 0, "Error assigning a variable of type: ", t->mName);
                 LogLine(_compilationLog, WNLogging::eCritical);
                 return(err);
             }
             WNScriptVariable* var = WN_SCRIPTNODE_NEW(WNScriptVariable(t, iter->value->GetName(), allocLoc));
-            if(eWNOK != (err = _module.GetScopedVariableList().PushVariable(var))) {
+            if(ok != (err = _module.GetScopedVariableList().PushVariable(var))) {
                 _compilationLog.Log(WNLogging::eError, 0, "Variable already exists ", iter->value->GetName());
                 LogLine(_compilationLog, WNLogging::eError);
                 return(err);
             }
         }
-        if(fIter != def->mFunction->arg_end() && iter != WN_NULL) {
+        if(fIter != def->mFunction->arg_end() && iter != wn_nullptr) {
             _compilationLog.Log(WNLogging::eError, 0, "Invalid number of parameters to function");
             LogLine(_compilationLog, WNLogging::eError);
-            return(eWNError);
+            return(error);
         }
     }
-    
-    if(eWNOK != (err = mBody->GenerateCode(_module, def, _compilationLog))) {
+
+    if(ok != (err = mBody->GenerateCode(_module, def, _compilationLog))) {
         return(err);
     }
     if(!mBody->Returns()) {
-        if(eWNOK != (err = _module.GetScopedVariableList().GenerateReturn(_module, def, _compilationLog))) {
+        if(ok != (err = _module.GetScopedVariableList().GenerateReturn(_module, def, _compilationLog))) {
             _compilationLog.Log(WNLogging::eCritical, 0, "Cannot create proper return");
             LogLine(_compilationLog, WNLogging::eCritical);
             return(err);
         }
-        if(eWNOK != (err = GenerateVOIDReturn(_module, def))) {
+        if(ok != (err = GenerateVOIDReturn(_module, def))) {
             _compilationLog.Log(WNLogging::eError, 0, "Trying to create void return for non-void function");
             LogLine(_compilationLog, WNLogging::eError);
             return(err);
@@ -204,15 +204,15 @@ eWNTypeError WNFunction::GenerateCode(WNCodeModule& _module, WNScriptType owning
     }
     _module.GetScopedVariableList().ClearScope();
     builder->ClearInsertionPoint();
-    
-    return(eWNOK);
+
+    return(ok);
 }
-    
+
 eWNTypeError WNFunction::ExportFunctions(WNCodeModule& _module, WNScriptType owningType, std::vector<WNFunctionDefinition*>& _definitions, WNLogging::WNLog& _compilationLog) {
-    eWNTypeError err = eWNOK;
+    eWNTypeError err = ok;
     WNScriptType returnType;
-    
-    WN_CHAR funcName[2048];
+
+    wn_char funcName[2048];
     funcName[0] = '\0';
     if(mIsOverride && !owningType) {
         _compilationLog.Log(WNLogging::eError, 0, "Error it is invalid to have an override function that is not in a class");
@@ -226,8 +226,8 @@ eWNTypeError WNFunction::ExportFunctions(WNCodeModule& _module, WNScriptType own
         WNStrings::WNStrCat(funcName, "$");
     }
     WNStrings::WNStrNCat(funcName, mDeclaration->GetName(), 1024);
-    
-    if(eWNOK != (err = mDeclaration->GetType(_module.GetTypeManager(), returnType, _compilationLog))) {
+
+    if(ok != (err = mDeclaration->GetType(_module.GetTypeManager(), returnType, _compilationLog))) {
         return(err);
     }
     std::vector<WNScriptType> parameterTypes;
@@ -235,13 +235,13 @@ eWNTypeError WNFunction::ExportFunctions(WNCodeModule& _module, WNScriptType own
         parameterTypes.push_back(owningType);
     }
     if(mParameters) {
-        if(eWNOK != (err = mParameters->GetTypeList(_module.GetTypeManager(), parameterTypes, _compilationLog))) {
+        if(ok != (err = mParameters->GetTypeList(_module.GetTypeManager(), parameterTypes, _compilationLog))) {
             LogLine(_compilationLog, WNLogging::eError);
             return(err);
         }
     }
-    WNFunctionDefinition* def = WN_NULL;
-    if(eWNOK != (err = _module.GenerateFunctionDefinition(funcName, parameterTypes, returnType, def, owningType, mIsVirtual || mIsOverride))) {
+    WNFunctionDefinition* def = wn_nullptr;
+    if(ok != (err = _module.GenerateFunctionDefinition(funcName, parameterTypes, returnType, def, owningType, mIsVirtual || mIsOverride))) {
         parameterTypes.clear();
         return(err);
     }
@@ -251,9 +251,9 @@ eWNTypeError WNFunction::ExportFunctions(WNCodeModule& _module, WNScriptType own
         llvmTypes.push_back((*i)->mLLVMType);
     }
 
-    llvm::FunctionType* fType = llvm::FunctionType::get(returnType->mLLVMType, llvmTypes, WN_FALSE);
+    llvm::FunctionType* fType = llvm::FunctionType::get(returnType->mLLVMType, llvmTypes, wn_false);
     def->mFunctionType = fType;
-   
+
     _definitions.push_back(def);
     if(owningType && mIsVirtual) {
         owningType->mVTable.push_back(def);
@@ -261,25 +261,25 @@ eWNTypeError WNFunction::ExportFunctions(WNCodeModule& _module, WNScriptType own
     if(owningType && mIsOverride) {
         owningType->mOverridenFunctions.push_back(def);
     }
-    return(eWNOK);
+    return(ok);
 }
 
 eWNTypeError WNFunction::GenerateHeader(WNCodeModule& _module, WNScriptType owningType, WNLogging::WNLog& _compilationLog) {
-    
-    eWNTypeError err = eWNOK;
+
+    eWNTypeError err = ok;
     WNScriptType returnType;
-    WN_CHAR funcName[2048];
+    wn_char funcName[2048];
     funcName[0] = '\0';
-    
+
     if(owningType && owningType->mName) {
         WNStrings::WNStrNCat(funcName, owningType->mName, 1024);
         WN_DEBUG_ASSERT(WNStrings::WNStrLen(funcName) == WNStrings::WNStrLen(owningType->mName));
         WNStrings::WNStrCat(funcName, "$");
     }
     WNStrings::WNStrNCat(funcName, mDeclaration->GetName(), 1024);
-    
 
-    if(eWNOK != (err = mDeclaration->GetType(_module.GetTypeManager(), returnType, _compilationLog))) {
+
+    if(ok != (err = mDeclaration->GetType(_module.GetTypeManager(), returnType, _compilationLog))) {
         return(err);
     }
     std::vector<WNScriptType> parameterTypes;
@@ -288,14 +288,14 @@ eWNTypeError WNFunction::GenerateHeader(WNCodeModule& _module, WNScriptType owni
     }
 
     if(mParameters) {
-        if(eWNOK != (err = mParameters->GetTypeList(_module.GetTypeManager(), parameterTypes, _compilationLog))) {
+        if(ok != (err = mParameters->GetTypeList(_module.GetTypeManager(), parameterTypes, _compilationLog))) {
             LogLine(_compilationLog, WNLogging::eError);
             return(err);
         }
     }
-    WNFunctionDefinition* def = WN_NULL;
-    WNFunctionDefinition* equivDef = WN_NULL;
-    if(eWNOK != (err = _module.AddFunctionDefinition(funcName, parameterTypes, returnType, def, equivDef, owningType))) {
+    WNFunctionDefinition* def = wn_nullptr;
+    WNFunctionDefinition* equivDef = wn_nullptr;
+    if(ok != (err = _module.AddFunctionDefinition(funcName, parameterTypes, returnType, def, equivDef, owningType))) {
         if(err != eWNAlreadyExists || !def->mCurrentFile) {
             parameterTypes.clear();
             return(err);
@@ -307,12 +307,12 @@ eWNTypeError WNFunction::GenerateHeader(WNCodeModule& _module, WNScriptType owni
         llvmTypes.push_back((*i)->mLLVMType);
     }
 
-    llvm::FunctionType* fType = llvm::FunctionType::get(returnType->mLLVMType, llvmTypes, WN_FALSE);
+    llvm::FunctionType* fType = llvm::FunctionType::get(returnType->mLLVMType, llvmTypes, wn_false);
     llvm::Function* func = llvm::Function::Create(fType, llvm::GlobalValue::ExternalLinkage, funcName, _module.GetModule());
     def->mFunction = func;
     def->mFunctionType = fType;
-    
-    return(eWNOK);
+
+    return(ok);
 }
 
 void WNFunction::SetVirtual() {

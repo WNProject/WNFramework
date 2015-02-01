@@ -20,18 +20,18 @@ namespace WNScripting {
     public:
         WNExpression();
         virtual ~WNExpression();
-        llvm::Value* GetValue() const; 
+        llvm::Value* GetValue() const;
 
-        llvm::Value* GetValueLocation() const; 
+        llvm::Value* GetValueLocation() const;
 
-        WNScripting::WNScriptType GetType() const; 
-        
-        WN_BOOL RequiredUse();
-        WN_BOOL IsNewlyCreated();
+        WNScripting::WNScriptType GetType() const;
+
+        wn_bool RequiredUse();
+        wn_bool IsNewlyCreated();
 
         WNScripting::WNScriptType GetSubType() const;
         llvm::Value* GetSubValue() const;
-        
+
         virtual eWNTypeError GenerateCode(WNCodeModule& _module, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog) = 0;
     protected:
         llvm::Value* mValue;
@@ -39,8 +39,8 @@ namespace WNScripting {
         llvm::Value* mSubValue;
         WNScriptType mSubValueType;
         WNScriptType mScriptType;
-        WN_BOOL mForceUse;
-        WN_BOOL mNewlyCreated;
+        wn_bool mForceUse;
+        wn_bool mNewlyCreated;
     };
 }
 
