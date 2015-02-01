@@ -7,23 +7,24 @@
 
 #include "WNCore/inc/WNTypes.h"
 #include "WNScripting/inc/WNTypeElement.h"
+
 namespace WNScripting {
     struct WNParameter {
         WNParameter(WNScriptType _type) :
             mType(_type) {
         }
         WNParameter() :
-            mType(WN_NULL) {
+            mType(wn_nullptr) {
         }
         WNScriptType mType;
 
         union {
-            WN_SIZE_T mSizetVal;
-            WN_UINT32 mUint32Val;
-            WN_INT32 mInt32Val;
-            WN_INT64 mInt64val;
-            WN_FLOAT32 mFloatVal;
-            WN_FLOAT64 mDoubleVal;
+            wn_size_t mSizetVal;
+            wn_uint32 mUint32Val;
+            wn_int32 mInt32Val;
+            wn_int64 mInt64val;
+            wn_float32 mFloatVal;
+            wn_float64 mDoubleVal;
         };
     };
 }

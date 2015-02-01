@@ -16,15 +16,15 @@
 #include "WNMath/inc/WNBounds3.h"
 #include "WNMath/inc/WNSphere.h"
 
-namespace WNMath {
-    template <typename Type>
-    WN_VOID CalculatePoints(Type _near, Type _far, Type _hFov, Type _vFov, WNVector4<Type>* _vectors) {
-        const Type hTan = WNTan(_hFov / static_cast<Type>(2));
-        const Type vTan = WNTan(_vFov / static_cast<Type>(2));
-        const Type hTanNear = hTan * _near;
-        const Type hTanFar = hTan * _far;
-        const Type vTanNear = vTan * _near;
-        const Type vTanFar = vTan * _far;
+namespace wn {
+    template <typename type>
+    wn_void CalculatePoints(type _near, type _far, type _hFov, type _vFov, WNVector4<type>* _vectors) {
+        const type hTan = WNTan(_hFov / static_cast<type>(2));
+        const type vTan = WNTan(_vFov / static_cast<type>(2));
+        const type hTanNear = hTan * _near;
+        const type hTanFar = hTan * _far;
+        const type vTanNear = vTan * _near;
+        const type vTanFar = vTan * _far;
 
         _vectors[0].mX = _vectors[3].mX = -hTanNear;
         _vectors[1].mX = _vectors[2].mX = hTanNear;
@@ -40,8 +40,8 @@ namespace WNMath {
         _vectors[0].mZ = _vectors[1].mZ = _vectors[2].mZ = _vectors[3].mZ = _far;
     }
 
-    template <typename Type>
-    WN_VOID TransformPoints(const WNMatrix4<Type>& _transform, WNVector4<Type>* _vectors) {
+    template <typename type>
+    wn_void TransformPoints(const WNMatrix4<type>& _transform, WNVector4<type>* _vectors) {
         _vectors[0] = _transform.Transform(_vectors[0]);
         _vectors[1] = _transform.Transform(_vectors[1]);
         _vectors[2] = _transform.Transform(_vectors[2]);
@@ -52,26 +52,26 @@ namespace WNMath {
         _vectors[7] = _transform.Transform(_vectors[7]);
     }
 
-    template <typename Type>
-    WN_BOOL OverlapOnNormal(const WNVector4<Type>& _normal, const WNVector4<Type>* _pointsFrustum, const WNVector4<Type>* _vectors, WN_UINT32 _numPoints) {
+    template <typename type>
+    wn_bool OverlapOnNormal(const WNVector4<type>& _normal, const WNVector4<type>* _pointsFrustum, const WNVector4<type>* _vectors, wn_uint32 _numPoints) {
         WN_DEBUG_ASSERT(_numPoints > 0);
 
-        Type frustProj[2];
-        Type pointProj[2];
+        type frustProj[2];
+        type pointProj[2];
 
-        frustProj[0] = frustProj[1] = WNVector4<Type>::Dot(_pointsFrustum[0].ToVector3(), _normal);
+        frustProj[0] = frustProj[1] = WNVector4<type>::Dot(_pointsFrustum[0].ToVector3(), _normal);
 
-        for (WN_UINT8 i = 1; i < 8; ++i) {
-            const Type dotProd = WNVector4<Type>::Dot(_pointsFrustum[i].ToVector3(), _normal);
+        for (wn_uint8 i = 1; i < 8; ++i) {
+            const type dotProd = WNVector4<type>::Dot(_pointsFrustum[i].ToVector3(), _normal);
 
             frustProj[0] = (dotProd < frustProj[0]) ? dotProd : frustProj[0];
             frustProj[1] = (dotProd > frustProj[1]) ? dotProd : frustProj[1];
         }
 
-        pointProj[0] = pointProj[1] = WNVector4<Type>::Dot(_vectors[0].ToVector3(), _normal);
+        pointProj[0] = pointProj[1] = WNVector4<type>::Dot(_vectors[0].ToVector3(), _normal);
 
-        for (WN_UINT32 i = 1; i < _numPoints; ++i) {
-            const Type dotProd = WNVector4<Type>::Dot(_vectors[i].ToVector3(), _normal);
+        for (wn_uint32 i = 1; i < _numPoints; ++i) {
+            const type dotProd = WNVector4<type>::Dot(_vectors[i].ToVector3(), _normal);
 
             pointProj[0] = (dotProd < pointProj[0]) ? dotProd : pointProj[0];
             pointProj[1] = (dotProd > pointProj[1]) ? dotProd : pointProj[1];
@@ -80,8 +80,8 @@ namespace WNMath {
         return((frustProj[0] < pointProj[0]) ? (pointProj[0] < frustProj[1]):(frustProj[0] < pointProj[1]));
     }
 
-    template <typename Type>
-    WNFrustum<Type>::WNFrustum(const WNMatrix4<Type>& _transform, Type _near, Type _far, Type _aspect, Type _fov, WNFieldOfView::WNHorizontal _horizontal) :
+    template <typename type>
+    WNFrustum<type>::WNFrustum(const WNMatrix4<type>& _transform, type _near, type _far, type _aspect, type _fov, WNFieldOfView::WNHorizontal _horizontal) :
         mNearPlane(_near),
         mFarPlane(_far),
         mHorizontalFOV(_fov),
@@ -92,8 +92,8 @@ namespace WNMath {
         TransformPoints(mTransform, mPoints);
     }
 
-    template <typename Type>
-    WNFrustum<Type>::WNFrustum(const WNMatrix4<Type>& _transform, Type _near, Type _far, Type _aspect, Type _fov, WNFieldOfView::WNVertical _vertical) :
+    template <typename type>
+    WNFrustum<type>::WNFrustum(const WNMatrix4<type>& _transform, type _near, type _far, type _aspect, type _fov, WNFieldOfView::WNVertical _vertical) :
         mNearPlane(_near),
         mFarPlane(_far),
         mHorizontalFOV(_fov * _aspect),
@@ -104,8 +104,8 @@ namespace WNMath {
         TransformPoints(mTransform, mPoints);
     }
 
-    template <typename Type>
-    WNFrustum<Type>::WNFrustum(Type _near, Type _far, Type _fov, Type _aspect, WNFieldOfView::WNHorizontal _horizontal) :
+    template <typename type>
+    WNFrustum<type>::WNFrustum(type _near, type _far, type _fov, type _aspect, WNFieldOfView::WNHorizontal _horizontal) :
         mNearPlane(_near),
         mFarPlane(_far),
         mHorizontalFOV(_fov),
@@ -113,8 +113,8 @@ namespace WNMath {
         CalculatePoints(mNearPlane, mFarPlane, mHorizontalFOV, mVerticalFOV, mPoints);
     }
 
-    template <typename Type>
-    WNFrustum<Type>::WNFrustum(Type _near, Type _far, Type _fov, Type _aspect, WNFieldOfView::WNVertical _vertical) :
+    template <typename type>
+    WNFrustum<type>::WNFrustum(type _near, type _far, type _fov, type _aspect, WNFieldOfView::WNVertical _vertical) :
         mNearPlane(_near),
         mFarPlane(_far),
         mHorizontalFOV(_fov * _aspect),
@@ -122,124 +122,124 @@ namespace WNMath {
         CalculatePoints(mNearPlane, mFarPlane, mHorizontalFOV, mVerticalFOV, mPoints);
     }
 
-    template <typename Type>
-    WN_VOID WNFrustum<Type>::Transform(const WNMatrix4<Type>& _update) {
+    template <typename type>
+    wn_void WNFrustum<type>::Transform(const WNMatrix4<type>& _update) {
         mTransform *= _update;
 
         TransformPoints(mTransform, mPoints);
     }
 
-    template <typename Type>
-    WN_VOID WNFrustum<Type>::SetTransform(const WNMatrix4<Type>& _newTransform) {
+    template <typename type>
+    wn_void WNFrustum<type>::SetTransform(const WNMatrix4<type>& _newTransform) {
         mTransform = _newTransform;
 
         CalculatePoints(mNearPlane, mFarPlane, mHorizontalFOV, mVerticalFOV, mPoints);
         TransformPoints(mTransform, mPoints);
     }
 
-    template <typename Type>
-    WN_BOOL WNFrustum<Type>::Intersects(const WNBox<Type>& _box) const {
-        static const WN_UINT8 checks[3][3] =   {{0, 1, 2},
+    template <typename type>
+    wn_bool WNFrustum<type>::Intersects(const WNBox<type>& _box) const {
+        static const wn_uint8 checks[3][3] =   {{0, 1, 2},
                                                 {4, 5, 1},
                                                 {3, 7, 4}};
-        static const WN_UINT8 frustumChecks[5][3] = {{1, 0, 3},
+        static const wn_uint8 frustumChecks[5][3] = {{1, 0, 3},
                                                      {4, 0, 1},
                                                      {5, 1, 2},
                                                      {6, 2, 3},
                                                      {7, 3, 0}};
 
-        WNVector4<Type> boxPoints[8];
+        WNVector4<type> boxPoints[8];
 
         _box.GetPoints(boxPoints);
 
-        for (WN_UINT8 i = 0; i < 3; ++i) {
+        for (wn_uint8 i = 0; i < 3; ++i) {
             //FIRST try to find a separating plane against the edges of the box (there are fewer)
-            const WNVector4<Type> edge1 = (mPoints[frustumChecks[i][0]] - mPoints[frustumChecks[i][1]]).GetNormalized();
-            const WNVector4<Type> edge2 = (mPoints[frustumChecks[i][2]] - mPoints[frustumChecks[i][1]]).GetNormalized();
-            const WNVector4<Type> sideNormal = WNVector4<Type>::Cross(edge1, edge2);
+            const WNVector4<type> edge1 = (mPoints[frustumChecks[i][0]] - mPoints[frustumChecks[i][1]]).GetNormalized();
+            const WNVector4<type> edge2 = (mPoints[frustumChecks[i][2]] - mPoints[frustumChecks[i][1]]).GetNormalized();
+            const WNVector4<type> sideNormal = WNVector4<type>::Cross(edge1, edge2);
 
             if (!OverlapOnNormal(sideNormal, mPoints, boxPoints, 8)) {
-                return(WN_FALSE);
+                return(wn_false);
             }
         }
 
-        for (WN_UINT8 i = 0; i < 5; ++i) {
+        for (wn_uint8 i = 0; i < 5; ++i) {
             //NOW we try and find a separating plane from the frustum
-            const WNVector4<Type> edge1 = (boxPoints[checks[i][0]] - boxPoints[checks[i][1]]).GetNormalized();
-            const WNVector4<Type> edge2 = (boxPoints[checks[i][2]] - boxPoints[checks[i][1]]).GetNormalized();
-            const WNVector4<Type> sideNormal = WNVector4<Type>::Cross(edge1, edge2);
+            const WNVector4<type> edge1 = (boxPoints[checks[i][0]] - boxPoints[checks[i][1]]).GetNormalized();
+            const WNVector4<type> edge2 = (boxPoints[checks[i][2]] - boxPoints[checks[i][1]]).GetNormalized();
+            const WNVector4<type> sideNormal = WNVector4<type>::Cross(edge1, edge2);
 
             if (!OverlapOnNormal(sideNormal, mPoints, boxPoints, 8)) {
-                return(WN_FALSE);
+                return(wn_false);
             }
         }
 
-        return(WN_TRUE);
+        return(wn_true);
     }
 
-    template <typename Type>
-    WN_BOOL WNFrustum<Type>::Intersects(const WNSphere<Type>& _sphere) const {
-        static const WN_UINT8 frustumChecks[6][3] = {{1, 0, 3},
+    template <typename type>
+    wn_bool WNFrustum<type>::Intersects(const WNSphere<type>& _sphere) const {
+        static const wn_uint8 frustumChecks[6][3] = {{1, 0, 3},
                                                      {4, 0, 1},
                                                      {5, 1, 2},
                                                      {6, 2, 3},
                                                      {7, 3, 0},
                                                      {5, 4, 7}};
 
-        for (WN_UINT8 i = 0; i < 6; ++i) {
+        for (wn_uint8 i = 0; i < 6; ++i) {
             // Lets see if the sphere falls INSIDE (it is outside, if it is entirely on the OUTSIDE of one half-space
-            const WNVector4<Type> edge1 = (mPoints[frustumChecks[i][0]] - mPoints[frustumChecks[i][1]]).GetNormalized();
-            const WNVector4<Type> edge2 = (mPoints[frustumChecks[i][2]] - mPoints[frustumChecks[i][1]]).GetNormalized();
-            const WNVector4<Type> sideNormal = WNVector4<Type>::Cross(edge1, edge2);
-            const Type sideProj = WNVector4<Type>::Dot(mPoints[frustumChecks[i][0]].ToVector3(), sideNormal);
-            const Type sphereProj = WNVector4<Type>::Dot(_sphere.mLocation.ToVector3(), sideNormal);
+            const WNVector4<type> edge1 = (mPoints[frustumChecks[i][0]] - mPoints[frustumChecks[i][1]]).GetNormalized();
+            const WNVector4<type> edge2 = (mPoints[frustumChecks[i][2]] - mPoints[frustumChecks[i][1]]).GetNormalized();
+            const WNVector4<type> sideNormal = WNVector4<type>::Cross(edge1, edge2);
+            const type sideProj = WNVector4<type>::Dot(mPoints[frustumChecks[i][0]].ToVector3(), sideNormal);
+            const type sphereProj = WNVector4<type>::Dot(_sphere.mLocation.ToVector3(), sideNormal);
 
             if (sphereProj + _sphere.mRadius < sideProj) {
-                return(WN_FALSE);
+                return(wn_false);
             }
         }
 
-        return(WN_TRUE);
+        return(wn_true);
     }
 
-    template <typename Type>
-    WN_BOOL WNFrustum<Type>::Intersects(const WNBounds3<Type>& _bounds) const {
-        static const WN_UINT8 checks[3][3] =   {{0, 1, 2},
+    template <typename type>
+    wn_bool WNFrustum<type>::Intersects(const WNBounds3<type>& _bounds) const {
+        static const wn_uint8 checks[3][3] =   {{0, 1, 2},
                                                 {4, 5, 1},
                                                 {3, 7, 4}};
-        static const WN_UINT8 frustumChecks[5][3] = {{1, 0, 3},
+        static const wn_uint8 frustumChecks[5][3] = {{1, 0, 3},
                                                      {4, 0, 1},
                                                      {5, 1, 2},
                                                      {6, 2, 3},
                                                      {7, 3, 0}};
 
-        WNVector4<Type> boxPoints[8];
+        WNVector4<type> boxPoints[8];
 
         _bounds.GetPoints(boxPoints);
 
-        for (WN_UINT8 i = 0; i < 3; ++i) {
+        for (wn_uint8 i = 0; i < 3; ++i) {
             // First try to find a separating plane against the edges of the box (there are fewer)
-            const WNVector4<Type> edge1 = (mPoints[frustumChecks[i][0]] - mPoints[frustumChecks[i][1]]).GetNormalized();
-            const WNVector4<Type> edge2 = (mPoints[frustumChecks[i][2]] - mPoints[frustumChecks[i][1]]).GetNormalized();
-            const WNVector4<Type> sideNormal = WNVector4<Type>::Cross(edge1, edge2);
+            const WNVector4<type> edge1 = (mPoints[frustumChecks[i][0]] - mPoints[frustumChecks[i][1]]).GetNormalized();
+            const WNVector4<type> edge2 = (mPoints[frustumChecks[i][2]] - mPoints[frustumChecks[i][1]]).GetNormalized();
+            const WNVector4<type> sideNormal = WNVector4<type>::Cross(edge1, edge2);
 
             if (!OverlapOnNormal(sideNormal, mPoints, boxPoints, 8)) {
-                return(WN_FALSE);
+                return(wn_false);
             }
         }
 
-        for (WN_UINT8 i = 0; i < 5; ++i) {
+        for (wn_uint8 i = 0; i < 5; ++i) {
             // Now try and find a separating plane from the frustum
-            const WNVector4<Type> edge1 = (boxPoints[checks[i][0]] - boxPoints[checks[i][1]]).GetNormalized();
-            const WNVector4<Type> edge2 = (boxPoints[checks[i][2]] - boxPoints[checks[i][1]]).GetNormalized();
-            const WNVector4<Type> sideNormal = WNVector4<Type>::Cross(edge1, edge2);
+            const WNVector4<type> edge1 = (boxPoints[checks[i][0]] - boxPoints[checks[i][1]]).GetNormalized();
+            const WNVector4<type> edge2 = (boxPoints[checks[i][2]] - boxPoints[checks[i][1]]).GetNormalized();
+            const WNVector4<type> sideNormal = WNVector4<type>::Cross(edge1, edge2);
 
             if (!OverlapOnNormal(sideNormal, mPoints, boxPoints, 8)) {
-                return(WN_FALSE);
+                return(wn_false);
             }
         }
 
-        return(WN_TRUE);
+        return(wn_true);
     }
 }
 

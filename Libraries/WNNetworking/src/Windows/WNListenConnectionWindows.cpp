@@ -9,16 +9,16 @@
 
 using namespace WNNetworking;
 
-WNListenConnectionWindows::WNListenConnectionWindows(WNNetworkManager& _manager, WNConnectionType::Type _type, WN_UINT16 _port, WNConnectedCallback _connected) :
+WNListenConnectionWindows::WNListenConnectionWindows(WNNetworkManager& _manager, WNConnectionType::type _type, wn_uint16 _port, WNConnectedCallback _connected) :
     WNConnectionWindows(_manager),
     mPort(_port),
     mConnectedCallback(_connected),
     mType(_type),
-    mInitialized(WN_FALSE) {
+    mInitialized(wn_false) {
     WN_RELEASE_ASSERT_DESC(_type == WNConnectionType::eWNReliable, "We do not support unreliable connections yet");
 }
 
-WNNetworkManagerReturnCode::Type WNListenConnectionWindows::Initialize() {
+WNNetworkManagerReturnCode::type WNListenConnectionWindows::Initialize() {
     mSocket = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
 
     if (INVALID_SOCKET == mSocket) {
@@ -45,21 +45,21 @@ WNNetworkManagerReturnCode::Type WNListenConnectionWindows::Initialize() {
         return(WNNetworkManagerReturnCode::eWNCannotCreateSocket);
     }
 
-    const WN_UINT32 nameLen = WN_SNPRINTF(NULL, 0, "Listen:%d", mPort);
-    WN_CHAR* name = WNMemory::WNCallocT<WN_CHAR>(nameLen + 1);
+    const wn_uint32 nameLen = WN_SNPRINTF(NULL, 0, "Listen:%d", mPort);
+    wn_char* name = wn::malloc<wn_char>(nameLen + 1);
 
     WN_SNPRINTF(name, nameLen + 1, "Listen:%d", mPort);
 
     mConnectionName = name;
-    mInitialized = WN_TRUE;
+    mInitialized = wn_true;
 
-    return(WNNetworkManagerReturnCode::eWNOK);
+    return(WNNetworkManagerReturnCode::ok);
 }
 
 WNInConnectionWindows* WNListenConnectionWindows::AcceptConnection() {
     WNInConnectionWindows* connection = WN_NEW WNInConnectionWindows(mManager);
 
-    if (connection->Initialize(mSocket, mConnectedCallback) != WNNetworkManagerReturnCode::eWNOK) {
+    if (connection->Initialize(mSocket, mConnectedCallback) != WNNetworkManagerReturnCode::ok) {
         WN_DELETE(connection);
     }
 

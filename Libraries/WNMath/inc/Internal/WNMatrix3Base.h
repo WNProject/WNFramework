@@ -9,39 +9,39 @@
 
 #include "WNMath/inc/Internal/WNMatrixBase.h"
 
-namespace WNMath {
-    template <typename Type>
+namespace wn {
+    template <typename type>
     class WNVector2;
 
-    template <typename Type>
+    template <typename type>
     class WNVector3;
 
-    template <typename Type>
+    template <typename type>
     class WNMatrix3;
 
-    namespace __WNInternal {
-        template <typename Type, typename = WNCore::WNEnableWhen<WN_TRUE>::Value>
-        class __WNMatrix3Base : public __WNMatrixBase<WNMatrix3<Type>, Type, 3> {
+    namespace internal {
+        template <typename type, typename = std::enable_if<wn_true>::type>
+        class __WNMatrix3Base : public __WNMatrixBase<WNMatrix3<type>, type, 3> {
         protected:
             WN_FORCE_INLINE __WNMatrix3Base() {}
         };
 
-        template <typename Type>
-        class __WNMatrix3Base<Type, typename WNCore::WNEnableWhen<WNCore::WNIsReal<Type>::Value>::Value> : public __WNMatrixBase<WNMatrix3<Type>, Type, 3> {
+        template <typename type>
+        class __WNMatrix3Base<type, typename std::enable_if<wn::is_real<type>::value>::type> : public __WNMatrixBase<WNMatrix3<type>, type, 3> {
         public:
-            WNVector2<Type> TransformVector(const WNVector2<Type>& _vector) const;
-            WNVector2<Type> TransformVector(const WNVector2<Type>& _vector, Type& _zComponent) const;
-            WNVector3<Type> TransformVector(const WNVector3<Type>& _vector) const;
-            WN_FORCE_INLINE WNVector2<Type>& TransformVectorInPlace(WNVector2<Type>& _vector) const {}
-            WN_FORCE_INLINE WNVector2<Type>& TransformVectorInPlace(WNVector2<Type>& _vector, Type& _zComponent) const {}
-            WN_FORCE_INLINE WNVector3<Type>& TransformVectorInPlace(WNVector3<Type>& _vector) const {}
+            WNVector2<type> TransformVector(const WNVector2<type>& _vector) const;
+            WNVector2<type> TransformVector(const WNVector2<type>& _vector, type& _zComponent) const;
+            WNVector3<type> TransformVector(const WNVector3<type>& _vector) const;
+            WN_FORCE_INLINE WNVector2<type>& TransformVectorInPlace(WNVector2<type>& _vector) const {}
+            WN_FORCE_INLINE WNVector2<type>& TransformVectorInPlace(WNVector2<type>& _vector, type& _zComponent) const {}
+            WN_FORCE_INLINE WNVector3<type>& TransformVectorInPlace(WNVector3<type>& _vector) const {}
 
-            WN_VOID MakeRotation(const Type& _angle);
-            WN_VOID MakeOrthographic(const Type& _width, const Type& _height, const Type& _near, const Type& _far);
+            wn_void MakeRotation(const type& _angle);
+            wn_void MakeOrthographic(const type& _width, const type& _height, const type& _near, const type& _far);
 
         public:
-            static WNMatrix3<Type> CreateRotation(const Type& _angle);
-            static WNMatrix3<Type> CreateOrthographic(const Type& _width, const Type& _height, const Type& _near, const Type& _far);
+            static WNMatrix3<type> CreateRotation(const type& _angle);
+            static WNMatrix3<type> CreateOrthographic(const type& _width, const type& _height, const type& _near, const type& _far);
 
         protected:
             WN_FORCE_INLINE __WNMatrix3Base() {}

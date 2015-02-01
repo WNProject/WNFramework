@@ -1,10 +1,10 @@
 #include "WNPlatform/test/inc/Common.h"
 
-WN_INT32 WNMain(WN_INT32 _argc, WN_CHAR* _argv[]) {
+wn_int32 wn_main(wn_int32 _argc, wn_char* _argv[]) {
     testing::GTEST_FLAG(print_time) = false;
     testing::InitGoogleTest(&_argc, _argv);
 
-    const WN_UINT32 result = RUN_ALL_TESTS();
+    const wn_uint32 result = RUN_ALL_TESTS();
 
     return(result);
 }

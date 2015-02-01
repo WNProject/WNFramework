@@ -1,65 +1,69 @@
+// Copyright (c) 2014, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 #include "WNContainers/test/inc/Common.h"
 #include "WNContainers/inc/WNDynamicArray.h"
 
-class WNMockAllocator: public WNContainers::WNDefaultAllocator {
+class WNMockAllocator : public wn::default_allocator {
 public:
     WNMockAllocator(): mNumAllocations(0) {   
     }
-    virtual WNContainers::WNAllocationPair Allocate(WN_SIZE_T _size, WN_SIZE_T _count) {
+    virtual wn::WNAllocationPair Allocate(wn_size_t _size, wn_size_t _count) {
         ++mNumAllocations;
-        return(WNContainers::WNDefaultAllocator::Allocate(_size, _count));
+        return(wn::default_allocator::Allocate(_size, _count));
     }
-    virtual WNContainers::WNAllocationPair Reallocate(WN_VOID* _position, WN_SIZE_T _size, WN_SIZE_T _count) {
-        return(WNContainers::WNDefaultAllocator::Reallocate(_position, _size, _count));
+    virtual wn::WNAllocationPair Reallocate(wn_void* _position, wn_size_t _size, wn_size_t _count) {
+        return(wn::default_allocator::Reallocate(_position, _size, _count));
     }
-    virtual WNContainers::WNAllocationPair AllocateForResize(WN_SIZE_T _size, WN_SIZE_T _count, WN_SIZE_T _oldCount) {
+    virtual wn::WNAllocationPair AllocateForResize(wn_size_t _size, wn_size_t _count, wn_size_t _oldCount) {
         ++mNumAllocations;
-        return(WNContainers::WNDefaultAllocator::AllocateForResize(_size, _count, _oldCount));
+        return(wn::default_allocator::AllocateForResize(_size, _count, _oldCount));
     }
-    virtual WN_VOID Free(WN_VOID* _pos) {
+    virtual wn_void Free(wn_void* _pos) {
         if(_pos) {
             --mNumAllocations;
         }
-        return(WNContainers::WNDefaultAllocator::Free(_pos));
+        return(wn::default_allocator::Free(_pos));
     }
-    WN_SIZE_T mNumAllocations;
+    wn_size_t mNumAllocations;
 };
 
-class WNMockGreedyAllocator: public WNContainers::WNDefaultAllocator {
+class WNMockGreedyAllocator : public wn::default_allocator {
 public:
     WNMockGreedyAllocator(): mNumAllocations(0), mTotalAllocations(0) {   
     }
 
-    virtual WNContainers::WNAllocationPair Allocate(WN_SIZE_T _size, WN_SIZE_T _count) {
+    virtual wn::WNAllocationPair Allocate(wn_size_t _size, wn_size_t _count) {
         ++mNumAllocations;
         ++mTotalAllocations;
-        return(WNContainers::WNDefaultAllocator::Allocate(_size, _count * 2));
+        return(wn::default_allocator::Allocate(_size, _count * 2));
     }
-    virtual WNContainers::WNAllocationPair Reallocate(WN_VOID* _position, WN_SIZE_T _size, WN_SIZE_T _count) {
+    virtual wn::WNAllocationPair Reallocate(wn_void* _position, wn_size_t _size, wn_size_t _count) {
         ++mTotalAllocations;
-        return(WNContainers::WNDefaultAllocator::Reallocate(_position, _size, _count * 2));
+        return(wn::default_allocator::Reallocate(_position, _size, _count * 2));
     }
-    virtual WNContainers::WNAllocationPair AllocateForResize(WN_SIZE_T _size, WN_SIZE_T _count, WN_SIZE_T _oldCount) {
+    virtual wn::WNAllocationPair AllocateForResize(wn_size_t _size, wn_size_t _count, wn_size_t _oldCount) {
         return(Allocate(_size, _count));
     }
 
-    virtual WN_VOID Free(WN_VOID* _pos) {
+    virtual wn_void Free(wn_void* _pos) {
         if(_pos) {
             --mNumAllocations;
         }
-        return(WNContainers::WNDefaultAllocator::Free(_pos));
+        return(wn::default_allocator::Free(_pos));
     }
-    WN_SIZE_T mNumAllocations;
-    WN_SIZE_T mTotalAllocations;
+    wn_size_t mNumAllocations;
+    wn_size_t mTotalAllocations;
 };
 
 TEST(WNDynamicArrayTests, Creation) {
-    WNContainers::WNDynamicArray<WN_SIZE_T> intArray(10);
+    WNContainers::dynamic_array<wn_size_t> intArray(10);
 }
 
 TEST(WNDynamicArrayTests, CreationDefault) {
-    WNContainers::WNDynamicArray<WN_SIZE_T> intArray(10, 5);
-    for(WN_SIZE_T i = 0; i < 10; ++i) {
+    WNContainers::dynamic_array<wn_size_t> intArray(10, 5);
+    for(wn_size_t i = 0; i < 10; ++i) {
         ASSERT_EQ(intArray[i], 5);
     }
 }
@@ -67,7 +71,7 @@ TEST(WNDynamicArrayTests, CreationDefault) {
 TEST(WNDynamicArrayTests, CustomAllocator) {
     WNMockAllocator mAllocator;
     {
-        WNContainers::WNDynamicArray<WN_SIZE_T> intArray(10, &mAllocator);
+        WNContainers::dynamic_array<wn_size_t> intArray(10, &mAllocator);
     }
     ASSERT_EQ(mAllocator.mNumAllocations, 0);
 }
@@ -75,8 +79,8 @@ TEST(WNDynamicArrayTests, CustomAllocator) {
 TEST(WNDynamicArrayTests, CustomAllocatorDefault) {
     WNMockAllocator mAllocator;
     {
-        WNContainers::WNDynamicArray<WN_SIZE_T> intArray(10, 5, &mAllocator);
-        for(WN_SIZE_T i = 0; i < 10; ++i) {
+        WNContainers::dynamic_array<wn_size_t> intArray(10, 5, &mAllocator);
+        for(wn_size_t i = 0; i < 10; ++i) {
             ASSERT_EQ(intArray[i], 5);
         }
     }
@@ -86,7 +90,7 @@ TEST(WNDynamicArrayTests, CustomAllocatorDefault) {
 TEST(WNDynamicArrayTests, PushBackTest) {
     WNMockAllocator mAllocator;
     {
-        WNContainers::WNDynamicArray<WN_SIZE_T> intArray(10, 5, &mAllocator);
+        WNContainers::dynamic_array<wn_size_t> intArray(10, 5, &mAllocator);
         ASSERT_EQ(intArray.size(), 10);
         intArray.push_back(25);
         ASSERT_EQ(intArray.size(), 11);
@@ -99,7 +103,7 @@ TEST(WNDynamicArrayTests, PushBackTest) {
 TEST(WNDynamicArrayTests, PopBackTest) {
     WNMockAllocator mAllocator;
     {
-        WNContainers::WNDynamicArray<WN_SIZE_T> intArray(10, 5, &mAllocator);
+        WNContainers::dynamic_array<wn_size_t> intArray(10, 5, &mAllocator);
         ASSERT_EQ(intArray.size(), 10);
         intArray.pop_back();
         ASSERT_EQ(intArray.size(), 9);
@@ -111,13 +115,13 @@ TEST(WNDynamicArrayTests, PopBackTest) {
 TEST(WNDynamicArrayTests, GeneratorTest) {
     WNMockAllocator mAllocator;
     {
-        WNContainers::WNDynamicArray<WN_SIZE_T> intArray(&mAllocator);
+        WNContainers::dynamic_array<wn_size_t> intArray(&mAllocator);
         ASSERT_EQ(intArray.size(), 0);
-        intArray.generate(intArray.begin(), 100, [](WN_SIZE_T i) {
+        intArray.generate(intArray.begin(), 100, [](wn_size_t i) {
             return(i);
         });
         ASSERT_EQ(intArray.size(), 100);
-        for(WN_SIZE_T i = 0; i < 100; ++i) {
+        for(wn_size_t i = 0; i < 100; ++i) {
             ASSERT_EQ(intArray[i], i);
         }   
     }
@@ -127,19 +131,19 @@ TEST(WNDynamicArrayTests, GeneratorTest) {
 TEST(WNDynamicArrayTests, InsertTest) {
     WNMockAllocator mAllocator;
     {
-        WNContainers::WNDynamicArray<WN_SIZE_T> intArray(&mAllocator);
-        WNContainers::WNDynamicArray<WN_SIZE_T> intArray2(&mAllocator);
+        WNContainers::dynamic_array<wn_size_t> intArray(&mAllocator);
+        WNContainers::dynamic_array<wn_size_t> intArray2(&mAllocator);
         ASSERT_EQ(intArray.size(), 0);
-        intArray.generate(intArray.begin(), 100, [](WN_SIZE_T i) {
+        intArray.generate(intArray.begin(), 100, [](wn_size_t i) {
             return(i);
         });
         ASSERT_EQ(intArray.size(), 100);
-        for(WN_SIZE_T i = 0; i < 100; ++i) {
+        for(wn_size_t i = 0; i < 100; ++i) {
             ASSERT_EQ(intArray[i], i);
         }
         intArray2.insert(intArray2.begin(), intArray.begin(), intArray.begin() + 10);
         ASSERT_EQ(intArray2.size(), 10);
-        for(WN_SIZE_T i = 0; i < 10; ++i) {
+        for(wn_size_t i = 0; i < 10; ++i) {
             ASSERT_EQ(intArray2[i], i);
         }
     }
@@ -149,18 +153,18 @@ TEST(WNDynamicArrayTests, InsertTest) {
 TEST(WNDynamicArrayTests, EraseOne) {
     WNMockAllocator mAllocator;
     {
-        WNContainers::WNDynamicArray<WN_SIZE_T> intArray(&mAllocator);
+        WNContainers::dynamic_array<wn_size_t> intArray(&mAllocator);
         ASSERT_EQ(intArray.size(), 0);
-        intArray.generate(intArray.begin(), 100, [](WN_SIZE_T i) {
+        intArray.generate(intArray.begin(), 100, [](wn_size_t i) {
             return(i);
         });
         ASSERT_EQ(intArray.size(), 100);
-        for(WN_SIZE_T i = 0; i < 100; ++i) {
+        for(wn_size_t i = 0; i < 100; ++i) {
             ASSERT_EQ(intArray[i], i);
         }
         intArray.erase(intArray.begin());
         ASSERT_EQ(intArray.size(), 99);
-        for(WN_SIZE_T i = 0; i < 99; ++i) {
+        for(wn_size_t i = 0; i < 99; ++i) {
             ASSERT_EQ(intArray[i], i + 1);
         }
     }
@@ -170,18 +174,18 @@ TEST(WNDynamicArrayTests, EraseOne) {
 TEST(WNDynamicArrayTests, EraseRange) {
     WNMockAllocator mAllocator;
     {
-        WNContainers::WNDynamicArray<WN_SIZE_T> intArray(&mAllocator);
+        WNContainers::dynamic_array<wn_size_t> intArray(&mAllocator);
         ASSERT_EQ(intArray.size(), 0);
-        intArray.generate(intArray.begin(), 100, [](WN_SIZE_T i) {
+        intArray.generate(intArray.begin(), 100, [](wn_size_t i) {
             return(i);
         });
         ASSERT_EQ(intArray.size(), 100);
-        for(WN_SIZE_T i = 0; i < 100; ++i) {
+        for(wn_size_t i = 0; i < 100; ++i) {
             ASSERT_EQ(intArray[i], i);
         }
         intArray.erase(intArray.begin(), intArray.begin() + 10);
         ASSERT_EQ(intArray.size(), 90);
-        for(WN_SIZE_T i = 0; i < 90; ++i) {
+        for(wn_size_t i = 0; i < 90; ++i) {
             ASSERT_EQ(intArray[i], i + 10);
         }
     }
@@ -191,21 +195,21 @@ TEST(WNDynamicArrayTests, EraseRange) {
 TEST(WNDynamicArrayTests, EraseRangeFromMiddle) {
     WNMockAllocator mAllocator;
     {
-        WNContainers::WNDynamicArray<WN_SIZE_T> intArray(&mAllocator);
+        WNContainers::dynamic_array<wn_size_t> intArray(&mAllocator);
         ASSERT_EQ(intArray.size(), 0);
-        intArray.generate(intArray.begin(), 100, [](WN_SIZE_T i) {
+        intArray.generate(intArray.begin(), 100, [](wn_size_t i) {
             return(i);
         });
         ASSERT_EQ(intArray.size(), 100);
-        for(WN_SIZE_T i = 0; i < 100; ++i) {
+        for(wn_size_t i = 0; i < 100; ++i) {
             ASSERT_EQ(intArray[i], i);
         }
         intArray.erase(intArray.begin()+ 10, intArray.begin() + 20);
         ASSERT_EQ(intArray.size(), 90);
-        for(WN_SIZE_T i = 0; i < 10; ++i) {
+        for(wn_size_t i = 0; i < 10; ++i) {
             ASSERT_EQ(intArray[i], i);
         }
-        for(WN_SIZE_T i = 10; i < 90; ++i) {
+        for(wn_size_t i = 10; i < 90; ++i) {
             ASSERT_EQ(intArray[i], i + 10);
         }
     }
@@ -215,9 +219,9 @@ TEST(WNDynamicArrayTests, EraseRangeFromMiddle) {
 TEST(WNDynamicArrayTests, TestOverallocation) {
     WNMockGreedyAllocator mAllocator;
     {
-         WNContainers::WNDynamicArray<WN_SIZE_T> intArray(100, 0, &mAllocator);
+         WNContainers::dynamic_array<wn_size_t> intArray(100, 0, &mAllocator);
          ASSERT_EQ(mAllocator.mTotalAllocations, 1);
-         for(WN_SIZE_T i = 0; i < 100; ++i) {
+         for(wn_size_t i = 0; i < 100; ++i) {
             intArray.push_back(i);
             ASSERT_EQ(mAllocator.mTotalAllocations, 1);
          }
@@ -231,9 +235,9 @@ TEST(WNDynamicArrayTests, TestOverallocationInsertion) {
     WNMockGreedyAllocator mAllocator;
     WNMockAllocator mAllocator2;
     {
-         WNContainers::WNDynamicArray<WN_SIZE_T> intArray(&mAllocator);
-         WNContainers::WNDynamicArray<WN_SIZE_T> intArrayT(100, &mAllocator2);
-         intArrayT.generate(intArrayT.begin(), 100, [](WN_SIZE_T i) {
+         WNContainers::dynamic_array<wn_size_t> intArray(&mAllocator);
+         WNContainers::dynamic_array<wn_size_t> intArrayT(100, &mAllocator2);
+         intArrayT.generate(intArrayT.begin(), 100, [](wn_size_t i) {
             return(i);
          });
          ASSERT_EQ(mAllocator.mTotalAllocations, 0);
@@ -255,7 +259,7 @@ TEST(WNDynamicArrayTests, TestOverallocationInsertion) {
 }
 
 TEST(WNDynamicArrayTests, SwapElementTest) {
-    WNContainers::WNDynamicArray<WN_SIZE_T> intArray;
+    WNContainers::dynamic_array<wn_size_t> intArray;
     intArray.push_back(10);
     intArray.push_back(20);
     intArray.swap_elements(intArray.begin(), intArray.begin() + 1);

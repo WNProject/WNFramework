@@ -7,13 +7,12 @@
 #include "WNContainers/inc/WNDataBuffer.h"
 
 using namespace WNNetworking;
-using namespace WNMemory;
 
 WNBufferResource::WNBufferResource(const WNNetworkManager& manager) :
-    WNResourceBase(),
+    wn::intrusive_ptr_base(),
     mManager(manager),
     mCurLocation(0) {
-    mBuffer = WNMallocT<WN_CHAR>(WNContainers::MAX_DATA_WRITE);
+    mBuffer = wn::malloc<wn_char>(WNContainers::MAX_DATA_WRITE);
     mBaseLocation = 0;
     #ifdef _WN_WINDOWS
         mWinBuf.buf = mBuffer;
@@ -22,46 +21,46 @@ WNBufferResource::WNBufferResource(const WNNetworkManager& manager) :
 }
 
 WNBufferResource::~WNBufferResource() {
-    WNFreeT<WN_CHAR>(mBuffer);
+    wn::free<wn_char>(mBuffer);
 }
 
-WN_CHAR* WNBufferResource::GetPointer() const {
+wn_char* WNBufferResource::GetPointer() const {
     return(mBuffer + mCurLocation);
 }
 
-WN_VOID WNBufferResource::Clear() {
+wn_void WNBufferResource::Clear() {
     mCurLocation = 0;
 }
 
-WN_VOID WNBufferResource::FillData() {
+wn_void WNBufferResource::FillData() {
     mCurLocation = WNContainers::MAX_DATA_WRITE;
 }
 
-WN_VOID WNBufferResource::AddData(WN_SIZE_T _data) {
+wn_void WNBufferResource::AddData(wn_size_t _data) {
     mCurLocation += _data;
 
     WN_DEBUG_ASSERT(mCurLocation <= WNContainers::MAX_DATA_WRITE);
 }
 
-WN_CHAR* WNBufferResource::GetBaseLocation() const {
+wn_char* WNBufferResource::GetBaseLocation() const {
     return(mBuffer);
 }
 
-WN_SIZE_T WNBufferResource::GetSize() const {
+wn_size_t WNBufferResource::GetSize() const {
     return(WNContainers::MAX_DATA_WRITE);
 }
 
-WN_SIZE_T WNBufferResource::GetWritten() const {
+wn_size_t WNBufferResource::GetWritten() const {
     return(mCurLocation);
 }
 
-WN_VOID WNBufferResource::FlushWrite() {
+wn_void WNBufferResource::FlushWrite() {
     #ifdef _WN_WINDOWS
         mWinBuf.len = static_cast<ULONG>(mCurLocation);
     #endif
 }
 
-WN_VOID WNBufferResource::PrepareRead() {
+wn_void WNBufferResource::PrepareRead() {
     #ifdef _WN_WINDOWS
         mWinBuf.len = static_cast<ULONG>(WNContainers::MAX_DATA_WRITE - mCurLocation);
         mWinBuf.buf = GetPointer();

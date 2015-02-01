@@ -13,8 +13,10 @@
 
 #include "WNCore/inc/WNTypes.h"
 
+#include <atomic>
+
 namespace WNContainers {
-    namespace __WNInternal {
+    namespace internal {
         template <typename Return>
         class __WNCallbackBase0 {
         public:
@@ -22,11 +24,11 @@ namespace WNContainers {
             virtual WN_FORCE_INLINE ~__WNCallbackBase0() {}
             virtual Return Execute() const = 0;
 
-            WN_VOID AddRef();
-            WN_ATOM_T RemoveRef();
+            wn_void AddRef();
+            wn_size_t RemoveRef();
 
         private:
-            WN_ATOM_T mCount;
+            std::atomic<wn_size_t> mCount;
         };
 
         template <typename Return, typename Parameter>
@@ -36,11 +38,11 @@ namespace WNContainers {
             virtual WN_FORCE_INLINE ~__WNCallbackBase1() {}
             virtual Return Execute(const Parameter& _parameter) const = 0;
 
-            WN_VOID AddRef();
-            WN_ATOM_T RemoveRef();
+            wn_void AddRef();
+            wn_size_t RemoveRef();
 
         private:
-            WN_ATOM_T mCount;
+            std::atomic<wn_size_t> mCount;
         };
 
         template<typename Return, typename Parameter1, typename Parameter2>
@@ -50,11 +52,11 @@ namespace WNContainers {
             virtual WN_FORCE_INLINE ~__WNCallbackBase2() {}
             virtual Return Execute(const Parameter1& _parameter1, const Parameter2& _parameter2) const = 0;
 
-            WN_VOID AddRef();
-            WN_ATOM_T RemoveRef();
+            wn_void AddRef();
+            wn_size_t RemoveRef();
 
         private:
-            WN_ATOM_T mCount;
+            std::atomic<wn_size_t> mCount;
         };
 
         template<typename Return, typename Parameter1, typename Parameter2, typename Parameter3>
@@ -64,11 +66,11 @@ namespace WNContainers {
             virtual WN_FORCE_INLINE ~__WNCallbackBase3() {}
             virtual Return Execute(const Parameter1& _parameter1, const Parameter2& _parameter2, const Parameter3& _parameter3) const = 0;
 
-            WN_VOID AddRef();
-            WN_ATOM_T RemoveRef();
+            wn_void AddRef();
+            wn_size_t RemoveRef();
 
         private:
-            WN_ATOM_T mCount;
+            std::atomic<wn_size_t> mCount;
         };
 
         template <typename Class, typename Return>

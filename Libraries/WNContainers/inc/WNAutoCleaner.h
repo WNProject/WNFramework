@@ -10,29 +10,29 @@
 #include "WNCore/inc/WNTypes.h"
 
 namespace WNContainers {
-    template<typename T, WN_VOID (*F)(T&)>
+    template<typename T, wn_void (*F)(T&)>
     class WNAutoCleaner {
     public:
         WNAutoCleaner(T& _object);
         ~WNAutoCleaner();
 
-        WN_VOID Detach();
+        wn_void Detach();
 
         operator T& () const;
 
-        WN_VOID operator = (const T& _other);
+        wn_void operator = (const T& _other);
 
-        WN_BOOL operator == (const T& _other) const;
+        wn_bool operator == (const T& _other) const;
 
     private:
         WNAutoCleaner(const WNAutoCleaner&);
         WNAutoCleaner& operator = (const WNAutoCleaner&);
 
-        WN_VOID* operator new (WN_SIZE_T);
-        WN_VOID operator delete (WN_VOID*);
+        wn_void* operator new (wn_size_t);
+        wn_void operator delete (wn_void*);
 
     private:
-        WN_BOOL mAttached;
+        wn_bool mAttached;
         T& mObject;
     };
 }

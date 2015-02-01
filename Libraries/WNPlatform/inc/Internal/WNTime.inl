@@ -11,9 +11,9 @@
     #error "WNTime.inl should never be included directly. Please include WNTime.h instead"
 #endif
 
-namespace WNPlatform {
-    WN_FORCE_INLINE WN_UINT32 WNGetTime() {
-        return(static_cast<WN_UINT32>(WNGetBigTime()));
+namespace wn {
+    WN_FORCE_INLINE wn_uint32 WNGetTime() {
+        return(static_cast<wn_uint32>(WNGetBigTime()));
     }
 }
 

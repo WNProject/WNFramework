@@ -18,8 +18,8 @@
 #include <immintrin.h>
 
 namespace WNMemory {
-    namespace __WNInternal {
-        WN_FORCE_INLINE WN_VOID __WNMemSet256B(WN_UINT8*& _memory, const __m256i& _value, WN_SIZE_T& _count) {
+    namespace internal {
+        WN_FORCE_INLINE wn_void __WNMemSet256B(wn_uint8*& _memory, const __m256i& _value, wn_size_t& _count) {
             while (_count & ~255) {
                 _mm256_stream_si256(reinterpret_cast<__m256i*>(_memory), _value);
                 _mm256_stream_si256(reinterpret_cast<__m256i*>(_memory + 32), _value);
@@ -35,7 +35,7 @@ namespace WNMemory {
             }
         }
 
-        WN_FORCE_INLINE WN_VOID __WNMemSet32B(WN_UINT8*& _memory, const __m256i& _value, WN_SIZE_T& _count) {
+        WN_FORCE_INLINE wn_void __WNMemSet32B(wn_uint8*& _memory, const __m256i& _value, wn_size_t& _count) {
             while (_count & ~31) {
                 _mm256_stream_si256(reinterpret_cast<__m256i*>(_memory), _value);
 
@@ -44,16 +44,16 @@ namespace WNMemory {
             }
         }
 
-        WN_FORCE_INLINE WN_VOID* __WNMemSet(WN_VOID* _memory, const WN_UINT8 _value, const WN_SIZE_T _size) {
-            WN_SIZE_T count = _size;
-            WN_UINT8* memory = static_cast<WN_UINT8*>(_memory);
+        WN_FORCE_INLINE wn_void* __WNMemSet(wn_void* _memory, const wn_uint8 _value, const wn_size_t _size) {
+            wn_size_t count = _size;
+            wn_uint8* memory = static_cast<wn_uint8*>(_memory);
 
             __WNMemSetHelperSetUnaligned<16>(memory, _value, count);
 
             if (count) {
                 const __m128i xmmValue = _mm_set1_epi8(_value);
 
-                if ((reinterpret_cast<WN_SIZE_T>(memory) & 15) && !(reinterpret_cast<WN_SIZE_T>(memory) & 31)) {
+                if ((reinterpret_cast<wn_size_t>(memory) & 15) && !(reinterpret_cast<wn_size_t>(memory) & 31)) {
                     _mm_stream_si128(reinterpret_cast<__m128i*>(memory), xmmValue);
 
                     memory += 16;

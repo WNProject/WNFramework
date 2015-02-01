@@ -11,109 +11,109 @@
 #include "WNContainers/inc/WNSerializerBase.h"
 
 namespace WNContainers {
-    template <typename Type>
+    template <typename type>
     class WNSerializer : public WNSerializerBase {
     public:
-        virtual WN_SIZE_T Serialize(WNDataBuffer& _dataBuffer, const WN_UINT32 _serializeFlags) const;
+        virtual wn_size_t Serialize(WNDataBuffer& _dataBuffer, const wn_uint32 _serializeFlags) const;
     };
 
     template <>
-    class WNSerializer<WN_UINT8> : public WNSerializerBase {
+    class WNSerializer<wn_uint8> : public WNSerializerBase {
     public:
-        WNSerializer(WN_UINT8& _item);
+        WNSerializer(wn_uint8& _item);
 
-        virtual WN_SIZE_T Serialize(WNDataBuffer& _dataBuffer, const WN_UINT32 _serializeFlags) const;
+        virtual wn_size_t Serialize(WNDataBuffer& _dataBuffer, const wn_uint32 _serializeFlags) const;
 
     private:
         WNSerializer& operator = (const WNSerializer&);
 
     private:
-        WN_UINT8& mNumber;
+        wn_uint8& mNumber;
     };
 
     template <>
-    class WNSerializer<WN_INT32> : public WNSerializerBase {
+    class WNSerializer<wn_int32> : public WNSerializerBase {
     public:
-        WNSerializer(WN_INT32& _item);
+        WNSerializer(wn_int32& _item);
 
-        virtual WN_SIZE_T Serialize(WNDataBuffer& _dataBuffer, const WN_UINT32 _serializeFlags) const;
+        virtual wn_size_t Serialize(WNDataBuffer& _dataBuffer, const wn_uint32 _serializeFlags) const;
 
     private:
         WNSerializer& operator = (const WNSerializer&);
 
     private:
-        WN_INT32& mNumber;
+        wn_int32& mNumber;
     };
 
     template <>
-    class WNSerializer<WN_UINT32> : public WNSerializerBase {
+    class WNSerializer<wn_uint32> : public WNSerializerBase {
     public:
-        WNSerializer(WN_UINT32& _item);
+        WNSerializer(wn_uint32& _item);
 
-        virtual WN_SIZE_T Serialize(WNDataBuffer& _dataBuffer, const WN_UINT32 _serializeFlags) const;
+        virtual wn_size_t Serialize(WNDataBuffer& _dataBuffer, const wn_uint32 _serializeFlags) const;
 
     private:
         WNSerializer& operator = (const WNSerializer&);
 
     private:
-        WN_UINT32& mNumber;
+        wn_uint32& mNumber;
     };
 
     template <>
-    class WNSerializer<WN_INT64> : public WNSerializerBase {
+    class WNSerializer<wn_int64> : public WNSerializerBase {
     public:
-        WNSerializer(WN_INT64& _item);
+        WNSerializer(wn_int64& _item);
 
-        virtual WN_SIZE_T Serialize(WNDataBuffer& _dataBuffer, const WN_UINT32 _serializeFlags) const ;
+        virtual wn_size_t Serialize(WNDataBuffer& _dataBuffer, const wn_uint32 _serializeFlags) const ;
 
     private:
         WNSerializer& operator = (const WNSerializer&);
 
     private:
-        WN_INT64& mNumber;
+        wn_int64& mNumber;
     };
 
     template <>
-    class WNSerializer<WN_UINT64> : public WNSerializerBase {
+    class WNSerializer<wn_uint64> : public WNSerializerBase {
     public:
-        WNSerializer(WN_UINT64& _item);
+        WNSerializer(wn_uint64& _item);
 
-        virtual WN_SIZE_T Serialize(WNDataBuffer& _dataBuffer, const WN_UINT32 _serializeFlags) const;
+        virtual wn_size_t Serialize(WNDataBuffer& _dataBuffer, const wn_uint32 _serializeFlags) const;
 
     private:
         WNSerializer& operator = (const WNSerializer&);
 
     private:
-        WN_UINT64& mNumber;
+        wn_uint64& mNumber;
     };
 
     template <>
-    class WNSerializer<WN_CHAR*> : public WNSerializerBase {
+    class WNSerializer<wn_char*> : public WNSerializerBase {
     public:
-        WNSerializer(WN_CHAR*& _item, WN_SIZE_T _length);
+        WNSerializer(wn_char*& _item, wn_size_t _length);
 
-        virtual WN_SIZE_T Serialize(WNDataBuffer& _dataBuffer, const WN_UINT32 _serializeFlags) const;
+        virtual wn_size_t Serialize(WNDataBuffer& _dataBuffer, const wn_uint32 _serializeFlags) const;
 
     private:
         WNSerializer& operator = (const WNSerializer&);
 
     private:
-        WN_SIZE_T mLength;
-        WN_CHAR* mString;
+        wn_size_t mLength;
+        wn_char* mString;
     };
 
     template <>
-    class WNSerializer<WN_FLOAT32> : public WNSerializerBase {
+    class WNSerializer<wn_float32> : public WNSerializerBase {
     public:
-        WNSerializer(WN_FLOAT32& _item);
+        WNSerializer(wn_float32& _item);
 
-        virtual WN_SIZE_T Serialize(WNDataBuffer& _dataBuffer, const WN_UINT32 _serializeFlags) const;
+        virtual wn_size_t Serialize(WNDataBuffer& _dataBuffer, const wn_uint32 _serializeFlags) const;
 
     private:
         WNSerializer& operator = (const WNSerializer&);
 
     private:
-        WN_FLOAT32& mNumber;
+        wn_float32& mNumber;
     };
 }
 

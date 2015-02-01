@@ -8,21 +8,21 @@
 #define __WN_MATH_INTERNAL_MATRIX_BASE_H__
 
 #include "WNCore/inc/WNExtendedTypes.h"
-#include "WNMath/inc/Internal/WNElements.h"
+#include "WNMath/inc/Internal/WNElementArray.h"
 
-namespace WNMath {
-    namespace __WNInternal {
-        template <typename MatrixType, typename Type, WN_UINT32 Order>
+namespace wn {
+    namespace internal {
+        template <typename MatrixType, typename type, wn_uint32 Order>
         class __WNMatrixBaseCommon {
         public:
-            Type& operator [] (const WN_UINT32 _index);
-            const Type& operator [] (const WN_UINT32 _index) const;
+            type& operator [] (const wn_uint32 _index);
+            const type& operator [] (const wn_uint32 _index) const;
 
-            Type& operator () (const WN_UINT32 _index);
-            const Type& operator () (const WN_UINT32 _index) const;
+            type& operator () (const wn_uint32 _index);
+            const type& operator () (const wn_uint32 _index) const;
 
-            Type& operator () (const WN_UINT32 _index1, const WN_UINT32 _index2);
-            const Type& operator () (const WN_UINT32 _index1, const WN_UINT32 _index2) const;
+            type& operator () (const wn_uint32 _index1, const wn_uint32 _index2);
+            const type& operator () (const wn_uint32 _index1, const wn_uint32 _index2) const;
 
             MatrixType operator + () const;
             MatrixType operator - () const;
@@ -30,36 +30,36 @@ namespace WNMath {
             MatrixType& operator += (const MatrixType& _matrix);
             MatrixType& operator -= (const MatrixType& _matrix);
             MatrixType& operator *= (const MatrixType& _matrix);
-            MatrixType& operator += (const Type& _number);
-            MatrixType& operator -= (const Type& _number);
-            MatrixType& operator *= (const Type& _number);
-            MatrixType& operator /= (const Type& _number);
+            MatrixType& operator += (const type& _number);
+            MatrixType& operator -= (const type& _number);
+            MatrixType& operator *= (const type& _number);
+            MatrixType& operator /= (const type& _number);
 
             MatrixType operator + (const MatrixType& _matrix) const;
             MatrixType operator - (const MatrixType& _matrix) const;
             MatrixType operator * (const MatrixType& _matrix) const;
-            MatrixType operator + (const Type& _number) const;
-            MatrixType operator - (const Type& _number) const;
-            MatrixType operator * (const Type& _number) const;
-            MatrixType operator / (const Type& _number) const;
+            MatrixType operator + (const type& _number) const;
+            MatrixType operator - (const type& _number) const;
+            MatrixType operator * (const type& _number) const;
+            MatrixType operator / (const type& _number) const;
 
-            WN_BOOL operator == (const MatrixType& _matrix) const;
-            WN_BOOL operator != (const MatrixType& _matrix) const;
+            wn_bool operator == (const MatrixType& _matrix) const;
+            wn_bool operator != (const MatrixType& _matrix) const;
 
-            WN_VOID Zero();
-            WN_VOID Identity();
-            WN_VOID Transpose();
+            wn_void Zero();
+            wn_void Identity();
+            wn_void Transpose();
 
-            Type Trace() const;
-            Type Determinant() const; // need to fix
+            type Trace() const;
+            type Determinant() const; // need to fix
 
-            WN_BOOL IsIdentity() const;
-            WN_BOOL IsSymmetric() const;
-            WN_BOOL IsDiagonal() const;
+            wn_bool IsIdentity() const;
+            wn_bool IsSymmetric() const;
+            wn_bool IsDiagonal() const;
 
-            WN_VOID Set(const MatrixType& _matrix);
-            WN_VOID Set(const Type& _number);
-            WN_VOID Set(const Type* _numbers);
+            wn_void Set(const MatrixType& _matrix);
+            wn_void Set(const type& _number);
+            wn_void Set(const type* _numbers);
 
             MatrixType GetTransposed() const;
 
@@ -69,26 +69,26 @@ namespace WNMath {
 
         protected:
             enum {
-                Dimension = (Order * Order)
+                dimension = (Order * Order)
             };
 
         protected:
             WN_FORCE_INLINE __WNMatrixBaseCommon() {}
 
         protected:
-            __WNElements<Type, Dimension> mElements;
+            element_array<type, dimension> mElements;
         };
 
-        template <typename MatrixType, typename Type, WN_UINT32 Order, typename = WNCore::WNEnableWhen<WN_TRUE>::Value>
-        class __WNMatrixBase : public __WNMatrixBaseCommon<MatrixType, Type, Order> {
+        template <typename MatrixType, typename type, wn_uint32 Order, typename = std::enable_if<wn_true>::type>
+        class __WNMatrixBase : public __WNMatrixBaseCommon<MatrixType, type, Order> {
         protected:
             WN_FORCE_INLINE __WNMatrixBase() {}
         };
 
-        template <typename MatrixType, typename Type, WN_UINT32 Order>
-        class __WNMatrixBase<MatrixType, Type, Order, typename WNCore::WNEnableWhen<WNCore::WNIsReal<Type>::Value>::Value> : public __WNMatrixBaseCommon<MatrixType, Type, Order> {
+        template <typename MatrixType, typename type, wn_uint32 Order>
+        class __WNMatrixBase<MatrixType, type, Order, typename std::enable_if<wn::is_real<type>::value>::type> : public __WNMatrixBaseCommon<MatrixType, type, Order> {
         public:
-            WN_FORCE_INLINE WN_BOOL Invert() {}
+            WN_FORCE_INLINE wn_bool Invert() {}
 
             MatrixType GetInverted() const;
             WN_FORCE_INLINE MatrixType GetAdjugate() const {}

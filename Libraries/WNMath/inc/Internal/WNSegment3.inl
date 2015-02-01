@@ -17,53 +17,53 @@
 #include "WNMath/inc/WNRay3.h"
 #include "WNMath/inc/WNVector3.h"
 
-namespace WNMath {
-    template <typename Type>
-    WNSegment3<Type>::WNSegment3() :
-        mStart(static_cast<Type>(0), static_cast<Type>(0), static_cast<Type>(0)),
-        mEnd(static_cast<Type>(0), static_cast<Type>(0), static_cast<Type>(0)) {
+namespace wn {
+    template <typename type>
+    WNSegment3<type>::WNSegment3() :
+        mStart(static_cast<type>(0), static_cast<type>(0), static_cast<type>(0)),
+        mEnd(static_cast<type>(0), static_cast<type>(0), static_cast<type>(0)) {
     }
 
-    template <typename Type>
-    WNSegment3<Type>::WNSegment3(const Type* _numbers) :
+    template <typename type>
+    WNSegment3<type>::WNSegment3(const type* _numbers) :
         mStart(_numbers[0], _numbers[1], _numbers[2]),
         mEnd(_numbers[3], _numbers[4], _numbers[5]) {
     }
 
-    template <typename Type>
-    WNSegment3<Type>::WNSegment3(const WNVector3<Type>& _start, const WNVector3<Type>& _end) :
+    template <typename type>
+    WNSegment3<type>::WNSegment3(const WNVector3<type>& _start, const WNVector3<type>& _end) :
         mStart(_start),
         mEnd(_end) {
     }
 
-    template <typename Type>
-    WNSegment3<Type> WNSegment3<Type>::operator + () const {
+    template <typename type>
+    WNSegment3<type> WNSegment3<type>::operator + () const {
         return(*this);
     }
 
-    template <typename Type>
-    WNSegment3<Type> WNSegment3<Type>::operator - () const {
-        return(WNSegment3<Type>(-mStart, -mEnd));
+    template <typename type>
+    WNSegment3<type> WNSegment3<type>::operator - () const {
+        return(WNSegment3<type>(-mStart, -mEnd));
     }
 
-    template <typename Type>
-    WN_BOOL WNSegment3<Type>::operator == (const WNSegment3<Type>& _segment) const {
+    template <typename type>
+    wn_bool WNSegment3<type>::operator == (const WNSegment3<type>& _segment) const {
         return(mStart == _segment.start && mEnd == _segment.end);
     }
 
-    template <typename Type>
-    WN_BOOL WNSegment3<Type>::operator != (const WNSegment3<Type>& _segment) const {
+    template <typename type>
+    wn_bool WNSegment3<type>::operator != (const WNSegment3<type>& _segment) const {
         return(mStart != _segment.start || mEnd != _segment.end);
     }
 
-    template <typename Type>
-    WN_VOID WNSegment3<Type>::Zero() {
+    template <typename type>
+    wn_void WNSegment3<type>::Zero() {
         mStart.Zero();
         mEnd.Zero();
     }
 
-    template <typename Type>
-    WN_VOID WNSegment3<Type>::Set(const Type* _numbers) {
+    template <typename type>
+    wn_void WNSegment3<type>::Set(const type* _numbers) {
         mStart.mX = _numbers[0];
         mStart.mY = _numbers[1];
         mStart.mZ = _numbers[2];
@@ -73,45 +73,45 @@ namespace WNMath {
         mEnd.mZ = _numbers[5];
     }
 
-    template <typename Type>
-    WN_VOID WNSegment3<Type>::Set(const WNVector3<Type>& _start, const WNVector3<Type>& _end) {
+    template <typename type>
+    wn_void WNSegment3<type>::Set(const WNVector3<type>& _start, const WNVector3<type>& _end) {
         mStart = _start;
         mEnd = _end;
     }
 
-    template <typename Type>
-    Type WNSegment3<Type>::Length() const {
+    template <typename type>
+    type WNSegment3<type>::Length() const {
         return(WNDistance(mStart, mEnd));
     }
 
-    template <typename Type>
-    Type WNSegment3<Type>::LengthSquared() const {
+    template <typename type>
+    type WNSegment3<type>::LengthSquared() const {
         return(WNDistanceSquared(mStart, mEnd));
     }
 
-    template <typename Type>
-    WNVector3<Type> WNSegment3<Type>::Direction() const {
+    template <typename type>
+    WNVector3<type> WNSegment3<type>::Direction() const {
         return(mEnd - mStart);
     }
 
-    template <typename Type>
-    WNLine2<Type> WNSegment3<Type>::ToLine2() const {
-        return(WNLine2<Type>(mStart.ToPoint2(), mEnd.ToPoint2()));
+    template <typename type>
+    WNLine2<type> WNSegment3<type>::ToLine2() const {
+        return(WNLine2<type>(mStart.ToPoint2(), mEnd.ToPoint2()));
     }
 
-    template <typename Type>
-    WNLine3<Type> WNSegment3<Type>::ToLine3() const {
-        return(WNLine3<Type>(mStart, mEnd));
+    template <typename type>
+    WNLine3<type> WNSegment3<type>::ToLine3() const {
+        return(WNLine3<type>(mStart, mEnd));
     }
 
-    template <typename Type>
-    WNRay2<Type> WNSegment3<Type>::ToRay2() const {
-        return(WNRay2<Type>(mStart.ToPoint2(), (mEnd - mStart).ToVector2()));
+    template <typename type>
+    WNRay2<type> WNSegment3<type>::ToRay2() const {
+        return(WNRay2<type>(mStart.ToPoint2(), (mEnd - mStart).ToVector2()));
     }
 
-    template <typename Type>
-    WNRay3<Type> WNSegment3<Type>::ToRay3() const {
-        return(WNRay3<Type>(mStart, mEnd - mStart));
+    template <typename type>
+    WNRay3<type> WNSegment3<type>::ToRay3() const {
+        return(WNRay3<type>(mStart, mEnd - mStart));
     }
 }
 

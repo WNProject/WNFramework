@@ -6,7 +6,7 @@
 
 using namespace WNScripting;
 
-WNInstruction::WNInstruction() : mReturns(WN_FALSE) { }
+WNInstruction::WNInstruction() : mReturns(wn_false) { }
 WNInstruction::~WNInstruction() {}
 
-WN_BOOL WNInstruction::Returns() { return(mReturns); }
+wn_bool WNInstruction::Returns() { return(mReturns); }

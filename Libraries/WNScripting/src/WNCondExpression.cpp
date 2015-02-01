@@ -42,18 +42,18 @@ WNCondExpression::~WNCondExpression() {
 
 eWNTypeError WNCondExpression::GenerateCode(WNCodeModule& _module, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog) {
     llvm::IRBuilder<>* builder = reinterpret_cast<llvm::IRBuilder<>*>(_module.GetBuilder());
-    eWNTypeError err = eWNOK;
+    eWNTypeError err = ok;
     llvm::BasicBlock* endBlock = llvm::BasicBlock::Create(llvm::getGlobalContext(), "", _def->mFunction);
     llvm::BasicBlock* lBBlock = llvm::BasicBlock::Create(llvm::getGlobalContext(), "", _def->mFunction);
     llvm::BasicBlock* rBBlock = llvm::BasicBlock::Create(llvm::getGlobalContext(), "", _def->mFunction);
 
     
-    if(eWNOK != (err = mCondition->GenerateCode(_module, _def, _compilationLog))) {
+    if(ok != (err = mCondition->GenerateCode(_module, _def, _compilationLog))) {
         return(err);
     }
-    WNScriptType boolType = WN_NULL;
-    if(eWNOK != (err = _module.GetTypeManager().GetTypeByName("Bool", boolType))) {
-        _compilationLog.Log(WNLogging::eCritical, 0, "Cannot find Bool Type");
+    WNScriptType boolType = wn_nullptr;
+    if(ok != (err = _module.GetTypeManager().GetTypeByName("Bool", boolType))) {
+        _compilationLog.Log(WNLogging::eCritical, 0, "Cannot find Bool type");
         LogLine(_compilationLog, WNLogging::eCritical);
         return(err);
     }
@@ -69,14 +69,14 @@ eWNTypeError WNCondExpression::GenerateCode(WNCodeModule& _module, const WNFunct
     v = builder->CreateICmpNE(cv, v, "");
     builder->CreateCondBr(v, lBBlock, rBBlock);
     builder->SetInsertPoint(lBBlock);
-    if(eWNOK != (err = mLHS->GenerateCode(_module, _def, _compilationLog))) {
+    if(ok != (err = mLHS->GenerateCode(_module, _def, _compilationLog))) {
         return(err);
     }
     lBBlock = builder->GetInsertBlock();
     llvm::Value* lhsValue = mLHS->GetValue();
     builder->CreateBr(endBlock);
     builder->SetInsertPoint(rBBlock);
-    if(eWNOK != (err = mRHS->GenerateCode(_module, _def, _compilationLog))) {
+    if(ok != (err = mRHS->GenerateCode(_module, _def, _compilationLog))) {
         return(err);
     }
     llvm::Value* rhsValue = mRHS->GetValue();
@@ -87,7 +87,7 @@ eWNTypeError WNCondExpression::GenerateCode(WNCodeModule& _module, const WNFunct
             LogLine(_compilationLog, WNLogging::eError);
             return(eWNInvalidCast);
         }
-        if(eWNOK != (err = castingOp->Execute(builder, mRHS->GetValue(), rhsValue))) {
+        if(ok != (err = castingOp->Execute(builder, mRHS->GetValue(), rhsValue))) {
             _compilationLog.Log(WNLogging::eCritical, 0, "Error generating cast from ", mLHS->GetType()->mName, " to ", mRHS->GetType()->mName);
             LogLine(_compilationLog, WNLogging::eCritical);
             return(eWNInvalidCast);
@@ -102,5 +102,5 @@ eWNTypeError WNCondExpression::GenerateCode(WNCodeModule& _module, const WNFunct
     phi->addIncoming(rhsValue, rBBlock);
     mValue = phi;
     mScriptType = mLHS->GetType();
-    return(eWNOK);
+    return(ok);
 }

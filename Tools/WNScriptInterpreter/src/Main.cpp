@@ -18,7 +18,8 @@
 
 using namespace WNStrings;
 using namespace WNMemory;
-extern eWNTypeError RegisterExternalString(WNScripting::WNTypeManager& _manager, WN_VOID*) ;
+
+//extern eWNTypeError RegisterExternalString(WNScripting::WNTypeManager& _manager, WN_VOID*);
 
 WNLogging::WNDefaultLogParameters<WNLogging::eLogMax, 1024, true> mParams;
 WNLogging::WNConsoleLogger<> mConsoleLogger;
@@ -118,7 +119,7 @@ WN_INT32 WNMain(WN_INT32 _argc, WN_CHAR* _argv[]) {
     scriptingEngine->SetLogLevel(WNLogging::eNone);
     scriptingEngine->SetInternalLogLevel(WNLogging::eNone);
     WN_RELEASE_ASSERT(scriptingEngine->Initialize() == eWNOK);
-    scriptingEngine->AddExternalLibs(&RegisterExternalString, WN_NULL);
+    //scriptingEngine->AddExternalLibs(&RegisterExternalString, WN_NULL);
     scriptingEngine->RegisterCFunction("get23", &get23);
     scriptingEngine->RegisterCFunction("add", &add);
     scriptingEngine->RegisterCFunction("printInt", &print);
@@ -143,7 +144,7 @@ WN_INT32 WNMain(WN_INT32 _argc, WN_CHAR* _argv[]) {
     if(eWNOK != scriptingEngine->ConstructScriptingArray(mArray, 10)) {
         return(-1);
     }
-    for(int i = 0; i < 10; ++i) {
+    for(char i = 0; i < 10; ++i) {
         mArray[i] = i;
     }
 

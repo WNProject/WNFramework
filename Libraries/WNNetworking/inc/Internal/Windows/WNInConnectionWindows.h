@@ -17,8 +17,8 @@ namespace WNNetworking {
         WNInConnectionWindows(WNNetworkManager& _manager);
         virtual WN_FORCE_INLINE ~WNInConnectionWindows() {}
 
-        WNNetworkManagerReturnCode::Type Initialize(SOCKET _listenSocket, WNConnectedCallback _callback);
-        WN_BOOL FireCallback();
+        WNNetworkManagerReturnCode::type Initialize(SOCKET _listenSocket, WNConnectedCallback _callback);
+        wn_bool FireCallback();
 
     private:
         WNConnectedCallback mCallback;

@@ -76,6 +76,6 @@ LONG WINAPI exceptionFilter(_In_ struct _EXCEPTION_POINTERS *ExceptionInfo) {
     return(g_oldFilter?(*g_oldFilter)(ExceptionInfo): EXCEPTION_EXECUTE_HANDLER);
 }
 
-WN_VOID WNUtils::InitializeCrashHandler() {
+wn_void WNUtils::InitializeCrashHandler() {
     g_oldFilter = SetUnhandledExceptionFilter(&exceptionFilter);
 }

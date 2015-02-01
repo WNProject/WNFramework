@@ -44,7 +44,7 @@ namespace WNScripting {
             llvm::IRBuilder<>* builder = reinterpret_cast<llvm::IRBuilder<>* >(_builder);       
             _outReturnVal = ((*builder).*T)(_expr1, _expr2, "", 0);
             _outType = mDestFlt;
-            return(eWNOK);
+            return(ok);
         }
     private:
         WNScriptType mDestFlt;
@@ -64,7 +64,7 @@ namespace WNScripting {
             llvm::Value* inVal = builder->CreateLoad(assignLocation, false, "");
             llvm::Value* tempVal = ((*builder).*T)(inVal, value, "", 0);
             builder->CreateStore(tempVal, assignLocation, false);
-            return(eWNOK);
+            return(ok);
         }
     private:
         WNScriptType mDestFlt;
@@ -81,7 +81,7 @@ namespace WNScripting {
             _outReturnVal = ((*builder).*T)(_expr1, _expr2, "");
             _outReturnVal = builder->CreateIntCast(_outReturnVal, mDestFlt->mLLVMType, false, "");
             _destType = mDestFlt;
-            return(eWNOK);
+            return(ok);
         }
     private:
         WNScriptType mDestFlt;
@@ -93,10 +93,10 @@ namespace WNScripting {
             mDestFlt(_destType) {
         }
         virtual ~GenerateFloatConstant() {}
-        virtual eWNTypeError Execute(WNCodeModule&, const WN_CHAR* _constant, bool&, llvm::Value*& _outLocation) const {
-            WN_FLOAT32 flt = WNStrings::WNStrToFlt(_constant);
+        virtual eWNTypeError Execute(WNCodeModule&, const wn_char* _constant, bool&, llvm::Value*& _outLocation) const {
+            wn_float32 flt = WNStrings::WNStrToFlt(_constant);
             _outLocation = llvm::ConstantFP::get(mDestFlt->mLLVMType, flt);
-             return(eWNOK);
+             return(ok);
         }
     private:
         WNScriptType mDestFlt;
@@ -108,13 +108,13 @@ namespace WNScripting {
         llvm::Type* type = _expr1.GetType()->mLLVMType;
         llvm::Value* val = llvm::ConstantFP::get(type, -1.0);
         _value = builder->CreateFMul(_expr1.GetValue(), val, "", 0);
-        return(eWNOK);
+        return(ok);
     }
 
     eWNTypeError WNBuiltInInitializer::InitializeFloatTypes(WNScriptingEngine* _engine, WNTypeManager& _manager) {
         WNScriptType scriptType;
         WNScriptType boolType;
-        WN_RELEASE_ASSERT(_manager.RegisterScalarType("Float", _engine, 100.0f, scriptType, llvm::Type::getFloatTy(llvm::getGlobalContext()), sizeof(WN_FLOAT32)) == eWNOK);
+        WN_RELEASE_ASSERT(_manager.RegisterScalarType("Float", _engine, 100.0f, scriptType, llvm::Type::getFloatTy(llvm::getGlobalContext()), sizeof(wn_float32)) == ok);
         
 
         _manager.RegisterArithmeticOperator(AR_ADD, scriptType, scriptType, 
@@ -127,7 +127,7 @@ namespace WNScripting {
             WN_NEW GenerateFloatArithmetic<&llvm::IRBuilder<>::CreateFDiv>(scriptType));
         _manager.RegisterArithmeticOperator(AR_MOD, scriptType, scriptType,
             WN_NEW GenerateFloatArithmetic<&llvm::IRBuilder<>::CreateFRem>(scriptType));
-        if(eWNOK == _manager.GetTypeByName("Bool", boolType)) {
+        if(ok == _manager.GetTypeByName("Bool", boolType)) {
             _manager.RegisterArithmeticOperator(AR_EQ, scriptType, scriptType, 
                 WN_NEW GenerateFloatCompare<&llvm::IRBuilder<>::CreateFCmpOEQ>(boolType));
             _manager.RegisterArithmeticOperator(AR_NEQ, scriptType, scriptType, 
@@ -163,6 +163,6 @@ namespace WNScripting {
             WN_NEW GenerateDefaultAssignment());
         _manager.RegisterAssignmentOperator(scriptType, AT_CHOWN,
             WN_NEW GenerateDefaultAssignment());
-        return(eWNOK);
+        return(ok);
     }
 }

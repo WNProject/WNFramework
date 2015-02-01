@@ -44,14 +44,14 @@ eWNTypeError WNSSExpression::GenerateCode(WNCodeModule& _module, const WNFunctio
     llvm::BasicBlock* conditionalBlock = llvm::BasicBlock::Create(llvm::getGlobalContext(), "", _def->mFunction);
     llvm::BasicBlock* endingBlock = llvm::BasicBlock::Create(llvm::getGlobalContext(), "", _def->mFunction);
     
-    eWNTypeError err = eWNOK;
-    if(eWNOK != (err = _module.GetTypeManager().GetTypeByName("Bool", mScriptType))) {
+    eWNTypeError err = ok;
+    if(ok != (err = _module.GetTypeManager().GetTypeByName("Bool", mScriptType))) {
         _compilationLog.Log(WNLogging::eError, 0, "Cannot find Bool type");
         LogLine(_compilationLog, WNLogging::eError);
         return(err);
     }
     
-    if(eWNOK != (err = mLHS->GenerateCode(_module, _def, _compilationLog))) {
+    if(ok != (err = mLHS->GenerateCode(_module, _def, _compilationLog))) {
         return(err);
     }
     llvm::BasicBlock* currentBlock = builder->GetInsertBlock();
@@ -63,7 +63,7 @@ eWNTypeError WNSSExpression::GenerateCode(WNCodeModule& _module, const WNFunctio
             LogLine(_compilationLog, WNLogging::eError);
             return(eWNInvalidCast);
         }
-        if(eWNOK != (err = castOp->Execute(builder, mLHS->GetValue(), lhsValue))) {
+        if(ok != (err = castOp->Execute(builder, mLHS->GetValue(), lhsValue))) {
             _compilationLog.Log(WNLogging::eCritical, 0, "Cannot generate case for ", mLHS->GetType()->mName, " to ", mScriptType->mName);
             LogLine(_compilationLog, WNLogging::eCritical);
             return(err);
@@ -81,11 +81,11 @@ eWNTypeError WNSSExpression::GenerateCode(WNCodeModule& _module, const WNFunctio
     } else {
         _compilationLog.Log(WNLogging::eError, 0, "Unknown Short-Circuit Operator");
         LogLine(_compilationLog, WNLogging::eError);
-        return(eWNInvalidParameters);
+        return(invalid_parameters);
     }
     
     builder->SetInsertPoint(conditionalBlock);
-    if(eWNOK != (err = mRHS->GenerateCode(_module, _def, _compilationLog))) {
+    if(ok != (err = mRHS->GenerateCode(_module, _def, _compilationLog))) {
         return(err);
     }
 
@@ -97,7 +97,7 @@ eWNTypeError WNSSExpression::GenerateCode(WNCodeModule& _module, const WNFunctio
             LogLine(_compilationLog, WNLogging::eError);
             return(eWNInvalidCast);
         }
-        if(eWNOK != (err = castOp->Execute(builder, mRHS->GetValue(), rhsValue))) {
+        if(ok != (err = castOp->Execute(builder, mRHS->GetValue(), rhsValue))) {
             _compilationLog.Log(WNLogging::eCritical, 0, "Error generating casting operation cast from ", mRHS->GetType()->mName, " to ", mScriptType->mName);
             LogLine(_compilationLog, WNLogging::eCritical);
             return(err);
@@ -111,6 +111,6 @@ eWNTypeError WNSSExpression::GenerateCode(WNCodeModule& _module, const WNFunctio
     phi->addIncoming(rhsValue, conditionalBlock);
     
     mValue = phi;
-    return(eWNOK);
+    return(ok);
 }
 

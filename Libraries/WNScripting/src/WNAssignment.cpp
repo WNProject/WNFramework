@@ -13,7 +13,7 @@ using namespace WNScripting;
 WNAssignment::WNAssignment(WNLValue* _lValue):
     mLValue(_lValue),
     mAssignType(AT_MAX),
-    mAssignExpression(WN_NULL) {
+    mAssignExpression(wn_nullptr) {
 }
 
 WNAssignment::~WNAssignment() {
@@ -29,8 +29,8 @@ void WNAssignment::AddValue(WNAssignType _type, WNExpression* value) {
 }
 
 eWNTypeError WNAssignment::GenerateCode(WNCodeModule& _module, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog) {
-    eWNTypeError err = eWNOK;
-    if(eWNOK != (err = mLValue->GenerateCode(_module, _def, _compilationLog))) {
+    eWNTypeError err = ok;
+    if(ok != (err = mLValue->GenerateCode(_module, _def, _compilationLog))) {
         return(err);
     }
     
@@ -40,7 +40,7 @@ eWNTypeError WNAssignment::GenerateCode(WNCodeModule& _module, const WNFunctionD
             LogLine(_compilationLog, WNLogging::eError);
             return(eWNInvalidOperation);
         } else {
-            return(eWNOK);
+            return(ok);
         }
     }
     if(!mLValue->GetValueLocation()) {
@@ -56,30 +56,30 @@ eWNTypeError WNAssignment::GenerateCode(WNCodeModule& _module, const WNFunctionD
     }
     
     WNScriptType type = mLValue->GetValueType();
-    if(eWNOK != (err = mAssignExpression->GenerateCode(_module, _def, _compilationLog))) {
+    if(ok != (err = mAssignExpression->GenerateCode(_module, _def, _compilationLog))) {
         return(err);
     }
 
     llvm::Value* val = mAssignExpression->GetValue();
     if(mAssignExpression->GetType() != type) { 
         const GenerateCastingOperation* op = _module.GetTypeManager().GetCastingOperation(mAssignExpression->GetType(), mLValue->GetValueType());
-        if(op == WN_NULL) {
+        if(op == wn_nullptr) {
             _compilationLog.Log(WNLogging::eError, 0, "Cannot cast from ", mAssignExpression->GetType()->mName, " to ", mLValue->GetValueType()->mName);
             LogLine(_compilationLog, WNLogging::eError);
             return(eWNInvalidCast);
         }
         
-        if(eWNOK != (err = op->Execute(_module.GetBuilder(), mAssignExpression->GetValue(), val))) {
+        if(ok != (err = op->Execute(_module.GetBuilder(), mAssignExpression->GetValue(), val))) {
             _compilationLog.Log(WNLogging::eCritical, 0, "Error generating cast from ", mAssignExpression->GetType()->mName, " to ", mLValue->GetValueType()->mName);
             LogLine(_compilationLog, WNLogging::eCritical);
-            return(eWNOK);
+            return(ok);
         }
     }
-    if(eWNOK != (err = assign->Execute(_module, false, type, val, mLValue->GetValueLocation(), _def, _compilationLog))) {
+    if(ok != (err = assign->Execute(_module, false, type, val, mLValue->GetValueLocation(), _def, _compilationLog))) {
         _compilationLog.Log(WNLogging::eCritical, 0, "Error generating assignment");
         LogLine(_compilationLog, WNLogging::eCritical);
         return(err);
     }
 
-    return(eWNOK);
+    return(ok);
 }

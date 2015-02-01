@@ -5,13 +5,13 @@ WNUtils::WNAndroidEventPump& WNUtils::WNAndroidEventPump::GetInstance() {
     return(sPump); 
 }
 
-WNUtils::WNAndroidEventPump::WNAndroidEventPump(): mExiting(WN_FALSE), mDisplayActive(WN_FALSE) {
+WNUtils::WNAndroidEventPump::WNAndroidEventPump(): mExiting(wn_false), mDisplayActive(wn_false) {
     memset(mCallbacks, 0, sizeof(mCallbacks));
     memset(mCallbackData, 0, sizeof(mCallbackData));
     mMainLooper = NULL;
 }
 
-WN_VOID WNUtils::WNAndroidEventPump::FireCallback(eMessageType _event, WN_INT32 _param, android_app* _state) {
+wn_void WNUtils::WNAndroidEventPump::FireCallback(eMessageType _event, wn_int32 _param, android_app* _state) {
     mCallbackLock.Lock();
     if(mCallbacks[_event] != 0) {
         mCallbacks[_event](_event, _state, _param, mCallbackData[_event]);
@@ -19,7 +19,7 @@ WN_VOID WNUtils::WNAndroidEventPump::FireCallback(eMessageType _event, WN_INT32 
     mCallbackLock.Unlock();
 }
 
-WN_VOID WNUtils::WNAndroidEventPump::SubscribeToEvent(eMessageType _message, WNAndroidEventCallback _callback, WN_VOID* _userData) {
+wn_void WNUtils::WNAndroidEventPump::SubscribeToEvent(eMessageType _message, WNAndroidEventCallback _callback, wn_void* _userData) {
     mCallbackLock.Lock();
     mCallbacks[_message] = _callback;
     mCallbackData[_message] = _userData;
@@ -29,19 +29,19 @@ WN_VOID WNUtils::WNAndroidEventPump::SubscribeToEvent(eMessageType _message, WNA
     mCallbackLock.Unlock();
 }
 
-WN_VOID WNUtils::WNAndroidEventPump::KillMessagePump() {
+wn_void WNUtils::WNAndroidEventPump::KillMessagePump() {
     PushMessage(eExit);
 }
 
-WN_VOID WNUtils::WNAndroidEventPump::WaitForInit() {
+wn_void WNUtils::WNAndroidEventPump::WaitForInit() {
     mStartedSemaphore.Wait();
     mStartedSemaphore.Post();
 }
 
-WN_BOOL WNUtils::WNAndroidEventPump::PushMessage(eInternalMessage _message) {
+wn_bool WNUtils::WNAndroidEventPump::PushMessage(eInternalMessage _message) {
     mQueueLock.Lock();
     if(mExiting) {
-        return(WN_FALSE);
+        return(wn_false);
     }
 
     if(_message == eExit) {
@@ -50,24 +50,24 @@ WN_BOOL WNUtils::WNAndroidEventPump::PushMessage(eInternalMessage _message) {
     mMessageQueue.push_back(_message);
     mQueueLock.Unlock();
     ALooper_wake(mMainLooper);
-    return(WN_TRUE);
+    return(wn_true);
 }
 
-WN_VOID WNUtils::WNAndroidEventPump::HandleWindowCommand(android_app* app, int32_t cmd) {
+wn_void WNUtils::WNAndroidEventPump::HandleWindowCommand(android_app* app, int32_t cmd) {
     WNAndroidEventPump* pump = reinterpret_cast<WNAndroidEventPump*>(app->userData);
     switch(cmd) {
         case APP_CMD_INIT_WINDOW:
-            pump->mDisplayActive = WN_TRUE;
+            pump->mDisplayActive = wn_true;
             pump->FireCallback(eDisplayCreated, 0, app);
             break;
         case APP_CMD_TERM_WINDOW:
-            pump->mDisplayActive = WN_TRUE;
+            pump->mDisplayActive = wn_true;
             pump->FireCallback(eDisplayDestroyed, 0, app);
             break;
     }
 }
 
-WN_VOID WNUtils::WNAndroidEventPump::PumpMessages(android_app* state) {
+wn_void WNUtils::WNAndroidEventPump::PumpMessages(android_app* state) {
     if(!state) {
         return;
     }

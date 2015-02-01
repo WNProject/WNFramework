@@ -8,7 +8,7 @@
 
 
 #define __WN_FOREGROUND_WHITE FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_GREEN
-const static WN_UINT16 LogColors[WNLogging::eLogMax] = {
+const static wn_uint16 LogColors[WNLogging::eLogMax] = {
     __WN_FOREGROUND_WHITE,
     FOREGROUND_RED | FOREGROUND_INTENSITY,
     FOREGROUND_RED,
@@ -25,7 +25,7 @@ static DWORD s_StandardHandles[] = {
 
 
 template<WNLogging::WNConsoleLocation T_Level>
-WNLogging::WNConsoleLogger<T_Level>::WNConsoleLogger() : mConsoleCreated(WN_FALSE), mConsoleHandle(INVALID_HANDLE_VALUE), mInitialized(WN_FALSE) {
+WNLogging::WNConsoleLogger<T_Level>::WNConsoleLogger() : mConsoleCreated(wn_false), mConsoleHandle(INVALID_HANDLE_VALUE), mInitialized(wn_false) {
 }
 
 template<WNLogging::WNConsoleLocation T_Level>
@@ -41,7 +41,7 @@ WNLogging::WNConsoleLogger<T_Level>::~WNConsoleLogger() {
 }
 
 
-WN_INLINE WN_VOID WriteSectionToConsole(HANDLE handle, const WN_CHAR* buffer, WN_SIZE_T amount) {
+WN_INLINE wn_void WriteSectionToConsole(HANDLE handle, const wn_char* buffer, wn_size_t amount) {
     if(amount == 0){
         return;
     }
@@ -57,7 +57,7 @@ WN_INLINE WN_VOID WriteSectionToConsole(HANDLE handle, const WN_CHAR* buffer, WN
 }
 
 template<WNLogging::WNConsoleLocation T_Level>
-WN_VOID WNLogging::WNConsoleLogger<T_Level>::FlushBuffer(const WN_CHAR* _buffer, WN_SIZE_T _bufferSize, const std::vector<WNLogging::WNLogColorElement>& _colors) {
+wn_void WNLogging::WNConsoleLogger<T_Level>::FlushBuffer(const wn_char* _buffer, wn_size_t _bufferSize, const std::vector<WNLogging::WNLogColorElement>& _colors) {
     if(mConsoleHandle == INVALID_HANDLE_VALUE && !mInitialized) {
         mConsoleCreated = AllocConsole(); //If we cannot create a new console, we must already have one.. hopefully
         mConsoleHandle = GetStdHandle(s_StandardHandles[T_Level]);
@@ -66,20 +66,20 @@ WN_VOID WNLogging::WNConsoleLogger<T_Level>::FlushBuffer(const WN_CHAR* _buffer,
     if(mConsoleHandle != INVALID_HANDLE_VALUE) {
         if(_colors.size() > 0) {
             {
-                WN_SIZE_T len =  _colors.front().mPosition - _buffer;
+                wn_size_t len =  _colors.front().mPosition - _buffer;
                 WriteSectionToConsole(mConsoleHandle, _buffer, len);
             }
                 
-            for(WN_SIZE_T i = 0; i < _colors.size(); ++i) {
+            for(wn_size_t i = 0; i < _colors.size(); ++i) {
                     
                 SetConsoleTextAttribute(mConsoleHandle, LogColors[(_colors)[i].mLevel]);
-                const WN_CHAR* endColor = ((_colors).size() == i+1)? _buffer + _bufferSize: (_colors)[i+1].mPosition;
+                const wn_char* endColor = ((_colors).size() == i+1)? _buffer + _bufferSize: (_colors)[i+1].mPosition;
                     
-                WN_SIZE_T len =  endColor - (_colors)[i].mPosition;
+                wn_size_t len =  endColor - (_colors)[i].mPosition;
                 WriteSectionToConsole(mConsoleHandle, (_colors)[i].mPosition, len);
             }
         } else {
-            WN_SIZE_T len =  _bufferSize;
+            wn_size_t len =  _bufferSize;
             WriteSectionToConsole(mConsoleHandle, _buffer, len);
         }
     }

@@ -7,32 +7,32 @@
 #include <stdlib.h>
 
 namespace WNScripting {
-    WN_VOID* TestMalloc(WN_SIZE_T size) {
+    wn_void* TestMalloc(wn_size_t size) {
         void* x = malloc(size);
         return(x);
     }
 
-    WN_VOID TestFree(WN_VOID* ptr) {
+    wn_void TestFree(wn_void* ptr) {
         return(free(ptr));
     }
-    WN_VOID Assert() {
+    wn_void Assert() {
         assert(false);
     }
-    WN_VOID DebugPrint(int x) {
+    wn_void DebugPrint(int x) {
         printf("%d\n", x);
     }
 
     eWNTypeError WNBuiltInInitializer::InitializeFunctions(WNScriptingEngine& _engine) {
-        eWNTypeError err = eWNOK;
+        eWNTypeError err = ok;
 
-        if(eWNOK != (err = _engine.RegisterCFunction("Assert", &Assert))) {
+        if(ok != (err = _engine.RegisterCFunction("Assert", &Assert))) {
             return(err);
         }
 
-        if(eWNOK != (err = _engine.RegisterCFunction("DebugPrint", &DebugPrint))) {
+        if(ok != (err = _engine.RegisterCFunction("DebugPrint", &DebugPrint))) {
             return(err);
         }
 
-       return(eWNOK);
+       return(ok);
     }
 }

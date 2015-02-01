@@ -8,18 +8,18 @@
 #define __WN_MATH_INTERNAL_QUATERNION_BASE_H__
 
 #include "WNCore/inc/WNExtendedTypes.h"
-#include "WNMath/inc/Internal/WNElements.h"
+#include "WNMath/inc/Internal/WNElementArray.h"
 
-namespace WNMath {
-    namespace __WNInternal {
-        template <typename QuaternionType, typename Type>
+namespace wn {
+    namespace internal {
+        template <typename QuaternionType, typename type>
         class __WNQuaternionBaseCommon {
         public:
-            Type& operator [] (const WN_UINT32 _index);
-            const Type& operator [] (const WN_UINT32 _index) const;
+            type& operator [] (const wn_uint32 _index);
+            const type& operator [] (const wn_uint32 _index) const;
 
-            Type& operator () (const WN_UINT32 _index);
-            const Type& operator () (const WN_UINT32 _index) const;
+            type& operator () (const wn_uint32 _index);
+            const type& operator () (const wn_uint32 _index) const;
 
             QuaternionType operator + () const;
             QuaternionType operator - () const;
@@ -27,33 +27,33 @@ namespace WNMath {
             QuaternionType& operator += (const QuaternionType& _quaternion);
             QuaternionType& operator -= (const QuaternionType& _quaternion);
             QuaternionType& operator *= (const QuaternionType& _quaternion);
-            QuaternionType& operator *= (const Type& _number);
-            QuaternionType& operator /= (const Type& _number);
+            QuaternionType& operator *= (const type& _number);
+            QuaternionType& operator /= (const type& _number);
 
             QuaternionType operator + (const QuaternionType& _quaternion) const;
             QuaternionType operator - (const QuaternionType& _quaternion) const;
             QuaternionType operator * (const QuaternionType& _quaternion) const;
-            QuaternionType operator * (const Type& _number) const;
-            QuaternionType operator / (const Type& _number) const;
+            QuaternionType operator * (const type& _number) const;
+            QuaternionType operator / (const type& _number) const;
 
-            WN_BOOL operator == (const QuaternionType& _quaternion) const;
-            WN_BOOL operator != (const QuaternionType& _quaternion) const;
+            wn_bool operator == (const QuaternionType& _quaternion) const;
+            wn_bool operator != (const QuaternionType& _quaternion) const;
 
-            WN_VOID Zero();
-            WN_VOID Identity();
+            wn_void Zero();
+            wn_void Identity();
 
-            Type Length() const;
-            Type LengthSquared() const;
+            type Length() const;
+            type LengthSquared() const;
 
-            Type Dot(const QuaternionType& _quaternion) const;
+            type Dot(const QuaternionType& _quaternion) const;
 
-            WN_BOOL IsZero() const;
-            WN_BOOL IsIdentity() const;
+            wn_bool IsZero() const;
+            wn_bool IsIdentity() const;
 
-            WN_VOID Set(const QuaternionType& _quaternion);
-            WN_VOID Set(const Type& _number);
-            WN_VOID Set(const Type* _number);
-            WN_VOID Set(const Type& _x, const Type& _y, const Type& _z, const Type& _w);
+            wn_void Set(const QuaternionType& _quaternion);
+            wn_void Set(const type& _number);
+            wn_void Set(const type* _number);
+            wn_void Set(const type& _x, const type& _y, const type& _z, const type& _w);
 
         public:
             static QuaternionType CreateZero();
@@ -63,23 +63,23 @@ namespace WNMath {
             __WNQuaternionBaseCommon();
 
         protected:
-            __WNElements<Type, 4> mElements;
+            element_array<type, 4> mElements;
         };
 
-        template <typename QuaternionType, typename Type, typename = WNCore::WNEnableWhen<WN_TRUE>::Value>
-        class __WNQuaternionBase : public __WNQuaternionBaseCommon<QuaternionType, Type> {
+        template <typename QuaternionType, typename type, typename = std::enable_if<wn_true>::type>
+        class __WNQuaternionBase : public __WNQuaternionBaseCommon<QuaternionType, type> {
         protected:
             WN_FORCE_INLINE __WNQuaternionBase() {}
         };
 
-        template <typename QuaternionType, typename Type>
-        class __WNQuaternionBase<QuaternionType, Type, typename WNCore::WNEnableWhen<WNCore::WNIsReal<Type>::Value>::Value> : public __WNQuaternionBaseCommon<QuaternionType, Type> {
+        template <typename QuaternionType, typename type>
+        class __WNQuaternionBase<QuaternionType, type, typename std::enable_if<wn::is_real<type>::value>::type> : public __WNQuaternionBaseCommon<QuaternionType, type> {
         public:
-            WN_VOID Normalize();
-            WN_VOID Invert();
-            WN_VOID Logarithm();
-            WN_VOID Exponent();
-            WN_VOID Rotate(const QuaternionType& _rotation);
+            wn_void Normalize();
+            wn_void Invert();
+            wn_void Logarithm();
+            wn_void Exponent();
+            wn_void Rotate(const QuaternionType& _rotation);
 
             QuaternionType GetNormalized() const;
             QuaternionType GetInverted() const;
