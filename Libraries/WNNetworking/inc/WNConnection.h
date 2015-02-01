@@ -17,14 +17,14 @@ namespace WNNetworking {
         WNConnection();
         virtual ~WNConnection();
 
-        const WN_CHAR* GetName();
-        WN_BOOL IsValid();
-        virtual WN_VOID Invalidate();
-        virtual WN_VOID SendBuffer(WNNetworkWriteBuffer& buffer) = 0;
+        const wn_char* GetName();
+        wn_bool IsValid();
+        virtual wn_void Invalidate();
+        virtual wn_void SendBuffer(WNNetworkWriteBuffer& buffer) = 0;
 
     protected:
-        WN_CHAR* mConnectionName;
-        WN_BOOL mIsValid;
+        wn_char* mConnectionName;
+        wn_bool mIsValid;
     };
 };
 

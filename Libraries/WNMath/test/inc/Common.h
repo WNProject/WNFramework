@@ -5,7 +5,7 @@
 #ifndef __WN_MATH_TESTS_COMMON_H__
 #define __WN_MATH_TESTS_COMMON_H__
 
-#include "WNCore/inc/WNTypes.h"
+#include "WNCore/inc/WNBase.h"
 
 #ifdef _WN_MSVC
     #pragma warning(push)
@@ -32,13 +32,11 @@
 #define MATRIX_X_ORDER 10
 #define MATRIX_X_DIMENSION (MATRIX_X_ORDER * MATRIX_X_ORDER)
 
-#ifdef __WN_USE_PRECOMPILED_HEADER
-    #include "WNCore/inc/WNExtendedTypes.h"
-    #include "WNPlatform/inc/WNTime.h"
-    #include "WNMath/inc/WNMath.h"
+#include "WNCore/inc/WNExtendedTypes.h"
+#include "WNPlatform/inc/WNTime.h"
+#include "WNMath/inc/WNMath.h"
 
-    #include <math.h>
-    #include <float.h>
-#endif
+#include <math.h>
+#include <float.h>
 
 #endif // __WN_MATH_TESTS_COMMON_H__

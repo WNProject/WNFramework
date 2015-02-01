@@ -1,6 +1,6 @@
-$allVersions = @("msvc11", "msvc12")
-$allPlatforms = @("win32", "x64")
-$allTargets = @("debug", "release")
+$allVersions = @("120")
+$allPlatforms = @("Win32", "x64")
+$allTargets = @("Debug", "Release")
 
 $versions = @()
 $platforms = @()
@@ -39,16 +39,15 @@ if ($buildAll -eq $TRUE) {
                 $validPlatform = $FALSE
 
                 for ($i = 0; $i -lt $allPlatforms.Count; $i++) {
-                    if ($configurationSplit[0] -eq $allPlatforms[$i]) {
+                    if ($configurationSplit[0] -eq $allPlatforms[$i].ToLower()) {
+						$platforms = @($allPlatforms[$i])					
                         $validPlatform = $TRUE
 
                         break
                     }
                 }
 
-                if ($validPlatform) {
-                    $platforms = @($configurationSplit[0])
-                } else {
+                if (!$validPlatform) {
                     Write-Host "Error: Configuration is invalid.  Must be of the form Platform:Release or All"
 
                     exit -1
@@ -61,16 +60,15 @@ if ($buildAll -eq $TRUE) {
                 $validTarget = $FALSE
 
                 for ($i = 0; $i -lt $allTargets.Count; $i++) {
-                    if ($configurationSplit[1] -eq $allTargets[$i]) {
+                    if ($configurationSplit[1] -eq $allTargets[$i].ToLower()) {
+						$targets = @($allTargets[$i])					
                         $validTarget = $TRUE
 
                         break
                     }
                 }
 
-                if ($validTarget) {
-                    $targets = @($configurationSplit[1])
-                } else {
+                if (!$validTarget) {
                     Write-Host "Error: Configuration is invalid.  Must be of the form Platform:Release or All"
 
                     exit -1
@@ -109,8 +107,7 @@ $filteredVersions = @()
 
 for ($i = 0; $i -lt $versions.Count; $i++) {
     $currentVersion = $versions[$i]
-    $versionNumber = $currentVersion.Substring($currentVersion.Length - 2)
-    $vsToolsEnvVar = "VS" + $versionNumber + "0COMNTOOLS"
+    $vsToolsEnvVar = "VS" + $currentVersion + "COMNTOOLS"
 
     if (!(Test-Path env:$vsToolsEnvVar)) {
         if ($buildAll -ne $TRUE) {
@@ -124,7 +121,6 @@ for ($i = 0; $i -lt $versions.Count; $i++) {
 }
 
 $versions = $filteredVersions
-
 $currentLocation = Get-Location
 $currentLocation = Join-Path $currentLocation "bin"
 
@@ -132,7 +128,7 @@ if (!(Test-Path $currentLocation)) {
 	New-Item -ItemType directory -Path $currentLocation | Out-Null
 }
 
-Set-Location $currentLocation	
+Set-Location $currentLocation
 
 for ($i = 0; $i -lt $versions.Count; $i++) {
     for ($j = 0; $j -lt $platforms.Count; $j++) {
@@ -140,7 +136,7 @@ for ($i = 0; $i -lt $versions.Count; $i++) {
             $currentVersion = $versions[$i]
             $currentPlatform = $platforms[$j]
             $currentTarget = $targets[$k]
-            $buildMessage = "- Building: ${currentPlatform}:${currentTarget} ${currentVersion} -"			
+            $buildMessage = "- Building: ${currentPlatform}:${currentTarget} MSVC:${currentVersion} -"			
             $seperatorMessage = ""
 
             for ($l = 0; $l -lt $buildMessage.Length; $l++) {
@@ -154,23 +150,21 @@ for ($i = 0; $i -lt $versions.Count; $i++) {
 
             $makeExpression = "cmake -G"
 
-            if ($currentVersion -eq "msvc12") {
+            if ($currentVersion -eq "120") {
                 if ($currentPlatform -eq "win32") {
                     $makeExpression += ' "Visual Studio 12"'
                 } else {
                     $makeExpression += ' "Visual Studio 12 Win64"'
                 }
-            } elseif ($currentVersion -eq "msvc11") {
-                if ($currentPlatform -eq "win32") {
-                    $makeExpression += ' "Visual Studio 11"'
-                } else {
-                    $makeExpression += ' "Visual Studio 11 Win64"'
-                }
-
-                $makeExpression += '-DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} /D _VARIADIC_MAX=10"'
             }
 
-            $makeExpression += ' -DBUILD_SHARED_LIBS=FALSE ../../../../gtest/'
+            $makeExpression += ' -DBUILD_SHARED_LIBS=FALSE ../../../../../gtest/'
+			
+            if (!(Test-Path 'msvc')) {
+                New-Item -ItemType directory -Path 'msvc' | Out-Null
+            }
+			
+            Set-Location 'msvc'
 			
             if (!(Test-Path $currentVersion)) {
                 New-Item -ItemType directory -Path $currentVersion | Out-Null
@@ -211,8 +205,7 @@ for ($i = 0; $i -lt $versions.Count; $i++) {
             }
 
             $numProcessors *= 2			
-            $versionNumber = $currentVersion.Substring($currentVersion.Length - 2)
-            $vsToolsEnvVar = "VS" + $versionNumber + "0COMNTOOLS"
+            $vsToolsEnvVar = "VS" + $currentVersion + "COMNTOOLS"
             $buildToolsCommand = Resolve-Path (Join-Path ((Get-Item env:$vsToolsEnvVar).value) "..\..\VC\vcvarsall.bat")
             $buildtenmp = '"{0}" x86_amd64 && msbuild gtest.sln /m:{1} /p:Platform={2} /p:Configuration={3}' -f $buildToolsCommand, $numProcessors, $currentPlatform, $currentTarget
 

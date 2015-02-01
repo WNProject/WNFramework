@@ -13,17 +13,17 @@ namespace WNScripting {
     public:
         WNArrayAllocation();
         virtual ~WNArrayAllocation();
-        WN_VOID SetType(WNTypeNode* _typeNode); 
-        WN_VOID AddExpression(WNExpression* _expr); 
-        WN_VOID AddLevel(); 
-        WN_VOID SetCopyInitializer(WNExpression* _expression);
+        wn_void SetType(WNTypeNode* _typeNode); 
+        wn_void AddExpression(WNExpression* _expr); 
+        wn_void AddLevel(); 
+        wn_void SetCopyInitializer(WNExpression* _expression);
         eWNTypeError GenerateCode(WNCodeModule& _module, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog); 
 
     private:
         WNScriptLinkedList<WNExpression> mArrayInitializers;
         WNExpression* mCopyInitializer;
         WNTypeNode* mType;
-        WN_SIZE_T mLevels;
+        wn_size_t mLevels;
     };
 }
 #endif//__WN_ARRAY_ALLOCATION_H__

@@ -1,9 +1,12 @@
 #include "WNUtils/inc/WNCrashHandler.h"
+
 #include <fcntl.h>
 #include <pthread.h>
 #include <execinfo.h>
 #include <unistd.h>
 #include <errno.h>
+#include <cstdio>
+
 #define COUNT_OF(x) (sizeof(x) / sizeof(x[0]))
 
 const int signalsToCatch[] = {
@@ -85,6 +88,6 @@ void StackUnwinder::error_func(int sig, siginfo_t* info, void* context) {
     }
 }
 
-WN_VOID WNUtils::InitializeCrashHandler() {
+wn_void WNUtils::InitializeCrashHandler() {
     g_CrashHandler = new(StackUnwinder);
 }

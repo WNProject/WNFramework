@@ -30,7 +30,7 @@ namespace WNScripting {
         eWNTypeError FinalizeStruct(WNTypeManager& _manager, WNLogging::WNLog& _compilationLog);
         eWNTypeError GenerateHeader(WNCodeModule& _module, WNLogging::WNLog& _compilationLog);
         eWNTypeError GenerateCode(WNCodeModule& _module, WNLogging::WNLog& _compilationLog);
-        WN_CHAR* GetName() const;
+        wn_char* GetName() const;
         WNScriptType GetType() const;
     private:
         eWNTypeError GenerateConstructor(WNCodeModule& _module, WNLogging::WNLog& _compilationLog);

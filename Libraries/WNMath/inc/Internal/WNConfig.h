@@ -21,7 +21,7 @@
     #define __WN_MATH_EXTENSIONS_ENABLED
 
     #ifdef _WN_X86
-        #include "WNMath/inc/Internal/x86/WNConfig.h"
+        #include "WNMath/inc/Internal/Extensions/x86/WNConfig.h"
     #elif defined _WN_ARM
         #include "WNMath/inc/Internal/ARM/WNConfig.h"
     #endif

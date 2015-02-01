@@ -8,65 +8,65 @@
 #define __WN_MATH_RECTANGLE_H__
 
 #include "WNCore/inc/WNTypes.h"
-#include "WNMath/inc/WNVector3.h"
+#include "WNMath/inc/vector3.h"
 
-namespace WNMath {
-    template <typename Type> class WNBounds2;
-    template <typename Type> class WNCircle;
+namespace wn {
+    template <typename type> class WNBounds2;
+    template <typename type> class circle;
 
-    template <typename Type>
+    template <typename type>
     class WNRectangle {
     public:
         WNRectangle();
-        explicit WNRectangle(const Type* _numbers);
-        explicit WNRectangle(const WNVector3<Type>& _location, const WNVector3<Type>& _extents, Type _rotation);
-        explicit WNRectangle(Type _x1, Type _y1, Type _x2, Type _y2, Type _rotation);
+        explicit WNRectangle(const type* _numbers);
+        explicit WNRectangle(const vector3<type>& _location, const vector3<type>& _extents, type _rotation);
+        explicit WNRectangle(type _x1, type _y1, type _x2, type _y2, type _rotation);
 
-        WN_BOOL operator == (const WNRectangle& _rectangle) const;
-        WN_BOOL operator != (const WNRectangle& _rectangle) const;
+        wn_bool operator == (const WNRectangle& _rectangle) const;
+        wn_bool operator != (const WNRectangle& _rectangle) const;
 
-        WN_VOID Zero();
-        WN_VOID Expand(Type _amount);
-        WN_BOOL Expand(const WNVector3<Type>& _vector, WN_BOOL _anchor = WN_FALSE);
-        WN_BOOL Expand(const WNBounds2<Type>& _bounds, WN_BOOL _anchor = WN_FALSE);
-        WN_BOOL Expand(const WNRectangle& _rectangle, WN_BOOL _anchor = WN_FALSE);
-        WN_BOOL Expand(const WNCircle<Type>& _circle, WN_BOOL _anchor = WN_FALSE);
-        WN_VOID Translate(Type _x, Type _y);
-        WN_VOID Translate(const WNVector3<Type>& _vector);
-        WN_VOID Rotate(Type _angle);
-        WN_VOID Scale(Type _scale);
-        WN_VOID Scale(Type _x, Type _y);
-        WN_VOID Scale(const WNVector3<Type>& _scale);
+        wn_void Zero();
+        wn_void Expand(type _amount);
+        wn_bool Expand(const vector3<type>& _vector, wn_bool _anchor = wn_false);
+        wn_bool Expand(const WNBounds2<type>& _bounds, wn_bool _anchor = wn_false);
+        wn_bool Expand(const WNRectangle& _rectangle, wn_bool _anchor = wn_false);
+        wn_bool Expand(const circle<type>& _circle, wn_bool _anchor = wn_false);
+        wn_void Translate(type _x, type _y);
+        wn_void Translate(const vector3<type>& _vector);
+        wn_void Rotate(type _angle);
+        wn_void Scale(type _scale);
+        wn_void Scale(type _x, type _y);
+        wn_void Scale(const vector3<type>& _scale);
 
-        Type Length() const;
-        Type Width() const;
-        Type Perimeter() const;
-        Type Area() const;
+        type Length() const;
+        type Width() const;
+        type Perimeter() const;
+        type Area() const;
 
-        WN_BOOL IsZero() const;
-        WN_BOOL IsInsideOut() const;
+        wn_bool IsZero() const;
+        wn_bool IsInsideOut() const;
 
-        WN_VOID Set(const Type* _f);
-        WN_VOID Set(const WNVector3<Type>& _location, WNVector3<Type>& _extents, Type _rotation);
-        WN_VOID Set(Type _x1, Type _y1, Type _x2, Type _y2, Type _rotation);
+        wn_void Set(const type* _f);
+        wn_void Set(const vector3<type>& _location, vector3<type>& _extents, type _rotation);
+        wn_void Set(type _x1, type _y1, type _x2, type _y2, type _rotation);
 
-        WNRectangle GetExpanded(Type _amount) const;
-        WNRectangle GetExpanded(const WNVector3<Type>& _vector, WN_BOOL _anchor = WN_FALSE) const;
-        WNRectangle GetExpanded(const WNBounds2<Type>& _bounds, WN_BOOL _anchor = WN_FALSE) const;
-        WNRectangle GetExpanded(const WNCircle<Type>& _circle, WN_BOOL _anchor = WN_FALSE) const;
-        WNRectangle GetExpanded(const WNRectangle& _rectangle, WN_BOOL _anchor = WN_FALSE) const;
-        WNRectangle GetTranslated(Type _x, Type _y) const;
-        WNRectangle GetTranslated(const WNVector3<Type>& _vector) const;
-        WNRectangle GetRotated(Type _angle) const;
-        WNRectangle GetScaled(Type _scale) const;
-        WNRectangle GetScaled(Type _x, Type _y) const;
-        WNRectangle GetScaled(const WNVector3<Type>& _scale) const;
-        WN_VOID GetPoints(WNVector3<Type>* _vectors) const;
+        WNRectangle GetExpanded(type _amount) const;
+        WNRectangle GetExpanded(const vector3<type>& _vector, wn_bool _anchor = wn_false) const;
+        WNRectangle GetExpanded(const WNBounds2<type>& _bounds, wn_bool _anchor = wn_false) const;
+        WNRectangle GetExpanded(const circle<type>& _circle, wn_bool _anchor = wn_false) const;
+        WNRectangle GetExpanded(const WNRectangle& _rectangle, wn_bool _anchor = wn_false) const;
+        WNRectangle GetTranslated(type _x, type _y) const;
+        WNRectangle GetTranslated(const vector3<type>& _vector) const;
+        WNRectangle GetRotated(type _angle) const;
+        WNRectangle GetScaled(type _scale) const;
+        WNRectangle GetScaled(type _x, type _y) const;
+        WNRectangle GetScaled(const vector3<type>& _scale) const;
+        wn_void GetPoints(vector3<type>* _vectors) const;
 
     public:
-        WNVector3<Type> mLocation;
-        WNVector3<Type> mExtents;
-        Type mRotation;
+        vector3<type> mLocation;
+        vector3<type> mExtents;
+        type mRotation;
     };
 }
 

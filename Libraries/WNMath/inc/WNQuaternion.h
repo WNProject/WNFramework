@@ -9,38 +9,38 @@
 
 #include "WNMath/inc/Internal/WNQuaternionBase.h"
 
-namespace WNMath {
-    template <typename Type>
+namespace wn {
+    template <typename type>
     class WNMatrix3;
 
-    template <typename Type>
+    template <typename type>
     class WNMatrix4;
 
-    template <typename Type>
-    class WNQuaternion : public __WNInternal::__WNQuaternionBase<WNQuaternion<Type>, Type> {
+    template <typename type>
+    class WNQuaternion : public internal::__WNQuaternionBase<WNQuaternion<type>, type> {
     public:
         WNQuaternion() {}
         WNQuaternion(const WNQuaternion& _quaternion);
-        explicit WNQuaternion(const Type& _number);
-        explicit WNQuaternion(const Type* _number);
-        explicit WNQuaternion(const Type& _x, const Type& _y, const Type& _z, const Type& _w);
+        explicit WNQuaternion(const type& _number);
+        explicit WNQuaternion(const type* _number);
+        explicit WNQuaternion(const type& _x, const type& _y, const type& _z, const type& _w);
 
-        WNMatrix3<Type> ToMatrix3() const;
-        WNMatrix4<Type> ToMatrix4() const;
+        WNMatrix3<type> ToMatrix3() const;
+        WNMatrix4<type> ToMatrix4() const;
 
         template <typename NewType>
         WNQuaternion<NewType> ConvertTo() const;
 
     private:
-        typedef class __WNInternal::__WNQuaternionBase<WNQuaternion<Type>, Type> Base;
+        typedef class internal::__WNQuaternionBase<WNQuaternion<type>, type> Base;
 
     };
 
-    template <typename Type>
-    WNQuaternion<Type> operator * (const Type& _number, const WNQuaternion<Type>& _quaternion);
+    template <typename type>
+    WNQuaternion<type> operator * (const type& _number, const WNQuaternion<type>& _quaternion);
 
-    template <typename Type>
-    WNQuaternion<Type> operator / (const Type& _number, const WNQuaternion<Type>& _quaternion);
+    template <typename type>
+    WNQuaternion<type> operator / (const type& _number, const WNQuaternion<type>& _quaternion);
 }
 
 #include "WNMath/inc/Internal/WNQuaternion.inl"

@@ -14,7 +14,7 @@ namespace WNNetworking {
     public:
         WNOutConnectionLinux(WNNetworkManager& _manager);
 
-        WNNetworkManagerReturnCode::Type Initialize(WNConnectionType::Type& _type, const WN_CHAR* _target, WN_UINT16 _port);
+        WNNetworkManagerReturnCode::type Initialize(WNConnectionType::type& _type, const wn_char* _target, wn_uint16 _port);
     };
 };
 

@@ -9,38 +9,32 @@
 
 #include "WNCore/inc/WNTypes.h"
 
-typedef WN_VOID* (*WN_MEMCLR_FUNCTION_T)(WN_VOID*, const WN_SIZE_T);
-typedef WN_VOID* (*WN_MEMSET_FUNCTION_T)(WN_VOID*, const WN_UINT32, const WN_SIZE_T);
-typedef WN_VOID* (*WN_MEMCPY_FUNCTION_T)(WN_VOID*, const WN_VOID*, const WN_SIZE_T);
-typedef WN_UINT32 (*WN_MEMCMP_FUNCTION_T)(const WN_VOID*, const WN_VOID*, const WN_SIZE_T);
-typedef WN_VOID* (*WN_MEMMOVE_FUNCTION_T)(WN_VOID*, const WN_VOID*, const WN_SIZE_T);
-
 namespace WNMemory {
-    WN_VOID* WNMemClr(WN_VOID* _memory, const WN_SIZE_T _size);
-    WN_VOID* WNMemSet(WN_VOID* _memory, const WN_UINT8 _value, const WN_SIZE_T _size);
-    WN_VOID* WNMemCpy(WN_VOID* _destination, const WN_VOID* _source, const WN_SIZE_T _number);
-    WN_UINT32 WNMemCmp(const WN_VOID* _memory1, const WN_VOID* _memory2, const WN_SIZE_T _number);
-    WN_VOID* WNMemMove(WN_VOID* _destination, const WN_VOID* _source, const WN_SIZE_T _number);
+    wn_void* WNMemClr(wn_void* _memory, const wn_size_t _size);
+    wn_void* WNMemSet(wn_void* _memory, const wn_uint8 _value, const wn_size_t _size);
+    wn_void* WNMemCpy(wn_void* _destination, const wn_void* _source, const wn_size_t _number);
+    wn_uint32 WNMemCmp(const wn_void* _memory1, const wn_void* _memory2, const wn_size_t _number);
+    wn_void* WNMemMove(wn_void* _destination, const wn_void* _source, const wn_size_t _number);
 
-    template <typename Type>
-    Type* WNMemClrT(Type* _memory, const WN_SIZE_T _amount = 1);
+    template <typename type>
+    type* WNMemClrT(type* _memory, const wn_size_t _amount = 1);
 
     // MemSet
-    template <typename Type>
-    Type* WNMemSetT(Type* _memory, const WN_UINT8 _value, const WN_SIZE_T _amount = 1);
+    template <typename type>
+    type* WNMemSetT(type* _memory, const wn_uint8 _value, const wn_size_t _amount = 1);
     
     template <>
-    WN_VOID* WNMemSetT(WN_VOID* _memory, WN_UINT8 _value, const WN_SIZE_T _amount);
+    wn_void* WNMemSetT(wn_void* _memory, wn_uint8 _value, const wn_size_t _amount);
 
     // MemCpy
-    template <typename Type>
-    Type* WNMemCpyT(Type* _destination, const Type* _source, const WN_SIZE_T _number = 1);
+    template <typename type>
+    type* WNMemCpyT(type* _destination, const type* _source, const wn_size_t _number = 1);
 
-    template <typename Type>
-    WN_UINT32 WNMemCmpT(const Type* _memory1, const Type* _memory2, const WN_SIZE_T _number = 1);
+    template <typename type>
+    wn_uint32 WNMemCmpT(const type* _memory1, const type* _memory2, const wn_size_t _number = 1);
 
-    template <typename Type>
-    Type* WNMemMoveT(Type* _destination, const Type* _source, const WN_SIZE_T _number = 1);
+    template <typename type>
+    type* WNMemMoveT(type* _destination, const type* _source, const wn_size_t _number = 1);
 }
 
 #include "WNMemory/inc/Internal/WNManipulation.inl"

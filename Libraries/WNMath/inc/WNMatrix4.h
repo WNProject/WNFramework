@@ -9,45 +9,45 @@
 
 #include "WNMath/inc/Internal/WNMatrix4Base.h"
 
-namespace WNMath {
-    template <typename Type>
-    class WNMatrix4 : public __WNInternal::__WNMatrix4Base<Type> {
+namespace wn {
+    template <typename type>
+    class WNMatrix4 : public internal::__WNMatrix4Base<type> {
     public:
         WN_FORCE_INLINE WNMatrix4() {}
         WNMatrix4(const WNMatrix4& _matrix);
-        explicit WNMatrix4(const Type& _number);
-        explicit WNMatrix4(const Type* _numbers);
+        explicit WNMatrix4(const type& _number);
+        explicit WNMatrix4(const type* _numbers);
 
-        WN_VOID MakeTranslation(const Type& _translation);
-        WN_VOID MakeTranslation(const WNVector3<Type>& _translation);
-        WN_VOID MakeTranslation(const Type& _x, const Type& _y, const Type& _z);
-        WN_VOID MakeScale(const Type& _scale);
-        WN_VOID MakeScale(const WNVector3<Type>& _scale);
-        WN_VOID MakeScale(const Type& _x, const Type& _y, const Type& _z);
+        wn_void MakeTranslation(const type& _translation);
+        wn_void MakeTranslation(const vector3<type>& _translation);
+        wn_void MakeTranslation(const type& _x, const type& _y, const type& _z);
+        wn_void MakeScale(const type& _scale);
+        wn_void MakeScale(const vector3<type>& _scale);
+        wn_void MakeScale(const type& _x, const type& _y, const type& _z);
 
     public:
-        static WNMatrix4 CreateTranslation(const Type& _translation);
-        static WNMatrix4 CreateTranslation(const WNVector3<Type>& _translation);
-        static WNMatrix4 CreateTranslation(const Type& _x, const Type& _y, const Type& _z);
-        static WNMatrix4 CreateScale(const Type& _scale);
-        static WNMatrix4 CreateScale(const WNVector3<Type>& _scale);
-        static WNMatrix4 CreateScale(const Type& _x, const Type& _y, const Type& _z);
+        static WNMatrix4 CreateTranslation(const type& _translation);
+        static WNMatrix4 CreateTranslation(const vector3<type>& _translation);
+        static WNMatrix4 CreateTranslation(const type& _x, const type& _y, const type& _z);
+        static WNMatrix4 CreateScale(const type& _scale);
+        static WNMatrix4 CreateScale(const vector3<type>& _scale);
+        static WNMatrix4 CreateScale(const type& _x, const type& _y, const type& _z);
 
     private:
-        typedef class __WNInternal::__WNMatrixBase<WNMatrix4<Type>, Type, 4> Base;
+        typedef class internal::__WNMatrixBase<WNMatrix4<type>, type, 4> Base;
     };
 
-    template <typename Type>
-    WNMatrix4<Type> operator + (const Type& _number, const WNMatrix4<Type>& _matrix);
+    template <typename type>
+    WNMatrix4<type> operator + (const type& _number, const WNMatrix4<type>& _matrix);
 
-    template <typename Type>
-    WNMatrix4<Type> operator - (const Type& _number, const WNMatrix4<Type>& _matrix);
+    template <typename type>
+    WNMatrix4<type> operator - (const type& _number, const WNMatrix4<type>& _matrix);
 
-    template <typename Type>
-    WNMatrix4<Type> operator * (const Type& _number, const WNMatrix4<Type>& _matrix);
+    template <typename type>
+    WNMatrix4<type> operator * (const type& _number, const WNMatrix4<type>& _matrix);
 
-    template <typename Type>
-    WNMatrix4<Type> operator / (const Type& _number, const WNMatrix4<Type>& _matrix);
+    template <typename type>
+    WNMatrix4<type> operator / (const type& _number, const WNMatrix4<type>& _matrix);
 }
 
 #include "WNMath/inc/Internal/WNMatrix4.inl"

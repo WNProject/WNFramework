@@ -15,17 +15,17 @@ namespace WNNetworking {
 
     class WNListenConnectionWindows : public WNConnectionWindows {
     public:
-        WNListenConnectionWindows(WNNetworkManager& _manager, WNConnectionType::Type _type, WN_UINT16 _port, WNConnectedCallback _connected);
+        WNListenConnectionWindows(WNNetworkManager& _manager, WNConnectionType::type _type, wn_uint16 _port, WNConnectedCallback _connected);
         virtual WN_FORCE_INLINE ~WNListenConnectionWindows() {}
 
-        WNNetworkManagerReturnCode::Type Initialize();
+        WNNetworkManagerReturnCode::type Initialize();
         WNInConnectionWindows* AcceptConnection();
 
     private:
-        WN_UINT16 mPort;
+        wn_uint16 mPort;
         WNConnectedCallback mConnectedCallback;
-        WNConnectionType::Type mType;
-        WN_BOOL mInitialized;
+        WNConnectionType::type mType;
+        wn_bool mInitialized;
     };
 };
 

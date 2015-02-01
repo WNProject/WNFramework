@@ -16,6 +16,7 @@
     #pragma warning(disable: 4100)
     #pragma warning(disable: 4245)
     #pragma warning(disable: 4800)
+    #pragma warning(disable: 4267)
 #endif
 
 #include "llvm/ExecutionEngine/SectionMemoryManager.h"
@@ -32,14 +33,14 @@ struct AdditionalFunction {
     void* mFunctionPointer; 
 };
 #ifdef _WN_ANDROID
-WN_UINT32 WN_INLINE __WN_Sync_Fetch_And_Add_4 (WN_UINT32* ptr, WN_UINT32 val) {
-    WN_UINT32 a = *ptr;
+wn_uint32 WN_INLINE __WN_Sync_Fetch_And_Add_4 (wn_uint32* ptr, wn_uint32 val) {
+    wn_uint32 a = *ptr;
     *ptr = *ptr + val;
     return(a);
     //return(__sync_fetch_and_add(ptr, val));
 }
-WN_UINT32 WN_INLINE __WN_Sync_Fetch_And_Sub_4 (WN_UINT32* ptr, WN_UINT32 val) {
-    WN_UINT32 a = *ptr;
+wn_uint32 WN_INLINE __WN_Sync_Fetch_And_Sub_4 (wn_uint32* ptr, wn_uint32 val) {
+    wn_uint32 a = *ptr;
     *ptr = *ptr - val;
     return(a);
     ///return(__sync_fetch_and_sub(ptr, val));
@@ -83,7 +84,7 @@ namespace WNScripting {
         }
         static void* mMalloc(size_t size) {
             void* v = calloc(size, 1);
-            printf("Mallocing: %d -> %p\n", static_cast<WN_INT32>(size), v);
+            printf("Mallocing: %d -> %p\n", static_cast<wn_int32>(size), v);
             return(v);
         }
         //Not sure why, but in win32/winx64 this gets called and getPointerToNamedFunction does not

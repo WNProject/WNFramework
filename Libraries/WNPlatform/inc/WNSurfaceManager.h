@@ -9,11 +9,11 @@
 
 #include "WNCore/inc/WNTypes.h"
 #include "WNPlatform/inc/WNSurface.h"
-#include "WNConcurrency/inc/WNResourcePointer.h"
+#include "WNMemory/inc/WNIntrusivePtr.h"
 
-namespace WNPlatform {
+namespace wn {
     namespace WNSurfaceManagerReturnCode {
-        enum Type {
+        enum type {
             #include "WNCore/inc/Internal/WNErrors.inc"
             eWNInitializationFailure,
             eWNResourceLimitReached
@@ -24,9 +24,9 @@ namespace WNPlatform {
     public:
         virtual WN_FORCE_INLINE ~WNSurfaceManager() {}
 
-        virtual WNSurfaceManagerReturnCode::Type Initialize() = 0;
-        virtual WNSurfaceManagerReturnCode::Type Release() = 0;
-        virtual WNSurfaceManagerReturnCode::Type CreateSurface(WN_UINT32 _x, WN_UINT32 _y, WN_UINT32 _width, WN_UINT32 _height, WNConcurrency::WNResourcePointer<WNSurface>& _surface) = 0;
+        virtual WNSurfaceManagerReturnCode::type Initialize() = 0;
+        virtual WNSurfaceManagerReturnCode::type Release() = 0;
+        virtual WNSurfaceManagerReturnCode::type CreateSurface(wn_uint32 _x, wn_uint32 _y, wn_uint32 _width, wn_uint32 _height, wn::surface_handle& _surface) = 0;
     };
 }
 

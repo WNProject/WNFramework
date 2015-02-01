@@ -11,17 +11,16 @@
     #error "WNCallbackJob.inl should never be included directly. Please include WNCallbackJob.h instead"
 #endif
 
-namespace WNConcurrency {
+namespace wn {
     template <typename T>
     WN_FORCE_INLINE WNCallbackJob0<T>::WNCallbackJob0(const WNContainers::WNCallback0<T>& _callback) :
-        WNThreadJob(),
+        thread_task(),
         mCallback(_callback) {
     }
 
     template <typename T>
-    WN_FORCE_INLINE WN_VOID WNCallbackJob0<T>::Execute() {
+    WN_FORCE_INLINE wn_void WNCallbackJob0<T>::run() {
         mResult = mCallback.Execute();
-        MarkCompleted();
     }
 
     template <typename T>
@@ -29,27 +28,25 @@ namespace WNConcurrency {
         return(mResult);
     }
 
-    WN_FORCE_INLINE WNCallbackJob0<WN_VOID>::WNCallbackJob0(const WNContainers::WNCallback0<WN_VOID>& _callback) :
-        WNThreadJob(),
+    WN_FORCE_INLINE WNCallbackJob0<wn_void>::WNCallbackJob0(const WNContainers::WNCallback0<wn_void>& _callback) :
+        thread_task(),
         mCallback(_callback) {
     }
 
-    WN_FORCE_INLINE WN_VOID WNCallbackJob0<WN_VOID>::Execute() {
+    WN_FORCE_INLINE wn_void WNCallbackJob0<wn_void>::run() {
         mCallback.Execute();
-        MarkCompleted();
     }
 
     template <typename T, typename P1>
     WN_FORCE_INLINE WNCallbackJob1<T, P1>::WNCallbackJob1(const WNContainers::WNCallback1<T, P1>& _callback, const P1& _val1) :
-        WNThreadJob(),
+        thread_task(),
         mCallback(_callback),
         mP1Val(_val1) {
     }
 
     template <typename T, typename P1>
-    WN_FORCE_INLINE WN_VOID WNCallbackJob1<T, P1>::Execute() {
+    WN_FORCE_INLINE wn_void WNCallbackJob1<T, P1>::run() {
         mResult = mCallback.Execute(mP1Val);
-        MarkCompleted();
     }
 
     template <typename T, typename P1>
@@ -58,30 +55,28 @@ namespace WNConcurrency {
     }
 
     template <typename P1>
-    WN_FORCE_INLINE WNCallbackJob1<WN_VOID, P1>::WNCallbackJob1(const WNContainers::WNCallback1<WN_VOID, P1>& _callback, const P1& _val1) :
-        WNThreadJob(),
+    WN_FORCE_INLINE WNCallbackJob1<wn_void, P1>::WNCallbackJob1(const WNContainers::WNCallback1<wn_void, P1>& _callback, const P1& _val1) :
+        thread_task(),
         mCallback(_callback),
         mP1Val(_val1) {
     }
 
     template <typename P1>
-    WN_FORCE_INLINE WN_VOID WNCallbackJob1<WN_VOID, P1>::Execute() {
+    WN_FORCE_INLINE wn_void WNCallbackJob1<wn_void, P1>::run() {
         mCallback.Execute(mP1Val);
-        MarkCompleted();
     }
 
     template <typename T, typename P1, typename P2>
     WN_FORCE_INLINE WNCallbackJob2<T, P1, P2>::WNCallbackJob2(const WNContainers::WNCallback2<T, P1, P2>& _callback, const P1& _val1, const P2& _val2) :
-        WNThreadJob(),
+        thread_task(),
         mCallback(_callback),
         mP1Val(_val1),
         mP2Val(_val2) {
     }
 
     template <typename T, typename P1, typename P2>
-    WN_FORCE_INLINE WN_VOID WNCallbackJob2<T, P1, P2>::Execute() {
+    WN_FORCE_INLINE wn_void WNCallbackJob2<T, P1, P2>::run() {
         mResult = mCallback.Execute(mP1Val, mP2Val);
-        MarkCompleted();
     }
 
     template <typename T, typename P1, typename P2>
@@ -90,22 +85,21 @@ namespace WNConcurrency {
     }
 
     template <typename P1, typename P2>
-    WN_FORCE_INLINE WNCallbackJob2<WN_VOID, P1, P2>::WNCallbackJob2(const WNContainers::WNCallback2<WN_VOID, P1, P2>& _callback, const P1& _val1, const P2& _val2) :
-        WNThreadJob(),
+    WN_FORCE_INLINE WNCallbackJob2<wn_void, P1, P2>::WNCallbackJob2(const WNContainers::WNCallback2<wn_void, P1, P2>& _callback, const P1& _val1, const P2& _val2) :
+        thread_task(),
         mCallback(_callback),
         mP1Val(_val1),
         mP2Val(_val2) {
     }
 
     template <typename P1, typename P2>
-    WN_FORCE_INLINE WN_VOID WNCallbackJob2<WN_VOID, P1, P2>::Execute() {
+    WN_FORCE_INLINE wn_void WNCallbackJob2<wn_void, P1, P2>::run() {
         mCallback.Execute(mP1Val, mP2Val);
-        MarkCompleted();
     }
 
     template <typename T, typename P1, typename P2, typename P3>
     WN_FORCE_INLINE WNCallbackJob3<T, P1, P2, P3>::WNCallbackJob3(const WNContainers::WNCallback3<T, P1, P2, P3>& _callback, const P1& _val1, const P2& _val2, const P3& _val3):
-        WNThreadJob(),
+        thread_task(),
         mCallback(_callback),
         mP1Val(_val1),
         mP2Val(_val2),
@@ -113,9 +107,8 @@ namespace WNConcurrency {
     }
 
     template <typename T, typename P1, typename P2, typename P3>
-    WN_FORCE_INLINE WN_VOID WNCallbackJob3<T, P1, P2, P3>::Execute() {
+    WN_FORCE_INLINE wn_void WNCallbackJob3<T, P1, P2, P3>::run() {
         mResult = mCallback.Execute(mP1Val, mP2Val);
-        MarkCompleted();
     }
 
     template <typename T, typename P1, typename P2, typename P3>
@@ -124,8 +117,8 @@ namespace WNConcurrency {
     }
 
     template <typename P1, typename P2, typename P3>
-    WN_FORCE_INLINE WNCallbackJob3<WN_VOID, P1, P2, P3>::WNCallbackJob3(const WNContainers::WNCallback3<WN_VOID, P1, P2, P3>& _callback, const P1& _val1, const P2& _val2, const P3& _val3):
-        WNThreadJob(),
+    WN_FORCE_INLINE WNCallbackJob3<wn_void, P1, P2, P3>::WNCallbackJob3(const WNContainers::WNCallback3<wn_void, P1, P2, P3>& _callback, const P1& _val1, const P2& _val2, const P3& _val3):
+        thread_task(),
         mCallback(_callback),
         mP1Val(_val1),
         mP2Val(_val2),
@@ -133,49 +126,48 @@ namespace WNConcurrency {
     }
 
     template <typename P1, typename P2, typename P3>
-    WN_FORCE_INLINE WN_VOID WNCallbackJob3<WN_VOID, P1, P2, P3>::Execute() {
+    WN_FORCE_INLINE wn_void WNCallbackJob3<wn_void, P1, P2, P3>::run() {
         mCallback.Execute(mP1Val, mP2Val, mP3Val);
-        MarkCompleted();
     }
 
     template <typename R>
-    WN_FORCE_INLINE WNResourcePointer<WNConcurrency::WNCallbackJob0<R> > WNAllocateCallbackJob(R (*_ptr)()) {
-        return(WNConcurrency::WNAllocateResource<WNConcurrency::WNCallbackJob0<R> >(WNContainers::WNCallback0<R>(_ptr)));
+    WN_FORCE_INLINE intrusive_ptr<WNCallbackJob0<R> > WNAllocateCallbackJob(R (*_ptr)()) {
+        return(make_intrusive<WNCallbackJob0<R> >(WNContainers::WNCallback0<R>(_ptr)));
     }
 
     template <typename R, typename C>
-    WN_FORCE_INLINE WNResourcePointer<WNConcurrency::WNCallbackJob0<R> > WNAllocateCallbackJob(R (C::*_ptr)(), C* _this) {
-        return(WNConcurrency::WNAllocateResource<WNConcurrency::WNCallbackJob0<R> >(WNContainers::WNCallback0<R>(_this, _ptr)));
+    WN_FORCE_INLINE intrusive_ptr<WNCallbackJob0<R> > WNAllocateCallbackJob(R(C::*_ptr)(), C* _this) {
+        return(make_intrusive<WNCallbackJob0<R> >(WNContainers::WNCallback0<R>(_this, _ptr)));
     }
 
     template <typename R, typename P1>
-    WN_FORCE_INLINE WNResourcePointer<WNConcurrency::WNCallbackJob1<R, P1> > WNAllocateCallbackJob(R (*_ptr)(P1), P1 _param) {
-        return(WNConcurrency::WNAllocateResource<WNConcurrency::WNCallbackJob1<R, P1> >(WNContainers::WNCallback1<R, P1>(_ptr), _param));
+    WN_FORCE_INLINE intrusive_ptr<WNCallbackJob1<R, P1> > WNAllocateCallbackJob(R(*_ptr)(P1), P1 _param) {
+        return(make_intrusive<WNCallbackJob1<R, P1> >(WNContainers::WNCallback1<R, P1>(_ptr), _param));
     }
 
     template <typename R, typename C, typename P1>
-    WN_FORCE_INLINE WNResourcePointer<WNConcurrency::WNCallbackJob1<R, P1> > WNAllocateCallbackJob(R (C::*_ptr)(P1), C*_this, P1 _param) {
-        return(WNConcurrency::WNAllocateResource<WNConcurrency::WNCallbackJob1<R, P1> >(WNContainers::WNCallback1<R, P1>(_this, _ptr), _param));
+    WN_FORCE_INLINE intrusive_ptr<WNCallbackJob1<R, P1> > WNAllocateCallbackJob(R(C::*_ptr)(P1), C*_this, P1 _param) {
+        return(make_intrusive<WNCallbackJob1<R, P1> >(WNContainers::WNCallback1<R, P1>(_this, _ptr), _param));
     }
 
     template <typename R, typename P1, typename P2>
-    WN_FORCE_INLINE WNResourcePointer<WNConcurrency::WNCallbackJob2<R, P1, P2> > WNAllocateCallbackJob(R (*_ptr)(P1, P2), P1 _param, P2 _param2) {
-        return(WNConcurrency::WNAllocateResource<WNConcurrency::WNCallbackJob2<R, P1, P2> >(WNContainers::WNCallback2<R, P1, P2>(_ptr), _param, _param2));
+    WN_FORCE_INLINE intrusive_ptr<WNCallbackJob2<R, P1, P2> > WNAllocateCallbackJob(R(*_ptr)(P1, P2), P1 _param, P2 _param2) {
+        return(make_intrusive<WNCallbackJob2<R, P1, P2> >(WNContainers::WNCallback2<R, P1, P2>(_ptr), _param, _param2));
     }
 
     template <typename R, typename C, typename P1, typename P2>
-    WN_FORCE_INLINE WNResourcePointer<WNConcurrency::WNCallbackJob2<R, P1, P2> > WNAllocateCallbackJob(R (C::*_ptr)(P1, P2), C*_this, P1 _param, P2 _param2) {
-        return(WNConcurrency::WNAllocateResource<WNConcurrency::WNCallbackJob2<R, P1, P2> >(WNContainers::WNCallback2<R, P1, P2>(_this, _ptr), _param, _param2));
+    WN_FORCE_INLINE intrusive_ptr<WNCallbackJob2<R, P1, P2> > WNAllocateCallbackJob(R(C::*_ptr)(P1, P2), C*_this, P1 _param, P2 _param2) {
+        return(make_intrusive<WNCallbackJob2<R, P1, P2> >(WNContainers::WNCallback2<R, P1, P2>(_this, _ptr), _param, _param2));
     }
 
     template <typename R, typename P1, typename P2, typename P3>
-    WN_FORCE_INLINE WNResourcePointer<WNConcurrency::WNCallbackJob3<R, P1, P2, P3> > WNAllocateCallbackJob(R (*_ptr)(P1, P2, P3), P1 _param, P2 _param2, P3 _param3) {
-        return(WNConcurrency::WNAllocateResource<WNConcurrency::WNCallbackJob3<R, P1, P2, P3> >(WNContainers::WNCallback3<R, P1, P2, P3>(_ptr), _param, _param2, _param3));
+    WN_FORCE_INLINE intrusive_ptr<WNCallbackJob3<R, P1, P2, P3> > WNAllocateCallbackJob(R(*_ptr)(P1, P2, P3), P1 _param, P2 _param2, P3 _param3) {
+        return(make_intrusive<WNCallbackJob3<R, P1, P2, P3> >(WNContainers::WNCallback3<R, P1, P2, P3>(_ptr), _param, _param2, _param3));
     }
 
     template <typename R, typename C, typename P1, typename P2, typename P3>
-    WN_FORCE_INLINE WNResourcePointer<WNConcurrency::WNCallbackJob3<R, P1, P2, P3> > WNAllocateCallbackJob(R (C::*_ptr)(P1, P2, P3), C*_this, P1 _param, P2 _param2, P3 _param3) {
-        return(WNConcurrency::WNAllocateResource<WNConcurrency::WNCallbackJob3<R, P1, P2, P3> >(WNContainers::WNCallback3<R, P1, P2, P3>(_this, _ptr), _param, _param2, _param3));
+    WN_FORCE_INLINE intrusive_ptr<WNCallbackJob3<R, P1, P2, P3> > WNAllocateCallbackJob(R(C::*_ptr)(P1, P2, P3), C*_this, P1 _param, P2 _param2, P3 _param3) {
+        return(make_intrusive<WNCallbackJob3<R, P1, P2, P3> >(WNContainers::WNCallback3<R, P1, P2, P3>(_this, _ptr), _param, _param2, _param3));
     }
 }
 

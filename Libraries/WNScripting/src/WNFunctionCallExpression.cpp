@@ -31,7 +31,7 @@
 
 using namespace WNScripting;    
 WNFunctionCallExpr::WNFunctionCallExpr() :
-    mArgs(WN_NULL) {
+    mArgs(wn_nullptr) {
     
 }
 
@@ -47,19 +47,19 @@ WNFunctionCallExpr::~WNFunctionCallExpr() {
 
 eWNTypeError WNFunctionCallExpr::GenerateCode(WNCodeModule& _module, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog) {
     llvm::IRBuilder<>* builder = reinterpret_cast<llvm::IRBuilder<>*>(_module.GetBuilder());
-    eWNTypeError err = eWNOK;
+    eWNTypeError err = ok;
     WNScriptType voidType;
-    if(eWNOK != (err = _module.GetTypeManager().GetTypeByName("Void", voidType))) {
+    if(ok != (err = _module.GetTypeManager().GetTypeByName("Void", voidType))) {
         _compilationLog.Log(WNLogging::eCritical, 0, "Cannot find void type");
         LogLine(_compilationLog, WNLogging::eCritical);
         return(err);
     }
     
     WNScriptType functionType;
-    if(eWNOK != (err = mBaseExpression->GenerateCode(_module, _def, _compilationLog))) {
+    if(ok != (err = mBaseExpression->GenerateCode(_module, _def, _compilationLog))) {
         return(err);
     }
-    if(eWNOK != (err = _module.GetTypeManager().GetTypeByName("-Function", functionType))) {
+    if(ok != (err = _module.GetTypeManager().GetTypeByName("-Function", functionType))) {
         _compilationLog.Log(WNLogging::eCritical, 0, "Cannot find function type");
         LogLine(_compilationLog, WNLogging::eCritical);
         return(err);
@@ -74,7 +74,7 @@ eWNTypeError WNFunctionCallExpr::GenerateCode(WNCodeModule& _module, const WNFun
     llvm::Value* testValue = mBaseExpression->GetSubValue();
     WNScriptType testType = mBaseExpression->GetSubType();
     bool forceThis = false;
-    if((testValue == WN_NULL || testType == WN_NULL) && _def->mThisType != WN_NULL) {
+    if((testValue == wn_nullptr || testType == wn_nullptr) && _def->mThisType != wn_nullptr) {
         testType = _def->mThisType;
         const WNScriptVariable* var = _module.GetScopedVariableList().GetVariable("this");
         if(!var) {
@@ -90,14 +90,14 @@ eWNTypeError WNFunctionCallExpr::GenerateCode(WNCodeModule& _module, const WNFun
     static WNScriptLinkedList<WNFunctionExpression> staticList;
     WNScriptLinkedList<WNFunctionExpression>& localExpressionList = mArgs? mArgs->GetExpressions() : staticList;
     std::vector<FunctionParam> scriptTypes; 
-    for(WNScriptLinkedList<WNFunctionExpression>::WNScriptLinkedListNode* i = localExpressionList.first; i != WN_NULL; i = i->next) {
-        if(eWNOK != (err = i->value->expr->GenerateCode(_module, _def, _compilationLog))) {
+    for(WNScriptLinkedList<WNFunctionExpression>::WNScriptLinkedListNode* i = localExpressionList.first; i != wn_nullptr; i = i->next) {
+        if(ok != (err = i->value->expr->GenerateCode(_module, _def, _compilationLog))) {
             return(err);
         }
         if(i->value->expr->RequiredUse()) {
             _compilationLog.Log(WNLogging::eError, 0, "You must assign parameter before passing to subsequent function");
             LogLine(_compilationLog, WNLogging::eError);
-            return(eWNError);
+            return(error);
         }
         scriptTypes.push_back(FunctionParam());
         scriptTypes.back().mValue = i->value->expr->GetValue();
@@ -114,7 +114,7 @@ eWNTypeError WNFunctionCallExpr::GenerateCode(WNCodeModule& _module, const WNFun
                 //we are trying to give away ownership of a non-obect or a non-referencable object
                 _compilationLog.Log(WNLogging::eError, 0, "Trying to give away ownership of invalid object");
                 LogLine(_compilationLog, WNLogging::eError);
-                return(eWNError);
+                return(error);
             }
             llvm::Value* structLoc = i->value->expr->GetValueLocation();
             std::vector<llvm::Value*> GepArray;
@@ -130,9 +130,9 @@ eWNTypeError WNFunctionCallExpr::GenerateCode(WNCodeModule& _module, const WNFun
     
     if(testType) {
         FunctionParam param = {testValue, testType};
-        if(eWNOK != (err = GenerateRecursiveThisFunctionCall(_module, 
+        if(ok != (err = GenerateRecursiveThisFunctionCall(_module, 
                                                  _def, 
-                                                 reinterpret_cast<WN_CHAR*>(mBaseExpression->GetValue()), 
+                                                 reinterpret_cast<wn_char*>(mBaseExpression->GetValue()), 
                                                  scriptTypes,
                                                  mScriptType, 
                                                  mValue,
@@ -148,12 +148,12 @@ eWNTypeError WNFunctionCallExpr::GenerateCode(WNCodeModule& _module, const WNFun
             if(mScriptType != voidType) {
                 mForceUse = true;
             }
-            return(eWNOK);
+            return(ok);
         }
     }
-    if(eWNOK != (err = GenerateFunctionCall(_module, 
+    if(ok != (err = GenerateFunctionCall(_module, 
                                                  _def, 
-                                                 reinterpret_cast<WN_CHAR*>(mBaseExpression->GetValue()), 
+                                                 reinterpret_cast<wn_char*>(mBaseExpression->GetValue()), 
                                                  scriptTypes, 
                                                  true, 
                                                  mScriptType, 
@@ -166,6 +166,6 @@ eWNTypeError WNFunctionCallExpr::GenerateCode(WNCodeModule& _module, const WNFun
     if(mScriptType != voidType) {
         mForceUse = true;
     }
-    return(eWNOK);
+    return(ok);
 }
 

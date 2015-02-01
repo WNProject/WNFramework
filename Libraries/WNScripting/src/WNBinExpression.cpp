@@ -39,9 +39,9 @@ WNBinExpression::~WNBinExpression() {
 
 eWNTypeError WNBinExpression::GenerateCode(WNCodeModule& _module, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog) {
     llvm::IRBuilder<>* builder = reinterpret_cast<llvm::IRBuilder<>*>(_module.GetBuilder());
-    eWNTypeError err = eWNOK;
-    if((eWNOK != (err = mLHS->GenerateCode(_module, _def, _compilationLog))) ||
-       (eWNOK != (err = mRHS->GenerateCode(_module, _def, _compilationLog))) ) {
+    eWNTypeError err = ok;
+    if((ok != (err = mLHS->GenerateCode(_module, _def, _compilationLog))) ||
+       (ok != (err = mRHS->GenerateCode(_module, _def, _compilationLog))) ) {
         return(err);
     }
     llvm::Value* lhs = mLHS->GetValue();
@@ -53,7 +53,7 @@ eWNTypeError WNBinExpression::GenerateCode(WNCodeModule& _module, const WNFuncti
         cast = _module.GetTypeManager().GetCastingOperation(mLHS->GetType(), mRHS->GetType());
         arith = _module.GetTypeManager().GetArithmeticOperation(mType, mRHS->GetType(), mRHS->GetType());
         if(cast && arith) {
-            if(eWNOK != (err = cast->Execute(builder, mLHS->GetValue(), lhs))) {
+            if(ok != (err = cast->Execute(builder, mLHS->GetValue(), lhs))) {
                 _compilationLog.Log(WNLogging::eCritical, 0, "Error generating casting operation");
                 LogLine(_compilationLog, WNLogging::eCritical);
                 return(err);
@@ -62,7 +62,7 @@ eWNTypeError WNBinExpression::GenerateCode(WNCodeModule& _module, const WNFuncti
             cast = _module.GetTypeManager().GetCastingOperation(mRHS->GetType(), mLHS->GetType());
             arith = _module.GetTypeManager().GetArithmeticOperation(mType, mLHS->GetType(), mLHS->GetType());
             if(cast && arith) {
-                if(eWNOK != (err = cast->Execute(builder, mRHS->GetValue(), rhs))) {
+                if(ok != (err = cast->Execute(builder, mRHS->GetValue(), rhs))) {
                     _compilationLog.Log(WNLogging::eCritical, 0, "Error generating casting operation");
                     LogLine(_compilationLog, WNLogging::eCritical);
                     return(err);    
@@ -80,7 +80,7 @@ eWNTypeError WNBinExpression::GenerateCode(WNCodeModule& _module, const WNFuncti
         cast = _module.GetTypeManager().GetCastingOperation(mRHS->GetType(), mLHS->GetType());
         arith = _module.GetTypeManager().GetArithmeticOperation(mType, mLHS->GetType(), mLHS->GetType());
         if(cast && arith) {
-            if(eWNOK != (err = cast->Execute(builder, mRHS->GetValue(), rhs))) {
+            if(ok != (err = cast->Execute(builder, mRHS->GetValue(), rhs))) {
                 _compilationLog.Log(WNLogging::eCritical, 0, "Error generating casting operation");
                 LogLine(_compilationLog, WNLogging::eCritical);
                 return(err);
@@ -89,7 +89,7 @@ eWNTypeError WNBinExpression::GenerateCode(WNCodeModule& _module, const WNFuncti
             cast = _module.GetTypeManager().GetCastingOperation(mLHS->GetType(), mRHS->GetType());
             arith = _module.GetTypeManager().GetArithmeticOperation(mType, mRHS->GetType(), mRHS->GetType());
             if(cast && arith) {
-                if(eWNOK != (err = cast->Execute(builder, mLHS->GetValue(), lhs))) {
+                if(ok != (err = cast->Execute(builder, mLHS->GetValue(), lhs))) {
                     _compilationLog.Log(WNLogging::eCritical, 0, "Error generating casting operation");
                     LogLine(_compilationLog, WNLogging::eCritical);
                     return(err);    
@@ -108,12 +108,12 @@ eWNTypeError WNBinExpression::GenerateCode(WNCodeModule& _module, const WNFuncti
         return(eWNInvalidCast);
     }
 
-    if(eWNOK != (err = arith->Execute(builder, lhs, rhs, mScriptType, mValue))) {
+    if(ok != (err = arith->Execute(builder, lhs, rhs, mScriptType, mValue))) {
         _compilationLog.Log(WNLogging::eCritical, 0, "Error generating arithmetic operation");
         LogLine(_compilationLog, WNLogging::eCritical);
         return(err);
     }
 
-    return(eWNOK);
+    return(ok);
 }
 

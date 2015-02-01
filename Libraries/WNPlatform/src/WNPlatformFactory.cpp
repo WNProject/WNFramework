@@ -14,12 +14,12 @@
     #include "WNPlatform/inc/Internal/Android/WNSurfaceManagerAndroid.h"
 #endif
 
-WNPlatform::WNSurfaceManager* WNPlatform::WNPlatformFactory::CreateSurfaceManager() {
+wn::WNSurfaceManager* wn::WNPlatformFactory::CreateSurfaceManager() {
     #ifdef _WN_WINDOWS
-        return(WN_NEW WNPlatform::WNSurfaceManagerWindows());
+        return(WN_NEW wn::WNSurfaceManagerWindows());
     #elif defined _WN_LINUX
-        return(WN_NEW WNPlatform::WNSurfaceManagerXWindows());
+        return(WN_NEW wn::WNSurfaceManagerXWindows());
     #elif defined _WN_ANDROID
-        return(WN_NEW WNPlatform::WNSurfaceManagerAndroid());
+        return(WN_NEW wn::WNSurfaceManagerAndroid());
     #endif
 }

@@ -31,10 +31,10 @@
 using namespace WNScripting; 
 
 WNForInstruction::WNForInstruction() : 
-    mInitializer(WN_NULL), 
-    mCondition(WN_NULL), 
-    mPostOp(WN_NULL), 
-    mBody(WN_NULL) {
+    mInitializer(wn_nullptr), 
+    mCondition(wn_nullptr), 
+    mPostOp(wn_nullptr), 
+    mBody(wn_nullptr) {
 }
 
 WNForInstruction::~WNForInstruction() {
@@ -70,29 +70,29 @@ void WNForInstruction::AddBody(WNInstructionList* _body) {
 
 eWNTypeError WNForInstruction::GenerateCode(WNCodeModule& _module, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog) {
     llvm::IRBuilder<>* builder = reinterpret_cast<llvm::IRBuilder<>*>(_module.GetBuilder());
-    eWNTypeError err = eWNOK;
+    eWNTypeError err = ok;
 
     _module.GetScopedVariableList().PushScopeBlock(_module);
     if(mInitializer) {
-        if(eWNOK != (err = mInitializer->GenerateCode(_module, _def, _compilationLog))) {
+        if(ok != (err = mInitializer->GenerateCode(_module, _def, _compilationLog))) {
             return(err);
         }
     }
-    llvm::BasicBlock* condBlock = WN_NULL;
+    llvm::BasicBlock* condBlock = wn_nullptr;
     llvm::BasicBlock* bodyBlock = llvm::BasicBlock::Create(llvm::getGlobalContext(), "", _def->mFunction);
-    llvm::BasicBlock* endBlock = WN_NULL;
+    llvm::BasicBlock* endBlock = wn_nullptr;
     if(mCondition) {
         endBlock = llvm::BasicBlock::Create(llvm::getGlobalContext(), "", _def->mFunction);
         condBlock = llvm::BasicBlock::Create(llvm::getGlobalContext(), "", _def->mFunction);
         builder->CreateBr(condBlock);
         builder->SetInsertPoint(condBlock);
-        WNScriptType boolType = WN_NULL;
-        if(eWNOK != (err = _module.GetTypeManager().GetTypeByName("Bool", boolType))) {
+        WNScriptType boolType = wn_nullptr;
+        if(ok != (err = _module.GetTypeManager().GetTypeByName("Bool", boolType))) {
             _compilationLog.Log(WNLogging::eCritical, 0, "Error cannot find bool type");
             LogLine(_compilationLog, WNLogging::eCritical);
             return(err);
         }
-        if(eWNOK != (err = mCondition->GenerateCode(_module, _def, _compilationLog))) {
+        if(ok != (err = mCondition->GenerateCode(_module, _def, _compilationLog))) {
             return(err);
         }
         llvm::Value* condValue = mCondition->GetValue();
@@ -103,7 +103,7 @@ eWNTypeError WNForInstruction::GenerateCode(WNCodeModule& _module, const WNFunct
                 LogLine(_compilationLog, WNLogging::eError);
                 return(eWNInvalidCast);
             }
-            if(eWNOK != (err = castOp->Execute(builder, condValue, condValue))) {
+            if(ok != (err = castOp->Execute(builder, condValue, condValue))) {
                 _compilationLog.Log(WNLogging::eCritical, 0, "Error creating cast to Bool from", mCondition->GetType()->mName);
                 LogLine(_compilationLog, WNLogging::eCritical);
                 return(err);
@@ -117,11 +117,11 @@ eWNTypeError WNForInstruction::GenerateCode(WNCodeModule& _module, const WNFunct
         builder->CreateBr(bodyBlock);
     }
     builder->SetInsertPoint(bodyBlock);
-    if(eWNOK != (err = mBody->GenerateCode(_module, _def, _compilationLog))) {
+    if(ok != (err = mBody->GenerateCode(_module, _def, _compilationLog))) {
         return(err);
     }
     if(mPostOp) {
-        if(eWNOK != (err = mPostOp->GenerateCode(_module, _def, _compilationLog))) {
+        if(ok != (err = mPostOp->GenerateCode(_module, _def, _compilationLog))) {
             return(err);
         }
     }
@@ -133,6 +133,6 @@ eWNTypeError WNForInstruction::GenerateCode(WNCodeModule& _module, const WNFunct
     }
     mReturns = mCondition == NULL;
     _module.GetScopedVariableList().PopScopeBlock(_module, mCondition != NULL, _def, _compilationLog);
-    return(eWNOK);                                                                                                                                                                                                                                                                                                                              
+    return(ok);                                                                                                                                                                                                                                                                                                                              
 }
 

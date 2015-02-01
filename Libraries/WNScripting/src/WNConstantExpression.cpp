@@ -12,7 +12,7 @@ using namespace WNScripting;
 
 WNConstantExpression::WNConstantExpression(WNScriptTypeName _type, const char* _text) :
     mTypeName(_type),
-    mText(WN_NULL) {
+    mText(wn_nullptr) {
     COPY_STRING(_text, mText);
 }
 
@@ -27,14 +27,14 @@ eWNTypeError WNConstantExpression::GenerateCode(WNCodeModule& _module, const WNF
         WN_RELEASE_ASSERT_DESC(false, "TODO: IMPLEMENT");
     }
     
-    if(eWNOK != _module.GetTypeManager().GetTypeByName(WNScriptTypeNames[mTypeName], mScriptType))
+    if(ok != _module.GetTypeManager().GetTypeByName(WNScriptTypeNames[mTypeName], mScriptType))
     {
         _compilationLog.Log(WNLogging::eError, 0, "Trying to create constant of invalid type: ", WNScriptTypeNames[mTypeName]);
         LogLine(_compilationLog, WNLogging::eError);
         return(eWNBadType);
     }
 
-    for(WN_SIZE_T i = 0; i < WNScriptTypeLevels[mTypeName]; ++i) {
+    for(wn_size_t i = 0; i < WNScriptTypeLevels[mTypeName]; ++i) {
         _module.GetTypeManager().GetArrayOf(mScriptType, mScriptType);
     }
 

@@ -20,7 +20,7 @@ WNMemberAccessExpr::~WNMemberAccessExpr() {
 
 eWNTypeError WNMemberAccessExpr::GenerateCode(WNCodeModule& _module, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog) {
     eWNTypeError err;
-    if(eWNOK != (err = mBaseExpression->GenerateCode(_module, _def, _compilationLog))) {
+    if(ok != (err = mBaseExpression->GenerateCode(_module, _def, _compilationLog))) {
         return(err);
     }
     
@@ -38,13 +38,13 @@ eWNTypeError WNMemberAccessExpr::GenerateCode(WNCodeModule& _module, const WNFun
         LogLine(_compilationLog, WNLogging::eError);
         return(eWNInvalidCast);
     }
-    if(eWNOK != (err = idOp->Execute(_module.GetBuilder(), mBaseExpression->GetValue(), mBaseExpression->GetValueLocation(), mMember, mScriptType, mValue, mValueLocation))) {
+    if(ok != (err = idOp->Execute(_module.GetBuilder(), mBaseExpression->GetValue(), mBaseExpression->GetValueLocation(), mMember, mScriptType, mValue, mValueLocation))) {
         _compilationLog.Log(WNLogging::eCritical, 0, "Error generating id access operation");
         LogLine(_compilationLog, WNLogging::eCritical);
         return(err);
     }
     mSubValue = mBaseExpression->GetValue();
     mSubValueType = mBaseExpression->GetType();
-    return(eWNOK);
+    return(ok);
 }
 

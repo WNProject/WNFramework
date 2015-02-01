@@ -9,53 +9,53 @@
 
 #include "WNMath/inc/Internal/WNMatrixBase.h"
 
-namespace WNMath {
-    template <typename Type>
+namespace wn {
+    template <typename type>
     class WNVector3;
 
-    template <typename Type>
+    template <typename type>
     class WNVector4;
 
-    template <typename Type>
+    template <typename type>
     class WNMatrix4;
 
-    template <typename Type>
+    template <typename type>
     class WNQuaternion;
 
-    namespace __WNInternal {
-        template <typename Type, typename = WNCore::WNEnableWhen<WN_TRUE>::Value>
-        class __WNMatrix4Base : public __WNMatrixBase<WNMatrix4<Type>, Type, 4> {
+    namespace internal {
+        template <typename type, typename = std::enable_if<wn_true>::type>
+        class __WNMatrix4Base : public __WNMatrixBase<WNMatrix4<type>, type, 4> {
         protected:
             WN_FORCE_INLINE __WNMatrix4Base() {}
         };
 
-        template <typename Type>
-        class __WNMatrix4Base<Type, typename WNCore::WNEnableWhen<WNCore::WNIsReal<Type>::Value>::Value> : public __WNMatrixBase<WNMatrix4<Type>, Type, 4> {
+        template <typename type>
+        class __WNMatrix4Base<type, typename std::enable_if<wn::is_real<type>::value>::type> : public __WNMatrixBase<WNMatrix4<type>, type, 4> {
         public:
-            WNVector3<Type> TransformVector(const WNVector3<Type>& _vector) const;
-            WNVector3<Type> TransformVector(const WNVector3<Type>& _vector, Type& _wComponent) const;
-            WNVector4<Type> TransformVector(const WNVector4<Type>& _vector) const;
-            WNVector3<Type>& TransformVectorInPlace(WNVector3<Type>& _vector) const;
-            WNVector3<Type>& TransformVectorInPlace(WNVector3<Type>& _vector, Type& _wComponent) const;
-            WNVector4<Type>& TransformVectorInPlace(WNVector4<Type>& _vector) const;
+            WNVector3<type> TransformVector(const WNVector3<type>& _vector) const;
+            WNVector3<type> TransformVector(const WNVector3<type>& _vector, type& _wComponent) const;
+            WNVector4<type> TransformVector(const WNVector4<type>& _vector) const;
+            WNVector3<type>& TransformVectorInPlace(WNVector3<type>& _vector) const;
+            WNVector3<type>& TransformVectorInPlace(WNVector3<type>& _vector, type& _wComponent) const;
+            WNVector4<type>& TransformVectorInPlace(WNVector4<type>& _vector) const;
 
-            WN_VOID MakeRotation(const WNQuaternion<Type>& _rotation);
-            WN_VOID MakeRotationX(const Type& _angle);
-            WN_VOID MakeRotationY(const Type& _angle);
-            WN_VOID MakeRotationZ(const Type& _angle);
-            WN_VOID MakeRotationAxis(const Type& _angle, const WNVector3<Type>& _axis);
-            WN_VOID MakeRotationAxis(const Type& _angle, const Type& _x, const Type& _y, const Type& _z);
+            wn_void MakeRotation(const WNQuaternion<type>& _rotation);
+            wn_void MakeRotationX(const type& _angle);
+            wn_void MakeRotationY(const type& _angle);
+            wn_void MakeRotationZ(const type& _angle);
+            wn_void MakeRotationAxis(const type& _angle, const WNVector3<type>& _axis);
+            wn_void MakeRotationAxis(const type& _angle, const type& _x, const type& _y, const type& _z);
 
         public:
-            static WNMatrix4<Type> CreateRotation(const WNQuaternion<Type>& _rotation);
-            static WNMatrix4<Type> CreateRotationX(const Type& _angle);
-            static WNMatrix4<Type> CreateRotationY(const Type& _angle);
-            static WNMatrix4<Type> CreateRotationZ(const Type& _angle);
-            static WNMatrix4<Type> CreateRotationAxis(const Type& _angle, const WNVector3<Type>& _axis);
-            static WNMatrix4<Type> CreateRotationAxis(const Type& _angle, const Type& _x, const Type& _y, const Type& _z);
-            static WNMatrix4<Type> CreatePerspective(const Type& _fov, const Type& _aspect, const Type& _near, const Type& _far);
-            static WNMatrix4<Type> CreateOrthographic(const Type& _width, const Type& _height, const Type& _near, const Type& _far);
-            static WNMatrix4<Type> CreateView(const WNVector3<Type>& _position, const WNVector3<Type>& _target, const WNVector3<Type>& _up);
+            static WNMatrix4<type> CreateRotation(const WNQuaternion<type>& _rotation);
+            static WNMatrix4<type> CreateRotationX(const type& _angle);
+            static WNMatrix4<type> CreateRotationY(const type& _angle);
+            static WNMatrix4<type> CreateRotationZ(const type& _angle);
+            static WNMatrix4<type> CreateRotationAxis(const type& _angle, const WNVector3<type>& _axis);
+            static WNMatrix4<type> CreateRotationAxis(const type& _angle, const type& _x, const type& _y, const type& _z);
+            static WNMatrix4<type> CreatePerspective(const type& _fov, const type& _aspect, const type& _near, const type& _far);
+            static WNMatrix4<type> CreateOrthographic(const type& _width, const type& _height, const type& _near, const type& _far);
+            static WNMatrix4<type> CreateView(const WNVector3<type>& _position, const WNVector3<type>& _target, const WNVector3<type>& _up);
 
         protected:
             WN_FORCE_INLINE __WNMatrix4Base() {}

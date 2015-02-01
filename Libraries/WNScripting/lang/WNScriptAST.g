@@ -246,14 +246,14 @@ UNICODE_ESC
     
 scalarType returns[WNTypeNode* node]
 @init {
-    node = WN_NULL;
+    node = wn_nullptr;
 }
     :   TYPE    { node = WN_SCRIPTNODE_NEW(WNTypeNode($TYPE.text.c_str())); SetLocation(node, $TYPE); }
     ; 
   
 type    returns[WNTypeNode* node]
 @init {
-    node = WN_NULL;
+    node = wn_nullptr;
 }
     :    scalarType { node = $scalarType.node; SetLocationFromNode(node, $scalarType.node); }
                 (LSQBRACKET RSQBRACKET { node->AddArrayLevel(); SetEndLocation(node, $RSQBRACKET); })*
@@ -261,14 +261,14 @@ type    returns[WNTypeNode* node]
 
 decl returns[WNDeclaration* node]
 @init {
-    node = WN_NULL;
+    node = wn_nullptr;
 }
     :    type ID {node = WN_SCRIPTNODE_NEW(WNDeclaration($type.node, $ID.text.c_str())); SetLocationFromNode(node, $type.node); SetEndLocation(node, $ID); }
     ;
 
 declList returns[WNDeclList* node]
 @init {
-    node = WN_NULL;
+    node = wn_nullptr;
 }
     :    a=decl { node = WN_SCRIPTNODE_NEW(WNDeclList($a.node)); SetLocationFromNode(node, $a.node); }
         (COMMA b=decl { $node->AddDeclaration($b.node); SetEndLocationFromNode(node, $b.node); })*
@@ -276,10 +276,10 @@ declList returns[WNDeclList* node]
 
 parameterList returns[WNDeclList* node]
 @init {
-    node = WN_NULL;
+    node = wn_nullptr;
 }
     :    LBRACKET declList RBRACKET { node = $declList.node; SetLocation(node, $LBRACKET); SetEndLocation(node, $RBRACKET); }
-        |    LBRACKET RBRACKET      { node = WN_NULL; }
+        |    LBRACKET RBRACKET      { node = wn_nullptr; }
     ;
 
 
@@ -298,7 +298,7 @@ assign_op returns[WNAssignType node]
     
 lvalue returns[WNLValue* node]    
 @init {
-    node = WN_NULL;
+    node = wn_nullptr;
 }
     :    unary_ex { node = WN_SCRIPTNODE_NEW(WNLValue($unary_ex.node)); SetLocationFromNode(node, $unary_ex.node); }
     ;
@@ -309,27 +309,27 @@ arglist returns[WNArgList* node]
 }
         :   ( 
                     (a=expression { node->AddExpression($a.node); SetLocationFromNode(node, $a.node); }) 
-                |   ('<==' b=expression {node->AddExpression($b.node, WN_TRUE); SetLocationFromNode(node, $b.node); })
+                |   ('<==' b=expression {node->AddExpression($b.node, wn_true); SetLocationFromNode(node, $b.node); })
             )
 
             (',' 
                 (
                     ( '<==' c=expression { node->AddExpression($c.node); SetEndLocationFromNode(node, $c.node); } ) |
-                    ( d=expression { node->AddExpression($d.node, WN_TRUE); SetEndLocationFromNode(node, $d.node); } ) |
+                    ( d=expression { node->AddExpression($d.node, wn_true); SetEndLocationFromNode(node, $d.node); } ) |
                 )
             )*
         ;
          
 expression returns[WNExpression* node]
 @init {
-    node = WN_NULL;
+    node = wn_nullptr;
 }
         :    cond_ex { node = $cond_ex.node; }
         ;
         
 cond_ex returns[WNExpression* node]
 @init {
-    node = WN_NULL;
+    node = wn_nullptr;
 }
         :    or_ex  { node = $or_ex.node; }
 
@@ -338,7 +338,7 @@ cond_ex returns[WNExpression* node]
         
 or_ex    returns[WNExpression* node]
 @init {
-    node = WN_NULL;
+    node = wn_nullptr;
 }
         :    a=and_ex { node = $a.node; }
             ('||' b=and_ex { node = WN_SCRIPTNODE_NEW(WNSSExpression(ST_OR, node, $b.node)); SetLocationFromNode(node, $a.node); SetEndLocationFromNode(node, $b.node); })*
@@ -346,13 +346,13 @@ or_ex    returns[WNExpression* node]
         
 and_ex  returns[WNExpression* node]
 @init {
-    node = WN_NULL;
+    node = wn_nullptr;
 }
         :    a=eq_ex { node = $a.node; }
             ('&&' b=eq_ex {node = WN_SCRIPTNODE_NEW(WNSSExpression(ST_AND, node, $b.node)); SetLocationFromNode(node, $a.node); SetEndLocationFromNode(node, $b.node); })*;
 eq_ex    returns[WNExpression* node]
 @init {
-    node = WN_NULL;
+    node = wn_nullptr;
 }
         :    a=rel_ex { node = $a.node; }
             (    
@@ -363,7 +363,7 @@ eq_ex    returns[WNExpression* node]
             
 rel_ex  returns[WNExpression* node]
 @init {
-    node = WN_NULL;
+    node = wn_nullptr;
 }
         :    a=add_ex { node=$a.node; }
             (
@@ -376,7 +376,7 @@ rel_ex  returns[WNExpression* node]
 
 add_ex     returns[WNExpression* node]
 @init {
-    node = WN_NULL;
+    node = wn_nullptr;
 }
         :    a=mult_ex {node = $a.node; } 
             (
@@ -387,7 +387,7 @@ add_ex     returns[WNExpression* node]
 
 mult_ex    returns[WNExpression* node]
 @init {
-    node = WN_NULL;
+    node = wn_nullptr;
 }
         :    a=unary_ex { node = $a.node; }
             (
@@ -399,7 +399,7 @@ mult_ex    returns[WNExpression* node]
         
 unary_ex returns[WNExpression* node]
 @init {
-    node = WN_NULL;
+    node = wn_nullptr;
 }
     :    a=post_ex { node = $a.node; }
     |    '++' b=unary_ex { WNNode* t = node; node = WN_SCRIPTNODE_NEW(WNUNExpression(UN_PREINC, $b.node));   SetLocationFromNode(node, t); SetEndLocationFromNode(node, $b.node); }
@@ -410,7 +410,7 @@ unary_ex returns[WNExpression* node]
 
 post_ex_proper returns[WNPostExpression* node]
 @init {
-    node = WN_NULL;
+    node = wn_nullptr;
 }
     :    d=LSQBRACKET a=expression e=RSQBRACKET { node = WN_SCRIPTNODE_NEW(WNArrayAccessExpr($a.node)); SetLocation(node, $d); SetEndLocation(node, $e); }
     |    f=LBRACKET g=RBRACKET              { node = WN_SCRIPTNODE_NEW(WNFunctionCallExpr()); SetLocation(node, $f); SetEndLocation(node, $g); }
@@ -422,21 +422,21 @@ post_ex_proper returns[WNPostExpression* node]
     
 post_ex    returns[WNExpression* node]
 @init {
-    node = WN_NULL;
+    node = wn_nullptr;
 }
         :   prim_ex { node = $prim_ex.node; }
             (a=post_ex_proper {$a.node->AddBaseExpr(node); SetEndLocationFromNode($a.node, node); node = $a.node;  } )* ;
 
 assignment returns[WNAssignment* node]
 @init {
-    node = WN_NULL;
+    node = wn_nullptr;
 }
     :    lvalue { node = WN_SCRIPTNODE_NEW(WNAssignment($lvalue.node)); SetLocationFromNode(node, $lvalue.node); }
         (assign_op expression { node->AddValue($assign_op.node, $expression.node); SetEndLocationFromNode(node, $expression.node); }  )?
     ;
 constant returns[WNConstantExpression* node]
 @init {
-    node = WN_NULL;
+    node = wn_nullptr;
 }
     :    INT    { node = WN_SCRIPTNODE_NEW(WNConstantExpression(SC_INT, $INT.text.c_str())); SetLocation(node, $INT); }
     |    FLOAT  { node = WN_SCRIPTNODE_NEW(WNConstantExpression(SC_FLOAT, $FLOAT.text.c_str())); SetLocation(node, $FLOAT); }
@@ -447,7 +447,7 @@ constant returns[WNConstantExpression* node]
 
 prim_ex returns[WNExpression * node]
 @init {
-    node = WN_NULL;
+    node = wn_nullptr;
 }
     :    ID { node = WN_SCRIPTNODE_NEW(WNIDExpression($ID.text.c_str())); SetLocation(node, $ID);}
     |    ba=LBRACKET a=expression bb=RBRACKET {node = $a.node; SetLocation(node, $ba); SetEndLocation(node, $bb); }
@@ -486,7 +486,7 @@ arrayInit returns[WNArrayAllocation* node]
 
 declaration returns[WNDeclaration* node]
 @init {
-    node = WN_NULL;
+    node = wn_nullptr;
 }
     :    a=decl { node = $a.node; }
             (
@@ -497,7 +497,7 @@ declaration returns[WNDeclaration* node]
 
 instructionScalar returns[WNInstruction* node]
 @init {
-    node = WN_NULL;
+    node = wn_nullptr;
 }
     :    declaration {node = $declaration.node; }
     |    assignment  {node = $assignment.node; }
@@ -505,7 +505,7 @@ instructionScalar returns[WNInstruction* node]
 
 returnInst returns[WNReturn* node]
 @init {
-    node = WN_NULL;
+    node = wn_nullptr;
 }
     :   a=RETURN expression b=SEMICOLON { node = WN_SCRIPTNODE_NEW(WNReturn($expression.node)); SetLocation(node, $a); SetEndLocation(node, $b);}
     |   c=RETURN d=SEMICOLON { node = WN_SCRIPTNODE_NEW(WNReturn()); SetLocation(node, $c); SetEndLocation(node, $d); }
@@ -514,13 +514,13 @@ returnInst returns[WNReturn* node]
     
 whileInst     returns[WNInstruction* node]
 @init {
-    node = WN_NULL;
+    node = wn_nullptr;
 }        
         :    WHILE LBRACKET expression RBRACKET body { node = WN_SCRIPTNODE_NEW(WNWhileInstruction($expression.node, $body.node)); SetLocation(node, $WHILE); SetEndLocationFromNode(node, $body.node); }
         ;
 doInst    returns[WNInstruction* node]
 @init {
-    node = WN_NULL;
+    node = wn_nullptr;
 }
     :    DO body WHILE LBRACKET expression RBRACKET SEMICOLON {node = WN_SCRIPTNODE_NEW(WNDoInstruction($expression.node, $body.node)); SetLocation(node, $DO); SetEndLocation(node, $SEMICOLON); }
     ;
@@ -540,14 +540,14 @@ forInst    returns[WNInstruction* node]
     
 elsemiddle returns[WNElseIf* node] 
 @init {
-    node = WN_NULL;
+    node = wn_nullptr;
 }
     :    ELSE IF LBRACKET expression RBRACKET body { node = WN_SCRIPTNODE_NEW(WNElseIf($expression.node, $body.node)); SetLocation(node, $ELSE); SetEndLocationFromNode(node, $body.node); }
     ;
      
 endif    returns[WNInstructionList* node] 
 @init {
-    node = WN_NULL;
+    node = wn_nullptr;
 }
     :    'else' body {node = $body.node; }
     ;
@@ -555,7 +555,7 @@ endif    returns[WNInstructionList* node]
 ifInst returns[WNInstruction* node]
 @init {
     WNIFInstruction* inst;
-    node = WN_NULL;
+    node = wn_nullptr;
 }
     :    IF LBRACKET expression RBRACKET body {inst = WN_SCRIPTNODE_NEW(WNIFInstruction($expression.node, $body.node)); node = inst; SetLocation(node, $IF); SetEndLocationFromNode(node, $body.node); } 
             (elsemiddle {inst->AddElseIf($elsemiddle.node); SetEndLocationFromNode(node, $elsemiddle.node); } )* 
@@ -614,7 +614,7 @@ classDecl returns[WNStruct* node]
             RBRACE  { SetEndLocation(node, $RBRACE); }
     ;
 
-inc returns[WN_CHAR* file]
+inc returns[wn_char* file]
     :   INCLUDE STRING { COPY_STRING($STRING.text.c_str(), file); }
     ;
 

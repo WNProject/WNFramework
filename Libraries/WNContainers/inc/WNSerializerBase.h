@@ -14,7 +14,7 @@ namespace WNContainers {
 
     class WNSerializerBase {
     public:
-        virtual WN_SIZE_T Serialize(WNDataBuffer& _buffer, const WN_UINT32 _serializeFlags) const = 0;
+        virtual wn_size_t Serialize(WNDataBuffer& _buffer, const wn_uint32 _serializeFlags) const = 0;
     };
 }
 
