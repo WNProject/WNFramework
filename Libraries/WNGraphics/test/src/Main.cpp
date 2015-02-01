@@ -4,42 +4,41 @@
 #include "WNPlatform/inc/WNPlatformFactory.h"
 
 using namespace WNGraphics;
-using namespace WNPlatform;
-using namespace WNConcurrency;
+using namespace wn;
 
-WN_INT32 WNMain(WN_INT32 _argc, WN_CHAR* _argv[]) {
-    WN_UNUSED_ARG(_argc);
-    WN_UNUSED_ARG(_argv);
+wn_int32 wn_main(wn_int32 _argc, wn_char* _argv[]) {
+    WN_UNUSED_ARGUMENT(_argc);
+    WN_UNUSED_ARGUMENT(_argv);
 
     WNSurfaceManager* manager = WNPlatformFactory::CreateSurfaceManager();
 
     manager->Initialize();
 
-    WNGraphicsDevice* device1 = WNGraphicsDeviceFactory::CreateGraphicsDevice(WN_NULL);
-    WNGraphicsDevice* device2 = WNGraphicsDeviceFactory::CreateGraphicsDevice(WN_NULL);
+    WNGraphicsDevice* device1 = WNGraphicsDeviceFactory::CreateGraphicsDevice(wn_nullptr);
+    WNGraphicsDevice* device2 = WNGraphicsDeviceFactory::CreateGraphicsDevice(wn_nullptr);
 
     device2->Initialize(0, 0);
     device1->Initialize(0, 0);
 
-    WNResourcePointer<WNSurface> sPointer;
-    WN_RELEASE_ASSERT(manager->CreateSurface(0, 0, 128, 128, sPointer) == WNSurfaceManagerReturnCode::eWNOK);
-    device1->BindSurface(sPointer, WN_FALSE);
+    wn::intrusive_ptr<surface> sPointer;
+    WN_RELEASE_ASSERT(manager->CreateSurface(0, 0, 128, 128, sPointer) == WNSurfaceManagerReturnCode::ok);
+    device1->BindSurface(sPointer, wn_false);
 
-    WNResourcePointer<WNSurface> sPointer1;
-    WNSurfaceManagerReturnCode::Type ret;
-    WN_RELEASE_ASSERT((ret = manager->CreateSurface(0, 0, 128, 128, sPointer1)) == WNSurfaceManagerReturnCode::eWNOK || ret == WNSurfaceManagerReturnCode::eWNResourceLimitReached);
+    wn::intrusive_ptr<surface> sPointer1;
+    WNSurfaceManagerReturnCode::type ret;
+    WN_RELEASE_ASSERT((ret = manager->CreateSurface(0, 0, 128, 128, sPointer1)) == WNSurfaceManagerReturnCode::ok || ret == WNSurfaceManagerReturnCode::eWNResourceLimitReached);
 
     if(sPointer1) {
-        device1->BindSurface(sPointer1, WN_FALSE);
+        device1->BindSurface(sPointer1, wn_false);
     }
-    WNResourcePointer<WNSurface> sPointer2;
-    WN_RELEASE_ASSERT((ret = manager->CreateSurface(0, 0, 128, 128, sPointer2)) == WNSurfaceManagerReturnCode::eWNOK || ret == WNSurfaceManagerReturnCode::eWNResourceLimitReached);
+    wn::intrusive_ptr<surface> sPointer2;
+    WN_RELEASE_ASSERT((ret = manager->CreateSurface(0, 0, 128, 128, sPointer2)) == WNSurfaceManagerReturnCode::ok || ret == WNSurfaceManagerReturnCode::eWNResourceLimitReached);
     if(sPointer2) {
-        device2->BindSurface(sPointer2, WN_FALSE);
+        device2->BindSurface(sPointer2, wn_false);
         device2->SetActiveSurface(sPointer2);
     }
-    WN_SIZE_T count = 0;
-    WN_BOOL activeSurfaceFlag = WN_FALSE;
+    wn_size_t count = 0;
+    wn_bool activeSurfaceFlag = wn_false;
 
     for (;;) {
         if (activeSurfaceFlag || !sPointer1) {
@@ -52,11 +51,11 @@ WN_INT32 WNMain(WN_INT32 _argc, WN_CHAR* _argv[]) {
 
         ++count;
 
-        WN_FLOAT32 color[4];
+        wn_float32 color[4];
 
-        color[0] = rand() / static_cast<WN_FLOAT32>(RAND_MAX);
-        color[1] = rand() / static_cast<WN_FLOAT32>(RAND_MAX);
-        color[2] = rand() / static_cast<WN_FLOAT32>(RAND_MAX);
+        color[0] = rand() / static_cast<wn_float32>(RAND_MAX);
+        color[1] = rand() / static_cast<wn_float32>(RAND_MAX);
+        color[2] = rand() / static_cast<wn_float32>(RAND_MAX);
         color[3] = 1.0f;
 
         device1->StartDraw();
@@ -74,9 +73,9 @@ WN_INT32 WNMain(WN_INT32 _argc, WN_CHAR* _argv[]) {
         }
     }
 
-    sPointer = WNResourcePointer<WNSurface>();
-    sPointer1 = WNResourcePointer<WNSurface>();
-    sPointer2 = WNResourcePointer<WNSurface>();
+    sPointer = wn::intrusive_ptr<surface>();
+    sPointer1 = wn::intrusive_ptr<surface>();
+    sPointer2 = wn::intrusive_ptr<surface>();
 
     device1->Release();
     device2->Release();

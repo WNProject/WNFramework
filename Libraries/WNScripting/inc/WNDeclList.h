@@ -15,13 +15,13 @@ namespace WNScripting {
     class WNTypeManager;
     class WNDeclList : public WNNode {
     public:
-        WNDeclList(WNDeclaration* _decl); 
+        WNDeclList(WNDeclaration* _decl);
         virtual ~WNDeclList();
-        void AddDeclaration(WNDeclaration* _decl); 
+        void AddDeclaration(WNDeclaration* _decl);
 
-        eWNTypeError GetTypeList(WNTypeManager& _manager, std::vector<WNScriptType>& _vector, WNLogging::WNLog& _compilationLog); 
+        eWNTypeError GetTypeList(WNTypeManager& _manager, std::vector<WNScriptType>& _vector, WNLogging::WNLog& _compilationLog);
 
-        eWNTypeError GetDeclarations(const WNScriptLinkedList<WNDeclaration>*& _outDeclaration) const; 
+        eWNTypeError GetDeclarations(const WNScriptLinkedList<WNDeclaration>*& _outDeclaration) const;
 
     private:
         WNScriptLinkedList<WNDeclaration> mDeclarations;

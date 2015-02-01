@@ -33,8 +33,8 @@ namespace WNNetworking {
         WNConnectionWindows(WNNetworkManager& _manager);
         virtual ~WNConnectionWindows();
 
-        virtual WN_VOID Invalidate();
-        virtual WN_VOID SendBuffer(WNNetworkWriteBuffer& _buffer);
+        virtual wn_void Invalidate();
+        virtual wn_void SendBuffer(WNNetworkWriteBuffer& _buffer);
 
     protected:
         enum eWNNetworkOperation {
@@ -48,28 +48,28 @@ namespace WNNetworking {
 
     protected:
         SOCKET GetWindowsSocket();
-        WN_BOOL Receive();
+        wn_bool Receive();
         eWNNetworkOperation GetOperation(LPOVERLAPPED _overlapped);
-        WN_BOOL ProcessRead(WNNetworkManagerWindows* _windowsManager, DWORD _bytesTransferred);
-        WN_VOID AppendSendBuffer(WNNetworkWriteBuffer& _buff);
-        WN_VOID Send();
-        WN_VOID ProcessWrite();
+        wn_bool ProcessRead(WNNetworkManagerWindows* _windowsManager, DWORD _bytesTransferred);
+        wn_void AppendSendBuffer(WNNetworkWriteBuffer& _buff);
+        wn_void Send();
+        wn_void ProcessWrite();
 
     protected:
         WNNetworkManager& mManager;
         WNNetworkReadBuffer mCurrentReadBuffer;
-        WNConcurrency::WNMutex mSendMutex;
+        wn::mutex mSendMutex;
         std::deque<WNNetworkWriteBuffer> mWriteBuffers;
         std::vector<WSABUF> mWSAWriteBuffers;
-        WN_SIZE_T mInProcessedBytes;
-        WN_SIZE_T mReadHead;
-        WN_SIZE_T mBufferBase;
+        wn_size_t mInProcessedBytes;
+        wn_size_t mReadHead;
+        wn_size_t mBufferBase;
         WSAOVERLAPPED mReceiveOverlap;
         WSAOVERLAPPED mSendOverlap;
-        WNConcurrency::WNResourcePointer<WNBufferResource> mReadLocation;
+        wn::intrusive_ptr<WNBufferResource> mReadLocation;
         SOCKET mSocket;
-        WN_SIZE_T mOverflowAmount;
-        WN_CHAR mOverflowLocation[8];
+        wn_size_t mOverflowAmount;
+        wn_char mOverflowLocation[8];
     };
 };
 

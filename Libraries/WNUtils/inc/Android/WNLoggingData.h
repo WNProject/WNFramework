@@ -2,7 +2,7 @@
 #define __WN_LOGGING_DATA_H__
 #include "WNCore/inc/WNTypes.h"
 namespace WNUtils {
-    extern WN_CHAR* gAndroidLogTag;
+    extern wn_char* gAndroidLogTag;
 }
 
 #endif//__WN_LOGGING_DATA_H__

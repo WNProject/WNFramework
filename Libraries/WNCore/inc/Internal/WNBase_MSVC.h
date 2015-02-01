@@ -7,24 +7,17 @@
 #ifndef __WN_CORE_INTERNAL_BASE_MSVC_H__
 #define __WN_CORE_INTERNAL_BASE_MSVC_H__
 
-#if _MSC_VER < 1700
-    #error "Compiler not supported: MSVC 11 (Visual Studio 2012) or higher must be used"
+#if _MSC_VER < 1800
+    #error "Compiler not supported: MSVC 12 (Visual Studio 2013) or higher must be used"
 #endif
 
-#ifdef _MSC_FULL_VER
-    #define _WN_MSVC _MSC_FULL_VER
-    #define _WN_MSVC_MAJOR (_MSC_VER / 100)
-    #define _WN_MSVC_MINOR (_MSC_VER % 100)
-    #define _WN_MSVC_BUILD (_MSC_FULL_VER % 100000)
-#else
-    #define _WN_MSVC _MSC_VER * 100000
-    #define _WN_MSVC_MAJOR (_MSC_VER / 100)
-    #define _WN_MSVC_MINOR (_MSC_VER % 100)
-    #define _WN_MSVC_BUILD 0
-#endif
+#define _WN_MSVC _MSC_FULL_VER
+#define _WN_MSVC_MAJOR (_MSC_VER / 100)
+#define _WN_MSVC_MINOR (_MSC_VER % 100)
+#define _WN_MSVC_BUILD (_MSC_FULL_VER % 100000)
 
 #define WN_INLINE __inline
-#define WN_FORCE_INLINE __forceinline
+#define WN_INLINEWN_FORCE_INLINE __forceinline
 #define WN_NO_INLINE __declspec(noinline)
 #define WN_RESTRICT __restrict
 #define WN_THREAD_LOCAL __declspec(thread)
@@ -32,17 +25,30 @@
 
 #define WN_ALIGN(_x) __declspec(align(_x))
 
-#define __WN_HAS_NULLPTR
-#define __WN_HAS_NULLPTR_CUSTOM
-#define __WN_HAS_STATIC_ASSERT
-#define __WN_HAS_RVALUE_REFERENCES
-#define __WN_HAS_TYPE_TRAITS
+#define __WN_HAS_CUSTOM_NULLPTR
 
-#ifdef _VARIADIC_MAX
-    #undef _VARIADIC_MAX
+#define __WN_HAS_CPP11_NULLPTR
+#define __WN_HAS_CPP11_STATIC_ASSERT
+#define __WN_HAS_CPP11_RVALUE_REFERENCES
+#define __WN_HAS_CPP11_TYPE_TRAITS
+#define __WN_HAS_CPP11_DECLTYPE
+
+// Before Visual Studio 2015 using alias declaration crashes the compiler in a number of instances
+#if _WN_MSVC_MAJOR > 18
+    #define __WN_HAS_CPP11_USING_ALIAS_DECLARATIONS
 #endif
 
-#define _VARIADIC_MAX 10
+#define __WN_HAS_CPP11_CONSTRUCTOR_DELEGATION
+#define __WN_HAS_CPP11_DEFAULT_AND_DELETED_FUNCTIONS
+#define __WN_HAS_CPP11_DEFAULT_TEMPLATE_PARAMETERS_ON_FUNCTIONS
+#define __WN_HAS_CPP11_VARIADIC_TEMPLATES
+
+#define __WN_HAS_CPP11_STL_ROUND
+
+#define __WN_HAS_CPP14_STL_DECAY_T
+#define __WN_HAS_CPP14_STL_ENABLE_IF_T
+#define __WN_HAS_CPP14_STL_COMMON_TYPE_T
+#define __WN_HAS_CPP14_STL_RESULT_OF_T
 
 #if defined _M_X64 || defined _M_AMD64
     #define _WN_X86
@@ -69,6 +75,8 @@
     #define _WN_WINDOWS
     #define _WN_PLATFORM_NAME "Windows"
 
+    #define NOMINMAX
+
     #include <winsock2.h>
     #include <windows.h>
 
@@ -78,6 +86,10 @@
 
     #define WN_OSCALL_BEGIN WINAPI
     #define WN_OSCALL_END
+
+    #define WN_UNUSED_ARGUMENT(_argument) UNREFERENCED_PARAMETER(_argument)
 #endif
+
+#define WN_DEBUG_BREAK() __debugbreak()
 
 #endif // __WN_CORE_INTERNAL_BASE_MSVC_H__

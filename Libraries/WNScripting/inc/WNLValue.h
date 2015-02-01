@@ -29,7 +29,7 @@ namespace WNScripting {
 
         WNScriptType GetValueType();
 
-        WN_BOOL RequiredUse();
+        wn_bool RequiredUse();
 
     private:
         WNExpression* mExpression;

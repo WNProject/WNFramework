@@ -12,9 +12,9 @@
 
 #include <vector>
 
-namespace WNConcurrency {
+namespace wn {
     template <typename Return>
-    class WNThread;
+    class thread;
 }
 
 namespace WNNetworking {
@@ -28,15 +28,15 @@ namespace WNNetworking {
         WNNetworkManagerWindows();
         virtual ~WNNetworkManagerWindows();
 
-        virtual WNNetworkManagerReturnCode::Type Initialize(WN_UINT32 _numWorkerThreads);
-        virtual WNNetworkManagerReturnCode::Type ConnectTo(WNConnection*& _outHandle, WNConnectionType::Type _type, const WN_CHAR* _target, WN_UINT16 _port);
-        virtual WNNetworkManagerReturnCode::Type CreateListener(WNConnection*& _outHandle, WNConnectionType::Type _type, WN_UINT16 _port, const WNConnectedCallback& _callback);
-        virtual WN_VOID Cleanup();
-        virtual WN_VOID DestroyConnection(WNConnection* _connection);
+        virtual WNNetworkManagerReturnCode::type Initialize(wn_uint32 _numWorkerThreads);
+        virtual WNNetworkManagerReturnCode::type ConnectTo(WNConnection*& _outHandle, WNConnectionType::type _type, const wn_char* _target, wn_uint16 _port);
+        virtual WNNetworkManagerReturnCode::type CreateListener(WNConnection*& _outHandle, WNConnectionType::type _type, wn_uint16 _port, const WNConnectedCallback& _callback);
+        virtual wn_void Cleanup();
+        virtual wn_void DestroyConnection(WNConnection* _connection);
 
     private:
-        WN_VOID IOCPThread();
-        WN_VOID ListenThread();
+        wn_void IOCPThread();
+        wn_void ListenThread();
 
         enum eWNWindowsInitializationState {
             eWNNotStarted,
@@ -48,18 +48,18 @@ namespace WNNetworking {
             eWNInitializationCompleted
         };
 
-        WN_UINT32 mMaxThreads;
+        wn_uint32 mMaxThreads;
         HANDLE mIOCP;
         HANDLE mAcceptEvent;
         HANDLE mShutdownEvent;
         eWNWindowsInitializationState mInitializationState;
-        WNConcurrency::WNThread<WN_VOID>* mListenThread;
-        WNConcurrency::WNSpinLock mListenerMutex;
-        WNConcurrency::WNSpinLock mRecievedMutex;
-        WNConcurrency::WNSpinLock mInvalidMutex;
-        WNConcurrency::WNSpinLock mOutgoingMutex;
+        wn::thread<wn_void>* mListenThread;
+        wn::spin_lock mListenerMutex;
+        wn::spin_lock mRecievedMutex;
+        wn::spin_lock mInvalidMutex;
+        wn::spin_lock mOutgoingMutex;
 
-        std::vector<WNConcurrency::WNThread<WN_VOID>*> mThreads;
+        std::vector<wn::thread<wn_void>*> mThreads;
         std::list<WNListenConnectionWindows*> mIncommingConnections;
         std::list<WNOutConnectionWindows*> mOutgoingConnections;
         std::list<WNInConnectionWindows*> mReceivedConnections;

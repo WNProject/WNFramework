@@ -18,7 +18,7 @@ typedef struct {
     uintptr_t relative_symbol_addr;
     char* map_name;
     char* symbol_name;
-    char* demangled_name; 
+    char* demangled_name;
 } backtrace_symbol_t;
 
 
@@ -49,10 +49,10 @@ struct StackUnwinder {
         pthread_key_create(&mProcessingKey, NULL);
     }
     static void error_func(int signo, siginfo_t* info, void* context);
-    WN_BOOL InitializeHandler() {
-        void* const lib = dlopen("libcorkscrew.so", RTLD_LAZY|RTLD_LOCAL); 
+    wn_bool InitializeHandler() {
+        void* const lib = dlopen("libcorkscrew.so", RTLD_LAZY|RTLD_LOCAL);
         if(!lib) { //libcorkscrew does not exist on this machine
-            return(WN_FALSE);
+            return(wn_false);
         }
         acquire_my_map_info_list = reinterpret_cast<acquire_my_map_info_list_func>(dlsym(lib, "acquire_my_map_info_list"));
         release_my_map_info_list = reinterpret_cast<release_my_map_info_list_func>(dlsym(lib, "release_my_map_info_list"));
@@ -77,7 +77,7 @@ static StackUnwinder* g_CrashHandler = NULL;
 #define MAX_FRAMES 64
 void StackUnwinder::error_func(int sig, siginfo_t* info, void* context) {
     if(reinterpret_cast<size_t>(pthread_getspecific(g_CrashHandler->mProcessingKey)) == 1) { //If we crashed in our crash handler, give up, its not worth it
-        for(int i = 0; i < COUNT_OF(signalsToCatch); ++i) { 
+        for(int i = 0; i < COUNT_OF(signalsToCatch); ++i) {
             if(signalsToCatch[i] == sig) {
                 g_CrashHandler->mOldSignals[i].sa_sigaction(sig, info, context);
             }
@@ -138,6 +138,6 @@ void StackUnwinder::error_func(int sig, siginfo_t* info, void* context) {
     }
 }
 
-WN_VOID WNUtils::InitializeCrashHandler() {
+wn_void WNUtils::InitializeCrashHandler() {
     g_CrashHandler = new(StackUnwinder);
 }

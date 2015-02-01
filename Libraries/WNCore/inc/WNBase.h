@@ -64,9 +64,9 @@
 #define __WN_CORE_BASE_H__
 
 #ifndef __cplusplus
-    #error "WNLibraries is a set of C++ only libraries.  Please use with a C++ compiler and/or compile for C++."
+    #error "C++ required. Please use with a C++ compiler and/or compile for C++."
 #else
-    #define __WN_CPLUSPLUS __cplusplus
+    #define __WN_CPP __cplusplus
 #endif
 
 #ifdef _HAS_EXCEPTIONS
@@ -125,7 +125,7 @@
 #endif
 
 #ifndef WN_THREAD_LOCAL
-    #if __WN_CPLUSPLUS >= 201103L || defined __WN_HAS_THREAD_LOCAL
+    #if __WN_CPP >= 201103L || defined __WN_HAS_THREAD_LOCAL
         #define WN_THREAD_LOCAL thread_local
     #endif
 #endif
@@ -178,6 +178,16 @@
     #ifndef _WN_ENDIAN_UNKNOWN
         #define _WN_ENDIAN_UNKNOWN
     #endif
+#endif
+
+#define WN_STRINGERIZE(_value) #_value
+
+#ifndef WN_UNUSED_ARGUMENT
+    #define WN_UNUSED_ARGUMENT(_argument) (_argument)
+#endif
+
+#ifndef WN_DEBUG_BREAK
+    #define WN_DEBUG_BREAK()
 #endif
 
 #define WN_LIBRARIES 23000 // 0.23.0

@@ -41,19 +41,19 @@ WNWhileInstruction::~WNWhileInstruction() {
 
 eWNTypeError WNWhileInstruction::GenerateCode(WNCodeModule& _module, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog) {
     llvm::IRBuilder<>* builder = reinterpret_cast<llvm::IRBuilder<>*>(_module.GetBuilder());
-    eWNTypeError err = eWNOK;
+    eWNTypeError err = ok;
 
     llvm::BasicBlock* conditionBlock = llvm::BasicBlock::Create(llvm::getGlobalContext(), "", _def->mFunction);
     llvm::BasicBlock* bodyBlock = llvm::BasicBlock::Create(llvm::getGlobalContext(), "", _def->mFunction);
     llvm::BasicBlock* endBlock = llvm::BasicBlock::Create(llvm::getGlobalContext(), "", _def->mFunction);
-    
+
     builder->CreateBr(conditionBlock);
     builder->SetInsertPoint(conditionBlock);
-    if(eWNOK != (err = mCondition->GenerateCode(_module, _def, _compilationLog))) {
+    if(ok != (err = mCondition->GenerateCode(_module, _def, _compilationLog))) {
         return(err);
     }
-    WNScriptType boolType = WN_NULL;
-    if(eWNOK != (err = _module.GetTypeManager().GetTypeByName("Bool", boolType))) {
+    WNScriptType boolType = wn_nullptr;
+    if(ok != (err = _module.GetTypeManager().GetTypeByName("Bool", boolType))) {
         _compilationLog.Log(WNLogging::eCritical, 0, "Error cannot find Bool type");
         LogLine(_compilationLog, WNLogging::eCritical);
         return(err);
@@ -70,7 +70,7 @@ eWNTypeError WNWhileInstruction::GenerateCode(WNCodeModule& _module, const WNFun
     v = builder->CreateICmpNE(cv, v, "");
     builder->CreateCondBr(v, bodyBlock, endBlock);
     builder->SetInsertPoint(bodyBlock);
-    if(eWNOK != (err = mBody->GenerateCode(_module, _def, _compilationLog))) {
+    if(ok != (err = mBody->GenerateCode(_module, _def, _compilationLog))) {
         return(err);
     }
     if(!mBody->Returns()) {
@@ -80,6 +80,6 @@ eWNTypeError WNWhileInstruction::GenerateCode(WNCodeModule& _module, const WNFun
     }
     builder->SetInsertPoint(endBlock);
 
-    return(eWNOK);
+    return(ok);
 }
 

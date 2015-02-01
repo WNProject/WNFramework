@@ -3,49 +3,31 @@
 // found in the LICENSE file.
 
 // Types -----------------------------------------------------------------------------------------------------------------------
-//      WN_VOID
-//      WN_BYTE
-//      WN_BOOL
-//      WN_CHAR
-//      WN_WCHAR
-//      WN_INT8
-//      WN_INT16
-//      WN_INT32
-//      WN_INT64
-//      WN_UINT8
-//      WN_UINT16
-//      WN_UINT32
-//      WN_UINT64
-//      WN_FLOAT32
-//      WN_FLOAT64
-//      WN_POINTER
-//      WN_SIZE_T
-//      WN_ATOM_T
+//      wn_void
+//      wn_byte
+//      wn_bool
+//      wn_char
+//      wn_wchar
+//      wn_int8
+//      wn_int16
+//      wn_int32
+//      wn_int64
+//      wn_uint8
+//      wn_uint16
+//      wn_uint32
+//      wn_uint64
+//      wn_float32
+//      wn_float64
+//      wn_atom_t
+//      wn_size_t
+//      wn_signed_t
+//      wn_pointer_t
+//      wn_nullptr_t
 
 // Values ----------------------------------------------------------------------------------------------------------------------
-//      WN_TRUE
-//      WN_FALSE
-//      WN_NULL
-//      WN_FIXED8_MAX
-//      WN_FIXED8_MIN
-//      WN_FIXED16_MAX
-//      WN_FIXED16_MIN
-//      WN_FIXED32_MAX
-//      WN_FIXED32_MIN
-//      WN_FIXED64_MAX
-//      WN_FIXED64_MIN
-//      WN_FLOAT8_EPSILON
-//      WN_FLOAT8_MAX
-//      WN_FLOAT8_MIN
-//      WN_FLOAT16_EPSILON
-//      WN_FLOAT16_MAX
-//      WN_FLOAT16_MIN
-//      WN_FLOAT32_EPSILON
-//      WN_FLOAT32_MAX
-//      WN_FLOAT32_MIN
-//      WN_FLOAT64_EPSILON
-//      WN_FLOAT64_MAX
-//      WN_FLOAT64_MIN
+//      wn_true
+//      wn_false
+//      wn_nullptr
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -56,131 +38,98 @@
 
 #include "WNCore/inc/WNBase.h"
 
-#ifdef _WN_MSVC
-    typedef unsigned __int8 WN_BYTE;
-
-    typedef __int8 WN_INT8;
-    typedef __int16 WN_INT16;
-    typedef __int32 WN_INT32;
-    typedef __int64 WN_INT64;
-
-    typedef unsigned __int8 WN_UINT8;
-    typedef unsigned __int16 WN_UINT16;
-    typedef unsigned __int32 WN_UINT32;
-    typedef unsigned __int64 WN_UINT64;
-
-    #define __WN_HAS_WCHAR_CUSTOM
-
-    typedef __wchar_t WN_WCHAR;
-
-    #if defined _WN_X86 && defined _WN_64_BIT
-        #define __WN_HAS_ATOM_T_CUSTOM
-
-        typedef __int64 WN_ATOM_T;
-    #endif
-
-    #ifdef __WN_HAS_NULLPTR_CUSTOM
-        #define WN_NULL __nullptr
-    #endif
-#elif defined _WN_GCC || defined _WN_CLANG
-    #include <stdint.h>
-
-    typedef uint8_t WN_BYTE;
-
-    typedef int8_t WN_INT8;
-    typedef int16_t WN_INT16;
-    typedef int32_t WN_INT32;
-    typedef int64_t WN_INT64;
-
-    typedef uint8_t WN_UINT8;
-    typedef uint16_t WN_UINT16;
-    typedef uint32_t WN_UINT32;
-    typedef uint64_t WN_UINT64;
-
-    #ifdef __WN_HAS_NULLPTR_CUSTOM
-        #define WN_NULL __null
-    #endif
-#endif
-
 #include <stddef.h>
-
-typedef void WN_VOID;
-
-typedef char WN_CHAR;
-
-typedef bool WN_BOOL;
-
-typedef size_t WN_SIZE_T;
-
-#ifdef _WN_64_BIT 
-    typedef long long WN_SIGNED_T;
-#else
-    typedef long WN_SIGNED_T;
-#endif
-
-typedef WN_BYTE* WN_POINTER;
-
-#define WN_TRUE true
-#define WN_FALSE false
-
+#include <stdint.h>
 #include <float.h>
 
-typedef float WN_FLOAT32;
-typedef double WN_FLOAT64;
+#ifdef _WN_MSVC
+    #define __WN_HAS_CUSTOM_WCHAR
 
-#define WN_FLOAT32_EPSILON FLT_EPSILON
-#define WN_FLOAT32_MAX FLT_MAX
-#define WN_FLOAT32_MIN FLT_MIN
+    typedef __wchar_t wn_wchar;
 
-#define WN_FLOAT64_EPSILON DBL_EPSILON
-#define WN_FLOAT64_MAX DBL_MAX
-#define WN_FLOAT64_MIN DBL_MIN
+    #if defined _WN_X86 && defined _WN_64_BIT
+        #define __WN_HAS_CUSTOM_ATOM_T
 
-#ifndef __WN_HAS_WCHAR_CUSTOM
-    typedef wchar_t WN_WCHAR;
-#endif
+        typedef __int64 wn_atom_t;
+    #endif
 
-#ifndef __WN_HAS_ATOM_T_CUSTOM
-    #ifdef _WN_32_BIT
-        typedef long int WN_ATOM_T;
-    #elif defined _WN_64_BIT
-        typedef long long WN_ATOM_T;
+    #ifdef __WN_HAS_CUSTOM_NULLPTR
+        #define wn_nullptr __nullptr
+    #endif
+#elif defined _WN_GCC || defined _WN_CLANG
+    #ifdef __WN_HAS_CUSTOM_NULLPTR
+        #define wn_nullptr __null
     #endif
 #endif
 
-#ifndef WN_NULL
-    #if __WN_CPLUSPLUS >= 201103L || defined __WN_HAS_NULLPTR
-        #define WN_NULL nullptr
+typedef void wn_void;
+typedef char wn_char;
+
+#ifndef __WN_HAS_CUSTOM_WCHAR
+    typedef wchar_t wn_wchar;
+#endif
+
+typedef bool wn_bool;
+typedef int8_t wn_int8;
+typedef int16_t wn_int16;
+typedef int32_t wn_int32;
+typedef int64_t wn_int64;
+typedef uint8_t wn_uint8;
+typedef uint16_t wn_uint16;
+typedef uint32_t wn_uint32;
+typedef uint64_t wn_uint64;
+typedef float wn_float32;
+typedef double wn_float64;
+typedef wn_uint8 wn_byte;
+
+typedef wn_byte* wn_pointer_t;
+typedef size_t wn_size_t;
+
+#ifdef _WN_64_BIT
+    typedef wn_int64 wn_signed_t;
+
+    #ifndef __WN_HAS_CUSTOM_ATOM_T
+        typedef long long wn_atom_t;
+    #endif
+#else
+    typedef wn_int32 wn_signed_t;
+
+    #ifndef __WN_HAS_CUSTOM_ATOM_T
+        typedef long int wn_atom_t;
+    #endif
+#endif
+
+#define wn_true true
+#define wn_false false
+
+#ifndef wn_nullptr
+    #if __WN_CPP >= 201103L || defined __WN_HAS_CPP11_NULLPTR
+        #define wn_nullptr nullptr
     #else
-        const
-        class {
-        public:
-            template<class Type>
-            operator Type * () const { return 0; }
-            template<class Class, class Type>
-            operator Type Class::* () const { return 0; }
+        namespace wn {
+            namespace internal {
+                const class {
+                public:
+                    template <typename type>
+                    operator type* () const {
+                        return(0);
+                    }
 
-        private:
-            WN_VOID operator & () const;
-        } __WNNullPtr = {};
+                    template <typename class_type, typename type>
+                    operator type class_type::* () const {
+                        return(0);
+                    }
 
-        #define WN_NULL __WNNullPtr
+                private:
+                    wn_void operator & () const;
+                } null_pointer = {};
+            }
+        }
+
+        #define wn_nullptr wn::internal::null_pointer
     #endif
 #endif
 
-template <typename Type>
-WN_BOOL WNIsValid(Type _value);
-
-template <typename Type>
-WN_BOOL WNIsValid(Type* _value);
-
-template <> WN_BOOL WNIsValid(WN_UINT8 _value);
-template <> WN_BOOL WNIsValid(WN_UINT16 _value);
-template <> WN_BOOL WNIsValid(WN_UINT32 _value);
-template <> WN_BOOL WNIsValid(WN_UINT64 _value);
-template <> WN_BOOL WNIsValid(WN_FLOAT32 _value);
-template <> WN_BOOL WNIsValid(WN_FLOAT64 _value);
-
-#include "WNCore/inc/Internal/WNTypes.inl"
+typedef decltype(wn_nullptr) wn_nullptr_t;
 
 #endif // __WN_CORE_TYPES_H__
