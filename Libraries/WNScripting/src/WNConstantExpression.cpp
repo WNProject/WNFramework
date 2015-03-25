@@ -17,7 +17,7 @@ WNConstantExpression::WNConstantExpression(WNScriptTypeName _type, const char* _
 }
 
 WNConstantExpression::~WNConstantExpression() {
-    WN_DELETE(mText);
+    wn::memory::destroy(mText);
 }
 
 eWNTypeError WNConstantExpression::GenerateCode(WNCodeModule& _module, const WNFunctionDefinition*, WNLogging::WNLog& _compilationLog) {

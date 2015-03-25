@@ -36,8 +36,8 @@ WNDoInstruction::WNDoInstruction(WNExpression* _cond, WNInstructionList* _body) 
 }
 
 WNDoInstruction::~WNDoInstruction() {
-    WN_DELETE(mCondition);
-    WN_DELETE(mBody);
+    wn::memory::destroy(mCondition);
+    wn::memory::destroy(mBody);
 }
 
 eWNTypeError WNDoInstruction::GenerateCode(WNCodeModule& _module, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog) {

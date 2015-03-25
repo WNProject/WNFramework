@@ -36,7 +36,7 @@ WNStructAllocation::WNStructAllocation() :
 
 WNStructAllocation::~WNStructAllocation() {
     if(mType) {
-        WN_DELETE(mType);
+        wn::memory::destroy(mType);
     }
 }
 

@@ -41,7 +41,7 @@ WNFunctionCallExpr::WNFunctionCallExpr(WNArgList* _list) :
 
 WNFunctionCallExpr::~WNFunctionCallExpr() {
     if(mArgs) {
-        WN_DELETE(mArgs);
+        wn::memory::destroy(mArgs);
     }
 }
 

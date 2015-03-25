@@ -4,19 +4,28 @@
 
 #pragma once
 
-#ifndef __WN_CORE_PREFETCH_H__
-#define __WN_CORE_PREFETCH_H__
+#ifndef __WN_MEMORY_PREFETCH_H__
+#define __WN_MEMORY_PREFETCH_H__
 
-#include "WNCore/inc/WNTypes.h"
+#include "WNMemory/inc/Internal/WNPrefetch.h"
 
-namespace WNCore {
-    template <typename Type>
-    wn_void WNPrefetch(const Type* _address);
+namespace wn {
+    namespace memory {
+        template <typename _Type>
+        WN_FORCE_INLINE wn_void prefetch(const _Type* _ptr) {
+            internal::prefetch::execute(_ptr);
+        }
 
-    template <typename Type>
-    wn_void WNPrefetch(const Type* _address, const wn_size_t _offset);
+        template <typename _Type>
+        WN_FORCE_INLINE wn_void prefetch(const _Type* _ptr, const wn_size_t _offset) {
+            prefetch(_ptr + _offset);
+        }
+
+        template <>
+        WN_FORCE_INLINE wn_void prefetch(const wn_void* _ptr, const wn_size_t _offset) {
+            prefetch(static_cast<const wn_byte*>(_ptr), _offset);
+        }
+    }
 }
 
-#include "WNCore/inc/Internal/WNPrefetch.inl"
-
-#endif // __WN_CORE_PREFETCH_H__
+#endif // __WN_MEMORY_PREFETCH_H__

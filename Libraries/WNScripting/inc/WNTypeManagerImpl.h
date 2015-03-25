@@ -55,7 +55,7 @@ namespace WNScripting {
         struct GenerateArithmeticStruct {
             GenerateArithmeticStruct() : mOperation(wn_nullptr) {}
             ~GenerateArithmeticStruct() {
-                WN_DELETE(mOperation);
+                wn::memory::destroy(mOperation);
             }
             WNArithmeticType mArithmeticType;
             WNScriptType mType1;
@@ -65,7 +65,7 @@ namespace WNScripting {
         struct GenerateCastingStruct {
             GenerateCastingStruct() : mOperation(wn_nullptr) {}
             ~GenerateCastingStruct() {
-                WN_DELETE(mOperation);
+                wn::memory::destroy(mOperation);
             }
             WNScriptType mType1;
             WNScriptType mType2;
@@ -74,7 +74,7 @@ namespace WNScripting {
         struct GeneratePreUnaryStruct {
             GeneratePreUnaryStruct() : mOperation(wn_nullptr) {}
             ~GeneratePreUnaryStruct() {
-                WN_DELETE(mOperation);
+                wn::memory::destroy(mOperation);
             }
             WNUnaryType mUnaryType;
             WNScriptType mType;
@@ -83,7 +83,7 @@ namespace WNScripting {
         struct GeneratePostUnaryStruct {
             GeneratePostUnaryStruct() : mOperation(wn_nullptr) {}
             ~GeneratePostUnaryStruct() {
-                WN_DELETE(mOperation);
+                wn::memory::destroy(mOperation);
             }
             WNPostUNType mPostUnaryType;
             WNScriptType mType;
@@ -92,7 +92,7 @@ namespace WNScripting {
         struct GenerateArrayAccessStruct {
             GenerateArrayAccessStruct() : mOperation(wn_nullptr) {}
             ~GenerateArrayAccessStruct() {
-                WN_DELETE(mOperation);
+                wn::memory::destroy(mOperation);
             }
             WNScriptType mType1;
             WNScriptType mType2;
@@ -101,7 +101,7 @@ namespace WNScripting {
         struct GenerateIDAccessStruct {
             GenerateIDAccessStruct() : mOperation(wn_nullptr) {}
             ~GenerateIDAccessStruct() {
-                WN_DELETE(mOperation);
+                wn::memory::destroy(mOperation);
             }
             WNScriptType mType1;
             GenerateIDAccessOperation* mOperation;
@@ -109,7 +109,7 @@ namespace WNScripting {
         struct GenerateConstantStruct {
             GenerateConstantStruct() : mOperation(wn_nullptr) {}
             ~GenerateConstantStruct() {
-                WN_DELETE(mOperation);
+                wn::memory::destroy(mOperation);
             }
             WNScriptType mType;
             GenerateConstantOperation* mOperation;
@@ -117,7 +117,7 @@ namespace WNScripting {
         struct GenerateAllocationStruct {
             GenerateAllocationStruct() : mOperation(wn_nullptr) {}
             ~GenerateAllocationStruct() {
-                WN_DELETE(mOperation);
+                wn::memory::destroy(mOperation);
             }
             WNScriptType mType;
             GenerateAllocation* mOperation;
@@ -125,7 +125,7 @@ namespace WNScripting {
         struct GenerateAssignmentStruct {
             GenerateAssignmentStruct() : mOperation(wn_nullptr) {}
             ~GenerateAssignmentStruct() {
-                WN_DELETE(mOperation);
+                wn::memory::destroy(mOperation);
             }
             WNScriptType mType;
             WNAssignType mAssignType;
@@ -134,7 +134,7 @@ namespace WNScripting {
         struct GenerateDestructionStruct {
             GenerateDestructionStruct() : mOperation(wn_nullptr) {}
             ~GenerateDestructionStruct() {
-                WN_DELETE(mOperation);
+                wn::memory::destroy(mOperation);
             }
             WNScriptType mType;
             GenerateDestruction* mOperation;
@@ -142,7 +142,7 @@ namespace WNScripting {
         struct GenerateConstructionStruct {
             GenerateConstructionStruct() : mOperation(wn_nullptr) {}
             ~GenerateConstructionStruct() {
-                WN_DELETE(mOperation);
+                wn::memory::destroy(mOperation);
             }
             WNScriptType mType;
             GenerateConstruction* mOperation;
@@ -150,7 +150,7 @@ namespace WNScripting {
         struct GenerateCopyConstructionStruct{
             GenerateCopyConstructionStruct() : mOperation(wn_nullptr) {}
             ~GenerateCopyConstructionStruct() {
-                WN_DELETE(mOperation);
+                wn::memory::destroy(mOperation);
             }
             WNScriptType mType;
             GenerateCopyConstruction* mOperation;

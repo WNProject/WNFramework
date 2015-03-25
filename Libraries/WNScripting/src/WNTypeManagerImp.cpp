@@ -68,7 +68,7 @@ eWNTypeError WNTypeManagerImpl::RegisterScalarType(const wn_char* name, const WN
     if(GetTypeByName(name, _outType) == ok) {
         return(eWNAlreadyExists);
     }
-    WNScripting::WNScriptTypeInternal* type = WN_NEW WNScripting::WNScriptTypeInternal(name, _engine, 0, priority, _type, mNextTag, _size);
+    WNScripting::WNScriptTypeInternal* type = wn::memory::construct<WNScripting::WNScriptTypeInternal>(name, _engine, 0, priority, _type, mNextTag, _size);
     IncrementTag();
     mScriptTypes.push_back(type);
     _outType = type;
@@ -91,7 +91,7 @@ eWNTypeError WNTypeManagerImpl::RegisterStructType(const wn_char* name, const WN
     llvm::StructType* sContainerType = llvm::StructType::create(llvm::getGlobalContext(), llvm::makeArrayRef(types));
 
     ty = sContainerType->getPointerTo(0);
-    WNScripting::WNScriptTypeInternal* type = WN_NEW WNScripting::WNScriptTypeInternal(name, _engine, 0, 0, ty, sType, mNextTag, sizeof(wn_size_t));
+    WNScripting::WNScriptTypeInternal* type = wn::memory::construct<WNScripting::WNScriptTypeInternal>(name, _engine, 0, 0.0f, ty, sType, mNextTag, sizeof(wn_size_t));
     IncrementTag();
     mScriptTypes.push_back(type);
     _outType = type;
@@ -102,7 +102,7 @@ eWNTypeError WNTypeManagerImpl::RegisterAliasedStruct(const wn_char* name, WNScr
     if(GetTypeByName(name, _outType) == ok) {
         return(eWNAlreadyExists);
     }
-    WNScripting::WNScriptTypeInternal* type = WN_NEW WNScripting::WNScriptTypeInternal(copyType, name, mNextTag);
+    WNScripting::WNScriptTypeInternal* type = wn::memory::construct<WNScripting::WNScriptTypeInternal>(copyType, name, mNextTag);
     IncrementTag();
     mScriptTypes.push_back(type);
     _outType = type;
@@ -123,7 +123,7 @@ eWNTypeError WNTypeManagerImpl::RegisterCStruct(const WNScriptingEngine* _engine
     llvm::StructType* sContainerType = llvm::StructType::create(llvm::getGlobalContext(), llvm::makeArrayRef(types));
 
     llvm::PointerType* ty = sContainerType->getPointerTo(0);
-    WNScripting::WNScriptTypeInternal* type = WN_NEW WNScripting::WNScriptTypeInternal(name, _engine, 0, 0, ty, 0, mNextTag, sizeof(wn_size_t));
+    WNScripting::WNScriptTypeInternal* type = wn::memory::construct<WNScripting::WNScriptTypeInternal>(name, _engine, 0, 0.0f, ty, wn_nullptr, mNextTag, sizeof(wn_size_t));
     IncrementTag();
     mScriptTypes.push_back(type);
     _outType = type;
@@ -250,7 +250,7 @@ eWNTypeError WNTypeManagerImpl::GetArrayOf(WNScriptType& _type, WNScriptType& _o
     llvm::StructType* sIndirectionType = llvm::StructType::create(llvm::getGlobalContext(), llvm::makeArrayRef(types));
 
     ty = sIndirectionType->getPointerTo(0);
-    WNScripting::WNScriptTypeInternal* scriptType = WN_NEW WNScriptTypeInternal(_type, _type->mScriptingEngine, ty, 0, mNextTag, sizeof(wn_size_t));
+    WNScripting::WNScriptTypeInternal* scriptType = wn::memory::construct<WNScriptTypeInternal>(_type, _type->mScriptingEngine, ty, 0.0f, mNextTag, sizeof(wn_size_t));
     IncrementTag();
     _outType = scriptType;
     WNScriptType nullType;
@@ -263,18 +263,18 @@ eWNTypeError WNTypeManagerImpl::GetArrayOf(WNScriptType& _type, WNScriptType& _o
         return(eWNPlatformError);
     }
 
-    RegisterArrayAccessOperator(scriptType, intType, WN_NEW GenerateDefaultArrayAccessOperation(scriptType));
-    RegisterDestructionOperator(scriptType, WN_NEW GenerateArrayDestruction());
-    RegisterAllocationOperator(scriptType, WN_NEW GenerateDefaultAllocation());
-    RegisterAssignmentOperator(scriptType, AT_EQ, WN_NEW GenerateStructAssignment());
-    RegisterAssignmentOperator(scriptType, AT_CHOWN, WN_NEW GenerateStructTransfer());
-    RegisterCastingOperator(nullType, scriptType, WN_NEW GenerateReinterpretCastOperation(scriptType));
-    RegisterCastingOperator(scriptType, arrayType, WN_NEW GenerateReinterpretCastOperation(arrayType));
-    RegisterArithmeticOperator(AR_EQ, scriptType, scriptType, WN_NEW GenerateStructCompare(boolType, wn_true));
-    RegisterArithmeticOperator(AR_NEQ, scriptType, scriptType, WN_NEW GenerateStructCompare(boolType, wn_false));
-    RegisterIDAccessOperator(scriptType, WN_NEW GenerateArrayIDOperator(scriptType, intType, functionType));
-    RegisterConstructionOperator(scriptType, WN_NEW GenerateArrayConstruction());
-    RegisterCopyConstructionOperator(scriptType, WN_NEW GenerateArrayCopyConstruction());
+    RegisterArrayAccessOperator(scriptType, intType, wn::memory::construct<GenerateDefaultArrayAccessOperation>(scriptType));
+    RegisterDestructionOperator(scriptType, wn::memory::construct<GenerateArrayDestruction>());
+    RegisterAllocationOperator(scriptType, wn::memory::construct<GenerateDefaultAllocation>());
+    RegisterAssignmentOperator(scriptType, AT_EQ, wn::memory::construct<GenerateStructAssignment>());
+    RegisterAssignmentOperator(scriptType, AT_CHOWN, wn::memory::construct<GenerateStructTransfer>());
+    RegisterCastingOperator(nullType, scriptType, wn::memory::construct<GenerateReinterpretCastOperation>(scriptType));
+    RegisterCastingOperator(scriptType, arrayType, wn::memory::construct<GenerateReinterpretCastOperation>(arrayType));
+    RegisterArithmeticOperator(AR_EQ, scriptType, scriptType, wn::memory::construct<GenerateStructCompare>(boolType, wn_true));
+    RegisterArithmeticOperator(AR_NEQ, scriptType, scriptType, wn::memory::construct<GenerateStructCompare>(boolType, wn_false));
+    RegisterIDAccessOperator(scriptType, wn::memory::construct<GenerateArrayIDOperator>(scriptType, intType, functionType));
+    RegisterConstructionOperator(scriptType, wn::memory::construct<GenerateArrayConstruction>());
+    RegisterCopyConstructionOperator(scriptType, wn::memory::construct<GenerateArrayCopyConstruction>());
     return(ok);
 }
 
@@ -596,8 +596,8 @@ eWNTypeError GenerateStructConstruction::Execute(WNCodeModule& _module, llvm::Va
 
         wn_size_t nameLen = WNStrings::WNStrLen(structType->mName);
         wn_char *functionName = static_cast<wn_char*>(WN_STACK_ALLOC(sizeof(wn_char)* (nameLen + 1 + 5)));
-        WNMemory::WNMemCpy(functionName, structType->mName, nameLen);
-        WNMemory::WNMemCpy(functionName + nameLen, "Const", 5);
+        wn::memory::memcpy(functionName, structType->mName, nameLen);
+        wn::memory::memcpy(functionName + nameLen, "Const", 5);
         functionName[nameLen + 5] = '\0';
         std::vector<FunctionParam> fParams;
         fParams.push_back(FunctionParam());
@@ -949,8 +949,8 @@ eWNTypeError GenerateStructCopyConstruction::Execute(WNCodeModule& _module, llvm
 
         wn_size_t nameLen = WNStrings::WNStrLen(structType->mName);
         wn_char *functionName = static_cast<wn_char*>(WN_STACK_ALLOC(sizeof(wn_char)* (nameLen + 1 + 9)));
-        WNMemory::WNMemCpy(functionName, structType->mName, nameLen);
-        WNMemory::WNMemCpy(functionName + nameLen, "CopyConst", 10);
+        wn::memory::memcpy(functionName, structType->mName, nameLen);
+        wn::memory::memcpy(functionName + nameLen, "CopyConst", 10);
         std::vector<FunctionParam> fParams;
         fParams.push_back(FunctionParam());
         fParams.back().mType = structType;

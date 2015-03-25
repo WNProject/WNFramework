@@ -18,10 +18,10 @@ WNArrayAllocation::WNArrayAllocation() :
 
 WNArrayAllocation::~WNArrayAllocation() {
     if(mType) {
-        WN_DELETE(mType);
+        wn::memory::destroy(mType);
     }
     for(WNScriptLinkedList<WNExpression>::WNScriptLinkedListNode* i = mArrayInitializers.first; i != wn_nullptr; i = i->next) {
-        WN_DELETE(i->value);
+        wn::memory::destroy(i->value);
     }
 }
 

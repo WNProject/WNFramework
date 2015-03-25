@@ -84,7 +84,7 @@ wn_int32 wn_main(wn_int32 _argc, wn_char* _argv[]) {
         wn::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 
-    WN_DELETE(manager);
+    wn::memory::destroy(manager);
 
     return(0);
 }

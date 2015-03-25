@@ -44,11 +44,11 @@ WNFunction::WNFunction(WNDeclaration* _decl, WNDeclList* _params, WNInstructionL
 }
 
 WNFunction::~WNFunction() {
-    WN_DELETE(mDeclaration);
+    wn::memory::destroy(mDeclaration);
     if(mParameters) {
-        WN_DELETE(mParameters);
+        wn::memory::destroy(mParameters);
     }
-    WN_DELETE(mBody);
+    wn::memory::destroy(mBody);
 }
 
 eWNTypeError WNFunction::GenerateCode(WNCodeModule& _module, WNScriptType owningType, WNLogging::WNLog& _compilationLog) {

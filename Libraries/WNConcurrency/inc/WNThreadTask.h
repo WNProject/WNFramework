@@ -16,10 +16,10 @@
 namespace wn {
     class thread_pool;
 
-    class thread_task : public intrusive_ptr_base {
+    class thread_task : public memory::intrusive_ptr_base {
     public:
         WN_FORCE_INLINE explicit thread_task() :
-            intrusive_ptr_base() {
+            memory::intrusive_ptr_base() {
             m_executed.clear(std::memory_order_release);
         }
 

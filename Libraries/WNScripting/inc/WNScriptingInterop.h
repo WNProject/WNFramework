@@ -82,7 +82,7 @@ namespace WNScripting {
                     (*sp)->owner = 0;
                 }
             }
-            sIp->structLoc = wn::realloc(sIp->structLoc, nType->mTypeSize*_arraySize + sizeof(wn_size_t) * 2);
+            sIp->structLoc = wn::memory::realloc(sIp->structLoc, nType->mTypeSize*_arraySize + sizeof(wn_size_t) * 2);
             for(wn_size_t i = 0; i < ((curSize < _arraySize)? curSize : _arraySize); ++i) {
                 StructInternalType** sp = reinterpret_cast<StructInternalType**>(reinterpret_cast<wn_char*>(sIp->structLoc) + sizeof(wn_size_t) * 2 + i * nType->mTypeSize);
                 if((*sp)->owner == 0) {
@@ -97,9 +97,9 @@ namespace WNScripting {
                 sp->structLoc = wn_nullptr;
             }
         } else {
-            sIp->structLoc = wn::realloc(sIp->structLoc, nType->mTypeSize*_arraySize + sizeof(wn_size_t) * 2);
+            sIp->structLoc = wn::memory::realloc(sIp->structLoc, nType->mTypeSize*_arraySize + sizeof(wn_size_t) * 2);
             if(_arraySize > curSize) {
-                WNMemory::WNMemSet(reinterpret_cast<wn_char*>(sIp->structLoc) + sizeof(wn_size_t) * 2 + curSize * nType->mTypeSize, 0x00, (_arraySize - curSize) * nType->mTypeSize);
+                wn::memory::memset(reinterpret_cast<wn_char*>(sIp->structLoc) + sizeof(wn_size_t) * 2 + curSize * nType->mTypeSize, 0x00, (_arraySize - curSize) * nType->mTypeSize);
             }
         }
         *(reinterpret_cast<wn_size_t*>(sIp->structLoc)) = _arraySize;
@@ -284,7 +284,7 @@ namespace WNScripting {
                     std::vector<WNContainedStructType>::iterator i = std::find_if(type->mStructTypes.begin(), type->mStructTypes.end(),
                         [this](const WNContainedStructType& sType) { return(WNStrings::WNStrCmp(mVariableName, sType.mName) == 0); }
                     );
-                    wn::free(mVariableName);
+                    wn::memory::free(mVariableName);
                     mVariableName = wn_nullptr;
                     if(i == type->mStructTypes.end()) {
                         mResolution = eFailedResolution;

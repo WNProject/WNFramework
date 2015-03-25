@@ -10,7 +10,7 @@ WNFileSystem::WNWriteTextFileBuffer::WNWriteTextFileBuffer(const WNFileSystem::W
     WNFileBuffer(_type),
     mBufferUsage(0),
     mBufferSize(_bufferSize) {
-    mCurrentBuffer = wn::malloc<wn_char>(_bufferSize);
+    mCurrentBuffer = wn::memory::malloc<wn_char>(_bufferSize);
 
     WN_RELEASE_ASSERT(mCurrentBuffer != wn_nullptr);
 }
@@ -20,7 +20,7 @@ WNFileSystem::WNWriteTextFileBuffer::~WNWriteTextFileBuffer() {
         DumpToFile();
 
         if (mCurrentBuffer != wn_nullptr) {
-            wn::free<wn_char>(mCurrentBuffer);
+            wn::memory::free<wn_char>(mCurrentBuffer);
         }
     }
 }
@@ -29,7 +29,7 @@ wn_char* WNFileSystem::WNWriteTextFileBuffer::ReserveBytes(const wn_size_t _numB
     if (_numBytes + mBufferUsage > mBufferSize) {
         if (mBufferUsage > 0) {
             if (!DumpToFile()) {
-                wn::free<wn_char>(mCurrentBuffer);
+                wn::memory::free<wn_char>(mCurrentBuffer);
 
                 _returnedBytes = 0;
 
@@ -38,7 +38,7 @@ wn_char* WNFileSystem::WNWriteTextFileBuffer::ReserveBytes(const wn_size_t _numB
         }
 
         if (_numBytes > mBufferSize) {
-            mCurrentBuffer = wn::realloc<wn_char>(mCurrentBuffer, _numBytes);
+            mCurrentBuffer = wn::memory::realloc<wn_char>(mCurrentBuffer, _numBytes);
 
             WN_RELEASE_ASSERT(mCurrentBuffer != wn_nullptr);
 

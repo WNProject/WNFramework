@@ -13,11 +13,6 @@
 
 #ifndef _WN_MEMORY_CONFIG_DISABLE_EXTENSIONS
     #include "WNCore/inc/WNBase.h"
-
-    #ifdef _WN_X86
-        #define __WN_MEMORY_EXTENSIONS_ENABLED
-        #include "WNMemory/inc/Internal/x86/WNConfig.h"
-    #endif
 #endif
 
 #endif // __WN_MEMORY_INTERNAL_CONFIG_H__

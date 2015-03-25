@@ -116,16 +116,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\inc\Internal\WNConfig.h" />
-    <ClInclude Include="..\..\inc\Internal\WNMemSet.h" />
-    <ClInclude Include="..\..\inc\Internal\WNMemSetHelper.h" />
     <ClInclude Include="..\..\inc\Internal\WNPrefetch.h" />
-    <ClInclude Include="..\..\inc\Internal\x86\WNConfig.h" />
-    <ClInclude Include="..\..\inc\Internal\x86\WNMemSet.h" />
-    <ClInclude Include="..\..\inc\Internal\x86\WNMemSet_AVX.h" />
-    <ClInclude Include="..\..\inc\Internal\x86\WNMemSet_MMX.h" />
-    <ClInclude Include="..\..\inc\Internal\x86\WNMemSet_SSE.h" />
-    <ClInclude Include="..\..\inc\Internal\x86\WNMemSet_SSE2.h" />
-    <ClInclude Include="..\..\inc\Internal\x86\WNUtilities_YMM.h" />
     <ClInclude Include="..\..\inc\WNAllocation.h" />
     <ClInclude Include="..\..\inc\WNAllocator.h" />
     <ClInclude Include="..\..\inc\WNIntrusivePtr.h" />
@@ -133,10 +124,6 @@
     <ClInclude Include="..\..\inc\WNManipulation.h" />
     <ClInclude Include="..\..\inc\WNMemory.h" />
     <ClInclude Include="..\..\inc\WNPrefetch.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\inc\Internal\WNManipulation.inl" />
-    <None Include="..\..\inc\Internal\WNPrefetch.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

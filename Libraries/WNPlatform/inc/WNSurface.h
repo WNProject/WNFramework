@@ -40,10 +40,10 @@ namespace wn {
         typedef EGLSurface WNSurfaceNativeHandle;
     #endif
 
-    class surface : public intrusive_ptr_base {
+    class surface : public memory::intrusive_ptr_base {
     public:
         surface() :
-            intrusive_ptr_base() {
+            memory::intrusive_ptr_base() {
             for (wn_size_t i = 0; i < eWNRDTMAX; ++i) {
                 mRegisteredTypes[i] = wn_nullptr;
             }
@@ -120,6 +120,6 @@ namespace wn {
         wn_void* mRegisteredTypes[eWNRDTMAX];
     };
 
-    typedef intrusive_ptr<surface> surface_handle;
+    typedef memory::intrusive_ptr<surface> surface_handle;
 }
 #endif // __WN_PLATFORM_SURFACE_H___

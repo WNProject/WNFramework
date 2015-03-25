@@ -24,7 +24,7 @@ namespace WNGraphics {
         // State Querying
         virtual wn_uint32 GetCapability(WNDeviceCaps _cap);
         virtual WNGraphicsDeviceReturnCode::type GetSize(wn_uint32 &_width, wn_uint32 &_height);
-        virtual WNGraphicsDeviceReturnCode::type SetActiveSurface(wn::intrusive_ptr<wn::surface> _surface);
+        virtual WNGraphicsDeviceReturnCode::type SetActiveSurface(wn::memory::intrusive_ptr<wn::surface> _surface);
 
         // Resource Creation
         virtual WNShader* CreateShader(WNShaderTypes _type, wn_char* _shaderText);
@@ -41,7 +41,7 @@ namespace WNGraphics {
 
         // State Setting
         virtual wn_void SetClearColor(wn_float32* _color);
-        virtual WNGraphicsDeviceReturnCode::type BindSurface(wn::intrusive_ptr<wn::surface>& _surface, wn_bool _sync);
+        virtual WNGraphicsDeviceReturnCode::type BindSurface(wn::memory::intrusive_ptr<wn::surface>& _surface, wn_bool _sync);
 
         // Drawing
         virtual WNGraphicsDeviceReturnCode::type SetDrawList(WNDrawList* _list);
@@ -67,7 +67,7 @@ namespace WNGraphics {
         };
 
     private:
-        wn::intrusive_ptr<wn::surface> mActiveSurface;
+        wn::memory::intrusive_ptr<wn::surface> mActiveSurface;
         WNGraphicsResourceFactory* mResourceFactory;
         Display* mDisplay;
         GLXContext  mContext;

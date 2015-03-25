@@ -46,7 +46,7 @@ wn_bool WNInConnectionLinux::Initialize(wn_int32 _yourSocket, sockaddr& _addr, s
     sockaddr_in* sin = reinterpret_cast<sockaddr_in*>(&_addr);
     wn_size_t length = WN_SNPRINTF(NULL,0, "%s:%d", inet_ntoa(sin->sin_addr), ntohs(sin->sin_port));
 
-    mConnectionName = wn::malloc<wn_char>(length + 1);
+    mConnectionName = wn::memory::malloc<wn_char>(length + 1);
     WN_SNPRINTF(mConnectionName,length+1, "%s:%d", inet_ntoa(sin->sin_addr), ntohs(sin->sin_port));
 
     return(wn_true);

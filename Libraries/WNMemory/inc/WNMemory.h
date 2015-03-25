@@ -12,5 +12,6 @@
 #include "WNMemory/inc/WNIntrusivePtr.h"
 #include "WNMemory/inc/WNIntrusivePtrBase.h"
 #include "WNMemory/inc/WNManipulation.h"
+#include "WNMemory/inc/WNPrefetch.h"
 
 #endif // __WN_MEMORY_H__

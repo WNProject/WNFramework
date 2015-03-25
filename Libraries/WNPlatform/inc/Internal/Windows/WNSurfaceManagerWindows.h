@@ -23,7 +23,7 @@ namespace wn {
         virtual WN_FORCE_INLINE ~WNSurfaceManagerWindows() {}
 
         virtual WNSurfaceManagerReturnCode::type Initialize();
-        virtual WNSurfaceManagerReturnCode::type CreateSurface(wn_uint32 _x, wn_uint32 _y, wn_uint32 _width, wn_uint32 _height, wn::intrusive_ptr<surface>& _surface);
+        virtual WNSurfaceManagerReturnCode::type CreateSurface(wn_uint32 _x, wn_uint32 _y, wn_uint32 _width, wn_uint32 _height, wn::memory::intrusive_ptr<surface>& _surface);
         virtual WNSurfaceManagerReturnCode::type Release();
 
     private:
@@ -33,11 +33,11 @@ namespace wn {
     private:
         class WNWindowThreadData {
         public:
-            WNWindowThreadData(wn::intrusive_ptr<wn::WNSurfaceWindows> _wnd);
+            WNWindowThreadData(wn::memory::intrusive_ptr<wn::WNSurfaceWindows> _wnd);
 
         public:
             wn::thread<wn_bool>* mThread;
-            wn::intrusive_ptr<wn::WNSurfaceWindows> mWindow;
+            wn::memory::intrusive_ptr<wn::WNSurfaceWindows> mWindow;
             wn_atom_t mExit;
         };
 

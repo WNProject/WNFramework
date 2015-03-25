@@ -16,7 +16,7 @@ const wn_char* WNNetworking::WNConnection::GetName() {
 
 WNNetworking::WNConnection::~WNConnection() {
     if (mConnectionName != wn_nullptr) {
-        WN_DELETE(mConnectionName);
+        wn::memory::destroy(mConnectionName);
 
         mConnectionName = wn_nullptr;
     }

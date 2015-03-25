@@ -40,7 +40,9 @@ namespace WNContainers {
                 wn_size_t totalBytes = 0;
                 do{
                     const wn_char* location = _dataBuffer.ReserveBytes(sizeof(wn_uint8) - totalBytes, returnedBytes);
-                    WNMemory::WNMemCpy(reinterpret_cast<wn_uint8*>(&mNumber) + totalBytes, location, returnedBytes);
+
+                    wn::memory::memcpy<wn_void>(reinterpret_cast<wn_uint8*>(&mNumber) + totalBytes, location, returnedBytes);
+
                     totalBytes += returnedBytes;
                 } while(totalBytes < sizeof(wn_uint8));
 
@@ -51,7 +53,7 @@ namespace WNContainers {
                 wn_size_t totalBytes = 0;
                 do {
                     wn_char* location = _dataBuffer.ReserveBytes(sizeof(wn_uint8) - totalBytes, returnedBytes);
-                    WNMemory::WNMemCpy(location, reinterpret_cast<wn_uint8*>(&mNumber) + totalBytes, returnedBytes);
+                    wn::memory::memcpy<wn_void>(location, reinterpret_cast<wn_uint8*>(&mNumber) + totalBytes, returnedBytes);
                     totalBytes += returnedBytes;
                 } while(totalBytes < sizeof(wn_uint8));
 
@@ -66,7 +68,9 @@ namespace WNContainers {
                 do {
                     countFails++;
                     wn_char* location = _dataBuffer.ReserveBytes(4 - totalBytes, returnedBytes);
-                    WNMemory::WNMemCpy(reinterpret_cast<wn_uint8*>(&tempBuffer) + totalBytes, location, returnedBytes);
+
+                    wn::memory::memcpy<wn_void>(reinterpret_cast<wn_uint8*>(&tempBuffer) + totalBytes, location, returnedBytes);
+
                     totalBytes += returnedBytes;
                     if(countFails > 1) {
                         break;
@@ -90,7 +94,7 @@ namespace WNContainers {
                 wn_size_t totalBytes = 0;
                  do {
                     wn_char* location = _dataBuffer.ReserveBytes(outSize - totalBytes, returnedBytes);
-                    WNMemory::WNMemCpy(location, reinterpret_cast<wn_uint8*>(&tempBuffer) + totalBytes, returnedBytes);
+                    wn::memory::memcpy<wn_void>(location, reinterpret_cast<wn_uint8*>(&tempBuffer) + totalBytes, returnedBytes);
                     totalBytes += returnedBytes;
                 } while(totalBytes < outSize);
 
@@ -114,7 +118,7 @@ namespace WNContainers {
                 wn_size_t totalBytes = 0;
                 do{
                     const wn_char* location = _dataBuffer.ReserveBytes(sizeof(wn_int32) - totalBytes, returnedBytes);
-                    WNMemory::WNMemCpy(reinterpret_cast<wn_uint8*>(&mNumber) + totalBytes, location, returnedBytes);
+                    wn::memory::memcpy<wn_void>(reinterpret_cast<wn_uint8*>(&mNumber) + totalBytes, location, returnedBytes);
                     totalBytes += returnedBytes;
                 } while(totalBytes < sizeof(wn_int32));
 
@@ -129,7 +133,7 @@ namespace WNContainers {
                 wn_size_t totalBytes = 0;
                 do {
                     wn_char* location = _dataBuffer.ReserveBytes(sizeof(wn_int32) - totalBytes, returnedBytes);
-                    WNMemory::WNMemCpy(location, reinterpret_cast<wn_uint8*>(&number) + totalBytes, returnedBytes);
+                    wn::memory::memcpy<wn_void>(location, reinterpret_cast<wn_uint8*>(&number) + totalBytes, returnedBytes);
                     totalBytes += returnedBytes;
                 } while(totalBytes < sizeof(wn_int32));
                 return(sizeof(wn_int32));
@@ -143,7 +147,7 @@ namespace WNContainers {
                 do {
                     countFails++;
                     wn_char* location = _dataBuffer.ReserveBytes(16 - totalBytes, returnedBytes);
-                    WNMemory::WNMemCpy(reinterpret_cast<wn_uint8*>(&tempBuffer) + totalBytes, location, returnedBytes);
+                    wn::memory::memcpy<wn_void>(reinterpret_cast<wn_uint8*>(&tempBuffer) + totalBytes, location, returnedBytes);
                     totalBytes += returnedBytes;
                     if(countFails > 1) {
                         break;
@@ -164,7 +168,7 @@ namespace WNContainers {
                 wn_size_t totalBytes = 0;
                 do {
                     wn_char* location = _dataBuffer.ReserveBytes(outSize - totalBytes, returnedBytes);
-                    WNMemory::WNMemCpy(location, reinterpret_cast<wn_uint8*>(&tempBuffer) + totalBytes, returnedBytes);
+                    wn::memory::memcpy<wn_void>(location, reinterpret_cast<wn_uint8*>(&tempBuffer) + totalBytes, returnedBytes);
                     totalBytes += returnedBytes;
                 } while(totalBytes < outSize);
 
@@ -188,7 +192,7 @@ namespace WNContainers {
                 wn_size_t totalBytes = 0;
                 do{
                     const wn_char* location = _dataBuffer.ReserveBytes(sizeof(wn_uint32) - totalBytes, returnedBytes);
-                    WNMemory::WNMemCpy(reinterpret_cast<wn_uint8*>(&mNumber) + totalBytes, location, returnedBytes);
+                    wn::memory::memcpy<wn_void>(reinterpret_cast<wn_uint8*>(&mNumber) + totalBytes, location, returnedBytes);
                     totalBytes += returnedBytes;
                 } while(totalBytes < sizeof(wn_uint32));
 
@@ -203,7 +207,7 @@ namespace WNContainers {
                 wn_size_t totalBytes = 0;
                 do {
                     wn_char* location = _dataBuffer.ReserveBytes(sizeof(wn_uint32) - totalBytes, returnedBytes);
-                    WNMemory::WNMemCpy(location, reinterpret_cast<wn_uint8*>(&number) + totalBytes, returnedBytes);
+                    wn::memory::memcpy<wn_void>(location, reinterpret_cast<wn_uint8*>(&number) + totalBytes, returnedBytes);
                     totalBytes += returnedBytes;
                 } while(totalBytes < sizeof(wn_uint32));
                 return(sizeof(wn_uint32));
@@ -217,7 +221,7 @@ namespace WNContainers {
                 do {
                     countFails++;
                     wn_char* location = _dataBuffer.ReserveBytes(16 - totalBytes, returnedBytes);
-                    WNMemory::WNMemCpy(reinterpret_cast<wn_uint8*>(tempBuffer) + totalBytes, location, returnedBytes);
+                    wn::memory::memcpy<wn_void>(reinterpret_cast<wn_uint8*>(tempBuffer)+totalBytes, location, returnedBytes);
                     totalBytes += returnedBytes;
                     if(countFails > 1) {
                         break;
@@ -237,7 +241,7 @@ namespace WNContainers {
                 wn_size_t totalBytes = 0;
                 do {
                     wn_char* location = _dataBuffer.ReserveBytes(outSize - totalBytes, returnedBytes);
-                    WNMemory::WNMemCpy(location, reinterpret_cast<wn_uint8*>(&tempBuffer) + totalBytes, returnedBytes);
+                    wn::memory::memcpy<wn_void>(location, reinterpret_cast<wn_uint8*>(&tempBuffer) + totalBytes, returnedBytes);
                     totalBytes += returnedBytes;
                 } while(totalBytes < outSize);
 
@@ -261,7 +265,7 @@ namespace WNContainers {
                 wn_size_t totalBytes = 0;
                 do{
                     const wn_char* location = _dataBuffer.ReserveBytes(sizeof(wn_int64) - totalBytes, returnedBytes);
-                    WNMemory::WNMemCpy(reinterpret_cast<wn_uint8*>(&mNumber) + totalBytes, location, returnedBytes);
+                    wn::memory::memcpy<wn_void>(reinterpret_cast<wn_uint8*>(&mNumber) + totalBytes, location, returnedBytes);
                     totalBytes += returnedBytes;
                 } while(totalBytes < sizeof(wn_int64));
 
@@ -276,7 +280,7 @@ namespace WNContainers {
                 wn_size_t totalBytes = 0;
                 do {
                     wn_char* location = _dataBuffer.ReserveBytes(sizeof(wn_int64) - totalBytes, returnedBytes);
-                    WNMemory::WNMemCpy(location, reinterpret_cast<wn_uint8*>(&number) + totalBytes, returnedBytes);
+                    wn::memory::memcpy<wn_void>(location, reinterpret_cast<wn_uint8*>(&number) + totalBytes, returnedBytes);
                     totalBytes += returnedBytes;
                 } while(totalBytes < sizeof(wn_int64));
                 return(sizeof(wn_int64));
@@ -290,7 +294,7 @@ namespace WNContainers {
                 do {
                     countFails++;
                     wn_char* location = _dataBuffer.ReserveBytes(23 - totalBytes, returnedBytes);
-                    WNMemory::WNMemCpy(reinterpret_cast<wn_uint8*>(tempBuffer) + totalBytes, location, returnedBytes);
+                    wn::memory::memcpy<wn_void>(reinterpret_cast<wn_uint8*>(tempBuffer)+totalBytes, location, returnedBytes);
                     totalBytes += returnedBytes;
                     if(countFails > 1) {
                         break;
@@ -310,7 +314,7 @@ namespace WNContainers {
                 wn_size_t totalBytes = 0;
                 do {
                     wn_char* location = _dataBuffer.ReserveBytes(outSize - totalBytes, returnedBytes);
-                    WNMemory::WNMemCpy(location, reinterpret_cast<wn_uint8*>(&tempBuffer) + totalBytes, returnedBytes);
+                    wn::memory::memcpy<wn_void>(location, reinterpret_cast<wn_uint8*>(&tempBuffer) + totalBytes, returnedBytes);
                     totalBytes += returnedBytes;
                 } while(totalBytes < outSize);
 
@@ -334,7 +338,7 @@ namespace WNContainers {
                 wn_size_t totalBytes = 0;
                 do{
                     const wn_char* location = _dataBuffer.ReserveBytes(sizeof(wn_uint64) - totalBytes, returnedBytes);
-                    WNMemory::WNMemCpy(reinterpret_cast<wn_uint8*>(&mNumber) + totalBytes, location, returnedBytes);
+                    wn::memory::memcpy<wn_void>(reinterpret_cast<wn_uint8*>(&mNumber) + totalBytes, location, returnedBytes);
                     totalBytes += returnedBytes;
                 } while(totalBytes < sizeof(wn_uint64));
 
@@ -349,7 +353,7 @@ namespace WNContainers {
                 wn_size_t totalBytes = 0;
                 do {
                     wn_char* location = _dataBuffer.ReserveBytes(sizeof(wn_uint64) - totalBytes, returnedBytes);
-                    WNMemory::WNMemCpy(location, reinterpret_cast<wn_uint8*>(&number) + totalBytes, returnedBytes);
+                    wn::memory::memcpy<wn_void>(location, reinterpret_cast<wn_uint8*>(&number) + totalBytes, returnedBytes);
                     totalBytes += returnedBytes;
                 } while(totalBytes < sizeof(wn_uint64));
                 return(sizeof(wn_uint64));
@@ -363,7 +367,7 @@ namespace WNContainers {
                 do {
                     countFails++;
                     wn_char* location = _dataBuffer.ReserveBytes(23 - totalBytes, returnedBytes);
-                    WNMemory::WNMemCpy(reinterpret_cast<wn_uint8*>(tempBuffer) + totalBytes, location, returnedBytes);
+                    wn::memory::memcpy<wn_void>(reinterpret_cast<wn_uint8*>(tempBuffer)+totalBytes, location, returnedBytes);
                     totalBytes += returnedBytes;
                     if(countFails > 1) {
                         break;
@@ -383,7 +387,7 @@ namespace WNContainers {
                 wn_size_t totalBytes = 0;
                 do {
                     wn_char* location = _dataBuffer.ReserveBytes(outSize - totalBytes, returnedBytes);
-                    WNMemory::WNMemCpy(location, reinterpret_cast<wn_uint8*>(&tempBuffer) + totalBytes, returnedBytes);
+                    wn::memory::memcpy<wn_void>(location, reinterpret_cast<wn_uint8*>(&tempBuffer) + totalBytes, returnedBytes);
                     totalBytes += returnedBytes;
                 } while(totalBytes < outSize);
 
@@ -409,7 +413,7 @@ namespace WNContainers {
                 wn_size_t totalBytes = 0;
                 do{
                     const wn_char* location = _dataBuffer.ReserveBytes(mLength - totalBytes, returnedBytes);
-                    WNMemory::WNMemCpy(reinterpret_cast<wn_uint8*>(mString) + totalBytes, location, returnedBytes);
+                    wn::memory::memcpy<wn_void>(reinterpret_cast<wn_uint8*>(mString)+totalBytes, location, returnedBytes);
                     totalBytes += returnedBytes;
                 } while(totalBytes < mLength);
 
@@ -421,7 +425,7 @@ namespace WNContainers {
                 wn_size_t totalBytes = 0;
                 do {
                     wn_char* location = _dataBuffer.ReserveBytes(mLength - totalBytes, returnedBytes);
-                    WNMemory::WNMemCpy(location, reinterpret_cast<wn_uint8*>(mString) + totalBytes, returnedBytes);
+                    wn::memory::memcpy<wn_void>(location, reinterpret_cast<wn_uint8*>(mString)+totalBytes, returnedBytes);
                     totalBytes += returnedBytes;
                 } while(totalBytes < mLength);
                 return(mLength);
@@ -444,7 +448,7 @@ namespace WNContainers {
                 wn_size_t totalBytes = 0;
                 do{
                     const wn_char* location = _dataBuffer.ReserveBytes(sizeof(wn_float32) - totalBytes, returnedBytes);
-                    WNMemory::WNMemCpy(reinterpret_cast<wn_uint8*>(&mNumber) + totalBytes, location, returnedBytes);
+                    wn::memory::memcpy<wn_void>(reinterpret_cast<wn_uint8*>(&mNumber) + totalBytes, location, returnedBytes);
                     totalBytes += returnedBytes;
                 } while(totalBytes < sizeof(wn_float32));
 
@@ -459,7 +463,7 @@ namespace WNContainers {
                 wn_size_t totalBytes = 0;
                 do {
                     wn_char* location = _dataBuffer.ReserveBytes(sizeof(wn_float32) - totalBytes, returnedBytes);
-                    WNMemory::WNMemCpy(location, reinterpret_cast<wn_uint8*>(&number) + totalBytes, returnedBytes);
+                    wn::memory::memcpy<wn_void>(location, reinterpret_cast<wn_uint8*>(&number) + totalBytes, returnedBytes);
                     totalBytes += returnedBytes;
                 } while(totalBytes < sizeof(wn_float32));
                 return(sizeof(wn_float32));
@@ -473,7 +477,7 @@ namespace WNContainers {
                 do {
                     countFails++;
                     wn_char* location = _dataBuffer.ReserveBytes(20 - totalBytes, returnedBytes);
-                    WNMemory::WNMemCpy(reinterpret_cast<wn_uint8*>(&tempBuffer) + totalBytes, location, returnedBytes);
+                    wn::memory::memcpy<wn_void>(reinterpret_cast<wn_uint8*>(&tempBuffer) + totalBytes, location, returnedBytes);
                     totalBytes += returnedBytes;
                     if(countFails > 1) {
                         break;
@@ -493,7 +497,7 @@ namespace WNContainers {
                 wn_size_t totalBytes = 0;
                 do {
                     wn_char* location = _dataBuffer.ReserveBytes(outSize - totalBytes, returnedBytes);
-                    WNMemory::WNMemCpy(location, reinterpret_cast<wn_uint8*>(&tempBuffer) + totalBytes, returnedBytes);
+                    wn::memory::memcpy<wn_void>(location, reinterpret_cast<wn_uint8*>(&tempBuffer) + totalBytes, returnedBytes);
                     totalBytes += returnedBytes;
                 } while(totalBytes < outSize);
 

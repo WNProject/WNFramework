@@ -14,11 +14,12 @@ WNInConnectionWindows::WNInConnectionWindows(WNNetworkManager& _manager) :
 
 WNNetworkManagerReturnCode::type WNInConnectionWindows::Initialize(SOCKET _listenSocket, WNConnectedCallback _callback) {
     sockaddr_in address;
+
+    wn::memory::memzero(&address);
+
     int sockAddrSize = sizeof(address);
 
-    WNMemory::WNMemClrT(&address);
-
-    mSocket = accept(_listenSocket, (sockaddr*)&address, &sockAddrSize);
+    mSocket = accept(_listenSocket, reinterpret_cast<sockaddr*>(&address), &sockAddrSize);
 
     if (INVALID_SOCKET == mSocket) {
         return(WNNetworkManagerReturnCode::eWNCannotCreateSocket);
@@ -26,7 +27,7 @@ WNNetworkManagerReturnCode::type WNInConnectionWindows::Initialize(SOCKET _liste
 
     wn_size_t length = WN_SNPRINTF(NULL, 0, "%s:%d", inet_ntoa(address.sin_addr), ntohs(address.sin_port));
 
-    mConnectionName = wn::malloc<wn_char>(length + 1);
+    mConnectionName = wn::memory::malloc<wn_char>(length + 1);
 
     WN_SNPRINTF(mConnectionName, length + 1, "%s:%d", inet_ntoa(address.sin_addr), ntohs(address.sin_port));
 

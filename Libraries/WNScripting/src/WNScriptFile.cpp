@@ -14,13 +14,13 @@ WNScriptFile::WNScriptFile() {
 
 WNScriptFile::~WNScriptFile() {
     for(WNScriptLinkedList<wn_char>::WNScriptLinkedListNode* i = mIncludes.first; i != wn_nullptr; i = i->next) {
-        WN_DELETE(i->value);
+        wn::memory::destroy(i->value);
     }
     for(WNScriptLinkedList<WNFunction>::WNScriptLinkedListNode* i = mFunctions.first; i != wn_nullptr; i = i->next) {
-        WN_DELETE(i->value);
+        wn::memory::destroy(i->value);
     }
     for(WNScriptLinkedList<WNStruct>::WNScriptLinkedListNode* i = mStructs.first; i != wn_nullptr; i = i->next) {
-        WN_DELETE(i->value);
+        wn::memory::destroy(i->value);
     }
 }
 

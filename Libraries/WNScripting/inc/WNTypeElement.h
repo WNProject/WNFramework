@@ -69,7 +69,7 @@ namespace WNScripting {
             mTypeSize(_internal->mTypeSize),
             mScriptingEngine(_internal->mScriptingEngine){
             mName = WNStrings::WNStrNDup(_name, 256);
-            WNMemory::WNMemCpy(mTag, _tag, 4*sizeof(wn_char));
+            wn::memory::memcpy(mTag, _tag, 4*sizeof(wn_char));
 
         }
         WNScriptTypeInternal(const wn_char* _name, const WNScriptingEngine* _engine, wn_int32 _alignment, wn_float32 _priority, llvm::Type* _type,const wn_char* _tag, wn_size_t _typeSize) :
@@ -87,7 +87,7 @@ namespace WNScripting {
             mTypeSize(_typeSize),
             mScriptingEngine(_engine){
             mName = WNStrings::WNStrNDup(_name, 256);
-            WNMemory::WNMemCpy(mTag, _tag, 4*sizeof(wn_char));
+            wn::memory::memcpy(mTag, _tag, 4*sizeof(wn_char));
 
         }
         WNScriptTypeInternal(const wn_char* _name, const WNScriptingEngine* _engine, wn_int32 _alignment, wn_float32 _priority, llvm::Type* _type, llvm::StructType* _sType, const wn_char* _tag, wn_size_t _typeSize) :
@@ -105,7 +105,7 @@ namespace WNScripting {
             mTypeSize(_typeSize),
             mScriptingEngine(_engine){
             mName = WNStrings::WNStrNDup(_name, 256);
-            WNMemory::WNMemCpy(mTag, _tag, 4*sizeof(wn_char));
+            wn::memory::memcpy(mTag, _tag, 4*sizeof(wn_char));
         }
         WNScriptTypeInternal(WNScriptTypeInternal* _containedType, const WNScriptingEngine* _engine, llvm::Type* _llvmType, wn_float32 _priority, const wn_char* _tag, wn_size_t _typeSize) :
             mArrayType(_containedType),
@@ -123,9 +123,9 @@ namespace WNScripting {
             mTypeSize(_typeSize),
             mScriptingEngine(_engine){
             _containedType->mArrayParent = this;
-            WNMemory::WNMemCpy(mTag, _tag, 4*sizeof(wn_char));
+            wn::memory::memcpy(mTag, _tag, 4*sizeof(wn_char));
             wn_size_t mNameSize = WNStrings::WNStrLen(_containedType->mName);
-            mName = wn::malloc<wn_char>(mNameSize + 1 /*NULL*/ + 2 /*"[]"*/);
+            mName = wn::memory::malloc<wn_char>(mNameSize + 1 /*NULL*/ + 2 /*"[]"*/);
             memcpy(mName, _containedType->mName, mNameSize);
             mName[mNameSize] = '[';
             mName[mNameSize+1] = ']';

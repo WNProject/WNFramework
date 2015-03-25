@@ -17,9 +17,9 @@ WNAssignment::WNAssignment(WNLValue* _lValue):
 }
 
 WNAssignment::~WNAssignment() {
-    WN_DELETE(mLValue);
+    wn::memory::destroy(mLValue);
     if(mAssignExpression) {
-        WN_DELETE(mAssignExpression);
+        wn::memory::destroy(mAssignExpression);
     }
 }
 

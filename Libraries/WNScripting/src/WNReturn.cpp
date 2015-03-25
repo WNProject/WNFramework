@@ -41,7 +41,7 @@ WNReturn::WNReturn() :
 
 WNReturn::~WNReturn() {
     if(mExpression) {
-        WN_DELETE(mExpression);
+        wn::memory::destroy(mExpression);
     }
 }
 

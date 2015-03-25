@@ -14,7 +14,7 @@ WNUNExpression::WNUNExpression(WNUnaryType _type, WNExpression* _expr) :
 }
 
 WNUNExpression::~WNUNExpression() {
-    WN_DELETE(mExpression);
+    wn::memory::destroy(mExpression);
 }
 
 eWNTypeError WNUNExpression::GenerateCode(WNCodeModule& _module, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog) {

@@ -13,8 +13,8 @@ WNArgList::WNArgList() {
 
 WNArgList::~WNArgList() {
     for(WNScriptLinkedList<WNFunctionExpression>::WNScriptLinkedListNode * i = mExpressionList.first; i != wn_nullptr; i = i->next) {
-        WN_DELETE(i->value->expr);
-        WN_DELETE(i->value);
+        wn::memory::destroy(i->value->expr);
+        wn::memory::destroy(i->value);
     }
 }
 

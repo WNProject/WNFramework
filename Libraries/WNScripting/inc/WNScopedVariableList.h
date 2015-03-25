@@ -26,7 +26,7 @@ namespace WNScripting {
         }
         virtual ~WNScriptVariable() {
             if(mName != wn_nullptr) {
-                WN_DELETE(mName);
+                wn::memory::destroy(mName);
             }
         }
         const WNScriptType GetType() const { return(mType); }

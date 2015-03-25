@@ -88,7 +88,7 @@ wn_void WNScopedVariableListImpl::ClearScope() {
             mScriptVariables.pop_back();
             continue;
         }
-        WN_DELETE(mScriptVariables[i]);
+        wn::memory::destroy(mScriptVariables[i]);
         mScriptVariables.pop_back();
     }
 }
@@ -111,7 +111,7 @@ eWNTypeError WNScopedVariableListImpl::PopScopeBlock(WNCodeModule& _module, wn_b
                 }
             }
         }
-        WN_DELETE(mScriptVariables[static_cast<wn_size_t>(i)]);
+        wn::memory::destroy(mScriptVariables[static_cast<wn_size_t>(i)]);
         mScriptVariables.pop_back();
     }
     if(_cleanStack) {

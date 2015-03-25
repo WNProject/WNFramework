@@ -36,8 +36,8 @@ WNElseIf::WNElseIf(WNExpression* _cond, WNInstructionList* _body):
 }
 
 WNElseIf::~WNElseIf() {
-    WN_DELETE(mCondition);
-    WN_DELETE(mBody);
+    wn::memory::destroy(mCondition);
+    wn::memory::destroy(mBody);
 }
 
 eWNTypeError WNElseIf::GenerateCode(WNCodeModule&, const WNFunctionDefinition*, WNLogging::WNLog&) {
@@ -59,13 +59,13 @@ WNIFInstruction::WNIFInstruction(WNExpression* _cond, WNInstructionList* _body) 
 }
 
 WNIFInstruction::~WNIFInstruction() {
-    WN_DELETE(mCondition);
-    WN_DELETE(mBody);
+    wn::memory::destroy(mCondition);
+    wn::memory::destroy(mBody);
     if(mElse) {
-        WN_DELETE(mElse);
+        wn::memory::destroy(mElse);
     }
     for(WNScriptLinkedList<WNElseIf>::WNScriptLinkedListNode*i =  mElseIfNodes.first; i != wn_nullptr; i = i->next) {
-        WN_DELETE(i->value);
+        wn::memory::destroy(i->value);
     }
 }
 

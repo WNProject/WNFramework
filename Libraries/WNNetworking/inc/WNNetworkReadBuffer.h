@@ -38,7 +38,7 @@ namespace WNNetworking {
 
     class WNNetworkReadBuffer : public WNContainers::WNDataBuffer {
     public:
-        typedef std::deque<wn::intrusive_ptr<WNNetworking::WNBufferResource> > WNBufferQueue;
+        typedef std::deque<wn::memory::intrusive_ptr<WNNetworking::WNBufferResource> > WNBufferQueue;
 
     public:
         WNNetworkReadBuffer(WNNetworkManager& _manager);
@@ -47,7 +47,7 @@ namespace WNNetworking {
         virtual wn_bool Serialize(const wn_uint32 _flags, const WNContainers::WNSerializerBase& _serializer);
         virtual wn_char* ReserveBytes(const wn_size_t _numBytes, wn_size_t& _returnedBytes);
         virtual WNContainers::WNDataBufferType GetType();
-        wn_void AppendBuffer(wn::intrusive_ptr<WNBufferResource>& _buffer, wn_size_t _dataCount, wn_size_t _dataOffset);
+        wn_void AppendBuffer(wn::memory::intrusive_ptr<WNBufferResource>& _buffer, wn_size_t _dataCount, wn_size_t _dataOffset);
         wn_bool Initialized();
         wn_void Clear();
         wn_char* GetLastBuffer();
@@ -58,7 +58,7 @@ namespace WNNetworking {
 
     private:
         WNNetworkManager& mManager;
-        wn::intrusive_ptr<WNNetworking::WNBufferResource> mDataOverflow;
+        wn::memory::intrusive_ptr<WNNetworking::WNBufferResource> mDataOverflow;
         WNBufferQueue mChunks;
 
         WNBufferQueue::iterator mCurrentChunk;

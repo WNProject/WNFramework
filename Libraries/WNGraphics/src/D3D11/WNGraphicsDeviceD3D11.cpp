@@ -158,10 +158,10 @@ WNGraphics::WNDrawList* WNGraphics::WNGraphicsDeviceD3D11::CreateDrawList() {
 }
 
 wn_void WNGraphics::WNGraphicsDeviceD3D11::SetClearColor(wn_float32* _color) {
-    WNMemory::WNMemCpy(&mClearColor, _color, sizeof(wn_float32) * 4);
+    wn::memory::memcpy(mClearColor, _color, 4);
 }
 
-WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceD3D11::BindSurface(wn::intrusive_ptr<wn::surface>& _surface, wn_bool _sync) {
+WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceD3D11::BindSurface(wn::memory::intrusive_ptr<wn::surface>& _surface, wn_bool _sync) {
     HWND handle = _surface->GetNativeHandle();
     UINT numModes = 0;
     DXGI_OUTPUT_DESC outputDesc = {0};
@@ -238,9 +238,9 @@ WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceD3D11::
     swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_SEQUENTIAL;
     swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
-    WNWindowData* dat = WN_NEW WNWindowData();
+    WNWindowData* dat = wn::memory::construct<WNWindowData>();
 
-    WNMemory::WNMemClr(dat, sizeof(WNWindowData));
+    wn::memory::memzero(dat);
 
     if (mFactory->CreateSwapChain(mDevice, &swapChainDesc, &dat->mSwapChain) != S_OK) {
         return(WNGraphics::WNGraphicsDeviceReturnCode::eWNGDESwapChainCreationError);
@@ -374,7 +374,7 @@ WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceD3D11::
     return(WNGraphics::WNGraphicsDeviceReturnCode::ok);
 }
 
-WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceD3D11::SetActiveSurface(wn::intrusive_ptr<wn::surface> _surface) {
+WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceD3D11::SetActiveSurface(wn::memory::intrusive_ptr<wn::surface> _surface) {
     mActiveSurface = _surface;
 
     return(WNGraphics::WNGraphicsDeviceReturnCode::ok);

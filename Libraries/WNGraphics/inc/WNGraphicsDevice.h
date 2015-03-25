@@ -99,7 +99,7 @@ namespace WNGraphics {
         virtual wn_void Release() = 0;
 
         // Window
-        virtual WNGraphicsDeviceReturnCode::type SetActiveSurface(wn::intrusive_ptr<wn::surface> _surface) = 0;
+        virtual WNGraphicsDeviceReturnCode::type SetActiveSurface(wn::memory::intrusive_ptr<wn::surface> _surface) = 0;
 
         // State Querying
         virtual wn_uint32 GetCapability(WNDeviceCaps _cap) = 0;
@@ -120,7 +120,7 @@ namespace WNGraphics {
         // State Setting
         virtual wn_void SetClearColor(wn_float32* _color) = 0;
 
-        virtual WNGraphicsDeviceReturnCode::type BindSurface(wn::intrusive_ptr<wn::surface>& _surface, wn_bool _sync = wn_true) = 0;
+        virtual WNGraphicsDeviceReturnCode::type BindSurface(wn::memory::intrusive_ptr<wn::surface>& _surface, wn_bool _sync = wn_true) = 0;
 
         // Drawing
         virtual WNGraphicsDeviceReturnCode::type SetDrawList(WNDrawList* _list) = 0;
