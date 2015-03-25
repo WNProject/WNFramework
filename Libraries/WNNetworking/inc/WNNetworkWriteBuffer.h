@@ -36,7 +36,7 @@ namespace WNNetworking {
 
     class WNNetworkWriteBuffer : public WNContainers::WNDataBuffer {
     public:
-        typedef std::vector<wn::intrusive_ptr<WNNetworking::WNBufferResource> > WNBufferQueue;
+        typedef std::vector<wn::memory::intrusive_ptr<WNNetworking::WNBufferResource> > WNBufferQueue;
 
     public:
         WNNetworkWriteBuffer(WNNetworkManager& _manager, wn_uint32 _number);

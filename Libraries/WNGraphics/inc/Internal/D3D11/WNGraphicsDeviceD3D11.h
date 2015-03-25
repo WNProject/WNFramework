@@ -27,7 +27,7 @@ namespace WNGraphics {
         virtual WNGraphicsDeviceReturnCode::type Initialize(wn_uint32 _adapter, wn_uint32 _output);
         virtual wn_void Release();
 
-        virtual WNGraphicsDeviceReturnCode::type SetActiveSurface(wn::intrusive_ptr<wn::surface> _surface);
+        virtual WNGraphicsDeviceReturnCode::type SetActiveSurface(wn::memory::intrusive_ptr<wn::surface> _surface);
 
         // State Querying
         virtual wn_uint32 GetCapability(WNDeviceCaps _cap);
@@ -48,7 +48,7 @@ namespace WNGraphics {
         // State Setting
         virtual wn_void SetClearColor(wn_float32* _color);
 
-        virtual WNGraphicsDeviceReturnCode::type BindSurface(wn::intrusive_ptr<wn::surface>& _surface, wn_bool _sync = wn_true);
+        virtual WNGraphicsDeviceReturnCode::type BindSurface(wn::memory::intrusive_ptr<wn::surface>& _surface, wn_bool _sync = wn_true);
 
         // Drawing
         virtual WNGraphicsDeviceReturnCode::type SetDrawList(WNDrawList* _list);
@@ -92,7 +92,7 @@ namespace WNGraphics {
         ID3D11Device* mDevice;
         ID3D11DeviceContext* mContext;
 
-        wn::intrusive_ptr<wn::surface> mActiveSurface;
+        wn::memory::intrusive_ptr<wn::surface> mActiveSurface;
 
         WNGraphicsResourceFactory * mResourceFactory;
         wn::recursive_mutex mResizeMutex;

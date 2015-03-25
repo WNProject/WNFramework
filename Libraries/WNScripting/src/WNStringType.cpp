@@ -482,18 +482,18 @@ eWNTypeError RegisterExternalString(WNScripting::WNScriptingEngine* _engine, WNS
         return(error);
     }
 
-    _manager.RegisterCastingOperator(_charArray, _myType, WN_NEW WNScripting::GenerateReinterpretCastOperation(_myType));
-    _manager.RegisterCastingOperator(_myType, _charArray, WN_NEW WNScripting::GenerateReinterpretCastOperation(_charArray));
-    _manager.RegisterArrayAccessOperator(_myType, _intType, WN_NEW WNScripting::GenerateDefaultArrayAccessOperation(_myType));
-    _manager.RegisterDestructionOperator(_myType, WN_NEW WNScripting::GenerateArrayDestruction());
-    _manager.RegisterAllocationOperator(_myType, WN_NEW WNScripting::GenerateDefaultAllocation());
-    _manager.RegisterAssignmentOperator(_myType, AT_EQ, WN_NEW WNScripting::GenerateStructAssignment());
-    _manager.RegisterAssignmentOperator(_myType, AT_CHOWN, WN_NEW WNScripting::GenerateStructTransfer());
-    _manager.RegisterCastingOperator(_nullType, _myType, WN_NEW WNScripting::GenerateReinterpretCastOperation(_myType));
-    _manager.RegisterCastingOperator(_myType, _nullType, WN_NEW WNScripting::GenerateReinterpretCastOperation(_nullType));
-    _manager.RegisterArithmeticOperator(AR_EQ, _myType, _myType, WN_NEW WNScripting::GenerateStructCompare(_boolType, wn_true));
-    _manager.RegisterArithmeticOperator(AR_NEQ, _myType, _myType, WN_NEW WNScripting::GenerateStructCompare(_boolType, wn_false));
-    _manager.RegisterIDAccessOperator(_myType, WN_NEW WNScripting::GenerateArrayIDOperator(_myType, _intType, _functionType));
+    _manager.RegisterCastingOperator(_charArray, _myType, wn::memory::construct<WNScripting::GenerateReinterpretCastOperation>(_myType));
+    _manager.RegisterCastingOperator(_myType, _charArray, wn::memory::construct<WNScripting::GenerateReinterpretCastOperation>(_charArray));
+    _manager.RegisterArrayAccessOperator(_myType, _intType, wn::memory::construct<WNScripting::GenerateDefaultArrayAccessOperation>(_myType));
+    _manager.RegisterDestructionOperator(_myType, wn::memory::construct<WNScripting::GenerateArrayDestruction>());
+    _manager.RegisterAllocationOperator(_myType, wn::memory::construct<WNScripting::GenerateDefaultAllocation>());
+    _manager.RegisterAssignmentOperator(_myType, AT_EQ, wn::memory::construct<WNScripting::GenerateStructAssignment>());
+    _manager.RegisterAssignmentOperator(_myType, AT_CHOWN, wn::memory::construct<WNScripting::GenerateStructTransfer>());
+    _manager.RegisterCastingOperator(_nullType, _myType, wn::memory::construct<WNScripting::GenerateReinterpretCastOperation>(_myType));
+    _manager.RegisterCastingOperator(_myType, _nullType, wn::memory::construct<WNScripting::GenerateReinterpretCastOperation>(_nullType));
+    _manager.RegisterArithmeticOperator(AR_EQ, _myType, _myType, wn::memory::construct<WNScripting::GenerateStructCompare>(_boolType, wn_true));
+    _manager.RegisterArithmeticOperator(AR_NEQ, _myType, _myType, wn::memory::construct<WNScripting::GenerateStructCompare>(_boolType, wn_false));
+    _manager.RegisterIDAccessOperator(_myType, wn::memory::construct<WNScripting::GenerateArrayIDOperator>(_myType, _intType, _functionType));
 
     std::vector<WNScripting::WNScriptType> params;
     params.push_back(_charArray);

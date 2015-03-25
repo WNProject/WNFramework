@@ -66,7 +66,7 @@ namespace WNNetworking {
         wn_size_t mBufferBase;
         WSAOVERLAPPED mReceiveOverlap;
         WSAOVERLAPPED mSendOverlap;
-        wn::intrusive_ptr<WNBufferResource> mReadLocation;
+        wn::memory::intrusive_ptr<WNBufferResource> mReadLocation;
         SOCKET mSocket;
         wn_size_t mOverflowAmount;
         wn_char mOverflowLocation[8];

@@ -69,8 +69,8 @@ namespace WNNetworking {
     class WNConnection;
     class WNConnectionGroup;
 
-    typedef wn::intrusive_ptr<WNConnection> WNConnectionPtr;
-    typedef wn::intrusive_ptr<WNConnectionGroup> WNConnectionGroupPtr;
+    typedef wn::memory::intrusive_ptr<WNConnection> WNConnectionPtr;
+    typedef wn::memory::intrusive_ptr<WNConnectionGroup> WNConnectionGroupPtr;
 
     typedef WNContainers::WNCallback1<wn_bool, const wn_char*> WNConnectedCallback;
     typedef WNContainers::WNCallback2<wn_void, WNConnection*, WNNetworkReadBuffer&> WNMessageCallback;

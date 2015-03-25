@@ -33,7 +33,7 @@ WNArrayAccessExpr::WNArrayAccessExpr(WNExpression* _expr) {
 }
 
 WNArrayAccessExpr::~WNArrayAccessExpr() {
-    WN_DELETE(mArrayAccess);
+    wn::memory::destroy(mArrayAccess);
 }
 
 eWNTypeError WNArrayAccessExpr::GenerateCode(WNCodeModule& _module, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog) {

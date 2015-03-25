@@ -12,22 +12,22 @@
 #include "WNMath/inc/WNBasic.h"
 
 namespace WNContainers {
-    template<typename type, typename T_Allocator = wn::default_expanding_allocator<50, 10>>
+    template<typename type, typename T_Allocator = wn::memory::default_expanding_allocator<50, 10>>
     class dynamic_array {
     public:
         typedef type* iterator;
         typedef type const* const_iterator;
 
-        dynamic_array(wn::WNAllocator* _allocator = &dynamic_array::sAllocator): mSize(0), mMaxSize(0), mData(wn_nullptr) {
+        dynamic_array(wn::memory::allocator* _allocator = &dynamic_array::sAllocator): mSize(0), mMaxSize(0), mData(wn_nullptr) {
             mAllocator = _allocator;
         }
 
-        dynamic_array(wn_size_t _size, wn::WNAllocator* _allocator = &dynamic_array::sAllocator): mSize(0), mMaxSize(0), mData(nullptr) {
+        dynamic_array(wn_size_t _size, wn::memory::allocator* _allocator = &dynamic_array::sAllocator): mSize(0), mMaxSize(0), mData(nullptr) {
             mAllocator = _allocator;
             reserve(_size);
         }
 
-        dynamic_array(wn_size_t _size, const type& _elem, wn::WNAllocator* _allocator = &dynamic_array::sAllocator) : mSize(0), mData(nullptr), mMaxSize(0) {
+        dynamic_array(wn_size_t _size, const type& _elem, wn::memory::allocator* _allocator = &dynamic_array::sAllocator) : mSize(0), mData(nullptr), mMaxSize(0) {
             mAllocator = _allocator;
             insert(mData, _size, _elem);
         }
@@ -37,7 +37,7 @@ namespace WNContainers {
                 for(wn_size_t i = 0; i < mSize; ++i) {
                     mData[i].~type();
                 }
-                mAllocator->Free(mData);
+                mAllocator->deallocate(mData);
             }
         }
 
@@ -90,7 +90,7 @@ namespace WNContainers {
                 for(wn_size_t i = 0; i < mSize; ++i) {
                     mData[i].~type();
                 }
-                mAllocator->Free(mData);
+                mAllocator->free(mData);
             }
             mAllocator = _other.mAllocator;
             _other.mAllocator = &dynamic_array<type, T_Alloc>::sAllocator;
@@ -207,19 +207,19 @@ namespace WNContainers {
                 return;
             }
             if(!mData) {
-                wn::WNAllocationPair pair = mAllocator->Allocate(sizeof(type), _count);
-                mMaxSize = pair.count;
-                mData = reinterpret_cast<type*>(pair.m_pLocation);
+                wn::memory::allocation_pair pair = mAllocator->allocate(sizeof(type), _count);
+                mMaxSize = pair.m_count;
+                mData = reinterpret_cast<type*>(pair.m_location);
             } else {
                 //TODO optimize this based on type traits
-                wn::WNAllocationPair pair = mAllocator->AllocateForResize(sizeof(type), _count, mMaxSize);
-                mMaxSize = pair.count;
-                type* newData = reinterpret_cast<type*>(pair.m_pLocation);
+                wn::memory::allocation_pair pair = mAllocator->allocate_for_resize(sizeof(type), _count, mMaxSize);
+                mMaxSize = pair.m_count;
+                type* newData = reinterpret_cast<type*>(pair.m_location);
                 for(wn_size_t i = 0; i < mSize; ++i) {
                     new(reinterpret_cast<void*>(newData[i])) type(std::move(mData[i]));
                     mData[i].~type();
                 }
-                mAllocator->Free(mData);
+                mAllocator->deallocate(mData);
                 mData = newData;
             }
         }
@@ -261,9 +261,9 @@ namespace WNContainers {
             wn_size_t originalPosition = _startPt - mData;
             if(mMaxSize < (mSize + _count)) {
                 iterator startPt =  mData + (_startPt - mData);;
-                wn::WNAllocationPair alloc = mAllocator->AllocateForResize(sizeof(type), mSize + _count, mMaxSize);
-                mMaxSize = alloc.count;
-                type* newData = reinterpret_cast<type*>(alloc.m_pLocation);
+                wn::memory::allocation_pair alloc = mAllocator->allocate_for_resize(sizeof(type), mSize + _count, mMaxSize);
+                mMaxSize = alloc.m_count;
+                type* newData = reinterpret_cast<type*>(alloc.m_location);
                 type* allocated = newData;
                 for(type* i = mData; i < startPt; ++i) {
                     new(reinterpret_cast<void*>(newData++)) type(std::move(*i));
@@ -274,7 +274,7 @@ namespace WNContainers {
                     new(reinterpret_cast<void*>(newData++)) type(std::move(*i));
                     i->~type();
                 }
-                mAllocator->Free(mData);
+                mAllocator->deallocate(mData);
                 mData = allocated;
             } else {
                 for(type* i = mData + mSize + _count - 1; i > (_startPt + _count - 1); --i) {
@@ -305,7 +305,7 @@ namespace WNContainers {
         friend class dynamic_array;
 
         static T_Allocator sAllocator;
-        wn::WNAllocator* mAllocator;
+        wn::memory::allocator* mAllocator;
         type* mData;
         wn_size_t mMaxSize;
         wn_size_t mSize;

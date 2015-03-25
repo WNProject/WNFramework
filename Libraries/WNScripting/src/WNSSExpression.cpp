@@ -35,8 +35,8 @@ WNSSExpression::WNSSExpression(WNSSType _type, WNExpression* _lhs, WNExpression*
 }
 
 WNSSExpression::~WNSSExpression() {
-    WN_DELETE(mLHS);
-    WN_DELETE(mRHS);
+    wn::memory::destroy(mLHS);
+    wn::memory::destroy(mRHS);
 }
 
 eWNTypeError WNSSExpression::GenerateCode(WNCodeModule& _module, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog) {

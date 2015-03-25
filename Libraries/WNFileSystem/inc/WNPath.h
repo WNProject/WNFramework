@@ -43,7 +43,7 @@ namespace WNFileSystem {
            _path[pathLen - 1] = '/';
         }
 
-        WNMemory::WNMemCpy(_path + pathLen, _append, appendLen);
+        wn::memory::memcpy(_path + pathLen, _append, appendLen);
 
         _path[pathLen + appendLen] = '\0';
 

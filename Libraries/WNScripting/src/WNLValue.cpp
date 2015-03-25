@@ -13,7 +13,7 @@ WNLValue::WNLValue(WNExpression* _expr) :
 }
 
 WNLValue::~WNLValue() {
-    WN_DELETE(mExpression);
+    wn::memory::destroy(mExpression);
 }
 
 eWNTypeError WNLValue::GenerateCode(WNCodeModule& _module, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog) {

@@ -12,7 +12,6 @@
 #include <vector>
 
 using namespace wn;
-using namespace WNMemory;
 
 #define WN_WINDOW_CLASS_NAME _T("WNWindowClass")
 
@@ -33,7 +32,7 @@ WNSurfaceManagerReturnCode::type WNSurfaceManagerWindows::Initialize() {
     wcex.hIconSm = NULL;
 
     if (!RegisterClassEx(&wcex)) {
-        WNMemClr(&wcex, sizeof(WNDCLASSEX));
+        wn::memory::memory_zero(&wcex);
 
         if (GetClassInfoEx(GetModuleHandle(NULL), WN_WINDOW_CLASS_NAME, &wcex) == 0) {
             return(WNSurfaceManagerReturnCode::eWNInitializationFailure);
@@ -55,7 +54,7 @@ WNSurfaceManagerReturnCode::type WNSurfaceManagerWindows::Release() {
     for (wn_size_t i = 0; i < mMessagePumps.size(); ++i) {
         mMessagePumps[i]->mThread->join();
 
-        WN_DELETE(mMessagePumps[i]);
+        wn::memory::destroy(mMessagePumps[i]);
     }
 
     mMessagePumps.clear();
@@ -63,18 +62,18 @@ WNSurfaceManagerReturnCode::type WNSurfaceManagerWindows::Release() {
     return(WNSurfaceManagerReturnCode::ok);
 }
 
-WNSurfaceManagerReturnCode::type WNSurfaceManagerWindows::CreateSurface(wn_uint32 _x, wn_uint32 _y, wn_uint32 _width, wn_uint32 _height, wn::intrusive_ptr<surface>& _surface) {
-    wn::intrusive_ptr<WNSurfaceWindows> ptr = wn::make_intrusive<WNSurfaceWindows, WNSurfaceManagerWindows&>(*this);
+WNSurfaceManagerReturnCode::type WNSurfaceManagerWindows::CreateSurface(wn_uint32 _x, wn_uint32 _y, wn_uint32 _width, wn_uint32 _height, wn::memory::intrusive_ptr<surface>& _surface) {
+    wn::memory::intrusive_ptr<WNSurfaceWindows> ptr = wn::memory::make_intrusive<WNSurfaceWindows, WNSurfaceManagerWindows&>(*this);
 
     ptr->Resize(_width, _height);
     ptr->Move(_x, _y);
 
-    WNWindowThreadData* dat = WN_NEW WNWindowThreadData(ptr);
+    WNWindowThreadData* dat = wn::memory::construct<WNWindowThreadData>(ptr);
 
     mWindowCreationLock.lock();
     mPendingHwnd = 0;
 
-    wn::thread<wn_bool>* thread = WN_NEW wn::thread<wn_bool>(MessagePump, dat);
+    wn::thread<wn_bool>* thread = wn::memory::construct<wn::thread<wn_bool>>(MessagePump, dat);
 
     dat->mThread = thread;
 
@@ -87,7 +86,7 @@ WNSurfaceManagerReturnCode::type WNSurfaceManagerWindows::CreateSurface(wn_uint3
     if (wnd == 0) {
         thread->join();
 
-        WN_DELETE(thread);
+        wn::memory::destroy(thread);
 
         return(WNSurfaceManagerReturnCode::error);
     }
@@ -175,7 +174,7 @@ wn_bool WNSurfaceManagerWindows::MessagePump(WNWindowThreadData* _data) {
 }
 
 
-WNSurfaceManagerWindows::WNWindowThreadData::WNWindowThreadData(wn::intrusive_ptr<WNSurfaceWindows> _wnd) :
+WNSurfaceManagerWindows::WNWindowThreadData::WNWindowThreadData(wn::memory::intrusive_ptr<WNSurfaceWindows> _wnd) :
     mWindow(_wnd),
     mExit(wn_false) {
 }

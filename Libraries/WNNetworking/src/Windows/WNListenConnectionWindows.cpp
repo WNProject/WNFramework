@@ -27,7 +27,7 @@ WNNetworkManagerReturnCode::type WNListenConnectionWindows::Initialize() {
 
     sockaddr_in ServerAddress;
 
-    WNMemory::WNMemClrT(&ServerAddress);
+    wn::memory::memory_zero(&ServerAddress);
 
     ServerAddress.sin_family = AF_INET;
     ServerAddress.sin_addr.s_addr = INADDR_ANY;
@@ -46,7 +46,7 @@ WNNetworkManagerReturnCode::type WNListenConnectionWindows::Initialize() {
     }
 
     const wn_uint32 nameLen = WN_SNPRINTF(NULL, 0, "Listen:%d", mPort);
-    wn_char* name = wn::malloc<wn_char>(nameLen + 1);
+    wn_char* name = wn::memory::heap_allocate<wn_char>(nameLen + 1);
 
     WN_SNPRINTF(name, nameLen + 1, "Listen:%d", mPort);
 
@@ -57,10 +57,10 @@ WNNetworkManagerReturnCode::type WNListenConnectionWindows::Initialize() {
 }
 
 WNInConnectionWindows* WNListenConnectionWindows::AcceptConnection() {
-    WNInConnectionWindows* connection = WN_NEW WNInConnectionWindows(mManager);
+    WNInConnectionWindows* connection = wn::memory::construct<WNInConnectionWindows>(mManager);
 
     if (connection->Initialize(mSocket, mConnectedCallback) != WNNetworkManagerReturnCode::ok) {
-        WN_DELETE(connection);
+        wn::memory::destroy(connection);
     }
 
     return(connection);

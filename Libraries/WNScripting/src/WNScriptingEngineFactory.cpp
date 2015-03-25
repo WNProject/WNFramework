@@ -7,5 +7,5 @@
 #include "WNMemory/inc/WNAllocation.h"
 
 WNScripting::WNScriptingEngine* WNScripting::WNScriptingEngineFactory::CreateScriptingEngine() {
-    return(WN_NEW WNScripting::WNScriptingEngineImpl());
+    return(wn::memory::construct<WNScripting::WNScriptingEngineImpl>());
 }

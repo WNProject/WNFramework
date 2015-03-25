@@ -27,7 +27,7 @@ WNConnectionGroup::WNConnectionGroup(const wn_char* _groupName) {
 }
 
 WNConnectionGroup::~WNConnectionGroup() {
-    wn::free(mConnectionName);
+    wn::memory::heap_free(mConnectionName);
 }
 
 wn_void WNConnectionGroup::AddConnection(WNConnection* _connection) {

@@ -16,10 +16,10 @@
 
 wn::WNSurfaceManager* wn::WNPlatformFactory::CreateSurfaceManager() {
     #ifdef _WN_WINDOWS
-        return(WN_NEW wn::WNSurfaceManagerWindows());
+        return(wn::memory::construct<wn::WNSurfaceManagerWindows>());
     #elif defined _WN_LINUX
-        return(WN_NEW wn::WNSurfaceManagerXWindows());
+        return(wn::memory::construct<wn::WNSurfaceManagerXWindows>());
     #elif defined _WN_ANDROID
-        return(WN_NEW wn::WNSurfaceManagerAndroid());
+        return(wn::memory::construct<wn::WNSurfaceManagerAndroid>());
     #endif
 }

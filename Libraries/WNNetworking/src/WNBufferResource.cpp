@@ -9,10 +9,10 @@
 using namespace WNNetworking;
 
 WNBufferResource::WNBufferResource(const WNNetworkManager& manager) :
-    wn::intrusive_ptr_base(),
+    wn::memory::intrusive_ptr_base(),
     mManager(manager),
     mCurLocation(0) {
-    mBuffer = wn::malloc<wn_char>(WNContainers::MAX_DATA_WRITE);
+    mBuffer = wn::memory::heap_allocate<wn_char>(WNContainers::MAX_DATA_WRITE);
     mBaseLocation = 0;
     #ifdef _WN_WINDOWS
         mWinBuf.buf = mBuffer;
@@ -21,7 +21,7 @@ WNBufferResource::WNBufferResource(const WNNetworkManager& manager) :
 }
 
 WNBufferResource::~WNBufferResource() {
-    wn::free<wn_char>(mBuffer);
+    wn::memory::heap_free(mBuffer);
 }
 
 wn_char* WNBufferResource::GetPointer() const {

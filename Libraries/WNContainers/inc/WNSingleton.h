@@ -21,7 +21,7 @@ namespace WNContainers {
 
         static wn_void release() {
             if (m_instance != wn_nullptr) {
-                WN_DELETE(m_instance);
+                wn::memory::destroy(m_instance);
 
                 m_instance = wn_nullptr;
 

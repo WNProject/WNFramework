@@ -12,7 +12,7 @@
 namespace WNNetworking {
     class WNNetworkManager;
 
-    class WNBufferResource : public wn::intrusive_ptr_base {
+    class WNBufferResource : public wn::memory::intrusive_ptr_base {
     public:
         WNBufferResource(const WNNetworkManager& _manager);
         virtual ~WNBufferResource();

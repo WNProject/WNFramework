@@ -4,30 +4,23 @@
 
 #pragma once
 
-#ifndef __WN_CORE_INTERNAL_PREFETCH_H__
-#define __WN_CORE_INTERNAL_PREFETCH_H__
+#ifndef __WN_MEMORY_INTERNAL_PREFETCH_H__
+#define __WN_MEMORY_INTERNAL_PREFETCH_H__
 
 #include "WNCore/inc/WNTypeTraits.h"
+#include "WNCore/inc/WNUtility.h"
 
-namespace WNCore {
-    namespace internal {
-        template <typename Type, typename = wn::enable_if<wn_true>::Value>
-        class __WNPrefetch {
-        public:
-            static WN_FORCE_INLINE wn_void Execute(const Type* _address) {
-                WN_UNUSED_ARGUMENT(_address);
-            }
-
-        private:
-            WN_FORCE_INLINE __WNPrefetch() {}
-        };
+namespace wn {
+    namespace memory {
+        namespace internal {
+            struct prefetch : non_constructable_non_copyable {
+                template <typename _Type>
+                static WN_FORCE_INLINE wn_void execute(const _Type* _address) {
+                    WN_UNUSED_ARGUMENT(_address);
+                }
+            };
+        }
     }
 }
 
-#ifdef __WN_CORE_EXTENSIONS_ENABLED
-    #ifdef _WN_X86
-        #include "WNCore/inc/Internal/x86/WNPrefetch.h"
-    #endif
-#endif
-
-#endif // __WN_CORE_INTERNAL_PREFETCH_H__
+#endif // __WN_MEMORY_INTERNAL_PREFETCH_H__

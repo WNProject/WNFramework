@@ -32,17 +32,17 @@ WNNetworkManagerReturnCode::type WNOutConnectionWindows::Initialize(WNConnection
         return(WNNetworkManagerReturnCode::eWNBadHostName);
     }
 
-    WNMemory::WNMemClrT(&address);
+    wn::memory::memory_zero(&address);
 
     address.sin_family = AF_INET;
 
-    WNMemory::WNMemCpy(&address.sin_addr.s_addr, server->h_addr, server->h_length);
+    wn::memory::memcpy(&address.sin_addr.s_addr, server->h_addr, server->h_length);
 
     address.sin_port = htons(static_cast<u_short>(_port));
 
     wn_size_t length = WN_SNPRINTF(NULL,0, "%s:%d", _target, ntohs(address.sin_port));
 
-    mConnectionName = wn::malloc<wn_char>(length + 1);
+    mConnectionName = wn::memory::heap_allocate<wn_char>(length + 1);
 
     WN_SNPRINTF(mConnectionName,length +1, "%s:%d", _target, ntohs(address.sin_port));
 

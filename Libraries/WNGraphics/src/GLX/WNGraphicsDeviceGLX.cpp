@@ -211,7 +211,7 @@ WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceGLX::Cl
     return(WNGraphics::WNGraphicsDeviceReturnCode::ok);
 }
 
-WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceGLX::SetActiveSurface(wn::intrusive_ptr<wn::surface> _surface) {
+WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceGLX::SetActiveSurface(wn::memory::intrusive_ptr<wn::surface> _surface) {
     mActiveSurface = _surface;
 
     return(WNGraphics::WNGraphicsDeviceReturnCode::ok);
@@ -221,7 +221,7 @@ wn_void WNGraphics::WNGraphicsDeviceGLX::SetClearColor(wn_float32* _color) {
     glClearColor(_color[0], _color[1], _color[2], _color[3]);
 }
 
-WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceGLX::BindSurface(wn::intrusive_ptr<wn::surface>& _surface, wn_bool _sync) {
+WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceGLX::BindSurface(wn::memory::intrusive_ptr<wn::surface>& _surface, wn_bool _sync) {
     __WNGraphicsData * data = WN_NEW __WNGraphicsData();
 
     XSync(mDisplay, false);

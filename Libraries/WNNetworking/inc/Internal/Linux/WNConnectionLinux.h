@@ -48,7 +48,7 @@ namespace WNNetworking {
         wn_size_t mInProcessedBytes;
         wn_size_t mReadHead;
         wn_size_t mBufferBase;
-        wn::intrusive_ptr<WNBufferResource> mReadLocation;
+        wn::memory::intrusive_ptr<WNBufferResource> mReadLocation;
         wn_size_t mOverflowAmount;
         wn_char mOverflowLocation[8];
     };

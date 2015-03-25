@@ -15,7 +15,7 @@ WNMemberAccessExpr::WNMemberAccessExpr(const char* _member):
 }
 
 WNMemberAccessExpr::~WNMemberAccessExpr() {
-    WN_DELETE(mMember);
+    wn::memory::destroy(mMember);
 }
 
 eWNTypeError WNMemberAccessExpr::GenerateCode(WNCodeModule& _module, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog) {
