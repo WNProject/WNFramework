@@ -12,7 +12,7 @@ WNDeclList::WNDeclList(WNDeclaration* _decl) {
 
 WNDeclList::~WNDeclList() {
     for(WNScriptLinkedList<WNDeclaration>::WNScriptLinkedListNode* i = mDeclarations.first; i != wn_nullptr; i=i->next) {
-        WN_DELETE(i->value);
+        wn::memory::destroy(i->value);
     }
 }
 

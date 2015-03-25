@@ -138,34 +138,34 @@ namespace wn {
     };
 
     template <typename R>
-    wn::intrusive_ptr<wn::WNCallbackJob0<R> > WNAllocateCallbackJob(R (*_ptr)());
+    memory::intrusive_ptr<WNCallbackJob0<R> > WNAllocateCallbackJob(R (*_ptr)());
 
     template <typename R, typename C>
-    wn::intrusive_ptr<wn::WNCallbackJob0<R> > WNAllocateCallbackJob(R(C::*_ptr)(), C* _this);
+    memory::intrusive_ptr<WNCallbackJob0<R> > WNAllocateCallbackJob(R(C::*_ptr)(), C* _this);
 
     template <typename R, typename P1>
-    wn::intrusive_ptr<wn::WNCallbackJob1<R, P1> > WNAllocateCallbackJob(R(*_ptr)(P1), P1 _param);
+    memory::intrusive_ptr<WNCallbackJob1<R, P1> > WNAllocateCallbackJob(R(*_ptr)(P1), P1 _param);
 
     template <typename R, typename C, typename P1>
-    wn::intrusive_ptr<wn::WNCallbackJob1<R, P1> > WNAllocateCallbackJob(R(C::*_ptr)(P1), C*_this, P1 _param);
+    memory::intrusive_ptr<WNCallbackJob1<R, P1> > WNAllocateCallbackJob(R(C::*_ptr)(P1), C*_this, P1 _param);
 
     template <typename R, typename P1, typename P2>
-    wn::intrusive_ptr<wn::WNCallbackJob2<R, P1, P2> > WNAllocateCallbackJob(R(*_ptr)(P1, P2), P1 _param, P2 _param2);
+    memory::intrusive_ptr<WNCallbackJob2<R, P1, P2> > WNAllocateCallbackJob(R(*_ptr)(P1, P2), P1 _param, P2 _param2);
 
     template <typename R, typename C, typename P1, typename P2>
-    wn::intrusive_ptr<wn::WNCallbackJob2<R, P1, P2> > WNAllocateCallbackJob(R(C::*_ptr)(P1, P2), C*_this, P1 _param, P2 _param2);
+    memory::intrusive_ptr<WNCallbackJob2<R, P1, P2> > WNAllocateCallbackJob(R(C::*_ptr)(P1, P2), C*_this, P1 _param, P2 _param2);
 
     template <typename R, typename P1, typename P2, typename P3>
-    wn::intrusive_ptr<wn::WNCallbackJob3<R, P1, P2, P3> > WNAllocateCallbackJob(R(*_ptr)(P1, P2, P3), P1 _param, P2 _param2, P3 _param3);
+    memory::intrusive_ptr<WNCallbackJob3<R, P1, P2, P3> > WNAllocateCallbackJob(R(*_ptr)(P1, P2, P3), P1 _param, P2 _param2, P3 _param3);
 
     template <typename R, typename C, typename P1, typename P2, typename P3>
-    wn::intrusive_ptr<wn::WNCallbackJob3<R, P1, P2, P3> > WNAllocateCallbackJob(R(C::*_ptr)(P1, P2, P3), C*_this, P1 _param, P2 _param2, P3 _param3);
+    memory::intrusive_ptr<WNCallbackJob3<R, P1, P2, P3> > WNAllocateCallbackJob(R(C::*_ptr)(P1, P2, P3), C*_this, P1 _param, P2 _param2, P3 _param3);
 }
 
-#define CREATE_CBJOB_TYPEDEF0(name, T) typedef wn::intrusive_ptr<wn::WNCallbackJob0<T> > name
-#define CREATE_CBJOB_TYPEDEF1(name, T, T2) typedef wn::intrusive_ptr<wn::WNCallbackJob1<T, T2> > name
-#define CREATE_CBJOB_TYPEDEF2(name, T, T2, T3) typedef wn::intrusive_ptr<wn::WNCallbackJob2<T, T2, T3> > name
-#define CREATE_CBJOB_TYPEDEF3(name, T, T2, T3, T4) typedef wn::intrusive_ptr<wn::WNCallbackJob3<T, T2, T3, T4> > name
+#define CREATE_CBJOB_TYPEDEF0(name, T) typedef wn::memory::intrusive_ptr<wn::WNCallbackJob0<T> > name
+#define CREATE_CBJOB_TYPEDEF1(name, T, T2) typedef wn::memory::intrusive_ptr<wn::WNCallbackJob1<T, T2> > name
+#define CREATE_CBJOB_TYPEDEF2(name, T, T2, T3) typedef wn::memory::intrusive_ptr<wn::WNCallbackJob2<T, T2, T3> > name
+#define CREATE_CBJOB_TYPEDEF3(name, T, T2, T3, T4) typedef wn::memory::intrusive_ptr<wn::WNCallbackJob3<T, T2, T3, T4> > name
 
 #include "WNConcurrency/inc/Internal/WNCallbackJob.inl"
 

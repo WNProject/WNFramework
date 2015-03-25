@@ -33,7 +33,7 @@ WNConnectionLinux::WNConnectionLinux(WNNetworkManager& _manager) :
     mReadHead(0),
     mOverflowAmount(0),
     mBufferBase(0) {
-    mReadLocation = make_intrusive<WNBufferResource, WNNetworkManager&>(_manager);
+    mReadLocation = wn::memory::make_intrusive<WNBufferResource, WNNetworkManager&>(_manager);
 }
 
 WNConnectionLinux::~WNConnectionLinux() {
@@ -197,7 +197,7 @@ wn_void WNConnectionLinux::ReadReady() {
         while(processedBytes != transferred) {
             WN_RELEASE_ASSERT(processedBytes < transferred);
             wn_size_t transferToOverflow = wn::min<wn_size_t>(8 - mOverflowAmount, transferred);
-            WNMemCpy(mOverflowLocation + mOverflowAmount, (mReadLocation->GetBaseLocation()) + mReadHead, transferToOverflow);
+            wn::memory::memcpy(mOverflowLocation + mOverflowAmount, (mReadLocation->GetBaseLocation()) + mReadHead, transferToOverflow);
             mOverflowAmount += transferToOverflow;
             processedBytes += transferToOverflow;
             mInProcessedBytes += transferToOverflow;
@@ -208,7 +208,7 @@ wn_void WNConnectionLinux::ReadReady() {
                 mReadHead += transferToOverflow;
                 WN_RELEASE_ASSERT(processedBytes == transferred);
                 if(mBufferBase == MAX_DATA_WRITE) {
-                    mReadLocation = wn::make_intrusive<WNBufferResource, WNNetworkManager&>(mManager);
+                    mReadLocation = wn::memory::make_intrusive<WNBufferResource, WNNetworkManager&>(mManager);
                     mReadHead = 0;
                     mBufferBase = 0;
                 }

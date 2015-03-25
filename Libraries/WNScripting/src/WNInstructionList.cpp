@@ -39,7 +39,7 @@ WNInstructionList::WNInstructionList(WNInstruction* inst) :
 
 WNInstructionList::~WNInstructionList() {
     for(WNScriptLinkedList<WNInstruction>::WNScriptLinkedListNode* i = mInstructions.first; i != wn_nullptr; i = i->next) {
-        WN_DELETE(i->value);
+        wn::memory::destroy(i->value);
     }
 }
 

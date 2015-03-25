@@ -35,7 +35,7 @@ WNFileSystem::WNFile::~WNFile() {
             CommitFileBuffer();
         }
 
-        wn::free<wn_char>(mFileBuffer);
+        wn::memory::heap_free(mFileBuffer);
     }
 
     #ifdef _WN_WINDOWS
@@ -176,7 +176,7 @@ wn_void WNFileSystem::WNFile::CollapseFolderStructure(wn_char* _name) {
         if(*it == '/') {
             if(lastDoubleDot) { //We have found a /something/../ ..destroy it
                 if(olderSeperator) {
-                    WNMemory::WNMemMove(olderSeperator, it, WNStrings::WNStrLen(it) + 1);
+                    wn::memory::memmove(olderSeperator, it, WNStrings::WNStrLen(it) + 1);
                     collapsed = true;
                     break;
                 } else {
@@ -185,7 +185,7 @@ wn_void WNFileSystem::WNFile::CollapseFolderStructure(wn_char* _name) {
                 }
             } else if (lastDot) {
                 if(it - _name > 2) { //we have found a ./ destroy it
-                    WNMemory::WNMemMove(it - 2, it, WNStrings::WNStrLen(it) + 1);
+                    wn::memory::memmove(it - 2, it, WNStrings::WNStrLen(it) + 1);
                     collapsed = true;
                     break;
                 }
@@ -251,7 +251,7 @@ wn_char* WNFileSystem::WNFile::GetDataBuffer() {
         return(mFileBuffer);
     }
 
-    mFileBuffer = wn::malloc<wn_char>(mFileSize);
+    mFileBuffer = wn::memory::heap_allocate<wn_char>(mFileSize);
 
     if (mFileBuffer == wn_nullptr) {
         return(wn_nullptr);
@@ -269,7 +269,7 @@ wn_char* WNFileSystem::WNFile::GetDataBuffer() {
                           maxRead,
                           &amountRead,
                           wn_nullptr)) {
-                    wn::free<wn_char>(mFileBuffer);
+                    wn::memory::heap_free(mFileBuffer);
 
                     return(wn_nullptr);
             }
@@ -281,7 +281,7 @@ wn_char* WNFileSystem::WNFile::GetDataBuffer() {
             return(wn_nullptr);
         }
         if (fread(mFileBuffer, sizeof(wn_char), mFileSize, static_cast<FILE*>(mFileHandle)) != mFileSize) {
-            wn::free<wn_char>(mFileBuffer);
+            wn::memory::heap_free(mFileBuffer);
 
             return(wn_nullptr);
         }
@@ -292,9 +292,9 @@ wn_char* WNFileSystem::WNFile::GetDataBuffer() {
 
 wn_char* WNFileSystem::WNFile::ResizeDataBuffer(wn_size_t _size) {
     if (mFileBuffer) {
-        mFileBuffer = wn::realloc<wn_char>(mFileBuffer, _size);
+        mFileBuffer = wn::memory::heap_reallocate(mFileBuffer, _size);
     } else {
-        mFileBuffer = wn::malloc<wn_char>(_size);
+        mFileBuffer = wn::memory::heap_allocate<wn_char>(_size);
     }
 
     mFileSize = _size;

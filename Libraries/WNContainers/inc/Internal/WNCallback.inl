@@ -50,7 +50,7 @@ namespace WNContainers {
     WN_FORCE_INLINE WNCallback0<Return>::~WNCallback0() {
         if (mBaseCallback) {
             if (mBaseCallback->RemoveRef() == 0) {
-                WN_DELETE(mBaseCallback);
+                wn::memory::destroy(mBaseCallback);
             }
         }
     }
@@ -59,7 +59,7 @@ namespace WNContainers {
     WN_FORCE_INLINE WNCallback0<Return>& WNCallback0<Return>::operator = (const WNCallback0<Return>& _callback) {
         if (mBaseCallback) {
             if (mBaseCallback->RemoveRef() == 0) {
-                WN_DELETE(mBaseCallback);
+                wn::memory::destroy(mBaseCallback);
             }
         }
 
@@ -99,7 +99,7 @@ namespace WNContainers {
 
     template <typename Return, typename Parameter>
     WN_FORCE_INLINE WNCallback1<Return, Parameter>::WNCallback1(Return (*_function)(Parameter)) {
-        mBaseCallback = WN_NEW internal::__WNCallbackClasslessInternal1<Return, Parameter>(_function);
+        mBaseCallback = wn::memory::construct<internal::__WNCallbackClasslessInternal1<Return, Parameter>>(_function);
 
         if (mBaseCallback) {
             mBaseCallback->AddRef();
@@ -109,7 +109,7 @@ namespace WNContainers {
     template <typename Return, typename Parameter>
     template <typename Class>
     WN_FORCE_INLINE WNCallback1<Return, Parameter>::WNCallback1(Class* _this, Return (Class::*_function)(Parameter)) {
-        mBaseCallback = WN_NEW internal::__WNCallbackInternal1<Class, Return, Parameter>(_this, _function);
+        mBaseCallback = wn::memory::construct<internal::__WNCallbackInternal1<Class, Return, Parameter>>(_this, _function);
 
         if (mBaseCallback) {
             mBaseCallback->AddRef();
@@ -120,7 +120,7 @@ namespace WNContainers {
     WN_FORCE_INLINE WNCallback1<Return, Parameter>::~WNCallback1() {
         if (mBaseCallback) {
             if (mBaseCallback->RemoveRef() == 0) {
-                WN_DELETE(mBaseCallback);
+                wn::memory::destroy(mBaseCallback);
             }
         }
     }
@@ -129,7 +129,7 @@ namespace WNContainers {
     WN_FORCE_INLINE WNCallback1<Return, Parameter>& WNCallback1<Return, Parameter>::operator = (const WNCallback1<Return, Parameter>& _callback) {
         if (mBaseCallback) {
             if (mBaseCallback->RemoveRef() == 0) {
-                WN_DELETE(mBaseCallback);
+                wn::memory::destroy(mBaseCallback);
             }
         }
 
@@ -169,7 +169,7 @@ namespace WNContainers {
 
     template<typename Return, typename Parameter1, typename Parameter2>
     WN_FORCE_INLINE WNCallback2<Return, Parameter1, Parameter2>::WNCallback2(Return (*_function)(Parameter1, Parameter2)) {
-        mBaseCallback = WN_NEW internal::__WNCallbackClasslessInternal2<Return, Parameter1, Parameter2>(_function);
+        mBaseCallback = wn::memory::construct<internal::__WNCallbackClasslessInternal2<Return, Parameter1, Parameter2>>(_function);
 
         if (mBaseCallback) {
             mBaseCallback->AddRef();
@@ -179,7 +179,7 @@ namespace WNContainers {
     template<typename Return, typename Parameter1, typename Parameter2>
     template<typename Class>
     WN_FORCE_INLINE WNCallback2<Return, Parameter1, Parameter2>::WNCallback2(Class* _this, Return (Class::*_function)(Parameter1, Parameter2)) {
-        mBaseCallback =  WN_NEW internal::__WNCallbackInternal2<Class, Return, Parameter1, Parameter2>(_this, _function);
+        mBaseCallback = wn::memory::construct<internal::__WNCallbackInternal2<Class, Return, Parameter1, Parameter2>>(_this, _function);
 
         if (mBaseCallback) {
             mBaseCallback->AddRef();
@@ -190,7 +190,7 @@ namespace WNContainers {
     WN_FORCE_INLINE WNCallback2<Return, Parameter1, Parameter2>::~WNCallback2() {
         if (mBaseCallback) {
             if (mBaseCallback->RemoveRef() == 0) {
-                WN_DELETE(mBaseCallback);
+                wn::memory::destroy(mBaseCallback);
             }
         }
     }
@@ -199,7 +199,7 @@ namespace WNContainers {
     WN_FORCE_INLINE WNCallback2<Return, Parameter1, Parameter2>& WNCallback2<Return, Parameter1, Parameter2>::operator = (const WNCallback2<Return, Parameter1, Parameter2>& _callback) {
         if (mBaseCallback) {
             if (mBaseCallback->RemoveRef() == 0) {
-                WN_DELETE(mBaseCallback);
+                wn::memory::destroy(mBaseCallback);
             }
         }
 
@@ -239,7 +239,7 @@ namespace WNContainers {
 
     template<typename Return, typename Parameter1, typename Parameter2, typename Parameter3>
     WN_FORCE_INLINE WNCallback3<Return, Parameter1, Parameter2, Parameter3>::WNCallback3(Return (*_function)(Parameter1, Parameter2, Parameter3)) {
-        mBaseCallback = WN_NEW internal::__WNCallbackClasslessInternal3<Return, Parameter1, Parameter2, Parameter3>(_function);
+        mBaseCallback = wn::memory::construct<internal::__WNCallbackClasslessInternal3<Return, Parameter1, Parameter2, Parameter3>>(_function);
 
         if (mBaseCallback) {
             mBaseCallback->AddRef();
@@ -249,7 +249,7 @@ namespace WNContainers {
     template<typename Return, typename Parameter1, typename Parameter2, typename Parameter3>
     template<typename Class>
     WN_FORCE_INLINE WNCallback3<Return, Parameter1, Parameter2, Parameter3>::WNCallback3(Class* _this, Return (Class::*_function)(Parameter1, Parameter2, Parameter3)) {
-        mBaseCallback =  WN_NEW internal::__WNCallbackInternal3<Class, Return, Parameter1, Parameter2, Parameter3>(_this, _function);
+        mBaseCallback = wn::memory::construct<internal::__WNCallbackInternal3<Class, Return, Parameter1, Parameter2, Parameter3>>(_this, _function);
 
         if (mBaseCallback) {
             mBaseCallback->AddRef();
@@ -260,7 +260,7 @@ namespace WNContainers {
     WN_FORCE_INLINE WNCallback3<Return, Parameter1, Parameter2, Parameter3>::~WNCallback3() {
         if (mBaseCallback) {
             if (mBaseCallback->RemoveRef() == 0) {
-                WN_DELETE(mBaseCallback);
+                wn::memory::destroy(mBaseCallback);
             }
         }
     }
@@ -269,7 +269,7 @@ namespace WNContainers {
     WN_FORCE_INLINE WNCallback3<Return, Parameter1, Parameter2, Parameter3>& WNCallback3<Return, Parameter1, Parameter2, Parameter3>::operator = (const WNCallback3<Return, Parameter1, Parameter2, Parameter3>& _callback) {
         if (mBaseCallback) {
             if (mBaseCallback->RemoveRef() == 0) {
-                WN_DELETE(mBaseCallback);
+                wn::memory::destroy(mBaseCallback);
             }
         }
 

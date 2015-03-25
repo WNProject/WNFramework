@@ -102,11 +102,11 @@ namespace WNStrings {
 
         for (; size < (_length - 1) && _string[size] != '\0'; size++);
 
-        wn_char* copy = wn::malloc<wn_char>(size + 1);
+        wn_char* copy = wn::memory::heap_allocate<wn_char>(size + 1);
 
         if (copy != wn_nullptr) {
             if(size > 0) {
-                WNMemory::WNMemCpy(copy, _string, size);
+                wn::memory::memcpy(copy, _string, size);
             }
 
             copy[size] = '\0';
@@ -225,7 +225,7 @@ namespace WNStrings {
         #ifdef _WN_WINDOWS
             const wn_uint32 length = static_cast<wn_uint32>(WNStrLen(_string));
 
-            output = wn::malloc<wn_wchar>(length);
+            output = wn::memory::heap_allocate<wn_wchar>(length);
 
             if (output != wn_nullptr) {
                 MultiByteToWideChar(CP_ACP, 0, _string, length, output, length);
@@ -243,7 +243,7 @@ namespace WNStrings {
         #ifdef _WN_WINDOWS
             const wn_uint32 length = static_cast<wn_uint32>(WNWStrLen(_string));
 
-            output = wn::malloc<wn_char>(length);
+            output = wn::memory::heap_allocate<wn_char>(length);
 
             if (output != wn_nullptr) {
                 WideCharToMultiByte(CP_ACP, 0, _string, length, output, length, wn_nullptr, wn_nullptr);

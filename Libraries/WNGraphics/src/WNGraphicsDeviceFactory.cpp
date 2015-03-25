@@ -16,10 +16,10 @@
 
 WNGraphics::WNGraphicsDevice* WNGraphics::WNGraphicsDeviceFactory::CreateGraphicsDevice(WNGraphics::WNGraphicsResourceFactory* _resourceFactory) {
     #ifdef _WN_WINDOWS
-        return(WN_NEW WNGraphics::WNGraphicsDeviceD3D11(_resourceFactory));
+        return(wn::memory::construct<WNGraphics::WNGraphicsDeviceD3D11>(_resourceFactory));
     #elif defined _WN_LINUX
-        return(WN_NEW WNGraphics::WNGraphicsDeviceGLX(_resourceFactory));
+        return(wn::memory::construct<WNGraphics::WNGraphicsDeviceGLX>(_resourceFactory));
     #elif defined _WN_ANDROID
-        return(WN_NEW WNGraphics::WNGraphicsDeviceEGL(_resourceFactory));
+        return(wn::memory::construct<WNGraphics::WNGraphicsDeviceEGL>(_resourceFactory));
     #endif
 }

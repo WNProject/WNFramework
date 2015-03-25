@@ -14,7 +14,7 @@
 #include "WNMath/inc/WNBasic.h"
 
 namespace WNContainers {
-    template <typename type, wn_size_t block_size = 10, typename allocator_type = wn::default_allocator>
+    template <typename type, wn_size_t block_size = 10, typename allocator_type = wn::memory::default_allocator>
     class deque {
     public:
         typedef deque<type, block_size, allocator_type> self_type;
@@ -96,7 +96,7 @@ namespace WNContainers {
         typedef iter<type> iterator;
         typedef iter<const type> const_iterator;
 
-        deque(wn::WNAllocator* _allocator = &sAllocator) :
+        deque(wn::memory::allocator* _allocator = &sAllocator) :
             mAllocator(_allocator),
             mUsedBlocks(0),
             mStartBlock(0),
@@ -104,7 +104,7 @@ namespace WNContainers {
             mAllocatedBlocks(0),
             mNumElements(0){
         }
-        deque(wn_size_t _initialSize, const type& _initialValue, wn::WNAllocator* _allocator = &sAllocator) :
+        deque(wn_size_t _initialSize, const type& _initialValue, wn::memory::allocator* _allocator = &sAllocator) :
             mAllocator(_allocator),
             mUsedBlocks(0),
             mStartBlock(0),
@@ -117,7 +117,7 @@ namespace WNContainers {
         ~deque() {
             clear();
             for(wn_size_t i = 0; i < mAllocatedBlocks; ++i) {
-                mAllocator->Free(mBlockList[(mStartBlock + i) % mBlockList.size()]);
+                mAllocator->deallocate(mBlockList[(mStartBlock + i) % mBlockList.size()]);
             }
         }
 
@@ -343,8 +343,8 @@ namespace WNContainers {
                     add_block_space(mAllocatedBlocks + neededExtraBlocks - mBlockList.size());
                 }
                 for(wn_size_t i = 0; i < neededExtraBlocks; ++i) {
-                    wn::WNAllocationPair p = mAllocator->Allocate(sizeof(type*), block_size);
-                    mBlockList[(mStartBlock + mAllocatedBlocks) % mBlockList.size()] = static_cast<type*>(p.m_pLocation);
+                    wn::memory::allocation_pair p = mAllocator->allocate(sizeof(type*), block_size);
+                    mBlockList[(mStartBlock + mAllocatedBlocks) % mBlockList.size()] = static_cast<type*>(p.m_location);
                     mAllocatedBlocks += 1;
                 }
                 mUsedBlocks = mAllocatedBlocks;
@@ -366,8 +366,8 @@ namespace WNContainers {
                         add_block_space(mAllocatedBlocks + neededBlocks - mBlockList.size());
                     }
                     for(wn_size_t i = 0; i < neededBlocks; ++i) {
-                        wn::WNAllocationPair p = mAllocator->Allocate(sizeof(type*), block_size);
-                        mBlockList[(mStartBlock + mAllocatedBlocks) % mBlockList.size()] = static_cast<type*>(p.m_pLocation);
+                        wn::memory::allocation_pair p = mAllocator->allocate(sizeof(type*), block_size);
+                        mBlockList[(mStartBlock + mAllocatedBlocks) % mBlockList.size()] = static_cast<type*>(p.m_location);
                         mAllocatedBlocks += 1;
                     }
                 }
@@ -401,10 +401,10 @@ namespace WNContainers {
             if(0 != mStartBlock) {
                 wn_size_t mAddedSize = mBlockList.size() - oldLength;
                 wn_size_t mCopySize = (oldLength - mStartBlock);
-                WNMemory::WNMemMove(&mBlockList[mStartBlock + mAddedSize], &mBlockList[mStartBlock], mCopySize * sizeof(type*));
-#ifdef _WN_DEBUG
-                WNMemory::WNMemClr(&mBlockList[mStartBlock], sizeof(type*) * mAddedSize);
-#endif
+                wn::memory::memmove(&mBlockList[mStartBlock + mAddedSize], &mBlockList[mStartBlock], mCopySize);
+                #ifdef _WN_DEBUG
+                    wn::memory::memzero(&mBlockList[mStartBlock], mAddedSize);
+                #endif
                 mStartBlock += mAddedSize;
             }
 
@@ -424,7 +424,7 @@ namespace WNContainers {
         wn_size_t mStartLocation;
         wn_size_t mNumElements;
         wn_size_t mStartBlock;
-        wn::WNAllocator* mAllocator;
+        wn::memory::allocator* mAllocator;
         static allocator_type sAllocator;
     };
 

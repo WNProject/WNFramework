@@ -20,18 +20,18 @@ wn_int32 wn_main(wn_int32 _argc, wn_char* _argv[]) {
     device2->Initialize(0, 0);
     device1->Initialize(0, 0);
 
-    wn::intrusive_ptr<surface> sPointer;
+    wn::memory::intrusive_ptr<surface> sPointer;
     WN_RELEASE_ASSERT(manager->CreateSurface(0, 0, 128, 128, sPointer) == WNSurfaceManagerReturnCode::ok);
     device1->BindSurface(sPointer, wn_false);
 
-    wn::intrusive_ptr<surface> sPointer1;
+    wn::memory::intrusive_ptr<surface> sPointer1;
     WNSurfaceManagerReturnCode::type ret;
     WN_RELEASE_ASSERT((ret = manager->CreateSurface(0, 0, 128, 128, sPointer1)) == WNSurfaceManagerReturnCode::ok || ret == WNSurfaceManagerReturnCode::eWNResourceLimitReached);
 
     if(sPointer1) {
         device1->BindSurface(sPointer1, wn_false);
     }
-    wn::intrusive_ptr<surface> sPointer2;
+    wn::memory::intrusive_ptr<surface> sPointer2;
     WN_RELEASE_ASSERT((ret = manager->CreateSurface(0, 0, 128, 128, sPointer2)) == WNSurfaceManagerReturnCode::ok || ret == WNSurfaceManagerReturnCode::eWNResourceLimitReached);
     if(sPointer2) {
         device2->BindSurface(sPointer2, wn_false);
@@ -73,15 +73,15 @@ wn_int32 wn_main(wn_int32 _argc, wn_char* _argv[]) {
         }
     }
 
-    sPointer = wn::intrusive_ptr<surface>();
-    sPointer1 = wn::intrusive_ptr<surface>();
-    sPointer2 = wn::intrusive_ptr<surface>();
+    sPointer = wn::memory::intrusive_ptr<surface>();
+    sPointer1 = wn::memory::intrusive_ptr<surface>();
+    sPointer2 = wn::memory::intrusive_ptr<surface>();
 
     device1->Release();
     device2->Release();
     manager->Release();
 
-    WN_DELETE(manager);
+    wn::memory::destroy(manager);
 
     return(0);
 }

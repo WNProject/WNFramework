@@ -40,13 +40,13 @@ WNDeclaration::WNDeclaration(WNTypeNode* _type, const char* _name) :
 }
 
 WNDeclaration::~WNDeclaration() {
-    WN_DELETE(mType);
-    WN_DELETE(mName);
+    wn::memory::destroy(mType);
+    wn::memory::destroy(mName);
     if(mExpr) {
-        WN_DELETE(mExpr);
+        wn::memory::destroy(mExpr);
     }
     if(mScalarType) {
-        WN_DELETE(mScalarType);
+        wn::memory::destroy(mScalarType);
     }
 }
 

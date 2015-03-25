@@ -102,6 +102,7 @@
     <ClCompile>
       <PrecompiledHeaderFile>WNMemory/test/inc/Common.h</PrecompiledHeaderFile>
       <PreprocessorDefinitions>__WN_USE_PRECOMPILED_HEADER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
     </ClCompile>
     <Link />
     <Link />
@@ -113,6 +114,8 @@
     <ClCompile>
       <PrecompiledHeaderFile>WNMemory/test/inc/Common.h</PrecompiledHeaderFile>
       <PreprocessorDefinitions>__WN_USE_PRECOMPILED_HEADER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
     </ClCompile>
     <Link />
     <Link />
@@ -124,6 +127,7 @@
     <ClCompile>
       <PrecompiledHeaderFile>WNMemory/test/inc/Common.h</PrecompiledHeaderFile>
       <PreprocessorDefinitions>__WN_USE_PRECOMPILED_HEADER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
     </ClCompile>
     <Link />
     <Link />
@@ -135,6 +139,8 @@
     <ClCompile>
       <PrecompiledHeaderFile>WNMemory/test/inc/Common.h</PrecompiledHeaderFile>
       <PreprocessorDefinitions>__WN_USE_PRECOMPILED_HEADER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
     </ClCompile>
     <Link />
     <Link />
@@ -161,6 +167,7 @@
     <ClCompile Include="..\..\src\Tests\WNAllocatorTests.cpp" />
     <ClCompile Include="..\..\src\Tests\WNIntrusivePtrTests.cpp" />
     <ClCompile Include="..\..\src\Tests\WNManipulationTests.cpp" />
+    <ClCompile Include="..\..\src\Tests\WNPrefetchTests.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\Main.cpp" />

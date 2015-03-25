@@ -12,7 +12,7 @@ WNPostExpression::WNPostExpression():
 
 WNPostExpression::~WNPostExpression() {
     if(mBaseExpression) {
-        WN_DELETE(mBaseExpression);
+        wn::memory::destroy(mBaseExpression);
     }
 }
 

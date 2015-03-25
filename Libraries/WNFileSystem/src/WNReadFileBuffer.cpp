@@ -13,7 +13,7 @@ WNFileSystem::WNReadTextFileBuffer::WNReadTextFileBuffer(const WNFileSystem::WNF
     mBufferSize(_bufferSize),
     mBufferPosition(0),
     mEndFile(wn_false) {
-    mCurrentBuffer = wn::malloc<wn_char>(_bufferSize);
+    mCurrentBuffer = wn::memory::heap_allocate<wn_char>(_bufferSize);
 
     WN_RELEASE_ASSERT(mCurrentBuffer != wn_nullptr);
 }
@@ -21,7 +21,7 @@ WNFileSystem::WNReadTextFileBuffer::WNReadTextFileBuffer(const WNFileSystem::WNF
 WNFileSystem::WNReadTextFileBuffer::~WNReadTextFileBuffer() {
     if (mFile.IsValid()) {
         if (mCurrentBuffer != wn_nullptr) {
-            wn::free<wn_char>(mCurrentBuffer);
+            wn::memory::heap_free(mCurrentBuffer);
         }
     }
 }
@@ -31,19 +31,19 @@ wn_char* WNFileSystem::WNReadTextFileBuffer::ReserveBytes(const wn_size_t _numBy
         if (_numBytes > mBufferSize) {
             WN_DEBUG_ASSERT(mBufferPosition <= mBufferUsage);
 
-            mSpareBuffer = wn::realloc<wn_char>(mSpareBuffer, _numBytes);
+            mSpareBuffer = wn::memory::heap_reallocate(mSpareBuffer, _numBytes);
 
-            WNMemory::WNMemCpyT<wn_char>(mSpareBuffer, mCurrentBuffer + mBufferPosition, mBufferUsage - mBufferPosition);
+            wn::memory::memcpy(mSpareBuffer, mCurrentBuffer + mBufferPosition, mBufferUsage - mBufferPosition);
 
             mCurrentBuffer = mSpareBuffer;
-            mSpareBuffer = wn::realloc<wn_char>(mCurrentBuffer, _numBytes);
+            mSpareBuffer = wn::memory::heap_reallocate(mCurrentBuffer, _numBytes);
             mBufferSize = _numBytes;
             mBufferUsage -= mBufferPosition;
             mBufferPosition = 0;
         } else {
             WN_DEBUG_ASSERT(mBufferPosition <= mBufferUsage);
 
-            WNMemory::WNMemCpyT<wn_char>(mSpareBuffer, mCurrentBuffer + mBufferPosition, mBufferUsage - mBufferPosition);
+            wn::memory::memcpy(mSpareBuffer, mCurrentBuffer + mBufferPosition, mBufferUsage - mBufferPosition);
 
             wn_char* currentBuffer = mCurrentBuffer;
 

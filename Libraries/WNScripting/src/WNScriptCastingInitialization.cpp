@@ -88,7 +88,7 @@ namespace WNScripting {
     eWNTypeError WNBuiltInInitializer::InitializeScriptingCasts(WNScriptingEngine*, WNTypeManager& _manager) {
         eWNTypeError err = ok;
         WNScriptType nullType; if((err = _manager.GetTypeByName("-Null", nullType)) != ok) { return err; }
-        _manager.RegisterAllocationOperator(nullType, WN_NEW GenerateDefaultAllocation());
+        _manager.RegisterAllocationOperator(nullType, wn::memory::construct<GenerateDefaultAllocation>());
 
         WNScriptType floatType;  if((err = _manager.GetTypeByName("Float", floatType)) != ok) { return err; }
         WNScriptType intType; if((err = _manager.GetTypeByName("Int", intType)) != ok) { return err; }
@@ -96,27 +96,27 @@ namespace WNScripting {
         WNScriptType boolType; if((err = _manager.GetTypeByName("Bool", boolType)) != ok) { return err; }
         WNScriptType sizeTType; if((err = _manager.GetTypeByName("-SizeT", sizeTType)) != ok) { return err; }
         _manager.RegisterCastingOperator(intType, charType,
-            WN_NEW GenerateIntToIntCast(charType, true));
+            wn::memory::construct<GenerateIntToIntCast>(charType, true));
         _manager.RegisterCastingOperator(intType, floatType,
-            WN_NEW GenerateIntToFPCast(floatType, true));
+            wn::memory::construct<GenerateIntToFPCast>(floatType, true));
         _manager.RegisterCastingOperator(intType, boolType,
-            WN_NEW GenerateIntToIntCast(boolType, true));
+            wn::memory::construct<GenerateIntToIntCast>(boolType, true));
         _manager.RegisterCastingOperator(charType, intType,
-            WN_NEW GenerateIntToIntCast(intType, false));
+            wn::memory::construct<GenerateIntToIntCast>(intType, false));
         _manager.RegisterCastingOperator(intType, sizeTType,
-            WN_NEW GenerateIntToIntCast(sizeTType, false));
+            wn::memory::construct<GenerateIntToIntCast>(sizeTType, false));
         _manager.RegisterCastingOperator(charType, sizeTType,
-            WN_NEW GenerateIntToIntCast(sizeTType, false));
+            wn::memory::construct<GenerateIntToIntCast>(sizeTType, false));
         _manager.RegisterCastingOperator(charType, floatType,
-            WN_NEW GenerateIntToFPCast(floatType, false));
+            wn::memory::construct<GenerateIntToFPCast>(floatType, false));
         _manager.RegisterCastingOperator(charType, boolType,
-            WN_NEW GenerateIntToIntCast(boolType, false));
+            wn::memory::construct<GenerateIntToIntCast>(boolType, false));
         _manager.RegisterCastingOperator(floatType, intType,
-            WN_NEW GenerateFPToIntCast(intType, true));
+            wn::memory::construct<GenerateFPToIntCast>(intType, true));
         _manager.RegisterCastingOperator(floatType, charType,
-            WN_NEW GenerateFPToIntCast(charType, false));
+            wn::memory::construct<GenerateFPToIntCast>(charType, false));
         _manager.RegisterCastingOperator(floatType, boolType,
-            WN_NEW GenerateFPToIntCast(boolType, false));
+            wn::memory::construct<GenerateFPToIntCast>(boolType, false));
 
         return(ok);
     }

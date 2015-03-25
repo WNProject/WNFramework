@@ -35,7 +35,7 @@ WNIDExpression::WNIDExpression(const char* _name) :
 }
 
 WNIDExpression::~WNIDExpression() {
-    wn::free(mName);
+    wn::memory::heap_free(mName);
 }
 
 eWNTypeError WNIDExpression::GenerateCode(WNCodeModule& _module, const WNFunctionDefinition*, WNLogging::WNLog&) {

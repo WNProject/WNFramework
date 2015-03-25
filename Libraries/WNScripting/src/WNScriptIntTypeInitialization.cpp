@@ -480,126 +480,126 @@ namespace WNScripting {
 #endif
         WN_RELEASE_ASSERT(_manager.GetArrayOf(charType, charArrayType) == ok);
         _manager.RegisterArithmeticOperator(AR_ADD, intType, intType,
-                WN_NEW GenerateIntArithmetic<&llvm::IRBuilder<>::CreateAdd >(intType));
+            wn::memory::construct<GenerateIntArithmetic<&llvm::IRBuilder<>::CreateAdd >>(intType));
         _manager.RegisterArithmeticOperator(AR_SUB, intType, intType,
-                WN_NEW GenerateIntArithmetic<&llvm::IRBuilder<>::CreateSub >(intType));
+            wn::memory::construct<GenerateIntArithmetic<&llvm::IRBuilder<>::CreateSub >>(intType));
         _manager.RegisterArithmeticOperator(AR_DIV, intType, intType,
-                WN_NEW GenerateIntDivArithmetic<&llvm::IRBuilder<>::CreateSDiv> (intType));
+            wn::memory::construct<GenerateIntDivArithmetic<&llvm::IRBuilder<>::CreateSDiv>>(intType));
         _manager.RegisterArithmeticOperator(AR_MULT, intType, intType,
-                WN_NEW GenerateIntArithmetic<&llvm::IRBuilder<>::CreateMul>(intType));
+            wn::memory::construct<GenerateIntArithmetic<&llvm::IRBuilder<>::CreateMul>>(intType));
         _manager.RegisterArithmeticOperator(AR_MOD, intType, intType,
-                WN_NEW GenerateIntModArithmetic<&llvm::IRBuilder<>::CreateSRem>(intType));
+            wn::memory::construct<GenerateIntModArithmetic<&llvm::IRBuilder<>::CreateSRem>>(intType));
         _manager.RegisterArithmeticOperator(AR_EQ, intType, intType,
-                WN_NEW GenerateIntCompare<&llvm::IRBuilder<>::CreateICmpEQ>(boolType));
+            wn::memory::construct<GenerateIntCompare<&llvm::IRBuilder<>::CreateICmpEQ>>(boolType));
 
         _manager.RegisterAssignmentOperator(intType, AT_ADD_EQ,
-                WN_NEW GenerateCompoundIntAssignment <&llvm::IRBuilder<>::CreateAdd>());
+            wn::memory::construct<GenerateCompoundIntAssignment <&llvm::IRBuilder<>::CreateAdd>>());
         _manager.RegisterAssignmentOperator(intType, AT_SUB_EQ,
-                WN_NEW GenerateCompoundIntAssignment <&llvm::IRBuilder<>::CreateSub>());
+            wn::memory::construct<GenerateCompoundIntAssignment <&llvm::IRBuilder<>::CreateSub>>());
         _manager.RegisterAssignmentOperator(intType, AT_MULT_EQ,
-                WN_NEW GenerateCompoundIntAssignment <&llvm::IRBuilder<>::CreateMul>());
+            wn::memory::construct<GenerateCompoundIntAssignment <&llvm::IRBuilder<>::CreateMul>>());
         _manager.RegisterAssignmentOperator(intType, AT_DIV_EQ,
-            WN_NEW GenerateCompoundIntDivAssignment <&llvm::IRBuilder<>::CreateSDiv>());
+            wn::memory::construct<GenerateCompoundIntDivAssignment <&llvm::IRBuilder<>::CreateSDiv>>());
         _manager.RegisterAssignmentOperator(intType, AT_MOD_EQ,
-            WN_NEW GenerateCompoundIntModAssignment<&llvm::IRBuilder<>::CreateSRem>());
+            wn::memory::construct<GenerateCompoundIntModAssignment<&llvm::IRBuilder<>::CreateSRem>>());
 
         _manager.RegisterArithmeticOperator(AR_NEQ, intType, intType,
-                WN_NEW GenerateIntCompare<&llvm::IRBuilder<>::CreateICmpNE>(boolType));
+            wn::memory::construct<GenerateIntCompare<&llvm::IRBuilder<>::CreateICmpNE>>(boolType));
         _manager.RegisterArithmeticOperator(AR_LEQ, intType, intType,
-                WN_NEW GenerateIntCompare<&llvm::IRBuilder<>::CreateICmpSLE>(boolType));
+            wn::memory::construct<GenerateIntCompare<&llvm::IRBuilder<>::CreateICmpSLE>>(boolType));
         _manager.RegisterArithmeticOperator(AR_GEQ, intType, intType,
-                WN_NEW GenerateIntCompare<&llvm::IRBuilder<>::CreateICmpSGE>(boolType));
+            wn::memory::construct<GenerateIntCompare<&llvm::IRBuilder<>::CreateICmpSGE>>(boolType));
         _manager.RegisterArithmeticOperator(AR_LT, intType, intType,
-                WN_NEW GenerateIntCompare<&llvm::IRBuilder<>::CreateICmpSLT>(boolType));
+            wn::memory::construct<GenerateIntCompare<&llvm::IRBuilder<>::CreateICmpSLT>>(boolType));
         _manager.RegisterArithmeticOperator(AR_GT, intType, intType,
-                WN_NEW GenerateIntCompare<&llvm::IRBuilder<>::CreateICmpSGT>(boolType));
+            wn::memory::construct<GenerateIntCompare<&llvm::IRBuilder<>::CreateICmpSGT>>(boolType));
         _manager.RegisterPreUnaryOperator(UN_PREDEC, intType,
-                WN_NEW PreUnaryFunction<&GeneratePreValue<&llvm::IRBuilder<>::CreateSub> >());
+            wn::memory::construct<PreUnaryFunction<&GeneratePreValue<&llvm::IRBuilder<>::CreateSub> >>());
         _manager.RegisterPreUnaryOperator(UN_PREINC, intType,
-                WN_NEW PreUnaryFunction<&GeneratePreValue<&llvm::IRBuilder<>::CreateAdd> >());
+            wn::memory::construct<PreUnaryFunction<&GeneratePreValue<&llvm::IRBuilder<>::CreateAdd> >>());
         _manager.RegisterPostUnaryOperator(UN_POSTDEC, intType,
-                WN_NEW PostUnaryFunction<&GeneratePostValue<&llvm::IRBuilder<>::CreateSub> >());
+            wn::memory::construct<PostUnaryFunction<&GeneratePostValue<&llvm::IRBuilder<>::CreateSub> >>());
         _manager.RegisterPostUnaryOperator(UN_POSTINC, intType,
-                WN_NEW PostUnaryFunction<&GeneratePostValue<&llvm::IRBuilder<>::CreateAdd> >());
+            wn::memory::construct<PostUnaryFunction<&GeneratePostValue<&llvm::IRBuilder<>::CreateAdd> >>());
         _manager.RegisterPreUnaryOperator(UN_NEG, intType,
-            WN_NEW PreUnaryFunction<&GenerateIntNegation>());
+            wn::memory::construct<PreUnaryFunction<&GenerateIntNegation>>());
         _manager.RegisterConstantOperator(intType,
-            WN_NEW GenerateIntConstant(intType));
+            wn::memory::construct<GenerateIntConstant>(intType));
         _manager.RegisterAllocationOperator(intType,
-            WN_NEW GenerateDefaultAllocation());
+            wn::memory::construct<GenerateDefaultAllocation>());
         _manager.RegisterAssignmentOperator(intType, AT_EQ,
-            WN_NEW GenerateDefaultAssignment());
+            wn::memory::construct<GenerateDefaultAssignment>());
         _manager.RegisterAssignmentOperator(intType, AT_CHOWN,
-            WN_NEW GenerateDefaultAssignment());
+            wn::memory::construct<GenerateDefaultAssignment>());
 
         _manager.RegisterArithmeticOperator(AR_ADD, charType, charType,
-                WN_NEW GenerateIntArithmetic<&llvm::IRBuilder<>::CreateAdd >(charType));
+            wn::memory::construct<GenerateIntArithmetic<&llvm::IRBuilder<>::CreateAdd >>(charType));
         _manager.RegisterArithmeticOperator(AR_SUB, charType, charType,
-                WN_NEW GenerateIntArithmetic<&llvm::IRBuilder<>::CreateSub >(charType));
+            wn::memory::construct<GenerateIntArithmetic<&llvm::IRBuilder<>::CreateSub >>(charType));
         _manager.RegisterArithmeticOperator(AR_DIV, charType, charType,
-                WN_NEW GenerateIntDivArithmetic<&llvm::IRBuilder<>::CreateSDiv> (charType));
+            wn::memory::construct<GenerateIntDivArithmetic<&llvm::IRBuilder<>::CreateSDiv>>(charType));
         _manager.RegisterArithmeticOperator(AR_MULT, charType, charType,
-                WN_NEW GenerateIntArithmetic<&llvm::IRBuilder<>::CreateMul>(charType));
+            wn::memory::construct<GenerateIntArithmetic<&llvm::IRBuilder<>::CreateMul>>(charType));
         _manager.RegisterArithmeticOperator(AR_MOD, charType, charType,
-                WN_NEW GenerateIntModArithmetic<&llvm::IRBuilder<>::CreateSRem>(charType));
+            wn::memory::construct<GenerateIntModArithmetic<&llvm::IRBuilder<>::CreateSRem>>(charType));
         _manager.RegisterArithmeticOperator(AR_EQ, charType, charType,
-                WN_NEW GenerateIntCompare<&llvm::IRBuilder<>::CreateICmpEQ>(boolType));
+            wn::memory::construct<GenerateIntCompare<&llvm::IRBuilder<>::CreateICmpEQ>>(boolType));
 
         _manager.RegisterAssignmentOperator(charType, AT_ADD_EQ,
-                WN_NEW GenerateCompoundIntAssignment <&llvm::IRBuilder<>::CreateAdd>());
+            wn::memory::construct<GenerateCompoundIntAssignment <&llvm::IRBuilder<>::CreateAdd>>());
         _manager.RegisterAssignmentOperator(charType, AT_SUB_EQ,
-                WN_NEW GenerateCompoundIntAssignment <&llvm::IRBuilder<>::CreateSub>());
+            wn::memory::construct<GenerateCompoundIntAssignment <&llvm::IRBuilder<>::CreateSub>>());
         _manager.RegisterAssignmentOperator(charType, AT_MULT_EQ,
-                WN_NEW GenerateCompoundIntAssignment <&llvm::IRBuilder<>::CreateMul>());
+            wn::memory::construct<GenerateCompoundIntAssignment <&llvm::IRBuilder<>::CreateMul>>());
         _manager.RegisterAssignmentOperator(charType, AT_DIV_EQ,
-            WN_NEW GenerateCompoundIntDivAssignment <&llvm::IRBuilder<>::CreateSDiv>());
+            wn::memory::construct<GenerateCompoundIntDivAssignment <&llvm::IRBuilder<>::CreateSDiv>>());
         _manager.RegisterAssignmentOperator(charType, AT_MOD_EQ,
-            WN_NEW GenerateCompoundIntModAssignment<&llvm::IRBuilder<>::CreateSRem>());
+            wn::memory::construct<GenerateCompoundIntModAssignment<&llvm::IRBuilder<>::CreateSRem>>());
 
         _manager.RegisterArithmeticOperator(AR_NEQ, charType, charType,
-                WN_NEW GenerateIntCompare<&llvm::IRBuilder<>::CreateICmpNE>(boolType));
+            wn::memory::construct<GenerateIntCompare<&llvm::IRBuilder<>::CreateICmpNE>>(boolType));
         _manager.RegisterArithmeticOperator(AR_LEQ, charType, charType,
-                WN_NEW GenerateIntCompare<&llvm::IRBuilder<>::CreateICmpSLE>(boolType));
+                wn::memory::construct<GenerateIntCompare<&llvm::IRBuilder<>::CreateICmpSLE>>(boolType));
         _manager.RegisterArithmeticOperator(AR_GEQ, charType, charType,
-                WN_NEW GenerateIntCompare<&llvm::IRBuilder<>::CreateICmpSGE>(boolType));
+                wn::memory::construct<GenerateIntCompare<&llvm::IRBuilder<>::CreateICmpSGE>>(boolType));
         _manager.RegisterArithmeticOperator(AR_LT, charType, charType,
-                WN_NEW GenerateIntCompare<&llvm::IRBuilder<>::CreateICmpSLT>(boolType));
+                wn::memory::construct<GenerateIntCompare<&llvm::IRBuilder<>::CreateICmpSLT>>(boolType));
         _manager.RegisterArithmeticOperator(AR_GT, charType, charType,
-                WN_NEW GenerateIntCompare<&llvm::IRBuilder<>::CreateICmpSGT>(boolType));
+                wn::memory::construct<GenerateIntCompare<&llvm::IRBuilder<>::CreateICmpSGT>>(boolType));
         _manager.RegisterPreUnaryOperator(UN_PREDEC, charType,
-                WN_NEW PreUnaryFunction<&GeneratePreValue<&llvm::IRBuilder<>::CreateSub> >());
+                wn::memory::construct<PreUnaryFunction<&GeneratePreValue<&llvm::IRBuilder<>::CreateSub>>>());
         _manager.RegisterPreUnaryOperator(UN_PREINC, charType,
-                WN_NEW PreUnaryFunction<&GeneratePreValue<&llvm::IRBuilder<>::CreateAdd> >());
+                wn::memory::construct<PreUnaryFunction<&GeneratePreValue<&llvm::IRBuilder<>::CreateAdd>>>());
         _manager.RegisterPostUnaryOperator(UN_POSTDEC, charType,
-                WN_NEW PostUnaryFunction<&GeneratePostValue<&llvm::IRBuilder<>::CreateSub> >());
+                wn::memory::construct<PostUnaryFunction<&GeneratePostValue<&llvm::IRBuilder<>::CreateSub>>>());
         _manager.RegisterPostUnaryOperator(UN_POSTINC, charType,
-                WN_NEW PostUnaryFunction<&GeneratePostValue<&llvm::IRBuilder<>::CreateAdd> >());
+                wn::memory::construct<PostUnaryFunction<&GeneratePostValue<&llvm::IRBuilder<>::CreateAdd>>>());
         _manager.RegisterPreUnaryOperator(UN_NEG, charType,
-            WN_NEW PreUnaryFunction<&GenerateIntNegation>());
+            wn::memory::construct<PreUnaryFunction<&GenerateIntNegation>>());
         _manager.RegisterConstantOperator(charType,
-            WN_NEW GenerateCharConstant(charType));
+            wn::memory::construct<GenerateCharConstant>(charType));
         _manager.RegisterConstantOperator(charArrayType,
-            WN_NEW GenerateStringConstant(charArrayType));
+            wn::memory::construct<GenerateStringConstant>(charArrayType));
         _manager.RegisterAllocationOperator(charType,
-            WN_NEW GenerateDefaultAllocation());
+            wn::memory::construct<GenerateDefaultAllocation>());
         _manager.RegisterAssignmentOperator(charType, AT_EQ,
-            WN_NEW GenerateDefaultAssignment());
+            wn::memory::construct<GenerateDefaultAssignment>());
         _manager.RegisterAssignmentOperator(charType, AT_CHOWN,
-            WN_NEW GenerateDefaultAssignment());
+            wn::memory::construct<GenerateDefaultAssignment>());
 
         _manager.RegisterConstantOperator(boolType,
-            WN_NEW GenerateBoolConstant(boolType));
+            wn::memory::construct<GenerateBoolConstant>(boolType));
         _manager.RegisterPreUnaryOperator(UN_NEG, boolType,
-            WN_NEW PreUnaryFunction<&GenerateBoolNegation>());
+            wn::memory::construct<PreUnaryFunction<&GenerateBoolNegation>>());
         _manager.RegisterAllocationOperator(boolType,
-            WN_NEW GenerateDefaultAllocation());
+            wn::memory::construct<GenerateDefaultAllocation>());
         _manager.RegisterAssignmentOperator(boolType, AT_EQ,
-            WN_NEW GenerateDefaultAssignment());
+            wn::memory::construct<GenerateDefaultAssignment>());
         _manager.RegisterAssignmentOperator(boolType, AT_CHOWN,
-            WN_NEW GenerateDefaultAssignment());
+            wn::memory::construct<GenerateDefaultAssignment>());
 
         _manager.RegisterConstantOperator(voidType,
-            WN_NEW GenerateVoidConstant(voidType));
+            wn::memory::construct<GenerateVoidConstant>(voidType));
 
         return(ok);
     }

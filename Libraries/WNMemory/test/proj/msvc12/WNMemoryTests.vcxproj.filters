@@ -20,16 +20,19 @@
     <ClCompile Include="..\..\inc\Common.h">
       <Filter>Header Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\Tests\WNAllocationTests.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\src\Tests\WNAllocatorTests.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\Tests\WNIntrusivePtrTests.cpp">
       <Filter>Source Files\Tests</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\Tests\WNManipulationTests.cpp">
       <Filter>Source Files\Tests</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\Tests\WNAllocationTests.cpp">
-      <Filter>Source Files\Tests</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\Tests\WNIntrusivePtrTests.cpp">
+    <ClCompile Include="..\..\src\Tests\WNPrefetchTests.cpp">
       <Filter>Source Files\Tests</Filter>
     </ClCompile>
   </ItemGroup>

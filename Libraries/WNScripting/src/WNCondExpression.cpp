@@ -36,8 +36,8 @@ WNCondExpression::WNCondExpression(WNExpression* _cond, WNExpression* _lhs, WNEx
 }
 
 WNCondExpression::~WNCondExpression() {
-    WN_DELETE(mLHS);
-    WN_DELETE(mRHS);
+    wn::memory::destroy(mLHS);
+    wn::memory::destroy(mRHS);
 }
 
 eWNTypeError WNCondExpression::GenerateCode(WNCodeModule& _module, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog) {

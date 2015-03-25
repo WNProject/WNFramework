@@ -127,7 +127,7 @@ wn_void WNNetworking::WNNetworkManagerWindows::ListenThread() {
                         const HANDLE temp = CreateIoCompletionPort((HANDLE)conn->GetWindowsSocket(), mIOCP, reinterpret_cast<ULONG_PTR>(conn), 0);
 
                         if (NULL == temp) {
-                            WN_DELETE(conn);
+                            wn::memory::destroy(conn);
 
                             continue;
                         }
@@ -173,14 +173,14 @@ WNNetworking::WNNetworkManagerWindows::~WNNetworkManagerWindows() {
 }
 
 WNNetworking::WNNetworkManagerReturnCode::type WNNetworking::WNNetworkManagerWindows::ConnectTo(WNConnection*& _outHandle, WNConnectionType::type _type, const wn_char* _target, wn_uint16 _port) {
-    WNOutConnectionWindows* conn = WN_NEW WNOutConnectionWindows(*this);
+    WNOutConnectionWindows* conn = wn::memory::construct<WNOutConnectionWindows>(*this);
 
     if (conn->Initialize(_type, _target, _port) != WNNetworkManagerReturnCode::ok) {
-        WN_DELETE(conn);
+        wn::memory::destroy(conn);
     }
 
     if (CreateIoCompletionPort((HANDLE)conn->GetWindowsSocket(), mIOCP, reinterpret_cast<ULONG_PTR>(conn), 0) == NULL) {
-        WN_DELETE(conn);
+        wn::memory::destroy(conn);
 
         return(WNNetworkManagerReturnCode::eWNCannotAssociate);
     }
@@ -232,11 +232,11 @@ WNNetworking::WNNetworkManagerReturnCode::type WNNetworking::WNNetworkManagerWin
     mInitializationState = eWNIOCPCreated;
 
     for (wn_uint32 i = 0; i < mMaxThreads; ++i) {
-        mThreads.push_back(WN_NEW wn::thread<wn_void>(&WNNetworkManagerWindows::IOCPThread, this));
+        mThreads.push_back(wn::memory::construct<wn::thread<wn_void>>(&WNNetworkManagerWindows::IOCPThread, this));
     }
 
     mInitializationState = eWNThreadsCreated;
-    mListenThread = WN_NEW wn::thread<wn_void>(&WNNetworkManagerWindows::ListenThread, this);
+    mListenThread = wn::memory::construct<wn::thread<wn_void>>(&WNNetworkManagerWindows::ListenThread, this);
 
     mInitializationState = eWNInitializationCompleted;
 
@@ -256,7 +256,7 @@ wn_void WNNetworking::WNNetworkManagerWindows::Cleanup() {
 
             for (wn_uint32 i = 0; i < static_cast<wn_uint32>(mThreads.size()); ++i) {
                 mThreads[i]->join();
-                WN_DELETE(mThreads[i]);
+                wn::memory::destroy(mThreads[i]);
             }
 
             mThreads.clear();
@@ -286,11 +286,11 @@ wn_void WNNetworking::WNNetworkManagerWindows::Cleanup() {
 WNNetworking::WNNetworkManagerReturnCode::type WNNetworking::WNNetworkManagerWindows::CreateListener(WNConnection*& _outHandle, WNConnectionType::type _type, wn_uint16 _port, const WNConnectedCallback& _callback) {
     WN_RELEASE_ASSERT_DESC(_type == WNConnectionType::eWNReliable, "We do not support unreliable connections yet");
 
-    WNListenConnectionWindows* listenConnection = WN_NEW WNListenConnectionWindows(*this, _type, _port, _callback);
+    WNListenConnectionWindows* listenConnection = wn::memory::construct<WNListenConnectionWindows>(*this, _type, _port, _callback);
     const WNNetworkManagerReturnCode::type err = listenConnection->Initialize();
 
     if (err != WNNetworkManagerReturnCode::ok) {
-        WN_DELETE(listenConnection);
+        wn::memory::destroy(listenConnection);
 
         return(err);
     }
@@ -305,7 +305,7 @@ WNNetworking::WNNetworkManagerReturnCode::type WNNetworking::WNNetworkManagerWin
         if (SOCKET_ERROR == WSAEventSelect(s, mAcceptEvent, FD_ACCEPT)) {
                mIncommingConnections.pop_back();
 
-               WN_DELETE(listenConnection);
+               wn::memory::destroy(listenConnection);
 
                return(WNNetworkManagerReturnCode::eWNCannotListen);
         }

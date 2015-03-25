@@ -52,7 +52,7 @@ WNScopedVariableList& WNCodeModule::GetScopedVariableList() {
 }
 
 eWNTypeError WNCodeModule::Initialize(wn_uint32 flags, WNScriptingMemoryManager& _manager) {
-    mModule = WN_NEW llvm::Module("MCJitModule", llvm::getGlobalContext());
+    mModule = wn::memory::construct<llvm::Module>("MCJitModule", llvm::getGlobalContext());
 
     #ifdef _WN_ANDROID
         #ifdef _WN_ARM
@@ -84,10 +84,10 @@ eWNTypeError WNCodeModule::Initialize(wn_uint32 flags, WNScriptingMemoryManager&
         delete(mModule);
         return(error);
     }
-    mBuilder = WN_NEW llvm::IRBuilder<>(llvm::getGlobalContext());
+    mBuilder = wn::memory::construct<llvm::IRBuilder<>>(llvm::getGlobalContext());
     if(!mBuilder) {
-         WN_DELETE(mEngine);
-         WN_DELETE(mModule);
+         wn::memory::destroy(mEngine);
+         wn::memory::destroy(mModule);
          return(error);
     }
 
@@ -389,7 +389,7 @@ eWNTypeError WNCodeModule::GenerateFunctionDefinition(const wn_char* _name, cons
     if(_outFunctionDefinition){
         return(eWNAlreadyExists);
     }
-    WNFunctionDefinition* def = WN_NEW WNFunctionDefinition();
+    WNFunctionDefinition* def = wn::memory::construct<WNFunctionDefinition>();
     def->mName = WNStrings::WNStrNDup(_name, 256);
     def->mReturn = _return;
     def->mTypes.assign(_params.begin(), _params.end());
@@ -438,7 +438,7 @@ eWNTypeError WNCodeModule::AddExternalDefinition(const wn_char* _name, const wn_
         return(eWNAlreadyExists);
     }
 
-    WNFunctionDefinition* def = WN_NEW WNFunctionDefinition();
+    WNFunctionDefinition* def = wn::memory::construct<WNFunctionDefinition>();
     def->mName = WNStrings::WNStrNDup(_name, 256);
     def->mTag = WNStrings::WNStrNDup(_tag, 1024);
     def->mReturn = _return;

@@ -15,7 +15,6 @@
 using namespace WNNetworking;
 using namespace WNConcurrency;
 using namespace WNContainers;
-using namespace WNMemory;
 
 WNNetworkReadBuffer::WNNetworkReadBuffer(WNNetworkManager& _manager) :
     mManager(_manager),
@@ -24,7 +23,7 @@ WNNetworkReadBuffer::WNNetworkReadBuffer(WNNetworkManager& _manager) :
     mInitialized(wn_false),
     mTotalSize(0),
     mLastChunk(wn_false),
-    mDataOverflow(wn::make_intrusive<WNBufferResource, WNNetworkManager&>(_manager)) {
+    mDataOverflow(wn::memory::make_intrusive<WNBufferResource, WNNetworkManager&>(_manager)) {
 }
 
 wn_bool WNNetworkReadBuffer::Serialize(wn_uint32 _flags, const WNSerializerBase& _serializer) {
@@ -61,7 +60,7 @@ wn_char* WNNetworkReadBuffer::ReserveBytes(wn_size_t _numBytes, wn_size_t& _retu
     return((*mCurrentChunk)->GetPointer());
 }
 
-wn_void WNNetworkReadBuffer::AppendBuffer(wn::intrusive_ptr<WNBufferResource>&  _buffer, wn_size_t _datacount, wn_size_t _dataOffset) {
+wn_void WNNetworkReadBuffer::AppendBuffer(wn::memory::intrusive_ptr<WNBufferResource>&  _buffer, wn_size_t _datacount, wn_size_t _dataOffset) {
     WN_RELEASE_ASSERT_DESC(_datacount < MAX_DATA_WRITE, "You cannot append a buffer larger than the set size");
 
     mInitialized = wn_true;

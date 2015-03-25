@@ -21,9 +21,10 @@ WNConnectionWindows::WNConnectionWindows(WNNetworkManager& _manager) :
     mBufferBase(0),
     mCurrentReadBuffer(_manager),
     mManager(_manager) {
-    WNMemory::WNMemClrT(&mReceiveOverlap);
-    WNMemory::WNMemClrT(&mSendOverlap);
-    mReadLocation = wn::make_intrusive<WNBufferResource, WNNetworkManager&>(_manager);
+    wn::memory::memory_zero(&mReceiveOverlap);
+    wn::memory::memory_zero(&mSendOverlap);
+
+    mReadLocation = wn::memory::make_intrusive<WNBufferResource, WNNetworkManager&>(_manager);
 }
 
 WNConnectionWindows::~WNConnectionWindows() {
@@ -80,7 +81,7 @@ wn_bool WNConnectionWindows::ProcessRead(WNNetworkManagerWindows* _windowsManage
     while(processedBytes != _bytesTransferred) {
         WN_RELEASE_ASSERT(processedBytes < _bytesTransferred);
         wn_size_t transferToOverflow = wn::min<wn_size_t>(8 - mOverflowAmount, _bytesTransferred);
-        WNMemory::WNMemCpy(mOverflowLocation + mOverflowAmount, (mReadLocation->GetBaseLocation()) + mReadHead, transferToOverflow);
+        wn::memory::memcpy(mOverflowLocation + mOverflowAmount, (mReadLocation->GetBaseLocation()) + mReadHead, transferToOverflow);
         mOverflowAmount += transferToOverflow;
         processedBytes += transferToOverflow;
         mInProcessedBytes += transferToOverflow;
@@ -91,7 +92,7 @@ wn_bool WNConnectionWindows::ProcessRead(WNNetworkManagerWindows* _windowsManage
             mReadHead += transferToOverflow;
             WN_RELEASE_ASSERT(processedBytes == _bytesTransferred);
             if(mBufferBase == WNContainers::MAX_DATA_WRITE) {
-                mReadLocation = wn::make_intrusive<WNBufferResource, WNNetworkManager&>(mManager);
+                mReadLocation = wn::memory::make_intrusive<WNBufferResource, WNNetworkManager&>(mManager);
                 mReadHead = 0;
                 mBufferBase = 0;
             }
@@ -125,7 +126,7 @@ wn_bool WNConnectionWindows::ProcessRead(WNNetworkManagerWindows* _windowsManage
             }
         }
         if(mReadHead == WNContainers::MAX_DATA_WRITE) {
-            mReadLocation = wn::make_intrusive<WNBufferResource, WNNetworkManager&>(mManager);
+            mReadLocation = wn::memory::make_intrusive<WNBufferResource, WNNetworkManager&>(mManager);
             mReadHead = 0;
             mBufferBase = 0;
         } else {
@@ -148,9 +149,9 @@ wn_void WNConnectionWindows::AppendSendBuffer(WNNetworkWriteBuffer& _buff) {
 
 wn_void WNConnectionWindows::Send() {
     WNNetworkWriteBuffer& buff = mWriteBuffers.front();
-    const std::vector<wn::intrusive_ptr<WNBufferResource> >& sendBuffs = buff.GetChunks();
+    const std::vector<wn::memory::intrusive_ptr<WNBufferResource> >& sendBuffs = buff.GetChunks();
     mWSAWriteBuffers.clear();
-    for(std::vector<wn::intrusive_ptr<WNBufferResource> >::const_iterator i = sendBuffs.begin(); i != sendBuffs.end(); ++i) {
+    for(std::vector<wn::memory::intrusive_ptr<WNBufferResource> >::const_iterator i = sendBuffs.begin(); i != sendBuffs.end(); ++i) {
         mWSAWriteBuffers.push_back(*(*i)->GetWriteWinBuf());
     }
     DWORD bytes;

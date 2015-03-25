@@ -15,7 +15,7 @@ WNTypeNode::WNTypeNode(const char* _customType) :
 }
 
 WNTypeNode::~WNTypeNode() {
-    WN_DELETE(mCustomType);
+    wn::memory::destroy(mCustomType);
 }
 
 void WNTypeNode::AddArrayLevel() {

@@ -69,7 +69,7 @@ namespace wn {
                 const std::lock_guard<spin_lock> guard(m_thread_mutex);
 
                 for (wn_uint32 i = 0; i < _worker_count; ++i) {
-                    thread<wn_void>* worker = WN_NEW thread<wn_void>(&thread_pool::worker_thread, this);
+                    thread<wn_void>* worker = memory::construct<thread<wn_void>>(&thread_pool::worker_thread, this);
 
                     m_threads.push_back(worker);
                     m_worker_start_mutex.wait();
@@ -81,16 +81,16 @@ namespace wn {
             return(result::ok);
         }
 
-        WN_FORCE_INLINE result_type enqueue(intrusive_ptr<thread_task>&& _thread_task) {
+        WN_FORCE_INLINE result_type enqueue(memory::intrusive_ptr<thread_task>&& _thread_task) {
             if (!_thread_task || m_shutdown) {
                 return(result::invalid_parameters);
             }
 
             #ifdef _WN_WINDOWS
-                intrusive_ptr<thread_task>* task = WN_NEW intrusive_ptr<thread_task>(std::move(_thread_task));
+                memory::intrusive_ptr<thread_task>* task = memory::construct<memory::intrusive_ptr<thread_task>>(std::move(_thread_task));
 
                 if (!::PostQueuedCompletionStatus(m_io_completion_port, 0, reinterpret_cast<ULONG_PTR>(task), 0)) {
-                    WN_DELETE(task);
+                    memory::destroy(task);
 
                     return(result::uninitialized);
                 }
@@ -107,8 +107,8 @@ namespace wn {
             return(result::ok);
         }
 
-        WN_FORCE_INLINE result_type enqueue(const intrusive_ptr<thread_task>& _thread_task) {
-            return(enqueue(intrusive_ptr<thread_task>(_thread_task)));
+        WN_FORCE_INLINE result_type enqueue(const memory::intrusive_ptr<thread_task>& _thread_task) {
+            return(enqueue(memory::intrusive_ptr<thread_task>(_thread_task)));
         }
 
     private:
@@ -137,7 +137,7 @@ namespace wn {
                 for (wn_size_t i = 0; i < m_threads.size(); ++i) {
                     m_threads[i]->join();
 
-                    WN_DELETE(m_threads[i]);
+                    memory::destroy(m_threads[i]);
                 }
 
                 m_threads.clear();
@@ -179,10 +179,10 @@ namespace wn {
                                 break;
                         }
                     } else {
-                        intrusive_ptr<thread_task>* task = reinterpret_cast<intrusive_ptr<thread_task>*>(completion_key);
+                        memory::intrusive_ptr<thread_task>* task = reinterpret_cast<memory::intrusive_ptr<thread_task>*>(completion_key);
 
                         if ((*task)->run_task()) {
-                            WN_DELETE(task);
+                            memory::destroy(task);
                         }
                     }
                }

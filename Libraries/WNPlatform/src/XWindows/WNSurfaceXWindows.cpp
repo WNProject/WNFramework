@@ -55,7 +55,7 @@ wn_bool wn::WNSurfaceXWindows::Initialize(wn_uint32 _x, wn_uint32 _y, wn_uint32 
     mSurfaceThread = WN_NEW wn::thread<wn_void>();
 
     if (mSurfaceThread->Initialize(this, &wn::WNSurfaceXWindows::SurfaceThread) != wn::thread_result::ok) {
-        WN_DELETE(mSurfaceThread);
+        wn::memory::destroy(mSurfaceThread);
 
         return(wn_false);
     }

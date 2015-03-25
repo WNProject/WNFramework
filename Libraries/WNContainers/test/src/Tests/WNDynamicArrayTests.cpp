@@ -5,53 +5,53 @@
 #include "WNContainers/test/inc/Common.h"
 #include "WNContainers/inc/WNDynamicArray.h"
 
-class WNMockAllocator : public wn::default_allocator {
+class WNMockAllocator : public wn::memory::default_allocator {
 public:
     WNMockAllocator(): mNumAllocations(0) {
     }
-    virtual wn::WNAllocationPair Allocate(wn_size_t _size, wn_size_t _count) {
+    virtual wn::memory::allocation_pair allocate(const wn_size_t _size, const wn_size_t _count) {
         ++mNumAllocations;
-        return(wn::default_allocator::Allocate(_size, _count));
+        return(wn::memory::default_allocator::allocate(_size, _count));
     }
-    virtual wn::WNAllocationPair Reallocate(wn_void* _position, wn_size_t _size, wn_size_t _count) {
-        return(wn::default_allocator::Reallocate(_position, _size, _count));
+    virtual wn::memory::allocation_pair reallocate(wn_void* _position, const wn_size_t _size, const wn_size_t _count) {
+        return(wn::memory::default_allocator::reallocate(_position, _size, _count));
     }
-    virtual wn::WNAllocationPair AllocateForResize(wn_size_t _size, wn_size_t _count, wn_size_t _oldCount) {
+    virtual wn::memory::allocation_pair allocate_for_resize(const wn_size_t _size, const wn_size_t _count, const wn_size_t _oldCount) {
         ++mNumAllocations;
-        return(wn::default_allocator::AllocateForResize(_size, _count, _oldCount));
+        return(wn::memory::default_allocator::allocate_for_resize(_size, _count, _oldCount));
     }
-    virtual wn_void Free(wn_void* _pos) {
+    virtual wn_void deallocate(wn_void* _pos) {
         if(_pos) {
             --mNumAllocations;
         }
-        return(wn::default_allocator::Free(_pos));
+        return(wn::memory::default_allocator::deallocate(_pos));
     }
     wn_size_t mNumAllocations;
 };
 
-class WNMockGreedyAllocator : public wn::default_allocator {
+class WNMockGreedyAllocator : public wn::memory::default_allocator {
 public:
     WNMockGreedyAllocator(): mNumAllocations(0), mTotalAllocations(0) {
     }
 
-    virtual wn::WNAllocationPair Allocate(wn_size_t _size, wn_size_t _count) {
+    virtual wn::memory::allocation_pair allocate(const wn_size_t _size, const wn_size_t _count) {
         ++mNumAllocations;
         ++mTotalAllocations;
-        return(wn::default_allocator::Allocate(_size, _count * 2));
+        return(wn::memory::default_allocator::allocate(_size, _count * 2));
     }
-    virtual wn::WNAllocationPair Reallocate(wn_void* _position, wn_size_t _size, wn_size_t _count) {
+    virtual wn::memory::allocation_pair reallocate(wn_void* _position, const wn_size_t _size, const wn_size_t _count) {
         ++mTotalAllocations;
-        return(wn::default_allocator::Reallocate(_position, _size, _count * 2));
+        return(wn::memory::default_allocator::reallocate(_position, _size, _count * 2));
     }
-    virtual wn::WNAllocationPair AllocateForResize(wn_size_t _size, wn_size_t _count, wn_size_t _oldCount) {
-        return(Allocate(_size, _count));
+    virtual wn::memory::allocation_pair allocate_for_resize(const wn_size_t _size, const wn_size_t _count, const wn_size_t _oldCount) {
+        return(allocate(_size, _count));
     }
 
-    virtual wn_void Free(wn_void* _pos) {
+    virtual wn_void deallocate(wn_void* _pos) {
         if(_pos) {
             --mNumAllocations;
         }
-        return(wn::default_allocator::Free(_pos));
+        return(wn::memory::default_allocator::deallocate(_pos));
     }
     wn_size_t mNumAllocations;
     wn_size_t mTotalAllocations;

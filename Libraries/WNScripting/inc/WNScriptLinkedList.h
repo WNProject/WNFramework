@@ -15,7 +15,7 @@ namespace WNScripting {
             WNScriptLinkedListNode* node = first;
             while(node != wn_nullptr) {
                 WNScriptLinkedListNode* next = node->next;
-                WN_DELETE(node);
+                wn::memory::destroy(node);
                 node = next;
             }
             first = last = wn_nullptr;

@@ -7,52 +7,64 @@
 #ifndef __WN_MEMORY_ALLOCATOR_H__
 #define __WN_MEMORY_ALLOCATOR_H__
 
-#include "WNCore/inc/WNTypes.h"
 #include "WNMath/inc/WNBasic.h"
 #include "WNMemory/inc/WNAllocation.h"
 
 namespace wn {
-    struct WNAllocationPair {
-        void* m_pLocation;
-        wn_size_t count;
-    };
+    namespace memory {
+        struct allocation_pair final {
+            wn_void* m_location;
+            wn_size_t m_count;
+        };
 
-    struct WNAllocator {
-        virtual ~WNAllocator() {}
-        virtual WNAllocationPair Allocate(wn_size_t _size, wn_size_t _count) = 0;
-        virtual WNAllocationPair Reallocate(void* _ptr, wn_size_t _number, wn_size_t _count, wn_size_t _oldSize = 0) = 0;
-        virtual WNAllocationPair AllocateForResize(wn_size_t _size, wn_size_t _count, wn_size_t _oldSize) = 0;
-        virtual void Free(void*) = 0;
-    };
+        class allocator {
+        public:
+            virtual ~allocator() {}
 
-    template<wn_size_t PERC_EXPAND, wn_size_t MIN_ALLOC_SIZE = 1>
-    struct default_expanding_allocator : WNAllocator {
-        virtual WNAllocationPair AllocateForResize(wn_size_t _size, wn_size_t _count, wn_size_t _oldSize) {
-            _count = wn::max(_count, MIN_ALLOC_SIZE);
-            wn_size_t allocatedNum = wn::max(static_cast<wn_size_t>(_oldSize * (1 + (PERC_EXPAND / 100.0f))), _count);
-            WNAllocationPair p = {malloc(_size * allocatedNum), allocatedNum};
-            return(p);
-        }
+            virtual allocation_pair allocate(const wn_size_t _size, const wn_size_t _count) = 0;
+            virtual allocation_pair allocate_for_resize(const wn_size_t _size, const wn_size_t _count,
+                                                        const wn_size_t _old_size) = 0;
+            virtual allocation_pair reallocate(wn_void* _memory, const wn_size_t _number,
+                                               const wn_size_t _count, const wn_size_t _old_size = 0) = 0;
+            virtual wn_void deallocate(wn_void* _memory) = 0;
+        };
 
-        virtual WNAllocationPair Allocate(wn_size_t _size, wn_size_t _count) {
-            _count = wn::max(_count, MIN_ALLOC_SIZE);
-            WNAllocationPair p = {malloc(_size * _count), _count};
-            return(p);
-        }
+        template <const wn_size_t _ExpandPercent, const wn_size_t _MinimumAllocationSize = 1>
+        struct default_expanding_allocator : allocator {
+            virtual allocation_pair allocate(const wn_size_t _size, const wn_size_t _count) {
+                const wn_size_t count = wn::max(_count, _MinimumAllocationSize);
+                allocation_pair pair { malloc(_size * count), count };
 
-        virtual WNAllocationPair Reallocate(void* _ptr, wn_size_t _size, wn_size_t _count, wn_size_t _oldSize = 0) {
-            _count = wn::max(_count, MIN_ALLOC_SIZE);
-            wn_size_t allocatedNum = wn::max(static_cast<wn_size_t>(_oldSize * (1 + (PERC_EXPAND / 100.0f))), _count);
-            WNAllocationPair p = {realloc(_ptr, _size * allocatedNum), _count};
-            return(p);
-        }
+                return(pair);
+            }
 
-        virtual wn_void Free(wn_void* _ptr) {
-            free(_ptr);
-        }
-    };
+            virtual allocation_pair allocate_for_resize(const wn_size_t _size, const wn_size_t _count,
+                                                        const wn_size_t _old_size) {
+                const wn_size_t count = wn::max(_count, _MinimumAllocationSize);
+                const wn_size_t new_size = static_cast<wn_size_t>(_old_size * (1 + (_ExpandPercent / 100.0f)));
+                const wn_size_t allocated_number = wn::max(new_size, count);
+                allocation_pair pair { malloc(_size * allocated_number), allocated_number };
 
-    typedef default_expanding_allocator<50> default_allocator;
+                return(pair);
+            }
+
+            virtual allocation_pair reallocate(wn_void* _memory, const wn_size_t _size,
+                                               const wn_size_t _count, const wn_size_t _old_size = 0) {
+                const wn_size_t count = wn::max(_count, _MinimumAllocationSize);
+                const wn_size_t new_size = static_cast<wn_size_t>(_old_size * (1 + (_ExpandPercent / 100.0f)));
+                const wn_size_t allocated_number = wn::max(new_size, count);
+                allocation_pair pair { realloc(_memory, _size * allocated_number), count };
+
+                return(pair);
+            }
+
+            virtual wn_void deallocate(wn_void* _memory) {
+                free(_memory);
+            }
+        };
+
+        typedef default_expanding_allocator<50> default_allocator;
+    }
 }
 
 #endif // __WN_MEMORY_ALLOCATOR_H__

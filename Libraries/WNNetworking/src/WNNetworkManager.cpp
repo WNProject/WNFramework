@@ -36,7 +36,7 @@ wn_void WNNetworking::WNNetworkManager::FireCallback(wn_uint32 _identifier, WNCo
 WNNetworking::WNNetworkManagerReturnCode::type WNNetworking::WNNetworkManager::CreateConnectionGroup(WNConnectionGroup*& _outHandle, const wn_char* _groupName) {
     WN_UNUSED_ARGUMENT(_outHandle);
 
-    mGroupList.push_back(WN_NEW WNConnectionGroup(_groupName));
+    mGroupList.push_back(wn::memory::construct<WNConnectionGroup>(_groupName));
 
     return(WNNetworkManagerReturnCode::ok);
 }
@@ -50,7 +50,7 @@ wn_void WNNetworking::WNNetworkManager::DestroyConnectionGroup(WNConnectionGroup
 
     mGroupList.erase(i);
 
-    WN_DELETE(*i);
+    wn::memory::destroy(*i);
 }
 
 wn_void WNNetworking::WNNetworkManager::UnregisterConnection(WNConnection* _connection)
@@ -62,7 +62,7 @@ wn_void WNNetworking::WNNetworkManager::UnregisterConnection(WNConnection* _conn
 
 wn_void WNNetworking::WNNetworkManager::Cleanup() {
     for(std::list<WNConnectionGroup*>::iterator i = mGroupList.begin(); i != mGroupList.end(); ++i){
-        WN_DELETE(*i);
+        wn::memory::destroy(*i);
     }
 }
 

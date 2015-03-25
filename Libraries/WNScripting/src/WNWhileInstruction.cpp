@@ -35,8 +35,8 @@ WNWhileInstruction::WNWhileInstruction(WNExpression* _cond, WNInstructionList* _
 }
 
 WNWhileInstruction::~WNWhileInstruction() {
-    WN_DELETE(mCondition);
-    WN_DELETE(mBody);
+    wn::memory::destroy(mCondition);
+    wn::memory::destroy(mBody);
 }
 
 eWNTypeError WNWhileInstruction::GenerateCode(WNCodeModule& _module, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog) {

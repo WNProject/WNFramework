@@ -23,9 +23,9 @@
 namespace wn {
     namespace internal {
         namespace concurrency {
-            struct thread_data_base : intrusive_ptr_base {
+            struct thread_data_base : memory::intrusive_ptr_base {
                 WN_FORCE_INLINE thread_data_base() :
-                    intrusive_ptr_base(),
+                    memory::intrusive_ptr_base(),
                     #ifdef _WN_WINDOWS
                         m_handle(NULL),
                     #endif
@@ -63,7 +63,7 @@ namespace wn {
             };
 
             template <>
-            struct thread_data<wn_void> : thread_data_base{};
+            struct thread_data<wn_void> : thread_data_base {};
         }
     }
 
@@ -152,7 +152,7 @@ namespace wn {
 
         struct thread_execution_data final {
             std::function<result_type()> m_function;
-            intrusive_ptr<internal::concurrency::thread_data<result_type>> m_data;
+            memory::intrusive_ptr<internal::concurrency::thread_data<result_type>> m_data;
         };
 
         static thread_result_type WN_OSCALL_BEGIN execution_wrapper(thread_argument_type _argument) WN_OSCALL_END {
@@ -164,7 +164,7 @@ namespace wn {
 
             execute_helper(execution_data);
 
-            WN_DELETE(execution_data);
+            memory::destroy(execution_data);
 
             #ifdef _WN_WINDOWS
                 return(0);
@@ -180,12 +180,12 @@ namespace wn {
         }
 
         WN_INLINE wn_void execute(std::function<result_type()>&& _function) {
-            thread_execution_data* execution_data = WN_NEW thread_execution_data();
+            thread_execution_data* execution_data = memory::construct<thread_execution_data>();
 
             if (execution_data != wn_nullptr) {
                 execution_data->m_function = std::move(_function);
 
-                intrusive_ptr<thread_data<result_type>> data = make_intrusive<thread_data<result_type>>();
+                memory::intrusive_ptr<thread_data<result_type>> data = memory::make_intrusive<thread_data<result_type>>();
 
                 if (data != wn_nullptr) {
                     execution_data->m_data = data;
@@ -200,7 +200,7 @@ namespace wn {
                             data->m_handle = handle;
                             m_data = std::move(data);
                         } else {
-                            WN_DELETE(execution_data);
+                            memory::destroy(execution_data);
 
                             WN_RELEASE_ASSERT_DESC(handle != NULL, "Failed to create thread");
                         }
@@ -216,13 +216,13 @@ namespace wn {
                             m_data->m_pthread = pthread;
                             m_data = std::move(data);
                         } else {
-                            WN_DELETE(execution_data);
+                            memory::destroy(execution_data);
 
                             WN_RELEASE_ASSERT_DESC(result == 0, "Failed to create thread");
                         }
                     #endif
                 } else {
-                    WN_DELETE(execution_data);
+                    memory::destroy(execution_data);
 
                     WN_RELEASE_ASSERT_DESC(m_data != wn_nullptr, "Failed to allocate needed data for thread");
                 }
@@ -231,7 +231,7 @@ namespace wn {
             }
         }
 
-        intrusive_ptr<thread_data<result_type>> m_data;
+        memory::intrusive_ptr<thread_data<result_type>> m_data;
     };
 
     template <>

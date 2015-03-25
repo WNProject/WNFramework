@@ -39,16 +39,16 @@ WNForInstruction::WNForInstruction() :
 
 WNForInstruction::~WNForInstruction() {
     if(mInitializer) {
-        WN_DELETE(mInitializer);
+        wn::memory::destroy(mInitializer);
     }
     if(mCondition) {
-        WN_DELETE(mCondition);
+        wn::memory::destroy(mCondition);
     }
     if(mPostOp) {
-        WN_DELETE(mPostOp);
+        wn::memory::destroy(mPostOp);
     }
     if(mBody) {
-        WN_DELETE(mBody);
+        wn::memory::destroy(mBody);
     }
 }
 
