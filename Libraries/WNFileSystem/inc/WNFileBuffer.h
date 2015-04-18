@@ -19,7 +19,7 @@ namespace WNFileSystem {
         eWNText
     };
 
-    class WNFileBuffer : public WNContainers::WNDataBuffer {
+    class WNFileBuffer : public wn::containers::data_buffer {
     public:
         WNFileBuffer(WNFileBufferType _type);
 

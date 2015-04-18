@@ -17,13 +17,13 @@ namespace wn {
         struct is_floating_point : std::is_floating_point<_type> {};
 
         template <typename _type, typename conversion_type>
-        struct is_floating_point<arithmetic_type<floating_point_traits<_type, conversion_type>>> : std::true_type{};
+        struct is_floating_point<arithmetic_type<floating_point_traits<_type, conversion_type>>> : std::true_type {};
 
         template <typename _type>
         struct is_fixed_point : std::false_type {};
 
         template <typename _type, const wn_uint32 _precision>
-        struct is_fixed_point<arithmetic_type<fixed_point_traits<_type, _precision>>> : std::true_type{};
+        struct is_fixed_point<arithmetic_type<fixed_point_traits<_type, _precision>>> : std::true_type {};
     }
 
     template <typename _type, const _type _value>
@@ -165,6 +165,40 @@ namespace wn {
         template <typename _type>
         using result_of_t = typename result_of<_type>::type;
     #endif
+
+    namespace internal {
+        template <typename _Type, const wn_bool _Expression, typename _Result, typename... _Arguments>
+        struct same_result : std::false_type {};
+
+        template <typename _Type, typename _Result, typename... _Arguments>
+        struct same_result<_Type, wn_true, _Result, _Arguments...> : boolean_constant<is_same<typename result_of<_Type(_Arguments...)>::type, _Result>::value> {};
+
+        template <typename _Function, typename _Result, typename... _Arguments>
+        class is_callable {
+            typedef wn_char (&invalid)[1];
+            typedef wn_char (&valid)[2];
+
+            template <typename _Type>
+            struct helper;
+
+            template <typename _Type>
+            static valid checker(helper<decltype(std::declval<_Type>()(std::declval<_Arguments>()...))>*);
+
+            template <typename _Type>
+            static invalid checker(...);
+
+            template <typename _Type>
+            struct callable : boolean_constant<sizeof(checker<_Type>(0)) == sizeof(valid)> {};
+
+        public:
+            enum {
+                value = same_result<_Function, callable<_Function>::value, _Result, _Arguments...>::value
+            };
+        };
+    }
+
+    template <typename _Function, typename _Result, typename... _Arguments>
+    struct is_callable : internal::is_callable<_Function, _Result, _Arguments...> {};
 }
 
 #endif // __WN_CORE_TYPE_TRAITS_H__

@@ -50,10 +50,10 @@ WNNetworkWriteBuffer& WNNetworkWriteBuffer::operator = (const WNNetworkWriteBuff
     return(*this);
 }
 
-wn_bool WNNetworkWriteBuffer::Serialize(const wn_uint32 _flags, const WNSerializerBase& _serializer) {
+wn_bool WNNetworkWriteBuffer::serialize(const wn::containers::serializer_base& _serializer, const wn_uint32 _flags) {
     WN_DEBUG_ASSERT(!mFlushed);
 
-    const wn_size_t size = _serializer.Serialize(*this, _flags);
+    const wn_size_t size = _serializer.serialize(*this, _flags);
 
     mBufferPointer += size;
 
@@ -64,23 +64,23 @@ wn_bool WNNetworkWriteBuffer::Serialize(const wn_uint32 _flags, const WNSerializ
     return(wn_true);
 }
 
-wn_char* WNNetworkWriteBuffer::ReserveBytes(const wn_size_t _numBytes, wn_size_t& _returnedBytes) {
+wn_char* WNNetworkWriteBuffer::reserve(const wn_size_t _numBytes, wn_size_t& _returnedBytes) {
     WN_DEBUG_ASSERT(!mFlushed);
 
-    if (mBufferPointer == MAX_DATA_WRITE) {
+    if (mBufferPointer == wn::containers::MAX_DATA_WRITE) {
         mChunks.back()->FillData();
         mChunks.push_back(wn::memory::make_intrusive<WNBufferResource, WNNetworkManager&>(mManager));
 
         mBufferPointer = 0;
     }
 
-    _returnedBytes = wn::min(_numBytes, MAX_DATA_WRITE - mBufferPointer);
+    _returnedBytes = wn::min(_numBytes, wn::containers::MAX_DATA_WRITE - mBufferPointer);
 
     return(mChunks.back()->GetPointer());
 }
 
-WNDataBufferType WNNetworkWriteBuffer::GetType() {
-    return(eWNWriteBinary);
+wn::containers::data_buffer_type WNNetworkWriteBuffer::type() const {
+    return(wn::containers::data_buffer_type::write_binary);
 }
 
 wn_void WNNetworkWriteBuffer::FlushWrite() {

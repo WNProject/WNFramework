@@ -25,7 +25,7 @@ WNFileSystem::WNWriteTextFileBuffer::~WNWriteTextFileBuffer() {
     }
 }
 
-wn_char* WNFileSystem::WNWriteTextFileBuffer::ReserveBytes(const wn_size_t _numBytes, wn_size_t& _returnedBytes) {
+wn_char* WNFileSystem::WNWriteTextFileBuffer::reserve(const wn_size_t _numBytes, wn_size_t& _returnedBytes) {
     if (_numBytes + mBufferUsage > mBufferSize) {
         if (mBufferUsage > 0) {
             if (!DumpToFile()) {
@@ -66,17 +66,15 @@ wn_bool WNFileSystem::WNWriteTextFileBuffer::DumpToFile() {
     return(wn_true);
 }
 
-WNContainers::WNDataBufferType WNFileSystem::WNWriteTextFileBuffer::GetType() {
+wn::containers::data_buffer_type WNFileSystem::WNWriteTextFileBuffer::type() const {
     switch(mType) {
     case WNFileSystem::eWNText:
-        return(WNContainers::eWNWriteText);
+        return(wn::containers::data_buffer_type::write_text);
     case WNFileSystem::eWNBinary:
-        return(WNContainers::eWNWriteBinary);
+        return(wn::containers::data_buffer_type::write_binary);
     }
 
-    mType = WNFileSystem::eWNText;
-
-    return(WNContainers::eWNWriteText);
+    return(wn::containers::data_buffer_type::write_text);
 }
 
 WNFileSystem::WNFile::WNFileError WNFileSystem::WNWriteTextFileBuffer::SetFile(const wn_char* _fileName) {
@@ -86,8 +84,8 @@ WNFileSystem::WNFile::WNFileError WNFileSystem::WNWriteTextFileBuffer::SetFile(c
                                      WNFileSystem::WNFile::eWNFMWrite | WNFileSystem::WNFile::eWNFMCreate | WNFileSystem::WNFile::eWNFMStream));
 }
 
-wn_bool WNFileSystem::WNWriteTextFileBuffer::Serialize(const wn_uint32 _flags, const WNContainers::WNSerializerBase& _serializer) {
-    mBufferUsage += _serializer.Serialize(*this, _flags);
+wn_bool WNFileSystem::WNWriteTextFileBuffer::serialize(const wn::containers::serializer_base& _serializer, const wn_uint32 _flags) {
+    mBufferUsage += _serializer.serialize(*this, _flags);
 
     return(wn_true);
 }
