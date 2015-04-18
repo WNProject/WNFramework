@@ -19,16 +19,10 @@
     <ClInclude Include="..\..\inc\WNDataBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\inc\WNGlobal.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\inc\WNSerializer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\inc\WNSerializerBase.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\inc\WNSingleton.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\inc\Internal\WNCallbackBase.h">
@@ -40,8 +34,8 @@
     <ClInclude Include="..\..\inc\WNDynamicArray.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\inc\WNAutoCleaner.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="..\..\inc\Internal\WNContainerBase.h">
+      <Filter>Header Files\Internal</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -49,12 +43,6 @@
       <Filter>Inline Files</Filter>
     </None>
     <None Include="..\..\inc\Internal\WNCallbackBase.inl">
-      <Filter>Inline Files</Filter>
-    </None>
-    <None Include="..\..\inc\Internal\WNSerializer.inl">
-      <Filter>Inline Files</Filter>
-    </None>
-    <None Include="..\..\inc\Internal\WNAutoCleaner.inl">
       <Filter>Inline Files</Filter>
     </None>
   </ItemGroup>

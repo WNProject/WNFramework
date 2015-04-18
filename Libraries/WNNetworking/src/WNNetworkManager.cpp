@@ -55,19 +55,21 @@ wn_void WNNetworking::WNNetworkManager::DestroyConnectionGroup(WNConnectionGroup
 
 wn_void WNNetworking::WNNetworkManager::UnregisterConnection(WNConnection* _connection)
 {
-    for(std::list<WNConnectionGroup*>::iterator i = mGroupList.begin(); i != mGroupList.end(); ++i){
-        (*i)->CleanConnection(_connection);
+    for (auto i : mGroupList){
+        i->CleanConnection(_connection);
     }
 }
 
 wn_void WNNetworking::WNNetworkManager::Cleanup() {
-    for(std::list<WNConnectionGroup*>::iterator i = mGroupList.begin(); i != mGroupList.end(); ++i){
-        wn::memory::destroy(*i);
+    for (auto& i : mGroupList) {
+        wn::memory::destroy(i);
     }
 }
 
-wn_void WNNetworking::WNNetworkManager::InitializeBuffer(WNNetworkWriteBuffer& _buffer, wn_uint32 _number) {
-    wn_uint32 num = 0;
-    _buffer.Serialize(0, WNContainers::WNSerializer<wn_uint32>(num));
-    _buffer.Serialize(0, WNContainers::WNSerializer<wn_uint32>(_number));
+wn_void WNNetworking::WNNetworkManager::InitializeBuffer(WNNetworkWriteBuffer& _buffer, const wn_uint32 _number) {
+    wn_uint32 number1 = 0;
+    wn_uint32 number2 = _number;
+
+    _buffer.serialize(wn::containers::serializer<wn_uint32>(number1), 0);
+    _buffer.serialize(wn::containers::serializer<wn_uint32>(number2), 0);
 }

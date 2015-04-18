@@ -9,7 +9,7 @@
 #ifndef __WN_CONTAINERS_TESTS_COMMON_H__
 #define __WN_CONTAINERS_TESTS_COMMON_H__
 
-#include "WNCore/inc/WNTypes.h"
+#include "WNCore/inc/WNBase.h"
 
 #ifdef _WN_MSVC
     #pragma warning(push)
@@ -21,8 +21,6 @@
 #endif
 
 #define _HAS_EXCEPTIONS 0
-
-#define GTEST_HAS_RTTI 0
 
 #include <gtest/gtest.h>
 

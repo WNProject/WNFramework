@@ -77,7 +77,7 @@ WNConnectionWindows::eWNNetworkOperation WNConnectionWindows::GetOperation(LPOVE
 
 wn_bool WNConnectionWindows::ProcessRead(WNNetworkManagerWindows* _windowsManager, DWORD _bytesTransferred) {
     wn_size_t processedBytes = 0;
-    WN_RELEASE_ASSERT(mReadHead <= WNContainers::MAX_DATA_WRITE);
+    WN_RELEASE_ASSERT(mReadHead <= wn::containers::MAX_DATA_WRITE);
     while(processedBytes != _bytesTransferred) {
         WN_RELEASE_ASSERT(processedBytes < _bytesTransferred);
         wn_size_t transferToOverflow = wn::min<wn_size_t>(8 - mOverflowAmount, _bytesTransferred);
@@ -91,7 +91,7 @@ wn_bool WNConnectionWindows::ProcessRead(WNNetworkManagerWindows* _windowsManage
         if(mOverflowAmount < 8) {
             mReadHead += transferToOverflow;
             WN_RELEASE_ASSERT(processedBytes == _bytesTransferred);
-            if(mBufferBase == WNContainers::MAX_DATA_WRITE) {
+            if(mBufferBase == wn::containers::MAX_DATA_WRITE) {
                 mReadLocation = wn::memory::make_intrusive<WNBufferResource, WNNetworkManager&>(mManager);
                 mReadHead = 0;
                 mBufferBase = 0;
@@ -121,11 +121,11 @@ wn_bool WNConnectionWindows::ProcessRead(WNNetworkManagerWindows* _windowsManage
             mOverflowAmount = 0;
         } else {
             mInProcessedBytes += mMaxWrite;
-            if(mReadHead == WNContainers::MAX_DATA_WRITE) {
+            if(mReadHead == wn::containers::MAX_DATA_WRITE) {
                 mCurrentReadBuffer.AppendBuffer(mReadLocation, mReadHead, mBufferBase);
             }
         }
-        if(mReadHead == WNContainers::MAX_DATA_WRITE) {
+        if(mReadHead == wn::containers::MAX_DATA_WRITE) {
             mReadLocation = wn::memory::make_intrusive<WNBufferResource, WNNetworkManager&>(mManager);
             mReadHead = 0;
             mBufferBase = 0;
