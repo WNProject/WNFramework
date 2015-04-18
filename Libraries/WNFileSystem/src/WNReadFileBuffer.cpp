@@ -26,7 +26,7 @@ WNFileSystem::WNReadTextFileBuffer::~WNReadTextFileBuffer() {
     }
 }
 
-wn_char* WNFileSystem::WNReadTextFileBuffer::ReserveBytes(const wn_size_t _numBytes, wn_size_t& _returnedBytes) {
+wn_char* WNFileSystem::WNReadTextFileBuffer::reserve(const wn_size_t _numBytes, wn_size_t& _returnedBytes) {
     if (_numBytes + mBufferPosition > mBufferSize) {
         if (_numBytes > mBufferSize) {
             WN_DEBUG_ASSERT(mBufferPosition <= mBufferUsage);
@@ -72,15 +72,15 @@ wn_char* WNFileSystem::WNReadTextFileBuffer::ReserveBytes(const wn_size_t _numBy
     return(mCurrentBuffer + mBufferPosition);
 }
 
-WNContainers::WNDataBufferType WNFileSystem::WNReadTextFileBuffer::GetType() {
+wn::containers::data_buffer_type WNFileSystem::WNReadTextFileBuffer::type() const {
     switch(mType) {
     case WNFileSystem::eWNText:
-        return(WNContainers::eWNReadText);
+        return(wn::containers::data_buffer_type::read_text);
     case WNFileSystem::eWNBinary:
-        return(WNContainers::eWNReadBinary);
+        return(wn::containers::data_buffer_type::read_binary);
     }
 
-    return(WNContainers::eWNReadText);
+    return(wn::containers::data_buffer_type::read_text);
 }
 
 WNFileSystem::WNFile::WNFileError WNFileSystem::WNReadTextFileBuffer::SetFile(const wn_char* _fileName) {
@@ -91,8 +91,8 @@ WNFileSystem::WNFile::WNFileError WNFileSystem::WNReadTextFileBuffer::SetFile(co
     return(mFile.OpenFile(_fileName, WNFileSystem::WNFile::eWNFMExclusive | WNFileSystem::WNFile::eWNFMRead | WNFileSystem::WNFile::eWNFMStream));
 }
 
-wn_bool WNFileSystem::WNReadTextFileBuffer::Serialize(const wn_uint32 _flags, const WNContainers::WNSerializerBase& _serializer) {
-    mBufferPosition += _serializer.Serialize(*this, _flags);
+wn_bool WNFileSystem::WNReadTextFileBuffer::serialize(const wn::containers::serializer_base& _serializer, const wn_uint32 _flags) {
+    mBufferPosition += _serializer.serialize(*this, _flags);
 
     return(wn_true);
 }

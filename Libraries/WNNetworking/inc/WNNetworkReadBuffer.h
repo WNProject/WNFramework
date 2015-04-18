@@ -36,17 +36,19 @@ namespace WNConcurrency {
 namespace WNNetworking {
     class WNNetworkManager;
 
-    class WNNetworkReadBuffer : public WNContainers::WNDataBuffer {
+    class WNNetworkReadBuffer : public wn::containers::data_buffer {
     public:
-        typedef std::deque<wn::memory::intrusive_ptr<WNNetworking::WNBufferResource> > WNBufferQueue;
+        typedef std::deque<wn::memory::intrusive_ptr<WNNetworking::WNBufferResource>> WNBufferQueue;
 
     public:
         WNNetworkReadBuffer(WNNetworkManager& _manager);
+
         virtual WN_FORCE_INLINE ~WNNetworkReadBuffer() {}
 
-        virtual wn_bool Serialize(const wn_uint32 _flags, const WNContainers::WNSerializerBase& _serializer);
-        virtual wn_char* ReserveBytes(const wn_size_t _numBytes, wn_size_t& _returnedBytes);
-        virtual WNContainers::WNDataBufferType GetType();
+        virtual wn_bool serialize(const wn::containers::serializer_base& _serializer, const wn_uint32 _flags) override;
+        virtual wn_char* reserve(const wn_size_t _numBytes, wn_size_t& _returnedBytes) override;
+        virtual wn::containers::data_buffer_type type() const override;
+
         wn_void AppendBuffer(wn::memory::intrusive_ptr<WNBufferResource>& _buffer, wn_size_t _dataCount, wn_size_t _dataOffset);
         wn_bool Initialized();
         wn_void Clear();

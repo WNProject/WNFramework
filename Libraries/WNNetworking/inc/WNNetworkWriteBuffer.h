@@ -34,9 +34,9 @@ namespace WNNetworking {
     class WNNetworkManager;
     class WNBufferResource;
 
-    class WNNetworkWriteBuffer : public WNContainers::WNDataBuffer {
+    class WNNetworkWriteBuffer : public wn::containers::data_buffer {
     public:
-        typedef std::vector<wn::memory::intrusive_ptr<WNNetworking::WNBufferResource> > WNBufferQueue;
+        typedef std::vector<wn::memory::intrusive_ptr<WNNetworking::WNBufferResource>> WNBufferQueue;
 
     public:
         WNNetworkWriteBuffer(WNNetworkManager& _manager, wn_uint32 _number);
@@ -45,9 +45,10 @@ namespace WNNetworking {
 
         WNNetworkWriteBuffer& operator = (const WNNetworkWriteBuffer& _other);
 
-        virtual wn_bool Serialize(const wn_uint32 _flags, const WNContainers::WNSerializerBase& _serializer);
-        virtual wn_char* ReserveBytes(const wn_size_t _numBytes, wn_size_t& _returnedBytes);
-        virtual WNContainers::WNDataBufferType GetType();
+        virtual wn_bool serialize(const wn::containers::serializer_base& _serializer, const wn_uint32 _flags) override;
+        virtual wn_char* reserve(const wn_size_t _numBytes, wn_size_t& _returnedBytes) override;
+        virtual wn::containers::data_buffer_type type() const override;
+
         const WNBufferQueue& GetChunks() const;
         wn_void FlushWrite();
 

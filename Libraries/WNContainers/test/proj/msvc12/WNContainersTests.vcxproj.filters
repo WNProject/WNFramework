@@ -17,9 +17,6 @@
     <ClCompile Include="..\..\src\Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\Tests\WNAutoCleanerTests.cpp">
-      <Filter>Source Files\Tests</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\inc\Common.h">
       <Filter>Header Files</Filter>
     </ClCompile>
