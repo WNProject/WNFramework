@@ -9,40 +9,123 @@
 
 #include "WNCore/inc/WNTypes.h"
 
-typedef WN_VOID* (*WN_MEMCLR_FUNCTION_T)(WN_VOID*, const WN_SIZE_T);
-typedef WN_VOID* (*WN_MEMSET_FUNCTION_T)(WN_VOID*, const WN_UINT32, const WN_SIZE_T);
-typedef WN_VOID* (*WN_MEMCPY_FUNCTION_T)(WN_VOID*, const WN_VOID*, const WN_SIZE_T);
-typedef WN_UINT32 (*WN_MEMCMP_FUNCTION_T)(const WN_VOID*, const WN_VOID*, const WN_SIZE_T);
-typedef WN_VOID* (*WN_MEMMOVE_FUNCTION_T)(WN_VOID*, const WN_VOID*, const WN_SIZE_T);
+#include <type_traits>
+#include <cstring>
 
-namespace WNMemory {
-    WN_VOID* WNMemClr(WN_VOID* _memory, const WN_SIZE_T _size);
-    WN_VOID* WNMemSet(WN_VOID* _memory, const WN_UINT8 _value, const WN_SIZE_T _size);
-    WN_VOID* WNMemCpy(WN_VOID* _destination, const WN_VOID* _source, const WN_SIZE_T _number);
-    WN_UINT32 WNMemCmp(const WN_VOID* _memory1, const WN_VOID* _memory2, const WN_SIZE_T _number);
-    WN_VOID* WNMemMove(WN_VOID* _destination, const WN_VOID* _source, const WN_SIZE_T _number);
+namespace wn {
+    namespace memory {
+        wn_void* memset(wn_void* _dest, const wn_uint8 _value, const wn_size_t _count);
 
-    template <typename Type>
-    Type* WNMemClrT(Type* _memory, const WN_SIZE_T _amount = 1);
+        WN_FORCE_INLINE wn_void* memzero(wn_void* _dest, const wn_size_t _count) {
+            return(memset(_dest, 0, _count));
+        }
 
-    // MemSet
-    template <typename Type>
-    Type* WNMemSetT(Type* _memory, const WN_UINT8 _value, const WN_SIZE_T _amount = 1);
-    
-    template <>
-    WN_VOID* WNMemSetT(WN_VOID* _memory, WN_UINT8 _value, const WN_SIZE_T _amount);
+        WN_FORCE_INLINE wn_void* memset(wn_void* _dest, const wn_uint8 _value, const wn_size_t _count) {
+            return(std::memset(_dest, _value, _count));
+        }
 
-    // MemCpy
-    template <typename Type>
-    Type* WNMemCpyT(Type* _destination, const Type* _source, const WN_SIZE_T _number = 1);
+        WN_FORCE_INLINE wn_void* memcpy(wn_void* _dest, const wn_void* _src, const wn_size_t _count) {
+            return(std::memcpy(_dest, _src, _count));
+        }
 
-    template <typename Type>
-    WN_UINT32 WNMemCmpT(const Type* _memory1, const Type* _memory2, const WN_SIZE_T _number = 1);
+        WN_FORCE_INLINE wn_void* memmove(wn_void* _dest, const wn_void* _src, const wn_size_t _count) {
+            return(std::memmove(_dest, _src, _count));
+        }
 
-    template <typename Type>
-    Type* WNMemMoveT(Type* _destination, const Type* _source, const WN_SIZE_T _number = 1);
+        WN_FORCE_INLINE wn_int32 memcmp(const wn_void* _lhs, const wn_void* _rhs, const wn_size_t _count) {
+            return(std::memcmp(_lhs, _rhs, _count));
+        }
+
+        template <typename _Type>
+        WN_FORCE_INLINE _Type* memory_zero(_Type* _dest) {
+            static_assert(!std::is_void<_Type>::value,
+                          "you must specify a size in bytes when trying to zero memory of type void");
+
+            return(static_cast<_Type*>(memzero(_dest, sizeof(_Type))));
+        }
+
+        template <typename _Type>
+        WN_FORCE_INLINE _Type* memory_zero(_Type* _dest, const wn_size_t _count) {
+            return(static_cast<_Type*>(memzero(_dest, _count * sizeof(_Type))));
+        }
+
+        template <>
+        WN_FORCE_INLINE wn_void* memory_zero(wn_void* _dest, const wn_size_t _count) {
+            return(memzero(_dest, _count));
+        }
+
+        template <typename _Type>
+        WN_FORCE_INLINE _Type* memory_set(_Type* _dest, const wn_uint8 _value) {
+            static_assert(!std::is_void<_Type>::value,
+                          "you must specify a size in bytes when trying to set memory of type void");
+
+            return(static_cast<_Type*>(memset(_dest, _value, sizeof(_Type))));
+        }
+
+        template <typename _Type>
+        WN_FORCE_INLINE _Type* memory_set(_Type* _dest, const wn_uint8 _value, const wn_size_t _count) {
+            return(static_cast<_Type*>(memset(_dest, _value, _count * sizeof(_Type))));
+        }
+
+        template <>
+        WN_FORCE_INLINE wn_void* memory_set(wn_void* _dest, const wn_uint8 _value, const wn_size_t _count) {
+            return(memset(_dest, _value, _count));
+        }
+
+        template <typename _Type>
+        WN_FORCE_INLINE _Type* memory_copy(_Type* _dest, const _Type* _src) {
+            static_assert(!std::is_void<_Type>::value,
+                          "you must specify a size in bytes when trying to copy memory of type void");
+
+            return(static_cast<_Type*>(memcpy(_dest, _src, sizeof(_Type))));
+        }
+
+        template <typename _Type>
+        WN_FORCE_INLINE _Type* memory_copy(_Type* _dest, const _Type* _src, const wn_size_t _count) {
+            return(static_cast<_Type*>(memcpy(_dest, _src, _count * sizeof(_Type))));
+        }
+
+        template <>
+        WN_FORCE_INLINE wn_void* memory_copy(wn_void* _dest, const wn_void* _src, const wn_size_t _count) {
+            return(memcpy(_dest, _src, _count));
+        }
+
+        template <typename _Type>
+        WN_FORCE_INLINE _Type* memory_move(_Type* _dest, const _Type* _src) {
+            static_assert(!std::is_void<_Type>::value,
+                          "you must specify a size in bytes when trying to move memory of type void");
+
+            return(static_cast<_Type*>(memmove(_dest, _src, sizeof(_Type))));
+        }
+
+        template <typename _Type>
+        WN_FORCE_INLINE _Type* memory_move(_Type* _dest, const _Type* _src, const wn_size_t _count) {
+            return(static_cast<_Type*>(memmove(_dest, _src, _count * sizeof(_Type))));
+        }
+
+        template <>
+        WN_FORCE_INLINE wn_void* memory_move(wn_void* _dest, const wn_void* _src, const wn_size_t _count) {
+            return(memmove(_dest, _src, _count));
+        }
+
+        template <typename _Type>
+        WN_FORCE_INLINE wn_int32 memory_compare(const _Type* _lhs, const _Type* _rhs) {
+            static_assert(!std::is_void<_Type>::value,
+                          "you must specify a size in bytes when trying to compare memory of type void");
+
+            return(memcmp(_lhs, _rhs, sizeof(_Type)));
+        }
+
+        template <typename _Type>
+        WN_FORCE_INLINE wn_int32 memory_compare(const _Type* _lhs, const _Type* _rhs, const wn_size_t _count) {
+            return(memcmp(_lhs, _rhs, _count * sizeof(_Type)));
+        }
+
+        template <>
+        WN_FORCE_INLINE wn_int32 memory_compare(const wn_void* _lhs, const wn_void* _rhs, const wn_size_t _count) {
+            return(memcmp(_lhs, _rhs, _count));
+        }
+    }
 }
-
-#include "WNMemory/inc/Internal/WNManipulation.inl"
 
 #endif // __WN_MEMORY_MANIPULATION_H__

@@ -16,87 +16,87 @@
 #include "WNMath/inc/WNMatrix4.h"
 #include "WNMath/inc/WNVector4.h"
 
-namespace WNMath {
-    template <typename Type>
-    WN_FORCE_INLINE WNQuaternion<Type>::WNQuaternion(const WNQuaternion<Type>& _quaternion) {
+namespace wn {
+    template <typename type>
+    WN_FORCE_INLINE WNQuaternion<type>::WNQuaternion(const WNQuaternion<type>& _quaternion) {
         Base::Set(_quaternion);
     }
 
-    template <typename Type>
-    WN_FORCE_INLINE WNQuaternion<Type>::WNQuaternion(const Type& _number) {
+    template <typename type>
+    WN_FORCE_INLINE WNQuaternion<type>::WNQuaternion(const type& _number) {
         Base::Set(_number);
     }
 
-    template <typename Type>
-    WN_FORCE_INLINE WNQuaternion<Type>::WNQuaternion(const Type* _numbers) {
+    template <typename type>
+    WN_FORCE_INLINE WNQuaternion<type>::WNQuaternion(const type* _numbers) {
         Base::Set(_numbers);
     }
 
-    template <typename Type>
-    WN_FORCE_INLINE WNQuaternion<Type>::WNQuaternion(const Type& _x, const Type& _y, const Type& _z, const Type& _w) {
+    template <typename type>
+    WN_FORCE_INLINE WNQuaternion<type>::WNQuaternion(const type& _x, const type& _y, const type& _z, const type& _w) {
         Base::Set(_x, _y, _z, _w);
     }
 
-    template <typename Type>
-    WN_FORCE_INLINE WNMatrix3<Type> WNQuaternion<Type>::ToMatrix3() const {
-        const Type x2 = this->mElements[0] + this->mElements[0];
-        const Type y2 = this->mElements[1] + this->mElements[1];
-        const Type z2 = this->mElements[2] + this->mElements[2];
-        const Type wx = this->mElements[3] * x2;
-        const Type wy = this->mElements[3] * y2;
-        const Type wz = this->mElements[3] * z2;
-        const Type xx = this->mElements[0] * x2;
-        const Type yy = this->mElements[1] * y2;
-        const Type yz = this->mElements[1] * z2;
-        const Type xy = this->mElements[0] * y2;
-        const Type xz = this->mElements[0] * z2;
-        const Type zz = this->mElements[2] * z2;
+    template <typename type>
+    WN_FORCE_INLINE WNMatrix3<type> WNQuaternion<type>::ToMatrix3() const {
+        const type x2 = this->mElements[0] + this->mElements[0];
+        const type y2 = this->mElements[1] + this->mElements[1];
+        const type z2 = this->mElements[2] + this->mElements[2];
+        const type wx = this->mElements[3] * x2;
+        const type wy = this->mElements[3] * y2;
+        const type wz = this->mElements[3] * z2;
+        const type xx = this->mElements[0] * x2;
+        const type yy = this->mElements[1] * y2;
+        const type yz = this->mElements[1] * z2;
+        const type xy = this->mElements[0] * y2;
+        const type xz = this->mElements[0] * z2;
+        const type zz = this->mElements[2] * z2;
 
-        return(WNMatrix3<Type>(static_cast<Type>(1) - (yy + zz), xy - wz, xz + wy,
-                               xy + wz, static_cast<Type>(1) - (xx + zz), yz - wx,
-                               xz - wy, yz + wx, static_cast<Type>(1) - (xx + yy)));
+        return(WNMatrix3<type>(static_cast<type>(1) - (yy + zz), xy - wz, xz + wy,
+                               xy + wz, static_cast<type>(1) - (xx + zz), yz - wx,
+                               xz - wy, yz + wx, static_cast<type>(1) - (xx + yy)));
     }
 
-    template <typename Type>
-    WN_FORCE_INLINE WNMatrix4<Type> WNQuaternion<Type>::ToMatrix4() const {
-        const Type x2 = this->mElements[0] + this->mElements[0];
-        const Type y2 = this->mElements[1] + this->mElements[1];
-        const Type z2 = this->mElements[2] + this->mElements[2];
-        const Type wx = this->mElements[3] * x2;
-        const Type wy = this->mElements[3] * y2;
-        const Type wz = this->mElements[3] * z2;
-        const Type xx = this->mElements[0] * x2;
-        const Type yy = this->mElements[1] * y2;
-        const Type yz = this->mElements[1] * z2;
-        const Type xy = this->mElements[0] * y2;
-        const Type xz = this->mElements[0] * z2;
-        const Type zz = this->mElements[2] * z2;
+    template <typename type>
+    WN_FORCE_INLINE WNMatrix4<type> WNQuaternion<type>::ToMatrix4() const {
+        const type x2 = this->mElements[0] + this->mElements[0];
+        const type y2 = this->mElements[1] + this->mElements[1];
+        const type z2 = this->mElements[2] + this->mElements[2];
+        const type wx = this->mElements[3] * x2;
+        const type wy = this->mElements[3] * y2;
+        const type wz = this->mElements[3] * z2;
+        const type xx = this->mElements[0] * x2;
+        const type yy = this->mElements[1] * y2;
+        const type yz = this->mElements[1] * z2;
+        const type xy = this->mElements[0] * y2;
+        const type xz = this->mElements[0] * z2;
+        const type zz = this->mElements[2] * z2;
 
-        return(WNMatrix4<Type>(static_cast<Type>(1) - (yy + zz), xy - wz, xz + wy, static_cast<Type>(0),
-                               xy + wz, static_cast<Type>(1) - (xx + zz), yz - wx, static_cast<Type>(0),
-                               xz - wy, yz + wx, static_cast<Type>(1) - (xx + yy), static_cast<Type>(0),
-                               static_cast<Type>(0), static_cast<Type>(0), static_cast<Type>(0), static_cast<Type>(1)));
+        return(WNMatrix4<type>(static_cast<type>(1) - (yy + zz), xy - wz, xz + wy, static_cast<type>(0),
+                               xy + wz, static_cast<type>(1) - (xx + zz), yz - wx, static_cast<type>(0),
+                               xz - wy, yz + wx, static_cast<type>(1) - (xx + yy), static_cast<type>(0),
+                               static_cast<type>(0), static_cast<type>(0), static_cast<type>(0), static_cast<type>(1)));
     }
 
-    template <typename Type>
+    template <typename type>
     template <typename NewType>
-    WN_FORCE_INLINE WNQuaternion<NewType> WNQuaternion<Type>::ConvertTo() const {
+    WN_FORCE_INLINE WNQuaternion<NewType> WNQuaternion<type>::ConvertTo() const {
         return(WNQuaternion<NewType>(static_cast<NewType>(this->mElements[0]), static_cast<NewType>(this->mElements[1]),
                                      static_cast<NewType>(this->mElements[2]), static_cast<NewType>(this->mElements[3])));
     }
 
-    template <typename Type>
-    WN_FORCE_INLINE WNQuaternion<Type> operator * (const Type& _number, const WNQuaternion<Type>& _quaternion) {
-        WNQuaternion<Type> quaternion = _quaternion;
+    template <typename type>
+    WN_FORCE_INLINE WNQuaternion<type> operator * (const type& _number, const WNQuaternion<type>& _quaternion) {
+        WNQuaternion<type> quaternion = _quaternion;
 
         quaternion *= _number;
 
         return(quaternion);
     }
 
-    template <typename Type>
-    WN_FORCE_INLINE WNQuaternion<Type> operator / (const Type& _number, const WNQuaternion<Type>& _quaternion) {
-        WNQuaternion<Type> quaternion = WNQuaternion<Type>(_number);
+    template <typename type>
+    WN_FORCE_INLINE WNQuaternion<type> operator / (const type& _number, const WNQuaternion<type>& _quaternion) {
+        WNQuaternion<type> quaternion = WNQuaternion<type>(_number);
 
         quaternion /= _quaternion;
 

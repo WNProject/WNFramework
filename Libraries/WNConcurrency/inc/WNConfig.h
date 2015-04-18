@@ -9,7 +9,7 @@
 
 // POSIX specific //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//#define _WN_CONCURRENCY_CONFIG_DO_NOT_USE_PTHREAD_SPIN_LOCK   // Disables the use of pthreads spinlock implementation
+//#define _WN_CONCURRENCY_CONFIG_USE_PTHREAD_SPIN_LOCK   // Enables the use of pthreads spinlock implementation
 
 #include "WNConcurrency/inc/Internal/WNConfig.h"
 

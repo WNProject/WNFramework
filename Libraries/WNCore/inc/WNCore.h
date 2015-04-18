@@ -7,13 +7,14 @@
 #ifndef __WN_CORE_H__
 #define __WN_CORE_H__
 
+#include "WNCore/inc/WNAlgorithm.h"
 #include "WNCore/inc/WNAssert.h"
 #include "WNCore/inc/WNBase.h"
 #include "WNCore/inc/WNEndian.h"
 #include "WNCore/inc/WNExtendedTypes.h"
 #include "WNCore/inc/WNMacros.h"
-#include "WNCore/inc/WNPrefetch.h"
 #include "WNCore/inc/WNTypes.h"
 #include "WNCore/inc/WNTypeTraits.h"
+#include "WNCore/inc/WNUtility.h"
 
 #endif // __WN_CORE_H__

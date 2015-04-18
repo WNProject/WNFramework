@@ -12,29 +12,30 @@ WNInConnectionWindows::WNInConnectionWindows(WNNetworkManager& _manager) :
     WNConnectionWindows(_manager) {
 }
 
-WNNetworkManagerReturnCode::Type WNInConnectionWindows::Initialize(SOCKET _listenSocket, WNConnectedCallback _callback) {
+WNNetworkManagerReturnCode::type WNInConnectionWindows::Initialize(SOCKET _listenSocket, WNConnectedCallback _callback) {
     sockaddr_in address;
+
+    wn::memory::memory_zero(&address);
+
     int sockAddrSize = sizeof(address);
 
-    WNMemory::WNMemClrT(&address);
-
-    mSocket = accept(_listenSocket, (sockaddr*)&address, &sockAddrSize);
+    mSocket = accept(_listenSocket, reinterpret_cast<sockaddr*>(&address), &sockAddrSize);
 
     if (INVALID_SOCKET == mSocket) {
         return(WNNetworkManagerReturnCode::eWNCannotCreateSocket);
     }
 
-    WN_SIZE_T length = WN_SNPRINTF(NULL, 0, "%s:%d", inet_ntoa(address.sin_addr), ntohs(address.sin_port));
+    wn_size_t length = WN_SNPRINTF(NULL, 0, "%s:%d", inet_ntoa(address.sin_addr), ntohs(address.sin_port));
 
-    mConnectionName = WNMemory::WNMallocT<WN_CHAR>(length + 1);
+    mConnectionName = wn::memory::heap_allocate<wn_char>(length + 1);
 
     WN_SNPRINTF(mConnectionName, length + 1, "%s:%d", inet_ntoa(address.sin_addr), ntohs(address.sin_port));
 
     mCallback = _callback;
 
-    return(WNNetworkManagerReturnCode::eWNOK);
+    return(WNNetworkManagerReturnCode::ok);
 }
 
-WN_BOOL WNInConnectionWindows::FireCallback() {
+wn_bool WNInConnectionWindows::FireCallback() {
     return(mCallback.Execute(mConnectionName));
 }

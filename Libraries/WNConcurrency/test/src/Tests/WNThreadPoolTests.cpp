@@ -1,134 +1,135 @@
+// Copyright (c) 2014, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 #include "WNConcurrency/test/inc/Common.h"
+#include "WNConcurrency/inc/WNThreadPool.h"
+#include "WNConcurrency/inc/WNCallbackJob.h"
 
-#ifndef __WN_USE_PRECOMPILED_HEADER
-    #include "WNConcurrency/inc/WNThreadPool.h"
-    #include "WNConcurrency/inc/WNCallbackJob.h"
+#ifdef _WN_MSVC
+    #pragma warning(push)
+    #pragma warning(disable: 4275)
+#endif
 
-    #ifdef _WN_MSVC
-        #pragma warning(push)
-        #pragma warning(disable: 4275)
-    #endif
+#include <vector>
 
-    #include <vector>
-
-    #ifdef _WN_MSVC
-        #pragma warning(pop)
-    #endif
+#ifdef _WN_MSVC
+    #pragma warning(pop)
 #endif
 
 TEST(WNThreadPoolValidation, Creation) {
-    for(WN_UINT32 i = 0; i < 50; ++i) {
-        WNConcurrency::WNThreadPool threadPool;
+    for(wn_uint32 i = 0; i < 50; ++i) {
+        wn::thread_pool thread_pool;
 
-        ASSERT_EQ(threadPool.Initialize(i), WNConcurrency::WNThreadPoolReturnCode::eWNOK);
+        ASSERT_EQ(thread_pool.initialize(i), wn::thread_pool::result::ok);
     }
 }
 
-static WN_VOID SimpleCallback() {
+static wn_void SimpleCallback() {
     return;
 }
 
 TEST(WNThreadPoolValidation, CaughtUninitialized) {
-    WNConcurrency::WNThreadPool threadPool;
+    wn::thread_pool thread_pool;
 
-    ASSERT_NE(threadPool.AddJob(WNConcurrency::WNAllocateCallbackJob(&SimpleCallback)), WNConcurrency::WNThreadPoolReturnCode::eWNOK);
-    ASSERT_EQ(threadPool.Initialize(10), WNConcurrency::WNThreadPoolReturnCode::eWNOK);
-    ASSERT_EQ(threadPool.AddJob(WNConcurrency::WNAllocateCallbackJob(&SimpleCallback)), WNConcurrency::WNThreadPoolReturnCode::eWNOK);
+    ASSERT_NE(thread_pool.enqueue(wn::WNAllocateCallbackJob(&SimpleCallback)), wn::thread_pool::result::ok);
+    ASSERT_EQ(thread_pool.initialize(10), wn::thread_pool::result::ok);
+    ASSERT_EQ(thread_pool.enqueue(wn::WNAllocateCallbackJob(&SimpleCallback)), wn::thread_pool::result::ok);
 }
 
 TEST(WNThreadPoolValidation, CreationMore) {
     {
-        WNConcurrency::WNThreadPool threadPool;
+        wn::thread_pool thread_pool;
 
-        ASSERT_EQ(threadPool.Initialize(100), WNConcurrency::WNThreadPoolReturnCode::eWNOK);
+        ASSERT_EQ(thread_pool.initialize(100), wn::thread_pool::result::ok);
     }
 
     {
-        WNConcurrency::WNThreadPool threadPool;
+        wn::thread_pool thread_pool;
 
-        ASSERT_EQ(threadPool.Initialize(100), WNConcurrency::WNThreadPoolReturnCode::eWNOK);
+        ASSERT_EQ(thread_pool.initialize(100), wn::thread_pool::result::ok);
     }
 
     {
-        WNConcurrency::WNThreadPool threadPool;
+        wn::thread_pool thread_pool;
 
-        ASSERT_EQ(threadPool.Initialize(100), WNConcurrency::WNThreadPoolReturnCode::eWNOK);
+        ASSERT_EQ(thread_pool.initialize(100), wn::thread_pool::result::ok);
     }
 
     {
-        WNConcurrency::WNThreadPool threadPool;
+        wn::thread_pool thread_pool;
 
-        ASSERT_EQ(threadPool.Initialize(100), WNConcurrency::WNThreadPoolReturnCode::eWNOK);
+        ASSERT_EQ(thread_pool.initialize(100), wn::thread_pool::result::ok);
     }
 }
 
-static WN_ATOM_T SimpleS1 = 0;
+static std::atomic<wn_size_t> SimpleS1(0);
 
-WN_VOID SimpleCallback1() {
-    WNConcurrency::WNAtomicIncrement(&SimpleS1);
+wn_void SimpleCallback1() {
+    SimpleS1++;
 }
 
 TEST(WNThreadPoolValidation, SimpleCallback) {
     {
-        WNConcurrency::WNThreadPool threadPool;
+        wn::thread_pool thread_pool;
 
-        ASSERT_EQ(threadPool.Initialize(16), WNConcurrency::WNThreadPoolReturnCode::eWNOK);
+        ASSERT_EQ(thread_pool.initialize(16), wn::thread_pool::result::ok);
 
-        for (WN_SIZE_T i = 0; i < 10000; ++i) {
-            threadPool.AddJob(WNConcurrency::WNAllocateCallbackJob(&SimpleCallback1));
+        for (wn_size_t i = 0; i < 10000; ++i) {
+            thread_pool.enqueue(wn::WNAllocateCallbackJob(&SimpleCallback1));
         }
     }
 
     ASSERT_EQ(SimpleS1, 10000);
 }
 
-static WN_ATOM_T SimpleS2Vals[1000];
+static std::atomic<wn_size_t> SimpleS2Vals[1000];
 
-WN_VOID SimpleCallback2(WN_UINT32 _val) {
-    WN_ATOM_T val = _val;
+wn_void SimpleCallback2(wn_uint32 _val) {
+    wn_atom_t val = _val;
 
-    WNConcurrency::WNAtomicSwap(&SimpleS2Vals[_val], val);
+    SimpleS2Vals[_val] = val;
 }
 
 TEST(WNThreadPoolValidation, OneParameterCallback) {
     {
-        WNConcurrency::WNThreadPool threadPool;
+        wn::thread_pool thread_pool;
 
-        ASSERT_EQ(threadPool.Initialize(16), WNConcurrency::WNThreadPoolReturnCode::eWNOK);
+        ASSERT_EQ(thread_pool.initialize(16), wn::thread_pool::result::ok);
 
-        for (WN_UINT32 i = 0; i < 1000; ++i) {
-            threadPool.AddJob(WNConcurrency::WNAllocateCallbackJob(&SimpleCallback2, i));
+        for (wn_uint32 i = 0; i < 1000; ++i) {
+            thread_pool.enqueue(wn::WNAllocateCallbackJob(&SimpleCallback2, i));
         }
     }
 
-    for (WN_SIZE_T i = 0; i < 1000; ++i) {
+    for (wn_size_t i = 0; i < 1000; ++i) {
         ASSERT_EQ(SimpleS2Vals[i], i);
     }
 }
 
-WN_UINT32 SimpleCallback3(WN_UINT32 _val) {
+wn_uint32 SimpleCallback3(wn_uint32 _val) {
     return(_val);
 }
 
-CREATE_CBJOB_TYPEDEF1(SimpleCallbackJob3, WN_UINT32, WN_UINT32);
+CREATE_CBJOB_TYPEDEF1(SimpleCallbackJob3, wn_uint32, wn_uint32);
 
 TEST(WNThreadPoolValidation, OneParameterReturnCallback) {
     std::vector<SimpleCallbackJob3> jobCallbacks;
 
     {
-        WNConcurrency::WNThreadPool threadPool;
+        wn::thread_pool thread_pool;
 
-        ASSERT_EQ(threadPool.Initialize(16), WNConcurrency::WNThreadPoolReturnCode::eWNOK);
+        ASSERT_EQ(thread_pool.initialize(16), wn::thread_pool::result::ok);
 
-        for (WN_UINT32 i = 0; i < 1000; ++i) {
-            SimpleCallbackJob3 j = WNConcurrency::WNAllocateCallbackJob(&SimpleCallback3, i);
+        for (wn_uint32 i = 0; i < 1000; ++i) {
+            SimpleCallbackJob3 j = wn::WNAllocateCallbackJob(&SimpleCallback3, i);
 
             jobCallbacks.push_back(j);
-            threadPool.AddJob(j);
+            thread_pool.enqueue(j);
         }
     }
 
-    for (WN_SIZE_T i = 0; i < 1000; ++i) {
+    for (wn_size_t i = 0; i < 1000; ++i) {
         ASSERT_EQ(jobCallbacks[i]->GetResult(), i);
     }
 }
@@ -138,40 +139,40 @@ TEST(WNThreadPoolValidation, JobsGetCleaned) {
     std::vector<SimpleCallbackJob3> jobCallbacks;
 
     {
-        WNConcurrency::WNThreadPool threadPool;
+        wn::thread_pool thread_pool;
 
-        ASSERT_EQ(threadPool.Initialize(16), WNConcurrency::WNThreadPoolReturnCode::eWNOK);
+        ASSERT_EQ(thread_pool.initialize(16), wn::thread_pool::result::ok);
 
-        for (WN_UINT32 i = 0; i < 1000; ++i) {
-            SimpleCallbackJob3 j = WNConcurrency::WNAllocateCallbackJob(&SimpleCallback3, i);
+        for (wn_uint32 i = 0; i < 1000; ++i) {
+            SimpleCallbackJob3 j = wn::WNAllocateCallbackJob(&SimpleCallback3, i);
 
             jobCallbacks.push_back(j);
-            threadPool.AddJob(j);
+            thread_pool.enqueue(j);
         }
 
-        for (WN_UINT32 i = 0; i < 1000; ++i) {
-            jobCallbacks[i]->WaitForCompletion();
+        for (wn_uint32 i = 0; i < 1000; ++i) {
+            jobCallbacks[i]->join();
 
             ASSERT_EQ(jobCallbacks[i]->GetResult(), i);
         }
 
-        for (WN_INT32 i = 1000 - 1; i >= 0; --i) {
-            jobCallbacks[i]->WaitForCompletion();
+        for (wn_int32 i = 1000 - 1; i >= 0; --i) {
+            jobCallbacks[i]->join();
 
             ASSERT_EQ(jobCallbacks[i]->GetResult(), i);
         }
 
         jobCallbacks.clear();
 
-        for (WN_UINT32 i = 0; i < 1000; ++i) {
-            SimpleCallbackJob3 j = WNConcurrency::WNAllocateCallbackJob(&SimpleCallback3, i);
+        for (wn_uint32 i = 0; i < 1000; ++i) {
+            SimpleCallbackJob3 j = wn::WNAllocateCallbackJob(&SimpleCallback3, i);
 
             jobCallbacks.push_back(j);
-            threadPool.AddJob(j);
+            thread_pool.enqueue(j);
         }
 
-        for (WN_INT32 i = 1000 - 1; i >= 0; --i) {
-            jobCallbacks[i]->WaitForCompletion();
+        for (wn_int32 i = 1000 - 1; i >= 0; --i) {
+            jobCallbacks[i]->join();
 
             ASSERT_EQ(jobCallbacks[i]->GetResult(), i);
         }

@@ -7,7 +7,7 @@
 #include "WNScripting/inc/WNCodeModule.h"
 #include "WNScripting/inc/WNTypeManager.h"
 
-using namespace WNScripting; 
+using namespace WNScripting;
 
 WNMemberAccessExpr::WNMemberAccessExpr(const char* _member):
     mMember(0) {
@@ -15,15 +15,15 @@ WNMemberAccessExpr::WNMemberAccessExpr(const char* _member):
 }
 
 WNMemberAccessExpr::~WNMemberAccessExpr() {
-    WN_DELETE(mMember);
+    wn::memory::destroy(mMember);
 }
 
 eWNTypeError WNMemberAccessExpr::GenerateCode(WNCodeModule& _module, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog) {
     eWNTypeError err;
-    if(eWNOK != (err = mBaseExpression->GenerateCode(_module, _def, _compilationLog))) {
+    if(ok != (err = mBaseExpression->GenerateCode(_module, _def, _compilationLog))) {
         return(err);
     }
-    
+
     const GenerateIDAccessOperation* idOp = _module.GetTypeManager().GetIDAccessOperation(mBaseExpression->GetType());
     if(!idOp) {
         _compilationLog.Log(WNLogging::eError, 0, "No . operator defined for ", mBaseExpression->GetType()->mName);
@@ -38,13 +38,13 @@ eWNTypeError WNMemberAccessExpr::GenerateCode(WNCodeModule& _module, const WNFun
         LogLine(_compilationLog, WNLogging::eError);
         return(eWNInvalidCast);
     }
-    if(eWNOK != (err = idOp->Execute(_module.GetBuilder(), mBaseExpression->GetValue(), mBaseExpression->GetValueLocation(), mMember, mScriptType, mValue, mValueLocation))) {
+    if(ok != (err = idOp->Execute(_module.GetBuilder(), mBaseExpression->GetValue(), mBaseExpression->GetValueLocation(), mMember, mScriptType, mValue, mValueLocation))) {
         _compilationLog.Log(WNLogging::eCritical, 0, "Error generating id access operation");
         LogLine(_compilationLog, WNLogging::eCritical);
         return(err);
     }
     mSubValue = mBaseExpression->GetValue();
     mSubValueType = mBaseExpression->GetType();
-    return(eWNOK);
+    return(ok);
 }
 

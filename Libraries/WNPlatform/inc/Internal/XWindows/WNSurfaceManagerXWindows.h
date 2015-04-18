@@ -12,7 +12,7 @@
 #include <X11/Xlib.h>
 #include <GL/glx.h>
 
-namespace WNPlatform {
+namespace wn {
     class WNSurfaceXWindows;
 
     class WNSurfaceManagerXWindows: public WNSurfaceManager {
@@ -20,9 +20,9 @@ namespace WNPlatform {
         WNSurfaceManagerXWindows();
         virtual WN_FORCE_INLINE ~WNSurfaceManagerXWindows() {}
 
-        virtual WNSurfaceManagerReturnCode::Type Initialize();
-        virtual WNSurfaceManagerReturnCode::Type CreateSurface(WN_UINT32 _x, WN_UINT32 _y, WN_UINT32 _width, WN_UINT32 _height, WNConcurrency::WNResourcePointer<WNSurface>& _surface);
-        virtual WNSurfaceManagerReturnCode::Type Release();
+        virtual WNSurfaceManagerReturnCode::type Initialize();
+        virtual WNSurfaceManagerReturnCode::type CreateSurface(wn_uint32 _x, wn_uint32 _y, wn_uint32 _width, wn_uint32 _height, wn::memory::intrusive_ptr<surface>& _surface);
+        virtual WNSurfaceManagerReturnCode::type Release();
 
     private:
         WNSurfaceManagerXWindows(const WNSurfaceManagerXWindows&);

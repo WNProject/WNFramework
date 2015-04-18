@@ -18,12 +18,12 @@ namespace WNScripting {
         virtual ~WNTypeNode();
         void AddArrayLevel();
 
-        eWNTypeError GetType(WNTypeManager& _module, WNScriptType& _outType, WNLogging::WNLog& _compilationLog) const; 
+        eWNTypeError GetType(WNTypeManager& _module, WNScriptType& _outType, WNLogging::WNLog& _compilationLog) const;
 
     private:
         WNScriptTypeName mType;
         char* mCustomType;
-        WN_SIZE_T mNumArrayLevels;
+        wn_size_t mNumArrayLevels;
     };
 }
 #endif//__WN_TYPE_NODE_H__

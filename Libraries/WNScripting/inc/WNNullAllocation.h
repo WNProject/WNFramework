@@ -6,7 +6,7 @@
 #define __WN_NULL_ALLOCATION_H__
 #include "WNScripting/inc/WNExpression.h"
 
-namespace WNScripting {    
+namespace WNScripting {
     class WNNullAllocation : public WNExpression {
     public:
         WNNullAllocation();

@@ -8,15 +8,15 @@
 #include "WNLogging/inc/WNLog.h"
 #include <vector>
 namespace WNLogging {
-    
-    template<WN_VOID (*T_FlushCB)(WN_VOID*, const WN_CHAR*, WN_SIZE_T, const std::vector<WNLogColorElement>&)>
+
+    template<wn_void (*T_FlushCB)(wn_void*, const wn_char*, wn_size_t, const std::vector<WNLogColorElement>&)>
     class WNBufferLogger: public WNLogger {
     public:
-        WNBufferLogger(WN_VOID* context);
+        WNBufferLogger(wn_void* context);
         ~WNBufferLogger();
-        virtual WN_INLINE WN_VOID FlushBuffer(const WN_CHAR* _buffer, WN_SIZE_T bufferSize, const std::vector<WNLogColorElement>& mColors);
+        virtual WN_INLINE wn_void FlushBuffer(const wn_char* _buffer, wn_size_t bufferSize, const std::vector<WNLogColorElement>& mColors);
     private:
-        WN_VOID* mContext;
+        wn_void* mContext;
     };
 };
 

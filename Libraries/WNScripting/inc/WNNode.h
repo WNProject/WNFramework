@@ -9,23 +9,23 @@
 
 namespace WNScripting {
     struct WNScriptLocation {
-        WN_INT64  mStartIndex;
-        WN_INT64 mEndIndex;
-        const WN_BYTE*  mLineStart;
-        WN_INT64 mLineNumber;
-        WN_INT64 mCharNumber;
+        wn_int64  mStartIndex;
+        wn_int64 mEndIndex;
+        const wn_byte*  mLineStart;
+        wn_int64 mLineNumber;
+        wn_int64 mCharNumber;
     };
 
-    class WNNode{ 
+    class WNNode{
     public:
-        WN_VOID SetStartPosition(const WNScriptLocation& _location) { mStartLocation = _location; }
-        WN_VOID SetEndIndex(WN_INT64 _idx) { mStartLocation.mEndIndex = _idx; }
+        wn_void SetStartPosition(const WNScriptLocation& _location) { mStartLocation = _location; }
+        wn_void SetEndIndex(wn_int64 _idx) { mStartLocation.mEndIndex = _idx; }
         const WNScriptLocation& GetStartPosition() const { return(mStartLocation); }
-        WN_VOID LogLine(WNLogging::WNLog& _log, WNLogging::WNLogLevel _level) const {
-            WN_SIZE_T lineLength = 1023;
-            const WN_CHAR* c = WNStrings::WNStrNChr(reinterpret_cast<const WN_CHAR*>(mStartLocation.mLineStart), 1023, '\n');
-            lineLength = (c - reinterpret_cast<const WN_CHAR*>(mStartLocation.mLineStart));
-            WN_CHAR* vArray = static_cast<WN_CHAR*>(WN_STACK_ALLOC(lineLength + 1));
+        wn_void LogLine(WNLogging::WNLog& _log, WNLogging::WNLogLevel _level) const {
+            wn_size_t lineLength = 1023;
+            const wn_char* c = WNStrings::WNStrNChr(reinterpret_cast<const wn_char*>(mStartLocation.mLineStart), 1023, '\n');
+            lineLength = (c - reinterpret_cast<const wn_char*>(mStartLocation.mLineStart));
+            wn_char* vArray = static_cast<wn_char*>(WN_STACK_ALLOC(lineLength + 1));
             memcpy(vArray, mStartLocation.mLineStart, lineLength);
             vArray[lineLength] = '\0';
             _log.Log(_level, 0, "Line: ", mStartLocation.mLineNumber, "\n", vArray);

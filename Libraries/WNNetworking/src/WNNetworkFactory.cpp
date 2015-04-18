@@ -15,8 +15,8 @@ using namespace WNNetworking;
 
 WNNetworkManager* WNNetworkFactory::CreateNetworkManager() {
     #ifdef _WN_WINDOWS
-        return(WN_NEW WNNetworkManagerWindows());
+        return(wn::memory::construct<WNNetworkManagerWindows>());
     #elif defined _WN_LINUX || defined _WN_ANDROID
-        return(WN_NEW WNNetworkManagerLinux());
+        return(wn::memory::construct<WNNetworkManagerLinux>());
     #endif
 }

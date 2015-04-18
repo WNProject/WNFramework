@@ -12,10 +12,9 @@
 #endif
 
 #include "WNCore/inc/WNAssert.h"
-#include "WNConcurrency/inc/WNAtomic.h"
 
 namespace WNContainers {
-    namespace __WNInternal {
+    namespace internal {
         template <typename Class, typename Return>
         WN_FORCE_INLINE __WNCallbackInternal0<Class, Return>::__WNCallbackInternal0(Return (Class::*_function)(), Class* _object) :
             __WNCallbackBase0<Return>(),
@@ -25,8 +24,8 @@ namespace WNContainers {
 
         template <typename Class, typename Return>
         WN_FORCE_INLINE Return __WNCallbackInternal0<Class, Return>::Execute() const {
-            WN_RELEASE_ASSERT_DESC(mObject != WN_NULL, "Object pointer is null");
-            WN_RELEASE_ASSERT_DESC(mFunction != WN_NULL, "Invalid function pointer");
+            WN_RELEASE_ASSERT_DESC(mObject != wn_nullptr, "Object pointer is null");
+            WN_RELEASE_ASSERT_DESC(mFunction != wn_nullptr, "Invalid function pointer");
 
             return(mObject->mFunction());
         }
@@ -40,8 +39,8 @@ namespace WNContainers {
 
         template <typename Class, typename Return, typename Parameter>
         WN_FORCE_INLINE Return __WNCallbackInternal1<Class, Return, Parameter>::Execute(const Parameter& _parameter) const {
-            WN_RELEASE_ASSERT_DESC(mObject != WN_NULL, "Object pointer is null");
-            WN_RELEASE_ASSERT_DESC(mFunction != WN_NULL, "Invalid function pointer");
+            WN_RELEASE_ASSERT_DESC(mObject != wn_nullptr, "Object pointer is null");
+            WN_RELEASE_ASSERT_DESC(mFunction != wn_nullptr, "Invalid function pointer");
 
             return(mObject->mFunction(_parameter));
         }
@@ -55,8 +54,8 @@ namespace WNContainers {
 
         template <typename Class, typename Return, typename Parameter1, typename Parameter2>
         WN_FORCE_INLINE Return __WNCallbackInternal2<Class, Return, Parameter1, Parameter2>::Execute(const Parameter1& _parameter1, const Parameter2& _parameter2) const {
-            WN_RELEASE_ASSERT_DESC(mObject != WN_NULL, "Object pointer is null");
-            WN_RELEASE_ASSERT_DESC(mFunction != WN_NULL, "Invalid function pointer");
+            WN_RELEASE_ASSERT_DESC(mObject != wn_nullptr, "Object pointer is null");
+            WN_RELEASE_ASSERT_DESC(mFunction != wn_nullptr, "Invalid function pointer");
 
             return(((*mObject).*mFunction)(_parameter1, _parameter2));
         }
@@ -70,8 +69,8 @@ namespace WNContainers {
 
         template <typename Class, typename Return, typename Parameter1, typename Parameter2, typename Parameter3>
         WN_FORCE_INLINE Return __WNCallbackInternal3<Class, Return, Parameter1, Parameter2, Parameter3>::Execute(const Parameter1& _parameter1, const Parameter2& _parameter2, const Parameter3& _parameter3) const {
-            WN_RELEASE_ASSERT_DESC(mObject != WN_NULL, "Object pointer is null");
-            WN_RELEASE_ASSERT_DESC(mFunction != WN_NULL, "Invalid function pointer");
+            WN_RELEASE_ASSERT_DESC(mObject != wn_nullptr, "Object pointer is null");
+            WN_RELEASE_ASSERT_DESC(mFunction != wn_nullptr, "Invalid function pointer");
 
             return(((*mObject).*mFunction)(_parameter1, _parameter2, _parameter3));
         }
@@ -84,7 +83,7 @@ namespace WNContainers {
 
         template <typename Return>
         WN_FORCE_INLINE Return __WNCallbackClasslessInternal0<Return>::Execute() const {
-            WN_RELEASE_ASSERT_DESC(mFunction != WN_NULL, "Invalid function pointer");
+            WN_RELEASE_ASSERT_DESC(mFunction != wn_nullptr, "Invalid function pointer");
 
             return(mFunction());
         }
@@ -97,7 +96,7 @@ namespace WNContainers {
 
         template <typename Return, typename Parameter>
         WN_FORCE_INLINE Return __WNCallbackClasslessInternal1<Return, Parameter>::Execute(const Parameter& _parameter) const {
-            WN_RELEASE_ASSERT_DESC(mFunction != WN_NULL, "Invalid function pointer");
+            WN_RELEASE_ASSERT_DESC(mFunction != wn_nullptr, "Invalid function pointer");
 
             return(mFunction(_parameter));
         }
@@ -110,7 +109,7 @@ namespace WNContainers {
 
         template <typename Return, typename Parameter1, typename Parameter2>
         Return __WNCallbackClasslessInternal2<Return, Parameter1, Parameter2>::Execute(const Parameter1& _parameter1, const Parameter2& _parameter2) const {
-            WN_RELEASE_ASSERT_DESC(mFunction != WN_NULL, "Invalid function pointer");
+            WN_RELEASE_ASSERT_DESC(mFunction != wn_nullptr, "Invalid function pointer");
 
             return(mFunction(_parameter1, _parameter2));
         }
@@ -123,39 +122,39 @@ namespace WNContainers {
 
         template <typename Return, typename Parameter1, typename Parameter2, typename Parameter3>
         WN_FORCE_INLINE Return __WNCallbackClasslessInternal3<Return, Parameter1, Parameter2, Parameter3>::Execute(const Parameter1& _parameter1, const Parameter2& _parameter2, const Parameter3& _parameter3) const {
-            WN_RELEASE_ASSERT_DESC(mFunction != WN_NULL, "Invalid function pointer");
+            WN_RELEASE_ASSERT_DESC(mFunction != wn_nullptr, "Invalid function pointer");
 
             return(mFunction(_parameter1, _parameter2, _parameter3));
         }
-        
+
         template <typename Return>
         WN_FORCE_INLINE __WNCallbackBase0<Return>::__WNCallbackBase0() :
             mCount(0) {
         }
 
         template <typename Return>
-        WN_FORCE_INLINE WN_VOID __WNCallbackBase0<Return>::AddRef() {
-            WNConcurrency::WNAtomicIncrement(&mCount);
+        WN_FORCE_INLINE wn_void __WNCallbackBase0<Return>::AddRef() {
+            mCount++;
         }
 
         template <typename Return>
-        WN_FORCE_INLINE WN_ATOM_T __WNCallbackBase0<Return>::RemoveRef() {
-            return(WNConcurrency::WNAtomicDecrement(&mCount));
+        WN_FORCE_INLINE wn_size_t __WNCallbackBase0<Return>::RemoveRef() {
+            return(--mCount);
         }
-        
+
         template <typename Return, typename Parameter>
         WN_FORCE_INLINE __WNCallbackBase1<Return, Parameter>::__WNCallbackBase1() :
             mCount(0) {
         }
 
         template <typename Return, typename Parameter>
-        WN_FORCE_INLINE WN_VOID __WNCallbackBase1<Return, Parameter>::AddRef() {
-            WNConcurrency::WNAtomicIncrement(&mCount);
+        WN_FORCE_INLINE wn_void __WNCallbackBase1<Return, Parameter>::AddRef() {
+            mCount++;
         }
 
         template <typename Return, typename Parameter>
-        WN_FORCE_INLINE WN_ATOM_T __WNCallbackBase1<Return, Parameter>::RemoveRef() {
-            return(WNConcurrency::WNAtomicDecrement(&mCount));
+        WN_FORCE_INLINE wn_size_t __WNCallbackBase1<Return, Parameter>::RemoveRef() {
+            return(--mCount);
         }
 
         template <typename Return, typename Parameter1, typename Parameter2>
@@ -164,13 +163,13 @@ namespace WNContainers {
         }
 
         template <typename Return, typename Parameter1, typename Parameter2>
-        WN_FORCE_INLINE WN_VOID __WNCallbackBase2<Return, Parameter1, Parameter2>::AddRef() {
-            WNConcurrency::WNAtomicIncrement(&mCount);
+        WN_FORCE_INLINE wn_void __WNCallbackBase2<Return, Parameter1, Parameter2>::AddRef() {
+            mCount++;
         }
 
         template <typename Return, typename Parameter1, typename Parameter2>
-        WN_FORCE_INLINE WN_ATOM_T __WNCallbackBase2<Return, Parameter1, Parameter2>::RemoveRef() {
-            return(WNConcurrency::WNAtomicDecrement(&mCount));
+        WN_FORCE_INLINE wn_size_t __WNCallbackBase2<Return, Parameter1, Parameter2>::RemoveRef() {
+            return(--mCount);
         }
 
         template <typename Return, typename Parameter1, typename Parameter2, typename Parameter3>
@@ -179,13 +178,13 @@ namespace WNContainers {
         }
 
         template <typename Return, typename Parameter1, typename Parameter2, typename Parameter3>
-        WN_FORCE_INLINE WN_VOID __WNCallbackBase3<Return, Parameter1, Parameter2, Parameter3>::AddRef() {
-            WNConcurrency::WNAtomicIncrement(&mCount);
+        WN_FORCE_INLINE wn_void __WNCallbackBase3<Return, Parameter1, Parameter2, Parameter3>::AddRef() {
+            mCount++;
         }
 
         template <typename Return, typename Parameter1, typename Parameter2, typename Parameter3>
-        WN_FORCE_INLINE WN_ATOM_T __WNCallbackBase3<Return, Parameter1, Parameter2, Parameter3>::RemoveRef() {
-            return(WNConcurrency::WNAtomicDecrement(&mCount));
+        WN_FORCE_INLINE wn_size_t __WNCallbackBase3<Return, Parameter1, Parameter2, Parameter3>::RemoveRef() {
+            return(--mCount);
         }
     }
 }

@@ -27,7 +27,7 @@
 #endif
 
 #include "llvm/IR/IRBuilder.h"
- 
+
 #ifdef _WN_MSVC
     #pragma warning(pop)
 #endif
@@ -41,10 +41,10 @@ namespace WNScripting {
         }
         virtual ~GenerateFloatArithmetic() {}
         virtual eWNTypeError Execute(llvm::IRBuilderBase* _builder, llvm::Value* _expr1, llvm::Value* _expr2, WNScriptType& _outType, llvm::Value*& _outReturnVal) const {
-            llvm::IRBuilder<>* builder = reinterpret_cast<llvm::IRBuilder<>* >(_builder);       
+            llvm::IRBuilder<>* builder = reinterpret_cast<llvm::IRBuilder<>* >(_builder);
             _outReturnVal = ((*builder).*T)(_expr1, _expr2, "", 0);
             _outType = mDestFlt;
-            return(eWNOK);
+            return(ok);
         }
     private:
         WNScriptType mDestFlt;
@@ -60,11 +60,11 @@ namespace WNScripting {
                 _compilationLog.Log(WNLogging::eError, 0, "Cannot declare a variable with a compound assignment");
                 return(eWNCannotCreateType);
             }
-            llvm::IRBuilder<>* builder = reinterpret_cast<llvm::IRBuilder<>* >(_module.GetBuilder());       
+            llvm::IRBuilder<>* builder = reinterpret_cast<llvm::IRBuilder<>* >(_module.GetBuilder());
             llvm::Value* inVal = builder->CreateLoad(assignLocation, false, "");
             llvm::Value* tempVal = ((*builder).*T)(inVal, value, "", 0);
             builder->CreateStore(tempVal, assignLocation, false);
-            return(eWNOK);
+            return(ok);
         }
     private:
         WNScriptType mDestFlt;
@@ -81,7 +81,7 @@ namespace WNScripting {
             _outReturnVal = ((*builder).*T)(_expr1, _expr2, "");
             _outReturnVal = builder->CreateIntCast(_outReturnVal, mDestFlt->mLLVMType, false, "");
             _destType = mDestFlt;
-            return(eWNOK);
+            return(ok);
         }
     private:
         WNScriptType mDestFlt;
@@ -93,10 +93,10 @@ namespace WNScripting {
             mDestFlt(_destType) {
         }
         virtual ~GenerateFloatConstant() {}
-        virtual eWNTypeError Execute(WNCodeModule&, const WN_CHAR* _constant, bool&, llvm::Value*& _outLocation) const {
-            WN_FLOAT32 flt = WNStrings::WNStrToFlt(_constant);
+        virtual eWNTypeError Execute(WNCodeModule&, const wn_char* _constant, bool&, llvm::Value*& _outLocation) const {
+            wn_float32 flt = WNStrings::WNStrToFlt(_constant);
             _outLocation = llvm::ConstantFP::get(mDestFlt->mLLVMType, flt);
-             return(eWNOK);
+             return(ok);
         }
     private:
         WNScriptType mDestFlt;
@@ -104,65 +104,65 @@ namespace WNScripting {
 
 
     eWNTypeError GenerateFloatNegation(llvm::IRBuilderBase* _builder, const WNExpression& _expr1, llvm::Value*& _value) {
-        llvm::IRBuilder<>* builder = reinterpret_cast<llvm::IRBuilder<>* >(_builder);       
+        llvm::IRBuilder<>* builder = reinterpret_cast<llvm::IRBuilder<>* >(_builder);
         llvm::Type* type = _expr1.GetType()->mLLVMType;
         llvm::Value* val = llvm::ConstantFP::get(type, -1.0);
         _value = builder->CreateFMul(_expr1.GetValue(), val, "", 0);
-        return(eWNOK);
+        return(ok);
     }
 
     eWNTypeError WNBuiltInInitializer::InitializeFloatTypes(WNScriptingEngine* _engine, WNTypeManager& _manager) {
         WNScriptType scriptType;
         WNScriptType boolType;
-        WN_RELEASE_ASSERT(_manager.RegisterScalarType("Float", _engine, 100.0f, scriptType, llvm::Type::getFloatTy(llvm::getGlobalContext()), sizeof(WN_FLOAT32)) == eWNOK);
-        
+        WN_RELEASE_ASSERT(_manager.RegisterScalarType("Float", _engine, 100.0f, scriptType, llvm::Type::getFloatTy(llvm::getGlobalContext()), sizeof(wn_float32)) == ok);
 
-        _manager.RegisterArithmeticOperator(AR_ADD, scriptType, scriptType, 
-            WN_NEW GenerateFloatArithmetic<&llvm::IRBuilder<>::CreateFAdd>(scriptType));
-        _manager.RegisterArithmeticOperator(AR_SUB, scriptType, scriptType, 
-            WN_NEW GenerateFloatArithmetic<&llvm::IRBuilder<>::CreateFSub>(scriptType));
+
+        _manager.RegisterArithmeticOperator(AR_ADD, scriptType, scriptType,
+            wn::memory::construct<GenerateFloatArithmetic<&llvm::IRBuilder<>::CreateFAdd>>(scriptType));
+        _manager.RegisterArithmeticOperator(AR_SUB, scriptType, scriptType,
+            wn::memory::construct<GenerateFloatArithmetic<&llvm::IRBuilder<>::CreateFSub>>(scriptType));
         _manager.RegisterArithmeticOperator(AR_MULT, scriptType, scriptType,
-            WN_NEW GenerateFloatArithmetic<&llvm::IRBuilder<>::CreateFMul>(scriptType));
+            wn::memory::construct<GenerateFloatArithmetic<&llvm::IRBuilder<>::CreateFMul>>(scriptType));
         _manager.RegisterArithmeticOperator(AR_DIV, scriptType, scriptType,
-            WN_NEW GenerateFloatArithmetic<&llvm::IRBuilder<>::CreateFDiv>(scriptType));
+            wn::memory::construct<GenerateFloatArithmetic<&llvm::IRBuilder<>::CreateFDiv>>(scriptType));
         _manager.RegisterArithmeticOperator(AR_MOD, scriptType, scriptType,
-            WN_NEW GenerateFloatArithmetic<&llvm::IRBuilder<>::CreateFRem>(scriptType));
-        if(eWNOK == _manager.GetTypeByName("Bool", boolType)) {
-            _manager.RegisterArithmeticOperator(AR_EQ, scriptType, scriptType, 
-                WN_NEW GenerateFloatCompare<&llvm::IRBuilder<>::CreateFCmpOEQ>(boolType));
-            _manager.RegisterArithmeticOperator(AR_NEQ, scriptType, scriptType, 
-                WN_NEW GenerateFloatCompare<&llvm::IRBuilder<>::CreateFCmpONE>(boolType));
-            _manager.RegisterArithmeticOperator(AR_LEQ, scriptType, scriptType, 
-                WN_NEW GenerateFloatCompare<&llvm::IRBuilder<>::CreateFCmpOLE>(boolType));
-            _manager.RegisterArithmeticOperator(AR_GEQ, scriptType, scriptType, 
-                WN_NEW GenerateFloatCompare<&llvm::IRBuilder<>::CreateFCmpOGE>(boolType));
-            _manager.RegisterArithmeticOperator(AR_LT, scriptType, scriptType, 
-                WN_NEW GenerateFloatCompare<&llvm::IRBuilder<>::CreateFCmpOLT>(boolType));
-            _manager.RegisterArithmeticOperator(AR_GT, scriptType, scriptType, 
-                WN_NEW GenerateFloatCompare<&llvm::IRBuilder<>::CreateFCmpOGT>(boolType));
+            wn::memory::construct<GenerateFloatArithmetic<&llvm::IRBuilder<>::CreateFRem>>(scriptType));
+        if(ok == _manager.GetTypeByName("Bool", boolType)) {
+            _manager.RegisterArithmeticOperator(AR_EQ, scriptType, scriptType,
+                wn::memory::construct<GenerateFloatCompare<&llvm::IRBuilder<>::CreateFCmpOEQ>>(boolType));
+            _manager.RegisterArithmeticOperator(AR_NEQ, scriptType, scriptType,
+                wn::memory::construct<GenerateFloatCompare<&llvm::IRBuilder<>::CreateFCmpONE>>(boolType));
+            _manager.RegisterArithmeticOperator(AR_LEQ, scriptType, scriptType,
+                wn::memory::construct<GenerateFloatCompare<&llvm::IRBuilder<>::CreateFCmpOLE>>(boolType));
+            _manager.RegisterArithmeticOperator(AR_GEQ, scriptType, scriptType,
+                wn::memory::construct<GenerateFloatCompare<&llvm::IRBuilder<>::CreateFCmpOGE>>(boolType));
+            _manager.RegisterArithmeticOperator(AR_LT, scriptType, scriptType,
+                wn::memory::construct<GenerateFloatCompare<&llvm::IRBuilder<>::CreateFCmpOLT>>(boolType));
+            _manager.RegisterArithmeticOperator(AR_GT, scriptType, scriptType,
+                wn::memory::construct<GenerateFloatCompare<&llvm::IRBuilder<>::CreateFCmpOGT>>(boolType));
         }
         _manager.RegisterAssignmentOperator(scriptType, AT_ADD_EQ,
-                WN_NEW GenerateCompoundFloatAssignment <&llvm::IRBuilder<>::CreateFAdd>());
+            wn::memory::construct<GenerateCompoundFloatAssignment<&llvm::IRBuilder<>::CreateFAdd>>());
         _manager.RegisterAssignmentOperator(scriptType, AT_SUB_EQ,
-                WN_NEW GenerateCompoundFloatAssignment <&llvm::IRBuilder<>::CreateFSub>());
+            wn::memory::construct<GenerateCompoundFloatAssignment<&llvm::IRBuilder<>::CreateFSub>>());
         _manager.RegisterAssignmentOperator(scriptType, AT_MULT_EQ,
-                WN_NEW GenerateCompoundFloatAssignment <&llvm::IRBuilder<>::CreateFMul>());
+            wn::memory::construct<GenerateCompoundFloatAssignment<&llvm::IRBuilder<>::CreateFMul>>());
         _manager.RegisterAssignmentOperator(scriptType, AT_DIV_EQ,
-            WN_NEW GenerateCompoundFloatAssignment <&llvm::IRBuilder<>::CreateFDiv>());
+            wn::memory::construct< GenerateCompoundFloatAssignment<&llvm::IRBuilder<>::CreateFDiv>>());
         _manager.RegisterAssignmentOperator(scriptType, AT_MOD_EQ,
-            WN_NEW GenerateCompoundFloatAssignment<&llvm::IRBuilder<>::CreateFRem>());
+            wn::memory::construct<GenerateCompoundFloatAssignment<&llvm::IRBuilder<>::CreateFRem>>());
 
 
         _manager.RegisterPreUnaryOperator(UN_NEG, scriptType,
-            WN_NEW PreUnaryFunction<&GenerateFloatNegation>());
-        _manager.RegisterConstantOperator(scriptType, 
-            WN_NEW GenerateFloatConstant(scriptType));
+            wn::memory::construct<PreUnaryFunction<&GenerateFloatNegation>>());
+        _manager.RegisterConstantOperator(scriptType,
+            wn::memory::construct<GenerateFloatConstant>(scriptType));
         _manager.RegisterAllocationOperator(scriptType,
-            WN_NEW GenerateDefaultAllocation());
+            wn::memory::construct<GenerateDefaultAllocation>());
         _manager.RegisterAssignmentOperator(scriptType, AT_EQ,
-            WN_NEW GenerateDefaultAssignment());
+            wn::memory::construct<GenerateDefaultAssignment>());
         _manager.RegisterAssignmentOperator(scriptType, AT_CHOWN,
-            WN_NEW GenerateDefaultAssignment());
-        return(eWNOK);
+            wn::memory::construct<GenerateDefaultAssignment>());
+        return(ok);
     }
 }

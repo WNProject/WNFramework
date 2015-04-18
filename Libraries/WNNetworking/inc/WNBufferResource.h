@@ -7,25 +7,25 @@
 #ifndef __WN_NETWORKING_BUFFER_RESOURCE_H__
 #define __WN_NETWORKING_BUFFER_RESOURCE_H__
 
-#include "WNConcurrency/inc/WNResourceBase.h"
+#include "WNMemory/inc/WNIntrusivePtrBase.h"
 
 namespace WNNetworking {
     class WNNetworkManager;
 
-    class WNBufferResource : public WNConcurrency::WNResourceBase {
+    class WNBufferResource : public wn::memory::intrusive_ptr_base {
     public:
         WNBufferResource(const WNNetworkManager& _manager);
         virtual ~WNBufferResource();
 
-        WN_CHAR* GetPointer() const;
-        WN_CHAR* GetBaseLocation() const;
-        WN_SIZE_T GetSize() const;
-        WN_SIZE_T GetWritten() const;
-        WN_VOID FlushWrite();
-        WN_VOID PrepareRead();
-        WN_VOID AddData(WN_SIZE_T _data);
-        WN_VOID FillData();
-        WN_VOID Clear();
+        wn_char* GetPointer() const;
+        wn_char* GetBaseLocation() const;
+        wn_size_t GetSize() const;
+        wn_size_t GetWritten() const;
+        wn_void FlushWrite();
+        wn_void PrepareRead();
+        wn_void AddData(wn_size_t _data);
+        wn_void FillData();
+        wn_void Clear();
 
         #ifdef _WN_WINDOWS
             WN_FORCE_INLINE const WSABUF* GetWriteWinBuf() const;
@@ -42,9 +42,9 @@ namespace WNNetworking {
             WSABUF mWinBuf;
         #endif
 
-        WN_CHAR* mBuffer;
-        WN_SIZE_T mBaseLocation;
-        WN_SIZE_T mCurLocation;
+        wn_char* mBuffer;
+        wn_size_t mBaseLocation;
+        wn_size_t mCurLocation;
     };
 }
 

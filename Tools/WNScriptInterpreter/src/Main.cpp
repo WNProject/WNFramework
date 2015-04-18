@@ -18,7 +18,8 @@
 
 using namespace WNStrings;
 using namespace WNMemory;
-extern eWNTypeError RegisterExternalString(WNScripting::WNTypeManager& _manager, WN_VOID*) ;
+
+//extern eWNTypeError RegisterExternalString(WNScripting::WNTypeManager& _manager, WN_VOID*);
 
 WNLogging::WNDefaultLogParameters<WNLogging::eLogMax, 1024, true> mParams;
 WNLogging::WNConsoleLogger<> mConsoleLogger;
@@ -54,7 +55,7 @@ DEFINE_TYPED_SCRIPT_CHILD(B, A);
 DEFINE_TYPED_SCRIPT_CHILD(C, B);
 struct X {
     virtual ~X() {
-        printf("DESTROYED");    
+        printf("DESTROYED");
     }
     virtual WN_INT32 XRet() {
         return(35);
@@ -110,21 +111,21 @@ WN_INT32 WNMain(WN_INT32 _argc, WN_CHAR* _argv[]) {
     }
 
     const WN_CHAR* func = (_argc > 2) ? _argv[2] : "test";
-    
-#endif 
+
+#endif
     WNScripting::WNScriptingEngine* scriptingEngine = WNScripting::WNScriptingEngineFactory::CreateScriptingEngine();
     g_Engine = scriptingEngine;
     scriptingEngine->SetCompilationLog(&mMyLog);
     scriptingEngine->SetLogLevel(WNLogging::eNone);
     scriptingEngine->SetInternalLogLevel(WNLogging::eNone);
     WN_RELEASE_ASSERT(scriptingEngine->Initialize() == eWNOK);
-    scriptingEngine->AddExternalLibs(&RegisterExternalString, WN_NULL);
+    //scriptingEngine->AddExternalLibs(&RegisterExternalString, WN_NULL);
     scriptingEngine->RegisterCFunction("get23", &get23);
     scriptingEngine->RegisterCFunction("add", &add);
     scriptingEngine->RegisterCFunction("printInt", &print);
     scriptingEngine->RegisterCFunction("printString", &PrintString);
     scriptingEngine->RegisterCFunction("hello", &GetHelloWorld);
-    
+
     WNScripting::WNFunctionPointer<WN_INT32, WNScripting::WNScriptingArray<WN_CHAR> > fPtr;
     WNScripting::ScriptType_A  mAType;
     WNScripting::WNScriptingArray<WN_CHAR> mArray;
@@ -143,7 +144,7 @@ WN_INT32 WNMain(WN_INT32 _argc, WN_CHAR* _argv[]) {
     if(eWNOK != scriptingEngine->ConstructScriptingArray(mArray, 10)) {
         return(-1);
     }
-    for(int i = 0; i < 10; ++i) {
+    for(char i = 0; i < 10; ++i) {
         mArray[i] = i;
     }
 
@@ -158,4 +159,4 @@ WN_INT32 WNMain(WN_INT32 _argc, WN_CHAR* _argv[]) {
     WN_DELETE(scriptingEngine);
     return(0);
 }
- 
+

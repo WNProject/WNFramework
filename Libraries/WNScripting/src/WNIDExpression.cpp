@@ -27,21 +27,21 @@
     #pragma warning(pop)
 #endif
 
-using namespace WNScripting; 
+using namespace WNScripting;
 
 WNIDExpression::WNIDExpression(const char* _name) :
-    mName(WN_NULL){
+    mName(wn_nullptr){
     COPY_STRING(_name, mName);
 }
 
 WNIDExpression::~WNIDExpression() {
-    WNMemory::WNFree(mName);
+    wn::memory::heap_free(mName);
 }
 
 eWNTypeError WNIDExpression::GenerateCode(WNCodeModule& _module, const WNFunctionDefinition*, WNLogging::WNLog&) {
     llvm::IRBuilder<>* builder = reinterpret_cast<llvm::IRBuilder<>*>(_module.GetBuilder());
     const WNScriptVariable* var = _module.GetScopedVariableList().GetVariable(mName);
-    eWNTypeError err = eWNOK;
+    eWNTypeError err = ok;
     if(var) {
         llvm::Value* loc = var->GetLocation();
         mValue = builder->CreateLoad(var->GetLocation(), false, "");
@@ -49,11 +49,11 @@ eWNTypeError WNIDExpression::GenerateCode(WNCodeModule& _module, const WNFunctio
         mValueLocation = loc;
     } else {
         mValue = reinterpret_cast<llvm::Value*>(mName);
-        if(eWNOK != (err = _module.GetTypeManager().GetTypeByName("-Function", mScriptType))) {
+        if(ok != (err = _module.GetTypeManager().GetTypeByName("-Function", mScriptType))) {
             return(err);
         }
-        return(eWNOK);
+        return(ok);
     }
-    return(eWNOK);
+    return(ok);
 }
 

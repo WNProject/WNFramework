@@ -12,20 +12,20 @@ namespace WNScripting {
     class WNTypeNode;
     class WNTypeManager;
     class WNDeclaration : public WNInstruction {
-    public:    
+    public:
         WNDeclaration(WNTypeNode* _type, const char* _name);
         virtual ~WNDeclaration();
-        const WN_CHAR* GetName(); 
+        const wn_char* GetName();
 
-        eWNTypeError GetType(WNTypeManager& _manager, WNScriptType& _scriptType, WNLogging::WNLog& _compilationLog); 
+        eWNTypeError GetType(WNTypeManager& _manager, WNScriptType& _scriptType, WNLogging::WNLog& _compilationLog);
 
-        void AddExpressionInitializer(WNExpression* _expr, bool _assign = false); 
+        void AddExpressionInitializer(WNExpression* _expr, bool _assign = false);
 
         void AddSizedArrayInitializer(WNExpression* _expr);
 
-        void AddUnsizedArrayInitializer(); 
+        void AddUnsizedArrayInitializer();
 
-        virtual eWNTypeError GenerateCode(WNCodeModule& _module, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog); 
+        virtual eWNTypeError GenerateCode(WNCodeModule& _module, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog);
         WNExpression* GetExpression();
     private:
         WNTypeNode* mType;
@@ -33,8 +33,8 @@ namespace WNScripting {
         WNExpression* mExpr;
         WNTypeNode* mScalarType;
         WNScriptLinkedList<WNExpression> mSizedArrayInitializers;
-        WN_SIZE_T mUnsizedArrayInitializers;
-        WN_BOOL mInitAssign;
+        wn_size_t mUnsizedArrayInitializers;
+        wn_bool mInitAssign;
     };
 }
 #endif//__WN_DECLARATION_H__

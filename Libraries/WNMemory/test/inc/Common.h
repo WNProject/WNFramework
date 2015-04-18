@@ -18,16 +18,12 @@
 
 #define _HAS_EXCEPTIONS 0
 
-#define GTEST_HAS_RTTI 0
-
 #include <gtest/gtest.h>
 
 #ifdef _WN_MSVC
     #pragma warning(pop)
 #endif
 
-#ifdef __WN_USE_PRECOMPILED_HEADER
-    #include "WNMemory/inc/WNMemory.h"
-#endif
+#include "WNMemory/inc/WNMemory.h"
 
 #endif // __WN_MEMORY_TESTS_COMMON_H__

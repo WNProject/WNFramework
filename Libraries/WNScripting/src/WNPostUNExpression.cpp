@@ -12,7 +12,7 @@ WNPostUNExpression::WNPostUNExpression(WNPostUNType _type) :
 }
 
 WNPostUNExpression::~WNPostUNExpression() {
-    
+
 }
 
 eWNTypeError WNPostUNExpression::GenerateCode(WNCodeModule& _module, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog) {
@@ -21,8 +21,8 @@ eWNTypeError WNPostUNExpression::GenerateCode(WNCodeModule& _module, const WNFun
         LogLine(_compilationLog, WNLogging::eCritical);
         return(eWNInvalidOperation);
     }
-    eWNTypeError err = eWNOK;
-    if(eWNOK != (err = mBaseExpression->GenerateCode(_module, _def, _compilationLog))) {
+    eWNTypeError err = ok;
+    if(ok != (err = mBaseExpression->GenerateCode(_module, _def, _compilationLog))) {
         return(err);
     }
     if(!mBaseExpression->GetValueLocation()) {
@@ -36,13 +36,13 @@ eWNTypeError WNPostUNExpression::GenerateCode(WNCodeModule& _module, const WNFun
         LogLine(_compilationLog, WNLogging::eError);
         return(eWNInvalidOperation);
     }
-    if(eWNOK != (err = postOp->Execute(_module.GetBuilder(), *mBaseExpression, mValue))) {
+    if(ok != (err = postOp->Execute(_module.GetBuilder(), *mBaseExpression, mValue))) {
         _compilationLog.Log(WNLogging::eCritical, 0, "Error generating operation ", WNPostUNTypeNames[mType], " for type: ", mBaseExpression->GetType()->mName);
         LogLine(_compilationLog, WNLogging::eCritical);
         return(err);
     }
     mValueLocation = mBaseExpression->GetValueLocation();
     mScriptType = mBaseExpression->GetType();
-    return(eWNOK);
+    return(ok);
 }
 

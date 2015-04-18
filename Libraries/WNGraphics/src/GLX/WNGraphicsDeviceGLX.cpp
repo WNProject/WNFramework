@@ -23,7 +23,7 @@ WNGraphics::WNGraphicsDeviceGLX::WNGraphicsDeviceGLX(WNGraphics::WNGraphicsResou
     mDisplay(0) {
 }
 
-WNGraphics::WNGraphicsDeviceReturnCode::Type WNGraphics::WNGraphicsDeviceGLX::Initialize(WN_UINT32 _adapter, WN_UINT32 _output) {
+WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceGLX::Initialize(wn_uint32 _adapter, wn_uint32 _output) {
     static int visual_attribs[] =
     {
         GLX_X_RENDERABLE, True,
@@ -105,10 +105,10 @@ WNGraphics::WNGraphicsDeviceReturnCode::Type WNGraphics::WNGraphicsDeviceGLX::In
         }
     }
 
-    return(WNGraphics::WNGraphicsDeviceReturnCode::eWNOK);
+    return(WNGraphics::WNGraphicsDeviceReturnCode::ok);
 }
 
-WN_UINT32 WNGraphics::WNGraphicsDeviceGLX::GetCapability(WNDeviceCaps _cap) {
+wn_uint32 WNGraphics::WNGraphicsDeviceGLX::GetCapability(WNDeviceCaps _cap) {
     switch(_cap) {
     case eWNVertexShaderCaps:
         return(0);
@@ -130,35 +130,35 @@ WN_UINT32 WNGraphics::WNGraphicsDeviceGLX::GetCapability(WNDeviceCaps _cap) {
     return(0);
 }
 
-WNGraphics::WNGraphicsDeviceReturnCode::Type WNGraphics::WNGraphicsDeviceGLX::GetSize(WN_UINT32 &_width, WN_UINT32 &_height) {
-    return(WNGraphics::WNGraphicsDeviceReturnCode::eWNOK);
+WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceGLX::GetSize(wn_uint32 &_width, wn_uint32 &_height) {
+    return(WNGraphics::WNGraphicsDeviceReturnCode::ok);
 }
 
-WNGraphics::WNShader* WNGraphics::WNGraphicsDeviceGLX::CreateShader(WNGraphics::WNShaderTypes _type, WN_CHAR* _shaderText) {
-    return(WN_NULL);
+WNGraphics::WNShader* WNGraphics::WNGraphicsDeviceGLX::CreateShader(WNGraphics::WNShaderTypes _type, wn_char* _shaderText) {
+    return(wn_nullptr);
 }
 
-WNGraphics::WNBuffer* WNGraphics::WNGraphicsDeviceGLX::CreateBuffer(WNGraphics::WNBufferTypes _type, WN_UINT32 _elementSize, WN_UINT32 _w, WN_UINT32 _h, WN_UINT32 _d) {
-    return(WN_NULL);
+WNGraphics::WNBuffer* WNGraphics::WNGraphicsDeviceGLX::CreateBuffer(WNGraphics::WNBufferTypes _type, wn_uint32 _elementSize, wn_uint32 _w, wn_uint32 _h, wn_uint32 _d) {
+    return(wn_nullptr);
 }
 
-WNGraphics::WNTexture* WNGraphics::WNGraphicsDeviceGLX::CreateTexture(WNGraphics::WNTextureTypes _type, WNGraphics::WNTextureFormat _format, WN_UINT32 _elementSize, WN_UINT32 _w, WN_UINT32 _h, WN_UINT32 _d) {
-    return(WN_NULL);
+WNGraphics::WNTexture* WNGraphics::WNGraphicsDeviceGLX::CreateTexture(WNGraphics::WNTextureTypes _type, WNGraphics::WNTextureFormat _format, wn_uint32 _elementSize, wn_uint32 _w, wn_uint32 _h, wn_uint32 _d) {
+    return(wn_nullptr);
 }
 
 WNGraphics::WNRenderTarget* WNGraphics::WNGraphicsDeviceGLX::CreateRenderTarget(WNGraphics::WNTexture* _texture) {
-    return(WN_NULL);
+    return(wn_nullptr);
 }
 
 WNGraphics::WNDrawList* WNGraphics::WNGraphicsDeviceGLX::CreateDrawList() {
-    return(WN_NULL);
+    return(wn_nullptr);
 }
 
-WNGraphics::WNGraphicsDeviceReturnCode::Type WNGraphics::WNGraphicsDeviceGLX::SetDrawList(WNDrawList* _list) {
-    return(WNGraphics::WNGraphicsDeviceReturnCode::eWNOK);
+WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceGLX::SetDrawList(WNDrawList* _list) {
+    return(WNGraphics::WNGraphicsDeviceReturnCode::ok);
 }
 
-WNGraphics::WNGraphicsDeviceReturnCode::Type WNGraphics::WNGraphicsDeviceGLX::StartDraw() {
+WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceGLX::StartDraw() {
     if (!mActiveSurface) {
         if (!glXMakeContextCurrent(mDisplay, mTempPBuffer, mTempPBuffer, mContext)){
             if (!glXMakeContextCurrent(mDisplay, DefaultRootWindow(mDisplay), DefaultRootWindow(mDisplay), mContext)) {
@@ -171,10 +171,10 @@ WNGraphics::WNGraphicsDeviceReturnCode::Type WNGraphics::WNGraphicsDeviceGLX::St
         }
     }
 
-    return(WNGraphics::WNGraphicsDeviceReturnCode::eWNOK);
+    return(WNGraphics::WNGraphicsDeviceReturnCode::ok);
 }
 
-WNGraphics::WNGraphicsDeviceReturnCode::Type WNGraphics::WNGraphicsDeviceGLX::EndDraw() {
+WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceGLX::EndDraw() {
     if (!mActiveSurface) {
         return(WNGraphics::WNGraphicsDeviceReturnCode::eWNGDENoSurface);
     }
@@ -182,46 +182,46 @@ WNGraphics::WNGraphicsDeviceReturnCode::Type WNGraphics::WNGraphicsDeviceGLX::En
     glXSwapBuffers ( mDisplay, mActiveSurface->GetNativeHandle() );
     glFinish();
 
-    return(WNGraphics::WNGraphicsDeviceReturnCode::eWNOK);
+    return(WNGraphics::WNGraphicsDeviceReturnCode::ok);
 }
 
-WNGraphics::WNGraphicsDeviceReturnCode::Type WNGraphics::WNGraphicsDeviceGLX::SubmitDrawList(WNGraphics::WNDrawList* _list) {
-    return(WNGraphics::WNGraphicsDeviceReturnCode::eWNOK);
+WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceGLX::SubmitDrawList(WNGraphics::WNDrawList* _list) {
+    return(WNGraphics::WNGraphicsDeviceReturnCode::ok);
 }
 
-WNGraphics::WNGraphicsDeviceReturnCode::Type WNGraphics::WNGraphicsDeviceGLX::BindShader(WNGraphics::WNShader* _resource) {
-    return(WNGraphics::WNGraphicsDeviceReturnCode::eWNOK);
+WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceGLX::BindShader(WNGraphics::WNShader* _resource) {
+    return(WNGraphics::WNGraphicsDeviceReturnCode::ok);
 }
 
-WNGraphics::WNGraphicsDeviceReturnCode::Type WNGraphics::WNGraphicsDeviceGLX::BindBuffer(WNGraphics::WNBuffer* _resource, WN_UINT32 _location) {
-    return(WNGraphics::WNGraphicsDeviceReturnCode::eWNOK);
+WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceGLX::BindBuffer(WNGraphics::WNBuffer* _resource, wn_uint32 _location) {
+    return(WNGraphics::WNGraphicsDeviceReturnCode::ok);
 }
 
-WNGraphics::WNGraphicsDeviceReturnCode::Type WNGraphics::WNGraphicsDeviceGLX::BindTexture(WNGraphics::WNTexture* _texture, WN_UINT32 _location) {
-    return(WNGraphics::WNGraphicsDeviceReturnCode::eWNOK);
+WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceGLX::BindTexture(WNGraphics::WNTexture* _texture, wn_uint32 _location) {
+    return(WNGraphics::WNGraphicsDeviceReturnCode::ok);
 }
 
-WNGraphics::WNGraphicsDeviceReturnCode::Type WNGraphics::WNGraphicsDeviceGLX::BindRenderTarget(WNGraphics::WNRenderTarget* _texture, WN_UINT32 _location) {
-    return(WNGraphics::WNGraphicsDeviceReturnCode::eWNOK);
+WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceGLX::BindRenderTarget(WNGraphics::WNRenderTarget* _texture, wn_uint32 _location) {
+    return(WNGraphics::WNGraphicsDeviceReturnCode::ok);
 }
 
-WNGraphics::WNGraphicsDeviceReturnCode::Type WNGraphics::WNGraphicsDeviceGLX::Clear() {
+WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceGLX::Clear() {
     glClear(GL_COLOR_BUFFER_BIT);
 
-    return(WNGraphics::WNGraphicsDeviceReturnCode::eWNOK);
+    return(WNGraphics::WNGraphicsDeviceReturnCode::ok);
 }
 
-WNGraphics::WNGraphicsDeviceReturnCode::Type WNGraphics::WNGraphicsDeviceGLX::SetActiveSurface(WNConcurrency::WNResourcePointer<WNPlatform::WNSurface> _surface) {
+WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceGLX::SetActiveSurface(wn::memory::intrusive_ptr<wn::surface> _surface) {
     mActiveSurface = _surface;
 
-    return(WNGraphics::WNGraphicsDeviceReturnCode::eWNOK);
+    return(WNGraphics::WNGraphicsDeviceReturnCode::ok);
 }
 
-WN_VOID WNGraphics::WNGraphicsDeviceGLX::SetClearColor(WN_FLOAT32* _color) {
+wn_void WNGraphics::WNGraphicsDeviceGLX::SetClearColor(wn_float32* _color) {
     glClearColor(_color[0], _color[1], _color[2], _color[3]);
 }
 
-WNGraphics::WNGraphicsDeviceReturnCode::Type WNGraphics::WNGraphicsDeviceGLX::BindSurface(WNConcurrency::WNResourcePointer<WNPlatform::WNSurface>& _surface, WN_BOOL _sync) {
+WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceGLX::BindSurface(wn::memory::intrusive_ptr<wn::surface>& _surface, wn_bool _sync) {
     __WNGraphicsData * data = WN_NEW __WNGraphicsData();
 
     XSync(mDisplay, false);
@@ -235,7 +235,7 @@ WNGraphics::WNGraphicsDeviceReturnCode::Type WNGraphics::WNGraphicsDeviceGLX::Bi
         glXSwapIntervalEXT(mDisplay, _surface->GetNativeHandle(), maxSwap);
     }
 
-    _surface->RegisterData(WNPlatform::WNSurface::eWNRDTGraphics, data);
+    _surface->RegisterData(wn::surface::eWNRDTGraphics, data);
 
-    return(WNGraphics::WNGraphicsDeviceReturnCode::eWNOK);
+    return(WNGraphics::WNGraphicsDeviceReturnCode::ok);
 }

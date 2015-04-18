@@ -18,22 +18,22 @@
 namespace WNFileSystem {
     class WNReadTextFileBuffer : public WNFileBuffer {
     public:
-        WNReadTextFileBuffer(const WNFileBufferType _type, const WN_SIZE_T _initialBufferSize = 1024);
+        WNReadTextFileBuffer(const WNFileBufferType _type, const wn_size_t _initialBufferSize = 1024);
         virtual ~WNReadTextFileBuffer();
 
-        virtual WN_BOOL Serialize(const WN_UINT32 _flags, const WNContainers::WNSerializerBase& _serializer);
-        virtual WNFile::WNFileError SetFile(const WN_CHAR* fileName);
-        virtual WN_CHAR* ReserveBytes(const WN_SIZE_T _numBytes, WN_SIZE_T& _returnedBytes);
+        virtual wn_bool Serialize(const wn_uint32 _flags, const WNContainers::WNSerializerBase& _serializer);
+        virtual WNFile::WNFileError SetFile(const wn_char* fileName);
+        virtual wn_char* ReserveBytes(const wn_size_t _numBytes, wn_size_t& _returnedBytes);
         virtual WNContainers::WNDataBufferType GetType();
 
     private:
         WNFile mFile;
-        WN_CHAR* mCurrentBuffer;
-        WN_CHAR* mSpareBuffer;
-        WN_SIZE_T mBufferUsage;
-        WN_SIZE_T mBufferPosition;
-        WN_SIZE_T mBufferSize;
-        WN_BOOL mEndFile;
+        wn_char* mCurrentBuffer;
+        wn_char* mSpareBuffer;
+        wn_size_t mBufferUsage;
+        wn_size_t mBufferPosition;
+        wn_size_t mBufferSize;
+        wn_bool mEndFile;
     };
 }
 

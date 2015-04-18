@@ -15,30 +15,30 @@ namespace WNUtils {
             eDisplayDestroyed,
             eMaxValue
         };
-        typedef WN_VOID (*WNAndroidEventCallback)(eMessageType, android_app*, WN_UINT32, WN_VOID*);
-        WN_VOID PumpMessages(android_app* state); //returns when we tell it to return
-        WN_VOID KillMessagePump();
-        WN_VOID SubscribeToEvent(eMessageType _message, WNAndroidEventCallback _callback, WN_VOID* _userData);
-        WN_VOID WaitForInit();
+        typedef wn_void (*WNAndroidEventCallback)(eMessageType, android_app*, wn_uint32, wn_void*);
+        wn_void PumpMessages(android_app* state); //returns when we tell it to return
+        wn_void KillMessagePump();
+        wn_void SubscribeToEvent(eMessageType _message, WNAndroidEventCallback _callback, wn_void* _userData);
+        wn_void WaitForInit();
         static WNAndroidEventPump& GetInstance();
     private:
         enum eInternalMessage {
             eDisplayAdded,
             eExit
         };
-        WN_BOOL PushMessage(eInternalMessage _message);
-        WN_VOID FireCallback(eMessageType _eventi, WN_INT32 _param, android_app* app);
-        static WN_VOID HandleWindowCommand(android_app* app, int32_t cmd);
+        wn_bool PushMessage(eInternalMessage _message);
+        wn_void FireCallback(eMessageType _eventi, wn_int32 _param, android_app* app);
+        static wn_void HandleWindowCommand(android_app* app, int32_t cmd);
         WNAndroidEventPump();
         WNAndroidEventCallback mCallbacks[eMaxValue];
-        WN_VOID* mCallbackData[eMaxValue];
-        WN_BOOL mExiting;
+        wn_void* mCallbackData[eMaxValue];
+        wn_bool mExiting;
         WNConcurrency::WNSpinLock mQueueLock;
         WNConcurrency::WNSpinLock mCallbackLock;
         std::deque<eInternalMessage> mMessageQueue;
-        WN_BOOL mDisplayActive;
+        wn_bool mDisplayActive;
         ALooper* mMainLooper;
-        WNConcurrency::WNSemaphore mStartedSemaphore;
+        wn::semaphore mStartedSemaphore;
     };
 };
 

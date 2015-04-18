@@ -7,8 +7,7 @@
 #include "WNNetworking/inc/Internal/Windows/WNInConnectionWindows.h"
 #include "WNNetworking/inc/Internal/Windows/WNOutConnectionWindows.h"
 #include "WNMemory/inc/WNManipulation.h"
-#include "WNConcurrency/inc/WNLockGuard.h"
-
+#include "WNConcurrency/inc/WNThread.h"
 
 #ifdef _WN_MSVC
     #pragma warning(push)
@@ -22,6 +21,8 @@
     #pragma warning(pop)
 #endif
 
+#include <mutex>
+
 namespace WNNetworking {
     class WNWSAManager {
     public:
@@ -29,24 +30,22 @@ namespace WNNetworking {
             mCount(0) {
         }
 
-        WN_BOOL AddToCount() {
-            mLock.Lock();
+        wn_bool AddToCount() {
+            std::lock_guard<wn::spin_lock> guard(mLock);
 
             if (mCount == 0) {
-                if (WSAStartup(MAKEWORD(2, 2), &mWSAData) != NO_ERROR) {
-                    return(WN_FALSE);
+                if (::WSAStartup(MAKEWORD(2, 2), &mWSAData) != NO_ERROR) {
+                    return(wn_false);
                 }
 
                 ++mCount;
             }
 
-            mLock.Unlock();
-
-            return(WN_TRUE);
+            return(wn_true);
         }
 
-        WN_VOID RemoveFromCount() {
-            mLock.Lock();
+        wn_void RemoveFromCount() {
+            std::lock_guard<wn::spin_lock> guard(mLock);
 
             if (mCount > 0) {
                 --mCount;
@@ -55,29 +54,27 @@ namespace WNNetworking {
                     WSACleanup();
                 }
             }
-
-            mLock.Unlock();
         }
     private:
-        WN_SIZE_T mCount;
-        WNConcurrency::WNSpinLock mLock;
+        wn_size_t mCount;
+        wn::spin_lock mLock;
         WSAData mWSAData;
     };
 }
 
-WN_VOID WNNetworking::WNNetworkManagerWindows::IOCPThread() {
+wn_void WNNetworking::WNNetworkManagerWindows::IOCPThread() {
     LPOVERLAPPED overlapped = NULL;
     DWORD bytesTransferred = 0;
     ULONG_PTR completionKey = 0;
 
     for (;;) {
-        const BOOL ret = GetQueuedCompletionStatus(mIOCP, &bytesTransferred, &completionKey, &overlapped, INFINITE);
+        const BOOL ret = ::GetQueuedCompletionStatus(mIOCP, &bytesTransferred, &completionKey, &overlapped, INFINITE);
         WNConnectionWindows* connection = reinterpret_cast<WNConnectionWindows*>(completionKey);
 
         if (!ret) {
             //SOME ERROR OCCURRED HERE, not sur whats up
             continue;
-        } else if (completionKey != 0 && overlapped == WN_NULL && bytesTransferred != 0) {
+        } else if (completionKey != 0 && overlapped == wn_nullptr && bytesTransferred != 0) {
             //USER MESSAGE!
             if (bytesTransferred == WNNetworkManager::eWNCallbackListener) {
                 WNInConnectionWindows* conn = reinterpret_cast<WNInConnectionWindows*>(connection);
@@ -89,7 +86,7 @@ WN_VOID WNNetworking::WNNetworkManagerWindows::IOCPThread() {
         } else if (completionKey == 0 && overlapped == NULL && bytesTransferred == 0) {
             //We got our shutdown request.. lets leave
             return;
-        } else if (overlapped == WN_NULL && bytesTransferred == 0) {
+        } else if (overlapped == wn_nullptr && bytesTransferred == 0) {
             //CONNECTION CLOSED
         } else {
             switch (connection->GetOperation(overlapped)) {
@@ -107,18 +104,18 @@ WN_VOID WNNetworking::WNNetworkManagerWindows::IOCPThread() {
                     break;
                 case WNConnectionWindows::eWNNoOp:
                 default:
-                    WN_RELEASE_ASSERT_DESC(WN_FALSE, "Bad operation on this socket");
+                    WN_RELEASE_ASSERT_DESC(wn_false, "Bad operation on this socket");
             }
         }
     }
 }
 
-WN_VOID WNNetworking::WNNetworkManagerWindows::ListenThread() {
+wn_void WNNetworking::WNNetworkManagerWindows::ListenThread() {
     WSANETWORKEVENTS events;
 
     while (WAIT_OBJECT_0 != WaitForSingleObject(mShutdownEvent, 0)) {
         if (WSA_WAIT_TIMEOUT != WSAWaitForMultipleEvents(1, &mAcceptEvent, FALSE, 1, FALSE)) {
-            WNConcurrency::WNLockGuard<WNConcurrency::WNSpinLock> lock(mListenerMutex);
+            std::lock_guard<wn::spin_lock> lock(mListenerMutex);
 
             for (std::list<WNListenConnectionWindows*>::iterator i = mIncommingConnections.begin(); i != mIncommingConnections.end();) {
                 WSAEnumNetworkEvents((*i)->GetWindowsSocket(), mAcceptEvent, &events);
@@ -126,21 +123,21 @@ WN_VOID WNNetworking::WNNetworkManagerWindows::ListenThread() {
                 if (events.lNetworkEvents & FD_ACCEPT && (0 == events.iErrorCode[FD_ACCEPT_BIT])) {
                     WNInConnectionWindows* conn = (*i)->AcceptConnection();
 
-                    if (WN_NULL != conn) {
+                    if (wn_nullptr != conn) {
                         const HANDLE temp = CreateIoCompletionPort((HANDLE)conn->GetWindowsSocket(), mIOCP, reinterpret_cast<ULONG_PTR>(conn), 0);
 
                         if (NULL == temp) {
-                            WN_DELETE(conn);
+                            wn::memory::destroy(conn);
 
                             continue;
                         }
 
                         {
-                            WNConcurrency::WNLockGuard<WNConcurrency::WNSpinLock> guard(mRecievedMutex);
+                            std::lock_guard<wn::spin_lock> guard(mRecievedMutex);
                             mReceivedConnections.push_back(conn);
                         }
 
-                        PostQueuedCompletionStatus(mIOCP, WNNetworkManager::eWNCallbackListener, reinterpret_cast<ULONG_PTR>(conn), WN_NULL);
+                        PostQueuedCompletionStatus(mIOCP, WNNetworkManager::eWNCallbackListener, reinterpret_cast<ULONG_PTR>(conn), wn_nullptr);
                     }
 
                     ++i;
@@ -148,7 +145,7 @@ WN_VOID WNNetworking::WNNetworkManagerWindows::ListenThread() {
                     i = mIncommingConnections.erase(i);
                     (*i)->Invalidate();
 
-                    WNConcurrency::WNLockGuard<WNConcurrency::WNSpinLock> guard(mInvalidMutex);
+                    std::lock_guard<wn::spin_lock> guard(mInvalidMutex);
 
                     mInvalidConnections.push_back(*i);
                 } else {
@@ -168,36 +165,36 @@ WNNetworking::WNNetworkManagerWindows::WNNetworkManagerWindows() :
     mAcceptEvent(INVALID_HANDLE_VALUE),
     mShutdownEvent(INVALID_HANDLE_VALUE),
     mInitializationState(eWNNotStarted),
-    mListenThread(WN_NULL) {
+    mListenThread(wn_nullptr) {
 }
 
 WNNetworking::WNNetworkManagerWindows::~WNNetworkManagerWindows() {
     Cleanup();
 }
 
-WNNetworking::WNNetworkManagerReturnCode::Type WNNetworking::WNNetworkManagerWindows::ConnectTo(WNConnection*& _outHandle, WNConnectionType::Type _type, const WN_CHAR* _target, WN_UINT16 _port) {
-    WNOutConnectionWindows* conn = WN_NEW WNOutConnectionWindows(*this);
+WNNetworking::WNNetworkManagerReturnCode::type WNNetworking::WNNetworkManagerWindows::ConnectTo(WNConnection*& _outHandle, WNConnectionType::type _type, const wn_char* _target, wn_uint16 _port) {
+    WNOutConnectionWindows* conn = wn::memory::construct<WNOutConnectionWindows>(*this);
 
-    if (conn->Initialize(_type, _target, _port) != WNNetworkManagerReturnCode::eWNOK) {
-        WN_DELETE(conn);
+    if (conn->Initialize(_type, _target, _port) != WNNetworkManagerReturnCode::ok) {
+        wn::memory::destroy(conn);
     }
 
     if (CreateIoCompletionPort((HANDLE)conn->GetWindowsSocket(), mIOCP, reinterpret_cast<ULONG_PTR>(conn), 0) == NULL) {
-        WN_DELETE(conn);
+        wn::memory::destroy(conn);
 
         return(WNNetworkManagerReturnCode::eWNCannotAssociate);
     }
 
-    WNConcurrency::WNLockGuard<WNConcurrency::WNSpinLock> guard(mOutgoingMutex);
+    std::lock_guard<wn::spin_lock> guard(mOutgoingMutex);
 
     mOutgoingConnections.push_back(conn);
     conn->Receive();
     _outHandle = conn;
 
-    return(WNNetworkManagerReturnCode::eWNOK);
+    return(WNNetworkManagerReturnCode::ok);
 }
 
-WNNetworking::WNNetworkManagerReturnCode::Type WNNetworking::WNNetworkManagerWindows::Initialize(WN_UINT32 _numWorkerThreads) { 
+WNNetworking::WNNetworkManagerReturnCode::type WNNetworking::WNNetworkManagerWindows::Initialize(wn_uint32 _numWorkerThreads) {
     if (!sWSAManager.AddToCount()) {
         Cleanup();
 
@@ -224,7 +221,7 @@ WNNetworking::WNNetworkManagerReturnCode::Type WNNetworking::WNNetworkManagerWin
     }
 
     mInitializationState = eWNShutdownEventCreated;
-    mIOCP = CreateIoCompletionPort(INVALID_HANDLE_VALUE, WN_NULL, 0, 0);
+    mIOCP = CreateIoCompletionPort(INVALID_HANDLE_VALUE, wn_nullptr, 0, 0);
 
     if (INVALID_HANDLE_VALUE == mIOCP) {
         Cleanup();
@@ -234,52 +231,32 @@ WNNetworking::WNNetworkManagerReturnCode::Type WNNetworking::WNNetworkManagerWin
 
     mInitializationState = eWNIOCPCreated;
 
-    for (WN_UINT32 i = 0; i < mMaxThreads; ++i) {
-        WNConcurrency::WNThread<WN_VOID>* thread = WN_NEW WNConcurrency::WNThread<WN_VOID>();
-
-        if (thread->Initialize(this, &WNNetworkManagerWindows::IOCPThread) != WNConcurrency::WNThreadReturnCode::eWNOK) {
-            WN_DELETE(thread);
-
-            mInitializationState = eWNThreadsCreated;
-
-            Cleanup();
-
-            return(WNNetworkManagerReturnCode::eWNThreadCreationError);
-        } else {
-            mThreads.push_back(thread);
-        }
+    for (wn_uint32 i = 0; i < mMaxThreads; ++i) {
+        mThreads.push_back(wn::memory::construct<wn::thread<wn_void>>(&WNNetworkManagerWindows::IOCPThread, this));
     }
 
     mInitializationState = eWNThreadsCreated;
-    mListenThread = WN_NEW WNConcurrency::WNThread<WN_VOID>();
-
-    if (mListenThread->Initialize(this, &WNNetworkManagerWindows::ListenThread) != WNConcurrency::WNThreadReturnCode::eWNOK) {
-        WN_DELETE(mListenThread);
-
-        Cleanup();
-
-        return(WNNetworkManagerReturnCode::eWNThreadCreationError);
-    } 
+    mListenThread = wn::memory::construct<wn::thread<wn_void>>(&WNNetworkManagerWindows::ListenThread, this);
 
     mInitializationState = eWNInitializationCompleted;
 
-    return(WNNetworkManagerReturnCode::eWNOK);
+    return(WNNetworkManagerReturnCode::ok);
 }
 
-WN_VOID WNNetworking::WNNetworkManagerWindows::Cleanup() {
+wn_void WNNetworking::WNNetworkManagerWindows::Cleanup() {
     switch(mInitializationState) {
         case eWNInitializationCompleted:
             SetEvent(mShutdownEvent);
 
-            mListenThread->WaitForCompletion();
+            mListenThread->join();
         case eWNThreadsCreated:
-            for (WN_SIZE_T i = 0; i < mThreads.size(); ++i) {
+            for (wn_size_t i = 0; i < mThreads.size(); ++i) {
                 PostQueuedCompletionStatus(mIOCP, 0, NULL, 0);
             }
 
-            for (WN_UINT32 i = 0; i < static_cast<WN_UINT32>(mThreads.size()); ++i) {
-                mThreads[i]->WaitForCompletion();
-                WN_DELETE(mThreads[i]);
+            for (wn_uint32 i = 0; i < static_cast<wn_uint32>(mThreads.size()); ++i) {
+                mThreads[i]->join();
+                wn::memory::destroy(mThreads[i]);
             }
 
             mThreads.clear();
@@ -306,14 +283,14 @@ WN_VOID WNNetworking::WNNetworkManagerWindows::Cleanup() {
     WNNetworkManager::Cleanup();
 }
 
-WNNetworking::WNNetworkManagerReturnCode::Type WNNetworking::WNNetworkManagerWindows::CreateListener(WNConnection*& _outHandle, WNConnectionType::Type _type, WN_UINT16 _port, const WNConnectedCallback& _callback) {
+WNNetworking::WNNetworkManagerReturnCode::type WNNetworking::WNNetworkManagerWindows::CreateListener(WNConnection*& _outHandle, WNConnectionType::type _type, wn_uint16 _port, const WNConnectedCallback& _callback) {
     WN_RELEASE_ASSERT_DESC(_type == WNConnectionType::eWNReliable, "We do not support unreliable connections yet");
 
-    WNListenConnectionWindows* listenConnection = WN_NEW WNListenConnectionWindows(*this, _type, _port, _callback);
-    const WNNetworkManagerReturnCode::Type err = listenConnection->Initialize();
+    WNListenConnectionWindows* listenConnection = wn::memory::construct<WNListenConnectionWindows>(*this, _type, _port, _callback);
+    const WNNetworkManagerReturnCode::type err = listenConnection->Initialize();
 
-    if (err != WNNetworkManagerReturnCode::eWNOK) {
-        WN_DELETE(listenConnection);
+    if (err != WNNetworkManagerReturnCode::ok) {
+        wn::memory::destroy(listenConnection);
 
         return(err);
     }
@@ -321,14 +298,14 @@ WNNetworking::WNNetworkManagerReturnCode::Type WNNetworking::WNNetworkManagerWin
     const SOCKET s = listenConnection->GetWindowsSocket();
 
     {
-        WNConcurrency::WNLockGuard<WNConcurrency::WNSpinLock> guard(mListenerMutex);
+        std::lock_guard<wn::spin_lock> guard(mListenerMutex);
 
         mIncommingConnections.push_back(listenConnection);
 
         if (SOCKET_ERROR == WSAEventSelect(s, mAcceptEvent, FD_ACCEPT)) {
                mIncommingConnections.pop_back();
 
-               WN_DELETE(listenConnection);
+               wn::memory::destroy(listenConnection);
 
                return(WNNetworkManagerReturnCode::eWNCannotListen);
         }
@@ -336,12 +313,12 @@ WNNetworking::WNNetworkManagerReturnCode::Type WNNetworking::WNNetworkManagerWin
 
     _outHandle = listenConnection;
 
-    return(WNNetworkManagerReturnCode::eWNOK);
+    return(WNNetworkManagerReturnCode::ok);
 }
 
-WN_VOID WNNetworking::WNNetworkManagerWindows::DestroyConnection(WNConnection* _connection) {
+wn_void WNNetworking::WNNetworkManagerWindows::DestroyConnection(WNConnection* _connection) {
      {
-        WNConcurrency::WNLockGuard<WNConcurrency::WNSpinLock> guard(mRecievedMutex);
+         std::lock_guard<wn::spin_lock> guard(mRecievedMutex);
         std::list<WNInConnectionWindows*>::iterator i = std::find(mReceivedConnections.begin(), mReceivedConnections.end(), _connection);
 
         if (i != mReceivedConnections.end()) {
@@ -351,7 +328,7 @@ WN_VOID WNNetworking::WNNetworkManagerWindows::DestroyConnection(WNConnection* _
     }
 
     {
-        WNConcurrency::WNLockGuard<WNConcurrency::WNSpinLock> guard(mOutgoingMutex);
+        std::lock_guard<wn::spin_lock> guard(mOutgoingMutex);
         std::list<WNOutConnectionWindows*>::iterator i = std::find(mOutgoingConnections.begin(), mOutgoingConnections.end(), _connection);
 
         if (i != mOutgoingConnections.end()) {
@@ -361,7 +338,7 @@ WN_VOID WNNetworking::WNNetworkManagerWindows::DestroyConnection(WNConnection* _
     }
 
     {
-        WNConcurrency::WNLockGuard<WNConcurrency::WNSpinLock> guard(mListenerMutex);
+        std::lock_guard<wn::spin_lock> guard(mListenerMutex);
         std::list<WNListenConnectionWindows*>::iterator i = std::find(mIncommingConnections.begin(), mIncommingConnections.end(), _connection);
 
         if (i != mIncommingConnections.end()) {
@@ -371,7 +348,7 @@ WN_VOID WNNetworking::WNNetworkManagerWindows::DestroyConnection(WNConnection* _
     }
 
     {
-        WNConcurrency::WNLockGuard<WNConcurrency::WNSpinLock> guard(mInvalidMutex);
+        std::lock_guard<wn::spin_lock> guard(mInvalidMutex);
 
         mInvalidConnections.push_back(_connection);
     }

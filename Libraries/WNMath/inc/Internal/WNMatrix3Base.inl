@@ -13,20 +13,20 @@
 
 #include "WNMath/inc/WNBasic.h"
 #include "WNMath/inc/WNVector2.h"
-#include "WNMath/inc/WNVector3.h"
+#include "WNMath/inc/WNVector.h"
 
-namespace WNMath {
-    namespace __WNInternal {
-        template <typename Type>
-        WN_FORCE_INLINE WNVector2<Type> __WNMatrix3Base<Type, typename WNCore::WNEnableWhen<WNCore::WNIsReal<Type>::Value>::Value>::TransformVector(const WNVector2<Type>& _vector) const {
-            WNVector2<Type> vector = _vector;
+namespace wn {
+    namespace internal {
+        template <typename type>
+        WN_FORCE_INLINE WNVector2<type> __WNMatrix3Base<type, typename std::enable_if<wn::is_real<type>::value>::type>::TransformVector(const WNVector2<type>& _vector) const {
+            WNVector2<type> vector = _vector;
 
             return(this->TransformVectorInPlace(vector));
         }
 
-        template <typename Type>
-        WN_FORCE_INLINE WNVector2<Type> __WNMatrix3Base<Type, typename WNCore::WNEnableWhen<WNCore::WNIsReal<Type>::Value>::Value>::TransformVector(const WNVector2<Type>& _vector, Type& _zComponent) const {
-            WNVector3<Type> vector = _vector.ToVector3();
+        template <typename type>
+        WN_FORCE_INLINE WNVector2<type> __WNMatrix3Base<type, typename std::enable_if<wn::is_real<type>::value>::type>::TransformVector(const WNVector2<type>& _vector, type& _zComponent) const {
+            WNVector<type> vector = _vector.ToVector3();
 
             this->TransformVectorInPlace(vector);
 
@@ -35,62 +35,62 @@ namespace WNMath {
             return(vector.ToVector2());
         }
 
-        template <typename Type>
-        WN_FORCE_INLINE WNVector3<Type> __WNMatrix3Base<Type, typename WNCore::WNEnableWhen<WNCore::WNIsReal<Type>::Value>::Value>::TransformVector(const WNVector3<Type>& _vector) const {
-            WNVector3<Type> vector = _vector;
+        template <typename type>
+        WN_FORCE_INLINE WNVector<type> __WNMatrix3Base<type, typename std::enable_if<wn::is_real<type>::value>::type>::TransformVector(const WNVector<type>& _vector) const {
+            WNVector<type> vector = _vector;
 
             return(this->TransformVectorInPlace(vector));
         }
 
-        template <typename Type>
-        WN_FORCE_INLINE WN_VOID __WNMatrix3Base<Type, typename WNCore::WNEnableWhen<WNCore::WNIsReal<Type>::Value>::Value>::MakeRotation(const Type& _angle) {
-            const Type sinTheta = WNSin(_angle);
-            const Type cosTheta = WNCos(_angle);
+        template <typename type>
+        WN_FORCE_INLINE wn_void __WNMatrix3Base<type, typename std::enable_if<wn::is_real<type>::value>::type>::MakeRotation(const type& _angle) {
+            const type sinTheta = WNSin(_angle);
+            const type cosTheta = WNCos(_angle);
 
             // First Column
             this->mElements.mValues[0] = cosTheta;
             this->mElements.mValues[1] = sinTheta;
-            this->mElements.mValues[2] = static_cast<Type>(0);
+            this->mElements.mValues[2] = static_cast<type>(0);
 
             // Second Column
             this->mElements.mValues[3] = -sinTheta;
             this->mElements.mValues[4] = cosTheta;
-            this->mElements.mValues[5] = static_cast<Type>(0);
+            this->mElements.mValues[5] = static_cast<type>(0);
 
             // Third Column
-            this->mElements.mValues[6] = static_cast<Type>(0);
-            this->mElements.mValues[7] = static_cast<Type>(0);
-            this->mElements.mValues[8] = static_cast<Type>(1);
+            this->mElements.mValues[6] = static_cast<type>(0);
+            this->mElements.mValues[7] = static_cast<type>(0);
+            this->mElements.mValues[8] = static_cast<type>(1);
         }
 
-        template <typename Type>
-        WN_FORCE_INLINE WN_VOID __WNMatrix3Base<Type, typename WNCore::WNEnableWhen<WNCore::WNIsReal<Type>::Value>::Value>::MakeOrthographic(const Type& _width, const Type& _height, const Type& _near, const Type& _far) {
+        template <typename type>
+        WN_FORCE_INLINE wn_void __WNMatrix3Base<type, typename std::enable_if<wn::is_real<type>::value>::type>::MakeOrthographic(const type& _width, const type& _height, const type& _near, const type& _far) {
             // First Column
-            this->mElements.mValues[0] = static_cast<Type>(2) / _width;
-            this->mElements.mValues[1] = static_cast<Type>(0);
-            this->mElements.mValues[2] = static_cast<Type>(0);
+            this->mElements.mValues[0] = static_cast<type>(2) / _width;
+            this->mElements.mValues[1] = static_cast<type>(0);
+            this->mElements.mValues[2] = static_cast<type>(0);
 
             // Second Column
-            this->mElements.mValues[3] = static_cast<Type>(0);
-            this->mElements.mValues[4] = static_cast<Type>(-2) / _height;
-            this->mElements.mValues[5] = static_cast<Type>(0);
+            this->mElements.mValues[3] = static_cast<type>(0);
+            this->mElements.mValues[4] = static_cast<type>(-2) / _height;
+            this->mElements.mValues[5] = static_cast<type>(0);
 
             // Third Column
-            this->mElements.mValues[6] = static_cast<Type>(0);
-            this->mElements.mValues[7] = static_cast<Type>(0);
-            this->mElements.mValues[8] = static_cast<Type>(1) / (_near - _far);
+            this->mElements.mValues[6] = static_cast<type>(0);
+            this->mElements.mValues[7] = static_cast<type>(0);
+            this->mElements.mValues[8] = static_cast<type>(1) / (_near - _far);
         }
 
-        template <typename Type>
-        WN_FORCE_INLINE WNMatrix3<Type> __WNMatrix3Base<Type, typename WNCore::WNEnableWhen<WNCore::WNIsReal<Type>::Value>::Value>::CreateRotation(const Type& _angle) {
-            WNMatrix3<Type> matrix;
+        template <typename type>
+        WN_FORCE_INLINE WNMatrix3<type> __WNMatrix3Base<type, typename std::enable_if<wn::is_real<type>::value>::type>::CreateRotation(const type& _angle) {
+            WNMatrix3<type> matrix;
 
             return(matrix.MakeRotation(_angle), matrix);
         }
 
-        template <typename Type>
-        WN_FORCE_INLINE WNMatrix3<Type> __WNMatrix3Base<Type, typename WNCore::WNEnableWhen<WNCore::WNIsReal<Type>::Value>::Value>::CreateOrthographic(const Type& _width, const Type& _height, const Type& _near, const Type& _far) {
-            WNMatrix3<Type> matrix;
+        template <typename type>
+        WN_FORCE_INLINE WNMatrix3<type> __WNMatrix3Base<type, typename std::enable_if<wn::is_real<type>::value>::type>::CreateOrthographic(const type& _width, const type& _height, const type& _near, const type& _far) {
+            WNMatrix3<type> matrix;
 
             return(matrix.MakeOrthographic(_width, _height, _near, _far), matrix);
         }

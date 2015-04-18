@@ -30,40 +30,40 @@
 using namespace WNScripting;
 
 WNStructAllocation::WNStructAllocation() :
-    mType(WN_NULL),
-    mCopyInitializer(WN_NULL) {
+    mType(wn_nullptr),
+    mCopyInitializer(wn_nullptr) {
 }
 
 WNStructAllocation::~WNStructAllocation() {
     if(mType) {
-        WN_DELETE(mType);
+        wn::memory::destroy(mType);
     }
 }
 
-WN_VOID WNStructAllocation::SetType(WNTypeNode* _type) {
+wn_void WNStructAllocation::SetType(WNTypeNode* _type) {
     mType = _type;
 }
 
-WN_VOID WNStructAllocation::SetCopyInitializer(WNExpression* _expr) {
+wn_void WNStructAllocation::SetCopyInitializer(WNExpression* _expr) {
     mCopyInitializer = _expr;
 }
 
 eWNTypeError WNStructAllocation::GenerateCode(WNCodeModule& _module, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog) {
-    mNewlyCreated = WN_TRUE;
-    mForceUse = WN_TRUE;
-    WNScriptType structType = WN_NULL;
-    eWNTypeError err = eWNOK;
-    if(eWNOK != (err = mType->GetType(_module.GetTypeManager(), structType, _compilationLog))) {
+    mNewlyCreated = wn_true;
+    mForceUse = wn_true;
+    WNScriptType structType = wn_nullptr;
+    eWNTypeError err = ok;
+    if(ok != (err = mType->GetType(_module.GetTypeManager(), structType, _compilationLog))) {
         return(err);
     }
     if(!structType->mLLVMStructType) {
-        _compilationLog.Log(WNLogging::eError, 0, structType->mName, " is not a valid Struct Type");
+        _compilationLog.Log(WNLogging::eError, 0, structType->mName, " is not a valid Struct type");
         LogLine(_compilationLog, WNLogging::eError);
         return(eWNBadType);
     }
-    llvm::Value* copyValue = WN_NULL;
+    llvm::Value* copyValue = wn_nullptr;
     if(mCopyInitializer) {
-        if(eWNOK != (err = mCopyInitializer->GenerateCode(_module, _def, _compilationLog))) {
+        if(ok != (err = mCopyInitializer->GenerateCode(_module, _def, _compilationLog))) {
             return(err);
         }
         if(mCopyInitializer->GetType() != structType) {
@@ -73,7 +73,7 @@ eWNTypeError WNStructAllocation::GenerateCode(WNCodeModule& _module, const WNFun
                 LogLine(_compilationLog, WNLogging::eError);
                 return(eWNInvalidCast);
             }
-            if(eWNOK != (err = op->Execute(_module.GetBuilder(), mCopyInitializer->GetValue(), copyValue))) {
+            if(ok != (err = op->Execute(_module.GetBuilder(), mCopyInitializer->GetValue(), copyValue))) {
                 _compilationLog.Log(WNLogging::eCritical, 0, "Error copy constructing ", structType->mName );
                 LogLine(_compilationLog, WNLogging::eCritical);
                 return(eWNBadType);
@@ -90,7 +90,7 @@ eWNTypeError WNStructAllocation::GenerateCode(WNCodeModule& _module, const WNFun
             _compilationLog.Log(WNLogging::eCritical, 0, "No Constructor for ", structType->mName );
             LogLine(_compilationLog, WNLogging::eCritical);
         }
-        if(eWNOK != (err = construction->Execute(_module, outValue, structType, WN_NULL, _def, _compilationLog))) {
+        if(ok != (err = construction->Execute(_module, outValue, structType, wn_nullptr, _def, _compilationLog))) {
             _compilationLog.Log(WNLogging::eError, 0, "Cannot allocate Struct: ", structType->mName);
             LogLine(_compilationLog, WNLogging::eError);
             return(err);
@@ -101,7 +101,7 @@ eWNTypeError WNStructAllocation::GenerateCode(WNCodeModule& _module, const WNFun
             _compilationLog.Log(WNLogging::eCritical, 0, "No Constructor for ", structType->mName );
             LogLine(_compilationLog, WNLogging::eCritical);
         }
-        if(eWNOK != (err = construction->Execute(_module, outValue, structType, copyValue, _def, _compilationLog))) {
+        if(ok != (err = construction->Execute(_module, outValue, structType, copyValue, _def, _compilationLog))) {
             _compilationLog.Log(WNLogging::eError, 0, "Cannot allocate Struct: ", structType->mName);
             LogLine(_compilationLog, WNLogging::eError);
             return(err);
@@ -110,6 +110,6 @@ eWNTypeError WNStructAllocation::GenerateCode(WNCodeModule& _module, const WNFun
 
     mValue = outValue;
     mScriptType = structType;
-    return(eWNOK);
+    return(ok);
 }
 

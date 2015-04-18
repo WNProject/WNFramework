@@ -13,7 +13,7 @@ namespace WNScripting {
         WNFunctionCallExpr();
         WNFunctionCallExpr(WNArgList* _list);
         virtual ~WNFunctionCallExpr();
-        virtual eWNTypeError GenerateCode(WNCodeModule& _module, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog); 
+        virtual eWNTypeError GenerateCode(WNCodeModule& _module, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog);
     private:
         WNArgList* mArgs;
     };

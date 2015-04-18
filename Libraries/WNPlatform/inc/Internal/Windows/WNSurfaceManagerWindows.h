@@ -14,7 +14,7 @@
 
 #include <vector>
 
-namespace WNPlatform {
+namespace wn {
     class WNSurfaceWindows;
 
     class WNSurfaceManagerWindows : public WNSurfaceManager {
@@ -22,9 +22,9 @@ namespace WNPlatform {
         WNSurfaceManagerWindows();
         virtual WN_FORCE_INLINE ~WNSurfaceManagerWindows() {}
 
-        virtual WNSurfaceManagerReturnCode::Type Initialize();
-        virtual WNSurfaceManagerReturnCode::Type CreateSurface(WN_UINT32 _x, WN_UINT32 _y, WN_UINT32 _width, WN_UINT32 _height, WNConcurrency::WNResourcePointer<WNSurface>& _surface);
-        virtual WNSurfaceManagerReturnCode::Type Release();
+        virtual WNSurfaceManagerReturnCode::type Initialize();
+        virtual WNSurfaceManagerReturnCode::type CreateSurface(wn_uint32 _x, wn_uint32 _y, wn_uint32 _width, wn_uint32 _height, wn::memory::intrusive_ptr<surface>& _surface);
+        virtual WNSurfaceManagerReturnCode::type Release();
 
     private:
         WNSurfaceManagerWindows(const WNSurfaceManagerWindows&);
@@ -33,23 +33,23 @@ namespace WNPlatform {
     private:
         class WNWindowThreadData {
         public:
-            WNWindowThreadData(WNConcurrency::WNResourcePointer<WNPlatform::WNSurfaceWindows> _wnd);
+            WNWindowThreadData(wn::memory::intrusive_ptr<wn::WNSurfaceWindows> _wnd);
 
         public:
-            WNConcurrency::WNThread<WN_BOOL>* mThread;
-            WNConcurrency::WNResourcePointer<WNPlatform::WNSurfaceWindows> mWindow;
-            WN_ATOM_T mExit;
+            wn::thread<wn_bool>* mThread;
+            wn::memory::intrusive_ptr<wn::WNSurfaceWindows> mWindow;
+            wn_atom_t mExit;
         };
 
     private:
         HWND mPendingHwnd;
         static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-        static WN_BOOL MessagePump(WNWindowThreadData* _data);
+        static wn_bool MessagePump(WNWindowThreadData* _data);
         std::vector<WNWindowThreadData*> mMessagePumps;
 
-        WNConcurrency::WNSemaphore mCreatedWindowLock;
-        WNConcurrency::WNMutex mCallbackLock;
-        WNConcurrency::WNMutex mWindowCreationLock;
+        wn::semaphore mCreatedWindowLock;
+        wn::mutex mCallbackLock;
+        wn::mutex mWindowCreationLock;
     };
 };
 
