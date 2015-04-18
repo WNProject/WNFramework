@@ -9,24 +9,26 @@
 
 #include "WNCore/inc/WNTypes.h"
 
-namespace WNContainers {
-    class WNSerializerBase;
+namespace wn {
+    namespace containers {
+        class serializer_base;
 
-    enum WNDataBufferType {
-        eWNReadBinary,
-        eWNWriteBinary,
-        eWNReadText,
-        eWNWriteText
-    };
+        enum class data_buffer_type {
+            read_binary,
+            write_binary,
+            read_text,
+            write_text
+        };
 
-    static const wn_size_t MAX_DATA_WRITE = 1024;
+        static const wn_size_t MAX_DATA_WRITE = 1024;
 
-    class WNDataBuffer {
-    public:
-        virtual wn_bool Serialize(const wn_uint32 _flags, const WNSerializerBase& _serializer) = 0;
-        virtual wn_char* ReserveBytes(const wn_size_t _numBytes, wn_size_t& _returnedBytes) = 0;
-        virtual WNDataBufferType GetType() = 0;
-    };
+        class data_buffer {
+        public:
+            virtual wn_bool serialize(const serializer_base& _serializer, const wn_uint32 _flags) = 0;
+            virtual wn_char* reserve(const wn_size_t _count, wn_size_t& _reserved_count) = 0;
+            virtual data_buffer_type type() const = 0;
+        };
+    }
 }
 
 #endif // __WN_CONTAINERS_DATA_BUFFER_H__

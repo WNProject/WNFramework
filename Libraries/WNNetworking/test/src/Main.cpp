@@ -27,7 +27,7 @@ static wn_void Message(WNConnection* _connection, WNNetworkReadBuffer& _buffer) 
 
     wn_uint64 val;
 
-    _buffer.Serialize(0, WNSerializer<wn_uint64>(val));
+    _buffer.serialize(wn::containers::serializer<wn_uint64>(val), 0);
 
     {
         if ((++gAtomVal) % 1000 == 0) {
@@ -72,8 +72,8 @@ wn_int32 wn_main(wn_int32 _argc, wn_char* _argv[]) {
     WNNetworkWriteBuffer buff2(*manager2, 2);
     wn_uint64 number = 32;
 
-    buff.Serialize(0, WNSerializer<wn_uint64>(number));
-    buff2.Serialize(0, WNSerializer<wn_uint64>(number));
+    buff.serialize(wn::containers::serializer<wn_uint64>(number), 0);
+    buff2.serialize(wn::containers::serializer<wn_uint64>(number), 0);
 
     for (wn_size_t i = 0; i < 10000; ++i) {
         conn1->SendBuffer(buff);

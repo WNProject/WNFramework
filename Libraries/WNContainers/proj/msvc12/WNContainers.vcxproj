@@ -120,21 +120,17 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\inc\Internal\WNCallbackBase.h" />
-    <ClInclude Include="..\..\inc\WNAutoCleaner.h" />
+    <ClInclude Include="..\..\inc\Internal\WNContainerBase.h" />
     <ClInclude Include="..\..\inc\WNCallback.h" />
     <ClInclude Include="..\..\inc\WNDataBuffer.h" />
     <ClInclude Include="..\..\inc\WNDeque.h" />
     <ClInclude Include="..\..\inc\WNDynamicArray.h" />
-    <ClInclude Include="..\..\inc\WNGlobal.h" />
     <ClInclude Include="..\..\inc\WNSerializer.h" />
     <ClInclude Include="..\..\inc\WNSerializerBase.h" />
-    <ClInclude Include="..\..\inc\WNSingleton.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\inc\Internal\WNAutoCleaner.inl" />
     <None Include="..\..\inc\Internal\WNCallback.inl" />
     <None Include="..\..\inc\Internal\WNCallbackBase.inl" />
-    <None Include="..\..\inc\Internal\WNSerializer.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

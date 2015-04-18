@@ -21,10 +21,10 @@ namespace WNFileSystem {
         WNReadTextFileBuffer(const WNFileBufferType _type, const wn_size_t _initialBufferSize = 1024);
         virtual ~WNReadTextFileBuffer();
 
-        virtual wn_bool Serialize(const wn_uint32 _flags, const WNContainers::WNSerializerBase& _serializer);
+        virtual wn_bool serialize(const wn::containers::serializer_base& _serializer, const wn_uint32 _flags) override;
         virtual WNFile::WNFileError SetFile(const wn_char* fileName);
-        virtual wn_char* ReserveBytes(const wn_size_t _numBytes, wn_size_t& _returnedBytes);
-        virtual WNContainers::WNDataBufferType GetType();
+        virtual wn_char* reserve(const wn_size_t _numBytes, wn_size_t& _returnedBytes) override;
+        virtual wn::containers::data_buffer_type type() const override;
 
     private:
         WNFile mFile;

@@ -8,14 +8,17 @@
 #define __WN_CONTAINERS_SERIALIZER_BASE_H__
 
 #include "WNCore/inc/WNTypes.h"
+#include "WNCore/inc/WNUtility.h"
 
-namespace WNContainers {
-    class WNDataBuffer;
+namespace wn {
+    namespace containers {
+        class data_buffer;
 
-    class WNSerializerBase {
-    public:
-        virtual wn_size_t Serialize(WNDataBuffer& _buffer, const wn_uint32 _serializeFlags) const = 0;
-    };
+        class serializer_base : public non_copyable {
+        public:
+            virtual wn_size_t serialize(data_buffer& _buffer, const wn_uint32 _flags) const = 0;
+        };
+    }
 }
 
 #endif // __WN_CONTAINERS_SERIALIZER_BASE_H__

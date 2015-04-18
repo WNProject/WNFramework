@@ -12,7 +12,7 @@ WNBufferResource::WNBufferResource(const WNNetworkManager& manager) :
     wn::memory::intrusive_ptr_base(),
     mManager(manager),
     mCurLocation(0) {
-    mBuffer = wn::memory::heap_allocate<wn_char>(WNContainers::MAX_DATA_WRITE);
+    mBuffer = wn::memory::heap_allocate<wn_char>(wn::containers::MAX_DATA_WRITE);
     mBaseLocation = 0;
     #ifdef _WN_WINDOWS
         mWinBuf.buf = mBuffer;
@@ -33,13 +33,13 @@ wn_void WNBufferResource::Clear() {
 }
 
 wn_void WNBufferResource::FillData() {
-    mCurLocation = WNContainers::MAX_DATA_WRITE;
+    mCurLocation = wn::containers::MAX_DATA_WRITE;
 }
 
 wn_void WNBufferResource::AddData(wn_size_t _data) {
     mCurLocation += _data;
 
-    WN_DEBUG_ASSERT(mCurLocation <= WNContainers::MAX_DATA_WRITE);
+    WN_DEBUG_ASSERT(mCurLocation <= wn::containers::MAX_DATA_WRITE);
 }
 
 wn_char* WNBufferResource::GetBaseLocation() const {
@@ -47,7 +47,7 @@ wn_char* WNBufferResource::GetBaseLocation() const {
 }
 
 wn_size_t WNBufferResource::GetSize() const {
-    return(WNContainers::MAX_DATA_WRITE);
+    return(wn::containers::MAX_DATA_WRITE);
 }
 
 wn_size_t WNBufferResource::GetWritten() const {
@@ -62,7 +62,7 @@ wn_void WNBufferResource::FlushWrite() {
 
 wn_void WNBufferResource::PrepareRead() {
     #ifdef _WN_WINDOWS
-        mWinBuf.len = static_cast<ULONG>(WNContainers::MAX_DATA_WRITE - mCurLocation);
+        mWinBuf.len = static_cast<ULONG>(wn::containers::MAX_DATA_WRITE - mCurLocation);
         mWinBuf.buf = GetPointer();
     #endif
 }

@@ -20,15 +20,15 @@ struct TestStruct {
     wn_float32 blah8;
 };
 
-wn_void testSerialize(WNContainers::WNDataBuffer& _buffer, TestStruct& _tester){
-    _buffer.Serialize(0, WNContainers::WNSerializer<wn_uint32>(_tester.blah));
-    _buffer.Serialize(0, WNContainers::WNSerializer<wn_uint64>(_tester.blah2));
-    _buffer.Serialize(0, WNContainers::WNSerializer<wn_uint8>(_tester.blah3));
-    _buffer.Serialize(0, WNContainers::WNSerializer<wn_int64>(_tester.blah4));
-    _buffer.Serialize(0, WNContainers::WNSerializer<wn_float32>(_tester.blah5));
-    _buffer.Serialize(0, WNContainers::WNSerializer<wn_float32>(_tester.blah6));
-    _buffer.Serialize(0, WNContainers::WNSerializer<wn_float32>(_tester.blah7));
-    _buffer.Serialize(0, WNContainers::WNSerializer<wn_float32>(_tester.blah8));
+wn_void testSerialize(wn::containers::data_buffer& _buffer, TestStruct& _tester){
+    _buffer.serialize(wn::containers::serializer<wn_uint32>(_tester.blah), 0);
+    _buffer.serialize(wn::containers::serializer<wn_uint64>(_tester.blah2), 0);
+    _buffer.serialize(wn::containers::serializer<wn_uint8>(_tester.blah3), 0);
+    _buffer.serialize(wn::containers::serializer<wn_int64>(_tester.blah4), 0);
+    _buffer.serialize(wn::containers::serializer<wn_float32>(_tester.blah5), 0);
+    _buffer.serialize(wn::containers::serializer<wn_float32>(_tester.blah6), 0);
+    _buffer.serialize(wn::containers::serializer<wn_float32>(_tester.blah7), 0);
+    _buffer.serialize(wn::containers::serializer<wn_float32>(_tester.blah8), 0);
 }
 
 wn_void writeStruct(TestStruct& tester) {
