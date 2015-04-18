@@ -15,29 +15,29 @@ WNTypeNode::WNTypeNode(const char* _customType) :
 }
 
 WNTypeNode::~WNTypeNode() {
-    WN_DELETE(mCustomType);
+    wn::memory::destroy(mCustomType);
 }
-    
+
 void WNTypeNode::AddArrayLevel() {
     mNumArrayLevels += 1;
 }
 
 eWNTypeError WNTypeNode::GetType(WNTypeManager& _manager, WNScriptType& _outType, WNLogging::WNLog& _compilationLog) const {
-    eWNTypeError err = eWNOK;
-    if(eWNOK != (err = _manager.GetTypeByName(mCustomType, _outType))) {
+    eWNTypeError err = ok;
+    if(ok != (err = _manager.GetTypeByName(mCustomType, _outType))) {
         _compilationLog.Log(WNLogging::eError, 0, "Could not find type ", mCustomType);
         LogLine(_compilationLog, WNLogging::eError);
         return(err);
     }
-    for(WN_SIZE_T i = 0; i < mNumArrayLevels; ++i) {
-        if(eWNOK != (err = _manager.GetArrayOf(_outType, _outType))) {
+    for(wn_size_t i = 0; i < mNumArrayLevels; ++i) {
+        if(ok != (err = _manager.GetArrayOf(_outType, _outType))) {
             _compilationLog.Log(WNLogging::eError, 0, "Could not find type ", mCustomType);
             LogLine(_compilationLog, WNLogging::eError);
             return(err);
-        }   
+        }
     }
-    
-    
 
-    return(eWNOK);
+
+
+    return(ok);
 }

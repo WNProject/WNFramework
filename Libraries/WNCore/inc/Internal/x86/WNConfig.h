@@ -16,11 +16,11 @@
 #endif
 
 #ifdef _WN_MSVC
-    #ifdef _WN_CORE_CONFIG_MSVC_X86_ENABLE_AVX2
+    #if defined _WN_CORE_CONFIG_MSVC_X86_ENABLE_AVX2 || defined __AVX2__
         #define _WN_CORE_CONFIG_MSVC_X86_ENABLE_AVX
     #endif
 
-    #ifdef _WN_CORE_CONFIG_MSVC_X86_ENABLE_AVX
+    #if defined _WN_CORE_CONFIG_MSVC_X86_ENABLE_AVX || defined __AVX__
         #define _WN_CORE_CONFIG_MSVC_X86_ENABLE_SSE4
     #endif
 
@@ -38,6 +38,10 @@
 
     #ifdef _WN_CORE_CONFIG_MSVC_X86_ENABLE_SSE
         #define _WN_CORE_CONFIG_MSVC_X86_ENABLE_MMX
+    #endif
+
+    #if defined __AVX__ || defined __AVX2__
+        #define _WN_CORE_CONFIG_MSVC_X86_USING_VEX
     #endif
 #endif
 

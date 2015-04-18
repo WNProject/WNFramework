@@ -11,7 +11,7 @@ namespace WNScripting {
     public:
         WNArrayAccessExpr(WNExpression* _expr);
         virtual ~WNArrayAccessExpr();
-        virtual eWNTypeError GenerateCode(WNCodeModule& _module, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog); 
+        virtual eWNTypeError GenerateCode(WNCodeModule& _module, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog);
     protected:
         WNExpression* mArrayAccess;
     };

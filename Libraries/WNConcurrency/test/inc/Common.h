@@ -1,3 +1,7 @@
+// Copyright (c) 2014, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 #ifndef __WN_USE_PRECOMPILED_HEADER
     #pragma once
 #endif
@@ -7,18 +11,12 @@
 
 #include "WNCore/inc/WNTypes.h"
 
+#define GTEST_HAS_RTTI 0
+
 #ifdef _WN_MSVC
     #pragma warning(push)
     #pragma warning(disable: 4275)
 #endif
-
-#ifdef _HAS_EXCEPTIONS
-    #undef _HAS_EXCEPTIONS
-#endif
-
-#define _HAS_EXCEPTIONS 0
-
-#define GTEST_HAS_RTTI 0
 
 #include <gtest/gtest.h>
 
@@ -28,9 +26,10 @@
 
 #define RANDOM_TIME(_high, _low) (rand() % ((_high) - (_low) + 1) + (_low))
 
-#ifdef __WN_USE_PRECOMPILED_HEADER
-    #include "WNConcurrency/inc/WNConcurrency.h"
-    #include "WNPlatform/inc/WNTime.h"
-#endif
+#include "WNConcurrency/inc/WNConcurrency.h"
+#include "WNPlatform/inc/WNTime.h"
+
+#include <vector>
+#include <memory>
 
 #endif // __WN_CONCURRENCY_TESTS_COMMON_H__

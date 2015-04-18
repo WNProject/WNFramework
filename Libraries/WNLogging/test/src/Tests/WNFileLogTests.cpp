@@ -12,7 +12,7 @@
 
 const char* sFileName = FILE_PREFIX "test" _WN_PLATFORM_NAME _WN_ARCH_NAME _WN_CONFIG_NAME ".txt";
 
-WN_SIZE_T NumWritten() {
+wn_size_t NumWritten() {
     FILE * fp = fopen(sFileName, "r");
     if(!fp) {
        return(false);
@@ -26,12 +26,12 @@ WN_SIZE_T NumWritten() {
         return(false);
     }
 #else
-    unlink(sFileName); 
+    unlink(sFileName);
 #endif
     return(sz);
 }
 
-const WN_CHAR* GetTempFile()
+const wn_char* GetTempFile()
 {
     return(sFileName);
 }
@@ -80,7 +80,7 @@ TEST(WNFileLogTest, ChangeLogLevel) {
         WNLog mDefaultLog(&mFileLogger);
         mDefaultLog.Log(eInfo, 0, "asdf");
         mDefaultLog.Flush();
-        mDefaultLog.SetLogLevel(eInfo); 
+        mDefaultLog.SetLogLevel(eInfo);
         mDefaultLog.Log(eInfo, 0, "asdf");
         mDefaultLog.Flush();
     }

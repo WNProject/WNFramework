@@ -13,7 +13,7 @@ namespace WNScripting {
     public:
         WNForInstruction();
         virtual ~WNForInstruction();
-        void AddInitializer(WNInstruction* _init); 
+        void AddInitializer(WNInstruction* _init);
         void AddCondition(WNExpression* cond);
         void AddPostOp(WNInstruction* _inst);
         void AddBody(WNInstructionList* _body);

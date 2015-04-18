@@ -9,45 +9,45 @@
 
 #include "WNCore/inc/WNTypes.h"
 
-namespace WNMath {
-    template <typename Type> class WNLine2;
-    template <typename Type> class WNLine3;
-    template <typename Type> class WNRay2;
-    template <typename Type> class WNRay3;
-    template <typename Type> class WNVector2;
+namespace wn {
+    template <typename type> class WNLine2;
+    template <typename type> class WNLine3;
+    template <typename type> class WNRay2;
+    template <typename type> class WNRay3;
+    template <typename type> class vector2;
 
-    template <typename Type>
+    template <typename type>
     class WNSegment2 {
     public:
         WNSegment2();
-        explicit WNSegment2(const Type* _numbers);
-        explicit WNSegment2(const WNVector2<Type>& _start, const WNVector2<Type>& _end);
+        explicit WNSegment2(const type* _numbers);
+        explicit WNSegment2(const vector2<type>& _start, const vector2<type>& _end);
 
         WNSegment2 operator + () const;
         WNSegment2 operator - () const;
 
-        WN_BOOL operator == (const WNSegment2& _segment) const;
-        WN_BOOL operator != (const WNSegment2& _segment) const;
+        wn_bool operator == (const WNSegment2& _segment) const;
+        wn_bool operator != (const WNSegment2& _segment) const;
 
-        WN_VOID Zero();
+        wn_void Zero();
 
-        Type Length() const;
-        Type LengthSquared() const;
-        WNVector2<Type> Direction() const;
+        type Length() const;
+        type LengthSquared() const;
+        vector2<type> Direction() const;
 
-        WN_BOOL IsZero() const;
+        wn_bool IsZero() const;
 
-        WN_VOID Set(const Type* _numbers);
-        WN_VOID Set(const WNVector2<Type>& _start, const WNVector2<Type>& _end);
+        wn_void Set(const type* _numbers);
+        wn_void Set(const vector2<type>& _start, const vector2<type>& _end);
 
-        WNLine2<Type> ToLine2() const;
-        WNLine3<Type> ToLine3() const;
-        WNRay2<Type> ToRay2() const;
-        WNRay3<Type> ToRay3() const;
+        WNLine2<type> ToLine2() const;
+        WNLine3<type> ToLine3() const;
+        WNRay2<type> ToRay2() const;
+        WNRay3<type> ToRay3() const;
 
     public:
-        WNVector2<Type> mStart;
-        WNVector2<Type> mEnd;
+        vector2<type> mStart;
+        vector2<type> mEnd;
     };
 }
 

@@ -6,20 +6,17 @@
 #include "WNNetworking/inc/WNNetworkWriteBuffer.h"
 #include "WNContainers/inc/WNSerializer.h"
 #include "WNCore/inc/WNEndian.h"
-#include "WNConcurrency/inc/WNAtomic.h"
 #include "WNMath/inc/WNBasic.h"
 
 using namespace WNNetworking;
-using namespace WNConcurrency;
 using namespace WNContainers;
-using namespace WNMath;
 
-WNNetworkWriteBuffer::WNNetworkWriteBuffer(WNNetworkManager& _manager, WN_UINT32 _number) :
+WNNetworkWriteBuffer::WNNetworkWriteBuffer(WNNetworkManager& _manager, wn_uint32 _number) :
     mManager(_manager),
     mBufferPointer(0),
     mTotalWritten(0),
-    mFlushed(WN_FALSE) {
-    mChunks.push_back(WNAllocateResource<WNBufferResource, WNNetworkManager&>(mManager));
+    mFlushed(wn_false) {
+    mChunks.push_back(wn::memory::make_intrusive<WNBufferResource, WNNetworkManager&>(mManager));
     _manager.InitializeBuffer(*this, _number);
 }
 
@@ -53,10 +50,10 @@ WNNetworkWriteBuffer& WNNetworkWriteBuffer::operator = (const WNNetworkWriteBuff
     return(*this);
 }
 
-WN_BOOL WNNetworkWriteBuffer::Serialize(const WN_UINT32 _flags, const WNSerializerBase& _serializer) {
+wn_bool WNNetworkWriteBuffer::Serialize(const wn_uint32 _flags, const WNSerializerBase& _serializer) {
     WN_DEBUG_ASSERT(!mFlushed);
 
-    const WN_SIZE_T size = _serializer.Serialize(*this, _flags);
+    const wn_size_t size = _serializer.Serialize(*this, _flags);
 
     mBufferPointer += size;
 
@@ -64,20 +61,20 @@ WN_BOOL WNNetworkWriteBuffer::Serialize(const WN_UINT32 _flags, const WNSerializ
 
     mTotalWritten += size;
 
-    return(WN_TRUE);
+    return(wn_true);
 }
 
-WN_CHAR* WNNetworkWriteBuffer::ReserveBytes(const WN_SIZE_T _numBytes, WN_SIZE_T& _returnedBytes) {
+wn_char* WNNetworkWriteBuffer::ReserveBytes(const wn_size_t _numBytes, wn_size_t& _returnedBytes) {
     WN_DEBUG_ASSERT(!mFlushed);
 
     if (mBufferPointer == MAX_DATA_WRITE) {
         mChunks.back()->FillData();
-        mChunks.push_back(WNAllocateResource<WNBufferResource, WNNetworkManager&>(mManager));
+        mChunks.push_back(wn::memory::make_intrusive<WNBufferResource, WNNetworkManager&>(mManager));
 
         mBufferPointer = 0;
     }
 
-    _returnedBytes = WNMin(_numBytes, MAX_DATA_WRITE - mBufferPointer);
+    _returnedBytes = wn::min(_numBytes, MAX_DATA_WRITE - mBufferPointer);
 
     return(mChunks.back()->GetPointer());
 }
@@ -86,18 +83,18 @@ WNDataBufferType WNNetworkWriteBuffer::GetType() {
     return(eWNWriteBinary);
 }
 
-WN_VOID WNNetworkWriteBuffer::FlushWrite() {
+wn_void WNNetworkWriteBuffer::FlushWrite() {
     if (mFlushed) {
         return;
     }
 
-    mFlushed = WN_TRUE;
+    mFlushed = wn_true;
 
-    WN_UINT32 totalWritten = static_cast<WN_UINT32>(mTotalWritten);
+    wn_uint32 totalWritten = static_cast<wn_uint32>(mTotalWritten);
 
     WNCore::WNToBigEndian(totalWritten);
 
-    *(reinterpret_cast<WN_UINT32*>(mChunks.front()->GetBaseLocation())) = totalWritten;
+    *(reinterpret_cast<wn_uint32*>(mChunks.front()->GetBaseLocation())) = totalWritten;
 
     for (WNBufferQueue::iterator i = mChunks.begin(); i != mChunks.end(); ++i){
         (*i)->FlushWrite();

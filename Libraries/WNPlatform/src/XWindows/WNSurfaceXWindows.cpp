@@ -3,19 +3,19 @@
 // found in the LICENSE file.
 
 #include "WNPlatform/inc/Internal/XWindows/WNSurfaceXWindows.h"
-#include "WNConcurrency/inc/WNThread.h"
+#include "WNConcurrency/inc/thread.h"
 
-WNPlatform::WNSurfaceXWindows::WNSurfaceXWindows(WNPlatform::WNSurfaceManagerXWindows& _surfaceManager) :
-    WNSurface(),
+wn::WNSurfaceXWindows::WNSurfaceXWindows(wn::WNSurfaceManagerXWindows& _surfaceManager) :
+    surface(),
     mManager(_surfaceManager),
     mDisplay(NULL),
     mWindow(0),
-    mSurfaceThread(WN_NULL),
-    mExiting(WN_FALSE) {
+    mSurfaceThread(wn_nullptr),
+    mExiting(wn_false) {
 }
 
-WNPlatform::WNSurfaceXWindows::~WNSurfaceXWindows() {
-    mExiting = WN_TRUE;
+wn::WNSurfaceXWindows::~WNSurfaceXWindows() {
+    mExiting = wn_true;
 
     if (mWindow && mSurfaceThread) {
         XDestroyWindow(mDisplay, mWindow);
@@ -24,10 +24,10 @@ WNPlatform::WNSurfaceXWindows::~WNSurfaceXWindows() {
     }
 
     mWindow = 0;
-    mSurfaceThread = WN_NULL;
+    mSurfaceThread = wn_nullptr;
 }
 
-WN_BOOL WNPlatform::WNSurfaceXWindows::Initialize(WN_UINT32 _x, WN_UINT32 _y, WN_UINT32 _width, WN_UINT32 _height, Display* _display, XVisualInfo* _visualInfo) {
+wn_bool wn::WNSurfaceXWindows::Initialize(wn_uint32 _x, wn_uint32 _y, wn_uint32 _width, wn_uint32 _height, Display* _display, XVisualInfo* _visualInfo) {
     WN_RELEASE_ASSERT(_display != NULL);
 
     mDisplay = _display;
@@ -42,7 +42,7 @@ WN_BOOL WNPlatform::WNSurfaceXWindows::Initialize(WN_UINT32 _x, WN_UINT32 _y, WN
     mWindow = XCreateWindow( mDisplay, RootWindow(mDisplay, _visualInfo->screen), _x, _y, _width, _height, 0, _visualInfo->depth, InputOutput, _visualInfo->visual, CWBorderPixel|CWColormap|CWEventMask, &swa);
 
     if (!mWindow) {
-        return(WN_FALSE);
+        return(wn_false);
     }
 
     XSelectInput(_display, mWindow, StructureNotifyMask);
@@ -52,18 +52,18 @@ WN_BOOL WNPlatform::WNSurfaceXWindows::Initialize(WN_UINT32 _x, WN_UINT32 _y, WN
 
     XSetWMProtocols(mDisplay, mWindow, &mDeleteMessage, 1);
 
-    mSurfaceThread = WN_NEW WNConcurrency::WNThread<WN_VOID>();
+    mSurfaceThread = WN_NEW wn::thread<wn_void>();
 
-    if (mSurfaceThread->Initialize(this, &WNPlatform::WNSurfaceXWindows::SurfaceThread) != WNConcurrency::WNThreadReturnCode::eWNOK) {
-        WN_DELETE(mSurfaceThread);
+    if (mSurfaceThread->Initialize(this, &wn::WNSurfaceXWindows::SurfaceThread) != wn::thread_result::ok) {
+        wn::memory::destroy(mSurfaceThread);
 
-        return(WN_FALSE);
+        return(wn_false);
     }
 
-    return(WN_TRUE);
+    return(wn_true);
 }
 
-WN_VOID WNPlatform::WNSurfaceXWindows::SurfaceThread() {
+wn_void wn::WNSurfaceXWindows::SurfaceThread() {
     for(;;) {
         XEvent e;
 
@@ -105,38 +105,38 @@ WN_VOID WNPlatform::WNSurfaceXWindows::SurfaceThread() {
     }
 }
 
-WNPlatform::WNSurfaceNativeHandle WNPlatform::WNSurfaceXWindows::GetNativeHandle() const {
+wn::WNSurfaceNativeHandle wn::WNSurfaceXWindows::GetNativeHandle() const {
     return(mWindow);
 }
 
-WNPlatform::WNSurface::WNSurfaceError WNPlatform::WNSurfaceXWindows::Resize(WN_UINT32, WN_UINT32) {
-    return(eWNOK);
+wn::surface::WNSurfaceError wn::WNSurfaceXWindows::Resize(wn_uint32, wn_uint32) {
+    return(ok);
 }
 
-WNPlatform::WNSurface::WNSurfaceError WNPlatform::WNSurfaceXWindows::Move(WN_UINT32, WN_UINT32) {
-    return(eWNOK);
+wn::surface::WNSurfaceError wn::WNSurfaceXWindows::Move(wn_uint32, wn_uint32) {
+    return(ok);
 }
 
-WN_BOOL WNPlatform::WNSurfaceXWindows::IsFullscreen() const {
-    return(WN_FALSE);
+wn_bool wn::WNSurfaceXWindows::IsFullscreen() const {
+    return(wn_false);
 }
 
-WNPlatform::WNSurface::WNSurfaceError WNPlatform::WNSurfaceXWindows::SetFullscreen(WN_BOOL) {
-    return(eWNOK);
+wn::surface::WNSurfaceError wn::WNSurfaceXWindows::SetFullscreen(wn_bool) {
+    return(ok);
 }
 
-WN_UINT32 WNPlatform::WNSurfaceXWindows::GetWidth() const {
+wn_uint32 wn::WNSurfaceXWindows::GetWidth() const {
     return(mWidth);
 }
 
-WN_UINT32 WNPlatform::WNSurfaceXWindows::GetHeight() const {
+wn_uint32 wn::WNSurfaceXWindows::GetHeight() const {
     return(mHeight);
 }
 
-WN_UINT32 WNPlatform::WNSurfaceXWindows::GetX() const {
+wn_uint32 wn::WNSurfaceXWindows::GetX() const {
     return(mX);
 }
 
-WN_UINT32 WNPlatform::WNSurfaceXWindows::GetY() const {
+wn_uint32 wn::WNSurfaceXWindows::GetY() const {
     return(mY);
 }

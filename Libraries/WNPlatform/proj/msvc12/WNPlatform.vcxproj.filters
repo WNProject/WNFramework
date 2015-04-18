@@ -1,0 +1,94 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Inline Files">
+      <UniqueIdentifier>{eb6a9ff3-7277-4694-8adf-0ff8f02bea34}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Windows">
+      <UniqueIdentifier>{3cb99972-b5a6-46ee-b357-bdf7f9472582}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Internal">
+      <UniqueIdentifier>{1c2cf6d0-ce7a-4d21-91a0-0a525e62a7d9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Internal\Windows">
+      <UniqueIdentifier>{3172f54f-057d-4b55-860c-817510300acd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\XWindows">
+      <UniqueIdentifier>{112a153d-11c5-4315-bcef-195a8b416001}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Internal\XWindows">
+      <UniqueIdentifier>{0805483b-0f86-4157-9bf4-92b653d4826a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Inline Files\Linux">
+      <UniqueIdentifier>{322415ab-2b2e-472f-8d1b-7d0dd41b9cc8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Inline Files\Windows">
+      <UniqueIdentifier>{a764983f-3764-4a43-a938-628715d7e100}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\inc\WNSurface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNSurfaceManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNPlatformFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNPlatform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNTime.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\XWindows\WNSurfaceManagerXWindows.h">
+      <Filter>Header Files\Internal\XWindows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\XWindows\WNSurfaceXWindows.h">
+      <Filter>Header Files\Internal\XWindows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\Windows\WNSurfaceManagerWindows.h">
+      <Filter>Header Files\Internal\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\Windows\WNSurfaceWindows.h">
+      <Filter>Header Files\Internal\Windows</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\WNPlatformFactory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\XWindows\WNSurfaceManagerXWindows.cpp">
+      <Filter>Source Files\XWindows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\XWindows\WNSurfaceXWindows.cpp">
+      <Filter>Source Files\XWindows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\Windows\WNSurfaceManagerWindows.cpp">
+      <Filter>Source Files\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\Windows\WNSurfaceWindows.cpp">
+      <Filter>Source Files\Windows</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\inc\Internal\Linux\WNTime.inl">
+      <Filter>Inline Files\Linux</Filter>
+    </None>
+    <None Include="..\..\inc\Internal\Windows\WNTime.inl">
+      <Filter>Inline Files\Windows</Filter>
+    </None>
+    <None Include="..\..\inc\Internal\WNTime.inl">
+      <Filter>Inline Files</Filter>
+    </None>
+  </ItemGroup>
+</Project>

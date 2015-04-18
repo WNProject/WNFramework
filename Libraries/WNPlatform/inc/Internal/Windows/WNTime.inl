@@ -15,8 +15,8 @@
 
 #include <windows.h>
 
-namespace WNPlatform {
-    WN_FORCE_INLINE WN_UINT64 WNGetBigTime() {
+namespace wn {
+    WN_FORCE_INLINE wn_uint64 WNGetBigTime() {
         SYSTEMTIME systemTime;
 
         GetSystemTime(&systemTime);
@@ -30,15 +30,15 @@ namespace WNPlatform {
         largerIntegerTime.LowPart = fileTime.dwLowDateTime;
         largerIntegerTime.HighPart = fileTime.dwHighDateTime;
 
-        return(static_cast<WN_UINT64>((largerIntegerTime.QuadPart / 10000LL) - 11644473600000LL));
+        return(static_cast<wn_uint64>((largerIntegerTime.QuadPart / 10000LL) - 11644473600000LL));
     }
 
-    WN_FORCE_INLINE WN_UINT32 WNGetTickCount() {
-        return(static_cast<WN_UINT32>(GetTickCount()));
+    WN_FORCE_INLINE wn_uint32 WNGetTickCount() {
+        return(static_cast<wn_uint32>(GetTickCount()));
     }
 
-    WN_FORCE_INLINE WN_UINT64 WNGetBigTickCount() {
-        return(static_cast<WN_UINT64>(GetTickCount64()));
+    WN_FORCE_INLINE wn_uint64 WNGetBigTickCount() {
+        return(static_cast<wn_uint64>(GetTickCount64()));
     }
 }
 

@@ -10,15 +10,15 @@
 #include "WNCore/inc/WNTypes.h"
 
 namespace WNContainers {
-    template <typename Type, WN_UINT64 ID>
+    template <typename type, wn_uint64 ID>
     class WNGlobal {
     public:
-        static Type mValue;
+        static type mValue;
 
     private:
         WNGlobal();
         WNGlobal(const WNGlobal&);
-        WN_VOID operator = (const WNGlobal&);
+        wn_void operator = (const WNGlobal&);
     };
 }
 

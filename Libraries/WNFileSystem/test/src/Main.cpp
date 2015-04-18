@@ -10,28 +10,28 @@
 #endif
 
 struct TestStruct {
-    WN_UINT32 blah;
-    WN_UINT64 blah2;
-    WN_UINT8 blah3;
-    WN_INT64 blah4;
-    WN_FLOAT32 blah5;
-    WN_FLOAT32 blah6;
-    WN_FLOAT32 blah7;
-    WN_FLOAT32 blah8;
+    wn_uint32 blah;
+    wn_uint64 blah2;
+    wn_uint8 blah3;
+    wn_int64 blah4;
+    wn_float32 blah5;
+    wn_float32 blah6;
+    wn_float32 blah7;
+    wn_float32 blah8;
 };
 
-WN_VOID testSerialize(WNContainers::WNDataBuffer& _buffer, TestStruct& _tester){
-    _buffer.Serialize(0, WNContainers::WNSerializer<WN_UINT32>(_tester.blah));
-    _buffer.Serialize(0, WNContainers::WNSerializer<WN_UINT64>(_tester.blah2));
-    _buffer.Serialize(0, WNContainers::WNSerializer<WN_UINT8>(_tester.blah3));
-    _buffer.Serialize(0, WNContainers::WNSerializer<WN_INT64>(_tester.blah4));
-    _buffer.Serialize(0, WNContainers::WNSerializer<WN_FLOAT32>(_tester.blah5));
-    _buffer.Serialize(0, WNContainers::WNSerializer<WN_FLOAT32>(_tester.blah6));
-    _buffer.Serialize(0, WNContainers::WNSerializer<WN_FLOAT32>(_tester.blah7));
-    _buffer.Serialize(0, WNContainers::WNSerializer<WN_FLOAT32>(_tester.blah8));
+wn_void testSerialize(WNContainers::WNDataBuffer& _buffer, TestStruct& _tester){
+    _buffer.Serialize(0, WNContainers::WNSerializer<wn_uint32>(_tester.blah));
+    _buffer.Serialize(0, WNContainers::WNSerializer<wn_uint64>(_tester.blah2));
+    _buffer.Serialize(0, WNContainers::WNSerializer<wn_uint8>(_tester.blah3));
+    _buffer.Serialize(0, WNContainers::WNSerializer<wn_int64>(_tester.blah4));
+    _buffer.Serialize(0, WNContainers::WNSerializer<wn_float32>(_tester.blah5));
+    _buffer.Serialize(0, WNContainers::WNSerializer<wn_float32>(_tester.blah6));
+    _buffer.Serialize(0, WNContainers::WNSerializer<wn_float32>(_tester.blah7));
+    _buffer.Serialize(0, WNContainers::WNSerializer<wn_float32>(_tester.blah8));
 }
 
-WN_VOID writeStruct(TestStruct& tester) {
+wn_void writeStruct(TestStruct& tester) {
     WNFileSystem::WNWriteTextFileBuffer fileWrite(WNFileSystem::eWNText);
 
     fileWrite.SetFile(FILE_PREFIX "testFile1.txt");
@@ -39,7 +39,7 @@ WN_VOID writeStruct(TestStruct& tester) {
     testSerialize(fileWrite, tester);
 }
 
-WN_VOID readStruct(TestStruct& tester){
+wn_void readStruct(TestStruct& tester){
     WNFileSystem::WNReadTextFileBuffer fileRead(WNFileSystem::eWNText);
 
     fileRead.SetFile(FILE_PREFIX "testFile1.txt");
@@ -47,9 +47,9 @@ WN_VOID readStruct(TestStruct& tester){
     testSerialize(fileRead, tester);
 }
 
-WN_INT32 WNMain(WN_INT32 _argc, WN_CHAR* _argv[]) {
-    WN_UNUSED_ARG(_argc);
-    WN_UNUSED_ARG(_argv);
+wn_int32 wn_main(wn_int32 _argc, wn_char* _argv[]) {
+    WN_UNUSED_ARGUMENT(_argc);
+    WN_UNUSED_ARGUMENT(_argv);
 
     TestStruct tester = { 25, 51123, 152, -1553223,  0.00024324f, -32.2253f, 1.30234234234f, 12355235342.f};
     TestStruct tester2 = {0, 0, 0, 0, 0.f, 0.f, 0.f, 0.f };

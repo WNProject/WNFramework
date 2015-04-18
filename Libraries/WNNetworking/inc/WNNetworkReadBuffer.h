@@ -11,7 +11,7 @@
 #include "WNCore/inc/WNTypes.h"
 #include "WNContainers/inc/WNDataBuffer.h"
 #include "WNNetworking/inc/WNBufferResource.h"
-#include "WNConcurrency/inc/WNResourcePointer.h"
+#include "WNMemory/inc/WNIntrusivePtr.h"
 
 #ifdef _WN_MSVC
     #pragma warning(push)
@@ -29,8 +29,8 @@ namespace WNContainers {
 }
 
 namespace WNConcurrency {
-    template <typename Type>
-    class WNResourcePointer;
+    template <typename type>
+    class intrusive_ptr;
 }
 
 namespace WNNetworking {
@@ -38,36 +38,36 @@ namespace WNNetworking {
 
     class WNNetworkReadBuffer : public WNContainers::WNDataBuffer {
     public:
-        typedef std::deque<WNConcurrency::WNResourcePointer<WNNetworking::WNBufferResource> > WNBufferQueue;
+        typedef std::deque<wn::memory::intrusive_ptr<WNNetworking::WNBufferResource> > WNBufferQueue;
 
     public:
         WNNetworkReadBuffer(WNNetworkManager& _manager);
         virtual WN_FORCE_INLINE ~WNNetworkReadBuffer() {}
 
-        virtual WN_BOOL Serialize(const WN_UINT32 _flags, const WNContainers::WNSerializerBase& _serializer);
-        virtual WN_CHAR* ReserveBytes(const WN_SIZE_T _numBytes, WN_SIZE_T& _returnedBytes);
+        virtual wn_bool Serialize(const wn_uint32 _flags, const WNContainers::WNSerializerBase& _serializer);
+        virtual wn_char* ReserveBytes(const wn_size_t _numBytes, wn_size_t& _returnedBytes);
         virtual WNContainers::WNDataBufferType GetType();
-        WN_VOID AppendBuffer(WNConcurrency::WNResourcePointer<WNBufferResource>& _buffer, WN_SIZE_T _dataCount, WN_SIZE_T _dataOffset);
-        WN_BOOL Initialized();
-        WN_VOID Clear();
-        WN_CHAR* GetLastBuffer();
-        WN_VOID PrepareRead();
+        wn_void AppendBuffer(wn::memory::intrusive_ptr<WNBufferResource>& _buffer, wn_size_t _dataCount, wn_size_t _dataOffset);
+        wn_bool Initialized();
+        wn_void Clear();
+        wn_char* GetLastBuffer();
+        wn_void PrepareRead();
 
     private:
         WNNetworkReadBuffer& operator = (const WNNetworkReadBuffer&);
 
     private:
         WNNetworkManager& mManager;
-        WNConcurrency::WNResourcePointer<WNNetworking::WNBufferResource> mDataOverflow;
+        wn::memory::intrusive_ptr<WNNetworking::WNBufferResource> mDataOverflow;
         WNBufferQueue mChunks;
 
         WNBufferQueue::iterator mCurrentChunk;
-        WN_SIZE_T mBufferPointer;
-        WN_SIZE_T mWriteOffset;
-        WN_SIZE_T mTotalSize;
-        WN_SIZE_T mTotalRead;
-        WN_BOOL   mLastChunk;
-        WN_BOOL   mInitialized;
+        wn_size_t mBufferPointer;
+        wn_size_t mWriteOffset;
+        wn_size_t mTotalSize;
+        wn_size_t mTotalRead;
+        wn_bool   mLastChunk;
+        wn_bool   mInitialized;
     };
 }
 

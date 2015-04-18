@@ -12,7 +12,7 @@ namespace WNScripting {
     public:
         WNConstantExpression(WNScriptTypeName _type, const char* _text);
         virtual ~WNConstantExpression();
-        virtual eWNTypeError GenerateCode(WNCodeModule& _module, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog); 
+        virtual eWNTypeError GenerateCode(WNCodeModule& _module, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog);
     private:
         WNScriptTypeName mTypeName;
         char* mText;

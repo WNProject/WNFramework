@@ -31,69 +31,69 @@ namespace WNLogging {
         "Warning:",
         "Issue:",
         "Info:",
-        "Debug:" 
-	};
+        "Debug:"
+    };
 
     enum WNLogFlags {
         eWNNoNewLine = 1<<0,
         eWNNoHeader = 1<<1
     };
 
-    
+
     struct WNLogColorElement {
         WNLogLevel mLevel;
-        WN_CHAR* mPosition;
+        wn_char* mPosition;
     };
 
     class WNLogger {
-	public:
-        virtual WN_VOID FlushBuffer(const WN_CHAR* _buffer, WN_SIZE_T bufferSize, const std::vector<WNLogColorElement>& mColors) = 0;
-	};
+    public:
+        virtual wn_void FlushBuffer(const wn_char* _buffer, wn_size_t bufferSize, const std::vector<WNLogColorElement>& mColors) = 0;
+    };
 
-    #define LOGGER_ENCODING_HELPER(Type, formatter) \
+    #define LOGGER_ENCODING_HELPER(type, formatter) \
     template<typename T> \
-    struct _Enc##Type { static const WN_CHAR* GetVal(){return formatter;} }; \
-    template<> struct _Enc##Type<WN_WCHAR> { static const WN_WCHAR* GetVal(){return L##formatter;} };
-    
+    struct _Enc##type { static const wn_char* GetVal(){return formatter;} }; \
+    template<> struct _Enc##type<wn_wchar> { static const wn_wchar* GetVal(){return L##formatter;} };
+
     LOGGER_ENCODING_HELPER(Ptr, "%p");
     template<typename T, typename BuffType>
     struct LogTypeHelper {
-        WN_FORCE_INLINE static WN_BOOL DoLog(const T& _0, BuffType* _buffer, WN_SIZE_T& _bufferLeft) {
+        WN_FORCE_INLINE static wn_bool DoLog(const T& _0, BuffType* _buffer, wn_size_t& _bufferLeft) {
             int printed = WNStrings::WNTSnPrintf(_buffer, _bufferLeft, _EncPtr<BuffType>::GetVal(), _0);
-            if(printed < 0 || static_cast<WN_SIZE_T>(printed) >= _bufferLeft) {
-                return(WN_FALSE);
+            if(printed < 0 || static_cast<wn_size_t>(printed) >= _bufferLeft) {
+                return(wn_false);
             }
             _bufferLeft -= printed;
-            return(WN_TRUE);
+            return(wn_true);
         }
     };
 
     template<typename T, typename BuffType>
-    WN_FORCE_INLINE WN_BOOL LogType(const T&_0, BuffType* _buffer, WN_SIZE_T& _bufferLeft) {
+    WN_FORCE_INLINE wn_bool LogType(const T&_0, BuffType* _buffer, wn_size_t& _bufferLeft) {
         return(LogTypeHelper<T, BuffType>::DoLog(_0, _buffer, _bufferLeft));
     }
-	
+
     class WNLogParams {
     public:
         virtual WNLogLevel GetDefaultLogLevel() const = 0;
-        virtual WN_SIZE_T GetBufferSize() const = 0;
-        virtual WN_BOOL   FlushAfterMessage() const = 0;
+        virtual wn_size_t GetBufferSize() const = 0;
+        virtual wn_bool   FlushAfterMessage() const = 0;
     };
 
-    template<WNLogLevel lvl = eError, WN_SIZE_T size = 1024, WN_BOOL flush=WN_FALSE>
+    template<WNLogLevel lvl = eError, wn_size_t size = 1024, wn_bool flush=wn_false>
     class WNDefaultLogParameters : public WNLogParams {
     public:
         virtual WNLogLevel GetDefaultLogLevel() const {
-            return(lvl);  
+            return(lvl);
         }
-        virtual WN_SIZE_T GetBufferSize() const {
+        virtual wn_size_t GetBufferSize() const {
             return(size);
         }
-        virtual WN_BOOL   FlushAfterMessage() const {
+        virtual wn_bool   FlushAfterMessage() const {
             return(flush);
         }
     };
-   
+
     class WNLogElem {
         friend class WNLog;
         enum WNLogAmount {
@@ -101,55 +101,55 @@ namespace WNLogging {
             eWNTRUE
         };
     };
-    
+
     class WNLog {
     public:
         WNLog(WNLogger* logger, const WNLogParams& params = WNDefaultLogParameters<>()) : mLogger(logger) {
             mBufferSize = params.GetBufferSize();
             mBufferLeft = mBufferSize;
             mCurrentLogLevel = params.GetDefaultLogLevel();
-            mLogBuffer = static_cast<WN_CHAR*>(malloc(mBufferSize));
+            mLogBuffer = static_cast<wn_char*>(malloc(mBufferSize));
             mFlushAfterMessage = params.FlushAfterMessage();
         }
 
         ~WNLog() { Flush(); }
-        WN_FORCE_INLINE WN_VOID SetLogLevel(WNLogLevel _level) { mCurrentLogLevel = _level; }
-        WN_FORCE_INLINE WN_VOID Flush();
-        WN_FORCE_INLINE WN_VOID FlushExternal(const WN_CHAR* _buffer, WN_SIZE_T _bufferSize, const std::vector<WNLogColorElement>& mColors);
+        WN_FORCE_INLINE wn_void SetLogLevel(WNLogLevel _level) { mCurrentLogLevel = _level; }
+        WN_FORCE_INLINE wn_void Flush();
+        WN_FORCE_INLINE wn_void FlushExternal(const wn_char* _buffer, wn_size_t _bufferSize, const std::vector<WNLogColorElement>& mColors);
 
         template<LTM(0)>
-        WN_FORCE_INLINE WN_VOID Log(WNLogLevel, WN_SIZE_T, LVM(0));
+        WN_FORCE_INLINE wn_void Log(WNLogLevel, wn_size_t, LVM(0));
         template<LTM(0), LTM(1)>
-        WN_FORCE_INLINE WN_VOID Log(WNLogLevel, WN_SIZE_T, LVM(0), LVM(1));
+        WN_FORCE_INLINE wn_void Log(WNLogLevel, wn_size_t, LVM(0), LVM(1));
         template<LTM(0), LTM(1), LTM(2)>
-        WN_FORCE_INLINE WN_VOID Log(WNLogLevel, WN_SIZE_T, LVM(0), LVM(1), LVM(2));
+        WN_FORCE_INLINE wn_void Log(WNLogLevel, wn_size_t, LVM(0), LVM(1), LVM(2));
         template<LTM(0), LTM(1), LTM(2), LTM(3)>
-        WN_FORCE_INLINE WN_VOID Log(WNLogLevel, WN_SIZE_T, LVM(0), LVM(1), LVM(2), LVM(3));
+        WN_FORCE_INLINE wn_void Log(WNLogLevel, wn_size_t, LVM(0), LVM(1), LVM(2), LVM(3));
         template<LTM(0), LTM(1), LTM(2), LTM(3), LTM(4)>
-        WN_FORCE_INLINE WN_VOID Log(WNLogLevel, WN_SIZE_T, LVM(0), LVM(1), LVM(2), LVM(3), LVM(4));
+        WN_FORCE_INLINE wn_void Log(WNLogLevel, wn_size_t, LVM(0), LVM(1), LVM(2), LVM(3), LVM(4));
         template<LTM(0), LTM(1), LTM(2), LTM(3), LTM(4), LTM(5)>
-        WN_FORCE_INLINE WN_VOID Log(WNLogLevel, WN_SIZE_T, LVM(0), LVM(1), LVM(2), LVM(3), LVM(4), LVM(5));
+        WN_FORCE_INLINE wn_void Log(WNLogLevel, wn_size_t, LVM(0), LVM(1), LVM(2), LVM(3), LVM(4), LVM(5));
         template<LTM(0), LTM(1), LTM(2), LTM(3), LTM(4), LTM(5), LTM(6)>
-        WN_FORCE_INLINE WN_VOID Log(WNLogLevel, WN_SIZE_T, LVM(0), LVM(1), LVM(2), LVM(3), LVM(4), LVM(5), LVM(6));
+        WN_FORCE_INLINE wn_void Log(WNLogLevel, wn_size_t, LVM(0), LVM(1), LVM(2), LVM(3), LVM(4), LVM(5), LVM(6));
         template<LTM(0), LTM(1), LTM(2), LTM(3), LTM(4), LTM(5), LTM(6), LTM(7)>
-        WN_FORCE_INLINE WN_VOID Log(WNLogLevel, WN_SIZE_T, LVM(0), LVM(1), LVM(2), LVM(3), LVM(4), LVM(5), LVM(6), LVM(7));
+        WN_FORCE_INLINE wn_void Log(WNLogLevel, wn_size_t, LVM(0), LVM(1), LVM(2), LVM(3), LVM(4), LVM(5), LVM(6), LVM(7));
         template<LTM(0), LTM(1), LTM(2), LTM(3), LTM(4), LTM(5), LTM(6), LTM(7), LTM(8)>
-        WN_FORCE_INLINE WN_VOID Log(WNLogLevel, WN_SIZE_T, LVM(0), LVM(1), LVM(2), LVM(3), LVM(4), LVM(5), LVM(6), LVM(7), LVM(8));
+        WN_FORCE_INLINE wn_void Log(WNLogLevel, wn_size_t, LVM(0), LVM(1), LVM(2), LVM(3), LVM(4), LVM(5), LVM(6), LVM(7), LVM(8));
         template<LTM(0), LTM(1), LTM(2), LTM(3), LTM(4), LTM(5), LTM(6), LTM(7), LTM(8), LTM(9)>
-        WN_FORCE_INLINE WN_VOID Log(WNLogLevel, WN_SIZE_T, LVM(0), LVM(1), LVM(2), LVM(3), LVM(4), LVM(5), LVM(6), LVM(7), LVM(8), LVM(9));
+        WN_FORCE_INLINE wn_void Log(WNLogLevel, wn_size_t, LVM(0), LVM(1), LVM(2), LVM(3), LVM(4), LVM(5), LVM(6), LVM(7), LVM(8), LVM(9));
     private:
         WNLog& operator=(const WNLog& _other); // dont want an assignment
-        WN_FORCE_INLINE WN_VOID LogHeader(WNLogLevel);
-        WN_FORCE_INLINE WN_VOID LogNewline();
-        template<typename T0> WN_VOID LogParam(const T0& _val);
+        WN_FORCE_INLINE wn_void LogHeader(WNLogLevel);
+        WN_FORCE_INLINE wn_void LogNewline();
+        template<typename T0> wn_void LogParam(const T0& _val);
 
         WNLogger* mLogger;
-        WN_CHAR* mLogBuffer;
-        WN_SIZE_T mBufferLeft;
-        WN_SIZE_T mBufferSize;
+        wn_char* mLogBuffer;
+        wn_size_t mBufferLeft;
+        wn_size_t mBufferSize;
         std::vector<WNLogColorElement> mColorElements;
-        WN_SIZE_T mCurrentLogLevel;
-        WN_BOOL mFlushAfterMessage;
+        wn_size_t mCurrentLogLevel;
+        wn_bool mFlushAfterMessage;
     };
 }
 #include "WNLogging/inc/WNLog.inl"

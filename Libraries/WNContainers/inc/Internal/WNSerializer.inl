@@ -20,61 +20,65 @@
 #include "WNContainers/inc/WNSerializer.h"
 
 namespace WNContainers {
-    template <typename Type>
-    WN_FORCE_INLINE WN_SIZE_T WNSerializer<Type>::Serialize(WNDataBuffer& _dataBuffer, const WN_UINT32 _serializeFlags) const {
-        WN_UNUSED_ARG(_serializeFlags);
+    template <typename type>
+    WN_FORCE_INLINE wn_size_t WNSerializer<type>::Serialize(WNDataBuffer& _dataBuffer, const wn_uint32 _serializeFlags) const {
+        WN_UNUSED_ARGUMENT(_serializeFlags);
 
-        WN_STATIC_ASSERT_DESC(WN_STATIC_ASSERT_DEPENDENT_FAIL<Type>::Value, "This type has no associated serializer");
+        static_assert(WN_STATIC_ASSERT_DEPENDENT_FAIL<type>::Value, "This type has no associated serializer");
     }
 
-    WN_FORCE_INLINE WNSerializer<WN_UINT8>::WNSerializer(WN_UINT8& _item) :
+    WN_FORCE_INLINE WNSerializer<wn_uint8>::WNSerializer(wn_uint8& _item) :
         mNumber(_item) {
     }
 
-    WN_FORCE_INLINE WN_SIZE_T WNSerializer<WN_UINT8>::Serialize(WNDataBuffer& _dataBuffer, const WN_UINT32 _serializeFlags) const {
-        WN_UNUSED_ARG(_serializeFlags);
+    WN_FORCE_INLINE wn_size_t WNSerializer<wn_uint8>::Serialize(WNDataBuffer& _dataBuffer, const wn_uint32 _serializeFlags) const {
+        WN_UNUSED_ARGUMENT(_serializeFlags);
 
         switch(_dataBuffer.GetType()) {
             case eWNReadBinary: {
-                WN_SIZE_T returnedBytes = 0;
-                WN_SIZE_T totalBytes = 0;
+                wn_size_t returnedBytes = 0;
+                wn_size_t totalBytes = 0;
                 do{
-                    const WN_CHAR* location = _dataBuffer.ReserveBytes(sizeof(WN_UINT8) - totalBytes, returnedBytes);
-                    WNMemory::WNMemCpy(reinterpret_cast<WN_UINT8*>(&mNumber) + totalBytes, location, returnedBytes);
-                    totalBytes += returnedBytes;
-                } while(totalBytes < sizeof(WN_UINT8));
+                    const wn_char* location = _dataBuffer.ReserveBytes(sizeof(wn_uint8) - totalBytes, returnedBytes);
 
-                return(sizeof(WN_UINT8));
+                    wn::memory::memcpy(reinterpret_cast<wn_uint8*>(&mNumber) + totalBytes, location, returnedBytes);
+
+                    totalBytes += returnedBytes;
+                } while(totalBytes < sizeof(wn_uint8));
+
+                return(sizeof(wn_uint8));
             }
             case eWNWriteBinary: {
-                WN_SIZE_T returnedBytes = 0;
-                WN_SIZE_T totalBytes = 0;
+                wn_size_t returnedBytes = 0;
+                wn_size_t totalBytes = 0;
                 do {
-                    WN_CHAR* location = _dataBuffer.ReserveBytes(sizeof(WN_UINT8) - totalBytes, returnedBytes);
-                    WNMemory::WNMemCpy(location, reinterpret_cast<WN_UINT8*>(&mNumber) + totalBytes, returnedBytes);
+                    wn_char* location = _dataBuffer.ReserveBytes(sizeof(wn_uint8) - totalBytes, returnedBytes);
+                    wn::memory::memcpy(location, reinterpret_cast<wn_uint8*>(&mNumber) + totalBytes, returnedBytes);
                     totalBytes += returnedBytes;
-                } while(totalBytes < sizeof(WN_UINT8));
+                } while(totalBytes < sizeof(wn_uint8));
 
-                return(sizeof(WN_UINT8));
+                return(sizeof(wn_uint8));
             }
             case eWNReadText: {
-                WN_CHAR tempBuffer[4];
-                WN_SIZE_T returnedBytes = 0;
-                WN_SIZE_T totalBytes = 0;
-                WN_SIZE_T countFails = 0;
+                wn_char tempBuffer[4];
+                wn_size_t returnedBytes = 0;
+                wn_size_t totalBytes = 0;
+                wn_size_t countFails = 0;
 
                 do {
                     countFails++;
-                    WN_CHAR* location = _dataBuffer.ReserveBytes(4 - totalBytes, returnedBytes);
-                    WNMemory::WNMemCpy(reinterpret_cast<WN_UINT8*>(&tempBuffer) + totalBytes, location, returnedBytes);
+                    wn_char* location = _dataBuffer.ReserveBytes(4 - totalBytes, returnedBytes);
+
+                    wn::memory::memcpy(reinterpret_cast<wn_uint8*>(&tempBuffer) + totalBytes, location, returnedBytes);
+
                     totalBytes += returnedBytes;
                     if(countFails > 1) {
                         break;
                     }
                 } while(totalBytes < 4);
 
-                WN_UINT32 number;
-                WN_SIZE_T outSize = WNStrings::WNReadUInt32(tempBuffer, number, totalBytes - 1);
+                wn_uint32 number;
+                wn_size_t outSize = WNStrings::WNReadUInt32(tempBuffer, number, totalBytes - 1);
 
                 mNumber = number & 0xFF;
                 outSize += 1; //consume the space that is supposed to be there
@@ -82,15 +86,15 @@ namespace WNContainers {
                 return(outSize);
             }
             case eWNWriteText: {
-                WN_CHAR tempBuffer[4];
-                WN_SIZE_T outSize = WNStrings::WNWriteUInt32(tempBuffer, mNumber, 3);
+                wn_char tempBuffer[4];
+                wn_size_t outSize = WNStrings::WNWriteUInt32(tempBuffer, mNumber, 3);
                 tempBuffer[outSize++] = ' ';
 
-                WN_SIZE_T returnedBytes = 0;
-                WN_SIZE_T totalBytes = 0;
+                wn_size_t returnedBytes = 0;
+                wn_size_t totalBytes = 0;
                  do {
-                    WN_CHAR* location = _dataBuffer.ReserveBytes(outSize - totalBytes, returnedBytes);
-                    WNMemory::WNMemCpy(location, reinterpret_cast<WN_UINT8*>(&tempBuffer) + totalBytes, returnedBytes);
+                    wn_char* location = _dataBuffer.ReserveBytes(outSize - totalBytes, returnedBytes);
+                    wn::memory::memcpy(location, reinterpret_cast<wn_uint8*>(&tempBuffer) + totalBytes, returnedBytes);
                     totalBytes += returnedBytes;
                 } while(totalBytes < outSize);
 
@@ -101,70 +105,70 @@ namespace WNContainers {
         return(0);
     }
 
-    WN_FORCE_INLINE WNSerializer<WN_INT32>::WNSerializer(WN_INT32& _item) :
+    WN_FORCE_INLINE WNSerializer<wn_int32>::WNSerializer(wn_int32& _item) :
         mNumber(_item) {
     }
 
-    WN_FORCE_INLINE WN_SIZE_T WNSerializer<WN_INT32>::Serialize(WNDataBuffer& _dataBuffer, const WN_UINT32 _serializeFlags) const {
-        WN_UNUSED_ARG(_serializeFlags);
+    WN_FORCE_INLINE wn_size_t WNSerializer<wn_int32>::Serialize(WNDataBuffer& _dataBuffer, const wn_uint32 _serializeFlags) const {
+        WN_UNUSED_ARGUMENT(_serializeFlags);
 
         switch(_dataBuffer.GetType()) {
             case eWNReadBinary: {
-                WN_SIZE_T returnedBytes = 0;
-                WN_SIZE_T totalBytes = 0;
+                wn_size_t returnedBytes = 0;
+                wn_size_t totalBytes = 0;
                 do{
-                    const WN_CHAR* location = _dataBuffer.ReserveBytes(sizeof(WN_INT32) - totalBytes, returnedBytes);
-                    WNMemory::WNMemCpy(reinterpret_cast<WN_UINT8*>(&mNumber) + totalBytes, location, returnedBytes);
+                    const wn_char* location = _dataBuffer.ReserveBytes(sizeof(wn_int32) - totalBytes, returnedBytes);
+                    wn::memory::memcpy(reinterpret_cast<wn_uint8*>(&mNumber) + totalBytes, location, returnedBytes);
                     totalBytes += returnedBytes;
-                } while(totalBytes < sizeof(WN_INT32));
+                } while(totalBytes < sizeof(wn_int32));
 
                 WNCore::WNFromBigEndian(mNumber);
 
-                return(sizeof(WN_INT32));
+                return(sizeof(wn_int32));
             }
             case eWNWriteBinary: {
-                WN_INT32 number = mNumber;
+                wn_int32 number = mNumber;
                 WNCore::WNToBigEndian(number);
-                WN_SIZE_T returnedBytes = 0;
-                WN_SIZE_T totalBytes = 0;
+                wn_size_t returnedBytes = 0;
+                wn_size_t totalBytes = 0;
                 do {
-                    WN_CHAR* location = _dataBuffer.ReserveBytes(sizeof(WN_INT32) - totalBytes, returnedBytes);
-                    WNMemory::WNMemCpy(location, reinterpret_cast<WN_UINT8*>(&number) + totalBytes, returnedBytes);
+                    wn_char* location = _dataBuffer.ReserveBytes(sizeof(wn_int32) - totalBytes, returnedBytes);
+                    wn::memory::memcpy(location, reinterpret_cast<wn_uint8*>(&number) + totalBytes, returnedBytes);
                     totalBytes += returnedBytes;
-                } while(totalBytes < sizeof(WN_INT32));
-                return(sizeof(WN_INT32));
+                } while(totalBytes < sizeof(wn_int32));
+                return(sizeof(wn_int32));
             }
             case eWNReadText: {
-                WN_CHAR tempBuffer[16];
-                WN_SIZE_T returnedBytes = 0;
-                WN_SIZE_T totalBytes = 0;
-                WN_SIZE_T countFails = 0;
+                wn_char tempBuffer[16];
+                wn_size_t returnedBytes = 0;
+                wn_size_t totalBytes = 0;
+                wn_size_t countFails = 0;
 
                 do {
                     countFails++;
-                    WN_CHAR* location = _dataBuffer.ReserveBytes(16 - totalBytes, returnedBytes);
-                    WNMemory::WNMemCpy(reinterpret_cast<WN_UINT8*>(&tempBuffer) + totalBytes, location, returnedBytes);
+                    wn_char* location = _dataBuffer.ReserveBytes(16 - totalBytes, returnedBytes);
+                    wn::memory::memcpy(reinterpret_cast<wn_uint8*>(&tempBuffer) + totalBytes, location, returnedBytes);
                     totalBytes += returnedBytes;
                     if(countFails > 1) {
                         break;
                     }
                 } while(totalBytes < 4);
 
-                WN_SIZE_T outSize = WNStrings::WNReadInt32(tempBuffer, mNumber, totalBytes - 1);
+                wn_size_t outSize = WNStrings::WNReadInt32(tempBuffer, mNumber, totalBytes - 1);
                 outSize += 1; //consume the space that is supposed to be there
 
                 return(outSize);
             }
             case eWNWriteText: {
-                WN_CHAR tempBuffer[17];
-                WN_SIZE_T outSize = WNStrings::WNWriteInt32(tempBuffer, mNumber, 16);
+                wn_char tempBuffer[17];
+                wn_size_t outSize = WNStrings::WNWriteInt32(tempBuffer, mNumber, 16);
                 tempBuffer[outSize++] = ' ';
 
-                WN_SIZE_T returnedBytes = 0;
-                WN_SIZE_T totalBytes = 0;
+                wn_size_t returnedBytes = 0;
+                wn_size_t totalBytes = 0;
                 do {
-                    WN_CHAR* location = _dataBuffer.ReserveBytes(outSize - totalBytes, returnedBytes);
-                    WNMemory::WNMemCpy(location, reinterpret_cast<WN_UINT8*>(&tempBuffer) + totalBytes, returnedBytes);
+                    wn_char* location = _dataBuffer.ReserveBytes(outSize - totalBytes, returnedBytes);
+                    wn::memory::memcpy(location, reinterpret_cast<wn_uint8*>(&tempBuffer) + totalBytes, returnedBytes);
                     totalBytes += returnedBytes;
                 } while(totalBytes < outSize);
 
@@ -175,69 +179,69 @@ namespace WNContainers {
         return(0);
     }
 
-    WN_FORCE_INLINE WNSerializer<WN_UINT32>::WNSerializer(WN_UINT32& _item) :
+    WN_FORCE_INLINE WNSerializer<wn_uint32>::WNSerializer(wn_uint32& _item) :
         mNumber(_item) {
     }
 
-    WN_FORCE_INLINE WN_SIZE_T WNSerializer<WN_UINT32>::Serialize(WNDataBuffer& _dataBuffer, const WN_UINT32 _serializeFlags) const {
-        WN_UNUSED_ARG(_serializeFlags);
+    WN_FORCE_INLINE wn_size_t WNSerializer<wn_uint32>::Serialize(WNDataBuffer& _dataBuffer, const wn_uint32 _serializeFlags) const {
+        WN_UNUSED_ARGUMENT(_serializeFlags);
 
         switch(_dataBuffer.GetType()) {
             case eWNReadBinary: {
-                WN_SIZE_T returnedBytes = 0;
-                WN_SIZE_T totalBytes = 0;
+                wn_size_t returnedBytes = 0;
+                wn_size_t totalBytes = 0;
                 do{
-                    const WN_CHAR* location = _dataBuffer.ReserveBytes(sizeof(WN_UINT32) - totalBytes, returnedBytes);
-                    WNMemory::WNMemCpy(reinterpret_cast<WN_UINT8*>(&mNumber) + totalBytes, location, returnedBytes);
+                    const wn_char* location = _dataBuffer.ReserveBytes(sizeof(wn_uint32) - totalBytes, returnedBytes);
+                    wn::memory::memcpy(reinterpret_cast<wn_uint8*>(&mNumber) + totalBytes, location, returnedBytes);
                     totalBytes += returnedBytes;
-                } while(totalBytes < sizeof(WN_UINT32));
+                } while(totalBytes < sizeof(wn_uint32));
 
                 WNCore::WNFromBigEndian(mNumber);
 
-                return(sizeof(WN_UINT32));
+                return(sizeof(wn_uint32));
             }
             case eWNWriteBinary: {
-                WN_UINT32 number = mNumber;
+                wn_uint32 number = mNumber;
                 WNCore::WNToBigEndian(number);
-                WN_SIZE_T returnedBytes = 0;
-                WN_SIZE_T totalBytes = 0;
+                wn_size_t returnedBytes = 0;
+                wn_size_t totalBytes = 0;
                 do {
-                    WN_CHAR* location = _dataBuffer.ReserveBytes(sizeof(WN_UINT32) - totalBytes, returnedBytes);
-                    WNMemory::WNMemCpy(location, reinterpret_cast<WN_UINT8*>(&number) + totalBytes, returnedBytes);
+                    wn_char* location = _dataBuffer.ReserveBytes(sizeof(wn_uint32) - totalBytes, returnedBytes);
+                    wn::memory::memcpy(location, reinterpret_cast<wn_uint8*>(&number) + totalBytes, returnedBytes);
                     totalBytes += returnedBytes;
-                } while(totalBytes < sizeof(WN_UINT32));
-                return(sizeof(WN_UINT32));
+                } while(totalBytes < sizeof(wn_uint32));
+                return(sizeof(wn_uint32));
             }
             case eWNReadText: {
-                WN_CHAR tempBuffer[16];
-                WN_SIZE_T returnedBytes = 0;
-                WN_SIZE_T totalBytes = 0;
-                WN_SIZE_T countFails = 0;
+                wn_char tempBuffer[16];
+                wn_size_t returnedBytes = 0;
+                wn_size_t totalBytes = 0;
+                wn_size_t countFails = 0;
 
                 do {
                     countFails++;
-                    WN_CHAR* location = _dataBuffer.ReserveBytes(16 - totalBytes, returnedBytes);
-                    WNMemory::WNMemCpy(reinterpret_cast<WN_UINT8*>(tempBuffer) + totalBytes, location, returnedBytes);
+                    wn_char* location = _dataBuffer.ReserveBytes(16 - totalBytes, returnedBytes);
+                    wn::memory::memcpy(reinterpret_cast<wn_uint8*>(tempBuffer)+totalBytes, location, returnedBytes);
                     totalBytes += returnedBytes;
                     if(countFails > 1) {
                         break;
                     }
                 } while(totalBytes < 16);
 
-                WN_SIZE_T outSize = WNStrings::WNReadUInt32(tempBuffer, mNumber, totalBytes - 1);
+                wn_size_t outSize = WNStrings::WNReadUInt32(tempBuffer, mNumber, totalBytes - 1);
                 outSize += 1; //consume the space that is supposed to be there
                 return(outSize);
             }
             case eWNWriteText: {
-                WN_CHAR tempBuffer[17];
-                WN_SIZE_T outSize = WNStrings::WNWriteUInt32(tempBuffer, mNumber, 16);
+                wn_char tempBuffer[17];
+                wn_size_t outSize = WNStrings::WNWriteUInt32(tempBuffer, mNumber, 16);
                 tempBuffer[outSize++] = ' ';
 
-                WN_SIZE_T returnedBytes = 0;
-                WN_SIZE_T totalBytes = 0;
+                wn_size_t returnedBytes = 0;
+                wn_size_t totalBytes = 0;
                 do {
-                    WN_CHAR* location = _dataBuffer.ReserveBytes(outSize - totalBytes, returnedBytes);
-                    WNMemory::WNMemCpy(location, reinterpret_cast<WN_UINT8*>(&tempBuffer) + totalBytes, returnedBytes);
+                    wn_char* location = _dataBuffer.ReserveBytes(outSize - totalBytes, returnedBytes);
+                    wn::memory::memcpy(location, reinterpret_cast<wn_uint8*>(&tempBuffer) + totalBytes, returnedBytes);
                     totalBytes += returnedBytes;
                 } while(totalBytes < outSize);
 
@@ -248,69 +252,69 @@ namespace WNContainers {
         return(0);
     }
 
-    WN_FORCE_INLINE WNSerializer<WN_INT64>::WNSerializer(WN_INT64& _item) :
+    WN_FORCE_INLINE WNSerializer<wn_int64>::WNSerializer(wn_int64& _item) :
         mNumber(_item) {
     }
 
-    WN_FORCE_INLINE WN_SIZE_T WNSerializer<WN_INT64>::Serialize(WNDataBuffer& _dataBuffer, const WN_UINT32 _serializeFlags) const {
-        WN_UNUSED_ARG(_serializeFlags);
+    WN_FORCE_INLINE wn_size_t WNSerializer<wn_int64>::Serialize(WNDataBuffer& _dataBuffer, const wn_uint32 _serializeFlags) const {
+        WN_UNUSED_ARGUMENT(_serializeFlags);
 
         switch(_dataBuffer.GetType()) {
             case eWNReadBinary: {
-                WN_SIZE_T returnedBytes = 0;
-                WN_SIZE_T totalBytes = 0;
+                wn_size_t returnedBytes = 0;
+                wn_size_t totalBytes = 0;
                 do{
-                    const WN_CHAR* location = _dataBuffer.ReserveBytes(sizeof(WN_INT64) - totalBytes, returnedBytes);
-                    WNMemory::WNMemCpy(reinterpret_cast<WN_UINT8*>(&mNumber) + totalBytes, location, returnedBytes);
+                    const wn_char* location = _dataBuffer.ReserveBytes(sizeof(wn_int64) - totalBytes, returnedBytes);
+                    wn::memory::memcpy(reinterpret_cast<wn_uint8*>(&mNumber) + totalBytes, location, returnedBytes);
                     totalBytes += returnedBytes;
-                } while(totalBytes < sizeof(WN_INT64));
+                } while(totalBytes < sizeof(wn_int64));
 
                 WNCore::WNFromBigEndian(mNumber);
 
-                return(sizeof(WN_INT64));
+                return(sizeof(wn_int64));
             }
             case eWNWriteBinary: {
-                WN_INT64 number = mNumber;
+                wn_int64 number = mNumber;
                 WNCore::WNToBigEndian(number);
-                WN_SIZE_T returnedBytes = 0;
-                WN_SIZE_T totalBytes = 0;
+                wn_size_t returnedBytes = 0;
+                wn_size_t totalBytes = 0;
                 do {
-                    WN_CHAR* location = _dataBuffer.ReserveBytes(sizeof(WN_INT64) - totalBytes, returnedBytes);
-                    WNMemory::WNMemCpy(location, reinterpret_cast<WN_UINT8*>(&number) + totalBytes, returnedBytes);
+                    wn_char* location = _dataBuffer.ReserveBytes(sizeof(wn_int64) - totalBytes, returnedBytes);
+                    wn::memory::memcpy(location, reinterpret_cast<wn_uint8*>(&number) + totalBytes, returnedBytes);
                     totalBytes += returnedBytes;
-                } while(totalBytes < sizeof(WN_INT64));
-                return(sizeof(WN_INT64));
+                } while(totalBytes < sizeof(wn_int64));
+                return(sizeof(wn_int64));
             }
             case eWNReadText: {
-                WN_CHAR tempBuffer[23];
-                WN_SIZE_T returnedBytes = 0;
-                WN_SIZE_T totalBytes = 0;
-                WN_SIZE_T countFails = 0;
+                wn_char tempBuffer[23];
+                wn_size_t returnedBytes = 0;
+                wn_size_t totalBytes = 0;
+                wn_size_t countFails = 0;
 
                 do {
                     countFails++;
-                    WN_CHAR* location = _dataBuffer.ReserveBytes(23 - totalBytes, returnedBytes);
-                    WNMemory::WNMemCpy(reinterpret_cast<WN_UINT8*>(tempBuffer) + totalBytes, location, returnedBytes);
+                    wn_char* location = _dataBuffer.ReserveBytes(23 - totalBytes, returnedBytes);
+                    wn::memory::memcpy(reinterpret_cast<wn_uint8*>(tempBuffer)+totalBytes, location, returnedBytes);
                     totalBytes += returnedBytes;
                     if(countFails > 1) {
                         break;
                     }
                 } while(totalBytes < 23);
 
-                WN_SIZE_T outSize = WNStrings::WNReadInt64(tempBuffer, mNumber, totalBytes - 1);
+                wn_size_t outSize = WNStrings::WNReadInt64(tempBuffer, mNumber, totalBytes - 1);
                 outSize += 1; //consume the space that is supposed to be there
                 return(outSize);
             }
             case eWNWriteText: {
-                WN_CHAR tempBuffer[24];
-                WN_SIZE_T outSize = WNStrings::WNWriteInt64(tempBuffer, mNumber, 23);
+                wn_char tempBuffer[24];
+                wn_size_t outSize = WNStrings::WNWriteInt64(tempBuffer, mNumber, 23);
                 tempBuffer[outSize++] = ' ';
 
-                WN_SIZE_T returnedBytes = 0;
-                WN_SIZE_T totalBytes = 0;
+                wn_size_t returnedBytes = 0;
+                wn_size_t totalBytes = 0;
                 do {
-                    WN_CHAR* location = _dataBuffer.ReserveBytes(outSize - totalBytes, returnedBytes);
-                    WNMemory::WNMemCpy(location, reinterpret_cast<WN_UINT8*>(&tempBuffer) + totalBytes, returnedBytes);
+                    wn_char* location = _dataBuffer.ReserveBytes(outSize - totalBytes, returnedBytes);
+                    wn::memory::memcpy(location, reinterpret_cast<wn_uint8*>(&tempBuffer) + totalBytes, returnedBytes);
                     totalBytes += returnedBytes;
                 } while(totalBytes < outSize);
 
@@ -321,69 +325,69 @@ namespace WNContainers {
         return(0);
     }
 
-    WN_FORCE_INLINE WNSerializer<WN_UINT64>::WNSerializer(WN_UINT64& _item) :
+    WN_FORCE_INLINE WNSerializer<wn_uint64>::WNSerializer(wn_uint64& _item) :
         mNumber(_item) {
     }
 
-    WN_FORCE_INLINE WN_SIZE_T WNSerializer<WN_UINT64>::Serialize(WNDataBuffer& _dataBuffer, const WN_UINT32 _serializeFlags) const {
-        WN_UNUSED_ARG(_serializeFlags);
+    WN_FORCE_INLINE wn_size_t WNSerializer<wn_uint64>::Serialize(WNDataBuffer& _dataBuffer, const wn_uint32 _serializeFlags) const {
+        WN_UNUSED_ARGUMENT(_serializeFlags);
 
         switch(_dataBuffer.GetType()) {
             case eWNReadBinary: {
-                WN_SIZE_T returnedBytes = 0;
-                WN_SIZE_T totalBytes = 0;
+                wn_size_t returnedBytes = 0;
+                wn_size_t totalBytes = 0;
                 do{
-                    const WN_CHAR* location = _dataBuffer.ReserveBytes(sizeof(WN_UINT64) - totalBytes, returnedBytes);
-                    WNMemory::WNMemCpy(reinterpret_cast<WN_UINT8*>(&mNumber) + totalBytes, location, returnedBytes);
+                    const wn_char* location = _dataBuffer.ReserveBytes(sizeof(wn_uint64) - totalBytes, returnedBytes);
+                    wn::memory::memcpy(reinterpret_cast<wn_uint8*>(&mNumber) + totalBytes, location, returnedBytes);
                     totalBytes += returnedBytes;
-                } while(totalBytes < sizeof(WN_UINT64));
+                } while(totalBytes < sizeof(wn_uint64));
 
                 WNCore::WNFromBigEndian(mNumber);
 
-                return(sizeof(WN_UINT64));
+                return(sizeof(wn_uint64));
             }
             case eWNWriteBinary: {
-                WN_UINT64 number = mNumber;
+                wn_uint64 number = mNumber;
                 WNCore::WNToBigEndian(number);
-                WN_SIZE_T returnedBytes = 0;
-                WN_SIZE_T totalBytes = 0;
+                wn_size_t returnedBytes = 0;
+                wn_size_t totalBytes = 0;
                 do {
-                    WN_CHAR* location = _dataBuffer.ReserveBytes(sizeof(WN_UINT64) - totalBytes, returnedBytes);
-                    WNMemory::WNMemCpy(location, reinterpret_cast<WN_UINT8*>(&number) + totalBytes, returnedBytes);
+                    wn_char* location = _dataBuffer.ReserveBytes(sizeof(wn_uint64) - totalBytes, returnedBytes);
+                    wn::memory::memcpy(location, reinterpret_cast<wn_uint8*>(&number) + totalBytes, returnedBytes);
                     totalBytes += returnedBytes;
-                } while(totalBytes < sizeof(WN_UINT64));
-                return(sizeof(WN_UINT64));
+                } while(totalBytes < sizeof(wn_uint64));
+                return(sizeof(wn_uint64));
             }
             case eWNReadText: {
-                WN_CHAR tempBuffer[23];
-                WN_SIZE_T returnedBytes = 0;
-                WN_SIZE_T totalBytes = 0;
-                WN_SIZE_T countFails = 0;
+                wn_char tempBuffer[23];
+                wn_size_t returnedBytes = 0;
+                wn_size_t totalBytes = 0;
+                wn_size_t countFails = 0;
 
                 do {
                     countFails++;
-                    WN_CHAR* location = _dataBuffer.ReserveBytes(23 - totalBytes, returnedBytes);
-                    WNMemory::WNMemCpy(reinterpret_cast<WN_UINT8*>(tempBuffer) + totalBytes, location, returnedBytes);
+                    wn_char* location = _dataBuffer.ReserveBytes(23 - totalBytes, returnedBytes);
+                    wn::memory::memcpy(reinterpret_cast<wn_uint8*>(tempBuffer)+totalBytes, location, returnedBytes);
                     totalBytes += returnedBytes;
                     if(countFails > 1) {
                         break;
                     }
                 } while(totalBytes < 23);
 
-                WN_SIZE_T outSize = WNStrings::WNReadUInt64(tempBuffer, mNumber, totalBytes - 1);
+                wn_size_t outSize = WNStrings::WNReadUInt64(tempBuffer, mNumber, totalBytes - 1);
                 outSize += 1; //consume the space that is supposed to be there
                 return(outSize);
             }
             case eWNWriteText: {
-                WN_CHAR tempBuffer[24];
-                WN_SIZE_T outSize = WNStrings::WNWriteUInt64(tempBuffer, mNumber, 23);
+                wn_char tempBuffer[24];
+                wn_size_t outSize = WNStrings::WNWriteUInt64(tempBuffer, mNumber, 23);
                 tempBuffer[outSize++] = ' ';
 
-                WN_SIZE_T returnedBytes = 0;
-                WN_SIZE_T totalBytes = 0;
+                wn_size_t returnedBytes = 0;
+                wn_size_t totalBytes = 0;
                 do {
-                    WN_CHAR* location = _dataBuffer.ReserveBytes(outSize - totalBytes, returnedBytes);
-                    WNMemory::WNMemCpy(location, reinterpret_cast<WN_UINT8*>(&tempBuffer) + totalBytes, returnedBytes);
+                    wn_char* location = _dataBuffer.ReserveBytes(outSize - totalBytes, returnedBytes);
+                    wn::memory::memcpy(location, reinterpret_cast<wn_uint8*>(&tempBuffer) + totalBytes, returnedBytes);
                     totalBytes += returnedBytes;
                 } while(totalBytes < outSize);
 
@@ -394,34 +398,34 @@ namespace WNContainers {
         return(0);
     }
 
-    WN_FORCE_INLINE WNSerializer<WN_CHAR*>::WNSerializer(WN_CHAR*& _item, WN_SIZE_T _length) :
+    WN_FORCE_INLINE WNSerializer<wn_char*>::WNSerializer(wn_char*& _item, wn_size_t _length) :
         mString(_item),
         mLength(_length) {
     }
 
-    WN_FORCE_INLINE WN_SIZE_T WNSerializer<WN_CHAR*>::Serialize(WNDataBuffer& _dataBuffer, const WN_UINT32 _serializeFlags) const {
-        WN_UNUSED_ARG(_serializeFlags);
+    WN_FORCE_INLINE wn_size_t WNSerializer<wn_char*>::Serialize(WNDataBuffer& _dataBuffer, const wn_uint32 _serializeFlags) const {
+        WN_UNUSED_ARGUMENT(_serializeFlags);
 
         switch(_dataBuffer.GetType()) {
             case eWNReadBinary:
             case eWNReadText: {
-                WN_SIZE_T returnedBytes = 0;
-                WN_SIZE_T totalBytes = 0;
+                wn_size_t returnedBytes = 0;
+                wn_size_t totalBytes = 0;
                 do{
-                    const WN_CHAR* location = _dataBuffer.ReserveBytes(mLength - totalBytes, returnedBytes);
-                    WNMemory::WNMemCpy(reinterpret_cast<WN_UINT8*>(mString) + totalBytes, location, returnedBytes);
+                    const wn_char* location = _dataBuffer.ReserveBytes(mLength - totalBytes, returnedBytes);
+                    wn::memory::memcpy(reinterpret_cast<wn_uint8*>(mString)+totalBytes, location, returnedBytes);
                     totalBytes += returnedBytes;
                 } while(totalBytes < mLength);
-                
+
                 return(mLength);
             }
             case eWNWriteBinary:
             case eWNWriteText: {
-                WN_SIZE_T returnedBytes = 0;
-                WN_SIZE_T totalBytes = 0;
+                wn_size_t returnedBytes = 0;
+                wn_size_t totalBytes = 0;
                 do {
-                    WN_CHAR* location = _dataBuffer.ReserveBytes(mLength - totalBytes, returnedBytes);
-                    WNMemory::WNMemCpy(location, reinterpret_cast<WN_UINT8*>(mString) + totalBytes, returnedBytes);
+                    wn_char* location = _dataBuffer.ReserveBytes(mLength - totalBytes, returnedBytes);
+                    wn::memory::memcpy(location, reinterpret_cast<wn_uint8*>(mString)+totalBytes, returnedBytes);
                     totalBytes += returnedBytes;
                 } while(totalBytes < mLength);
                 return(mLength);
@@ -431,69 +435,69 @@ namespace WNContainers {
         return(0);
     }
 
-    WN_FORCE_INLINE WNSerializer<WN_FLOAT32>::WNSerializer(WN_FLOAT32& _item) :
+    WN_FORCE_INLINE WNSerializer<wn_float32>::WNSerializer(wn_float32& _item) :
         mNumber(_item) {
     }
 
-    WN_FORCE_INLINE WN_SIZE_T WNSerializer<WN_FLOAT32>::Serialize(WNDataBuffer& _dataBuffer, const WN_UINT32 _serializeFlags) const {
-        WN_UNUSED_ARG(_serializeFlags);
+    WN_FORCE_INLINE wn_size_t WNSerializer<wn_float32>::Serialize(WNDataBuffer& _dataBuffer, const wn_uint32 _serializeFlags) const {
+        WN_UNUSED_ARGUMENT(_serializeFlags);
 
         switch(_dataBuffer.GetType()) {
            case eWNReadBinary: {
-                WN_SIZE_T returnedBytes = 0;
-                WN_SIZE_T totalBytes = 0;
+                wn_size_t returnedBytes = 0;
+                wn_size_t totalBytes = 0;
                 do{
-                    const WN_CHAR* location = _dataBuffer.ReserveBytes(sizeof(WN_FLOAT32) - totalBytes, returnedBytes);
-                    WNMemory::WNMemCpy(reinterpret_cast<WN_UINT8*>(&mNumber) + totalBytes, location, returnedBytes);
+                    const wn_char* location = _dataBuffer.ReserveBytes(sizeof(wn_float32) - totalBytes, returnedBytes);
+                    wn::memory::memcpy(reinterpret_cast<wn_uint8*>(&mNumber) + totalBytes, location, returnedBytes);
                     totalBytes += returnedBytes;
-                } while(totalBytes < sizeof(WN_FLOAT32));
+                } while(totalBytes < sizeof(wn_float32));
 
                 WNCore::WNFromBigEndian(mNumber);
 
-                return(sizeof(WN_FLOAT32));
+                return(sizeof(wn_float32));
             }
             case eWNWriteBinary: {
-                WN_FLOAT32 number = mNumber;
+                wn_float32 number = mNumber;
                 WNCore::WNToBigEndian(number);
-                WN_SIZE_T returnedBytes = 0;
-                WN_SIZE_T totalBytes = 0;
+                wn_size_t returnedBytes = 0;
+                wn_size_t totalBytes = 0;
                 do {
-                    WN_CHAR* location = _dataBuffer.ReserveBytes(sizeof(WN_FLOAT32) - totalBytes, returnedBytes);
-                    WNMemory::WNMemCpy(location, reinterpret_cast<WN_UINT8*>(&number) + totalBytes, returnedBytes);
+                    wn_char* location = _dataBuffer.ReserveBytes(sizeof(wn_float32) - totalBytes, returnedBytes);
+                    wn::memory::memcpy(location, reinterpret_cast<wn_uint8*>(&number) + totalBytes, returnedBytes);
                     totalBytes += returnedBytes;
-                } while(totalBytes < sizeof(WN_FLOAT32));
-                return(sizeof(WN_FLOAT32));
+                } while(totalBytes < sizeof(wn_float32));
+                return(sizeof(wn_float32));
             }
             case eWNReadText: {
-                WN_CHAR tempBuffer[20];
-                WN_SIZE_T returnedBytes = 0;
-                WN_SIZE_T totalBytes = 0;
-                WN_SIZE_T countFails = 0;
+                wn_char tempBuffer[20];
+                wn_size_t returnedBytes = 0;
+                wn_size_t totalBytes = 0;
+                wn_size_t countFails = 0;
 
                 do {
                     countFails++;
-                    WN_CHAR* location = _dataBuffer.ReserveBytes(20 - totalBytes, returnedBytes);
-                    WNMemory::WNMemCpy(reinterpret_cast<WN_UINT8*>(&tempBuffer) + totalBytes, location, returnedBytes);
+                    wn_char* location = _dataBuffer.ReserveBytes(20 - totalBytes, returnedBytes);
+                    wn::memory::memcpy(reinterpret_cast<wn_uint8*>(&tempBuffer) + totalBytes, location, returnedBytes);
                     totalBytes += returnedBytes;
                     if(countFails > 1) {
                         break;
                     }
                 } while(totalBytes < 20);
 
-                WN_SIZE_T outSize = WNStrings::WNReadFloat32(tempBuffer, mNumber, totalBytes - 1);
+                wn_size_t outSize = WNStrings::WNReadFloat32(tempBuffer, mNumber, totalBytes - 1);
                 outSize += 1; //consume the space that is supposed to be there
                 return(outSize);
             }
             case eWNWriteText: {
-                WN_CHAR tempBuffer[20];
-                WN_SIZE_T outSize = WNStrings::WNWriteFloat32(tempBuffer, mNumber, 19);
+                wn_char tempBuffer[20];
+                wn_size_t outSize = WNStrings::WNWriteFloat32(tempBuffer, mNumber, 19);
                 tempBuffer[outSize++] = ' ';
 
-                WN_SIZE_T returnedBytes = 0;
-                WN_SIZE_T totalBytes = 0;
+                wn_size_t returnedBytes = 0;
+                wn_size_t totalBytes = 0;
                 do {
-                    WN_CHAR* location = _dataBuffer.ReserveBytes(outSize - totalBytes, returnedBytes);
-                    WNMemory::WNMemCpy(location, reinterpret_cast<WN_UINT8*>(&tempBuffer) + totalBytes, returnedBytes);
+                    wn_char* location = _dataBuffer.ReserveBytes(outSize - totalBytes, returnedBytes);
+                    wn::memory::memcpy(location, reinterpret_cast<wn_uint8*>(&tempBuffer) + totalBytes, returnedBytes);
                     totalBytes += returnedBytes;
                 } while(totalBytes < outSize);
 
