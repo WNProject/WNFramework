@@ -13,10 +13,10 @@ namespace wn {
     template <typename type> class WNBounds2;
     template <typename type> class WNRectangle;
 
-    template <typename _type>
+    template <typename Type>
     class circle {
     public:
-        typedef _type value_type;
+        typedef Type value_type;
 
         WN_FORCE_INLINE circle() :
             m_location(static_cast<value_type>(0)),

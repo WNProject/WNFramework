@@ -7,14 +7,19 @@
 #ifndef __WN_CONTAINERS_DYNAMIC_ARRAY_H__
 #define __WN_CONTAINERS_DYNAMIC_ARRAY_H__
 
-#include "WNContainers/inc/Internal/WNContainerBase.h"
 #include "WNMemory/inc/WNAllocator.h"
 
 namespace wn {
     namespace containers {
         template <typename _Type, typename _Allocator = memory::default_allocator>
-        class dynamic_array final : public internal::container_base<_Type, _Allocator> {
+        class dynamic_array final {
         public:
+            typedef _Type value_type;
+            typedef wn_size_t size_type;
+            typedef wn_signed_t difference_type;
+            typedef _Allocator allocator_type;
+            typedef value_type& reference;
+            typedef const value_type& const_reference;
             typedef value_type* iterator;
             typedef value_type const* const_iterator;
             typedef std::reverse_iterator<iterator> reverse_iterator;
@@ -42,23 +47,19 @@ namespace wn {
 
             template<typename T_Alloc>
             dynamic_array(const dynamic_array<_Type, T_Alloc>& _other) {
-                m_allocator = &sAllocator;
                 (*this) = _other;
             }
 
             dynamic_array(const dynamic_array& _other) {
-                m_allocator = &sAllocator;
                 (*this) = _other;
             }
 
             dynamic_array(dynamic_array&& _other) {
-                m_allocator = &sAllocator;
                 (*this) = std::move(_other);
             }
 
             template<typename T_Alloc>
             dynamic_array(dynamic_array<_Type, T_Alloc>&& _other) {
-                m_allocator = &sAllocator;
                 (*this) = std::move(_other);
             }
 
@@ -98,7 +99,7 @@ namespace wn {
                     m_allocator.free(m_data);
                 }
                 m_allocator = _other.m_allocator;
-                _other.m_allocator = &dynamic_array<_Type, T_Alloc>::sAllocator;
+                _other.m_allocator = T_Alloc();
                 m_capacity = _other.m_capacity;
                 _other.m_capacity = 0;
                 m_data = _other.m_data;

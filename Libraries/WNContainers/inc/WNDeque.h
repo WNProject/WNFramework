@@ -7,7 +7,6 @@
 #ifndef __WN_CONTAINERS_DEQUE_H__
 #define __WN_CONTAINERS_DEQUE_H__
 
-#include "WNContainers/inc/Internal/WNContainerBase.h"
 #include "WNContainers/inc/WNDynamicArray.h"
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNMemory/inc/WNManipulation.h"
@@ -18,7 +17,14 @@
 namespace wn {
     namespace containers {
         template <typename _Type, typename _Allocator = memory::default_allocator, const wn_size_t _BlockSize = 10>
-        class deque final : public internal::container_base<_Type, _Allocator> {
+        class deque final {
+        public:
+          typedef _Type value_type;
+          typedef wn_size_t size_type;
+          typedef wn_signed_t difference_type;
+          typedef _Allocator allocator_type;
+          typedef value_type& reference;
+          typedef const value_type& const_reference;
         private:
             template <typename _Container,
                       typename _NonConstContainer = _Container,
@@ -28,6 +34,13 @@ namespace wn {
                                                               typename _Container::difference_type> {
             public:
                 typedef typename _Container::size_type size_type;
+                typedef std::bidirectional_iterator_tag iterator_category;
+                typedef _Element value_type;
+                typedef typename _Container::difference_type difference_type;
+                typedef typename _Container::difference_type distance_type;
+                typedef _Element* pointer;
+                typedef _Element& reference;
+
 
                 deque_iterator() :
                     m_deque(wn_nullptr),
@@ -195,7 +208,7 @@ namespace wn {
                 }
 
             private:
-                template <typename _Type, typename _Allocator, const wn_size_t _BlockSize>
+                template <typename _T, typename _Alloc, const wn_size_t _BSize>
                 friend class deque;
 
                 friend class deque_iterator<const _Container, _Container, const _Element>;

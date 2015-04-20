@@ -4,20 +4,17 @@
 
 #include "WNNetworking/inc/Internal/Linux/WNConnectionLinux.h"
 #include "WNMath/inc/WNBasic.h"
-#include "WNConcurrency/inc/WNLockGuard.h"
 #include "WNConcurrency/inc/WNSpinLock.h"
-#include "WNConcurrency/inc/WNAtomic.h"
 #include "WNCore/inc/WNEndian.h"
 
 #include <unistd.h>
 #include <string.h>
 #include <stdio.h>
 #include <errno.h>
+#include <mutex>
 
 using namespace WNNetworking;
 using namespace WNContainers;
-using namespace WNMath;
-using namespace WNMemory;
 using namespace WNConcurrency;
 
 WNConnectionLinux::WNConnectionLinux(WNNetworkManager& _manager) :
@@ -60,33 +57,34 @@ wn_int32 WNConnectionLinux::GetLinuxSocket() {
 
 wn_void WNConnectionLinux::SendBuffer(WNNetworkWriteBuffer& _buffer) {
     _buffer.FlushWrite();
-    mSendBufferLock.Lock();
+    mSendBufferLock.lock();
     mSendBuffers.push_back(_buffer);
-    mSendBufferLock.Unlock();
+    mSendBufferLock.unlock();
 
     NotifyReadyToSend(wn_false);
 }
 
 wn_void WNConnectionLinux::NotifyReadyToSend(wn_bool socketFree) {
     if (socketFree) {
-        WNAtomicSwap(&mWriteAtomic, 1);
+        mWriteAtomic = 1;
     }
-
-    while (WNAtomicCompareSwap(&mWriteAtomic, 1, 1) == 1) {
-        if (!mWriteLock.TryLock()) {
+    
+    wn_atom_t expected = 1;
+    while (mWriteAtomic.compare_exchange_strong(expected, 1)) {
+        if (!mWriteLock.try_lock()) {
             return;
         }
 
-        WNAtomicSwap(&mWriteAtomic, 0);
+        mWriteAtomic = 0;
 
         if (!Send()) {
-            WNAtomicSwap(&mWriteAtomic, 1);
+            mWriteAtomic = 1;
 
-            mWriteLock.Unlock();
+            mWriteLock.unlock();
 
             return;
         } else {
-            mWriteLock.Unlock();
+            mWriteLock.lock();
 
             break;
         }
@@ -95,7 +93,7 @@ wn_void WNConnectionLinux::NotifyReadyToSend(wn_bool socketFree) {
 
 wn_bool WNConnectionLinux::Send() {
     {
-        WNLockGuard<WNSpinLock> guard(mSendBufferLock);
+        std::lock_guard<wn::spin_lock> guard(mSendBufferLock);
 
         if (mSendBuffers.empty()) {
             return(wn_false);
@@ -103,13 +101,11 @@ wn_bool WNConnectionLinux::Send() {
     }
 
     for(;;) {
-        wn_size_t count;
-
-        mSendBufferLock.Lock();
+        mSendBufferLock.lock();
 
         WNNetworkWriteBuffer& buff = mSendBuffers.front();
 
-        mSendBufferLock.Unlock();
+        mSendBufferLock.unlock();
 
         const WNNetworkWriteBuffer::WNBufferQueue& q = buff.GetChunks();
 
@@ -127,12 +123,12 @@ wn_bool WNConnectionLinux::Send() {
                 if(errno == EAGAIN) {
                     return(wn_true);
                 }
-                char* s = strerror(errno);
+                // char* s = strerror(errno);
                 perror(NULL);
                 mManager.DestroyConnection(this);
                 return(wn_true);
             } else {
-                char* s = strerror(errno);
+                // char* s = strerror(errno);
                 perror(NULL);
                 // SOME REALLY BAD ERROR
                 WN_RELEASE_ASSERT_DESC(wn_false, "WTF?");
@@ -141,10 +137,10 @@ wn_bool WNConnectionLinux::Send() {
                 buffLeft -= 1;
                 if(buffLeft == 0) {
                     wn_bool empty = wn_false;
-                    mSendBufferLock.Lock();
+                    mSendBufferLock.lock();
                     mSendBuffers.pop_front();
                     empty = mSendBuffers.empty();
-                    mSendBufferLock.Unlock();
+                    mSendBufferLock.unlock();
                     mBufferWritten = 0;
                     if(mSendBuffers.empty()){
                         return(wn_false);
@@ -162,15 +158,16 @@ wn_bool WNConnectionLinux::Send() {
 }
 
 wn_void WNConnectionLinux::NotifyReadReady() {
-    WNAtomicSwap(&mReadAtomic, 1);
+    mReadAtomic = 1;
+    wn_atom_t expected = 1;
 
-    while(WNAtomicCompareSwap(&mReadAtomic, 1, 1) == 1) {
-        if(!mReadLock.TryLock()) {
+    while(mReadAtomic.compare_exchange_strong(expected, 1) == 1) {
+        if(!mReadLock.try_lock()) {
             return;
         }
-        WNAtomicSwap(&mReadAtomic, 0);
+        mReadAtomic = 0;
         ReadReady();
-        mReadLock.Unlock();
+        mReadLock.unlock();
     }
 }
 
@@ -193,7 +190,7 @@ wn_void WNConnectionLinux::ReadReady() {
         }
 
         wn_size_t processedBytes = 0;
-        WN_RELEASE_ASSERT(mReadHead <= MAX_DATA_WRITE);
+        WN_RELEASE_ASSERT(mReadHead <= wn::containers::MAX_DATA_WRITE);
         while(processedBytes != transferred) {
             WN_RELEASE_ASSERT(processedBytes < transferred);
             wn_size_t transferToOverflow = wn::min<wn_size_t>(8 - mOverflowAmount, transferred);
@@ -207,7 +204,7 @@ wn_void WNConnectionLinux::ReadReady() {
             if(mOverflowAmount < 8) {
                 mReadHead += transferToOverflow;
                 WN_RELEASE_ASSERT(processedBytes == transferred);
-                if(mBufferBase == MAX_DATA_WRITE) {
+                if(mBufferBase == wn::containers::MAX_DATA_WRITE) {
                     mReadLocation = wn::memory::make_intrusive<WNBufferResource, WNNetworkManager&>(mManager);
                     mReadHead = 0;
                     mBufferBase = 0;
@@ -237,12 +234,12 @@ wn_void WNConnectionLinux::ReadReady() {
                 mOverflowAmount = 0;
             } else {
                 mInProcessedBytes += mMaxWrite;
-                if(mReadHead == MAX_DATA_WRITE) {
+                if(mReadHead == wn::containers::MAX_DATA_WRITE) {
                     mCurrentReadBuffer.AppendBuffer(mReadLocation, mReadHead, mBufferBase);
                 }
             }
-            if(mReadHead == MAX_DATA_WRITE) {
-                mReadLocation = make_intrusive<WNBufferResource, WNNetworkManager&>(mManager);
+            if(mReadHead == wn::containers::MAX_DATA_WRITE) {
+                mReadLocation = wn::memory::make_intrusive<WNBufferResource, WNNetworkManager&>(mManager);
                 mReadHead = 0;
                 mBufferBase = 0;
             } else {

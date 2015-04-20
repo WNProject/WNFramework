@@ -51,18 +51,18 @@ namespace wn {
                     base::assign(_element_array, _value);
                 }
 
-                template <>
-                static WN_FORCE_INLINE wn_void assign(element_array<wn_float32, 2>& _element_array, const wn_float32& _value) {
+                template <typename type>
+                static WN_FORCE_INLINE typename enable_if<is_same<type, wn_void>::value>::type assign(element_array<wn_float32, 2>& _element_array, const wn_float32& _value) {
                     _element_array.m_xmm_values[0] = _mm_setr_ps(_value, _value, 0.0f, 0.0f);
                 }
 
-                template <>
-                static WN_FORCE_INLINE wn_void assign(element_array<wn_float32, 3>& _element_array, const wn_float32& _value) {
+                template <typename type>
+                static WN_FORCE_INLINE typename enable_if<is_same<type, wn_void>::value>::type assign(element_array<wn_float32, 3>& _element_array, const wn_float32& _value) {
                     _element_array.m_xmm_values[0] = _mm_setr_ps(_value, _value, _value, 0.0f);
                 }
 
-                template <>
-                static WN_FORCE_INLINE wn_void assign(element_array<wn_float32, 4>& _element_array, const wn_float32& _value) {
+                template <typename type>
+                static WN_FORCE_INLINE typename enable_if<is_same<type, wn_void>::value>::type assign(element_array<wn_float32, 4>& _element_array, const wn_float32& _value) {
                     _element_array.m_xmm_values[0] = _mm_set1_ps(_value);
                 }
 
@@ -170,20 +170,20 @@ namespace wn {
                     base::add(_element_array, _value);
                 }
 
-                template <>
-                static WN_FORCE_INLINE wn_void add(element_array<wn_float32, 2>& _element_array, const wn_float32& _value) {
+                template <typename type>
+                static WN_FORCE_INLINE typename std::enable_if<is_same<type, wn_void>::value>::type add(element_array<wn_float32, 2>& _element_array, const wn_float32& _value) {
                     _element_array.m_xmm_values[0] = _mm_add_ps(_element_array.m_xmm_values[0],
                                                                 _mm_setr_ps(_value, _value, 0.0f, 0.0f));
                 }
 
-                template <>
-                static WN_FORCE_INLINE wn_void add(element_array<wn_float32, 3>& _element_array, const wn_float32& _value) {
+                template <typename type>
+                static WN_FORCE_INLINE typename std::enable_if<is_same<type, wn_void>::value>::type add(element_array<wn_float32, 3>& _element_array, const wn_float32& _value) {
                     _element_array.m_xmm_values[0] = _mm_add_ps(_element_array.m_xmm_values[0],
                                                                 _mm_setr_ps(_value, _value, _value, 0.0f));
                 }
 
-                template <>
-                static WN_FORCE_INLINE wn_void add(element_array<wn_float32, 4>& _element_array, const wn_float32& _value) {
+                template <typename type>
+                static WN_FORCE_INLINE typename std::enable_if<is_same<type, wn_void>::value>::type add(element_array<wn_float32, 4>& _element_array, const wn_float32& _value) {
                     _element_array.m_xmm_values[0] = _mm_add_ps(_element_array.m_xmm_values[0], _mm_set1_ps(_value));
                 }
 

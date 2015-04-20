@@ -10,9 +10,8 @@
 #include "WNMemory/inc/WNMemory.h"
 #include "WNCore/inc/WNAssert.h"
 #include "WNMath/inc/WNBasic.h"
-#include "WNConcurrency/inc/thread.h"
+#include "WNConcurrency/inc/WNThread.h"
 #include "WNConcurrency/inc/WNSpinLock.h"
-#include "WNConcurrency/inc/WNLockGuard.h"
 
 #include <sys/epoll.h>
 #include <sys/types.h>
@@ -22,11 +21,10 @@
 #include <netdb.h>
 #include <stdlib.h>
 #include <algorithm>
+#include <mutex>
 
-using namespace WNMemory;
-using namespace WNMath;
+using namespace wn;
 using namespace WNNetworking;
-using namespace WNConcurrency;
 
 WNNetworkManagerLinux::WNNetworkManagerLinux() :
     WNNetworkManager(),
@@ -49,7 +47,7 @@ wn_void WNNetworkManagerLinux::Cleanup() {
     if(mInitializationState > eWNEPollListenCreated) {
         close(mListenEPollInstance);
         if (mListenThread != wn_nullptr) {
-            mListenThread->WaitForCompletion();
+            mListenThread->join();
             wn::memory::destroy(mListenThread);
             mListenThread = wn_nullptr;
         }
@@ -58,7 +56,7 @@ wn_void WNNetworkManagerLinux::Cleanup() {
     if(mInitializationState > eWNEPollReadCreated) {
         close(mReadEPollInstance);
         for(wn_size_t i = 0; i < mReadThreads.size(); ++i) {
-            mReadThreads[i]->WaitForCompletion();
+            mReadThreads[i]->join();
             wn::memory::destroy(mReadThreads[i]);
         }
         mReadThreads.clear();
@@ -67,7 +65,7 @@ wn_void WNNetworkManagerLinux::Cleanup() {
     if(mInitializationState > eWNEPollWriteCreated) {
         close(mWriteEPollInstance);
         for(wn_size_t i = 0; i < mWriteThreads.size(); ++i) {
-            mWriteThreads[i]->WaitForCompletion();
+            mWriteThreads[i]->join();
             wn::memory::destroy(mWriteThreads[i]);
         }
         mWriteThreads.clear();
@@ -92,18 +90,8 @@ WNNetworkManagerReturnCode::type WNNetworkManagerLinux::Initialize(wn_uint32 _nu
 
     mInitializationState = eWNEPollWriteCreated;
 
-    for (wn_uint32 i = 0; i < WNCeil(static_cast<wn_float32>(_numWorkerThreads) / 2.0f); ++i) {
-        thread<wn_void>* thread = WN_NEW thread<wn_void>();
-
-        if (thread->Initialize(this, &WNNetworkManagerLinux::WriteThread) != wn::thread_result::ok) {
-            wn::memory::destroy(thread);
-
-            mInitializationState = eWNWriteThreadsCreated;
-
-            Cleanup();
-
-            return(WNNetworkManagerReturnCode::eWNThreadCreationError);
-        }
+    for (wn_uint32 i = 0; i < wn::ceil(static_cast<wn_float32>(_numWorkerThreads) / 2.0f); ++i) {
+        thread<wn_void>* thread = wn::memory::construct<wn::thread<wn_void> >(&WNNetworkManagerLinux::WriteThread, this);
 
         mReadThreads.push_back(thread);
     }
@@ -123,18 +111,8 @@ WNNetworkManagerReturnCode::type WNNetworkManagerLinux::Initialize(wn_uint32 _nu
 
     mInitializationState = eWNEPollReadCreated;
 
-    for (wn_uint32 i = 0; i < WNCeil(static_cast<wn_float32>(_numWorkerThreads) / 2.0f); ++i) {
-        thread<wn_void>* thread = WN_NEW thread<wn_void>();
-
-        if (thread->Initialize(this, &WNNetworkManagerLinux::ReadThread) != wn::thread_result::ok) {
-            wn::memory::destroy(thread);
-
-            mInitializationState = eWNReadThreadsCreated;
-
-            Cleanup();
-
-            return(WNNetworkManagerReturnCode::eWNThreadCreationError);
-        }
+    for (wn_uint32 i = 0; i < wn::ceil(static_cast<wn_float32>(_numWorkerThreads) / 2.0f); ++i) {
+        thread<wn_void>* thread = wn::memory::construct<wn::thread<wn_void> >(&WNNetworkManagerLinux::ReadThread, this);
 
         mReadThreads.push_back(thread);
     }
@@ -152,18 +130,7 @@ WNNetworkManagerReturnCode::type WNNetworkManagerLinux::Initialize(wn_uint32 _nu
     }
 
     mInitializationState = eWNEPollListenCreated;
-    mListenThread = WN_NEW thread<wn_void>();
-
-    if (mListenThread->Initialize(this, &WNNetworkManagerLinux::ListenThread) != wn::thread_result::ok) {
-        wn::memory::destroy(mListenThread);
-
-        mListenThread = wn_nullptr;
-
-        Cleanup();
-
-        return(WNNetworkManagerReturnCode::eWNThreadCreationError);
-    }
-
+    mListenThread = wn::memory::construct<wn::thread<wn_void> >(&WNNetworkManagerLinux::ListenThread, this);
     mInitializationState = eWNListenThreadCreated;
     mInitializationState = eWNInitializationComplete;
 
@@ -198,7 +165,7 @@ wn_void WNNetworkManagerLinux::ListenThread() {
             //Could be getting multiple connections at once
             while ((inConn = conn->ReceiveConnection()) != wn_nullptr) {
                 if (AddToReadEPoll(inConn) && AddToWriteEPoll(inConn)) {
-                    WNLockGuard<WNSpinLock> guard(mIncommingMutex);
+                  std::lock_guard<wn::spin_lock> guard(mIncommingMutex);
 
                     mIncommingConnections.push_back(inConn);
                 } else {
@@ -272,7 +239,7 @@ wn_void WNNetworkManagerLinux::WriteThread() {
 }
 
 WNNetworkManagerReturnCode::type WNNetworkManagerLinux::CreateListener(WNConnection*& _outHandle, WNConnectionType::type _type, wn_uint16 _port, const WNConnectedCallback& _callback) {
-    WNListenConnectionLinux* conn = WN_NEW WNListenConnectionLinux(*this, _type, _port, _callback);
+    WNListenConnectionLinux* conn = wn::memory::construct<WNListenConnectionLinux>(*this, _type, _port, _callback);
     const WNNetworkManagerReturnCode::type err = conn->Initialize();
 
     if (err != WNNetworkManagerReturnCode::ok) {
@@ -283,7 +250,7 @@ WNNetworkManagerReturnCode::type WNNetworkManagerLinux::CreateListener(WNConnect
 
     struct epoll_event event;
 
-    WNMemClr(&event, sizeof(epoll_event));
+    wn::memory::memzero(&event, sizeof(epoll_event));
 
     event.data.ptr = conn;
     event.events = EPOLLIN | EPOLLET;
@@ -295,7 +262,7 @@ WNNetworkManagerReturnCode::type WNNetworkManagerLinux::CreateListener(WNConnect
     }
 
     {
-        WNLockGuard<WNSpinLock> guard(mListenMutex);
+        std::lock_guard<wn::spin_lock> guard(mListenMutex);
 
         mListenConnections.push_back(conn);
     }
@@ -308,7 +275,7 @@ WNNetworkManagerReturnCode::type WNNetworkManagerLinux::CreateListener(WNConnect
 wn_bool WNNetworkManagerLinux::AddToReadEPoll(WNConnectionLinux* _conn) {
     struct epoll_event event;
 
-    wn::memory::WNMemClr(&event, sizeof(epoll_event));
+    wn::memory::memzero(&event, sizeof(epoll_event));
 
     event.data.ptr = _conn;
     event.events = EPOLLIN | EPOLLET;
@@ -323,7 +290,7 @@ wn_bool WNNetworkManagerLinux::AddToReadEPoll(WNConnectionLinux* _conn) {
 wn_bool WNNetworkManagerLinux::AddToWriteEPoll(WNConnectionLinux* _conn) {
     struct epoll_event event;
 
-    wn::memory::WNMemClr(&event, sizeof(epoll_event));
+    wn::memory::memzero(&event, sizeof(epoll_event));
 
     event.data.ptr = _conn;
     event.events = EPOLLOUT | EPOLLET;
@@ -338,7 +305,7 @@ wn_bool WNNetworkManagerLinux::AddToWriteEPoll(WNConnectionLinux* _conn) {
 WNNetworkManagerReturnCode::type WNNetworkManagerLinux::ConnectTo(WNConnection*& _outHandle, WNConnectionType::type _type, const wn_char* _target, wn_uint16 _port) {
     WN_RELEASE_ASSERT_DESC(_type == WNConnectionType::eWNReliable, "WNNetworking does not support unreliable connections .... YET");
 
-    WNOutConnectionLinux* conn = WN_NEW WNOutConnectionLinux(*this);
+    WNOutConnectionLinux* conn = wn::memory::construct<WNOutConnectionLinux>(*this);
     const WNNetworkManagerReturnCode::type err = conn->Initialize(_type, _target, _port);
 
     if (err != WNNetworkManagerReturnCode::ok) {
@@ -360,9 +327,9 @@ WNNetworkManagerReturnCode::type WNNetworkManagerLinux::ConnectTo(WNConnection*&
     }
 
     {
-        mOutgoingMutex.Lock();
+        mOutgoingMutex.lock();
         mOutgoingConnections.push_back(conn);
-        mOutgoingMutex.Unlock();
+        mOutgoingMutex.unlock();
     }
 
     _outHandle = conn;
@@ -372,7 +339,7 @@ WNNetworkManagerReturnCode::type WNNetworkManagerLinux::ConnectTo(WNConnection*&
 
 wn_void WNNetworkManagerLinux::DestroyConnection(WNConnection* _connection) {
      {
-        WNConcurrency::WNLockGuard<wn::spin_lock> guard(mIncommingMutex);
+        std::lock_guard<wn::spin_lock> guard(mIncommingMutex);
 
         std::list<WNConnectionLinux*>::iterator i = std::find(mIncommingConnections.begin(), mIncommingConnections.end(), _connection);
 
@@ -383,7 +350,7 @@ wn_void WNNetworkManagerLinux::DestroyConnection(WNConnection* _connection) {
     }
 
     {
-        WNConcurrency::WNLockGuard<wn::spin_lock> guard(mOutgoingMutex);
+        std::lock_guard<wn::spin_lock> guard(mOutgoingMutex);
 
         std::list<WNConnectionLinux*>::iterator i = std::find(mOutgoingConnections.begin(), mOutgoingConnections.end(), _connection);
 
@@ -394,7 +361,7 @@ wn_void WNNetworkManagerLinux::DestroyConnection(WNConnection* _connection) {
     }
 
     {
-        WNConcurrency::WNLockGuard<wn::spin_lock> guard(mListenMutex);
+        std::lock_guard<wn::spin_lock> guard(mListenMutex);
 
         std::list<WNListenConnectionLinux*>::iterator i = std::find(mListenConnections.begin(), mListenConnections.end(), _connection);
 
@@ -405,7 +372,7 @@ wn_void WNNetworkManagerLinux::DestroyConnection(WNConnection* _connection) {
     }
 
     {
-        WNConcurrency::WNLockGuard<wn::spin_lock> guard(mInvalidMutex);
+        std::lock_guard<wn::spin_lock> guard(mInvalidMutex);
 
         mInvalidConnections.push_back(_connection);
     }
@@ -413,7 +380,7 @@ wn_void WNNetworkManagerLinux::DestroyConnection(WNConnection* _connection) {
 
 wn_void WNNetworkManagerLinux::CleanAllConnections() {
     {
-        WNConcurrency::WNLockGuard<wn::spin_lock> guard(mIncommingMutex);
+        std::lock_guard<wn::spin_lock> guard(mIncommingMutex);
 
         for (std::list<WNConnectionLinux*>::iterator i = mIncommingConnections.begin(); i != mIncommingConnections.end(); ++i) {
             wn::memory::destroy((*i));
@@ -423,7 +390,7 @@ wn_void WNNetworkManagerLinux::CleanAllConnections() {
     }
 
     {
-        WNConcurrency::WNLockGuard<wn::spin_lock> guard(mOutgoingMutex);
+        std::lock_guard<wn::spin_lock> guard(mOutgoingMutex);
 
         for (std::list<WNConnectionLinux*>::iterator i = mOutgoingConnections.begin(); i != mOutgoingConnections.end(); ++i) {
             wn::memory::destroy((*i));
@@ -433,7 +400,7 @@ wn_void WNNetworkManagerLinux::CleanAllConnections() {
     }
 
     {
-        WNConcurrency::WNLockGuard<wn::spin_lock> guard(mListenMutex);
+        std::lock_guard<wn::spin_lock> guard(mListenMutex);
 
         for (std::list<WNListenConnectionLinux*>::iterator i = mListenConnections.begin(); i != mListenConnections.end(); ++i) {
             wn::memory::destroy((*i));
@@ -443,7 +410,7 @@ wn_void WNNetworkManagerLinux::CleanAllConnections() {
     }
 
     {
-        WNConcurrency::WNLockGuard<wn::spin_lock> guard(mInvalidMutex);
+        std::lock_guard<wn::spin_lock> guard(mInvalidMutex);
 
         mInvalidConnections.clear();
     }

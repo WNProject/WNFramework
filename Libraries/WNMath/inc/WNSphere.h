@@ -17,10 +17,10 @@ namespace wn {
     template <typename type>
     class WNBox;
 
-    template <typename _type>
+    template <typename Type>
     class sphere {
     public:
-        typedef _type value_type;
+        typedef Type value_type;
 
         WN_FORCE_INLINE sphere() :
             m_location(static_cast<value_type>(0)),

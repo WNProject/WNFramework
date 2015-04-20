@@ -19,7 +19,7 @@ namespace wn {
 
         template <typename _type, typename _conversion_type>
         struct floating_point_traits;
-
+        struct floating_point_traits_internal;
         struct float8_conversions;
         struct float16_conversions;
     }

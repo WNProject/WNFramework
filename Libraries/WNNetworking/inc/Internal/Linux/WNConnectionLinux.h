@@ -37,8 +37,8 @@ namespace WNNetworking {
         wn_size_t mBufferChunkCount;
         wn_size_t mBufferWritten;
         wn_size_t mTotalSent;
-        wn_atom_t mReadAtomic;
-        wn_atom_t mWriteAtomic;
+        std::atomic<wn_atom_t> mReadAtomic;
+        std::atomic<wn_atom_t> mWriteAtomic;
         wn::spin_lock mReadLock;
         wn::spin_lock mWriteLock;
         wn::spin_lock mSendBufferLock;

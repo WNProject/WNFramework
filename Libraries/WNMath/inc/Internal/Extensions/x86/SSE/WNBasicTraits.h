@@ -20,8 +20,8 @@ namespace wn {
                     return(base::abs(_value));
                 }
 
-                template <>
-                static WN_FORCE_INLINE wn_float32 abs(const wn_float32& _value) {
+                template <typename type>
+                static WN_FORCE_INLINE typename enable_if<is_same<wn_float32, type>::value, type>::type abs(const wn_float32& _value) {
                     return(_mm_cvtss_f32(_mm_andnot_ps(_mm_set_ss(-0.0f), _mm_set_ss(_value))));
                 }
 
@@ -31,8 +31,8 @@ namespace wn {
                     return(base::sqrt(_value));
                 }
 
-                template <>
-                static WN_FORCE_INLINE wn_float32 sqrt(const wn_float32& _value) {
+                template <typename type>
+                static WN_FORCE_INLINE typename enable_if<is_same<wn_float32, type>::value, type>::type sqrt(const wn_float32& _value) {
                     #ifdef __WN_MATH_APPROXIMATIONS_ENABLED
                         return(_mm_cvtss_f32(_mm_rcp_ss(_mm_rsqrt_ss(_mm_set_ss(_value)))));
                     #else
@@ -45,8 +45,8 @@ namespace wn {
                     return(base::invsqrt(_value));
                 }
 
-                template <>
-                static WN_FORCE_INLINE wn_float32 invsqrt(const wn_float32& _value) {
+                template <typename type>
+                static WN_FORCE_INLINE typename enable_if<is_same<wn_float32, type>::value, type>::type invsqrt(const wn_float32& _value) {
                     #ifdef __WN_MATH_APPROXIMATIONS_ENABLED
                         return(_mm_cvtss_f32(_mm_rsqrt_ss(_mm_set_ss(_value))));
                     #else
@@ -59,8 +59,8 @@ namespace wn {
                     return(base::min(_value1, _value2));
                 }
 
-                template <>
-                static WN_FORCE_INLINE wn_float32 min(const wn_float32& _value1, const wn_float32& _value2) {
+                template <typename type>
+                static WN_FORCE_INLINE typename enable_if<is_same<wn_float32, type>::value, type>::type min(const wn_float32& _value1, const wn_float32& _value2) {
                     return(_mm_cvtss_f32(_mm_min_ss(_mm_set_ss(_value1), _mm_set_ss(_value2))));
                 }
 
@@ -69,8 +69,8 @@ namespace wn {
                     return(base::max(_value1, _value2));
                 }
 
-                template <>
-                static WN_FORCE_INLINE wn_float32 max(const wn_float32& _value1, const wn_float32& _value2) {
+                template <typename type>
+                static WN_FORCE_INLINE typename enable_if<is_same<wn_float32, type>::value, type>::type max(const wn_float32& _value1, const wn_float32& _value2) {
                     return(_mm_cvtss_f32(_mm_max_ss(_mm_set_ss(_value1), _mm_set_ss(_value2))));
                 }
 
@@ -79,8 +79,8 @@ namespace wn {
                     return(base::clamp(_value, _min, _max));
                 }
 
-                template <>
-                static WN_FORCE_INLINE wn_float32 clamp(const wn_float32& _value, const wn_float32& _min,
+                template <typename type>
+                static WN_FORCE_INLINE typename enable_if<is_same<wn_float32, type>::value, type>::type clamp(const wn_float32& _value, const wn_float32& _min,
                                                         const wn_float32& _max) {
                     return(_mm_cvtss_f32(_mm_min_ss(_mm_max_ss(_mm_set_ss(_value), _mm_set_ss(_min)), _mm_set_ss(_max))));
                 }

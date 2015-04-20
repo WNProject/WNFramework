@@ -15,7 +15,7 @@
 #include <X11/Xatom.h>
 #include <GL/glx.h>
 
-namespace WNConcurrency {
+namespace wn{
     template <typename Return>
     class thread;
 }

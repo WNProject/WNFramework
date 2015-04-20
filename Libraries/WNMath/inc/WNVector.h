@@ -224,11 +224,11 @@ namespace wn {
         }
 
         WN_FORCE_INLINE wn_bool operator == (const vector& _vector) const {
-            return(traits_type::equal(m_element_array, _vector.m_element_array));
+            return(traits_type::template equal(m_element_array, _vector.m_element_array));
         }
 
         WN_FORCE_INLINE wn_bool operator != (const vector& _vector) const {
-            return(traits_type::not_equal(m_element_array, _vector.m_element_array));
+            return(traits_type::template not_equal(m_element_array, _vector.m_element_array));
         }
 
         WN_FORCE_INLINE iterator begin() {

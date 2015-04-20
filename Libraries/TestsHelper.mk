@@ -1,4 +1,4 @@
-CXXFLAGS += -I$(DEPENDENCYDIR)include $(INCLUDES) -fno-exceptions -std=c++0x -fno-rtti -Werror
+CXXFLAGS += -I$(DEPENDENCYDIR)include $(INCLUDES) -fno-exceptions -std=c++11 -fno-rtti -Werror
 LINKFLAGS += -L$(DEPENDENCYDIR)lib -lgtest -lpthread
 UNAME_P := $(shell uname -p)
 TOOL := $(PROJECT)Test

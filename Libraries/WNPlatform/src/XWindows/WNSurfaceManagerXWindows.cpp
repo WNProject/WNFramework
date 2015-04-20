@@ -6,7 +6,6 @@
 #include "WNPlatform/inc/Internal/XWindows/WNSurfaceXWindows.h"
 
 using namespace wn;
-using namespace WNConcurrency;
 
 WNSurfaceManagerReturnCode::type WNSurfaceManagerXWindows::Initialize() {
     XInitThreads();
@@ -56,8 +55,8 @@ WNSurfaceManagerReturnCode::type WNSurfaceManagerXWindows::Initialize() {
     return(WNSurfaceManagerReturnCode::ok);
 }
 
-WNSurfaceManagerReturnCode::type WNSurfaceManagerXWindows::CreateSurface(wn_uint32 _x, wn_uint32 _y, wn_uint32 _width, wn_uint32 _height, intrusive_ptr<surface>& _surface) {
-    intrusive_ptr<WNSurfaceXWindows> ptr = make_intrusive<WNSurfaceXWindows, WNSurfaceManagerXWindows&>(*this);
+WNSurfaceManagerReturnCode::type WNSurfaceManagerXWindows::CreateSurface(wn_uint32 _x, wn_uint32 _y, wn_uint32 _width, wn_uint32 _height, memory::intrusive_ptr<surface>& _surface) {
+  memory::intrusive_ptr<WNSurfaceXWindows> ptr = memory::make_intrusive<WNSurfaceXWindows, WNSurfaceManagerXWindows&>(*this);
 
     if (!ptr->Initialize(_x, _y, _width, _height, mDisplay, mVisualInfo)) {
         return(WNSurfaceManagerReturnCode::eWNInitializationFailure);

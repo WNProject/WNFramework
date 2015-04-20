@@ -12,7 +12,7 @@
 
 #include <vector>
 
-namespace WNConcurrency {
+namespace wn {
     template <typename Return>
     class thread;
 }

@@ -16,7 +16,7 @@ static glXSwapIntervalEXTProc glXSwapIntervalEXT = 0;
 
 #define WN_RESIZE_RETRY_COUNT 5
 
-static WNConcurrency::WNSpinLock gInitializationCreationLock;
+static wn::spin_lock gInitializationCreationLock;
 
 WNGraphics::WNGraphicsDeviceGLX::WNGraphicsDeviceGLX(WNGraphics::WNGraphicsResourceFactory* _factory) :
     mResourceFactory(_factory),
@@ -71,7 +71,7 @@ WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceGLX::In
 
     mInitializationState = WNGraphics::WNGraphicsDeviceGLX::eWNISFBConfigured;
 
-    gInitializationCreationLock.Lock();
+    gInitializationCreationLock.lock();
 
     if (!glXCreateContextAttribsARB) {
         glXCreateContextAttribsARB = (glXCreateContextAttribsARBProc)glXGetProcAddressARB( (const GLubyte *) "glXCreateContextAttribsARB");
@@ -79,7 +79,7 @@ WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceGLX::In
         glXSwapIntervalEXT = (glXSwapIntervalEXTProc)glXGetProcAddressARB( (const GLubyte *) "glXSwapIntervalEXT");
     }
 
-    gInitializationCreationLock.Unlock();
+    gInitializationCreationLock.unlock();
 
     if (!(glXCreateContextAttribsARB && glXMakeContextCurrentARB)) {
         return(WNGraphics::WNGraphicsDeviceReturnCode::eWNGDEWindowCreationError);
@@ -222,7 +222,7 @@ wn_void WNGraphics::WNGraphicsDeviceGLX::SetClearColor(wn_float32* _color) {
 }
 
 WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceGLX::BindSurface(wn::memory::intrusive_ptr<wn::surface>& _surface, wn_bool _sync) {
-    __WNGraphicsData * data = WN_NEW __WNGraphicsData();
+    __WNGraphicsData * data = wn::memory::construct<__WNGraphicsData>();
 
     XSync(mDisplay, false);
 

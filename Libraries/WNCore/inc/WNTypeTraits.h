@@ -12,19 +12,11 @@
 #include <type_traits>
 
 namespace wn {
-    namespace internal {
-        template <typename _type>
-        struct is_floating_point : std::is_floating_point<_type> {};
-
-        template <typename _type, typename conversion_type>
-        struct is_floating_point<arithmetic_type<floating_point_traits<_type, conversion_type>>> : std::true_type {};
-
-        template <typename _type>
-        struct is_fixed_point : std::false_type {};
-
-        template <typename _type, const wn_uint32 _precision>
-        struct is_fixed_point<arithmetic_type<fixed_point_traits<_type, _precision>>> : std::true_type {};
-    }
+    template<typename T>
+    struct exists {
+        static const bool value = true;
+    };
+       
 
     template <typename _type, const _type _value>
     struct integral_constant : std::integral_constant<_type, _value> {};
@@ -35,6 +27,25 @@ namespace wn {
     template <const wn_bool _value>
     struct boolean_constant : integral_constant<wn_bool, _value> {};
 
+    namespace internal {
+        template <typename traits_type>
+        struct is_extended_type : std::false_type {};
+
+        template <typename traits_type>
+        struct is_extended_type<arithmetic_type<traits_type>> : std::true_type {};
+
+        template <typename _type, typename = std::enable_if<wn_true>::type>
+        struct is_floating_point : std::is_floating_point<_type> {};
+
+        template <typename _type>
+        struct is_floating_point<_type, typename std::enable_if<exists<typename _type::traits_type::conversion_type>::value>::type> : std::true_type {};
+
+        template <typename _type, typename = std::enable_if<wn_true>::type>
+        struct is_fixed_point : std::false_type {};
+
+        template <typename _type>
+        struct is_fixed_point<_type, typename std::enable_if<exists<typename _type::traits_type::scale_type>::value>::type> : std::true_type {};
+    }
     #ifdef __WN_HAS_CPP14_STL_INTEGER_SEQUENCE
         template <typename _type, const _type... _values>
         struct integral_sequence : std::integer_sequence<_type, _values...> {};
@@ -70,23 +81,25 @@ namespace wn {
     #endif
 
     namespace internal {
+
+        template <typename _type, typename = std::enable_if<wn_true>::type>
+        struct is_signed: std::is_signed<_type> {};
         template <typename _type>
-        struct is_signed : boolean_constant<(std::is_signed<_type>::value || is_floating_point<_type>::value)> {};
-
-        template <typename _type, const wn_uint32 _precision>
-        struct is_signed<arithmetic_type<fixed_point_traits<_type, _precision>>> : std::is_signed<_type>{};
-
+        struct is_signed<_type, typename std::enable_if<internal::is_floating_point<_type>::value>::type>: std::true_type {};
         template <typename _type>
-        struct is_unsigned : std::is_unsigned<_type> {};
+        struct is_signed<_type, typename std::enable_if<(is_extended_type<_type>::value && !internal::is_floating_point<_type>::value)>::type> : std::is_signed<typename _type::value_type> {};
 
-        template <typename _type, const wn_uint32 _precision>
-        struct is_unsigned<arithmetic_type<fixed_point_traits<_type, _precision>>> : std::is_unsigned<_type>{};
+        template <typename _type, typename = std::enable_if<wn_true>::type>
+        struct is_unsigned: boolean_constant<(std::is_unsigned<_type>::value || is_floating_point<_type>::value)> {};
+        template <typename _type>
+        struct is_unsigned<_type, typename std::enable_if<is_extended_type<_type>::value>::type>: std::is_unsigned<typename _type::value_type> {};
 
         template <typename _type>
         struct is_arithmetic : std::is_arithmetic<_type> {};
 
         template <typename traits_type>
         struct is_arithmetic<arithmetic_type<traits_type>> : std::true_type {};
+        
     }
 
     template <typename _type>
@@ -103,6 +116,9 @@ namespace wn {
 
     template <typename _type>
     struct is_arithmetic : internal::is_arithmetic<typename decay<_type>::type> {};
+
+    template <typename _type>
+    struct is_extended_type : internal::is_extended_type<typename decay<_type>::type> {};
 
     template <typename _type>
     struct is_real : boolean_constant<(is_fixed_point<_type>::value || is_floating_point<_type>::value)> {};

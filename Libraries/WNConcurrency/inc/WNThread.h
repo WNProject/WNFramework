@@ -16,7 +16,11 @@
 #if defined _WN_WINDOWS || defined _WN_ANDROID
     #include <mutex>
 #endif
-
+#if defined _WN_POSIX
+    #include <unistd.h>
+    #include <sys/syscall.h>
+    #include <atomic>
+#endif
 #include <chrono>
 #include <functional>
 
@@ -30,6 +34,9 @@ namespace wn {
                         m_handle(NULL),
                     #endif
                     m_id(0) {
+                #ifdef _WN_POSIX
+                      m_joined.clear(std::memory_order_release);
+                #endif
                 }
 
                 WN_FORCE_INLINE ~thread_data_base() {
@@ -52,6 +59,7 @@ namespace wn {
                 #elif defined _WN_POSIX
                     pthread_t m_pthread;
                     long m_id;
+                    std::atomic_flag m_joined;
                 #endif
             };
 
@@ -109,8 +117,12 @@ namespace wn {
                         return(wn_true);
                     }
                 #elif defined _WN_POSIX
-                    if (::pthread_join(m_data->m_pthread, NULL) == 0) {
-                        return(wn_true);
+                    if (!m_data->m_joined.test_and_set(std::memory_order_acquire)) {
+                      if (::pthread_join(m_data->m_pthread, NULL) == 0) {
+                          return(wn_true);
+                      }
+                    } else {
+                      return(wn_true);
                     }
                 #endif
             }
@@ -159,7 +171,7 @@ namespace wn {
             const thread_execution_data* execution_data = reinterpret_cast<thread_execution_data*>(_argument);
 
             #ifdef _WN_POSIX
-                execution_data->m_data->m_id = ::syscall(SYS_gettid);
+                execution_data->m_data->m_id = syscall(SYS_gettid);
             #endif
 
             execute_helper(execution_data);
@@ -213,7 +225,7 @@ namespace wn {
                                                             static_cast<void*>(execution_data));
 
                         if (result == 0) {
-                            m_data->m_pthread = pthread;
+                            data->m_pthread = pthread;
                             m_data = std::move(data);
                         } else {
                             memory::destroy(execution_data);

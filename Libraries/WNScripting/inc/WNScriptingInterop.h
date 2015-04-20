@@ -561,7 +561,7 @@ namespace WNScripting {
                     refData->structLoc = 0;
                 }
                 if(refData) {
-                    if(0 == WNConcurrency::WNAtomicDecrement(reinterpret_cast<wn_atom_t*>(&refData->refCount)))
+                    if(0 == --refData->refCount)
                     {
                         free(refData);
                     }
@@ -585,13 +585,13 @@ namespace WNScripting {
             if(refData->owner == wn_nullptr) {
                 refData->owner = this;
             }
-            WNConcurrency::WNAtomicIncrement(reinterpret_cast<wn_atom_t*>(&refData->refCount));
+            ++refData->refCount;
             return(*this);
         }
         void Own(ScriptPointer<T, T_Parent>& _other) {
             Destroy();
             refData = _other.refData;
-            WNConcurrency::WNAtomicIncrement(reinterpret_cast<wn_atom_t*>(&refData->refCount));
+            ++refData->refCount;
             refData->owner = this;
         }
 
