@@ -252,11 +252,11 @@ namespace wn {
         }
 
         WN_FORCE_INLINE wn_bool operator == (const matrix& _matrix) const {
-            return(traits_type::equal(m_element_array, _vector.m_element_array));
+            return(traits_type::equal(m_element_array, _matrix.m_element_array));
         }
 
         WN_FORCE_INLINE wn_bool operator != (const matrix& _matrix) const {
-            return(traits_type::not_equal(m_element_array, _vector.m_element_array));
+            return(traits_type::not_equal(m_element_array, _matrix.m_element_array));
         }
 
         WN_FORCE_INLINE iterator begin() {
@@ -383,11 +383,11 @@ namespace wn {
                     const wn_size_t index = row_offset + j;
 
                     if (i == j) {
-                        if (m_element_array.m_values[index] != static_cast<type>(1)) {
+                        if (m_element_array.m_values[index] != static_cast<value_type>(1)) {
                             return(wn_false);
                         }
                     } else {
-                        if (m_element_array.m_values[index] != static_cast<type>(0)) {
+                        if (m_element_array.m_values[index] != static_cast<value_type>(0)) {
                             return(wn_false);
                         }
                     }
@@ -407,7 +407,7 @@ namespace wn {
                     if (i != j) {
                         const wn_size_t index = row_offset + j;
 
-                        if (m_element_array.m_values[index] != static_cast<type>(0)) {
+                        if (m_element_array.m_values[index] != static_cast<value_type>(0)) {
                             return(wn_false);
                         }
                     }

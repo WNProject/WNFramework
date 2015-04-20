@@ -8,7 +8,7 @@
 #define __WN_GRAPHICS_GLX_GRAPHICS_DEVICE_GLX_H__
 
 #include "WNGraphics/inc/WNGraphicsDevice.h"
-#include "WNConcurrency/inc/WNRecursiveMutex.h"
+#include "WNConcurrency/inc/WNMutex.h"
 
 #include <X11/Xlib.h>
 #include <GL/glx.h>

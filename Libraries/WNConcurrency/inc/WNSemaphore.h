@@ -40,12 +40,10 @@ namespace wn {
                 m_handle = ::CreateSemaphore(NULL, static_cast<LONG>(_count), LONG_MAX, NULL);
 
                 WN_RELEASE_ASSERT_DESC(m_handle != NULL, __WN_SEMAPHORE_CREATE_ERR_MSG);
-            #elif defined _WN_POSIX
+            #else
                 const int result = ::sem_init(&m_semaphore, 0, static_cast<unsigned int>(_count));
 
                 WN_RELEASE_ASSERT_DESC(result == 0, __WN_SEMAPHORE_CREATE_ERR_MSG);
-            #else
-                m_count = _count;
             #endif
         }
 
@@ -58,7 +56,7 @@ namespace wn {
                 #ifndef _WN_DEBUG
                     WN_UNUSED_ARGUMENT(close_result);
                 #endif
-            #elif defined _WN_POSIX
+            #else
                 const int destroy_result = ::sem_destroy(&m_semaphore);
 
                 WN_DEBUG_ASSERT_DESC(destroy_result == 0, __WN_SEMAPHORE_DESTROY_WARN_MSG);
@@ -74,8 +72,7 @@ namespace wn {
                 const DWORD wait_result = ::WaitForSingleObject(m_handle, INFINITE);
 
                 WN_RELEASE_ASSERT_DESC(wait_result == WAIT_OBJECT_0, __WN_SEMAPHORE_WAIT_ERR_MSG);
-            #elif defined _WN_POSIX
-                const std::lock_guard<spin_lock> guard(m_spin_lock);
+            #else
                 int wait_result;
 
                 while ((wait_result = ::sem_wait(&m_semaphore)) == EINTR) {
@@ -83,12 +80,6 @@ namespace wn {
                 }
 
                 WN_RELEASE_ASSERT_DESC(wait_result == 0, __WN_SEMAPHORE_WAIT_ERR_MSG);
-            #else
-                std::unique_lock<spin_lock> lock(m_spin_lock);
-
-                m_condition_variable.wait(lock, [this]() -> wn_bool { return(m_count > 0); });
-
-                --m_count;
             #endif
         }
 
@@ -96,26 +87,13 @@ namespace wn {
             #ifdef _WN_WINDOWS
                 return(::WaitForSingleObject(m_handle, 0) != WAIT_TIMEOUT ? wn_true : wn_false);
             #else
-                const std::lock_guard<spin_lock> guard(m_spin_lock);
+                int try_wait_result;
 
-                #ifdef _WN_POSIX
-                    int try_wait_result;
+                while ((try_wait_result = ::sem_trywait(&m_semaphore)) == EINTR) {
+                    continue;
+                }
 
-                    while ((try_wait_result = ::sem_trywait(&m_semaphore)) == EINTR) {
-                        continue;
-                    }
-
-                    return(try_wait_result == 0 ? wn_true : wn_false);
-                #else
-                    if (m_count > 0)
-                    {
-                        --m_count;
-
-                        return(wn_true);
-                    }
-
-                    return(wn_false);
-                #endif
+                return(try_wait_result == 0 ? wn_true : wn_false);
             #endif
         }
 
@@ -125,17 +103,9 @@ namespace wn {
 
                 WN_RELEASE_ASSERT_DESC(release_result != FALSE, __WN_SEMAPHORE_POST_ERR_MSG);
             #else
-                const std::lock_guard<spin_lock> guard(m_spin_lock);
+                const int release_result = ::sem_post(&m_semaphore);
 
-                #ifdef _WN_POSIX
-                    const int release_result = ::sem_post(&m_semaphore);
-
-                    WN_RELEASE_ASSERT_DESC(release_result == 0, __WN_SEMAPHORE_POST_ERR_MSG);
-                #else
-                    ++m_count;
-
-                    m_condition_variable.notify_one();
-                #endif
+                WN_RELEASE_ASSERT_DESC(release_result == 0, __WN_SEMAPHORE_POST_ERR_MSG);
             #endif
         }
 
@@ -148,21 +118,11 @@ namespace wn {
 
                     WN_RELEASE_ASSERT_DESC(release_result != FALSE, __WN_SEMAPHORE_POST_ERR_MSG);
                 #else
-                    const std::lock_guard<spin_lock> guard(m_spin_lock);
+                    for (wn_uint16 i = 0; i < _count; ++i) {
+                        const int release_result = ::sem_post(&m_semaphore);
 
-                    #ifdef _WN_POSIX
-                        for (wn_uint16 i = 0; i < _count; ++i) {
-                            const int release_result = ::sem_post(&m_semaphore);
-
-                            WN_RELEASE_ASSERT_DESC(release_result == 0, __WN_SEMAPHORE_POST_ERR_MSG);
-                        }
-                    #else
-                        m_count += _count;
-
-                        for (wn_uint16 i = 0; i < _count; ++i) {
-                            m_condition_variable.notify_one();
-                        }
-                    #endif
+                        WN_RELEASE_ASSERT_DESC(release_result == 0, __WN_SEMAPHORE_POST_ERR_MSG);
+                    }
                 #endif
             }
         }
@@ -171,14 +131,7 @@ namespace wn {
         #ifdef _WN_WINDOWS
             HANDLE m_handle;
         #else
-            spin_lock m_spin_lock;
-
-            #ifdef _WN_POSIX
-                sem_t m_semaphore;
-            #else
-                condition_variable m_condition_variable;
-                wn_uint16 m_count;
-            #endif
+            sem_t m_semaphore;
         #endif
     };
 }

@@ -12,6 +12,7 @@
 #endif
 
 #include "WNCore/inc/WNAssert.h"
+#include "WNCore/inc/WNUtility.h"
 
 namespace WNCore {
     namespace internal {
@@ -24,7 +25,7 @@ namespace WNCore {
         template <typename type, wn_size_t width>
         struct __WNSwapBytes {
             static WN_FORCE_INLINE type&  Execute(type& _value) {
-                static_assert(WN_STATIC_ASSERT_DEPENDENT_FAIL<type>::Value, "You cannot convert this type from big endian"); 
+                static_assert(wn::dependent_false<type>::value, "You cannot convert this type from big endian"); 
 
                 return(_value);
             }
@@ -33,7 +34,7 @@ namespace WNCore {
         template <typename type>
         struct __WNSwapBytes<type, 1> {
             static WN_FORCE_INLINE type&  Execute(type& _value) {
-                static_assert(WN_STATIC_ASSERT_DEPENDENT_FAIL<type>::Value, "You should not be trying to endian swap a byte"); 
+                static_assert(wn::dependent_false<type>::value, "You should not be trying to endian swap a byte"); 
 
                 return(_value);
             }

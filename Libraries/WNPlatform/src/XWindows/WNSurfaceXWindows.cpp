@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 #include "WNPlatform/inc/Internal/XWindows/WNSurfaceXWindows.h"
-#include "WNConcurrency/inc/thread.h"
+#include "WNConcurrency/inc/WNThread.h"
 
 wn::WNSurfaceXWindows::WNSurfaceXWindows(wn::WNSurfaceManagerXWindows& _surfaceManager) :
     surface(),
@@ -20,7 +20,7 @@ wn::WNSurfaceXWindows::~WNSurfaceXWindows() {
     if (mWindow && mSurfaceThread) {
         XDestroyWindow(mDisplay, mWindow);
 
-        mSurfaceThread->WaitForCompletion();
+        mSurfaceThread->join();
     }
 
     mWindow = 0;
@@ -52,13 +52,7 @@ wn_bool wn::WNSurfaceXWindows::Initialize(wn_uint32 _x, wn_uint32 _y, wn_uint32 
 
     XSetWMProtocols(mDisplay, mWindow, &mDeleteMessage, 1);
 
-    mSurfaceThread = WN_NEW wn::thread<wn_void>();
-
-    if (mSurfaceThread->Initialize(this, &wn::WNSurfaceXWindows::SurfaceThread) != wn::thread_result::ok) {
-        wn::memory::destroy(mSurfaceThread);
-
-        return(wn_false);
-    }
+    mSurfaceThread = wn::memory::construct<wn::thread<wn_void> >(&wn::WNSurfaceXWindows::SurfaceThread, this);
 
     return(wn_true);
 }
@@ -87,7 +81,7 @@ wn_void wn::WNSurfaceXWindows::SurfaceThread() {
                     XClientMessageEvent* xcme = &e.xclient;
 
                     if (xcme->format == 32) {
-                        if (xcme->data.l[0] == mDeleteMessage) {
+                        if (xcme->data.l[0] == static_cast<long>(mDeleteMessage)) {
                             return;
                         }
                     }
@@ -97,7 +91,7 @@ wn_void wn::WNSurfaceXWindows::SurfaceThread() {
             }
         }
 
-        WNConcurrency::WNThreadSleep(1);
+        wn::this_thread::sleep_for(std::chrono::milliseconds(1));
 
         if (mExiting) {
             return;

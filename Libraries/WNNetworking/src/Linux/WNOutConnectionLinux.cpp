@@ -26,7 +26,7 @@ WNNetworkManagerReturnCode::type WNOutConnectionLinux::Initialize(WNConnectionTy
 
     wn_int32 sock;
 
-    wn::memory::WNMemClr(&hints, sizeof(struct addrinfo));
+    wn::memory::memzero(&hints, sizeof(struct addrinfo));
 
     hints.ai_family = AF_INET;
     hints.ai_socktype = SOCK_STREAM;
@@ -84,7 +84,7 @@ WNNetworkManagerReturnCode::type WNOutConnectionLinux::Initialize(WNConnectionTy
 
     const wn_size_t length = WN_SNPRINTF(NULL,0, "%s:%d", _target, _port);
 
-    mConnectionName = wn::memory::malloc<wn_char>(length + 1);
+    mConnectionName = wn::memory::heap_allocate<wn_char>(length + 1);
 
     WN_SNPRINTF(mConnectionName,length +1, "%s:%d", _target, _port);
 

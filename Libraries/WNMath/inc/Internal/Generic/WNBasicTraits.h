@@ -69,7 +69,7 @@ namespace wn {
                 mod(const type& _dividend, const type& _divisor) {
                     type value;
 
-                    value.representation = mod(_value.representation);
+                    value.representation = mod(_dividend.representation, _divisor.representation);
 
                     return(value);
                 }

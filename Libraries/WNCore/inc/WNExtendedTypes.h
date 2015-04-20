@@ -46,20 +46,20 @@ namespace wn {
             template <typename other_traits_type,
                       typename = enable_if_t<convertable<arithmetic_type<other_traits_type>>::value>>
             arithmetic_type(const arithmetic_type<other_traits_type>& _in_value) :
-                representation(traits_type::construct<arithmetic_type<other_traits_type>>(_in_value.representation)) {
+                representation(traits_type::template construct<arithmetic_type<other_traits_type>>(_in_value.representation)) {
             }
 
             template <typename type,
                       typename = enable_if_t<(supported<type>::value && !convertable<type>::value)>>
             arithmetic_type(const type& _in_value) :
-                representation(traits_type::construct<type>(_in_value)) {
+                representation(traits_type::template construct<type>(_in_value)) {
             }
 
             template <typename type>
             operator type () const {
                 static_assert(supported<type>::value, "Arithmetic type conversion is not supported for this type");
 
-                return(traits_type::convert<type>(representation));
+                return(traits_type::template convert<type>(representation));
             }
 
             arithmetic_type& operator = (arithmetic_type&& _in_value) {
@@ -77,7 +77,7 @@ namespace wn {
             template <typename other_traits>
             typename enable_if<convertable<arithmetic_type<other_traits>>::value, arithmetic_type>::type&
             operator = (const arithmetic_type<other_traits>& _in_value) {
-                representation = traits_type::construct<arithmetic_type<other_traits>>(_in_value.representation);
+                representation = traits_type::template construct<arithmetic_type<other_traits>>(_in_value.representation);
 
                 return(*this);
             }
@@ -85,7 +85,7 @@ namespace wn {
             template <typename type>
             typename enable_if<(supported<type>::value && !convertable<type>::value), arithmetic_type>::type&
             operator = (const type& _in_value) {
-                representation = traits_type::construct<type>(_in_value);
+                representation = traits_type::template construct<type>(_in_value);
 
                 return(*this);
             }
@@ -118,42 +118,42 @@ namespace wn {
             typename enable_if<supported<type>::value, wn_bool>::type operator == (const type& _in_value) const {
                 const arithmetic_type in_value(_in_value);
 
-                return(traits_type::equal(representation, in_value.representation));
+                return(traits_type::template equal(representation, in_value.representation));
             }
 
             template <typename type>
             typename enable_if<supported<type>::value, wn_bool>::type operator != (const type& _in_value) const {
                 const arithmetic_type in_value(_in_value);
 
-                return(!traits_type::equal(representation, in_value.representation));
+                return(!traits_type::template equal(representation, in_value.representation));
             }
 
             template <typename type>
             typename enable_if<supported<type>::value, wn_bool>::type operator < (const type& _in_value) const {
                 const arithmetic_type in_value(_in_value);
 
-                return(traits_type::less_than(representation, in_value.representation));
+                return(traits_type::template less_than(representation, in_value.representation));
             }
 
             template <typename type>
             typename enable_if<supported<type>::value, wn_bool>::type operator <= (const type& _in_value) const {
                 const arithmetic_type in_value(_in_value);
 
-                return(!traits_type::greater_than(representation, in_value.representation));
+                return(!traits_type::template greater_than(representation, in_value.representation));
             }
 
             template <typename type>
             typename enable_if<supported<type>::value, wn_bool>::type operator > (const type& _in_value) const {
                 const arithmetic_type in_value(_in_value);
 
-                return(traits_type::greater_than(representation, in_value.representation));
+                return(traits_type::template greater_than(representation, in_value.representation));
             }
 
             template <typename type>
             typename enable_if<supported<type>::value, wn_bool>::type operator >= (const type& _in_value) const {
                 const arithmetic_type in_value(_in_value);
 
-                return(!traits_type::less_than(representation, in_value.representation));
+                return(!traits_type::template less_than(representation, in_value.representation));
             }
 
             arithmetic_type operator + () const {
@@ -187,7 +187,7 @@ namespace wn {
             }
 
             arithmetic_type& operator /= (const arithmetic_type& _in_value) {
-                traits_type::divide(representation, _in_value.representation);
+              traits_type::divide(representation, _in_value.representation);
 
                 return(*this);
             }
@@ -338,12 +338,7 @@ namespace wn {
 
         template <typename _Traits>
         struct size_of<arithmetic_type<_Traits>> : index_constant<sizeof(typename arithmetic_type<_Traits>::value_type)> {};
-
-        template <typename _Type, const wn_uint8 _Precision>
-        struct fixed_point_traits_base : arithmetic_traits<_Type> {
-            static_assert(std::is_integral<value_type>::value && std::is_arithmetic<value_type>::value,
-                          "Internal type must be an integer type");
-            static_assert(sizeof(value_type) <= 8, "type must be no more than 64 bits");
+        namespace {
 
             template <typename _LowerType>
             struct select_scale_type {
@@ -390,6 +385,14 @@ namespace wn {
                 typedef wn_uint64 type;
             };
 
+        }
+        template <typename _Type, const wn_uint8 _Precision>
+        struct fixed_point_traits_base : arithmetic_traits<_Type> {
+            typedef typename arithmetic_traits<_Type>::value_type value_type;
+            static_assert(std::is_integral<value_type>::value && std::is_arithmetic<value_type>::value,
+                          "Internal type must be an integer type");
+            static_assert(sizeof(value_type) <= 8, "type must be no more than 64 bits");
+
             typedef typename select_scale_type<value_type>::type scale_type;
 
             enum : value_type {
@@ -423,13 +426,13 @@ namespace wn {
             template <typename type>
             static typename enable_if<(is_fixed_point<type>::value && precision > type::traits_type::precision),
                                            value_type>::type construct(const typename type::value_type& _in_value) {
-                return(static_cast<value_type>(_in_value) << (precision - type::traits_type::precision));
+                return(static_cast<value_type>(_in_value) << (precision - type::traits_type::template precision));
             }
 
             template <typename type>
             static typename enable_if<(is_fixed_point<type>::value && precision < type::traits_type::precision),
                                            value_type>::type construct(const typename type::value_type& _in_value) {
-                return(static_cast<value_type>(_in_value >> (type::traits_type::precision - precision)));
+                return(static_cast<value_type>(_in_value >> (type::traits_type::template precision - precision)));
             }
 
             template <typename type>
@@ -471,6 +474,12 @@ namespace wn {
 
         template <typename _Type, const wn_uint8 _Precision>
         struct fixed_point_traits : fixed_point_traits_base<_Type, _Precision> {
+            typedef typename fixed_point_traits_base<_Type, _Precision>::value_type value_type;
+            typedef typename fixed_point_traits_base<_Type, _Precision>::scale_type scale_type;
+            enum : value_type {
+                one = (static_cast<value_type>(1) << _Precision),
+                precision = _Precision
+            };
             static wn_void multiply(value_type& _in_out_value, const value_type& _in_value) {
                 const scale_type in_out_value = static_cast<scale_type>(_in_out_value);
                 const scale_type in_value = static_cast<scale_type>(_in_value);
@@ -487,6 +496,7 @@ namespace wn {
 
         template <const wn_uint8 precision>
         struct fixed_point_traits<wn_int64, precision> : fixed_point_traits_base<wn_int64, precision> {
+            typedef typename fixed_point_traits_base<wn_int64, precision>::value_type value_type;
             static wn_void multiply(wn_int64& _in_out_value, const wn_int64& _in_value) {
                 #if defined _WN_WINDOWS && defined _WN_64_BIT
                     _in_out_value = static_cast<value_type>(::MultiplyExtract128(_in_out_value, _in_value, precision));
@@ -595,8 +605,10 @@ namespace wn {
             }
         };
 
-        template <typename _Type, typename conversion_type>
+        template <typename _Type, typename _conversion_type>
         struct floating_point_traits : arithmetic_traits<_Type> {
+            typedef typename arithmetic_traits<_Type>::value_type value_type;
+            typedef _conversion_type conversion_type;
             template <typename type>
             struct supported : boolean_constant<(std::is_integral<type>::value || is_floating_point<type>::value ||
                                                    is_fixed_point<type>::value)> {};

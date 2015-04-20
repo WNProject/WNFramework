@@ -34,11 +34,11 @@ WNNetworkManagerReturnCode::type WNListenConnectionLinux::Initialize() {
     struct addrinfo *result, *rp;
     wn_int32 sock;
 
-    WNMemory::WNMemClr(&hints, sizeof(struct addrinfo));
+    wn::memory::memzero(&hints, sizeof(struct addrinfo));
 
     struct sockaddr_in serv_addr;
 
-    WNMemory::WNMemClr(&serv_addr, sizeof(serv_addr));
+    wn::memory::memzero(&serv_addr, sizeof(sockaddr_in));
 
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -90,7 +90,7 @@ WNNetworkManagerReturnCode::type WNListenConnectionLinux::Initialize() {
     }
 
     const int nameLen = WN_SNPRINTF(NULL, 0, "Listen:%d", mPort);
-    wn_char* name = wn::calloc<wn_char>(nameLen + 1);
+    wn_char* name = wn::memory::heap_allocate<wn_char>(nameLen + 1);
 
     WN_SNPRINTF(name, nameLen + 1, "Listen:%d", mPort);
 
@@ -117,7 +117,8 @@ WNInConnectionLinux* WNListenConnectionLinux::ReceiveConnection() {
         }
     }
 
-    WNInConnectionLinux * conn = WN_NEW WNInConnectionLinux(mManager);
+    WNInConnectionLinux * conn = wn::memory::construct<WNInConnectionLinux>(mManager);
+
 
     conn->Initialize(sockFD, addr, len);
 

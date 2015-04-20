@@ -9,6 +9,8 @@
 
 #include "WNCore/inc/WNTypeTraits.h"
 
+#include <immintrin.h>
+
 #define __WN_XMM_CAST_PS_TO_SI128(_value) *reinterpret_cast<__m128i*>(&_value)
 
 namespace wn {
@@ -63,10 +65,12 @@ namespace wn {
     }
 };
 
+#ifdef __AVX_AVAILABLE
 WN_FORCE_INLINE wn_void avx_zero_upper() {
     #ifndef __WN_VEX_AVAILABLE
         _mm256_zeroupper();
     #endif
 }
+#endif // __AVX_AVAILABLE
 
 #endif // __WN_MATH_INTERNAL_X86_UTILITIES_H__

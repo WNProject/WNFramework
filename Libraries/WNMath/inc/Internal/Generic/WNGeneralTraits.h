@@ -93,6 +93,77 @@ namespace wn {
                 }
 
                 template <typename type, const wn_size_t dimension>
+                static WN_FORCE_INLINE wn_bool equal(const element_array<type, dimension>& first,
+                                                     const element_array<type, dimension>& second) {
+                    for (wn_size_t i = 0; i < dimension; ++i) {
+                        if(first.m_values[i] != second.m_values[i]) {
+                          return wn_false;
+                        }
+                    }
+                    return wn_true;
+                }
+
+                template <typename type, const wn_size_t dimension>
+                static WN_FORCE_INLINE wn_bool not_equal(const element_array<type, dimension>& first,
+                                                     const element_array<type, dimension>& second) {
+                    for (wn_size_t i = 0; i < dimension; ++i) {
+                        if(first.m_values[i] == second.m_values[i]) {
+                          return wn_false;
+                        }
+                    }
+                    return wn_true;
+                }
+
+                template <typename type, const wn_size_t dimension>
+                static WN_FORCE_INLINE type dot(const element_array<type, dimension>& first,
+                                                     const element_array<type, dimension>& second) {
+                    type accumulator = static_cast<type>(0);
+                    for (wn_size_t i = 0; i < dimension; ++i) {
+                        accumulator += first.m_values[i] * second.m_values[i];
+                    }
+                    return accumulator;
+                }
+
+                template <typename type, const wn_size_t dimension>
+                static WN_FORCE_INLINE wn_bool zero(const element_array<type, dimension>& first) {
+                    for (wn_size_t i = 0; i < dimension; ++i) {
+                        if(first.m_values[i] != static_cast<type>(0)) {
+                          return wn_false;
+                        }
+                    }
+                    return wn_true;
+                }
+
+                template <typename type, const wn_size_t dimension>
+                static WN_FORCE_INLINE wn_void set_zero(const element_array<type, dimension>& first) {
+                    for (wn_size_t i = 0; i < dimension; ++i) {
+                        first.m_values[i] = 0;
+                    }
+                }
+
+                template <typename type, const wn_size_t dimension>
+                static WN_FORCE_INLINE void snap(element_array<type, dimension>& first,
+                                                 wn::snap_direction direction) {
+                    for(wn_size_t i = 0; i < dimension; ++i) {
+                        switch(direction) {
+                            case snap_direction::nearest:
+                              first.m_values[i] = wn::round(first.m_values[i]);
+                              break;
+                            case snap_direction::down:
+                              first.m_values[i] = wn::floor(first.m_values[i]);
+                              break;
+                            case snap_direction::up:
+                              first.m_values[i] = wn::ceil(first.m_values[i]);
+                              break;
+                            case snap_direction::truncate:
+                              first.m_values[i] = wn::trunc(first.m_values[i]);
+                              break;
+                        }
+                    }
+                }
+
+
+                template <typename type, const wn_size_t dimension>
                 static WN_FORCE_INLINE wn_void subtract(element_array<type, dimension>& _element_array1,
                                                         const element_array<type, dimension>& _element_array2) {
                     for (wn_size_t i = 0; i < dimension; ++i) {

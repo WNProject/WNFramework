@@ -123,7 +123,7 @@ eWNTypeError WNTypeManagerImpl::RegisterCStruct(const WNScriptingEngine* _engine
     llvm::StructType* sContainerType = llvm::StructType::create(llvm::getGlobalContext(), llvm::makeArrayRef(types));
 
     llvm::PointerType* ty = sContainerType->getPointerTo(0);
-    WNScripting::WNScriptTypeInternal* type = wn::memory::construct<WNScripting::WNScriptTypeInternal>(name, _engine, 0, 0.0f, ty, wn_nullptr, mNextTag, sizeof(wn_size_t));
+    WNScripting::WNScriptTypeInternal* type = wn::memory::construct<WNScripting::WNScriptTypeInternal>(name, _engine, 0, 0.0f, ty, static_cast<llvm::StructType*>(wn_nullptr), mNextTag, sizeof(wn_size_t));
     IncrementTag();
     mScriptTypes.push_back(type);
     _outType = type;

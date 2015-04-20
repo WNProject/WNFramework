@@ -15,20 +15,21 @@ namespace wn {
     namespace internal {
         namespace math {
             struct vector_traits_sse : vector_traits_generic {
+                typedef vector_traits_generic base;
                 template <typename type, const wn_size_t dimension>
                 static WN_FORCE_INLINE type length_squared(const element_array<type, dimension>& _element_array) {
-                    return(base::length_squared(_element_array));
+                    return(base::template length_squared<type, dimension>(_element_array));
                 }
 
-                template <>
-                static WN_FORCE_INLINE wn_float32 length_squared(const element_array<wn_float32, 2>& _element_array) {
+                template <typename type>
+                static WN_FORCE_INLINE typename enable_if<is_same<type, wn_float32>::value>::type length_squared(const element_array<wn_float32, 2>& _element_array) {
                     const __m128 squared = _mm_mul_ps(_element_array.m_xmm_values[0], _element_array.m_xmm_values[0]);
 
                     return(_mm_cvtss_f32(_mm_add_ss(squared, _mm_shuffle_ps(squared, squared, _MM_SHUFFLE(1, 0, 2, 3)))));
                 }
 
-                template <>
-                static WN_FORCE_INLINE wn_float32 length_squared(const element_array<wn_float32, 4>& _element_array) {
+                template <typename type>
+                static WN_FORCE_INLINE typename enable_if<is_same<type, wn_float32>::value, wn_float32>::type length_squared(const element_array<wn_float32, 4>& _element_array) {
                     const __m128 squared = _mm_mul_ps(_element_array.m_xmm_values[0], _element_array.m_xmm_values[0]);
                     const __m128 partial = _mm_add_ps(squared, _mm_shuffle_ps(squared, squared, _MM_SHUFFLE(1, 0, 3, 2)));
 
@@ -40,8 +41,8 @@ namespace wn {
                     base::normalize(_element_array);
                 }
 
-                template <>
-                static WN_FORCE_INLINE wn_void normalize(element_array<wn_float32, 4>& _element_array) {
+                template <typename type>
+                static WN_FORCE_INLINE typename enable_if<is_same<type, wn_void>::value>::type normalize(element_array<wn_float32, 4>& _element_array) {
                     const __m128 squared = _mm_mul_ps(_element_array.m_xmm_values[0], _element_array.m_xmm_values[0]);
                     __m128 shuffle = _mm_shuffle_ps(squared, squared, _MM_SHUFFLE(1, 0, 3, 2));
                     __m128 length_squared = _mm_add_ps(squared, shuffle);
@@ -91,9 +92,6 @@ namespace wn {
                         #endif
                     }
                 }
-
-            private:
-                typedef general_traits_generic base;
             };
         }
     }

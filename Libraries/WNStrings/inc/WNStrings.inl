@@ -14,6 +14,7 @@
 #include "WNCore/inc/WNBase.h"
 #include "WNCore/inc/WNTypes.h"
 #include "WNCore/inc/WNAssert.h"
+#include "WNCore/inc/WNUtility.h"
 #include "WNMemory/inc/WNMemory.h"
 
 #ifdef _WN_MSVC
@@ -304,7 +305,7 @@ namespace WNStrings {
 
     template<typename T>
     WN_INLINE wn_int32  WNTSnPrintf(T _buffer, wn_size_t _count, const T _formatter, ...) {
-        WN_STATIC_ASSERT(WN_STATIC_ASSERT_DEPENDENT_FAIL<T>::Value);
+        static_assert(wn::dependent_false<T>::value, "WNTSnPrintf undefined for this type");
     }
 
     WN_FORCE_INLINE wn_size_t WNWriteInt32(wn_char* _buffer, wn_int32 _int, wn_size_t _maxSize) {

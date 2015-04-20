@@ -19,7 +19,7 @@ using namespace WNNetworking;
 #define WN_ADDRESS "localhost"
 
 static wn::mutex gPrintMutex;
-static std::atomic<wn_int32> gAtomVal = 0;
+static std::atomic<wn_int32> gAtomVal({0});
 
 template <wn_uint32 Number>
 static wn_void Message(WNConnection* _connection, WNNetworkReadBuffer& _buffer) {
@@ -33,7 +33,7 @@ static wn_void Message(WNConnection* _connection, WNNetworkReadBuffer& _buffer) 
         if ((++gAtomVal) % 1000 == 0) {
             const std::lock_guard<wn::mutex> lockGuard(gPrintMutex);
 
-            ::printf("Value is now %d\n", gAtomVal);
+            ::printf("Value is now %d\n", static_cast<wn_int32>(gAtomVal));
         }
     }
 }

@@ -7,6 +7,9 @@
 
 #include <atomic>
 
+#include "WNCore/inc/WNTypes.h"
+#include "WNCore/inc/WNUtility.h"
+
 namespace WNScripting {
     template<int i = 0>
     struct DummyType {//this is so we can generate dummy functions to cast up the chain
@@ -30,7 +33,7 @@ namespace WNScripting {
 
    template<typename T>
     struct TypeMapping {
-        static const wn_char * GetTypeName() { WN_STATIC_ASSERT(WN_STATIC_ASSERT_DEPENDENT_FAIL<T>::Value); }
+        static const wn_char * GetTypeName() { static_assert(wn::dependent_false<T>::value, "No type mapping for type"); }
     };
 
 }

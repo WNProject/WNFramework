@@ -127,7 +127,7 @@ namespace wn {
                         {
                             const std::lock_guard<spin_lock> guard(m_task_lock);
 
-                            m_tasks.push_back(intrusive_ptr<thread_task>());
+                            m_tasks.push_back(memory::intrusive_ptr<thread_task>());
                         }
 
                         m_task_available_semaphore.notify();
@@ -191,7 +191,7 @@ namespace wn {
                     m_task_available_semaphore.wait();
                     m_task_lock.lock();
 
-                    intrusive_ptr<thread_task> job = m_tasks.front();
+                    memory::intrusive_ptr<thread_task> job = m_tasks.front();
 
                     m_tasks.pop_front();
                     m_task_lock.unlock();
@@ -209,7 +209,7 @@ namespace wn {
        #ifdef _WN_WINDOWS
             HANDLE m_io_completion_port;
         #else
-            std::deque<intrusive_ptr<thread_task>> m_tasks;
+            std::deque<memory::intrusive_ptr<thread_task>> m_tasks;
             semaphore m_task_available_semaphore;
             spin_lock m_task_lock;
         #endif
