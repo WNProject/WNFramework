@@ -1,5 +1,5 @@
 ARFLAGS += rcs
-CXXFLAGS += -I$(DEPENDENCYDIR)include $(INCLUDES) -fno-exceptions -std=c++0x -fno-rtti -Werror
+CXXFLAGS += -I$(DEPENDENCYDIR)include $(INCLUDES) -fno-exceptions -std=c++11 -fno-rtti -Werror
 LDFLAGS += -L$(DEPENDENCYDIR)lib
 
 UNAME_P := $(shell uname -p)

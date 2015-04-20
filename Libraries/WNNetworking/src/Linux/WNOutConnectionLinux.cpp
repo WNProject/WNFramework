@@ -19,20 +19,20 @@ WNOutConnectionLinux::WNOutConnectionLinux(WNNetworkManager& _manager) :
     WNConnectionLinux(_manager) {
 }
 
-WNNetworkManagerReturnCode::Type WNOutConnectionLinux::Initialize(WNConnectionType::Type& _type, const WN_CHAR* _target, WN_UINT16 _port) {   
+WNNetworkManagerReturnCode::type WNOutConnectionLinux::Initialize(WNConnectionType::type& _type, const wn_char* _target, wn_uint16 _port) {
     addrinfo* result;
     addrinfo* rp;
     addrinfo hints;
 
-    WN_INT32 sock;
+    wn_int32 sock;
 
-    WNMemory::WNMemClr(&hints, sizeof(struct addrinfo));
+    wn::memory::memzero(&hints, sizeof(struct addrinfo));
 
     hints.ai_family = AF_INET;
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_PASSIVE;
 
-    WN_CHAR port[16];
+    wn_char port[16];
 
     WN_SNPRINTF(port, 16, "%d", _port);
 
@@ -64,7 +64,7 @@ WNNetworkManagerReturnCode::Type WNOutConnectionLinux::Initialize(WNConnectionTy
 
     freeaddrinfo(result);
 
-    WN_INT32 flags;
+    wn_int32 flags;
 
     flags = fcntl(mSockFD, F_GETFL, 0);
 
@@ -82,11 +82,11 @@ WNNetworkManagerReturnCode::Type WNOutConnectionLinux::Initialize(WNConnectionTy
         return(WNNetworkManagerReturnCode::eWNCannotUnblock);
     }
 
-    const WN_SIZE_T length = WN_SNPRINTF(NULL,0, "%s:%d", _target, _port);
+    const wn_size_t length = WN_SNPRINTF(NULL,0, "%s:%d", _target, _port);
 
-    mConnectionName = WNMemory::WNMallocT<WN_CHAR>(length + 1);
+    mConnectionName = wn::memory::heap_allocate<wn_char>(length + 1);
 
     WN_SNPRINTF(mConnectionName,length +1, "%s:%d", _target, _port);
 
-    return(WNNetworkManagerReturnCode::eWNOK);
+    return(WNNetworkManagerReturnCode::ok);
 }

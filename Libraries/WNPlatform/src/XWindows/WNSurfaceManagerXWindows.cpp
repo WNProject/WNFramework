@@ -5,10 +5,9 @@
 #include "WNPlatform/inc/Internal/XWindows/WNSurfaceManagerXWindows.h"
 #include "WNPlatform/inc/Internal/XWindows/WNSurfaceXWindows.h"
 
-using namespace WNPlatform;
-using namespace WNConcurrency;
+using namespace wn;
 
-WNSurfaceManagerReturnCode::Type WNSurfaceManagerXWindows::Initialize() {
+WNSurfaceManagerReturnCode::type WNSurfaceManagerXWindows::Initialize() {
     XInitThreads();
 
     mDisplay = XOpenDisplay(NULL);
@@ -53,11 +52,11 @@ WNSurfaceManagerReturnCode::Type WNSurfaceManagerXWindows::Initialize() {
 
     mVisualInfo = glXGetVisualFromFBConfig(mDisplay, mFBConfig);
 
-    return(WNSurfaceManagerReturnCode::eWNOK);
+    return(WNSurfaceManagerReturnCode::ok);
 }
 
-WNSurfaceManagerReturnCode::Type WNSurfaceManagerXWindows::CreateSurface(WN_UINT32 _x, WN_UINT32 _y, WN_UINT32 _width, WN_UINT32 _height, WNResourcePointer<WNSurface>& _surface) {
-    WNResourcePointer<WNSurfaceXWindows> ptr = WNAllocateResource<WNSurfaceXWindows, WNSurfaceManagerXWindows&>(*this);
+WNSurfaceManagerReturnCode::type WNSurfaceManagerXWindows::CreateSurface(wn_uint32 _x, wn_uint32 _y, wn_uint32 _width, wn_uint32 _height, memory::intrusive_ptr<surface>& _surface) {
+  memory::intrusive_ptr<WNSurfaceXWindows> ptr = memory::make_intrusive<WNSurfaceXWindows, WNSurfaceManagerXWindows&>(*this);
 
     if (!ptr->Initialize(_x, _y, _width, _height, mDisplay, mVisualInfo)) {
         return(WNSurfaceManagerReturnCode::eWNInitializationFailure);
@@ -65,11 +64,11 @@ WNSurfaceManagerReturnCode::Type WNSurfaceManagerXWindows::CreateSurface(WN_UINT
 
     _surface = ptr;
 
-    return(WNSurfaceManagerReturnCode::eWNOK);
+    return(WNSurfaceManagerReturnCode::ok);
 }
 
-WNSurfaceManagerReturnCode::Type WNSurfaceManagerXWindows::Release() {
-    return(WNSurfaceManagerReturnCode::eWNOK);
+WNSurfaceManagerReturnCode::type WNSurfaceManagerXWindows::Release() {
+    return(WNSurfaceManagerReturnCode::ok);
 }
 
 WNSurfaceManagerXWindows::WNSurfaceManagerXWindows() :

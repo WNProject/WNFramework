@@ -28,96 +28,96 @@
 
 namespace WNScripting {
     struct GenerateFPToIntCast: public GenerateCastingOperation {
-        GenerateFPToIntCast(WNScriptType _destType, WN_BOOL _destSigned) :
+        GenerateFPToIntCast(WNScriptType _destType, wn_bool _destSigned) :
             mDestInt(_destType),
             mDestSigned(_destSigned) {
         }
         virtual ~GenerateFPToIntCast() {}
         virtual eWNTypeError Execute(llvm::IRBuilderBase* _builder, llvm::Value* _expr1, llvm::Value*& _outReturnValue) const {
-            llvm::IRBuilder<>* builder = reinterpret_cast<llvm::IRBuilder<>* >(_builder);       
+            llvm::IRBuilder<>* builder = reinterpret_cast<llvm::IRBuilder<>* >(_builder);
             if(mDestSigned) {
                 _outReturnValue = builder->CreateFPToSI(_expr1, mDestInt->mLLVMType, "");
             } else {
                 _outReturnValue = builder->CreateFPToUI(_expr1, mDestInt->mLLVMType, "");
             }
-        
-            return(eWNOK);
+
+            return(ok);
         }
     private:
         WNScriptType mDestInt;
-        WN_BOOL mDestSigned;
+        wn_bool mDestSigned;
     };
 
     struct GenerateIntToFPCast: public GenerateCastingOperation {
-        GenerateIntToFPCast(WNScriptType _destType, WN_BOOL _srcSigned) :
+        GenerateIntToFPCast(WNScriptType _destType, wn_bool _srcSigned) :
             mDestInt(_destType),
             mSrcSigned(_srcSigned) {
         }
         virtual ~GenerateIntToFPCast() {}
         virtual eWNTypeError Execute(llvm::IRBuilderBase* _builder, llvm::Value*_expr1, llvm::Value*& _outReturnValue) const {
-            llvm::IRBuilder<>* builder = reinterpret_cast<llvm::IRBuilder<>* >(_builder);       
+            llvm::IRBuilder<>* builder = reinterpret_cast<llvm::IRBuilder<>* >(_builder);
             if(mSrcSigned) {
                 _outReturnValue = builder->CreateSIToFP(_expr1, mDestInt->mLLVMType, "");
             } else {
                 _outReturnValue = builder->CreateUIToFP(_expr1, mDestInt->mLLVMType, "");
             }
-        
-            return(eWNOK);
+
+            return(ok);
         }
     private:
         WNScriptType mDestInt;
-        WN_BOOL mSrcSigned;
+        wn_bool mSrcSigned;
     };
 
     struct GenerateIntToIntCast: public GenerateCastingOperation {
-        GenerateIntToIntCast(WNScriptType _destType, WN_BOOL _srcSigned) :
+        GenerateIntToIntCast(WNScriptType _destType, wn_bool _srcSigned) :
             mDestInt(_destType),
             mSrcSigned(_srcSigned) {
         }
         virtual ~GenerateIntToIntCast() {}
         virtual eWNTypeError Execute(llvm::IRBuilderBase* _builder, llvm::Value* _expr1, llvm::Value*& _outReturnValue) const {
-            llvm::IRBuilder<>* builder = reinterpret_cast<llvm::IRBuilder<>* >(_builder);       
+            llvm::IRBuilder<>* builder = reinterpret_cast<llvm::IRBuilder<>* >(_builder);
             _outReturnValue = builder->CreateIntCast(_expr1, mDestInt->mLLVMType, mSrcSigned, "");
-            return(eWNOK);
+            return(ok);
         }
     private:
         WNScriptType mDestInt;
-        WN_BOOL mSrcSigned;
+        wn_bool mSrcSigned;
     };
 
     eWNTypeError WNBuiltInInitializer::InitializeScriptingCasts(WNScriptingEngine*, WNTypeManager& _manager) {
-        eWNTypeError err = eWNOK;
-        WNScriptType nullType; if((err = _manager.GetTypeByName("-Null", nullType)) != eWNOK) { return err; } 
-        _manager.RegisterAllocationOperator(nullType, WN_NEW GenerateDefaultAllocation());
+        eWNTypeError err = ok;
+        WNScriptType nullType; if((err = _manager.GetTypeByName("-Null", nullType)) != ok) { return err; }
+        _manager.RegisterAllocationOperator(nullType, wn::memory::construct<GenerateDefaultAllocation>());
 
-        WNScriptType floatType;  if((err = _manager.GetTypeByName("Float", floatType)) != eWNOK) { return err; } 
-        WNScriptType intType; if((err = _manager.GetTypeByName("Int", intType)) != eWNOK) { return err; }
-        WNScriptType charType;  if((err = _manager.GetTypeByName("Char", charType)) != eWNOK) { return err; }
-        WNScriptType boolType; if((err = _manager.GetTypeByName("Bool", boolType)) != eWNOK) { return err; }
-        WNScriptType sizeTType; if((err = _manager.GetTypeByName("-SizeT", sizeTType)) != eWNOK) { return err; }
+        WNScriptType floatType;  if((err = _manager.GetTypeByName("Float", floatType)) != ok) { return err; }
+        WNScriptType intType; if((err = _manager.GetTypeByName("Int", intType)) != ok) { return err; }
+        WNScriptType charType;  if((err = _manager.GetTypeByName("Char", charType)) != ok) { return err; }
+        WNScriptType boolType; if((err = _manager.GetTypeByName("Bool", boolType)) != ok) { return err; }
+        WNScriptType sizeTType; if((err = _manager.GetTypeByName("-SizeT", sizeTType)) != ok) { return err; }
         _manager.RegisterCastingOperator(intType, charType,
-            WN_NEW GenerateIntToIntCast(charType, true));
+            wn::memory::construct<GenerateIntToIntCast>(charType, true));
         _manager.RegisterCastingOperator(intType, floatType,
-            WN_NEW GenerateIntToFPCast(floatType, true));
+            wn::memory::construct<GenerateIntToFPCast>(floatType, true));
         _manager.RegisterCastingOperator(intType, boolType,
-            WN_NEW GenerateIntToIntCast(boolType, true));
+            wn::memory::construct<GenerateIntToIntCast>(boolType, true));
         _manager.RegisterCastingOperator(charType, intType,
-            WN_NEW GenerateIntToIntCast(intType, false));
+            wn::memory::construct<GenerateIntToIntCast>(intType, false));
         _manager.RegisterCastingOperator(intType, sizeTType,
-            WN_NEW GenerateIntToIntCast(sizeTType, false));
+            wn::memory::construct<GenerateIntToIntCast>(sizeTType, false));
         _manager.RegisterCastingOperator(charType, sizeTType,
-            WN_NEW GenerateIntToIntCast(sizeTType, false));
+            wn::memory::construct<GenerateIntToIntCast>(sizeTType, false));
         _manager.RegisterCastingOperator(charType, floatType,
-            WN_NEW GenerateIntToFPCast(floatType, false));
+            wn::memory::construct<GenerateIntToFPCast>(floatType, false));
         _manager.RegisterCastingOperator(charType, boolType,
-            WN_NEW GenerateIntToIntCast(boolType, false));
+            wn::memory::construct<GenerateIntToIntCast>(boolType, false));
         _manager.RegisterCastingOperator(floatType, intType,
-            WN_NEW GenerateFPToIntCast(intType, true));
+            wn::memory::construct<GenerateFPToIntCast>(intType, true));
         _manager.RegisterCastingOperator(floatType, charType,
-            WN_NEW GenerateFPToIntCast(charType, false));
+            wn::memory::construct<GenerateFPToIntCast>(charType, false));
         _manager.RegisterCastingOperator(floatType, boolType,
-            WN_NEW GenerateFPToIntCast(boolType, false));
-    
-        return(eWNOK);
+            wn::memory::construct<GenerateFPToIntCast>(boolType, false));
+
+        return(ok);
     }
 }

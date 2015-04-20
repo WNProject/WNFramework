@@ -7,8 +7,8 @@
 #ifndef __WN_CORE_INTERNAL_BASE_GCC_H__
 #define __WN_CORE_INTERNAL_BASE_GCC_H__
 
-#if __GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 4)
-    #error "Compiler not supported: GNU C 4.4.0 or higher must be used"
+#if __GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 8)
+    #error "Compiler not supported: GNU C 4.8 or higher must be used"
 #endif
 
 #ifdef __GNUC_PATCHLEVEL__
@@ -25,13 +25,13 @@
 
 #if defined __GXX_EXPERIMENTAL_CXX0X__ || __cplusplus >= 201100L
     #if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 3)
-        #define __WN_HAS_STATIC_ASSERT
-        #define __WN_HAS_RVALUE_REFERENCES
-        #define __WN_HAS_VARIADIC_TEMPLATES
+        #define __WN_HAS_CPP11_STATIC_ASSERT
+        #define __WN_HAS_CPP11_RVALUE_REFERENCES
+        #define __WN_HAS_CPP11_VARIADIC_TEMPLATES
     #endif
 
     #if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6)
-        #define __WN_HAS_NULLPTR
+        #define __WN_HAS_CPP11_NULLPTR
     #endif
 
     #if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 8)
@@ -40,7 +40,7 @@
 #endif
 
 #ifdef __GNUG__
-    #define __WN_HAS_NULLPTR_CUSTOM
+    #define __WN_HAS_CUSTOM_NULLPTR
 #endif
 
 #include "WNCore/inc/Internal/WNBase_Clang_GCC.h"

@@ -19,12 +19,12 @@ typedef BOOL (__stdcall *tStackWalk)(
 LPTOP_LEVEL_EXCEPTION_FILTER g_oldFilter = NULL;
 
 LONG WINAPI exceptionFilter(_In_ struct _EXCEPTION_POINTERS *ExceptionInfo) {
-     
+
     HMODULE h = LoadLibrary("dbghelp.dll");
     tStackWalk mStackWalk = (tStackWalk) GetProcAddress(h, "StackWalk64" );
     PFUNCTION_TABLE_ACCESS_ROUTINE64 sfta = (PFUNCTION_TABLE_ACCESS_ROUTINE64) GetProcAddress(h, "SymFunctionTableAccess64");
     PGET_MODULE_BASE_ROUTINE64 sbgm = (PGET_MODULE_BASE_ROUTINE64 ) GetProcAddress(h, "SymGetModuleBase64");
-    
+
     if(h == 0 || !mStackWalk || !sfta || !sbgm || !ExceptionInfo) {
         return(g_oldFilter?(*g_oldFilter)(ExceptionInfo): EXCEPTION_EXECUTE_HANDLER);
     }
@@ -59,23 +59,23 @@ LONG WINAPI exceptionFilter(_In_ struct _EXCEPTION_POINTERS *ExceptionInfo) {
     stackFrame.AddrStack.Mode = AddrModeFlat;
 #endif
     fprintf(f, "%p\n", GetModuleHandle(NULL));
-    
-    while(TRUE == mStackWalk(IMAGE_FILE_MACHINE_I386, 
-                              process, 
-                              thread, 
-                              &stackFrame, 
-                              p1.ContextRecord, 
-                              NULL, 
-                              sfta, 
-                              sbgm, 
+
+    while(TRUE == mStackWalk(IMAGE_FILE_MACHINE_I386,
+                              process,
+                              thread,
+                              &stackFrame,
+                              p1.ContextRecord,
+                              NULL,
+                              sfta,
+                              sbgm,
                               NULL)) {
         fprintf(f, "%p\n", stackFrame.AddrPC.Offset);
     }
     fclose(f);
-    
+
     return(g_oldFilter?(*g_oldFilter)(ExceptionInfo): EXCEPTION_EXECUTE_HANDLER);
 }
 
-WN_VOID WNUtils::InitializeCrashHandler() {
+wn_void WNUtils::InitializeCrashHandler() {
     g_oldFilter = SetUnhandledExceptionFilter(&exceptionFilter);
 }

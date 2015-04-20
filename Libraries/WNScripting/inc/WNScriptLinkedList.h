@@ -10,19 +10,19 @@
 namespace WNScripting {
     template<typename T>
     struct WNScriptLinkedList {
-        WNScriptLinkedList() : first(WN_NULL), last(WN_NULL) {}
+        WNScriptLinkedList() : first(wn_nullptr), last(wn_nullptr) {}
         ~WNScriptLinkedList() {
             WNScriptLinkedListNode* node = first;
-            while(node != WN_NULL) {
+            while(node != wn_nullptr) {
                 WNScriptLinkedListNode* next = node->next;
-                WN_DELETE(node);
+                wn::memory::destroy(node);
                 node = next;
             }
-            first = last = WN_NULL;
+            first = last = wn_nullptr;
         }
         void PushBack(T* _elem) {
             WNScriptLinkedListNode* node = WN_SCRIPTNODE_NEW(WNScriptLinkedListNode(_elem));
-            if(first == WN_NULL) {
+            if(first == wn_nullptr) {
                 first = node;
                 last = node;
             } else {
@@ -30,9 +30,9 @@ namespace WNScripting {
                 last = node;
             }
         }
-    
+
         struct WNScriptLinkedListNode {
-            WNScriptLinkedListNode(T* _value): value(_value), next(WN_NULL) {}
+            WNScriptLinkedListNode(T* _value): value(_value), next(wn_nullptr) {}
             T* value;
             WNScriptLinkedListNode* next;
         };

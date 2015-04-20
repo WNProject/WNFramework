@@ -8,88 +8,82 @@
 #define __WN_MATH_BASIC_H__
 
 #include "WNCore/inc/WNTypes.h"
-#include "WNMath/inc/WNConfig.h"
+#include "WNCore/inc/WNTypeTraits.h"
+#include "WNMath/inc/WNConstants.h"
+#include "WNMath/inc/Internal/WNBasicTraits.h"
 
-namespace WNMath {
-    template <typename Type>
-    WN_FORCE_INLINE Type WNAbs(const Type& _number);
+namespace wn {
+    template <typename type_>
+    WN_FORCE_INLINE typename enable_if<is_signed<type_>::value, type_>::type abs(const type_& _value) {
+        return(internal::math::basic_traits::abs<type_>(_value));
+    }
 
-    template <typename Type>
-    WN_FORCE_INLINE Type WNMod(const Type _dividend, const Type _divisor);
+    template <typename type_>
+    WN_FORCE_INLINE typename enable_if<is_real<type_>::value, type_>::type ceil(const type_& _value) {
+        return(internal::math::basic_traits::ceil(_value));
+    }
 
-    template <typename Type>
-    WN_FORCE_INLINE Type WNRound(const Type& _number);
+    template <typename type_>
+    WN_FORCE_INLINE typename enable_if<is_real<type_>::value, type_>::type floor(const type_& _value) {
+        return(internal::math::basic_traits::floor(_value));
+    }
 
-    template <typename Type>
-    WN_FORCE_INLINE Type WNCeil(const Type& _number);
+    template <typename type_>
+    WN_FORCE_INLINE typename enable_if<is_real<type_>::value, type_>::type round(const type_& _value) {
+        return(internal::math::basic_traits::round(_value));
+    }
 
-    template <typename Type>
-    WN_FORCE_INLINE Type WNFloor(const Type& _number);
+    template <typename type_>
+    WN_FORCE_INLINE typename enable_if<is_real<type_>::value, type_>::type trunc(const type_& _value) {
+        return(internal::math::basic_traits::trunc(_value));
+    }
 
-    template <typename Type>
-    WN_FORCE_INLINE Type WNTrunc(const Type& _number);
+    template <typename type_>
+    WN_FORCE_INLINE typename enable_if<(is_real<type_>::value || std::is_integral<type_>::value), type_>::type
+    mod(const type_& _dividend, const type_& _divisor) {
+        return(internal::math::basic_traits::mod(_dividend, _divisor));
+    }
 
-    template <typename Type>
-    WN_FORCE_INLINE Type WNSqrt(const Type& _number);
+    template <typename type_>
+    WN_FORCE_INLINE typename enable_if<(is_real<type_>::value || std::is_integral<type_>::value), type_>::type
+    sqrt(const type_& _value) {
+        return(internal::math::basic_traits::sqrt(_value));
+    }
 
-    template <typename Type>
-    WN_FORCE_INLINE Type WNInvSqrt(const Type& _number);
+    template <typename type_>
+    WN_FORCE_INLINE typename enable_if<is_real<type_>::value, type_>::type invsqrt(const type_& _value) {
+        return(internal::math::basic_traits::invsqrt(_value));
+    }
 
-    template <typename Type>
-    WN_FORCE_INLINE Type WNPow(const Type& _base, const Type& _exponent);
+    template <typename type_>
+    WN_FORCE_INLINE type_ pow(const type_& _base, const type_& _exponent) {
+        return(internal::math::basic_traits::pow(_base, _exponent));
+    }
 
-    template <typename Type>
-    WN_FORCE_INLINE Type WNSin(const Type& _number);
+    template <typename type_>
+    WN_FORCE_INLINE type_ min(const type_& _value1, const type_& _value2) {
+        return(internal::math::basic_traits::min(_value1, _value2));
+    }
 
-    template <typename Type>
-    WN_FORCE_INLINE Type WNCos(const Type& _number);
+    template <typename type_>
+    WN_FORCE_INLINE type_ max(const type_& _value1, const type_& _value2) {
+        return(internal::math::basic_traits::max(_value1, _value2));
+    }
 
-    template <typename Type>
-    WN_FORCE_INLINE Type WNTan(const Type& _number);
+    template <typename type_>
+    WN_FORCE_INLINE type_ clamp(const type_& _value, const type_& _min, const type_& _max) {
+        return(internal::math::basic_traits::clamp(_value, _min, _max));
+    }
 
-    template <typename Type>
-    WN_FORCE_INLINE Type WNASin(const Type& _number);
+    template <typename type_>
+    WN_FORCE_INLINE type_ deg_to_rad(const type_& _value) {
+        return(static_cast<type_>(static_cast<wn_float64>(_value)* (WN_PI / 180.0)));
+    }
 
-    template <typename Type>
-    WN_FORCE_INLINE Type WNACos(const Type& _number);
-
-    template <typename Type>
-    WN_FORCE_INLINE Type WNATan(const Type& _number);
-
-    template <typename Type>
-    WN_FORCE_INLINE Type WNATan(const Type& _ycoord, const Type& _xcoord);
-
-    template <typename Type>
-    WN_FORCE_INLINE Type WNExp(const Type& _number);
-
-    template <typename Type>
-    WN_FORCE_INLINE Type WNExp2(const Type& _number);
-
-    template <typename Type>
-    WN_FORCE_INLINE Type WNLn(const Type& _number);
-
-    template <typename Type>
-    WN_FORCE_INLINE Type WNLog2(const Type& _number);
-
-    template <typename Type>
-    WN_FORCE_INLINE Type WNLog10(const Type& _number);
-
-    template <typename Type>
-    WN_FORCE_INLINE Type WNMin(const Type& _first, const Type& _second);
-
-    template <typename Type>
-    WN_FORCE_INLINE Type WNMax(const Type& _first, const Type& _second);
-
-    template <typename Type>
-    WN_FORCE_INLINE Type WNClamp(const Type& _number, const Type& _min, const Type& _max);
-
-    template <typename Type>
-    WN_FORCE_INLINE Type WNDegToRad(const Type& _number);
-
-    template <typename Type>
-    WN_FORCE_INLINE Type WNRadToDeg(const Type& _number);
+    template <typename type_>
+    WN_FORCE_INLINE type_ rad_to_deg(const type_& _value) {
+        return(static_cast<type_>(static_cast<wn_float64>(_value)* (180.0 / WN_PI)));
+    }
 }
-
-#include "WNMath/inc/Internal/WNBasic.inl"
 
 #endif // __WN_MATH_BASIC_H__

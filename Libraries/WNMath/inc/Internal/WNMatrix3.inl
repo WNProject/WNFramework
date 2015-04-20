@@ -11,136 +11,136 @@
     #error "Internal/WNMatrix3.inl should never be included directly. Please include WNMatrix3.h instead"
 #endif
 
-namespace WNMath {
-    template <typename Type>
-    WN_FORCE_INLINE WNMatrix3<Type>::WNMatrix3(const WNMatrix3& _matrix) {
+namespace wn {
+    template <typename type>
+    WN_FORCE_INLINE WNMatrix3<type>::WNMatrix3(const WNMatrix3& _matrix) {
         Base::Set(_matrix);
     }
 
-    template <typename Type>
-    WN_FORCE_INLINE WNMatrix3<Type>::WNMatrix3(const Type& _number) {
+    template <typename type>
+    WN_FORCE_INLINE WNMatrix3<type>::WNMatrix3(const type& _number) {
         Base::Set(_number);
     }
 
-    template <typename Type>
-    WN_FORCE_INLINE WNMatrix3<Type>::WNMatrix3(const Type* _numbers) {
+    template <typename type>
+    WN_FORCE_INLINE WNMatrix3<type>::WNMatrix3(const type* _numbers) {
         Base::Set(_numbers);
     }
 
-    template <typename Type>
-    WN_FORCE_INLINE WN_VOID WNMatrix3<Type>::MakeTranslation(const Type& _translation) {
+    template <typename type>
+    WN_FORCE_INLINE wn_void WNMatrix3<type>::MakeTranslation(const type& _translation) {
         this->MakeTranslation(_translation, _translation);
     }
 
-    template <typename Type>
-    WN_FORCE_INLINE WN_VOID WNMatrix3<Type>::MakeTranslation(const Type& _x, const Type& _y) {
+    template <typename type>
+    WN_FORCE_INLINE wn_void WNMatrix3<type>::MakeTranslation(const type& _x, const type& _y) {
         // First Column
-        this->mElements.mValues[0] = static_cast<Type>(1);
-        this->mElements.mValues[1] = static_cast<Type>(0);
-        this->mElements.mValues[2] = static_cast<Type>(0);
+        this->mElements.mValues[0] = static_cast<type>(1);
+        this->mElements.mValues[1] = static_cast<type>(0);
+        this->mElements.mValues[2] = static_cast<type>(0);
 
         // Second Column
-        this->mElements.mValues[3] = static_cast<Type>(0);
-        this->mElements.mValues[4] = static_cast<Type>(1);
-        this->mElements.mValues[5] = static_cast<Type>(0);
+        this->mElements.mValues[3] = static_cast<type>(0);
+        this->mElements.mValues[4] = static_cast<type>(1);
+        this->mElements.mValues[5] = static_cast<type>(0);
 
         // Third Column
         this->mElements.mValues[6] = _x;
         this->mElements.mValues[7] = _y;
-        this->mElements.mValues[8] = static_cast<Type>(1);
+        this->mElements.mValues[8] = static_cast<type>(1);
     }
 
-    template <typename Type>
-    WN_FORCE_INLINE WN_VOID WNMatrix3<Type>::MakeTranslation(const WNVector2<Type>& _translation) {
+    template <typename type>
+    WN_FORCE_INLINE wn_void WNMatrix3<type>::MakeTranslation(const WNVector2<type>& _translation) {
         this->MakeScale(_translation.GetX(), _translation.GetY());
     }
 
-    template <typename Type>
-    WN_FORCE_INLINE WN_VOID WNMatrix3<Type>::MakeScale(const Type& _scale) {
+    template <typename type>
+    WN_FORCE_INLINE wn_void WNMatrix3<type>::MakeScale(const type& _scale) {
         this->MakeScale(_scale, _scale);
     }
 
-    template <typename Type>
-    WN_FORCE_INLINE WN_VOID WNMatrix3<Type>::MakeScale(const Type& _x, const Type& _y) {
+    template <typename type>
+    WN_FORCE_INLINE wn_void WNMatrix3<type>::MakeScale(const type& _x, const type& _y) {
         // First Column
         this->mElements.mValues[0] = _x;
-        this->mElements.mValues[1] = static_cast<Type>(0);
-        this->mElements.mValues[2] = static_cast<Type>(0);
+        this->mElements.mValues[1] = static_cast<type>(0);
+        this->mElements.mValues[2] = static_cast<type>(0);
 
         // Second Column
-        this->mElements.mValues[3] = static_cast<Type>(0);
+        this->mElements.mValues[3] = static_cast<type>(0);
         this->mElements.mValues[4] = _y;
-        this->mElements.mValues[5] = static_cast<Type>(0);
+        this->mElements.mValues[5] = static_cast<type>(0);
 
         // Third Column
-        this->mElements.mValues[6] = static_cast<Type>(0);
-        this->mElements.mValues[7] = static_cast<Type>(0);
-        this->mElements.mValues[8] = static_cast<Type>(1);
+        this->mElements.mValues[6] = static_cast<type>(0);
+        this->mElements.mValues[7] = static_cast<type>(0);
+        this->mElements.mValues[8] = static_cast<type>(1);
     }
 
-    template <typename Type>
-    WN_FORCE_INLINE WN_VOID WNMatrix3<Type>::MakeScale(const WNVector2<Type>& _scale) {
+    template <typename type>
+    WN_FORCE_INLINE wn_void WNMatrix3<type>::MakeScale(const WNVector2<type>& _scale) {
         this->MakeScale(_scale.GetX(), _scale.GetY());
     }
 
-    template <typename Type>
-    WN_FORCE_INLINE WNMatrix3<Type> WNMatrix3<Type>::CreateTranslation(const Type& _translation) {
-        WNMatrix3<Type> matrix;
+    template <typename type>
+    WN_FORCE_INLINE WNMatrix3<type> WNMatrix3<type>::CreateTranslation(const type& _translation) {
+        WNMatrix3<type> matrix;
 
         return(matrix.MakeTranslation(_translation), matrix);
     }
 
-    template <typename Type>
-    WN_FORCE_INLINE WNMatrix3<Type> WNMatrix3<Type>::CreateTranslation(const Type& _x, const Type& _y) {
-        WNMatrix3<Type> matrix;
+    template <typename type>
+    WN_FORCE_INLINE WNMatrix3<type> WNMatrix3<type>::CreateTranslation(const type& _x, const type& _y) {
+        WNMatrix3<type> matrix;
 
         return(matrix.MakeTranslation(_x, _y), matrix);
     }
 
-    template <typename Type>
-    WN_FORCE_INLINE WNMatrix3<Type> WNMatrix3<Type>::CreateScale(const Type& _scale) {
-        WNMatrix3<Type> matrix;
+    template <typename type>
+    WN_FORCE_INLINE WNMatrix3<type> WNMatrix3<type>::CreateScale(const type& _scale) {
+        WNMatrix3<type> matrix;
 
         return(matrix.MakeScale(_scale), matrix);
     }
 
-    template <typename Type>
-    WN_FORCE_INLINE WNMatrix3<Type> WNMatrix3<Type>::CreateScale(const Type& _x, const Type& _y) {
-        WNMatrix3<Type> matrix;
+    template <typename type>
+    WN_FORCE_INLINE WNMatrix3<type> WNMatrix3<type>::CreateScale(const type& _x, const type& _y) {
+        WNMatrix3<type> matrix;
 
         return(matrix.MakeScale(_x, _y), matrix);
     }
 
-    template <typename Type>
-    WN_FORCE_INLINE WNMatrix3<Type> operator + (const Type& _number, const WNMatrix3<Type>& _matrix) {
-        WNMatrix3<Type> matrix = _matrix;
+    template <typename type>
+    WN_FORCE_INLINE WNMatrix3<type> operator + (const type& _number, const WNMatrix3<type>& _matrix) {
+        WNMatrix3<type> matrix = _matrix;
 
         matrix += _number;
 
         return(matrix);
     }
 
-    template <typename Type>
-    WN_FORCE_INLINE WNMatrix3<Type> operator - (const Type& _number, const WNMatrix3<Type>& _matrix) {
-        WNMatrix3<Type> matrix = WNMatrix3<Type>(_number);
+    template <typename type>
+    WN_FORCE_INLINE WNMatrix3<type> operator - (const type& _number, const WNMatrix3<type>& _matrix) {
+        WNMatrix3<type> matrix = WNMatrix3<type>(_number);
 
         matrix -= _matrix;
 
         return(matrix);
     }
 
-    template <typename Type>
-    WN_FORCE_INLINE WNMatrix3<Type> operator * (const Type& _number, const WNMatrix3<Type>& _matrix) {
-        WNMatrix3<Type> matrix = _matrix;
+    template <typename type>
+    WN_FORCE_INLINE WNMatrix3<type> operator * (const type& _number, const WNMatrix3<type>& _matrix) {
+        WNMatrix3<type> matrix = _matrix;
 
         matrix *= _number;
 
         return(matrix);
     }
 
-    template <typename Type>
-    WN_FORCE_INLINE WNMatrix3<Type> operator / (const Type& _number, const WNMatrix3<Type>& _matrix) {
-        WNMatrix3<Type> matrix = WNMatrix3<Type>(_number);
+    template <typename type>
+    WN_FORCE_INLINE WNMatrix3<type> operator / (const type& _number, const WNMatrix3<type>& _matrix) {
+        WNMatrix3<type> matrix = WNMatrix3<type>(_number);
 
         matrix /= _matrix;
 

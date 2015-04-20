@@ -7,8 +7,8 @@
 #ifndef __WN_CORE_INTERNAL_BASE_CLANG_H__
 #define __WN_CORE_INTERNAL_BASE_CLANG_H__
 
-#if __clang_major__ < 3 || (__clang_major__ == 3 && __clang_minor__ < 0)
-    #error "Compiler not supported: Clang 3.1 or higher must be used"
+#if __clang_major__ < 3 || (__clang_major__ == 3 && __clang_minor__ < 3)
+    #error "Compiler not supported: Clang 3.3 or higher must be used"
 #endif
 
 #ifdef __clang_patchlevel__
@@ -32,19 +32,33 @@
 #endif
 
 #if __has_feature(cxx_nullptr) || __has_extension(cxx_nullptr)
-    #define __WN_HAS_NULLPTR
+    #define __WN_HAS_CPP11_NULLPTR
 #endif
 
 #if __has_feature(cxx_rvalue_references) || __has_extension(cxx_rvalue_references)
-    #define __WN_HAS_RVALUE_REFERENCES
+    #define __WN_HAS_CPP11_RVALUE_REFERENCES
 #endif
 
 #if __has_feature(cxx_static_assert) || __has_extension(cxx_static_assert)
-    #define __WN_HAS_STATIC_ASSERT
+    #define __WN_HAS_CPP11_STATIC_ASSERT
 #endif
 
 #if __has_feature(cxx_variadic_templates) || __has_extension(cxx_variadic_templates)
-    #define __WN_HAS_VARIADIC_TEMPLATES
+    #define __WN_HAS_CPP11_VARIADIC_TEMPLATES
+#endif
+
+#if __has_feature(cxx_delegating_constructors) || __has_extension(cxx_delegating_constructors)
+    #define __WN_HAS_CPP11_CONSTRUCTOR_DELEGATION
+#endif
+
+#if __has_feature(cxx_defaulted_functions) || __has_extension(cxx_defaulted_functions)
+    #if __has_feature(cxx_deleted_functions) || __has_extension(cxx_deleted_functions)
+        #define __WN_HAS_CPP11_DEFAULT_AND_DELETED_FUNCTIONS
+    #endif
+#endif
+
+#if __has_feature(cxx_default_function_template_args) || __has_extension(cxx_default_function_template_args)
+    #define __WN_HAS_CPP11_DEFAULT_TEMPLATE_PARAMETERS_ON_FUNCTIONS
 #endif
 
 // Work around a header bug with CLANG/ see http://lists.cs.uiuc.edu/pipermail/cfe-dev/2011-February/013207.html

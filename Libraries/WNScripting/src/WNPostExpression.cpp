@@ -7,12 +7,12 @@
 using namespace WNScripting;
 
 WNPostExpression::WNPostExpression():
-    mBaseExpression(WN_NULL) {
+    mBaseExpression(wn_nullptr) {
 }
 
 WNPostExpression::~WNPostExpression() {
     if(mBaseExpression) {
-        WN_DELETE(mBaseExpression);
+        wn::memory::destroy(mBaseExpression);
     }
 }
 

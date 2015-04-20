@@ -7,13 +7,15 @@
 #ifndef __WN_MATH_COMMON_H__
 #define __WN_MATH_COMMON_H__
 
-namespace WNMath {
-    enum WNSnapDirection {
-        eWNNearest,
-        eWNDown,
-        eWNUp,
-        eWNTruncate
+namespace wn {
+    enum class snap_direction {
+        nearest,
+        down,
+        up,
+        truncate
     };
+
+    typedef snap_direction snap_direction_type;
 
     namespace WNFieldOfView {
         struct WNHorizontal {};

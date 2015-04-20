@@ -14,71 +14,71 @@
 #include "WNMath/inc/WNLine2.h"
 #include "WNMath/inc/WNLine3.h"
 
-namespace WNMath {
-    template <typename Type>
-    WNRay2<Type>::WNRay2() :
-        mLocation(static_cast<Type>(0)),
-        mDirection(static_cast<Type>(0)) {
+namespace wn {
+    template <typename type>
+    WNRay2<type>::WNRay2() :
+        mLocation(static_cast<type>(0)),
+        mDirection(static_cast<type>(0)) {
     }
 
-    template <typename Type>
-    WNRay2<Type>::WNRay2(const Type* _numbers) :
+    template <typename type>
+    WNRay2<type>::WNRay2(const type* _numbers) :
         mLocation(&_numbers[0]),
         mDirection(&_numbers[2]) {
     }
 
-    template <typename Type>
-    WNRay2<Type>::WNRay2(const WNVector2<Type>& _location, const WNVector2<Type>& _direction) :
+    template <typename type>
+    WNRay2<type>::WNRay2(const WNVector2<type>& _location, const WNVector2<type>& _direction) :
         mLocation(_location),
         mDirection(_direction) {
     }
 
-    template <typename Type>
-    WNRay2<Type> WNRay2<Type>::operator + () const {
+    template <typename type>
+    WNRay2<type> WNRay2<type>::operator + () const {
         return(*this);
     }
 
-    template <typename Type>
-    WNRay2<Type> WNRay2<Type>::operator - () const {
-        return(WNRay2<Type>(-mLocation, -mDirection));
+    template <typename type>
+    WNRay2<type> WNRay2<type>::operator - () const {
+        return(WNRay2<type>(-mLocation, -mDirection));
     }
 
-    template <typename Type>
-    WN_BOOL WNRay2<Type>::operator == (const WNRay2<Type>& _ray) const {
+    template <typename type>
+    wn_bool WNRay2<type>::operator == (const WNRay2<type>& _ray) const {
         return(mLocation == _ray.mLocation && mDirection == _ray.mDirection);
     }
 
-    template <typename Type>
-    WN_BOOL WNRay2<Type>::operator != (const WNRay2<Type>& _ray) const {
+    template <typename type>
+    wn_bool WNRay2<type>::operator != (const WNRay2<type>& _ray) const {
         return(mLocation != _ray.mLocation || mDirection != _ray.mDirection);
     }
 
-    template <typename Type>
-    WN_VOID WNRay2<Type>::Zero() {
+    template <typename type>
+    wn_void WNRay2<type>::Zero() {
         mLocation.Zero();
         mDirection.Zero();
     }
 
-    template <typename Type>
-    WN_VOID WNRay2<Type>::Set(const Type* _numbers) {
+    template <typename type>
+    wn_void WNRay2<type>::Set(const type* _numbers) {
         mLocation.Set(&_numbers[0]);
         mDirection.Set(&_numbers[2]);
     }
 
-    template <typename Type>
-    WN_VOID WNRay2<Type>::Set(const WNVector2<Type>& _location, const WNVector2<Type>& _direction) {
+    template <typename type>
+    wn_void WNRay2<type>::Set(const WNVector2<type>& _location, const WNVector2<type>& _direction) {
         mLocation = _location;
         mDirection = _direction;
     }
 
-    template <typename Type>
-    WNLine2<Type> WNRay2<Type>::ToLine2() const {
-        return(WNLine2<Type>(mLocation, mLocation + mDirection));
+    template <typename type>
+    WNLine2<type> WNRay2<type>::ToLine2() const {
+        return(WNLine2<type>(mLocation, mLocation + mDirection));
     }
 
-    template <typename Type>
-    WNLine3<Type> WNRay2<Type>::ToLine3() const {
-        return(WNLine3<Type>(mLocation.ToPoint3(), (mLocation + mDirection).ToPoint3()));
+    template <typename type>
+    WNLine3<type> WNRay2<type>::ToLine3() const {
+        return(WNLine3<type>(mLocation.ToPoint3(), (mLocation + mDirection).ToPoint3()));
     }
 }
 

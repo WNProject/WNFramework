@@ -6,25 +6,25 @@
 #include "WNScripting/inc/WNNodeHelpers.h"
 
 
-using namespace WNScripting; 
+using namespace WNScripting;
 
 WNNullAllocation::WNNullAllocation() {
 }
 
 WNNullAllocation::~WNNullAllocation() {
-    
+
 }
 
 eWNTypeError WNNullAllocation::GenerateCode(WNCodeModule& _module, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog) {
-    eWNTypeError err = eWNOK;
-    
-    if(eWNOK != (err = GenerateNullAllocation(_module, _def, mValue, mScriptType))){
+    eWNTypeError err = ok;
+
+    if(ok != (err = GenerateNullAllocation(_module, _def, mValue, mScriptType))){
         _compilationLog.Log(WNLogging::eCritical, 0, "Error generating NULL allocation");
         LogLine(_compilationLog, WNLogging::eCritical);
         return(err);
     }
     mForceUse = true;
     mNewlyCreated = true;
-    return(eWNOK);
+    return(ok);
 }
 

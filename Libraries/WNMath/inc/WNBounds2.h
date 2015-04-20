@@ -9,57 +9,57 @@
 
 #include "WNCore/inc/WNTypes.h"
 
-namespace WNMath {
-    template <typename Type> class WNRectangle;
-    template <typename Type> class WNCircle;
-    template <typename Type> class WNVector2;
+namespace wn {
+    template <typename type> class WNRectangle;
+    template <typename type> class circle;
+    template <typename type> class vector2;
 
-    template <typename Type>
+    template <typename type>
     class WNBounds2 {
     public:
         WNBounds2();
-        explicit WNBounds2(const Type* _numbers);
-        explicit WNBounds2(const WNVector2<Type>& _vector);
-        explicit WNBounds2(const WNVector2<Type>& _min, const WNVector2<Type>& _max);
+        explicit WNBounds2(const type* _numbers);
+        explicit WNBounds2(const vector2<type>& _vector);
+        explicit WNBounds2(const vector2<type>& _min, const vector2<type>& _max);
 
-        WN_BOOL operator == (const WNBounds2& _bounds) const;
-        WN_BOOL operator != (const WNBounds2& _bounds) const;
+        wn_bool operator == (const WNBounds2& _bounds) const;
+        wn_bool operator != (const WNBounds2& _bounds) const;
 
-        WN_VOID Zero();
-        WN_VOID Expand(Type _amount);
-        WN_BOOL Expand(const WNVector2<Type>& _vector);
-        WN_BOOL Expand(const WNRectangle<Type>& _rectangle);
-        WN_BOOL Expand(const WNCircle<Type>& _circle);
-        WN_BOOL Expand(const WNBounds2& _bounds);
-        WN_VOID Translate(const WNVector2<Type>& _vector);
+        wn_void Zero();
+        wn_void Expand(type _amount);
+        wn_bool Expand(const vector2<type>& _vector);
+        wn_bool Expand(const WNRectangle<type>& _rectangle);
+        wn_bool Expand(const circle<type>& _circle);
+        wn_bool Expand(const WNBounds2& _bounds);
+        wn_void Translate(const vector2<type>& _vector);
 
-        Type Length() const;
-        Type Width() const;
-        Type Perimeter() const;
-        Type Radius() const;
-        Type Area() const;
+        type Length() const;
+        type Width() const;
+        type Perimeter() const;
+        type Radius() const;
+        type Area() const;
 
-        WN_BOOL IsZero() const;
-        WN_BOOL IsInsideOut() const;
+        wn_bool IsZero() const;
+        wn_bool IsInsideOut() const;
 
-        WN_VOID Set(const Type* _numbers);
-        WN_VOID Set(const WNVector2<Type>& _vector);
-        WN_VOID Set(const WNVector2<Type>& _min, const WNVector2<Type>& _max);
+        wn_void Set(const type* _numbers);
+        wn_void Set(const vector2<type>& _vector);
+        wn_void Set(const vector2<type>& _min, const vector2<type>& _max);
 
-        WNBounds2 GetExpanded(Type _amount) const;
-        WNBounds2 GetExpanded(const WNVector2<Type>& _vector) const;
-        WNBounds2 GetExpanded(const WNRectangle<Type>& _rectangle) const;
-        WNBounds2 GetExpanded(const WNCircle<Type>& _circle) const;
+        WNBounds2 GetExpanded(type _amount) const;
+        WNBounds2 GetExpanded(const vector2<type>& _vector) const;
+        WNBounds2 GetExpanded(const WNRectangle<type>& _rectangle) const;
+        WNBounds2 GetExpanded(const circle<type>& _circle) const;
         WNBounds2 GetExpanded(const WNBounds2& _bounds) const;
-        WNBounds2 GetTranslated(const WNVector2<Type>& _vector) const;
+        WNBounds2 GetTranslated(const vector2<type>& _vector) const;
 
-        WN_VOID GetPoints(WNVector2<Type>* _vectors) const;
+        wn_void GetPoints(vector2<type>* _vectors) const;
 
-        WNRectangle<Type> ToRectangle() const;
+        WNRectangle<type> ToRectangle() const;
 
     public:
-        WNVector2<Type> mMinimum;
-        WNVector2<Type> mMaximum;
+        vector2<type> mMinimum;
+        vector2<type> mMaximum;
     };
 }
 

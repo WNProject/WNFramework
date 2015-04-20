@@ -10,7 +10,8 @@
 #include "WNCore/inc/WNTypes.h"
 #include "WNCore/inc/WNAssert.h"
 #include "WNContainers/inc/WNCallback.h"
-#include "WNConcurrency/inc/WNResourceBase.h"
+#include "WNMemory/inc/WNIntrusivePtr.h"
+#include "WNMemory/inc/WNIntrusivePtrBase.h"
 
 #ifdef _WN_LINUX
     #include <X11/Xlib.h>
@@ -30,7 +31,7 @@
     #pragma warning(pop)
 #endif
 
-namespace WNPlatform {
+namespace wn {
     #ifdef _WN_WINDOWS
         typedef HWND WNSurfaceNativeHandle;
     #elif defined _WN_LINUX
@@ -38,10 +39,19 @@ namespace WNPlatform {
     #elif defined _WN_ANDROID
         typedef EGLSurface WNSurfaceNativeHandle;
     #endif
-    class WNSurface : public WNConcurrency::WNResourceBase {
+
+    class surface : public memory::intrusive_ptr_base {
     public:
-        WNSurface();
-        virtual ~WNSurface();
+        surface() :
+            memory::intrusive_ptr_base() {
+            for (wn_size_t i = 0; i < eWNRDTMAX; ++i) {
+                mRegisteredTypes[i] = wn_nullptr;
+            }
+        }
+
+        virtual ~surface() {
+            FireCallback(eWNSETDestroyed);
+        }
 
         enum WNSurfaceError {
             #include "WNCore/inc/Internal/WNErrors.inc"
@@ -66,41 +76,50 @@ namespace WNPlatform {
             eWNRDTMAX
         };
 
-        typedef WNContainers::WNCallback2<WN_BOOL, WNSurfaceEventType, WNSurface*> WNSurfaceEventCallback;
+        typedef WNContainers::WNCallback2<wn_bool, WNSurfaceEventType, surface*> WNSurfaceEventCallback;
 
         virtual WNSurfaceNativeHandle GetNativeHandle() const = 0;
-        virtual WNSurfaceError Resize(WN_UINT32 _width, WN_UINT32 _height) = 0;
-        virtual WNSurfaceError Move(WN_UINT32 _x, WN_UINT32 _y) = 0;
-        virtual WN_BOOL IsFullscreen() const = 0;
-        virtual WNSurfaceError SetFullscreen(WN_BOOL _fullscreen) = 0;
-        virtual WN_UINT32 GetWidth() const = 0;
-        virtual WN_UINT32 GetHeight() const = 0;
-        virtual WN_UINT32 GetX() const = 0;
-        virtual WN_UINT32 GetY() const = 0;
-        
-        WN_VOID RegisterCallback(WNSurfaceEventType _event, const WNSurfaceEventCallback& _callback);
-        WN_VOID RegisterData(WNRegisteredDataTypes _type, WN_VOID* _data);
+        virtual WNSurfaceError Resize(wn_uint32 _width, wn_uint32 _height) = 0;
+        virtual WNSurfaceError Move(wn_uint32 _x, wn_uint32 _y) = 0;
+        virtual wn_bool IsFullscreen() const = 0;
+        virtual WNSurfaceError SetFullscreen(wn_bool _fullscreen) = 0;
+        virtual wn_uint32 GetWidth() const = 0;
+        virtual wn_uint32 GetHeight() const = 0;
+        virtual wn_uint32 GetX() const = 0;
+        virtual wn_uint32 GetY() const = 0;
 
-        template <typename Type>
-        WN_INLINE Type* GetRegisteredData(const WNRegisteredDataTypes _type) {
+        wn_void RegisterCallback(WNSurfaceEventType _type, const WNSurfaceEventCallback& _callback) {
+            mEventCallbacks[_type].push_back(_callback);
+        }
+
+        wn_void RegisterData(WNRegisteredDataTypes _type, wn_void* _data) {
+            WN_RELEASE_ASSERT(_type < eWNRDTMAX);
+            WN_RELEASE_ASSERT(mRegisteredTypes[_type] == wn_nullptr);
+
+            mRegisteredTypes[_type] = _data;
+        }
+
+        template <typename type>
+        type* GetRegisteredData(const WNRegisteredDataTypes _type) {
             WN_RELEASE_ASSERT(_type < eWNRDTMAX);
 
-            Type* t = reinterpret_cast<Type*>(mRegisteredTypes[_type]);
+            type* t = reinterpret_cast<type*>(mRegisteredTypes[_type]);
 
             return(t);
         }
 
     protected:
-        WN_VOID FireCallback(WNSurfaceEventType _event);
+        wn_void FireCallback(WNSurfaceEventType _type) {
+            for (std::list<WNSurfaceEventCallback>::iterator i = mEventCallbacks[_type].begin(); i != mEventCallbacks[_type].end(); ++i) {
+                (*i).Execute(_type, this);
+            }
+        }
 
     private:
         std::list<WNSurfaceEventCallback> mEventCallbacks[eWNSETMAX];
-        WN_VOID* mRegisteredTypes[eWNRDTMAX];
+        wn_void* mRegisteredTypes[eWNRDTMAX];
     };
+
+    typedef memory::intrusive_ptr<surface> surface_handle;
 }
-
-#ifndef _WN_DEBUG
-    #include "WNPlatform/inc/Internal/WNSurface.inl"
-#endif
-
 #endif // __WN_PLATFORM_SURFACE_H___

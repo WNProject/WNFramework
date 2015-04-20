@@ -20,25 +20,25 @@
 
 using namespace WNNetworking;
 
-WNListenConnectionLinux::WNListenConnectionLinux(WNNetworkManager& _manager, WNConnectionType::Type _type, WN_UINT16 _port, WNConnectedCallback _connected) :
+WNListenConnectionLinux::WNListenConnectionLinux(WNNetworkManager& _manager, WNConnectionType::type _type, wn_uint16 _port, WNConnectedCallback _connected) :
     WNConnectionLinux(_manager),
     mPort(_port),
     mType(_type),
     mConnectedCallback(_connected) {
 }
 
-WNNetworkManagerReturnCode::Type WNListenConnectionLinux::Initialize() {
+WNNetworkManagerReturnCode::type WNListenConnectionLinux::Initialize() {
     WN_RELEASE_ASSERT_DESC(mType == WNConnectionType::eWNReliable, "WNNetworking does not support unreliable connections .... YET");
 
     struct addrinfo hints;
     struct addrinfo *result, *rp;
-    WN_INT32 sock;
+    wn_int32 sock;
 
-    WNMemory::WNMemClr(&hints, sizeof(struct addrinfo));
+    wn::memory::memzero(&hints, sizeof(struct addrinfo));
 
     struct sockaddr_in serv_addr;
 
-    WNMemory::WNMemClr(&serv_addr, sizeof(serv_addr));
+    wn::memory::memzero(&serv_addr, sizeof(sockaddr_in));
 
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -67,7 +67,7 @@ WNNetworkManagerReturnCode::Type WNListenConnectionLinux::Initialize() {
         return(WNNetworkManagerReturnCode::eWNCannotAssociate);
     }
 
-    WN_INT32 flags;
+    wn_int32 flags;
 
     flags = fcntl(mSockFD, F_GETFL, 0);
 
@@ -75,7 +75,7 @@ WNNetworkManagerReturnCode::Type WNListenConnectionLinux::Initialize() {
         return(WNNetworkManagerReturnCode::eWNCannotListen);
     }
 
-#ifdef _WN_ANDROID 
+#ifdef _WN_ANDROID
     flags |= O_NONBLOCK; //Android does not define SOCK_NONBLOCK
 #else
     flags |= SOCK_NONBLOCK;
@@ -90,39 +90,40 @@ WNNetworkManagerReturnCode::Type WNListenConnectionLinux::Initialize() {
     }
 
     const int nameLen = WN_SNPRINTF(NULL, 0, "Listen:%d", mPort);
-    WN_CHAR* name = WNMemory::WNCallocT<WN_CHAR>(nameLen + 1);
+    wn_char* name = wn::memory::heap_allocate<wn_char>(nameLen + 1);
 
     WN_SNPRINTF(name, nameLen + 1, "Listen:%d", mPort);
 
     mConnectionName = name;
 
-    return(WNNetworkManagerReturnCode::eWNOK);
+    return(WNNetworkManagerReturnCode::ok);
 }
 WNInConnectionLinux* WNListenConnectionLinux::ReceiveConnection() {
     struct sockaddr addr;
     socklen_t len = sizeof(sockaddr);
-    WN_INT32 sockFD;
+    wn_int32 sockFD;
 
     sockFD = accept(mSockFD, &addr, &len);
 
     if (sockFD == -1){
         if ((errno == EAGAIN) || (errno == EWOULDBLOCK)) {
-            return(WN_NULL);
+            return(wn_nullptr);
         } else {
             char* s = strerror(errno);
 
             perror(NULL);
             //REPORT THE ERROR OR SOMETHING.. COULD NOT ACCEPT CONNECTION
-            return(WN_NULL);
+            return(wn_nullptr);
         }
     }
 
-    WNInConnectionLinux * conn = WN_NEW WNInConnectionLinux(mManager);
+    WNInConnectionLinux * conn = wn::memory::construct<WNInConnectionLinux>(mManager);
+
 
     conn->Initialize(sockFD, addr, len);
 
     if (!mConnectedCallback.Execute(conn->GetName())) {
-        WN_DELETE(conn);
+        wn::memory::destroy(conn);
     }
 
     return(conn);

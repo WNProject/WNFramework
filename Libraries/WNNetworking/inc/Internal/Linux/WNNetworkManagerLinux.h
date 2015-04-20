@@ -12,9 +12,9 @@
 
 #include <vector>
 
-namespace WNConcurrency {
+namespace wn {
     template <typename Return>
-    class WNThread;
+    class thread;
 }
 
 namespace WNNetworking {
@@ -26,11 +26,11 @@ namespace WNNetworking {
         WNNetworkManagerLinux();
         virtual ~WNNetworkManagerLinux();
 
-        virtual WNNetworkManagerReturnCode::Type Initialize(WN_UINT32 _numWorkerThreads);
-        virtual WNNetworkManagerReturnCode::Type ConnectTo(WNConnection*& _outHandle, WNConnectionType::Type _type, const WN_CHAR* _target, WN_UINT16 _port);
-        virtual WNNetworkManagerReturnCode::Type CreateListener(WNConnection*& _outHandle, WNConnectionType::Type _type, WN_UINT16 _port, const WNConnectedCallback& _callback);
-        virtual WN_VOID Cleanup();
-        virtual WN_VOID DestroyConnection(WNConnection* _connection);
+        virtual WNNetworkManagerReturnCode::type Initialize(wn_uint32 _numWorkerThreads);
+        virtual WNNetworkManagerReturnCode::type ConnectTo(WNConnection*& _outHandle, WNConnectionType::type _type, const wn_char* _target, wn_uint16 _port);
+        virtual WNNetworkManagerReturnCode::type CreateListener(WNConnection*& _outHandle, WNConnectionType::type _type, wn_uint16 _port, const WNConnectedCallback& _callback);
+        virtual wn_void Cleanup();
+        virtual wn_void DestroyConnection(WNConnection* _connection);
 
     private:
         enum eWNLinuxInitializationState {
@@ -45,27 +45,27 @@ namespace WNNetworking {
         };
 
     private:
-        WN_BOOL AddToReadEPoll(WNConnectionLinux* _conn);
-        WN_BOOL AddToWriteEPoll(WNConnectionLinux* _conn);
-        WN_VOID CleanAllConnections();
-        WN_VOID ReadThread();
-        WN_VOID WriteThread();
-        WN_VOID ListenThread();
+        wn_bool AddToReadEPoll(WNConnectionLinux* _conn);
+        wn_bool AddToWriteEPoll(WNConnectionLinux* _conn);
+        wn_void CleanAllConnections();
+        wn_void ReadThread();
+        wn_void WriteThread();
+        wn_void ListenThread();
 
     private:
-        WNConcurrency::WNSpinLock mListenMutex;
-        WNConcurrency::WNSpinLock mIncommingMutex;
-        WNConcurrency::WNSpinLock mOutgoingMutex;
-        WNConcurrency::WNSpinLock mInvalidMutex;
+        wn::spin_lock mListenMutex;
+        wn::spin_lock mIncommingMutex;
+        wn::spin_lock mOutgoingMutex;
+        wn::spin_lock mInvalidMutex;
 
         eWNLinuxInitializationState mInitializationState;
-        WN_INT32 mWriteEPollInstance;
-        WN_INT32 mReadEPollInstance;
-        WN_INT32 mListenEPollInstance;
-        WNConcurrency::WNThread<WN_VOID>* mListenThread;
-        WN_BOOL mShuttingDown;
-        std::vector<WNConcurrency::WNThread<WN_VOID>*> mReadThreads;
-        std::vector<WNConcurrency::WNThread<WN_VOID>*> mWriteThreads;
+        wn_int32 mWriteEPollInstance;
+        wn_int32 mReadEPollInstance;
+        wn_int32 mListenEPollInstance;
+        wn::thread<wn_void>* mListenThread;
+        wn_bool mShuttingDown;
+        std::vector<wn::thread<wn_void>*> mReadThreads;
+        std::vector<wn::thread<wn_void>*> mWriteThreads;
         std::list<WNListenConnectionLinux*> mListenConnections;
         std::list<WNConnection*> mInvalidConnections;
         std::list<WNConnectionLinux*> mIncommingConnections;

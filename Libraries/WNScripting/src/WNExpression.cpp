@@ -4,20 +4,20 @@
 
 #include "WNScripting/inc/WNExpression.h"
 
-using namespace WNScripting; 
+using namespace WNScripting;
 
 WNExpression::WNExpression() :
-    mValue(WN_NULL),
-    mValueLocation(WN_NULL),
-    mScriptType(WN_NULL),
-    mSubValue(WN_NULL),
-    mSubValueType(WN_NULL),
-    mForceUse(WN_FALSE),
-    mNewlyCreated(WN_FALSE) {
+    mValue(wn_nullptr),
+    mValueLocation(wn_nullptr),
+    mScriptType(wn_nullptr),
+    mSubValue(wn_nullptr),
+    mSubValueType(wn_nullptr),
+    mForceUse(wn_false),
+    mNewlyCreated(wn_false) {
 }
 
 WNExpression::~WNExpression() {
-    
+
 }
 
 llvm::Value* WNExpression::GetValue() const {
@@ -32,11 +32,11 @@ WNScripting::WNScriptType WNExpression::GetType() const {
     return(mScriptType);
 }
 
-WN_BOOL WNExpression::RequiredUse() {
+wn_bool WNExpression::RequiredUse() {
     return(mForceUse);
 }
 
-WN_BOOL WNExpression::IsNewlyCreated() {
+wn_bool WNExpression::IsNewlyCreated() {
     return(mNewlyCreated);
 }
 

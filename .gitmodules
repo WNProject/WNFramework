@@ -7,7 +7,3 @@
 	url = https://github.com/llvm-mirror/llvm.git
 	branch = release_35
 	ignore = all
-[submodule "Externals/pcre"]
-	path = Externals/pcre
-	url = https://gitorious.org/pcre/pcre.git
-	ignore = all

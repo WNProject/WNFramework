@@ -8,9 +8,9 @@
 #include "WNScripting/inc/WNScopedVaraiableListImpl.h"
 
 WNScripting::WNTypeManager* WNScripting::WNScriptingFactoryInternal::CreateTypeManager() {
-    return(WN_NEW WNScripting::WNTypeManagerImpl());
+    return(wn::memory::construct<WNScripting::WNTypeManagerImpl>());
 }
 
 WNScripting::WNScopedVariableList* WNScripting::WNScriptingFactoryInternal::CreateScopedVariableList() {
-    return(WN_NEW WNScripting::WNScopedVariableListImpl());
+    return(wn::memory::construct<WNScripting::WNScopedVariableListImpl>());
 }

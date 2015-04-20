@@ -8,56 +8,56 @@
 #define __WN_PLATFORM_INTERNAL_X_WINDOWS_SURFACE_X_WINDOWS_H__
 
 #include "WNPlatform/inc/WNSurface.h"
-#include "WNConcurrency/inc/WNResourcePointer.h"
+#include "WNMemory/inc/WNIntrusivePtr.h"
 #include "WNConcurrency/inc/WNSemaphore.h"
 
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
 #include <GL/glx.h>
 
-namespace WNConcurrency {
+namespace wn{
     template <typename Return>
-    class WNThread;
+    class thread;
 }
 
-namespace WNPlatform {
+namespace wn {
     class WNSurfaceManagerXWindows;
 
-    class WNSurfaceXWindows : public WNSurface {
+    class WNSurfaceXWindows : public surface {
     public:
-        WNSurfaceXWindows(WNPlatform::WNSurfaceManagerXWindows& _surfaceManager);
+        WNSurfaceXWindows(wn::WNSurfaceManagerXWindows& _surfaceManager);
         virtual ~WNSurfaceXWindows();
 
-        WN_BOOL Initialize(WN_UINT32 _x, WN_UINT32 _y, WN_UINT32 _width, WN_UINT32 _height, Display* _display, XVisualInfo* _visualInfo);
+        wn_bool Initialize(wn_uint32 _x, wn_uint32 _y, wn_uint32 _width, wn_uint32 _height, Display* _display, XVisualInfo* _visualInfo);
 
         virtual WNSurfaceNativeHandle GetNativeHandle() const;
-        
-        virtual WNSurfaceError Resize(WN_UINT32 _width, WN_UINT32 _height);
-        virtual WNSurfaceError Move(WN_UINT32 _x, WN_UINT32 _y);
-        virtual WN_BOOL IsFullscreen() const;
-        virtual WNSurfaceError SetFullscreen(WN_BOOL _fullscreen);
 
-        virtual WN_UINT32 GetWidth() const;
-        virtual WN_UINT32 GetHeight() const;
-        virtual WN_UINT32 GetX() const;
-        virtual WN_UINT32 GetY() const;
+        virtual WNSurfaceError Resize(wn_uint32 _width, wn_uint32 _height);
+        virtual WNSurfaceError Move(wn_uint32 _x, wn_uint32 _y);
+        virtual wn_bool IsFullscreen() const;
+        virtual WNSurfaceError SetFullscreen(wn_bool _fullscreen);
+
+        virtual wn_uint32 GetWidth() const;
+        virtual wn_uint32 GetHeight() const;
+        virtual wn_uint32 GetX() const;
+        virtual wn_uint32 GetY() const;
 
     private:
-        WN_VOID SurfaceThread();
+        wn_void SurfaceThread();
 
     private:
         Atom mDeleteMessage;
-        WN_BOOL mExiting;
-        WNPlatform::WNSurfaceManagerXWindows& mManager;
-        WNConcurrency::WNSemaphore mThreadCreationMutex;
+        wn_bool mExiting;
+        wn::WNSurfaceManagerXWindows& mManager;
+        wn::semaphore mThreadCreationMutex;
         Display* mDisplay;
         Window mWindow;
-        WNConcurrency::WNThread<WN_VOID>* mSurfaceThread;
-        WN_BOOL mFullscreen;
-        WN_UINT32 mX;
-        WN_UINT32 mY;
-        WN_UINT32 mWidth;
-        WN_UINT32 mHeight;
+        wn::thread<wn_void>* mSurfaceThread;
+        wn_bool mFullscreen;
+        wn_uint32 mX;
+        wn_uint32 mY;
+        wn_uint32 mWidth;
+        wn_uint32 mHeight;
     };
 }
 

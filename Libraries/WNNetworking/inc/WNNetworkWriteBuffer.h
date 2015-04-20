@@ -11,7 +11,7 @@
 #include "WNCore/inc/WNTypes.h"
 #include "WNContainers/inc/WNDataBuffer.h"
 #include "WNNetworking/inc/WNBufferResource.h"
-#include "WNConcurrency/inc/WNResourcePointer.h"
+#include "WNMemory/inc/WNIntrusivePtr.h"
 
 #ifdef _WN_MSVC
     #pragma warning(push)
@@ -25,8 +25,8 @@
 #endif
 
 namespace WNContainers {
-    template <typename Type>
-    class WNResourcePointer;
+    template <typename type>
+    class intrusive_ptr;
     class WNSerializerBase;
 }
 
@@ -34,30 +34,31 @@ namespace WNNetworking {
     class WNNetworkManager;
     class WNBufferResource;
 
-    class WNNetworkWriteBuffer : public WNContainers::WNDataBuffer {
+    class WNNetworkWriteBuffer : public wn::containers::data_buffer {
     public:
-        typedef std::vector<WNConcurrency::WNResourcePointer<WNNetworking::WNBufferResource> > WNBufferQueue;
+        typedef std::vector<wn::memory::intrusive_ptr<WNNetworking::WNBufferResource>> WNBufferQueue;
 
     public:
-        WNNetworkWriteBuffer(WNNetworkManager& _manager, WN_UINT32 _number);
+        WNNetworkWriteBuffer(WNNetworkManager& _manager, wn_uint32 _number);
         WNNetworkWriteBuffer(const WNNetworkWriteBuffer& _other);
         virtual WN_FORCE_INLINE ~WNNetworkWriteBuffer() {}
 
         WNNetworkWriteBuffer& operator = (const WNNetworkWriteBuffer& _other);
 
-        virtual WN_BOOL Serialize(const WN_UINT32 _flags, const WNContainers::WNSerializerBase& _serializer);
-        virtual WN_CHAR* ReserveBytes(const WN_SIZE_T _numBytes, WN_SIZE_T& _returnedBytes);
-        virtual WNContainers::WNDataBufferType GetType();
+        virtual wn_bool serialize(const wn::containers::serializer_base& _serializer, const wn_uint32 _flags) override;
+        virtual wn_char* reserve(const wn_size_t _numBytes, wn_size_t& _returnedBytes) override;
+        virtual wn::containers::data_buffer_type type() const override;
+
         const WNBufferQueue& GetChunks() const;
-        WN_VOID FlushWrite();
+        wn_void FlushWrite();
 
     private:
         WNNetworkManager& mManager;
         WNBufferQueue mChunks;
 
-        WN_BOOL mFlushed;
-        WN_SIZE_T mTotalWritten;
-        WN_SIZE_T mBufferPointer;
+        wn_bool mFlushed;
+        wn_size_t mTotalWritten;
+        wn_size_t mBufferPointer;
     };
 }
 

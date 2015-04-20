@@ -5,10 +5,10 @@
 #ifndef __WN_ID_EXPRESSION_H__
 #define __WN_ID_EXPRESSION_H__
 #include "WNScripting/inc/WNExpression.h"
-namespace WNScripting {    
+namespace WNScripting {
     class WNIDExpression : public WNExpression {
     public:
-        WNIDExpression(const char* _name); 
+        WNIDExpression(const char* _name);
         virtual ~WNIDExpression();
         virtual eWNTypeError GenerateCode(WNCodeModule& _module, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog);
     private:

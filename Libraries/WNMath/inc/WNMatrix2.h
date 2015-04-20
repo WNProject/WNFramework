@@ -9,30 +9,30 @@
 
 #include "WNMath/inc/Internal/WNMatrixBase.h"
 
-namespace WNMath {
-    template <typename Type>
-    class WNMatrix2 : public __WNInternal::__WNMatrixBase<WNMatrix2<Type>, Type, 2> {
+namespace wn {
+    template <typename type>
+    class WNMatrix2 : public internal::__WNMatrixBase<WNMatrix2<type>, type, 2> {
     public:
         WN_FORCE_INLINE WNMatrix2() {}
         WNMatrix2(const WNMatrix2& _matrix);
-        explicit WNMatrix2(const Type& _number);
-        explicit WNMatrix2(const Type* _numbers);
+        explicit WNMatrix2(const type& _number);
+        explicit WNMatrix2(const type* _numbers);
 
     private:
-        typedef class __WNInternal::__WNMatrixBase<WNMatrix2<Type>, Type, 2> Base;
+        typedef class internal::__WNMatrixBase<WNMatrix2<type>, type, 2> Base;
     };
 
-    template <typename Type>
-    WNMatrix2<Type> operator + (const Type& _number, const WNMatrix2<Type>& _matrix);
+    template <typename type>
+    WNMatrix2<type> operator + (const type& _number, const WNMatrix2<type>& _matrix);
 
-    template <typename Type>
-    WNMatrix2<Type> operator - (const Type& _number, const WNMatrix2<Type>& _matrix);
+    template <typename type>
+    WNMatrix2<type> operator - (const type& _number, const WNMatrix2<type>& _matrix);
 
-    template <typename Type>
-    WNMatrix2<Type> operator * (const Type& _number, const WNMatrix2<Type>& _matrix);
+    template <typename type>
+    WNMatrix2<type> operator * (const type& _number, const WNMatrix2<type>& _matrix);
 
-    template <typename Type>
-    WNMatrix2<Type> operator / (const Type& _number, const WNMatrix2<Type>& _matrix);
+    template <typename type>
+    WNMatrix2<type> operator / (const type& _number, const WNMatrix2<type>& _matrix);
 }
 
 #include "WNMath/inc/Internal/WNMatrix2.inl"

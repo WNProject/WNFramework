@@ -12,45 +12,46 @@
 #endif
 
 #include "WNCore/inc/WNAssert.h"
+#include "WNCore/inc/WNUtility.h"
 
 namespace WNCore {
-    namespace __WNInternal {
-        WN_FORCE_INLINE WN_VOID __WNSwapByte(WN_BYTE* _start, WN_BYTE* _end) {
+    namespace internal {
+        WN_FORCE_INLINE wn_void __WNSwapByte(wn_byte* _start, wn_byte* _end) {
             *_start ^= *_end;
             *_end ^= *_start;
             *_start ^= *_end;
         }
 
-        template <typename Type, WN_SIZE_T width>
+        template <typename type, wn_size_t width>
         struct __WNSwapBytes {
-            static WN_FORCE_INLINE Type&  Execute(Type& _value) {
-                WN_STATIC_ASSERT_DESC(WN_STATIC_ASSERT_DEPENDENT_FAIL<Type>::Value, "You cannot convert this type from big endian"); 
+            static WN_FORCE_INLINE type&  Execute(type& _value) {
+                static_assert(wn::dependent_false<type>::value, "You cannot convert this type from big endian"); 
 
                 return(_value);
             }
         };
 
-        template <typename Type>
-        struct __WNSwapBytes<Type, 1> {
-            static WN_FORCE_INLINE Type&  Execute(Type& _value) {
-                WN_STATIC_ASSERT_DESC(WN_STATIC_ASSERT_DEPENDENT_FAIL<Type>::Value, "You should not be trying to endian swap a byte"); 
+        template <typename type>
+        struct __WNSwapBytes<type, 1> {
+            static WN_FORCE_INLINE type&  Execute(type& _value) {
+                static_assert(wn::dependent_false<type>::value, "You should not be trying to endian swap a byte"); 
 
                 return(_value);
             }
         };
 
-        template <typename Type>
-        struct __WNSwapBytes<Type, 2> {
-            static WN_FORCE_INLINE Type& Execute(Type& _value) {
+        template <typename type>
+        struct __WNSwapBytes<type, 2> {
+            static WN_FORCE_INLINE type& Execute(type& _value) {
                 _value = (_value >> 8) | ((_value & 0xFF) << 8);
 
                 return(_value);
             }
         };
 
-        template <typename Type>
-        struct __WNSwapBytes<Type, 4> {
-            static WN_FORCE_INLINE Type& Execute(Type& _value) {
+        template <typename type>
+        struct __WNSwapBytes<type, 4> {
+            static WN_FORCE_INLINE type& Execute(type& _value) {
                 _value = ((((_value) & 0xFF000000) >> 24) |
                           (((_value) & 0x00FF0000) >> 8) |
                           (((_value) & 0x0000FF00) << 8) |
@@ -60,9 +61,9 @@ namespace WNCore {
             }
         };
 
-        template <typename Type>
-        struct __WNSwapBytes<Type, 8> {
-            static WN_FORCE_INLINE Type& Execute(Type& _value) {
+        template <typename type>
+        struct __WNSwapBytes<type, 8> {
+            static WN_FORCE_INLINE type& Execute(type& _value) {
                 _value = ((((_value) & 0xFF00000000000000ULL) >> 56) |
                           (((_value) & 0x00FF000000000000ULL) >> 40) |
                           (((_value) & 0x0000FF0000000000ULL) >> 24) |
@@ -77,9 +78,9 @@ namespace WNCore {
         };
 
         template <>
-        struct __WNSwapBytes<WN_FLOAT32, 4> {
-            static WN_FORCE_INLINE WN_FLOAT32& Execute(WN_FLOAT32& _value) {
-                WN_BYTE* bytes = reinterpret_cast<WN_BYTE*>(&_value);
+        struct __WNSwapBytes<wn_float32, 4> {
+            static WN_FORCE_INLINE wn_float32& Execute(wn_float32& _value) {
+                wn_byte* bytes = reinterpret_cast<wn_byte*>(&_value);
 
                 __WNSwapByte(&bytes[0], &bytes[3]);
                 __WNSwapByte(&bytes[1], &bytes[2]);
@@ -89,9 +90,9 @@ namespace WNCore {
         };
 
         template <>
-        struct __WNSwapBytes<WN_FLOAT64, 8> {
-            static WN_FORCE_INLINE WN_FLOAT64& Execute(WN_FLOAT64& _value) {
-                WN_BYTE* bytes = reinterpret_cast<WN_BYTE*>(&_value);
+        struct __WNSwapBytes<wn_float64, 8> {
+            static WN_FORCE_INLINE wn_float64& Execute(wn_float64& _value) {
+                wn_byte* bytes = reinterpret_cast<wn_byte*>(&_value);
 
                 __WNSwapByte(&bytes[0], &bytes[7]);
                 __WNSwapByte(&bytes[1], &bytes[6]);
@@ -104,43 +105,43 @@ namespace WNCore {
     }
 
     #ifdef _WN_ENDIAN_BIG
-        template <typename Type>
-        WN_FORCE_INLINE Type& WNToBigEndian(Type& _value) {
+        template <typename type>
+        WN_FORCE_INLINE type& WNToBigEndian(type& _value) {
             return(_value);
         }
 
-        template <typename Type>
-        WN_FORCE_INLINE Type& WNFromBigEndian(Type& _value) {
+        template <typename type>
+        WN_FORCE_INLINE type& WNFromBigEndian(type& _value) {
             return(_value);
         }
 
-        template <typename Type>
-        WN_FORCE_INLINE Type& WNToLittleEndian(Type& _value) {
-            return(__WNInternal::__WNSwapBytes<Type, sizeof(Type)>::Execute(_value));
+        template <typename type>
+        WN_FORCE_INLINE type& WNToLittleEndian(type& _value) {
+            return(internal::__WNSwapBytes<type, sizeof(type)>::Execute(_value));
         }
 
-        template <typename Type>
-        WN_FORCE_INLINE Type& WNFromLittleEndian(Type& _value) {
-            return(__WNInternal::__WNSwapBytes<Type, sizeof(Type)>::Execute(_value));
+        template <typename type>
+        WN_FORCE_INLINE type& WNFromLittleEndian(type& _value) {
+            return(internal::__WNSwapBytes<type, sizeof(type)>::Execute(_value));
         }
     #else
-        template <typename Type>
-        WN_FORCE_INLINE Type& WNToBigEndian(Type& _value) {
-            return(__WNInternal::__WNSwapBytes<Type, sizeof(Type)>::Execute(_value));
+        template <typename type>
+        WN_FORCE_INLINE type& WNToBigEndian(type& _value) {
+            return(internal::__WNSwapBytes<type, sizeof(type)>::Execute(_value));
         }
 
-        template <typename Type>
-        WN_FORCE_INLINE Type& WNFromBigEndian(Type& _value) {
-            return(__WNInternal::__WNSwapBytes<Type, sizeof(Type)>::Execute(_value));
+        template <typename type>
+        WN_FORCE_INLINE type& WNFromBigEndian(type& _value) {
+            return(internal::__WNSwapBytes<type, sizeof(type)>::Execute(_value));
         }
 
-        template <typename Type>
-        WN_FORCE_INLINE Type& WNToLittleEndian(Type& _value) {
+        template <typename type>
+        WN_FORCE_INLINE type& WNToLittleEndian(type& _value) {
             return(_value);
         }
 
-        template <typename Type>
-        WN_FORCE_INLINE Type& WNFromLittleEndian(Type& _value) {
+        template <typename type>
+        WN_FORCE_INLINE type& WNFromLittleEndian(type& _value) {
             return(_value);
         }
     #endif

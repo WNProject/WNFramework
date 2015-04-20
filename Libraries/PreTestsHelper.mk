@@ -9,4 +9,4 @@ WNLIBDIR = ../../../bin/$(TARGET)/
 BINDIR ?= ../../../bin/
 PCHDIR = ../build/
 INCDIR = ../inc/
-DEPENDENCYDIR ?= ../../../../Dependencies/Linux/$(shell uname -m)/$(TARGET)
+DEPENDENCYDIR ?= ../../../../Dependencies/Linux/$(shell uname -m)/$(TARGET)/

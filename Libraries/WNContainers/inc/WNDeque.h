@@ -2,431 +2,834 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-//#pragma once
+#pragma once
 
-#ifndef __WN_DEQUE_H__
-#define __WN_DEQUE_H__
-#include "WNCore/inc/WNTypes.h"
-#include "WNContainers/inc/WNAllocator.h"
+#ifndef __WN_CONTAINERS_DEQUE_H__
+#define __WN_CONTAINERS_DEQUE_H__
+
 #include "WNContainers/inc/WNDynamicArray.h"
-#include "WNMath/inc/WNBasic.h"
+#include "WNMemory/inc/WNAllocator.h"
 #include "WNMemory/inc/WNManipulation.h"
+#include "WNCore/inc/WNTypeTraits.h"
 
-namespace WNContainers {
-    template<typename T, WN_SIZE_T BlockSize = 10, typename T_Allocator=WNDefaultAllocator>
-    class WNDeque {
-    public:
-        typedef WNDeque<T, BlockSize, T_Allocator> thisType;
+#include <iterator>
 
-        template<typename T_It>
-        class iter {
+namespace wn {
+    namespace containers {
+        template <typename _Type, typename _Allocator = memory::default_allocator, const wn_size_t _BlockSize = 10>
+        class deque final {
         public:
-            iter(): mDeque(NULL), mElement(0) {
-            }
-        
-            iter(const iter& _other): mDeque(_other.mDeque), mElement(_other.mElement) {
-            }
-
-            iter& operator=(const iter& _other) {
-                mDeque = _other.mDeque;
-                mElement = _other.mElement;
-            }
-            WN_SIGNED_T operator-(const iter& _other) {
-                return(mElement - _other.mElement);
-            }
-
-            iter& operator+=(WN_SIZE_T _num) {
-                mElement += _num;
-                return(*this);
-            }
-
-            iter& operator-=(WN_SIZE_T _num) {
-                mElement -= _num;
-                return(*this);
-            }
-
-            iter operator+(WN_SIZE_T _num) {
-                iter it(*this);
-                return(it += _num);
-            }
-            iter operator-(WN_SIZE_T _num) {
-               iter it(*this);
-               return(it -= _num);
-            }
-            
-            T_It& operator*(){
-                return(mDeque->operator[](mElement));
-            }
-            T_It* operator->() {
-                return(&(mDeque->operator[](mElement)));
-            }
-
-            iter operator++(int) {
-                iter it(*this);
-                (*this) += 1;
-                return(it);
-            }
-            iter operator--(int) {
-                iter it(*this);
-                (*this) -= 1;
-                return(it);
-            }
-            iter& operator++() {
-                return((*this) += 1);
-            }
-            iter& operator--() {
-                return((*this) -= 1);
-            }
+          typedef _Type value_type;
+          typedef wn_size_t size_type;
+          typedef wn_signed_t difference_type;
+          typedef _Allocator allocator_type;
+          typedef value_type& reference;
+          typedef const value_type& const_reference;
         private:
+            template <typename _Container,
+                      typename _NonConstContainer = _Container,
+                      typename _Element = typename _Container::value_type>
+            class deque_iterator final : public std::iterator<std::bidirectional_iterator_tag,
+                                                              _Element,
+                                                              typename _Container::difference_type> {
+            public:
+                typedef typename _Container::size_type size_type;
+                typedef std::bidirectional_iterator_tag iterator_category;
+                typedef _Element value_type;
+                typedef typename _Container::difference_type difference_type;
+                typedef typename _Container::difference_type distance_type;
+                typedef _Element* pointer;
+                typedef _Element& reference;
 
-            template<typename T1, WN_SIZE_T, typename T2>
-            friend class WNDeque;
-            template<typename T1>
-            iter(const iter<T1>& _other): mDeque(_other.mDeque), mElement(_other.mElement) {
-            }
-            
-            iter(thisType* _deq, WN_SIZE_T _element):
-                mDeque(_deq), mElement(_element) {
-            }
-            thisType* mDeque;
-            WN_SIZE_T mElement;
-        };
-        typedef iter<T> iterator;
-        typedef iter<const T> const_iterator;
 
-        WNDeque(WNAllocator* _allocator = &sAllocator): 
-            mAllocator(_allocator),
-            mUsedBlocks(0),
-            mStartBlock(0),
-            mStartLocation(0),
-            mAllocatedBlocks(0),
-            mNumElements(0){            
-        }
-        WNDeque(WN_SIZE_T _initialSize, const T& _initialValue, WNAllocator* _allocator = &sAllocator) :
-            mAllocator(_allocator),
-            mUsedBlocks(0),
-            mStartBlock(0),
-            mStartLocation(0),
-            mAllocatedBlocks(0),
-            mNumElements(0) {
-            insert(cbegin(), _initialSize, _initialValue);
-        }
-
-        ~WNDeque() {
-            clear();
-            for(WN_SIZE_T i = 0; i < mAllocatedBlocks; ++i) {
-                mAllocator->Free(mBlockList[(mStartBlock + i) % mBlockList.size()]);
-            }
-        }
-
-        WN_SIZE_T size() {
-            return(mNumElements);
-        }
-
-        WN_SIZE_T capacity() {
-            return(mAllocatedBlocks * BlockSize);
-        }
-
-        iterator begin() {
-            return(tBegin<iterator>());
-        }
-        const_iterator cbegin() {
-            return(tBegin<const_iterator>());
-        }
-        iterator end() {
-            return(tEnd<iterator>());
-        }
-        const_iterator cend() {
-            return(tEnd<const_iterator>());
-        }
-
-        T& operator[](WN_SIZE_T elem) {
-            WN_SIZE_T pos = mStartLocation + elem;
-            WN_SIZE_T block = pos / BlockSize;
-            block = (block + mStartBlock) % mBlockList.size();
-            pos %= BlockSize;
-            return(mBlockList[block][pos]);
-        }
-        
-        template<typename T_It>
-        T_It erase(T_It _location, T_It _endIt) {
-            WN_SIZE_T numElements = (_endIt - _location);
-            return(erase(_location, numElements));
-        }
-
-        template<typename T_It>
-        T_It erase(T_It _location) {
-            return(erase(_location, 1));
-        }
-
-        template<typename T_It>
-        T_It erase(T_It _location, WN_SIZE_T _num) {
-            T_It erase_start = _location;
-            for(WN_SIZE_T i = 0; i < _num; ++i) {
-                (*erase_start).~T();
-            }
-
-            if(closerToFront(_location)) {
-                T_It copy_to = _location + _num - 1;
-                T_It copy_from = _location - 1;
-                WN_SIZE_T copy_count = _location - tBegin<T_It>();
-                for(WN_SIZE_T i = 0; i < copy_count; ++i) {
-                    new(&(*copy_to))T(*copy_from);
-                    (*copy_from).~T();
-                    --copy_to;
-                    --copy_from;
+                deque_iterator() :
+                    m_deque(wn_nullptr),
+                    m_element(0) {
                 }
-                erase_from_beginning(_num);
-                return(copy_to);
-            } else {
-                T_It copy_to = _location;
-                T_It copy_from = _location + _num;
-                WN_SIZE_T location = (_location - tBegin<T_It>());
-                WN_SIZE_T copy_count = mNumElements - location;
-                for(WN_SIZE_T i = 0; i < copy_count; ++i) {
-                    new(&(*copy_to))T(*copy_from);
-                    (*copy_from).~T();
-                    ++copy_to;
-                    ++copy_from;
+
+                deque_iterator(deque_iterator&& _other) :
+                    m_deque(std::move(_other.m_deque)),
+                    m_element(std::move(_other.m_element)) {
+                    _other.clear();
                 }
-                erase_from_end(_num);
-                return(copy_from);
-            }
-        }
-        
-        void push_back(const T& _value) {
-            insert(begin() + mNumElements);
-        }
-        
-        void push_front(const T& _value) {
-            insert(cbegin(), 1, _value);
-        }
 
-        void pop_front() {
-            erase(begin(), 1);
-        }
-
-        void pop_back() {
-            erase(end() - 1, 1);
-        }
-
-        void clear() {
-            erase(begin(), end());
-        }
-
-        template <typename T_Gen> 
-        iterator generate(const_iterator _position, WN_SIZE_T _n, const T_Gen& _gen) {
-            iterator position = generate_gap(_position, _n);
-            iterator newposition = position;
-            WN_SIZE_T i = 0;
-            while(_n--) {
-                new(&(*(position++))) T(_gen(i++));
-            }
-            return(newposition);
-        }
-
-        template<typename T_It>
-        iterator insert(T_It _location, const T& _value) {
-            return(insert(_location, 1, _value));
-        }
-
-        template<typename T_It>
-        iterator insert(T_It _location, WN_SIZE_T _num, const T& _value) {
-            iterator iter = generate_gap(_location, _num);
-            iterator newIter = iter;
-            for(WN_SIZE_T i = 0; i < _num; ++i) {
-                new(&(*(newIter++)))T(_value);
-            }
-            return(iter);
-        }
-    private:
-        template<typename T_It>
-        iterator generate_gap(T_It _location, WN_SIZE_T _num) {
-            if(closerToFront(_location)) {
-                WN_SIZE_T location = (_location - tBegin<T_It>());
-                allocate_elements_at_begin(_num);
-                iterator copy_to = begin();
-                iterator copy_from = begin() + _num;
-                for(WN_SIZE_T i = 0;  i < location; ++i) {
-                    new(&(*copy_to))T(*copy_from);
-                    (*copy_from).~T();
-                    ++copy_to;
-                    ++copy_from;
+                deque_iterator(const deque_iterator& _other) :
+                    m_deque(_other.m_deque),
+                    m_element(_other.m_element) {
                 }
-                return(copy_to);
-            } else {
-                WN_SIZE_T location = (_location - tBegin<T_It>());
-                WN_SIZE_T elements_to_end = mNumElements - location;
-                allocate_elements_at_end(_num);
-                iterator copy_to = end() - 1;
-                iterator copy_from = begin() + location + elements_to_end - 1;
-                    
-                for(WN_SIZE_T i = 0; i < elements_to_end; ++i) {
-                    new (&(*copy_to))T(*copy_from);
-                    (*copy_from).~T();
-                    --copy_to;
-                    --copy_from;
+
+                template <typename _OtherContainer = _NonConstContainer>
+                deque_iterator(deque_iterator<_OtherContainer, _OtherContainer, typename _OtherContainer::value_type>&& _other,
+                               typename enable_if<!is_same<_Container, _OtherContainer>::value>::type* = wn_nullptr) :
+                    m_deque(std::move(_other.m_deque)),
+                    m_element(std::move(_other.m_element)) {
+                    _other.clear();
                 }
-                return(tBegin<T_It>() + location);
+
+                template <typename _OtherContainer = _NonConstContainer>
+                deque_iterator(const deque_iterator<_OtherContainer, _OtherContainer, typename _OtherContainer::value_type> &_other,
+                               typename enable_if<!is_same<_Container, _OtherContainer>::value>::type* = wn_nullptr) :
+                    m_deque(_other.m_deque),
+                    m_element(_other.m_element) {
+                }
+
+                deque_iterator& operator = (deque_iterator&& _other) {
+                    m_deque = std::move(_other.m_deque);
+                    m_element = std::move(_other.m_element);
+
+                    _other.clear();
+
+                    return(*this);
+                }
+
+                deque_iterator& operator = (const deque_iterator& _other) {
+                    m_deque = _other.m_deque;
+                    m_element = _other.m_element;
+
+                    return(*this);
+                }
+
+                template <typename _OtherContainer = _NonConstContainer>
+                typename enable_if<!is_same<_Container, _OtherContainer>::value, deque_iterator>::type&
+                operator = (deque_iterator<_OtherContainer, _OtherContainer, typename _OtherContainer::value_type>&& _other) {
+                    m_deque = std::move(_other.m_deque);
+                    m_element = std::move(_other.m_element);
+
+                    _other.clear();
+
+                    return(*this);
+                }
+
+                template <typename _OtherContainer = _NonConstContainer>
+                typename enable_if<!is_same<_Container, _OtherContainer>::value, deque_iterator>::type&
+                operator = (const deque_iterator<_OtherContainer, _OtherContainer, typename _OtherContainer::value_type>& _other) {
+                    m_deque = _other.m_deque;
+                    m_element = _other.m_element;
+
+                    return(*this);
+                }
+
+                difference_type operator - (const deque_iterator& _other) {
+                    WN_RELEASE_ASSERT_DESC(m_deque == _other.m_deque, "iterators are incompatible");
+
+                    return(m_element - _other.m_element);
+                }
+
+                deque_iterator& operator += (const wn_size_t _amount) {
+                    m_element += _amount;
+
+                    return(*this);
+                }
+
+                deque_iterator& operator -= (const wn_size_t _amount) {
+                    m_element -= _amount;
+
+                    return(*this);
+                }
+
+                deque_iterator operator + (const wn_size_t _amount) {
+                    deque_iterator i(*this);
+
+                    return(i += _amount);
+                }
+
+                deque_iterator operator - (const wn_size_t _amount) {
+                    deque_iterator i(*this);
+
+                    return(i -= _amount);
+                }
+
+                reference operator * () const {
+                    return((*m_deque)[m_element]);
+                }
+
+                pointer operator -> () const {
+                    return(&((*m_deque)[m_element]));
+                }
+
+                deque_iterator operator ++ (wn_int32) {
+                    deque_iterator i(*this);
+
+                    (*this) += 1;
+
+                    return(i);
+                }
+
+                deque_iterator operator -- (wn_int32) {
+                    deque_iterator i(*this);
+
+                    (*this) -= 1;
+
+                    return(i);
+                }
+
+                deque_iterator& operator ++ () {
+                    return((*this) += 1);
+                }
+
+                deque_iterator& operator -- () {
+                    return((*this) -= 1);
+                }
+
+                wn_bool operator == (const deque_iterator& _other) const {
+                    WN_RELEASE_ASSERT_DESC(m_deque == _other.m_deque, "iterators are incompatible");
+
+                    return(m_element == _other.m_element);
+                }
+
+                wn_bool operator != (const deque_iterator& _other) const {
+                    WN_RELEASE_ASSERT_DESC(m_deque == _other.m_deque, "iterators are incompatible");
+
+                    return(m_element != _other.m_element);
+                }
+
+                wn_bool operator > (const deque_iterator& _other) const {
+                    WN_RELEASE_ASSERT_DESC(m_deque == _other.m_deque, "iterators are incompatible");
+
+                    return(m_element > _other.m_element);
+                }
+
+                wn_bool operator >= (const deque_iterator& _other) const {
+                    WN_RELEASE_ASSERT_DESC(m_deque == _other.m_deque, "iterators are incompatible");
+
+                    return(m_element >= _other.m_element);
+                }
+
+                wn_bool operator < (const deque_iterator& _other) const {
+                    WN_RELEASE_ASSERT_DESC(m_deque == _other.m_deque, "iterators are incompatible");
+
+                    return(m_element < _other.m_element);
+                }
+
+                wn_bool operator <= (const deque_iterator& _other) const {
+                    WN_RELEASE_ASSERT_DESC(m_deque == _other.m_deque, "iterators are incompatible");
+
+                    return(m_element <= _other.m_element);
+                }
+
+            private:
+                template <typename _T, typename _Alloc, const wn_size_t _BSize>
+                friend class deque;
+
+                friend class deque_iterator<const _Container, _Container, const _Element>;
+
+                explicit deque_iterator(_Container* _deque, const size_type _element) :
+                    m_deque(_deque),
+                    m_element(_element) {
+                }
+
+                wn_void clear() {
+                    m_deque = wn_nullptr;
+                    m_element = 0;
+                }
+
+                _Container* m_deque;
+                size_type m_element;
+            };
+
+            typedef deque<_Type, _Allocator, _BlockSize> self_type;
+
+        public:
+            typedef deque_iterator<self_type> iterator;
+            typedef deque_iterator<const self_type, self_type, const value_type> const_iterator;
+            typedef std::reverse_iterator<iterator> reverse_iterator;
+            typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
+
+            deque() :
+                deque(_Allocator()) {
             }
-        }
 
-        template<typename T_It> 
-        T_It tBegin() {
-            return(T_It(this, 0));
-        }
-        
-        template<typename T_It>
-        T_It tEnd() {
-            return(T_It(this, mNumElements));
-        }
+            deque(const deque& _other) :
+                m_block_list(_other.m_block_list),
+                m_allocator(_other.m_allocator),
+                m_used_blocks(_other.m_used_blocks),
+                m_start_block(_other.m_start_block),
+                m_start_location(_other.m_start_location),
+                m_allocated_blocks(_other.m_allocated_blocks),
+                m_element_count(_other.m_element_count) {
+            }
 
-        template<typename T_It>
-        bool closerToFront(T_It _iter) {
-            return(_iter - tBegin<T_It>() < tEnd<T_It>() - _iter);
-        }
-        
-        WN_VOID erase_from_beginning(WN_SIZE_T _elements) {
-            WN_SIZE_T elements_in_first_block = mStartLocation;
-            if(elements_in_first_block < _elements) {
-                while(_elements > elements_in_first_block && elements_in_first_block > 0) {
-                    _elements -= elements_in_first_block;
-                    if(mBlockList.size() != mAllocatedBlocks) {
-                        mBlockList[(mStartBlock + mAllocatedBlocks + 1) % mBlockList.size()] = mBlockList[mStartBlock];
-                        mBlockList[mStartBlock] = NULL;
+            deque(const deque& _other, const allocator_type& _allocator) :
+                m_allocator(_allocator),
+                m_block_list(_other.m_block_list),
+                m_used_blocks(_other.m_used_blocks),
+                m_start_block(_other.m_start_block),
+                m_start_location(_other.m_start_location),
+                m_allocated_blocks(_other.m_allocated_blocks),
+                m_element_count(_other.m_element_count) {
+            }
+
+            deque(deque&& _other) :
+                m_allocator(std::move(_other.m_allocator)),
+                m_block_list(std::move(_other.m_block_list)),
+                m_used_blocks(std::move(_other.m_used_blocks)),
+                m_start_block(std::move(_other.m_start_block)),
+                m_start_location(std::move(_other.m_start_location)),
+                m_allocated_blocks(std::move(_other.m_allocated_blocks)),
+                m_element_count(std::move(_other.m_element_count)) {
+            }
+
+            deque(deque&& _other, const allocator_type& _allocator) :
+                m_allocator(_allocator),
+                m_block_list(std::move(_other.m_block_list)),
+                m_used_blocks(std::move(_other.m_used_blocks)),
+                m_start_block(std::move(_other.m_start_block)),
+                m_start_location(std::move(_other.m_start_location)),
+                m_allocated_blocks(std::move(_other.m_allocated_blocks)),
+                m_element_count(std::move(_other.m_element_count)) {
+            }
+
+            explicit deque(const _Allocator& _allocator) :
+                m_allocator(_allocator),
+                m_used_blocks(0),
+                m_start_block(0),
+                m_start_location(0),
+                m_allocated_blocks(0),
+                m_element_count(0) {
+            }
+
+            explicit deque(const size_type _count, const _Allocator& _allocator = _Allocator()) :
+                deque(_count, _Type(), _allocator) {
+            }
+
+            deque(const size_type _count, const _Type& _value, const _Allocator& _allocator = _Allocator()) :
+                deque(_allocator) {
+                resize(_count, _value);
+            }
+
+            template <typename _InputIt,
+                      typename = enable_if_t<!std::is_integral<_InputIt>::value>>
+            deque(_InputIt _first, _InputIt _last, const _Allocator& _allocator = _Allocator()) :
+                deque(_allocator) {
+                insert(cbegin(), _first, _last);
+            }
+
+            deque(std::initializer_list<_Type> _initializer_list, const _Allocator& _allocator = _Allocator()) :
+                deque(_initializer_list.begin(), _initializer_list.end(), _allocator) {
+            }
+
+            ~deque() {
+                clear();
+
+                for (wn_size_t i = 0; i < m_allocated_blocks; ++i) {
+                    const wn_size_t index = (m_start_block + i) % m_block_list.size();
+
+                    m_allocator.deallocate(m_block_list[index]);
+                }
+            }
+
+            // element access
+
+            reference operator [] (const size_type _pos) {
+                return(at(_pos));
+            }
+
+            const_reference operator [] (const size_type _pos) const {
+                return(at(_pos));
+            }
+
+            reference front() {
+                return(*begin());
+            }
+
+            const_reference front() const {
+                return(*cbegin());
+            }
+
+            reference back() {
+                iterator i = end();
+
+                --i;
+
+                return(*i);
+            }
+
+            const_reference back() const {
+                const_reference i = cend();
+
+                --i;
+
+                return(*i);
+            }
+
+            reference at(const size_type _pos) {
+                size_type position = m_start_location + _pos;
+                size_type block = position / _BlockSize;
+
+                block = (block + m_start_block) % m_block_list.size();
+                position %= _BlockSize;
+
+                return(m_block_list[block][position]);
+            }
+
+            const_reference at(const size_type _pos) const {
+                size_type position = m_start_location + _pos;
+                size_type block = position / _BlockSize;
+
+                block = (block + m_start_block) % m_block_list.size();
+                position %= _BlockSize;
+
+                return(m_block_list[block][position]);
+            }
+
+            // iterators
+
+            iterator begin() {
+                return(iterator(this, 0));
+            }
+
+            const_iterator begin() const {
+                return(cbegin());
+            }
+
+            const_iterator cbegin() const {
+                return(const_iterator(this, 0));
+            }
+
+            iterator end() {
+                return(iterator(this, m_element_count));
+            }
+
+            const_iterator end() const {
+                return(cend());
+            }
+
+            const_iterator cend() const {
+                return(const_iterator(this, m_element_count));
+            }
+
+            reverse_iterator rbegin() {
+                return(reverse_iterator(end()));
+            }
+
+            const_reverse_iterator rbegin() const {
+                return(crbegin());
+            }
+
+            const_reverse_iterator crbegin() const {
+                return(const_reverse_iterator(cend()));
+            }
+
+            reverse_iterator rend() {
+                return(reverse_iterator(begin()));
+            }
+
+            const_reverse_iterator rend() const {
+                return(crend());
+            }
+
+            const_reverse_iterator crend() const {
+                return(const_reverse_iterator(cbegin()));
+            }
+
+            // capacity
+
+            wn_bool empty() const {
+                return(size() == 0);
+            }
+
+            size_type size() const {
+                return(m_element_count);
+            }
+
+            size_type capacity() const {
+                return(m_allocated_blocks * _BlockSize);
+            }
+
+            // modifiers
+
+            wn_void clear() {
+                erase(begin(), end());
+            }
+
+            iterator insert(const_iterator _pos, _Type&& _value) {
+                iterator iter = allocate(_pos, 1);
+                iterator newIter = iter;
+
+                memory::construct_at<_Type>(&(*(newIter++)), std::move(_value));
+
+                return(iter);
+            }
+
+            iterator insert(const_iterator _pos, const _Type& _value) {
+                _Type value(_value);
+
+                return(insert(_pos, std::move(value)));
+            }
+
+            iterator insert(const_iterator _pos, const size_type _count, const _Type& _value) {
+                iterator iter = allocate(_pos, _count);
+                iterator newIter = iter;
+
+                for (wn_size_t i = 0; i < _count; ++i) {
+                    memory::construct_at<_Type>(&(*(newIter++)), _value);
+                }
+
+                return(iter);
+            }
+
+            template <typename _InputIt,
+                      typename = enable_if_t<!std::is_integral<_InputIt>::value>>
+            iterator insert(const_iterator _pos, _InputIt _first, _InputIt _last) {
+                const difference_type count = _last - _first;
+                iterator position = allocate(_pos, count);
+                iterator new_position = position;
+
+                for (; _first != _last; ++_first) {
+                    memory::construct_at<_Type>(&(*(position++)), *_first);
+                }
+
+                return(new_position);
+            }
+
+            iterator insert(const_iterator _pos, std::initializer_list<_Type> _initializer_list) {
+                return(insert(_pos, _initializer_list.begin(), _initializer_list.end()));
+            }
+
+            template <typename _Function,
+                      typename = enable_if_t<is_callable<_Function, _Type, size_type>::value>>
+            iterator insert(const_iterator _pos, const size_type _count, _Function&& _generator) {
+                iterator position = allocate(_pos, _count);
+                iterator new_position = position;
+
+                for (size_type i = 0; i < _count; ++i) {
+                    memory::construct_at<_Type>(&(*(position++)), std::move(_generator(i++)));
+                }
+
+                return(new_position);
+            }
+
+            iterator erase(const_iterator _pos) {
+                return(erase(_pos, 1));
+            }
+
+            iterator erase(const_iterator _pos, const size_type _count) {
+                iterator pos = make_iterator(_pos);
+                iterator erase_start = pos;
+
+                for (size_type i = 0; i < _count; ++i) {
+                    (*(erase_start++)).~_Type();
+                }
+
+                if (closer_to_front(pos)) {
+                    iterator copy_to = pos + _count - 1;
+                    iterator copy_from = pos - 1;
+                    const size_type copy_count = pos - begin();
+
+                    for (size_type i = 0; i < copy_count; ++i) {
+                        memory::construct_at<_Type>(&(*copy_to), *copy_from);
+
+                        (*copy_from).~_Type();
+
+                        --copy_to;
+                        --copy_from;
                     }
-                    mStartLocation = 0;
-                    mStartBlock += 1;
-                    mUsedBlocks -= 1;
-                    mNumElements -= elements_in_first_block;
-                    elements_in_first_block = WNMath::WNMin(BlockSize, mNumElements);
-                }
-                mNumElements -= _elements;
-                mStartLocation += _elements;
-            } else {
-                mNumElements -= _elements;
-                mStartLocation += _elements;
-            }
-        }
 
-        WN_VOID erase_from_end(WN_SIZE_T _elements) {
-            WN_SIZE_T elements_in_last_block = (mStartLocation + mNumElements) % BlockSize;
+                    remove_front(_count);
 
-            if(elements_in_last_block < _elements) {
-                while(_elements > elements_in_last_block && elements_in_last_block > 0) {
-                    _elements -= elements_in_last_block;
-                    mUsedBlocks -= 1;
-                    mNumElements -= elements_in_last_block;
-                    elements_in_last_block = WNMath::WNMin(BlockSize, mNumElements);
-                }
-                mNumElements -= _elements;
-            } else {
-                mNumElements -= _elements;
-            }
-        }
+                    return(copy_to);
+                } else {
+                    iterator copy_to = pos;
+                    iterator copy_from = copy_to + _count;
+                    const size_type location = (pos - begin());
+                    const size_type copy_count = m_element_count - location;
 
-        WN_VOID allocate_elements_at_end(WN_SIZE_T _elements) {
-            WN_SIZE_T unused_blocks = total_unused_blocks();
-            WN_SIZE_T extra_last_elements = total_extra_elements_in_last_block();
-            WN_SIZE_T totalElements = (extra_last_elements + unused_blocks * BlockSize);
-            if(totalElements > _elements) {
-                WN_SIZE_T extraElements = _elements;
-                extraElements -= WNMath::WNMin(extra_last_elements, extraElements);
-                WN_SIZE_T extra_used_blocks = ((extraElements  + BlockSize - 1)/ BlockSize);
-                mUsedBlocks += extra_used_blocks;
-            } else {
-                //we need more blocks;
-                WN_SIZE_T neededExtraBlocks = (_elements - totalElements + BlockSize - 1) / BlockSize;
-                if(mAllocatedBlocks + neededExtraBlocks > mBlockList.size()) {
-                    add_block_space(mAllocatedBlocks + neededExtraBlocks - mBlockList.size());
-                }
-                for(WN_SIZE_T i = 0; i < neededExtraBlocks; ++i) {
-                    WNAllocationPair p = mAllocator->Allocate(sizeof(T*), BlockSize);
-                    mBlockList[(mStartBlock + mAllocatedBlocks) % mBlockList.size()] = static_cast<T*>(p.m_pLocation);
-                    mAllocatedBlocks += 1;
-                }
-                mUsedBlocks = mAllocatedBlocks;
-            }
-            mNumElements += _elements;
-        }
+                    for (size_type i = 0; i < copy_count; ++i) {
+                        memory::construct_at<_Type>(&(*copy_to), *copy_from);
 
-        WN_VOID allocate_elements_at_begin(WN_SIZE_T _elements) {
-            WN_SIZE_T leftovers_in_block = mStartLocation;
-            if(leftovers_in_block < _elements) {
-                WN_SIZE_T accountedElements = leftovers_in_block;
-                WN_SIZE_T additional_blocks = (_elements - accountedElements);
-                additional_blocks = (additional_blocks + BlockSize) / BlockSize;
-                WN_SIZE_T haveBlocks = total_unused_blocks();
-                if(haveBlocks < additional_blocks) {
-                    //We need at least some more blocks
-                    WN_SIZE_T neededBlocks = additional_blocks - haveBlocks;
-                    if(mBlockList.size() - mAllocatedBlocks < neededBlocks) {
-                        add_block_space(mAllocatedBlocks + neededBlocks - mBlockList.size());
+
+                        (*copy_from).~_Type();
+
+                        ++copy_to;
+                        ++copy_from;
                     }
-                    for(WN_SIZE_T i = 0; i < neededBlocks; ++i) {
-                        WNAllocationPair p = mAllocator->Allocate(sizeof(T*), BlockSize);
-                        mBlockList[(mStartBlock + mAllocatedBlocks) % mBlockList.size()] = static_cast<T*>(p.m_pLocation);
-                        mAllocatedBlocks += 1;
-                    }
+
+                    remove_back(_count);
+
+                    return(copy_from);
                 }
-                
-                for(WN_SIZE_T i = 0; i < additional_blocks; ++i) {
-                    if(mStartBlock == 0) {
-                        mStartBlock = mBlockList.size() - 1;
+            }
+
+            iterator erase(const_iterator _first, const_iterator _last) {
+                const size_type count = (_last - _first);
+
+                return(erase(_first, count));
+            }
+
+            wn_void push_front(_Type&& _value) {
+                insert(cbegin(), std::move(_value));
+            }
+
+            wn_void push_front(const _Type& _value) {
+                _Type value(_value);
+
+                push_front(std::move(value));
+            }
+
+            wn_void push_back(_Type&& _value) {
+                insert(cbegin() + m_element_count, std::move(_value));
+            }
+
+            wn_void push_back(const _Type& _value) {
+                _Type value(_value);
+
+                push_back(std::move(value));
+            }
+
+            wn_void pop_front() {
+                erase(begin(), 1);
+            }
+
+            wn_void pop_back() {
+                erase(end() - 1, 1);
+            }
+
+            wn_void resize(const size_type _count) {
+                resize(_count, _Type());
+            }
+
+            wn_void resize(const size_type _count, const value_type& _value) {
+                const size_type current_size = size();
+
+                if (_count != current_size) {
+                    if (_count > current_size) {
+                        const size_type difference = _count - current_size;
+
+                        insert(cend(), difference, _value);
                     } else {
-                        mStartBlock -= 1;
+                        erase(cbegin() + _count, cend());
                     }
-                    mUsedBlocks += 1;
-                    if(mBlockList.size() != mAllocatedBlocks) {
-                        mBlockList[mStartBlock] = mBlockList[(mStartBlock + mAllocatedBlocks) % mBlockList.size()];
-                        mBlockList[(mStartBlock + mAllocatedBlocks) % mBlockList.size()] = NULL;
-                    }
-                    accountedElements += BlockSize;
                 }
-                mStartLocation = accountedElements - _elements;
-            } else {
-                mStartLocation -= WNMath::WNMin(leftovers_in_block, _elements);
             }
-            mNumElements += _elements;
-        }
 
+            wn_void swap(deque& _other) {
+                if (&_other != this) {
+                    m_block_list.swap(_other.m_block_list);
 
-        WN_VOID add_block_space(WN_SIZE_T _numBlocks){ 
-            WN_SIZE_T oldLength = mBlockList.size();
-            mBlockList.insert(mBlockList.end(), _numBlocks, NULL);
-            WN_SIZE_T totalBlocks = mBlockList.capacity();
-            mBlockList.insert(mBlockList.end(), mBlockList.capacity() - mBlockList.size(), NULL);
-            if(0 != mStartBlock) {
-                WN_SIZE_T mAddedSize = mBlockList.size() - oldLength;
-                WN_SIZE_T mCopySize = (oldLength - mStartBlock);
-                WNMemory::WNMemMove(&mBlockList[mStartBlock + mAddedSize], &mBlockList[mStartBlock], mCopySize * sizeof(T*));
-#ifdef _WN_DEBUG
-                WNMemory::WNMemClr(&mBlockList[mStartBlock], sizeof(T*) * mAddedSize);
-#endif
-                mStartBlock += mAddedSize;
+                    std::swap(m_allocator, _other.m_allocator);
+                    std::swap(m_used_blocks, _other.m_used_blocks);
+                    std::swap(m_allocated_blocks, _other.m_allocated_blocks);
+                    std::swap(m_start_location, _other.m_start_location);
+                    std::swap(m_element_count, _other.m_element_count);
+                    std::swap(m_start_block, _other.m_start_block);
+                }
             }
-            
-        }
 
-        WN_SIZE_T total_unused_blocks() {
-            return(mAllocatedBlocks - mUsedBlocks);
-        }
-        WN_SIZE_T total_extra_elements_in_last_block() {
-            WN_SIZE_T num = BlockSize - (mStartLocation + mNumElements) % BlockSize;
-            return((num == BlockSize)? 0 : num);
-        }
+        private:
+            iterator make_iterator(const_iterator _pos) {
+                return(begin() + (_pos - cbegin()));
+            }
 
-        WNDynamicArray<T*> mBlockList;
-        WN_SIZE_T mUsedBlocks;
-        WN_SIZE_T mAllocatedBlocks;
-        WN_SIZE_T mStartLocation;
-        WN_SIZE_T mNumElements;
-        WN_SIZE_T mStartBlock;
-        WNAllocator* mAllocator;
-        static T_Allocator sAllocator;
-    };
+            iterator allocate(const_iterator _pos, const size_type _count) {
+                if (closer_to_front(_pos)) {
+                    const size_type location = (_pos - cbegin());
 
-    template<typename T, WN_SIZE_T BlockSize, typename T_Alloc> T_Alloc WNDeque<T, BlockSize, T_Alloc>::sAllocator;
+                    allocate_front(_count);
+
+                    iterator copy_to = begin();
+                    iterator copy_from = copy_to + _count;
+
+                    for (size_type i = 0; i < location; ++i) {
+                        memory::construct_at<_Type>(&(*copy_to), std::move(*copy_from));
+
+                        (*copy_from).~value_type();
+
+                        ++copy_to;
+                        ++copy_from;
+                    }
+
+                    return(copy_to);
+                } else {
+                    const size_type location = (_pos - cbegin());
+                    const size_type elements_to_end = m_element_count - location;
+
+                    allocate_back(_count);
+
+                    iterator copy_to = end() - 1;
+                    iterator copy_from = begin() + location + elements_to_end - 1;
+
+                    for (size_type i = 0; i < elements_to_end; ++i) {
+                        memory::construct_at<_Type>(&(*copy_to), std::move(*copy_from));
+
+                        (*copy_from).~value_type();
+
+                        --copy_to;
+                        --copy_from;
+                    }
+
+                    return(begin() + location);
+                }
+            }
+
+            wn_void allocate_front(const size_type _count) {
+                const size_type leftovers_in_block = m_start_location;
+
+                if (leftovers_in_block < _count) {
+                    size_type accountedElements = leftovers_in_block;
+                    size_type additional_blocks = (_count - accountedElements);
+
+                    additional_blocks = (additional_blocks + _BlockSize) / _BlockSize;
+
+                    size_type haveBlocks = total_unused_blocks();
+
+                    if (haveBlocks < additional_blocks) {
+                        const size_type neededBlocks = additional_blocks - haveBlocks;
+
+                        if (m_block_list.size() - m_allocated_blocks < neededBlocks) {
+                            add_block_space(m_allocated_blocks + neededBlocks - m_block_list.size());
+                        }
+
+                        for (size_type i = 0; i < neededBlocks; ++i) {
+                            wn::memory::allocation_pair p = m_allocator.allocate(sizeof(value_type*), _BlockSize);
+                            m_block_list[(m_start_block + m_allocated_blocks) % m_block_list.size()] = static_cast<value_type*>(p.m_location);
+                            m_allocated_blocks += 1;
+                        }
+                    }
+
+                    for (size_type i = 0; i < additional_blocks; ++i) {
+                        if (m_start_block == 0) {
+                            m_start_block = m_block_list.size() - 1;
+                        } else {
+                            m_start_block -= 1;
+                        }
+
+                        m_used_blocks += 1;
+
+                        if (m_block_list.size() != m_allocated_blocks) {
+                            m_block_list[m_start_block] = m_block_list[(m_start_block + m_allocated_blocks) % m_block_list.size()];
+                            m_block_list[(m_start_block + m_allocated_blocks) % m_block_list.size()] = wn_nullptr;
+                        }
+
+                        accountedElements += _BlockSize;
+                    }
+                    m_start_location = accountedElements - _count;
+                } else {
+                    m_start_location -= wn::min(leftovers_in_block, _count);
+                }
+
+                m_element_count += _count;
+            }
+
+            wn_void allocate_back(const size_type _count) {
+                const size_type unused_blocks = total_unused_blocks();
+                const size_type extra_last_elements = total_extra_elements_in_last_block();
+                const size_type totalElements = (extra_last_elements + unused_blocks * _BlockSize);
+
+                if (totalElements > _count) {
+                    size_type extraElements = _count;
+
+                    extraElements -= wn::min(extra_last_elements, extraElements);
+
+                    size_type extra_used_blocks = ((extraElements + _BlockSize - 1) / _BlockSize);
+
+                    m_used_blocks += extra_used_blocks;
+                } else {
+                    size_type neededExtraBlocks = (_count - totalElements + _BlockSize - 1) / _BlockSize;
+                    
+                    if (m_allocated_blocks + neededExtraBlocks > m_block_list.size()) {
+                        add_block_space(m_allocated_blocks + neededExtraBlocks - m_block_list.size());
+                    }
+
+                    for (size_type i = 0; i < neededExtraBlocks; ++i) {
+                        wn::memory::allocation_pair p = m_allocator.allocate(sizeof(value_type*), _BlockSize);
+
+                        m_block_list[(m_start_block + m_allocated_blocks) % m_block_list.size()] = static_cast<value_type*>(p.m_location);
+                        m_allocated_blocks += 1;
+                    }
+                    m_used_blocks = m_allocated_blocks;
+                }
+                m_element_count += _count;
+            }
+
+            wn_void remove_front(const size_type _count) {
+                size_type count = _count;
+                size_type elements_in_first_block = m_start_location;
+
+                if (elements_in_first_block < count) {
+                    while (count > elements_in_first_block && elements_in_first_block > 0) {
+                        count -= elements_in_first_block;
+
+                        if (m_block_list.size() != m_allocated_blocks) {
+                            m_block_list[(m_start_block + m_allocated_blocks + 1) % m_block_list.size()] = m_block_list[m_start_block];
+                            m_block_list[m_start_block] = wn_nullptr;
+                        }
+
+                        m_start_location = 0;
+                        m_start_block += 1;
+                        m_used_blocks -= 1;
+                        m_element_count -= elements_in_first_block;
+                        elements_in_first_block = wn::min(_BlockSize, m_element_count);
+                    }
+
+                    m_element_count -= count;
+                    m_start_location += count;
+                } else {
+                    m_element_count -= count;
+                    m_start_location += count;
+                }
+            }
+
+            wn_void remove_back(const size_type _count) {
+                size_type count = _count;
+                size_type elements_in_last_block = (m_start_location + m_element_count) % _BlockSize;
+
+                if (elements_in_last_block < count) {
+                    while (count > elements_in_last_block && elements_in_last_block > 0) {
+                        count -= elements_in_last_block;
+                        m_used_blocks -= 1;
+                        m_element_count -= elements_in_last_block;
+                        elements_in_last_block = wn::min(_BlockSize, m_element_count);
+                    }
+
+                    m_element_count -= count;
+                } else {
+                    m_element_count -= count;
+                }
+            }
+
+            wn_bool closer_to_front(const_iterator _pos) const {
+                return(_pos - cbegin() < cend() - _pos);
+            }
+
+            wn_void add_block_space(const size_type _count) {
+                const size_type old_count = m_block_list.size();
+
+                m_block_list.insert(m_block_list.end(), _count, wn_nullptr);
+                m_block_list.insert(m_block_list.end(), m_block_list.capacity() - m_block_list.size(), wn_nullptr);
+
+                if (m_start_block != 0) {
+                    const size_type added_count = m_block_list.size() - old_count;
+                    const size_type copy_size = (old_count - m_start_block);
+
+                    wn::memory::memory_move(&m_block_list[m_start_block + added_count], &m_block_list[m_start_block], copy_size);
+
+                    #ifdef _WN_DEBUG
+                        wn::memory::memory_zero(&m_block_list[m_start_block], added_count);
+                    #endif
+
+                    m_start_block += added_count;
+                }
+            }
+
+            size_type total_unused_blocks() const {
+                return(m_allocated_blocks - m_used_blocks);
+            }
+
+            size_type total_extra_elements_in_last_block() const {
+                const size_type count = _BlockSize - (m_start_location + m_element_count) % _BlockSize;
+
+                return((count == _BlockSize) ? 0 : count);
+            }
+
+            dynamic_array<_Type*> m_block_list;
+            allocator_type m_allocator;
+            size_type m_used_blocks;
+            size_type m_allocated_blocks;
+            size_type m_start_block;
+            size_type m_start_location;
+            size_type m_element_count;
+        };
+    }
 };
 
 #endif

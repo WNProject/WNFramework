@@ -11,7 +11,7 @@ namespace WNScripting {
     public:
         WNCondExpression(WNExpression* _cond, WNExpression* _lhs, WNExpression* _rhs);
         virtual ~WNCondExpression();
-        virtual eWNTypeError GenerateCode(WNCodeModule& _module, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog); 
+        virtual eWNTypeError GenerateCode(WNCodeModule& _module, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog);
 
     private:
         WNExpression* mCondition;

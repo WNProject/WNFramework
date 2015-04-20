@@ -18,37 +18,37 @@ namespace WNScripting {
     struct WNFunctionDefinition;
     class WNScriptVariable {
         public:
-        WNScriptVariable(WNScriptType _type, const WN_CHAR* _name, llvm::Value* _alloca, WN_BOOL _dontClean = false):
+        WNScriptVariable(WNScriptType _type, const wn_char* _name, llvm::Value* _alloca, wn_bool _dontClean = false):
             mType(_type),
             mLlvmAlloca(_alloca),
             mDontClean(_dontClean) {
                 mName = WNStrings::WNStrNDup(_name, 256);
         }
         virtual ~WNScriptVariable() {
-            if(mName != WN_NULL) {
-                WN_DELETE(mName);
+            if(mName != wn_nullptr) {
+                wn::memory::destroy(mName);
             }
         }
         const WNScriptType GetType() const { return(mType); }
-        const WN_CHAR* GetName() const { return(mName); }
+        const wn_char* GetName() const { return(mName); }
         llvm::Value* GetLocation() const { return(mLlvmAlloca); }
-        WN_BOOL Clean() const { return(!mDontClean); }
+        wn_bool Clean() const { return(!mDontClean); }
     private:
         WNScriptType mType;
-        WN_CHAR* mName;
+        wn_char* mName;
         llvm::Value* mLlvmAlloca;
-        WN_BOOL mDontClean;
+        wn_bool mDontClean;
     };
 
     class WNScopedVariableList {
     public:
         virtual ~WNScopedVariableList(){}
         virtual eWNTypeError PushVariable(WNScriptVariable* _variable) = 0;
-        virtual WN_VOID PushScopeBlock(WNCodeModule& _module) = 0;
-        virtual eWNTypeError PopScopeBlock(WNCodeModule& _module, WN_BOOL _cleanStack, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog) = 0;
+        virtual wn_void PushScopeBlock(WNCodeModule& _module) = 0;
+        virtual eWNTypeError PopScopeBlock(WNCodeModule& _module, wn_bool _cleanStack, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog) = 0;
         virtual eWNTypeError GenerateReturn(WNCodeModule& _module, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog) = 0;
-        virtual const WNScriptVariable* GetVariable(const WN_CHAR* _functionName) = 0;
-        virtual WN_VOID ClearScope() = 0;
+        virtual const WNScriptVariable* GetVariable(const wn_char* _functionName) = 0;
+        virtual wn_void ClearScope() = 0;
     };
 }
 #endif // WN_SCOPED_VARIABLE_LIST_H__

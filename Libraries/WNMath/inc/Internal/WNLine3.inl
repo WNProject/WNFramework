@@ -13,76 +13,76 @@
 
 #include "WNMath/inc/WNVector3.h"
 
-namespace WNMath {
-    template <typename Type>
-    WNLine3<Type>::WNLine3() :
-        mPoint1(static_cast<Type>(0)),
-        mPoint2(static_cast<Type>(0)) {
+namespace wn {
+    template <typename type>
+    WNLine3<type>::WNLine3() :
+        mPoint1(static_cast<type>(0)),
+        mPoint2(static_cast<type>(0)) {
     }
 
-    template <typename Type>
-    WNLine3<Type>::WNLine3(const WNLine3<Type>& _line) {
+    template <typename type>
+    WNLine3<type>::WNLine3(const WNLine3<type>& _line) {
         Set(_line);
     }
 
-    template <typename Type>
-    WNLine3<Type>::WNLine3(const Type* _numbers) :
+    template <typename type>
+    WNLine3<type>::WNLine3(const type* _numbers) :
         mPoint1(&_numbers[0]),
         mPoint2(&_numbers[3]) {
     }
 
-    template <typename Type>
-    WNLine3<Type>::WNLine3(const WNVector3<Type>& _point1, const WNVector3<Type>& _point2) :
+    template <typename type>
+    WNLine3<type>::WNLine3(const WNVector3<type>& _point1, const WNVector3<type>& _point2) :
         mPoint1(_point1),
         mPoint2(_point2) {
     }
 
-    template <typename Type>
-    WNLine3<Type> WNLine3<Type>::operator + () const {
+    template <typename type>
+    WNLine3<type> WNLine3<type>::operator + () const {
         return(*this);
     }
 
-    template <typename Type>
-    WNLine3<Type> WNLine3<Type>::operator - () const {
-        return(WNLine3<Type>(-mPoint1, -mPoint2));
+    template <typename type>
+    WNLine3<type> WNLine3<type>::operator - () const {
+        return(WNLine3<type>(-mPoint1, -mPoint2));
     }
 
-    template <typename Type>
-    WN_BOOL WNLine3<Type>::operator == (const WNLine3<Type>& _line) const {
+    template <typename type>
+    wn_bool WNLine3<type>::operator == (const WNLine3<type>& _line) const {
         return(mPoint1 == _line.mPoint1 && mPoint2 == _line.mPoint2);
     }
 
-    template <typename Type>
-    WN_BOOL WNLine3<Type>::operator != (const WNLine3<Type>& _line) const {
+    template <typename type>
+    wn_bool WNLine3<type>::operator != (const WNLine3<type>& _line) const {
         return(mPoint1 != _line.mPoint1 || mPoint2 != _line.mPoint2);
     }
 
-    template <typename Type>
-    WN_VOID WNLine3<Type>::Zero() {
+    template <typename type>
+    wn_void WNLine3<type>::Zero() {
         mPoint1.Zero();
         mPoint2.Zero();
     }
 
-    template <typename Type>
-    WN_VOID WNLine3<Type>::Set(const WNLine3<Type>& _line) {
+    template <typename type>
+    wn_void WNLine3<type>::Set(const WNLine3<type>& _line) {
         mPoint1.Set(_line.mPoint1);
         mPoint2.Set(_line.mPoint1);
     }
 
-    template <typename Type>
-    WN_VOID WNLine3<Type>::Set(const Type* _numbers) {
+    template <typename type>
+    wn_void WNLine3<type>::Set(const type* _numbers) {
         mPoint1.Set(&_numbers[0]);
         mPoint2.Set(&_numbers[3]);
     }
 
-    template <typename Type>
-    WN_VOID WNLine3<Type>::Set(const WNVector3<Type>& _point1, const WNVector3<Type>& _point2) {
+    template <typename type>
+    wn_void WNLine3<type>::Set(const WNVector3<type>& _point1, const WNVector3<type>& _point2) {
         mPoint1 = _point1;
         mPoint2 = _point2;
     }
 
-    template <typename Type>
-    WNVector3<Type> WNLine3<Type>::Direction() const {
+    template <typename type>
+    WNVector3<type> WNLine3<type>::Direction() const {
         return(mPoint2 - mPoint1);
     }
 }

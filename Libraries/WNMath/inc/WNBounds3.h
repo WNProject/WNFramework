@@ -7,56 +7,56 @@
 #ifndef __WN_MATH_BOUNDS_3_H__
 #define __WN_MATH_BOUNDS_3_H__
 
-#include "WNCore/inc/WNTypes.h"
+#include "WNMath/inc/WNVector.h"
 
-namespace WNMath {
-    template <typename Type> class WNBox;
-    template <typename Type> class WNSphere;
-    template <typename Type> class WNVector3;
+namespace wn {
+    template <typename type> class WNBox;
+    template <typename type> class sphere;
+    template <typename type> class vector3;
 
-    template <typename Type>
+    template <typename type>
     class WNBounds3 {
     public:
         WNBounds3();
-        explicit WNBounds3(const Type* _numbers);
-        explicit WNBounds3(const WNVector3<Type>& _vector);
-        explicit WNBounds3(const WNVector3<Type>& _min, const WNVector3<Type>& _max);
+        explicit WNBounds3(const type* _numbers);
+        explicit WNBounds3(const vector3<type>& _vector);
+        explicit WNBounds3(const vector3<type>& _min, const vector3<type>& _max);
 
-        WN_BOOL operator == (const WNBounds3& _bounds) const;
-        WN_BOOL operator != (const WNBounds3& _bounds) const;
+        wn_bool operator == (const WNBounds3& _bounds) const;
+        wn_bool operator != (const WNBounds3& _bounds) const;
 
-        WN_VOID Zero();
-        WN_VOID Expand(Type _amount);
-        WN_BOOL Expand(const WNVector3<Type>& _vector);
-        WN_BOOL Expand(const WNBox<Type>& _box);
-        WN_BOOL Expand(const WNSphere<Type>& _sphere);
-        WN_BOOL Expand(const WNBounds3& _bounds);
-        WN_VOID Translate(const WNVector3<Type>& _vector);
+        wn_void Zero();
+        wn_void Expand(type _amount);
+        wn_bool Expand(const vector3<type>& _vector);
+        wn_bool Expand(const WNBox<type>& _box);
+        wn_bool Expand(const sphere<type>& _sphere);
+        wn_bool Expand(const WNBounds3& _bounds);
+        wn_void Translate(const vector3<type>& _vector);
 
-        Type Length() const;
-        Type Width() const;
-        Type Height() const;
-        Type Radius() const;
-        Type SurfaceArea() const;
-        Type Volume() const;
+        type Length() const;
+        type Width() const;
+        type Height() const;
+        type Radius() const;
+        type SurfaceArea() const;
+        type Volume() const;
 
-        WN_BOOL IsZero() const;
-        WN_BOOL IsInsideOut() const;
+        wn_bool IsZero() const;
+        wn_bool IsInsideOut() const;
 
-        WNBounds3 GetExpanded(Type _amount) const;
-        WNBounds3 GetExpanded(const WNVector3<Type>& _vector) const;
-        WNBounds3 GetExpanded(const WNBox<Type>& _box) const;
-        WNBounds3 GetExpanded(const WNSphere<Type>& _sphere) const;
+        WNBounds3 GetExpanded(type _amount) const;
+        WNBounds3 GetExpanded(const vector3<type>& _vector) const;
+        WNBounds3 GetExpanded(const WNBox<type>& _box) const;
+        WNBounds3 GetExpanded(const sphere<type>& _sphere) const;
         WNBounds3 GetExpanded(const WNBounds3& _bounds) const;
-        WNBounds3 GetTranslated(const WNVector3<Type>& _vector) const;
+        WNBounds3 GetTranslated(const vector3<type>& _vector) const;
 
-        WN_VOID GetPoints(WNVector3<Type>* _vectors) const;
+        wn_void GetPoints(vector3<type>* _vectors) const;
 
-        WNBox<Type> ToBox() const;
+        WNBox<type> ToBox() const;
 
     public:
-        WNVector3<Type> mMinimum;
-        WNVector3<Type> mMaximum;
+        vector3<type> mMinimum;
+        vector3<type> mMaximum;
     };
 }
 

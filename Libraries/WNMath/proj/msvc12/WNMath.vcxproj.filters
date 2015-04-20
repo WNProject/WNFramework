@@ -1,0 +1,179 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Header Files\Internal">
+      <UniqueIdentifier>{c3cc8d10-f161-43c6-96a9-3ccc74a35731}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Internal\Generic">
+      <UniqueIdentifier>{d9c80917-8d79-403e-99d3-969f3762db2c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Internal\Extensions">
+      <UniqueIdentifier>{92138500-d778-4a3f-ab89-5f4b2ccc3c64}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Internal\Extensions\x86">
+      <UniqueIdentifier>{ccd07606-19f8-4e32-b82d-60e6cbfb4ab1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Internal\Extensions\x86\SSE">
+      <UniqueIdentifier>{84551d79-45dc-4e87-bfc6-0460e09bbf59}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Internal\Extensions\x86\SSE2">
+      <UniqueIdentifier>{f8d25f4e-2fd8-43e6-9b64-a41a8edc370a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Internal\Extensions\x86\SSE4.1">
+      <UniqueIdentifier>{7b969e18-6ecb-4fae-8a10-933567a14962}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\inc\WNBasic.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNBounds2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNBounds3.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNBox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNCircle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNCommon.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNConfig.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNConstants.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNFrustum.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNLine2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNLine3.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNMath.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNPlane.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNQuaternion.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNRay2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNRay3.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNRectangle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNSegment2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNSegment3.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNSphere.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\WNConfig.h">
+      <Filter>Header Files\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\WNBasicTraits.h">
+      <Filter>Header Files\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\Generic\WNBasicTraits.h">
+      <Filter>Header Files\Internal\Generic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\Generic\WNGeneralTraits.h">
+      <Filter>Header Files\Internal\Generic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\Generic\WNElementArray.h">
+      <Filter>Header Files\Internal\Generic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\WNElementArray.h">
+      <Filter>Header Files\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\WNVectorTraits.h">
+      <Filter>Header Files\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\WNGeneralTraits.h">
+      <Filter>Header Files\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\Generic\WNVectorTraits.h">
+      <Filter>Header Files\Internal\Generic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\Extensions\x86\WNBasicTraits.h">
+      <Filter>Header Files\Internal\Extensions\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\Extensions\x86\WNConfig.h">
+      <Filter>Header Files\Internal\Extensions\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\Extensions\x86\WNElementArray.h">
+      <Filter>Header Files\Internal\Extensions\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\Extensions\x86\WNGeneralTraits.h">
+      <Filter>Header Files\Internal\Extensions\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\Extensions\x86\SSE\WNElementArray.h">
+      <Filter>Header Files\Internal\Extensions\x86\SSE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\Extensions\x86\SSE\WNGeneralTraits.h">
+      <Filter>Header Files\Internal\Extensions\x86\SSE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\Extensions\x86\SSE\WNBasicTraits.h">
+      <Filter>Header Files\Internal\Extensions\x86\SSE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\Extensions\x86\SSE2\WNBasicTraits.h">
+      <Filter>Header Files\Internal\Extensions\x86\SSE2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\Extensions\x86\SSE2\WNElementArray.h">
+      <Filter>Header Files\Internal\Extensions\x86\SSE2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\Extensions\x86\SSE4.1\WNBasicTraits.h">
+      <Filter>Header Files\Internal\Extensions\x86\SSE4.1</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\WNMatrixBase.h">
+      <Filter>Header Files\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\Extensions\x86\WNVectorTraits.h">
+      <Filter>Header Files\Internal\Extensions\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\Extensions\x86\SSE\WNVectorTraits.h">
+      <Filter>Header Files\Internal\Extensions\x86\SSE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNVector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\Extensions\x86\WNUtilities.h">
+      <Filter>Header Files\Internal\Extensions\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNMatrix.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\WNPoint.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\Extensions\x86\WNConstants.h">
+      <Filter>Header Files\Internal\Extensions\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\Extensions\x86\SSE2\WNVectorTraits.h">
+      <Filter>Header Files\Internal\Extensions\x86\SSE2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Internal\Extensions\x86\SSE4.1\WNVectorTraits.h">
+      <Filter>Header Files\Internal\Extensions\x86\SSE4.1</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
