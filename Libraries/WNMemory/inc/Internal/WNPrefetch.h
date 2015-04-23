@@ -13,7 +13,7 @@
 namespace wn {
     namespace memory {
         namespace internal {
-            struct prefetch : non_constructable_non_copyable {
+            struct prefetch : core::non_constructable_non_copyable {
                 template <typename _Type>
                 static WN_FORCE_INLINE wn_void execute(const _Type* _address) {
                     WN_UNUSED_ARGUMENT(_address);

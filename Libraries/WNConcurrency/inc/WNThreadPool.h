@@ -31,7 +31,7 @@
 #endif
 
 namespace wn {
-    class thread_pool final : public non_copyable {
+    class thread_pool final : public core::non_copyable {
     public:
         enum class result {
             #include "WNCore/inc/Internal/WNErrors.inc"

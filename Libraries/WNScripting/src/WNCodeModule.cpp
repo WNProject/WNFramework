@@ -473,7 +473,7 @@ WNFunctionDefinition* WNCodeModule::GetCallableEquivalent(WNFunctionDefinition* 
                 if(mFunctions[i]->mThisType) {
                     adder = 1;
                 }
-                if(!wn::equal(mFunctions[i]->mTypes.begin() + adder, mFunctions[i]->mTypes.end(),
+                if(!wn::core::equal(mFunctions[i]->mTypes.begin() + adder, mFunctions[i]->mTypes.end(),
                                                 def->mTypes.begin() + adder, def->mTypes.end())) {
                     continue;
                 }

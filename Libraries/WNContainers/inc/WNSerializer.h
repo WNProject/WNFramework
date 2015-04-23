@@ -20,7 +20,7 @@ namespace wn {
         template <typename _Type>
         class serializer final {
         public:
-            static_assert(wn::dependent_false<_Type>::value, "there is no associated serializer for the given type");
+            static_assert(core::dependent_false<_Type>::value, "there is no associated serializer for the given type");
         };
 
         template <>
@@ -43,13 +43,13 @@ namespace wn {
                             totalBytes += returnedBytes;
                         } while (totalBytes < sizeof(wn_int32));
 
-                        WNCore::WNFromBigEndian(m_value);
+                        m_value = core::from_big_endian(m_value);
 
                         return(sizeof(wn_int32));
                     }
                     case data_buffer_type::write_binary: {
                         wn_int32 number = m_value;
-                        WNCore::WNToBigEndian(number);
+                        number = core::to_big_endian(number);
                         wn_size_t returnedBytes = 0;
                         wn_size_t totalBytes = 0;
                         do {
@@ -124,13 +124,13 @@ namespace wn {
                             totalBytes += returnedBytes;
                         } while (totalBytes < sizeof(wn_int64));
 
-                        WNCore::WNFromBigEndian(m_value);
+                        m_value = core::from_big_endian(m_value);
 
                         return(sizeof(wn_int64));
                     }
                     case data_buffer_type::write_binary: {
                         wn_int64 number = m_value;
-                        WNCore::WNToBigEndian(number);
+                        number = core::to_big_endian(number);
                         wn_size_t returnedBytes = 0;
                         wn_size_t totalBytes = 0;
                         do {
@@ -289,13 +289,13 @@ namespace wn {
                             totalBytes += returnedBytes;
                         } while (totalBytes < sizeof(wn_uint32));
 
-                        WNCore::WNFromBigEndian(m_value);
+                        m_value = core::from_big_endian(m_value);
 
                         return(sizeof(wn_uint32));
                     }
                     case data_buffer_type::write_binary: {
                         wn_uint32 number = m_value;
-                        WNCore::WNToBigEndian(number);
+                        number = core::to_big_endian(number);
                         wn_size_t returnedBytes = 0;
                         wn_size_t totalBytes = 0;
                         do {
@@ -369,13 +369,13 @@ namespace wn {
                             totalBytes += returnedBytes;
                         } while (totalBytes < sizeof(wn_uint64));
 
-                        WNCore::WNFromBigEndian(m_value);
+                        m_value = core::from_big_endian(m_value);
 
                         return(sizeof(wn_uint64));
                     }
                     case data_buffer_type::write_binary: {
                         wn_uint64 number = m_value;
-                        WNCore::WNToBigEndian(number);
+                        number = core::to_big_endian(number);
                         wn_size_t returnedBytes = 0;
                         wn_size_t totalBytes = 0;
                         do {
@@ -450,13 +450,13 @@ namespace wn {
                         totalBytes += returnedBytes;
                     } while (totalBytes < sizeof(wn_float32));
 
-                    WNCore::WNFromBigEndian(m_value);
+                    m_value = core::from_big_endian(m_value);
 
                     return(sizeof(wn_float32));
                 }
                 case data_buffer_type::write_binary: {
                     wn_float32 number = m_value;
-                    WNCore::WNToBigEndian(number);
+                    number = core::to_big_endian(number);
                     wn_size_t returnedBytes = 0;
                     wn_size_t totalBytes = 0;
                     do {

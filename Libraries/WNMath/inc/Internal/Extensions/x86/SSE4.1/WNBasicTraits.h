@@ -16,7 +16,7 @@ namespace wn {
         namespace math {
             struct basic_traits_sse4_1 : basic_traits_sse2 {
                 template <typename type>
-                static WN_FORCE_INLINE typename enable_if<(is_real<type>::value || std::is_integral<type>::value), type>::type
+                static WN_FORCE_INLINE typename core::enable_if<(is_real<type>::value || std::is_integral<type>::value), type>::type
                 mod(const type& _dividend, const type& _divisor) {
                     base::mod(_dividend, _divisor);
                 }
@@ -46,7 +46,7 @@ namespace wn {
                 }
 
                 template <typename type>
-                static WN_FORCE_INLINE typename enable_if<is_real<type>::value, type>::type round(const type& _value) {
+                static WN_FORCE_INLINE typename core::enable_if<is_real<type>::value, type>::type round(const type& _value) {
                     return(base::round(_value));
                 }
 
@@ -61,7 +61,7 @@ namespace wn {
                 }
 
                 template <typename type>
-                static WN_FORCE_INLINE typename enable_if<is_real<type>::value, type>::type ceil(const type& _value) {
+                static WN_FORCE_INLINE typename core::enable_if<is_real<type>::value, type>::type ceil(const type& _value) {
                     return(base::ceil(_value));
                 }
 
@@ -76,7 +76,7 @@ namespace wn {
                 }
 
                 template <typename type>
-                static WN_FORCE_INLINE typename enable_if<is_real<type>::value, type>::type floor(const type& _value) {
+                static WN_FORCE_INLINE typename core::enable_if<is_real<type>::value, type>::type floor(const type& _value) {
                     return(base::floor(_value));
                 }
 
@@ -91,7 +91,7 @@ namespace wn {
                 }
 
                 template <typename type>
-                static WN_FORCE_INLINE typename enable_if<is_real<type>::value, type>::type trunc(const type& _value) {
+                static WN_FORCE_INLINE typename core::enable_if<is_real<type>::value, type>::type trunc(const type& _value) {
                     return(base::trunc(_value));
                 }
 

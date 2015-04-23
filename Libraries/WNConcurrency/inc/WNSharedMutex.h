@@ -26,7 +26,7 @@
 #endif
 
 namespace wn {
-    class shared_mutex final : public non_copyable {
+    class shared_mutex final : public core::non_copyable {
     public:
         WN_FORCE_INLINE explicit shared_mutex() {
             #ifdef _WN_WINDOWS

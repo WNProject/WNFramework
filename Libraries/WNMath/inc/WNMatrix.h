@@ -62,8 +62,8 @@ namespace wn {
 
         template <typename value_type,
                   typename... types,
-                  typename = enable_if_t<boolean_and<are_same<value_type, types..., value_type>::value,
-                                                     (sizeof...(types) == (_dimension - 1)), (_order > 1)>::value>>
+                  typename = core::enable_if_t<core::boolean_and<core::are_same<value_type, types..., value_type>::value,
+                                                                 (sizeof...(types) == (_dimension - 1)), (_order > 1)>::value>>
         WN_FORCE_INLINE explicit matrix(const value_type& _value, const types&... _values) :
             matrix({ _value, _values... }) {
         }
@@ -441,7 +441,7 @@ namespace wn {
 
         template <typename value_type,
                   typename... types,
-                  typename = enable_if_t<boolean_and<are_same<value_type, types..., value_type>::value,
+                  typename = core::enable_if_t<core::boolean_and<core::are_same<value_type, types..., value_type>::value,
                                                      sizeof...(types) == (_dimension - 1), (_order > 1)>::value>>
         WN_FORCE_INLINE wn_void assign(const value_type& _value, const types&... _values) {
             assign({ _value, _values... });
