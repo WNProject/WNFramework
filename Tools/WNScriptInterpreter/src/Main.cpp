@@ -17,9 +17,6 @@
 
 
 using namespace WNStrings;
-using namespace WNMemory;
-
-//extern eWNTypeError RegisterExternalString(WNScripting::WNTypeManager& _manager, WN_VOID*);
 
 WNLogging::WNDefaultLogParameters<WNLogging::eLogMax, 1024, true> mParams;
 WNLogging::WNConsoleLogger<> mConsoleLogger;
@@ -27,26 +24,26 @@ static WNLogging::WNLog mMyLog(&mConsoleLogger, mParams);
 
 WNScripting::WNScriptingEngine* g_Engine;
 
-WN_CHAR* getLine(WN_CHAR*_line, WN_UINT32 _sz){
+wn_char* getLine(wn_char*_line, wn_uint32 _sz){
    if (fgets(_line, _sz, stdin)) {
-      WN_CHAR *current = WNStrChr(_line, '\n'); /* check for trailing '\n' */
+      wn_char *current = WNStrChr(_line, '\n'); /* check for trailing '\n' */
 
-      if (current != WN_NULL) {
+      if (current != wn_nullptr) {
          *current = '\0'; /* overwrite the '\n' with a terminating null */
       }
    }
 
    return(_line);
 }
-WN_INT32 get23() {
+wn_int32 get23() {
     return(23);
 }
 
-WN_INT32 add(WN_INT32 x, WN_INT32 y) {
+wn_int32 add(wn_int32 x, wn_int32 y) {
     return(x + y);
 }
 
-WN_VOID print(WN_INT32 _val) {
+wn_void print(wn_int32 _val) {
     printf("%d\n", _val);
 }
 
@@ -57,14 +54,14 @@ struct X {
     virtual ~X() {
         printf("DESTROYED");
     }
-    virtual WN_INT32 XRet() {
+    virtual wn_int32 XRet() {
         return(35);
     }
     int x;
 };
 
 struct Y : public X{
-    WN_INT32 xFunc2(WN_INT32 in) {
+    wn_int32 xFunc2(wn_int32 in) {
         return(in + 10);
     }
     int y;
@@ -76,15 +73,15 @@ struct Foo {
     WNScripting::ScriptPointer_X spX;
 };
 
-WN_VOID PrintString(WNScripting::WNScriptingArrayRef<WN_CHAR>* mArray) {
-    WNScripting::WNScriptingArray<WN_CHAR> inArray(mArray);
-    printf("%*s", static_cast<WN_INT32>(inArray.GetLength()), &(inArray[0]));
+wn_void PrintString(WNScripting::WNScriptingArrayRef<wn_char>* mArray) {
+    WNScripting::WNScriptingArray<wn_char> inArray(mArray);
+    printf("%*s", static_cast<wn_int32>(inArray.GetLength()), &(inArray[0]));
 }
 
-WNScripting::WNScriptingArrayRef<WN_CHAR>* GetHelloWorld() {
-    WNScripting::WNScriptingArray<WN_CHAR> newArray;
+WNScripting::WNScriptingArrayRef<wn_char>* GetHelloWorld() {
+    WNScripting::WNScriptingArray<wn_char> newArray;
     const char* hw = "hello world";
-    WN_SIZE_T strLen = 12;
+    wn_size_t strLen = 12;
     g_Engine->ConstructScriptingArray(newArray, strLen);
     memcpy(&newArray[0], hw, strLen);
     return(newArray.ReleaseOwnership().DetachOut());
@@ -92,16 +89,16 @@ WNScripting::WNScriptingArrayRef<WN_CHAR>* GetHelloWorld() {
 
 DEFINE_CPP_TYPE(Foo);
 
-WN_INT32 WNMain(WN_INT32 _argc, WN_CHAR* _argv[]) {
-    WN_CHAR tests[1024];
+wn_int32 wn_main(wn_int32 _argc, wn_char* _argv[]) {
+    wn_char tests[1024];
 #ifdef _WN_ANDROID
     WNStrCpy(tests, "/sdcard/MCJitTest.wns" );
-    const WN_CHAR* func = "test";
-    const WN_CHAR* func2 = "test2";
+    const wn_char* func = "test";
+    const wn_char* func2 = "test2";
 #else
 
     if (_argc < 2) {
-        WN_PRINTF("Enter Filename >>");
+        ::printf("Enter Filename >>");
 
         getLine(tests, 1023);
 
@@ -110,7 +107,7 @@ WN_INT32 WNMain(WN_INT32 _argc, WN_CHAR* _argv[]) {
         WNStrCpy(tests, _argv[1]);
     }
 
-    const WN_CHAR* func = (_argc > 2) ? _argv[2] : "test";
+    const wn_char* func = (_argc > 2) ? _argv[2] : "test";
 
 #endif
     WNScripting::WNScriptingEngine* scriptingEngine = WNScripting::WNScriptingEngineFactory::CreateScriptingEngine();
@@ -118,30 +115,29 @@ WN_INT32 WNMain(WN_INT32 _argc, WN_CHAR* _argv[]) {
     scriptingEngine->SetCompilationLog(&mMyLog);
     scriptingEngine->SetLogLevel(WNLogging::eNone);
     scriptingEngine->SetInternalLogLevel(WNLogging::eNone);
-    WN_RELEASE_ASSERT(scriptingEngine->Initialize() == eWNOK);
-    //scriptingEngine->AddExternalLibs(&RegisterExternalString, WN_NULL);
+    WN_RELEASE_ASSERT(scriptingEngine->Initialize() == ok);
     scriptingEngine->RegisterCFunction("get23", &get23);
     scriptingEngine->RegisterCFunction("add", &add);
     scriptingEngine->RegisterCFunction("printInt", &print);
     scriptingEngine->RegisterCFunction("printString", &PrintString);
     scriptingEngine->RegisterCFunction("hello", &GetHelloWorld);
 
-    WNScripting::WNFunctionPointer<WN_INT32, WNScripting::WNScriptingArray<WN_CHAR> > fPtr;
+    WNScripting::WNFunctionPointer<wn_int32, WNScripting::WNScriptingArray<wn_char> > fPtr;
     WNScripting::ScriptType_A  mAType;
-    WNScripting::WNScriptingArray<WN_CHAR> mArray;
-    if(eWNOK != scriptingEngine->CompileFile(tests)) {
+    WNScripting::WNScriptingArray<wn_char> mArray;
+    if(ok != scriptingEngine->CompileFile(tests)) {
         return(-1);
     }
-    WNScripting::WNMemberVariablePointer<WN_INT32, WNScripting::ScriptType_A> mVar("y", scriptingEngine);
+    WNScripting::WNMemberVariablePointer<wn_int32, WNScripting::ScriptType_A> mVar("y", scriptingEngine);
     if(WNScripting::eResolved!= mVar.GetResolution()) {
         return(-1);
     }
 
-    if(eWNOK != scriptingEngine->ConstructScriptingObject(mAType)) {
+    if(ok != scriptingEngine->ConstructScriptingObject(mAType)) {
         return(-1);
     }
 
-    if(eWNOK != scriptingEngine->ConstructScriptingArray(mArray, 10)) {
+    if(ok != scriptingEngine->ConstructScriptingArray(mArray, 10)) {
         return(-1);
     }
     for(char i = 0; i < 10; ++i) {
@@ -150,13 +146,12 @@ WN_INT32 WNMain(WN_INT32 _argc, WN_CHAR* _argv[]) {
 
     printf("%d", mAType->*mVar);
 
-    if(eWNOK == scriptingEngine->GetPointerToFunction(tests,  func, fPtr)) {
-       //WN_RELEASE_ASSERT(mVPtr.GetResolution() == WNScripting::eResolved);
+    if(ok == scriptingEngine->GetPointerToFunction(tests,  func, fPtr)) {
         mMyLog.Log(WNLogging::eInfo, 0, "Got function pointer");
-        WN_INT32 ch = fPtr(mArray);
+        wn_int32 ch = fPtr(mArray);
         printf("\n\n%d\n\n", ch);
     }
-    WN_DELETE(scriptingEngine);
+    wn::memory::destroy(scriptingEngine);
     return(0);
 }
 

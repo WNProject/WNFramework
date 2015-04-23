@@ -711,7 +711,7 @@ namespace WNScripting{
         WNFunctionPointer() :mReturnType(wn_nullptr), callPt(wn_nullptr){
         }
         wn_void Assign(R (*_callPt)()) {
-            WN_STATIC_ASSERT(IsDummy<T1>::val == 1);
+            static_assert(IsDummy<T1>::val == 1, WN_STRINGERIZE(IsDummy<T1>::val == 1));
             callPt = reinterpret_cast<void*>(_callPt);
         }
         wn_void Assign(R (*_callPt)(T1)) {
@@ -730,7 +730,7 @@ namespace WNScripting{
             callPt = reinterpret_cast<void*>(_callPt);
         }
         wn_void Assign(R (*_callPt)(T1, T2, T3, T4, T5, T6)) {
-            WN_STATIC_ASSERT(IsDummy<T6>::val == 0);
+            static_assert(IsDummy<T6>::val == 0, WN_STRINGERIZE(IsDummy<T6>::val == 0));
             callPt = reinterpret_cast<void*>(_callPt);
         }
 
@@ -739,31 +739,31 @@ namespace WNScripting{
         }
 
         R operator()() {
-            WN_STATIC_ASSERT(IsDummy<T1>::val == 1);
+            static_assert(IsDummy<T1>::val == 1, WN_STRINGERIZE(IsDummy<T1>::val == 1));
             return(OutCaster<R>::ConvertOut(reinterpret_cast<typename OutCaster<R>::InType (*)()>(callPt)()));
         }
         R  operator()(const T1 & t1) {
-            WN_STATIC_ASSERT(IsDummy<T1>::val == 0 && IsDummy<T2>::val == 1);
+            static_assert(IsDummy<T1>::val == 0 && IsDummy<T2>::val == 1, WN_STRINGERIZE(IsDummy<T1>::val == 0 && IsDummy<T2>::val == 1));
             return(OutCaster<R>::ConvertOut(reinterpret_cast<typename OutCaster<R>::InType (*)(typename InCaster<T1>::OutType)>(callPt)(InCaster<T1>::ConvertOut(t1))));
         }
         R  operator()(const T1& t1, const T2& t2) {
-            WN_STATIC_ASSERT(IsDummy<T2>::val == 0 && IsDummy<T3>::val == 1);
+            static_assert(IsDummy<T2>::val == 0 && IsDummy<T3>::val == 1, WN_STRINGERIZE(IsDummy<T2>::val == 0 && IsDummy<T3>::val == 1));
             return(OutCaster<R>::ConvertOut(reinterpret_cast<typename OutCaster<R>::InType (*)(typename InCaster<T1>::OutType, typename InCaster<T2>::OutType)>(callPt)(InCaster<T1>::ConvertOut(t1), InCaster<T2>::ConvertOut(t2))));
         }
         R  operator()(const T1& t1, const T2& t2, const T3& t3) {
-            WN_STATIC_ASSERT(IsDummy<T3>::val == 0 && IsDummy<T4>::val == 1);
+            static_assert(IsDummy<T3>::val == 0 && IsDummy<T4>::val == 1, WN_STRINGERIZE(IsDummy<T3>::val == 0 && IsDummy<T4>::val == 1));
             return(OutCaster<R>::ConvertOut(reinterpret_cast<typename OutCaster<R>::InType (*)(typename InCaster<T1>::OutType, typename InCaster<T2>::OutType, typename InCaster<T3>::OutType)>(callPt)(InCaster<T1>::ConvertOut(t1), InCaster<T2>::ConvertOut(t2), InCaster<T3>::ConvertOut(t3))));
         }
         R  operator()(const T1& t1, const T2& t2, const T3& t3, const T4& t4) {
-            WN_STATIC_ASSERT(IsDummy<T4>::val == 0 && IsDummy<T5>::val == 1);
+            static_assert(IsDummy<T4>::val == 0 && IsDummy<T5>::val == 1, WN_STRINGERIZE(IsDummy<T4>::val == 0 && IsDummy<T5>::val == 1));
             return(OutCaster<R>::ConvertOut(reinterpret_cast<typename OutCaster<R>::InType (*)(typename InCaster<T1>::OutType, typename InCaster<T2>::OutType, typename InCaster<T3>::OutType, typename InCaster<T4>::OutType)>(callPt)(InCaster<T1>::ConvertOut(t1), InCaster<T2>::ConvertOut(t2), InCaster<T3>::ConvertOut(t3), InCaster<T4>::ConvertOut(t4))));
         }
         R  operator()(const T1& t1, const T2& t2, const T3& t3, const T4& t4, const T5& t5) {
-            WN_STATIC_ASSERT(IsDummy<T5>::val == 0 && IsDummy<T6>::val == 1);
+            static_assert(IsDummy<T5>::val == 0 && IsDummy<T6>::val == 1, WN_STRINGERIZE(IsDummy<T5>::val == 0 && IsDummy<T6>::val == 1));
             return(OutCaster<R>::ConvertOut(reinterpret_cast<typename OutCaster<R>::InType (*)(typename InCaster<T1>::OutType, typename InCaster<T2>::OutType, typename InCaster<T3>::OutType, typename InCaster<T4>::OutType, typename InCaster<T5>::OutType)>(callPt)(InCaster<T1>::ConvertOut(t1), InCaster<T2>::ConvertOut(t2), InCaster<T3>::ConvertOut(t3), InCaster<T4>::ConvertOut(t4), InCaster<T5>::ConvertOut(t5))));
         }
         R  operator()(const T1& t1, const T2& t2, const T3& t3, const T4& t4, const T6& t5, const T6& t6) {
-            WN_STATIC_ASSERT(IsDummy<T6>::val == 0);
+            static_assert(IsDummy<T6>::val == 0, WN_STRINGERIZE(IsDummy<T6>::val == 0));
             return(OutCaster<R>::ConvertOut(reinterpret_cast<typename OutCaster<R>::InType (*)(typename InCaster<T1>::OutType, typename InCaster<T2>::OutType, typename InCaster<T3>::OutType, typename InCaster<T4>::OutType, typename InCaster<T5>::OutType, typename InCaster<T6>::OutType)>(callPt)(InCaster<T1>::ConvertOut(t1), InCaster<T2>::ConvertOut(t2), InCaster<T3>::ConvertOut(t3), InCaster<T4>::ConvertOut(t4), InCaster<T5>::ConvertOut(t5), InCaster<T6>::ConvertOut(t6))));
         }
     private:
@@ -782,31 +782,31 @@ namespace WNScripting{
         }
 
         wn_void Assign(R (*_callPt)(T)) {
-            WN_STATIC_ASSERT(IsDummy<T1>::val == 1);
+            static_assert(IsDummy<T1>::val == 1, WN_STRINGERIZE(IsDummy<T1>::val == 1));
             callPt = reinterpret_cast<void*>(_callPt);
         }
         wn_void Assign(R (*_callPt)(T, T1)) {
-            WN_STATIC_ASSERT(IsDummy<T1>::val == 0 && IsDummy<T2>::val == 1);
+            static_assert(IsDummy<T1>::val == 0 && IsDummy<T2>::val == 1, WN_STRINGERIZE(IsDummy<T1>::val == 0 && IsDummy<T2>::val == 1));
             callPt = reinterpret_cast<void*>(_callPt);
         }
         wn_void Assign(R (*_callPt)(T, T1, T2)) {
-            WN_STATIC_ASSERT(IsDummy<T2>::val == 0 && IsDummy<T3>::val == 1);
+            static_assert(IsDummy<T2>::val == 0 && IsDummy<T3>::val == 1, WN_STRINGERIZE(IsDummy<T2>::val == 0 && IsDummy<T3>::val == 1));
             callPt = reinterpret_cast<void*>(_callPt);
         }
         wn_void Assign(R (*_callPt)(T, T1, T2, T3)) {
-            WN_STATIC_ASSERT(IsDummy<T3>::val == 0 && IsDummy<T4>::val == 1);
+            static_assert(IsDummy<T3>::val == 0 && IsDummy<T4>::val == 1, WN_STRINGERIZE(IsDummy<T3>::val == 0 && IsDummy<T4>::val == 1));
             callPt = reinterpret_cast<void*>(_callPt);
         }
         wn_void Assign(R (*_callPt)(T, T1, T2, T3, T4)) {
-            WN_STATIC_ASSERT(IsDummy<T4>::val == 0 && IsDummy<T5>::val == 1);
+            static_assert(IsDummy<T4>::val == 0 && IsDummy<T5>::val == 1, WN_STRINGERIZE(IsDummy<T4>::val == 0 && IsDummy<T5>::val == 1));
             callPt = reinterpret_cast<void*>(_callPt);
         }
         wn_void Assign(R (*_callPt)(T, T1, T2, T3, T4, T5)) {
-            WN_STATIC_ASSERT(IsDummy<T5>::val == 0 && IsDummy<T6>::val == 1);
+            static_assert(IsDummy<T5>::val == 0 && IsDummy<T6>::val == 1, WN_STRINGERIZE(IsDummy<T5>::val == 0 && IsDummy<T6>::val == 1));
             callPt = reinterpret_cast<void*>(_callPt);
         }
         wn_void Assign(R (*_callPt)(T, T1, T2, T3, T4, T5, T6)) {
-            WN_STATIC_ASSERT(IsDummy<T6>::val == 0);
+            static_assert(IsDummy<T6>::val == 0, WN_STRINGERIZE(IsDummy<T6>::val == 0));
             callPt = reinterpret_cast<void*>(_callPt);
         }
 
@@ -815,7 +815,7 @@ namespace WNScripting{
         }
 
         R operator()(const T& t) {
-            WN_STATIC_ASSERT(IsDummy<T1>::val == 1);
+            static_assert(IsDummy<T1>::val == 1, WN_STRINGERIZE(IsDummy<T1>::val == 1));
             WN_RELEASE_ASSERT(callPt || mVirtualIndex >= 0);
             if(callPt) {
                 return(OutCaster<R>::ConvertOut(reinterpret_cast<typename OutCaster<R>::InType (*)(typename InCaster<T>::OutType)>(callPt)(InCaster<T>::ConvertOut(t))));
@@ -831,7 +831,7 @@ namespace WNScripting{
             }
         }
         R  operator()(const T& t, const T1 & t1) {
-            WN_STATIC_ASSERT(IsDummy<T1>::val == 0 && IsDummy<T2>::val == 1);
+            static_assert(IsDummy<T1>::val == 0 && IsDummy<T2>::val == 1, WN_STRINGERIZE(IsDummy<T1>::val == 0 && IsDummy<T2>::val == 1));
             WN_RELEASE_ASSERT(callPt || mVirtualIndex >= 0);
             if(callPt) {
                 return(OutCaster<R>::ConvertOut(reinterpret_cast<typename OutCaster<R>::InType (*)(typename InCaster<T>::OutType, typename InCaster<T1>::OutType)>(callPt)(InCaster<T>::ConvertOut(t), InCaster<T1>::ConvertOut(t1))));
@@ -847,7 +847,7 @@ namespace WNScripting{
             }
         }
         R  operator()(const T& t, const T1& t1, const T2& t2) {
-            WN_STATIC_ASSERT(IsDummy<T2>::val == 0 && IsDummy<T3>::val == 1);
+            static_assert(IsDummy<T2>::val == 0 && IsDummy<T3>::val == 1, WN_STRINGERIZE(IsDummy<T2>::val == 0 && IsDummy<T3>::val == 1));
             WN_RELEASE_ASSERT(callPt || mVirtualIndex >= 0);
             if(callPt) {
                 return(OutCaster<R>::ConvertOut(reinterpret_cast<typename OutCaster<R>::InType (*)(typename InCaster<T>::OutType, typename InCaster<T1>::OutType, typename InCaster<T2>::OutType)>(callPt)(InCaster<T>::ConvertOut(t), InCaster<T1>::ConvertOut(t1), InCaster<T2>::ConvertOut(t2))));
@@ -863,7 +863,7 @@ namespace WNScripting{
             }
         }
         R  operator()(const T& t, const T1& t1, const T2& t2, const T3& t3) {
-            WN_STATIC_ASSERT(IsDummy<T3>::val == 0 && IsDummy<T4>::val == 1);
+            static_assert(IsDummy<T3>::val == 0 && IsDummy<T4>::val == 1, WN_STRINGERIZE(IsDummy<T3>::val == 0 && IsDummy<T4>::val == 1));
             WN_RELEASE_ASSERT(callPt || mVirtualIndex >= 0);
             if(callPt) {
                 return(OutCaster<R>::ConvertOut(reinterpret_cast<typename OutCaster<R>::InType (*)(typename InCaster<T>::OutType, typename InCaster<T1>::OutType, typename InCaster<T2>::OutType, typename InCaster<T3>::OutType)>(callPt)(InCaster<T>::ConvertOut(t), InCaster<T1>::ConvertOut(t1), InCaster<T2>::ConvertOut(t2), InCaster<T3>::ConvertOut(t3))));
@@ -879,7 +879,7 @@ namespace WNScripting{
             }
         }
         R  operator()(const T& t, const T1& t1, const T2& t2, const T3& t3, const T4& t4) {
-            WN_STATIC_ASSERT(IsDummy<T4>::val == 0 && IsDummy<T5>::val == 1);
+            static_assert(IsDummy<T4>::val == 0 && IsDummy<T5>::val == 1, WN_STRINGERIZE(IsDummy<T4>::val == 0 && IsDummy<T5>::val == 1));
             WN_RELEASE_ASSERT(callPt || mVirtualIndex >= 0);
             if(callPt) {
                 return(OutCaster<R>::ConvertOut(reinterpret_cast<typename OutCaster<R>::InType (*)(typename InCaster<T>::OutType, typename InCaster<T1>::OutType, typename InCaster<T2>::OutType, typename InCaster<T3>::OutType, typename InCaster<T4>::OutType)>(callPt)(InCaster<T>::ConvertOut(t), InCaster<T1>::ConvertOut(t1), InCaster<T2>::ConvertOut(t2), InCaster<T3>::ConvertOut(t3), InCaster<T4>::ConvertOut(t4))));
@@ -895,7 +895,7 @@ namespace WNScripting{
             }
         }
         R  operator()(const T& t, const T1& t1, const T2& t2, const T3& t3, const T4& t4, const T5& t5) {
-            WN_STATIC_ASSERT(IsDummy<T5>::val == 0 && IsDummy<T6>::val == 1);
+            static_assert(IsDummy<T5>::val == 0 && IsDummy<T6>::val == 1, WN_STRINGERIZE(IsDummy<T5>::val == 0 && IsDummy<T6>::val == 1));
             WN_RELEASE_ASSERT(callPt || mVirtualIndex >= 0);
             if(callPt) {
                 return(OutCaster<R>::ConvertOut(reinterpret_cast<typename OutCaster<R>::InType (*)(typename InCaster<T>::OutType, typename InCaster<T1>::OutType, typename InCaster<T2>::OutType, typename InCaster<T3>::OutType, typename InCaster<T4>::OutType, typename InCaster<T5>::OutType)>(callPt)(InCaster<T>::ConvertOut(t), InCaster<T1>::ConvertOut(t1), InCaster<T2>::ConvertOut(t2), InCaster<T3>::ConvertOut(t3), InCaster<T4>::ConvertOut(t4), InCaster<T5>::ConvertOut(t5))));
@@ -911,7 +911,7 @@ namespace WNScripting{
             }
         }
         R  operator()(const T& t, const T1& t1, const T2& t2, const T3& t3, const T4& t4, const T6& t5, const T6& t6) {
-            WN_STATIC_ASSERT(IsDummy<T6>::val == 0);
+            static_assert(IsDummy<T6>::val == 0, WN_STRINGERIZE(IsDummy<T6>::val == 0));
             WN_RELEASE_ASSERT(callPt || mVirtualIndex >= 0);
             if(callPt) {
                 return(OutCaster<R>::ConvertOut(reinterpret_cast<typename OutCaster<R>::InType (*)(typename InCaster<T>::OutType, typename InCaster<T1>::OutType, typename InCaster<T2>::OutType, typename InCaster<T3>::OutType, typename InCaster<T4>::OutType, typename InCaster<T5>::OutType, typename InCaster<T6>::OutType)>(callPt)(InCaster<T>::ConvertOut(t), InCaster<T1>::ConvertOut(t1), InCaster<T2>::ConvertOut(t2), InCaster<T3>::ConvertOut(t3), InCaster<T4>::ConvertOut(t4), InCaster<T5>::ConvertOut(t5), InCaster<T6>::ConvertOut(t6))));
