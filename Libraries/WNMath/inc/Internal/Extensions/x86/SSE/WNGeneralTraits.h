@@ -21,13 +21,13 @@ namespace wn {
                 }
 
                 template <const wn_size_t dimension>
-                static WN_FORCE_INLINE typename enable_if<dimension <= 4>::type
+                static WN_FORCE_INLINE typename core::enable_if<dimension <= 4>::type
                 initialize(element_array<wn_float32, dimension>& _element_array) {
                     _element_array.m_xmm_values[0] = _mm_setzero_ps();
                 }
 
                 template <const wn_size_t dimension>
-                static WN_FORCE_INLINE typename enable_if<(dimension > 4)>::type
+                static WN_FORCE_INLINE typename core::enable_if<(dimension > 4)>::type
                 initialize(element_array<wn_float32, dimension>& _element_array) {
                     for (wn_size_t i = 0; i < xmm_count_ps<dimension>::value; ++i) {
                         _element_array.m_xmm_values[i] = _mm_setzero_ps();
@@ -52,22 +52,22 @@ namespace wn {
                 }
 
                 template <typename type>
-                static WN_FORCE_INLINE typename enable_if<is_same<type, wn_void>::value>::type assign(element_array<wn_float32, 2>& _element_array, const wn_float32& _value) {
+                static WN_FORCE_INLINE typename core::enable_if<core::is_same<type, wn_void>::value>::type assign(element_array<wn_float32, 2>& _element_array, const wn_float32& _value) {
                     _element_array.m_xmm_values[0] = _mm_setr_ps(_value, _value, 0.0f, 0.0f);
                 }
 
                 template <typename type>
-                static WN_FORCE_INLINE typename enable_if<is_same<type, wn_void>::value>::type assign(element_array<wn_float32, 3>& _element_array, const wn_float32& _value) {
+                static WN_FORCE_INLINE typename core::enable_if<core::is_same<type, wn_void>::value>::type assign(element_array<wn_float32, 3>& _element_array, const wn_float32& _value) {
                     _element_array.m_xmm_values[0] = _mm_setr_ps(_value, _value, _value, 0.0f);
                 }
 
                 template <typename type>
-                static WN_FORCE_INLINE typename enable_if<is_same<type, wn_void>::value>::type assign(element_array<wn_float32, 4>& _element_array, const wn_float32& _value) {
+                static WN_FORCE_INLINE typename core::enable_if<core::is_same<type, wn_void>::value>::type assign(element_array<wn_float32, 4>& _element_array, const wn_float32& _value) {
                     _element_array.m_xmm_values[0] = _mm_set1_ps(_value);
                 }
 
                 template <const wn_size_t dimension>
-                static WN_FORCE_INLINE typename enable_if<(dimension > 4 && dimension % 4 == 0)>::type
+                static WN_FORCE_INLINE typename core::enable_if<(dimension > 4 && dimension % 4 == 0)>::type
                 assign(element_array<wn_float32, dimension>& _element_array, const wn_float32& _value) {
                     const __m128 value = _mm_set1_ps(_value);
 
@@ -77,7 +77,7 @@ namespace wn {
                 }
 
                 template <const wn_size_t dimension>
-                static WN_FORCE_INLINE typename enable_if<(dimension > 4 && dimension % 4 == 1)>::type
+                static WN_FORCE_INLINE typename core::enable_if<(dimension > 4 && dimension % 4 == 1)>::type
                 assign(element_array<wn_float32, dimension>& _element_array, const wn_float32& _value) {
                     const __m128 value = _mm_set1_ps(_value);
                     const wn_size_t xmm_count = xmm_count_ps<dimension>::value - 1;
@@ -90,7 +90,7 @@ namespace wn {
                 }
 
                 template <const wn_size_t dimension>
-                static WN_FORCE_INLINE typename enable_if<(dimension > 4 && dimension % 4 == 2)>::type
+                static WN_FORCE_INLINE typename core::enable_if<(dimension > 4 && dimension % 4 == 2)>::type
                 assign(element_array<wn_float32, dimension>& _element_array, const wn_float32& _value) {
                     const __m128 value = _mm_set1_ps(_value);
                     const wn_size_t xmm_count = xmm_count_ps<dimension>::value - 1;
@@ -103,7 +103,7 @@ namespace wn {
                 }
 
                 template <const wn_size_t dimension>
-                static WN_FORCE_INLINE typename enable_if<(dimension > 4 && dimension % 4 == 3)>::type
+                static WN_FORCE_INLINE typename core::enable_if<(dimension > 4 && dimension % 4 == 3)>::type
                 assign(element_array<wn_float32, dimension>& _element_array, const wn_float32& _value) {
                     const __m128 value = _mm_set1_ps(_value);
                     const wn_size_t xmm_count = xmm_count_ps<dimension>::value - 1;
@@ -133,7 +133,7 @@ namespace wn {
                 }
 
                 template <const wn_size_t dimension>
-                static WN_FORCE_INLINE typename enable_if<(dimension > 1 && dimension <= 4)>::type
+                static WN_FORCE_INLINE typename core::enable_if<(dimension > 1 && dimension <= 4)>::type
                 add(element_array<wn_float32, dimension>& _element_array1,
                     const element_array<wn_float32, dimension>& _element_array2) {
                     _element_array1.m_xmm_values[0] = _mm_add_ps(_element_array1.m_xmm_values[0],
@@ -141,7 +141,7 @@ namespace wn {
                 }
 
                 template <const wn_size_t dimension>
-                static WN_FORCE_INLINE typename enable_if<(dimension > 4 && dimension % 4 == 1)>::type
+                static WN_FORCE_INLINE typename core::enable_if<(dimension > 4 && dimension % 4 == 1)>::type
                 add(element_array<wn_float32, dimension>& _element_array1,
                     const element_array<wn_float32, dimension>& _element_array2) {
                     const wn_size_t xmm_count = xmm_count_ps<dimension>::value - 1;
@@ -156,7 +156,7 @@ namespace wn {
                 }
 
                 template <const wn_size_t dimension>
-                static WN_FORCE_INLINE typename enable_if<(dimension > 4 && dimension % 4 != 1)>::type
+                static WN_FORCE_INLINE typename core::enable_if<(dimension > 4 && dimension % 4 != 1)>::type
                 add(element_array<wn_float32, dimension>& _element_array1,
                     const element_array<wn_float32, dimension>& _element_array2) {
                     for (wn_size_t i = 0; i < xmm_count_ps<dimension>::value; ++i) {
@@ -171,24 +171,24 @@ namespace wn {
                 }
 
                 template <typename type>
-                static WN_FORCE_INLINE typename std::enable_if<is_same<type, wn_void>::value>::type add(element_array<wn_float32, 2>& _element_array, const wn_float32& _value) {
+                static WN_FORCE_INLINE typename std::enable_if<core::is_same<type, wn_void>::value>::type add(element_array<wn_float32, 2>& _element_array, const wn_float32& _value) {
                     _element_array.m_xmm_values[0] = _mm_add_ps(_element_array.m_xmm_values[0],
                                                                 _mm_setr_ps(_value, _value, 0.0f, 0.0f));
                 }
 
                 template <typename type>
-                static WN_FORCE_INLINE typename std::enable_if<is_same<type, wn_void>::value>::type add(element_array<wn_float32, 3>& _element_array, const wn_float32& _value) {
+                static WN_FORCE_INLINE typename std::enable_if<core::is_same<type, wn_void>::value>::type add(element_array<wn_float32, 3>& _element_array, const wn_float32& _value) {
                     _element_array.m_xmm_values[0] = _mm_add_ps(_element_array.m_xmm_values[0],
                                                                 _mm_setr_ps(_value, _value, _value, 0.0f));
                 }
 
                 template <typename type>
-                static WN_FORCE_INLINE typename std::enable_if<is_same<type, wn_void>::value>::type add(element_array<wn_float32, 4>& _element_array, const wn_float32& _value) {
+                static WN_FORCE_INLINE typename std::enable_if<core::is_same<type, wn_void>::value>::type add(element_array<wn_float32, 4>& _element_array, const wn_float32& _value) {
                     _element_array.m_xmm_values[0] = _mm_add_ps(_element_array.m_xmm_values[0], _mm_set1_ps(_value));
                 }
 
                 template <const wn_size_t dimension>
-                static WN_FORCE_INLINE typename enable_if<(dimension > 4 && dimension % 4 == 1)>::type
+                static WN_FORCE_INLINE typename core::enable_if<(dimension > 4 && dimension % 4 == 1)>::type
                 add(element_array<wn_float32, dimension>& _element_array, const wn_float32& _value) {
                     const __m128 value = _mm_set1_ps(_value);
                     const wn_size_t xmm_count = xmm_count_ps<dimension>::value - 1;
@@ -201,7 +201,7 @@ namespace wn {
                 }
 
                 template <const wn_size_t dimension>
-                static WN_FORCE_INLINE typename enable_if<(dimension > 4 && dimension % 4 != 1)>::type
+                static WN_FORCE_INLINE typename core::enable_if<(dimension > 4 && dimension % 4 != 1)>::type
                 add(element_array<wn_float32, dimension>& _element_array, const wn_float32& _value) {
                     const __m128 value = _mm_set1_ps(_value);
 

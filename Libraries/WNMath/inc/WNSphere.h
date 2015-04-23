@@ -157,7 +157,7 @@ namespace wn {
         }
 
         template <typename _type = value_type,
-                  typename = enable_if_t<is_signed<_type>::value>>
+                  typename = core::enable_if_t<core::is_signed<_type>::value>>
         WN_FORCE_INLINE wn_bool inside_out() const {
             return(m_radius < static_cast<value_type>(0));
         }

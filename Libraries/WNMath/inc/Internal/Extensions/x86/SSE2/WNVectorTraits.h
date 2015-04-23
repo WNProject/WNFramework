@@ -21,7 +21,7 @@ namespace wn {
                 }
 
                 template <typename type>
-                static WN_FORCE_INLINE typename enable_if<is_same<type, wn_void>::value>::type normalize(element_array<wn_float32, 4>& _element_array) {
+                static WN_FORCE_INLINE typename core::enable_if<core::is_same<type, wn_void>::value>::type normalize(element_array<wn_float32, 4>& _element_array) {
                     const __m128 squared = _mm_mul_ps(_element_array.m_xmm_values[0], _element_array.m_xmm_values[0]);
                     __m128 length_squared = _mm_add_ps(squared, sse2_shuffle_ps<_MM_SHUFFLE(1, 0, 3, 2)>(squared));
 

@@ -4,18 +4,6 @@
 
 #include "WNCore/test/inc/Common.h"
 
-TEST(extended_types, wn_fixed8_creation_standard) {
-
-}
-
-TEST(extended_types, wn_fixed8_assignment_standard) {
-
-}
-
-TEST(extended_types, wn_fixed8_negation_standard) {
-
-}
-
 TEST(extended_types, wn_fixed8_addition_standard) {
     wn_fixed8 fixed = 0.25f;
 
@@ -88,20 +76,4 @@ TEST(extended_types, wn_fixed8_subtraction_standard) {
     fixed = 0.25f - fixed;
 
     ASSERT_EQ(fixed.representation, -0x24); // -2.25
-}
-
-TEST(extended_types, wn_fixed8_multiplication_standard) {
-
-}
-
-TEST(extended_types, wn_fixed8_division_standard) {
-
-}
-
-TEST(extended_types, wn_fixed8_comparators_standard) {
-
-}
-
-TEST(extended_types, wn_fixed8_usage_standard) {
-
 }

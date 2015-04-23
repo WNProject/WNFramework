@@ -17,22 +17,22 @@ namespace wn {
     namespace internal {
         namespace math {
             template <const wn_size_t _dimension>
-            using mm_count_pi32 = index_constant<_dimension / 2>;
+            using mm_count_pi32 = core::index_constant<_dimension / 2>;
 
             template <const wn_size_t _dimension>
-            using mm_count_ps = index_constant<(_dimension + 1) / 2>;
+            using mm_count_ps = core::index_constant<(_dimension + 1) / 2>;
 
             template <const wn_size_t _dimension>
-            using xmm_count_pi32 = index_constant<(_dimension % 4) == 1 ? (_dimension / 4) : ((_dimension + 3) / 4)>;
+            using xmm_count_pi32 = core::index_constant<(_dimension % 4) == 1 ? (_dimension / 4) : ((_dimension + 3) / 4)>;
 
             template <const wn_size_t _dimension>
-            using xmm_count_pi64 = index_constant<(_dimension % 2) == 1 ? (_dimension / 2) : ((_dimension + 1) / 2)>;
+            using xmm_count_pi64 = core::index_constant<(_dimension % 2) == 1 ? (_dimension / 2) : ((_dimension + 1) / 2)>;
 
             template <const wn_size_t _dimension>
-            using xmm_count_ps = index_constant<(_dimension + 3) / 4>;
+            using xmm_count_ps = core::index_constant<(_dimension + 3) / 4>;
 
             template <const wn_size_t _dimension>
-            using xmm_count_pd = index_constant<(_dimension + 1) / 2>;
+            using xmm_count_pd = core::index_constant<(_dimension + 1) / 2>;
 
             template <wn_uint32 dimension>
             struct __WNNumberRegisters_YMM_PI32 {

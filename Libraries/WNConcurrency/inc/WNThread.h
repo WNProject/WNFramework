@@ -9,18 +9,19 @@
 
 #include "WNCore/inc/WNUtility.h"
 #include "WNCore/inc/WNTypeTraits.h"
-#include "WNCore/inc/WNUtility.h"
 #include "WNMemory/inc/WNIntrusivePtrBase.h"
 #include "WNMemory/inc/WNIntrusivePtr.h"
 
 #if defined _WN_WINDOWS || defined _WN_ANDROID
     #include <mutex>
 #endif
+
 #if defined _WN_POSIX
     #include <unistd.h>
     #include <sys/syscall.h>
     #include <atomic>
 #endif
+
 #include <chrono>
 #include <functional>
 
@@ -34,9 +35,9 @@ namespace wn {
                         m_handle(NULL),
                     #endif
                     m_id(0) {
-                #ifdef _WN_POSIX
-                      m_joined.clear(std::memory_order_release);
-                #endif
+                    #ifdef _WN_POSIX
+                        m_joined.clear(std::memory_order_release);
+                    #endif
                 }
 
                 WN_FORCE_INLINE ~thread_data_base() {
@@ -57,9 +58,9 @@ namespace wn {
                     HANDLE m_handle;
                     DWORD m_id;
                 #elif defined _WN_POSIX
+                    std::atomic_flag m_joined;
                     pthread_t m_pthread;
                     long m_id;
-                    std::atomic_flag m_joined;
                 #endif
             };
 
@@ -76,7 +77,7 @@ namespace wn {
     }
 
     template <typename _Result>
-    class thread final : public non_copyable {
+    class thread final : public core::non_copyable {
     public:
         static_assert(!std::is_reference<_Result>::value, "thread return type must not be a reference");
         static_assert(!std::is_const<_Result>::value, "thread return type must not be const");
@@ -91,11 +92,11 @@ namespace wn {
 
         template <typename _Function, typename... _Arguments>
         WN_FORCE_INLINE explicit thread(_Function&& _function, _Arguments&&... _arguments) {
-            static_assert(is_same<result_type, result_of_t<_Function(_Arguments...)>>::value,
+            static_assert(core::is_same<result_type, core::result_of_t<_Function(_Arguments...)>>::value,
                           "thread function return type does not match thread return type");
 
-            std::function<result_type()> function(std::bind(decay_copy(std::forward<_Function>(_function)),
-                                                            decay_copy(std::forward<_Arguments>(_arguments))...));
+            std::function<result_type()> function(std::bind(core::decay_copy(std::forward<_Function>(_function)),
+                                                            core::decay_copy(std::forward<_Arguments>(_arguments))...));
 
             execute(std::move(function));
         }
@@ -118,11 +119,11 @@ namespace wn {
                     }
                 #elif defined _WN_POSIX
                     if (!m_data->m_joined.test_and_set(std::memory_order_acquire)) {
-                      if (::pthread_join(m_data->m_pthread, NULL) == 0) {
-                          return(wn_true);
-                      }
+                        if (::pthread_join(m_data->m_pthread, NULL) == 0) {
+                            return(wn_true);
+                        }
                     } else {
-                      return(wn_true);
+                        return(wn_true);
                     }
                 #endif
             }
@@ -131,7 +132,7 @@ namespace wn {
         }
 
         template <typename _Type = result_type,
-                  typename = enable_if_t<(is_same<_Type, result_type>::value && !is_same<_Type, wn_void>::value)>>
+                  typename = core::enable_if_t<(core::is_same<_Type, result_type>::value && !core::is_same<_Type, wn_void>::value)>>
         WN_FORCE_INLINE wn_bool join(_Type& _execution_result) {
             const wn_bool join_result = join();
 

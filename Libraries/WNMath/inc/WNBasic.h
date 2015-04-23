@@ -13,76 +13,76 @@
 #include "WNMath/inc/Internal/WNBasicTraits.h"
 
 namespace wn {
-    template <typename type_>
-    WN_FORCE_INLINE typename enable_if<is_signed<type_>::value, type_>::type abs(const type_& _value) {
-        return(internal::math::basic_traits::abs<type_>(_value));
+    template <typename _Type>
+    WN_FORCE_INLINE typename core::enable_if<core::is_signed<_Type>::value, _Type>::type abs(const _Type& _value) {
+        return(internal::math::basic_traits::abs<_Type>(_value));
     }
 
-    template <typename type_>
-    WN_FORCE_INLINE typename enable_if<is_real<type_>::value, type_>::type ceil(const type_& _value) {
+    template <typename _Type>
+    WN_FORCE_INLINE typename core::enable_if<core::is_real<_Type>::value, _Type>::type ceil(const _Type& _value) {
         return(internal::math::basic_traits::ceil(_value));
     }
 
-    template <typename type_>
-    WN_FORCE_INLINE typename enable_if<is_real<type_>::value, type_>::type floor(const type_& _value) {
+    template <typename _Type>
+    WN_FORCE_INLINE typename core::enable_if<core::is_real<_Type>::value, _Type>::type floor(const _Type& _value) {
         return(internal::math::basic_traits::floor(_value));
     }
 
-    template <typename type_>
-    WN_FORCE_INLINE typename enable_if<is_real<type_>::value, type_>::type round(const type_& _value) {
+    template <typename _Type>
+    WN_FORCE_INLINE typename core::enable_if<core::is_real<_Type>::value, _Type>::type round(const _Type& _value) {
         return(internal::math::basic_traits::round(_value));
     }
 
-    template <typename type_>
-    WN_FORCE_INLINE typename enable_if<is_real<type_>::value, type_>::type trunc(const type_& _value) {
+    template <typename _Type>
+    WN_FORCE_INLINE typename core::enable_if<core::is_real<_Type>::value, _Type>::type trunc(const _Type& _value) {
         return(internal::math::basic_traits::trunc(_value));
     }
 
-    template <typename type_>
-    WN_FORCE_INLINE typename enable_if<(is_real<type_>::value || std::is_integral<type_>::value), type_>::type
-    mod(const type_& _dividend, const type_& _divisor) {
+    template <typename _Type>
+    WN_FORCE_INLINE typename core::enable_if<(core::is_real<_Type>::value || std::is_integral<_Type>::value), _Type>::type
+    mod(const _Type& _dividend, const _Type& _divisor) {
         return(internal::math::basic_traits::mod(_dividend, _divisor));
     }
 
-    template <typename type_>
-    WN_FORCE_INLINE typename enable_if<(is_real<type_>::value || std::is_integral<type_>::value), type_>::type
-    sqrt(const type_& _value) {
+    template <typename _Type>
+    WN_FORCE_INLINE typename core::enable_if<(core::is_real<_Type>::value || std::is_integral<_Type>::value), _Type>::type
+    sqrt(const _Type& _value) {
         return(internal::math::basic_traits::sqrt(_value));
     }
 
-    template <typename type_>
-    WN_FORCE_INLINE typename enable_if<is_real<type_>::value, type_>::type invsqrt(const type_& _value) {
+    template <typename _Type>
+    WN_FORCE_INLINE typename core::enable_if<core::is_real<_Type>::value, _Type>::type invsqrt(const _Type& _value) {
         return(internal::math::basic_traits::invsqrt(_value));
     }
 
-    template <typename type_>
-    WN_FORCE_INLINE type_ pow(const type_& _base, const type_& _exponent) {
+    template <typename _Type>
+    WN_FORCE_INLINE _Type pow(const _Type& _base, const _Type& _exponent) {
         return(internal::math::basic_traits::pow(_base, _exponent));
     }
 
-    template <typename type_>
-    WN_FORCE_INLINE type_ min(const type_& _value1, const type_& _value2) {
+    template <typename _Type>
+    WN_FORCE_INLINE _Type min(const _Type& _value1, const _Type& _value2) {
         return(internal::math::basic_traits::min(_value1, _value2));
     }
 
-    template <typename type_>
-    WN_FORCE_INLINE type_ max(const type_& _value1, const type_& _value2) {
+    template <typename _Type>
+    WN_FORCE_INLINE _Type max(const _Type& _value1, const _Type& _value2) {
         return(internal::math::basic_traits::max(_value1, _value2));
     }
 
-    template <typename type_>
-    WN_FORCE_INLINE type_ clamp(const type_& _value, const type_& _min, const type_& _max) {
+    template <typename _Type>
+    WN_FORCE_INLINE _Type clamp(const _Type& _value, const _Type& _min, const _Type& _max) {
         return(internal::math::basic_traits::clamp(_value, _min, _max));
     }
 
-    template <typename type_>
-    WN_FORCE_INLINE type_ deg_to_rad(const type_& _value) {
-        return(static_cast<type_>(static_cast<wn_float64>(_value)* (WN_PI / 180.0)));
+    template <typename _Type>
+    WN_FORCE_INLINE _Type deg_to_rad(const _Type& _value) {
+        return(static_cast<_Type>(static_cast<wn_float64>(_value)* (WN_PI / 180.0)));
     }
 
-    template <typename type_>
-    WN_FORCE_INLINE type_ rad_to_deg(const type_& _value) {
-        return(static_cast<type_>(static_cast<wn_float64>(_value)* (180.0 / WN_PI)));
+    template <typename _Type>
+    WN_FORCE_INLINE _Type rad_to_deg(const _Type& _value) {
+        return(static_cast<_Type>(static_cast<wn_float64>(_value)* (180.0 / WN_PI)));
     }
 }
 

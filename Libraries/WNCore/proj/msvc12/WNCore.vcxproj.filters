@@ -8,9 +8,6 @@
     <Filter Include="Include Files">
       <UniqueIdentifier>{328bf695-793d-4a22-a061-976682715fd2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Inline Files">
-      <UniqueIdentifier>{552638d9-4cd3-4d4d-b623-c01cc29578f4}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Internal">
       <UniqueIdentifier>{e0b81793-494f-43e3-97e5-3e2785fb1d3a}</UniqueIdentifier>
     </Filter>
@@ -24,9 +21,6 @@
   <ItemGroup>
     <None Include="..\..\inc\Internal\WNErrors.inc">
       <Filter>Include Files</Filter>
-    </None>
-    <None Include="..\..\inc\Internal\WNEndian.inl">
-      <Filter>Inline Files</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

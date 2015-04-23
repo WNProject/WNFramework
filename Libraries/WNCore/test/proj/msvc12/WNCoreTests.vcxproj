@@ -160,6 +160,7 @@
     <ClCompile Include="..\..\src\Tests\WNAlgorithmTests.cpp" />
     <ClCompile Include="..\..\src\Tests\WNExtendedTypesTests.cpp" />
     <ClCompile Include="..\..\src\Tests\WNTypeTraitsTests.cpp" />
+    <ClCompile Include="..\..\src\Tests\WNUtilityTests.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\Main.cpp" />

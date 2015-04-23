@@ -305,7 +305,7 @@ namespace WNStrings {
 
     template<typename T>
     WN_INLINE wn_int32  WNTSnPrintf(T _buffer, wn_size_t _count, const T _formatter, ...) {
-        static_assert(wn::dependent_false<T>::value, "WNTSnPrintf undefined for this type");
+        static_assert(wn::core::dependent_false<T>::value, "WNTSnPrintf undefined for this type");
     }
 
     WN_FORCE_INLINE wn_size_t WNWriteInt32(wn_char* _buffer, wn_int32 _int, wn_size_t _maxSize) {

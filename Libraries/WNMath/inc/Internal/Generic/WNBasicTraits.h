@@ -17,18 +17,18 @@
 namespace wn {
     namespace internal {
         namespace math {
-            struct basic_traits_generic : non_constructable_non_copyable {
+            struct basic_traits_generic : core::non_constructable_non_copyable {
                 template <typename type>
-                static WN_FORCE_INLINE typename enable_if<(std::is_integral<type>::value &&
-                                                          is_signed<type>::value), type>::type abs(const type& _value) {
+                static WN_FORCE_INLINE typename core::enable_if<(std::is_integral<type>::value &&
+                                                                 core::is_signed<type>::value), type>::type abs(const type& _value) {
                     const type negate = static_cast<type>(_value < 0);
 
                     return((_value ^ -negate) + negate);
                 }
 
                 template <typename type>
-                static WN_FORCE_INLINE typename enable_if<(is_fixed_point<type>::value &&
-                                                          is_signed<type>::value), type>::type abs(const type& _value) {
+                static WN_FORCE_INLINE typename core::enable_if<(core::is_fixed_point<type>::value &&
+                                                                 core::is_signed<type>::value), type>::type abs(const type& _value) {
                     type value;
 
                     value.representation = abs(_value.representation);
@@ -37,35 +37,35 @@ namespace wn {
                 }
 
                 template <typename type>
-                static WN_FORCE_INLINE typename enable_if<(is_floating_point<type>::value &&
-                                                          std::is_fundamental<type>::value), type>::type
+                static WN_FORCE_INLINE typename core::enable_if<(core::is_floating_point<type>::value &&
+                                                                 std::is_fundamental<type>::value), type>::type
                 abs(const type& _value) {
                     return(std::fabs(_value));
                 }
 
                 template <typename type>
-                static WN_FORCE_INLINE typename enable_if<(is_floating_point<type>::value &&
-                                                          !std::is_fundamental<type>::value), type>::type
+                static WN_FORCE_INLINE typename core::enable_if<(core::is_floating_point<type>::value &&
+                                                                 !std::is_fundamental<type>::value), type>::type
                 abs(const type& _value) {
                     return(static_cast<type>(abs(static_cast<wn_float32>(_value))));
                 }
 
                 template <typename type>
-                static WN_FORCE_INLINE typename enable_if<(!std::is_integral<type>::value &&
-                                                           !is_floating_point<type>::value &&
-                                                           !is_fixed_point<type>::value &&
-                                                           is_signed<type>::value), type>::type abs(const type& _value) {
+                static WN_FORCE_INLINE typename core::enable_if<(!std::is_integral<type>::value &&
+                                                                 !core::is_floating_point<type>::value &&
+                                                                 !core::is_fixed_point<type>::value &&
+                                                                 core::is_signed<type>::value), type>::type abs(const type& _value) {
                     return(_value < static_cast<type>(0) ? -_value : _value);
                 }
 
                 template <typename type>
-                static WN_FORCE_INLINE typename enable_if<std::is_integral<type>::value, type>::type
+                static WN_FORCE_INLINE typename core::enable_if<std::is_integral<type>::value, type>::type
                 mod(const type& _dividend, const type& _divisor) {
                     return(_dividend % _divisor);
                 }
 
                 template <typename type>
-                static WN_FORCE_INLINE typename enable_if<is_fixed_point<type>::value, type>::type
+                static WN_FORCE_INLINE typename core::enable_if<core::is_fixed_point<type>::value, type>::type
                 mod(const type& _dividend, const type& _divisor) {
                     type value;
 
@@ -75,14 +75,14 @@ namespace wn {
                 }
 
                 template <typename type>
-                static WN_FORCE_INLINE typename enable_if<std::is_floating_point<type>::value, type>::type
+                static WN_FORCE_INLINE typename core::enable_if<std::is_floating_point<type>::value, type>::type
                 mod(const type& _dividend, const type& _divisor) {
                     return(std::fmod(_dividend, _divisor));
                 }
 
                 template <typename type>
-                static WN_FORCE_INLINE typename enable_if<(is_floating_point<type>::value &&
-                                                           !std::is_floating_point<type>::value), type>::type
+                static WN_FORCE_INLINE typename core::enable_if<(core::is_floating_point<type>::value &&
+                                                                 !std::is_floating_point<type>::value), type>::type
                 mod(const type& _dividend, const type& _divisor) {
                     return(static_cast<type>(mod(static_cast<wn_float32>(_dividend), static_cast<wn_float32>(_divisor))));
                 }
@@ -106,22 +106,22 @@ namespace wn {
                 }
 
                 template <typename type>
-                static WN_FORCE_INLINE typename enable_if<std::is_integral<type>::value, type>::type
+                static WN_FORCE_INLINE typename core::enable_if<std::is_integral<type>::value, type>::type
                 sqrt(const type& _value) {
                     return(static_cast<type>(sqrt(static_cast<wn_float64>(_value))));
                 }
 
                 template <typename type>
-                static WN_FORCE_INLINE typename enable_if<(is_floating_point<type>::value &&
-                                                           !std::is_floating_point<type>::value), type>::type
+                static WN_FORCE_INLINE typename core::enable_if<(core::is_floating_point<type>::value &&
+                                                                 !std::is_floating_point<type>::value), type>::type
                 sqrt(const type& _value) {
                     return(static_cast<type>(sqrt(static_cast<wn_float32>(_value))));
                 }
 
                 template <typename type>
-                static WN_FORCE_INLINE typename enable_if<(std::is_floating_point<type>::value &&
-                                                           !std::is_same<type, wn_float32>::value &&
-                                                           !std::is_same<type, wn_float64>::value), type>::type
+                static WN_FORCE_INLINE typename core::enable_if<(std::is_floating_point<type>::value &&
+                                                                 !core::is_same<type, wn_float32>::value &&
+                                                                 !core::is_same<type, wn_float64>::value), type>::type
                 sqrt(const type& _value) {
                     return(std::sqrt(_value));
                 }
@@ -153,68 +153,68 @@ namespace wn {
                 }
 
                 template <typename type>
-                static WN_FORCE_INLINE typename enable_if<(is_floating_point<type>::value &&
-                                                               !std::is_floating_point<type>::value), type>::type
+                static WN_FORCE_INLINE typename core::enable_if<(core::is_floating_point<type>::value &&
+                                                                 !std::is_floating_point<type>::value), type>::type
                 invsqrt(const type& _value) {
                     return(static_cast<type>(invsqrt(static_cast<wn_float32>(_value))));
                 }
 
                 template <typename type>
-                static WN_FORCE_INLINE typename enable_if<(std::is_floating_point<type>::value &&
-                                                               !std::is_same<type, wn_float32>::value &&
-                                                               !std::is_same<type, wn_float64>::value), type>::type
+                static WN_FORCE_INLINE typename core::enable_if<(std::is_floating_point<type>::value &&
+                                                                 !core::is_same<type, wn_float32>::value &&
+                                                                 !core::is_same<type, wn_float64>::value), type>::type
                 invsqrt(const type& _value) {
                     return(static_cast<type>(1.0) / sqrt(_value));
                 }
 
                 template <typename type>
-                static WN_FORCE_INLINE typename enable_if<std::is_integral<type>::value, type>::type
+                static WN_FORCE_INLINE typename core::enable_if<std::is_integral<type>::value, type>::type
                 min(const type& _value1, const type& _value2) {
                     return(_value2 ^ ((_value1 ^ _value2) & -(_value1 < _value2)));
                 }
 
                 template <typename type>
-                static WN_FORCE_INLINE typename enable_if<std::is_floating_point<type>::value, type>::type
+                static WN_FORCE_INLINE typename core::enable_if<std::is_floating_point<type>::value, type>::type
                 min(const type& _value1, const type& _value2) {
                     return(std::fmin(_value1, _value2));
                 }
 
                 template <typename type>
-                static WN_FORCE_INLINE typename enable_if<(is_floating_point<type>::value &&
-                                                               !std::is_floating_point<type>::value), type>::type
+                static WN_FORCE_INLINE typename core::enable_if<(core::is_floating_point<type>::value &&
+                                                                 !std::is_floating_point<type>::value), type>::type
                 min(const type& _value1, const type& _value2) {
                     return(static_cast<type>(min(static_cast<wn_float32>(_value1), static_cast<wn_float32>(_value2))));
                 }
 
                 template <typename type>
-                static WN_FORCE_INLINE typename enable_if<(!std::is_integral<type>::value &&
-                                                               !is_floating_point<type>::value), type>::type
+                static WN_FORCE_INLINE typename core::enable_if<(!std::is_integral<type>::value &&
+                                                                 !core::is_floating_point<type>::value), type>::type
                 min(const type& _value1, const type& _value2) {
                     return(_value1 < _value2 ? _value1 : _value2);
                 }
 
                 template <typename type>
-                static WN_FORCE_INLINE typename enable_if<std::is_integral<type>::value, type>::type
+                static WN_FORCE_INLINE typename core::enable_if<std::is_integral<type>::value, type>::type
                 max(const type& _value1, const type& _value2) {
                     return(_value1 ^ ((_value1 ^ _value2) & -(_value1 < _value2)));
                 }
 
                 template <typename type>
-                static WN_FORCE_INLINE typename enable_if<std::is_floating_point<type>::value, type>::type
+                static WN_FORCE_INLINE typename core::enable_if<std::is_floating_point<type>::value, type>::type
                 max(const type& _value1, const type& _value2) {
                     return(std::fmax(_value1, _value2));
                 }
 
                 template <typename type>
-                static WN_FORCE_INLINE typename enable_if<(is_floating_point<type>::value &&
-                                                               !std::is_floating_point<type>::value), type>::type
+                static WN_FORCE_INLINE typename core::enable_if<(core::is_floating_point<type>::value &&
+                                                                 !std::is_floating_point<type>::value), type>::type
                 max(const type& _value1, const type& _value2) {
                     return(static_cast<type>(max(static_cast<wn_float32>(_value1), static_cast<wn_float32>(_value2))));
                 }
 
                 template <typename type>
-                static WN_FORCE_INLINE typename enable_if<(!std::is_integral<type>::value &&
-                                                               !is_floating_point<type>::value), type>::type
+                static WN_FORCE_INLINE typename core::enable_if<(!std::is_integral<type>::value &&
+                                                                 !core::is_floating_point<type>::value), type>::type
                 max(const type& _value1, const type& _value2) {
                     return(_value1 > _value2 ? _value1 : _value2);
                 }
@@ -225,7 +225,7 @@ namespace wn {
                 }
 
                 template <typename type>
-                static WN_FORCE_INLINE typename enable_if<std::is_integral<type>::value, type>::type
+                static WN_FORCE_INLINE typename core::enable_if<std::is_integral<type>::value, type>::type
                 pow(const type& _base, const type& _exponent) {
                     type base = _base;
                     type exponent = _exponent;
@@ -244,7 +244,7 @@ namespace wn {
                 }
 
                 template <typename type>
-                static WN_FORCE_INLINE typename enable_if<is_fixed_point<type>::value, type>::type
+                static WN_FORCE_INLINE typename core::enable_if<core::is_fixed_point<type>::value, type>::type
                 pow(const type& _base, const type& _exponent) {
                     type value;
 
@@ -254,20 +254,20 @@ namespace wn {
                 }
 
                 template <typename type>
-                static WN_FORCE_INLINE typename enable_if<(is_floating_point<type>::value &&
-                                                               !std::is_floating_point<type>::value), type>::type
+                static WN_FORCE_INLINE typename core::enable_if<(core::is_floating_point<type>::value &&
+                                                                 !std::is_floating_point<type>::value), type>::type
                 pow(const type& _base, const type& _exponent) {
                     return(static_cast<type>(pow(static_cast<wn_float32>(_base), static_cast<wn_float32>(_exponent))));
                 }
 
                 template <typename type>
-                static WN_FORCE_INLINE typename enable_if<std::is_floating_point<type>::value, type>::type
+                static WN_FORCE_INLINE typename core::enable_if<std::is_floating_point<type>::value, type>::type
                 pow(const type& _base, const type& _exponent) {
                     return(std::pow(_base, _exponent));
                 }
 
                 template <typename type>
-                static WN_FORCE_INLINE typename enable_if<is_fixed_point<type>::value, type>::type ceil(const type& _value) {
+                static WN_FORCE_INLINE typename core::enable_if<core::is_fixed_point<type>::value, type>::type ceil(const type& _value) {
                     typedef typename type::value_type value_type;
 
                     const value_type mask = pow2<value_type, type::traits_type::precision>::value - 1;
@@ -280,20 +280,20 @@ namespace wn {
                 }
 
                 template <typename type>
-                static WN_FORCE_INLINE typename enable_if<(is_floating_point<type>::value &&
-                                                               !std::is_floating_point<type>::value), type>::type
+                static WN_FORCE_INLINE typename core::enable_if<(core::is_floating_point<type>::value &&
+                                                                 !std::is_floating_point<type>::value), type>::type
                 ceil(const type& _value) {
                     return(static_cast<type>(ceil(static_cast<wn_float32>(_value))));
                 }
 
                 template <typename type>
-                static WN_FORCE_INLINE typename enable_if<std::is_floating_point<type>::value, type>::type
+                static WN_FORCE_INLINE typename core::enable_if<std::is_floating_point<type>::value, type>::type
                 ceil(const type& _value) {
                     return(std::ceil(_value));
                 }
 
                 template <typename type>
-                static WN_FORCE_INLINE typename enable_if<is_fixed_point<type>::value, type>::type floor(const type& _value) {
+                static WN_FORCE_INLINE typename core::enable_if<core::is_fixed_point<type>::value, type>::type floor(const type& _value) {
                     typedef typename type::value_type value_type;
 
                     const value_type mask = pow2<value_type, type::traits_type::precision>::value - 1;
@@ -305,32 +305,32 @@ namespace wn {
                 }
 
                 template <typename type>
-                static WN_FORCE_INLINE typename enable_if<(is_floating_point<type>::value &&
-                                                               !std::is_floating_point<type>::value), type>::type
+                static WN_FORCE_INLINE typename core::enable_if<(core::is_floating_point<type>::value &&
+                                                                 !std::is_floating_point<type>::value), type>::type
                 floor(const type& _value) {
                     return(static_cast<type>(floor(static_cast<wn_float32>(_value))));
                 }
 
                 template <typename type>
-                static WN_FORCE_INLINE typename enable_if<std::is_floating_point<type>::value, type>::type
+                static WN_FORCE_INLINE typename core::enable_if<std::is_floating_point<type>::value, type>::type
                 floor(const type& _value) {
                     return(std::floor(_value));
                 }
 
                 template <typename type>
-                static WN_FORCE_INLINE typename enable_if<is_fixed_point<type>::value, type>::type round(const type& _value) {
+                static WN_FORCE_INLINE typename core::enable_if<core::is_fixed_point<type>::value, type>::type round(const type& _value) {
                     return(floor(_value + static_cast<type>(0.5)));
                 }
 
                 template <typename type>
-                static WN_FORCE_INLINE typename enable_if<(is_floating_point<type>::value &&
-                                                               !std::is_floating_point<type>::value), type>::type
+                static WN_FORCE_INLINE typename core::enable_if<(core::is_floating_point<type>::value &&
+                                                                 !std::is_floating_point<type>::value), type>::type
                 round(const type& _value) {
                     return(static_cast<type>(round(static_cast<wn_float32>(_value))));
                 }
 
                 template <typename type>
-                static WN_FORCE_INLINE typename enable_if<std::is_floating_point<type>::value, type>::type
+                static WN_FORCE_INLINE typename core::enable_if<std::is_floating_point<type>::value, type>::type
                 round(const type& _value) {
                     #ifdef __WN_HAS_CPP11_STL_ROUND
                         return(std::round(_value));
@@ -340,7 +340,7 @@ namespace wn {
                 }
 
                 template <typename type>
-                static WN_FORCE_INLINE typename enable_if<is_fixed_point<type>::value, type>::type trunc(const type& _value) {
+                static WN_FORCE_INLINE typename core::enable_if<core::is_fixed_point<type>::value, type>::type trunc(const type& _value) {
                     if (_value > 0) {
                         return(floor(_value + static_cast<type>(0.5)));
                     } else if (_value < 0) {
@@ -351,24 +351,24 @@ namespace wn {
                 }
 
                 template <typename type>
-                static WN_FORCE_INLINE typename enable_if<(is_floating_point<type>::value &&
-                                                               !std::is_floating_point<type>::value), type>::type
+                static WN_FORCE_INLINE typename core::enable_if<(core::is_floating_point<type>::value &&
+                                                                 !std::is_floating_point<type>::value), type>::type
                 trunc(const type& _value) {
                     return(static_cast<type>(trunc(static_cast<wn_float32>(_value))));
                 }
 
                 template <typename type>
-                static WN_FORCE_INLINE typename enable_if<std::is_floating_point<type>::value, type>::type
+                static WN_FORCE_INLINE typename core::enable_if<std::is_floating_point<type>::value, type>::type
                 trunc(const type& _value) {
                     return(std::trunc(_value));
                 }
 
             private:
                 template <typename type, const size_t exponent>
-                struct pow2 : integral_constant<type, (2 * pow2<type, (exponent - 1)>::value)> {};
+                struct pow2 : core::integral_constant<type, (2 * pow2<type, (exponent - 1)>::value)> {};
 
                 template <typename type>
-                struct pow2<type, 0> : integral_constant<type, 1> {};
+                struct pow2<type, 0> : core::integral_constant<type, 1> {};
             };
         }
     }

@@ -7,85 +7,51 @@
 #ifndef __WN_CORE_ALGORITHM_H__
 #define __WN_CORE_ALGORITHM_H__
 
-#include "WNCore/inc/WNTypes.h"
 #include "WNCore/inc/WNTypeTraits.h"
 
 #include <algorithm>
 
 namespace wn {
-    template <typename input_it1, typename input_it2>
-    WN_FORCE_INLINE wn_bool equal(input_it1 first1, input_it1 last1, input_it2 first2) {
-        return(std::equal(first1, last1, first2));
-    }
+    namespace core {
+        template <typename _InputIt1, typename _InputIt2>
+        WN_FORCE_INLINE wn_bool equal(_InputIt1 _first1, _InputIt1 _last1, _InputIt2 _first2) {
+           return(std::equal(_first1, _last1, _first2));
+        }
 
-    template <typename input_it1, typename input_it2>
-    WN_FORCE_INLINE wn_bool equal(input_it1 first1, input_it1 last1, input_it2 first2, input_it2 last2) {
-        #ifdef __WN_HAS_CPP14_STL_EQUAL_AVAILABLE
-            return(std::equal(first1, last1, first2, last2));
-        #else
-            for (; (first1 != last1 && first2 != last2); ++first1, ++first2) {
-                if (*first1 != *first2) {
-                    return(wn_false);
+        template <typename _InputIt1, typename _InputIt2>
+        WN_FORCE_INLINE wn_bool equal(_InputIt1 _first1, _InputIt1 _last1, _InputIt2 _first2, _InputIt2 _last2) {
+            #ifdef __WN_HAS_CPP14_STL_EQUAL_AVAILABLE
+                return(std::equal(_first1, _last1, _first2, _last2));
+            #else
+                for (; (_first1 != _last1 && _first2 != _last2); ++_first1, ++_first2) {
+                    if (*_first1 != *_first2) {
+                        return(wn_false);
+                    }
                 }
-            }
 
-            return(first1 == last1 && first2 == last2);
-        #endif
-    }
+                return(_first1 == _last1 && _first2 == _last2);
+            #endif
+        }
 
-    template <typename input_it1, typename input_it2, typename predicate>
-    WN_FORCE_INLINE wn_bool equal_if(input_it1 first1, input_it1 last1, input_it2 first2, predicate p) {
-        return(std::equal(first1, last1, first2, p));
-    }
+        template <typename _InputIt1, typename _InputIt2, typename _Predicate>
+        WN_FORCE_INLINE wn_bool equal_if(_InputIt1 _first1, _InputIt1 _last1, _InputIt2 _first2, _Predicate _p) {
+           return(std::equal(_first1, _last1, _first2, _p));
+        }
 
-    template <typename input_it1, typename input_it2, typename predicate>
-    WN_FORCE_INLINE wn_bool equal_if(input_it1 first1, input_it1 last1, input_it2 first2, input_it2 last2, predicate p) {
-        #ifdef __WN_HAS_CPP14_STL_EQUAL_AVAILABLE
-            return(std::equal(first1, last1, first2, last2, p));
-        #else
-            for (; (first1 != last1 && first2 != last2); ++first1, ++first2) {
-                if (!p(*first1, *first2)) {
-                    return(wn_false);
+        template <typename _InputIt1, typename _InputIt2, typename _Predicate>
+        WN_FORCE_INLINE wn_bool equal_if(_InputIt1 _first1, _InputIt1 _last1, _InputIt2 _first2, _InputIt2 _last2, _Predicate _p) {
+            #ifdef __WN_HAS_CPP14_STL_EQUAL_AVAILABLE
+                return(std::equal(_first1, _last1, _first2, _last2, _p));
+            #else
+                for (; (_first1 != _last1 && _first2 != _last2); ++_first1, ++_first2) {
+                    if (!_p(*_first1, *_first2)) {
+                        return(wn_false);
+                    }
                 }
-            }
 
-            return(first1 == last1 && first2 == last2);
-        #endif
-    }
-
-    namespace internal {
-        template <const uint32_t size, const uint32_t index = 0, typename = enable_if<wn_true>::type>
-        struct unroll_loop {
-            template <typename type, typename predicate>
-            WN_FORCE_INLINE static wn_void execute(type& values, predicate p) {
-                p(values[index]);
-                unroll_loop<size, index + 1>::execute(values, p);
-            }
-        };
-
-        template <const uint32_t size>
-        struct unroll_loop<size, size> {
-            template <typename type, typename predicate>
-            WN_FORCE_INLINE static wn_void execute(type& values, predicate p) {
-                WN_UNUSED_ARGUMENT(values);
-                WN_UNUSED_ARGUMENT(p);
-            }
-        };
-
-        template <const uint32_t size, const uint32_t index>
-        struct unroll_loop<size, index, typename enable_if<(index >= 4 && size != index)>::type> {
-            template <typename type, typename predicate>
-            WN_FORCE_INLINE static wn_void execute(type& values, predicate p) {
-                for (wn_size_t i = index; i < size; ++i) {
-                    p(values[i]);
-                }
-            }
-        };
-    }
-
-    template <const uint32_t size, typename type, typename predicate>
-    WN_FORCE_INLINE wn_void for_each(type& values, predicate p) {
-        internal::unroll_loop<size>::execute(values, p);
+                return(_first1 == _last1 && _first2 == _last2);
+            #endif
+        }
     }
 }
 

@@ -49,8 +49,8 @@ namespace wn {
 
         template <typename type,
                   typename... types,
-                  typename = enable_if_t<boolean_and<are_same<type, types..., value_type>::value,
-                                                     (sizeof...(types) == (_dimension - 1)), (_dimension > 1)>::value>>
+                  typename = core::enable_if_t<core::boolean_and<core::are_same<type, types..., value_type>::value,
+                                                                (sizeof...(types) == (_dimension - 1)), (_dimension > 1)>::value>>
         WN_FORCE_INLINE explicit vector(const type& _value, const types&... _values) :
             vector({ _value, _values... }) {
         }
@@ -118,7 +118,7 @@ namespace wn {
         }
 
         template <typename type = value_type,
-                  typename = enable_if_t<is_signed<type>::value>>
+                  typename = core::enable_if_t<core::is_signed<type>::value>>
         WN_FORCE_INLINE vector operator - () const {
             vector vector(*this);
 
@@ -298,49 +298,49 @@ namespace wn {
         }
 
         template <const wn_size_t dimension = _dimension,
-                  typename = enable_if_t<(dimension > 1 && dimension < 5)>>
+                  typename = core::enable_if_t<(dimension > 1 && dimension < 5)>>
         WN_FORCE_INLINE value_type& x() {
             return(at<0>());
         }
 
         template <const wn_size_t dimension = _dimension,
-                  typename = enable_if_t<(dimension > 1 && dimension < 5)>>
+                  typename = core::enable_if_t<(dimension > 1 && dimension < 5)>>
         WN_FORCE_INLINE const value_type& x() const {
             return(at<0>());
         }
 
         template <const wn_size_t dimension = _dimension,
-                  typename = enable_if_t<(dimension > 1 && dimension < 5)>>
+                  typename = core::enable_if_t<(dimension > 1 && dimension < 5)>>
         WN_FORCE_INLINE value_type& y() {
             return(at<1>());
         }
 
         template <const wn_size_t dimension = _dimension,
-                  typename = enable_if_t<(dimension > 1 && dimension < 5)>>
+                  typename = core::enable_if_t<(dimension > 1 && dimension < 5)>>
         WN_FORCE_INLINE const value_type& y() const {
             return(at<1>());
         }
 
         template <const wn_size_t dimension = _dimension,
-                  typename = enable_if_t<(dimension > 2 && dimension < 5)>>
+                  typename = core::enable_if_t<(dimension > 2 && dimension < 5)>>
         WN_FORCE_INLINE value_type& z() {
             return(at<2>());
         }
 
         template <const wn_size_t dimension = _dimension,
-                  typename = enable_if_t<(dimension > 2 && dimension < 5)>>
+                  typename = core::enable_if_t<(dimension > 2 && dimension < 5)>>
         WN_FORCE_INLINE const value_type& z() const {
             return(at<2>());
         }
 
         template <const wn_size_t dimension = _dimension,
-                  typename = enable_if_t<(dimension > 3 && dimension < 5)>>
+                  typename = core::enable_if_t<(dimension > 3 && dimension < 5)>>
         WN_FORCE_INLINE value_type& w() {
             return(at<3>());
         }
 
         template <const wn_size_t dimension = _dimension,
-                  typename = enable_if_t<(dimension > 3 && dimension < 5)>>
+                  typename = core::enable_if_t<(dimension > 3 && dimension < 5)>>
         WN_FORCE_INLINE const value_type& w() const {
             return(at<3>());
         }
@@ -432,25 +432,25 @@ namespace wn {
         //refract
 
         template <typename type = value_type,
-                  typename = enable_if_t<boolean_and<is_same<type, value_type>::value, is_real<type>::value>::value>>
+                  typename = core::enable_if_t<core::boolean_and<core::is_same<type, value_type>::value, core::is_real<type>::value>::value>>
         WN_FORCE_INLINE wn_void normalize() {
             traits_type::normalize(m_element_array);
         }
 
         template <typename type = value_type,
-                  typename = enable_if_t<boolean_and<is_same<type, value_type>::value, is_real<type>::value>::value>>
+                  typename = core::enable_if_t<core::boolean_and<core::is_same<type, value_type>::value, core::is_real<type>::value>::value>>
         WN_FORCE_INLINE wn_void truncate(const value_type& _length) {
             traits_type::truncate(m_element_array, _length);
         }
 
         template <typename type = value_type,
-                  typename = enable_if_t<boolean_and<is_same<type, value_type>::value, is_real<type>::value>::value>>
+                  typename = core::enable_if_t<core::boolean_and<core::is_same<type, value_type>::value, core::is_real<type>::value>::value>>
         WN_FORCE_INLINE wn_void snap(const snap_direction_type _direction = snap_direction::nearest) {
             traits_type::snap(m_element_array, _direction);
         }
 
         template <typename type = value_type,
-                  typename = enable_if_t<boolean_and<is_same<type, value_type>::value, is_real<type>::value>::value>>
+                  typename = core::enable_if_t<core::boolean_and<core::is_same<type, value_type>::value, core::is_real<type>::value>::value>>
         WN_FORCE_INLINE wn_void recipricol() {
             traits_type::recipricol(m_element_array);
         }
@@ -464,7 +464,7 @@ namespace wn {
         }
 
         template <typename... types,
-                  typename = enable_if_t<boolean_and<are_same<types..., value_type>::value,
+                  typename = core::enable_if_t<core::boolean_and<core::are_same<types..., value_type>::value,
                                                      sizeof...(types) == (_dimension - 1)>::value>>
         WN_FORCE_INLINE wn_void translate(const value_type& _value, const types&... _values) {
             (*this) += vector(_value, _values...);
@@ -479,7 +479,7 @@ namespace wn {
         }
 
         template <typename... types,
-                  typename = enable_if_t<boolean_and<are_same<types..., value_type>::value,
+                  typename = core::enable_if_t<core::boolean_and<core::are_same<types..., value_type>::value,
                                                      sizeof...(types) == (_dimension - 1)>::value>>
         WN_FORCE_INLINE wn_void scale(const value_type& _value, const types&... _values) {
             (*this) *= vector(_value, _values...);
@@ -503,7 +503,7 @@ namespace wn {
 
         template <typename type,
                   typename... types,
-                  typename = enable_if_t<boolean_and<are_same<type, types..., value_type>::value,
+                  typename = core::enable_if_t<core::boolean_and<core::are_same<type, types..., value_type>::value,
                                                      sizeof...(types) == (_dimension - 1), (_dimension > 1)>::value>>
         WN_FORCE_INLINE wn_void assign(const type& _value, const types&... _values) {
             assign({ _value, _values... });
@@ -524,25 +524,25 @@ namespace wn {
         }
 
         template <const wn_size_t dimension = _dimension,
-                  typename = enable_if_t<(dimension > 1 && dimension < 5)>>
+                  typename = core::enable_if_t<(dimension > 1 && dimension < 5)>>
         WN_FORCE_INLINE wn_void assign_x(const value_type& _value) {
 
         }
 
         template <const wn_size_t dimension = _dimension,
-                  typename = enable_if_t<(dimension > 1 && dimension < 5)>>
+                  typename = core::enable_if_t<(dimension > 1 && dimension < 5)>>
         WN_FORCE_INLINE wn_void assign_y(const value_type& _value) {
 
         }
 
         template <const wn_size_t dimension = _dimension,
-                  typename = enable_if_t<(dimension > 2 && dimension < 5)>>
+                  typename = core::enable_if_t<(dimension > 2 && dimension < 5)>>
         WN_FORCE_INLINE wn_void assign_z(const value_type& _value) {
 
         }
 
         template <const wn_size_t dimension = _dimension,
-                  typename = enable_if_t<(dimension > 3 && dimension < 5)>>
+                  typename = core::enable_if_t<(dimension > 3 && dimension < 5)>>
         WN_FORCE_INLINE wn_void assign_w(const value_type& _value) {
 
         }
@@ -606,7 +606,7 @@ namespace wn {
         }
 
         template <typename type = value_type,
-                  typename = enable_if_t<boolean_and<is_same<type, value_type>::value, is_real<type>::value>::value>>
+                  typename = core::enable_if_t<core::boolean_and<core::is_same<type, value_type>::value, core::is_real<type>::value>::value>>
         WN_FORCE_INLINE vector extract_normalized() const {
             vector vector(*this);
 
@@ -614,7 +614,7 @@ namespace wn {
         }
 
         template <typename type = value_type,
-                  typename = enable_if_t<boolean_and<is_same<type, value_type>::value, is_real<type>::value>::value>>
+                  typename = core::enable_if_t<core::boolean_and<core::is_same<type, value_type>::value, core::is_real<type>::value>::value>>
         WN_FORCE_INLINE vector extract_truncated(const value_type& _length) const {
             vector vector(*this);
 
@@ -622,7 +622,7 @@ namespace wn {
         }
 
         template <typename type = value_type,
-                  typename = enable_if_t<boolean_and<is_same<type, value_type>::value, is_real<type>::value>::value>>
+                  typename = core::enable_if_t<core::boolean_and<core::is_same<type, value_type>::value, core::is_real<type>::value>::value>>
         WN_FORCE_INLINE vector extract_snaped(const snap_direction _direction = snap_direction::nearest) const {
             vector vector(*this);
 
@@ -630,7 +630,7 @@ namespace wn {
         }
 
         template <typename type = value_type,
-                  typename = enable_if_t<boolean_and<is_same<type, value_type>::value, is_real<type>::value>::value>>
+                  typename = core::enable_if_t<core::boolean_and<core::is_same<type, value_type>::value, core::is_real<type>::value>::value>>
         WN_FORCE_INLINE vector extract_recipricol() const {
             vector vector(*this);
 
