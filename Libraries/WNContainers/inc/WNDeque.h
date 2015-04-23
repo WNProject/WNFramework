@@ -60,7 +60,7 @@ namespace wn {
 
                 template <typename _OtherContainer = _NonConstContainer>
                 deque_iterator(deque_iterator<_OtherContainer, _OtherContainer, typename _OtherContainer::value_type>&& _other,
-                               typename enable_if<!is_same<_Container, _OtherContainer>::value>::type* = wn_nullptr) :
+                               typename core::enable_if<!core::is_same<_Container, _OtherContainer>::value>::type* = wn_nullptr) :
                     m_deque(std::move(_other.m_deque)),
                     m_element(std::move(_other.m_element)) {
                     _other.clear();
@@ -68,7 +68,7 @@ namespace wn {
 
                 template <typename _OtherContainer = _NonConstContainer>
                 deque_iterator(const deque_iterator<_OtherContainer, _OtherContainer, typename _OtherContainer::value_type> &_other,
-                               typename enable_if<!is_same<_Container, _OtherContainer>::value>::type* = wn_nullptr) :
+                               typename core::enable_if<!core::is_same<_Container, _OtherContainer>::value>::type* = wn_nullptr) :
                     m_deque(_other.m_deque),
                     m_element(_other.m_element) {
                 }
@@ -90,7 +90,7 @@ namespace wn {
                 }
 
                 template <typename _OtherContainer = _NonConstContainer>
-                typename enable_if<!is_same<_Container, _OtherContainer>::value, deque_iterator>::type&
+                typename core::enable_if<!core::is_same<_Container, _OtherContainer>::value, deque_iterator>::type&
                 operator = (deque_iterator<_OtherContainer, _OtherContainer, typename _OtherContainer::value_type>&& _other) {
                     m_deque = std::move(_other.m_deque);
                     m_element = std::move(_other.m_element);
@@ -101,7 +101,7 @@ namespace wn {
                 }
 
                 template <typename _OtherContainer = _NonConstContainer>
-                typename enable_if<!is_same<_Container, _OtherContainer>::value, deque_iterator>::type&
+                typename core::enable_if<!core::is_same<_Container, _OtherContainer>::value, deque_iterator>::type&
                 operator = (const deque_iterator<_OtherContainer, _OtherContainer, typename _OtherContainer::value_type>& _other) {
                     m_deque = _other.m_deque;
                     m_element = _other.m_element;
@@ -298,7 +298,7 @@ namespace wn {
             }
 
             template <typename _InputIt,
-                      typename = enable_if_t<!std::is_integral<_InputIt>::value>>
+                      typename = core::enable_if_t<!std::is_integral<_InputIt>::value>>
             deque(_InputIt _first, _InputIt _last, const _Allocator& _allocator = _Allocator()) :
                 deque(_allocator) {
                 insert(cbegin(), _first, _last);
@@ -469,7 +469,7 @@ namespace wn {
             }
 
             template <typename _InputIt,
-                      typename = enable_if_t<!std::is_integral<_InputIt>::value>>
+                      typename = core::enable_if_t<!std::is_integral<_InputIt>::value>>
             iterator insert(const_iterator _pos, _InputIt _first, _InputIt _last) {
                 const difference_type count = _last - _first;
                 iterator position = allocate(_pos, count);
@@ -487,7 +487,7 @@ namespace wn {
             }
 
             template <typename _Function,
-                      typename = enable_if_t<is_callable<_Function, _Type, size_type>::value>>
+                      typename = core::enable_if_t<core::is_callable<_Function, _Type, size_type>::value>>
             iterator insert(const_iterator _pos, const size_type _count, _Function&& _generator) {
                 iterator position = allocate(_pos, _count);
                 iterator new_position = position;

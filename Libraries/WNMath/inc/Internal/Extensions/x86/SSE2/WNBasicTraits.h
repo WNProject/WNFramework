@@ -16,34 +16,34 @@ namespace wn {
         namespace math {
             struct basic_traits_sse2 : basic_traits_sse {
                 template <typename type>
-                static WN_FORCE_INLINE typename enable_if<is_signed<type>::value, type>::type abs(const type& _value) {
+                static WN_FORCE_INLINE typename core::enable_if<core::is_signed<type>::value, type>::type abs(const type& _value) {
                     return(base::abs(_value));
                 }
 
                 template <typename type>
-                static WN_FORCE_INLINE typename enable_if<is_same<wn_float64, type>::value, type>::type abs(const wn_float64& _value) {
+                static WN_FORCE_INLINE typename core::enable_if<core::is_same<wn_float64, type>::value, type>::type abs(const wn_float64& _value) {
                     return(_mm_cvtsd_f64(_mm_andnot_pd(_mm_set_sd(-0.0), _mm_set_sd(_value))));
                 }
 
                 template <typename type>
-                static WN_FORCE_INLINE typename enable_if<(std::is_integral<type>::value ||
-                                                                is_real<type>::value), type>::type sqrt(const type& _value) {
+                static WN_FORCE_INLINE typename core::enable_if<(std::is_integral<type>::value ||
+                                                                 core::is_real<type>::value), type>::type sqrt(const type& _value) {
                     return(base::sqrt(_value));
                 }
 
                 template <typename type>
-                static WN_FORCE_INLINE typename enable_if<is_same<wn_float64, type>::value, type>::type sqrt(const wn_float64& _value) {
+                static WN_FORCE_INLINE typename core::enable_if<core::is_same<wn_float64, type>::value, type>::type sqrt(const wn_float64& _value) {
                     return(_mm_cvtsd_f64(_mm_sqrt_sd(_mm_setzero_pd(), _mm_set_sd(_value))));
                 }
 
 
                 template <typename type>
-                static WN_FORCE_INLINE typename enable_if<is_real<type>::value, type>::type invsqrt(const type& _value) {
+                static WN_FORCE_INLINE typename core::enable_if<core::is_real<type>::value, type>::type invsqrt(const type& _value) {
                     return(base::invsqrt(_value));
                 }
 
                 template <typename type>
-                static WN_FORCE_INLINE typename enable_if<is_same<wn_float64, type>::value, type>::type  invsqrt(const wn_float64& _value) {
+                static WN_FORCE_INLINE typename core::enable_if<core::is_same<wn_float64, type>::value, type>::type  invsqrt(const wn_float64& _value) {
                     return(_mm_cvtsd_f64(_mm_div_sd(_mm_set_sd(1.0), _mm_sqrt_sd(_mm_setzero_pd(), _mm_set_sd(_value)))));
                 }
 
@@ -53,7 +53,7 @@ namespace wn {
                 }
 
                 template <typename type>
-                static WN_FORCE_INLINE typename enable_if<is_same<wn_float64, type>::value, type>::type min(const wn_float64& _value1, const wn_float64& _value2) {
+                static WN_FORCE_INLINE typename core::enable_if<core::is_same<wn_float64, type>::value, type>::type min(const wn_float64& _value1, const wn_float64& _value2) {
                     return(_mm_cvtsd_f64(_mm_min_sd(_mm_set_sd(_value1), _mm_set_sd(_value2))));
                 }
 
@@ -63,7 +63,7 @@ namespace wn {
                 }
 
                 template <typename type>
-                static WN_FORCE_INLINE typename enable_if<is_same<wn_float64, type>::value, type>::type max(const wn_float64& _value1, const wn_float64& _value2) {
+                static WN_FORCE_INLINE typename core::enable_if<core::is_same<wn_float64, type>::value, type>::type max(const wn_float64& _value1, const wn_float64& _value2) {
                     return(_mm_cvtsd_f64(_mm_max_sd(_mm_set_sd(_value1), _mm_set_sd(_value2))));
                 }
 
@@ -73,7 +73,7 @@ namespace wn {
                 }
 
                 template <typename type>
-                static WN_FORCE_INLINE typename enable_if<is_same<wn_float64, type>::value, type>::type clamp(const wn_float64& _value, const wn_float64& _min,
+                static WN_FORCE_INLINE typename core::enable_if<core::is_same<wn_float64, type>::value, type>::type clamp(const wn_float64& _value, const wn_float64& _min,
                                                         const wn_float64& _max) {
                     return(_mm_cvtsd_f64(_mm_min_sd(_mm_max_sd(_mm_set_sd(_value), _mm_set_sd(_min)), _mm_set_sd(_max))));
                 }

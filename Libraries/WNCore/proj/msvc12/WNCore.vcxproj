@@ -119,7 +119,6 @@
     <Lib />
   </ItemDefinitionGroup>
   <ItemGroup>
-    <None Include="..\..\inc\Internal\WNEndian.inl" />
     <None Include="..\..\inc\Internal\WNErrors.inc" />
   </ItemGroup>
   <ItemGroup>

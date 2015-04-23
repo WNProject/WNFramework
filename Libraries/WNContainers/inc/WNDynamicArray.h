@@ -283,7 +283,7 @@ namespace wn {
             }
 
             template <typename _InputIt,
-                      typename = enable_if_t<!std::is_integral<_InputIt>::value>>
+                      typename = core::enable_if_t<!std::is_integral<_InputIt>::value>>
             iterator insert(const_iterator _pos, _InputIt _first, _InputIt _last) {
                 const difference_type count = _last - _first;
                 iterator position = shift(_pos, count);
@@ -301,7 +301,7 @@ namespace wn {
             }
 
             template <typename _Function,
-                      typename = enable_if_t<is_callable<_Function, _Type, size_type>::value>>
+                      typename = core::enable_if_t<core::is_callable<_Function, _Type, size_type>::value>>
             iterator insert(const_iterator _pos, const size_type _count, _Function&& _generator) {
                 iterator position = shift(_pos, _count);
                 iterator new_position = position;

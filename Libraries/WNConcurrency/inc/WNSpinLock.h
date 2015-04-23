@@ -32,7 +32,7 @@
 #endif
 
 namespace wn {
-    class spin_lock final : public non_copyable {
+    class spin_lock final : public core::non_copyable {
     public:
         WN_FORCE_INLINE explicit spin_lock() {
             #ifdef __WN_PTHREAD_SPIN_LOCKS
@@ -94,7 +94,7 @@ namespace wn {
         #endif
     };
 
-    class recursive_spin_lock final : public non_copyable {
+    class recursive_spin_lock final : public core::non_copyable {
     public:
         WN_FORCE_INLINE explicit recursive_spin_lock() :
             m_recursion_count(0),

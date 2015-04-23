@@ -29,5 +29,8 @@
     <ClCompile Include="..\..\src\Tests\WNAlgorithmTests.cpp">
       <Filter>Source Files\Tests</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\Tests\WNUtilityTests.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

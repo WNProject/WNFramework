@@ -255,7 +255,7 @@ wn_int32 FindLastNotIn(WNScripting::WNScriptingArrayRef<wn_char>* _string, WNScr
         return(-1);
     }
     wn_size_t searchLen = findee.GetLength();
-    for(wn_size_t i = string.GetLength() - 1; i >= 0; --i) {
+    for(wn_size_t i = string.GetLength() - 1; i != 0; --i) {
         wn_size_t j = 0;
         for(j = 0; j < searchLen; ++j) {
             if(string[i] == findee[j]) {
@@ -339,7 +339,7 @@ wn_int32 FindNextLastIn(WNScripting::WNScriptingArrayRef<wn_char>* _string, WNSc
         return(-1);
     }
     wn_size_t searchLen = findee.GetLength();
-    for(wn_size_t i = index; i >= 0; --i) {
+    for(wn_int32 i = index; i >= 0; --i) {
         for(wn_size_t j = 0; j < searchLen; ++j) {
             if(string[i] == findee[j]) {
                 return(static_cast<wn_int32>(i));
@@ -356,7 +356,7 @@ wn_int32 FindNextLastNotIn(WNScripting::WNScriptingArrayRef<wn_char>* _string, W
         return(-1);
     }
     wn_size_t searchLen = findee.GetLength();
-    for(wn_size_t i = index; i >= 0; --i) {
+    for(wn_int32 i = index; i >= 0; --i) {
         wn_size_t j = 0;
         for(j = 0; j < searchLen; ++j) {
             if(string[i] == findee[j]) {
@@ -375,7 +375,7 @@ wn_int32 FindNextLastOf(WNScripting::WNScriptingArrayRef<wn_char>* _string, wn_c
     if(!string || static_cast<wn_size_t>(index) > string.GetLength()) {
         return(-1);
     }
-    for(int i = index; i >= 0; --i) {
+    for(wn_int32 i = index; i >= 0; --i) {
         if(string[i] == _char) {
             return(static_cast<wn_int32>(i));
         }

@@ -92,7 +92,7 @@ wn_void WNNetworkWriteBuffer::FlushWrite() {
 
     wn_uint32 totalWritten = static_cast<wn_uint32>(mTotalWritten);
 
-    WNCore::WNToBigEndian(totalWritten);
+    totalWritten = wn::core::to_big_endian(totalWritten);
 
     *(reinterpret_cast<wn_uint32*>(mChunks.front()->GetBaseLocation())) = totalWritten;
 

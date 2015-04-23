@@ -14,7 +14,7 @@ namespace wn {
     namespace containers {
         class data_buffer;
 
-        class serializer_base : public non_copyable {
+        class serializer_base : public core::non_copyable {
         public:
             virtual wn_size_t serialize(data_buffer& _buffer, const wn_uint32 _flags) const = 0;
         };

@@ -33,7 +33,7 @@ namespace WNScripting {
 
    template<typename T>
     struct TypeMapping {
-        static const wn_char * GetTypeName() { static_assert(wn::dependent_false<T>::value, "No type mapping for type"); }
+        static const wn_char * GetTypeName() { static_assert(wn::core::dependent_false<T>::value, "No type mapping for type"); }
     };
 
 }

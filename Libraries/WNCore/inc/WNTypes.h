@@ -107,26 +107,27 @@ typedef size_t wn_size_t;
         #define wn_nullptr nullptr
     #else
         namespace wn {
-            namespace internal {
-                const class {
-                public:
-                    template <typename type>
-                    operator type* () const {
-                        return(0);
-                    }
+            namespace core {
+                namespace internal {
+                    const class{
+                    public:
+                        template <typename _Type>
+                        WN_FORCE_INLINE operator _Type* () const {
+                            return(0);
+                        }
 
-                    template <typename class_type, typename type>
-                    operator type class_type::* () const {
-                        return(0);
-                    }
+                        template <typename _ClassType, typename _Type>
+                        WN_FORCE_INLINE operator _Type _ClassType::* () const {
+                            return(0);
+                        }
 
-                private:
-                    wn_void operator & () const;
-                } null_pointer = {};
+                        wn_void operator & () const = delete;
+                    } null_pointer = {};
+                }
             }
         }
 
-        #define wn_nullptr wn::internal::null_pointer
+        #define wn_nullptr wn::core::internal::null_pointer
     #endif
 #endif
 

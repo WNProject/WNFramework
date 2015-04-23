@@ -33,7 +33,7 @@
 #define _WN_MUTEX_DEFAULT_SPIN_COUNT 4000
 
 namespace wn {
-    class mutex final : public non_copyable {
+    class mutex final : public core::non_copyable {
     public:
         WN_FORCE_INLINE explicit mutex(const wn_uint32 _spin_count = _WN_MUTEX_DEFAULT_SPIN_COUNT) :
             m_spin_count(_spin_count),
@@ -149,7 +149,7 @@ namespace wn {
         std::atomic<wn_size_t> m_lock_count;
     };
 
-    class recursive_mutex final : public non_copyable {
+    class recursive_mutex final : public core::non_copyable {
     public:
         WN_FORCE_INLINE explicit recursive_mutex(const wn_uint32 _spin_count = _WN_MUTEX_DEFAULT_SPIN_COUNT) :
             m_spin_count(_spin_count) {

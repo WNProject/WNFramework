@@ -672,8 +672,8 @@ namespace WNScripting {
         }
         std::vector<WNScriptType> params;
 
-        WN_STATIC_ASSERT(TypeMapping<T1>::RawInputType);
-        WN_STATIC_ASSERT(TypeMapping<R>::RawInputType);
+        static_assert(TypeMapping<T1>::RawInputType, WN_STRINGERIZE(TypeMapping<T1>::RawInputType));
+        static_assert(TypeMapping<R>::RawInputType, WN_STRINGERIZE(TypeMapping<R>::RawInputType));
         params.push_back(GetTypeForType<T1>());
         if(!params.back()) {
             return(eWNBadType);
@@ -693,9 +693,9 @@ namespace WNScripting {
             return(eWNBadType);
         }
         std::vector<WNScriptType> params;
-        WN_STATIC_ASSERT(TypeMapping<T1>::RawInputType);
-        WN_STATIC_ASSERT(TypeMapping<T2>::RawInputType);
-        WN_STATIC_ASSERT(TypeMapping<R>::RawInputType);
+        static_assert(TypeMapping<T1>::RawInputType, WN_STRINGERIZE(TypeMapping<T1>::RawInputType));
+        static_assert(TypeMapping<T2>::RawInputType, WN_STRINGERIZE(TypeMapping<T2>::RawInputType));
+        static_assert(TypeMapping<R>::RawInputType, WN_STRINGERIZE(TypeMapping<R>::RawInputType));
 
         params.push_back(GetTypeForType<T1>());
         if(!params.back()) {

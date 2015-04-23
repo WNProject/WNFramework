@@ -215,8 +215,8 @@ wn_void WNConnectionLinux::ReadReady() {
             wn_uint32 num = *reinterpret_cast<wn_uint32*>(mOverflowLocation);
             wn_uint32 callback = *reinterpret_cast<wn_uint32*>(mOverflowLocation + 4);
 
-            WNCore::WNFromBigEndian(callback);
-            WNCore::WNFromBigEndian(num);
+            callback = wn::core::from_big_endian(callback);
+            num = wn::core::from_big_endian(num);
 
             wn_size_t mMaxWrite = wn::min<wn_size_t>(transferred, (num - mInProcessedBytes));
 
