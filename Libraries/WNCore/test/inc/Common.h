@@ -25,8 +25,6 @@
     #pragma warning(pop)
 #endif
 
-#ifdef __WN_USE_PRECOMPILED_HEADER
-    #include "WNCore/inc/WNCore.h"
-#endif
+#include "WNCore/inc/WNCore.h"
 
 #endif // __WN_CORE_TESTS_COMMON_H__

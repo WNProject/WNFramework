@@ -26,8 +26,6 @@
     #pragma warning(pop)
 #endif
 
-#ifdef __WN_USE_PRECOMPILED_HEADER
-    #include "WNPlatform/inc/WNPlatform.h"
-#endif
+#include "WNPlatform/inc/WNPlatform.h"
 
 #endif // __WN_MATH_TESTS_COMMON_H__

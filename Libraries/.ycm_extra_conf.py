@@ -66,9 +66,8 @@ flags = [
 # harmful
 '/System/Library/Frameworks/Python.framework/Headers',
 '-isystem',
-'../llvm/include',
+'../Externals/llvm/include',
 '-isystem',
-'../llvm/tools/clang/include',
 '-I',
 '.',
 '-I',
