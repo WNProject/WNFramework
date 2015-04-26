@@ -11,7 +11,7 @@
 using namespace WNLogging;
 
 TEST(WNLogInterface, SimpleTest) {
-    WNLogging::WNConsoleLogger logger;
+    WNLogging::WNConsoleLogger<> logger;
     WNLog mTestLog = WNLog(&logger);
     mTestLog.Log(eCritical, 0, "asdf", "asfd");
     mTestLog.Flush();

@@ -39,7 +39,7 @@
     #endif
 #endif
 
-#ifdef __GNUG__
+#if defined __GNUG__ && not defined __WN_HAS_CPP11_NULLPTR
     #define __WN_HAS_CUSTOM_NULLPTR
 #endif
 

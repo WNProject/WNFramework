@@ -158,7 +158,7 @@ WNGraphics::WNDrawList* WNGraphics::WNGraphicsDeviceD3D11::CreateDrawList() {
 }
 
 wn_void WNGraphics::WNGraphicsDeviceD3D11::SetClearColor(wn_float32* _color) {
-    wn::memory::memcpy(mClearColor, _color, 4);
+    wn::memory::memory_copy(mClearColor, _color, 4);
 }
 
 WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceD3D11::BindSurface(wn::memory::intrusive_ptr<wn::surface>& _surface, wn_bool _sync) {
