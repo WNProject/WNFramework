@@ -5,18 +5,11 @@
 #ifndef __WN_DEFAULT_LOG_TYPES_H__
 #define __WN_DEFAULT_LOG_TYPES_H__
 
-#include "WNCore/inc/WNBase.h"
+#include "WNCore/inc/WNTypes.h"
 #include "WNCore/inc/WNMacros.h"
-#ifdef _WN_WINDOWS
-#ifndef PRId64
-#define PRId64 "lld"
-#endif
-#ifndef PRId64
-#define PRIu64 "llu"
-#endif
-#else
-    #include <cinttypes>
-#endif
+
+#include <cinttypes>
+
 namespace WNLogging {
 #define DEFINE_DEFAULT_LOG(type, encoding) \
     template<typename T> \
