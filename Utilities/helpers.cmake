@@ -3,20 +3,9 @@ set(WN_POSIX False)
 set(WN_ADDITIONAL_TEST_LIBS "")
 set(WN_ARCH "null")
 set(WN_LLVM_EXTRA_FLAGS "")
+
 # Check for the platform so we can include the correct files.
 set_property(GLOBAL PROPERTY USE_FOLDERS On)
-function(llvm_crt_flag_from_build_type build_type append_list)
-	if(build_type STREQUAL "Debug")
-		list(APPEND append_list "-DLLVM_USE_CRT_DEBUG=MTd")
-	elseif(build_type STREQUAL "Release")
-		list(APPEND append_list "-DLLVM_USE_CRT_RELEASE=MT")
-	elseif(build_type STREQUAL "MinSizeRel")
-		list(APPEND append_list "-DLLVM_USE_CRT_MINSIZEREL=MT")
-	elseif(build_type STREQUAL "RelWithDebInfo")
-		list(APPEND append_list "-DLLVM_USE_CRT_RELWITHDEBINFO=MT")
-	endif()
-endfunction()
-
 
 if (EXISTS "/opt/vc/include/bcm_host.h")
   set(WN_SYSTEM "RPI")
@@ -33,9 +22,17 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL Linux)
   set(WN_ARCH "X86")
 elseif (CMAKE_SYSTEM_NAME STREQUAL Windows)
   set(WN_LLVM_EXTRA_FLAGS)
-
+  # Determine correct CRT type to use based on configuration type
   foreach(configuration ${WN_BUILD_TYPES})
-	llvm_crt_flag_from_build_type(${configuration} WN_LLVM_EXTRA_FLAGS)
+    if(${configuration} STREQUAL "Debug")
+      list(APPEND WN_LLVM_EXTRA_FLAGS "-DLLVM_USE_CRT_DEBUG=MTd")
+    elseif(${configuration} STREQUAL "Release")
+      list(APPEND WN_LLVM_EXTRA_FLAGS "-DLLVM_USE_CRT_RELEASE=MT")
+    elseif(${configuration} STREQUAL "MinSizeRel")
+      list(APPEND WN_LLVM_EXTRA_FLAGS "-DLLVM_USE_CRT_MINSIZEREL=MT")
+    elseif(${configuration} STREQUAL "RelWithDebInfo")
+      list(APPEND WN_LLVM_EXTRA_FLAGS "-DLLVM_USE_CRT_RELWITHDEBINFO=MT")
+    endif()
   endforeach()
   set(WN_SYSTEM "Windows")
   set(WN_POSIX false)
@@ -52,10 +49,9 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL Windows)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_SCL_SECURE_NO_WARNINGS")
 endif()
 
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-tautological-compare")
 endif()
-
 
 # Create the llvm build directory.
 execute_process(COMMAND ${CMAKE_COMMAND} -E
@@ -99,12 +95,12 @@ add_subdirectory(Externals/gtest)
 enable_testing()
 
 set(GTEST_TARGETS
-	gtest
-	gtest_main)
+    gtest
+    gtest_main)
 # Sets up the visual studio folder structure for gtest.
 foreach(target ${GTEST_TARGETS})
-	get_property(OLD_DIRECTORY TARGET ${target} PROPERTY FOLDER)
-	set_property(TARGET ${target} PROPERTY FOLDER Externals/gtest/${OLD_DIRECTORY})
+    get_property(OLD_DIRECTORY TARGET ${target} PROPERTY FOLDER)
+    set_property(TARGET ${target} PROPERTY FOLDER Externals/gtest/${OLD_DIRECTORY})
 endforeach()
 
 # Arguments
@@ -144,7 +140,7 @@ function(wn_create_test)
       ${PARSED_ARGS_TEST_NAME}_test)
   endif()
   set_property(TARGET ${PARSED_ARGS_TEST_NAME}_test PROPERTY FOLDER
-	WNTests/${PARSED_ARGS_TEST_PREFIX})
+    WNTests/${PARSED_ARGS_TEST_PREFIX})
 endfunction()
 
 # Arguments
