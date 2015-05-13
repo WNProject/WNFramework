@@ -21,7 +21,6 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL Linux)
 #TODO: Make this work on non X86 systems.
   set(WN_ARCH "X86")
 elseif (CMAKE_SYSTEM_NAME STREQUAL Windows)
-  set(WN_LLVM_EXTRA_FLAGS)
   # Determine correct CRT type to use based on configuration type
   foreach(configuration ${WN_BUILD_TYPES})
     if(${configuration} STREQUAL "Debug")
@@ -47,6 +46,10 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL Windows)
   endforeach(flag_var)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_SCL_SECURE_NO_WARNINGS")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_SCL_SECURE_NO_WARNINGS")
+endif()
+
+if(CMAKE_GENERATOR_TOOLSET)
+  list(APPEND WN_LLVM_EXTRA_FLAGS "-T\"${CMAKE_GENERATOR_TOOLSET}\"")
 endif()
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
