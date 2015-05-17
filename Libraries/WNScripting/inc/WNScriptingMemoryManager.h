@@ -20,7 +20,7 @@
 #endif
 
 #include "llvm/ExecutionEngine/SectionMemoryManager.h"
-#include "llvm/ExecutionEngine/JITMemoryManager.h"
+#include "llvm/ExecutionEngine/RTDyldMemoryManager.h"
 
 #ifdef _WN_MSVC
     #pragma warning(pop)
@@ -97,7 +97,6 @@ namespace WNScripting {
                 } else if ("free" == Name) {
                     return(reinterpret_cast<uint64_t>(&mFree));
                 }
-                //return(llvm::SectionMemoryManager::getSymbolAddress(Name));
             }
             return(reinterpret_cast<uint64_t>(v));
         }

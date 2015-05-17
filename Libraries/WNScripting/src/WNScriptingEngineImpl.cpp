@@ -38,7 +38,7 @@
 #include "llvm/ExecutionEngine/GenericValue.h"
 #include "llvm/ADT/APInt.h"
 #include "llvm/IR/Module.h"
-#include "llvm/PassManager.h"
+#include "llvm/IR/LegacyPassManager.h"
 #include "llvm/Transforms/Scalar.h"
 #include "llvm/Transforms/Vectorize.h"
 #include "llvm/Analysis/Passes.h"
@@ -83,7 +83,6 @@ eWNTypeError WNScriptingEngineImpl::Initialize() {
     mTypeManager->RegisterScalarType("-Object", this, 0, throwawayType, llvm::Type::getInt8PtrTy(llvm::getGlobalContext()), sizeof(wn_size_t));
     mTypeManager->RegisterStructType("-Null", this, throwawayType);
     mTypeManager->RegisterScalarType("-Array", this, 0, throwawayType, llvm::Type::getInt8PtrTy(llvm::getGlobalContext()), sizeof(wn_size_t));
-    mMemoryManager = wn::memory::construct<WNScriptingMemoryManager>(*this);
 
     if(( err = WNBuiltInInitializer::InitializeIntTypes(this, *mTypeManager)) != ok) return err;
     if(( err = WNBuiltInInitializer::InitializeFloatTypes(this, *mTypeManager)) != ok) return err;
@@ -358,7 +357,7 @@ eWNTypeError WNScriptingEngineImpl::CompileFile(const wn_char* _file, WNCodeModu
 
     WNScopedVariableList* variableList = WNScriptingFactoryInternal::CreateScopedVariableList();
     _module = wn::memory::construct<WNCodeModule>(*mTypeManager, *variableList, this);
-    if(ok != _module->Initialize(eOptimized, *mMemoryManager)) {
+    if(ok != _module->Initialize(eOptimized)) {
         wn::memory::destroy(scriptFile);
         wn::memory::heap_free(c);
         wn::memory::destroy(_module);
@@ -427,11 +426,10 @@ eWNTypeError WNScriptingEngineImpl::CompileFile(const wn_char* _file, WNCodeModu
     }
 
     llvm::Module* module = _module->GetModule();
-    llvm::FunctionPassManager mFPM(module);
+    llvm::legacy::FunctionPassManager mFPM(module);
 
-    module->setDataLayout(_module->GetExecutionEngine()->getDataLayout());
+    module->setDataLayout(*_module->GetExecutionEngine()->getDataLayout());
 
-    mFPM.add(new llvm::DataLayoutPass(module));
     mFPM.add(llvm::createBasicAliasAnalysisPass());
     mFPM.add(llvm::createConstantPropagationPass());
     mFPM.add(llvm::createPromoteMemoryToRegisterPass());
@@ -441,13 +439,13 @@ eWNTypeError WNScriptingEngineImpl::CompileFile(const wn_char* _file, WNCodeModu
     mFPM.add(llvm::createCFGSimplificationPass());
     mFPM.add(llvm::createLoopSimplifyPass());
 
-    mFPM.doInitialization();
+   mFPM.doInitialization();
 
     for(llvm::Module::iterator i = _module->GetModule()->begin();
         i != _module->GetModule()->end(); ++i){
         mFPM.run(*i);
     }
-    llvm::PassManager manager;
+    llvm::legacy::PassManager manager;
     manager.add(llvm::createFunctionAttrsPass());
     manager.add(llvm::createFunctionInliningPass());
     manager.run(*_module->GetModule());
@@ -496,7 +494,7 @@ wn_int32 WNScriptingEngineImpl::GetVirtualFunctionIndex(const wn_char* _function
 eWNTypeError WNScriptingEngineImpl::GetExistingFunctionPointer(const wn_char* _file, const wn_char* _functionName, WNScriptType& _retParam, const std::vector<WNScriptType>& _params, void*& _ptr) const {
 
     WNCodeModule* codeModule = wn_nullptr;
-    if((codeModule = GetCompiledModule(_file)) != wn_nullptr) {
+    if((codeModule = GetCompiledModule(_file)) == wn_nullptr) {
         return(eWNDoesNotExist);
     }
     WNFunctionDefinition* f = codeModule->GetFunctionDefinition(_functionName, _params);

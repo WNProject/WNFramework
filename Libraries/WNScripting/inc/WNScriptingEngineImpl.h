@@ -69,7 +69,6 @@ namespace WNScripting {
         std::vector<WNFunctionRegistry> mRegisteredFunctions;
         std::vector<WNPreprocessedFile*> mPreprocessedFiles;
         WNTypeManager* mTypeManager;
-        WNScriptingMemoryManager* mMemoryManager;
     };
 }
 #endif // __WN_SCRIPTING_SCRIPTING_ENGINE_H__

@@ -5,5 +5,5 @@
 [submodule "Externals/llvm"]
 	path = Externals/llvm
 	url = https://github.com/llvm-mirror/llvm.git
-	branch = release_35
+	branch = 591505d9ffc799e92a22bc5f13e3947193da6fa
 	ignore = all

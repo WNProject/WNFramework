@@ -17,6 +17,7 @@
 #include <new>
 #include <cstdlib>
 #include <utility>
+#include <memory>
 
 #ifdef _WN_WINDOWS
     #include <malloc.h>
@@ -212,6 +213,26 @@ namespace wn {
         template <typename _Type>
         WN_FORCE_INLINE wn_void destroy(_Type* _ptr) {
             delete(_ptr);
+        }
+
+        template <typename _Type>
+        struct deleter {
+          void operator()(_Type* object) {
+            wn::memory::destroy(object);
+          }
+        }; 
+
+        template <typename _Type>
+        using wn_unique = std::unique_ptr<_Type, deleter<_Type> >;
+
+        template <typename _Type, typename... _Args>
+        WN_FORCE_INLINE std::unique_ptr<_Type> make_std_unique(_Args&&... _args) {
+          return std::unique_ptr<_Type>(new(std::nothrow) _Type(std::forward<_Args>(_args)...));
+        }
+
+        template <typename _Type, typename... _Args>
+        WN_FORCE_INLINE wn_unique<_Type> make_unique(_Args&&... _args) {
+          return wn_unique<_Type>(new(std::nothrow) _Type(std::forward<_Args>(_args)...));
         }
     }
 }
