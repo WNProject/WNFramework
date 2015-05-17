@@ -74,7 +74,7 @@ namespace WNScripting {
     class WNCodeModule {
     public:
         WNCodeModule(WNTypeManager& _typeManager, WNScopedVariableList& _scopedVariableList, WNScriptingEngine* _scriptingEngine);
-        eWNTypeError Initialize(wn_uint32 flags, WNScriptingMemoryManager& _manager);
+        eWNTypeError Initialize(wn_uint32 flags);
         llvm::ExecutionEngine* GetExecutionEngine();
         llvm::Module* GetModule();
         llvm::IRBuilderBase* GetBuilder();
