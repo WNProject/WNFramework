@@ -288,7 +288,7 @@ namespace WNScripting {
             std::vector<llvm::Constant*> gepConstants;
             gepConstants.push_back(llvm::ConstantInt::get(llvm::IntegerType::getInt32Ty(llvm::getGlobalContext()), 0));
             gepConstants.push_back(llvm::ConstantInt::get(llvm::IntegerType::getInt32Ty(llvm::getGlobalContext()), 0));
-            llvm::Constant* cst = llvm::ConstantExpr::getGetElementPtr(globalString, gepConstants);
+            llvm::Constant* cst = llvm::ConstantExpr::getGetElementPtr(globalString->getType()->getContainedType(0), globalString, gepConstants);
             globalString->setInitializer(cArray);
             globalPtr->setInitializer(cst);
             //////

@@ -51,28 +51,29 @@ WNScopedVariableList& WNCodeModule::GetScopedVariableList() {
     return(mScopedVariableList);
 }
 
-eWNTypeError WNCodeModule::Initialize(wn_uint32 flags, WNScriptingMemoryManager& _manager) {
-    mModule = wn::memory::construct<llvm::Module>("MCJitModule", llvm::getGlobalContext());
+eWNTypeError WNCodeModule::Initialize(wn_uint32 flags) {
+    std::unique_ptr<llvm::Module> module =
+      wn::memory::make_std_unique<llvm::Module>("MCJitModule", llvm::getGlobalContext());
 
     #ifdef _WN_ANDROID
         #ifdef _WN_ARM
-            mModule->setTargetTriple(llvm::Triple::normalize("arm-linux-androideabi"));
+            module->setTargetTriple(llvm::Triple::normalize("arm-linux-androideabi"));
         #else
-            mModule->setTargetTriple(llvm::Triple::normalize("x86-linux-androideabi"));
+            module->setTargetTriple(llvm::Triple::normalize("x86-linux-androideabi"));
         #endif
     #elif defined(_WN_WINDOWS)
         #ifdef _WN_64_BIT
-            mModule->setTargetTriple(llvm::Triple::normalize("x86_64-pc-win32-elf"));
+            module->setTargetTriple(llvm::Triple::normalize("x86_64-pc-win32-elf"));
         #else
-            mModule->setTargetTriple(llvm::Triple::normalize("i686-pc-win32-elf"));
+            module->setTargetTriple(llvm::Triple::normalize("i686-pc-win32-elf"));
         #endif
     #endif //otherwise let it figure itself out
-
-    llvm::EngineBuilder builder(mModule);
+    mModule = module.get();
+    llvm::EngineBuilder builder(std::move(module));
 
     builder.setEngineKind(llvm::EngineKind::JIT);
-    builder.setUseMCJIT(true);
-    builder.setMCJITMemoryManager(&_manager);
+    builder.setMCJITMemoryManager(
+        wn::memory::make_std_unique<WNScriptingMemoryManager>(*mScriptingEngine));
 
     if(flags & eOptimized ) {
         builder.setOptLevel(llvm::CodeGenOpt::Aggressive);
@@ -81,16 +82,15 @@ eWNTypeError WNCodeModule::Initialize(wn_uint32 flags, WNScriptingMemoryManager&
     }
     mEngine = builder.create();
     if(!mEngine) {
-        delete(mModule);
+        mModule = wn_nullptr;
         return(error);
     }
     mBuilder = wn::memory::construct<llvm::IRBuilder<>>(llvm::getGlobalContext());
     if(!mBuilder) {
          wn::memory::destroy(mEngine);
-         wn::memory::destroy(mModule);
+          mModule = wn_nullptr;
          return(error);
     }
-
     return(ok);
 }
 
