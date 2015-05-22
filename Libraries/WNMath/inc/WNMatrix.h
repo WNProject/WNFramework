@@ -27,12 +27,10 @@ namespace wn {
 
     template <typename _type, const wn_size_t _order>
     class matrix final {
-    private:
+    public:
         enum {
             _dimension = (_order * _order)
         };
-
-    public:
         static_assert(_order > 0, "_order must be at greater than 0");
 
         typedef _type value_type;
