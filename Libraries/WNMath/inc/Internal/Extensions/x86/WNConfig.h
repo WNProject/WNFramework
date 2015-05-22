@@ -40,7 +40,7 @@
             #include <intrin.h>
 
             #pragma intrinsic(_mm_set1_epi64x)
-        #elif defined _WN_32_BIT
+        #elif defined _WN_32_BIT && _WN_MSVC_MAJOR < 19
             WN_FORCE_INLINE __m128i _mm_set1_epi64x(__int64 i) {
                 __m128i n;
 
