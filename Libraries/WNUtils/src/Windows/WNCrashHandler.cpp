@@ -69,7 +69,7 @@ LONG WINAPI exceptionFilter(_In_ struct _EXCEPTION_POINTERS *ExceptionInfo) {
                               sfta,
                               sbgm,
                               NULL)) {
-        fprintf(f, "%p\n", stackFrame.AddrPC.Offset);
+        fprintf(f, "%p\n", reinterpret_cast<void*>(stackFrame.AddrPC.Offset));
     }
     fclose(f);
 
