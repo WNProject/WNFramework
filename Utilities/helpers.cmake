@@ -13,6 +13,38 @@ if (EXISTS "/opt/vc/include/bcm_host.h")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fno-rtti -fno-exceptions")
   set(WN_ADDITIONAL_TEST_LIBS pthread)
   set(WN_ARCH "ARM")
+elseif(ANDROID)
+  set(WN_SYSTEM "Android")
+  set(WN_POSIX true)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fno-rtti -fno-exceptions")
+  set(WN_ADDITIONAL_TEST_LIBS pthread)
+  string(TOUPPER ${ANDROID_ARCH_NAME} WN_ARCH)
+  if (!${ANDROID_NDK_HOST_SYSTEM_NAME} STREQUAL "windows")
+	if (CMAKE_C_COMPILER AND CMAKE_CXX_COMPILER)
+		list(APPEND WN_LLVM_EXTRA_FLAGS
+		"-DCROSS_TOOLCHAIN_FLAGS_NATIVE=-DCMAKE_C_COMPILER=gcc\;-DCMAKE_CXX_COMPILER=g++")
+	endif()
+  endif()
+  list(APPEND WN_LLVM_EXTRA_FLAGS
+    "-DANDROID_NATIVE_API_LEVEL=${ANDROID_NATIVE_API_LEVEL}")
+  list(APPEND WN_LLVM_EXTRA_FLAGS
+    "-DANDROID_NDK=${ANDROID_NDK}")
+  list(APPEND WN_LLVM_EXTRA_FLAGS
+    "-DANDROID_ABI=${ANDROID_ABI}")
+  list(APPEND WN_LLVM_EXTRA_FLAGS
+    "-DANDROID_TOOLCHAIN_NAME=${ANDROID_TOOLCHAIN_NAME}")
+  list(APPEND WN_LLVM_EXTRA_FLAGS
+    "-DANDROID_STL=${ANDROID_STL}")
+  if (NDK_CCACHE)
+    list(APPEND WN_LLVM_EXTRA_FLAGS
+      "-DNDK_CCACHE=${NDK_CCACHE}")
+  endif()
+  list(APPEND WN_LLVM_EXTRA_FLAGS
+    "-DCMAKE_CXX_FLAGS=-D__ANDROID_NDK__")
+  find_host_program(PYTHON python)
+  list(APPEND WN_LLVM_EXTRA_FLAGS
+    "-DPYTHON_EXECUTABLE=${PYTHON}")
+  list(APPEND  WN_LLVM_EXTRA_FLAGS "-DANDROID_NO_UNDEFINED=OFF")
 elseif (CMAKE_SYSTEM_NAME STREQUAL Linux)
   set(WN_SYSTEM "Linux")
   set(WN_POSIX true)
@@ -62,13 +94,20 @@ execute_process(COMMAND ${CMAKE_COMMAND} -E
 # Configure llvm only needed the first time.
 if (NOT LLVM_CONFIGURED)
   message(STATUS "Configuring LLVM dependency")
+  if (CMAKE_TOOLCHAIN_FILE)
+    list(APPEND WN_LLVM_EXTRA_FLAGS
+      "-DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}")
+  else()
+    list(APPEND WN_LLVM_EXTRA_FLAGS
+        "-DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}")
+    list(APPEND WN_LLVM_EXTRA_FLAGS
+        "-DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}")
+  endif()
   execute_process(COMMAND ${CMAKE_COMMAND}
     -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
     -DLLVM_BUILD_TOOLS=OFF
     -DLLVM_INCLUDE_EXAMPLES=OFF
     -DLLVM_INCLUDE_TESTS=OFF
-    -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-    -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
     -DLLVM_TARGETS_TO_BUILD=${WN_ARCH}
         ${WN_LLVM_EXTRA_FLAGS}
     -G ${CMAKE_GENERATOR} ${CMAKE_SOURCE_DIR}/Externals/llvm
@@ -91,8 +130,7 @@ if (${WN_PREBUILD_DEPS})
             OUTPUT_QUIET)
   endforeach()
 endif()
-set(LLVM_DIR ${CMAKE_BINARY_DIR}/Externals/llvm/share/llvm/cmake)
-find_package(LLVM REQUIRED CONFIGURE)
+include(${CMAKE_BINARY_DIR}/Externals/llvm/share/llvm/cmake/LLVMConfig.cmake)
 
 add_subdirectory(Externals/gtest)
 enable_testing()

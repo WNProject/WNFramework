@@ -17,6 +17,10 @@
     #include <unistd.h>
     #include <sys/types.h>
     #include <sys/syscall.h>
+#elif defined _WN_ANDROID
+    #include <unistd.h>
+    #include <sys/types.h>
+    #include <sys/syscall.h>
 #endif
 
 #ifdef __WN_PTHREAD_SPIN_LOCKS
@@ -125,6 +129,8 @@ namespace wn {
                 const DWORD current_thread = ::GetCurrentThreadId();
             #elif defined _WN_LINUX
                 const pid_t current_thread = static_cast<pid_t>(::syscall(SYS_gettid));
+            #elif defined _WN_ANDROID
+                const pid_t current_thread = gettid();
             #endif
 
             if (current_thread != m_owning_thread) {
@@ -148,6 +154,8 @@ namespace wn {
                 const DWORD current_thread = ::GetCurrentThreadId();
             #elif defined _WN_LINUX
                 const pid_t current_thread = static_cast<pid_t>(::syscall(SYS_gettid));
+            #elif defined _WN_ANDROID
+                const pid_t current_thread = gettid();
             #endif
 
             if (m_owning_thread != current_thread) {
@@ -188,7 +196,7 @@ namespace wn {
     private:
         #ifdef _WN_WINDOWS
             DWORD m_owning_thread;
-        #elif defined _WN_LINUX
+        #elif defined _WN_LINUX || defined _WN_ANDROID
             pid_t m_owning_thread;
         #endif
 
