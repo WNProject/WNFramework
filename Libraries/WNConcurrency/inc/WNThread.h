@@ -171,8 +171,10 @@ namespace wn {
         static thread_result_type WN_OSCALL_BEGIN execution_wrapper(thread_argument_type _argument) WN_OSCALL_END {
             const thread_execution_data* execution_data = reinterpret_cast<thread_execution_data*>(_argument);
 
-            #ifdef _WN_POSIX
+            #ifdef _WN_LINUX
                 execution_data->m_data->m_id = syscall(SYS_gettid);
+            #elif defined _WN_ANDROID
+                execution_data->m_data->m_id = gettid();
             #endif
 
             execute_helper(execution_data);
