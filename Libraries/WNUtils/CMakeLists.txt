@@ -16,6 +16,8 @@ if (WN_SYSTEM STREQUAL "Android")
     src/Android/WNAppData.cpp
 	src/Android/WNCrashHandler.cpp
 	src/Android/WNLoggingData.cpp)
+  list(APPEND WNAdditionalUtilIncludes
+    ${ANDROID_NDK}/sources/android/native_app_glue)
 elseif (WN_POSIX)
   list(APPEND WNUtilsSources
     src/Posix/WNCrashHandler.cpp)
@@ -29,6 +31,7 @@ add_wn_library(WNUtils STATIC
 
 target_include_directories(WNUtils
   PUBLIC
-  ${CMAKE_SOURCE_DIR}/Libraries)
+  ${CMAKE_SOURCE_DIR}/Libraries
+  ${WNAdditionalUtilIncludes})
 
 
