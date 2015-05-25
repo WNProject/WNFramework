@@ -105,18 +105,21 @@ add_wn_library(WNScripting STATIC
 
 set(WNScriptingLLVMComponents codegen instrumentation objcarcopts support mcjit ipo)
 if (WN_SYSTEM STREQUAL "Android")
-  list(APPEND WNScriptingLLVMComponents arm)
+  list(APPEND WNScriptingLLVMComponents "native")
+  add_wn_library(WNScriptingFixes src/Android/AndroidFixes.cpp)
+  set(WNScriptingAdditionalLibs WNScriptingFixes)
 elseif (WN_SYSTEM STREQUAL "RPI")
-  list(APPEND WNScriptingLLVMComponents arm)
+  list(APPEND WNScriptingLLVMComponents "native")
 elseif (WN_SYSTEM STREQUAL "Linux")
-  list(APPEND WNScriptingLLVMComponents X86)
+  list(APPEND WNScriptingLLVMComponents "native")
 elseif (WN_SYSTEM STREQUAL "Windows")
-  list(APPEND WNScriptingLLVMComponents X86)
+  list(APPEND WNScriptingLLVMComponents "native")
 endif()
 
 llvm_map_components_to_libnames(llvm_libs ${WNScriptingLLVMComponents})
 
-target_link_libraries(WNScripting WNFileSystem ${llvm_libs})
+target_link_libraries(WNScripting WNFileSystem ${llvm_libs}
+  ${WNScriptingAdditionalLibs})
 add_definitions(${LLVM_DEFINITIONS})
 
 target_include_directories(WNScripting PUBLIC 

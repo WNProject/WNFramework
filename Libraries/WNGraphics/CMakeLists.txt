@@ -37,6 +37,7 @@ set(WNGraphicsLinkLibraries
 if (WN_SYSTEM STREQUAL "Android")
   list(APPEND WNGraphicsSources
     src/EGL/WNGraphicsDeviceEGL.cpp)
+  list(APPEND WNGraphicsLinkLibraries GLESv2)
 elseif (WN_SYSTEM STREQUAL "Linux")
   list(APPEND WNGraphicsSources
     src/GLX/WNGraphicsDeviceGLX.cpp)

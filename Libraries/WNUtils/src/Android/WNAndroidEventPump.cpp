@@ -12,21 +12,21 @@ WNUtils::WNAndroidEventPump::WNAndroidEventPump(): mExiting(wn_false), mDisplayA
 }
 
 wn_void WNUtils::WNAndroidEventPump::FireCallback(eMessageType _event, wn_int32 _param, android_app* _state) {
-    mCallbackLock.Lock();
+    mCallbackLock.lock();
     if(mCallbacks[_event] != 0) {
         mCallbacks[_event](_event, _state, _param, mCallbackData[_event]);
     }
-    mCallbackLock.Unlock();
+    mCallbackLock.unlock();
 }
 
 wn_void WNUtils::WNAndroidEventPump::SubscribeToEvent(eMessageType _message, WNAndroidEventCallback _callback, wn_void* _userData) {
-    mCallbackLock.Lock();
+    mCallbackLock.lock();
     mCallbacks[_message] = _callback;
     mCallbackData[_message] = _userData;
     if(_message == eDisplayCreated) {
         PushMessage(eDisplayAdded);
     }
-    mCallbackLock.Unlock();
+    mCallbackLock.unlock();
 }
 
 wn_void WNUtils::WNAndroidEventPump::KillMessagePump() {
@@ -34,12 +34,12 @@ wn_void WNUtils::WNAndroidEventPump::KillMessagePump() {
 }
 
 wn_void WNUtils::WNAndroidEventPump::WaitForInit() {
-    mStartedSemaphore.Wait();
-    mStartedSemaphore.Post();
+    mStartedSemaphore.wait();
+    mStartedSemaphore.notify();
 }
 
 wn_bool WNUtils::WNAndroidEventPump::PushMessage(eInternalMessage _message) {
-    mQueueLock.Lock();
+    mQueueLock.lock();
     if(mExiting) {
         return(wn_false);
     }
@@ -48,7 +48,7 @@ wn_bool WNUtils::WNAndroidEventPump::PushMessage(eInternalMessage _message) {
         mExiting = true;
     }
     mMessageQueue.push_back(_message);
-    mQueueLock.Unlock();
+    mQueueLock.unlock();
     ALooper_wake(mMainLooper);
     return(wn_true);
 }
@@ -75,7 +75,7 @@ wn_void WNUtils::WNAndroidEventPump::PumpMessages(android_app* state) {
     state->onAppCmd = &HandleWindowCommand;
 
     mMainLooper = ALooper_forThread();
-    mStartedSemaphore.Post();
+    mStartedSemaphore.notify();
 
     for(;;) {
         int ret;
@@ -92,15 +92,15 @@ wn_void WNUtils::WNAndroidEventPump::PumpMessages(android_app* state) {
 
         for(;;) {
             int msg = -1;
-            mQueueLock.Lock();
+            mQueueLock.lock();
             if(!mMessageQueue.empty()) {
                 msg = mMessageQueue.front();
                 mMessageQueue.pop_front();
             } else {
-                mQueueLock.Unlock();
+                mQueueLock.unlock();
                 break;
             }
-            mQueueLock.Unlock();
+            mQueueLock.unlock();
             switch(msg) {
                 case eDisplayAdded:
                     if(mDisplayActive) {

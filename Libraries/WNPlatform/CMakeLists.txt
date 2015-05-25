@@ -44,6 +44,10 @@ if (WN_SYSTEM STREQUAL "Android")
   list(APPEND WNPlatformSources
     src/Android/WNSurfaceAndroid.cpp
     src/Android/WNSurfaceManagerAndroid.cpp)
+  set(WNAdditionalPlatformIncludes
+    ${ANDROID_NDK}/sources/android/native_app_glue)
+  list(APPEND WNPlatformLinkLibraries
+    EGL WNUtils)
 elseif (WN_SYSTEM STREQUAL "Linux")
   list(APPEND WNPlatformSources
     src/XWindows/WNSurfaceManagerXWindows.cpp
@@ -62,6 +66,7 @@ add_wn_library(WNPlatform STATIC
 
 target_link_libraries(WNPlatform PUBLIC ${WNPlatformLinkLibraries})
 target_include_directories(WNPlatform PUBLIC
-  ${CMAKE_SOURCE_DIR}/Libraries)
+  ${CMAKE_SOURCE_DIR}/Libraries
+  ${WNAdditionalPlatformIncludes})
 
 add_subdirectory(test)

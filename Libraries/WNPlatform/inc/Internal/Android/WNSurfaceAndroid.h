@@ -8,7 +8,7 @@
 #define __WN_PLATFORM_INTERNAL_ANDROID_SURFACE_ANDROID_H__
 
 #include "WNPlatform/inc/WNSurface.h"
-#include "WNConcurrency/inc/WNResourcePointer.h"
+#include "WNMemory/inc/WNIntrusivePtr.h"
 #include "WNConcurrency/inc/WNSemaphore.h"
 #include "WNUtils/inc/Android/WNAndroidEventPump.h"
 #include <EGL/egl.h>
@@ -21,41 +21,41 @@ namespace WNConcurrency {
     class WNThread;
 }
 
-namespace WNPlatform {
+namespace wn {
     class WNSurfaceManagerAndroid;
 
-    class WNSurfaceAndroid : public WNSurface {
+    class WNSurfaceAndroid : public surface {
     public:
-        WNSurfaceAndroid(WNPlatform::WNSurfaceManagerAndroid& _surfaceManager);
+        WNSurfaceAndroid(WNSurfaceManagerAndroid& _surfaceManager);
         virtual ~WNSurfaceAndroid();
 
-        WN_BOOL Initialize();
+        wn_bool Initialize();
         virtual WNSurfaceNativeHandle GetNativeHandle() const;
-        virtual WNSurfaceError Resize(WN_UINT32 _width, WN_UINT32 _height);
-        virtual WNSurfaceError Move(WN_UINT32 _x, WN_UINT32 _y);
-        virtual WN_BOOL IsFullscreen() const;
-        virtual WNSurfaceError SetFullscreen(WN_BOOL _fullscreen);
+        virtual WNSurfaceError Resize(wn_uint32 _width, wn_uint32 _height);
+        virtual WNSurfaceError Move(wn_uint32 _x, wn_uint32 _y);
+        virtual wn_bool IsFullscreen() const;
+        virtual WNSurfaceError SetFullscreen(wn_bool _fullscreen);
 
-        virtual WN_UINT32 GetWidth() const;
-        virtual WN_UINT32 GetHeight() const;
-        virtual WN_UINT32 GetX() const;
-        virtual WN_UINT32 GetY() const;
+        virtual wn_uint32 GetWidth() const;
+        virtual wn_uint32 GetHeight() const;
+        virtual wn_uint32 GetX() const;
+        virtual wn_uint32 GetY() const;
 
     private:
-        static WN_VOID HandleWindowCommand(WNUtils::WNAndroidEventPump::eMessageType _msg, android_app* _app, WN_UINT32 _val, WN_VOID* appData);
-        WN_BOOL InitializeWindow(android_app* app);
-        WN_BOOL CleanupWindow(android_app* app);
+        static wn_void HandleWindowCommand(WNUtils::WNAndroidEventPump::eMessageType _msg, android_app* _app, wn_uint32 _val, wn_void* appData);
+        wn_bool InitializeWindow(android_app* app);
+        wn_bool CleanupWindow(android_app* app);
     private:
-        WNConcurrency::WNSemaphore mCreationSemaphore;
-        WN_BOOL mExiting;
-        WN_BOOL mInitialized;
-        WNPlatform::WNSurfaceManagerAndroid& mManager;
+        wn::semaphore mCreationSemaphore;
+        wn_bool mExiting;
+        wn_bool mInitialized;
+        WNSurfaceManagerAndroid& mManager;
         EGLDisplay mDisplay;
         EGLConfig mConfig;
         EGLSurface mSurface;
-        WN_BOOL mFullscreen;
-        WN_UINT32 mWidth;
-        WN_UINT32 mHeight;
+        wn_bool mFullscreen;
+        wn_uint32 mWidth;
+        wn_uint32 mHeight;
     };
 }
 

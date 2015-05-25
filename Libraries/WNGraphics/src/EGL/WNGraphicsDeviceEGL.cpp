@@ -4,19 +4,18 @@
 
 #include "WNGraphics/inc/Internal/EGL/WNGraphicsDeviceEGL.h"
 #include "WNConcurrency/inc/WNSpinLock.h"
-#include "WNConcurrency/inc/WNLockGuard.h"
 #include "WNPlatform/inc/WNSurface.h"
 
 #include <EGL/egl.h>
 #include <GLES/gl.h>
-static WNConcurrency::WNSpinLock gInitializationCreationLock;
+static wn::spin_lock gInitializationCreationLock;
 
 WNGraphics::WNGraphicsDeviceEGL::WNGraphicsDeviceEGL(WNGraphics::WNGraphicsResourceFactory* _factory) :
     mResourceFactory(_factory),
     mDisplay(0) {
 }
 
-WNGraphics::WNGraphicsDeviceReturnCode::Type WNGraphics::WNGraphicsDeviceEGL::Initialize(WN_UINT32 _adapter, WN_UINT32 _output) {
+WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceEGL::Initialize(wn_uint32 _adapter, wn_uint32 _output) {
     EGLConfig config;
     EGLint numConfigs;
 
@@ -32,10 +31,10 @@ WNGraphics::WNGraphicsDeviceReturnCode::Type WNGraphics::WNGraphicsDeviceEGL::In
     eglInitialize(mDisplay, 0, 0);
     eglChooseConfig(mDisplay, attribs, &config, 1, &numConfigs);
     mContext = eglCreateContext(mDisplay, config, NULL, NULL);
-    return(WNGraphics::WNGraphicsDeviceReturnCode::eWNOK);
+    return(WNGraphics::WNGraphicsDeviceReturnCode::ok);
 }
 
-WN_UINT32 WNGraphics::WNGraphicsDeviceEGL::GetCapability(WNDeviceCaps _cap) {
+wn_uint32 WNGraphics::WNGraphicsDeviceEGL::GetCapability(WNDeviceCaps _cap) {
     switch(_cap) {
     case eWNVertexShaderCaps:
         return(0);
@@ -57,35 +56,35 @@ WN_UINT32 WNGraphics::WNGraphicsDeviceEGL::GetCapability(WNDeviceCaps _cap) {
     return(0);
 }
 
-WNGraphics::WNGraphicsDeviceReturnCode::Type WNGraphics::WNGraphicsDeviceEGL::GetSize(WN_UINT32 &_width, WN_UINT32 &_height) {
-    return(WNGraphics::WNGraphicsDeviceReturnCode::eWNOK);
+WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceEGL::GetSize(wn_uint32 &_width, wn_uint32 &_height) {
+    return(WNGraphics::WNGraphicsDeviceReturnCode::ok);
 }
 
-WNGraphics::WNShader* WNGraphics::WNGraphicsDeviceEGL::CreateShader(WNGraphics::WNShaderTypes _type, WN_CHAR* _shaderText) {
-    return(WN_NULL);
+WNGraphics::WNShader* WNGraphics::WNGraphicsDeviceEGL::CreateShader(WNGraphics::WNShaderTypes _type, wn_char* _shaderText) {
+    return(wn_nullptr);
 }
 
-WNGraphics::WNBuffer* WNGraphics::WNGraphicsDeviceEGL::CreateBuffer(WNGraphics::WNBufferTypes _type, WN_UINT32 _elementSize, WN_UINT32 _w, WN_UINT32 _h, WN_UINT32 _d) {
-    return(WN_NULL);
+WNGraphics::WNBuffer* WNGraphics::WNGraphicsDeviceEGL::CreateBuffer(WNGraphics::WNBufferTypes _type, wn_uint32 _elementSize, wn_uint32 _w, wn_uint32 _h, wn_uint32 _d) {
+    return(wn_nullptr);
 }
 
-WNGraphics::WNTexture* WNGraphics::WNGraphicsDeviceEGL::CreateTexture(WNGraphics::WNTextureTypes _type, WNGraphics::WNTextureFormat _format, WN_UINT32 _elementSize, WN_UINT32 _w, WN_UINT32 _h, WN_UINT32 _d) {
-    return(WN_NULL);
+WNGraphics::WNTexture* WNGraphics::WNGraphicsDeviceEGL::CreateTexture(WNGraphics::WNTextureTypes _type, WNGraphics::WNTextureFormat _format, wn_uint32 _elementSize, wn_uint32 _w, wn_uint32 _h, wn_uint32 _d) {
+    return(wn_nullptr);
 }
 
 WNGraphics::WNRenderTarget* WNGraphics::WNGraphicsDeviceEGL::CreateRenderTarget(WNGraphics::WNTexture* _texture) {
-    return(WN_NULL);
+    return(wn_nullptr);
 }
 
 WNGraphics::WNDrawList* WNGraphics::WNGraphicsDeviceEGL::CreateDrawList() {
-    return(WN_NULL);
+    return(wn_nullptr);
 }
 
-WNGraphics::WNGraphicsDeviceReturnCode::Type WNGraphics::WNGraphicsDeviceEGL::SetDrawList(WNDrawList* _list) {
-    return(WNGraphics::WNGraphicsDeviceReturnCode::eWNOK);
+WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceEGL::SetDrawList(WNDrawList* _list) {
+    return(WNGraphics::WNGraphicsDeviceReturnCode::ok);
 }
 
-WNGraphics::WNGraphicsDeviceReturnCode::Type WNGraphics::WNGraphicsDeviceEGL::StartDraw() {
+WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceEGL::StartDraw() {
     if (!mActiveSurface) {
         return(WNGraphics::WNGraphicsDeviceReturnCode::eWNGDEBadSurface);
     } else {
@@ -94,52 +93,52 @@ WNGraphics::WNGraphicsDeviceReturnCode::Type WNGraphics::WNGraphicsDeviceEGL::St
         }
     }
 
-    return(WNGraphics::WNGraphicsDeviceReturnCode::eWNOK);
+    return(WNGraphics::WNGraphicsDeviceReturnCode::ok);
 }
 
-WNGraphics::WNGraphicsDeviceReturnCode::Type WNGraphics::WNGraphicsDeviceEGL::EndDraw() {
+WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceEGL::EndDraw() {
     if (!mActiveSurface) {
         return(WNGraphics::WNGraphicsDeviceReturnCode::eWNGDENoSurface);
     }
     eglSwapBuffers(mDisplay, mActiveSurface->GetNativeHandle());
-    return(WNGraphics::WNGraphicsDeviceReturnCode::eWNOK);
+    return(WNGraphics::WNGraphicsDeviceReturnCode::ok);
 }
 
-WNGraphics::WNGraphicsDeviceReturnCode::Type WNGraphics::WNGraphicsDeviceEGL::SubmitDrawList(WNGraphics::WNDrawList* _list) {
-    return(WNGraphics::WNGraphicsDeviceReturnCode::eWNOK);
+WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceEGL::SubmitDrawList(WNGraphics::WNDrawList* _list) {
+    return(WNGraphics::WNGraphicsDeviceReturnCode::ok);
 }
 
-WNGraphics::WNGraphicsDeviceReturnCode::Type WNGraphics::WNGraphicsDeviceEGL::BindShader(WNGraphics::WNShader* _resource) {
-    return(WNGraphics::WNGraphicsDeviceReturnCode::eWNOK);
+WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceEGL::BindShader(WNGraphics::WNShader* _resource) {
+    return(WNGraphics::WNGraphicsDeviceReturnCode::ok);
 }
 
-WNGraphics::WNGraphicsDeviceReturnCode::Type WNGraphics::WNGraphicsDeviceEGL::BindBuffer(WNGraphics::WNBuffer* _resource, WN_UINT32 _location) {
-    return(WNGraphics::WNGraphicsDeviceReturnCode::eWNOK);
+WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceEGL::BindBuffer(WNGraphics::WNBuffer* _resource, wn_uint32 _location) {
+    return(WNGraphics::WNGraphicsDeviceReturnCode::ok);
 }
 
-WNGraphics::WNGraphicsDeviceReturnCode::Type WNGraphics::WNGraphicsDeviceEGL::BindTexture(WNGraphics::WNTexture* _texture, WN_UINT32 _location) {
-    return(WNGraphics::WNGraphicsDeviceReturnCode::eWNOK);
+WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceEGL::BindTexture(WNGraphics::WNTexture* _texture, wn_uint32 _location) {
+    return(WNGraphics::WNGraphicsDeviceReturnCode::ok);
 }
 
-WNGraphics::WNGraphicsDeviceReturnCode::Type WNGraphics::WNGraphicsDeviceEGL::BindRenderTarget(WNGraphics::WNRenderTarget* _texture, WN_UINT32 _location) {
-    return(WNGraphics::WNGraphicsDeviceReturnCode::eWNOK);
+WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceEGL::BindRenderTarget(WNGraphics::WNRenderTarget* _texture, wn_uint32 _location) {
+    return(WNGraphics::WNGraphicsDeviceReturnCode::ok);
 }
 
-WNGraphics::WNGraphicsDeviceReturnCode::Type WNGraphics::WNGraphicsDeviceEGL::Clear() {
+WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceEGL::Clear() {
     glClear(GL_COLOR_BUFFER_BIT);
-    return(WNGraphics::WNGraphicsDeviceReturnCode::eWNOK);
+    return(WNGraphics::WNGraphicsDeviceReturnCode::ok);
 }
 
-WNGraphics::WNGraphicsDeviceReturnCode::Type WNGraphics::WNGraphicsDeviceEGL::SetActiveSurface(WNConcurrency::WNResourcePointer<WNPlatform::WNSurface> _surface) {
+WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceEGL::SetActiveSurface(wn::memory::intrusive_ptr<wn::surface> _surface) {
     mActiveSurface = _surface;
-    return(WNGraphics::WNGraphicsDeviceReturnCode::eWNOK);
+    return(WNGraphics::WNGraphicsDeviceReturnCode::ok);
 }
 
-WN_VOID WNGraphics::WNGraphicsDeviceEGL::SetClearColor(WN_FLOAT32* _color) {
+wn_void WNGraphics::WNGraphicsDeviceEGL::SetClearColor(wn_float32* _color) {
     glClearColor(_color[0], _color[1], _color[2], _color[3]);
 }
 
-WNGraphics::WNGraphicsDeviceReturnCode::Type WNGraphics::WNGraphicsDeviceEGL::BindSurface(WNConcurrency::WNResourcePointer<WNPlatform::WNSurface>& _surface, WN_BOOL _sync) {
-    return(WNGraphics::WNGraphicsDeviceReturnCode::eWNOK);
+WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceEGL::BindSurface(wn::memory::intrusive_ptr<wn::surface>& _surface, wn_bool _sync) {
+    return(WNGraphics::WNGraphicsDeviceReturnCode::ok);
 }
 
