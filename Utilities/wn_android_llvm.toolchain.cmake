@@ -1,0 +1,12 @@
+include($ENV{ANDROID_TOOLCHAIN_FILE})
+
+foreach(flag_var CMAKE_CXX_FLAGS_DEBUG  CMAKE_C_FLAGS_DEBUG)
+  string(REGEX REPLACE "-DDEBUG" "-DDEB" ${flag_var} "${${flag_var}}")
+endforeach()
+
+set( CMAKE_CXX_FLAGS_DEBUG     "${CMAKE_CXX_FLAGS_DEBUG}" CACHE STRING "c++ Debug flags" FORCE)
+set( CMAKE_C_FLAGS_DEBUG       "${CMAKE_C_FLAGS_DEBUG}" CACHE STRING "c Debug flags" FORCE)
+
+set(CMAKE_MODULE_PATH
+  ${CMAKE_MODULE_PATH}
+  "${CMAKE_CURRENT_LIST_DIR}")

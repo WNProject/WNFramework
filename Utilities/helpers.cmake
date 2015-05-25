@@ -1,7 +1,6 @@
 set(WN_SYSTEM "null")
 set(WN_POSIX False)
 set(WN_ADDITIONAL_TEST_LIBS "")
-set(WN_ARCH "null")
 set(WN_LLVM_EXTRA_FLAGS "")
 
 # Check for the platform so we can include the correct files.
@@ -12,18 +11,23 @@ if (EXISTS "/opt/vc/include/bcm_host.h")
   set(WN_POSIX true)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fno-rtti -fno-exceptions")
   set(WN_ADDITIONAL_TEST_LIBS pthread)
-  set(WN_ARCH "ARM")
 elseif(ANDROID)
   set(WN_SYSTEM "Android")
   set(WN_POSIX true)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fno-rtti -fno-exceptions")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fno-rtti -fno-exceptions -DANDROID_NATIVE_API_LEVEL=${ANDROID_NATIVE_API_LEVEL}")
   set(WN_ADDITIONAL_TEST_LIBS pthread)
-  string(TOUPPER ${ANDROID_ARCH_NAME} WN_ARCH)
-  if (!${ANDROID_NDK_HOST_SYSTEM_NAME} STREQUAL "windows")
-    if (CMAKE_C_COMPILER AND CMAKE_CXX_COMPILER)
-      list(APPEND WN_LLVM_EXTRA_FLAGS
-        "-DCROSS_TOOLCHAIN_FLAGS_NATIVE=-DCMAKE_C_COMPILER=gcc\;-DCMAKE_CXX_COMPILER=g++")
-    endif()
+
+  if (NOT ${ANDROID_NATIVE_API_LEVEL} GREATER 13)
+      message(FATAL_ERROR "Android api level must be >= 14 \"-DANDROID_NATIVE_API_LEVEL=14\"")
+  endif()
+  
+  if (${ANDROID_NDK_HOST_SYSTEM_NAME} STREQUAL "windows" OR
+      ${ANDROID_NDK_HOST_SYSTEM_NAME} STREQUAL "windows-x86_64")
+    list(APPEND WN_LLVM_EXTRA_FLAGS
+      "-DCROSS_TOOLCHAIN_FLAGS_NATIVE=-DCMAKE_C_COMPILER=cl.exe\;-DCMAKE_CXX_COMPILER=cl.exe")
+  else()
+    list(APPEND WN_LLVM_EXTRA_FLAGS
+      "-DCROSS_TOOLCHAIN_FLAGS_NATIVE=-DCMAKE_C_COMPILER=cc\;-DCMAKE_CXX_COMPILER=c++")
   endif()
   list(APPEND WN_LLVM_EXTRA_FLAGS
     "-DANDROID_NATIVE_API_LEVEL=${ANDROID_NATIVE_API_LEVEL}")
@@ -50,8 +54,6 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL Linux)
   set(WN_POSIX true)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fno-rtti -fno-exceptions")
   set(WN_ADDITIONAL_TEST_LIBS pthread)
-#TODO: Make this work on non X86 systems.
-  set(WN_ARCH "X86")
 elseif (CMAKE_SYSTEM_NAME STREQUAL Windows)
   # Determine correct CRT type to use based on configuration type
   foreach(configuration ${WN_BUILD_TYPES})
@@ -72,7 +74,6 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL Windows)
   endif()
   set(WN_SYSTEM "Windows")
   set(WN_POSIX false)
-  set(WN_ARCH "X86")
   foreach(flag_var
       CMAKE_C_FLAGS_DEBUG CMAKE_CXX_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE
       CMAKE_CXX_FLAGS_RELEASE CMAKE_C_FLAGS_MINSIZEREL
@@ -100,24 +101,32 @@ execute_process(COMMAND ${CMAKE_COMMAND} -E
 if (NOT LLVM_CONFIGURED)
   message(STATUS "Configuring LLVM dependency")
   if (CMAKE_TOOLCHAIN_FILE)
-    list(APPEND WN_LLVM_EXTRA_FLAGS
-      "-DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}")
+    if(WN_SYSTEM STREQUAL "Android")
+      list(APPEND WN_LLVM_EXTRA_FLAGS
+        "-DCMAKE_TOOLCHAIN_FILE=${CMAKE_CURRENT_LIST_DIR}/wn_android_llvm.toolchain.cmake")
+      set(WRAPPER_SCRIPT ${PYTHON} ${CMAKE_CURRENT_LIST_DIR}/android_env.py  ${CMAKE_TOOLCHAIN_FILE})
+    else()
+      list(APPEND WN_LLVM_EXTRA_FLAGS
+        "-DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}")
+    endif()
   else()
     list(APPEND WN_LLVM_EXTRA_FLAGS
         "-DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}")
     list(APPEND WN_LLVM_EXTRA_FLAGS
         "-DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}")
   endif()
-  execute_process(COMMAND ${CMAKE_COMMAND}
+  execute_process(
+    COMMAND ${WRAPPER_SCRIPT} ${CMAKE_COMMAND}
     -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
     -DLLVM_BUILD_TOOLS=OFF
     -DLLVM_INCLUDE_EXAMPLES=OFF
     -DLLVM_INCLUDE_TESTS=OFF
-    -DLLVM_TARGETS_TO_BUILD=${WN_ARCH}
+    -DLLVM_ENABLE_ZLIB=OFF
+    -DLLVM_TARGETS_TO_BUILD=host
         ${WN_LLVM_EXTRA_FLAGS}
     -G ${CMAKE_GENERATOR} ${CMAKE_SOURCE_DIR}/Externals/llvm
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/Externals/llvm
-    OUTPUT_QUIET)
+    )
   set(LLVM_CONFIGURED TRUE CACHE INTERNAL "llvm has been configured" FORCE)
 endif()
 if (${WN_PREBUILD_DEPS})
@@ -172,7 +181,7 @@ function(wn_create_test)
   source_group("src" REGULAR_EXPRESSION ".*[.](c|cc|cpp|cxx)$")
   source_group("inc" REGULAR_EXPRESSION ".*[.](h|hpp)$")
   source_group("inl" REGULAR_EXPRESSION ".*[.](inl)$")
-  add_executable(${PARSED_ARGS_TEST_NAME}_test ${PARSED_ARGS_SOURCES})
+  add_wn_executable(${PARSED_ARGS_TEST_NAME}_test ${PARSED_ARGS_SOURCES})
   target_include_directories(${PARSED_ARGS_TEST_NAME}_test PRIVATE
     ${gtest_SOURCE_DIR}/include
     ${CMAKE_SOURCE_DIR})
@@ -242,11 +251,19 @@ function(add_wn_header_library target)
   endif()
 endfunction(add_wn_header_library)
 
+function(add_wn_executable target)
+  if (WN_SYSTEM STREQUAL "Android")
+    add_library(${target} SHARED ${ARGN})
+  else()
+    add_executable(${target} ${ARGN})
+  endif()
+endfunction()
+
 # Sets up the visual studio folder structure for this tool.
 function(add_wn_tool target)
   source_group("src" REGULAR_EXPRESSION ".*[.](c|cc|cpp|cxx)$")
   source_group("inc" REGULAR_EXPRESSION ".*[.](h|hpp)$")
   source_group("inl" REGULAR_EXPRESSION ".*[.](inl)$")
-  add_executable(${target} ${ARGN})
+  add_wn_executable(${target} ${ARGN})
   set_property(TARGET ${target} PROPERTY FOLDER WNTools)
 endfunction(add_wn_tool)

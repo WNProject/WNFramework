@@ -5,9 +5,10 @@
 #include "WNConcurrency/test/inc/Common.h"
 
 #include <memory>
+#include <sstream>
 
 TEST(semaphore, wait_notify) {
-    std::string numbers;
+    std::stringstream numbers;
     wn_uint32 count = 0;
     wn_bool start = wn_false;
     wn::semaphore semaphore;
@@ -17,7 +18,7 @@ TEST(semaphore, wait_notify) {
 
         ASSERT_TRUE(start);
 
-        numbers += std::to_string(count);
+        numbers << count;
 
         count++;
 
@@ -47,7 +48,7 @@ TEST(semaphore, wait_notify) {
     }
 
     ASSERT_EQ(count, 10);
-    ASSERT_EQ(numbers, "0123456789");
+    ASSERT_EQ(numbers.str(), "0123456789");
 }
 
 TEST(semaphore, try_wait) {

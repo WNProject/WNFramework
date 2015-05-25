@@ -8,23 +8,24 @@
 #define __WN_PLATFORM_INTERNAL_ANDROID_SURFACE_MANAGER_ANDROID_H__
 
 #include "WNPlatform/inc/WNSurfaceManager.h"
+#include "WNMemory/inc/WNIntrusivePtr.h"
 
 #include <EGL/egl.h>
 
-namespace WNPlatform {
+namespace wn {
 
     class WNSurfaceManagerAndroid: public WNSurfaceManager {
     public:
         WNSurfaceManagerAndroid();
         virtual WN_FORCE_INLINE ~WNSurfaceManagerAndroid() {}
 
-        virtual WNSurfaceManagerReturnCode::Type Initialize();
-        virtual WNSurfaceManagerReturnCode::Type CreateSurface(WN_UINT32 _x, WN_UINT32 _y, WN_UINT32 _width, WN_UINT32 _height, WNConcurrency::WNResourcePointer<WNSurface>& _surface);
-        virtual WNSurfaceManagerReturnCode::Type Release();
+        virtual WNSurfaceManagerReturnCode::type Initialize();
+        virtual WNSurfaceManagerReturnCode::type CreateSurface(wn_uint32 _x, wn_uint32 _y, wn_uint32 _width, wn_uint32 _height, memory::intrusive_ptr<surface>& _surface);
+        virtual WNSurfaceManagerReturnCode::type Release();
 
-        WN_BOOL InitializeDisplay(EGLDisplay& _display, EGLConfig& _config); 
-        WN_BOOL DestroyDisplay();
-        WN_BOOL SurfaceDestroyed();
+        wn_bool InitializeDisplay(EGLDisplay& _display, EGLConfig& _config);
+        wn_bool DestroyDisplay();
+        wn_bool SurfaceDestroyed();
     private:
         WNSurfaceManagerAndroid(const WNSurfaceManagerAndroid&);
         WNSurfaceManagerAndroid& operator = (const WNSurfaceManagerAndroid&);
@@ -32,7 +33,7 @@ namespace WNPlatform {
     private:
         EGLDisplay mDisplay;
         EGLConfig  mConfig;
-        WN_BOOL    mValidSurface; 
+        wn_bool    mValidSurface;
     };
 };
 
