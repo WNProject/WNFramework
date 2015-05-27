@@ -12,20 +12,27 @@ if (EXISTS "/opt/vc/include/bcm_host.h")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fno-rtti -fno-exceptions")
   set(WN_ADDITIONAL_TEST_LIBS pthread)
 elseif(ANDROID)
+  include(${CMAKE_CURRENT_LIST_DIR}/build_apk.cmake REQUIRED)
   set(WN_SYSTEM "Android")
   set(WN_POSIX true)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fno-rtti -fno-exceptions -DANDROID_NATIVE_API_LEVEL=${ANDROID_NATIVE_API_LEVEL}")
   set(WN_ADDITIONAL_TEST_LIBS pthread)
 
   if (NOT ${ANDROID_NATIVE_API_LEVEL} GREATER 13)
-      message(FATAL_ERROR "Android api level must be >= 14 \"-DANDROID_NATIVE_API_LEVEL=14\"")
+    message(FATAL_ERROR "Android api level must be >= 14 \"-DANDROID_NATIVE_API_LEVEL=14\"")
   endif()
-  
+
+  if (NOT ANDROID_SDK_DIR)
+    message(WARNING  "ANDROID_SDK_DIR is not defined: .apk files will not be created.")
+  endif()
+
   if (${ANDROID_NDK_HOST_SYSTEM_NAME} STREQUAL "windows" OR
       ${ANDROID_NDK_HOST_SYSTEM_NAME} STREQUAL "windows-x86_64")
+    set(WN_NULL_LOCATION NUL)
     list(APPEND WN_LLVM_EXTRA_FLAGS
       "-DCROSS_TOOLCHAIN_FLAGS_NATIVE=-DCMAKE_C_COMPILER=cl.exe\;-DCMAKE_CXX_COMPILER=cl.exe")
   else()
+    set(WN_NULL_LOCATION /dev/null)
     list(APPEND WN_LLVM_EXTRA_FLAGS
       "-DCROSS_TOOLCHAIN_FLAGS_NATIVE=-DCMAKE_C_COMPILER=cc\;-DCMAKE_CXX_COMPILER=c++")
   endif()
@@ -254,6 +261,9 @@ endfunction(add_wn_header_library)
 function(add_wn_executable target)
   if (WN_SYSTEM STREQUAL "Android")
     add_library(${target} SHARED ${ARGN})
+    build_apk(ACTIVITY ${target}
+      PROGRAM_NAME ${target}
+      TARGET ${target})
   else()
     add_executable(${target} ${ARGN})
   endif()

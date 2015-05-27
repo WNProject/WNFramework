@@ -1,0 +1,12 @@
+package ${WN_PACKAGE_NAME};
+
+import android.app.NativeActivity;
+
+public class ${WN_ACTIVITY_NAME} extends android.app.NativeActivity {
+  static {
+    String libraries = "${WN_NATIVE_LIBRARIES}";
+    for(String lib: libraries.split(";")) {
+      System.loadLibrary(lib);
+    }
+  }
+}

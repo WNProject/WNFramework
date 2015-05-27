@@ -2,6 +2,8 @@ cmake_minimum_required (VERSION 2.8.10)
 set(WN_PREBUILD_DEPS OFF CACHE BOOL
 	"Compile all dependencies during the configure step, if false it must be done manually")
 
+project(WNFramework)
+
 set(WN_BUILD_TYPES)
 if(NOT CMAKE_CONFIGURATION_TYPES)
   if(NOT CMAKE_BUILD_TYPE OR
