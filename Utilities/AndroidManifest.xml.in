@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+  package="${WN_PACKAGE_NAME}"
+      android:versionCode="1"
+      android:versionName="1.0">
+      <uses-sdk android:minSdkVersion="${ANDROID_NATIVE_API_LEVEL}" />
+    ${WN_PERMISSIONS}
+    <application android:label="@string/app_name"
+      android:debuggable="${WN_ANDROID_DEBUG}">
+      <activity android:name="${WN_ACTIVITY_NAME}"
+                  android:label="@string/app_name">
+            <meta-data android:name="android.app.lib_name"
+                  android:value="${LIB_NAME}" />
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest> 
