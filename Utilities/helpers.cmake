@@ -192,7 +192,8 @@ function(wn_create_test)
   target_include_directories(${PARSED_ARGS_TEST_NAME}_test PRIVATE
     ${gtest_SOURCE_DIR}/include
     ${CMAKE_SOURCE_DIR})
-  target_link_libraries(${PARSED_ARGS_TEST_NAME}_test
+
+  wn_target_link_libraries(${PARSED_ARGS_TEST_NAME}_test
     gtest WNEntryPoint WNUtils ${PARSED_ARGS_LIBS})
   if (PARSED_ARGS_RUN_WRAPPER)
     add_test(${PARSED_ARGS_TEST_PREFIX}.${PARSED_ARGS_TEST_NAME}
@@ -234,14 +235,50 @@ function(wn_create_tests_from_list)
   endforeach()
 endfunction()
 
-# Sets up the visual studio folder structure for this library.
+# Sets up the visual studio folder structure for this library,
+# and any pre and post linker flags that must be used to
+# link to this library.
 function(add_wn_library target)
+  cmake_parse_arguments(
+    PARSED_ARGS
+    ""
+    ""
+    "PRE_LINK_FLAGS;POST_LINK_FLAGS;SOURCES"
+    ${ARGN})
   source_group("src" REGULAR_EXPRESSION ".*[.](c|cc|cpp|cxx)$")
   source_group("inc" REGULAR_EXPRESSION ".*[.](h|hpp)$")
   source_group("inl" REGULAR_EXPRESSION ".*[.](inl)$")
-  add_library(${target} ${ARGN})
+  add_library(${target} STATIC ${PARSED_ARGS_SOURCES})
   set_property(TARGET ${target} PROPERTY FOLDER WNLibraries)
+  if(PARSED_ARGS_PRE_LINK_FLAGS)
+    set_property(TARGET ${target} PROPERTY WN_PRE_LINK_FLAGS
+      ${PARSED_ARGS_PRE_LINK_FLAGS})
+  endif()
+  if(PARSED_ARGS_POST_LINK_FLAGS)
+    set_property(TARGET ${target} PROPERTY WN_POST_LINK_FLAGS
+      ${PARSED_ARGS_POST_LINK_FLAGS})
+  endif()
 endfunction(add_wn_library)
+
+function(wn_target_link_libraries target)
+  set(LIBS "")
+  foreach(library ${ARGN})
+    if (TARGET ${library})
+      get_target_property(PRE_FLAGS ${library} WN_PRE_LINK_FLAGS)
+      get_target_property(POST_FLAGS ${library} WN_POST_LINK_FLAGS)
+      if (PRE_FLAGS)
+        list(APPEND LIBS ${PRE_FLAGS})
+      endif()
+      list(APPEND LIBS ${library})
+      if (POST_FLAGS)
+        list(APPEND LIBS ${POST_FLAGS})
+      endif()
+    else()
+      list(APPEND LIBS ${library})
+    endif()
+  endforeach()
+  target_link_libraries(${target} ${LIBS})
+endfunction()
 
 # Sets up the visual studio folder structure for this library.
 function(add_wn_header_library target)

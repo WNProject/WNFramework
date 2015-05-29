@@ -54,7 +54,7 @@ elseif (WN_SYSTEM STREQUAL "Windows")
     )
 endif()
 
-add_wn_library(WNNetworking
+add_wn_library(WNNetworking SOURCES
   ${WNNetworkingSources})
 
 

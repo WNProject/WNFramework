@@ -25,7 +25,7 @@ elseif (WN_SYSTEM STREQUAL "Windows")
   list(APPEND WNUtilsSources
     src/Windows/WNCrashHandler.cpp)
 endif()
-add_wn_library(WNUtils STATIC
+add_wn_library(WNUtils SOURCES
   ${WNUtilsSources}
 )
 

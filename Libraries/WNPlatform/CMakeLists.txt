@@ -60,11 +60,11 @@ elseif (WN_SYSTEM STREQUAL "Windows")
     src/Windows/WNSurfaceWindows.cpp)
 endif()
 
-add_wn_library(WNPlatform STATIC
+add_wn_library(WNPlatform SOURCES
   ${WNPlatformSources}
   )
 
-target_link_libraries(WNPlatform PUBLIC ${WNPlatformLinkLibraries})
+wn_target_link_libraries(WNPlatform PUBLIC ${WNPlatformLinkLibraries})
 target_include_directories(WNPlatform PUBLIC
   ${CMAKE_SOURCE_DIR}/Libraries
   ${WNAdditionalPlatformIncludes})
