@@ -1,4 +1,4 @@
-add_wn_library(WNScripting STATIC
+add_wn_library(WNScripting SOURCES
   inc/WNArgList.h
   inc/WNArrayAccessExpression.h
   inc/WNArrayAllocation.h
@@ -106,7 +106,7 @@ add_wn_library(WNScripting STATIC
 set(WNScriptingLLVMComponents codegen instrumentation objcarcopts support mcjit ipo)
 if (WN_SYSTEM STREQUAL "Android")
   list(APPEND WNScriptingLLVMComponents "native")
-  add_wn_library(WNScriptingFixes src/Android/AndroidFixes.cpp)
+  add_wn_library(WNScriptingFixes SOURCES src/Android/AndroidFixes.cpp)
   set(WNScriptingAdditionalLibs WNScriptingFixes)
 elseif (WN_SYSTEM STREQUAL "RPI")
   list(APPEND WNScriptingLLVMComponents "native")
@@ -118,7 +118,7 @@ endif()
 
 llvm_map_components_to_libnames(llvm_libs ${WNScriptingLLVMComponents})
 
-target_link_libraries(WNScripting WNFileSystem ${llvm_libs}
+wn_target_link_libraries(WNScripting WNFileSystem ${llvm_libs}
   ${WNScriptingAdditionalLibs})
 add_definitions(${LLVM_DEFINITIONS})
 

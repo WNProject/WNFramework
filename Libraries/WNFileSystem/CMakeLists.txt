@@ -1,5 +1,5 @@
 
-add_wn_library(WNFileSystem
+add_wn_library(WNFileSystem SOURCES
   inc/WNFile.h
   inc/WNFileBuffer.h
   inc/WNFileSystem.h

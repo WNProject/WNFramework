@@ -48,11 +48,11 @@ elseif (WN_SYSTEM STREQUAL "Windows")
     src/D3D11/WNGraphicsDeviceD3D11.cpp)
 endif()
 
-add_wn_library(WNGraphics STATIC
+add_wn_library(WNGraphics SOURCES
   ${WNGraphicsSources}
   )
 
-target_link_libraries(WNGraphics PUBLIC WNPlatform ${WNGraphicsLinkLibraries})
+wn_target_link_libraries(WNGraphics PUBLIC WNPlatform ${WNGraphicsLinkLibraries})
 target_include_directories(WNGraphics PUBLIC
   ${CMAKE_SOURCE_DIR}/Libraries)
 
