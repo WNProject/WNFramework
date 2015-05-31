@@ -1,7 +1,10 @@
+# Keep WNEntryPoint first. It has some special flags that have to propagate
+# to other targets.
+add_subdirectory(WNEntryPoint)
+
 add_subdirectory(WNConcurrency)
 add_subdirectory(WNContainers)
 add_subdirectory(WNCore)
-add_subdirectory(WNEntryPoint)
 add_subdirectory(WNFileSystem)
 add_subdirectory(WNGraphics)
 add_subdirectory(WNLogging)

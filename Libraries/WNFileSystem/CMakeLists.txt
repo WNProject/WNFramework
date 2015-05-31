@@ -15,3 +15,8 @@ target_include_directories(WNFileSystem
   PUBLIC
   ${CMAKE_SOURCE_DIR}/Libraries)
 
+if(ANDROID)
+  set_property(TARGET WNFileSystem PROPERTY WN_ANDROID_PERMISSIONS
+    WRITE_EXTERNAL_STORAGE
+    READ_EXTERNAL_STORAGE)
+endif()

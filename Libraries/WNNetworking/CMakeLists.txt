@@ -57,6 +57,10 @@ endif()
 add_wn_library(WNNetworking SOURCES
   ${WNNetworkingSources})
 
+if(ANDROID)
+  set_property(TARGET WNNetworking PROPERTY WN_ANDROID_PERMISSIONS
+    INTERNET)
+endif()
 
 target_include_directories(WNNetworking PUBLIC
   ${CMAKE_SOURCE_DIR}/Libraries)
