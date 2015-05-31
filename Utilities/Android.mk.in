@@ -1,0 +1,7 @@
+APP_LOCAL_PATH := $(call my-dir)
+LOCAL_PATH := $(APP_LOCAL_PATH)
+include $(CLEAR_VARS)
+LOCAL_CPP_EXTENSION := .cpp
+LOCAL_MODULE    := ${LIB_NAME}
+
+include $(BUILD_SHARED_LIBRARY)

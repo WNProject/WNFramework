@@ -1,8 +1,6 @@
 
 add_wn_tool(WNScriptInterpreter
+  SOURCES
   src/Main.cpp
-)
-
-target_link_libraries(WNScriptInterpreter WNScripting WNEntryPoint)
-
+  LINK_LIBRARIES WNScripting WNNetworking WNEntryPoint)
 

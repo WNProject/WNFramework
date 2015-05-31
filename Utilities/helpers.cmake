@@ -163,6 +163,9 @@ set(GTEST_TARGETS
 foreach(target ${GTEST_TARGETS})
     get_property(OLD_DIRECTORY TARGET ${target} PROPERTY FOLDER)
     set_property(TARGET ${target} PROPERTY FOLDER Externals/gtest/${OLD_DIRECTORY})
+    if(ANDROID)
+      set_property(TARGET ${target} PROPERTY WN_ANDROID_PERMISSIONS WRITE_EXTERNAL_STORAGE)
+    endif()
 endforeach()
 
 # Arguments
@@ -188,13 +191,12 @@ function(wn_create_test)
   source_group("src" REGULAR_EXPRESSION ".*[.](c|cc|cpp|cxx)$")
   source_group("inc" REGULAR_EXPRESSION ".*[.](h|hpp)$")
   source_group("inl" REGULAR_EXPRESSION ".*[.](inl)$")
-  add_wn_executable(${PARSED_ARGS_TEST_NAME}_test ${PARSED_ARGS_SOURCES})
+  add_wn_executable(${PARSED_ARGS_TEST_NAME}_test SOURCES ${PARSED_ARGS_SOURCES}
+    LINK_LIBRARIES gtest WNEntryPoint WNUtils ${PARSED_ARGS_LIBS})
   target_include_directories(${PARSED_ARGS_TEST_NAME}_test PRIVATE
     ${gtest_SOURCE_DIR}/include
     ${CMAKE_SOURCE_DIR})
 
-  wn_target_link_libraries(${PARSED_ARGS_TEST_NAME}_test
-    gtest WNEntryPoint WNUtils ${PARSED_ARGS_LIBS})
   if (PARSED_ARGS_RUN_WRAPPER)
     add_test(${PARSED_ARGS_TEST_PREFIX}.${PARSED_ARGS_TEST_NAME}
       ${PARSED_ARGS_RUN_WRAPPER} ${PARSED_ARGS_TEST_NAME}_test)
@@ -241,14 +243,20 @@ endfunction()
 function(add_wn_library target)
   cmake_parse_arguments(
     PARSED_ARGS
-    ""
+    "SHARED"
     ""
     "PRE_LINK_FLAGS;POST_LINK_FLAGS;SOURCES"
     ${ARGN})
   source_group("src" REGULAR_EXPRESSION ".*[.](c|cc|cpp|cxx)$")
   source_group("inc" REGULAR_EXPRESSION ".*[.](h|hpp)$")
   source_group("inl" REGULAR_EXPRESSION ".*[.](inl)$")
-  add_library(${target} STATIC ${PARSED_ARGS_SOURCES})
+  if (PARSED_ARGS_SHARED)
+    message(STATUS "SHARED ${target}")
+    add_library(${target} SHARED ${PARSED_ARGS_SOURCES})
+  else()
+    message(STATUS "STATIC ${target}")
+    add_library(${target} STATIC ${PARSED_ARGS_SOURCES})
+  endif()
   set_property(TARGET ${target} PROPERTY FOLDER WNLibraries)
   if(PARSED_ARGS_PRE_LINK_FLAGS)
     set_property(TARGET ${target} PROPERTY WN_PRE_LINK_FLAGS
@@ -262,6 +270,9 @@ endfunction(add_wn_library)
 
 function(wn_target_link_libraries target)
   set(LIBS "")
+  if (ANDROID)
+    set(ANDROID_PERMISSIONS  "")
+  endif()
   foreach(library ${ARGN})
     if (TARGET ${library})
       get_target_property(PRE_FLAGS ${library} WN_PRE_LINK_FLAGS)
@@ -273,10 +284,30 @@ function(wn_target_link_libraries target)
       if (POST_FLAGS)
         list(APPEND LIBS ${POST_FLAGS})
       endif()
+
+      if (ANDROID)
+        get_target_property(PERMS ${library} WN_ANDROID_PERMISSIONS)
+        if (PERMS)
+          list(APPEND ANDROID_PERMISSIONS ${PERMS})
+        endif()
+      endif()
     else()
       list(APPEND LIBS ${library})
     endif()
   endforeach()
+
+  if (ANDROID)
+    get_target_property(PERMS ${target} WN_ANDROID_PERMISSIONS)
+    if (PERMS)
+      list(APPEND PERMS ${ANDROID_PERMISSIONS})
+    else()
+      set(PERMS ${ANDROID_PERMISSIONS})
+    endif()
+    if (ANDROID_PERMISSIONS)
+      set_target_properties(${target} PROPERTIES WN_ANDROID_PERMISSIONS
+       "${ANDROID_PERMISSIONS}")
+    endif()
+  endif()
   target_link_libraries(${target} ${LIBS})
 endfunction()
 
@@ -289,28 +320,47 @@ function(add_wn_header_library target)
     source_group("src" REGULAR_EXPRESSION ".*[.](c|cc|cpp|cxx)$")
     source_group("inc" REGULAR_EXPRESSION ".*[.](h|hpp)$")
     source_group("inl" REGULAR_EXPRESSION ".*[.](inl)$")
-    add_library(${target} STATIC ${ARGN})
+    add_wn_library(${target} SOURCES ${ARGN})
     set_property(TARGET ${target} PROPERTY FOLDER WNLibraries)
     set_property(TARGET ${target} PROPERTY LINKER_LANGUAGE CXX)
   endif()
 endfunction(add_wn_header_library)
 
 function(add_wn_executable target)
+  cmake_parse_arguments(
+    PARSED_ARGS
+    ""
+    ""
+    "SOURCES;LINK_LIBRARIES"
+    ${ARGN})
   if (WN_SYSTEM STREQUAL "Android")
-    add_library(${target} SHARED ${ARGN})
+    add_wn_library(${target} SHARED SOURCES ${PARSED_ARGS_SOURCES})
+    if (PARSED_ARGS_LINK_LIBRARIES)
+      wn_target_link_libraries(${target} PRIVATE ${PARSED_ARGS_LINK_LIBRARIES})
+    endif()
     build_apk(ACTIVITY ${target}
       PROGRAM_NAME ${target}
       TARGET ${target})
   else()
-    add_executable(${target} ${ARGN})
+    add_executable(${target} ${PARSED_ARGS_SOURCES})
+    if (PARSED_ARGS_LINK_LIBRARIES)
+      wn_target_link_libraries(${target} PRIVATE ${PARSED_ARGS_LINK_LIBRARIES})
+    endif()
   endif()
 endfunction()
 
 # Sets up the visual studio folder structure for this tool.
 function(add_wn_tool target)
+  cmake_parse_arguments(
+    PARSED_ARGS
+    ""
+    ""
+    "SOURCES;LINK_LIBRARIES"
+    ${ARGN})
   source_group("src" REGULAR_EXPRESSION ".*[.](c|cc|cpp|cxx)$")
   source_group("inc" REGULAR_EXPRESSION ".*[.](h|hpp)$")
   source_group("inl" REGULAR_EXPRESSION ".*[.](inl)$")
-  add_wn_executable(${target} ${ARGN})
+  add_wn_executable(${target} LINK_LIBRARIES ${PARSED_ARGS_LINK_LIBRARIES}
+    SOURCES ${PARSED_ARGS_SOURCES})
   set_property(TARGET ${target} PROPERTY FOLDER WNTools)
 endfunction(add_wn_tool)
