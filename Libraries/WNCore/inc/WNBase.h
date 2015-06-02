@@ -190,6 +190,9 @@
     #define WN_DEBUG_BREAK()
 #endif
 
+#define WN_NAMESPACE_BEGIN(_name) namespace wn { namespace _name {
+#define WN_NAMESPACE_END }}
+
 #define WN_LIBRARIES 23000 // 0.23.0
 #define WN_LIBRARIES_MAJOR (WN_LIBRARIES / 100000)
 #define WN_LIBRARIES_MINOR (WN_LIBRARIES / 100 % 1000)
