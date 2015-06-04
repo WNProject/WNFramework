@@ -37,5 +37,5 @@ WNNetworkManagerReturnCode::type WNInConnectionWindows::Initialize(SOCKET _liste
 }
 
 wn_bool WNInConnectionWindows::FireCallback() {
-    return(mCallback.Execute(mConnectionName));
+    return(mCallback(mConnectionName));
 }

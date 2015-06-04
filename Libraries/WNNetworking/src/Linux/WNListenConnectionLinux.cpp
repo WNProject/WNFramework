@@ -122,7 +122,7 @@ WNInConnectionLinux* WNListenConnectionLinux::ReceiveConnection() {
 
     conn->Initialize(sockFD, addr, len);
 
-    if (!mConnectedCallback.Execute(conn->GetName())) {
+    if (!mConnectedCallback(conn->GetName())) {
         wn::memory::destroy(conn);
     }
 
