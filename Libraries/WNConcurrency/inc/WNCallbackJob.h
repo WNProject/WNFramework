@@ -8,19 +8,14 @@
 #define __WN_CONCURRENCY_CALLBACK_JOB_H__
 
 #include "WNConcurrency/inc/WNThreadTask.h"
-#include "WNContainers/inc/WNCallback.h"
+#include "WNContainers/inc/WNFunction.h"
 #include "WNMemory/inc/WNIntrusivePtr.h"
 
 namespace wn {
-    template <typename result, typename... arguments>
-    class callback_task : public thread_task {
-        result m_result;
-    };
-
     template <typename T>
     class WNCallbackJob0 : public thread_task {
     public:
-        WNCallbackJob0(const WNContainers::WNCallback0<T>& _callback);
+        WNCallbackJob0(const containers::function<T()>& _callback);
         virtual WN_FORCE_INLINE ~WNCallbackJob0() {}
 
         virtual wn_void run();
@@ -28,26 +23,26 @@ namespace wn {
         const T& GetResult() const;
 
     private:
-        WNContainers::WNCallback0<T> mCallback;
+        containers::function<T()> mCallback;
         T mResult;
     };
 
     template <>
     class WNCallbackJob0<wn_void> : public thread_task {
     public:
-        WNCallbackJob0(const WNContainers::WNCallback0<wn_void>& _callback);
+        WNCallbackJob0(const containers::function<wn_void()>& _callback);
         virtual WN_FORCE_INLINE ~WNCallbackJob0() {}
 
         virtual wn_void run();
 
     private:
-        WNContainers::WNCallback0<wn_void> mCallback;
+        containers::function<wn_void()> mCallback;
     };
 
     template <typename T, typename P1>
     class WNCallbackJob1 : public thread_task {
     public:
-        WNCallbackJob1(const WNContainers::WNCallback1<T, P1>& _callback, const P1& _val1);
+        WNCallbackJob1(const containers::function<T(P1)>& _callback, const P1& _val1);
         virtual WN_FORCE_INLINE ~WNCallbackJob1() {}
 
         virtual wn_void run();
@@ -55,7 +50,7 @@ namespace wn {
         const T& GetResult() const;
 
     private:
-        WNContainers::WNCallback1<T, P1> mCallback;
+        containers::function<T(P1)> mCallback;
         P1 mP1Val;
         T mResult;
     };
@@ -63,20 +58,20 @@ namespace wn {
     template <typename P1>
     class WNCallbackJob1<wn_void, P1> : public thread_task {
     public:
-        WNCallbackJob1(const WNContainers::WNCallback1<wn_void, P1>& _callback, const P1& _val1);
+        WNCallbackJob1(const containers::function<wn_void(P1)>& _callback, const P1& _val1);
         virtual WN_FORCE_INLINE ~WNCallbackJob1() {}
 
         virtual wn_void run();
 
     private:
-        WNContainers::WNCallback1<wn_void, P1> mCallback;
+        containers::function<wn_void(P1)> mCallback;
         P1 mP1Val;
     };
 
     template <typename T, typename P1, typename P2>
     class WNCallbackJob2 : public thread_task {
     public:
-        WNCallbackJob2(const WNContainers::WNCallback2<T, P1, P2>& _callback, const P1& _val1, const P2& _val2);
+        WNCallbackJob2(const containers::function<T(P1, P2)>& _callback, const P1& _val1, const P2& _val2);
         virtual WN_FORCE_INLINE ~WNCallbackJob2() {}
 
         virtual wn_void run();
@@ -84,7 +79,7 @@ namespace wn {
         const T& GetResult() const;
 
     private:
-        WNContainers::WNCallback2<T, P1, P2> mCallback;
+        containers::function<T(P1, P2)> mCallback;
         P1 mP1Val;
         P2 mP2Val;
         T mResult;
@@ -93,13 +88,13 @@ namespace wn {
     template <typename P1, typename P2>
     class WNCallbackJob2<wn_void, P1, P2> : public thread_task {
     public:
-        WNCallbackJob2(const WNContainers::WNCallback2<wn_void, P1, P2>& _callback, const P1& _val1, const P2& _val2);
+        WNCallbackJob2(const containers::function<wn_void(P1, P2)>& _callback, const P1& _val1, const P2& _val2);
         virtual WN_FORCE_INLINE ~WNCallbackJob2() {}
 
         virtual wn_void run();
 
     private:
-        WNContainers::WNCallback2<wn_void, P1, P2> mCallback;
+        containers::function<wn_void(P1, P2)> mCallback;
         P1 mP1Val;
         P2 mP2Val;
     };
@@ -107,7 +102,7 @@ namespace wn {
     template <typename T, typename P1, typename P2, typename P3>
     class WNCallbackJob3 : public thread_task {
     public:
-        WNCallbackJob3(const WNContainers::WNCallback3<T, P1, P2, P3>& _callback, const P1& _val1, const P2& _val2, const P3& _val3);
+        WNCallbackJob3(const containers::function<T(P1, P2, P3)>& _callback, const P1& _val1, const P2& _val2, const P3& _val3);
         virtual WN_FORCE_INLINE ~WNCallbackJob3() {}
 
         virtual wn_void run();
@@ -115,7 +110,7 @@ namespace wn {
         const T& GetResult() const;
 
     private:
-        WNContainers::WNCallback3<T, P1, P2, P3> mCallback;
+        containers::function<T(P1, P2, P3)> mCallback;
         P1 mP1Val;
         P2 mP2Val;
         P3 mP3Val;
@@ -125,13 +120,13 @@ namespace wn {
     template <typename P1, typename P2, typename P3>
     class WNCallbackJob3<wn_void, P1, P2, P3> : public thread_task {
     public:
-        WNCallbackJob3(const WNContainers::WNCallback3<wn_void, P1, P2, P3>& _callback, const P1& _val1, const P2& _val2, const P3& _val3);
+        WNCallbackJob3(const containers::function<wn_void(P1, P2, P3)>& _callback, const P1& _val1, const P2& _val2, const P3& _val3);
         virtual WN_FORCE_INLINE ~WNCallbackJob3() {}
 
         virtual wn_void run();
 
     private:
-        WNContainers::WNCallback3<wn_void, P1, P2, P3> mCallback;
+        containers::function<wn_void(P1, P2, P3)> mCallback;
         P1 mP1Val;
         P2 mP2Val;
         P3 mP3Val;

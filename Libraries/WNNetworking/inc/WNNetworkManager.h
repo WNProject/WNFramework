@@ -10,7 +10,7 @@
 #include "WNCore/inc/WNBase.h"
 #include "WNCore/inc/WNTypes.h"
 #include "WNMemory/inc/WNIntrusivePtr.h"
-#include "WNContainers/inc/WNCallback.h"
+#include "WNContainers/inc/WNFunction.h"
 
 #ifdef _WN_MSVC
     #pragma warning(push)
@@ -72,8 +72,8 @@ namespace WNNetworking {
     typedef wn::memory::intrusive_ptr<WNConnection> WNConnectionPtr;
     typedef wn::memory::intrusive_ptr<WNConnectionGroup> WNConnectionGroupPtr;
 
-    typedef WNContainers::WNCallback1<wn_bool, const wn_char*> WNConnectedCallback;
-    typedef WNContainers::WNCallback2<wn_void, WNConnection*, WNNetworkReadBuffer&> WNMessageCallback;
+    typedef wn::containers::function<wn_bool(const wn_char*)> WNConnectedCallback;
+    typedef wn::containers::function<wn_void(WNConnection*, WNNetworkReadBuffer&)> WNMessageCallback;
 
     class WNNetworkManager {
     public:

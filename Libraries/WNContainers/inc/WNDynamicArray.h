@@ -301,7 +301,7 @@ namespace wn {
             }
 
             template <typename _Function,
-                      typename = core::enable_if_t<core::is_callable<_Function, _Type, size_type>::value>>
+                      typename = core::enable_if_t<core::is_callable<_Function, _Type(size_type)>::value>>
             iterator insert(const_iterator _pos, const size_type _count, _Function&& _generator) {
                 iterator position = shift(_pos, _count);
                 iterator new_position = position;

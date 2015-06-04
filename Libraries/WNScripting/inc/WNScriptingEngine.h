@@ -9,7 +9,7 @@
 #include "WNCore/inc/WNTypes.h"
 #include "WNScripting/inc/WNTypeElement.h"
 #include "WNScripting/inc/WNScriptingErrors.h"
-#include "WNContainers/inc/WNCallback.h"
+#include "WNContainers/inc/WNFunction.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNScripting/inc/WNScriptingInteropForward.h"
 #include <vector>
@@ -17,7 +17,8 @@ namespace WNScripting {
     class WNTypeManager;
     struct WNParameter;
 
-    typedef WNContainers::WNCallback3<wn_void, const wn_char*, wn_size_t, const std::vector<WNLogging::WNLogColorElement>&> WNScriptingLogCallback;
+    typedef wn::containers::function<wn_void(const wn_char*, wn_size_t, const std::vector<WNLogging::WNLogColorElement>&)> WNScriptingLogCallback;
+
     class WNScriptingEngine {
     public:
         virtual ~WNScriptingEngine() {}
