@@ -748,10 +748,11 @@ wn_void WNScriptingEngineImpl::SetCompilationLog(WNLogging::WNLog* _compilationL
 
 wn_void WNScriptingEngineImpl::BufferFlushCallback(wn_void* _context, const wn_char* buffer, wn_size_t bufferLength, const std::vector<WNLogging::WNLogColorElement>& colors) {
     WNScriptingEngineImpl* impl = reinterpret_cast<WNScriptingEngineImpl*>(_context);
-    if(!impl->mErrorCallback.IsValid()) {
+    if(!(impl->mErrorCallback)) {
         return;
     }
-    impl->mErrorCallback.Execute(buffer, bufferLength, colors);
+
+    impl->mErrorCallback(buffer, bufferLength, colors);
 }
 
 eWNTypeError WNScriptingEngineImpl::RegisterExternalType(const wn_char* _typeName, void(*ptr)(void*)) {

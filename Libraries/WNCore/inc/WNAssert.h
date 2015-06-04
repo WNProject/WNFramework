@@ -65,13 +65,13 @@ namespace wn {
 }
 
 #ifndef _WN_RETAIL
-    #define WN_RELEASE_ASSERT_DESC(_argument, _description) wn::core::internal::assert_helper(static_cast<wn_int32>(_argument), __FILE__, __LINE__, _description)
+    #define WN_RELEASE_ASSERT_DESC(_argument, _description) wn::core::internal::assert_helper(static_cast<wn_int32>(!!(_argument)), __FILE__, __LINE__, _description)
 #else
     #define WN_RELEASE_ASSERT_DESC(_argument, _description)
 #endif
 
 #ifdef _WN_DEBUG
-    #define WN_DEBUG_ASSERT_DESC(_argument, _description) wn::core::internal::assert_helper(static_cast<wn_int32>(_argument), __FILE__, __LINE__, _description)
+    #define WN_DEBUG_ASSERT_DESC(_argument, _description) wn::core::internal::assert_helper(static_cast<wn_int32>(!!(_argument)), __FILE__, __LINE__, _description)
 #else
     #define WN_DEBUG_ASSERT_DESC(_argument, _description)
 #endif
