@@ -11,6 +11,7 @@
 #include "WNCore/inc/WNTypeTraits.h"
 #include "WNMemory/inc/WNIntrusivePtrBase.h"
 #include "WNMemory/inc/WNIntrusivePtr.h"
+#include "WNContainers/inc/WNFunction.h"
 
 #if defined _WN_WINDOWS || defined _WN_ANDROID
     #include <mutex>
@@ -23,7 +24,6 @@
 #endif
 
 #include <chrono>
-#include <functional>
 
 namespace wn {
     namespace internal {
@@ -95,8 +95,8 @@ namespace wn {
             static_assert(core::is_same<result_type, core::result_of_t<_Function(_Arguments...)>>::value,
                           "thread function return type does not match thread return type");
 
-            std::function<result_type()> function(std::bind(core::decay_copy(std::forward<_Function>(_function)),
-                                                            core::decay_copy(std::forward<_Arguments>(_arguments))...));
+            containers::function<result_type()> function(std::bind(core::decay_copy(std::forward<_Function>(_function)),
+                                                                   core::decay_copy(std::forward<_Arguments>(_arguments))...));
 
             execute(std::move(function));
         }
@@ -164,7 +164,7 @@ namespace wn {
         using thread_data = internal::concurrency::thread_data<_Type>;
 
         struct thread_execution_data final {
-            std::function<result_type()> m_function;
+            containers::function<result_type()> m_function;
             memory::intrusive_ptr<internal::concurrency::thread_data<result_type>> m_data;
         };
 
@@ -194,7 +194,7 @@ namespace wn {
             data->m_result = _execution_data->m_function();
         }
 
-        WN_INLINE wn_void execute(std::function<result_type()>&& _function) {
+        WN_INLINE wn_void execute(containers::function<result_type()>&& _function) {
             thread_execution_data* execution_data = memory::construct<thread_execution_data>();
 
             if (execution_data != wn_nullptr) {

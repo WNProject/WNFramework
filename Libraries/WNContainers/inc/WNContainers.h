@@ -7,9 +7,9 @@
 #ifndef __WN_CONTAINERS_H__
 #define __WN_CONTAINERS_H__
 
-#include "WNContainers/inc/WNCallback.h"
 #include "WNContainers/inc/WNDataBuffer.h"
 #include "WNContainers/inc/WNDeque.h"
+#include "WNContainers/inc/WNFunction.h"
 #include "WNContainers/inc/WNSerializer.h"
 
 #endif // __WN_CONTAINERS_H__

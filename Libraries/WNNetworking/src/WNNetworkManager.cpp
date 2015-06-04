@@ -30,7 +30,7 @@ wn_void WNNetworking::WNNetworkManager::FireCallback(wn_uint32 _identifier, WNCo
     WN_UNORDERED_MAP<wn_uint32, WNMessageCallback >::iterator it = mCallbackMap.find(_identifier);
 
     //DO SOME LOGGING HERE
-    (*it).second.Execute(ptr, _buffer);
+    (*it).second(ptr, _buffer);
 }
 
 WNNetworking::WNNetworkManagerReturnCode::type WNNetworking::WNNetworkManager::CreateConnectionGroup(WNConnectionGroup*& _outHandle, const wn_char* _groupName) {

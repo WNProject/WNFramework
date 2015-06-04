@@ -158,16 +158,16 @@ namespace wn {
             template <typename traits_type>
             struct is_arithmetic<arithmetic_type<traits_type>> : std::true_type {};
 
-            template <typename _Type, const wn_bool _Expression, typename _Result, typename... _Arguments>
-            struct same_result : std::false_type {};
+            template <typename _Type, const wn_bool _Expression, typename _Return, typename... _Arguments>
+            struct same_return : std::false_type {};
 
-            template <typename _Type, typename _Result, typename... _Arguments>
-            struct same_result<_Type, wn_true, _Result, _Arguments...> : is_same<result_of_t<_Type(_Arguments...)>, _Result> {};
+            template <typename _Type, typename _Return, typename... _Arguments>
+            struct same_return<_Type, wn_true, _Return, _Arguments...> : is_same<result_of_t<_Type(_Arguments...)>, _Return> {};
 
-            template <typename _Function, typename _Result, typename... _Arguments>
+            template <typename _Function, typename _Return, typename... _Arguments>
             class is_callable {
-                typedef wn_char(&invalid)[1];
-                typedef wn_char(&valid)[2];
+                typedef wn_char (&invalid)[1];
+                typedef wn_char (&valid)[2];
 
                 template <typename _Type>
                 struct helper;
@@ -182,8 +182,8 @@ namespace wn {
                 struct callable : boolean_constant<sizeof(checker<_Type>(0)) == sizeof(valid)> {};
 
             public:
-                enum {
-                    value = same_result<_Function, callable<_Function>::value, _Result, _Arguments...>::value
+                enum : wn_bool {
+                    value = same_return<_Function, callable<_Function>::value, _Return, _Arguments...>::value
                 };
             };
         }
@@ -209,8 +209,11 @@ namespace wn {
         template <typename _Type>
         struct is_real : boolean_or<is_fixed_point<_Type>::value, is_floating_point<_Type>::value> {};
 
-        template <typename _Function, typename _Result, typename... _Arguments>
-        struct is_callable : internal::is_callable<_Function, _Result, _Arguments...> {};
+        template <typename _Function, typename _Type>
+        struct is_callable : std::false_type {};
+
+        template <typename _Function, typename _Return, typename... _Arguments>
+        struct is_callable<_Function, _Return(_Arguments...)> : internal::is_callable<_Function, _Return, _Arguments...> {};
     }
 }
 

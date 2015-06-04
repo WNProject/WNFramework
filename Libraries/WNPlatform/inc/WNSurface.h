@@ -9,7 +9,7 @@
 
 #include "WNCore/inc/WNTypes.h"
 #include "WNCore/inc/WNAssert.h"
-#include "WNContainers/inc/WNCallback.h"
+#include "WNContainers/inc/WNFunction.h"
 #include "WNMemory/inc/WNIntrusivePtr.h"
 #include "WNMemory/inc/WNIntrusivePtrBase.h"
 
@@ -76,7 +76,7 @@ namespace wn {
             eWNRDTMAX
         };
 
-        typedef WNContainers::WNCallback2<wn_bool, WNSurfaceEventType, surface*> WNSurfaceEventCallback;
+        typedef wn::containers::function<wn_bool(WNSurfaceEventType, surface*)> WNSurfaceEventCallback;
 
         virtual WNSurfaceNativeHandle GetNativeHandle() const = 0;
         virtual WNSurfaceError Resize(wn_uint32 _width, wn_uint32 _height) = 0;
@@ -111,7 +111,7 @@ namespace wn {
     protected:
         wn_void FireCallback(WNSurfaceEventType _type) {
             for (std::list<WNSurfaceEventCallback>::iterator i = mEventCallbacks[_type].begin(); i != mEventCallbacks[_type].end(); ++i) {
-                (*i).Execute(_type, this);
+                (*i)(_type, this);
             }
         }
 

@@ -285,8 +285,8 @@ WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceD3D11::
     _surface->RegisterData(wn::surface::eWNRDTGraphics, dat);
 
     backBufferTexture->Release();
-    _surface->RegisterCallback(wn::surface::eWNSETResize, wn::surface::WNSurfaceEventCallback(this, &WNGraphicsDeviceD3D11::ProcessWindowMessage));
-    _surface->RegisterCallback(wn::surface::eWNSETDestroyed,  wn::surface::WNSurfaceEventCallback(this, &WNGraphicsDeviceD3D11::ProcessWindowMessage));
+    _surface->RegisterCallback(wn::surface::eWNSETResize, wn::surface::WNSurfaceEventCallback(&WNGraphicsDeviceD3D11::ProcessWindowMessage, this));
+    _surface->RegisterCallback(wn::surface::eWNSETDestroyed, wn::surface::WNSurfaceEventCallback(&WNGraphicsDeviceD3D11::ProcessWindowMessage, this));
 
     BindRenderTarget(wn_nullptr, 0);
 
