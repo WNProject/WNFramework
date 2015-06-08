@@ -52,18 +52,8 @@ namespace wn {
 
             #ifdef _WN_WINDOWS
                 return(::_aligned_malloc(_size, _alignment));
-            #elif defined _WN_ANDROID
-                return(::memalign(_alignment, _size));
-            #elif defined _WN_POSIX
-                wn_void* ptr;
-
-                if (::posix_memalign(&ptr, _alignment, _size) != 0) {
-                    return(wn_nullptr);
-                }
-
-                return(ptr);
             #else
-                wn_void* temp_ptr = malloc((_size + _alignment - 1) + sizeof(wn_void*));
+                wn_void* temp_ptr = malloc((_size + _alignment - 1) + 2 * sizeof(wn_void*));
 
                 if (temp_ptr == wn_nullptr) {
                     return(wn_nullptr);
@@ -73,6 +63,7 @@ namespace wn {
                                                                sizeof(wn_void*) + _alignment - 1) & ~(_alignment - 1)));
 
                 *(reinterpret_cast<wn_void**>(ptr) - 1) = temp_ptr;
+                *(reinterpret_cast<size_t*>(ptr) - 2) = _size;
 
                 return(ptr);
             #endif
@@ -91,9 +82,12 @@ namespace wn {
                 return(::_aligned_realloc(_ptr, _new_size, _alignment));
             #else
                 wn_void* ptr = aligned_malloc(_new_size, _alignment);
-
-                ptr = memcpy(ptr, _ptr, _new_size);
-
+                size_t copy_size = 0;
+                if (_ptr) {
+                  size_t old_size = *(reinterpret_cast<size_t*>(_ptr) - 2);
+                  size_t copy_size = old_size < _new_size? old_size: _new_size;
+                  ptr = memcpy(ptr, _ptr, copy_size);
+                }
                 aligned_free(_ptr);
 
                 return(ptr);
@@ -103,10 +97,10 @@ namespace wn {
         WN_FORCE_INLINE wn_void aligned_free(wn_void* _ptr) {
             #ifdef _WN_WINDOWS
                 ::_aligned_free(_ptr);
-            #elif defined _WN_POSIX
-                free(_ptr);
             #else
-                free(*(reinterpret_cast<wn_void**>(_ptr) - 1));
+                if (_ptr) {
+                  free(*(reinterpret_cast<wn_void**>(_ptr) - 1));
+                }
             #endif
         }
 
