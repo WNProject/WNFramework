@@ -23,7 +23,7 @@ wn_void WNUtils::WNAndroidEventPump::SubscribeToEvent(eMessageType _message, WNA
     mCallbackLock.lock();
     mCallbacks[_message] = _callback;
     mCallbackData[_message] = _userData;
-    if(_message == eDisplayCreated) {
+    if(_callback && _message == eDisplayCreated) {
         PushMessage(eDisplayAdded);
     }
     mCallbackLock.unlock();
