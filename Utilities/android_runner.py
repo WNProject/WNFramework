@@ -62,40 +62,51 @@ class Runner:
                 args.activity_name])
 
             p = subprocess.Popen([
-                adb, "logcat", "-s", args.package_name + ":V"],
+                adb, "logcat", "-s", args.package_name + ":V",
+                "*:F"],
                 stdout=subprocess.PIPE,
                 bufsize=1)
 
             returnre = re.compile("^RETURN ([0-9]*).$", re.MULTILINE)
             startre = re.compile("^--STARTED.$")
             finishre = re.compile("^--FINISHED.$")
-            crashedre = re.compile("^--CRASHED.$")
+            crashedre = re.compile("^--CRASHED--.$")
+            abortRE = ""
             strip_stuff = re.compile("[A-Z]/" +
-                    args.package_name + "\([ 0-9]*\): (.*)")
+                    args.package_name + "\(([ 0-9]*)\): (.*)")
             has_started = False
             while(True):
                 line = p.stdout.readline()
+                original_line = line
                 if not line:
                     break
                 m = strip_stuff.search(line)
+                aborted = False
                 if not m:
-                    print line
-                    continue
-                line = m.group(1)
+                    if abortRE:
+                      m = abortRE.search(original_line)
+                      if not m:
+                        print line
+                        continue
+                      aborted = True
+                line = m.group(2)
                 if not has_started:
+                    abortRE = re.compile("^F.*\((" + m.group(1) + ")\):(.*ABORTING.*)")
                     m = startre.search(line)
                     if m:
                         has_started = True
                         continue
                 match = returnre.search(line)
-                crashed = crashedre.search(line)
+                crashed = aborted or crashedre.search(line)
                 finish_match = finishre.search(line)
+
                 if match:
                     run_p([adb, "pull", "/sdcard/stdout.txt"])
                     with open("stdout.txt", "r") as f:
                         print f.read(),
                     run_p([adb, "shell", "rm", "/sdcard/stdout.txt"])
                     os.remove("stdout.txt")
+                    p.kill()
                     sys.exit(int(match.group(1)))
                 elif finish_match:
                     continue
@@ -117,11 +128,13 @@ class Runner:
                         while os.path.exists("crash-" + str(i) + ".dmp"):
                             i += 1
                         name = "crash-"+str(i)+".dmp"
-                    shutil.move(crash, name)
-                    exit(-1)
+                    shutil.move("crash", name)
+                    p.kill()
+                    sys.exit(-1)
                 else:
                     print line
-            pass
+            p.kill()
+            sys.exit(0)
 
     def install(self):
         parser = argparse.ArgumentParser(
@@ -134,8 +147,7 @@ class Runner:
         if args.sdk:
             adb = os.path.join(args.sdk, "platform-tools", "adb")
         run_p([adb, "install", "-r", args.apk])
-
-        pass
+        sys.exit(0)
 
     def main(self):
          parser = argparse.ArgumentParser(

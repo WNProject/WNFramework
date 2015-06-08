@@ -196,12 +196,12 @@ function(wn_create_test)
   target_include_directories(${PARSED_ARGS_TEST_NAME}_test PRIVATE
     ${gtest_SOURCE_DIR}/include
     ${CMAKE_SOURCE_DIR})
-  
+
   if (ANDROID)
     find_host_program(PYTHON python)
     add_test(${PARSED_ARGS_TEST_PREFIX}.${PARSED_ARGS_TEST_NAME}
       ${PYTHON} ${CMAKE_CURRENT_BINARY_DIR}/${PARSED_ARGS_TEST_NAME}_test/${PARSED_ARGS_TEST_NAME}_test.py
-      --install --run )
+      --install --run --delay 2)
   else()
     if (PARSED_ARGS_RUN_WRAPPER)
       add_test(${PARSED_ARGS_TEST_PREFIX}.${PARSED_ARGS_TEST_NAME}
