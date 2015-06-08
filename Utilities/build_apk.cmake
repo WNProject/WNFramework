@@ -51,6 +51,15 @@ function(build_apk)
   set(WN_ACTIVITY_NAME ${PARSED_ARGS_ACTIVITY})
   set(WN_PROGRAM_NAME ${PARSED_ARGS_PROGRAM_NAME})
   set(WN_TARGET_DIR ${CMAKE_CURRENT_BINARY_DIR}/${WN_PROGRAM_NAME})
+  set(ANDROID_RUNNER ${PROJECT_SOURCE_DIR}/Utilities/android_runner.py)
+
+  set(WN_TARGET_NAME ${PARSED_ARGS_TARGET} )
+  if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set(WN_APK_NAME ${WN_TARGET_NAME}-debug.apk)
+  else()
+    set(WN_APK_NAME ${WN_TARGET_NAME}-release-unsigned.apk)
+  endif()
+  set(WN_APK_LOCATION ${WN_TARGET_DIR}/bin/${WN_APK_NAME})
 
   get_target_property(PERMISSIONS ${target} WN_ANDROID_PERMISSIONS)
   if (PERMISSIONS)
@@ -79,8 +88,9 @@ function(build_apk)
     "${WN_TARGET_DIR}/jni/Application.mk")
   configure_file("${PROJECT_SOURCE_DIR}/Utilities/gdb.setup.in"
     "${WN_TARGET_DIR}/libs/${ANDROID_ABI}/gdb.setup")
+  configure_file("${PROJECT_SOURCE_DIR}/Utilities/quick_run.py.in"
+    "${WN_TARGET_DIR}/${WN_TARGET_NAME}.py")
 
-  set(WN_TARGET_NAME ${PARSED_ARGS_TARGET} )
 
   add_custom_command(TARGET ${WN_TARGET_NAME}
     PRE_BUILD
@@ -131,11 +141,6 @@ function(build_apk)
         COMMAND ${ANT} "${WN_ANDROID_BUILD}" > ${WN_NULL_LOCATION}
         WORKING_DIRECTORY "${WN_TARGET_DIR}"
         COMMENT "Build android .apk for ${WN_TARGET_NAME}")
-      if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-        set(WN_APK_NAME ${WN_TARGET_NAME}-debug.apk)
-      else()
-        set(WN_APK_NAME ${WN_TARGET_NAME}-release-unsigned.apk)
-      endif()
       add_custom_command(TARGET ${WN_TARGET_NAME}
         POST_BUILD
         COMMAND  ${CMAKE_COMMAND} -E copy_if_different

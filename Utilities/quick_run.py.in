@@ -1,0 +1,44 @@
+#!/usr/bin/env python
+
+import argparse
+import os
+import os.path
+import subprocess
+import sys
+
+def run():
+    ndk_dir="${ANDROID_NDK}"
+    sdk_dir="${ANDROID_SDK_DIR}"
+    runner="${ANDROID_RUNNER}"
+    parser = argparse.ArgumentParser(
+                prog="${WN_ACTIVITY_NAME}.py",
+                description="Run android program")
+    parser.add_argument("--run", action="store_true",
+        help="Default: Run the program")
+    parser.add_argument("--install", action="store_true",
+            help="Install .apk")
+    parser.add_argument("--debug", action="store_true",
+            help="Run the debugger")
+    args = parser.parse_args(sys.argv[1:])
+
+    runner = os.path.expanduser(runner)
+    run = True
+    if args.install:
+        run_args=[runner, 'install', "${WN_APK_LOCATION}", '--sdk', sdk_dir ]
+
+        if subprocess.call(run_args) != 0:
+          return(-1)
+        run = False
+
+    if args.run or run:
+        run_args=[runner, 'run', "${WN_PACKAGE_NAME}", "${WN_ACTIVITY_NAME}", 
+                '--ndk_dir', ndk_dir, '--sdk', sdk_dir, '--apk_build_dir',
+                "${WN_TARGET_DIR}"]
+        if args.debug:
+            run_args.append('--debug')
+        ret = subprocess.call(run_args)
+        print "DONE"
+        return(ret)
+
+if __name__ == "__main__":
+    sys.exit(run())
