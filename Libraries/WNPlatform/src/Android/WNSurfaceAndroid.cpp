@@ -19,7 +19,7 @@ namespace wn {
   }
 
   WNSurfaceAndroid::~WNSurfaceAndroid() {
-      if(!mInitialized) {
+      if(mInitialized) {
           WNUtils::WNAndroidEventPump::GetInstance().SubscribeToEvent(WNUtils::WNAndroidEventPump::eDisplayCreated, NULL, NULL);
           WNUtils::WNAndroidEventPump::GetInstance().SubscribeToEvent(WNUtils::WNAndroidEventPump::eDisplayDestroyed, NULL, NULL);
       }

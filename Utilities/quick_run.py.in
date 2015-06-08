@@ -44,7 +44,6 @@ def run():
         if args.debug:
             run_args.append('--debug')
         ret = subprocess.call(run_args)
-        print "DONE"
         return(ret)
 
 if __name__ == "__main__":
