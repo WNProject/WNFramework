@@ -41,6 +41,7 @@ class Runner:
         run_p([adb, "shell", "am", "force-stop", args.package_name])
 
         if args.debug:
+            run_p([adb, "shell", "rm", "/sdcard/stdout.txt"])
             run_p([adb, "shell", "touch", "/sdcard/wait-for-debugger.txt"])
             ndk_gdb = [sys.executable, "ndk-gdb.py"]
             if args.ndk_dir:
@@ -57,6 +58,7 @@ class Runner:
             p.wait()
 
         else:
+            run_p([adb, "shell", "rm", "/sdcard/stdout.txt"])
             run_p([adb, "shell", "rm", "/sdcard/wait-for-debugger.txt"])
             run_p([ adb, "shell", "am", "start", args.package_name + "/." +
                 args.activity_name])
