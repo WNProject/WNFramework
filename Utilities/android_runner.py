@@ -91,6 +91,11 @@ class Runner:
                 crashed = crashedre.search(line)
                 finish_match = finishre.search(line)
                 if match:
+                    run_p([adb, "pull", "/sdcard/stdout.txt"])
+                    with open("stdout.txt", "r") as f:
+                        print f.read(),
+                    run_p([adb, "shell", "rm", "/sdcard/stdout.txt"])
+                    os.remove("stdout.txt")
                     sys.exit(int(match.group(1)))
                 elif finish_match:
                     continue
@@ -98,10 +103,11 @@ class Runner:
                     run_p([adb, "pull", "/sdcard/crash"])
                     run_p([adb, "shell", "am", "force-stop", args.package_name])
                     run_p([adb, "shell", "rm", "/sdcard/crash"])
-                    run_p([adb, "shell", "pull", "/sdcard/stdout.txt"])
-                    with open(stdout.txt, "r") as f:
+                    run_p([adb, "pull", "/sdcard/stdout.txt"])
+                    with open("stdout.txt", "r") as f:
                         print f.read(),
                     run_p([adb, "shell", "rm", "/sdcard/stdout.txt"])
+                    os.remove("stdout.txt")
                     print "CRASHED"
                     time.sleep(1)
                     run_p([adb, "shell", "am", "force-stop", args.package_name])
@@ -126,7 +132,7 @@ class Runner:
         args = parser.parse_args(sys.argv[2:])
         adb = "adb"
         if args.sdk:
-            adb = os.path.join(parse.sdk, "platform-tools", "adb")
+            adb = os.path.join(args.sdk, "platform-tools", "adb")
         run_p([adb, "install", "-r", args.apk])
 
         pass
