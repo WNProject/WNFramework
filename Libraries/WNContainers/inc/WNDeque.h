@@ -680,7 +680,7 @@ namespace wn {
                         }
 
                         for (size_type i = 0; i < neededBlocks; ++i) {
-                            wn::memory::allocation_pair p = m_allocator.allocate(sizeof(value_type*), _BlockSize);
+                            wn::memory::allocation_pair p = m_allocator.allocate(sizeof(value_type), _BlockSize);
                             m_block_list[(m_start_block + m_allocated_blocks) % m_block_list.size()] = static_cast<value_type*>(p.m_location);
                             m_allocated_blocks += 1;
                         }
@@ -731,7 +731,7 @@ namespace wn {
                     }
 
                     for (size_type i = 0; i < neededExtraBlocks; ++i) {
-                        wn::memory::allocation_pair p = m_allocator.allocate(sizeof(value_type*), _BlockSize);
+                        wn::memory::allocation_pair p = m_allocator.allocate(sizeof(value_type), _BlockSize);
 
                         m_block_list[(m_start_block + m_allocated_blocks) % m_block_list.size()] = static_cast<value_type*>(p.m_location);
                         m_allocated_blocks += 1;
