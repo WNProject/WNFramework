@@ -34,8 +34,8 @@ class Runner:
         args = parser.parse_args(sys.argv[2:])
         adb = "adb"
         if args.sdk:
-            args.sdk = os.path.expanduser(ars.sdk)
-            adb = os.path.join(parse.sdk, "platform-tools", "adb")
+            args.sdk = os.path.expanduser(args.sdk)
+            adb = os.path.join(args.sdk, "platform-tools", "adb")
 
         run_p([adb, "logcat", "-c"])
         run_p([adb, "shell", "am", "force-stop", args.package_name])
@@ -47,7 +47,7 @@ class Runner:
                 args.ndk_dir = os.path.expanduser(args.ndk_dir)
                 ndk_gdb = [sys.executable, os.path.join(args.ndk_dir,
                                                         "ndk-gdb.py")]
-            ndk_gdb.extend(["--start", "--force"]);
+            ndk_gdb.extend(["--start", "--force", "--nowait"]);
             run_dir = os.getcwd()
             if args.apk_build_dir:
                 args.apk_build_dir = os.path.expanduser(args.apk_build_dir)

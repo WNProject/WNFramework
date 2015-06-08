@@ -1,4 +1,3 @@
-
 function(library_name var target)
   get_target_property(LIB_NAME ${target} LIBRARY_OUTPUT_NAME)
   if(NOT LIB_NAME)
@@ -62,8 +61,12 @@ function(build_apk)
   endif()
   library_name(LIB_NAME ${PARSED_ARGS_TARGET})
 
+
+  get_target_property(SOLIB_DIRECTORIES ${target} INCLUDE_DIRECTORIES)
+  string(REPLACE ";" " " SOLIB_DIRECTORIES "${SOLIB_DIRECTORIES}")
+
   set(WN_NATIVE_LIBRARIES ${LIB_NAME})
-  set(SOLIB_PATH ${WN_TARGET_DIR}/obj/local/${ANDROID_ABI})
+  set(SOLIB_PATH ${WN_TARGET_DIR}/obj/local/${ANDROID_ABI}/)
   configure_file("${PROJECT_SOURCE_DIR}/Utilities/AndroidManifest.xml.in"
     "${WN_TARGET_DIR}/AndroidManifest.xml")
   configure_file("${PROJECT_SOURCE_DIR}/Utilities/strings.xml.in"
@@ -81,9 +84,6 @@ function(build_apk)
 
   add_custom_command(TARGET ${WN_TARGET_NAME}
     PRE_BUILD
-    COMMAND ${CMAKE_COMMAND} -E remove_directory "${WN_TARGET_DIR}/libs/${ANDROID_ABI}")
-  add_custom_command(TARGET ${WN_TARGET_NAME}
-    PRE_BUILD
     COMMAND ${CMAKE_COMMAND} -E make_directory "${WN_TARGET_DIR}/libs/${ANDROID_ABI}")
   add_custom_command(TARGET ${WN_TARGET_NAME}
     POST_BUILD
@@ -97,6 +97,9 @@ function(build_apk)
         "${WN_TARGET_DIR}/libs/${ANDROID_ABI}/")
   add_custom_command(TARGET ${WN_TARGET_NAME}
     POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${SOLIB_PATH}")
+  add_custom_command(TARGET ${WN_TARGET_NAME}
+    POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy "$<TARGET_FILE:${PARSED_ARGS_TARGET}>" "${SOLIB_PATH}"
     DEPENDS $<TARGET_FILE:${PARSED_ARGS_TARGET}>)
   endif()
@@ -107,7 +110,7 @@ function(build_apk)
       ${ANDROID_NDK_HOST_SYSTEM_NAME} STREQUAL "windows-x86_64")
       find_host_program(PYTHON python REQUIRED)
       set(ANDROID_TOOL_PATH ${PYTHON} ${WNFramework_SOURCE_DIR}/Utilities/single_process_windows.py
-        "WNFrame/workAndroidUpdateProject"
+        "WNFramework/AndroidUpdateProject"
         "${ANDROID_SDK_DIR}/tools/android.bat")
     endif()
 

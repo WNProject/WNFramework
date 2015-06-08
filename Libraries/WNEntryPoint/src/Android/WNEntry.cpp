@@ -68,7 +68,7 @@ void android_main(struct android_app* state)
     __android_log_print(ANDROID_LOG_INFO, packageName, "--STARTED");
 
     #if defined _WN_DEBUG
-        FILE* debugFile = fopen("/sdcard/waitdebugger.txt", "r");
+        FILE* debugFile = fopen("/sdcard/wait-for-debugger.txt", "r");
 
         if (debugFile)
         {
