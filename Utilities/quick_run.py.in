@@ -5,6 +5,7 @@ import os
 import os.path
 import subprocess
 import sys
+import time
 
 def run():
     ndk_dir="${ANDROID_NDK}"
@@ -19,11 +20,15 @@ def run():
             help="Install .apk")
     parser.add_argument("--debug", action="store_true",
             help="Run the debugger")
+    parser.add_argument("--delay", type=int,
+            help="Delay before run and between install and run")
     args = parser.parse_args(sys.argv[1:])
 
     runner = os.path.expanduser(runner)
     run = True
     if args.install:
+        if args.delay:
+            time.sleep(args.delay)
         run_args=[runner, 'install', "${WN_APK_LOCATION}", '--sdk', sdk_dir ]
 
         if subprocess.call(run_args) != 0:
@@ -31,6 +36,8 @@ def run():
         run = False
 
     if args.run or run:
+        if args.delay:
+            time.sleep(args.delay)
         run_args=[runner, 'run', "${WN_PACKAGE_NAME}", "${WN_ACTIVITY_NAME}", 
                 '--ndk_dir', ndk_dir, '--sdk', sdk_dir, '--apk_build_dir',
                 "${WN_TARGET_DIR}"]
