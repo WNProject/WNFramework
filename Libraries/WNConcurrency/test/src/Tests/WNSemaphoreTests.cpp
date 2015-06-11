@@ -8,96 +8,95 @@
 #include <sstream>
 
 TEST(semaphore, wait_notify) {
-    std::stringstream numbers;
-    wn_uint32 count = 0;
-    wn_bool start = wn_false;
-    wn::semaphore semaphore;
+  std::stringstream numbers;
+  wn_uint32 count = 0;
+  wn_bool start = wn_false;
+  wn::concurrency::semaphore semaphore;
 
-    const auto thread_function = [&numbers, &count, &semaphore, &start]() -> wn_void {
-        semaphore.wait();
+  const auto thread_function =
+    [&numbers, &count, &semaphore, &start]() -> wn_void {
+    semaphore.wait();
 
-        ASSERT_TRUE(start);
+    ASSERT_TRUE(start);
 
-        numbers << count;
+    numbers << count;
 
-        count++;
-
-        semaphore.notify();
-    };
-
-    std::vector<std::shared_ptr<wn::thread<wn_void>>> threads;
-
-    for (auto i = 0; i < 10; ++i) {
-        threads.push_back(std::make_shared<wn::thread<wn_void>>(thread_function));
-    }
-
-    wn::this_thread::sleep_for(std::chrono::seconds(1));
-
-    ASSERT_EQ(count, 0);
-
-    start = wn_true;
-
-    wn::this_thread::sleep_for(std::chrono::seconds(1));
-
-    ASSERT_EQ(count, 0);
+    count++;
 
     semaphore.notify();
+  };
 
-    for (auto i = 0; i < 10; ++i) {
-        threads[i]->join();
-    }
+  std::vector<std::shared_ptr<wn::concurrency::thread<wn_void>>> threads;
 
-    ASSERT_EQ(count, 10);
-    ASSERT_EQ(numbers.str(), "0123456789");
+  for (auto i = 0; i < 10; ++i) {
+    threads.push_back(
+      std::make_shared<wn::concurrency::thread<wn_void>>(thread_function));
+  }
+
+  ASSERT_EQ(count, 0);
+
+  start = wn_true;
+
+  ASSERT_EQ(count, 0);
+
+  semaphore.notify();
+
+  for (auto i = 0; i < 10; ++i) {
+    threads[i]->join();
+  }
+
+  ASSERT_EQ(count, 10);
+  ASSERT_EQ(numbers.str(), "0123456789");
 }
 
 TEST(semaphore, try_wait) {
-    wn::semaphore semaphore;
+  wn::concurrency::semaphore semaphore;
 
-    ASSERT_FALSE(semaphore.try_wait());
+  ASSERT_FALSE(semaphore.try_wait());
 
-    semaphore.notify();
+  semaphore.notify();
 
-    const auto thread_function = [&semaphore]() -> wn_void {
-        ASSERT_TRUE(semaphore.try_wait());
-    };
+  const auto thread_function = [&semaphore]() -> wn_void {
+    ASSERT_TRUE(semaphore.try_wait());
+  };
 
-    wn::thread<wn_void> thread(thread_function);
+  wn::concurrency::thread<wn_void> thread(thread_function);
 
-    thread.join();
+  thread.join();
 }
 
 TEST(semaphore, initial_count) {
-    std::atomic_int count = { 0 };
-    wn::semaphore semaphore(10);
+  std::atomic_int count = { 0 };
+  wn::concurrency::semaphore semaphore(10);
 
-    const auto thread_function = [&count, &semaphore]() -> wn_void {
-        semaphore.wait();
+  const auto thread_function = [&count, &semaphore]() -> wn_void {
+    semaphore.wait();
 
-        count++;
-    };
+    count++;
+  };
 
-    std::vector<std::shared_ptr<wn::thread<wn_void>>> threads;
+  std::vector<std::shared_ptr<wn::concurrency::thread<wn_void>>> threads;
 
-    for (auto i = 0; i < 20; ++i) {
-        threads.push_back(std::make_shared<wn::thread<wn_void>>(thread_function));
-    }
+  for (auto i = 0; i < 20; ++i) {
+    threads.push_back(
+      std::make_shared<wn::concurrency::thread<wn_void>>(thread_function));
+  }
 
-    wn::this_thread::sleep_for(std::chrono::seconds(1));
+  wn::concurrency::this_thread::sleep_for(std::chrono::seconds(1));
 
-    ASSERT_EQ(count, 10);
+  ASSERT_EQ(count, 10);
 
-    semaphore.notify(5);
+  semaphore.notify(5);
 
-    wn::this_thread::sleep_for(std::chrono::seconds(1));
+  wn::concurrency::this_thread::sleep_for(std::chrono::seconds(1));
 
-    ASSERT_EQ(count, 15);
+  ASSERT_EQ(count, 15);
 
-    semaphore.notify(5);
+  semaphore.notify(5);
 
-    for (auto i = 0; i < 20; ++i) {
-        threads[i]->join();
-    }
+  for (auto i = 0; i < 20; ++i) {
+    threads[i]->join();
+  }
 
-    ASSERT_EQ(count, 20);
+  ASSERT_EQ(count, 20);
 }

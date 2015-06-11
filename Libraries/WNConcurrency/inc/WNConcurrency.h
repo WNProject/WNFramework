@@ -7,7 +7,7 @@
 #ifndef __WN_CONCURRENCY_H__
 #define __WN_CONCURRENCY_H__
 
-#include "WNConcurrency/inc/WNCallbackJob.h"
+#include "WNConcurrency/inc/WNCallbackTask.h"
 #include "WNConcurrency/inc/WNConditionVariable.h"
 #include "WNConcurrency/inc/WNMutex.h"
 #include "WNConcurrency/inc/WNSemaphore.h"

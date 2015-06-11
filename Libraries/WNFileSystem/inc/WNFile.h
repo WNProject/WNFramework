@@ -11,7 +11,7 @@
 #include "WNCore/inc/WNTypes.h"
 
 #ifdef _WN_WINDOWS
-    #include <windows.h>
+    #include <Windows.h>
 #elif defined _WN_LINUX || defined _WN_ANDROID
     #include <stdio.h>
 #endif

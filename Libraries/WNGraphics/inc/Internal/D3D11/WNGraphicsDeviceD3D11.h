@@ -95,7 +95,7 @@ namespace WNGraphics {
         wn::memory::intrusive_ptr<wn::surface> mActiveSurface;
 
         WNGraphicsResourceFactory * mResourceFactory;
-        wn::recursive_mutex mResizeMutex;
+        wn::concurrency::recursive_mutex mResizeMutex;
 
         wn_float32 mClearColor[4];
 

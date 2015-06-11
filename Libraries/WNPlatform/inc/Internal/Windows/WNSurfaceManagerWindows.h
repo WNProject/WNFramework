@@ -36,7 +36,7 @@ namespace wn {
             WNWindowThreadData(wn::memory::intrusive_ptr<wn::WNSurfaceWindows> _wnd);
 
         public:
-            wn::thread<wn_bool>* mThread;
+            wn::concurrency::thread<wn_bool>* mThread;
             wn::memory::intrusive_ptr<wn::WNSurfaceWindows> mWindow;
             wn_atom_t mExit;
         };
@@ -47,9 +47,9 @@ namespace wn {
         static wn_bool MessagePump(WNWindowThreadData* _data);
         std::vector<WNWindowThreadData*> mMessagePumps;
 
-        wn::semaphore mCreatedWindowLock;
-        wn::mutex mCallbackLock;
-        wn::mutex mWindowCreationLock;
+        wn::concurrency::semaphore mCreatedWindowLock;
+        wn::concurrency::mutex mCallbackLock;
+        wn::concurrency::mutex mWindowCreationLock;
     };
 };
 

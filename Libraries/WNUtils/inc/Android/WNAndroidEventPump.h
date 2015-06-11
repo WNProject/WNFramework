@@ -33,12 +33,12 @@ namespace WNUtils {
         WNAndroidEventCallback mCallbacks[eMaxValue];
         wn_void* mCallbackData[eMaxValue];
         wn_bool mExiting;
-        wn::spin_lock mQueueLock;
-        wn::spin_lock mCallbackLock;
+        wn::concurrency::spin_lock mQueueLock;
+        wn::concurrency::spin_lock mCallbackLock;
         std::deque<eInternalMessage> mMessageQueue;
         wn_bool mDisplayActive;
         ALooper* mMainLooper;
-        wn::semaphore mStartedSemaphore;
+        wn::concurrency::semaphore mStartedSemaphore;
     };
 };
 

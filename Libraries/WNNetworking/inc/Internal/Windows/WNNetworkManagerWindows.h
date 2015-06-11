@@ -53,13 +53,13 @@ namespace WNNetworking {
         HANDLE mAcceptEvent;
         HANDLE mShutdownEvent;
         eWNWindowsInitializationState mInitializationState;
-        wn::thread<wn_void>* mListenThread;
-        wn::spin_lock mListenerMutex;
-        wn::spin_lock mRecievedMutex;
-        wn::spin_lock mInvalidMutex;
-        wn::spin_lock mOutgoingMutex;
+        wn::concurrency::thread<wn_void>* mListenThread;
+        wn::concurrency::spin_lock mListenerMutex;
+        wn::concurrency::spin_lock mRecievedMutex;
+        wn::concurrency::spin_lock mInvalidMutex;
+        wn::concurrency::spin_lock mOutgoingMutex;
 
-        std::vector<wn::thread<wn_void>*> mThreads;
+        std::vector<wn::concurrency::thread<wn_void>*> mThreads;
         std::list<WNListenConnectionWindows*> mIncommingConnections;
         std::list<WNOutConnectionWindows*> mOutgoingConnections;
         std::list<WNInConnectionWindows*> mReceivedConnections;

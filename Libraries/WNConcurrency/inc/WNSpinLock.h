@@ -7,207 +7,181 @@
 #ifndef __WN_CONCURRENCY_SPIN_LOCK_H__
 #define __WN_CONCURRENCY_SPIN_LOCK_H__
 
-#include "WNCore/inc/WNTypes.h"
 #include "WNCore/inc/WNUtility.h"
 #include "WNConcurrency/inc/WNConfig.h"
+#include "WNConcurrency/inc/WNThread.h"
 
 #ifdef _WN_WINDOWS
-    #include <windows.h>
-#elif defined _WN_LINUX
-    #include <unistd.h>
-    #include <sys/types.h>
-    #include <sys/syscall.h>
-#elif defined _WN_ANDROID
-    #include <unistd.h>
-    #include <sys/types.h>
-    #include <sys/syscall.h>
+  #include <Windows.h>
+#elif defined _WN_POSIX
+  #include <pthread.h>
 #endif
 
-#ifdef __WN_PTHREAD_SPIN_LOCKS
-    #include <pthread.h>
-    #include <errno.h>
+#ifdef __WN_USE_PTHREAD_SPIN_LOCK
+  #include "WNCore/inc/WNAssert.h"
 
-    #define __WN_SPIN_LOCK_CREATE_ERR_MSG "Error: Failed to create spin lock object."
-    #define __WN_SPIN_LOCK_LOCK_ERR_MSG "Error: Failed to lock spin lock object."
-    #define __WN_SPIN_LOCK_UNLOCK_ERR_MSG "Error: Failed to unlock spin lock object."
-    #define __WN_SPIN_LOCK_DESTROY_WARN_MSG "Warning: Failed to destroy spin lock object."
+  #include <errno.h>
 #else
-    #include <atomic>
+  #include <atomic>
 #endif
 
 namespace wn {
-    class spin_lock final : public core::non_copyable {
-    public:
-        WN_FORCE_INLINE explicit spin_lock() {
-            #ifdef __WN_PTHREAD_SPIN_LOCKS
-                const int result_type = ::pthread_spin_init(&m_spin_lock, PTHREAD_PROCESS_PRIVATE);
+namespace concurrency {
 
-                WN_RELEASE_ASSERT_DESC(result_type == 0, __WN_SPIN_LOCK_CREATE_ERR_MSG);
-            #else
-                m_flag.clear(std::memory_order_release);
-            #endif
-        }
+class spin_lock final : public core::non_copyable {
+public:
+  WN_FORCE_INLINE spin_lock() {
+    #ifdef __WN_USE_PTHREAD_SPIN_LOCK
+      const int result_type = ::pthread_spin_init(&m_spin_lock,
+                                                  PTHREAD_PROCESS_PRIVATE);
 
-        WN_FORCE_INLINE ~spin_lock() {
-            #ifdef __WN_PTHREAD_SPIN_LOCKS
-                const int result_type = ::pthread_spin_destroy(&m_spin_lock);
+      WN_RELEASE_ASSERT_DESC(result_type == 0,
+        "failed to create spin lock object.");
+    #else
+      m_flag.clear(std::memory_order_release);
+    #endif
+  }
 
-                WN_DEBUG_ASSERT_DESC(result_type == 0, __WN_SPIN_LOCK_DESTROY_WARN_MSG);
+  WN_FORCE_INLINE ~spin_lock() {
+    #ifdef __WN_USE_PTHREAD_SPIN_LOCK
+      const int result_type = ::pthread_spin_destroy(&m_spin_lock);
 
-                #ifdef _WN_RELEASE
-                    WN_UNUSED_ARGUMENT(result_type);
-                #endif
-            #endif
-        }
+      WN_DEBUG_ASSERT_DESC(result_type == 0,
+        "failed to destroy spin lock object.");
 
-        WN_FORCE_INLINE wn_void lock() {
-            #ifdef __WN_PTHREAD_SPIN_LOCKS
-                const int result_type = ::pthread_spin_lock(&m_spin_lock);
+      #ifdef _WN_RELEASE
+        WN_UNUSED_ARGUMENT(result_type);
+      #endif
+    #endif
+  }
 
-                WN_RELEASE_ASSERT_DESC(result_type == 0, __WN_SPIN_LOCK_LOCK_ERR_MSG);
-            #else
-                while (!try_lock()) {
-                    continue;
-                }
-            #endif
-        }
+  WN_FORCE_INLINE wn_void lock() {
+    #ifdef __WN_USE_PTHREAD_SPIN_LOCK
+      const int result_type = ::pthread_spin_lock(&m_spin_lock);
 
-        WN_FORCE_INLINE wn_bool try_lock() {
-            #ifdef __WN_PTHREAD_SPIN_LOCKS
-                return(::pthread_spin_trylock(&m_spin_lock) != EBUSY ? wn_true : wn_false);
-            #else
-                return(!m_flag.test_and_set(std::memory_order_acquire));
-            #endif
-        }
+      WN_RELEASE_ASSERT_DESC(result_type == 0,
+        "failed to lock spin lock object.");
+    #else
+      while (!try_lock()) {
+        this_thread::yield();
+      }
+    #endif
+  }
 
-        WN_FORCE_INLINE wn_void unlock() {
-            #ifdef __WN_PTHREAD_SPIN_LOCKS
-                const int result_type = ::pthread_spin_unlock(&m_spin_lock);
+  WN_FORCE_INLINE wn_bool try_lock() {
+    #ifdef __WN_USE_PTHREAD_SPIN_LOCK
+      return(::pthread_spin_trylock(&m_spin_lock) != EBUSY);
+    #else
+      return(!m_flag.test_and_set(std::memory_order_acquire));
+    #endif
+  }
 
-                WN_RELEASE_ASSERT_DESC(result_type == 0, __WN_SPIN_LOCK_UNLOCK_ERR_MSG);
-            #else
-                m_flag.clear(std::memory_order_release);
-            #endif
-        }
+  WN_FORCE_INLINE wn_void unlock() {
+    #ifdef __WN_USE_PTHREAD_SPIN_LOCK
+      const int result_type = ::pthread_spin_unlock(&m_spin_lock);
 
-    private:
-        #ifdef __WN_PTHREAD_SPIN_LOCKS
-            pthread_spinlock_t m_spin_lock;
-        #else
-            std::atomic_flag m_flag;
-        #endif
-    };
+      WN_RELEASE_ASSERT_DESC(result_type == 0,
+        "failed to unlock spin lock object.");
+    #else
+      m_flag.clear(std::memory_order_release);
+    #endif
+  }
 
-    class recursive_spin_lock final : public core::non_copyable {
-    public:
-        WN_FORCE_INLINE explicit recursive_spin_lock() :
-            m_recursion_count(0),
-            m_owning_thread(0) {
-            #ifdef __WN_PTHREAD_SPIN_LOCKS
-                const int result_type = ::pthread_spin_init(&m_spin_lock, PTHREAD_PROCESS_PRIVATE);
+private:
+  #ifdef __WN_USE_PTHREAD_SPIN_LOCK
+    pthread_spinlock_t m_spin_lock;
+  #else
+    std::atomic_flag m_flag;
+  #endif
+};
 
-                WN_RELEASE_ASSERT_DESC(result_type == 0, __WN_SPIN_LOCK_CREATE_ERR_MSG);
-            #else
-                m_flag.clear(std::memory_order_release);
-            #endif
-        }
+class recursive_spin_lock final : public core::non_copyable {
+public:
+  WN_FORCE_INLINE recursive_spin_lock() :
+    #ifdef _WN_WINDOWS
+      m_owning_thread(0),
+    #elif defined _WN_POSIX
+      m_owned(wn_false),
+    #endif
+    m_recursion_count(0) {
+  }
 
-        WN_FORCE_INLINE ~recursive_spin_lock() {
-            #ifdef __WN_PTHREAD_SPIN_LOCKS
-                const int result_type = ::pthread_spin_destroy(&m_spin_lock);
+  WN_FORCE_INLINE wn_void lock() {
+    #ifdef _WN_WINDOWS
+      const DWORD current_thread = ::GetCurrentThreadId();
+      const wn_bool owner = (current_thread == m_owning_thread);
+    #elif defined _WN_POSIX
+      const pthread_t current_thread = ::pthread_self();
+      const wn_bool owner = ::pthread_equal(current_thread,
+                                            m_owning_thread) != 0 && m_owned;
+    #endif
 
-                WN_DEBUG_ASSERT_DESC(result_type == 0, __WN_SPIN_LOCK_DESTROY_WARN_MSG);
+    if (!owner) {
+      m_spin_lock.lock();
+    }
 
-                #ifdef _WN_RELEASE
-                    WN_UNUSED_ARGUMENT(result_type);
-                #endif
-            #endif
-        }
+    #ifdef _WN_POSIX
+      m_owned = wn_true;
+    #endif
 
-        WN_FORCE_INLINE wn_void lock() {
-            #ifdef _WN_WINDOWS
-                const DWORD current_thread = ::GetCurrentThreadId();
-            #elif defined _WN_LINUX
-                const pid_t current_thread = static_cast<pid_t>(::syscall(SYS_gettid));
-            #elif defined _WN_ANDROID
-                const pid_t current_thread = gettid();
-            #endif
+    m_owning_thread = current_thread;
+    m_recursion_count++;
+  }
 
-            if (current_thread != m_owning_thread) {
-                #ifdef __WN_PTHREAD_SPIN_LOCKS
-                    const int result_type = ::pthread_spin_lock(&m_spin_lock);
+  WN_FORCE_INLINE wn_bool try_lock() {
+    #ifdef _WN_WINDOWS
+      const DWORD current_thread = ::GetCurrentThreadId();
+      const wn_bool owner = (current_thread == m_owning_thread);
+    #elif defined _WN_POSIX
+      const pthread_t current_thread = ::pthread_self();
+      const wn_bool owner = ::pthread_equal(current_thread,
+                                            m_owning_thread) != 0 && m_owned;
+    #endif
 
-                    WN_RELEASE_ASSERT_DESC(result_type == 0, __WN_SPIN_LOCK_LOCK_ERR_MSG);
-                #else
-                    while (m_flag.test_and_set(std::memory_order_acquire)) {
-                        continue;
-                    }
-                #endif
-            }
+    if (!owner) {
+      if (!m_spin_lock.try_lock()) {
+        return(wn_false);
+      }
 
-            m_owning_thread = current_thread;
-            m_recursion_count++;
-        }
+      #ifdef _WN_POSIX
+        m_owned = wn_true;
+      #endif
 
-        WN_FORCE_INLINE wn_bool try_lock() {
-            #ifdef _WN_WINDOWS
-                const DWORD current_thread = ::GetCurrentThreadId();
-            #elif defined _WN_LINUX
-                const pid_t current_thread = static_cast<pid_t>(::syscall(SYS_gettid));
-            #elif defined _WN_ANDROID
-                const pid_t current_thread = gettid();
-            #endif
+      m_owning_thread = current_thread;
+    }
 
-            if (m_owning_thread != current_thread) {
-                #ifdef __WN_PTHREAD_SPIN_LOCKS
-                    if (::pthread_spin_trylock(&m_spin_lock) == EBUSY) {
-                        return(wn_false);
-                    }
-                #else
-                    if (m_flag.test_and_set(std::memory_order_acquire)) {
-                        return(wn_false);
-                    }
-                #endif
+    m_recursion_count++;
 
-                m_owning_thread = current_thread;
-            }
+    return(wn_true);
+  }
 
-            m_recursion_count++;
+  WN_FORCE_INLINE wn_void unlock() {
+    const wn_size_t recursion_count = --m_recursion_count;
 
-            return(wn_true);
-        }
+    if (recursion_count == 0) {
+      #ifdef _WN_WINDOWS
+        m_owning_thread = 0;
+      #elif defined _WN_POSIX
+        m_owned = wn_false;
+      #endif
 
-        WN_FORCE_INLINE wn_void unlock() {
-            const wn_size_t recursion_count = --m_recursion_count;
+      m_spin_lock.unlock();
+    }
+  }
 
-            if (recursion_count == 0) {
-                m_owning_thread = 0;
+private:
+  #ifdef _WN_WINDOWS
+    DWORD m_owning_thread;
+  #elif defined _WN_POSIX
+    pthread_t m_owning_thread;
+    std::atomic_bool m_owned;
+  #endif
 
-                #ifdef __WN_PTHREAD_SPIN_LOCKS
-                    const int result_type = ::pthread_spin_unlock(&m_spin_lock);
+  std::atomic_size_t m_recursion_count;
+  spin_lock m_spin_lock;
+};
 
-                    WN_RELEASE_ASSERT_DESC(result_type == 0, __WN_SPIN_LOCK_UNLOCK_ERR_MSG);
-                #else
-                    m_flag.clear(std::memory_order_release);
-                #endif
-            }
-        }
-
-    private:
-        #ifdef _WN_WINDOWS
-            DWORD m_owning_thread;
-        #elif defined _WN_LINUX || defined _WN_ANDROID
-            pid_t m_owning_thread;
-        #endif
-
-        wn_size_t m_recursion_count;
-
-        #ifdef __WN_PTHREAD_SPIN_LOCKS
-            pthread_spinlock_t m_spin_lock;
-        #else
-            std::atomic_flag m_flag;
-        #endif
-    };
-}
+} // namespace concurrency
+} // namespace wn
 
 #endif // __WN_CONCURRENCY_SPIN_LOCK_H__

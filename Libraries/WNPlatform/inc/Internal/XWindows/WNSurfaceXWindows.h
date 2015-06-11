@@ -15,10 +15,14 @@
 #include <X11/Xatom.h>
 #include <GL/glx.h>
 
-namespace wn{
-    template <typename Return>
-    class thread;
-}
+namespace wn {
+namespace concurrency {
+
+template <typename R>
+class thread;
+
+} // namespace concurrency
+} // namesapce wn
 
 namespace wn {
     class WNSurfaceManagerXWindows;
@@ -49,10 +53,10 @@ namespace wn {
         Atom mDeleteMessage;
         wn_bool mExiting;
         wn::WNSurfaceManagerXWindows& mManager;
-        wn::semaphore mThreadCreationMutex;
+        wn::concurrency::semaphore mThreadCreationMutex;
         Display* mDisplay;
         Window mWindow;
-        wn::thread<wn_void>* mSurfaceThread;
+        wn::concurrency::thread<wn_void>* mSurfaceThread;
         wn_bool mFullscreen;
         wn_uint32 mX;
         wn_uint32 mY;

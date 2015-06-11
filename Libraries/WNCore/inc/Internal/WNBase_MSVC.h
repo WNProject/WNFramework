@@ -78,7 +78,7 @@
     #define NOMINMAX
 
     #include <winsock2.h>
-    #include <windows.h>
+    #include <Windows.h>
 
     #if !defined _WIN32_WINNT_VISTA || _WIN32_WINNT < _WIN32_WINNT_VISTA
         #error "Windows API Version not supported: Windows Vista or higher must be used"

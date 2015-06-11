@@ -8,7 +8,8 @@
 
 #include <EGL/egl.h>
 #include <GLES/gl.h>
-static wn::spin_lock gInitializationCreationLock;
+
+static wn::concurrency::spin_lock gInitializationCreationLock;
 
 WNGraphics::WNGraphicsDeviceEGL::WNGraphicsDeviceEGL(WNGraphics::WNGraphicsResourceFactory* _factory) :
     mResourceFactory(_factory),

@@ -7,52 +7,60 @@
 #ifndef __WN_CONCURRENCY_THREAD_TASK_H__
 #define __WN_CONCURRENCY_THREAD_TASK_H__
 
-#include "WNCore/inc/WNTypes.h"
 #include "WNMemory/inc/WNIntrusivePtrBase.h"
+#include "WNMemory/inc/WNIntrusivePtr.h"
 #include "WNConcurrency/inc/WNSemaphore.h"
 
 #include <atomic>
 
 namespace wn {
-    class thread_pool;
+namespace concurrency {
 
-    class thread_task : public memory::intrusive_ptr_base {
-    public:
-        WN_FORCE_INLINE explicit thread_task() :
-            memory::intrusive_ptr_base() {
-            m_executed.clear(std::memory_order_release);
-        }
+class thread_pool;
 
-        WN_FORCE_INLINE virtual ~thread_task() = default;
+class thread_task : public memory::intrusive_ptr_base {
+public:
+  virtual ~thread_task() = default;
 
-        WN_FORCE_INLINE wn_void join() {
-            if (!run_task()) {
-                m_completion_semaphore.wait();
-                m_completion_semaphore.notify();
-            }
-        }
+  WN_FORCE_INLINE wn_bool join() {
+    if (!run_task()) {
+      m_completion_semaphore.wait();
+      m_completion_semaphore.notify();
+    }
 
-    protected:
-        virtual wn_void run() = 0;
+    return(wn_true);
+  }
 
-    private:
-        friend class thread_pool;
+protected:
+  WN_FORCE_INLINE thread_task() :
+    memory::intrusive_ptr_base() {
+    m_executed.clear(std::memory_order_release);
+  }
 
-        WN_FORCE_INLINE wn_bool run_task() {
-            if (!m_executed.test_and_set(std::memory_order_acquire)) {
-                run();
+  virtual wn_void run() = 0;
 
-                m_completion_semaphore.notify();
+private:
+  friend class thread_pool;
 
-                return(wn_true);
-            }
+  WN_FORCE_INLINE wn_bool run_task() {
+    if (!m_executed.test_and_set(std::memory_order_acquire)) {
+      run();
 
-            return(wn_false);
-        }
+      m_completion_semaphore.notify();
 
-        std::atomic_flag m_executed;
-        semaphore m_completion_semaphore;
-    };
-}
+      return(wn_true);
+    }
+
+    return(wn_false);
+  }
+
+  std::atomic_flag m_executed;
+  semaphore m_completion_semaphore;
+};
+
+typedef memory::intrusive_ptr<thread_task> thread_task_ptr;
+
+} // namespace concurrency
+} // namespace wn
 
 #endif // __WN_CONCURRENCY_THREAD_TASK_H__

@@ -39,9 +39,9 @@ namespace WNNetworking {
         wn_size_t mTotalSent;
         std::atomic<wn_atom_t> mReadAtomic;
         std::atomic<wn_atom_t> mWriteAtomic;
-        wn::spin_lock mReadLock;
-        wn::spin_lock mWriteLock;
-        wn::spin_lock mSendBufferLock;
+        wn::concurrency::spin_lock mReadLock;
+        wn::concurrency::spin_lock mWriteLock;
+        wn::concurrency::spin_lock mSendBufferLock;
         std::deque<WNNetworkWriteBuffer> mSendBuffers;
 
         WNNetworkReadBuffer mCurrentReadBuffer;

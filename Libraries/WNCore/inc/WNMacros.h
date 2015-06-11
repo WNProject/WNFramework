@@ -11,7 +11,7 @@
 #include "WNCore/inc/WNTypes.h"
 
 #ifdef _WN_WINDOWS
-    #include <windows.h>
+    #include <Windows.h>
 #else
     #include <stdio.h>
 #endif

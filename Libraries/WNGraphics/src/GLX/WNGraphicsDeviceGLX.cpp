@@ -16,7 +16,7 @@ static glXSwapIntervalEXTProc glXSwapIntervalEXT = 0;
 
 #define WN_RESIZE_RETRY_COUNT 5
 
-static wn::spin_lock gInitializationCreationLock;
+static wn::concurrency::spin_lock gInitializationCreationLock;
 
 WNGraphics::WNGraphicsDeviceGLX::WNGraphicsDeviceGLX(WNGraphics::WNGraphicsResourceFactory* _factory) :
     mResourceFactory(_factory),

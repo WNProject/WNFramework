@@ -93,7 +93,7 @@ wn_void WNConnectionLinux::NotifyReadyToSend(wn_bool socketFree) {
 
 wn_bool WNConnectionLinux::Send() {
     {
-        std::lock_guard<wn::spin_lock> guard(mSendBufferLock);
+        std::lock_guard<wn::concurrency::spin_lock> guard(mSendBufferLock);
 
         if (mSendBuffers.empty()) {
             return(wn_false);
