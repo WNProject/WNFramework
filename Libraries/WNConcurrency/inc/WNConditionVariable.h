@@ -12,7 +12,11 @@
 #include <condition_variable>
 
 namespace wn {
-    typedef std::condition_variable_any condition_variable;
-}
+namespace concurrency {
+
+typedef std::condition_variable_any condition_variable;
+
+} // namespace concurrency
+} // namespace wn
 
 #endif // __WN_CONCURRENCY_CONDITION_VARIABLE_H__

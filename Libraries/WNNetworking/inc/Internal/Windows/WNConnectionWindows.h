@@ -58,7 +58,7 @@ namespace WNNetworking {
     protected:
         WNNetworkManager& mManager;
         WNNetworkReadBuffer mCurrentReadBuffer;
-        wn::mutex mSendMutex;
+        wn::concurrency::mutex mSendMutex;
         std::deque<WNNetworkWriteBuffer> mWriteBuffers;
         std::vector<WSABUF> mWSAWriteBuffers;
         wn_size_t mInProcessedBytes;

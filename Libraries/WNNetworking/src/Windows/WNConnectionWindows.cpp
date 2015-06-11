@@ -138,7 +138,7 @@ wn_bool WNConnectionWindows::ProcessRead(WNNetworkManagerWindows* _windowsManage
 }
 
 wn_void WNConnectionWindows::AppendSendBuffer(WNNetworkWriteBuffer& _buff) {
-    std::lock_guard<wn::mutex> guard(mSendMutex);
+    std::lock_guard<wn::concurrency::mutex> guard(mSendMutex);
 
     mWriteBuffers.push_back(_buff);
 
@@ -162,7 +162,7 @@ wn_void WNConnectionWindows::Send() {
 }
 
 wn_void WNConnectionWindows::ProcessWrite() {
-    std::lock_guard< wn::mutex> guard(mSendMutex);
+    std::lock_guard< wn::concurrency::mutex> guard(mSendMutex);
     mWriteBuffers.pop_front();
     if(mWriteBuffers.size() > 0){
         Send();

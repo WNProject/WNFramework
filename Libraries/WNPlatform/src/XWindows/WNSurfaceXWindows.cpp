@@ -52,7 +52,7 @@ wn_bool wn::WNSurfaceXWindows::Initialize(wn_uint32 _x, wn_uint32 _y, wn_uint32 
 
     XSetWMProtocols(mDisplay, mWindow, &mDeleteMessage, 1);
 
-    mSurfaceThread = wn::memory::construct<wn::thread<wn_void> >(&wn::WNSurfaceXWindows::SurfaceThread, this);
+    mSurfaceThread = wn::memory::construct<wn::concurrency::thread<wn_void> >(&wn::WNSurfaceXWindows::SurfaceThread, this);
 
     return(wn_true);
 }
@@ -91,7 +91,7 @@ wn_void wn::WNSurfaceXWindows::SurfaceThread() {
             }
         }
 
-        wn::this_thread::sleep_for(std::chrono::milliseconds(1));
+        wn::concurrency::this_thread::sleep_for(std::chrono::milliseconds(1));
 
         if (mExiting) {
             return;

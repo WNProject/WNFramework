@@ -46,7 +46,7 @@ namespace wn {
         wn_bool InitializeWindow(android_app* app);
         wn_bool CleanupWindow(android_app* app);
     private:
-        wn::semaphore mCreationSemaphore;
+        wn::concurrency::semaphore mCreationSemaphore;
         wn_bool mExiting;
         wn_bool mInitialized;
         WNSurfaceManagerAndroid& mManager;

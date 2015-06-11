@@ -73,7 +73,7 @@ WNSurfaceManagerReturnCode::type WNSurfaceManagerWindows::CreateSurface(wn_uint3
     mWindowCreationLock.lock();
     mPendingHwnd = 0;
 
-    wn::thread<wn_bool>* thread = wn::memory::construct<wn::thread<wn_bool>>(MessagePump, dat);
+    wn::concurrency::thread<wn_bool>* thread = wn::memory::construct<wn::concurrency::thread<wn_bool>>(MessagePump, dat);
 
     dat->mThread = thread;
 

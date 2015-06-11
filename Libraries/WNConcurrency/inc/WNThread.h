@@ -12,313 +12,414 @@
 #include "WNMemory/inc/WNIntrusivePtrBase.h"
 #include "WNMemory/inc/WNIntrusivePtr.h"
 #include "WNContainers/inc/WNFunction.h"
+#include "WNConcurrency/inc/WNSemaphore.h"
 
-#if defined _WN_WINDOWS || defined _WN_ANDROID
-    #include <mutex>
-#endif
+#if defined _WN_WINDOWS
+  #include <Windows.h>
+  #include <mutex>
+#elif defined _WN_POSIX
+  #include <pthread.h>
+  #include <unistd.h>
 
-#if defined _WN_POSIX
-    #include <unistd.h>
+  #ifdef _WN_LINUX
     #include <sys/syscall.h>
-    #include <atomic>
+  #elif defined _WN_ANDROID
+    #include <sys/types.h>
+  #endif
 #endif
 
 #include <chrono>
 
 namespace wn {
-    namespace internal {
-        namespace concurrency {
-            struct thread_data_base : memory::intrusive_ptr_base {
-                WN_FORCE_INLINE thread_data_base() :
-                    memory::intrusive_ptr_base(),
-                    #ifdef _WN_WINDOWS
-                        m_handle(NULL),
-                    #endif
-                    m_id(0) {
-                    #ifdef _WN_POSIX
-                        m_joined.clear(std::memory_order_release);
-                    #endif
-                }
+namespace concurrency {
+namespace internal {
 
-                WN_FORCE_INLINE ~thread_data_base() {
-                    #ifdef _WN_WINDOWS
-                        if (m_handle != NULL) {
-                            const BOOL close_result = ::CloseHandle(m_handle);
+struct thread_data_common : public memory::intrusive_ptr_base {
+  WN_FORCE_INLINE thread_data_common() :
+    memory::intrusive_ptr_base(),
+    #ifdef _WN_WINDOWS
+      m_handle(NULL),
+      m_id(0),
+    #endif
+    m_joined(wn_false) {
+  }
 
-                            WN_DEBUG_ASSERT_DESC(close_result != FALSE, "Failed to destory thread object");
+  WN_FORCE_INLINE ~thread_data_common() {
+    #ifdef _WN_WINDOWS
+      if (m_handle != NULL) {
+        const BOOL close_result = ::CloseHandle(m_handle);
 
-                            #ifndef _WN_DEBUG
-                                WN_UNUSED_ARGUMENT(close_result);
-                            #endif
-                        }
-                    #endif
-                }
+        WN_DEBUG_ASSERT_DESC(close_result != FALSE,
+          "failed to destory thread object");
 
-                #ifdef _WN_WINDOWS
-                    HANDLE m_handle;
-                    DWORD m_id;
-                #elif defined _WN_POSIX
-                    std::atomic_flag m_joined;
-                    pthread_t m_pthread;
-                    long m_id;
-                #endif
-            };
+        #ifndef _WN_DEBUG
+          WN_UNUSED_ARGUMENT(close_result);
+        #endif
+      }
+    #endif
+  }
 
-            template <typename _Type>
-            struct thread_data final : thread_data_base {
-                typedef _Type value_type;
+  #ifdef _WN_WINDOWS
+    HANDLE m_handle;
+    DWORD m_id;
+  #elif defined _WN_POSIX
+    semaphore m_start_lock;
+    pthread_t m_pthread;
+    pid_t m_id;
+  #endif
 
-                value_type m_result;
-            };
+  wn_bool m_joined;
+};
 
-            template <>
-            struct thread_data<wn_void> : thread_data_base {};
-        }
+template <typename T>
+struct thread_data final : public thread_data_common {
+  T m_result;
+};
+
+template <>
+struct thread_data<wn_void> : public thread_data_common {};
+
+} // namespace internal
+
+class thread_id;
+
+namespace this_thread {
+  thread_id get_id();
+}
+
+template <typename R>
+class thread;
+
+class thread_id final {
+public:
+  WN_FORCE_INLINE thread_id() {
+    #ifdef _WN_WINDOWS
+      m_id = 0;
+    #elif defined _WN_POSIX
+      m_valid = wn_false;
+    #endif
+  }
+
+private:
+  template <typename R>
+  friend class thread;
+
+  friend thread_id this_thread::get_id();
+
+  friend wn_bool operator == (const thread_id&, const thread_id&);
+
+  #ifdef _WN_WINDOWS
+    typedef DWORD native_id_type;
+  #elif defined _WN_POSIX
+    typedef pid_t native_id_type;
+  #endif
+
+  WN_FORCE_INLINE thread_id(const native_id_type id) :
+    m_id(id) {
+    #ifdef _WN_POSIX
+      m_valid = wn_true;
+    #endif
+  }
+
+  #ifdef _WN_WINDOWS
+    DWORD m_id;
+  #elif defined _WN_POSIX
+    pid_t m_id;
+    wn_bool m_valid;
+  #endif
+};
+
+WN_FORCE_INLINE wn_bool operator == (const thread_id& lhs,
+                                     const thread_id& rhs) {
+  #ifdef _WN_WINDOWS
+    return(lhs.m_id == rhs.m_id);
+  #elif defined _WN_POSIX
+    return(static_cast<wn_uint64>(lhs.m_id) ==
+           static_cast<wn_uint64>(rhs.m_id));
+  #endif
+}
+
+WN_FORCE_INLINE wn_bool operator != (const thread_id& lhs,
+                                     const thread_id& rhs) {
+  return(!(lhs == rhs));
+}
+
+template <typename R>
+class thread final : public core::non_copyable {
+public:
+  static_assert(!std::is_reference<R>::value,
+    "return type must not be a reference");
+  static_assert(!std::is_const<R>::value, "return type must not be const");
+
+  typedef R result_type;
+
+  WN_FORCE_INLINE thread() = default;
+
+  WN_FORCE_INLINE thread(thread&& other) :
+    m_data(std::move(other.m_data)) {
+  }
+
+  template <typename F, typename... Args>
+  WN_FORCE_INLINE explicit thread(F&& f, Args&&... args) {
+    static_assert(core::is_same<R, core::result_of_t<F(Args...)>>::value,
+      "function return type does not match return type");
+
+     execute(containers::function<R()>(std::bind(
+       core::decay_copy(std::forward<F>(f)),
+       core::decay_copy(std::forward<Args>(args))...)));
+  }
+
+  WN_FORCE_INLINE thread& operator = (thread&& other) {
+    thread(std::move(other)).swap(*this);
+
+    return(*this);
+  }
+
+  WN_FORCE_INLINE wn_bool joinable() const {
+    return(m_data && !m_data->m_joined);
+  }
+
+  WN_FORCE_INLINE thread_id get_id() const {
+    if (m_data) {
+      return(thread_id(m_data->m_id));
     }
 
-    template <typename _Result>
-    class thread final : public core::non_copyable {
-    public:
-        static_assert(!std::is_reference<_Result>::value, "thread return type must not be a reference");
-        static_assert(!std::is_const<_Result>::value, "thread return type must not be const");
+    return(thread_id());
+  }
 
-        typedef _Result result_type;
+  WN_FORCE_INLINE wn_bool join() const {
+    if (m_data) {
+      if (!m_data->m_joined) {
+        m_data->m_joined = wn_true;
 
-        WN_FORCE_INLINE thread() = default;
-
-        WN_FORCE_INLINE thread(thread&& _thread) :
-            m_data(std::move(_thread.m_data)) {
-        }
-
-        template <typename _Function, typename... _Arguments>
-        WN_FORCE_INLINE explicit thread(_Function&& _function, _Arguments&&... _arguments) {
-            static_assert(core::is_same<result_type, core::result_of_t<_Function(_Arguments...)>>::value,
-                          "thread function return type does not match thread return type");
-
-            containers::function<result_type()> function(std::bind(core::decay_copy(std::forward<_Function>(_function)),
-                                                                   core::decay_copy(std::forward<_Arguments>(_arguments))...));
-
-            execute(std::move(function));
-        }
-
-        WN_FORCE_INLINE thread& operator = (thread&& _thread) {
-            m_data = std::move(_thread.m_data);
-
-            return(*this);
-        }
-
-        WN_FORCE_INLINE wn_bool joinable() const {
-            return(m_data != wn_nullptr);
-        }
-
-        WN_FORCE_INLINE wn_bool join() {
-            if (joinable()) {
-                #ifdef _WN_WINDOWS
-                    if (::WaitForSingleObject(m_data->m_handle, INFINITE) == WAIT_OBJECT_0) {
-                        return(wn_true);
-                    }
-                #elif defined _WN_POSIX
-                    if (!m_data->m_joined.test_and_set(std::memory_order_acquire)) {
-                        if (::pthread_join(m_data->m_pthread, NULL) == 0) {
-                            return(wn_true);
-                        }
-                    } else {
-                        return(wn_true);
-                    }
-                #endif
-            }
-
-            return(wn_false);
-        }
-
-        template <typename _Type = result_type,
-                  typename = core::enable_if_t<(core::is_same<_Type, result_type>::value && !core::is_same<_Type, wn_void>::value)>>
-        WN_FORCE_INLINE wn_bool join(_Type& _execution_result) {
-            const wn_bool join_result = join();
-
-            if (join_result) {
-                _execution_result = m_data->m_result;
-            }
-
-            return(join_result);
-        }
-
-        WN_FORCE_INLINE wn_void detach() {
-            m_data.reset();
-        }
-
-        WN_FORCE_INLINE wn_void swap(thread& _thread) {
-            m_data.swap(_thread.m_data);
-        }
-
-    private:
         #ifdef _WN_WINDOWS
-            typedef LPVOID thread_argument_type;
-            typedef DWORD thread_result_type;
+          const DWORD result = ::WaitForSingleObject(m_data->m_handle,
+                                                     INFINITE);
+
+          if (result == WAIT_OBJECT_0) {
+            return(wn_true);
+          }
         #elif defined _WN_POSIX
-            typedef void* thread_argument_type;
-            typedef void* thread_result_type;
+          if (::pthread_join(m_data->m_pthread, NULL) == 0) {
+            return(wn_true);
+          }
+        #endif
+      }
+    }
+
+    return(wn_false);
+  }
+
+  template <typename T = R,
+            typename = core::enable_if_t<core::boolean_and<
+              core::is_same<T, R>::value,
+              !core::is_same<T, wn_void>::value>::value>>
+  WN_FORCE_INLINE wn_bool join(T& result) const {
+    const wn_bool join_result = join();
+
+    if (join_result) {
+      result = m_data->m_result;
+    }
+
+    return(join_result);
+  }
+
+  WN_FORCE_INLINE wn_void detach() {
+    m_data.reset();
+  }
+
+  WN_FORCE_INLINE wn_void swap(thread& other) {
+    m_data.swap(other.m_data);
+  }
+
+private:
+  #ifdef _WN_WINDOWS
+    typedef LPVOID thread_argument_type;
+    typedef DWORD thread_result_type;
+  #elif defined _WN_POSIX
+    typedef void* thread_argument_type;
+    typedef void* thread_result_type;
+  #endif
+
+  struct thread_execution_data final {
+    containers::function<R()> m_function;
+    memory::intrusive_ptr<internal::thread_data<R>> m_data;
+  };
+
+  static thread_result_type
+  WN_OSCALL_BEGIN wrapper(thread_argument_type arg) WN_OSCALL_END {
+    const thread_execution_data* execution_data =
+      reinterpret_cast<thread_execution_data*>(arg);
+
+    WN_RELEASE_ASSERT_DESC(execution_data, "invalid thread execution data");
+
+    #ifdef _WN_POSIX
+      internal::thread_data<R>* data = execution_data->m_data.get();
+
+      WN_RELEASE_ASSERT_DESC(data, "invalid thread data");
+
+      #ifdef _WN_LINUX
+        data->m_id = ::syscall(SYS_gettid);
+      #elif defined _WN_ANDROID
+        data->m_id = ::gettid();
+      #endif
+
+      data->m_start_lock.notify();
+    #endif
+
+    execute_helper(execution_data);
+
+    memory::destroy(execution_data);
+
+    #ifdef _WN_WINDOWS
+      return(0);
+    #elif defined _WN_POSIX
+      return(NULL);
+    #endif
+  }
+
+  static WN_FORCE_INLINE wn_void
+  execute_helper(const thread_execution_data* execution_data) {
+    internal::thread_data<R>* data = execution_data->m_data.get();
+
+    WN_RELEASE_ASSERT_DESC(data, "invalid thread data");
+
+    data->m_result = execution_data->m_function();
+  }
+
+  WN_INLINE wn_void execute(containers::function<R()>&& f) {
+    thread_execution_data* execution_data =
+      memory::construct<thread_execution_data>();
+
+    if (execution_data) {
+      execution_data->m_function = std::move(f);
+
+      memory::intrusive_ptr<internal::thread_data<R>> data =
+        memory::make_intrusive<internal::thread_data<R>>();
+
+      if (data) {
+        execution_data->m_data = data;
+
+        #ifdef _WN_WINDOWS
+          DWORD id;
+          const HANDLE handle =
+            ::CreateThread(NULL, 0,
+                           static_cast<LPTHREAD_START_ROUTINE>(&wrapper),
+                           static_cast<LPVOID>(execution_data),
+                           0, &id);
+          const wn_bool creation_success = handle != NULL;
+        #elif defined _WN_POSIX
+          typedef void*(*start_routine_t)(void*);
+
+          pthread_t pthread;
+          const wn_bool creation_success =
+            ::pthread_create(&pthread, NULL,
+                             static_cast<start_routine_t>(wrapper),
+                             static_cast<void*>(execution_data)) == 0;
         #endif
 
-        template <typename _Type>
-        using thread_data = internal::concurrency::thread_data<_Type>;
+        if (creation_success) {
+          #ifdef _WN_WINDOWS
+            data->m_id = id;
+            data->m_handle = handle;
+          #elif defined _WN_POSIX
+            data->m_start_lock.wait();
 
-        struct thread_execution_data final {
-            containers::function<result_type()> m_function;
-            memory::intrusive_ptr<internal::concurrency::thread_data<result_type>> m_data;
-        };
+            data->m_pthread = pthread;
+          #endif
 
-        static thread_result_type WN_OSCALL_BEGIN execution_wrapper(thread_argument_type _argument) WN_OSCALL_END {
-            const thread_execution_data* execution_data = reinterpret_cast<thread_execution_data*>(_argument);
+          m_data = std::move(data);
+        } else {
+          memory::destroy(execution_data);
 
-            #ifdef _WN_LINUX
-                execution_data->m_data->m_id = syscall(SYS_gettid);
-            #elif defined _WN_ANDROID
-                execution_data->m_data->m_id = gettid();
-            #endif
-
-            execute_helper(execution_data);
-
-            memory::destroy(execution_data);
-
-            #ifdef _WN_WINDOWS
-                return(0);
-            #elif defined _WN_POSIX
-                return(wn_nullptr);
-            #endif
+          WN_RELEASE_ASSERT_DESC(creation_success, "failed to create thread");
         }
+      } else {
+        memory::destroy(execution_data);
 
-        static WN_FORCE_INLINE wn_void execute_helper(const thread_execution_data* _execution_data) {
-            thread_data<result_type>* data = _execution_data->m_data.get();
+        WN_RELEASE_ASSERT_DESC(m_data, "failed to allocate needed data for thread");
+      }
+    } else {
+      WN_RELEASE_ASSERT_DESC(execution_data,
+        "failed to allocate needed execution data for thread");
+    }
+  }
 
-            data->m_result = _execution_data->m_function();
-        }
+  memory::intrusive_ptr<internal::thread_data<R>> m_data;
+};
 
-        WN_INLINE wn_void execute(containers::function<result_type()>&& _function) {
-            thread_execution_data* execution_data = memory::construct<thread_execution_data>();
+template <>
+WN_FORCE_INLINE wn_void
+thread<wn_void>::execute_helper(const thread_execution_data* execution_data) {
+  execution_data->m_function();
+}
 
-            if (execution_data != wn_nullptr) {
-                execution_data->m_function = std::move(_function);
+namespace this_thread {
 
-                memory::intrusive_ptr<thread_data<result_type>> data = memory::make_intrusive<thread_data<result_type>>();
+WN_INLINE thread_id get_id() {
+    #ifdef _WN_WINDOWS
+      return(thread_id(::GetCurrentThreadId()));
+    #elif defined _WN_LINUX
+      return(thread_id(static_cast<pid_t>(::syscall(SYS_gettid))));
+    #elif defined _WN_ANDROID
+      return(thread_id(::gettid()));
+    #endif
+}
 
-                if (data != wn_nullptr) {
-                    execution_data->m_data = data;
+WN_INLINE wn_void yield() {
+  #ifdef _WN_WINDOWS
+    static std::once_flag once;
+    static wn_bool mutli_threaded = wn_false;
+    static const auto mutli_threaded_test = [](wn_bool& mutli_threaded) {
+      SYSTEM_INFO sysInfo = { 0 };
 
-                    #ifdef _WN_WINDOWS
-                        const HANDLE handle = ::CreateThread(NULL, 0,
-                                                             static_cast<LPTHREAD_START_ROUTINE>(&execution_wrapper),
-                                                             static_cast<LPVOID>(execution_data),
-                                                             0, &(data->m_id));
+      ::GetSystemInfo(&sysInfo);
 
-                        if (handle != NULL) {
-                            data->m_handle = handle;
-                            m_data = std::move(data);
-                        } else {
-                            memory::destroy(execution_data);
-
-                            WN_RELEASE_ASSERT_DESC(handle != NULL, "Failed to create thread");
-                        }
-                    #elif defined _WN_POSIX
-                        typedef void *(*start_routine_t)(void *);
-
-                        pthread_t pthread;
-                        const int result = ::pthread_create(&pthread, NULL,
-                                                            static_cast<start_routine_t>(execution_wrapper),
-                                                            static_cast<void*>(execution_data));
-
-                        if (result == 0) {
-                            data->m_pthread = pthread;
-                            m_data = std::move(data);
-                        } else {
-                            memory::destroy(execution_data);
-
-                            WN_RELEASE_ASSERT_DESC(result == 0, "Failed to create thread");
-                        }
-                    #endif
-                } else {
-                    memory::destroy(execution_data);
-
-                    WN_RELEASE_ASSERT_DESC(m_data != wn_nullptr, "Failed to allocate needed data for thread");
-                }
-            } else {
-                WN_RELEASE_ASSERT_DESC(execution_data != wn_nullptr, "Failed to allocate needed execution data for thread");
-            }
-        }
-
-        memory::intrusive_ptr<thread_data<result_type>> m_data;
+      mutli_threaded = sysInfo.dwNumberOfProcessors > 1;
     };
 
-    template <>
-    WN_FORCE_INLINE wn_void thread<wn_void>::execute_helper(const thread_execution_data* _execution_data) {
-        _execution_data->m_function();
+    std::call_once(once, mutli_threaded_test, std::ref(mutli_threaded));
+
+    if (mutli_threaded) {
+      ::YieldProcessor();
+    } else {
+      ::SwitchToThread();
     }
+  #elif defined _WN_ANDROID
+    const int result = ::sched_yield();
 
-    namespace this_thread {
-        WN_INLINE wn_void yield() {
-            #if defined _WN_WINDOWS || defined _WN_ANDROID
-                static std::once_flag once;
-                static wn_bool multi_threaded = wn_false;
+    WN_RELEASE_ASSERT(result == 0);
+  #elif defined _WN_POSIX
+    const int result = ::pthread_yield();
 
-                static const auto multi_threaded_test = [](wn_bool& multi_threaded) {
-                    #ifdef _WN_WINDOWS
-                        SYSTEM_INFO sysInfo = {0};
-
-                        ::GetSystemInfo(&sysInfo);
-
-                        multi_threaded = (sysInfo.dwNumberOfProcessors > 1);
-                    #elif defined _WN_ANDROID
-                        multi_threaded = (::sysconf(_SC_NPROCESSORS_ONLN) > 1);
-                    #else
-                        WN_UNUSED_ARGUMENT(multi_threaded);
-                    #endif
-                };
-
-                std::call_once(once, multi_threaded_test, std::ref(multi_threaded));
-
-                if (multi_threaded) {
-                    #ifdef _WN_WINDOWS
-                        ::YieldProcessor();
-                    #elif defined _WN_GCC || defined _WN_CLANG
-                        #ifdef _WN_X86
-                            __asm__ __volatile__ ("rep; nop" : : : "memory");
-                        #else
-                            ::sched_yield();
-                        #endif
-                    #endif
-                } else {
-                    #ifdef _WN_WINDOWS
-                        ::SwitchToThread();
-                    #elif defined _WN_ANDROID
-                        ::sched_yield();
-                    #endif
-                }
-            #elif defined _WN_POSIX
-                const int result = ::pthread_yield();
-
-                WN_RELEASE_ASSERT(result == 0);
-            #endif
-        }
-
-        template <typename _Representation, typename _Period>
-        WN_INLINE wn_void sleep_for(const std::chrono::duration<_Representation, _Period>& _duration) {
-            #ifdef _WN_WINDOWS
-                ::Sleep(static_cast<DWORD>(std::chrono::duration_cast<std::chrono::milliseconds>(_duration).count()));
-            #elif defined _WN_POSIX
-                const std::chrono::seconds sec = std::chrono::duration_cast<std::chrono::seconds>(_duration);
-                const std::chrono::nanoseconds nano_sec = std::chrono::duration_cast<std::chrono::nanoseconds>(_duration) -
-                                                          std::chrono::duration_cast<std::chrono::nanoseconds>(sec);
-                timespec timeRequested = {0};
-
-                timeRequested.tv_sec = static_cast<int>(sec.count());
-                timeRequested.tv_nsec = static_cast<int>(nano_sec.count());
-
-                while (::nanosleep(&timeRequested, &timeRequested) == -1) {
-                    continue;
-                }
-            #endif
-        }
-    }
+    WN_RELEASE_ASSERT(result == 0);
+  #endif
 }
+
+template <typename Rep, typename Period>
+WN_INLINE wn_void sleep_for(const std::chrono::duration<Rep, Period>& duration) {
+  #ifdef _WN_WINDOWS
+    ::Sleep(static_cast<DWORD>(std::chrono::duration_cast<
+      std::chrono::milliseconds>(duration).count()));
+  #elif defined _WN_POSIX
+    const std::chrono::seconds sec =
+      std::chrono::duration_cast<std::chrono::seconds>(duration);
+    const std::chrono::nanoseconds nano_sec =
+      std::chrono::duration_cast<std::chrono::nanoseconds>(duration) -
+      std::chrono::duration_cast<std::chrono::nanoseconds>(sec);
+    timespec timeRequested = {0};
+
+    timeRequested.tv_sec = static_cast<int>(sec.count());
+    timeRequested.tv_nsec = static_cast<int>(nano_sec.count());
+
+    while (::nanosleep(&timeRequested, &timeRequested) == -1) {
+      WN_RELEASE_ASSERT_DESC(errno == EINTR, "failed to sleep");
+    }
+  #endif
+}
+
+} // namespace this_thread
+} // namespace concurrency
+} // namespace wn
 
 #endif // __WN_CONCURRENCY_THREAD_H__

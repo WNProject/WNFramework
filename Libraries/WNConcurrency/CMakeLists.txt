@@ -1,10 +1,9 @@
 set(INC_INTERNAL
-  inc/Internal/WNCallbackJob.inl
   inc/Internal/WNConfig.h
 )
 source_group("inc\\Internal" FILES ${INC_INTERNAL})
 add_wn_header_library(WNConcurrency
-  inc/WNCallbackJob.h
+  inc/WNCallbackTask.h
   inc/WNConcurrency.h
   inc/WNConditionVariable.h
   inc/WNConfig.h
