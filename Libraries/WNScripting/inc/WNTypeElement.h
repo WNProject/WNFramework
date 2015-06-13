@@ -9,7 +9,7 @@
 
 #include "WNCore/inc/WNTypes.h"
 #include "WNStrings/inc/WNStrings.h"
-#include "WNMemory/inc/WNManipulation.h"
+#include "WNMemory/inc/WNBasic.h"
 
 #include <vector>
 

@@ -7,8 +7,7 @@
 #ifndef __WN_MEMORY_INTRUSIVE_PTR_H__
 #define __WN_MEMORY_INTRUSIVE_PTR_H__
 
-#include "WNMemory/inc/WNAllocation.h"
-#include "WNCore/inc/WNTypeTraits.h"
+#include "WNMemory/inc/WNBasic.h"
 
 namespace wn {
 namespace memory {
@@ -26,33 +25,28 @@ public:
     intrusive_ptr() {
   }
 
-  WN_FORCE_INLINE explicit intrusive_ptr(element_type* ptr,
-                                         const wn_bool add_ref = wn_true) :
-    intrusive_ptr() {
-    reset(ptr, add_ref);
-  }
-
   template <typename Y>
-  WN_FORCE_INLINE explicit intrusive_ptr(Y* ptr,
-                                         const wn_bool add_ref = wn_true) :
+  WN_FORCE_INLINE explicit intrusive_ptr(Y* ptr, const wn_bool add_ref = wn_true) :
     intrusive_ptr() {
     reset(ptr, add_ref);
   }
 
   WN_FORCE_INLINE intrusive_ptr(intrusive_ptr&& ptr) :
     intrusive_ptr() {
-    swap(ptr);
+    reset(ptr.m_pointer);
+
+    ptr.reset();
   }
 
   WN_FORCE_INLINE intrusive_ptr(const intrusive_ptr& ptr) :
     intrusive_ptr() {
-    reset(ptr.get());
+    reset(ptr.m_pointer);
   }
 
   template <typename Y>
   WN_FORCE_INLINE intrusive_ptr(intrusive_ptr<Y>&& ptr) :
     intrusive_ptr() {
-    reset(ptr.get());
+    reset(ptr.m_pointer);
 
     ptr.reset();
   }
@@ -60,59 +54,63 @@ public:
   template <typename Y>
   WN_FORCE_INLINE intrusive_ptr(const intrusive_ptr<Y>& ptr) :
     intrusive_ptr() {
-    reset(ptr.get());
+    reset(ptr.m_pointer);
   }
 
   WN_FORCE_INLINE ~intrusive_ptr() {
     remove_reference();
   }
 
-  WN_FORCE_INLINE element_type* operator -> () const {
-    return(get());
+  WN_FORCE_INLINE T* operator -> () const {
+    return(m_pointer);
   }
 
-  WN_FORCE_INLINE element_type& operator * () const {
-    return(*get());
+  WN_FORCE_INLINE T& operator * () const {
+    return(*m_pointer);
   }
 
   WN_FORCE_INLINE operator wn_bool () const {
-    return(get() != wn_nullptr);
+    return(m_pointer != wn_nullptr);
   }
 
   WN_FORCE_INLINE intrusive_ptr& operator = (const wn_nullptr_t) {
-    return(intrusive_ptr(wn_nullptr).swap(*this), *this);
+    intrusive_ptr(wn_nullptr).swap(*this);
+
+    return(*this);
   }
 
   WN_FORCE_INLINE intrusive_ptr& operator = (intrusive_ptr&& ptr) {
-    return(intrusive_ptr(std::move(ptr)).swap(*this), *this);
+    intrusive_ptr(std::move(ptr)).swap(*this);
+
+    return(*this);
   }
 
   WN_FORCE_INLINE intrusive_ptr& operator = (const intrusive_ptr& ptr) {
-    return(intrusive_ptr(ptr).swap(*this), *this);
+    intrusive_ptr(ptr).swap(*this);
+
+    return(*this);
   }
 
   template <typename Y>
   WN_FORCE_INLINE intrusive_ptr& operator = (intrusive_ptr<Y>&& ptr) {
-    return(intrusive_ptr(std::move(ptr)).swap(*this), *this);
+    intrusive_ptr(std::move(ptr)).swap(*this);
+
+    return(*this);
   }
 
   template <typename Y>
   WN_FORCE_INLINE intrusive_ptr& operator = (const intrusive_ptr<Y>& ptr) {
-    return(intrusive_ptr(ptr).swap(*this), *this);
+    intrusive_ptr(ptr).swap(*this);
+
+    return(*this);
   }
 
-  WN_FORCE_INLINE element_type* get() const {
+  WN_FORCE_INLINE T* get() const {
     return(m_pointer);
   }
 
   WN_FORCE_INLINE wn_size_t use_count() const {
-    const element_type* pointer = get();
-
-    if (pointer != wn_nullptr) {
-      return(pointer->reference_count());
-    }
-
-    return(0);
+    return(m_pointer ? m_pointer->reference_count() : 0);
   }
 
   WN_FORCE_INLINE wn_bool unique() const {
@@ -127,33 +125,27 @@ public:
     reset();
   }
 
-  WN_FORCE_INLINE wn_void reset(element_type* ptr,
-                                const wn_bool add_ref = wn_true) {
-    if (ptr != wn_nullptr && add_ref) {
+  template <typename Y>
+  WN_FORCE_INLINE wn_void reset(Y* ptr, const wn_bool add_ref = wn_true) {
+    if (ptr && add_ref) {
       ptr->add_reference();
     }
 
-    remove_reference();
+    reset();
 
     m_pointer = ptr;
   }
 
-  template <typename Y>
-  WN_FORCE_INLINE wn_void reset(Y* ptr,
-                                const wn_bool add_ref = wn_true) {
-    reset(static_cast<element_type*>(ptr), add_ref);
-  }
-
   WN_FORCE_INLINE wn_void swap(intrusive_ptr& ptr) {
-    const intrusive_ptr pointer(ptr);
+    T* pointer = ptr.release();
 
-    ptr.reset(get());
+    ptr.reset(m_pointer);
 
-    reset(pointer.get());
+    reset(pointer, wn_false);
   }
 
-  WN_FORCE_INLINE element_type* release() {
-    element_type* pointer = get();
+  WN_FORCE_INLINE T* release() {
+    T* pointer = m_pointer;
 
     m_pointer = wn_nullptr;
 
@@ -165,13 +157,13 @@ private:
   friend class intrusive_ptr;
 
   WN_FORCE_INLINE wn_void add_reference() const {
-    if (m_pointer != wn_nullptr) {
+    if (m_pointer) {
       m_pointer->add_reference();
     }
   }
 
   WN_FORCE_INLINE wn_void remove_reference() {
-    if (m_pointer != wn_nullptr) {
+    if (m_pointer) {
       if (m_pointer->remove_reference()) {
         destroy(m_pointer);
       }
@@ -180,7 +172,7 @@ private:
     }
   }
 
-  element_type* m_pointer;
+  T* m_pointer;
 };
 
 template <typename T, typename U>

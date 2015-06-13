@@ -14,7 +14,7 @@
 #include "WNScripting/inc/WNParameter.h"
 #include "WNScripting/inc/WNScriptingInterop.h"
 #include "WNFileSystem/inc/WNFile.h"
-#include "WNMemory/inc/WNAllocation.h"
+#include "WNMemory/inc/WNBasic.h"
 
 #include <algorithm>
 #include <vector>
@@ -30,6 +30,7 @@
     #pragma warning(disable: 4355)
     #pragma warning(disable: 4512)
     #pragma warning(disable: 4800)
+    #pragma warning(disable: 4146)
 #endif
 
 #include "llvm/IR/IRBuilder.h"

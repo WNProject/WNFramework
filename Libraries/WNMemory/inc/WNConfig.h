@@ -7,8 +7,7 @@
 #ifndef __WN_MEMORY_CONFIG_H__
 #define __WN_MEMORY_CONFIG_H__
 
-//#define _WN_MEMORY_CONFIG_DISABLE_EXTENSIONS            // Disables all extension for the current configuration
-
-#include "WNMemory/inc/Internal/WNConfig.h"
+// Disables all extension for the current configuration
+//#define _WN_MEMORY_CONFIG_DISABLE_EXTENSIONS
 
 #endif // __WN_MEMORY_CONFIG_H__

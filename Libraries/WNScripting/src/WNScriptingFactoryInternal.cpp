@@ -4,7 +4,7 @@
 
 #include "WNScripting/inc/WNScriptingFactoryInternal.h"
 #include "WNScripting/inc/WNTypeManagerImpl.h"
-#include "WNMemory/inc/WNAllocation.h"
+#include "WNMemory/inc/WNBasic.h"
 #include "WNScripting/inc/WNScopedVaraiableListImpl.h"
 
 WNScripting::WNTypeManager* WNScripting::WNScriptingFactoryInternal::CreateTypeManager() {

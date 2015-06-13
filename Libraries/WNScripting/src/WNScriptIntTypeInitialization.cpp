@@ -7,7 +7,7 @@
 #include "WNScripting/inc/WNTypeManager.h"
 #include "WNScripting/inc/WNExpression.h"
 #include "WNScripting/inc/WNCodeModule.h"
-#include "WNMemory/inc/WNAllocation.h"
+#include "WNMemory/inc/WNBasic.h"
 
 #ifdef _WN_MSVC
     #pragma warning(push)

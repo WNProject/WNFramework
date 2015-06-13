@@ -22,12 +22,12 @@
     #endif
 
     #ifdef __3dNOW__
-        #define __WN_3DNOW_AVAILABLE
+        #define _WN_X86_3DNOW
     #endif
 #endif
 
 #ifdef __SSE__
-    #define __WN_SSE_AVAILABLE
+    #define _WN_X86_SSE
 #endif
 
 #ifdef __SSE2__
@@ -88,8 +88,8 @@
         #define __WN_MMX_AVAILABLE
     #endif
 
-    #ifndef __WN_SSE_AVAILABLE
-        #define __WN_SSE_AVAILABLE
+    #ifndef _WN_X86_SSE
+        #define _WN_X86_SSE
     #endif
 
     #ifndef __WN_SSE2_AVAILABLE

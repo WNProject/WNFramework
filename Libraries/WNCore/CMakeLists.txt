@@ -23,7 +23,7 @@ set(INC_INTERNAL_X86
   inc/Internal/X86/WNBase_MSVC.h
   inc/Internal/X86/WNConfig.h
 )
-source_group("inc\\Internal\\X86" FILES ${INC_INTERNAL_X86})
+source_group("inc\\Internal\\x86" FILES ${INC_INTERNAL_X86})
 add_wn_header_library(WNCore
   inc/WNAlgorithm.h
   inc/WNAssert.h

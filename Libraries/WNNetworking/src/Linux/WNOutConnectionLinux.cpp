@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 #include "WNNetworking/inc/Internal/Linux/WNOutConnectionLinux.h"
-#include "WNMemory/inc/WNManipulation.h"
+#include "WNMemory/inc/WNBasic.h"
 
 #include <sys/epoll.h>
 #include <sys/types.h>

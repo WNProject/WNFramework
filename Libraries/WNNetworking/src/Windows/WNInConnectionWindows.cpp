@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 #include "WNNetworking/inc/Internal/Windows/WNInConnectionWindows.h"
-#include "WNMemory/inc/WNManipulation.h"
+#include "WNMemory/inc/WNBasic.h"
 #include "WNStrings/inc/WNStrings.h"
 
 using namespace WNNetworking;
