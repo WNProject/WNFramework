@@ -7,14 +7,14 @@
 #ifndef __WN_MATH_INTERNAL_X86_GENERAL_TRAITS_H__
 #define __WN_MATH_INTERNAL_X86_GENERAL_TRAITS_H__
 
-#ifdef __WN_SSE_AVAILABLE
+#ifdef _WN_X86_SSE
     #include "WNMath/inc/Internal/Extensions/x86/SSE/WNGeneralTraits.h"
 #endif
 
 namespace wn {
     namespace internal {
         namespace math {
-            #ifdef __WN_SSE_AVAILABLE
+            #ifdef _WN_X86_SSE
                 typedef general_traits_sse general_traits;
             #endif
         }

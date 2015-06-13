@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 #include "WNNetworking/inc/WNNetworkFactory.h"
-#include "WNMemory/inc/WNAllocation.h"
+#include "WNMemory/inc/WNBasic.h"
 
 #ifdef _WN_WINDOWS
     #include "WNNetworking/inc/Internal/Windows/WNNetworkManagerWindows.h"

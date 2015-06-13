@@ -4,7 +4,7 @@
 
 #include "WNGraphics/inc/WNGraphicsDeviceFactory.h"
 #include "WNGraphics/inc/WNGraphicsDevice.h"
-#include "WNMemory/inc/WNAllocation.h"
+#include "WNMemory/inc/WNBasic.h"
 
 #ifdef _WN_WINDOWS
     #include "WNGraphics/inc/Internal/D3D11/WNGraphicsDeviceD3D11.h"

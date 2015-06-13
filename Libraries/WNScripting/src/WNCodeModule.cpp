@@ -8,6 +8,8 @@
 #include "WNScripting/inc/WNTypeManager.h"
 #include "WNCore/inc/WNAlgorithm.h"
 
+#include <memory>
+
 #ifdef _WN_MSVC
     #pragma warning(push)
     #pragma warning(disable: 4100)
@@ -29,6 +31,17 @@
 
 #ifdef _WN_MSVC
     #pragma warning(pop)
+#endif
+
+#ifndef __WN_HAS_CPP14_STD_MAKE_UNIQUE
+  namespace std {
+
+  template <typename T, typename... Args>
+  WN_FORCE_INLINE unique_ptr<T> make_unique(Args&&... args) {
+    return(unique_ptr<T>(new T(forward<Args>(args)...)));
+  }
+
+  }
 #endif
 
 using namespace WNScripting;
@@ -53,7 +66,7 @@ WNScopedVariableList& WNCodeModule::GetScopedVariableList() {
 
 eWNTypeError WNCodeModule::Initialize(wn_uint32 flags) {
     std::unique_ptr<llvm::Module> module =
-      wn::memory::make_std_unique<llvm::Module>("MCJitModule", llvm::getGlobalContext());
+      std::make_unique<llvm::Module>("MCJitModule", llvm::getGlobalContext());
 
     #ifdef _WN_ANDROID
         #ifdef _WN_ARM
@@ -73,7 +86,7 @@ eWNTypeError WNCodeModule::Initialize(wn_uint32 flags) {
 
     builder.setEngineKind(llvm::EngineKind::JIT);
     builder.setMCJITMemoryManager(
-        wn::memory::make_std_unique<WNScriptingMemoryManager>(*mScriptingEngine));
+        std::make_unique<WNScriptingMemoryManager>(*mScriptingEngine));
 
     if(flags & eOptimized ) {
         builder.setOptLevel(llvm::CodeGenOpt::Aggressive);

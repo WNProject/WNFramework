@@ -4,7 +4,7 @@
 
 #include "WNCore/inc/WNBase.h"
 #include "WNPlatform/inc/WNPlatformFactory.h"
-#include "WNMemory/inc/WNAllocation.h"
+#include "WNMemory/inc/WNBasic.h"
 
 #ifdef _WN_WINDOWS
     #include "WNPlatform/inc/Internal/Windows/WNSurfaceManagerWindows.h"

@@ -12,7 +12,7 @@
 #include "WNCore/inc/WNAssert.h"
 #include "WNContainers/inc/WNSerializerBase.h"
 #include "WNContainers/inc/WNDataBuffer.h"
-#include "WNMemory/inc/WNManipulation.h"
+#include "WNMemory/inc/WNBasic.h"
 #include "WNStrings/inc/WNStrings.h"
 
 namespace wn {

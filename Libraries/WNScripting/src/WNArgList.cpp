@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 #include "WNScripting/inc/WNArgList.h"
-#include "WNMemory/inc/WNAllocation.h"
+#include "WNMemory/inc/WNBasic.h"
 #include "WNScripting/inc/WNExpression.h"
 
 using namespace WNScripting;

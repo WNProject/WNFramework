@@ -3,8 +3,8 @@
 // found in the LICENSE file.
 
 #include "WNFileSystem/inc/WNReadFileBuffer.h"
-#include "WNMemory/inc/WNManipulation.h"
-#include "WNMemory/inc/WNAllocation.h"
+#include "WNMemory/inc/WNBasic.h"
+#include "WNMemory/inc/WNBasic.h"
 #include "WNContainers/inc/WNSerializer.h"
 
 WNFileSystem::WNReadTextFileBuffer::WNReadTextFileBuffer(const WNFileSystem::WNFileBufferType _type, const wn_size_t _bufferSize) :

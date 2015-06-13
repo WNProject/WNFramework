@@ -4,7 +4,7 @@
 
 #include "WNGraphics/inc/Internal/D3D11/WNGraphicsDeviceD3D11.h"
 #include "WNPlatform/inc/WNSurface.h"
-#include "WNMemory/inc/WNManipulation.h"
+#include "WNMemory/inc/WNBasic.h"
 
 #include <mutex>
 

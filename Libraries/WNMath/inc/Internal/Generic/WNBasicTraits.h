@@ -332,7 +332,7 @@ namespace wn {
                 template <typename type>
                 static WN_FORCE_INLINE typename core::enable_if<std::is_floating_point<type>::value, type>::type
                 round(const type& _value) {
-                    #ifdef __WN_HAS_CPP11_STL_ROUND
+                    #ifdef __WN_HAS_CPP11_STD_ROUND
                         return(::round(_value));
                     #else
                         return(floor(_value + static_cast<type>(0.5)));

@@ -20,8 +20,8 @@
 #endif
 
 #ifdef _WN_64_BIT
-    #ifndef __WN_SSE_AVAILABLE
-        #define __WN_SSE_AVAILABLE
+    #ifndef _WN_X86_SSE
+        #define _WN_X86_SSE
     #endif
 
     #ifndef __WN_SSE2_AVAILABLE

@@ -5,8 +5,8 @@
 
 #include "WNPlatform/inc/Internal/Windows/WNSurfaceManagerWindows.h"
 #include "WNPlatform/inc/Internal/Windows/WNSurfaceWindows.h"
-#include "WNMemory/inc/WNAllocation.h"
-#include "WNMemory/inc/WNManipulation.h"
+#include "WNMemory/inc/WNBasic.h"
+#include "WNMemory/inc/WNBasic.h"
 
 #include <tchar.h>
 #include <vector>

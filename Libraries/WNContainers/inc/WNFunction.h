@@ -9,7 +9,7 @@
 
 #include "WNCore/inc/WNAssert.h"
 #include "WNCore/inc/WNUtility.h"
-#include "WNMemory/inc/WNAllocation.h"
+#include "WNMemory/inc/WNBasic.h"
 
 namespace wn {
 namespace containers {
