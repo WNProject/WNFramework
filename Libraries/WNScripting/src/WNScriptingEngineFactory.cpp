@@ -4,7 +4,7 @@
 
 #include "WNScripting/inc/WNScriptingEngineFactory.h"
 #include "WNScripting/inc/WNScriptingEngineImpl.h"
-#include "WNMemory/inc/WNAllocation.h"
+#include "WNMemory/inc/WNBasic.h"
 
 WNScripting::WNScriptingEngine* WNScripting::WNScriptingEngineFactory::CreateScriptingEngine() {
     return(wn::memory::construct<WNScripting::WNScriptingEngineImpl>());

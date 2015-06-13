@@ -6,7 +6,7 @@
 #include "WNScripting/inc/WNCodeModule.h"
 #include "WNScripting/inc/WNTypeManager.h"
 #include "WNScripting/inc/WNScriptingAllocations.h"
-#include "WNMemory/inc/WNAllocation.h"
+#include "WNMemory/inc/WNBasic.h"
 
 using namespace WNScripting;
 

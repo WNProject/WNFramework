@@ -5,7 +5,7 @@
 #include "WNNetworking/inc/Internal/Windows/WNListenConnectionWindows.h"
 #include "WNNetworking/inc/Internal/Windows/WNInConnectionWindows.h"
 #include "WNNetworking/inc/WNNetworkManager.h"
-#include "WNMemory/inc/WNManipulation.h"
+#include "WNMemory/inc/WNBasic.h"
 
 using namespace WNNetworking;
 

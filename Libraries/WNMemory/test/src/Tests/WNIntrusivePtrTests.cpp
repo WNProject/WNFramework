@@ -198,6 +198,8 @@ TEST(intrusive_ptr, swap) {
 
     ASSERT_NE(pointer1, wn_nullptr);
     ASSERT_NE(pointer2, wn_nullptr);
+    ASSERT_TRUE(pointer1.unique());
+    ASSERT_TRUE(pointer2.unique());
 
     const dummy_intrusive* pointer1_raw = pointer1.get();
     const dummy_intrusive* pointer2_raw = pointer2.get();
@@ -206,11 +208,15 @@ TEST(intrusive_ptr, swap) {
 
     ASSERT_EQ(pointer1_raw, pointer2.get());
     ASSERT_EQ(pointer2_raw, pointer1.get());
+    ASSERT_TRUE(pointer1.unique());
+    ASSERT_TRUE(pointer2.unique());
 
     std::swap(pointer1, pointer2);
 
     ASSERT_EQ(pointer1_raw, pointer1.get());
     ASSERT_EQ(pointer2_raw, pointer2.get());
+    ASSERT_TRUE(pointer1.unique());
+    ASSERT_TRUE(pointer2.unique());
 }
 
 TEST(intrusive_ptr, reset) {

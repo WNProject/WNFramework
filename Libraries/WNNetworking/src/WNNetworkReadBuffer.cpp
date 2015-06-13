@@ -8,8 +8,8 @@
 #include "WNNetworking/inc/WNBufferResource.h"
 #include "WNContainers/inc/WNSerializer.h"
 #include "WNContainers/inc/WNDataBuffer.h"
-#include "WNMemory/inc/WNAllocation.h"
-#include "WNMemory/inc/WNManipulation.h"
+#include "WNMemory/inc/WNBasic.h"
+#include "WNMemory/inc/WNBasic.h"
 #include "WNMath/inc/WNBasic.h"
 
 using namespace WNNetworking;

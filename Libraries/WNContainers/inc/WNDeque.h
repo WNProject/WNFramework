@@ -9,7 +9,7 @@
 
 #include "WNContainers/inc/WNDynamicArray.h"
 #include "WNMemory/inc/WNAllocator.h"
-#include "WNMemory/inc/WNManipulation.h"
+#include "WNMemory/inc/WNBasic.h"
 #include "WNCore/inc/WNTypeTraits.h"
 
 #include <iterator>
@@ -704,7 +704,7 @@ namespace wn {
                     }
                     m_start_location = accountedElements - _count;
                 } else {
-                    m_start_location -= wn::min(leftovers_in_block, _count);
+                  m_start_location -= leftovers_in_block < _count ? leftovers_in_block : _count;
                 }
 
                 m_element_count += _count;
@@ -718,7 +718,7 @@ namespace wn {
                 if (totalElements > _count) {
                     size_type extraElements = _count;
 
-                    extraElements -= wn::min(extra_last_elements, extraElements);
+                    extraElements -= extra_last_elements < extraElements ? extra_last_elements : extraElements;
 
                     size_type extra_used_blocks = ((extraElements + _BlockSize - 1) / _BlockSize);
 
@@ -758,7 +758,7 @@ namespace wn {
                         m_start_block += 1;
                         m_used_blocks -= 1;
                         m_element_count -= elements_in_first_block;
-                        elements_in_first_block = wn::min(_BlockSize, m_element_count);
+                        elements_in_first_block = _BlockSize < m_element_count ? _BlockSize : m_element_count;
                     }
 
                     m_element_count -= count;
@@ -778,7 +778,7 @@ namespace wn {
                         count -= elements_in_last_block;
                         m_used_blocks -= 1;
                         m_element_count -= elements_in_last_block;
-                        elements_in_last_block = wn::min(_BlockSize, m_element_count);
+                        elements_in_last_block = _BlockSize < m_element_count ? _BlockSize : m_element_count;
                     }
 
                     m_element_count -= count;

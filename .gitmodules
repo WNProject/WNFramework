@@ -1,9 +1,15 @@
 [submodule "Externals/gtest"]
 	path = Externals/gtest
 	url = https://chromium.googlesource.com/external/googletest.git
+	branch = 23574bf2333f834ff665f894c97bef8a5b33a0a9
 	ignore = all
 [submodule "Externals/llvm"]
 	path = Externals/llvm
 	url = https://github.com/llvm-mirror/llvm.git
 	branch = 591505d9ffc799e92a22bc5f13e3947193da6fa
+	ignore = all
+[submodule "Externals/android-cmake"]
+	path = Externals/android-cmake
+	url = https://github.com/taka-no-me/android-cmake.git
+	branch = 556cc14296c226f753a3778d99d8b60778b7df4f
 	ignore = all

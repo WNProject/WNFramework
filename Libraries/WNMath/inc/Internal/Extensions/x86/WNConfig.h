@@ -15,7 +15,7 @@
     #endif
 #endif
 
-#ifdef __WN_3DNOW_AVAILABLE
+#ifdef _WN_X86_3DNOW
     #include <mm3dnow.h>
 
     #ifndef __WN_MATH_MM_AVAILABLE
@@ -23,7 +23,7 @@
     #endif
 #endif
 
-#ifdef __WN_SSE_AVAILABLE
+#ifdef _WN_X86_SSE
     #include <xmmintrin.h>
 
     #ifndef __WN_MATH_XMM_AVAILABLE

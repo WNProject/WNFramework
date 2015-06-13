@@ -20,7 +20,7 @@ namespace wn {
 
         template <typename _InputIt1, typename _InputIt2>
         WN_FORCE_INLINE wn_bool equal(_InputIt1 _first1, _InputIt1 _last1, _InputIt2 _first2, _InputIt2 _last2) {
-            #ifdef __WN_HAS_CPP14_STL_EQUAL_AVAILABLE
+            #ifdef __WN_HAS_CPP14_STD_EQUAL_AVAILABLE
                 return(std::equal(_first1, _last1, _first2, _last2));
             #else
                 for (; (_first1 != _last1 && _first2 != _last2); ++_first1, ++_first2) {
@@ -40,7 +40,7 @@ namespace wn {
 
         template <typename _InputIt1, typename _InputIt2, typename _Predicate>
         WN_FORCE_INLINE wn_bool equal_if(_InputIt1 _first1, _InputIt1 _last1, _InputIt2 _first2, _InputIt2 _last2, _Predicate _p) {
-            #ifdef __WN_HAS_CPP14_STL_EQUAL_AVAILABLE
+            #ifdef __WN_HAS_CPP14_STD_EQUAL_AVAILABLE
                 return(std::equal(_first1, _last1, _first2, _last2, _p));
             #else
                 for (; (_first1 != _last1 && _first2 != _last2); ++_first1, ++_first2) {

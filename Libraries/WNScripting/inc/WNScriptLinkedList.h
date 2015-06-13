@@ -6,7 +6,7 @@
 #define __WN_SCRIPT_LINKED_LIST_H__
 #include "WNCore/inc/WNTypes.h"
 #include "WNScripting/inc/WNScriptingAllocations.h"
-#include "WNMemory/inc/WNAllocation.h"
+#include "WNMemory/inc/WNBasic.h"
 namespace WNScripting {
     template<typename T>
     struct WNScriptLinkedList {

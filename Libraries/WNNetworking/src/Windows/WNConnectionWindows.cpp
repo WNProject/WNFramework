@@ -4,7 +4,7 @@
 
 #include "WNNetworking/inc/Internal/Windows/WNConnectionWindows.h"
 #include "WNNetworking/inc/Internal/Windows/WNNetworkManagerWindows.h"
-#include "WNMemory/inc/WNManipulation.h"
+#include "WNMemory/inc/WNBasic.h"
 #include "WNMath/inc/WNBasic.h"
 #include "WNCore/inc/WNEndian.h"
 

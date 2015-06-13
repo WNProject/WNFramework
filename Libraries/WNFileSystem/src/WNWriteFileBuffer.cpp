@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 #include "WNFileSystem/inc/WNWriteFileBuffer.h"
-#include "WNMemory/inc/WNAllocation.h"
+#include "WNMemory/inc/WNBasic.h"
 #include "WNContainers/inc/WNSerializer.h"
 
 WNFileSystem::WNWriteTextFileBuffer::WNWriteTextFileBuffer(const WNFileSystem::WNFileBufferType _type, const wn_size_t _bufferSize) :

@@ -16,7 +16,7 @@ namespace wn {
         template <const wn_bool _Value, typename _Type = wn_void>
         struct enable_if : std::enable_if<_Value, _Type> {};
 
-        #ifdef __WN_HAS_CPP14_STL_ENABLE_IF_T
+        #ifdef __WN_HAS_CPP14_STD_ENABLE_IF_T
             template <const wn_bool _Value, typename _Type = wn_void>
             using enable_if_t = std::enable_if_t<_Value, _Type>;
         #else
@@ -27,7 +27,7 @@ namespace wn {
         template <typename _Type>
         struct decay : std::decay<_Type> {};
 
-        #ifdef __WN_HAS_CPP14_STL_DECAY_T
+        #ifdef __WN_HAS_CPP14_STD_DECAY_T
             template <typename _Type>
             using decay_t = std::decay_t<_Type>;
         #else
@@ -44,7 +44,7 @@ namespace wn {
         template <const wn_size_t _Value>
         struct index_constant : integral_constant<wn_size_t, _Value> {};
 
-        #ifdef __WN_HAS_CPP14_STL_INTEGER_SEQUENCE
+        #ifdef __WN_HAS_CPP14_STD_INTEGER_SEQUENCE
             template <typename _Type, const _Type... _Values>
             struct integral_sequence : std::integer_sequence<_Type, _Values...> {};
 
@@ -88,7 +88,7 @@ namespace wn {
         template <typename _Type, typename... _Types>
         struct are_same_decayed : are_same<decay_t<_Type>, decay_t<_Types>...> {};
 
-        #ifdef __WN_HAS_CPP14_STL_IS_NULL_POINTER
+        #ifdef __WN_HAS_CPP14_STD_IS_NULL_POINTER
             template <typename _Type>
             struct is_null_pointer : std::is_null_pointer<_Type> {};
         #else
@@ -99,7 +99,7 @@ namespace wn {
             template <typename... _Types>
             struct common_type : std::common_type<_Types...> {};
 
-        #ifdef __WN_HAS_CPP14_STL_COMMON_TYPE_T
+        #ifdef __WN_HAS_CPP14_STD_COMMON_TYPE_T
             template <typename... _Types>
             using common_type_t = std::common_type_t<_Types...>;
         #else
@@ -110,7 +110,7 @@ namespace wn {
         template <typename _Type>
         struct result_of : std::result_of<_Type> {};
 
-        #ifdef __WN_HAS_CPP14_STL_RESULT_OF_T
+        #ifdef __WN_HAS_CPP14_STD_RESULT_OF_T
             template <typename _Type>
             using result_of_t = std::result_of_t<_Type>;
         #else

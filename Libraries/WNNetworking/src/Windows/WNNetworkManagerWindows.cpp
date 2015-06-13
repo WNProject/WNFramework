@@ -6,7 +6,7 @@
 #include "WNNetworking/inc/Internal/Windows/WNListenConnectionWindows.h"
 #include "WNNetworking/inc/Internal/Windows/WNInConnectionWindows.h"
 #include "WNNetworking/inc/Internal/Windows/WNOutConnectionWindows.h"
-#include "WNMemory/inc/WNManipulation.h"
+#include "WNMemory/inc/WNBasic.h"
 #include "WNConcurrency/inc/WNThread.h"
 
 #ifdef _WN_MSVC

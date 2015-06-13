@@ -11,7 +11,7 @@
     #include "WNMath/inc/Internal/Extensions/x86/SSE4.1/WNVectorTraits.h"
 #elif defined __WN_SSE2_AVAILABLE
     #include "WNMath/inc/Internal/Extensions/x86/SSE2/WNVectorTraits.h"
-#elif defined __WN_SSE_AVAILABLE
+#elif defined _WN_X86_SSE
     #include "WNMath/inc/Internal/Extensions/x86/SSE/WNVectorTraits.h"
 #endif
 
@@ -22,7 +22,7 @@ namespace wn {
                 typedef vector_traits_sse4_1 vector_traits;
             #elif defined __WN_SSE2_AVAILABLE
                 typedef vector_traits_sse2 vector_traits;
-            #elif defined __WN_SSE_AVAILABLE
+            #elif defined _WN_X86_SSE
                 typedef vector_traits_sse vector_traits;
             #endif
         }

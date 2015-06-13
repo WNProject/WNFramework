@@ -21,13 +21,13 @@
         #define __WN_MMX_AVAILABLE
 
         #ifdef _WN_CORE_CONFIG_MSVC_X86_USING_AMD
-            #define __WN_3DNOW_AVAILABLE
+            #define _WN_X86_3DNOW
         #endif
     #endif
 #endif
 
 #ifdef _WN_CORE_CONFIG_MSVC_X86_ENABLE_SSE
-    #define __WN_SSE_AVAILABLE
+    #define _WN_X86_SSE
 #endif
 
 #ifdef _WN_CORE_CONFIG_MSVC_X86_ENABLE_SSE2
@@ -84,13 +84,13 @@
                 #endif
 
                 #ifdef _WN_CORE_CONFIG_MSVC_X86_USING_AMD
-                    #ifndef __WN_3DNOW_AVAILABLE
-                        #define __WN_3DNOW_AVAILABLE
+                    #ifndef _WN_X86_3DNOW
+                        #define _WN_X86_3DNOW
                     #endif
                 #endif
 
-                #ifndef __WN_SSE_AVAILABLE
-                    #define __WN_SSE_AVAILABLE
+                #ifndef _WN_X86_SSE
+                    #define _WN_X86_SSE
                 #endif
 
                 #if _M_IX86_FP >= 2
