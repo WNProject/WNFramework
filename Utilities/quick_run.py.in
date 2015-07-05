@@ -22,15 +22,19 @@ def run():
             help="Run the debugger")
     parser.add_argument("--delay", type=int,
             help="Delay before run and between install and run")
+    parser.add_argument("--remove", action="store_true",
+            help="Remove the package on completion")
+
     args = parser.parse_args(sys.argv[1:])
 
     runner = os.path.expanduser(runner)
-    run = True
+    run = not args.remove or args.run
     if args.install:
         if args.delay:
             time.sleep(args.delay)
+        run_args=[runner, 'uninstall', "${WN_PACKAGE_NAME}", '--sdk', sdk_dir ]
+        subprocess.call(run_args)
         run_args=[runner, 'install', "${WN_APK_LOCATION}", '--sdk', sdk_dir ]
-
         if subprocess.call(run_args) != 0:
           return(-1)
         run = False
@@ -44,7 +48,14 @@ def run():
         if args.debug:
             run_args.append('--debug')
         ret = subprocess.call(run_args)
-        return(ret)
+        if ret != 0:
+            return(ret)
+
+    if args.remove:
+        if args.delay:
+            time.sleep(args.delay)
+        run_args=[runner, 'uninstall', "${WN_PACKAGE_NAME}", '--sdk', sdk_dir ]
+        return(subprocess.call(run_args))
 
 if __name__ == "__main__":
     sys.exit(run())
