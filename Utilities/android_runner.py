@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import argparse
+from threading import Timer
 import os
 import os.path
 import re
@@ -9,8 +10,39 @@ import subprocess
 import sys
 import time
 
+def kill_proc(proc, timeout):
+    timeout["value"] = True
+    proc.kill()
+
 def run_p(args):
     subprocess.check_call(args)
+
+def run_p_silent(args):
+    with open(os.devnull) as FNULL:
+      subprocess.check_call(args, stdout=FNULL,
+          stderr=FNULL)
+
+
+def run_p_timeout(timeout, args):
+    proc = subprocess.Popen(args)
+    timer_val = {"value": False}
+    timer = Timer(timeout, kill_proc, [proc, timer_val])
+    timer.start()
+    proc.communicate()
+    timer.cancel()
+    retcode = proc.returncode
+    tval = timer_val.get("value")
+    return retcode, tval
+
+def run_p_timeout_retry(timeout_count, retry_count, args):
+    while retry_count:
+        retry_count = retry_count - 1
+        ret_code,timeout = run_p_timeout(timeout_count, args)
+        if (not timeout):
+            return ret_code
+        print "RETRYING"
+        time.sleep(10)
+    return -1
 
 class Runner:
     def run(self):
@@ -91,6 +123,8 @@ class Runner:
                         print line
                         continue
                       aborted = True
+                    else:
+                        continue
                 line = m.group(2)
                 if not has_started:
                     abortRE = re.compile("^F.*\((" + m.group(1) + ")\):(.*ABORTING.*)")
@@ -138,6 +172,19 @@ class Runner:
             p.kill()
             sys.exit(0)
 
+    def uninstall(self):
+        parser = argparse.ArgumentParser(
+                prog="android_runner.py uninstall",
+                description="Run android program")
+        parser.add_argument("package_name", type=str,
+                help="Package name to start")
+        parser.add_argument("--sdk", help="Location of the sdk", required=False)
+        args = parser.parse_args(sys.argv[2:])
+        if args.sdk:
+            adb = os.path.join(args.sdk, "platform-tools", "adb")
+        sys.exit(run_p_silent([adb, "shell", "pm", "uninstall",
+          args.package_name]))
+
     def install(self):
         parser = argparse.ArgumentParser(
                 prog="android_runner.py install",
@@ -148,8 +195,7 @@ class Runner:
         adb = "adb"
         if args.sdk:
             adb = os.path.join(args.sdk, "platform-tools", "adb")
-        run_p([adb, "install", "-r", args.apk])
-        sys.exit(0)
+        sys.exit(run_p([adb, "install", "-r", args.apk]))
 
     def main(self):
          parser = argparse.ArgumentParser(
@@ -159,9 +205,10 @@ class Runner:
     Commands:
         install:    Install the .apk file on the device.
         run:        Run the given android activity and record the output.
+        uninstall:  Remove the installed program.
     """)
          parser.add_argument('command', help='Command to run',
-                 choices=['install', 'run'])
+                 choices=['install', 'run', 'uninstall'])
          args = parser.parse_args(sys.argv[1:2])
          getattr(self, args.command)()
 
