@@ -62,7 +62,8 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL Linux)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fno-rtti -fno-exceptions")
   set(WN_ADDITIONAL_TEST_LIBS pthread)
 elseif (CMAKE_SYSTEM_NAME STREQUAL Windows)
-  # Determine correct CRT type to use based on configuration type
+  set(WN_SYSTEM "Windows")
+  # Determine correct CRT type to use for LLVM based on configuration type
   foreach(configuration ${WN_BUILD_TYPES})
     if(${configuration} STREQUAL "Debug")
       list(APPEND WN_LLVM_EXTRA_FLAGS "-DLLVM_USE_CRT_DEBUG=MTd")
@@ -74,32 +75,57 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL Windows)
       list(APPEND WN_LLVM_EXTRA_FLAGS "-DLLVM_USE_CRT_RELWITHDEBINFO=MT")
     endif()
   endforeach()
-  if (MSVC)
-    # Fix for Visual Studio 2015 RC issue
-    if (MSVC_VERSION GREATER 1800)
+  # Fix for LLVM Visual Studio 2015 RC issue
+  if(MSVC)
+    if(MSVC_VERSION GREATER 1800)
       list(APPEND WN_LLVM_EXTRA_FLAGS "-DCMAKE_CXX_FLAGS=/Zc:sizedDealloc-")
     endif()
-    # Set warning level 4 and all warnings as errors
-    foreach(lang C CXX)
-      if("${CMAKE_${lang}_FLAGS}" MATCHES "/W[1-3]")
-        string(REGEX REPLACE "/W[1-3]" "/W4 /WX" CMAKE_${lang}_FLAGS "${CMAKE_${lang}_FLAGS}")
-      else()
-        set(CMAKE_${lang}_FLAGS "${CMAKE_${lang}_FLAGS} /W4 /WX")
-      endif()
-    endforeach()
   endif()
-  set(WN_SYSTEM "Windows")
-  set(WN_POSIX false)
-  foreach(flag_var
-      CMAKE_C_FLAGS_DEBUG CMAKE_CXX_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE
-      CMAKE_CXX_FLAGS_RELEASE CMAKE_C_FLAGS_MINSIZEREL
-      CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELWITHDEBINFO
-      CMAKE_CXX_FLAGS_RELWITHDEBINFO)
-    string(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
-    string(REGEX REPLACE "/MDd" "/MTd" ${flag_var} "${${flag_var}}")
-  endforeach(flag_var)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_SCL_SECURE_NO_WARNINGS")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_SCL_SECURE_NO_WARNINGS")
+  # Preprocessor definitions
+  add_compile_options(/D_SCL_SECURE_NO_WARNINGS) # Disable SCL secure warnings
+  add_compile_options(/D_HAS_EXCEPTIONS=0) # Disable STL exceptions
+  # Compiler options
+  # Remove any flags related to exceptions
+  foreach(lang C CXX)
+    if("${CMAKE_${lang}_FLAGS}" MATCHES "/EHsc")
+      string(REGEX REPLACE "/EHsc" "" CMAKE_${lang}_FLAGS "${CMAKE_${lang}_FLAGS}")
+    endif()
+  endforeach()
+  add_compile_options(/W4) # Adjust warnings to level 4
+  add_compile_options(/WX) # Enable warnings as errors
+  add_compile_options(/GR-) # Disable run-time type information
+  add_compile_options($<$<CONFIG:Debug>:/MTd> # Adjust CRT usage to static for all configs
+                      $<$<NOT:$<CONFIG:Debug>>:/MT>)
+  add_compile_options($<$<CONFIG:Release>:/Ox>) # Adjust optimization to full optimization
+  add_compile_options($<$<CONFIG:Release>:/Ob2>) # Adjust inlining to any suitable
+  add_compile_options($<$<CONFIG:Release>:/Os>) # Adjust to favour size (tend to still be better than /Ot which favours speed)
+  add_compile_options($<$<CONFIG:Release>:/Oy>) # Adjust to remove frame pointers
+  add_compile_options($<$<CONFIG:Release>:/Oi>) # Enable intrinsic functions
+  add_compile_options($<$<CONFIG:Release>:/GT>) # Enable fiber-safe optimizations
+  add_compile_options($<$<CONFIG:Release>:/GL>) # Enable whole program optimization
+  add_compile_options($<$<CONFIG:Release>:/MP>) # Enable multi-processor compilation
+  add_compile_options($<$<CONFIG:Release>:/Gm->) # Disable minimal rebuild
+  # Linker options
+  foreach(type EXE SHARED STATIC)
+    # Enable link time code generation
+    if(NOT "${CMAKE_${type}_LINKER_FLAGS_RELEASE}" MATCHES "/LTCG")
+      set(CMAKE_${type}_LINKER_FLAGS_RELEASE "${CMAKE_${type}_LINKER_FLAGS_RELEASE} /LTCG")
+    endif()
+    if(NOT "${type}" STREQUAL "STATIC")
+      # Adjust to remove unreferenced code
+      if("${CMAKE_${type}_LINKER_FLAGS_RELEASE}" MATCHES "/OPT:NOREF")
+        string(REGEX REPLACE "/OPT:NOREF" "/OPT:REF" CMAKE_${type}_LINKER_FLAGS_RELEASE "${CMAKE_${type}_LINKER_FLAGS_RELEASE}")
+      elseif(NOT "${CMAKE_${type}_LINKER_FLAGS_RELEASE}" MATCHES "/OPT:REF")
+        set(CMAKE_${type}_LINKER_FLAGS_RELEASE "${CMAKE_${type}_LINKER_FLAGS_RELEASE} /OPT:REF")
+      endif()
+      # Adjust to enable COMDAT folding
+      if("${CMAKE_${type}_LINKER_FLAGS_RELEASE}" MATCHES "/OPT:NOICF")
+        string(REGEX REPLACE "/OPT:NOICF" "/OPT:ICF" CMAKE_${type}_LINKER_FLAGS_RELEASE "${CMAKE_${type}_LINKER_FLAGS_RELEASE}")
+      elseif(NOT "${CMAKE_${type}_LINKER_FLAGS_RELEASE}" MATCHES "/OPT:ICF")
+        set(CMAKE_${type}_LINKER_FLAGS_RELEASE "${CMAKE_${type}_LINKER_FLAGS_RELEASE} /OPT:ICF")
+      endif()
+    endif()
+  endforeach()
 endif()
 
 if(CMAKE_GENERATOR_TOOLSET)
