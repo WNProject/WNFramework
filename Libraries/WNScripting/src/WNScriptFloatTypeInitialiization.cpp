@@ -70,7 +70,8 @@ namespace WNScripting {
         WNScriptType mDestFlt;
     };
 
-    template<llvm::Value* (llvm::IRBuilder<>::*T)(llvm::Value*, llvm::Value*, const llvm::Twine&)>
+    template<llvm::Value* (llvm::IRBuilder<>::*T)(llvm::Value*, llvm::Value*, const llvm::Twine&,
+        llvm::MDNode*)>
     struct GenerateFloatCompare : public GenerateArithmeticOperation {
         GenerateFloatCompare(WNScriptType _destType) :
             mDestFlt(_destType) {
@@ -78,7 +79,7 @@ namespace WNScripting {
         virtual ~GenerateFloatCompare() {}
         virtual eWNTypeError Execute(llvm::IRBuilderBase* _builder, llvm::Value* _expr1, llvm::Value* _expr2, WNScriptType& _destType, llvm::Value*& _outReturnVal) const {
             llvm::IRBuilder<>* builder = reinterpret_cast<llvm::IRBuilder<>* >(_builder);
-            _outReturnVal = ((*builder).*T)(_expr1, _expr2, "");
+            _outReturnVal = ((*builder).*T)(_expr1, _expr2, "", nullptr);
             _outReturnVal = builder->CreateIntCast(_outReturnVal, mDestFlt->mLLVMType, false, "");
             _destType = mDestFlt;
             return(ok);

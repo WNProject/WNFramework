@@ -54,7 +54,7 @@ eWNTypeError WNScopedVariableListImpl::PushVariable(WNScriptVariable* _variable)
 wn_void WNScopedVariableListImpl::PushScopeBlock(WNCodeModule& _module) {
     llvm::IRBuilder<>* builder = reinterpret_cast<llvm::IRBuilder<>* >(_module.GetBuilder());
     llvm::Function* fnc = llvm::Intrinsic::getDeclaration(_module.GetModule(), llvm::Intrinsic::stacksave);
-    mScopeBlocks.push_back(builder->CreateCall(fnc, ""));
+    mScopeBlocks.push_back(builder->CreateCall(fnc, llvm::ArrayRef<llvm::Value*>(), ""));
     mScriptVariables.push_back(wn_nullptr);
 }
 
