@@ -9,10 +9,7 @@
 
 #include "WNCore/inc/WNTypes.h"
 #include "WNMemory/inc/WNIntrusivePtr.h"
-
-namespace wn {
-    class surface;
-}
+#include "WNPlatform/inc/WNSurface.h"
 
 namespace WNGraphics {
     class WNGraphicsResourceFactory;

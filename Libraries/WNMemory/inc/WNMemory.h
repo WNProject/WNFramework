@@ -10,7 +10,6 @@
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNMemory/inc/WNBasic.h"
 #include "WNMemory/inc/WNIntrusivePtr.h"
-#include "WNMemory/inc/WNIntrusivePtrBase.h"
 #include "WNMemory/inc/WNUniquePtr.h"
 
 #endif // __WN_MEMORY_H__

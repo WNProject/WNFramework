@@ -9,7 +9,6 @@
 
 #include "WNCore/inc/WNTypes.h"
 #include "WNPlatform/inc/WNSurface.h"
-#include "WNMemory/inc/WNIntrusivePtr.h"
 
 namespace wn {
     namespace WNSurfaceManagerReturnCode {
