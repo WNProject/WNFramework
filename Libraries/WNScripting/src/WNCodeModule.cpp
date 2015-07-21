@@ -2,36 +2,21 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "WNScripting/inc/WNCodeModule.h"
-#include "WNScripting/inc/WNScriptingMemoryManager.h"
-#include "WNScripting/inc/WNParameter.h"
-#include "WNScripting/inc/WNTypeManager.h"
-#include "WNCore/inc/WNAlgorithm.h"
-
-#include <memory>
-
-#ifdef _WN_MSVC
-    #pragma warning(push)
-    #pragma warning(disable: 4100)
-    #pragma warning(disable: 4127)
-    #pragma warning(disable: 4152)
-    #pragma warning(disable: 4244)
-    #pragma warning(disable: 4245)
-    #pragma warning(disable: 4267)
-    #pragma warning(disable: 4355)
-    #pragma warning(disable: 4512)
-    #pragma warning(disable: 4800)
-#endif
-
+#include "WNScripting/inc/WNIncludeLLVM.h"
 #include "llvm/ExecutionEngine/MCJIT.h"
 #include "llvm/IR/Module.h"
 #include "llvm/IR/LLVMContext.h"
 #include "llvm/ADT/Triple.h"
 #include "llvm/IR/IRBuilder.h"
+#include "WNScripting/inc/WNEndIncludeLLVM.h"
+#include "WNScripting/inc/WNScriptingMemoryManager.h"
 
-#ifdef _WN_MSVC
-    #pragma warning(pop)
-#endif
+#include "WNScripting/inc/WNCodeModule.h"
+#include "WNScripting/inc/WNParameter.h"
+#include "WNScripting/inc/WNTypeManager.h"
+#include "WNCore/inc/WNAlgorithm.h"
+
+#include <memory>
 
 #ifndef __WN_HAS_CPP14_STD_MAKE_UNIQUE
   namespace std {

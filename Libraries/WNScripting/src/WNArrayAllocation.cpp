@@ -2,11 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "WNScripting/inc/WNNodeHelpers.h" // This is intentionally out of order.
+// If this is included lower, it will fail because windows.h conflitcs wiht llvm.
+
 #include "WNScripting/inc/WNArrayAllocation.h"
 #include "WNScripting/inc/WNTypeNode.h"
 #include "WNScripting/inc/WNCodeModule.h"
 #include "WNScripting/inc/WNTypeManager.h"
-#include "WNScripting/inc/WNNodeHelpers.h"
 
 using namespace WNScripting;
 

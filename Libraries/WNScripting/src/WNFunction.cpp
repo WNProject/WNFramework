@@ -2,6 +2,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "WNScripting/inc/WNIncludeLLVM.h"
+#include "llvm/IR/Function.h"
+#include "llvm/IR/IRBuilder.h"
+#include "WNScripting/inc/WNEndIncludeLLVM.h"
+
+#include "WNScripting/inc/WNNodeHelpers.h" // This is intentionally out of order.
+// If this is included lower, it will fail because windows.h conflitcs wiht llvm.
+
 #include "WNScripting/inc/WNFunction.h"
 #include "WNScripting/inc/WNTypeElement.h"
 #include "WNScripting/inc/WNDeclaration.h"
@@ -10,27 +18,6 @@
 #include "WNScripting/inc/WNTypeManager.h"
 #include "WNScripting/inc/WNScopedVariableList.h"
 #include "WNScripting/inc/WNInstructionList.h"
-#include "WNScripting/inc/WNNodeHelpers.h"
-
-#ifdef _WN_MSVC
-    #pragma warning(push)
-    #pragma warning(disable: 4100)
-    #pragma warning(disable: 4127)
-    #pragma warning(disable: 4152)
-    #pragma warning(disable: 4244)
-    #pragma warning(disable: 4245)
-    #pragma warning(disable: 4267)
-    #pragma warning(disable: 4355)
-    #pragma warning(disable: 4512)
-    #pragma warning(disable: 4800)
-#endif
-
-#include "llvm/IR/IRBuilder.h"
-#include "llvm/IR/Function.h"
-
-#ifdef _WN_MSVC
-    #pragma warning(pop)
-#endif
 
 using namespace WNScripting;
 

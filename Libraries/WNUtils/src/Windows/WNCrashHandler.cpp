@@ -3,7 +3,16 @@
 #include <errno.h>
 #define COUNT_OF(x) (sizeof(x) / sizeof(x[0]))
 #include <stdio.h>
+#if _WN_MSVC_MAJOR >= 19
+#pragma warning(push)
+// Ignores warnings in VS2015 with DbgHelp.
+#pragma warning(disable: 4091)
+#endif
 #include <DbgHelp.h>
+#if _WN_MSVC_MAJOR >= 19
+#pragma warning(pop)
+#endif
+
 typedef BOOL (__stdcall *tStackWalk)(
     _In_ DWORD MachineType,
     _In_ HANDLE hProcess,

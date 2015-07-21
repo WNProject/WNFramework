@@ -2,37 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "WNScripting/inc/WNScriptingEngineImpl.h"
-#include "WNScripting/inc/WNBuiltinTypeInitialization.h"
-#include "WNScripting/src/WNScriptASTLexer.hpp"
-#include "WNScripting/src/WNScriptASTParser.hpp"
-#include "WNScripting/inc/WNScopedVariableList.h"
-#include "WNStrings/inc/WNStrings.h"
-#include "WNScripting/inc/WNScriptingFactoryInternal.h"
-#include "WNScripting/inc/WNScriptingMemoryManager.h"
-#include "WNScripting/inc/WNCodeModule.h"
-#include "WNScripting/inc/WNParameter.h"
-#include "WNScripting/inc/WNScriptingInterop.h"
-#include "WNFileSystem/inc/WNFile.h"
-#include "WNMemory/inc/WNBasic.h"
-
-#include <algorithm>
-#include <vector>
-
-#ifdef _WN_MSVC
-    #pragma warning(push)
-    #pragma warning(disable: 4100)
-    #pragma warning(disable: 4127)
-    #pragma warning(disable: 4152)
-    #pragma warning(disable: 4244)
-    #pragma warning(disable: 4245)
-    #pragma warning(disable: 4267)
-    #pragma warning(disable: 4355)
-    #pragma warning(disable: 4512)
-    #pragma warning(disable: 4800)
-    #pragma warning(disable: 4146)
-#endif
-
+#include "WNScripting/inc/WNIncludeLLVM.h"
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/Support/TargetSelect.h"
 #include "llvm/ExecutionEngine/MCJIT.h"
@@ -44,11 +14,25 @@
 #include "llvm/Transforms/Vectorize.h"
 #include "llvm/Analysis/Passes.h"
 #include "llvm/LinkAllPasses.h"
+#include "WNScripting/inc/WNEndIncludeLLVM.h"
 
 
-#ifdef _WN_MSVC
-    #pragma warning(pop)
-#endif
+#include "WNScripting/inc/WNScriptingMemoryManager.h"
+#include "WNScripting/inc/WNScriptingEngineImpl.h"
+#include "WNScripting/inc/WNBuiltinTypeInitialization.h"
+#include "WNScripting/src/WNScriptASTLexer.hpp"
+#include "WNScripting/src/WNScriptASTParser.hpp"
+#include "WNScripting/inc/WNScopedVariableList.h"
+#include "WNStrings/inc/WNStrings.h"
+#include "WNScripting/inc/WNScriptingFactoryInternal.h"
+#include "WNScripting/inc/WNCodeModule.h"
+#include "WNScripting/inc/WNParameter.h"
+#include "WNScripting/inc/WNScriptingInterop.h"
+#include "WNFileSystem/inc/WNFile.h"
+#include "WNMemory/inc/WNBasic.h"
+
+#include <algorithm>
+#include <vector>
 
 using namespace WNScripting;
 
@@ -190,30 +174,30 @@ eWNTypeError WNScriptingEngineImpl::LinkStructs(WNCodeModule*& _module, std::lis
             else if (err != eWNUnknownResolution) {
                 std::vector<WNPreprocessedFile*> toRemoveFiles;
                 std::vector<WNScriptType> toRemoveTypes;
-                for(std::list<WNStruct*>::iterator i = _toBeLinked.begin(); i != _toBeLinked.end(); ++i) {
-                    if((*i)->GetType()->mContainedFile != wn_nullptr) {
+				for (std::list<WNStruct*>::iterator link = _toBeLinked.begin(); link != _toBeLinked.end(); ++link) {
+                    if((*link)->GetType()->mContainedFile != wn_nullptr) {
                         for(std::vector<WNScriptType>::iterator j = (*i)->GetType()->mContainedFile->mExposedTypes.begin();
-                            j != (*i)->GetType()->mContainedFile->mExposedTypes.end(); ++j) {
+                            j != (*link)->GetType()->mContainedFile->mExposedTypes.end(); ++j) {
                             toRemoveTypes.push_back(*j);
                         }
-                        toRemoveFiles.push_back((*i)->GetType()->mContainedFile);
+                        toRemoveFiles.push_back((*link)->GetType()->mContainedFile);
                     }
                 }
                 std::sort(toRemoveFiles.begin(), toRemoveFiles.end());
                 std::sort(toRemoveTypes.begin(), toRemoveTypes.end());
                 std::unique(toRemoveFiles.begin(), toRemoveFiles.end());
                 std::unique(toRemoveTypes.begin(), toRemoveTypes.end());
-                for(std::vector<WNScriptType>::iterator i = toRemoveTypes.begin(); i != toRemoveTypes.end(); ++i) {
-                    mTypeManager->RemoveType(*i);
+                for(std::vector<WNScriptType>::iterator remove = toRemoveTypes.begin(); remove != toRemoveTypes.end(); ++remove) {
+                    mTypeManager->RemoveType(*remove);
                 }
-                for(std::vector<WNPreprocessedFile*>::iterator i = toRemoveFiles.begin(); i != toRemoveFiles.end(); ++i) {
-                    std::vector<WNPreprocessedFile*>::iterator toRemove = std::find(mPreprocessedFiles.begin(), mPreprocessedFiles.end(), *i);
+                for(std::vector<WNPreprocessedFile*>::iterator remove = toRemoveFiles.begin(); remove != toRemoveFiles.end(); ++remove) {
+                    std::vector<WNPreprocessedFile*>::iterator toRemove = std::find(mPreprocessedFiles.begin(), mPreprocessedFiles.end(), *remove);
                     if(toRemove != mPreprocessedFiles.end())
                     {
                         mPreprocessedFiles.erase(toRemove);
                     }
 
-                    wn::memory::destroy(*i);
+                    wn::memory::destroy(*remove);
                 }
                 return(err);
             } else {
@@ -291,8 +275,8 @@ eWNTypeError WNScriptingEngineImpl::PreprocessFile(const wn_char* _file, WNCodeM
         WNPreprocessedFile* includedFile;
         if(ok != (err = PreprocessFile(filename, _module, includedFile, _toBeLinked))) {
             if(preFile) {
-                for(std::vector<WNScriptType>::iterator i = preFile->mExposedTypes.begin(); i != preFile->mExposedTypes.end(); ++i) {
-                    mTypeManager->RemoveType(*i);
+                for(std::vector<WNScriptType>::iterator type = preFile->mExposedTypes.begin(); type != preFile->mExposedTypes.end(); ++type) {
+                    mTypeManager->RemoveType(*type);
                 }
             }
             std::vector<WNPreprocessedFile*>::iterator toRemove = std::find(mPreprocessedFiles.begin(), mPreprocessedFiles.end(), preFile);
@@ -394,8 +378,8 @@ eWNTypeError WNScriptingEngineImpl::CompileFile(const wn_char* _file, WNCodeModu
     for(std::vector<WNFunctionRegistry>::const_iterator i = mRegisteredFunctions.begin(); i != mRegisteredFunctions.end(); ++i) {
         if(ok != (err = _module->AddExternalDefinition(i->mFunctionName, i->mRegisteredFunctionTag, i->mThisType, i->mParams, i->mRetParam))) {
             if(preFile) {
-                for(std::vector<WNScriptType>::iterator i = preFile->mExposedTypes.begin(); i != preFile->mExposedTypes.end(); ++i) {
-                    mTypeManager->RemoveType(*i);
+                for(std::vector<WNScriptType>::iterator type = preFile->mExposedTypes.begin(); type != preFile->mExposedTypes.end(); ++type) {
+                    mTypeManager->RemoveType(*type);
                 }
             }
             wn::memory::heap_free(c);
