@@ -19,11 +19,11 @@
 #pragma warning(disable: 4355)
 #pragma warning(disable: 4512)
 #pragma warning(disable: 4800)
-#if _MSC_VER >= 1900
-#pragma warning(disable: 4310)
-#pragma warning(disable: 4458)
 #pragma warning(disable: 4624)
 #pragma warning(disable: 4996)
 #pragma warning(disable: 4146)
+#if _MSC_VER >= 1900
+#pragma warning(disable: 4310)
+#pragma warning(disable: 4458)
 #endif
 #endif
