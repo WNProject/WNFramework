@@ -11,7 +11,6 @@
 #include "WNCore/inc/WNMacros.h"
 
 #if defined _WN_WINDOWS && defined _WN_CORE_CONFIG_WINDOWS_ENABLE_ASSERT_POPUPS
-    #include <Windows.h>
     #include <tchar.h>
 #else
     #include <stdio.h>

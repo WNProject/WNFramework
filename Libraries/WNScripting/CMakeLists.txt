@@ -11,6 +11,7 @@ add_wn_library(WNScripting SOURCES
   inc/WNDeclList.h
   inc/WNDeclaration.h
   inc/WNDoInstruction.h
+  inc/WNEndIncludeLLVM.h
   inc/WNExpression.h
   inc/WNForInstruction.h
   inc/WNFunction.h
@@ -19,6 +20,7 @@ add_wn_library(WNScripting SOURCES
   inc/WNFunctionTemplates.inl
   inc/WNIDExpression.h
   inc/WNIfInstruction.h
+  inc/WNIncludeLLVM.h
   inc/WNInstruction.h
   inc/WNInstructionList.h
   inc/WNLValue.h
