@@ -1,4 +1,5 @@
-cmake_minimum_required (VERSION 2.8.10)
+cmake_minimum_required(VERSION 2.8.10)
+
 set(WN_PREBUILD_DEPS OFF CACHE BOOL
 	"Compile all dependencies during the configure step, if false it must be done manually")
 

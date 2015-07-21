@@ -9,6 +9,8 @@
 
 #include "WNGraphics/inc/WNGraphicsDevice.h"
 #include "WNConcurrency/inc/WNMutex.h"
+#include "WNPlatform/inc/WNSurface.h"
+#include "WNMemory/inc/WNIntrusivePtr.h"
 
 #include <X11/Xlib.h>
 #include <GL/glx.h>

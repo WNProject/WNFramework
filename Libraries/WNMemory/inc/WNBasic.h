@@ -151,6 +151,12 @@ WN_FORCE_INLINE wn_void heap_free(wn_void* ptr) {
 }
 
 template <typename T>
+WN_FORCE_INLINE T* heap_aligned_allocate() {
+  return(static_cast<T*>(aligned_malloc(sizeof(T),
+                         std::alignment_of<T>::value)));
+}
+
+template <typename T>
 WN_FORCE_INLINE T* heap_aligned_allocate(const wn_size_t alignment) {
   return(static_cast<T*>(aligned_malloc(sizeof(T), alignment)));
 }
@@ -192,11 +198,32 @@ WN_FORCE_INLINE wn_void heap_aligned_free(wn_void* ptr) {
 }
 
 template <typename T, typename... Args>
+T* construct_at(T*, Args&&...);
+
+template <typename T, typename... Args>
 WN_FORCE_INLINE T* construct(Args&&... args) {
   static_assert(!std::is_void<T>::value,
     "you cannot construct an object of type void");
 
-  return(new(std::nothrow) T(std::forward<Args>(args)...));
+  return(construct_at<T, Args...>(heap_allocate<T>(),
+                                  std::forward<Args>(args)...));
+}
+
+template <typename T>
+WN_FORCE_INLINE T* construct_array(const size_t size) {
+  static_assert(!std::is_void<T>::value,
+    "you cannot construct an object of type void");
+
+  return(new(std::nothrow) T[size]);
+}
+
+template <typename T, typename... Args>
+WN_FORCE_INLINE T* construct_aligned(Args&&... args) {
+  static_assert(!std::is_void<T>::value,
+    "you cannot construct an object of type void");
+
+  return(construct_at<T, Args...>(heap_aligned_allocate<T>(),
+                                  std::forward<Args>(args)...));
 }
 
 template <typename T, typename... Args>
@@ -204,7 +231,7 @@ WN_FORCE_INLINE T* construct_at(T* ptr, Args&&... args) {
   static_assert(!std::is_void<T>::value,
     "you cannot construct an object of type void");
 
-  return(new(ptr) T(std::forward<Args>(args)...));
+  return(new(ptr)T(std::forward<Args>(args)...));
 }
 
 template <typename T, typename... Args>
@@ -213,16 +240,62 @@ WN_FORCE_INLINE T* construct_at(wn_void* ptr, Args&&... args) {
 }
 
 template <typename T>
-WN_FORCE_INLINE wn_void destroy(const T* ptr) {
+WN_FORCE_INLINE wn_void destroy(T* ptr) {
   delete(ptr);
 }
 
 template <typename T>
-struct default_destroyer final {
-  WN_FORCE_INLINE wn_void operator () (const T* ptr) const {
+WN_FORCE_INLINE wn_void destroy_array(T* ptr) {
+  delete[](ptr);
+}
+
+template <typename T>
+WN_FORCE_INLINE wn_void destroy_aligned(T* ptr) {
+  ptr->~T();
+
+  heap_aligned_free(ptr);
+}
+
+template <typename T>
+struct default_destroyer {
+  default_destroyer() = default;
+
+  template <typename U>
+  WN_FORCE_INLINE default_destroyer(const default_destroyer<U>&) {};
+
+  WN_FORCE_INLINE wn_void operator () (T* ptr) const {
     destroy(ptr);
   }
 };
+
+template <typename T>
+struct default_destroyer<T[]> {
+  default_destroyer() = default;
+
+  template <typename U>
+  WN_FORCE_INLINE default_destroyer(const default_destroyer<U[]>&) {}
+
+  template <typename U,
+            typename = core::enable_if_t<
+              std::is_convertible<U(*)[], T(*)[]>::value>>
+  WN_FORCE_INLINE wn_void operator() (U* ptr) const {
+    destroy_array(ptr);
+  }
+};
+
+template <typename T>
+struct default_aligned_destroyer {
+  default_aligned_destroyer() = default;
+
+  template <typename U>
+  WN_FORCE_INLINE
+  default_aligned_destroyer(const default_aligned_destroyer<U>&) {};
+
+  WN_FORCE_INLINE wn_void operator () (T* ptr) const {
+    destroy_aligned(ptr);
+  }
+};
+
 
 WN_FORCE_INLINE wn_void* memzero(wn_void* dest, const wn_size_t count) {
   return(internal::basic_traits::memzero(dest, count));
