@@ -11,6 +11,9 @@
 /Tools/*/build
 /Tools/*/test/build
 /build*/
+Utilities/Natvis/WNFramework.Natvis/bin
+Utilities/Natvis/WNFramework.Natvis/obj
+Utilities/Natvis/WNFramework.Natvis/Properties
 ipch
 *.opensdf
 *.sdf

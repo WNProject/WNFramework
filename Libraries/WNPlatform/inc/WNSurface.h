@@ -11,7 +11,6 @@
 #include "WNCore/inc/WNAssert.h"
 #include "WNContainers/inc/WNFunction.h"
 #include "WNMemory/inc/WNIntrusivePtr.h"
-#include "WNMemory/inc/WNIntrusivePtrBase.h"
 
 #ifdef _WN_LINUX
     #include <X11/Xlib.h>
