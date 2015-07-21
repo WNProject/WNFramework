@@ -7,7 +7,7 @@
 #ifndef __WN_NETWORKING_BUFFER_RESOURCE_H__
 #define __WN_NETWORKING_BUFFER_RESOURCE_H__
 
-#include "WNMemory/inc/WNIntrusivePtrBase.h"
+#include "WNMemory/inc/WNIntrusivePtr.h"
 
 namespace WNNetworking {
     class WNNetworkManager;

@@ -8,6 +8,7 @@
 #define __WN_PLATFORM_INTERNAL_WINDOWS_SURFACE_MANAGER_WINDOWS_H__
 
 #include "WNPlatform/inc/WNSurfaceManager.h"
+#include "WNPlatform/inc/Internal/Windows/WNSurfaceWindows.h"
 #include "WNConcurrency/inc/WNThread.h"
 #include "WNConcurrency/inc/WNSemaphore.h"
 #include "WNConcurrency/inc/WNMutex.h"
@@ -15,8 +16,6 @@
 #include <vector>
 
 namespace wn {
-    class WNSurfaceWindows;
-
     class WNSurfaceManagerWindows : public WNSurfaceManager {
     public:
         WNSurfaceManagerWindows();

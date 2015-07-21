@@ -234,15 +234,15 @@ function(wn_create_test)
 
   if (ANDROID)
     find_host_program(PYTHON python)
-    add_test(${PARSED_ARGS_TEST_PREFIX}.${PARSED_ARGS_TEST_NAME}
+    add_test(${PARSED_ARGS_TEST_NAME}
       ${PYTHON} ${CMAKE_CURRENT_BINARY_DIR}/${PARSED_ARGS_TEST_NAME}_test/${PARSED_ARGS_TEST_NAME}_test.py
       --install --run --delay 2 --remove)
   else()
     if (PARSED_ARGS_RUN_WRAPPER)
-      add_test(${PARSED_ARGS_TEST_PREFIX}.${PARSED_ARGS_TEST_NAME}
+      add_test(${PARSED_ARGS_TEST_NAME}
         ${PARSED_ARGS_RUN_WRAPPER} ${PARSED_ARGS_TEST_NAME}_test)
     else()
-      add_test(${PARSED_ARGS_TEST_PREFIX}.${PARSED_ARGS_TEST_NAME}
+      add_test(${PARSED_ARGS_TEST_NAME}
         ${PARSED_ARGS_TEST_NAME}_test)
     endif()
   endif()
@@ -253,7 +253,7 @@ endfunction()
 # Arguments
 #     SOURCE_DIR: Directory that contains each individual test.
 #     COMMON_SOURCES: Sourcs to include into each test.
-#     SOURCES: List of source files in SOURCE_DIR of th form ${SOURCE}Tests.cpp.
+#     SOURCES: List of source files in SOURCE_DIR of the form ${SOURCE}Tests.cpp.
 #     ADDITIONAL_INCLUDES: Any additional include directories.
 #     RUN_WRAPPER: Wrappe script to run the test.
 #     TEST_PREFIX: The prefix to use for the name of the test.
@@ -269,7 +269,7 @@ function(wn_create_tests_from_list)
     message(FATAL_ERROR "You must provide at least one source file")
   endif()
   foreach(source ${PARSED_ARGS_SOURCES})
-    wn_create_test(TEST_NAME ${source}
+    wn_create_test(TEST_NAME ${PARSED_ARGS_TEST_PREFIX}_${source}
       TEST_PREFIX ${PARSED_ARGS_TEST_PREFIX}
       SOURCES ${PARSED_ARGS_SOURCE_DIR}/${source}Tests.cpp
          ${PARSED_ARGS_COMMON_SOURCES}

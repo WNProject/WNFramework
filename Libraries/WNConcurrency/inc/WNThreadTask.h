@@ -7,7 +7,6 @@
 #ifndef __WN_CONCURRENCY_THREAD_TASK_H__
 #define __WN_CONCURRENCY_THREAD_TASK_H__
 
-#include "WNMemory/inc/WNIntrusivePtrBase.h"
 #include "WNMemory/inc/WNIntrusivePtr.h"
 #include "WNConcurrency/inc/WNSemaphore.h"
 

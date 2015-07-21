@@ -9,7 +9,6 @@
 
 #include "WNCore/inc/WNUtility.h"
 #include "WNCore/inc/WNTypeTraits.h"
-#include "WNMemory/inc/WNIntrusivePtrBase.h"
 #include "WNMemory/inc/WNIntrusivePtr.h"
 #include "WNContainers/inc/WNFunction.h"
 #include "WNConcurrency/inc/WNSemaphore.h"

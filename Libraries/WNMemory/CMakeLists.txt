@@ -37,11 +37,10 @@ add_wn_header_library(WNMemory
   ${INC_INTERNAL_EXTENSION}
   ${INC_INTERNAL_GENERIC}
   ${INC_INTERNAL}
-  inc/WNBasic.h
   inc/WNAllocator.h
+  inc/WNBasic.h
   inc/WNConfig.h
   inc/WNIntrusivePtr.h
-  inc/WNIntrusivePtrBase.h
   inc/WNMemory.h
   inc/WNUniquePtr.h
 )
