@@ -2,33 +2,21 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+
+#include "WNScripting/inc/WNIncludeLLVM.h"
+#include "llvm/IR/IRBuilder.h"
+#include "WNScripting/inc/WNEndIncludeLLVM.h"
+
+#include "WNScripting/inc/WNNodeHelpers.h" // This is intentionally out of order.
+// If this is included lower, it will fail because windows.h conflitcs wiht llvm.
+
 #include "WNScripting/inc/WNStruct.h"
 #include "WNScripting/inc/WNScriptingAllocations.h"
 #include "WNScripting/inc/WNCodeModule.h"
 #include "WNScripting/inc/WNTypeManager.h"
 #include "WNScripting/inc/WNScopedVariableList.h"
-#include "WNScripting/inc/WNNodeHelpers.h"
 #include "WNScripting/inc/WNDeclaration.h"
 #include "WNScripting/inc/WNExpression.h"
-
-#ifdef _WN_MSVC
-    #pragma warning(push)
-    #pragma warning(disable: 4100)
-    #pragma warning(disable: 4127)
-    #pragma warning(disable: 4152)
-    #pragma warning(disable: 4244)
-    #pragma warning(disable: 4245)
-    #pragma warning(disable: 4267)
-    #pragma warning(disable: 4355)
-    #pragma warning(disable: 4512)
-    #pragma warning(disable: 4800)
-#endif
-
-#include "llvm/IR/IRBuilder.h"
-
-#ifdef _WN_MSVC
-    #pragma warning(pop)
-#endif
 
 using namespace WNScripting;
 
@@ -486,10 +474,10 @@ eWNTypeError WNStruct::GenerateConstructor(WNCodeModule& _module, WNLogging::WNL
 
     std::vector<WNScriptType> parameterTypes;
     parameterTypes.push_back(scriptType);
-    wn_size_t nameLen = WNStrings::WNStrLen(mName);
-    wn_char *functionName = static_cast<wn_char*>(WN_STACK_ALLOC(sizeof(wn_char) * (nameLen + 1 + 5)));
-    wn::memory::memcpy(functionName, mName, nameLen);
-    wn::memory::memcpy(functionName + nameLen, "Const", 6);
+    wn_size_t functionNameLen = WNStrings::WNStrLen(mName);
+    wn_char *functionName = static_cast<wn_char*>(WN_STACK_ALLOC(sizeof(wn_char) * (functionNameLen + 1 + 5)));
+    wn::memory::memcpy(functionName, mName, functionNameLen);
+    wn::memory::memcpy(functionName + functionNameLen, "Const", 6);
 
     WNFunctionDefinition * def = _module.GetFunctionDefinition(functionName, parameterTypes);
     if(!def) {
@@ -506,9 +494,9 @@ eWNTypeError WNStruct::GenerateConstructor(WNCodeModule& _module, WNLogging::WNL
     //call parent's constructor if we have a parent
     if(scriptType->mParentClass) {
         wn_size_t nameLen = WNStrings::WNStrLen(scriptType->mParentClass->mName);
-        wn_char *functionName = static_cast<wn_char*>(WN_STACK_ALLOC(sizeof(wn_char)* (nameLen + 1 + 5)));
-        wn::memory::memcpy(functionName, scriptType->mParentClass->mName, nameLen);
-        wn::memory::memcpy(functionName + nameLen, "Const", 6);
+        wn_char *constructorName = static_cast<wn_char*>(WN_STACK_ALLOC(sizeof(wn_char)* (nameLen + 1 + 5)));
+        wn::memory::memcpy(constructorName, scriptType->mParentClass->mName, nameLen);
+        wn::memory::memcpy(constructorName + nameLen, "Const", 6);
         std::vector<FunctionParam> fParams;
         fParams.push_back(FunctionParam());
         fParams.back().mType = scriptType->mParentClass;
@@ -525,7 +513,7 @@ eWNTypeError WNStruct::GenerateConstructor(WNCodeModule& _module, WNLogging::WNL
 
         WNScriptType returnType;
         llvm::Value* returnValue;
-        if(ok != (err = GenerateFunctionCall(_module, def, functionName, fParams, false, returnType, returnValue, _compilationLog))) {
+        if(ok != (err = GenerateFunctionCall(_module, def, constructorName, fParams, false, returnType, returnValue, _compilationLog))) {
             return(err);
         }
     }
@@ -655,10 +643,10 @@ eWNTypeError WNStruct::GenerateCopyConstructor(WNCodeModule& _module, WNLogging:
 
     //call parent's constructor if we have a parent
     if(scriptType->mParentClass) {
-        wn_size_t nameLen = WNStrings::WNStrLen(scriptType->mParentClass->mName);
-        wn_char *functionName = static_cast<wn_char*>(WN_STACK_ALLOC(sizeof(wn_char)* (nameLen + 1 + 9)));
-        wn::memory::memcpy(functionName, scriptType->mParentClass->mName, nameLen);
-        wn::memory::memcpy(functionName + nameLen, "CopyConst", 10);
+        wn_size_t copyCionstructorNameLen = WNStrings::WNStrLen(scriptType->mParentClass->mName);
+        wn_char *copyConstructorName = static_cast<wn_char*>(WN_STACK_ALLOC(sizeof(wn_char)* (copyCionstructorNameLen + 1 + 9)));
+        wn::memory::memcpy(copyConstructorName, scriptType->mParentClass->mName, copyCionstructorNameLen);
+        wn::memory::memcpy(copyConstructorName + copyCionstructorNameLen, "CopyConst", 10);
         std::vector<FunctionParam> fParams;
         fParams.push_back(FunctionParam());
         fParams.back().mType = scriptType->mParentClass;
@@ -684,7 +672,7 @@ eWNTypeError WNStruct::GenerateCopyConstructor(WNCodeModule& _module, WNLogging:
 
         WNScriptType returnType;
         llvm::Value* returnValue;
-        if(ok != (err = GenerateFunctionCall(_module, def, functionName, fParams, false, returnType, returnValue, _compilationLog))) {
+        if(ok != (err = GenerateFunctionCall(_module, def, copyConstructorName, fParams, false, returnType, returnValue, _compilationLog))) {
             return(err);
         }
     }
@@ -804,19 +792,19 @@ eWNTypeError WNStruct::GenerateDestructor(WNCodeModule& _module, WNLogging::WNLo
             GepArray.push_back(llvm::ConstantInt::get(llvm::IntegerType::getInt32Ty(llvm::getGlobalContext()), cnt));
             llvm::Value* valLoc = builder->CreateGEP(tempValue, GepArray);
 
-            eWNTypeError err = ok;
-            if(ok != (err = destOp->Execute(_module, type, valLoc, def, _compilationLog))){
-                return(err);
+            eWNTypeError execute_err = ok;
+            if(ok != (execute_err = destOp->Execute(_module, type, valLoc, def, _compilationLog))){
+                return(execute_err);
             }
         }
     }
 
     //call parent's destructor if we have a parent
     if(scriptType->mParentClass) {
-        wn_size_t nameLen = WNStrings::WNStrLen(scriptType->mParentClass->mName);
-        wn_char *functionName = static_cast<wn_char*>(WN_STACK_ALLOC(sizeof(wn_char)* (nameLen + 1 + 5)));
-        wn::memory::memcpy(functionName, scriptType->mParentClass->mName, nameLen);
-        wn::memory::memcpy(functionName + nameLen, "Destr", 6);
+        wn_size_t destructorNameLen = WNStrings::WNStrLen(scriptType->mParentClass->mName);
+        wn_char *destructorName = static_cast<wn_char*>(WN_STACK_ALLOC(sizeof(wn_char)* (destructorNameLen + 1 + 5)));
+        wn::memory::memcpy(destructorName, scriptType->mParentClass->mName, destructorNameLen);
+        wn::memory::memcpy(destructorName + destructorNameLen, "Destr", 6);
         std::vector<FunctionParam> fParams;
         fParams.push_back(FunctionParam());
         fParams.back().mType = scriptType->mParentClass;
@@ -835,7 +823,7 @@ eWNTypeError WNStruct::GenerateDestructor(WNCodeModule& _module, WNLogging::WNLo
         fParams.back().mValue = outValue;
 
 
-        if(ok != (err = GenerateFunctionCall(_module, def, functionName, fParams, false, returnType, returnValue, _compilationLog))) {
+        if(ok != (err = GenerateFunctionCall(_module, def, destructorName, fParams, false, returnType, returnValue, _compilationLog))) {
             return(err);
         }
     }

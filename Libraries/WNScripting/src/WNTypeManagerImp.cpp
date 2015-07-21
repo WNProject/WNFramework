@@ -2,31 +2,19 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "WNScripting/inc/WNTypeManagerImpl.h"
-#include "WNScripting/inc/WNCodeModule.h"
-#include "WNScripting/inc/WNNodeHelpers.h"
-#include "WNScripting/inc/WNExpression.h"
-#include "WNLogging/inc/WNLog.h"
 
-#ifdef _WN_MSVC
-    #pragma warning(push)
-    #pragma warning(disable: 4100)
-    #pragma warning(disable: 4127)
-    #pragma warning(disable: 4152)
-    #pragma warning(disable: 4244)
-    #pragma warning(disable: 4245)
-    #pragma warning(disable: 4267)
-    #pragma warning(disable: 4355)
-    #pragma warning(disable: 4512)
-    #pragma warning(disable: 4800)
-#endif
-
+#include "WNScripting/inc/WNIncludeLLVM.h"
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/IR/Intrinsics.h"
+#include "WNScripting/inc/WNEndIncludeLLVM.h"
 
-#ifdef _WN_MSVC
-    #pragma warning(pop)
-#endif
+#include "WNScripting/inc/WNNodeHelpers.h" // This is intentionally out of order.
+// If this is included lower, it will fail because windows.h conflitcs wiht llvm.
+
+#include "WNScripting/inc/WNTypeManagerImpl.h"
+#include "WNScripting/inc/WNCodeModule.h"
+#include "WNScripting/inc/WNExpression.h"
+#include "WNLogging/inc/WNLog.h"
 
 using namespace WNScripting;
 

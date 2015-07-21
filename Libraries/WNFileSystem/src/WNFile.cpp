@@ -7,7 +7,6 @@
 #include "WNStrings/inc/WNStrings.h"
 #include <string>
 #ifdef _WN_WINDOWS
-    #include <Windows.h>
 #else
     #include <stdio.h>
 #endif

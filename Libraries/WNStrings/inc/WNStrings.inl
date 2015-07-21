@@ -26,12 +26,8 @@
     #endif
 #endif
 
-#ifdef _WN_WINDOWS
-    #include <windows.h>
-#else
-    #include <stdarg.h>
-    #include <wchar.h>
-#endif
+#include <stdarg.h>
+#include <wchar.h>
 
 #include <math.h>
 #include <string.h>
@@ -475,7 +471,7 @@ namespace WNStrings {
                  break;
             }
             base = base * 10.0f;
-            wn_byte wholePart = static_cast<wn_byte>(base - fmodf(base, 1.0f));
+            wholePart = static_cast<wn_byte>(base - fmodf(base, 1.0f));
             base = fmodf(base, 1.0f);
             _buffer[counter++] = '0' + wholePart;
         }

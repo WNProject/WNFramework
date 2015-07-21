@@ -5,6 +5,14 @@
 #ifndef __WN_NODE_TYPES_H__
 #define __WN_NODE_TYPES_H__
 
+#include "WNScripting/inc/WNIncludeLLVM.h"
+#include "llvm/IR/Module.h"
+#include "llvm/IR/Function.h"
+#include "llvm/IR/LLVMContext.h"
+#include "llvm/IR/IRBuilder.h"
+#include "llvm/ExecutionEngine/ExecutionEngine.h"
+#include "WNScripting/inc/WNEndIncludeLLVM.h"
+
 #include "WNScripting/inc/WNTypeElement.h"
 #include "WNScripting/inc/WNScriptingErrors.h"
 #include "WNScripting/inc/WNCodeModule.h"
@@ -15,29 +23,6 @@
 #include "WNScripting/inc/WNFunctionParam.h"
 #include "WNCore/inc/WNAssert.h"
 #include "WNLogging/inc/WNLog.h"
-
-#ifdef _WN_MSVC
-    #pragma warning(push)
-    #pragma warning(disable: 4100)
-    #pragma warning(disable: 4127)
-    #pragma warning(disable: 4152)
-    #pragma warning(disable: 4244)
-    #pragma warning(disable: 4245)
-    #pragma warning(disable: 4267)
-    #pragma warning(disable: 4355)
-    #pragma warning(disable: 4512)
-    #pragma warning(disable: 4800)
-#endif
-
-#include "llvm/IR/Module.h"
-#include "llvm/IR/Function.h"
-#include "llvm/IR/LLVMContext.h"
-#include "llvm/IR/IRBuilder.h"
-#include "llvm/ExecutionEngine/ExecutionEngine.h"
-
-#ifdef _WN_MSVC
-    #pragma warning(pop)
-#endif
 
 namespace llvm {
     class Value;

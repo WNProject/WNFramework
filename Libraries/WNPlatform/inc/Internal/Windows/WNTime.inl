@@ -13,7 +13,6 @@
     #error "WNTime_Windows.inl has been included on a non Linux platform. Please rectify this."
 #endif
 
-#include <Windows.h>
 
 namespace wn {
     WN_FORCE_INLINE wn_uint64 WNGetBigTime() {

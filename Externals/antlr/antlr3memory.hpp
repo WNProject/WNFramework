@@ -37,6 +37,12 @@
 #include <set>
 #include <vector>
 
+#if defined(_MSC_VER) && _MSC_VER >= 1900
+#pragma warning(push)
+#pragma warning(disable: 4100)
+#endif
+
+
 #include   "antlr3defs.hpp"
 
 ANTLR_BEGIN_NAMESPACE()
@@ -160,5 +166,10 @@ public:
 };
 
 ANTLR_END_NAMESPACE()
+
+#if defined(_MSC_VER) && _MSC_VER >= 1900
+#pragma warning(pop)
+#endif
+
 
 #endif	/* _ANTLR3MEMORY_H */

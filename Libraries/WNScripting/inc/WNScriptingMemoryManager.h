@@ -4,23 +4,10 @@
 
 #ifndef __WN_SCRIPTING_MEMORY_MANAGER_H__
 #define __WN_SCRIPTING_MEMORY_MANAGER_H__
-
-#ifdef _WN_MSVC
-    #pragma warning(push)
-    #pragma warning(disable: 4244)
-    #pragma warning(disable: 4152)
-    #pragma warning(disable: 4512)
-    #pragma warning(disable: 4245)
-    #pragma warning(disable: 4127)
-    #pragma warning(disable: 4244)
-    #pragma warning(disable: 4100)
-    #pragma warning(disable: 4245)
-    #pragma warning(disable: 4800)
-    #pragma warning(disable: 4267)
-#endif
-
+#include "WNScripting/inc/WNIncludeLLVM.h"
 #include "llvm/ExecutionEngine/SectionMemoryManager.h"
 #include "llvm/ExecutionEngine/RTDyldMemoryManager.h"
+#include "WNScripting/inc/WNEndIncludeLLVM.h"
 
 #ifdef _WN_MSVC
     #pragma warning(pop)
