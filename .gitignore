@@ -10,6 +10,7 @@
 /Tools/bin
 /Tools/*/build
 /Tools/*/test/build
+/build*/
 ipch
 *.opensdf
 *.sdf
