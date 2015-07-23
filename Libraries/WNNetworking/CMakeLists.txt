@@ -1,3 +1,17 @@
+set(SRC_LINUX
+  src/Linux/WNListenConnectionLinux.cpp
+  src/Linux/WNOutConnectionLinux.cpp
+  src/Linux/WNConnectionLinux.cpp
+  src/Linux/WNNetworkManagerLinux.cpp
+  src/Linux/WNListenConnectionLinux.cpp
+)
+set(SRC_WINDOWS
+    src/Windows/WNOutConnectionWindows.cpp
+    src/Windows/WNListenConnectionWindows.cpp
+    src/Windows/WNConnectionWindows.cpp
+    src/Windows/WNInConnectionWindows.cpp
+    src/Windows/WNNetworkManagerWindows.cpp
+)
 set(INC_INTERNAL_LINUX
   inc/Internal/Linux/WNConnectionLinux.h
   inc/Internal/Linux/WNInConnectionLinux.h
@@ -38,20 +52,12 @@ set(WNNetworkingSources
 
 if (WN_POSIX)
   list(APPEND WNNetworkingSources
-    src/Linux/WNListenConnectionLinux.cpp
-    src/Linux/WNOutConnectionLinux.cpp
-    src/Linux/WNConnectionLinux.cpp
-    src/Linux/WNNetworkManagerLinux.cpp
-    src/Linux/WNListenConnectionLinux.cpp
+    ${SRC_LINUX}
   )
 elseif (WN_SYSTEM STREQUAL "Windows")
   list(APPEND WNNetworkingSources
-    src/Windows/WNOutConnectionWindows.cpp
-    src/Windows/WNListenConnectionWindows.cpp
-    src/Windows/WNConnectionWindows.cpp
-    src/Windows/WNInConnectionWindows.cpp
-    src/Windows/WNNetworkManagerWindows.cpp
-    )
+    ${SRC_WINDOWS} ${SRC_LINUX}   
+  )
 endif()
 
 add_wn_library(WNNetworking SOURCES
@@ -60,6 +66,13 @@ add_wn_library(WNNetworking SOURCES
 if(ANDROID)
   set_property(TARGET WNNetworking PROPERTY WN_ANDROID_PERMISSIONS
     INTERNET)
+endif()
+
+if (WN_SYSTEM STREQUAL "Windows")
+	source_group("src\\Linux" FILES ${SRC_LINUX})
+	source_group("src\\Windows" FILES ${SRC_WINDOWS})
+	set_source_files_properties(${SRC_LINUX} 
+		PROPERTIES HEADER_FILE_ONLY true)
 endif()
 
 target_include_directories(WNNetworking PUBLIC

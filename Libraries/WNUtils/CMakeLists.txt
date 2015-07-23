@@ -3,7 +3,18 @@ set(INC_ANDROID
   inc/Android/WNAppData.h
   inc/Android/WNLoggingData.h
 )
-
+set(SRC_ANDROID
+    src/Android/WNAndroidEventPump.cpp
+    src/Android/WNAppData.cpp
+	src/Android/WNCrashHandler.cpp
+	src/Android/WNLoggingData.cpp
+)
+set(SRC_POSIX
+    src/Posix/WNCrashHandler.cpp
+)
+set(SRC_WINDOWS
+    src/Windows/WNCrashHandler.cpp
+)
 set(WNUtilsSources
 	inc/WNCrashHandler.h
 	${INC_ANDROID}
@@ -12,22 +23,28 @@ source_group("inc\\Android" FILES ${INC_ANDROID})
 
 if (WN_SYSTEM STREQUAL "Android")
   list(APPEND WNUtilsSources
-    src/Android/WNAndroidEventPump.cpp
-    src/Android/WNAppData.cpp
-	src/Android/WNCrashHandler.cpp
-	src/Android/WNLoggingData.cpp)
+    ${SRC_ANDROID})
   list(APPEND WNAdditionalUtilIncludes
     ${ANDROID_NDK}/sources/android/native_app_glue)
 elseif (WN_POSIX)
   list(APPEND WNUtilsSources
-    src/Posix/WNCrashHandler.cpp)
+    ${SRC_POSIX})
 elseif (WN_SYSTEM STREQUAL "Windows")
   list(APPEND WNUtilsSources
-    src/Windows/WNCrashHandler.cpp)
+  ${SRC_WINDOWS} ${SRC_POSIX} ${SRC_ANDROID})
 endif()
 add_wn_library(WNUtils SOURCES
   ${WNUtilsSources}
 )
+
+
+if (WN_SYSTEM STREQUAL "Windows")
+	source_group("src\\Windows" FILES ${SRC_WINDOWS})
+	source_group("src\\Posix" FILES ${SRC_POSIX})
+	source_group("src\\Android" FILES ${SRC_ANDROID})
+	set_source_files_properties(${SRC_POSIX} ${SRC_ANDROID} 
+		PROPERTIES HEADER_FILE_ONLY true)
+endif()
 
 target_include_directories(WNUtils
   PUBLIC
