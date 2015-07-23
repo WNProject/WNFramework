@@ -52,11 +52,11 @@ eWNTypeError WNFunction::GenerateCode(WNCodeModule& _module, WNScriptType owning
     funcName[0] = '\0';
 
     if(owningType && owningType->mName) {
-        WNStrings::WNStrNCat(funcName, owningType->mName, 1024);
-        WN_DEBUG_ASSERT(WNStrings::WNStrLen(funcName) == WNStrings::WNStrLen(owningType->mName));
-        WNStrings::WNStrCat(funcName, "$");
+        wn::memory::strncat(funcName, owningType->mName, 1024);
+        WN_DEBUG_ASSERT(wn::memory::strlen(funcName) == wn::memory::strlen(owningType->mName));
+        wn::memory::strcat(funcName, "$");
     }
-    WNStrings::WNStrNCat(funcName, mDeclaration->GetName(), 1024);
+    wn::memory::strncat(funcName, mDeclaration->GetName(), 1024);
 
 
     if(ok != (err = mDeclaration->GetType(_module.GetTypeManager(), returnType, _compilationLog))) {
@@ -208,11 +208,11 @@ eWNTypeError WNFunction::ExportFunctions(WNCodeModule& _module, WNScriptType own
 
 
     if(owningType && owningType->mName) {
-        WNStrings::WNStrNCat(funcName, owningType->mName, 1024);
-        WN_DEBUG_ASSERT(WNStrings::WNStrLen(funcName) == WNStrings::WNStrLen(owningType->mName));
-        WNStrings::WNStrCat(funcName, "$");
+        wn::memory::strncat(funcName, owningType->mName, 1024);
+        WN_DEBUG_ASSERT(wn::memory::strlen(funcName) == wn::memory::strlen(owningType->mName));
+        wn::memory::strcat(funcName, "$");
     }
-    WNStrings::WNStrNCat(funcName, mDeclaration->GetName(), 1024);
+    wn::memory::strncat(funcName, mDeclaration->GetName(), 1024);
 
     if(ok != (err = mDeclaration->GetType(_module.GetTypeManager(), returnType, _compilationLog))) {
         return(err);
@@ -259,11 +259,11 @@ eWNTypeError WNFunction::GenerateHeader(WNCodeModule& _module, WNScriptType owni
     funcName[0] = '\0';
 
     if(owningType && owningType->mName) {
-        WNStrings::WNStrNCat(funcName, owningType->mName, 1024);
-        WN_DEBUG_ASSERT(WNStrings::WNStrLen(funcName) == WNStrings::WNStrLen(owningType->mName));
-        WNStrings::WNStrCat(funcName, "$");
+        wn::memory::strncat(funcName, owningType->mName, 1024);
+        WN_DEBUG_ASSERT(wn::memory::strlen(funcName) == wn::memory::strlen(owningType->mName));
+        wn::memory::strcat(funcName, "$");
     }
-    WNStrings::WNStrNCat(funcName, mDeclaration->GetName(), 1024);
+    wn::memory::strncat(funcName, mDeclaration->GetName(), 1024);
 
 
     if(ok != (err = mDeclaration->GetType(_module.GetTypeManager(), returnType, _compilationLog))) {

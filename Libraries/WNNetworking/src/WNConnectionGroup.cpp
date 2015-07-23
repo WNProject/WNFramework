@@ -4,7 +4,7 @@
 
 #include "WNNetworking/inc/WNConnectionGroup.h"
 #include "WNNetworking/inc/WNNetworkWriteBuffer.h"
-#include "WNStrings/inc/WNStrings.h"
+#include "WNMemory/inc/WNStringUtility.h"
 
 #ifdef _WN_MSVC
     #pragma warning(push)
@@ -21,9 +21,9 @@
 using namespace WNNetworking;
 
 WNConnectionGroup::WNConnectionGroup(const wn_char* _groupName) {
-    WN_DEBUG_ASSERT_DESC(WNStrings::WNStrLen(_groupName) < 255, "Your group name must be < 255 characters long");
+  WN_DEBUG_ASSERT_DESC(wn::memory::strlen(_groupName) < 255, "Your group name must be < 255 characters long");
 
-    mConnectionName = WNStrings::WNStrNDup(_groupName, 255);
+  mConnectionName = wn::memory::strndup(_groupName, 255);
 }
 
 WNConnectionGroup::~WNConnectionGroup() {

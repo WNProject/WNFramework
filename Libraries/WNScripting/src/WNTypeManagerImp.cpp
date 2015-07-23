@@ -268,7 +268,7 @@ eWNTypeError WNTypeManagerImpl::GetArrayOf(WNScriptType& _type, WNScriptType& _o
 
 eWNTypeError WNTypeManagerImpl::GetTypeByName(const wn_char* name, WNScriptType& _outType) const {
     for(std::list<WNScriptType>::const_iterator i = mScriptTypes.begin(); i != mScriptTypes.end(); ++i) {
-        if(WNStrings::WNStrNCmp((*i)->mName, name, 256) == 0){
+        if(wn::memory::strncmp((*i)->mName, name, 256) == 0){
             _outType = *i;
             return(ok);
         }
@@ -396,14 +396,14 @@ eWNTypeError GenerateDefaultStructAccessor::Execute(llvm::IRBuilderBase* _builde
     size_t valueNum = 0;
 
     for(std::vector<WNContainedStructType>::iterator i = mStructType->mStructTypes.begin(); i != mStructType->mStructTypes.end(); ++i, valueNum++) {
-        if(WNStrings::WNStrNCmp(i->mName, _id, 256) == 0){
+        if(wn::memory::strncmp(i->mName, _id, 256) == 0){
             _outType = i->mType;
             break;
         }
     }
     if(valueNum >= mStructType->mStructTypes.size()) {
         //cannot find a struct with the correct name, what about a function?
-        _outValue = reinterpret_cast<llvm::Value*>(WNStrings::WNStrNDup(_id, 2048));
+        _outValue = reinterpret_cast<llvm::Value*>(wn::memory::strndup(_id, 2048));
         _outType = mFunctionType;
         return(ok);
     }
@@ -447,7 +447,7 @@ eWNTypeError GenerateCPPStructAccessor::Execute(llvm::IRBuilderBase* _builder, l
     WNScriptType tempType = mStructType;
     while(tempType) {
         for(std::vector<WNContainedStructType>::iterator i = tempType->mStructTypes.begin(); i != tempType->mStructTypes.end(); ++i) {
-            if(WNStrings::WNStrNCmp(i->mName, _id, 256) == 0){
+            if(wn::memory::strncmp(i->mName, _id, 256) == 0){
                 _outType = i->mType;
                 valueNum = i->mCppOffset;
                 break;
@@ -458,7 +458,7 @@ eWNTypeError GenerateCPPStructAccessor::Execute(llvm::IRBuilderBase* _builder, l
 
     if(valueNum < 0) {
         //cannot find a struct with the correct name, what about a function?
-        _outValue = reinterpret_cast<llvm::Value*>(WNStrings::WNStrNDup(_id, 2048));
+        _outValue = reinterpret_cast<llvm::Value*>(wn::memory::strndup(_id, 2048));
         _outType = mFunctionType;
         return(ok);
     }
@@ -489,12 +489,12 @@ GenerateArrayIDOperator::GenerateArrayIDOperator(WNScriptType _structType, WNScr
 eWNTypeError GenerateArrayIDOperator::Execute(llvm::IRBuilderBase* _builder, llvm::Value*, llvm::Value* _structLoc, wn_char* _id, WNScriptType& _outType, llvm::Value*& _outValue, llvm::Value*&) const
 {
     llvm::IRBuilder<>* builder = reinterpret_cast<llvm::IRBuilder<>*>(_builder);
-    if(WNStrings::WNStrCmp(_id, "resize") == 0) {
+    if(wn::memory::strcmp(_id, "resize") == 0) {
         _outType = mFunctionType;
         _outValue = reinterpret_cast<llvm::Value*>(const_cast<char*>("$resizeArray"));
         return(ok);
     }
-    if(WNStrings::WNStrCmp(_id, "length") != 0) {
+    if(wn::memory::strcmp(_id, "length") != 0) {
         return(eWNDoesNotExist);
     }
 
@@ -582,7 +582,7 @@ eWNTypeError GenerateStructConstruction::Execute(WNCodeModule& _module, llvm::Va
         ///builder->CreateGEP(v, GepArray);
         builder->CreateStore(builder->CreateIntToPtr(llvm::ConstantInt::get(sizeTType->mLLVMType, 0), llvm::IntegerType::getInt32PtrTy(llvm::getGlobalContext())), builder->CreateGEP(v, GepArray));
 
-        wn_size_t nameLen = WNStrings::WNStrLen(structType->mName);
+        wn_size_t nameLen = wn::memory::strlen(structType->mName);
         wn_char *functionName = static_cast<wn_char*>(WN_STACK_ALLOC(sizeof(wn_char)* (nameLen + 1 + 5)));
         wn::memory::memcpy(functionName, structType->mName, nameLen);
         wn::memory::memcpy(functionName + nameLen, "Const", 5);
@@ -935,7 +935,7 @@ eWNTypeError GenerateStructCopyConstruction::Execute(WNCodeModule& _module, llvm
         GepArray.push_back(llvm::ConstantInt::get(llvm::IntegerType::getInt32Ty(llvm::getGlobalContext()), 0));
         builder->CreateStore(builder->CreateIntToPtr(llvm::ConstantInt::get(sizeTType->mLLVMType, 0), llvm::IntegerType::getInt32PtrTy(llvm::getGlobalContext())), builder->CreateGEP(v, GepArray));
 
-        wn_size_t nameLen = WNStrings::WNStrLen(structType->mName);
+        wn_size_t nameLen = wn::memory::strlen(structType->mName);
         wn_char *functionName = static_cast<wn_char*>(WN_STACK_ALLOC(sizeof(wn_char)* (nameLen + 1 + 9)));
         wn::memory::memcpy(functionName, structType->mName, nameLen);
         wn::memory::memcpy(functionName + nameLen, "CopyConst", 10);
@@ -1454,13 +1454,13 @@ wn_void WNTypeManagerImpl::RemoveType(WNScriptType _type) {
 }
 
 wn_int32 WNScripting::GetVirtualFunctionIndex(WNTypeManager& manager, const wn_char* _functionName, std::vector<WNScriptType> mTypes, WNScriptType mLookupClass, bool allowCast) {
-    const wn_char* lookupFunc = WNStrings::WNStrStr(_functionName, "$");
+    const wn_char* lookupFunc = wn::memory::strstr(_functionName, "$");
     lookupFunc = lookupFunc == NULL? _functionName: lookupFunc + 1;
     int counter = 0;
     for(std::vector<WNScripting::WNFunctionDefinition*>::iterator i = mLookupClass->mVTable.begin(); i != mLookupClass->mVTable.end(); ++i, ++counter) {
 
         //mName will be of form ClassName$functionName, so we only want to compare functionName for all, rather than also class name
-        if(0 == WNStrings::WNStrCmp(lookupFunc , (*i)->mName + WNStrings::WNStrLen((*i)->mThisType->mName) + 1)) {
+        if(0 == wn::memory::strcmp(lookupFunc , (*i)->mName + wn::memory::strlen((*i)->mThisType->mName) + 1)) {
             if(mTypes.size() != (*i)->mTypes.size()) {
                 continue;
             }

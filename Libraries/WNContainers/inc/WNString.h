@@ -10,7 +10,6 @@
 #include "WNCore/inc/WNTypes.h"
 
 #include <string>
-#include <cstring>
 
 namespace wn {
 namespace containers {

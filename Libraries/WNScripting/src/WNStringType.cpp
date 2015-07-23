@@ -164,7 +164,7 @@ wn_void ToLower(WNScripting::WNScriptingArrayRef<wn_char>* _string) {
         return;
     }
     for(wn_size_t i = 0; i < string.GetLength(); ++i) {
-        string[i] = WNStrings::WNToLower(string[i]);
+      string[i] = static_cast<wn_char>(::tolower(string[i]));
     }
     return;
 }
@@ -175,7 +175,7 @@ wn_void ToUpper(WNScripting::WNScriptingArrayRef<wn_char>* _string) {
         return;
     }
     for(wn_size_t i = 0; i < string.GetLength(); ++i) {
-        string[i] = WNStrings::WNToUpper(string[i]);
+      string[i] = static_cast<wn_char>(::toupper(string[i]));
     }
     return;
 }
@@ -391,7 +391,7 @@ wn_int32 FindString(WNScripting::WNScriptingArrayRef<wn_char>* _string, WNScript
     }
 
     for(wn_int32 i = 0; i < static_cast<wn_int32>(string.GetLength()) - static_cast<wn_int32>(substr.GetLength()); ++i){
-        if(WNStrings::WNStrNCmp(&string[i], &substr[0], substr.GetLength()) == 0) {
+        if(wn::memory::strncmp(&string[i], &substr[0], substr.GetLength()) == 0) {
             return(static_cast<wn_int32>(i));
         }
     }
@@ -407,7 +407,7 @@ wn_int32 FindLastString(WNScripting::WNScriptingArrayRef<wn_char>* _string, WNSc
     }
 
     for(wn_int32 i = static_cast<wn_int32>(string.GetLength()) - static_cast<wn_int32>(substr.GetLength()) - 1; i >= 0 ; --i){
-        if(WNStrings::WNStrNCmp(&string[i], &substr[0], substr.GetLength()) == 0) {
+        if(wn::memory::strncmp(&string[i], &substr[0], substr.GetLength()) == 0) {
             return(static_cast<wn_int32>(i));
         }
     }

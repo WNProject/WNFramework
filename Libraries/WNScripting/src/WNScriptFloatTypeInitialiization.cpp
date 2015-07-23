@@ -17,6 +17,19 @@
 #include "WNScripting/inc/WNCodeModule.h"
 #include "WNMemory/inc/WNBasic.h"
 
+WN_FORCE_INLINE wn_float32 strtoflt32(const wn_char* _string) {
+  #ifdef _WN_WINDOWS
+    wn_char* flt = const_cast<wn_char*>(_string);
+    _CRT_FLOAT f;
+
+    ::_atoflt(&f, flt);
+
+    return(f.f);
+  #else
+    return(::atof(_string));
+  #endif
+}
+
 namespace WNScripting {
 
     template<llvm::Value* (llvm::IRBuilder<>::*T)(llvm::Value*, llvm::Value*, const llvm::Twine&, llvm::MDNode*)>
@@ -80,7 +93,7 @@ namespace WNScripting {
         }
         virtual ~GenerateFloatConstant() {}
         virtual eWNTypeError Execute(WNCodeModule&, const wn_char* _constant, bool&, llvm::Value*& _outLocation) const {
-            wn_float32 flt = WNStrings::WNStrToFlt(_constant);
+            wn_float32 flt = strtoflt32(_constant);
             _outLocation = llvm::ConstantFP::get(mDestFlt->mLLVMType, flt);
              return(ok);
         }

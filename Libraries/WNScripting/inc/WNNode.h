@@ -23,7 +23,7 @@ namespace WNScripting {
         const WNScriptLocation& GetStartPosition() const { return(mStartLocation); }
         wn_void LogLine(WNLogging::WNLog& _log, WNLogging::WNLogLevel _level) const {
             wn_size_t lineLength = 1023;
-            const wn_char* c = WNStrings::WNStrNChr(reinterpret_cast<const wn_char*>(mStartLocation.mLineStart), 1023, '\n');
+            const wn_char* c = wn::memory::strnchr(reinterpret_cast<const wn_char*>(mStartLocation.mLineStart), '\n', lineLength);
             lineLength = (c - reinterpret_cast<const wn_char*>(mStartLocation.mLineStart));
             wn_char* vArray = static_cast<wn_char*>(WN_STACK_ALLOC(lineLength + 1));
             memcpy(vArray, mStartLocation.mLineStart, lineLength);

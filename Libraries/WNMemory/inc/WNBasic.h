@@ -231,7 +231,7 @@ WN_FORCE_INLINE T* construct_at(T* ptr, Args&&... args) {
   static_assert(!std::is_void<T>::value,
     "you cannot construct an object of type void");
 
-  return(new(ptr)T(std::forward<Args>(args)...));
+  return(new(ptr) T(std::forward<Args>(args)...));
 }
 
 template <typename T, typename... Args>

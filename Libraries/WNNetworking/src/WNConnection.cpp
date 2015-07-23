@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 #include "WNNetworking/inc/WNConnection.h"
-#include "WNMemory/inc/WNMemory.h"
+#include "WNMemory/inc/WNBasic.h"
 
 WNNetworking::WNConnection::WNConnection() :
     mConnectionName(wn_nullptr),

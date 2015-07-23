@@ -12,7 +12,6 @@
 #include "WNCore/inc/WNBase.h"
 #include "WNCore/inc/WNEndian.h"
 #include "WNCore/inc/WNExtendedTypes.h"
-#include "WNCore/inc/WNMacros.h"
 #include "WNCore/inc/WNTypes.h"
 #include "WNCore/inc/WNTypeTraits.h"
 #include "WNCore/inc/WNUtility.h"

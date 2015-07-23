@@ -82,6 +82,7 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL Windows)
     endif()
   endif()
   # Preprocessor definitions
+  add_compile_options(/D_CRT_SECURE_NO_WARNINGS) # Disable CRT secure warnings
   add_compile_options(/D_SCL_SECURE_NO_WARNINGS) # Disable SCL secure warnings
   add_compile_options(/D_HAS_EXCEPTIONS=0) # Disable STL exceptions
   # Compiler options

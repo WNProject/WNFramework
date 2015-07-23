@@ -4,6 +4,7 @@
 
 #include "WNNetworking/inc/Internal/Linux/WNOutConnectionLinux.h"
 #include "WNMemory/inc/WNBasic.h"
+#include "WNMemory/inc/WNStringUtility.h"
 
 #include <sys/epoll.h>
 #include <sys/types.h>
@@ -34,7 +35,7 @@ WNNetworkManagerReturnCode::type WNOutConnectionLinux::Initialize(WNConnectionTy
 
     wn_char port[16];
 
-    WN_SNPRINTF(port, 16, "%d", _port);
+    wn::memory::snprintf(port, 16, "%d", _port);
 
     sock = getaddrinfo(_target, port, &hints, &result);
 
@@ -82,11 +83,11 @@ WNNetworkManagerReturnCode::type WNOutConnectionLinux::Initialize(WNConnectionTy
         return(WNNetworkManagerReturnCode::eWNCannotUnblock);
     }
 
-    const wn_size_t length = WN_SNPRINTF(NULL,0, "%s:%d", _target, _port);
+    const wn_size_t length = wn::memory::snprintf(NULL, 0, "%s:%d", _target, _port);
 
     mConnectionName = wn::memory::heap_allocate<wn_char>(length + 1);
 
-    WN_SNPRINTF(mConnectionName,length +1, "%s:%d", _target, _port);
+    wn::memory::snprintf(mConnectionName, length + 1, "%s:%d", _target, _port);
 
     return(WNNetworkManagerReturnCode::ok);
 }

@@ -4,7 +4,11 @@
 
 #include "WNNetworking/inc/Internal/Windows/WNInConnectionWindows.h"
 #include "WNMemory/inc/WNBasic.h"
-#include "WNStrings/inc/WNStrings.h"
+#include "WNMemory/inc/WNStringUtility.h"
+
+#ifdef _WN_MSVC
+  #pragma warning(disable: 4996)
+#endif
 
 using namespace WNNetworking;
 
@@ -25,11 +29,11 @@ WNNetworkManagerReturnCode::type WNInConnectionWindows::Initialize(SOCKET _liste
         return(WNNetworkManagerReturnCode::eWNCannotCreateSocket);
     }
 
-    wn_size_t length = WN_SNPRINTF(NULL, 0, "%s:%d", inet_ntoa(address.sin_addr), ntohs(address.sin_port));
+    wn_size_t length = wn::memory::snprintf(NULL, 0, "%s:%d", inet_ntoa(address.sin_addr), ntohs(address.sin_port));
 
     mConnectionName = wn::memory::heap_allocate<wn_char>(length + 1);
 
-    WN_SNPRINTF(mConnectionName, length + 1, "%s:%d", inet_ntoa(address.sin_addr), ntohs(address.sin_port));
+    wn::memory::snprintf(mConnectionName, length + 1, "%s:%d", inet_ntoa(address.sin_addr), ntohs(address.sin_port));
 
     mCallback = _callback;
 

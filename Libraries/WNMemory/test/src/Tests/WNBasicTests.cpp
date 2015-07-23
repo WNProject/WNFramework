@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include "WNMemory/test/inc/Common.h"
+#include "WNMemory/inc/WNBasic.h"
 
 template <typename T>
 struct basic : ::testing::Test {};

@@ -261,14 +261,14 @@ namespace WNScripting {
         }
         WNMemberVariablePointer(const wn_char* _name) :
             mEngine(wn_nullptr) {
-            mVariableName = WNStrings::WNStrNDup(_name, 1024);
+            mVariableName = wn::memory::strndup(_name, 1024);
         }
         wn_void SetEngine(WNScriptingEngine* _engine) {
             mEngine = _engine;
         }
         WNMemberVariablePointer(const wn_char* _name, WNScriptingEngine* _engine) : mOffset(-1) {
             mEngine = _engine;
-            mVariableName = WNStrings::WNStrNDup(_name, 1024);
+            mVariableName = wn::memory::strndup(_name, 1024);
             mResolution = eUnresolved;
             TryToResolve();
         }
@@ -282,7 +282,7 @@ namespace WNScripting {
 
                 if(type != 0) {
                     std::vector<WNContainedStructType>::iterator i = std::find_if(type->mStructTypes.begin(), type->mStructTypes.end(),
-                        [this](const WNContainedStructType& sType) { return(WNStrings::WNStrCmp(mVariableName, sType.mName) == 0); }
+                        [this](const WNContainedStructType& sType) { return(wn::memory::strcmp(mVariableName, sType.mName) == 0); }
                     );
                     wn::memory::free(mVariableName);
                     mVariableName = wn_nullptr;

@@ -8,7 +8,6 @@
 #define __WN_CORE_ASSERT_H__
 
 #include "WNCore/inc/WNTypes.h"
-#include "WNCore/inc/WNMacros.h"
 
 #include <iostream>
 #include <cassert>

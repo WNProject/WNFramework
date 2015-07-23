@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include "WNMemory/test/inc/Common.h"
+#include "WNMemory/inc/WNAllocator.h"
 
 TEST(allocator, basic_usage) {
     wn::memory::default_allocator allocator;
