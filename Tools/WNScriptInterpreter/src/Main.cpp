@@ -4,8 +4,8 @@
 
 #include "WNCore/inc/WNTypes.h"
 #include "WNCore/inc/WNAssert.h"
-#include "WNMemory/inc/WNMemory.h"
-#include "WNStrings/inc/WNStrings.h"
+#include "WNMemory/inc/WNBasic.h"
+#include "WNMemory/inc/WNStringUtility.h"
 #include "WNScripting/inc/WNScriptingEngine.h"
 #include "WNScripting/inc/WNScriptingEngineFactory.h"
 #include "WNScripting/inc/WNParameter.h"
@@ -16,8 +16,6 @@
 #include "WNLogging/inc/WNFileLogger.h"
 
 
-using namespace WNStrings;
-
 WNLogging::WNDefaultLogParameters<WNLogging::eLogMax, 1024, true> mParams;
 WNLogging::WNConsoleLogger<> mConsoleLogger;
 static WNLogging::WNLog mMyLog(&mConsoleLogger, mParams);
@@ -26,7 +24,7 @@ WNScripting::WNScriptingEngine* g_Engine;
 
 wn_char* getLine(wn_char*_line, wn_uint32 _sz){
    if (fgets(_line, _sz, stdin)) {
-      wn_char *current = WNStrChr(_line, '\n'); /* check for trailing '\n' */
+      wn_char *current = wn::memory::strchr(_line, '\n'); /* check for trailing '\n' */
 
       if (current != wn_nullptr) {
          *current = '\0'; /* overwrite the '\n' with a terminating null */
@@ -92,7 +90,7 @@ DEFINE_CPP_TYPE(Foo);
 wn_int32 wn_main(wn_int32 _argc, wn_char* _argv[]) {
     wn_char tests[1024];
 #ifdef _WN_ANDROID
-    WNStrCpy(tests, "/sdcard/MCJitTest.wns" );
+    wn::memory::strcpy(tests, "/sdcard/MCJitTest.wns" );
     const wn_char* func = "test";
     const wn_char* func2 = "test2";
 #else
@@ -104,7 +102,7 @@ wn_int32 wn_main(wn_int32 _argc, wn_char* _argv[]) {
 
         return(-1);
     } else {
-        WNStrCpy(tests, _argv[1]);
+        wn::memory::strcpy(tests, _argv[1]);
     }
 
     const wn_char* func = (_argc > 2) ? _argv[2] : "test";

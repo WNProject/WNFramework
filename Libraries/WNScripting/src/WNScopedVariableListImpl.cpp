@@ -26,7 +26,7 @@ eWNTypeError WNScopedVariableListImpl::PushVariable(WNScriptVariable* _variable)
             if(!mScriptVariables[static_cast<wn_size_t>(i)]) {
                 break;
             }
-            if(0 == WNStrings::WNStrNCmp(_variable->GetName(), mScriptVariables[static_cast<wn_size_t>(i)]->GetName(), 256)) {
+            if(0 == wn::memory::strncmp(_variable->GetName(), mScriptVariables[static_cast<wn_size_t>(i)]->GetName(), 256)) {
                 return(eWNAlreadyExists);
             }
         }
@@ -113,7 +113,7 @@ const WNScriptVariable* WNScopedVariableListImpl::GetVariable(const wn_char* _va
         return(wn_nullptr);
     }
     for(wn_int64 i = mScriptVariables.size() - 1; i >= 0; --i) {
-        if(mScriptVariables[static_cast<wn_size_t>(i)] && (0 == WNStrings::WNStrNCmp(_variableName, mScriptVariables[static_cast<wn_size_t>(i)]->GetName(), 256))) {
+        if(mScriptVariables[static_cast<wn_size_t>(i)] && (0 == wn::memory::strncmp(_variableName, mScriptVariables[static_cast<wn_size_t>(i)]->GetName(), 256))) {
             return(mScriptVariables[static_cast<wn_size_t>(i)]);
         }
     }

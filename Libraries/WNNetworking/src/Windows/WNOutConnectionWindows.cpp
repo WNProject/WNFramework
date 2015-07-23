@@ -4,7 +4,11 @@
 
 #include "WNNetworking/inc/Internal/Windows/WNOutConnectionWindows.h"
 #include "WNMemory/inc/WNBasic.h"
-#include "WNStrings/inc/WNStrings.h"
+#include "WNMemory/inc/WNStringUtility.h"
+
+#ifdef _WN_MSVC
+  #pragma warning(disable: 4996)
+#endif
 
 using namespace WNNetworking;
 
@@ -16,7 +20,7 @@ WNNetworkManagerReturnCode::type WNOutConnectionWindows::Initialize(WNConnection
     WN_RELEASE_ASSERT_DESC(_type == WNConnectionType::eWNReliable, "WNNetworking does not support unreliable connections... YET");
     WN_RELEASE_ASSERT_DESC(_port <= 0xFFFF, "Error port must be within range");
 
-    mSocket = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
+    mSocket = WSASocketW(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
 
     if (INVALID_SOCKET == mSocket) {
         return(WNNetworkManagerReturnCode::eWNCannotCreateSocket);
@@ -40,11 +44,11 @@ WNNetworkManagerReturnCode::type WNOutConnectionWindows::Initialize(WNConnection
 
     address.sin_port = htons(static_cast<u_short>(_port));
 
-    wn_size_t length = WN_SNPRINTF(NULL,0, "%s:%d", _target, ntohs(address.sin_port));
+    wn_size_t length = wn::memory::snprintf(NULL, 0, "%s:%d", _target, ntohs(address.sin_port));
 
     mConnectionName = wn::memory::heap_allocate<wn_char>(length + 1);
 
-    WN_SNPRINTF(mConnectionName,length +1, "%s:%d", _target, ntohs(address.sin_port));
+    wn::memory::snprintf(mConnectionName, length + 1, "%s:%d", _target, ntohs(address.sin_port));
 
     if (SOCKET_ERROR == connect(mSocket, reinterpret_cast<const struct sockaddr*>(&address), sizeof(address))) {
         return(WNNetworkManagerReturnCode::eWNCannotConnect);

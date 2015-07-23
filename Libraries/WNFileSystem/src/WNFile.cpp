@@ -3,9 +3,11 @@
 // found in the LICENSE file.
 
 #include "WNFileSystem/inc/WNFile.h"
-#include "WNMemory/inc/WNMemory.h"
-#include "WNStrings/inc/WNStrings.h"
+#include "WNMemory/inc/WNStringUtility.h"
+#include "WNMemory/inc/WNBasic.h"
+
 #include <string>
+
 #ifdef _WN_WINDOWS
 #else
     #include <stdio.h>
@@ -140,18 +142,18 @@ wn_char* WNFileSystem::WNFile::GetFolderName(const wn_char* _name) {
     std::string str(_name);
     wn_size_t loc = str.find_last_of("/\\");
     if(loc == std::string::npos) {
-        return(WNStrings::WNStrNDup("", 2));
+        return(wn::memory::strndup("", 2));
     }
-    return(WNStrings::WNStrNDup(_name, loc + 1));
+    return(wn::memory::strndup(_name, loc + 1));
 }
 
 wn_char* WNFileSystem::WNFile::GetFileName(const wn_char* _name) {
     std::string str(_name);
     wn_size_t loc = str.find_last_of("/\\");
     if(loc == std::string::npos) {
-        return(WNStrings::WNStrNDup(_name, 1024));
+      return(wn::memory::strndup(_name, 1024));
     }
-    return(WNStrings::WNStrNDup(_name + loc, WNStrings::WNStrLen(_name) - loc + 1));
+    return(wn::memory::strndup(_name + loc, wn::memory::strlen(_name) - loc + 1));
 }
 
 wn_bool WNFileSystem::WNFile::DeleteFile(const wn_char* _name) {
@@ -175,7 +177,7 @@ wn_void WNFileSystem::WNFile::CollapseFolderStructure(wn_char* _name) {
         if(*it == '/') {
             if(lastDoubleDot) { //We have found a /something/../ ..destroy it
                 if(olderSeperator) {
-                    wn::memory::memmove(olderSeperator, it, WNStrings::WNStrLen(it) + 1);
+                  wn::memory::memmove(olderSeperator, it, wn::memory::strlen(it) + 1);
                     collapsed = true;
                     break;
                 } else {
@@ -184,7 +186,7 @@ wn_void WNFileSystem::WNFile::CollapseFolderStructure(wn_char* _name) {
                 }
             } else if (lastDot) {
                 if(it - _name > 2) { //we have found a ./ destroy it
-                    wn::memory::memmove(it - 2, it, WNStrings::WNStrLen(it) + 1);
+                  wn::memory::memmove(it - 2, it, wn::memory::strlen(it) + 1);
                     collapsed = true;
                     break;
                 }

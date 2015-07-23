@@ -13,7 +13,7 @@
 #include "WNContainers/inc/WNSerializerBase.h"
 #include "WNContainers/inc/WNDataBuffer.h"
 #include "WNMemory/inc/WNBasic.h"
-#include "WNStrings/inc/WNStrings.h"
+#include "WNMemory/inc/WNStringUtility.h"
 
 namespace wn {
     namespace containers {
@@ -75,14 +75,14 @@ namespace wn {
                             }
                         } while (totalBytes < 4);
 
-                        wn_size_t outSize = WNStrings::WNReadInt32(tempBuffer, m_value, totalBytes - 1);
+                        wn_size_t outSize = memory::WNReadInt32(tempBuffer, m_value, totalBytes - 1);
                         outSize += 1; //consume the space that is supposed to be there
 
                         return(outSize);
                     }
                     case data_buffer_type::write_text: {
                         wn_char tempBuffer[17];
-                        wn_size_t outSize = WNStrings::WNWriteInt32(tempBuffer, m_value, 16);
+                        wn_size_t outSize = memory::writeint32(tempBuffer, m_value, 16);
                         tempBuffer[outSize++] = ' ';
 
                         wn_size_t returnedBytes = 0;
@@ -156,13 +156,13 @@ namespace wn {
                             }
                         } while (totalBytes < 23);
 
-                        wn_size_t outSize = WNStrings::WNReadInt64(tempBuffer, m_value, totalBytes - 1);
+                        wn_size_t outSize = memory::WNReadInt64(tempBuffer, m_value, totalBytes - 1);
                         outSize += 1; //consume the space that is supposed to be there
                         return(outSize);
                     }
                     case data_buffer_type::write_text: {
                         wn_char tempBuffer[24];
-                        wn_size_t outSize = WNStrings::WNWriteInt64(tempBuffer, m_value, 23);
+                        wn_size_t outSize = memory::writeint64(tempBuffer, m_value, 23);
                         tempBuffer[outSize++] = ' ';
 
                         wn_size_t returnedBytes = 0;
@@ -238,7 +238,7 @@ namespace wn {
                         } while (totalBytes < 4);
 
                         wn_uint32 number;
-                        wn_size_t outSize = WNStrings::WNReadUInt32(tempBuffer, number, totalBytes - 1);
+                        wn_size_t outSize = memory::WNReadUInt32(tempBuffer, number, totalBytes - 1);
 
                         m_value = number & 0xFF;
                         outSize += 1; //consume the space that is supposed to be there
@@ -247,7 +247,7 @@ namespace wn {
                     }
                     case data_buffer_type::write_text: {
                         wn_char tempBuffer[4];
-                        wn_size_t outSize = WNStrings::WNWriteUInt32(tempBuffer, m_value, 3);
+                        wn_size_t outSize = memory::writeuint32(tempBuffer, m_value, 3);
                         tempBuffer[outSize++] = ' ';
 
                         wn_size_t returnedBytes = 0;
@@ -321,13 +321,13 @@ namespace wn {
                             }
                         } while (totalBytes < 16);
 
-                        wn_size_t outSize = WNStrings::WNReadUInt32(tempBuffer, m_value, totalBytes - 1);
+                        wn_size_t outSize = memory::WNReadUInt32(tempBuffer, m_value, totalBytes - 1);
                         outSize += 1; //consume the space that is supposed to be there
                         return(outSize);
                     }
                     case data_buffer_type::write_text: {
                         wn_char tempBuffer[17];
-                        wn_size_t outSize = WNStrings::WNWriteUInt32(tempBuffer, m_value, 16);
+                        wn_size_t outSize = memory::writeuint32(tempBuffer, m_value, 16);
                         tempBuffer[outSize++] = ' ';
 
                         wn_size_t returnedBytes = 0;
@@ -401,13 +401,13 @@ namespace wn {
                             }
                         } while (totalBytes < 23);
 
-                        wn_size_t outSize = WNStrings::WNReadUInt64(tempBuffer, m_value, totalBytes - 1);
+                        wn_size_t outSize = memory::WNReadUInt64(tempBuffer, m_value, totalBytes - 1);
                         outSize += 1; //consume the space that is supposed to be there
                         return(outSize);
                     }
                     case data_buffer_type::write_text: {
                         wn_char tempBuffer[24];
-                        wn_size_t outSize = WNStrings::WNWriteUInt64(tempBuffer, m_value, 23);
+                        wn_size_t outSize = memory::writeuint64(tempBuffer, m_value, 23);
                         tempBuffer[outSize++] = ' ';
 
                         wn_size_t returnedBytes = 0;
@@ -482,13 +482,13 @@ namespace wn {
                         }
                     } while (totalBytes < 20);
 
-                    wn_size_t outSize = WNStrings::WNReadFloat32(tempBuffer, m_value, totalBytes - 1);
+                    wn_size_t outSize = memory::WNReadFloat32(tempBuffer, m_value, totalBytes - 1);
                     outSize += 1; //consume the space that is supposed to be there
                     return(outSize);
                 }
                 case data_buffer_type::write_text: {
                     wn_char tempBuffer[20];
-                    wn_size_t outSize = WNStrings::WNWriteFloat32(tempBuffer, m_value, 19);
+                    wn_size_t outSize = memory::WNWriteFloat32(tempBuffer, m_value, 19);
                     tempBuffer[outSize++] = ' ';
 
                     wn_size_t returnedBytes = 0;

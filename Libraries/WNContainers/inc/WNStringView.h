@@ -9,6 +9,7 @@
 
 #include "WNContainers/inc/WNContiguousRange.h"
 #include "WNContainers/inc/WNString.h"
+#include "WNMemory/inc/WNStringUtility.h"
 #include "WNCore/inc/WNAlgorithm.h"
 
 namespace wn {
@@ -57,7 +58,7 @@ public:
   }
 
   WN_FORCE_INLINE string_view(const wn_char* s) :
-    string_view(s, std::strlen(s)) {
+    string_view(s, memory::strlen(s)) {
   }
 
   WN_FORCE_INLINE string_view(const string& str) :
@@ -247,7 +248,7 @@ public:
     const size_type size1 = size();
     const size_type size2 = view.size();
     const size_type min_size = size1 < size2 ? size1 : size2;
-    const wn_int32 r = std::strncmp(data(), view.data(), min_size);
+    const wn_int32 r = memory::strncmp(data(), view.data(), min_size);
 
     if (r == 0) {
       return(size1 == size2 ? 0 : (size1 < size2 ? -1 : 1));
@@ -446,7 +447,7 @@ WN_FORCE_INLINE wn_bool operator != (const string_view& lhs,
 }
 
 WN_FORCE_INLINE wn_bool operator < (const string_view& lhs,
-                                     const string_view& rhs) {
+                                    const string_view& rhs) {
   return(lhs.compare(rhs) < 0);
 }
 
@@ -456,7 +457,7 @@ WN_FORCE_INLINE wn_bool operator <= (const string_view& lhs,
 }
 
 WN_FORCE_INLINE wn_bool operator > (const string_view& lhs,
-                                     const string_view& rhs) {
+                                    const string_view& rhs) {
   return(lhs.compare(rhs) > 0);
 }
 

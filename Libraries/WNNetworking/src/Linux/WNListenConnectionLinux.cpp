@@ -5,6 +5,7 @@
 #include "WNNetworking/inc/Internal/Linux/WNListenConnectionLinux.h"
 #include "WNNetworking/inc/Internal/Linux/WNInConnectionLinux.h"
 #include "WNMemory/inc/WNBasic.h"
+#include "WNMemory/inc/WNStringUtility.h"
 
 #include <sys/epoll.h>
 #include <sys/types.h>
@@ -89,10 +90,10 @@ WNNetworkManagerReturnCode::type WNListenConnectionLinux::Initialize() {
         return(WNNetworkManagerReturnCode::eWNCannotListen);
     }
 
-    const int nameLen = WN_SNPRINTF(NULL, 0, "Listen:%d", mPort);
+    const int nameLen = wn::memory::snprintf(NULL, 0, "Listen:%d", mPort);
     wn_char* name = wn::memory::heap_allocate<wn_char>(nameLen + 1);
 
-    WN_SNPRINTF(name, nameLen + 1, "Listen:%d", mPort);
+    wn::memory::snprintf(name, nameLen + 1, "Listen:%d", mPort);
 
     mConnectionName = name;
 

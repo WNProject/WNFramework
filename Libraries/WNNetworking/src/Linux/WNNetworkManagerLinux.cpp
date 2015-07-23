@@ -7,7 +7,7 @@
 #include "WNNetworking/inc/Internal/Linux/WNListenConnectionLinux.h"
 #include "WNNetworking/inc/Internal/Linux/WNInConnectionLinux.h"
 #include "WNNetworking/inc/Internal/Linux/WNOutConnectionLinux.h"
-#include "WNMemory/inc/WNMemory.h"
+#include "WNMemory/inc/WNBasic.h"
 #include "WNCore/inc/WNAssert.h"
 #include "WNMath/inc/WNBasic.h"
 #include "WNConcurrency/inc/WNThread.h"

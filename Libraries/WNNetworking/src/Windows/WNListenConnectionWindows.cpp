@@ -6,6 +6,7 @@
 #include "WNNetworking/inc/Internal/Windows/WNInConnectionWindows.h"
 #include "WNNetworking/inc/WNNetworkManager.h"
 #include "WNMemory/inc/WNBasic.h"
+#include "WNMemory/inc/WNStringUtility.h"
 
 using namespace WNNetworking;
 
@@ -19,7 +20,7 @@ WNListenConnectionWindows::WNListenConnectionWindows(WNNetworkManager& _manager,
 }
 
 WNNetworkManagerReturnCode::type WNListenConnectionWindows::Initialize() {
-    mSocket = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
+    mSocket = WSASocketW(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
 
     if (INVALID_SOCKET == mSocket) {
         return(WNNetworkManagerReturnCode::eWNCannotCreateSocket);
@@ -45,10 +46,10 @@ WNNetworkManagerReturnCode::type WNListenConnectionWindows::Initialize() {
         return(WNNetworkManagerReturnCode::eWNCannotCreateSocket);
     }
 
-    const wn_uint32 nameLen = WN_SNPRINTF(NULL, 0, "Listen:%d", mPort);
+    const wn_uint32 nameLen = wn::memory::snprintf(NULL, 0, "Listen:%d", mPort);
     wn_char* name = wn::memory::heap_allocate<wn_char>(nameLen + 1);
 
-    WN_SNPRINTF(name, nameLen + 1, "Listen:%d", mPort);
+    wn::memory::snprintf(name, nameLen + 1, "Listen:%d", mPort);
 
     mConnectionName = name;
     mInitialized = wn_true;

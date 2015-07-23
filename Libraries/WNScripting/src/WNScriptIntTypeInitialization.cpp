@@ -21,6 +21,20 @@
 
 #include <stdlib.h>
 
+WN_FORCE_INLINE wn_int64 strtoint64(const wn_char* _string, wn_bool& _consumedString) {
+  #ifdef _WN_WINDOWS
+    wn_char* outVal;
+    wn_int64 val = _strtoi64(_string, &outVal, 10);
+    _consumedString = (*outVal) == '\0';
+    return(val);
+  #else
+    wn_char* outVal;
+    wn_int64 val = strtoll(_string, &outVal, 10);
+    _consumedString = (*outVal) == '\0';
+    return(val);
+  #endif
+}
+
 namespace WNScripting {
 
     template<llvm::Value* (llvm::IRBuilder<>::*T)(llvm::Value*, llvm::Value*, const llvm::Twine&, bool, bool)>
@@ -186,7 +200,7 @@ namespace WNScripting {
         virtual ~GenerateIntConstant() {}
         virtual eWNTypeError Execute(WNCodeModule&, const wn_char* _constant, bool&, llvm::Value*& _outLocation) const {
             wn_bool consumedString = false;
-            wn_int64 constVal = WNStrings::WNStrToLL(_constant, consumedString);
+            wn_int64 constVal = strtoint64(_constant, consumedString);
             if(!consumedString) {
                 return(eWNInvalidConstant);
             }
@@ -427,7 +441,7 @@ namespace WNScripting {
         }
         virtual ~GenerateBoolConstant() {}
         virtual eWNTypeError Execute(WNCodeModule&, const wn_char* _constant, bool&, llvm::Value*& _outLocation) const {
-            wn_bool bConst = WNStrings::WNStrNCmp(_constant, "true", 4) == 0;
+            wn_bool bConst = wn::memory::strncmp(_constant, "true", 4) == 0;
             _outLocation = llvm::ConstantInt::get(mDestInt->mLLVMType, bConst? 1 : 0);
             return(ok);
         }

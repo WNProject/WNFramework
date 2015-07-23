@@ -32,7 +32,6 @@ add_wn_header_library(WNCore
   inc/WNCore.h
   inc/WNEndian.h
   inc/WNExtendedTypes.h
-  inc/WNMacros.h
   inc/WNTypes.h
   inc/WNTypeTraits.h
   inc/WNUtility.h

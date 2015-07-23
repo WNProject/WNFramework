@@ -70,7 +70,7 @@ eWNTypeError WNStruct::ExportNewTypes(WNCodeModule& _module, std::vector<WNScrip
 
     std::vector<WNScriptType> parameterTypes;
     parameterTypes.push_back(scriptType);
-    wn_size_t nameLen = WNStrings::WNStrLen(mName);
+    wn_size_t nameLen = wn::memory::strlen(mName);
     wn_char *functionName = static_cast<wn_char*>(WN_STACK_ALLOC(sizeof(wn_char) * (nameLen + 1 + 9)));
     wn::memory::memcpy(functionName, mName, nameLen);
     wn::memory::memcpy(functionName + nameLen, "Const", 6);
@@ -198,7 +198,7 @@ eWNTypeError WNStruct::FinalizeStruct(WNTypeManager& _manager, WNLogging::WNLog&
 
     for(WNScriptLinkedList<WNDeclaration>::WNScriptLinkedListNode* i = mStructMembers.first; i != wn_nullptr; i = i->next) {
         for(WNScriptLinkedList<WNDeclaration>::WNScriptLinkedListNode* j = i->next; j != wn_nullptr; j = j->next) {
-            if(WNStrings::WNStrCmp(i->value->GetName(), j->value->GetName()) == 0){
+            if(wn::memory::strcmp(i->value->GetName(), j->value->GetName()) == 0){
                 _compilationLog.Log(WNLogging::eError, 0, " Member variable already exists ", i->value->GetName());
                 j->value->LogLine(_compilationLog, WNLogging::eError);
                 return(eWNAlreadyExists);
@@ -219,7 +219,7 @@ eWNTypeError WNStruct::FinalizeStruct(WNTypeManager& _manager, WNLogging::WNLog&
             return(err);
         }
         scriptType->mStructTypes.push_back(WNContainedStructType());
-        scriptType->mStructTypes.back().mName = WNStrings::WNStrNDup("--vtable", 256);
+        scriptType->mStructTypes.back().mName = wn::memory::strndup("--vtable", 256);
         scriptType->mStructTypes.back().mType = voidStar;
         llvmTypes.push_back(voidStar->mLLVMType);
     }
@@ -234,7 +234,7 @@ eWNTypeError WNStruct::FinalizeStruct(WNTypeManager& _manager, WNLogging::WNLog&
         }
         llvmTypes.push_back(type->mLLVMType);
         WNContainedStructType containedType;
-        containedType.mName = WNStrings::WNStrNDup(i->value->GetName(), 256);
+        containedType.mName = wn::memory::strndup(i->value->GetName(), 256);
         containedType.mType = type;
         scriptType->mStructTypes.push_back(containedType);
     }
@@ -330,7 +330,7 @@ eWNTypeError WNStruct::GenerateHeader(WNCodeModule& _module, WNLogging::WNLog& _
 
     std::vector<WNScriptType> parameterTypes;
     parameterTypes.push_back(scriptType);
-    wn_size_t nameLen = WNStrings::WNStrLen(mName);
+    wn_size_t nameLen = wn::memory::strlen(mName);
     wn_char *functionName = static_cast<wn_char*>(WN_STACK_ALLOC(sizeof(wn_char) * (nameLen + 1 + 9)));
     wn::memory::memcpy(functionName, mName, nameLen);
     wn::memory::memcpy(functionName + nameLen, "Const", 6);
@@ -474,7 +474,7 @@ eWNTypeError WNStruct::GenerateConstructor(WNCodeModule& _module, WNLogging::WNL
 
     std::vector<WNScriptType> parameterTypes;
     parameterTypes.push_back(scriptType);
-    wn_size_t functionNameLen = WNStrings::WNStrLen(mName);
+    wn_size_t functionNameLen = wn::memory::strlen(mName);
     wn_char *functionName = static_cast<wn_char*>(WN_STACK_ALLOC(sizeof(wn_char) * (functionNameLen + 1 + 5)));
     wn::memory::memcpy(functionName, mName, functionNameLen);
     wn::memory::memcpy(functionName + functionNameLen, "Const", 6);
@@ -493,7 +493,7 @@ eWNTypeError WNStruct::GenerateConstructor(WNCodeModule& _module, WNLogging::WNL
 
     //call parent's constructor if we have a parent
     if(scriptType->mParentClass) {
-        wn_size_t nameLen = WNStrings::WNStrLen(scriptType->mParentClass->mName);
+        wn_size_t nameLen = wn::memory::strlen(scriptType->mParentClass->mName);
         wn_char *constructorName = static_cast<wn_char*>(WN_STACK_ALLOC(sizeof(wn_char)* (nameLen + 1 + 5)));
         wn::memory::memcpy(constructorName, scriptType->mParentClass->mName, nameLen);
         wn::memory::memcpy(constructorName + nameLen, "Const", 6);
@@ -621,7 +621,7 @@ eWNTypeError WNStruct::GenerateCopyConstructor(WNCodeModule& _module, WNLogging:
     std::vector<WNScriptType> parameterTypes;
     parameterTypes.push_back(scriptType);
     parameterTypes.push_back(scriptType);
-    wn_size_t nameLen = WNStrings::WNStrLen(mName);
+    wn_size_t nameLen = wn::memory::strlen(mName);
     wn_char *functionName = static_cast<wn_char*>(WN_STACK_ALLOC(sizeof(wn_char) * (nameLen + 1 + 9)));
     wn::memory::memcpy(functionName, mName, nameLen);
     wn::memory::memcpy(functionName + nameLen, "CopyConst", 10);
@@ -643,7 +643,7 @@ eWNTypeError WNStruct::GenerateCopyConstructor(WNCodeModule& _module, WNLogging:
 
     //call parent's constructor if we have a parent
     if(scriptType->mParentClass) {
-        wn_size_t copyCionstructorNameLen = WNStrings::WNStrLen(scriptType->mParentClass->mName);
+        wn_size_t copyCionstructorNameLen = wn::memory::strlen(scriptType->mParentClass->mName);
         wn_char *copyConstructorName = static_cast<wn_char*>(WN_STACK_ALLOC(sizeof(wn_char)* (copyCionstructorNameLen + 1 + 9)));
         wn::memory::memcpy(copyConstructorName, scriptType->mParentClass->mName, copyCionstructorNameLen);
         wn::memory::memcpy(copyConstructorName + copyCionstructorNameLen, "CopyConst", 10);
@@ -752,7 +752,7 @@ eWNTypeError WNStruct::GenerateDestructor(WNCodeModule& _module, WNLogging::WNLo
 
     std::vector<WNScriptType> parameterTypes;
     parameterTypes.push_back(scriptType);
-    wn_size_t nameLen = WNStrings::WNStrLen(mName);
+    wn_size_t nameLen = wn::memory::strlen(mName);
     wn_char *functionName = static_cast<wn_char*>(WN_STACK_ALLOC(sizeof(wn_char) * (nameLen + 1 + 5)));
     wn::memory::memcpy(functionName, mName, nameLen);
     wn::memory::memcpy(functionName + nameLen, "Destr", 6);
@@ -801,7 +801,7 @@ eWNTypeError WNStruct::GenerateDestructor(WNCodeModule& _module, WNLogging::WNLo
 
     //call parent's destructor if we have a parent
     if(scriptType->mParentClass) {
-        wn_size_t destructorNameLen = WNStrings::WNStrLen(scriptType->mParentClass->mName);
+        wn_size_t destructorNameLen = wn::memory::strlen(scriptType->mParentClass->mName);
         wn_char *destructorName = static_cast<wn_char*>(WN_STACK_ALLOC(sizeof(wn_char)* (destructorNameLen + 1 + 5)));
         wn::memory::memcpy(destructorName, scriptType->mParentClass->mName, destructorNameLen);
         wn::memory::memcpy(destructorName + destructorNameLen, "Destr", 6);

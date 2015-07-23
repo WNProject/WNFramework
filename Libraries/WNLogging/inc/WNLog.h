@@ -6,7 +6,7 @@
 #define __WN_LOG_H__
 #include "WNCore/inc/WNAssert.h"
 #include "WNCore/inc/WNTypes.h"
-#include "WNStrings/inc/WNStrings.h"
+#include "WNMemory/inc/WNStringUtility.h"
 #include <vector>
 
 
@@ -59,7 +59,7 @@ namespace WNLogging {
     template<typename T, typename BuffType>
     struct LogTypeHelper {
         WN_FORCE_INLINE static wn_bool DoLog(const T& _0, BuffType* _buffer, wn_size_t& _bufferLeft) {
-            int printed = WNStrings::WNTSnPrintf(_buffer, _bufferLeft, _EncPtr<BuffType>::GetVal(), _0);
+            int printed = wn::memory::snprintf(_buffer, _bufferLeft, _EncPtr<BuffType>::GetVal(), _0);
             if(printed < 0 || static_cast<wn_size_t>(printed) >= _bufferLeft) {
                 return(wn_false);
             }

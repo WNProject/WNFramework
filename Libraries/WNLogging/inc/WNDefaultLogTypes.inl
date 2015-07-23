@@ -6,7 +6,7 @@
 #define __WN_DEFAULT_LOG_TYPES_H__
 
 #include "WNCore/inc/WNTypes.h"
-#include "WNCore/inc/WNMacros.h"
+#include "WNMemory/inc/WNStringUtility.h"
 
 #include <cinttypes>
 
@@ -18,7 +18,7 @@ namespace WNLogging {
     template<typename BuffType> \
     struct LogTypeHelper<type, BuffType> { \
         WN_FORCE_INLINE static wn_bool DoLog(const type& _0, BuffType* _buffer, wn_size_t& _bufferLeft) { \
-            int printed = WNStrings::WNTSnPrintf(_buffer, _bufferLeft, _Enc##type<BuffType>::GetVal(), _0); \
+            int printed = wn::memory::snprintf(_buffer, _bufferLeft, _Enc##type<BuffType>::GetVal(), _0); \
             if(printed < 0 || static_cast<wn_size_t>(printed) >= _bufferLeft) { \
                 return(wn_false); \
             } \
@@ -41,7 +41,7 @@ namespace WNLogging {
     template<typename BuffType>
     struct LogTypeHelper<wn_char*,  BuffType> {
         WN_FORCE_INLINE static wn_bool DoLog(wn_char*const & _0, BuffType* _buffer, wn_size_t& _bufferLeft) {
-            int printed = WNStrings::WNTSnPrintf(_buffer, _bufferLeft, _EncWNChar<BuffType>::GetVal(), _0);
+            int printed = wn::memory::snprintf(_buffer, _bufferLeft, _EncWNChar<BuffType>::GetVal(), _0);
             if(printed < 0 || static_cast<wn_size_t>(printed) >= _bufferLeft) {
                 return(wn_false);
             }
@@ -53,7 +53,7 @@ namespace WNLogging {
     template<typename BuffType>
     struct LogTypeHelper<const wn_char*,  BuffType> {
         WN_FORCE_INLINE static wn_bool DoLog(const wn_char*const & _0, BuffType* _buffer, wn_size_t& _bufferLeft) {
-            int printed = WNStrings::WNTSnPrintf(_buffer, _bufferLeft, _EncWNChar<BuffType>::GetVal(), _0);
+            int printed = wn::memory::snprintf(_buffer, _bufferLeft, _EncWNChar<BuffType>::GetVal(), _0);
             if(printed < 0 || static_cast<wn_size_t>(printed) >= _bufferLeft) {
                 return(wn_false);
             }

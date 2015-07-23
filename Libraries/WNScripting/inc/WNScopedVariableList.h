@@ -22,7 +22,7 @@ namespace WNScripting {
             mType(_type),
             mLlvmAlloca(_alloca),
             mDontClean(_dontClean) {
-                mName = WNStrings::WNStrNDup(_name, 256);
+                mName = wn::memory::strndup(_name, 256);
         }
         virtual ~WNScriptVariable() {
             if(mName != wn_nullptr) {

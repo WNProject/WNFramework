@@ -8,7 +8,7 @@
 #define __WN_SCRIPTING_TYPE_ELEMENT_H__
 
 #include "WNCore/inc/WNTypes.h"
-#include "WNStrings/inc/WNStrings.h"
+#include "WNMemory/inc/WNStringUtility.h"
 #include "WNMemory/inc/WNBasic.h"
 
 #include <vector>
@@ -68,7 +68,7 @@ namespace WNScripting {
             mCDestructor(_internal->mCDestructor),
             mTypeSize(_internal->mTypeSize),
             mScriptingEngine(_internal->mScriptingEngine){
-            mName = WNStrings::WNStrNDup(_name, 256);
+            mName = wn::memory::strndup(_name, 256);
             wn::memory::memcpy(mTag, _tag, 4*sizeof(wn_char));
 
         }
@@ -86,7 +86,7 @@ namespace WNScripting {
             mCDestructor(wn_nullptr),
             mTypeSize(_typeSize),
             mScriptingEngine(_engine){
-            mName = WNStrings::WNStrNDup(_name, 256);
+            mName = wn::memory::strndup(_name, 256);
             wn::memory::memcpy(mTag, _tag, 4*sizeof(wn_char));
 
         }
@@ -104,7 +104,7 @@ namespace WNScripting {
             mCDestructor(wn_nullptr),
             mTypeSize(_typeSize),
             mScriptingEngine(_engine){
-            mName = WNStrings::WNStrNDup(_name, 256);
+            mName = wn::memory::strndup(_name, 256);
             wn::memory::memcpy(mTag, _tag, 4*sizeof(wn_char));
         }
         WNScriptTypeInternal(WNScriptTypeInternal* _containedType, const WNScriptingEngine* _engine, llvm::Type* _llvmType, wn_float32 _priority, const wn_char* _tag, wn_size_t _typeSize) :
@@ -124,7 +124,7 @@ namespace WNScripting {
             mScriptingEngine(_engine){
             _containedType->mArrayParent = this;
             wn::memory::memcpy(mTag, _tag, 4*sizeof(wn_char));
-            wn_size_t mNameSize = WNStrings::WNStrLen(_containedType->mName);
+            wn_size_t mNameSize = wn::memory::strlen(_containedType->mName);
             mName = wn::memory::heap_allocate<wn_char>(mNameSize + 1 /*NULL*/ + 2 /*"[]"*/);
             memcpy(mName, _containedType->mName, mNameSize);
             mName[mNameSize] = '[';

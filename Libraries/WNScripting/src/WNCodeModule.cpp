@@ -106,7 +106,7 @@ llvm::IRBuilderBase* WNCodeModule::GetBuilder() {
 
 WNFunctionDefinition* WNCodeModule::GetFunctionDefinition(const wn_char* _name, const std::vector<WNParameter>& _params) {
     for(std::vector<WNFunctionDefinition*>::iterator i = mFunctions.begin(); i != mFunctions.end(); ++i) {
-        if(WNStrings::WNStrCmp((*i)->mName, _name) == 0) {
+        if(wn::memory::strcmp((*i)->mName, _name) == 0) {
 
             if(_params.size() != (*i)->mTypes.size()) {
                 continue;
@@ -127,7 +127,7 @@ WNFunctionDefinition* WNCodeModule::GetFunctionDefinition(const wn_char* _name, 
 
 WNFunctionDefinition* WNCodeModule::GetFunctionDefinition(const wn_char* _name, const std::vector<WNScriptType>& _params) {
     for(std::vector<WNFunctionDefinition*>::iterator i = mFunctions.begin(); i != mFunctions.end(); ++i) {
-        if(WNStrings::WNStrCmp((*i)->mName, _name) == 0) {
+        if(wn::memory::strcmp((*i)->mName, _name) == 0) {
 
             if(_params.size() != (*i)->mTypes.size()) {
                 continue;
@@ -167,9 +167,9 @@ eWNTypeError WNCodeModule::GetNonCastableVirtualFunction(const wn_char* _name, c
     std::vector<WNFunctionDefinition*>& functions = thisType->mVTable;
     std::vector<CountingIntHelper> sharedNameDefs;
     for(wn_size_t i = 0; i < functions.size(); ++i) {
-        const wn_char* lookupFunc = WNStrings::WNStrStr(functions[i]->mName, "$");
+        const wn_char* lookupFunc = wn::memory::strstr(functions[i]->mName, "$");
         lookupFunc = lookupFunc == NULL? functions[i]->mName: lookupFunc + 1;
-        if(WNStrings::WNStrCmp(lookupFunc, _name) == 0) {
+        if(wn::memory::strcmp(lookupFunc, _name) == 0) {
             if(functions[i]->mTypes.size() == _params.size() + 1) {
                 sharedNameDefs.push_back(CountingIntHelper(static_cast<wn_int32>(i)));
             }
@@ -207,18 +207,18 @@ eWNTypeError WNCodeModule::GetThisCallFunction(const wn_char* _name, WNScriptTyp
         funcName[0] = '\0';
         if(_name[0] != '$') { //names starting with $ are special this means they are exposed
                               //to scripting but have arbitrary base types
-            WNStrings::WNStrNCat(funcName, thisType->mName, 1024);
-            WN_DEBUG_ASSERT(WNStrings::WNStrLen(funcName) == WNStrings::WNStrLen(thisType->mName));
-            WNStrings::WNStrCat(funcName, "$");
+            wn::memory::strncat(funcName, thisType->mName, 1024);
+            WN_DEBUG_ASSERT(wn::memory::strlen(funcName) == wn::memory::strlen(thisType->mName));
+            wn::memory::strcat(funcName, "$");
         }
-        WNStrings::WNStrNCat(funcName, _name, 1024);
+        wn::memory::strncat(funcName, _name, 1024);
         for(std::vector<WNFunctionDefinition*>::iterator i = mFunctions.begin(); i != mFunctions.end(); ++i) {
             if(_name[0] != '$') {
                 if((*i)->mIsVirtual || !(*i)->mThisType) {
                     continue;
                 }
             }
-            if(WNStrings::WNStrCmp((*i)->mName, funcName) == 0) {
+            if(wn::memory::strcmp((*i)->mName, funcName) == 0) {
                 if((*i)->mTypes.size() == (_params.size() + 1)) {
                     sharedNameDefs.push_back(CountingStructHelper(*i));
                 }
@@ -287,9 +287,9 @@ eWNTypeError WNCodeModule::GetCastableVirtualFunction(const wn_char* _name, cons
     std::vector<WNFunctionDefinition*>& functions = thisType->mVTable;
      std::vector<CountingIntHelper> sharedNameDefs;
     for(wn_size_t i = 0; i < functions.size(); ++i) {
-        const wn_char* lookupFunc = WNStrings::WNStrStr(functions[i]->mName, "$");
+        const wn_char* lookupFunc = wn::memory::strstr(functions[i]->mName, "$");
         lookupFunc = lookupFunc == NULL? functions[i]->mName: lookupFunc + 1;
-        if(WNStrings::WNStrCmp(lookupFunc, _name) == 0) {
+        if(wn::memory::strcmp(lookupFunc, _name) == 0) {
             if(functions[i]->mTypes.size() == _params.size() + 1) {
                 sharedNameDefs.push_back(CountingIntHelper(static_cast<wn_int32>(i)));
             }
@@ -337,7 +337,7 @@ eWNTypeError WNCodeModule::GetCastableFunctionDefinition(const wn_char* _name, c
     std::vector<CountingStructHelper> sharedNameDefs;
 
     for(std::vector<WNFunctionDefinition*>::iterator i = mFunctions.begin(); i != mFunctions.end(); ++i) {
-        if(WNStrings::WNStrCmp((*i)->mName, _name) == 0) {
+        if(wn::memory::strcmp((*i)->mName, _name) == 0) {
             if((*i)->mTypes.size() == _params.size()) {
                 sharedNameDefs.push_back(CountingStructHelper(*i));
             }
@@ -388,7 +388,7 @@ eWNTypeError WNCodeModule::GenerateFunctionDefinition(const wn_char* _name, cons
         return(eWNAlreadyExists);
     }
     WNFunctionDefinition* def = wn::memory::construct<WNFunctionDefinition>();
-    def->mName = WNStrings::WNStrNDup(_name, 256);
+    def->mName = wn::memory::strndup(_name, 256);
     def->mReturn = _return;
     def->mTypes.assign(_params.begin(), _params.end());
     def->mFunction = wn_nullptr;
@@ -424,7 +424,7 @@ eWNTypeError WNCodeModule::AddExternalScriptFunction(WNFunctionDefinition* _func
 
 bool WNCodeModule::NamedFunctionExists(const wn_char* _name) const {
     for(std::vector<WNFunctionDefinition*>::const_iterator i = mFunctions.begin(); i != mFunctions.end(); ++i) {
-        if(WNStrings::WNStrCmp((*i)->mName, _name) == 0) {
+        if(wn::memory::strcmp((*i)->mName, _name) == 0) {
             return(true);
         }
     }
@@ -437,8 +437,8 @@ eWNTypeError WNCodeModule::AddExternalDefinition(const wn_char* _name, const wn_
     }
 
     WNFunctionDefinition* def = wn::memory::construct<WNFunctionDefinition>();
-    def->mName = WNStrings::WNStrNDup(_name, 256);
-    def->mTag = WNStrings::WNStrNDup(_tag, 1024);
+    def->mName = wn::memory::strndup(_name, 256);
+    def->mTag = wn::memory::strndup(_tag, 1024);
     def->mReturn = _return;
     def->mTypes.assign(_params.begin(), _params.end());
     def->mThisType = _thisType;
@@ -456,13 +456,13 @@ eWNTypeError WNCodeModule::AddExternalDefinition(const wn_char* _name, const wn_
 }
 
 WNFunctionDefinition* WNCodeModule::GetCallableEquivalent(WNFunctionDefinition* def) const {
-    const wn_char* _name = WNStrings::WNStrStr(def->mName, "$");
+    const wn_char* _name = wn::memory::strstr(def->mName, "$");
     _name = _name == NULL? def->mName: _name + 1;
 
     for(wn_size_t i = 0; i < mFunctions.size(); ++i) {
-        const wn_char* lookupFunc = WNStrings::WNStrStr(mFunctions[i]->mName, "$");
+        const wn_char* lookupFunc = wn::memory::strstr(mFunctions[i]->mName, "$");
         lookupFunc = lookupFunc == NULL? mFunctions[i]->mName: lookupFunc + 1;
-        if(WNStrings::WNStrCmp(lookupFunc, _name) == 0) {
+        if(wn::memory::strcmp(lookupFunc, _name) == 0) {
             if(mFunctions[i]->mTypes.size() == def->mTypes.size()) {
                 if((mFunctions[i]->mThisType != 0) != (def->mThisType != 0)){
                     continue; //if one is a this-func and the other is not

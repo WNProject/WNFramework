@@ -41,7 +41,7 @@ add_wn_header_library(WNMemory
   inc/WNBasic.h
   inc/WNConfig.h
   inc/WNIntrusivePtr.h
-  inc/WNMemory.h
+  inc/WNStringUtility.h
   inc/WNUniquePtr.h
 )
 
