@@ -9,7 +9,7 @@
 #ifndef __WN_CONTAINERS_TESTS_COMMON_H__
 #define __WN_CONTAINERS_TESTS_COMMON_H__
 
-#include "WNCore/inc/WNBase.h"
+#include "WNCore/inc/WNTypes.h"
 
 #ifdef _WN_MSVC
     #pragma warning(push)
@@ -28,7 +28,5 @@
 #ifdef _WN_MSVC
     #pragma warning(pop)
 #endif
-
-#include "WNContainers/inc/WNContainers.h"
 
 #endif // __WN_CONTAINERS_TESTS_COMMON_H__

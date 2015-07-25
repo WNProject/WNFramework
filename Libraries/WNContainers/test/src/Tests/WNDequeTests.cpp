@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include "WNContainers/test/inc/Common.h"
+#include "WNContainers/inc/WNDeque.h"
 
 template <typename _Type>
 struct deque : ::testing::Test {};
