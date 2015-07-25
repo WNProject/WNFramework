@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include "WNContainers/test/inc/Common.h"
+#include "WNContainers/inc/WNDynamicArray.h"
 
 template <typename _Type>
 struct dynamic_array : ::testing::Test {};
