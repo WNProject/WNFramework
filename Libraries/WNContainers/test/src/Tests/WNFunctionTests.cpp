@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include "WNContainers/test/inc/Common.h"
+#include "WNContainers/inc/WNFunction.h"
 
 wn_void test_function1() {}
 

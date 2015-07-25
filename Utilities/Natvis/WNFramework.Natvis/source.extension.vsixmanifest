@@ -14,6 +14,7 @@
   <Dependencies>
   </Dependencies>
   <Assets>
-    <Asset Type="NativeVisualizer" Path="WNMemory.natvis" d:Source="File" />
+    <Asset Type="NativeVisualizer" Path="Visualizers/WNContainers.natvis" d:Source="File" />
+    <Asset Type="NativeVisualizer" Path="Visualizers/WNMemory.natvis" d:Source="File" />
   </Assets>
 </PackageManifest>
