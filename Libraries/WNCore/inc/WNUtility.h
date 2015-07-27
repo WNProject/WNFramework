@@ -12,39 +12,43 @@
 #include <utility>
 
 namespace wn {
-    namespace core {
-        template <typename _Type>
-        struct dependent_true : std::true_type {};
+namespace core {
 
-        template <typename _Type>
-        struct dependent_false : std::false_type {};
+template <typename T>
+struct dependent_true : std::true_type {};
 
-        class non_constructable {
-        public:
-            non_constructable() = delete;
-        };
+template <typename T>
+struct dependent_false : std::false_type {};
 
-        class non_copyable {
-        public:
-            non_copyable() = default;
-            non_copyable(const non_copyable&) = delete;
+class non_constructable {
+protected:
+  non_constructable() = delete;
+};
 
-            non_copyable& operator = (const non_copyable&) = delete;
-        };
+class non_copyable {
+protected:
+  non_copyable() = default;
+  non_copyable(const non_copyable &) = delete;
 
-        class non_constructable_non_copyable {
-        public:
-            non_constructable_non_copyable() = delete;
-            non_constructable_non_copyable(const non_constructable_non_copyable&) = delete;
+  non_copyable& operator = (const non_copyable&) = delete;
+};
 
-            non_constructable_non_copyable& operator = (const non_constructable_non_copyable&) = delete;
-        };
+class non_constructable_non_copyable {
+protected:
+  non_constructable_non_copyable() = delete;
+  non_constructable_non_copyable(const non_constructable_non_copyable&) =
+    delete;
 
-        template <typename _Type>
-        WN_FORCE_INLINE decay_t<_Type> decay_copy(_Type&& value) {
-            return(std::forward<_Type>(value));
-        }
-    }
+  non_constructable_non_copyable&
+  operator = (const non_constructable_non_copyable&) = delete;
+};
+
+template <typename T>
+WN_FORCE_INLINE decay_t<T> decay_copy(T&& value) {
+  return(std::forward<T>(value));
 }
+
+} // namespace core
+} // namespace wn
 
 #endif // __WN_CORE_UTILITY_H__
