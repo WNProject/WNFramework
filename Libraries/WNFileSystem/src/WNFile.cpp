@@ -62,7 +62,7 @@ WNFileSystem::WNFile::WNFileError WNFileSystem::WNFile::OpenFile(const wn_char* 
     const wn_bool shouldCheckForFile = !(_mode & WNFileSystem::WNFile::eWNFMCreate);
 
     if (shouldCheckForFile && !DoesFileExist(_name)) {
-        return(WNFileSystem::WNFile::eWNDoesNotExist);
+        return(WNFileSystem::WNFile::does_not_exist);
     }
 
     #ifdef _WN_WINDOWS
@@ -134,7 +134,7 @@ WNFileSystem::WNFile::WNFileError WNFileSystem::WNFile::OpenFile(const wn_char* 
     return(WNFileSystem::WNFile::ok);
 }
 
-wn_size_t WNFileSystem::WNFile::GetFileSize() {
+wn_size_t WNFileSystem::WNFile::GetFileSize() const {
     return(mFileSize);
 }
 

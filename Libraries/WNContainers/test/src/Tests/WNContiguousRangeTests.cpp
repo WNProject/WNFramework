@@ -308,17 +308,17 @@ TYPED_TEST(contiguous_range, remove_prefix) {
   EXPECT_EQ(range.back(), TypeParam(5));
 
   EXPECT_DEATH({
-      wn::containers::contiguous_range<TypeParam> range;
+      wn::containers::contiguous_range<TypeParam> fail_range;
 
-      range.remove_prefix(0);
+      fail_range.remove_prefix(0);
     },
     "assertion failed!\n\nfile: .*\nline: .*\nmessage: invalid string_view"
   );
 
   EXPECT_DEATH({
-      wn::containers::contiguous_range<TypeParam> range(buffer, buffer + 5);
+      wn::containers::contiguous_range<TypeParam> fail_range(buffer, buffer + 5);
 
-      range.remove_prefix(6);
+      fail_range.remove_prefix(6);
     },
     "assertion failed!\n\nfile: .*\nline: .*\nmessage: count too large"
   );
@@ -340,17 +340,17 @@ TYPED_TEST(contiguous_range, remove_suffix) {
   EXPECT_EQ(range.back(), TypeParam(3));
 
   EXPECT_DEATH({
-      wn::containers::contiguous_range<TypeParam> range;
+      wn::containers::contiguous_range<TypeParam> fail_range;
 
-      range.remove_suffix(0);
+      fail_range.remove_suffix(0);
     },
     "assertion failed!\n\nfile: .*\nline: .*\nmessage: invalid string_view"
   );
 
   EXPECT_DEATH({
-      wn::containers::contiguous_range<TypeParam> range(buffer, buffer + 5);
+      wn::containers::contiguous_range<TypeParam> fail_range(buffer, buffer + 5);
 
-      range.remove_suffix(6);
+      fail_range.remove_suffix(6);
     },
     "assertion failed!\n\nfile: .*\nline: .*\nmessage: count too large"
   );

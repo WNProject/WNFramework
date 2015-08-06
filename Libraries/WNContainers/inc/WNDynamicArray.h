@@ -13,6 +13,7 @@ namespace wn {
     namespace containers {
         template <typename _Type, typename _Allocator = memory::default_allocator>
         class dynamic_array final {
+          static _Allocator s_default_allocator;
         public:
             typedef _Type value_type;
             typedef wn_size_t size_type;
@@ -26,21 +27,21 @@ namespace wn {
             typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
             dynamic_array() :
-                dynamic_array(_Allocator()) {
+                dynamic_array(&s_default_allocator) {
             }
 
-            explicit dynamic_array(const _Allocator& _allocator) :
+            explicit dynamic_array(memory::allocator* _allocator) :
                 m_allocator(_allocator),
                 m_data(wn_nullptr),
                 m_size(0),
                 m_capacity(0) {
             }
 
-            explicit dynamic_array(const size_type _count, const _Allocator& _allocator = _Allocator()) :
+            explicit dynamic_array(const size_type _count, memory::allocator* _allocator = &s_default_allocator) :
                 dynamic_array(_count, _Type(), _allocator) {
             }
 
-            dynamic_array(const size_type _count, const _Type& _value, const _Allocator& _allocator = _Allocator()) :
+            dynamic_array(const size_type _count, const _Type& _value, memory::allocator* _allocator = &s_default_allocator) :
                 dynamic_array(_allocator) {
                 insert(m_data, _count, _value);
             }
@@ -66,7 +67,7 @@ namespace wn {
             ~dynamic_array() {
                 clear();
 
-                m_allocator.deallocate(m_data);
+                m_allocator->deallocate(m_data);
             }
 
             template<typename T_Alloc>
@@ -96,10 +97,10 @@ namespace wn {
                     for (wn_size_t i = 0; i < m_size; ++i) {
                         m_data[i].~_Type();
                     }
-                    m_allocator.free(m_data);
+                    m_allocator->deallocate(m_data);
                 }
                 m_allocator = _other.m_allocator;
-                _other.m_allocator = T_Alloc();
+                _other.m_allocator = &s_default_allocator;
                 m_capacity = _other.m_capacity;
                 _other.m_capacity = 0;
                 m_data = _other.m_data;
@@ -225,19 +226,19 @@ namespace wn {
             wn_void reserve(const size_type _new_cap) {
                 if (_new_cap > m_capacity) {
                     if (!m_data) {
-                        wn::memory::allocation_pair pair = m_allocator.allocate(sizeof(_Type), _new_cap);
+                        wn::memory::allocation_pair pair = m_allocator->allocate(sizeof(_Type), _new_cap);
                         m_capacity = pair.m_count;
                         m_data = reinterpret_cast<_Type*>(pair.m_location);
                     } else {
                         //TODO optimize this based on _Type traits
-                        wn::memory::allocation_pair pair = m_allocator.allocate_for_resize(sizeof(_Type), _new_cap, m_capacity);
+                        wn::memory::allocation_pair pair = m_allocator->allocate_for_resize(sizeof(_Type), _new_cap, m_capacity);
                         m_capacity = pair.m_count;
                         _Type* newData = reinterpret_cast<_Type*>(pair.m_location);
                         for (wn_size_t i = 0; i < m_size; ++i) {
                             new(reinterpret_cast<wn_void*>(newData[i])) _Type(std::move(m_data[i]));
                             m_data[i].~_Type();
                         }
-                        m_allocator.deallocate(m_data);
+                        m_allocator->deallocate(m_data);
                         m_data = newData;
                     }
                 }
@@ -390,7 +391,7 @@ namespace wn {
 
                 if (m_capacity < (m_size + _count)) {
                     iterator startPt = m_data + (_pos - m_data);
-                    wn::memory::allocation_pair alloc = m_allocator.allocate_for_resize(sizeof(_Type), m_size + _count, m_capacity);
+                    wn::memory::allocation_pair alloc = m_allocator->allocate_for_resize(sizeof(_Type), m_size + _count, m_capacity);
                     m_capacity = alloc.m_count;
                     _Type* newData = reinterpret_cast<_Type*>(alloc.m_location);
                     _Type* allocated = newData;
@@ -403,7 +404,7 @@ namespace wn {
                         new(reinterpret_cast<wn_void*>(newData++)) _Type(std::move(*i));
                         i->~_Type();
                     }
-                    m_allocator.deallocate(m_data);
+                    m_allocator->deallocate(m_data);
                     m_data = allocated;
                 } else {
                     for (_Type* i = m_data + m_size + _count - 1; i > (_pos + _count - 1); --i) {
@@ -433,11 +434,13 @@ namespace wn {
                 return(startPt);
             }
 
-            allocator_type m_allocator;
+            memory::allocator* m_allocator;
             value_type* m_data;
             size_type m_capacity;
             size_type m_size;
         };
+        template <typename _Type, typename _Allocator>
+        _Allocator dynamic_array<_Type, _Allocator>::s_default_allocator;
     }
 };
 

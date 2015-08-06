@@ -18,6 +18,7 @@ namespace wn {
     namespace containers {
         template <typename _Type, typename _Allocator = memory::default_allocator, const wn_size_t _BlockSize = 10>
         class deque final {
+          static _Allocator s_default_allocator;
         public:
           typedef _Type value_type;
           typedef wn_size_t size_type;
@@ -236,12 +237,12 @@ namespace wn {
             typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
             deque() :
-                deque(_Allocator()) {
+                deque(&s_default_allocator) {
             }
 
             deque(const deque& _other) :
-                m_block_list(_other.m_block_list),
-                m_allocator(_other.m_allocator),
+                m_allocator(&s_default_allocator),
+                m_block_list(_other.m_block_list, &s_default_allocator),
                 m_used_blocks(_other.m_used_blocks),
                 m_start_block(_other.m_start_block),
                 m_start_location(_other.m_start_location),
@@ -249,9 +250,9 @@ namespace wn {
                 m_element_count(_other.m_element_count) {
             }
 
-            deque(const deque& _other, const allocator_type& _allocator) :
+            deque(const deque& _other, memory::allocator* _allocator) :
                 m_allocator(_allocator),
-                m_block_list(_other.m_block_list),
+                m_block_list(_other.m_block_list, _allocator),
                 m_used_blocks(_other.m_used_blocks),
                 m_start_block(_other.m_start_block),
                 m_start_location(_other.m_start_location),
@@ -269,18 +270,9 @@ namespace wn {
                 m_element_count(std::move(_other.m_element_count)) {
             }
 
-            deque(deque&& _other, const allocator_type& _allocator) :
+            explicit deque(memory::allocator *_allocator) :
                 m_allocator(_allocator),
-                m_block_list(std::move(_other.m_block_list)),
-                m_used_blocks(std::move(_other.m_used_blocks)),
-                m_start_block(std::move(_other.m_start_block)),
-                m_start_location(std::move(_other.m_start_location)),
-                m_allocated_blocks(std::move(_other.m_allocated_blocks)),
-                m_element_count(std::move(_other.m_element_count)) {
-            }
-
-            explicit deque(const _Allocator& _allocator) :
-                m_allocator(_allocator),
+                m_block_list(_allocator),
                 m_used_blocks(0),
                 m_start_block(0),
                 m_start_location(0),
@@ -288,25 +280,29 @@ namespace wn {
                 m_element_count(0) {
             }
 
-            explicit deque(const size_type _count, const _Allocator& _allocator = _Allocator()) :
-                deque(_count, _Type(), _allocator) {
-            }
+            explicit deque(const size_type _count,
+                           memory::allocator* _allocator = &s_default_allocator)
+                : deque(_count, _Type(), _allocator) {}
 
-            deque(const size_type _count, const _Type& _value, const _Allocator& _allocator = _Allocator()) :
-                deque(_allocator) {
+            deque(const size_type _count, const _Type& _value,
+                  memory::allocator* _allocator = &s_default_allocator)
+                : deque(_allocator) {
                 resize(_count, _value);
             }
 
             template <typename _InputIt,
-                      typename = core::enable_if_t<!std::is_integral<_InputIt>::value>>
-            deque(_InputIt _first, _InputIt _last, const _Allocator& _allocator = _Allocator()) :
-                deque(_allocator) {
-                insert(cbegin(), _first, _last);
+                      typename =
+                          core::enable_if_t<!std::is_integral<_InputIt>::value>>
+            deque(_InputIt _first, _InputIt _last,
+                  memory::allocator* _allocator = &s_default_allocator)
+                : deque(_allocator) {
+              insert(cbegin(), _first, _last);
             }
 
-            deque(std::initializer_list<_Type> _initializer_list, const _Allocator& _allocator = _Allocator()) :
-                deque(_initializer_list.begin(), _initializer_list.end(), _allocator) {
-            }
+            deque(std::initializer_list<_Type> _initializer_list,
+                  memory::allocator* _allocator = &s_default_allocator)
+                : deque(_initializer_list.begin(), _initializer_list.end(),
+                        _allocator) {}
 
             ~deque() {
                 clear();
@@ -314,7 +310,7 @@ namespace wn {
                 for (wn_size_t i = 0; i < m_allocated_blocks; ++i) {
                     const wn_size_t index = (m_start_block + i) % m_block_list.size();
 
-                    m_allocator.deallocate(m_block_list[index]);
+                    m_allocator->deallocate(m_block_list[index]);
                 }
             }
 
@@ -517,7 +513,7 @@ namespace wn {
                     const size_type copy_count = pos - begin();
 
                     for (size_type i = 0; i < copy_count; ++i) {
-                        memory::construct_at<_Type>(&(*copy_to), *copy_from);
+                        memory::construct_at<_Type>(&(*copy_to), std::move(*copy_from));
 
                         (*copy_from).~_Type();
 
@@ -535,7 +531,7 @@ namespace wn {
                     const size_type copy_count = m_element_count - location;
 
                     for (size_type i = 0; i < copy_count; ++i) {
-                        memory::construct_at<_Type>(&(*copy_to), *copy_from);
+                        memory::construct_at<_Type>(&(*copy_to), std::move(*copy_from));
 
 
                         (*copy_from).~_Type();
@@ -556,6 +552,13 @@ namespace wn {
                 return(erase(_first, count));
             }
 
+            template<typename... Args>
+            wn_void emplace_front(Args&&... _args) {
+              iterator iter = allocate(cbegin(), 1);
+              iterator newIter = iter;
+
+              memory::construct_at<_Type>(&(*(newIter++)), std::forward<Args>(_args)...);
+            }
             wn_void push_front(_Type&& _value) {
                 insert(cbegin(), std::move(_value));
             }
@@ -564,6 +567,14 @@ namespace wn {
                 _Type value(_value);
 
                 push_front(std::move(value));
+            }
+
+            template<typename... Args>
+            wn_void emplace_back(Args&&... _args) {
+              iterator iter = allocate(cbegin() + m_element_count, 1);
+              iterator newIter = iter;
+
+              memory::construct_at<_Type>(&(*(newIter++)), std::forward<Args>(_args)...);
             }
 
             wn_void push_back(_Type&& _value) {
@@ -680,7 +691,7 @@ namespace wn {
                         }
 
                         for (size_type i = 0; i < neededBlocks; ++i) {
-                            wn::memory::allocation_pair p = m_allocator.allocate(sizeof(value_type), _BlockSize);
+                            wn::memory::allocation_pair p = m_allocator->allocate(sizeof(value_type), _BlockSize);
                             m_block_list[(m_start_block + m_allocated_blocks) % m_block_list.size()] = static_cast<value_type*>(p.m_location);
                             m_allocated_blocks += 1;
                         }
@@ -731,7 +742,7 @@ namespace wn {
                     }
 
                     for (size_type i = 0; i < neededExtraBlocks; ++i) {
-                        wn::memory::allocation_pair p = m_allocator.allocate(sizeof(value_type), _BlockSize);
+                        wn::memory::allocation_pair p = m_allocator->allocate(sizeof(value_type), _BlockSize);
 
                         m_block_list[(m_start_block + m_allocated_blocks) % m_block_list.size()] = static_cast<value_type*>(p.m_location);
                         m_allocated_blocks += 1;
@@ -821,14 +832,19 @@ namespace wn {
                 return((count == _BlockSize) ? 0 : count);
             }
 
+            memory::allocator* m_allocator;
             dynamic_array<_Type*> m_block_list;
-            allocator_type m_allocator;
             size_type m_used_blocks;
             size_type m_allocated_blocks;
             size_type m_start_block;
             size_type m_start_location;
             size_type m_element_count;
         };
+
+        template <typename _Type,
+                  typename _Allocator,
+                  const wn_size_t _BlockSize>
+        _Allocator deque<_Type, _Allocator, _BlockSize>::s_default_allocator;
     }
 };
 
