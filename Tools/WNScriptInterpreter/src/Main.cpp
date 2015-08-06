@@ -6,9 +6,9 @@
 #include "WNCore/inc/WNAssert.h"
 #include "WNMemory/inc/WNMemory.h"
 #include "WNStrings/inc/WNStrings.h"
-#include "WNScripting/inc/WNScriptingEngine.h"
-#include "WNScripting/inc/WNScriptingEngineFactory.h"
-#include "WNScripting/inc/WNParameter.h"
+#include "WNDeprecatedScripting/inc/WNScriptingEngine.h"
+#include "WNDeprecatedScripting/inc/WNScriptingEngineFactory.h"
+#include "WNDeprecatedScripting/inc/WNParameter.h"
 #include <iostream>
 
 #include "WNLogging/inc/WNBufferLogger.h"
@@ -82,7 +82,7 @@ WNScripting::WNScriptingArrayRef<wn_char>* GetHelloWorld() {
     WNScripting::WNScriptingArray<wn_char> newArray;
     const char* hw = "hello world";
     wn_size_t strLen = 12;
-    g_Engine->ConstructScriptingArray(newArray, strLen);
+    g_Engine->construct_scripting_array(newArray, strLen);
     memcpy(&newArray[0], hw, strLen);
     return(newArray.ReleaseOwnership().DetachOut());
 }
@@ -110,22 +110,22 @@ wn_int32 wn_main(wn_int32 _argc, wn_char* _argv[]) {
     const wn_char* func = (_argc > 2) ? _argv[2] : "test";
 
 #endif
-    WNScripting::WNScriptingEngine* scriptingEngine = WNScripting::WNScriptingEngineFactory::CreateScriptingEngine();
+    WNScripting::WNScriptingEngine* scriptingEngine = wn::scripting::scripting_engine_factory::create_scripting_engine(wn::scripting::factory_type::deprecated_engine);
     g_Engine = scriptingEngine;
-    scriptingEngine->SetCompilationLog(&mMyLog);
-    scriptingEngine->SetLogLevel(WNLogging::eNone);
-    scriptingEngine->SetInternalLogLevel(WNLogging::eNone);
-    WN_RELEASE_ASSERT(scriptingEngine->Initialize() == ok);
-    scriptingEngine->RegisterCFunction("get23", &get23);
-    scriptingEngine->RegisterCFunction("add", &add);
-    scriptingEngine->RegisterCFunction("printInt", &print);
-    scriptingEngine->RegisterCFunction("printString", &PrintString);
-    scriptingEngine->RegisterCFunction("hello", &GetHelloWorld);
+    scriptingEngine->set_compilation_log(&mMyLog);
+    scriptingEngine->set_log_level(WNLogging::eNone);
+    scriptingEngine->set_internal_log_level(WNLogging::eNone);
+    WN_RELEASE_ASSERT(scriptingEngine->initialize() == ok);
+    scriptingEngine->register_c_function("get23", &get23);
+    scriptingEngine->register_c_function("add", &add);
+    scriptingEngine->register_c_function("printInt", &print);
+    scriptingEngine->register_c_function("printString", &PrintString);
+    scriptingEngine->register_c_function("hello", &GetHelloWorld);
 
     WNScripting::WNFunctionPointer<wn_int32, WNScripting::WNScriptingArray<wn_char> > fPtr;
     WNScripting::ScriptType_A  mAType;
     WNScripting::WNScriptingArray<wn_char> mArray;
-    if(ok != scriptingEngine->CompileFile(tests)) {
+    if(ok != scriptingEngine->compile_file(tests)) {
         return(-1);
     }
     WNScripting::WNMemberVariablePointer<wn_int32, WNScripting::ScriptType_A> mVar("y", scriptingEngine);
@@ -133,11 +133,11 @@ wn_int32 wn_main(wn_int32 _argc, wn_char* _argv[]) {
         return(-1);
     }
 
-    if(ok != scriptingEngine->ConstructScriptingObject(mAType)) {
+    if(ok != scriptingEngine->construct_scripting_object(mAType)) {
         return(-1);
     }
 
-    if(ok != scriptingEngine->ConstructScriptingArray(mArray, 10)) {
+    if(ok != scriptingEngine->construct_scripting_array(mArray, 10)) {
         return(-1);
     }
     for(char i = 0; i < 10; ++i) {
@@ -146,7 +146,7 @@ wn_int32 wn_main(wn_int32 _argc, wn_char* _argv[]) {
 
     printf("%d", mAType->*mVar);
 
-    if(ok == scriptingEngine->GetPointerToFunction(tests,  func, fPtr)) {
+    if(ok == scriptingEngine->get_pointer_to_function(tests,  func, fPtr)) {
         mMyLog.Log(WNLogging::eInfo, 0, "Got function pointer");
         wn_int32 ch = fPtr(mArray);
         printf("\n\n%d\n\n", ch);

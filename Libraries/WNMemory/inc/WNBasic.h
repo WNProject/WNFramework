@@ -24,6 +24,9 @@
   #define WN_STACK_ALLOC(size) ::alloca(size)
 #endif
 
+// If you want allocators to track the amount of allocated memory
+// define WN_TRACK_ALLOCATIONS
+
 namespace wn {
 namespace memory {
 
@@ -310,18 +313,18 @@ WN_FORCE_INLINE T* memory_move(T* dest, const T* src) {
   static_assert(!std::is_void<T>::value,
     "you must specify a size in bytes when moving memory of type void");
 
-  return(static_cast<T*>(memmove(dest, src, sizeof(T))));
+  return(static_cast<T*>(internal::basic_traits::memmove(dest, src, sizeof(T))));
 }
 
 template <typename T>
 WN_FORCE_INLINE T* memory_move(T* dest, const T* src, const wn_size_t count) {
-  return(static_cast<T*>(memmove(dest, src, count * sizeof(T))));
+  return(static_cast<T*>(internal::basic_traits::memmove(dest, src, count * sizeof(T))));
 }
 
 template <>
 WN_FORCE_INLINE wn_void* memory_move(wn_void* dest, const wn_void* src,
                                      const wn_size_t count) {
-  return(memmove(dest, src, count));
+  return(internal::basic_traits::memmove(dest, src, count));
 }
 
 template <typename T>
