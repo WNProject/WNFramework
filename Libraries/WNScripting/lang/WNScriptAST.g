@@ -44,77 +44,50 @@ tokens
 @header {
     #include "WNCore/inc/WNBase.h"
 #ifdef _WN_MSVC
+    #pragma warning(disable: 4100)
+    #pragma warning(disable: 4459)
     #pragma warning(disable: 4703)
 #endif
-    #include "WNScripting/src/WNScriptASTLexer.hpp"
-    #include "WNScripting/inc/WNScriptingAllocations.h"
-    #include "WNScripting/inc/WNArgList.h"
-    #include "WNScripting/inc/WNArrayAccessExpression.h"
-    #include "WNScripting/inc/WNArrayAllocation.h"
-    #include "WNScripting/inc/WNAssignment.h"
-    #include "WNScripting/inc/WNBinExpression.h"
-    #include "WNScripting/inc/WNCondExpression.h"
-    #include "WNScripting/inc/WNConstantExpression.h"
-    #include "WNScripting/inc/WNDeclaration.h"
-    #include "WNScripting/inc/WNDeclList.h"
-    #include "WNScripting/inc/WNDoInstruction.h"
-    #include "WNScripting/inc/WNExpression.h"
-    #include "WNScripting/inc/WNForInstruction.h"
-    #include "WNScripting/inc/WNFunction.h"
-    #include "WNScripting/inc/WNFunctionCallExpression.h"
-    #include "WNScripting/inc/WNIDExpression.h"
-    #include "WNScripting/inc/WNIfInstruction.h"
-    #include "WNScripting/inc/WNInstruction.h"
-    #include "WNScripting/inc/WNInstructionList.h"
-    #include "WNScripting/inc/WNLValue.h"
-    #include "WNScripting/inc/WNMemberAccessExpression.h"
-    #include "WNScripting/inc/WNNode.h"
-    #include "WNScripting/inc/WNNullAllocation.h"
-    #include "WNScripting/inc/WNPostExpression.h"
-    #include "WNScripting/inc/WNPostUNExpression.h"
-    #include "WNScripting/inc/WNScriptFile.h"
-    #include "WNScripting/inc/WNSSExpression.h"
-    #include "WNScripting/inc/WNStruct.h"
-    #include "WNScripting/inc/WNStructAllocation.h"
-    #include "WNScripting/inc/WNTypeNode.h"
-    #include "WNScripting/inc/WNUnExpression.h"
-    #include "WNScripting/inc/WNWhileInstruction.h"
-    #include "WNScripting/inc/WNReturn.h"
-    using namespace WNScripting;
+    #include "WNMemory/inc/WNAllocator.h"
+	#include "WNScripting/src/WNScriptASTLexer.hpp"
+    #include "WNScripting/inc/WNNodeTypes.h"
+	
+    using namespace wn;
     //
     //
 
-    #ifndef SetLocation
-    #define SetLocation(node, tok) { WNScriptLocation loc; \
-                                     loc.mStartIndex = tok->get_startIndex();\
-                                     loc.mEndIndex = tok->get_stopIndex();\
-                                     loc.mLineStart = tok->get_lineStart();\
-                                     loc.mLineNumber = tok->get_line();\
-                                     loc.mCharNumber = tok->get_charPositionInLine();\
-                                     node->SetStartPosition(loc); \
+    #ifndef SET_LOCATION
+    #define SET_LOCATION(node, tok) { scripting::source_location loc; \
+                                     loc.m_start_index = tok->get_startIndex();\
+                                     loc.m_end_index = tok->get_stopIndex();\
+                                     loc.m_line_start = tok->get_lineStart();\
+                                     loc.m_line_number = tok->get_line();\
+                                     loc.m_char_number = tok->get_charPositionInLine();\
+                                     node->set_start_location(loc); \
                                    }
-    #define SetLocationFromNode(node, node2) { \
+
+    #define SET_LOCATION_FROM_NODE(node, node2) { \
                                         if(node2) { \
-                                        node->SetStartPosition(node2->GetStartPosition()); \
+                                        node->set_start_location(node2->get_start_location()); \
                                         } \
                                    }
-    #define SetStartLocationFromNode(node, node2) { \
+    #define SET_START_LOCATION_FROM_NODE(node, node2) { \
                                         if(node2) { \
-                                        WNScriptLocation loc = node->GetStartPosition(); \
-                                        WNScriptLocation loc2 = node2->GetStartPosition(); \
-                                        loc.mStartIndex = loc2.mStartIndex; \
-                                        loc.mLineStart = loc2.mLineStart; \
-                                        loc.mLineNumber = loc2.mLineNumber; \
-                                        loc.mCharNumber = loc2.mCharNumber; \
-                                        node->SetStartPosition(loc); \
+                                        scripting::source_location loc = node->get_start_location(); \
+                                        scripting::source_location loc2 = node2->get_start_location(); \
+                                        loc.m_start_index = loc2.m_start_index; \
+                                        loc.m_line_start = loc2.m_line_start; \
+                                        loc.m_line_number = loc2.m_line_number; \
+                                        loc.m_char_number = loc2.m_char_number; \
+                                        node->set_start_location(loc); \
                                         } \
                                     }
-    #define SetEndLocation(node, tok) { \
-                                        node->SetEndIndex(tok->get_stopIndex()); \
+    #define SET_END_LOCATION(node, tok) { \
+                                        node->set_end_index(tok->get_stopIndex()); \
                                       }
-    #define SetEndLocationFromNode(node, node2) { \
+    #define SET_END_LOCATION_FROM_NODE(node, node2) { \
                                             if(node2) { \
-                                            node->SetEndIndex(node2->GetStartPosition().mEndIndex); \
+                                            node->set_end_index(node2->get_start_location().m_end_index); \
                                             } \
                                             }
     #endif
@@ -125,6 +98,8 @@ tokens
     #include "WNCore/inc/WNBase.h"
 #ifdef _WN_MSVC
     #pragma warning(disable: 4100)
+    #pragma warning(disable: 4459)
+    #pragma warning(disable: 4703)
 #endif
 #ifdef _WN_CLANG
     #pragma clang diagnostic ignored "-Wparentheses-equality"
@@ -133,14 +108,14 @@ tokens
     //class WNScriptASTLexer;
     //class WNScriptASTParser;
 
-    //template<class ImplTraits>
-    //class UserTraits : public antlr3::CustomTraitsBase<ImplTraits>
-    //{
-    //public:
+    template<class ImplTraits>
+    class UserTraits : public antlr3::CustomTraitsBase<ImplTraits>
+    {
+      public:
         //for using the token stream which deleted the tokens, once it is reduced to a rule
         //but it leaves the start and stop tokens. So they can be accessed as usual
     //    static const bool TOKENS_ACCESSED_FROM_OWNING_RULE = true;
-    //};
+    };
 
     //typedef antlr3::Traits< WNScriptASTLexer, WNScriptASTParser, UserTraits > WNScriptASTLexerTraits;
     //typedef WNScriptASTLexerTraits WNScriptASTParserTraits;
@@ -151,6 +126,15 @@ tokens
        typedef antlr3::Traits< WNScriptASTLexer, WNScriptASTParser > WNScriptASTLexerTraits;
        typedef WNScriptASTLexerTraits WNScriptASTParserTraits;
 
+}
+
+@parser::context {
+private:
+  wn::memory::allocator* m_allocator;
+public:
+  void set_allocator(wn::memory::allocator* _allocator) {
+    m_allocator = _allocator;
+  }
 }
 
 LSQBRACKET: '[';
@@ -244,258 +228,262 @@ UNICODE_ESC
     :   '\\' 'u' HEX_DIGIT HEX_DIGIT HEX_DIGIT HEX_DIGIT
     ;
 
-scalarType returns[WNTypeNode* node]
+scalarType returns[scripting::type_node* node]
 @init {
     node = wn_nullptr;
 }
-    :   TYPE    { node = WN_SCRIPTNODE_NEW(WNTypeNode($TYPE.text.c_str())); SetLocation(node, $TYPE); }
+    :   TYPE    { node = m_allocator->make_allocated<scripting::type_node>(m_allocator, $TYPE.text.c_str()); SET_LOCATION(node, $TYPE); }
     ;
 
-type    returns[WNTypeNode* node]
+type    returns[scripting::type_node* node]
 @init {
     node = wn_nullptr;
 }
-    :    scalarType { node = $scalarType.node; SetLocationFromNode(node, $scalarType.node); }
-                (LSQBRACKET RSQBRACKET { node->AddArrayLevel(); SetEndLocation(node, $RSQBRACKET); })*
+    :    scalarType { node = $scalarType.node; SET_LOCATION_FROM_NODE(node, $scalarType.node); }
+                (LSQBRACKET RSQBRACKET { node->add_array_level(); SET_END_LOCATION(node, $RSQBRACKET); })*
     ;
 
-decl returns[WNDeclaration* node]
+decl returns[scripting::declaration* node]
 @init {
     node = wn_nullptr;
 }
-    :    type ID {node = WN_SCRIPTNODE_NEW(WNDeclaration($type.node, $ID.text.c_str())); SetLocationFromNode(node, $type.node); SetEndLocation(node, $ID); }
+    :    type ID {node = m_allocator->make_allocated<scripting::declaration>(m_allocator, $type.node, $ID.text.c_str()); SET_LOCATION_FROM_NODE(node, $type.node); SET_END_LOCATION(node, $ID); }
     ;
 
-declList returns[WNDeclList* node]
+declList returns[scripting::decl_list* node]
 @init {
     node = wn_nullptr;
 }
-    :    a=decl { node = WN_SCRIPTNODE_NEW(WNDeclList($a.node)); SetLocationFromNode(node, $a.node); }
-        (COMMA b=decl { $node->AddDeclaration($b.node); SetEndLocationFromNode(node, $b.node); })*
+    :    a=decl { node = m_allocator->make_allocated<scripting::decl_list>(m_allocator, $a.node); SET_LOCATION_FROM_NODE(node, $a.node); }
+        (COMMA b=decl { $node->add_declaration($b.node); SET_END_LOCATION_FROM_NODE(node, $b.node); })*
     ;
 
-parameterList returns[WNDeclList* node]
+parameterList returns[scripting::decl_list* node]
 @init {
     node = wn_nullptr;
 }
-    :    LBRACKET declList RBRACKET { node = $declList.node; SetLocation(node, $LBRACKET); SetEndLocation(node, $RBRACKET); }
+    :    LBRACKET declList RBRACKET { node = $declList.node; SET_LOCATION(node, $LBRACKET); SET_END_LOCATION(node, $RBRACKET); }
         |    LBRACKET RBRACKET      { node = wn_nullptr; }
     ;
 
 
-assign_op returns[WNAssignType node]
+assign_type returns[scripting::assign_type node]
 @init {
-    node = AT_EQ;
+    node = scripting::assign_type::equal;
 }
-    :    '='  { node = AT_EQ; }
-    |    '+=' { node = AT_ADD_EQ; }
-    |    '-=' { node = AT_SUB_EQ; }
-    |    '*=' { node = AT_MULT_EQ; }
-    |    '/=' { node = AT_DIV_EQ; }
-    |    '%=' { node = AT_MOD_EQ; }
-    |    '<==' { node = AT_CHOWN; }
+    :    '='  { node = scripting::assign_type::equal; }
+    |    '+=' { node = scripting::assign_type::add_equal; }
+    |    '-=' { node = scripting::assign_type::sub_equal; }
+    |    '*=' { node = scripting::assign_type::mult_equal; }
+    |    '/=' { node = scripting::assign_type::div_equal; }
+    |    '%=' { node = scripting::assign_type::mod_equal; }
+    |    '<==' { node = scripting::assign_type::change_owner; }
     ;
 
-lvalue returns[WNLValue* node]
+lvalue returns[scripting::lvalue* node]
 @init {
     node = wn_nullptr;
 }
-    :    unary_ex { node = WN_SCRIPTNODE_NEW(WNLValue($unary_ex.node)); SetLocationFromNode(node, $unary_ex.node); }
+    :    unary_ex { node = m_allocator->make_allocated<scripting::lvalue>(m_allocator, $unary_ex.node); SET_LOCATION_FROM_NODE(node, $unary_ex.node); }
     ;
 
-arglist returns[WNArgList* node]
+arglist returns[scripting::arg_list* node]
 @init {
-    node = WN_SCRIPTNODE_NEW(WNArgList());
+    node = m_allocator->make_allocated<scripting::arg_list>(m_allocator);
 }
         :   (
-                    (a=expression { node->AddExpression($a.node); SetLocationFromNode(node, $a.node); })
-                |   ('<==' b=expression {node->AddExpression($b.node, wn_true); SetLocationFromNode(node, $b.node); })
+                    (a=expr { node->add_expression($a.node); SET_LOCATION_FROM_NODE(node, $a.node); })
+                |   ('<==' b=expr {node->add_expression($b.node, wn_true); SET_LOCATION_FROM_NODE(node, $b.node); })
             )
 
             (','
                 (
-                    ( '<==' c=expression { node->AddExpression($c.node); SetEndLocationFromNode(node, $c.node); } ) |
-                    ( d=expression { node->AddExpression($d.node, wn_true); SetEndLocationFromNode(node, $d.node); } ) |
+                    ( '<==' c=expr { node->add_expression($c.node); SET_END_LOCATION_FROM_NODE(node, $c.node); } ) |
+                    ( d=expr { node->add_expression($d.node, wn_true); SET_END_LOCATION_FROM_NODE(node, $d.node); } ) |
                 )
             )*
         ;
 
-expression returns[WNExpression* node]
+expr returns[scripting::expression* node]
 @init {
     node = wn_nullptr;
 }
         :    cond_ex { node = $cond_ex.node; }
         ;
 
-cond_ex returns[WNExpression* node]
+cond_ex returns[scripting::expression* node]
 @init {
     node = wn_nullptr;
 }
         :    or_ex  { node = $or_ex.node; }
 
-                ('?' b=expression ':' c=cond_ex { node = WN_SCRIPTNODE_NEW(WNCondExpression(node, $b.node, $c.node));  SetLocationFromNode(node, $or_ex.node); SetEndLocationFromNode(node, $c.node); }  )?
+                ('?' b=expr ':' c=cond_ex { node = m_allocator->make_allocated<scripting::cond_expression>(m_allocator, node, $b.node, $c.node);  SET_LOCATION_FROM_NODE(node, $or_ex.node); SET_END_LOCATION_FROM_NODE(node, $c.node); }  )?
         ;
 
-or_ex    returns[WNExpression* node]
+or_ex    returns[scripting::expression* node]
 @init {
     node = wn_nullptr;
 }
         :    a=and_ex { node = $a.node; }
-            ('||' b=and_ex { node = WN_SCRIPTNODE_NEW(WNSSExpression(ST_OR, node, $b.node)); SetLocationFromNode(node, $a.node); SetEndLocationFromNode(node, $b.node); })*
+            ('||' b=and_ex { node = m_allocator->make_allocated<scripting::ss_expression>(m_allocator, scripting::short_circuit_type::or_operator, node, $b.node); SET_LOCATION_FROM_NODE(node, $a.node); SET_END_LOCATION_FROM_NODE(node, $b.node); })*
         ;
 
-and_ex  returns[WNExpression* node]
+and_ex  returns[scripting::expression* node]
 @init {
     node = wn_nullptr;
 }
         :    a=eq_ex { node = $a.node; }
-            ('&&' b=eq_ex {node = WN_SCRIPTNODE_NEW(WNSSExpression(ST_AND, node, $b.node)); SetLocationFromNode(node, $a.node); SetEndLocationFromNode(node, $b.node); })*;
-eq_ex    returns[WNExpression* node]
+            ('&&' b=eq_ex {node = m_allocator->make_allocated<scripting::ss_expression>(m_allocator, scripting::short_circuit_type::and_operator, node, $b.node); SET_LOCATION_FROM_NODE(node, $a.node); SET_END_LOCATION_FROM_NODE(node, $b.node); })*;
+			
+eq_ex    returns[scripting::expression* node]
 @init {
     node = wn_nullptr;
 }
         :    a=rel_ex { node = $a.node; }
             (
-                ('==' b=rel_ex {node = WN_SCRIPTNODE_NEW(WNBinExpression(AR_EQ, node, $b.node));  SetLocationFromNode(node, $a.node); SetEndLocationFromNode(node, $b.node); } )
-              | ('!=' c=rel_ex {node = WN_SCRIPTNODE_NEW(WNBinExpression(AR_NEQ, node, $c.node)); SetLocationFromNode(node, $a.node); SetEndLocationFromNode(node, $c.node); } )
+                ('==' b=rel_ex {node = m_allocator->make_allocated<scripting::binary_expression>(m_allocator, scripting::arithmetic_type::arithmetic_equal, node, $b.node);  SET_LOCATION_FROM_NODE(node, $a.node); SET_END_LOCATION_FROM_NODE(node, $b.node); } )
+              | ('!=' c=rel_ex {node = m_allocator->make_allocated<scripting::binary_expression>(m_allocator, scripting::arithmetic_type::arithmetic_not_equal, node, $c.node); SET_LOCATION_FROM_NODE(node, $a.node); SET_END_LOCATION_FROM_NODE(node, $c.node); } )
             )*
         ;
 
-rel_ex  returns[WNExpression* node]
+rel_ex  returns[scripting::expression* node]
 @init {
     node = wn_nullptr;
 }
         :    a=add_ex { node=$a.node; }
             (
-                ( '<' b=add_ex {node = WN_SCRIPTNODE_NEW(WNBinExpression(AR_LT, node, $b.node));   SetLocationFromNode(node, $a.node); SetEndLocationFromNode(node, $b.node); } )
-              | ( '>' c=add_ex {node = WN_SCRIPTNODE_NEW(WNBinExpression(AR_GT, node, $c.node));   SetLocationFromNode(node, $a.node); SetEndLocationFromNode(node, $c.node); } )
-              | ( '<=' d=add_ex {node = WN_SCRIPTNODE_NEW(WNBinExpression(AR_LEQ, node, $d.node));   SetLocationFromNode(node, $a.node); SetEndLocationFromNode(node, $d.node); } )
-              | ( '>=' e=add_ex {node = WN_SCRIPTNODE_NEW(WNBinExpression(AR_GEQ, node, $e.node));   SetLocationFromNode(node, $a.node); SetEndLocationFromNode(node, $e.node); } )
+                ( '<' b=add_ex {node = m_allocator->make_allocated<scripting::binary_expression>(m_allocator, scripting::arithmetic_type::arithmetic_less_than, node, $b.node);   SET_LOCATION_FROM_NODE(node, $a.node); SET_END_LOCATION_FROM_NODE(node, $b.node); } )
+              | ( '>' c=add_ex {node = m_allocator->make_allocated<scripting::binary_expression>(m_allocator, scripting::arithmetic_type::arithmetic_greater_than, node, $c.node);   SET_LOCATION_FROM_NODE(node, $a.node); SET_END_LOCATION_FROM_NODE(node, $c.node); } )
+              | ( '<=' d=add_ex {node = m_allocator->make_allocated<scripting::binary_expression>(m_allocator, scripting::arithmetic_type::arithmetic_less_than_or_equal, node, $d.node);   SET_LOCATION_FROM_NODE(node, $a.node); SET_END_LOCATION_FROM_NODE(node, $d.node); } )
+              | ( '>=' e=add_ex {node = m_allocator->make_allocated<scripting::binary_expression>(m_allocator, scripting::arithmetic_type::arithmetic_greater_than_or_equal, node, $e.node);   SET_LOCATION_FROM_NODE(node, $a.node); SET_END_LOCATION_FROM_NODE(node, $e.node); } )
             )*
         ;
 
-add_ex     returns[WNExpression* node]
-@init 
+add_ex     returns[scripting::expression* node]
+@init {
     node = wn_nullptr;
 }
         :    a=mult_ex {node = $a.node; }
             (
-                ('+' b=mult_ex {node = WN_SCRIPTNODE_NEW(WNBinExpression(AR_ADD, node, $b.node));   SetLocationFromNode(node, $a.node); SetEndLocationFromNode(node, $b.node); })
-              | ('-' c=mult_ex {node = WN_SCRIPTNODE_NEW(WNBinExpression(AR_SUB, node, $c.node));   SetLocationFromNode(node, $a.node); SetEndLocationFromNode(node, $c.node); })
+                ('+' b=mult_ex {node = m_allocator->make_allocated<scripting::binary_expression>(m_allocator, scripting::arithmetic_type::arithmetic_add, node, $b.node);   SET_LOCATION_FROM_NODE(node, $a.node); SET_END_LOCATION_FROM_NODE(node, $b.node); })
+              | ('-' c=mult_ex {node = m_allocator->make_allocated<scripting::binary_expression>(m_allocator, scripting::arithmetic_type::arithmetic_sub, node, $c.node);   SET_LOCATION_FROM_NODE(node, $a.node); SET_END_LOCATION_FROM_NODE(node, $c.node); })
             )*
         ;
 
-mult_ex    returns[WNExpression* node]
+mult_ex    returns[scripting::expression* node]
 @init {
     node = wn_nullptr;
 }
         :    a=unary_ex { node = $a.node; }
             (
-                    ('*' b=unary_ex {node = WN_SCRIPTNODE_NEW(WNBinExpression(AR_MULT, node, $b.node));   SetLocationFromNode(node, $a.node); SetEndLocationFromNode(node, $b.node); })
-                |   ('/' c=unary_ex {node = WN_SCRIPTNODE_NEW(WNBinExpression(AR_DIV, node, $c.node));   SetLocationFromNode(node, $a.node); SetEndLocationFromNode(node, $c.node); })
-                |   ('%' d=unary_ex {node = WN_SCRIPTNODE_NEW(WNBinExpression(AR_MOD, node, $d.node));   SetLocationFromNode(node, $a.node); SetEndLocationFromNode(node, $d.node); })
+                    ('*' b=unary_ex {node = m_allocator->make_allocated<scripting::binary_expression>(m_allocator, scripting::arithmetic_type::arithmetic_mult, node, $b.node);   SET_LOCATION_FROM_NODE(node, $a.node); SET_END_LOCATION_FROM_NODE(node, $b.node); })
+                |   ('/' c=unary_ex {node = m_allocator->make_allocated<scripting::binary_expression>(m_allocator, scripting::arithmetic_type::arithmetic_div, node, $c.node);   SET_LOCATION_FROM_NODE(node, $a.node); SET_END_LOCATION_FROM_NODE(node, $c.node); })
+                |   ('%' d=unary_ex {node = m_allocator->make_allocated<scripting::binary_expression>(m_allocator, scripting::arithmetic_type::arithmetic_mod, node, $d.node);   SET_LOCATION_FROM_NODE(node, $a.node); SET_END_LOCATION_FROM_NODE(node, $d.node); })
             )*
         ;
 
-unary_ex returns[WNExpression* node]
+unary_ex returns[scripting::expression* node]
 @init {
     node = wn_nullptr;
 }
     :    a=post_ex { node = $a.node; }
-    |    '++' b=unary_ex { WNNode* t = node; node = WN_SCRIPTNODE_NEW(WNUNExpression(UN_PREINC, $b.node));   SetLocationFromNode(node, t); SetEndLocationFromNode(node, $b.node); }
-    |    '--' c=unary_ex { WNNode* t = node; node = WN_SCRIPTNODE_NEW(WNUNExpression(UN_PREDEC, $c.node));   SetLocationFromNode(node, t); SetEndLocationFromNode(node, $c.node); }
-    |    '-' d=unary_ex  { WNNode* t = node; node = WN_SCRIPTNODE_NEW(WNUNExpression(UN_NEG, $d.node));   SetLocationFromNode(node, t); SetEndLocationFromNode(node, $d.node); }
+    |    '++' b=unary_ex { scripting::node* t = node; node = m_allocator->make_allocated<scripting::unary_expression>(m_allocator, scripting::unary_type::pre_increment, $b.node);   SET_LOCATION_FROM_NODE(node, t); SET_END_LOCATION_FROM_NODE(node, $b.node); }
+    |    '--' c=unary_ex { scripting::node* t = node; node = m_allocator->make_allocated<scripting::unary_expression>(m_allocator, scripting::unary_type::pre_decrement, $c.node);   SET_LOCATION_FROM_NODE(node, t); SET_END_LOCATION_FROM_NODE(node, $c.node); }
+    |    '-' d=unary_ex  { scripting::node* t = node; node = m_allocator->make_allocated<scripting::unary_expression>(m_allocator, scripting::unary_type::negation, $d.node);   SET_LOCATION_FROM_NODE(node, t); SET_END_LOCATION_FROM_NODE(node, $d.node); }
         ;
 
 
-post_ex_proper returns[WNPostExpression* node]
+post_ex_proper returns[scripting::post_expression* node]
 @init {
     node = wn_nullptr;
 }
-    :    d=LSQBRACKET a=expression e=RSQBRACKET { node = WN_SCRIPTNODE_NEW(WNArrayAccessExpr($a.node)); SetLocation(node, $d); SetEndLocation(node, $e); }
-    |    f=LBRACKET g=RBRACKET              { node = WN_SCRIPTNODE_NEW(WNFunctionCallExpr()); SetLocation(node, $f); SetEndLocation(node, $g); }
-    |    h=LBRACKET b = arglist i=RBRACKET  { node = WN_SCRIPTNODE_NEW(WNFunctionCallExpr($b.node)); SetLocation(node, $h); SetEndLocation(node, $i); }
-    |   '.' c=ID              { node = WN_SCRIPTNODE_NEW(WNMemberAccessExpr($c.text.c_str())); SetLocation(node, $c); }
-    |     DOUBINC                  { node = WN_SCRIPTNODE_NEW(WNPostUNExpression(UN_POSTINC)); SetLocation(node, $DOUBINC);}
-    |   DOUBDEC                  { node = WN_SCRIPTNODE_NEW(WNPostUNExpression(UN_POSTDEC)); SetLocation(node, $DOUBDEC);}
+    :    d=LSQBRACKET a=expr e=RSQBRACKET { node = m_allocator->make_allocated<scripting::array_access_expression>(m_allocator, $a.node); SET_LOCATION(node, $d); SET_END_LOCATION(node, $e); }
+    |    f=LBRACKET g=RBRACKET              { node = m_allocator->make_allocated<scripting::function_call_expression>(m_allocator); SET_LOCATION(node, $f); SET_END_LOCATION(node, $g); }
+    |    h=LBRACKET b = arglist i=RBRACKET  { node = m_allocator->make_allocated<scripting::function_call_expression>(m_allocator, $b.node); SET_LOCATION(node, $h); SET_END_LOCATION(node, $i); }
+    |   '.' c=ID              { node = m_allocator->make_allocated<scripting::member_access_expression>(m_allocator, $c.text.c_str()); SET_LOCATION(node, $c); }
+    |     DOUBINC                  { node = m_allocator->make_allocated<scripting::post_unary_expression>(m_allocator, scripting::post_unary_type::post_increment); SET_LOCATION(node, $DOUBINC);}
+    |   DOUBDEC                  { node = m_allocator->make_allocated<scripting::post_unary_expression>(m_allocator, scripting::post_unary_type::post_decrement); SET_LOCATION(node, $DOUBDEC);}
     ;
 
-post_ex    returns[WNExpression* node]
+post_ex    returns[scripting::expression* node]
 @init {
     node = wn_nullptr;
 }
         :   prim_ex { node = $prim_ex.node; }
-            (a=post_ex_proper {$a.node->AddBaseExpr(node); SetEndLocationFromNode($a.node, node); node = $a.node;  } )* ;
+            (a=post_ex_proper {$a.node->add_base_expression(node); SET_END_LOCATION_FROM_NODE($a.node, node); node = $a.node;  } )* ;
 
-assignment returns[WNAssignment* node]
+assignment returns[scripting::assignment_instruction* node]
 @init {
     node = wn_nullptr;
 }
-    :    lvalue { node = WN_SCRIPTNODE_NEW(WNAssignment($lvalue.node)); SetLocationFromNode(node, $lvalue.node); }
-        (assign_op expression { node->AddValue($assign_op.node, $expression.node); SetEndLocationFromNode(node, $expression.node); }  )?
+    :    lvalue { node = m_allocator->make_allocated<scripting::assignment_instruction>(m_allocator, $lvalue.node); SET_LOCATION_FROM_NODE(node, $lvalue.node); }
+        (assign_type expr { node->add_value($assign_type.node, $expr.node); SET_END_LOCATION_FROM_NODE(node, $expr.node); }  )?
     ;
-constant returns[WNConstantExpression* node]
+constant returns[scripting::constant_expression* node]
 @init {
     node = wn_nullptr;
 }
-    :    INT    { node = WN_SCRIPTNODE_NEW(WNConstantExpression(SC_INT, $INT.text.c_str())); SetLocation(node, $INT); }
-    |    FLOAT  { node = WN_SCRIPTNODE_NEW(WNConstantExpression(SC_FLOAT, $FLOAT.text.c_str())); SetLocation(node, $FLOAT); }
-    |    CHAR   { node = WN_SCRIPTNODE_NEW(WNConstantExpression(SC_CHAR, $CHAR.text.c_str())); SetLocation(node, $CHAR);}
-    |    STRING { node = WN_SCRIPTNODE_NEW(WNConstantExpression(SC_STRING, $STRING.text.c_str())); SetLocation(node, $STRING); }
-    |   BOOL   { node = WN_SCRIPTNODE_NEW(WNConstantExpression(SC_BOOL, $BOOL.text.c_str())); SetLocation(node, $BOOL); }
+    :    INT    { node = m_allocator->make_allocated<scripting::constant_expression>(m_allocator, scripting::type_classification::int_type, $INT.text.c_str()); SET_LOCATION(node, $INT); }
+    |    FLOAT  { node = m_allocator->make_allocated<scripting::constant_expression>(m_allocator, scripting::type_classification::float_type, $FLOAT.text.c_str()); SET_LOCATION(node, $FLOAT); }
+    |    CHAR   { node = m_allocator->make_allocated<scripting::constant_expression>(m_allocator, scripting::type_classification::char_type, $CHAR.text.c_str()); SET_LOCATION(node, $CHAR);}
+    |    STRING { node = m_allocator->make_allocated<scripting::constant_expression>(m_allocator, scripting::type_classification::string_type, $STRING.text.c_str()); SET_LOCATION(node, $STRING); }
+    |   BOOL   { node = m_allocator->make_allocated<scripting::constant_expression>(m_allocator, scripting::type_classification::bool_type, $BOOL.text.c_str()); SET_LOCATION(node, $BOOL); }
     ;
 
-prim_ex returns[WNExpression * node]
+prim_ex returns[scripting::expression * node]
 @init {
     node = wn_nullptr;
 }
-    :    ID { node = WN_SCRIPTNODE_NEW(WNIDExpression($ID.text.c_str())); SetLocation(node, $ID);}
-    |    ba=LBRACKET a=expression bb=RBRACKET {node = $a.node; SetLocation(node, $ba); SetEndLocation(node, $bb); }
+    :    ID { node = m_allocator->make_allocated<scripting::id_expression>(m_allocator, $ID.text.c_str()); SET_LOCATION(node, $ID);}
+    |    ba=LBRACKET a=expr bb=RBRACKET {node = $a.node; SET_LOCATION(node, $ba); SET_END_LOCATION(node, $bb); }
     |    b=constant  {node = $b.node; }
     |   c=scalarType
           (
-              ( e=structInit ) { $e.node->SetType($c.node); node=$e.node; SetStartLocationFromNode(node, $c.node); }
-            | ( f=arrayInit )  { $f.node->SetType($c.node); node=$f.node; SetStartLocationFromNode(node, $c.node); }
+              ( e=structInit ) { $e.node->set_type($c.node); node=$e.node; SET_START_LOCATION_FROM_NODE(node, $c.node); }
+            | ( f=arrayInit )  { $f.node->set_type($c.node); node=$f.node; SET_START_LOCATION_FROM_NODE(node, $c.node); }
           )
-    |   d=NULLTOK { node= WN_SCRIPTNODE_NEW(WNNullAllocation()); SetLocation(node, $NULLTOK); }
+    |   d=NULLTOK { node = m_allocator->make_allocated<scripting::null_allocation_expression>(m_allocator); SET_LOCATION(node, $NULLTOK); }
     ;
 
-structInit returns[WNStructAllocation* node]
-    : a=LBRACKET b=RBRACKET { node = WN_SCRIPTNODE_NEW(WNStructAllocation()); SetLocation(node, $a); SetEndLocation(node, $b); }
-    | c=LBRACKET d=expression e=RBRACKET { node = WN_SCRIPTNODE_NEW(WNStructAllocation()); node->SetCopyInitializer(d); SetLocation(node, $c); SetEndLocation(node, $e); }
-    ;
-
-arrayInit returns[WNArrayAllocation* node]
+structInit returns[scripting::struct_allocation_expression* node]
 @init {
-    node = WN_SCRIPTNODE_NEW(WNArrayAllocation());
+    node = wn_nullptr;
+}
+    : a=LBRACKET b=RBRACKET { node = m_allocator->make_allocated<scripting::struct_allocation_expression>(m_allocator); SET_LOCATION(node, $a); SET_END_LOCATION(node, $b); }
+    | c=LBRACKET d=expr e=RBRACKET { node = m_allocator->make_allocated<scripting::struct_allocation_expression>(m_allocator); node->set_copy_initializer(d); SET_LOCATION(node, $c); SET_END_LOCATION(node, $e); }
+    ;
+
+arrayInit returns[scripting::array_allocation_expression* node]
+@init {
+    node = m_allocator->make_allocated<scripting::array_allocation_expression>(m_allocator);
 }
     :   (
             (
-                (LSQBRACKET e=expression RSQBRACKET { node->AddExpression($e.node);} )+
-                (LSQBRACKET RSQBRACKET { node->AddLevel(); } )*
+                (LSQBRACKET e=expr RSQBRACKET { node->add_expression($e.node);} )+
+                (LSQBRACKET RSQBRACKET { node->add_level(); } )*
             )
-            |   (LSQBRACKET RSQBRACKET { node->AddLevel(); } )+
+            |   (LSQBRACKET RSQBRACKET { node->add_level(); } )+
         )
         (
-            ( LBRACKET a=RBRACKET { SetLocation(node, $a); } )
+            ( LBRACKET a=RBRACKET { SET_LOCATION(node, $a); } )
             |
-            ( LBRACKET b=expression c=RBRACKET { node->SetCopyInitializer(b); SetLocation(node, $c); } )
+            ( LBRACKET b=expr c=RBRACKET { node->set_copy_initializer(b); SET_LOCATION(node, $c); } )
         )
 
     ;
 
-declaration returns[WNDeclaration* node]
+declaration returns[scripting::declaration* node]
 @init {
     node = wn_nullptr;
 }
     :    a=decl { node = $a.node; }
             (
-                ('=' ( (c=expression) { node->AddExpressionInitializer($c.node); SetEndLocationFromNode(node, $c.node); } ) )
-            |   ('<==' ( (d=expression) { node->AddExpressionInitializer($d.node, true); SetEndLocationFromNode(node, $d.node); } ) )
+                ('=' ( (c=expr) { node->add_expression_initializer($c.node); SET_END_LOCATION_FROM_NODE(node, $c.node); } ) )
+            |   ('<==' ( (d=expr) { node->add_expression_initializer($d.node, true); SET_END_LOCATION_FROM_NODE(node, $d.node); } ) )
             )
     ;
 
-instructionScalar returns[WNInstruction* node]
+instructionScalar returns[scripting::instruction* node]
 @init {
     node = wn_nullptr;
 }
@@ -503,67 +491,66 @@ instructionScalar returns[WNInstruction* node]
     |    assignment  {node = $assignment.node; }
     ;
 
-returnInst returns[WNReturn* node]
+returnInst returns[scripting::return_instruction* node]
 @init {
     node = wn_nullptr;
 }
-    :   a=RETURN expression b=SEMICOLON { node = WN_SCRIPTNODE_NEW(WNReturn($expression.node)); SetLocation(node, $a); SetEndLocation(node, $b);}
-    |   c=RETURN d=SEMICOLON { node = WN_SCRIPTNODE_NEW(WNReturn()); SetLocation(node, $c); SetEndLocation(node, $d); }
-    |   e=RETURN_OWN expression f=SEMICOLON { node = WN_SCRIPTNODE_NEW(WNReturn($expression.node, true)); SetLocation(node, $e); SetEndLocation(node, $f); }
+    :   a=RETURN expr b=SEMICOLON { node = m_allocator->make_allocated<scripting::return_instruction>(m_allocator, $expr.node); SET_LOCATION(node, $a); SET_END_LOCATION(node, $b);}
+    |   c=RETURN d=SEMICOLON { node = m_allocator->make_allocated<scripting::return_instruction>(m_allocator); SET_LOCATION(node, $c); SET_END_LOCATION(node, $d); }
+    |   e=RETURN_OWN expr f=SEMICOLON { node = m_allocator->make_allocated<scripting::return_instruction>(m_allocator, $expr.node, true); SET_LOCATION(node, $e); SET_END_LOCATION(node, $f); }
     ;
 
-whileInst     returns[WNInstruction* node]
+whileInst     returns[scripting::instruction* node]
 @init {
     node = wn_nullptr;
 }
-        :    WHILE LBRACKET expression RBRACKET body { node = WN_SCRIPTNODE_NEW(WNWhileInstruction($expression.node, $body.node)); SetLocation(node, $WHILE); SetEndLocationFromNode(node, $body.node); }
+        :    WHILE LBRACKET expr RBRACKET body { node = m_allocator->make_allocated<scripting::while_instruction>(m_allocator, $expr.node, $body.node); SET_LOCATION(node, $WHILE); SET_END_LOCATION_FROM_NODE(node, $body.node); }
         ;
-doInst    returns[WNInstruction* node]
+doInst    returns[scripting::instruction* node]
 @init {
     node = wn_nullptr;
 }
-    :    DO body WHILE LBRACKET expression RBRACKET SEMICOLON {node = WN_SCRIPTNODE_NEW(WNDoInstruction($expression.node, $body.node)); SetLocation(node, $DO); SetEndLocation(node, $SEMICOLON); }
+    :    DO body WHILE LBRACKET expr RBRACKET SEMICOLON {node = m_allocator->make_allocated<scripting::do_instruction>(m_allocator, $expr.node, $body.node); SET_LOCATION(node, $DO); SET_END_LOCATION(node, $SEMICOLON); }
     ;
 
-forInst    returns[WNInstruction* node]
+forInst    returns[scripting::for_instruction* node]
 @init{
-    WNForInstruction* forNode = WN_SCRIPTNODE_NEW(WNForInstruction());
-    node = forNode;
+    node =  m_allocator->make_allocated<scripting::for_instruction>(m_allocator);
 }
-    :    FOR LBRACKET  { SetLocation(forNode, $FOR); }
-                    (a=instructionScalar {forNode->AddInitializer($a.node);})? SEMICOLON
-                    (b=expression         {forNode->AddCondition($b.node); })? SEMICOLON
-                    (c=instructionScalar {forNode->AddPostOp($c.node); })? RBRACKET
-                    (d=body                 {forNode->AddBody($d.node); SetEndLocationFromNode(forNode, $d.node); })
+    :    FOR LBRACKET  { SET_LOCATION(node, $FOR); }
+                    (a=instructionScalar {node->add_initializer($a.node);})? SEMICOLON
+                    (b=expr         {node->add_condition($b.node); })? SEMICOLON
+                    (c=instructionScalar {node->add_post_op($c.node); })? RBRACKET
+                    (d=body                 {node->add_body($d.node); SET_END_LOCATION_FROM_NODE(node, $d.node); })
     ;
 
 
-elsemiddle returns[WNElseIf* node]
+elsemiddle returns[scripting::else_if_instruction* node]
 @init {
     node = wn_nullptr;
 }
-    :    ELSE IF LBRACKET expression RBRACKET body { node = WN_SCRIPTNODE_NEW(WNElseIf($expression.node, $body.node)); SetLocation(node, $ELSE); SetEndLocationFromNode(node, $body.node); }
+    :    ELSE IF LBRACKET expr RBRACKET body { node = m_allocator->make_allocated<scripting::else_if_instruction>(m_allocator, $expr.node, $body.node); SET_LOCATION(node, $ELSE); SET_END_LOCATION_FROM_NODE(node, $body.node); }
     ;
 
-endif    returns[WNInstructionList* node]
+endif    returns[scripting::instruction_list* node]
 @init {
     node = wn_nullptr;
 }
     :    'else' body {node = $body.node; }
     ;
 
-ifInst returns[WNInstruction* node]
+ifInst returns[scripting::if_instruction* node]
 @init {
-    WNIFInstruction* inst;
     node = wn_nullptr;
 }
-    :    IF LBRACKET expression RBRACKET body {inst = WN_SCRIPTNODE_NEW(WNIFInstruction($expression.node, $body.node)); node = inst; SetLocation(node, $IF); SetEndLocationFromNode(node, $body.node); }
-            (elsemiddle {inst->AddElseIf($elsemiddle.node); SetEndLocationFromNode(node, $elsemiddle.node); } )*
-            (endif {inst->AddElse($endif.node); SetLocation(node, $IF); SetEndLocationFromNode(node, $endif.node); } )?
+    :    IF LBRACKET expr RBRACKET body {node = m_allocator->make_allocated<scripting::if_instruction>(m_allocator, $expr.node, $body.node); SET_LOCATION(node, $IF); SET_END_LOCATION_FROM_NODE(node, $body.node); }
+            (elsemiddle {node->add_else_if($elsemiddle.node); SET_END_LOCATION_FROM_NODE(node, $elsemiddle.node); } )*
+            (endif {node->add_else($endif.node); SET_LOCATION(node, $IF); SET_END_LOCATION_FROM_NODE(node, $endif.node); } )?
     ;
 
-instruction returns [WNInstruction* node]
+instruction returns [scripting::instruction* node]
 @init {
+    node = wn_nullptr;
 }
     :    ifInst         { node = $ifInst.node; }
     |    whileInst     {node = $whileInst.node; }
@@ -573,60 +560,72 @@ instruction returns [WNInstruction* node]
     |    returnInst {node = $returnInst.node; }
     ;
 
-instructionList returns[WNInstructionList* node]
+instruction_list returns[scripting::instruction_list* node]
 @init {
+    node = wn_nullptr;
 }
-    :    a=instruction  {node = WN_SCRIPTNODE_NEW(WNInstructionList($a.node)); SetLocationFromNode(node, $a.node); }
-        (b=instruction {node->AddInstruction($b.node); SetEndLocationFromNode(node, $b.node); })*
+    :    a=instruction  {node = m_allocator->make_allocated<scripting::instruction_list>(m_allocator, $a.node); SET_LOCATION_FROM_NODE(node, $a.node); }
+        (b=instruction {node->add_instruction($b.node); SET_END_LOCATION_FROM_NODE(node, $b.node); })*
     ;
 
-body returns[WNInstructionList* node]
+body returns[scripting::instruction_list* node]
 @init {
+    node = wn_nullptr;
 }
-    :    a=LBRACE b=RBRACE { node = WN_SCRIPTNODE_NEW(WNInstructionList()); SetLocation(node, $a); SetEndLocation(node, $b); }
-    |    d=LBRACE instructionList e=RBRACE {node = $instructionList.node; SetLocation(node, $d); SetEndLocation(node, $e); }
+    :    a=LBRACE b=RBRACE { node = m_allocator->make_allocated<scripting::instruction_list>(m_allocator); SET_LOCATION(node, $a); SET_END_LOCATION(node, $b); }
+    |    d=LBRACE instruction_list e=RBRACE {node = $instruction_list.node; SET_LOCATION(node, $d); SET_END_LOCATION(node, $e); }
     ;
 
-function returns[WNFunction* node]
+function returns[scripting::function* node]
 @init {
+    node = wn_nullptr;
 }
-    :    decl parameterList body { node = WN_SCRIPTNODE_NEW(WNFunction($decl.node, $parameterList.node, $body.node)); SetLocationFromNode(node, $decl.node); SetEndLocationFromNode(node, $body.node); }
+    :    decl parameterList body { node = m_allocator->make_allocated<scripting::function>(m_allocator, $decl.node, $parameterList.node, $body.node); SET_LOCATION_FROM_NODE(node, $decl.node); SET_END_LOCATION_FROM_NODE(node, $body.node); }
     ;
 
-structDecl returns[WNStruct* node]
-    :    STRUCT TYPE {node= WN_SCRIPTNODE_NEW(WNStruct($TYPE.text.c_str())); SetLocation(node, $STRUCT); }
-            LBRACE (a=declaration { node->AddStructElem($a.node);} SEMICOLON )* RBRACE  { SetEndLocation(node, $RBRACE); }
+structDecl returns[scripting::struct_definition* node]
+@init {
+    node = wn_nullptr;
+}
+    :    STRUCT TYPE {node= m_allocator->make_allocated<scripting::struct_definition>(m_allocator, $TYPE.text.c_str()); SET_LOCATION(node, $STRUCT); }
+            LBRACE (a=declaration { node->add_struct_elem($a.node);} SEMICOLON )* RBRACE  { SET_END_LOCATION(node, $RBRACE); }
     ;
 
-classDecl returns[WNStruct* node]
+classDecl returns[scripting::struct_definition* node]
+@init {
+    node = wn_nullptr;
+}
     :
         (
-            (f=CLASS c=TYPE {node= WN_SCRIPTNODE_NEW(WNStruct($c.text.c_str(), true)); SetLocation(node, $f); })
-          | (g=CLASS d=TYPE COLON e=TYPE {node= WN_SCRIPTNODE_NEW(WNStruct($d.text.c_str(), true, $e.text.c_str())); SetLocation(node, $g); })
+            (f=CLASS c=TYPE {node= m_allocator->make_allocated<scripting::struct_definition>(m_allocator, $c.text.c_str(), true); SET_LOCATION(node, $f); })
+          | (g=CLASS d=TYPE COLON e=TYPE {node= m_allocator->make_allocated<scripting::struct_definition>(m_allocator, $d.text.c_str(), true, $e.text.c_str()); SET_LOCATION(node, $g); })
         )
             LBRACE
                 (
-                    (a=declaration { node->AddStructElem($a.node);} SEMICOLON)
-                  | (b=function    { node->AddFunction($b.node); })
-                  | (VIRTUAL h=function { node->AddFunction($h.node); $h.node->SetVirtual(); })
-                  | (OVERRIDE i=function { node->AddFunction($i.node); $i.node->SetOverride(); })
+                    (a=declaration { node->add_struct_elem($a.node);} SEMICOLON)
+                  | (b=function    { node->add_function($b.node); })
+                  | (VIRTUAL h=function { node->add_function($h.node); $h.node->set_is_virtual(wn_true); })
+                  | (OVERRIDE i=function { node->add_function($i.node); $i.node->set_is_override(wn_true); })
                 )*
-            RBRACE  { SetEndLocation(node, $RBRACE); }
+            RBRACE  { SET_END_LOCATION(node, $RBRACE); }
     ;
 
-inc returns[wn_char* file]
-    :   INCLUDE STRING { COPY_STRING($STRING.text.c_str(), file); }
+inc returns[const wn_char* file]
+@init {
+    file = wn_nullptr;
+}
+    :   INCLUDE STRING { file = $STRING.text.c_str(); }
     ;
 
-program returns[WNScriptFile* node]
+program returns[scripting::script_file* node]
 @init{
-    node = WN_SCRIPTNODE_NEW(WNScriptFile());
+    node = m_allocator->make_allocated<scripting::script_file>(m_allocator);
 }
     :   (
-                function   { node->AddFunction($function.node); }
-            |   structDecl { node->AddStruct($structDecl.node); }
-            |   classDecl  { node->AddStruct($classDecl.node); }
-            |   inc        { node->AddInclude($inc.file); }
+                function   { node->add_function($function.node); }
+            |   structDecl { node->add_struct($structDecl.node); }
+            |   classDecl  { node->add_struct($classDecl.node); }
+            |   inc        { node->add_include($inc.file); }
         )*
     ;
 

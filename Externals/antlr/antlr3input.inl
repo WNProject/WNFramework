@@ -27,7 +27,7 @@ InputStream<ImplTraits>::InputStream(const ANTLR_UINT8* fileName, ANTLR_UINT32 e
 }
 
 template<class ImplTraits>
-InputStream<ImplTraits>::InputStream(const ANTLR_UINT8* data, ANTLR_UINT32 encoding, ANTLR_UINT32 size, ANTLR_UINT8* name)
+InputStream<ImplTraits>::InputStream(const ANTLR_UINT8* data, ANTLR_UINT32 encoding, ANTLR_UINT32 size, const ANTLR_UINT8* name)
 {
 	// First order of business is to set up the stream and install the data pointer.
     // Then we will work out the encoding and byte order and adjust the API functions that are installed for the
