@@ -4,132 +4,88 @@
 
 #ifndef __WN_SCRIPTING_ENUMS_H__
 #define __WN_SCRIPTING_ENUMS_H__
-#include "WNCore/inc/WNTypes.h"
-enum WNAssignType {
-    AT_EQ,
-    AT_ADD_EQ,
-    AT_SUB_EQ,
-    AT_MULT_EQ,
-    AT_DIV_EQ,
-    AT_MOD_EQ,
-    AT_CHOWN,
-    AT_MAX
+
+namespace wn {
+namespace scripting {
+
+enum class assign_type {
+  equal,
+  add_equal,
+  sub_equal,
+  mult_equal,
+  div_equal,
+  mod_equal,
+  change_owner,
+  max
 };
 
-static const char* WNAssignTypeNames[AT_MAX] = {
-    "=",
-    "+=",
-    "-=",
-    "*=",
-    "/=",
-    "%=",
-    "<=="
+static const char *assign_type_names[static_cast<size_t>(assign_type::max)] = {
+    "=", "+=", "-=", "*=", "/=", "%=", "<=="};
+
+enum class short_circuit_type { and_operator, or_operator, max };
+
+static const char *short_circuit_type_names[static_cast<size_t>(
+    short_circuit_type::max)] = {"And", "Or"};
+
+enum class equality_type {
+  equal,
+  not_equal,
+  less_than,
+  greater_than,
+  less_than_or_equal_to,
+  greater_than_or_equal_to,
+  max
 };
 
-enum WNSSType {
-    ST_AND,
-    ST_OR,
-    ST_MAX
-};
-
-static const char* WNSSTypeNames[ST_MAX] = {
-    "And",
-    "Or"
-};
-
-enum WNEQType {
-    EQ_EQ,
-    EQ_NEQ,
-    EQ_LT,
-    EQ_GT,
-    EQ_LEQ,
-    EQ_GEQ,
-    EQ_MAX
-};
-
-
-// The only place these are used is to define constants that are handled in a special way
+// The only place these are used is to define constants that are handled in a
+// special way
 // special insofar as the language recognizes them
-enum WNScriptTypeName {
-    SC_INT,
-    SC_FLOAT,
-    SC_CHAR,
-    SC_STRING,
-    SC_BOOL,
-    SC_CUSTOM,
-    SC_MAX
+enum class type_classification {
+  int_type,
+  float_type,
+  char_type,
+  string_type,
+  bool_type,
+  custom_type,
+  max
 };
 
-static const char* WNScriptTypeNames[SC_MAX] = {
-    "Int",
-    "Float",
-    "Char",
-    "Char",
-    "Bool",
-    "Custom"
+static const char *
+    type_classification_names[static_cast<size_t>(type_classification::max)] = {
+        "Int", "Float", "Char", "Char", "Bool", "Custom"};
+
+static const wn_size_t type_array_depth[static_cast<size_t>(
+    type_classification::max)] = {0, 0, 0, 1, 0, 0};
+
+enum class arithmetic_type {
+  arithmetic_add,
+  arithmetic_sub,
+  arithmetic_mult,
+  arithmetic_div,
+  arithmetic_mod,
+  arithmetic_equal,
+  arithmetic_not_equal,
+  arithmetic_less_than_or_equal,
+  arithmetic_greater_than_or_equal,
+  arithmetic_less_than,
+  arithmetic_greater_than,
+  max
 };
 
-static const wn_size_t WNScriptTypeLevels[SC_MAX] = {
-    0,
-    0,
-    0,
-    1,
-    0,
-    0
-};
+static const char
+    *arithmetic_type_names[static_cast<size_t>(arithmetic_type::max)] = {
+        "+", "-", "*", "/", "%", "==", "!=", "<=", ">=", "<", ">"};
 
+enum class unary_type { pre_increment, pre_decrement, negation, max };
 
-enum WNArithmeticType {
-    AR_ADD,
-    AR_SUB,
-    AR_MULT,
-    AR_DIV,
-    AR_MOD,
-    AR_EQ,
-    AR_NEQ,
-    AR_LEQ,
-    AR_GEQ,
-    AR_LT,
-    AR_GT,
-    AR_MAX
-};
+static const char *unary_type_names[static_cast<size_t>(unary_type::max)] = {
+    "++", "--", "-"};
 
-static const char* WNArithmeticTypeNames[AR_MAX] = {
-    "+",
-    "-",
-    "*",
-    "/",
-    "%",
-    "==",
-    "!=",
-    "<=",
-    ">=",
-    "<",
-    ">"
-};
+enum class post_unary_type { post_increment, post_decrement, max };
 
-enum WNUnaryType {
-    UN_PREINC,
-    UN_PREDEC,
-    UN_NEG,
-    UN_MAX
-};
+static const char *
+    post_un_names[static_cast<size_t>(post_unary_type::max)] = {"++", "--"};
+}
+}
 
-static const char* WNUnaryTypeNames[UN_MAX] = {
-    "++",
-    "--",
-    "-"
-};
-
-enum WNPostUNType{
-    UN_POSTINC,
-    UN_POSTDEC,
-    UN_POSTMAX
-};
-
-static const char* WNPostUNTypeNames[UN_POSTMAX] = {
-    "++",
-    "--"
-};
-
-#endif//__WN_SCRIPTING_ENUMS_H__
+#endif //__WN_SCRIPTING_ENUMS_H__

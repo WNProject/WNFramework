@@ -5,18 +5,18 @@
 #ifndef __WN_SCRIPTING_ERRORS_H__
 #define __WN_SCRIPTING_ERRORS_H__
 
-enum eWNTypeError {
+namespace wn {
+namespace scripting {
+enum class engine_error {
 #include "WNCore/inc/Internal/WNErrors.inc"
-    eWNAlreadyExists,
-    eWNInvalidName,
-    eWNInvalidConstant,
-    eWNInvalidCast,
-    eWNCannotCreateType,
-    eWNInvalidOperation,
-    eWNAmbiguous,
-    eWNPartiallyAmbiguous,
-    eWNUnknownResolution,
-    eWNNoVirtual
+  file_not_found
 };
+enum class parse_error {
+#include "WNCore/inc/Internal/WNErrors.inc"
+  file_not_found,
+  parse_failed
+};
+}
+}
 
-#endif//__WN_SCRIPTING_ERRORS_H__
+#endif //__WN_SCRIPTING_ERRORS_H__
