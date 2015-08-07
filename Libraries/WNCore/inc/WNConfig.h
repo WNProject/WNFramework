@@ -9,10 +9,6 @@
 
 //#define _WN_CORE_CONFIG_DISABLE_EXTENSIONS            // Disables all extension for the current configuration
 
-// WINDOWS Specific ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-//#define _WN_CORE_CONFIG_WINDOWS_ENABLE_ASSERT_POPUPS  // Makes all asserts display a message box when fired
-
 // MSVC: x86 Specific //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //#define _WN_CORE_CONFIG_MSVC_X86_ENABLE_MMX           // Enables MMX, 3DNow! and lower functionality when using MSVC
