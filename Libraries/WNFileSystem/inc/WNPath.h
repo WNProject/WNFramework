@@ -8,7 +8,6 @@
 #define __WN_FILE_SYSTEM_PATH_H__
 
 #include "WNCore/inc/WNBase.h"
-#include "WNMemory/inc/WNMemory.h"
 #include "WNMemory/inc/WNStringUtility.h"
 
 namespace WNFileSystem {
@@ -26,8 +25,8 @@ namespace WNFileSystem {
     }
 
     WN_FORCE_INLINE wn_bool WNAppendPath(wn_char* _path, const wn_char* _append, wn_size_t _maxSize) {
-        const wn_size_t appendLen = wn::memory::WNStrLen(_append);
-        wn_size_t pathLen = wn::memory::WNStrLen(_path);
+        const wn_size_t appendLen = wn::memory::strlen(_append);
+        wn_size_t pathLen = wn::memory::strlen(_path);
         wn_bool addPath = wn_false;
 
         if (_path[pathLen - 1] != '/' && _path[pathLen - 1] != '\\') {

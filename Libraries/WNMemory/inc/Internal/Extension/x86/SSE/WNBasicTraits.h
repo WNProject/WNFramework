@@ -16,7 +16,7 @@ struct basic_traits_sse : basic_traits_generic {
   static WN_FORCE_INLINE typename core::enable_if<
     core::boolean_and<core::is_floating_point<T>::value,
                       !core::is_extended_type<T>::value>::value>::type
-  prefetch(const T *ptr) {
+  prefetch(const T* ptr) {
     _mm_prefetch(reinterpret_cast<const char*>(ptr), _MM_HINT_T1);
   }
 
@@ -24,7 +24,7 @@ struct basic_traits_sse : basic_traits_generic {
   static WN_FORCE_INLINE typename core::enable_if<
     !core::boolean_and<core::is_floating_point<T>::value,
                        !core::is_extended_type<T>::value>::value>::type
-  prefetch(const T *ptr) {
+  prefetch(const T* ptr) {
     _mm_prefetch(reinterpret_cast<const char*>(ptr), _MM_HINT_T0);
   }
 };

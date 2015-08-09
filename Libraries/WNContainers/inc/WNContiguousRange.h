@@ -46,7 +46,7 @@ public:
     m_begin(begin),
     m_end(end) {
     WN_RELEASE_ASSERT_DESC((m_begin && m_end) || (!m_begin && !m_end),
-      "invalid imput parameters, both must be null or non-null");
+      "invalid input parameters, both must be null or non-null");
   }
 
   WN_FORCE_INLINE explicit contiguous_range(T* ptr, const size_type size) :
@@ -218,14 +218,14 @@ public:
 
   WN_FORCE_INLINE wn_void remove_prefix(const size_type count) {
     WN_RELEASE_ASSERT_DESC(m_begin, "invalid string_view");
-    WN_RELEASE_ASSERT_DESC((m_begin + count) < m_end, "index out of bounds");
+    WN_RELEASE_ASSERT_DESC((m_begin + count) < m_end, "count too large");
 
     m_begin += count;
   }
 
   WN_FORCE_INLINE wn_void remove_suffix(const size_type count) {
     WN_RELEASE_ASSERT_DESC(m_begin, "invalid string_view");
-    WN_RELEASE_ASSERT_DESC((m_end - count) >= m_begin, "index out of bounds");
+    WN_RELEASE_ASSERT_DESC((m_end - count) >= m_begin, "count too large");
 
     m_end -= count;
   }
@@ -255,7 +255,7 @@ WN_FORCE_INLINE wn_bool operator != (const contiguous_range<T>& lhs,
 
 template <typename T, typename U>
 WN_FORCE_INLINE wn_bool operator < (const contiguous_range<T>& lhs,
-                                     const contiguous_range<U>& rhs) {
+                                    const contiguous_range<U>& rhs) {
   return(lhs.data() < rhs.data() ||
          (lhs.data() == rhs.data() &&
           (lhs.data() + lhs.size()) < (rhs.data() + rhs.size())));
@@ -271,7 +271,7 @@ WN_FORCE_INLINE wn_bool operator <= (const contiguous_range<T>& lhs,
 
 template <typename T, typename U>
 WN_FORCE_INLINE wn_bool operator > (const contiguous_range<T>& lhs,
-                                     const contiguous_range<U>& rhs) {
+                                    const contiguous_range<U>& rhs) {
   return(lhs.data() > rhs.data() ||
          (lhs.data() == rhs.data() &&
           (lhs.data() + lhs.size()) > (rhs.data() + rhs.size())));
