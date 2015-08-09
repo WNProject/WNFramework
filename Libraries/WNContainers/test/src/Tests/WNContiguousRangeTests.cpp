@@ -8,6 +8,7 @@
 template <typename _Type>
 struct contiguous_range : ::testing::Test {};
 
+// 72 bit struct
 struct dummy {
   WN_FORCE_INLINE dummy(const wn_uint8 value) :
     m_value1(value),
@@ -62,6 +63,22 @@ TYPED_TEST(contiguous_range, construction) {
   EXPECT_EQ(range7.data(), wn_nullptr);
   EXPECT_FALSE(range8.empty());
   EXPECT_EQ(range8.data(), buffer);
+
+  EXPECT_DEATH({
+      const wn::containers::contiguous_range<TypeParam> range(wn_nullptr,
+                                                              buffer + 5);
+    },
+    "assertion failed!\n\nfile: .*\nline: .*\nmessage: invalid input "
+    "parameters, both must be null or non-null"
+  );
+
+  EXPECT_DEATH({
+      const wn::containers::contiguous_range<TypeParam> range(buffer,
+                                                              wn_nullptr);
+    },
+    "assertion failed!\n\nfile: .*\nline: .*\nmessage: invalid input "
+    "parameters, both must be null or non-null"
+  );
 }
 
 TYPED_TEST(contiguous_range, assignment) {
@@ -135,6 +152,56 @@ TYPED_TEST(contiguous_range, access) {
   EXPECT_EQ(range2.at(1), TypeParam(3));
   EXPECT_EQ(range2[1], TypeParam(3));
   EXPECT_EQ(range2.data(), buffer + 1);
+
+  EXPECT_DEATH({
+      const wn::containers::contiguous_range<TypeParam> range;
+
+      range.at(0);
+    },
+    "assertion failed!\n\nfile: .*\nline: .*\nmessage: invalid string_view"
+  );
+
+  EXPECT_DEATH({
+      const wn::containers::contiguous_range<TypeParam> range(buffer,
+                                                              buffer + 5);
+
+      range.at(5);
+    },
+    "assertion failed!\n\nfile: .*\nline: .*\nmessage: index out of bounds"
+  );
+
+  EXPECT_DEATH({
+      const wn::containers::contiguous_range<TypeParam> range;
+
+      range[0];
+    },
+    "assertion failed!\n\nfile: .*\nline: .*\nmessage: invalid string_view"
+  );
+
+  EXPECT_DEATH({
+      const wn::containers::contiguous_range<TypeParam> range(buffer,
+                                                              buffer + 5);
+
+      range[5];
+    },
+    "assertion failed!\n\nfile: .*\nline: .*\nmessage: index out of bounds"
+  );
+
+  EXPECT_DEATH({
+      const wn::containers::contiguous_range<TypeParam> range;
+
+      range.front();
+    },
+    "assertion failed!\n\nfile: .*\nline: .*\nmessage: invalid string_view"
+  );
+
+  EXPECT_DEATH({
+      const wn::containers::contiguous_range<TypeParam> range;
+
+      range.back();
+    },
+    "assertion failed!\n\nfile: .*\nline: .*\nmessage: invalid string_view"
+  );
 }
 
 TYPED_TEST(contiguous_range, interation) {
@@ -239,6 +306,22 @@ TYPED_TEST(contiguous_range, remove_prefix) {
 
   EXPECT_EQ(range.front(), TypeParam(3));
   EXPECT_EQ(range.back(), TypeParam(5));
+
+  EXPECT_DEATH({
+      wn::containers::contiguous_range<TypeParam> range;
+
+      range.remove_prefix(0);
+    },
+    "assertion failed!\n\nfile: .*\nline: .*\nmessage: invalid string_view"
+  );
+
+  EXPECT_DEATH({
+      wn::containers::contiguous_range<TypeParam> range(buffer, buffer + 5);
+
+      range.remove_prefix(6);
+    },
+    "assertion failed!\n\nfile: .*\nline: .*\nmessage: count too large"
+  );
 }
 
 TYPED_TEST(contiguous_range, remove_suffix) {
@@ -255,6 +338,22 @@ TYPED_TEST(contiguous_range, remove_suffix) {
 
   EXPECT_EQ(range.front(), TypeParam(1));
   EXPECT_EQ(range.back(), TypeParam(3));
+
+  EXPECT_DEATH({
+      wn::containers::contiguous_range<TypeParam> range;
+
+      range.remove_suffix(0);
+    },
+    "assertion failed!\n\nfile: .*\nline: .*\nmessage: invalid string_view"
+  );
+
+  EXPECT_DEATH({
+      wn::containers::contiguous_range<TypeParam> range(buffer, buffer + 5);
+
+      range.remove_suffix(6);
+    },
+    "assertion failed!\n\nfile: .*\nline: .*\nmessage: count too large"
+  );
 }
 
 TYPED_TEST(contiguous_range, multiple_ranges_same_source) {
