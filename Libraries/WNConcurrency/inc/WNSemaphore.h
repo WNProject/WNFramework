@@ -130,7 +130,7 @@ private:
   #endif
 };
 
-}
-}
+} // namespace concurrency
+} // namespace wn
 
 #endif // __WN_CONCURRENCY_SEMAPHORE_H__

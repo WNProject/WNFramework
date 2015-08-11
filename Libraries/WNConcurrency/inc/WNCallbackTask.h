@@ -83,13 +83,13 @@ private:
   containers::function<wn_void()> m_callback;
 };
 
-template <typename R, typename... Args>
-memory::intrusive_ptr<callback_task<R>> make_callback_task(Args&&... args) {
-  return(memory::make_intrusive<callback_task<R>>(std::forward<Args>(args)...));
-}
-
 template <typename R>
 using callback_task_ptr = memory::intrusive_ptr<callback_task<R>>;
+
+template <typename R, typename... Args>
+WN_FORCE_INLINE callback_task_ptr<R> make_callback_task(Args&&... args) {
+  return(memory::make_intrusive<callback_task<R>>(std::forward<Args>(args)...));
+}
 
 } // namespace concurrency
 } // namespace wn
