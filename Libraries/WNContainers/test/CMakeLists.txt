@@ -4,4 +4,5 @@ wn_create_tests_from_list(TEST_PREFIX WNContainers
   SOURCES
     WNDeque
     WNDynamicArray
-    WNFunction)
+    WNFunction
+    WNList)

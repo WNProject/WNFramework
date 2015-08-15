@@ -3,6 +3,7 @@ add_wn_header_library(WNContainers
   inc/WNDataBuffer.h
   inc/WNDeque.h
   inc/WNDynamicArray.h
+  inc/WNList.h
   inc/WNSerializer.h
   inc/WNSerializerBase.h
   inc/WNFunction.h
