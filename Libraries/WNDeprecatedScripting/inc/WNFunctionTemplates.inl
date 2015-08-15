@@ -177,8 +177,8 @@ namespace WNScripting {
         }
         wn_char fPtr[2048];
         memcpy(fPtr, t->mName, wn::memory::strlen(t->mName) + 1);
-        WNStrings::WNStrCat(fPtr, "$");
-        WNStrings::WNStrCat(fPtr, _functionName);
+        wn::memory::strcat(fPtr, "$");
+        wn::memory::strcat(fPtr, _functionName);
         if(ok != (err = get_function_pointer(_file, fPtr, r, params, ptr))){
             return(err);
         }
