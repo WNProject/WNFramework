@@ -18,7 +18,7 @@ template <typename _Type, typename _Allocator = memory::default_allocator>
 class list final {
   static _Allocator s_default_allocator;
  public:
-   _Allocator& get_default_allocator() {
+   static _Allocator& get_default_allocator() {
      return s_default_allocator;
    }
  private:
