@@ -71,9 +71,7 @@ public:
   WN_FORCE_INLINE string_view(contiguous_range<U>&& range) :
     m_range(std::move(range)) {
     // for some reason the above move doesn't work in gcc/clang so clear range
-    #ifndef _WN_MSVC
-      range = wn_nullptr;
-    #endif
+    range = wn_nullptr;
   }
 
   template <typename U,
