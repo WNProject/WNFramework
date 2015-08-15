@@ -6,6 +6,7 @@ wn_create_tests_from_list(TEST_PREFIX WNContainers
     WNDeque
     WNDynamicArray
     WNFunction
+    WNHashMap
     WNStringView
     WNList
 )
