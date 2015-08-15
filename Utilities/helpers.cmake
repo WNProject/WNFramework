@@ -17,13 +17,15 @@ elseif(ANDROID)
   set(WN_POSIX true)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fno-rtti -fno-exceptions -DANDROID_NATIVE_API_LEVEL=${ANDROID_NATIVE_API_LEVEL}")
   set(WN_ADDITIONAL_TEST_LIBS pthread)
-
+  string(REPLACE "-DDEBUG" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
   if (NOT ${ANDROID_NATIVE_API_LEVEL} GREATER 13)
     message(FATAL_ERROR "Android api level must be >= 14 \"-DANDROID_NATIVE_API_LEVEL=14\"")
   endif()
 
   if (NOT ANDROID_SDK_DIR)
     message(WARNING  "ANDROID_SDK_DIR is not defined: .apk files will not be created.")
+  else()
+	string(REPLACE "\\" "/" ANDROID_SDK_DIR "${ANDROID_SDK_DIR}")
   endif()
 
   if (${ANDROID_NDK_HOST_SYSTEM_NAME} STREQUAL "windows" OR
@@ -86,10 +88,31 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL Windows)
   add_compile_options(/D_SCL_SECURE_NO_WARNINGS) # Disable SCL secure warnings
   add_compile_options(/D_HAS_EXCEPTIONS=0) # Disable STL exceptions
   # Compiler options
-  # Remove any flags related to exceptions
-  foreach(lang C CXX)
-    if("${CMAKE_${lang}_FLAGS}" MATCHES "/EHsc")
-      string(REGEX REPLACE "/EHsc" "" CMAKE_${lang}_FLAGS "${CMAKE_${lang}_FLAGS}")
+
+  foreach(lang CMAKE_CXX_FLAGS CMAKE_C_FLAGS
+               CMAKE_CXX_FLAGS_RELEASE CMAKE_C_FLAGS_RELEASE
+               CMAKE_CXX_FLAGS_DEBUG CMAKE_C_FLAGS_DEBUG
+               CMAKE_CXX_FLAGS_RELWITHDEBINFO CMAKE_C_FLAGS_RELWITHDEBINFO
+               CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_C_FLAGS_MINSIZEREL)
+    # Remove any flags related to exceptions
+    if(${lang} MATCHES "/EHsc")
+      string(REGEX REPLACE "/EHsc" "" ${lang} "${${lang}}")
+    endif()
+    # Remove any flags related to rtti
+    if(${lang} MATCHES "/GR")
+      string(REGEX REPLACE "/GR" "" ${lang} "${${lang}}")
+    endif()
+    # Remove any flags related to warning level 
+    if(${lang} MATCHES "/W3")
+      string(REGEX REPLACE "/W3" "" ${lang} "${${lang}}")
+    endif()
+    # Remove any flags related to dynamic crt
+    if(${lang} MATCHES "/MDd")
+      string(REGEX REPLACE "/MDd" "" ${lang} "${${lang}}")
+    endif()
+    # Remove any flags related to dynamic crt
+    if(${lang} MATCHES "/MD")
+      string(REGEX REPLACE "/MD" "" ${lang} "${${lang}}")
     endif()
   endforeach()
   add_compile_options(/W4) # Adjust warnings to level 4
@@ -246,7 +269,7 @@ function(wn_create_test)
     find_host_program(PYTHON python)
     add_test(${PARSED_ARGS_TEST_NAME}
       ${PYTHON} ${CMAKE_CURRENT_BINARY_DIR}/${PARSED_ARGS_TEST_NAME}_test/${PARSED_ARGS_TEST_NAME}_test.py
-      --install --run --delay 2 --remove)
+      --install --run --remove)
   else()
     if (PARSED_ARGS_RUN_WRAPPER)
       add_test(${PARSED_ARGS_TEST_NAME}

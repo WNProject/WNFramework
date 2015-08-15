@@ -68,7 +68,7 @@ class Runner:
         if args.sdk:
             args.sdk = os.path.expanduser(args.sdk)
             adb = os.path.join(args.sdk, "platform-tools", "adb")
-
+        print adb
         run_p([adb, "logcat", "-c"])
         run_p([adb, "shell", "am", "force-stop", args.package_name])
 
@@ -101,10 +101,10 @@ class Runner:
                 stdout=subprocess.PIPE,
                 bufsize=1)
 
-            returnre = re.compile("^RETURN ([0-9]*).$", re.MULTILINE)
-            startre = re.compile("^--STARTED.$")
-            finishre = re.compile("^--FINISHED.$")
-            crashedre = re.compile("^--CRASHED--.$")
+            returnre = re.compile("^RETURN ([0-9]*)..?$", re.MULTILINE)
+            startre = re.compile("^--STARTED..?$")
+            finishre = re.compile("^--FINISHED..?$")
+            crashedre = re.compile("^--CRASHED--..?$")
             abortRE = ""
             strip_stuff = re.compile("[A-Z]/" +
                     args.package_name + "\(([ 0-9]*)\): (.*)")
@@ -132,10 +132,10 @@ class Runner:
                     if m:
                         has_started = True
                         continue
+
                 match = returnre.search(line)
                 crashed = aborted or crashedre.search(line)
                 finish_match = finishre.search(line)
-
                 if match:
                     run_p([adb, "pull", "/sdcard/stdout.txt"])
                     with open("stdout.txt", "r") as f:
@@ -168,7 +168,9 @@ class Runner:
                     p.kill()
                     sys.exit(-1)
                 else:
+                    print "===="
                     print line
+                    print "===="
             p.kill()
             sys.exit(0)
 
