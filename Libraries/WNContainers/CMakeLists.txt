@@ -5,6 +5,7 @@ add_wn_header_library(WNContainers
   inc/WNDynamicArray.h
   inc/WNFunction.h
   inc/WNHashMap.h
+  inc/WNHashSet.h
   inc/WNList.h
   inc/WNSerializer.h
   inc/WNSerializerBase.h
