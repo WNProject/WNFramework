@@ -70,10 +70,9 @@ public:
               std::is_convertible<U*, const wn_char*>::value>>
   WN_FORCE_INLINE string_view(contiguous_range<U>&& range) :
     m_range(std::move(range)) {
-    // for some reason the above move doesn't work in gcc/clang so clear range
-    #ifndef _WN_MSVC
-      range = wn_nullptr;
-    #endif
+    // for some reason the above move doesn't work in gcc/clang and
+    // some versions of msvc, clear the range manually.
+    range = wn_nullptr;
   }
 
   template <typename U,
