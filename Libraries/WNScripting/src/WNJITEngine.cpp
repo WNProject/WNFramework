@@ -14,23 +14,27 @@ parse_error jit_engine::parse_file(const char* file) {
   if (!buff) {
     return parse_error::does_not_exist;
   }
-  
-  WNScriptASTLexer::InputStreamType input(
+
+  wn::memory::allocated_ptr<wn::scripting::script_file> ptr;
+  {
+    WNScriptASTLexer::InputStreamType input(
       reinterpret_cast<const ANTLR_UINT8*>(buff->data()), ANTLR_ENC_8BIT,
       static_cast<ANTLR_UINT32>(buff->size()),
       reinterpret_cast<const ANTLR_UINT8*>(file));
 
-  WNScriptASTLexer lexer(&input);
-  WNScriptASTParser::TokenStreamType tStream(ANTLR_SIZE_HINT, lexer.get_tokSource());
-  WNScriptASTParser parser(&tStream);
-  parser.set_allocator(m_allocator);
-  wn::memory::allocated_ptr<wn::scripting::script_file> ptr =
-      wn::memory::default_allocated_ptr(m_allocator, parser.program());
-  if (parser.getNumberOfSyntaxErrors() != 0 ||
-    lexer.getNumberOfSyntaxErrors() != 0) {
-    return parse_error::parse_failed;
+    WNScriptASTLexer lexer(&input);
+    WNScriptASTParser::TokenStreamType tStream(ANTLR_SIZE_HINT,
+      lexer.get_tokSource());
+    WNScriptASTParser parser(&tStream);
+    parser.set_allocator(m_allocator);
+    ptr = std::move(
+      wn::memory::default_allocated_ptr(m_allocator, parser.program()));
+    if (parser.getNumberOfSyntaxErrors() != 0 ||
+      lexer.getNumberOfSyntaxErrors() != 0) {
+      return parse_error::parse_failed;
+    }
   }
   return parse_error::ok;
-}
+ }
 }
 }

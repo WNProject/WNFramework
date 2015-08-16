@@ -8,15 +8,23 @@
 #define __WN_CONTAINERS_STRING_H__
 
 #include "WNCore/inc/WNTypes.h"
+#include "WNMemory/inc/WNSTLCompatibleAllocator.h"
 
 #include <string>
 
 namespace wn {
 namespace containers {
 
-typedef std::string string;
+typedef memory::passthrough_stl_allocator<wn_char, memory::default_allocator>
+    wn_string_default_allocator;
+typedef memory::passthrough_stl_allocator<
+    wn_char, memory::default_test_allocator> wn_string_test_allocator;
 
-} // namespace containers
-} // namespace wn
+typedef std::basic_string<wn_char, std::char_traits<wn_char>,
+                          wn_string_default_allocator> string;
+typedef std::basic_string<
+    wn_char, std::char_traits<wn_char>, wn_string_test_allocator> test_string;
+}  // namespace containers
+}  // namespace wn
 
-#endif // __WN_CONTAINERS_STRING_H__
+#endif  // __WN_CONTAINERS_STRING_H__

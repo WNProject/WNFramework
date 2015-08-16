@@ -14,7 +14,6 @@
 #include <utility>
 #include <iterator>
 
-#pragma message("TODO(awoloszyn): Add growth factor and min num buckets")
 namespace wn {
 namespace containers {
 template <typename _KeyType, typename _ValueType,
@@ -90,8 +89,7 @@ public:
     _ContainedType& operator*() { return *m_element; }
 
    private:
-    hash_map_iterator(_ArrayIteratorType bucket,
-                      _ArrayIteratorType end_bucket,
+    hash_map_iterator(_ArrayIteratorType bucket, _ArrayIteratorType end_bucket,
                       _ListIteratorType element)
         : m_bucket(bucket), m_end_bucket(end_bucket), m_element(element) {}
     _ArrayIteratorType m_bucket;
@@ -180,8 +178,7 @@ public:
       if (it.m_bucket->empty()) {
         it.m_bucket += 1;
         it.m_element = it.m_bucket->begin();
-      }
-      else {
+      } else {
         break;
       }
     }
@@ -212,7 +209,10 @@ public:
                     (m_buckets.end() - 1)->end());
   }
   const_iterator cend() { return end(); }
-  
+
+  // The only allocation that rehash performs is an
+  // increase on the number of buckets, all of the elements
+  // in the buckets are left unchanged.
   void rehash(wn_size_t n) {
     if (n == m_buckets.size()) {
       return;
@@ -221,11 +221,9 @@ public:
       return;
     }
 
-    array_type new_buckets(
-        n, list_type(m_allocator), m_allocator);
+    array_type new_buckets(n, list_type(m_allocator), m_allocator);
     for (auto& bucket : m_buckets) {
-      for (auto it = bucket.begin();
-           it != bucket.end();) {
+      for (auto it = bucket.begin(); it != bucket.end();) {
         wn_size_t hash = get_hash(it->first, n);
         it = bucket.transfer_to(it, new_buckets[hash].end(), new_buckets[hash]);
       }
@@ -272,12 +270,16 @@ public:
   bool rehash_if_needed(wn_size_t num_expected_elements) {
     wn_size_t i = required_buckets(num_expected_elements);
     if (i > m_buckets.size()) {
-      // If we just grow to this, then we will continually
-      // grow very slowly, how about we try and get N * max_load_factor.
-      const float IDEAL_LOAD_RATIO = 0.75;
+      // If we are allocating buckets, let's give ourselves
+      // at least 10 buckets.
+      i = i > 10 ? i : 10;
+
+      // If we are expanding past 10 buckets then we should probably
+      // pick some exponential factor. (1.5 for now).
+      wn_size_t exponential_buckets =
+          static_cast<size_t>(m_buckets.size() * 1.5f);
       wn_size_t num_new_buckets =
-          1 + static_cast<wn_size_t>((num_expected_elements /
-                                      (m_max_load_factor * IDEAL_LOAD_RATIO)));
+          i > exponential_buckets ? i : exponential_buckets;
       rehash(num_new_buckets);
       return true;
     }
