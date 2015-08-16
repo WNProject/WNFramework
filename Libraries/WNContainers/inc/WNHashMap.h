@@ -17,8 +17,8 @@
 namespace wn {
 namespace containers {
 template <typename _KeyType, typename _ValueType,
-          typename _EqualityOperator = std::equal_to<_KeyType>,
           typename _HashOperator = std::hash<_KeyType>,
+          typename _EqualityOperator = std::equal_to<_KeyType>,
           typename _Allocator = memory::default_allocator>
 class hash_map final {
  public:
@@ -288,17 +288,18 @@ class hash_map final {
     return static_cast<wn_size_t>(num_expected_elements / m_max_load_factor);
   }
 
+ private:
   memory::allocator* m_allocator;
   array_type m_buckets;
   wn_size_t m_total_elements;
   wn_float32 m_max_load_factor;
 };
 
-template <typename _KeyType, typename _ValueType, typename _EqualityOperator,
-          typename _HashOperator, typename _Allocator>
-_Allocator hash_map<_KeyType, _ValueType, _EqualityOperator, _HashOperator,
+template <typename _KeyType, typename _ValueType, typename _HashOperator,
+          typename _EqualityOperator, typename _Allocator>
+_Allocator hash_map<_KeyType, _ValueType, _HashOperator, _EqualityOperator,
                     _Allocator>::s_default_allocator;
 }
 }
 
-#endif  //_WN_CONTAINERS_HASH_MAP_H__/
+#endif  //_WN_CONTAINERS_HASH_MAP_H__

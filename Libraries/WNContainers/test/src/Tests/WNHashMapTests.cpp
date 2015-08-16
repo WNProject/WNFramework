@@ -12,7 +12,7 @@ typedef ::testing::Types<wn_uint8, wn_uint16, wn_uint32, wn_uint64>
     hash_map_testing_types;
 
 template <typename T>
-using test_map = wn::containers::hash_map<T, T, std::equal_to<T>, std::hash<T>,
+using test_map = wn::containers::hash_map<T, T, std::hash<T>, std::equal_to<T>,
                                           wn::memory::default_test_allocator>;
 TYPED_TEST_CASE(hash_map, hash_map_testing_types);
 
