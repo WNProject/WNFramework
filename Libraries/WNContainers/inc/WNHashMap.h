@@ -93,7 +93,7 @@ private:
 template <typename _KeyType, typename _ValueType, typename _HashOperator,
           typename _EqualityOperator, typename _Allocator>
 class hash_map final {
- public:
+public:
   static _Allocator s_default_allocator;
 
   typedef _KeyType key_type;
@@ -113,36 +113,36 @@ class hash_map final {
   typedef dynamic_array<list<value_type>> array_type;
 
   using iterator = hash_map_iterator<value_type, typename array_type::iterator,
-                                     typename list_type::iterator>;
+    typename list_type::iterator>;
   using const_iterator =
-      hash_map_iterator<const value_type, typename array_type::const_iterator,
-                        typename list_type::const_iterator>;
+    hash_map_iterator<const value_type, typename array_type::const_iterator,
+    typename list_type::const_iterator>;
   typedef typename list_type::iterator local_iterator;
   typedef typename list_type::const_iterator const_local_iterator;
 
   explicit hash_map(memory::allocator* _allocator)
-      : hash_map(0u, hasher(), key_equal(), _allocator) {}
+    : hash_map(0u, hasher(), key_equal(), _allocator) {}
 
   explicit hash_map(size_type _n = 0u, const hasher& _hasher = hasher(),
-                    const key_equal& _key_equal = key_equal(),
-                    memory::allocator* _allocator = &s_default_allocator)
-      : m_allocator(_allocator),
-        m_buckets(_n, list_type(_allocator), _allocator),
-        m_total_elements(0),
-        m_max_load_factor(1.0),
-        m_hasher(_hasher),
-        m_key_equal(_key_equal) {}
+    const key_equal& _key_equal = key_equal(),
+    memory::allocator* _allocator = &s_default_allocator)
+    : m_allocator(_allocator),
+    m_buckets(_n, list_type(_allocator), _allocator),
+    m_total_elements(0),
+    m_max_load_factor(1.0),
+    m_hasher(_hasher),
+    m_key_equal(_key_equal) {}
 
   explicit hash_map(std::initializer_list<value_type> initializer,
-                    size_type _n = 0u, const hasher& _hasher = hasher(),
-                    const key_equal& _key_equal = key_equal(),
-                    memory::allocator* _allocator = &s_default_allocator)
-      : hash_map(0u /* we will resize */, _hasher, _key_equal, _allocator) {
+    size_type _n = 0u, const hasher& _hasher = hasher(),
+    const key_equal& _key_equal = key_equal(),
+    memory::allocator* _allocator = &s_default_allocator)
+    : hash_map(0u /* we will resize */, _hasher, _key_equal, _allocator) {
     auto begin = std::begin(initializer);
     auto end = std::end(initializer);
     wn_size_t count = end - begin;
     m_buckets.insert(m_buckets.begin(), (count > _n ? count : _n),
-                     list_type(_allocator));
+      list_type(_allocator));
     for (; begin != end; ++begin) {
       insert(*begin);
     }
@@ -162,9 +162,9 @@ class hash_map final {
     m_buckets[hash].push_back(element);
     m_total_elements += 1;
     return std::make_pair<iterator, bool>(
-        iterator(m_buckets.begin() + hash, m_buckets.end(),
-                 m_buckets[hash].end() - 1),
-        true);
+      iterator(m_buckets.begin() + hash, m_buckets.end(),
+        m_buckets[hash].end() - 1),
+      true);
   }
 
   std::pair<iterator, bool> insert(value_type&& element) {
@@ -180,13 +180,29 @@ class hash_map final {
     m_buckets[hash].push_back(std::move(element));
     m_total_elements += 1;
     return std::make_pair<iterator, bool>(
-        iterator(m_buckets.begin() + hash, m_buckets.end(),
-                 m_buckets[hash].end() - 1),
-        true);
+      iterator(m_buckets.begin() + hash, m_buckets.end(),
+        m_buckets[hash].end() - 1),
+      true);
   }
 
   std::pair<iterator, bool> insert(const key_type& kt, const mapped_type& mt) {
     return insert(std::make_pair(kt, mt));
+  }
+
+  mapped_type& operator[](key_type&& key) {
+    iterator it = find(key);
+    if (it != end()) {
+      return it->second;
+    }
+    return insert(std::make_pair(std::move(key), mapped_type())).first->second;
+  }
+
+  const mapped_type& operator[](const key_type& key) const {
+    iterator it = find(key);
+    if (it != end()) {
+      return it->second;
+    }
+    return insert(key, mapped_type())->first->second;
   }
 
   iterator find(const key_type& key) {

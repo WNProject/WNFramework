@@ -200,3 +200,14 @@ TEST(hash_map, initializers) {
     EXPECT_EQ(3, my_map.size());
   }
 }
+
+TEST(hash_map, square_brackets) {
+  wn::memory::default_test_allocator alloc;
+  {
+    wn::containers::hash_map<std::string, std::string> my_map({ { "a", "1" } });
+    EXPECT_EQ("1", my_map["a"]);
+    my_map["b"] = "2";
+    EXPECT_EQ(2, my_map.size());
+    EXPECT_EQ("2", my_map.find("b")->second);
+  }
+}

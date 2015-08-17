@@ -128,7 +128,6 @@ class hash_set final {
   }
 
   iterator find(const key_type& key) { return iterator(m_map.find(key)); }
-
   const_iterator find(const key_type& key) const {
     return const_iterator(m_map.find(key));
   }
