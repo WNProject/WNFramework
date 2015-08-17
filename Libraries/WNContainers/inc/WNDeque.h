@@ -16,8 +16,213 @@
 
 namespace wn {
 namespace containers {
+
 template <typename _Type, typename _Allocator = memory::default_allocator,
-          const wn_size_t _BlockSize = 10>
+  const wn_size_t _BlockSize = 10>
+class deque;
+
+namespace internal {
+template <typename _Container, typename _NonConstContainer = _Container,
+          typename _Element = typename _Container::value_type>
+class deque_iterator final
+    : public std::iterator<std::bidirectional_iterator_tag, _Element,
+                           typename _Container::difference_type> {
+ public:
+  typedef typename _Container::size_type size_type;
+  typedef std::bidirectional_iterator_tag iterator_category;
+  typedef _Element value_type;
+  typedef typename _Container::difference_type difference_type;
+  typedef typename _Container::difference_type distance_type;
+  typedef _Element* pointer;
+  typedef _Element& reference;
+
+  deque_iterator() : m_deque(wn_nullptr), m_element(0) {}
+
+  deque_iterator(deque_iterator&& _other)
+      : m_deque(std::move(_other.m_deque)),
+        m_element(std::move(_other.m_element)) {
+    _other.clear();
+  }
+
+  deque_iterator(const deque_iterator& _other)
+      : m_deque(_other.m_deque), m_element(_other.m_element) {}
+
+  template <typename _OtherContainer = _NonConstContainer>
+  deque_iterator(deque_iterator<_OtherContainer, _OtherContainer,
+                                typename _OtherContainer::value_type>&& _other,
+                 typename core::enable_if<!core::is_same<
+                     _Container, _OtherContainer>::value>::type* = wn_nullptr)
+      : m_deque(std::move(_other.m_deque)),
+        m_element(std::move(_other.m_element)) {
+    _other.clear();
+  }
+
+  template <typename _OtherContainer = _NonConstContainer>
+  deque_iterator(
+      const deque_iterator<_OtherContainer, _OtherContainer,
+                           typename _OtherContainer::value_type>& _other,
+      typename core::enable_if<
+          !core::is_same<_Container, _OtherContainer>::value>::type* =
+          wn_nullptr)
+      : m_deque(_other.m_deque), m_element(_other.m_element) {}
+
+  deque_iterator& operator=(deque_iterator&& _other) {
+    m_deque = std::move(_other.m_deque);
+    m_element = std::move(_other.m_element);
+
+    _other.clear();
+
+    return (*this);
+  }
+
+  deque_iterator& operator=(const deque_iterator& _other) {
+    m_deque = _other.m_deque;
+    m_element = _other.m_element;
+
+    return (*this);
+  }
+
+  template <typename _OtherContainer = _NonConstContainer>
+  typename core::enable_if<!core::is_same<_Container, _OtherContainer>::value,
+                           deque_iterator>::type&
+  operator=(deque_iterator<_OtherContainer, _OtherContainer,
+                           typename _OtherContainer::value_type>&& _other) {
+    m_deque = std::move(_other.m_deque);
+    m_element = std::move(_other.m_element);
+
+    _other.clear();
+
+    return (*this);
+  }
+
+  template <typename _OtherContainer = _NonConstContainer>
+  typename core::enable_if<!core::is_same<_Container, _OtherContainer>::value,
+                           deque_iterator>::type&
+  operator=(
+      const deque_iterator<_OtherContainer, _OtherContainer,
+                           typename _OtherContainer::value_type>& _other) {
+    m_deque = _other.m_deque;
+    m_element = _other.m_element;
+
+    return (*this);
+  }
+
+  difference_type operator-(const deque_iterator& _other) {
+    WN_RELEASE_ASSERT_DESC(m_deque == _other.m_deque,
+                           "iterators are incompatible");
+
+    return (m_element - _other.m_element);
+  }
+
+  deque_iterator& operator+=(const wn_size_t _amount) {
+    m_element += _amount;
+
+    return (*this);
+  }
+
+  deque_iterator& operator-=(const wn_size_t _amount) {
+    m_element -= _amount;
+
+    return (*this);
+  }
+
+  deque_iterator operator+(const wn_size_t _amount) {
+    deque_iterator i(*this);
+
+    return (i += _amount);
+  }
+
+  deque_iterator operator-(const wn_size_t _amount) {
+    deque_iterator i(*this);
+
+    return (i -= _amount);
+  }
+
+  reference operator*() const { return ((*m_deque)[m_element]); }
+
+  pointer operator->() const { return (&((*m_deque)[m_element])); }
+
+  deque_iterator operator++(wn_int32) {
+    deque_iterator i(*this);
+
+    (*this) += 1;
+
+    return (i);
+  }
+
+  deque_iterator operator--(wn_int32) {
+    deque_iterator i(*this);
+
+    (*this) -= 1;
+
+    return (i);
+  }
+
+  deque_iterator& operator++() { return ((*this) += 1); }
+
+  deque_iterator& operator--() { return ((*this) -= 1); }
+
+  wn_bool operator==(const deque_iterator& _other) const {
+    WN_RELEASE_ASSERT_DESC(m_deque == _other.m_deque,
+                           "iterators are incompatible");
+
+    return (m_element == _other.m_element);
+  }
+
+  wn_bool operator!=(const deque_iterator& _other) const {
+    WN_RELEASE_ASSERT_DESC(m_deque == _other.m_deque,
+                           "iterators are incompatible");
+
+    return (m_element != _other.m_element);
+  }
+
+  wn_bool operator>(const deque_iterator& _other) const {
+    WN_RELEASE_ASSERT_DESC(m_deque == _other.m_deque,
+                           "iterators are incompatible");
+
+    return (m_element > _other.m_element);
+  }
+
+  wn_bool operator>=(const deque_iterator& _other) const {
+    WN_RELEASE_ASSERT_DESC(m_deque == _other.m_deque,
+                           "iterators are incompatible");
+
+    return (m_element >= _other.m_element);
+  }
+
+  wn_bool operator<(const deque_iterator& _other) const {
+    WN_RELEASE_ASSERT_DESC(m_deque == _other.m_deque,
+                           "iterators are incompatible");
+
+    return (m_element < _other.m_element);
+  }
+
+  wn_bool operator<=(const deque_iterator& _other) const {
+    WN_RELEASE_ASSERT_DESC(m_deque == _other.m_deque,
+                           "iterators are incompatible");
+
+    return (m_element <= _other.m_element);
+  }
+
+ private:
+  template <typename _T, typename _Alloc, const wn_size_t _BSize>
+  friend class deque;
+  friend class deque_iterator<const _Container, _Container, const _Element>;
+
+  explicit deque_iterator(_Container* _deque, const size_type _element)
+      : m_deque(_deque), m_element(_element) {}
+
+  wn_void clear() {
+    m_deque = wn_nullptr;
+    m_element = 0;
+  }
+
+  _Container* m_deque;
+  size_type m_element;
+};
+}  // namespace internal
+
+template <typename _Type, typename _Allocator, const wn_size_t _BlockSize>
 class deque final {
  public:
   static _Allocator s_default_allocator;
@@ -29,213 +234,11 @@ class deque final {
   typedef const value_type& const_reference;
 
  private:
-  template <typename _Container, typename _NonConstContainer = _Container,
-            typename _Element = typename _Container::value_type>
-  class deque_iterator final
-      : public std::iterator<std::bidirectional_iterator_tag, _Element,
-                             typename _Container::difference_type> {
-   public:
-    typedef typename _Container::size_type size_type;
-    typedef std::bidirectional_iterator_tag iterator_category;
-    typedef _Element value_type;
-    typedef typename _Container::difference_type difference_type;
-    typedef typename _Container::difference_type distance_type;
-    typedef _Element* pointer;
-    typedef _Element& reference;
-
-    deque_iterator() : m_deque(wn_nullptr), m_element(0) {}
-
-    deque_iterator(deque_iterator&& _other)
-        : m_deque(std::move(_other.m_deque)),
-          m_element(std::move(_other.m_element)) {
-      _other.clear();
-    }
-
-    deque_iterator(const deque_iterator& _other)
-        : m_deque(_other.m_deque), m_element(_other.m_element) {}
-
-    template <typename _OtherContainer = _NonConstContainer>
-    deque_iterator(
-        deque_iterator<_OtherContainer, _OtherContainer,
-                       typename _OtherContainer::value_type>&& _other,
-        typename core::enable_if<
-            !core::is_same<_Container, _OtherContainer>::value>::type* =
-            wn_nullptr)
-        : m_deque(std::move(_other.m_deque)),
-          m_element(std::move(_other.m_element)) {
-      _other.clear();
-    }
-
-    template <typename _OtherContainer = _NonConstContainer>
-    deque_iterator(
-        const deque_iterator<_OtherContainer, _OtherContainer,
-                             typename _OtherContainer::value_type>& _other,
-        typename core::enable_if<
-            !core::is_same<_Container, _OtherContainer>::value>::type* =
-            wn_nullptr)
-        : m_deque(_other.m_deque), m_element(_other.m_element) {}
-
-    deque_iterator& operator=(deque_iterator&& _other) {
-      m_deque = std::move(_other.m_deque);
-      m_element = std::move(_other.m_element);
-
-      _other.clear();
-
-      return (*this);
-    }
-
-    deque_iterator& operator=(const deque_iterator& _other) {
-      m_deque = _other.m_deque;
-      m_element = _other.m_element;
-
-      return (*this);
-    }
-
-    template <typename _OtherContainer = _NonConstContainer>
-    typename core::enable_if<!core::is_same<_Container, _OtherContainer>::value,
-                             deque_iterator>::type&
-    operator=(deque_iterator<_OtherContainer, _OtherContainer,
-                             typename _OtherContainer::value_type>&& _other) {
-      m_deque = std::move(_other.m_deque);
-      m_element = std::move(_other.m_element);
-
-      _other.clear();
-
-      return (*this);
-    }
-
-    template <typename _OtherContainer = _NonConstContainer>
-    typename core::enable_if<!core::is_same<_Container, _OtherContainer>::value,
-                             deque_iterator>::type&
-    operator=(
-        const deque_iterator<_OtherContainer, _OtherContainer,
-                             typename _OtherContainer::value_type>& _other) {
-      m_deque = _other.m_deque;
-      m_element = _other.m_element;
-
-      return (*this);
-    }
-
-    difference_type operator-(const deque_iterator& _other) {
-      WN_RELEASE_ASSERT_DESC(m_deque == _other.m_deque,
-                             "iterators are incompatible");
-
-      return (m_element - _other.m_element);
-    }
-
-    deque_iterator& operator+=(const wn_size_t _amount) {
-      m_element += _amount;
-
-      return (*this);
-    }
-
-    deque_iterator& operator-=(const wn_size_t _amount) {
-      m_element -= _amount;
-
-      return (*this);
-    }
-
-    deque_iterator operator+(const wn_size_t _amount) {
-      deque_iterator i(*this);
-
-      return (i += _amount);
-    }
-
-    deque_iterator operator-(const wn_size_t _amount) {
-      deque_iterator i(*this);
-
-      return (i -= _amount);
-    }
-
-    reference operator*() const { return ((*m_deque)[m_element]); }
-
-    pointer operator->() const { return (&((*m_deque)[m_element])); }
-
-    deque_iterator operator++(wn_int32) {
-      deque_iterator i(*this);
-
-      (*this) += 1;
-
-      return (i);
-    }
-
-    deque_iterator operator--(wn_int32) {
-      deque_iterator i(*this);
-
-      (*this) -= 1;
-
-      return (i);
-    }
-
-    deque_iterator& operator++() { return ((*this) += 1); }
-
-    deque_iterator& operator--() { return ((*this) -= 1); }
-
-    wn_bool operator==(const deque_iterator& _other) const {
-      WN_RELEASE_ASSERT_DESC(m_deque == _other.m_deque,
-                             "iterators are incompatible");
-
-      return (m_element == _other.m_element);
-    }
-
-    wn_bool operator!=(const deque_iterator& _other) const {
-      WN_RELEASE_ASSERT_DESC(m_deque == _other.m_deque,
-                             "iterators are incompatible");
-
-      return (m_element != _other.m_element);
-    }
-
-    wn_bool operator>(const deque_iterator& _other) const {
-      WN_RELEASE_ASSERT_DESC(m_deque == _other.m_deque,
-                             "iterators are incompatible");
-
-      return (m_element > _other.m_element);
-    }
-
-    wn_bool operator>=(const deque_iterator& _other) const {
-      WN_RELEASE_ASSERT_DESC(m_deque == _other.m_deque,
-                             "iterators are incompatible");
-
-      return (m_element >= _other.m_element);
-    }
-
-    wn_bool operator<(const deque_iterator& _other) const {
-      WN_RELEASE_ASSERT_DESC(m_deque == _other.m_deque,
-                             "iterators are incompatible");
-
-      return (m_element < _other.m_element);
-    }
-
-    wn_bool operator<=(const deque_iterator& _other) const {
-      WN_RELEASE_ASSERT_DESC(m_deque == _other.m_deque,
-                             "iterators are incompatible");
-
-      return (m_element <= _other.m_element);
-    }
-
-   private:
-    template <typename _T, typename _Alloc, const wn_size_t _BSize>
-    friend class deque;
-
-    friend class deque_iterator<const _Container, _Container, const _Element>;
-
-    explicit deque_iterator(_Container* _deque, const size_type _element)
-        : m_deque(_deque), m_element(_element) {}
-
-    wn_void clear() {
-      m_deque = wn_nullptr;
-      m_element = 0;
-    }
-
-    _Container* m_deque;
-    size_type m_element;
-  };
-
   typedef deque<_Type, _Allocator, _BlockSize> self_type;
 
  public:
-  typedef deque_iterator<self_type> iterator;
-  typedef deque_iterator<const self_type, self_type, const value_type>
+  typedef internal::deque_iterator<self_type> iterator;
+  typedef internal::deque_iterator<const self_type, self_type, const value_type>
       const_iterator;
   typedef std::reverse_iterator<iterator> reverse_iterator;
   typedef std::reverse_iterator<const_iterator> const_reverse_iterator;

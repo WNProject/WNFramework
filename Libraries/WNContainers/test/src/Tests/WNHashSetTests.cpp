@@ -177,3 +177,23 @@ TYPED_TEST(hash_set, erase_all) {
   EXPECT_TRUE(alloc.empty());
   EXPECT_EQ(0, test_set<TypeParam>::get_default_allocator().allocated());
 }
+
+TEST(hash_set, initializers) {
+  wn::memory::default_test_allocator alloc;
+  {
+    wn::containers::hash_set<std::string> my_set({"a"});
+    EXPECT_EQ(my_set.end(), my_set.find("b"));
+    EXPECT_NE(my_set.end(), my_set.find("a"));
+    EXPECT_EQ(1, my_set.size());
+  }
+  {
+    wn::containers::hash_set<std::string> my_set({
+        "a", "b", "c",
+    });
+    EXPECT_EQ(my_set.end(), my_set.find("d"));
+    EXPECT_NE(my_set.end(), my_set.find("a"));
+    EXPECT_NE(my_set.end(), my_set.find("b"));
+    EXPECT_NE(my_set.end(), my_set.find("b"));
+    EXPECT_EQ(3, my_set.size());
+  }
+}
