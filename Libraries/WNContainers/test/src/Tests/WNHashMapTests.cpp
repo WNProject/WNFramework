@@ -182,17 +182,15 @@ TYPED_TEST(hash_map, erase_all) {
 TEST(hash_map, initializers) {
   wn::memory::default_test_allocator alloc;
   {
-    wn::containers::hash_map<std::string, std::string> my_map({{"a", "1"}});
+    wn::containers::hash_map<std::string, std::string> my_map({{"a", "1"}},
+                                                              &alloc);
     EXPECT_EQ(my_map.end(), my_map.find("b"));
     EXPECT_NE(my_map.end(), my_map.find("a"));
     EXPECT_EQ(1, my_map.size());
   }
   {
-    wn::containers::hash_map<std::string, std::string> my_map({
-      {"a", "1"},
-      {"b", "2"},
-      {"c", "3"}
-    });
+    wn::containers::hash_map<std::string, std::string> my_map(
+        {{"a", "1"}, {"b", "2"}, {"c", "3"}}, &alloc);
     EXPECT_EQ(my_map.end(), my_map.find("d"));
     EXPECT_NE(my_map.end(), my_map.find("a"));
     EXPECT_NE(my_map.end(), my_map.find("b"));
@@ -204,10 +202,46 @@ TEST(hash_map, initializers) {
 TEST(hash_map, square_brackets) {
   wn::memory::default_test_allocator alloc;
   {
-    wn::containers::hash_map<std::string, std::string> my_map({ { "a", "1" } });
+    wn::containers::hash_map<std::string, std::string> my_map(
+        {{"a", "1"}}, 0, std::hash<std::string>(), std::equal_to<std::string>(),
+        &alloc);
     EXPECT_EQ("1", my_map["a"]);
     my_map["b"] = "2";
     EXPECT_EQ(2, my_map.size());
     EXPECT_EQ("2", my_map.find("b")->second);
+  }
+}
+
+TYPED_TEST(hash_map, move_test) {
+  wn::memory::default_test_allocator alloc;
+  {
+    wn::containers::hash_map<TypeParam, TypeParam> my_map(
+    { {221, 1}, {201, 2}, {213, 3} }, &alloc);
+    wn_size_t allocated = alloc.allocated();
+    EXPECT_EQ(3, my_map.size());
+    wn::containers::hash_map < TypeParam, TypeParam> new_map(std::move(my_map));
+    EXPECT_EQ(0, my_map.size());
+    EXPECT_EQ(3, new_map.size());
+    EXPECT_EQ(allocated, alloc.allocated());
+    EXPECT_EQ(1, new_map[221]);
+    EXPECT_EQ(2, new_map[201]);
+    EXPECT_EQ(3, new_map[213]);
+  }
+}
+
+TYPED_TEST(hash_map, copy_test) {
+  wn::memory::default_test_allocator alloc;
+  {
+    wn::containers::hash_map<TypeParam, TypeParam> my_map(
+    { { 221, 1 },{ 201, 2 },{ 213, 3 } }, &alloc);
+    wn_size_t allocated = alloc.allocated();
+    EXPECT_EQ(3, my_map.size());
+    wn::containers::hash_map < TypeParam, TypeParam> new_map(my_map);
+    EXPECT_EQ(3, my_map.size());
+    EXPECT_EQ(3, new_map.size());
+    EXPECT_GT(alloc.allocated(), allocated);
+    EXPECT_EQ(my_map[221], new_map[221]);
+    EXPECT_EQ(my_map[201], new_map[201]);
+    EXPECT_EQ(my_map[213], new_map[213]);
   }
 }
