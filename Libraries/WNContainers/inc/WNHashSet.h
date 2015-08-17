@@ -93,8 +93,26 @@ class hash_set final {
   using const_iterator =
       hash_set_iterator<typename map_type::const_iterator, const value_type>;
 
-  hash_set() : hash_set(&s_default_allocator) {}
-  hash_set(memory::allocator* _allocator) : m_map(_allocator) {}
+  hash_set(size_type _n = 0u, const hasher& _hasher = hasher(),
+           const key_equal& _key_equal = key_equal(),
+           memory::allocator* _allocator = &s_default_allocator)
+      : m_map(_n, _hasher, _key_equal, _allocator) {}
+  hash_set(memory::allocator* _allocator)
+      : hash_set(0u, hasher(), key_equal(), _allocator) {}
+  hash_set(std::initializer_list<key_type> initializer, size_type _n = 0u,
+           const hasher& _hasher = hasher(),
+           const key_equal& _key_equal = key_equal(),
+           memory::allocator* _allocator = &s_default_allocator)
+      : hash_set(0u, _hasher, _key_equal, _allocator) {
+    auto begin = std::begin(initializer);
+    auto end = std::end(initializer);
+    wn_size_t count = end - begin;
+    wn_size_t buckets = _n < count ? _n : count;
+    m_map.rehash(buckets);
+    for (; begin != end; ++begin) {
+      insert(*begin);
+    }
+  }
 
   bool empty() const { m_map.empty(); }
 

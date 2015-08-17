@@ -12,14 +12,86 @@
 #include "WNContainers/inc/WNList.h"
 #include <algorithm>
 #include <utility>
+#include <initializer_list>
 #include <iterator>
 
 namespace wn {
 namespace containers {
+
 template <typename _KeyType, typename _ValueType,
-          typename _HashOperator = std::hash<_KeyType>,
-          typename _EqualityOperator = std::equal_to<_KeyType>,
-          typename _Allocator = memory::default_allocator>
+  typename _HashOperator = std::hash<_KeyType>,
+  typename _EqualityOperator = std::equal_to<_KeyType>,
+  typename _Allocator = memory::default_allocator>
+class hash_map;
+
+
+// hash_map_iterator is not a child_type of hash_map
+// because MSVC threw an error that the symbol name
+// was too large and would be truncated.
+template <typename _ContainedType, typename _ArrayIteratorType,
+  typename _ListIteratorType>
+class hash_map_iterator
+  : std::iterator<std::forward_iterator_tag, _ContainedType> {
+public:
+  hash_map_iterator() {}
+  template <typename _CT, typename _AIT, typename _LIT>
+  hash_map_iterator(const hash_map_iterator<_CT, _AIT, _LIT>& _other) {
+    m_bucket = _other.m_bucket;
+    m_element = _other.m_element;
+    m_end_bucket = _other.m_end_bucket;
+  }
+
+  hash_map_iterator& operator+=(wn_size_t _count) {
+    while (_count-- > 0) {
+      ++m_element;
+      while (m_element == m_bucket->tend(_ListIteratorType())) {
+        if (m_bucket + 1 == m_end_bucket) {
+          break;
+        }
+        ++m_bucket;
+        m_element = m_bucket->tbegin(_ListIteratorType());
+      }
+    }
+    return *this;
+  }
+
+  hash_map_iterator& operator++() { return (*this += 1); }
+  hash_map_iterator operator++(int) {
+    hash_map_iterator it = *this;
+    *this += 1;
+    return it;
+  }
+
+  template <typename _CT, typename _AIT, typename _LIT>
+  bool operator==(const hash_map_iterator<_CT, _AIT, _LIT>& _other) const {
+    return (m_element == _other.m_element && m_bucket == _other.m_bucket);
+  }
+
+  template <typename _CT, typename _AIT, typename _LIT>
+  bool operator!=(const hash_map_iterator<_CT, _AIT, _LIT>& _other) const {
+    return !(*this == _other);
+  }
+  _ContainedType* operator->() { return &(*m_element); }
+
+  _ContainedType& operator*() { return *m_element; }
+
+private:
+  hash_map_iterator(_ArrayIteratorType bucket, _ArrayIteratorType end_bucket,
+    _ListIteratorType element)
+    : m_bucket(bucket), m_end_bucket(end_bucket), m_element(element) {}
+  _ArrayIteratorType m_bucket;
+  _ArrayIteratorType m_end_bucket;
+  _ListIteratorType m_element;
+
+  template <typename _KeyType, typename _ValueType, typename _HashOperator,
+            typename _EqualityOperator, typename _Allocator>
+  friend class hash_map;
+  template <typename _CT, typename _AIT, typename _LIT>
+  friend class hash_map_iterator;
+};
+
+template <typename _KeyType, typename _ValueType, typename _HashOperator,
+          typename _EqualityOperator, typename _Allocator>
 class hash_map final {
  public:
   static _Allocator s_default_allocator;
@@ -39,62 +111,6 @@ class hash_map final {
 
   typedef list<value_type> list_type;
   typedef dynamic_array<list<value_type>> array_type;
-  template <typename _ContainedType, typename _ArrayIteratorType,
-            typename _ListIteratorType>
-  class hash_map_iterator
-      : std::iterator<std::forward_iterator_tag, _ContainedType> {
-   public:
-    hash_map_iterator() {}
-    template <typename _CT, typename _AIT, typename _LIT>
-    hash_map_iterator(const hash_map_iterator<_CT, _AIT, _LIT>& _other) {
-      m_bucket = _other.m_bucket;
-      m_element = _other.m_element;
-      m_end_bucket = _other.m_end_bucket;
-    }
-
-    hash_map_iterator& operator+=(wn_size_t _count) {
-      while (_count-- > 0) {
-        ++m_element;
-        while (m_element == m_bucket->tend(_ListIteratorType())) {
-          if (m_bucket + 1 == m_end_bucket) {
-            break;
-          }
-          ++m_bucket;
-          m_element = m_bucket->tbegin(_ListIteratorType());
-        }
-      }
-      return *this;
-    }
-
-    hash_map_iterator& operator++() { return (*this += 1); }
-    hash_map_iterator operator++(int) {
-      hash_map_iterator it = *this;
-      *this += 1;
-      return it;
-    }
-
-    template <typename _CT, typename _AIT, typename _LIT>
-    bool operator==(const hash_map_iterator<_CT, _AIT, _LIT>& _other) const {
-      return (m_element == _other.m_element && m_bucket == _other.m_bucket);
-    }
-
-    template <typename _CT, typename _AIT, typename _LIT>
-    bool operator!=(const hash_map_iterator<_CT, _AIT, _LIT>& _other) const {
-      return !(*this == _other);
-    }
-    _ContainedType* operator->() { return &(*m_element); }
-
-    _ContainedType& operator*() { return *m_element; }
-
-   private:
-    hash_map_iterator(_ArrayIteratorType bucket, _ArrayIteratorType end_bucket,
-                      _ListIteratorType element)
-        : m_bucket(bucket), m_end_bucket(end_bucket), m_element(element) {}
-    _ArrayIteratorType m_bucket;
-    _ArrayIteratorType m_end_bucket;
-    _ListIteratorType m_element;
-    friend class hash_map;
-  };
 
   using iterator = hash_map_iterator<value_type, typename array_type::iterator,
                                      typename list_type::iterator>;
@@ -104,23 +120,44 @@ class hash_map final {
   typedef typename list_type::iterator local_iterator;
   typedef typename list_type::const_iterator const_local_iterator;
 
-  hash_map() : hash_map(&s_default_allocator) {}
-  hash_map(memory::allocator* _allocator)
+  explicit hash_map(memory::allocator* _allocator)
+      : hash_map(0u, hasher(), key_equal(), _allocator) {}
+
+  explicit hash_map(size_type _n = 0u, const hasher& _hasher = hasher(),
+                    const key_equal& _key_equal = key_equal(),
+                    memory::allocator* _allocator = &s_default_allocator)
       : m_allocator(_allocator),
-        m_buckets(_allocator),
+        m_buckets(_n, list_type(_allocator), _allocator),
         m_total_elements(0),
-        m_max_load_factor(1.0) {}
+        m_max_load_factor(1.0),
+        m_hasher(_hasher),
+        m_key_equal(_key_equal) {}
+
+  explicit hash_map(std::initializer_list<value_type> initializer,
+                    size_type _n = 0u, const hasher& _hasher = hasher(),
+                    const key_equal& _key_equal = key_equal(),
+                    memory::allocator* _allocator = &s_default_allocator)
+      : hash_map(0u /* we will resize */, _hasher, _key_equal, _allocator) {
+    auto begin = std::begin(initializer);
+    auto end = std::end(initializer);
+    wn_size_t count = end - begin;
+    m_buckets.insert(m_buckets.begin(), (count > _n ? count : _n),
+                     list_type(_allocator));
+    for (; begin != end; ++begin) {
+      insert(*begin);
+    }
+  }
 
   bool empty() const { return m_total_elements == 0; }
 
   std::pair<iterator, bool> insert(const value_type& element) {
-    wn_size_t hash = get_hash(element->first);
-    iterator old_position = find_hashed(element->first, hash);
+    wn_size_t hash = get_hash(element.first);
+    iterator old_position = find_hashed(element.first, hash);
     if (old_position != end()) {
       return std::make_pair(old_position, false);
     }
     if (rehash_if_needed(size() + 1)) {
-      hash = get_hash(element->first);
+      hash = get_hash(element.first);
     }
     m_buckets[hash].push_back(element);
     m_total_elements += 1;
@@ -245,7 +282,7 @@ class hash_map final {
       return (end());
     }
     for (auto it = m_buckets[hash].begin(); it != m_buckets[hash].end(); ++it) {
-      if (key_equal()(it->first, key)) {
+      if (m_key_equal(it->first, key)) {
         auto new_it = m_buckets.begin() + hash;
         return iterator(new_it, m_buckets.end(), it);
       }
@@ -258,7 +295,7 @@ class hash_map final {
   }
 
   wn_size_t get_hash(const key_type& key, wn_size_t buckets) const {
-    wn_size_t hash = hasher()(key);
+    wn_size_t hash = m_hasher(key);
     if (buckets == 0) {
       return 0;
     }
@@ -293,6 +330,9 @@ class hash_map final {
   array_type m_buckets;
   wn_size_t m_total_elements;
   wn_float32 m_max_load_factor;
+
+  hasher m_hasher;
+  key_equal m_key_equal;
 };
 
 template <typename _KeyType, typename _ValueType, typename _HashOperator,

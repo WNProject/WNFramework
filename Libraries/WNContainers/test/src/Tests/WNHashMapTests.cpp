@@ -178,3 +178,25 @@ TYPED_TEST(hash_map, erase_all) {
   EXPECT_TRUE(alloc.empty());
   EXPECT_EQ(0, test_map<TypeParam>::s_default_allocator.allocated());
 }
+
+TEST(hash_map, initializers) {
+  wn::memory::default_test_allocator alloc;
+  {
+    wn::containers::hash_map<std::string, std::string> my_map({{"a", "1"}});
+    EXPECT_EQ(my_map.end(), my_map.find("b"));
+    EXPECT_NE(my_map.end(), my_map.find("a"));
+    EXPECT_EQ(1, my_map.size());
+  }
+  {
+    wn::containers::hash_map<std::string, std::string> my_map({
+      {"a", "1"},
+      {"b", "2"},
+      {"c", "3"}
+    });
+    EXPECT_EQ(my_map.end(), my_map.find("d"));
+    EXPECT_NE(my_map.end(), my_map.find("a"));
+    EXPECT_NE(my_map.end(), my_map.find("b"));
+    EXPECT_NE(my_map.end(), my_map.find("b"));
+    EXPECT_EQ(3, my_map.size());
+  }
+}

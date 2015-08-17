@@ -14,7 +14,90 @@
 
 namespace wn {
 namespace containers {
+
 template <typename _Type, typename _Allocator = memory::default_allocator>
+class list;
+
+template <typename _NodeType, typename _ValueType>
+struct list_iterator final
+  : public std::iterator<std::bidirectional_iterator_tag, _ValueType> {
+  typedef _ValueType& reference;
+  typedef _ValueType* pointer;
+  list_iterator& operator+=(const wn_size_t _amount) {
+    for (size_t i = 0; i < _amount; ++i) {
+      m_ptr = m_ptr->m_next;
+    }
+    return (*this);
+  }
+
+  list_iterator& operator-=(const wn_size_t _amount) {
+    for (size_t i = 0; i < _amount; ++i) {
+      m_ptr = m_ptr->m_prev;
+    }
+    return (*this);
+  }
+
+  list_iterator operator+(const wn_size_t amount) {
+    list_iterator i(*this);
+    i += amount;
+    return i;
+  }
+
+  list_iterator operator-(const wn_size_t amount) {
+    list_iterator i(*this);
+    i -= amount;
+    return i;
+  }
+
+  list_iterator operator++(wn_int32) {
+    list_iterator i(*this);
+    (*this) += 1;
+
+    return (i);
+  }
+
+  list_iterator operator--(wn_int32) {
+    list_iterator i(*this);
+    (*this) -= 1;
+
+    return (i);
+  }
+
+  template <typename _T1, typename _T2>
+  wn_bool operator==(const list_iterator<_T1, _T2>& _other) const {
+    return (m_ptr == _other.m_ptr);
+  }
+
+  template <typename _T1, typename _T2>
+  wn_bool operator!=(const list_iterator<_T1, _T2>& _other) const {
+    return (m_ptr != _other.m_ptr);
+  }
+
+  list_iterator& operator++() { return ((*this) += 1); }
+  list_iterator& operator--() { return ((*this) -= 1); }
+
+  reference operator*() const { return m_ptr->m_element; }
+  pointer operator->() const { return (&(m_ptr->m_element)); }
+
+  template <typename _T1, typename _T2>
+  list_iterator(const list_iterator<_T1, _T2>& _other) {
+    m_ptr = _other.m_ptr;
+  }
+
+  list_iterator() : m_ptr(wn_nullptr) {}
+
+private:
+  _NodeType* m_ptr;
+  list_iterator(_NodeType* node) : m_ptr(node) {}
+
+  template <typename _T, typename _A>
+  friend class list;
+  template <typename _NT, typename _VT>
+  friend struct list_iterator;
+};
+
+
+template <typename _Type, typename _Allocator>
 class list final {
  public:
   static _Allocator s_default_allocator;
@@ -53,80 +136,6 @@ class list final {
   typedef const _Type* const_pointer;
 
  public:
-  template <typename _NodeType, typename _ValueType>
-  struct list_iterator final
-      : public std::iterator<std::bidirectional_iterator_tag, _Type> {
-    typedef _ValueType& reference;
-    typedef _ValueType* pointer;
-    list_iterator& operator+=(const wn_size_t _amount) {
-      for (size_t i = 0; i < _amount; ++i) {
-        m_ptr = m_ptr->m_next;
-      }
-      return (*this);
-    }
-
-    list_iterator& operator-=(const wn_size_t _amount) {
-      for (size_t i = 0; i < _amount; ++i) {
-        m_ptr = m_ptr->m_prev;
-      }
-      return (*this);
-    }
-
-    list_iterator operator+(const wn_size_t amount) {
-      list_iterator i(*this);
-      i += amount;
-      return i;
-    }
-
-    list_iterator operator-(const wn_size_t amount) {
-      list_iterator i(*this);
-      i -= amount;
-      return i;
-    }
-
-    list_iterator operator++(wn_int32) {
-      list_iterator i(*this);
-      (*this) += 1;
-
-      return (i);
-    }
-
-    list_iterator operator--(wn_int32) {
-      list_iterator i(*this);
-      (*this) -= 1;
-
-      return (i);
-    }
-
-    template <typename _T1, typename _T2>
-    wn_bool operator==(const list_iterator<_T1, _T2>& _other) const {
-      return (m_ptr == _other.m_ptr);
-    }
-
-    template <typename _T1, typename _T2>
-    wn_bool operator!=(const list_iterator<_T1, _T2>& _other) const {
-      return (m_ptr != _other.m_ptr);
-    }
-
-    list_iterator& operator++() { return ((*this) += 1); }
-    list_iterator& operator--() { return ((*this) -= 1); }
-
-    reference operator*() const { return m_ptr->m_element; }
-    pointer operator->() const { return (&(m_ptr->m_element)); }
-
-    template <typename _T1, typename _T2>
-    list_iterator(const list_iterator<_T1, _T2>& _other) {
-      m_ptr = _other.m_ptr;
-    }
-
-    list_iterator() : m_ptr(wn_nullptr) {}
-
-   private:
-    _NodeType* m_ptr;
-    list_iterator(_NodeType* node) : m_ptr(node) {}
-    friend class list;
-  };
-
   typedef list_iterator<list_node, _Type> iterator;
   typedef list_iterator<list_node, const _Type> const_iterator;
   typedef std::reverse_iterator<iterator> reverse_iterator;
