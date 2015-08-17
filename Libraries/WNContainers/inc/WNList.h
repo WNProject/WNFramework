@@ -118,11 +118,11 @@ class list final {
     list_node* m_next;
   };
 
-  static_assert(&(reinterpret_cast<dummy_end_node*>(0)->m_prev) ==
-                    &(reinterpret_cast<list_node*>(0)->m_prev),
+  static_assert(&(reinterpret_cast<dummy_end_node*>(4096)->m_prev) ==
+                    &(reinterpret_cast<list_node*>(4096)->m_prev),
                 "dummy_end_node cannot masquerade");
-  static_assert(&(reinterpret_cast<dummy_end_node*>(0)->m_next) ==
-                    &(reinterpret_cast<list_node*>(0)->m_next),
+  static_assert(&(reinterpret_cast<dummy_end_node*>(4096)->m_next) ==
+                    &(reinterpret_cast<list_node*>(4096)->m_next),
                 "dummy_end_node cannot masquerade");
 
  public:

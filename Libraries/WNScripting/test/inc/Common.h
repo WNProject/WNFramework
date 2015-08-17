@@ -25,18 +25,15 @@
 
 #include <gtest/gtest.h>
 
-#include <unordered_map>
-#pragma message("TODO(awoloszyn): replace with custom hash_map")
-
 #ifdef _WN_MSVC
 #pragma warning(pop)
 #endif
 
 #include "WNMemory/inc/WNAllocator.h"
+#include "WNContainers/inc/WNHashMap.h"
+#include "WNContainers/inc/WNString.h"
 #include "WNScripting/inc/WNEngine.h"
 #include "WNScripting/inc/WNEngineFileManager.h"
-#include <unordered_map>
-#include <string>
 
 namespace wn {
 namespace scripting {
@@ -61,8 +58,9 @@ class test_file_manager : public file_manager {
   };
 
   template <size_t N = 0>
-  test_file_manager(memory::allocator* _allocator,
-                    std::unordered_map<std::string, std::string>&& _files)
+  test_file_manager(
+      memory::allocator* _allocator,
+      containers::hash_map<containers::string, containers::string>&& _files)
       : m_allocator(_allocator), m_files(std::move(_files)) {}
 
   void add_allocator(memory::allocator* _allocator) {
@@ -75,7 +73,7 @@ class test_file_manager : public file_manager {
   }
 
  private:
-  std::unordered_map<std::string, std::string> m_files;
+  containers::hash_map<containers::string, containers::string> m_files;
   memory::allocator* m_allocator;
 };
 }
