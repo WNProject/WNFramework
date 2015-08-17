@@ -150,16 +150,23 @@ class dynamic_array final {
   }
 
   template <typename T_Alloc>
-  dynamic_array(const dynamic_array<_Type, T_Alloc>& _other) {
+  dynamic_array(const dynamic_array<_Type, T_Alloc>& _other)
+      : dynamic_array() {
     (*this) = _other;
   }
 
-  dynamic_array(const dynamic_array& _other) { (*this) = _other; }
+  dynamic_array(const dynamic_array& _other)
+      : dynamic_array(_other.m_allocator) {
+    (*this) = _other;
+  }
 
-  dynamic_array(dynamic_array&& _other) { (*this) = std::move(_other); }
+  dynamic_array(dynamic_array&& _other) : dynamic_array() {
+    (*this) = std::move(_other);
+  }
 
   template <typename T_Alloc>
-  dynamic_array(dynamic_array<_Type, T_Alloc>&& _other) {
+  dynamic_array(dynamic_array<_Type, T_Alloc>&& _other)
+      : dynamic_array() {
     (*this) = std::move(_other);
   }
 
@@ -185,10 +192,28 @@ class dynamic_array final {
       new (reinterpret_cast<wn_void*>(&m_data[i])) _Type(_other.m_data[i]);
     }
     m_size = _other.m_size;
+    return(*this);
   }
 
-  template <typename T_Alloc>
-  dynamic_array& operator=(const dynamic_array<_Type, T_Alloc>&& _other) {
+  dynamic_array& operator=(const dynamic_array& _other) {
+    if (&_other == this) {
+      return (*this);
+    }
+    if (m_data) {
+      for (wn_size_t i = 0; i < m_size; ++i) {
+        m_data[i].~_Type();
+      }
+    }
+    m_size = 0;
+    reserve(_other.m_size);
+    for (wn_size_t i = 0; i < _other.m_size; ++i) {
+      new (reinterpret_cast<wn_void*>(&m_data[i])) _Type(_other.m_data[i]);
+    }
+    m_size = _other.m_size;
+    return(*this);
+  }
+
+  dynamic_array& operator=(dynamic_array&& _other) {
     if (&_other == this) {
       return (*this);
     }
@@ -206,6 +231,29 @@ class dynamic_array final {
     _other.m_data = 0;
     m_size = _other.m_size;
     _other.m_size = 0;
+    return (*this);
+  }
+
+  template <typename T_Alloc>
+  dynamic_array& operator=(dynamic_array<_Type, T_Alloc>&& _other) {
+    if (&_other == this) {
+      return (*this);
+    }
+    if (m_data) {
+      for (wn_size_t i = 0; i < m_size; ++i) {
+        m_data[i].~_Type();
+      }
+      m_allocator->deallocate(m_data);
+    }
+    m_allocator = _other.m_allocator;
+    _other.m_allocator = &s_default_allocator;
+    m_capacity = _other.m_capacity;
+    _other.m_capacity = 0;
+    m_data = _other.m_data;
+    _other.m_data = 0;
+    m_size = _other.m_size;
+    _other.m_size = 0;
+    return (*this);
   }
 
   // element access
@@ -294,7 +342,7 @@ class dynamic_array final {
         m_capacity = pair.m_count;
         _Type* newData = reinterpret_cast<_Type*>(pair.m_location);
         for (wn_size_t i = 0; i < m_size; ++i) {
-          new (reinterpret_cast<wn_void*>(newData[i]))
+          new (reinterpret_cast<wn_void*>(&newData[i]))
               _Type(std::move(m_data[i]));
           m_data[i].~_Type();
         }
