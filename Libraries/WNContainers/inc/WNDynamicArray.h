@@ -12,7 +12,116 @@
 
 namespace wn {
 namespace containers {
+
 template <typename _Type, typename _Allocator = memory::default_allocator>
+class dynamic_array;
+
+namespace internal {
+template <typename T>
+class dynamic_array_iterator
+    : public std::iterator<std::random_access_iterator_tag, T> {
+ public:
+  typedef T* pointer;
+  typedef T& reference;
+  dynamic_array_iterator() : m_ptr(wn_nullptr) {}
+
+  template <typename _T2>
+  dynamic_array_iterator(const dynamic_array_iterator<_T2>& _other) {
+    m_ptr = _other.m_ptr;
+  }
+
+  dynamic_array_iterator& operator+=(wn_size_t i) {
+    m_ptr += i;
+    return (*this);
+  }
+
+  dynamic_array_iterator& operator-=(wn_size_t i) {
+    m_ptr -= i;
+    return *this;
+  }
+
+  wn_size_t operator-(const dynamic_array_iterator& other) {
+    return (m_ptr - other.m_ptr);
+  }
+
+  pointer operator->() { return (m_ptr); }
+  reference operator*() { return (*m_ptr); }
+
+  dynamic_array_iterator& operator++() { return ((*this) += 1); }
+
+  dynamic_array_iterator& operator--() { return (*this) -= 1; }
+
+  dynamic_array_iterator operator++(int) {
+    dynamic_array_iterator i = *this;
+    *this += 1;
+    return (i);
+  }
+
+  dynamic_array_iterator operator--(int) {
+    dynamic_array_iterator i = *this;
+    *this -= 1;
+    return (i);
+  }
+
+  template <typename _T2>
+  dynamic_array_iterator& operator=(const dynamic_array_iterator<_T2>& _other) {
+    m_ptr = _other.m_ptr;
+    return (*this);
+  }
+
+  template <typename _T>
+  bool operator==(const dynamic_array_iterator<_T>& _other) const {
+    return (m_ptr == _other.m_ptr);
+  }
+
+  template <typename _T>
+  bool operator!=(const dynamic_array_iterator<_T>& _other) const {
+    return !(*this == _other);
+  }
+
+  template <typename _T>
+  bool operator<(const dynamic_array_iterator<_T>& _other) const {
+    return (m_ptr < _other.m_ptr);
+  }
+
+  template <typename _T>
+  bool operator<=(const dynamic_array_iterator<_T>& _other) const {
+    return (m_ptr <= _other.m_ptr);
+  }
+
+  template <typename _T>
+  bool operator>(const dynamic_array_iterator<_T>& _other) const {
+    return (m_ptr > _other.m_ptr);
+  }
+
+  template <typename _T>
+  bool operator>=(const dynamic_array_iterator<_T>& _other) const {
+    return (m_ptr >= _other.m_ptr);
+  }
+  dynamic_array_iterator operator+(size_t i) const {
+    dynamic_array_iterator it = (*this);
+    it += i;
+    return it;
+  }
+  dynamic_array_iterator operator-(size_t i) const {
+    dynamic_array_iterator it = (*this);
+    it -= i;
+    return it;
+  }
+
+ private:
+  explicit dynamic_array_iterator(T* _ptr) : m_ptr(_ptr) {}
+  T* m_ptr;
+
+  template <typename _Type, typename _Allocator>
+  friend class dynamic_array;
+
+  template <typename _Type>
+  friend class dynamic_array_iterator;
+};
+}  // namespace internal
+
+template <typename _Type, typename _Allocator>
 class dynamic_array final {
  public:
   static _Allocator s_default_allocator;
@@ -23,107 +132,8 @@ class dynamic_array final {
   typedef value_type& reference;
   typedef const value_type& const_reference;
 
-  template <typename T>
-  class dynamic_array_iterator
-      : public std::iterator<std::random_access_iterator_tag, T> {
-   public:
-    typedef T* pointer;
-    typedef T& reference;
-    dynamic_array_iterator() : m_ptr(wn_nullptr) {}
-
-    template <typename _T2>
-    dynamic_array_iterator(const dynamic_array_iterator<_T2>& _other) {
-      m_ptr = _other.m_ptr;
-    }
-
-    dynamic_array_iterator& operator+=(wn_size_t i) {
-      m_ptr += i;
-      return (*this);
-    }
-
-    dynamic_array_iterator& operator-=(wn_size_t i) {
-      m_ptr -= i;
-      return *this;
-    }
-
-    wn_size_t operator-(const dynamic_array_iterator& other) {
-      return (m_ptr - other.m_ptr);
-    }
-
-    pointer operator->() { return (m_ptr); }
-    reference operator*() { return (*m_ptr); }
-
-    dynamic_array_iterator& operator++() { return ((*this) += 1); }
-
-    dynamic_array_iterator& operator--() { return (*this) -= 1; }
-
-    dynamic_array_iterator operator++(int) {
-      dynamic_array_iterator i = *this;
-      *this += 1;
-      return (i);
-    }
-
-    dynamic_array_iterator operator--(int) {
-      dynamic_array_iterator i = *this;
-      *this -= 1;
-      return (i);
-    }
-
-    template <typename _T2>
-    dynamic_array_iterator& operator=(
-        const dynamic_array_iterator<_T2>& _other) {
-      m_ptr = _other.m_ptr;
-      return (*this);
-    }
-
-    template<typename _T>
-    bool operator==(const dynamic_array_iterator<_T>& _other) const {
-      return (m_ptr == _other.m_ptr);
-    }
-
-    template<typename _T>
-    bool operator!=(const dynamic_array_iterator<_T>& _other) const {
-      return !(*this == _other);
-    }
-
-    template<typename _T>
-    bool operator<(const dynamic_array_iterator<_T>& _other) const {
-      return (m_ptr < _other.m_ptr);
-    }
-
-    template<typename _T>
-    bool operator<=(const dynamic_array_iterator<_T>& _other) const {
-      return (m_ptr <= _other.m_ptr);
-    }
-
-    template<typename _T>
-    bool operator>(const dynamic_array_iterator<_T>& _other) const {
-      return (m_ptr > _other.m_ptr);
-    }
-
-    template<typename _T>
-    bool operator>=(const dynamic_array_iterator<_T>& _other) const {
-      return (m_ptr >= _other.m_ptr);
-    }
-    dynamic_array_iterator operator+(size_t i) const {
-      dynamic_array_iterator it = (*this);
-      it += i;
-      return it;
-    }
-    dynamic_array_iterator operator-(size_t i) const {
-      dynamic_array_iterator it = (*this);
-      it -= i;
-      return it;
-    }
-
-   private:
-    explicit dynamic_array_iterator(T* _ptr) : m_ptr(_ptr) {}
-    T* m_ptr;
-    friend class dynamic_array;
-  };
-
-  typedef dynamic_array_iterator<value_type> iterator;
-  typedef dynamic_array_iterator<const value_type> const_iterator;
+  typedef internal::dynamic_array_iterator<value_type> iterator;
+  typedef internal::dynamic_array_iterator<const value_type> const_iterator;
   typedef std::reverse_iterator<iterator> reverse_iterator;
   typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
@@ -381,15 +391,18 @@ class dynamic_array final {
   iterator erase(const_iterator _pos) { return (erase(_pos, 1)); }
 
   iterator erase(const_iterator _pos, const size_type _count) {
-    WN_DEBUG_ASSERT(_pos >= m_data && _pos <= m_data + m_size);
-    WN_DEBUG_ASSERT(_pos + _count < m_data + m_size);
+    WN_DEBUG_ASSERT(_pos >= const_iterator(m_data) &&
+                    _pos <= const_iterator(m_data + m_size));
+    WN_DEBUG_ASSERT(_pos + _count < const_iterator(m_data + m_size));
 
     return (unshift(_pos, _count));
   }
 
   iterator erase(const_iterator _first, const_iterator _last) {
-    WN_DEBUG_ASSERT(_first >= m_data && _first <= m_data + m_size);
-    WN_DEBUG_ASSERT(_last >= m_data && _last <= m_data + m_size);
+    WN_DEBUG_ASSERT(_first >= const_iterator(m_data) &&
+                    _first <= const_iterator(m_data + m_size));
+    WN_DEBUG_ASSERT(_last >= const_iterator(m_data) &&
+                    _last <= const_iterator(m_data + m_size));
 
     const difference_type count = _last - _first;
 
@@ -397,7 +410,7 @@ class dynamic_array final {
       return (erase(_first, static_cast<size_type>(count)));
     }
 
-    return (_first);
+    return (iterator(m_data + (_first.m_ptr - m_data)));
   }
 
   wn_void push_back(_Type&& _value) { insert(cend(), std::move(_value)); }
@@ -419,9 +432,10 @@ class dynamic_array final {
 
   wn_void resize(const size_type _count) {
     if (_count > m_size) {
-      shift(m_data, m_size - _count);
+      shift(const_iterator(m_data), m_size - _count);
     } else {
-      erase(m_data + m_size, m_data + m_size + _count);
+      erase(const_iterator(m_data + m_size),
+            const_iterator(m_data + m_size + _count));
     }
   }
 
@@ -472,10 +486,10 @@ class dynamic_array final {
 
   iterator unshift(const_iterator _pos, const size_type _count) {
     WN_DEBUG_ASSERT(_pos <= const_iterator(m_data + m_size) &&
-                    (const_iterator(_pos) >= m_data));
+                    (_pos >= const_iterator(m_data)));
     WN_DEBUG_ASSERT(_pos + _count <= const_iterator(m_data + m_size));
 
-    iterator startPt = iterator(m_data + (_pos - m_data));
+    iterator startPt = iterator(m_data + (_pos.m_ptr - m_data));
 
     for (_Type* i = startPt.m_ptr; i < startPt.m_ptr + _count; ++i) {
       i->~_Type();
