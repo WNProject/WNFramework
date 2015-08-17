@@ -139,7 +139,7 @@ public:
     m_hasher(_hasher),
     m_key_equal(_key_equal) {}
 
-  explicit hash_map(std::initializer_list<value_type> initializer,
+  hash_map(std::initializer_list<value_type> initializer,
     size_type _n = 0u, const hasher& _hasher = hasher(),
     const key_equal& _key_equal = key_equal(),
     memory::allocator* _allocator = &s_default_allocator)
@@ -152,6 +152,32 @@ public:
     for (; begin != end; ++begin) {
       insert(*begin);
     }
+  }
+
+  hash_map(std::initializer_list<value_type> initializer,
+    memory::allocator* _allocator) :
+    hash_map(initializer, 0u, hasher(), key_equal(), _allocator) {}
+
+  template <typename _A>
+  hash_map(hash_map<_KeyType, _ValueType, _HashOperator, _EqualityOperator,
+                    _A>&& _other)
+      : m_allocator(_other.m_allocator),
+        m_buckets(std::move(_other.m_buckets)),
+        m_total_elements(_other.m_total_elements),
+        m_max_load_factor(_other.m_max_load_factor),
+        m_hasher(std::move(_other.m_hasher)),
+        m_key_equal(std::move(_other.m_key_equal)) {
+    _other.m_total_elements = 0;
+    _other.m_max_load_factor = 1.0f;
+  }
+
+  hash_map(const hash_map& _other)
+      : m_allocator(_other.m_allocator),
+        m_buckets(_other.m_buckets),
+        m_total_elements(_other.m_total_elements),
+        m_max_load_factor(_other.m_max_load_factor),
+        m_hasher(_other.m_hasher),
+        m_key_equal(_other.m_key_equal) {
   }
 
   bool empty() const { return m_total_elements == 0; }
