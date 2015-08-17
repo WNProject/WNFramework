@@ -6,11 +6,11 @@
 #define __WN_NODE_TYPES_H__
 
 #include "WNContainers/inc/WNDeque.h"
+#include "WNContainers/inc/WNString.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/WNUniquePtr.h"
 #include "WNScripting/inc/WNErrors.h"
 #include "WNScripting/inc/WNEnums.h"
-#include <string>
 
 namespace wn {
 namespace scripting {
@@ -39,7 +39,7 @@ class node {
 
   // Returns the source location representing this node.
   const source_location &get_start_location() const {
-    return(m_source_location);
+    return (m_source_location);
   }
 
   // Writes the first line of this expression to the given log.
@@ -71,13 +71,13 @@ class type_node : public node {
       : node(_allocator),
         m_type(type_classification::custom_type),
         m_num_array_levels(0),
-        m_custom_type(_custom_type) {}
+        m_custom_type(_custom_type, _allocator) {}
 
   void add_array_level() { m_num_array_levels += 1; }
 
  private:
   type_classification m_type;
-  std::string m_custom_type;
+  containers::string m_custom_type;
   wn_size_t m_num_array_levels;
 };
 
@@ -100,9 +100,7 @@ class expression : public node {
 class array_allocation_expression : public expression {
  public:
   array_allocation_expression(wn::memory::allocator *_allocator)
-      : expression(_allocator),
-        m_array_initializers(_allocator),
-        m_levels(0) {}
+      : expression(_allocator), m_array_initializers(_allocator), m_levels(0) {}
 
   wn_void set_type(type_node *_type_node) {
     m_type = memory::default_allocated_ptr(m_allocator, _type_node);
@@ -160,20 +158,20 @@ class constant_expression : public expression {
  public:
   constant_expression(wn::memory::allocator *_allocator,
                       type_classification _type, const char *_text)
-      : expression(_allocator), m_type_name(_type), m_text(_text) {}
+      : expression(_allocator), m_type_name(_type), m_text(_text, _allocator) {}
 
  private:
   type_classification m_type_name;
-  std::string m_text;
+  containers::string m_text;
 };
 
 class id_expression : public expression {
  public:
   id_expression(wn::memory::allocator *_allocator, const char *_name)
-      : expression(_allocator), m_name(_name) {}
+      : expression(_allocator), m_name(_name, _allocator) {}
 
  private:
-  std::string m_name;
+  containers::string m_name;
 };
 
 class null_allocation_expression : public expression {
@@ -224,10 +222,10 @@ class member_access_expression : public post_expression {
  public:
   member_access_expression(wn::memory::allocator *_allocator,
                            const char *_member)
-      : post_expression(_allocator), m_member(_member) {}
+      : post_expression(_allocator), m_member(_member, _allocator) {}
 
  private:
-  std::string m_member;
+  containers::string m_member;
 };
 
 class post_unary_expression : public post_expression {
@@ -277,7 +275,7 @@ class instruction : public node {
   instruction(wn::memory::allocator *_allocator)
       : node(_allocator), m_returns(wn_false) {}
   // Returns true if this instruction causes the function to return.
-  wn_bool returns() { return(m_returns); }
+  wn_bool returns() { return (m_returns); }
 
  protected:
   wn_bool m_returns;
@@ -299,15 +297,13 @@ class instruction_list : public node {
     m_instructions.emplace_back(
         memory::default_allocated_ptr(m_allocator, inst));
   }
-  ~instruction_list() {
-
-  }
+  ~instruction_list() {}
   void add_instruction(instruction *inst) {
     m_instructions.emplace_back(
         memory::default_allocated_ptr(m_allocator, inst));
   }
 
-  wn_bool returns() { return(m_returns); }
+  wn_bool returns() { return (m_returns); }
 
  private:
   wn::containers::deque<wn::memory::allocated_ptr<instruction>> m_instructions;
@@ -326,7 +322,7 @@ class arg_list : public node {
 
   wn::containers::deque<wn::memory::allocated_ptr<function_expression>>
       &get_expressions() {
-    return(m_expression_list);
+    return (m_expression_list);
   }
 
  private:
@@ -351,11 +347,11 @@ class declaration : public instruction {
               const char *_name)
       : instruction(_allocator),
         m_type(memory::default_allocated_ptr(m_allocator, _type)),
-        m_name(_name),
+        m_name(_name, _allocator),
         m_sized_array_initializers(_allocator),
         m_unsized_array_initializers(0),
         m_init_assign(wn_false) {}
-  const wn_char *get_name() { return(m_name.c_str()); }
+  const wn_char *get_name() { return (m_name.c_str()); }
 
   void add_expression_initializer(expression *_expr, bool _assign = false) {
     m_expression = memory::default_allocated_ptr(m_allocator, _expr);
@@ -372,7 +368,7 @@ class declaration : public instruction {
 
  private:
   wn::memory::allocated_ptr<type_node> m_type;
-  std::string m_name;
+  containers::string m_name;
   wn::memory::allocated_ptr<expression> m_expression;
   wn::memory::allocated_ptr<type_node> m_scalar_type;
   wn::containers::deque<wn::memory::allocated_ptr<expression>>
@@ -388,7 +384,8 @@ class struct_definition : public node {
                     bool _is_class = false,
                     const char *_parent_type = wn_nullptr)
       : node(_allocator),
-        m_name(_name),
+        m_name(_name, _allocator),
+        m_parent_name(_allocator),
         m_is_class(_is_class),
         m_struct_members(_allocator),
         m_struct_functions(_allocator) {
@@ -407,11 +404,11 @@ class struct_definition : public node {
         memory::default_allocated_ptr(m_allocator, _func));
   }
 
-  const wn_char *get_name() const { return(m_name.c_str()); }
+  const wn_char *get_name() const { return (m_name.c_str()); }
 
  private:
-  std::string m_name;
-  std::string m_parent_name;
+  containers::string m_name;
+  containers::string m_parent_name;
   bool m_is_class;
   wn::containers::deque<wn::memory::allocated_ptr<declaration>>
       m_struct_members;
@@ -571,6 +568,7 @@ class return_instruction : public instruction {
       : instruction(_allocator) {
     m_change_ownership = wn_false;
   }
+
  private:
   wn::memory::allocated_ptr<expression> m_expression;
   wn_bool m_change_ownership;
@@ -604,12 +602,14 @@ class script_file : public node {
     m_structs.emplace_back(memory::default_allocated_ptr(m_allocator, _node));
   }
 
-  void add_include(const wn_char *_node) { m_includes.emplace_back(_node); }
+  void add_include(const char *_node) {
+    m_includes.emplace_back(_node, m_allocator);
+  }
 
  private:
   wn::containers::deque<wn::memory::allocated_ptr<function>> m_functions;
   wn::containers::deque<wn::memory::allocated_ptr<struct_definition>> m_structs;
-  wn::containers::deque<std::string> m_includes;
+  wn::containers::deque<containers::string> m_includes;
 };
 }  // namespace scripting
 }  // namespace wn
