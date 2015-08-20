@@ -85,7 +85,7 @@ class hash_map_iterator
 
   template <typename _KeyType, typename _ValueType, typename _HashOperator,
             typename _EqualityOperator, typename _Allocator>
-  friend class hash_map;
+  friend class wn::containers::hash_map;
   template <typename _CT, typename _AIT, typename _LIT>
   friend class hash_map_iterator;
 };

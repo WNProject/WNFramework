@@ -214,6 +214,12 @@ namespace wn {
 
         template <typename _Function, typename _Return, typename... _Arguments>
         struct is_callable<_Function, _Return(_Arguments...)> : internal::is_callable<_Function, _Return, _Arguments...> {};
+
+        template <typename From, typename To>
+        struct is_convertible : std::is_convertible<From, To> {};
+
+        template <typename From, typename To>
+        struct is_explicitly_convertible : std::is_constructible<To, From> {};
     }
 }
 
