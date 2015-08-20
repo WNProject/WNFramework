@@ -72,6 +72,15 @@ public:
     contiguous_range(range.data(), range.size()) {
   }
 
+  WN_FORCE_INLINE contiguous_range(contiguous_range&& range) :
+    contiguous_range(range.m_begin, range.m_end) {
+    range = wn_nullptr;
+  }
+
+  WN_FORCE_INLINE contiguous_range(const contiguous_range& range) :
+    contiguous_range(range.m_begin, range.m_end) {
+  }
+
   WN_FORCE_INLINE contiguous_range& operator = (const wn_nullptr_t) {
     contiguous_range(wn_nullptr).swap(*this);
 
@@ -97,6 +106,18 @@ public:
   template <typename U,
             typename = core::enable_if_t<std::is_convertible<U*, T*>::value>>
   WN_FORCE_INLINE contiguous_range& operator = (const contiguous_range<U>& range) {
+    contiguous_range(range).swap(*this);
+
+    return(*this);
+  }
+
+  WN_FORCE_INLINE contiguous_range &operator = (contiguous_range&& range) {
+    contiguous_range(std::move(range)).swap(*this);
+
+    return(*this);
+  }
+
+  WN_FORCE_INLINE contiguous_range& operator = (const contiguous_range& range) {
     contiguous_range(range).swap(*this);
 
     return(*this);
