@@ -1,4 +1,4 @@
-== Code Conventions
+= Code Conventions
 In general we are following the conventions outlined in the
 link:https://google-styleguide.googlecode.com/svn/trunk/cppguide.html[
 Google C++ style guide]. We have some modifications with respect to naming
@@ -18,16 +18,21 @@ the namespace that was closed. Anonymous namespaces should be closed
 with the comment `// anonymous namespace`.
 [source,cpp]
 ----
-namespace wn{
-namespace containers{
-namespace internal{
-class deque_iterator{
+namespace wn {
+namespace containers {
+namespace internal {
+
+class deque_iterator {
 }
+
 }  // namespace internal
+
 class deque {
 }
+
 }  // namespace containers
 }  // namespace wn
+
 namespace {
 }  // anonymous namespace
 ----
@@ -85,19 +90,19 @@ Template parameters should be in sentence case. One exception is if the
 usage is very localized and clear, an abbreviated form can be used.
 [source,cpp]
 ----
-template<typename MyType>
+template <typename MyType>
 class fooClass {
   ...
 };
 
-template<typename T>
+template <typename T>
 operator=(const T& _other) {
   ...
 }
 ----
 
 ==== Header Guards
-Header guards follow the same structure as the namespace and classname
+Header guards follow the same structure as the namespace and class name
 for the main class in the file. This should also be the file name.
 The closing of the header guard should also contain a comment describing
 what has been closed.

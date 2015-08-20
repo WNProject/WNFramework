@@ -1,11 +1,10 @@
-WNFramework
-===========
+= WNFramework
 
 A set of cross platform libraries and tools related to game development
 
-=== License
+== License
 This project is licensed under the BSD-2 Clause license. See
 link:LICENSE[License] for more details
 
-=== Style
+== Style
 See link:Docs/StyleGuide.asciidoc[StyleGuide]
