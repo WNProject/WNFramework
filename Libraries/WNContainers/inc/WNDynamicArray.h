@@ -114,7 +114,7 @@ class dynamic_array_iterator
   T* m_ptr;
 
   template <typename _Type, typename _Allocator>
-  friend class dynamic_array;
+  friend class wn::containers::dynamic_array;
 
   template <typename _Type>
   friend class dynamic_array_iterator;
