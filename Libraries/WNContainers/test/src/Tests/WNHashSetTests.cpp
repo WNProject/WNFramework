@@ -88,7 +88,6 @@ TYPED_TEST(hash_set, find) {
     for (size_t i = 0; i < 10; ++i) {
       set.insert(static_cast<TypeParam>(i));
     }
-    int found[] = {0, 11, 22, 33, 44, 55, 66, 77, 88, 99};
     for (size_t i = 0; i < 10; ++i) {
       typename test_set<TypeParam>::iterator it =
           set.find(static_cast<TypeParam>(i));
