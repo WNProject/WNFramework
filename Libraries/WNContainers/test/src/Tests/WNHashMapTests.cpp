@@ -86,7 +86,6 @@ TYPED_TEST(hash_map, find) {
     for (size_t i = 0; i < 10; ++i) {
       map.insert(static_cast<TypeParam>(i), static_cast<TypeParam>(11 * i));
     }
-    int found[] = {0, 11, 22, 33, 44, 55, 66, 77, 88, 99};
     for (size_t i = 0; i < 10; ++i) {
       typename test_map<TypeParam>::iterator it =
           map.find(static_cast<TypeParam>(i));
