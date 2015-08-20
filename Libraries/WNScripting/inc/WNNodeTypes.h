@@ -427,7 +427,7 @@ class decl_list : public node {
         memory::default_allocated_ptr(m_allocator, _decl));
   }
 
-  parse_error get_declarations(
+  wn_void get_declarations(
       const wn::containers::deque<wn::memory::allocated_ptr<declaration>> *
           &_out_declaration) const {
     _out_declaration = &m_declarations;
