@@ -7,64 +7,65 @@
 #ifndef __WN_CONTAINERS_DEQUE_H__
 #define __WN_CONTAINERS_DEQUE_H__
 
-#include "WNContainers/inc/WNDynamicArray.h"
+#include "WNCore/inc/WNTypeTraits.h"
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNMemory/inc/WNBasic.h"
-#include "WNCore/inc/WNTypeTraits.h"
+#include "WNContainers/inc/WNDynamicArray.h"
 
 #include <iterator>
 
 namespace wn {
 namespace containers {
 
-template <typename _Type, typename _Allocator = memory::default_allocator,
-  const wn_size_t _BlockSize = 10>
+template <typename _Type, typename _Allocator, const wn_size_t _BlockSize>
 class deque;
 
 namespace internal {
+
 template <typename _Container, typename _NonConstContainer = _Container,
-          typename _Element = typename _Container::value_type>
+    typename _Element = typename _Container::value_type>
 class deque_iterator final
     : public std::iterator<std::bidirectional_iterator_tag, _Element,
-                           typename _Container::difference_type> {
- public:
+          typename _Container::difference_type> {
+private:
+  typedef std::iterator<std::bidirectional_iterator_tag, _Element,
+      typename _Container::difference_type> base;
+
+public:
+  typedef typename base::iterator_category iterator_category;
+  typedef typename base::value_type value_type;
   typedef typename _Container::size_type size_type;
-  typedef std::bidirectional_iterator_tag iterator_category;
-  typedef _Element value_type;
-  typedef typename _Container::difference_type difference_type;
-  typedef typename _Container::difference_type distance_type;
-  typedef _Element* pointer;
-  typedef _Element& reference;
+  typedef typename base::difference_type difference_type;
+  typedef typename base::pointer pointer;
+  typedef typename base::reference reference;
 
   deque_iterator() : m_deque(wn_nullptr), m_element(0) {}
 
   deque_iterator(deque_iterator&& _other)
-      : m_deque(std::move(_other.m_deque)),
-        m_element(std::move(_other.m_element)) {
+    : m_deque(std::move(_other.m_deque)),
+      m_element(std::move(_other.m_element)) {
     _other.clear();
   }
 
   deque_iterator(const deque_iterator& _other)
-      : m_deque(_other.m_deque), m_element(_other.m_element) {}
+    : m_deque(_other.m_deque), m_element(_other.m_element) {}
 
   template <typename _OtherContainer = _NonConstContainer>
   deque_iterator(deque_iterator<_OtherContainer, _OtherContainer,
-                                typename _OtherContainer::value_type>&& _other,
-                 typename core::enable_if<!core::is_same<
-                     _Container, _OtherContainer>::value>::type* = wn_nullptr)
-      : m_deque(std::move(_other.m_deque)),
-        m_element(std::move(_other.m_element)) {
+                     typename _OtherContainer::value_type>&& _other,
+      typename core::enable_if<!core::is_same<_Container,
+          _OtherContainer>::value>::type* = wn_nullptr)
+    : m_deque(std::move(_other.m_deque)),
+      m_element(std::move(_other.m_element)) {
     _other.clear();
   }
 
   template <typename _OtherContainer = _NonConstContainer>
-  deque_iterator(
-      const deque_iterator<_OtherContainer, _OtherContainer,
-                           typename _OtherContainer::value_type>& _other,
-      typename core::enable_if<
-          !core::is_same<_Container, _OtherContainer>::value>::type* =
-          wn_nullptr)
-      : m_deque(_other.m_deque), m_element(_other.m_element) {}
+  deque_iterator(const deque_iterator<_OtherContainer, _OtherContainer,
+                     typename _OtherContainer::value_type>& _other,
+      typename core::enable_if<!core::is_same<_Container,
+          _OtherContainer>::value>::type* = wn_nullptr)
+    : m_deque(_other.m_deque), m_element(_other.m_element) {}
 
   deque_iterator& operator=(deque_iterator&& _other) {
     m_deque = std::move(_other.m_deque);
@@ -84,9 +85,9 @@ class deque_iterator final
 
   template <typename _OtherContainer = _NonConstContainer>
   typename core::enable_if<!core::is_same<_Container, _OtherContainer>::value,
-                           deque_iterator>::type&
+      deque_iterator>::type&
   operator=(deque_iterator<_OtherContainer, _OtherContainer,
-                           typename _OtherContainer::value_type>&& _other) {
+      typename _OtherContainer::value_type>&& _other) {
     m_deque = std::move(_other.m_deque);
     m_element = std::move(_other.m_element);
 
@@ -97,19 +98,18 @@ class deque_iterator final
 
   template <typename _OtherContainer = _NonConstContainer>
   typename core::enable_if<!core::is_same<_Container, _OtherContainer>::value,
-                           deque_iterator>::type&
-  operator=(
-      const deque_iterator<_OtherContainer, _OtherContainer,
-                           typename _OtherContainer::value_type>& _other) {
+      deque_iterator>::type&
+  operator=(const deque_iterator<_OtherContainer, _OtherContainer,
+      typename _OtherContainer::value_type>& _other) {
     m_deque = _other.m_deque;
     m_element = _other.m_element;
 
     return (*this);
   }
 
-  difference_type operator-(const deque_iterator& _other) {
-    WN_RELEASE_ASSERT_DESC(m_deque == _other.m_deque,
-                           "iterators are incompatible");
+  difference_type operator-(const deque_iterator& _other) const {
+    WN_RELEASE_ASSERT_DESC(
+        m_deque == _other.m_deque, "iterators are incompatible");
 
     return (m_element - _other.m_element);
   }
@@ -126,21 +126,25 @@ class deque_iterator final
     return (*this);
   }
 
-  deque_iterator operator+(const wn_size_t _amount) {
+  deque_iterator operator+(const wn_size_t _amount) const {
     deque_iterator i(*this);
 
     return (i += _amount);
   }
 
-  deque_iterator operator-(const wn_size_t _amount) {
+  deque_iterator operator-(const wn_size_t _amount) const {
     deque_iterator i(*this);
 
     return (i -= _amount);
   }
 
-  reference operator*() const { return ((*m_deque)[m_element]); }
+  reference operator*() const {
+    return ((*m_deque)[m_element]);
+  }
 
-  pointer operator->() const { return (&((*m_deque)[m_element])); }
+  pointer operator->() const {
+    return (&((*m_deque)[m_element]));
+  }
 
   deque_iterator operator++(wn_int32) {
     deque_iterator i(*this);
@@ -158,59 +162,64 @@ class deque_iterator final
     return (i);
   }
 
-  deque_iterator& operator++() { return ((*this) += 1); }
+  deque_iterator& operator++() {
+    return ((*this) += 1);
+  }
 
-  deque_iterator& operator--() { return ((*this) -= 1); }
+  deque_iterator& operator--() {
+    return ((*this) -= 1);
+  }
 
   wn_bool operator==(const deque_iterator& _other) const {
-    WN_RELEASE_ASSERT_DESC(m_deque == _other.m_deque,
-                           "iterators are incompatible");
+    WN_RELEASE_ASSERT_DESC(
+        m_deque == _other.m_deque, "iterators are incompatible");
 
     return (m_element == _other.m_element);
   }
 
   wn_bool operator!=(const deque_iterator& _other) const {
-    WN_RELEASE_ASSERT_DESC(m_deque == _other.m_deque,
-                           "iterators are incompatible");
+    WN_RELEASE_ASSERT_DESC(
+        m_deque == _other.m_deque, "iterators are incompatible");
 
     return (m_element != _other.m_element);
   }
 
   wn_bool operator>(const deque_iterator& _other) const {
-    WN_RELEASE_ASSERT_DESC(m_deque == _other.m_deque,
-                           "iterators are incompatible");
+    WN_RELEASE_ASSERT_DESC(
+        m_deque == _other.m_deque, "iterators are incompatible");
 
     return (m_element > _other.m_element);
   }
 
   wn_bool operator>=(const deque_iterator& _other) const {
-    WN_RELEASE_ASSERT_DESC(m_deque == _other.m_deque,
-                           "iterators are incompatible");
+    WN_RELEASE_ASSERT_DESC(
+        m_deque == _other.m_deque, "iterators are incompatible");
 
     return (m_element >= _other.m_element);
   }
 
   wn_bool operator<(const deque_iterator& _other) const {
-    WN_RELEASE_ASSERT_DESC(m_deque == _other.m_deque,
-                           "iterators are incompatible");
+    WN_RELEASE_ASSERT_DESC(
+        m_deque == _other.m_deque, "iterators are incompatible");
 
     return (m_element < _other.m_element);
   }
 
   wn_bool operator<=(const deque_iterator& _other) const {
-    WN_RELEASE_ASSERT_DESC(m_deque == _other.m_deque,
-                           "iterators are incompatible");
+    WN_RELEASE_ASSERT_DESC(
+        m_deque == _other.m_deque, "iterators are incompatible");
 
     return (m_element <= _other.m_element);
   }
 
- private:
-  template <typename _T, typename _Alloc, const wn_size_t _BSize>
+private:
+  template <typename _Type, typename _Allocator, const wn_size_t _BlockSize>
   friend class deque;
+
   friend class deque_iterator<const _Container, _Container, const _Element>;
 
   explicit deque_iterator(_Container* _deque, const size_type _element)
-      : m_deque(_deque), m_element(_element) {}
+    : m_deque(_deque), m_element(_element) {}
 
   wn_void clear() {
     m_deque = wn_nullptr;
@@ -220,11 +229,13 @@ class deque_iterator final
   _Container* m_deque;
   size_type m_element;
 };
+
 }  // namespace internal
 
-template <typename _Type, typename _Allocator, const wn_size_t _BlockSize>
+template <typename _Type, typename _Allocator = memory::default_allocator,
+    const wn_size_t _BlockSize = 10>
 class deque final {
- public:
+public:
   static _Allocator s_default_allocator;
   typedef _Type value_type;
   typedef wn_size_t size_type;
@@ -233,10 +244,10 @@ class deque final {
   typedef value_type& reference;
   typedef const value_type& const_reference;
 
- private:
+private:
   typedef deque<_Type, _Allocator, _BlockSize> self_type;
 
- public:
+public:
   typedef internal::deque_iterator<self_type> iterator;
   typedef internal::deque_iterator<const self_type, self_type, const value_type>
       const_iterator;
@@ -246,62 +257,62 @@ class deque final {
   deque() : deque(&s_default_allocator) {}
 
   deque(const deque& _other)
-      : m_allocator(&s_default_allocator),
-        m_block_list(_other.m_block_list, &s_default_allocator),
-        m_used_blocks(_other.m_used_blocks),
-        m_start_block(_other.m_start_block),
-        m_start_location(_other.m_start_location),
-        m_allocated_blocks(_other.m_allocated_blocks),
-        m_element_count(_other.m_element_count) {}
+    : m_allocator(&s_default_allocator),
+      m_block_list(_other.m_block_list, &s_default_allocator),
+      m_used_blocks(_other.m_used_blocks),
+      m_start_block(_other.m_start_block),
+      m_start_location(_other.m_start_location),
+      m_allocated_blocks(_other.m_allocated_blocks),
+      m_element_count(_other.m_element_count) {}
 
   deque(const deque& _other, memory::allocator* _allocator)
-      : m_allocator(_allocator),
-        m_block_list(_other.m_block_list, _allocator),
-        m_used_blocks(_other.m_used_blocks),
-        m_start_block(_other.m_start_block),
-        m_start_location(_other.m_start_location),
-        m_allocated_blocks(_other.m_allocated_blocks),
-        m_element_count(_other.m_element_count) {}
+    : m_allocator(_allocator),
+      m_block_list(_other.m_block_list, _allocator),
+      m_used_blocks(_other.m_used_blocks),
+      m_start_block(_other.m_start_block),
+      m_start_location(_other.m_start_location),
+      m_allocated_blocks(_other.m_allocated_blocks),
+      m_element_count(_other.m_element_count) {}
 
   deque(deque&& _other)
-      : m_allocator(std::move(_other.m_allocator)),
-        m_block_list(std::move(_other.m_block_list)),
-        m_used_blocks(std::move(_other.m_used_blocks)),
-        m_start_block(std::move(_other.m_start_block)),
-        m_start_location(std::move(_other.m_start_location)),
-        m_allocated_blocks(std::move(_other.m_allocated_blocks)),
-        m_element_count(std::move(_other.m_element_count)) {}
+    : m_allocator(std::move(_other.m_allocator)),
+      m_block_list(std::move(_other.m_block_list)),
+      m_used_blocks(std::move(_other.m_used_blocks)),
+      m_start_block(std::move(_other.m_start_block)),
+      m_start_location(std::move(_other.m_start_location)),
+      m_allocated_blocks(std::move(_other.m_allocated_blocks)),
+      m_element_count(std::move(_other.m_element_count)) {}
 
   explicit deque(memory::allocator* _allocator)
-      : m_allocator(_allocator),
-        m_block_list(_allocator),
-        m_used_blocks(0),
-        m_start_block(0),
-        m_start_location(0),
-        m_allocated_blocks(0),
-        m_element_count(0) {}
+    : m_allocator(_allocator),
+      m_block_list(_allocator),
+      m_used_blocks(0),
+      m_start_block(0),
+      m_start_location(0),
+      m_allocated_blocks(0),
+      m_element_count(0) {}
 
   explicit deque(const size_type _count,
-                 memory::allocator* _allocator = &s_default_allocator)
-      : deque(_count, _Type(), _allocator) {}
+      memory::allocator* _allocator = &s_default_allocator)
+    : deque(_count, _Type(), _allocator) {}
 
   deque(const size_type _count, const _Type& _value,
-        memory::allocator* _allocator = &s_default_allocator)
-      : deque(_allocator) {
+      memory::allocator* _allocator = &s_default_allocator)
+    : deque(_allocator) {
     resize(_count, _value);
   }
 
   template <typename _InputIt,
-            typename = core::enable_if_t<!std::is_integral<_InputIt>::value>>
+      typename = core::enable_if_t<!std::is_integral<_InputIt>::value>>
   deque(_InputIt _first, _InputIt _last,
-        memory::allocator* _allocator = &s_default_allocator)
-      : deque(_allocator) {
+      memory::allocator* _allocator = &s_default_allocator)
+    : deque(_allocator) {
     insert(cbegin(), _first, _last);
   }
 
   deque(std::initializer_list<_Type> _initializer_list,
-        memory::allocator* _allocator = &s_default_allocator)
-      : deque(_initializer_list.begin(), _initializer_list.end(), _allocator) {}
+      memory::allocator* _allocator = &s_default_allocator)
+    : deque(_initializer_list.begin(), _initializer_list.end(), _allocator) {}
 
   ~deque() {
     clear();
@@ -315,13 +326,21 @@ class deque final {
 
   // element access
 
-  reference operator[](const size_type _pos) { return (at(_pos)); }
+  reference operator[](const size_type _pos) {
+    return (at(_pos));
+  }
 
-  const_reference operator[](const size_type _pos) const { return (at(_pos)); }
+  const_reference operator[](const size_type _pos) const {
+    return (at(_pos));
+  }
 
-  reference front() { return (*begin()); }
+  reference front() {
+    return (*begin());
+  }
 
-  const_reference front() const { return (*cbegin()); }
+  const_reference front() const {
+    return (*cbegin());
+  }
 
   reference back() {
     iterator i = end();
@@ -360,31 +379,49 @@ class deque final {
 
   // iterators
 
-  iterator begin() { return (iterator(this, 0)); }
+  iterator begin() {
+    return (iterator(this, 0));
+  }
 
-  const_iterator begin() const { return (cbegin()); }
+  const_iterator begin() const {
+    return (cbegin());
+  }
 
-  const_iterator cbegin() const { return (const_iterator(this, 0)); }
+  const_iterator cbegin() const {
+    return (const_iterator(this, 0));
+  }
 
-  iterator end() { return (iterator(this, m_element_count)); }
+  iterator end() {
+    return (iterator(this, m_element_count));
+  }
 
-  const_iterator end() const { return (cend()); }
+  const_iterator end() const {
+    return (cend());
+  }
 
   const_iterator cend() const {
     return (const_iterator(this, m_element_count));
   }
 
-  reverse_iterator rbegin() { return (reverse_iterator(end())); }
+  reverse_iterator rbegin() {
+    return (reverse_iterator(end()));
+  }
 
-  const_reverse_iterator rbegin() const { return (crbegin()); }
+  const_reverse_iterator rbegin() const {
+    return (crbegin());
+  }
 
   const_reverse_iterator crbegin() const {
     return (const_reverse_iterator(cend()));
   }
 
-  reverse_iterator rend() { return (reverse_iterator(begin())); }
+  reverse_iterator rend() {
+    return (reverse_iterator(begin()));
+  }
 
-  const_reverse_iterator rend() const { return (crend()); }
+  const_reverse_iterator rend() const {
+    return (crend());
+  }
 
   const_reverse_iterator crend() const {
     return (const_reverse_iterator(cbegin()));
@@ -392,15 +429,23 @@ class deque final {
 
   // capacity
 
-  wn_bool empty() const { return (size() == 0); }
+  wn_bool empty() const {
+    return (size() == 0);
+  }
 
-  size_type size() const { return (m_element_count); }
+  size_type size() const {
+    return (m_element_count);
+  }
 
-  size_type capacity() const { return (m_allocated_blocks * _BlockSize); }
+  size_type capacity() const {
+    return (m_allocated_blocks * _BlockSize);
+  }
 
   // modifiers
 
-  wn_void clear() { erase(begin(), end()); }
+  wn_void clear() {
+    erase(begin(), end());
+  }
 
   iterator insert(const_iterator _pos, _Type&& _value) {
     iterator iter = allocate(_pos, 1);
@@ -417,8 +462,8 @@ class deque final {
     return (insert(_pos, std::move(value)));
   }
 
-  iterator insert(const_iterator _pos, const size_type _count,
-                  const _Type& _value) {
+  iterator insert(
+      const_iterator _pos, const size_type _count, const _Type& _value) {
     iterator iter = allocate(_pos, _count);
     iterator newIter = iter;
 
@@ -430,7 +475,7 @@ class deque final {
   }
 
   template <typename _InputIt,
-            typename = core::enable_if_t<!std::is_integral<_InputIt>::value>>
+      typename = core::enable_if_t<!std::is_integral<_InputIt>::value>>
   iterator insert(const_iterator _pos, _InputIt _first, _InputIt _last) {
     const difference_type count = _last - _first;
     iterator position = allocate(_pos, count);
@@ -443,15 +488,15 @@ class deque final {
     return (new_position);
   }
 
-  iterator insert(const_iterator _pos,
-                  std::initializer_list<_Type> _initializer_list) {
+  iterator insert(
+      const_iterator _pos, std::initializer_list<_Type> _initializer_list) {
     return (insert(_pos, _initializer_list.begin(), _initializer_list.end()));
   }
 
   template <typename _Function, typename = core::enable_if_t<core::is_callable<
                                     _Function, _Type(size_type)>::value>>
-  iterator insert(const_iterator _pos, const size_type _count,
-                  _Function&& _generator) {
+  iterator insert(
+      const_iterator _pos, const size_type _count, _Function&& _generator) {
     iterator position = allocate(_pos, _count);
     iterator new_position = position;
 
@@ -462,7 +507,9 @@ class deque final {
     return (new_position);
   }
 
-  iterator erase(const_iterator _pos) { return (erase(_pos, 1)); }
+  iterator erase(const_iterator _pos) {
+    return (erase(_pos, 1));
+  }
 
   iterator erase(const_iterator _pos, const size_type _count) {
     iterator pos = make_iterator(_pos);
@@ -521,7 +568,9 @@ class deque final {
 
     memory::construct_at<_Type>(&(*(newIter++)), std::forward<Args>(_args)...);
   }
-  wn_void push_front(_Type&& _value) { insert(cbegin(), std::move(_value)); }
+  wn_void push_front(_Type&& _value) {
+    insert(cbegin(), std::move(_value));
+  }
 
   wn_void push_front(const _Type& _value) {
     _Type value(_value);
@@ -546,11 +595,17 @@ class deque final {
     push_back(std::move(value));
   }
 
-  wn_void pop_front() { erase(begin(), 1); }
+  wn_void pop_front() {
+    erase(begin(), 1);
+  }
 
-  wn_void pop_back() { erase(end() - 1, 1); }
+  wn_void pop_back() {
+    erase(end() - 1, 1);
+  }
 
-  wn_void resize(const size_type _count) { resize(_count, _Type()); }
+  wn_void resize(const size_type _count) {
+    resize(_count, _Type());
+  }
 
   wn_void resize(const size_type _count, const value_type& _value) {
     const size_type current_size = size();
@@ -578,7 +633,7 @@ class deque final {
     }
   }
 
- private:
+private:
   iterator make_iterator(const_iterator _pos) {
     return (begin() + (_pos - cbegin()));
   }
@@ -639,8 +694,8 @@ class deque final {
         const size_type neededBlocks = additional_blocks - haveBlocks;
 
         if (m_block_list.size() - m_allocated_blocks < neededBlocks) {
-          add_block_space(m_allocated_blocks + neededBlocks -
-                          m_block_list.size());
+          add_block_space(
+              m_allocated_blocks + neededBlocks - m_block_list.size());
         }
 
         for (size_type i = 0; i < neededBlocks; ++i) {
@@ -702,8 +757,8 @@ class deque final {
           (_count - totalElements + _BlockSize - 1) / _BlockSize;
 
       if (m_allocated_blocks + neededExtraBlocks > m_block_list.size()) {
-        add_block_space(m_allocated_blocks + neededExtraBlocks -
-                        m_block_list.size());
+        add_block_space(
+            m_allocated_blocks + neededExtraBlocks - m_block_list.size());
       }
 
       for (size_type i = 0; i < neededExtraBlocks; ++i) {
@@ -778,15 +833,14 @@ class deque final {
     const size_type old_count = m_block_list.size();
     m_block_list.insert(m_block_list.end(), _count, wn_nullptr);
     m_block_list.insert(m_block_list.end(),
-                        m_block_list.capacity() - m_block_list.size(),
-                        wn_nullptr);
+        m_block_list.capacity() - m_block_list.size(), wn_nullptr);
 
     if (m_start_block != 0) {
       const size_type added_count = m_block_list.size() - old_count;
       const size_type copy_size = (old_count - m_start_block);
 
       wn::memory::memory_move(&m_block_list[m_start_block + added_count],
-                              &m_block_list[m_start_block], copy_size);
+          &m_block_list[m_start_block], copy_size);
 
 #ifdef _WN_DEBUG
       wn::memory::memory_zero(&m_block_list[m_start_block], added_count);
@@ -818,7 +872,8 @@ class deque final {
 
 template <typename _Type, typename _Allocator, const wn_size_t _BlockSize>
 _Allocator deque<_Type, _Allocator, _BlockSize>::s_default_allocator;
-}
-};
+
+}  // namespace containers
+}  // namespace wn
 
 #endif
