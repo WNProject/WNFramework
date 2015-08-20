@@ -158,7 +158,7 @@ TYPED_TEST(contiguous_range, access) {
 
       range.at(0);
     },
-    "assertion failed!\n\nfile: .*\nline: .*\nmessage: invalid string_view"
+    "assertion failed!\n\nfile: .*\nline: .*\nmessage: invalid contiguous range"
   );
 
   EXPECT_DEATH({
@@ -175,7 +175,7 @@ TYPED_TEST(contiguous_range, access) {
 
       range[0];
     },
-    "assertion failed!\n\nfile: .*\nline: .*\nmessage: invalid string_view"
+    "assertion failed!\n\nfile: .*\nline: .*\nmessage: invalid contiguous range"
   );
 
   EXPECT_DEATH({
@@ -192,7 +192,7 @@ TYPED_TEST(contiguous_range, access) {
 
       range.front();
     },
-    "assertion failed!\n\nfile: .*\nline: .*\nmessage: invalid string_view"
+    "assertion failed!\n\nfile: .*\nline: .*\nmessage: invalid contiguous range"
   );
 
   EXPECT_DEATH({
@@ -200,7 +200,7 @@ TYPED_TEST(contiguous_range, access) {
 
       range.back();
     },
-    "assertion failed!\n\nfile: .*\nline: .*\nmessage: invalid string_view"
+    "assertion failed!\n\nfile: .*\nline: .*\nmessage: invalid contiguous range"
   );
 }
 
@@ -312,7 +312,7 @@ TYPED_TEST(contiguous_range, remove_prefix) {
 
       fail_range.remove_prefix(0);
     },
-    "assertion failed!\n\nfile: .*\nline: .*\nmessage: invalid string_view"
+    "assertion failed!\n\nfile: .*\nline: .*\nmessage: invalid contiguous range"
   );
 
   EXPECT_DEATH({
@@ -344,7 +344,7 @@ TYPED_TEST(contiguous_range, remove_suffix) {
 
       fail_range.remove_suffix(0);
     },
-    "assertion failed!\n\nfile: .*\nline: .*\nmessage: invalid string_view"
+    "assertion failed!\n\nfile: .*\nline: .*\nmessage: invalid contiguous range"
   );
 
   EXPECT_DEATH({
