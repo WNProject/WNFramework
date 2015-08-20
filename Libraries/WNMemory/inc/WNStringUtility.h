@@ -24,6 +24,17 @@ WN_FORCE_INLINE wn_size_t strlen(const wn_char* str) {
   return(std::strlen(str));
 }
 
+WN_FORCE_INLINE wn_size_t strnlen(const wn_char* str, const wn_size_t count) {
+  WN_DEBUG_ASSERT_DESC(str, "string must not be nullptr");
+  WN_DEBUG_ASSERT_DESC(count, "count must not be 0");
+
+  wn_size_t size = 0;
+
+  for (; size < count && str[size] != '\0'; ++size) {}
+
+  return(size);
+}
+
 WN_FORCE_INLINE wn_char* strcpy(wn_char* dest, const wn_char* src) {
   WN_DEBUG_ASSERT_DESC(dest, "destination string must not be nullptr");
   WN_DEBUG_ASSERT_DESC(src, "source string must not be nullptr");
@@ -101,10 +112,7 @@ WN_FORCE_INLINE wn_char* strndup(const wn_char* str, const wn_size_t count) {
   WN_DEBUG_ASSERT_DESC(str, "string must not be nullptr");
   WN_DEBUG_ASSERT_DESC(count, "count must not be 0");
 
-  wn_size_t size = 0;
-
-  for (; size < count && str[size] != '\0'; ++size);
-
+  const wn_size_t size = strnlen(str, count);
   wn_char* copy = heap_allocate<wn_char>(size + 1);
 
   if (copy) {
@@ -166,7 +174,7 @@ WN_FORCE_INLINE wn_size_t strhash(const wn_char* str) {
   wn_size_t hash = 0;
   wn_size_t c;
 
-  while ((c = static_cast<wn_size_t>(*(str++))) != '\0') {
+  while ((c = static_cast<wn_size_t>(*(str++))) != 0) {
     hash = c + (hash << 6) + (hash << 16) - hash;
   }
 
@@ -185,11 +193,7 @@ WN_FORCE_INLINE wn_char* strnlwr(wn_char* str, const wn_size_t count) {
   WN_DEBUG_ASSERT_DESC(str, "string must not be nullptr");
   WN_DEBUG_ASSERT_DESC(count, "count must not be 0");
 
-  wn_size_t size = 0;
-
-  for (; size < count && str[size] != '\0'; ++size);
-
-  std::transform(str, str + size, str, ::tolower);
+  std::transform(str, str + strnlen(str, count), str, ::tolower);
 
   return(str);
 }
@@ -206,11 +210,7 @@ WN_FORCE_INLINE wn_char* strnupr(wn_char* str, const wn_size_t count) {
   WN_DEBUG_ASSERT_DESC(str, "string must not be nullptr");
   WN_DEBUG_ASSERT_DESC(count, "count must not be 0");
 
-  wn_size_t size = 0;
-
-  for (; size < count && str[size] != '\0'; ++size);
-
-  std::transform(str, str + size, str, ::toupper);
+  std::transform(str, str + strnlen(str, count), str, ::toupper);
 
   return(str);
 }
