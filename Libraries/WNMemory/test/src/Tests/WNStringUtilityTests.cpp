@@ -24,6 +24,31 @@ TEST(string_utility, strlen) {
   #endif
 }
 
+TEST(string_utility, strnlen) {
+  const wn_char* test1 = "string";
+  const wn_char* test2 = "string_longer";
+  const wn_char* test3 = "string_longest";
+
+  EXPECT_EQ(wn::memory::strnlen(test1, 12), 6);
+  EXPECT_EQ(wn::memory::strnlen(test2, 13), 13);
+  EXPECT_EQ(wn::memory::strnlen(test3, 6), 6);
+
+  #ifdef _WN_DEBUG
+    EXPECT_DEATH({
+        wn::memory::strnlen(wn_nullptr, 5);
+      },
+      "assertion failed!\n\nfile: .*\nline: .*\nmessage: string must not be "
+      "nullptr"
+    );
+
+    EXPECT_DEATH({
+        wn::memory::strnlen(test1, 0);
+      },
+      "assertion failed!\n\nfile: .*\nline: .*\nmessage: count must not be 0"
+    );
+  #endif
+}
+
 TEST(string_utility, strcpy) {
   const wn_char* test1 = "string";
   wn_char test2[7] = {0};
@@ -420,4 +445,14 @@ TEST(string_utility, strnupr) {
       "assertion failed!\n\nfile: .*\nline: .*\nmessage: count must not be 0"
     );
   #endif
+}
+
+TEST(string_utility, strhash) {
+  wn_char test1[7] = "sTrinG";
+  wn_char test2[7] = "string";
+
+  const wn_size_t result1 = wn::memory::strhash(test1);
+  const wn_size_t result2 = wn::memory::strhash(test2);
+
+  EXPECT_NE(result1, result2);
 }
