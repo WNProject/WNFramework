@@ -166,7 +166,7 @@ WN_FORCE_INLINE wn_size_t strhash(const wn_char* str) {
   wn_size_t hash = 0;
   wn_size_t c;
 
-  while ((c = static_cast<wn_size_t>(*(str++)))) {
+  while ((c = static_cast<wn_size_t>(*(str++))) != '\0') {
     hash = c + (hash << 6) + (hash << 16) - hash;
   }
 
