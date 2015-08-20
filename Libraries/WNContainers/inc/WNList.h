@@ -91,7 +91,7 @@ private:
   list_iterator(_NodeType* node) : m_ptr(node) {}
 
   template <typename _T, typename _A>
-  friend class list;
+  friend class wn::containers::list;
   template <typename _NT, typename _VT>
   friend struct list_iterator;
 };
