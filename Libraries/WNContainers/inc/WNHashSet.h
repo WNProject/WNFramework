@@ -62,7 +62,7 @@ class hash_set_iterator
       : m_map_iterator(_iterator) {}
   template <typename _Key, typename _HashOperator, typename _EqualityOperator,
             typename _Allocator>
-  friend class hash_set;
+  friend class wn::containers::hash_set;
   template <typename _IT, typename _CT>
   friend class hash_set_iterator;
   _IteratorType m_map_iterator;

@@ -120,7 +120,7 @@ struct passthrough_stl_allocator<void, DefaultAlloc>
 
   void deallocate(pointer _p, size_type) { return m_allocator->deallocate(_p); }
   size_type max_size() const {
-    return std::numeric_limits<wn_size_t>::max;
+    return std::numeric_limits<wn_size_t>::max();
   }
   template <class U, class... Args>
   void construct(U* _p, Args&&... _args) {
