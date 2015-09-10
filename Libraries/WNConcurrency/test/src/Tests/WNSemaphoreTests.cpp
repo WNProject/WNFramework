@@ -10,14 +10,10 @@
 TEST(semaphore, wait_notify) {
   std::stringstream numbers;
   wn_uint32 count = 0;
-  wn_bool start = wn_false;
   wn::concurrency::semaphore semaphore;
 
-  const auto thread_function =
-    [&numbers, &count, &semaphore, &start]() -> wn_void {
+  const auto thread_function = [&numbers, &count, &semaphore]() -> wn_void {
     semaphore.wait();
-
-    ASSERT_TRUE(start);
 
     numbers << count;
 
@@ -30,12 +26,8 @@ TEST(semaphore, wait_notify) {
 
   for (auto i = 0; i < 10; ++i) {
     threads.push_back(
-      std::make_shared<wn::concurrency::thread<wn_void>>(thread_function));
+        std::make_shared<wn::concurrency::thread<wn_void>>(thread_function));
   }
-
-  ASSERT_EQ(count, 0);
-
-  start = wn_true;
 
   ASSERT_EQ(count, 0);
 
@@ -56,17 +48,21 @@ TEST(semaphore, try_wait) {
 
   semaphore.notify();
 
-  const auto thread_function = [&semaphore]() -> wn_void {
-    ASSERT_TRUE(semaphore.try_wait());
+  wn_bool result = wn_false;
+
+  const auto thread_function = [&semaphore, &result]() -> wn_void {
+    result = semaphore.try_wait();
   };
 
   wn::concurrency::thread<wn_void> thread(thread_function);
 
   thread.join();
+
+  ASSERT_TRUE(result);
 }
 
 TEST(semaphore, initial_count) {
-  std::atomic_int count = { 0 };
+  std::atomic_int count = {0};
   wn::concurrency::semaphore semaphore(10);
 
   const auto thread_function = [&count, &semaphore]() -> wn_void {
@@ -77,26 +73,16 @@ TEST(semaphore, initial_count) {
 
   std::vector<std::shared_ptr<wn::concurrency::thread<wn_void>>> threads;
 
-  for (auto i = 0; i < 20; ++i) {
+  for (auto i = 0; i < 15; ++i) {
     threads.push_back(
-      std::make_shared<wn::concurrency::thread<wn_void>>(thread_function));
+        std::make_shared<wn::concurrency::thread<wn_void>>(thread_function));
   }
 
-  wn::concurrency::this_thread::sleep_for(std::chrono::seconds(1));
-
-  ASSERT_EQ(count, 10);
-
   semaphore.notify(5);
 
-  wn::concurrency::this_thread::sleep_for(std::chrono::seconds(1));
-
-  ASSERT_EQ(count, 15);
-
-  semaphore.notify(5);
-
-  for (auto i = 0; i < 20; ++i) {
+  for (auto i = 0; i < 15; ++i) {
     threads[i]->join();
   }
 
-  ASSERT_EQ(count, 20);
+  ASSERT_EQ(count, 15);
 }
