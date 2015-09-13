@@ -151,6 +151,10 @@ class list final {
     }
   }
 
+  iterator convert_iterator(const_iterator& it)  {
+    return iterator(it.m_ptr);
+  }
+
   iterator begin() { return iterator(m_begin); }
   const_iterator cbegin() const { return const_iterator(m_begin); }
 
