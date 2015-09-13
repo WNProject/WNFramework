@@ -281,7 +281,13 @@ public:
       m_start_block(std::move(_other.m_start_block)),
       m_start_location(std::move(_other.m_start_location)),
       m_allocated_blocks(std::move(_other.m_allocated_blocks)),
-      m_element_count(std::move(_other.m_element_count)) {}
+      m_element_count(std::move(_other.m_element_count)) {
+    _other.m_used_blocks = 0;
+    _other.m_start_block = 0;
+    _other.m_start_location = 0;
+    _other.m_allocated_blocks = 0;
+    _other.m_element_count = 0;
+  }
 
   explicit deque(memory::allocator* _allocator)
     : m_allocator(_allocator),
