@@ -151,6 +151,13 @@ namespace WNLogging {
         wn_size_t mCurrentLogLevel;
         wn_bool mFlushAfterMessage;
     };
+
+    
+    WN_FORCE_INLINE WNLog* get_null_logger() {
+      static WNLog m_null_logger(wn_nullptr,
+                                 WNDefaultLogParameters<eNone, 0, wn_false>());
+      return &m_null_logger;
+    }
 }
 #include "WNLogging/inc/WNLog.inl"
 #include "WNLogging/inc/WNDefaultLogTypes.inl"

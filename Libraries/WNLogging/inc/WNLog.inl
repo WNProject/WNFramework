@@ -12,11 +12,12 @@
                        if((_flags & eWNNoHeader) == 0) { LogHeader(_level); }
 #define LOG_END() if((_flags & eWNNoNewLine) == 0) { LogNewline(); } if(mFlushAfterMessage) { Flush(); }
 
-
 WN_FORCE_INLINE wn_void WNLogging::WNLog::Flush() {
+  if (mBufferSize != mBufferLeft) {
     mLogger->FlushBuffer(mLogBuffer, mBufferSize - mBufferLeft, mColorElements);
     mColorElements.clear();
     mBufferLeft = mBufferSize;
+  }
 }
 
 WN_FORCE_INLINE wn_void WNLogging::WNLog::FlushExternal(const wn_char* _buffer, wn_size_t _bufferSize, const std::vector<WNLogColorElement>& _colors) {
