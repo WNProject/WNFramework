@@ -244,3 +244,18 @@ TYPED_TEST(hash_map, copy_test) {
     EXPECT_EQ(my_map[213], new_map[213]);
   }
 }
+
+TYPED_TEST(hash_map, cbegin) {
+  wn::memory::default_test_allocator alloc;
+  {
+    const wn::containers::hash_map<TypeParam, TypeParam> my_map(
+    { { 1, 1 },{ 2, 2 },{ 3, 3 } }, &alloc);
+    EXPECT_EQ(3, my_map.size());
+    typename wn::containers::hash_map<TypeParam, TypeParam>::const_iterator it =
+        my_map.cbegin();
+    for(;it != my_map.cend(); ++it) {
+      EXPECT_EQ(it->first, it->second);
+    }
+  }
+  EXPECT_EQ(alloc.allocated(), alloc.freed());
+}
