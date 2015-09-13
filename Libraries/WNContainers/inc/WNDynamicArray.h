@@ -173,6 +173,17 @@ class dynamic_array final {
     (*this) = std::move(_other);
   }
 
+  template <typename TOther>
+  dynamic_array(TOther begin, TOther end,
+                memory::allocator* _alloc = &s_default_allocator) :
+    dynamic_array(_alloc) {
+    reserve(end - begin);
+    while(begin != end) {
+      push_back(*begin);
+      ++begin;
+    }
+  }
+
   ~dynamic_array() {
     clear();
 
