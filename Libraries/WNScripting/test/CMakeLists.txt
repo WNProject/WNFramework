@@ -4,7 +4,8 @@ wn_create_tests_from_list(TEST_PREFIX WNScripting
   COMMON_SOURCES src/Main.cpp
   SOURCE_DIR src/Tests
   SOURCES
-	WNFactory
+    WNAstWalker
+    WNFactory
 	WNEngineJITInitializer
   LIBS WNScripting WNFileSystem
   )
