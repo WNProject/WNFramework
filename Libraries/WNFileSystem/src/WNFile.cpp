@@ -396,7 +396,7 @@ wn_size_t WNFileSystem::WNFile::ReadData(wn_char* _outBuffer, wn_size_t _amount)
     #endif
 }
 
-wn_size_t WNFileSystem::WNFile::WriteData(wn_char* _inBuffer, wn_size_t _amount) {
+wn_size_t WNFileSystem::WNFile::WriteData(const wn_char* _inBuffer, wn_size_t _amount) {
     WN_DEBUG_ASSERT(_inBuffer != wn_nullptr && _amount > 0);
 
     #ifdef _WN_WINDOWS
