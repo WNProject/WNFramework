@@ -5,7 +5,8 @@ wn_create_tests_from_list(TEST_PREFIX WNScripting
   SOURCE_DIR src/Tests
   SOURCES
     WNASTWalker
+    WNCTranslator
     WNFactory
-    WNEngineJITInitializer
+	WNEngineJITInitializer
   LIBS WNScripting WNFileSystem
   )
