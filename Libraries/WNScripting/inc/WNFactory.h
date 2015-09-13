@@ -9,6 +9,7 @@
 
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNScripting/inc/WNEngineFileManager.h"
+#include "WNScripting/inc/WNTranslator.h"
 
 namespace WNLogging {
 class WNLog;
@@ -31,6 +32,9 @@ class factory {
  public:
   virtual memory::allocated_ptr<engine> get_engine(
       scripting_engine_type _type, file_manager* _file_manager,
+      WNLogging::WNLog* _log, wn::memory::allocator* _allocator);
+  virtual memory::allocated_ptr<translator> get_translator(
+      translator_type _type, file_manager* _file_manager,
       WNLogging::WNLog* _log, wn::memory::allocator* _allocator);
 };
 }
