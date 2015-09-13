@@ -74,6 +74,11 @@ class test_file_manager : public file_manager {
         m_allocator, m_files[_filename].c_str(), m_files[_filename].size());
   }
 
+  virtual void write_file(const char* _filename,
+                        const containers::string_view& data) {
+    m_files[_filename] = data.to_string(m_allocator);
+  }
+
  private:
   containers::hash_map<containers::string, containers::string> m_files;
   memory::allocator* m_allocator;
