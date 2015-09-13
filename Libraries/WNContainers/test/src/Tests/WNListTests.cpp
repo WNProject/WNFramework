@@ -242,8 +242,10 @@ struct construction_test_struct {
     type = construction_type::copy_constructor;
   }
 
-  construction_test_struct(construction_test_struct&&) {
+  construction_test_struct(construction_test_struct&& _other) {
     type = construction_type::move_constructor;
+    v1 = _other.v1;
+    v2 = _other.v2;
   }
 
   construction_type type;
@@ -294,10 +296,104 @@ TEST(list, transfer_to_different_alloc) {
             construction_test_struct::construction_type::constructor);
   l.transfer_to(l.begin(), l2.begin(), l2);
   EXPECT_EQ(l.begin(), l.end());
-  // Nothing at all interesting should have happeend to this struct.
+  // Every element should have been moved.
   EXPECT_EQ(l2.begin()->type,
             construction_test_struct::construction_type::move_constructor);
   EXPECT_FALSE(ptr == &(*l2.begin()));
+}
+
+TEST(list, transfer_range_to_same_alloc) {
+  wn::memory::default_expanding_allocator<50> alloc;
+  wn::containers::list<construction_test_struct> l(&alloc);
+  wn::containers::list<construction_test_struct> l2(&alloc);
+  l.emplace(l.begin());
+  l.emplace(l.end());
+  l.emplace(l.end());
+  EXPECT_EQ(l.begin()->type,
+            construction_test_struct::construction_type::constructor);
+  l.transfer_to(l.begin(), l.end(), l2.begin(), l2);
+
+  EXPECT_EQ(l.begin(), l.end());
+  for (auto& element : l2) {
+    // Nothing interesting should have happened
+    EXPECT_EQ(element.type,
+              construction_test_struct::construction_type::constructor);
+  }
+}
+
+TEST(list, transfer_range_to_front) {
+  wn::memory::default_expanding_allocator<50> alloc;
+  wn::containers::list<construction_test_struct> l(&alloc);
+  wn::containers::list<construction_test_struct> l2(&alloc);
+  l.emplace(l.begin(), 1, '0');
+  l.emplace(l.end(), 2, '0');
+  l.emplace(l.end(), 3, '0');
+  l2.emplace(l2.begin(), 4, '0');
+  EXPECT_EQ(l.begin()->type,
+            construction_test_struct::construction_type::typed_constructor);
+  l.transfer_to(l.begin(), l.end(), l2.begin(), l2);
+
+  EXPECT_EQ(l.begin(), l.end());
+  EXPECT_EQ(1, l2.begin()->v1);
+  EXPECT_EQ(construction_test_struct::construction_type::typed_constructor,
+            l2.begin()->type);
+  EXPECT_EQ(2, (l2.begin() + 1)->v1);
+  EXPECT_EQ(construction_test_struct::construction_type::typed_constructor,
+            (l2.begin() + 1)->type);
+  EXPECT_EQ(3, (l2.begin() + 2)->v1);
+  EXPECT_EQ(construction_test_struct::construction_type::typed_constructor,
+            (l2.begin() + 2)->type);
+  EXPECT_EQ(4, (l2.begin() + 3)->v1);
+  EXPECT_EQ(construction_test_struct::construction_type::typed_constructor,
+            (l2.begin() + 3)->type);
+}
+
+TEST(list, transfer_range_to_front_different_alloc) {
+  wn::memory::default_expanding_allocator<50> alloc;
+  wn::memory::default_expanding_allocator<50> alloc2;
+  wn::containers::list<construction_test_struct> l(&alloc);
+  wn::containers::list<construction_test_struct> l2(&alloc2);
+  l.emplace(l.begin(), 1, '0');
+  l.emplace(l.end(), 2, '0');
+  l.emplace(l.end(), 3, '0');
+  l2.emplace(l2.begin(), 4, '0');
+  EXPECT_EQ(l.begin()->type,
+            construction_test_struct::construction_type::typed_constructor);
+  l.transfer_to(l.begin(), l.end(), l2.begin(), l2);
+
+  EXPECT_EQ(l.begin(), l.end());
+  EXPECT_EQ(1, l2.begin()->v1);
+  EXPECT_EQ(construction_test_struct::construction_type::move_constructor,
+            l2.begin()->type);
+  EXPECT_EQ(2, (l2.begin() + 1)->v1);
+  EXPECT_EQ(construction_test_struct::construction_type::move_constructor,
+            (l2.begin() + 1)->type);
+  EXPECT_EQ(3, (l2.begin() + 2)->v1);
+  EXPECT_EQ(construction_test_struct::construction_type::move_constructor,
+            (l2.begin() + 2)->type);
+  EXPECT_EQ(4, (l2.begin() + 3)->v1);
+  EXPECT_EQ(construction_test_struct::construction_type::typed_constructor,
+            (l2.begin() + 3)->type);
+}
+
+TEST(list, transfer_range_to_different_alloc) {
+  wn::memory::default_expanding_allocator<50> alloc;
+  wn::memory::default_expanding_allocator<50> alloc2;
+  wn::containers::list<construction_test_struct> l(&alloc);
+  wn::containers::list<construction_test_struct> l2(&alloc2);
+  l.emplace(l.begin());
+  l.emplace(l.end());
+  l.emplace(l.end());
+  EXPECT_EQ(l.begin()->type,
+            construction_test_struct::construction_type::constructor);
+  l.transfer_to(l.begin(), l.end(), l2.begin(), l2);
+
+  EXPECT_EQ(l.begin(), l.end());
+  for (auto& element : l2) {
+    // Every element should have been moved
+    EXPECT_EQ(element.type,
+              construction_test_struct::construction_type::move_constructor);
+  }
 }
 
 TYPED_TEST(list, iterate) {
