@@ -26,6 +26,19 @@ TEST(jit_engine, basic_parsing) {
                                        WNLogging::get_null_logger());
   EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file.wns"));
   EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file2.wns"));
+
+  wn::scripting::engine::void_func main = jit_engine.get_function("main");
+  wn::scripting::engine::void_func foo = jit_engine.get_function("foo");
+  wn::scripting::engine::void_func bar = jit_engine.get_function("bar");
+
+  EXPECT_NE(wn_nullptr, main);
+  EXPECT_NE(wn_nullptr, foo);
+  EXPECT_NE(wn_nullptr, bar);
+
+  // No returns so lets just see if we crash trying to call.
+  (*main)();
+  (*foo)();
+  (*bar)();
 }
 
 TEST(jit_engine, parse_error) {
