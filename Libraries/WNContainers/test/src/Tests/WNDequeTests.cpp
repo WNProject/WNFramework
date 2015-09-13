@@ -156,3 +156,31 @@ TYPED_TEST(deque, clear) {
     ASSERT_TRUE(deque.empty());
     ASSERT_EQ(deque.size(), 0);
 }
+
+TYPED_TEST(deque, move) {
+    wn::containers::deque<TypeParam> deque(23, 3);
+
+    EXPECT_FALSE(deque.empty());
+    EXPECT_EQ(23, deque.size());
+
+    for (const TypeParam& element : deque) {
+        EXPECT_EQ(element, static_cast<TypeParam>(3));
+    }
+
+    wn::containers::deque<TypeParam> deque2(std::move(deque));
+    for (const TypeParam& element : deque) {
+        EXPECT_EQ(element, static_cast<TypeParam>(3));
+    }
+
+    EXPECT_TRUE(deque.empty());
+    EXPECT_EQ(0, deque.size());
+
+    EXPECT_FALSE(deque2.empty());
+    EXPECT_EQ(23, deque2.size());
+
+    deque2.clear();
+
+    EXPECT_TRUE(deque2.empty());
+    EXPECT_EQ(0, deque2.size());
+}
+
