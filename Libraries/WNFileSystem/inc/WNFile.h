@@ -46,7 +46,7 @@ namespace WNFileSystem {
         wn_bool CommitFileBuffer();
         wn_char* ResizeDataBuffer(wn_size_t _size );
         wn_size_t ReadData(wn_char* outBuffer, wn_size_t _amount);
-        wn_size_t WriteData(wn_char* inBuffer, wn_size_t _amount);
+        wn_size_t WriteData(const wn_char* inBuffer, wn_size_t _amount);
         wn_size_t GetFileSize() const ;
 
         wn_bool IsValid();
