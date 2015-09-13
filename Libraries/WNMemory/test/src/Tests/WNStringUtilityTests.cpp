@@ -451,3 +451,20 @@ TEST(string_utility, strhash) {
 
   EXPECT_NE(result1, result2);
 }
+
+TEST(string_utility, strnhash) {
+  wn_char test[] = "REPEAT LONG STRING THAT HAS A REPEAT";
+
+  EXPECT_EQ(wn::memory::strnhash(test, 36), wn::memory::strnhash(test, 36));
+  EXPECT_EQ(wn::memory::strnhash(test, 6), wn::memory::strnhash(test+30, 6));
+  EXPECT_NE(wn::memory::strnhash(test, 6), wn::memory::strnhash(test, 7));
+}
+
+TEST(string_utility, strnhash_overflow) {
+  wn_char test[] = "some string";
+  wn_char test2[] = ""; // Empty string
+
+  EXPECT_EQ(wn::memory::strnhash(test, 11), wn::memory::strnhash(test, 12));
+  EXPECT_EQ(wn::memory::strnhash(test, 400), wn::memory::strnhash(test, 500));
+  EXPECT_EQ(wn::memory::strnhash(test2, 0), wn::memory::strnhash(test2, 12));
+}

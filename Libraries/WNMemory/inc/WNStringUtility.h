@@ -161,6 +161,16 @@ WN_FORCE_INLINE const wn_char* strstr(const wn_char* lhs, const wn_char* rhs) {
   return(std::strstr(lhs, rhs));
 }
 
+WN_FORCE_INLINE wn_size_t strnhash(const wn_char* _str, wn_size_t _length) {
+  WN_DEBUG_ASSERT_DESC(_str, "string must not be nullptr");
+  wn_size_t hash = 0;
+  for(size_t i = 0; i < _length && _str[i] != '\0'; ++i) {
+    hash = _str[i] + (hash << 6) + (hash << 16) - hash;
+  }
+
+  return(hash);
+}
+
 WN_FORCE_INLINE wn_size_t strhash(const wn_char* str) {
   WN_DEBUG_ASSERT_DESC(str, "string must not be nullptr");
 
