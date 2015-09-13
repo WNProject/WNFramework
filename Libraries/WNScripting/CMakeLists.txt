@@ -1,12 +1,13 @@
 add_wn_library(WNScripting SOURCES
   inc/WNEngine.h
-  inc/WNEngineFactory.h
+  inc/WNFactory.h
   inc/WNEngineFileManager.h
   inc/WNEnums.h
   inc/WNErrors.h
   inc/WNJITEngine.h
   inc/WNNodeTypes.h
-  src/WNEngineFactory.cpp
+  inc/WNScriptHelpers.h
+  src/WNFactory.cpp
   src/WNJITEngine.cpp
   src/WNScriptASTLexer.hpp
   src/WNScriptASTParser.hpp

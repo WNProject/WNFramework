@@ -4,12 +4,13 @@
 
 #include "WNScripting/test/inc/Common.h"
 #include "WNMemory/inc/WNAllocator.h"
-#include "WNScripting/inc/WNEngineFactory.h"
+#include "WNScripting/inc/WNFactory.h"
 
 TEST(scripting_engine_factory, creation) {
-  wn::scripting::engine_factory factory;
+  wn::scripting::factory factory;
   wn::memory::default_expanding_allocator<50> allocator;
   wn::scripting::file_based_manager manager(&allocator);
-  wn::memory::allocated_ptr<wn::scripting::engine> engine = factory.get_engine(
-      wn::scripting::scripting_engine_type::jit_engine, &manager, &allocator);
+  wn::memory::allocated_ptr<wn::scripting::engine> engine =
+      factory.get_engine(wn::scripting::scripting_engine_type::jit_engine,
+                         &manager, WNLogging::get_null_logger(), &allocator);
 }

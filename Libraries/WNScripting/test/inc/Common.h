@@ -34,6 +34,8 @@
 #include "WNContainers/inc/WNString.h"
 #include "WNScripting/inc/WNEngine.h"
 #include "WNScripting/inc/WNEngineFileManager.h"
+#include "WNScripting/inc/WNNodeTypes.h"
+#include "WNScripting/inc/WNScriptHelpers.h"
 
 namespace wn {
 namespace scripting {
@@ -76,6 +78,22 @@ class test_file_manager : public file_manager {
   containers::hash_map<containers::string, containers::string> m_files;
   memory::allocator* m_allocator;
 };
+
+wn::memory::allocated_ptr<wn::scripting::script_file> test_parse_file(
+    const char* _file, wn::scripting::file_manager* _manager,
+    wn::memory::allocator* _allocator) {
+  memory::allocated_ptr<file_buffer> buff = _manager->get_file(_file);
+  EXPECT_NE(wn_nullptr, buff);
+
+  wn::memory::allocated_ptr<wn::scripting::script_file> ptr =
+      wn::scripting::parse_script(
+          _allocator, _file,
+          containers::string_view(buff->data(), buff->size()));
+
+  EXPECT_NE(wn_nullptr, ptr);
+  return std::move(ptr);
+}
+
 }
 }
 #endif  // __WN_SCRIPTING_TESTS_COMMON_H__

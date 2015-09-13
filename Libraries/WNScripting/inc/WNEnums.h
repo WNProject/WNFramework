@@ -25,22 +25,14 @@ static const char *assign_type_names[static_cast<size_t>(assign_type::max)] = {
 enum class short_circuit_type { and_operator, or_operator, max };
 
 static const char *short_circuit_type_names[static_cast<size_t>(
-    short_circuit_type::max)] = {"And", "Or"};
-
-enum class equality_type {
-  equal,
-  not_equal,
-  less_than,
-  greater_than,
-  less_than_or_equal_to,
-  greater_than_or_equal_to,
-  max
-};
+    short_circuit_type::max)] = {"&&", "||"};
 
 // The only place these are used is to define constants that are handled in a
 // special way
 // special insofar as the language recognizes them
 enum class type_classification {
+  invalid_type,
+  void_type,
   int_type,
   float_type,
   char_type,
