@@ -20,7 +20,7 @@ class list;
 
 template <typename _NodeType, typename _ValueType>
 struct list_iterator final
-  : public std::iterator<std::bidirectional_iterator_tag, _ValueType> {
+    : public std::iterator<std::bidirectional_iterator_tag, _ValueType> {
   typedef _ValueType& reference;
   typedef _ValueType* pointer;
   list_iterator& operator+=(const wn_size_t _amount) {
@@ -86,7 +86,7 @@ struct list_iterator final
 
   list_iterator() : m_ptr(wn_nullptr) {}
 
-private:
+ private:
   _NodeType* m_ptr;
   list_iterator(_NodeType* node) : m_ptr(node) {}
 
@@ -96,14 +96,13 @@ private:
   friend struct list_iterator;
 };
 
-
 template <typename _Type, typename _Allocator>
 class list final {
   static _Allocator s_default_allocator;
+
  public:
-   static _Allocator& get_default_allocator() {
-     return s_default_allocator;
-   }
+  static _Allocator& get_default_allocator() { return s_default_allocator; }
+
  private:
   struct list_node {
    public:
@@ -151,6 +150,10 @@ class list final {
     }
   }
 
+  list(list&& _other) : list(_other.m_allocator) {
+    _other.transfer_to(_other.begin(), _other.end(), end(), *this);
+  }
+
   iterator begin() { return iterator(m_begin); }
   const_iterator cbegin() const { return const_iterator(m_begin); }
 
@@ -191,6 +194,38 @@ class list final {
       list_node* node = source_it.m_ptr;
       _other.insert(dest_it, std::move(node->m_element));
       return erase(source_it);
+    }
+  }
+
+  template <typename _Alloc>
+  iterator transfer_to(const_iterator source_it, const_iterator source_it_end,
+                       typename list<_Type, _Alloc>::iterator dest_it,
+                       list<_Type, _Alloc>& _other) {
+    if (source_it == source_it_end) {
+      return source_it;
+    }
+    if (m_allocator == _other.m_allocator) {
+      wn_size_t count = 0;
+      for (list_node* node = source_it.m_ptr; node != source_it_end.m_ptr;
+           node = node->m_next) {
+        count += 1;
+      }
+
+      list_node* first_node = source_it.m_ptr;
+      list_node* last_node = source_it_end.m_ptr->m_prev;
+      iterator it = unlink(source_it, source_it_end, count);
+      _other.link(dest_it, first_node, last_node, count);
+      return it;
+    } else {
+      for (auto it = source_it; it != source_it_end; ++it) {
+        list_node* node = it.m_ptr;
+        dest_it = _other.insert(dest_it, std::move(node->m_element)) + 1;
+      }
+      auto it = source_it;
+      for (; it != source_it_end;) {
+        it = erase(it);
+      }
+      return it;
     }
   }
 
@@ -235,6 +270,25 @@ class list final {
   wn_size_t size() const { return m_size; }
 
  private:
+  iterator unlink(iterator _start, iterator _end, wn_size_t count) {
+    WN_DEBUG_ASSERT_DESC(static_cast<void*>(_start.m_ptr) !=
+                             static_cast<void*>(&m_dummy_end_node),
+                         "You are trying to delete end()");
+    list_node* ptr = _start.m_ptr;
+    list_node* end_ptr = _end.m_ptr;
+    if (ptr->m_prev) {
+      ptr->m_prev->m_next = end_ptr->m_next;
+    } else {
+      m_begin = end_ptr->m_next;
+    }
+
+    end_ptr->m_next->m_prev = ptr->m_prev;
+    list_node* next = end_ptr->m_next;
+
+    m_size -= count;
+    return iterator(next);
+  }
+
   iterator unlink(iterator _it) {
     WN_DEBUG_ASSERT_DESC(
         static_cast<void*>(_it.m_ptr) != static_cast<void*>(&m_dummy_end_node),
@@ -266,7 +320,23 @@ class list final {
     m_size += 1;
     return iterator(_node);
   }
-
+  iterator link(iterator _it, list_node* _first, list_node* _last,
+                wn_size_t count) {
+    // m_end->prev == nullptr if there is nothing allocated yet.
+    if (_it.m_ptr->m_prev) {
+      _first->m_prev = _it.m_ptr->m_prev;
+      _it.m_ptr->m_prev->m_next = _first;
+    } else {
+      m_begin = _first;
+      _first->m_prev = 0;
+    }
+    // Guaranteed to have a ->next. end()->next == end(), so this will
+    // insert at the end.
+    _it.m_ptr->m_prev = _last;
+    _last->m_next = _it.m_ptr;
+    m_size += count;
+    return iterator(_first);
+  }
   memory::allocator* m_allocator;
   dummy_end_node m_dummy_end_node;
   wn_size_t m_size;
