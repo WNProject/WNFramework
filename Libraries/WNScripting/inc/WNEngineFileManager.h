@@ -7,6 +7,7 @@
 #ifndef __WN_SCRIPTING_ENGINE_FILE_MANAGER_H__
 #define __WN_SCRIPTING_ENGINE_FILE_MANAGER_H__
 
+#include "WNContainers/inc/WNStringView.h"
 #include "WNFileSystem/inc/WNFile.h"
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNScripting/inc/WNErrors.h"
@@ -30,6 +31,8 @@ class file_manager {
  public:
   virtual memory::allocated_ptr<file_buffer> get_file(
       const char* _filename) = 0;
+  virtual void write_file(const char* _filename,
+                          const containers::string_view& data) = 0;
 };
 
 class file_backed_buffer : public file_buffer {
@@ -73,6 +76,17 @@ class file_based_manager : public file_manager {
 
     return std::move(buff);
   }
+
+  void write_file(const char* _filename,
+                  const containers::string_view& data) override {
+    WNFileSystem::WNFile output_file;
+    output_file.OpenFile(_filename, WNFileSystem::WNFile::eWNFMWrite |
+                                        WNFileSystem::WNFile::eWNFMCreate |
+                                        WNFileSystem::WNFile::eWNFMClobber);
+    output_file.WriteData(data.data(), data.size());
+    output_file.CommitFileBuffer();
+  }
+
   memory::allocator* m_allocator;
 };
 }

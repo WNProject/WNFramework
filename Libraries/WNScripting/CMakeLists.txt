@@ -1,5 +1,6 @@
 add_wn_library(WNScripting SOURCES
   inc/WNASTWalker.h
+  inc/WNCTranslator.h
   inc/WNEngine.h
   inc/WNFactory.h
   inc/WNEngineFileManager.h
@@ -8,7 +9,9 @@ add_wn_library(WNScripting SOURCES
   inc/WNJITEngine.h
   inc/WNNodeTypes.h
   inc/WNScriptHelpers.h
+  inc/WNTranslator.h
   inc/WNTypeValidator.h
+  src/WNCTranslator.cpp
   src/WNFactory.cpp
   src/WNJITEngine.cpp
   src/WNScriptASTLexer.hpp
