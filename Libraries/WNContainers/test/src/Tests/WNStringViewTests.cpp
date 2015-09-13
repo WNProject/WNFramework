@@ -327,3 +327,20 @@ TEST(string_view, remove_suffix) {
   EXPECT_EQ(view.front(), 's');
   EXPECT_EQ(view.back(), 'i');
 }
+
+TEST(string_view, to_string) {
+  const char* string = "string that is long enough to not get optimized out";
+  wn::containers::string_view view(string);
+  wn::memory::default_test_allocator alloc;
+
+  {
+    EXPECT_FALSE(alloc.allocated());
+
+    wn::containers::string str = view.to_string();
+    str = view.to_string(&alloc);
+
+    EXPECT_NE(0u, alloc.allocated());
+  }
+
+  EXPECT_EQ(alloc.allocated(), alloc.freed());
+}
