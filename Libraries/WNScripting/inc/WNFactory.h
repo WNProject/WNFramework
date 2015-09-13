@@ -1,4 +1,4 @@
-  // Copyright (c) 2014, WNProject Authors. All rights reserved.
+// Copyright (c) 2014, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -10,6 +10,10 @@
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNScripting/inc/WNEngineFileManager.h"
 
+namespace WNLogging {
+class WNLog;
+}
+
 namespace wn {
 namespace scripting {
 
@@ -19,11 +23,15 @@ enum class scripting_engine_type {
   jit_engine,
 };
 
-class engine_factory {
-public:
+enum class translator_type {
+  c_translator
+};
+
+class factory {
+ public:
   virtual memory::allocated_ptr<engine> get_engine(
       scripting_engine_type _type, file_manager* _file_manager,
-      wn::memory::allocator* _allocator);
+      WNLogging::WNLog* _log, wn::memory::allocator* _allocator);
 };
 }
 }
