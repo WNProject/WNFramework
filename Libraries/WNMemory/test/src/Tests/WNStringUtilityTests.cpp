@@ -334,6 +334,14 @@ TEST(string_utility, strnchr) {
   #endif
 }
 
+TEST(string_utility, strnchr_past_end) {
+  const wn_char* test = "string";
+
+// strnchr should end at "size" or the end of the string.
+  EXPECT_EQ(wn::memory::strnchr(test, 'f', 32), wn_nullptr);
+  EXPECT_EQ(wn::memory::strnchr(test, 'p', 0xFFFFFFFF), wn_nullptr);
+}
+
 TEST(string_utility, strlwr) {
   wn_char test[7] = "STrInG";
 

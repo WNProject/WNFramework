@@ -136,15 +136,27 @@ WN_FORCE_INLINE const wn_char* strchr(const wn_char* str, const wn_char c) {
 WN_FORCE_INLINE wn_char* strnchr(wn_char* str, const wn_char c,
                                  const wn_size_t count) {
   WN_DEBUG_ASSERT_DESC(str, "string must not be nullptr");
-
-  return(static_cast<wn_char*>(std::memchr(str, c, count)));
+  for (size_t i = 0; i < count; ++i) {
+    if (str[i] == '\0') {
+      return wn_nullptr;
+    } else if (str[i] == c) {
+      return &str[i];
+    }
+  }
+  return wn_nullptr;
 }
 
 WN_FORCE_INLINE const wn_char* strnchr(const wn_char* str, const wn_char c,
                                        const wn_size_t count) {
   WN_DEBUG_ASSERT_DESC(str, "string must not be nullptr");
-
-  return(static_cast<const wn_char*>(std::memchr(str, c, count)));
+  for (size_t i = 0; i < count; ++i) {
+    if (str[i] == '\0') {
+      return wn_nullptr;
+    } else if (str[i] == c) {
+      return &str[i];
+    }
+  }
+  return wn_nullptr;
 }
 
 WN_FORCE_INLINE wn_char* strstr(wn_char* lhs, const wn_char* rhs) {
