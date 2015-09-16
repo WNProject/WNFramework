@@ -8,7 +8,7 @@
 #define __WN_MEMORY_UNIQUE_PTR_H__
 
 #include "WNMemory/inc/WNBasic.h"
-
+#include <memory>
 namespace wn {
 namespace memory {
 
@@ -283,6 +283,11 @@ WN_FORCE_INLINE unique_aligned_ptr<T> make_unique_aligned(Args&&... args) {
 
   return(unique_aligned_ptr<T>(
     construct_aligned<T>(std::forward<Args>(args)...)));
+}
+
+template <typename T, typename... Args>
+WN_FORCE_INLINE std::unique_ptr<T> make_std_unique(Args&&... args) {
+  return(std::unique_ptr<T>(new T(std::forward<Args>(args)...)));
 }
 
 } // namespace memory
