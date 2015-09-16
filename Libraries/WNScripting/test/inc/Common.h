@@ -86,19 +86,27 @@ class test_file_manager : public file_manager {
 
 wn::memory::allocated_ptr<wn::scripting::script_file> test_parse_file(
     const char* _file, wn::scripting::file_manager* _manager,
-    wn::memory::allocator* _allocator) {
+    wn::memory::allocator* _allocator,
+  WNLogging::WNLog* _log) {
   memory::allocated_ptr<file_buffer> buff = _manager->get_file(_file);
   EXPECT_NE(wn_nullptr, buff);
 
   wn::memory::allocated_ptr<wn::scripting::script_file> ptr =
       wn::scripting::parse_script(
           _allocator, _file,
-          containers::string_view(buff->data(), buff->size()));
+          containers::string_view(buff->data(), buff->size()), _log);
 
   EXPECT_NE(wn_nullptr, ptr);
   return std::move(ptr);
 }
 
+wn::memory::allocated_ptr<wn::scripting::script_file> test_parse_file(
+    const char* _file, wn::scripting::file_manager* _manager,
+    wn::memory::allocator* _allocator) {
+  return test_parse_file(_file, _manager, _allocator, WNLogging::get_null_logger());
 }
-}
+
+} // scripting
+} // wn
+
 #endif  // __WN_SCRIPTING_TESTS_COMMON_H__
