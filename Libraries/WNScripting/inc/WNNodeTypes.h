@@ -89,6 +89,13 @@ class node {
     const wn_char *c = wn::memory::strnchr(
         reinterpret_cast<const wn_char *>(m_source_location.m_line_start), '\n',
         1023);
+    if (c == wn_nullptr) {
+      // If there is no \n then we simply print everything
+      c = reinterpret_cast<const wn_char *>(m_source_location.m_line_start) +
+          wn::memory::strnlen(
+              reinterpret_cast<const wn_char *>(m_source_location.m_line_start),
+              1023);
+    }
     line_length =
         (c - reinterpret_cast<const wn_char *>(m_source_location.m_line_start));
     wn_char *data_buffer =
@@ -364,6 +371,11 @@ class instruction : public node {
  public:
   instruction(wn::memory::allocator *_allocator, node_type _type)
       : node(_allocator, _type), m_returns(wn_false) {}
+  instruction(wn::memory::allocator *_allocator, node_type _type,
+              wn_bool _returns)
+      : instruction(_allocator, _type) {
+    m_returns = _returns;
+  }
   // Returns true if this instruction causes the function to return.
   wn_bool returns() { return (m_returns); }
 
@@ -391,9 +403,17 @@ class instruction_list : public node {
         memory::default_allocated_ptr(m_allocator, inst));
   }
   ~instruction_list() {}
-  void add_instruction(instruction *inst) {
-    m_instructions.emplace_back(
-        memory::default_allocated_ptr(m_allocator, inst));
+  void add_instruction(instruction *inst, WNLogging::WNLog* _log) {
+    auto inst_ptr = memory::default_allocated_ptr(m_allocator, inst); 
+    if (!m_instructions.empty()) {
+      if (m_instructions.back()->returns()) {
+        _log->Log(WNLogging::eWarning, 0, "Instruction after return statement");
+        log_line(*_log, WNLogging::eWarning);
+        return;
+      }
+    }
+
+    m_instructions.push_back(std::move(inst_ptr));
   }
 
   wn_bool returns() { return (m_returns); }
@@ -686,12 +706,12 @@ class return_instruction : public instruction {
  public:
   return_instruction(wn::memory::allocator *_allocator, expression *_expr,
                      bool _change_ownership = false)
-      : instruction(_allocator, node_type::return_instruction),
+      : instruction(_allocator, node_type::return_instruction, true),
         m_expression(memory::default_allocated_ptr(m_allocator, _expr)),
         m_change_ownership(_change_ownership) {}
 
   return_instruction(wn::memory::allocator *_allocator)
-      : instruction(_allocator, node_type::return_instruction) {
+      : instruction(_allocator, node_type::return_instruction, true) {
     m_change_ownership = wn_false;
   }
 

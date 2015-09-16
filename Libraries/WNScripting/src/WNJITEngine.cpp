@@ -377,7 +377,8 @@ parse_error jit_engine::parse_file(const char* _file) {
   }
 
   memory::allocated_ptr<script_file> parsed_file = parse_script(
-      m_allocator, _file, containers::string_view(buff->data(), buff->size()));
+      m_allocator, _file, containers::string_view(buff->data(), buff->size()),
+      m_compilation_log);
 
   if (parsed_file == wn_nullptr) {
     return wn::scripting::parse_error::parse_failed;
