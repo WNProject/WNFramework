@@ -12,12 +12,16 @@
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNMemory/inc/WNUniquePtr.h"
 
+namespace WNLogging {
+  class WNLog;
+}
+
 namespace wn {
 namespace scripting {
 
 WN_FORCE_INLINE memory::allocated_ptr<wn::scripting::script_file> parse_script(
     memory::allocator* _allocator, const wn_char* file_name,
-    containers::string_view view) {
+    containers::string_view view, WNLogging::WNLog* _log) {
   wn::memory::allocated_ptr<wn::scripting::script_file> ptr;
   {
     WNScriptASTLexer::InputStreamType input(
@@ -30,6 +34,7 @@ WN_FORCE_INLINE memory::allocated_ptr<wn::scripting::script_file> parse_script(
                                                lexer.get_tokSource());
     WNScriptASTParser parser(&tStream);
     parser.set_allocator(_allocator);
+    parser.set_log(_log);
     ptr = std::move(
         wn::memory::default_allocated_ptr(_allocator, parser.program()));
     if (parser.getNumberOfSyntaxErrors() != 0 ||
