@@ -41,6 +41,24 @@ TEST(jit_engine, basic_parsing) {
   (*bar)();
 }
 
+// Make sure that multiple returns get coalesced
+TEST(jit_engine, multiple_returns) {
+  wn::memory::default_expanding_allocator<50> allocator;
+  wn::scripting::test_file_manager manager(
+      &allocator, {{"file.wns", "Void main() { return; return; }"}});
+  wn::scripting::jit_engine jit_engine(&allocator, &manager,
+                                       WNLogging::get_null_logger());
+  EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file.wns"));
+
+  wn::scripting::engine::void_func main = jit_engine.get_function("main");
+
+  EXPECT_NE(wn_nullptr, main);
+
+  // No returns so lets just see if we crash trying to call.
+  (*main)();
+}
+
+
 TEST(jit_engine, parse_error) {
   wn::memory::default_expanding_allocator<50> allocator;
   wn::scripting::test_file_manager manager(&allocator,

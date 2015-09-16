@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "WNContainers/inc/WNString.h"
+#include "WNLogging/inc/WNBufferLogger.h"
 #include "WNScripting/test/inc/Common.h"
 #include "WNScripting/inc/WNASTWalker.h"
 
@@ -222,4 +224,39 @@ TEST(ast_walker, multiple_functions) {
   EXPECT_EQ(2, s.pre_walked_parameters);
   EXPECT_EQ(2, s.pre_walked_return_instructions);
   EXPECT_EQ(0, s.pre_walked_expressions);
+}
+
+wn_void log_flush_cb(wn_void* _dat, const wn_char* _str, wn_size_t _length,
+                     const std::vector<WNLogging::WNLogColorElement>&) {
+  wn::containers::string* str = static_cast<wn::containers::string*>(_dat);
+  str->append(_str, _str + _length);
+}
+
+TEST(ast_walker, multiple_returns) {
+  wn::memory::default_expanding_allocator<50> allocator;
+  wn::scripting::test_file_manager manager(
+      &allocator, {{"file.wns", "Void main() { return; return; }\n"}});
+
+  wn::scripting::type_validator validator(&allocator);
+  wn::containers::string log_string(&allocator);
+  WNLogging::WNBufferLogger<log_flush_cb> logger(&log_string);
+  WNLogging::WNLog log(&logger);
+  log.SetLogLevel(WNLogging::eLogMax);
+  ExpressionTestStruct s;
+  wn::scripting::ast_walker<ExpressionTestStruct, TestTraits> walker(
+      &s, &log, &validator, &allocator);
+  auto a = test_parse_file("file.wns", &manager, &allocator, &log);
+  walker.walk_script_file(a.get());
+  log.Flush();
+  EXPECT_EQ(1, s.pre_walked_script_files);
+  EXPECT_EQ(1, s.walked_script_files);
+  EXPECT_EQ(1, s.pre_walked_parameters);
+  EXPECT_EQ(1, s.pre_walked_return_instructions);
+  EXPECT_EQ(1, s.walked_return_instructions);
+  EXPECT_EQ(0, s.pre_walked_expressions);
+  EXPECT_EQ(
+      "Warning:Instruction after return statement\n"
+      "Warning:Line: 1\n"
+      "Void main() { return; return; }\n",
+      log_string);
 }
