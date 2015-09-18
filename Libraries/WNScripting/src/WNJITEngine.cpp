@@ -173,7 +173,7 @@ struct ast_jit_engine {
       const wn::scripting::expression*,
       wn::containers::contiguous_range<
           wn::containers::contiguous_range<llvm::Value*>>,
-      wn_uint32) {
+      llvm::Type*) {
     WN_RELEASE_ASSERT_DESC(wn_false, "Not Implemented");
     return wn_nullptr;
   }

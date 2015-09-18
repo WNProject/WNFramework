@@ -33,10 +33,26 @@ struct ast_c_translator {
       const wn::scripting::expression*,
       wn::containers::contiguous_range<
           wn::containers::contiguous_range<containers::string>>,
-      wn_uint32) {
+      containers::string) {
     WN_RELEASE_ASSERT_DESC(wn_false, "Not Implemented");
     return "";
   }
+
+  containers::string walk_expression(
+      const wn::scripting::constant_expression* const_expr,
+      wn::containers::contiguous_range<
+          wn::containers::contiguous_range<containers::string>>,
+      containers::string _type) {
+    switch(const_expr->get_classification()) {
+    case wn::scripting::type_classification::int_type:
+      return const_expr->get_type_text();
+      break;
+    default:
+      WN_RELEASE_ASSERT_DESC(wn_false, "Not Implemented");
+    }
+    return "";
+  }
+
 
   void pre_walk_function(const wn::scripting::function* _function) {}
   void pre_walk_function_header(const wn::scripting::function* _function) {}
