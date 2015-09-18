@@ -171,7 +171,7 @@ class ast_walker {
         break;
       case node_type::declaration:
         return walk_declaration(cast_to<const declaration>(_instruction));
-        break; 
+        break;
       case node_type::do_instruction:
         return walk_do_instruction(cast_to<const do_instruction>(_instruction));
         break;
@@ -298,9 +298,38 @@ class ast_walker {
   }
 
   typename Traits::expression_type walk_constant_expression(
-      const constant_expression*) {
-    WN_RELEASE_ASSERT_DESC(wn_false, "Unimplemented");
-    return typename Traits::expression_type();
+      const constant_expression* _const_expr) {
+
+    bool bad_type = false;
+    switch (_const_expr->get_classification()) {
+      case wn::scripting::type_classification::int_type: {
+        if (_const_expr->get_type_text().length() > 11) {
+          bad_type = true;
+          break;
+        }
+        long long val = atoll(_const_expr->get_type_text().c_str());
+        if (val > LONG_MAX || val < LONG_MIN) {
+          bad_type = true;
+        }
+      } break;
+      default:
+        WN_RELEASE_ASSERT_DESC(wn_false, "Unimplemented");
+        break;
+    }
+
+    if (bad_type) {
+      m_log->Log(WNLogging::eError, 0, "Invalid constant: \"",
+                 _const_expr->get_type_text().c_str(), "\"");
+      _const_expr->log_line(*m_log, WNLogging::eError);
+      return Traits::expression_type();
+    }
+
+    m_consumer->pre_walk_expression(_const_expr);
+    return m_consumer->walk_expression(
+        _const_expr,
+        containers::contiguous_range<
+            containers::contiguous_range<typename Traits::expression_type>>(),
+        walk_type(_const_expr->get_type()));
   }
 
   typename Traits::expression_type walk_id_expression(const id_expression*) {

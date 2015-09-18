@@ -227,17 +227,24 @@ class constant_expression : public expression {
   constant_expression(wn::memory::allocator *_allocator,
                       type_classification _type, const char *_text)
       : expression(_allocator, node_type::constant_expression),
-        m_type_name(_type),
+        m_type_classification(_type),
         m_text(_text, _allocator) {}
+
   constant_expression(wn::memory::allocator *_allocator, type *_type,
                       const char *_text)
       : expression(_allocator, node_type::constant_expression),
-        m_type_name(type_classification::custom_type),
+        m_type_classification(_type->get_classification()),
         m_type(memory::default_allocated_ptr(m_allocator, _type)),
         m_text(_text, _allocator) {}
 
+  type_classification get_classification() const {
+    return m_type_classification;
+  }
+  const containers::string& get_type_text() const { return m_text; }
+  const type *get_type() const { return m_type.get(); }
+
  private:
-  type_classification m_type_name;
+  type_classification m_type_classification;
   containers::string m_text;
   wn::memory::allocated_ptr<type> m_type;
 };
@@ -404,7 +411,7 @@ class instruction_list : public node {
   }
   ~instruction_list() {}
   void add_instruction(instruction *inst, WNLogging::WNLog* _log) {
-    auto inst_ptr = memory::default_allocated_ptr(m_allocator, inst); 
+    auto inst_ptr = memory::default_allocated_ptr(m_allocator, inst);
     if (!m_instructions.empty()) {
       if (m_instructions.back()->returns()) {
         _log->Log(WNLogging::eWarning, 0, "Instruction after return statement");
