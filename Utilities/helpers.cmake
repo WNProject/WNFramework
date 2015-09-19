@@ -22,10 +22,14 @@ elseif(ANDROID)
     message(FATAL_ERROR "Android api level must be >= 14 \"-DANDROID_NATIVE_API_LEVEL=14\"")
   endif()
 
-  if (NOT ANDROID_SDK_DIR)
-    message(WARNING  "ANDROID_SDK_DIR is not defined: .apk files will not be created.")
+  if (NOT ANDROID_SDK)
+    set(ANDROID_SDK "$ENV{ANDROID_SDK}")
+  endif()
+
+  if (NOT ANDROID_SDK)
+    message(WARNING  "ANDROID_SDK is not defined: .apk files will not be created.")
   else()
-	string(REPLACE "\\" "/" ANDROID_SDK_DIR "${ANDROID_SDK_DIR}")
+    string(REPLACE "\\" "/" ANDROID_SDK "${ANDROID_SDK}")
   endif()
 
   if (${ANDROID_NDK_HOST_SYSTEM_NAME} STREQUAL "windows" OR
