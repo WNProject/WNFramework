@@ -12,6 +12,7 @@
 #pragma warning(disable : 4800)
 #pragma warning(disable : 4624)
 #include <llvm/IR/BasicBlock.h>
+#include <llvm/IR/Constants.h>
 #include <llvm/IR/Function.h>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
@@ -27,13 +28,15 @@
 #pragma warning(pop)
 
 #include "WNContainers/inc/WNContiguousRange.h"
+#include "WNContainers/inc/WNList.h"
+#include "WNMemory/inc/WNAllocator.h"
 #include "WNScripting/inc/WNJITEngine.h"
 #include "WNScripting/inc/WNASTWalker.h"
 #include "WNScripting/inc/WNScriptHelpers.h"
 #include "WNLogging/inc/WNLog.h"
 
 #include <algorithm>
-
+using namespace wn;
 namespace {
 
 template <typename T>
@@ -178,6 +181,25 @@ struct ast_jit_engine {
     return wn_nullptr;
   }
 
+  llvm::Value* walk_expression(
+      const wn::scripting::constant_expression* expr,
+      wn::containers::contiguous_range<
+          wn::containers::contiguous_range<llvm::Value*>>,
+      llvm::Type* _type) {
+    switch (expr->get_classification()) {
+      case wn::scripting::type_classification::int_type: {
+        WN_DEBUG_ASSERT_DESC(_type->isIntegerTy(32),
+                             "Integer types must be int32 types");
+        long long val = atoll(expr->get_type_text().c_str());
+        return llvm::ConstantInt::getSigned(_type, val);
+        break;
+      }
+      default:
+        WN_RELEASE_ASSERT_DESC(wn_false, "Not Implemented");
+    }
+    return wn_nullptr;
+  }
+
   void pre_walk_function(const wn::scripting::function* _function) {}
   void pre_walk_function_header(const wn::scripting::function* _function) {}
   function_definition walk_function_header(
@@ -246,9 +268,8 @@ struct ast_jit_engine {
         break;
       case wn::scripting::type_classification::void_type:
         return llvm::Type::getVoidTy(*m_context);
-        break;
       case wn::scripting::type_classification::int_type:
-        break;
+        return llvm::IntegerType::getInt32Ty(*m_context);
       case wn::scripting::type_classification::float_type:
         break;
       case wn::scripting::type_classification::char_type:
@@ -275,8 +296,8 @@ struct ast_jit_engine {
   instruction walk_return_instruction(
       const wn::scripting::return_instruction* _return_instruction,
       llvm::Value* _expression) {
-    WN_RELEASE_ASSERT_DESC(wn_false, "Not implemneted: non-void return");
-    return instruction(m_allocator);
+    return instruction(llvm::ReturnInst::Create(*m_context, _expression),
+                       m_allocator);
   }
 
   instruction walk_return_instruction(

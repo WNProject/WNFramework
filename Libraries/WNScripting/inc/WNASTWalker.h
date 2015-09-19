@@ -321,7 +321,7 @@ class ast_walker {
       m_log->Log(WNLogging::eError, 0, "Invalid constant: \"",
                  _const_expr->get_type_text().c_str(), "\"");
       _const_expr->log_line(*m_log, WNLogging::eError);
-      return Traits::expression_type();
+      return typename Traits::expression_type();
     }
 
     m_consumer->pre_walk_expression(_const_expr);
@@ -344,7 +344,7 @@ class ast_walker {
         _expression,
         containers::contiguous_range<
             containers::contiguous_range<typename Traits::expression_type>>(),
-        0);
+        typename Traits::type_type());
     return typename Traits::expression_type();
   }
 
