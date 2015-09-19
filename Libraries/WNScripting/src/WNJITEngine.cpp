@@ -12,6 +12,7 @@
 #pragma warning(disable : 4800)
 #pragma warning(disable : 4624)
 #include <llvm/IR/BasicBlock.h>
+#include <llvm/IR/Constants.h>
 #include <llvm/IR/Function.h>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
@@ -27,6 +28,8 @@
 #pragma warning(pop)
 
 #include "WNContainers/inc/WNContiguousRange.h"
+#include "WNContainers/inc/WNList.h"
+#include "WNMemory/inc/WNAllocator.h"
 #include "WNScripting/inc/WNJITEngine.h"
 #include "WNScripting/inc/WNASTWalker.h"
 #include "WNScripting/inc/WNScriptHelpers.h"
@@ -38,15 +41,15 @@ namespace {
 
 template <typename T>
 typename llvm::ArrayRef<T> make_array_ref(
-    const containers::dynamic_array<T>& _array) {
+    const wn::containers::dynamic_array<T>& _array) {
   return llvm::ArrayRef<T>(_array.data(), _array.size());
 }
 
-llvm::StringRef make_string_ref(const containers::string_view& _view) {
+llvm::StringRef make_string_ref(const wn::containers::string_view& _view) {
   return llvm::StringRef(_view.data(), _view.length());
 }
 
-llvm::StringRef make_string_ref(const containers::string& _view) {
+llvm::StringRef make_string_ref(const wn::containers::string& _view) {
   return llvm::StringRef(_view.data(), _view.length());
 }
 
@@ -55,12 +58,12 @@ struct script_file {
   ~script_file() {}
   script_file(script_file&& _other)
       : m_functions(std::move(_other.m_functions)) {}
-  containers::deque<llvm::Function*> m_functions;
+  wn::containers::deque<llvm::Function*> m_functions;
 };
 
 struct parameter {
   llvm::Type* m_type;
-  containers::string m_name;
+  wn::containers::string m_name;
 };
 
 struct instruction {
@@ -77,12 +80,12 @@ struct instruction {
   instruction() {
     WN_RELEASE_ASSERT_DESC(wn_false, "This should never be hit");
   }
-  instruction(llvm::Instruction* _inst, memory::allocator* _allocator)
+  instruction(llvm::Instruction* _inst, wn::memory::allocator* _allocator)
       : instruction(_allocator) {
     main_block_insertions.push_back(_inst);
   }
-  containers::list<llvm::Instruction*> main_block_insertions;
-  containers::list<llvm::BasicBlock*> additional_basic_blocks;
+  wn::containers::list<llvm::Instruction*> main_block_insertions;
+  wn::containers::list<llvm::BasicBlock*> additional_basic_blocks;
   llvm::BasicBlock* end_basic_block;
 };
 
@@ -94,15 +97,15 @@ struct function_definition {
     _other.m_type = wn_nullptr;
   }
   llvm::FunctionType* m_type;
-  containers::dynamic_array<containers::string> m_parameters;
+  wn::containers::dynamic_array<containers::string> m_parameters;
 };
 
 // Takes a list of instructions and collapses tem into a single
 // instruction that may consist of a sequence of llvm instructions,
 // a set of basic blocks, and a single new insertion position.
 instruction collapse_instructions(
-    containers::contiguous_range<instruction> instructions,
-    memory::allocator* _allocator) {
+    wn::containers::contiguous_range<instruction> instructions,
+    wn::memory::allocator* _allocator) {
   if (instructions.empty()) {
     return instruction(_allocator);
   }
@@ -160,7 +163,7 @@ struct ast_jit_traits {
   typedef script_file script_file_type;
   typedef llvm::Type* struct_definition_type;
   typedef llvm::Type* type_type;
-  typedef containers::string include_type;
+  typedef wn::containers::string include_type;
 };
 
 struct ast_jit_engine {
@@ -178,15 +181,34 @@ struct ast_jit_engine {
     return wn_nullptr;
   }
 
+  llvm::Value* walk_expression(
+      const wn::scripting::constant_expression* expr,
+      wn::containers::contiguous_range<
+          wn::containers::contiguous_range<llvm::Value*>>,
+      llvm::Type* _type) {
+    switch (expr->get_classification()) {
+      case wn::scripting::type_classification::int_type: {
+        WN_DEBUG_ASSERT_DESC(_type->isIntegerTy(32),
+                             "Integer types must be int32 types");
+        long long val = atoll(expr->get_type_text().c_str());
+        return llvm::ConstantInt::getSigned(_type, val);
+        break;
+      }
+      default:
+        WN_RELEASE_ASSERT_DESC(wn_false, "Not Implemented");
+    }
+    return wn_nullptr;
+  }
+
   void pre_walk_function(const wn::scripting::function* _function) {}
   void pre_walk_function_header(const wn::scripting::function* _function) {}
   function_definition walk_function_header(
       const wn::scripting::function* _function, parameter& _decl,
-      containers::dynamic_array<parameter>& _parameters) {
+      wn::containers::dynamic_array<parameter>& _parameters) {
     function_definition definition(m_allocator);
     definition.m_parameters.reserve(_parameters.size());
 
-    containers::dynamic_array<llvm::Type*> types(m_allocator);
+    wn::containers::dynamic_array<llvm::Type*> types(m_allocator);
     types.reserve(_parameters.size());
     for (auto& decl : _parameters) {
       types.push_back(decl.m_type);
@@ -198,9 +220,10 @@ struct ast_jit_engine {
     return std::move(definition);
   }
 
-  llvm::Function* walk_function(const wn::scripting::function* _function,
-                                const function_definition& function_header,
-                                containers::dynamic_array<instruction>& _body) {
+  llvm::Function* walk_function(
+      const wn::scripting::function* _function,
+      const function_definition& function_header,
+      wn::containers::dynamic_array<instruction>& _body) {
     llvm::Function* function = llvm::Function::Create(
         function_header.m_type,
         llvm::GlobalValue::LinkageTypes::ExternalLinkage,
@@ -246,9 +269,8 @@ struct ast_jit_engine {
         break;
       case wn::scripting::type_classification::void_type:
         return llvm::Type::getVoidTy(*m_context);
-        break;
       case wn::scripting::type_classification::int_type:
-        break;
+        return llvm::IntegerType::getInt32Ty(*m_context);
       case wn::scripting::type_classification::float_type:
         break;
       case wn::scripting::type_classification::char_type:
@@ -275,8 +297,8 @@ struct ast_jit_engine {
   instruction walk_return_instruction(
       const wn::scripting::return_instruction* _return_instruction,
       llvm::Value* _expression) {
-    WN_RELEASE_ASSERT_DESC(wn_false, "Not implemneted: non-void return");
-    return instruction(m_allocator);
+    return instruction(llvm::ReturnInst::Create(*m_context, _expression),
+                       m_allocator);
   }
 
   instruction walk_return_instruction(
@@ -308,7 +330,7 @@ struct ast_jit_engine {
   }
 
  private:
-  memory::allocator* m_allocator;
+  wn::memory::allocator* m_allocator;
   llvm::Module* m_module;
   llvm::LLVMContext* m_context;
 };
@@ -370,15 +392,16 @@ CompiledModule& jit_engine::add_module(containers::string_view _file) {
 }
 
 parse_error jit_engine::parse_file(const char* _file) {
-  memory::allocated_ptr<file_buffer> buff = m_file_manager->get_file(_file);
+  wn::memory::allocated_ptr<file_buffer> buff = m_file_manager->get_file(_file);
 
   if (!buff) {
     return parse_error::does_not_exist;
   }
 
-  memory::allocated_ptr<script_file> parsed_file = parse_script(
-      m_allocator, _file, containers::string_view(buff->data(), buff->size()),
-      m_compilation_log);
+  wn::memory::allocated_ptr<script_file> parsed_file =
+      parse_script(m_allocator, _file,
+                   wn::containers::string_view(buff->data(), buff->size()),
+                   m_compilation_log);
 
   if (parsed_file == wn_nullptr) {
     return wn::scripting::parse_error::parse_failed;
