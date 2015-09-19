@@ -223,10 +223,10 @@ TEST(ast_walker, multiple_returns) {
   EXPECT_EQ(1, s.walked_return_instructions);
   EXPECT_EQ(0, s.walked_expressions);
   EXPECT_EQ(
-      "Warning:Instruction after return statement\n"
+      std::string("Warning:Instruction after return statement\n"
       "Warning:Line: 1\n"
-      "Void main() { return; return; }\n",
-      log_string);
+      "Void main() { return; return; }\n"),
+      std::string(log_string.c_str()));
 }
 
 class ast_walker_valid_ints : public ::testing::TestWithParam<const char*> {};
