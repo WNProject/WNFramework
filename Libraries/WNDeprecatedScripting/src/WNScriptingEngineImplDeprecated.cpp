@@ -28,7 +28,7 @@
 #include "WNDeprecatedScripting/inc/WNCodeModule.h"
 #include "WNDeprecatedScripting/inc/WNParameter.h"
 #include "WNDeprecatedScripting/inc/WNScriptingInterop.h"
-#include "WNFileSystem/inc/WNFile.h"
+#include "WNDeprecatedFileSystem/inc/WNFile.h"
 #include "WNMemory/inc/WNBasic.h"
 
 #include <algorithm>

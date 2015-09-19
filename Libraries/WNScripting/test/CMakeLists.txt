@@ -8,5 +8,5 @@ wn_create_tests_from_list(TEST_PREFIX WNScripting
     WNCTranslator
     WNFactory
     WNEngineJITInitializer
-  LIBS WNScripting WNFileSystem
+  LIBS WNScripting WNFileSystemDeprecated
 )

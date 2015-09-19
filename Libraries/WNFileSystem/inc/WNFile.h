@@ -7,71 +7,53 @@
 #ifndef __WN_FILE_SYSTEM_FILE_H__
 #define __WN_FILE_SYSTEM_FILE_H__
 
-#include "WNCore/inc/WNBase.h"
-#include "WNCore/inc/WNTypes.h"
+#include "WNContainers/inc/WNContiguousRange.h"
+#include "WNMemory/inc/WNAllocator.h"
 
-#ifdef _WN_WINDOWS
+namespace wn {
+namespace file_system {
 
-#elif defined _WN_LINUX || defined _WN_ANDROID
-    #include <stdio.h>
-#endif
+class file {
+public:
+  typedef uint8_t value_type;
+  typedef size_t size_type;
+  typedef std::add_pointer<value_type>::type pointer;
+  typedef std::add_const<pointer>::type const_pointer;
 
-namespace WNFileSystem {
-    class WNFile {
-    public:
-        WNFile();
-        ~WNFile();
+  virtual ~file() = default;
 
-        enum WNFileMode {
-            eWNFMNone = 0,
-            eWNFMRead = 1,
-            eWNFMWrite = (1 << 1),
-            eWNFMExclusive = (1 << 2),
-            eWNFMCreate = (1 << 3),
-            eWNFMClobber = (1 << 4),
-            eWNFMStream = (1 << 5),
-            eWNFMMax
-        };
+  virtual pointer data() = 0;
+  virtual const_pointer data() const = 0;
 
-        enum WNFileError {
-            #include "WNCore/inc/Internal/WNErrors.inc"
-            eWNFEBadMode,
-            eWNFETooLarge,
-            eWNFEBadLock,
-            eWNFEMax
-        };
+  WN_FORCE_INLINE containers::contiguous_range<value_type> range() {
+    return containers::contiguous_range<value_type>(data(), size());
+  }
 
-        WNFileError OpenFile(const wn_char* _name, wn_uint32 _mode );
-        wn_char* GetDataBuffer();
-        wn_bool CommitFileBuffer();
-        wn_char* ResizeDataBuffer(wn_size_t _size );
-        wn_size_t ReadData(wn_char* outBuffer, wn_size_t _amount);
-        wn_size_t WriteData(const wn_char* inBuffer, wn_size_t _amount);
-        wn_size_t GetFileSize() const ;
+  WN_FORCE_INLINE containers::contiguous_range<const value_type> range() const {
+    return containers::contiguous_range<const value_type>(data(), size());
+  }
 
-        wn_bool IsValid();
+  virtual size_type size() const = 0;
 
-        static wn_bool DoesFileExist(const wn_char* _name );
-        static wn_char* GetFolderName(const wn_char* _name);
-        static wn_char* GetFileName(const wn_char* _name);
-        static wn_void CollapseFolderStructure(wn_char* _name);
-        static wn_bool DeleteFile(const wn_char* _name);
+  WN_FORCE_INLINE bool empty() const {
+    return (size() == 0);
+  }
 
-    private:
-        wn_uint32 mFileMode;
-        wn_size_t mMaxBufferSize;
-        wn_size_t mFileSize;
-        wn_char* mFileBuffer;
-        wn_bool mIsFileOpen;
-        wn_bool mStream;
-        wn_bool mIsValid;
+  virtual bool is_open() const = 0;
 
-        #ifdef _WN_WINDOWS
-            HANDLE mFileHandle;
-        #elif defined _WN_LINUX || defined _WN_ANDROID
-            FILE* mFileHandle;
-        #endif
-    };
-}
+  virtual bool flush() = 0;
+  virtual bool resize(const size_type _size) = 0;
 
-#endif // __WN_FILE_SYSTEM_FILE_H__
+  WN_FORCE_INLINE bool clear() {
+    return resize(0);
+  }
+
+  virtual void close() = 0;
+};
+
+using file_ptr = memory::allocated_ptr<file>;
+
+}  // namespace file_system
+}  // namespace wn
+
+#endif  // __WN_FILE_SYSTEM_FILE_H__

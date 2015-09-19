@@ -8,7 +8,7 @@
 #define __WN_SCRIPTING_ENGINE_FILE_MANAGER_H__
 
 #include "WNContainers/inc/WNStringView.h"
-#include "WNFileSystem/inc/WNFile.h"
+#include "WNDeprecatedFileSystem/inc/WNFile.h"
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNScripting/inc/WNErrors.h"
 

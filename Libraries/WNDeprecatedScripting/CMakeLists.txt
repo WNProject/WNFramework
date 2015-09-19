@@ -127,7 +127,7 @@ endif()
 
 llvm_map_components_to_libnames(llvm_libs ${WNScriptingLLVMComponents})
 
-wn_target_link_libraries(WNScriptingDeprecated WNFileSystem ${llvm_libs}
+wn_target_link_libraries(WNScriptingDeprecated WNFileSystemDeprecated ${llvm_libs}
   ${WNScriptingAdditionalLibs})
 add_definitions(${LLVM_DEFINITIONS})
 
