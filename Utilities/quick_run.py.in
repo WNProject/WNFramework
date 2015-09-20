@@ -9,7 +9,7 @@ import time
 
 def run():
     ndk_dir="${ANDROID_NDK}"
-    sdk_dir="${ANDROID_SDK_DIR}"
+    sdk_dir="${ANDROID_SDK}"
     runner="${ANDROID_RUNNER}"
     parser = argparse.ArgumentParser(
                 prog="${WN_ACTIVITY_NAME}.py",
