@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+  <Type Name="wn::containers::contiguous_range&lt;*&gt;">
+    <DisplayString Condition="((m_end - m_begin) &lt;= 0) &amp;&amp; (m_begin != 0)">{{size=???}}</DisplayString>
+    <DisplayString Condition="(((m_end - m_begin) &gt; 0) &amp;&amp; (m_begin != 0)) || (((m_end - m_begin) == 0) &amp;&amp; (m_begin == 0))">{{size={m_end - m_begin}}}</DisplayString>
+    <Expand>
+      <Item Name="[size]" Condition="(((m_end - m_begin) &gt; 0) &amp;&amp; (m_begin != 0)) || (((m_end - m_begin) == 0) &amp;&amp; (m_begin == 0))" ExcludeView="simple">m_end - m_begin</Item>
+      <ArrayItems Condition="(((m_end - m_begin) &gt; 0) &amp;&amp; (m_begin != 0)) || (((m_end - m_begin) == 0) &amp;&amp; (m_begin == 0))">
+        <Size>m_end - m_begin</Size>
+        <ValuePointer>m_begin</ValuePointer>
+      </ArrayItems>
+    </Expand>
+  </Type>
+</AutoVisualizer>
