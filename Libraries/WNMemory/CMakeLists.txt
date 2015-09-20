@@ -23,12 +23,18 @@ set(INC_INTERNAL
   inc/Internal/WNBasicTraits.h
 )
 
+set(NATVIS
+  natvis/WNIntrusivePtr.natvis
+  natvis/WNUniquePtr.natvis
+)
+
 source_group("inc\\Internal\\Extension\\x86\\3DNow" FILES ${INC_INTERNAL_EXTENSION_X86_3DNOW})
 source_group("inc\\Internal\\Extension\\x86\\SSE" FILES ${INC_INTERNAL_EXTENSION_X86_SSE})
 source_group("inc\\Internal\\Extension\\x86" FILES ${INC_INTERNAL_EXTENSION_X86})
 source_group("inc\\Internal\\Extension" FILES ${INC_INTERNAL_EXTENSION})
 source_group("inc\\Internal\\Generic" FILES ${INC_INTERNAL_GENERIC})
 source_group("inc\\Internal" FILES ${INC_INTERNAL})
+source_group("natvis" FILES ${NATVIS})
 
 add_wn_header_library(WNMemory
   ${INC_INTERNAL_EXTENSION_X86_3DNOW}
@@ -37,6 +43,7 @@ add_wn_header_library(WNMemory
   ${INC_INTERNAL_EXTENSION}
   ${INC_INTERNAL_GENERIC}
   ${INC_INTERNAL}
+  ${NATVIS}
   inc/WNAllocator.h
   inc/WNBasic.h
   inc/WNConfig.h

@@ -1,4 +1,12 @@
+set(NATVIS
+  natvis/WNContiguousRange.natvis
+  natvis/WNStringView.natvis
+)
+
+source_group("natvis" FILES ${NATVIS})
+
 add_wn_header_library(WNContainers
+  ${NATVIS}
   inc/WNContiguousRange.h
   inc/WNDataBuffer.h
   inc/WNDeque.h
