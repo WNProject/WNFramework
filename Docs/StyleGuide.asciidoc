@@ -1,34 +1,33 @@
 = Code Conventions
+
 In general we are following the conventions outlined in the
-link:https://google-styleguide.googlecode.com/svn/trunk/cppguide.html[
-Google C++ style guide]. We have some modifications with respect to naming
-and a few rules to be outlined below.
+link:https://google-styleguide.googlecode.com/svn/trunk/cppguide.html[Google C++ style guide].
+We have some modifications with respect to naming and a few rules to be outlined
+below.
 
-=== Naming
-==== Namespaces
-In general everything should be in the wn namespace. Furthermore every
-set of functionality, generally library, should be in it's own
-sub-namespace.
+== Naming
+=== Namespaces
 
-Internal-only functionality should be in a further namespace called
-internal.
+In general everything should be in the wn namespace. Furthermore every set of
+functionality, generally library, should be in it's own sub-namespace.
 
-At the end of every namespace a comment should be included describing
-the namespace that was closed. Anonymous namespaces should be closed
-with the comment `// anonymous namespace`.
+Internal-only functionality should be in a further namespace called internal.
+
+At the end of every namespace a comment should be included describing the
+namespace that was closed. Anonymous namespaces should be closed with the
+comment `// anonymous namespace`.
+
 [source,cpp]
 ----
 namespace wn {
 namespace containers {
 namespace internal {
 
-class deque_iterator {
-}
+class deque_iterator {};
 
 }  // namespace internal
 
-class deque {
-}
+class deque {};
 
 }  // namespace containers
 }  // namespace wn
@@ -37,10 +36,11 @@ namespace {
 }  // anonymous namespace
 ----
 
-==== Classes
-Class names should be all lower-case with word separation done with
-underscores. They are already expected to be in a
-`wn::<library>::namespace` so the name should not repeat this information.
+=== Classes
+
+Class names should be all lower-case with word separation done with underscores.
+They are already expected to be in a `wn::<library>::namespace` so the name
+should not repeat this information.
 
 [source,cpp]
 ----
@@ -48,23 +48,27 @@ class my_foo;
 struct my_bar;
 ----
 
-==== Functions and Class Methods
-Free functions follow the same naming conventions as classes. Their
-names should be descriptive of the operation they perform, and longer
-names should be preferred over potentially unclear abbreviations.
+=== Functions and Class Methods
 
-==== Arguments
-Function arguments should follow the same rules as functions and
-methods, but must be prefixed with an `_` denoting they are an
-input/output to/from this method.
+Free functions follow the same naming conventions as classes. Their names should
+be descriptive of the operation they perform, and longer names should be
+preferred over potentially unclear abbreviations.
+
+=== Arguments
+
+Function arguments should follow the same rules as functions and methods, but
+must be prefixed with an `_` denoting they are an input/output to/from this
+method.
 
 [source,cpp]
 ----
-int foo(int _bar, int* _baz)
+int foo(int _bar, int* _baz);
 ----
 
-==== Local Variables
+=== Local Variables
+
 Local variables should be the same as arguments but should omit the underscore.
+
 [source,cpp]
 ----
 int foo() {
@@ -72,22 +76,26 @@ int foo() {
 }
 ----
 
-==== Member Variables
+=== Member Variables
+
 Member variables should be prefixed with `m_` so that they can be readily
 identified.
 
-==== Static Variables
-Private static member variables should be prefixed with `s_` in order
-to identify them.
+=== Static Variables
+
+Private static member variables should be prefixed with `s_` in order to
+identify them.
 
 Public static member variables can omit the `s_`.
 
-Static variables of any type are generally discouraged, and should only be
-used with careful thought.
+Static variables of any type are generally discouraged, and should only be used
+with careful thought.
 
-==== Template Parameters
-Template parameters should be in sentence case. One exception is if the
-usage is very localized and clear, an abbreviated form can be used.
+=== Template Parameters
+
+Template parameters should be in sentence case. One exception is if the usage is
+very localized and clear, an abbreviated form can be used.
+
 [source,cpp]
 ----
 template <typename MyType>
@@ -101,11 +109,12 @@ operator=(const T& _other) {
 }
 ----
 
-==== Header Guards
-Header guards follow the same structure as the namespace and class name
-for the main class in the file. This should also be the file name.
-The closing of the header guard should also contain a comment describing
-what has been closed.
+=== Header Guards
+
+Header guards follow the same structure as the namespace and class name for the
+main class in the file. This should also be the file name. The closing of the
+header guard should also contain a comment describing what has been closed.
+
 [source,cpp]
 ----
 #ifdef __WN_CONTAINERS_DEQUE_H__
@@ -113,12 +122,13 @@ what has been closed.
 #endif  // __WN_CONTAINERS_DEQUE_H__
 ----
 
-==== Macros
-Macros should be avoided if possible, but sometimes it is required.
-Other than header guards preprocessor directives should be ALL_CAPS
-separated by "_" characters. In conditional preprocessor sections,
-at the end of the directive a comment should be included describing
-the section that was closed.
+=== Macros
+
+Macros should be avoided if possible, but sometimes it is required. Other than
+header guards preprocessor directives should be ALL_CAPS separated by "_"
+characters. In conditional preprocessor sections, at the end of the directive a
+comment should be included describing the section that was closed.
+
 [source,cpp]
 ----
 #define MY_FOO
@@ -127,8 +137,7 @@ the section that was closed.
 #endif  // FOO
 ----
 
-=== Formatting
-Our formatting is based off of the Google C++ style guide
-with some modifications. We use clang-format extensively, and it
-should handle all formatting. See .clang-format for further
-details.
+== Formatting
+Our formatting is based off of the Google C++ style guide with some
+modifications. We use clang-format extensively, and it should handle all
+formatting. See .clang-format for further details.
