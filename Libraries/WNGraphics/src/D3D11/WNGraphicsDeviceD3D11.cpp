@@ -61,15 +61,37 @@ WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceD3D11::
     D3D_FEATURE_LEVEL level;
     UINT flags = 0;
 
-    #ifdef _WN_DEBUG
-        flags |= D3D11_CREATE_DEVICE_DEBUG;
-    #endif
+#ifdef _WN_DEBUG
+    flags |= D3D11_CREATE_DEVICE_DEBUG;
+#endif
 
-    if (D3D11CreateDevice(mAdapter, D3D_DRIVER_TYPE_UNKNOWN, NULL, flags, NULL, 0, D3D11_SDK_VERSION, &mDevice, &level, &mContext) != S_OK) {
-        if (D3D11CreateDevice(NULL, D3D_DRIVER_TYPE_WARP, NULL, flags, NULL, 0, D3D11_SDK_VERSION, &mDevice, &level, &mContext) != S_OK) {
-            //Try to fallback on a software WARP device
-            Cleanup();
-        }
+    HRESULT create_result =
+        ::D3D11CreateDevice(mAdapter, D3D_DRIVER_TYPE_UNKNOWN, NULL, flags,
+            NULL, 0, D3D11_SDK_VERSION, &mDevice, &level, &mContext);
+
+#ifdef _WN_DEBUG
+    if (create_result != S_OK) {
+      create_result = ::D3D11CreateDevice(mAdapter, D3D_DRIVER_TYPE_UNKNOWN,
+          NULL, 0, NULL, 0, D3D11_SDK_VERSION, &mDevice, &level, &mContext);
+    }
+#endif
+
+    if (create_result != S_OK) {
+      create_result = ::D3D11CreateDevice(NULL, D3D_DRIVER_TYPE_WARP, NULL,
+          flags, NULL, 0, D3D11_SDK_VERSION, &mDevice, &level, &mContext);
+
+#ifdef _WN_DEBUG
+      if (create_result != S_OK) {
+        create_result = ::D3D11CreateDevice(mAdapter, D3D_DRIVER_TYPE_WARP,
+            NULL, 0, NULL, 0, D3D11_SDK_VERSION, &mDevice, &level, &mContext);
+      }
+#endif
+
+      if (create_result != S_OK) {
+        Cleanup();
+
+        WNGraphics::WNGraphicsDeviceReturnCode::error;
+      }
     }
 
     mFeatureLevel = static_cast<wn_uint32>(level);
