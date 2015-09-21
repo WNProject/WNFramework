@@ -1,3 +1,7 @@
+// Copyright (c) 2015, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE.txt file.
+
 #pragma once
 
 #ifndef __WN_MEMORY_INTERNAL_EXTENSION_X86_SSE_BASIC_TRAITS_H__
