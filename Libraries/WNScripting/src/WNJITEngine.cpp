@@ -3,6 +3,8 @@
 // found in the LICENSE.txt file.
 
 // Due to a bug in llvm, it must be included before windows.h
+
+#ifdef _MSC_VER
 #pragma warning(push)
 #pragma warning(disable : 4100)
 #pragma warning(disable : 4127)
@@ -11,6 +13,10 @@
 #pragma warning(disable : 4458)
 #pragma warning(disable : 4800)
 #pragma warning(disable : 4624)
+#pragma warning(disable : 4267)
+#pragma warning(disable : 4512)
+#endif
+
 #include <llvm/IR/BasicBlock.h>
 #include <llvm/IR/Constants.h>
 #include <llvm/IR/Function.h>
@@ -25,7 +31,10 @@
 #include <llvm/ExecutionEngine/ExecutionEngine.h>
 #include <llvm/ExecutionEngine/MCJIT.h>
 #include <llvm/ExecutionEngine/SectionMemoryManager.h>
+
+#ifdef _MSC_VER
 #pragma warning(pop)
+#endif
 
 #include "WNContainers/inc/WNContiguousRange.h"
 #include "WNContainers/inc/WNList.h"
@@ -338,6 +347,16 @@ struct ast_jit_engine {
 
 namespace wn {
 namespace scripting {
+
+CompiledModule::CompiledModule() :
+  m_module(wn_nullptr) {
+}
+
+CompiledModule::CompiledModule(CompiledModule&& _other) :
+  m_engine(std::move(_other.m_engine)),
+  m_module(std::move(_other.m_module)) {
+  _other.m_module = wn_nullptr;
+}
 
 jit_engine::jit_engine(memory::allocator* _allocator, file_manager* _manager,
                        WNLogging::WNLog* _log)
