@@ -11,6 +11,7 @@
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNScripting/inc/WNEngineFileManager.h"
 #include "WNScripting/inc/WNEngine.h"
+#include "WNCore/inc/WNUtility.h"
 
 namespace WNLogging {
 class WNLogger;
@@ -26,7 +27,11 @@ namespace llvm {
 namespace wn {
 namespace scripting {
 
-struct CompiledModule {
+class CompiledModule : public core::non_copyable {
+public:
+  CompiledModule();
+  CompiledModule(CompiledModule&& _other);
+
   std::unique_ptr<llvm::ExecutionEngine> m_engine;
   llvm::Module* m_module;
 };
