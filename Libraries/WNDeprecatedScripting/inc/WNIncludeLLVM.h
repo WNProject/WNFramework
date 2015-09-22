@@ -22,8 +22,8 @@
 #pragma warning(disable: 4624)
 #pragma warning(disable: 4996)
 #pragma warning(disable: 4146)
-#if _MSC_VER >= 1900
 #pragma warning(disable: 4310)
+#if _MSC_VER >= 1900
 #pragma warning(disable: 4458)
 #endif
 #endif

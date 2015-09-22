@@ -15,6 +15,7 @@
 #pragma warning(disable : 4624)
 #pragma warning(disable : 4267)
 #pragma warning(disable : 4512)
+#pragma warning(disable : 4310)
 #endif
 
 #include <llvm/IR/BasicBlock.h>
