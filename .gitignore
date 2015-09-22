@@ -10,6 +10,3 @@
 /Externals/llvm/*
 /Externals/pcre/*
 ipch
-Utilities/Natvis/WNFramework.Natvis/bin
-Utilities/Natvis/WNFramework.Natvis/obj
-Utilities/Natvis/WNFramework.Natvis/Properties
