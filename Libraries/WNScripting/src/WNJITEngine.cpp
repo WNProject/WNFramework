@@ -239,6 +239,11 @@ struct ast_jit_engine {
         llvm::GlobalValue::LinkageTypes::ExternalLinkage,
         make_string_ref(_function->get_signature()->get_name()));
 
+    // As a rule, we don't want to generate unwind tables
+    // for any functions, furthermore this will cause
+    // unexpected symbol resolution on Android.
+    function->addFnAttr(llvm::Attribute::NoUnwind);
+
     auto llvm_args = function->arg_begin();
     auto arg_names = function_header.m_parameters.begin();
     while (llvm_args != function->arg_end()) {
@@ -386,10 +391,10 @@ CompiledModule& jit_engine::add_module(containers::string_view _file) {
 #ifdef _WN_ANDROID
 #ifdef _WN_ARM
   code_module.m_module->setTargetTriple(
-      llvm::Triple::normalize("arm-linux-androideabi"));
+      llvm::Triple::normalize("armv7a-linux-androideabi"));
 #else
   code_module.m_module->setTargetTriple(
-      llvm::Triple::normalize("x86-linux-androideabi"));
+      llvm::Triple::normalize("i686-linux-androideabi"));
 #endif
 #elif defined(_WN_WINDOWS)
 #ifdef _WN_64_BIT
