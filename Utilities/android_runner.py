@@ -68,27 +68,35 @@ class Runner:
         if args.sdk:
             args.sdk = os.path.expanduser(args.sdk)
             adb = os.path.join(args.sdk, "platform-tools", "adb")
-        print adb
+
         run_p([adb, "logcat", "-c"])
         run_p([adb, "shell", "am", "force-stop", args.package_name])
 
         if args.debug:
             run_p([adb, "shell", "rm", "/sdcard/stdout.txt"])
-            run_p([adb, "shell", "touch", "/sdcard/wait-for-debugger.txt"])
-            ndk_gdb = [sys.executable, "ndk-gdb.py"]
+            run_p([adb, "shell", "touch", "/sdcard/wait-for-debugger.`"])
+            if os.name == 'nt':
+              ndk_gdb = ["cmd", "/c", "ndk-gdb.cmd"]
+            else:
+              ndk_gdb = [sys.executable, "ndk-gdb-py.cmd"]
+
             if args.ndk_dir:
                 args.ndk_dir = os.path.expanduser(args.ndk_dir)
-                ndk_gdb = [sys.executable, os.path.join(args.ndk_dir,
-                                                        "ndk-gdb.py")]
-            ndk_gdb.extend(["--start", "--force", "--nowait"]);
+                if os.name == 'nt':
+                  ndk_gdb = [os.path.join(args.ndk_dir, "ndk-gdb-py.cmd")]
+                else:
+                  ndk_gdb = ["sh", os.path.join(args.ndk_dir,
+                                                        "ndk-gdb-py")]
+
+            ndk_gdb.extend(["--start", "--force", "--nowait"])
             run_dir = os.getcwd()
             if args.apk_build_dir:
                 args.apk_build_dir = os.path.expanduser(args.apk_build_dir)
                 run_dir = args.apk_build_dir
-            p = subprocess.Popen(ndk_gdb,
-                    cwd=run_dir)
-            p.wait()
 
+            p = subprocess.Popen(ndk_gdb,
+                    cwd=run_dir.strip('"'))
+            p.wait()
         else:
             run_p([adb, "shell", "rm", "/sdcard/stdout.txt"])
             run_p([adb, "shell", "rm", "/sdcard/wait-for-debugger.txt"])
@@ -109,6 +117,7 @@ class Runner:
             strip_stuff = re.compile("[A-Z]/" +
                     args.package_name + "\(([ 0-9]*)\): (.*)")
             has_started = False
+            pid = 0
             while(True):
                 line = p.stdout.readline()
                 original_line = line
@@ -126,11 +135,17 @@ class Runner:
                     else:
                         continue
                 line = m.group(2)
+                new_pid = m.group(1)
+                if has_started and pid != m.group(1):
+                  # We have gotten a message that LOOKS like ours,
+                  # but is for a different pid (crash-test?)
+                  continue
                 if not has_started:
                     abortRE = re.compile("^F.*\((" + m.group(1) + ")\):(.*ABORTING.*)")
                     m = startre.search(line)
                     if m:
                         has_started = True
+                        pid = new_pid
                         continue
 
                 match = returnre.search(line)
