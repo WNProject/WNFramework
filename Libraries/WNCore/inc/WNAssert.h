@@ -10,7 +10,13 @@
 #include "WNCore/inc/WNTypes.h"
 
 #include <iostream>
-#include <cassert>
+#ifdef NDEBUG
+#undef NDEBUG
+  #include <cassert>
+#define NDEBUG
+#else
+  #include <cassert>
+#endif
 
 namespace wn {
 namespace core {
