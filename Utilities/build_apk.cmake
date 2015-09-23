@@ -17,6 +17,20 @@ function(afix target prefix postfix)
   set(${target} "${tempvar}" PARENT_SCOPE)
 endfunction()
 
+if (${ANDROID_NDK_HOST_SYSTEM_NAME} STREQUAL "windows" OR
+  ${ANDROID_NDK_HOST_SYSTEM_NAME} STREQUAL "windows-x86_64")
+  find_host_program(PYTHON python REQUIRED)
+  set(DEBUG_KEYSTORE_PATH "$ENV{USERPROFILE}\\.android\\debug.keystore")
+  string(REPLACE "\\" "\\\\" DEBUG_KEYSTORE_PATH "${DEBUG_KEYSTORE_PATH}")
+else()
+  set(DEBUG_KEYSTORE_PATH "$ENV{HOME}/.android/debug.keystore")
+endif()
+
+set(ANDROID_RELEASE_KEY_STORE "${DEBUG_KEYSTORE_PATH}" CACHE STRING "Keystore used to sign release executables")
+set(ANDROID_RELEASE_KEY_ALIAS "androiddebugkey"  CACHE STRING "Alias for your release key")
+set(ANDROID_RELEASE_KEY_STORE_PASSWORD ""  CACHE STRING "Password for your android keystore")
+set(ANDROID_RELEASE_KEY_ALIAS_PASSWORD ""  CACHE STRING "Password for your android keystore")
+
 function(build_apk)
   cmake_parse_arguments(
     PARSED_ARGS
@@ -57,7 +71,7 @@ function(build_apk)
   if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(WN_APK_NAME ${WN_TARGET_NAME}-debug.apk)
   else()
-    set(WN_APK_NAME ${WN_TARGET_NAME}-release-unsigned.apk)
+    set(WN_APK_NAME ${WN_TARGET_NAME}-release.apk)
   endif()
   set(WN_APK_LOCATION ${WN_TARGET_DIR}/bin/${WN_APK_NAME})
 
@@ -90,7 +104,27 @@ function(build_apk)
     "${WN_TARGET_DIR}/libs/${ANDROID_ABI}/gdb.setup")
   configure_file("${PROJECT_SOURCE_DIR}/Utilities/quick_run.py.in"
     "${WN_TARGET_DIR}/${WN_TARGET_NAME}.py")
-
+  if(CMAKE_BUILD_TYPE STREQUAL "Release")
+    if (ANDROID_RELEASE_KEY_ALIAS STREQUAL "androiddebugkey")
+      if (ANDROID_RELEASE_KEY_STORE_PASSWORD STREQUAL "")
+        set(ANDROID_RELEASE_KEY_STORE_PASSWORD "android")
+      endif()
+      if (ANDROID_RELEASE_KEY_ALIAS_PASSWORD STREQUAL "")
+        set(ANDROID_RELEASE_KEY_ALIAS_PASSWORD "android")
+      endif()
+    endif()
+    set(ANDROID_KEY_STORE_PASS_LINE "")
+    set(ANDROID_KEY_ALIAS_PASS_LINE "")
+    if (ANDROID_RELEASE_KEY_STORE_PASSWORD)
+      set(ANDROID_KEY_STORE_PASS_LINE "key.store.password=${ANDROID_RELEASE_KEY_STORE_PASSWORD}")
+    endif()
+    if (ANDROID_RELEASE_KEY_ALIAS_PASSWORD)
+      set(ANDROID_KEY_ALIAS_PASS_LINE "key.alias.password=${ANDROID_RELEASE_KEY_ALIAS_PASSWORD}")
+    endif()
+    
+    configure_file("${PROJECT_SOURCE_DIR}/Utilities/ant.properties.in"
+      "${WN_TARGET_DIR}/ant.properties")  
+  endif()
 
   add_custom_command(TARGET ${WN_TARGET_NAME}
     PRE_BUILD
