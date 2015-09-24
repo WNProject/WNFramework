@@ -8,11 +8,6 @@
 #include "llvm/ExecutionEngine/SectionMemoryManager.h"
 #include "llvm/ExecutionEngine/RTDyldMemoryManager.h"
 #include "WNDeprecatedScripting/inc/WNEndIncludeLLVM.h"
-
-#ifdef _WN_MSVC
-    #pragma warning(pop)
-#endif
-
 #include "WNDeprecatedScripting/inc/WNScriptingEngine.h"
 
 struct AdditionalFunction {
