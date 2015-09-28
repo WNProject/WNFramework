@@ -9,6 +9,12 @@ function(library_name var target)
   set(${var} ${LIB_NAME} PARENT_SCOPE)
 endfunction()
 
+function(fix_path source target)
+  file(TO_NATIVE_PATH ${source} temp_target)
+  string(REPLACE "\\" "\\\\" temp_target "${temp_target}")
+  set(${target} ${temp_target} PARENT_SCOPE)
+endfunction()
+
 function(afix target prefix postfix)
   set(tempvar "")
   foreach(f ${ARGN})
@@ -21,7 +27,7 @@ if (${ANDROID_NDK_HOST_SYSTEM_NAME} STREQUAL "windows" OR
   ${ANDROID_NDK_HOST_SYSTEM_NAME} STREQUAL "windows-x86_64")
   find_host_program(PYTHON python REQUIRED)
   set(DEBUG_KEYSTORE_PATH "$ENV{USERPROFILE}\\.android\\debug.keystore")
-  string(REPLACE "\\" "\\\\" DEBUG_KEYSTORE_PATH "${DEBUG_KEYSTORE_PATH}")
+  fix_path(${DEBUG_KEYSTORE_PATH} DEBUG_KEYSTORE_PATH)
 else()
   set(DEBUG_KEYSTORE_PATH "$ENV{HOME}/.android/debug.keystore")
 endif()
@@ -84,12 +90,22 @@ function(build_apk)
   endif()
   library_name(LIB_NAME ${PARSED_ARGS_TARGET})
 
+  set(WN_ANDROID_GDB
+    ${ANDROID_TOOLCHAIN_ROOT}/bin/${ANDROID_TOOLCHAIN_MACHINE_NAME}-gdb${TOOL_OS_SUFFIX})
 
   get_target_property(SOLIB_DIRECTORIES ${target} INCLUDE_DIRECTORIES)
   string(REPLACE ";" " " SOLIB_DIRECTORIES "${SOLIB_DIRECTORIES}")
 
   set(WN_NATIVE_LIBRARIES ${LIB_NAME})
   set(SOLIB_PATH ${WN_TARGET_DIR}/obj/local/${ANDROID_ABI}/)
+
+  fix_path(${WN_TARGET_DIR} WN_TARGET_DIR)
+  fix_path(${SOLIB_PATH} SOLIB_PATH)
+  fix_path(${WN_ANDROID_GDB} WN_ANDROID_GDB)
+  fix_path(${ANDROID_RUNNER} ANDROID_RUNNER)
+  fix_path(${ANDROID_RELEASE_KEY_STORE} ANDROID_RELEASE_KEYSTORE_PATH)
+  fix_path(${WN_APK_LOCATION} WN_APK_LOCATION)
+
   configure_file("${PROJECT_SOURCE_DIR}/Utilities/AndroidManifest.xml.in"
     "${WN_TARGET_DIR}/AndroidManifest.xml")
   configure_file("${PROJECT_SOURCE_DIR}/Utilities/strings.xml.in"
@@ -121,9 +137,9 @@ function(build_apk)
     if (ANDROID_RELEASE_KEY_ALIAS_PASSWORD)
       set(ANDROID_KEY_ALIAS_PASS_LINE "key.alias.password=${ANDROID_RELEASE_KEY_ALIAS_PASSWORD}")
     endif()
-    
+
     configure_file("${PROJECT_SOURCE_DIR}/Utilities/ant.properties.in"
-      "${WN_TARGET_DIR}/ant.properties")  
+      "${WN_TARGET_DIR}/ant.properties")
   endif()
 
   add_custom_command(TARGET ${WN_TARGET_NAME}
