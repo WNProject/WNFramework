@@ -8,6 +8,8 @@
 #include "WNScripting/inc/WNJITEngine.h"
 #include "WNScripting/test/inc/Common.h"
 
+#include <limits.h>
+
 TEST(jit_engine, creation) {
   wn::memory::default_expanding_allocator<50> allocator;
   wn::scripting::file_based_manager manager(&allocator);
@@ -99,5 +101,5 @@ INSTANTIATE_TEST_CASE_P(
     int_tests, jit_int_params,
     ::testing::Values(int_test({"0", 0}), int_test({"-1", -1}),
                       int_test({"-32", -32}), int_test({"-4096", -4096}),
-                      int_test({"2147483647", LONG_MAX}),
-                      int_test({"-2147483648", (LONG_MIN)})));
+                      int_test({"2147483647", WN_INT32_MAX}),
+                      int_test({"-2147483648", (WN_INT32_MIN)})));

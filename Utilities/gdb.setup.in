@@ -1,4 +1,4 @@
 set solib-search-path ${SOLIB_PATH}
 source ${ANDROID_NDK}/prebuilt/common/gdb/common.setup
-directory ${SOLIB_DIRECTORIES}
+directory ${ANDROID_STL_INCLUDE_DIRS} ${ANDROID_SYSROOT}/usr/include
 
