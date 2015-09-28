@@ -7,6 +7,7 @@
 #ifndef __WN_SCRIPTING_AST_WALKER_H__
 #define __WN_SCRIPTING_AST_WALKER_H__
 
+#include "WNCore/inc/WNTypes.h"
 #include "WNContainers/inc/WNContiguousRange.h"
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNScripting/inc/WNNodeTypes.h"
@@ -308,7 +309,7 @@ class ast_walker {
           break;
         }
         long long val = atoll(_const_expr->get_type_text().c_str());
-        if (val > LONG_MAX || val < LONG_MIN) {
+        if (val > WN_INT32_MAX || val < WN_INT32_MIN) {
           bad_type = true;
         }
       } break;
