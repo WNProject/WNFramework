@@ -85,6 +85,9 @@ typedef wn_uint8 wn_byte;
 typedef wn_byte* wn_pointer_t;
 typedef size_t wn_size_t;
 
+#define WN_INT32_MAX 0x7FFFFFFFL
+#define WN_INT32_MIN ((wn_int32) 0x80000000L)
+
 #ifdef _WN_64_BIT
     typedef wn_int64 wn_signed_t;
 
