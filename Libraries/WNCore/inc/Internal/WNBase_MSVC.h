@@ -38,31 +38,7 @@
 
 #define __WN_HAS_CPP14_STD_MAKE_UNIQUE
 
-#if defined _M_X64 || defined _M_AMD64
-    #define _WN_X86
-    #define _WN_64_BIT
-
-    // For some reason the following don't get properly defined at editing time just at compile time.  Define them so
-    // intellisense doesn't complain
-    #ifndef _M_AMD64
-        #define _M_AMD64
-
-        #ifndef _AMD64_
-            #define _AMD64_
-        #endif
-    #endif
-#elif defined _M_IX86
-    #define _WN_X86
-    #define _WN_32_BIT
-#elif defined _M_ARM
-    #define _WN_ARM _M_ARM
-    #define _WN_32_BIT
-#endif
-
 #if defined _WIN32 || defined _WIN64
-    #define _WN_WINDOWS
-    #define _WN_PLATFORM_NAME "Windows"
-
     #define NOMINMAX
 
     #include <winsock2.h>

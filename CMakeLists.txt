@@ -20,6 +20,8 @@ else()
    set(WN_BUILD_TYPES ${CMAKE_CONFIGURATION_TYPES})
 endif()
 
+include(Utilities/CMake/configure.cmake)
+
 # This sets up WN variables (posix/windows etc) and
 # configures/compiles llvm.
 include(Utilities/helpers.cmake)

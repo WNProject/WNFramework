@@ -823,6 +823,25 @@ set(_WN_HAS_CPP14_STD_IS_NULL_POINTER ${HAS_CPP14_STD_IS_NULL_POINTER})
 set(_WN_HAS_CPP14_STD_EQUAL ${HAS_CPP14_STD_EQUAL})
 set(_WN_HAS_CPP14_STD_EQUAL_VARIANT ${HAS_CPP14_STD_EQUAL_VARIANT})
 
+wn_make_preprocessor_symbol(
+  _WN_${WN_ARCHITECTURE_GROUP}
+  _WN_ARCHITECTURE
+)
+
+wn_make_preprocessor_symbol(
+  _WN_${WN_ARCHITECTURE_BITNESS}_BIT
+  _WN_ARCHITECTURE_BITNESS
+)
+wn_make_preprocessor_symbol(
+  _WN_ENDIAN_${WN_ARCHITECTURE_ENDIANNESS}
+  _WN_ARCHITECTURE_ENDIANNESS
+)
+
+wn_make_preprocessor_symbol(
+  _WN_${WN_PLATFORM}
+  _WN_PLATFORM
+)
+
 # generate config file
 set(CONFIG_FILE_INPUT_PATH_RELATIVE inc/Internal/WNConfig.h.in)
 set(CONFIG_FILE_OUTPUT_PATH_RELATIVE inc/Internal/WNConfig.h)

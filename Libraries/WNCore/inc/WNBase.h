@@ -13,25 +13,6 @@
 //      _WN_GCC     - GNU C++ compiler
 //      _WN_CLANG   - Clang compiler
 
-// Platform (Only 1 of the following) ------------------------------------------------------------------------------------------
-//      _WN_WINDOWS - Microsoft Windows
-//      _WN_LINUX   - Linux
-//      _WN_ANDROID - Android
-
-// Architecture (Only 1 of the following) --------------------------------------------------------------------------------------
-//      _WN_X86     - Defined for all x86 based architectures (i.e. x86, x86-64, etc.)
-//      _WN_ARM     - Defined for all ARM based architectures. The value will be the ARM version (i.e. 4, 5, 6, 7, etc.)
-//      _WN_MIPS    - Defined for all MIPS based architectures
-
-// Processor Bit Width (Only 1 of the following) -------------------------------------------------------------------------------
-//      _WN_32_BIT  - Defined if architecture is 32-bit
-//      _WN_64_BIT  - Defined if architecture is 64-bit
-
-// Endianess (Only 1 of the following) -----------------------------------------------------------------------------------------
-//      _WN_ENDIAN_LITTLE
-//      _WN_ENDIAN_BIG
-//      _WN_ENDIAN_UNKNOWN - Requires runtime check due to Bi-endian architecture
-
 // Character Set (Only 1 of the following) -------------------------------------------------------------------------------------
 //      _WN_UNICODE
 //      _WN_ANSI
@@ -111,22 +92,8 @@
     #define WN_OSCALL_END
 #endif
 
-#ifndef _WN_PLATFORM_NAME
-    #define _WN_PLATFORM_NAME "Unknown Platform"
-#endif
-
-#ifndef _WN_ARCH_NAME
-    #define _WN_ARCH_NAME "Unknown Architecture"
-#endif
-
 #ifndef _WN_CONFIG_NAME
     #define _WN_CONFIG_NAME "Unknown Configuration"
-#endif
-
-#if !defined _WN_ENDIAN_LITTLE && !defined _WN_ENDIAN_BIG
-    #ifndef _WN_ENDIAN_UNKNOWN
-        #define _WN_ENDIAN_UNKNOWN
-    #endif
 #endif
 
 #define WN_STRINGERIZE(_value) #_value
