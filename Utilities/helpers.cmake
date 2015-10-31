@@ -175,7 +175,7 @@ endif()
 
 # Create the llvm build directory.
 execute_process(COMMAND ${CMAKE_COMMAND} -E
-  make_directory ${CMAKE_BINARY_DIR}/Externals/llvm)
+  make_directory ${CMAKE_CIRRENT_BINARY_DIR}/Externals/llvm)
 # Configure llvm only needed the first time.
 if (NOT LLVM_CONFIGURED)
   message(STATUS "Configuring LLVM dependency")
@@ -203,27 +203,29 @@ if (NOT LLVM_CONFIGURED)
     -DLLVM_ENABLE_ZLIB=OFF
     -DLLVM_TARGETS_TO_BUILD=host
         ${WN_LLVM_EXTRA_FLAGS}
-    -G ${CMAKE_GENERATOR} ${CMAKE_SOURCE_DIR}/Externals/llvm
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/Externals/llvm
+    -G ${CMAKE_GENERATOR} ${CMAKE_CURRENT_SOURCE_DIR}/Externals/llvm
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Externals/llvm
     )
   set(LLVM_CONFIGURED TRUE CACHE INTERNAL "llvm has been configured" FORCE)
 endif()
-if (${WN_PREBUILD_DEPS})
-  list(LENGTH WN_BUILD_TYPES NUM_TYPES)
-  foreach(configuration ${WN_BUILD_TYPES})
-          message(STATUS "Compiling LLVM Dependency ${configuration}. This could take a while")
-          set(ADDITIONAL_BUILD_PARAM)
-          if(NOT NUM_TYPES EQUAL 1)
-            list(APPEND ADDITIONAL_BUILD_PARAM "--config" ${configuration})
-          endif()
-          execute_process(COMMAND ${CMAKE_COMMAND}
-            --build .
-            ${ADDITIONAL_BUILD_PARAM}
-            WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/Externals/llvm
-            OUTPUT_QUIET)
-  endforeach()
+
+list(LENGTH WN_BUILD_TYPES NUM_TYPES)
+set(ADDITIONAL_BUILD_PARAM)
+if(NOT NUM_TYPES EQUAL 1)
+  list(APPEND ADDITIONAL_BUILD_PARAM "--config" ${CMAKE_CFG_INTDIR})
 endif()
-include(${CMAKE_BINARY_DIR}/Externals/llvm/share/llvm/cmake/LLVMConfig.cmake)
+
+include(${CMAKE_CURRENT_BINARY_DIR}/Externals/llvm/share/llvm/cmake/LLVMConfig.cmake)
+
+set(WNScriptingLLVMComponents codegen instrumentation objcarcopts support mcjit ipo native)
+add_custom_target(llvm_target
+    COMMAND ${CMAKE_COMMAND} --build . ${ADDITIONAL_BUILD_PARAM}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Externals/llvm)
+
+llvm_map_components_to_libnames(WNScriptingLLVMLibs ${WNScriptingLLVMComponents})
+foreach(llvm_lib ${WNScriptingLLVMLibs})
+  add_dependencies(${llvm_lib} llvm_target)
+endforeach()
 
 add_subdirectory(Externals/gtest)
 enable_testing()
@@ -267,7 +269,7 @@ function(wn_create_test)
     LINK_LIBRARIES gtest WNEntryPoint WNUtils ${PARSED_ARGS_LIBS})
   target_include_directories(${PARSED_ARGS_TEST_NAME}_test PRIVATE
     ${gtest_SOURCE_DIR}/include
-    ${CMAKE_SOURCE_DIR})
+    ${CMAKE_CURRENT_SOURCE_DIR})
 
   if (ANDROID)
     find_host_program(PYTHON python)
