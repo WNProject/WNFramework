@@ -175,7 +175,7 @@ endif()
 
 # Create the llvm build directory.
 execute_process(COMMAND ${CMAKE_COMMAND} -E
-  make_directory ${CMAKE_CIRRENT_BINARY_DIR}/Externals/llvm)
+  make_directory ${CMAKE_CURRENT_BINARY_DIR}/Externals/llvm)
 # Configure llvm only needed the first time.
 if (NOT LLVM_CONFIGURED)
   message(STATUS "Configuring LLVM dependency")
