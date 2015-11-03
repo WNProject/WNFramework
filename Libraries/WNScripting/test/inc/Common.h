@@ -75,7 +75,7 @@ class test_file_manager : public file_manager {
   }
 
   virtual void write_file(const char* _filename,
-                        const containers::string_view& data) {
+                        const containers::string_view& data) override {
     m_files[_filename] = data.to_string(m_allocator);
   }
 

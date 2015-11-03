@@ -214,7 +214,7 @@ public:
     return (pair);
   }
 
-  virtual wn_void deallocate(wn_void *_ptr) {
+  virtual wn_void deallocate(wn_void *_ptr) override {
     free(_ptr);
   }
 };

@@ -234,8 +234,10 @@ class type_validator {
       return it->second;
     }
     auto str_it = m_names.insert(m_names.end(), _name.to_string());
-    m_mapping.insert(std::make_pair(*str_it, m_max_types++));
+    wn_uint32 type = m_max_types++;
+    m_mapping.insert(std::make_pair(*str_it, type));
     m_types.push_back(type_operations(m_allocator));
+    return type;
   }
 
   bool is_valid_type(wn_uint32 _type) {
