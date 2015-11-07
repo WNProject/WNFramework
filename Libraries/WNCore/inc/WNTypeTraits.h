@@ -70,6 +70,9 @@ namespace wn {
         template <const wn_bool... _Values>
         struct boolean_sequence : integral_sequence<wn_bool, _Values...> {};
 
+        template <typename _Type1>
+        struct is_const : std::is_const<_Type1> {};
+
         template <typename _Type1, typename _Type2>
         struct is_same : std::is_same<_Type1, _Type2> {};
 

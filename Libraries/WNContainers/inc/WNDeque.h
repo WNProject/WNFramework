@@ -28,16 +28,16 @@ class deque_iterator final
     : public std::iterator<std::random_access_iterator_tag, _Element,
           typename _Container::difference_type> {
 private:
-  typedef std::iterator<std::random_access_iterator_tag, _Element,
-      typename _Container::difference_type> base;
+  using base = std::iterator<std::random_access_iterator_tag, _Element,
+      typename _Container::difference_type>;
 
 public:
-  typedef typename base::iterator_category iterator_category;
-  typedef typename base::value_type value_type;
-  typedef typename _Container::size_type size_type;
-  typedef typename base::difference_type difference_type;
-  typedef typename base::pointer pointer;
-  typedef typename base::reference reference;
+  using iterator_category = typename base::iterator_category;
+  using value_type = typename base::value_type;
+  using size_type = typename _Container::size_type;
+  using difference_type = typename base::difference_type;
+  using pointer = typename base::pointer;
+  using reference = typename base::reference;
 
   deque_iterator() : m_deque(wn_nullptr), m_element(0) {}
 
@@ -237,22 +237,22 @@ template <typename _Type, typename _Allocator = memory::default_allocator,
 class deque final {
 public:
   static _Allocator s_default_allocator;
-  typedef _Type value_type;
-  typedef wn_size_t size_type;
-  typedef wn_signed_t difference_type;
-  typedef _Allocator allocator_type;
-  typedef value_type& reference;
-  typedef const value_type& const_reference;
+  using value_type = _Type;
+  using size_type = wn_size_t;
+  using difference_type = wn_signed_t;
+  using allocator_type = _Allocator;
+  using reference = value_type&;
+  using const_reference = const value_type&;
 
 private:
-  typedef deque<_Type, _Allocator, _BlockSize> self_type;
+  using self_type = deque<_Type, _Allocator, _BlockSize>;
 
 public:
-  typedef internal::deque_iterator<self_type> iterator;
-  typedef internal::deque_iterator<const self_type, self_type, const value_type>
-      const_iterator;
-  typedef std::reverse_iterator<iterator> reverse_iterator;
-  typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
+ using iterator = internal::deque_iterator<self_type>;
+ using const_iterator =
+     internal::deque_iterator<const self_type, self_type, const value_type>;
+ using reverse_iterator = std::reverse_iterator<iterator>;
+ using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
   deque() : deque(&s_default_allocator) {}
 

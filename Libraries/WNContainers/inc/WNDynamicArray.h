@@ -153,8 +153,9 @@ class dynamic_array final {
   }
 
   template <typename T_Alloc>
-  dynamic_array(const dynamic_array<_Type, T_Alloc>& _other)
-      : dynamic_array() {
+  dynamic_array(const dynamic_array<_Type, T_Alloc>& _other,
+                memory::allocator* _allocator = &s_default_allocator)
+      : dynamic_array(_allocator) {
     (*this) = _other;
   }
 

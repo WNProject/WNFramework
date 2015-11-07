@@ -21,8 +21,8 @@ class list;
 template <typename _NodeType, typename _ValueType>
 struct list_iterator final
   : public std::iterator<std::bidirectional_iterator_tag, _ValueType> {
-  typedef _ValueType& reference;
-  typedef _ValueType* pointer;
+  using reference = _ValueType&;
+  using pointer = _ValueType*;
   list_iterator& operator+=(const wn_size_t _amount) {
     for (size_t i = 0; i < _amount; ++i) {
       m_ptr = m_ptr->m_next;
@@ -120,20 +120,20 @@ class list final {
   };
 
  public:
-  typedef _Type value_type;
-  typedef wn_size_t size_type;
-  typedef wn_signed_t difference_type;
-  typedef _Allocator allocator_type;
-  typedef _Type& reference;
-  typedef const _Type& const_reference;
-  typedef _Type* pointer;
-  typedef const _Type* const_pointer;
+  using value_type = _Type;
+  using size_type = wn_size_t;
+  using difference_type = wn_signed_t;
+  using allocator_type = _Allocator;
+  using reference = _Type&;
+  using const_reference = const _Type&;
+  using pointer = _Type*;
+  using const_pointer = const _Type*;
 
  public:
-  typedef list_iterator<list_node, _Type> iterator;
-  typedef list_iterator<list_node, const _Type> const_iterator;
-  typedef std::reverse_iterator<iterator> reverse_iterator;
-  typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
+  using iterator = list_iterator<list_node, _Type>;
+  using const_iterator = list_iterator<list_node, const _Type>;
+  using reverse_iterator = std::reverse_iterator<iterator>;
+  using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
   list(memory::allocator* _allocator = &s_default_allocator)
       : m_allocator(_allocator),

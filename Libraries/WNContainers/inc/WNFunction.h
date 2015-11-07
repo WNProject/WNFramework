@@ -23,7 +23,7 @@ class function final {
 template <typename R, typename... Args>
 class function<R(Args...)> {
 public:
-  typedef R result_type;
+  using result_type = R;
 
   WN_FORCE_INLINE function() :
     m_callable(wn_nullptr),
@@ -146,9 +146,9 @@ public:
   }
 
 private:
-  typedef R(*executor_type)(wn_void* const*, Args...);
-  typedef wn_void(*copier_type)(wn_void* const*, wn_void**);
-  typedef wn_void(*deleter_type)(wn_void**);
+ using executor_type = R (*)(wn_void* const*, Args...);
+ using copier_type = wn_void (*)(wn_void* const*, wn_void**);
+ using deleter_type = wn_void (*)(wn_void**);
 
   template <typename F>
   WN_FORCE_INLINE typename core::enable_if<core::boolean_and<

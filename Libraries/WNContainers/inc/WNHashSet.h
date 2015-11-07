@@ -77,22 +77,21 @@ class hash_set final {
    static _Allocator& get_default_allocator() {
      return s_default_allocator;
    }
-  typedef hash_map<_Key, empty_element, _HashOperator, _EqualityOperator,
-                   _Allocator> map_type;
+   using map_type = hash_map<_Key, empty_element, _HashOperator,
+                             _EqualityOperator, _Allocator>;
 
-  
-  typedef _Key key_type;
-  typedef _Key value_type;
+  using key_type = _Key;
+  using value_type = _Key;
 
-  typedef wn_size_t size_type;
-  typedef wn_signed_t difference_type;
-  typedef _Allocator allocator_type;
-  typedef _HashOperator hasher;
-  typedef _EqualityOperator key_equal;
-  typedef value_type& reference;
-  typedef const value_type& const_reference;
-  typedef value_type* pointer;
-  typedef const value_type* const_pointer;
+  using size_type = wn_size_t;
+  using difference_type = wn_signed_t;
+  using allocator_type = _Allocator;
+  using hasher = _HashOperator;
+  using key_equal = _EqualityOperator;
+  using reference = value_type&;
+  using const_reference = const value_type&;
+  using pointer = value_type*;
+  using const_pointer = const value_type*;
 
   using iterator =
       internal::hash_set_iterator<typename map_type::iterator, value_type>;

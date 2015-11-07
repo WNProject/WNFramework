@@ -18,24 +18,43 @@
 namespace wn {
 namespace containers {
 
+
+
 template <typename _KeyType, typename _ValueType,
           typename _HashOperator = std::hash<_KeyType>,
           typename _EqualityOperator = std::equal_to<_KeyType>,
           typename _Allocator = memory::default_allocator>
 class hash_map;
-
 namespace internal {
+template<typename T, typename = void>
+struct map_iterator_internal_type {
+  using type = T;
+  using array_iterator = typename dynamic_array<list<type>>::iterator;
+  using list_iterator = typename list<type>::iterator;
+};
+
+template <typename T>
+struct map_iterator_internal_type<
+    T, typename core::enable_if<core::is_const<T>::value>::type> {
+  using type = typename std::remove_const<T>::type;
+  using array_iterator = typename dynamic_array<list<type>>::const_iterator;
+  using list_iterator = typename list<type>::const_iterator;
+};
+
 // hash_map_iterator is not a child_type of hash_map
 // because MSVC threw an error that the symbol name
 // was too large and would be truncated.
-template <typename _ContainedType, typename _ArrayIteratorType,
-          typename _ListIteratorType>
+template <typename _ContainedType>
 class hash_map_iterator
     : std::iterator<std::forward_iterator_tag, _ContainedType> {
  public:
+  using type = _ContainedType;
+  using ait = typename map_iterator_internal_type<type>::array_iterator;
+  using lit = typename map_iterator_internal_type<type>::list_iterator;
+
   hash_map_iterator() {}
-  template <typename _CT, typename _AIT, typename _LIT>
-  hash_map_iterator(const hash_map_iterator<_CT, _AIT, _LIT>& _other) {
+  template <typename _CT>
+  hash_map_iterator(const hash_map_iterator<_CT>& _other) {
     m_bucket = _other.m_bucket;
     m_element = _other.m_element;
     m_end_bucket = _other.m_end_bucket;
@@ -44,12 +63,12 @@ class hash_map_iterator
   hash_map_iterator& operator+=(wn_size_t _count) {
     while (_count-- > 0) {
       ++m_element;
-      while (m_element == m_bucket->tend(_ListIteratorType())) {
+      while (m_element == m_bucket->tend(lit())) {
         if (m_bucket + 1 == m_end_bucket) {
           break;
         }
         ++m_bucket;
-        m_element = m_bucket->tbegin(_ListIteratorType());
+        m_element = m_bucket->tbegin(lit());
       }
     }
     return *this;
@@ -62,31 +81,31 @@ class hash_map_iterator
     return it;
   }
 
-  template <typename _CT, typename _AIT, typename _LIT>
-  bool operator==(const hash_map_iterator<_CT, _AIT, _LIT>& _other) const {
+  template <typename _CT>
+  bool operator==(const hash_map_iterator<_CT>& _other) const {
     return (m_element == _other.m_element && m_bucket == _other.m_bucket);
   }
 
-  template <typename _CT, typename _AIT, typename _LIT>
-  bool operator!=(const hash_map_iterator<_CT, _AIT, _LIT>& _other) const {
+  template <typename _CT>
+  bool operator!=(const hash_map_iterator<_CT>& _other) const {
     return !(*this == _other);
   }
-  _ContainedType* operator->() { return &(*m_element); }
 
-  _ContainedType& operator*() { return *m_element; }
+  type* operator->() const { return &(*m_element); }
+
+  type& operator*() const { return *m_element; }
 
  private:
-  hash_map_iterator(_ArrayIteratorType bucket, _ArrayIteratorType end_bucket,
-                    _ListIteratorType element)
+  hash_map_iterator(ait bucket, ait end_bucket, lit element)
       : m_bucket(bucket), m_end_bucket(end_bucket), m_element(element) {}
-  _ArrayIteratorType m_bucket;
-  _ArrayIteratorType m_end_bucket;
-  _ListIteratorType m_element;
+  ait m_bucket;
+  ait m_end_bucket;
+  lit m_element;
 
   template <typename _KeyType, typename _ValueType, typename _HashOperator,
             typename _EqualityOperator, typename _Allocator>
   friend class wn::containers::hash_map;
-  template <typename _CT, typename _AIT, typename _LIT>
+  template <typename _CT>
   friend class hash_map_iterator;
 };
 }  // namespace internal
@@ -98,32 +117,28 @@ class hash_map final {
 
  public:
   static _Allocator& get_default_allocator() { return s_default_allocator; }
-  typedef _KeyType key_type;
-  typedef _ValueType mapped_type;
-  typedef std::pair<_KeyType, _ValueType> value_type;
-  typedef wn_size_t size_type;
-  typedef wn_signed_t difference_type;
-  typedef _Allocator allocator_type;
-  typedef _HashOperator hasher;
-  typedef _EqualityOperator key_equal;
-  typedef std::pair<_KeyType, _ValueType>& reference;
-  typedef const std::pair<_KeyType, _ValueType>& const_reference;
-  typedef std::pair<_KeyType, _ValueType>* pointer;
-  typedef const std::pair<_KeyType, _ValueType>* const_pointer;
+  using key_type = _KeyType;
+  using mapped_type = _ValueType;
+  using value_type = std::pair<_KeyType, _ValueType>;
+  using size_type = wn_size_t;
+  using difference_type = wn_signed_t;
+  using allocator_type = _Allocator;
+  using hasher = _HashOperator;
+  using key_equal = _EqualityOperator;
+  using reference = value_type&;
+  using const_reference = const value_type&;
+  using pointer = value_type*;
+  using const_pointer = const value_type*;
 
-  typedef list<value_type> list_type;
-  typedef dynamic_array<list<value_type>> array_type;
+  using list_type = list<value_type>;
+  using array_type = dynamic_array<containers::list<value_type>>;
 
   using iterator =
-      internal::hash_map_iterator<value_type, typename array_type::iterator,
-                                  typename list_type::iterator>;
+      internal::hash_map_iterator<value_type>;
   using const_iterator =
-      internal::hash_map_iterator<const value_type,
-                                  typename array_type::const_iterator,
-                                  typename list_type::const_iterator>;
-
-  typedef typename list_type::iterator local_iterator;
-  typedef typename list_type::const_iterator const_local_iterator;
+      internal::hash_map_iterator<const value_type>;
+  using local_iterator = typename list_type::iterator;
+  using const_local_iterator = typename list_type::const_iterator;
 
   explicit hash_map(memory::allocator* _allocator)
       : hash_map(0u, hasher(), key_equal(), _allocator) {}

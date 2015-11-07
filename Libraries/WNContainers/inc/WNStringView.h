@@ -17,20 +17,20 @@ namespace containers {
 
 class string_view final {
  private:
-  typedef contiguous_range<const wn_char> range_type;
+  using range_type = contiguous_range<const wn_char>;
 
  public:
-  typedef range_type::value_type value_type;
-  typedef range_type::size_type size_type;
-  typedef range_type::difference_type difference_type;
-  typedef range_type::pointer pointer;
-  typedef range_type::const_pointer const_pointer;
-  typedef range_type::reference reference;
-  typedef range_type::const_reference const_reference;
-  typedef range_type::iterator iterator;
-  typedef range_type::const_iterator const_iterator;
-  typedef range_type::reverse_iterator reverse_iterator;
-  typedef range_type::const_reverse_iterator const_reverse_iterator;
+  using value_type = range_type::value_type;
+  using size_type = range_type::size_type;
+  using difference_type = range_type::difference_type;
+  using pointer = range_type::pointer;
+  using const_pointer = range_type::const_pointer;
+  using reference = range_type::reference;
+  using const_reference = range_type::const_reference;
+  using iterator = range_type::iterator;
+  using const_iterator = range_type::const_iterator;
+  using reverse_iterator = range_type::reverse_iterator;
+  using const_reverse_iterator = range_type::const_reverse_iterator;
 
   enum : size_type { npos = static_cast<size_type>(-1) };
 

@@ -25,17 +25,17 @@ template <typename Container, typename NonConstContainer = Container,
 class contiguous_range_iterator final
     : public std::iterator<std::random_access_iterator_tag, Element,
           typename Container::difference_type> {
-private:
-  typedef std::iterator<std::random_access_iterator_tag, Element,
-      typename Container::difference_type> base;
+ private:
+  using base = std::iterator<std::random_access_iterator_tag, Element,
+                             typename Container::difference_type>;
 
 public:
-  typedef typename base::iterator_category iterator_category;
-  typedef typename base::value_type value_type;
-  typedef typename Container::size_type size_type;
-  typedef typename base::difference_type difference_type;
-  typedef typename base::pointer pointer;
-  typedef typename base::reference reference;
+  using iterator_category = typename base::iterator_category;
+  using value_type = typename base::value_type;
+  using size_type = typename Container::size_type;
+  using difference_type = typename base::difference_type;
+  using pointer = typename base::pointer;
+  using reference = typename base::reference;
 
 #ifdef _WN_DEBUG
   WN_FORCE_INLINE contiguous_range_iterator()
