@@ -287,12 +287,13 @@ struct ast_jit_engine {
       case wn::scripting::type_classification::int_type:
         return llvm::IntegerType::getInt32Ty(*m_context);
       case wn::scripting::type_classification::float_type:
-        break;
+        return llvm::Type::getFloatTy(*m_context);
       case wn::scripting::type_classification::char_type:
-        break;
+        return llvm::IntegerType::get(*m_context, 8);
       case wn::scripting::type_classification::string_type:
         break;
       case wn::scripting::type_classification::bool_type:
+        return llvm::IntegerType::get(*m_context, 1);
         break;
       case wn::scripting::type_classification::custom_type:
         break;
@@ -406,7 +407,7 @@ CompiledModule& jit_engine::add_module(containers::string_view _file) {
 #endif
 #endif  // otherwise let it figure itself out
 
-  llvm::EngineBuilder builder((std::move(module)));
+  llvm::EngineBuilder builder(std::move(module));
   builder.setEngineKind(llvm::EngineKind::JIT);
   builder.setMCJITMemoryManager(
       wn::memory::make_std_unique<llvm::SectionMemoryManager>());

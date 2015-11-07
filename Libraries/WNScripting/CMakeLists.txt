@@ -1,5 +1,6 @@
 add_wn_library(WNScripting SOURCES
   inc/WNASTWalker.h
+  inc/WNASTWalker.inl
   inc/WNCTranslator.h
   inc/WNEngine.h
   inc/WNFactory.h
