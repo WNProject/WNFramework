@@ -14,6 +14,7 @@ struct ast_c_translator_traits {
   typedef containers::string expression_type;
   typedef containers::string function_header_type;
   typedef containers::string function_type;
+  typedef containers::string function_type_name;
   typedef containers::string assignment_instruction_type;
   typedef containers::string parameter_type;
   typedef containers::string instruction_type;
@@ -28,7 +29,7 @@ struct ast_c_translator_traits {
 struct ast_c_translator {
   ast_c_translator(memory::allocator* _allocator) : m_allocator(_allocator) {}
   const containers::string& get_output() { return m_output_string; }
-  void pre_walk_expression(const wn::scripting::expression*) {}
+
   containers::string walk_expression(
       const wn::scripting::expression*,
       wn::containers::contiguous_range<
@@ -53,12 +54,18 @@ struct ast_c_translator {
     return "";
   }
 
+  containers::string walk_expression(
+      const wn::scripting::id_expression* id_expr,
+      wn::containers::contiguous_range<
+          wn::containers::contiguous_range<containers::string>> expr,
+      containers::string _type) {
+    return expr[0][0];
+  }
 
-  void pre_walk_function(const wn::scripting::function* _function) {}
-  void pre_walk_function_header(const wn::scripting::function* _function) {}
   containers::string walk_function_header(
       const wn::scripting::function* _function, containers::string _decl,
-      containers::dynamic_array<containers::string> _parameters) {
+      containers::dynamic_array<
+          std::pair<containers::string, containers::string>>& _parameters) {
     containers::string ret_string(m_allocator);
     ret_string += _decl + "(";
     bool first = true;
@@ -67,7 +74,9 @@ struct ast_c_translator {
         ret_string += ", ";
       }
       first = false;
-      ret_string += a;
+      ret_string += std::get<1>(a);
+      ret_string += " ";
+      ret_string += std::get<0>(a);
     }
     ret_string += ")";
     return ret_string;
@@ -86,8 +95,6 @@ struct ast_c_translator {
     return ret_string;
   }
 
-  void pre_walk_declaration(const wn::scripting::declaration* _declaration) {}
-
   containers::string walk_declaration(
       const wn::scripting::declaration* _declaration,
       containers::string& _type) {
@@ -95,10 +102,22 @@ struct ast_c_translator {
     return "";
   }
 
-  void pre_walk_parameter(const wn::scripting::parameter* _parameter) {}
+  containers::string walk_parameter_instantiation(
+      const wn::scripting::parameter*,  //_parameter,
+      const containers::string&,        // function_header
+      const std::pair<containers::string, containers::string>& parameter_name,
+      wn_size_t  // parameter_number
+      ) {
+    return std::get<0>(parameter_name);
+  }
 
-  containers::string walk_parameter(const wn::scripting::parameter* _parameter,
-                                    containers::string& _type) {
+  containers::string walk_parameter_name(const wn::scripting::parameter* _parameter,
+                                    const containers::string& _type) {
+    return _parameter->get_name().to_string(m_allocator);
+  }
+
+  containers::string walk_function_name(const wn::scripting::parameter* _parameter,
+                                 const containers::string& _type) {
     return _type + " " + _parameter->get_name().to_string(m_allocator);
   }
 
@@ -111,19 +130,19 @@ struct ast_c_translator {
         return "void";
         break;
       case wn::scripting::type_classification::int_type:
-        return "int";
+        return "wn_int32";
         break;
       case wn::scripting::type_classification::float_type:
-        return "float";
+        return "wn_float32";
         break;
       case wn::scripting::type_classification::char_type:
-        return "char";
+        return "wn_char";
         break;
       case wn::scripting::type_classification::string_type:
         WN_RELEASE_ASSERT_DESC(wn_false, "Unimplemented string types");
         break;
       case wn::scripting::type_classification::bool_type:
-        return "bool";
+        return "wn_bool";
         break;
       case wn::scripting::type_classification::custom_type:
         return _type->custom_type_name().to_string(m_allocator);
@@ -134,11 +153,6 @@ struct ast_c_translator {
     }
     return "";
   }
-
-  void pre_walk_type(const wn::scripting::type* _type) {}
-
-  void pre_walk_return_instruction(
-      const wn::scripting::return_instruction* _return_instruction) {}
 
   containers::string walk_return_instruction(
       const wn::scripting::return_instruction* _return_instruction,
@@ -151,7 +165,6 @@ struct ast_c_translator {
     return "return;";
   }
 
-  void pre_walk_script_file(const wn::scripting::script_file* _file) {}
   containers::string walk_script_file(
     const wn::scripting::script_file* _file,
     const wn::containers::contiguous_range<containers::string>& _functions,

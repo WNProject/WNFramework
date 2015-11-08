@@ -17,9 +17,10 @@ struct ExpressionTestStruct {
         walked_return_instructions(0),
         walked_script_files(0),
         walked_parameters(0),
-        walked_constants(0) {}
+        walked_headers(0),
+        walked_constants(0),
+        walked_parameter_instatiations(0) {}
 
-  void pre_walk_expression(const wn::scripting::expression*) {}
   void* walk_expression(
       const wn::scripting::expression*,
       wn::containers::contiguous_range<wn::containers::contiguous_range<void*>>,
@@ -43,24 +44,19 @@ struct ExpressionTestStruct {
     return reinterpret_cast<void*>(walked_constants);
   }
 
-  void pre_walk_function(const wn::scripting::function* _function) {}
-
   void* walk_function(const wn::scripting::function* _function,
                       void* _function_header,
                       containers::dynamic_array<void*> _body) {
     walked_functions += 1;
     return reinterpret_cast<void*>(walked_functions);
   }
-  void pre_walk_function_header(const wn::scripting::function* _function) {}
 
-  void* walk_function_header(const wn::scripting::function* _function,
-                             void* _decl,
-                             containers::dynamic_array<void*> _parameters) {
+  void* walk_function_header(
+      const wn::scripting::function* _function, void* _decl,
+      containers::dynamic_array<std::pair<void*, void*>> _parameters) {
     walked_function_headers += 1;
     return reinterpret_cast<void*>(walked_function_headers);
   }
-
-  void pre_walk_declaration(const wn::scripting::declaration* _declaration) {}
 
   void* walk_declaration(const wn::scripting::declaration* _declaration,
                          void* _type) {
@@ -68,23 +64,28 @@ struct ExpressionTestStruct {
     return reinterpret_cast<void*>(walked_declarations);
   }
 
-  void pre_walk_parameter(const wn::scripting::parameter* _parameter) {}
-
-  void* walk_parameter(const wn::scripting::parameter* _parameter,
+  void* walk_parameter_name(const wn::scripting::parameter* _parameter,
                        void* _type) {
     walked_parameters += 1;
     return reinterpret_cast<void*>(walked_parameters);
+  }
+
+  void* walk_parameter_instantiation(const wn::scripting::parameter*,
+    void*, std::pair<void*, void*>&, wn_size_t) {
+    walked_parameter_instatiations += 1;
+    return reinterpret_cast<void*>(walked_parameters);
+  }
+
+  void* walk_function_name(const wn::scripting::parameter* _parameter,
+                       void* _type) {
+    walked_headers += 1;
+    return reinterpret_cast<void*>(walked_headers);
   }
 
   void* walk_type(const wn::scripting::type* _type) {
     walked_types += 1;
     return reinterpret_cast<void*>(walked_types);
   }
-
-  void pre_walk_type(const wn::scripting::type* _type) {}
-
-  void pre_walk_return_instruction(
-      const wn::scripting::return_instruction* _return_instruction) {}
 
   void* walk_return_instruction(
       const wn::scripting::return_instruction* _return_instruction,
@@ -98,8 +99,6 @@ struct ExpressionTestStruct {
     walked_return_instructions += 1;
     return reinterpret_cast<void*>(walked_return_instructions);
   }
-
-  void pre_walk_script_file(const wn::scripting::script_file* _file) {}
 
   void* walk_script_file(const wn::scripting::script_file* _file,
                          const containers::contiguous_range<void*>& _functions,
@@ -117,8 +116,10 @@ struct ExpressionTestStruct {
   wn_size_t walked_types;
   wn_size_t walked_return_instructions;
   wn_size_t walked_script_files;
+  wn_size_t walked_headers;
   wn_size_t walked_parameters;
   wn_size_t walked_constants;
+  wn_size_t walked_parameter_instatiations;
 };
 
 struct TestTraits {
@@ -130,6 +131,7 @@ struct TestTraits {
   typedef void* instruction_type;
   typedef void* return_instruction_type;
   typedef void* lvalue_type;
+  typedef void* function_type_name;
   typedef void* script_file_type;
   typedef void* struct_definition_type;
   typedef void* type_type;
@@ -150,7 +152,8 @@ TEST(ast_walker, simplest_function) {
   ASSERT_EQ(1, a->get_functions().size());
   walker.walk_function(a->get_functions()[0].get());
   EXPECT_EQ(1, a->get_functions().size());
-  EXPECT_EQ(1, s.walked_parameters);
+  EXPECT_EQ(0, s.walked_parameters);
+  EXPECT_EQ(1, s.walked_headers);
   EXPECT_EQ(1, s.walked_return_instructions);
   EXPECT_EQ(0, s.walked_expressions);
   walker.walk_function(a->get_functions()[0].get());
@@ -170,7 +173,8 @@ TEST(ast_walker, full_file) {
   walker.walk_script_file(a.get());
   EXPECT_EQ(1, s.walked_script_files);
   EXPECT_EQ(0, s.walked_declarations);
-  EXPECT_EQ(1, s.walked_parameters);
+  EXPECT_EQ(1, s.walked_headers);
+  EXPECT_EQ(0, s.walked_parameters);
   EXPECT_EQ(1, s.walked_return_instructions);
   EXPECT_EQ(0, s.walked_expressions);
 }
@@ -190,7 +194,8 @@ TEST(ast_walker, multiple_functions) {
   auto a = test_parse_file("file.wns", &manager, &allocator);
   walker.walk_script_file(a.get());
   EXPECT_EQ(1, s.walked_script_files);
-  EXPECT_EQ(2, s.walked_parameters);
+  EXPECT_EQ(2, s.walked_headers);
+  EXPECT_EQ(0, s.walked_parameters);
   EXPECT_EQ(2, s.walked_return_instructions);
   EXPECT_EQ(0, s.walked_expressions);
 }
@@ -218,7 +223,8 @@ TEST(ast_walker, multiple_returns) {
   walker.walk_script_file(a.get());
   log.Flush();
   EXPECT_EQ(1, s.walked_script_files);
-  EXPECT_EQ(1, s.walked_parameters);
+  EXPECT_EQ(0, s.walked_parameters);
+  EXPECT_EQ(1, s.walked_headers);
   EXPECT_EQ(1, s.walked_return_instructions);
   EXPECT_EQ(1, s.walked_return_instructions);
   EXPECT_EQ(0, s.walked_expressions);
@@ -255,7 +261,8 @@ TEST_P(ast_walker_valid_ints, valid_ints) {
 
   EXPECT_EQ(1, s.walked_script_files);
   EXPECT_EQ(1, s.walked_script_files);
-  EXPECT_EQ(1, s.walked_parameters);
+  EXPECT_EQ(0, s.walked_parameters);
+  EXPECT_EQ(1, s.walked_headers);
   EXPECT_EQ(1, s.walked_return_instructions);
   EXPECT_EQ(0, s.walked_expressions);
   EXPECT_EQ(1, s.walked_constants);
@@ -296,7 +303,12 @@ TEST_P(ast_walker_invalid_ints, invalid_ints) {
   expected += GetParam();
   expected += "; }\n";
 
-  EXPECT_EQ(expected, std::string(log_string.c_str()));
+  // More errors might show up after the first. For example,
+  // the return instruction cannot deduce the type of the
+  // invalid constant. We only really care that the
+  // first message type is correct.
+  EXPECT_EQ(expected,
+            std::string(log_string.c_str()).substr(0, expected.size()));
 }
 
 INSTANTIATE_TEST_CASE_P(invalid_integers, ast_walker_invalid_ints,

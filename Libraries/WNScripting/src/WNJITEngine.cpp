@@ -73,6 +73,7 @@ struct script_file {
 
 struct parameter {
   llvm::Type* m_type;
+  llvm::Value* m_value;
   wn::containers::string m_name;
 };
 
@@ -103,10 +104,14 @@ struct function_definition {
   function_definition(memory::allocator* _allocator)
       : m_parameters(_allocator) {}
   function_definition(function_definition&& _other)
-      : m_type(_other.m_type), m_parameters(std::move(_other.m_parameters)) {
+      : m_type(_other.m_type),
+        m_function(_other.m_function),
+        m_parameters(std::move(_other.m_parameters)) {
     _other.m_type = wn_nullptr;
+    _other.m_function = wn_nullptr;
   }
   llvm::FunctionType* m_type;
+  llvm::Function* m_function;
   wn::containers::dynamic_array<containers::string> m_parameters;
 };
 
@@ -167,6 +172,7 @@ struct ast_jit_traits {
   typedef llvm::Function* function_type;
   typedef llvm::Value* assignment_instruction_type;
   typedef parameter parameter_type;
+  typedef parameter function_type_name;
   typedef instruction instruction_type;
   typedef llvm::Value* return_instruction_type;
   typedef llvm::Value* lvalue_type;
@@ -181,7 +187,6 @@ struct ast_jit_engine {
                  llvm::Module* _module)
       : m_allocator(_allocator), m_context(_context), m_module(_module) {}
 
-  void pre_walk_expression(const wn::scripting::expression*) {}
   llvm::Value* walk_expression(
       const wn::scripting::expression*,
       wn::containers::contiguous_range<
@@ -210,50 +215,81 @@ struct ast_jit_engine {
     return wn_nullptr;
   }
 
-  void pre_walk_function(const wn::scripting::function* _function) {}
-  void pre_walk_function_header(const wn::scripting::function* _function) {}
   function_definition walk_function_header(
       const wn::scripting::function* _function, parameter& _decl,
-      wn::containers::dynamic_array<parameter>& _parameters) {
+      wn::containers::dynamic_array<std::pair<parameter, llvm::Type*>>&
+          _parameters) {
     function_definition definition(m_allocator);
     definition.m_parameters.reserve(_parameters.size());
 
     wn::containers::dynamic_array<llvm::Type*> types(m_allocator);
     types.reserve(_parameters.size());
     for (auto& decl : _parameters) {
-      types.push_back(decl.m_type);
-      definition.m_parameters.push_back(std::move(decl.m_name));
+      types.push_back(std::get<1>(decl));
+      definition.m_parameters.push_back(std::get<0>(decl).m_name);
     }
+
     llvm::FunctionType* type =
         llvm::FunctionType::get(_decl.m_type, make_array_ref(types), false);
     definition.m_type = type;
+
+    llvm::Function* function = llvm::Function::Create(
+        type, llvm::GlobalValue::LinkageTypes::ExternalLinkage,
+        make_string_ref(_function->get_signature()->get_name()));
+
+    definition.m_function = function;
+
+    // As a rule, we don't want to generate unwind tables
+    // for any functions, furthermore this will cause
+    // unexpected symbol resolution on Android.
+    function->addFnAttr(llvm::Attribute::NoUnwind);
+    llvm::BasicBlock* initial =
+        llvm::BasicBlock::Create(*m_context, "initial", function);
+
+    auto llvm_args = function->arg_begin();
+    auto arg_names = _parameters.begin();
+    while (llvm_args != function->arg_end()) {
+      llvm_args->setName(make_string_ref(std::get<0>(*arg_names).m_name));
+      ++llvm_args;
+      ++arg_names;
+    }
+
     return std::move(definition);
+  }
+
+  llvm::Value* walk_parameter_instantiation(
+      const wn::scripting::parameter* _parameter, function_definition& function,
+      std::pair<parameter, llvm::Type*>& _parameter_value,
+      wn_size_t parameter_number) {
+    llvm::Instruction* inst = new llvm::AllocaInst(
+        std::get<1>(_parameter_value),
+        make_string_ref(std::get<0>(_parameter_value).m_name));
+    llvm::BasicBlock& block = function.m_function->getBasicBlockList().back();
+
+    // walk_parameter_instantiation gets called once per parameter,
+    // making this n^2 in the number of params. This is non-ideal,
+    // but should be ok given we do not expect the number of
+    // params to be too large.
+    auto arg = function.m_function->arg_begin();
+    for (size_t i = 0; i < parameter_number; ++i, ++arg)
+      ;
+
+    block.getInstList().push_back(inst);
+    block.getInstList().push_back(
+        new llvm::StoreInst(function.m_function->arg_begin(), inst));
+    return inst;
   }
 
   llvm::Function* walk_function(
       const wn::scripting::function* _function,
       const function_definition& function_header,
       wn::containers::dynamic_array<instruction>& _body) {
-    llvm::Function* function = llvm::Function::Create(
-        function_header.m_type,
-        llvm::GlobalValue::LinkageTypes::ExternalLinkage,
-        make_string_ref(_function->get_signature()->get_name()));
+    llvm::BasicBlock& last_bb =
+        function_header.m_function->getBasicBlockList().back();
 
-    // As a rule, we don't want to generate unwind tables
-    // for any functions, furthermore this will cause
-    // unexpected symbol resolution on Android.
-    function->addFnAttr(llvm::Attribute::NoUnwind);
-
-    auto llvm_args = function->arg_begin();
-    auto arg_names = function_header.m_parameters.begin();
-    while (llvm_args != function->arg_end()) {
-      llvm_args->setName(make_string_ref(*arg_names));
-      ++llvm_args;
-      ++arg_names;
-    }
-
-    llvm::BasicBlock* bb =
-        llvm::BasicBlock::Create(*m_context, "body", function);
+    llvm::BasicBlock* bb = llvm::BasicBlock::Create(*m_context, "body",
+                                                    function_header.m_function);
+    last_bb.getInstList().push_back(llvm::BranchInst::Create(bb));
 
     instruction inst =
         collapse_instructions(wn::containers::contiguous_range<instruction>(
@@ -265,12 +301,10 @@ struct ast_jit_engine {
     }
 
     for (auto& basic_block : inst.additional_basic_blocks) {
-      basic_block->insertInto(function);
+      basic_block->insertInto(function_header.m_function);
     }
-    return function;
+    return function_header.m_function;
   }
-
-  void pre_walk_declaration(const wn::scripting::declaration* _declaration) {}
 
   instruction walk_declaration(const wn::scripting::declaration* _declaration,
                                llvm::Type* _type) {
@@ -305,11 +339,6 @@ struct ast_jit_engine {
     return wn_nullptr;
   }
 
-  void pre_walk_type(const wn::scripting::type* _type) {}
-
-  void pre_walk_return_instruction(
-      const wn::scripting::return_instruction* _return_instruction) {}
-
   instruction walk_return_instruction(
       const wn::scripting::return_instruction* _return_instruction,
       llvm::Value* _expression) {
@@ -322,7 +351,6 @@ struct ast_jit_engine {
     return instruction(llvm::ReturnInst::Create(*m_context), m_allocator);
   }
 
-  void pre_walk_script_file(const wn::scripting::script_file* _file) {}
   script_file walk_script_file(
       const wn::scripting::script_file* _file,
       const wn::containers::contiguous_range<llvm::Function*>& _functions,
@@ -338,11 +366,16 @@ struct ast_jit_engine {
     return std::move(file);
   }
 
-  void pre_walk_parameter(const wn::scripting::parameter* _parameter) {}
+  parameter walk_parameter_name(const wn::scripting::parameter* _parameter,
+                                llvm::Type* _type) {
+    return parameter(
+        {_type, wn_nullptr, _parameter->get_name().to_string(m_allocator)});
+  }
 
-  parameter walk_parameter(const wn::scripting::parameter* _parameter,
-                           llvm::Type* _type) {
-    return parameter({_type, _parameter->get_name().to_string(m_allocator)});
+  parameter walk_function_name(const wn::scripting::parameter* _parameter,
+                               llvm::Type* _type) {
+    return parameter(
+        {_type, wn_nullptr, _parameter->get_name().to_string(m_allocator)});
   }
 
  private:
@@ -355,13 +388,11 @@ struct ast_jit_engine {
 namespace wn {
 namespace scripting {
 
-CompiledModule::CompiledModule() :
-  m_module(wn_nullptr) {
-}
+CompiledModule::CompiledModule() : m_module(wn_nullptr) {}
 
-CompiledModule::CompiledModule(CompiledModule&& _other) :
-  m_engine(std::move(_other.m_engine)),
-  m_module(std::move(_other.m_module)) {
+CompiledModule::CompiledModule(CompiledModule&& _other)
+    : m_engine(std::move(_other.m_engine)),
+      m_module(std::move(_other.m_module)) {
   _other.m_module = wn_nullptr;
 }
 

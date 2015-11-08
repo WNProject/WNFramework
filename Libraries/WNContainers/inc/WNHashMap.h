@@ -244,6 +244,14 @@ class hash_map final {
     return insert(std::make_pair(std::move(key), mapped_type())).first->second;
   }
 
+  mapped_type& operator[](const key_type& key) {
+    iterator it = find(key);
+    if (it != end()) {
+      return it->second;
+    }
+    return insert(std::make_pair(key, mapped_type())).first->second;
+  }
+
   const mapped_type& operator[](const key_type& key) const {
     iterator it = find(key);
     if (it != end()) {

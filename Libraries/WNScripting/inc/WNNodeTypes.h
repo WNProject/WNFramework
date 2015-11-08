@@ -254,6 +254,7 @@ class id_expression : public expression {
   id_expression(wn::memory::allocator *_allocator, const char *_name)
       : expression(_allocator, node_type::id_expression),
         m_name(_name, _allocator) {}
+  containers::string_view get_name() const { return m_name; }
 
  private:
   containers::string m_name;

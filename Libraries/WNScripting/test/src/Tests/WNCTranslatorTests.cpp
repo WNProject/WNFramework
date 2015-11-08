@@ -22,6 +22,36 @@ TEST(c_translator, simple_c_translation) {
       std::string(manager.get_file("file.wns.c")->data()));
 }
 
+using c_translator_function_params =
+    ::testing::TestWithParam<std::pair<const char*, const char*>>;
+TEST_P(c_translator_function_params, single_parameter) {
+  wn::memory::default_expanding_allocator<50> allocator;
+  containers::string str(&allocator);
+  str += std::get<0>(GetParam());
+  str = str + " main(" + std::get<0>(GetParam()) + " x) { return x; }";
+
+  containers::string expected_str(&allocator);
+  expected_str += std::get<1>(GetParam());
+  expected_str = expected_str + " main(" + std::get<1>(GetParam()) +
+                 " x) {\nreturn x;\n}\n";
+
+  wn::scripting::test_file_manager manager(&allocator, {{"file.wns", str}});
+
+  scripting::c_translator translator(&allocator, &manager,
+                                     WNLogging::get_null_logger());
+  containers::string output_string(&allocator);
+  EXPECT_EQ(wn::scripting::parse_error::ok,
+            translator.translate_file("file.wns"));
+  EXPECT_EQ(std::string(expected_str.c_str()),
+            std::string(manager.get_file("file.wns.c")->data()));
+}
+
+INSTANTIATE_TEST_CASE_P(
+    parameter_tests, c_translator_function_params,
+    ::testing::ValuesIn(std::vector<std :: pair<const char*, const char*>>({
+        std::make_pair("Int", "wn_int32"), std::make_pair("Float", "wn_float32"),
+        std::make_pair("Bool", "wn_bool"), std::make_pair("Char", "wn_char")})));
+
 TEST(c_translator, multiple_c_functions) {
   wn::memory::default_expanding_allocator<50> allocator;
   wn::scripting::test_file_manager manager(&allocator,
@@ -75,7 +105,7 @@ TEST_P(c_int_params, int_return) {
   str += "; } ";
 
   containers::string expected(&allocator);
-  expected += "int main() {\n"
+  expected += "wn_int32 main() {\n"
               "return ";
   expected += GetParam();
   expected += ";\n}\n";

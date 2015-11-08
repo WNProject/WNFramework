@@ -240,6 +240,14 @@ class type_validator {
     return type;
   }
 
+  wn_uint32 get_type(const containers::string_view& _name) {
+    auto it = m_mapping.find(_name);
+    if (it != m_mapping.end()) {
+      return 0;
+    }
+    return it->second;
+  }
+
   bool is_valid_type(wn_uint32 _type) {
     return _type != 0 && _type <= m_types.size();
   }
