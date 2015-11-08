@@ -38,6 +38,7 @@
 #endif
 
 #include "WNContainers/inc/WNContiguousRange.h"
+#include "WNContainers/inc/WNDynamicArray.h"
 #include "WNContainers/inc/WNList.h"
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNScripting/inc/WNJITEngine.h"
@@ -84,17 +85,34 @@ struct instruction {
         end_basic_block(_other.end_basic_block) {
     _other.end_basic_block = wn_nullptr;
   }
+
   instruction(memory::allocator* _allocator)
       : main_block_insertions(_allocator),
         additional_basic_blocks(_allocator),
-        end_basic_block(wn_nullptr) {}
+        end_basic_block(wn_nullptr) {
+  }
+
+  instruction(memory::allocator* _allocator,
+              containers::dynamic_array<llvm::Instruction*>&
+                  current_expression_instructions)
+      : instruction(_allocator) {
+    for (auto& it : current_expression_instructions) {
+      main_block_insertions.push_back(it);
+    }
+    current_expression_instructions.clear();
+  }
+
   instruction() {
     WN_RELEASE_ASSERT_DESC(wn_false, "This should never be hit");
   }
-  instruction(llvm::Instruction* _inst, wn::memory::allocator* _allocator)
-      : instruction(_allocator) {
+
+  instruction(llvm::Instruction* _inst, wn::memory::allocator* _allocator,
+              containers::dynamic_array<llvm::Instruction*>&
+                  current_expression_instructions)
+      : instruction(_allocator, current_expression_instructions) {
     main_block_insertions.push_back(_inst);
   }
+
   wn::containers::list<llvm::Instruction*> main_block_insertions;
   wn::containers::list<llvm::BasicBlock*> additional_basic_blocks;
   llvm::BasicBlock* end_basic_block;
@@ -185,7 +203,9 @@ struct ast_jit_traits {
 struct ast_jit_engine {
   ast_jit_engine(memory::allocator* _allocator, llvm::LLVMContext* _context,
                  llvm::Module* _module)
-      : m_allocator(_allocator), m_context(_context), m_module(_module) {}
+      : m_allocator(_allocator),
+        m_context(_context),
+        m_module(_module) {}
 
   llvm::Value* walk_expression(
       const wn::scripting::expression*,
@@ -213,6 +233,15 @@ struct ast_jit_engine {
         WN_RELEASE_ASSERT_DESC(wn_false, "Not Implemented");
     }
     return wn_nullptr;
+  }
+
+  llvm::Value* walk_expression(
+      const wn::scripting::id_expression*,
+      wn::containers::contiguous_range<
+          wn::containers::contiguous_range<llvm::Value*>> _value,
+      llvm::Type* _type) {
+    current_expression_instructions.push_back(new llvm::LoadInst(_value[0][0]));
+    return current_expression_instructions.back();
   }
 
   function_definition walk_function_header(
@@ -308,7 +337,7 @@ struct ast_jit_engine {
 
   instruction walk_declaration(const wn::scripting::declaration* _declaration,
                                llvm::Type* _type) {
-    return instruction(m_allocator);
+    return instruction(m_allocator, current_expression_instructions);
   }
 
   llvm::Type* walk_type(const wn::scripting::type* _type) {
@@ -343,12 +372,13 @@ struct ast_jit_engine {
       const wn::scripting::return_instruction* _return_instruction,
       llvm::Value* _expression) {
     return instruction(llvm::ReturnInst::Create(*m_context, _expression),
-                       m_allocator);
+                       m_allocator, current_expression_instructions);
   }
 
   instruction walk_return_instruction(
       const wn::scripting::return_instruction* _return_instruction) {
-    return instruction(llvm::ReturnInst::Create(*m_context), m_allocator);
+    return instruction(llvm::ReturnInst::Create(*m_context), m_allocator,
+      current_expression_instructions);
   }
 
   script_file walk_script_file(
@@ -382,6 +412,11 @@ struct ast_jit_engine {
   wn::memory::allocator* m_allocator;
   llvm::Module* m_module;
   llvm::LLVMContext* m_context;
+  // This holds all of the instrutions that are inside a nested expression.
+  // When these finally get "resolved" they can be passed to the instruction()
+  // to make sure they end up in the same basic_block as the instruction
+  // that needs them.
+  containers::dynamic_array<llvm::Instruction*> current_expression_instructions;
 };
 }  // anonymous
 

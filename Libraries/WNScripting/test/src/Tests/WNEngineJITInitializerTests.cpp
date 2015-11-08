@@ -95,6 +95,26 @@ TEST_P(jit_int_params, int_return) {
   EXPECT_EQ(GetParam().number, (*new_func)());
 }
 
+TEST_P(jit_int_params, int_passthrough) {
+  wn::memory::default_expanding_allocator<50> allocator;
+  containers::string str(&allocator);
+  str += "Int main(Int x) { return x";
+  str += "; } ";
+
+  containers::string expected(&allocator);
+  wn::scripting::test_file_manager manager(
+      &allocator, {{"file.wns", str}});
+
+  wn::scripting::jit_engine jit_engine(&allocator, &manager,
+                                       WNLogging::get_null_logger());
+  EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file.wns"));
+
+  wn::scripting::engine::void_func main = jit_engine.get_function("main");
+  int(*new_func)(int) = reinterpret_cast<int(*)(int)>(main);
+  EXPECT_EQ(GetParam().number, (*new_func)(GetParam().number));
+}
+
+
 INSTANTIATE_TEST_CASE_P(
     int_tests, jit_int_params,
     ::testing::Values(int_test({"0", 0}), int_test({"-1", -1}),
