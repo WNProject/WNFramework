@@ -20,7 +20,7 @@ struct passthrough_stl_allocator
   typedef const T* const_pointer;
   typedef const T& const_reference;
   typedef wn_size_t size_type;
-  typedef wn_size_t difference_type;
+  typedef wn_signed_t difference_type;
   typedef std::false_type propagate_on_container_copy_assignment;
   typedef std::true_type propagate_on_container_move_assignment;
   typedef std::false_type propagate_on_container_swap;
@@ -83,7 +83,7 @@ struct passthrough_stl_allocator<void, DefaultAlloc>
   typedef void* pointer;
   typedef const void* const_pointer;
   typedef wn_size_t size_type;
-  typedef wn_size_t difference_type;
+  typedef wn_signed_t difference_type;
   typedef std::false_type propagate_on_container_copy_assignment;
   typedef std::true_type propagate_on_container_move_assignment;
   typedef std::false_type propagate_on_container_swap;

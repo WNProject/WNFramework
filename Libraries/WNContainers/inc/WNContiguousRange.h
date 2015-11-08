@@ -25,9 +25,9 @@ template <typename Container, typename NonConstContainer = Container,
 class contiguous_range_iterator final
     : public std::iterator<std::random_access_iterator_tag, Element,
           typename Container::difference_type> {
- private:
+private:
   using base = std::iterator<std::random_access_iterator_tag, Element,
-                             typename Container::difference_type>;
+      typename Container::difference_type>;
 
 public:
   using iterator_category = typename base::iterator_category;
@@ -320,39 +320,38 @@ public:
       const wn_nullptr_t, const wn_nullptr_t)
     : contiguous_range() {}
 
-  WN_FORCE_INLINE explicit contiguous_range(T* begin, T* end)
-    : m_begin(begin), m_end(end) {
+  WN_FORCE_INLINE explicit contiguous_range(T* _begin, T* _end)
+    : m_begin(_begin), m_end(_end) {
     WN_RELEASE_ASSERT_DESC((m_begin && m_end) || (!m_begin && !m_end),
         "invalid input parameters, both must be null or non-null");
   }
 
-  WN_FORCE_INLINE explicit contiguous_range(T* ptr, const size_type size)
-    : contiguous_range(ptr, ptr + size) {}
+  WN_FORCE_INLINE explicit contiguous_range(T* _ptr, const size_type _size)
+    : contiguous_range(_ptr, _ptr + _size) {}
 
   template <typename U, const wn_size_t N,
       typename = core::enable_if_t<std::is_convertible<U*, T*>::value>>
-  WN_FORCE_INLINE contiguous_range(U(&ptr)[N])
-    : contiguous_range(ptr, N) {}
+  WN_FORCE_INLINE contiguous_range(U(&_ptr)[N]) : contiguous_range(_ptr, N) {}
 
   template <typename U,
       typename = core::enable_if_t<std::is_convertible<U*, T*>::value>>
-  WN_FORCE_INLINE contiguous_range(contiguous_range<U>&& range)
-    : contiguous_range(range.data(), range.size()) {
-    range = wn_nullptr;
+  WN_FORCE_INLINE contiguous_range(contiguous_range<U>&& _other)
+    : contiguous_range(_other.data(), _other.size()) {
+    _other = wn_nullptr;
   }
 
   template <typename U,
       typename = core::enable_if_t<std::is_convertible<U*, T*>::value>>
-  WN_FORCE_INLINE contiguous_range(const contiguous_range<U>& range)
-    : contiguous_range(range.data(), range.size()) {}
+  WN_FORCE_INLINE contiguous_range(const contiguous_range<U>& _other)
+    : contiguous_range(_other.data(), _other.size()) {}
 
-  WN_FORCE_INLINE contiguous_range(contiguous_range&& range)
-    : contiguous_range(range.m_begin, range.m_end) {
-    range = wn_nullptr;
+  WN_FORCE_INLINE contiguous_range(contiguous_range&& _other)
+    : contiguous_range(_other.m_begin, _other.m_end) {
+    _other = wn_nullptr;
   }
 
-  WN_FORCE_INLINE contiguous_range(const contiguous_range& range)
-    : contiguous_range(range.m_begin, range.m_end) {}
+  WN_FORCE_INLINE contiguous_range(const contiguous_range& _other)
+    : contiguous_range(_other.m_begin, _other.m_end) {}
 
   WN_FORCE_INLINE contiguous_range& operator=(const wn_nullptr_t) {
     contiguous_range(wn_nullptr).swap(*this);
@@ -362,16 +361,16 @@ public:
 
   template <typename U, const wn_size_t N,
       typename = core::enable_if_t<std::is_convertible<U*, T*>::value>>
-  WN_FORCE_INLINE contiguous_range& operator=(U(&ptr)[N]) {
-    contiguous_range(ptr, N).swap(*this);
+  WN_FORCE_INLINE contiguous_range& operator=(U(&_ptr)[N]) {
+    contiguous_range(_ptr, N).swap(*this);
 
     return *this;
   }
 
   template <typename U,
       typename = core::enable_if_t<std::is_convertible<U*, T*>::value>>
-  WN_FORCE_INLINE contiguous_range& operator=(contiguous_range<U>&& range) {
-    contiguous_range(std::move(range)).swap(*this);
+  WN_FORCE_INLINE contiguous_range& operator=(contiguous_range<U>&& _other) {
+    contiguous_range(std::move(_other)).swap(*this);
 
     return *this;
   }
@@ -379,46 +378,46 @@ public:
   template <typename U,
       typename = core::enable_if_t<std::is_convertible<U*, T*>::value>>
   WN_FORCE_INLINE contiguous_range& operator=(
-      const contiguous_range<U>& range) {
-    contiguous_range(range).swap(*this);
+      const contiguous_range<U>& _other) {
+    contiguous_range(_other).swap(*this);
 
     return *this;
   }
 
-  WN_FORCE_INLINE contiguous_range& operator=(contiguous_range&& range) {
-    contiguous_range(std::move(range)).swap(*this);
+  WN_FORCE_INLINE contiguous_range& operator=(contiguous_range&& _other) {
+    contiguous_range(std::move(_other)).swap(*this);
 
     return *this;
   }
 
-  WN_FORCE_INLINE contiguous_range& operator=(const contiguous_range& range) {
-    contiguous_range(range).swap(*this);
+  WN_FORCE_INLINE contiguous_range& operator=(const contiguous_range& _other) {
+    contiguous_range(_other).swap(*this);
 
     return *this;
   }
 
   // element access
 
-  WN_FORCE_INLINE reference operator[](const size_type pos) {
-    return at(pos);
+  WN_FORCE_INLINE reference operator[](const size_type _pos) {
+    return at(_pos);
   }
 
-  WN_FORCE_INLINE const_reference operator[](const size_type pos) const {
-    return at(pos);
+  WN_FORCE_INLINE const_reference operator[](const size_type _pos) const {
+    return at(_pos);
   }
 
-  WN_FORCE_INLINE reference at(const size_type pos) {
+  WN_FORCE_INLINE reference at(const size_type _pos) {
     WN_RELEASE_ASSERT_DESC(m_begin, "invalid contiguous range");
-    WN_RELEASE_ASSERT_DESC((m_begin + pos) < m_end, "index out of bounds");
+    WN_RELEASE_ASSERT_DESC((m_begin + _pos) < m_end, "index out of bounds");
 
-    return (*(m_begin + pos));
+    return (*(m_begin + _pos));
   }
 
-  WN_FORCE_INLINE const_reference at(const size_type pos) const {
+  WN_FORCE_INLINE const_reference at(const size_type _pos) const {
     WN_RELEASE_ASSERT_DESC(m_begin, "invalid contiguous range");
-    WN_RELEASE_ASSERT_DESC((m_begin + pos) < m_end, "index out of bounds");
+    WN_RELEASE_ASSERT_DESC((m_begin + _pos) < m_end, "index out of bounds");
 
-    return (*(m_begin + pos));
+    return (*(m_begin + _pos));
   }
 
   WN_FORCE_INLINE reference front() {
@@ -527,23 +526,29 @@ public:
 
   // modifiers
 
-  WN_FORCE_INLINE wn_void remove_prefix(const size_type count) {
-    WN_RELEASE_ASSERT_DESC(m_begin, "invalid contiguous range");
-    WN_RELEASE_ASSERT_DESC((m_begin + count) < m_end, "count too large");
-
-    m_begin += count;
+  WN_FORCE_INLINE wn_void clear() {
+    contiguous_range().swap(*this);
   }
 
-  WN_FORCE_INLINE wn_void remove_suffix(const size_type count) {
+  WN_FORCE_INLINE wn_void remove_prefix(const size_type _count) {
     WN_RELEASE_ASSERT_DESC(m_begin, "invalid contiguous range");
-    WN_RELEASE_ASSERT_DESC((m_end - count) >= m_begin, "count too large");
+    WN_RELEASE_ASSERT_DESC((m_begin + _count) < m_end, "count too large");
 
-    m_end -= count;
+    m_begin += _count;
   }
 
-  WN_FORCE_INLINE wn_void swap(contiguous_range& range) {
-    std::swap(m_begin, range.m_begin);
-    std::swap(m_end, range.m_end);
+  WN_FORCE_INLINE wn_void remove_suffix(const size_type _count) {
+    WN_RELEASE_ASSERT_DESC(m_begin, "invalid contiguous range");
+    WN_RELEASE_ASSERT_DESC((m_end - _count) >= m_begin, "count too large");
+
+    m_end -= _count;
+  }
+
+  WN_FORCE_INLINE wn_void swap(contiguous_range& _other) {
+    if (&_other != this) {
+      std::swap(m_begin, _other.m_begin);
+      std::swap(m_end, _other.m_end);
+    }
   }
 
 private:
@@ -553,48 +558,48 @@ private:
 
 template <typename T, typename U>
 WN_FORCE_INLINE wn_bool operator==(
-    const contiguous_range<T>& lhs, const contiguous_range<U>& rhs) {
-  return (lhs.data() == rhs.data() &&
-          (lhs.data() + lhs.size()) == (rhs.data() + rhs.size()));
+    const contiguous_range<T>& _lhs, const contiguous_range<U>& _rhs) {
+  return (_lhs.data() == _rhs.data() &&
+          (_lhs.data() + _lhs.size()) == (_rhs.data() + _rhs.size()));
 }
 
 template <typename T, typename U>
 WN_FORCE_INLINE wn_bool operator!=(
-    const contiguous_range<T>& lhs, const contiguous_range<U>& rhs) {
-  return (lhs.data() != rhs.data() ||
-          (lhs.data() + lhs.size()) != (rhs.data() + rhs.size()));
+    const contiguous_range<T>& _lhs, const contiguous_range<U>& _rhs) {
+  return (_lhs.data() != _rhs.data() ||
+          (_lhs.data() + _lhs.size()) != (_rhs.data() + _rhs.size()));
 }
 
 template <typename T, typename U>
 WN_FORCE_INLINE wn_bool operator<(
-    const contiguous_range<T>& lhs, const contiguous_range<U>& rhs) {
-  return (lhs.data() < rhs.data() ||
-          (lhs.data() == rhs.data() &&
-              (lhs.data() + lhs.size()) < (rhs.data() + rhs.size())));
+    const contiguous_range<T>& _lhs, const contiguous_range<U>& _rhs) {
+  return (_lhs.data() < _rhs.data() ||
+          (_lhs.data() == _rhs.data() &&
+              (_lhs.data() + _lhs.size()) < (_rhs.data() + _rhs.size())));
 }
 
 template <typename T, typename U>
 WN_FORCE_INLINE wn_bool operator<=(
-    const contiguous_range<T>& lhs, const contiguous_range<U>& rhs) {
-  return (lhs.data() < rhs.data() ||
-          (lhs.data() == rhs.data() &&
-              (lhs.data() + lhs.size()) <= (rhs.data() + rhs.size())));
+    const contiguous_range<T>& _lhs, const contiguous_range<U>& _rhs) {
+  return (_lhs.data() < _rhs.data() ||
+          (_lhs.data() == _rhs.data() &&
+              (_lhs.data() + _lhs.size()) <= (_rhs.data() + _rhs.size())));
 }
 
 template <typename T, typename U>
 WN_FORCE_INLINE wn_bool operator>(
-    const contiguous_range<T>& lhs, const contiguous_range<U>& rhs) {
-  return (lhs.data() > rhs.data() ||
-          (lhs.data() == rhs.data() &&
-              (lhs.data() + lhs.size()) > (rhs.data() + rhs.size())));
+    const contiguous_range<T>& _lhs, const contiguous_range<U>& _rhs) {
+  return (_lhs.data() > _rhs.data() ||
+          (_lhs.data() == _rhs.data() &&
+              (_lhs.data() + _lhs.size()) > (_rhs.data() + _rhs.size())));
 }
 
 template <typename T, typename U>
 WN_FORCE_INLINE wn_bool operator>=(
-    const contiguous_range<T>& lhs, const contiguous_range<U>& rhs) {
-  return (lhs.data() > rhs.data() ||
-          (lhs.data() == rhs.data() &&
-              (lhs.data() + lhs.size()) >= (rhs.data() + rhs.size())));
+    const contiguous_range<T>& _lhs, const contiguous_range<U>& _rhs) {
+  return (_lhs.data() > _rhs.data() ||
+          (_lhs.data() == _rhs.data() &&
+              (_lhs.data() + _lhs.size()) >= (_rhs.data() + _rhs.size())));
 }
 
 }  // namespace containers

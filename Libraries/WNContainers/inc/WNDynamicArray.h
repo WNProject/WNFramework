@@ -8,6 +8,7 @@
 #define __WN_CONTAINERS_DYNAMIC_ARRAY_H__
 
 #include "WNMemory/inc/WNAllocator.h"
+
 #include <iterator>
 
 namespace wn {
@@ -20,7 +21,7 @@ namespace internal {
 template <typename T>
 class dynamic_array_iterator
     : public std::iterator<std::random_access_iterator_tag, T> {
- public:
+public:
   typedef T* pointer;
   typedef T& reference;
   dynamic_array_iterator() : m_ptr(wn_nullptr) {}
@@ -44,12 +45,20 @@ class dynamic_array_iterator
     return (m_ptr - other.m_ptr);
   }
 
-  pointer operator->() { return (m_ptr); }
-  reference operator*() { return (*m_ptr); }
+  pointer operator->() {
+    return (m_ptr);
+  }
+  reference operator*() {
+    return (*m_ptr);
+  }
 
-  dynamic_array_iterator& operator++() { return ((*this) += 1); }
+  dynamic_array_iterator& operator++() {
+    return ((*this) += 1);
+  }
 
-  dynamic_array_iterator& operator--() { return (*this) -= 1; }
+  dynamic_array_iterator& operator--() {
+    return (*this) -= 1;
+  }
 
   dynamic_array_iterator operator++(int) {
     dynamic_array_iterator i = *this;
@@ -109,7 +118,7 @@ class dynamic_array_iterator
     return it;
   }
 
- private:
+private:
   explicit dynamic_array_iterator(T* _ptr) : m_ptr(_ptr) {}
   T* m_ptr;
 
@@ -123,7 +132,7 @@ class dynamic_array_iterator
 
 template <typename _Type, typename _Allocator>
 class dynamic_array final {
- public:
+public:
   static _Allocator s_default_allocator;
   typedef _Type value_type;
   typedef wn_size_t size_type;
@@ -140,27 +149,27 @@ class dynamic_array final {
   dynamic_array() : dynamic_array(&s_default_allocator) {}
 
   explicit dynamic_array(memory::allocator* _allocator)
-      : m_allocator(_allocator), m_data(wn_nullptr), m_size(0), m_capacity(0) {}
+    : m_allocator(_allocator), m_data(wn_nullptr), m_size(0), m_capacity(0) {}
 
   explicit dynamic_array(const size_type _count,
-                         memory::allocator* _allocator = &s_default_allocator)
-      : dynamic_array(_count, _Type(), _allocator) {}
+      memory::allocator* _allocator = &s_default_allocator)
+    : dynamic_array(_count, _Type(), _allocator) {}
 
   dynamic_array(const size_type _count, const _Type& _value,
-                memory::allocator* _allocator = &s_default_allocator)
-      : dynamic_array(_allocator) {
+      memory::allocator* _allocator = &s_default_allocator)
+    : dynamic_array(_allocator) {
     insert(iterator(m_data), _count, _value);
   }
 
   template <typename T_Alloc>
   dynamic_array(const dynamic_array<_Type, T_Alloc>& _other,
-                memory::allocator* _allocator = &s_default_allocator)
-      : dynamic_array(_allocator) {
+      memory::allocator* _allocator = &s_default_allocator)
+    : dynamic_array(_allocator) {
     (*this) = _other;
   }
 
   dynamic_array(const dynamic_array& _other)
-      : dynamic_array(_other.m_allocator) {
+    : dynamic_array(_other.m_allocator) {
     (*this) = _other;
   }
 
@@ -169,17 +178,16 @@ class dynamic_array final {
   }
 
   template <typename T_Alloc>
-  dynamic_array(dynamic_array<_Type, T_Alloc>&& _other)
-      : dynamic_array() {
+  dynamic_array(dynamic_array<_Type, T_Alloc>&& _other) : dynamic_array() {
     (*this) = std::move(_other);
   }
 
   template <typename TOther>
   dynamic_array(TOther begin, TOther end,
-                memory::allocator* _alloc = &s_default_allocator) :
-    dynamic_array(_alloc) {
+      memory::allocator* _alloc = &s_default_allocator)
+    : dynamic_array(_alloc) {
     reserve(end - begin);
-    while(begin != end) {
+    while (begin != end) {
       push_back(*begin);
       ++begin;
     }
@@ -207,7 +215,7 @@ class dynamic_array final {
       new (reinterpret_cast<wn_void*>(&m_data[i])) _Type(_other.m_data[i]);
     }
     m_size = _other.m_size;
-    return(*this);
+    return (*this);
   }
 
   dynamic_array& operator=(const dynamic_array& _other) {
@@ -225,7 +233,7 @@ class dynamic_array final {
       new (reinterpret_cast<wn_void*>(&m_data[i])) _Type(_other.m_data[i]);
     }
     m_size = _other.m_size;
-    return(*this);
+    return (*this);
   }
 
   dynamic_array& operator=(dynamic_array&& _other) {
@@ -273,13 +281,21 @@ class dynamic_array final {
 
   // element access
 
-  reference operator[](const size_type _pos) { return (at(_pos)); }
+  reference operator[](const size_type _pos) {
+    return (at(_pos));
+  }
 
-  const_reference operator[](const size_type _pos) const { return (at(_pos)); }
+  const_reference operator[](const size_type _pos) const {
+    return (at(_pos));
+  }
 
-  reference front() { return (*begin()); }
+  reference front() {
+    return (*begin());
+  }
 
-  const_reference front() const { return (*cbegin()); }
+  const_reference front() const {
+    return (*cbegin());
+  }
 
   reference back() {
     iterator i = end();
@@ -297,39 +313,67 @@ class dynamic_array final {
     return (*i);
   }
 
-  reference at(const size_type _pos) { return (m_data[_pos]); }
+  reference at(const size_type _pos) {
+    return (m_data[_pos]);
+  }
 
-  const_reference at(const size_type _pos) const { return (m_data[_pos]); }
+  const_reference at(const size_type _pos) const {
+    return (m_data[_pos]);
+  }
 
-  _Type* data() { return (m_data); }
+  _Type* data() {
+    return (m_data);
+  }
 
-  const _Type* data() const { return (m_data); }
+  const _Type* data() const {
+    return (m_data);
+  }
 
   // iterators
 
-  iterator begin() { return (iterator(m_data)); }
+  iterator begin() {
+    return (iterator(m_data));
+  }
 
-  const_iterator begin() const { return (cbegin()); }
+  const_iterator begin() const {
+    return (cbegin());
+  }
 
-  const_iterator cbegin() const { return (const_iterator(m_data)); }
+  const_iterator cbegin() const {
+    return (const_iterator(m_data));
+  }
 
-  iterator end() { return (iterator(m_data + m_size)); }
+  iterator end() {
+    return (iterator(m_data + m_size));
+  }
 
-  const_iterator end() const { return (cend()); }
+  const_iterator end() const {
+    return (cend());
+  }
 
-  const_iterator cend() const { return (const_iterator(m_data + m_size)); }
+  const_iterator cend() const {
+    return (const_iterator(m_data + m_size));
+  }
 
-  reverse_iterator rbegin() { return (reverse_iterator(end())); }
+  reverse_iterator rbegin() {
+    return (reverse_iterator(end()));
+  }
 
-  const_reverse_iterator rbegin() const { return (crbegin()); }
+  const_reverse_iterator rbegin() const {
+    return (crbegin());
+  }
 
   const_reverse_iterator crbegin() const {
     return (const_reverse_iterator(cend()));
   }
 
-  reverse_iterator rend() { return (reverse_iterator(begin())); }
+  reverse_iterator rend() {
+    return (reverse_iterator(begin()));
+  }
 
-  const_reverse_iterator rend() const { return (crend()); }
+  const_reverse_iterator rend() const {
+    return (crend());
+  }
 
   const_reverse_iterator crend() const {
     return (const_reverse_iterator(cbegin()));
@@ -337,11 +381,17 @@ class dynamic_array final {
 
   // capacity
 
-  size_type empty() const { return (size() == 0); }
+  size_type empty() const {
+    return (size() == 0);
+  }
 
-  size_type size() const { return (m_size); }
+  size_type size() const {
+    return (m_size);
+  }
 
-  size_type capacity() const { return (m_capacity); }
+  size_type capacity() const {
+    return (m_capacity);
+  }
 
   wn_void reserve(const size_type _new_cap) {
     if (_new_cap > m_capacity) {
@@ -394,8 +444,8 @@ class dynamic_array final {
     return (insert(_pos, std::move(_value)));
   }
 
-  iterator insert(const_iterator _pos, const size_type _count,
-                  const _Type& _value) {
+  iterator insert(
+      const_iterator _pos, const size_type _count, const _Type& _value) {
     size_type count = _count;
     iterator position = shift(_pos, count);
     iterator new_position = position;
@@ -408,7 +458,7 @@ class dynamic_array final {
   }
 
   template <typename _InputIt,
-            typename = core::enable_if_t<!std::is_integral<_InputIt>::value>>
+      typename = core::enable_if_t<!std::is_integral<_InputIt>::value>>
   iterator insert(const_iterator _pos, _InputIt _first, _InputIt _last) {
     const difference_type count = _last - _first;
     iterator position = shift(_pos, count);
@@ -421,21 +471,21 @@ class dynamic_array final {
     return (new_position);
   }
 
-  iterator insert(const_iterator _pos,
-                  std::initializer_list<_Type> _initializer_list) {
+  iterator insert(
+      const_iterator _pos, std::initializer_list<_Type> _initializer_list) {
     return (insert(_pos, _initializer_list.begin(), _initializer_list.end()));
   }
 
   template <typename _Function, typename = core::enable_if_t<core::is_callable<
                                     _Function, _Type(size_type)>::value>>
-  iterator insert(const_iterator _pos, const size_type _count,
-                  _Function&& _generator) {
+  iterator insert(
+      const_iterator _pos, const size_type _count, _Function&& _generator) {
     iterator position = shift(_pos, _count);
     iterator new_position = position;
 
     for (size_type i = 0; i < _count; ++i) {
-      memory::construct_at<_Type>((position++).m_ptr,
-                                  std::move(_generator(i++)));
+      memory::construct_at<_Type>(
+          (position++).m_ptr, std::move(_generator(i++)));
     }
 
     return (new_position);
@@ -448,14 +498,16 @@ class dynamic_array final {
     return (insert(_pos, std::move(value)));
   }
 
-  iterator erase(const_iterator _pos) { return (erase(_pos, 1)); }
+  iterator erase(const_iterator _pos) {
+    return (erase(_pos, 1));
+  }
 
   iterator erase(const_iterator _pos, const size_type _count) {
     WN_DEBUG_ASSERT(_pos >= const_iterator(m_data) &&
                     _pos <= const_iterator(m_data + m_size));
-    WN_DEBUG_ASSERT(_pos + _count < const_iterator(m_data + m_size));
+    WN_DEBUG_ASSERT((_pos + _count) <= const_iterator(m_data + m_size));
 
-    return (unshift(_pos, _count));
+    return unshift(_pos, _count);
   }
 
   iterator erase(const_iterator _first, const_iterator _last) {
@@ -467,13 +519,15 @@ class dynamic_array final {
     const difference_type count = _last - _first;
 
     if (count > 0) {
-      return (erase(_first, static_cast<size_type>(count)));
+      return erase(_first, static_cast<size_type>(count));
     }
 
-    return (iterator(m_data + (_first.m_ptr - m_data)));
+    return iterator(m_data + (_first.m_ptr - m_data));
   }
 
-  wn_void push_back(_Type&& _value) { insert(cend(), std::move(_value)); }
+  wn_void push_back(_Type&& _value) {
+    insert(cend(), std::move(_value));
+  }
 
   wn_void push_back(const _Type& _value) {
     _Type value(_value);
@@ -488,14 +542,19 @@ class dynamic_array final {
     push_back(std::move(value));
   }
 
-  wn_void pop_back() { erase(cend() - 1); }
+  wn_void pop_back() {
+    erase(cend() - 1);
+  }
 
   wn_void resize(const size_type _count) {
+    resize(_count, value_type());
+  }
+
+  wn_void resize(const size_type _count, const value_type& _value) {
     if (_count > m_size) {
-      shift(const_iterator(m_data), m_size - _count);
+      insert(const_iterator(m_data + m_size), (_count - m_size), _value);
     } else {
-      erase(const_iterator(m_data + m_size),
-            const_iterator(m_data + m_size + _count));
+      erase(const_iterator(m_data + _count), const_iterator(m_data + m_size));
     }
   }
 
@@ -508,7 +567,7 @@ class dynamic_array final {
     }
   }
 
- private:
+private:
   iterator shift(const_iterator _pos, const size_type _count) {
     WN_DEBUG_ASSERT(_pos <= const_iterator(m_data + m_size) &&
                     (_pos >= const_iterator(m_data)));

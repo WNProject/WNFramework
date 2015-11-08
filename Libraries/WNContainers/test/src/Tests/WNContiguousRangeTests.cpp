@@ -204,7 +204,7 @@ TYPED_TEST(contiguous_range, access) {
   );
 }
 
-TYPED_TEST(contiguous_range, interation) {
+TYPED_TEST(contiguous_range, iteration) {
   TypeParam buffer[5] = { TypeParam(1), TypeParam(2),
                           TypeParam(3), TypeParam(4),
                           TypeParam(5) };
@@ -259,6 +259,21 @@ TYPED_TEST(contiguous_range, interation) {
 
     count--;
   }
+}
+
+TYPED_TEST(contiguous_range, clear) {
+  TypeParam buffer[5] = { TypeParam(1), TypeParam(2),
+                          TypeParam(3), TypeParam(4),
+                          TypeParam(5) };
+  wn::containers::contiguous_range<TypeParam> range(buffer);
+
+  EXPECT_FALSE(range.empty());
+  EXPECT_EQ(range.size(), 5);
+
+  range.clear();
+
+  EXPECT_TRUE(range.empty());
+  EXPECT_EQ(range.size(), 0);
 }
 
 TYPED_TEST(contiguous_range, swap) {
