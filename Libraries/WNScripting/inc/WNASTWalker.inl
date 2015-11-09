@@ -180,7 +180,11 @@ template <typename T, typename Traits>
 typename ast_walker<T, Traits>::instruction_type
 ast_walker<T, Traits>::walk_declaration(const declaration* _declaration) {
   type_type type;
-  std::tie(type, std::ignore) = walk_type(_declaration->get_type());
+  // Using _ instead of std::ignore, because VS2015 has been
+  // failing at linking occasionally due COMDAT collisions with
+  // std::ignore.
+  wn_uint32 _;
+  std::tie(type, _) = walk_type(_declaration->get_type());
   WN_RELEASE_ASSERT_DESC(_declaration->get_expression() == wn_nullptr,
                          "Not implemented declaration expressions.");
   WN_RELEASE_ASSERT_DESC(_declaration->get_array_sizes().empty(),

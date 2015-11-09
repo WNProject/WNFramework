@@ -54,7 +54,7 @@ class jit_engine : public engine {
   containers::deque<CompiledModule> m_modules;
   containers::hash_map<containers::string_view, void(*)()> m_pointers;
 };
-}
-}
+}  // namespace scripting
+}  // namespace wn
 
 #endif  //__WN_SCRIPTING_JIT_ENGINE_H__

@@ -179,7 +179,7 @@ struct ast_jit_engine {
   containers::dynamic_array<llvm::Instruction*> current_expression_instructions;
 };
 
-}  // scripting
-}  // wn
+}  // namespace scripting
+}  // namespace wn
 
 #endif  // __WN_SCRIPTING_JIT_GENERATOR_H__
