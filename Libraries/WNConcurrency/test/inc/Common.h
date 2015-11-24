@@ -10,6 +10,7 @@
 #define __WN_CONCURRENCY_TESTS_COMMON_H__
 
 #include "WNCore/inc/WNTypes.h"
+#include "WNCore/test/inc/TestDefinitions.h"
 
 #define GTEST_HAS_RTTI 0
 

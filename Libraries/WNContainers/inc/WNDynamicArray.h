@@ -13,9 +13,9 @@
 
 namespace wn {
 namespace containers {
-
 template <typename _Type, typename _Allocator = memory::default_allocator>
 class dynamic_array;
+}  // containers
 
 namespace internal {
 template <typename T>
@@ -123,12 +123,15 @@ private:
   T* m_ptr;
 
   template <typename _Type, typename _Allocator>
-  friend class wn::containers::dynamic_array;
+  friend class ::wn::containers::dynamic_array;
 
   template <typename _Type>
   friend class dynamic_array_iterator;
 };
-}  // namespace internal
+
+} // internal
+
+namespace containers {
 
 template <typename _Type, typename _Allocator>
 class dynamic_array final {
@@ -141,8 +144,8 @@ public:
   typedef value_type& reference;
   typedef const value_type& const_reference;
 
-  typedef internal::dynamic_array_iterator<value_type> iterator;
-  typedef internal::dynamic_array_iterator<const value_type> const_iterator;
+  typedef wn::internal::dynamic_array_iterator<value_type> iterator;
+  typedef wn::internal::dynamic_array_iterator<const value_type> const_iterator;
   typedef std::reverse_iterator<iterator> reverse_iterator;
   typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 

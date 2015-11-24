@@ -14,14 +14,12 @@ TEST(string_utility, strlen) {
   EXPECT_EQ(wn::memory::strlen(test2), 13);
   EXPECT_EQ(wn::memory::strlen(test3), 14);
 
-  #ifdef _WN_DEBUG
-    EXPECT_DEATH({
-        wn::memory::strlen(wn_nullptr);
-      },
+#ifdef _WN_DEBUG
+  WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED(
+      wn::memory::strlen(wn_nullptr),
       "assertion failed!\n\nfile: .*\nline: .*\nmessage: string must not be "
-      "nullptr"
-    );
-  #endif
+      "nullptr");
+#endif
 }
 
 TEST(string_utility, strnlen) {
@@ -34,14 +32,12 @@ TEST(string_utility, strnlen) {
   EXPECT_EQ(wn::memory::strnlen(test3, 6), 6);
   EXPECT_EQ(wn::memory::strnlen(test3, 0), 0);
 
-  #ifdef _WN_DEBUG
-    EXPECT_DEATH({
-        wn::memory::strnlen(wn_nullptr, 5);
-      },
+#ifdef _WN_DEBUG
+  WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED(
+      wn::memory::strnlen(wn_nullptr, 5),
       "assertion failed!\n\nfile: .*\nline: .*\nmessage: string must not be "
-      "nullptr"
-    );
-  #endif
+      "nullptr");
+#endif
 }
 
 TEST(string_utility, strcpy) {
@@ -57,34 +53,28 @@ TEST(string_utility, strcpy) {
   EXPECT_EQ(test2[4], 'n');
   EXPECT_EQ(test2[5], 'g');
 
-  #ifdef _WN_DEBUG
-    EXPECT_DEATH({
-        wn::memory::strcpy(test2, wn_nullptr);
-      },
+#ifdef _WN_DEBUG
+  WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED(
+      wn::memory::strcpy(test2, wn_nullptr),
       "assertion failed!\n\nfile: .*\nline: .*\nmessage: source string must "
-      "not be nullptr"
-    );
+      "not be nullptr");
 
-    EXPECT_DEATH({
-        wn::memory::strcpy(wn_nullptr, test1);
-      },
+  WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED(
+      wn::memory::strcpy(wn_nullptr, test1),
       "assertion failed!\n\nfile: .*\nline: .*\nmessage: destination string "
-      "must not be nullptr"
-    );
+      "must not be nullptr");
 
-    EXPECT_DEATH({
-        wn::memory::strcpy(test2, test2);
-      },
+  WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED(
+      wn::memory::strcpy(test2, test2),
       "assertion failed!\n\nfile: .*\nline: .*\nmessage: destination and "
-      "source must not be the same"
-    );
-  #endif
+      "source must not be the same");
+#endif
 }
 
 TEST(string_utility, strncpy) {
   const wn_char* test1 = "string";
   const wn_char* test2 = "temp";
-  wn_char test3[3] = { 0 };
+  wn_char test3[3] = {0};
 
   wn::memory::strncpy(test3, test1, 3);
 
@@ -98,28 +88,22 @@ TEST(string_utility, strncpy) {
   EXPECT_EQ(test3[1], 't');
   EXPECT_EQ(test3[2], 'r');
 
-  #ifdef _WN_DEBUG
-    EXPECT_DEATH({
-        wn::memory::strncpy(test3, wn_nullptr, 3);
-      },
+#ifdef _WN_DEBUG
+  WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED(
+      wn::memory::strncpy(test3, wn_nullptr, 3),
       "assertion failed!\n\nfile: .*\nline: .*\nmessage: source string must "
-      "not be nullptr"
-    );
+      "not be nullptr");
 
-    EXPECT_DEATH({
-        wn::memory::strncpy(wn_nullptr, test1, 3);
-      },
+  WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED(
+      wn::memory::strncpy(wn_nullptr, test1, 3),
       "assertion failed!\n\nfile: .*\nline: .*\nmessage: destination string "
-      "must not be nullptr"
-    );
+      "must not be nullptr");
 
-    EXPECT_DEATH({
-        wn::memory::strncpy(test3, test3, 3);
-      },
+  WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED(
+      wn::memory::strncpy(test3, test3, 3),
       "assertion failed!\n\nfile: .*\nline: .*\nmessage: destination and "
-      "source must not be the same"
-    );
-  #endif
+      "source must not be the same");
+#endif
 }
 
 TEST(string_utility, strcat) {
@@ -135,28 +119,22 @@ TEST(string_utility, strcat) {
   EXPECT_EQ(test2[4], 'n');
   EXPECT_EQ(test2[5], 'g');
 
-  #ifdef _WN_DEBUG
-    EXPECT_DEATH({
-        wn::memory::strcat(test2, wn_nullptr);
-      },
+#ifdef _WN_DEBUG
+  WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED(
+      wn::memory::strcat(test2, wn_nullptr),
       "assertion failed!\n\nfile: .*\nline: .*\nmessage: source string must "
-      "not be nullptr"
-    );
+      "not be nullptr");
 
-    EXPECT_DEATH({
-        wn::memory::strcat(wn_nullptr, test1);
-      },
+  WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED(
+      wn::memory::strcat(wn_nullptr, test1),
       "assertion failed!\n\nfile: .*\nline: .*\nmessage: destination string "
-      "must not be nullptr"
-    );
+      "must not be nullptr");
 
-    EXPECT_DEATH({
-        wn::memory::strcat(test2, test2);
-      },
+  WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED(
+      wn::memory::strcat(test2, test2),
       "assertion failed!\n\nfile: .*\nline: .*\nmessage: destination and "
-      "source must not be the same"
-    );
-  #endif
+      "source must not be the same");
+#endif
 }
 
 TEST(string_utility, strncat) {
@@ -194,21 +172,17 @@ TEST(string_utility, strcmp) {
   EXPECT_LT(wn::memory::strcmp(test1, test3), 0);
   EXPECT_GT(wn::memory::strcmp(test1, test4), 0);
 
-  #ifdef _WN_DEBUG
-    EXPECT_DEATH({
-        wn::memory::strcmp(test2, wn_nullptr);
-      },
+#ifdef _WN_DEBUG
+  WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED(
+      wn::memory::strcmp(test2, wn_nullptr),
       "assertion failed!\n\nfile: .*\nline: .*\nmessage: string must not be "
-      "nullptr"
-    );
+      "nullptr");
 
-    EXPECT_DEATH({
-        wn::memory::strcmp(wn_nullptr, test1);
-      },
+  WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED(
+      wn::memory::strcmp(wn_nullptr, test1),
       "assertion failed!\n\nfile: .*\nline: .*\nmessage: string must not be "
-      "nullptr"
-    );
-  #endif
+      "nullptr");
+#endif
 }
 
 TEST(string_utility, strncmp) {
@@ -236,14 +210,12 @@ TEST(string_utility, strdup) {
 
   wn::memory::heap_free(test2);
 
-  #ifdef _WN_DEBUG
-    EXPECT_DEATH({
-        wn::memory::strdup(wn_nullptr);
-      },
+#ifdef _WN_DEBUG
+  WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED(
+      wn::memory::strdup(wn_nullptr),
       "assertion failed!\n\nfile: .*\nline: .*\nmessage: string must not be "
-      "nullptr"
-    );
-  #endif
+      "nullptr");
+#endif
 }
 
 TEST(string_utility, strndup) {
@@ -259,14 +231,12 @@ TEST(string_utility, strndup) {
 
   wn::memory::heap_free(test2);
 
-  #ifdef _WN_DEBUG
-    EXPECT_DEATH({
-        wn::memory::strndup(wn_nullptr, 5);
-      },
+#ifdef _WN_DEBUG
+  WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED(
+      wn::memory::strndup(wn_nullptr, 5),
       "assertion failed!\n\nfile: .*\nline: .*\nmessage: string must not be "
-      "nullptr"
-    );
-  #endif
+      "nullptr");
+#endif
 }
 
 TEST(string_utility, strchr) {
@@ -277,25 +247,19 @@ TEST(string_utility, strchr) {
   EXPECT_EQ(wn::memory::strchr(test, 'n'), test + 4);
   EXPECT_EQ(wn::memory::strchr(test, 'g'), test + 5);
 
-  #ifdef _WN_DEBUG
-    EXPECT_DEATH({
-        const wn_char* temp = wn_nullptr;
-
-        wn::memory::strchr(temp, '\0');
-      },
+#ifdef _WN_DEBUG
+  const wn_char* temp = wn_nullptr;
+  WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED(
+      wn::memory::strchr(temp, '\0'),
       "assertion failed!\n\nfile: .*\nline: .*\nmessage: string must not be "
-      "nullptr"
-    );
+      "nullptr");
+  wn_char* temp2 = wn_nullptr;
 
-    EXPECT_DEATH({
-        wn_char* temp = wn_nullptr;
-
-        wn::memory::strchr(temp, '\0');
-      },
+  WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED(
+      wn::memory::strchr(temp2, '\0'),
       "assertion failed!\n\nfile: .*\nline: .*\nmessage: string must not be "
-      "nullptr"
-    );
-  #endif
+      "nullptr");
+#endif
 }
 
 TEST(string_utility, strnchr) {
@@ -313,31 +277,26 @@ TEST(string_utility, strnchr) {
   EXPECT_EQ(wn::memory::strnchr(test, 'n', 1), wn_nullptr);
   EXPECT_EQ(wn::memory::strnchr(test, 'g', 1), wn_nullptr);
 
-  #ifdef _WN_DEBUG
-    EXPECT_DEATH({
-        const wn_char* temp = wn_nullptr;
+#ifdef _WN_DEBUG
 
-        wn::memory::strnchr(temp, '\0', 6);
-      },
+  const wn_char* temp = wn_nullptr;
+  WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED(
+      wn::memory::strnchr(temp, '\0', 6),
       "assertion failed!\n\nfile: .*\nline: .*\nmessage: string must not be "
-      "nullptr"
-    );
+      "nullptr");
+  wn_char* temp2 = wn_nullptr;
 
-    EXPECT_DEATH({
-        wn_char* temp = wn_nullptr;
-
-        wn::memory::strnchr(temp, '\0', 6);
-      },
+  WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED(
+      wn::memory::strnchr(temp2, '\0', 6),
       "assertion failed!\n\nfile: .*\nline: .*\nmessage: string must not be "
-      "nullptr"
-    );
-  #endif
+      "nullptr");
+#endif
 }
 
 TEST(string_utility, strnchr_past_end) {
   const wn_char* test = "string";
 
-// strnchr should end at "size" or the end of the string.
+  // strnchr should end at "size" or the end of the string.
   EXPECT_EQ(wn::memory::strnchr(test, 'f', 32), wn_nullptr);
   EXPECT_EQ(wn::memory::strnchr(test, 'p', 0xFFFFFFFF), wn_nullptr);
 }
@@ -354,14 +313,12 @@ TEST(string_utility, strlwr) {
   EXPECT_EQ(test[5], 'g');
   EXPECT_EQ(test[6], '\0');
 
-  #ifdef _WN_DEBUG
-    EXPECT_DEATH({
-        wn::memory::strlwr(wn_nullptr);
-      },
+#ifdef _WN_DEBUG
+  WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED(
+      wn::memory::strlwr(wn_nullptr),
       "assertion failed!\n\nfile: .*\nline: .*\nmessage: string must not be "
-      "nullptr"
-    );
-  #endif
+      "nullptr");
+#endif
 }
 
 TEST(string_utility, strnlwr) {
@@ -386,14 +343,12 @@ TEST(string_utility, strnlwr) {
   EXPECT_EQ(test2[5], 'G');
   EXPECT_EQ(test2[6], '\0');
 
-  #ifdef _WN_DEBUG
-    EXPECT_DEATH({
-        wn::memory::strnlwr(wn_nullptr, 5);
-      },
+#ifdef _WN_DEBUG
+  WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED(
+      wn::memory::strnlwr(wn_nullptr, 5),
       "assertion failed!\n\nfile: .*\nline: .*\nmessage: string must not be "
-      "nullptr"
-    );
-  #endif
+      "nullptr");
+#endif
 }
 
 TEST(string_utility, strupr) {
@@ -408,14 +363,12 @@ TEST(string_utility, strupr) {
   EXPECT_EQ(test[5], 'G');
   EXPECT_EQ(test[6], '\0');
 
-  #ifdef _WN_DEBUG
-    EXPECT_DEATH({
-        wn::memory::strupr(wn_nullptr);
-      },
+#ifdef _WN_DEBUG
+  WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED(
+      wn::memory::strupr(wn_nullptr),
       "assertion failed!\n\nfile: .*\nline: .*\nmessage: string must not be "
-      "nullptr"
-    );
-  #endif
+      "nullptr");
+#endif
 }
 
 TEST(string_utility, strnupr) {
@@ -440,14 +393,12 @@ TEST(string_utility, strnupr) {
   EXPECT_EQ(test2[5], 'G');
   EXPECT_EQ(test2[6], '\0');
 
-  #ifdef _WN_DEBUG
-    EXPECT_DEATH({
-        wn::memory::strnupr(wn_nullptr, 5);
-      },
+#ifdef _WN_DEBUG
+  WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED(
+      wn::memory::strnupr(wn_nullptr, 5),
       "assertion failed!\n\nfile: .*\nline: .*\nmessage: string must not be "
-      "nullptr"
-    );
-  #endif
+      "nullptr");
+#endif
 }
 
 TEST(string_utility, strhash) {
@@ -464,13 +415,13 @@ TEST(string_utility, strnhash) {
   wn_char test[] = "REPEAT LONG STRING THAT HAS A REPEAT";
 
   EXPECT_EQ(wn::memory::strnhash(test, 36), wn::memory::strnhash(test, 36));
-  EXPECT_EQ(wn::memory::strnhash(test, 6), wn::memory::strnhash(test+30, 6));
+  EXPECT_EQ(wn::memory::strnhash(test, 6), wn::memory::strnhash(test + 30, 6));
   EXPECT_NE(wn::memory::strnhash(test, 6), wn::memory::strnhash(test, 7));
 }
 
 TEST(string_utility, strnhash_overflow) {
   wn_char test[] = "some string";
-  wn_char test2[] = ""; // Empty string
+  wn_char test2[] = "";  // Empty string
 
   EXPECT_EQ(wn::memory::strnhash(test, 11), wn::memory::strnhash(test, 12));
   EXPECT_EQ(wn::memory::strnhash(test, 400), wn::memory::strnhash(test, 500));

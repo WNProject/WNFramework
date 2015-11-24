@@ -6,18 +6,58 @@ set(WN_LLVM_EXTRA_FLAGS "")
 # Check for the platform so we can include the correct files.
 set_property(GLOBAL PROPERTY USE_FOLDERS On)
 
+list(APPEND WN_LLVM_EXTRA_FLAGS "-DCMAKE_SYSTEM_NAME=${CMAKE_SYSTEM_NAME}")
+
+# Search packages for host system instead of packages for target system
+# in case of cross compilation these macro should be defined by toolchain file
+if(NOT COMMAND find_host_package)
+  macro(find_host_package)
+    find_package(${ARGN})
+  endmacro()
+endif()
+if(NOT COMMAND find_host_program)
+  macro(find_host_program)
+    find_program(${ARGN})
+  endmacro()
+endif()
+set(WN_IS_TEGRA OFF)
 if (EXISTS "/opt/vc/include/bcm_host.h")
   set(WN_SYSTEM "RPI")
   set(WN_POSIX true)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fno-rtti -fno-exceptions")
   set(WN_ADDITIONAL_TEST_LIBS pthread)
-elseif(ANDROID)
-  include(${CMAKE_CURRENT_LIST_DIR}/build_apk.cmake REQUIRED)
+elseif(ANDROID OR ${CMAKE_SYSTEM_NAME} STREQUAL "Android")
+  if (CMAKE_SYSTEM_NAME STREQUAL "Android")
+  # This is the case that we are building with Tegra NSight.
+  # Let it handle the APK generation.
+    if(MSVC)
+      set(WN_IS_TEGRA ON)
+      include(${CMAKE_CURRENT_LIST_DIR}/tegra_build.cmake REQUIRED)
+    endif()
+    set(ANDROID_NDK_HOST_SYSTEM_NAME "Windows")
+    if(NOT ANDROID_NDK)
+      set(ANDROID_NDK $ENV{ANDROID_NDK_ROOT})
+    endif()
+    if (NOT ANDROID_NDK)
+      set(ANDROID_NDK $ENV{ANDROID_NDK})
+    endif()
+    if (NOT ANDROID_NDK)
+      message(FATAL_ERROR "Set ANDROID_NDK or ANDROID_NDK_ROOT")
+    endif()
+    string(REPLACE "\\" "/" ANDROID_NDK "${ANDROID_NDK}")
+  endif()
+  if (NOT ${WN_IS_TEGRA})
+    include(${CMAKE_CURRENT_LIST_DIR}/build_apk.cmake REQUIRED)
+  endif()
   set(WN_SYSTEM "Android")
   set(WN_POSIX true)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fno-rtti -fno-exceptions -DANDROID_NATIVE_API_LEVEL=${ANDROID_NATIVE_API_LEVEL}")
   set(WN_ADDITIONAL_TEST_LIBS pthread)
   string(REPLACE "-DDEBUG" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
+  if (${WN_IS_TEGRA})
+    option(ANDROID_NATIVE_API_LEVEL "Android API Level" "14")
+    add_compile_options("-DANDROID_NATIVE_API_LEVEL=${ANDROID_NATIVE_API_LEVEL}")
+  endif()
   if (NOT ${ANDROID_NATIVE_API_LEVEL} GREATER 13)
     message(FATAL_ERROR "Android api level must be >= 14 \"-DANDROID_NATIVE_API_LEVEL=14\"")
   endif()
@@ -31,9 +71,9 @@ elseif(ANDROID)
   else()
     string(REPLACE "\\" "/" ANDROID_SDK "${ANDROID_SDK}")
   endif()
-
-  if (${ANDROID_NDK_HOST_SYSTEM_NAME} STREQUAL "windows" OR
-      ${ANDROID_NDK_HOST_SYSTEM_NAME} STREQUAL "windows-x86_64")
+  string(TOLOWER ${ANDROID_NDK_HOST_SYSTEM_NAME} SYSTEM_LOWER)
+  if (${SYSTEM_LOWER} STREQUAL "windows" OR
+      ${SYSTEM_LOWER} STREQUAL "windows-x86_64")
     set(WN_NULL_LOCATION NUL)
     list(APPEND WN_LLVM_EXTRA_FLAGS
       "-DCROSS_TOOLCHAIN_FLAGS_NATIVE=-DCMAKE_C_COMPILER=cl.exe\;-DCMAKE_CXX_COMPILER=cl.exe")
@@ -106,7 +146,7 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL Windows)
     if(${lang} MATCHES "/GR")
       string(REGEX REPLACE "/GR" "" ${lang} "${${lang}}")
     endif()
-    # Remove any flags related to warning level 
+    # Remove any flags related to warning level
     if(${lang} MATCHES "/W3")
       string(REGEX REPLACE "/W3" "" ${lang} "${${lang}}")
     endif()
@@ -179,21 +219,41 @@ execute_process(COMMAND ${CMAKE_COMMAND} -E
 # Configure llvm only needed the first time.
 if (NOT LLVM_CONFIGURED)
   message(STATUS "Configuring LLVM dependency")
-  if (CMAKE_TOOLCHAIN_FILE)
-    if(WN_SYSTEM STREQUAL "Android")
-      list(APPEND WN_LLVM_EXTRA_FLAGS
-        "-DCMAKE_TOOLCHAIN_FILE=${CMAKE_CURRENT_LIST_DIR}/wn_android_llvm.toolchain.cmake")
-      set(WRAPPER_SCRIPT ${PYTHON} ${CMAKE_CURRENT_LIST_DIR}/android_env.py  ${CMAKE_TOOLCHAIN_FILE})
+  if (${WN_IS_TEGRA})
+    list(APPEND WN_LLVM_EXTRA_FLAGS
+      "-DCMAKE_TOOLCHAIN_FILE=${CMAKE_CURRENT_LIST_DIR}/wn_tegra_llvm.toolchain.cmake")
+  else()
+    if (CMAKE_TOOLCHAIN_FILE)
+      if(${WN_SYSTEM} STREQUAL "Android")
+        list(APPEND WN_LLVM_EXTRA_FLAGS
+          "-DCMAKE_TOOLCHAIN_FILE=${CMAKE_CURRENT_LIST_DIR}/wn_android_llvm.toolchain.cmake")
+        set(WRAPPER_SCRIPT ${PYTHON} ${CMAKE_CURRENT_LIST_DIR}/android_env.py  ${CMAKE_TOOLCHAIN_FILE})
+      else()
+        list(APPEND WN_LLVM_EXTRA_FLAGS
+          "-DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}")
+      endif()
     else()
       list(APPEND WN_LLVM_EXTRA_FLAGS
-        "-DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}")
+          "-DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}")
+      list(APPEND WN_LLVM_EXTRA_FLAGS
+          "-DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}")
     endif()
-  else()
-    list(APPEND WN_LLVM_EXTRA_FLAGS
-        "-DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}")
-    list(APPEND WN_LLVM_EXTRA_FLAGS
-        "-DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}")
   endif()
+
+  set(WN_ARCH "host")
+  if (${WN_IS_TEGRA})
+#TODO(awoloszyn): Add Arm64 support in the future.
+    set(WN_TEGRA_TARGET_TRIPLE "armv7a-linux-androideabi")
+    if (${CMAKE_ANDROID_ARCH})
+      if (${CMAKE_ANDROID_ARCH} STREQUAL "x86")
+        set(WN_TEGRA_TARGET_TRIPLE "armv7a-linux-androideabi")
+      elseif(${CMAKE_ANDROID_ARCH} STREQUAL "x86_64")
+        set(WN_TEGRA_TARGET_TRIPLE "armv7a-linux-androideabi")
+      endif()
+    endif()
+    list(APPEND WN_LLVM_EXTRA_FLAGS "-DLLVM_HOST_TRIPLE=${WN_TEGRA_TARGET_TRIPLE}")
+  endif()
+
   execute_process(
     COMMAND ${WRAPPER_SCRIPT} ${CMAKE_COMMAND}
     -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
@@ -201,7 +261,8 @@ if (NOT LLVM_CONFIGURED)
     -DLLVM_INCLUDE_EXAMPLES=OFF
     -DLLVM_INCLUDE_TESTS=OFF
     -DLLVM_ENABLE_ZLIB=OFF
-    -DLLVM_TARGETS_TO_BUILD=host
+    -DLLVM_TARGET_ARCH=${WN_ARCH}
+    -DLLVM_TARGETS_TO_BUILD=${WN_ARCH}
         ${WN_LLVM_EXTRA_FLAGS}
     -G ${CMAKE_GENERATOR} ${CMAKE_CURRENT_SOURCE_DIR}/Externals/llvm
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Externals/llvm
@@ -324,7 +385,7 @@ endfunction()
 function(add_wn_library target)
   cmake_parse_arguments(
     PARSED_ARGS
-    "SHARED"
+    "SHARED;OBJECT"
     ""
     "PRE_LINK_FLAGS;POST_LINK_FLAGS;SOURCES"
     ${ARGN})
@@ -333,6 +394,8 @@ function(add_wn_library target)
   source_group("inl" REGULAR_EXPRESSION ".*[.](inl)$")
   if (PARSED_ARGS_SHARED)
     add_library(${target} SHARED ${PARSED_ARGS_SOURCES})
+  elseif(PARSED_ARGS_OBJECT)
+    add_library(${target} OBJECT ${PARSED_ARGS_SOURCES})
   else()
     add_library(${target} STATIC ${PARSED_ARGS_SOURCES})
   endif()
@@ -412,19 +475,14 @@ function(add_wn_executable target)
     ""
     "SOURCES;LINK_LIBRARIES"
     ${ARGN})
-  if (WN_SYSTEM STREQUAL "Android")
+  if (WN_SYSTEM STREQUAL "Android" AND NOT ${WN_IS_TEGRA})
     add_wn_library(${target} SHARED SOURCES ${PARSED_ARGS_SOURCES})
-    if (PARSED_ARGS_LINK_LIBRARIES)
-      wn_target_link_libraries(${target} PRIVATE ${PARSED_ARGS_LINK_LIBRARIES})
-    endif()
-    build_apk(ACTIVITY ${target}
-      PROGRAM_NAME ${target}
-      TARGET ${target})
+    build_apk(ACTIVITY ${target} PROGRAM_NAME ${target} TARGET ${target})
   else()
     add_executable(${target} ${PARSED_ARGS_SOURCES})
-    if (PARSED_ARGS_LINK_LIBRARIES)
-      wn_target_link_libraries(${target} PRIVATE ${PARSED_ARGS_LINK_LIBRARIES})
-    endif()
+  endif()
+  if (PARSED_ARGS_LINK_LIBRARIES)
+    wn_target_link_libraries(${target} PRIVATE ${PARSED_ARGS_LINK_LIBRARIES})
   endif()
 endfunction()
 

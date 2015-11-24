@@ -4,6 +4,7 @@
 
 #include "WNCore/inc/WNTypes.h"
 #include "WNCore/inc/WNAssert.h"
+#include "WNEntryPoint/inc/WNEntry.h"
 #include "WNMemory/inc/WNStringUtility.h"
 #include "WNDeprecatedScripting/inc/WNScriptingEngine.h"
 #include "WNDeprecatedScripting/inc/WNScriptingEngineFactory.h"
@@ -87,7 +88,9 @@ WNScripting::WNScriptingArrayRef<wn_char>* GetHelloWorld() {
 DEFINE_CPP_TYPE(Foo);
 
 wn_int32 wn_main(wn_int32 _argc, wn_char* _argv[]) {
+    wn_dummy();
     wn_char tests[1024];
+
 #ifdef _WN_ANDROID
     wn::memory::strcpy(tests, "/sdcard/MCJitTest.wns" );
     const wn_char* func = "test";

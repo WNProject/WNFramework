@@ -6,6 +6,7 @@
 #define __WN_MATH_TESTS_COMMON_H__
 
 #include "WNCore/inc/WNTypes.h"
+#include "WNCore/test/inc/TestDefinitions.h"
 
 #ifdef _WN_MSVC
     #pragma warning(push)

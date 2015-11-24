@@ -1,3 +1,7 @@
+// Copyright (c) 2015, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE.txt file.
+
 #include "WNCore/inc/WNTypes.h"
 #include "WNUtils/inc/Android/WNLoggingData.h"
 #include "WNUtils/inc/Android/WNAppData.h"
@@ -9,6 +13,8 @@
 #include <android/log.h>
 
 extern wn_int32 wn_main(wn_int32 _argc, wn_char* _argv[]);
+
+void wn_dummy() {}
 
 wn_char* GetPackageName(struct android_app* state) {
     ANativeActivity* activity = state->activity;

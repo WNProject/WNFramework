@@ -64,7 +64,7 @@ TYPED_TEST(contiguous_range, construction) {
   EXPECT_FALSE(range8.empty());
   EXPECT_EQ(range8.data(), buffer);
 
-  EXPECT_DEATH({
+  WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED({
       const wn::containers::contiguous_range<TypeParam> range(wn_nullptr,
                                                               buffer + 5);
     },
@@ -72,7 +72,7 @@ TYPED_TEST(contiguous_range, construction) {
     "parameters, both must be null or non-null"
   );
 
-  EXPECT_DEATH({
+  WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED({
       const wn::containers::contiguous_range<TypeParam> range(buffer,
                                                               wn_nullptr);
     },
@@ -153,7 +153,7 @@ TYPED_TEST(contiguous_range, access) {
   EXPECT_EQ(range2[1], TypeParam(3));
   EXPECT_EQ(range2.data(), buffer + 1);
 
-  EXPECT_DEATH({
+  WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED({
       const wn::containers::contiguous_range<TypeParam> range;
 
       range.at(0);
@@ -161,7 +161,7 @@ TYPED_TEST(contiguous_range, access) {
     "assertion failed!\n\nfile: .*\nline: .*\nmessage: invalid contiguous range"
   );
 
-  EXPECT_DEATH({
+  WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED({
       const wn::containers::contiguous_range<TypeParam> range(buffer,
                                                               buffer + 5);
 
@@ -170,7 +170,7 @@ TYPED_TEST(contiguous_range, access) {
     "assertion failed!\n\nfile: .*\nline: .*\nmessage: index out of bounds"
   );
 
-  EXPECT_DEATH({
+  WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED({
       const wn::containers::contiguous_range<TypeParam> range;
 
       range[0];
@@ -178,7 +178,7 @@ TYPED_TEST(contiguous_range, access) {
     "assertion failed!\n\nfile: .*\nline: .*\nmessage: invalid contiguous range"
   );
 
-  EXPECT_DEATH({
+  WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED({
       const wn::containers::contiguous_range<TypeParam> range(buffer,
                                                               buffer + 5);
 
@@ -187,7 +187,7 @@ TYPED_TEST(contiguous_range, access) {
     "assertion failed!\n\nfile: .*\nline: .*\nmessage: index out of bounds"
   );
 
-  EXPECT_DEATH({
+  WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED({
       const wn::containers::contiguous_range<TypeParam> range;
 
       range.front();
@@ -195,7 +195,7 @@ TYPED_TEST(contiguous_range, access) {
     "assertion failed!\n\nfile: .*\nline: .*\nmessage: invalid contiguous range"
   );
 
-  EXPECT_DEATH({
+  WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED({
       const wn::containers::contiguous_range<TypeParam> range;
 
       range.back();
@@ -322,7 +322,7 @@ TYPED_TEST(contiguous_range, remove_prefix) {
   EXPECT_EQ(range.front(), TypeParam(3));
   EXPECT_EQ(range.back(), TypeParam(5));
 
-  EXPECT_DEATH({
+  WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED({
       wn::containers::contiguous_range<TypeParam> fail_range;
 
       fail_range.remove_prefix(0);
@@ -330,7 +330,7 @@ TYPED_TEST(contiguous_range, remove_prefix) {
     "assertion failed!\n\nfile: .*\nline: .*\nmessage: invalid contiguous range"
   );
 
-  EXPECT_DEATH({
+  WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED({
       wn::containers::contiguous_range<TypeParam> fail_range(buffer, buffer + 5);
 
       fail_range.remove_prefix(6);
@@ -354,7 +354,7 @@ TYPED_TEST(contiguous_range, remove_suffix) {
   EXPECT_EQ(range.front(), TypeParam(1));
   EXPECT_EQ(range.back(), TypeParam(3));
 
-  EXPECT_DEATH({
+  WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED({
       wn::containers::contiguous_range<TypeParam> fail_range;
 
       fail_range.remove_suffix(0);
@@ -362,7 +362,7 @@ TYPED_TEST(contiguous_range, remove_suffix) {
     "assertion failed!\n\nfile: .*\nline: .*\nmessage: invalid contiguous range"
   );
 
-  EXPECT_DEATH({
+  WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED({
       wn::containers::contiguous_range<TypeParam> fail_range(buffer, buffer + 5);
 
       fail_range.remove_suffix(6);
