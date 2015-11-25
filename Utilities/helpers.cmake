@@ -284,21 +284,29 @@ add_custom_target(llvm_target
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Externals/llvm)
 
 llvm_map_components_to_libnames(WNScriptingLLVMLibs ${WNScriptingLLVMComponents})
-foreach(llvm_lib ${WNScriptingLLVMLibs})
+
+foreach (llvm_lib ${WNScriptingLLVMLibs})
   add_dependencies(${llvm_lib} llvm_target)
 endforeach()
 
-add_subdirectory(Externals/gtest)
+get_property(OLD_DIRECTORY TARGET llvm_target PROPERTY FOLDER)
+set_property(TARGET llvm_target PROPERTY FOLDER Externals/${OLD_DIRECTORY})
+
+add_subdirectory(Externals/googletest)
 enable_testing()
 
 set(GTEST_TARGETS
     gtest
-    gtest_main)
+    gtest_main
+    gmock
+    gmock_main)
+
 # Sets up the visual studio folder structure for gtest.
-foreach(target ${GTEST_TARGETS})
+foreach (target ${GTEST_TARGETS})
     get_property(OLD_DIRECTORY TARGET ${target} PROPERTY FOLDER)
-    set_property(TARGET ${target} PROPERTY FOLDER Externals/gtest/${OLD_DIRECTORY})
-    if(ANDROID)
+    set_property(TARGET ${target} PROPERTY FOLDER Externals/googletest/${OLD_DIRECTORY})
+    
+    if (ANDROID)
       set_property(TARGET ${target} PROPERTY WN_ANDROID_PERMISSIONS WRITE_EXTERNAL_STORAGE)
     endif()
 endforeach()
@@ -327,9 +335,10 @@ function(wn_create_test)
   source_group("inc" REGULAR_EXPRESSION ".*[.](h|hpp)$")
   source_group("inl" REGULAR_EXPRESSION ".*[.](inl)$")
   add_wn_executable(${PARSED_ARGS_TEST_NAME}_test SOURCES ${PARSED_ARGS_SOURCES}
-    LINK_LIBRARIES gtest WNEntryPoint WNUtils ${PARSED_ARGS_LIBS})
+    LINK_LIBRARIES gmock WNEntryPoint WNUtils ${PARSED_ARGS_LIBS})
   target_include_directories(${PARSED_ARGS_TEST_NAME}_test PRIVATE
     ${gtest_SOURCE_DIR}/include
+    ${gmock_SOURCE_DIR}/include
     ${CMAKE_CURRENT_SOURCE_DIR})
 
   if (ANDROID)

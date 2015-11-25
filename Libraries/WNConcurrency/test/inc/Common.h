@@ -12,19 +12,6 @@
 #include "WNCore/inc/WNTypes.h"
 #include "WNCore/test/inc/TestDefinitions.h"
 
-#define GTEST_HAS_RTTI 0
-
-#ifdef _WN_MSVC
-    #pragma warning(push)
-    #pragma warning(disable: 4275)
-#endif
-
-#include <gtest/gtest.h>
-
-#ifdef _WN_MSVC
-    #pragma warning(pop)
-#endif
-
 #define RANDOM_TIME(_high, _low) (rand() % ((_high) - (_low) + 1) + (_low))
 
 #include "WNConcurrency/inc/WNConcurrency.h"
