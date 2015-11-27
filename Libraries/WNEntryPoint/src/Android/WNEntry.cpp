@@ -46,10 +46,11 @@ wn_char* GetPackageName(struct android_app* state) {
     return(tempstr);
 }
 
-void* main_proxy_thread(void*) {
+void* main_proxy_thread(void* _package_name) {
     WNUtils::InitializeCrashHandler();
 
-    wn_int32 retVal = wn_main(0, NULL);
+    wn_char* package_name = static_cast<wn_char*>(_package_name);
+    wn_int32 retVal = wn_main(1, &package_name);
 
     __android_log_print(ANDROID_LOG_INFO, WNUtils::gAndroidLogTag, "--FINISHED");
     __android_log_print(ANDROID_LOG_INFO, WNUtils::gAndroidLogTag, "RETURN %d", retVal);
@@ -61,8 +62,6 @@ void* main_proxy_thread(void*) {
 
 void android_main(struct android_app* state)
 {
-    freopen("/sdcard/stdout.txt", "a", stdout);
-
     wn_char* packageName = GetPackageName(state);
 
     WNUtils::gAndroidLogTag = packageName;
@@ -90,7 +89,7 @@ void android_main(struct android_app* state)
 
     pthread_t mThread;
 
-    pthread_create(&mThread, NULL, main_proxy_thread, NULL);
+    pthread_create(&mThread, NULL, main_proxy_thread, packageName);
 
     WNUtils::WNAndroidEventPump::GetInstance().PumpMessages(state);
 

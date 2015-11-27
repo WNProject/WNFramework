@@ -152,7 +152,7 @@ llvm::Value* ast_jit_engine::walk_expression(
     const wn::scripting::id_expression*,
     wn::containers::contiguous_range<
         wn::containers::contiguous_range<llvm::Value*>> _value,
-    llvm::Type* _type) {
+    llvm::Type*) {
   current_expression_instructions.push_back(new llvm::LoadInst(_value[0][0]));
   return current_expression_instructions.back();
 }
@@ -185,8 +185,7 @@ jitted_function ast_jit_engine::walk_function_header(
   // for any functions, furthermore this will cause
   // unexpected symbol resolution on Android.
   function->addFnAttr(llvm::Attribute::NoUnwind);
-  llvm::BasicBlock* initial =
-      llvm::BasicBlock::Create(*m_context, "initial", function);
+  llvm::BasicBlock::Create(*m_context, "initial", function);
 
   auto llvm_args = function->arg_begin();
   auto arg_names = _parameters.begin();
@@ -200,7 +199,7 @@ jitted_function ast_jit_engine::walk_function_header(
 }
 
 llvm::Value* ast_jit_engine::walk_parameter_instantiation(
-    const wn::scripting::parameter* _parameter, jitted_function& function,
+    const wn::scripting::parameter*, jitted_function& function,
     std::pair<jit_parameter, llvm::Type*>& _parameter_value,
     wn_size_t parameter_number) {
   llvm::Instruction* inst = new llvm::AllocaInst(
@@ -223,7 +222,7 @@ llvm::Value* ast_jit_engine::walk_parameter_instantiation(
 }
 
 llvm::Function* ast_jit_engine::walk_function(
-    const wn::scripting::function* _function,
+    const wn::scripting::function*,
     const jitted_function& function_header,
     wn::containers::dynamic_array<jitted_instruction>& _body) {
   llvm::BasicBlock& last_bb =
@@ -249,7 +248,7 @@ llvm::Function* ast_jit_engine::walk_function(
 }
 
 jitted_instruction ast_jit_engine::walk_declaration(
-    const wn::scripting::declaration* _declaration, llvm::Type* _type) {
+    const wn::scripting::declaration*, llvm::Type*) {
   return jitted_instruction(m_allocator, current_expression_instructions);
 }
 
@@ -282,23 +281,23 @@ llvm::Type* ast_jit_engine::walk_type(const wn::scripting::type* _type) {
 }
 
 jitted_instruction ast_jit_engine::walk_return_instruction(
-    const wn::scripting::return_instruction* _return_instruction,
+    const wn::scripting::return_instruction*,
     llvm::Value* _expression) {
   return jitted_instruction(llvm::ReturnInst::Create(*m_context, _expression),
                             m_allocator, current_expression_instructions);
 }
 
 jitted_instruction ast_jit_engine::walk_return_instruction(
-    const wn::scripting::return_instruction* _return_instruction) {
+    const wn::scripting::return_instruction*) {
   return jitted_instruction(llvm::ReturnInst::Create(*m_context), m_allocator,
                             current_expression_instructions);
 }
 
 jitted_file ast_jit_engine::walk_script_file(
-    const wn::scripting::script_file* _file,
+    const wn::scripting::script_file*,
     const wn::containers::contiguous_range<llvm::Function*>& _functions,
-    const wn::containers::contiguous_range<containers::string>& _includes,
-    const wn::containers::contiguous_range<llvm::Type*>& _structs) {
+    const wn::containers::contiguous_range<containers::string>&,
+    const wn::containers::contiguous_range<llvm::Type*>&) {
   jitted_file file(m_allocator);
   for (auto& function : _functions) {
     m_module->getFunctionList().push_back(function);

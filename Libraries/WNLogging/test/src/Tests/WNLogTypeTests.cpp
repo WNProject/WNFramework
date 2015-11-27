@@ -1,4 +1,4 @@
-#include "WNLogging/test/inc/Common.h"
+#include "WNTesting/inc/WNTestHarness.h"
 #include "WNLogging/inc/WNLog.h"
 
 TEST(WNLogValueTest, LogValueInt) {

@@ -6,7 +6,6 @@
 #define __WN_MATH_TESTS_COMMON_H__
 
 #include "WNCore/inc/WNBase.h"
-#include "WNCore/test/inc/TestDefinitions.h"
 
 #define NUMBER_VALUES 10000
 #define ALLOWED_PERCENTAGE_ERROR 0.01

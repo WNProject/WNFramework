@@ -12,6 +12,23 @@ import sys
 import time
 from string import Template
 
+def parse_new_output(package_name, line):
+  splits = line.split()
+  if (len(splits) >= 6):
+    if (not splits[2].isdigit()):
+      return None
+    if (splits[5] != package_name + ":"):
+      return None
+  else:
+    return None
+  # We have to remove the first 5 things from the input,
+  # but keep the spaces in the output. (So we cannot use join)
+  newline = line
+  for x in range(0,6):
+    newline = newline[len(splits[x]):]
+    newline = newline.lstrip();
+  return (splits[2], newline.rstrip())
+
 def kill_proc(proc, timeout):
   timeout["value"] = True
   proc.kill()
@@ -111,7 +128,6 @@ class Runner:
     run_p([adb, "shell", "am", "force-stop", args.package_name])
 
     if args.debug:
-      run_p_silent([adb, "shell", "rm", "/sdcard/stdout.txt"])
       run_p_silent([adb, "shell", "touch", "/sdcard/wait-for-debugger.txt"])
 
       # Assume that the build was done with gdbserver getting packaged.
@@ -254,7 +270,6 @@ class Runner:
       run_p(gdb_command, working_dir=obj_path)
       server.kill()
     else:
-        run_p([adb, "shell", "rm", "/sdcard/stdout.txt"])
         run_p([adb, "shell", "rm", "/sdcard/wait-for-debugger.txt"])
         run_p([ adb, "shell", "am", "start", args.package_name + "/." +
             args.activity_name])
@@ -265,10 +280,10 @@ class Runner:
             stdout=subprocess.PIPE,
             bufsize=1)
 
-        returnre = re.compile("^RETURN ([0-9]*)..?$", re.MULTILINE)
-        startre = re.compile("^--STARTED..?$")
-        finishre = re.compile("^--FINISHED..?$")
-        crashedre = re.compile("^--CRASHED--..?$")
+        returnre = re.compile("^RETURN ([0-9]*)\s*$", re.MULTILINE)
+        startre = re.compile("^--STARTED\s*$")
+        finishre = re.compile("^--FINISHED\s*$")
+        crashedre = re.compile("^--CRASHED--\s*$")
         abortRE = ""
         strip_stuff = re.compile("[A-Z]/" +
                 args.package_name + "\(([ 0-9]*)\): (.*)")
@@ -277,11 +292,13 @@ class Runner:
         while(True):
           line = p.stdout.readline()
           original_line = line
+
           if not line:
             break
           m = strip_stuff.search(line)
+          m2 = parse_new_output(args.package_name, line)
           aborted = False
-          if not m:
+          if not m and not m2:
             if abortRE:
               m = abortRE.search(original_line)
               if not m:
@@ -290,15 +307,20 @@ class Runner:
               aborted = True
             else:
                 continue
-          line = m.group(2)
-          new_pid = m.group(1)
-          if has_started and pid != m.group(1):
+          if (m2):
+            line = m2[1]
+            new_pid = m2[0]
+          else:
+            line = m.group(2)
+            new_pid = m.group(1)
+
+          if has_started and pid != new_pid:
             # We have gotten a message that LOOKS like ours,
             # but is for a different pid (crash-test?)
             continue
           if not has_started:
             abortRE = re.compile(
-	             "^F.*\((" + m.group(1) + ")\):(.*ABORTING.*)")
+	             "^F.*\((" + new_pid + ")\):(.*ABORTING.*)")
             m = startre.search(line)
             if m:
               has_started = True
@@ -309,11 +331,6 @@ class Runner:
           crashed = aborted or crashedre.search(line)
           finish_match = finishre.search(line)
           if match:
-            run_p([adb, "pull", "/sdcard/stdout.txt"])
-            with open("stdout.txt", "r") as f:
-              print f.read(),
-            run_p([adb, "shell", "rm", "/sdcard/stdout.txt"])
-            os.remove("stdout.txt")
             p.kill()
             sys.exit(int(match.group(1)))
           elif finish_match:
@@ -322,11 +339,6 @@ class Runner:
             run_p([adb, "pull", "/sdcard/crash"])
             run_p([adb, "shell", "am", "force-stop", args.package_name])
             run_p([adb, "shell", "rm", "/sdcard/crash"])
-            run_p([adb, "pull", "/sdcard/stdout.txt"])
-            with open("stdout.txt", "r") as f:
-              print f.read(),
-            run_p([adb, "shell", "rm", "/sdcard/stdout.txt"])
-            os.remove("stdout.txt")
             print "CRASHED"
             time.sleep(1)
             run_p([adb, "shell", "am", "force-stop", args.package_name])
@@ -340,9 +352,7 @@ class Runner:
             p.kill()
             sys.exit(-1)
           else:
-            print "===="
             print line
-            print "===="
         p.kill()
         sys.exit(0)
 

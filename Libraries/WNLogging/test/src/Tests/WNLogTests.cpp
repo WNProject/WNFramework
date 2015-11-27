@@ -1,4 +1,4 @@
-#include "WNLogging/test/inc/Common.h"
+#include "WNTesting/inc/WNTestHarness.h"
 #include "WNLogging/inc/WNFileLogger.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNLogging/inc/WNConsoleLogger.h"

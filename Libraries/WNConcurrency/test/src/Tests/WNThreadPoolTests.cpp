@@ -2,7 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNConcurrency/test/inc/Common.h"
+#include "WNConcurrency/inc/WNThreadPool.h"
+#include "WNConcurrency/inc/WNCallbackTask.h"
+
+#include "WNTesting/inc/WNTestHarness.h"
 
 #ifdef _WN_MSVC
   #pragma warning(push)

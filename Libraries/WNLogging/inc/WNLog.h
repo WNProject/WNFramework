@@ -73,27 +73,6 @@ namespace WNLogging {
         return(LogTypeHelper<T, BuffType>::DoLog(_0, _buffer, _bufferLeft));
     }
 
-    class WNLogParams {
-    public:
-        virtual WNLogLevel GetDefaultLogLevel() const = 0;
-        virtual wn_size_t GetBufferSize() const = 0;
-        virtual wn_bool   FlushAfterMessage() const = 0;
-    };
-
-    template<WNLogLevel lvl = eError, wn_size_t size = 1024, wn_bool flush=wn_false>
-    class WNDefaultLogParameters : public WNLogParams {
-    public:
-        virtual WNLogLevel GetDefaultLogLevel() const {
-            return(lvl);
-        }
-        virtual wn_size_t GetBufferSize() const {
-            return(size);
-        }
-        virtual wn_bool   FlushAfterMessage() const {
-            return(flush);
-        }
-    };
-
     class WNLogElem {
         friend class WNLog;
         enum WNLogAmount {
@@ -104,12 +83,14 @@ namespace WNLogging {
 
     class WNLog {
     public:
-        WNLog(WNLogger* logger, const WNLogParams& params = WNDefaultLogParameters<>()) : mLogger(logger) {
-            mBufferSize = params.GetBufferSize();
+     WNLog(WNLogger* logger, WNLogLevel lvl = eError, wn_size_t size = 1024,
+           wn_bool flush = wn_false)
+         : mLogger(logger) {
+            mBufferSize = size;
             mBufferLeft = mBufferSize;
-            mCurrentLogLevel = params.GetDefaultLogLevel();
+            mCurrentLogLevel = lvl;
             mLogBuffer = static_cast<wn_char*>(malloc(mBufferSize));
-            mFlushAfterMessage = params.FlushAfterMessage();
+            mFlushAfterMessage = flush;
         }
 
         ~WNLog() { Flush(); }
@@ -153,8 +134,7 @@ namespace WNLogging {
     };
 
     WN_FORCE_INLINE WNLog* get_null_logger() {
-      static WNLog m_null_logger(wn_nullptr,
-                                 WNDefaultLogParameters<eNone, 0, wn_false>());
+      static WNLog m_null_logger(wn_nullptr, eNone, 0, wn_false);
       return &m_null_logger;
     }
 }

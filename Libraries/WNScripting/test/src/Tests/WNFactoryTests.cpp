@@ -5,6 +5,7 @@
 #include "WNScripting/test/inc/Common.h"
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNScripting/inc/WNFactory.h"
+#include "WNTesting/inc/WNTestHarness.h"
 
 TEST(scripting_engine_factory, creation) {
   wn::scripting::factory factory;

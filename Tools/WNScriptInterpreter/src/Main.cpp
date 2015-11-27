@@ -15,11 +15,6 @@
 #include "WNLogging/inc/WNConsoleLogger.h"
 #include "WNLogging/inc/WNFileLogger.h"
 
-
-WNLogging::WNDefaultLogParameters<WNLogging::eLogMax, 1024, true> mParams;
-WNLogging::WNConsoleLogger<> mConsoleLogger;
-static WNLogging::WNLog mMyLog(&mConsoleLogger, mParams);
-
 WNScripting::WNScriptingEngine* g_Engine;
 
 wn_char* getLine(wn_char*_line, wn_uint32 _sz){
@@ -33,6 +28,7 @@ wn_char* getLine(wn_char*_line, wn_uint32 _sz){
 
    return(_line);
 }
+
 wn_int32 get23() {
     return(23);
 }
@@ -90,6 +86,10 @@ DEFINE_CPP_TYPE(Foo);
 wn_int32 wn_main(wn_int32 _argc, wn_char* _argv[]) {
     wn_dummy();
     wn_char tests[1024];
+
+    WNLogging::WNConsoleLogger<> mConsoleLogger;
+    WNLogging::WNLog mMyLog(&mConsoleLogger, WNLogging::eLogMax, 1024, true);
+
 
 #ifdef _WN_ANDROID
     wn::memory::strcpy(tests, "/sdcard/MCJitTest.wns" );
@@ -154,4 +154,3 @@ wn_int32 wn_main(wn_int32 _argc, wn_char* _argv[]) {
     wn::memory::destroy(scriptingEngine);
     return(0);
 }
-

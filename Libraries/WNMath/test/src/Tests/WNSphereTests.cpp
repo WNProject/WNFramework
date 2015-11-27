@@ -1,4 +1,5 @@
 #include "WNMath/test/inc/Common.h"
+#include "WNTesting/inc/WNTestHarness.h"
 
 TEST(sphere, construction) {
     wn::sphere<wn_int32> sphere1;

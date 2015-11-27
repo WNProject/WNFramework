@@ -1,4 +1,5 @@
 #include "WNMath/test/inc/Common.h"
+#include "WNTesting/inc/WNTestHarness.h"
 
 TEST(vector, construction) {
     const wn::vector<wn_int32, 10> vector1;

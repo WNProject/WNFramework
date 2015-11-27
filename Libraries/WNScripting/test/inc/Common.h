@@ -10,7 +10,6 @@
 #define __WN_SCRIPTING_TESTS_COMMON_H__
 
 #include "WNCore/inc/WNBase.h"
-#include "WNCore/test/inc/TestDefinitions.h"
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNContainers/inc/WNHashMap.h"
 #include "WNContainers/inc/WNString.h"
@@ -18,6 +17,7 @@
 #include "WNScripting/inc/WNEngineFileManager.h"
 #include "WNScripting/inc/WNNodeTypes.h"
 #include "WNScripting/inc/WNScriptHelpers.h"
+#include "WNTesting/inc/WNTestHarness.h"
 
 namespace wn {
 namespace scripting {

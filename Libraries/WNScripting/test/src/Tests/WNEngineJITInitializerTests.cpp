@@ -7,6 +7,7 @@
 #include "WNScripting/inc/WNFactory.h"
 #include "WNScripting/inc/WNJITEngine.h"
 #include "WNScripting/test/inc/Common.h"
+#include "WNTesting/inc/WNTestHarness.h"
 
 TEST(jit_engine, creation) {
   wn::memory::default_expanding_allocator<50> allocator;
@@ -77,12 +78,12 @@ class jit_int_params : public ::testing::TestWithParam<int_test> {};
 
 TEST_P(jit_int_params, int_return) {
   wn::memory::default_expanding_allocator<50> allocator;
-  containers::string str(&allocator);
+  wn::containers::string str(&allocator);
   str += "Int main() { return ";
   str += GetParam().val;
   str += "; } ";
 
-  containers::string expected(&allocator);
+  wn::containers::string expected(&allocator);
   wn::scripting::test_file_manager manager(
       &allocator, {{"file.wns", str}});
 
@@ -97,11 +98,11 @@ TEST_P(jit_int_params, int_return) {
 
 TEST_P(jit_int_params, int_passthrough) {
   wn::memory::default_expanding_allocator<50> allocator;
-  containers::string str(&allocator);
+  wn::containers::string str(&allocator);
   str += "Int main(Int x) { return x";
   str += "; } ";
 
-  containers::string expected(&allocator);
+  wn::containers::string expected(&allocator);
   wn::scripting::test_file_manager manager(
       &allocator, {{"file.wns", str}});
 

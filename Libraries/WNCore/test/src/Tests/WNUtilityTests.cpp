@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "WNCore/test/inc/Common.h"
+#include "WNTesting/inc/WNTestHarness.h"
 
 template <typename _Type>
 struct utility : ::testing::Test {};

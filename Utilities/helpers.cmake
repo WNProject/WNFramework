@@ -71,9 +71,9 @@ elseif(ANDROID OR ${CMAKE_SYSTEM_NAME} STREQUAL "Android")
   else()
     string(REPLACE "\\" "/" ANDROID_SDK "${ANDROID_SDK}")
   endif()
-  string(TOLOWER ${ANDROID_NDK_HOST_SYSTEM_NAME} SYSTEM_LOWER)
-  if (${SYSTEM_LOWER} STREQUAL "windows" OR
-      ${SYSTEM_LOWER} STREQUAL "windows-x86_64")
+  string(TOLOWER ${ANDROID_NDK_HOST_SYSTEM_NAME} ANDROID_SYSTEM_LOWER)
+  if (${ANDROID_SYSTEM_LOWER} STREQUAL "windows" OR
+      ${ANDROID_SYSTEM_LOWER} STREQUAL "windows-x86_64")
     set(WN_NULL_LOCATION NUL)
     list(APPEND WN_LLVM_EXTRA_FLAGS
       "-DCROSS_TOOLCHAIN_FLAGS_NATIVE=-DCMAKE_C_COMPILER=cl.exe\;-DCMAKE_CXX_COMPILER=cl.exe")
@@ -305,7 +305,7 @@ set(GTEST_TARGETS
 foreach (target ${GTEST_TARGETS})
     get_property(OLD_DIRECTORY TARGET ${target} PROPERTY FOLDER)
     set_property(TARGET ${target} PROPERTY FOLDER Externals/googletest/${OLD_DIRECTORY})
-    
+
     if (ANDROID)
       set_property(TARGET ${target} PROPERTY WN_ANDROID_PERMISSIONS WRITE_EXTERNAL_STORAGE)
     endif()
@@ -335,10 +335,8 @@ function(wn_create_test)
   source_group("inc" REGULAR_EXPRESSION ".*[.](h|hpp)$")
   source_group("inl" REGULAR_EXPRESSION ".*[.](inl)$")
   add_wn_executable(${PARSED_ARGS_TEST_NAME}_test SOURCES ${PARSED_ARGS_SOURCES}
-    LINK_LIBRARIES gmock WNEntryPoint WNUtils ${PARSED_ARGS_LIBS})
+    LINK_LIBRARIES WNTesting WNUtils ${PARSED_ARGS_LIBS})
   target_include_directories(${PARSED_ARGS_TEST_NAME}_test PRIVATE
-    ${gtest_SOURCE_DIR}/include
-    ${gmock_SOURCE_DIR}/include
     ${CMAKE_CURRENT_SOURCE_DIR})
 
   if (ANDROID)

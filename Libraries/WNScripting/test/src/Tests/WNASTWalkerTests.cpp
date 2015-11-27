@@ -6,6 +6,7 @@
 #include "WNLogging/inc/WNBufferLogger.h"
 #include "WNScripting/test/inc/Common.h"
 #include "WNScripting/inc/WNASTWalker.h"
+#include "WNTesting/inc/WNTestHarness.h"
 
 struct ExpressionTestStruct {
   ExpressionTestStruct()
@@ -24,14 +25,14 @@ struct ExpressionTestStruct {
   void* walk_expression(
       const wn::scripting::expression*,
       wn::containers::contiguous_range<wn::containers::contiguous_range<void*>>,
-      void* _type) {
+      void*) {
     walked_expressions += 1;
     return reinterpret_cast<void*>(walked_expressions);
   }
   void* walk_expression(
       const wn::scripting::null_allocation_expression*,
       wn::containers::contiguous_range<wn::containers::contiguous_range<void*>>,
-      void* _type) {
+      void*) {
     walked_null_expressions += 1;
     return reinterpret_cast<void*>(walked_null_expressions);
   }
@@ -39,33 +40,33 @@ struct ExpressionTestStruct {
   void* walk_expression(
       const wn::scripting::constant_expression*,
       wn::containers::contiguous_range<wn::containers::contiguous_range<void*>>,
-      void* _type) {
+      void*) {
     walked_constants += 1;
     return reinterpret_cast<void*>(walked_constants);
   }
 
-  void* walk_function(const wn::scripting::function* _function,
-                      void* _function_header,
-                      containers::dynamic_array<void*> _body) {
+  void* walk_function(const wn::scripting::function*,
+                      void*,
+                      wn::containers::dynamic_array<void*>) {
     walked_functions += 1;
     return reinterpret_cast<void*>(walked_functions);
   }
 
   void* walk_function_header(
-      const wn::scripting::function* _function, void* _decl,
-      containers::dynamic_array<std::pair<void*, void*>> _parameters) {
+      const wn::scripting::function*, void*,
+      wn::containers::dynamic_array<std::pair<void*, void*>>) {
     walked_function_headers += 1;
     return reinterpret_cast<void*>(walked_function_headers);
   }
 
-  void* walk_declaration(const wn::scripting::declaration* _declaration,
-                         void* _type) {
+  void* walk_declaration(const wn::scripting::declaration*,
+                         void*) {
     walked_declarations += 1;
     return reinterpret_cast<void*>(walked_declarations);
   }
 
-  void* walk_parameter_name(const wn::scripting::parameter* _parameter,
-                       void* _type) {
+  void* walk_parameter_name(const wn::scripting::parameter*,
+                       void*) {
     walked_parameters += 1;
     return reinterpret_cast<void*>(walked_parameters);
   }
@@ -76,34 +77,34 @@ struct ExpressionTestStruct {
     return reinterpret_cast<void*>(walked_parameters);
   }
 
-  void* walk_function_name(const wn::scripting::parameter* _parameter,
-                       void* _type) {
+  void* walk_function_name(const wn::scripting::parameter*,
+                       void*) {
     walked_headers += 1;
     return reinterpret_cast<void*>(walked_headers);
   }
 
-  void* walk_type(const wn::scripting::type* _type) {
+  void* walk_type(const wn::scripting::type*) {
     walked_types += 1;
     return reinterpret_cast<void*>(walked_types);
   }
 
   void* walk_return_instruction(
-      const wn::scripting::return_instruction* _return_instruction,
-      void* _expression) {
+      const wn::scripting::return_instruction*,
+      void*) {
     walked_return_instructions += 1;
     return reinterpret_cast<void*>(walked_return_instructions);
   }
 
   void* walk_return_instruction(
-      const wn::scripting::return_instruction* _return_instruction) {
+      const wn::scripting::return_instruction*) {
     walked_return_instructions += 1;
     return reinterpret_cast<void*>(walked_return_instructions);
   }
 
-  void* walk_script_file(const wn::scripting::script_file* _file,
-                         const containers::contiguous_range<void*>& _functions,
-                         const containers::contiguous_range<void*>& _includes,
-                         const containers::contiguous_range<void*>& _structs) {
+  void* walk_script_file(const wn::scripting::script_file*,
+                         const wn::containers::contiguous_range<void*>&,
+                         const wn::containers::contiguous_range<void*>&,
+                         const wn::containers::contiguous_range<void*>&) {
     walked_script_files += 1;
     return reinterpret_cast<void*>(walked_script_files);
   }
@@ -239,7 +240,7 @@ class ast_walker_valid_ints : public ::testing::TestWithParam<const char*> {};
 
 TEST_P(ast_walker_valid_ints, valid_ints) {
   wn::memory::default_expanding_allocator<50> allocator;
-  containers::string str(&allocator);
+  wn::containers::string str(&allocator);
   str += "Int main() { return ";
   str += GetParam();
   str += "; }\n";
@@ -276,7 +277,7 @@ class ast_walker_invalid_ints : public ::testing::TestWithParam<const char*> {};
 
 TEST_P(ast_walker_invalid_ints, invalid_ints) {
   wn::memory::default_expanding_allocator<50> allocator;
-  containers::string str(&allocator);
+  wn::containers::string str(&allocator);
   str += "Int main() { return ";
   str += GetParam();
   str += "; }\n";

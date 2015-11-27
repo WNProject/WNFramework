@@ -23,6 +23,7 @@ add_wn_library(WNScripting SOURCES
   src/WNScriptASTParser.hpp
   src/WNScriptASTLexer.cpp
   src/WNScriptASTParser.cpp
+  src/WNScriptHelpers.cpp
 )
 
 set(WNScriptingLLVMComponents codegen instrumentation objcarcopts support mcjit ipo native)

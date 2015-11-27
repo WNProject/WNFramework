@@ -1,4 +1,5 @@
 #include "WNMath/test/inc/Common.h"
+#include "WNTesting/inc/WNTestHarness.h"
 
 TEST(matrix, construction) {
     const wn::matrix<wn_int32, 5> matrix1;

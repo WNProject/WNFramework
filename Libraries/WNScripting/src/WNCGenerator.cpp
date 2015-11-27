@@ -33,7 +33,7 @@ containers::string ast_c_translator::walk_expression(
 }
 
 containers::string ast_c_translator::walk_expression(
-    const wn::scripting::id_expression* id_expr,
+    const wn::scripting::id_expression*,
     wn::containers::contiguous_range<
         wn::containers::contiguous_range<containers::string>> expr,
     containers::string _type) {
@@ -41,7 +41,7 @@ containers::string ast_c_translator::walk_expression(
 }
 
 containers::string ast_c_translator::walk_function_header(
-    const wn::scripting::function* _function, containers::string _decl,
+    const wn::scripting::function*, containers::string _decl,
     containers::dynamic_array<
         std::pair<containers::string, containers::string>>& _parameters) {
   containers::string ret_string(m_allocator);
@@ -61,7 +61,7 @@ containers::string ast_c_translator::walk_function_header(
 }
 
 containers::string ast_c_translator::walk_function(
-    const wn::scripting::function* _function, containers::string& _header,
+    const wn::scripting::function*, containers::string& _header,
     containers::dynamic_array<containers::string>& _body) {
   containers::string ret_string(m_allocator);
   ret_string += _header + " {";
@@ -74,7 +74,7 @@ containers::string ast_c_translator::walk_function(
 }
 
 containers::string ast_c_translator::walk_declaration(
-    const wn::scripting::declaration* _declaration, containers::string& _type) {
+    const wn::scripting::declaration*, containers::string&) {
   WN_RELEASE_ASSERT_DESC(wn_false, "Unimplemented");
   return "";
 }
@@ -90,7 +90,7 @@ containers::string ast_c_translator::walk_parameter_instantiation(
 
 containers::string ast_c_translator::walk_parameter_name(
     const wn::scripting::parameter* _parameter,
-    const containers::string& _type) {
+    const containers::string&) {
   return _parameter->get_name().to_string(m_allocator);
 }
 
@@ -135,21 +135,21 @@ containers::string ast_c_translator::walk_type(
 }
 
 containers::string ast_c_translator::walk_return_instruction(
-    const wn::scripting::return_instruction* _return_instruction,
+    const wn::scripting::return_instruction*,
     containers::string _expression) {
   return "return " + _expression + ";";
 }
 
 containers::string ast_c_translator::walk_return_instruction(
-    const wn::scripting::return_instruction* _return_instruction) {
+    const wn::scripting::return_instruction*) {
   return "return;";
 }
 
 containers::string ast_c_translator::walk_script_file(
-    const wn::scripting::script_file* _file,
+    const wn::scripting::script_file*,
     const wn::containers::contiguous_range<containers::string>& _functions,
-    const wn::containers::contiguous_range<containers::string>& _includes,
-    const wn::containers::contiguous_range<containers::string>& _structs) {
+    const wn::containers::contiguous_range<containers::string>&,
+    const wn::containers::contiguous_range<containers::string>&) {
   containers::string output_string(m_allocator);
   bool first = true;
   for (auto& function : _functions) {

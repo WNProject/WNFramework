@@ -1,1 +1,1 @@
-#include "WNPlatform/test/inc/Common.h"
+#include "WNTesting/inc/WNTestHarness.h"

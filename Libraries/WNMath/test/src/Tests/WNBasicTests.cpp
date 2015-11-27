@@ -1,4 +1,5 @@
 #include "WNMath/test/inc/Common.h"
+#include "WNTesting/inc/WNTestHarness.h"
 
 TEST(basic, abs) {
     ASSERT_EQ(wn::abs(wn_int8(-1)), wn_int8(1));

@@ -2,7 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNCore/test/inc/Common.h"
+#include "WNTesting/inc/WNTestHarness.h"
+#include "WNCore/inc/WNExtendedTypes.h"
+#include "WNCore/inc/WNTypes.h"
+#include "WNCore/inc/WNTypeTraits.h"
 
 TEST(type_traits, integral_constant) {
     EXPECT_TRUE((wn::core::integral_constant<wn_bool, wn_true>::value));

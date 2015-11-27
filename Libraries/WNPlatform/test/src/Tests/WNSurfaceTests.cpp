@@ -1,4 +1,8 @@
-#include "WNPlatform/test/inc/Common.h"
+#include "WNTesting/inc/WNTestHarness.h"
+
+#include "WNPlatform/inc/WNPlatformFactory.h"
+#include "WNPlatform/inc/WNSurfaceManager.h"
+
 
 TEST(surface, SurfaceCreationTest) {
    wn::WNSurfaceManager* manager = wn::WNPlatformFactory::CreateSurfaceManager();
@@ -7,5 +11,5 @@ TEST(surface, SurfaceCreationTest) {
 
    wn::surface_handle surface;
 
-   ASSERT_EQ(manager->CreateSurface(0, 0, 128, 128, surface), wn::WNSurfaceManagerReturnCode::ok);
+   EXPECT_EQ(wn::WNSurfaceManagerReturnCode::ok, manager->CreateSurface(0, 0, 128, 128, surface));
 }

@@ -1,3 +1,5 @@
+string(TOLOWER ${ANDROID_NDK_HOST_SYSTEM_NAME} ANDROID_SYSTEM_LOWER)
+
 function(library_name var target)
   get_target_property(LIB_NAME ${target} LIBRARY_OUTPUT_NAME)
   if(NOT LIB_NAME)
@@ -23,8 +25,8 @@ function(afix target prefix postfix)
   set(${target} "${tempvar}" PARENT_SCOPE)
 endfunction()
 
-if (${ANDROID_NDK_HOST_SYSTEM_NAME} STREQUAL "windows" OR
-  ${ANDROID_NDK_HOST_SYSTEM_NAME} STREQUAL "windows-x86_64")
+if (${ANDROID_SYSTEM_LOWER} STREQUAL "windows" OR
+  ${ANDROID_SYSTEM_LOWER} STREQUAL "windows-x86_64")
   find_host_program(PYTHON python REQUIRED)
   set(DEBUG_KEYSTORE_PATH "$ENV{USERPROFILE}\\.android\\debug.keystore")
   fix_path(${DEBUG_KEYSTORE_PATH} DEBUG_KEYSTORE_PATH)
@@ -166,8 +168,8 @@ function(build_apk)
 
   if (ANDROID_SDK)
     set(ANDROID_TOOL_PATH ${ANDROID_SDK}/tools/android)
-    if (${ANDROID_NDK_HOST_SYSTEM_NAME} STREQUAL "windows" OR
-      ${ANDROID_NDK_HOST_SYSTEM_NAME} STREQUAL "windows-x86_64")
+    if (${ANDROID_SYSTEM_LOWER} STREQUAL "windows" OR
+      ${ANDROID_SYSTEM_LOWER} STREQUAL "windows-x86_64")
       find_host_program(PYTHON python REQUIRED)
       set(ANDROID_TOOL_PATH ${PYTHON} ${WNFramework_SOURCE_DIR}/Utilities/single_process_windows.py
         "WNFramework/AndroidUpdateProject"

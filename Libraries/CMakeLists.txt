@@ -1,6 +1,8 @@
 # Keep WNEntryPoint first. It has some special flags that have to propagate
 # to other targets.
 add_subdirectory(WNEntryPoint)
+add_subdirectory(WNTesting)
+
 
 add_subdirectory(WNConcurrency)
 add_subdirectory(WNContainers)

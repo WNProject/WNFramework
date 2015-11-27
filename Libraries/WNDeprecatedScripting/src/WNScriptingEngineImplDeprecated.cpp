@@ -36,9 +36,10 @@
 
 using namespace WNScripting;
 
-static WNLogging::WNDefaultLogParameters<WNLogging::eError, 1024, true> mLogParams;
-
-WNScriptingEngineImplDeprecated::WNScriptingEngineImplDeprecated(): mLogLevel(WNLogging::eWarning), mInternalLogger(&mConsoleLogger, mLogParams), mCompilationLog(&mInternalLogger) {
+WNScriptingEngineImplDeprecated::WNScriptingEngineImplDeprecated()
+    : mLogLevel(WNLogging::eWarning),
+      mInternalLogger(&mConsoleLogger, WNLogging::eError, 1024, true),
+      mCompilationLog(&mInternalLogger) {
     mInternalLogger.SetLogLevel(mLogLevel);
 }
 

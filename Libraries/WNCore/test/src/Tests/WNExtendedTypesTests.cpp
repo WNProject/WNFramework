@@ -2,7 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNCore/test/inc/Common.h"
+#include "WNTesting/inc/WNTestHarness.h"
+#include "WNCore/inc/WNTypes.h"
+#include "WNCore/inc/WNExtendedTypes.h"
 
 TEST(extended_types, wn_fixed8_addition_standard) {
     wn_fixed8 fixed = 0.25f;
