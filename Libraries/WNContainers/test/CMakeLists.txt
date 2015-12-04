@@ -7,7 +7,9 @@ wn_create_tests_from_list(TEST_PREFIX WNContainers
     WNFunction
     WNHashMap
     WNHashSet
+    WNList
+    WNPair
     WNString
     WNStringView
-    WNList
+    WNTuple
 )

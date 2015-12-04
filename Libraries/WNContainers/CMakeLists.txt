@@ -3,6 +3,7 @@ set(WN_CONTAINERS_FILES)
 if (MSVC)
   set(NATVIS_FILES
     natvis/WNContiguousRange.natvis
+    natvis/WNPair.natvis
     natvis/WNStringView.natvis
   )
 
@@ -21,10 +22,12 @@ add_wn_header_library(WNContainers
   inc/WNHashMap.h
   inc/WNHashSet.h
   inc/WNList.h
+  inc/WNPair.h
   inc/WNSerializer.h
   inc/WNSerializerBase.h
   inc/WNString.h
   inc/WNStringView.h
+  inc/WNTuple.h
 )
 
 add_subdirectory(test)
