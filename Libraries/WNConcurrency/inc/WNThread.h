@@ -210,7 +210,7 @@ public:
   }
 
   template <typename T = R,
-            typename = core::enable_if_t<core::boolean_and<
+            typename = core::enable_if_t<core::bool_and<
               core::is_same<T, R>::value,
               !core::is_same<T, wn_void>::value>::value>>
   WN_FORCE_INLINE wn_bool join(T& result) const {

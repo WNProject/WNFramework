@@ -402,14 +402,14 @@ namespace wn {
                 };
 
                 template <typename _TestType>
-                using supported = boolean_constant<(std::is_integral<_TestType>::value || is_floating_point<_TestType>::value ||
+                using supported = bool_constant<(std::is_integral<_TestType>::value || is_floating_point<_TestType>::value ||
                                                     is_fixed_point<_TestType>::value)>;
 
                 template <typename _TestType>
                 using convertable = is_fixed_point<_TestType>;
 
                 template <typename _TestType>
-                using higher_precedence = boolean_constant<(is_floating_point<_TestType>::value ||
+                using higher_precedence = bool_constant<(is_floating_point<_TestType>::value ||
                                                             (is_fixed_point<_TestType>::value &&
                                                              (size_of<value_type>::value < size_of<_TestType>::value)))>;
 
@@ -611,11 +611,11 @@ namespace wn {
                 typedef typename arithmetic_traits<_Type>::value_type value_type;
                 typedef _conversion_type conversion_type;
                 template <typename type>
-                struct supported : boolean_constant<(std::is_integral<type>::value || is_floating_point<type>::value ||
+                struct supported : bool_constant<(std::is_integral<type>::value || is_floating_point<type>::value ||
                                                        is_fixed_point<type>::value)> {};
 
                 template <typename type>
-                struct higher_precedence : boolean_constant<(is_floating_point<type>::value &&
+                struct higher_precedence : bool_constant<(is_floating_point<type>::value &&
                                                                (size_of<value_type>::value < size_of<type>::value))> {};
 
                 template <typename type>

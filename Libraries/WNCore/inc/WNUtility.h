@@ -14,11 +14,15 @@
 namespace wn {
 namespace core {
 
-template <typename T>
-struct dependent_true : std::true_type {};
+using std::move;
+using std::forward;
+using std::swap;
 
 template <typename T>
-struct dependent_false : std::false_type {};
+struct dependent_true : true_type {};
+
+template <typename T>
+struct dependent_false : false_type {};
 
 class non_constructable {
 protected:
@@ -28,27 +32,27 @@ protected:
 class non_copyable {
 protected:
   non_copyable() = default;
-  non_copyable(const non_copyable &) = delete;
+  non_copyable(const non_copyable&) = delete;
 
-  non_copyable& operator = (const non_copyable&) = delete;
+  non_copyable& operator=(const non_copyable&) = delete;
 };
 
 class non_constructable_non_copyable {
 protected:
   non_constructable_non_copyable() = delete;
-  non_constructable_non_copyable(const non_constructable_non_copyable&) =
-    delete;
+  non_constructable_non_copyable(
+      const non_constructable_non_copyable&) = delete;
 
-  non_constructable_non_copyable&
-  operator = (const non_constructable_non_copyable&) = delete;
+  non_constructable_non_copyable& operator=(
+      const non_constructable_non_copyable&) = delete;
 };
 
 template <typename T>
 WN_FORCE_INLINE decay_t<T> decay_copy(T&& value) {
-  return(std::forward<T>(value));
+  return forward<T>(value);
 }
 
-} // namespace core
-} // namespace wn
+}  // namespace core
+}  // namespace wn
 
-#endif // __WN_CORE_UTILITY_H__
+#endif  // __WN_CORE_UTILITY_H__

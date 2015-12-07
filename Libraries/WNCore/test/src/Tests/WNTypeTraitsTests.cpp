@@ -12,11 +12,11 @@ TEST(type_traits, integral_constant) {
     EXPECT_EQ((wn::core::integral_constant<wn_uint32, (10 % 10)>::value), 0);
 }
 
-TEST(type_traits, boolean_constant) {
-    EXPECT_TRUE(wn::core::boolean_constant<wn_true>::value);
-    EXPECT_TRUE(wn::core::boolean_constant<(10 % 10 == 0)>::value);
-    EXPECT_FALSE(wn::core::boolean_constant<wn_false>::value);
-    EXPECT_FALSE(wn::core::boolean_constant<(10 % 4 == 0)>::value);
+TEST(type_traits, bool_constant) {
+    EXPECT_TRUE(wn::core::bool_constant<wn_true>::value);
+    EXPECT_TRUE(wn::core::bool_constant<(10 % 10 == 0)>::value);
+    EXPECT_FALSE(wn::core::bool_constant<wn_false>::value);
+    EXPECT_FALSE(wn::core::bool_constant<(10 % 4 == 0)>::value);
 }
 
 TEST(type_traits, is_same) {

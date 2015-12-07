@@ -12,218 +12,273 @@
 #include <type_traits>
 
 namespace wn {
-    namespace core {
-        template <const wn_bool _Value, typename _Type = wn_void>
-        struct enable_if : std::enable_if<_Value, _Type> {};
+namespace core {
 
-        #ifdef __WN_HAS_CPP14_STD_ENABLE_IF_T
-            template <const wn_bool _Value, typename _Type = wn_void>
-            using enable_if_t = std::enable_if_t<_Value, _Type>;
-        #else
-            template <const wn_bool _Value, typename _Type = wn_void>
-            using enable_if_t = typename enable_if<_Value, _Type>::type;
-        #endif
+// type trait constants
 
-        template <typename _Type>
-        struct decay : std::decay<_Type> {};
+using std::integral_constant;
+using std::true_type;
+using std::false_type;
 
-        #ifdef __WN_HAS_CPP14_STD_DECAY_T
-            template <typename _Type>
-            using decay_t = std::decay_t<_Type>;
-        #else
-            template <typename _Type>
-            using decay_t = typename decay<_Type>::type;
-        #endif
+// supported operations
 
-        template<typename _Type>
-        struct exists : std::true_type {};
+using std::is_constructible;
 
-        template <typename _Type, const _Type _Value>
-        struct integral_constant : std::integral_constant<_Type, _Value> {};
+// type modifications
 
-        template <const wn_size_t _Value>
-        struct index_constant : integral_constant<wn_size_t, _Value> {};
+using std::add_lvalue_reference;
+using std::add_rvalue_reference;
+using std::add_const;
+using std::add_volatile;
+using std::add_cv;
 
-        #ifdef __WN_HAS_CPP14_STD_INTEGER_SEQUENCE
-            template <typename _Type, const _Type... _Values>
-            struct integral_sequence : std::integer_sequence<_Type, _Values...> {};
+// type properties
 
-            template <const wn_size_t... _Values>
-            struct index_sequence : std::index_sequence<_Values...> {};
-        #else
-            template <typename _Type, const _Type... _Values>
-            struct integral_sequence {
-                typedef _Type value_type;
+using std::is_const;
 
-                static WN_FORCE_INLINE wn_size_t size() {
-                    return(sizeof...(_Values));
-                }
-            };
+// type transformations
 
-            template <const wn_size_t... _Values>
-            struct index_sequence : integral_sequence<wn_size_t, _Values...> {};
-        #endif
+using std::enable_if;
+using std::common_type;
+using std::result_of;
+using std::decay;
 
-        template <const wn_bool _Value>
-        struct boolean_constant : integral_constant<wn_bool, _Value> {};
+// relationships and property queries
 
-        template <const wn_bool... _Values>
-        struct boolean_sequence : integral_sequence<wn_bool, _Values...> {};
+using std::is_same;
+using std::is_convertible;
 
-        template <typename _Type1>
-        struct is_const : std::is_const<_Type1> {};
+template <const size_t Value>
+using index_constant = integral_constant<size_t, Value>;
 
-        template <typename _Type1, typename _Type2>
-        struct is_same : std::is_same<_Type1, _Type2> {};
+#ifdef _WN_HAS_CPP17_STD_BOOL_CONSTANT
+template <const bool Value>
+using bool_constant = std::bool_constant<Value>;
+#else
+template <const bool Value>
+using bool_constant = integral_constant<bool, Value>;
+#endif
 
-        template <typename _Type1, typename _Type2>
-        struct is_same_decayed : is_same<decay_t<_Type1>, decay_t<_Type2>> {};
+#ifdef _WN_HAS_CPP14_STD_INTEGER_SEQUENCE
+template <typename T, const T... Values>
+using integral_sequence = std::integer_sequence<T, Values...>;
 
-        template <const wn_bool... _Values>
-        struct boolean_and : is_same<boolean_sequence<_Values...>, boolean_sequence<(_Values || wn_true)...>> {};
+template <const size_t... Values>
+using index_sequence = std::index_sequence<Values...>;
+#else
+template <typename T, const T... Values>
+struct integral_sequence {
+  using value_type = T;
 
-        template <const wn_bool... _Values>
-        struct boolean_or : boolean_constant<!boolean_and<!_Values...>::value> {};
+  static WN_FORCE_INLINE size_t size() {
+    return sizeof...(Values);
+  }
+};
 
-        template <typename _Type, typename... _Types>
-        struct are_same : boolean_and<is_same<_Type, _Types>::value...> {};
+template <const wn_size_t... Values>
+using index_sequence = integral_sequence<size_t, Values...>;
+#endif
 
-        template <typename _Type, typename... _Types>
-        struct are_same_decayed : are_same<decay_t<_Type>, decay_t<_Types>...> {};
+template <const bool... Values>
+using bool_sequence = integral_sequence<bool, Values...>;
 
-        #ifdef __WN_HAS_CPP14_STD_IS_NULL_POINTER
-            template <typename _Type>
-            struct is_null_pointer : std::is_null_pointer<_Type> {};
-        #else
-            template <typename _Type>
-            struct is_null_pointer : is_same_decayed<wn_nullptr_t, _Type> {};
-        #endif
+#ifdef _WN_HAS_CPP14_STD_ENABLE_IF_T
+template <const bool Test, typename T = void>
+using enable_if_t = std::enable_if_t<Test, T>;
+#else
+template <const bool Test, typename T = void>
+using enable_if_t = typename enable_if<Test, T>::type;
+#endif
 
-            template <typename... _Types>
-            struct common_type : std::common_type<_Types...> {};
+#ifdef _WN_HAS_CPP14_STD_DECAY_T
+template <typename T>
+using decay_t = std::decay_t<T>;
+#else
+template <typename T>
+using decay_t = typename decay<T>::type;
+#endif
 
-        #ifdef __WN_HAS_CPP14_STD_COMMON_TYPE_T
-            template <typename... _Types>
-            using common_type_t = std::common_type_t<_Types...>;
-        #else
-            template <typename... _Type>
-            using common_type_t = typename common_type<_Type...>::type;
-        #endif
+#ifdef _WN_HAS_CPP14_STD_ADD_LVALUE_REFERENCE_T
+template <typename T>
+using add_lvalue_reference_t = std::add_lvalue_reference_t<T>;
+#else
+template <typename T>
+using add_lvalue_reference_t = typename add_lvalue_reference<T>::type;
+#endif
 
-        template <typename _Type>
-        struct result_of : std::result_of<_Type> {};
+#ifdef _WN_HAS_CPP14_STD_ADD_RVALUE_REFERENCE_T
+template <typename T>
+using add_rvalue_reference_t = std::add_rvalue_reference_t<T>;
+#else
+template <typename T>
+using add_rvalue_reference_t = typename add_rvalue_reference<T>::type;
+#endif
 
-        #ifdef __WN_HAS_CPP14_STD_RESULT_OF_T
-            template <typename _Type>
-            using result_of_t = std::result_of_t<_Type>;
-        #else
-            template <typename _Type>
-            using result_of_t = typename result_of<_Type>::type;
-        #endif
+template <typename T1, typename T2>
+using is_same_decayed = is_same<decay_t<T1>, decay_t<T2>>;
 
-        namespace internal {
-            template <typename _Type>
-            struct is_extended_type : std::false_type {};
+template <typename T1, typename T2>
+using is_same_decayed_t = typename is_same_decayed<T1, T2>::type;
 
-            template <typename _TraitsType>
-            struct is_extended_type<arithmetic_type<_TraitsType>> : std::true_type {};
+template <const bool... Values>
+using bool_and =
+    is_same<bool_sequence<Values...>, bool_sequence<(Values || true)...>>;
 
-            template <typename _Type, typename = enable_if_t<wn_true>>
-            struct is_floating_point : std::is_floating_point<_Type> {};
+template <const bool... Values>
+using bool_or = bool_constant<!bool_and<!Values...>::value>;
 
-            template <typename _Type>
-            struct is_floating_point<_Type, typename enable_if<exists<typename _Type::traits_type::conversion_type>::value>::type> : std::true_type {};
+template <typename... T>
+struct are_same;
 
-            template <typename _Type, typename = enable_if_t<wn_true>>
-            struct is_fixed_point : std::false_type {};
+template <typename T1, typename... T2>
+struct are_same<T1, T1, T2...> : are_same<T1, T2...> {};
 
-            template <typename _Type>
-            struct is_fixed_point<_Type, typename enable_if<exists<typename _Type::traits_type::scale_type>::value>::type> : std::true_type {};
+template <typename T1, typename T2, typename... T3>
+struct are_same<T1, T2, T3...> : false_type {};
 
-            template <typename _Type, typename = enable_if_t<wn_true>>
-            struct is_signed : std::is_signed<_Type> {};
+template <typename T>
+struct are_same<T> : true_type {};
 
-            template <typename _Type>
-            struct is_signed<_Type, typename enable_if<is_floating_point<_Type>::value>::type> : std::true_type {};
+template <typename T1, typename... T2>
+using are_same_decayed = are_same<decay_t<T1>, decay_t<T2>...>;
 
-            template <typename _Type>
-            struct is_signed<_Type, typename enable_if<boolean_and<is_extended_type<_Type>::value, !is_floating_point<_Type>::value>::value>::type> : std::is_signed<typename _Type::value_type> {};
+#ifdef _WN_HAS_CPP14_STD_IS_NULL_POINTER
+using std::is_null_pointer;
+#else
+template <typename T>
+using is_null_pointer = is_same_decayed<decltype(nullptr), T>;
+#endif
 
-            template <typename _Type, typename = enable_if_t<wn_true>>
-            struct is_unsigned : boolean_or<std::is_unsigned<_Type>::value, is_floating_point<_Type>::value> {};
+#ifdef _WN_HAS_CPP14_STD_COMMON_TYPE_T
+template <typename... T>
+using common_type_t = std::common_type_t<T...>;
+#else
+template <typename... T>
+using common_type_t = typename common_type<T...>::type;
+#endif
 
-            template <typename _Type>
-            struct is_unsigned<_Type, typename enable_if<is_extended_type<_Type>::value>::type> : std::is_unsigned<typename _Type::value_type> {};
+#ifdef _WN_HAS_CPP14_STD_RESULT_OF_T
+template <typename T>
+using result_of_t = std::result_of_t<T>;
+#else
+template <typename T>
+using result_of_t = typename result_of<T>::type;
+#endif
 
-            template <typename _Type>
-            struct is_arithmetic : std::is_arithmetic<_Type> {};
+template <typename T>
+struct exists : true_type {};
 
-            template <typename traits_type>
-            struct is_arithmetic<arithmetic_type<traits_type>> : std::true_type {};
+namespace internal {
 
-            template <typename _Type, const wn_bool _Expression, typename _Return, typename... _Arguments>
-            struct same_return : std::false_type {};
+template <typename T>
+struct is_extended_type : false_type {};
 
-            template <typename _Type, typename _Return, typename... _Arguments>
-            struct same_return<_Type, wn_true, _Return, _Arguments...> : is_same<result_of_t<_Type(_Arguments...)>, _Return> {};
+template <typename _TraitsType>
+struct is_extended_type<arithmetic_type<_TraitsType>> : true_type {};
 
-            template <typename _Function, typename _Return, typename... _Arguments>
-            class is_callable {
-                typedef wn_char (&invalid)[1];
-                typedef wn_char (&valid)[2];
+template <typename T, typename = enable_if_t<true>>
+struct is_floating_point : std::is_floating_point<T> {};
 
-                template <typename _Type>
-                struct helper;
+template <typename T>
+struct is_floating_point<
+    T, typename enable_if<
+           exists<typename T::traits_type::conversion_type>::value>::type>
+    : true_type {};
 
-                template <typename _Type>
-                static valid checker(helper<decltype(std::declval<_Type>()(std::declval<_Arguments>()...))>*);
+template <typename T, typename = enable_if_t<true>>
+struct is_fixed_point : false_type {};
 
-                template <typename _Type>
-                static invalid checker(...);
+template <typename T>
+struct is_fixed_point<T, typename enable_if<exists<
+                             typename T::traits_type::scale_type>::value>::type>
+    : true_type {};
 
-                template <typename _Type>
-                struct callable : boolean_constant<sizeof(checker<_Type>(0)) == sizeof(valid)> {};
+template <typename T, typename = enable_if_t<true>>
+struct is_signed : std::is_signed<T> {};
 
-            public:
-                enum : wn_bool {
-                    value = same_return<_Function, callable<_Function>::value, _Return, _Arguments...>::value
-                };
-            };
-        }
+template <typename T>
+struct is_signed<T, typename enable_if<is_floating_point<T>::value>::type>
+    : true_type {};
 
-        template <typename _Type>
-        struct is_extended_type : internal::is_extended_type<decay_t<_Type>> {};
+template <typename T>
+struct is_signed<T, typename enable_if<bool_and<is_extended_type<T>::value,
+                        !is_floating_point<T>::value>::value>::type>
+    : std::is_signed<typename T::value_type> {};
 
-        template <typename _Type>
-        struct is_arithmetic : internal::is_arithmetic<decay_t<_Type>> {};
+template <typename T, typename = enable_if_t<true>>
+struct is_unsigned
+    : bool_or<std::is_unsigned<T>::value, is_floating_point<T>::value> {};
 
-        template <typename _Type>
-        struct is_signed : internal::is_signed<decay_t<_Type>> {};
+template <typename T>
+struct is_unsigned<T, typename enable_if<is_extended_type<T>::value>::type>
+    : std::is_unsigned<typename T::value_type> {};
 
-        template <typename _Type>
-        struct is_unsigned : internal::is_unsigned<decay_t<_Type>> {};
+template <typename T>
+struct is_arithmetic : std::is_arithmetic<T> {};
 
-        template <typename _Type>
-        struct is_floating_point : internal::is_floating_point<decay_t<_Type>> {};
+template <typename traits_type>
+struct is_arithmetic<arithmetic_type<traits_type>> : true_type {};
 
-        template <typename _Type>
-        struct is_fixed_point : internal::is_fixed_point<decay_t<_Type>> {};
+template <typename F, typename R, typename... Args>
+class is_callable {
+private:
+  template <typename T, const bool Test, typename U, typename... A>
+  struct same_return : false_type {};
 
-        template <typename _Type>
-        struct is_real : boolean_or<is_fixed_point<_Type>::value, is_floating_point<_Type>::value> {};
+  template <typename T, typename U, typename... A>
+  struct same_return<T, true, U, A...> : is_same<result_of_t<T(A...)>, U> {};
 
-        template <typename _Function, typename _Type>
-        struct is_callable : std::false_type {};
+  using invalid = wn_char(&)[1];
+  using valid = wn_char(&)[2];
 
-        template <typename _Function, typename _Return, typename... _Arguments>
-        struct is_callable<_Function, _Return(_Arguments...)> : internal::is_callable<_Function, _Return, _Arguments...> {};
+  template <typename T>
+  struct helper;
 
-        template <typename From, typename To>
-        struct is_convertible : std::is_convertible<From, To> {};
+  template <typename T>
+  static valid checker(
+      helper<decltype(std::declval<T>()(std::declval<Args>()...))>*);
 
-        template <typename From, typename To>
-        struct is_explicitly_convertible : std::is_constructible<To, From> {};
-    }
-}
+  template <typename T>
+  static invalid checker(...);
 
-#endif // __WN_CORE_TYPE_TRAITS_H__
+  template <typename T>
+  struct callable : bool_constant<sizeof(checker<T>(0)) == sizeof(valid)> {};
+
+public:
+  enum : bool { value = same_return<F, callable<F>::value, R, Args...>::value };
+};
+
+}  // namespace internal
+
+template <typename T>
+struct is_extended_type : internal::is_extended_type<decay_t<T>> {};
+
+template <typename T>
+struct is_arithmetic : internal::is_arithmetic<decay_t<T>> {};
+
+template <typename T>
+struct is_signed : internal::is_signed<decay_t<T>> {};
+
+template <typename T>
+struct is_unsigned : internal::is_unsigned<decay_t<T>> {};
+
+template <typename T>
+struct is_floating_point : internal::is_floating_point<decay_t<T>> {};
+
+template <typename T>
+struct is_fixed_point : internal::is_fixed_point<decay_t<T>> {};
+
+template <typename T>
+struct is_real
+    : bool_or<is_fixed_point<T>::value, is_floating_point<T>::value> {};
+
+template <typename F, typename T>
+struct is_callable : false_type {};
+
+template <typename F, typename R, typename... Args>
+struct is_callable<F, R(Args...)> : internal::is_callable<F, R, Args...> {};
+
+}  // namespace core
+}  // namespace wn
+
+#endif  // __WN_CORE_TYPE_TRAITS_H__

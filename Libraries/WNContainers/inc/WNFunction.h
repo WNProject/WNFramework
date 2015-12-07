@@ -52,7 +52,7 @@ public:
   }
 
   template <typename F,
-            typename = core::enable_if_t<core::boolean_and<
+            typename = core::enable_if_t<core::bool_and<
               core::is_callable<F, R(Args...)>::value,
               !core::is_same_decayed<F, function>::value>::value>>
   WN_FORCE_INLINE function(F&& f) :
@@ -99,7 +99,7 @@ public:
   }
 
   template <typename F,
-            typename = core::enable_if_t<core::boolean_and<
+            typename = core::enable_if_t<core::bool_and<
               core::is_callable<F, R(Args...)>::value,
               !core::is_same_decayed<F, function>::value>::value>>
   WN_FORCE_INLINE function& operator = (F&& f) {
@@ -124,7 +124,7 @@ public:
   }
 
   template <typename F,
-            typename = core::enable_if_t<core::boolean_and<
+            typename = core::enable_if_t<core::bool_and<
               core::is_callable<F, R(Args...)>::value,
               !core::is_same_decayed<F, function>::value>::value>>
   WN_FORCE_INLINE wn_void assign(F&& f) {
@@ -151,7 +151,7 @@ private:
  using deleter_type = wn_void (*)(wn_void**);
 
   template <typename F>
-  WN_FORCE_INLINE typename core::enable_if<core::boolean_and<
+  WN_FORCE_INLINE typename core::enable_if<core::bool_and<
     !std::is_convertible<F, R(*)(Args...)>::value,
     !std::is_function<F>::value>::value>::type
   construct(F&& f) {
@@ -179,7 +179,7 @@ private:
   }
 
   template <typename F>
-  WN_FORCE_INLINE typename core::enable_if<core::boolean_or<
+  WN_FORCE_INLINE typename core::enable_if<core::bool_or<
     std::is_convertible<F, R(*)(Args...)>::value,
     std::is_function<F>::value>::value>::type
   construct(F&& f) {
