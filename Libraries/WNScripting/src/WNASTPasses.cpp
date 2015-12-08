@@ -69,6 +69,16 @@ class type_association_pass {
         m_allocator(_allocator) {}
   void walk_expression(expression*) {}
   void walk_parameter(parameter*) {}
+  void walk_expression(id_expression* _expr) {
+    if (_expr->get_id_source().param_source) {
+      type* t = m_allocator->make_allocated<type>(
+          *_expr->get_id_source().param_source->get_type());
+      t->copy_location_from(_expr);
+      _expr->set_type(t);
+    } else {
+      WN_RELEASE_ASSERT_DESC(wn_false, "Not Implemented: non_param ids.");
+    }
+  }
   void walk_expression(constant_expression* _expr) {
     if (!_expr->get_type()) {
       WN_RELEASE_ASSERT_DESC(
@@ -78,6 +88,30 @@ class type_association_pass {
                                                   _expr->get_classification());
       t->copy_location_from(_expr);
       _expr->set_type(t);
+    }
+    // Actually validate the text.
+    switch (_expr->get_type()->get_classification()) {
+      case type_classification::int_type: {
+        const wn_char* text = _expr->get_type_text().c_str();
+        bool error = false;
+        if (wn::memory::strnlen(text, 13) > 12) {
+          error = true;
+        } else {
+          wn_int64 val = atoll(text);
+          if (val < std::numeric_limits<wn_int32>::min() ||
+              val > std::numeric_limits<wn_int32>::max()) {
+            error = true;
+          }
+        }
+        if (error) {
+          m_log->Log(WNLogging::eError, 0, "Invalid integer constant ", text);
+          m_num_errors += 1;
+        }
+        break;
+      }
+      default:
+        WN_RELEASE_ASSERT_DESC(wn_false,
+                               "No Implemented: non-integer contants");
     }
   }
 
@@ -128,7 +162,36 @@ class type_association_pass {
   }
 
   void walk_instruction(instruction*) {}
-  void walk_function(function*) {}
+  void walk_instruction(return_instruction* _ret) { m_returns.push_back(_ret); }
+
+  void walk_function(function* _func) {
+    const type* function_return_type = _func->get_signature()->get_type();
+    if (function_return_type->get_classification() ==
+        type_classification::custom_type) {
+      WN_RELEASE_ASSERT_DESC(false, "Not implented: custom return type");
+    }
+
+    for (auto& return_inst : m_returns) {
+      // TODO(awoloszyn): Add type mananger to do more rigorous type matching.
+      if (!return_inst->get_expression()) {
+        if (function_return_type->get_classification() !=
+            type_classification::void_type) {
+          m_log->Log(WNLogging::eError, 0, "Expected non-void return");
+          return_inst->log_line(*m_log, WNLogging::eError);
+          m_num_errors += 1;
+        }
+      } else {
+        const type* return_type = return_inst->get_expression()->get_type();
+        if (return_type->get_classification() !=
+            function_return_type->get_classification()) {
+          m_log->Log(WNLogging::eError, 0,
+                     "Return type does not match function");
+          return_inst->log_line(*m_log, WNLogging::eError);
+        }
+      }
+    }
+  }
+
   void walk_script_file(script_file*) {}
   void walk_type(type*) {}
 
@@ -140,23 +203,39 @@ class type_association_pass {
   wn_size_t m_num_warnings;
   wn_size_t m_num_errors;
   memory::allocator* m_allocator;
+  containers::deque<return_instruction*> m_returns;
 
   // TODO(awoloszyn): Add type_manager here once we start
   //                 caring about custom types.
 };
 }  // anonymous namespace
 
-bool run_type_association_pass(script_file* _file, WNLogging::WNLog* _log) {
+bool run_type_association_pass(script_file* _file, WNLogging::WNLog* _log,
+                               wn_size_t* _num_warnings,
+                               wn_size_t* _num_errors) {
   if (!_file) return false;
   type_association_pass pass(_log, _file->get_allocator());
   run_ast_pass(&pass, _file);
+  if (_num_errors) {
+    *_num_errors += pass.errors();
+  }
+  if (_num_warnings) {
+    *_num_warnings += pass.warnings();
+  }
   return pass.errors() == 0;
 }
 
-bool run_id_association_pass(script_file* _file, WNLogging::WNLog* _log) {
+bool run_id_association_pass(script_file* _file, WNLogging::WNLog* _log,
+                             wn_size_t* _num_warnings, wn_size_t* _num_errors) {
   if (!_file) return false;
   id_association_pass pass(_log, _file->get_allocator());
   run_ast_pass(&pass, _file);
+  if (_num_errors) {
+    *_num_errors += pass.errors();
+  }
+  if (_num_warnings) {
+    *_num_warnings += pass.warnings();
+  }
   return pass.errors() == 0;
 }
 }  // namespace scripting

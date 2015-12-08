@@ -22,10 +22,14 @@ class translator {
  public:
   virtual ~translator(){};
   virtual parse_error translate_file(const char* file) = 0;
+  wn_size_t errors() const { return m_num_errors; }
+  wn_size_t warnings() const { return m_num_warnings; }
 
- private:
+ protected:
+   wn_size_t m_num_warnings;
+   wn_size_t m_num_errors;
 };
-}  // namesace scripting
-}  // namesapce wn
+}  // namespace scripting
+}  // namespace wn
 
 #endif  //__WN_SCRIPTING_TRANSLATOR_H__

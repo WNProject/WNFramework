@@ -499,6 +499,7 @@ class instruction_list : public node {
     auto inst_ptr = memory::default_allocated_ptr(m_allocator, inst);
     if (!m_instructions.empty()) {
       if (m_instructions.back()->returns()) {
+        // TODO(awoloszyn): Turn this into a DCE pass.
         _log->Log(WNLogging::eWarning, 0, "Instruction after return statement");
         log_line(*_log, WNLogging::eWarning);
         return;
@@ -724,6 +725,7 @@ class function : public node {
   memory::allocated_ptr<parameter> m_signature;
   memory::allocated_ptr<parameter_list> m_parameters;
   memory::allocated_ptr<instruction_list> m_body;
+
   bool m_is_override;
   bool m_is_virtual;
 };

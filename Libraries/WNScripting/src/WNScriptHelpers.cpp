@@ -16,7 +16,8 @@ namespace scripting {
 
 memory::allocated_ptr<wn::scripting::script_file> parse_script(
     memory::allocator* _allocator, const wn_char* file_name,
-    containers::string_view view, WNLogging::WNLog* _log) {
+    containers::string_view view, WNLogging::WNLog* _log,
+    wn_size_t* _num_warnings, wn_size_t* _num_errors) {
   wn::memory::allocated_ptr<wn::scripting::script_file> ptr;
   {
     WNScriptASTLexer::InputStreamType input(
@@ -34,13 +35,16 @@ memory::allocated_ptr<wn::scripting::script_file> parse_script(
         wn::memory::default_allocated_ptr(_allocator, parser.program()));
     if (parser.getNumberOfSyntaxErrors() != 0 ||
         lexer.getNumberOfSyntaxErrors() != 0) {
+      if (_num_errors) {
+        _num_errors += parser.getNumberOfSyntaxErrors();
+      }
       return wn_nullptr;
     }
 
-    if (!run_id_association_pass(ptr.get(), _log)) {
+    if (!run_id_association_pass(ptr.get(), _log, _num_warnings, _num_errors)) {
       return wn_nullptr;
     }
-    if (!run_type_association_pass(ptr.get(), _log)) {
+    if (!run_type_association_pass(ptr.get(), _log, _num_warnings, _num_errors)) {
       return wn_nullptr;
     }
   }

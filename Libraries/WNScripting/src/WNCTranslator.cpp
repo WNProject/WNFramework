@@ -29,7 +29,7 @@ parse_error c_translator::translate_file(const char* file) {
 
   memory::allocated_ptr<script_file> parsed_file = parse_script(
       m_allocator, file, containers::string_view(buff->data(), buff->size()),
-      m_compilation_log);
+      m_compilation_log, &m_num_warnings, &m_num_errors);
 
   if (parsed_file == wn_nullptr) {
     return wn::scripting::parse_error::parse_failed;

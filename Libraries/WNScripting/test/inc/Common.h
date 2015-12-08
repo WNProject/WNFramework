@@ -41,11 +41,20 @@ class test_file_manager : public file_manager {
     const char* file_contents;
   };
 
-  template <size_t N = 0>
   test_file_manager(
       memory::allocator* _allocator,
       containers::hash_map<containers::string, containers::string>&& _files)
       : m_allocator(_allocator), m_files(std::move(_files)) {}
+
+  test_file_manager(memory::allocator* _allocator)
+      : m_allocator(_allocator), m_files(_allocator) {}
+
+  void add_files(const containers::hash_map<containers::string,
+                                            containers::string>& _files) {
+    for (auto m : _files) {
+      m_files[m.first] = m.second;
+    }
+  }
 
   void add_allocator(memory::allocator* _allocator) {
     m_allocator = _allocator;
@@ -57,7 +66,7 @@ class test_file_manager : public file_manager {
   }
 
   virtual void write_file(const char* _filename,
-                        const containers::string_view& data) override {
+                          const containers::string_view& data) override {
     m_files[_filename] = data.to_string(m_allocator);
   }
 
@@ -66,29 +75,30 @@ class test_file_manager : public file_manager {
   memory::allocator* m_allocator;
 };
 
-wn::memory::allocated_ptr<wn::scripting::script_file> test_parse_file(
-    const char* _file, wn::scripting::file_manager* _manager,
-    wn::memory::allocator* _allocator,
-  WNLogging::WNLog* _log) {
+memory::allocated_ptr<scripting::script_file> test_parse_file(
+    const char* _file, scripting::file_manager* _manager,
+    memory::allocator* _allocator, WNLogging::WNLog* _log,
+    wn_size_t* _num_warnings, wn_size_t* _num_errors) {
   memory::allocated_ptr<file_buffer> buff = _manager->get_file(_file);
   EXPECT_NE(wn_nullptr, buff);
 
-  wn::memory::allocated_ptr<wn::scripting::script_file> ptr =
-      wn::scripting::parse_script(
-          _allocator, _file,
-          containers::string_view(buff->data(), buff->size()), _log);
+  memory::allocated_ptr<scripting::script_file> ptr = scripting::parse_script(
+      _allocator, _file, containers::string_view(buff->data(), buff->size()),
+      _log, _num_warnings, _num_errors);
 
-  EXPECT_NE(wn_nullptr, ptr);
   return std::move(ptr);
 }
 
-wn::memory::allocated_ptr<wn::scripting::script_file> test_parse_file(
-    const char* _file, wn::scripting::file_manager* _manager,
-    wn::memory::allocator* _allocator) {
-  return test_parse_file(_file, _manager, _allocator, WNLogging::get_null_logger());
+memory::allocated_ptr<scripting::script_file> test_parse_file(
+    const char* _file, scripting::file_manager* _manager,
+    memory::allocator* _allocator, wn_size_t* _num_warnings,
+    wn_size_t* _num_errors) {
+  return test_parse_file(_file, _manager, _allocator,
+                         WNLogging::get_null_logger(), _num_warnings,
+                         _num_errors);
 }
 
-} // scripting
-} // wn
+}  // namespace scripting
+}  // namespace wn
 
 #endif  // __WN_SCRIPTING_TESTS_COMMON_H__

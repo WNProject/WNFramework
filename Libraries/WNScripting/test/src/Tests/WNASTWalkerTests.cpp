@@ -11,6 +11,7 @@
 #include "WNTesting/inc/WNTestHarness.h"
 
 using ::testing::_;
+using ::testing::Eq;
 using ::testing::Matcher;
 using ::testing::TypedEq;
 
@@ -26,15 +27,16 @@ class mock_walk {
 };
 
 template <typename T>
-void RunMatcherTest(
-    T& _t,
-    wn::containers::hash_map<wn::containers::string, wn::containers::string>&& _files,
-    const char* _file) {
+void RunMatcherTest(T& _t,
+                    wn::containers::hash_map<wn::containers::string,
+                                             wn::containers::string>&& _files,
+                    const char* _file, wn_size_t* _num_warnings,
+                    wn_size_t* _num_errors) {
   wn::memory::default_expanding_allocator<50> allocator;
-  wn::scripting::test_file_manager manager(
-      &allocator, std::move(_files));
+  wn::scripting::test_file_manager manager(&allocator, std::move(_files));
 
-  auto a = test_parse_file(_file, &manager, &allocator);
+  auto a =
+      test_parse_file(_file, &manager, &allocator, _num_warnings, _num_errors);
   wn::scripting::ast_walker<T> walker(&_t);
   walker.walk_script_file(a.get());
 }
@@ -42,6 +44,8 @@ void RunMatcherTest(
 TEST(ast_code_generator, simplest_function) {
   mock_walk walk;
   wn::scripting::ast_walker<mock_walk> walker(&walk);
+  wn_size_t num_warnings, num_errors;
+  num_warnings = num_errors = 0;
 
   EXPECT_CALL(walk, walk_expression(_)).Times(0);
   EXPECT_CALL(walk, walk_function(_)).Times(1);
@@ -49,14 +53,23 @@ TEST(ast_code_generator, simplest_function) {
   EXPECT_CALL(walk,
               walk_instruction(Matcher<wn::scripting::return_instruction*>(_)))
       .Times(1);
-  RunMatcherTest(walk, {{"file.wns", "Void main() { return; }"}}, "file.wns");
+  RunMatcherTest(walk, {{"file.wns", "Void main() { return; }"}}, "file.wns",
+                 &num_warnings, &num_errors);
+  EXPECT_THAT(num_warnings, Eq(0u));
+  EXPECT_THAT(num_errors, Eq(0u));
 }
 
 TEST(ast_code_generator, type_association_test) {
   wn::memory::default_expanding_allocator<50> allocator;
+  wn_size_t num_warnings, num_errors;
+  num_warnings = num_errors = 0;
   wn::scripting::test_file_manager manager(
       &allocator, {{"file.wns", "Int main() { return 0 + 4; }"}});
-  auto a = test_parse_file("file.wns", &manager, &allocator);
+  auto a = test_parse_file("file.wns", &manager, &allocator, &num_warnings,
+                           &num_errors);
   EXPECT_TRUE(wn::scripting::run_type_association_pass(
-      a.get(), WNLogging::get_null_logger()));
+      a.get(), WNLogging::get_null_logger(), &num_warnings, &num_errors));
+
+  EXPECT_THAT(num_warnings, Eq(0u));
+  EXPECT_THAT(num_errors, Eq(0u));
 }
