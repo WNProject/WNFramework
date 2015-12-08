@@ -41,6 +41,7 @@
 #include "WNContainers/inc/WNDynamicArray.h"
 #include "WNContainers/inc/WNList.h"
 #include "WNMemory/inc/WNAllocator.h"
+#include "WNScripting/inc/WNASTCodeGenerator.h"
 #include "WNScripting/inc/WNASTWalker.h"
 #include "WNScripting/inc/WNJITEngine.h"
 #include "WNScripting/inc/WNJITGenerator.h"
@@ -76,7 +77,7 @@ jit_engine::jit_engine(memory::allocator* _allocator, file_manager* _manager,
       m_file_manager(_manager),
       m_compilation_log(_log),
       m_modules(_allocator),
-      m_context(wn::memory::make_std_unique<llvm::LLVMContext>()) {
+      m_context(memory::make_std_unique<llvm::LLVMContext>()) {
   llvm::InitializeNativeTarget();
   llvm::InitializeNativeTargetAsmPrinter();
   llvm::InitializeNativeTargetAsmParser();
@@ -88,7 +89,7 @@ CompiledModule& jit_engine::add_module(containers::string_view _file) {
   m_modules.push_back(CompiledModule());
 
   std::unique_ptr<llvm::Module> module =
-      wn::memory::make_std_unique<llvm::Module>(make_string_ref(_file),
+      memory::make_std_unique<llvm::Module>(make_string_ref(_file),
                                                 *m_context);
 
   CompiledModule& code_module = m_modules.back();
@@ -115,7 +116,7 @@ CompiledModule& jit_engine::add_module(containers::string_view _file) {
   llvm::EngineBuilder builder(std::move(module));
   builder.setEngineKind(llvm::EngineKind::JIT);
   builder.setMCJITMemoryManager(
-      wn::memory::make_std_unique<llvm::SectionMemoryManager>());
+      memory::make_std_unique<llvm::SectionMemoryManager>());
 
   code_module.m_engine =
       std::unique_ptr<llvm::ExecutionEngine>(builder.create());
@@ -123,38 +124,39 @@ CompiledModule& jit_engine::add_module(containers::string_view _file) {
 }
 
 parse_error jit_engine::parse_file(const char* _file) {
-  wn::memory::allocated_ptr<file_buffer> buff = m_file_manager->get_file(_file);
+  memory::allocated_ptr<file_buffer> buff = m_file_manager->get_file(_file);
 
   if (!buff) {
     return parse_error::does_not_exist;
   }
 
-  wn::memory::allocated_ptr<script_file> parsed_file =
+  memory::allocated_ptr<script_file> parsed_file =
       parse_script(m_allocator, _file,
-                   wn::containers::string_view(buff->data(), buff->size()),
+                   containers::string_view(buff->data(), buff->size()),
                    m_compilation_log);
 
   if (parsed_file == wn_nullptr) {
-    return wn::scripting::parse_error::parse_failed;
+    return parse_error::parse_failed;
   }
   CompiledModule& module = add_module(_file);
-  type_validator validator(m_allocator);
-  ast_jit_engine ast_jit(m_allocator, m_context.get(), module.m_module);
-  wn::scripting::ast_walker<ast_jit_engine, ast_jit_traits> walker(
-      &ast_jit, WNLogging::get_null_logger(), &validator, m_allocator);
 
-  wn::scripting::jitted_file f = walker.walk_script_file(parsed_file.get());
+  ast_code_generator<ast_jit_traits> generator;
+  ast_jit_engine engine(m_allocator, m_context.get(), module.m_module, &generator);
+  generator.set_generator(&engine);
+  run_ast_pass<ast_code_generator<ast_jit_traits>>(&generator, parsed_file.get());
   module.m_engine->finalizeObject();
 
-  for (auto& function : f.m_functions) {
-    llvm::StringRef name = function->getName();
-    m_pointers[containers::string_view(name.data(), name.size())] =
-        reinterpret_cast<void (*)()>(
-            module.m_engine->getPointerToFunction(function));
+  for (auto& function : module.m_module->getFunctionList()) {
+    llvm::StringRef name = function.getName();
+    if (!function.isIntrinsic()) {
+      m_pointers[containers::string_view(name.data(), name.size())] =
+          reinterpret_cast<void (*)()>(
+              module.m_engine->getPointerToFunction(&function));
+    }
   }
 
   return parse_error::ok;
 }
 
-}  // scripting
-}  // wn
+}  // namespace scripting
+}  // namespace wn

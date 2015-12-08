@@ -8,158 +8,104 @@
 
 namespace wn {
 namespace scripting {
-containers::string ast_c_translator::walk_expression(
-    const wn::scripting::expression*,
-    wn::containers::contiguous_range<
-        wn::containers::contiguous_range<containers::string>>,
-    containers::string) {
-  WN_RELEASE_ASSERT_DESC(wn_false, "Not Implemented");
-  return "";
-}
 
-containers::string ast_c_translator::walk_expression(
-    const wn::scripting::constant_expression* const_expr,
-    wn::containers::contiguous_range<
-        wn::containers::contiguous_range<containers::string>>,
-    containers::string _type) {
-  switch (const_expr->get_classification()) {
-    case wn::scripting::type_classification::int_type:
-      return const_expr->get_type_text();
-      break;
-    default:
-      WN_RELEASE_ASSERT_DESC(wn_false, "Not Implemented");
-  }
-  return "";
-}
-
-containers::string ast_c_translator::walk_expression(
-    const wn::scripting::id_expression*,
-    wn::containers::contiguous_range<
-        wn::containers::contiguous_range<containers::string>> expr,
-    containers::string _type) {
-  return expr[0][0];
-}
-
-containers::string ast_c_translator::walk_function_header(
-    const wn::scripting::function*, containers::string _decl,
-    containers::dynamic_array<
-        std::pair<containers::string, containers::string>>& _parameters) {
-  containers::string ret_string(m_allocator);
-  ret_string += _decl + "(";
-  bool first = true;
-  for (const auto& a : _parameters) {
-    if (!first) {
-      ret_string += ", ";
-    }
-    first = false;
-    ret_string += std::get<1>(a);
-    ret_string += " ";
-    ret_string += std::get<0>(a);
-  }
-  ret_string += ")";
-  return ret_string;
-}
-
-containers::string ast_c_translator::walk_function(
-    const wn::scripting::function*, containers::string& _header,
-    containers::dynamic_array<containers::string>& _body) {
-  containers::string ret_string(m_allocator);
-  ret_string += _header + " {";
-  for (const auto& a : _body) {
-    ret_string += "\n";
-    ret_string += a;
-  }
-  ret_string += "\n}\n";
-  return ret_string;
-}
-
-containers::string ast_c_translator::walk_declaration(
-    const wn::scripting::declaration*, containers::string&) {
-  WN_RELEASE_ASSERT_DESC(wn_false, "Unimplemented");
-  return "";
-}
-
-containers::string ast_c_translator::walk_parameter_instantiation(
-    const wn::scripting::parameter*,  //_parameter,
-    const containers::string&,        // function_header
-    const std::pair<containers::string, containers::string>& parameter_name,
-    wn_size_t  // parameter_number
-    ) {
-  return std::get<0>(parameter_name);
-}
-
-containers::string ast_c_translator::walk_parameter_name(
-    const wn::scripting::parameter* _parameter,
-    const containers::string&) {
-  return _parameter->get_name().to_string(m_allocator);
-}
-
-containers::string ast_c_translator::walk_function_name(
-    const wn::scripting::parameter* _parameter,
-    const containers::string& _type) {
-  return _type + " " + _parameter->get_name().to_string(m_allocator);
-}
-
-containers::string ast_c_translator::walk_type(
-    const wn::scripting::type* _type) {
+void ast_c_translator::walk_type(const type* _type, containers::string* _str) {
   switch (_type->get_classification()) {
-    case wn::scripting::type_classification::invalid_type:
+    case type_classification::invalid_type:
       WN_RELEASE_ASSERT_DESC(wn_false, "Cannot classify invalid types");
       break;
-    case wn::scripting::type_classification::void_type:
-      return "void";
-      break;
-    case wn::scripting::type_classification::int_type:
-      return "wn_int32";
-      break;
-    case wn::scripting::type_classification::float_type:
-      return "wn_float32";
-      break;
-    case wn::scripting::type_classification::char_type:
-      return "wn_char";
-      break;
-    case wn::scripting::type_classification::string_type:
+    case type_classification::void_type:
+      *_str = std::move(containers::string(m_allocator) + "void");
+      return;
+    case type_classification::int_type:
+      *_str = std::move(containers::string(m_allocator) + "wn_int32");
+      return;
+    case type_classification::float_type:
+      *_str = std::move(containers::string(m_allocator) + "wn_float32");
+      return;
+    case type_classification::char_type:
+      *_str = std::move(containers::string(m_allocator) + "wn_char");
+      return;
+    case type_classification::string_type:
       WN_RELEASE_ASSERT_DESC(wn_false, "Unimplemented string types");
       break;
-    case wn::scripting::type_classification::bool_type:
-      return "wn_bool";
+    case type_classification::bool_type:
+      *_str = std::move(containers::string(m_allocator) + "wn_bool");
       break;
-    case wn::scripting::type_classification::custom_type:
-      return _type->custom_type_name().to_string(m_allocator);
+    case type_classification::custom_type:
+      *_str = _type->custom_type_name().to_string(m_allocator);
       break;
-    case wn::scripting::type_classification::max:
+    case type_classification::max:
       WN_RELEASE_ASSERT_DESC(wn_false, "Type out of range");
       break;
   }
-  return "";
 }
 
-containers::string ast_c_translator::walk_return_instruction(
-    const wn::scripting::return_instruction*,
-    containers::string _expression) {
-  return "return " + _expression + ";";
-}
-
-containers::string ast_c_translator::walk_return_instruction(
-    const wn::scripting::return_instruction*) {
-  return "return;";
-}
-
-containers::string ast_c_translator::walk_script_file(
-    const wn::scripting::script_file*,
-    const wn::containers::contiguous_range<containers::string>& _functions,
-    const wn::containers::contiguous_range<containers::string>&,
-    const wn::containers::contiguous_range<containers::string>&) {
-  containers::string output_string(m_allocator);
-  bool first = true;
-  for (auto& function : _functions) {
-    if (!first) {
-      output_string += "\n";
-    }
-    first = false;
-    output_string += function;
+void ast_c_translator::walk_expression(const constant_expression* _const,
+                                       containers::string* _str) {
+  // TODO(awoloszyn): Validate this somewhere.
+  switch (_const->get_type()->get_classification()) {
+    case type_classification::int_type:
+      *_str = containers::string(m_allocator) + _const->get_type_text();
+      break;
+    default:
+      WN_RELEASE_ASSERT_DESC(wn_false,
+                             "Non-integer constants not supported yet.");
   }
-  return output_string;
+}
+
+void ast_c_translator::walk_expression(const id_expression* _id,
+                                       containers::string* _str) {
+  *_str = _id->get_name().to_string(m_allocator);
+}
+
+void ast_c_translator::walk_parameter(const parameter* _param,
+                                      containers::string* _str) {
+  *_str = containers::string(m_allocator) +
+          m_generator->get_data(_param->get_type()) + " " +
+          _param->get_name().to_string(m_allocator);
+}
+
+void ast_c_translator::walk_instruction(const return_instruction* i,
+                                        containers::string* _str) {
+  *_str = containers::string(m_allocator) + "return";
+  if (i->get_expression()) {
+    *_str += " " + m_generator->get_data(i->get_expression());
+  }
+  *_str += ";";
+}
+
+void ast_c_translator::walk_function(const function* _func,
+                                     containers::string* _str) {
+  *_str = containers::string(m_allocator) +
+          m_generator->get_data(_func->get_signature()->get_type()) + " " +
+          _func->get_signature()->get_name().to_string(m_allocator) + "(";
+  wn_bool first_param = wn_true;
+  if (_func->get_parameters()) {
+    for (auto& a : _func->get_parameters()->get_parameters()) {
+      if (!first_param) {
+        *_str += ",";
+      }
+      first_param = wn_false;
+      *_str += m_generator->get_data(a.get());
+    }
+  }
+  *_str += ") {\n";
+  for (auto& a : _func->get_body()->get_instructions()) {
+    *_str += m_generator->get_data(a.get()) + "\n";
+  }
+  *_str += "}\n";
+}
+
+void ast_c_translator::walk_script_file(const script_file* _file) {
+  wn_bool first = wn_true;
+  for (auto& func : _file->get_functions()) {
+    if (!first) {
+      m_output_string += "\n";
+    }
+    first = wn_false;
+    m_output_string += m_generator->get_data(func.get());
+  }
 }
 
 }  // namespace scripting

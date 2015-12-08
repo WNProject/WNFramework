@@ -20,6 +20,7 @@
 #endif
 
 #include <gtest/gtest.h>
+#include <gmock/gmock.h>
 
 #ifdef _WN_MSVC
 #pragma warning(pop)

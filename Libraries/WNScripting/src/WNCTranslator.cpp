@@ -3,6 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "WNContainers/inc/WNString.h"
+#include "WNScripting/inc/WNASTCodeGenerator.h"
 #include "WNScripting/inc/WNASTWalker.h"
 #include "WNScripting/inc/WNCGenerator.h"
 #include "WNScripting/inc/WNCTranslator.h"
@@ -34,12 +35,12 @@ parse_error c_translator::translate_file(const char* file) {
     return wn::scripting::parse_error::parse_failed;
   }
   type_validator validator(m_allocator);
-  ast_c_translator translator(m_allocator);
-  wn::scripting::ast_walker<ast_c_translator, ast_c_translator_traits> walker(
-      &translator, WNLogging::get_null_logger(), &validator, m_allocator);
+  ast_code_generator<ast_c_traits> generator;
+  ast_c_translator translator(m_allocator, &generator);
+  generator.set_generator(&translator);
+  run_ast_pass<ast_code_generator<ast_c_traits>>(&generator, parsed_file.get());
 
-  containers::string output_string = walker.walk_script_file(parsed_file.get());
-
+  containers::string output_string = translator.get_output();
   containers::string output_filename(file);
   output_filename.append(".c");
 

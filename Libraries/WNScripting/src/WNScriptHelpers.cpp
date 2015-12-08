@@ -7,6 +7,7 @@
 #include "WNScripting/src/WNScriptASTLexer.hpp"
 #include "WNScripting/src/WNScriptASTParser.hpp"
 #include "WNScripting/inc/WNScriptHelpers.h"
+#include "WNScripting/inc/WNASTPasses.h"
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNMemory/inc/WNUniquePtr.h"
 
@@ -33,6 +34,13 @@ memory::allocated_ptr<wn::scripting::script_file> parse_script(
         wn::memory::default_allocated_ptr(_allocator, parser.program()));
     if (parser.getNumberOfSyntaxErrors() != 0 ||
         lexer.getNumberOfSyntaxErrors() != 0) {
+      return wn_nullptr;
+    }
+
+    if (!run_id_association_pass(ptr.get(), _log)) {
+      return wn_nullptr;
+    }
+    if (!run_type_association_pass(ptr.get(), _log)) {
       return wn_nullptr;
     }
   }

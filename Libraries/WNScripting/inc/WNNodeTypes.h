@@ -6,6 +6,7 @@
 #define __WN_NODE_TYPES_H__
 
 #include "WNContainers/inc/WNDeque.h"
+#include "WNContainers/inc/WNFunction.h"
 #include "WNContainers/inc/WNString.h"
 #include "WNContainers/inc/WNStringView.h"
 #include "WNLogging/inc/WNLog.h"
@@ -61,13 +62,35 @@ enum class node_type {
   type
 };
 // clang-format on
+class declaration;
+class expression;
+class function;
+class instruction;
+class node;
+class parameter;
+
+template <typename T>
+T *cast_to(const node *_node) {
+  return static_cast<T *>(_node);
+}
+
+template <typename T>
+T *cast_to(node *_node) {
+  return static_cast<T *>(_node);
+}
+template <typename T>
+using walk_ftype = containers::function<void(T)>;
 
 // Base class for all nodes in AST.
 class node {
  public:
-  node(wn::memory::allocator *_allocator, node_type _type)
+  node(memory::allocator *_allocator, node_type _type)
       : m_allocator(_allocator), m_type(_type) {}
   virtual ~node() {}
+
+  wn_void copy_location_from(const node *_node) {
+    m_source_location = _node->m_source_location;
+  }
 
   // Sets the start location of first character representing this node.
   wn_void set_start_location(const source_location &_location) {
@@ -86,13 +109,13 @@ class node {
   // Writes the first line of this expression to the given log.
   wn_void log_line(WNLogging::WNLog &_log, WNLogging::WNLogLevel _level) const {
     wn_size_t line_length = 1023;
-    const wn_char *c = wn::memory::strnchr(
+    const wn_char *c = memory::strnchr(
         reinterpret_cast<const wn_char *>(m_source_location.m_line_start), '\n',
         1023);
     if (c == wn_nullptr) {
       // If there is no \n then we simply print everything
       c = reinterpret_cast<const wn_char *>(m_source_location.m_line_start) +
-          wn::memory::strnlen(
+          memory::strnlen(
               reinterpret_cast<const wn_char *>(m_source_location.m_line_start),
               1023);
     }
@@ -107,6 +130,7 @@ class node {
   }
 
   node_type get_node_type() const { return m_type; }
+  memory::allocator *get_allocator() const { return m_allocator; }
 
  protected:
   // Location of the first character of the first token contributing
@@ -118,17 +142,26 @@ class node {
 
 class type : public node {
  public:
-  type(wn::memory::allocator *_allocator, const char *_custom_type)
+  type(memory::allocator *_allocator, const char *_custom_type)
       : node(_allocator, node_type::type),
         m_type(type_classification::custom_type),
         m_num_array_levels(0),
         m_custom_type(_custom_type, _allocator) {}
 
-  type(wn::memory::allocator *_allocator, type_classification _type)
+  type(memory::allocator *_allocator, type_classification _type)
       : node(_allocator, node_type::type),
         m_type(_type),
         m_custom_type(_allocator),
         m_num_array_levels(0) {}
+
+  type(const type &_other)
+      : node(_other.m_allocator, node_type::type),
+        m_type(_other.m_type),
+        m_custom_type(get_allocator()),
+        m_num_array_levels(_other.m_num_array_levels) {
+    m_custom_type = _other.m_custom_type;
+  }
+
   wn_uint32 get_type_value() const { return static_cast<wn_uint32>(m_type); }
   void add_array_level() { m_num_array_levels += 1; }
   type_classification get_classification() const { return m_type; }
@@ -143,8 +176,15 @@ class type : public node {
 // Base class for all expression nodes in the AST.
 class expression : public node {
  public:
-  expression(wn::memory::allocator *_allocator, node_type _type)
+  expression(memory::allocator *_allocator, node_type _type)
       : node(_allocator, _type),
+        m_type(wn_nullptr),
+        m_force_use(wn_false),
+        m_newly_created(wn_false) {}
+
+  expression(memory::allocator *_allocator, node_type _node_type, type *_type)
+      : node(_allocator, _node_type),
+        m_type(memory::default_allocated_ptr(_allocator, _type)),
         m_force_use(wn_false),
         m_newly_created(wn_false) {}
 
@@ -153,10 +193,23 @@ class expression : public node {
 
   wn_bool is_newly_created() { return m_newly_created; }
 
-  virtual wn_uint32 get_expression_type() {
-    WN_RELEASE_ASSERT_DESC(false, "Not yet implemented");
-    return 0;
+  const type *get_type() const { return m_type.get(); }
+
+  void set_type(type *_type) {
+    m_type = memory::default_allocated_ptr(m_allocator, _type);
   }
+
+  virtual void walk_children(const walk_ftype<expression *> &,
+                             const walk_ftype<type *> &) {
+    WN_RELEASE_ASSERT_DESC(false, "Not implemented yet");
+  }
+  virtual void walk_children(const walk_ftype<const expression *> &,
+                             const walk_ftype<const type *> &) const {
+    WN_RELEASE_ASSERT_DESC(false, "Not implemented yet");
+  }
+
+ protected:
+  memory::allocated_ptr<type> m_type;
 
  private:
   wn_bool m_force_use;
@@ -165,14 +218,11 @@ class expression : public node {
 
 class array_allocation_expression : public expression {
  public:
-  array_allocation_expression(wn::memory::allocator *_allocator)
+  array_allocation_expression(memory::allocator *_allocator)
       : expression(_allocator, node_type::array_allocation_expression),
         m_array_initializers(_allocator),
         m_levels(0) {}
 
-  wn_void set_type(type *_type) {
-    m_type = memory::default_allocated_ptr(m_allocator, _type);
-  }
   wn_void add_expression(expression *_expr) {
     m_array_initializers.emplace_back(
         memory::default_allocated_ptr(m_allocator, _expr));
@@ -185,31 +235,43 @@ class array_allocation_expression : public expression {
   }
 
  private:
-  wn::containers::deque<wn::memory::allocated_ptr<expression>>
-      m_array_initializers;
-  wn::memory::allocated_ptr<expression> m_copy_initializer;
-  wn::memory::allocated_ptr<type> m_type;
+  containers::deque<memory::allocated_ptr<expression>> m_array_initializers;
+  memory::allocated_ptr<expression> m_copy_initializer;
   wn_size_t m_levels;
 };
 
 class binary_expression : public expression {
  public:
-  binary_expression(wn::memory::allocator *_allocator, arithmetic_type _type,
+  binary_expression(memory::allocator *_allocator, arithmetic_type _type,
                     expression *_lhs, expression *_rhs)
       : expression(_allocator, node_type::binary_expression),
-        m_type(_type),
+        m_arith_type(_type),
         m_lhs(memory::default_allocated_ptr(m_allocator, _lhs)),
         m_rhs(memory::default_allocated_ptr(m_allocator, _rhs)) {}
+  const expression *get_lhs() const { return m_lhs.get(); }
+  const expression *get_rhs() const { return m_rhs.get(); }
+  const arithmetic_type get_arithmetic_type() const { return m_arith_type; }
+
+  virtual void walk_children(const walk_ftype<expression *> &_func,
+                             const walk_ftype<type *> &) {
+    _func(m_lhs.get());
+    _func(m_rhs.get());
+  }
+  virtual void walk_children(const walk_ftype<const expression *> &_func,
+                             const walk_ftype<const type *> &) const {
+    _func(m_lhs.get());
+    _func(m_rhs.get());
+  }
 
  private:
-  arithmetic_type m_type;
-  wn::memory::allocated_ptr<expression> m_lhs;
-  wn::memory::allocated_ptr<expression> m_rhs;
+  arithmetic_type m_arith_type;
+  memory::allocated_ptr<expression> m_lhs;
+  memory::allocated_ptr<expression> m_rhs;
 };
 
 class cond_expression : public expression {
  public:
-  cond_expression(wn::memory::allocator *_allocator, expression *_cond,
+  cond_expression(memory::allocator *_allocator, expression *_cond,
                   expression *_lhs, expression *_rhs)
       : expression(_allocator, node_type::cond_expression),
         m_condition(memory::default_allocated_ptr(m_allocator, _cond)),
@@ -217,52 +279,77 @@ class cond_expression : public expression {
         m_rhs(memory::default_allocated_ptr(m_allocator, _rhs)) {}
 
  private:
-  wn::memory::allocated_ptr<expression> m_condition;
-  wn::memory::allocated_ptr<expression> m_lhs;
-  wn::memory::allocated_ptr<expression> m_rhs;
+  memory::allocated_ptr<expression> m_condition;
+  memory::allocated_ptr<expression> m_lhs;
+  memory::allocated_ptr<expression> m_rhs;
 };
-
 class constant_expression : public expression {
  public:
-  constant_expression(wn::memory::allocator *_allocator,
-                      type_classification _type, const char *_text)
+  constant_expression(memory::allocator *_allocator, type_classification _type,
+                      const char *_text)
       : expression(_allocator, node_type::constant_expression),
         m_type_classification(_type),
         m_text(_text, _allocator) {}
 
-  constant_expression(wn::memory::allocator *_allocator, type *_type,
+  constant_expression(memory::allocator *_allocator, type *_type,
                       const char *_text)
-      : expression(_allocator, node_type::constant_expression),
+      : expression(_allocator, node_type::constant_expression, _type),
         m_type_classification(_type->get_classification()),
-        m_type(memory::default_allocated_ptr(m_allocator, _type)),
         m_text(_text, _allocator) {}
 
   type_classification get_classification() const {
     return m_type_classification;
   }
-  const containers::string& get_type_text() const { return m_text; }
-  const type *get_type() const { return m_type.get(); }
+  const containers::string &get_type_text() const { return m_text; }
+
+  virtual void walk_children(const walk_ftype<expression *> &,
+                             const walk_ftype<type *> &_type) {
+    _type(m_type.get());
+  }
+  virtual void walk_children(const walk_ftype<const expression *> &,
+                             const walk_ftype<const type *> &_type) const {
+    _type(m_type.get());
+  }
 
  private:
   type_classification m_type_classification;
   containers::string m_text;
-  wn::memory::allocated_ptr<type> m_type;
 };
 
 class id_expression : public expression {
  public:
-  id_expression(wn::memory::allocator *_allocator, const char *_name)
+  id_expression(memory::allocator *_allocator, const char *_name)
       : expression(_allocator, node_type::id_expression),
+        m_source({wn_nullptr, wn_nullptr}),
         m_name(_name, _allocator) {}
   containers::string_view get_name() const { return m_name; }
 
+  virtual void walk_children(const walk_ftype<expression *> &,
+                             const walk_ftype<type *> &) {}
+
+  virtual void walk_children(const walk_ftype<const expression *> &,
+                             const walk_ftype<const type *> &) {}
+
+  struct id_source {
+    parameter *param_source;
+    declaration *declaration_source;
+  };
+  void set_id_source(const id_source &_source) {
+    WN_RELEASE_ASSERT_DESC(
+        (_source.param_source == 0) ^ (_source.declaration_source == 0),
+        "Either the source must be a parameter or a declaration");
+    m_source = _source;
+  };
+  const id_source &get_id_source() const { return m_source; }
+
  private:
+  id_source m_source;
   containers::string m_name;
 };
 
 class null_allocation_expression : public expression {
  public:
-  null_allocation_expression(wn::memory::allocator *_allocator)
+  null_allocation_expression(memory::allocator *_allocator)
       : expression(_allocator, node_type::null_allocation_expression) {}
 
  private:
@@ -270,29 +357,29 @@ class null_allocation_expression : public expression {
 
 class post_expression : public expression {
  public:
-  post_expression(wn::memory::allocator *_allocator, node_type _type)
+  post_expression(memory::allocator *_allocator, node_type _type)
       : expression(_allocator, _type) {}
   void add_base_expression(expression *_expr) {
     m_base_expression = memory::default_allocated_ptr(m_allocator, _expr);
   }
 
  protected:
-  wn::memory::allocated_ptr<expression> m_base_expression;
+  memory::allocated_ptr<expression> m_base_expression;
 };
 
 class array_access_expression : public post_expression {
  public:
-  array_access_expression(wn::memory::allocator *_allocator, expression *_expr)
+  array_access_expression(memory::allocator *_allocator, expression *_expr)
       : post_expression(_allocator, node_type::array_access_expression),
         m_array_access(memory::default_allocated_ptr(m_allocator, _expr)) {}
 
  private:
-  wn::memory::allocated_ptr<expression> m_array_access;
+  memory::allocated_ptr<expression> m_array_access;
 };
 
 class short_circuit_expression : public expression {
  public:
-  short_circuit_expression(wn::memory::allocator *_allocator,
+  short_circuit_expression(memory::allocator *_allocator,
                            short_circuit_type _type, expression *_lhs,
                            expression *_rhs)
       : expression(_allocator, node_type::short_circuit_expression),
@@ -302,14 +389,13 @@ class short_circuit_expression : public expression {
 
  private:
   short_circuit_type m_ss_type;
-  wn::memory::allocated_ptr<expression> m_lhs;
-  wn::memory::allocated_ptr<expression> m_rhs;
+  memory::allocated_ptr<expression> m_lhs;
+  memory::allocated_ptr<expression> m_rhs;
 };
 
 class member_access_expression : public post_expression {
  public:
-  member_access_expression(wn::memory::allocator *_allocator,
-                           const char *_member)
+  member_access_expression(memory::allocator *_allocator, const char *_member)
       : post_expression(_allocator, node_type::member_access_expression),
         m_member(_member, _allocator) {}
 
@@ -319,73 +405,71 @@ class member_access_expression : public post_expression {
 
 class post_unary_expression : public post_expression {
  public:
-  post_unary_expression(wn::memory::allocator *_allocator,
-                        post_unary_type _type)
+  post_unary_expression(memory::allocator *_allocator, post_unary_type _type)
       : post_expression(_allocator, node_type::post_unary_expression),
-        m_type(_type) {}
+        m_unary_type(_type) {}
 
  private:
-  post_unary_type m_type;
+  post_unary_type m_unary_type;
 };
 
 class cast_expression : public expression {
  public:
-  cast_expression(wn::memory::allocator *_allocator, expression *_expression)
+  cast_expression(memory::allocator *_allocator, expression *_expression)
       : expression(_allocator, node_type::cast_expression),
-        m_type(wn_nullptr),
         m_expression(memory::default_allocated_ptr(m_allocator, _expression)) {}
-  wn_void set_type(type *_type) {
-    m_type = memory::default_allocated_ptr(m_allocator, _type);
-  }
 
  private:
-  wn::memory::allocated_ptr<type> m_type;
-  wn::memory::allocated_ptr<expression> m_expression;
+  memory::allocated_ptr<expression> m_expression;
 };
 
 class struct_allocation_expression : public expression {
  public:
-  struct_allocation_expression(wn::memory::allocator *_allocator)
+  struct_allocation_expression(memory::allocator *_allocator)
       : expression(_allocator, node_type::struct_allocation_expression),
-        m_type(wn_nullptr),
         m_copy_initializer(wn_nullptr) {}
-  wn_void set_type(type *_type) {
-    m_type = memory::default_allocated_ptr(m_allocator, _type);
-  }
   wn_void set_copy_initializer(expression *_expression) {
     m_copy_initializer =
         memory::default_allocated_ptr(m_allocator, _expression);
   }
 
  private:
-  wn::memory::allocated_ptr<type> m_type;
-  wn::memory::allocated_ptr<expression> m_copy_initializer;
+  memory::allocated_ptr<expression> m_copy_initializer;
 };
 
 class unary_expression : public expression {
  public:
-  unary_expression(wn::memory::allocator *_allocator, unary_type _type,
+  unary_expression(memory::allocator *_allocator, unary_type _type,
                    expression *_expr)
       : expression(_allocator, node_type::unary_expression),
-        m_type(_type),
+        m_unary_type(_type),
         m_root_expression(memory::default_allocated_ptr(m_allocator, _expr)) {}
 
  private:
-  unary_type m_type;
-  wn::memory::allocated_ptr<expression> m_root_expression;
+  unary_type m_unary_type;
+  memory::allocated_ptr<expression> m_root_expression;
 };
 
 class instruction : public node {
  public:
-  instruction(wn::memory::allocator *_allocator, node_type _type)
+  instruction(memory::allocator *_allocator, node_type _type)
       : node(_allocator, _type), m_returns(wn_false) {}
-  instruction(wn::memory::allocator *_allocator, node_type _type,
-              wn_bool _returns)
+  instruction(memory::allocator *_allocator, node_type _type, wn_bool _returns)
       : instruction(_allocator, _type) {
     m_returns = _returns;
   }
   // Returns true if this instruction causes the function to return.
   wn_bool returns() { return (m_returns); }
+
+  virtual void walk_children(const walk_ftype<instruction *> &,
+                             const walk_ftype<expression *> &) {
+    WN_RELEASE_ASSERT_DESC(false, "Not Implemented");
+  }
+
+  virtual void walk_children(const walk_ftype<const instruction *> &,
+                             const walk_ftype<const expression *> &) const {
+    WN_RELEASE_ASSERT_DESC(false, "Not Implemented");
+  }
 
  protected:
   wn_bool m_returns;
@@ -394,24 +478,24 @@ class instruction : public node {
 struct function_expression {
   function_expression(expression *_expr, wn_bool _hand_ownership)
       : m_expr(_expr), m_hand_ownership(_hand_ownership) {}
-  wn::memory::allocated_ptr<expression> m_expr;
+  memory::allocated_ptr<expression> m_expr;
   wn_bool m_hand_ownership;
 };
 
 class instruction_list : public node {
  public:
-  instruction_list(wn::memory::allocator *_allocator)
+  instruction_list(memory::allocator *_allocator)
       : node(_allocator, node_type::instruction_list),
         m_instructions(_allocator),
         m_returns(wn_false) {}
-  instruction_list(wn::memory::allocator *_allocator, instruction *inst)
+  instruction_list(memory::allocator *_allocator, instruction *inst)
       : node(_allocator, node_type::instruction_list),
         m_instructions(_allocator) {
     m_instructions.emplace_back(
         memory::default_allocated_ptr(m_allocator, inst));
   }
   ~instruction_list() {}
-  void add_instruction(instruction *inst, WNLogging::WNLog* _log) {
+  void add_instruction(instruction *inst, WNLogging::WNLog *_log) {
     auto inst_ptr = memory::default_allocated_ptr(m_allocator, inst);
     if (!m_instructions.empty()) {
       if (m_instructions.back()->returns()) {
@@ -426,19 +510,19 @@ class instruction_list : public node {
 
   wn_bool returns() { return (m_returns); }
 
-  const wn::containers::deque<wn::memory::allocated_ptr<instruction>>
+  const containers::deque<memory::allocated_ptr<instruction>>
       &get_instructions() const {
     return m_instructions;
   }
 
  private:
-  wn::containers::deque<wn::memory::allocated_ptr<instruction>> m_instructions;
+  containers::deque<memory::allocated_ptr<instruction>> m_instructions;
   wn_bool m_returns;
 };
 
 class arg_list : public node {
  public:
-  arg_list(wn::memory::allocator *_allocator)
+  arg_list(memory::allocator *_allocator)
       : node(_allocator, node_type::arg_list), m_expression_list(_allocator) {}
   void add_expression(expression *_expr, wn_bool _hand_ownership = wn_false) {
     m_expression_list.emplace_back(
@@ -446,45 +530,52 @@ class arg_list : public node {
                                                          _hand_ownership));
   }
 
-  wn::containers::deque<wn::memory::allocated_ptr<function_expression>>
+  containers::deque<memory::allocated_ptr<function_expression>>
       &get_expressions() {
     return (m_expression_list);
   }
 
  private:
-  wn::containers::deque<wn::memory::allocated_ptr<function_expression>>
+  containers::deque<memory::allocated_ptr<function_expression>>
       m_expression_list;
 };
 
 class function_call_expression : public post_expression {
  public:
-  function_call_expression(wn::memory::allocator *_allocator)
+  function_call_expression(memory::allocator *_allocator)
       : post_expression(_allocator, node_type::function_call_expression) {}
-  function_call_expression(wn::memory::allocator *_allocator, arg_list *_list)
+  function_call_expression(memory::allocator *_allocator, arg_list *_list)
       : post_expression(_allocator, node_type::function_call_expression),
         m_args(_list) {}
 
  private:
-  wn::memory::allocated_ptr<arg_list> m_args;
+  memory::allocated_ptr<arg_list> m_args;
 };
 
 class parameter : public node {
  public:
-  parameter(wn::memory::allocator *_allocator, type *_type, const char *_name)
-      : node(_allocator, wn::scripting::node_type::parameter),
+  parameter(memory::allocator *_allocator, type *_type, const char *_name)
+      : node(_allocator, scripting::node_type::parameter),
         m_type(memory::default_allocated_ptr(_allocator, _type)),
         m_name(_name, _allocator) {}
-  const type *get_type() const { return m_type.get(); }
   const containers::string_view get_name() const { return (m_name.c_str()); }
+  const type *get_type() const { return m_type.get(); }
+
+  virtual void walk_children(const walk_ftype<type *> &_type_func) {
+    _type_func(m_type.get());
+  }
+  virtual void walk_children(const walk_ftype<const type *> &_type_func) {
+    _type_func(m_type.get());
+  }
 
  private:
-  wn::memory::allocated_ptr<type> m_type;
   containers::string m_name;
+  memory::allocated_ptr<type> m_type;
 };
 
 class declaration : public instruction {
  public:
-  declaration(wn::memory::allocator *_allocator)
+  declaration(memory::allocator *_allocator)
       : instruction(_allocator, node_type::declaration),
         m_sized_array_initializers(_allocator),
         m_unsized_array_initializers(0),
@@ -509,8 +600,8 @@ class declaration : public instruction {
   const containers::string_view get_name() const {
     return m_parameter->get_name();
   }
-  const wn::containers::deque<wn::memory::allocated_ptr<expression>>
-      &get_array_sizes() const {
+  const containers::deque<memory::allocated_ptr<expression>> &get_array_sizes()
+      const {
     return m_sized_array_initializers;
   }
   wn_size_t get_num_unsized_array_initializers() const {
@@ -518,11 +609,11 @@ class declaration : public instruction {
   }
 
  private:
-  wn::memory::allocated_ptr<type> m_type;
+  memory::allocated_ptr<type> m_type;
   containers::string m_name;
-  wn::memory::allocated_ptr<parameter> m_parameter;
-  wn::memory::allocated_ptr<expression> m_expression;
-  wn::containers::deque<wn::memory::allocated_ptr<expression>>
+  memory::allocated_ptr<parameter> m_parameter;
+  memory::allocated_ptr<expression> m_expression;
+  containers::deque<memory::allocated_ptr<expression>>
       m_sized_array_initializers;
   wn_size_t m_unsized_array_initializers;
   wn_bool m_init_assign;
@@ -531,7 +622,7 @@ class declaration : public instruction {
 class function;
 class struct_definition : public node {
  public:
-  struct_definition(wn::memory::allocator *_allocator, const char *_name,
+  struct_definition(memory::allocator *_allocator, const char *_name,
                     bool _is_class = false,
                     const char *_parent_type = wn_nullptr)
       : node(_allocator, node_type::struct_definition),
@@ -561,14 +652,13 @@ class struct_definition : public node {
   containers::string m_name;
   containers::string m_parent_name;
   bool m_is_class;
-  wn::containers::deque<wn::memory::allocated_ptr<declaration>>
-      m_struct_members;
-  wn::containers::deque<wn::memory::allocated_ptr<function>> m_struct_functions;
+  containers::deque<memory::allocated_ptr<declaration>> m_struct_members;
+  containers::deque<memory::allocated_ptr<function>> m_struct_functions;
 };
 
 class parameter_list : public node {
  public:
-  parameter_list(wn::memory::allocator *_allocator, parameter *_param)
+  parameter_list(memory::allocator *_allocator, parameter *_param)
       : node(_allocator, node_type::parameter_list), m_parameters(_allocator) {
     m_parameters.emplace_back(
         memory::default_allocated_ptr(m_allocator, _param));
@@ -578,18 +668,18 @@ class parameter_list : public node {
         memory::default_allocated_ptr(m_allocator, _param));
   }
 
-  const wn::containers::deque<wn::memory::allocated_ptr<parameter>>
-      &get_parameters() const {
+  const containers::deque<memory::allocated_ptr<parameter>> &get_parameters()
+      const {
     return m_parameters;
   }
 
  private:
-  wn::containers::deque<wn::memory::allocated_ptr<parameter>> m_parameters;
+  containers::deque<memory::allocated_ptr<parameter>> m_parameters;
 };
 
 class function : public node {
  public:
-  function(wn::memory::allocator *_allocator, parameter *_signature,
+  function(memory::allocator *_allocator, parameter *_signature,
            parameter_list *_params, instruction_list *_body)
       : node(_allocator, node_type::function),
         m_signature(memory::default_allocated_ptr(m_allocator, _signature)),
@@ -603,27 +693,54 @@ class function : public node {
   const parameter_list *get_parameters() const { return m_parameters.get(); }
   const instruction_list *get_body() const { return m_body.get(); }
 
+  virtual void walk_children(const walk_ftype<parameter *> &_parameter,
+                             const walk_ftype<instruction *> &_instruction,
+                             const walk_ftype<type *> &_type) {
+    m_signature->walk_children(_type);
+    if (m_parameters) {
+      for (auto &param : m_parameters->get_parameters()) {
+        _parameter(param.get());
+      }
+    }
+    for (auto &inst : m_body->get_instructions()) {
+      _instruction(inst.get());
+    }
+  }
+
+  virtual void walk_children(
+      const walk_ftype<const parameter *> &_parameter,
+      const walk_ftype<const instruction *> &_instruction,
+      const walk_ftype<const type *> &_type) const {
+    m_signature->walk_children(_type);
+    for (auto &param : m_parameters->get_parameters()) {
+      _parameter(param.get());
+    }
+    for (auto &inst : m_body->get_instructions()) {
+      _instruction(inst.get());
+    }
+  }
+
  private:
-  wn::memory::allocated_ptr<parameter> m_signature;
-  wn::memory::allocated_ptr<parameter_list> m_parameters;
-  wn::memory::allocated_ptr<instruction_list> m_body;
+  memory::allocated_ptr<parameter> m_signature;
+  memory::allocated_ptr<parameter_list> m_parameters;
+  memory::allocated_ptr<instruction_list> m_body;
   bool m_is_override;
   bool m_is_virtual;
 };
 
 class lvalue : public node {
  public:
-  lvalue(wn::memory::allocator *_allocator, expression *_expr)
+  lvalue(memory::allocator *_allocator, expression *_expr)
       : node(_allocator, node_type::lvalue), m_expression(_expr) {}
   wn_bool required_use() { return m_expression->required_use(); }
 
  private:
-  wn::memory::allocated_ptr<expression> m_expression;
+  memory::allocated_ptr<expression> m_expression;
 };
 
 class assignment_instruction : public instruction {
  public:
-  assignment_instruction(wn::memory::allocator *_allocator, lvalue *_lvalue)
+  assignment_instruction(memory::allocator *_allocator, lvalue *_lvalue)
       : instruction(_allocator, node_type::assignment_instruction),
         m_lvalue(memory::default_allocated_ptr(m_allocator, _lvalue)),
         m_assign_type(assign_type::max) {}
@@ -635,39 +752,39 @@ class assignment_instruction : public instruction {
 
  private:
   assign_type m_assign_type;
-  wn::memory::allocated_ptr<lvalue> m_lvalue;
-  wn::memory::allocated_ptr<expression> m_assign_expression;
+  memory::allocated_ptr<lvalue> m_lvalue;
+  memory::allocated_ptr<expression> m_assign_expression;
 };
 
 class do_instruction : public instruction {
  public:
-  do_instruction(wn::memory::allocator *_allocator, expression *_cond,
+  do_instruction(memory::allocator *_allocator, expression *_cond,
                  instruction_list *_body)
       : instruction(_allocator, node_type::do_instruction),
         m_condition(memory::default_allocated_ptr(m_allocator, _cond)),
         m_body(memory::default_allocated_ptr(m_allocator, _body)) {}
 
  private:
-  wn::memory::allocated_ptr<expression> m_condition;
-  wn::memory::allocated_ptr<instruction_list> m_body;
+  memory::allocated_ptr<expression> m_condition;
+  memory::allocated_ptr<instruction_list> m_body;
 };
 
 class else_if_instruction : public instruction {
  public:
-  else_if_instruction(wn::memory::allocator *_allocator, expression *_cond,
+  else_if_instruction(memory::allocator *_allocator, expression *_cond,
                       instruction_list *_body)
       : instruction(_allocator, node_type::else_if_instruction),
         m_condition(memory::default_allocated_ptr(m_allocator, _cond)),
         m_body(memory::default_allocated_ptr(m_allocator, _body)) {}
 
  private:
-  wn::memory::allocated_ptr<expression> m_condition;
-  wn::memory::allocated_ptr<instruction_list> m_body;
+  memory::allocated_ptr<expression> m_condition;
+  memory::allocated_ptr<instruction_list> m_body;
 };
 
 class if_instruction : public instruction {
  public:
-  if_instruction(wn::memory::allocator *_allocator, expression *_cond,
+  if_instruction(memory::allocator *_allocator, expression *_cond,
                  instruction_list *_body)
       : instruction(_allocator, node_type::if_instruction),
         m_condition(memory::default_allocated_ptr(m_allocator, _cond)),
@@ -679,16 +796,15 @@ class if_instruction : public instruction {
   void add_else(instruction_list *_else) { m_else.reset(_else); }
 
  private:
-  wn::memory::allocated_ptr<expression> m_condition;
-  wn::memory::allocated_ptr<instruction_list> m_else;
-  wn::memory::allocated_ptr<instruction_list> m_body;
-  wn::containers::deque<wn::memory::allocated_ptr<else_if_instruction>>
-      m_else_if_nodes;
+  memory::allocated_ptr<expression> m_condition;
+  memory::allocated_ptr<instruction_list> m_else;
+  memory::allocated_ptr<instruction_list> m_body;
+  containers::deque<memory::allocated_ptr<else_if_instruction>> m_else_if_nodes;
 };
 
 class for_instruction : public instruction {
  public:
-  for_instruction(wn::memory::allocator *_allocator)
+  for_instruction(memory::allocator *_allocator)
       : instruction(_allocator, node_type::for_instruction) {}
   void add_initializer(instruction *_init) {
     m_initializer = memory::default_allocated_ptr(m_allocator, _init);
@@ -704,48 +820,61 @@ class for_instruction : public instruction {
   }
 
  private:
-  wn::memory::allocated_ptr<instruction> m_initializer;
-  wn::memory::allocated_ptr<expression> m_condition;
-  wn::memory::allocated_ptr<instruction> m_post_op;
-  wn::memory::allocated_ptr<instruction_list> m_body;
+  memory::allocated_ptr<instruction> m_initializer;
+  memory::allocated_ptr<expression> m_condition;
+  memory::allocated_ptr<instruction> m_post_op;
+  memory::allocated_ptr<instruction_list> m_body;
 };
 
 class return_instruction : public instruction {
  public:
-  return_instruction(wn::memory::allocator *_allocator, expression *_expr,
+  return_instruction(memory::allocator *_allocator, expression *_expr,
                      bool _change_ownership = false)
       : instruction(_allocator, node_type::return_instruction, true),
         m_expression(memory::default_allocated_ptr(m_allocator, _expr)),
         m_change_ownership(_change_ownership) {}
 
-  return_instruction(wn::memory::allocator *_allocator)
+  return_instruction(memory::allocator *_allocator)
       : instruction(_allocator, node_type::return_instruction, true) {
     m_change_ownership = wn_false;
   }
 
   const expression *get_expression() const { return m_expression.get(); }
+  virtual void walk_children(const walk_ftype<instruction *> &,
+                             const walk_ftype<expression *> &expr) {
+    if (m_expression) {
+      expr(m_expression.get());
+    }
+  }
+
+  virtual void walk_children(const walk_ftype<const instruction *> &,
+                             const walk_ftype<const expression *> &expr) const {
+    if (m_expression) {
+      expr(m_expression.get());
+    }
+  }
 
  private:
-  wn::memory::allocated_ptr<expression> m_expression;
+  memory::allocated_ptr<expression> m_expression;
   wn_bool m_change_ownership;
 };
 
 class while_instruction : public instruction {
  public:
-  while_instruction(wn::memory::allocator *_allocator, expression *_cond,
+  while_instruction(memory::allocator *_allocator, expression *_cond,
                     instruction_list *_body)
       : instruction(_allocator, node_type::while_instruction),
         m_condition(memory::default_allocated_ptr(m_allocator, _cond)),
         m_body(memory::default_allocated_ptr(m_allocator, _body)) {}
 
  private:
-  wn::memory::allocated_ptr<expression> m_condition;
-  wn::memory::allocated_ptr<instruction_list> m_body;
+  memory::allocated_ptr<expression> m_condition;
+  memory::allocated_ptr<instruction_list> m_body;
 };
 
 class script_file : public node {
  public:
-  script_file(wn::memory::allocator *_allocator)
+  script_file(memory::allocator *_allocator)
       : node(_allocator, node_type::script_file),
         m_functions(_allocator),
         m_structs(_allocator),
@@ -762,24 +891,41 @@ class script_file : public node {
     m_includes.emplace_back(_node, m_allocator);
   }
 
-  const wn::containers::deque<wn::memory::allocated_ptr<function>>
-      &get_functions() const {
+  const containers::deque<memory::allocated_ptr<function>> &get_functions()
+      const {
     return m_functions;
   }
 
-  const wn::containers::deque<wn::memory::allocated_ptr<struct_definition>>
+  const containers::deque<memory::allocated_ptr<struct_definition>>
       &get_structs() const {
     return m_structs;
   }
-  const wn::containers::deque<containers::string> &get_includes() const {
+  const containers::deque<containers::string> &get_includes() const {
     return m_includes;
   }
 
+  virtual void walk_children(const walk_ftype<instruction *> &,
+                             const walk_ftype<expression *> &,
+                             const walk_ftype<function *> &f) {
+    for (auto &function : m_functions) {
+      f(function.get());
+    }
+  }
+
+  virtual void walk_children(const walk_ftype<const instruction *> &,
+                             const walk_ftype<const expression *> &,
+                             const walk_ftype<const function *> &f) const {
+    for (auto &function : m_functions) {
+      f(function.get());
+    }
+  }
+
  private:
-  wn::containers::deque<wn::memory::allocated_ptr<function>> m_functions;
-  wn::containers::deque<wn::memory::allocated_ptr<struct_definition>> m_structs;
-  wn::containers::deque<containers::string> m_includes;
+  containers::deque<memory::allocated_ptr<function>> m_functions;
+  containers::deque<memory::allocated_ptr<struct_definition>> m_structs;
+  containers::deque<containers::string> m_includes;
 };
+
 }  // namespace scripting
 }  // namespace wn
 #endif  //__WN_NODE_TYPES_H__

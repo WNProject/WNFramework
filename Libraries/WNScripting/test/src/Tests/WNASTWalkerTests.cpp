@@ -2,316 +2,61 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
+#include "WNContainers/inc/WNHashMap.h"
 #include "WNContainers/inc/WNString.h"
-#include "WNLogging/inc/WNBufferLogger.h"
+#include "WNLogging/inc/WNLog.h"
 #include "WNScripting/test/inc/Common.h"
 #include "WNScripting/inc/WNASTWalker.h"
+#include "WNScripting/inc/WNASTPasses.h"
 #include "WNTesting/inc/WNTestHarness.h"
 
-struct ExpressionTestStruct {
-  ExpressionTestStruct()
-      : walked_functions(0),
-        walked_function_headers(0),
-        walked_expressions(0),
-        walked_null_expressions(0),
-        walked_declarations(0),
-        walked_return_instructions(0),
-        walked_script_files(0),
-        walked_parameters(0),
-        walked_headers(0),
-        walked_constants(0),
-        walked_parameter_instatiations(0) {}
+using ::testing::_;
+using ::testing::Matcher;
+using ::testing::TypedEq;
 
-  void* walk_expression(
-      const wn::scripting::expression*,
-      wn::containers::contiguous_range<wn::containers::contiguous_range<void*>>,
-      void*) {
-    walked_expressions += 1;
-    return reinterpret_cast<void*>(walked_expressions);
-  }
-  void* walk_expression(
-      const wn::scripting::null_allocation_expression*,
-      wn::containers::contiguous_range<wn::containers::contiguous_range<void*>>,
-      void*) {
-    walked_null_expressions += 1;
-    return reinterpret_cast<void*>(walked_null_expressions);
-  }
-
-  void* walk_expression(
-      const wn::scripting::constant_expression*,
-      wn::containers::contiguous_range<wn::containers::contiguous_range<void*>>,
-      void*) {
-    walked_constants += 1;
-    return reinterpret_cast<void*>(walked_constants);
-  }
-
-  void* walk_function(const wn::scripting::function*,
-                      void*,
-                      wn::containers::dynamic_array<void*>) {
-    walked_functions += 1;
-    return reinterpret_cast<void*>(walked_functions);
-  }
-
-  void* walk_function_header(
-      const wn::scripting::function*, void*,
-      wn::containers::dynamic_array<std::pair<void*, void*>>) {
-    walked_function_headers += 1;
-    return reinterpret_cast<void*>(walked_function_headers);
-  }
-
-  void* walk_declaration(const wn::scripting::declaration*,
-                         void*) {
-    walked_declarations += 1;
-    return reinterpret_cast<void*>(walked_declarations);
-  }
-
-  void* walk_parameter_name(const wn::scripting::parameter*,
-                       void*) {
-    walked_parameters += 1;
-    return reinterpret_cast<void*>(walked_parameters);
-  }
-
-  void* walk_parameter_instantiation(const wn::scripting::parameter*,
-    void*, std::pair<void*, void*>&, wn_size_t) {
-    walked_parameter_instatiations += 1;
-    return reinterpret_cast<void*>(walked_parameters);
-  }
-
-  void* walk_function_name(const wn::scripting::parameter*,
-                       void*) {
-    walked_headers += 1;
-    return reinterpret_cast<void*>(walked_headers);
-  }
-
-  void* walk_type(const wn::scripting::type*) {
-    walked_types += 1;
-    return reinterpret_cast<void*>(walked_types);
-  }
-
-  void* walk_return_instruction(
-      const wn::scripting::return_instruction*,
-      void*) {
-    walked_return_instructions += 1;
-    return reinterpret_cast<void*>(walked_return_instructions);
-  }
-
-  void* walk_return_instruction(
-      const wn::scripting::return_instruction*) {
-    walked_return_instructions += 1;
-    return reinterpret_cast<void*>(walked_return_instructions);
-  }
-
-  void* walk_script_file(const wn::scripting::script_file*,
-                         const wn::containers::contiguous_range<void*>&,
-                         const wn::containers::contiguous_range<void*>&,
-                         const wn::containers::contiguous_range<void*>&) {
-    walked_script_files += 1;
-    return reinterpret_cast<void*>(walked_script_files);
-  }
-
-  wn_size_t walked_expressions;
-  wn_size_t walked_null_expressions;
-  wn_size_t walked_functions;
-  wn_size_t walked_function_headers;
-  wn_size_t walked_declarations;
-  wn_size_t walked_types;
-  wn_size_t walked_return_instructions;
-  wn_size_t walked_script_files;
-  wn_size_t walked_headers;
-  wn_size_t walked_parameters;
-  wn_size_t walked_constants;
-  wn_size_t walked_parameter_instatiations;
+class mock_walk {
+ public:
+  MOCK_METHOD1(walk_expression, void(wn::scripting::expression*));
+  MOCK_METHOD1(walk_instruction, void(wn::scripting::instruction*));
+  MOCK_METHOD1(walk_instruction, void(wn::scripting::return_instruction*));
+  MOCK_METHOD1(walk_function, void(wn::scripting::function*));
+  MOCK_METHOD1(walk_parameter, void(wn::scripting::parameter*));
+  MOCK_METHOD1(walk_script_file, void(wn::scripting::script_file*));
+  MOCK_METHOD1(walk_type, void(wn::scripting::type*));
 };
 
-struct TestTraits {
-  typedef void* expression_type;
-  typedef void* function_type;
-  typedef void* function_header_type;
-  typedef void* assignment_instruction_type;
-  typedef void* parameter_type;
-  typedef void* instruction_type;
-  typedef void* return_instruction_type;
-  typedef void* lvalue_type;
-  typedef void* function_type_name;
-  typedef void* script_file_type;
-  typedef void* struct_definition_type;
-  typedef void* type_type;
-  typedef void* include_type;
-};
-
-TEST(ast_walker, simplest_function) {
+template <typename T>
+void RunMatcherTest(
+    T& _t,
+    wn::containers::hash_map<wn::containers::string, wn::containers::string>&& _files,
+    const char* _file) {
   wn::memory::default_expanding_allocator<50> allocator;
   wn::scripting::test_file_manager manager(
-      &allocator, {{"file.wns", "Void main() { return; }"}});
+      &allocator, std::move(_files));
 
-  wn::scripting::type_validator validator(&allocator);
-  ExpressionTestStruct s;
-  wn::scripting::ast_walker<ExpressionTestStruct, TestTraits> walker(
-      &s, WNLogging::get_null_logger(), &validator, &allocator);
-
-  auto a = test_parse_file("file.wns", &manager, &allocator);
-  ASSERT_EQ(1, a->get_functions().size());
-  walker.walk_function(a->get_functions()[0].get());
-  EXPECT_EQ(1, a->get_functions().size());
-  EXPECT_EQ(0, s.walked_parameters);
-  EXPECT_EQ(1, s.walked_headers);
-  EXPECT_EQ(1, s.walked_return_instructions);
-  EXPECT_EQ(0, s.walked_expressions);
-  walker.walk_function(a->get_functions()[0].get());
+  auto a = test_parse_file(_file, &manager, &allocator);
+  wn::scripting::ast_walker<T> walker(&_t);
+  walker.walk_script_file(a.get());
 }
 
-TEST(ast_walker, full_file) {
+TEST(ast_code_generator, simplest_function) {
+  mock_walk walk;
+  wn::scripting::ast_walker<mock_walk> walker(&walk);
+
+  EXPECT_CALL(walk, walk_expression(_)).Times(0);
+  EXPECT_CALL(walk, walk_function(_)).Times(1);
+  EXPECT_CALL(walk, walk_type(_)).Times(1);
+  EXPECT_CALL(walk,
+              walk_instruction(Matcher<wn::scripting::return_instruction*>(_)))
+      .Times(1);
+  RunMatcherTest(walk, {{"file.wns", "Void main() { return; }"}}, "file.wns");
+}
+
+TEST(ast_code_generator, type_association_test) {
   wn::memory::default_expanding_allocator<50> allocator;
   wn::scripting::test_file_manager manager(
-      &allocator, {{"file.wns", "Void main() { return; }"}});
-
-  wn::scripting::type_validator validator(&allocator);
-  ExpressionTestStruct s;
-  wn::scripting::ast_walker<ExpressionTestStruct, TestTraits> walker(
-      &s, WNLogging::get_null_logger(), &validator, &allocator);
-
+      &allocator, {{"file.wns", "Int main() { return 0 + 4; }"}});
   auto a = test_parse_file("file.wns", &manager, &allocator);
-  walker.walk_script_file(a.get());
-  EXPECT_EQ(1, s.walked_script_files);
-  EXPECT_EQ(0, s.walked_declarations);
-  EXPECT_EQ(1, s.walked_headers);
-  EXPECT_EQ(0, s.walked_parameters);
-  EXPECT_EQ(1, s.walked_return_instructions);
-  EXPECT_EQ(0, s.walked_expressions);
+  EXPECT_TRUE(wn::scripting::run_type_association_pass(
+      a.get(), WNLogging::get_null_logger()));
 }
-
-TEST(ast_walker, multiple_functions) {
-  wn::memory::default_expanding_allocator<50> allocator;
-  wn::scripting::test_file_manager manager(&allocator,
-                                           {{"file.wns",
-                                             "Void main() { return; }\n"
-                                             "Void foo() { return; }\n"}});
-
-  wn::scripting::type_validator validator(&allocator);
-  ExpressionTestStruct s;
-  wn::scripting::ast_walker<ExpressionTestStruct, TestTraits> walker(
-      &s, WNLogging::get_null_logger(), &validator, &allocator);
-
-  auto a = test_parse_file("file.wns", &manager, &allocator);
-  walker.walk_script_file(a.get());
-  EXPECT_EQ(1, s.walked_script_files);
-  EXPECT_EQ(2, s.walked_headers);
-  EXPECT_EQ(0, s.walked_parameters);
-  EXPECT_EQ(2, s.walked_return_instructions);
-  EXPECT_EQ(0, s.walked_expressions);
-}
-
-wn_void log_flush_cb(wn_void* _dat, const wn_char* _str, wn_size_t _length,
-                     const std::vector<WNLogging::WNLogColorElement>&) {
-  wn::containers::string* str = static_cast<wn::containers::string*>(_dat);
-  str->append(_str, _str + _length);
-}
-
-TEST(ast_walker, multiple_returns) {
-  wn::memory::default_expanding_allocator<50> allocator;
-  wn::scripting::test_file_manager manager(
-      &allocator, {{"file.wns", "Void main() { return; return; }\n"}});
-
-  wn::scripting::type_validator validator(&allocator);
-  wn::containers::string log_string(&allocator);
-  WNLogging::WNBufferLogger<log_flush_cb> logger(&log_string);
-  WNLogging::WNLog log(&logger);
-  log.SetLogLevel(WNLogging::eLogMax);
-  ExpressionTestStruct s;
-  wn::scripting::ast_walker<ExpressionTestStruct, TestTraits> walker(
-      &s, &log, &validator, &allocator);
-  auto a = test_parse_file("file.wns", &manager, &allocator, &log);
-  walker.walk_script_file(a.get());
-  log.Flush();
-  EXPECT_EQ(1, s.walked_script_files);
-  EXPECT_EQ(0, s.walked_parameters);
-  EXPECT_EQ(1, s.walked_headers);
-  EXPECT_EQ(1, s.walked_return_instructions);
-  EXPECT_EQ(1, s.walked_return_instructions);
-  EXPECT_EQ(0, s.walked_expressions);
-  EXPECT_EQ(
-      std::string("Warning:Instruction after return statement\n"
-      "Warning:Line: 1\n"
-      "Void main() { return; return; }\n"),
-      std::string(log_string.c_str()));
-}
-
-class ast_walker_valid_ints : public ::testing::TestWithParam<const char*> {};
-
-TEST_P(ast_walker_valid_ints, valid_ints) {
-  wn::memory::default_expanding_allocator<50> allocator;
-  wn::containers::string str(&allocator);
-  str += "Int main() { return ";
-  str += GetParam();
-  str += "; }\n";
-
-  wn::scripting::test_file_manager manager(&allocator, {{"file.wns", str}});
-
-  wn::scripting::type_validator validator(&allocator);
-  wn::containers::string log_string(&allocator);
-  WNLogging::WNBufferLogger<log_flush_cb> logger(&log_string);
-  WNLogging::WNLog log(&logger);
-  log.SetLogLevel(WNLogging::eLogMax);
-  ExpressionTestStruct s;
-  wn::scripting::ast_walker<ExpressionTestStruct, TestTraits> walker(
-      &s, &log, &validator, &allocator);
-  auto a = test_parse_file("file.wns", &manager, &allocator, &log);
-  walker.walk_script_file(a.get());
-  log.Flush();
-  EXPECT_EQ("", std::string(log_string.c_str()));
-
-  EXPECT_EQ(1, s.walked_script_files);
-  EXPECT_EQ(1, s.walked_script_files);
-  EXPECT_EQ(0, s.walked_parameters);
-  EXPECT_EQ(1, s.walked_headers);
-  EXPECT_EQ(1, s.walked_return_instructions);
-  EXPECT_EQ(0, s.walked_expressions);
-  EXPECT_EQ(1, s.walked_constants);
-}
-
-INSTANTIATE_TEST_CASE_P(valid_integers, ast_walker_valid_ints,
-                        ::testing::Values("0", "1", "2", "-1", "-32",
-                                          "2147483647", "-2147483648"));
-
-class ast_walker_invalid_ints : public ::testing::TestWithParam<const char*> {};
-
-TEST_P(ast_walker_invalid_ints, invalid_ints) {
-  wn::memory::default_expanding_allocator<50> allocator;
-  wn::containers::string str(&allocator);
-  str += "Int main() { return ";
-  str += GetParam();
-  str += "; }\n";
-
-  wn::scripting::test_file_manager manager(&allocator, {{"file.wns", str}});
-
-  wn::scripting::type_validator validator(&allocator);
-  wn::containers::string log_string(&allocator);
-  WNLogging::WNBufferLogger<log_flush_cb> logger(&log_string);
-  WNLogging::WNLog log(&logger);
-  log.SetLogLevel(WNLogging::eLogMax);
-  ExpressionTestStruct s;
-  wn::scripting::ast_walker<ExpressionTestStruct, TestTraits> walker(
-      &s, &log, &validator, &allocator);
-  auto a = test_parse_file("file.wns", &manager, &allocator, &log);
-  walker.walk_script_file(a.get());
-  log.Flush();
-
-  std::string expected("Error:Invalid constant: \"");
-  expected += GetParam();
-  expected += "\"\n";
-  expected += "Error:Line: 1\n";
-  expected += "Int main() { return ";
-  expected += GetParam();
-  expected += "; }\n";
-
-  // More errors might show up after the first. For example,
-  // the return instruction cannot deduce the type of the
-  // invalid constant. We only really care that the
-  // first message type is correct.
-  EXPECT_EQ(expected,
-            std::string(log_string.c_str()).substr(0, expected.size()));
-}
-
-INSTANTIATE_TEST_CASE_P(invalid_integers, ast_walker_invalid_ints,
-                        ::testing::Values("2147483648", "-2147483649",
-                                          "11111111111"));

@@ -276,6 +276,8 @@ class hash_map final {
     return find_hashed(key, hash);
   }
 
+  void clear() { m_buckets.clear(); }
+
   iterator erase(const_iterator _it) {
     size_t bucket_num = _it.m_bucket - m_buckets.begin();
     iterator it = iterator(m_buckets.begin() + bucket_num, m_buckets.end(),

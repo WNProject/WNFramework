@@ -6,6 +6,7 @@
 #define __WN_DEFAULT_LOG_TYPES_H__
 
 #include "WNCore/inc/WNTypes.h"
+#include "WNContainers/inc/WNStringView.h"
 #include "WNMemory/inc/WNStringUtility.h"
 
 #include <cinttypes>
@@ -60,6 +61,21 @@ namespace WNLogging {
             _bufferLeft -= printed;
             return(wn_true);
         }
+    };
+
+    template<typename BuffType>
+    struct LogTypeHelper<wn::containers::string_view, BuffType> {
+      WN_FORCE_INLINE static wn_bool DoLog(
+          const wn::containers::string_view& _0, BuffType* _buffer,
+          wn_size_t& _bufferLeft) {
+        int printed = wn::memory::snprintf(_buffer, _bufferLeft,
+                                           "%s.*", _0.size(), _0.data());
+        if (printed < 0 || static_cast<wn_size_t>(printed) >= _bufferLeft) {
+          return (wn_false);
+        }
+        _bufferLeft -= printed;
+        return (wn_true);
+      }
     };
 
     DEFINE_DEFAULT_LOG(wn_int32, "%d");
