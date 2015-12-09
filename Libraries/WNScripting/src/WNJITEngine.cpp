@@ -73,7 +73,8 @@ CompiledModule::CompiledModule(CompiledModule&& _other)
 
 jit_engine::jit_engine(memory::allocator* _allocator, file_manager* _manager,
                        WNLogging::WNLog* _log)
-    : m_allocator(_allocator),
+    : engine(),
+      m_allocator(_allocator),
       m_file_manager(_manager),
       m_compilation_log(_log),
       m_modules(_allocator),

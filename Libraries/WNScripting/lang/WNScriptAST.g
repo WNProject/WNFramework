@@ -48,7 +48,6 @@ tokens
     #pragma warning(disable: 4459)
     #pragma warning(disable: 4703)
 #endif
-    #include "WNLogging/inc/WNLog.h"
     #include "WNMemory/inc/WNAllocator.h"
 	  #include "WNScripting/src/WNScriptASTLexer.hpp"
     #include "WNScripting/inc/WNNodeTypes.h"
@@ -132,13 +131,9 @@ tokens
 @parser::context {
 private:
   wn::memory::allocator* m_allocator;
-  WNLogging::WNLog* m_log;
 public:
   void set_allocator(wn::memory::allocator* _allocator) {
     m_allocator = _allocator;
-  }
-  void set_log(WNLogging::WNLog* _log) {
-    m_log = _log;
   }
 }
 
@@ -590,7 +585,7 @@ instruction_list returns[scripting::instruction_list* node]
     node = wn_nullptr;
 }
     :    a=instruction  {node = m_allocator->make_allocated<scripting::instruction_list>(m_allocator, $a.node); SET_LOCATION_FROM_NODE(node, $a.node); }
-        (b=instruction {node->add_instruction($b.node, m_log); SET_END_LOCATION_FROM_NODE(node, $b.node); })*
+        (b=instruction {node->add_instruction($b.node); SET_END_LOCATION_FROM_NODE(node, $b.node); })*
     ;
 
 body returns[scripting::instruction_list* node]

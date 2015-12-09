@@ -16,7 +16,8 @@ namespace scripting {
 
 c_translator::c_translator(memory::allocator* _allocator,
                            file_manager* _manager, WNLogging::WNLog* _log)
-    : m_allocator(_allocator),
+    : translator(),
+      m_allocator(_allocator),
       m_file_manager(_manager),
       m_compilation_log(_log) {}
 

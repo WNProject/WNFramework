@@ -320,6 +320,23 @@ public:
       memory::allocator* _allocator = &s_default_allocator)
     : deque(_initializer_list.begin(), _initializer_list.end(), _allocator) {}
 
+  deque& operator=(deque&& _other) {
+    clear();
+    m_allocator = std::move(_other.m_allocator);
+    m_block_list = std::move(_other.m_block_list);
+    m_used_blocks = std::move(_other.m_used_blocks);
+    m_start_block = std::move(_other.m_start_block);
+    m_start_location = std::move(_other.m_start_location);
+    m_allocated_blocks = std::move(_other.m_allocated_blocks);
+    m_element_count = std::move(_other.m_element_count);
+    _other.m_used_blocks = 0;
+    _other.m_start_block = 0;
+    _other.m_start_location = 0;
+    _other.m_allocated_blocks = 0;
+    _other.m_element_count = 0;
+    return *this;
+  }
+
   ~deque() {
     clear();
 

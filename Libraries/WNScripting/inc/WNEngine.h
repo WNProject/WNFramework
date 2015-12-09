@@ -15,6 +15,7 @@ namespace scripting {
 
 class engine {
  public:
+  engine() : m_num_warnings(0), m_num_errors(0) {}
   typedef void (*void_func)();
   virtual ~engine() {}
   virtual parse_error parse_file(const char* file) = 0;

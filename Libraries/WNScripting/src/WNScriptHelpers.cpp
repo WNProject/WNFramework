@@ -30,7 +30,6 @@ memory::allocated_ptr<wn::scripting::script_file> parse_script(
                                                lexer.get_tokSource());
     WNScriptASTParser parser(&tStream);
     parser.set_allocator(_allocator);
-    parser.set_log(_log);
     ptr = std::move(
         wn::memory::default_allocated_ptr(_allocator, parser.program()));
     if (parser.getNumberOfSyntaxErrors() != 0 ||
@@ -40,7 +39,9 @@ memory::allocated_ptr<wn::scripting::script_file> parse_script(
       }
       return wn_nullptr;
     }
-
+    if (!run_dce_pass(ptr.get(), _log, _num_warnings, _num_errors)) {
+      return wn_nullptr;
+    }
     if (!run_id_association_pass(ptr.get(), _log, _num_warnings, _num_errors)) {
       return wn_nullptr;
     }

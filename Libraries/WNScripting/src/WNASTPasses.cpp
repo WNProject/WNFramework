@@ -7,13 +7,62 @@ namespace wn {
 namespace scripting {
 
 namespace {
-class id_association_pass {
+
+class pass {
  public:
-  id_association_pass(WNLogging::WNLog* _log, memory::allocator* _allocator)
+  pass(WNLogging::WNLog* _log, memory::allocator* _allocator)
       : m_log(_log),
         m_num_warnings(0),
         m_num_errors(0),
-        m_allocator(_allocator),
+        m_allocator(_allocator) {}
+
+  wn_size_t warnings() const { return m_num_warnings; }
+  wn_size_t errors() const { return m_num_errors; }
+
+protected:
+  WNLogging::WNLog* m_log;
+  memory::allocator* m_allocator;
+  wn_size_t m_num_warnings;
+  wn_size_t m_num_errors;
+};
+
+class dead_code_elimination_pass : public pass {
+ public:
+  dead_code_elimination_pass(WNLogging::WNLog* _log, memory::allocator* _allocator)
+      : pass(_log, _allocator), m_returned(wn_false) {}
+
+  void walk_expression(expression*) {}
+  void walk_instruction(instruction* _inst) {
+    if (m_returned) {
+      _inst->set_is_dead();
+      m_log->Log(WNLogging::eWarning, 0, "Code after return statement");
+      _inst->log_line(*m_log, WNLogging::eWarning);
+      ++m_num_warnings;
+    }
+  }
+
+  void walk_function(function*) { m_returned = wn_false; }
+  void walk_parameter(parameter*) {}
+  void walk_script_file(script_file*) {}
+  void walk_type(type*) {}
+  void walk_instruction(return_instruction* _inst) {
+    if (m_returned) {
+      _inst->set_is_dead();
+      m_log->Log(WNLogging::eWarning, 0, "Code after return statement");
+      _inst->log_line(*m_log, WNLogging::eWarning);
+      ++m_num_warnings;
+    }
+    m_returned = wn_true;
+  }
+
+ private:
+  bool m_returned;
+};
+
+class id_association_pass : public pass {
+ public:
+  id_association_pass(WNLogging::WNLog* _log, memory::allocator* _allocator)
+      : pass(_log, _allocator),
         id_map(_allocator) {}
   // TODO(awoloszyn): Add scope handling here.
   // TODO(awoloszyn): Handle declarations here
@@ -48,25 +97,15 @@ class id_association_pass {
   void walk_script_file(script_file*) {}
   void walk_type(type*) {}
 
-  wn_size_t warnings() const { return m_num_warnings; }
-  wn_size_t errors() const { return m_num_errors; }
-
  private:
-  WNLogging::WNLog* m_log;
-  memory::allocator* m_allocator;
-  wn_size_t m_num_warnings;
-  wn_size_t m_num_errors;
   containers::hash_map<containers::string_view, id_expression::id_source>
       id_map;
 };
 
-class type_association_pass {
+class type_association_pass : public pass {
  public:
   type_association_pass(WNLogging::WNLog* _log, memory::allocator* _allocator)
-      : m_log(_log),
-        m_num_warnings(0),
-        m_num_errors(0),
-        m_allocator(_allocator) {}
+      : pass(_log, _allocator) {}
   void walk_expression(expression*) {}
   void walk_parameter(parameter*) {}
   void walk_expression(id_expression* _expr) {
@@ -195,16 +234,8 @@ class type_association_pass {
   void walk_script_file(script_file*) {}
   void walk_type(type*) {}
 
-  wn_size_t warnings() const { return m_num_warnings; }
-  wn_size_t errors() const { return m_num_errors; }
-
  private:
-  WNLogging::WNLog* m_log;
-  wn_size_t m_num_warnings;
-  wn_size_t m_num_errors;
-  memory::allocator* m_allocator;
   containers::deque<return_instruction*> m_returns;
-
   // TODO(awoloszyn): Add type_manager here once we start
   //                 caring about custom types.
 };
@@ -238,5 +269,20 @@ bool run_id_association_pass(script_file* _file, WNLogging::WNLog* _log,
   }
   return pass.errors() == 0;
 }
+
+bool run_dce_pass(script_file* _file, WNLogging::WNLog* _log,
+                             wn_size_t* _num_warnings, wn_size_t* _num_errors) {
+  if (!_file) return false;
+  dead_code_elimination_pass pass(_log, _file->get_allocator());
+  run_ast_pass(&pass, _file);
+  if (_num_errors) {
+    *_num_errors += pass.errors();
+  }
+  if (_num_warnings) {
+    *_num_warnings += pass.warnings();
+  }
+  return pass.errors() == 0;
+}
+
 }  // namespace scripting
 }  // namespace wn

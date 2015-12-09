@@ -20,6 +20,7 @@ namespace scripting {
 
 class translator {
  public:
+  translator() : m_num_warnings(0), m_num_errors(0) {}
   virtual ~translator(){};
   virtual parse_error translate_file(const char* file) = 0;
   wn_size_t errors() const { return m_num_errors; }

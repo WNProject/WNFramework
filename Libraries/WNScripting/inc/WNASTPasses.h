@@ -17,10 +17,12 @@ namespace scripting {
 class script_file;
 
 bool run_type_association_pass(script_file* _file, WNLogging::WNLog* _log,
-  wn_size_t* _num_warnings, wn_size_t* _num_errors);
+                               wn_size_t* _num_warnings,
+                               wn_size_t* _num_errors);
 bool run_id_association_pass(script_file* _file, WNLogging::WNLog* _log,
-  wn_size_t* _num_warnings, wn_size_t* _num_errors);
-
+                             wn_size_t* _num_warnings, wn_size_t* _num_errors);
+bool run_dce_pass(script_file* _file, WNLogging::WNLog* _log,
+                  wn_size_t* _num_warnings, wn_size_t* _num_errors);
 }  // namespace scripting
 }  // namesapce wn
 #endif  //__WN_SCRIPTING_AST_PASSES_H__

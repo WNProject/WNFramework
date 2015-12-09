@@ -85,13 +85,14 @@ TEST(ast_code_generator, multiple_functions) {
   EXPECT_THAT(c.num_warnings, Eq(0u));
 }
 
-TEST(ast_code_generator, DISABLED_multiple_returns) {
+TEST(ast_code_generator, multiple_returns) {
   test_context c;
   // TODO(awoloszyn) Once DCE becomes a pass, this should be a warning.
   c.manager.add_files({{"file.wns", "Void main() { return; return; }\n"}});
   EXPECT_TRUE(c.test_parse_file("file.wns"));
   EXPECT_THAT(c.num_errors, Eq(0u));
   EXPECT_THAT(c.num_warnings, Eq(1u));
+
 }
 
 class ast_code_generator_valid_ints : public ::testing::TestWithParam<const char*> {};

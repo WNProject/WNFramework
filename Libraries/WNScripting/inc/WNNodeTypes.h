@@ -85,7 +85,7 @@ using walk_ftype = containers::function<void(T)>;
 class node {
  public:
   node(memory::allocator *_allocator, node_type _type)
-      : m_allocator(_allocator), m_type(_type) {}
+      : m_allocator(_allocator), m_type(_type), m_is_dead(false) {}
   virtual ~node() {}
 
   wn_void copy_location_from(const node *_node) {
@@ -131,13 +131,13 @@ class node {
 
   node_type get_node_type() const { return m_type; }
   memory::allocator *get_allocator() const { return m_allocator; }
-
  protected:
   // Location of the first character of the first token contributing
   // to this node.
   source_location m_source_location;
   memory::allocator *m_allocator;
   node_type m_type;
+  bool m_is_dead;
 };
 
 class type : public node {
@@ -453,7 +453,7 @@ class unary_expression : public expression {
 class instruction : public node {
  public:
   instruction(memory::allocator *_allocator, node_type _type)
-      : node(_allocator, _type), m_returns(wn_false) {}
+      : node(_allocator, _type), m_returns(wn_false), m_is_dead(wn_false) {}
   instruction(memory::allocator *_allocator, node_type _type, wn_bool _returns)
       : instruction(_allocator, _type) {
     m_returns = _returns;
@@ -470,8 +470,10 @@ class instruction : public node {
                              const walk_ftype<const expression *> &) const {
     WN_RELEASE_ASSERT_DESC(false, "Not Implemented");
   }
-
+  void set_is_dead() { m_is_dead = true; }
+  bool is_dead() const { return m_is_dead; }
  protected:
+  wn_bool m_is_dead;
   wn_bool m_returns;
 };
 
@@ -495,17 +497,8 @@ class instruction_list : public node {
         memory::default_allocated_ptr(m_allocator, inst));
   }
   ~instruction_list() {}
-  void add_instruction(instruction *inst, WNLogging::WNLog *_log) {
+  void add_instruction(instruction *inst) {
     auto inst_ptr = memory::default_allocated_ptr(m_allocator, inst);
-    if (!m_instructions.empty()) {
-      if (m_instructions.back()->returns()) {
-        // TODO(awoloszyn): Turn this into a DCE pass.
-        _log->Log(WNLogging::eWarning, 0, "Instruction after return statement");
-        log_line(*_log, WNLogging::eWarning);
-        return;
-      }
-    }
-
     m_instructions.push_back(std::move(inst_ptr));
   }
 
@@ -514,6 +507,17 @@ class instruction_list : public node {
   const containers::deque<memory::allocated_ptr<instruction>>
       &get_instructions() const {
     return m_instructions;
+  }
+
+  void remove_dead_instructions() {
+    containers::deque<memory::allocated_ptr<instruction>> instructions;
+    while (!m_instructions.empty()) {
+      if (!m_instructions.front()->is_dead()) {
+        instructions.push_back(std::move(*m_instructions.begin()));
+      }
+      m_instructions.pop_front();
+    }
+    m_instructions = std::move(instructions);
   }
 
  private:
@@ -704,8 +708,11 @@ class function : public node {
       }
     }
     for (auto &inst : m_body->get_instructions()) {
-      _instruction(inst.get());
+      if (!inst->is_dead()) {
+        _instruction(inst.get());
+      }
     }
+    m_body->remove_dead_instructions();
   }
 
   virtual void walk_children(
@@ -717,7 +724,9 @@ class function : public node {
       _parameter(param.get());
     }
     for (auto &inst : m_body->get_instructions()) {
-      _instruction(inst.get());
+      if (!inst->is_dead()) {
+        _instruction(inst.get());
+      }
     }
   }
 
