@@ -19,11 +19,14 @@ class dynamic_array;
 
 namespace internal {
 template <typename T>
-class dynamic_array_iterator
-    : public std::iterator<std::random_access_iterator_tag, T> {
+class dynamic_array_iterator {
 public:
-  typedef T* pointer;
-  typedef T& reference;
+  using iterator_category = std::random_access_iterator_tag;
+  using value_type = typename std::remove_const<T>::type;
+  using difference_type = wn_signed_t;
+  using pointer = T*;
+  using reference = T&;
+
   dynamic_array_iterator() : m_ptr(wn_nullptr) {}
 
   template <typename _T2>
@@ -183,6 +186,10 @@ public:
   template <typename T_Alloc>
   dynamic_array(dynamic_array<_Type, T_Alloc>&& _other) : dynamic_array() {
     (*this) = std::move(_other);
+  }
+
+  dynamic_array(std::initializer_list<_Type> l) : dynamic_array() {
+    insert(begin(), l.begin(), l.end());
   }
 
   template <typename TOther>

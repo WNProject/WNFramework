@@ -12,7 +12,7 @@ TEST(c_translator, simple_c_translation) {
       &allocator, {{"file.wns", "Void main() { return; }"}});
 
   wn::scripting::c_translator translator(&allocator, &manager,
-                                     WNLogging::get_null_logger());
+                                         WNLogging::get_null_logger());
   wn::containers::string output_string(&allocator);
   EXPECT_EQ(wn::scripting::parse_error::ok,
             translator.translate_file("file.wns"));
@@ -39,7 +39,7 @@ TEST_P(c_translator_function_params, single_parameter) {
   wn::scripting::test_file_manager manager(&allocator, {{"file.wns", str}});
 
   wn::scripting::c_translator translator(&allocator, &manager,
-                                     WNLogging::get_null_logger());
+                                         WNLogging::get_null_logger());
   wn::containers::string output_string(&allocator);
   EXPECT_EQ(wn::scripting::parse_error::ok,
             translator.translate_file("file.wns"));
@@ -49,9 +49,11 @@ TEST_P(c_translator_function_params, single_parameter) {
 
 INSTANTIATE_TEST_CASE_P(
     parameter_tests, c_translator_function_params,
-    ::testing::ValuesIn(std::vector<std :: pair<const char*, const char*>>({
-        std::make_pair("Int", "wn_int32"), std::make_pair("Float", "wn_float32"),
-        std::make_pair("Bool", "wn_bool"), std::make_pair("Char", "wn_char")})));
+    ::testing::ValuesIn(std::vector<std::pair<const char*, const char*>>(
+        {std::make_pair("Int", "wn_int32"),
+         std::make_pair("Float", "wn_float32"),
+         std::make_pair("Bool", "wn_bool"),
+         std::make_pair("Char", "wn_char")})));
 
 TEST(c_translator, multiple_c_functions) {
   wn::memory::default_expanding_allocator<50> allocator;
@@ -61,7 +63,7 @@ TEST(c_translator, multiple_c_functions) {
                                              "Void foo() { return; }\n"}});
 
   wn::scripting::c_translator translator(&allocator, &manager,
-                                     WNLogging::get_null_logger());
+                                         WNLogging::get_null_logger());
   wn::containers::string output_string(&allocator);
   EXPECT_EQ(wn::scripting::parse_error::ok,
             translator.translate_file("file.wns"));
@@ -83,7 +85,7 @@ TEST(c_translator, multiple_returns) {
       &allocator, {{"file.wns", "Void main() { return; return; }"}});
 
   wn::scripting::c_translator translator(&allocator, &manager,
-                                     WNLogging::get_null_logger());
+                                         WNLogging::get_null_logger());
   wn::containers::string output_string(&allocator);
   EXPECT_EQ(wn::scripting::parse_error::ok,
             translator.translate_file("file.wns"));
@@ -94,9 +96,7 @@ TEST(c_translator, multiple_returns) {
       std::string(manager.get_file("file.wns.c")->data()));
 }
 
-class c_int_params
-    : public ::testing::TestWithParam<const char*> {
-};
+class c_int_params : public ::testing::TestWithParam<const char*> {};
 
 TEST_P(c_int_params, int_return) {
   wn::memory::default_expanding_allocator<50> allocator;
@@ -106,15 +106,15 @@ TEST_P(c_int_params, int_return) {
   str += "; } ";
 
   wn::containers::string expected(&allocator);
-  expected += "wn_int32 main() {\n"
-              "return ";
+  expected +=
+      "wn_int32 main() {\n"
+      "return ";
   expected += GetParam();
   expected += ";\n}\n";
-  wn::scripting::test_file_manager manager(
-      &allocator, {{"file.wns", str}});
+  wn::scripting::test_file_manager manager(&allocator, {{"file.wns", str}});
 
   wn::scripting::c_translator translator(&allocator, &manager,
-                                     WNLogging::get_null_logger());
+                                         WNLogging::get_null_logger());
   wn::containers::string output_string(&allocator);
   EXPECT_EQ(wn::scripting::parse_error::ok,
             translator.translate_file("file.wns"));
@@ -125,3 +125,45 @@ TEST_P(c_int_params, int_return) {
 INSTANTIATE_TEST_CASE_P(int_tests, c_int_params,
                         ::testing::Values("0", "-1", "-32", "-4096",
                                           "2147483647", "-2147483648"));
+
+struct binary_arithmetic_operations {
+  const char* lhs;
+  const char* rhs;
+  const char* op;
+};
+
+using c_arith_params = ::testing::TestWithParam<binary_arithmetic_operations>;
+
+TEST_P(c_arith_params, binary_arithmetic) {
+  wn::memory::default_expanding_allocator<50> allocator;
+  wn::containers::string str(&allocator);
+  str += "Int main() { return ";
+  str = str + GetParam().lhs + " " + GetParam().op + " " + GetParam().rhs;
+  str += "; } ";
+
+  wn::containers::string expected(&allocator);
+  expected +=
+      "wn_int32 main() {\n"
+      "return (";
+  expected =
+      expected + GetParam().lhs + " " + GetParam().op + " " + GetParam().rhs;
+  expected += ");\n}\n";
+  wn::scripting::test_file_manager manager(&allocator, {{"file.wns", str}});
+
+  wn::scripting::c_translator translator(&allocator, &manager,
+                                         WNLogging::get_null_logger());
+  wn::containers::string output_string(&allocator);
+  EXPECT_EQ(wn::scripting::parse_error::ok,
+            translator.translate_file("file.wns"));
+  EXPECT_EQ(std::string(expected.c_str()),
+            std::string(manager.get_file("file.wns.c")->data()));
+}
+
+INSTANTIATE_TEST_CASE_P(
+    int_int_tests, c_arith_params,
+    ::testing::ValuesIn(
+        wn::containers::dynamic_array<binary_arithmetic_operations>(
+            {{"1", "2", "+"},
+             {"10", "20", "-"},
+             {"-32", "0", "*"},
+             {"-32", "22", "%"}})));

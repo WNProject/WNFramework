@@ -9,21 +9,6 @@
 #include "WNTesting/inc/WNTestHarness.h"
 using ::testing::Eq;
 
-struct TestTraits {
-  typedef void* expression_type;
-  typedef void* function_type;
-  typedef void* function_header_type;
-  typedef void* assignment_instruction_type;
-  typedef void* parameter_type;
-  typedef void* instruction_type;
-  typedef void* return_instruction_type;
-  typedef void* lvalue_type;
-  typedef void* function_type_name;
-  typedef void* script_file_type;
-  typedef void* struct_definition_type;
-  typedef void* type_type;
-  typedef void* include_type;
-};
 
 void flush_buffer(wn_void* v, const wn_char* bytes, wn_size_t length,
                          const std::vector<WNLogging::WNLogColorElement>&) {
@@ -114,7 +99,8 @@ TEST_P(ast_code_generator_valid_ints, valid_ints) {
 
 INSTANTIATE_TEST_CASE_P(valid_integers, ast_code_generator_valid_ints,
                         ::testing::Values("0", "1", "2", "-1", "-32",
-                                          "2147483647", "-2147483648"));
+                                          "2147483647", "-2147483648",
+                          "1 + 4", "32 * 10", "-255 % 4", "-1025 / 32"));
 
 class ast_code_generator_invalid_ints : public ::testing::TestWithParam<const char*> {};
 

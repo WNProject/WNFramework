@@ -117,17 +117,63 @@ void ast_jit_engine::walk_expression(const constant_expression* _const,
   }
 }
 
-void ast_jit_engine::walk_expression(const id_expression* id_expr,
+void ast_jit_engine::walk_expression(const id_expression* _id_expr,
                                      expression_dat* _val) {
-  if (id_expr->get_id_source().param_source) {
+  if (_id_expr->get_id_source().param_source) {
     _val->instructions =
         wn::containers::dynamic_array<llvm::Instruction*>(m_allocator);
     _val->instructions.push_back(new llvm::LoadInst(
-        m_generator->get_data(id_expr->get_id_source().param_source),
-        make_string_ref(id_expr->get_id_source().param_source->get_name())));
+        m_generator->get_data(_id_expr->get_id_source().param_source),
+        make_string_ref(_id_expr->get_id_source().param_source->get_name())));
     _val->value = _val->instructions.back();
   }
 }
+
+namespace {
+static const llvm::BinaryOperator::BinaryOps integer_ops[] = {
+    llvm::BinaryOperator::BinaryOps::Add, llvm::BinaryOperator::BinaryOps::Sub,
+    llvm::BinaryOperator::BinaryOps::Mul, llvm::BinaryOperator::BinaryOps::SDiv,
+    llvm::BinaryOperator::BinaryOps::SRem};
+
+static const wn_int16 integer_compares[] = {
+    llvm::CmpInst::Predicate::ICMP_EQ,  llvm::CmpInst::Predicate::ICMP_NE,
+    llvm::CmpInst::Predicate::ICMP_SLE, llvm::CmpInst::Predicate::ICMP_SGE,
+    llvm::CmpInst::Predicate::ICMP_SLT, llvm::CmpInst::Predicate::ICMP_SGT};
+
+static_assert(sizeof(integer_ops) / sizeof(integer_ops[0]) +
+                      sizeof(integer_compares) / sizeof(integer_compares[0]) ==
+                  static_cast<size_t>(arithmetic_type::max),
+              "Arithmetic type was added");
+}  // anonymous namespace
+
+void ast_jit_engine::walk_expression(const binary_expression* _binary,
+                                     expression_dat* _val) {
+  const expression_dat& lhs = m_generator->get_data(_binary->get_lhs());
+  const expression_dat& rhs = m_generator->get_data(_binary->get_rhs());
+  llvm::Instruction* inst = wn_nullptr;
+  arithmetic_type type = _binary->get_arithmetic_type();
+  switch(_binary->get_type()->get_classification()) {
+  case type_classification::int_type:
+    if (type <= arithmetic_type::arithmetic_mod) {
+      inst = llvm::BinaryOperator::Create(
+          integer_ops[static_cast<size_t>(type)], lhs.value, rhs.value);
+    } else {
+      inst = llvm::CmpInst::Create(
+          llvm::Instruction::ICmp,
+          integer_compares[static_cast<short>(type) -
+                           static_cast<short>(
+                               arithmetic_type::arithmetic_mod)],
+          lhs.value, rhs.value);
+    }
+    break;
+  default:
+    WN_RELEASE_ASSERT_DESC(wn_false, "Not implemnted, non-integer arithmetic");
+  }
+  _val->instructions = wn::containers::dynamic_array<llvm::Instruction*>(m_allocator);
+  _val->instructions.push_back(inst);
+  _val->value = inst;
+}
+
 
 void ast_jit_engine::walk_instruction(
     const return_instruction* _inst,

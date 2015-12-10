@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
+#include "WNContainers/inc/WNDynamicArray.h"
 #include "WNMemory/inc/WNAllocator.h"
-
 #include "WNScripting/inc/WNFactory.h"
 #include "WNScripting/inc/WNJITEngine.h"
 #include "WNScripting/test/inc/Common.h"
@@ -84,15 +84,14 @@ TEST_P(jit_int_params, int_return) {
   str += "; } ";
 
   wn::containers::string expected(&allocator);
-  wn::scripting::test_file_manager manager(
-      &allocator, {{"file.wns", str}});
+  wn::scripting::test_file_manager manager(&allocator, {{"file.wns", str}});
 
   wn::scripting::jit_engine jit_engine(&allocator, &manager,
                                        WNLogging::get_null_logger());
   EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file.wns"));
 
   wn::scripting::engine::void_func main = jit_engine.get_function("main");
-  int(*new_func)() = reinterpret_cast<int(*)()>(main);
+  int (*new_func)() = reinterpret_cast<int (*)()>(main);
   EXPECT_EQ(GetParam().number, (*new_func)());
 }
 
@@ -103,18 +102,16 @@ TEST_P(jit_int_params, int_passthrough) {
   str += "; } ";
 
   wn::containers::string expected(&allocator);
-  wn::scripting::test_file_manager manager(
-      &allocator, {{"file.wns", str}});
+  wn::scripting::test_file_manager manager(&allocator, {{"file.wns", str}});
 
   wn::scripting::jit_engine jit_engine(&allocator, &manager,
                                        WNLogging::get_null_logger());
   EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file.wns"));
 
   wn::scripting::engine::void_func main = jit_engine.get_function("main");
-  int(*new_func)(int) = reinterpret_cast<int(*)(int)>(main);
+  int (*new_func)(int) = reinterpret_cast<int (*)(int)>(main);
   EXPECT_EQ(GetParam().number, (*new_func)(GetParam().number));
 }
-
 
 INSTANTIATE_TEST_CASE_P(
     int_tests, jit_int_params,
@@ -122,3 +119,39 @@ INSTANTIATE_TEST_CASE_P(
                       int_test({"-32", -32}), int_test({"-4096", -4096}),
                       int_test({"2147483647", WN_INT32_MAX}),
                       int_test({"-2147483648", (WN_INT32_MIN)})));
+
+struct int_binary_test {
+  const char* code;
+  wn_int32 expected_return;
+};
+
+using jit_binary_arithmetic = ::testing::TestWithParam<int_binary_test>;
+
+TEST_P(jit_binary_arithmetic, simple_operations) {
+  wn::memory::default_expanding_allocator<50> allocator;
+  wn::containers::string str(&allocator);
+  str += "Int main() { return ";
+  str += GetParam().code;
+  str += "; } ";
+
+  wn::containers::string expected(&allocator);
+  wn::scripting::test_file_manager manager(&allocator, {{"file.wns", str}});
+
+  wn::scripting::jit_engine jit_engine(&allocator, &manager,
+                                       WNLogging::get_null_logger());
+  EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file.wns"));
+
+  wn::scripting::engine::void_func main = jit_engine.get_function("main");
+  int (*new_func)() = reinterpret_cast<int (*)()>(main);
+  EXPECT_EQ(GetParam().expected_return, (*new_func)());
+}
+
+INSTANTIATE_TEST_CASE_P(
+    int_arithmetic_tests, jit_binary_arithmetic,
+    ::testing::ValuesIn(
+        wn::containers::dynamic_array<int_binary_test>({{"1 + 2", 3},
+                                                        {"2 * -3", -6},
+                                                        {"10 % 4", 2},
+                                                        {"-32 + 9", -23},
+                                                        {"16 / 4", 4},
+                                                        {"16 / 5", 3}})));

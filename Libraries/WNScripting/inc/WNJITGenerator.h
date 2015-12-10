@@ -39,7 +39,7 @@ struct ast_jit_traits {
 };
 
 class ast_jit_engine {
-public:
+ public:
   ast_jit_engine(memory::allocator* _allocator, llvm::LLVMContext* _context,
                  llvm::Module* _module,
                  ast_code_generator<ast_jit_traits>* _generator)
@@ -48,12 +48,10 @@ public:
         m_module(_module),
         m_generator(_generator) {}
 
-  void walk_expression(const expression*,
-                       expression_dat*) {}
-  void walk_expression(const constant_expression* _const,
-                       expression_dat* _str);
-  void walk_expression(const id_expression* _const,
-                       expression_dat* _str);
+  void walk_expression(const expression*, expression_dat*) {}
+  void walk_expression(const constant_expression* _const, expression_dat* _str);
+  void walk_expression(const id_expression* _const, expression_dat* _str);
+  void walk_expression(const binary_expression* _binary, expression_dat* _str);
 
   void walk_type(const type* _type, llvm::Type** _val);
   void walk_instruction(const instruction*,

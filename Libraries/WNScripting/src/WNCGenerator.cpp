@@ -54,6 +54,30 @@ void ast_c_translator::walk_expression(const constant_expression* _const,
   }
 }
 
+void ast_c_translator::walk_expression(const binary_expression* _binary,
+                                       containers::string* _str) {
+  const wn_char* m_operators[] = {
+     " + ", " - ", " * ", " / ", " % ", " == ", " != ", " <= ", " >=", " < ", " > "
+  };
+  static_assert(sizeof(m_operators) / sizeof(m_operators[0]) ==
+                    static_cast<wn_size_t>(arithmetic_type::max),
+                "New oeprator type detected");
+
+  // TODO(awoloszyn): Validate this somewhere.
+  switch (_binary->get_type()->get_classification()) {
+    case type_classification::int_type:
+      *_str =
+          "(" + m_generator->get_data(_binary->get_lhs()) +
+          m_operators[static_cast<wn_size_t>(_binary->get_arithmetic_type())] +
+          m_generator->get_data(_binary->get_rhs()) + ")";
+      break;
+    default:
+      WN_RELEASE_ASSERT_DESC(wn_false,
+                             "Non-integer binary expressions not supported yet.");
+  }
+}
+
+
 void ast_c_translator::walk_expression(const id_expression* _id,
                                        containers::string* _str) {
   *_str = _id->get_name().to_string(m_allocator);

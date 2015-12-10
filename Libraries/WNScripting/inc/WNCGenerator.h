@@ -32,6 +32,8 @@ public:
                        containers::string* _str);
   void walk_expression(const id_expression* _const,
                        containers::string* _str);
+  void walk_expression(const binary_expression* _binary,
+                       containers::string* _str);
 
   void walk_type(const type* _type, containers::string* _str);
   void walk_instruction(const instruction*,
