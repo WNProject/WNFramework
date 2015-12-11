@@ -3,26 +3,6 @@
 #ifndef __WN_CORE_INTERNAL_BASE_CLANG_GCC_H__
 #define __WN_CORE_INTERNAL_BASE_CLANG_GCC_H__
 
-#define WN_INLINE __inline__
-
-#ifdef _WN_DEBUG
-    #define WN_FORCE_INLINE __inline__
-#else
-    #define WN_FORCE_INLINE __inline__ __attribute__((always_inline))
-#endif
-
-#define WN_NO_INLINE __attribute__((noinline))
-
-#define WN_RESTRICT __restrict__
-
-#ifndef __WN_HAS_THREAD_LOCAL
-    #define WN_THREAD_LOCAL __thread
-#endif
-
-#define WN_ALIGN(_x) __attribute__((aligned (_x)))
-
-#define WN_WEAK_LINK __attribute__((weak))
-
 #if defined __x86_64 || defined __x86_64__ || defined __amd64 || defined __amd64__
     #define _WN_X86
     #define _WN_64_BIT

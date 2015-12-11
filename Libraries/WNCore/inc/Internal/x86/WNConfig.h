@@ -7,7 +7,7 @@
 #ifndef __WN_CORE_INTERNAL_X86_CONFIG_H__
 #define __WN_CORE_INTERNAL_X86_CONFIG_H__
 
-#ifndef __WN_CORE_CONFIG_H__
+#ifndef __WN_CORE_CONFIG_OLD_H__
     #error "Internal/x86/WNConfig.h should never be included directly."
 #elif !defined _WN_X86
     #error "Internal/x86/WNConfig.h has been included on a non x86 platform. Please rectify this."

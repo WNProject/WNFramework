@@ -63,6 +63,8 @@
 #ifndef __WN_CORE_BASE_H__
 #define __WN_CORE_BASE_H__
 
+#include "WNCore/inc/Internal/WNConfig.h"
+
 #ifndef __cplusplus
     #error "C++ required. Please use with a C++ compiler and/or compile for C++."
 #else
@@ -108,26 +110,12 @@
     #error "Compiler not supported"
 #endif
 
-#include "WNCore/inc/WNConfig.h"
+#include "WNCore/inc/WNConfigOld.h"
 
 #ifdef _WN_X86
     #include "WNCore/inc/Internal/x86/WNBase.h"
 #elif defined _WN_ARM
     #include "WNCore/inc/Internal/ARM/WNBase.h"
-#endif
-
-#ifndef WN_INLINE
-    #define WN_INLINE inline
-#endif
-
-#ifndef WN_FORCE_INLINE
-    #define WN_FORCE_INLINE inline
-#endif
-
-#ifndef WN_THREAD_LOCAL
-    #if __WN_CPP >= 201103L || defined __WN_HAS_THREAD_LOCAL
-        #define WN_THREAD_LOCAL thread_local
-    #endif
 #endif
 
 #ifndef WN_CDECL_BEGIN

@@ -16,15 +16,6 @@
 #define _WN_MSVC_MINOR (_MSC_VER % 100)
 #define _WN_MSVC_BUILD (_MSC_FULL_VER % 100000)
 
-#define WN_INLINE __inline
-#define WN_INLINEWN_FORCE_INLINE __forceinline
-#define WN_NO_INLINE __declspec(noinline)
-#define WN_RESTRICT __restrict
-#define WN_THREAD_LOCAL __declspec(thread)
-#define WN_WEAK_LINK __declspec(selectany)
-
-#define WN_ALIGN(_x) __declspec(align(_x))
-
 #define __WN_HAS_CUSTOM_NULLPTR
 
 #define __WN_HAS_CPP11_NULLPTR
@@ -44,11 +35,6 @@
 #define __WN_HAS_CPP11_VARIADIC_TEMPLATES
 
 #define __WN_HAS_CPP11_STD_ROUND
-
-#define __WN_HAS_CPP14_STD_DECAY_T
-#define __WN_HAS_CPP14_STD_ENABLE_IF_T
-#define __WN_HAS_CPP14_STD_COMMON_TYPE_T
-#define __WN_HAS_CPP14_STD_RESULT_OF_T
 
 #define __WN_HAS_CPP14_STD_MAKE_UNIQUE
 

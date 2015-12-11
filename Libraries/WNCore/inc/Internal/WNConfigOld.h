@@ -4,10 +4,10 @@
 
 #pragma once
 
-#ifndef __WN_CORE_INTERNAL_CONFIG_H__
-#define __WN_CORE_INTERNAL_CONFIG_H__
+#ifndef __WN_CORE_INTERNAL_CONFIG_OLD_H__
+#define __WN_CORE_INTERNAL_CONFIG_OLD_H__
 
-#ifndef __WN_CORE_CONFIG_H__
+#ifndef __WN_CORE_CONFIG_OLD_H__
     #error "Internal/WNConfig.h should never be included directly."
 #endif
 
@@ -23,4 +23,4 @@
     #endif
 #endif
 
-#endif // __WN_CORE_INTERNAL_CONFIG_H__
+#endif // __WN_CORE_INTERNAL_CONFIG_OLD_H__

@@ -1,0 +1,34 @@
+// Copyright (c) 2015, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE.txt file.
+
+#pragma once
+
+#ifndef __WN_CORE_INTERNAL_CONFIG_H__
+#define __WN_CORE_INTERNAL_CONFIG_H__
+
+// keywords
+#define WN_INLINE ${WN_INLINE}
+#define WN_FORCE_INLINE ${WN_FORCE_INLINE}
+#define WN_NO_INLINE ${WN_NO_INLINE}
+#define WN_THREAD_LOCAL ${WN_THREAD_LOCAL}
+#define WN_WEAK_LINK ${WN_WEAK_LINK}
+#define WN_RESTRICT ${WN_RESTRICT}
+#define WN_OVERRIDE ${WN_OVERRIDE}
+#define WN_FINAL ${WN_FINAL}
+
+// specifiers
+#define WN_ALIGN(_x) ${WN_ALIGN}
+
+// c++14 stl features
+#cmakedefine _WN_HAS_CPP14_STD_DECAY_T
+#cmakedefine _WN_HAS_CPP14_STD_ENABLE_IF_T
+#cmakedefine _WN_HAS_CPP14_STD_RESULT_OF_T
+#cmakedefine _WN_HAS_CPP14_STD_COMMON_TYPE_T
+#cmakedefine _WN_HAS_CPP14_STD_INTEGER_SEQUENCE
+#cmakedefine _WN_HAS_CPP14_STD_IS_NULL_POINTER
+
+// c++17 stl features
+#cmakedefine _WN_HAS_CPP17_STD_BOOL_CONSTANT
+
+#endif  // __WN_CORE_INTERNAL_CONFIG_H__

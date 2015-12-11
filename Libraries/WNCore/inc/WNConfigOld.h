@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef __WN_CORE_CONFIG_H__
-#define __WN_CORE_CONFIG_H__
+#ifndef __WN_CORE_CONFIG_OLD_H__
+#define __WN_CORE_CONFIG_OLD_H__
 
 //#define _WN_CORE_CONFIG_DISABLE_EXTENSIONS            // Disables all extension for the current configuration
 
@@ -28,6 +28,6 @@
 //#define _WN_CORE_CONFIG_MSVC_ARM_FORCE_VFP3           // Forces VFP3 functionality when using MSVC
 //#define _WN_CORE_CONFIG_MSVC_ARM_FORCE_VFP4           // Forces VFP4 functionality when using MSVC
 
-#include "WNCore/inc/Internal/WNConfig.h"
+#include "WNCore/inc/Internal/WNConfigOld.h"
 
-#endif // __WN_CORE_CONFIG_H__
+#endif // __WN_CORE_CONFIG_OLD_H__

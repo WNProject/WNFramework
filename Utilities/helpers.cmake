@@ -406,7 +406,10 @@ function(add_wn_library target)
   else()
     add_library(${target} STATIC ${PARSED_ARGS_SOURCES})
   endif()
+
+  target_include_directories(${target} PUBLIC ${CMAKE_BINARY_DIR}/Libraries)
   set_property(TARGET ${target} PROPERTY FOLDER WNLibraries)
+
   if(PARSED_ARGS_PRE_LINK_FLAGS)
     set_property(TARGET ${target} PROPERTY WN_PRE_LINK_FLAGS
       ${PARSED_ARGS_PRE_LINK_FLAGS})
