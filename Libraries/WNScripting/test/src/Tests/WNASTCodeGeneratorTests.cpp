@@ -100,7 +100,9 @@ TEST_P(ast_code_generator_valid_ints, valid_ints) {
 INSTANTIATE_TEST_CASE_P(valid_integers, ast_code_generator_valid_ints,
                         ::testing::Values("0", "1", "2", "-1", "-32",
                                           "2147483647", "-2147483648",
-                          "1 + 4", "32 * 10", "-255 % 4", "-1025 / 32"));
+                          "1 + 4", "32 * 10", "-255 % 4", "-1025 / 32",
+                          "128 * 32", "32 + 4 * 10", "122 - 142 + 24",
+                          "65 * 65 * 23"));
 
 class ast_code_generator_invalid_ints : public ::testing::TestWithParam<const char*> {};
 

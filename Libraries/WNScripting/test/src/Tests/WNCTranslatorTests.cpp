@@ -127,9 +127,8 @@ INSTANTIATE_TEST_CASE_P(int_tests, c_int_params,
                                           "2147483647", "-2147483648"));
 
 struct binary_arithmetic_operations {
-  const char* lhs;
-  const char* rhs;
-  const char* op;
+  const char* source;
+  const char* dest;
 };
 
 using c_arith_params = ::testing::TestWithParam<binary_arithmetic_operations>;
@@ -138,16 +137,15 @@ TEST_P(c_arith_params, binary_arithmetic) {
   wn::memory::default_expanding_allocator<50> allocator;
   wn::containers::string str(&allocator);
   str += "Int main() { return ";
-  str = str + GetParam().lhs + " " + GetParam().op + " " + GetParam().rhs;
+  str += GetParam().source;
   str += "; } ";
 
   wn::containers::string expected(&allocator);
   expected +=
       "wn_int32 main() {\n"
-      "return (";
-  expected =
-      expected + GetParam().lhs + " " + GetParam().op + " " + GetParam().rhs;
-  expected += ");\n}\n";
+      "return ";
+  expected += GetParam().dest;
+  expected += ";\n}\n";
   wn::scripting::test_file_manager manager(&allocator, {{"file.wns", str}});
 
   wn::scripting::c_translator translator(&allocator, &manager,
@@ -163,7 +161,9 @@ INSTANTIATE_TEST_CASE_P(
     int_int_tests, c_arith_params,
     ::testing::ValuesIn(
         wn::containers::dynamic_array<binary_arithmetic_operations>(
-            {{"1", "2", "+"},
-             {"10", "20", "-"},
-             {"-32", "0", "*"},
-             {"-32", "22", "%"}})));
+            {{"1 + 2", "(1 + 2)"},
+             {"10 - 20", "(10 - 20)"},
+             {"-32 * 0", "(-32 * 0)"},
+             {"-32 % 22", "(-32 % 22)"},
+             {"-32 + 4 * 10", "(-32 + (4 * 10))"},
+             {"27 / 4 + 8 * 3", "((27 / 4) + (8 * 3))"}})));

@@ -64,7 +64,7 @@ TEST(ast_code_generator, type_association_test) {
   wn_size_t num_warnings, num_errors;
   num_warnings = num_errors = 0;
   wn::scripting::test_file_manager manager(
-      &allocator, {{"file.wns", "Int main() { return 0 + 4; }"}});
+      &allocator, {{"file.wns", "Int main() { return 0 + 4 * 32; }"}});
   auto a = test_parse_file("file.wns", &manager, &allocator, &num_warnings,
                            &num_errors);
   EXPECT_TRUE(wn::scripting::run_type_association_pass(

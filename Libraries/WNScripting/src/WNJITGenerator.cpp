@@ -170,6 +170,8 @@ void ast_jit_engine::walk_expression(const binary_expression* _binary,
     WN_RELEASE_ASSERT_DESC(wn_false, "Not implemnted, non-integer arithmetic");
   }
   _val->instructions = wn::containers::dynamic_array<llvm::Instruction*>(m_allocator);
+  _val->instructions.insert(_val->instructions.end(), lhs.instructions.begin(), lhs.instructions.end());
+  _val->instructions.insert(_val->instructions.end(), rhs.instructions.begin(), rhs.instructions.end());
   _val->instructions.push_back(inst);
   _val->value = inst;
 }
