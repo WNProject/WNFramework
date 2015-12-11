@@ -9,17 +9,18 @@
 // Needed so that wn_main gets linked in.
 namespace wn {
 namespace testing {
+
 void test_dummy() {}
+
 }  // testing
 }  // wn
 #endif  //_WN_ANDROID || _WN_LINUX
 
 wn_int32 wn_main(wn_int32 _argc, wn_char* _argv[]) {
   wn_dummy();
+
   ::testing::InitGoogleTest(&_argc, _argv);
   wn::testing::init_test_framework();
 
-  const wn_uint32 result = RUN_ALL_TESTS();
-
-  return (result);
+  return RUN_ALL_TESTS();
 }
