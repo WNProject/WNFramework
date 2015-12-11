@@ -190,19 +190,27 @@ TEST_P(bool_arithmetic_tests, boolean_arithmetic) {
 
 INSTANTIATE_TEST_CASE_P(
     bool_tests, bool_arithmetic_tests,
-    ::testing::ValuesIn(wn::containers::dynamic_array<boolean_test>({
-        {"true", true, true},
-        {"true == true", false, true},
-        {"false", true, false},
-        {"2 == 3", true, false},
-        {"3 == 4 != b", false, false},
-        {"3 == 4 != b", true, true},
-        {"b == true", true, true},
-        {"b == true", false, false},
-        {"b == b", false, true},
-        {"b == b", false, true},
-        {"b", false, false},
-        {"b", true, true},
-    })));
+    ::testing::ValuesIn(wn::containers::dynamic_array<boolean_test>(
+        {{"true", true, true},
+         {"true == true", false, true},
+         {"false", true, false},
+         {"2 == 3", true, false},
+         {"3 == 4 != b", false, false},
+         {"3 == 4 != b", true, true},
+         {"b == true", true, true},
+         {"b == true", false, false},
+         {"b == b", false, true},
+         {"b == b", false, true},
+         {"b", false, false},
+         {"b", true, true},
+         {"1 >= 3", false, false},
+         {"1 < 1", false, false},
+         {"1 > 1", false, false},
+         {"1 >= 1", false, true},
+         {"1 <= 1", false, true},
+         {"1 > (3 + 2)", false, false},
+         {"(1 < 2) == (4 > 10)", false, false},
+         {"(1 <= 2) == (b == false)", false, true},
+         {"(1 <= 2) == (b == false)", true, false}})));
 
 //TODO(awoloszyn) Arithmetic comparisons

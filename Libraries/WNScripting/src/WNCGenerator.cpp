@@ -60,7 +60,7 @@ void ast_c_translator::walk_expression(const constant_expression* _const,
 void ast_c_translator::walk_expression(const binary_expression* _binary,
                                        containers::string* _str) {
   const wn_char* m_operators[] = {
-     " + ", " - ", " * ", " / ", " % ", " == ", " != ", " <= ", " >=", " < ", " > "
+     " + ", " - ", " * ", " / ", " % ", " == ", " != ", " <= ", " >= ", " < ", " > "
   };
   static_assert(sizeof(m_operators) / sizeof(m_operators[0]) ==
                     static_cast<wn_size_t>(arithmetic_type::max),

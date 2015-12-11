@@ -142,7 +142,9 @@ TEST_P(ast_code_generator_valid_bools, valid_bools) {
 INSTANTIATE_TEST_CASE_P(valid_booleans, ast_code_generator_valid_bools,
                         ::testing::Values("true", "false", "true != false",
                                           "true != true", "false != true",
-                                          "(1 != 2) == true", "1 != 2", "1 == 2"));
+                                          "(1 != 2) == true", "1 != 2", "1 == 2",
+                          "1 >= 4", "1 < 7", "1 <= 32", "(1 + 3) <= 47",
+                          "(1 >= 4) != (1 < 32)"));
 
 using ast_code_generator_invalid_bools = ::testing::TestWithParam<const char*>;
 
