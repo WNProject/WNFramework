@@ -160,3 +160,49 @@ INSTANTIATE_TEST_CASE_P(
                                                         {"32 * (6 - 7)", -32},
                                                         {"191 + 10 * -3", 161},
                                                         {"100 + 396 * -1", -296}})));
+
+
+struct boolean_test {
+  const char* code;
+  bool input;
+  bool expected_return;
+};
+
+using bool_arithmetic_tests = ::testing::TestWithParam<boolean_test>;
+
+TEST_P(bool_arithmetic_tests, boolean_arithmetic) {
+  wn::memory::default_expanding_allocator<50> allocator;
+  wn::containers::string str(&allocator);
+  str += "Bool main(Bool b) { return ";
+  str += GetParam().code;
+  str += "; } ";
+
+  wn::scripting::test_file_manager manager(&allocator, {{"file.wns", str}});
+
+  wn::scripting::jit_engine jit_engine(&allocator, &manager,
+                                       WNLogging::get_null_logger());
+  EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file.wns"));
+
+  wn::scripting::engine::void_func main = jit_engine.get_function("main");
+  wn_bool (*new_func)(wn_bool ) = reinterpret_cast<wn_bool (*)(wn_bool )>(main);
+  EXPECT_EQ(GetParam().expected_return, (*new_func)(GetParam().input));
+}
+
+INSTANTIATE_TEST_CASE_P(
+    bool_tests, bool_arithmetic_tests,
+    ::testing::ValuesIn(wn::containers::dynamic_array<boolean_test>({
+        {"true", true, true},
+        {"true == true", false, true},
+        {"false", true, false},
+        {"2 == 3", true, false},
+        {"3 == 4 != b", false, false},
+        {"3 == 4 != b", true, true},
+        {"b == true", true, true},
+        {"b == true", false, false},
+        {"b == b", false, true},
+        {"b == b", false, true},
+        {"b", false, false},
+        {"b", true, true},
+    })));
+
+//TODO(awoloszyn) Arithmetic comparisons

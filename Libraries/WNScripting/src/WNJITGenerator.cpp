@@ -106,10 +106,16 @@ void ast_jit_engine::walk_type(const wn::scripting::type* _type,
 void ast_jit_engine::walk_expression(const constant_expression* _const,
                                      expression_dat* _val) {
   switch (_const->get_type()->get_classification()) {
-    case wn::scripting::type_classification::int_type: {
+    case type_classification::int_type: {
       long long val = atoll(_const->get_type_text().c_str());
       _val->value = llvm::ConstantInt::getSigned(
           m_generator->get_data(_const->get_type()), val);
+      return;
+    }
+    case type_classification::bool_type: {
+      bool bVal = containers::string_view(_const->get_type_text()) == "true";
+      _val->value = llvm::ConstantInt::get(
+          m_generator->get_data(_const->get_type()), bVal ? 1 : 0);
       return;
     }
     default:
@@ -154,6 +160,7 @@ void ast_jit_engine::walk_expression(const binary_expression* _binary,
   arithmetic_type type = _binary->get_arithmetic_type();
   switch(_binary->get_type()->get_classification()) {
   case type_classification::int_type:
+  case type_classification::bool_type:  // Booleans are just 1-bit integers.
     if (type <= arithmetic_type::arithmetic_mod) {
       inst = llvm::BinaryOperator::Create(
           integer_ops[static_cast<size_t>(type)], lhs.value, rhs.value);
@@ -162,7 +169,7 @@ void ast_jit_engine::walk_expression(const binary_expression* _binary,
           llvm::Instruction::ICmp,
           integer_compares[static_cast<short>(type) -
                            static_cast<short>(
-                               arithmetic_type::arithmetic_mod)],
+                               arithmetic_type::arithmetic_mod) - 1],
           lhs.value, rhs.value);
     }
     break;

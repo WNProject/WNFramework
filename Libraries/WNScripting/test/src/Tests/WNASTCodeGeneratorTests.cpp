@@ -94,7 +94,6 @@ TEST_P(ast_code_generator_valid_ints, valid_ints) {
   EXPECT_TRUE(c.test_parse_file("file.wns"));
   EXPECT_THAT(c.num_errors, Eq(0u));
   EXPECT_THAT(c.num_warnings, Eq(0u));
-
 }
 
 INSTANTIATE_TEST_CASE_P(valid_integers, ast_code_generator_valid_ints,
@@ -123,3 +122,45 @@ TEST_P(ast_code_generator_invalid_ints, invalid_ints) {
 INSTANTIATE_TEST_CASE_P(invalid_integers, ast_code_generator_invalid_ints,
                         ::testing::Values("2147483648", "-2147483649",
                                           "11111111111"));
+
+using ast_code_generator_valid_bools = ::testing::TestWithParam<const char*>;
+
+TEST_P(ast_code_generator_valid_bools, valid_bools) {
+  test_context c;
+
+  wn::containers::string str(&c.allocator);
+  str += "Bool main() { return ";
+  str += GetParam();
+  str += "; }\n";
+
+  c.manager.add_files({{"file.wns", str}});
+  EXPECT_TRUE(c.test_parse_file("file.wns"));
+  EXPECT_THAT(c.num_errors, Eq(0u));
+  EXPECT_THAT(c.num_warnings, Eq(0u));
+}
+
+INSTANTIATE_TEST_CASE_P(valid_booleans, ast_code_generator_valid_bools,
+                        ::testing::Values("true", "false", "true != false",
+                                          "true != true", "false != true",
+                                          "(1 != 2) == true", "1 != 2", "1 == 2"));
+
+using ast_code_generator_invalid_bools = ::testing::TestWithParam<const char*>;
+
+TEST_P(ast_code_generator_invalid_bools, invalid_bools) {
+  test_context c;
+
+  wn::containers::string str(&c.allocator);
+  str += "Bool main() { return ";
+  str += GetParam();
+  str += "; }\n";
+
+  c.manager.add_files({{"file.wns", str}});
+  EXPECT_FALSE(c.test_parse_file("file.wns"));
+  EXPECT_THAT(c.num_errors, Eq(1u));
+  EXPECT_THAT(c.num_warnings, Eq(0u));
+}
+
+INSTANTIATE_TEST_CASE_P(invalid_bools, ast_code_generator_invalid_bools,
+                        ::testing::Values("true + false", "true - false",
+                          "true * true", "true * false", "true % false",
+                          "(1 != 2) + (1 == 2)", "1 != 2 - 1 == 2"));

@@ -126,12 +126,12 @@ INSTANTIATE_TEST_CASE_P(int_tests, c_int_params,
                         ::testing::Values("0", "-1", "-32", "-4096",
                                           "2147483647", "-2147483648"));
 
-struct binary_arithmetic_operations {
+struct arithmetic_operations {
   const char* source;
   const char* dest;
 };
 
-using c_arith_params = ::testing::TestWithParam<binary_arithmetic_operations>;
+using c_arith_params = ::testing::TestWithParam<arithmetic_operations>;
 
 TEST_P(c_arith_params, binary_arithmetic) {
   wn::memory::default_expanding_allocator<50> allocator;
@@ -160,10 +160,49 @@ TEST_P(c_arith_params, binary_arithmetic) {
 INSTANTIATE_TEST_CASE_P(
     int_int_tests, c_arith_params,
     ::testing::ValuesIn(
-        wn::containers::dynamic_array<binary_arithmetic_operations>(
+        wn::containers::dynamic_array<arithmetic_operations>(
             {{"1 + 2", "(1 + 2)"},
              {"10 - 20", "(10 - 20)"},
              {"-32 * 0", "(-32 * 0)"},
              {"-32 % 22", "(-32 % 22)"},
              {"-32 + 4 * 10", "(-32 + (4 * 10))"},
              {"27 / 4 + 8 * 3", "((27 / 4) + (8 * 3))"}})));
+
+using c_bool_params = ::testing::TestWithParam<arithmetic_operations>;
+
+TEST_P(c_bool_params, boolean_arithmetic) {
+  wn::memory::default_expanding_allocator<50> allocator;
+  wn::containers::string str(&allocator);
+  str += "Bool wn_main(Bool b) { return ";
+  str += GetParam().source;
+  str += "; } ";
+
+  wn::containers::string expected(&allocator);
+  expected +=
+      "wn_bool wn_main(wn_bool b) {\n"
+      "return ";
+  expected += GetParam().dest;
+  expected += ";\n}\n";
+  wn::scripting::test_file_manager manager(&allocator, {{"file.wns", str}});
+
+  wn::scripting::c_translator translator(&allocator, &manager,
+                                         WNLogging::get_null_logger());
+  wn::containers::string output_string(&allocator);
+  EXPECT_EQ(wn::scripting::parse_error::ok,
+            translator.translate_file("file.wns"));
+  EXPECT_EQ(std::string(expected.c_str()),
+            std::string(manager.get_file("file.wns.c")->data()));
+}
+
+INSTANTIATE_TEST_CASE_P(
+    int_int_tests, c_bool_params,
+    ::testing::ValuesIn(wn::containers::dynamic_array<arithmetic_operations>(
+        {{"true", "true"},
+         {"true == true", "(true == true)"},
+         {"false", "false"},
+         {"2 == 3", "(2 == 3)"},
+         {"3 == 4 != b", "((3 == 4) != b)"},
+         {"b == true", "(b == true)"},
+         {"b == b", "(b == b)"}})));
+
+//TODO(awoloszyn) Arithmetic comparisons

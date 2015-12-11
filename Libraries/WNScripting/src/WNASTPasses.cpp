@@ -148,6 +148,9 @@ class type_association_pass : public pass {
         }
         break;
       }
+      case type_classification::bool_type: {
+        break;
+      }
       default:
         WN_RELEASE_ASSERT_DESC(wn_false,
                                "No Implemented: non-integer contants");
@@ -163,13 +166,23 @@ class type_association_pass : public pass {
                  "Cannot perform arithmetic on void type");
       _expr->log_line(*m_log, WNLogging::eError);
       ++m_num_errors;
-      return;
+      // Continue so that more errors can be caught.
     }
     if (lhs_type->get_classification() != rhs_type->get_classification()) {
       m_log->Log(WNLogging::eError, 0, "Expected LHS and RHS to match");
       _expr->log_line(*m_log, WNLogging::eError);
       ++m_num_errors;
-      return;
+      // Continue so that more errors can be caught.
+    }
+    if (lhs_type->get_classification() == type_classification::bool_type &&
+        (_expr->get_arithmetic_type() != arithmetic_type::arithmetic_equal &&
+         _expr->get_arithmetic_type() !=
+             arithmetic_type::arithmetic_not_equal)) {
+      m_log->Log(WNLogging::eError, 0,
+                 "The only valid operations on boolean types are == and !=");
+      _expr->log_line(*m_log, WNLogging::eError);
+      ++m_num_errors;
+      // Continue so that more errors can be caught.
     }
     type* t = wn_nullptr;
     switch (_expr->get_arithmetic_type()) {

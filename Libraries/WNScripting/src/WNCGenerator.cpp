@@ -48,6 +48,9 @@ void ast_c_translator::walk_expression(const constant_expression* _const,
     case type_classification::int_type:
       *_str = containers::string(m_allocator) + _const->get_type_text();
       break;
+    case type_classification::bool_type:
+      *_str = containers::string(m_allocator) + _const->get_type_text();
+      break;
     default:
       WN_RELEASE_ASSERT_DESC(wn_false,
                              "Non-integer constants not supported yet.");
@@ -66,6 +69,7 @@ void ast_c_translator::walk_expression(const binary_expression* _binary,
   // TODO(awoloszyn): Validate this somewhere.
   switch (_binary->get_type()->get_classification()) {
     case type_classification::int_type:
+    case type_classification::bool_type:
       *_str =
           "(" + m_generator->get_data(_binary->get_lhs()) +
           m_operators[static_cast<wn_size_t>(_binary->get_arithmetic_type())] +
