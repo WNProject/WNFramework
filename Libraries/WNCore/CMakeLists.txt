@@ -4,7 +4,7 @@ include(CheckCXXSourceCompiles)
 # run keyword tests
 check_cxx_source_compiles(
   "
-    _inline void temp() {}
+    inline void temp() {}
     int main() {
       temp();
       return 0;
@@ -15,7 +15,7 @@ check_cxx_source_compiles(
 
 check_cxx_source_compiles(
   "
-    __inline void temp() {}
+    _inline void temp() {}
     int main() {
       temp();
       return 0;
@@ -26,13 +26,24 @@ check_cxx_source_compiles(
 
 check_cxx_source_compiles(
   "
+    __inline void temp() {}
+    int main() {
+      temp();
+      return 0;
+    }
+  "
+  HAS___INLINE
+)
+
+check_cxx_source_compiles(
+  "
     __inline__ void temp() {}
     int main() {
       temp();
       return 0;
     }
   "
-  HAS__INLINE__
+  HAS___INLINE__
 )
 
 check_cxx_source_compiles(
@@ -43,7 +54,7 @@ check_cxx_source_compiles(
       return 0;
     }
   "
-  HAS__FORCE_INLINE
+  HAS___FORCE_INLINE
 )
 
 check_cxx_source_compiles(
@@ -54,7 +65,7 @@ check_cxx_source_compiles(
       return 0;
     }
   "
-  HAS__ATTRIBUTE__ALWAYS_INLINE
+  HAS___ATTRIBUTE__ALWAYS_INLINE
 )
 
 check_cxx_source_compiles(
@@ -65,7 +76,7 @@ check_cxx_source_compiles(
       return 0;
     }
   "
-  HAS__DECLSPEC_NOINLINE
+  HAS___DECLSPEC_NOINLINE
 )
 
 check_cxx_source_compiles(
@@ -76,7 +87,7 @@ check_cxx_source_compiles(
       return 0;
     }
   "
-  HAS__ATTRIBUTE__NOINLINE
+  HAS___ATTRIBUTE__NOINLINE
 )
 
 check_cxx_source_compiles(
@@ -86,7 +97,7 @@ check_cxx_source_compiles(
       return temp;
     }
   "
-  HAS__THREAD
+  HAS___THREAD
 )
 
 check_cxx_source_compiles(
@@ -96,7 +107,7 @@ check_cxx_source_compiles(
       return temp;
     }
   "
-  HAS__DECLSPEC_THREAD
+  HAS___DECLSPEC_THREAD
 )
 
 check_cxx_source_compiles(
@@ -116,7 +127,7 @@ check_cxx_source_compiles(
       return temp;
     }
   "
-  HAS__DECLSPEC_SELECTANY
+  HAS___DECLSPEC_SELECTANY
 )
 
 check_cxx_source_compiles(
@@ -126,7 +137,7 @@ check_cxx_source_compiles(
       return temp;
     }
   "
-  HAS__ATTRIBUTE__WEAK
+  HAS___ATTRIBUTE__WEAK
 )
 
 check_cxx_source_compiles(
@@ -140,7 +151,7 @@ check_cxx_source_compiles(
       return temp(&a, &b);
     }
   "
-  HAS__RESTRICT
+  HAS___RESTRICT
 )
 
 check_cxx_source_compiles(
@@ -154,7 +165,7 @@ check_cxx_source_compiles(
       return temp(&a, &b);
     }
   "
-  HAS__RESTRICT__
+  HAS___RESTRICT__
 )
 
 check_cxx_source_compiles(
@@ -197,51 +208,53 @@ set(WN_RESTRICT)
 set(WN_FINAL)
 set(WN_OVERRIDE)
 
-if (HAS__INLINE__)
+if (HAS_INLINE)
+  set(WN_INLINE inline)
+elseif (HAS___INLINE__)
   set(WN_INLINE __inline__)
-elseif (HAS__INLINE)
+elseif (HAS___INLINE)
   set(WN_INLINE __inline)
-elseif (HAS_INLINE)
+elseif (HAS__INLINE)
   set(WN_INLINE _inline)
 else()
-  set(WN_INLINE inline)
+  message(FATAL_ERROR "No inline style keyword was found")
 endif()
 
-if (HAS__FORCE_INLINE)
-  set(WN_FORCE_INLINE __forceinline)
-elseif (HAS__ATTRIBUTE__ALWAYS_INLINE)
+if (HAS___ATTRIBUTE__ALWAYS_INLINE)
   set(WN_FORCE_INLINE "${WN_INLINE} __attribute__((always_inline))")
+elseif (HAS___FORCE_INLINE)
+  set(WN_FORCE_INLINE __forceinline)
 else()
   set(WN_FORCE_INLINE ${WN_INLINE})
 endif()
 
-if (HAS__DECLSPEC_NOINLINE)
-  set(WN_NO_INLINE "__declspec(noinline)")
-elseif (HAS__ATTRIBUTE__NOINLINE)
+if (HAS___ATTRIBUTE__NOINLINE)
   set(WN_NO_INLINE "__attribute__((noinline))")
+elseif (HAS___DECLSPEC_NOINLINE)
+  set(WN_NO_INLINE "__declspec(noinline)")
 endif()
 
-if (HAS__DECLSPEC_THREAD)
-  set(WN_THREAD_LOCAL "__declspec(thread)")
-elseif (HAS__THREAD)
-  set(WN_THREAD_LOCAL "__thread")
-elseif(HAS_THREAD_LOCAL)
+if(HAS_THREAD_LOCAL)
   set(WN_THREAD_LOCAL "thread_local")
+elseif (HAS___DECLSPEC_THREAD)
+  set(WN_THREAD_LOCAL "__declspec(thread)")
+elseif (HAS___THREAD)
+  set(WN_THREAD_LOCAL "__thread")
 else()
   message(FATAL_ERROR "No thread local style keyword was found")
 endif()
 
-if (HAS__DECLSPEC_SELECTANY)
-  set(WN_WEAK_LINK "__declspec(selectany)")
-elseif (HAS__ATTRIBUTE__WEAK)
+if (HAS___ATTRIBUTE__WEAK)
   set(WN_WEAK_LINK "__attribute__((weak))")
+elseif (HAS___DECLSPEC_SELECTANY)
+  set(WN_WEAK_LINK "__declspec(selectany)")
 else()
   message(FATAL_ERROR "No weak link style keyword was found")
 endif()
 
-if (HAS__RESTRICT)
+if (HAS___RESTRICT)
   set(WN_RESTRICT "__restrict")
-elseif (HAS__RESTRICT__)
+elseif (HAS___RESTRICT__)
   set(WN_RESTRICT "__restrict__")
 endif()
 
@@ -272,7 +285,7 @@ check_cxx_source_compiles(
       return i;
     }
   "
-  HAS__DECLSPEC_ALIGN
+  HAS___DECLSPEC_ALIGN
 )
 
 check_cxx_source_compiles(
@@ -282,19 +295,20 @@ check_cxx_source_compiles(
       return i;
     }
   "
-  HAS__ATTRIBUTE__ALIGNED
+  HAS___ATTRIBUTE__ALIGNED
 )
 
 # make specifier selections
 
 set(WN_ALIGN)
+set(WN_MACRO_VARIABLE_NAME _x)
 
 if (HAS_ALIGNAS)
-  set(WN_ALIGN "alignas(_x)")
-elseif (HAS__DECLSPEC_ALIGN)
-  set(WN_ALIGN "__declspec(align(_x))")
-elseif (HAS__ATTRIBUTE__ALIGNED)
-  set(WN_ALIGN "__attribute__((aligned(_x)))")
+  set(WN_ALIGN "alignas(${WN_MACRO_VARIABLE_NAME})")
+elseif (HAS___DECLSPEC_ALIGN)
+  set(WN_ALIGN "__declspec(align(${WN_MACRO_VARIABLE_NAME}))")
+elseif (HAS___ATTRIBUTE__ALIGNED)
+  set(WN_ALIGN "__attribute__((aligned(${WN_MACRO_VARIABLE_NAME})))")
 else()
   message(FATAL_ERROR "No align style keyword was found")
 endif()
@@ -431,8 +445,22 @@ set(_WN_HAS_CPP14_STD_COMMON_TYPE_T ${HAS_CPP14_STD_COMMON_TYPE_T})
 set(_WN_HAS_CPP14_STD_INTEGER_SEQUENCE ${HAS_CPP14_STD_INTEGER_SEQUENCE})
 set(_WN_HAS_CPP14_STD_IS_NULL_POINTER ${HAS_CPP14_STD_IS_NULL_POINTER})
 
-configure_file(inc/Internal/WNConfig.h.in inc/Internal/WNConfig.h)
+# generate config file
+set(CONFIG_FILE_INPUT_PATH_RELATIVE inc/Internal/WNConfig.h.in)
+set(CONFIG_FILE_OUTPUT_PATH_RELATIVE inc/Internal/WNConfig.h)
 
+configure_file(
+  ${CONFIG_FILE_INPUT_PATH_RELATIVE}
+  ${CONFIG_FILE_OUTPUT_PATH_RELATIVE}
+)
+
+set(CONFIG_FILE_INPUT_PATH ${CONFIG_FILE_INPUT_PATH_RELATIVE})
+
+set(CONFIG_FILE_OUTPUT_PATH
+  ${CMAKE_CURRENT_BINARY_DIR}/${CONFIG_FILE_OUTPUT_PATH_RELATIVE}
+)
+
+# setup target
 set(INC_INTERNAL
   inc/Internal/WNBase_Clang.h
   inc/Internal/WNBase_Clang_GCC.h
@@ -442,6 +470,8 @@ set(INC_INTERNAL
   inc/Internal/WNConfig.h.in
   inc/Internal/WNErrors.inc
   inc/Internal/WNExtendedTypes.h
+  ${CONFIG_FILE_INPUT_PATH}
+  ${CONFIG_FILE_OUTPUT_PATH}
 )
 
 set(INC_INTERNAL_ARM

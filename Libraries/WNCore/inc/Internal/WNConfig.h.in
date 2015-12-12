@@ -18,7 +18,7 @@
 #define WN_FINAL ${WN_FINAL}
 
 // specifiers
-#define WN_ALIGN(_x) ${WN_ALIGN}
+#define WN_ALIGN(${WN_MACRO_VARIABLE_NAME}) ${WN_ALIGN}
 
 // c++14 stl features
 #cmakedefine _WN_HAS_CPP14_STD_DECAY_T
