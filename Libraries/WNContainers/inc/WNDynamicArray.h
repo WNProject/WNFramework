@@ -454,7 +454,7 @@ public:
   iterator insert(const_iterator _pos, const _Type& _value) {
     _Type value(_value);
 
-    return (insert(_pos, std::move(_value)));
+    return (insert(_pos, std::move(value)));
   }
 
   iterator insert(

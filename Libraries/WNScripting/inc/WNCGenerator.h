@@ -42,6 +42,10 @@ public:
                         containers::string*) {}
   void walk_instruction(const return_instruction* _inst,
                         containers::string* _str);
+  void walk_instruction(const if_instruction* _inst,
+                        containers::string* _str);
+  void walk_instruction(const else_if_instruction* _inst,
+                        containers::string* _str);
   void walk_parameter(const parameter* _param, containers::string* _str);
   void walk_function(const function* _func, containers::string* _str);
   void walk_script_file(const script_file* _file);

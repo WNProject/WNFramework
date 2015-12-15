@@ -158,41 +158,132 @@ void ast_jit_engine::walk_expression(const binary_expression* _binary,
   const expression_dat& rhs = m_generator->get_data(_binary->get_rhs());
   llvm::Instruction* inst = wn_nullptr;
   arithmetic_type type = _binary->get_arithmetic_type();
-  switch(_binary->get_type()->get_classification()) {
-  case type_classification::int_type:
-  case type_classification::bool_type:  // Booleans are just 1-bit integers.
-    if (type <= arithmetic_type::arithmetic_mod) {
-      inst = llvm::BinaryOperator::Create(
-          integer_ops[static_cast<size_t>(type)], lhs.value, rhs.value);
-    } else {
-      inst = llvm::CmpInst::Create(
-          llvm::Instruction::ICmp,
-          integer_compares[static_cast<short>(type) -
-                           static_cast<short>(
-                               arithmetic_type::arithmetic_mod) - 1],
-          lhs.value, rhs.value);
-    }
-    break;
-  default:
-    WN_RELEASE_ASSERT_DESC(wn_false, "Not implemnted, non-integer arithmetic");
+  switch (_binary->get_type()->get_classification()) {
+    case type_classification::int_type:
+    case type_classification::bool_type:  // Booleans are just 1-bit integers.
+      if (type <= arithmetic_type::arithmetic_mod) {
+        inst = llvm::BinaryOperator::Create(
+            integer_ops[static_cast<size_t>(type)], lhs.value, rhs.value);
+      } else {
+        inst = llvm::CmpInst::Create(
+            llvm::Instruction::ICmp,
+            integer_compares
+                [static_cast<short>(type) -
+                 static_cast<short>(arithmetic_type::arithmetic_mod) - 1],
+            lhs.value, rhs.value);
+      }
+      break;
+    default:
+      WN_RELEASE_ASSERT_DESC(wn_false,
+                             "Not implemnted, non-integer arithmetic");
   }
-  _val->instructions = wn::containers::dynamic_array<llvm::Instruction*>(m_allocator);
-  _val->instructions.insert(_val->instructions.end(), lhs.instructions.begin(), lhs.instructions.end());
-  _val->instructions.insert(_val->instructions.end(), rhs.instructions.begin(), rhs.instructions.end());
+  _val->instructions =
+      wn::containers::dynamic_array<llvm::Instruction*>(m_allocator);
+  _val->instructions.insert(_val->instructions.end(), lhs.instructions.begin(),
+                            lhs.instructions.end());
+  _val->instructions.insert(_val->instructions.end(), rhs.instructions.begin(),
+                            rhs.instructions.end());
   _val->instructions.push_back(inst);
   _val->value = inst;
 }
 
+void ast_jit_engine::walk_instruction(const else_if_instruction* _inst,
+                                      instruction_dat* _val) {
+  _val->instructions =
+      containers::dynamic_array<llvm::Instruction*>(m_allocator);
+  _val->blocks = containers::dynamic_array<llvm::BasicBlock*>(m_allocator);
 
-void ast_jit_engine::walk_instruction(
-    const return_instruction* _inst,
-    instruction_dat* _val) {
-  _val->instructions = containers::dynamic_array<llvm::Instruction*>(m_allocator);
+  expression_dat& dat = m_generator->get_data(_inst->get_condition());
+  containers::dynamic_array<llvm::BasicBlock*>& body =
+      m_generator->get_data(_inst->get_body());
+
+  llvm::BasicBlock* no_execute =
+      llvm::BasicBlock::Create(*m_context, "no_execute");
+
+  _val->instructions.insert(_val->instructions.begin(),
+                            dat.instructions.begin(), dat.instructions.end());
+  _val->blocks.insert(_val->blocks.begin(), body.begin(), body.end());
+
+  _val->instructions.push_back(
+      llvm::BranchInst::Create(*_val->blocks.begin(), no_execute, dat.value));
+  _val->blocks.insert(_val->blocks.end(), no_execute);
+}
+
+void ast_jit_engine::walk_instruction(const if_instruction* _inst,
+                                      instruction_dat* _val) {
+  _val->instructions =
+      containers::dynamic_array<llvm::Instruction*>(m_allocator);
+  _val->blocks = containers::dynamic_array<llvm::BasicBlock*>(m_allocator);
+
+  expression_dat& dat = m_generator->get_data(_inst->get_condition());
+  containers::dynamic_array<llvm::BasicBlock*>& body =
+      m_generator->get_data(_inst->get_body());
+
+  llvm::BasicBlock* post_if =
+      _inst->returns() ? wn_nullptr
+                       : llvm::BasicBlock::Create(*m_context, "end_if");
+  llvm::BasicBlock* next_if = llvm::BasicBlock::Create(*m_context, "next_if");
+
+  _val->blocks.insert(_val->blocks.begin(), body.begin(), body.end());
+
+  _val->instructions.insert(_val->instructions.begin(),
+                            dat.instructions.begin(), dat.instructions.end());
+  _val->instructions.push_back(llvm::BranchInst::Create(_val->blocks.front(), next_if, dat.value));
+
+  if (!_inst->get_body()->returns()) {
+    _val->blocks.back()->getInstList().push_back(
+        llvm::BranchInst::Create(post_if));
+  }
+  _val->blocks.push_back(next_if);
+
+  for(auto& else_if: _inst->get_else_if_instructions()) {
+    instruction_dat& inst_dat = m_generator->get_data(else_if.get());
+    // The very last block in the else_if is the block that gets branched
+    // to if the else_if did not get run.
+    // The second to last block, is the last block inside of the if statement.
+    // If this doesn't return it should branch to the post_if block.
+    if (!else_if->returns()) {
+      (*(inst_dat.blocks.rbegin() + 1))
+          ->getInstList()
+          .push_back(llvm::BranchInst::Create(post_if));
+    }
+    next_if->getInstList().insert(next_if->getInstList().end(),
+                                  inst_dat.instructions.begin(),
+                                  inst_dat.instructions.end());
+    _val->blocks.insert(_val->blocks.end(), inst_dat.blocks.begin(),
+                       inst_dat.blocks.end());
+    next_if = _val->blocks.back();
+  }
+  if (_inst->get_else()) {
+    containers::dynamic_array<llvm::BasicBlock*>& list_dat =
+        m_generator->get_data(_inst->get_else());
+    next_if->getInstList().push_back(
+        llvm::BranchInst::Create(list_dat.front()));
+    if (!_inst->get_else()->returns()) {
+      list_dat.back()->getInstList().push_back(
+          llvm::BranchInst::Create(post_if));
+    }
+    _val->blocks.insert(_val->blocks.end(), list_dat.begin(), list_dat.end());
+  } else {
+    next_if->getInstList().push_back(llvm::BranchInst::Create(post_if));
+  }
+
+  if (post_if) {
+    _val->blocks.insert(_val->blocks.end(), post_if);
+  }
+}
+
+void ast_jit_engine::walk_instruction(const return_instruction* _inst,
+                                      instruction_dat* _val) {
+  _val->instructions =
+      containers::dynamic_array<llvm::Instruction*>(m_allocator);
   if (_inst->get_expression()) {
     const expression_dat& dat = m_generator->get_data(_inst->get_expression());
-    _val->instructions.insert(_val->instructions.end(), dat.instructions.data(),
-                 dat.instructions.data() + dat.instructions.size());
-    _val->instructions.push_back(llvm::ReturnInst::Create(*m_context, dat.value));
+    _val->instructions.insert(
+        _val->instructions.end(), dat.instructions.data(),
+        dat.instructions.data() + dat.instructions.size());
+    _val->instructions.push_back(
+        llvm::ReturnInst::Create(*m_context, dat.value));
   } else {
     _val->instructions.push_back(llvm::ReturnInst::Create(*m_context));
   }
@@ -202,16 +293,16 @@ void ast_jit_engine::walk_instruction_list(
     const instruction_list* _instructions,
     containers::dynamic_array<llvm::BasicBlock*>* _list) {
   *_list = containers::dynamic_array<llvm::BasicBlock*>(m_allocator);
-  llvm::BasicBlock* bb = llvm::BasicBlock::Create(*m_context);
+  llvm::BasicBlock* bb = llvm::BasicBlock::Create(*m_context, "block");
   _list->push_back(bb);
-  for(auto& inst: _instructions->get_instructions()) {
-    instruction_dat& instructions =
-        m_generator->get_data(inst.get());
+  for (auto& inst : _instructions->get_instructions()) {
+    instruction_dat& instructions = m_generator->get_data(inst.get());
     for (llvm::Instruction* i : instructions.instructions) {
       bb->getInstList().push_back(i);
     }
-    for(llvm::BasicBlock* b : instructions.blocks) {
+    for (llvm::BasicBlock* b : instructions.blocks) {
       _list->push_back(b);
+      bb = b;
     }
   }
 }
@@ -253,7 +344,7 @@ void ast_jit_engine::walk_function(const function* _func, llvm::Function** _f) {
 
   (*_f)->getBasicBlockList().push_front(bb);
   bool first = true;
-  for(auto& block : m_generator->get_data(_func->get_body())) {
+  for (auto& block : m_generator->get_data(_func->get_body())) {
     if (first) {
       bb->getInstList().push_back(llvm::BranchInst::Create(block));
       first = false;

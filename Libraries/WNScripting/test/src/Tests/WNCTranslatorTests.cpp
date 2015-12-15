@@ -13,7 +13,6 @@ TEST(c_translator, simple_c_translation) {
 
   wn::scripting::c_translator translator(&allocator, &manager,
                                          WNLogging::get_null_logger());
-  wn::containers::string output_string(&allocator);
   EXPECT_EQ(wn::scripting::parse_error::ok,
             translator.translate_file("file.wns"));
   EXPECT_EQ(
@@ -22,6 +21,109 @@ TEST(c_translator, simple_c_translation) {
       "}\n",
       std::string(manager.get_file("file.wns.c")->data()));
 }
+
+struct source_pair {
+  const char* first;
+  const char* second;
+};
+
+using c_translator_direct_translation_test =
+    ::testing::TestWithParam<wn::containers::dynamic_array<source_pair>>;
+
+// The format of these tests is a dynamic_array of pairs of strings.
+// This is entirely so that the test can be written as
+// { "Int main() {", "wn_int32 main() {"},
+// { "  return 4;",  "return 4;"},
+// ...
+// A \n in automatically appended to each string.
+// If an empty string is encountered, no new-line is appended.
+// If you want a line that is only a newline, you can insert a newline,
+// a second one will not be added.
+TEST_P(c_translator_direct_translation_test, translations) {
+  wn::memory::default_expanding_allocator<50> allocator;
+  wn::containers::string input_str(&allocator);
+  wn::containers::string expected_output(&allocator);
+
+  for(auto& a: GetParam()) {
+      if(wn::memory::strlen(a.first) != 0) {
+        input_str += a.first;
+        if (a.first[0] != '\n') {
+          input_str += '\n';
+        }
+      }
+      if(wn::memory::strlen(a.second) != 0) {
+        expected_output += a.second;
+        if (a.second[0] != '\n') {
+          expected_output += '\n';
+        }
+      }
+  }
+
+  wn::scripting::test_file_manager manager(&allocator, {{"file.wns", input_str}});
+  wn::scripting::c_translator translator(&allocator, &manager,
+                                         WNLogging::get_null_logger());
+  EXPECT_EQ(wn::scripting::parse_error::ok,
+            translator.translate_file("file.wns"));
+  EXPECT_EQ(std::string(expected_output.c_str()),
+            std::string(manager.get_file("file.wns.c")->data()));
+}
+
+// clang-format off
+INSTANTIATE_TEST_CASE_P(
+    if_statement_tests, c_translator_direct_translation_test,
+    ::testing::ValuesIn(
+        wn::containers::dynamic_array<wn::containers::dynamic_array<source_pair>>({
+            {
+              {"Int main(Int x) {",     "wn_int32 main(wn_int32 x) {"  },
+              {"  if (x == 3) {",       "if ((x == 3)) {"              },
+              {"    return 7;",         "return 7;"                    },
+              {"  }",                   "}"                            },
+              {"  return 9;",           "return 9;"                    },
+              {"}",                     "}"                            },
+            },
+            {
+              {"Int main(Int x) {",     "wn_int32 main(wn_int32 x) {"  },
+              {"  if (x == 3) {",       "if ((x == 3)) {"              },
+              {"    return 7;",         "return 7;"                    },
+              {"  } else {",            "} else {"                     },
+              {"    return 10;",        "return 10;"                   },
+              {"  }",                   "}"                            },
+              {"  return 9;",           ""                             },
+              {"}",                     "}"                            },
+            },
+            {
+              {"Int main(Int x) {",     "wn_int32 main(wn_int32 x) {"  },
+              {"  if (x == 4) {",       "if ((x == 4)) {"              },
+              {"    if (x > 3) {",      "if ((x > 3)) {"               },
+              {"      return 9;",       "return 9;"                    },
+              {"    }",                 "}"                            },
+              {"    return 7;",         "return 7;"                    },
+              {"  } else {",            "} else {"                     },
+              {"    return 10;",        "return 10;"                   },
+              {"  }",                   "}"                            },
+              {"  return 9;",           "}"                            },
+              {"}",                     ""                             },
+            },
+            {
+              {"Int main(Int x) {",        "wn_int32 main(wn_int32 x) {" },
+              {"  if (x == 4) {",          "if ((x == 4)) {"             },
+              {"    if (x > 3) {",         "if ((x > 3)) {"              },
+              {"      return 9;",          "return 9;"                   },
+              {"    } else if (x < 4) {",  "} else if ((x < 4)) {"       },
+              {"      return 32;",         "return 32;"                  },
+              {"    } else {",             "} else {"                    },
+              {"      return 9;",          "return 9;"                   },
+              {"    }",                    "}"                           },
+              {"    return 7;",            "} else {"                    },
+              {"  } else {",               "return 10;"                  },
+              {"    return 10;",           "}"                           },
+              {"  }",                      "}"                           },
+              {"  return 9;",              ""                            },
+              {"}",                        ""                            },
+            }
+})));
+// clang-format on
+
 
 using c_translator_function_params =
     ::testing::TestWithParam<std::pair<const char*, const char*>>;
@@ -40,7 +142,6 @@ TEST_P(c_translator_function_params, single_parameter) {
 
   wn::scripting::c_translator translator(&allocator, &manager,
                                          WNLogging::get_null_logger());
-  wn::containers::string output_string(&allocator);
   EXPECT_EQ(wn::scripting::parse_error::ok,
             translator.translate_file("file.wns"));
   EXPECT_EQ(std::string(expected_str.c_str()),
@@ -64,7 +165,6 @@ TEST(c_translator, multiple_c_functions) {
 
   wn::scripting::c_translator translator(&allocator, &manager,
                                          WNLogging::get_null_logger());
-  wn::containers::string output_string(&allocator);
   EXPECT_EQ(wn::scripting::parse_error::ok,
             translator.translate_file("file.wns"));
   EXPECT_EQ(
@@ -86,7 +186,6 @@ TEST(c_translator, multiple_returns) {
 
   wn::scripting::c_translator translator(&allocator, &manager,
                                          WNLogging::get_null_logger());
-  wn::containers::string output_string(&allocator);
   EXPECT_EQ(wn::scripting::parse_error::ok,
             translator.translate_file("file.wns"));
   EXPECT_EQ(
@@ -115,7 +214,6 @@ TEST_P(c_int_params, int_return) {
 
   wn::scripting::c_translator translator(&allocator, &manager,
                                          WNLogging::get_null_logger());
-  wn::containers::string output_string(&allocator);
   EXPECT_EQ(wn::scripting::parse_error::ok,
             translator.translate_file("file.wns"));
   EXPECT_EQ(std::string(expected.c_str()),
@@ -150,7 +248,6 @@ TEST_P(c_arith_params, binary_arithmetic) {
 
   wn::scripting::c_translator translator(&allocator, &manager,
                                          WNLogging::get_null_logger());
-  wn::containers::string output_string(&allocator);
   EXPECT_EQ(wn::scripting::parse_error::ok,
             translator.translate_file("file.wns"));
   EXPECT_EQ(std::string(expected.c_str()),
@@ -187,7 +284,6 @@ TEST_P(c_bool_params, boolean_arithmetic) {
 
   wn::scripting::c_translator translator(&allocator, &manager,
                                          WNLogging::get_null_logger());
-  wn::containers::string output_string(&allocator);
   EXPECT_EQ(wn::scripting::parse_error::ok,
             translator.translate_file("file.wns"));
   EXPECT_EQ(std::string(expected.c_str()),

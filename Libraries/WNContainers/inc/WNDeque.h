@@ -542,7 +542,8 @@ public:
     iterator erase_start = pos;
 
     for (size_type i = 0; i < _count; ++i) {
-      (*(erase_start++)).~_Type();
+      _Type& t = *(erase_start++);
+      t.~_Type();
     }
 
     if (closer_to_front(pos)) {

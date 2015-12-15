@@ -148,19 +148,18 @@ TEST_P(jit_binary_arithmetic, simple_operations) {
 
 INSTANTIATE_TEST_CASE_P(
     int_arithmetic_tests, jit_binary_arithmetic,
-    ::testing::ValuesIn(
-        wn::containers::dynamic_array<int_binary_test>({{"1 + 2", 3},
-                                                        {"2 * -3", -6},
-                                                        {"10 % 4", 2},
-                                                        {"-32 + 9", -23},
-                                                        {"16 / 4", 4},
-                                                        {"16 / 5", 3},
-                                                        {"16 / 4 + 3", 7},
-                                                        {"32 * 6 - 7", 185},
-                                                        {"32 * (6 - 7)", -32},
-                                                        {"191 + 10 * -3", 161},
-                                                        {"100 + 396 * -1", -296}})));
-
+    ::testing::ValuesIn(wn::containers::dynamic_array<int_binary_test>(
+        {{"1 + 2", 3},
+         {"2 * -3", -6},
+         {"10 % 4", 2},
+         {"-32 + 9", -23},
+         {"16 / 4", 4},
+         {"16 / 5", 3},
+         {"16 / 4 + 3", 7},
+         {"32 * 6 - 7", 185},
+         {"32 * (6 - 7)", -32},
+         {"191 + 10 * -3", 161},
+         {"100 + 396 * -1", -296}})));
 
 struct boolean_test {
   const char* code;
@@ -213,4 +212,45 @@ INSTANTIATE_TEST_CASE_P(
          {"(1 <= 2) == (b == false)", false, true},
          {"(1 <= 2) == (b == false)", true, false}})));
 
-//TODO(awoloszyn) Arithmetic comparisons
+struct integer_test {
+  const char* code;
+  wn::containers::dynamic_array<std::pair<wn_int32, wn_int32>> cases;
+};
+
+using integer_tests = ::testing::TestWithParam<integer_test>;
+
+TEST_P(integer_tests, int_in_out_tests) {
+  wn::memory::default_expanding_allocator<50> allocator;
+  wn::containers::string str(GetParam().code, &allocator);
+
+  wn::scripting::test_file_manager manager(&allocator, {{"file.wns", str}});
+
+  wn::scripting::jit_engine jit_engine(&allocator, &manager,
+                                       WNLogging::get_null_logger());
+  EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file.wns"));
+
+  wn::scripting::engine::void_func main = jit_engine.get_function("main");
+  wn_int32 (*new_func)(wn_int32) =
+      reinterpret_cast<wn_int32 (*)(wn_int32)>(main);
+  for (auto& test_case : GetParam().cases) {
+    EXPECT_EQ(test_case.second, (*new_func)(test_case.first));
+  }
+}
+
+INSTANTIATE_TEST_CASE_P(
+    comparison_tests, integer_tests,
+    ::testing::ValuesIn(wn::containers::dynamic_array<integer_test>(
+        {{"Int main(Int x) { if (x > 3) { return 2; } return 1;}",
+          {{0, 1}, {-1, 1}, {2, 1}, {3, 1}, {4, 2}, {50, 2}}},
+         {"Int main(Int x) { if (x > 3) { return 2; } else { return 3; } "
+          "return 4;}",
+          {{0, 3}, {-1, 3}, {2, 3}, {3, 3}, {4, 2}, {50, 2}}},
+         {"Int main(Int x) { if (x > 3) { return 2; } else if (x < 2) { "
+          "return 1; } return 3;}",
+          {{0, 1}, {-1, 1}, {2, 3}, {3, 3}, {4, 2}, {50, 2}}},
+         {"Int main(Int x) { if (x > 3) { return 2; } else if (x < 2) { "
+          "} return 3;}",
+          {{0, 3}, {-1, 3}, {2, 3}, {3, 3}, {4, 2}, {50, 2}}},
+         {"Int main(Int x) { if (x > 3) { } else if (x < 2) { return 4;"
+          "} return 3;}",
+          {{0, 4}, {-1, 4}, {2, 3}, {3, 3}, {4, 3}, {50, 3}}}})));

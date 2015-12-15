@@ -103,13 +103,37 @@ void ast_c_translator::walk_instruction(const return_instruction* i,
   *_str += ";";
 }
 
+void ast_c_translator::walk_instruction(const else_if_instruction* _i,
+                                        containers::string* _str) {
+  *_str = containers::string(m_allocator) + " else if (";
+  *_str += m_generator->get_data(_i->get_condition());
+  *_str += ") ";
+  *_str += m_generator->get_data(_i->get_body());
+}
+
+void ast_c_translator::walk_instruction(const if_instruction* _i,
+                                        containers::string* _str) {
+  *_str = containers::string(m_allocator) + "if (";
+  *_str += m_generator->get_data(_i->get_condition());
+  *_str += ") ";
+  *_str += m_generator->get_data(_i->get_body());
+  for(auto& else_inst: _i->get_else_if_instructions()) {
+    *_str += m_generator->get_data(else_inst.get());
+  }
+  const instruction_list* else_clause = _i->get_else();
+  if (else_clause) {
+    *_str += " else ";
+    *_str += m_generator->get_data(else_clause);
+  }
+}
+
 void ast_c_translator::walk_instruction_list(const instruction_list* l,
   containers::string* _str) {
    *_str = containers::string(m_allocator) + "{\n";
   for (auto& a : l->get_instructions()) {
     *_str += m_generator->get_data(a.get()) + "\n";
   }
-  *_str += "}\n";
+  *_str += "}";
 }
 
 void ast_c_translator::walk_function(const function* _func,
@@ -129,6 +153,7 @@ void ast_c_translator::walk_function(const function* _func,
   }
   *_str += ") ";
   *_str += m_generator->get_data(_func->get_body());
+  *_str += "\n";
 }
 
 void ast_c_translator::walk_script_file(const script_file* _file) {

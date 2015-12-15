@@ -460,7 +460,7 @@ class instruction : public node {
     m_returns = _returns;
   }
   // Returns true if this instruction causes the function to return.
-  wn_bool returns() { return (m_returns); }
+  wn_bool returns() const { return (m_returns); }
 
   virtual void walk_children(const walk_ftype<instruction *> &,
                              const walk_ftype<expression *> &,
@@ -475,7 +475,8 @@ class instruction : public node {
   }
 
   void set_is_dead() { m_is_dead = true; }
-  bool is_dead() const { return m_is_dead; }
+  void set_returns(wn_bool returns) { m_returns = returns; }
+  wn_bool is_dead() const { return m_is_dead; }
  protected:
   wn_bool m_is_dead;
   wn_bool m_returns;
@@ -502,11 +503,11 @@ class instruction_list : public node {
   }
   ~instruction_list() {}
   void add_instruction(instruction *inst) {
-    auto inst_ptr = memory::default_allocated_ptr(m_allocator, inst);
-    m_instructions.push_back(std::move(inst_ptr));
+    m_instructions.push_back(memory::default_allocated_ptr(m_allocator, inst));
   }
 
-  wn_bool returns() { return (m_returns); }
+  wn_bool returns() const { return (m_returns); }
+  void set_returns() { m_returns = true; }
 
   const containers::deque<memory::allocated_ptr<instruction>>
       &get_instructions() const {
@@ -521,7 +522,6 @@ class instruction_list : public node {
       _instruction(inst.get());
     }
     _leave_scope();
-    remove_dead_instructions();
   }
 
   void walk_children(
@@ -781,7 +781,7 @@ class assignment_instruction : public instruction {
 
   void add_value(assign_type _type, expression *_value) {
     _type = _type;
-    m_assign_expression.reset(_value);
+    m_assign_expression = memory::default_allocated_ptr(m_allocator, _value);
   }
 
  private:
@@ -810,9 +810,32 @@ class else_if_instruction : public instruction {
       : instruction(_allocator, node_type::else_if_instruction),
         m_condition(memory::default_allocated_ptr(m_allocator, _cond)),
         m_body(memory::default_allocated_ptr(m_allocator, _body)) {}
+
   const expression* get_condition() const {
     return m_condition.get();
   }
+
+  const instruction_list* get_body() const {
+    return m_body.get();
+  }
+
+  virtual void walk_children(
+      const walk_ftype<instruction *> &,
+      const walk_ftype<expression *> &_cond,
+      const walk_ftype<instruction_list *> &_body) {
+    _cond(m_condition.get());
+    _body(m_body.get());
+  }
+
+  virtual void walk_children(
+      const walk_ftype<const instruction *> ,
+      const walk_ftype<const expression *> &_cond,
+      const walk_ftype<const instruction_list *> &_body) const {
+    _cond(m_condition.get());
+    _body(m_body.get());
+  }
+
+
  private:
   memory::allocated_ptr<expression> m_condition;
   memory::allocated_ptr<instruction_list> m_body;
@@ -828,17 +851,16 @@ class if_instruction : public instruction {
         m_else_if_nodes(_allocator) {}
 
   void add_else_if(else_if_instruction *_elseif) {
-    m_else_if_nodes.emplace_back(_elseif);
+    m_else_if_nodes.emplace_back(memory::default_allocated_ptr(m_allocator, _elseif));
   }
-  void add_else(instruction_list *_else) { m_else.reset(_else); }
-  const expression* get_condition() const {
-    return m_condition.get();
+  void add_else(instruction_list *_else) {
+    m_else = memory::default_allocated_ptr(m_allocator, _else);
   }
 
   virtual void walk_children(
       const walk_ftype<instruction *> & _inst,
       const walk_ftype<expression *> &_cond,
-      const walk_ftype<const instruction_list *> &_body) {
+      const walk_ftype<instruction_list *> &_body) {
     _cond(m_condition.get());
     _body(m_body.get());
     for(auto& else_inst: m_else_if_nodes) {
@@ -861,6 +883,17 @@ class if_instruction : public instruction {
     if (m_else) {
       _body(m_else.get());
     }
+  }
+
+  const expression *get_condition() const { return m_condition.get(); }
+
+  const instruction_list *get_body() const { return m_body.get(); }
+
+  const instruction_list *get_else() const { return m_else.get(); }
+
+  const containers::deque<memory::allocated_ptr<else_if_instruction>>
+      &get_else_if_instructions() const {
+    return m_else_if_nodes;
   }
 
  private:

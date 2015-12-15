@@ -29,36 +29,55 @@ protected:
 class dead_code_elimination_pass : public pass {
  public:
   dead_code_elimination_pass(WNLogging::WNLog* _log, memory::allocator* _allocator)
-      : pass(_log, _allocator), m_returned(wn_false) {}
+      : pass(_log, _allocator) {}
   void enter_scope_block() {}
   void leave_scope_block() {}
   void walk_expression(expression*) {}
-  void walk_instruction_list(instruction_list*) {}
-  void walk_instruction(instruction* _inst) {
-    if (m_returned) {
-      _inst->set_is_dead();
-      m_log->Log(WNLogging::eWarning, 0, "Code after return statement");
-      _inst->log_line(*m_log, WNLogging::eWarning);
-      ++m_num_warnings;
+
+  void walk_instruction_list(instruction_list* _inst) {
+    bool returns = false;
+    for (auto& inst : _inst->get_instructions()) {
+      if (returns) {
+        inst->set_is_dead();
+        m_log->Log(WNLogging::eWarning, 0, "Code after return statement");
+        inst->log_line(*m_log, WNLogging::eWarning);
+        ++m_num_warnings;
+      }
+      returns |= inst->returns();
     }
+    if (returns) {
+      _inst->set_returns();
+    }
+    _inst->remove_dead_instructions();
   }
 
-  void walk_function(function*) { m_returned = wn_false; }
+  void walk_function(function*) {}
   void walk_parameter(parameter*) {}
   void walk_script_file(script_file*) {}
   void walk_type(type*) {}
-  void walk_instruction(return_instruction* _inst) {
-    if (m_returned) {
-      _inst->set_is_dead();
-      m_log->Log(WNLogging::eWarning, 0, "Code after return statement");
-      _inst->log_line(*m_log, WNLogging::eWarning);
-      ++m_num_warnings;
+  void walk_instruction(instruction*) {}
+
+  void walk_instruction(else_if_instruction* _inst) {
+    _inst->set_returns(_inst->get_body()->returns());
+  }
+
+  void walk_instruction(if_instruction* _inst) {
+    if (!_inst->get_else()) {
+      // If we do not have an else clause, then we
+      // have an out (since we have not done constant
+      // propagation yet).
+      return;
     }
-    m_returned = wn_true;
+
+    bool returns = _inst->get_body()->returns();
+    for(auto& else_inst :_inst->get_else_if_instructions()) {
+      returns &= else_inst->returns();
+    }
+    returns &= _inst->get_else()->returns();
+    _inst->set_returns(returns);
   }
 
  private:
-  bool m_returned;
 };
 
 class id_association_pass : public pass {
