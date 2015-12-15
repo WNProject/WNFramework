@@ -28,9 +28,15 @@ struct expression_dat {
   llvm::Value* value;
 };
 
+struct instruction_dat {
+  containers::dynamic_array<llvm::Instruction*> instructions;
+  containers::dynamic_array<llvm::BasicBlock*> blocks;
+};
+
 class ast_jit_engine;
 struct ast_jit_traits {
-  using instruction_data = containers::dynamic_array<llvm::Instruction*>;
+  using instruction_data = instruction_dat;
+  using instruction_list_data = containers::dynamic_array<llvm::BasicBlock*>;
   using expression_data = expression_dat;
   using parameter_data = llvm::Instruction*;
   using function_data = llvm::Function*;
@@ -54,10 +60,10 @@ class ast_jit_engine {
   void walk_expression(const binary_expression* _binary, expression_dat* _str);
 
   void walk_type(const type* _type, llvm::Type** _val);
-  void walk_instruction(const instruction*,
-                        containers::dynamic_array<llvm::Instruction*>*) {}
-  void walk_instruction(const return_instruction* _inst,
-                        containers::dynamic_array<llvm::Instruction*>*);
+  void walk_instruction(const instruction*, instruction_dat*) {}
+  void walk_instruction_list(const instruction_list*,
+                             containers::dynamic_array<llvm::BasicBlock*>*);
+  void walk_instruction(const return_instruction* _inst, instruction_dat*);
   void walk_parameter(const parameter* _param, llvm::Instruction**);
   void walk_function(const function* _func, llvm::Function**);
   void walk_script_file(const script_file* _file);

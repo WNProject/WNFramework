@@ -103,6 +103,15 @@ void ast_c_translator::walk_instruction(const return_instruction* i,
   *_str += ";";
 }
 
+void ast_c_translator::walk_instruction_list(const instruction_list* l,
+  containers::string* _str) {
+   *_str = containers::string(m_allocator) + "{\n";
+  for (auto& a : l->get_instructions()) {
+    *_str += m_generator->get_data(a.get()) + "\n";
+  }
+  *_str += "}\n";
+}
+
 void ast_c_translator::walk_function(const function* _func,
                                      containers::string* _str) {
   *_str = containers::string(m_allocator) +
@@ -118,11 +127,8 @@ void ast_c_translator::walk_function(const function* _func,
       *_str += m_generator->get_data(a.get());
     }
   }
-  *_str += ") {\n";
-  for (auto& a : _func->get_body()->get_instructions()) {
-    *_str += m_generator->get_data(a.get()) + "\n";
-  }
-  *_str += "}\n";
+  *_str += ") ";
+  *_str += m_generator->get_data(_func->get_body());
 }
 
 void ast_c_translator::walk_script_file(const script_file* _file) {

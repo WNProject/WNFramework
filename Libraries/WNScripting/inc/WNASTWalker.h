@@ -32,15 +32,20 @@ class ast_walker {
   using type_type = typename std::conditional<Const, const type*, type*>::type;
   using script_file_type =
       typename std::conditional<Const, const script_file*, script_file*>::type;
+  using instruction_list_type =
+    typename std::conditional<Const, const instruction_list*, instruction_list*>::type;
 
   void walk_script_file(script_file_type file);
 
  private:
   void walk_expression(expression_type _expr);
   void walk_instruction(instruction_type _inst);
+  void walk_instruction_list(instruction_list_type _inst);
   void walk_function(function_type _func);
   void walk_parameter(parameter_type _param);
   void walk_type(type_type _type);
+  void enter_scope_block();
+  void leave_scope_block();
   T* m_walker;
 };
 

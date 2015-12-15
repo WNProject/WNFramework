@@ -30,8 +30,10 @@ class dead_code_elimination_pass : public pass {
  public:
   dead_code_elimination_pass(WNLogging::WNLog* _log, memory::allocator* _allocator)
       : pass(_log, _allocator), m_returned(wn_false) {}
-
+  void enter_scope_block() {}
+  void leave_scope_block() {}
   void walk_expression(expression*) {}
+  void walk_instruction_list(instruction_list*) {}
   void walk_instruction(instruction* _inst) {
     if (m_returned) {
       _inst->set_is_dead();
@@ -64,42 +66,64 @@ class id_association_pass : public pass {
   id_association_pass(WNLogging::WNLog* _log, memory::allocator* _allocator)
       : pass(_log, _allocator),
         id_map(_allocator) {}
-  // TODO(awoloszyn): Add scope handling here.
   // TODO(awoloszyn): Handle declarations here
   //                  for now this just handles parameter ids.
 
   void walk_expression(expression*) {}
   void walk_instruction(instruction*) {}
-  void walk_function(function*) { id_map.clear(); }
+  void walk_instruction_list(instruction_list*) {}
+  void walk_function(function*) {}
+
+  void enter_scope_block() {
+    id_map.emplace_back(containers::hash_map <containers::string_view,
+                        id_expression::id_source>(m_allocator));
+  }
+
+  void leave_scope_block() {
+    // TODO(awoloszyn): Once we have object support, we will need to
+    //                  add dereference operations on scope leave.
+    id_map.pop_back();
+  }
+
   void walk_parameter(parameter* _param) {
-    if (id_map.find(_param->get_name()) != id_map.end()) {
+    if (find_param(_param->get_name())) {
       m_log->Log(WNLogging::eError, 0, "Id ", _param->get_name(),
                  "hides id of the same name");
       _param->log_line(*m_log, WNLogging::eError);
       ++m_num_errors;
       return;
     }
-    id_map[_param->get_name()] = {_param, 0};
+    id_map.back()[_param->get_name()] = {_param, 0};
   }
 
   void walk_expression(id_expression* _expr) {
-    auto it = id_map.find(_expr->get_name());
-    if (it == id_map.end()) {
+    auto param = find_param(_expr->get_name());
+    if (!param) {
       m_log->Log(WNLogging::eError, 0, "Could not find id: ",
                  _expr->get_name());
       _expr->log_line(*m_log, WNLogging::eError);
       ++m_num_errors;
       return;
     }
-    _expr->set_id_source(it->second);
+    _expr->set_id_source(*param);
   }
 
   void walk_script_file(script_file*) {}
   void walk_type(type*) {}
 
  private:
-  containers::hash_map<containers::string_view, id_expression::id_source>
-      id_map;
+  const id_expression::id_source* find_param(const containers::string_view& v) const {
+    for (auto it = id_map.cbegin(); it != id_map.cend(); ++it) {
+      auto val = it->find(v);
+      if (val != it->end()) {
+        return &(val->second);
+      }
+    }
+    return wn_nullptr;
+  }
+
+  containers::deque<containers::hash_map<containers::string_view,
+                                         id_expression::id_source>> id_map;
 };
 
 class type_association_pass : public pass {
@@ -108,6 +132,8 @@ class type_association_pass : public pass {
       : pass(_log, _allocator) {}
   void walk_expression(expression*) {}
   void walk_parameter(parameter*) {}
+  void enter_scope_block() {}
+  void leave_scope_block() {}
   void walk_expression(id_expression* _expr) {
     if (_expr->get_id_source().param_source) {
       type* t = m_allocator->make_allocated<type>(
@@ -118,6 +144,7 @@ class type_association_pass : public pass {
       WN_RELEASE_ASSERT_DESC(wn_false, "Not Implemented: non_param ids.");
     }
   }
+
   void walk_expression(constant_expression* _expr) {
     if (!_expr->get_type()) {
       WN_RELEASE_ASSERT_DESC(
@@ -214,7 +241,27 @@ class type_association_pass : public pass {
   }
 
   void walk_instruction(instruction*) {}
+  void walk_instruction_list(instruction_list*) {}
   void walk_instruction(return_instruction* _ret) { m_returns.push_back(_ret); }
+  void walk_instruction(else_if_instruction* _else_if) {
+    if (_else_if->get_condition()->get_type()->get_classification() !=
+        type_classification::bool_type) {
+       m_log->Log(WNLogging::eError, 0,
+                 "Else If conditional must be a boolean expression");
+      _else_if->get_condition()->log_line(*m_log, WNLogging::eError);
+      ++m_num_errors;
+    }
+  }
+
+  void walk_instruction(if_instruction* _if) {
+    if (_if->get_condition()->get_type()->get_classification() !=
+        type_classification::bool_type) {
+       m_log->Log(WNLogging::eError, 0,
+                 "If conditional must be a boolean expression");
+      _if->get_condition()->log_line(*m_log, WNLogging::eError);
+      ++m_num_errors;
+    }
+  }
 
   void walk_function(function* _func) {
     const type* function_return_type = _func->get_signature()->get_type();

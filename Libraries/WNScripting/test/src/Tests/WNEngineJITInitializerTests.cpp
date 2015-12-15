@@ -184,7 +184,7 @@ TEST_P(bool_arithmetic_tests, boolean_arithmetic) {
   EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file.wns"));
 
   wn::scripting::engine::void_func main = jit_engine.get_function("main");
-  wn_bool (*new_func)(wn_bool ) = reinterpret_cast<wn_bool (*)(wn_bool )>(main);
+  wn_bool (*new_func)(wn_bool) = reinterpret_cast<wn_bool (*)(wn_bool)>(main);
   EXPECT_EQ(GetParam().expected_return, (*new_func)(GetParam().input));
 }
 

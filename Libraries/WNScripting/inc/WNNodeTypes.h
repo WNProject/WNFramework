@@ -80,7 +80,7 @@ T *cast_to(node *_node) {
 }
 template <typename T>
 using walk_ftype = containers::function<void(T)>;
-
+using walk_scope = containers::function<void()>;
 // Base class for all nodes in AST.
 class node {
  public:
@@ -450,6 +450,7 @@ class unary_expression : public expression {
   memory::allocated_ptr<expression> m_root_expression;
 };
 
+class instruction_list;
 class instruction : public node {
  public:
   instruction(memory::allocator *_allocator, node_type _type)
@@ -462,14 +463,17 @@ class instruction : public node {
   wn_bool returns() { return (m_returns); }
 
   virtual void walk_children(const walk_ftype<instruction *> &,
-                             const walk_ftype<expression *> &) {
+                             const walk_ftype<expression *> &,
+                             const walk_ftype<instruction_list *> &) {
     WN_RELEASE_ASSERT_DESC(false, "Not Implemented");
   }
 
   virtual void walk_children(const walk_ftype<const instruction *> &,
-                             const walk_ftype<const expression *> &) const {
+                             const walk_ftype<const expression *> &,
+                             const walk_ftype<const instruction_list *> &) const {
     WN_RELEASE_ASSERT_DESC(false, "Not Implemented");
   }
+
   void set_is_dead() { m_is_dead = true; }
   bool is_dead() const { return m_is_dead; }
  protected:
@@ -507,6 +511,27 @@ class instruction_list : public node {
   const containers::deque<memory::allocated_ptr<instruction>>
       &get_instructions() const {
     return m_instructions;
+  }
+
+  void walk_children(const walk_scope &_enter_scope,
+                     const walk_scope &_leave_scope,
+                     const walk_ftype<instruction *> &_instruction) {
+    _enter_scope();
+    for(auto& inst: m_instructions) {
+      _instruction(inst.get());
+    }
+    _leave_scope();
+    remove_dead_instructions();
+  }
+
+  void walk_children(
+      const walk_scope &_enter_scope, const walk_scope &_leave_scope,
+      const walk_ftype<const instruction *> &_instruction) const {
+    _enter_scope();
+    for(auto& inst: m_instructions) {
+      _instruction(inst.get());
+    }
+    _leave_scope();
   }
 
   void remove_dead_instructions() {
@@ -698,36 +723,34 @@ class function : public node {
   const parameter_list *get_parameters() const { return m_parameters.get(); }
   const instruction_list *get_body() const { return m_body.get(); }
 
-  virtual void walk_children(const walk_ftype<parameter *> &_parameter,
-                             const walk_ftype<instruction *> &_instruction,
+  virtual void walk_children(const walk_scope &_enter_scope,
+                             const walk_scope &_leave_scope,
+                             const walk_ftype<parameter *> &_parameter,
+                             const walk_ftype<instruction_list *> &_instructions,
                              const walk_ftype<type *> &_type) {
     m_signature->walk_children(_type);
+    _enter_scope();
     if (m_parameters) {
       for (auto &param : m_parameters->get_parameters()) {
         _parameter(param.get());
       }
     }
-    for (auto &inst : m_body->get_instructions()) {
-      if (!inst->is_dead()) {
-        _instruction(inst.get());
-      }
-    }
-    m_body->remove_dead_instructions();
+    _instructions(m_body.get());
+    _leave_scope();
   }
 
   virtual void walk_children(
+      const walk_scope &_enter_scope, const walk_scope &_leave_scope,
       const walk_ftype<const parameter *> &_parameter,
-      const walk_ftype<const instruction *> &_instruction,
+      const walk_ftype<const instruction_list *> &_instructions,
       const walk_ftype<const type *> &_type) const {
     m_signature->walk_children(_type);
+    _enter_scope();
     for (auto &param : m_parameters->get_parameters()) {
       _parameter(param.get());
     }
-    for (auto &inst : m_body->get_instructions()) {
-      if (!inst->is_dead()) {
-        _instruction(inst.get());
-      }
-    }
+    _instructions(m_body.get());
+    _leave_scope();
   }
 
  private:
@@ -787,7 +810,9 @@ class else_if_instruction : public instruction {
       : instruction(_allocator, node_type::else_if_instruction),
         m_condition(memory::default_allocated_ptr(m_allocator, _cond)),
         m_body(memory::default_allocated_ptr(m_allocator, _body)) {}
-
+  const expression* get_condition() const {
+    return m_condition.get();
+  }
  private:
   memory::allocated_ptr<expression> m_condition;
   memory::allocated_ptr<instruction_list> m_body;
@@ -801,10 +826,42 @@ class if_instruction : public instruction {
         m_condition(memory::default_allocated_ptr(m_allocator, _cond)),
         m_body(memory::default_allocated_ptr(m_allocator, _body)),
         m_else_if_nodes(_allocator) {}
+
   void add_else_if(else_if_instruction *_elseif) {
     m_else_if_nodes.emplace_back(_elseif);
   }
   void add_else(instruction_list *_else) { m_else.reset(_else); }
+  const expression* get_condition() const {
+    return m_condition.get();
+  }
+
+  virtual void walk_children(
+      const walk_ftype<instruction *> & _inst,
+      const walk_ftype<expression *> &_cond,
+      const walk_ftype<const instruction_list *> &_body) {
+    _cond(m_condition.get());
+    _body(m_body.get());
+    for(auto& else_inst: m_else_if_nodes) {
+      _inst(else_inst.get());
+    }
+    if (m_else) {
+      _body(m_else.get());
+    }
+  }
+
+  virtual void walk_children(
+      const walk_ftype<const instruction *> &_inst,
+      const walk_ftype<const expression *> &_cond,
+      const walk_ftype<const instruction_list *> &_body) const {
+    _cond(m_condition.get());
+    _body(m_body.get());
+    for(auto& else_inst: m_else_if_nodes) {
+      _inst(else_inst.get());
+    }
+    if (m_else) {
+      _body(m_else.get());
+    }
+  }
 
  private:
   memory::allocated_ptr<expression> m_condition;
@@ -852,14 +909,17 @@ class return_instruction : public instruction {
 
   const expression *get_expression() const { return m_expression.get(); }
   virtual void walk_children(const walk_ftype<instruction *> &,
-                             const walk_ftype<expression *> &expr) {
+                             const walk_ftype<expression *> &expr,
+                             const walk_ftype<instruction_list *> &) {
     if (m_expression) {
       expr(m_expression.get());
     }
   }
 
-  virtual void walk_children(const walk_ftype<const instruction *> &,
-                             const walk_ftype<const expression *> &expr) const {
+  virtual void walk_children(
+      const walk_ftype<const instruction *> &,
+      const walk_ftype<const expression *> &expr,
+      const walk_ftype<const instruction_list *> &) const {
     if (m_expression) {
       expr(m_expression.get());
     }
@@ -915,7 +975,8 @@ class script_file : public node {
     return m_includes;
   }
 
-  virtual void walk_children(const walk_ftype<instruction *> &,
+  virtual void walk_children(const walk_scope &, const walk_scope &,
+                             const walk_ftype<instruction *> &,
                              const walk_ftype<expression *> &,
                              const walk_ftype<function *> &f) {
     for (auto &function : m_functions) {
@@ -923,7 +984,8 @@ class script_file : public node {
     }
   }
 
-  virtual void walk_children(const walk_ftype<const instruction *> &,
+  virtual void walk_children(const walk_scope &, const walk_scope &,
+                             const walk_ftype<const instruction *> &,
                              const walk_ftype<const expression *> &,
                              const walk_ftype<const function *> &f) const {
     for (auto &function : m_functions) {

@@ -186,15 +186,33 @@ void ast_jit_engine::walk_expression(const binary_expression* _binary,
 
 void ast_jit_engine::walk_instruction(
     const return_instruction* _inst,
-    containers::dynamic_array<llvm::Instruction*>* _val) {
-  *_val = containers::dynamic_array<llvm::Instruction*>(m_allocator);
+    instruction_dat* _val) {
+  _val->instructions = containers::dynamic_array<llvm::Instruction*>(m_allocator);
   if (_inst->get_expression()) {
     const expression_dat& dat = m_generator->get_data(_inst->get_expression());
-    _val->insert(_val->end(), dat.instructions.data(),
+    _val->instructions.insert(_val->instructions.end(), dat.instructions.data(),
                  dat.instructions.data() + dat.instructions.size());
-    _val->push_back(llvm::ReturnInst::Create(*m_context, dat.value));
+    _val->instructions.push_back(llvm::ReturnInst::Create(*m_context, dat.value));
   } else {
-    _val->push_back(llvm::ReturnInst::Create(*m_context));
+    _val->instructions.push_back(llvm::ReturnInst::Create(*m_context));
+  }
+}
+
+void ast_jit_engine::walk_instruction_list(
+    const instruction_list* _instructions,
+    containers::dynamic_array<llvm::BasicBlock*>* _list) {
+  *_list = containers::dynamic_array<llvm::BasicBlock*>(m_allocator);
+  llvm::BasicBlock* bb = llvm::BasicBlock::Create(*m_context);
+  _list->push_back(bb);
+  for(auto& inst: _instructions->get_instructions()) {
+    instruction_dat& instructions =
+        m_generator->get_data(inst.get());
+    for (llvm::Instruction* i : instructions.instructions) {
+      bb->getInstList().push_back(i);
+    }
+    for(llvm::BasicBlock* b : instructions.blocks) {
+      _list->push_back(b);
+    }
   }
 }
 
@@ -233,13 +251,15 @@ void ast_jit_engine::walk_function(const function* _func, llvm::Function** _f) {
     }
   }
 
-  for (auto& inst : _func->get_body()->get_instructions()) {
-    for (auto& i : m_generator->get_data(inst.get())) {
-      bb->getInstList().push_back(i);
-    }
-  }
-
   (*_f)->getBasicBlockList().push_front(bb);
+  bool first = true;
+  for(auto& block : m_generator->get_data(_func->get_body())) {
+    if (first) {
+      bb->getInstList().push_back(llvm::BranchInst::Create(block));
+      first = false;
+    }
+    (*_f)->getBasicBlockList().push_back(block);
+  }
 }
 
 void ast_jit_engine::walk_script_file(const script_file* _file) {

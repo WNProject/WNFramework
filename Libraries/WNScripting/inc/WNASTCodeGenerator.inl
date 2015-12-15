@@ -29,6 +29,11 @@ void ast_code_generator<Traits>::walk_instruction(T* _inst) {
 }
 
 template <typename Traits>
+void ast_code_generator<Traits>::walk_instruction_list(instruction_list* _l) {
+  m_generator->walk_instruction_list(_l, &m_instruction_list_map[_l]);
+}
+
+template <typename Traits>
 void ast_code_generator<Traits>::walk_parameter(parameter* _param) {
   m_generator->walk_parameter(_param, &m_parameter_map[_param]);
 }
@@ -52,6 +57,12 @@ template <typename Traits>
 typename Traits::instruction_data& ast_code_generator<Traits>::get_data(
     const instruction* _inst) {
   return m_instruction_map[_inst];
+}
+
+template <typename Traits>
+typename Traits::instruction_list_data& ast_code_generator<Traits>::get_data(
+    const instruction_list* _inst) {
+  return m_instruction_list_map[_inst];
 }
 
 template <typename Traits>

@@ -24,6 +24,9 @@ class mock_walk {
   MOCK_METHOD1(walk_parameter, void(wn::scripting::parameter*));
   MOCK_METHOD1(walk_script_file, void(wn::scripting::script_file*));
   MOCK_METHOD1(walk_type, void(wn::scripting::type*));
+  MOCK_METHOD1(walk_instruction_list, void(wn::scripting::instruction_list*));
+  MOCK_METHOD0(enter_scope_block, void());
+  MOCK_METHOD0(leave_scope_block, void());
 };
 
 template <typename T>

@@ -19,7 +19,10 @@ namespace scripting {
 template <typename T, bool Const>
 void ast_walker<T, Const>::walk_script_file(script_file_type _file) {
   _file->walk_children(
-      walk_ftype<instruction_type>(&ast_walker<T, Const>::walk_instruction, this),
+      walk_scope(&ast_walker<T, Const>::enter_scope_block, this),
+      walk_scope(&ast_walker<T, Const>::leave_scope_block, this),
+      walk_ftype<instruction_type>(&ast_walker<T, Const>::walk_instruction,
+                                   this),
       walk_ftype<expression_type>(&ast_walker<T, Const>::walk_expression, this),
       walk_ftype<function_type>(&ast_walker<T, Const>::walk_function, this));
   m_walker->walk_script_file(_file);
@@ -38,10 +41,23 @@ void ast_walker<T, Const>::walk_type(type_type _type) {
 }
 
 template <typename T, bool Const>
+void ast_walker<T, Const>::enter_scope_block() {
+  m_walker->enter_scope_block();
+}
+
+template <typename T, bool Const>
+void ast_walker<T, Const>::leave_scope_block() {
+  m_walker->leave_scope_block();
+}
+
+template <typename T, bool Const>
 void ast_walker<T, Const>::walk_function(function_type _function) {
   _function->walk_children(
+      walk_scope(&ast_walker<T, Const>::enter_scope_block, this),
+      walk_scope(&ast_walker<T, Const>::leave_scope_block, this),
       walk_ftype<parameter_type>(&ast_walker<T, Const>::walk_parameter, this),
-      walk_ftype<instruction_type>(&ast_walker<T, Const>::walk_instruction, this),
+      walk_ftype<instruction_list_type>(
+          &ast_walker<T, Const>::walk_instruction_list, this),
       walk_ftype<type_type>(&ast_walker<T, Const>::walk_type, this));
   m_walker->walk_function(_function);
 }
@@ -104,12 +120,23 @@ void ast_walker<T, Const>::walk_expression(expression_type _expression) {
 }
 
 template <typename T, bool Const>
+void ast_walker<T, Const>::walk_instruction_list(instruction_list_type _list) {
+  _list->walk_children(
+      walk_scope(&ast_walker<T, Const>::enter_scope_block, this),
+      walk_scope(&ast_walker<T, Const>::leave_scope_block, this),
+      walk_ftype<instruction_type>(&ast_walker<T, Const>::walk_instruction,
+                                   this));
+  m_walker->walk_instruction_list(_list);
+}
+
+template <typename T, bool Const>
 void ast_walker<T, Const>::walk_instruction(instruction_type _instruction) {
   _instruction->walk_children(
       walk_ftype<instruction_type>(&ast_walker<T, Const>::walk_instruction,
-                                      this),
-      walk_ftype<expression_type>(&ast_walker<T, Const>::walk_expression,
-                                     this));
+                                   this),
+      walk_ftype<expression_type>(&ast_walker<T, Const>::walk_expression, this),
+      walk_ftype<instruction_list_type>(
+          &ast_walker<T, Const>::walk_instruction_list, this));
   switch (_instruction->get_node_type()) {
     case node_type::assignment_instruction:
       return m_walker->walk_instruction(

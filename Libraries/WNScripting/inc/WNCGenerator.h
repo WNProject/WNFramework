@@ -10,11 +10,12 @@ namespace wn {
 namespace scripting {
 class ast_c_translator;
 struct ast_c_traits {
-  using instruction_data = wn::containers::string;
-  using expression_data = wn::containers::string;
-  using parameter_data = wn::containers::string;
-  using function_data = wn::containers::string;
-  using type_data = wn::containers::string;
+  using instruction_list_data = containers::string;
+  using instruction_data = containers::string;
+  using expression_data = containers::string;
+  using parameter_data = containers::string;
+  using function_data = containers::string;
+  using type_data = containers::string;
   using code_gen = ast_c_translator;
 };
 
@@ -34,7 +35,8 @@ public:
                        containers::string* _str);
   void walk_expression(const binary_expression* _binary,
                        containers::string* _str);
-
+  void walk_instruction_list(const instruction_list* _list,
+                             containers::string* _str);
   void walk_type(const type* _type, containers::string* _str);
   void walk_instruction(const instruction*,
                         containers::string*) {}
