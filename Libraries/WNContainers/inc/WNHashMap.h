@@ -26,21 +26,6 @@ template <typename _KeyType, typename _ValueType,
           typename _Allocator = memory::default_allocator>
 class hash_map;
 namespace internal {
-template<typename T, typename = void>
-struct map_iterator_internal_type {
-  using type = T;
-  using array_iterator = typename dynamic_array<list<type>>::iterator;
-  using list_iterator = typename list<type>::iterator;
-};
-
-template <typename T>
-struct map_iterator_internal_type<
-    T, typename core::enable_if<core::is_const<T>::value>::type> {
-  using type = typename std::remove_const<T>::type;
-  using array_iterator = typename dynamic_array<list<type>>::const_iterator;
-  using list_iterator = typename list<type>::const_iterator;
-};
-
 // hash_map_iterator is not a child_type of hash_map
 // because MSVC threw an error that the symbol name
 // was too large and would be truncated.
@@ -48,9 +33,16 @@ template <typename _ContainedType>
 class hash_map_iterator
     : std::iterator<std::forward_iterator_tag, _ContainedType> {
  public:
-  using type = _ContainedType;
-  using ait = typename map_iterator_internal_type<type>::array_iterator;
-  using lit = typename map_iterator_internal_type<type>::list_iterator;
+  using T = _ContainedType;
+  using ait = typename std::conditional<
+      core::is_const<T>::value,
+      typename dynamic_array<list<typename std::remove_const<T>::type>>::const_iterator,
+      typename dynamic_array<list<T>>::iterator>::type;
+
+  using lit = typename std::conditional<
+      core::is_const<T>::value,
+      typename list<typename std::remove_const<T>::type>::const_iterator,
+      typename list<T>::iterator>::type;
 
   hash_map_iterator() {}
   template <typename _CT>
@@ -91,9 +83,9 @@ class hash_map_iterator
     return !(*this == _other);
   }
 
-  type* operator->() const { return &(*m_element); }
+  T* operator->() const { return &(*m_element); }
 
-  type& operator*() const { return *m_element; }
+  T& operator*() const { return *m_element; }
 
  private:
   hash_map_iterator(ait bucket, ait end_bucket, lit element)
