@@ -1,7 +1,8 @@
 include(CheckIncludeFileCXX)
 include(CheckCXXSourceCompiles)
 
-# run keyword tests
+# run specifier tests
+
 check_cxx_source_compiles(
   "
     inline void temp() {}
@@ -197,77 +198,6 @@ check_cxx_source_compiles(
   HAS_OVERRIDE
 )
 
-# make keyword selections
-
-set(WN_INLINE)
-set(WN_FORCE_INLINE)
-set(WN_NO_INLINE)
-set(WN_THREAD_LOCAL)
-set(WN_WEAK_LINK)
-set(WN_RESTRICT)
-set(WN_FINAL)
-set(WN_OVERRIDE)
-
-if (HAS_INLINE)
-  set(WN_INLINE inline)
-elseif (HAS___INLINE__)
-  set(WN_INLINE __inline__)
-elseif (HAS___INLINE)
-  set(WN_INLINE __inline)
-elseif (HAS__INLINE)
-  set(WN_INLINE _inline)
-else()
-  message(FATAL_ERROR "No inline style keyword was found")
-endif()
-
-if (HAS___ATTRIBUTE__ALWAYS_INLINE)
-  set(WN_FORCE_INLINE "${WN_INLINE} __attribute__((always_inline))")
-elseif (HAS___FORCE_INLINE)
-  set(WN_FORCE_INLINE __forceinline)
-else()
-  set(WN_FORCE_INLINE ${WN_INLINE})
-endif()
-
-if (HAS___ATTRIBUTE__NOINLINE)
-  set(WN_NO_INLINE "__attribute__((noinline))")
-elseif (HAS___DECLSPEC_NOINLINE)
-  set(WN_NO_INLINE "__declspec(noinline)")
-endif()
-
-if(HAS_THREAD_LOCAL)
-  set(WN_THREAD_LOCAL "thread_local")
-elseif (HAS___DECLSPEC_THREAD)
-  set(WN_THREAD_LOCAL "__declspec(thread)")
-elseif (HAS___THREAD)
-  set(WN_THREAD_LOCAL "__thread")
-else()
-  message(FATAL_ERROR "No thread local style keyword was found")
-endif()
-
-if (HAS___ATTRIBUTE__WEAK)
-  set(WN_WEAK_LINK "__attribute__((weak))")
-elseif (HAS___DECLSPEC_SELECTANY)
-  set(WN_WEAK_LINK "__declspec(selectany)")
-else()
-  message(FATAL_ERROR "No weak link style keyword was found")
-endif()
-
-if (HAS___RESTRICT)
-  set(WN_RESTRICT "__restrict")
-elseif (HAS___RESTRICT__)
-  set(WN_RESTRICT "__restrict__")
-endif()
-
-if (HAS_FINAL)
-  set(WN_FINAL final)
-endif()
-
-if (HAS_OVERRIDE)
-  set(WN_OVERRIDE override)
-endif()
-
-# run specifier tests
-
 check_cxx_source_compiles(
   "
     int main() {
@@ -300,17 +230,196 @@ check_cxx_source_compiles(
 
 # make specifier selections
 
+set(WN_INLINE)
+set(WN_FORCE_INLINE)
+set(WN_NO_INLINE)
+set(WN_THREAD_LOCAL)
+set(WN_WEAK_LINK)
+set(WN_RESTRICT)
+set(WN_FINAL)
+set(WN_OVERRIDE)
 set(WN_ALIGN)
-set(WN_MACRO_VARIABLE_NAME _x)
+
+if (HAS_INLINE)
+  set(WN_INLINE inline)
+elseif (HAS___INLINE__)
+  set(WN_INLINE __inline__)
+elseif (HAS___INLINE)
+  set(WN_INLINE __inline)
+elseif (HAS__INLINE)
+  set(WN_INLINE _inline)
+else()
+  message(FATAL_ERROR "No inline style keyword was found")
+endif()
+
+if (HAS___ATTRIBUTE__ALWAYS_INLINE)
+  set(WN_FORCE_INLINE "${WN_INLINE} __attribute__((always_inline))")
+elseif (HAS___FORCE_INLINE)
+  set(WN_FORCE_INLINE __forceinline)
+else()
+  set(WN_FORCE_INLINE ${WN_INLINE})
+endif()
+
+if (HAS___ATTRIBUTE__NOINLINE)
+  set(WN_NO_INLINE "__attribute__((noinline))")
+elseif (HAS___DECLSPEC_NOINLINE)
+  set(WN_NO_INLINE "__declspec(noinline)")
+endif()
+
+if(HAS_THREAD_LOCAL)
+  set(WN_THREAD_LOCAL thread_local)
+elseif (HAS___DECLSPEC_THREAD)
+  set(WN_THREAD_LOCAL "__declspec(thread)")
+elseif (HAS___THREAD)
+  set(WN_THREAD_LOCAL __thread)
+else()
+  message(FATAL_ERROR "No thread local style keyword was found")
+endif()
+
+if (HAS___ATTRIBUTE__WEAK)
+  set(WN_WEAK_LINK "__attribute__((weak))")
+elseif (HAS___DECLSPEC_SELECTANY)
+  set(WN_WEAK_LINK "__declspec(selectany)")
+else()
+  message(FATAL_ERROR "No weak link style keyword was found")
+endif()
+
+if (HAS___RESTRICT)
+  set(WN_RESTRICT __restrict)
+elseif (HAS___RESTRICT__)
+  set(WN_RESTRICT __restrict__)
+endif()
+
+if (HAS_FINAL)
+  set(WN_FINAL final)
+endif()
+
+if (HAS_OVERRIDE)
+  set(WN_OVERRIDE override)
+endif()
+
+set(WN_ALIGN_MACRO_VARIABLE_NAME _alignment)
 
 if (HAS_ALIGNAS)
-  set(WN_ALIGN "alignas(${WN_MACRO_VARIABLE_NAME})")
+  set(WN_ALIGN "alignas(${WN_ALIGN_MACRO_VARIABLE_NAME})")
 elseif (HAS___DECLSPEC_ALIGN)
-  set(WN_ALIGN "__declspec(align(${WN_MACRO_VARIABLE_NAME}))")
+  set(WN_ALIGN "__declspec(align(${WN_ALIGN_MACRO_VARIABLE_NAME}))")
 elseif (HAS___ATTRIBUTE__ALIGNED)
-  set(WN_ALIGN "__attribute__((aligned(${WN_MACRO_VARIABLE_NAME})))")
+  set(WN_ALIGN "__attribute__((aligned(${WN_ALIGN_MACRO_VARIABLE_NAME})))")
 else()
   message(FATAL_ERROR "No align style keyword was found")
+endif()
+
+# run calling convention tests
+
+check_cxx_source_compiles(
+  "
+    void __cdecl temp() {}
+    int main() {
+      temp();
+      return 0;
+    }
+  "
+  HAS___CDECL
+)
+
+check_cxx_source_compiles(
+  "
+    void temp() __attribute__((cdecl)) {}
+    int main() {
+      temp();
+      return 0;
+    }
+  "
+  HAS___ATTRIBUTE__CDECL
+)
+
+check_cxx_source_compiles(
+  "
+    void __stdcall temp() {}
+    int main() {
+      temp();
+      return 0;
+    }
+  "
+  HAS___STDCALL
+)
+
+check_cxx_source_compiles(
+  "
+    void temp() __attribute__((stdcall)) {}
+    int main() {
+      temp();
+      return 0;
+    }
+  "
+  HAS___ATTRIBUTE__STDCALL
+)
+
+check_cxx_source_compiles(
+  "
+    void __fastcall temp() {}
+    int main() {
+      temp();
+      return 0;
+    }
+  "
+  HAS___FASTCALL
+)
+
+check_cxx_source_compiles(
+  "
+    void temp() __attribute__((fastcall)) {}
+    int main() {
+      temp();
+      return 0;
+    }
+  "
+  HAS___ATTRIBUTE__FASTCALL
+)
+
+check_cxx_source_compiles(
+  "
+    void __vectorcall temp() {}
+    int main() {
+      temp();
+      return 0;
+    }
+  "
+  HAS___VECTORCALL
+)
+
+# make calling convention selections
+
+set(WN_CDECL_BEGIN)
+set(WN_CDECL_END)
+set(WN_STDCALL_BEGIN)
+set(WN_STDCALL_END)
+set(WN_FASTCALL_BEGIN)
+set(WN_FASTCALL_END)
+set(WN_VECTORCALL_BEGIN)
+set(WN_VECTORCALL_END)
+
+if (HAS___ATTRIBUTE__CDECL)
+  set(WN_CDECL_END "__attribute__((cdecl))")
+elseif (HAS___CDECL)
+  set(WN_CDECL_BEGIN __cdecl)
+endif()
+
+if (HAS___ATTRIBUTE__STDCALL)
+  set(WN_STDCALL_END "__attribute__((stdcall))")
+elseif (HAS___STDCALL)
+  set(WN_STDCALL_BEGIN __stdcall)
+endif()
+
+if (HAS___ATTRIBUTE__FASTCALL)
+  set(WN_FASTCALL_END "__attribute__((fastcall))")
+elseif (HAS___FASTCALL)
+  set(WN_FASTCALL_BEGIN __fastcall)
+endif()
+
+if (HAS___VECTORCALL)
+  set(WN_VECTORCALL_BEGIN __vectorcall)
 endif()
 
 # print selections
@@ -347,7 +456,56 @@ endif()
 
 message(STATUS "WN_ALIGN Selection: ${WN_ALIGN}")
 
+if (WN_CDECL_BEGIN)
+  message(STATUS "WN_CDECL_BEGIN Selection: ${WN_CDECL_BEGIN}")
+else()
+  message(STATUS "WN_CDECL_BEGIN Selection: [none]")
+endif()
+
+if (WN_CDECL_END)
+  message(STATUS "WN_CDECL_END Selection: ${WN_CDECL_END}")
+else()
+  message(STATUS "WN_CDECL_END Selection: [none]")
+endif()
+
+if (WN_STDCALL_BEGIN)
+  message(STATUS "WN_STDCALL_BEGIN Selection: ${WN_STDCALL_BEGIN}")
+else()
+  message(STATUS "WN_STDCALL_BEGIN Selection: [none]")
+endif()
+
+if (WN_STDCALL_END)
+  message(STATUS "WN_STDCALL_END Selection: ${WN_STDCALL_END}")
+else()
+  message(STATUS "WN_STDCALL_END Selection: [none]")
+endif()
+
+if (WN_FASTCALL_BEGIN)
+  message(STATUS "WN_FASTCALL_BEGIN Selection: ${WN_FASTCALL_BEGIN}")
+else()
+  message(STATUS "WN_FASTCALL_BEGIN Selection: [none]")
+endif()
+
+if (WN_FASTCALL_END)
+  message(STATUS "WN_FASTCALL_END Selection: ${WN_FASTCALL_END}")
+else()
+  message(STATUS "WN_FASTCALL_END Selection: [none]")
+endif()
+
+if (WN_VECTORCALL_BEGIN)
+  message(STATUS "WN_VECTORCALL_BEGIN Selection: ${WN_VECTORCALL_BEGIN}")
+else()
+  message(STATUS "WN_VECTORCALL_BEGIN Selection: [none]")
+endif()
+
+if (WN_VECTORCALL_END)
+  message(STATUS "WN_VECTORCALL_END Selection: ${WN_VECTORCALL_END}")
+else()
+  message(STATUS "WN_VECTORCALL_END Selection: [none]")
+endif()
+
 # run include tests
+
 check_include_file_cxx(cstdint HAS_CSTDINT)
 
 if (NOT HAS_CSTDINT)

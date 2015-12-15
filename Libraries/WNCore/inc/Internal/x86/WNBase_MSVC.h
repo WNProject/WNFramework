@@ -7,15 +7,6 @@
 #ifndef __WN_CORE_INTERNAL_X86_BASE_MSVC_H__
 #define __WN_CORE_INTERNAL_X86_BASE_MSVC_H__
 
-#define WN_CDECL_BEGIN __cdecl
-#define WN_CDECL_END
-
-#define WN_STDCALL_BEGIN __stdcall
-#define WN_STDCALL_END
-
-#define WN_FASTCALL_BEGIN __fastcall
-#define WN_FASTCALL_END
-
 #ifndef _WN_64_BIT
     #ifdef _WN_CORE_CONFIG_MSVC_X86_ENABLE_MMX
         #define __WN_MMX_AVAILABLE

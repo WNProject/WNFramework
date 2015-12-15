@@ -118,30 +118,6 @@
     #include "WNCore/inc/Internal/ARM/WNBase.h"
 #endif
 
-#ifndef WN_CDECL_BEGIN
-    #define WN_CDECL_BEGIN
-#endif
-
-#ifndef WN_CDECL_END
-    #define WN_CDECL_END
-#endif
-
-#ifndef WN_STDCALL_BEGIN
-    #define WN_STDCALL_BEGIN
-#endif
-
-#ifndef WN_STDCALL_END
-    #define WN_STDCALL_END
-#endif
-
-#ifndef WN_FASTCALL_BEGIN
-    #define WN_FASTCALL_BEGIN
-#endif
-
-#ifndef WN_FASTCALL_END
-    #define WN_FASTCALL_END
-#endif
-
 #ifndef WN_OSCALL_BEGIN
     #define WN_OSCALL_BEGIN
 #endif

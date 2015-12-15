@@ -8,15 +8,6 @@
 #define __WN_CORE_INTERNAL_X86_BASE_GCC_H__
 
 #ifndef _WN_64_BIT
-    #define WN_CDECL_BEGIN
-    #define WN_CDECL_END __attribute__((cdecl))
-
-    #define WN_STDCALL_BEGIN
-    #define WN_STDCALL_END __attribute__((stdcall))
-
-    #define WN_FASTCALL_BEGIN
-    #define WN_FASTCALL_END __attribute__((fastcall))
-
     #ifdef __MMX__
         #define __WN_MMX_AVAILABLE
     #endif
