@@ -11,10 +11,63 @@
 
 #include <type_traits>
 
+#ifndef _WN_HAS_CPP11_STD_ALIGNED_UNION
+#include <algorithm>
+#endif
+
 namespace wn {
 namespace core {
 
-// type trait constants
+// c++11 traits ///////////////////////////////////////////////////////////////
+
+// type categories
+
+using std::is_void;
+using std::is_array;
+using std::is_pointer;
+using std::is_enum;
+using std::is_union;
+using std::is_class;
+using std::is_function;
+using std::is_object;
+using std::is_scalar;
+using std::is_compound;
+using std::is_integral;
+// using std::is_floating_point;
+using std::is_fundamental;
+// using std::is_arithmetic;
+using std::is_reference;
+using std::is_lvalue_reference;
+using std::is_rvalue_reference;
+using std::is_member_pointer;
+using std::is_member_object_pointer;
+using std::is_member_function_pointer;
+
+// type properties
+
+using std::is_const;
+using std::is_volatile;
+using std::is_pod;
+using std::is_empty;
+using std::is_polymorphic;
+using std::is_abstract;
+using std::is_trivial;
+
+#ifdef _WN_HAS_CPP11_STD_IS_TRIVIALLY_COPYABLE
+using std::is_trivially_copyable;
+#else
+template <typename T>
+struct is_trivially_copyable
+    : std::integral_constant<bool,
+          is_scalar<typename std::remove_all_extents<T>::type>::value> {};
+#endif
+
+using std::is_standard_layout;
+using std::is_literal_type;
+// using std::is_signed;
+// using std::is_unsigned;
+
+// type constants
 
 using std::integral_constant;
 using std::true_type;
@@ -24,40 +77,228 @@ using std::false_type;
 
 using std::is_constructible;
 
-// type modifications
+#ifdef _WN_HAS_CPP11_STD_IS_TRIVIALLY_CONSTRUCTIBLE
+using std::is_trivially_constructible;
+#else
+template <typename T, typename... Args>
+struct is_trivially_constructible : false_type {};
 
-using std::add_lvalue_reference;
-using std::add_rvalue_reference;
-using std::add_const;
-using std::add_volatile;
-using std::add_cv;
+template <typename T>
+struct is_trivially_constructible<T>
+    : integral_constant<bool, is_scalar<T>::value> {};
 
-// type properties
+template <typename T>
+struct is_trivially_constructible<T, T&&>
+    : integral_constant<bool, is_scalar<T>::value> {};
 
-using std::is_const;
+template <typename T>
+struct is_trivially_constructible<T, const T&>
+    : integral_constant<bool, is_scalar<T>::value> {};
 
-// type transformations
+template <typename T>
+struct is_trivially_constructible<T, T&>
+    : integral_constant<bool, is_scalar<T>::value> {};
+#endif
 
-using std::enable_if;
-using std::common_type;
-using std::result_of;
-using std::decay;
+using std::is_nothrow_constructible;
+using std::is_default_constructible;
+
+#ifdef _WN_HAS_CPP11_STD_IS_TRIVIALLY_DEFAULT_CONSTRUCTIBLE
+using std::is_trivially_default_constructible;
+#else
+template <typename T>
+struct is_trivially_default_constructible : is_trivially_constructible<T> {};
+#endif
+
+using std::is_nothrow_default_constructible;
+using std::is_copy_constructible;
+
+#ifdef _WN_HAS_CPP11_STD_IS_TRIVIALLY_COPY_CONSTRUCTIBLE
+using std::is_trivially_copy_constructible;
+#else
+template <typename T>
+struct is_trivially_copy_constructible
+    : is_trivially_constructible<T,
+          typename std::add_lvalue_reference<
+                                     typename std::add_const<T>::type>::type> {
+};
+#endif
+
+using std::is_nothrow_copy_constructible;
+using std::is_move_constructible;
+
+#ifdef _WN_HAS_CPP11_STD_IS_TRIVIALLY_MOVE_CONSTRUCTIBLE
+using std::is_trivially_move_constructible;
+#else
+template <typename T>
+struct is_trivially_move_constructible
+    : is_trivially_constructible<T,
+          typename std::add_rvalue_reference<T>::type> {};
+#endif
+
+using std::is_nothrow_move_constructible;
+using std::is_assignable;
+
+#ifdef _WN_HAS_CPP11_STD_IS_TRIVIALLY_ASSIGNABLE
+using std::is_trivially_assignable;
+#else
+template <typename T, typename Arg>
+struct is_trivially_assignable : false_type {};
+
+template <typename T>
+struct is_trivially_assignable<T&, T>
+    : integral_constant<bool, is_scalar<T>::value> {};
+
+template <typename T>
+struct is_trivially_assignable<T&, T&>
+    : integral_constant<bool, is_scalar<T>::value> {};
+
+template <typename T>
+struct is_trivially_assignable<T&, const T&>
+    : integral_constant<bool, is_scalar<T>::value> {};
+#endif
+
+using std::is_nothrow_assignable;
+using std::is_copy_assignable;
+
+#ifdef _WN_HAS_CPP11_STD_IS_TRIVIALLY_COPY_ASSIGNABLE
+using std::is_trivially_copy_assignable;
+#else
+template <typename T>
+struct is_trivially_copy_assignable
+    : is_trivially_assignable<typename std::add_lvalue_reference<T>::type,
+          typename std::add_lvalue_reference<const T>::type> {};
+#endif
+
+using std::is_nothrow_copy_assignable;
+using std::is_move_assignable;
+
+#ifdef _WN_HAS_CPP11_STD_IS_TRIVIALLY_MOVE_ASSIGNABLE
+using std::is_trivially_move_assignable;
+#else
+template <typename T>
+struct is_trivially_move_assignable
+    : is_trivially_assignable<typename std::add_lvalue_reference<T>::type,
+          typename std::add_rvalue_reference<T>::type> {};
+#endif
+
+using std::is_nothrow_move_assignable;
+using std::is_destructible;
+
+#ifdef _WN_HAS_CPP11_STD_IS_TRIVIALLY_DESTRUCTIBLE
+using std::is_trivially_destructible;
+#else
+namespace internal {
+
+template <typename T>
+struct trivial_destructor
+    : integral_constant<bool, is_scalar<T>::value || is_reference<T>::value> {};
+
+}  // namespace internal
+
+template <typename T>
+struct is_trivially_destructible
+    : internal::trivial_destructor<typename std::remove_all_extents<T>::type> {
+};
+#endif
+
+using std::is_nothrow_destructible;
+using std::has_virtual_destructor;
 
 // relationships and property queries
 
 using std::is_same;
+using std::is_base_of;
 using std::is_convertible;
+using std::alignment_of;
+using std::rank;
+using std::extent;
 
-template <const size_t Value>
-using index_constant = integral_constant<size_t, Value>;
+// type modifications
 
-#ifdef _WN_HAS_CPP17_STD_BOOL_CONSTANT
-template <const bool Value>
-using bool_constant = std::bool_constant<Value>;
+using std::remove_cv;
+using std::remove_const;
+using std::remove_volatile;
+using std::add_cv;
+using std::add_const;
+using std::add_volatile;
+using std::make_signed;
+using std::make_unsigned;
+using std::remove_reference;
+using std::add_lvalue_reference;
+using std::add_rvalue_reference;
+using std::remove_pointer;
+using std::add_pointer;
+using std::remove_extent;
+using std::remove_all_extents;
+
+// type transformations
+
+using std::aligned_storage;
+
+#ifdef _WN_HAS_CPP11_STD_ALIGNED_UNION
+using std::aligned_union;
 #else
-template <const bool Value>
-using bool_constant = integral_constant<bool, Value>;
+namespace internal {
+
+template <typename... Ts>
+struct largest_alignment;
+
+template <typename T, typename... Ts>
+struct largest_alignment<T, Ts...> {
+  using type = T;
+
+  static const size_t value =
+      alignment_of<typename largest_alignment<Ts...>::type>::value >
+              alignment_of<T>::value
+          ? alignment_of<typename largest_alignment<Ts...>::type>::value
+          : alignment_of<T>::value;
+};
+
+template <typename T>
+struct largest_alignment<T> {
+  using type = T;
+
+  static const std::size_t value = alignment_of<T>::value;
+};
+
+template <typename... Ts>
+using largest_alignment_t = typename largest_alignment<Ts...>::type;
+
+}  // namespace internal
+
+template <std::size_t Length, typename... Ts>
+struct aligned_union {
+  static const size_t alignment_value =
+      internal::largest_alignment<Ts...>::value;
+
+  using type = typename aligned_storage<
+      (Length > sizeof(typename internal::largest_alignment_t<Ts...>)
+              ? Length
+              : sizeof(typename internal::largest_alignment_t<Ts...>)),
+      alignment_value>::type;
+};
 #endif
+
+using std::decay;
+using std::enable_if;
+using std::conditional;
+using std::common_type;
+using std::underlying_type;
+using std::result_of;
+
+// c++14 //////////////////////////////////////////////////////////////////////
+
+// type properties
+
+#ifdef _WN_HAS_CPP14_STD_IS_NULL_POINTER
+using std::is_null_pointer;
+#else
+template <typename T>
+struct is_null_pointer : is_same<decltype(nullptr), typename decay<T>::type> {};
+#endif
+
+// type sequences
 
 #ifdef _WN_HAS_CPP14_STD_INTEGER_SEQUENCE
 template <typename T, const T... Values>
@@ -75,28 +316,11 @@ struct integral_sequence {
   }
 };
 
-template <const wn_size_t... Values>
+template <const size_t... Values>
 using index_sequence = integral_sequence<size_t, Values...>;
 #endif
 
-template <const bool... Values>
-using bool_sequence = integral_sequence<bool, Values...>;
-
-#ifdef _WN_HAS_CPP14_STD_ENABLE_IF_T
-template <const bool Test, typename T = void>
-using enable_if_t = std::enable_if_t<Test, T>;
-#else
-template <const bool Test, typename T = void>
-using enable_if_t = typename enable_if<Test, T>::type;
-#endif
-
-#ifdef _WN_HAS_CPP14_STD_DECAY_T
-template <typename T>
-using decay_t = std::decay_t<T>;
-#else
-template <typename T>
-using decay_t = typename decay<T>::type;
-#endif
+// type modifications
 
 #ifdef _WN_HAS_CPP14_STD_ADD_LVALUE_REFERENCE_T
 template <typename T>
@@ -114,39 +338,30 @@ template <typename T>
 using add_rvalue_reference_t = typename add_rvalue_reference<T>::type;
 #endif
 
-template <typename T1, typename T2>
-using is_same_decayed = is_same<decay_t<T1>, decay_t<T2>>;
+// type transformations
 
-template <typename T1, typename T2>
-using is_same_decayed_t = typename is_same_decayed<T1, T2>::type;
-
-template <const bool... Values>
-using bool_and =
-    is_same<bool_sequence<Values...>, bool_sequence<(Values || true)...>>;
-
-template <const bool... Values>
-using bool_or = bool_constant<!bool_and<!Values...>::value>;
-
-template <typename... T>
-struct are_same;
-
-template <typename T1, typename... T2>
-struct are_same<T1, T1, T2...> : are_same<T1, T2...> {};
-
-template <typename T1, typename T2, typename... T3>
-struct are_same<T1, T2, T3...> : false_type {};
-
+#ifdef _WN_HAS_CPP14_STD_DECAY_T
 template <typename T>
-struct are_same<T> : true_type {};
-
-template <typename T1, typename... T2>
-using are_same_decayed = are_same<decay_t<T1>, decay_t<T2>...>;
-
-#ifdef _WN_HAS_CPP14_STD_IS_NULL_POINTER
-using std::is_null_pointer;
+using decay_t = std::decay_t<T>;
 #else
 template <typename T>
-using is_null_pointer = is_same_decayed<decltype(nullptr), T>;
+using decay_t = typename decay<T>::type;
+#endif
+
+#ifdef _WN_HAS_CPP14_STD_ENABLE_IF_T
+template <const bool Test, typename T = void>
+using enable_if_t = std::enable_if_t<Test, T>;
+#else
+template <const bool Test, typename T = void>
+using enable_if_t = typename enable_if<Test, T>::type;
+#endif
+
+#ifdef _WN_HAS_CPP14_STD_CONDITIONAL_T
+template <const bool Test, typename T1, typename T2>
+using conditional_t = std::conditional_t<Test, T1, T2>;
+#else
+template <const bool Test, typename T1, typename T2>
+using conditional_t = typename conditional<Test, T1, T2>::type;
 #endif
 
 #ifdef _WN_HAS_CPP14_STD_COMMON_TYPE_T
@@ -157,6 +372,14 @@ template <typename... T>
 using common_type_t = typename common_type<T...>::type;
 #endif
 
+#ifdef _WN_HAS_CPP14_STD_UNDERLYING_TYPE_T
+template <typename T>
+using underlying_type_t = std::underlying_type_t<T>;
+#else
+template <typename T>
+using underlying_type_t = typename underlying_type<T>::type;
+#endif
+
 #ifdef _WN_HAS_CPP14_STD_RESULT_OF_T
 template <typename T>
 using result_of_t = std::result_of_t<T>;
@@ -164,6 +387,94 @@ using result_of_t = std::result_of_t<T>;
 template <typename T>
 using result_of_t = typename result_of<T>::type;
 #endif
+
+// c++17 //////////////////////////////////////////////////////////////////////
+
+// type constants
+
+#ifdef _WN_HAS_CPP17_STD_BOOL_CONSTANT
+template <const bool Value>
+using bool_constant = std::bool_constant<Value>;
+#else
+template <const bool Value>
+using bool_constant = integral_constant<bool, Value>;
+#endif
+
+// meta functions
+
+#ifdef _WN_HAS_CPP17_STD_CONJUNCTION
+using std::conjunction;
+#else
+template <typename... T>
+struct conjunction : true_type {};
+
+template <typename T>
+struct conjunction<T> : T {};
+
+template <typename T, typename... Ts>
+struct conjunction<T, Ts...>
+    : conditional_t<T::value != false, conjunction<Ts...>, T> {};
+#endif
+
+#ifdef _WN_HAS_CPP17_STD_DISJUNCTION
+using std::disjunction;
+#else
+template <typename... T>
+struct disjunction : false_type {};
+
+template <typename T>
+struct disjunction<T> : T {};
+
+template <typename T, typename... Ts>
+struct disjunction<T, Ts...>
+    : conditional_t<T::value != false, T, disjunction<Ts...>> {};
+#endif
+
+#ifdef _WN_HAS_CPP17_STD_NEGATION
+using std::negation;
+#else
+template <typename T>
+struct negation : bool_constant<!T::value> {};
+#endif
+
+///////////////////////////////////////////////////////////////////////////////
+
+// type properties
+
+template <typename... T>
+struct are_pod : conjunction<is_pod<T>...> {};
+
+// type constants
+
+template <const size_t Value>
+using index_constant = integral_constant<size_t, Value>;
+
+// type sequences
+
+template <const bool... Values>
+using bool_sequence = integral_sequence<bool, Values...>;
+
+// meta functions
+
+template <const bool... Values>
+struct bool_and
+    : is_same<bool_sequence<Values...>, bool_sequence<(Values || true)...>> {};
+
+template <const bool... Values>
+struct bool_or : integral_constant<bool, !bool_and<!Values...>::value> {};
+
+// relationships and property queries
+
+template <typename T1, typename T2>
+struct is_same_decayed : is_same<decay_t<T1>, decay_t<T2>> {};
+
+template <typename T, typename... Ts>
+struct are_same : conjunction<is_same<T, Ts>...> {};
+
+template <typename T, typename... Ts>
+struct are_same_decayed : are_same<decay_t<T>, decay_t<Ts>...> {};
+
+///////////////////////////////////////////////////////////////////////////////
 
 template <typename T>
 struct exists : true_type {};
@@ -245,7 +556,7 @@ private:
   struct callable : bool_constant<sizeof(checker<T>(0)) == sizeof(valid)> {};
 
 public:
-  enum : bool { value = same_return<F, callable<F>::value, R, Args...>::value };
+  enum { value = same_return<F, callable<F>::value, R, Args...>::value };
 };
 
 }  // namespace internal

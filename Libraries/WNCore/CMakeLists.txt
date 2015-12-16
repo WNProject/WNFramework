@@ -228,6 +228,33 @@ check_cxx_source_compiles(
   HAS___ATTRIBUTE__ALIGNED
 )
 
+check_cxx_source_compiles(
+  "
+    int main() {
+      return alignof(int);
+    }
+  "
+  HAS_ALIGNOF
+)
+
+check_cxx_source_compiles(
+  "
+    int main() {
+      return __alignof(int);
+    }
+  "
+  HAS___ALIGNOF
+)
+
+check_cxx_source_compiles(
+  "
+    int main() {
+      return __alignof__(int);
+    }
+  "
+  HAS___ALIGNOF__
+)
+
 # make specifier selections
 
 set(WN_INLINE)
@@ -239,6 +266,7 @@ set(WN_RESTRICT)
 set(WN_FINAL)
 set(WN_OVERRIDE)
 set(WN_ALIGN)
+set(WN_ALIGN_OF)
 
 if (HAS_INLINE)
   set(WN_INLINE inline)
@@ -299,6 +327,7 @@ if (HAS_OVERRIDE)
 endif()
 
 set(WN_ALIGN_MACRO_VARIABLE_NAME _alignment)
+set(WN_ALIGN_OF_MACRO_VARIABLE_NAME _type)
 
 if (HAS_ALIGNAS)
   set(WN_ALIGN "alignas(${WN_ALIGN_MACRO_VARIABLE_NAME})")
@@ -307,7 +336,17 @@ elseif (HAS___DECLSPEC_ALIGN)
 elseif (HAS___ATTRIBUTE__ALIGNED)
   set(WN_ALIGN "__attribute__((aligned(${WN_ALIGN_MACRO_VARIABLE_NAME})))")
 else()
-  message(FATAL_ERROR "No align style keyword was found")
+  message(FATAL_ERROR "No alignas style keyword was found")
+endif()
+
+if (HAS_ALIGNOF)
+  set(WN_ALIGN_OF "alignof(${WN_ALIGN_OF_MACRO_VARIABLE_NAME})")
+elseif (HAS___ALIGNOF)
+  set(WN_ALIGN_OF "__alignof(${WN_ALIGN_OF_MACRO_VARIABLE_NAME})")
+elseif (HAS___ALIGNOF__)
+  set(WN_ALIGN_OF "__alignof__(${WN_ALIGN_OF_MACRO_VARIABLE_NAME})")
+else()
+  message(FATAL_ERROR "No alignof style keyword was found")
 endif()
 
 # run calling convention tests
@@ -517,6 +556,127 @@ endif()
 check_cxx_source_compiles(
   "
     #include <type_traits>
+    int main() {
+      const bool b = std::is_trivially_copyable<int>::value;
+      return b ? 1 : 0;
+    }
+  "
+  HAS_CPP11_STD_IS_TRIVIALLY_COPYABLE
+)
+
+check_cxx_source_compiles(
+  "
+    #include <type_traits>
+    int main() {
+      const bool b = std::is_trivially_constructible<int, short>::value;
+      return b ? 1 : 0;
+    }
+  "
+  HAS_CPP11_STD_IS_TRIVIALLY_CONSTRUCTIBLE
+)
+
+check_cxx_source_compiles(
+  "
+    #include <type_traits>
+    int main() {
+      const bool b = std::is_trivially_default_constructible<int>::value;
+      return b ? 1 : 0;
+    }
+  "
+  HAS_CPP11_STD_IS_TRIVIALLY_DEFAULT_CONSTRUCTIBLE
+)
+
+check_cxx_source_compiles(
+  "
+    #include <type_traits>
+    int main() {
+      const bool b = std::is_trivially_copy_constructible<int>::value;
+      return b ? 1 : 0;
+    }
+  "
+  HAS_CPP11_STD_IS_TRIVIALLY_COPY_CONSTRUCTIBLE
+)
+
+check_cxx_source_compiles(
+  "
+    #include <type_traits>
+    int main() {
+      const bool b = std::is_trivially_move_constructible<int>::value;
+      return b ? 1 : 0;
+    }
+  "
+  HAS_CPP11_STD_IS_TRIVIALLY_MOVE_CONSTRUCTIBLE
+)
+
+check_cxx_source_compiles(
+  "
+    #include <type_traits>
+    int main() {
+      const bool b = std::is_trivially_assignable<int, short>::value;
+      return b ? 1 : 0;
+    }
+  "
+  HAS_CPP11_STD_IS_TRIVIALLY_ASSIGNABLE
+)
+
+check_cxx_source_compiles(
+  "
+    #include <type_traits>
+    int main() {
+      const bool b = std::is_trivially_copy_assignable<int>::value;
+      return b ? 1 : 0;
+    }
+  "
+  HAS_CPP11_STD_IS_TRIVIALLY_COPY_ASSIGNABLE
+)
+
+check_cxx_source_compiles(
+  "
+    #include <type_traits>
+    int main() {
+      const bool b = std::is_trivially_move_assignable<int>::value;
+      return b ? 1 : 0;
+    }
+  "
+  HAS_CPP11_STD_IS_TRIVIALLY_MOVE_ASSIGNABLE
+)
+
+check_cxx_source_compiles(
+  "
+    #include <type_traits>
+    int main() {
+      const bool b = std::is_trivially_destructible<int>::value;
+      return b ? 1 : 0;
+    }
+  "
+  HAS_CPP11_STD_IS_TRIVIALLY_DESTRUCTIBLE
+)
+
+check_cxx_source_compiles(
+  "
+    #include <type_traits>
+    int main() {
+      std::aligned_union<sizeof(int), int, short>::type s;
+      return 1;
+    }
+  "
+  HAS_CPP11_STD_ALIGNED_UNION
+)
+
+check_cxx_source_compiles(
+  "
+    #include <type_traits>
+    int main() {
+      std::decay_t<const int> temp(0);
+      return temp;
+    }
+  "
+  HAS_CPP14_STD_DECAY_T
+)
+
+check_cxx_source_compiles(
+  "
+    #include <type_traits>
     struct tester {
       tester() = default;
       template <typename T>
@@ -541,12 +701,22 @@ check_cxx_source_compiles(
   "
     #include <type_traits>
     int main() {
-      std::decay_t<const int> temp(0);
-
-      return temp;
+      const std::conditional_t<true, int, double> temp(0);
+      return static_cast<int>(temp);
     }
   "
-  HAS_CPP14_STD_DECAY_T
+  HAS_CPP14_STD_CONDITIONAL_T
+)
+
+check_cxx_source_compiles(
+  "
+    #include <type_traits>
+    int main() {
+      const std::common_type_t<int, double> temp(0.0);
+      return static_cast<int>(temp);
+    }
+  "
+  HAS_CPP14_STD_COMMON_TYPE_T
 )
 
 check_cxx_source_compiles(
@@ -557,23 +727,10 @@ check_cxx_source_compiles(
     }
     int main() {
       std::result_of_t<decltype(&test)()> temp(0);
-
       return temp;
     }
   "
   HAS_CPP14_STD_RESULT_OF_T
-)
-
-check_cxx_source_compiles(
-  "
-    #include <type_traits>
-    int main() {
-      const std::common_type_t<int, double> temp(0.0);
-
-      return static_cast<int>(temp);
-    }
-  "
-  HAS_CPP14_STD_COMMON_TYPE_T
 )
 
 check_cxx_source_compiles(
@@ -596,10 +753,30 @@ check_cxx_source_compiles(
   HAS_CPP14_STD_IS_NULL_POINTER
 )
 
-set(_WN_HAS_CPP14_STD_ENABLE_IF_T ${HAS_CPP14_STD_ENABLE_IF_T})
+set(_WN_HAS_CPP11_STD_IS_TRIVIALLY_COPYABLE
+  ${HAS_CPP11_STD_IS_TRIVIALLY_COPYABLE})
+set(_WN_HAS_CPP11_STD_IS_TRIVIALLY_CONSTRUCTIBLE
+  ${HAS_CPP11_STD_IS_TRIVIALLY_CONSTRUCTIBLE})
+set(_WN_HAS_CPP11_STD_IS_TRIVIALLY_DEFAULT_CONSTRUCTIBLE
+  ${HAS_CPP11_STD_IS_TRIVIALLY_DEFAULT_CONSTRUCTIBLE})
+set(_WN_HAS_CPP11_STD_IS_TRIVIALLY_COPY_CONSTRUCTIBLE
+  ${HAS_CPP11_STD_IS_TRIVIALLY_COPY_CONSTRUCTIBLE})
+set(_WN_HAS_CPP11_STD_IS_TRIVIALLY_MOVE_CONSTRUCTIBLE
+  ${HAS_CPP11_STD_IS_TRIVIALLY_MOVE_CONSTRUCTIBLE})
+set(_WN_HAS_CPP11_STD_IS_TRIVIALLY_ASSIGNABLE
+  ${HAS_CPP11_STD_IS_TRIVIALLY_ASSIGNABLE})
+set(_WN_HAS_CPP11_STD_IS_TRIVIALLY_COPY_ASSIGNABLE
+  ${HAS_CPP11_STD_IS_TRIVIALLY_COPY_ASSIGNABLE})
+set(_WN_HAS_CPP11_STD_IS_TRIVIALLY_MOVE_ASSIGNABLE
+  ${HAS_CPP11_STD_IS_TRIVIALLY_MOVE_ASSIGNABLE})
+set(_WN_HAS_CPP11_STD_IS_TRIVIALLY_DESTRUCTIBLE
+  ${HAS_CPP11_STD_IS_TRIVIALLY_DESTRUCTIBLE})
+set(_WN_HAS_CPP11_STD_ALIGNED_UNION ${HAS_CPP11_STD_ALIGNED_UNION})
 set(_WN_HAS_CPP14_STD_DECAY_T ${HAS_CPP14_STD_DECAY_T})
-set(_WN_HAS_CPP14_STD_RESULT_OF_T ${HAS_CPP14_STD_RESULT_OF_T})
+set(_WN_HAS_CPP14_STD_ENABLE_IF_T ${HAS_CPP14_STD_ENABLE_IF_T})
+set(_WN_HAS_CPP14_STD_CONDITIONAL_T ${HAS_CPP14_STD_CONDITIONAL_T})
 set(_WN_HAS_CPP14_STD_COMMON_TYPE_T ${HAS_CPP14_STD_COMMON_TYPE_T})
+set(_WN_HAS_CPP14_STD_RESULT_OF_T ${HAS_CPP14_STD_RESULT_OF_T})
 set(_WN_HAS_CPP14_STD_INTEGER_SEQUENCE ${HAS_CPP14_STD_INTEGER_SEQUENCE})
 set(_WN_HAS_CPP14_STD_IS_NULL_POINTER ${HAS_CPP14_STD_IS_NULL_POINTER})
 

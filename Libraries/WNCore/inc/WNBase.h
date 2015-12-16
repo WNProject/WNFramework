@@ -8,21 +8,6 @@
 //      WN_LIBRARIES_MINOR
 //      WN_LIBRARIES_BUILD
 
-// Calling Conventions ---------------------------------------------------------------------------------------------------------
-//      WN_CDECL_BEGIN / WN_CDECL_END
-//      WN_STDCALL_BEGIN / WN_STDCALL_END
-//      WN_FASTCALL_BEGIN / WN_FASTCALL_END
-
-// Keyword ---------------------------------------------------------------------------------------------------------------------
-//      WN_INLINE
-//      WN_FORCE_INLINE
-//      WN_NO_INLINE
-//      WN_RESTRICT
-
-// Properties ------------------------------------------------------------------------------------------------------------------
-//      WN_THREAD_LOCAL
-//      WN_ALIGN
-
 // Compiler (Only 1 of the following) ------------------------------------------------------------------------------------------
 //      _WN_MSVC    - Microsoft Visual C++ compiler
 //      _WN_GCC     - GNU C++ compiler
