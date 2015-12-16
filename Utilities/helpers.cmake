@@ -285,9 +285,15 @@ add_custom_target(llvm_target
 
 llvm_map_components_to_libnames(WNScriptingLLVMLibs ${WNScriptingLLVMComponents})
 
-foreach (llvm_lib ${WNScriptingLLVMLibs})
-  add_dependencies(${llvm_lib} llvm_target)
-endforeach()
+option(WN_BUILD_LLVM_MANUALLY
+  "Do not automatically build llvm when a dependency is built"
+  ${WN_BUILD_LLVM_MANUALLY})
+
+if (NOT ${WN_BUILD_LLVM_MANUALLY})
+  foreach (llvm_lib ${WNScriptingLLVMLibs})
+    add_dependencies(${llvm_lib} llvm_target)
+  endforeach()
+endif()
 
 get_property(OLD_DIRECTORY TARGET llvm_target PROPERTY FOLDER)
 set_property(TARGET llvm_target PROPERTY FOLDER Externals/${OLD_DIRECTORY})
