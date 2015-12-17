@@ -7,52 +7,58 @@
 #ifndef __WN_CORE_ALGORITHM_H__
 #define __WN_CORE_ALGORITHM_H__
 
-#include "WNCore/inc/WNTypeTraits.h"
+#include "WNCore/inc/WNTypes.h"
 
 #include <algorithm>
 
 namespace wn {
-    namespace core {
-        template <typename _InputIt1, typename _InputIt2>
-        WN_FORCE_INLINE wn_bool equal(_InputIt1 _first1, _InputIt1 _last1, _InputIt2 _first2) {
-           return(std::equal(_first1, _last1, _first2));
-        }
+namespace core {
 
-        template <typename _InputIt1, typename _InputIt2>
-        WN_FORCE_INLINE wn_bool equal(_InputIt1 _first1, _InputIt1 _last1, _InputIt2 _first2, _InputIt2 _last2) {
-            #ifdef __WN_HAS_CPP14_STD_EQUAL_AVAILABLE
-                return(std::equal(_first1, _last1, _first2, _last2));
-            #else
-                for (; (_first1 != _last1 && _first2 != _last2); ++_first1, ++_first2) {
-                    if (*_first1 != *_first2) {
-                        return(wn_false);
-                    }
-                }
-
-                return(_first1 == _last1 && _first2 == _last2);
-            #endif
-        }
-
-        template <typename _InputIt1, typename _InputIt2, typename _Predicate>
-        WN_FORCE_INLINE wn_bool equal_if(_InputIt1 _first1, _InputIt1 _last1, _InputIt2 _first2, _Predicate _p) {
-           return(std::equal(_first1, _last1, _first2, _p));
-        }
-
-        template <typename _InputIt1, typename _InputIt2, typename _Predicate>
-        WN_FORCE_INLINE wn_bool equal_if(_InputIt1 _first1, _InputIt1 _last1, _InputIt2 _first2, _InputIt2 _last2, _Predicate _p) {
-            #ifdef __WN_HAS_CPP14_STD_EQUAL_AVAILABLE
-                return(std::equal(_first1, _last1, _first2, _last2, _p));
-            #else
-                for (; (_first1 != _last1 && _first2 != _last2); ++_first1, ++_first2) {
-                    if (!_p(*_first1, *_first2)) {
-                        return(wn_false);
-                    }
-                }
-
-                return(_first1 == _last1 && _first2 == _last2);
-            #endif
-        }
-    }
+template <typename _InputIt1, typename _InputIt2>
+WN_FORCE_INLINE wn_bool equal(
+    _InputIt1 _first1, _InputIt1 _last1, _InputIt2 _first2) {
+  return std::equal(_first1, _last1, _first2);
 }
 
-#endif // __WN_CORE_ALGORITHM_H__
+template <typename _InputIt1, typename _InputIt2>
+WN_FORCE_INLINE wn_bool equal(
+    _InputIt1 _first1, _InputIt1 _last1, _InputIt2 _first2, _InputIt2 _last2) {
+#ifdef _WN_HAS_CPP14_STD_EQUAL
+  return std::equal(_first1, _last1, _first2, _last2);
+#else
+  for (; (_first1 != _last1 && _first2 != _last2); ++_first1, ++_first2) {
+    if (*_first1 != *_first2) {
+      return wn_false;
+    }
+  }
+
+  return (_first1 == _last1 && _first2 == _last2);
+#endif
+}
+
+template <typename _InputIt1, typename _InputIt2, typename _Predicate>
+WN_FORCE_INLINE wn_bool equal_if(
+    _InputIt1 _first1, _InputIt1 _last1, _InputIt2 _first2, _Predicate _p) {
+  return std::equal(_first1, _last1, _first2, _p);
+}
+
+template <typename _InputIt1, typename _InputIt2, typename _Predicate>
+WN_FORCE_INLINE wn_bool equal_if(_InputIt1 _first1, _InputIt1 _last1,
+    _InputIt2 _first2, _InputIt2 _last2, _Predicate _p) {
+#ifdef _WN_HAS_CPP14_STD_EQUAL_VARIANT
+  return std::equal(_first1, _last1, _first2, _last2, _p);
+#else
+  for (; (_first1 != _last1 && _first2 != _last2); ++_first1, ++_first2) {
+    if (!_p(*_first1, *_first2)) {
+      return wn_false;
+    }
+  }
+
+  return (_first1 == _last1 && _first2 == _last2);
+#endif
+}
+
+}  // namespace core
+}  // namespace wn
+
+#endif  // __WN_CORE_ALGORITHM_H__

@@ -767,6 +767,33 @@ check_cxx_source_compiles(
   HAS_CPP14_STD_IS_NULL_POINTER
 )
 
+check_cxx_source_compiles(
+  "
+    #include <algorithm>
+    int main() {
+      static const char temp1[] = \"test\";
+      static const char temp2[] = \"test\";
+      return std::equal(temp1, temp1 + 4, temp2, temp2 + 4) ? 1 : 0;
+    }
+  "
+  HAS_CPP14_STD_EQUAL
+)
+
+check_cxx_source_compiles(
+  "
+    #include <algorithm>
+    int main() {
+      static const char temp1[] = \"test\";
+      static const char temp2[] = \"test\";
+      const auto p = [](const char& _first, const char& _second) {
+        return _first == _second;
+      };
+      return std::equal(temp1, temp1 + 4, temp2, temp2 + 4, p) ? 1 : 0;
+    }
+  "
+  HAS_CPP14_STD_EQUAL_VARIANT
+)
+
 set(_WN_HAS_CPP11_STD_IS_TRIVIALLY_COPYABLE
   ${HAS_CPP11_STD_IS_TRIVIALLY_COPYABLE})
 set(_WN_HAS_CPP11_STD_IS_TRIVIALLY_CONSTRUCTIBLE
@@ -793,6 +820,8 @@ set(_WN_HAS_CPP14_STD_COMMON_TYPE_T ${HAS_CPP14_STD_COMMON_TYPE_T})
 set(_WN_HAS_CPP14_STD_RESULT_OF_T ${HAS_CPP14_STD_RESULT_OF_T})
 set(_WN_HAS_CPP14_STD_INTEGER_SEQUENCE ${HAS_CPP14_STD_INTEGER_SEQUENCE})
 set(_WN_HAS_CPP14_STD_IS_NULL_POINTER ${HAS_CPP14_STD_IS_NULL_POINTER})
+set(_WN_HAS_CPP14_STD_EQUAL ${HAS_CPP14_STD_EQUAL})
+set(_WN_HAS_CPP14_STD_EQUAL_VARIANT ${HAS_CPP14_STD_EQUAL_VARIANT})
 
 # generate config file
 set(CONFIG_FILE_INPUT_PATH_RELATIVE inc/Internal/WNConfig.h.in)
