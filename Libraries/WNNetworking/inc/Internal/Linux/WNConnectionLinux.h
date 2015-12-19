@@ -9,7 +9,7 @@
 
 #include "WNNetworking/inc/WNConnection.h"
 #include "WNNetworking/inc/WNNetworkManager.h"
-#include "WNConcurrency/inc/WNSpinLock.h"
+#include "WNThreading/inc/WNSpinLock.h"
 #include "WNNetworking/inc/WNNetworkWriteBuffer.h"
 #include "WNNetworking/inc/WNNetworkReadBuffer.h"
 
@@ -39,9 +39,9 @@ namespace WNNetworking {
         wn_size_t mTotalSent;
         std::atomic<wn_atom_t> mReadAtomic;
         std::atomic<wn_atom_t> mWriteAtomic;
-        wn::concurrency::spin_lock mReadLock;
-        wn::concurrency::spin_lock mWriteLock;
-        wn::concurrency::spin_lock mSendBufferLock;
+        wn::threading::spin_lock mReadLock;
+        wn::threading::spin_lock mWriteLock;
+        wn::threading::spin_lock mSendBufferLock;
         std::deque<WNNetworkWriteBuffer> mSendBuffers;
 
         WNNetworkReadBuffer mCurrentReadBuffer;

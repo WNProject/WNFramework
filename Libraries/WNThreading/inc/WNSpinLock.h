@@ -8,8 +8,8 @@
 #define __WN_CONCURRENCY_SPIN_LOCK_H__
 
 #include "WNCore/inc/WNUtility.h"
-#include "WNConcurrency/inc/WNConfig.h"
-#include "WNConcurrency/inc/WNThread.h"
+#include "WNThreading/inc/WNConfig.h"
+#include "WNThreading/inc/WNThread.h"
 
 #ifdef _WN_WINDOWS
   #include <Windows.h>
@@ -26,7 +26,7 @@
 #endif
 
 namespace wn {
-namespace concurrency {
+namespace threading {
 
 class spin_lock final : public core::non_copyable {
 public:
@@ -181,7 +181,7 @@ private:
   spin_lock m_spin_lock;
 };
 
-} // namespace concurrency
+} // namespace threading
 } // namespace wn
 
 #endif // __WN_CONCURRENCY_SPIN_LOCK_H__

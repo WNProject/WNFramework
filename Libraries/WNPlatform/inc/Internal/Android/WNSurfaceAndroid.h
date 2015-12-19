@@ -9,7 +9,7 @@
 
 #include "WNPlatform/inc/WNSurface.h"
 #include "WNMemory/inc/WNIntrusivePtr.h"
-#include "WNConcurrency/inc/WNSemaphore.h"
+#include "WNThreading/inc/WNSemaphore.h"
 #include "WNUtils/inc/Android/WNAndroidEventPump.h"
 #include <EGL/egl.h>
 #include <GLES/gl.h>
@@ -46,7 +46,7 @@ namespace wn {
         wn_bool InitializeWindow(android_app* app);
         wn_bool CleanupWindow(android_app* app);
     private:
-        wn::concurrency::semaphore mCreationSemaphore;
+        wn::threading::semaphore mCreationSemaphore;
         wn_bool mExiting;
         wn_bool mInitialized;
         WNSurfaceManagerAndroid& mManager;

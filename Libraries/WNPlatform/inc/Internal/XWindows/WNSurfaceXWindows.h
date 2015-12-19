@@ -9,19 +9,19 @@
 
 #include "WNPlatform/inc/WNSurface.h"
 #include "WNMemory/inc/WNIntrusivePtr.h"
-#include "WNConcurrency/inc/WNSemaphore.h"
+#include "WNThreading/inc/WNSemaphore.h"
 
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
 #include <GL/glx.h>
 
 namespace wn {
-namespace concurrency {
+namespace threading {
 
 template <typename R>
 class thread;
 
-} // namespace concurrency
+} // namespace threading
 } // namesapce wn
 
 namespace wn {
@@ -53,10 +53,10 @@ namespace wn {
         Atom mDeleteMessage;
         wn_bool mExiting;
         wn::WNSurfaceManagerXWindows& mManager;
-        wn::concurrency::semaphore mThreadCreationMutex;
+        wn::threading::semaphore mThreadCreationMutex;
         Display* mDisplay;
         Window mWindow;
-        wn::concurrency::thread<wn_void>* mSurfaceThread;
+        wn::threading::thread<wn_void>* mSurfaceThread;
         wn_bool mFullscreen;
         wn_uint32 mX;
         wn_uint32 mY;

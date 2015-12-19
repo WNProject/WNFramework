@@ -14,7 +14,6 @@
 
 #define RANDOM_TIME(_high, _low) (rand() % ((_high) - (_low) + 1) + (_low))
 
-#include "WNConcurrency/inc/WNConcurrency.h"
 #include "WNPlatform/inc/WNTime.h"
 
 #include <vector>

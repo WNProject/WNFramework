@@ -5,7 +5,7 @@
 #include <fcntl.h>
 
 #ifndef __WN_USE_PRECOMPILED_HEADER
-    #include "WNConcurrency/inc/WNThread.h"
+    #include "WNThreading/inc/WNThread.h"
 #endif
 
 using namespace WNLogging;

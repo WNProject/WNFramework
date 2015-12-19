@@ -2,5 +2,5 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNConcurrency/inc/WNMutex.h"
+#include "WNThreading/inc/WNMutex.h"
 #include "WNTesting/inc/WNTestHarness.h"

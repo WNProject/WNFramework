@@ -1,10 +1,11 @@
 set(INC_INTERNAL
   inc/Internal/WNConfig.h
 )
+
 source_group("inc\\Internal" FILES ${INC_INTERNAL})
-add_wn_header_library(WNConcurrency
+
+add_wn_header_library(WNThreading
   inc/WNCallbackTask.h
-  inc/WNConcurrency.h
   inc/WNConditionVariable.h
   inc/WNConfig.h
   inc/WNMutex.h

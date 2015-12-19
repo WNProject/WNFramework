@@ -3,7 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "WNGraphics/inc/Internal/GLX/WNGraphicsDeviceGLX.h"
-#include "WNConcurrency/inc/WNSpinLock.h"
+#include "WNThreading/inc/WNSpinLock.h"
 #include "WNPlatform/inc/WNSurface.h"
 
 typedef GLXContext (*glXCreateContextAttribsARBProc)(Display*, GLXFBConfig, GLXContext, Bool, const int*);
@@ -16,7 +16,7 @@ static glXSwapIntervalEXTProc glXSwapIntervalEXT = 0;
 
 #define WN_RESIZE_RETRY_COUNT 5
 
-static wn::concurrency::spin_lock gInitializationCreationLock;
+static wn::threading::spin_lock gInitializationCreationLock;
 
 WNGraphics::WNGraphicsDeviceGLX::WNGraphicsDeviceGLX(WNGraphics::WNGraphicsResourceFactory* _factory) :
     mResourceFactory(_factory),

@@ -7,14 +7,14 @@
 #ifndef __WN_CONCURRENCY_CALLBACK_TASK_H__
 #define __WN_CONCURRENCY_CALLBACK_TASK_H__
 
-#include "WNConcurrency/inc/WNThreadTask.h"
+#include "WNThreading/inc/WNThreadTask.h"
 #include "WNContainers/inc/WNFunction.h"
 #include "WNMemory/inc/WNIntrusivePtr.h"
 #include "WNCore/inc/WNTypeTraits.h"
 #include "WNCore/inc/WNUtility.h"
 
 namespace wn {
-namespace concurrency {
+namespace threading {
 
 template <typename R>
 class callback_task final : public thread_task {
@@ -91,7 +91,7 @@ WN_FORCE_INLINE callback_task_ptr<R> make_callback_task(Args&&... args) {
   return(memory::make_intrusive<callback_task<R>>(std::forward<Args>(args)...));
 }
 
-} // namespace concurrency
+} // namespace threading
 } // namespace wn
 
 #endif // __WN_CONCURRENCY_CALLBACK_TASK_H__

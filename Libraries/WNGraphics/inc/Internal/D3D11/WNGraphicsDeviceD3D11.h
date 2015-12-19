@@ -8,7 +8,7 @@
 #define __WN_GRAPHICS_D3D11_GRAPHICS_DEVICE_D3D11_H__
 
 #include "WNGraphics/inc/WNGraphicsDevice.h"
-#include "WNConcurrency/inc/WNMutex.h"
+#include "WNThreading/inc/WNMutex.h"
 #include "WNPlatform/inc/WNSurface.h"
 
 struct IDXGIFactory1;
@@ -95,7 +95,7 @@ namespace WNGraphics {
         wn::memory::intrusive_ptr<wn::surface> mActiveSurface;
 
         WNGraphicsResourceFactory * mResourceFactory;
-        wn::concurrency::recursive_mutex mResizeMutex;
+        wn::threading::recursive_mutex mResizeMutex;
 
         wn_float32 mClearColor[4];
 

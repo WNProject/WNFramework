@@ -8,12 +8,12 @@
 #define __WN_CONCURRENCY_THREAD_TASK_H__
 
 #include "WNMemory/inc/WNIntrusivePtr.h"
-#include "WNConcurrency/inc/WNSemaphore.h"
+#include "WNThreading/inc/WNSemaphore.h"
 
 #include <atomic>
 
 namespace wn {
-namespace concurrency {
+namespace threading {
 
 class thread_pool;
 
@@ -59,7 +59,7 @@ private:
 
 typedef memory::intrusive_ptr<thread_task> thread_task_ptr;
 
-} // namespace concurrency
+} // namespace threading
 } // namespace wn
 
 #endif // __WN_CONCURRENCY_THREAD_TASK_H__
