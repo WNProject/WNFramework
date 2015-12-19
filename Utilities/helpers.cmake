@@ -244,14 +244,15 @@ if (NOT LLVM_CONFIGURED)
   if (${WN_IS_TEGRA})
 #TODO(awoloszyn): Add Arm64 support in the future.
     set(WN_TEGRA_TARGET_TRIPLE "armv7a-linux-androideabi")
-    if (${CMAKE_ANDROID_ARCH})
+    if (DEFINED CMAKE_ANDROID_ARCH)
       if (${CMAKE_ANDROID_ARCH} STREQUAL "x86")
-        set(WN_TEGRA_TARGET_TRIPLE "armv7a-linux-androideabi")
+        set(WN_TEGRA_TARGET_TRIPLE "i686-none-linux-android")
       elseif(${CMAKE_ANDROID_ARCH} STREQUAL "x86_64")
-        set(WN_TEGRA_TARGET_TRIPLE "armv7a-linux-androideabi")
+        set(WN_TEGRA_TARGET_TRIPLE "x86_64-none-linux-android")
       endif()
     endif()
     list(APPEND WN_LLVM_EXTRA_FLAGS "-DLLVM_HOST_TRIPLE=${WN_TEGRA_TARGET_TRIPLE}")
+    list(APPEND WN_LLVM_EXTRA_FLAGS "-DCMAKE_ANDROID_ARCH=${CMAKE_ANDROID_ARCH}")
   endif()
 
   execute_process(
