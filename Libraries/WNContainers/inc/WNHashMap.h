@@ -105,10 +105,11 @@ class hash_map_iterator
 template <typename _KeyType, typename _ValueType, typename _HashOperator,
           typename _EqualityOperator, typename _Allocator>
 class hash_map final {
-  static _Allocator s_default_allocator;
-
- public:
-  static _Allocator& get_default_allocator() { return s_default_allocator; }
+public:
+  static _Allocator* get_default_allocator() {
+    static _Allocator* alloc = new _Allocator();
+    return alloc;
+  }
   using key_type = _KeyType;
   using mapped_type = _ValueType;
   using value_type = std::pair<_KeyType, _ValueType>;
@@ -137,24 +138,28 @@ class hash_map final {
 
   explicit hash_map(size_type _n = 0u, const hasher& _hasher = hasher(),
                     const key_equal& _key_equal = key_equal(),
-                    memory::allocator* _allocator = &s_default_allocator)
+                    memory::allocator* _allocator = wn_nullptr)
       : m_allocator(_allocator),
-        m_buckets(_n, list_type(_allocator), _allocator),
+        m_buckets(0, list_type(_allocator), _allocator),
         m_total_elements(0),
         m_max_load_factor(1.0),
         m_hasher(_hasher),
-        m_key_equal(_key_equal) {}
+        m_key_equal(_key_equal) {
+    if (_n > 0) {
+      m_buckets = array_type(_n, list_type(get_allocator()), get_allocator());
+    }
+  }
 
   hash_map(std::initializer_list<value_type> initializer, size_type _n = 0u,
            const hasher& _hasher = hasher(),
            const key_equal& _key_equal = key_equal(),
-           memory::allocator* _allocator = &s_default_allocator)
+           memory::allocator* _allocator = wn_nullptr)
       : hash_map(0u /* we will resize */, _hasher, _key_equal, _allocator) {
     auto begin = std::begin(initializer);
     auto end = std::end(initializer);
     wn_size_t count = end - begin;
     m_buckets.insert(m_buckets.begin(), (count > _n ? count : _n),
-                     list_type(_allocator));
+                     list_type(get_allocator()));
     for (; begin != end; ++begin) {
       insert(*begin);
     }
@@ -331,7 +336,7 @@ class hash_map final {
       return;
     }
 
-    array_type new_buckets(n, list_type(m_allocator), m_allocator);
+    array_type new_buckets(n, list_type(get_allocator()), get_allocator());
     for (auto& bucket : m_buckets) {
       for (auto it = bucket.begin(); it != bucket.end();) {
         wn_size_t hash = get_hash(it->first, n);
@@ -410,19 +415,21 @@ class hash_map final {
   }
 
  private:
-  memory::allocator* m_allocator;
-  array_type m_buckets;
-  wn_size_t m_total_elements;
-  wn_float32 m_max_load_factor;
+   memory::allocator* get_allocator() {
+     if (!m_allocator) {
+       m_allocator = get_default_allocator();
+     }
+     return m_allocator;
+   }
+   memory::allocator* m_allocator;
+   array_type m_buckets;
+   wn_size_t m_total_elements;
+   wn_float32 m_max_load_factor;
 
-  hasher m_hasher;
-  key_equal m_key_equal;
+   hasher m_hasher;
+   key_equal m_key_equal;
 };
 
-template <typename _KeyType, typename _ValueType, typename _HashOperator,
-          typename _EqualityOperator, typename _Allocator>
-_Allocator hash_map<_KeyType, _ValueType, _HashOperator, _EqualityOperator,
-                    _Allocator>::s_default_allocator;
 }
 }
 

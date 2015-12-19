@@ -7,10 +7,10 @@
 #ifndef __WN_CONTAINERS_DEQUE_H__
 #define __WN_CONTAINERS_DEQUE_H__
 
+#include "WNContainers/inc/WNDynamicArray.h"
 #include "WNCore/inc/WNTypeTraits.h"
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNMemory/inc/WNBasic.h"
-#include "WNContainers/inc/WNDynamicArray.h"
 
 #include <iterator>
 
@@ -236,7 +236,10 @@ template <typename _Type, typename _Allocator = memory::default_allocator,
     const wn_size_t _BlockSize = 10>
 class deque final {
 public:
-  static _Allocator s_default_allocator;
+  static _Allocator* get_default_allocator() {
+    static _Allocator* alloc = new _Allocator();
+    return alloc;
+  }
   using value_type = _Type;
   using size_type = wn_size_t;
   using difference_type = wn_signed_t;
@@ -248,17 +251,17 @@ private:
   using self_type = deque<_Type, _Allocator, _BlockSize>;
 
 public:
- using iterator = internal::deque_iterator<self_type>;
- using const_iterator =
-     internal::deque_iterator<const self_type, self_type, const value_type>;
- using reverse_iterator = std::reverse_iterator<iterator>;
- using const_reverse_iterator = std::reverse_iterator<const_iterator>;
+  using iterator = internal::deque_iterator<self_type>;
+  using const_iterator =
+      internal::deque_iterator<const self_type, self_type, const value_type>;
+  using reverse_iterator = std::reverse_iterator<iterator>;
+  using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
-  deque() : deque(&s_default_allocator) {}
+  deque() : deque(wn_nullptr) {}
 
   deque(const deque& _other)
-    : m_allocator(&s_default_allocator),
-      m_block_list(_other.m_block_list, &s_default_allocator),
+    : m_allocator(wn_nullptr),
+      m_block_list(_other.m_block_list, wn_nullptr),
       m_used_blocks(_other.m_used_blocks),
       m_start_block(_other.m_start_block),
       m_start_location(_other.m_start_location),
@@ -298,12 +301,12 @@ public:
       m_allocated_blocks(0),
       m_element_count(0) {}
 
-  explicit deque(const size_type _count,
-      memory::allocator* _allocator = &s_default_allocator)
+  explicit deque(
+      const size_type _count, memory::allocator* _allocator = wn_nullptr)
     : deque(_count, _Type(), _allocator) {}
 
   deque(const size_type _count, const _Type& _value,
-      memory::allocator* _allocator = &s_default_allocator)
+      memory::allocator* _allocator = wn_nullptr)
     : deque(_allocator) {
     resize(_count, _value);
   }
@@ -311,13 +314,13 @@ public:
   template <typename _InputIt,
       typename = core::enable_if_t<!std::is_integral<_InputIt>::value>>
   deque(_InputIt _first, _InputIt _last,
-      memory::allocator* _allocator = &s_default_allocator)
+      memory::allocator* _allocator = wn_nullptr)
     : deque(_allocator) {
     insert(cbegin(), _first, _last);
   }
 
   deque(std::initializer_list<_Type> _initializer_list,
-      memory::allocator* _allocator = &s_default_allocator)
+      memory::allocator* _allocator = wn_nullptr)
     : deque(_initializer_list.begin(), _initializer_list.end(), _allocator) {}
 
   deque& operator=(deque&& _other) {
@@ -343,7 +346,7 @@ public:
     for (wn_size_t i = 0; i < m_allocated_blocks; ++i) {
       const wn_size_t index = (m_start_block + i) % m_block_list.size();
 
-      m_allocator->deallocate(m_block_list[index]);
+      deallocate(m_block_list[index]);
     }
   }
 
@@ -657,6 +660,23 @@ public:
   }
 
 private:
+  memory::allocation_pair allocate(
+      const wn_size_t _size, const wn_size_t _count) {
+    if (!m_allocator) {
+      m_allocator = get_default_allocator();
+    }
+    return m_allocator->allocate(_size, _count);
+  }
+
+  void deallocate(void* ptr) {
+    if (m_allocator) {
+      m_allocator->deallocate(ptr);
+    } else {
+      WN_DEBUG_ASSERT_DESC(
+          ptr == wn_nullptr, "m_allocator is nullptr, where did ptr come from");
+    }
+  }
+
   iterator make_iterator(const_iterator _pos) {
     return (begin() + (_pos - cbegin()));
   }
@@ -723,7 +743,7 @@ private:
 
         for (size_type i = 0; i < neededBlocks; ++i) {
           wn::memory::allocation_pair p =
-              m_allocator->allocate(sizeof(value_type), _BlockSize);
+              allocate(sizeof(value_type), _BlockSize);
           m_block_list[(m_start_block + m_allocated_blocks) %
                        m_block_list.size()] =
               static_cast<value_type*>(p.m_location);
@@ -786,7 +806,7 @@ private:
 
       for (size_type i = 0; i < neededExtraBlocks; ++i) {
         wn::memory::allocation_pair p =
-            m_allocator->allocate(sizeof(value_type), _BlockSize);
+            allocate(sizeof(value_type), _BlockSize);
 
         m_block_list[(m_start_block + m_allocated_blocks) %
                      m_block_list.size()] =
@@ -892,9 +912,6 @@ private:
   size_type m_start_location;
   size_type m_element_count;
 };
-
-template <typename _Type, typename _Allocator, const wn_size_t _BlockSize>
-_Allocator deque<_Type, _Allocator, _BlockSize>::s_default_allocator;
 
 }  // namespace containers
 }  // namespace wn

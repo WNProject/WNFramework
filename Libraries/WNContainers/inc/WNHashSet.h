@@ -7,16 +7,16 @@
 #ifndef __WN_CONTAINERS_HASH_SET_H__
 #define __WN_CONTAINERS_HASH_SET_H__
 
-#include "WNMemory/inc/WNAllocator.h"
 #include "WNContainers/inc/WNHashMap.h"
+#include "WNMemory/inc/WNAllocator.h"
 
 namespace wn {
 namespace containers {
 struct empty_element {};
 
 template <typename _Key, typename _HashOperator = std::hash<_Key>,
-          typename _EqualityOperator = std::equal_to<_Key>,
-          typename _Allocator = memory::default_allocator>
+    typename _EqualityOperator = std::equal_to<_Key>,
+    typename _Allocator = memory::default_allocator>
 class hash_set;
 
 namespace internal {
@@ -26,18 +26,20 @@ namespace internal {
 template <typename _IteratorType, typename _ContainedType>
 class hash_set_iterator
     : public std::iterator<std::forward_iterator_tag, _ContainedType> {
- public:
+public:
   hash_set_iterator() {}
   template <typename _IT, typename _CT>
   hash_set_iterator(const hash_set_iterator<_IT, _CT>& _other)
-      : m_map_iterator(_other.m_map_iterator) {}
+    : m_map_iterator(_other.m_map_iterator) {}
 
   hash_set_iterator& operator+=(wn_size_t _count) {
     m_map_iterator += _count;
     return *this;
   }
 
-  hash_set_iterator& operator++() { return (*this += 1); }
+  hash_set_iterator& operator++() {
+    return (*this += 1);
+  }
   hash_set_iterator operator++(int) {
     hash_set_iterator it = *this;
     *this += 1;
@@ -53,15 +55,19 @@ class hash_set_iterator
   bool operator!=(const hash_set_iterator<_IT, _CT>& _other) const {
     return !(*this == _other);
   }
-  _ContainedType* operator->() { return &m_map_iterator->first; }
+  _ContainedType* operator->() {
+    return &m_map_iterator->first;
+  }
 
-  _ContainedType& operator*() { return m_map_iterator->first; }
+  _ContainedType& operator*() {
+    return m_map_iterator->first;
+  }
 
- private:
+private:
   explicit hash_set_iterator(const _IteratorType& _iterator)
-      : m_map_iterator(_iterator) {}
+    : m_map_iterator(_iterator) {}
   template <typename _Key, typename _HashOperator, typename _EqualityOperator,
-            typename _Allocator>
+      typename _Allocator>
   friend class wn::containers::hash_set;
   template <typename _IT, typename _CT>
   friend class hash_set_iterator;
@@ -70,15 +76,15 @@ class hash_set_iterator
 }  // namespace internal
 
 template <typename _Key, typename _HashOperator, typename _EqualityOperator,
-          typename _Allocator>
+    typename _Allocator>
 class hash_set final {
-  static _Allocator s_default_allocator;
- public:
-   static _Allocator& get_default_allocator() {
-     return s_default_allocator;
-   }
-   using map_type = hash_map<_Key, empty_element, _HashOperator,
-                             _EqualityOperator, _Allocator>;
+public:
+  using map_type = hash_map<_Key, empty_element, _HashOperator,
+      _EqualityOperator, _Allocator>;
+
+  static _Allocator* get_default_allocator() {
+    return map_type::get_default_allocator();
+  }
 
   using key_type = _Key;
   using value_type = _Key;
@@ -97,19 +103,19 @@ class hash_set final {
       internal::hash_set_iterator<typename map_type::iterator, value_type>;
   using const_iterator =
       internal::hash_set_iterator<typename map_type::const_iterator,
-                                  const value_type>;
+          const value_type>;
 
   hash_set(size_type _n = 0u, const hasher& _hasher = hasher(),
-           const key_equal& _key_equal = key_equal(),
-           memory::allocator* _allocator = &s_default_allocator)
-      : m_map(_n, _hasher, _key_equal, _allocator) {}
+      const key_equal& _key_equal = key_equal(),
+      memory::allocator* _allocator = wn_nullptr)
+    : m_map(_n, _hasher, _key_equal, _allocator) {}
   hash_set(memory::allocator* _allocator)
-      : hash_set(0u, hasher(), key_equal(), _allocator) {}
+    : hash_set(0u, hasher(), key_equal(), _allocator) {}
   hash_set(std::initializer_list<key_type> initializer, size_type _n = 0u,
-           const hasher& _hasher = hasher(),
-           const key_equal& _key_equal = key_equal(),
-           memory::allocator* _allocator = &s_default_allocator)
-      : hash_set(0u, _hasher, _key_equal, _allocator) {
+      const hasher& _hasher = hasher(),
+      const key_equal& _key_equal = key_equal(),
+      memory::allocator* _allocator = wn_nullptr)
+    : hash_set(0u, _hasher, _key_equal, _allocator) {
     auto begin = std::begin(initializer);
     auto end = std::end(initializer);
     wn_size_t count = end - begin;
@@ -120,7 +126,9 @@ class hash_set final {
     }
   }
 
-  bool empty() const { m_map.empty(); }
+  bool empty() const {
+    m_map.empty();
+  }
 
   std::pair<iterator, bool> insert(const value_type& element) {
     auto internal_pair = m_map.insert(element, empty_element());
@@ -133,7 +141,9 @@ class hash_set final {
     return std::make_pair(iterator(internal_pair.first), internal_pair.second);
   }
 
-  iterator find(const key_type& key) { return iterator(m_map.find(key)); }
+  iterator find(const key_type& key) {
+    return iterator(m_map.find(key));
+  }
   const_iterator find(const key_type& key) const {
     return const_iterator(m_map.find(key));
   }
@@ -142,24 +152,31 @@ class hash_set final {
     return iterator(m_map.erase(_it.m_map_iterator));
   }
 
-  iterator begin() { return iterator(m_map.begin()); }
-  const_iterator cbegin() { return const_iterator(m_map.cbegin()); }
-  iterator end() { return iterator(m_map.end()); }
-  const_iterator cend() { return const_iterator(m_map.cend()); }
+  iterator begin() {
+    return iterator(m_map.begin());
+  }
+  const_iterator cbegin() {
+    return const_iterator(m_map.cbegin());
+  }
+  iterator end() {
+    return iterator(m_map.end());
+  }
+  const_iterator cend() {
+    return const_iterator(m_map.cend());
+  }
 
-  void rehash(wn_size_t n) { m_map.rehash(n); }
+  void rehash(wn_size_t n) {
+    m_map.rehash(n);
+  }
 
-  wn_size_t size() const { return m_map.size(); }
+  wn_size_t size() const {
+    return m_map.size();
+  }
 
- private:
+private:
   hash_map<_Key, empty_element, _HashOperator, _EqualityOperator, _Allocator>
       m_map;
 };
-
-template <typename _Key, typename _HashOperator, typename _EqualityOperator,
-          typename _Allocator>
-_Allocator hash_set<_Key, _HashOperator, _EqualityOperator,
-                    _Allocator>::s_default_allocator;
 }
 }
 

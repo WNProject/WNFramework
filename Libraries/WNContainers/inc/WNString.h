@@ -35,6 +35,7 @@ struct hash<wn::containers::string> {
     return wn::memory::strhash(string.c_str());
   }
 };
+
 template <>
 struct equal_to<wn::containers::string> {
   size_t operator()(const wn::containers::string& string,

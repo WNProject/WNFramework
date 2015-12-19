@@ -139,7 +139,10 @@ namespace containers {
 template <typename _Type, typename _Allocator>
 class dynamic_array final {
 public:
-  static _Allocator s_default_allocator;
+  static _Allocator* get_default_allocator() {
+    static _Allocator* alloc = new _Allocator();
+    return alloc;
+  }
   typedef _Type value_type;
   typedef wn_size_t size_type;
   typedef wn_signed_t difference_type;
@@ -152,24 +155,24 @@ public:
   typedef std::reverse_iterator<iterator> reverse_iterator;
   typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
-  dynamic_array() : dynamic_array(&s_default_allocator) {}
+  dynamic_array() : dynamic_array(wn_nullptr) {}
 
   explicit dynamic_array(memory::allocator* _allocator)
     : m_allocator(_allocator), m_data(wn_nullptr), m_size(0), m_capacity(0) {}
 
   explicit dynamic_array(const size_type _count,
-      memory::allocator* _allocator = &s_default_allocator)
+      memory::allocator* _allocator = wn_nullptr)
     : dynamic_array(_count, _Type(), _allocator) {}
 
   dynamic_array(const size_type _count, const _Type& _value,
-      memory::allocator* _allocator = &s_default_allocator)
+      memory::allocator* _allocator = wn_nullptr)
     : dynamic_array(_allocator) {
     insert(iterator(m_data), _count, _value);
   }
 
   template <typename T_Alloc>
   dynamic_array(const dynamic_array<_Type, T_Alloc>& _other,
-      memory::allocator* _allocator = &s_default_allocator)
+      memory::allocator* _allocator = wn_nullptr)
     : dynamic_array(_allocator) {
     (*this) = _other;
   }
@@ -194,7 +197,7 @@ public:
 
   template <typename TOther>
   dynamic_array(TOther begin, TOther end,
-      memory::allocator* _alloc = &s_default_allocator)
+      memory::allocator* _alloc = wn_nullptr)
     : dynamic_array(_alloc) {
     reserve(end - begin);
     while (begin != end) {
@@ -206,7 +209,7 @@ public:
   ~dynamic_array() {
     clear();
 
-    m_allocator->deallocate(m_data);
+    deallocate(m_data);
   }
 
   template <typename T_Alloc>
@@ -254,10 +257,10 @@ public:
       for (wn_size_t i = 0; i < m_size; ++i) {
         m_data[i].~_Type();
       }
-      m_allocator->deallocate(m_data);
+      deallocate(m_data);
     }
     m_allocator = _other.m_allocator;
-    _other.m_allocator = &s_default_allocator;
+    _other.m_allocator = wn_nullptr;
     m_capacity = _other.m_capacity;
     _other.m_capacity = 0;
     m_data = _other.m_data;
@@ -276,10 +279,10 @@ public:
       for (wn_size_t i = 0; i < m_size; ++i) {
         m_data[i].~_Type();
       }
-      m_allocator->deallocate(m_data);
+      deallocate(m_data);
     }
     m_allocator = _other.m_allocator;
-    _other.m_allocator = &s_default_allocator;
+    _other.m_allocator = wn_nullptr;
     m_capacity = _other.m_capacity;
     _other.m_capacity = 0;
     m_data = _other.m_data;
@@ -407,12 +410,12 @@ public:
     if (_new_cap > m_capacity) {
       if (!m_data) {
         wn::memory::allocation_pair pair =
-            m_allocator->allocate(sizeof(_Type), _new_cap);
+            allocate(sizeof(_Type), _new_cap);
         m_capacity = pair.m_count;
         m_data = reinterpret_cast<_Type*>(pair.m_location);
       } else {
         // TODO optimize this based on _Type traits
-        wn::memory::allocation_pair pair = m_allocator->allocate_for_resize(
+        wn::memory::allocation_pair pair = allocate_for_resize(
             sizeof(_Type), _new_cap, m_capacity);
         m_capacity = pair.m_count;
         _Type* newData = reinterpret_cast<_Type*>(pair.m_location);
@@ -421,7 +424,7 @@ public:
               _Type(std::move(m_data[i]));
           m_data[i].~_Type();
         }
-        m_allocator->deallocate(m_data);
+        deallocate(m_data);
         m_data = newData;
       }
     }
@@ -586,7 +589,7 @@ private:
 
     if (m_capacity < (m_size + _count)) {
       iterator startPt = iterator(m_data + (_pos - begin()));
-      wn::memory::allocation_pair alloc = m_allocator->allocate_for_resize(
+      wn::memory::allocation_pair alloc = allocate_for_resize(
           sizeof(_Type), m_size + _count, m_capacity);
       m_capacity = alloc.m_count;
       _Type* newData = reinterpret_cast<_Type*>(alloc.m_location);
@@ -600,7 +603,7 @@ private:
         new (reinterpret_cast<wn_void*>(newData++)) _Type(std::move(*i));
         i->~_Type();
       }
-      m_allocator->deallocate(m_data);
+      deallocate(m_data);
       m_data = allocated;
     } else {
       for (_Type* i = m_data + m_size + _count - 1;
@@ -611,6 +614,31 @@ private:
     }
     m_size = m_size + _count;
     return (iterator(m_data + originalPosition));
+  }
+
+  memory::allocation_pair allocate(
+      const wn_size_t _size, const wn_size_t _count) {
+    if (!m_allocator) {
+      m_allocator = get_default_allocator();
+    }
+    return m_allocator->allocate(_size, _count);
+  }
+
+  memory::allocation_pair allocate_for_resize(const wn_size_t _size,
+      const wn_size_t _count, const wn_size_t _old_size) {
+    if (!m_allocator) {
+      m_allocator = get_default_allocator();
+    }
+    return m_allocator->allocate_for_resize(_size, _count, _old_size);
+  }
+
+  void deallocate(void* ptr) {
+    if (m_allocator) {
+      m_allocator->deallocate(ptr);
+    } else {
+      WN_DEBUG_ASSERT_DESC(
+          ptr == wn_nullptr, "m_allocator is nullptr, where did ptr come from");
+    }
   }
 
   iterator unshift(const_iterator _pos, const size_type _count) {
@@ -637,8 +665,6 @@ private:
   size_type m_capacity;
   size_type m_size;
 };
-template <typename _Type, typename _Allocator>
-_Allocator dynamic_array<_Type, _Allocator>::s_default_allocator;
 }
 };
 

@@ -98,11 +98,11 @@ private:
 
 template <typename _Type, typename _Allocator>
 class list final {
-  static _Allocator s_default_allocator;
-
- public:
-  static _Allocator& get_default_allocator() { return s_default_allocator; }
-
+public:
+  static _Allocator* get_default_allocator() {
+    static _Allocator* alloc = new _Allocator();
+    return alloc;
+  }
  private:
   struct list_node {
    public:
@@ -135,7 +135,7 @@ class list final {
   using reverse_iterator = std::reverse_iterator<iterator>;
   using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
-  list(memory::allocator* _allocator = &s_default_allocator)
+  list(memory::allocator* _allocator = wn_nullptr)
       : m_allocator(_allocator),
         m_size(0),
         m_begin(reinterpret_cast<list_node*>(&m_dummy_end_node)) {
@@ -341,14 +341,29 @@ class list final {
     m_size += count;
     return iterator(_first);
   }
+
+  template <typename T, typename... Args>
+  T *make_allocated(Args &&... _args) {
+  if (!m_allocator) {
+      m_allocator = get_default_allocator();
+    }
+    return m_allocator->make_allocated(std::forward<Args>(_args)...);
+  }
+
+  void deallocate(void* ptr) {
+    if (m_allocator) {
+      m_allocator->deallocate(ptr);
+    } else {
+      WN_DEBUG_ASSERT_DESC(
+          ptr == wn_nullptr, "m_allocator is nullptr, where did ptr come from");
+    }
+  }
+
   memory::allocator* m_allocator;
   dummy_end_node m_dummy_end_node;
   wn_size_t m_size;
   list_node* m_begin;
 };
-
-template <typename _Type, typename _Allocator>
-_Allocator list<_Type, _Allocator>::s_default_allocator;
 }
 }
 

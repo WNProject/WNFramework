@@ -17,17 +17,17 @@ using test_set = wn::containers::hash_set<T, std::hash<T>, std::equal_to<T>,
 TYPED_TEST_CASE(hash_set, hash_set_testing_types);
 
 TYPED_TEST(hash_set, construction) {
-  EXPECT_EQ(0, test_set<TypeParam>::get_default_allocator().allocated());
+  EXPECT_EQ(0, test_set<TypeParam>::get_default_allocator()->allocated());
   { test_set<TypeParam> set; }
   // We should not have allocated anything if we have not done anything.s
-  EXPECT_EQ(0, test_set<TypeParam>::get_default_allocator().allocated());
+  EXPECT_EQ(0, test_set<TypeParam>::get_default_allocator()->allocated());
 }
 
 TYPED_TEST(hash_set, construction_with_allocator) {
   wn::memory::default_test_allocator alloc;
   { test_set<TypeParam> set(&alloc); }
   EXPECT_EQ(0, alloc.allocated());
-  EXPECT_EQ(0, test_set<TypeParam>::get_default_allocator().allocated());
+  EXPECT_EQ(0, test_set<TypeParam>::get_default_allocator()->allocated());
 }
 
 TYPED_TEST(hash_set, insert) {
@@ -48,7 +48,7 @@ TYPED_TEST(hash_set, insert) {
 
   EXPECT_FALSE(0 == alloc.allocated());
   EXPECT_TRUE(alloc.empty());
-  EXPECT_EQ(0, test_set<TypeParam>::get_default_allocator().allocated());
+  EXPECT_EQ(0, test_set<TypeParam>::get_default_allocator()->allocated());
 }
 
 TYPED_TEST(hash_set, iterate) {
@@ -78,7 +78,7 @@ TYPED_TEST(hash_set, iterate) {
 
   EXPECT_FALSE(0 == alloc.allocated());
   EXPECT_TRUE(alloc.empty());
-  EXPECT_EQ(0, test_set<TypeParam>::get_default_allocator().allocated());
+  EXPECT_EQ(0, test_set<TypeParam>::get_default_allocator()->allocated());
 }
 
 TYPED_TEST(hash_set, find) {
@@ -100,7 +100,7 @@ TYPED_TEST(hash_set, find) {
 
   EXPECT_FALSE(0 == alloc.allocated());
   EXPECT_TRUE(alloc.empty());
-  EXPECT_EQ(0, test_set<TypeParam>::get_default_allocator().allocated());
+  EXPECT_EQ(0, test_set<TypeParam>::get_default_allocator()->allocated());
 }
 
 TYPED_TEST(hash_set, find_in_empty_set) {
@@ -112,7 +112,7 @@ TYPED_TEST(hash_set, find_in_empty_set) {
 
   EXPECT_TRUE(0 == alloc.allocated());
   EXPECT_TRUE(alloc.empty());
-  EXPECT_EQ(0, test_set<TypeParam>::get_default_allocator().allocated());
+  EXPECT_EQ(0, test_set<TypeParam>::get_default_allocator()->allocated());
 }
 
 TYPED_TEST(hash_set, erase) {
@@ -153,7 +153,7 @@ TYPED_TEST(hash_set, erase) {
 
   EXPECT_FALSE(0 == alloc.allocated());
   EXPECT_TRUE(alloc.empty());
-  EXPECT_EQ(0, test_set<TypeParam>::get_default_allocator().allocated());
+  EXPECT_EQ(0, test_set<TypeParam>::get_default_allocator()->allocated());
 }
 
 TYPED_TEST(hash_set, erase_all) {
@@ -174,7 +174,7 @@ TYPED_TEST(hash_set, erase_all) {
 
   EXPECT_FALSE(0 == alloc.allocated());
   EXPECT_TRUE(alloc.empty());
-  EXPECT_EQ(0, test_set<TypeParam>::get_default_allocator().allocated());
+  EXPECT_EQ(0, test_set<TypeParam>::get_default_allocator()->allocated());
 }
 
 TEST(hash_set, initializers) {

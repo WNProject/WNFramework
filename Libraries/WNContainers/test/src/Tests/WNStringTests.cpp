@@ -13,12 +13,12 @@
 TEST(string, construction) {
   // Global state in these tests!!! :(
   // Specifically these tests cannot be threaded. This is because
-  // s_default_allocator is the backup iterator if none is provided.
+  // get_default_allocator() is the backup iterator if none is provided.
   // We  want to make sure that it IS used when none is provided,
   // but not used when one is not provided.
   // This specifically means that it will be inconsistent with expectations
   // if we multithread.
-  auto& def = wn::containers::wn_string_test_allocator::s_default_allocator;
+  auto* def = wn::containers::wn_string_test_allocator::get_default_allocator();
   // In Release string has some small-string optimizations (hooray),
   // but we will make sure that we use large strings to actually
   // test the allocators.
@@ -27,12 +27,12 @@ TEST(string, construction) {
   EXPECT_EQ(std::string(
                 "this is a very long string that will not get optimized away"),
             std::string(s.c_str()));
-  EXPECT_GT(def.allocated(), 0u);
+  EXPECT_GT(def->allocated(), 0u);
 }
 
 TEST(string, allocator) {
-  auto& def = wn::containers::wn_string_test_allocator::s_default_allocator;
-  wn_size_t global_allocated = def.allocated();
+  auto* def = wn::containers::wn_string_test_allocator::get_default_allocator();
+  wn_size_t global_allocated = def->allocated();
   wn::memory::default_test_allocator test;
   {
     wn::containers::test_string s(
@@ -42,12 +42,12 @@ TEST(string, allocator) {
   EXPECT_EQ(test.freed(), test.allocated());
 
   // Nothing should have gone through the default allocator.
-  EXPECT_EQ(global_allocated, def.allocated());
+  EXPECT_EQ(global_allocated, def->allocated());
 }
 
 TEST(string, allocator_copies) {
-  auto& def = wn::containers::wn_string_test_allocator::s_default_allocator;
-  wn_size_t global_allocated = def.allocated();
+  auto* def = wn::containers::wn_string_test_allocator::get_default_allocator();
+  wn_size_t global_allocated = def->allocated();
   wn::memory::default_test_allocator test;
   {
     wn::containers::test_string s(
@@ -65,12 +65,12 @@ TEST(string, allocator_copies) {
   EXPECT_EQ(test.freed(), test.allocated());
 
   // Nothing should have gone through the default allocator.
-  EXPECT_EQ(global_allocated, def.allocated());
+  EXPECT_EQ(global_allocated, def->allocated());
 }
 
 TEST(string, allocator_moves) {
-  auto& def = wn::containers::wn_string_test_allocator::s_default_allocator;
-  wn_size_t global_allocated = def.allocated();
+  auto* def = wn::containers::wn_string_test_allocator::get_default_allocator();
+  wn_size_t global_allocated = def->allocated();
   wn::memory::default_test_allocator test;
   {
     wn::containers::test_string s(
@@ -93,12 +93,12 @@ TEST(string, allocator_moves) {
   EXPECT_EQ(test.freed(), test.allocated());
 
   // Nothing should have gone through the default allocator.
-  EXPECT_EQ(global_allocated, def.allocated());
+  EXPECT_EQ(global_allocated, def->allocated());
 }
 
 TEST(string, allocator_swap) {
-  auto& def = wn::containers::wn_string_test_allocator::s_default_allocator;
-  wn_size_t global_allocated = def.allocated();
+  auto* def = wn::containers::wn_string_test_allocator::get_default_allocator();
+  wn_size_t global_allocated = def->allocated();
   wn::memory::default_test_allocator test;
   wn::memory::default_test_allocator test2;
   {
@@ -138,12 +138,12 @@ TEST(string, allocator_swap) {
   EXPECT_EQ(test.freed(), test.allocated());
 
   // Nothing should have gone through the default allocator.
-  EXPECT_EQ(global_allocated, def.allocated());
+  EXPECT_EQ(global_allocated, def->allocated());
 }
 
 TEST(string, uses_correct_allocator_on_assignment) {
-  auto& def = wn::containers::wn_string_test_allocator::s_default_allocator;
-  wn_size_t global_allocated = def.allocated();
+  auto* def = wn::containers::wn_string_test_allocator::get_default_allocator();
+  wn_size_t global_allocated = def->allocated();
   wn::memory::default_test_allocator test;
   wn::memory::default_test_allocator test2;
   {
@@ -170,5 +170,5 @@ TEST(string, uses_correct_allocator_on_assignment) {
   EXPECT_EQ(test2.freed(), test2.allocated());
 
   // Nothing should have gone through the default allocator.
-  EXPECT_EQ(global_allocated, def.allocated());
+  EXPECT_EQ(global_allocated, def->allocated());
 }

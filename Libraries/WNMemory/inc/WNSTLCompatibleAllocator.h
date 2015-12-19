@@ -8,12 +8,19 @@ namespace memory {
 
 template<typename DefaultAlloc>
 struct passthrough_allocator_base {
-  static DefaultAlloc s_default_allocator;
+  static DefaultAlloc* get_default_allocator() {
+    static DefaultAlloc* alloc = new DefaultAlloc();
+    return alloc;
+  }
 };
 
 template <typename T, typename DefaultAlloc>
 struct passthrough_stl_allocator
     : public passthrough_allocator_base<DefaultAlloc> {
+public:
+  static DefaultAlloc* get_default_allocator() {
+    return passthrough_allocator_base<DefaultAlloc>::get_default_allocator();
+  }
   typedef T value_type;
   typedef T* pointer;
   typedef T& reference;
@@ -31,7 +38,7 @@ struct passthrough_stl_allocator
 
   passthrough_stl_allocator()
       : passthrough_stl_allocator(
-            &passthrough_allocator_base<DefaultAlloc>::s_default_allocator) {}
+            passthrough_allocator_base<DefaultAlloc>::get_default_allocator()) {}
   passthrough_stl_allocator(wn::memory::allocator* _allocator)
       : m_allocator(_allocator) {}
   template <typename T0, typename T1>
@@ -94,7 +101,7 @@ struct passthrough_stl_allocator<void, DefaultAlloc>
 
   passthrough_stl_allocator()
       : passthrough_stl_allocator(
-            &passthrough_allocator_base<DefaultAlloc>::s_default_allocator) {}
+            passthrough_allocator_base<DefaultAlloc>::get_default_allocator()) {}
   passthrough_stl_allocator(wn::memory::allocator* _allocator)
       : m_allocator(_allocator) {}
   template <typename T0, typename T1>
@@ -134,9 +141,6 @@ struct passthrough_stl_allocator<void, DefaultAlloc>
 
   wn::memory::allocator* m_allocator;
 };
-
-template <typename DefaultAlloc>
-DefaultAlloc passthrough_allocator_base<DefaultAlloc>::s_default_allocator;
 }
 }
 
