@@ -1,6 +1,7 @@
 set(SRC_ANDROID
   src/Android/WNContext.h
   src/Android/WNContext_arm.h
+  src/Android/WNContext_x86.h
 )
 
 source_group("src\\Android" FILES ${SRC_ANDROID})
@@ -24,17 +25,20 @@ if (${WN_SYSTEM} STREQUAL "Android")
         PROPERTIES COMPILE_FLAGS "-x assembler-with-cpp")
     endif()
   elseif(${ANDROID_ARCH_NAME} STREQUAL "x86")
-    list(APPEND ADDITIONAL_SOURCES asm/Android/WNMakeContext_x86.s)
+    list(APPEND ADDITIONAL_SOURCES asm/Android/WNGetContext_x86.S)
+    list(APPEND ADDITIONAL_SOURCES asm/Android/WNSetContext_x86.S)
     if (${WN_IS_TEGRA})
-      SET_SOURCE_FILES_PROPERTIES(asm/Android/WNMakeContext_x86.S PROPERTIES LANGUAGE CXX )
-      SET_SOURCE_FILES_PROPERTIES(asm/Android/WNMakeContext_x86.S
+      SET_SOURCE_FILES_PROPERTIES(asm/Android/WNGetContext_x86.S PROPERTIES LANGUAGE CXX )
+      SET_SOURCE_FILES_PROPERTIES(asm/Android/WNGetContext_x86.S
+        PROPERTIES COMPILE_FLAGS "-x assembler-with-cpp")
+      SET_SOURCE_FILES_PROPERTIES(asm/Android/WNSetContext_x86.S PROPERTIES LANGUAGE CXX )
+      SET_SOURCE_FILES_PROPERTIES(asm/Android/WNSetContext_x86.S
         PROPERTIES COMPILE_FLAGS "-x assembler-with-cpp")
     endif()
   endif()
 endif()
 
 add_wn_library(WNFibers SOURCES
-  inc/WNFiber.h
   src/WNFiber.cpp
   ${ADDITIONAL_SOURCES}
 )
