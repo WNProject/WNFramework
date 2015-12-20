@@ -66,7 +66,9 @@ wn_setcontext:
   add   r12, r12, #MCONTEXT_GREGS_R0_OFFSET
   ldm   r12, {r0-r11}
 
-  /* Restore the caller's address in 'pc' */
+  /* Restore the caller's address in 'pc'. */
+  /* Note this offset is the offset from the base of the gregs element in the
+     struct not the struct base, hence why this is different */
   ldr   pc, [r12, #MCONTEXT_GREGS_R15_OFFSET_GREGS]
   .fnend
   .size wn_setcontext, . - wn_setcontext

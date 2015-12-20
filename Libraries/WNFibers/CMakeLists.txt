@@ -2,6 +2,7 @@ set(SRC_ANDROID
   src/Android/WNContext.h
   src/Android/WNContext_arm.h
   src/Android/WNContext_x86.h
+  src/Android/WNMakeContext.cpp
 )
 
 set(ADDITIONAL_SOURCES)
@@ -11,6 +12,8 @@ if (${WN_SYSTEM} STREQUAL "Android")
   if(${ANDROID_ARCH_NAME} STREQUAL "arm")
     list(APPEND ANDROID_ASSEMBLY asm/Android/WNGetContext_arm.S
       asm/Android/WNSetContext_arm.S)
+    list(APPEND SRC_ANDROID
+      src/Android/WNMakeContext_arm.cpp)
   elseif(${ANDROID_ARCH_NAME} STREQUAL "x86")
     list(APPEND ANDROID_ASSEMBLY asm/Android/WNGetContext_x86.S
       asm/Android/WNSetContext_x86.S)
