@@ -420,6 +420,7 @@ function(add_wn_library target)
     "PRE_LINK_FLAGS;POST_LINK_FLAGS;SOURCES"
     ${ARGN})
   source_group("src" REGULAR_EXPRESSION ".*[.](c|cc|cpp|cxx)$")
+  source_group("asm" REGULAR_EXPRESSION ".*[.](s|S|asm)$")
   source_group("inc" REGULAR_EXPRESSION ".*[.](h|hpp)$")
   source_group("inl" REGULAR_EXPRESSION ".*[.](inl)$")
   if (PARSED_ARGS_SHARED)
@@ -492,7 +493,6 @@ function(add_wn_header_library target)
   # Only build a header-only library for display in
   # multi-configuration tools. (Visual studio)
   if (NOT ${NUM_TYPES} EQUAL 1)
-    source_group("src" REGULAR_EXPRESSION ".*[.](c|cc|cpp|cxx)$")
     source_group("inc" REGULAR_EXPRESSION ".*[.](h|hpp)$")
     source_group("inl" REGULAR_EXPRESSION ".*[.](inl)$")
     add_wn_library(${target} SOURCES ${ARGN})
@@ -530,6 +530,7 @@ function(add_wn_tool target)
     "SOURCES;LINK_LIBRARIES"
     ${ARGN})
   source_group("src" REGULAR_EXPRESSION ".*[.](c|cc|cpp|cxx)$")
+  source_group("asm" REGULAR_EXPRESSION ".*[.](s|S|asm)$")
   source_group("inc" REGULAR_EXPRESSION ".*[.](h|hpp)$")
   source_group("inl" REGULAR_EXPRESSION ".*[.](inl)$")
   add_wn_executable(${target} LINK_LIBRARIES ${PARSED_ARGS_LINK_LIBRARIES}
