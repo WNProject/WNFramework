@@ -38,6 +38,7 @@
 // found in the LICENSE.txt file.
 
 #define  MCONTEXT_GREGS_OFFSET     20
+
 #define  MCONTEXT_GS_OFFSET        (MCONTEXT_GREGS_OFFSET + 0*4)
 #define  MCONTEXT_FS_OFFSET        (MCONTEXT_GREGS_OFFSET + 1*4)
 #define  MCONTEXT_ES_OFFSET        (MCONTEXT_GREGS_OFFSET + 2*4)

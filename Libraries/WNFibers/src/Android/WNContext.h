@@ -5,6 +5,9 @@
 #include <ucontext.h>
 
 extern "C" {
+
 int wn_getcontext(ucontext_t* _ucontext);
-int wn_setcontext(ucontext_t* _ucontext);
+int __noreturn wn_setcontext(ucontext_t* _ucontext);
+void wn_makecontext(ucontext_t* c, void (*func)(void*), void* data);
+
 }

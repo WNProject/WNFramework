@@ -4,38 +4,28 @@ set(SRC_ANDROID
   src/Android/WNContext_x86.h
 )
 
-source_group("src\\Android" FILES ${SRC_ANDROID})
-
 set(ADDITIONAL_SOURCES)
-
-list(APPEND ADDITIONAL_SOURCES ${SRC_ANDROID})
+set(ANDROID_ASSEMBLY)
 
 if (${WN_SYSTEM} STREQUAL "Android")
   if(${ANDROID_ARCH_NAME} STREQUAL "arm")
-    list(APPEND ADDITIONAL_SOURCES asm/Android/WNGetContext_arm.S)
-    list(APPEND ADDITIONAL_SOURCES asm/Android/WNSetContext_arm.S)
-    if (${WN_IS_TEGRA})
-      SET_SOURCE_FILES_PROPERTIES(asm/Android/WNGetContext_arm.S PROPERTIES
-        LANGUAGE CXX)
-      SET_SOURCE_FILES_PROPERTIES(asm/Android/WNSetContext_arm.S PROPERTIES
-        LANGUAGE CXX)
-      SET_SOURCE_FILES_PROPERTIES(asm/Android/WNGetContext_arm.S
-        PROPERTIES COMPILE_FLAGS "-x assembler-with-cpp")
-      SET_SOURCE_FILES_PROPERTIES(asm/Android/WNSetContext_arm.S
-        PROPERTIES COMPILE_FLAGS "-x assembler-with-cpp")
-    endif()
+    list(APPEND ANDROID_ASSEMBLY asm/Android/WNGetContext_arm.S
+      asm/Android/WNSetContext_arm.S)
   elseif(${ANDROID_ARCH_NAME} STREQUAL "x86")
-    list(APPEND ADDITIONAL_SOURCES asm/Android/WNGetContext_x86.S)
-    list(APPEND ADDITIONAL_SOURCES asm/Android/WNSetContext_x86.S)
-    if (${WN_IS_TEGRA})
-      SET_SOURCE_FILES_PROPERTIES(asm/Android/WNGetContext_x86.S PROPERTIES LANGUAGE CXX )
-      SET_SOURCE_FILES_PROPERTIES(asm/Android/WNGetContext_x86.S
-        PROPERTIES COMPILE_FLAGS "-x assembler-with-cpp")
-      SET_SOURCE_FILES_PROPERTIES(asm/Android/WNSetContext_x86.S PROPERTIES LANGUAGE CXX )
-      SET_SOURCE_FILES_PROPERTIES(asm/Android/WNSetContext_x86.S
-        PROPERTIES COMPILE_FLAGS "-x assembler-with-cpp")
-    endif()
+    list(APPEND ANDROID_ASSEMBLY asm/Android/WNGetContext_x86.S
+      asm/Android/WNSetContext_x86.S)
+    list(APPEND SRC_ANDROID
+      src/Android/WNMakeContext_x86.cpp)
   endif()
+
+  if (${WN_IS_TEGRA})
+    SET_SOURCE_FILES_PROPERTIES(${ANDROID_ASSEMBLY} PROPERTIES LANGUAGE CXX)
+    SET_SOURCE_FILES_PROPERTIES(${ANDROID_ASSEMBLY} PROPERTIES COMPILE_FLAGS
+      "-x assembler-with-cpp")
+  endif()
+  source_group("src\\Android" FILES ${SRC_ANDROID})
+  list(APPEND ADDITIONAL_SOURCES ${SRC_ANDROID})
+  list(APPEND ADDITIONAL_SOURCES ${ANDROID_ASSEMBLY})
 endif()
 
 add_wn_library(WNFibers SOURCES
