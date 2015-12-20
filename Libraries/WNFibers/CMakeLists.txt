@@ -6,7 +6,7 @@ set (ADDITIONAL_SOURCES)
 
 if (${WN_SYSTEM} STREQUAL "Android")
   if(${ANDROID_ARCH_NAME} STREQUAL "arm")
-  list(APPEND ADDITIONAL_SOURCES asm/Android/WNMakeContext_arm.S)
+    list(APPEND ADDITIONAL_SOURCES asm/Android/WNMakeContext_arm.S)
     if (${WN_IS_TEGRA})
       SET_SOURCE_FILES_PROPERTIES(asm/Android/WNMakeContext_arm.S PROPERTIES LANGUAGE CXX )
       SET_SOURCE_FILES_PROPERTIES(asm/Android/WNMakeContext_arm.S
