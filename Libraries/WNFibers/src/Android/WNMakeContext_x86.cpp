@@ -8,14 +8,6 @@
 
 extern "C" {
 
-void wn_call_func(ucontext_t* c, void (*func)(void*), void* data) {
-  func(data);
-  if (c == 0) {
-    pthread_exit(0);
-  }
-  wn_setcontext(c);
-}
-
 void wn_makecontext(ucontext_t* c, void (*func)(void*), void* data) {
   WN_RELEASE_ASSERT_DESC(
       NULL != c->uc_stack.ss_sp, "stack pointer must be non-null");
@@ -26,7 +18,7 @@ void wn_makecontext(ucontext_t* c, void (*func)(void*), void* data) {
 
   c->uc_mcontext.gregs[REG_EBP] = reinterpret_cast<greg_t>(sp);
   c->uc_mcontext.gregs[REG_ESP] = reinterpret_cast<greg_t>(sp - 3);
-  c->uc_mcontext.gregs[REG_EIP] = reinterpret_cast<greg_t>(&wn_call_func);
+  c->uc_mcontext.gregs[REG_EIP] = reinterpret_cast<greg_t>(&wn_fiber_func);
 
   sp[0] = data;
   sp[-1] = reinterpret_cast<void*>(func);

@@ -3,6 +3,7 @@ set(SRC_ANDROID
   src/Android/WNContext_arm.h
   src/Android/WNContext_x86.h
   src/Android/WNMakeContext.cpp
+  src/Android/WNSwapContext.cpp
 )
 
 set(ADDITIONAL_SOURCES)
