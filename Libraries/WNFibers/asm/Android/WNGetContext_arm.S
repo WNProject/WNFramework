@@ -48,18 +48,18 @@
   .fnstart
 wn_getcontext:
   /* First, save r4-r11 */
-  add   r1, r0, #(MCONTEXT_GREGS_OFFSET + 4 * 4)
+  add   r1, r0, #MCONTEXT_GREGS_R4_OFFSET
   stm   r1, {r4-r11}
 
   /* r12 is a scratch register, don't save it */
   /* Save sp and lr explicitly. */
   /* - sp can't be stored with stmia in Thumb-2 */
   /* - STM instructions that store sp and pc are deprecated in ARM */
-  str   sp, [r0, #(MCONTEXT_GREGS_OFFSET + 13 * 4)]
-  str   lr, [r0, #(MCONTEXT_GREGS_OFFSET + 14 * 4)]
+  str   sp, [r0, #MCONTEXT_GREGS_R13_OFFSET]
+  str   lr, [r0, #MCONTEXT_GREGS_R14_OFFSET]
 
   /* Save the caller's address in 'pc' */
-  str   lr, [r0, #(MCONTEXT_GREGS_OFFSET + 15 * 4)]
+  str   lr, [r0, #MCONTEXT_GREGS_R15_OFFSET]
 
   /* Save ucontext_t* pointer across next call */
   mov   r4, r0
@@ -79,8 +79,8 @@ wn_getcontext:
    */
   /* Restore the values of r4 and lr */
   mov   r0, r4
-  ldr   lr, [r0, #(MCONTEXT_GREGS_OFFSET + 14 * 4)]
-  ldr   r4, [r0, #(MCONTEXT_GREGS_OFFSET +  4 * 4)]
+  ldr   lr, [r0, #MCONTEXT_GREGS_R14_OFFSET]
+  ldr   r4, [r0, #MCONTEXT_GREGS_R4_OFFSET]
 
   /* Return 0 */
   mov   r0, #0

@@ -51,23 +51,22 @@ wn_setcontext:
   mov   r4, r0
 
   /* Call sigprocmask(SIG_SETMASK, &(ucontext->uc_sigmask), NULL) */
-  mov   r0, #2  /* SIG_SETMASK */
+  mov   r0, #2 /* SIG_SETMASK */
   add   r1, r4, #UCONTEXT_SIGMASK_OFFSET
   mov   r2, #0 /* NULL */
   bl    sigprocmask(PLT)
 
-  mov   r0, r4
-
-  /* Restore sp and lr explicitly. */
+  /* Restore sp and lr registers */
   /* - sp can't be restored with stmia in Thumb-2 */
-  ldr   sp, [r0, #(MCONTEXT_GREGS_OFFSET + 13 * 4)]
-  ldr   lr, [r0, #(MCONTEXT_GREGS_OFFSET + 14 * 4)]
+  mov   r12, r4
+  ldr   sp, [r12, #MCONTEXT_GREGS_R13_OFFSET]
+  ldr   lr, [r12, #MCONTEXT_GREGS_R14_OFFSET]
 
-  add   r1, r0, #(MCONTEXT_GREGS_OFFSET + 4 * 4)
-
-  ldm   r1, {r4-r11}
+  /* Restore general registers */
+  add   r12, r12, #MCONTEXT_GREGS_R0_OFFSET
+  ldm   r12, {r0-r11}
 
   /* Restore the caller's address in 'pc' */
-  ldr   pc, [r0, #(MCONTEXT_GREGS_OFFSET + 15 * 4)]
+  ldr   pc, [r12, #MCONTEXT_GREGS_R15_OFFSET_GREGS]
   .fnend
   .size wn_setcontext, . - wn_setcontext
