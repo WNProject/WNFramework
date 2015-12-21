@@ -33,6 +33,7 @@ if (${WN_SYSTEM} STREQUAL "Android")
 endif()
 
 add_wn_library(WNFibers SOURCES
+  inc/WNFiber.h
   src/WNFiber.cpp
   ${ADDITIONAL_SOURCES}
 )
