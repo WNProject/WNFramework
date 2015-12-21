@@ -14,26 +14,42 @@
 namespace wn {
 namespace fibers {
 
-void fiber::execute(
+void fiber::create(
     const size_t _stack_size, containers::function<void()>&& _f) {
-  memory::unique_ptr<fiber_data> data(memory::make_unique<fiber_data>());
+  memory::allocated_ptr<fiber_data> data(
+      memory::make_allocated_ptr<fiber_data>(m_allocator));
 
   if (data) {
+    data->m_fiber = this;
     data->m_function = std::move(_f);
 
-#ifdef _WN_WINDOWS
+#if defined _WN_WINDOWS
     const SIZE_T stack_size = static_cast<SIZE_T>(_stack_size);
     const LPVOID context =
         ::CreateFiberEx(stack_size, stack_size, FIBER_FLAG_FLOAT_SWITCH,
             static_cast<LPFIBER_START_ROUTINE>(&wrapper), NULL);
-
     if (context) {
+      m_fiber_context = context;
       m_data = std::move(data);
     }
-#elif _WN_ANDROID
+#elif defined _WN_ANDROID
+    m_stack_pointer = m_allocator->allocate(1, _stack_size).m_location;
+    memset(&m_fiber_context, 0x0, sizeof(ucontext_t));
+    wn_getcontext(&m_fiber_context);
 
-#else
+    m_fiber_context.uc_stack.ss_sp = m_stack_pointer;
+    m_fiber_context.uc_stack.ss_size = _stack_size;
 
+    wn_makecontext(&m_fiber_context, &wrapper, NULL);
+    m_data = std::move(data);
+#elif defined _WN_POSIX
+    m_stack_pointer = m_allocator->allocate(1, _stack_size).m_location;
+    memset(&m_fiber_context, 0x0, sizeof(ucontext_t));
+    getcontext(&m_fiber_context);
+
+    m_fiber_context.uc_stack.ss_sp = m_stack_pointer;
+    m_fiber_context.uc_stack.ss_size = _stack_size;
+    makecontext(&m_fiber_context, &wrapper, 0);
 #endif
   }
 }
@@ -52,25 +68,38 @@ void set_local_storage(void* _dat) {
   get_self()->m_fiber_local_data = _dat;
 }
 
-fiber* get_self(wn::memory::allocator* _allocator) {
-  if (tl_this_fiber == 0) {
-    fiber* f;
-    if (_allocator) {
-      f = _allocator->make_allocated<fiber>(_allocator);
-    } else {
-      f = wn::memory::construct<fiber>(_allocator);
-    }
-    tl_this_fiber = f->m_data.get();
+void convert_to_fiber(memory::allocator* _allocator) {
+  WN_DEBUG_ASSERT_DESC(_allocator, "Invalid allocator, can't be nullptrs");
 
+  if (tl_this_fiber == 0) {
+    fiber* f = _allocator->make_allocated<fiber>(_allocator);
+
+    f->m_is_top_level_fiber = true;
+    tl_this_fiber = f->m_data.get();
 #if defined _WN_WINDOWS
     f->m_fiber_context =
-        ConvertThreadToFiberEx(wn_nullptr, FIBER_FLAG_FLOAT_SWITCH);
+        ::ConvertThreadToFiberEx(wn_nullptr, FIBER_FLAG_FLOAT_SWITCH);
 #elif defined _WN_ANDROID
     wn_getcontext(&f->m_fiber_context);
 #elif defined _WN_POSIX
     getcontext(&f->m_fiber_context);
 #endif
   }
+}
+
+void revert_from_fiber() {
+  WN_DEBUG_ASSERT_DESC(tl_this_fiber->m_fiber->m_is_top_level_fiber,
+      "You cannot revert a non-top-level fiber");
+  memory::allocator* alloc = tl_this_fiber->m_fiber->m_allocator;
+  fiber* f = tl_this_fiber->m_fiber;
+  f->~fiber();
+  alloc->deallocate(f);
+  tl_this_fiber = wn_nullptr;
+}
+
+fiber* get_self() {
+  WN_DEBUG_ASSERT_DESC(
+      tl_this_fiber != 0, "Call convert_to_fiber before calling get_self");
   // We do this instead of just setting tl_this_fiber to a
   // fiber* so that non-running fibers can safely be
   // moved around in containers.
