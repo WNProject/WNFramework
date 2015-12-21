@@ -5,14 +5,39 @@
 #include "WNFibers/inc/WNFiber.h"
 #include "WNMemory/inc/WNBasic.h"
 
-#if defined _WN_ANDROID
+#if defined _WN_WINDOWS
+#define __FIBER_ARGUMENT_TYPE PVOID
+#define __FIBER_RESULT_TYPE VOID
+#define WN_FIBER_CALL_BEGIN CALLBACK
+#define WN_FIBER_CALL_END
+#elif defined _WN_ANDROID
 #include "WNFibers/src/Android/WNContext.h"
+#define __FIBER_ARGUMENT_TYPE void*
+#define __FIBER_RESULT_TYPE void
 #elif defined _WN_POSIX
 #include <ucontext.h>
+#define __FIBER_ARGUMENT_TYPE void
+#define __FIBER_RESULT_TYPE void
+#endif
+
+#if defined _WN_POSIX
+#define WN_FIBER_CALL_BEGIN WN_CDECL_BEGIN
+#define WN_FIBER_CALL_END WN_CDECL_END
 #endif
 
 namespace wn {
 namespace fibers {
+
+namespace {
+static __FIBER_RESULT_TYPE WN_FIBER_CALL_BEGIN wrapper(
+    __FIBER_ARGUMENT_TYPE) WN_FIBER_CALL_END {
+  wn::fibers::fiber* self = this_fiber::get_self();
+
+  WN_RELEASE_ASSERT_DESC(self, "invalid fiber");
+
+  self->execute_function();
+}
+}  // namespace anonymous
 
 void fiber::create(
     const size_t _stack_size, containers::function<void()>&& _f) {
@@ -40,7 +65,8 @@ void fiber::create(
     m_fiber_context.uc_stack.ss_sp = m_stack_pointer;
     m_fiber_context.uc_stack.ss_size = _stack_size;
 
-    wn_makecontext(&m_fiber_context, &wrapper, NULL);
+    wn_makecontext(
+        &m_fiber_context, &wrapper, NULL);
     m_data = std::move(data);
 #elif defined _WN_POSIX
     m_stack_pointer = m_allocator->allocate(1, _stack_size).m_location;
@@ -50,8 +76,14 @@ void fiber::create(
     m_fiber_context.uc_stack.ss_sp = m_stack_pointer;
     m_fiber_context.uc_stack.ss_size = _stack_size;
     makecontext(&m_fiber_context, &wrapper, 0);
+    m_data = std::move(data);
 #endif
   }
+}
+
+void fiber::execute_function() {
+  WN_RELEASE_ASSERT_DESC(m_data, "invalid fiber data");
+  m_data->m_function();
 }
 
 namespace this_fiber {

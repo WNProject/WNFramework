@@ -6,18 +6,6 @@
 #include "WNCore/inc/WNUtility.h"
 #include "WNMemory/inc/WNAllocator.h"
 
-#ifdef _WN_WINDOWS
-#define WN_FIBER_CALL_BEGIN CALLBACK
-#define WN_FIBER_CALL_END
-#endif
-
-#define WN_DEFAULT_STACK_SIZE (1024 * 1024)
-
-#ifdef _WN_POSIX
-#define WN_FIBER_CALL_BEGIN WN_CDECL_BEGIN
-#define WN_FIBER_CALL_END WN_CDECL_END
-#endif
-
 #ifdef _WN_POSIX
 #include <ucontext.h>
 #endif
@@ -27,13 +15,15 @@ namespace fibers {
 
 class fiber;
 class fiber_id final {};
+static const wn_size_t kDefaultStackSize = (1024 * 1024);
+
 
 namespace this_fiber {
 
 fiber* get_self();
 void convert_to_fiber(wn::memory::allocator* _allocator);
 void revert_from_fiber();
-fiber_id get_id() {
+WN_FORCE_INLINE fiber_id get_id() {
   return fiber_id();
 }
 void* get_local_storage();
@@ -74,7 +64,7 @@ public:
   WN_FORCE_INLINE explicit fiber(
       memory::allocator* _allocator, F&& _f, Args&&... _args)
     : m_is_top_level_fiber(false), m_allocator(_allocator) {
-    create(WN_DEFAULT_STACK_SIZE,
+    create(kDefaultStackSize,
         containers::function<void()>(
                std::bind(core::decay_copy(std::forward<F>(_f)),
                    core::decay_copy(std::forward<Args>(_args))...)));
@@ -118,7 +108,7 @@ public:
     containers::function<void()> m_function;
     fiber* m_fiber;
   };
-
+  void execute_function();
 private:
   friend void this_fiber::convert_to_fiber(wn::memory::allocator*);
   friend void this_fiber::revert_from_fiber();
@@ -129,27 +119,14 @@ private:
 
 #ifdef _WN_WINDOWS
   LPVOID m_fiber_context;
-  typedef PVOID fiber_argument_type;
-  typedef VOID fiber_result_type;
 #elif defined _WN_POSIX
   ucontext_t m_fiber_context;
   void* m_stack_pointer;
-  typedef void* fiber_argument_type;
-  typedef void fiber_result_type;
 #endif
 
   void* m_fiber_local_data;
   void create(const size_t _stack_size, containers::function<void()>&& _f);
 
-  static fiber_result_type WN_FIBER_CALL_BEGIN wrapper(
-      fiber_argument_type) WN_FIBER_CALL_END {
-    fiber* self = this_fiber::get_self();
-
-    WN_RELEASE_ASSERT_DESC(self, "invalid fiber");
-    WN_RELEASE_ASSERT_DESC(self->m_data, "invalid fiber data");
-
-    self->m_data->m_function();
-  }
   bool m_is_top_level_fiber;
   memory::allocator* m_allocator;
   memory::allocated_ptr<fiber_data> m_data;
