@@ -23,6 +23,17 @@ void multi_function(int32_t* x, int32_t next_fiber,
   wn::fibers::this_fiber::swap_to(&(*all_fibers)[next_fiber]);
 }
 
+void deep_call(int32_t* x, int32_t depth, wn::fibers::fiber* next_fiber) {
+  if (depth == 0) {
+    wn::fibers::this_fiber::swap_to(next_fiber);
+    // In order to appease the compiler, we call return here.
+    // We will never actaully hit it because we never return to this method.
+    return;
+  }
+  *x = *x + 1;
+  deep_call(x, depth - 1, next_fiber);
+}
+
 TEST(fibers, simple_fiber){
   wn::memory::default_allocator m_allocator;
   int32_t x = 32;
@@ -56,4 +67,17 @@ TEST(fibers, dynamic_array_of_fibers) {
   wn::fibers::this_fiber::revert_from_fiber();
 
   EXPECT_EQ((32 + 10 * 10) * 10, x);
+}
+
+TEST(fibers, deep_function) {
+  wn::memory::default_allocator m_allocator;
+  int32_t x = 32;
+  wn::fibers::this_fiber::convert_to_fiber(&m_allocator);
+
+  wn::fibers::fiber f(
+      &m_allocator, deep_call, &x, 2048, wn::fibers::this_fiber::get_self());
+  wn::fibers::this_fiber::swap_to(&f);
+  wn::fibers::this_fiber::revert_from_fiber();
+
+  EXPECT_EQ(32+2048, x);
 }
