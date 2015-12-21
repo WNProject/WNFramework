@@ -34,14 +34,21 @@ void swap_to(fiber* _fiber);
 
 class fiber final : public core::non_copyable {
 public:
-  fiber() : m_is_top_level_fiber(false) {
-#ifdef _WN_POSIX
+  fiber() : m_is_top_level_fiber(false),
+      m_allocator(nullptr) {
+#ifdef _WN_WINDOWS
+    m_fiber_context = nullptr;
+#elif defined _WN_POSIX
     m_stack_pointer = nullptr;
 #endif
   }
 
   ~fiber() {
-#ifdef _WN_POSIX
+#ifdef _WN_WINDOWS
+    if (m_fiber_context && !m_is_top_level_fiber) {
+      DeleteFiber(m_fiber_context);
+    }
+#elif defined _WN_POSIX
     if (m_stack_pointer) {
       m_allocator->deallocate(m_stack_pointer);
     }
@@ -50,7 +57,9 @@ public:
 
   WN_FORCE_INLINE fiber(memory::allocator* _allocator)
     : m_is_top_level_fiber(false), m_allocator(_allocator) {
-#ifdef _WN_POSIX
+#ifdef _WN_WINDOWS
+    m_fiber_context = nullptr;
+#elif defined _WN_POSIX
     m_stack_pointer = nullptr;
 #endif
     m_data = memory::make_allocated_ptr<fiber_data>(_allocator);
@@ -58,7 +67,9 @@ public:
     m_data->m_fiber = this;
   }
 
-  WN_FORCE_INLINE fiber(fiber&& _other) : m_data(std::move(_other.m_data)) {}
+  WN_FORCE_INLINE fiber(fiber&& _other) : fiber() {
+    _other.swap(*this);
+  }
 
   template <typename F, typename... Args>
   WN_FORCE_INLINE explicit fiber(
@@ -80,27 +91,42 @@ public:
   }
 
   WN_FORCE_INLINE fiber& operator=(fiber&& _other) {
-    fiber(core::move(_other)).swap(*this);
+    // Clear out this.
+    m_data.release();
+    m_allocator = nullptr;
+    m_is_top_level_fiber = false;
 
+#ifdef _WN_WINDOWS
+    if (m_fiber_context && !m_is_top_level_fiber) {
+      DeleteFiber(m_fiber_context);
+    }
+    m_fiber_context = nullptr;
+#elif defined _WN_POSIX
+    if (m_stack_pointer) {
+      m_allocator->deallocate(m_stack_pointer);
+    }
+    m_stack_pointer = nullptr;
+#endif
+
+    _other.swap(*this);
     return *this;
   }
 
   WN_FORCE_INLINE void swap(fiber& _other) {
     core::swap(m_data, _other.m_data);
     core::swap(m_is_top_level_fiber, _other.m_is_top_level_fiber);
-
-#ifdef _WN_POSIX
+    core::swap(m_allocator, _other.m_allocator);
+#if defined _WN_POSIX
     core::swap(m_stack_pointer, _other.m_stack_pointer);
+    core::swap(m_fiber_context, _other.m_fiber_context);
+#elif defined _WN_WINDOWS
+  core::swap(m_fiber_context, _other.m_fiber_context);
 #endif
-    fiber* fiber_temp = nullptr;
-
     if (m_data) {
-      fiber_temp = m_data->m_fiber;
       m_data->m_fiber = this;
     }
-
     if (_other.m_data) {
-      _other.m_data->m_fiber = fiber_temp;
+      _other.m_data->m_fiber = &_other;
     }
   }
 

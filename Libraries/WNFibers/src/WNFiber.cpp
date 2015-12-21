@@ -65,8 +65,7 @@ void fiber::create(
     m_fiber_context.uc_stack.ss_sp = m_stack_pointer;
     m_fiber_context.uc_stack.ss_size = _stack_size;
 
-    wn_makecontext(
-        &m_fiber_context, &wrapper, NULL);
+    wn_makecontext(&m_fiber_context, &wrapper, NULL);
     m_data = std::move(data);
 #elif defined _WN_POSIX
     m_stack_pointer = m_allocator->allocate(1, _stack_size).m_location;
@@ -89,6 +88,9 @@ void fiber::execute_function() {
 namespace this_fiber {
 
 namespace {
+#ifdef _WN_WINDOWS
+WN_THREAD_LOCAL LPVOID tl_thread_as_fiber = 0;
+#endif
 WN_THREAD_LOCAL fiber::fiber_data* tl_this_fiber = 0;
 }  // anonymous namespace
 
@@ -110,7 +112,10 @@ void convert_to_fiber(memory::allocator* _allocator) {
     tl_this_fiber = f->m_data.get();
 #if defined _WN_WINDOWS
     f->m_fiber_context =
-        ::ConvertThreadToFiberEx(wn_nullptr, FIBER_FLAG_FLOAT_SWITCH);
+        tl_thread_as_fiber
+            ? tl_thread_as_fiber
+            : ::ConvertThreadToFiberEx(wn_nullptr, FIBER_FLAG_FLOAT_SWITCH);
+    tl_thread_as_fiber = f->m_fiber_context;
 #elif defined _WN_ANDROID
     wn_getcontext(&f->m_fiber_context);
 #elif defined _WN_POSIX
@@ -132,13 +137,16 @@ void revert_from_fiber() {
 fiber* get_self() {
   WN_DEBUG_ASSERT_DESC(
       tl_this_fiber != 0, "Call convert_to_fiber before calling get_self");
+  fiber* fiber = tl_this_fiber->m_fiber;
+  WN_DEBUG_ASSERT_DESC(fiber, "Inconsistent state detected.");
   // We do this instead of just setting tl_this_fiber to a
   // fiber* so that non-running fibers can safely be
   // moved around in containers.
-  return tl_this_fiber->m_fiber;
+  return fiber;
 }
 
 void swap_to(fiber* _fiber) {
+  WN_DEBUG_ASSERT_DESC(get_self(), "Error cannot  swap from a non-fiber");
 #ifndef _WN_WINDOWS
   fiber* this_fiber = get_self();
 #endif
