@@ -4,7 +4,7 @@
 
 #include "WNNetworking/inc/Internal/Linux/WNConnectionLinux.h"
 #include "WNMath/inc/WNBasic.h"
-#include "WNThreading/inc/WNSpinLock.h"
+#include "WNThreads/inc/WNSpinLock.h"
 #include "WNCore/inc/WNEndian.h"
 
 #include <unistd.h>
@@ -93,7 +93,7 @@ wn_void WNConnectionLinux::NotifyReadyToSend(wn_bool socketFree) {
 
 wn_bool WNConnectionLinux::Send() {
     {
-        std::lock_guard<wn::threading::spin_lock> guard(mSendBufferLock);
+        std::lock_guard<wn::threads::spin_lock> guard(mSendBufferLock);
 
         if (mSendBuffers.empty()) {
             return(wn_false);

@@ -9,10 +9,10 @@
 
 #include "WNCore/inc/WNUtility.h"
 #include "WNMemory/inc/WNIntrusivePtr.h"
-#include "WNThreading/inc/WNThreadTask.h"
-#include "WNThreading/inc/WNSpinLock.h"
-#include "WNThreading/inc/WNSemaphore.h"
-#include "WNThreading/inc/WNThread.h"
+#include "WNThreads/inc/WNThreadTask.h"
+#include "WNThreads/inc/WNSpinLock.h"
+#include "WNThreads/inc/WNSemaphore.h"
+#include "WNThreads/inc/WNThread.h"
 #include "WNContainers/inc/WNDynamicArray.h"
 
 #ifndef _WN_WINDOWS
@@ -20,7 +20,7 @@
 #endif
 
 namespace wn {
-namespace threading {
+namespace threads {
 
 class thread_pool final : public core::non_copyable {
 public:

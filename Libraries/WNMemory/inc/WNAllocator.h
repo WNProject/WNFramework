@@ -9,7 +9,7 @@
 
 #include "WNCore/inc/WNAssert.h"
 #include "WNCore/inc/WNTypes.h"
-#include "WNThreading/inc/WNMutex.h"
+#include "WNThreads/inc/WNMutex.h"
 #include "WNMemory/inc/WNBasic.h"
 #include "WNMemory/inc/WNUniquePtr.h"
 #include <functional>
@@ -29,7 +29,7 @@ class allocation_tracker {
   allocation_tracker()
       : m_total_requested(0), m_total_returned(0), m_total_freed(0) {}
   void notify_returned(void *_ptr, wn_size_t _requested, wn_size_t _returned) {
-    std::lock_guard<wn::threading::mutex> guard(free_lock);
+    std::lock_guard<wn::threads::mutex> guard(free_lock);
     m_elements[_ptr] = _returned;
     m_total_requested += _requested;
     m_total_returned += _returned;
@@ -37,7 +37,7 @@ class allocation_tracker {
 
   void notify_freed(void *_ptr) {
     if (!_ptr) { return; }
-    std::lock_guard<wn::threading::mutex> guard(free_lock);
+    std::lock_guard<wn::threads::mutex> guard(free_lock);
     WN_RELEASE_ASSERT_DESC(m_elements.find(_ptr) != m_elements.end(),
       "You are trying to free a pointer from an incorrect allocator");
     m_total_freed += m_elements[_ptr];
@@ -46,7 +46,7 @@ class allocation_tracker {
 
   void notify_resize(void *_ptr, void *_ret_ptr, wn_size_t _requested,
                      wn_size_t _returned) {
-    std::lock_guard<wn::threading::mutex> guard(free_lock);
+    std::lock_guard<wn::threads::mutex> guard(free_lock);
     if (_ptr) {
       m_total_freed += m_elements[_ptr];
       WN_RELEASE_ASSERT_DESC(m_elements.find(_ptr) != m_elements.end(),
@@ -61,7 +61,7 @@ class allocation_tracker {
   wn_size_t m_total_requested;
   wn_size_t m_total_returned;
   wn_size_t m_total_freed;
-  wn::threading::mutex free_lock;
+  wn::threads::mutex free_lock;
   std::unordered_map<void *, size_t> m_elements;
 };
 

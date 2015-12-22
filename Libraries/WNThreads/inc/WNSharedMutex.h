@@ -18,7 +18,7 @@
 #endif
 
 namespace wn {
-namespace threading {
+namespace threads {
 
 class shared_mutex final : public core::non_copyable {
 public:
@@ -110,7 +110,7 @@ private:
   #endif
 };
 
-} // namespace threading
+} // namespace threads
 } // namesapce wn
 
 #endif // __WN_CONCURRENCY_SHARED_MUTEX_H__

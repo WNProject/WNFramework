@@ -9,9 +9,9 @@
 
 #include "WNPlatform/inc/WNSurfaceManager.h"
 #include "WNPlatform/inc/Internal/Windows/WNSurfaceWindows.h"
-#include "WNThreading/inc/WNThread.h"
-#include "WNThreading/inc/WNSemaphore.h"
-#include "WNThreading/inc/WNMutex.h"
+#include "WNThreads/inc/WNThread.h"
+#include "WNThreads/inc/WNSemaphore.h"
+#include "WNThreads/inc/WNMutex.h"
 
 #include <vector>
 
@@ -35,7 +35,7 @@ namespace wn {
             WNWindowThreadData(wn::memory::intrusive_ptr<wn::WNSurfaceWindows> _wnd);
 
         public:
-            wn::threading::thread<wn_bool>* mThread;
+            wn::threads::thread<wn_bool>* mThread;
             wn::memory::intrusive_ptr<wn::WNSurfaceWindows> mWindow;
             wn_atom_t mExit;
         };
@@ -46,9 +46,9 @@ namespace wn {
         static wn_bool MessagePump(WNWindowThreadData* _data);
         std::vector<WNWindowThreadData*> mMessagePumps;
 
-        wn::threading::semaphore mCreatedWindowLock;
-        wn::threading::mutex mCallbackLock;
-        wn::threading::mutex mWindowCreationLock;
+        wn::threads::semaphore mCreatedWindowLock;
+        wn::threads::mutex mCallbackLock;
+        wn::threads::mutex mWindowCreationLock;
     };
 };
 

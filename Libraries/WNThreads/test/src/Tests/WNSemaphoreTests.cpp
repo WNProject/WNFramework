@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNThreading/inc/WNSemaphore.h"
-#include "WNThreading/inc/WNThread.h"
+#include "WNThreads/inc/WNSemaphore.h"
+#include "WNThreads/inc/WNThread.h"
 
 #include "WNTesting/inc/WNTestHarness.h"
 #include <memory>
@@ -12,7 +12,7 @@
 TEST(semaphore, wait_notify) {
   std::stringstream numbers;
   wn_uint32 count = 0;
-  wn::threading::semaphore semaphore;
+  wn::threads::semaphore semaphore;
 
   const auto thread_function = [&numbers, &count, &semaphore]() -> wn_void {
     semaphore.wait();
@@ -24,11 +24,11 @@ TEST(semaphore, wait_notify) {
     semaphore.notify();
   };
 
-  std::vector<std::shared_ptr<wn::threading::thread<wn_void>>> threads;
+  std::vector<std::shared_ptr<wn::threads::thread<wn_void>>> threads;
 
   for (auto i = 0; i < 10; ++i) {
     threads.push_back(
-        std::make_shared<wn::threading::thread<wn_void>>(thread_function));
+        std::make_shared<wn::threads::thread<wn_void>>(thread_function));
   }
 
   ASSERT_EQ(count, 0);
@@ -44,7 +44,7 @@ TEST(semaphore, wait_notify) {
 }
 
 TEST(semaphore, try_wait) {
-  wn::threading::semaphore semaphore;
+  wn::threads::semaphore semaphore;
 
   ASSERT_FALSE(semaphore.try_wait());
 
@@ -56,7 +56,7 @@ TEST(semaphore, try_wait) {
     result = semaphore.try_wait();
   };
 
-  wn::threading::thread<wn_void> thread(thread_function);
+  wn::threads::thread<wn_void> thread(thread_function);
 
   thread.join();
 
@@ -65,7 +65,7 @@ TEST(semaphore, try_wait) {
 
 TEST(semaphore, initial_count) {
   std::atomic_int count = {0};
-  wn::threading::semaphore semaphore(10);
+  wn::threads::semaphore semaphore(10);
 
   const auto thread_function = [&count, &semaphore]() -> wn_void {
     semaphore.wait();
@@ -73,11 +73,11 @@ TEST(semaphore, initial_count) {
     count++;
   };
 
-  std::vector<std::shared_ptr<wn::threading::thread<wn_void>>> threads;
+  std::vector<std::shared_ptr<wn::threads::thread<wn_void>>> threads;
 
   for (auto i = 0; i < 15; ++i) {
     threads.push_back(
-        std::make_shared<wn::threading::thread<wn_void>>(thread_function));
+        std::make_shared<wn::threads::thread<wn_void>>(thread_function));
   }
 
   semaphore.notify(5);

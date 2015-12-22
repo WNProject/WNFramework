@@ -3,7 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "WNPlatform/inc/Internal/XWindows/WNSurfaceXWindows.h"
-#include "WNThreading/inc/WNThread.h"
+#include "WNThreads/inc/WNThread.h"
 
 wn::WNSurfaceXWindows::WNSurfaceXWindows(wn::WNSurfaceManagerXWindows& _surfaceManager) :
     surface(),
@@ -52,7 +52,7 @@ wn_bool wn::WNSurfaceXWindows::Initialize(wn_uint32 _x, wn_uint32 _y, wn_uint32 
 
     XSetWMProtocols(mDisplay, mWindow, &mDeleteMessage, 1);
 
-    mSurfaceThread = wn::memory::construct<wn::threading::thread<wn_void> >(&wn::WNSurfaceXWindows::SurfaceThread, this);
+    mSurfaceThread = wn::memory::construct<wn::threads::thread<wn_void> >(&wn::WNSurfaceXWindows::SurfaceThread, this);
 
     return(wn_true);
 }
@@ -91,7 +91,7 @@ wn_void wn::WNSurfaceXWindows::SurfaceThread() {
             }
         }
 
-        wn::threading::this_thread::sleep_for(std::chrono::milliseconds(1));
+        wn::threads::this_thread::sleep_for(std::chrono::milliseconds(1));
 
         if (mExiting) {
             return;

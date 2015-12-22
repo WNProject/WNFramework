@@ -12,11 +12,11 @@
 #include <condition_variable>
 
 namespace wn {
-namespace threading {
+namespace threads {
 
 typedef std::condition_variable_any condition_variable;
 
-} // namespace threading
+} // namespace threads
 } // namespace wn
 
 #endif // __WN_CONCURRENCY_CONDITION_VARIABLE_H__

@@ -21,7 +21,7 @@
 #include <atomic>
 
 namespace wn {
-namespace threading {
+namespace threads {
 
 class mutex final : public core::non_copyable {
 public:
@@ -255,7 +255,7 @@ private:
   std::atomic<wn_uint32> m_spin_count;
 };
 
-} // namespace threading
+} // namespace threads
 } // namespace wn
 
 #endif // __WN_CONCURRENCY_MUTEX_H__

@@ -18,7 +18,7 @@
 #endif
 
 namespace wn {
-namespace threading {
+namespace threads {
 
 class semaphore final : public core::non_copyable {
 public:
@@ -130,7 +130,7 @@ private:
   #endif
 };
 
-} // namespace threading
+} // namespace threads
 } // namespace wn
 
 #endif // __WN_CONCURRENCY_SEMAPHORE_H__

@@ -11,7 +11,7 @@
 #include "WNNetworking/inc/WNNetworkReadBuffer.h"
 #include "WNNetworking/inc/WNNetworkWriteBuffer.h"
 #include "WNNetworking/inc/WNBufferResource.h"
-#include "WNThreading/inc/WNMutex.h"
+#include "WNThreads/inc/WNMutex.h"
 
 #ifdef _WN_MSVC
     #pragma warning(push)
@@ -58,7 +58,7 @@ namespace WNNetworking {
     protected:
         WNNetworkManager& mManager;
         WNNetworkReadBuffer mCurrentReadBuffer;
-        wn::threading::mutex mSendMutex;
+        wn::threads::mutex mSendMutex;
         std::deque<WNNetworkWriteBuffer> mWriteBuffers;
         std::vector<WSABUF> mWSAWriteBuffers;
         wn_size_t mInProcessedBytes;

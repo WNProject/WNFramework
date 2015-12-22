@@ -4,7 +4,7 @@ set(INC_INTERNAL
 
 source_group("inc\\Internal" FILES ${INC_INTERNAL})
 
-add_wn_header_library(WNThreading
+add_wn_header_library(WNThreads
   inc/WNCallbackTask.h
   inc/WNConditionVariable.h
   inc/WNConfig.h

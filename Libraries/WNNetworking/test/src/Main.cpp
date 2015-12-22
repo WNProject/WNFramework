@@ -5,8 +5,8 @@
 #include "WNNetworking/inc/WNConnection.h"
 #include "WNNetworking/inc/WNNetworkWriteBuffer.h"
 #include "WNNetworking/inc/WNNetworkReadBuffer.h"
-#include "WNThreading/inc/WNMutex.h"
-#include "WNThreading/inc/WNThread.h"
+#include "WNThreads/inc/WNMutex.h"
+#include "WNThreads/inc/WNThread.h"
 #include "WNContainers/inc/WNSerializer.h"
 
 #include <mutex>

@@ -3,13 +3,13 @@
 // found in the LICENSE.txt file.
 
 #include "WNGraphics/inc/Internal/EGL/WNGraphicsDeviceEGL.h"
-#include "WNThreading/inc/WNSpinLock.h"
+#include "WNThreads/inc/WNSpinLock.h"
 #include "WNPlatform/inc/WNSurface.h"
 
 #include <EGL/egl.h>
 #include <GLES/gl.h>
 
-static wn::threading::spin_lock gInitializationCreationLock;
+static wn::threads::spin_lock gInitializationCreationLock;
 
 WNGraphics::WNGraphicsDeviceEGL::WNGraphicsDeviceEGL(WNGraphics::WNGraphicsResourceFactory* _factory) :
     mResourceFactory(_factory),

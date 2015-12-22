@@ -8,7 +8,7 @@
 #define __WN_GRAPHICS_GLX_GRAPHICS_DEVICE_GLX_H__
 
 #include "WNGraphics/inc/WNGraphicsDevice.h"
-#include "WNThreading/inc/WNMutex.h"
+#include "WNThreads/inc/WNMutex.h"
 #include "WNPlatform/inc/WNSurface.h"
 #include "WNMemory/inc/WNIntrusivePtr.h"
 

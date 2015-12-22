@@ -8,7 +8,7 @@
 #define __WN_NETWORKING_NETWORK_MANAGER_LINUX_H__
 
 #include "WNNetworking/inc/WNNetworkManager.h"
-#include "WNThreading/inc/WNSpinLock.h"
+#include "WNThreads/inc/WNSpinLock.h"
 
 #include <vector>
 
@@ -53,19 +53,19 @@ namespace WNNetworking {
         wn_void ListenThread();
 
     private:
-        wn::threading::spin_lock mListenMutex;
-        wn::threading::spin_lock mIncommingMutex;
-        wn::threading::spin_lock mOutgoingMutex;
-        wn::threading::spin_lock mInvalidMutex;
+        wn::threads::spin_lock mListenMutex;
+        wn::threads::spin_lock mIncommingMutex;
+        wn::threads::spin_lock mOutgoingMutex;
+        wn::threads::spin_lock mInvalidMutex;
 
         eWNLinuxInitializationState mInitializationState;
         wn_int32 mWriteEPollInstance;
         wn_int32 mReadEPollInstance;
         wn_int32 mListenEPollInstance;
-        wn::threading::thread<wn_void>* mListenThread;
+        wn::threads::thread<wn_void>* mListenThread;
         wn_bool mShuttingDown;
-        std::vector<wn::threading::thread<wn_void>*> mReadThreads;
-        std::vector<wn::threading::thread<wn_void>*> mWriteThreads;
+        std::vector<wn::threads::thread<wn_void>*> mReadThreads;
+        std::vector<wn::threads::thread<wn_void>*> mWriteThreads;
         std::list<WNListenConnectionLinux*> mListenConnections;
         std::list<WNConnection*> mInvalidConnections;
         std::list<WNConnectionLinux*> mIncommingConnections;

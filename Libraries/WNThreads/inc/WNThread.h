@@ -11,7 +11,7 @@
 #include "WNCore/inc/WNTypeTraits.h"
 #include "WNMemory/inc/WNIntrusivePtr.h"
 #include "WNContainers/inc/WNFunction.h"
-#include "WNThreading/inc/WNSemaphore.h"
+#include "WNThreads/inc/WNSemaphore.h"
 
 #if defined _WN_WINDOWS
   #include <Windows.h>
@@ -30,7 +30,7 @@
 #include <chrono>
 
 namespace wn {
-namespace threading {
+namespace threads {
 namespace internal {
 
 struct thread_data_common : public memory::intrusive_ptr_base {
@@ -418,7 +418,7 @@ WN_INLINE wn_void sleep_for(const std::chrono::duration<Rep, Period>& duration) 
 }
 
 } // namespace this_thread
-} // namespace threading
+} // namespace threads
 } // namespace wn
 
 #endif // __WN_CONCURRENCY_THREAD_H__

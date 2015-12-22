@@ -2,8 +2,8 @@
 #define __WN_UTILS_ANDROID_EVENT_PUMP_H__
 
 #include "WNCore/inc/WNTypes.h"
-#include "WNThreading/inc/WNSpinLock.h"
-#include "WNThreading/inc/WNSemaphore.h"
+#include "WNThreads/inc/WNSpinLock.h"
+#include "WNThreads/inc/WNSemaphore.h"
 #include <deque>
 #include <android_native_app_glue.h>
 
@@ -33,12 +33,12 @@ namespace WNUtils {
         WNAndroidEventCallback mCallbacks[eMaxValue];
         wn_void* mCallbackData[eMaxValue];
         wn_bool mExiting;
-        wn::threading::spin_lock mQueueLock;
-        wn::threading::spin_lock mCallbackLock;
+        wn::threads::spin_lock mQueueLock;
+        wn::threads::spin_lock mCallbackLock;
         std::deque<eInternalMessage> mMessageQueue;
         wn_bool mDisplayActive;
         ALooper* mMainLooper;
-        wn::threading::semaphore mStartedSemaphore;
+        wn::threads::semaphore mStartedSemaphore;
     };
 };
 

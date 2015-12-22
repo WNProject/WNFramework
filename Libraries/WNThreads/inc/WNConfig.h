@@ -12,6 +12,6 @@
 // Enables the use of pthreads spinlock implementation
 //#define _WN_CONCURRENCY_CONFIG_USE_PTHREAD_SPIN_LOCK
 
-#include "WNThreading/inc/Internal/WNConfig.h"
+#include "WNThreads/inc/Internal/WNConfig.h"
 
 #endif // __WN_CONCURRENCY_CONFIG_H__

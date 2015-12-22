@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNThreading/inc/WNThread.h"
+#include "WNThreads/inc/WNThread.h"
 #include "WNTesting/inc/WNTestHarness.h"
 
 static wn_void test_function1() {}
@@ -41,15 +41,15 @@ TEST(thread, basic_usage) {
   wn_uint32 number_test1 = 5;
   wn_uint32 number_test2 = 0;
 
-  wn::threading::thread<wn_void> test1(&test_function1);
-  wn::threading::thread<wn_uint32> test2(&test_function2);
-  wn::threading::thread<wn_void> test3(&test_function3, pointer_test);
-  wn::threading::thread<wn_void*> test4(&test_function4, pointer_test);
-  wn::threading::thread<wn_void> test5(&test_function5, number_test1);
-  wn::threading::thread<wn_uint32> test6(&test_function6, number_test1);
-  wn::threading::thread<wn_uint32> test7(&test_function7, &number_test1);
-  wn::threading::thread<wn_uint32*> test8(&test_function8, &number_test1);
-  wn::threading::thread<wn_void> test9(&test_function9,
+  wn::threads::thread<wn_void> test1(&test_function1);
+  wn::threads::thread<wn_uint32> test2(&test_function2);
+  wn::threads::thread<wn_void> test3(&test_function3, pointer_test);
+  wn::threads::thread<wn_void*> test4(&test_function4, pointer_test);
+  wn::threads::thread<wn_void> test5(&test_function5, number_test1);
+  wn::threads::thread<wn_uint32> test6(&test_function6, number_test1);
+  wn::threads::thread<wn_uint32> test7(&test_function7, &number_test1);
+  wn::threads::thread<wn_uint32*> test8(&test_function8, &number_test1);
+  wn::threads::thread<wn_void> test9(&test_function9,
                                          std::ref(number_test2));
 
   ASSERT_TRUE(test1.join());
@@ -78,9 +78,9 @@ TEST(thread, basic_usage) {
   test_object test_object1;
   test_object test_object2;
 
-  wn::threading::thread<wn_void> test10(&test_object::test_function1,
+  wn::threads::thread<wn_void> test10(&test_object::test_function1,
                                           &test_object1);
-  wn::threading::thread<wn_uint32> test11(&test_object::test_function2,
+  wn::threads::thread<wn_uint32> test11(&test_object::test_function2,
                                             &test_object2);
 
   ASSERT_TRUE(test10.join());
@@ -94,13 +94,13 @@ TEST(thread, basic_usage) {
 }
 
 TEST(thread, joinable) {
-  wn::threading::thread<wn_void> thread;
+  wn::threads::thread<wn_void> thread;
 
   ASSERT_FALSE(thread.joinable());
 
   wn_bool executed = wn_false;
 
-  thread = wn::threading::thread<wn_void>(
+  thread = wn::threads::thread<wn_void>(
       [](wn_bool& flag) { flag = wn_true; }, std::ref(executed));
 
   ASSERT_TRUE(thread.joinable());
@@ -110,13 +110,13 @@ TEST(thread, joinable) {
 }
 
 TEST(thread, detach) {
-  wn::threading::thread<wn_void> thread;
+  wn::threads::thread<wn_void> thread;
 
   ASSERT_FALSE(thread.joinable());
 
   wn_bool executed = wn_false;
 
-  thread = wn::threading::thread<wn_void>(
+  thread = wn::threads::thread<wn_void>(
       [](wn_bool& flag) { flag = wn_true; }, std::ref(executed));
 
   ASSERT_TRUE(thread.joinable());

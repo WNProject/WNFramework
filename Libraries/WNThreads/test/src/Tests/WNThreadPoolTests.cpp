@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNThreading/inc/WNThreadPool.h"
-#include "WNThreading/inc/WNCallbackTask.h"
+#include "WNThreads/inc/WNThreadPool.h"
+#include "WNThreads/inc/WNCallbackTask.h"
 
 #include "WNTesting/inc/WNTestHarness.h"
 
@@ -20,9 +20,9 @@
 
 TEST(WNThreadPoolValidation, Creation) {
   for (wn_uint32 i = 0; i < 50; ++i) {
-    wn::threading::thread_pool thread_pool;
+    wn::threads::thread_pool thread_pool;
 
-    ASSERT_EQ(thread_pool.initialize(i), wn::threading::thread_pool::result::ok);
+    ASSERT_EQ(thread_pool.initialize(i), wn::threads::thread_pool::result::ok);
   }
 }
 
@@ -31,36 +31,36 @@ static wn_void SimpleCallback() {
 }
 
 TEST(WNThreadPoolValidation, CaughtUninitialized) {
-  wn::threading::thread_pool thread_pool;
+  wn::threads::thread_pool thread_pool;
 
-  ASSERT_NE(thread_pool.enqueue(wn::threading::make_callback_task<wn_void>(&SimpleCallback)), wn::threading::thread_pool::result::ok);
-  ASSERT_EQ(thread_pool.initialize(10), wn::threading::thread_pool::result::ok);
-  ASSERT_EQ(thread_pool.enqueue(wn::threading::make_callback_task<wn_void>(&SimpleCallback)), wn::threading::thread_pool::result::ok);
+  ASSERT_NE(thread_pool.enqueue(wn::threads::make_callback_task<wn_void>(&SimpleCallback)), wn::threads::thread_pool::result::ok);
+  ASSERT_EQ(thread_pool.initialize(10), wn::threads::thread_pool::result::ok);
+  ASSERT_EQ(thread_pool.enqueue(wn::threads::make_callback_task<wn_void>(&SimpleCallback)), wn::threads::thread_pool::result::ok);
 }
 
 TEST(WNThreadPoolValidation, CreationMore) {
   {
-    wn::threading::thread_pool thread_pool;
+    wn::threads::thread_pool thread_pool;
 
-    ASSERT_EQ(thread_pool.initialize(100), wn::threading::thread_pool::result::ok);
+    ASSERT_EQ(thread_pool.initialize(100), wn::threads::thread_pool::result::ok);
   }
 
     {
-      wn::threading::thread_pool thread_pool;
+      wn::threads::thread_pool thread_pool;
 
-      ASSERT_EQ(thread_pool.initialize(100), wn::threading::thread_pool::result::ok);
+      ASSERT_EQ(thread_pool.initialize(100), wn::threads::thread_pool::result::ok);
     }
 
     {
-      wn::threading::thread_pool thread_pool;
+      wn::threads::thread_pool thread_pool;
 
-      ASSERT_EQ(thread_pool.initialize(100), wn::threading::thread_pool::result::ok);
+      ASSERT_EQ(thread_pool.initialize(100), wn::threads::thread_pool::result::ok);
     }
 
     {
-      wn::threading::thread_pool thread_pool;
+      wn::threads::thread_pool thread_pool;
 
-      ASSERT_EQ(thread_pool.initialize(100), wn::threading::thread_pool::result::ok);
+      ASSERT_EQ(thread_pool.initialize(100), wn::threads::thread_pool::result::ok);
     }
 }
 
@@ -72,12 +72,12 @@ wn_void SimpleCallback1() {
 
 TEST(WNThreadPoolValidation, SimpleCallback) {
   {
-    wn::threading::thread_pool thread_pool;
+    wn::threads::thread_pool thread_pool;
 
-    ASSERT_EQ(thread_pool.initialize(16), wn::threading::thread_pool::result::ok);
+    ASSERT_EQ(thread_pool.initialize(16), wn::threads::thread_pool::result::ok);
 
     for (wn_size_t i = 0; i < 10000; ++i) {
-      thread_pool.enqueue(wn::threading::make_callback_task<wn_void>(&SimpleCallback1));
+      thread_pool.enqueue(wn::threads::make_callback_task<wn_void>(&SimpleCallback1));
     }
   }
 
@@ -94,12 +94,12 @@ wn_void SimpleCallback2(wn_uint32 _val) {
 
 TEST(WNThreadPoolValidation, OneParameterCallback) {
   {
-    wn::threading::thread_pool thread_pool;
+    wn::threads::thread_pool thread_pool;
 
-    ASSERT_EQ(thread_pool.initialize(16), wn::threading::thread_pool::result::ok);
+    ASSERT_EQ(thread_pool.initialize(16), wn::threads::thread_pool::result::ok);
 
     for (wn_uint32 i = 0; i < 1000; ++i) {
-      thread_pool.enqueue(wn::threading::make_callback_task<wn_void>(&SimpleCallback2, i));
+      thread_pool.enqueue(wn::threads::make_callback_task<wn_void>(&SimpleCallback2, i));
     }
   }
 
@@ -113,15 +113,15 @@ wn_uint32 SimpleCallback3(wn_uint32 _val) {
 }
 
 TEST(WNThreadPoolValidation, OneParameterReturnCallback) {
-  std::vector<wn::threading::callback_task_ptr<wn_uint32>> jobCallbacks;
+  std::vector<wn::threads::callback_task_ptr<wn_uint32>> jobCallbacks;
 
   {
-    wn::threading::thread_pool thread_pool;
+    wn::threads::thread_pool thread_pool;
 
-    ASSERT_EQ(thread_pool.initialize(16), wn::threading::thread_pool::result::ok);
+    ASSERT_EQ(thread_pool.initialize(16), wn::threads::thread_pool::result::ok);
 
     for (wn_uint32 i = 0; i < 1000; ++i) {
-      wn::threading::callback_task_ptr<wn_uint32> j = wn::threading::make_callback_task<wn_uint32>(&SimpleCallback3, i);
+      wn::threads::callback_task_ptr<wn_uint32> j = wn::threads::make_callback_task<wn_uint32>(&SimpleCallback3, i);
 
       jobCallbacks.push_back(j);
       thread_pool.enqueue(j);
@@ -138,15 +138,15 @@ TEST(WNThreadPoolValidation, OneParameterReturnCallback) {
 }
 
 TEST(WNThreadPoolValidation, JobsGetCleaned) {
-  std::vector<wn::threading::callback_task_ptr<wn_uint32>> jobCallbacks;
+  std::vector<wn::threads::callback_task_ptr<wn_uint32>> jobCallbacks;
 
   {
-    wn::threading::thread_pool thread_pool;
+    wn::threads::thread_pool thread_pool;
 
-    ASSERT_EQ(thread_pool.initialize(16), wn::threading::thread_pool::result::ok);
+    ASSERT_EQ(thread_pool.initialize(16), wn::threads::thread_pool::result::ok);
 
     for (wn_uint32 i = 0; i < 1000; ++i) {
-      wn::threading::callback_task_ptr<wn_uint32> j = wn::threading::make_callback_task<wn_uint32>(&SimpleCallback3, i);
+      wn::threads::callback_task_ptr<wn_uint32> j = wn::threads::make_callback_task<wn_uint32>(&SimpleCallback3, i);
 
       jobCallbacks.push_back(j);
       thread_pool.enqueue(j);
@@ -171,7 +171,7 @@ TEST(WNThreadPoolValidation, JobsGetCleaned) {
     jobCallbacks.clear();
 
     for (wn_uint32 i = 0; i < 1000; ++i) {
-      wn::threading::callback_task_ptr<wn_uint32> j = wn::threading::make_callback_task<wn_uint32>(&SimpleCallback3, i);
+      wn::threads::callback_task_ptr<wn_uint32> j = wn::threads::make_callback_task<wn_uint32>(&SimpleCallback3, i);
 
       jobCallbacks.push_back(j);
       thread_pool.enqueue(j);
