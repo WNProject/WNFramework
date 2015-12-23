@@ -132,9 +132,10 @@ void ast_walker<T, Const>::walk_instruction_list(instruction_list_type _list) {
 template <typename T, bool Const>
 void ast_walker<T, Const>::walk_instruction(instruction_type _instruction) {
   _instruction->walk_children(
-      walk_ftype<instruction_type>(&ast_walker<T, Const>::walk_instruction,
-                                   this),
+      walk_ftype<instruction_type>(
+          &ast_walker<T, Const>::walk_instruction, this),
       walk_ftype<expression_type>(&ast_walker<T, Const>::walk_expression, this),
+      walk_ftype<type_type>(&ast_walker<T, Const>::walk_type, this),
       walk_ftype<instruction_list_type>(
           &ast_walker<T, Const>::walk_instruction_list, this));
   switch (_instruction->get_node_type()) {

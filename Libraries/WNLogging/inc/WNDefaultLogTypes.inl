@@ -69,7 +69,7 @@ namespace WNLogging {
           const wn::containers::string_view& _0, BuffType* _buffer,
           wn_size_t& _bufferLeft) {
         int printed = wn::memory::snprintf(_buffer, _bufferLeft,
-                                           "%s.*", _0.size(), _0.data());
+                                           "%.*s", (uint32_t)_0.size(), (void*)_0.data());
         if (printed < 0 || static_cast<wn_size_t>(printed) >= _bufferLeft) {
           return (wn_false);
         }

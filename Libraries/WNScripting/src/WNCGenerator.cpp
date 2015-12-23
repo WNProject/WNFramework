@@ -94,12 +94,21 @@ void ast_c_translator::walk_parameter(const parameter* _param,
           _param->get_name().to_string(m_allocator);
 }
 
-void ast_c_translator::walk_instruction(const return_instruction* i,
+void ast_c_translator::walk_instruction(const return_instruction* _ret,
                                         containers::string* _str) {
   *_str = containers::string(m_allocator) + "return";
-  if (i->get_expression()) {
-    *_str += " " + m_generator->get_data(i->get_expression());
+  if (_ret->get_expression()) {
+    *_str += " " + m_generator->get_data(_ret->get_expression());
   }
+  *_str += ";";
+}
+
+void ast_c_translator::walk_instruction(const declaration* _decl,
+                                        containers::string* _str) {
+  *_str = containers::string(m_allocator);
+  *_str = m_generator->get_data(_decl->get_type()) + " " +
+          _decl->get_name().to_string(m_allocator) + " = ";
+  *_str += m_generator->get_data(_decl->get_expression());
   *_str += ";";
 }
 

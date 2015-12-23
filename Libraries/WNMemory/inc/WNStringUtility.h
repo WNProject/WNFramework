@@ -234,10 +234,12 @@ WN_INLINE wn_int32 snprintf(wn_char* buffer, const wn_size_t count,
   va_start(argptr, format);
 
   #ifdef _WN_WINDOWS
-    return(::_vsnprintf(buffer, count, format, argptr));
+    wn_int32 ret_val = ::_vsnprintf(buffer, count, format, argptr);
   #else
-    return(::vsnprintf(buffer, count, format, argptr));
+    wn_int32 ret_val = ::vsnprintf(buffer, count, format, argptr);
   #endif
+    va_end(argptr);
+    return ret_val;
 }
 
 WN_FORCE_INLINE wn_size_t writeuint32(wn_char* _buffer, wn_uint32 _int, wn_size_t _maxSize) {

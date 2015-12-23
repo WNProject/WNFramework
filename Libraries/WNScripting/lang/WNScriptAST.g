@@ -16,7 +16,6 @@ tokens
     DOUBINC;
     DOUBDEC;
     RETURN;
-    RETURN_OWN;
     SEMICOLON;
     COLON;
     WHILE;
@@ -35,7 +34,6 @@ tokens
     STRING;
     CHAR;
     NULLTOK;
-    CHOWN;
     VIRTUAL;
     OVERRIDE;
 }
@@ -147,7 +145,6 @@ COMMA:    ',';
 DOUBINC:   '++';
 DOUBDEC:   '--';
 RETURN:    'return';
-RETURN_OWN: 'return<==';
 SEMICOLON: ';';
 COLON:     ':';
 WHILE:     'while';
@@ -204,9 +201,6 @@ CHAR:  '\'' ( ESC_SEQ | ~('\''|'\\') ) '\''
     ;
 
 NULLTOK: '~'
-    ;
-
-CHOWN: '<=='
     ;
 
 fragment
@@ -289,7 +283,6 @@ assign_type returns[scripting::assign_type node]
     |    '*=' { node = scripting::assign_type::mult_equal; }
     |    '/=' { node = scripting::assign_type::div_equal; }
     |    '%=' { node = scripting::assign_type::mod_equal; }
-    |    '<==' { node = scripting::assign_type::change_owner; }
     ;
 
 lvalue returns[scripting::lvalue* node]
@@ -305,12 +298,10 @@ arglist returns[scripting::arg_list* node]
 }
         :   (
                     (a=expr { node->add_expression($a.node); SET_LOCATION_FROM_NODE(node, $a.node); })
-                |   ('<==' b=expr {node->add_expression($b.node, wn_true); SET_LOCATION_FROM_NODE(node, $b.node); })
             )
 
             (','
                 (
-                    ( '<==' c=expr { node->add_expression($c.node); SET_END_LOCATION_FROM_NODE(node, $c.node); } ) |
                     ( d=expr { node->add_expression($d.node, wn_true); SET_END_LOCATION_FROM_NODE(node, $d.node); } ) |
                 )
             )*
@@ -496,10 +487,9 @@ declaration returns[scripting::declaration* node]
 @init {
     node =  m_allocator->make_allocated<scripting::declaration>(m_allocator);
 }
-    :    a=param { node->set_parameter($a.node); }
+    :    a=param { node->set_parameter($a.node); SET_LOCATION_FROM_NODE(node, $a.node);}
             (
                 ('=' ( (c=expr) { node->add_expression_initializer($c.node); SET_END_LOCATION_FROM_NODE(node, $c.node); } ) )
-            |   ('<==' ( (d=expr) { node->add_expression_initializer($d.node, true); SET_END_LOCATION_FROM_NODE(node, $d.node); } ) )
             )
     ;
 
@@ -516,9 +506,7 @@ returnInst returns[scripting::return_instruction* node]
     node = wn_nullptr;
 }
     :   a=RETURN expr b=SEMICOLON { node = m_allocator->make_allocated<scripting::return_instruction>(m_allocator, $expr.node); SET_LOCATION(node, $a); SET_END_LOCATION(node, $b);}
-    |   c=RETURN d=SEMICOLON { node = m_allocator->make_allocated<scripting::return_instruction>(m_allocator); SET_LOCATION(node, $c); SET_END_LOCATION(node, $d); }
-    |   e=RETURN_OWN expr f=SEMICOLON { node = m_allocator->make_allocated<scripting::return_instruction>(m_allocator, $expr.node, true); SET_LOCATION(node, $e); SET_END_LOCATION(node, $f); }
-    ;
+    |   c=RETURN d=SEMICOLON { node = m_allocator->make_allocated<scripting::return_instruction>(m_allocator); SET_LOCATION(node, $c); SET_END_LOCATION(node, $d); };
 
 whileInst     returns[scripting::instruction* node]
 @init {

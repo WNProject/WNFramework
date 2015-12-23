@@ -2,9 +2,20 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
+#include "WNLogging/inc/WNBufferLogger.h"
 #include "WNScripting/test/inc/Common.h"
 #include "WNScripting/inc/WNCTranslator.h"
 #include "WNTesting/inc/WNTestHarness.h"
+
+void flush_buffer(wn_void* v, const wn_char* bytes, wn_size_t length,
+                         const std::vector<WNLogging::WNLogColorElement>&) {
+  wn::containers::string* s = static_cast<wn::containers::string*>(v);
+  s->append(bytes, length);
+}
+
+using buffer_logger = WNLogging::WNBufferLogger<flush_buffer>;
+using log_buff = wn::containers::string;
+
 
 TEST(c_translator, simple_c_translation) {
   wn::memory::default_expanding_allocator<50> allocator;
@@ -58,12 +69,15 @@ TEST_P(c_translator_direct_translation_test, translations) {
         }
       }
   }
+  log_buff buff(&allocator);
+  buffer_logger logger(&buff);
+  WNLogging::WNLog log(&logger);
 
   wn::scripting::test_file_manager manager(&allocator, {{"file.wns", input_str}});
   wn::scripting::c_translator translator(&allocator, &manager,
-                                         WNLogging::get_null_logger());
+                                         &log);
   EXPECT_EQ(wn::scripting::parse_error::ok,
-            translator.translate_file("file.wns"));
+            translator.translate_file("file.wns")) << buff;
   EXPECT_EQ(std::string(expected_output.c_str()),
             std::string(manager.get_file("file.wns.c")->data()));
 }
@@ -120,6 +134,24 @@ INSTANTIATE_TEST_CASE_P(
               {"  }",                      "}"                           },
               {"  return 9;",              ""                            },
               {"}",                        ""                            },
+            }
+})));
+// clang-format on
+
+// clang-format off
+INSTANTIATE_TEST_CASE_P(
+    declaration_tests, c_translator_direct_translation_test,
+    ::testing::ValuesIn(
+        wn::containers::dynamic_array<wn::containers::dynamic_array<source_pair>>({
+            {
+              {"Int main(Int x) {",     "wn_int32 main(wn_int32 x) {"  },
+              {"  Int y = x;",          "wn_int32 y = x;"              },
+              {"  Bool b = y == 4;",    "wn_bool b = (y == 4);"        },
+              {"  if (b) {    ",        "if (b) {"                     },
+              {"     return 3;",        "return 3;"                    },
+              {"  }",                   "}"                            },
+              {"  return 4;",           "return 4;"                    },
+              {"}",                     "}"                            },
             }
 })));
 // clang-format on

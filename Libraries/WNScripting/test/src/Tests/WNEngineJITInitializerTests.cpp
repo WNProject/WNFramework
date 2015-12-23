@@ -237,20 +237,35 @@ TEST_P(integer_tests, int_in_out_tests) {
   }
 }
 
+// clang-format off
 INSTANTIATE_TEST_CASE_P(
     comparison_tests, integer_tests,
-    ::testing::ValuesIn(wn::containers::dynamic_array<integer_test>(
-        {{"Int main(Int x) { if (x > 3) { return 2; } return 1;}",
+    ::testing::ValuesIn(wn::containers::dynamic_array<integer_test>({
+      {"Int main(Int x) { if (x > 3) { return 2; } return 1;}",
           {{0, 1}, {-1, 1}, {2, 1}, {3, 1}, {4, 2}, {50, 2}}},
-         {"Int main(Int x) { if (x > 3) { return 2; } else { return 3; } "
+      {"Int main(Int x) { if (x > 3) { return 2; } else { return 3; } "
           "return 4;}",
           {{0, 3}, {-1, 3}, {2, 3}, {3, 3}, {4, 2}, {50, 2}}},
-         {"Int main(Int x) { if (x > 3) { return 2; } else if (x < 2) { "
+      {"Int main(Int x) { if (x > 3) { return 2; } else if (x < 2) { "
           "return 1; } return 3;}",
           {{0, 1}, {-1, 1}, {2, 3}, {3, 3}, {4, 2}, {50, 2}}},
-         {"Int main(Int x) { if (x > 3) { return 2; } else if (x < 2) { "
+      {"Int main(Int x) { if (x > 3) { return 2; } else if (x < 2) { "
           "} return 3;}",
           {{0, 3}, {-1, 3}, {2, 3}, {3, 3}, {4, 2}, {50, 2}}},
-         {"Int main(Int x) { if (x > 3) { } else if (x < 2) { return 4;"
+      {"Int main(Int x) { if (x > 3) { } else if (x < 2) { return 4;"
           "} return 3;}",
-          {{0, 4}, {-1, 4}, {2, 3}, {3, 3}, {4, 3}, {50, 3}}}})));
+          {{0, 4}, {-1, 4}, {2, 3}, {3, 3}, {4, 3}, {50, 3}}}
+   })));
+
+INSTANTIATE_TEST_CASE_P(
+    declaration_tests, integer_tests,
+    ::testing::ValuesIn(wn::containers::dynamic_array<integer_test>({
+      {"Int main(Int x) { Int y = x; return y; }",
+          {{0, 0}, {-1, -1}, {2, 2}, {3, 3}, {4, 4}, {50, 50}}},
+      {"Int main(Int x) { Bool b = x == 3; if (b) { return 3; }"
+            "return 4; }",
+          {{0, 4}, {-1, 4}, {2, 4}, {3, 3}, {4, 4}, {50, 4}}},
+      {"Int main(Int x) { Int y = x; Int z = y; return z + y; }",
+          {{0, 0}, {-1, -2}, {2, 4}, {3, 6}, {4, 8}, {50, 100}}},
+   })));
+// clang-format on

@@ -64,7 +64,7 @@ class ast_jit_engine {
   void walk_instruction_list(const instruction_list*,
                              containers::dynamic_array<llvm::BasicBlock*>*);
   void walk_instruction(const return_instruction* _inst, instruction_dat*);
-
+  void walk_instruction(const declaration* _inst, instruction_dat*);
   void walk_instruction(const else_if_instruction*, instruction_dat*);
   void walk_instruction(const if_instruction*, instruction_dat*);
 

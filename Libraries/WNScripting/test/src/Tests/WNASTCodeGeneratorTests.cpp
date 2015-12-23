@@ -166,3 +166,47 @@ INSTANTIATE_TEST_CASE_P(invalid_bools, ast_code_generator_invalid_bools,
                         ::testing::Values("true + false", "true - false",
                           "true * true", "true * false", "true % false",
                           "(1 != 2) + (1 == 2)", "1 != 2 - 1 == 2"));
+
+using ast_code_generator_valid_declarations = ::testing::TestWithParam<const char*>;
+TEST_P(ast_code_generator_valid_declarations, valid_declarations) {
+  test_context c;
+
+  wn::containers::string str(&c.allocator);
+  str += "Bool main(Int q) { ";
+  str += GetParam();
+  str += "return x; }\n";
+
+  c.manager.add_files({{"file.wns", str}});
+  EXPECT_TRUE(c.test_parse_file("file.wns"));
+  EXPECT_THAT(c.num_errors, Eq(0u));
+  EXPECT_THAT(c.num_warnings, Eq(0u));
+}
+// clang-format off
+INSTANTIATE_TEST_CASE_P(valid_declarations, ast_code_generator_valid_declarations,
+    ::testing::Values(
+      "Bool x = false;",
+      "Int y = 4; Bool x = y == 4;",
+      "Int f = q; Bool x = f == 3;",
+      "Int z = 10; Int y = z; Bool x = y == z;"));
+// clang-format on
+
+using ast_code_generator_invalid_declarations = ::testing::TestWithParam<const char*>;
+TEST_P(ast_code_generator_invalid_declarations, invalid_declarations) {
+  test_context c;
+
+  wn::containers::string str(&c.allocator);
+  str += "Bool main(Int q) { ";
+  str += GetParam();
+  str += "return x; }\n";
+
+  c.manager.add_files({{"file.wns", str}});
+  EXPECT_FALSE(c.test_parse_file("file.wns"));
+  EXPECT_THAT(c.num_errors, Eq(1u));
+  EXPECT_THAT(c.num_warnings, Eq(0u));
+}
+
+INSTANTIATE_TEST_CASE_P(invalid_declarations, ast_code_generator_invalid_declarations,
+    ::testing::Values(
+      "Bool x = 4;",
+      "Int y = q;"));
+

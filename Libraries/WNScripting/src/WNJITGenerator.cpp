@@ -69,35 +69,35 @@ llvm::StringRef make_string_ref(const wn::containers::string& _view) {
 namespace wn {
 namespace scripting {
 
-void ast_jit_engine::walk_type(const wn::scripting::type* _type,
+void ast_jit_engine::walk_type(const scripting::type* _type,
                                llvm::Type** _value) {
   switch (_type->get_classification()) {
-    case wn::scripting::type_classification::invalid_type:
+    case scripting::type_classification::invalid_type:
       WN_RELEASE_ASSERT_DESC(wn_false, "Cannot classify invalid types");
       break;
-    case wn::scripting::type_classification::void_type:
+    case scripting::type_classification::void_type:
       *_value = llvm::Type::getVoidTy(*m_context);
       return;
-    case wn::scripting::type_classification::int_type:
+    case scripting::type_classification::int_type:
       *_value = llvm::IntegerType::getInt32Ty(*m_context);
       return;
-    case wn::scripting::type_classification::float_type:
+    case scripting::type_classification::float_type:
       *_value = llvm::Type::getFloatTy(*m_context);
       return;
-    case wn::scripting::type_classification::char_type:
+    case scripting::type_classification::char_type:
       *_value = llvm::IntegerType::get(*m_context, 8);
       return;
-    case wn::scripting::type_classification::string_type:
+    case scripting::type_classification::string_type:
       WN_RELEASE_ASSERT_DESC(wn_false, "Not implemented: string type");
       break;
-    case wn::scripting::type_classification::bool_type:
+    case scripting::type_classification::bool_type:
       *_value = llvm::IntegerType::get(*m_context, 1);
       return;
       break;
-    case wn::scripting::type_classification::custom_type:
+    case scripting::type_classification::custom_type:
       WN_RELEASE_ASSERT_DESC(wn_false, "Not implemented: custom types");
       break;
-    case wn::scripting::type_classification::max:
+    case scripting::type_classification::max:
       WN_RELEASE_ASSERT_DESC(wn_false, "Type out of range");
       break;
   }
@@ -123,16 +123,19 @@ void ast_jit_engine::walk_expression(const constant_expression* _const,
   }
 }
 
-void ast_jit_engine::walk_expression(const id_expression* _id_expr,
-                                     expression_dat* _val) {
-  if (_id_expr->get_id_source().param_source) {
-    _val->instructions =
-        wn::containers::dynamic_array<llvm::Instruction*>(m_allocator);
-    _val->instructions.push_back(new llvm::LoadInst(
-        m_generator->get_data(_id_expr->get_id_source().param_source),
-        make_string_ref(_id_expr->get_id_source().param_source->get_name())));
-    _val->value = _val->instructions.back();
-  }
+void ast_jit_engine::walk_expression(
+    const id_expression* _id_expr, expression_dat* _val) {
+  llvm::Value* v =
+      _id_expr->get_id_source().param_source
+          ? m_generator->get_data(_id_expr->get_id_source().param_source)
+          : *m_generator->get_data(_id_expr->get_id_source().declaration_source)
+                .instructions.begin();
+
+  _val->instructions =
+      containers::dynamic_array<llvm::Instruction*>(m_allocator);
+  _val->instructions.push_back(
+      new llvm::LoadInst(v, make_string_ref(_id_expr->get_name())));
+  _val->value = _val->instructions.back();
 }
 
 namespace {
@@ -178,7 +181,7 @@ void ast_jit_engine::walk_expression(const binary_expression* _binary,
                              "Not implemnted, non-integer arithmetic");
   }
   _val->instructions =
-      wn::containers::dynamic_array<llvm::Instruction*>(m_allocator);
+      containers::dynamic_array<llvm::Instruction*>(m_allocator);
   _val->instructions.insert(_val->instructions.end(), lhs.instructions.begin(),
                             lhs.instructions.end());
   _val->instructions.insert(_val->instructions.end(), rhs.instructions.begin(),
@@ -289,6 +292,23 @@ void ast_jit_engine::walk_instruction(const return_instruction* _inst,
   }
 }
 
+void ast_jit_engine::walk_instruction(
+    const declaration* _inst, instruction_dat* _val) {
+  _val->instructions =
+      containers::dynamic_array<llvm::Instruction*>(m_allocator);
+
+  _val->instructions.push_back(
+      new llvm::AllocaInst(m_generator->get_data(_inst->get_type()),
+          make_string_ref(_inst->get_name())));
+
+  expression_dat& expr = m_generator->get_data(_inst->get_expression());
+  _val->instructions.insert(_val->instructions.end(), expr.instructions.data(),
+      expr.instructions.data() + expr.instructions.size());
+
+  _val->instructions.push_back(
+    new llvm::StoreInst(expr.value, _val->instructions.front()));
+}
+
 void ast_jit_engine::walk_instruction_list(
     const instruction_list* _instructions,
     containers::dynamic_array<llvm::BasicBlock*>* _list) {
@@ -314,7 +334,7 @@ void ast_jit_engine::walk_parameter(const parameter* _param,
 }
 
 void ast_jit_engine::walk_function(const function* _func, llvm::Function** _f) {
-  wn::containers::dynamic_array<llvm::Type*> parameters;
+  containers::dynamic_array<llvm::Type*> parameters;
 
   llvm::BasicBlock* bb = llvm::BasicBlock::Create(*m_context);
   if (_func->get_parameters()) {

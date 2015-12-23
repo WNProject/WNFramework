@@ -115,6 +115,17 @@ class id_association_pass : public pass {
     id_map.back()[_param->get_name()] = {_param, 0};
   }
 
+  void walk_instruction(declaration* _decl){
+    if (find_param(_decl->get_name())) {
+      m_log->Log(WNLogging::eError, 0, "Declaration of ", _decl->get_name(),
+          "hides id of the same name");
+      _decl->log_line(*m_log, WNLogging::eError);
+      ++m_num_errors;
+      return;
+    }
+    id_map.back()[_decl->get_name()] = {0, _decl};
+  }
+
   void walk_expression(id_expression* _expr) {
     auto param = find_param(_expr->get_name());
     if (!param) {
@@ -154,13 +165,15 @@ class type_association_pass : public pass {
   void enter_scope_block() {}
   void leave_scope_block() {}
   void walk_expression(id_expression* _expr) {
-    if (_expr->get_id_source().param_source) {
+    const id_expression::id_source& source = _expr->get_id_source();
+    if (source.param_source || source.declaration_source) {
       type* t = m_allocator->make_allocated<type>(
-          *_expr->get_id_source().param_source->get_type());
+          source.param_source ? *source.param_source->get_type()
+                              : *source.declaration_source->get_type());
       t->copy_location_from(_expr);
       _expr->set_type(t);
     } else {
-      WN_RELEASE_ASSERT_DESC(wn_false, "Not Implemented: non_param ids.");
+      WN_DEBUG_ASSERT_DESC(wn_false, "Source for this ID.");
     }
   }
 
@@ -262,6 +275,16 @@ class type_association_pass : public pass {
   void walk_instruction(instruction*) {}
   void walk_instruction_list(instruction_list*) {}
   void walk_instruction(return_instruction* _ret) { m_returns.push_back(_ret); }
+
+  void walk_instruction(declaration* _decl) {
+    if (*_decl->get_type() != *_decl->get_expression()->get_type()) {
+      m_log->Log(WNLogging::eError, 0,
+          "Cannot inintialize variable with expression of a different type.");
+      _decl->log_line(*m_log, WNLogging::eError);
+      ++m_num_errors;
+    }
+  }
+
   void walk_instruction(else_if_instruction* _else_if) {
     if (_else_if->get_condition()->get_type()->get_classification() !=
         type_classification::bool_type) {
@@ -300,11 +323,11 @@ class type_association_pass : public pass {
         }
       } else {
         const type* return_type = return_inst->get_expression()->get_type();
-        if (return_type->get_classification() !=
-            function_return_type->get_classification()) {
+        if (*return_type != *function_return_type) {
           m_log->Log(WNLogging::eError, 0,
                      "Return type does not match function");
           return_inst->log_line(*m_log, WNLogging::eError);
+          m_num_errors += 1;
         }
       }
     }
