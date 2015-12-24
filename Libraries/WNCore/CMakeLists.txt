@@ -494,6 +494,7 @@ else()
 endif()
 
 message(STATUS "WN_ALIGN Selection: ${WN_ALIGN}")
+message(STATUS "WN_ALIGN_OF Selection: ${WN_ALIGN_OF}")
 
 if (WN_CDECL_BEGIN)
   message(STATUS "WN_CDECL_BEGIN Selection: ${WN_CDECL_BEGIN}")
