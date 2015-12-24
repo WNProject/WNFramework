@@ -428,6 +428,17 @@ check_cxx_source_compiles(
   HAS___VECTORCALL
 )
 
+check_cxx_source_compiles(
+  "
+    void temp() __attribute__((vectorcall)) {}
+    int main() {
+      temp();
+      return 0;
+    }
+  "
+  HAS___ATTRIBUTE__VECTORCALL
+)
+
 # make calling convention selections
 
 set(WN_CDECL_BEGIN)
@@ -457,7 +468,9 @@ elseif (HAS___FASTCALL)
   set(WN_FASTCALL_BEGIN __fastcall)
 endif()
 
-if (HAS___VECTORCALL)
+if (HAS___ATTRIBUTE__VECTORCALL)
+  set(WN_VECTORCALL_END "__attribute__((vectorcall))")
+elseif (HAS___VECTORCALL)
   set(WN_VECTORCALL_BEGIN __vectorcall)
 endif()
 
