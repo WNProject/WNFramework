@@ -2,34 +2,8 @@ include(CheckTypeSize)
 include(CheckSymbolExists)
 include(TestBigEndian)
 
-# check system architecture using cmake system variables
-if (DEFINED CMAKE_SYSTEM_PROCESSOR AND NOT ${CMAKE_SYSTEM_PROCESSOR} STREQUAL "")
-  if (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64" OR
-      ${CMAKE_SYSTEM_PROCESSOR} STREQUAL "amd64")
-    set(WN_ARCHITECTURE "x86-64")
-  elseif (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "AMD64")
-    # CMake reports AMD64 on Windows always need to check for bit width
-    if (DEFINED CMAKE_CL_64 AND CMAKE_CL_64)
-      set(WN_ARCHITECTURE "x86-64")
-    else()
-      set(WN_ARCHITECTURE "x86")
-    endif()
-  elseif (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86" OR
-          ${CMAKE_SYSTEM_PROCESSOR} STREQUAL "i386" OR
-          ${CMAKE_SYSTEM_PROCESSOR} STREQUAL "i686")
-    set(WN_ARCHITECTURE "x86")
-  elseif (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "arm" OR
-          ${CMAKE_SYSTEM_PROCESSOR} STREQUAL "armv5te" OR
-          ${CMAKE_SYSTEM_PROCESSOR} STREQUAL "armv6" OR
-          ${CMAKE_SYSTEM_PROCESSOR} STREQUAL "armv7-a")
-    set(WN_ARCHITECTURE "ARM")
-  elseif (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "aarch64")
-    set(WN_ARCHITECTURE "ARM64")
-  endif()
-endif()
-
-function(wn_check_any_symbol_exists VARIABLE)
-  foreach(SYMBOL ${ARGN})
+function(wn_check_any_symbol_exists LIST_VARIABLE_NAME VARIABLE)
+  foreach(SYMBOL ${${LIST_VARIABLE_NAME}})
     set(CHECK_VARIABLE_NAME HAS_${SYMBOL})
     string(TOUPPER ${CHECK_VARIABLE_NAME} CHECK_VARIABLE_NAME)
 
@@ -44,8 +18,25 @@ function(wn_check_any_symbol_exists VARIABLE)
   endforeach()
 endfunction()
 
-# check for x86-64 using processor preprocessor defines if not already found
-if (NOT DEFINED WN_ARCHITECTURE)
+# check system architecture using cmake system variables
+if (CMAKE_SYSTEM_PROCESSOR MATCHES "^(x86_64|amd64|AMD64)$")
+  # cmake always reports AMD64 for msvc, need to check for bit width
+  if (MSVC AND NOT CMAKE_CL_64)
+    set(WN_ARCHITECTURE "x86")
+  else()
+    set(WN_ARCHITECTURE "x86-64")
+  endif()
+elseif (CMAKE_SYSTEM_PROCESSOR MATCHES "^(x86|i386|i686)$")
+  set(WN_ARCHITECTURE "x86")
+elseif (CMAKE_SYSTEM_PROCESSOR MATCHES "^(aarch64.*|AARCH64.*)")
+  set(WN_ARCHITECTURE "ARM64")
+elseif (CMAKE_SYSTEM_PROCESSOR MATCHES "^(arm.*|ARM.*)")
+  set(WN_ARCHITECTURE "ARM")
+else()
+  # list of all suported architectures
+  set(ARCHITECTURE_LIST "x86-64" x86 ARM64 ARM)
+
+  # architectural preprocessor symbols x86-64
   set(X86_64_SYMBOLS
     __amd64__
     __amd64
@@ -55,15 +46,7 @@ if (NOT DEFINED WN_ARCHITECTURE)
     _M_AMD64
   )
 
-  wn_check_any_symbol_exists(IS_X86_64 ${X86_64_SYMBOLS})
-
-  if (IS_X86_64)
-    set(WN_ARCHITECTURE "x86-64")
-  endif()
-endif()
-
-# check for x86 using processor preprocessor defines if not already found
-if (NOT DEFINED WN_ARCHITECTURE)
+  # architectural preprocessor symbols x86
   set(X86_SYMBOLS
     i386
     __i386
@@ -79,15 +62,12 @@ if (NOT DEFINED WN_ARCHITECTURE)
     __386
   )
 
-  wn_check_any_symbol_exists(IS_X86 ${X86_SYMBOLS})
+  # architectural preprocessor symbols ARM64
+  set(ARM64_SYMBOLS
+    __aarch64__
+  )
 
-  if (IS_X86)
-    set(WN_ARCHITECTURE "x86")
-  endif()
-endif()
-
-# check for ARM using processor preprocessor defines if not already found
-if (NOT DEFINED WN_ARCHITECTURE)
+  # architectural preprocessor symbols ARM
   set(ARM_SYMBOLS
     __arm__
     __arm
@@ -99,22 +79,24 @@ if (NOT DEFINED WN_ARCHITECTURE)
     _M_ARMT
   )
 
-  wn_check_any_symbol_exists(IS_ARM ${ARM_SYMBOLS})
+  # check for architectures using preprocessor symbols. Symbol list names must
+  # match the format [architecture, all caps, alphanumeric and _ only]_SYMBOLS.
+  foreach(ARCHITECTURE ${ARCHITECTURE_LIST})
+    wn_make_preprocessor_symbol(${ARCHITECTURE} ARCHITECTURE)
 
-  if (IS_ARM)
-    set(WN_ARCHITECTURE "ARM")
-  endif()
-endif()
+    set(ARCHITECTURE_SYMBOL_LIST_NAME ${ARCHITECTURE}_SYMBOLS)
+    set(ARCHITECTURE_HAS_VARIABLE_NAME HAS_${ARCHITECTURE}_SYMBOL)
 
-# check for ARM64 using processor preprocessor defines if not already found
-if (NOT DEFINED WN_ARCHITECTURE)
-  set(ARM64_SYMBOLS __aarch64__)
+    wn_check_any_symbol_exists(
+      ${ARCHITECTURE_SYMBOL_LIST_NAME}
+      ${ARCHITECTURE_HAS_VARIABLE_NAME}
+    )
 
-  wn_check_any_symbol_exists(IS_ARM64 ${ARM64_SYMBOLS})
-
-  if (IS_ARM64)
-    set(WN_ARCHITECTURE "ARM64")
-  endif()
+    if (${ARCHITECTURE_HAS_VARIABLE_NAME})
+      set(WN_ARCHITECTURE ${ARCHITECTURE})
+      break()
+    endif()
+  endforeach()
 endif()
 
 if (NOT DEFINED WN_ARCHITECTURE)
@@ -122,18 +104,18 @@ if (NOT DEFINED WN_ARCHITECTURE)
 endif()
 
 # determine archiutecture grouping and other properties where applicable
-if (${WN_ARCHITECTURE} STREQUAL "x86-64")
+if (WN_ARCHITECTURE STREQUAL "x86-64")
   set(WN_ARCHITECTURE_GROUP "x86")
   set(WN_ARCHITECTURE_BITNESS 64)
   set(WN_ARCHITECTURE_ENDIANNESS "Little")
-elseif (${WN_ARCHITECTURE} STREQUAL "x86")
+elseif (WN_ARCHITECTURE STREQUAL "x86")
   set(WN_ARCHITECTURE_GROUP "x86")
   set(WN_ARCHITECTURE_BITNESS 32)
   set(WN_ARCHITECTURE_ENDIANNESS "Little")
-elseif (${WN_ARCHITECTURE} STREQUAL "ARM64")
+elseif (WN_ARCHITECTURE STREQUAL "ARM64")
   set(WN_ARCHITECTURE_GROUP "ARM")
   set(WN_ARCHITECTURE_BITNESS 64)
-elseif (${WN_ARCHITECTURE} STREQUAL "ARM")
+elseif (WN_ARCHITECTURE STREQUAL "ARM")
   set(WN_ARCHITECTURE_GROUP "ARM")
   set(WN_ARCHITECTURE_BITNESS 32)
 endif()
@@ -154,6 +136,11 @@ if (NOT DEFINED WN_ARCHITECTURE_ENDIANNESS)
   endif()
 endif()
 
+if (NOT DEFINED WN_ARCHITECTURE_GROUP)
+  set(WN_ARCHITECTURE_GROUP ${WN_ARCHITECTURE})
+endif()
+
 message(STATUS "Architecture: ${WN_ARCHITECTURE}")
+message(STATUS "Architecture Group: ${WN_ARCHITECTURE_GROUP}")
 message(STATUS "Architecture Bitness: ${WN_ARCHITECTURE_BITNESS}")
 message(STATUS "Architecture Endianness: ${WN_ARCHITECTURE_ENDIANNESS}")
