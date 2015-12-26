@@ -8,7 +8,7 @@
 #include "WNScripting/inc/WNASTCodeGenerator.h"
 #include "WNTesting/inc/WNTestHarness.h"
 using ::testing::Eq;
-
+using ::testing::Ge;
 
 void flush_buffer(wn_void* v, const wn_char* bytes, wn_size_t length,
                          const std::vector<WNLogging::WNLogColorElement>&) {
@@ -210,3 +210,40 @@ INSTANTIATE_TEST_CASE_P(invalid_declarations, ast_code_generator_invalid_declara
       "Bool x = 4;",
       "Int y = q;"));
 
+using ast_code_generator_valid_code = ::testing::TestWithParam<const char*>;
+using ast_code_generator_invalid_code = ::testing::TestWithParam<const char*>;
+
+TEST_P(ast_code_generator_valid_code, compiles_cleanly) {
+  test_context c;
+
+  wn::containers::string str(GetParam(), &c.allocator);
+  c.manager.add_files({{"file.wns", str}});
+  EXPECT_TRUE(c.test_parse_file("file.wns")) << c.buffer;
+  EXPECT_THAT(c.num_errors, Eq(0u));
+  EXPECT_THAT(c.num_warnings, Eq(0u));
+}
+
+TEST_P(ast_code_generator_invalid_code, generates_error) {
+  test_context c;
+
+  wn::containers::string str(GetParam(), &c.allocator);
+  c.manager.add_files({{"file.wns", str}});
+  EXPECT_FALSE(c.test_parse_file("file.wns")) << c.manager.get_file("file.wns");
+  EXPECT_THAT(c.num_errors, Ge(1u));
+  EXPECT_THAT(c.num_warnings, Eq(0u));
+}
+
+INSTANTIATE_TEST_CASE_P(assignment_tests, ast_code_generator_valid_code,
+  ::testing::Values(
+    "Int main(Int x) { Int y = 0; y = x; return y; }",
+    "Bool main(Int x) { Bool b = false; b = x == 4; return b; }",
+    "Int main(Bool x) { Int y = 0; if (x) { y = 3; } return y; }",
+    "Bool main(Int x) { Bool b = false; if (x == 3) { b = true; } return b; }"
+    ));
+
+INSTANTIATE_TEST_CASE_P(assignment_tests, ast_code_generator_invalid_code,
+  ::testing::Values(
+    "Int main(Int x) { y = x; return y; }",
+    "Bool main(Int x) { Bool b = false; b = x; return b; }",
+    "Int main(Int x) { Int x = 0; x = false; return x; }"
+    ));

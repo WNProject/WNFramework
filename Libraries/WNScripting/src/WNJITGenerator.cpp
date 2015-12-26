@@ -21,17 +21,17 @@
 #include <llvm/IR/BasicBlock.h>
 #include <llvm/IR/Constants.h>
 #include <llvm/IR/Function.h>
-#include <llvm/IR/LLVMContext.h>
-#include <llvm/IR/Module.h>
 #include <llvm/IR/Instruction.h>
 #include <llvm/IR/Instructions.h>
+#include <llvm/IR/LLVMContext.h>
+#include <llvm/IR/Module.h>
 #include <llvm/IR/Value.h>
 #include <llvm/IR/Verifier.h>
 
-#include <llvm/Support/TargetSelect.h>
 #include <llvm/ExecutionEngine/ExecutionEngine.h>
 #include <llvm/ExecutionEngine/MCJIT.h>
 #include <llvm/ExecutionEngine/SectionMemoryManager.h>
+#include <llvm/Support/TargetSelect.h>
 
 #ifdef _MSC_VER
 #pragma warning(pop)
@@ -40,12 +40,12 @@
 #include "WNContainers/inc/WNContiguousRange.h"
 #include "WNContainers/inc/WNDynamicArray.h"
 #include "WNContainers/inc/WNList.h"
+#include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/WNAllocator.h"
-#include "WNScripting/inc/WNJITGenerator.h"
 #include "WNScripting/inc/WNASTWalker.h"
+#include "WNScripting/inc/WNJITGenerator.h"
 #include "WNScripting/inc/WNNodeTypes.h"
 #include "WNScripting/inc/WNScriptHelpers.h"
-#include "WNLogging/inc/WNLog.h"
 
 #include <algorithm>
 
@@ -69,8 +69,8 @@ llvm::StringRef make_string_ref(const wn::containers::string& _view) {
 namespace wn {
 namespace scripting {
 
-void ast_jit_engine::walk_type(const scripting::type* _type,
-                               llvm::Type** _value) {
+void ast_jit_engine::walk_type(
+    const scripting::type* _type, llvm::Type** _value) {
   switch (_type->get_classification()) {
     case scripting::type_classification::invalid_type:
       WN_RELEASE_ASSERT_DESC(wn_false, "Cannot classify invalid types");
@@ -103,8 +103,8 @@ void ast_jit_engine::walk_type(const scripting::type* _type,
   }
 }
 
-void ast_jit_engine::walk_expression(const constant_expression* _const,
-                                     expression_dat* _val) {
+void ast_jit_engine::walk_expression(
+    const constant_expression* _const, expression_dat* _val) {
   switch (_const->get_type()->get_classification()) {
     case type_classification::int_type: {
       long long val = atoll(_const->get_type_text().c_str());
@@ -129,7 +129,7 @@ void ast_jit_engine::walk_expression(
       _id_expr->get_id_source().param_source
           ? m_generator->get_data(_id_expr->get_id_source().param_source)
           : *m_generator->get_data(_id_expr->get_id_source().declaration_source)
-                .instructions.begin();
+                 .instructions.begin();
 
   _val->instructions =
       containers::dynamic_array<llvm::Instruction*>(m_allocator);
@@ -144,19 +144,19 @@ static const llvm::BinaryOperator::BinaryOps integer_ops[] = {
     llvm::BinaryOperator::BinaryOps::Mul, llvm::BinaryOperator::BinaryOps::SDiv,
     llvm::BinaryOperator::BinaryOps::SRem};
 
-static const wn_int16 integer_compares[] = {
-    llvm::CmpInst::Predicate::ICMP_EQ,  llvm::CmpInst::Predicate::ICMP_NE,
-    llvm::CmpInst::Predicate::ICMP_SLE, llvm::CmpInst::Predicate::ICMP_SGE,
-    llvm::CmpInst::Predicate::ICMP_SLT, llvm::CmpInst::Predicate::ICMP_SGT};
+static const wn_int16 integer_compares[] = {llvm::CmpInst::Predicate::ICMP_EQ,
+    llvm::CmpInst::Predicate::ICMP_NE, llvm::CmpInst::Predicate::ICMP_SLE,
+    llvm::CmpInst::Predicate::ICMP_SGE, llvm::CmpInst::Predicate::ICMP_SLT,
+    llvm::CmpInst::Predicate::ICMP_SGT};
 
 static_assert(sizeof(integer_ops) / sizeof(integer_ops[0]) +
                       sizeof(integer_compares) / sizeof(integer_compares[0]) ==
                   static_cast<size_t>(arithmetic_type::max),
-              "Arithmetic type was added");
+    "Arithmetic type was added");
 }  // anonymous namespace
 
-void ast_jit_engine::walk_expression(const binary_expression* _binary,
-                                     expression_dat* _val) {
+void ast_jit_engine::walk_expression(
+    const binary_expression* _binary, expression_dat* _val) {
   const expression_dat& lhs = m_generator->get_data(_binary->get_lhs());
   const expression_dat& rhs = m_generator->get_data(_binary->get_rhs());
   llvm::Instruction* inst = wn_nullptr;
@@ -168,30 +168,30 @@ void ast_jit_engine::walk_expression(const binary_expression* _binary,
         inst = llvm::BinaryOperator::Create(
             integer_ops[static_cast<size_t>(type)], lhs.value, rhs.value);
       } else {
-        inst = llvm::CmpInst::Create(
-            llvm::Instruction::ICmp,
-            integer_compares
-                [static_cast<short>(type) -
-                 static_cast<short>(arithmetic_type::arithmetic_mod) - 1],
+        inst = llvm::CmpInst::Create(llvm::Instruction::ICmp,
+            integer_compares[static_cast<short>(type) -
+                                         static_cast<short>(
+                                             arithmetic_type::arithmetic_mod) -
+                                         1],
             lhs.value, rhs.value);
       }
       break;
     default:
-      WN_RELEASE_ASSERT_DESC(wn_false,
-                             "Not implemnted, non-integer arithmetic");
+      WN_RELEASE_ASSERT_DESC(
+          wn_false, "Not implemnted, non-integer arithmetic");
   }
   _val->instructions =
       containers::dynamic_array<llvm::Instruction*>(m_allocator);
   _val->instructions.insert(_val->instructions.end(), lhs.instructions.begin(),
-                            lhs.instructions.end());
+      lhs.instructions.end());
   _val->instructions.insert(_val->instructions.end(), rhs.instructions.begin(),
-                            rhs.instructions.end());
+      rhs.instructions.end());
   _val->instructions.push_back(inst);
   _val->value = inst;
 }
 
-void ast_jit_engine::walk_instruction(const else_if_instruction* _inst,
-                                      instruction_dat* _val) {
+void ast_jit_engine::walk_instruction(
+    const else_if_instruction* _inst, instruction_dat* _val) {
   _val->instructions =
       containers::dynamic_array<llvm::Instruction*>(m_allocator);
   _val->blocks = containers::dynamic_array<llvm::BasicBlock*>(m_allocator);
@@ -204,7 +204,7 @@ void ast_jit_engine::walk_instruction(const else_if_instruction* _inst,
       llvm::BasicBlock::Create(*m_context, "no_execute");
 
   _val->instructions.insert(_val->instructions.begin(),
-                            dat.instructions.begin(), dat.instructions.end());
+      dat.instructions.begin(), dat.instructions.end());
   _val->blocks.insert(_val->blocks.begin(), body.begin(), body.end());
 
   _val->instructions.push_back(
@@ -212,8 +212,8 @@ void ast_jit_engine::walk_instruction(const else_if_instruction* _inst,
   _val->blocks.insert(_val->blocks.end(), no_execute);
 }
 
-void ast_jit_engine::walk_instruction(const if_instruction* _inst,
-                                      instruction_dat* _val) {
+void ast_jit_engine::walk_instruction(
+    const if_instruction* _inst, instruction_dat* _val) {
   _val->instructions =
       containers::dynamic_array<llvm::Instruction*>(m_allocator);
   _val->blocks = containers::dynamic_array<llvm::BasicBlock*>(m_allocator);
@@ -230,8 +230,9 @@ void ast_jit_engine::walk_instruction(const if_instruction* _inst,
   _val->blocks.insert(_val->blocks.begin(), body.begin(), body.end());
 
   _val->instructions.insert(_val->instructions.begin(),
-                            dat.instructions.begin(), dat.instructions.end());
-  _val->instructions.push_back(llvm::BranchInst::Create(_val->blocks.front(), next_if, dat.value));
+      dat.instructions.begin(), dat.instructions.end());
+  _val->instructions.push_back(
+      llvm::BranchInst::Create(_val->blocks.front(), next_if, dat.value));
 
   if (!_inst->get_body()->returns()) {
     _val->blocks.back()->getInstList().push_back(
@@ -239,7 +240,7 @@ void ast_jit_engine::walk_instruction(const if_instruction* _inst,
   }
   _val->blocks.push_back(next_if);
 
-  for(auto& else_if: _inst->get_else_if_instructions()) {
+  for (auto& else_if : _inst->get_else_if_instructions()) {
     instruction_dat& inst_dat = m_generator->get_data(else_if.get());
     // The very last block in the else_if is the block that gets branched
     // to if the else_if did not get run.
@@ -251,10 +252,9 @@ void ast_jit_engine::walk_instruction(const if_instruction* _inst,
           .push_back(llvm::BranchInst::Create(post_if));
     }
     next_if->getInstList().insert(next_if->getInstList().end(),
-                                  inst_dat.instructions.begin(),
-                                  inst_dat.instructions.end());
-    _val->blocks.insert(_val->blocks.end(), inst_dat.blocks.begin(),
-                       inst_dat.blocks.end());
+        inst_dat.instructions.begin(), inst_dat.instructions.end());
+    _val->blocks.insert(
+        _val->blocks.end(), inst_dat.blocks.begin(), inst_dat.blocks.end());
     next_if = _val->blocks.back();
   }
   if (_inst->get_else()) {
@@ -276,14 +276,13 @@ void ast_jit_engine::walk_instruction(const if_instruction* _inst,
   }
 }
 
-void ast_jit_engine::walk_instruction(const return_instruction* _inst,
-                                      instruction_dat* _val) {
+void ast_jit_engine::walk_instruction(
+    const return_instruction* _inst, instruction_dat* _val) {
   _val->instructions =
       containers::dynamic_array<llvm::Instruction*>(m_allocator);
   if (_inst->get_expression()) {
     const expression_dat& dat = m_generator->get_data(_inst->get_expression());
-    _val->instructions.insert(
-        _val->instructions.end(), dat.instructions.data(),
+    _val->instructions.insert(_val->instructions.end(), dat.instructions.data(),
         dat.instructions.data() + dat.instructions.size());
     _val->instructions.push_back(
         llvm::ReturnInst::Create(*m_context, dat.value));
@@ -306,7 +305,38 @@ void ast_jit_engine::walk_instruction(
       expr.instructions.data() + expr.instructions.size());
 
   _val->instructions.push_back(
-    new llvm::StoreInst(expr.value, _val->instructions.front()));
+      new llvm::StoreInst(expr.value, _val->instructions.front()));
+}
+
+void ast_jit_engine::walk_instruction(
+    const assignment_instruction* _inst, instruction_dat* _val) {
+  WN_RELEASE_ASSERT_DESC(_inst->get_assignment_type() == assign_type::equal,
+      "Not Supported: non-equality assignments");
+  _val->instructions =
+      containers::dynamic_array<llvm::Instruction*>(m_allocator);
+
+  expression_dat& store_dat = m_generator->get_data(_inst->get_expression());
+  _val->instructions.insert(_val->instructions.end(),
+      store_dat.instructions.data(),
+      store_dat.instructions.data() + store_dat.instructions.size());
+
+  expression_dat& location_dat =
+      m_generator->get_data(_inst->get_lvalue()->get_expression());
+  llvm::LoadInst* inst =
+      llvm::dyn_cast<llvm::LoadInst>(location_dat.instructions.back());
+  WN_RELEASE_ASSERT_DESC(
+      inst, "Last instruction in lvalue is expected to be a LoadInst");
+
+  location_dat.instructions.pop_back();
+  llvm::Value* target = inst->getPointerOperand();
+  // We need to store instead of load to this instruction.
+  delete inst;
+
+  location_dat.instructions.push_back(
+      new llvm::StoreInst(store_dat.value, target));
+  _val->instructions.insert(_val->instructions.end(),
+      location_dat.instructions.data(),
+      location_dat.instructions.data() + location_dat.instructions.size());
 }
 
 void ast_jit_engine::walk_instruction_list(
@@ -327,10 +357,10 @@ void ast_jit_engine::walk_instruction_list(
   }
 }
 
-void ast_jit_engine::walk_parameter(const parameter* _param,
-                                    llvm::Instruction** _val) {
+void ast_jit_engine::walk_parameter(
+    const parameter* _param, llvm::Instruction** _val) {
   *_val = new llvm::AllocaInst(m_generator->get_data(_param->get_type()),
-                               make_string_ref(_param->get_name()));
+      make_string_ref(_param->get_name()));
 }
 
 void ast_jit_engine::walk_function(const function* _func, llvm::Function** _f) {
@@ -346,8 +376,8 @@ void ast_jit_engine::walk_function(const function* _func, llvm::Function** _f) {
   llvm::FunctionType* t = llvm::FunctionType::get(
       m_generator->get_data(_func->get_signature()->get_type()),
       make_array_ref(parameters), wn_false);
-  *_f = llvm::Function::Create(
-      t, llvm::GlobalValue::LinkageTypes::ExternalLinkage,
+  *_f = llvm::Function::Create(t,
+      llvm::GlobalValue::LinkageTypes::ExternalLinkage,
       make_string_ref(_func->get_signature()->get_name()));
   if (_func->get_parameters()) {
     auto llvm_args = (*_f)->arg_begin();

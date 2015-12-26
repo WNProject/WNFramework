@@ -557,7 +557,8 @@ public:
       m_returns(wn_false) {}
   instruction_list(memory::allocator* _allocator, instruction* inst)
     : node(_allocator, node_type::instruction_list),
-      m_instructions(_allocator) {
+      m_instructions(_allocator),
+      m_returns(wn_false) {
     m_instructions.emplace_back(
         memory::default_allocated_ptr(m_allocator, inst));
   }
@@ -865,15 +866,21 @@ private:
   bool m_is_virtual;
 };
 
+class assignment_instruction;
 class lvalue : public node {
 public:
   lvalue(memory::allocator* _allocator, expression* _expr)
-    : node(_allocator, node_type::lvalue), m_expression(_expr) {}
+    : node(_allocator, node_type::lvalue),
+      m_expression(memory::default_allocated_ptr(_allocator, _expr)) {}
   wn_bool required_use() {
     return m_expression->required_use();
   }
+  const expression* get_expression() const {
+    return m_expression.get();
+  }
 
 private:
+  friend class assignment_instruction;
   memory::allocated_ptr<expression> m_expression;
 };
 
@@ -885,11 +892,40 @@ public:
       m_assign_type(assign_type::max) {}
 
   void add_value(assign_type _type, expression* _value) {
-    _type = _type;
+    m_assign_type = _type;
     m_assign_expression = memory::default_allocated_ptr(m_allocator, _value);
   }
 
+  assign_type get_assignment_type() const {
+    return m_assign_type;
+  }
+
+  const expression* get_expression() const {
+    return m_assign_expression.get();
+  }
+  const lvalue* get_lvalue() const {
+    return m_lvalue.get();
+  }
+
 private:
+  virtual void walk_children(const walk_ftype<instruction*>&,
+      const walk_ftype<expression*>& expr, const walk_ftype<type*>&,
+      const walk_ftype<instruction_list*>&) {
+    if (expr) {
+      expr(m_lvalue->m_expression.get());
+      expr(m_assign_expression.get());
+    }
+  }
+
+  virtual void walk_children(const walk_ftype<const instruction*>&,
+      const walk_ftype<const expression*>& expr, const walk_ftype<const type*>&,
+      const walk_ftype<const instruction_list*>&) const {
+    if (expr) {
+      expr(m_lvalue->m_expression.get());
+      expr(m_assign_expression.get());
+    }
+  }
+
   assign_type m_assign_type;
   memory::allocated_ptr<lvalue> m_lvalue;
   memory::allocated_ptr<expression> m_assign_expression;

@@ -268,4 +268,17 @@ INSTANTIATE_TEST_CASE_P(
       {"Int main(Int x) { Int y = x; Int z = y; return z + y; }",
           {{0, 0}, {-1, -2}, {2, 4}, {3, 6}, {4, 8}, {50, 100}}},
    })));
+
+INSTANTIATE_TEST_CASE_P(
+    assignment_tests, integer_tests,
+    ::testing::ValuesIn(wn::containers::dynamic_array<integer_test>({
+      {"Int main(Int x) { Int y = 0; y = x; return y; }",
+        {{0, 0}, {-1, -1}, {2, 2}, {3, 3}, {4, 4}, {50, 50}}},
+      {"Int main(Int x) { Bool b = false; b = x == 3; if (b) { return 3; }"
+            "return 4; }",
+        {{0, 4}, {-1, 4}, {2, 4}, {3, 3}, {4, 4}, {50, 4}}},
+      {"Int main(Int x) { Int y = 0; if (x > 3) { y = x; } else "
+            "{ y = 4; } return y; }",
+        {{0, 4}, {-1, 4}, {2, 4}, {3, 4}, {8, 8}, {100, 100}}},
+   })));
 // clang-format on

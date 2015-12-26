@@ -143,19 +143,51 @@ INSTANTIATE_TEST_CASE_P(
     declaration_tests, c_translator_direct_translation_test,
     ::testing::ValuesIn(
         wn::containers::dynamic_array<wn::containers::dynamic_array<source_pair>>({
-            {
-              {"Int main(Int x) {",     "wn_int32 main(wn_int32 x) {"  },
-              {"  Int y = x;",          "wn_int32 y = x;"              },
-              {"  Bool b = y == 4;",    "wn_bool b = (y == 4);"        },
-              {"  if (b) {    ",        "if (b) {"                     },
-              {"     return 3;",        "return 3;"                    },
-              {"  }",                   "}"                            },
-              {"  return 4;",           "return 4;"                    },
-              {"}",                     "}"                            },
-            }
+          {
+            {"Int main(Int x) {",     "wn_int32 main(wn_int32 x) {"  },
+            {"  Int y = x;",          "wn_int32 y = x;"              },
+            {"  Bool b = y == 4;",    "wn_bool b = (y == 4);"        },
+            {"  if (b) {    ",        "if (b) {"                     },
+            {"     return 3;",        "return 3;"                    },
+            {"  }",                   "}"                            },
+            {"  return 4;",           "return 4;"                    },
+            {"}",                     "}"                            },
+          }
 })));
 // clang-format on
 
+// clang-format off
+INSTANTIATE_TEST_CASE_P(
+    assignment_tests, c_translator_direct_translation_test,
+    ::testing::ValuesIn(
+        wn::containers::dynamic_array<wn::containers::dynamic_array<source_pair>>({
+          {
+            {"Int main(Int x) {",     "wn_int32 main(wn_int32 x) {"  },
+            {"  Int y = 0;",          "wn_int32 y = 0;"              },
+            {"  x = y;",              "x = y;"                       },
+            {"  return x;",           "return x;"                    },
+            {"}",                     "}"                            },
+          },
+          {
+            {"Bool main(Int x) {",    "wn_bool main(wn_int32 x) {"   },
+            {"  Bool b = false;",     "wn_bool b = false;"           },
+            {"  b = x == 4;",         "b = (x == 4);"                },
+            {"  return b;",           "return b;"                    },
+            {"}",                     "}"                            },
+          },
+          {
+            {"Int main(Bool x) {",    "wn_int32 main(wn_bool x) {"   },
+            {"  Int y = 4;",          "wn_int32 y = 4;"              },
+            {"  if (x) {",            "if (x) {"                     },
+            {"    y = 10;",           "y = 10;"                      },
+            {"  } else {",            "} else {"                     },
+            {"    y = 4;",            "y = 4;"                       },
+            {"  }",                   "}"                            },
+            {"  return y;",           "return y;"                    },
+            {"}",                     "}"                            },
+          },
+})));
+// clang-format on
 
 using c_translator_function_params =
     ::testing::TestWithParam<std::pair<const char*, const char*>>;

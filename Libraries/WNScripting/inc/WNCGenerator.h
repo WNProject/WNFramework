@@ -44,6 +44,8 @@ public:
                         containers::string* _str);
   void walk_instruction(const declaration* _inst,
                         containers::string* _str);
+  void walk_instruction(const assignment_instruction* _inst,
+                        containers::string* _str);
   void walk_instruction(const if_instruction* _inst,
                         containers::string* _str);
   void walk_instruction(const else_if_instruction* _inst,

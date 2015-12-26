@@ -106,10 +106,19 @@ void ast_c_translator::walk_instruction(const return_instruction* _ret,
 void ast_c_translator::walk_instruction(const declaration* _decl,
                                         containers::string* _str) {
   *_str = containers::string(m_allocator);
-  *_str = m_generator->get_data(_decl->get_type()) + " " +
+  *_str += m_generator->get_data(_decl->get_type()) + " " +
           _decl->get_name().to_string(m_allocator) + " = ";
   *_str += m_generator->get_data(_decl->get_expression());
   *_str += ";";
+}
+
+void ast_c_translator::walk_instruction(
+    const assignment_instruction* _inst, containers::string* _str) {
+  *_str = containers::string(m_allocator);
+  WN_RELEASE_ASSERT_DESC(_inst->get_assignment_type() == assign_type::equal,
+    "Not Implemented: Non equality assignment");
+  *_str += m_generator->get_data(_inst->get_lvalue()->get_expression()) + " = " +
+    m_generator->get_data(_inst->get_expression()) + ";";
 }
 
 void ast_c_translator::walk_instruction(const else_if_instruction* _i,

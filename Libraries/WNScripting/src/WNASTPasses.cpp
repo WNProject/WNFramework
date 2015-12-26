@@ -1,7 +1,7 @@
+#include "WNLogging/inc/WNLog.h"
 #include "WNScripting/inc/WNASTPasses.h"
 #include "WNScripting/inc/WNASTWalker.h"
 #include "WNScripting/inc/WNNodeTypes.h"
-#include "WNLogging/inc/WNLog.h"
 
 namespace wn {
 namespace scripting {
@@ -9,15 +9,19 @@ namespace scripting {
 namespace {
 
 class pass {
- public:
+public:
   pass(WNLogging::WNLog* _log, memory::allocator* _allocator)
-      : m_log(_log),
-        m_num_warnings(0),
-        m_num_errors(0),
-        m_allocator(_allocator) {}
+    : m_log(_log),
+      m_num_warnings(0),
+      m_num_errors(0),
+      m_allocator(_allocator) {}
 
-  wn_size_t warnings() const { return m_num_warnings; }
-  wn_size_t errors() const { return m_num_errors; }
+  wn_size_t warnings() const {
+    return m_num_warnings;
+  }
+  wn_size_t errors() const {
+    return m_num_errors;
+  }
 
 protected:
   WNLogging::WNLog* m_log;
@@ -27,9 +31,10 @@ protected:
 };
 
 class dead_code_elimination_pass : public pass {
- public:
-  dead_code_elimination_pass(WNLogging::WNLog* _log, memory::allocator* _allocator)
-      : pass(_log, _allocator) {}
+public:
+  dead_code_elimination_pass(
+      WNLogging::WNLog* _log, memory::allocator* _allocator)
+    : pass(_log, _allocator) {}
   void enter_scope_block() {}
   void leave_scope_block() {}
   void walk_expression(expression*) {}
@@ -70,21 +75,20 @@ class dead_code_elimination_pass : public pass {
     }
 
     bool returns = _inst->get_body()->returns();
-    for(auto& else_inst :_inst->get_else_if_instructions()) {
+    for (auto& else_inst : _inst->get_else_if_instructions()) {
       returns &= else_inst->returns();
     }
     returns &= _inst->get_else()->returns();
     _inst->set_returns(returns);
   }
 
- private:
+private:
 };
 
 class id_association_pass : public pass {
- public:
+public:
   id_association_pass(WNLogging::WNLog* _log, memory::allocator* _allocator)
-      : pass(_log, _allocator),
-        id_map(_allocator) {}
+    : pass(_log, _allocator), id_map(_allocator) {}
   // TODO(awoloszyn): Handle declarations here
   //                  for now this just handles parameter ids.
 
@@ -94,8 +98,9 @@ class id_association_pass : public pass {
   void walk_function(function*) {}
 
   void enter_scope_block() {
-    id_map.emplace_back(containers::hash_map <containers::string_view,
-                        id_expression::id_source>(m_allocator));
+    id_map.emplace_back(
+        containers::hash_map<containers::string_view, id_expression::id_source>(
+            m_allocator));
   }
 
   void leave_scope_block() {
@@ -107,7 +112,7 @@ class id_association_pass : public pass {
   void walk_parameter(parameter* _param) {
     if (find_param(_param->get_name())) {
       m_log->Log(WNLogging::eError, 0, "Id ", _param->get_name(),
-                 "hides id of the same name");
+          "hides id of the same name");
       _param->log_line(*m_log, WNLogging::eError);
       ++m_num_errors;
       return;
@@ -115,7 +120,7 @@ class id_association_pass : public pass {
     id_map.back()[_param->get_name()] = {_param, 0};
   }
 
-  void walk_instruction(declaration* _decl){
+  void walk_instruction(declaration* _decl) {
     if (find_param(_decl->get_name())) {
       m_log->Log(WNLogging::eError, 0, "Declaration of ", _decl->get_name(),
           "hides id of the same name");
@@ -129,8 +134,8 @@ class id_association_pass : public pass {
   void walk_expression(id_expression* _expr) {
     auto param = find_param(_expr->get_name());
     if (!param) {
-      m_log->Log(WNLogging::eError, 0, "Could not find id: ",
-                 _expr->get_name());
+      m_log->Log(
+          WNLogging::eError, 0, "Could not find id: ", _expr->get_name());
       _expr->log_line(*m_log, WNLogging::eError);
       ++m_num_errors;
       return;
@@ -141,8 +146,9 @@ class id_association_pass : public pass {
   void walk_script_file(script_file*) {}
   void walk_type(type*) {}
 
- private:
-  const id_expression::id_source* find_param(const containers::string_view& v) const {
+private:
+  const id_expression::id_source* find_param(
+      const containers::string_view& v) const {
     for (auto it = id_map.cbegin(); it != id_map.cend(); ++it) {
       auto val = it->find(v);
       if (val != it->end()) {
@@ -152,14 +158,15 @@ class id_association_pass : public pass {
     return wn_nullptr;
   }
 
-  containers::deque<containers::hash_map<containers::string_view,
-                                         id_expression::id_source>> id_map;
+  containers::deque<
+      containers::hash_map<containers::string_view, id_expression::id_source>>
+      id_map;
 };
 
 class type_association_pass : public pass {
- public:
+public:
   type_association_pass(WNLogging::WNLog* _log, memory::allocator* _allocator)
-      : pass(_log, _allocator) {}
+    : pass(_log, _allocator) {}
   void walk_expression(expression*) {}
   void walk_parameter(parameter*) {}
   void enter_scope_block() {}
@@ -182,8 +189,8 @@ class type_association_pass : public pass {
       WN_RELEASE_ASSERT_DESC(
           _expr->get_classification() != type_classification::custom_type,
           "Classification should have been set during ast generation");
-      type* t = m_allocator->make_allocated<type>(m_allocator,
-                                                  _expr->get_classification());
+      type* t = m_allocator->make_allocated<type>(
+          m_allocator, _expr->get_classification());
       t->copy_location_from(_expr);
       _expr->set_type(t);
     }
@@ -211,8 +218,8 @@ class type_association_pass : public pass {
         break;
       }
       default:
-        WN_RELEASE_ASSERT_DESC(wn_false,
-                               "No Implemented: non-integer contants");
+        WN_RELEASE_ASSERT_DESC(
+            wn_false, "No Implemented: non-integer contants");
     }
   }
 
@@ -221,8 +228,8 @@ class type_association_pass : public pass {
     const type* rhs_type = _expr->get_rhs()->get_type();
     if (lhs_type->get_classification() ==
         scripting::type_classification::void_type) {
-      m_log->Log(WNLogging::eError, 0,
-                 "Cannot perform arithmetic on void type");
+      m_log->Log(
+          WNLogging::eError, 0, "Cannot perform arithmetic on void type");
       _expr->log_line(*m_log, WNLogging::eError);
       ++m_num_errors;
       // Continue so that more errors can be caught.
@@ -235,10 +242,10 @@ class type_association_pass : public pass {
     }
     if (lhs_type->get_classification() == type_classification::bool_type &&
         (_expr->get_arithmetic_type() != arithmetic_type::arithmetic_equal &&
-         _expr->get_arithmetic_type() !=
-             arithmetic_type::arithmetic_not_equal)) {
+            _expr->get_arithmetic_type() !=
+                arithmetic_type::arithmetic_not_equal)) {
       m_log->Log(WNLogging::eError, 0,
-                 "The only valid operations on boolean types are == and !=");
+          "The only valid operations on boolean types are == and !=");
       _expr->log_line(*m_log, WNLogging::eError);
       ++m_num_errors;
       // Continue so that more errors can be caught.
@@ -259,8 +266,8 @@ class type_association_pass : public pass {
       case arithmetic_type::arithmetic_greater_than_or_equal:
       case arithmetic_type::arithmetic_less_than:
       case arithmetic_type::arithmetic_greater_than:
-        t = m_allocator->make_allocated<type>(m_allocator,
-                                              type_classification::bool_type);
+        t = m_allocator->make_allocated<type>(
+            m_allocator, type_classification::bool_type);
         break;
       // type is bool
       case arithmetic_type::max:
@@ -274,7 +281,23 @@ class type_association_pass : public pass {
 
   void walk_instruction(instruction*) {}
   void walk_instruction_list(instruction_list*) {}
-  void walk_instruction(return_instruction* _ret) { m_returns.push_back(_ret); }
+  void walk_instruction(assignment_instruction* _assign) {
+    if (_assign->get_assignment_type() != assign_type::equal) {
+      WN_RELEASE_ASSERT_DESC(
+          false, "Not Implemented: Non-equality assignment instructions.");
+    }
+
+    if (*_assign->get_lvalue()->get_expression()->get_type() !=
+        *_assign->get_expression()->get_type()) {
+      m_log->Log(WNLogging::eError, 0, "Cannot assign incompatible types.");
+      _assign->log_line(*m_log, WNLogging::eError);
+      ++m_num_errors;
+    }
+  }
+
+  void walk_instruction(return_instruction* _ret) {
+    m_returns.push_back(_ret);
+  }
 
   void walk_instruction(declaration* _decl) {
     if (*_decl->get_type() != *_decl->get_expression()->get_type()) {
@@ -288,8 +311,8 @@ class type_association_pass : public pass {
   void walk_instruction(else_if_instruction* _else_if) {
     if (_else_if->get_condition()->get_type()->get_classification() !=
         type_classification::bool_type) {
-       m_log->Log(WNLogging::eError, 0,
-                 "Else If conditional must be a boolean expression");
+      m_log->Log(WNLogging::eError, 0,
+          "Else If conditional must be a boolean expression");
       _else_if->get_condition()->log_line(*m_log, WNLogging::eError);
       ++m_num_errors;
     }
@@ -298,8 +321,8 @@ class type_association_pass : public pass {
   void walk_instruction(if_instruction* _if) {
     if (_if->get_condition()->get_type()->get_classification() !=
         type_classification::bool_type) {
-       m_log->Log(WNLogging::eError, 0,
-                 "If conditional must be a boolean expression");
+      m_log->Log(
+          WNLogging::eError, 0, "If conditional must be a boolean expression");
       _if->get_condition()->log_line(*m_log, WNLogging::eError);
       ++m_num_errors;
     }
@@ -324,8 +347,8 @@ class type_association_pass : public pass {
       } else {
         const type* return_type = return_inst->get_expression()->get_type();
         if (*return_type != *function_return_type) {
-          m_log->Log(WNLogging::eError, 0,
-                     "Return type does not match function");
+          m_log->Log(
+              WNLogging::eError, 0, "Return type does not match function");
           return_inst->log_line(*m_log, WNLogging::eError);
           m_num_errors += 1;
         }
@@ -336,7 +359,7 @@ class type_association_pass : public pass {
   void walk_script_file(script_file*) {}
   void walk_type(type*) {}
 
- private:
+private:
   containers::deque<return_instruction*> m_returns;
   // TODO(awoloszyn): Add type_manager here once we start
   //                 caring about custom types.
@@ -344,9 +367,9 @@ class type_association_pass : public pass {
 }  // anonymous namespace
 
 bool run_type_association_pass(script_file* _file, WNLogging::WNLog* _log,
-                               wn_size_t* _num_warnings,
-                               wn_size_t* _num_errors) {
-  if (!_file) return false;
+    wn_size_t* _num_warnings, wn_size_t* _num_errors) {
+  if (!_file)
+    return false;
   type_association_pass pass(_log, _file->get_allocator());
   run_ast_pass(&pass, _file);
   if (_num_errors) {
@@ -359,8 +382,9 @@ bool run_type_association_pass(script_file* _file, WNLogging::WNLog* _log,
 }
 
 bool run_id_association_pass(script_file* _file, WNLogging::WNLog* _log,
-                             wn_size_t* _num_warnings, wn_size_t* _num_errors) {
-  if (!_file) return false;
+    wn_size_t* _num_warnings, wn_size_t* _num_errors) {
+  if (!_file)
+    return false;
   id_association_pass pass(_log, _file->get_allocator());
   run_ast_pass(&pass, _file);
   if (_num_errors) {
@@ -373,8 +397,9 @@ bool run_id_association_pass(script_file* _file, WNLogging::WNLog* _log,
 }
 
 bool run_dce_pass(script_file* _file, WNLogging::WNLog* _log,
-                             wn_size_t* _num_warnings, wn_size_t* _num_errors) {
-  if (!_file) return false;
+    wn_size_t* _num_warnings, wn_size_t* _num_errors) {
+  if (!_file)
+    return false;
   dead_code_elimination_pass pass(_log, _file->get_allocator());
   run_ast_pass(&pass, _file);
   if (_num_errors) {
