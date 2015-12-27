@@ -38,6 +38,8 @@ enum class type_classification {
   char_type,
   string_type,
   bool_type,
+  array_type,
+  struct_type,
   custom_type,
   max
 };

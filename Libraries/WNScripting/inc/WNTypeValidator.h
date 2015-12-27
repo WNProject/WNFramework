@@ -36,10 +36,10 @@ struct allowed_builtin_operations {
 };
 
 static_assert(
-    static_cast<wn_size_t>(type_classification::max) == 8,
+    static_cast<wn_size_t>(type_classification::max) == 10,
     "The number of classifications has changed, please update these tables");
 
-const allowed_builtin_operations valid_builtin_operations[7]{
+const allowed_builtin_operations valid_builtin_operations[9]{
     // clang-format off
     // empty
     {//+     -      *      /      %      ==     !=     <=     >=     <      >
@@ -117,7 +117,29 @@ const allowed_builtin_operations valid_builtin_operations[7]{
      // x++  x--
      {false, false},
      // &&   ||
-     {true, true}}
+     {true, true}},
+    // array
+    {//+     -      *      /      %      ==    !=    <=     >=     <      >
+     {false, false, false, false, false, true, true, false, false, false, false},
+     //=    +=     -=     *=     /=     %=     <==
+     {true, false, false, false, false, false, false},
+     // ++x --x   -x
+     {false, false, false},
+     // x++  x--
+     {false, false},
+     // &&   ||
+     {false, false}},
+    // struct
+    {//+     -      *      /      %      ==    !=    <=     >=     <      >
+     {false, false, false, false, false, true, true, false, false, false, false},
+     //=    +=     -=     *=     /=     %=     <==
+     {true, false, false, false, false, false, false},
+     // ++x --x   -x
+     {false, false, false},
+     // x++  x--
+     {false, false},
+     // &&   ||
+     {false, false}}
     // clang-format on
 };
 

@@ -205,6 +205,23 @@ private:
   wn_size_t m_num_array_levels;
 };
 
+class array_type : public type {
+public:
+  array_type(memory::allocator* _allocator, type* _sub_type,
+      wn_int32 _num_array_levels = -1)
+    : type(_allocator, type_classification::array_type),
+      m_subtype(memory::default_allocated_ptr(_allocator, _sub_type)),
+      m_num_array_levels(_num_array_levels) {}
+
+  const type* get_subtype() const {
+     return m_subtype.get();
+  }
+
+private:
+  wn_int32 m_num_array_levels;
+  memory::allocated_ptr<type> m_subtype;
+};
+
 // Base class for all expression nodes in the AST.
 class expression : public node {
 public:

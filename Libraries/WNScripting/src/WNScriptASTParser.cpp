@@ -1013,7 +1013,7 @@ public:
 static WNScriptASTParserCyclicDFA27  cdfa27(
 	    27,
 
-	    (const ANTLR_UCHAR*)"496:1: instructionScalar returns [scripting::instruction* node] : ( declaration | assignment );",
+	    (const ANTLR_UCHAR*)"501:1: instructionScalar returns [scripting::instruction* node] : ( declaration | assignment );",
 	    dfa27_eot,
 	    dfa27_eof,
 	    dfa27_min,
@@ -1121,7 +1121,7 @@ public:
 static WNScriptASTParserCyclicDFA39  cdfa39(
 	    39,
 
-	    (const ANTLR_UCHAR*)"()* loopback of 612:17: ( (a= declaration SEMICOLON ) | (b= function ) | ( VIRTUAL h= function ) | ( OVERRIDE i= function ) )*",
+	    (const ANTLR_UCHAR*)"()* loopback of 617:17: ( (a= declaration SEMICOLON ) | (b= function ) | ( VIRTUAL h= function ) | ( OVERRIDE i= function ) )*",
 	    dfa39_eot,
 	    dfa39_eof,
 	    dfa39_min,
@@ -1371,6 +1371,7 @@ WNScriptASTParser::type()
 
 
     const ImplTraits::CommonTokenType* RSQBRACKET9 = NULL;
+    const ImplTraits::CommonTokenType* LSQBRACKET10 = NULL;
     scripting::type* scalarType8;
 
 
@@ -1418,7 +1419,7 @@ WNScriptASTParser::type()
                 {
             	case 1:
             	    {
-            	         this->matchToken(LSQBRACKET, &FOLLOW_LSQBRACKET_in_type1256);
+            	        LSQBRACKET10 =  this->matchToken(LSQBRACKET, &FOLLOW_LSQBRACKET_in_type1256);
             	        if  (this->hasException())
             	        {
             	            goto ruletypeEx;
@@ -1433,7 +1434,12 @@ WNScriptASTParser::type()
 
 
             	        {
-            	             node->add_array_level(); SET_END_LOCATION(node, RSQBRACKET9);
+
+            	            					SET_END_LOCATION(node, RSQBRACKET9);
+            	            					node = m_allocator->make_allocated<scripting::array_type>(m_allocator, node);
+            	            					SET_LOCATION(node, LSQBRACKET10);
+            	            					SET_END_LOCATION(node, RSQBRACKET9);
+
             	        }
 
 
@@ -1476,8 +1482,8 @@ WNScriptASTParser::param()
     scripting::parameter* node;
 
 
-    const ImplTraits::CommonTokenType* ID11 = NULL;
-    scripting::type* type10;
+    const ImplTraits::CommonTokenType* ID12 = NULL;
+    scripting::type* type11;
 
 
 
@@ -1490,7 +1496,7 @@ WNScriptASTParser::param()
     {
         {
             this->followPush(FOLLOW_type_in_param1290);
-            type10=type();
+            type11=type();
 
             this->followPop();
             if  (this->hasException())
@@ -1499,7 +1505,7 @@ WNScriptASTParser::param()
             }
 
 
-            ID11 =  this->matchToken(ID, &FOLLOW_ID_in_param1292);
+            ID12 =  this->matchToken(ID, &FOLLOW_ID_in_param1292);
             if  (this->hasException())
             {
                 goto ruleparamEx;
@@ -1507,10 +1513,10 @@ WNScriptASTParser::param()
 
 
             {
-                node = m_allocator->make_allocated<scripting::parameter>(m_allocator, type10
-                , (ID11->getText()).c_str()); SET_LOCATION_FROM_NODE(node,
-                type10
-                ); SET_END_LOCATION(node, ID11);
+                node = m_allocator->make_allocated<scripting::parameter>(m_allocator, type11
+                , (ID12->getText()).c_str()); SET_LOCATION_FROM_NODE(node,
+                type11
+                ); SET_END_LOCATION(node, ID12);
             }
 
 
@@ -1654,9 +1660,9 @@ WNScriptASTParser::parameterList()
     scripting::parameter_list* node;
 
 
-    const ImplTraits::CommonTokenType* LBRACKET13 = NULL;
-    const ImplTraits::CommonTokenType* RBRACKET14 = NULL;
-    scripting::parameter_list* paramList12;
+    const ImplTraits::CommonTokenType* LBRACKET14 = NULL;
+    const ImplTraits::CommonTokenType* RBRACKET15 = NULL;
+    scripting::parameter_list* paramList13;
 
 
 
@@ -1723,7 +1729,7 @@ WNScriptASTParser::parameterList()
             {
         	case 1:
         	    {
-        	        LBRACKET13 =  this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_parameterList1373);
+        	        LBRACKET14 =  this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_parameterList1373);
         	        if  (this->hasException())
         	        {
         	            goto ruleparameterListEx;
@@ -1731,7 +1737,7 @@ WNScriptASTParser::parameterList()
 
 
         	        this->followPush(FOLLOW_paramList_in_parameterList1375);
-        	        paramList12=paramList();
+        	        paramList13=paramList();
 
         	        this->followPop();
         	        if  (this->hasException())
@@ -1740,7 +1746,7 @@ WNScriptASTParser::parameterList()
         	        }
 
 
-        	        RBRACKET14 =  this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_parameterList1377);
+        	        RBRACKET15 =  this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_parameterList1377);
         	        if  (this->hasException())
         	        {
         	            goto ruleparameterListEx;
@@ -1748,8 +1754,8 @@ WNScriptASTParser::parameterList()
 
 
         	        {
-        	             node = paramList12
-        	            ; SET_LOCATION(node, LBRACKET13); SET_END_LOCATION(node, RBRACKET14);
+        	             node = paramList13
+        	            ; SET_LOCATION(node, LBRACKET14); SET_END_LOCATION(node, RBRACKET15);
         	        }
 
 
@@ -1993,7 +1999,7 @@ WNScriptASTParser::lvalue()
     scripting::lvalue* node;
 
 
-    scripting::expression* unary_ex15;
+    scripting::expression* unary_ex16;
 
 
 
@@ -2006,7 +2012,7 @@ WNScriptASTParser::lvalue()
     {
         {
             this->followPush(FOLLOW_unary_ex_in_lvalue1528);
-            unary_ex15=unary_ex();
+            unary_ex16=unary_ex();
 
             this->followPop();
             if  (this->hasException())
@@ -2016,8 +2022,8 @@ WNScriptASTParser::lvalue()
 
 
             {
-                 node = m_allocator->make_allocated<scripting::lvalue>(m_allocator, unary_ex15
-                ); SET_LOCATION_FROM_NODE(node, unary_ex15
+                 node = m_allocator->make_allocated<scripting::lvalue>(m_allocator, unary_ex16
+                ); SET_LOCATION_FROM_NODE(node, unary_ex16
                 );
             }
 
@@ -2230,7 +2236,7 @@ WNScriptASTParser::expr()
     scripting::expression* node;
 
 
-    scripting::expression* cond_ex16;
+    scripting::expression* cond_ex17;
 
 
 
@@ -2243,7 +2249,7 @@ WNScriptASTParser::expr()
     {
         {
             this->followPush(FOLLOW_cond_ex_in_expr1738);
-            cond_ex16=cond_ex();
+            cond_ex17=cond_ex();
 
             this->followPop();
             if  (this->hasException())
@@ -2253,7 +2259,7 @@ WNScriptASTParser::expr()
 
 
             {
-                 node = cond_ex16
+                 node = cond_ex17
                 ;
             }
 
@@ -2288,7 +2294,7 @@ WNScriptASTParser::cond_ex()
 
     scripting::expression* b;
     scripting::expression* c;
-    scripting::expression* or_ex17;
+    scripting::expression* or_ex18;
 
 
 
@@ -2301,7 +2307,7 @@ WNScriptASTParser::cond_ex()
     {
         {
             this->followPush(FOLLOW_or_ex_in_cond_ex1776);
-            or_ex17=or_ex();
+            or_ex18=or_ex();
 
             this->followPop();
             if  (this->hasException())
@@ -2311,7 +2317,7 @@ WNScriptASTParser::cond_ex()
 
 
             {
-                 node = or_ex17
+                 node = or_ex18
                 ;
             }
 
@@ -2368,7 +2374,7 @@ WNScriptASTParser::cond_ex()
             	        {
             	             node = m_allocator->make_allocated<scripting::cond_expression>(m_allocator, node, b
             	            , c
-            	            );  SET_LOCATION_FROM_NODE(node, or_ex17
+            	            );  SET_LOCATION_FROM_NODE(node, or_ex18
             	            ); SET_END_LOCATION_FROM_NODE(node, c
             	            );
             	        }
@@ -3572,8 +3578,8 @@ WNScriptASTParser::post_ex_proper()
     const ImplTraits::CommonTokenType* h = NULL;
     const ImplTraits::CommonTokenType* i = NULL;
     const ImplTraits::CommonTokenType* c = NULL;
-    const ImplTraits::CommonTokenType* DOUBINC18 = NULL;
-    const ImplTraits::CommonTokenType* DOUBDEC19 = NULL;
+    const ImplTraits::CommonTokenType* DOUBINC19 = NULL;
+    const ImplTraits::CommonTokenType* DOUBDEC20 = NULL;
     scripting::expression* a;
     scripting::arg_list* b;
 
@@ -3787,7 +3793,7 @@ WNScriptASTParser::post_ex_proper()
         	    break;
         	case 5:
         	    {
-        	        DOUBINC18 =  this->matchToken(DOUBINC, &FOLLOW_DOUBINC_in_post_ex_proper2763);
+        	        DOUBINC19 =  this->matchToken(DOUBINC, &FOLLOW_DOUBINC_in_post_ex_proper2763);
         	        if  (this->hasException())
         	        {
         	            goto rulepost_ex_properEx;
@@ -3795,7 +3801,7 @@ WNScriptASTParser::post_ex_proper()
 
 
         	        {
-        	             node = m_allocator->make_allocated<scripting::post_unary_expression>(m_allocator, scripting::post_unary_type::post_increment); SET_LOCATION(node, DOUBINC18);
+        	             node = m_allocator->make_allocated<scripting::post_unary_expression>(m_allocator, scripting::post_unary_type::post_increment); SET_LOCATION(node, DOUBINC19);
         	        }
 
 
@@ -3803,7 +3809,7 @@ WNScriptASTParser::post_ex_proper()
         	    break;
         	case 6:
         	    {
-        	        DOUBDEC19 =  this->matchToken(DOUBDEC, &FOLLOW_DOUBDEC_in_post_ex_proper2792);
+        	        DOUBDEC20 =  this->matchToken(DOUBDEC, &FOLLOW_DOUBDEC_in_post_ex_proper2792);
         	        if  (this->hasException())
         	        {
         	            goto rulepost_ex_properEx;
@@ -3811,7 +3817,7 @@ WNScriptASTParser::post_ex_proper()
 
 
         	        {
-        	             node = m_allocator->make_allocated<scripting::post_unary_expression>(m_allocator, scripting::post_unary_type::post_decrement); SET_LOCATION(node, DOUBDEC19);
+        	             node = m_allocator->make_allocated<scripting::post_unary_expression>(m_allocator, scripting::post_unary_type::post_decrement); SET_LOCATION(node, DOUBDEC20);
         	        }
 
 
@@ -3847,7 +3853,7 @@ WNScriptASTParser::post_ex()
 
 
     scripting::post_expression* a;
-    scripting::expression * prim_ex20;
+    scripting::expression * prim_ex21;
 
 
 
@@ -3860,7 +3866,7 @@ WNScriptASTParser::post_ex()
     {
         {
             this->followPush(FOLLOW_prim_ex_in_post_ex2845);
-            prim_ex20=prim_ex();
+            prim_ex21=prim_ex();
 
             this->followPop();
             if  (this->hasException())
@@ -3870,7 +3876,7 @@ WNScriptASTParser::post_ex()
 
 
             {
-                 node = prim_ex20
+                 node = prim_ex21
                 ;
             }
 
@@ -3954,9 +3960,9 @@ WNScriptASTParser::assignment()
     scripting::assignment_instruction* node;
 
 
-    scripting::lvalue* lvalue21;
-    scripting::assign_type assign_type22;
-    scripting::expression* expr23;
+    scripting::lvalue* lvalue22;
+    scripting::assign_type assign_type23;
+    scripting::expression* expr24;
 
 
 
@@ -3969,7 +3975,7 @@ WNScriptASTParser::assignment()
     {
         {
             this->followPush(FOLLOW_lvalue_in_assignment2893);
-            lvalue21=lvalue();
+            lvalue22=lvalue();
 
             this->followPop();
             if  (this->hasException())
@@ -3979,8 +3985,8 @@ WNScriptASTParser::assignment()
 
 
             {
-                 node = m_allocator->make_allocated<scripting::assignment_instruction>(m_allocator, lvalue21
-                ); SET_LOCATION_FROM_NODE(node, lvalue21
+                 node = m_allocator->make_allocated<scripting::assignment_instruction>(m_allocator, lvalue22
+                ); SET_LOCATION_FROM_NODE(node, lvalue22
                 );
             }
 
@@ -4006,7 +4012,7 @@ WNScriptASTParser::assignment()
             	case 1:
             	    {
             	        this->followPush(FOLLOW_assign_type_in_assignment2906);
-            	        assign_type22=assign_type();
+            	        assign_type23=assign_type();
 
             	        this->followPop();
             	        if  (this->hasException())
@@ -4016,7 +4022,7 @@ WNScriptASTParser::assignment()
 
 
             	        this->followPush(FOLLOW_expr_in_assignment2908);
-            	        expr23=expr();
+            	        expr24=expr();
 
             	        this->followPop();
             	        if  (this->hasException())
@@ -4026,9 +4032,9 @@ WNScriptASTParser::assignment()
 
 
             	        {
-            	             node->add_value(assign_type22
-            	            , expr23
-            	            ); SET_END_LOCATION_FROM_NODE(node, expr23
+            	             node->add_value(assign_type23
+            	            , expr24
+            	            ); SET_END_LOCATION_FROM_NODE(node, expr24
             	            );
             	        }
 
@@ -4298,7 +4304,7 @@ WNScriptASTParser::prim_ex()
     const ImplTraits::CommonTokenType* ba = NULL;
     const ImplTraits::CommonTokenType* bb = NULL;
     const ImplTraits::CommonTokenType* d = NULL;
-    const ImplTraits::CommonTokenType* ID24 = NULL;
+    const ImplTraits::CommonTokenType* ID25 = NULL;
     scripting::expression* a;
     scripting::constant_expression* b;
     scripting::type* c;
@@ -4558,7 +4564,7 @@ WNScriptASTParser::prim_ex()
             {
         	case 1:
         	    {
-        	        ID24 =  this->matchToken(ID, &FOLLOW_ID_in_prim_ex3068);
+        	        ID25 =  this->matchToken(ID, &FOLLOW_ID_in_prim_ex3068);
         	        if  (this->hasException())
         	        {
         	            goto ruleprim_exEx;
@@ -4566,7 +4572,7 @@ WNScriptASTParser::prim_ex()
 
 
         	        {
-        	             node = m_allocator->make_allocated<scripting::id_expression>(m_allocator, (ID24->getText()).c_str()); SET_LOCATION(node, ID24);
+        	             node = m_allocator->make_allocated<scripting::id_expression>(m_allocator, (ID25->getText()).c_str()); SET_LOCATION(node, ID25);
         	        }
 
 
@@ -5521,8 +5527,8 @@ WNScriptASTParser::instructionScalar()
     scripting::instruction* node;
 
 
-    scripting::declaration* declaration25;
-    scripting::assignment_instruction* assignment26;
+    scripting::declaration* declaration26;
+    scripting::assignment_instruction* assignment27;
 
 
 
@@ -5550,7 +5556,7 @@ WNScriptASTParser::instructionScalar()
         	case 1:
         	    {
         	        this->followPush(FOLLOW_declaration_in_instructionScalar3657);
-        	        declaration25=declaration();
+        	        declaration26=declaration();
 
         	        this->followPop();
         	        if  (this->hasException())
@@ -5560,7 +5566,7 @@ WNScriptASTParser::instructionScalar()
 
 
         	        {
-        	            node = declaration25
+        	            node = declaration26
         	            ;
         	        }
 
@@ -5570,7 +5576,7 @@ WNScriptASTParser::instructionScalar()
         	case 2:
         	    {
         	        this->followPush(FOLLOW_assignment_in_instructionScalar3670);
-        	        assignment26=assignment();
+        	        assignment27=assignment();
 
         	        this->followPop();
         	        if  (this->hasException())
@@ -5580,7 +5586,7 @@ WNScriptASTParser::instructionScalar()
 
 
         	        {
-        	            node = assignment26
+        	            node = assignment27
         	            ;
         	        }
 
@@ -5620,7 +5626,7 @@ WNScriptASTParser::returnInst()
     const ImplTraits::CommonTokenType* b = NULL;
     const ImplTraits::CommonTokenType* c = NULL;
     const ImplTraits::CommonTokenType* d = NULL;
-    scripting::expression* expr27;
+    scripting::expression* expr28;
 
 
 
@@ -5706,7 +5712,7 @@ WNScriptASTParser::returnInst()
 
 
         	        this->followPush(FOLLOW_expr_in_returnInst3704);
-        	        expr27=expr();
+        	        expr28=expr();
 
         	        this->followPop();
         	        if  (this->hasException())
@@ -5723,7 +5729,7 @@ WNScriptASTParser::returnInst()
 
 
         	        {
-        	             node = m_allocator->make_allocated<scripting::return_instruction>(m_allocator, expr27
+        	             node = m_allocator->make_allocated<scripting::return_instruction>(m_allocator, expr28
         	            ); SET_LOCATION(node, a); SET_END_LOCATION(node, b);
         	        }
 
@@ -5782,9 +5788,9 @@ WNScriptASTParser::whileInst()
     scripting::instruction* node;
 
 
-    const ImplTraits::CommonTokenType* WHILE30 = NULL;
-    scripting::expression* expr28;
-    scripting::instruction_list* body29;
+    const ImplTraits::CommonTokenType* WHILE31 = NULL;
+    scripting::expression* expr29;
+    scripting::instruction_list* body30;
 
 
 
@@ -5796,7 +5802,7 @@ WNScriptASTParser::whileInst()
 
     {
         {
-            WHILE30 =  this->matchToken(WHILE, &FOLLOW_WHILE_in_whileInst3759);
+            WHILE31 =  this->matchToken(WHILE, &FOLLOW_WHILE_in_whileInst3759);
             if  (this->hasException())
             {
                 goto rulewhileInstEx;
@@ -5811,7 +5817,7 @@ WNScriptASTParser::whileInst()
 
 
             this->followPush(FOLLOW_expr_in_whileInst3763);
-            expr28=expr();
+            expr29=expr();
 
             this->followPop();
             if  (this->hasException())
@@ -5828,7 +5834,7 @@ WNScriptASTParser::whileInst()
 
 
             this->followPush(FOLLOW_body_in_whileInst3767);
-            body29=body();
+            body30=body();
 
             this->followPop();
             if  (this->hasException())
@@ -5838,10 +5844,10 @@ WNScriptASTParser::whileInst()
 
 
             {
-                 node = m_allocator->make_allocated<scripting::while_instruction>(m_allocator, expr28
-                , body29
-                ); SET_LOCATION(node, WHILE30); SET_END_LOCATION_FROM_NODE(node,
-                body29
+                 node = m_allocator->make_allocated<scripting::while_instruction>(m_allocator, expr29
+                , body30
+                ); SET_LOCATION(node, WHILE31); SET_END_LOCATION_FROM_NODE(node,
+                body30
                 );
             }
 
@@ -5874,10 +5880,10 @@ WNScriptASTParser::doInst()
     scripting::instruction* node;
 
 
-    const ImplTraits::CommonTokenType* DO33 = NULL;
-    const ImplTraits::CommonTokenType* SEMICOLON34 = NULL;
-    scripting::expression* expr31;
-    scripting::instruction_list* body32;
+    const ImplTraits::CommonTokenType* DO34 = NULL;
+    const ImplTraits::CommonTokenType* SEMICOLON35 = NULL;
+    scripting::expression* expr32;
+    scripting::instruction_list* body33;
 
 
 
@@ -5889,7 +5895,7 @@ WNScriptASTParser::doInst()
 
     {
         {
-            DO33 =  this->matchToken(DO, &FOLLOW_DO_in_doInst3803);
+            DO34 =  this->matchToken(DO, &FOLLOW_DO_in_doInst3803);
             if  (this->hasException())
             {
                 goto ruledoInstEx;
@@ -5897,7 +5903,7 @@ WNScriptASTParser::doInst()
 
 
             this->followPush(FOLLOW_body_in_doInst3805);
-            body32=body();
+            body33=body();
 
             this->followPop();
             if  (this->hasException())
@@ -5921,7 +5927,7 @@ WNScriptASTParser::doInst()
 
 
             this->followPush(FOLLOW_expr_in_doInst3811);
-            expr31=expr();
+            expr32=expr();
 
             this->followPop();
             if  (this->hasException())
@@ -5937,7 +5943,7 @@ WNScriptASTParser::doInst()
             }
 
 
-            SEMICOLON34 =  this->matchToken(SEMICOLON, &FOLLOW_SEMICOLON_in_doInst3815);
+            SEMICOLON35 =  this->matchToken(SEMICOLON, &FOLLOW_SEMICOLON_in_doInst3815);
             if  (this->hasException())
             {
                 goto ruledoInstEx;
@@ -5945,9 +5951,9 @@ WNScriptASTParser::doInst()
 
 
             {
-                node = m_allocator->make_allocated<scripting::do_instruction>(m_allocator, expr31
-                , body32
-                ); SET_LOCATION(node, DO33); SET_END_LOCATION(node, SEMICOLON34);
+                node = m_allocator->make_allocated<scripting::do_instruction>(m_allocator, expr32
+                , body33
+                ); SET_LOCATION(node, DO34); SET_END_LOCATION(node, SEMICOLON35);
             }
 
 
@@ -5979,7 +5985,7 @@ WNScriptASTParser::forInst()
     scripting::for_instruction* node;
 
 
-    const ImplTraits::CommonTokenType* FOR35 = NULL;
+    const ImplTraits::CommonTokenType* FOR36 = NULL;
     scripting::instruction* a;
     scripting::expression* b;
     scripting::instruction* c;
@@ -5995,7 +6001,7 @@ WNScriptASTParser::forInst()
 
     {
         {
-            FOR35 =  this->matchToken(FOR, &FOLLOW_FOR_in_forInst3847);
+            FOR36 =  this->matchToken(FOR, &FOLLOW_FOR_in_forInst3847);
             if  (this->hasException())
             {
                 goto ruleforInstEx;
@@ -6010,7 +6016,7 @@ WNScriptASTParser::forInst()
 
 
             {
-                 SET_LOCATION(node, FOR35);
+                 SET_LOCATION(node, FOR36);
             }
 
 
@@ -6246,9 +6252,9 @@ WNScriptASTParser::elsemiddle()
     scripting::else_if_instruction* node;
 
 
-    const ImplTraits::CommonTokenType* ELSE38 = NULL;
-    scripting::expression* expr36;
-    scripting::instruction_list* body37;
+    const ImplTraits::CommonTokenType* ELSE39 = NULL;
+    scripting::expression* expr37;
+    scripting::instruction_list* body38;
 
 
 
@@ -6260,7 +6266,7 @@ WNScriptASTParser::elsemiddle()
 
     {
         {
-            ELSE38 =  this->matchToken(ELSE, &FOLLOW_ELSE_in_elsemiddle4026);
+            ELSE39 =  this->matchToken(ELSE, &FOLLOW_ELSE_in_elsemiddle4026);
             if  (this->hasException())
             {
                 goto ruleelsemiddleEx;
@@ -6282,7 +6288,7 @@ WNScriptASTParser::elsemiddle()
 
 
             this->followPush(FOLLOW_expr_in_elsemiddle4032);
-            expr36=expr();
+            expr37=expr();
 
             this->followPop();
             if  (this->hasException())
@@ -6299,7 +6305,7 @@ WNScriptASTParser::elsemiddle()
 
 
             this->followPush(FOLLOW_body_in_elsemiddle4036);
-            body37=body();
+            body38=body();
 
             this->followPop();
             if  (this->hasException())
@@ -6309,10 +6315,10 @@ WNScriptASTParser::elsemiddle()
 
 
             {
-                 node = m_allocator->make_allocated<scripting::else_if_instruction>(m_allocator, expr36
-                , body37
-                ); SET_LOCATION(node, ELSE38); SET_END_LOCATION_FROM_NODE(node,
-                body37
+                 node = m_allocator->make_allocated<scripting::else_if_instruction>(m_allocator, expr37
+                , body38
+                ); SET_LOCATION(node, ELSE39); SET_END_LOCATION_FROM_NODE(node,
+                body38
                 );
             }
 
@@ -6345,7 +6351,7 @@ WNScriptASTParser::endif()
     scripting::instruction_list* node;
 
 
-    scripting::instruction_list* body39;
+    scripting::instruction_list* body40;
 
 
 
@@ -6365,7 +6371,7 @@ WNScriptASTParser::endif()
 
 
             this->followPush(FOLLOW_body_in_endif4071);
-            body39=body();
+            body40=body();
 
             this->followPop();
             if  (this->hasException())
@@ -6375,7 +6381,7 @@ WNScriptASTParser::endif()
 
 
             {
-                node = body39
+                node = body40
                 ;
             }
 
@@ -6408,11 +6414,11 @@ WNScriptASTParser::ifInst()
     scripting::if_instruction* node;
 
 
-    const ImplTraits::CommonTokenType* IF42 = NULL;
-    scripting::expression* expr40;
-    scripting::instruction_list* body41;
-    scripting::else_if_instruction* elsemiddle43;
-    scripting::instruction_list* endif44;
+    const ImplTraits::CommonTokenType* IF43 = NULL;
+    scripting::expression* expr41;
+    scripting::instruction_list* body42;
+    scripting::else_if_instruction* elsemiddle44;
+    scripting::instruction_list* endif45;
 
 
 
@@ -6424,7 +6430,7 @@ WNScriptASTParser::ifInst()
 
     {
         {
-            IF42 =  this->matchToken(IF, &FOLLOW_IF_in_ifInst4101);
+            IF43 =  this->matchToken(IF, &FOLLOW_IF_in_ifInst4101);
             if  (this->hasException())
             {
                 goto ruleifInstEx;
@@ -6439,7 +6445,7 @@ WNScriptASTParser::ifInst()
 
 
             this->followPush(FOLLOW_expr_in_ifInst4105);
-            expr40=expr();
+            expr41=expr();
 
             this->followPop();
             if  (this->hasException())
@@ -6456,7 +6462,7 @@ WNScriptASTParser::ifInst()
 
 
             this->followPush(FOLLOW_body_in_ifInst4109);
-            body41=body();
+            body42=body();
 
             this->followPop();
             if  (this->hasException())
@@ -6466,10 +6472,10 @@ WNScriptASTParser::ifInst()
 
 
             {
-                node = m_allocator->make_allocated<scripting::if_instruction>(m_allocator, expr40
-                , body41
-                ); SET_LOCATION(node, IF42); SET_END_LOCATION_FROM_NODE(node,
-                body41
+                node = m_allocator->make_allocated<scripting::if_instruction>(m_allocator, expr41
+                , body42
+                ); SET_LOCATION(node, IF43); SET_END_LOCATION_FROM_NODE(node,
+                body42
                 );
             }
 
@@ -6502,7 +6508,7 @@ WNScriptASTParser::ifInst()
             	case 1:
             	    {
             	        this->followPush(FOLLOW_elsemiddle_in_ifInst4126);
-            	        elsemiddle43=elsemiddle();
+            	        elsemiddle44=elsemiddle();
 
             	        this->followPop();
             	        if  (this->hasException())
@@ -6512,8 +6518,8 @@ WNScriptASTParser::ifInst()
 
 
             	        {
-            	            node->add_else_if(elsemiddle43
-            	            ); SET_END_LOCATION_FROM_NODE(node, elsemiddle43
+            	            node->add_else_if(elsemiddle44
+            	            ); SET_END_LOCATION_FROM_NODE(node, elsemiddle44
             	            );
             	        }
 
@@ -6545,7 +6551,7 @@ WNScriptASTParser::ifInst()
             	case 1:
             	    {
             	        this->followPush(FOLLOW_endif_in_ifInst4146);
-            	        endif44=endif();
+            	        endif45=endif();
 
             	        this->followPop();
             	        if  (this->hasException())
@@ -6555,9 +6561,9 @@ WNScriptASTParser::ifInst()
 
 
             	        {
-            	            node->add_else(endif44
-            	            ); SET_LOCATION(node, IF42); SET_END_LOCATION_FROM_NODE(node,
-            	            endif44
+            	            node->add_else(endif45
+            	            ); SET_LOCATION(node, IF43); SET_END_LOCATION_FROM_NODE(node,
+            	            endif45
             	            );
             	        }
 
@@ -6596,12 +6602,12 @@ WNScriptASTParser::instruction()
     scripting::instruction* node;
 
 
-    scripting::if_instruction* ifInst45;
-    scripting::instruction* whileInst46;
-    scripting::instruction* doInst47;
-    scripting::for_instruction* forInst48;
-    scripting::instruction* instructionScalar49;
-    scripting::return_instruction* returnInst50;
+    scripting::if_instruction* ifInst46;
+    scripting::instruction* whileInst47;
+    scripting::instruction* doInst48;
+    scripting::for_instruction* forInst49;
+    scripting::instruction* instructionScalar50;
+    scripting::return_instruction* returnInst51;
 
 
 
@@ -6683,7 +6689,7 @@ WNScriptASTParser::instruction()
         	case 1:
         	    {
         	        this->followPush(FOLLOW_ifInst_in_instruction4180);
-        	        ifInst45=ifInst();
+        	        ifInst46=ifInst();
 
         	        this->followPop();
         	        if  (this->hasException())
@@ -6693,7 +6699,7 @@ WNScriptASTParser::instruction()
 
 
         	        {
-        	             node = ifInst45
+        	             node = ifInst46
         	            ;
         	        }
 
@@ -6703,7 +6709,7 @@ WNScriptASTParser::instruction()
         	case 2:
         	    {
         	        this->followPush(FOLLOW_whileInst_in_instruction4201);
-        	        whileInst46=whileInst();
+        	        whileInst47=whileInst();
 
         	        this->followPop();
         	        if  (this->hasException())
@@ -6713,7 +6719,7 @@ WNScriptASTParser::instruction()
 
 
         	        {
-        	            node = whileInst46
+        	            node = whileInst47
         	            ;
         	        }
 
@@ -6723,7 +6729,7 @@ WNScriptASTParser::instruction()
         	case 3:
         	    {
         	        this->followPush(FOLLOW_doInst_in_instruction4218);
-        	        doInst47=doInst();
+        	        doInst48=doInst();
 
         	        this->followPop();
         	        if  (this->hasException())
@@ -6733,7 +6739,7 @@ WNScriptASTParser::instruction()
 
 
         	        {
-        	            node = doInst47
+        	            node = doInst48
         	            ;
         	        }
 
@@ -6743,7 +6749,7 @@ WNScriptASTParser::instruction()
         	case 4:
         	    {
         	        this->followPush(FOLLOW_forInst_in_instruction4238);
-        	        forInst48=forInst();
+        	        forInst49=forInst();
 
         	        this->followPop();
         	        if  (this->hasException())
@@ -6753,7 +6759,7 @@ WNScriptASTParser::instruction()
 
 
         	        {
-        	            node = forInst48
+        	            node = forInst49
         	            ;
         	        }
 
@@ -6763,7 +6769,7 @@ WNScriptASTParser::instruction()
         	case 5:
         	    {
         	        this->followPush(FOLLOW_instructionScalar_in_instruction4258);
-        	        instructionScalar49=instructionScalar();
+        	        instructionScalar50=instructionScalar();
 
         	        this->followPop();
         	        if  (this->hasException())
@@ -6780,7 +6786,7 @@ WNScriptASTParser::instruction()
 
 
         	        {
-        	            node = instructionScalar49
+        	            node = instructionScalar50
         	            ;
         	        }
 
@@ -6790,7 +6796,7 @@ WNScriptASTParser::instruction()
         	case 6:
         	    {
         	        this->followPush(FOLLOW_returnInst_in_instruction4273);
-        	        returnInst50=returnInst();
+        	        returnInst51=returnInst();
 
         	        this->followPop();
         	        if  (this->hasException())
@@ -6800,7 +6806,7 @@ WNScriptASTParser::instruction()
 
 
         	        {
-        	            node = returnInst50
+        	            node = returnInst51
         	            ;
         	        }
 
@@ -6966,7 +6972,7 @@ WNScriptASTParser::body()
     const ImplTraits::CommonTokenType* b = NULL;
     const ImplTraits::CommonTokenType* d = NULL;
     const ImplTraits::CommonTokenType* e = NULL;
-    scripting::instruction_list* instruction_list51;
+    scripting::instruction_list* instruction_list52;
 
 
 
@@ -7080,7 +7086,7 @@ WNScriptASTParser::body()
 
 
         	        this->followPush(FOLLOW_instruction_list_in_body4376);
-        	        instruction_list51=instruction_list();
+        	        instruction_list52=instruction_list();
 
         	        this->followPop();
         	        if  (this->hasException())
@@ -7097,7 +7103,7 @@ WNScriptASTParser::body()
 
 
         	        {
-        	            node = instruction_list51
+        	            node = instruction_list52
         	            ; SET_LOCATION(node, d); SET_END_LOCATION(node, e);
         	        }
 
@@ -7133,9 +7139,9 @@ WNScriptASTParser::function()
     scripting::function* node;
 
 
-    scripting::parameter* param52;
-    scripting::parameter_list* parameterList53;
-    scripting::instruction_list* body54;
+    scripting::parameter* param53;
+    scripting::parameter_list* parameterList54;
+    scripting::instruction_list* body55;
 
 
 
@@ -7148,7 +7154,7 @@ WNScriptASTParser::function()
     {
         {
             this->followPush(FOLLOW_param_in_function4410);
-            param52=param();
+            param53=param();
 
             this->followPop();
             if  (this->hasException())
@@ -7158,7 +7164,7 @@ WNScriptASTParser::function()
 
 
             this->followPush(FOLLOW_parameterList_in_function4412);
-            parameterList53=parameterList();
+            parameterList54=parameterList();
 
             this->followPop();
             if  (this->hasException())
@@ -7168,7 +7174,7 @@ WNScriptASTParser::function()
 
 
             this->followPush(FOLLOW_body_in_function4414);
-            body54=body();
+            body55=body();
 
             this->followPop();
             if  (this->hasException())
@@ -7178,11 +7184,11 @@ WNScriptASTParser::function()
 
 
             {
-                 node = m_allocator->make_allocated<scripting::function>(m_allocator, param52
-                , parameterList53
-                , body54
-                ); SET_LOCATION_FROM_NODE(node, param52
-                ); SET_END_LOCATION_FROM_NODE(node, body54
+                 node = m_allocator->make_allocated<scripting::function>(m_allocator, param53
+                , parameterList54
+                , body55
+                ); SET_LOCATION_FROM_NODE(node, param53
+                ); SET_END_LOCATION_FROM_NODE(node, body55
                 );
             }
 
@@ -7215,9 +7221,9 @@ WNScriptASTParser::structDecl()
     scripting::struct_definition* node;
 
 
-    const ImplTraits::CommonTokenType* TYPE55 = NULL;
-    const ImplTraits::CommonTokenType* STRUCT56 = NULL;
-    const ImplTraits::CommonTokenType* RBRACE57 = NULL;
+    const ImplTraits::CommonTokenType* TYPE56 = NULL;
+    const ImplTraits::CommonTokenType* STRUCT57 = NULL;
+    const ImplTraits::CommonTokenType* RBRACE58 = NULL;
     scripting::declaration* a;
 
 
@@ -7230,14 +7236,14 @@ WNScriptASTParser::structDecl()
 
     {
         {
-            STRUCT56 =  this->matchToken(STRUCT, &FOLLOW_STRUCT_in_structDecl4444);
+            STRUCT57 =  this->matchToken(STRUCT, &FOLLOW_STRUCT_in_structDecl4444);
             if  (this->hasException())
             {
                 goto rulestructDeclEx;
             }
 
 
-            TYPE55 =  this->matchToken(TYPE, &FOLLOW_TYPE_in_structDecl4446);
+            TYPE56 =  this->matchToken(TYPE, &FOLLOW_TYPE_in_structDecl4446);
             if  (this->hasException())
             {
                 goto rulestructDeclEx;
@@ -7245,7 +7251,7 @@ WNScriptASTParser::structDecl()
 
 
             {
-                node= m_allocator->make_allocated<scripting::struct_definition>(m_allocator, (TYPE55->getText()).c_str()); SET_LOCATION(node, STRUCT56);
+                node= m_allocator->make_allocated<scripting::struct_definition>(m_allocator, (TYPE56->getText()).c_str()); SET_LOCATION(node, STRUCT57);
             }
 
 
@@ -7314,7 +7320,7 @@ WNScriptASTParser::structDecl()
             loop37: ;
 
 
-            RBRACE57 =  this->matchToken(RBRACE, &FOLLOW_RBRACE_in_structDecl4476);
+            RBRACE58 =  this->matchToken(RBRACE, &FOLLOW_RBRACE_in_structDecl4476);
             if  (this->hasException())
             {
                 goto rulestructDeclEx;
@@ -7322,7 +7328,7 @@ WNScriptASTParser::structDecl()
 
 
             {
-                 SET_END_LOCATION(node, RBRACE57);
+                 SET_END_LOCATION(node, RBRACE58);
             }
 
 
@@ -7359,7 +7365,7 @@ WNScriptASTParser::classDecl()
     const ImplTraits::CommonTokenType* g = NULL;
     const ImplTraits::CommonTokenType* d = NULL;
     const ImplTraits::CommonTokenType* e = NULL;
-    const ImplTraits::CommonTokenType* RBRACE58 = NULL;
+    const ImplTraits::CommonTokenType* RBRACE59 = NULL;
     scripting::declaration* a;
     scripting::function* b;
     scripting::function* h;
@@ -7655,7 +7661,7 @@ WNScriptASTParser::classDecl()
             loop39: ;
 
 
-            RBRACE58 =  this->matchToken(RBRACE, &FOLLOW_RBRACE_in_classDecl4762);
+            RBRACE59 =  this->matchToken(RBRACE, &FOLLOW_RBRACE_in_classDecl4762);
             if  (this->hasException())
             {
                 goto ruleclassDeclEx;
@@ -7663,7 +7669,7 @@ WNScriptASTParser::classDecl()
 
 
             {
-                 SET_END_LOCATION(node, RBRACE58);
+                 SET_END_LOCATION(node, RBRACE59);
             }
 
 
@@ -7695,7 +7701,7 @@ WNScriptASTParser::inc()
     const wn_char* file;
 
 
-    const ImplTraits::CommonTokenType* STRING59 = NULL;
+    const ImplTraits::CommonTokenType* STRING60 = NULL;
 
 
 
@@ -7715,7 +7721,7 @@ WNScriptASTParser::inc()
             }
 
 
-            STRING59 =  this->matchToken(STRING, &FOLLOW_STRING_in_inc4794);
+            STRING60 =  this->matchToken(STRING, &FOLLOW_STRING_in_inc4794);
             if  (this->hasException())
             {
                 goto ruleincEx;
@@ -7723,7 +7729,7 @@ WNScriptASTParser::inc()
 
 
             {
-                 file = (STRING59->getText()).c_str();
+                 file = (STRING60->getText()).c_str();
             }
 
 
@@ -7755,10 +7761,10 @@ WNScriptASTParser::program()
     scripting::script_file* node;
 
 
-    scripting::function* function60;
-    scripting::struct_definition* structDecl61;
-    scripting::struct_definition* classDecl62;
-    const wn_char* inc63;
+    scripting::function* function61;
+    scripting::struct_definition* structDecl62;
+    scripting::struct_definition* classDecl63;
+    const wn_char* inc64;
 
 
 
@@ -7810,7 +7816,7 @@ WNScriptASTParser::program()
             	case 1:
             	    {
             	        this->followPush(FOLLOW_function_in_program4840);
-            	        function60=function();
+            	        function61=function();
 
             	        this->followPop();
             	        if  (this->hasException())
@@ -7820,7 +7826,7 @@ WNScriptASTParser::program()
 
 
             	        {
-            	             node->add_function(function60
+            	             node->add_function(function61
             	            );
             	        }
 
@@ -7830,7 +7836,7 @@ WNScriptASTParser::program()
             	case 2:
             	    {
             	        this->followPush(FOLLOW_structDecl_in_program4862);
-            	        structDecl61=structDecl();
+            	        structDecl62=structDecl();
 
             	        this->followPop();
             	        if  (this->hasException())
@@ -7840,7 +7846,7 @@ WNScriptASTParser::program()
 
 
             	        {
-            	             node->add_struct(structDecl61
+            	             node->add_struct(structDecl62
             	            );
             	        }
 
@@ -7850,7 +7856,7 @@ WNScriptASTParser::program()
             	case 3:
             	    {
             	        this->followPush(FOLLOW_classDecl_in_program4882);
-            	        classDecl62=classDecl();
+            	        classDecl63=classDecl();
 
             	        this->followPop();
             	        if  (this->hasException())
@@ -7860,7 +7866,7 @@ WNScriptASTParser::program()
 
 
             	        {
-            	             node->add_struct(classDecl62
+            	             node->add_struct(classDecl63
             	            );
             	        }
 
@@ -7870,7 +7876,7 @@ WNScriptASTParser::program()
             	case 4:
             	    {
             	        this->followPush(FOLLOW_inc_in_program4903);
-            	        inc63=inc();
+            	        inc64=inc();
 
             	        this->followPop();
             	        if  (this->hasException())
@@ -7880,7 +7886,7 @@ WNScriptASTParser::program()
 
 
             	        {
-            	             node->add_include(inc63
+            	             node->add_include(inc64
             	            );
             	        }
 

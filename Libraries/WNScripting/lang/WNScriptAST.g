@@ -246,7 +246,12 @@ type    returns[scripting::type* node]
     node = wn_nullptr;
 }
     :    scalarType { node = $scalarType.node; SET_LOCATION_FROM_NODE(node, $scalarType.node); }
-                (LSQBRACKET RSQBRACKET { node->add_array_level(); SET_END_LOCATION(node, $RSQBRACKET); })*
+           (LSQBRACKET RSQBRACKET {
+                   SET_END_LOCATION(node, $RSQBRACKET);
+                   node = m_allocator->make_allocated<scripting::array_type>(m_allocator, node); 
+                   SET_LOCATION(node, $LSQBRACKET);
+                   SET_END_LOCATION(node, $RSQBRACKET); 
+           })*
     ;
 
 param returns[scripting::parameter* node]
