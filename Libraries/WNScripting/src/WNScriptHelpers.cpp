@@ -15,9 +15,9 @@ namespace wn {
 namespace scripting {
 
 memory::allocated_ptr<wn::scripting::script_file> parse_script(
-    memory::allocator* _allocator, const wn_char* file_name,
-    containers::string_view view, WNLogging::WNLog* _log,
-    wn_size_t* _num_warnings, wn_size_t* _num_errors) {
+    memory::allocator* _allocator, wn::scripting::type_validator* _validator,
+    const wn_char* file_name, containers::string_view view,
+    WNLogging::WNLog* _log, wn_size_t* _num_warnings, wn_size_t* _num_errors) {
   wn::memory::allocated_ptr<wn::scripting::script_file> ptr;
   {
     WNScriptASTLexer::InputStreamType input(
@@ -39,13 +39,13 @@ memory::allocated_ptr<wn::scripting::script_file> parse_script(
       }
       return wn_nullptr;
     }
-    if (!run_dce_pass(ptr.get(), _log, _num_warnings, _num_errors)) {
+    if (!run_dce_pass(ptr.get(), _log, _validator, _num_warnings, _num_errors)) {
       return wn_nullptr;
     }
-    if (!run_id_association_pass(ptr.get(), _log, _num_warnings, _num_errors)) {
+    if (!run_id_association_pass(ptr.get(), _log, _validator, _num_warnings, _num_errors)) {
       return wn_nullptr;
     }
-    if (!run_type_association_pass(ptr.get(), _log, _num_warnings, _num_errors)) {
+    if (!run_type_association_pass(ptr.get(), _log, _validator, _num_warnings, _num_errors)) {
       return wn_nullptr;
     }
   }

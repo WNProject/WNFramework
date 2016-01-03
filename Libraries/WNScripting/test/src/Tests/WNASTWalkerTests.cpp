@@ -64,14 +64,15 @@ TEST(ast_code_generator, simplest_function) {
 
 TEST(ast_code_generator, type_association_test) {
   wn::memory::default_expanding_allocator<50> allocator;
+  wn::scripting::type_validator validator(&allocator);
   wn_size_t num_warnings, num_errors;
   num_warnings = num_errors = 0;
   wn::scripting::test_file_manager manager(
       &allocator, {{"file.wns", "Int main() { return 0 + 4 * 32; }"}});
   auto a = test_parse_file("file.wns", &manager, &allocator, &num_warnings,
                            &num_errors);
-  EXPECT_TRUE(wn::scripting::run_type_association_pass(
-      a.get(), WNLogging::get_null_logger(), &num_warnings, &num_errors));
+  EXPECT_TRUE(wn::scripting::run_type_association_pass(a.get(),
+      WNLogging::get_null_logger(), &validator, &num_warnings, &num_errors));
 
   EXPECT_THAT(num_warnings, Eq(0u));
   EXPECT_THAT(num_errors, Eq(0u));

@@ -21,17 +21,17 @@
 #include <llvm/IR/BasicBlock.h>
 #include <llvm/IR/Constants.h>
 #include <llvm/IR/Function.h>
-#include <llvm/IR/LLVMContext.h>
-#include <llvm/IR/Module.h>
 #include <llvm/IR/Instruction.h>
 #include <llvm/IR/Instructions.h>
+#include <llvm/IR/LLVMContext.h>
+#include <llvm/IR/Module.h>
 #include <llvm/IR/Value.h>
 #include <llvm/IR/Verifier.h>
 
-#include <llvm/Support/TargetSelect.h>
 #include <llvm/ExecutionEngine/ExecutionEngine.h>
 #include <llvm/ExecutionEngine/MCJIT.h>
 #include <llvm/ExecutionEngine/SectionMemoryManager.h>
+#include <llvm/Support/TargetSelect.h>
 
 #ifdef _MSC_VER
 #pragma warning(pop)
@@ -40,13 +40,13 @@
 #include "WNContainers/inc/WNContiguousRange.h"
 #include "WNContainers/inc/WNDynamicArray.h"
 #include "WNContainers/inc/WNList.h"
+#include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNScripting/inc/WNASTCodeGenerator.h"
 #include "WNScripting/inc/WNASTWalker.h"
 #include "WNScripting/inc/WNJITEngine.h"
 #include "WNScripting/inc/WNJITGenerator.h"
 #include "WNScripting/inc/WNScriptHelpers.h"
-#include "WNLogging/inc/WNLog.h"
 
 #include <algorithm>
 
@@ -66,19 +66,19 @@ namespace scripting {
 CompiledModule::CompiledModule() : m_module(wn_nullptr) {}
 
 CompiledModule::CompiledModule(CompiledModule&& _other)
-    : m_engine(std::move(_other.m_engine)),
-      m_module(std::move(_other.m_module)) {
+  : m_engine(std::move(_other.m_engine)), m_module(std::move(_other.m_module)) {
   _other.m_module = wn_nullptr;
 }
 
-jit_engine::jit_engine(memory::allocator* _allocator, file_manager* _manager,
-                       WNLogging::WNLog* _log)
-    : engine(),
-      m_allocator(_allocator),
-      m_file_manager(_manager),
-      m_compilation_log(_log),
-      m_modules(_allocator),
-      m_context(memory::make_std_unique<llvm::LLVMContext>()) {
+jit_engine::jit_engine(type_validator* _validator,
+    memory::allocator* _allocator, file_manager* _manager,
+    WNLogging::WNLog* _log)
+  : engine(_validator),
+    m_allocator(_allocator),
+    m_file_manager(_manager),
+    m_compilation_log(_log),
+    m_modules(_allocator),
+    m_context(memory::make_std_unique<llvm::LLVMContext>()) {
   llvm::InitializeNativeTarget();
   llvm::InitializeNativeTargetAsmPrinter();
   llvm::InitializeNativeTargetAsmParser();
@@ -90,8 +90,7 @@ CompiledModule& jit_engine::add_module(containers::string_view _file) {
   m_modules.push_back(CompiledModule());
 
   std::unique_ptr<llvm::Module> module =
-      memory::make_std_unique<llvm::Module>(make_string_ref(_file),
-                                                *m_context);
+      memory::make_std_unique<llvm::Module>(make_string_ref(_file), *m_context);
 
   CompiledModule& code_module = m_modules.back();
   code_module.m_module = module.get();
@@ -132,9 +131,9 @@ parse_error jit_engine::parse_file(const char* _file) {
   }
 
   memory::allocated_ptr<script_file> parsed_file =
-      parse_script(m_allocator, _file,
-                   wn::containers::string_view(buff->data(), buff->size()),
-                   m_compilation_log, &m_num_warnings, &m_num_errors);
+      parse_script(m_allocator, m_validator, _file,
+          wn::containers::string_view(buff->data(), buff->size()),
+          m_compilation_log, &m_num_warnings, &m_num_errors);
 
   if (parsed_file == wn_nullptr) {
     return parse_error::parse_failed;
@@ -142,10 +141,12 @@ parse_error jit_engine::parse_file(const char* _file) {
   CompiledModule& module = add_module(_file);
 
   ast_code_generator<ast_jit_traits> generator;
-  ast_jit_engine engine(m_allocator, m_context.get(), module.m_module, &generator);
+  ast_jit_engine engine(
+      m_allocator, m_context.get(), module.m_module, &generator);
   generator.set_generator(&engine);
 
-  run_ast_pass<ast_code_generator<ast_jit_traits>>(&generator, parsed_file.get());
+  run_ast_pass<ast_code_generator<ast_jit_traits>>(
+      &generator, parsed_file.get());
   module.m_engine->finalizeObject();
 
   for (auto& function : module.m_module->getFunctionList()) {

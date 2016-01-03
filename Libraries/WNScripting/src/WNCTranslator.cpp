@@ -14,12 +14,13 @@
 namespace wn {
 namespace scripting {
 
-c_translator::c_translator(memory::allocator* _allocator,
-                           file_manager* _manager, WNLogging::WNLog* _log)
-    : translator(),
-      m_allocator(_allocator),
-      m_file_manager(_manager),
-      m_compilation_log(_log) {}
+c_translator::c_translator(type_validator* _validator,
+    memory::allocator* _allocator, file_manager* _manager,
+    WNLogging::WNLog* _log)
+  : translator(_validator),
+    m_allocator(_allocator),
+    m_file_manager(_manager),
+    m_compilation_log(_log) {}
 
 parse_error c_translator::translate_file(const char* file) {
   memory::allocated_ptr<file_buffer> buff = m_file_manager->get_file(file);
@@ -28,8 +29,8 @@ parse_error c_translator::translate_file(const char* file) {
     return parse_error::does_not_exist;
   }
 
-  memory::allocated_ptr<script_file> parsed_file = parse_script(
-      m_allocator, file, containers::string_view(buff->data(), buff->size()),
+  memory::allocated_ptr<script_file> parsed_file = parse_script(m_allocator,
+      m_validator, file, containers::string_view(buff->data(), buff->size()),
       m_compilation_log, &m_num_warnings, &m_num_errors);
 
   if (parsed_file == wn_nullptr) {

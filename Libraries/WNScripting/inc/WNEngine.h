@@ -12,21 +12,25 @@
 
 namespace wn {
 namespace scripting {
+class type_validator;
 
 class engine {
  public:
-  engine() : m_num_warnings(0), m_num_errors(0) {}
-  typedef void (*void_func)();
-  virtual ~engine() {}
-  virtual parse_error parse_file(const char* file) = 0;
-  virtual void_func get_function(containers::string_view _name) const = 0;
+   engine(type_validator* _validator)
+     : m_num_warnings(0), m_num_errors(0), m_validator(_validator) {}
+   typedef void (*void_func)();
+   virtual ~engine() {}
+   virtual parse_error parse_file(const char* file) = 0;
+   virtual void_func get_function(containers::string_view _name) const = 0;
 
-  wn_size_t errors() const { return m_num_errors; }
+   wn_size_t errors() const {
+     return m_num_errors; }
   wn_size_t warnings() const { return m_num_warnings; }
 
  protected:
   wn_size_t m_num_warnings;
   wn_size_t m_num_errors;
+  type_validator *m_validator;
 };
 
 }  // namespace scripting

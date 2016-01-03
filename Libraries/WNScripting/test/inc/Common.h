@@ -17,6 +17,7 @@
 #include "WNScripting/inc/WNEngineFileManager.h"
 #include "WNScripting/inc/WNNodeTypes.h"
 #include "WNScripting/inc/WNScriptHelpers.h"
+#include "WNScripting/inc/WNTypeValidator.h"
 #include "WNTesting/inc/WNTestHarness.h"
 
 namespace wn {
@@ -79,11 +80,13 @@ memory::allocated_ptr<scripting::script_file> test_parse_file(
     const char* _file, scripting::file_manager* _manager,
     memory::allocator* _allocator, WNLogging::WNLog* _log,
     wn_size_t* _num_warnings, wn_size_t* _num_errors) {
+
+  scripting::type_validator validator(_allocator);
   memory::allocated_ptr<file_buffer> buff = _manager->get_file(_file);
   EXPECT_NE(wn_nullptr, buff);
 
   memory::allocated_ptr<scripting::script_file> ptr = scripting::parse_script(
-      _allocator, _file, containers::string_view(buff->data(), buff->size()),
+      _allocator, &validator, _file, containers::string_view(buff->data(), buff->size()),
       _log, _num_warnings, _num_errors);
 
   return std::move(ptr);

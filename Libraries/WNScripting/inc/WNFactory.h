@@ -19,6 +19,7 @@ namespace wn {
 namespace scripting {
 
 class engine;
+class type_validator;
 
 enum class scripting_engine_type {
   jit_engine,
@@ -30,12 +31,13 @@ enum class translator_type {
 
 class factory {
  public:
-  virtual memory::allocated_ptr<engine> get_engine(
-      scripting_engine_type _type, file_manager* _file_manager,
-      WNLogging::WNLog* _log, wn::memory::allocator* _allocator);
-  virtual memory::allocated_ptr<translator> get_translator(
-      translator_type _type, file_manager* _file_manager,
-      WNLogging::WNLog* _log, wn::memory::allocator* _allocator);
+   virtual memory::allocated_ptr<engine> get_engine(scripting_engine_type _type,
+       type_validator* _validator, file_manager* _file_manager,
+       WNLogging::WNLog* _log, wn::memory::allocator* _allocator);
+   virtual memory::allocated_ptr<translator> get_translator(
+       translator_type _type, type_validator* _validator,
+       file_manager* _file_manager, WNLogging::WNLog* _log,
+       wn::memory::allocator* _allocator);
 };
 }  // namespace scripting
 }  // namesapce wn

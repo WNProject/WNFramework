@@ -16,10 +16,11 @@ class WNLog;
 namespace wn {
 namespace scripting {
 class script_file;
+class type_validator;
 memory::allocated_ptr<wn::scripting::script_file> parse_script(
-    memory::allocator* _allocator, const wn_char* file_name,
-    containers::string_view view, WNLogging::WNLog* _log,
-    wn_size_t* _num_warnings, wn_size_t* _num_errors);
+    memory::allocator* _allocator, type_validator* _validator,
+    const wn_char* file_name, containers::string_view view,
+    WNLogging::WNLog* _log, wn_size_t* _num_warnings, wn_size_t* _num_errors);
 }  // namespace scripting
 }  // namespace wn
 

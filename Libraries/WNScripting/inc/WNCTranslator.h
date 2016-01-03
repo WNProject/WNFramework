@@ -22,9 +22,9 @@ namespace scripting {
 class file_manager;
 class c_translator : public translator {
  public:
-  c_translator(memory::allocator* _allocator, file_manager* _manager,
-               WNLogging::WNLog* _log);
-  parse_error translate_file(const char* file) override;
+   c_translator(type_validator* _validator, memory::allocator* _allocator,
+       file_manager* _manager, WNLogging::WNLog* _log);
+   parse_error translate_file(const char* file) override;
 
  private:
   memory::allocator* m_allocator;

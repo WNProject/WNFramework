@@ -194,6 +194,22 @@ struct type_operations {
                            });
     return (it != m_functions.end()) ? it->type_id : 0;
   }
+  bool is_valid_operation(arithmetic_type _op) const {
+    return m_ops.m_arithmetic[static_cast<wn_uint32>(_op)];
+  }
+  bool is_valid_operation(assign_type _op) const {
+    return m_ops.m_assignment[static_cast<wn_uint32>(_op)];
+  }
+  bool is_valid_operation(unary_type _op) const {
+    return m_ops.m_unary[static_cast<wn_uint32>(_op)];
+  }
+  bool is_valid_operation(post_unary_type _op) const {
+    return m_ops.m_post_unary[static_cast<wn_uint32>(_op)];
+  }
+  bool is_valid_operation(short_circuit_type _op) const {
+    return m_ops.m_short_circuit[static_cast<wn_uint32>(_op)];
+  }
+
   allowed_builtin_operations m_ops;
   containers::dynamic_array<cast_operation> m_casts;
   containers::dynamic_array<member_id> m_ids;
@@ -218,36 +234,30 @@ class type_validator {
     m_mapping.insert(std::make_pair("String", m_max_types++));
     m_mapping.insert(std::make_pair("Bool", m_max_types++));
     m_types.push_back(type_operations(m_allocator));
+    for(size_t i = 1; i < 9; ++i){
     m_types.push_back(
-        type_operations(valid_builtin_operations[1], m_allocator));
-    m_types.push_back(
-        type_operations(valid_builtin_operations[2], m_allocator));
-    m_types.push_back(
-        type_operations(valid_builtin_operations[3], m_allocator));
-    m_types.push_back(
-        type_operations(valid_builtin_operations[4], m_allocator));
-    m_types.push_back(
-        type_operations(valid_builtin_operations[5], m_allocator));
+        type_operations(valid_builtin_operations[i], m_allocator));
+    }
 
     // Int casts up to float, down to char, bool
-    m_types[1].m_casts.push_back({2, up});
-    m_types[1].m_casts.push_back({3, down});
-    m_types[1].m_casts.push_back({5, down});
-
-    // Float casts down to everything
-    m_types[2].m_casts.push_back({1, down});
+    m_types[2].m_casts.push_back({2, up});
     m_types[2].m_casts.push_back({3, down});
     m_types[2].m_casts.push_back({5, down});
 
-    // Char casts up to float and int, down to bool
-    m_types[3].m_casts.push_back({1, up});
-    m_types[3].m_casts.push_back({2, up});
+    // Float casts down to everything
+    m_types[3].m_casts.push_back({1, down});
+    m_types[3].m_casts.push_back({3, down});
     m_types[3].m_casts.push_back({5, down});
 
+    // Char casts up to float and int, down to bool
+    m_types[4].m_casts.push_back({1, up});
+    m_types[4].m_casts.push_back({2, up});
+    m_types[4].m_casts.push_back({5, down});
+
     // Bool casts up to int, bool, and char
-    m_types[5].m_casts.push_back({1, up});
-    m_types[5].m_casts.push_back({2, up});
-    m_types[5].m_casts.push_back({3, up});
+    m_types[6].m_casts.push_back({1, up});
+    m_types[6].m_casts.push_back({2, up});
+    m_types[6].m_casts.push_back({3, up});
   }
 
   wn_uint32 get_or_register_type(const containers::string_view& _name) {
@@ -268,6 +278,10 @@ class type_validator {
       return 0;
     }
     return it->second;
+  }
+
+  const type_operations& get_operations(wn_uint32 _type) const {
+    return m_types[_type];
   }
 
   bool is_valid_type(wn_uint32 _type) {

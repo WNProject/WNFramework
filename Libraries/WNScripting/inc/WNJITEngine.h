@@ -38,11 +38,11 @@ public:
 
 class jit_engine : public engine {
  public:
-  jit_engine(memory::allocator* _allocator, file_manager* _manager,
-             WNLogging::WNLog* _log);
-  ~jit_engine();
-  void_func get_function(containers::string_view _name) const override {
-    return m_pointers.find(_name)->second;
+   jit_engine(type_validator* _validator, memory::allocator* _allocator,
+       file_manager* _manager, WNLogging::WNLog* _log);
+   ~jit_engine();
+   void_func get_function(containers::string_view _name) const override {
+     return m_pointers.find(_name)->second;
   }
   parse_error parse_file(const char* file) override;
  private:

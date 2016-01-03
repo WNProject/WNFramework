@@ -5,6 +5,7 @@
 #include "WNLogging/inc/WNBufferLogger.h"
 #include "WNScripting/test/inc/Common.h"
 #include "WNScripting/inc/WNCTranslator.h"
+#include "WNScripting/test/inc/Common.h"
 #include "WNTesting/inc/WNTestHarness.h"
 
 void flush_buffer(wn_void* v, const wn_char* bytes, wn_size_t length,
@@ -19,13 +20,14 @@ using log_buff = wn::containers::string;
 
 TEST(c_translator, simple_c_translation) {
   wn::memory::default_expanding_allocator<50> allocator;
+  wn::scripting::type_validator validator(&allocator);
   wn::scripting::test_file_manager manager(
       &allocator, {{"file.wns", "Void main() { return; }"}});
 
-  wn::scripting::c_translator translator(&allocator, &manager,
-                                         WNLogging::get_null_logger());
-  EXPECT_EQ(wn::scripting::parse_error::ok,
-            translator.translate_file("file.wns"));
+  wn::scripting::c_translator translator(
+      &validator, &allocator, &manager, WNLogging::get_null_logger());
+  EXPECT_EQ(
+      wn::scripting::parse_error::ok, translator.translate_file("file.wns"));
   EXPECT_EQ(
       "void main() {\n"
       "return;\n"
@@ -52,17 +54,18 @@ using c_translator_direct_translation_test =
 // a second one will not be added.
 TEST_P(c_translator_direct_translation_test, translations) {
   wn::memory::default_expanding_allocator<50> allocator;
+  wn::scripting::type_validator validator(&allocator);
   wn::containers::string input_str(&allocator);
   wn::containers::string expected_output(&allocator);
 
-  for(auto& a: GetParam()) {
-      if(wn::memory::strlen(a.first) != 0) {
+  for (auto& a : GetParam()) {
+    if (wn::memory::strlen(a.first) != 0) {
         input_str += a.first;
         if (a.first[0] != '\n') {
           input_str += '\n';
         }
       }
-      if(wn::memory::strlen(a.second) != 0) {
+    if (wn::memory::strlen(a.second) != 0) {
         expected_output += a.second;
         if (a.second[0] != '\n') {
           expected_output += '\n';
@@ -73,11 +76,12 @@ TEST_P(c_translator_direct_translation_test, translations) {
   buffer_logger logger(&buff);
   WNLogging::WNLog log(&logger);
 
-  wn::scripting::test_file_manager manager(&allocator, {{"file.wns", input_str}});
-  wn::scripting::c_translator translator(&allocator, &manager,
-                                         &log);
-  EXPECT_EQ(wn::scripting::parse_error::ok,
-            translator.translate_file("file.wns")) << buff;
+  wn::scripting::test_file_manager manager(
+      &allocator, {{"file.wns", input_str}});
+  wn::scripting::c_translator translator(
+      &validator, &allocator, &manager, WNLogging::get_null_logger());
+  EXPECT_EQ(
+      wn::scripting::parse_error::ok, translator.translate_file("file.wns"));
   EXPECT_EQ(std::string(expected_output.c_str()),
             std::string(manager.get_file("file.wns.c")->data()));
 }
@@ -193,6 +197,7 @@ using c_translator_function_params =
     ::testing::TestWithParam<std::pair<const char*, const char*>>;
 TEST_P(c_translator_function_params, single_parameter) {
   wn::memory::default_expanding_allocator<50> allocator;
+  wn::scripting::type_validator validator(&allocator);
   wn::containers::string str(&allocator);
   str += std::get<0>(GetParam());
   str = str + " main(" + std::get<0>(GetParam()) + " x) { return x; }";
@@ -204,16 +209,15 @@ TEST_P(c_translator_function_params, single_parameter) {
 
   wn::scripting::test_file_manager manager(&allocator, {{"file.wns", str}});
 
-  wn::scripting::c_translator translator(&allocator, &manager,
-                                         WNLogging::get_null_logger());
-  EXPECT_EQ(wn::scripting::parse_error::ok,
-            translator.translate_file("file.wns"));
+  wn::scripting::c_translator translator(
+      &validator, &allocator, &manager, WNLogging::get_null_logger());
+  EXPECT_EQ(
+      wn::scripting::parse_error::ok, translator.translate_file("file.wns"));
   EXPECT_EQ(std::string(expected_str.c_str()),
             std::string(manager.get_file("file.wns.c")->data()));
 }
 
-INSTANTIATE_TEST_CASE_P(
-    parameter_tests, c_translator_function_params,
+INSTANTIATE_TEST_CASE_P(parameter_tests, c_translator_function_params,
     ::testing::ValuesIn(std::vector<std::pair<const char*, const char*>>(
         {std::make_pair("Int", "wn_int32"),
          std::make_pair("Float", "wn_float32"),
@@ -222,15 +226,16 @@ INSTANTIATE_TEST_CASE_P(
 
 TEST(c_translator, multiple_c_functions) {
   wn::memory::default_expanding_allocator<50> allocator;
-  wn::scripting::test_file_manager manager(&allocator,
-                                           {{"file.wns",
+  wn::scripting::type_validator validator(&allocator);
+  wn::scripting::test_file_manager manager(
+      &allocator, {{"file.wns",
                                              "Void main() { return; }\n"
                                              "Void foo() { return; }\n"}});
 
-  wn::scripting::c_translator translator(&allocator, &manager,
-                                         WNLogging::get_null_logger());
-  EXPECT_EQ(wn::scripting::parse_error::ok,
-            translator.translate_file("file.wns"));
+  wn::scripting::c_translator translator(
+      &validator, &allocator, &manager, WNLogging::get_null_logger());
+  EXPECT_EQ(
+      wn::scripting::parse_error::ok, translator.translate_file("file.wns"));
   EXPECT_EQ(
       "void main() {\n"
       "return;\n"
@@ -245,13 +250,14 @@ TEST(c_translator, multiple_c_functions) {
 // Make sure multiple returns get combined into just 1.
 TEST(c_translator, multiple_returns) {
   wn::memory::default_expanding_allocator<50> allocator;
+  wn::scripting::type_validator validator(&allocator);
   wn::scripting::test_file_manager manager(
       &allocator, {{"file.wns", "Void main() { return; return; }"}});
 
-  wn::scripting::c_translator translator(&allocator, &manager,
-                                         WNLogging::get_null_logger());
-  EXPECT_EQ(wn::scripting::parse_error::ok,
-            translator.translate_file("file.wns"));
+  wn::scripting::c_translator translator(
+      &validator, &allocator, &manager, WNLogging::get_null_logger());
+  EXPECT_EQ(
+      wn::scripting::parse_error::ok, translator.translate_file("file.wns"));
   EXPECT_EQ(
       "void main() {\n"
       "return;\n"
@@ -263,6 +269,7 @@ class c_int_params : public ::testing::TestWithParam<const char*> {};
 
 TEST_P(c_int_params, int_return) {
   wn::memory::default_expanding_allocator<50> allocator;
+  wn::scripting::type_validator validator(&allocator);
   wn::containers::string str(&allocator);
   str += "Int main() { return ";
   str += GetParam();
@@ -276,17 +283,16 @@ TEST_P(c_int_params, int_return) {
   expected += ";\n}\n";
   wn::scripting::test_file_manager manager(&allocator, {{"file.wns", str}});
 
-  wn::scripting::c_translator translator(&allocator, &manager,
-                                         WNLogging::get_null_logger());
-  EXPECT_EQ(wn::scripting::parse_error::ok,
-            translator.translate_file("file.wns"));
+  wn::scripting::c_translator translator(
+      &validator, &allocator, &manager, WNLogging::get_null_logger());
+  EXPECT_EQ(
+      wn::scripting::parse_error::ok, translator.translate_file("file.wns"));
   EXPECT_EQ(std::string(expected.c_str()),
             std::string(manager.get_file("file.wns.c")->data()));
 }
 
 INSTANTIATE_TEST_CASE_P(int_tests, c_int_params,
-                        ::testing::Values("0", "-1", "-32", "-4096",
-                                          "2147483647", "-2147483648"));
+    ::testing::Values("0", "-1", "-32", "-4096", "2147483647", "-2147483648"));
 
 struct arithmetic_operations {
   const char* source;
@@ -297,6 +303,7 @@ using c_arith_params = ::testing::TestWithParam<arithmetic_operations>;
 
 TEST_P(c_arith_params, binary_arithmetic) {
   wn::memory::default_expanding_allocator<50> allocator;
+  wn::scripting::type_validator validator(&allocator);
   wn::containers::string str(&allocator);
   str += "Int main() { return ";
   str += GetParam().source;
@@ -310,22 +317,18 @@ TEST_P(c_arith_params, binary_arithmetic) {
   expected += ";\n}\n";
   wn::scripting::test_file_manager manager(&allocator, {{"file.wns", str}});
 
-  wn::scripting::c_translator translator(&allocator, &manager,
-                                         WNLogging::get_null_logger());
-  EXPECT_EQ(wn::scripting::parse_error::ok,
-            translator.translate_file("file.wns"));
+  wn::scripting::c_translator translator(
+      &validator, &allocator, &manager, WNLogging::get_null_logger());
+  EXPECT_EQ(
+      wn::scripting::parse_error::ok, translator.translate_file("file.wns"));
   EXPECT_EQ(std::string(expected.c_str()),
             std::string(manager.get_file("file.wns.c")->data()));
 }
 
-INSTANTIATE_TEST_CASE_P(
-    int_int_tests, c_arith_params,
-    ::testing::ValuesIn(
-        wn::containers::dynamic_array<arithmetic_operations>(
-            {{"1 + 2", "(1 + 2)"},
-             {"10 - 20", "(10 - 20)"},
-             {"-32 * 0", "(-32 * 0)"},
-             {"-32 % 22", "(-32 % 22)"},
+INSTANTIATE_TEST_CASE_P(int_int_tests, c_arith_params,
+    ::testing::ValuesIn(wn::containers::dynamic_array<arithmetic_operations>(
+        {{"1 + 2", "(1 + 2)"}, {"10 - 20", "(10 - 20)"},
+            {"-32 * 0", "(-32 * 0)"}, {"-32 % 22", "(-32 % 22)"},
              {"-32 + 4 * 10", "(-32 + (4 * 10))"},
              {"27 / 4 + 8 * 3", "((27 / 4) + (8 * 3))"}})));
 
@@ -333,6 +336,7 @@ using c_bool_params = ::testing::TestWithParam<arithmetic_operations>;
 
 TEST_P(c_bool_params, boolean_arithmetic) {
   wn::memory::default_expanding_allocator<50> allocator;
+  wn::scripting::type_validator validator(&allocator);
   wn::containers::string str(&allocator);
   str += "Bool wn_main(Bool b) { return ";
   str += GetParam().source;
@@ -346,31 +350,23 @@ TEST_P(c_bool_params, boolean_arithmetic) {
   expected += ";\n}\n";
   wn::scripting::test_file_manager manager(&allocator, {{"file.wns", str}});
 
-  wn::scripting::c_translator translator(&allocator, &manager,
-                                         WNLogging::get_null_logger());
-  EXPECT_EQ(wn::scripting::parse_error::ok,
-            translator.translate_file("file.wns"));
+  wn::scripting::c_translator translator(
+      &validator, &allocator, &manager, WNLogging::get_null_logger());
+  EXPECT_EQ(
+      wn::scripting::parse_error::ok, translator.translate_file("file.wns"));
   EXPECT_EQ(std::string(expected.c_str()),
             std::string(manager.get_file("file.wns.c")->data()));
 }
 
-INSTANTIATE_TEST_CASE_P(
-    int_int_tests, c_bool_params,
+INSTANTIATE_TEST_CASE_P(int_int_tests, c_bool_params,
     ::testing::ValuesIn(wn::containers::dynamic_array<arithmetic_operations>(
-        {{"true", "true"},
-         {"true == true", "(true == true)"},
-         {"false", "false"},
-         {"2 == 3", "(2 == 3)"},
-         {"3 == 4 != b", "((3 == 4) != b)"},
-         {"b == true", "(b == true)"},
-         {"b == b", "(b == b)"},
-         {"1 >= 3", "(1 >= 3)"},
-         {"1 < 1", "(1 < 1)"},
-         {"1 > 1", "(1 > 1)"},
-         {"1 >= 1", "(1 >= 1)"},
-         {"1 <= 1", "(1 <= 1)"},
-         {"1 > (3 + 2)", "(1 > (3 + 2))"},
+        {{"true", "true"}, {"true == true", "(true == true)"},
+            {"false", "false"}, {"2 == 3", "(2 == 3)"},
+            {"3 == 4 != b", "((3 == 4) != b)"}, {"b == true", "(b == true)"},
+            {"b == b", "(b == b)"}, {"1 >= 3", "(1 >= 3)"},
+            {"1 < 1", "(1 < 1)"}, {"1 > 1", "(1 > 1)"}, {"1 >= 1", "(1 >= 1)"},
+            {"1 <= 1", "(1 <= 1)"}, {"1 > (3 + 2)", "(1 > (3 + 2))"},
          {"(1 < 2) == (4 > 10)", "((1 < 2) == (4 > 10))"},
          {"(1 <= 2) == (b == false)", "((1 <= 2) == (b == false))"}})));
 
-//TODO(awoloszyn) Arithmetic comparisons
+// TODO(awoloszyn) Arithmetic comparisons
