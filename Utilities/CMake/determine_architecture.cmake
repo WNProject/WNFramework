@@ -85,10 +85,10 @@ else()
   # check for architectures using preprocessor symbols. Symbol list names must
   # match the format [architecture, all caps, alphanumeric and _ only]_SYMBOLS.
   foreach(ARCHITECTURE ${ARCHITECTURE_LIST})
-    wn_make_preprocessor_symbol(${ARCHITECTURE} ARCHITECTURE)
+    wn_make_preprocessor_symbol(${ARCHITECTURE} SANITIZE_ARCHITECTURE)
 
-    set(ARCHITECTURE_SYMBOL_LIST_NAME ${ARCHITECTURE}_SYMBOLS)
-    set(ARCHITECTURE_HAS_VARIABLE_NAME HAS_${ARCHITECTURE}_SYMBOL)
+    set(ARCHITECTURE_SYMBOL_LIST_NAME ${SANITIZE_ARCHITECTURE}_SYMBOLS)
+    set(ARCHITECTURE_HAS_VARIABLE_NAME HAS_${SANITIZE_ARCHITECTURE}_SYMBOL)
 
     wn_check_any_symbol_exists(
       ${ARCHITECTURE_SYMBOL_LIST_NAME}
@@ -97,6 +97,7 @@ else()
 
     if (${ARCHITECTURE_HAS_VARIABLE_NAME})
       set(WN_ARCHITECTURE ${ARCHITECTURE})
+
       break()
     endif()
   endforeach()
