@@ -32,7 +32,7 @@ def main():
     except:
       new_time = 0
 
-      if (not old_time == new_time):
+    if (not old_time == new_time):
       try:
         shutil.rmtree(args.build_dir)
         os.mkdir(args.build_dir)
