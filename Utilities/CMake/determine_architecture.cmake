@@ -1,14 +1,17 @@
 include(CheckTypeSize)
-include(CheckSymbolExists)
+include(
+  ${WNFramework_SOURCE_DIR}/Utilities/CMake/Workarounds/CheckSymbolExists.cmake)
 include(TestBigEndian)
 
 function(wn_check_any_symbol_exists LIST_VARIABLE_NAME VARIABLE)
   foreach(SYMBOL ${${LIST_VARIABLE_NAME}})
     set(CHECK_VARIABLE_NAME HAS_${SYMBOL})
     string(TOUPPER ${CHECK_VARIABLE_NAME} CHECK_VARIABLE_NAME)
-
-    check_symbol_exists(${SYMBOL} "" ${CHECK_VARIABLE_NAME})
-
+    if (DEFINED CMAKE_ANDROID_ARCH)
+      set(CMAKE_REQUIRED_FLAGS "-DCMAKE_ANDROID_ARCH=${CMAKE_ANDROID_ARCH}")
+    endif()
+    
+    wn_check_symbol_exists(${SYMBOL} "" ${CHECK_VARIABLE_NAME})
     if (${CHECK_VARIABLE_NAME})
       set(${VARIABLE} true PARENT_SCOPE)
       break()

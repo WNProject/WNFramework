@@ -27,14 +27,6 @@
     #ifndef __WN_SSE2_AVAILABLE
         #define __WN_SSE2_AVAILABLE
     #endif
-
-    #define _WN_ARCH_NAME "x86-64"
-#else
-    #define _WN_ARCH_NAME "x86"
-#endif
-
-#ifndef _WN_ENDIAN_LITTLE
-    #define _WN_ENDIAN_LITTLE
 #endif
 
 #endif // __WN_CORE_INTERNAL_X86_BASE_H__
