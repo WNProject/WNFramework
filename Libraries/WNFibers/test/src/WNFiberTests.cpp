@@ -46,7 +46,7 @@ TEST(fibers, dynamic_array_of_fibers) {
 
   wn::containers::dynamic_array<wn::fibers::fiber> fibers;
   fibers.reserve(11);
-  for(size_t i = 0; i < 10; ++i) {
+  for(int32_t i = 0; i < 10; ++i) {
     fibers.emplace_back(
         &m_allocator, multi_function, &x, i+1, &fibers);
   }
@@ -100,7 +100,7 @@ void generator_function(int32_t* destination, wn::fibers::fiber* main_fiber){
   wn::fibers::this_fiber::swap_to(main_fiber);
   *destination = 45;
   wn::fibers::this_fiber::swap_to(main_fiber);
-  while(true) {
+  for(;;) {
     wn::fibers::this_fiber::swap_to(main_fiber);
   }
 }
@@ -120,6 +120,6 @@ TEST(fibers, generator_function) {
   }
 
   wn::fibers::this_fiber::revert_from_fiber();
-
-  EXPECT_THAT(arr, ElementsAreArray({0, 32, 42, 10, 12, 96, 45, 45}));
+  int32_t expected[] = {0, 32, 42, 10, 12, 96, 45, 45};
+  EXPECT_THAT(arr, ElementsAreArray(expected));
 }
