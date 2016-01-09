@@ -27,7 +27,7 @@ def main():
     except:
       old_time = 0
 
-      try:
+    try:
       new_time = int(os.path.getmtime(source_file))
     except:
       new_time = 0
