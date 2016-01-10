@@ -28,118 +28,133 @@ enum cast_type {
 };
 
 struct allowed_builtin_operations {
-  bool m_arithmetic[static_cast<wn_uint32>(arithmetic_type::max)];
-  bool m_assignment[static_cast<wn_uint32>(assign_type::max)];
-  bool m_unary[static_cast<wn_uint32>(unary_type::max)];
-  bool m_post_unary[static_cast<wn_uint32>(post_unary_type::max)];
-  bool m_short_circuit[static_cast<wn_uint32>(short_circuit_type::max)];
+  uint32_t
+      m_arithmetic[static_cast<wn_uint32>(arithmetic_type::max)];
+  uint32_t m_assignment[static_cast<wn_uint32>(assign_type::max)];
+  uint32_t m_unary[static_cast<wn_uint32>(unary_type::max)];
+  uint32_t
+      m_post_unary[static_cast<wn_uint32>(post_unary_type::max)];
+  uint32_t
+      m_short_circuit[static_cast<wn_uint32>(short_circuit_type::max)];
 };
 
 static_assert(
     static_cast<wn_size_t>(type_classification::max) == 10,
     "The number of classifications has changed, please update these tables");
+static const uint32_t INVALID_TYPE =
+    static_cast<uint32_t>(type_classification::invalid_type);
+static const uint32_t VOID_TYPE =
+    static_cast<uint32_t>(type_classification::void_type);
+static const uint32_t INT_TYPE =
+    static_cast<uint32_t>(type_classification::int_type);
+static const uint32_t FLOAT_TYPE =
+    static_cast<uint32_t>(type_classification::float_type);
+static const uint32_t BOOL_TYPE =
+    static_cast<uint32_t>(type_classification::bool_type);
+static const uint32_t CHAR_TYPE =
+    static_cast<uint32_t>(type_classification::char_type);
 
 const allowed_builtin_operations valid_builtin_operations[9]{
     // clang-format off
     // empty
-    {//+     -      *      /      %      ==     !=     <=     >=     <      >
-     {false, false, false, false, false, false, false, false, false, false, false},
-     //=    +=    -=      *=     /=     %=     <==
-     {true, false, false, false, false, false, false},
-     // ++x --x   -x
-     {false, false, false},
-     // x++  x--
-     {false, false},
-     // &&   ||
-     {false, false}},
+    {//+            -             *             /             %             ==            !=            <=            >=            <             >
+     {INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE},
+     //=            +=            -=            *=            /=            %=            <==
+     {INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE},
+     // ++x         --x           -x
+     {INVALID_TYPE, INVALID_TYPE, INVALID_TYPE},
+     // x++         x--
+     {INVALID_TYPE, INVALID_TYPE},
+     // &&          ||
+     {INVALID_TYPE, INVALID_TYPE}},
     // void
-    {//+     -      *      /      %      ==     !=     <=     >=     <      >
-     {false, false, false, false, false, false, false, false, false, false, false},
-     //=    +=    -=      *=     /=     %=     <==
-     {true, false, false, false, false, false, false},
-     // ++x --x   -x
-     {false, false, false},
-     // x++  x--
-     {false, false},
-     // &&   ||
-     {false, false}},
+    {//+            -             *             /             %             ==            !=            <=            >=            <             >
+     {INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE},
+     //=         +=            -=            *=            /=            %=            <==
+     {VOID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE},
+     // ++x         --x           -x
+     {INVALID_TYPE, INVALID_TYPE, INVALID_TYPE},
+     // x++         x--
+     {INVALID_TYPE, INVALID_TYPE},
+     // &&          ||
+     {INVALID_TYPE, INVALID_TYPE}},
     // int
-    {//+    -     *     /     %     ==    !=    <=    >=    <     >
-     {true, true, true, true, true, true, true, true, true, true, true},
-     //=    +=    -=    *=    /=   %=     <==
-     {true, true, true, true, true, true, false},
-     // ++x --x   -x
-     {true, true, true},
-     // x++  x--
-     {true, true},
-     // &&   ||
-     {false, false}},
+    {//+        -         *         /         %         ==         !=         <=         >=         <          >
+     {INT_TYPE, INT_TYPE, INT_TYPE, INT_TYPE, INT_TYPE, BOOL_TYPE, BOOL_TYPE, BOOL_TYPE, BOOL_TYPE, BOOL_TYPE, BOOL_TYPE},
+     //=         +=         -=         *=         /=         %=         <==
+     {VOID_TYPE, VOID_TYPE, VOID_TYPE, VOID_TYPE, VOID_TYPE, VOID_TYPE, INVALID_TYPE},
+     // ++x     --x       -x
+     {INT_TYPE, INT_TYPE, INT_TYPE},
+     // x++     x--
+     {INT_TYPE, INT_TYPE},
+     // &&          ||
+     {INVALID_TYPE, INVALID_TYPE}},
     // float
-    {//+    -     *     /     %     ==    !=    <=    >=    <     >
-     {true, true, true, true, true, true, true, true, true, true, true},
-     //=    +=    -=    *=    /=   %=     <==
-     {true, true, true, true, true, true, false},
-     // ++x  --x    -x
-     {false, false, false},
-     // x++  x--
-     {false, false},
-     // &&   ||
-     {false, false}},
+    {//+          -           *           /           %           ==         !=         <=        >=          <          >
+     {FLOAT_TYPE, FLOAT_TYPE, FLOAT_TYPE, FLOAT_TYPE, FLOAT_TYPE, BOOL_TYPE, BOOL_TYPE, BOOL_TYPE, BOOL_TYPE, BOOL_TYPE, BOOL_TYPE},
+     //=         +=         -=         *=         /=         %=         <==
+     {VOID_TYPE, VOID_TYPE, VOID_TYPE, VOID_TYPE, VOID_TYPE, VOID_TYPE, INVALID_TYPE},
+     // ++x         --x           -x
+     {INVALID_TYPE, INVALID_TYPE, FLOAT_TYPE},
+     // x++         x--
+     {INVALID_TYPE, INVALID_TYPE},
+     // &&          ||
+     {INVALID_TYPE, INVALID_TYPE}},
     // char
-    {//+    -     *     /     %     ==    !=    <=    >=    <     >
-     {true, true, true, true, true, true, true, true, true, true, true},
-     //=    +=    -=    *=    /=   %=     <==
-     {true, true, true, true, true, true, false},
-     // ++x --x   -x
-     {true, true, true},
-     // x++  x--
-     {true, true},
-     // &&   ||
-     {false, false}},
+    {//+         -          *          /          %          ==         !=         <=         >=         <          >
+     {CHAR_TYPE, CHAR_TYPE, CHAR_TYPE, CHAR_TYPE, CHAR_TYPE, BOOL_TYPE, BOOL_TYPE, BOOL_TYPE, BOOL_TYPE, BOOL_TYPE, BOOL_TYPE},
+     //=         +=         -=         *=         /=         %=         <==
+     {VOID_TYPE, VOID_TYPE, VOID_TYPE, VOID_TYPE, VOID_TYPE, VOID_TYPE, INVALID_TYPE},
+     // ++x      --x        -x
+     {CHAR_TYPE, CHAR_TYPE, CHAR_TYPE},
+     // x++      x--
+     {CHAR_TYPE, CHAR_TYPE},
+     // &&          ||
+     {INVALID_TYPE, INVALID_TYPE}},
     // string
-    {//+     -      *      /      %      ==     !=     <=     >=     <      >
-     {false, false, false, false, false, false, false, false, false, false, false},
-     //=    +=    -=    *=    /=   %=     <==
-     {true, false, false, false, false, false, true},
-     // ++x --x   -x
-     {false, false, false},
-     // x++  x--
-     {false, false},
-     // &&   ||
-     {false, false}},
+    {//+            -             *             /             %             ==         !=         <=         >=         <          >
+     {INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, BOOL_TYPE, BOOL_TYPE, BOOL_TYPE, BOOL_TYPE, BOOL_TYPE, BOOL_TYPE},
+     //=         +=            -=            *=            /=            %=            <==
+     {VOID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE},
+     // ++x         --x           -x
+     {INVALID_TYPE, INVALID_TYPE, INVALID_TYPE},
+     // x++         x--
+     {INVALID_TYPE, INVALID_TYPE},
+     // &&          ||
+     {INVALID_TYPE, INVALID_TYPE}},
     // bool
-    {//+     -      *      /      %      ==    !=    <=     >=     <      >
-     {false, false, false, false, false, true, true, false, false, false, false},
-     //=    +=     -=     *=     /=     %=     <==
-     {true, false, false, false, false, false, false},
-     // ++x --x   -x
-     {false, false, false},
-     // x++  x--
-     {false, false},
+    {//+            -             *             /             %             ==         !=         <=            >=            <             >
+     {INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, BOOL_TYPE, BOOL_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE},
+     //=         +=            -=            *=            /=            %=            <==
+     {VOID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE},
+     // ++x         --x           -x
+     {INVALID_TYPE, INVALID_TYPE, INVALID_TYPE},
+     // x++         x--
+     {INVALID_TYPE, INVALID_TYPE},
      // &&   ||
-     {true, true}},
+     {BOOL_TYPE, BOOL_TYPE}},
     // array
-    {//+     -      *      /      %      ==    !=    <=     >=     <      >
-     {false, false, false, false, false, true, true, false, false, false, false},
-     //=    +=     -=     *=     /=     %=     <==
-     {true, false, false, false, false, false, false},
-     // ++x --x   -x
-     {false, false, false},
-     // x++  x--
-     {false, false},
-     // &&   ||
-     {false, false}},
+    {//+            -             *             /             %             ==         !=         <=            >=            <             >
+     {INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, BOOL_TYPE, BOOL_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE},
+     //=         +=            -=            *=            /=            %=            <==
+     {VOID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE},
+     // ++x         --x           -x
+     {INVALID_TYPE, INVALID_TYPE, INVALID_TYPE},
+     // x++         x--
+     {INVALID_TYPE, INVALID_TYPE},
+     // &&          ||
+     {INVALID_TYPE, INVALID_TYPE}},
     // struct
-    {//+     -      *      /      %      ==    !=    <=     >=     <      >
-     {false, false, false, false, false, true, true, false, false, false, false},
-     //=    +=     -=     *=     /=     %=     <==
-     {true, false, false, false, false, false, false},
-     // ++x --x   -x
-     {false, false, false},
-     // x++  x--
-     {false, false},
-     // &&   ||
-     {false, false}}
+    {//+            -             *             /             %             ==         !=         <=            >=            <             >
+     {INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, BOOL_TYPE, BOOL_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE},
+     //=         +=            -=            *=            /=            %=            <==
+     {VOID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE},
+     // ++x         --x           -x
+     {INVALID_TYPE, INVALID_TYPE, INVALID_TYPE},
+     // x++         x--
+     {INVALID_TYPE, INVALID_TYPE},
+     // &&          ||
+     {INVALID_TYPE, INVALID_TYPE}}
     // clang-format on
 };
 
@@ -194,19 +209,20 @@ struct type_operations {
                            });
     return (it != m_functions.end()) ? it->type_id : 0;
   }
-  bool is_valid_operation(arithmetic_type _op) const {
+
+  uint32_t get_operation(arithmetic_type _op) const {
     return m_ops.m_arithmetic[static_cast<wn_uint32>(_op)];
   }
-  bool is_valid_operation(assign_type _op) const {
+  uint32_t get_operation(assign_type _op) const {
     return m_ops.m_assignment[static_cast<wn_uint32>(_op)];
   }
-  bool is_valid_operation(unary_type _op) const {
+  uint32_t get_operation(unary_type _op) const {
     return m_ops.m_unary[static_cast<wn_uint32>(_op)];
   }
-  bool is_valid_operation(post_unary_type _op) const {
+  uint32_t get_operation(post_unary_type _op) const {
     return m_ops.m_post_unary[static_cast<wn_uint32>(_op)];
   }
-  bool is_valid_operation(short_circuit_type _op) const {
+  uint32_t get_operation(short_circuit_type _op) const {
     return m_ops.m_short_circuit[static_cast<wn_uint32>(_op)];
   }
 

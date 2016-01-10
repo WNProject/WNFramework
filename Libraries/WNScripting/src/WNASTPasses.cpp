@@ -9,15 +9,14 @@ namespace scripting {
 namespace {
 
 class pass {
- public:
+public:
   pass(type_validator* _validator, WNLogging::WNLog* _log,
       memory::allocator* _allocator)
-      : m_log(_log),
+    : m_log(_log),
       m_allocator(_allocator),
       m_validator(_validator),
-        m_num_warnings(0),
-      m_num_errors(0)
-  {}
+      m_num_warnings(0),
+      m_num_errors(0) {}
 
   wn_size_t warnings() const {
     return m_num_warnings;
@@ -35,7 +34,7 @@ protected:
 };
 
 class dead_code_elimination_pass : public pass {
- public:
+public:
   dead_code_elimination_pass(type_validator* _validator, WNLogging::WNLog* _log,
       memory::allocator* _allocator)
     : pass(_validator, _log, _allocator) {}
@@ -86,11 +85,11 @@ class dead_code_elimination_pass : public pass {
     _inst->set_returns(returns);
   }
 
- private:
+private:
 };
 
 class id_association_pass : public pass {
- public:
+public:
   id_association_pass(type_validator* _validator, WNLogging::WNLog* _log,
       memory::allocator* _allocator)
     : pass(_validator, _log, _allocator), id_map(_allocator) {}
@@ -117,7 +116,7 @@ class id_association_pass : public pass {
   void walk_parameter(parameter* _param) {
     if (find_param(_param->get_name())) {
       m_log->Log(WNLogging::eError, 0, "Id ", _param->get_name(),
-                 "hides id of the same name");
+          "hides id of the same name");
       _param->log_line(*m_log, WNLogging::eError);
       ++m_num_errors;
       return;
@@ -151,7 +150,7 @@ class id_association_pass : public pass {
   void walk_script_file(script_file*) {}
   void walk_type(type*) {}
 
- private:
+private:
   const id_expression::id_source* find_param(
       const containers::string_view& v) const {
     for (auto it = id_map.cbegin(); it != id_map.cend(); ++it) {
@@ -169,7 +168,7 @@ class id_association_pass : public pass {
 };
 
 class type_association_pass : public pass {
- public:
+public:
   type_association_pass(type_validator* _validator, WNLogging::WNLog* _log,
       memory::allocator* _allocator)
     : pass(_validator, _log, _allocator) {}
@@ -240,41 +239,31 @@ class type_association_pass : public pass {
       return;
     }
 
-    if (!m_validator->get_operations(
-                        static_cast<wn_int32>(lhs_type->get_classification()))
-             .is_valid_operation(_expr->get_arithmetic_type())) {
+    uint32_t return_type =
+        m_validator->get_operations(
+                       static_cast<wn_int32>(lhs_type->get_classification()))
+            .get_operation(_expr->get_arithmetic_type());
+
+    if (return_type ==
+        static_cast<uint32_t>(type_classification::invalid_type)) {
       m_log->Log(WNLogging::eError, 0, "Invalid operation for types");
+      _expr->log_line(*m_log, WNLogging::eError);
+      ++m_num_errors;
+      return;
+    } else if (return_type ==
+               static_cast<uint32_t>(type_classification::void_type)) {
+      m_log->Log(WNLogging::eError, 0, "Void return is invalid for arithmetic");
       _expr->log_line(*m_log, WNLogging::eError);
       ++m_num_errors;
       return;
     }
 
-    type* t = wn_nullptr;
-    switch (_expr->get_arithmetic_type()) {
-      case arithmetic_type::arithmetic_add:
-      case arithmetic_type::arithmetic_sub:
-      case arithmetic_type::arithmetic_mult:
-      case arithmetic_type::arithmetic_div:
-      case arithmetic_type::arithmetic_mod:
-        t = m_allocator->make_allocated<type>(*lhs_type);
-        break;
-      // type is LHS
-      case arithmetic_type::arithmetic_equal:
-      case arithmetic_type::arithmetic_not_equal:
-      case arithmetic_type::arithmetic_less_than_or_equal:
-      case arithmetic_type::arithmetic_greater_than_or_equal:
-      case arithmetic_type::arithmetic_less_than:
-      case arithmetic_type::arithmetic_greater_than:
-        t = m_allocator->make_allocated<type>(
-            m_allocator, type_classification::bool_type);
-        break;
-      // type is bool
-      case arithmetic_type::max:
-        WN_RELEASE_ASSERT_DESC(false, "Invalid arithmetic type");
-    }
-    if (t) {
-      t->copy_location_from(_expr);
-    }
+    WN_RELEASE_ASSERT_DESC(
+        return_type < static_cast<uint32_t>(type_classification::custom_type),
+        "Not Implemented: Custom types");
+    type* t = m_allocator->make_allocated<type>(
+        m_allocator, static_cast<type_classification>(return_type));
+    t->copy_location_from(_expr);
     _expr->set_type(t);
   }
 
@@ -310,8 +299,8 @@ class type_association_pass : public pass {
   void walk_instruction(else_if_instruction* _else_if) {
     if (_else_if->get_condition()->get_type()->get_classification() !=
         type_classification::bool_type) {
-       m_log->Log(WNLogging::eError, 0,
-                 "Else If conditional must be a boolean expression");
+      m_log->Log(WNLogging::eError, 0,
+          "Else If conditional must be a boolean expression");
       _else_if->get_condition()->log_line(*m_log, WNLogging::eError);
       ++m_num_errors;
     }
@@ -362,7 +351,7 @@ class type_association_pass : public pass {
   void walk_script_file(script_file*) {}
   void walk_type(type*) {}
 
- private:
+private:
   containers::deque<return_instruction*> m_returns;
 };
 }  // anonymous namespace
