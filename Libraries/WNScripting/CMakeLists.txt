@@ -7,6 +7,7 @@ add_wn_library(WNScripting SOURCES
   inc/WNCGenerator.h
   inc/WNCTranslator.h
   inc/WNEngine.h
+  inc/WNEngine.inl
   inc/WNFactory.h
   inc/WNEngineFileManager.h
   inc/WNEnums.h

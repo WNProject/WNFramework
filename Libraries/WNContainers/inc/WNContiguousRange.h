@@ -308,7 +308,7 @@ public:
   typedef const T& const_reference;
   typedef internal::contiguous_range_iterator<self_type> iterator;
   typedef internal::contiguous_range_iterator<const self_type, self_type,
-      const T> const_iterator;
+    const T> const_iterator;
   typedef std::reverse_iterator<iterator> reverse_iterator;
   typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
@@ -331,7 +331,7 @@ public:
 
   template <typename U, const wn_size_t N,
       typename = core::enable_if_t<std::is_convertible<U*, T*>::value>>
-  WN_FORCE_INLINE contiguous_range(U(&_ptr)[N]) : contiguous_range(_ptr, N) {}
+  WN_FORCE_INLINE contiguous_range(U (&_ptr)[N]) : contiguous_range(_ptr, N) {}
 
   template <typename U,
       typename = core::enable_if_t<std::is_convertible<U*, T*>::value>>
@@ -361,7 +361,7 @@ public:
 
   template <typename U, const wn_size_t N,
       typename = core::enable_if_t<std::is_convertible<U*, T*>::value>>
-  WN_FORCE_INLINE contiguous_range& operator=(U(&_ptr)[N]) {
+  WN_FORCE_INLINE contiguous_range& operator=(U (&_ptr)[N]) {
     contiguous_range(_ptr, N).swap(*this);
 
     return *this;

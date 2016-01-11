@@ -9,11 +9,11 @@
 
 #include <algorithm>
 
-#include "WNCore/inc/WNBase.h"
 #include "WNContainers/inc/WNDeque.h"
 #include "WNContainers/inc/WNHashMap.h"
 #include "WNContainers/inc/WNString.h"
 #include "WNContainers/inc/WNStringView.h"
+#include "WNCore/inc/WNBase.h"
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNScripting/inc/WNNodeTypes.h"
 
@@ -28,18 +28,14 @@ enum cast_type {
 };
 
 struct allowed_builtin_operations {
-  uint32_t
-      m_arithmetic[static_cast<wn_uint32>(arithmetic_type::max)];
+  uint32_t m_arithmetic[static_cast<wn_uint32>(arithmetic_type::max)];
   uint32_t m_assignment[static_cast<wn_uint32>(assign_type::max)];
   uint32_t m_unary[static_cast<wn_uint32>(unary_type::max)];
-  uint32_t
-      m_post_unary[static_cast<wn_uint32>(post_unary_type::max)];
-  uint32_t
-      m_short_circuit[static_cast<wn_uint32>(short_circuit_type::max)];
+  uint32_t m_post_unary[static_cast<wn_uint32>(post_unary_type::max)];
+  uint32_t m_short_circuit[static_cast<wn_uint32>(short_circuit_type::max)];
 };
 
-static_assert(
-    static_cast<wn_size_t>(type_classification::max) == 10,
+static_assert(static_cast<wn_size_t>(type_classification::max) == 10,
     "The number of classifications has changed, please update these tables");
 static const uint32_t INVALID_TYPE =
     static_cast<uint32_t>(type_classification::invalid_type);
@@ -174,39 +170,39 @@ struct member_function {
   wn::containers::dynamic_array<wn_uint32> parameter_ids;
 };
 
-struct type_operations {
-  explicit type_operations(memory::allocator* _allocator)
-      : m_casts(_allocator),
-        m_ids(_allocator),
-        m_functions(_allocator),
-        m_allocator(_allocator) {
+struct type_definition {
+  explicit type_definition(memory::allocator* _allocator)
+    : m_casts(_allocator),
+      m_ids(_allocator),
+      m_functions(_allocator),
+      m_allocator(_allocator),
+      m_mangling(_allocator) {
     m_ops = valid_builtin_operations[0];  // default to nothing valid
   }
-  type_operations(const allowed_builtin_operations& operation,
-                  memory::allocator* _allocator)
-      : m_casts(_allocator),
-        m_ids(_allocator),
-        m_functions(_allocator),
-        m_allocator(_allocator) {
+  type_definition(const allowed_builtin_operations& operation,
+      memory::allocator* _allocator)
+    : m_casts(_allocator),
+      m_ids(_allocator),
+      m_functions(_allocator),
+      m_allocator(_allocator),
+      m_mangling(_allocator) {
     m_ops = operation;
   }
   wn_uint32 get_cast_type(wn_uint32 _val) {
-    auto it = std::find_if(
-        m_casts.begin(), m_casts.end(),
+    auto it = std::find_if(m_casts.begin(), m_casts.end(),
         [_val](cast_operation& cast) { return _val == cast.cast_to; });
     return (it == m_casts.end()) ? 0 : it->type;
   }
   wn_uint32 get_member_id(containers::string_view _member) {
-    auto it =
-        std::find_if(m_ids.begin(), m_ids.end(),
-                     [_member](member_id& id) { return _member == id.id; });
+    auto it = std::find_if(m_ids.begin(), m_ids.end(),
+        [_member](member_id& id) { return _member == id.id; });
     return (it != m_ids.end()) ? it->type_id : 0;
   }
   wn_uint32 get_function_call(containers::string_view _function) {
     auto it = std::find_if(m_functions.begin(), m_functions.end(),
-                           [_function](member_function& funct) {
-                             return _function == funct.function_name;
-                           });
+        [_function](member_function& funct) {
+          return _function == funct.function_name;
+        });
     return (it != m_functions.end()) ? it->type_id : 0;
   }
 
@@ -230,50 +226,55 @@ struct type_operations {
   containers::dynamic_array<cast_operation> m_casts;
   containers::dynamic_array<member_id> m_ids;
   containers::dynamic_array<member_function> m_functions;
+  containers::string m_mangling;
   memory::allocator* m_allocator;
 };
 
 class type_validator {
   static memory::default_allocator s_default_allocator;
 
- public:
+public:
   type_validator(memory::allocator* _allocator = &s_default_allocator)
-      : m_mapping(_allocator),
-        m_names(_allocator),
-        m_types(_allocator),
-        m_allocator(_allocator),
-        m_max_types(1) {
+    : m_mapping(_allocator),
+      m_names(_allocator),
+      m_types(_allocator),
+      m_allocator(_allocator),
+      m_max_types(1) {
     m_mapping.insert(std::make_pair("Void", m_max_types++));
     m_mapping.insert(std::make_pair("Int", m_max_types++));
     m_mapping.insert(std::make_pair("Float", m_max_types++));
     m_mapping.insert(std::make_pair("Char", m_max_types++));
     m_mapping.insert(std::make_pair("String", m_max_types++));
     m_mapping.insert(std::make_pair("Bool", m_max_types++));
-    m_types.push_back(type_operations(m_allocator));
-    for(size_t i = 1; i < 9; ++i){
-    m_types.push_back(
-        type_operations(valid_builtin_operations[i], m_allocator));
+    m_types.push_back(type_definition(m_allocator));
+    for (size_t i = 1; i < 9; ++i) {
+      m_types.push_back(
+          type_definition(valid_builtin_operations[i], m_allocator));
     }
 
     // Int casts up to float, down to char, bool
     m_types[2].m_casts.push_back({2, up});
     m_types[2].m_casts.push_back({3, down});
     m_types[2].m_casts.push_back({5, down});
+    m_types[2].m_mangling = "l";
 
     // Float casts down to everything
     m_types[3].m_casts.push_back({1, down});
     m_types[3].m_casts.push_back({3, down});
     m_types[3].m_casts.push_back({5, down});
+    m_types[3].m_mangling = "f";
 
     // Char casts up to float and int, down to bool
     m_types[4].m_casts.push_back({1, up});
     m_types[4].m_casts.push_back({2, up});
     m_types[4].m_casts.push_back({5, down});
+    m_types[4].m_mangling = "c";
 
     // Bool casts up to int, bool, and char
     m_types[6].m_casts.push_back({1, up});
     m_types[6].m_casts.push_back({2, up});
     m_types[6].m_casts.push_back({3, up});
+    m_types[6].m_mangling = "b";
   }
 
   wn_uint32 get_or_register_type(const containers::string_view& _name) {
@@ -284,7 +285,7 @@ class type_validator {
     auto str_it = m_names.insert(m_names.end(), _name.to_string());
     wn_uint32 type = m_max_types++;
     m_mapping.insert(std::make_pair(*str_it, type));
-    m_types.push_back(type_operations(m_allocator));
+    m_types.push_back(type_definition(m_allocator));
     return type;
   }
 
@@ -296,7 +297,7 @@ class type_validator {
     return it->second;
   }
 
-  const type_operations& get_operations(wn_uint32 _type) const {
+  const type_definition& get_operations(wn_uint32 _type) const {
     return m_types[_type];
   }
 
@@ -305,46 +306,42 @@ class type_validator {
   }
 
   void enable_cast(wn_uint32 _from_type, wn_uint32 _to_type, cast_type _type) {
-    WN_DEBUG_ASSERT_DESC(
-        _from_type >=
-                static_cast<wn_uint32>(type_classification::custom_type) ||
-            _to_type >=
-                static_cast<wn_uint32>(type_classification::custom_type),
+    WN_DEBUG_ASSERT_DESC(_from_type >= static_cast<wn_uint32>(
+                                           type_classification::custom_type) ||
+                             _to_type >= static_cast<wn_uint32>(
+                                             type_classification::custom_type),
         "It is invalid to redefine a builtin cast type");
     WN_DEBUG_ASSERT_DESC(m_types[_from_type].get_cast_type(_to_type) == 0,
-                         "This cast has already been defined");
+        "This cast has already been defined");
     WN_DEBUG_ASSERT_DESC(_type != 0, "Cannot define a NON cast");
     m_types[_from_type].m_casts.push_back({_to_type, _type});
   }
 
-  void add_id(wn_uint32 _type, containers::string_view _id,
-              wn_uint32 _out_type) {
-    WN_DEBUG_ASSERT_DESC(_type < m_types.size(),
-                         "Trying to index non-existent type");
-    WN_DEBUG_ASSERT_DESC(_out_type < m_types.size(),
-                         "Trying to index non-existent out-type");
+  void add_id(
+      wn_uint32 _type, containers::string_view _id, wn_uint32 _out_type) {
+    WN_DEBUG_ASSERT_DESC(
+        _type < m_types.size(), "Trying to index non-existent type");
+    WN_DEBUG_ASSERT_DESC(
+        _out_type < m_types.size(), "Trying to index non-existent out-type");
 
     m_types[_type].m_ids.push_back({_id.to_string(m_allocator), _out_type});
   }
 
   void add_method(wn_uint32 _type, containers::string_view _name,
-                  wn_uint32 _return_type,
-                  containers::contiguous_range<wn_uint32> _types) {
-    WN_DEBUG_ASSERT_DESC(_type < m_types.size(),
-                         "Trying to index non-existent type");
-    WN_DEBUG_ASSERT_DESC(_return_type < m_types.size(),
-                         "Trying to index non-existent return_type");
+      wn_uint32 _return_type, containers::contiguous_range<wn_uint32> _types) {
     WN_DEBUG_ASSERT_DESC(
-        _types.end() == std::find_if(_types.begin(), _types.end(),
-                                     [this](wn_uint32 type) {
-                                       return type >= m_types.size();
-                                     }),
+        _type < m_types.size(), "Trying to index non-existent type");
+    WN_DEBUG_ASSERT_DESC(_return_type < m_types.size(),
+        "Trying to index non-existent return_type");
+    WN_DEBUG_ASSERT_DESC(
+        _types.end() ==
+            std::find_if(_types.begin(), _types.end(),
+                [this](wn_uint32 type) { return type >= m_types.size(); }),
         "One of the return types is out of bounds");
 
-    m_types[_type].m_functions.push_back(
-        {_name.to_string(m_allocator), _return_type,
-         containers::dynamic_array<wn_uint32>(_types.begin(), _types.end(),
-                                              m_allocator)});
+    m_types[_type].m_functions.push_back({_name.to_string(m_allocator),
+        _return_type, containers::dynamic_array<wn_uint32>(_types.begin(),
+                                              _types.end(), m_allocator)});
   }
 
   bool is_cast_possible(wn_uint32 _from_type, wn_uint32 _to_type) {
@@ -365,17 +362,42 @@ class type_validator {
     wn_uint32 b_to_a = m_types[_to_type].get_cast_type(_from_type);
 
     WN_DEBUG_ASSERT_DESC(a_to_b == 0 || a_to_b != b_to_a,
-                         "Cannot determine in which direction to cast");
+        "Cannot determine in which direction to cast");
     if (a_to_b || b_to_a) {
       return a_to_b > b_to_a ? cast_direction::left : cast_direction::right;
     }
     return cast_direction::invalid;
   }
 
- private:
+  containers::string get_mangled_name(const containers::string_view& name,
+      const containers::contiguous_range<uint32_t>& parameters) {
+    containers::string value(m_allocator);
+    value += "_Z2wn9scripting";
+    auto insert_pt = value.end();
+    size_t name_length = name.size();
+
+    while (name_length > 0) {
+      value.insert(insert_pt, '0' + name_length % 10);
+      name_length -= name_length % 10;
+      name_length /= 10;
+      insert_pt = value.end() - 1;
+    }
+
+    value.insert(value.end(), name.begin(), name.end());
+    value += "E";
+    if (parameters.empty()) {
+      value += "v";
+    }
+    for (size_t i = 0; i < parameters.size(); ++i) {
+      value += (m_types[parameters[i]].m_mangling);
+    }
+    return std::move(value);
+  }
+
+private:
   containers::hash_map<containers::string_view, wn_uint32> m_mapping;
   containers::deque<containers::string> m_names;  // list of all type names
-  containers::deque<type_operations> m_types;
+  containers::deque<type_definition> m_types;
   memory::allocator* m_allocator;
   wn_uint32 m_max_types;
 };

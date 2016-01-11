@@ -7,6 +7,7 @@
 #ifndef __WN_CONTAINERS_DYNAMIC_ARRAY_H__
 #define __WN_CONTAINERS_DYNAMIC_ARRAY_H__
 
+#include "WNContainers/inc/WNContiguousRange.h"
 #include "WNMemory/inc/WNAllocator.h"
 
 #include <iterator>
@@ -195,6 +196,11 @@ public:
     insert(begin(), l.begin(), l.end());
   }
 
+  dynamic_array(memory::allocator* _allocator, std::initializer_list<_Type> l)
+    : dynamic_array(_allocator) {
+    insert(begin(), l.begin(), l.end());
+  }
+
   template <typename TOther>
   dynamic_array(TOther begin, TOther end,
       memory::allocator* _alloc = wn_nullptr)
@@ -204,6 +210,10 @@ public:
       push_back(*begin);
       ++begin;
     }
+  }
+
+  operator contiguous_range<value_type>() {
+    return contiguous_range<value_type>(data(), size());
   }
 
   ~dynamic_array() {

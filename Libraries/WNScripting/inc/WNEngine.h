@@ -36,4 +36,5 @@ class engine {
 }  // namespace scripting
 }  // namespace wn
 
+#include "WNScripting/inc/WNEngine.inl"
 #endif  //__WN_SCRIPTING_ENGINE_H__
