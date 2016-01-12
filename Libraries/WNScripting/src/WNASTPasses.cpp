@@ -323,7 +323,7 @@ public:
       WN_RELEASE_ASSERT_DESC(false, "Not implented: custom return type");
     }
 
-    for (auto& return_inst : m_returns) {
+    for (const auto& return_inst : m_returns) {
       // TODO(awoloszyn): Add type mananger to do more rigorous type matching.
       if (!return_inst->get_expression()) {
         if (function_return_type->get_classification() !=
@@ -346,6 +346,16 @@ public:
         }
       }
     }
+
+    containers::dynamic_array<uint32_t> params(m_allocator);
+    if (_func->get_parameters()) {
+      for (const auto& param : _func->get_parameters()->get_parameters()) {
+        params.push_back(
+            static_cast<uint32_t>(param->get_type()->get_classification()));
+      }
+    }
+    _func->set_mangled_name(m_validator->get_mangled_name(
+        _func->get_signature()->get_name(), params));
   }
 
   void walk_script_file(script_file*) {}

@@ -3,20 +3,19 @@
 // found in the LICENSE.txt file.
 
 #include "WNLogging/inc/WNBufferLogger.h"
-#include "WNScripting/test/inc/Common.h"
 #include "WNScripting/inc/WNCTranslator.h"
+#include "WNScripting/test/inc/Common.h"
 #include "WNScripting/test/inc/Common.h"
 #include "WNTesting/inc/WNTestHarness.h"
 
 void flush_buffer(wn_void* v, const wn_char* bytes, wn_size_t length,
-                         const std::vector<WNLogging::WNLogColorElement>&) {
+    const std::vector<WNLogging::WNLogColorElement>&) {
   wn::containers::string* s = static_cast<wn::containers::string*>(v);
   s->append(bytes, length);
 }
 
 using buffer_logger = WNLogging::WNBufferLogger<flush_buffer>;
 using log_buff = wn::containers::string;
-
 
 TEST(c_translator, simple_c_translation) {
   wn::memory::default_expanding_allocator<50> allocator;
@@ -29,7 +28,7 @@ TEST(c_translator, simple_c_translation) {
   EXPECT_EQ(
       wn::scripting::parse_error::ok, translator.translate_file("file.wns"));
   EXPECT_EQ(
-      "void main() {\n"
+      "void _Z2wn9scripting4mainEv() {\n"
       "return;\n"
       "}\n",
       std::string(manager.get_file("file.wns.c")->data()));
@@ -60,17 +59,17 @@ TEST_P(c_translator_direct_translation_test, translations) {
 
   for (auto& a : GetParam()) {
     if (wn::memory::strlen(a.first) != 0) {
-        input_str += a.first;
-        if (a.first[0] != '\n') {
-          input_str += '\n';
-        }
+      input_str += a.first;
+      if (a.first[0] != '\n') {
+        input_str += '\n';
       }
+    }
     if (wn::memory::strlen(a.second) != 0) {
-        expected_output += a.second;
-        if (a.second[0] != '\n') {
-          expected_output += '\n';
-        }
+      expected_output += a.second;
+      if (a.second[0] != '\n') {
+        expected_output += '\n';
       }
+    }
   }
   log_buff buff(&allocator);
   buffer_logger logger(&buff);
@@ -83,7 +82,7 @@ TEST_P(c_translator_direct_translation_test, translations) {
   EXPECT_EQ(
       wn::scripting::parse_error::ok, translator.translate_file("file.wns"));
   EXPECT_EQ(std::string(expected_output.c_str()),
-            std::string(manager.get_file("file.wns.c")->data()));
+      std::string(manager.get_file("file.wns.c")->data()));
 }
 
 // clang-format off
@@ -92,7 +91,7 @@ INSTANTIATE_TEST_CASE_P(
     ::testing::ValuesIn(
         wn::containers::dynamic_array<wn::containers::dynamic_array<source_pair>>({
             {
-              {"Int main(Int x) {",     "wn_int32 main(wn_int32 x) {"  },
+              {"Int main(Int x) {",     "wn_int32 _Z2wn9scripting4mainEl(wn_int32 x) {"  },
               {"  if (x == 3) {",       "if ((x == 3)) {"              },
               {"    return 7;",         "return 7;"                    },
               {"  }",                   "}"                            },
@@ -100,7 +99,7 @@ INSTANTIATE_TEST_CASE_P(
               {"}",                     "}"                            },
             },
             {
-              {"Int main(Int x) {",     "wn_int32 main(wn_int32 x) {"  },
+              {"Int main(Int x) {",     "wn_int32 _Z2wn9scripting4mainEl(wn_int32 x) {"  },
               {"  if (x == 3) {",       "if ((x == 3)) {"              },
               {"    return 7;",         "return 7;"                    },
               {"  } else {",            "} else {"                     },
@@ -110,7 +109,7 @@ INSTANTIATE_TEST_CASE_P(
               {"}",                     "}"                            },
             },
             {
-              {"Int main(Int x) {",     "wn_int32 main(wn_int32 x) {"  },
+              {"Int main(Int x) {",     "wn_int32 _Z2wn9scripting4mainEl(wn_int32 x) {"  },
               {"  if (x == 4) {",       "if ((x == 4)) {"              },
               {"    if (x > 3) {",      "if ((x > 3)) {"               },
               {"      return 9;",       "return 9;"                    },
@@ -123,7 +122,7 @@ INSTANTIATE_TEST_CASE_P(
               {"}",                     ""                             },
             },
             {
-              {"Int main(Int x) {",        "wn_int32 main(wn_int32 x) {" },
+              {"Int main(Int x) {",        "wn_int32 _Z2wn9scripting4mainEl(wn_int32 x) {" },
               {"  if (x == 4) {",          "if ((x == 4)) {"             },
               {"    if (x > 3) {",         "if ((x > 3)) {"              },
               {"      return 9;",          "return 9;"                   },
@@ -148,7 +147,7 @@ INSTANTIATE_TEST_CASE_P(
     ::testing::ValuesIn(
         wn::containers::dynamic_array<wn::containers::dynamic_array<source_pair>>({
           {
-            {"Int main(Int x) {",     "wn_int32 main(wn_int32 x) {"  },
+            {"Int main(Int x) {",     "wn_int32 _Z2wn9scripting4mainEl(wn_int32 x) {"  },
             {"  Int y = x;",          "wn_int32 y = x;"              },
             {"  Bool b = y == 4;",    "wn_bool b = (y == 4);"        },
             {"  if (b) {    ",        "if (b) {"                     },
@@ -166,21 +165,21 @@ INSTANTIATE_TEST_CASE_P(
     ::testing::ValuesIn(
         wn::containers::dynamic_array<wn::containers::dynamic_array<source_pair>>({
           {
-            {"Int main(Int x) {",     "wn_int32 main(wn_int32 x) {"  },
+            {"Int main(Int x) {",     "wn_int32 _Z2wn9scripting4mainEl(wn_int32 x) {"  },
             {"  Int y = 0;",          "wn_int32 y = 0;"              },
             {"  x = y;",              "x = y;"                       },
             {"  return x;",           "return x;"                    },
             {"}",                     "}"                            },
           },
           {
-            {"Bool main(Int x) {",    "wn_bool main(wn_int32 x) {"   },
+            {"Bool main(Int x) {",    "wn_bool _Z2wn9scripting4mainEl(wn_int32 x) {"   },
             {"  Bool b = false;",     "wn_bool b = false;"           },
             {"  b = x == 4;",         "b = (x == 4);"                },
             {"  return b;",           "return b;"                    },
             {"}",                     "}"                            },
           },
           {
-            {"Int main(Bool x) {",    "wn_int32 main(wn_bool x) {"   },
+            {"Int main(Bool x) {",    "wn_int32 _Z2wn9scripting4mainEb(wn_bool x) {"   },
             {"  Int y = 4;",          "wn_int32 y = 4;"              },
             {"  if (x) {",            "if (x) {"                     },
             {"    y = 10;",           "y = 10;"                      },
@@ -194,7 +193,7 @@ INSTANTIATE_TEST_CASE_P(
 // clang-format on
 
 using c_translator_function_params =
-    ::testing::TestWithParam<std::pair<const char*, const char*>>;
+    ::testing::TestWithParam<std::tuple<const char*, const char*, const char*>>;
 TEST_P(c_translator_function_params, single_parameter) {
   wn::memory::default_expanding_allocator<50> allocator;
   wn::scripting::type_validator validator(&allocator);
@@ -204,7 +203,8 @@ TEST_P(c_translator_function_params, single_parameter) {
 
   wn::containers::string expected_str(&allocator);
   expected_str += std::get<1>(GetParam());
-  expected_str = expected_str + " main(" + std::get<1>(GetParam()) +
+  expected_str = expected_str + " _Z2wn9scripting4mainE" +
+                 std::get<2>(GetParam()) + "(" + std::get<1>(GetParam()) +
                  " x) {\nreturn x;\n}\n";
 
   wn::scripting::test_file_manager manager(&allocator, {{"file.wns", str}});
@@ -214,34 +214,37 @@ TEST_P(c_translator_function_params, single_parameter) {
   EXPECT_EQ(
       wn::scripting::parse_error::ok, translator.translate_file("file.wns"));
   EXPECT_EQ(std::string(expected_str.c_str()),
-            std::string(manager.get_file("file.wns.c")->data()));
+      std::string(manager.get_file("file.wns.c")->data()));
 }
 
-INSTANTIATE_TEST_CASE_P(parameter_tests, c_translator_function_params,
-    ::testing::ValuesIn(std::vector<std::pair<const char*, const char*>>(
-        {std::make_pair("Int", "wn_int32"),
-         std::make_pair("Float", "wn_float32"),
-         std::make_pair("Bool", "wn_bool"),
-         std::make_pair("Char", "wn_char")})));
+INSTANTIATE_TEST_CASE_P(
+    parameter_tests, c_translator_function_params,
+    ::testing::ValuesIn(
+        std::vector<std::tuple<const char*, const char*, const char*>>(
+            {
+                std::make_tuple("Int", "wn_int32", "l"),
+                std::make_tuple("Float", "wn_float32", "f"),
+                std::make_tuple("Bool", "wn_bool", "b"),
+                std::make_tuple("Char", "wn_char", "c")})));
 
 TEST(c_translator, multiple_c_functions) {
   wn::memory::default_expanding_allocator<50> allocator;
   wn::scripting::type_validator validator(&allocator);
   wn::scripting::test_file_manager manager(
       &allocator, {{"file.wns",
-                                             "Void main() { return; }\n"
-                                             "Void foo() { return; }\n"}});
+                      "Void main() { return; }\n"
+                      "Void foo() { return; }\n"}});
 
   wn::scripting::c_translator translator(
       &validator, &allocator, &manager, WNLogging::get_null_logger());
   EXPECT_EQ(
       wn::scripting::parse_error::ok, translator.translate_file("file.wns"));
   EXPECT_EQ(
-      "void main() {\n"
+      "void _Z2wn9scripting4mainEv() {\n"
       "return;\n"
       "}\n"
       "\n"
-      "void foo() {\n"
+      "void _Z2wn9scripting3fooEv() {\n"
       "return;\n"
       "}\n",
       std::string(manager.get_file("file.wns.c")->data()));
@@ -259,7 +262,7 @@ TEST(c_translator, multiple_returns) {
   EXPECT_EQ(
       wn::scripting::parse_error::ok, translator.translate_file("file.wns"));
   EXPECT_EQ(
-      "void main() {\n"
+      "void _Z2wn9scripting4mainEv() {\n"
       "return;\n"
       "}\n",
       std::string(manager.get_file("file.wns.c")->data()));
@@ -277,7 +280,7 @@ TEST_P(c_int_params, int_return) {
 
   wn::containers::string expected(&allocator);
   expected +=
-      "wn_int32 main() {\n"
+      "wn_int32 _Z2wn9scripting4mainEv() {\n"
       "return ";
   expected += GetParam();
   expected += ";\n}\n";
@@ -288,7 +291,7 @@ TEST_P(c_int_params, int_return) {
   EXPECT_EQ(
       wn::scripting::parse_error::ok, translator.translate_file("file.wns"));
   EXPECT_EQ(std::string(expected.c_str()),
-            std::string(manager.get_file("file.wns.c")->data()));
+      std::string(manager.get_file("file.wns.c")->data()));
 }
 
 INSTANTIATE_TEST_CASE_P(int_tests, c_int_params,
@@ -311,7 +314,7 @@ TEST_P(c_arith_params, binary_arithmetic) {
 
   wn::containers::string expected(&allocator);
   expected +=
-      "wn_int32 main() {\n"
+      "wn_int32 _Z2wn9scripting4mainEv() {\n"
       "return ";
   expected += GetParam().dest;
   expected += ";\n}\n";
@@ -322,15 +325,15 @@ TEST_P(c_arith_params, binary_arithmetic) {
   EXPECT_EQ(
       wn::scripting::parse_error::ok, translator.translate_file("file.wns"));
   EXPECT_EQ(std::string(expected.c_str()),
-            std::string(manager.get_file("file.wns.c")->data()));
+      std::string(manager.get_file("file.wns.c")->data()));
 }
 
 INSTANTIATE_TEST_CASE_P(int_int_tests, c_arith_params,
     ::testing::ValuesIn(wn::containers::dynamic_array<arithmetic_operations>(
         {{"1 + 2", "(1 + 2)"}, {"10 - 20", "(10 - 20)"},
             {"-32 * 0", "(-32 * 0)"}, {"-32 % 22", "(-32 % 22)"},
-             {"-32 + 4 * 10", "(-32 + (4 * 10))"},
-             {"27 / 4 + 8 * 3", "((27 / 4) + (8 * 3))"}})));
+            {"-32 + 4 * 10", "(-32 + (4 * 10))"},
+            {"27 / 4 + 8 * 3", "((27 / 4) + (8 * 3))"}})));
 
 using c_bool_params = ::testing::TestWithParam<arithmetic_operations>;
 
@@ -344,7 +347,7 @@ TEST_P(c_bool_params, boolean_arithmetic) {
 
   wn::containers::string expected(&allocator);
   expected +=
-      "wn_bool wn_main(wn_bool b) {\n"
+      "wn_bool _Z2wn9scripting7wn_mainEb(wn_bool b) {\n"
       "return ";
   expected += GetParam().dest;
   expected += ";\n}\n";
@@ -355,7 +358,7 @@ TEST_P(c_bool_params, boolean_arithmetic) {
   EXPECT_EQ(
       wn::scripting::parse_error::ok, translator.translate_file("file.wns"));
   EXPECT_EQ(std::string(expected.c_str()),
-            std::string(manager.get_file("file.wns.c")->data()));
+      std::string(manager.get_file("file.wns.c")->data()));
 }
 
 INSTANTIATE_TEST_CASE_P(int_int_tests, c_bool_params,
@@ -366,7 +369,5 @@ INSTANTIATE_TEST_CASE_P(int_int_tests, c_bool_params,
             {"b == b", "(b == b)"}, {"1 >= 3", "(1 >= 3)"},
             {"1 < 1", "(1 < 1)"}, {"1 > 1", "(1 > 1)"}, {"1 >= 1", "(1 >= 1)"},
             {"1 <= 1", "(1 <= 1)"}, {"1 > (3 + 2)", "(1 > (3 + 2))"},
-         {"(1 < 2) == (4 > 10)", "((1 < 2) == (4 > 10))"},
-         {"(1 <= 2) == (b == false)", "((1 <= 2) == (b == false))"}})));
-
-// TODO(awoloszyn) Arithmetic comparisons
+            {"(1 < 2) == (4 > 10)", "((1 < 2) == (4 > 10))"},
+            {"(1 <= 2) == (b == false)", "((1 <= 2) == (b == false))"}})));

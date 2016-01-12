@@ -158,7 +158,7 @@ void ast_c_translator::walk_function(const function* _func,
                                      containers::string* _str) {
   *_str = containers::string(m_allocator) +
           m_generator->get_data(_func->get_signature()->get_type()) + " " +
-          _func->get_signature()->get_name().to_string(m_allocator) + "(";
+          _func->get_mangled_name() + "(";
   wn_bool first_param = wn_true;
   if (_func->get_parameters()) {
     for (auto& a : _func->get_parameters()->get_parameters()) {

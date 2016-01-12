@@ -22,16 +22,19 @@ TEST(jit_engine, basic_parsing) {
   wn::scripting::type_validator validator(&allocator);
   wn::scripting::test_file_manager manager(&allocator,
       {{"file.wns", "Void main() { return; }"}, {"file2.wns",
-                    "Void foo() { return; } \n"
-                    "Void bar() { return; }"}});
+                                                    "Void foo() { return; } \n"
+                                                    "Void bar() { return; }"}});
   wn::scripting::jit_engine jit_engine(
       &validator, &allocator, &manager, WNLogging::get_null_logger());
   EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file.wns"));
   EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file2.wns"));
 
-  wn::scripting::engine::void_func main = jit_engine.get_function("main");
-  wn::scripting::engine::void_func foo = jit_engine.get_function("foo");
-  wn::scripting::engine::void_func bar = jit_engine.get_function("bar");
+  wn::scripting::engine::void_func main =
+      jit_engine.get_function("_Z2wn9scripting4mainEv");
+  wn::scripting::engine::void_func foo =
+      jit_engine.get_function("_Z2wn9scripting3fooEv");
+  wn::scripting::engine::void_func bar =
+      jit_engine.get_function("_Z2wn9scripting3barEv");
 
   EXPECT_NE(wn_nullptr, main);
   EXPECT_NE(wn_nullptr, foo);
@@ -53,7 +56,8 @@ TEST(jit_engine, multiple_returns) {
       &validator, &allocator, &manager, WNLogging::get_null_logger());
   EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file.wns"));
 
-  wn::scripting::engine::void_func main = jit_engine.get_function("main");
+  wn::scripting::engine::void_func main =
+      jit_engine.get_function("_Z2wn9scripting4mainEv");
 
   EXPECT_NE(wn_nullptr, main);
 
@@ -69,7 +73,7 @@ TEST(jit_engine, parse_error) {
   wn::scripting::jit_engine jit_engine(
       &validator, &allocator, &manager, WNLogging::get_null_logger());
   EXPECT_EQ(wn::scripting::parse_error::parse_failed,
-            jit_engine.parse_file("file.wns"));
+      jit_engine.parse_file("file.wns"));
 }
 
 struct int_test {
@@ -94,7 +98,8 @@ TEST_P(jit_int_params, int_return) {
       &validator, &allocator, &manager, WNLogging::get_null_logger());
   EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file.wns"));
 
-  wn::scripting::engine::void_func main = jit_engine.get_function("main");
+  wn::scripting::engine::void_func main =
+      jit_engine.get_function("_Z2wn9scripting4mainEv");
   int (*new_func)() = reinterpret_cast<int (*)()>(main);
   EXPECT_EQ(GetParam().number, (*new_func)());
 }
@@ -112,16 +117,17 @@ TEST_P(jit_int_params, int_passthrough) {
       &validator, &allocator, &manager, WNLogging::get_null_logger());
   EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file.wns"));
 
-  wn::scripting::engine::void_func main = jit_engine.get_function("main");
+  wn::scripting::engine::void_func main =
+      jit_engine.get_function("_Z2wn9scripting4mainEl");
   int (*new_func)(int) = reinterpret_cast<int (*)(int)>(main);
   EXPECT_EQ(GetParam().number, (*new_func)(GetParam().number));
 }
 
 INSTANTIATE_TEST_CASE_P(int_tests, jit_int_params,
     ::testing::Values(int_test({"0", 0}), int_test({"-1", -1}),
-                      int_test({"-32", -32}), int_test({"-4096", -4096}),
-                      int_test({"2147483647", WN_INT32_MAX}),
-                      int_test({"-2147483648", (WN_INT32_MIN)})));
+                            int_test({"-32", -32}), int_test({"-4096", -4096}),
+                            int_test({"2147483647", WN_INT32_MAX}),
+                            int_test({"-2147483648", (WN_INT32_MIN)})));
 
 struct int_binary_test {
   const char* code;
@@ -145,7 +151,8 @@ TEST_P(jit_binary_arithmetic, simple_operations) {
       &validator, &allocator, &manager, WNLogging::get_null_logger());
   EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file.wns"));
 
-  wn::scripting::engine::void_func main = jit_engine.get_function("main");
+  wn::scripting::engine::void_func main =
+      jit_engine.get_function("_Z2wn9scripting4mainEv");
   int (*new_func)() = reinterpret_cast<int (*)()>(main);
   EXPECT_EQ(GetParam().expected_return, (*new_func)());
 }
@@ -155,7 +162,7 @@ INSTANTIATE_TEST_CASE_P(int_arithmetic_tests, jit_binary_arithmetic,
         {{"1 + 2", 3}, {"2 * -3", -6}, {"10 % 4", 2}, {"-32 + 9", -23},
             {"16 / 4", 4}, {"16 / 5", 3}, {"16 / 4 + 3", 7},
             {"32 * 6 - 7", 185}, {"32 * (6 - 7)", -32}, {"191 + 10 * -3", 161},
-         {"100 + 396 * -1", -296}})));
+            {"100 + 396 * -1", -296}})));
 
 struct boolean_test {
   const char* code;
@@ -179,7 +186,8 @@ TEST_P(bool_arithmetic_tests, boolean_arithmetic) {
       &validator, &allocator, &manager, WNLogging::get_null_logger());
   EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file.wns"));
 
-  wn::scripting::engine::void_func main = jit_engine.get_function("main");
+  wn::scripting::engine::void_func main =
+      jit_engine.get_function("_Z2wn9scripting4mainEb");
   wn_bool (*new_func)(wn_bool) = reinterpret_cast<wn_bool (*)(wn_bool)>(main);
   EXPECT_EQ(GetParam().expected_return, (*new_func)(GetParam().input));
 }
@@ -194,10 +202,10 @@ INSTANTIATE_TEST_CASE_P(bool_tests, bool_arithmetic_tests,
             {"b", false, false}, {"b", true, true}, {"1 >= 3", false, false},
             {"1 < 1", false, false}, {"1 > 1", false, false},
             {"1 >= 1", false, true}, {"1 <= 1", false, true},
-         {"1 > (3 + 2)", false, false},
-         {"(1 < 2) == (4 > 10)", false, false},
-         {"(1 <= 2) == (b == false)", false, true},
-         {"(1 <= 2) == (b == false)", true, false}})));
+            {"1 > (3 + 2)", false, false},
+            {"(1 < 2) == (4 > 10)", false, false},
+            {"(1 <= 2) == (b == false)", false, true},
+            {"(1 <= 2) == (b == false)", true, false}})));
 
 struct integer_test {
   const char* code;
@@ -217,7 +225,8 @@ TEST_P(integer_tests, int_in_out_tests) {
       &validator, &allocator, &manager, WNLogging::get_null_logger());
   EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file.wns"));
 
-  wn::scripting::engine::void_func main = jit_engine.get_function("main");
+  wn::scripting::engine::void_func main =
+      jit_engine.get_function("_Z2wn9scripting4mainEl");
   wn_int32 (*new_func)(wn_int32) =
       reinterpret_cast<wn_int32 (*)(wn_int32)>(main);
   for (auto& test_case : GetParam().cases) {

@@ -370,7 +370,7 @@ public:
   }
 
   containers::string get_mangled_name(const containers::string_view& name,
-      const containers::contiguous_range<uint32_t>& parameters) {
+      const containers::contiguous_range<uint32_t>& parameters) const {
     containers::string value(m_allocator);
     value += "_Z2wn9scripting";
     auto insert_pt = value.end();

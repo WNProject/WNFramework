@@ -378,7 +378,7 @@ void ast_jit_engine::walk_function(const function* _func, llvm::Function** _f) {
       make_array_ref(parameters), wn_false);
   *_f = llvm::Function::Create(t,
       llvm::GlobalValue::LinkageTypes::ExternalLinkage,
-      make_string_ref(_func->get_signature()->get_name()));
+      make_string_ref(_func->get_mangled_name()));
   if (_func->get_parameters()) {
     auto llvm_args = (*_f)->arg_begin();
     auto arg_names = _func->get_parameters()->get_parameters().begin();

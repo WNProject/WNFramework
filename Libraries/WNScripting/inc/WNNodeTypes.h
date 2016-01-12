@@ -214,7 +214,7 @@ public:
       m_num_array_levels(_num_array_levels) {}
 
   const type* get_subtype() const {
-     return m_subtype.get();
+    return m_subtype.get();
   }
 
 private:
@@ -874,11 +874,21 @@ public:
     _leave_scope();
   }
 
+  void set_mangled_name(const containers::string& _name) {
+    m_mangled_name =
+        containers::string(_name.c_str(), _name.size(), m_allocator);
+  }
+
+  // This will not be valid until after the type_association pass.
+  const containers::string& get_mangled_name() const {
+    return m_mangled_name;
+  }
+
 private:
   memory::allocated_ptr<parameter> m_signature;
   memory::allocated_ptr<parameter_list> m_parameters;
   memory::allocated_ptr<instruction_list> m_body;
-
+  containers::string m_mangled_name;
   bool m_is_override;
   bool m_is_virtual;
 };
