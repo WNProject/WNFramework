@@ -41,13 +41,15 @@ class jit_engine : public engine {
    jit_engine(type_validator* _validator, memory::allocator* _allocator,
        file_manager* _manager, WNLogging::WNLog* _log);
    ~jit_engine();
+   parse_error parse_file(const char* file) override;
+
+ protected:
    void_func get_function(containers::string_view _name) const override {
      return m_pointers.find(_name)->second;
   }
-  parse_error parse_file(const char* file) override;
- private:
+
+private:
   CompiledModule& add_module(containers::string_view _file);
-  memory::allocator* m_allocator;
   file_manager* m_file_manager;
   WNLogging::WNLog* m_compilation_log;
   std::unique_ptr<llvm::LLVMContext> m_context;

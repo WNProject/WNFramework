@@ -14,6 +14,7 @@ endif()
 
 add_wn_header_library(WNContainers
   ${WN_CONTAINERS_FILES}
+  inc/WNArray.h
   inc/WNContiguousRange.h
   inc/WNDataBuffer.h
   inc/WNDeque.h

@@ -7,6 +7,7 @@
 #ifndef __WN_CONTAINERS_CONTIGUOUS_RANGE_H__
 #define __WN_CONTAINERS_CONTIGUOUS_RANGE_H__
 
+#include "WNContainers/inc/WNArray.h"
 #include "WNCore/inc/WNAssert.h"
 #include "WNCore/inc/WNUtility.h"
 
@@ -328,6 +329,11 @@ public:
 
   WN_FORCE_INLINE explicit contiguous_range(T* _ptr, const size_type _size)
     : contiguous_range(_ptr, _ptr + _size) {}
+
+  template <typename U, std::size_t N,
+      typename = core::enable_if_t<std::is_convertible<U*, T*>::value>>
+  WN_FORCE_INLINE explicit contiguous_range(array<U, N>& value)
+    : contiguous_range(value.data(), N) {}
 
   template <typename U, const wn_size_t N,
       typename = core::enable_if_t<std::is_convertible<U*, T*>::value>>

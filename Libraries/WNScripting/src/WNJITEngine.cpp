@@ -73,8 +73,7 @@ CompiledModule::CompiledModule(CompiledModule&& _other)
 jit_engine::jit_engine(type_validator* _validator,
     memory::allocator* _allocator, file_manager* _manager,
     WNLogging::WNLog* _log)
-  : engine(_validator),
-    m_allocator(_allocator),
+  : engine(_validator, _allocator),
     m_file_manager(_manager),
     m_compilation_log(_log),
     m_modules(_allocator),
