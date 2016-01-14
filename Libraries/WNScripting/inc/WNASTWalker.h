@@ -17,6 +17,8 @@
 namespace wn {
 namespace scripting {
 
+// Walks a script_file and calls all of the associated
+// walk_* calls on the associated walker.
 template <typename T, bool Const = wn_false>
 class ast_walker {
  public:
@@ -49,11 +51,15 @@ class ast_walker {
   T* m_walker;
 };
 
+// Generates an ast_walker, and runs the ast_pass on
+// a modifiable version of the tree.
 template <typename T>
 void run_ast_pass(T* _pass, script_file* _file) {
   ast_walker<T, false>(_pass).walk_script_file(_file);
 }
 
+// Generates an ast_walker, and runs the ast_pass
+// on a non-modifiable version of the tree.
 template <typename T>
 void run_ast_pass(T* _pass, const script_file* _file) {
   ast_walker<T, true>(_pass).walk_script_file(_file);

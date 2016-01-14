@@ -8,6 +8,7 @@
 namespace wn {
 namespace scripting {
 
+// All possible asisgnment operators in WNScript.
 enum class assign_type {
   equal,
   add_equal,
@@ -19,17 +20,20 @@ enum class assign_type {
   max
 };
 
-static const char *assign_type_names[static_cast<size_t>(assign_type::max)] = {
+// The textual representation of the assignment operators.
+static const char* assign_type_names[static_cast<size_t>(assign_type::max)] = {
     "=", "+=", "-=", "*=", "/=", "%=", "<=="};
 
+// All possible short_circuit operators in WNScript.
 enum class short_circuit_type { and_operator, or_operator, max };
 
-static const char *short_circuit_type_names[static_cast<size_t>(
+// The textual representation of all short_circuit operators.
+static const char* short_circuit_type_names[static_cast<size_t>(
     short_circuit_type::max)] = {"&&", "||"};
 
-// The only place these are used is to define constants that are handled in a
-// special way
-// special insofar as the language recognizes them
+// A classification of all types.
+// Note this will have to be expanded to more than just
+// an enum in the future to handle named types.
 enum class type_classification {
   invalid_type,
   void_type,
@@ -44,13 +48,16 @@ enum class type_classification {
   max
 };
 
-static const char *
+// Textual representation of classifications.
+static const char*
     type_classification_names[static_cast<size_t>(type_classification::max)] = {
         "Int", "Float", "Char", "Char", "Bool", "Custom"};
 
+// How deep each of the types is in in terms of array indexing.
 static const wn_size_t type_array_depth[static_cast<size_t>(
-    type_classification::max)] = {0, 0, 0, 1, 0, 0};
+    type_classification::max)] = {0, 0, 0, 0, 0, 1, 0, 1, 0, 0};
 
+// All possible binary arithmetic operations in WNScript.
 enum class arithmetic_type {
   arithmetic_add,
   arithmetic_sub,
@@ -66,20 +73,27 @@ enum class arithmetic_type {
   max
 };
 
-static const char
-    *arithmetic_type_names[static_cast<size_t>(arithmetic_type::max)] = {
+// The textual representation of all possible binary arithmetic
+// operations in WNScript.
+static const char*
+    arithmetic_type_names[static_cast<size_t>(arithmetic_type::max)] = {
         "+", "-", "*", "/", "%", "==", "!=", "<=", ">=", "<", ">"};
 
+// All possible pre-unary operations in WNScript.
 enum class unary_type { pre_increment, pre_decrement, negation, max };
 
-static const char *unary_type_names[static_cast<size_t>(unary_type::max)] = {
+// The textual representation of all possible pre-unary operations in WNScript.
+static const char* unary_type_names[static_cast<size_t>(unary_type::max)] = {
     "++", "--", "-"};
 
+// All possible post-unary operations in WNScript.
 enum class post_unary_type { post_increment, post_decrement, max };
 
-static const char *
-    post_un_names[static_cast<size_t>(post_unary_type::max)] = {"++", "--"};
+// The textual representation of all possible post-unary operations in
+// WNScript.
+static const char* post_un_names[static_cast<size_t>(post_unary_type::max)] = {
+    "++", "--"};
 }
 }
 
-#endif //__WN_SCRIPTING_ENUMS_H__
+#endif  //__WN_SCRIPTING_ENUMS_H__

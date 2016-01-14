@@ -27,6 +27,7 @@ namespace llvm {
 namespace wn {
 namespace scripting {
 
+// All of the llvm data needed for a single compiled module.
 class CompiledModule : public core::non_copyable {
 public:
   CompiledModule();
@@ -36,6 +37,8 @@ public:
   llvm::Module* m_module;
 };
 
+// A specialization of engine that compiles WNScript files
+// using LLVM during calls to parse_file.
 class jit_engine : public engine {
  public:
    jit_engine(type_validator* _validator, memory::allocator* _allocator,

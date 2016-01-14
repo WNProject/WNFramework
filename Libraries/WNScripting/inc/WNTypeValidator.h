@@ -27,6 +27,7 @@ enum cast_type {
   up = 1 << 1,
 };
 
+// Data for builtin operations
 struct allowed_builtin_operations {
   uint32_t m_arithmetic[static_cast<wn_uint32>(arithmetic_type::max)];
   uint32_t m_assignment[static_cast<wn_uint32>(assign_type::max)];
@@ -50,6 +51,7 @@ static const uint32_t BOOL_TYPE =
 static const uint32_t CHAR_TYPE =
     static_cast<uint32_t>(type_classification::char_type);
 
+// Tables for all of the internal types.
 const allowed_builtin_operations valid_builtin_operations[9]{
     // clang-format off
     // empty
@@ -170,6 +172,11 @@ struct member_function {
   wn::containers::dynamic_array<wn_uint32> parameter_ids;
 };
 
+// All of the data associated with a given type.
+// Describes what operations are allowed on a type,
+// what IDs are accessible through an instance of this type,
+// what functions are callable through an instance of this type
+// and what operations are allowable on this type.
 struct type_definition {
   explicit type_definition(memory::allocator* _allocator)
     : m_casts(_allocator),
@@ -230,6 +237,9 @@ struct type_definition {
   memory::allocator* m_allocator;
 };
 
+// The main class for all type-related operations.
+// Queryable for operations, methods, custom types,
+// name mangling etc.
 class type_validator {
   static memory::default_allocator s_default_allocator;
 

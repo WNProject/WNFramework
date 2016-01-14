@@ -19,6 +19,9 @@ namespace wn {
 namespace scripting {
 class type_validator;
 
+// Base interface for file translation.
+// Any implementor is responsible for overloading
+// translate_file to perform the actual work.
 class translator {
 public:
   translator(type_validator* _validator)

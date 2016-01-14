@@ -17,6 +17,8 @@ namespace wn {
 namespace scripting {
 class script_file;
 class type_validator;
+// Simple helper that parses a script and runs any
+// passes that are required to make the AST valid.
 memory::allocated_ptr<wn::scripting::script_file> parse_script(
     memory::allocator* _allocator, type_validator* _validator,
     const wn_char* file_name, containers::string_view view,

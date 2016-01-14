@@ -16,6 +16,11 @@ namespace wn {
 namespace scripting {
 class type_validator;
 
+// Implementors of this class are expected to take
+// in files, and give access to function pointer callable from
+// C++.
+// The type_validator is expected to be set up and unchangable
+// before the first call to parse_file or get_function_pointer.
 class engine {
 public:
   engine(type_validator* _validator, memory::allocator* _allocator)
@@ -26,26 +31,38 @@ public:
       m_registered_types(_allocator) {
     register_builtin_types();
   }
-  typedef void (*void_func)();
+
   virtual ~engine() {}
+
+  // Implemented in subclasses. Given a file, determine and prepare
+  // and function pointers that may exist.
   virtual parse_error parse_file(const char* file) = 0;
 
+  // Returns the number of errors that were encountered in
+  // parsing the file.
   wn_size_t errors() const {
     return m_num_errors;
   }
+
+  // Returns the number of warnings encountered in parsing the file.
   wn_size_t warnings() const {
     return m_num_warnings;
   }
 
+  // Given a C-style function pointer, and a function name,
+  // returns a function pointer from a parsed file that matches the
+  // signature. The return types and all parameter types must
+  // match exactly.
   template <typename T, typename... Args>
   bool get_function_pointer(
       containers::string_view _name, T (*&function)(Args...)) const;
-
+  typedef void (*void_func)();
 protected:
   wn_size_t m_num_warnings;
   wn_size_t m_num_errors;
   memory::allocator* m_allocator;
   type_validator* m_validator;
+
   virtual void_func get_function(containers::string_view _name) const = 0;
 
 private:

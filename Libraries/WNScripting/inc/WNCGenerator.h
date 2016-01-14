@@ -19,6 +19,10 @@ struct ast_c_traits {
   using code_gen = ast_c_translator;
 };
 
+// Implements the functionality required by the
+// ASTCodeGenerator. After walking the tree
+// get_output_string() will return a file written in
+// the C language, that is equivalent to the AST.
 class ast_c_translator {
 public:
   ast_c_translator(memory::allocator* _allocator,

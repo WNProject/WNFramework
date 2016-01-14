@@ -20,10 +20,15 @@ class allocator;
 
 namespace scripting {
 class file_manager;
+// Create C files from the given scripting files.
 class c_translator : public translator {
  public:
    c_translator(type_validator* _validator, memory::allocator* _allocator,
        file_manager* _manager, WNLogging::WNLog* _log);
+
+   // Looks in m_file_manager for the path given by the file parameter,
+   // and translates the file into C. The file is saved in the same location
+   // as the c file with an additional .c extension.
    parse_error translate_file(const char* file) override;
 
  private:

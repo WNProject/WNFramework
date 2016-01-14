@@ -15,6 +15,10 @@
 namespace wn {
 namespace scripting {
 
+// Temporary file:
+// This implements a very basic file-system manager.
+// This will be removed once the new WNFileSystem is in place.
+
 enum class file_error {
 #include "WNCore/inc/Internal/WNErrors.inc"
   file_not_found
@@ -35,6 +39,7 @@ class file_manager {
                           const containers::string_view& data) = 0;
 };
 
+// TODO(awoloszyn): Remove this once the new WNFileSystem is in place.
 class file_backed_buffer : public file_buffer {
  public:
   file_backed_buffer() {}

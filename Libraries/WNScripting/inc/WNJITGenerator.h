@@ -33,6 +33,8 @@ struct instruction_dat {
   containers::dynamic_array<llvm::BasicBlock*> blocks;
 };
 
+// Implements the ast_walker interface for creating
+// llvm modules from WNScript ASTs.
 class ast_jit_engine;
 struct ast_jit_traits {
   using instruction_data = instruction_dat;

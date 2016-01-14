@@ -16,12 +16,47 @@
 namespace wn {
 namespace scripting {
 
-template <typename Traits>
+// Placeholder traits. If ast_code_generator,
+// is initialized with this, it will fail.
+// Notes on traits types:
+//  ...data values must be default constructible
+//  They will be default constructed and then passed
+//   to the walk_*() function calls to be filled in.
+//  They will be default destructed when the
+//    ast_code_generator is destroyed.
+struct null_traits {
+  using instruction_list_data = void;
+  using instruction_data = void;
+  using expression_data = void;
+  using parameter_data = void;
+  using function_data = void;
+  using type_data = void;
+  using code_gen = void;
+};
+template <typename Traits = null_traits>
 class ast_code_generator {
  public:
-  void set_generator(typename Traits::code_gen* _generator) {
-    m_generator = _generator;
+   // Sets the internal generator.
+   // This generator is expected to have at least the
+   // following methods:
+   // void walk_expression(const expression*, Traits::expression_data*);
+   // void walk_instruction_list(
+   //     const instruction_list*, Traits::instruction_list_data*);
+   // void walk_type(const type*, Traits::type_data*);
+   // void walk_instruction(const instruction*, Traits::instruction_data*);
+   // void walk_parameter(const parameter*, Traits::parameter_data*);
+   // void walk_function(const function*, Traits::function_data*);
+   // void walk_script_file(const script_file*);
+   // Any specializations of these methods, for example:
+   // void walk_expression(const binary_expression*, Traits::expression_data*)
+   // will be called instead of the base method if they are present,
+   // otherwise the base method will be called.
+   void set_generator(typename Traits::code_gen* _generator) {
+     m_generator = _generator;
   }
+
+  // All of the following create new *_data objects, and call
+  // the underlying m_generator->walk_... function.
   template <typename T>
   void walk_expression(T* t);
   template <typename T>
@@ -30,10 +65,15 @@ class ast_code_generator {
   void walk_instruction_list(instruction_list* _l);
   void walk_function(function* _f);
   void walk_type(type* _t);
+  // Calls the underlying m_generator->walk_script_file function.
   void walk_script_file(script_file* _f);
+  // Called when a scope block is entered or left.
+  // No-ops here, needed for the correct interface to ASTWalker.
   void enter_scope_block() {}
   void leave_scope_block() {}
 
+  // Given a scripting node, returns the data that was
+  // created in the associated call to walk_*.
   typename Traits::instruction_list_data& get_data(
       const instruction_list* _inst);
   typename Traits::instruction_data& get_data(const instruction* _inst);
@@ -44,6 +84,7 @@ class ast_code_generator {
 
  private:
   typename Traits::code_gen* m_generator;
+  // A collection of scripting nodes to their associated data.
   containers::hash_map<const instruction_list*,
                        typename Traits::instruction_list_data>
       m_instruction_list_map;
