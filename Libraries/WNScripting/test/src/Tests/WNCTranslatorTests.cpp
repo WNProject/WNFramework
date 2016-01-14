@@ -28,7 +28,7 @@ TEST(c_translator, simple_c_translation) {
   EXPECT_EQ(
       wn::scripting::parse_error::ok, translator.translate_file("file.wns"));
   EXPECT_EQ(
-      "void _Z2wn9scripting4mainEv() {\n"
+      "void _Z3wns4mainEv() {\n"
       "return;\n"
       "}\n",
       std::string(manager.get_file("file.wns.c")->data()));
@@ -91,7 +91,7 @@ INSTANTIATE_TEST_CASE_P(
     ::testing::ValuesIn(
         wn::containers::dynamic_array<wn::containers::dynamic_array<source_pair>>({
             {
-              {"Int main(Int x) {",     "wn_int32 _Z2wn9scripting4mainEl(wn_int32 x) {"  },
+              {"Int main(Int x) {",     "wn_int32 _Z3wns4mainEll(wn_int32 x) {"  },
               {"  if (x == 3) {",       "if ((x == 3)) {"              },
               {"    return 7;",         "return 7;"                    },
               {"  }",                   "}"                            },
@@ -99,7 +99,7 @@ INSTANTIATE_TEST_CASE_P(
               {"}",                     "}"                            },
             },
             {
-              {"Int main(Int x) {",     "wn_int32 _Z2wn9scripting4mainEl(wn_int32 x) {"  },
+              {"Int main(Int x) {",     "wn_int32 _Z3wns4mainEll(wn_int32 x) {"  },
               {"  if (x == 3) {",       "if ((x == 3)) {"              },
               {"    return 7;",         "return 7;"                    },
               {"  } else {",            "} else {"                     },
@@ -109,7 +109,7 @@ INSTANTIATE_TEST_CASE_P(
               {"}",                     "}"                            },
             },
             {
-              {"Int main(Int x) {",     "wn_int32 _Z2wn9scripting4mainEl(wn_int32 x) {"  },
+              {"Int main(Int x) {",     "wn_int32 _Z3wns4mainEll(wn_int32 x) {"  },
               {"  if (x == 4) {",       "if ((x == 4)) {"              },
               {"    if (x > 3) {",      "if ((x > 3)) {"               },
               {"      return 9;",       "return 9;"                    },
@@ -122,7 +122,7 @@ INSTANTIATE_TEST_CASE_P(
               {"}",                     ""                             },
             },
             {
-              {"Int main(Int x) {",        "wn_int32 _Z2wn9scripting4mainEl(wn_int32 x) {" },
+              {"Int main(Int x) {",        "wn_int32 _Z3wns4mainEll(wn_int32 x) {" },
               {"  if (x == 4) {",          "if ((x == 4)) {"             },
               {"    if (x > 3) {",         "if ((x > 3)) {"              },
               {"      return 9;",          "return 9;"                   },
@@ -147,7 +147,7 @@ INSTANTIATE_TEST_CASE_P(
     ::testing::ValuesIn(
         wn::containers::dynamic_array<wn::containers::dynamic_array<source_pair>>({
           {
-            {"Int main(Int x) {",     "wn_int32 _Z2wn9scripting4mainEl(wn_int32 x) {"  },
+            {"Int main(Int x) {",     "wn_int32 _Z3wns4mainEll(wn_int32 x) {"  },
             {"  Int y = x;",          "wn_int32 y = x;"              },
             {"  Bool b = y == 4;",    "wn_bool b = (y == 4);"        },
             {"  if (b) {    ",        "if (b) {"                     },
@@ -165,21 +165,21 @@ INSTANTIATE_TEST_CASE_P(
     ::testing::ValuesIn(
         wn::containers::dynamic_array<wn::containers::dynamic_array<source_pair>>({
           {
-            {"Int main(Int x) {",     "wn_int32 _Z2wn9scripting4mainEl(wn_int32 x) {"  },
+            {"Int main(Int x) {",     "wn_int32 _Z3wns4mainEll(wn_int32 x) {"  },
             {"  Int y = 0;",          "wn_int32 y = 0;"              },
             {"  x = y;",              "x = y;"                       },
             {"  return x;",           "return x;"                    },
             {"}",                     "}"                            },
           },
           {
-            {"Bool main(Int x) {",    "wn_bool _Z2wn9scripting4mainEl(wn_int32 x) {"   },
+            {"Bool main(Int x) {",    "wn_bool _Z3wns4mainEbl(wn_int32 x) {"   },
             {"  Bool b = false;",     "wn_bool b = false;"           },
             {"  b = x == 4;",         "b = (x == 4);"                },
             {"  return b;",           "return b;"                    },
             {"}",                     "}"                            },
           },
           {
-            {"Int main(Bool x) {",    "wn_int32 _Z2wn9scripting4mainEb(wn_bool x) {"   },
+            {"Int main(Bool x) {",    "wn_int32 _Z3wns4mainElb(wn_bool x) {"   },
             {"  Int y = 4;",          "wn_int32 y = 4;"              },
             {"  if (x) {",            "if (x) {"                     },
             {"    y = 10;",           "y = 10;"                      },
@@ -203,7 +203,7 @@ TEST_P(c_translator_function_params, single_parameter) {
 
   wn::containers::string expected_str(&allocator);
   expected_str += std::get<1>(GetParam());
-  expected_str = expected_str + " _Z2wn9scripting4mainE" +
+  expected_str = expected_str + " _Z3wns4mainE" + std::get<2>(GetParam()) +
                  std::get<2>(GetParam()) + "(" + std::get<1>(GetParam()) +
                  " x) {\nreturn x;\n}\n";
 
@@ -221,8 +221,7 @@ INSTANTIATE_TEST_CASE_P(
     parameter_tests, c_translator_function_params,
     ::testing::ValuesIn(
         std::vector<std::tuple<const char*, const char*, const char*>>(
-            {
-                std::make_tuple("Int", "wn_int32", "l"),
+            {std::make_tuple("Int", "wn_int32", "l"),
                 std::make_tuple("Float", "wn_float32", "f"),
                 std::make_tuple("Bool", "wn_bool", "b"),
                 std::make_tuple("Char", "wn_char", "c")})));
@@ -240,11 +239,11 @@ TEST(c_translator, multiple_c_functions) {
   EXPECT_EQ(
       wn::scripting::parse_error::ok, translator.translate_file("file.wns"));
   EXPECT_EQ(
-      "void _Z2wn9scripting4mainEv() {\n"
+      "void _Z3wns4mainEv() {\n"
       "return;\n"
       "}\n"
       "\n"
-      "void _Z2wn9scripting3fooEv() {\n"
+      "void _Z3wns3fooEv() {\n"
       "return;\n"
       "}\n",
       std::string(manager.get_file("file.wns.c")->data()));
@@ -262,7 +261,7 @@ TEST(c_translator, multiple_returns) {
   EXPECT_EQ(
       wn::scripting::parse_error::ok, translator.translate_file("file.wns"));
   EXPECT_EQ(
-      "void _Z2wn9scripting4mainEv() {\n"
+      "void _Z3wns4mainEv() {\n"
       "return;\n"
       "}\n",
       std::string(manager.get_file("file.wns.c")->data()));
@@ -280,7 +279,7 @@ TEST_P(c_int_params, int_return) {
 
   wn::containers::string expected(&allocator);
   expected +=
-      "wn_int32 _Z2wn9scripting4mainEv() {\n"
+      "wn_int32 _Z3wns4mainEl() {\n"
       "return ";
   expected += GetParam();
   expected += ";\n}\n";
@@ -314,7 +313,7 @@ TEST_P(c_arith_params, binary_arithmetic) {
 
   wn::containers::string expected(&allocator);
   expected +=
-      "wn_int32 _Z2wn9scripting4mainEv() {\n"
+      "wn_int32 _Z3wns4mainEl() {\n"
       "return ";
   expected += GetParam().dest;
   expected += ";\n}\n";
@@ -347,7 +346,7 @@ TEST_P(c_bool_params, boolean_arithmetic) {
 
   wn::containers::string expected(&allocator);
   expected +=
-      "wn_bool _Z2wn9scripting7wn_mainEb(wn_bool b) {\n"
+      "wn_bool _Z3wns7wn_mainEbb(wn_bool b) {\n"
       "return ";
   expected += GetParam().dest;
   expected += ";\n}\n";

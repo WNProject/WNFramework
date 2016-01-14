@@ -348,6 +348,8 @@ public:
     }
 
     containers::dynamic_array<uint32_t> params(m_allocator);
+    uint32_t return_type = static_cast<uint32_t>(
+        _func->get_signature()->get_type()->get_classification());
     if (_func->get_parameters()) {
       for (const auto& param : _func->get_parameters()->get_parameters()) {
         params.push_back(
@@ -355,7 +357,7 @@ public:
       }
     }
     _func->set_mangled_name(m_validator->get_mangled_name(
-        _func->get_signature()->get_name(), params));
+        _func->get_signature()->get_name(), return_type, params));
   }
 
   void walk_script_file(script_file*) {}

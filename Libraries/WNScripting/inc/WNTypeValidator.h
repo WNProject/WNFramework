@@ -252,6 +252,8 @@ public:
           type_definition(valid_builtin_operations[i], m_allocator));
     }
 
+    m_types[1].m_mangling = "v";
+
     // Int casts up to float, down to char, bool
     m_types[2].m_casts.push_back({2, up});
     m_types[2].m_casts.push_back({3, down});
@@ -370,9 +372,10 @@ public:
   }
 
   containers::string get_mangled_name(const containers::string_view& name,
+      const uint32_t& return_type,
       const containers::contiguous_range<uint32_t>& parameters) const {
     containers::string value(m_allocator);
-    value += "_Z2wn9scripting";
+    value += "_Z3wns";
     auto insert_pt = value.end();
     size_t name_length = name.size();
 
@@ -385,12 +388,11 @@ public:
 
     value.insert(value.end(), name.begin(), name.end());
     value += "E";
-    if (parameters.empty()) {
-      value += "v";
-    }
+    value += m_types[return_type].m_mangling;
     for (size_t i = 0; i < parameters.size(); ++i) {
       value += (m_types[parameters[i]].m_mangling);
     }
+
     return std::move(value);
   }
 

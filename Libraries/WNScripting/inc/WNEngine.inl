@@ -55,7 +55,7 @@ uint32_t get_registered_index(
 }
 
 template <size_t size>
-struct expand_args {
+struct expand_parameters {
   template <typename T, typename... Args>
   static bool run(containers::dynamic_array<uint32_t>* _params,
       const containers::hash_map<void*, uint32_t>& _registered_types) {
@@ -68,7 +68,7 @@ struct expand_args {
 };
 
 template <>
-struct expand_args<1> {
+struct expand_parameters<1> {
   template <typename T, typename P>
   static bool run(containers::dynamic_array<uint32_t>* _params,
       const containers::hash_map<void*, uint32_t>& _registered_types) {
@@ -80,7 +80,7 @@ struct expand_args<1> {
 };
 
 template <>
-struct expand_args<0> {
+struct expand_parameters<0> {
   template <typename T>
   static bool run(containers::dynamic_array<uint32_t>*,
       const containers::hash_map<void*, uint32_t>&) {
@@ -94,14 +94,22 @@ template <typename T, typename... Args>
 bool WN_INLINE engine::get_function_pointer(
     containers::string_view _name, T (*&function)(Args...)) const {
   containers::dynamic_array<uint32_t> parameters(m_allocator);
-  bool error = expand_args<sizeof...(Args)>::template run<T, Args...>(
+  bool error = false;
+
+  uint32_t return_type = get_registered_index(
+      m_registered_types, &error, type_registry<T>::get_registered_index());
+  if (error) {
+    return false;
+  }
+
+  error = expand_parameters<sizeof...(Args)>::template run<T, Args...>(
       &parameters, m_registered_types);
   if (error) {
     return false;
   }
   function = reinterpret_cast<T (*)(Args...)>(
-      get_function(m_validator->get_mangled_name(
-          _name, containers::contiguous_range<uint32_t>(parameters))));
+      get_function(m_validator->get_mangled_name(_name, return_type,
+          containers::contiguous_range<uint32_t>(parameters))));
   return function != nullptr;
 }
 

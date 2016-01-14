@@ -249,55 +249,69 @@ TEST(name_mangling, basic_types) {
   wn::memory::default_expanding_allocator<50> allocator;
   wn::scripting::type_validator validator(&allocator);
 
-  EXPECT_EQ("_Z2wn9scripting3FooEl",
+  EXPECT_EQ("_Z3wns3FooEll",
       validator.get_mangled_name(
-          "Foo", wn::containers::dynamic_array<uint32_t>(&allocator,
-                     {static_cast<uint32_t>(
-                         wn::scripting::type_classification::int_type)})));
-  EXPECT_EQ("_Z2wn9scripting3BarEf",
+          "Foo",
+          static_cast<uint32_t>(wn::scripting::type_classification::int_type),
+          wn::containers::dynamic_array<uint32_t>(
+              &allocator, {static_cast<uint32_t>(
+                              wn::scripting::type_classification::int_type)})));
+  EXPECT_EQ("_Z3wns3BarEvf",
       validator.get_mangled_name(
-          "Bar", wn::containers::dynamic_array<uint32_t>(&allocator,
-                     {static_cast<uint32_t>(
-                         wn::scripting::type_classification::float_type)})));
-  EXPECT_EQ("_Z2wn9scripting7TestingEc",
+          "Bar",
+          static_cast<uint32_t>(wn::scripting::type_classification::void_type),
+          wn::containers::dynamic_array<uint32_t>(&allocator,
+              {static_cast<uint32_t>(
+                  wn::scripting::type_classification::float_type)})));
+  EXPECT_EQ("_Z3wns7TestingEbc",
       validator.get_mangled_name(
-          "Testing", wn::containers::dynamic_array<uint32_t>(&allocator,
-                         {static_cast<uint32_t>(
-                             wn::scripting::type_classification::char_type)})));
-  EXPECT_EQ("_Z2wn9scripting3FooEb",
+          "Testing",
+          static_cast<uint32_t>(wn::scripting::type_classification::bool_type),
+          wn::containers::dynamic_array<uint32_t>(&allocator,
+              {static_cast<uint32_t>(
+                  wn::scripting::type_classification::char_type)})));
+  EXPECT_EQ("_Z3wns3FooEcb",
       validator.get_mangled_name(
-          "Foo", wn::containers::dynamic_array<uint32_t>(&allocator,
-                     {static_cast<uint32_t>(
-                         wn::scripting::type_classification::bool_type)})));
+          "Foo",
+          static_cast<uint32_t>(wn::scripting::type_classification::char_type),
+          wn::containers::dynamic_array<uint32_t>(&allocator,
+              {static_cast<uint32_t>(
+                  wn::scripting::type_classification::bool_type)})));
 
-  EXPECT_EQ("_Z2wn9scripting14ReallyLongNameElb",
+  EXPECT_EQ("_Z3wns14ReallyLongNameEvlb",
       validator.get_mangled_name(
           "ReallyLongName",
+          static_cast<uint32_t>(wn::scripting::type_classification::void_type),
           wn::containers::dynamic_array<uint32_t>(&allocator,
               {static_cast<uint32_t>(
                    wn::scripting::type_classification::int_type),
                   static_cast<uint32_t>(
                       wn::scripting::type_classification::bool_type)})));
-  EXPECT_EQ("_Z2wn9scripting1AEfl",
+  EXPECT_EQ("_Z3wns1AEvfl",
       validator.get_mangled_name(
-          "A", wn::containers::dynamic_array<uint32_t>(&allocator,
-                   {static_cast<uint32_t>(
-                        wn::scripting::type_classification::float_type),
-                       static_cast<uint32_t>(
-                           wn::scripting::type_classification::int_type)})));
-  EXPECT_EQ("_Z2wn9scripting22MultipleParameterTypesEcb",
+          "A",
+          static_cast<uint32_t>(wn::scripting::type_classification::void_type),
+          wn::containers::dynamic_array<uint32_t>(&allocator,
+              {static_cast<uint32_t>(
+                   wn::scripting::type_classification::float_type),
+                  static_cast<uint32_t>(
+                      wn::scripting::type_classification::int_type)})));
+  EXPECT_EQ("_Z3wns22MultipleParameterTypesEfcb",
       validator.get_mangled_name(
           "MultipleParameterTypes",
+          static_cast<uint32_t>(wn::scripting::type_classification::float_type),
           wn::containers::dynamic_array<uint32_t>(&allocator,
               {static_cast<uint32_t>(
                    wn::scripting::type_classification::char_type),
                   static_cast<uint32_t>(
                       wn::scripting::type_classification::bool_type)})));
-  EXPECT_EQ("_Z2wn9scripting3FooEbb",
+  EXPECT_EQ("_Z3wns3FooEbbb",
       validator.get_mangled_name(
-          "Foo", wn::containers::dynamic_array<uint32_t>(&allocator,
-                     {static_cast<uint32_t>(
-                          wn::scripting::type_classification::bool_type),
-                         static_cast<uint32_t>(
-                             wn::scripting::type_classification::bool_type)})));
+          "Foo",
+          static_cast<uint32_t>(wn::scripting::type_classification::bool_type),
+          wn::containers::dynamic_array<uint32_t>(&allocator,
+              {static_cast<uint32_t>(
+                   wn::scripting::type_classification::bool_type),
+                  static_cast<uint32_t>(
+                      wn::scripting::type_classification::bool_type)})));
 }
