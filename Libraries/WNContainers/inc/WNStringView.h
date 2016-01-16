@@ -9,8 +9,8 @@
 
 #include "WNContainers/inc/WNContiguousRange.h"
 #include "WNContainers/inc/WNString.h"
-#include "WNMemory/inc/WNStringUtility.h"
 #include "WNCore/inc/WNAlgorithm.h"
+#include "WNMemory/inc/WNStringUtility.h"
 
 namespace wn {
 namespace containers {
@@ -44,14 +44,31 @@ public:
   WN_FORCE_INLINE explicit string_view(const wn_char* begin, const wn_char* end)
     : m_range(begin, end) {}
 
+  WN_FORCE_INLINE explicit string_view(
+      const wn_char* s, const size_t offset, const size_type size)
+    : m_range(s + offset, size) {}
+
   WN_FORCE_INLINE explicit string_view(const wn_char* s, const size_type size)
-    : m_range(s, size) {}
+    : string_view(s, 0, size) {}
 
   WN_FORCE_INLINE string_view(const wn_char* s)
     : string_view(s, memory::strlen(s)) {}
 
   WN_FORCE_INLINE string_view(const string& str)
     : string_view(str.data(), str.length()) {}
+
+  WN_FORCE_INLINE string_view(const string& str, const size_type size)
+    : string_view(str.data(), size) {
+    WN_DEBUG_ASSERT_DESC(
+        size <= str.length(), "attempting to access outside of string bounds");
+  }
+
+  WN_FORCE_INLINE string_view(
+      const string& str, const size_type offset, const size_type size)
+    : string_view(str.data(), offset, size) {
+    WN_DEBUG_ASSERT_DESC((offset + size) <= str.length(),
+        "attempting to access outside of string bounds");
+  }
 
   template <typename U, typename = core::enable_if_t<
                             std::is_convertible<U*, const wn_char*>::value>>

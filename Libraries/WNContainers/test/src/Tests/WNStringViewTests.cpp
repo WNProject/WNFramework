@@ -2,17 +2,17 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNTesting/inc/WNTestHarness.h"
 #include "WNContainers/inc/WNStringView.h"
+#include "WNTesting/inc/WNTestHarness.h"
 
 TEST(string_view, construction) {
-  const wn_char* raw = "string";
+  const wn_char* raw = "string1";
   wn::containers::string_view view1;
-  wn::containers::string_view view2(wn_nullptr);
-  wn::containers::string_view view3(wn_nullptr, wn_nullptr);
-  wn::containers::string_view view4(raw, raw + 5);
-  wn::containers::string_view view5(raw, 5);
-  wn::containers::string_view view6(raw);
+  const wn::containers::string_view view2(wn_nullptr);
+  const wn::containers::string_view view3(wn_nullptr, wn_nullptr);
+  const wn::containers::string_view view4(raw, raw + 7);
+  const wn::containers::string_view view5(raw, 7);
+  const wn::containers::string_view view6(raw);
   wn::containers::string_view view7(view6);
 
   EXPECT_TRUE(view1.empty());
@@ -23,12 +23,16 @@ TEST(string_view, construction) {
   EXPECT_EQ(view3.data(), wn_nullptr);
   EXPECT_FALSE(view4.empty());
   EXPECT_EQ(view4.data(), raw);
+  EXPECT_EQ(view4, "string1");
   EXPECT_FALSE(view5.empty());
   EXPECT_EQ(view5.data(), raw);
+  EXPECT_EQ(view5, "string1");
   EXPECT_FALSE(view6.empty());
   EXPECT_EQ(view6.data(), raw);
+  EXPECT_EQ(view6, "string1");
   EXPECT_FALSE(view7.empty());
   EXPECT_EQ(view7.data(), raw);
+  EXPECT_EQ(view7, "string1");
 
   wn::containers::string_view view8(std::move(view7));
 
@@ -36,8 +40,9 @@ TEST(string_view, construction) {
   EXPECT_EQ(view7.data(), wn_nullptr);
   EXPECT_FALSE(view8.empty());
   EXPECT_EQ(view8.data(), raw);
+  EXPECT_EQ(view8, "string1");
 
-  wn::containers::contiguous_range<const wn_char> range(raw, 6);
+  wn::containers::contiguous_range<const wn_char> range(raw, 7);
 
   EXPECT_FALSE(range.empty());
   EXPECT_EQ(range.data(), raw);
@@ -46,6 +51,7 @@ TEST(string_view, construction) {
 
   EXPECT_FALSE(view9.empty());
   EXPECT_EQ(view9.data(), raw);
+  EXPECT_EQ(view9, "string1");
 
   wn::containers::string_view view10(std::move(range));
 
@@ -53,6 +59,28 @@ TEST(string_view, construction) {
   EXPECT_EQ(range.data(), wn_nullptr);
   EXPECT_FALSE(view10.empty());
   EXPECT_EQ(view10.data(), raw);
+  EXPECT_EQ(view10, "string1");
+
+  const wn::containers::string str("string2");
+  const wn::containers::string_view view11(str);
+  const wn::containers::string_view view12(str, 7);
+  const wn::containers::string_view view13(str, 1, 5);
+
+  EXPECT_FALSE(view11.empty());
+  EXPECT_EQ(view11.data(), str.data());
+  EXPECT_EQ(view11, "string2");
+  EXPECT_FALSE(view12.empty());
+  EXPECT_EQ(view12.data(), str.data());
+  EXPECT_EQ(view12, "string2");
+  EXPECT_FALSE(view13.empty());
+  EXPECT_EQ(view13.data(), str.data() + 1);
+  EXPECT_EQ(view13, "tring");
+
+  const wn::containers::string_view view14(raw, 1, 5);
+
+  EXPECT_FALSE(view14.empty());
+  EXPECT_EQ(view14.data(), raw + 1);
+  EXPECT_EQ(view14, "tring");
 }
 
 TEST(string_view, assignment) {
