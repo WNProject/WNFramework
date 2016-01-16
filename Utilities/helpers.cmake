@@ -226,6 +226,8 @@ if (${WN_IS_TEGRA})
   endif()
 endif()
 
+list(APPEND WN_LLVM_EXTRA_FLAGS "-DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}")
+
 # Create the llvm build directory.
 execute_process(COMMAND ${CMAKE_COMMAND} -E
   make_directory ${CMAKE_CURRENT_BINARY_DIR}/Externals/llvm)
