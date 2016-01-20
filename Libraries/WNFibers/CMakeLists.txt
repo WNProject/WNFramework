@@ -10,7 +10,7 @@ set(ADDITIONAL_SOURCES)
 set(ANDROID_ASSEMBLY)
 
 if (${WN_SYSTEM} STREQUAL "Android")
-  if(${ANDROID_ARCH_NAME} STREQUAL "arm")
+  if(${ANDROID_ARCH_NAME} MATCHES "^(arm.*|ARM.*)")
     list(APPEND ANDROID_ASSEMBLY asm/Android/WNGetContext_arm.S
       asm/Android/WNSetContext_arm.S)
     list(APPEND SRC_ANDROID
