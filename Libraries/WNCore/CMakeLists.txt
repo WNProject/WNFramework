@@ -771,8 +771,8 @@ check_cxx_source_compiles(
   "
     #include <algorithm>
     int main() {
-      static const char temp1[] = \"test\";
-      static const char temp2[] = \"test\";
+      static const char* temp1 = \"test\";
+      static const char* temp2 = \"test\";
       return std::equal(temp1, temp1 + 4, temp2, temp2 + 4) ? 1 : 0;
     }
   "
@@ -783,8 +783,8 @@ check_cxx_source_compiles(
   "
     #include <algorithm>
     int main() {
-      static const char temp1[] = \"test\";
-      static const char temp2[] = \"test\";
+      static const char* temp1 = \"test\";
+      static const char* temp2 = \"test\";
       const auto p = [](const char& _first, const char& _second) {
         return _first == _second;
       };
