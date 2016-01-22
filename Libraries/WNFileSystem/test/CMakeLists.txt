@@ -4,5 +4,6 @@ wn_create_tests_from_list(TEST_PREFIX WNFileSystem
     WNFactory
     WNFile
     WNMapping
+	WNUtilities
   LIBS WNFileSystem
 )
