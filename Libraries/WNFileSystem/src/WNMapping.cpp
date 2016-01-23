@@ -23,5 +23,70 @@ bool mapping::sanitize_and_validate_path(
   return false;
 }
 
+result mapping::recursive_create_directory(containers::string_view directory) {
+  containers::string sanitized_path(
+      directory.data(), directory.size(), m_allocator);
+
+  internal::sanitize_path(sanitized_path);
+
+  if (exists_directory(sanitized_path)) {
+    return result::ok;
+  }
+  containers::dynamic_array<containers::string_view> subpaths(m_allocator);
+  if (!internal::split_sanitized_path(sanitized_path, subpaths)) {
+    return result::invalid_path;
+  }
+
+  containers::string built_up_path;
+  for (auto subpath : subpaths) {
+    internal::append_path(built_up_path, subpath);
+    if (!exists_directory(built_up_path)) {
+      result res;
+      if ((res = create_directory(built_up_path)) != result::ok) {
+        return res;
+      }
+    }
+  }
+  return result::ok;
+}
+
+result mapping::initialize_files(std::initializer_list<
+    containers::pair<containers::string_view, containers::string_view>>
+        files) {
+  for (auto& file : files) {
+    containers::string sanitized_path(
+        file.first.data(), file.first.size(), m_allocator);
+
+    internal::sanitize_path(sanitized_path);
+    containers::string_view directory;
+
+    if (!internal::get_directory_from_sanitized_path(
+            sanitized_path, directory)) {
+      return result::invalid_path;
+    }
+
+    result res;
+    if ((res = recursive_create_directory(directory)) != result::ok) {
+      return res;
+    }
+
+    file_ptr file_pt = create_file(sanitized_path, res);
+    if (!file_pt) {
+      return res;
+    }
+
+    if (!file_pt->resize(file.second.size())) {
+      return result::file_sizing_fail;
+    }
+
+    memory::memory_copy(
+        file_pt->typed_data<wn_char>(), file.second.data(), file.second.size());
+    if (!file_pt->flush()) {
+      return result::file_mapping_fail;
+    }
+  }
+  return result::ok;
+}
+
 }  // namespace file_system
 }  // namespace wn

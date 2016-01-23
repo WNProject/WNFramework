@@ -7,6 +7,7 @@
 #ifndef __WN_FILE_SYSTEM_MAPPING_H__
 #define __WN_FILE_SYSTEM_MAPPING_H__
 
+#include "WNContainers/inc/WNPair.h"
 #include "WNContainers/inc/WNStringView.h"
 #include "WNFileSystem/inc/WNFile.h"
 #include "WNFileSystem/inc/WNResult.h"
@@ -26,16 +27,19 @@ public:
   virtual file_ptr create_file(
       const containers::string_view _path, result& _result) = 0;
 
-  virtual result create_directory(
-      const containers::string_view _path) = 0;
+  virtual result create_directory(const containers::string_view _path) = 0;
 
   virtual file_ptr open_file(
       const containers::string_view _path, result& _result) = 0;
 
-  virtual result delete_directory(
-      const containers::string_view _path) = 0;
+  virtual result delete_directory(const containers::string_view _path) = 0;
 
   virtual result delete_file(const containers::string_view _path) = 0;
+
+  result recursive_create_directory(containers::string_view directory);
+  result initialize_files(std::initializer_list<
+      containers::pair<containers::string_view, containers::string_view>>
+          files);
 
 protected:
   WN_FORCE_INLINE mapping(containers::string&& _path,
