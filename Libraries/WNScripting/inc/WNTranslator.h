@@ -9,7 +9,6 @@
 #include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNScripting/inc/WNEngine.h"
-#include "WNScripting/inc/WNEngineFileManager.h"
 
 namespace WNLogging {
 class WNLogger;

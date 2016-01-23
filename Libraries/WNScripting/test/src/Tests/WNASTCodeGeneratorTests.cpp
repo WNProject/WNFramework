@@ -3,6 +3,8 @@
 // found in the LICENSE.txt file.
 
 #include "WNContainers/inc/WNString.h"
+#include "WNFileSystem/inc/WNFactory.h"
+#include "WNFileSystem/inc/WNMapping.h"
 #include "WNLogging/inc/WNBufferLogger.h"
 #include "WNScripting/inc/WNASTCodeGenerator.h"
 #include "WNScripting/test/inc/Common.h"
@@ -21,14 +23,15 @@ using log_buff = wn::containers::string;
 
 struct test_context {
   test_context()
-    : manager(&allocator),
+    : mapping(wn::file_system::factory().make_mapping(
+          wn::file_system::mapping_type::memory_backed, &allocator)),
       buffer(&allocator),
       logger(&buffer),
       log(&logger),
       num_warnings(0),
       num_errors(0) {}
   wn::memory::default_expanding_allocator<50> allocator;
-  wn::scripting::test_file_manager manager;
+  wn::file_system::mapping_ptr mapping;
   log_buff buffer;
   buffer_logger logger;
   WNLogging::WNLog log;
@@ -36,8 +39,9 @@ struct test_context {
   wn_size_t num_errors;
 
   bool test_parse_file(const wn_char* _file) {
-    bool success = wn::scripting::test_parse_file(_file, &manager, &allocator,
-                       &log, &num_warnings, &num_errors) != wn_nullptr;
+    bool success =
+        wn::scripting::test_parse_file(_file, mapping.get(), &allocator, &log,
+            &num_warnings, &num_errors) != wn_nullptr;
     log.Flush();
     return success;
   }
@@ -45,7 +49,7 @@ struct test_context {
 
 TEST(ast_code_generator, simplest_function) {
   test_context c;
-  c.manager.add_files({{"file.wns", "Void main() { return; }"}});
+  c.mapping->initialize_files({{"file.wns", "Void main() { return; }"}});
   EXPECT_TRUE(c.test_parse_file("file.wns"));
   EXPECT_THAT(c.num_errors, Eq(0u));
   EXPECT_THAT(c.num_warnings, Eq(0u));
@@ -53,7 +57,7 @@ TEST(ast_code_generator, simplest_function) {
 
 TEST(ast_code_generator, full_file) {
   test_context c;
-  c.manager.add_files({{"file.wns", "Void main() { return; }"}});
+  c.mapping->initialize_files({{"file.wns", "Void main() { return; }"}});
   EXPECT_TRUE(c.test_parse_file("file.wns"));
   EXPECT_THAT(c.num_errors, Eq(0u));
   EXPECT_THAT(c.num_warnings, Eq(0u));
@@ -61,7 +65,7 @@ TEST(ast_code_generator, full_file) {
 
 TEST(ast_code_generator, multiple_functions) {
   test_context c;
-  c.manager.add_files({{"file.wns",
+  c.mapping->initialize_files({{"file.wns",
       "Void main() { return; }\n"
       "Void foo() { return; }\n"}});
   EXPECT_TRUE(c.test_parse_file("file.wns"));
@@ -72,7 +76,8 @@ TEST(ast_code_generator, multiple_functions) {
 TEST(ast_code_generator, multiple_returns) {
   test_context c;
   // TODO(awoloszyn) Once DCE becomes a pass, this should be a warning.
-  c.manager.add_files({{"file.wns", "Void main() { return; return; }\n"}});
+  c.mapping->initialize_files(
+      {{"file.wns", "Void main() { return; return; }\n"}});
   EXPECT_TRUE(c.test_parse_file("file.wns"));
   EXPECT_THAT(c.num_errors, Eq(0u));
   EXPECT_THAT(c.num_warnings, Eq(1u));
@@ -89,7 +94,7 @@ TEST_P(ast_code_generator_valid_ints, valid_ints) {
   str += GetParam();
   str += "; }\n";
 
-  c.manager.add_files({{"file.wns", str}});
+  c.mapping->initialize_files({{"file.wns", str}});
   EXPECT_TRUE(c.test_parse_file("file.wns"));
   EXPECT_THAT(c.num_errors, Eq(0u));
   EXPECT_THAT(c.num_warnings, Eq(0u));
@@ -112,7 +117,7 @@ TEST_P(ast_code_generator_invalid_ints, invalid_ints) {
   str += GetParam();
   str += "; }\n";
 
-  c.manager.add_files({{"file.wns", str}});
+  c.mapping->initialize_files({{"file.wns", str}});
   EXPECT_FALSE(c.test_parse_file("file.wns"));
   EXPECT_THAT(c.num_errors, Eq(1u));
   EXPECT_THAT(c.num_warnings, Eq(0u));
@@ -131,7 +136,7 @@ TEST_P(ast_code_generator_valid_bools, valid_bools) {
   str += GetParam();
   str += "; }\n";
 
-  c.manager.add_files({{"file.wns", str}});
+  c.mapping->initialize_files({{"file.wns", str}});
   EXPECT_TRUE(c.test_parse_file("file.wns"));
   EXPECT_THAT(c.num_errors, Eq(0u));
   EXPECT_THAT(c.num_warnings, Eq(0u));
@@ -153,7 +158,7 @@ TEST_P(ast_code_generator_invalid_bools, invalid_bools) {
   str += GetParam();
   str += "; }\n";
 
-  c.manager.add_files({{"file.wns", str}});
+  c.mapping->initialize_files({{"file.wns", str}});
   EXPECT_FALSE(c.test_parse_file("file.wns"));
   EXPECT_THAT(c.num_errors, Eq(1u));
   EXPECT_THAT(c.num_warnings, Eq(0u));
@@ -174,7 +179,7 @@ TEST_P(ast_code_generator_valid_declarations, valid_declarations) {
   str += GetParam();
   str += "return x; }\n";
 
-  c.manager.add_files({{"file.wns", str}});
+  c.mapping->initialize_files({{"file.wns", str}});
   EXPECT_TRUE(c.test_parse_file("file.wns"));
   EXPECT_THAT(c.num_errors, Eq(0u));
   EXPECT_THAT(c.num_warnings, Eq(0u));
@@ -198,7 +203,7 @@ TEST_P(ast_code_generator_invalid_declarations, invalid_declarations) {
   str += GetParam();
   str += "return x; }\n";
 
-  c.manager.add_files({{"file.wns", str}});
+  c.mapping->initialize_files({{"file.wns", str}});
   EXPECT_FALSE(c.test_parse_file("file.wns"));
   EXPECT_THAT(c.num_errors, Eq(1u));
   EXPECT_THAT(c.num_warnings, Eq(0u));
@@ -215,7 +220,7 @@ TEST_P(ast_code_generator_valid_code, compiles_cleanly) {
   test_context c;
 
   wn::containers::string str(GetParam(), &c.allocator);
-  c.manager.add_files({{"file.wns", str}});
+  c.mapping->initialize_files({{"file.wns", str}});
   EXPECT_TRUE(c.test_parse_file("file.wns")) << c.buffer;
   EXPECT_THAT(c.num_errors, Eq(0u));
   EXPECT_THAT(c.num_warnings, Eq(0u));
@@ -225,8 +230,8 @@ TEST_P(ast_code_generator_invalid_code, generates_error) {
   test_context c;
 
   wn::containers::string str(GetParam(), &c.allocator);
-  c.manager.add_files({{"file.wns", str}});
-  EXPECT_FALSE(c.test_parse_file("file.wns")) << c.manager.get_file("file.wns");
+  c.mapping->initialize_files({{"file.wns", str}});
+  EXPECT_FALSE(c.test_parse_file("file.wns"));
   EXPECT_THAT(c.num_errors, Ge(1u));
   EXPECT_THAT(c.num_warnings, Eq(0u));
 }

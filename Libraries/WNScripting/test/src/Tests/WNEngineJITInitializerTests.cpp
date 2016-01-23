@@ -3,6 +3,8 @@
 // found in the LICENSE.txt file.
 
 #include "WNContainers/inc/WNDynamicArray.h"
+#include "WNFileSystem/inc/WNFactory.h"
+#include "WNFileSystem/inc/WNMapping.h"
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNScripting/inc/WNFactory.h"
 #include "WNScripting/inc/WNJITEngine.h"
@@ -12,20 +14,28 @@
 TEST(jit_engine, creation) {
   wn::memory::default_expanding_allocator<50> allocator;
   wn::scripting::type_validator validator(&allocator);
-  wn::scripting::file_based_manager manager(&allocator);
+  wn::file_system::mapping_ptr mapping =
+      wn::file_system::factory().make_mapping(
+          wn::file_system::mapping_type::memory_backed, &allocator);
+
   wn::scripting::jit_engine jit_engine(
-      &validator, &allocator, &manager, WNLogging::get_null_logger());
+      &validator, &allocator, mapping.get(), WNLogging::get_null_logger());
 }
 
 TEST(jit_engine, basic_parsing) {
   wn::memory::default_expanding_allocator<50> allocator;
   wn::scripting::type_validator validator(&allocator);
-  wn::scripting::test_file_manager manager(&allocator,
+
+  wn::file_system::mapping_ptr mapping =
+      wn::file_system::factory().make_mapping(
+          wn::file_system::mapping_type::memory_backed, &allocator);
+
+  mapping->initialize_files(
       {{"file.wns", "Void main() { return; }"}, {"file2.wns",
                                                     "Void foo() { return; } \n"
                                                     "Void bar() { return; }"}});
   wn::scripting::jit_engine jit_engine(
-      &validator, &allocator, &manager, WNLogging::get_null_logger());
+      &validator, &allocator, mapping.get(), WNLogging::get_null_logger());
   EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file.wns"));
   EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file2.wns"));
 
@@ -50,10 +60,14 @@ TEST(jit_engine, basic_parsing) {
 TEST(jit_engine, multiple_returns) {
   wn::memory::default_expanding_allocator<50> allocator;
   wn::scripting::type_validator validator(&allocator);
-  wn::scripting::test_file_manager manager(
-      &allocator, {{"file.wns", "Void main() { return; return; }"}});
+
+  wn::file_system::mapping_ptr mapping =
+      wn::file_system::factory().make_mapping(
+          wn::file_system::mapping_type::memory_backed, &allocator);
+
+  mapping->initialize_files({{"file.wns", "Void main() { return; return; }"}});
   wn::scripting::jit_engine jit_engine(
-      &validator, &allocator, &manager, WNLogging::get_null_logger());
+      &validator, &allocator, mapping.get(), WNLogging::get_null_logger());
   EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file.wns"));
 
   wn::scripting::engine::void_func main;
@@ -68,10 +82,14 @@ TEST(jit_engine, multiple_returns) {
 TEST(jit_engine, parse_error) {
   wn::memory::default_expanding_allocator<50> allocator;
   wn::scripting::type_validator validator(&allocator);
-  wn::scripting::test_file_manager manager(
-      &allocator, {{"file.wns", "Int main"}});
+
+  wn::file_system::mapping_ptr mapping =
+      wn::file_system::factory().make_mapping(
+          wn::file_system::mapping_type::memory_backed, &allocator);
+
+  mapping->initialize_files({{"file.wns", "Int main"}});
   wn::scripting::jit_engine jit_engine(
-      &validator, &allocator, &manager, WNLogging::get_null_logger());
+      &validator, &allocator, mapping.get(), WNLogging::get_null_logger());
   EXPECT_EQ(wn::scripting::parse_error::parse_failed,
       jit_engine.parse_file("file.wns"));
 }
@@ -92,10 +110,14 @@ TEST_P(jit_int_params, int_return) {
   str += "; } ";
 
   wn::containers::string expected(&allocator);
-  wn::scripting::test_file_manager manager(&allocator, {{"file.wns", str}});
+  wn::file_system::mapping_ptr mapping =
+      wn::file_system::factory().make_mapping(
+          wn::file_system::mapping_type::memory_backed, &allocator);
+
+  mapping->initialize_files({{"file.wns", str}});
 
   wn::scripting::jit_engine jit_engine(
-      &validator, &allocator, &manager, WNLogging::get_null_logger());
+      &validator, &allocator, mapping.get(), WNLogging::get_null_logger());
   EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file.wns"));
 
   int32_t (*new_func)();
@@ -110,10 +132,14 @@ TEST_P(jit_int_params, int_passthrough) {
   str += "Int main(Int x) { return x; }";
 
   wn::containers::string expected(&allocator);
-  wn::scripting::test_file_manager manager(&allocator, {{"file.wns", str}});
+  wn::file_system::mapping_ptr mapping =
+      wn::file_system::factory().make_mapping(
+          wn::file_system::mapping_type::memory_backed, &allocator);
+
+  mapping->initialize_files({{"file.wns", str}});
 
   wn::scripting::jit_engine jit_engine(
-      &validator, &allocator, &manager, WNLogging::get_null_logger());
+      &validator, &allocator, mapping.get(), WNLogging::get_null_logger());
   EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file.wns"));
 
   int32_t (*new_func)(int32_t);
@@ -143,10 +169,15 @@ TEST_P(jit_binary_arithmetic, simple_operations) {
   str += "; } ";
 
   wn::containers::string expected(&allocator);
-  wn::scripting::test_file_manager manager(&allocator, {{"file.wns", str}});
+
+  wn::file_system::mapping_ptr mapping =
+      wn::file_system::factory().make_mapping(
+          wn::file_system::mapping_type::memory_backed, &allocator);
+
+  mapping->initialize_files({{"file.wns", str}});
 
   wn::scripting::jit_engine jit_engine(
-      &validator, &allocator, &manager, WNLogging::get_null_logger());
+      &validator, &allocator, mapping.get(), WNLogging::get_null_logger());
   EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file.wns"));
 
   int32_t (*new_func)();
@@ -176,11 +207,14 @@ TEST_P(bool_arithmetic_tests, boolean_arithmetic) {
   str += "Bool main(Bool b) { return ";
   str += GetParam().code;
   str += "; } ";
+  wn::file_system::mapping_ptr mapping =
+      wn::file_system::factory().make_mapping(
+          wn::file_system::mapping_type::memory_backed, &allocator);
 
-  wn::scripting::test_file_manager manager(&allocator, {{"file.wns", str}});
+  mapping->initialize_files({{"file.wns", str}});
 
   wn::scripting::jit_engine jit_engine(
-      &validator, &allocator, &manager, WNLogging::get_null_logger());
+      &validator, &allocator, mapping.get(), WNLogging::get_null_logger());
   EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file.wns"));
 
   wn_bool (*new_func)(wn_bool);
@@ -216,11 +250,14 @@ TEST_P(two_params_tests, int_in_out_tests) {
   wn::memory::default_expanding_allocator<50> allocator;
   wn::scripting::type_validator validator(&allocator);
   wn::containers::string str(GetParam().code, &allocator);
+  wn::file_system::mapping_ptr mapping =
+      wn::file_system::factory().make_mapping(
+          wn::file_system::mapping_type::memory_backed, &allocator);
 
-  wn::scripting::test_file_manager manager(&allocator, {{"file.wns", str}});
+  mapping->initialize_files({{"file.wns", str}});
 
   wn::scripting::jit_engine jit_engine(
-      &validator, &allocator, &manager, WNLogging::get_null_logger());
+      &validator, &allocator, mapping.get(), WNLogging::get_null_logger());
   EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file.wns"));
 
   int32_t (*new_func)(int32_t, int32_t);
@@ -251,11 +288,14 @@ TEST_P(integer_tests, int_in_out_tests) {
   wn::memory::default_expanding_allocator<50> allocator;
   wn::scripting::type_validator validator(&allocator);
   wn::containers::string str(GetParam().code, &allocator);
+  wn::file_system::mapping_ptr mapping =
+      wn::file_system::factory().make_mapping(
+          wn::file_system::mapping_type::memory_backed, &allocator);
 
-  wn::scripting::test_file_manager manager(&allocator, {{"file.wns", str}});
+  mapping->initialize_files({{"file.wns", str}});
 
   wn::scripting::jit_engine jit_engine(
-      &validator, &allocator, &manager, WNLogging::get_null_logger());
+      &validator, &allocator, mapping.get(), WNLogging::get_null_logger());
   EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file.wns"));
 
   int32_t (*new_func)(int32_t);

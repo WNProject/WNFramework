@@ -40,6 +40,7 @@
 #include "WNContainers/inc/WNContiguousRange.h"
 #include "WNContainers/inc/WNDynamicArray.h"
 #include "WNContainers/inc/WNList.h"
+#include "WNFileSystem/inc/WNMapping.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNScripting/inc/WNASTCodeGenerator.h"
@@ -71,10 +72,10 @@ CompiledModule::CompiledModule(CompiledModule&& _other)
 }
 
 jit_engine::jit_engine(type_validator* _validator,
-    memory::allocator* _allocator, file_manager* _manager,
+    memory::allocator* _allocator, file_system::mapping* _mapping,
     WNLogging::WNLog* _log)
   : engine(_validator, _allocator),
-    m_file_manager(_manager),
+    m_file_mapping(_mapping),
     m_compilation_log(_log),
     m_modules(_allocator),
     m_context(memory::make_std_unique<llvm::LLVMContext>()) {
@@ -123,15 +124,15 @@ CompiledModule& jit_engine::add_module(containers::string_view _file) {
 }
 
 parse_error jit_engine::parse_file(const char* _file) {
-  memory::allocated_ptr<file_buffer> buff = m_file_manager->get_file(_file);
+  file_system::result res;
+  file_system::file_ptr file = m_file_mapping->open_file(_file, res);
 
-  if (!buff) {
+  if (!file) {
     return parse_error::does_not_exist;
   }
 
   memory::allocated_ptr<script_file> parsed_file =
-      parse_script(m_allocator, m_validator, _file,
-          wn::containers::string_view(buff->data(), buff->size()),
+      parse_script(m_allocator, m_validator, _file, file->typed_range<char>(),
           m_compilation_log, &m_num_warnings, &m_num_errors);
 
   if (parsed_file == wn_nullptr) {

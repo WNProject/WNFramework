@@ -9,7 +9,6 @@ add_wn_library(WNScripting SOURCES
   inc/WNEngine.h
   inc/WNEngine.inl
   inc/WNFactory.h
-  inc/WNEngineFileManager.h
   inc/WNEnums.h
   inc/WNErrors.h
   inc/WNJITEngine.h
@@ -38,7 +37,8 @@ if (WN_SYSTEM STREQUAL "Android")
 endif()
 
 wn_target_link_libraries(WNScripting ${WNScriptingLLVMLibs}
-  ${WNScriptingAdditionalLibs})
+  ${WNScriptingAdditionalLibs}
+  WNFileSystem)
 add_definitions(${LLVM_DEFINITIONS})
 
 target_include_directories(WNScripting PUBLIC

@@ -18,22 +18,25 @@ namespace memory {
 class allocator;
 }
 
+namespace file_system {
+class mapping;
+}
+
 namespace scripting {
-class file_manager;
 // Create C files from the given scripting files.
 class c_translator : public translator {
- public:
-   c_translator(type_validator* _validator, memory::allocator* _allocator,
-       file_manager* _manager, WNLogging::WNLog* _log);
+public:
+  c_translator(type_validator* _validator, memory::allocator* _allocator,
+      file_system::mapping* _mapping, WNLogging::WNLog* _log);
 
-   // Looks in m_file_manager for the path given by the file parameter,
-   // and translates the file into C. The file is saved in the same location
-   // as the c file with an additional .c extension.
-   parse_error translate_file(const char* file) override;
+  // Looks in m_file_manager for the path given by the file parameter,
+  // and translates the file into C. The file is saved in the same location
+  // as the c file with an additional .c extension.
+  parse_error translate_file(const char* file) override;
 
- private:
+private:
   memory::allocator* m_allocator;
-  file_manager* m_file_manager;
+  file_system::mapping* m_file_mapping;
   WNLogging::WNLog* m_compilation_log;
 };
 }  // namespace scripting

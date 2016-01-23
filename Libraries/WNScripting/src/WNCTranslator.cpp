@@ -3,35 +3,37 @@
 // found in the LICENSE.txt file.
 
 #include "WNContainers/inc/WNString.h"
+#include "WNFileSystem/inc/WNMapping.h"
+#include "WNLogging/inc/WNLog.h"
 #include "WNScripting/inc/WNASTCodeGenerator.h"
 #include "WNScripting/inc/WNASTWalker.h"
 #include "WNScripting/inc/WNCGenerator.h"
 #include "WNScripting/inc/WNCTranslator.h"
 #include "WNScripting/inc/WNScriptHelpers.h"
 #include "WNScripting/inc/WNTypeValidator.h"
-#include "WNLogging/inc/WNLog.h"
 
 namespace wn {
 namespace scripting {
 
 c_translator::c_translator(type_validator* _validator,
-    memory::allocator* _allocator, file_manager* _manager,
+    memory::allocator* _allocator, file_system::mapping* _mapping,
     WNLogging::WNLog* _log)
   : translator(_validator),
     m_allocator(_allocator),
-    m_file_manager(_manager),
+    m_file_mapping(_mapping),
     m_compilation_log(_log) {}
 
-parse_error c_translator::translate_file(const char* file) {
-  memory::allocated_ptr<file_buffer> buff = m_file_manager->get_file(file);
+parse_error c_translator::translate_file(const char* file_) {
+  file_system::result res;
+  file_system::file_ptr file = m_file_mapping->open_file(file_, res);
 
-  if (!buff) {
+  if (!file) {
     return parse_error::does_not_exist;
   }
 
-  memory::allocated_ptr<script_file> parsed_file = parse_script(m_allocator,
-      m_validator, file, containers::string_view(buff->data(), buff->size()),
-      m_compilation_log, &m_num_warnings, &m_num_errors);
+  memory::allocated_ptr<script_file> parsed_file =
+      parse_script(m_allocator, m_validator, file_, file->typed_range<char>(),
+          m_compilation_log, &m_num_warnings, &m_num_errors);
 
   if (parsed_file == wn_nullptr) {
     return wn::scripting::parse_error::parse_failed;
@@ -41,12 +43,20 @@ parse_error c_translator::translate_file(const char* file) {
   generator.set_generator(&translator);
   run_ast_pass<ast_code_generator<ast_c_traits>>(&generator, parsed_file.get());
 
-  containers::string output_string = translator.get_output();
-  containers::string output_filename(file);
+  const containers::string& output_string(translator.get_output());
+  containers::string output_filename(file_, m_allocator);
   output_filename.append(".c");
 
-  m_file_manager->write_file(output_filename.c_str(), output_string);
-
+  file_system::file_ptr output_file =
+      m_file_mapping->create_file(output_filename, res);
+  if (!output_file) {
+    return parse_error::cannot_open_file;
+  }
+  if (!output_file->resize(output_string.size())) {
+    return parse_error::cannot_open_file;
+  }
+  memory::memory_copy(output_file->typed_data<char>(), output_string.data(),
+      output_string.size());
   return parse_error::ok;
 }
 
