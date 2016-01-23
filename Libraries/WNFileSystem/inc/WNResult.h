@@ -19,7 +19,8 @@ enum class result {
   path_construction_fail,
   file_opening_fail,
   file_mapping_fail,
-  file_size_retrieval_fail
+  file_size_retrieval_fail,
+  file_sizing_fail
 };
 
 }  // namespace file_system

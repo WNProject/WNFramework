@@ -6,13 +6,16 @@
 #include "WNFileSystem/inc/WNMapping.h"
 #include "WNTesting/inc/WNTestHarness.h"
 
-TEST(mapping, creation) {
+using mapping_test =
+    ::testing::TestWithParam<wn::file_system::mapping_type>;
+
+TEST_P(mapping_test, creation) {
   wn::file_system::factory f;
   wn::memory::default_test_allocator allocator;
 
   {
     const wn::file_system::mapping_ptr mp =
-        f.make_mapping(wn::file_system::system_path::scratch, &allocator);
+        f.make_mapping(GetParam(), &allocator);
 
     ASSERT_NE(mp, nullptr);
   }
@@ -20,13 +23,13 @@ TEST(mapping, creation) {
   EXPECT_EQ(allocator.allocated(), allocator.freed());
 }
 
-TEST(mapping, create_file) {
+TEST_P(mapping_test, create_file) {
   wn::file_system::factory f;
   wn::memory::default_test_allocator allocator;
 
   {
     const wn::file_system::mapping_ptr mp =
-        f.make_mapping(wn::file_system::system_path::scratch, &allocator);
+        f.make_mapping(GetParam(), &allocator);
 
     ASSERT_NE(mp, nullptr);
 
@@ -44,13 +47,13 @@ TEST(mapping, create_file) {
   EXPECT_EQ(allocator.allocated(), allocator.freed());
 }
 
-TEST(mapping, create_directory) {
+TEST_P(mapping_test, create_directory) {
   wn::file_system::factory f;
   wn::memory::default_test_allocator allocator;
 
   {
     const wn::file_system::mapping_ptr mp =
-        f.make_mapping(wn::file_system::system_path::scratch, &allocator);
+        f.make_mapping(GetParam(), &allocator);
 
     ASSERT_NE(mp, nullptr);
 
@@ -62,13 +65,13 @@ TEST(mapping, create_directory) {
   EXPECT_EQ(allocator.allocated(), allocator.freed());
 }
 
-TEST(mapping, exists_file) {
+TEST_P(mapping_test, exists_file) {
   wn::file_system::factory f;
   wn::memory::default_test_allocator allocator;
 
   {
     const wn::file_system::mapping_ptr mp =
-        f.make_mapping(wn::file_system::system_path::scratch, &allocator);
+        f.make_mapping(GetParam(), &allocator);
 
     ASSERT_NE(mp, nullptr);
 
@@ -88,11 +91,11 @@ TEST(mapping, exists_file) {
   EXPECT_EQ(allocator.allocated(), allocator.freed());
 }
 
-TEST(mapping, exists_directory) {
+TEST_P(mapping_test, exists_directory) {
   wn::file_system::factory f;
   wn::memory::default_test_allocator allocator;
   const wn::file_system::mapping_ptr mp =
-      f.make_mapping(wn::file_system::system_path::scratch, &allocator);
+      f.make_mapping(GetParam(), &allocator);
 
   ASSERT_NE(mp, nullptr);
 
@@ -103,11 +106,11 @@ TEST(mapping, exists_directory) {
   EXPECT_FALSE(mp->exists_directory("notafile.txt"));
 }
 
-TEST(mapping, open_file) {
+TEST_P(mapping_test, open_file) {
   wn::file_system::factory f;
   wn::memory::default_test_allocator allocator;
   const wn::file_system::mapping_ptr mp =
-      f.make_mapping(wn::file_system::system_path::scratch, &allocator);
+      f.make_mapping(GetParam(), &allocator);
 
   ASSERT_NE(mp, nullptr);
 
@@ -131,11 +134,11 @@ TEST(mapping, open_file) {
   EXPECT_FALSE(fp->is_open());
 }
 
-TEST(mapping, delete_file) {
+TEST_P(mapping_test, delete_file) {
   wn::file_system::factory f;
   wn::memory::default_test_allocator allocator;
   const wn::file_system::mapping_ptr mp =
-      f.make_mapping(wn::file_system::system_path::scratch, &allocator);
+      f.make_mapping(GetParam(), &allocator);
 
   ASSERT_NE(mp, nullptr);
 
@@ -155,11 +158,11 @@ TEST(mapping, delete_file) {
   EXPECT_FALSE(mp->exists_file("temp.txt"));
 }
 
-TEST(mapping, delete_directory) {
+TEST_P(mapping_test, delete_directory) {
   wn::file_system::factory f;
   wn::memory::default_test_allocator allocator;
   const wn::file_system::mapping_ptr mp =
-      f.make_mapping(wn::file_system::system_path::scratch, &allocator);
+      f.make_mapping(GetParam(), &allocator);
 
   ASSERT_NE(mp, nullptr);
 
@@ -188,3 +191,7 @@ TEST(mapping, delete_directory) {
   EXPECT_EQ(r, wn::file_system::result::ok);
   EXPECT_FALSE(mp->exists_directory("temp"));
 }
+
+INSTANTIATE_TEST_CASE_P(all_mappings, mapping_test,
+    ::testing::Values(wn::file_system::mapping_type::scratch,
+                            wn::file_system::mapping_type::memory_backed));

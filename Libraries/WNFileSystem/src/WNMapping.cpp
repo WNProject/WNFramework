@@ -15,7 +15,7 @@ bool mapping::sanitize_and_validate_path(
   internal::sanitize_path(path);
 
   if (internal::validate_relative_path(path)) {
-    _full_path = m_root_path + std::move(path);
+    _full_path.append(m_root_path).append(path);
 
     return true;
   }

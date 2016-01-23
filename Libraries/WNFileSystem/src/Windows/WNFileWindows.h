@@ -16,15 +16,17 @@ namespace internal {
 
 class file_windows final : public file {
 public:
-  WN_FORCE_INLINE file_windows(handle&& _file_handle)
-    : file(),
+  WN_FORCE_INLINE file_windows(
+      memory::allocator* _allocator, handle&& _file_handle)
+    : file(_allocator),
       m_file_handle(std::move(_file_handle)),
       m_mapped_memory(NULL),
       m_size({0}) {}
 
-  WN_FORCE_INLINE file_windows(handle&& _file_handle,
-      handle&& _file_mapping_handle, LPVOID _mapped_memory, LARGE_INTEGER _size)
-    : file(),
+  WN_FORCE_INLINE file_windows(memory::allocator* _allocator,
+      handle&& _file_handle, handle&& _file_mapping_handle,
+      LPVOID _mapped_memory, LARGE_INTEGER _size)
+    : file(_allocator),
       m_file_handle(std::move(_file_handle)),
       m_file_mapping_handle(std::move(_file_mapping_handle)),
       m_mapped_memory(_mapped_memory),
@@ -32,7 +34,7 @@ public:
 
   WN_FORCE_INLINE virtual ~file_windows() override {
     close();
-  };
+  }
 
   WN_FORCE_INLINE virtual pointer data() override {
     return static_cast<pointer>(m_mapped_memory);

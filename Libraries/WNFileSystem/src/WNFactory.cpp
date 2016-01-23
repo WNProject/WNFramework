@@ -4,6 +4,7 @@
 
 #include "WNFileSystem/inc/WNFactory.h"
 #include "WNFileSystem/src/WNUtilities.h"
+#include "WNFileSystem/src/WNMemoryBackedMapping.h"
 
 #ifdef _WN_WINDOWS
 #include "WNFileSystem/src/Windows/WNMappingWindows.h"
@@ -22,12 +23,12 @@ namespace wn {
 namespace file_system {
 
 mapping_ptr factory::make_mapping(
-    const system_path _system_path, memory::allocator* _allocator) const {
+    const mapping_type  _mapping_type, memory::allocator* _allocator) const {
   containers::string path(_allocator);
   bool cleanup = false;
 
-  switch (_system_path) {
-    case system_path::scratch:
+  switch (_mapping_type ) {
+    case mapping_type::scratch:
       if (!internal::get_scratch_path(path)) {
         return nullptr;
       }
@@ -35,6 +36,9 @@ mapping_ptr factory::make_mapping(
       cleanup = true;
 
       break;
+    case mapping_type::memory_backed:
+      return memory::make_allocated_ptr<memory_backed_mapping>(
+        _allocator, _allocator);
     default:
       return nullptr;
   }

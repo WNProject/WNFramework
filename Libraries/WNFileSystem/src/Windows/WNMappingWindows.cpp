@@ -42,7 +42,7 @@ bool mapping_windows::exists_directory(
 }
 
 file_ptr mapping_windows::create_file(
-    const containers::string_view _path, result& _result) const {
+    const containers::string_view _path, result& _result) {
   containers::string path(m_allocator);
 
   if (!sanitize_and_validate_path(_path, path)) {
@@ -71,12 +71,12 @@ file_ptr mapping_windows::create_file(
 
   _result = result::ok;
 
-  return memory::make_allocated_ptr<file_windows>(
-      m_allocator, std::move(file_handle));
+  return memory::make_intrusive<file_windows>(
+      m_allocator, m_allocator, std::move(file_handle));
 }
 
 result mapping_windows::create_directory(
-    const containers::string_view _path) const {
+    const containers::string_view _path) {
   containers::string path(m_allocator);
 
   if (!sanitize_and_validate_path(_path, path)) {
@@ -98,7 +98,7 @@ result mapping_windows::create_directory(
 }
 
 file_ptr mapping_windows::open_file(
-    const containers::string_view _path, result& _result) const {
+    const containers::string_view _path, result& _result) {
   containers::string path(m_allocator);
 
   if (!sanitize_and_validate_path(_path, path)) {
@@ -161,18 +161,18 @@ file_ptr mapping_windows::open_file(
 
     _result = result::ok;
 
-    return memory::make_allocated_ptr<file_windows>(m_allocator,
+    return memory::make_intrusive<file_windows>(m_allocator, m_allocator,
         std::move(file_handle), std::move(file_mapping_handle), memory_mapped,
         file_size);
   } else {
     _result = result::ok;
 
-    return memory::make_allocated_ptr<file_windows>(
-        m_allocator, std::move(file_handle));
+    return memory::make_intrusive<file_windows>(
+        m_allocator, m_allocator, std::move(file_handle));
   }
 }
 
-result mapping_windows::delete_file(const containers::string_view _path) const {
+result mapping_windows::delete_file(const containers::string_view _path) {
   containers::string path(m_allocator);
 
   if (!sanitize_and_validate_path(_path, path)) {
@@ -194,7 +194,7 @@ result mapping_windows::delete_file(const containers::string_view _path) const {
 }
 
 result mapping_windows::delete_directory(
-    const containers::string_view _path) const {
+    const containers::string_view _path) {
   containers::string path(m_allocator);
 
   if (!sanitize_and_validate_path(_path, path)) {

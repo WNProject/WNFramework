@@ -18,15 +18,16 @@ namespace internal {
 
 class file_posix : public file {
 public:
-  WN_FORCE_INLINE file_posix(file_descriptor&& _file_descriptor)
-    : file(),
+  WN_FORCE_INLINE file_posix(
+      memory::allocator* _allocator, file_descriptor&& _file_descriptor)
+    : file(_allocator),
       m_file_descriptor(std::move(_file_descriptor)),
       m_mapped_memory(NULL),
       m_size(0) {}
 
-  WN_FORCE_INLINE file_posix(
+  WN_FORCE_INLINE file_posix(memory::allocator* _allocator,
       file_descriptor&& _file_descriptor, void* _mapped_memory, size_t _size)
-    : file(),
+    : file(_allocator),
       m_file_descriptor(std::move(_file_descriptor)),
       m_mapped_memory(_mapped_memory),
       m_size(_size) {}
@@ -47,7 +48,7 @@ public:
     return static_cast<size_type>(m_size);
   }
 
-  WN_FORCE_INLINE virtual bool is_open() const {
+  WN_FORCE_INLINE virtual bool is_open() const override {
     return m_file_descriptor.is_valid();
   }
 

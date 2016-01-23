@@ -253,7 +253,7 @@ public:
 
   void push_back(const _Type& _element) { insert(end(), _element); }
 
-  void push_back(_Type&& _element) { insert(end(), _element); }
+  void push_back(_Type&& _element) { insert(end(), std::move(_element)); }
 
   iterator erase(const_iterator _it) {
     list_node* ptr = _it.m_ptr;

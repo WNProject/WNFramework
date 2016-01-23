@@ -65,7 +65,7 @@ bool mapping_posix::exists_directory(
 }
 
 file_ptr mapping_posix::create_file(
-    const containers::string_view _path, result& _result) const {
+    const containers::string_view _path, result& _result) {
   containers::string path(m_allocator);
 
   if (sanitize_and_validate_path(_path, path)) {
@@ -76,8 +76,8 @@ file_ptr mapping_posix::create_file(
     if (fdescriptor.is_valid()) {
       _result = result::ok;
 
-      return memory::make_allocated_ptr<file_posix>(
-          m_allocator, std::move(fdescriptor));
+      return memory::make_intrusive<file_posix>(
+          m_allocator, m_allocator, std::move(fdescriptor));
     }
   }
 
@@ -86,8 +86,7 @@ file_ptr mapping_posix::create_file(
   return nullptr;
 }
 
-result mapping_posix::create_directory(
-    const containers::string_view _path) const {
+result mapping_posix::create_directory(const containers::string_view _path) {
   containers::string path(m_allocator);
 
   if (sanitize_and_validate_path(_path, path)) {
@@ -102,7 +101,7 @@ result mapping_posix::create_directory(
 }
 
 file_ptr mapping_posix::open_file(
-    const containers::string_view _path, result& _result) const {
+    const containers::string_view _path, result& _result) {
   containers::string path(m_allocator);
 
   if (!sanitize_and_validate_path(_path, path)) {
@@ -147,17 +146,17 @@ file_ptr mapping_posix::open_file(
 
     _result = result::ok;
 
-    return memory::make_allocated_ptr<file_posix>(
-        m_allocator, std::move(fdescriptor), mapped_memory, file_size);
+    return memory::make_intrusive<file_posix>(m_allocator, m_allocator,
+        std::move(fdescriptor), mapped_memory, file_size);
   } else {
     _result = result::ok;
 
-    return memory::make_allocated_ptr<file_posix>(
-        m_allocator, std::move(fdescriptor));
+    return memory::make_intrusive<file_posix>(
+        m_allocator, m_allocator, std::move(fdescriptor));
   }
 }
 
-result mapping_posix::delete_file(const containers::string_view _path) const {
+result mapping_posix::delete_file(const containers::string_view _path) {
   containers::string path(m_allocator);
 
   if (sanitize_and_validate_path(_path, path)) {
@@ -169,8 +168,7 @@ result mapping_posix::delete_file(const containers::string_view _path) const {
   return result::fail;
 }
 
-result mapping_posix::delete_directory(
-    const containers::string_view _path) const {
+result mapping_posix::delete_directory(const containers::string_view _path) {
   containers::string path(m_allocator);
 
   if (sanitize_and_validate_path(_path, path)) {
@@ -183,7 +181,7 @@ result mapping_posix::delete_directory(
 }
 
 bool mapping_posix::recursive_remove_directory(
-    const containers::string& _path) const {
+    const containers::string& _path) {
 #ifdef _WN_HAS_NFTW
   static auto predicate = [](const char* _path, const struct stat* _s,
       const int _flag, struct FTW* _f) -> int {

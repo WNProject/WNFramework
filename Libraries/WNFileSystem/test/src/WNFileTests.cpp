@@ -6,13 +6,16 @@
 #include "WNFileSystem/inc/WNFile.h"
 #include "WNTesting/inc/WNTestHarness.h"
 
-TEST(file, creation) {
+using file_tests =
+    ::testing::TestWithParam<wn::file_system::mapping_type>;
+
+TEST_P(file_tests, creation) {
   wn::file_system::factory f;
   wn::memory::default_test_allocator allocator;
 
   {
     const wn::file_system::mapping_ptr mp =
-        f.make_mapping(wn::file_system::system_path::scratch, &allocator);
+        f.make_mapping(GetParam(), &allocator);
 
     ASSERT_NE(mp, nullptr);
 
@@ -30,13 +33,13 @@ TEST(file, creation) {
   EXPECT_EQ(allocator.allocated(), allocator.freed());
 }
 
-TEST(file, size) {
+TEST_P(file_tests, size) {
   wn::file_system::factory f;
   wn::memory::default_test_allocator allocator;
 
   {
     const wn::file_system::mapping_ptr mp =
-        f.make_mapping(wn::file_system::system_path::scratch, &allocator);
+        f.make_mapping(GetParam(), &allocator);
 
     ASSERT_NE(mp, nullptr);
 
@@ -66,13 +69,13 @@ TEST(file, size) {
   EXPECT_EQ(allocator.allocated(), allocator.freed());
 }
 
-TEST(file, resize) {
+TEST_P(file_tests, resize) {
   wn::file_system::factory f;
   wn::memory::default_test_allocator allocator;
 
   {
     const wn::file_system::mapping_ptr mp =
-        f.make_mapping(wn::file_system::system_path::scratch, &allocator);
+        f.make_mapping(GetParam(), &allocator);
 
     ASSERT_NE(mp, nullptr);
 
@@ -135,13 +138,13 @@ TEST(file, resize) {
   EXPECT_EQ(allocator.allocated(), allocator.freed());
 }
 
-TEST(file, clear) {
+TEST_P(file_tests, clear) {
   wn::file_system::factory f;
   wn::memory::default_test_allocator allocator;
 
   {
     const wn::file_system::mapping_ptr mp =
-        f.make_mapping(wn::file_system::system_path::scratch, &allocator);
+        f.make_mapping(GetParam(), &allocator);
 
     ASSERT_NE(mp, nullptr);
 
@@ -177,13 +180,13 @@ TEST(file, clear) {
   EXPECT_EQ(allocator.allocated(), allocator.freed());
 }
 
-TEST(file, flush) {
+TEST_P(file_tests, flush) {
   wn::file_system::factory f;
   wn::memory::default_test_allocator allocator;
 
   {
     const wn::file_system::mapping_ptr mp =
-        f.make_mapping(wn::file_system::system_path::scratch, &allocator);
+        f.make_mapping(GetParam(), &allocator);
 
     ASSERT_NE(mp, nullptr);
 
@@ -227,13 +230,13 @@ TEST(file, flush) {
   EXPECT_EQ(allocator.allocated(), allocator.freed());
 }
 
-TEST(file, close) {
+TEST_P(file_tests, close) {
   wn::file_system::factory f;
   wn::memory::default_test_allocator allocator;
 
   {
     const wn::file_system::mapping_ptr mp =
-        f.make_mapping(wn::file_system::system_path::scratch, &allocator);
+        f.make_mapping(GetParam(), &allocator);
 
     ASSERT_NE(mp, nullptr);
 
@@ -250,3 +253,7 @@ TEST(file, close) {
 
   EXPECT_EQ(allocator.allocated(), allocator.freed());
 }
+
+INSTANTIATE_TEST_CASE_P(all_mappings, file_tests,
+    ::testing::Values(wn::file_system::mapping_type::scratch,
+                            wn::file_system::mapping_type::memory_backed));

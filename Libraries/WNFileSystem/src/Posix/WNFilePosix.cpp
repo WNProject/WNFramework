@@ -15,9 +15,6 @@ namespace wn {
 namespace file_system {
 namespace internal {
 
-WN_FORCE_INLINE bool adjust_file_size(
-    const file_descriptor& _file_descriptor, const size_t _size) {}
-
 bool file_posix::resize(const size_type _size) {
   if (is_open()) {
     const size_type current_size = size();

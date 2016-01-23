@@ -27,22 +27,22 @@ public:
       const containers::string_view _path) const override;
 
   virtual file_ptr create_file(
-      const containers::string_view _path, result& _result) const override;
+      const containers::string_view _path, result& _result) override;
 
   virtual result create_directory(
-      const containers::string_view _path) const override;
+      const containers::string_view _path) override;
 
   virtual file_ptr open_file(
-      const containers::string_view _path, result& _result) const override;
+      const containers::string_view _path, result& _result) override;
 
   virtual result delete_file(
-      const containers::string_view _path) const override;
+      const containers::string_view _path) override;
 
   virtual result delete_directory(
-      const containers::string_view _path) const override;
+      const containers::string_view _path) override;
 
 private:
-  bool recursive_remove_directory(const containers::string& _path) const;
+  bool recursive_remove_directory(const containers::string& _path);
 };
 
 }  // namespace internal

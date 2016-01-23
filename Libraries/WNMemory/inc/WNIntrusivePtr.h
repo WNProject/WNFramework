@@ -7,6 +7,7 @@
 #ifndef __WN_MEMORY_INTRUSIVE_PTR_H__
 #define __WN_MEMORY_INTRUSIVE_PTR_H__
 
+#include "WNMemory/inc/WNAllocator.h"
 #include "WNMemory/inc/WNBasic.h"
 
 #include <atomic>
@@ -42,16 +43,36 @@ public:
     return(m_reference_count);
   }
 
-protected:
-  WN_FORCE_INLINE intrusive_ptr_base() :
-    m_reference_count(0) {
+  memory::allocator* get_allocator() {
+    return m_allocator;
   }
+protected:
+  WN_FORCE_INLINE intrusive_ptr_base(memory::allocator* _allocator = nullptr)
+    : m_reference_count(0), m_allocator(_allocator) {}
 
 private:
   std::atomic<wn_size_t> m_reference_count;
+  memory::allocator* m_allocator;
 };
 
-template <typename T, typename D = default_destroyer<T>>
+template <typename T>
+struct intrusive_destroyer {
+  intrusive_destroyer() = default;
+
+  template <typename U>
+  WN_FORCE_INLINE intrusive_destroyer(const intrusive_destroyer<U>&) {};
+
+  WN_FORCE_INLINE wn_void operator () (T* ptr) const {
+    if (ptr->get_allocator()) {
+      ptr->~T();
+      ptr->get_allocator()->deallocate(ptr);
+    } else {
+      destroy(ptr);
+    }
+  }
+};
+
+template <typename T, typename D = intrusive_destroyer<T>>
 class intrusive_ptr final {
 public:
   static_assert(std::is_base_of<intrusive_ptr_base, T>::value,
@@ -354,6 +375,13 @@ WN_FORCE_INLINE wn_bool operator >= (const wn_nullptr_t,
 template <typename T, typename... Args>
 WN_FORCE_INLINE intrusive_ptr<T> make_intrusive(Args&&... args) {
   return(intrusive_ptr<T>(construct<T>(std::forward<Args>(args)...)));
+}
+
+template <typename T, typename... Args>
+WN_FORCE_INLINE intrusive_ptr<T> make_intrusive(
+    memory::allocator* _allocator, Args&&... args) {
+  return (intrusive_ptr<T>(
+      _allocator->make_allocated<T>(std::forward<Args>(args)...)));
 }
 
 template <typename T, typename... Args>

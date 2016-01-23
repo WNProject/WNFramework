@@ -24,18 +24,18 @@ public:
   virtual bool exists_directory(const containers::string_view _path) const = 0;
 
   virtual file_ptr create_file(
-      const containers::string_view _path, result& _result) const = 0;
+      const containers::string_view _path, result& _result) = 0;
 
   virtual result create_directory(
-      const containers::string_view _path) const = 0;
+      const containers::string_view _path) = 0;
 
   virtual file_ptr open_file(
-      const containers::string_view _path, result& _result) const = 0;
+      const containers::string_view _path, result& _result) = 0;
 
   virtual result delete_directory(
-      const containers::string_view _path) const = 0;
+      const containers::string_view _path) = 0;
 
-  virtual result delete_file(const containers::string_view _path) const = 0;
+  virtual result delete_file(const containers::string_view _path) = 0;
 
 protected:
   WN_FORCE_INLINE mapping(containers::string&& _path,

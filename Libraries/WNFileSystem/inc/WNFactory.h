@@ -12,12 +12,12 @@
 namespace wn {
 namespace file_system {
 
-enum class system_path { scratch };
+enum class mapping_type { scratch, memory_backed };
 
 class factory {
 public:
   virtual mapping_ptr make_mapping(
-      const system_path _system_path, memory::allocator* _allocator) const;
+      const mapping_type _mapping_type, memory::allocator* _allocator) const;
 };
 
 }  // namespace file_system

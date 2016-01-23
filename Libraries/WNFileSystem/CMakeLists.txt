@@ -32,9 +32,11 @@ set(WN_SRC_ANDROID_SYSTEM_PATHS
 )
 
 set(WN_SRC
-  src/WNUtilities.h
-  src/WNMapping.cpp
   src/WNFactory.cpp
+  src/WNMapping.cpp
+  src/WNMemoryBackedMapping.cpp
+  src/WNMemoryBackedMapping.h
+  src/WNUtilities.h
 )
 
 set(WN_FILE_SYSTEM_FILES ${WN_SRC})

@@ -9,11 +9,12 @@
 
 #include "WNContainers/inc/WNContiguousRange.h"
 #include "WNMemory/inc/WNAllocator.h"
+#include "WNMemory/inc/WNIntrusivePtr.h"
 
 namespace wn {
 namespace file_system {
 
-class file {
+class file : public memory::intrusive_ptr_base {
 public:
   typedef uint8_t value_type;
   typedef size_t size_type;
@@ -33,6 +34,32 @@ public:
     return containers::contiguous_range<const value_type>(data(), size());
   }
 
+  template <typename T>
+  WN_FORCE_INLINE const T* typed_data() const {
+    return reinterpret_cast<const T*>(data());
+  }
+
+  template <typename T>
+  WN_FORCE_INLINE T* typed_data() {
+    return reinterpret_cast<T*>(data());
+  }
+
+  template <typename T>
+  WN_FORCE_INLINE size_t typed_size() {
+    return size() / sizeof(T);
+  }
+
+  template <typename T>
+  WN_FORCE_INLINE containers::contiguous_range<const T> typed_range() const {
+    return containers::contiguous_range<const T>(
+        typed_data<const T>(), typed_size<const T>);
+  }
+
+  template <typename T>
+  WN_FORCE_INLINE containers::contiguous_range<T> typed_range() {
+    return containers::contiguous_range<T>(typed_data<T>(), typed_size<T>());
+  }
+
   virtual size_type size() const = 0;
 
   WN_FORCE_INLINE bool empty() const {
@@ -49,9 +76,12 @@ public:
   }
 
   virtual void close() = 0;
+protected:
+  file(memory::allocator* _allocator = wn_nullptr)
+    : memory::intrusive_ptr_base(_allocator) {}
 };
 
-using file_ptr = memory::allocated_ptr<file>;
+using file_ptr = memory::intrusive_ptr<file>;
 
 }  // namespace file_system
 }  // namespace wn

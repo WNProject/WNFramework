@@ -14,10 +14,9 @@
   #include <Windows.h>
 #elif defined _WN_POSIX
   #include <pthread.h>
-#else
-  #include <mutex>
 #endif
 
+#include <mutex>
 #include <atomic>
 
 namespace wn {
@@ -254,6 +253,8 @@ private:
 
   std::atomic<wn_uint32> m_spin_count;
 };
+
+using mutex_guard = std::lock_guard<mutex>;
 
 } // namespace threads
 } // namespace wn
