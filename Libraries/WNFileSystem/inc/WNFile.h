@@ -26,6 +26,16 @@ public:
   virtual pointer data() = 0;
   virtual const_pointer data() const = 0;
 
+  template <typename T>
+  WN_FORCE_INLINE T* typed_data() {
+    return reinterpret_cast<T*>(data());
+  }
+
+  template <typename T>
+  WN_FORCE_INLINE const T* typed_data() const {
+    return reinterpret_cast<const T*>(data());
+  }
+
   WN_FORCE_INLINE containers::contiguous_range<value_type> range() {
     return containers::contiguous_range<value_type>(data(), size());
   }
@@ -35,32 +45,22 @@ public:
   }
 
   template <typename T>
-  WN_FORCE_INLINE const T* typed_data() const {
-    return reinterpret_cast<const T*>(data());
-  }
-
-  template <typename T>
-  WN_FORCE_INLINE T* typed_data() {
-    return reinterpret_cast<T*>(data());
-  }
-
-  template <typename T>
-  WN_FORCE_INLINE size_t typed_size() {
-    return size() / sizeof(T);
+  WN_FORCE_INLINE containers::contiguous_range<T> typed_range() {
+    return containers::contiguous_range<T>(typed_data<T>(), typed_size<T>());
   }
 
   template <typename T>
   WN_FORCE_INLINE containers::contiguous_range<const T> typed_range() const {
     return containers::contiguous_range<const T>(
-        typed_data<const T>(), typed_size<const T>);
-  }
-
-  template <typename T>
-  WN_FORCE_INLINE containers::contiguous_range<T> typed_range() {
-    return containers::contiguous_range<T>(typed_data<T>(), typed_size<T>());
+        typed_data<const T>(), typed_size<const T>());
   }
 
   virtual size_type size() const = 0;
+
+  template <typename T>
+  WN_FORCE_INLINE size_t typed_size() const {
+    return size() / sizeof(T);
+  }
 
   WN_FORCE_INLINE bool empty() const {
     return (size() == 0);
@@ -76,8 +76,9 @@ public:
   }
 
   virtual void close() = 0;
+
 protected:
-  file(memory::allocator* _allocator = wn_nullptr)
+  file(memory::allocator* _allocator)
     : memory::intrusive_ptr_base(_allocator) {}
 };
 

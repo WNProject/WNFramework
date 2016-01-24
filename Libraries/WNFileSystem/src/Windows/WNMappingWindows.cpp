@@ -75,8 +75,7 @@ file_ptr mapping_windows::create_file(
       m_allocator, m_allocator, std::move(file_handle));
 }
 
-result mapping_windows::create_directory(
-    const containers::string_view _path) {
+result mapping_windows::create_directory(const containers::string_view _path) {
   containers::string path(m_allocator);
 
   if (!sanitize_and_validate_path(_path, path)) {
@@ -193,8 +192,7 @@ result mapping_windows::delete_file(const containers::string_view _path) {
   return result::ok;
 }
 
-result mapping_windows::delete_directory(
-    const containers::string_view _path) {
+result mapping_windows::delete_directory(const containers::string_view _path) {
   containers::string path(m_allocator);
 
   if (!sanitize_and_validate_path(_path, path)) {

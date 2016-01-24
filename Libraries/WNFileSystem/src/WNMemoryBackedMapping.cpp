@@ -37,11 +37,11 @@ memory_backed_mapping::memory_backed_file::memory_backed_file(
 
 file::pointer memory_backed_mapping::memory_backed_file::data() {
   make_this_unique();
-  return m_store->m_data.empty()? nullptr: m_store->m_data.data();
+  return m_store->m_data.empty() ? nullptr : m_store->m_data.data();
 }
 
 file::const_pointer memory_backed_mapping::memory_backed_file::data() const {
-  return m_store->m_data.empty()? nullptr: m_store->m_data.data();
+  return m_store->m_data.empty() ? nullptr : m_store->m_data.data();
 }
 
 file::size_type memory_backed_mapping::memory_backed_file::size() const {
@@ -310,8 +310,7 @@ result memory_backed_mapping::delete_directory(
   return result::ok;
 }
 
-result memory_backed_mapping::delete_file(
-    const containers::string_view _path) {
+result memory_backed_mapping::delete_file(const containers::string_view _path) {
   containers::string path(m_allocator);
   if (!sanitize_and_validate_path(_path, path)) {
     return result::invalid_path;

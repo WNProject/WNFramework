@@ -31,17 +31,14 @@ public:
   virtual file_ptr create_file(
       const containers::string_view _path, result& _result) override;
 
-  virtual result create_directory(
-      const containers::string_view _path) override;
+  virtual result create_directory(const containers::string_view _path) override;
 
   virtual file_ptr open_file(
       const containers::string_view _path, result& _result) override;
 
-  virtual result delete_file(
-      const containers::string_view _path) override;
+  virtual result delete_file(const containers::string_view _path) override;
 
-  virtual result delete_directory(
-      const containers::string_view _path) override;
+  virtual result delete_directory(const containers::string_view _path) override;
 
 private:
   WN_FORCE_INLINE DWORD get_attributes(

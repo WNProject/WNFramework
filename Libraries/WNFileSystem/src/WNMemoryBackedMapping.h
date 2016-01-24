@@ -99,8 +99,7 @@ private:
 
     // Returns a pointer to a child directory if it exists,
     // otherwise returns nullptr.
-    memory_backed_directory* get_child_directory (
-        containers::string_view& name);
+    memory_backed_directory* get_child_directory(containers::string_view& name);
 
     // Returns a pointer to a child directory if it exists,
     // otherwise returns nullptr.

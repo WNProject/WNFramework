@@ -29,6 +29,8 @@ public:
 
   virtual result create_directory(const containers::string_view _path) = 0;
 
+  result recursive_create_directory(containers::string_view _directory);
+
   virtual file_ptr open_file(
       const containers::string_view _path, result& _result) = 0;
 
@@ -36,10 +38,9 @@ public:
 
   virtual result delete_file(const containers::string_view _path) = 0;
 
-  result recursive_create_directory(containers::string_view directory);
   result initialize_files(std::initializer_list<
       containers::pair<containers::string_view, containers::string_view>>
-          files);
+          _files);
 
 protected:
   WN_FORCE_INLINE mapping(containers::string&& _path,

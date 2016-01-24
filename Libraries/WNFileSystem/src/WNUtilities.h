@@ -22,12 +22,12 @@ static const containers::string_view dot_dot(tokens, 2);
 static const containers::string_view dot_dot_slash(tokens, 3);
 
 WN_INLINE void append_path(
-    containers::string& _path, containers::string_view appendee) {
+    containers::string& _path, containers::string_view _appendee) {
   if (!_path.empty() && _path.back() != good_slash.data()[0]) {
     _path.append(good_slash.data(), good_slash.size());
   }
 
-  _path.append(appendee.data(), appendee.size());
+  _path.append(_appendee.data(), _appendee.size());
 }
 
 WN_INLINE void sanitize_path(containers::string& _path) {
