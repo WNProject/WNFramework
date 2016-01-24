@@ -26,6 +26,7 @@ WN_INLINE void append_path(
   if (!_path.empty() && _path.back() != good_slash.data()[0]) {
     _path.append(good_slash.data(), good_slash.size());
   }
+
   _path.append(appendee.data(), appendee.size());
 }
 
@@ -33,6 +34,7 @@ WN_INLINE void sanitize_path(containers::string& _path) {
   if (_path.empty()) {
     return;
   }
+
   if (_path == ".") {
     _path.clear();
   } else if (_path == "..") {
@@ -44,29 +46,29 @@ WN_INLINE void sanitize_path(containers::string& _path) {
       const char last_char = _path.back();
       const char second_last_char = _path[_path.size() - 2];
 
-      if (last_char == '.' && (second_last_char == good_slash.front() ||
-                                  second_last_char == bad_slash.front())) {
-        _path += good_slash.front();
+      if (last_char == '.' && (second_last_char == good_slash[0] ||
+                                  second_last_char == bad_slash[0])) {
+        _path += good_slash[0];
       } else if (_path.size() >= 3) {
         const char third_last_char = _path[_path.size() - 3];
 
         if (last_char == '.' && second_last_char == '.' &&
-            (third_last_char == good_slash.front() ||
-                third_last_char == bad_slash.front())) {
-          _path += good_slash.front();
+            (third_last_char == good_slash[0] ||
+                third_last_char == bad_slash[0])) {
+          _path += good_slash[0];
         }
       }
     }
 
     static const containers::string_view dot_slash(tokens, 1, 2);
     static const containers::string_view find_slash_filter(tokens, 2, 2);
-    char& front = _path.front();
+    char& front = _path[0];
 
-    if (front == bad_slash.front()) {
-      front = good_slash.front();
+    if (front == bad_slash[0]) {
+      front = good_slash[0];
     }
 
-    const size_t initial_pos = (front == good_slash.front()) ? 1 : 0;
+    const size_t initial_pos = (front == good_slash[0]) ? 1 : 0;
     size_t pos = initial_pos;
     size_t last_pos = initial_pos;
     containers::string_view last_view;
@@ -75,8 +77,8 @@ WN_INLINE void sanitize_path(containers::string& _path) {
                 find_slash_filter.size())) != containers::string::npos) {
       char& current = _path[pos];
 
-      if (current == bad_slash.front()) {
-        current = good_slash.front();
+      if (current == bad_slash[0]) {
+        current = good_slash[0];
       }
 
       pos++;
@@ -107,8 +109,8 @@ WN_INLINE void sanitize_path(containers::string& _path) {
         _path.erase(last_token_pos, last_token_size);
 
         if (last_token_pos != 0) {
-          if ((last_pos = _path.rfind(good_slash.front(),
-                   last_token_pos - 2)) == containers::string::npos) {
+          if ((last_pos = _path.rfind(good_slash[0], last_token_pos - 2)) ==
+              containers::string::npos) {
             last_pos = initial_pos;
           } else {
             last_pos++;
@@ -141,15 +143,20 @@ WN_INLINE bool get_directory_from_sanitized_path(
     const containers::string_view _path, containers::string_view& _directory) {
   if (_path.empty()) {
     _directory = containers::string_view();
+
     return true;
   }
+
   for (size_t i = _path.size(); i > 0; --i) {
     if (_path[i - 1] == good_slash[0]) {
       _directory = containers::string_view(&_path[0], &_path[i - 1]);
+
       return true;
     }
   }
+
   _directory = containers::string_view();
+
   return true;
 }
 
@@ -160,16 +167,21 @@ WN_INLINE bool get_filename_from_sanitized_path(
     const containers::string_view _path, containers::string_view& _file) {
   if (_path.empty()) {
     _file = containers::string_view();
+
     return true;
   }
+
   for (size_t i = _path.size(); i > 0; --i) {
     if (_path[i - 1] == good_slash[0]) {
       _file = containers::string_view(
           &_path[i - 1] + 1, &_path[_path.size() - 1] + 1);
+
       return true;
     }
   }
+
   _file = _path;
+
   return true;
 }
 
@@ -178,41 +190,28 @@ WN_INLINE bool get_filename_from_sanitized_path(
 // are removed.
 WN_INLINE bool split_sanitized_path(const containers::string_view _path,
     containers::dynamic_array<containers::string_view>& _path_pieces) {
+  if (_path.empty()) {
+    return true;
+  }
+
   size_t start_of_path = 0;
   size_t i = 0;
-  if (_path.empty())
-    return true;
 
   for (; i < _path.size(); ++i) {
     if (_path[i] == good_slash[0]) {
       if (start_of_path != i) {
         _path_pieces.emplace_back(&_path[start_of_path], &_path[i]);
       }
+
       start_of_path = i + 1;
     }
   }
+
   if (i != start_of_path) {
     _path_pieces.emplace_back(&_path[start_of_path], (&_path[i - 1]) + 1);
   }
+
   return true;
-}
-
-WN_INLINE bool validate_full_path(const containers::string_view _view) {
-  if (_view.empty()) {
-    return false;
-  } else if (_view.size() >= 3) {
-    containers::string_view view(_view);
-
-    view.remove_suffix(view.size() - 3);
-
-    if (view.substr(0, 1) == good_slash) {
-      view.remove_prefix(1);
-
-      if (view == dot_dot) {
-        return false;
-      }
-    }
-  }
 }
 
 WN_INLINE bool validate_relative_path(containers::string_view _view) {
