@@ -29,6 +29,7 @@ namespace wn {
         WNSurfaceManagerXWindows& operator = (const WNSurfaceManagerXWindows&);
 
     private:
+        wn::memory::basic_allocator allocator;
         Display* mDisplay;
         XVisualInfo* mVisualInfo;
         GLXFBConfig  mFBConfig;

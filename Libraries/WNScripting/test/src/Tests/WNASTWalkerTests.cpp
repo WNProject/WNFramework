@@ -40,7 +40,7 @@ void RunMatcherTest(T& _t,
         wn::containers::string_view>>
         _files,
     const char* _file, wn_size_t* _num_warnings, wn_size_t* _num_errors) {
-  wn::memory::default_expanding_allocator<50> allocator;
+  wn::testing::allocator allocator;
   wn::file_system::mapping_ptr mapping =
       wn::file_system::factory().make_mapping(
           wn::file_system::mapping_type::memory_backed, &allocator);
@@ -72,7 +72,7 @@ TEST(ast_code_generator, simplest_function) {
 }
 
 TEST(ast_code_generator, type_association_test) {
-  wn::memory::default_expanding_allocator<50> allocator;
+  wn::testing::allocator allocator;
   wn::scripting::type_validator validator(&allocator);
   wn_size_t num_warnings, num_errors;
   num_warnings = num_errors = 0;

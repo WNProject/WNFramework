@@ -15,7 +15,6 @@
 
 using namespace WNNetworking;
 using namespace WNContainers;
-using namespace WNConcurrency;
 
 WNConnectionLinux::WNConnectionLinux(WNNetworkManager& _manager) :
     WNConnection(),
@@ -30,7 +29,7 @@ WNConnectionLinux::WNConnectionLinux(WNNetworkManager& _manager) :
     mReadHead(0),
     mOverflowAmount(0),
     mBufferBase(0) {
-    mReadLocation = wn::memory::make_intrusive<WNBufferResource, WNNetworkManager&>(_manager);
+    mReadLocation = wn::memory::make_intrusive<WNBufferResource, WNNetworkManager&>(&allocator, _manager);
 }
 
 WNConnectionLinux::~WNConnectionLinux() {
@@ -205,7 +204,7 @@ wn_void WNConnectionLinux::ReadReady() {
                 mReadHead += transferToOverflow;
                 WN_RELEASE_ASSERT(processedBytes == transferred);
                 if(mBufferBase == wn::containers::MAX_DATA_WRITE) {
-                    mReadLocation = wn::memory::make_intrusive<WNBufferResource, WNNetworkManager&>(mManager);
+                    mReadLocation = wn::memory::make_intrusive<WNBufferResource, WNNetworkManager&>(&allocator, mManager);
                     mReadHead = 0;
                     mBufferBase = 0;
                 }
@@ -239,7 +238,7 @@ wn_void WNConnectionLinux::ReadReady() {
                 }
             }
             if(mReadHead == wn::containers::MAX_DATA_WRITE) {
-                mReadLocation = wn::memory::make_intrusive<WNBufferResource, WNNetworkManager&>(mManager);
+                mReadLocation = wn::memory::make_intrusive<WNBufferResource, WNNetworkManager&>(&allocator, mManager);
                 mReadHead = 0;
                 mBufferBase = 0;
             } else {

@@ -16,7 +16,7 @@ WNNetworkWriteBuffer::WNNetworkWriteBuffer(WNNetworkManager& _manager, wn_uint32
     mBufferPointer(0),
     mTotalWritten(0),
     mFlushed(wn_false) {
-    mChunks.push_back(wn::memory::make_intrusive<WNBufferResource, WNNetworkManager&>(mManager));
+    mChunks.push_back(wn::memory::make_intrusive<WNBufferResource, WNNetworkManager&>(&allocator, mManager));
     _manager.InitializeBuffer(*this, _number);
 }
 
@@ -69,7 +69,7 @@ wn_char* WNNetworkWriteBuffer::reserve(const wn_size_t _numBytes, wn_size_t& _re
 
     if (mBufferPointer == wn::containers::MAX_DATA_WRITE) {
         mChunks.back()->FillData();
-        mChunks.push_back(wn::memory::make_intrusive<WNBufferResource, WNNetworkManager&>(mManager));
+        mChunks.push_back(wn::memory::make_intrusive<WNBufferResource, WNNetworkManager&>(&allocator, mManager));
 
         mBufferPointer = 0;
     }

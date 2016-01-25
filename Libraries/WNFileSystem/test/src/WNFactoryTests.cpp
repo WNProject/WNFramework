@@ -5,21 +5,18 @@
 #include "WNFileSystem/inc/WNFactory.h"
 #include "WNTesting/inc/WNTestHarness.h"
 
-using factory_tests =
-    ::testing::TestWithParam<wn::file_system::mapping_type>;
+using factory_tests = ::testing::TestWithParam<wn::file_system::mapping_type>;
 
 TEST_P(factory_tests, make_mapping) {
-  wn::file_system::factory f;
-  wn::memory::default_test_allocator allocator;
+  wn::testing::allocator allocator;
 
   {
+    wn::file_system::factory f;
     const wn::file_system::mapping_ptr mp =
         f.make_mapping(GetParam(), &allocator);
 
     ASSERT_NE(mp, nullptr);
   }
-
-  EXPECT_EQ(allocator.allocated(), allocator.freed());
 }
 
 INSTANTIATE_TEST_CASE_P(all_mappings, factory_tests,

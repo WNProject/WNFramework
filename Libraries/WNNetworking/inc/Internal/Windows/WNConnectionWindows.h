@@ -56,6 +56,7 @@ namespace WNNetworking {
         wn_void ProcessWrite();
 
     protected:
+        wn::memory::basic_allocator allocator;
         WNNetworkManager& mManager;
         WNNetworkReadBuffer mCurrentReadBuffer;
         wn::threads::mutex mSendMutex;

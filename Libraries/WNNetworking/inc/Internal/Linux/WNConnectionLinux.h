@@ -44,6 +44,7 @@ namespace WNNetworking {
         wn::threads::spin_lock mSendBufferLock;
         std::deque<WNNetworkWriteBuffer> mSendBuffers;
 
+        wn::memory::basic_allocator allocator;
         WNNetworkReadBuffer mCurrentReadBuffer;
         wn_size_t mInProcessedBytes;
         wn_size_t mReadHead;

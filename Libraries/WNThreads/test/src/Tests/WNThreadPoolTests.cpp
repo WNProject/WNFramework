@@ -2,27 +2,31 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNThreads/inc/WNThreadPool.h"
-#include "WNThreads/inc/WNCallbackTask.h"
-
 #include "WNTesting/inc/WNTestHarness.h"
+#include "WNThreads/inc/WNCallbackTask.h"
+#include "WNThreads/inc/WNThreadPool.h"
 
 #ifdef _WN_MSVC
-  #pragma warning(push)
-  #pragma warning(disable: 4275)
+#pragma warning(push)
+#pragma warning(disable : 4275)
 #endif
 
 #include <vector>
 
 #ifdef _WN_MSVC
-  #pragma warning(pop)
+#pragma warning(pop)
 #endif
 
 TEST(WNThreadPoolValidation, Creation) {
-  for (wn_uint32 i = 0; i < 50; ++i) {
-    wn::threads::thread_pool thread_pool;
+  wn::testing::allocator allocator;
 
-    ASSERT_EQ(thread_pool.initialize(i), wn::threads::thread_pool::result::ok);
+  {
+    for (wn_uint32 i = 0; i < 50; ++i) {
+      wn::threads::thread_pool thread_pool(&allocator);
+
+      ASSERT_EQ(
+          thread_pool.initialize(i), wn::threads::thread_pool::result::ok);
+    }
   }
 }
 
@@ -31,37 +35,51 @@ static wn_void SimpleCallback() {
 }
 
 TEST(WNThreadPoolValidation, CaughtUninitialized) {
-  wn::threads::thread_pool thread_pool;
+  wn::testing::allocator allocator;
 
-  ASSERT_NE(thread_pool.enqueue(wn::threads::make_callback_task<wn_void>(&SimpleCallback)), wn::threads::thread_pool::result::ok);
-  ASSERT_EQ(thread_pool.initialize(10), wn::threads::thread_pool::result::ok);
-  ASSERT_EQ(thread_pool.enqueue(wn::threads::make_callback_task<wn_void>(&SimpleCallback)), wn::threads::thread_pool::result::ok);
+  {
+    wn::threads::thread_pool thread_pool(&allocator);
+
+    ASSERT_NE(thread_pool.enqueue(wn::threads::make_callback_task<wn_void>(
+                  &allocator, &SimpleCallback)),
+        wn::threads::thread_pool::result::ok);
+    ASSERT_EQ(thread_pool.initialize(10), wn::threads::thread_pool::result::ok);
+    ASSERT_EQ(thread_pool.enqueue(wn::threads::make_callback_task<wn_void>(
+                  &allocator, &SimpleCallback)),
+        wn::threads::thread_pool::result::ok);
+  }
 }
 
 TEST(WNThreadPoolValidation, CreationMore) {
-  {
-    wn::threads::thread_pool thread_pool;
+  wn::testing::allocator allocator;
 
-    ASSERT_EQ(thread_pool.initialize(100), wn::threads::thread_pool::result::ok);
+  {
+    wn::threads::thread_pool thread_pool(&allocator);
+
+    ASSERT_EQ(
+        thread_pool.initialize(100), wn::threads::thread_pool::result::ok);
   }
 
-    {
-      wn::threads::thread_pool thread_pool;
+  {
+    wn::threads::thread_pool thread_pool(&allocator);
 
-      ASSERT_EQ(thread_pool.initialize(100), wn::threads::thread_pool::result::ok);
-    }
+    ASSERT_EQ(
+        thread_pool.initialize(100), wn::threads::thread_pool::result::ok);
+  }
 
-    {
-      wn::threads::thread_pool thread_pool;
+  {
+    wn::threads::thread_pool thread_pool(&allocator);
 
-      ASSERT_EQ(thread_pool.initialize(100), wn::threads::thread_pool::result::ok);
-    }
+    ASSERT_EQ(
+        thread_pool.initialize(100), wn::threads::thread_pool::result::ok);
+  }
 
-    {
-      wn::threads::thread_pool thread_pool;
+  {
+    wn::threads::thread_pool thread_pool(&allocator);
 
-      ASSERT_EQ(thread_pool.initialize(100), wn::threads::thread_pool::result::ok);
-    }
+    ASSERT_EQ(
+        thread_pool.initialize(100), wn::threads::thread_pool::result::ok);
+  }
 }
 
 static std::atomic<wn_size_t> SimpleS1(0);
@@ -71,13 +89,16 @@ wn_void SimpleCallback1() {
 }
 
 TEST(WNThreadPoolValidation, SimpleCallback) {
+  wn::testing::allocator allocator;
+
   {
-    wn::threads::thread_pool thread_pool;
+    wn::threads::thread_pool thread_pool(&allocator);
 
     ASSERT_EQ(thread_pool.initialize(16), wn::threads::thread_pool::result::ok);
 
     for (wn_size_t i = 0; i < 10000; ++i) {
-      thread_pool.enqueue(wn::threads::make_callback_task<wn_void>(&SimpleCallback1));
+      thread_pool.enqueue(wn::threads::make_callback_task<wn_void>(
+          &allocator, &SimpleCallback1));
     }
   }
 
@@ -93,13 +114,16 @@ wn_void SimpleCallback2(wn_uint32 _val) {
 }
 
 TEST(WNThreadPoolValidation, OneParameterCallback) {
+  wn::testing::allocator allocator;
+
   {
-    wn::threads::thread_pool thread_pool;
+    wn::threads::thread_pool thread_pool(&allocator);
 
     ASSERT_EQ(thread_pool.initialize(16), wn::threads::thread_pool::result::ok);
 
     for (wn_uint32 i = 0; i < 1000; ++i) {
-      thread_pool.enqueue(wn::threads::make_callback_task<wn_void>(&SimpleCallback2, i));
+      thread_pool.enqueue(wn::threads::make_callback_task<wn_void>(
+          &allocator, &SimpleCallback2, i));
     }
   }
 
@@ -109,44 +133,54 @@ TEST(WNThreadPoolValidation, OneParameterCallback) {
 }
 
 wn_uint32 SimpleCallback3(wn_uint32 _val) {
-  return(_val);
+  return (_val);
 }
 
 TEST(WNThreadPoolValidation, OneParameterReturnCallback) {
-  std::vector<wn::threads::callback_task_ptr<wn_uint32>> jobCallbacks;
+  wn::testing::allocator allocator;
 
   {
-    wn::threads::thread_pool thread_pool;
+    std::vector<wn::threads::callback_task_ptr<wn_uint32>> jobCallbacks;
 
-    ASSERT_EQ(thread_pool.initialize(16), wn::threads::thread_pool::result::ok);
+    {
+      wn::threads::thread_pool thread_pool(&allocator);
 
-    for (wn_uint32 i = 0; i < 1000; ++i) {
-      wn::threads::callback_task_ptr<wn_uint32> j = wn::threads::make_callback_task<wn_uint32>(&SimpleCallback3, i);
+      ASSERT_EQ(
+          thread_pool.initialize(16), wn::threads::thread_pool::result::ok);
 
-      jobCallbacks.push_back(j);
-      thread_pool.enqueue(j);
+      for (wn_uint32 i = 0; i < 1000; ++i) {
+        wn::threads::callback_task_ptr<wn_uint32> j =
+            wn::threads::make_callback_task<wn_uint32>(
+                &allocator, &SimpleCallback3, i);
+
+        jobCallbacks.push_back(j);
+        thread_pool.enqueue(j);
+      }
     }
-  }
 
-  for (wn_size_t i = 0; i < 1000; ++i) {
-    wn_uint32 result;
+    for (wn_size_t i = 0; i < 1000; ++i) {
+      wn_uint32 result;
 
-    jobCallbacks[i]->join(result);
+      jobCallbacks[i]->join(result);
 
-    ASSERT_EQ(result, i);
+      ASSERT_EQ(result, i);
+    }
   }
 }
 
 TEST(WNThreadPoolValidation, JobsGetCleaned) {
-  std::vector<wn::threads::callback_task_ptr<wn_uint32>> jobCallbacks;
+  wn::testing::allocator allocator;
 
   {
-    wn::threads::thread_pool thread_pool;
+    std::vector<wn::threads::callback_task_ptr<wn_uint32>> jobCallbacks;
+    wn::threads::thread_pool thread_pool(&allocator);
 
     ASSERT_EQ(thread_pool.initialize(16), wn::threads::thread_pool::result::ok);
 
     for (wn_uint32 i = 0; i < 1000; ++i) {
-      wn::threads::callback_task_ptr<wn_uint32> j = wn::threads::make_callback_task<wn_uint32>(&SimpleCallback3, i);
+      wn::threads::callback_task_ptr<wn_uint32> j(
+          wn::threads::make_callback_task<wn_uint32>(
+              &allocator, &SimpleCallback3, i));
 
       jobCallbacks.push_back(j);
       thread_pool.enqueue(j);
@@ -171,7 +205,9 @@ TEST(WNThreadPoolValidation, JobsGetCleaned) {
     jobCallbacks.clear();
 
     for (wn_uint32 i = 0; i < 1000; ++i) {
-      wn::threads::callback_task_ptr<wn_uint32> j = wn::threads::make_callback_task<wn_uint32>(&SimpleCallback3, i);
+      wn::threads::callback_task_ptr<wn_uint32> j(
+          wn::threads::make_callback_task<wn_uint32>(
+              &allocator, &SimpleCallback3, i));
 
       jobCallbacks.push_back(j);
       thread_pool.enqueue(j);

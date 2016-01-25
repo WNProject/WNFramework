@@ -31,7 +31,7 @@ std::string get_file_data(wn::file_system::mapping_ptr& mapping,
 }
 
 TEST(c_translator, simple_c_translation) {
-  wn::memory::default_expanding_allocator<50> allocator;
+  wn::testing::allocator allocator;
   wn::scripting::type_validator validator(&allocator);
   wn::file_system::mapping_ptr mapping =
       wn::file_system::factory().make_mapping(
@@ -57,9 +57,9 @@ struct source_pair {
 };
 
 using c_translator_direct_translation_test =
-    ::testing::TestWithParam<wn::containers::dynamic_array<source_pair>>;
+    ::testing::TestWithParam<std::vector<source_pair>>;
 
-// The format of these tests is a dynamic_array of pairs of strings.
+// The format of these tests is a vector of pairs of strings.
 // This is entirely so that the test can be written as
 // { "Int main() {", "wn_int32 main() {"},
 // { "  return 4;",  "return 4;"},
@@ -69,7 +69,7 @@ using c_translator_direct_translation_test =
 // If you want a line that is only a newline, you can insert a newline,
 // a second one will not be added.
 TEST_P(c_translator_direct_translation_test, translations) {
-  wn::memory::default_expanding_allocator<50> allocator;
+  wn::testing::allocator allocator;
   wn::scripting::type_validator validator(&allocator);
   wn::containers::string input_str(&allocator);
   wn::containers::string expected_output(&allocator);
@@ -110,7 +110,7 @@ TEST_P(c_translator_direct_translation_test, translations) {
 INSTANTIATE_TEST_CASE_P(
     if_statement_tests, c_translator_direct_translation_test,
     ::testing::ValuesIn(
-        wn::containers::dynamic_array<wn::containers::dynamic_array<source_pair>>({
+        std::vector<std::vector<source_pair>>({
             {
               {"Int main(Int x) {",     "wn_int32 _Z3wns4mainEll(wn_int32 x) {"  },
               {"  if (x == 3) {",       "if ((x == 3)) {"              },
@@ -166,7 +166,7 @@ INSTANTIATE_TEST_CASE_P(
 INSTANTIATE_TEST_CASE_P(
     declaration_tests, c_translator_direct_translation_test,
     ::testing::ValuesIn(
-        wn::containers::dynamic_array<wn::containers::dynamic_array<source_pair>>({
+        std::vector<std::vector<source_pair>>({
           {
             {"Int main(Int x) {",     "wn_int32 _Z3wns4mainEll(wn_int32 x) {"  },
             {"  Int y = x;",          "wn_int32 y = x;"              },
@@ -184,7 +184,7 @@ INSTANTIATE_TEST_CASE_P(
 INSTANTIATE_TEST_CASE_P(
     assignment_tests, c_translator_direct_translation_test,
     ::testing::ValuesIn(
-        wn::containers::dynamic_array<wn::containers::dynamic_array<source_pair>>({
+        std::vector<std::vector<source_pair>>({
           {
             {"Int main(Int x) {",     "wn_int32 _Z3wns4mainEll(wn_int32 x) {"  },
             {"  Int y = 0;",          "wn_int32 y = 0;"              },
@@ -217,7 +217,7 @@ INSTANTIATE_TEST_CASE_P(
 INSTANTIATE_TEST_CASE_P(
     struct_definition_tests, c_translator_direct_translation_test,
     ::testing::ValuesIn(
-        wn::containers::dynamic_array<wn::containers::dynamic_array<source_pair>>({
+        std::vector<std::vector<source_pair>>({
           {
             {"struct Foo {",          "typedef struct {"             },
             {"  Int x = 0;",          "  wn_int32 x;"                },
@@ -273,7 +273,7 @@ INSTANTIATE_TEST_CASE_P(
 INSTANTIATE_TEST_CASE_P(
     struct_explicit_declaration, c_translator_direct_translation_test,
     ::testing::ValuesIn(
-        wn::containers::dynamic_array<wn::containers::dynamic_array<source_pair>>({
+        std::vector<std::vector<source_pair>>({
           {
             {"struct Foo {",          "typedef struct {"             },
             {"  Int x = 0;",          "  wn_int32 x;"                },
@@ -292,7 +292,7 @@ INSTANTIATE_TEST_CASE_P(
 INSTANTIATE_TEST_CASE_P(
     struct_usage, c_translator_direct_translation_test,
     ::testing::ValuesIn(
-        wn::containers::dynamic_array<wn::containers::dynamic_array<source_pair>>({
+       std::vector<std::vector<source_pair>>({
           {
             {"struct Foo {",          "typedef struct {"             },
             {"  Int x = 0;",          "  wn_int32 x;"                },
@@ -325,7 +325,7 @@ INSTANTIATE_TEST_CASE_P(
 using c_translator_function_params =
     ::testing::TestWithParam<std::tuple<const char*, const char*, const char*>>;
 TEST_P(c_translator_function_params, single_parameter) {
-  wn::memory::default_expanding_allocator<50> allocator;
+  wn::testing::allocator allocator;
   wn::scripting::type_validator validator(&allocator);
   wn::containers::string str(&allocator);
   str += std::get<0>(GetParam());
@@ -361,7 +361,7 @@ INSTANTIATE_TEST_CASE_P(
                 std::make_tuple("Char", "wn_char", "c")})));
 
 TEST(c_translator, multiple_c_functions) {
-  wn::memory::default_expanding_allocator<50> allocator;
+  wn::testing::allocator allocator;
   wn::scripting::type_validator validator(&allocator);
   wn::file_system::mapping_ptr mapping =
       wn::file_system::factory().make_mapping(
@@ -388,7 +388,7 @@ TEST(c_translator, multiple_c_functions) {
 
 // Make sure multiple returns get combined into just 1.
 TEST(c_translator, multiple_returns) {
-  wn::memory::default_expanding_allocator<50> allocator;
+  wn::testing::allocator allocator;
   wn::scripting::type_validator validator(&allocator);
 
   wn::file_system::mapping_ptr mapping =
@@ -411,7 +411,7 @@ TEST(c_translator, multiple_returns) {
 class c_int_params : public ::testing::TestWithParam<const char*> {};
 
 TEST_P(c_int_params, int_return) {
-  wn::memory::default_expanding_allocator<50> allocator;
+  wn::testing::allocator allocator;
   wn::scripting::type_validator validator(&allocator);
   wn::containers::string str(&allocator);
   str += "Int main() { return ";
@@ -449,7 +449,7 @@ struct arithmetic_operations {
 using c_arith_params = ::testing::TestWithParam<arithmetic_operations>;
 
 TEST_P(c_arith_params, binary_arithmetic) {
-  wn::memory::default_expanding_allocator<50> allocator;
+  wn::testing::allocator allocator;
   wn::scripting::type_validator validator(&allocator);
   wn::containers::string str(&allocator);
   str += "Int main() { return ";
@@ -477,7 +477,7 @@ TEST_P(c_arith_params, binary_arithmetic) {
 }
 
 INSTANTIATE_TEST_CASE_P(int_int_tests, c_arith_params,
-    ::testing::ValuesIn(wn::containers::dynamic_array<arithmetic_operations>(
+    ::testing::ValuesIn(std::vector<arithmetic_operations>(
         {{"1 + 2", "(1 + 2)"}, {"10 - 20", "(10 - 20)"},
             {"-32 * 0", "(-32 * 0)"}, {"-32 % 22", "(-32 % 22)"},
             {"-32 + 4 * 10", "(-32 + (4 * 10))"},
@@ -486,7 +486,7 @@ INSTANTIATE_TEST_CASE_P(int_int_tests, c_arith_params,
 using c_bool_params = ::testing::TestWithParam<arithmetic_operations>;
 
 TEST_P(c_bool_params, boolean_arithmetic) {
-  wn::memory::default_expanding_allocator<50> allocator;
+  wn::testing::allocator allocator;
   wn::scripting::type_validator validator(&allocator);
   wn::containers::string str(&allocator);
   str += "Bool wn_main(Bool b) { return ";
@@ -514,7 +514,7 @@ TEST_P(c_bool_params, boolean_arithmetic) {
 }
 
 INSTANTIATE_TEST_CASE_P(int_int_tests, c_bool_params,
-    ::testing::ValuesIn(wn::containers::dynamic_array<arithmetic_operations>(
+    ::testing::ValuesIn(std::vector<arithmetic_operations>(
         {{"true", "true"}, {"true == true", "(true == true)"},
             {"false", "false"}, {"2 == 3", "(2 == 3)"},
             {"3 == 4 != b", "((3 == 4) != b)"}, {"b == true", "(b == true)"},

@@ -14,7 +14,7 @@
 
 namespace wn {
 namespace containers {
-template <typename _Type, typename _Allocator = memory::default_allocator>
+template <typename _Type, const size_t _ExpandPercentage = 50>
 class dynamic_array;
 }  // containers
 
@@ -126,28 +126,23 @@ private:
   explicit dynamic_array_iterator(T* _ptr) : m_ptr(_ptr) {}
   T* m_ptr;
 
-  template <typename _Type, typename _Allocator>
+  template <typename _Type, const size_t _ExpandPercentage>
   friend class ::wn::containers::dynamic_array;
 
   template <typename _Type>
   friend class dynamic_array_iterator;
 };
 
-} // internal
+}  // internal
 
 namespace containers {
 
-template <typename _Type, typename _Allocator>
+template <typename _Type, const size_t _ExpandPercentage>
 class dynamic_array final {
 public:
-  static _Allocator* get_default_allocator() {
-    static _Allocator* alloc = new _Allocator();
-    return alloc;
-  }
   typedef _Type value_type;
   typedef wn_size_t size_type;
   typedef wn_signed_t difference_type;
-  typedef _Allocator allocator_type;
   typedef value_type& reference;
   typedef const value_type& const_reference;
 
@@ -161,8 +156,8 @@ public:
   explicit dynamic_array(memory::allocator* _allocator)
     : m_allocator(_allocator), m_data(wn_nullptr), m_size(0), m_capacity(0) {}
 
-  explicit dynamic_array(const size_type _count,
-      memory::allocator* _allocator = wn_nullptr)
+  explicit dynamic_array(
+      const size_type _count, memory::allocator* _allocator = wn_nullptr)
     : dynamic_array(_count, _Type(), _allocator) {}
 
   dynamic_array(const size_type _count, const _Type& _value,
@@ -171,8 +166,8 @@ public:
     insert(iterator(m_data), _count, _value);
   }
 
-  template <typename T_Alloc>
-  dynamic_array(const dynamic_array<_Type, T_Alloc>& _other,
+  template <const size_t _ExpandPercentageOther>
+  dynamic_array(const dynamic_array<_Type, _ExpandPercentageOther>& _other,
       memory::allocator* _allocator = wn_nullptr)
     : dynamic_array(_allocator) {
     (*this) = _other;
@@ -187,8 +182,9 @@ public:
     (*this) = std::move(_other);
   }
 
-  template <typename T_Alloc>
-  dynamic_array(dynamic_array<_Type, T_Alloc>&& _other) : dynamic_array() {
+  template <const size_t _ExpandPercentageOther>
+  dynamic_array(dynamic_array<_Type, _ExpandPercentageOther>&& _other)
+    : dynamic_array() {
     (*this) = std::move(_other);
   }
 
@@ -202,8 +198,8 @@ public:
   }
 
   template <typename TOther>
-  dynamic_array(TOther begin, TOther end,
-      memory::allocator* _alloc = wn_nullptr)
+  dynamic_array(
+      TOther begin, TOther end, memory::allocator* _alloc = wn_nullptr)
     : dynamic_array(_alloc) {
     reserve(end - begin);
     while (begin != end) {
@@ -222,8 +218,9 @@ public:
     deallocate(m_data);
   }
 
-  template <typename T_Alloc>
-  dynamic_array& operator=(const dynamic_array<_Type, T_Alloc>& _other) {
+  template <const size_t _ExpandPercentageOther>
+  dynamic_array& operator=(
+      const dynamic_array<_Type, _ExpandPercentageOther>& _other) {
     if (&_other == this) {
       return (*this);
     }
@@ -280,8 +277,9 @@ public:
     return (*this);
   }
 
-  template <typename T_Alloc>
-  dynamic_array& operator=(dynamic_array<_Type, T_Alloc>&& _other) {
+  template <const size_t _ExpandPercentageOther>
+  dynamic_array& operator=(
+      dynamic_array<_Type, _ExpandPercentageOther>&& _other) {
     if (&_other == this) {
       return (*this);
     }
@@ -419,16 +417,14 @@ public:
   wn_void reserve(const size_type _new_cap) {
     if (_new_cap > m_capacity) {
       if (!m_data) {
-        wn::memory::allocation_pair pair =
-            allocate(sizeof(_Type), _new_cap);
-        m_capacity = pair.m_count;
-        m_data = reinterpret_cast<_Type*>(pair.m_location);
+        void* p = allocate(sizeof(_Type), _new_cap);
+        m_capacity = _new_cap;
+        m_data = reinterpret_cast<_Type*>(p);
       } else {
         // TODO optimize this based on _Type traits
-        wn::memory::allocation_pair pair = allocate_for_resize(
-            sizeof(_Type), _new_cap, m_capacity);
-        m_capacity = pair.m_count;
-        _Type* newData = reinterpret_cast<_Type*>(pair.m_location);
+        void* p = allocate(sizeof(_Type), _new_cap);
+        m_capacity = _new_cap;
+        _Type* newData = reinterpret_cast<_Type*>(p);
         for (wn_size_t i = 0; i < m_size; ++i) {
           new (reinterpret_cast<wn_void*>(&newData[i]))
               _Type(std::move(m_data[i]));
@@ -599,10 +595,11 @@ private:
 
     if (m_capacity < (m_size + _count)) {
       iterator startPt = iterator(m_data + (_pos - begin()));
-      wn::memory::allocation_pair alloc = allocate_for_resize(
-          sizeof(_Type), m_size + _count, m_capacity);
-      m_capacity = alloc.m_count;
-      _Type* newData = reinterpret_cast<_Type*>(alloc.m_location);
+      void* alloc = allocate(sizeof(_Type),
+          static_cast<size_type>((m_size + _count) *
+                                 (1 + (_ExpandPercentage / 100.0f))));
+      m_capacity = m_size + _count;
+      _Type* newData = reinterpret_cast<_Type*>(alloc);
       _Type* allocated = newData;
       for (_Type* i = m_data; i < startPt.m_ptr; ++i) {
         new (reinterpret_cast<wn_void*>(newData++)) _Type(std::move(*i));
@@ -626,20 +623,8 @@ private:
     return (iterator(m_data + originalPosition));
   }
 
-  memory::allocation_pair allocate(
-      const wn_size_t _size, const wn_size_t _count) {
-    if (!m_allocator) {
-      m_allocator = get_default_allocator();
-    }
-    return m_allocator->allocate(_size, _count);
-  }
-
-  memory::allocation_pair allocate_for_resize(const wn_size_t _size,
-      const wn_size_t _count, const wn_size_t _old_size) {
-    if (!m_allocator) {
-      m_allocator = get_default_allocator();
-    }
-    return m_allocator->allocate_for_resize(_size, _count, _old_size);
+  void* allocate(const wn_size_t _size, const wn_size_t _count) {
+    return m_allocator->allocate(_size * _count);
   }
 
   void deallocate(void* ptr) {

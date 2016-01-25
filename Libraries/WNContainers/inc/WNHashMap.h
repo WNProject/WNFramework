@@ -22,8 +22,7 @@ namespace containers {
 
 template <typename _KeyType, typename _ValueType,
           typename _HashOperator = std::hash<_KeyType>,
-          typename _EqualityOperator = std::equal_to<_KeyType>,
-          typename _Allocator = memory::default_allocator>
+          typename _EqualityOperator = std::equal_to<_KeyType>>
 class hash_map;
 namespace internal {
 // hash_map_iterator is not a child_type of hash_map
@@ -95,27 +94,23 @@ class hash_map_iterator
   lit m_element;
 
   template <typename _KeyType, typename _ValueType, typename _HashOperator,
-            typename _EqualityOperator, typename _Allocator>
+            typename _EqualityOperator>
   friend class wn::containers::hash_map;
+
   template <typename _CT>
   friend class hash_map_iterator;
 };
 }  // namespace internal
 
 template <typename _KeyType, typename _ValueType, typename _HashOperator,
-          typename _EqualityOperator, typename _Allocator>
+          typename _EqualityOperator>
 class hash_map final {
 public:
-  static _Allocator* get_default_allocator() {
-    static _Allocator* alloc = new _Allocator();
-    return alloc;
-  }
   using key_type = _KeyType;
   using mapped_type = _ValueType;
   using value_type = std::pair<_KeyType, _ValueType>;
   using size_type = wn_size_t;
   using difference_type = wn_signed_t;
-  using allocator_type = _Allocator;
   using hasher = _HashOperator;
   using key_equal = _EqualityOperator;
   using reference = value_type&;
@@ -169,9 +164,7 @@ public:
            memory::allocator* _allocator)
       : hash_map(initializer, 0u, hasher(), key_equal(), _allocator) {}
 
-  template <typename _A>
-  hash_map(hash_map<_KeyType, _ValueType, _HashOperator, _EqualityOperator,
-                    _A>&& _other)
+  hash_map(hash_map<_KeyType, _ValueType, _HashOperator, _EqualityOperator>&& _other)
       : m_allocator(_other.m_allocator),
         m_buckets(std::move(_other.m_buckets)),
         m_total_elements(_other.m_total_elements),
@@ -416,11 +409,9 @@ public:
 
  private:
    memory::allocator* get_allocator() {
-     if (!m_allocator) {
-       m_allocator = get_default_allocator();
-     }
      return m_allocator;
    }
+
    memory::allocator* m_allocator;
    array_type m_buckets;
    wn_size_t m_total_elements;

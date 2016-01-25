@@ -232,11 +232,11 @@ WNNetworking::WNNetworkManagerReturnCode::type WNNetworking::WNNetworkManagerWin
     mInitializationState = eWNIOCPCreated;
 
     for (wn_uint32 i = 0; i < mMaxThreads; ++i) {
-        mThreads.push_back(wn::memory::construct<wn::threads::thread<wn_void>>(&WNNetworkManagerWindows::IOCPThread, this));
+        mThreads.push_back(wn::memory::construct<wn::threads::thread<wn_void>>(&allocator, &WNNetworkManagerWindows::IOCPThread, this));
     }
 
     mInitializationState = eWNThreadsCreated;
-    mListenThread = wn::memory::construct<wn::threads::thread<wn_void>>(&WNNetworkManagerWindows::ListenThread, this);
+    mListenThread = wn::memory::construct<wn::threads::thread<wn_void>>(&allocator, &WNNetworkManagerWindows::ListenThread, this);
 
     mInitializationState = eWNInitializationCompleted;
 

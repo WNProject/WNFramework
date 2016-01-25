@@ -41,6 +41,7 @@ namespace wn {
         };
 
     private:
+		wn::memory::basic_allocator allocator;
         HWND mPendingHwnd;
         static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
         static wn_bool MessagePump(WNWindowThreadData* _data);

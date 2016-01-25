@@ -62,7 +62,7 @@ WNSurfaceManagerReturnCode::type WNSurfaceManagerWindows::Release() {
 }
 
 WNSurfaceManagerReturnCode::type WNSurfaceManagerWindows::CreateSurface(wn_uint32 _x, wn_uint32 _y, wn_uint32 _width, wn_uint32 _height, wn::memory::intrusive_ptr<surface>& _surface) {
-    wn::memory::intrusive_ptr<WNSurfaceWindows> ptr = wn::memory::make_intrusive<WNSurfaceWindows, WNSurfaceManagerWindows&>(*this);
+    wn::memory::intrusive_ptr<WNSurfaceWindows> ptr = wn::memory::make_intrusive<WNSurfaceWindows, WNSurfaceManagerWindows&>(&allocator, *this);
 
     ptr->Resize(_width, _height);
     ptr->Move(_x, _y);
@@ -72,7 +72,7 @@ WNSurfaceManagerReturnCode::type WNSurfaceManagerWindows::CreateSurface(wn_uint3
     mWindowCreationLock.lock();
     mPendingHwnd = 0;
 
-    wn::threads::thread<wn_bool>* thread = wn::memory::construct<wn::threads::thread<wn_bool>>(MessagePump, dat);
+    wn::threads::thread<wn_bool>* thread = wn::memory::construct<wn::threads::thread<wn_bool>>(&allocator, MessagePump, dat);
 
     dat->mThread = thread;
 

@@ -6,14 +6,13 @@
 #include "WNFileSystem/inc/WNFile.h"
 #include "WNTesting/inc/WNTestHarness.h"
 
-using file_tests =
-    ::testing::TestWithParam<wn::file_system::mapping_type>;
+using file_tests = ::testing::TestWithParam<wn::file_system::mapping_type>;
 
 TEST_P(file_tests, creation) {
-  wn::file_system::factory f;
-  wn::memory::default_test_allocator allocator;
+  wn::testing::allocator allocator;
 
   {
+    wn::file_system::factory f;
     const wn::file_system::mapping_ptr mp =
         f.make_mapping(GetParam(), &allocator);
 
@@ -29,15 +28,13 @@ TEST_P(file_tests, creation) {
 
     EXPECT_TRUE(mp->exists_file("temp.txt"));
   }
-
-  EXPECT_EQ(allocator.allocated(), allocator.freed());
 }
 
 TEST_P(file_tests, size) {
-  wn::file_system::factory f;
-  wn::memory::default_test_allocator allocator;
+  wn::testing::allocator allocator;
 
   {
+    wn::file_system::factory f;
     const wn::file_system::mapping_ptr mp =
         f.make_mapping(GetParam(), &allocator);
 
@@ -65,15 +62,13 @@ TEST_P(file_tests, size) {
 
     fp->close();
   }
-
-  EXPECT_EQ(allocator.allocated(), allocator.freed());
 }
 
 TEST_P(file_tests, resize) {
-  wn::file_system::factory f;
-  wn::memory::default_test_allocator allocator;
+  wn::testing::allocator allocator;
 
   {
+    wn::file_system::factory f;
     const wn::file_system::mapping_ptr mp =
         f.make_mapping(GetParam(), &allocator);
 
@@ -134,15 +129,13 @@ TEST_P(file_tests, resize) {
 
     EXPECT_FALSE(fp->is_open());
   }
-
-  EXPECT_EQ(allocator.allocated(), allocator.freed());
 }
 
 TEST_P(file_tests, clear) {
-  wn::file_system::factory f;
-  wn::memory::default_test_allocator allocator;
+  wn::testing::allocator allocator;
 
   {
+    wn::file_system::factory f;
     const wn::file_system::mapping_ptr mp =
         f.make_mapping(GetParam(), &allocator);
 
@@ -176,15 +169,13 @@ TEST_P(file_tests, clear) {
 
     EXPECT_FALSE(fp->is_open());
   }
-
-  EXPECT_EQ(allocator.allocated(), allocator.freed());
 }
 
 TEST_P(file_tests, flush) {
-  wn::file_system::factory f;
-  wn::memory::default_test_allocator allocator;
+  wn::testing::allocator allocator;
 
   {
+    wn::file_system::factory f;
     const wn::file_system::mapping_ptr mp =
         f.make_mapping(GetParam(), &allocator);
 
@@ -226,15 +217,13 @@ TEST_P(file_tests, flush) {
 
     EXPECT_FALSE(fp->is_open());
   }
-
-  EXPECT_EQ(allocator.allocated(), allocator.freed());
 }
 
 TEST_P(file_tests, close) {
-  wn::file_system::factory f;
-  wn::memory::default_test_allocator allocator;
+  wn::testing::allocator allocator;
 
   {
+    wn::file_system::factory f;
     const wn::file_system::mapping_ptr mp =
         f.make_mapping(GetParam(), &allocator);
 
@@ -250,8 +239,6 @@ TEST_P(file_tests, close) {
 
     EXPECT_FALSE(fp->is_open());
   }
-
-  EXPECT_EQ(allocator.allocated(), allocator.freed());
 }
 
 INSTANTIATE_TEST_CASE_P(all_mappings, file_tests,

@@ -277,7 +277,7 @@ WN_INLINE void append_number(size_t number, containers::string& _str) {
 // Queryable for operations, methods, custom types,
 // name mangling etc.
 class type_validator {
-  static memory::default_allocator s_default_allocator;
+  static memory::basic_allocator s_default_allocator;
 
 public:
   type_validator(memory::allocator* _allocator = &s_default_allocator)

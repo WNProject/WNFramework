@@ -50,6 +50,7 @@ namespace wn {
         wn_void SurfaceThread();
 
     private:
+        wn::memory::basic_allocator m_allocator;
         Atom mDeleteMessage;
         wn_bool mExiting;
         wn::WNSurfaceManagerXWindows& mManager;

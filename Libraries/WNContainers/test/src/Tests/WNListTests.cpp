@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNTesting/inc/WNTestHarness.h"
 #include "WNContainers/inc/WNList.h"
+#include "WNTesting/inc/WNTestHarness.h"
 
 template <typename _Type>
 struct list : ::testing::Test {};
@@ -14,12 +14,12 @@ typedef ::testing::Types<wn_uint8, wn_uint16, wn_uint32, wn_uint64>
 TYPED_TEST_CASE(list, list_testing_types);
 
 TYPED_TEST(list, creation) {
-  wn::memory::default_expanding_allocator<50> alloc;
+  wn::memory::basic_allocator alloc;
   wn::containers::list<TypeParam> l(&alloc);
 }
 
 TYPED_TEST(list, insert_one) {
-  wn::memory::default_expanding_allocator<50> alloc;
+  wn::memory::basic_allocator alloc;
   {
     wn::containers::list<TypeParam> l(&alloc);
     l.insert(l.begin(), 1);
@@ -35,7 +35,7 @@ TYPED_TEST(list, insert_one) {
 }
 
 TYPED_TEST(list, insert_two) {
-  wn::memory::default_expanding_allocator<50> alloc;
+  wn::memory::basic_allocator alloc;
   {
     wn::containers::list<TypeParam> l(&alloc);
     typename wn::containers::list<TypeParam>::iterator it =
@@ -57,7 +57,7 @@ TYPED_TEST(list, insert_two) {
 }
 
 TYPED_TEST(list, erase_first) {
-  wn::memory::default_expanding_allocator<50> alloc;
+  wn::memory::basic_allocator alloc;
   wn::containers::list<TypeParam> l(&alloc);
   typename wn::containers::list<TypeParam>::iterator it =
       l.insert(l.begin(), 8);
@@ -78,7 +78,7 @@ TYPED_TEST(list, erase_first) {
 }
 
 TYPED_TEST(list, erase_middle) {
-  wn::memory::default_expanding_allocator<50> alloc;
+  wn::memory::basic_allocator alloc;
   wn::containers::list<TypeParam> l(&alloc);
   typename wn::containers::list<TypeParam>::iterator it =
       l.insert(l.begin(), 8);
@@ -100,7 +100,7 @@ TYPED_TEST(list, erase_middle) {
 }
 
 TYPED_TEST(list, erase_last) {
-  wn::memory::default_expanding_allocator<50> alloc;
+  wn::memory::basic_allocator alloc;
   wn::containers::list<TypeParam> l(&alloc);
   typename wn::containers::list<TypeParam>::iterator it =
       l.insert(l.begin(), 8);
@@ -120,7 +120,7 @@ TYPED_TEST(list, erase_last) {
 }
 
 TYPED_TEST(list, remove_from_end) {
-  wn::memory::default_expanding_allocator<50> alloc;
+  wn::memory::basic_allocator alloc;
   wn::containers::list<TypeParam> l(&alloc);
   typename wn::containers::list<TypeParam>::iterator it =
       l.insert(l.begin(), 8);
@@ -137,7 +137,7 @@ TYPED_TEST(list, remove_from_end) {
 }
 
 TYPED_TEST(list, clear) {
-  wn::memory::default_expanding_allocator<50> alloc;
+  wn::memory::basic_allocator alloc;
   wn::containers::list<TypeParam> l(&alloc);
   l.insert(l.begin(), 1);
   EXPECT_FALSE(l.begin() == l.end());
@@ -155,7 +155,7 @@ TYPED_TEST(list, clear) {
 }
 
 TYPED_TEST(list, erase_and_add) {
-  wn::memory::default_expanding_allocator<50> alloc;
+  wn::memory::basic_allocator alloc;
   wn::containers::list<TypeParam> l(&alloc);
   typename wn::containers::list<TypeParam>::iterator it =
       l.insert(l.begin(), 8);
@@ -180,7 +180,7 @@ TYPED_TEST(list, erase_and_add) {
 }
 
 TYPED_TEST(list, erase_all_and_add) {
-  wn::memory::default_expanding_allocator<50> alloc;
+  wn::memory::basic_allocator alloc;
   wn::containers::list<TypeParam> l(&alloc);
   typename wn::containers::list<TypeParam>::iterator it =
       l.insert(l.begin(), 8);
@@ -201,7 +201,7 @@ TYPED_TEST(list, erase_all_and_add) {
 }
 
 TYPED_TEST(list, size) {
-  wn::memory::default_expanding_allocator<50> alloc;
+  wn::memory::basic_allocator alloc;
   wn::containers::list<TypeParam> l(&alloc);
   EXPECT_EQ(0, l.size());
   l.emplace(l.begin(), static_cast<TypeParam>(0));
@@ -232,7 +232,9 @@ struct construction_test_struct {
     typed_constructor
   };
 
-  construction_test_struct() { type = construction_type::constructor; }
+  construction_test_struct() {
+    type = construction_type::constructor;
+  }
 
   construction_test_struct(wn_int64 v1, wn_int8 v2) : v1(v1), v2(v2) {
     type = construction_type::typed_constructor;
@@ -254,14 +256,14 @@ struct construction_test_struct {
 };
 
 TEST(list, emplace) {
-  wn::memory::default_expanding_allocator<50> alloc;
+  wn::memory::basic_allocator alloc;
   wn::containers::list<construction_test_struct> l(&alloc);
   l.emplace(l.begin(), 32, static_cast<wn_int8>(4));
   l.emplace(l.begin(), 4, static_cast<wn_int8>(12));
   EXPECT_EQ(construction_test_struct::construction_type::typed_constructor,
-            l.begin()->type);
+      l.begin()->type);
   EXPECT_EQ(construction_test_struct::construction_type::typed_constructor,
-            (l.begin() + 1)->type);
+      (l.begin() + 1)->type);
 
   EXPECT_EQ(4, l.begin()->v1);
   EXPECT_EQ(12, l.begin()->v2);
@@ -270,59 +272,59 @@ TEST(list, emplace) {
 }
 
 TEST(list, transfer_to_same_alloc) {
-  wn::memory::default_expanding_allocator<50> alloc;
+  wn::memory::basic_allocator alloc;
   wn::containers::list<construction_test_struct> l(&alloc);
   wn::containers::list<construction_test_struct> l2(&alloc);
   l.emplace(l.begin());
   void* ptr = &(*l.begin());
   EXPECT_EQ(l.begin()->type,
-            construction_test_struct::construction_type::constructor);
+      construction_test_struct::construction_type::constructor);
   l.transfer_to(l.begin(), l2.begin(), l2);
   EXPECT_EQ(l.begin(), l.end());
   // Nothing at all interesting should have happeend to this struct.
   EXPECT_EQ(l2.begin()->type,
-            construction_test_struct::construction_type::constructor);
+      construction_test_struct::construction_type::constructor);
   EXPECT_EQ(ptr, &(*l2.begin()));
 }
 
 TEST(list, transfer_to_different_alloc) {
-  wn::memory::default_expanding_allocator<50> alloc;
-  wn::memory::default_expanding_allocator<50> alloc2;
+  wn::memory::basic_allocator alloc;
+  wn::memory::basic_allocator alloc2;
   wn::containers::list<construction_test_struct> l(&alloc);
   wn::containers::list<construction_test_struct> l2(&alloc2);
   l.emplace(l.begin());
   void* ptr = &(*l.begin());
   EXPECT_EQ(l.begin()->type,
-            construction_test_struct::construction_type::constructor);
+      construction_test_struct::construction_type::constructor);
   l.transfer_to(l.begin(), l2.begin(), l2);
   EXPECT_EQ(l.begin(), l.end());
   // Every element should have been moved.
   EXPECT_EQ(l2.begin()->type,
-            construction_test_struct::construction_type::move_constructor);
+      construction_test_struct::construction_type::move_constructor);
   EXPECT_FALSE(ptr == &(*l2.begin()));
 }
 
 TEST(list, transfer_range_to_same_alloc) {
-  wn::memory::default_expanding_allocator<50> alloc;
+  wn::memory::basic_allocator alloc;
   wn::containers::list<construction_test_struct> l(&alloc);
   wn::containers::list<construction_test_struct> l2(&alloc);
   l.emplace(l.begin());
   l.emplace(l.end());
   l.emplace(l.end());
   EXPECT_EQ(l.begin()->type,
-            construction_test_struct::construction_type::constructor);
+      construction_test_struct::construction_type::constructor);
   l.transfer_to(l.begin(), l.end(), l2.begin(), l2);
 
   EXPECT_EQ(l.begin(), l.end());
   for (auto& element : l2) {
     // Nothing interesting should have happened
-    EXPECT_EQ(element.type,
-              construction_test_struct::construction_type::constructor);
+    EXPECT_EQ(
+        element.type, construction_test_struct::construction_type::constructor);
   }
 }
 
 TEST(list, transfer_range_to_front) {
-  wn::memory::default_expanding_allocator<50> alloc;
+  wn::memory::basic_allocator alloc;
   wn::containers::list<construction_test_struct> l(&alloc);
   wn::containers::list<construction_test_struct> l2(&alloc);
   l.emplace(l.begin(), 1, '0');
@@ -330,27 +332,27 @@ TEST(list, transfer_range_to_front) {
   l.emplace(l.end(), 3, '0');
   l2.emplace(l2.begin(), 4, '0');
   EXPECT_EQ(l.begin()->type,
-            construction_test_struct::construction_type::typed_constructor);
+      construction_test_struct::construction_type::typed_constructor);
   l.transfer_to(l.begin(), l.end(), l2.begin(), l2);
 
   EXPECT_EQ(l.begin(), l.end());
   EXPECT_EQ(1, l2.begin()->v1);
   EXPECT_EQ(construction_test_struct::construction_type::typed_constructor,
-            l2.begin()->type);
+      l2.begin()->type);
   EXPECT_EQ(2, (l2.begin() + 1)->v1);
   EXPECT_EQ(construction_test_struct::construction_type::typed_constructor,
-            (l2.begin() + 1)->type);
+      (l2.begin() + 1)->type);
   EXPECT_EQ(3, (l2.begin() + 2)->v1);
   EXPECT_EQ(construction_test_struct::construction_type::typed_constructor,
-            (l2.begin() + 2)->type);
+      (l2.begin() + 2)->type);
   EXPECT_EQ(4, (l2.begin() + 3)->v1);
   EXPECT_EQ(construction_test_struct::construction_type::typed_constructor,
-            (l2.begin() + 3)->type);
+      (l2.begin() + 3)->type);
 }
 
 TEST(list, transfer_range_to_front_different_alloc) {
-  wn::memory::default_expanding_allocator<50> alloc;
-  wn::memory::default_expanding_allocator<50> alloc2;
+  wn::memory::basic_allocator alloc;
+  wn::memory::basic_allocator alloc2;
   wn::containers::list<construction_test_struct> l(&alloc);
   wn::containers::list<construction_test_struct> l2(&alloc2);
   l.emplace(l.begin(), 1, '0');
@@ -358,46 +360,46 @@ TEST(list, transfer_range_to_front_different_alloc) {
   l.emplace(l.end(), 3, '0');
   l2.emplace(l2.begin(), 4, '0');
   EXPECT_EQ(l.begin()->type,
-            construction_test_struct::construction_type::typed_constructor);
+      construction_test_struct::construction_type::typed_constructor);
   l.transfer_to(l.begin(), l.end(), l2.begin(), l2);
 
   EXPECT_EQ(l.begin(), l.end());
   EXPECT_EQ(1, l2.begin()->v1);
   EXPECT_EQ(construction_test_struct::construction_type::move_constructor,
-            l2.begin()->type);
+      l2.begin()->type);
   EXPECT_EQ(2, (l2.begin() + 1)->v1);
   EXPECT_EQ(construction_test_struct::construction_type::move_constructor,
-            (l2.begin() + 1)->type);
+      (l2.begin() + 1)->type);
   EXPECT_EQ(3, (l2.begin() + 2)->v1);
   EXPECT_EQ(construction_test_struct::construction_type::move_constructor,
-            (l2.begin() + 2)->type);
+      (l2.begin() + 2)->type);
   EXPECT_EQ(4, (l2.begin() + 3)->v1);
   EXPECT_EQ(construction_test_struct::construction_type::typed_constructor,
-            (l2.begin() + 3)->type);
+      (l2.begin() + 3)->type);
 }
 
 TEST(list, transfer_range_to_different_alloc) {
-  wn::memory::default_expanding_allocator<50> alloc;
-  wn::memory::default_expanding_allocator<50> alloc2;
+  wn::memory::basic_allocator alloc;
+  wn::memory::basic_allocator alloc2;
   wn::containers::list<construction_test_struct> l(&alloc);
   wn::containers::list<construction_test_struct> l2(&alloc2);
   l.emplace(l.begin());
   l.emplace(l.end());
   l.emplace(l.end());
   EXPECT_EQ(l.begin()->type,
-            construction_test_struct::construction_type::constructor);
+      construction_test_struct::construction_type::constructor);
   l.transfer_to(l.begin(), l.end(), l2.begin(), l2);
 
   EXPECT_EQ(l.begin(), l.end());
   for (auto& element : l2) {
     // Every element should have been moved
     EXPECT_EQ(element.type,
-              construction_test_struct::construction_type::move_constructor);
+        construction_test_struct::construction_type::move_constructor);
   }
 }
 
 TYPED_TEST(list, iterate) {
-  wn::memory::default_expanding_allocator<50> alloc;
+  wn::memory::basic_allocator alloc;
   wn::containers::list<TypeParam> l(&alloc);
   for (size_t i = 0; i < 10; ++i) {
     l.push_back(static_cast<TypeParam>(i));
@@ -413,7 +415,7 @@ TYPED_TEST(list, iterate) {
 }
 
 TYPED_TEST(list, reverse_iterate) {
-  wn::memory::default_expanding_allocator<50> alloc;
+  wn::memory::basic_allocator alloc;
   wn::containers::list<TypeParam> l(&alloc);
   for (size_t i = 0; i < 10; ++i) {
     l.push_back(static_cast<TypeParam>(i));

@@ -12,7 +12,7 @@
 #include "WNTesting/inc/WNTestHarness.h"
 
 TEST(jit_engine, creation) {
-  wn::memory::default_expanding_allocator<50> allocator;
+  wn::testing::allocator allocator;
   wn::scripting::type_validator validator(&allocator);
   wn::file_system::mapping_ptr mapping =
       wn::file_system::factory().make_mapping(
@@ -23,7 +23,7 @@ TEST(jit_engine, creation) {
 }
 
 TEST(jit_engine, basic_parsing) {
-  wn::memory::default_expanding_allocator<50> allocator;
+  wn::testing::allocator allocator;
   wn::scripting::type_validator validator(&allocator);
 
   wn::file_system::mapping_ptr mapping =
@@ -58,7 +58,7 @@ TEST(jit_engine, basic_parsing) {
 
 // Make sure that multiple returns get coalesced
 TEST(jit_engine, multiple_returns) {
-  wn::memory::default_expanding_allocator<50> allocator;
+  wn::testing::allocator allocator;
   wn::scripting::type_validator validator(&allocator);
 
   wn::file_system::mapping_ptr mapping =
@@ -80,7 +80,7 @@ TEST(jit_engine, multiple_returns) {
 }
 
 TEST(jit_engine, parse_error) {
-  wn::memory::default_expanding_allocator<50> allocator;
+  wn::testing::allocator allocator;
   wn::scripting::type_validator validator(&allocator);
 
   wn::file_system::mapping_ptr mapping =
@@ -102,7 +102,7 @@ struct int_test {
 class jit_int_params : public ::testing::TestWithParam<int_test> {};
 
 TEST_P(jit_int_params, int_return) {
-  wn::memory::default_expanding_allocator<50> allocator;
+  wn::testing::allocator allocator;
   wn::containers::string str(&allocator);
   wn::scripting::type_validator validator(&allocator);
   str += "Int main() { return ";
@@ -126,7 +126,7 @@ TEST_P(jit_int_params, int_return) {
 }
 
 TEST_P(jit_int_params, int_passthrough) {
-  wn::memory::default_expanding_allocator<50> allocator;
+  wn::testing::allocator allocator;
   wn::scripting::type_validator validator(&allocator);
   wn::containers::string str(&allocator);
   str += "Int main(Int x) { return x; }";
@@ -161,7 +161,7 @@ struct int_binary_test {
 using jit_binary_arithmetic = ::testing::TestWithParam<int_binary_test>;
 
 TEST_P(jit_binary_arithmetic, simple_operations) {
-  wn::memory::default_expanding_allocator<50> allocator;
+  wn::testing::allocator allocator;
   wn::containers::string str(&allocator);
   wn::scripting::type_validator validator(&allocator);
   str += "Int main() { return ";
@@ -186,7 +186,7 @@ TEST_P(jit_binary_arithmetic, simple_operations) {
 }
 
 INSTANTIATE_TEST_CASE_P(int_arithmetic_tests, jit_binary_arithmetic,
-    ::testing::ValuesIn(wn::containers::dynamic_array<int_binary_test>(
+    ::testing::ValuesIn(std::vector<int_binary_test>(
         {{"1 + 2", 3}, {"2 * -3", -6}, {"10 % 4", 2}, {"-32 + 9", -23},
             {"16 / 4", 4}, {"16 / 5", 3}, {"16 / 4 + 3", 7},
             {"32 * 6 - 7", 185}, {"32 * (6 - 7)", -32}, {"191 + 10 * -3", 161},
@@ -201,7 +201,7 @@ struct boolean_test {
 using bool_arithmetic_tests = ::testing::TestWithParam<boolean_test>;
 
 TEST_P(bool_arithmetic_tests, boolean_arithmetic) {
-  wn::memory::default_expanding_allocator<50> allocator;
+  wn::testing::allocator allocator;
   wn::scripting::type_validator validator(&allocator);
   wn::containers::string str(&allocator);
   str += "Bool main(Bool b) { return ";
@@ -224,30 +224,29 @@ TEST_P(bool_arithmetic_tests, boolean_arithmetic) {
 }
 
 INSTANTIATE_TEST_CASE_P(bool_tests, bool_arithmetic_tests,
-    ::testing::ValuesIn(wn::containers::dynamic_array<boolean_test>(
-        {{"true", true, true}, {"true == true", false, true},
-            {"false", true, false}, {"2 == 3", true, false},
-            {"3 == 4 != b", false, false}, {"3 == 4 != b", true, true},
-            {"b == true", true, true}, {"b == true", false, false},
-            {"b == b", false, true}, {"b == b", false, true},
-            {"b", false, false}, {"b", true, true}, {"1 >= 3", false, false},
-            {"1 < 1", false, false}, {"1 > 1", false, false},
-            {"1 >= 1", false, true}, {"1 <= 1", false, true},
-            {"1 > (3 + 2)", false, false},
-            {"(1 < 2) == (4 > 10)", false, false},
-            {"(1 <= 2) == (b == false)", false, true},
-            {"(1 <= 2) == (b == false)", true, false}})));
+    ::testing::ValuesIn(std::vector<boolean_test>({{"true", true, true},
+        {"true == true", false, true}, {"false", true, false},
+        {"2 == 3", true, false}, {"3 == 4 != b", false, false},
+        {"3 == 4 != b", true, true}, {"b == true", true, true},
+        {"b == true", false, false}, {"b == b", false, true},
+        {"b == b", false, true}, {"b", false, false}, {"b", true, true},
+        {"1 >= 3", false, false}, {"1 < 1", false, false},
+        {"1 > 1", false, false}, {"1 >= 1", false, true},
+        {"1 <= 1", false, true}, {"1 > (3 + 2)", false, false},
+        {"(1 < 2) == (4 > 10)", false, false},
+        {"(1 <= 2) == (b == false)", false, true},
+        {"(1 <= 2) == (b == false)", true, false}})));
 
 struct two_params_test {
   const char* code;
-  wn::containers::dynamic_array<
+  std::vector<
       std::pair<std::pair<wn_uint32, wn_uint32>, wn_uint32>>
       cases;
 };
 using two_params_tests = ::testing::TestWithParam<two_params_test>;
 
 TEST_P(two_params_tests, int_in_out_tests) {
-  wn::memory::default_expanding_allocator<50> allocator;
+  wn::testing::allocator allocator;
   wn::scripting::type_validator validator(&allocator);
   wn::containers::string str(GetParam().code, &allocator);
   wn::file_system::mapping_ptr mapping =
@@ -271,7 +270,7 @@ TEST_P(two_params_tests, int_in_out_tests) {
 // clang-format off
 INSTANTIATE_TEST_CASE_P(
     simple_tests, two_params_tests,
-    ::testing::ValuesIn(wn::containers::dynamic_array<two_params_test>({
+    ::testing::ValuesIn(std::vector<two_params_test>({
       {"Int main(Int x, Int y) {  return x + y; }",
       {{{0, 4}, 4},{{1, 4}, 5},{{32, -10}, 22}}}
    })));
@@ -279,13 +278,13 @@ INSTANTIATE_TEST_CASE_P(
 
 struct integer_test {
   const char* code;
-  wn::containers::dynamic_array<std::pair<wn_int32, wn_int32>> cases;
+  std::vector<std::pair<wn_int32, wn_int32>> cases;
 };
 
 using integer_tests = ::testing::TestWithParam<integer_test>;
 
 TEST_P(integer_tests, int_in_out_tests) {
-  wn::memory::default_expanding_allocator<50> allocator;
+  wn::testing::allocator allocator;
   wn::scripting::type_validator validator(&allocator);
   wn::containers::string str(GetParam().code, &allocator);
   wn::file_system::mapping_ptr mapping =
@@ -308,7 +307,7 @@ TEST_P(integer_tests, int_in_out_tests) {
 // clang-format off
 INSTANTIATE_TEST_CASE_P(
     comparison_tests, integer_tests,
-    ::testing::ValuesIn(wn::containers::dynamic_array<integer_test>({
+    ::testing::ValuesIn(std::vector<integer_test>({
       {"Int main(Int x) { if (x > 3) { return 2; } return 1;}",
           {{0, 1}, {-1, 1}, {2, 1}, {3, 1}, {4, 2}, {50, 2}}},
          {"Int main(Int x) { if (x > 3) { return 2; } else { return 3; } "
@@ -327,7 +326,7 @@ INSTANTIATE_TEST_CASE_P(
 
 INSTANTIATE_TEST_CASE_P(
     declaration_tests, integer_tests,
-    ::testing::ValuesIn(wn::containers::dynamic_array<integer_test>({
+    ::testing::ValuesIn(std::vector<integer_test>({
       {"Int main(Int x) { Int y = x; return y; }",
           {{0, 0}, {-1, -1}, {2, 2}, {3, 3}, {4, 4}, {50, 50}}},
       {"Int main(Int x) { Bool b = x == 3; if (b) { return 3; }"
@@ -339,7 +338,7 @@ INSTANTIATE_TEST_CASE_P(
 
 INSTANTIATE_TEST_CASE_P(
     assignment_tests, integer_tests,
-    ::testing::ValuesIn(wn::containers::dynamic_array<integer_test>({
+    ::testing::ValuesIn(std::vector<integer_test>({
       {"Int main(Int x) { Int y = 0; y = x; return y; }",
         {{0, 0}, {-1, -1}, {2, 2}, {3, 3}, {4, 4}, {50, 50}}},
       {"Int main(Int x) { Bool b = false; b = x == 3; if (b) { return 3; }"
@@ -352,7 +351,7 @@ INSTANTIATE_TEST_CASE_P(
 
 INSTANTIATE_TEST_CASE_P(
     struct_access_tests, integer_tests,
-    ::testing::ValuesIn(wn::containers::dynamic_array<integer_test>({
+    ::testing::ValuesIn(std::vector<integer_test>({
       {"struct Foo { Int x = 0; } Int main(Int x) { Foo f = Foo(); f.x = x; return f.x; }",
         {{0, 0}, {-1, -1}, {2, 2}, {3, 3}, {4, 4}, {50, 50}}},
       {"struct Foo { Int x = 0; Int y = 0; } Int main(Int x) { Foo f = Foo(); f.y = x; return f.y; }",

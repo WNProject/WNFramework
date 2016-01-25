@@ -10,12 +10,12 @@
 
 TEST(scripting_engine_factory, creation) {
   wn::scripting::factory factory;
-  wn::memory::default_expanding_allocator<50> allocator;
+  wn::testing::allocator allocator;
   wn::scripting::type_validator validator(&allocator);
   wn::file_system::mapping_ptr mapping =
       wn::file_system::factory().make_mapping(
           wn::file_system::mapping_type::memory_backed, &allocator);
-  wn::memory::allocated_ptr<wn::scripting::engine> engine =
+  wn::memory::unique_ptr<wn::scripting::engine> engine =
       factory.get_engine(wn::scripting::scripting_engine_type::jit_engine,
           &validator, mapping.get(), WNLogging::get_null_logger(), &allocator);
 }

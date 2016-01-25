@@ -58,6 +58,7 @@ namespace WNNetworking {
         wn::threads::spin_lock mOutgoingMutex;
         wn::threads::spin_lock mInvalidMutex;
 
+        wn::memory::basic_allocator allocator;
         eWNLinuxInitializationState mInitializationState;
         wn_int32 mWriteEPollInstance;
         wn_int32 mReadEPollInstance;

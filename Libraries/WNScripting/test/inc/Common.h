@@ -9,11 +9,11 @@
 #ifndef __WN_SCRIPTING_TESTS_COMMON_H__
 #define __WN_SCRIPTING_TESTS_COMMON_H__
 
-#include "WNCore/inc/WNBase.h"
-#include "WNMemory/inc/WNAllocator.h"
 #include "WNContainers/inc/WNHashMap.h"
 #include "WNContainers/inc/WNString.h"
+#include "WNCore/inc/WNBase.h"
 #include "WNFileSystem/inc/WNMapping.h"
+#include "WNMemory/inc/WNAllocator.h"
 #include "WNScripting/inc/WNEngine.h"
 #include "WNScripting/inc/WNNodeTypes.h"
 #include "WNScripting/inc/WNScriptHelpers.h"
@@ -23,30 +23,26 @@
 namespace wn {
 namespace scripting {
 
-memory::allocated_ptr<scripting::script_file> test_parse_file(
-    const char* _file, file_system::mapping* _mapping,
-    memory::allocator* _allocator, WNLogging::WNLog* _log,
-    wn_size_t* _num_warnings, wn_size_t* _num_errors) {
-
+memory::unique_ptr<scripting::script_file> test_parse_file(const char* _file,
+    file_system::mapping* _mapping, memory::allocator* _allocator,
+    WNLogging::WNLog* _log, wn_size_t* _num_warnings, wn_size_t* _num_errors) {
   scripting::type_validator validator(_allocator);
   file_system::result res;
   file_system::file_ptr buff = _mapping->open_file(_file, res);
   EXPECT_NE(wn_nullptr, buff);
 
-  memory::allocated_ptr<scripting::script_file> ptr = scripting::parse_script(
-      _allocator, &validator, _file, buff->typed_range<char>(),
-      _log, _num_warnings, _num_errors);
+  memory::unique_ptr<scripting::script_file> ptr =
+      scripting::parse_script(_allocator, &validator, _file,
+          buff->typed_range<char>(), _log, _num_warnings, _num_errors);
 
   return std::move(ptr);
 }
 
-memory::allocated_ptr<scripting::script_file> test_parse_file(
-    const char* _file, file_system::mapping* _mapping,
-    memory::allocator* _allocator, wn_size_t* _num_warnings,
-    wn_size_t* _num_errors) {
+memory::unique_ptr<scripting::script_file> test_parse_file(const char* _file,
+    file_system::mapping* _mapping, memory::allocator* _allocator,
+    wn_size_t* _num_warnings, wn_size_t* _num_errors) {
   return test_parse_file(_file, _mapping, _allocator,
-                         WNLogging::get_null_logger(), _num_warnings,
-                         _num_errors);
+      WNLogging::get_null_logger(), _num_warnings, _num_errors);
 }
 
 }  // namespace scripting

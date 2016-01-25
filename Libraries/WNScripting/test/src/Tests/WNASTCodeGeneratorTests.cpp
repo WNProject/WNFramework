@@ -30,7 +30,7 @@ struct test_context {
       log(&logger),
       num_warnings(0),
       num_errors(0) {}
-  wn::memory::default_expanding_allocator<50> allocator;
+  wn::testing::allocator allocator;
   wn::file_system::mapping_ptr mapping;
   log_buff buffer;
   buffer_logger logger;
@@ -251,7 +251,7 @@ INSTANTIATE_TEST_CASE_P(
         "Int main(Int x) { Int x = 0; x = false; return x; }"));
 
 TEST(name_mangling, basic_types) {
-  wn::memory::default_expanding_allocator<50> allocator;
+  wn::testing::allocator allocator;
   wn::scripting::type_validator validator(&allocator);
 
   EXPECT_EQ("_Z3wns3FooEll",

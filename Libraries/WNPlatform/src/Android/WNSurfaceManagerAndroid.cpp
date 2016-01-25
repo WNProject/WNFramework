@@ -16,7 +16,7 @@ namespace wn {
       {
           return(WNSurfaceManagerReturnCode::eWNResourceLimitReached);
       }
-      memory::intrusive_ptr<WNSurfaceAndroid> ptr = memory::make_intrusive<WNSurfaceAndroid, WNSurfaceManagerAndroid&>(*this);
+      memory::intrusive_ptr<WNSurfaceAndroid> ptr = memory::make_intrusive<WNSurfaceAndroid, WNSurfaceManagerAndroid&>(&allocator, *this);
 
       if (!ptr->Initialize()) {
           return(WNSurfaceManagerReturnCode::eWNInitializationFailure);

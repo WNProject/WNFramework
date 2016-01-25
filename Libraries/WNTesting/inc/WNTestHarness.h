@@ -8,6 +8,7 @@
 #define __WN_TESTING_TEST_HARNESS_H__
 
 #include "WNCore/inc/WNTypes.h"
+#include "WNMemory/inc/WNAllocator.h"
 
 #define GTEST_HAS_RTTI 0
 
@@ -19,8 +20,8 @@
                                  // disabled
 #endif
 
-#include <gtest/gtest.h>
 #include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
 #ifdef _WN_MSVC
 #pragma warning(pop)
@@ -59,6 +60,34 @@ static foo __attribute__((used)) my_foo;
 #endif  //_WN_ANDROID || _WN_LINUX
 
 void init_test_framework();
+
+class allocator : public memory::allocation_tracker {
+private:
+  using base = memory::allocation_tracker;
+
+public:
+  WN_FORCE_INLINE allocator() : base(&m_allocator) {}
+
+  WN_FORCE_INLINE virtual ~allocator() override {
+    EXPECT_TRUE(empty());
+  }
+
+  WN_FORCE_INLINE virtual void* allocate(const size_t _size) override {
+    return base::allocate(_size);
+  }
+
+  WN_FORCE_INLINE virtual void* reallocate(
+      void* _ptr, const size_t _size) override {
+    return base::reallocate(_ptr, _size);
+  }
+
+  WN_FORCE_INLINE virtual void deallocate(void* _ptr) override {
+    base::deallocate(_ptr);
+  }
+
+private:
+  memory::basic_allocator m_allocator;
+};
 
 }  // namespace testing
 }  // namespace wn

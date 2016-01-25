@@ -28,11 +28,6 @@ namespace WNContainers {
     class WNSerializerBase;
 }
 
-namespace WNConcurrency {
-    template <typename type>
-    class intrusive_ptr;
-}
-
 namespace WNNetworking {
     class WNNetworkManager;
 
@@ -59,6 +54,7 @@ namespace WNNetworking {
         WNNetworkReadBuffer& operator = (const WNNetworkReadBuffer&);
 
     private:
+        wn::memory::basic_allocator allocator;
         WNNetworkManager& mManager;
         wn::memory::intrusive_ptr<WNNetworking::WNBufferResource> mDataOverflow;
         WNBufferQueue mChunks;

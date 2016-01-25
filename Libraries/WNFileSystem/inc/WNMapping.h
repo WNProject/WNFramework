@@ -11,7 +11,7 @@
 #include "WNContainers/inc/WNStringView.h"
 #include "WNFileSystem/inc/WNFile.h"
 #include "WNFileSystem/inc/WNResult.h"
-#include "WNMemory/inc/WNAllocator.h"
+#include "WNMemory/inc/WNUniquePtr.h"
 
 namespace wn {
 namespace file_system {
@@ -57,7 +57,7 @@ protected:
   const bool m_cleanup;
 };
 
-typedef memory::allocated_ptr<mapping> mapping_ptr;
+using mapping_ptr = memory::unique_ptr<mapping>;
 
 }  // namespace file_system
 }  // namespace wn

@@ -36,7 +36,7 @@ public:
   // The engine will be constructed with the given allocator,
   // and all allocations performed by the engine will be performed
   // with the given allocator.
-  virtual memory::allocated_ptr<engine> get_engine(scripting_engine_type _type,
+  virtual memory::unique_ptr<engine> get_engine(scripting_engine_type _type,
       type_validator* _validator, file_system::mapping* _file_mapping,
       WNLogging::WNLog* _log, wn::memory::allocator* _allocator);
 
@@ -44,7 +44,7 @@ public:
   // The translator will be constructed with the given allocator,
   // and all allocations performed by the engine will be performed
   // with the given allocator.
-  virtual memory::allocated_ptr<translator> get_translator(
+  virtual memory::unique_ptr<translator> get_translator(
       translator_type _type, type_validator* _validator,
       file_system::mapping* _file_mapping, WNLogging::WNLog* _log,
       wn::memory::allocator* _allocator);

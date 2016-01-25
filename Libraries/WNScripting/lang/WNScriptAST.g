@@ -236,19 +236,19 @@ objectType returns[scripting::type* node]
 @init {
     node = wn_nullptr;
 }
-    :   TYPE    { node = m_allocator->make_allocated<scripting::type>(m_allocator, $TYPE.text.c_str()); SET_LOCATION(node, $TYPE); }
-    |   STRING_TYPE { node = m_allocator->make_allocated<scripting::type>(m_allocator, scripting::type_classification::string_type); SET_LOCATION(node, $STRING_TYPE); }
+    :   TYPE    { node = m_allocator->construct<scripting::type>(m_allocator, $TYPE.text.c_str()); SET_LOCATION(node, $TYPE); }
+    |   STRING_TYPE { node = m_allocator->construct<scripting::type>(m_allocator, scripting::type_classification::string_type); SET_LOCATION(node, $STRING_TYPE); }
     ;
 
 scalarType returns[scripting::type* node]
 @init {
     node = wn_nullptr;
 }
-    :   VOID_TYPE { node = m_allocator->make_allocated<scripting::type>(m_allocator, scripting::type_classification::void_type); SET_LOCATION(node, $VOID_TYPE); }
-    |   INT_TYPE { node = m_allocator->make_allocated<scripting::type>(m_allocator, scripting::type_classification::int_type); SET_LOCATION(node, $INT_TYPE); }
-    |   FLOAT_TYPE { node = m_allocator->make_allocated<scripting::type>(m_allocator, scripting::type_classification::float_type); SET_LOCATION(node, $FLOAT_TYPE); }
-    |   CHAR_TYPE { node = m_allocator->make_allocated<scripting::type>(m_allocator, scripting::type_classification::char_type); SET_LOCATION(node, $CHAR_TYPE); }
-    |   BOOL_TYPE { node = m_allocator->make_allocated<scripting::type>(m_allocator, scripting::type_classification::bool_type); SET_LOCATION(node, $BOOL_TYPE); }
+    :   VOID_TYPE { node = m_allocator->construct<scripting::type>(m_allocator, scripting::type_classification::void_type); SET_LOCATION(node, $VOID_TYPE); }
+    |   INT_TYPE { node = m_allocator->construct<scripting::type>(m_allocator, scripting::type_classification::int_type); SET_LOCATION(node, $INT_TYPE); }
+    |   FLOAT_TYPE { node = m_allocator->construct<scripting::type>(m_allocator, scripting::type_classification::float_type); SET_LOCATION(node, $FLOAT_TYPE); }
+    |   CHAR_TYPE { node = m_allocator->construct<scripting::type>(m_allocator, scripting::type_classification::char_type); SET_LOCATION(node, $CHAR_TYPE); }
+    |   BOOL_TYPE { node = m_allocator->construct<scripting::type>(m_allocator, scripting::type_classification::bool_type); SET_LOCATION(node, $BOOL_TYPE); }
     ;
 
 compoundType returns[scripting::type* node]
@@ -258,7 +258,7 @@ compoundType returns[scripting::type* node]
     : scalarType { node = $scalarType.node; SET_LOCATION_FROM_NODE(node, $scalarType.node); }
            (LSQBRACKET RSQBRACKET {
                    SET_END_LOCATION(node, $RSQBRACKET);
-                   node = m_allocator->make_allocated<scripting::array_type>(m_allocator, node);
+                   node = m_allocator->construct<scripting::array_type>(m_allocator, node);
                    SET_LOCATION(node, $LSQBRACKET);
                    SET_END_LOCATION(node, $RSQBRACKET);
            })+
@@ -278,21 +278,21 @@ param returns[scripting::parameter* node]
     node = wn_nullptr;
 }
     :    scalarType a=ID {
-            node = m_allocator->make_allocated<scripting::parameter>(m_allocator, $scalarType.node, $a.text.c_str()); SET_LOCATION_FROM_NODE(node, $scalarType.node); SET_END_LOCATION(node, $a); }
+            node = m_allocator->construct<scripting::parameter>(m_allocator, $scalarType.node, $a.text.c_str()); SET_LOCATION_FROM_NODE(node, $scalarType.node); SET_END_LOCATION(node, $a); }
     |    bb=compoundType aa=ID {
             $bb.node->set_qualifier(scripting::type_qualifier::non_nullable);
-            node = m_allocator->make_allocated<scripting::parameter>(m_allocator, $bb.node, $aa.text.c_str()); SET_LOCATION_FROM_NODE(node, $bb.node); SET_END_LOCATION(node, $aa); }
+            node = m_allocator->construct<scripting::parameter>(m_allocator, $bb.node, $aa.text.c_str()); SET_LOCATION_FROM_NODE(node, $bb.node); SET_END_LOCATION(node, $aa); }
     |    SHARED_REF b=compoundType c=ID {
            $b.node->set_qualifier(scripting::type_qualifier::shared);
-           node = m_allocator->make_allocated<scripting::parameter>(m_allocator, $b.node, $c.text.c_str()); SET_LOCATION(node, $SHARED_REF); SET_END_LOCATION(node, $c);
+           node = m_allocator->construct<scripting::parameter>(m_allocator, $b.node, $c.text.c_str()); SET_LOCATION(node, $SHARED_REF); SET_END_LOCATION(node, $c);
          }
     |    WEAK_REF d=compoundType  e=ID {
            $d.node->set_qualifier(scripting::type_qualifier::weak);
-           node = m_allocator->make_allocated<scripting::parameter>(m_allocator, $d.node, $e.text.c_str()); SET_LOCATION(node, $WEAK_REF); SET_END_LOCATION(node, $e);
+           node = m_allocator->construct<scripting::parameter>(m_allocator, $d.node, $e.text.c_str()); SET_LOCATION(node, $WEAK_REF); SET_END_LOCATION(node, $e);
          }
     |    f=compoundType QUESTION  g=ID {
            $f.node->set_qualifier(scripting::type_qualifier::nullable);
-           node = m_allocator->make_allocated<scripting::parameter>(m_allocator, $f.node, $g.text.c_str()); SET_LOCATION_FROM_NODE(node, $f.node); SET_END_LOCATION(node, $g);
+           node = m_allocator->construct<scripting::parameter>(m_allocator, $f.node, $g.text.c_str()); SET_LOCATION_FROM_NODE(node, $f.node); SET_END_LOCATION(node, $g);
          }
     ;
 
@@ -300,7 +300,7 @@ paramList returns[scripting::parameter_list* node]
 @init {
     node = wn_nullptr;
 }
-    :    a=param { node = m_allocator->make_allocated<scripting::parameter_list>(m_allocator, $a.node); SET_LOCATION_FROM_NODE(node, $a.node); }
+    :    a=param { node = m_allocator->construct<scripting::parameter_list>(m_allocator, $a.node); SET_LOCATION_FROM_NODE(node, $a.node); }
         (COMMA b=param { $node->add_parameter($b.node); SET_END_LOCATION_FROM_NODE(node, $b.node); })*
     ;
 
@@ -329,12 +329,12 @@ lvalue returns[scripting::lvalue* node]
 @init {
     node = wn_nullptr;
 }
-    :    unary_ex { node = m_allocator->make_allocated<scripting::lvalue>(m_allocator, $unary_ex.node); SET_LOCATION_FROM_NODE(node, $unary_ex.node); }
+    :    unary_ex { node = m_allocator->construct<scripting::lvalue>(m_allocator, $unary_ex.node); SET_LOCATION_FROM_NODE(node, $unary_ex.node); }
     ;
 
 arglist returns[scripting::arg_list* node]
 @init {
-    node = m_allocator->make_allocated<scripting::arg_list>(m_allocator);
+    node = m_allocator->construct<scripting::arg_list>(m_allocator);
 }
         :   (
                     (a=expr { node->add_expression($a.node); SET_LOCATION_FROM_NODE(node, $a.node); })
@@ -360,7 +360,7 @@ cond_ex returns[scripting::expression* node]
 }
         :    or_ex  { node = $or_ex.node; }
 
-                ('?' b=expr ':' c=cond_ex { node = m_allocator->make_allocated<scripting::cond_expression>(m_allocator, node, $b.node, $c.node);  SET_LOCATION_FROM_NODE(node, $or_ex.node); SET_END_LOCATION_FROM_NODE(node, $c.node); }  )?
+                ('?' b=expr ':' c=cond_ex { node = m_allocator->construct<scripting::cond_expression>(m_allocator, node, $b.node, $c.node);  SET_LOCATION_FROM_NODE(node, $or_ex.node); SET_END_LOCATION_FROM_NODE(node, $c.node); }  )?
         ;
 
 or_ex    returns[scripting::expression* node]
@@ -368,7 +368,7 @@ or_ex    returns[scripting::expression* node]
     node = wn_nullptr;
 }
         :    a=and_ex { node = $a.node; }
-            ('||' b=and_ex { node = m_allocator->make_allocated<scripting::short_circuit_expression>(m_allocator, scripting::short_circuit_type::or_operator, node, $b.node); SET_LOCATION_FROM_NODE(node, $a.node); SET_END_LOCATION_FROM_NODE(node, $b.node); })*
+            ('||' b=and_ex { node = m_allocator->construct<scripting::short_circuit_expression>(m_allocator, scripting::short_circuit_type::or_operator, node, $b.node); SET_LOCATION_FROM_NODE(node, $a.node); SET_END_LOCATION_FROM_NODE(node, $b.node); })*
         ;
 
 and_ex  returns[scripting::expression* node]
@@ -376,7 +376,7 @@ and_ex  returns[scripting::expression* node]
     node = wn_nullptr;
 }
         :    a=eq_ex { node = $a.node; }
-            ('&&' b=eq_ex {node = m_allocator->make_allocated<scripting::short_circuit_expression>(m_allocator, scripting::short_circuit_type::and_operator, node, $b.node); SET_LOCATION_FROM_NODE(node, $a.node); SET_END_LOCATION_FROM_NODE(node, $b.node); })*;
+            ('&&' b=eq_ex {node = m_allocator->construct<scripting::short_circuit_expression>(m_allocator, scripting::short_circuit_type::and_operator, node, $b.node); SET_LOCATION_FROM_NODE(node, $a.node); SET_END_LOCATION_FROM_NODE(node, $b.node); })*;
 
 eq_ex    returns[scripting::expression* node]
 @init {
@@ -384,8 +384,8 @@ eq_ex    returns[scripting::expression* node]
 }
         :    a=rel_ex { node = $a.node; }
             (
-                ('==' b=rel_ex {node = m_allocator->make_allocated<scripting::binary_expression>(m_allocator, scripting::arithmetic_type::arithmetic_equal, node, $b.node);  SET_LOCATION_FROM_NODE(node, $a.node); SET_END_LOCATION_FROM_NODE(node, $b.node); } )
-              | ('!=' c=rel_ex {node = m_allocator->make_allocated<scripting::binary_expression>(m_allocator, scripting::arithmetic_type::arithmetic_not_equal, node, $c.node); SET_LOCATION_FROM_NODE(node, $a.node); SET_END_LOCATION_FROM_NODE(node, $c.node); } )
+                ('==' b=rel_ex {node = m_allocator->construct<scripting::binary_expression>(m_allocator, scripting::arithmetic_type::arithmetic_equal, node, $b.node);  SET_LOCATION_FROM_NODE(node, $a.node); SET_END_LOCATION_FROM_NODE(node, $b.node); } )
+              | ('!=' c=rel_ex {node = m_allocator->construct<scripting::binary_expression>(m_allocator, scripting::arithmetic_type::arithmetic_not_equal, node, $c.node); SET_LOCATION_FROM_NODE(node, $a.node); SET_END_LOCATION_FROM_NODE(node, $c.node); } )
             )*
         ;
 
@@ -395,10 +395,10 @@ rel_ex  returns[scripting::expression* node]
 }
         :    a=add_ex { node=$a.node; }
             (
-                ( '<' b=add_ex {node = m_allocator->make_allocated<scripting::binary_expression>(m_allocator, scripting::arithmetic_type::arithmetic_less_than, node, $b.node);   SET_LOCATION_FROM_NODE(node, $a.node); SET_END_LOCATION_FROM_NODE(node, $b.node); } )
-              | ( '>' c=add_ex {node = m_allocator->make_allocated<scripting::binary_expression>(m_allocator, scripting::arithmetic_type::arithmetic_greater_than, node, $c.node);   SET_LOCATION_FROM_NODE(node, $a.node); SET_END_LOCATION_FROM_NODE(node, $c.node); } )
-              | ( '<=' d=add_ex {node = m_allocator->make_allocated<scripting::binary_expression>(m_allocator, scripting::arithmetic_type::arithmetic_less_than_or_equal, node, $d.node);   SET_LOCATION_FROM_NODE(node, $a.node); SET_END_LOCATION_FROM_NODE(node, $d.node); } )
-              | ( '>=' e=add_ex {node = m_allocator->make_allocated<scripting::binary_expression>(m_allocator, scripting::arithmetic_type::arithmetic_greater_than_or_equal, node, $e.node);   SET_LOCATION_FROM_NODE(node, $a.node); SET_END_LOCATION_FROM_NODE(node, $e.node); } )
+                ( '<' b=add_ex {node = m_allocator->construct<scripting::binary_expression>(m_allocator, scripting::arithmetic_type::arithmetic_less_than, node, $b.node);   SET_LOCATION_FROM_NODE(node, $a.node); SET_END_LOCATION_FROM_NODE(node, $b.node); } )
+              | ( '>' c=add_ex {node = m_allocator->construct<scripting::binary_expression>(m_allocator, scripting::arithmetic_type::arithmetic_greater_than, node, $c.node);   SET_LOCATION_FROM_NODE(node, $a.node); SET_END_LOCATION_FROM_NODE(node, $c.node); } )
+              | ( '<=' d=add_ex {node = m_allocator->construct<scripting::binary_expression>(m_allocator, scripting::arithmetic_type::arithmetic_less_than_or_equal, node, $d.node);   SET_LOCATION_FROM_NODE(node, $a.node); SET_END_LOCATION_FROM_NODE(node, $d.node); } )
+              | ( '>=' e=add_ex {node = m_allocator->construct<scripting::binary_expression>(m_allocator, scripting::arithmetic_type::arithmetic_greater_than_or_equal, node, $e.node);   SET_LOCATION_FROM_NODE(node, $a.node); SET_END_LOCATION_FROM_NODE(node, $e.node); } )
             )*
         ;
 
@@ -408,8 +408,8 @@ add_ex     returns[scripting::expression* node]
 }
         :    a=mult_ex {node = $a.node; }
             (
-                ('+' b=mult_ex {node = m_allocator->make_allocated<scripting::binary_expression>(m_allocator, scripting::arithmetic_type::arithmetic_add, node, $b.node);   SET_LOCATION_FROM_NODE(node, $a.node); SET_END_LOCATION_FROM_NODE(node, $b.node); })
-              | ('-' c=mult_ex {node = m_allocator->make_allocated<scripting::binary_expression>(m_allocator, scripting::arithmetic_type::arithmetic_sub, node, $c.node);   SET_LOCATION_FROM_NODE(node, $a.node); SET_END_LOCATION_FROM_NODE(node, $c.node); })
+                ('+' b=mult_ex {node = m_allocator->construct<scripting::binary_expression>(m_allocator, scripting::arithmetic_type::arithmetic_add, node, $b.node);   SET_LOCATION_FROM_NODE(node, $a.node); SET_END_LOCATION_FROM_NODE(node, $b.node); })
+              | ('-' c=mult_ex {node = m_allocator->construct<scripting::binary_expression>(m_allocator, scripting::arithmetic_type::arithmetic_sub, node, $c.node);   SET_LOCATION_FROM_NODE(node, $a.node); SET_END_LOCATION_FROM_NODE(node, $c.node); })
             )*
         ;
 
@@ -419,9 +419,9 @@ mult_ex    returns[scripting::expression* node]
 }
         :    a=unary_ex { node = $a.node; }
             (
-                    ('*' b=unary_ex {node = m_allocator->make_allocated<scripting::binary_expression>(m_allocator, scripting::arithmetic_type::arithmetic_mult, node, $b.node);   SET_LOCATION_FROM_NODE(node, $a.node); SET_END_LOCATION_FROM_NODE(node, $b.node); })
-                |   ('/' c=unary_ex {node = m_allocator->make_allocated<scripting::binary_expression>(m_allocator, scripting::arithmetic_type::arithmetic_div, node, $c.node);   SET_LOCATION_FROM_NODE(node, $a.node); SET_END_LOCATION_FROM_NODE(node, $c.node); })
-                |   ('%' d=unary_ex {node = m_allocator->make_allocated<scripting::binary_expression>(m_allocator, scripting::arithmetic_type::arithmetic_mod, node, $d.node);   SET_LOCATION_FROM_NODE(node, $a.node); SET_END_LOCATION_FROM_NODE(node, $d.node); })
+                    ('*' b=unary_ex {node = m_allocator->construct<scripting::binary_expression>(m_allocator, scripting::arithmetic_type::arithmetic_mult, node, $b.node);   SET_LOCATION_FROM_NODE(node, $a.node); SET_END_LOCATION_FROM_NODE(node, $b.node); })
+                |   ('/' c=unary_ex {node = m_allocator->construct<scripting::binary_expression>(m_allocator, scripting::arithmetic_type::arithmetic_div, node, $c.node);   SET_LOCATION_FROM_NODE(node, $a.node); SET_END_LOCATION_FROM_NODE(node, $c.node); })
+                |   ('%' d=unary_ex {node = m_allocator->construct<scripting::binary_expression>(m_allocator, scripting::arithmetic_type::arithmetic_mod, node, $d.node);   SET_LOCATION_FROM_NODE(node, $a.node); SET_END_LOCATION_FROM_NODE(node, $d.node); })
             )*
         ;
 
@@ -430,9 +430,9 @@ unary_ex returns[scripting::expression* node]
     node = wn_nullptr;
 }
     :    a=post_ex { node = $a.node; }
-    |    '++' b=unary_ex { scripting::node* t = node; node = m_allocator->make_allocated<scripting::unary_expression>(m_allocator, scripting::unary_type::pre_increment, $b.node);   SET_LOCATION_FROM_NODE(node, t); SET_END_LOCATION_FROM_NODE(node, $b.node); }
-    |    '--' c=unary_ex { scripting::node* t = node; node = m_allocator->make_allocated<scripting::unary_expression>(m_allocator, scripting::unary_type::pre_decrement, $c.node);   SET_LOCATION_FROM_NODE(node, t); SET_END_LOCATION_FROM_NODE(node, $c.node); }
-    |    '-' d=unary_ex  { scripting::node* t = node; node = m_allocator->make_allocated<scripting::unary_expression>(m_allocator, scripting::unary_type::negation, $d.node);   SET_LOCATION_FROM_NODE(node, t); SET_END_LOCATION_FROM_NODE(node, $d.node); }
+    |    '++' b=unary_ex { scripting::node* t = node; node = m_allocator->construct<scripting::unary_expression>(m_allocator, scripting::unary_type::pre_increment, $b.node);   SET_LOCATION_FROM_NODE(node, t); SET_END_LOCATION_FROM_NODE(node, $b.node); }
+    |    '--' c=unary_ex { scripting::node* t = node; node = m_allocator->construct<scripting::unary_expression>(m_allocator, scripting::unary_type::pre_decrement, $c.node);   SET_LOCATION_FROM_NODE(node, t); SET_END_LOCATION_FROM_NODE(node, $c.node); }
+    |    '-' d=unary_ex  { scripting::node* t = node; node = m_allocator->construct<scripting::unary_expression>(m_allocator, scripting::unary_type::negation, $d.node);   SET_LOCATION_FROM_NODE(node, t); SET_END_LOCATION_FROM_NODE(node, $d.node); }
         ;
 
 
@@ -440,12 +440,12 @@ post_ex_proper returns[scripting::post_expression* node]
 @init {
     node = wn_nullptr;
 }
-    :    d=LSQBRACKET a=expr e=RSQBRACKET { node = m_allocator->make_allocated<scripting::array_access_expression>(m_allocator, $a.node); SET_LOCATION(node, $d); SET_END_LOCATION(node, $e); }
-    |    f=LBRACKET g=RBRACKET              { node = m_allocator->make_allocated<scripting::function_call_expression>(m_allocator); SET_LOCATION(node, $f); SET_END_LOCATION(node, $g); }
-    |    h=LBRACKET b = arglist i=RBRACKET  { node = m_allocator->make_allocated<scripting::function_call_expression>(m_allocator, $b.node); SET_LOCATION(node, $h); SET_END_LOCATION(node, $i); }
-    |   '.' c=ID              { node = m_allocator->make_allocated<scripting::member_access_expression>(m_allocator, $c.text.c_str()); SET_LOCATION(node, $c); }
-    |     DOUBINC                  { node = m_allocator->make_allocated<scripting::post_unary_expression>(m_allocator, scripting::post_unary_type::post_increment); SET_LOCATION(node, $DOUBINC);}
-    |   DOUBDEC                  { node = m_allocator->make_allocated<scripting::post_unary_expression>(m_allocator, scripting::post_unary_type::post_decrement); SET_LOCATION(node, $DOUBDEC);}
+    :    d=LSQBRACKET a=expr e=RSQBRACKET { node = m_allocator->construct<scripting::array_access_expression>(m_allocator, $a.node); SET_LOCATION(node, $d); SET_END_LOCATION(node, $e); }
+    |    f=LBRACKET g=RBRACKET              { node = m_allocator->construct<scripting::function_call_expression>(m_allocator); SET_LOCATION(node, $f); SET_END_LOCATION(node, $g); }
+    |    h=LBRACKET b = arglist i=RBRACKET  { node = m_allocator->construct<scripting::function_call_expression>(m_allocator, $b.node); SET_LOCATION(node, $h); SET_END_LOCATION(node, $i); }
+    |   '.' c=ID              { node = m_allocator->construct<scripting::member_access_expression>(m_allocator, $c.text.c_str()); SET_LOCATION(node, $c); }
+    |     DOUBINC                  { node = m_allocator->construct<scripting::post_unary_expression>(m_allocator, scripting::post_unary_type::post_increment); SET_LOCATION(node, $DOUBINC);}
+    |   DOUBDEC                  { node = m_allocator->construct<scripting::post_unary_expression>(m_allocator, scripting::post_unary_type::post_decrement); SET_LOCATION(node, $DOUBDEC);}
     ;
 
 post_ex    returns[scripting::expression* node]
@@ -459,33 +459,33 @@ assignment returns[scripting::assignment_instruction* node]
 @init {
     node = wn_nullptr;
 }
-    :    lvalue { node = m_allocator->make_allocated<scripting::assignment_instruction>(m_allocator, $lvalue.node); SET_LOCATION_FROM_NODE(node, $lvalue.node); }
+    :    lvalue { node = m_allocator->construct<scripting::assignment_instruction>(m_allocator, $lvalue.node); SET_LOCATION_FROM_NODE(node, $lvalue.node); }
         (assign_type expr { node->add_value($assign_type.node, $expr.node); SET_END_LOCATION_FROM_NODE(node, $expr.node); }  )?
     ;
 constant returns[scripting::constant_expression* node]
 @init {
     node = wn_nullptr;
 }
-    :    a=INT    { scripting::type* type_node = m_allocator->make_allocated<scripting::type>(m_allocator, scripting::type_classification::int_type); SET_LOCATION(type_node, $a); node = m_allocator->make_allocated<scripting::constant_expression>(m_allocator, type_node, $a.text.c_str()); SET_LOCATION(node, $a); }
-    |    b=FLOAT  { scripting::type* type_node = m_allocator->make_allocated<scripting::type>(m_allocator, scripting::type_classification::float_type); SET_LOCATION(type_node, $b); node = m_allocator->make_allocated<scripting::constant_expression>(m_allocator, type_node, $b.text.c_str()); SET_LOCATION(node, $b); }
-    |    c=CHAR   { scripting::type* type_node = m_allocator->make_allocated<scripting::type>(m_allocator, scripting::type_classification::char_type); SET_LOCATION(type_node, $c); node = m_allocator->make_allocated<scripting::constant_expression>(m_allocator, type_node, $c.text.c_str()); SET_LOCATION(node, $c);}
-    |    d=STRING { scripting::type* type_node = m_allocator->make_allocated<scripting::type>(m_allocator, scripting::type_classification::string_type); SET_LOCATION(type_node, $d); node = m_allocator->make_allocated<scripting::constant_expression>(m_allocator, type_node, $d.text.c_str()); SET_LOCATION(node, $d); }
-    |    e=BOOL   { scripting::type* type_node = m_allocator->make_allocated<scripting::type>(m_allocator, scripting::type_classification::bool_type); SET_LOCATION(type_node, $e); node = m_allocator->make_allocated<scripting::constant_expression>(m_allocator, type_node, $e.text.c_str()); SET_LOCATION(node, $e); }
-    |    f=scalarType g=LBRACE h=STRING i=RBRACE { node = m_allocator->make_allocated<scripting::constant_expression>(m_allocator, $f.node, $h.text.c_str()); SET_LOCATION_FROM_NODE(node, $f.node); SET_END_LOCATION(node, $i);}
+    :    a=INT    { scripting::type* type_node = m_allocator->construct<scripting::type>(m_allocator, scripting::type_classification::int_type); SET_LOCATION(type_node, $a); node = m_allocator->construct<scripting::constant_expression>(m_allocator, type_node, $a.text.c_str()); SET_LOCATION(node, $a); }
+    |    b=FLOAT  { scripting::type* type_node = m_allocator->construct<scripting::type>(m_allocator, scripting::type_classification::float_type); SET_LOCATION(type_node, $b); node = m_allocator->construct<scripting::constant_expression>(m_allocator, type_node, $b.text.c_str()); SET_LOCATION(node, $b); }
+    |    c=CHAR   { scripting::type* type_node = m_allocator->construct<scripting::type>(m_allocator, scripting::type_classification::char_type); SET_LOCATION(type_node, $c); node = m_allocator->construct<scripting::constant_expression>(m_allocator, type_node, $c.text.c_str()); SET_LOCATION(node, $c);}
+    |    d=STRING { scripting::type* type_node = m_allocator->construct<scripting::type>(m_allocator, scripting::type_classification::string_type); SET_LOCATION(type_node, $d); node = m_allocator->construct<scripting::constant_expression>(m_allocator, type_node, $d.text.c_str()); SET_LOCATION(node, $d); }
+    |    e=BOOL   { scripting::type* type_node = m_allocator->construct<scripting::type>(m_allocator, scripting::type_classification::bool_type); SET_LOCATION(type_node, $e); node = m_allocator->construct<scripting::constant_expression>(m_allocator, type_node, $e.text.c_str()); SET_LOCATION(node, $e); }
+    |    f=scalarType g=LBRACE h=STRING i=RBRACE { node = m_allocator->construct<scripting::constant_expression>(m_allocator, $f.node, $h.text.c_str()); SET_LOCATION_FROM_NODE(node, $f.node); SET_END_LOCATION(node, $i);}
     ;
 
 prim_ex returns[scripting::expression * node]
 @init {
     node = wn_nullptr;
 }
-    :    ID { node = m_allocator->make_allocated<scripting::id_expression>(m_allocator, $ID.text.c_str()); SET_LOCATION(node, $ID);}
+    :    ID { node = m_allocator->construct<scripting::id_expression>(m_allocator, $ID.text.c_str()); SET_LOCATION(node, $ID);}
     |    ba=LBRACKET a=expr bb=RBRACKET {node = $a.node; SET_LOCATION(node, $ba); SET_END_LOCATION(node, $bb); }
     |    b=constant  {node = $b.node; }
     |   c=scalarType
           (   ( f=cast) { $f.node->set_type($c.node); node=$f.node; SET_START_LOCATION_FROM_NODE(node, $c.node); }
             | ( g=arrayInit )  { $g.node->set_type($c.node); node=$g.node; SET_START_LOCATION_FROM_NODE(node, $c.node); }
           )
-    |   d=NULLTOK { node = m_allocator->make_allocated<scripting::null_allocation_expression>(m_allocator); SET_LOCATION(node, $NULLTOK); }
+    |   d=NULLTOK { node = m_allocator->construct<scripting::null_allocation_expression>(m_allocator); SET_LOCATION(node, $NULLTOK); }
     |   e=objectType h=structInit { $h.node->set_type($e.node); node=$h.node; SET_START_LOCATION_FROM_NODE(node, $e.node); }
     ;
 
@@ -493,19 +493,19 @@ cast returns[scripting::cast_expression* node]
 @init {
   node = wn_nullptr;
 }
-    : a=LBRACKET b=expr c=RBRACKET { node = m_allocator->make_allocated<scripting::cast_expression>(m_allocator, $b.node); SET_LOCATION(node, $a); SET_END_LOCATION(node, $c); }
+    : a=LBRACKET b=expr c=RBRACKET { node = m_allocator->construct<scripting::cast_expression>(m_allocator, $b.node); SET_LOCATION(node, $a); SET_END_LOCATION(node, $c); }
     ;
 
 structInit returns[scripting::struct_allocation_expression* node]
 @init {
     node = wn_nullptr;
 }
-    : a=LBRACKET b=RBRACKET { node = m_allocator->make_allocated<scripting::struct_allocation_expression>(m_allocator); SET_LOCATION(node, $a); SET_END_LOCATION(node, $b); }
+    : a=LBRACKET b=RBRACKET { node = m_allocator->construct<scripting::struct_allocation_expression>(m_allocator); SET_LOCATION(node, $a); SET_END_LOCATION(node, $b); }
     ;
 
 arrayInit returns[scripting::array_allocation_expression* node]
 @init {
-    node = m_allocator->make_allocated<scripting::array_allocation_expression>(m_allocator);
+    node = m_allocator->construct<scripting::array_allocation_expression>(m_allocator);
 }
     :   (
             (
@@ -524,7 +524,7 @@ arrayInit returns[scripting::array_allocation_expression* node]
 
 declaration returns[scripting::declaration* node]
 @init {
-    node =  m_allocator->make_allocated<scripting::declaration>(m_allocator);
+    node =  m_allocator->construct<scripting::declaration>(m_allocator);
 }
     :    a=param { node->set_parameter($a.node); SET_LOCATION_FROM_NODE(node, $a.node);}
             (
@@ -544,25 +544,25 @@ returnInst returns[scripting::return_instruction* node]
 @init {
     node = wn_nullptr;
 }
-    :   a=RETURN expr b=SEMICOLON { node = m_allocator->make_allocated<scripting::return_instruction>(m_allocator, $expr.node); SET_LOCATION(node, $a); SET_END_LOCATION(node, $b);}
-    |   c=RETURN d=SEMICOLON { node = m_allocator->make_allocated<scripting::return_instruction>(m_allocator); SET_LOCATION(node, $c); SET_END_LOCATION(node, $d); };
+    :   a=RETURN expr b=SEMICOLON { node = m_allocator->construct<scripting::return_instruction>(m_allocator, $expr.node); SET_LOCATION(node, $a); SET_END_LOCATION(node, $b);}
+    |   c=RETURN d=SEMICOLON { node = m_allocator->construct<scripting::return_instruction>(m_allocator); SET_LOCATION(node, $c); SET_END_LOCATION(node, $d); };
 
 whileInst     returns[scripting::instruction* node]
 @init {
     node = wn_nullptr;
 }
-        :    WHILE LBRACKET expr RBRACKET body { node = m_allocator->make_allocated<scripting::while_instruction>(m_allocator, $expr.node, $body.node); SET_LOCATION(node, $WHILE); SET_END_LOCATION_FROM_NODE(node, $body.node); }
+        :    WHILE LBRACKET expr RBRACKET body { node = m_allocator->construct<scripting::while_instruction>(m_allocator, $expr.node, $body.node); SET_LOCATION(node, $WHILE); SET_END_LOCATION_FROM_NODE(node, $body.node); }
         ;
 doInst    returns[scripting::instruction* node]
 @init {
     node = wn_nullptr;
 }
-    :    DO body WHILE LBRACKET expr RBRACKET SEMICOLON {node = m_allocator->make_allocated<scripting::do_instruction>(m_allocator, $expr.node, $body.node); SET_LOCATION(node, $DO); SET_END_LOCATION(node, $SEMICOLON); }
+    :    DO body WHILE LBRACKET expr RBRACKET SEMICOLON {node = m_allocator->construct<scripting::do_instruction>(m_allocator, $expr.node, $body.node); SET_LOCATION(node, $DO); SET_END_LOCATION(node, $SEMICOLON); }
     ;
 
 forInst    returns[scripting::for_instruction* node]
 @init{
-    node =  m_allocator->make_allocated<scripting::for_instruction>(m_allocator);
+    node =  m_allocator->construct<scripting::for_instruction>(m_allocator);
 }
     :    FOR LBRACKET  { SET_LOCATION(node, $FOR); }
                     (a=instructionScalar {node->add_initializer($a.node);})? SEMICOLON
@@ -576,7 +576,7 @@ elsemiddle returns[scripting::else_if_instruction* node]
 @init {
     node = wn_nullptr;
 }
-    :    ELSE IF LBRACKET expr RBRACKET body { node = m_allocator->make_allocated<scripting::else_if_instruction>(m_allocator, $expr.node, $body.node); SET_LOCATION(node, $ELSE); SET_END_LOCATION_FROM_NODE(node, $body.node); }
+    :    ELSE IF LBRACKET expr RBRACKET body { node = m_allocator->construct<scripting::else_if_instruction>(m_allocator, $expr.node, $body.node); SET_LOCATION(node, $ELSE); SET_END_LOCATION_FROM_NODE(node, $body.node); }
     ;
 
 endif    returns[scripting::instruction_list* node]
@@ -590,7 +590,7 @@ ifInst returns[scripting::if_instruction* node]
 @init {
     node = wn_nullptr;
 }
-    :    IF LBRACKET expr RBRACKET body {node = m_allocator->make_allocated<scripting::if_instruction>(m_allocator, $expr.node, $body.node); SET_LOCATION(node, $IF); SET_END_LOCATION_FROM_NODE(node, $body.node); }
+    :    IF LBRACKET expr RBRACKET body {node = m_allocator->construct<scripting::if_instruction>(m_allocator, $expr.node, $body.node); SET_LOCATION(node, $IF); SET_END_LOCATION_FROM_NODE(node, $body.node); }
             (elsemiddle {node->add_else_if($elsemiddle.node); SET_END_LOCATION_FROM_NODE(node, $elsemiddle.node); } )*
             (endif {node->add_else($endif.node); SET_LOCATION(node, $IF); SET_END_LOCATION_FROM_NODE(node, $endif.node); } )?
     ;
@@ -611,7 +611,7 @@ instruction_list returns[scripting::instruction_list* node]
 @init {
     node = wn_nullptr;
 }
-    :    a=instruction  {node = m_allocator->make_allocated<scripting::instruction_list>(m_allocator, $a.node); SET_LOCATION_FROM_NODE(node, $a.node); }
+    :    a=instruction  {node = m_allocator->construct<scripting::instruction_list>(m_allocator, $a.node); SET_LOCATION_FROM_NODE(node, $a.node); }
         (b=instruction {node->add_instruction($b.node); SET_END_LOCATION_FROM_NODE(node, $b.node); })*
     ;
 
@@ -619,7 +619,7 @@ body returns[scripting::instruction_list* node]
 @init {
     node = wn_nullptr;
 }
-    :    a=LBRACE b=RBRACE { node = m_allocator->make_allocated<scripting::instruction_list>(m_allocator); SET_LOCATION(node, $a); SET_END_LOCATION(node, $b); }
+    :    a=LBRACE b=RBRACE { node = m_allocator->construct<scripting::instruction_list>(m_allocator); SET_LOCATION(node, $a); SET_END_LOCATION(node, $b); }
     |    d=LBRACE instruction_list e=RBRACE {node = $instruction_list.node; SET_LOCATION(node, $d); SET_END_LOCATION(node, $e); }
     ;
 
@@ -627,14 +627,14 @@ function returns[scripting::function* node]
 @init {
     node = wn_nullptr;
 }
-    :    param parameterList body { node = m_allocator->make_allocated<scripting::function>(m_allocator, $param.node, $parameterList.node, $body.node); SET_LOCATION_FROM_NODE(node, $param.node); SET_END_LOCATION_FROM_NODE(node, $body.node); }
+    :    param parameterList body { node = m_allocator->construct<scripting::function>(m_allocator, $param.node, $parameterList.node, $body.node); SET_LOCATION_FROM_NODE(node, $param.node); SET_END_LOCATION_FROM_NODE(node, $body.node); }
     ;
 
 structDecl returns[scripting::struct_definition* node]
 @init {
     node = wn_nullptr;
 }
-    :    STRUCT TYPE {node= m_allocator->make_allocated<scripting::struct_definition>(m_allocator, $TYPE.text.c_str()); SET_LOCATION(node, $STRUCT); }
+    :    STRUCT TYPE {node= m_allocator->construct<scripting::struct_definition>(m_allocator, $TYPE.text.c_str()); SET_LOCATION(node, $STRUCT); }
             LBRACE (a=declaration { node->add_struct_elem($a.node);} SEMICOLON )* RBRACE  { SET_END_LOCATION(node, $RBRACE); }
     ;
 
@@ -644,8 +644,8 @@ classDecl returns[scripting::struct_definition* node]
 }
     :
         (
-            (f=CLASS c=TYPE {node= m_allocator->make_allocated<scripting::struct_definition>(m_allocator, $c.text.c_str(), true); SET_LOCATION(node, $f); })
-          | (g=CLASS d=TYPE COLON e=TYPE {node= m_allocator->make_allocated<scripting::struct_definition>(m_allocator, $d.text.c_str(), true, $e.text.c_str()); SET_LOCATION(node, $g); })
+            (f=CLASS c=TYPE {node= m_allocator->construct<scripting::struct_definition>(m_allocator, $c.text.c_str(), true); SET_LOCATION(node, $f); })
+          | (g=CLASS d=TYPE COLON e=TYPE {node= m_allocator->construct<scripting::struct_definition>(m_allocator, $d.text.c_str(), true, $e.text.c_str()); SET_LOCATION(node, $g); })
         )
             LBRACE
                 (
@@ -666,7 +666,7 @@ inc returns[const wn_char* file]
 
 program returns[scripting::script_file* node]
 @init{
-    node = m_allocator->make_allocated<scripting::script_file>(m_allocator);
+    node = m_allocator->construct<scripting::script_file>(m_allocator);
 }
     :   (
                 function   { node->add_function($function.node); }

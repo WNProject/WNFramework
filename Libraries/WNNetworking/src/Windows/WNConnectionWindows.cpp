@@ -24,7 +24,7 @@ WNConnectionWindows::WNConnectionWindows(WNNetworkManager& _manager) :
     wn::memory::memory_zero(&mReceiveOverlap);
     wn::memory::memory_zero(&mSendOverlap);
 
-    mReadLocation = wn::memory::make_intrusive<WNBufferResource, WNNetworkManager&>(_manager);
+    mReadLocation = wn::memory::make_intrusive<WNBufferResource, WNNetworkManager&>(&allocator, _manager);
 }
 
 WNConnectionWindows::~WNConnectionWindows() {
@@ -92,7 +92,7 @@ wn_bool WNConnectionWindows::ProcessRead(WNNetworkManagerWindows* _windowsManage
             mReadHead += transferToOverflow;
             WN_RELEASE_ASSERT(processedBytes == _bytesTransferred);
             if(mBufferBase == wn::containers::MAX_DATA_WRITE) {
-                mReadLocation = wn::memory::make_intrusive<WNBufferResource, WNNetworkManager&>(mManager);
+                mReadLocation = wn::memory::make_intrusive<WNBufferResource, WNNetworkManager&>(&allocator, mManager);
                 mReadHead = 0;
                 mBufferBase = 0;
             }
@@ -126,7 +126,7 @@ wn_bool WNConnectionWindows::ProcessRead(WNNetworkManagerWindows* _windowsManage
             }
         }
         if(mReadHead == wn::containers::MAX_DATA_WRITE) {
-            mReadLocation = wn::memory::make_intrusive<WNBufferResource, WNNetworkManager&>(mManager);
+            mReadLocation = wn::memory::make_intrusive<WNBufferResource, WNNetworkManager&>(&allocator, mManager);
             mReadHead = 0;
             mBufferBase = 0;
         } else {

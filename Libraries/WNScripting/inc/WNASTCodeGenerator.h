@@ -7,8 +7,8 @@
 #ifndef __WN_SCRIPTING_AST_CODE_GENERATOR_H__
 #define __WN_SCRIPTING_AST_CODE_GENERATOR_H__
 
-#include "WNCore/inc/WNTypes.h"
 #include "WNContainers/inc/WNContiguousRange.h"
+#include "WNCore/inc/WNTypes.h"
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNScripting/inc/WNNodeTypes.h"
 #include "WNScripting/inc/WNTypeValidator.h"
@@ -36,24 +36,32 @@ struct null_traits {
 };
 template <typename Traits = null_traits>
 class ast_code_generator {
- public:
-   // Sets the internal generator.
-   // This generator is expected to have at least the
-   // following methods:
-   // void walk_expression(const expression*, Traits::expression_data*);
-   // void walk_instruction_list(
-   //     const instruction_list*, Traits::instruction_list_data*);
-   // void walk_type(const type*, Traits::type_data*);
-   // void walk_instruction(const instruction*, Traits::instruction_data*);
-   // void walk_parameter(const parameter*, Traits::parameter_data*);
-   // void walk_function(const function*, Traits::function_data*);
-   // void walk_script_file(const script_file*);
-   // Any specializations of these methods, for example:
-   // void walk_expression(const binary_expression*, Traits::expression_data*)
-   // will be called instead of the base method if they are present,
-   // otherwise the base method will be called.
-   void set_generator(typename Traits::code_gen* _generator) {
-     m_generator = _generator;
+public:
+  ast_code_generator(memory::allocator* _allocator)
+    : m_instruction_list_map(_allocator),
+      m_instruction_map(_allocator),
+      m_expression_map(_allocator),
+      m_parameter_map(_allocator),
+      m_function_map(_allocator),
+      m_type_map(_allocator),
+      m_struct_definition_map(_allocator) {}
+  // Sets the internal generator.
+  // This generator is expected to have at least the
+  // following methods:
+  // void walk_expression(const expression*, Traits::expression_data*);
+  // void walk_instruction_list(
+  //     const instruction_list*, Traits::instruction_list_data*);
+  // void walk_type(const type*, Traits::type_data*);
+  // void walk_instruction(const instruction*, Traits::instruction_data*);
+  // void walk_parameter(const parameter*, Traits::parameter_data*);
+  // void walk_function(const function*, Traits::function_data*);
+  // void walk_script_file(const script_file*);
+  // Any specializations of these methods, for example:
+  // void walk_expression(const binary_expression*, Traits::expression_data*)
+  // will be called instead of the base method if they are present,
+  // otherwise the base method will be called.
+  void set_generator(typename Traits::code_gen* _generator) {
+    m_generator = _generator;
   }
 
   // All of the following create new *_data objects, and call
@@ -90,7 +98,7 @@ private:
   typename Traits::code_gen* m_generator;
   // A collection of scripting nodes to their associated data.
   containers::hash_map<const instruction_list*,
-                       typename Traits::instruction_list_data>
+      typename Traits::instruction_list_data>
       m_instruction_list_map;
   containers::hash_map<const instruction*, typename Traits::instruction_data>
       m_instruction_map;

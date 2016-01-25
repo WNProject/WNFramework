@@ -359,16 +359,11 @@ TEST(string_view, remove_suffix) {
 TEST(string_view, to_string) {
   const char* string = "string that is long enough to not get optimized out";
   wn::containers::string_view view(string);
-  wn::memory::default_test_allocator alloc;
+  wn::testing::allocator allocator;
 
   {
-    EXPECT_FALSE(alloc.allocated());
-
     wn::containers::string str = view.to_string();
-    str = view.to_string(&alloc);
 
-    EXPECT_NE(0u, alloc.allocated());
+    str = view.to_string(&allocator);
   }
-
-  EXPECT_EQ(alloc.allocated(), alloc.freed());
 }

@@ -15,7 +15,7 @@
 #include "WNFileSystem/src/Posix/WNSystemPaths.h"
 #endif
 
-#if defined _WN_POSIX
+#ifdef _WN_POSIX
 #include "WNFileSystem/src/Posix/WNMappingPosix.h"
 #endif
 
@@ -29,8 +29,7 @@ mapping_ptr factory::make_mapping(
 
   switch (_mapping_type) {
     case mapping_type::memory_backed:
-      return memory::make_allocated_ptr<memory_backed_mapping>(
-          _allocator, _allocator);
+      return memory::make_unique<memory_backed_mapping>(_allocator, _allocator);
     case mapping_type::scratch:
       if (!internal::get_scratch_path(path)) {
         return nullptr;
@@ -46,10 +45,10 @@ mapping_ptr factory::make_mapping(
   internal::sanitize_path(path);
 
 #ifdef _WN_WINDOWS
-  return memory::make_allocated_ptr<internal::mapping_windows>(
+  return memory::make_unique<internal::mapping_windows>(
       _allocator, std::move(path), _allocator, cleanup);
 #elif defined _WN_POSIX
-  return memory::make_allocated_ptr<internal::mapping_posix>(
+  return memory::make_unique<internal::mapping_posix>(
       _allocator, std::move(path), _allocator, cleanup);
 #endif
 }

@@ -15,8 +15,7 @@ namespace containers {
 struct empty_element {};
 
 template <typename _Key, typename _HashOperator = std::hash<_Key>,
-    typename _EqualityOperator = std::equal_to<_Key>,
-    typename _Allocator = memory::default_allocator>
+    typename _EqualityOperator = std::equal_to<_Key>>
 class hash_set;
 
 namespace internal {
@@ -66,32 +65,27 @@ public:
 private:
   explicit hash_set_iterator(const _IteratorType& _iterator)
     : m_map_iterator(_iterator) {}
-  template <typename _Key, typename _HashOperator, typename _EqualityOperator,
-      typename _Allocator>
+
+  template <typename _Key, typename _HashOperator, typename _EqualityOperator>
   friend class wn::containers::hash_set;
+
   template <typename _IT, typename _CT>
   friend class hash_set_iterator;
+
   _IteratorType m_map_iterator;
 };
 }  // namespace internal
 
-template <typename _Key, typename _HashOperator, typename _EqualityOperator,
-    typename _Allocator>
+template <typename _Key, typename _HashOperator, typename _EqualityOperator>
 class hash_set final {
 public:
-  using map_type = hash_map<_Key, empty_element, _HashOperator,
-      _EqualityOperator, _Allocator>;
-
-  static _Allocator* get_default_allocator() {
-    return map_type::get_default_allocator();
-  }
+  using map_type =
+      hash_map<_Key, empty_element, _HashOperator, _EqualityOperator>;
 
   using key_type = _Key;
   using value_type = _Key;
-
   using size_type = wn_size_t;
   using difference_type = wn_signed_t;
-  using allocator_type = _Allocator;
   using hasher = _HashOperator;
   using key_equal = _EqualityOperator;
   using reference = value_type&;
@@ -111,10 +105,9 @@ public:
     : m_map(_n, _hasher, _key_equal, _allocator) {}
   hash_set(memory::allocator* _allocator)
     : hash_set(0u, hasher(), key_equal(), _allocator) {}
-  hash_set(std::initializer_list<key_type> initializer, size_type _n = 0u,
+  hash_set(memory::allocator* _allocator, std::initializer_list<key_type> initializer, size_type _n = 0u,
       const hasher& _hasher = hasher(),
-      const key_equal& _key_equal = key_equal(),
-      memory::allocator* _allocator = wn_nullptr)
+      const key_equal& _key_equal = key_equal())
     : hash_set(0u, _hasher, _key_equal, _allocator) {
     auto begin = std::begin(initializer);
     auto end = std::end(initializer);
@@ -174,10 +167,10 @@ public:
   }
 
 private:
-  hash_map<_Key, empty_element, _HashOperator, _EqualityOperator, _Allocator>
-      m_map;
+  hash_map<_Key, empty_element, _HashOperator, _EqualityOperator> m_map;
 };
-}
-}
+
+}  // namespace containers
+}  // namespace wn
 
 #endif  //_WN_CONTAINERS_HASH_SET_H__

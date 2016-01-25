@@ -217,14 +217,14 @@ class array_type : public type {
 public:
   array_type(memory::allocator* _allocator, type* _sub_type)
     : type(_allocator, type_classification::array_type),
-      m_subtype(memory::default_allocated_ptr(_allocator, _sub_type)) {}
+      m_subtype(memory::unique_ptr<type>(_allocator, _sub_type)) {}
 
   const type* get_subtype() const {
     return m_subtype.get();
   }
 
 private:
-  memory::allocated_ptr<type> m_subtype;
+  memory::unique_ptr<type> m_subtype;
 };
 
 // Base class for all expression nodes in the AST.
@@ -238,7 +238,7 @@ public:
 
   expression(memory::allocator* _allocator, node_type _node_type, type* _type)
     : node(_allocator, _node_type),
-      m_type(memory::default_allocated_ptr(_allocator, _type)),
+      m_type(memory::unique_ptr<type>(_allocator, _type)),
       m_force_use(wn_false),
       m_newly_created(wn_false) {}
 
@@ -256,7 +256,7 @@ public:
   }
 
   void set_type(type* _type) {
-    m_type = memory::default_allocated_ptr(m_allocator, _type);
+    m_type = memory::unique_ptr<type>(m_allocator, _type);
   }
 
   virtual void propagate_qualifier(type_qualifier _qualifier) {
@@ -273,7 +273,7 @@ public:
   }
 
 protected:
-  memory::allocated_ptr<type> m_type;
+  memory::unique_ptr<type> m_type;
 
 private:
   wn_bool m_force_use;
@@ -289,7 +289,7 @@ public:
 
   wn_void add_expression(expression* _expr) {
     m_array_initializers.emplace_back(
-        memory::default_allocated_ptr(m_allocator, _expr));
+        memory::unique_ptr<expression>(m_allocator, _expr));
     m_levels++;
   }
   wn_void add_level() {
@@ -297,12 +297,12 @@ public:
   }
   wn_void set_copy_initializer(expression* _expression) {
     m_copy_initializer =
-        memory::default_allocated_ptr(m_allocator, _expression);
+        memory::unique_ptr<expression>(m_allocator, _expression);
   }
 
 private:
-  containers::deque<memory::allocated_ptr<expression>> m_array_initializers;
-  memory::allocated_ptr<expression> m_copy_initializer;
+  containers::deque<memory::unique_ptr<expression>> m_array_initializers;
+  memory::unique_ptr<expression> m_copy_initializer;
   wn_size_t m_levels;
 };
 
@@ -312,8 +312,8 @@ public:
       expression* _lhs, expression* _rhs)
     : expression(_allocator, node_type::binary_expression),
       m_arith_type(_type),
-      m_lhs(memory::default_allocated_ptr(m_allocator, _lhs)),
-      m_rhs(memory::default_allocated_ptr(m_allocator, _rhs)) {}
+      m_lhs(memory::unique_ptr<expression>(m_allocator, _lhs)),
+      m_rhs(memory::unique_ptr<expression>(m_allocator, _rhs)) {}
   const expression* get_lhs() const {
     return m_lhs.get();
   }
@@ -337,8 +337,8 @@ public:
 
 private:
   arithmetic_type m_arith_type;
-  memory::allocated_ptr<expression> m_lhs;
-  memory::allocated_ptr<expression> m_rhs;
+  memory::unique_ptr<expression> m_lhs;
+  memory::unique_ptr<expression> m_rhs;
 };
 
 class cond_expression : public expression {
@@ -346,14 +346,14 @@ public:
   cond_expression(memory::allocator* _allocator, expression* _cond,
       expression* _lhs, expression* _rhs)
     : expression(_allocator, node_type::cond_expression),
-      m_condition(memory::default_allocated_ptr(m_allocator, _cond)),
-      m_lhs(memory::default_allocated_ptr(m_allocator, _lhs)),
-      m_rhs(memory::default_allocated_ptr(m_allocator, _rhs)) {}
+      m_condition(memory::unique_ptr<expression>(m_allocator, _cond)),
+      m_lhs(memory::unique_ptr<expression>(m_allocator, _lhs)),
+      m_rhs(memory::unique_ptr<expression>(m_allocator, _rhs)) {}
 
 private:
-  memory::allocated_ptr<expression> m_condition;
-  memory::allocated_ptr<expression> m_lhs;
-  memory::allocated_ptr<expression> m_rhs;
+  memory::unique_ptr<expression> m_condition;
+  memory::unique_ptr<expression> m_lhs;
+  memory::unique_ptr<expression> m_rhs;
 };
 class constant_expression : public expression {
 public:
@@ -438,7 +438,7 @@ public:
   post_expression(memory::allocator* _allocator, node_type _type)
     : expression(_allocator, _type) {}
   void add_base_expression(expression* _expr) {
-    m_base_expression = memory::default_allocated_ptr(m_allocator, _expr);
+    m_base_expression = memory::unique_ptr<expression>(m_allocator, _expr);
   }
 
   const expression* get_base_expression() const {
@@ -456,17 +456,17 @@ public:
   }
 
 protected:
-  memory::allocated_ptr<expression> m_base_expression;
+  memory::unique_ptr<expression> m_base_expression;
 };
 
 class array_access_expression : public post_expression {
 public:
   array_access_expression(memory::allocator* _allocator, expression* _expr)
     : post_expression(_allocator, node_type::array_access_expression),
-      m_array_access(memory::default_allocated_ptr(m_allocator, _expr)) {}
+      m_array_access(memory::unique_ptr<expression>(m_allocator, _expr)) {}
 
 private:
-  memory::allocated_ptr<expression> m_array_access;
+  memory::unique_ptr<expression> m_array_access;
 };
 
 class short_circuit_expression : public expression {
@@ -475,13 +475,13 @@ public:
       short_circuit_type _type, expression* _lhs, expression* _rhs)
     : expression(_allocator, node_type::short_circuit_expression),
       m_ss_type(_type),
-      m_lhs(memory::default_allocated_ptr(m_allocator, _lhs)),
-      m_rhs(memory::default_allocated_ptr(m_allocator, _rhs)) {}
+      m_lhs(memory::unique_ptr<expression>(m_allocator, _lhs)),
+      m_rhs(memory::unique_ptr<expression>(m_allocator, _rhs)) {}
 
 private:
   short_circuit_type m_ss_type;
-  memory::allocated_ptr<expression> m_lhs;
-  memory::allocated_ptr<expression> m_rhs;
+  memory::unique_ptr<expression> m_lhs;
+  memory::unique_ptr<expression> m_rhs;
 };
 
 class member_access_expression : public post_expression {
@@ -511,10 +511,10 @@ class cast_expression : public expression {
 public:
   cast_expression(memory::allocator* _allocator, expression* _expression)
     : expression(_allocator, node_type::cast_expression),
-      m_expression(memory::default_allocated_ptr(m_allocator, _expression)) {}
+      m_expression(memory::unique_ptr<expression>(m_allocator, _expression)) {}
 
 private:
-  memory::allocated_ptr<expression> m_expression;
+  memory::unique_ptr<expression> m_expression;
 };
 
 class struct_allocation_expression : public expression {
@@ -524,7 +524,7 @@ public:
       m_copy_initializer(wn_nullptr) {}
   wn_void set_copy_initializer(expression* _expression) {
     m_copy_initializer =
-        memory::default_allocated_ptr(m_allocator, _expression);
+        memory::unique_ptr<expression>(m_allocator, _expression);
   }
 
   virtual void walk_children(
@@ -538,7 +538,7 @@ public:
   }
 
 private:
-  memory::allocated_ptr<expression> m_copy_initializer;
+  memory::unique_ptr<expression> m_copy_initializer;
 };
 
 class unary_expression : public expression {
@@ -547,11 +547,11 @@ public:
       memory::allocator* _allocator, unary_type _type, expression* _expr)
     : expression(_allocator, node_type::unary_expression),
       m_unary_type(_type),
-      m_root_expression(memory::default_allocated_ptr(m_allocator, _expr)) {}
+      m_root_expression(memory::unique_ptr<expression>(m_allocator, _expr)) {}
 
 private:
   unary_type m_unary_type;
-  memory::allocated_ptr<expression> m_root_expression;
+  memory::unique_ptr<expression> m_root_expression;
 };
 
 class instruction_list;
@@ -596,9 +596,10 @@ protected:
 };
 
 struct function_expression {
-  function_expression(expression* _expr, wn_bool _hand_ownership)
-    : m_expr(_expr), m_hand_ownership(_hand_ownership) {}
-  memory::allocated_ptr<expression> m_expr;
+  function_expression(
+      memory::allocator* _allocator, expression* _expr, wn_bool _hand_ownership)
+    : m_expr(_allocator, _expr), m_hand_ownership(_hand_ownership) {}
+  memory::unique_ptr<expression> m_expr;
   wn_bool m_hand_ownership;
 };
 
@@ -612,12 +613,13 @@ public:
     : node(_allocator, node_type::instruction_list),
       m_instructions(_allocator),
       m_returns(wn_false) {
-    m_instructions.emplace_back(
-        memory::default_allocated_ptr(m_allocator, inst));
+    m_instructions.push_back(
+        memory::unique_ptr<instruction>(m_allocator, inst));
   }
   ~instruction_list() {}
   void add_instruction(instruction* inst) {
-    m_instructions.push_back(memory::default_allocated_ptr(m_allocator, inst));
+    m_instructions.push_back(
+        memory::unique_ptr<instruction>(m_allocator, inst));
   }
 
   wn_bool returns() const {
@@ -627,8 +629,8 @@ public:
     m_returns = true;
   }
 
-  const containers::deque<memory::allocated_ptr<instruction>>&
-  get_instructions() const {
+  const containers::deque<memory::unique_ptr<instruction>>& get_instructions()
+      const {
     return m_instructions;
   }
 
@@ -653,7 +655,7 @@ public:
   }
 
   void remove_dead_instructions() {
-    containers::deque<memory::allocated_ptr<instruction>> instructions;
+    containers::deque<memory::unique_ptr<instruction>> instructions(m_allocator);
     while (!m_instructions.empty()) {
       if (!m_instructions.front()->is_dead()) {
         instructions.push_back(std::move(*m_instructions.begin()));
@@ -664,7 +666,7 @@ public:
   }
 
 private:
-  containers::deque<memory::allocated_ptr<instruction>> m_instructions;
+  containers::deque<memory::unique_ptr<instruction>> m_instructions;
   wn_bool m_returns;
 };
 
@@ -673,19 +675,17 @@ public:
   arg_list(memory::allocator* _allocator)
     : node(_allocator, node_type::arg_list), m_expression_list(_allocator) {}
   void add_expression(expression* _expr, wn_bool _hand_ownership = wn_false) {
-    m_expression_list.emplace_back(
-        m_allocator->make_allocated<function_expression>(
-            _expr, _hand_ownership));
+    m_expression_list.emplace_back(memory::make_unique<function_expression>(
+        m_allocator, m_allocator, _expr, _hand_ownership));
   }
 
-  containers::deque<memory::allocated_ptr<function_expression>>&
+  containers::deque<memory::unique_ptr<function_expression>>&
   get_expressions() {
     return (m_expression_list);
   }
 
 private:
-  containers::deque<memory::allocated_ptr<function_expression>>
-      m_expression_list;
+  containers::deque<memory::unique_ptr<function_expression>> m_expression_list;
 };
 
 class function_call_expression : public post_expression {
@@ -694,17 +694,17 @@ public:
     : post_expression(_allocator, node_type::function_call_expression) {}
   function_call_expression(memory::allocator* _allocator, arg_list* _list)
     : post_expression(_allocator, node_type::function_call_expression),
-      m_args(_list) {}
+      m_args(_allocator, _list) {}
 
 private:
-  memory::allocated_ptr<arg_list> m_args;
+  memory::unique_ptr<arg_list> m_args;
 };
 
 class parameter : public node {
 public:
   parameter(memory::allocator* _allocator, type* _type, const char* _name)
     : node(_allocator, scripting::node_type::parameter),
-      m_type(memory::default_allocated_ptr(_allocator, _type)),
+      m_type(memory::unique_ptr<type>(_allocator, _type)),
       m_name(_name, _allocator) {}
   const containers::string_view get_name() const {
     return (m_name.c_str());
@@ -726,7 +726,7 @@ public:
 private:
   friend class declaration;
   containers::string m_name;
-  memory::allocated_ptr<type> m_type;
+  memory::unique_ptr<type> m_type;
 };
 
 class declaration : public instruction {
@@ -736,15 +736,15 @@ public:
       m_sized_array_initializers(_allocator),
       m_unsized_array_initializers(0) {}
   void set_parameter(parameter* _parameter) {
-    m_parameter = memory::default_allocated_ptr(m_allocator, _parameter);
+    m_parameter = memory::unique_ptr<parameter>(m_allocator, _parameter);
   }
   void add_expression_initializer(expression* _expr) {
-    m_expression = memory::default_allocated_ptr(m_allocator, _expr);
+    m_expression = memory::unique_ptr<expression>(m_allocator, _expr);
   }
 
   void add_sized_array_initializer(expression* _expr) {
     m_sized_array_initializers.emplace_back(
-        memory::default_allocated_ptr(m_allocator, _expr));
+        memory::unique_ptr<expression>(m_allocator, _expr));
   }
 
   void add_unsized_array_intitializer() {
@@ -767,7 +767,7 @@ public:
   const containers::string_view get_name() const {
     return m_parameter->get_name();
   }
-  const containers::deque<memory::allocated_ptr<expression>>& get_array_sizes()
+  const containers::deque<memory::unique_ptr<expression>>& get_array_sizes()
       const {
     return m_sized_array_initializers;
   }
@@ -799,10 +799,9 @@ public:
   }
 
 private:
-  memory::allocated_ptr<parameter> m_parameter;
-  memory::allocated_ptr<expression> m_expression;
-  containers::deque<memory::allocated_ptr<expression>>
-      m_sized_array_initializers;
+  memory::unique_ptr<parameter> m_parameter;
+  memory::unique_ptr<expression> m_expression;
+  containers::deque<memory::unique_ptr<expression>> m_sized_array_initializers;
   wn_size_t m_unsized_array_initializers;
 };
 
@@ -824,24 +823,24 @@ public:
 
   void add_struct_elem(declaration* _decl) {
     m_struct_members.emplace_back(
-        memory::default_allocated_ptr(m_allocator, _decl));
+        memory::unique_ptr<declaration>(m_allocator, _decl));
   }
 
   void add_function(function* _func) {
     m_struct_functions.emplace_back(
-        memory::default_allocated_ptr(m_allocator, _func));
+        memory::unique_ptr<function>(m_allocator, _func));
   }
 
   const wn_char* get_name() const {
     return (m_name.c_str());
   }
 
-  containers::deque<memory::allocated_ptr<declaration>>& get_struct_members() {
+  containers::deque<memory::unique_ptr<declaration>>& get_struct_members() {
     return m_struct_members;
   }
 
-  const containers::deque<memory::allocated_ptr<declaration>>&
-  get_struct_members() const {
+  const containers::deque<memory::unique_ptr<declaration>>& get_struct_members()
+      const {
     return m_struct_members;
   }
 
@@ -865,8 +864,8 @@ private:
   containers::string m_name;
   containers::string m_parent_name;
   bool m_is_class;
-  containers::deque<memory::allocated_ptr<declaration>> m_struct_members;
-  containers::deque<memory::allocated_ptr<function>> m_struct_functions;
+  containers::deque<memory::unique_ptr<declaration>> m_struct_members;
+  containers::deque<memory::unique_ptr<function>> m_struct_functions;
 };
 
 class parameter_list : public node {
@@ -874,20 +873,20 @@ public:
   parameter_list(memory::allocator* _allocator, parameter* _param)
     : node(_allocator, node_type::parameter_list), m_parameters(_allocator) {
     m_parameters.emplace_back(
-        memory::default_allocated_ptr(m_allocator, _param));
+        memory::unique_ptr<parameter>(m_allocator, _param));
   }
   void add_parameter(parameter* _param) {
     m_parameters.emplace_back(
-        memory::default_allocated_ptr(m_allocator, _param));
+        memory::unique_ptr<parameter>(m_allocator, _param));
   }
 
-  const containers::deque<memory::allocated_ptr<parameter>>& get_parameters()
+  const containers::deque<memory::unique_ptr<parameter>>& get_parameters()
       const {
     return m_parameters;
   }
 
 private:
-  containers::deque<memory::allocated_ptr<parameter>> m_parameters;
+  containers::deque<memory::unique_ptr<parameter>> m_parameters;
 };
 
 class function : public node {
@@ -895,9 +894,9 @@ public:
   function(memory::allocator* _allocator, parameter* _signature,
       parameter_list* _params, instruction_list* _body)
     : node(_allocator, node_type::function),
-      m_signature(memory::default_allocated_ptr(m_allocator, _signature)),
-      m_parameters(memory::default_allocated_ptr(m_allocator, _params)),
-      m_body(memory::default_allocated_ptr(m_allocator, _body)),
+      m_signature(memory::unique_ptr<parameter>(m_allocator, _signature)),
+      m_parameters(memory::unique_ptr<parameter_list>(m_allocator, _params)),
+      m_body(memory::unique_ptr<instruction_list>(m_allocator, _body)),
       m_is_override(wn_false),
       m_is_virtual(wn_false) {}
   void set_is_virtual(bool is_virtual) {
@@ -956,9 +955,9 @@ public:
   }
 
 private:
-  memory::allocated_ptr<parameter> m_signature;
-  memory::allocated_ptr<parameter_list> m_parameters;
-  memory::allocated_ptr<instruction_list> m_body;
+  memory::unique_ptr<parameter> m_signature;
+  memory::unique_ptr<parameter_list> m_parameters;
+  memory::unique_ptr<instruction_list> m_body;
   containers::string m_mangled_name;
   bool m_is_override;
   bool m_is_virtual;
@@ -969,7 +968,7 @@ class lvalue : public node {
 public:
   lvalue(memory::allocator* _allocator, expression* _expr)
     : node(_allocator, node_type::lvalue),
-      m_expression(memory::default_allocated_ptr(_allocator, _expr)) {}
+      m_expression(memory::unique_ptr<expression>(_allocator, _expr)) {}
   wn_bool required_use() {
     return m_expression->required_use();
   }
@@ -979,19 +978,19 @@ public:
 
 private:
   friend class assignment_instruction;
-  memory::allocated_ptr<expression> m_expression;
+  memory::unique_ptr<expression> m_expression;
 };
 
 class assignment_instruction : public instruction {
 public:
   assignment_instruction(memory::allocator* _allocator, lvalue* _lvalue)
     : instruction(_allocator, node_type::assignment_instruction),
-      m_lvalue(memory::default_allocated_ptr(m_allocator, _lvalue)),
+      m_lvalue(memory::unique_ptr<lvalue>(m_allocator, _lvalue)),
       m_assign_type(assign_type::max) {}
 
   void add_value(assign_type _type, expression* _value) {
     m_assign_type = _type;
-    m_assign_expression = memory::default_allocated_ptr(m_allocator, _value);
+    m_assign_expression = memory::unique_ptr<expression>(m_allocator, _value);
   }
 
   assign_type get_assignment_type() const {
@@ -1025,8 +1024,8 @@ private:
   }
 
   assign_type m_assign_type;
-  memory::allocated_ptr<lvalue> m_lvalue;
-  memory::allocated_ptr<expression> m_assign_expression;
+  memory::unique_ptr<lvalue> m_lvalue;
+  memory::unique_ptr<expression> m_assign_expression;
 };
 
 class do_instruction : public instruction {
@@ -1034,12 +1033,12 @@ public:
   do_instruction(
       memory::allocator* _allocator, expression* _cond, instruction_list* _body)
     : instruction(_allocator, node_type::do_instruction),
-      m_condition(memory::default_allocated_ptr(m_allocator, _cond)),
-      m_body(memory::default_allocated_ptr(m_allocator, _body)) {}
+      m_condition(memory::unique_ptr<expression>(m_allocator, _cond)),
+      m_body(memory::unique_ptr<instruction_list>(m_allocator, _body)) {}
 
 private:
-  memory::allocated_ptr<expression> m_condition;
-  memory::allocated_ptr<instruction_list> m_body;
+  memory::unique_ptr<expression> m_condition;
+  memory::unique_ptr<instruction_list> m_body;
 };
 
 class else_if_instruction : public instruction {
@@ -1047,8 +1046,8 @@ public:
   else_if_instruction(
       memory::allocator* _allocator, expression* _cond, instruction_list* _body)
     : instruction(_allocator, node_type::else_if_instruction),
-      m_condition(memory::default_allocated_ptr(m_allocator, _cond)),
-      m_body(memory::default_allocated_ptr(m_allocator, _body)) {}
+      m_condition(memory::unique_ptr<expression>(m_allocator, _cond)),
+      m_body(memory::unique_ptr<instruction_list>(m_allocator, _body)) {}
 
   const expression* get_condition() const {
     return m_condition.get();
@@ -1074,8 +1073,8 @@ public:
   }
 
 private:
-  memory::allocated_ptr<expression> m_condition;
-  memory::allocated_ptr<instruction_list> m_body;
+  memory::unique_ptr<expression> m_condition;
+  memory::unique_ptr<instruction_list> m_body;
 };
 
 class if_instruction : public instruction {
@@ -1083,16 +1082,16 @@ public:
   if_instruction(
       memory::allocator* _allocator, expression* _cond, instruction_list* _body)
     : instruction(_allocator, node_type::if_instruction),
-      m_condition(memory::default_allocated_ptr(m_allocator, _cond)),
-      m_body(memory::default_allocated_ptr(m_allocator, _body)),
+      m_condition(memory::unique_ptr<expression>(m_allocator, _cond)),
+      m_body(memory::unique_ptr<instruction_list>(m_allocator, _body)),
       m_else_if_nodes(_allocator) {}
 
   void add_else_if(else_if_instruction* _elseif) {
     m_else_if_nodes.emplace_back(
-        memory::default_allocated_ptr(m_allocator, _elseif));
+        memory::unique_ptr<else_if_instruction>(m_allocator, _elseif));
   }
   void add_else(instruction_list* _else) {
-    m_else = memory::default_allocated_ptr(m_allocator, _else);
+    m_else = memory::unique_ptr<instruction_list>(m_allocator, _else);
   }
 
   virtual void walk_children(const walk_ftype<instruction*>& _inst,
@@ -1133,16 +1132,16 @@ public:
     return m_else.get();
   }
 
-  const containers::deque<memory::allocated_ptr<else_if_instruction>>&
+  const containers::deque<memory::unique_ptr<else_if_instruction>>&
   get_else_if_instructions() const {
     return m_else_if_nodes;
   }
 
 private:
-  memory::allocated_ptr<expression> m_condition;
-  memory::allocated_ptr<instruction_list> m_else;
-  memory::allocated_ptr<instruction_list> m_body;
-  containers::deque<memory::allocated_ptr<else_if_instruction>> m_else_if_nodes;
+  memory::unique_ptr<expression> m_condition;
+  memory::unique_ptr<instruction_list> m_else;
+  memory::unique_ptr<instruction_list> m_body;
+  containers::deque<memory::unique_ptr<else_if_instruction>> m_else_if_nodes;
 };
 
 class for_instruction : public instruction {
@@ -1150,23 +1149,23 @@ public:
   for_instruction(memory::allocator* _allocator)
     : instruction(_allocator, node_type::for_instruction) {}
   void add_initializer(instruction* _init) {
-    m_initializer = memory::default_allocated_ptr(m_allocator, _init);
+    m_initializer = memory::unique_ptr<instruction>(m_allocator, _init);
   }
   void add_condition(expression* _cond) {
-    m_condition = memory::default_allocated_ptr(m_allocator, _cond);
+    m_condition = memory::unique_ptr<expression>(m_allocator, _cond);
   }
   void add_post_op(instruction* _inst) {
-    m_post_op = memory::default_allocated_ptr(m_allocator, _inst);
+    m_post_op = memory::unique_ptr<instruction>(m_allocator, _inst);
   }
   void add_body(instruction_list* _body) {
-    m_body = memory::default_allocated_ptr(m_allocator, _body);
+    m_body = memory::unique_ptr<instruction_list>(m_allocator, _body);
   }
 
 private:
-  memory::allocated_ptr<instruction> m_initializer;
-  memory::allocated_ptr<expression> m_condition;
-  memory::allocated_ptr<instruction> m_post_op;
-  memory::allocated_ptr<instruction_list> m_body;
+  memory::unique_ptr<instruction> m_initializer;
+  memory::unique_ptr<expression> m_condition;
+  memory::unique_ptr<instruction> m_post_op;
+  memory::unique_ptr<instruction_list> m_body;
 };
 
 class return_instruction : public instruction {
@@ -1174,7 +1173,7 @@ public:
   return_instruction(memory::allocator* _allocator, expression* _expr,
       bool _change_ownership = false)
     : instruction(_allocator, node_type::return_instruction, true),
-      m_expression(memory::default_allocated_ptr(m_allocator, _expr)),
+      m_expression(memory::unique_ptr<expression>(m_allocator, _expr)),
       m_change_ownership(_change_ownership) {}
 
   return_instruction(memory::allocator* _allocator)
@@ -1202,7 +1201,7 @@ public:
   }
 
 private:
-  memory::allocated_ptr<expression> m_expression;
+  memory::unique_ptr<expression> m_expression;
   wn_bool m_change_ownership;
 };
 
@@ -1211,12 +1210,12 @@ public:
   while_instruction(
       memory::allocator* _allocator, expression* _cond, instruction_list* _body)
     : instruction(_allocator, node_type::while_instruction),
-      m_condition(memory::default_allocated_ptr(m_allocator, _cond)),
-      m_body(memory::default_allocated_ptr(m_allocator, _body)) {}
+      m_condition(memory::unique_ptr<expression>(m_allocator, _cond)),
+      m_body(memory::unique_ptr<instruction_list>(m_allocator, _body)) {}
 
 private:
-  memory::allocated_ptr<expression> m_condition;
-  memory::allocated_ptr<instruction_list> m_body;
+  memory::unique_ptr<expression> m_condition;
+  memory::unique_ptr<instruction_list> m_body;
 };
 
 class script_file : public node {
@@ -1227,24 +1226,24 @@ public:
       m_structs(_allocator),
       m_includes(_allocator) {}
   void add_function(function* _node) {
-    m_functions.emplace_back(memory::default_allocated_ptr(m_allocator, _node));
+    m_functions.emplace_back(memory::unique_ptr<function>(m_allocator, _node));
   }
 
   void add_struct(struct_definition* _node) {
-    m_structs.emplace_back(memory::default_allocated_ptr(m_allocator, _node));
+    m_structs.emplace_back(
+        memory::unique_ptr<struct_definition>(m_allocator, _node));
   }
 
   void add_include(const char* _node) {
     m_includes.emplace_back(_node, m_allocator);
   }
 
-  const containers::deque<memory::allocated_ptr<function>>& get_functions()
-      const {
+  const containers::deque<memory::unique_ptr<function>>& get_functions() const {
     return m_functions;
   }
 
-  const containers::deque<memory::allocated_ptr<struct_definition>>&
-  get_structs() const {
+  const containers::deque<memory::unique_ptr<struct_definition>>& get_structs()
+      const {
     return m_structs;
   }
   const containers::deque<containers::string>& get_includes() const {
@@ -1276,8 +1275,8 @@ public:
   }
 
 private:
-  containers::deque<memory::allocated_ptr<function>> m_functions;
-  containers::deque<memory::allocated_ptr<struct_definition>> m_structs;
+  containers::deque<memory::unique_ptr<function>> m_functions;
+  containers::deque<memory::unique_ptr<struct_definition>> m_structs;
   containers::deque<containers::string> m_includes;
 };
 

@@ -63,7 +63,7 @@ public:
       size_type _n,
       typename passthrough_stl_allocator<void, DA>::const_pointer = 0) {
     return static_cast<pointer>(
-        m_allocator->allocate(sizeof(value_type), _n).m_location);
+        m_allocator->allocate(sizeof(value_type) * _n));
   }
 
   void deallocate(pointer _p, size_type) { return m_allocator->deallocate(_p); }

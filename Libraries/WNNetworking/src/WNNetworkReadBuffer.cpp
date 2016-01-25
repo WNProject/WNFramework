@@ -13,7 +13,6 @@
 #include "WNMath/inc/WNBasic.h"
 
 using namespace WNNetworking;
-using namespace WNConcurrency;
 using namespace WNContainers;
 
 WNNetworkReadBuffer::WNNetworkReadBuffer(WNNetworkManager& _manager) :
@@ -23,7 +22,7 @@ WNNetworkReadBuffer::WNNetworkReadBuffer(WNNetworkManager& _manager) :
     mInitialized(wn_false),
     mTotalSize(0),
     mLastChunk(wn_false),
-    mDataOverflow(wn::memory::make_intrusive<WNBufferResource, WNNetworkManager&>(_manager)) {
+    mDataOverflow(wn::memory::make_intrusive<WNBufferResource, WNNetworkManager&>(&allocator, _manager)) {
 }
 
 wn_bool WNNetworkReadBuffer::serialize(const wn::containers::serializer_base& _serializer, const wn_uint32 _flags) {

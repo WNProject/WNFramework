@@ -427,7 +427,7 @@ void ast_jit_engine::walk_struct_definition(
 }
 
 void ast_jit_engine::walk_function(const function* _func, llvm::Function** _f) {
-  containers::dynamic_array<llvm::Type*> parameters;
+  containers::dynamic_array<llvm::Type*> parameters(m_allocator);
 
   llvm::BasicBlock* bb = llvm::BasicBlock::Create(*m_context);
   if (_func->get_parameters()) {

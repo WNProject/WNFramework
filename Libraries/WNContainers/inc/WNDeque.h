@@ -232,14 +232,10 @@ private:
 
 }  // namespace internal
 
-template <typename _Type, typename _Allocator = memory::default_allocator,
+template <typename _Type, typename _Allocator = memory::basic_allocator,
     const wn_size_t _BlockSize = 10>
 class deque final {
 public:
-  static _Allocator* get_default_allocator() {
-    static _Allocator* alloc = new _Allocator();
-    return alloc;
-  }
   using value_type = _Type;
   using size_type = wn_size_t;
   using difference_type = wn_signed_t;
@@ -301,30 +297,29 @@ public:
       m_allocated_blocks(0),
       m_element_count(0) {}
 
-  explicit deque(
-      const size_type _count, memory::allocator* _allocator = wn_nullptr)
+  explicit deque(const size_type _count, memory::allocator* _allocator)
     : deque(_count, _Type(), _allocator) {}
 
   deque(const size_type _count, const _Type& _value,
-      memory::allocator* _allocator = wn_nullptr)
+      memory::allocator* _allocator)
     : deque(_allocator) {
     resize(_count, _value);
   }
 
   template <typename _InputIt,
       typename = core::enable_if_t<!std::is_integral<_InputIt>::value>>
-  deque(_InputIt _first, _InputIt _last,
-      memory::allocator* _allocator = wn_nullptr)
+  deque(_InputIt _first, _InputIt _last, memory::allocator* _allocator)
     : deque(_allocator) {
     insert(cbegin(), _first, _last);
   }
 
   deque(std::initializer_list<_Type> _initializer_list,
-      memory::allocator* _allocator = wn_nullptr)
+      memory::allocator* _allocator)
     : deque(_initializer_list.begin(), _initializer_list.end(), _allocator) {}
 
   deque& operator=(deque&& _other) {
     clear();
+    clean_blocks();
     m_allocator = std::move(_other.m_allocator);
     m_block_list = std::move(_other.m_block_list);
     m_used_blocks = std::move(_other.m_used_blocks);
@@ -342,16 +337,10 @@ public:
 
   ~deque() {
     clear();
-
-    for (wn_size_t i = 0; i < m_allocated_blocks; ++i) {
-      const wn_size_t index = (m_start_block + i) % m_block_list.size();
-
-      deallocate(m_block_list[index]);
-    }
+    clean_blocks();
   }
 
   // element access
-
   reference operator[](const size_type _pos) {
     return (at(_pos));
   }
@@ -663,12 +652,17 @@ public:
   }
 
 private:
-  memory::allocation_pair allocate(
-      const wn_size_t _size, const wn_size_t _count) {
-    if (!m_allocator) {
-      m_allocator = get_default_allocator();
+  void* allocate(const wn_size_t _size, const wn_size_t _count) {
+    return m_allocator->allocate(_size * _count);
+  }
+
+  void clean_blocks() {
+    for (wn_size_t i = 0; i < m_allocated_blocks; ++i) {
+      const wn_size_t index = (m_start_block + i) % m_block_list.size();
+
+      deallocate(m_block_list[index]);
     }
-    return m_allocator->allocate(_size, _count);
+    m_block_list.clear();
   }
 
   void deallocate(void* ptr) {
@@ -745,11 +739,9 @@ private:
         }
 
         for (size_type i = 0; i < neededBlocks; ++i) {
-          wn::memory::allocation_pair p =
-              allocate(sizeof(value_type), _BlockSize);
+          void* p = allocate(sizeof(value_type), _BlockSize);
           m_block_list[(m_start_block + m_allocated_blocks) %
-                       m_block_list.size()] =
-              static_cast<value_type*>(p.m_location);
+                       m_block_list.size()] = static_cast<value_type*>(p);
           m_allocated_blocks += 1;
         }
       }
@@ -808,12 +800,10 @@ private:
       }
 
       for (size_type i = 0; i < neededExtraBlocks; ++i) {
-        wn::memory::allocation_pair p =
-            allocate(sizeof(value_type), _BlockSize);
+        void* p = allocate(sizeof(value_type), _BlockSize);
 
         m_block_list[(m_start_block + m_allocated_blocks) %
-                     m_block_list.size()] =
-            static_cast<value_type*>(p.m_location);
+                     m_block_list.size()] = static_cast<value_type*>(p);
         m_allocated_blocks += 1;
       }
       m_used_blocks = m_allocated_blocks;
@@ -908,7 +898,7 @@ private:
   }
 
   memory::allocator* m_allocator;
-  dynamic_array<_Type*, _Allocator> m_block_list;
+  dynamic_array<_Type*> m_block_list;
   size_type m_used_blocks;
   size_type m_allocated_blocks;
   size_type m_start_block;

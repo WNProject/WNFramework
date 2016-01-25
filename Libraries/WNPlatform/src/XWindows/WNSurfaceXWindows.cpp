@@ -52,7 +52,7 @@ wn_bool wn::WNSurfaceXWindows::Initialize(wn_uint32 _x, wn_uint32 _y, wn_uint32 
 
     XSetWMProtocols(mDisplay, mWindow, &mDeleteMessage, 1);
 
-    mSurfaceThread = wn::memory::construct<wn::threads::thread<wn_void> >(&wn::WNSurfaceXWindows::SurfaceThread, this);
+    mSurfaceThread = wn::memory::construct<wn::threads::thread<wn_void> >(&m_allocator, &wn::WNSurfaceXWindows::SurfaceThread, this);
 
     return(wn_true);
 }

@@ -78,7 +78,7 @@ public:
   virtual void close() = 0;
 
 protected:
-  file(memory::allocator* _allocator)
+  WN_FORCE_INLINE file(memory::allocator* _allocator)
     : memory::intrusive_ptr_base(_allocator) {}
 };
 

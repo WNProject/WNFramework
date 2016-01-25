@@ -56,7 +56,7 @@ WNSurfaceManagerReturnCode::type WNSurfaceManagerXWindows::Initialize() {
 }
 
 WNSurfaceManagerReturnCode::type WNSurfaceManagerXWindows::CreateSurface(wn_uint32 _x, wn_uint32 _y, wn_uint32 _width, wn_uint32 _height, memory::intrusive_ptr<surface>& _surface) {
-  memory::intrusive_ptr<WNSurfaceXWindows> ptr = memory::make_intrusive<WNSurfaceXWindows, WNSurfaceManagerXWindows&>(*this);
+  memory::intrusive_ptr<WNSurfaceXWindows> ptr = memory::make_intrusive<WNSurfaceXWindows, WNSurfaceManagerXWindows&>(&allocator, *this);
 
     if (!ptr->Initialize(_x, _y, _width, _height, mDisplay, mVisualInfo)) {
         return(WNSurfaceManagerReturnCode::eWNInitializationFailure);

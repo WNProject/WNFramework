@@ -77,8 +77,9 @@ jit_engine::jit_engine(type_validator* _validator,
   : engine(_validator, _allocator),
     m_file_mapping(_mapping),
     m_compilation_log(_log),
+    m_context(memory::make_std_unique<llvm::LLVMContext>()),
     m_modules(_allocator),
-    m_context(memory::make_std_unique<llvm::LLVMContext>()) {
+    m_pointers(_allocator) {
   llvm::InitializeNativeTarget();
   llvm::InitializeNativeTargetAsmPrinter();
   llvm::InitializeNativeTargetAsmParser();
@@ -131,7 +132,7 @@ parse_error jit_engine::parse_file(const char* _file) {
     return parse_error::does_not_exist;
   }
 
-  memory::allocated_ptr<script_file> parsed_file =
+  memory::unique_ptr<script_file> parsed_file =
       parse_script(m_allocator, m_validator, _file, file->typed_range<char>(),
           m_compilation_log, &m_num_warnings, &m_num_errors);
 
@@ -140,7 +141,7 @@ parse_error jit_engine::parse_file(const char* _file) {
   }
   CompiledModule& module = add_module(_file);
 
-  ast_code_generator<ast_jit_traits> generator;
+  ast_code_generator<ast_jit_traits> generator(m_allocator);
   ast_jit_engine engine(
       m_allocator, m_validator, m_context.get(), module.m_module, &generator);
   generator.set_generator(&engine);

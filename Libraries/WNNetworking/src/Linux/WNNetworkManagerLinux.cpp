@@ -91,7 +91,7 @@ WNNetworkManagerReturnCode::type WNNetworkManagerLinux::Initialize(wn_uint32 _nu
     mInitializationState = eWNEPollWriteCreated;
 
     for (wn_uint32 i = 0; i < wn::ceil(static_cast<wn_float32>(_numWorkerThreads) / 2.0f); ++i) {
-        wn::threads::thread<wn_void>* thread = wn::memory::construct<wn::threads::thread<wn_void> >(&WNNetworkManagerLinux::WriteThread, this);
+        wn::threads::thread<wn_void>* thread = wn::memory::construct<wn::threads::thread<wn_void> >(&allocator, &WNNetworkManagerLinux::WriteThread, this);
 
         mReadThreads.push_back(thread);
     }
@@ -112,7 +112,7 @@ WNNetworkManagerReturnCode::type WNNetworkManagerLinux::Initialize(wn_uint32 _nu
     mInitializationState = eWNEPollReadCreated;
 
     for (wn_uint32 i = 0; i < wn::ceil(static_cast<wn_float32>(_numWorkerThreads) / 2.0f); ++i) {
-        wn::threads::thread<wn_void>* thread = wn::memory::construct<wn::threads::thread<wn_void> >(&WNNetworkManagerLinux::ReadThread, this);
+        wn::threads::thread<wn_void>* thread = wn::memory::construct<wn::threads::thread<wn_void> >(&allocator, &WNNetworkManagerLinux::ReadThread, this);
 
         mReadThreads.push_back(thread);
     }
@@ -130,7 +130,7 @@ WNNetworkManagerReturnCode::type WNNetworkManagerLinux::Initialize(wn_uint32 _nu
     }
 
     mInitializationState = eWNEPollListenCreated;
-    mListenThread = wn::memory::construct<wn::threads::thread<wn_void> >(&WNNetworkManagerLinux::ListenThread, this);
+    mListenThread = wn::memory::construct<wn::threads::thread<wn_void> >(&allocator, &WNNetworkManagerLinux::ListenThread, this);
     mInitializationState = eWNListenThreadCreated;
     mInitializationState = eWNInitializationComplete;
 

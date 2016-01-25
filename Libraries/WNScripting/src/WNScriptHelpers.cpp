@@ -3,22 +3,22 @@
 // found in the LICENSE.txt file.
 
 #include "WNContainers/inc/WNStringView.h"
-#include "WNScripting/inc/WNNodeTypes.h"
-#include "WNScripting/src/WNScriptASTLexer.hpp"
-#include "WNScripting/src/WNScriptASTParser.hpp"
-#include "WNScripting/inc/WNScriptHelpers.h"
-#include "WNScripting/inc/WNASTPasses.h"
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNMemory/inc/WNUniquePtr.h"
+#include "WNScripting/inc/WNASTPasses.h"
+#include "WNScripting/inc/WNNodeTypes.h"
+#include "WNScripting/inc/WNScriptHelpers.h"
+#include "WNScripting/src/WNScriptASTLexer.hpp"
+#include "WNScripting/src/WNScriptASTParser.hpp"
 
 namespace wn {
 namespace scripting {
 
-memory::allocated_ptr<wn::scripting::script_file> parse_script(
-    memory::allocator* _allocator, wn::scripting::type_validator* _validator,
-    const wn_char* file_name, containers::string_view view,
-    WNLogging::WNLog* _log, wn_size_t* _num_warnings, wn_size_t* _num_errors) {
-  wn::memory::allocated_ptr<wn::scripting::script_file> ptr;
+memory::unique_ptr<script_file> parse_script(memory::allocator* _allocator,
+    wn::scripting::type_validator* _validator, const wn_char* file_name,
+    containers::string_view view, WNLogging::WNLog* _log,
+    wn_size_t* _num_warnings, wn_size_t* _num_errors) {
+  memory::unique_ptr<script_file> ptr;
   {
     WNScriptASTLexer::InputStreamType input(
         reinterpret_cast<const ANTLR_UINT8*>(view.data()), ANTLR_ENC_8BIT,
@@ -26,12 +26,12 @@ memory::allocated_ptr<wn::scripting::script_file> parse_script(
         reinterpret_cast<const ANTLR_UINT8*>(file_name));
 
     WNScriptASTLexer lexer(&input);
-    WNScriptASTParser::TokenStreamType tStream(ANTLR_SIZE_HINT,
-                                               lexer.get_tokSource());
+    WNScriptASTParser::TokenStreamType tStream(
+        ANTLR_SIZE_HINT, lexer.get_tokSource());
     WNScriptASTParser parser(&tStream);
     parser.set_allocator(_allocator);
     ptr = std::move(
-        wn::memory::default_allocated_ptr(_allocator, parser.program()));
+        memory::unique_ptr<script_file>(_allocator, parser.program()));
     if (parser.getNumberOfSyntaxErrors() != 0 ||
         lexer.getNumberOfSyntaxErrors() != 0) {
       if (_num_errors) {
@@ -39,13 +39,16 @@ memory::allocated_ptr<wn::scripting::script_file> parse_script(
       }
       return wn_nullptr;
     }
-    if (!run_dce_pass(ptr.get(), _log, _validator, _num_warnings, _num_errors)) {
+    if (!run_dce_pass(
+            ptr.get(), _log, _validator, _num_warnings, _num_errors)) {
       return wn_nullptr;
     }
-    if (!run_id_association_pass(ptr.get(), _log, _validator, _num_warnings, _num_errors)) {
+    if (!run_id_association_pass(
+            ptr.get(), _log, _validator, _num_warnings, _num_errors)) {
       return wn_nullptr;
     }
-    if (!run_type_association_pass(ptr.get(), _log, _validator, _num_warnings, _num_errors)) {
+    if (!run_type_association_pass(
+            ptr.get(), _log, _validator, _num_warnings, _num_errors)) {
       return wn_nullptr;
     }
   }

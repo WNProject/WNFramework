@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNTesting/inc/WNTestHarness.h"
 #include "WNContainers/inc/WNDynamicArray.h"
 #include "WNFibers/inc/WNFiber.h"
+#include "WNTesting/inc/WNTestHarness.h"
 
 using ::testing::ElementsAreArray;
 
@@ -13,8 +13,8 @@ void function(int32_t* x, wn::fibers::fiber* main_fiber) {
   wn::fibers::this_fiber::swap_to(main_fiber);
 }
 
-TEST(fibers, simple_fiber){
-  wn::memory::default_allocator m_allocator;
+TEST(fibers, simple_fiber) {
+  wn::memory::basic_allocator m_allocator;
   int32_t x = 32;
   wn::fibers::this_fiber::convert_to_fiber(&m_allocator);
 
@@ -40,26 +40,30 @@ void multi_function(int32_t* x, int32_t next_fiber,
 }
 
 TEST(fibers, dynamic_array_of_fibers) {
-  wn::memory::default_allocator m_allocator;
-  int32_t x = 32;
-  wn::fibers::this_fiber::convert_to_fiber(&m_allocator);
+  wn::testing::allocator allocator;
 
-  wn::containers::dynamic_array<wn::fibers::fiber> fibers;
-  fibers.reserve(11);
-  for(int32_t i = 0; i < 10; ++i) {
+  {
+    int32_t x = 32;
+
+    wn::fibers::this_fiber::convert_to_fiber(&allocator);
+
+    wn::containers::dynamic_array<wn::fibers::fiber> fibers(&allocator);
+
+    fibers.reserve(11);
+
+    for (int32_t i = 0; i < 10; ++i) {
+      fibers.emplace_back(&allocator, multi_function, &x, i + 1, &fibers);
+    }
+
     fibers.emplace_back(
-        &m_allocator, multi_function, &x, i+1, &fibers);
+        &allocator, function, &x, wn::fibers::this_fiber::get_self());
+
+    wn::fibers::this_fiber::swap_to(&fibers[0]);
+    wn::fibers::this_fiber::revert_from_fiber();
+
+    EXPECT_EQ((32 + 10 * 10) * 10, x);
   }
-
-  fibers.emplace_back(
-      &m_allocator, function, &x, wn::fibers::this_fiber::get_self());
-
-  wn::fibers::this_fiber::swap_to(&fibers[0]);
-  wn::fibers::this_fiber::revert_from_fiber();
-
-  EXPECT_EQ((32 + 10 * 10) * 10, x);
 }
-
 
 void deep_call(int32_t* x, int32_t depth, wn::fibers::fiber* next_fiber) {
   if (depth == 0) {
@@ -68,26 +72,33 @@ void deep_call(int32_t* x, int32_t depth, wn::fibers::fiber* next_fiber) {
     // We will never actaully hit it because we never return to this method.
     return;
   }
+
   *x = *x + 1;
+
   deep_call(x, depth - 1, next_fiber);
 }
 
 TEST(fibers, deep_function) {
-  wn::memory::default_allocator m_allocator;
-  int32_t x = 32;
-  wn::fibers::this_fiber::convert_to_fiber(&m_allocator);
+  wn::testing::allocator allocator;
 
-  wn::fibers::fiber f(
-      &m_allocator, deep_call, &x, 2048, wn::fibers::this_fiber::get_self());
-  wn::fibers::this_fiber::swap_to(&f);
-  wn::fibers::this_fiber::revert_from_fiber();
+  {
+    int32_t x = 32;
 
-  EXPECT_EQ(32+2048, x);
+    wn::fibers::this_fiber::convert_to_fiber(&allocator);
+
+    wn::fibers::fiber f(
+        &allocator, deep_call, &x, 2048, wn::fibers::this_fiber::get_self());
+
+    wn::fibers::this_fiber::swap_to(&f);
+    wn::fibers::this_fiber::revert_from_fiber();
+
+    EXPECT_EQ(32 + 2048, x);
+  }
 }
 
 // This generator generates 6 numbers every time it is swapped to
 // and takes no action after that point.
-void generator_function(int32_t* destination, wn::fibers::fiber* main_fiber){
+void generator_function(int32_t* destination, wn::fibers::fiber* main_fiber) {
   *destination = 32;
   wn::fibers::this_fiber::swap_to(main_fiber);
   *destination = 42;
@@ -100,26 +111,33 @@ void generator_function(int32_t* destination, wn::fibers::fiber* main_fiber){
   wn::fibers::this_fiber::swap_to(main_fiber);
   *destination = 45;
   wn::fibers::this_fiber::swap_to(main_fiber);
-  for(;;) {
+  for (;;) {
     wn::fibers::this_fiber::swap_to(main_fiber);
   }
 }
 
 TEST(fibers, generator_function) {
-  wn::memory::default_allocator m_allocator;
-  int32_t destination = 0;
+  wn::testing::allocator allocator;
 
-  wn::fibers::this_fiber::convert_to_fiber(&m_allocator);
-  wn::fibers::fiber f(&m_allocator, generator_function, &destination,
-      wn::fibers::this_fiber::get_self());
-  wn::containers::dynamic_array<int32_t> arr(&m_allocator);
+  {
+    int32_t destination = 0;
 
-  for(size_t i = 0; i < 8; ++i) {
-    arr.push_back(destination);
-    wn::fibers::this_fiber::swap_to(&f);
+    wn::fibers::this_fiber::convert_to_fiber(&allocator);
+
+    wn::fibers::fiber f(&allocator, generator_function, &destination,
+        wn::fibers::this_fiber::get_self());
+    wn::containers::dynamic_array<int32_t> arr(&allocator);
+
+    for (size_t i = 0; i < 8; ++i) {
+      arr.push_back(destination);
+
+      wn::fibers::this_fiber::swap_to(&f);
+    }
+
+    wn::fibers::this_fiber::revert_from_fiber();
+
+    int32_t expected[] = {0, 32, 42, 10, 12, 96, 45, 45};
+
+    EXPECT_THAT(arr, ElementsAreArray(expected));
   }
-
-  wn::fibers::this_fiber::revert_from_fiber();
-  int32_t expected[] = {0, 32, 42, 10, 12, 96, 45, 45};
-  EXPECT_THAT(arr, ElementsAreArray(expected));
 }

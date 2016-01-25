@@ -4,7 +4,7 @@
 
 #include "WNContainers/inc/WNFunction.h"
 #include "WNCore/inc/WNUtility.h"
-#include "WNMemory/inc/WNAllocator.h"
+#include "WNMemory/inc/WNUniquePtr.h"
 
 #ifdef _WN_POSIX
 #include <ucontext.h>
@@ -62,7 +62,7 @@ public:
 #elif defined _WN_POSIX
     m_stack_pointer = nullptr;
 #endif
-    m_data = memory::make_allocated_ptr<fiber_data>(_allocator);
+    m_data = memory::make_unique<fiber_data>(_allocator);
     WN_DEBUG_ASSERT_DESC(m_data, "fiber data creation failed");
     m_data->m_fiber = this;
   }
@@ -155,7 +155,7 @@ private:
 
   bool m_is_top_level_fiber;
   memory::allocator* m_allocator;
-  memory::allocated_ptr<fiber_data> m_data;
+  memory::unique_ptr<fiber_data> m_data;
 };
 
 }  // namespace fibers

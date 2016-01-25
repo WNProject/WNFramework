@@ -31,6 +31,7 @@ namespace wn {
         WNSurfaceManagerAndroid& operator = (const WNSurfaceManagerAndroid&);
 
     private:
+		wn::memory::basic_allocator allocator;
         EGLDisplay mDisplay;
         EGLConfig  mConfig;
         wn_bool    mValidSurface;

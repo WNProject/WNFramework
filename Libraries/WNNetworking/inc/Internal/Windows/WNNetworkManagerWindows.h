@@ -48,6 +48,7 @@ namespace WNNetworking {
             eWNInitializationCompleted
         };
 
+        wn::memory::basic_allocator allocator;
         wn_uint32 mMaxThreads;
         HANDLE mIOCP;
         HANDLE mAcceptEvent;

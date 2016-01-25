@@ -31,14 +31,14 @@ parse_error c_translator::translate_file(const char* file_) {
     return parse_error::does_not_exist;
   }
 
-  memory::allocated_ptr<script_file> parsed_file =
+  memory::unique_ptr<script_file> parsed_file =
       parse_script(m_allocator, m_validator, file_, file->typed_range<char>(),
           m_compilation_log, &m_num_warnings, &m_num_errors);
 
   if (parsed_file == wn_nullptr) {
     return wn::scripting::parse_error::parse_failed;
   }
-  ast_code_generator<ast_c_traits> generator;
+  ast_code_generator<ast_c_traits> generator(m_allocator);
   ast_c_translator translator(m_allocator, &generator, m_validator);
   generator.set_generator(&translator);
   run_ast_pass<ast_code_generator<ast_c_traits>>(&generator, parsed_file.get());

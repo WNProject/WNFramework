@@ -41,8 +41,8 @@ static __FIBER_RESULT_TYPE WN_FIBER_CALL_BEGIN wrapper(
 
 void fiber::create(
     const size_t _stack_size, containers::function<void()>&& _f) {
-  memory::allocated_ptr<fiber_data> data(
-      memory::make_allocated_ptr<fiber_data>(m_allocator));
+  memory::unique_ptr<fiber_data> data(
+      memory::make_unique<fiber_data>(m_allocator));
 
   if (data) {
     data->m_fiber = this;
@@ -58,7 +58,7 @@ void fiber::create(
       m_data = std::move(data);
     }
 #elif defined _WN_ANDROID
-    m_stack_pointer = m_allocator->allocate(1, _stack_size).m_location;
+    m_stack_pointer = m_allocator->allocate(_stack_size);
     memset(&m_fiber_context, 0x0, sizeof(ucontext_t));
     wn_getcontext(&m_fiber_context);
 
@@ -68,7 +68,7 @@ void fiber::create(
     wn_makecontext(&m_fiber_context, &wrapper, NULL);
     m_data = std::move(data);
 #elif defined _WN_POSIX
-    m_stack_pointer = m_allocator->allocate(1, _stack_size).m_location;
+    m_stack_pointer = m_allocator->allocate(_stack_size);
     memset(&m_fiber_context, 0x0, sizeof(ucontext_t));
     getcontext(&m_fiber_context);
 
@@ -106,7 +106,7 @@ void convert_to_fiber(memory::allocator* _allocator) {
   WN_DEBUG_ASSERT_DESC(_allocator, "Invalid allocator, can't be nullptrs");
 
   if (tl_this_fiber == 0) {
-    fiber* f = _allocator->make_allocated<fiber>(_allocator);
+    fiber* f = _allocator->construct<fiber>(_allocator);
 
     f->m_is_top_level_fiber = true;
     tl_this_fiber = f->m_data.get();

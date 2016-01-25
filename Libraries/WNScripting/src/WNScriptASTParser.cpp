@@ -1444,7 +1444,7 @@ WNScriptASTParser::objectType()
 
 
         	        {
-        	             node = m_allocator->make_allocated<scripting::type>(m_allocator, (TYPE1->getText()).c_str()); SET_LOCATION(node, TYPE1);
+        	             node = m_allocator->construct<scripting::type>(m_allocator, (TYPE1->getText()).c_str()); SET_LOCATION(node, TYPE1);
         	        }
 
 
@@ -1460,7 +1460,7 @@ WNScriptASTParser::objectType()
 
 
         	        {
-        	             node = m_allocator->make_allocated<scripting::type>(m_allocator, scripting::type_classification::string_type); SET_LOCATION(node, STRING_TYPE2);
+        	             node = m_allocator->construct<scripting::type>(m_allocator, scripting::type_classification::string_type); SET_LOCATION(node, STRING_TYPE2);
         	        }
 
 
@@ -1567,7 +1567,7 @@ WNScriptASTParser::scalarType()
 
 
         	        {
-        	             node = m_allocator->make_allocated<scripting::type>(m_allocator, scripting::type_classification::void_type); SET_LOCATION(node, VOID_TYPE3);
+        	             node = m_allocator->construct<scripting::type>(m_allocator, scripting::type_classification::void_type); SET_LOCATION(node, VOID_TYPE3);
         	        }
 
 
@@ -1583,7 +1583,7 @@ WNScriptASTParser::scalarType()
 
 
         	        {
-        	             node = m_allocator->make_allocated<scripting::type>(m_allocator, scripting::type_classification::int_type); SET_LOCATION(node, INT_TYPE4);
+        	             node = m_allocator->construct<scripting::type>(m_allocator, scripting::type_classification::int_type); SET_LOCATION(node, INT_TYPE4);
         	        }
 
 
@@ -1599,7 +1599,7 @@ WNScriptASTParser::scalarType()
 
 
         	        {
-        	             node = m_allocator->make_allocated<scripting::type>(m_allocator, scripting::type_classification::float_type); SET_LOCATION(node, FLOAT_TYPE5);
+        	             node = m_allocator->construct<scripting::type>(m_allocator, scripting::type_classification::float_type); SET_LOCATION(node, FLOAT_TYPE5);
         	        }
 
 
@@ -1615,7 +1615,7 @@ WNScriptASTParser::scalarType()
 
 
         	        {
-        	             node = m_allocator->make_allocated<scripting::type>(m_allocator, scripting::type_classification::char_type); SET_LOCATION(node, CHAR_TYPE6);
+        	             node = m_allocator->construct<scripting::type>(m_allocator, scripting::type_classification::char_type); SET_LOCATION(node, CHAR_TYPE6);
         	        }
 
 
@@ -1631,7 +1631,7 @@ WNScriptASTParser::scalarType()
 
 
         	        {
-        	             node = m_allocator->make_allocated<scripting::type>(m_allocator, scripting::type_classification::bool_type); SET_LOCATION(node, BOOL_TYPE7);
+        	             node = m_allocator->construct<scripting::type>(m_allocator, scripting::type_classification::bool_type); SET_LOCATION(node, BOOL_TYPE7);
         	        }
 
 
@@ -1772,7 +1772,7 @@ WNScriptASTParser::compoundType()
         	        	            {
 
         	        	                                   SET_END_LOCATION(node, RSQBRACKET9);
-        	        	                                   node = m_allocator->make_allocated<scripting::array_type>(m_allocator, node);
+        	        	                                   node = m_allocator->construct<scripting::array_type>(m_allocator, node);
         	        	                                   SET_LOCATION(node, LSQBRACKET10);
         	        	                                   SET_END_LOCATION(node, RSQBRACKET9);
 
@@ -2151,7 +2151,7 @@ WNScriptASTParser::param()
 
         	        {
 
-        	                        node = m_allocator->make_allocated<scripting::parameter>(m_allocator, scalarType14
+        	                        node = m_allocator->construct<scripting::parameter>(m_allocator, scalarType14
         	            , (a->getText()).c_str()); SET_LOCATION_FROM_NODE(node,
         	            scalarType14
         	            ); SET_END_LOCATION(node, a);
@@ -2183,7 +2183,7 @@ WNScriptASTParser::param()
 
         	                        bb
         	            ->set_qualifier(scripting::type_qualifier::non_nullable);
-        	                        node = m_allocator->make_allocated<scripting::parameter>(m_allocator, bb
+        	                        node = m_allocator->construct<scripting::parameter>(m_allocator, bb
         	            , (aa->getText()).c_str()); SET_LOCATION_FROM_NODE(node,
         	            bb
         	            ); SET_END_LOCATION(node, aa);
@@ -2222,7 +2222,7 @@ WNScriptASTParser::param()
 
         	                       b
         	            ->set_qualifier(scripting::type_qualifier::shared);
-        	                       node = m_allocator->make_allocated<scripting::parameter>(m_allocator, b
+        	                       node = m_allocator->construct<scripting::parameter>(m_allocator, b
         	            , (c->getText()).c_str()); SET_LOCATION(node, SHARED_REF15); SET_END_LOCATION(node, c);
 
         	        }
@@ -2260,7 +2260,7 @@ WNScriptASTParser::param()
 
         	                       d
         	            ->set_qualifier(scripting::type_qualifier::weak);
-        	                       node = m_allocator->make_allocated<scripting::parameter>(m_allocator, d
+        	                       node = m_allocator->construct<scripting::parameter>(m_allocator, d
         	            , (e->getText()).c_str()); SET_LOCATION(node, WEAK_REF16); SET_END_LOCATION(node, e);
 
         	        }
@@ -2298,7 +2298,7 @@ WNScriptASTParser::param()
 
         	                       f
         	            ->set_qualifier(scripting::type_qualifier::nullable);
-        	                       node = m_allocator->make_allocated<scripting::parameter>(m_allocator, f
+        	                       node = m_allocator->construct<scripting::parameter>(m_allocator, f
         	            , (g->getText()).c_str()); SET_LOCATION_FROM_NODE(node,
         	            f
         	            ); SET_END_LOCATION(node, g);
@@ -2361,7 +2361,7 @@ WNScriptASTParser::paramList()
 
 
             {
-                 node = m_allocator->make_allocated<scripting::parameter_list>(m_allocator, a
+                 node = m_allocator->construct<scripting::parameter_list>(m_allocator, a
                 ); SET_LOCATION_FROM_NODE(node, a
                 );
             }
@@ -2813,7 +2813,7 @@ WNScriptASTParser::lvalue()
 
 
             {
-                 node = m_allocator->make_allocated<scripting::lvalue>(m_allocator, unary_ex20
+                 node = m_allocator->construct<scripting::lvalue>(m_allocator, unary_ex20
                 ); SET_LOCATION_FROM_NODE(node, unary_ex20
                 );
             }
@@ -2854,7 +2854,7 @@ WNScriptASTParser::arglist()
 
 
 
-        node = m_allocator->make_allocated<scripting::arg_list>(m_allocator);
+        node = m_allocator->construct<scripting::arg_list>(m_allocator);
 
 
 
@@ -3163,7 +3163,7 @@ WNScriptASTParser::cond_ex()
 
 
             	        {
-            	             node = m_allocator->make_allocated<scripting::cond_expression>(m_allocator, node, b
+            	             node = m_allocator->construct<scripting::cond_expression>(m_allocator, node, b
             	            , c
             	            );  SET_LOCATION_FROM_NODE(node, or_ex22
             	            ); SET_END_LOCATION_FROM_NODE(node, c
@@ -3270,7 +3270,7 @@ WNScriptASTParser::or_ex()
 
 
             	        {
-            	             node = m_allocator->make_allocated<scripting::short_circuit_expression>(m_allocator, scripting::short_circuit_type::or_operator, node, b
+            	             node = m_allocator->construct<scripting::short_circuit_expression>(m_allocator, scripting::short_circuit_type::or_operator, node, b
             	            ); SET_LOCATION_FROM_NODE(node, a
             	            ); SET_END_LOCATION_FROM_NODE(node, b
             	            );
@@ -3381,7 +3381,7 @@ WNScriptASTParser::and_ex()
 
 
             	        {
-            	            node = m_allocator->make_allocated<scripting::short_circuit_expression>(m_allocator, scripting::short_circuit_type::and_operator, node, b
+            	            node = m_allocator->construct<scripting::short_circuit_expression>(m_allocator, scripting::short_circuit_type::and_operator, node, b
             	            ); SET_LOCATION_FROM_NODE(node, a
             	            ); SET_END_LOCATION_FROM_NODE(node, b
             	            );
@@ -3499,7 +3499,7 @@ WNScriptASTParser::eq_ex()
 
 
             	            {
-            	                node = m_allocator->make_allocated<scripting::binary_expression>(m_allocator, scripting::arithmetic_type::arithmetic_equal, node, b
+            	                node = m_allocator->construct<scripting::binary_expression>(m_allocator, scripting::arithmetic_type::arithmetic_equal, node, b
             	                );  SET_LOCATION_FROM_NODE(node, a
             	                ); SET_END_LOCATION_FROM_NODE(node, b
             	                );
@@ -3532,7 +3532,7 @@ WNScriptASTParser::eq_ex()
 
 
             	            {
-            	                node = m_allocator->make_allocated<scripting::binary_expression>(m_allocator, scripting::arithmetic_type::arithmetic_not_equal, node, c
+            	                node = m_allocator->construct<scripting::binary_expression>(m_allocator, scripting::arithmetic_type::arithmetic_not_equal, node, c
             	                ); SET_LOCATION_FROM_NODE(node, a
             	                ); SET_END_LOCATION_FROM_NODE(node, c
             	                );
@@ -3665,7 +3665,7 @@ WNScriptASTParser::rel_ex()
 
 
             	            {
-            	                node = m_allocator->make_allocated<scripting::binary_expression>(m_allocator, scripting::arithmetic_type::arithmetic_less_than, node, b
+            	                node = m_allocator->construct<scripting::binary_expression>(m_allocator, scripting::arithmetic_type::arithmetic_less_than, node, b
             	                );   SET_LOCATION_FROM_NODE(node, a
             	                ); SET_END_LOCATION_FROM_NODE(node, b
             	                );
@@ -3698,7 +3698,7 @@ WNScriptASTParser::rel_ex()
 
 
             	            {
-            	                node = m_allocator->make_allocated<scripting::binary_expression>(m_allocator, scripting::arithmetic_type::arithmetic_greater_than, node, c
+            	                node = m_allocator->construct<scripting::binary_expression>(m_allocator, scripting::arithmetic_type::arithmetic_greater_than, node, c
             	                );   SET_LOCATION_FROM_NODE(node, a
             	                ); SET_END_LOCATION_FROM_NODE(node, c
             	                );
@@ -3731,7 +3731,7 @@ WNScriptASTParser::rel_ex()
 
 
             	            {
-            	                node = m_allocator->make_allocated<scripting::binary_expression>(m_allocator, scripting::arithmetic_type::arithmetic_less_than_or_equal, node, d
+            	                node = m_allocator->construct<scripting::binary_expression>(m_allocator, scripting::arithmetic_type::arithmetic_less_than_or_equal, node, d
             	                );   SET_LOCATION_FROM_NODE(node, a
             	                ); SET_END_LOCATION_FROM_NODE(node, d
             	                );
@@ -3764,7 +3764,7 @@ WNScriptASTParser::rel_ex()
 
 
             	            {
-            	                node = m_allocator->make_allocated<scripting::binary_expression>(m_allocator, scripting::arithmetic_type::arithmetic_greater_than_or_equal, node, e
+            	                node = m_allocator->construct<scripting::binary_expression>(m_allocator, scripting::arithmetic_type::arithmetic_greater_than_or_equal, node, e
             	                );   SET_LOCATION_FROM_NODE(node, a
             	                ); SET_END_LOCATION_FROM_NODE(node, e
             	                );
@@ -3885,7 +3885,7 @@ WNScriptASTParser::add_ex()
 
 
             	            {
-            	                node = m_allocator->make_allocated<scripting::binary_expression>(m_allocator, scripting::arithmetic_type::arithmetic_add, node, b
+            	                node = m_allocator->construct<scripting::binary_expression>(m_allocator, scripting::arithmetic_type::arithmetic_add, node, b
             	                );   SET_LOCATION_FROM_NODE(node, a
             	                ); SET_END_LOCATION_FROM_NODE(node, b
             	                );
@@ -3918,7 +3918,7 @@ WNScriptASTParser::add_ex()
 
 
             	            {
-            	                node = m_allocator->make_allocated<scripting::binary_expression>(m_allocator, scripting::arithmetic_type::arithmetic_sub, node, c
+            	                node = m_allocator->construct<scripting::binary_expression>(m_allocator, scripting::arithmetic_type::arithmetic_sub, node, c
             	                );   SET_LOCATION_FROM_NODE(node, a
             	                ); SET_END_LOCATION_FROM_NODE(node, c
             	                );
@@ -4045,7 +4045,7 @@ WNScriptASTParser::mult_ex()
 
 
             	            {
-            	                node = m_allocator->make_allocated<scripting::binary_expression>(m_allocator, scripting::arithmetic_type::arithmetic_mult, node, b
+            	                node = m_allocator->construct<scripting::binary_expression>(m_allocator, scripting::arithmetic_type::arithmetic_mult, node, b
             	                );   SET_LOCATION_FROM_NODE(node, a
             	                ); SET_END_LOCATION_FROM_NODE(node, b
             	                );
@@ -4078,7 +4078,7 @@ WNScriptASTParser::mult_ex()
 
 
             	            {
-            	                node = m_allocator->make_allocated<scripting::binary_expression>(m_allocator, scripting::arithmetic_type::arithmetic_div, node, c
+            	                node = m_allocator->construct<scripting::binary_expression>(m_allocator, scripting::arithmetic_type::arithmetic_div, node, c
             	                );   SET_LOCATION_FROM_NODE(node, a
             	                ); SET_END_LOCATION_FROM_NODE(node, c
             	                );
@@ -4111,7 +4111,7 @@ WNScriptASTParser::mult_ex()
 
 
             	            {
-            	                node = m_allocator->make_allocated<scripting::binary_expression>(m_allocator, scripting::arithmetic_type::arithmetic_mod, node, d
+            	                node = m_allocator->construct<scripting::binary_expression>(m_allocator, scripting::arithmetic_type::arithmetic_mod, node, d
             	                );   SET_LOCATION_FROM_NODE(node, a
             	                ); SET_END_LOCATION_FROM_NODE(node, d
             	                );
@@ -4269,7 +4269,7 @@ WNScriptASTParser::unary_ex()
 
 
         	        {
-        	             scripting::node* t = node; node = m_allocator->make_allocated<scripting::unary_expression>(m_allocator, scripting::unary_type::pre_increment, b
+        	             scripting::node* t = node; node = m_allocator->construct<scripting::unary_expression>(m_allocator, scripting::unary_type::pre_increment, b
         	            );   SET_LOCATION_FROM_NODE(node, t); SET_END_LOCATION_FROM_NODE(node, b
         	            );
         	        }
@@ -4297,7 +4297,7 @@ WNScriptASTParser::unary_ex()
 
 
         	        {
-        	             scripting::node* t = node; node = m_allocator->make_allocated<scripting::unary_expression>(m_allocator, scripting::unary_type::pre_decrement, c
+        	             scripting::node* t = node; node = m_allocator->construct<scripting::unary_expression>(m_allocator, scripting::unary_type::pre_decrement, c
         	            );   SET_LOCATION_FROM_NODE(node, t); SET_END_LOCATION_FROM_NODE(node, c
         	            );
         	        }
@@ -4325,7 +4325,7 @@ WNScriptASTParser::unary_ex()
 
 
         	        {
-        	             scripting::node* t = node; node = m_allocator->make_allocated<scripting::unary_expression>(m_allocator, scripting::unary_type::negation, d
+        	             scripting::node* t = node; node = m_allocator->construct<scripting::unary_expression>(m_allocator, scripting::unary_type::negation, d
         	            );   SET_LOCATION_FROM_NODE(node, t); SET_END_LOCATION_FROM_NODE(node, d
         	            );
         	        }
@@ -4495,7 +4495,7 @@ WNScriptASTParser::post_ex_proper()
 
 
         	        {
-        	             node = m_allocator->make_allocated<scripting::array_access_expression>(m_allocator, a
+        	             node = m_allocator->construct<scripting::array_access_expression>(m_allocator, a
         	            ); SET_LOCATION(node, d); SET_END_LOCATION(node, e);
         	        }
 
@@ -4519,7 +4519,7 @@ WNScriptASTParser::post_ex_proper()
 
 
         	        {
-        	             node = m_allocator->make_allocated<scripting::function_call_expression>(m_allocator); SET_LOCATION(node, f); SET_END_LOCATION(node, g);
+        	             node = m_allocator->construct<scripting::function_call_expression>(m_allocator); SET_LOCATION(node, f); SET_END_LOCATION(node, g);
         	        }
 
 
@@ -4552,7 +4552,7 @@ WNScriptASTParser::post_ex_proper()
 
 
         	        {
-        	             node = m_allocator->make_allocated<scripting::function_call_expression>(m_allocator, b
+        	             node = m_allocator->construct<scripting::function_call_expression>(m_allocator, b
         	            ); SET_LOCATION(node, h); SET_END_LOCATION(node, i);
         	        }
 
@@ -4576,7 +4576,7 @@ WNScriptASTParser::post_ex_proper()
 
 
         	        {
-        	             node = m_allocator->make_allocated<scripting::member_access_expression>(m_allocator, (c->getText()).c_str()); SET_LOCATION(node, c);
+        	             node = m_allocator->construct<scripting::member_access_expression>(m_allocator, (c->getText()).c_str()); SET_LOCATION(node, c);
         	        }
 
 
@@ -4592,7 +4592,7 @@ WNScriptASTParser::post_ex_proper()
 
 
         	        {
-        	             node = m_allocator->make_allocated<scripting::post_unary_expression>(m_allocator, scripting::post_unary_type::post_increment); SET_LOCATION(node, DOUBINC23);
+        	             node = m_allocator->construct<scripting::post_unary_expression>(m_allocator, scripting::post_unary_type::post_increment); SET_LOCATION(node, DOUBINC23);
         	        }
 
 
@@ -4608,7 +4608,7 @@ WNScriptASTParser::post_ex_proper()
 
 
         	        {
-        	             node = m_allocator->make_allocated<scripting::post_unary_expression>(m_allocator, scripting::post_unary_type::post_decrement); SET_LOCATION(node, DOUBDEC24);
+        	             node = m_allocator->construct<scripting::post_unary_expression>(m_allocator, scripting::post_unary_type::post_decrement); SET_LOCATION(node, DOUBDEC24);
         	        }
 
 
@@ -4776,7 +4776,7 @@ WNScriptASTParser::assignment()
 
 
             {
-                 node = m_allocator->make_allocated<scripting::assignment_instruction>(m_allocator, lvalue26
+                 node = m_allocator->construct<scripting::assignment_instruction>(m_allocator, lvalue26
                 ); SET_LOCATION_FROM_NODE(node, lvalue26
                 );
             }
@@ -4948,7 +4948,7 @@ WNScriptASTParser::constant()
 
 
         	        {
-        	             scripting::type* type_node = m_allocator->make_allocated<scripting::type>(m_allocator, scripting::type_classification::int_type); SET_LOCATION(type_node, a); node = m_allocator->make_allocated<scripting::constant_expression>(m_allocator, type_node, (a->getText()).c_str()); SET_LOCATION(node, a);
+        	             scripting::type* type_node = m_allocator->construct<scripting::type>(m_allocator, scripting::type_classification::int_type); SET_LOCATION(type_node, a); node = m_allocator->construct<scripting::constant_expression>(m_allocator, type_node, (a->getText()).c_str()); SET_LOCATION(node, a);
         	        }
 
 
@@ -4964,7 +4964,7 @@ WNScriptASTParser::constant()
 
 
         	        {
-        	             scripting::type* type_node = m_allocator->make_allocated<scripting::type>(m_allocator, scripting::type_classification::float_type); SET_LOCATION(type_node, b); node = m_allocator->make_allocated<scripting::constant_expression>(m_allocator, type_node, (b->getText()).c_str()); SET_LOCATION(node, b);
+        	             scripting::type* type_node = m_allocator->construct<scripting::type>(m_allocator, scripting::type_classification::float_type); SET_LOCATION(type_node, b); node = m_allocator->construct<scripting::constant_expression>(m_allocator, type_node, (b->getText()).c_str()); SET_LOCATION(node, b);
         	        }
 
 
@@ -4980,7 +4980,7 @@ WNScriptASTParser::constant()
 
 
         	        {
-        	             scripting::type* type_node = m_allocator->make_allocated<scripting::type>(m_allocator, scripting::type_classification::char_type); SET_LOCATION(type_node, c); node = m_allocator->make_allocated<scripting::constant_expression>(m_allocator, type_node, (c->getText()).c_str()); SET_LOCATION(node, c);
+        	             scripting::type* type_node = m_allocator->construct<scripting::type>(m_allocator, scripting::type_classification::char_type); SET_LOCATION(type_node, c); node = m_allocator->construct<scripting::constant_expression>(m_allocator, type_node, (c->getText()).c_str()); SET_LOCATION(node, c);
         	        }
 
 
@@ -4996,7 +4996,7 @@ WNScriptASTParser::constant()
 
 
         	        {
-        	             scripting::type* type_node = m_allocator->make_allocated<scripting::type>(m_allocator, scripting::type_classification::string_type); SET_LOCATION(type_node, d); node = m_allocator->make_allocated<scripting::constant_expression>(m_allocator, type_node, (d->getText()).c_str()); SET_LOCATION(node, d);
+        	             scripting::type* type_node = m_allocator->construct<scripting::type>(m_allocator, scripting::type_classification::string_type); SET_LOCATION(type_node, d); node = m_allocator->construct<scripting::constant_expression>(m_allocator, type_node, (d->getText()).c_str()); SET_LOCATION(node, d);
         	        }
 
 
@@ -5012,7 +5012,7 @@ WNScriptASTParser::constant()
 
 
         	        {
-        	             scripting::type* type_node = m_allocator->make_allocated<scripting::type>(m_allocator, scripting::type_classification::bool_type); SET_LOCATION(type_node, e); node = m_allocator->make_allocated<scripting::constant_expression>(m_allocator, type_node, (e->getText()).c_str()); SET_LOCATION(node, e);
+        	             scripting::type* type_node = m_allocator->construct<scripting::type>(m_allocator, scripting::type_classification::bool_type); SET_LOCATION(type_node, e); node = m_allocator->construct<scripting::constant_expression>(m_allocator, type_node, (e->getText()).c_str()); SET_LOCATION(node, e);
         	        }
 
 
@@ -5052,7 +5052,7 @@ WNScriptASTParser::constant()
 
 
         	        {
-        	             node = m_allocator->make_allocated<scripting::constant_expression>(m_allocator, f
+        	             node = m_allocator->construct<scripting::constant_expression>(m_allocator, f
         	            , (h->getText()).c_str()); SET_LOCATION_FROM_NODE(node,
         	            f
         	            ); SET_END_LOCATION(node, i);
@@ -5312,7 +5312,7 @@ WNScriptASTParser::prim_ex()
 
 
         	        {
-        	             node = m_allocator->make_allocated<scripting::id_expression>(m_allocator, (ID29->getText()).c_str()); SET_LOCATION(node, ID29);
+        	             node = m_allocator->construct<scripting::id_expression>(m_allocator, (ID29->getText()).c_str()); SET_LOCATION(node, ID29);
         	        }
 
 
@@ -5481,7 +5481,7 @@ WNScriptASTParser::prim_ex()
 
 
         	        {
-        	             node = m_allocator->make_allocated<scripting::null_allocation_expression>(m_allocator); SET_LOCATION(node, d);
+        	             node = m_allocator->construct<scripting::null_allocation_expression>(m_allocator); SET_LOCATION(node, d);
         	        }
 
 
@@ -5588,7 +5588,7 @@ WNScriptASTParser::cast()
 
 
             {
-                 node = m_allocator->make_allocated<scripting::cast_expression>(m_allocator, b
+                 node = m_allocator->construct<scripting::cast_expression>(m_allocator, b
                 ); SET_LOCATION(node, a); SET_END_LOCATION(node, c);
             }
 
@@ -5650,7 +5650,7 @@ WNScriptASTParser::structInit()
 
 
             {
-                 node = m_allocator->make_allocated<scripting::struct_allocation_expression>(m_allocator); SET_LOCATION(node, a); SET_END_LOCATION(node, b);
+                 node = m_allocator->construct<scripting::struct_allocation_expression>(m_allocator); SET_LOCATION(node, a); SET_END_LOCATION(node, b);
             }
 
 
@@ -5691,7 +5691,7 @@ WNScriptASTParser::arrayInit()
 
 
 
-        node = m_allocator->make_allocated<scripting::array_allocation_expression>(m_allocator);
+        node = m_allocator->construct<scripting::array_allocation_expression>(m_allocator);
 
 
 
@@ -6143,7 +6143,7 @@ WNScriptASTParser::declaration()
 
 
 
-        node =  m_allocator->make_allocated<scripting::declaration>(m_allocator);
+        node =  m_allocator->construct<scripting::declaration>(m_allocator);
 
 
 
@@ -6436,7 +6436,7 @@ WNScriptASTParser::returnInst()
 
 
         	        {
-        	             node = m_allocator->make_allocated<scripting::return_instruction>(m_allocator, expr32
+        	             node = m_allocator->construct<scripting::return_instruction>(m_allocator, expr32
         	            ); SET_LOCATION(node, a); SET_END_LOCATION(node, b);
         	        }
 
@@ -6460,7 +6460,7 @@ WNScriptASTParser::returnInst()
 
 
         	        {
-        	             node = m_allocator->make_allocated<scripting::return_instruction>(m_allocator); SET_LOCATION(node, c); SET_END_LOCATION(node, d);
+        	             node = m_allocator->construct<scripting::return_instruction>(m_allocator); SET_LOCATION(node, c); SET_END_LOCATION(node, d);
         	        }
 
 
@@ -6551,7 +6551,7 @@ WNScriptASTParser::whileInst()
 
 
             {
-                 node = m_allocator->make_allocated<scripting::while_instruction>(m_allocator, expr33
+                 node = m_allocator->construct<scripting::while_instruction>(m_allocator, expr33
                 , body34
                 ); SET_LOCATION(node, WHILE35); SET_END_LOCATION_FROM_NODE(node,
                 body34
@@ -6658,7 +6658,7 @@ WNScriptASTParser::doInst()
 
 
             {
-                node = m_allocator->make_allocated<scripting::do_instruction>(m_allocator, expr36
+                node = m_allocator->construct<scripting::do_instruction>(m_allocator, expr36
                 , body37
                 ); SET_LOCATION(node, DO38); SET_END_LOCATION(node, SEMICOLON39);
             }
@@ -6702,7 +6702,7 @@ WNScriptASTParser::forInst()
 
 
 
-        node =  m_allocator->make_allocated<scripting::for_instruction>(m_allocator);
+        node =  m_allocator->construct<scripting::for_instruction>(m_allocator);
 
 
 
@@ -7026,7 +7026,7 @@ WNScriptASTParser::elsemiddle()
 
 
             {
-                 node = m_allocator->make_allocated<scripting::else_if_instruction>(m_allocator, expr41
+                 node = m_allocator->construct<scripting::else_if_instruction>(m_allocator, expr41
                 , body42
                 ); SET_LOCATION(node, ELSE43); SET_END_LOCATION_FROM_NODE(node,
                 body42
@@ -7183,7 +7183,7 @@ WNScriptASTParser::ifInst()
 
 
             {
-                node = m_allocator->make_allocated<scripting::if_instruction>(m_allocator, expr45
+                node = m_allocator->construct<scripting::if_instruction>(m_allocator, expr45
                 , body46
                 ); SET_LOCATION(node, IF47); SET_END_LOCATION_FROM_NODE(node,
                 body46
@@ -7579,7 +7579,7 @@ WNScriptASTParser::instruction_list()
 
 
             {
-                node = m_allocator->make_allocated<scripting::instruction_list>(m_allocator, a
+                node = m_allocator->construct<scripting::instruction_list>(m_allocator, a
                 ); SET_LOCATION_FROM_NODE(node, a
                 );
             }
@@ -7787,7 +7787,7 @@ WNScriptASTParser::body()
 
 
         	        {
-        	             node = m_allocator->make_allocated<scripting::instruction_list>(m_allocator); SET_LOCATION(node, a); SET_END_LOCATION(node, b);
+        	             node = m_allocator->construct<scripting::instruction_list>(m_allocator); SET_LOCATION(node, a); SET_END_LOCATION(node, b);
         	        }
 
 
@@ -7901,7 +7901,7 @@ WNScriptASTParser::function()
 
 
             {
-                 node = m_allocator->make_allocated<scripting::function>(m_allocator, param57
+                 node = m_allocator->construct<scripting::function>(m_allocator, param57
                 , parameterList58
                 , body59
                 ); SET_LOCATION_FROM_NODE(node, param57
@@ -7968,7 +7968,7 @@ WNScriptASTParser::structDecl()
 
 
             {
-                node= m_allocator->make_allocated<scripting::struct_definition>(m_allocator, (TYPE60->getText()).c_str()); SET_LOCATION(node, STRUCT61);
+                node= m_allocator->construct<scripting::struct_definition>(m_allocator, (TYPE60->getText()).c_str()); SET_LOCATION(node, STRUCT61);
             }
 
 
@@ -8179,7 +8179,7 @@ WNScriptASTParser::classDecl()
 
 
             	            {
-            	                node= m_allocator->make_allocated<scripting::struct_definition>(m_allocator, (c->getText()).c_str(), true); SET_LOCATION(node, f);
+            	                node= m_allocator->construct<scripting::struct_definition>(m_allocator, (c->getText()).c_str(), true); SET_LOCATION(node, f);
             	            }
 
 
@@ -8220,7 +8220,7 @@ WNScriptASTParser::classDecl()
 
 
             	            {
-            	                node= m_allocator->make_allocated<scripting::struct_definition>(m_allocator, (d->getText()).c_str(), true, (e->getText()).c_str()); SET_LOCATION(node, g);
+            	                node= m_allocator->construct<scripting::struct_definition>(m_allocator, (d->getText()).c_str(), true, (e->getText()).c_str()); SET_LOCATION(node, g);
             	            }
 
 
@@ -8489,7 +8489,7 @@ WNScriptASTParser::program()
 
 
 
-        node = m_allocator->make_allocated<scripting::script_file>(m_allocator);
+        node = m_allocator->construct<scripting::script_file>(m_allocator);
 
 
 

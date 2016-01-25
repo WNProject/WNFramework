@@ -25,8 +25,6 @@
 #endif
 
 namespace WNContainers {
-    template <typename type>
-    class intrusive_ptr;
     class WNSerializerBase;
 }
 
@@ -53,6 +51,7 @@ namespace WNNetworking {
         wn_void FlushWrite();
 
     private:
+        wn::memory::basic_allocator allocator;
         WNNetworkManager& mManager;
         WNBufferQueue mChunks;
 

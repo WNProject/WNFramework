@@ -10,9 +10,9 @@
 #include "WNCore/inc/WNAssert.h"
 #include "WNMemory/inc/Internal/WNBasicTraits.h"
 
-#include <new>
-#include <memory>
 #include <cstdlib>
+#include <memory>
+#include <new>
 
 #ifdef _WN_WINDOWS
 #include <malloc.h>
@@ -40,13 +40,15 @@ WN_FORCE_INLINE wn_void* realloc(wn_void* ptr, const wn_size_t new_size) {
   return (std::realloc(ptr, new_size));
 }
 
-WN_FORCE_INLINE wn_void free(wn_void* ptr) { std::free(ptr); }
+WN_FORCE_INLINE wn_void free(wn_void* ptr) {
+  std::free(ptr);
+}
 
-WN_FORCE_INLINE wn_void* aligned_malloc(const wn_size_t size,
-                                        const wn_size_t alignment) {
+WN_FORCE_INLINE wn_void* aligned_malloc(
+    const wn_size_t size, const wn_size_t alignment) {
   WN_RELEASE_ASSERT_DESC(size != 0, "attempting to allocate 0 bytes");
   WN_RELEASE_ASSERT_DESC(alignment > 0 && !(alignment & (alignment - 1)),
-                         "alignment is not a positive power of 2");
+      "alignment is not a positive power of 2");
 
 #ifdef _WN_WINDOWS
   return (::_aligned_malloc(size, alignment));
@@ -56,7 +58,7 @@ WN_FORCE_INLINE wn_void* aligned_malloc(const wn_size_t size,
   if (real_ptr) {
     wn_void* ptr =
         reinterpret_cast<wn_void*>(((reinterpret_cast<wn_size_t>(real_ptr) +
-                                     sizeof(wn_void*) + alignment - 1) &
+                                        sizeof(wn_void*) + alignment - 1) &
                                     ~(alignment - 1)));
 
     *(reinterpret_cast<wn_void**>(ptr) - 1) = real_ptr;
@@ -74,11 +76,11 @@ wn_void aligned_free(wn_void*);
 wn_void* memcpy(wn_void*, const wn_void*, const wn_size_t);
 #endif
 
-WN_FORCE_INLINE wn_void* aligned_realloc(wn_void* ptr, const wn_size_t new_size,
-                                         const wn_size_t alignment) {
+WN_FORCE_INLINE wn_void* aligned_realloc(
+    wn_void* ptr, const wn_size_t new_size, const wn_size_t alignment) {
   WN_RELEASE_ASSERT_DESC(new_size != 0, "attempting to allocate 0 bytes");
   WN_RELEASE_ASSERT_DESC(alignment > 0 && !(alignment & (alignment - 1)),
-                         "alignment is not a positive power of 2");
+      "alignment is not a positive power of 2");
 
 #ifdef _WN_WINDOWS
   return (::_aligned_realloc(ptr, new_size, alignment));
@@ -110,8 +112,7 @@ WN_FORCE_INLINE wn_void aligned_free(wn_void* ptr) {
 
 template <typename T>
 WN_FORCE_INLINE T* heap_allocate() {
-  static_assert(
-      !std::is_void<T>::value,
+  static_assert(!std::is_void<T>::value,
       "you must specify a size in bytes when allocating memory of type void");
 
   return (static_cast<T*>(malloc(sizeof(T))));
@@ -134,8 +135,8 @@ WN_FORCE_INLINE T* heap_reallocate(T* ptr, const wn_size_t new_size) {
 }
 
 template <>
-WN_FORCE_INLINE wn_void* heap_reallocate(wn_void* ptr,
-                                         const wn_size_t new_size) {
+WN_FORCE_INLINE wn_void* heap_reallocate(
+    wn_void* ptr, const wn_size_t new_size) {
   WN_RELEASE_ASSERT_DESC(new_size != 0, "attempting to allocate 0 bytes");
 
   return (realloc(ptr, new_size));
@@ -153,8 +154,8 @@ WN_FORCE_INLINE wn_void heap_free(wn_void* ptr) {
 
 template <typename T>
 WN_FORCE_INLINE T* heap_aligned_allocate() {
-  return(static_cast<T*>(aligned_malloc(sizeof(T),
-                         std::alignment_of<T>::value)));
+  return (
+      static_cast<T*>(aligned_malloc(sizeof(T), std::alignment_of<T>::value)));
 }
 
 template <typename T>
@@ -163,28 +164,27 @@ WN_FORCE_INLINE T* heap_aligned_allocate(const wn_size_t alignment) {
 }
 
 template <typename T>
-WN_FORCE_INLINE T* heap_aligned_allocate(const wn_size_t size,
-                                         const wn_size_t alignment) {
+WN_FORCE_INLINE T* heap_aligned_allocate(
+    const wn_size_t size, const wn_size_t alignment) {
   return (static_cast<T*>(aligned_malloc(size * sizeof(T), alignment)));
 }
 
 template <>
-WN_FORCE_INLINE wn_void* heap_aligned_allocate(const wn_size_t size,
-                                               const wn_size_t alignment) {
+WN_FORCE_INLINE wn_void* heap_aligned_allocate(
+    const wn_size_t size, const wn_size_t alignment) {
   return (aligned_malloc(size, alignment));
 }
 
 template <typename T>
-WN_FORCE_INLINE T* heap_aligned_reallocate(T* ptr, const wn_size_t new_size,
-                                           const wn_size_t alignment) {
-  return (static_cast<T*>(aligned_realloc(static_cast<wn_void*>(ptr),
-                                          new_size * sizeof(T), alignment)));
+WN_FORCE_INLINE T* heap_aligned_reallocate(
+    T* ptr, const wn_size_t new_size, const wn_size_t alignment) {
+  return (static_cast<T*>(aligned_realloc(
+      static_cast<wn_void*>(ptr), new_size * sizeof(T), alignment)));
 }
 
 template <>
-WN_FORCE_INLINE wn_void* heap_aligned_reallocate(wn_void* ptr,
-                                                 const wn_size_t new_size,
-                                                 const wn_size_t alignment) {
+WN_FORCE_INLINE wn_void* heap_aligned_reallocate(
+    wn_void* ptr, const wn_size_t new_size, const wn_size_t alignment) {
   return (aligned_realloc(ptr, new_size, alignment));
 }
 
@@ -203,33 +203,33 @@ T* construct_at(T*, Args&&...);
 
 template <typename T, typename... Args>
 WN_FORCE_INLINE T* construct(Args&&... args) {
-  static_assert(!std::is_void<T>::value,
-                "you cannot construct an object of type void");
-  return(construct_at<T, Args...>(heap_allocate<T>(),
-                                  std::forward<Args>(args)...));
+  static_assert(
+      !std::is_void<T>::value, "you cannot construct an object of type void");
+  return (construct_at<T, Args...>(
+      heap_allocate<T>(), std::forward<Args>(args)...));
 }
 
 template <typename T>
 WN_FORCE_INLINE T* construct_array(const size_t size) {
-  static_assert(!std::is_void<T>::value,
-    "you cannot construct an object of type void");
+  static_assert(
+      !std::is_void<T>::value, "you cannot construct an object of type void");
 
-  return(new(std::nothrow) T[size]);
+  return (new (std::nothrow) T[size]);
 }
 
 template <typename T, typename... Args>
 WN_FORCE_INLINE T* construct_aligned(Args&&... args) {
-  static_assert(!std::is_void<T>::value,
-                "you cannot construct an object of type void");
+  static_assert(
+      !std::is_void<T>::value, "you cannot construct an object of type void");
 
-  return(construct_at<T, Args...>(heap_aligned_allocate<T>(),
-                                  std::forward<Args>(args)...));
+  return (construct_at<T, Args...>(
+      heap_aligned_allocate<T>(), std::forward<Args>(args)...));
 }
 
 template <typename T, typename... Args>
 WN_FORCE_INLINE T* construct_at(T* ptr, Args&&... args) {
-  static_assert(!std::is_void<T>::value,
-                "you cannot construct an object of type void");
+  static_assert(
+      !std::is_void<T>::value, "you cannot construct an object of type void");
 
   return (new (ptr) T(std::forward<Args>(args)...));
 }
@@ -241,7 +241,7 @@ WN_FORCE_INLINE T* construct_at(wn_void* ptr, Args&&... args) {
 
 template <typename T>
 WN_FORCE_INLINE wn_void destroy(T* ptr) {
-  delete(ptr);
+  delete (ptr);
 }
 
 template <typename T>
@@ -261,9 +261,9 @@ struct default_destroyer {
   default_destroyer() = default;
 
   template <typename U>
-  WN_FORCE_INLINE default_destroyer(const default_destroyer<U>&) {};
+  WN_FORCE_INLINE default_destroyer(const default_destroyer<U>&){};
 
-  WN_FORCE_INLINE wn_void operator () (T* ptr) const {
+  WN_FORCE_INLINE wn_void operator()(T* ptr) const {
     destroy(ptr);
   }
 };
@@ -275,10 +275,9 @@ struct default_destroyer<T[]> {
   template <typename U>
   WN_FORCE_INLINE default_destroyer(const default_destroyer<U[]>&) {}
 
-  template <typename U,
-            typename = core::enable_if_t<
-              std::is_convertible<U(*)[], T(*)[]>::value>>
-  WN_FORCE_INLINE wn_void operator() (U* ptr) const {
+  template <typename U, typename = core::enable_if_t<
+                            std::is_convertible<U (*)[], T (*)[]>::value>>
+  WN_FORCE_INLINE wn_void operator()(U* ptr) const {
     destroy_array(ptr);
   }
 };
@@ -288,43 +287,41 @@ struct default_aligned_destroyer {
   default_aligned_destroyer() = default;
 
   template <typename U>
-  WN_FORCE_INLINE
-  default_aligned_destroyer(const default_aligned_destroyer<U>&) {};
+  WN_FORCE_INLINE default_aligned_destroyer(
+      const default_aligned_destroyer<U>&){};
 
-  WN_FORCE_INLINE wn_void operator () (T* ptr) const {
+  WN_FORCE_INLINE wn_void operator()(T* ptr) const {
     destroy_aligned(ptr);
   }
 };
-
 
 WN_FORCE_INLINE wn_void* memzero(wn_void* dest, const wn_size_t count) {
   return (internal::basic_traits::memzero(dest, count));
 }
 
-WN_FORCE_INLINE wn_void* memset(wn_void* dest, const wn_uint8 value,
-                                const wn_size_t count) {
+WN_FORCE_INLINE wn_void* memset(
+    wn_void* dest, const wn_uint8 value, const wn_size_t count) {
   return (internal::basic_traits::memset(dest, value, count));
 }
 
-WN_FORCE_INLINE wn_void* memcpy(wn_void* dest, const wn_void* src,
-                                const wn_size_t count) {
+WN_FORCE_INLINE wn_void* memcpy(
+    wn_void* dest, const wn_void* src, const wn_size_t count) {
   return (internal::basic_traits::memcpy(dest, src, count));
 }
 
-WN_FORCE_INLINE wn_void* memmove(wn_void* dest, const wn_void* src,
-                                 const wn_size_t count) {
+WN_FORCE_INLINE wn_void* memmove(
+    wn_void* dest, const wn_void* src, const wn_size_t count) {
   return (internal::basic_traits::memmove(dest, src, count));
 }
 
-WN_FORCE_INLINE wn_int32 memcmp(const wn_void* lhs, const wn_void* rhs,
-                                const wn_size_t count) {
+WN_FORCE_INLINE wn_int32 memcmp(
+    const wn_void* lhs, const wn_void* rhs, const wn_size_t count) {
   return (internal::basic_traits::memcmp(lhs, rhs, count));
 }
 
 template <typename T>
 WN_FORCE_INLINE T* memory_zero(T* dest) {
-  static_assert(
-      !std::is_void<T>::value,
+  static_assert(!std::is_void<T>::value,
       "you must specify a size in bytes when zeroing memory of type void");
 
   return (static_cast<T*>(memzero(dest, sizeof(T))));
@@ -342,29 +339,27 @@ WN_FORCE_INLINE wn_void* memory_zero(wn_void* dest, const wn_size_t count) {
 
 template <typename T>
 WN_FORCE_INLINE T* memory_set(T* dest, const wn_uint8 value) {
-  static_assert(
-      !std::is_void<T>::value,
+  static_assert(!std::is_void<T>::value,
       "you must specify a size in bytes when setting memory of type void");
 
   return (static_cast<T*>(memset(dest, value, sizeof(T))));
 }
 
 template <typename T>
-WN_FORCE_INLINE T* memory_set(T* dest, const wn_uint8 value,
-                              const wn_size_t count) {
+WN_FORCE_INLINE T* memory_set(
+    T* dest, const wn_uint8 value, const wn_size_t count) {
   return (static_cast<T*>(memset(dest, value, count * sizeof(T))));
 }
 
 template <>
-WN_FORCE_INLINE wn_void* memory_set(wn_void* dest, const wn_uint8 value,
-                                    const wn_size_t count) {
+WN_FORCE_INLINE wn_void* memory_set(
+    wn_void* dest, const wn_uint8 value, const wn_size_t count) {
   return (memset(dest, value, count));
 }
 
 template <typename T>
 WN_FORCE_INLINE T* memory_copy(T* dest, const T* src) {
-  static_assert(
-      !std::is_void<T>::value,
+  static_assert(!std::is_void<T>::value,
       "you must specify a size in bytes when copying memory of type void");
 
   return (static_cast<T*>(memcpy(dest, src, sizeof(T))));
@@ -376,15 +371,14 @@ WN_FORCE_INLINE T* memory_copy(T* dest, const T* src, const wn_size_t count) {
 }
 
 template <>
-WN_FORCE_INLINE wn_void* memory_copy(wn_void* dest, const wn_void* src,
-                                     const wn_size_t count) {
+WN_FORCE_INLINE wn_void* memory_copy(
+    wn_void* dest, const wn_void* src, const wn_size_t count) {
   return (memcpy(dest, src, count));
 }
 
 template <typename T>
 WN_FORCE_INLINE T* memory_move(T* dest, const T* src) {
-  static_assert(
-      !std::is_void<T>::value,
+  static_assert(!std::is_void<T>::value,
       "you must specify a size in bytes when moving memory of type void");
 
   return (static_cast<T*>(memmove(dest, src, sizeof(T))));
@@ -396,29 +390,28 @@ WN_FORCE_INLINE T* memory_move(T* dest, const T* src, const wn_size_t count) {
 }
 
 template <>
-WN_FORCE_INLINE wn_void* memory_move(wn_void* dest, const wn_void* src,
-                                     const wn_size_t count) {
+WN_FORCE_INLINE wn_void* memory_move(
+    wn_void* dest, const wn_void* src, const wn_size_t count) {
   return (wn::memory::memmove(dest, src, count));
 }
 
 template <typename T>
 WN_FORCE_INLINE wn_int32 memory_compare(const T* lhs, const T* rhs) {
-  static_assert(
-      !std::is_void<T>::value,
+  static_assert(!std::is_void<T>::value,
       "you must specify a size in bytes when comparing memory of type void");
 
   return (wn::memory::memcmp(lhs, rhs, sizeof(T)));
 }
 
 template <typename T>
-WN_FORCE_INLINE wn_int32 memory_compare(const T* lhs, const T* rhs,
-                                        const wn_size_t count) {
+WN_FORCE_INLINE wn_int32 memory_compare(
+    const T* lhs, const T* rhs, const wn_size_t count) {
   return (wn::memory::memcmp(lhs, rhs, count * sizeof(T)));
 }
 
 template <>
-WN_FORCE_INLINE wn_int32 memory_compare(const wn_void* lhs, const wn_void* rhs,
-                                        const wn_size_t count) {
+WN_FORCE_INLINE wn_int32 memory_compare(
+    const wn_void* lhs, const wn_void* rhs, const wn_size_t count) {
   return (memcmp(lhs, rhs, count));
 }
 

@@ -172,7 +172,7 @@ class type_association_pass : public pass {
 public:
   type_association_pass(type_validator* _validator, WNLogging::WNLog* _log,
       memory::allocator* _allocator)
-    : pass(_validator, _log, _allocator) {}
+    : pass(_validator, _log, _allocator), m_returns(_allocator) {}
   void walk_expression(expression*) {}
   void walk_parameter(parameter*) {}
   void enter_scope_block() {}
@@ -180,7 +180,7 @@ public:
   void walk_expression(id_expression* _expr) {
     const id_expression::id_source& source = _expr->get_id_source();
     if (source.param_source || source.declaration_source) {
-      type* t = m_allocator->make_allocated<type>(
+      type* t = m_allocator->construct<type>(
           source.param_source ? *source.param_source->get_type()
                               : *source.declaration_source->get_type());
       t->copy_location_from(_expr);
@@ -192,8 +192,7 @@ public:
 
   void walk_expression(constant_expression* _expr) {
     if (!_expr->get_type()) {
-      type* t =
-          m_allocator->make_allocated<type>(m_allocator, _expr->get_index());
+      type* t = m_allocator->construct<type>(m_allocator, _expr->get_index());
       t->copy_location_from(_expr);
       _expr->set_type(t);
     }
@@ -259,7 +258,7 @@ public:
     WN_RELEASE_ASSERT_DESC(
         return_type < static_cast<uint32_t>(type_classification::custom_type),
         "Not Implemented: Custom types");
-    type* t = m_allocator->make_allocated<type>(m_allocator, return_type);
+    type* t = m_allocator->construct<type>(m_allocator, return_type);
     t->copy_location_from(_expr);
     _expr->set_type(t);
   }
@@ -280,7 +279,7 @@ public:
       return;
     }
 
-    type* t = m_allocator->make_allocated<type>(m_allocator, member_type);
+    type* t = m_allocator->construct<type>(m_allocator, member_type);
     t->copy_location_from(_expr);
     _expr->set_type(t);
   }

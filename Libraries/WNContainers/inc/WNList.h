@@ -15,7 +15,7 @@
 namespace wn {
 namespace containers {
 
-template <typename _Type, typename _Allocator = memory::default_allocator>
+template <typename _Type, typename _Allocator = memory::basic_allocator>
 class list;
 
 template <typename _NodeType, typename _ValueType>
@@ -98,11 +98,6 @@ private:
 
 template <typename _Type, typename _Allocator>
 class list final {
-public:
-  static _Allocator* get_default_allocator() {
-    static _Allocator* alloc = new _Allocator();
-    return alloc;
-  }
  private:
   struct list_node {
    public:
@@ -236,18 +231,18 @@ public:
   template <typename... _Args>
   iterator emplace(const_iterator _it, _Args&&... _args) {
     list_node* new_node =
-        m_allocator->make_allocated<list_node>(std::forward<_Args>(_args)...);
+        m_allocator->construct<list_node>(std::forward<_Args>(_args)...);
     return (link(_it, new_node));
   }
 
   iterator insert(const_iterator _it, const _Type& _element) {
-    list_node* new_node = m_allocator->make_allocated<list_node>(_element);
+    list_node* new_node = m_allocator->construct<list_node>(_element);
     return (link(_it, new_node));
   }
 
   iterator insert(const_iterator _it, _Type&& _element) {
     list_node* new_node =
-        m_allocator->make_allocated<list_node>(std::move(_element));
+        m_allocator->construct<list_node>(std::move(_element));
     return (link(_it, new_node));
   }
 
@@ -344,10 +339,7 @@ public:
 
   template <typename T, typename... Args>
   T *make_allocated(Args &&... _args) {
-  if (!m_allocator) {
-      m_allocator = get_default_allocator();
-    }
-    return m_allocator->make_allocated(std::forward<Args>(_args)...);
+    return m_allocator->construct(std::forward<Args>(_args)...);
   }
 
   void deallocate(void* ptr) {
