@@ -7,8 +7,8 @@
 #ifndef __WN_SCRIPTING_AST_CODE_GENERATOR_INL__
 #define __WN_SCRIPTING_AST_CODE_GENERATOR_INL__
 
-#include "WNCore/inc/WNTypes.h"
 #include "WNContainers/inc/WNContiguousRange.h"
+#include "WNCore/inc/WNTypes.h"
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNScripting/inc/WNNodeTypes.h"
 #include "WNScripting/inc/WNTypeValidator.h"
@@ -46,6 +46,12 @@ void ast_code_generator<Traits>::walk_function(function* _func) {
 template <typename Traits>
 void ast_code_generator<Traits>::walk_type(type* _type) {
   m_generator->walk_type(_type, &m_type_map[_type]);
+}
+
+template <typename Traits>
+void ast_code_generator<Traits>::walk_struct_definition(
+    struct_definition* _def) {
+  m_generator->walk_struct_definition(_def, &m_struct_definition_map[_def]);
 }
 
 template <typename Traits>
@@ -87,6 +93,12 @@ template <typename Traits>
 typename Traits::type_data& ast_code_generator<Traits>::get_data(
     const type* _type) {
   return m_type_map[_type];
+}
+
+template <typename Traits>
+typename Traits::struct_definition_data& ast_code_generator<Traits>::get_data(
+    const struct_definition* _def) {
+  return m_struct_definition_map[_def];
 }
 
 }  // namespace scripting

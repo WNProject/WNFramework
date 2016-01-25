@@ -49,7 +49,7 @@ tokens
     #include "WNMemory/inc/WNAllocator.h"
 	  #include "WNScripting/src/WNScriptASTLexer.hpp"
     #include "WNScripting/inc/WNNodeTypes.h"
-	
+
     using namespace wn;
     //
     //
@@ -102,6 +102,7 @@ tokens
 #ifdef _WN_CLANG
     #pragma clang diagnostic ignored "-Wparentheses-equality"
     #pragma clang diagnostic ignored "-Wtautological-compare"
+    #pragma clang diagnostic ignored "-Wc++11-narrowing"
 #endif
     //class WNScriptASTLexer;
     //class WNScriptASTParser;
@@ -163,6 +164,9 @@ FLOAT_TYPE: 'Float';
 BOOL_TYPE: 'Bool';
 STRING_TYPE: 'String';
 CHAR_TYPE: 'Char';
+QUESTION: '?';
+WEAK_REF:     'weak';
+SHARED_REF:   'shared';
 
 BOOL :  'true' | 'false';
 
@@ -228,37 +232,68 @@ UNICODE_ESC
     :   '\\' 'u' HEX_DIGIT HEX_DIGIT HEX_DIGIT HEX_DIGIT
     ;
 
-scalarType returns[scripting::type* node]
+objectType returns[scripting::type* node]
 @init {
     node = wn_nullptr;
 }
     :   TYPE    { node = m_allocator->make_allocated<scripting::type>(m_allocator, $TYPE.text.c_str()); SET_LOCATION(node, $TYPE); }
-    |   VOID_TYPE { node = m_allocator->make_allocated<scripting::type>(m_allocator, scripting::type_classification::void_type); SET_LOCATION(node, $VOID_TYPE); }
+    |   STRING_TYPE { node = m_allocator->make_allocated<scripting::type>(m_allocator, scripting::type_classification::string_type); SET_LOCATION(node, $STRING_TYPE); }
+    ;
+
+scalarType returns[scripting::type* node]
+@init {
+    node = wn_nullptr;
+}
+    :   VOID_TYPE { node = m_allocator->make_allocated<scripting::type>(m_allocator, scripting::type_classification::void_type); SET_LOCATION(node, $VOID_TYPE); }
     |   INT_TYPE { node = m_allocator->make_allocated<scripting::type>(m_allocator, scripting::type_classification::int_type); SET_LOCATION(node, $INT_TYPE); }
     |   FLOAT_TYPE { node = m_allocator->make_allocated<scripting::type>(m_allocator, scripting::type_classification::float_type); SET_LOCATION(node, $FLOAT_TYPE); }
     |   CHAR_TYPE { node = m_allocator->make_allocated<scripting::type>(m_allocator, scripting::type_classification::char_type); SET_LOCATION(node, $CHAR_TYPE); }
-    |   STRING_TYPE { node = m_allocator->make_allocated<scripting::type>(m_allocator, scripting::type_classification::string_type); SET_LOCATION(node, $STRING_TYPE); }
     |   BOOL_TYPE { node = m_allocator->make_allocated<scripting::type>(m_allocator, scripting::type_classification::bool_type); SET_LOCATION(node, $BOOL_TYPE); }
+    ;
+
+compoundType returns[scripting::type* node]
+@init {
+    node = wn_nullptr;
+}
+    : scalarType { node = $scalarType.node; SET_LOCATION_FROM_NODE(node, $scalarType.node); }
+           (LSQBRACKET RSQBRACKET {
+                   SET_END_LOCATION(node, $RSQBRACKET);
+                   node = m_allocator->make_allocated<scripting::array_type>(m_allocator, node);
+                   SET_LOCATION(node, $LSQBRACKET);
+                   SET_END_LOCATION(node, $RSQBRACKET);
+           })+
+    | objectType { node = $objectType.node; }
     ;
 
 type    returns[scripting::type* node]
 @init {
     node = wn_nullptr;
 }
-    :    scalarType { node = $scalarType.node; SET_LOCATION_FROM_NODE(node, $scalarType.node); }
-           (LSQBRACKET RSQBRACKET {
-                   SET_END_LOCATION(node, $RSQBRACKET);
-                   node = m_allocator->make_allocated<scripting::array_type>(m_allocator, node); 
-                   SET_LOCATION(node, $LSQBRACKET);
-                   SET_END_LOCATION(node, $RSQBRACKET); 
-           })*
+    : compoundType { node = $compoundType.node; }
+    | scalarType   { node = $scalarType.node; }    
     ;
 
 param returns[scripting::parameter* node]
 @init {
     node = wn_nullptr;
 }
-    :    type ID {node = m_allocator->make_allocated<scripting::parameter>(m_allocator, $type.node, $ID.text.c_str()); SET_LOCATION_FROM_NODE(node, $type.node); SET_END_LOCATION(node, $ID); }
+    :    scalarType a=ID {
+            node = m_allocator->make_allocated<scripting::parameter>(m_allocator, $scalarType.node, $a.text.c_str()); SET_LOCATION_FROM_NODE(node, $scalarType.node); SET_END_LOCATION(node, $a); }
+    |    bb=compoundType aa=ID {
+            $bb.node->set_qualifier(scripting::type_qualifier::non_nullable);
+            node = m_allocator->make_allocated<scripting::parameter>(m_allocator, $bb.node, $aa.text.c_str()); SET_LOCATION_FROM_NODE(node, $bb.node); SET_END_LOCATION(node, $aa); }
+    |    SHARED_REF b=compoundType c=ID {
+           $b.node->set_qualifier(scripting::type_qualifier::shared);
+           node = m_allocator->make_allocated<scripting::parameter>(m_allocator, $b.node, $c.text.c_str()); SET_LOCATION(node, $SHARED_REF); SET_END_LOCATION(node, $c);
+         }
+    |    WEAK_REF d=compoundType  e=ID {
+           $d.node->set_qualifier(scripting::type_qualifier::weak);
+           node = m_allocator->make_allocated<scripting::parameter>(m_allocator, $d.node, $e.text.c_str()); SET_LOCATION(node, $WEAK_REF); SET_END_LOCATION(node, $e);
+         }
+    |    f=compoundType QUESTION  g=ID {
+           $f.node->set_qualifier(scripting::type_qualifier::nullable);
+           node = m_allocator->make_allocated<scripting::parameter>(m_allocator, $f.node, $g.text.c_str()); SET_LOCATION_FROM_NODE(node, $f.node); SET_END_LOCATION(node, $g);
+         }
     ;
 
 paramList returns[scripting::parameter_list* node]

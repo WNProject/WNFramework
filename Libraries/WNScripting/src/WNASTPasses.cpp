@@ -64,7 +64,7 @@ public:
   void walk_script_file(script_file*) {}
   void walk_type(type*) {}
   void walk_instruction(instruction*) {}
-
+  void walk_struct_definition(struct_definition*) {}
   void walk_instruction(else_if_instruction* _inst) {
     _inst->set_returns(_inst->get_body()->returns());
   }
@@ -100,6 +100,7 @@ public:
   void walk_instruction_list(instruction_list*) {}
   void walk_instruction(instruction*) {}
   void walk_function(function*) {}
+  void walk_struct_definition(struct_definition*) {}
 
   void enter_scope_block() {
     id_map.emplace_back(
@@ -191,17 +192,14 @@ public:
 
   void walk_expression(constant_expression* _expr) {
     if (!_expr->get_type()) {
-      WN_RELEASE_ASSERT_DESC(
-          _expr->get_classification() != type_classification::custom_type,
-          "Classification should have been set during ast generation");
       type* t = m_allocator->make_allocated<type>(
-          m_allocator, _expr->get_classification());
+          m_allocator, _expr->get_index());
       t->copy_location_from(_expr);
       _expr->set_type(t);
     }
     // Actually validate the text.
-    switch (_expr->get_type()->get_classification()) {
-      case type_classification::int_type: {
+    switch (_expr->get_type()->get_index()) {
+      case static_cast<wn_uint32>(type_classification::int_type): {
         const wn_char* text = _expr->get_type_text().c_str();
         bool error = false;
         if (wn::memory::strnlen(text, 13) > 12) {
@@ -219,7 +217,7 @@ public:
         }
         break;
       }
-      case type_classification::bool_type: {
+      case static_cast<wn_uint32>(type_classification::bool_type): {
         break;
       }
       default:
@@ -232,7 +230,7 @@ public:
     const type* lhs_type = _expr->get_lhs()->get_type();
     const type* rhs_type = _expr->get_rhs()->get_type();
 
-    if (lhs_type->get_classification() != rhs_type->get_classification()) {
+    if (lhs_type->get_index() != rhs_type->get_index()) {
       m_log->Log(WNLogging::eError, 0, "Expected LHS and RHS to match");
       _expr->log_line(*m_log, WNLogging::eError);
       ++m_num_errors;
@@ -241,7 +239,7 @@ public:
 
     uint32_t return_type =
         m_validator->get_operations(
-                       static_cast<wn_int32>(lhs_type->get_classification()))
+                       static_cast<wn_int32>(lhs_type->get_index()))
             .get_operation(_expr->get_arithmetic_type());
 
     if (return_type ==
@@ -262,13 +260,36 @@ public:
         return_type < static_cast<uint32_t>(type_classification::custom_type),
         "Not Implemented: Custom types");
     type* t = m_allocator->make_allocated<type>(
-        m_allocator, static_cast<type_classification>(return_type));
+        m_allocator, return_type);
     t->copy_location_from(_expr);
     _expr->set_type(t);
   }
 
   void walk_instruction(instruction*) {}
   void walk_instruction_list(instruction_list*) {}
+  void walk_struct_definition(struct_definition* _definition) {
+    if (m_validator->get_type(_definition->get_name())) {
+      m_log->Log(WNLogging::eError, 0, "Duplicate struct defined: ",
+        _definition->get_name());
+      _definition->log_line(*m_log, WNLogging::eError);
+      ++m_num_errors;
+      return;
+    }
+    const uint32_t type =
+        m_validator->get_or_register_type(_definition->get_name());
+
+    type_definition& def = m_validator->get_operations(type);
+    for(const auto& a: _definition->get_struct_members()) {
+      if (!def.register_sub_type(a->get_name(), a->get_type()->get_index())) {
+        m_log->Log(WNLogging::eError, 0, "Duplicate struct element defined: ",
+            a->get_name());
+        a->log_line(*m_log, WNLogging::eError);
+        ++m_num_errors;
+        return;
+      }
+    }
+  }
+
   void walk_instruction(assignment_instruction* _assign) {
     if (_assign->get_assignment_type() != assign_type::equal) {
       WN_RELEASE_ASSERT_DESC(
@@ -297,8 +318,8 @@ public:
   }
 
   void walk_instruction(else_if_instruction* _else_if) {
-    if (_else_if->get_condition()->get_type()->get_classification() !=
-        type_classification::bool_type) {
+    if (_else_if->get_condition()->get_type()->get_index() !=
+        static_cast<wn_uint32>(type_classification::bool_type)) {
       m_log->Log(WNLogging::eError, 0,
           "Else If conditional must be a boolean expression");
       _else_if->get_condition()->log_line(*m_log, WNLogging::eError);
@@ -307,8 +328,8 @@ public:
   }
 
   void walk_instruction(if_instruction* _if) {
-    if (_if->get_condition()->get_type()->get_classification() !=
-        type_classification::bool_type) {
+    if (_if->get_condition()->get_type()->get_index() !=
+        static_cast<wn_uint32>(type_classification::bool_type)) {
       m_log->Log(
           WNLogging::eError, 0, "If conditional must be a boolean expression");
       _if->get_condition()->log_line(*m_log, WNLogging::eError);
@@ -318,16 +339,16 @@ public:
 
   void walk_function(function* _func) {
     const type* function_return_type = _func->get_signature()->get_type();
-    if (function_return_type->get_classification() ==
-        type_classification::custom_type) {
+    if (function_return_type->get_index() >=
+        static_cast<wn_uint32>(type_classification::custom_type)) {
       WN_RELEASE_ASSERT_DESC(false, "Not implented: custom return type");
     }
 
     for (const auto& return_inst : m_returns) {
       // TODO(awoloszyn): Add type mananger to do more rigorous type matching.
       if (!return_inst->get_expression()) {
-        if (function_return_type->get_classification() !=
-            type_classification::void_type) {
+        if (function_return_type->get_index() !=
+            static_cast<wn_uint32>(type_classification::void_type)) {
           m_log->Log(WNLogging::eError, 0, "Expected non-void return");
           return_inst->log_line(*m_log, WNLogging::eError);
           m_num_errors += 1;
@@ -349,11 +370,11 @@ public:
 
     containers::dynamic_array<uint32_t> params(m_allocator);
     uint32_t return_type = static_cast<uint32_t>(
-        _func->get_signature()->get_type()->get_classification());
+        _func->get_signature()->get_type()->get_index());
     if (_func->get_parameters()) {
       for (const auto& param : _func->get_parameters()->get_parameters()) {
         params.push_back(
-            static_cast<uint32_t>(param->get_type()->get_classification()));
+            static_cast<uint32_t>(param->get_type()->get_index()));
       }
     }
     _func->set_mangled_name(m_validator->get_mangled_name(

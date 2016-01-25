@@ -16,6 +16,7 @@ struct ast_c_traits {
   using parameter_data = containers::string;
   using function_data = containers::string;
   using type_data = containers::string;
+  using struct_definition_data = containers::string;
   using code_gen = ast_c_translator;
 };
 
@@ -56,6 +57,8 @@ public:
                         containers::string* _str);
   void walk_parameter(const parameter* _param, containers::string* _str);
   void walk_function(const function* _func, containers::string* _str);
+  void walk_struct_definition(
+      const struct_definition* _definition, containers::string* _str);
   void walk_script_file(const script_file* _file);
 
  private:

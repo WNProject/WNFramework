@@ -7,8 +7,8 @@
 #ifndef __WN_SCRIPTING_AST_WALKER_H__
 #define __WN_SCRIPTING_AST_WALKER_H__
 
-#include "WNCore/inc/WNTypes.h"
 #include "WNContainers/inc/WNContiguousRange.h"
+#include "WNCore/inc/WNTypes.h"
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNScripting/inc/WNNodeTypes.h"
 #include "WNScripting/inc/WNTypeValidator.h"
@@ -21,7 +21,7 @@ namespace scripting {
 // walk_* calls on the associated walker.
 template <typename T, bool Const = wn_false>
 class ast_walker {
- public:
+public:
   ast_walker(T* t) : m_walker(t) {}
   using expression_type =
       typename std::conditional<Const, const expression*, expression*>::type;
@@ -34,17 +34,20 @@ class ast_walker {
   using type_type = typename std::conditional<Const, const type*, type*>::type;
   using script_file_type =
       typename std::conditional<Const, const script_file*, script_file*>::type;
-  using instruction_list_type =
-    typename std::conditional<Const, const instruction_list*, instruction_list*>::type;
+  using instruction_list_type = typename std::conditional<Const,
+      const instruction_list*, instruction_list*>::type;
+  using struct_definition_type = typename std::conditional<Const,
+      const struct_definition*, struct_definition*>::type;
 
   void walk_script_file(script_file_type file);
 
- private:
+private:
   void walk_expression(expression_type _expr);
   void walk_instruction(instruction_type _inst);
   void walk_instruction_list(instruction_list_type _inst);
   void walk_function(function_type _func);
   void walk_parameter(parameter_type _param);
+  void walk_struct_definition(struct_definition_type _decl);
   void walk_type(type_type _type);
   void enter_scope_block();
   void leave_scope_block();
@@ -64,7 +67,6 @@ template <typename T>
 void run_ast_pass(T* _pass, const script_file* _file) {
   ast_walker<T, true>(_pass).walk_script_file(_file);
 }
-
 
 }  // namespace scripting
 }  // namespace wn

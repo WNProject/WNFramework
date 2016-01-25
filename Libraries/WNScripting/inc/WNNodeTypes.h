@@ -151,35 +151,42 @@ class type : public node {
 public:
   type(memory::allocator* _allocator, const char* _custom_type)
     : node(_allocator, node_type::type),
-      m_type(type_classification::custom_type),
-      m_num_array_levels(0),
+      m_type(0),
+      m_qualifier(type_qualifier::none),
       m_custom_type(_custom_type, _allocator) {}
+
+  type(memory::allocator* _allocator, wn_uint32 _type)
+    : node(_allocator, node_type::type),
+      m_type(_type),
+      m_qualifier(type_qualifier::none) {}
 
   type(memory::allocator* _allocator, type_classification _type)
     : node(_allocator, node_type::type),
-      m_type(_type),
-      m_custom_type(_allocator),
-      m_num_array_levels(0) {}
+      m_type(static_cast<wn_uint32>(_type)),
+      m_qualifier(type_qualifier::none),
+      m_custom_type(_allocator) {}
 
   type(const type& _other)
     : node(_other.m_allocator, node_type::type),
       m_type(_other.m_type),
-      m_custom_type(get_allocator()),
-      m_num_array_levels(_other.m_num_array_levels) {
+      m_qualifier(type_qualifier::none),
+      m_custom_type(get_allocator()) {
     m_custom_type = _other.m_custom_type;
   }
 
+  // Only valid after the type_association
+  // pass is run.
   bool operator==(const type& _other) const {
-    if (m_type != _other.m_type) {
-      return false;
-    }
-    if (m_type != type_classification::custom_type) {
-      return true;
-    }
-    if (m_custom_type != _other.m_custom_type) {
-      return false;
-    }
-    return m_num_array_levels == _other.m_num_array_levels;
+    return m_type == _other.m_type &&
+      m_qualifier == _other.m_qualifier;
+  }
+
+  void set_qualifier(type_qualifier _qualifier) {
+    m_qualifier = _qualifier;
+  }
+
+  void set_type_index(wn_uint32 _index) {
+    m_type = _index;
   }
 
   bool operator!=(const type& _other) const {
@@ -189,10 +196,8 @@ public:
   wn_uint32 get_type_value() const {
     return static_cast<wn_uint32>(m_type);
   }
-  void add_array_level() {
-    m_num_array_levels += 1;
-  }
-  type_classification get_classification() const {
+
+  uint32_t get_index() const {
     return m_type;
   }
   containers::string_view custom_type_name() const {
@@ -200,25 +205,22 @@ public:
   }
 
 private:
-  type_classification m_type;
+  wn_uint32 m_type;
+  type_qualifier m_qualifier;
   containers::string m_custom_type;
-  wn_size_t m_num_array_levels;
 };
 
 class array_type : public type {
 public:
-  array_type(memory::allocator* _allocator, type* _sub_type,
-      wn_int32 _num_array_levels = -1)
+  array_type(memory::allocator* _allocator, type* _sub_type)
     : type(_allocator, type_classification::array_type),
-      m_subtype(memory::default_allocated_ptr(_allocator, _sub_type)),
-      m_num_array_levels(_num_array_levels) {}
+      m_subtype(memory::default_allocated_ptr(_allocator, _sub_type)){}
 
   const type* get_subtype() const {
     return m_subtype.get();
   }
 
 private:
-  wn_int32 m_num_array_levels;
   memory::allocated_ptr<type> m_subtype;
 };
 
@@ -351,16 +353,16 @@ public:
   constant_expression(memory::allocator* _allocator, type_classification _type,
       const char* _text)
     : expression(_allocator, node_type::constant_expression),
-      m_type_classification(_type),
+      m_type_classification(static_cast<wn_uint32>(_type)),
       m_text(_text, _allocator) {}
 
   constant_expression(
       memory::allocator* _allocator, type* _type, const char* _text)
     : expression(_allocator, node_type::constant_expression, _type),
-      m_type_classification(_type->get_classification()),
+      m_type_classification(_type->get_index()),
       m_text(_text, _allocator) {}
 
-  type_classification get_classification() const {
+  wn_uint32 get_index() const {
     return m_type_classification;
   }
   const containers::string& get_type_text() const {
@@ -377,7 +379,7 @@ public:
   }
 
 private:
-  type_classification m_type_classification;
+  wn_uint32 m_type_classification;
   containers::string m_text;
 };
 
@@ -676,6 +678,9 @@ public:
   const type* get_type() const {
     return m_type.get();
   }
+  type* get_type() {
+    return m_type.get();
+  }
 
   virtual void walk_children(const walk_ftype<type*>& _type_func) {
     _type_func(m_type.get());
@@ -716,6 +721,9 @@ public:
     return m_expression.get();
   }
   const type* get_type() const {
+    return m_parameter->get_type();
+  }
+  type* get_type() {
     return m_parameter->get_type();
   }
   const containers::string_view get_name() const {
@@ -788,6 +796,32 @@ public:
 
   const wn_char* get_name() const {
     return (m_name.c_str());
+  }
+
+  containers::deque<memory::allocated_ptr<declaration>>&
+    get_struct_members() {
+    return m_struct_members;
+  }
+
+  const containers::deque<memory::allocated_ptr<declaration>>&
+    get_struct_members() const {
+    return m_struct_members;
+  }
+
+  virtual void walk_children(const walk_ftype<type*>& type) {
+    // We explicitly do not run through the definition,
+    // and assignment have to happen in slightly different places,
+    // so this is not a "NORMAL" assignment.
+
+    for(auto& member: m_struct_members) {
+      type(member->get_type());
+    }
+  }
+
+  virtual void walk_children(const walk_ftype<const type*>& type) const {
+    for(auto& member: m_struct_members) {
+      type(member->get_type());
+    }
   }
 
 private:
@@ -1182,19 +1216,28 @@ public:
 
   virtual void walk_children(const walk_scope&, const walk_scope&,
       const walk_ftype<instruction*>&, const walk_ftype<expression*>&,
-      const walk_ftype<function*>& f) {
+      const walk_ftype<function*>& f, const walk_ftype<struct_definition*>& s) {
     for (auto& function : m_functions) {
       f(function.get());
     }
+    for (auto& def: m_structs) {
+      s(def.get());
+    }
+
   }
 
   virtual void walk_children(const walk_scope&, const walk_scope&,
       const walk_ftype<const instruction*>&,
       const walk_ftype<const expression*>&,
-      const walk_ftype<const function*>& f) const {
+      const walk_ftype<const function*>& f,
+      const walk_ftype<struct_definition*>& s) const {
     for (auto& function : m_functions) {
       f(function.get());
     }
+    for (auto& def: m_structs) {
+      s(def.get());
+    }
+
   }
 
 private:

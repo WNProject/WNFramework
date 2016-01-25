@@ -7,8 +7,8 @@
 #ifndef __WN_SCRIPTING_AST_WALKER_INL__
 #define __WN_SCRIPTING_AST_WALKER_INL__
 
-#include "WNCore/inc/WNTypes.h"
 #include "WNContainers/inc/WNContiguousRange.h"
+#include "WNCore/inc/WNTypes.h"
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNScripting/inc/WNNodeTypes.h"
 #include "WNScripting/inc/WNTypeValidator.h"
@@ -21,10 +21,12 @@ void ast_walker<T, Const>::walk_script_file(script_file_type _file) {
   _file->walk_children(
       walk_scope(&ast_walker<T, Const>::enter_scope_block, this),
       walk_scope(&ast_walker<T, Const>::leave_scope_block, this),
-      walk_ftype<instruction_type>(&ast_walker<T, Const>::walk_instruction,
-                                   this),
+      walk_ftype<instruction_type>(
+          &ast_walker<T, Const>::walk_instruction, this),
       walk_ftype<expression_type>(&ast_walker<T, Const>::walk_expression, this),
-      walk_ftype<function_type>(&ast_walker<T, Const>::walk_function, this));
+      walk_ftype<function_type>(&ast_walker<T, Const>::walk_function, this),
+      walk_ftype<struct_definition_type>(
+          &ast_walker<T, Const>::walk_struct_definition, this));
   m_walker->walk_script_file(_file);
 }
 
@@ -33,6 +35,13 @@ void ast_walker<T, Const>::walk_parameter(parameter_type _parameter) {
   _parameter->walk_children(
       walk_ftype<type_type>(&ast_walker<T, Const>::walk_type, this));
   m_walker->walk_parameter(_parameter);
+}
+
+template <typename T, bool Const>
+void ast_walker<T, Const>::walk_struct_definition(struct_definition_type _def) {
+  _def->walk_children(
+      walk_ftype<type_type>(&ast_walker<T, Const>::walk_type, this));
+  m_walker->walk_struct_definition(_def);
 }
 
 template <typename T, bool Const>
@@ -124,8 +133,8 @@ void ast_walker<T, Const>::walk_instruction_list(instruction_list_type _list) {
   _list->walk_children(
       walk_scope(&ast_walker<T, Const>::enter_scope_block, this),
       walk_scope(&ast_walker<T, Const>::leave_scope_block, this),
-      walk_ftype<instruction_type>(&ast_walker<T, Const>::walk_instruction,
-                                   this));
+      walk_ftype<instruction_type>(
+          &ast_walker<T, Const>::walk_instruction, this));
   m_walker->walk_instruction_list(_list);
 }
 

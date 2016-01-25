@@ -32,6 +32,7 @@ struct null_traits {
   using function_data = void;
   using type_data = void;
   using code_gen = void;
+  using struct_definition_type = void;
 };
 template <typename Traits = null_traits>
 class ast_code_generator {
@@ -65,6 +66,7 @@ class ast_code_generator {
   void walk_instruction_list(instruction_list* _l);
   void walk_function(function* _f);
   void walk_type(type* _t);
+  void walk_struct_definition(struct_definition* _s);
   // Calls the underlying m_generator->walk_script_file function.
   void walk_script_file(script_file* _f);
   // Called when a scope block is entered or left.
@@ -81,8 +83,10 @@ class ast_code_generator {
   typename Traits::parameter_data& get_data(const parameter* _param);
   typename Traits::function_data& get_data(const function* _func);
   typename Traits::type_data& get_data(const type* _type);
+  typename Traits::struct_definition_data& get_data(
+      const struct_definition* _type);
 
- private:
+private:
   typename Traits::code_gen* m_generator;
   // A collection of scripting nodes to their associated data.
   containers::hash_map<const instruction_list*,
@@ -97,6 +101,9 @@ class ast_code_generator {
   containers::hash_map<const function*, typename Traits::function_data>
       m_function_map;
   containers::hash_map<const type*, typename Traits::type_data> m_type_map;
+  containers::hash_map<const struct_definition*,
+      typename Traits::struct_definition_data>
+      m_struct_definition_map;
 };
 
 }  // namespace scripting

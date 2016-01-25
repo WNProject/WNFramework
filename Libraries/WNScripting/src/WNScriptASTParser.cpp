@@ -109,7 +109,7 @@ using namespace antlr3;
 
 
 
-ANTLR_UINT8* WNScriptASTParserTokenNames[64+4]
+ANTLR_UINT8* WNScriptASTParserTokenNames[66+4]
      = {
         (ANTLR_UINT8*) "<invalid>",
         (ANTLR_UINT8*) "<EOR>",
@@ -144,11 +144,13 @@ ANTLR_UINT8* WNScriptASTParserTokenNames[64+4]
         (ANTLR_UINT8*) "NULLTOK",
         (ANTLR_UINT8*) "OCTAL_ESC",
         (ANTLR_UINT8*) "OVERRIDE",
+        (ANTLR_UINT8*) "QUESTION",
         (ANTLR_UINT8*) "RBRACE",
         (ANTLR_UINT8*) "RBRACKET",
         (ANTLR_UINT8*) "RETURN",
         (ANTLR_UINT8*) "RSQBRACKET",
         (ANTLR_UINT8*) "SEMICOLON",
+        (ANTLR_UINT8*) "SHARED_REF",
         (ANTLR_UINT8*) "STRING",
         (ANTLR_UINT8*) "STRING_TYPE",
         (ANTLR_UINT8*) "STRUCT",
@@ -156,6 +158,7 @@ ANTLR_UINT8* WNScriptASTParserTokenNames[64+4]
         (ANTLR_UINT8*) "UNICODE_ESC",
         (ANTLR_UINT8*) "VIRTUAL",
         (ANTLR_UINT8*) "VOID_TYPE",
+        (ANTLR_UINT8*) "WEAK_REF",
         (ANTLR_UINT8*) "WHILE",
         (ANTLR_UINT8*) "WS",
         (ANTLR_UINT8*) "'!='",
@@ -177,7 +180,6 @@ ANTLR_UINT8* WNScriptASTParserTokenNames[64+4]
         (ANTLR_UINT8*) "'=='",
         (ANTLR_UINT8*) "'>'",
         (ANTLR_UINT8*) "'>='",
-        (ANTLR_UINT8*) "'?'",
         (ANTLR_UINT8*) "'||'"
        };
 
@@ -255,735 +257,775 @@ static ANTLR_UINT8**	getTokenNames()
 
 
 
-static	ANTLR_BITWORD FOLLOW_TYPE_in_scalarType1127_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_TYPE_in_scalarType1127( FOLLOW_TYPE_in_scalarType1127_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_TYPE_in_objectType1151_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_TYPE_in_objectType1151( FOLLOW_TYPE_in_objectType1151_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_VOID_TYPE_in_scalarType1142_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_VOID_TYPE_in_scalarType1142( FOLLOW_VOID_TYPE_in_scalarType1142_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_STRING_TYPE_in_objectType1166_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_STRING_TYPE_in_objectType1166( FOLLOW_STRING_TYPE_in_objectType1166_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_INT_TYPE_in_scalarType1154_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_INT_TYPE_in_scalarType1154( FOLLOW_INT_TYPE_in_scalarType1154_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_VOID_TYPE_in_scalarType1195_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_VOID_TYPE_in_scalarType1195( FOLLOW_VOID_TYPE_in_scalarType1195_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_FLOAT_TYPE_in_scalarType1166_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_FLOAT_TYPE_in_scalarType1166( FOLLOW_FLOAT_TYPE_in_scalarType1166_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_INT_TYPE_in_scalarType1207_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_INT_TYPE_in_scalarType1207( FOLLOW_INT_TYPE_in_scalarType1207_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_CHAR_TYPE_in_scalarType1178_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_CHAR_TYPE_in_scalarType1178( FOLLOW_CHAR_TYPE_in_scalarType1178_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_FLOAT_TYPE_in_scalarType1219_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_FLOAT_TYPE_in_scalarType1219( FOLLOW_FLOAT_TYPE_in_scalarType1219_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_STRING_TYPE_in_scalarType1190_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_STRING_TYPE_in_scalarType1190( FOLLOW_STRING_TYPE_in_scalarType1190_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_CHAR_TYPE_in_scalarType1231_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_CHAR_TYPE_in_scalarType1231( FOLLOW_CHAR_TYPE_in_scalarType1231_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_BOOL_TYPE_in_scalarType1202_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_BOOL_TYPE_in_scalarType1202( FOLLOW_BOOL_TYPE_in_scalarType1202_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_BOOL_TYPE_in_scalarType1243_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_BOOL_TYPE_in_scalarType1243( FOLLOW_BOOL_TYPE_in_scalarType1243_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_scalarType_in_type1235_bits[]	= { ANTLR_UINT64_LIT(0x0000000020000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_scalarType_in_type1235( FOLLOW_scalarType_in_type1235_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_scalarType_in_compoundType1270_bits[]	= { ANTLR_UINT64_LIT(0x0000000020000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_scalarType_in_compoundType1270( FOLLOW_scalarType_in_compoundType1270_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_LSQBRACKET_in_type1256_bits[]	= { ANTLR_UINT64_LIT(0x0000001000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LSQBRACKET_in_type1256( FOLLOW_LSQBRACKET_in_type1256_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_LSQBRACKET_in_compoundType1286_bits[]	= { ANTLR_UINT64_LIT(0x0000002000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LSQBRACKET_in_compoundType1286( FOLLOW_LSQBRACKET_in_compoundType1286_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_RSQBRACKET_in_type1258_bits[]	= { ANTLR_UINT64_LIT(0x0000000020000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RSQBRACKET_in_type1258( FOLLOW_RSQBRACKET_in_type1258_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_RSQBRACKET_in_compoundType1288_bits[]	= { ANTLR_UINT64_LIT(0x0000000020000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RSQBRACKET_in_compoundType1288( FOLLOW_RSQBRACKET_in_compoundType1288_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_type_in_param1290_bits[]	= { ANTLR_UINT64_LIT(0x0000000000400000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_type_in_param1290( FOLLOW_type_in_param1290_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_objectType_in_compoundType1300_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_objectType_in_compoundType1300( FOLLOW_objectType_in_compoundType1300_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_ID_in_param1292_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_ID_in_param1292( FOLLOW_ID_in_param1292_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_compoundType_in_type1330_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_compoundType_in_type1330( FOLLOW_compoundType_in_type1330_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_param_in_paramList1324_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000402) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_param_in_paramList1324( FOLLOW_param_in_paramList1324_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_scalarType_in_type1340_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_scalarType_in_type1340( FOLLOW_scalarType_in_type1340_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_COMMA_in_paramList1337_bits[]	= { ANTLR_UINT64_LIT(0x00001280040800A0) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_COMMA_in_paramList1337( FOLLOW_COMMA_in_paramList1337_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_scalarType_in_param1376_bits[]	= { ANTLR_UINT64_LIT(0x0000000000400000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_scalarType_in_param1376( FOLLOW_scalarType_in_param1376_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_param_in_paramList1341_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000402) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_param_in_paramList1341( FOLLOW_param_in_paramList1341_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_ID_in_param1380_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_ID_in_param1380( FOLLOW_ID_in_param1380_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_LBRACKET_in_parameterList1373_bits[]	= { ANTLR_UINT64_LIT(0x00001280040800A0) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_parameterList1373( FOLLOW_LBRACKET_in_parameterList1373_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_compoundType_in_param1395_bits[]	= { ANTLR_UINT64_LIT(0x0000000000400000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_compoundType_in_param1395( FOLLOW_compoundType_in_param1395_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_paramList_in_parameterList1375_bits[]	= { ANTLR_UINT64_LIT(0x0000000400000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_paramList_in_parameterList1375( FOLLOW_paramList_in_parameterList1375_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_ID_in_param1399_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_ID_in_param1399( FOLLOW_ID_in_param1399_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_RBRACKET_in_parameterList1377_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_parameterList1377( FOLLOW_RBRACKET_in_parameterList1377_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_SHARED_REF_in_param1412_bits[]	= { ANTLR_UINT64_LIT(0x00004A00040800A0) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SHARED_REF_in_param1412( FOLLOW_SHARED_REF_in_param1412_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_LBRACKET_in_parameterList1394_bits[]	= { ANTLR_UINT64_LIT(0x0000000400000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_parameterList1394( FOLLOW_LBRACKET_in_parameterList1394_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_compoundType_in_param1416_bits[]	= { ANTLR_UINT64_LIT(0x0000000000400000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_compoundType_in_param1416( FOLLOW_compoundType_in_param1416_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_RBRACKET_in_parameterList1396_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_parameterList1396( FOLLOW_RBRACKET_in_parameterList1396_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_ID_in_param1420_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_ID_in_param1420( FOLLOW_ID_in_param1420_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_62_in_assign_type1432_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_62_in_assign_type1432( FOLLOW_62_in_assign_type1432_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_WEAK_REF_in_param1433_bits[]	= { ANTLR_UINT64_LIT(0x00004A00040800A0) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_WEAK_REF_in_param1433( FOLLOW_WEAK_REF_in_param1433_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_54_in_assign_type1446_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_54_in_assign_type1446( FOLLOW_54_in_assign_type1446_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_compoundType_in_param1437_bits[]	= { ANTLR_UINT64_LIT(0x0000000000400000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_compoundType_in_param1437( FOLLOW_compoundType_in_param1437_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_56_in_assign_type1459_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_56_in_assign_type1459( FOLLOW_56_in_assign_type1459_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_ID_in_param1442_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_ID_in_param1442( FOLLOW_ID_in_param1442_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_52_in_assign_type1472_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_52_in_assign_type1472( FOLLOW_52_in_assign_type1472_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_compoundType_in_param1457_bits[]	= { ANTLR_UINT64_LIT(0x0000000200000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_compoundType_in_param1457( FOLLOW_compoundType_in_param1457_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_59_in_assign_type1485_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_59_in_assign_type1485( FOLLOW_59_in_assign_type1485_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_QUESTION_in_param1459_bits[]	= { ANTLR_UINT64_LIT(0x0000000000400000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_QUESTION_in_param1459( FOLLOW_QUESTION_in_param1459_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_49_in_assign_type1498_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_49_in_assign_type1498( FOLLOW_49_in_assign_type1498_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_ID_in_param1464_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_ID_in_param1464( FOLLOW_ID_in_param1464_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_unary_ex_in_lvalue1528_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_unary_ex_in_lvalue1528( FOLLOW_unary_ex_in_lvalue1528_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_param_in_paramList1496_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000402) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_param_in_paramList1496( FOLLOW_param_in_paramList1496_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_expr_in_arglist1586_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000402) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_arglist1586( FOLLOW_expr_in_arglist1586_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_COMMA_in_paramList1509_bits[]	= { ANTLR_UINT64_LIT(0x0000CA80040800A0) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_COMMA_in_paramList1509( FOLLOW_COMMA_in_paramList1509_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_COMMA_in_arglist1619_bits[]	= { ANTLR_UINT64_LIT(0x008012C0564C64F2) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_COMMA_in_arglist1619( FOLLOW_COMMA_in_arglist1619_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_param_in_paramList1513_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000402) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_param_in_paramList1513( FOLLOW_param_in_paramList1513_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_expr_in_arglist1663_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000402) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_arglist1663( FOLLOW_expr_in_arglist1663_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_LBRACKET_in_parameterList1545_bits[]	= { ANTLR_UINT64_LIT(0x0000CA80040800A0) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_parameterList1545( FOLLOW_LBRACKET_in_parameterList1545_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_cond_ex_in_expr1738_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_cond_ex_in_expr1738( FOLLOW_cond_ex_in_expr1738_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_paramList_in_parameterList1547_bits[]	= { ANTLR_UINT64_LIT(0x0000000800000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_paramList_in_parameterList1547( FOLLOW_paramList_in_parameterList1547_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_or_ex_in_cond_ex1776_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002), ANTLR_UINT64_LIT(0x0000000000000004) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_or_ex_in_cond_ex1776( FOLLOW_or_ex_in_cond_ex1776_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_RBRACKET_in_parameterList1549_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_parameterList1549( FOLLOW_RBRACKET_in_parameterList1549_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_66_in_cond_ex1799_bits[]	= { ANTLR_UINT64_LIT(0x008012C0564C60F0) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_66_in_cond_ex1799( FOLLOW_66_in_cond_ex1799_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_LBRACKET_in_parameterList1566_bits[]	= { ANTLR_UINT64_LIT(0x0000000800000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_parameterList1566( FOLLOW_LBRACKET_in_parameterList1566_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_expr_in_cond_ex1803_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000200) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_cond_ex1803( FOLLOW_expr_in_cond_ex1803_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_RBRACKET_in_parameterList1568_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_parameterList1568( FOLLOW_RBRACKET_in_parameterList1568_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_COLON_in_cond_ex1805_bits[]	= { ANTLR_UINT64_LIT(0x008012C0564C60F0) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_COLON_in_cond_ex1805( FOLLOW_COLON_in_cond_ex1805_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_65_in_assign_type1604_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_65_in_assign_type1604( FOLLOW_65_in_assign_type1604_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_cond_ex_in_cond_ex1809_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_cond_ex_in_cond_ex1809( FOLLOW_cond_ex_in_cond_ex1809_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_57_in_assign_type1618_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_57_in_assign_type1618( FOLLOW_57_in_assign_type1618_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_and_ex_in_or_ex1856_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002), ANTLR_UINT64_LIT(0x0000000000000008) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_and_ex_in_or_ex1856( FOLLOW_and_ex_in_or_ex1856_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_59_in_assign_type1631_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_59_in_assign_type1631( FOLLOW_59_in_assign_type1631_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_67_in_or_ex1873_bits[]	= { ANTLR_UINT64_LIT(0x008012C0564C60F0) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_67_in_or_ex1873( FOLLOW_67_in_or_ex1873_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_55_in_assign_type1644_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_55_in_assign_type1644( FOLLOW_55_in_assign_type1644_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_and_ex_in_or_ex1877_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002), ANTLR_UINT64_LIT(0x0000000000000008) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_and_ex_in_or_ex1877( FOLLOW_and_ex_in_or_ex1877_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_62_in_assign_type1657_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_62_in_assign_type1657( FOLLOW_62_in_assign_type1657_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_eq_ex_in_and_ex1920_bits[]	= { ANTLR_UINT64_LIT(0x0004000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_eq_ex_in_and_ex1920( FOLLOW_eq_ex_in_and_ex1920_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_52_in_assign_type1670_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_52_in_assign_type1670( FOLLOW_52_in_assign_type1670_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_50_in_and_ex1937_bits[]	= { ANTLR_UINT64_LIT(0x008012C0564C60F0) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_50_in_and_ex1937( FOLLOW_50_in_and_ex1937_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_unary_ex_in_lvalue1700_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_unary_ex_in_lvalue1700( FOLLOW_unary_ex_in_lvalue1700_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_eq_ex_in_and_ex1941_bits[]	= { ANTLR_UINT64_LIT(0x0004000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_eq_ex_in_and_ex1941( FOLLOW_eq_ex_in_and_ex1941_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_expr_in_arglist1758_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000402) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_arglist1758( FOLLOW_expr_in_arglist1758_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_rel_ex_in_eq_ex1977_bits[]	= { ANTLR_UINT64_LIT(0x8000800000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_rel_ex_in_eq_ex1977( FOLLOW_rel_ex_in_eq_ex1977_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_COMMA_in_arglist1791_bits[]	= { ANTLR_UINT64_LIT(0x04004100564C64F2) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_COMMA_in_arglist1791( FOLLOW_COMMA_in_arglist1791_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_63_in_eq_ex2012_bits[]	= { ANTLR_UINT64_LIT(0x008012C0564C60F0) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_63_in_eq_ex2012( FOLLOW_63_in_eq_ex2012_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_expr_in_arglist1835_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000402) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_arglist1835( FOLLOW_expr_in_arglist1835_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_rel_ex_in_eq_ex2016_bits[]	= { ANTLR_UINT64_LIT(0x8000800000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_rel_ex_in_eq_ex2016( FOLLOW_rel_ex_in_eq_ex2016_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_cond_ex_in_expr1910_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_cond_ex_in_expr1910( FOLLOW_cond_ex_in_expr1910_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_47_in_eq_ex2039_bits[]	= { ANTLR_UINT64_LIT(0x008012C0564C60F0) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_47_in_eq_ex2039( FOLLOW_47_in_eq_ex2039_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_or_ex_in_cond_ex1948_bits[]	= { ANTLR_UINT64_LIT(0x0000000200000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_or_ex_in_cond_ex1948( FOLLOW_or_ex_in_cond_ex1948_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_rel_ex_in_eq_ex2043_bits[]	= { ANTLR_UINT64_LIT(0x8000800000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_rel_ex_in_eq_ex2043( FOLLOW_rel_ex_in_eq_ex2043_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_QUESTION_in_cond_ex1971_bits[]	= { ANTLR_UINT64_LIT(0x04004100564C60F0) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_QUESTION_in_cond_ex1971( FOLLOW_QUESTION_in_cond_ex1971_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_add_ex_in_rel_ex2101_bits[]	= { ANTLR_UINT64_LIT(0x3000000000000002), ANTLR_UINT64_LIT(0x0000000000000003) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_add_ex_in_rel_ex2101( FOLLOW_add_ex_in_rel_ex2101_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_expr_in_cond_ex1975_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000200) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_cond_ex1975( FOLLOW_expr_in_cond_ex1975_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_60_in_rel_ex2137_bits[]	= { ANTLR_UINT64_LIT(0x008012C0564C60F0) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_60_in_rel_ex2137( FOLLOW_60_in_rel_ex2137_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_COLON_in_cond_ex1977_bits[]	= { ANTLR_UINT64_LIT(0x04004100564C60F0) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_COLON_in_cond_ex1977( FOLLOW_COLON_in_cond_ex1977_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_add_ex_in_rel_ex2141_bits[]	= { ANTLR_UINT64_LIT(0x3000000000000002), ANTLR_UINT64_LIT(0x0000000000000003) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_add_ex_in_rel_ex2141( FOLLOW_add_ex_in_rel_ex2141_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_cond_ex_in_cond_ex1981_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_cond_ex_in_cond_ex1981( FOLLOW_cond_ex_in_cond_ex1981_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_64_in_rel_ex2165_bits[]	= { ANTLR_UINT64_LIT(0x008012C0564C60F0) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_64_in_rel_ex2165( FOLLOW_64_in_rel_ex2165_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_and_ex_in_or_ex2028_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002), ANTLR_UINT64_LIT(0x0000000000000020) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_and_ex_in_or_ex2028( FOLLOW_and_ex_in_or_ex2028_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_add_ex_in_rel_ex2169_bits[]	= { ANTLR_UINT64_LIT(0x3000000000000002), ANTLR_UINT64_LIT(0x0000000000000003) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_add_ex_in_rel_ex2169( FOLLOW_add_ex_in_rel_ex2169_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_69_in_or_ex2045_bits[]	= { ANTLR_UINT64_LIT(0x04004100564C60F0) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_69_in_or_ex2045( FOLLOW_69_in_or_ex2045_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_61_in_rel_ex2193_bits[]	= { ANTLR_UINT64_LIT(0x008012C0564C60F0) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_61_in_rel_ex2193( FOLLOW_61_in_rel_ex2193_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_and_ex_in_or_ex2049_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002), ANTLR_UINT64_LIT(0x0000000000000020) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_and_ex_in_or_ex2049( FOLLOW_and_ex_in_or_ex2049_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_add_ex_in_rel_ex2197_bits[]	= { ANTLR_UINT64_LIT(0x3000000000000002), ANTLR_UINT64_LIT(0x0000000000000003) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_add_ex_in_rel_ex2197( FOLLOW_add_ex_in_rel_ex2197_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_eq_ex_in_and_ex2092_bits[]	= { ANTLR_UINT64_LIT(0x0020000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_eq_ex_in_and_ex2092( FOLLOW_eq_ex_in_and_ex2092_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_65_in_rel_ex2221_bits[]	= { ANTLR_UINT64_LIT(0x008012C0564C60F0) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_65_in_rel_ex2221( FOLLOW_65_in_rel_ex2221_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_53_in_and_ex2109_bits[]	= { ANTLR_UINT64_LIT(0x04004100564C60F0) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_53_in_and_ex2109( FOLLOW_53_in_and_ex2109_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_add_ex_in_rel_ex2225_bits[]	= { ANTLR_UINT64_LIT(0x3000000000000002), ANTLR_UINT64_LIT(0x0000000000000003) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_add_ex_in_rel_ex2225( FOLLOW_add_ex_in_rel_ex2225_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_eq_ex_in_and_ex2113_bits[]	= { ANTLR_UINT64_LIT(0x0020000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_eq_ex_in_and_ex2113( FOLLOW_eq_ex_in_and_ex2113_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_mult_ex_in_add_ex2286_bits[]	= { ANTLR_UINT64_LIT(0x00A0000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_mult_ex_in_add_ex2286( FOLLOW_mult_ex_in_add_ex2286_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_rel_ex_in_eq_ex2149_bits[]	= { ANTLR_UINT64_LIT(0x0004000000000002), ANTLR_UINT64_LIT(0x0000000000000004) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_rel_ex_in_eq_ex2149( FOLLOW_rel_ex_in_eq_ex2149_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_53_in_add_ex2321_bits[]	= { ANTLR_UINT64_LIT(0x008012C0564C60F0) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_53_in_add_ex2321( FOLLOW_53_in_add_ex2321_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_66_in_eq_ex2184_bits[]	= { ANTLR_UINT64_LIT(0x04004100564C60F0) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_66_in_eq_ex2184( FOLLOW_66_in_eq_ex2184_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_mult_ex_in_add_ex2325_bits[]	= { ANTLR_UINT64_LIT(0x00A0000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_mult_ex_in_add_ex2325( FOLLOW_mult_ex_in_add_ex2325_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_rel_ex_in_eq_ex2188_bits[]	= { ANTLR_UINT64_LIT(0x0004000000000002), ANTLR_UINT64_LIT(0x0000000000000004) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_rel_ex_in_eq_ex2188( FOLLOW_rel_ex_in_eq_ex2188_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_55_in_add_ex2347_bits[]	= { ANTLR_UINT64_LIT(0x008012C0564C60F0) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_55_in_add_ex2347( FOLLOW_55_in_add_ex2347_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_50_in_eq_ex2211_bits[]	= { ANTLR_UINT64_LIT(0x04004100564C60F0) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_50_in_eq_ex2211( FOLLOW_50_in_eq_ex2211_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_mult_ex_in_add_ex2351_bits[]	= { ANTLR_UINT64_LIT(0x00A0000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_mult_ex_in_add_ex2351( FOLLOW_mult_ex_in_add_ex2351_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_rel_ex_in_eq_ex2215_bits[]	= { ANTLR_UINT64_LIT(0x0004000000000002), ANTLR_UINT64_LIT(0x0000000000000004) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_rel_ex_in_eq_ex2215( FOLLOW_rel_ex_in_eq_ex2215_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_unary_ex_in_mult_ex2410_bits[]	= { ANTLR_UINT64_LIT(0x0409000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_unary_ex_in_mult_ex2410( FOLLOW_unary_ex_in_mult_ex2410_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_add_ex_in_rel_ex2273_bits[]	= { ANTLR_UINT64_LIT(0x8000000000000002), ANTLR_UINT64_LIT(0x0000000000000019) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_add_ex_in_rel_ex2273( FOLLOW_add_ex_in_rel_ex2273_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_51_in_mult_ex2449_bits[]	= { ANTLR_UINT64_LIT(0x008012C0564C60F0) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_51_in_mult_ex2449( FOLLOW_51_in_mult_ex2449_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_63_in_rel_ex2309_bits[]	= { ANTLR_UINT64_LIT(0x04004100564C60F0) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_63_in_rel_ex2309( FOLLOW_63_in_rel_ex2309_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_unary_ex_in_mult_ex2453_bits[]	= { ANTLR_UINT64_LIT(0x0409000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_unary_ex_in_mult_ex2453( FOLLOW_unary_ex_in_mult_ex2453_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_add_ex_in_rel_ex2313_bits[]	= { ANTLR_UINT64_LIT(0x8000000000000002), ANTLR_UINT64_LIT(0x0000000000000019) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_add_ex_in_rel_ex2313( FOLLOW_add_ex_in_rel_ex2313_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_58_in_mult_ex2479_bits[]	= { ANTLR_UINT64_LIT(0x008012C0564C60F0) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_58_in_mult_ex2479( FOLLOW_58_in_mult_ex2479_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_67_in_rel_ex2337_bits[]	= { ANTLR_UINT64_LIT(0x04004100564C60F0) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_67_in_rel_ex2337( FOLLOW_67_in_rel_ex2337_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_unary_ex_in_mult_ex2483_bits[]	= { ANTLR_UINT64_LIT(0x0409000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_unary_ex_in_mult_ex2483( FOLLOW_unary_ex_in_mult_ex2483_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_add_ex_in_rel_ex2341_bits[]	= { ANTLR_UINT64_LIT(0x8000000000000002), ANTLR_UINT64_LIT(0x0000000000000019) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_add_ex_in_rel_ex2341( FOLLOW_add_ex_in_rel_ex2341_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_48_in_mult_ex2509_bits[]	= { ANTLR_UINT64_LIT(0x008012C0564C60F0) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_48_in_mult_ex2509( FOLLOW_48_in_mult_ex2509_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_64_in_rel_ex2365_bits[]	= { ANTLR_UINT64_LIT(0x04004100564C60F0) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_64_in_rel_ex2365( FOLLOW_64_in_rel_ex2365_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_unary_ex_in_mult_ex2513_bits[]	= { ANTLR_UINT64_LIT(0x0409000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_unary_ex_in_mult_ex2513( FOLLOW_unary_ex_in_mult_ex2513_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_add_ex_in_rel_ex2369_bits[]	= { ANTLR_UINT64_LIT(0x8000000000000002), ANTLR_UINT64_LIT(0x0000000000000019) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_add_ex_in_rel_ex2369( FOLLOW_add_ex_in_rel_ex2369_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_post_ex_in_unary_ex2565_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_post_ex_in_unary_ex2565( FOLLOW_post_ex_in_unary_ex2565_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_68_in_rel_ex2393_bits[]	= { ANTLR_UINT64_LIT(0x04004100564C60F0) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_68_in_rel_ex2393( FOLLOW_68_in_rel_ex2393_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_DOUBINC_in_unary_ex2578_bits[]	= { ANTLR_UINT64_LIT(0x008012C0564C60F0) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_DOUBINC_in_unary_ex2578( FOLLOW_DOUBINC_in_unary_ex2578_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_add_ex_in_rel_ex2397_bits[]	= { ANTLR_UINT64_LIT(0x8000000000000002), ANTLR_UINT64_LIT(0x0000000000000019) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_add_ex_in_rel_ex2397( FOLLOW_add_ex_in_rel_ex2397_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_unary_ex_in_unary_ex2582_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_unary_ex_in_unary_ex2582( FOLLOW_unary_ex_in_unary_ex2582_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_mult_ex_in_add_ex2458_bits[]	= { ANTLR_UINT64_LIT(0x0500000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_mult_ex_in_add_ex2458( FOLLOW_mult_ex_in_add_ex2458_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_DOUBDEC_in_unary_ex2595_bits[]	= { ANTLR_UINT64_LIT(0x008012C0564C60F0) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_DOUBDEC_in_unary_ex2595( FOLLOW_DOUBDEC_in_unary_ex2595_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_56_in_add_ex2493_bits[]	= { ANTLR_UINT64_LIT(0x04004100564C60F0) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_56_in_add_ex2493( FOLLOW_56_in_add_ex2493_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_unary_ex_in_unary_ex2599_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_unary_ex_in_unary_ex2599( FOLLOW_unary_ex_in_unary_ex2599_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_mult_ex_in_add_ex2497_bits[]	= { ANTLR_UINT64_LIT(0x0500000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_mult_ex_in_add_ex2497( FOLLOW_mult_ex_in_add_ex2497_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_55_in_unary_ex2612_bits[]	= { ANTLR_UINT64_LIT(0x008012C0564C60F0) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_55_in_unary_ex2612( FOLLOW_55_in_unary_ex2612_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_58_in_add_ex2519_bits[]	= { ANTLR_UINT64_LIT(0x04004100564C60F0) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_58_in_add_ex2519( FOLLOW_58_in_add_ex2519_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_unary_ex_in_unary_ex2616_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_unary_ex_in_unary_ex2616( FOLLOW_unary_ex_in_unary_ex2616_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_mult_ex_in_add_ex2523_bits[]	= { ANTLR_UINT64_LIT(0x0500000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_mult_ex_in_add_ex2523( FOLLOW_mult_ex_in_add_ex2523_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_LSQBRACKET_in_post_ex_proper2654_bits[]	= { ANTLR_UINT64_LIT(0x008012C0564C60F0) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LSQBRACKET_in_post_ex_proper2654( FOLLOW_LSQBRACKET_in_post_ex_proper2654_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_unary_ex_in_mult_ex2582_bits[]	= { ANTLR_UINT64_LIT(0x2048000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_unary_ex_in_mult_ex2582( FOLLOW_unary_ex_in_mult_ex2582_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_expr_in_post_ex_proper2658_bits[]	= { ANTLR_UINT64_LIT(0x0000001000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_post_ex_proper2658( FOLLOW_expr_in_post_ex_proper2658_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_54_in_mult_ex2621_bits[]	= { ANTLR_UINT64_LIT(0x04004100564C60F0) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_54_in_mult_ex2621( FOLLOW_54_in_mult_ex2621_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_RSQBRACKET_in_post_ex_proper2662_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RSQBRACKET_in_post_ex_proper2662( FOLLOW_RSQBRACKET_in_post_ex_proper2662_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_unary_ex_in_mult_ex2625_bits[]	= { ANTLR_UINT64_LIT(0x2048000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_unary_ex_in_mult_ex2625( FOLLOW_unary_ex_in_mult_ex2625_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_LBRACKET_in_post_ex_proper2677_bits[]	= { ANTLR_UINT64_LIT(0x0000000400000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_post_ex_proper2677( FOLLOW_LBRACKET_in_post_ex_proper2677_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_61_in_mult_ex2651_bits[]	= { ANTLR_UINT64_LIT(0x04004100564C60F0) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_61_in_mult_ex2651( FOLLOW_61_in_mult_ex2651_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_RBRACKET_in_post_ex_proper2681_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_post_ex_proper2681( FOLLOW_RBRACKET_in_post_ex_proper2681_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_unary_ex_in_mult_ex2655_bits[]	= { ANTLR_UINT64_LIT(0x2048000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_unary_ex_in_mult_ex2655( FOLLOW_unary_ex_in_mult_ex2655_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_LBRACKET_in_post_ex_proper2709_bits[]	= { ANTLR_UINT64_LIT(0x008012C0564C60F0) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_post_ex_proper2709( FOLLOW_LBRACKET_in_post_ex_proper2709_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_51_in_mult_ex2681_bits[]	= { ANTLR_UINT64_LIT(0x04004100564C60F0) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_51_in_mult_ex2681( FOLLOW_51_in_mult_ex2681_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_arglist_in_post_ex_proper2715_bits[]	= { ANTLR_UINT64_LIT(0x0000000400000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_arglist_in_post_ex_proper2715( FOLLOW_arglist_in_post_ex_proper2715_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_unary_ex_in_mult_ex2685_bits[]	= { ANTLR_UINT64_LIT(0x2048000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_unary_ex_in_mult_ex2685( FOLLOW_unary_ex_in_mult_ex2685_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_RBRACKET_in_post_ex_proper2719_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_post_ex_proper2719( FOLLOW_RBRACKET_in_post_ex_proper2719_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_post_ex_in_unary_ex2737_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_post_ex_in_unary_ex2737( FOLLOW_post_ex_in_unary_ex2737_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_57_in_post_ex_proper2732_bits[]	= { ANTLR_UINT64_LIT(0x0000000000400000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_57_in_post_ex_proper2732( FOLLOW_57_in_post_ex_proper2732_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_DOUBINC_in_unary_ex2750_bits[]	= { ANTLR_UINT64_LIT(0x04004100564C60F0) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_DOUBINC_in_unary_ex2750( FOLLOW_DOUBINC_in_unary_ex2750_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_ID_in_post_ex_proper2736_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_ID_in_post_ex_proper2736( FOLLOW_ID_in_post_ex_proper2736_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_unary_ex_in_unary_ex2754_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_unary_ex_in_unary_ex2754( FOLLOW_unary_ex_in_unary_ex2754_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_DOUBINC_in_post_ex_proper2763_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_DOUBINC_in_post_ex_proper2763( FOLLOW_DOUBINC_in_post_ex_proper2763_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_DOUBDEC_in_unary_ex2767_bits[]	= { ANTLR_UINT64_LIT(0x04004100564C60F0) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_DOUBDEC_in_unary_ex2767( FOLLOW_DOUBDEC_in_unary_ex2767_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_DOUBDEC_in_post_ex_proper2792_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_DOUBDEC_in_post_ex_proper2792( FOLLOW_DOUBDEC_in_post_ex_proper2792_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_unary_ex_in_unary_ex2771_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_unary_ex_in_unary_ex2771( FOLLOW_unary_ex_in_unary_ex2771_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_prim_ex_in_post_ex2845_bits[]	= { ANTLR_UINT64_LIT(0x0200000030006002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_prim_ex_in_post_ex2845( FOLLOW_prim_ex_in_post_ex2845_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_58_in_unary_ex2784_bits[]	= { ANTLR_UINT64_LIT(0x04004100564C60F0) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_58_in_unary_ex2784( FOLLOW_58_in_unary_ex2784_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_post_ex_proper_in_post_ex2864_bits[]	= { ANTLR_UINT64_LIT(0x0200000030006002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_post_ex_proper_in_post_ex2864( FOLLOW_post_ex_proper_in_post_ex2864_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_unary_ex_in_unary_ex2788_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_unary_ex_in_unary_ex2788( FOLLOW_unary_ex_in_unary_ex2788_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_lvalue_in_assignment2893_bits[]	= { ANTLR_UINT64_LIT(0x4952000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_lvalue_in_assignment2893( FOLLOW_lvalue_in_assignment2893_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_LSQBRACKET_in_post_ex_proper2826_bits[]	= { ANTLR_UINT64_LIT(0x04004100564C60F0) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LSQBRACKET_in_post_ex_proper2826( FOLLOW_LSQBRACKET_in_post_ex_proper2826_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_assign_type_in_assignment2906_bits[]	= { ANTLR_UINT64_LIT(0x008012C0564C60F0) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_assign_type_in_assignment2906( FOLLOW_assign_type_in_assignment2906_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_expr_in_post_ex_proper2830_bits[]	= { ANTLR_UINT64_LIT(0x0000002000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_post_ex_proper2830( FOLLOW_expr_in_post_ex_proper2830_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_expr_in_assignment2908_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_assignment2908( FOLLOW_expr_in_assignment2908_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_RSQBRACKET_in_post_ex_proper2834_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RSQBRACKET_in_post_ex_proper2834( FOLLOW_RSQBRACKET_in_post_ex_proper2834_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_INT_in_constant2943_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_INT_in_constant2943( FOLLOW_INT_in_constant2943_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_LBRACKET_in_post_ex_proper2849_bits[]	= { ANTLR_UINT64_LIT(0x0000000800000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_post_ex_proper2849( FOLLOW_LBRACKET_in_post_ex_proper2849_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_FLOAT_in_constant2961_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_FLOAT_in_constant2961( FOLLOW_FLOAT_in_constant2961_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_RBRACKET_in_post_ex_proper2853_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_post_ex_proper2853( FOLLOW_RBRACKET_in_post_ex_proper2853_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_CHAR_in_constant2977_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_CHAR_in_constant2977( FOLLOW_CHAR_in_constant2977_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_LBRACKET_in_post_ex_proper2881_bits[]	= { ANTLR_UINT64_LIT(0x04004100564C60F0) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_post_ex_proper2881( FOLLOW_LBRACKET_in_post_ex_proper2881_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_STRING_in_constant2994_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_STRING_in_constant2994( FOLLOW_STRING_in_constant2994_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_arglist_in_post_ex_proper2887_bits[]	= { ANTLR_UINT64_LIT(0x0000000800000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_arglist_in_post_ex_proper2887( FOLLOW_arglist_in_post_ex_proper2887_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_BOOL_in_constant3009_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_BOOL_in_constant3009( FOLLOW_BOOL_in_constant3009_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_RBRACKET_in_post_ex_proper2891_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_post_ex_proper2891( FOLLOW_RBRACKET_in_post_ex_proper2891_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_scalarType_in_constant3026_bits[]	= { ANTLR_UINT64_LIT(0x0000000008000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_scalarType_in_constant3026( FOLLOW_scalarType_in_constant3026_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_60_in_post_ex_proper2904_bits[]	= { ANTLR_UINT64_LIT(0x0000000000400000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_60_in_post_ex_proper2904( FOLLOW_60_in_post_ex_proper2904_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_LBRACE_in_constant3030_bits[]	= { ANTLR_UINT64_LIT(0x0000004000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACE_in_constant3030( FOLLOW_LBRACE_in_constant3030_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_ID_in_post_ex_proper2908_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_ID_in_post_ex_proper2908( FOLLOW_ID_in_post_ex_proper2908_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_STRING_in_constant3034_bits[]	= { ANTLR_UINT64_LIT(0x0000000200000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_STRING_in_constant3034( FOLLOW_STRING_in_constant3034_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_DOUBINC_in_post_ex_proper2935_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_DOUBINC_in_post_ex_proper2935( FOLLOW_DOUBINC_in_post_ex_proper2935_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_RBRACE_in_constant3038_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACE_in_constant3038( FOLLOW_RBRACE_in_constant3038_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_DOUBDEC_in_post_ex_proper2964_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_DOUBDEC_in_post_ex_proper2964( FOLLOW_DOUBDEC_in_post_ex_proper2964_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_ID_in_prim_ex3068_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_ID_in_prim_ex3068( FOLLOW_ID_in_prim_ex3068_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_prim_ex_in_post_ex3017_bits[]	= { ANTLR_UINT64_LIT(0x1000000030006002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_prim_ex_in_post_ex3017( FOLLOW_prim_ex_in_post_ex3017_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_LBRACKET_in_prim_ex3083_bits[]	= { ANTLR_UINT64_LIT(0x008012C0564C60F0) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_prim_ex3083( FOLLOW_LBRACKET_in_prim_ex3083_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_post_ex_proper_in_post_ex3036_bits[]	= { ANTLR_UINT64_LIT(0x1000000030006002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_post_ex_proper_in_post_ex3036( FOLLOW_post_ex_proper_in_post_ex3036_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_expr_in_prim_ex3087_bits[]	= { ANTLR_UINT64_LIT(0x0000000400000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_prim_ex3087( FOLLOW_expr_in_prim_ex3087_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_lvalue_in_assignment3065_bits[]	= { ANTLR_UINT64_LIT(0x4A90000000000002), ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_lvalue_in_assignment3065( FOLLOW_lvalue_in_assignment3065_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_RBRACKET_in_prim_ex3091_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_prim_ex3091( FOLLOW_RBRACKET_in_prim_ex3091_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_assign_type_in_assignment3078_bits[]	= { ANTLR_UINT64_LIT(0x04004100564C60F0) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_assign_type_in_assignment3078( FOLLOW_assign_type_in_assignment3078_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_constant_in_prim_ex3106_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_constant_in_prim_ex3106( FOLLOW_constant_in_prim_ex3106_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_expr_in_assignment3080_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_assignment3080( FOLLOW_expr_in_assignment3080_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_scalarType_in_prim_ex3121_bits[]	= { ANTLR_UINT64_LIT(0x0000000030000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_scalarType_in_prim_ex3121( FOLLOW_scalarType_in_prim_ex3121_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_INT_in_constant3115_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_INT_in_constant3115( FOLLOW_INT_in_constant3115_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_structInit_in_prim_ex3153_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_structInit_in_prim_ex3153( FOLLOW_structInit_in_prim_ex3153_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_FLOAT_in_constant3133_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_FLOAT_in_constant3133( FOLLOW_FLOAT_in_constant3133_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_cast_in_prim_ex3178_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_cast_in_prim_ex3178( FOLLOW_cast_in_prim_ex3178_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_CHAR_in_constant3149_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_CHAR_in_constant3149( FOLLOW_CHAR_in_constant3149_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_arrayInit_in_prim_ex3201_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_arrayInit_in_prim_ex3201( FOLLOW_arrayInit_in_prim_ex3201_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_STRING_in_constant3166_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_STRING_in_constant3166( FOLLOW_STRING_in_constant3166_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_NULLTOK_in_prim_ex3230_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_NULLTOK_in_prim_ex3230( FOLLOW_NULLTOK_in_prim_ex3230_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_BOOL_in_constant3181_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_BOOL_in_constant3181( FOLLOW_BOOL_in_constant3181_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_LBRACKET_in_cast3259_bits[]	= { ANTLR_UINT64_LIT(0x008012C0564C60F0) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_cast3259( FOLLOW_LBRACKET_in_cast3259_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_scalarType_in_constant3198_bits[]	= { ANTLR_UINT64_LIT(0x0000000008000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_scalarType_in_constant3198( FOLLOW_scalarType_in_constant3198_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_expr_in_cast3263_bits[]	= { ANTLR_UINT64_LIT(0x0000000400000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_cast3263( FOLLOW_expr_in_cast3263_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_LBRACE_in_constant3202_bits[]	= { ANTLR_UINT64_LIT(0x0000010000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACE_in_constant3202( FOLLOW_LBRACE_in_constant3202_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_RBRACKET_in_cast3267_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_cast3267( FOLLOW_RBRACKET_in_cast3267_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_STRING_in_constant3206_bits[]	= { ANTLR_UINT64_LIT(0x0000000400000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_STRING_in_constant3206( FOLLOW_STRING_in_constant3206_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_LBRACKET_in_structInit3296_bits[]	= { ANTLR_UINT64_LIT(0x0000000400000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_structInit3296( FOLLOW_LBRACKET_in_structInit3296_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_RBRACE_in_constant3210_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACE_in_constant3210( FOLLOW_RBRACE_in_constant3210_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_RBRACKET_in_structInit3300_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_structInit3300( FOLLOW_RBRACKET_in_structInit3300_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_ID_in_prim_ex3240_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_ID_in_prim_ex3240( FOLLOW_ID_in_prim_ex3240_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_LSQBRACKET_in_arrayInit3362_bits[]	= { ANTLR_UINT64_LIT(0x008012C0564C60F0) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LSQBRACKET_in_arrayInit3362( FOLLOW_LSQBRACKET_in_arrayInit3362_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_LBRACKET_in_prim_ex3255_bits[]	= { ANTLR_UINT64_LIT(0x04004100564C60F0) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_prim_ex3255( FOLLOW_LBRACKET_in_prim_ex3255_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_expr_in_arrayInit3366_bits[]	= { ANTLR_UINT64_LIT(0x0000001000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_arrayInit3366( FOLLOW_expr_in_arrayInit3366_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_expr_in_prim_ex3259_bits[]	= { ANTLR_UINT64_LIT(0x0000000800000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_prim_ex3259( FOLLOW_expr_in_prim_ex3259_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_RSQBRACKET_in_arrayInit3368_bits[]	= { ANTLR_UINT64_LIT(0x0000000030000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RSQBRACKET_in_arrayInit3368( FOLLOW_RSQBRACKET_in_arrayInit3368_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_RBRACKET_in_prim_ex3263_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_prim_ex3263( FOLLOW_RBRACKET_in_prim_ex3263_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_LSQBRACKET_in_arrayInit3392_bits[]	= { ANTLR_UINT64_LIT(0x0000001000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LSQBRACKET_in_arrayInit3392( FOLLOW_LSQBRACKET_in_arrayInit3392_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_constant_in_prim_ex3278_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_constant_in_prim_ex3278( FOLLOW_constant_in_prim_ex3278_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_RSQBRACKET_in_arrayInit3394_bits[]	= { ANTLR_UINT64_LIT(0x0000000030000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RSQBRACKET_in_arrayInit3394( FOLLOW_RSQBRACKET_in_arrayInit3394_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_scalarType_in_prim_ex3293_bits[]	= { ANTLR_UINT64_LIT(0x0000000030000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_scalarType_in_prim_ex3293( FOLLOW_scalarType_in_prim_ex3293_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_LSQBRACKET_in_arrayInit3432_bits[]	= { ANTLR_UINT64_LIT(0x0000001000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LSQBRACKET_in_arrayInit3432( FOLLOW_LSQBRACKET_in_arrayInit3432_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_structInit_in_prim_ex3325_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_structInit_in_prim_ex3325( FOLLOW_structInit_in_prim_ex3325_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_RSQBRACKET_in_arrayInit3434_bits[]	= { ANTLR_UINT64_LIT(0x0000000030000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RSQBRACKET_in_arrayInit3434( FOLLOW_RSQBRACKET_in_arrayInit3434_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_cast_in_prim_ex3350_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_cast_in_prim_ex3350( FOLLOW_cast_in_prim_ex3350_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_LBRACKET_in_arrayInit3475_bits[]	= { ANTLR_UINT64_LIT(0x0000000400000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_arrayInit3475( FOLLOW_LBRACKET_in_arrayInit3475_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_arrayInit_in_prim_ex3373_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_arrayInit_in_prim_ex3373( FOLLOW_arrayInit_in_prim_ex3373_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_RBRACKET_in_arrayInit3479_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_arrayInit3479( FOLLOW_RBRACKET_in_arrayInit3479_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_NULLTOK_in_prim_ex3402_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_NULLTOK_in_prim_ex3402( FOLLOW_NULLTOK_in_prim_ex3402_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_LBRACKET_in_arrayInit3513_bits[]	= { ANTLR_UINT64_LIT(0x008012C0564C60F0) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_arrayInit3513( FOLLOW_LBRACKET_in_arrayInit3513_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_LBRACKET_in_cast3431_bits[]	= { ANTLR_UINT64_LIT(0x04004100564C60F0) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_cast3431( FOLLOW_LBRACKET_in_cast3431_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_expr_in_arrayInit3517_bits[]	= { ANTLR_UINT64_LIT(0x0000000400000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_arrayInit3517( FOLLOW_expr_in_arrayInit3517_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_expr_in_cast3435_bits[]	= { ANTLR_UINT64_LIT(0x0000000800000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_cast3435( FOLLOW_expr_in_cast3435_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_RBRACKET_in_arrayInit3521_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_arrayInit3521( FOLLOW_RBRACKET_in_arrayInit3521_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_RBRACKET_in_cast3439_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_cast3439( FOLLOW_RBRACKET_in_cast3439_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_param_in_declaration3566_bits[]	= { ANTLR_UINT64_LIT(0x4000000000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_param_in_declaration3566( FOLLOW_param_in_declaration3566_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_LBRACKET_in_structInit3468_bits[]	= { ANTLR_UINT64_LIT(0x0000000800000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_structInit3468( FOLLOW_LBRACKET_in_structInit3468_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_62_in_declaration3601_bits[]	= { ANTLR_UINT64_LIT(0x008012C0564C60F0) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_62_in_declaration3601( FOLLOW_62_in_declaration3601_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_RBRACKET_in_structInit3472_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_structInit3472( FOLLOW_RBRACKET_in_structInit3472_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_expr_in_declaration3608_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_declaration3608( FOLLOW_expr_in_declaration3608_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_LSQBRACKET_in_arrayInit3534_bits[]	= { ANTLR_UINT64_LIT(0x04004100564C60F0) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LSQBRACKET_in_arrayInit3534( FOLLOW_LSQBRACKET_in_arrayInit3534_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_declaration_in_instructionScalar3657_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_declaration_in_instructionScalar3657( FOLLOW_declaration_in_instructionScalar3657_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_expr_in_arrayInit3538_bits[]	= { ANTLR_UINT64_LIT(0x0000002000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_arrayInit3538( FOLLOW_expr_in_arrayInit3538_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_assignment_in_instructionScalar3670_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_assignment_in_instructionScalar3670( FOLLOW_assignment_in_instructionScalar3670_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_RSQBRACKET_in_arrayInit3540_bits[]	= { ANTLR_UINT64_LIT(0x0000000030000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RSQBRACKET_in_arrayInit3540( FOLLOW_RSQBRACKET_in_arrayInit3540_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_RETURN_in_returnInst3702_bits[]	= { ANTLR_UINT64_LIT(0x008012C0564C60F0) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RETURN_in_returnInst3702( FOLLOW_RETURN_in_returnInst3702_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_LSQBRACKET_in_arrayInit3564_bits[]	= { ANTLR_UINT64_LIT(0x0000002000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LSQBRACKET_in_arrayInit3564( FOLLOW_LSQBRACKET_in_arrayInit3564_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_expr_in_returnInst3704_bits[]	= { ANTLR_UINT64_LIT(0x0000002000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_returnInst3704( FOLLOW_expr_in_returnInst3704_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_RSQBRACKET_in_arrayInit3566_bits[]	= { ANTLR_UINT64_LIT(0x0000000030000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RSQBRACKET_in_arrayInit3566( FOLLOW_RSQBRACKET_in_arrayInit3566_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_SEMICOLON_in_returnInst3708_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SEMICOLON_in_returnInst3708( FOLLOW_SEMICOLON_in_returnInst3708_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_LSQBRACKET_in_arrayInit3604_bits[]	= { ANTLR_UINT64_LIT(0x0000002000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LSQBRACKET_in_arrayInit3604( FOLLOW_LSQBRACKET_in_arrayInit3604_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_RETURN_in_returnInst3722_bits[]	= { ANTLR_UINT64_LIT(0x0000002000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RETURN_in_returnInst3722( FOLLOW_RETURN_in_returnInst3722_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_RSQBRACKET_in_arrayInit3606_bits[]	= { ANTLR_UINT64_LIT(0x0000000030000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RSQBRACKET_in_arrayInit3606( FOLLOW_RSQBRACKET_in_arrayInit3606_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_SEMICOLON_in_returnInst3726_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SEMICOLON_in_returnInst3726( FOLLOW_SEMICOLON_in_returnInst3726_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_LBRACKET_in_arrayInit3647_bits[]	= { ANTLR_UINT64_LIT(0x0000000800000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_arrayInit3647( FOLLOW_LBRACKET_in_arrayInit3647_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_WHILE_in_whileInst3759_bits[]	= { ANTLR_UINT64_LIT(0x0000000010000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_WHILE_in_whileInst3759( FOLLOW_WHILE_in_whileInst3759_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_RBRACKET_in_arrayInit3651_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_arrayInit3651( FOLLOW_RBRACKET_in_arrayInit3651_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_LBRACKET_in_whileInst3761_bits[]	= { ANTLR_UINT64_LIT(0x008012C0564C60F0) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_whileInst3761( FOLLOW_LBRACKET_in_whileInst3761_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_LBRACKET_in_arrayInit3685_bits[]	= { ANTLR_UINT64_LIT(0x04004100564C60F0) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_arrayInit3685( FOLLOW_LBRACKET_in_arrayInit3685_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_expr_in_whileInst3763_bits[]	= { ANTLR_UINT64_LIT(0x0000000400000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_whileInst3763( FOLLOW_expr_in_whileInst3763_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_expr_in_arrayInit3689_bits[]	= { ANTLR_UINT64_LIT(0x0000000800000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_arrayInit3689( FOLLOW_expr_in_arrayInit3689_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_RBRACKET_in_whileInst3765_bits[]	= { ANTLR_UINT64_LIT(0x0000000008000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_whileInst3765( FOLLOW_RBRACKET_in_whileInst3765_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_RBRACKET_in_arrayInit3693_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_arrayInit3693( FOLLOW_RBRACKET_in_arrayInit3693_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_body_in_whileInst3767_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_body_in_whileInst3767( FOLLOW_body_in_whileInst3767_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_param_in_declaration3738_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000000), ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_param_in_declaration3738( FOLLOW_param_in_declaration3738_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_DO_in_doInst3803_bits[]	= { ANTLR_UINT64_LIT(0x0000000008000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_DO_in_doInst3803( FOLLOW_DO_in_doInst3803_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_65_in_declaration3773_bits[]	= { ANTLR_UINT64_LIT(0x04004100564C60F0) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_65_in_declaration3773( FOLLOW_65_in_declaration3773_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_body_in_doInst3805_bits[]	= { ANTLR_UINT64_LIT(0x0000200000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_body_in_doInst3805( FOLLOW_body_in_doInst3805_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_expr_in_declaration3780_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_declaration3780( FOLLOW_expr_in_declaration3780_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_WHILE_in_doInst3807_bits[]	= { ANTLR_UINT64_LIT(0x0000000010000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_WHILE_in_doInst3807( FOLLOW_WHILE_in_doInst3807_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_declaration_in_instructionScalar3829_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_declaration_in_instructionScalar3829( FOLLOW_declaration_in_instructionScalar3829_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_LBRACKET_in_doInst3809_bits[]	= { ANTLR_UINT64_LIT(0x008012C0564C60F0) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_doInst3809( FOLLOW_LBRACKET_in_doInst3809_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_assignment_in_instructionScalar3842_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_assignment_in_instructionScalar3842( FOLLOW_assignment_in_instructionScalar3842_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_expr_in_doInst3811_bits[]	= { ANTLR_UINT64_LIT(0x0000000400000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_doInst3811( FOLLOW_expr_in_doInst3811_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_RETURN_in_returnInst3874_bits[]	= { ANTLR_UINT64_LIT(0x04004100564C60F0) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RETURN_in_returnInst3874( FOLLOW_RETURN_in_returnInst3874_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_RBRACKET_in_doInst3813_bits[]	= { ANTLR_UINT64_LIT(0x0000002000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_doInst3813( FOLLOW_RBRACKET_in_doInst3813_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_expr_in_returnInst3876_bits[]	= { ANTLR_UINT64_LIT(0x0000004000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_returnInst3876( FOLLOW_expr_in_returnInst3876_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_SEMICOLON_in_doInst3815_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SEMICOLON_in_doInst3815( FOLLOW_SEMICOLON_in_doInst3815_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_SEMICOLON_in_returnInst3880_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SEMICOLON_in_returnInst3880( FOLLOW_SEMICOLON_in_returnInst3880_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_FOR_in_forInst3847_bits[]	= { ANTLR_UINT64_LIT(0x0000000010000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_FOR_in_forInst3847( FOLLOW_FOR_in_forInst3847_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_RETURN_in_returnInst3894_bits[]	= { ANTLR_UINT64_LIT(0x0000004000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RETURN_in_returnInst3894( FOLLOW_RETURN_in_returnInst3894_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_LBRACKET_in_forInst3849_bits[]	= { ANTLR_UINT64_LIT(0x008012E0564C60F0) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_forInst3849( FOLLOW_LBRACKET_in_forInst3849_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_SEMICOLON_in_returnInst3898_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SEMICOLON_in_returnInst3898( FOLLOW_SEMICOLON_in_returnInst3898_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_instructionScalar_in_forInst3877_bits[]	= { ANTLR_UINT64_LIT(0x0000002000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_instructionScalar_in_forInst3877( FOLLOW_instructionScalar_in_forInst3877_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_WHILE_in_whileInst3931_bits[]	= { ANTLR_UINT64_LIT(0x0000000010000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_WHILE_in_whileInst3931( FOLLOW_WHILE_in_whileInst3931_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_SEMICOLON_in_forInst3883_bits[]	= { ANTLR_UINT64_LIT(0x008012E0564C60F0) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SEMICOLON_in_forInst3883( FOLLOW_SEMICOLON_in_forInst3883_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_LBRACKET_in_whileInst3933_bits[]	= { ANTLR_UINT64_LIT(0x04004100564C60F0) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_whileInst3933( FOLLOW_LBRACKET_in_whileInst3933_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_expr_in_forInst3908_bits[]	= { ANTLR_UINT64_LIT(0x0000002000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_forInst3908( FOLLOW_expr_in_forInst3908_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_expr_in_whileInst3935_bits[]	= { ANTLR_UINT64_LIT(0x0000000800000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_whileInst3935( FOLLOW_expr_in_whileInst3935_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_SEMICOLON_in_forInst3922_bits[]	= { ANTLR_UINT64_LIT(0x008012C4564C60F0) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SEMICOLON_in_forInst3922( FOLLOW_SEMICOLON_in_forInst3922_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_RBRACKET_in_whileInst3937_bits[]	= { ANTLR_UINT64_LIT(0x0000000008000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_whileInst3937( FOLLOW_RBRACKET_in_whileInst3937_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_instructionScalar_in_forInst3947_bits[]	= { ANTLR_UINT64_LIT(0x0000000400000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_instructionScalar_in_forInst3947( FOLLOW_instructionScalar_in_forInst3947_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_body_in_whileInst3939_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_body_in_whileInst3939( FOLLOW_body_in_whileInst3939_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_RBRACKET_in_forInst3953_bits[]	= { ANTLR_UINT64_LIT(0x0000000008000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_forInst3953( FOLLOW_RBRACKET_in_forInst3953_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_DO_in_doInst3975_bits[]	= { ANTLR_UINT64_LIT(0x0000000008000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_DO_in_doInst3975( FOLLOW_DO_in_doInst3975_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_body_in_forInst3978_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_body_in_forInst3978( FOLLOW_body_in_forInst3978_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_body_in_doInst3977_bits[]	= { ANTLR_UINT64_LIT(0x0001000000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_body_in_doInst3977( FOLLOW_body_in_doInst3977_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_ELSE_in_elsemiddle4026_bits[]	= { ANTLR_UINT64_LIT(0x0000000000800000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_ELSE_in_elsemiddle4026( FOLLOW_ELSE_in_elsemiddle4026_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_WHILE_in_doInst3979_bits[]	= { ANTLR_UINT64_LIT(0x0000000010000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_WHILE_in_doInst3979( FOLLOW_WHILE_in_doInst3979_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_IF_in_elsemiddle4028_bits[]	= { ANTLR_UINT64_LIT(0x0000000010000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_IF_in_elsemiddle4028( FOLLOW_IF_in_elsemiddle4028_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_LBRACKET_in_doInst3981_bits[]	= { ANTLR_UINT64_LIT(0x04004100564C60F0) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_doInst3981( FOLLOW_LBRACKET_in_doInst3981_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_LBRACKET_in_elsemiddle4030_bits[]	= { ANTLR_UINT64_LIT(0x008012C0564C60F0) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_elsemiddle4030( FOLLOW_LBRACKET_in_elsemiddle4030_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_expr_in_doInst3983_bits[]	= { ANTLR_UINT64_LIT(0x0000000800000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_doInst3983( FOLLOW_expr_in_doInst3983_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_expr_in_elsemiddle4032_bits[]	= { ANTLR_UINT64_LIT(0x0000000400000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_elsemiddle4032( FOLLOW_expr_in_elsemiddle4032_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_RBRACKET_in_doInst3985_bits[]	= { ANTLR_UINT64_LIT(0x0000004000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_doInst3985( FOLLOW_RBRACKET_in_doInst3985_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_RBRACKET_in_elsemiddle4034_bits[]	= { ANTLR_UINT64_LIT(0x0000000008000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_elsemiddle4034( FOLLOW_RBRACKET_in_elsemiddle4034_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_SEMICOLON_in_doInst3987_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SEMICOLON_in_doInst3987( FOLLOW_SEMICOLON_in_doInst3987_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_body_in_elsemiddle4036_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_body_in_elsemiddle4036( FOLLOW_body_in_elsemiddle4036_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_FOR_in_forInst4019_bits[]	= { ANTLR_UINT64_LIT(0x0000000010000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_FOR_in_forInst4019( FOLLOW_FOR_in_forInst4019_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_ELSE_in_endif4069_bits[]	= { ANTLR_UINT64_LIT(0x0000000008000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_ELSE_in_endif4069( FOLLOW_ELSE_in_endif4069_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_LBRACKET_in_forInst4021_bits[]	= { ANTLR_UINT64_LIT(0x0400CBC0564C60F0) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_forInst4021( FOLLOW_LBRACKET_in_forInst4021_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_body_in_endif4071_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_body_in_endif4071( FOLLOW_body_in_endif4071_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_instructionScalar_in_forInst4049_bits[]	= { ANTLR_UINT64_LIT(0x0000004000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_instructionScalar_in_forInst4049( FOLLOW_instructionScalar_in_forInst4049_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_IF_in_ifInst4101_bits[]	= { ANTLR_UINT64_LIT(0x0000000010000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_IF_in_ifInst4101( FOLLOW_IF_in_ifInst4101_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_SEMICOLON_in_forInst4055_bits[]	= { ANTLR_UINT64_LIT(0x04004140564C60F0) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SEMICOLON_in_forInst4055( FOLLOW_SEMICOLON_in_forInst4055_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_LBRACKET_in_ifInst4103_bits[]	= { ANTLR_UINT64_LIT(0x008012C0564C60F0) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_ifInst4103( FOLLOW_LBRACKET_in_ifInst4103_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_expr_in_forInst4080_bits[]	= { ANTLR_UINT64_LIT(0x0000004000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_forInst4080( FOLLOW_expr_in_forInst4080_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_expr_in_ifInst4105_bits[]	= { ANTLR_UINT64_LIT(0x0000000400000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_ifInst4105( FOLLOW_expr_in_ifInst4105_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_SEMICOLON_in_forInst4094_bits[]	= { ANTLR_UINT64_LIT(0x0400CB88564C60F0) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SEMICOLON_in_forInst4094( FOLLOW_SEMICOLON_in_forInst4094_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_RBRACKET_in_ifInst4107_bits[]	= { ANTLR_UINT64_LIT(0x0000000008000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_ifInst4107( FOLLOW_RBRACKET_in_ifInst4107_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_instructionScalar_in_forInst4119_bits[]	= { ANTLR_UINT64_LIT(0x0000000800000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_instructionScalar_in_forInst4119( FOLLOW_instructionScalar_in_forInst4119_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_body_in_ifInst4109_bits[]	= { ANTLR_UINT64_LIT(0x0000000000008002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_body_in_ifInst4109( FOLLOW_body_in_ifInst4109_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_RBRACKET_in_forInst4125_bits[]	= { ANTLR_UINT64_LIT(0x0000000008000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_forInst4125( FOLLOW_RBRACKET_in_forInst4125_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_elsemiddle_in_ifInst4126_bits[]	= { ANTLR_UINT64_LIT(0x0000000000008002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_elsemiddle_in_ifInst4126( FOLLOW_elsemiddle_in_ifInst4126_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_body_in_forInst4150_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_body_in_forInst4150( FOLLOW_body_in_forInst4150_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_endif_in_ifInst4146_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_endif_in_ifInst4146( FOLLOW_endif_in_ifInst4146_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_ELSE_in_elsemiddle4198_bits[]	= { ANTLR_UINT64_LIT(0x0000000000800000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_ELSE_in_elsemiddle4198( FOLLOW_ELSE_in_elsemiddle4198_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_ifInst_in_instruction4180_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_ifInst_in_instruction4180( FOLLOW_ifInst_in_instruction4180_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_IF_in_elsemiddle4200_bits[]	= { ANTLR_UINT64_LIT(0x0000000010000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_IF_in_elsemiddle4200( FOLLOW_IF_in_elsemiddle4200_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_whileInst_in_instruction4201_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_whileInst_in_instruction4201( FOLLOW_whileInst_in_instruction4201_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_LBRACKET_in_elsemiddle4202_bits[]	= { ANTLR_UINT64_LIT(0x04004100564C60F0) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_elsemiddle4202( FOLLOW_LBRACKET_in_elsemiddle4202_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_doInst_in_instruction4218_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_doInst_in_instruction4218( FOLLOW_doInst_in_instruction4218_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_expr_in_elsemiddle4204_bits[]	= { ANTLR_UINT64_LIT(0x0000000800000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_elsemiddle4204( FOLLOW_expr_in_elsemiddle4204_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_forInst_in_instruction4238_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_forInst_in_instruction4238( FOLLOW_forInst_in_instruction4238_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_RBRACKET_in_elsemiddle4206_bits[]	= { ANTLR_UINT64_LIT(0x0000000008000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_elsemiddle4206( FOLLOW_RBRACKET_in_elsemiddle4206_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_instructionScalar_in_instruction4258_bits[]	= { ANTLR_UINT64_LIT(0x0000002000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_instructionScalar_in_instruction4258( FOLLOW_instructionScalar_in_instruction4258_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_body_in_elsemiddle4208_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_body_in_elsemiddle4208( FOLLOW_body_in_elsemiddle4208_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_SEMICOLON_in_instruction4260_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SEMICOLON_in_instruction4260( FOLLOW_SEMICOLON_in_instruction4260_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_ELSE_in_endif4241_bits[]	= { ANTLR_UINT64_LIT(0x0000000008000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_ELSE_in_endif4241( FOLLOW_ELSE_in_endif4241_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_returnInst_in_instruction4273_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_returnInst_in_instruction4273( FOLLOW_returnInst_in_instruction4273_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_body_in_endif4243_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_body_in_endif4243( FOLLOW_body_in_endif4243_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_instruction_in_instruction_list4305_bits[]	= { ANTLR_UINT64_LIT(0x008032C856DC70F2) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_instruction_in_instruction_list4305( FOLLOW_instruction_in_instruction_list4305_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_IF_in_ifInst4273_bits[]	= { ANTLR_UINT64_LIT(0x0000000010000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_IF_in_ifInst4273( FOLLOW_IF_in_ifInst4273_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_instruction_in_instruction_list4321_bits[]	= { ANTLR_UINT64_LIT(0x008032C856DC70F2) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_instruction_in_instruction_list4321( FOLLOW_instruction_in_instruction_list4321_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_LBRACKET_in_ifInst4275_bits[]	= { ANTLR_UINT64_LIT(0x04004100564C60F0) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_ifInst4275( FOLLOW_LBRACKET_in_ifInst4275_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_LBRACE_in_body4355_bits[]	= { ANTLR_UINT64_LIT(0x0000000200000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACE_in_body4355( FOLLOW_LBRACE_in_body4355_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_expr_in_ifInst4277_bits[]	= { ANTLR_UINT64_LIT(0x0000000800000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_ifInst4277( FOLLOW_expr_in_ifInst4277_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_RBRACE_in_body4359_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACE_in_body4359( FOLLOW_RBRACE_in_body4359_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_RBRACKET_in_ifInst4279_bits[]	= { ANTLR_UINT64_LIT(0x0000000008000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_ifInst4279( FOLLOW_RBRACKET_in_ifInst4279_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_LBRACE_in_body4374_bits[]	= { ANTLR_UINT64_LIT(0x008032C856DC70F0) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACE_in_body4374( FOLLOW_LBRACE_in_body4374_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_body_in_ifInst4281_bits[]	= { ANTLR_UINT64_LIT(0x0000000000008002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_body_in_ifInst4281( FOLLOW_body_in_ifInst4281_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_instruction_list_in_body4376_bits[]	= { ANTLR_UINT64_LIT(0x0000000200000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_instruction_list_in_body4376( FOLLOW_instruction_list_in_body4376_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_elsemiddle_in_ifInst4298_bits[]	= { ANTLR_UINT64_LIT(0x0000000000008002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_elsemiddle_in_ifInst4298( FOLLOW_elsemiddle_in_ifInst4298_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_RBRACE_in_body4380_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACE_in_body4380( FOLLOW_RBRACE_in_body4380_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_endif_in_ifInst4318_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_endif_in_ifInst4318( FOLLOW_endif_in_ifInst4318_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_param_in_function4410_bits[]	= { ANTLR_UINT64_LIT(0x0000000010000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_param_in_function4410( FOLLOW_param_in_function4410_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_ifInst_in_instruction4352_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_ifInst_in_instruction4352( FOLLOW_ifInst_in_instruction4352_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_parameterList_in_function4412_bits[]	= { ANTLR_UINT64_LIT(0x0000000008000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_parameterList_in_function4412( FOLLOW_parameterList_in_function4412_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_whileInst_in_instruction4373_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_whileInst_in_instruction4373( FOLLOW_whileInst_in_instruction4373_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_body_in_function4414_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_body_in_function4414( FOLLOW_body_in_function4414_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_doInst_in_instruction4390_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_doInst_in_instruction4390( FOLLOW_doInst_in_instruction4390_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_STRUCT_in_structDecl4444_bits[]	= { ANTLR_UINT64_LIT(0x0000020000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_STRUCT_in_structDecl4444( FOLLOW_STRUCT_in_structDecl4444_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_forInst_in_instruction4410_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_forInst_in_instruction4410( FOLLOW_forInst_in_instruction4410_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_TYPE_in_structDecl4446_bits[]	= { ANTLR_UINT64_LIT(0x0000000008000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_TYPE_in_structDecl4446( FOLLOW_TYPE_in_structDecl4446_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_instructionScalar_in_instruction4430_bits[]	= { ANTLR_UINT64_LIT(0x0000004000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_instructionScalar_in_instruction4430( FOLLOW_instructionScalar_in_instruction4430_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_LBRACE_in_structDecl4462_bits[]	= { ANTLR_UINT64_LIT(0x00001282040800A0) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACE_in_structDecl4462( FOLLOW_LBRACE_in_structDecl4462_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_SEMICOLON_in_instruction4432_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SEMICOLON_in_instruction4432( FOLLOW_SEMICOLON_in_instruction4432_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_declaration_in_structDecl4467_bits[]	= { ANTLR_UINT64_LIT(0x0000002000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_declaration_in_structDecl4467( FOLLOW_declaration_in_structDecl4467_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_returnInst_in_instruction4445_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_returnInst_in_instruction4445( FOLLOW_returnInst_in_instruction4445_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_SEMICOLON_in_structDecl4471_bits[]	= { ANTLR_UINT64_LIT(0x00001282040800A0) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SEMICOLON_in_structDecl4471( FOLLOW_SEMICOLON_in_structDecl4471_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_instruction_in_instruction_list4477_bits[]	= { ANTLR_UINT64_LIT(0x0401CB9056DC70F2) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_instruction_in_instruction_list4477( FOLLOW_instruction_in_instruction_list4477_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_RBRACE_in_structDecl4476_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACE_in_structDecl4476( FOLLOW_RBRACE_in_structDecl4476_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_instruction_in_instruction_list4493_bits[]	= { ANTLR_UINT64_LIT(0x0401CB9056DC70F2) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_instruction_in_instruction_list4493( FOLLOW_instruction_in_instruction_list4493_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_CLASS_in_classDecl4529_bits[]	= { ANTLR_UINT64_LIT(0x0000020000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_CLASS_in_classDecl4529( FOLLOW_CLASS_in_classDecl4529_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_LBRACE_in_body4527_bits[]	= { ANTLR_UINT64_LIT(0x0000000400000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACE_in_body4527( FOLLOW_LBRACE_in_body4527_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_TYPE_in_classDecl4533_bits[]	= { ANTLR_UINT64_LIT(0x0000000008000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_TYPE_in_classDecl4533( FOLLOW_TYPE_in_classDecl4533_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_RBRACE_in_body4531_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACE_in_body4531( FOLLOW_RBRACE_in_body4531_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_CLASS_in_classDecl4553_bits[]	= { ANTLR_UINT64_LIT(0x0000020000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_CLASS_in_classDecl4553( FOLLOW_CLASS_in_classDecl4553_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_LBRACE_in_body4546_bits[]	= { ANTLR_UINT64_LIT(0x0401CB9056DC70F0) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACE_in_body4546( FOLLOW_LBRACE_in_body4546_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_TYPE_in_classDecl4557_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000200) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_TYPE_in_classDecl4557( FOLLOW_TYPE_in_classDecl4557_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_instruction_list_in_body4548_bits[]	= { ANTLR_UINT64_LIT(0x0000000400000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_instruction_list_in_body4548( FOLLOW_instruction_list_in_body4548_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_COLON_in_classDecl4559_bits[]	= { ANTLR_UINT64_LIT(0x0000020000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_COLON_in_classDecl4559( FOLLOW_COLON_in_classDecl4559_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_RBRACE_in_body4552_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACE_in_body4552( FOLLOW_RBRACE_in_body4552_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_TYPE_in_classDecl4563_bits[]	= { ANTLR_UINT64_LIT(0x0000000008000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_TYPE_in_classDecl4563( FOLLOW_TYPE_in_classDecl4563_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_param_in_function4582_bits[]	= { ANTLR_UINT64_LIT(0x0000000010000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_param_in_function4582( FOLLOW_param_in_function4582_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_LBRACE_in_classDecl4590_bits[]	= { ANTLR_UINT64_LIT(0x00001A83040800A0) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACE_in_classDecl4590( FOLLOW_LBRACE_in_classDecl4590_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_parameterList_in_function4584_bits[]	= { ANTLR_UINT64_LIT(0x0000000008000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_parameterList_in_function4584( FOLLOW_parameterList_in_function4584_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_declaration_in_classDecl4633_bits[]	= { ANTLR_UINT64_LIT(0x0000002000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_declaration_in_classDecl4633( FOLLOW_declaration_in_classDecl4633_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_body_in_function4586_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_body_in_function4586( FOLLOW_body_in_function4586_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_SEMICOLON_in_classDecl4637_bits[]	= { ANTLR_UINT64_LIT(0x00001A83040800A0) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SEMICOLON_in_classDecl4637( FOLLOW_SEMICOLON_in_classDecl4637_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_STRUCT_in_structDecl4616_bits[]	= { ANTLR_UINT64_LIT(0x0000080000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_STRUCT_in_structDecl4616( FOLLOW_STRUCT_in_structDecl4616_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_function_in_classDecl4663_bits[]	= { ANTLR_UINT64_LIT(0x00001A83040800A0) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_function_in_classDecl4663( FOLLOW_function_in_classDecl4663_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_TYPE_in_structDecl4618_bits[]	= { ANTLR_UINT64_LIT(0x0000000008000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_TYPE_in_structDecl4618( FOLLOW_TYPE_in_structDecl4618_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_VIRTUAL_in_classDecl4692_bits[]	= { ANTLR_UINT64_LIT(0x00001280040800A0) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_VIRTUAL_in_classDecl4692( FOLLOW_VIRTUAL_in_classDecl4692_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_LBRACE_in_structDecl4634_bits[]	= { ANTLR_UINT64_LIT(0x0000CA84040800A0) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACE_in_structDecl4634( FOLLOW_LBRACE_in_structDecl4634_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_function_in_classDecl4696_bits[]	= { ANTLR_UINT64_LIT(0x00001A83040800A0) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_function_in_classDecl4696( FOLLOW_function_in_classDecl4696_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_declaration_in_structDecl4639_bits[]	= { ANTLR_UINT64_LIT(0x0000004000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_declaration_in_structDecl4639( FOLLOW_declaration_in_structDecl4639_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_OVERRIDE_in_classDecl4722_bits[]	= { ANTLR_UINT64_LIT(0x00001280040800A0) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_OVERRIDE_in_classDecl4722( FOLLOW_OVERRIDE_in_classDecl4722_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_SEMICOLON_in_structDecl4643_bits[]	= { ANTLR_UINT64_LIT(0x0000CA84040800A0) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SEMICOLON_in_structDecl4643( FOLLOW_SEMICOLON_in_structDecl4643_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_function_in_classDecl4726_bits[]	= { ANTLR_UINT64_LIT(0x00001A83040800A0) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_function_in_classDecl4726( FOLLOW_function_in_classDecl4726_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_RBRACE_in_structDecl4648_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACE_in_structDecl4648( FOLLOW_RBRACE_in_structDecl4648_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_RBRACE_in_classDecl4762_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACE_in_classDecl4762( FOLLOW_RBRACE_in_classDecl4762_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_CLASS_in_classDecl4701_bits[]	= { ANTLR_UINT64_LIT(0x0000080000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_CLASS_in_classDecl4701( FOLLOW_CLASS_in_classDecl4701_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_INCLUDE_in_inc4792_bits[]	= { ANTLR_UINT64_LIT(0x0000004000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_INCLUDE_in_inc4792( FOLLOW_INCLUDE_in_inc4792_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_TYPE_in_classDecl4705_bits[]	= { ANTLR_UINT64_LIT(0x0000000008000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_TYPE_in_classDecl4705( FOLLOW_TYPE_in_classDecl4705_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_STRING_in_inc4794_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_STRING_in_inc4794( FOLLOW_STRING_in_inc4794_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_CLASS_in_classDecl4725_bits[]	= { ANTLR_UINT64_LIT(0x0000080000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_CLASS_in_classDecl4725( FOLLOW_CLASS_in_classDecl4725_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_function_in_program4840_bits[]	= { ANTLR_UINT64_LIT(0x00001380050801A2) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_function_in_program4840( FOLLOW_function_in_program4840_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_TYPE_in_classDecl4729_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000200) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_TYPE_in_classDecl4729( FOLLOW_TYPE_in_classDecl4729_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_structDecl_in_program4862_bits[]	= { ANTLR_UINT64_LIT(0x00001380050801A2) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_structDecl_in_program4862( FOLLOW_structDecl_in_program4862_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_COLON_in_classDecl4731_bits[]	= { ANTLR_UINT64_LIT(0x0000080000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_COLON_in_classDecl4731( FOLLOW_COLON_in_classDecl4731_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_classDecl_in_program4882_bits[]	= { ANTLR_UINT64_LIT(0x00001380050801A2) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_classDecl_in_program4882( FOLLOW_classDecl_in_program4882_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_TYPE_in_classDecl4735_bits[]	= { ANTLR_UINT64_LIT(0x0000000008000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_TYPE_in_classDecl4735( FOLLOW_TYPE_in_classDecl4735_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_inc_in_program4903_bits[]	= { ANTLR_UINT64_LIT(0x00001380050801A2) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_inc_in_program4903( FOLLOW_inc_in_program4903_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_LBRACE_in_classDecl4762_bits[]	= { ANTLR_UINT64_LIT(0x0000EA85040800A0) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACE_in_classDecl4762( FOLLOW_LBRACE_in_classDecl4762_bits, 1 );
 
+static	ANTLR_BITWORD FOLLOW_declaration_in_classDecl4805_bits[]	= { ANTLR_UINT64_LIT(0x0000004000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_declaration_in_classDecl4805( FOLLOW_declaration_in_classDecl4805_bits, 1 );
 
+static	ANTLR_BITWORD FOLLOW_SEMICOLON_in_classDecl4809_bits[]	= { ANTLR_UINT64_LIT(0x0000EA85040800A0) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SEMICOLON_in_classDecl4809( FOLLOW_SEMICOLON_in_classDecl4809_bits, 1 );
 
+static	ANTLR_BITWORD FOLLOW_function_in_classDecl4835_bits[]	= { ANTLR_UINT64_LIT(0x0000EA85040800A0) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_function_in_classDecl4835( FOLLOW_function_in_classDecl4835_bits, 1 );
 
+static	ANTLR_BITWORD FOLLOW_VIRTUAL_in_classDecl4864_bits[]	= { ANTLR_UINT64_LIT(0x0000CA80040800A0) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_VIRTUAL_in_classDecl4864( FOLLOW_VIRTUAL_in_classDecl4864_bits, 1 );
 
+static	ANTLR_BITWORD FOLLOW_function_in_classDecl4868_bits[]	= { ANTLR_UINT64_LIT(0x0000EA85040800A0) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_function_in_classDecl4868( FOLLOW_function_in_classDecl4868_bits, 1 );
 
+static	ANTLR_BITWORD FOLLOW_OVERRIDE_in_classDecl4894_bits[]	= { ANTLR_UINT64_LIT(0x0000CA80040800A0) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_OVERRIDE_in_classDecl4894( FOLLOW_OVERRIDE_in_classDecl4894_bits, 1 );
 
+static	ANTLR_BITWORD FOLLOW_function_in_classDecl4898_bits[]	= { ANTLR_UINT64_LIT(0x0000EA85040800A0) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_function_in_classDecl4898( FOLLOW_function_in_classDecl4898_bits, 1 );
 
+static	ANTLR_BITWORD FOLLOW_RBRACE_in_classDecl4934_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACE_in_classDecl4934( FOLLOW_RBRACE_in_classDecl4934_bits, 1 );
 
-static const ANTLR_INT32 dfa27_eot[13] =
+static	ANTLR_BITWORD FOLLOW_INCLUDE_in_inc4964_bits[]	= { ANTLR_UINT64_LIT(0x0000010000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_INCLUDE_in_inc4964( FOLLOW_INCLUDE_in_inc4964_bits, 1 );
+
+static	ANTLR_BITWORD FOLLOW_STRING_in_inc4966_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_STRING_in_inc4966( FOLLOW_STRING_in_inc4966_bits, 1 );
+
+static	ANTLR_BITWORD FOLLOW_function_in_program5012_bits[]	= { ANTLR_UINT64_LIT(0x0000CE80050801A2) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_function_in_program5012( FOLLOW_function_in_program5012_bits, 1 );
+
+static	ANTLR_BITWORD FOLLOW_structDecl_in_program5034_bits[]	= { ANTLR_UINT64_LIT(0x0000CE80050801A2) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_structDecl_in_program5034( FOLLOW_structDecl_in_program5034_bits, 1 );
+
+static	ANTLR_BITWORD FOLLOW_classDecl_in_program5054_bits[]	= { ANTLR_UINT64_LIT(0x0000CE80050801A2) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_classDecl_in_program5054( FOLLOW_classDecl_in_program5054_bits, 1 );
+
+static	ANTLR_BITWORD FOLLOW_inc_in_program5075_bits[]	= { ANTLR_UINT64_LIT(0x0000CE80050801A2) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_inc_in_program5075( FOLLOW_inc_in_program5075_bits, 1 );
+
+
+
+
+
+
+
+
+
+static const ANTLR_INT32 dfa6_eot[15] =
     {
-	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
     };
-static const ANTLR_INT32 dfa27_eof[13] =
+static const ANTLR_INT32 dfa6_eof[15] =
     {
-	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
     };
-static const ANTLR_INT32 dfa27_min[13] =
+static const ANTLR_INT32 dfa6_min[15] =
     {
-	4, 22, 22, 22, 22, 22, 22, 22, -1, 4, -1, 22, 36
+	5, 22, 22, 22, 22, 22, 22, 22, -1, -1, -1, 37, -1, -1, 22
     };
-static const ANTLR_INT32 dfa27_max[13] =
+static const ANTLR_INT32 dfa6_max[15] =
     {
-	55, 29, 29, 29, 29, 29, 29, 29, -1, 55, -1, 29, 36
+	47, 29, 29, 29, 29, 29, 33, 33, -1, -1, -1, 37, -1, -1, 33
     };
-static const ANTLR_INT32 dfa27_accept[13] =
+static const ANTLR_INT32 dfa6_accept[15] =
     {
-	-1, -1, -1, -1, -1, -1, -1, -1, 2, -1, 1, -1, -1
+	-1, -1, -1, -1, -1, -1, -1, -1, 3, 4, 1, -1, 2, 5, -1
     };
-static const ANTLR_INT32 dfa27_special[13] =
+static const ANTLR_INT32 dfa6_special[15] =
     {
-	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
     };
 
 
-static const ANTLR_INT32* dfa27_T_empty	 =   NULL;
+static const ANTLR_INT32* dfa6_T_empty	 =   NULL;
 
-static const ANTLR_INT32 dfa27_T0[] =
+static const ANTLR_INT32 dfa6_T0[] =
     {
-	10, -1, -1, -1, -1, 8, 8, 9
+	12, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 13
     };
-static const ANTLR_INT32 dfa27_T1[] =
+static const ANTLR_INT32 dfa6_T1[] =
     {
-	11
+	10, -1, -1, -1, -1, -1, -1, 11
     };
-static const ANTLR_INT32 dfa27_T2[] =
+static const ANTLR_INT32 dfa6_T2[] =
     {
-	8, 7, 8, 5, -1, -1, -1, -1, -1, 8, 8, -1, -1, -1, 8, 4, -1, -1, 8, -1,
-	-1, 8, 3, -1, 8, -1, 8, -1, -1, -1, -1, -1, -1, -1, 8, 6, -1, 1, -1, -1,
-	2, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 8
+	14
     };
-static const ANTLR_INT32 dfa27_T3[] =
+static const ANTLR_INT32 dfa6_T3[] =
     {
-	8, 8, 8, 8, -1, -1, -1, -1, -1, 8, 8, -1, -1, -1, 8, 8, -1, -1, 8, -1,
-	-1, 8, 8, -1, 8, -1, 8, -1, -1, -1, -1, -1, 11, -1, 8, 8, -1, 8, -1, -1,
-	8, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 8
+	12, -1, -1, -1, -1, -1, -1, 11, -1, -1, -1, 13
     };
-static const ANTLR_INT32 dfa27_T4[] =
+static const ANTLR_INT32 dfa6_T4[] =
     {
-	10, -1, -1, -1, -1, -1, 8, 12
+	5, -1, 4, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 3, -1, -1, -1, -1,
+	-1, -1, 2, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 8, -1, 7, -1,
+	6, -1, -1, 1, 9
     };
 
 
 
 
 
-static const ANTLR_INT32 * const dfa27_transitions[] =
+static const ANTLR_INT32 * const dfa6_transitions[] =
 {
-    dfa27_T2, dfa27_T0, dfa27_T0, dfa27_T0, dfa27_T0, dfa27_T0, dfa27_T0,
-    dfa27_T0, NULL, dfa27_T3, NULL, dfa27_T4, dfa27_T1
+    dfa6_T4, dfa6_T1, dfa6_T1, dfa6_T1, dfa6_T1, dfa6_T1, dfa6_T0, dfa6_T0,
+    NULL, NULL, NULL, dfa6_T2, NULL, NULL, dfa6_T3
 };
 
 
 
 
-class WNScriptASTParserCyclicDFA27 : public CyclicDFA< WNScriptASTParserImplTraits, WNScriptASTParser >, public WNScriptASTParserTokens
+class WNScriptASTParserCyclicDFA6 : public CyclicDFA< WNScriptASTParserImplTraits, WNScriptASTParser >, public WNScriptASTParserTokens
 {
 public:
 	typedef CyclicDFA< WNScriptASTParserImplTraits, WNScriptASTParser >  BaseType;
@@ -993,7 +1035,7 @@ private:
 
 
 public:
-	WNScriptASTParserCyclicDFA27( ANTLR_INT32	decisionNumber
+	WNScriptASTParserCyclicDFA6( ANTLR_INT32	decisionNumber
 					, const ANTLR_UCHAR*	description
 					, const ANTLR_INT32* const	eot
 					, const ANTLR_INT32* const	eof
@@ -1010,17 +1052,17 @@ public:
 
 };
 
-static WNScriptASTParserCyclicDFA27  cdfa27(
-	    27,
+static WNScriptASTParserCyclicDFA6  cdfa6(
+	    6,
 
-	    (const ANTLR_UCHAR*)"501:1: instructionScalar returns [scripting::instruction* node] : ( declaration | assignment );",
-	    dfa27_eot,
-	    dfa27_eof,
-	    dfa27_min,
-	    dfa27_max,
-	    dfa27_accept,
-	    dfa27_special,
-	    dfa27_transitions
+	    (const ANTLR_UCHAR*)"276:1: param returns [scripting::parameter* node] : ( scalarType a= ID |bb= compoundType aa= ID | SHARED_REF b= compoundType c= ID | WEAK_REF d= compoundType e= ID |f= compoundType QUESTION g= ID );",
+	    dfa6_eot,
+	    dfa6_eof,
+	    dfa6_min,
+	    dfa6_max,
+	    dfa6_accept,
+	    dfa6_special,
+	    dfa6_transitions
 
 	);
 
@@ -1030,68 +1072,73 @@ static WNScriptASTParserCyclicDFA27  cdfa27(
 
 
 
-static const ANTLR_INT32 dfa39_eot[16] =
+static const ANTLR_INT32 dfa31_eot[11] =
     {
-	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
     };
-static const ANTLR_INT32 dfa39_eof[16] =
+static const ANTLR_INT32 dfa31_eof[11] =
     {
-	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
     };
-static const ANTLR_INT32 dfa39_min[16] =
+static const ANTLR_INT32 dfa31_min[11] =
     {
-	5, -1, 22, 22, 22, 22, 22, 22, 22, -1, -1, 36, 28, 22, -1, -1
+	4, 22, 22, 22, 22, 22, -1, -1, 4, 22, 37
     };
-static const ANTLR_INT32 dfa39_max[16] =
+static const ANTLR_INT32 dfa31_max[11] =
     {
-	44, -1, 29, 29, 29, 29, 29, 29, 29, -1, -1, 36, 62, 29, -1, -1
+	58, 29, 29, 29, 29, 29, -1, -1, 58, 33, 37
     };
-static const ANTLR_INT32 dfa39_accept[16] =
+static const ANTLR_INT32 dfa31_accept[11] =
     {
-	-1, 5, -1, -1, -1, -1, -1, -1, -1, 3, 4, -1, -1, -1, 1, 2
+	-1, -1, -1, -1, -1, -1, 1, 2, -1, -1, -1
     };
-static const ANTLR_INT32 dfa39_special[16] =
+static const ANTLR_INT32 dfa31_special[11] =
     {
-	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
-    };
-
-
-static const ANTLR_INT32* dfa39_T_empty	 =   NULL;
-
-static const ANTLR_INT32 dfa39_T0[] =
-    {
-	15, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 14
-    };
-static const ANTLR_INT32 dfa39_T1[] =
-    {
-	12, -1, -1, -1, -1, -1, -1, 11
-    };
-static const ANTLR_INT32 dfa39_T2[] =
-    {
-	8, -1, 6, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 5, -1, -1, -1, -1,
-	-1, -1, 4, -1, -1, -1, -1, -1, 10, 1, -1, -1, -1, -1, -1, 7, -1, 2, -1,
-	9, 3
-    };
-static const ANTLR_INT32 dfa39_T3[] =
-    {
-	13
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
     };
 
 
+static const ANTLR_INT32* dfa31_T_empty	 =   NULL;
+
+static const ANTLR_INT32 dfa31_T0[] =
+    {
+	7, 5, 7, 4, -1, -1, -1, -1, -1, 7, 7, -1, -1, -1, 7, 3, -1, -1, 7, -1,
+	-1, 7, 2, -1, 7, -1, 7, -1, -1, -1, -1, -1, -1, -1, -1, 6, 7, 6, -1, 6,
+	-1, -1, 1, 6, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 7
+    };
+static const ANTLR_INT32 dfa31_T1[] =
+    {
+	6, -1, -1, -1, -1, -1, 7, 10, -1, -1, -1, 6
+    };
+static const ANTLR_INT32 dfa31_T2[] =
+    {
+	6, -1, -1, -1, -1, 7, 7, 8
+    };
+static const ANTLR_INT32 dfa31_T3[] =
+    {
+	9
+    };
+static const ANTLR_INT32 dfa31_T4[] =
+    {
+	7, 7, 7, 7, -1, -1, -1, -1, -1, 7, 7, -1, -1, -1, 7, 7, -1, -1, 7, -1,
+	-1, 7, 7, -1, 7, -1, 7, -1, -1, -1, -1, -1, -1, 9, -1, -1, 7, -1, -1, -1,
+	-1, -1, 7, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 7
+    };
 
 
 
-static const ANTLR_INT32 * const dfa39_transitions[] =
+
+
+static const ANTLR_INT32 * const dfa31_transitions[] =
 {
-    dfa39_T2, NULL, dfa39_T1, dfa39_T1, dfa39_T1, dfa39_T1, dfa39_T1, dfa39_T1,
-    dfa39_T1, NULL, NULL, dfa39_T3, dfa39_T0, dfa39_T1, NULL, NULL
+    dfa31_T0, dfa31_T2, dfa31_T2, dfa31_T2, dfa31_T2, dfa31_T2, NULL, NULL,
+    dfa31_T4, dfa31_T1, dfa31_T3
 };
 
 
 
 
-class WNScriptASTParserCyclicDFA39 : public CyclicDFA< WNScriptASTParserImplTraits, WNScriptASTParser >, public WNScriptASTParserTokens
+class WNScriptASTParserCyclicDFA31 : public CyclicDFA< WNScriptASTParserImplTraits, WNScriptASTParser >, public WNScriptASTParserTokens
 {
 public:
 	typedef CyclicDFA< WNScriptASTParserImplTraits, WNScriptASTParser >  BaseType;
@@ -1101,7 +1148,7 @@ private:
 
 
 public:
-	WNScriptASTParserCyclicDFA39( ANTLR_INT32	decisionNumber
+	WNScriptASTParserCyclicDFA31( ANTLR_INT32	decisionNumber
 					, const ANTLR_UCHAR*	description
 					, const ANTLR_INT32* const	eot
 					, const ANTLR_INT32* const	eof
@@ -1118,17 +1165,198 @@ public:
 
 };
 
-static WNScriptASTParserCyclicDFA39  cdfa39(
-	    39,
+static WNScriptASTParserCyclicDFA31  cdfa31(
+	    31,
 
-	    (const ANTLR_UCHAR*)"()* loopback of 617:17: ( (a= declaration SEMICOLON ) | (b= function ) | ( VIRTUAL h= function ) | ( OVERRIDE i= function ) )*",
-	    dfa39_eot,
-	    dfa39_eof,
-	    dfa39_min,
-	    dfa39_max,
-	    dfa39_accept,
-	    dfa39_special,
-	    dfa39_transitions
+	    (const ANTLR_UCHAR*)"536:1: instructionScalar returns [scripting::instruction* node] : ( declaration | assignment );",
+	    dfa31_eot,
+	    dfa31_eof,
+	    dfa31_min,
+	    dfa31_max,
+	    dfa31_accept,
+	    dfa31_special,
+	    dfa31_transitions
+
+	);
+
+
+
+
+
+
+
+static const ANTLR_INT32 dfa43_eot[41] =
+    {
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+	-1, -1, -1, -1, -1
+    };
+static const ANTLR_INT32 dfa43_eof[41] =
+    {
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+	-1, -1, -1, -1, -1
+    };
+static const ANTLR_INT32 dfa43_min[41] =
+    {
+	5, -1, 22, 22, 22, 22, 22, 22, 22, 5, 5, -1, -1, 28, 37, 28, 22, 29, 29,
+	29, 29, 29, 22, 22, 29, 29, 29, 29, 29, 22, 22, -1, -1, 22, 28, 37, 28,
+	37, 28, 22, 22
+    };
+static const ANTLR_INT32 dfa43_max[41] =
+    {
+	47, -1, 29, 29, 29, 29, 29, 33, 33, 46, 46, -1, -1, 65, 37, 65, 22, 29,
+	29, 29, 29, 29, 22, 22, 29, 29, 29, 29, 29, 22, 22, -1, -1, 33, 65, 37,
+	65, 37, 65, 29, 29
+    };
+static const ANTLR_INT32 dfa43_accept[41] =
+    {
+	-1, 5, -1, -1, -1, -1, -1, -1, -1, -1, -1, 3, 4, -1, -1, -1, -1, -1, -1,
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, 2, -1, -1, -1, -1, -1,
+	-1, -1, -1
+    };
+static const ANTLR_INT32 dfa43_special[41] =
+    {
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+	-1, -1, -1, -1, -1
+    };
+
+
+static const ANTLR_INT32* dfa43_T_empty	 =   NULL;
+
+static const ANTLR_INT32 dfa43_T0[] =
+    {
+	32, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+	-1, 31
+    };
+static const ANTLR_INT32 dfa43_T1[] =
+    {
+	34
+    };
+static const ANTLR_INT32 dfa43_T2[] =
+    {
+	36
+    };
+static const ANTLR_INT32 dfa43_T3[] =
+    {
+	39
+    };
+static const ANTLR_INT32 dfa43_T4[] =
+    {
+	40
+    };
+static const ANTLR_INT32 dfa43_T5[] =
+    {
+	38
+    };
+static const ANTLR_INT32 dfa43_T6[] =
+    {
+	13, -1, -1, -1, -1, -1, -1, 14
+    };
+static const ANTLR_INT32 dfa43_T7[] =
+    {
+	35
+    };
+static const ANTLR_INT32 dfa43_T8[] =
+    {
+	37
+    };
+static const ANTLR_INT32 dfa43_T9[] =
+    {
+	33
+    };
+static const ANTLR_INT32 dfa43_T10[] =
+    {
+	6, -1, 5, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 4, -1, -1, -1, -1,
+	-1, -1, 3, -1, -1, -1, -1, -1, 12, -1, 1, -1, -1, -1, -1, 9, -1, 8, -1,
+	7, -1, 11, 2, 10
+    };
+static const ANTLR_INT32 dfa43_T11[] =
+    {
+	36, -1, -1, -1, -1, -1, -1, 35
+    };
+static const ANTLR_INT32 dfa43_T12[] =
+    {
+	21, -1, 20, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 19, -1, -1, -1,
+	-1, -1, -1, 18, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+	23, -1, 22, -1, -1, 17
+    };
+static const ANTLR_INT32 dfa43_T13[] =
+    {
+	15, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 16
+    };
+static const ANTLR_INT32 dfa43_T14[] =
+    {
+	38, -1, -1, -1, -1, -1, -1, 37
+    };
+static const ANTLR_INT32 dfa43_T15[] =
+    {
+	28, -1, 27, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 26, -1, -1, -1,
+	-1, -1, -1, 25, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+	30, -1, 29, -1, -1, 24
+    };
+static const ANTLR_INT32 dfa43_T16[] =
+    {
+	15, -1, -1, -1, -1, -1, -1, 14, -1, -1, -1, 16
+    };
+
+
+
+
+
+static const ANTLR_INT32 * const dfa43_transitions[] =
+{
+    dfa43_T10, NULL, dfa43_T6, dfa43_T6, dfa43_T6, dfa43_T6, dfa43_T6, dfa43_T13,
+    dfa43_T13, dfa43_T12, dfa43_T15, NULL, NULL, dfa43_T0, dfa43_T9, dfa43_T0,
+    dfa43_T1, dfa43_T7, dfa43_T7, dfa43_T7, dfa43_T7, dfa43_T7, dfa43_T2,
+    dfa43_T2, dfa43_T8, dfa43_T8, dfa43_T8, dfa43_T8, dfa43_T8, dfa43_T5,
+    dfa43_T5, NULL, NULL, dfa43_T16, dfa43_T0, dfa43_T3, dfa43_T0, dfa43_T4,
+    dfa43_T0, dfa43_T11, dfa43_T14
+};
+
+
+
+
+class WNScriptASTParserCyclicDFA43 : public CyclicDFA< WNScriptASTParserImplTraits, WNScriptASTParser >, public WNScriptASTParserTokens
+{
+public:
+	typedef CyclicDFA< WNScriptASTParserImplTraits, WNScriptASTParser >  BaseType;
+	typedef BaseType::ContextType CtxType;
+
+private:
+
+
+public:
+	WNScriptASTParserCyclicDFA43( ANTLR_INT32	decisionNumber
+					, const ANTLR_UCHAR*	description
+					, const ANTLR_INT32* const	eot
+					, const ANTLR_INT32* const	eof
+					, const ANTLR_INT32* const	min
+					, const ANTLR_INT32* const	max
+					, const ANTLR_INT32* const	accept
+					, const ANTLR_INT32* const	special
+					, const ANTLR_INT32* const *const	transition)
+					:BaseType( decisionNumber, description, eot, eof, min, max, accept,
+								special, transition )
+	{
+
+	}
+
+};
+
+static WNScriptASTParserCyclicDFA43  cdfa43(
+	    43,
+
+	    (const ANTLR_UCHAR*)"()* loopback of 652:17: ( (a= declaration SEMICOLON ) | (b= function ) | ( VIRTUAL h= function ) | ( OVERRIDE i= function ) )*",
+	    dfa43_eot,
+	    dfa43_eof,
+	    dfa43_min,
+	    dfa43_max,
+	    dfa43_accept,
+	    dfa43_special,
+	    dfa43_transitions
 
 	);
 
@@ -1148,7 +1376,7 @@ static WNScriptASTParserCyclicDFA39  cdfa39(
 
 
 scripting::type*
-WNScriptASTParser::scalarType()
+WNScriptASTParser::objectType()
 {
         WNScriptASTParserImplTraits::RuleReturnValueType _antlr_rule_exit(this);
 
@@ -1156,12 +1384,7 @@ WNScriptASTParser::scalarType()
 
 
     const ImplTraits::CommonTokenType* TYPE1 = NULL;
-    const ImplTraits::CommonTokenType* VOID_TYPE2 = NULL;
-    const ImplTraits::CommonTokenType* INT_TYPE3 = NULL;
-    const ImplTraits::CommonTokenType* FLOAT_TYPE4 = NULL;
-    const ImplTraits::CommonTokenType* CHAR_TYPE5 = NULL;
-    const ImplTraits::CommonTokenType* STRING_TYPE6 = NULL;
-    const ImplTraits::CommonTokenType* BOOL_TYPE7 = NULL;
+    const ImplTraits::CommonTokenType* STRING_TYPE2 = NULL;
 
 
 
@@ -1177,7 +1400,7 @@ WNScriptASTParser::scalarType()
 
             ANTLR_UINT32 alt1;
 
-            alt1=7;
+            alt1=2;
 
             switch ( this->LA(1) )
             {
@@ -1186,34 +1409,9 @@ WNScriptASTParser::scalarType()
             		alt1=1;
             	}
                 break;
-            case VOID_TYPE:
-            	{
-            		alt1=2;
-            	}
-                break;
-            case INT_TYPE:
-            	{
-            		alt1=3;
-            	}
-                break;
-            case FLOAT_TYPE:
-            	{
-            		alt1=4;
-            	}
-                break;
-            case CHAR_TYPE:
-            	{
-            		alt1=5;
-            	}
-                break;
             case STRING_TYPE:
             	{
-            		alt1=6;
-            	}
-                break;
-            case BOOL_TYPE:
-            	{
-            		alt1=7;
+            		alt1=2;
             	}
                 break;
 
@@ -1223,7 +1421,7 @@ WNScriptASTParser::scalarType()
                 ex->set_state( 0 );
 
 
-                goto rulescalarTypeEx;
+                goto ruleobjectTypeEx;
 
             }
 
@@ -1231,10 +1429,10 @@ WNScriptASTParser::scalarType()
             {
         	case 1:
         	    {
-        	        TYPE1 =  this->matchToken(TYPE, &FOLLOW_TYPE_in_scalarType1127);
+        	        TYPE1 =  this->matchToken(TYPE, &FOLLOW_TYPE_in_objectType1151);
         	        if  (this->hasException())
         	        {
-        	            goto rulescalarTypeEx;
+        	            goto ruleobjectTypeEx;
         	        }
 
 
@@ -1247,7 +1445,114 @@ WNScriptASTParser::scalarType()
         	    break;
         	case 2:
         	    {
-        	        VOID_TYPE2 =  this->matchToken(VOID_TYPE, &FOLLOW_VOID_TYPE_in_scalarType1142);
+        	        STRING_TYPE2 =  this->matchToken(STRING_TYPE, &FOLLOW_STRING_TYPE_in_objectType1166);
+        	        if  (this->hasException())
+        	        {
+        	            goto ruleobjectTypeEx;
+        	        }
+
+
+        	        {
+        	             node = m_allocator->make_allocated<scripting::type>(m_allocator, scripting::type_classification::string_type); SET_LOCATION(node, STRING_TYPE2);
+        	        }
+
+
+        	    }
+        	    break;
+
+            }
+        }
+    }
+    goto ruleobjectTypeEx;
+    ruleobjectTypeEx: ;
+
+
+    	if (this->hasException())
+        {
+            this->preporterror();
+            this->precover();
+        }
+    return node;
+}
+
+
+
+
+
+
+scripting::type*
+WNScriptASTParser::scalarType()
+{
+        WNScriptASTParserImplTraits::RuleReturnValueType _antlr_rule_exit(this);
+
+    scripting::type* node;
+
+
+    const ImplTraits::CommonTokenType* VOID_TYPE3 = NULL;
+    const ImplTraits::CommonTokenType* INT_TYPE4 = NULL;
+    const ImplTraits::CommonTokenType* FLOAT_TYPE5 = NULL;
+    const ImplTraits::CommonTokenType* CHAR_TYPE6 = NULL;
+    const ImplTraits::CommonTokenType* BOOL_TYPE7 = NULL;
+
+
+
+
+
+
+        node = wn_nullptr;
+
+
+
+    {
+        {
+
+            ANTLR_UINT32 alt2;
+
+            alt2=5;
+
+            switch ( this->LA(1) )
+            {
+            case VOID_TYPE:
+            	{
+            		alt2=1;
+            	}
+                break;
+            case INT_TYPE:
+            	{
+            		alt2=2;
+            	}
+                break;
+            case FLOAT_TYPE:
+            	{
+            		alt2=3;
+            	}
+                break;
+            case CHAR_TYPE:
+            	{
+            		alt2=4;
+            	}
+                break;
+            case BOOL_TYPE:
+            	{
+            		alt2=5;
+            	}
+                break;
+
+            default:
+                ExceptionBaseType* ex = new ANTLR_Exception< WNScriptASTParserImplTraits, NO_VIABLE_ALT_EXCEPTION, StreamType>( this->get_rec(), "" );
+                ex->set_decisionNum( 2 );
+                ex->set_state( 0 );
+
+
+                goto rulescalarTypeEx;
+
+            }
+
+            switch (alt2)
+            {
+        	case 1:
+        	    {
+        	        VOID_TYPE3 =  this->matchToken(VOID_TYPE, &FOLLOW_VOID_TYPE_in_scalarType1195);
         	        if  (this->hasException())
         	        {
         	            goto rulescalarTypeEx;
@@ -1255,7 +1560,23 @@ WNScriptASTParser::scalarType()
 
 
         	        {
-        	             node = m_allocator->make_allocated<scripting::type>(m_allocator, scripting::type_classification::void_type); SET_LOCATION(node, VOID_TYPE2);
+        	             node = m_allocator->make_allocated<scripting::type>(m_allocator, scripting::type_classification::void_type); SET_LOCATION(node, VOID_TYPE3);
+        	        }
+
+
+        	    }
+        	    break;
+        	case 2:
+        	    {
+        	        INT_TYPE4 =  this->matchToken(INT_TYPE, &FOLLOW_INT_TYPE_in_scalarType1207);
+        	        if  (this->hasException())
+        	        {
+        	            goto rulescalarTypeEx;
+        	        }
+
+
+        	        {
+        	             node = m_allocator->make_allocated<scripting::type>(m_allocator, scripting::type_classification::int_type); SET_LOCATION(node, INT_TYPE4);
         	        }
 
 
@@ -1263,7 +1584,7 @@ WNScriptASTParser::scalarType()
         	    break;
         	case 3:
         	    {
-        	        INT_TYPE3 =  this->matchToken(INT_TYPE, &FOLLOW_INT_TYPE_in_scalarType1154);
+        	        FLOAT_TYPE5 =  this->matchToken(FLOAT_TYPE, &FOLLOW_FLOAT_TYPE_in_scalarType1219);
         	        if  (this->hasException())
         	        {
         	            goto rulescalarTypeEx;
@@ -1271,7 +1592,7 @@ WNScriptASTParser::scalarType()
 
 
         	        {
-        	             node = m_allocator->make_allocated<scripting::type>(m_allocator, scripting::type_classification::int_type); SET_LOCATION(node, INT_TYPE3);
+        	             node = m_allocator->make_allocated<scripting::type>(m_allocator, scripting::type_classification::float_type); SET_LOCATION(node, FLOAT_TYPE5);
         	        }
 
 
@@ -1279,7 +1600,7 @@ WNScriptASTParser::scalarType()
         	    break;
         	case 4:
         	    {
-        	        FLOAT_TYPE4 =  this->matchToken(FLOAT_TYPE, &FOLLOW_FLOAT_TYPE_in_scalarType1166);
+        	        CHAR_TYPE6 =  this->matchToken(CHAR_TYPE, &FOLLOW_CHAR_TYPE_in_scalarType1231);
         	        if  (this->hasException())
         	        {
         	            goto rulescalarTypeEx;
@@ -1287,7 +1608,7 @@ WNScriptASTParser::scalarType()
 
 
         	        {
-        	             node = m_allocator->make_allocated<scripting::type>(m_allocator, scripting::type_classification::float_type); SET_LOCATION(node, FLOAT_TYPE4);
+        	             node = m_allocator->make_allocated<scripting::type>(m_allocator, scripting::type_classification::char_type); SET_LOCATION(node, CHAR_TYPE6);
         	        }
 
 
@@ -1295,39 +1616,7 @@ WNScriptASTParser::scalarType()
         	    break;
         	case 5:
         	    {
-        	        CHAR_TYPE5 =  this->matchToken(CHAR_TYPE, &FOLLOW_CHAR_TYPE_in_scalarType1178);
-        	        if  (this->hasException())
-        	        {
-        	            goto rulescalarTypeEx;
-        	        }
-
-
-        	        {
-        	             node = m_allocator->make_allocated<scripting::type>(m_allocator, scripting::type_classification::char_type); SET_LOCATION(node, CHAR_TYPE5);
-        	        }
-
-
-        	    }
-        	    break;
-        	case 6:
-        	    {
-        	        STRING_TYPE6 =  this->matchToken(STRING_TYPE, &FOLLOW_STRING_TYPE_in_scalarType1190);
-        	        if  (this->hasException())
-        	        {
-        	            goto rulescalarTypeEx;
-        	        }
-
-
-        	        {
-        	             node = m_allocator->make_allocated<scripting::type>(m_allocator, scripting::type_classification::string_type); SET_LOCATION(node, STRING_TYPE6);
-        	        }
-
-
-        	    }
-        	    break;
-        	case 7:
-        	    {
-        	        BOOL_TYPE7 =  this->matchToken(BOOL_TYPE, &FOLLOW_BOOL_TYPE_in_scalarType1202);
+        	        BOOL_TYPE7 =  this->matchToken(BOOL_TYPE, &FOLLOW_BOOL_TYPE_in_scalarType1243);
         	        if  (this->hasException())
         	        {
         	            goto rulescalarTypeEx;
@@ -1363,7 +1652,7 @@ WNScriptASTParser::scalarType()
 
 
 scripting::type*
-WNScriptASTParser::type()
+WNScriptASTParser::compoundType()
 {
         WNScriptASTParserImplTraits::RuleReturnValueType _antlr_rule_exit(this);
 
@@ -1373,6 +1662,7 @@ WNScriptASTParser::type()
     const ImplTraits::CommonTokenType* RSQBRACKET9 = NULL;
     const ImplTraits::CommonTokenType* LSQBRACKET10 = NULL;
     scripting::type* scalarType8;
+    scripting::type* objectType11;
 
 
 
@@ -1384,78 +1674,393 @@ WNScriptASTParser::type()
 
     {
         {
-            this->followPush(FOLLOW_scalarType_in_type1235);
-            scalarType8=scalarType();
 
-            this->followPop();
-            if  (this->hasException())
+            ANTLR_UINT32 alt4;
+
+            alt4=2;
+
+            switch ( this->LA(1) )
             {
-                goto ruletypeEx;
+            case BOOL_TYPE:
+            case CHAR_TYPE:
+            case FLOAT_TYPE:
+            case INT_TYPE:
+            case VOID_TYPE:
+            	{
+            		alt4=1;
+            	}
+                break;
+            case STRING_TYPE:
+            case TYPE:
+            	{
+            		alt4=2;
+            	}
+                break;
+
+            default:
+                ExceptionBaseType* ex = new ANTLR_Exception< WNScriptASTParserImplTraits, NO_VIABLE_ALT_EXCEPTION, StreamType>( this->get_rec(), "" );
+                ex->set_decisionNum( 4 );
+                ex->set_state( 0 );
+
+
+                goto rulecompoundTypeEx;
+
             }
 
-
+            switch (alt4)
             {
-                 node = scalarType8
-                ; SET_LOCATION_FROM_NODE(node, scalarType8
-                );
+        	case 1:
+        	    {
+        	        this->followPush(FOLLOW_scalarType_in_compoundType1270);
+        	        scalarType8=scalarType();
+
+        	        this->followPop();
+        	        if  (this->hasException())
+        	        {
+        	            goto rulecompoundTypeEx;
+        	        }
+
+
+        	        {
+        	             node = scalarType8
+        	            ; SET_LOCATION_FROM_NODE(node, scalarType8
+        	            );
+        	        }
+
+
+        	        {
+        	            int cnt3=0;
+
+        	            for (;;)
+        	            {
+        	                int alt3=2;
+        	        	switch ( this->LA(1) )
+        	        	{
+        	        	case LSQBRACKET:
+        	        		{
+        	        			alt3=1;
+        	        		}
+        	        	    break;
+
+        	        	}
+
+        	        	switch (alt3)
+        	        	{
+        	        	    case 1:
+        	        	        {
+        	        	            LSQBRACKET10 =  this->matchToken(LSQBRACKET, &FOLLOW_LSQBRACKET_in_compoundType1286);
+        	        	            if  (this->hasException())
+        	        	            {
+        	        	                goto rulecompoundTypeEx;
+        	        	            }
+
+
+        	        	            RSQBRACKET9 =  this->matchToken(RSQBRACKET, &FOLLOW_RSQBRACKET_in_compoundType1288);
+        	        	            if  (this->hasException())
+        	        	            {
+        	        	                goto rulecompoundTypeEx;
+        	        	            }
+
+
+        	        	            {
+
+        	        	                                   SET_END_LOCATION(node, RSQBRACKET9);
+        	        	                                   node = m_allocator->make_allocated<scripting::array_type>(m_allocator, node);
+        	        	                                   SET_LOCATION(node, LSQBRACKET10);
+        	        	                                   SET_END_LOCATION(node, RSQBRACKET9);
+
+        	        	            }
+
+
+        	        	        }
+        	        	        break;
+
+        	        	    default:
+
+        	        		if ( cnt3 >= 1 )
+        	        		{
+        	        		    goto loop3;
+        	        		}
+
+
+        	        		new ANTLR_Exception< WNScriptASTParserImplTraits, EARLY_EXIT_EXCEPTION, StreamType>( this->get_rec(), "" );
+
+
+        	        		goto rulecompoundTypeEx;
+        	        	}
+        	        	cnt3++;
+        	            }
+        	            loop3: ;
+        	        }
+
+        	    }
+        	    break;
+        	case 2:
+        	    {
+        	        this->followPush(FOLLOW_objectType_in_compoundType1300);
+        	        objectType11=objectType();
+
+        	        this->followPop();
+        	        if  (this->hasException())
+        	        {
+        	            goto rulecompoundTypeEx;
+        	        }
+
+
+        	        {
+        	             node = objectType11
+        	            ;
+        	        }
+
+
+        	    }
+        	    break;
+
             }
-
-
-
-            for (;;)
-            {
-                int alt2=2;
-                switch ( this->LA(1) )
-                {
-                case LSQBRACKET:
-                	{
-                		alt2=1;
-                	}
-                    break;
-
-                }
-
-                switch (alt2)
-                {
-            	case 1:
-            	    {
-            	        LSQBRACKET10 =  this->matchToken(LSQBRACKET, &FOLLOW_LSQBRACKET_in_type1256);
-            	        if  (this->hasException())
-            	        {
-            	            goto ruletypeEx;
-            	        }
-
-
-            	        RSQBRACKET9 =  this->matchToken(RSQBRACKET, &FOLLOW_RSQBRACKET_in_type1258);
-            	        if  (this->hasException())
-            	        {
-            	            goto ruletypeEx;
-            	        }
-
-
-            	        {
-
-            	            					SET_END_LOCATION(node, RSQBRACKET9);
-            	            					node = m_allocator->make_allocated<scripting::array_type>(m_allocator, node);
-            	            					SET_LOCATION(node, LSQBRACKET10);
-            	            					SET_END_LOCATION(node, RSQBRACKET9);
-
-            	        }
-
-
-            	    }
-            	    break;
-
-            	default:
-            	    goto loop2;
-            	    break;
-                }
-            }
-            loop2: ;
-
-
         }
+    }
+    goto rulecompoundTypeEx;
+    rulecompoundTypeEx: ;
 
+
+    	if (this->hasException())
+        {
+            this->preporterror();
+            this->precover();
+        }
+    return node;
+}
+
+
+
+
+
+
+scripting::type*
+WNScriptASTParser::type()
+{
+        WNScriptASTParserImplTraits::RuleReturnValueType _antlr_rule_exit(this);
+
+    scripting::type* node;
+
+
+    scripting::type* compoundType12;
+    scripting::type* scalarType13;
+
+
+
+
+
+        node = wn_nullptr;
+
+
+
+    {
+        {
+
+            ANTLR_UINT32 alt5;
+
+            alt5=2;
+
+            switch ( this->LA(1) )
+            {
+            case VOID_TYPE:
+            	{
+            		switch ( this->LA(2) )
+            		{
+            		case LSQBRACKET:
+            			{
+            				alt5=1;
+            			}
+            		    break;
+            		case EOF:
+            			{
+            				alt5=2;
+            			}
+            		    break;
+
+            		default:
+            		    ExceptionBaseType* ex = new ANTLR_Exception< WNScriptASTParserImplTraits, NO_VIABLE_ALT_EXCEPTION, StreamType>( this->get_rec(), "" );
+            		    ex->set_decisionNum( 5 );
+            		    ex->set_state( 1 );
+
+
+            		    goto ruletypeEx;
+
+            		}
+
+            	}
+                break;
+            case INT_TYPE:
+            	{
+            		switch ( this->LA(2) )
+            		{
+            		case LSQBRACKET:
+            			{
+            				alt5=1;
+            			}
+            		    break;
+            		case EOF:
+            			{
+            				alt5=2;
+            			}
+            		    break;
+
+            		default:
+            		    ExceptionBaseType* ex = new ANTLR_Exception< WNScriptASTParserImplTraits, NO_VIABLE_ALT_EXCEPTION, StreamType>( this->get_rec(), "" );
+            		    ex->set_decisionNum( 5 );
+            		    ex->set_state( 2 );
+
+
+            		    goto ruletypeEx;
+
+            		}
+
+            	}
+                break;
+            case FLOAT_TYPE:
+            	{
+            		switch ( this->LA(2) )
+            		{
+            		case LSQBRACKET:
+            			{
+            				alt5=1;
+            			}
+            		    break;
+            		case EOF:
+            			{
+            				alt5=2;
+            			}
+            		    break;
+
+            		default:
+            		    ExceptionBaseType* ex = new ANTLR_Exception< WNScriptASTParserImplTraits, NO_VIABLE_ALT_EXCEPTION, StreamType>( this->get_rec(), "" );
+            		    ex->set_decisionNum( 5 );
+            		    ex->set_state( 3 );
+
+
+            		    goto ruletypeEx;
+
+            		}
+
+            	}
+                break;
+            case CHAR_TYPE:
+            	{
+            		switch ( this->LA(2) )
+            		{
+            		case LSQBRACKET:
+            			{
+            				alt5=1;
+            			}
+            		    break;
+            		case EOF:
+            			{
+            				alt5=2;
+            			}
+            		    break;
+
+            		default:
+            		    ExceptionBaseType* ex = new ANTLR_Exception< WNScriptASTParserImplTraits, NO_VIABLE_ALT_EXCEPTION, StreamType>( this->get_rec(), "" );
+            		    ex->set_decisionNum( 5 );
+            		    ex->set_state( 4 );
+
+
+            		    goto ruletypeEx;
+
+            		}
+
+            	}
+                break;
+            case BOOL_TYPE:
+            	{
+            		switch ( this->LA(2) )
+            		{
+            		case LSQBRACKET:
+            			{
+            				alt5=1;
+            			}
+            		    break;
+            		case EOF:
+            			{
+            				alt5=2;
+            			}
+            		    break;
+
+            		default:
+            		    ExceptionBaseType* ex = new ANTLR_Exception< WNScriptASTParserImplTraits, NO_VIABLE_ALT_EXCEPTION, StreamType>( this->get_rec(), "" );
+            		    ex->set_decisionNum( 5 );
+            		    ex->set_state( 5 );
+
+
+            		    goto ruletypeEx;
+
+            		}
+
+            	}
+                break;
+            case STRING_TYPE:
+            case TYPE:
+            	{
+            		alt5=1;
+            	}
+                break;
+
+            default:
+                ExceptionBaseType* ex = new ANTLR_Exception< WNScriptASTParserImplTraits, NO_VIABLE_ALT_EXCEPTION, StreamType>( this->get_rec(), "" );
+                ex->set_decisionNum( 5 );
+                ex->set_state( 0 );
+
+
+                goto ruletypeEx;
+
+            }
+
+            switch (alt5)
+            {
+        	case 1:
+        	    {
+        	        this->followPush(FOLLOW_compoundType_in_type1330);
+        	        compoundType12=compoundType();
+
+        	        this->followPop();
+        	        if  (this->hasException())
+        	        {
+        	            goto ruletypeEx;
+        	        }
+
+
+        	        {
+        	             node = compoundType12
+        	            ;
+        	        }
+
+
+        	    }
+        	    break;
+        	case 2:
+        	    {
+        	        this->followPush(FOLLOW_scalarType_in_type1340);
+        	        scalarType13=scalarType();
+
+        	        this->followPop();
+        	        if  (this->hasException())
+        	        {
+        	            goto ruletypeEx;
+        	        }
+
+
+        	        {
+        	             node = scalarType13
+        	            ;
+        	        }
+
+
+        	    }
+        	    break;
+
+            }
+        }
     }
     goto ruletypeEx;
     ruletypeEx: ;
@@ -1482,8 +2087,18 @@ WNScriptASTParser::param()
     scripting::parameter* node;
 
 
-    const ImplTraits::CommonTokenType* ID12 = NULL;
-    scripting::type* type11;
+    const ImplTraits::CommonTokenType* a = NULL;
+    const ImplTraits::CommonTokenType* aa = NULL;
+    const ImplTraits::CommonTokenType* c = NULL;
+    const ImplTraits::CommonTokenType* e = NULL;
+    const ImplTraits::CommonTokenType* g = NULL;
+    const ImplTraits::CommonTokenType* SHARED_REF15 = NULL;
+    const ImplTraits::CommonTokenType* WEAK_REF16 = NULL;
+    scripting::type* bb;
+    scripting::type* b;
+    scripting::type* d;
+    scripting::type* f;
+    scripting::type* scalarType14;
 
 
 
@@ -1495,33 +2110,200 @@ WNScriptASTParser::param()
 
     {
         {
-            this->followPush(FOLLOW_type_in_param1290);
-            type11=type();
 
-            this->followPop();
+            ANTLR_UINT32 alt6;
+
+            alt6=5;
+
+            alt6 = cdfa6.predict(this, this->get_rec(), this->get_istream(), cdfa6 );
             if  (this->hasException())
             {
                 goto ruleparamEx;
             }
 
-
-            ID12 =  this->matchToken(ID, &FOLLOW_ID_in_param1292);
-            if  (this->hasException())
+            switch (alt6)
             {
-                goto ruleparamEx;
+        	case 1:
+        	    {
+        	        this->followPush(FOLLOW_scalarType_in_param1376);
+        	        scalarType14=scalarType();
+
+        	        this->followPop();
+        	        if  (this->hasException())
+        	        {
+        	            goto ruleparamEx;
+        	        }
+
+
+        	        a =  this->matchToken(ID, &FOLLOW_ID_in_param1380);
+        	        if  (this->hasException())
+        	        {
+        	            goto ruleparamEx;
+        	        }
+
+
+        	        {
+
+        	                        node = m_allocator->make_allocated<scripting::parameter>(m_allocator, scalarType14
+        	            , (a->getText()).c_str()); SET_LOCATION_FROM_NODE(node,
+        	            scalarType14
+        	            ); SET_END_LOCATION(node, a);
+        	        }
+
+
+        	    }
+        	    break;
+        	case 2:
+        	    {
+        	        this->followPush(FOLLOW_compoundType_in_param1395);
+        	        bb=compoundType();
+
+        	        this->followPop();
+        	        if  (this->hasException())
+        	        {
+        	            goto ruleparamEx;
+        	        }
+
+
+        	        aa =  this->matchToken(ID, &FOLLOW_ID_in_param1399);
+        	        if  (this->hasException())
+        	        {
+        	            goto ruleparamEx;
+        	        }
+
+
+        	        {
+
+        	                        bb
+        	            ->set_qualifier(scripting::type_qualifier::non_nullable);
+        	                        node = m_allocator->make_allocated<scripting::parameter>(m_allocator, bb
+        	            , (aa->getText()).c_str()); SET_LOCATION_FROM_NODE(node,
+        	            bb
+        	            ); SET_END_LOCATION(node, aa);
+        	        }
+
+
+        	    }
+        	    break;
+        	case 3:
+        	    {
+        	        SHARED_REF15 =  this->matchToken(SHARED_REF, &FOLLOW_SHARED_REF_in_param1412);
+        	        if  (this->hasException())
+        	        {
+        	            goto ruleparamEx;
+        	        }
+
+
+        	        this->followPush(FOLLOW_compoundType_in_param1416);
+        	        b=compoundType();
+
+        	        this->followPop();
+        	        if  (this->hasException())
+        	        {
+        	            goto ruleparamEx;
+        	        }
+
+
+        	        c =  this->matchToken(ID, &FOLLOW_ID_in_param1420);
+        	        if  (this->hasException())
+        	        {
+        	            goto ruleparamEx;
+        	        }
+
+
+        	        {
+
+        	                       b
+        	            ->set_qualifier(scripting::type_qualifier::shared);
+        	                       node = m_allocator->make_allocated<scripting::parameter>(m_allocator, b
+        	            , (c->getText()).c_str()); SET_LOCATION(node, SHARED_REF15); SET_END_LOCATION(node, c);
+
+        	        }
+
+
+        	    }
+        	    break;
+        	case 4:
+        	    {
+        	        WEAK_REF16 =  this->matchToken(WEAK_REF, &FOLLOW_WEAK_REF_in_param1433);
+        	        if  (this->hasException())
+        	        {
+        	            goto ruleparamEx;
+        	        }
+
+
+        	        this->followPush(FOLLOW_compoundType_in_param1437);
+        	        d=compoundType();
+
+        	        this->followPop();
+        	        if  (this->hasException())
+        	        {
+        	            goto ruleparamEx;
+        	        }
+
+
+        	        e =  this->matchToken(ID, &FOLLOW_ID_in_param1442);
+        	        if  (this->hasException())
+        	        {
+        	            goto ruleparamEx;
+        	        }
+
+
+        	        {
+
+        	                       d
+        	            ->set_qualifier(scripting::type_qualifier::weak);
+        	                       node = m_allocator->make_allocated<scripting::parameter>(m_allocator, d
+        	            , (e->getText()).c_str()); SET_LOCATION(node, WEAK_REF16); SET_END_LOCATION(node, e);
+
+        	        }
+
+
+        	    }
+        	    break;
+        	case 5:
+        	    {
+        	        this->followPush(FOLLOW_compoundType_in_param1457);
+        	        f=compoundType();
+
+        	        this->followPop();
+        	        if  (this->hasException())
+        	        {
+        	            goto ruleparamEx;
+        	        }
+
+
+        	         this->matchToken(QUESTION, &FOLLOW_QUESTION_in_param1459);
+        	        if  (this->hasException())
+        	        {
+        	            goto ruleparamEx;
+        	        }
+
+
+        	        g =  this->matchToken(ID, &FOLLOW_ID_in_param1464);
+        	        if  (this->hasException())
+        	        {
+        	            goto ruleparamEx;
+        	        }
+
+
+        	        {
+
+        	                       f
+        	            ->set_qualifier(scripting::type_qualifier::nullable);
+        	                       node = m_allocator->make_allocated<scripting::parameter>(m_allocator, f
+        	            , (g->getText()).c_str()); SET_LOCATION_FROM_NODE(node,
+        	            f
+        	            ); SET_END_LOCATION(node, g);
+
+        	        }
+
+
+        	    }
+        	    break;
+
             }
-
-
-            {
-                node = m_allocator->make_allocated<scripting::parameter>(m_allocator, type11
-                , (ID12->getText()).c_str()); SET_LOCATION_FROM_NODE(node,
-                type11
-                ); SET_END_LOCATION(node, ID12);
-            }
-
-
         }
-
     }
     goto ruleparamEx;
     ruleparamEx: ;
@@ -1561,7 +2343,7 @@ WNScriptASTParser::paramList()
 
     {
         {
-            this->followPush(FOLLOW_param_in_paramList1324);
+            this->followPush(FOLLOW_param_in_paramList1496);
             a=param();
 
             this->followPop();
@@ -1581,29 +2363,29 @@ WNScriptASTParser::paramList()
 
             for (;;)
             {
-                int alt3=2;
+                int alt7=2;
                 switch ( this->LA(1) )
                 {
                 case COMMA:
                 	{
-                		alt3=1;
+                		alt7=1;
                 	}
                     break;
 
                 }
 
-                switch (alt3)
+                switch (alt7)
                 {
             	case 1:
             	    {
-            	         this->matchToken(COMMA, &FOLLOW_COMMA_in_paramList1337);
+            	         this->matchToken(COMMA, &FOLLOW_COMMA_in_paramList1509);
             	        if  (this->hasException())
             	        {
             	            goto ruleparamListEx;
             	        }
 
 
-            	        this->followPush(FOLLOW_param_in_paramList1341);
+            	        this->followPush(FOLLOW_param_in_paramList1513);
             	        b=param();
 
             	        this->followPop();
@@ -1625,11 +2407,11 @@ WNScriptASTParser::paramList()
             	    break;
 
             	default:
-            	    goto loop3;
+            	    goto loop7;
             	    break;
                 }
             }
-            loop3: ;
+            loop7: ;
 
 
         }
@@ -1660,9 +2442,9 @@ WNScriptASTParser::parameterList()
     scripting::parameter_list* node;
 
 
-    const ImplTraits::CommonTokenType* LBRACKET14 = NULL;
-    const ImplTraits::CommonTokenType* RBRACKET15 = NULL;
-    scripting::parameter_list* paramList13;
+    const ImplTraits::CommonTokenType* LBRACKET18 = NULL;
+    const ImplTraits::CommonTokenType* RBRACKET19 = NULL;
+    scripting::parameter_list* paramList17;
 
 
 
@@ -1675,9 +2457,9 @@ WNScriptASTParser::parameterList()
     {
         {
 
-            ANTLR_UINT32 alt4;
+            ANTLR_UINT32 alt8;
 
-            alt4=2;
+            alt8=2;
 
             switch ( this->LA(1) )
             {
@@ -1687,24 +2469,26 @@ WNScriptASTParser::parameterList()
             		{
             		case RBRACKET:
             			{
-            				alt4=2;
+            				alt8=2;
             			}
             		    break;
             		case BOOL_TYPE:
             		case CHAR_TYPE:
             		case FLOAT_TYPE:
             		case INT_TYPE:
+            		case SHARED_REF:
             		case STRING_TYPE:
             		case TYPE:
             		case VOID_TYPE:
+            		case WEAK_REF:
             			{
-            				alt4=1;
+            				alt8=1;
             			}
             		    break;
 
             		default:
             		    ExceptionBaseType* ex = new ANTLR_Exception< WNScriptASTParserImplTraits, NO_VIABLE_ALT_EXCEPTION, StreamType>( this->get_rec(), "" );
-            		    ex->set_decisionNum( 4 );
+            		    ex->set_decisionNum( 8 );
             		    ex->set_state( 1 );
 
 
@@ -1717,7 +2501,7 @@ WNScriptASTParser::parameterList()
 
             default:
                 ExceptionBaseType* ex = new ANTLR_Exception< WNScriptASTParserImplTraits, NO_VIABLE_ALT_EXCEPTION, StreamType>( this->get_rec(), "" );
-                ex->set_decisionNum( 4 );
+                ex->set_decisionNum( 8 );
                 ex->set_state( 0 );
 
 
@@ -1725,19 +2509,19 @@ WNScriptASTParser::parameterList()
 
             }
 
-            switch (alt4)
+            switch (alt8)
             {
         	case 1:
         	    {
-        	        LBRACKET14 =  this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_parameterList1373);
+        	        LBRACKET18 =  this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_parameterList1545);
         	        if  (this->hasException())
         	        {
         	            goto ruleparameterListEx;
         	        }
 
 
-        	        this->followPush(FOLLOW_paramList_in_parameterList1375);
-        	        paramList13=paramList();
+        	        this->followPush(FOLLOW_paramList_in_parameterList1547);
+        	        paramList17=paramList();
 
         	        this->followPop();
         	        if  (this->hasException())
@@ -1746,7 +2530,7 @@ WNScriptASTParser::parameterList()
         	        }
 
 
-        	        RBRACKET15 =  this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_parameterList1377);
+        	        RBRACKET19 =  this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_parameterList1549);
         	        if  (this->hasException())
         	        {
         	            goto ruleparameterListEx;
@@ -1754,8 +2538,8 @@ WNScriptASTParser::parameterList()
 
 
         	        {
-        	             node = paramList13
-        	            ; SET_LOCATION(node, LBRACKET14); SET_END_LOCATION(node, RBRACKET15);
+        	             node = paramList17
+        	            ; SET_LOCATION(node, LBRACKET18); SET_END_LOCATION(node, RBRACKET19);
         	        }
 
 
@@ -1763,14 +2547,14 @@ WNScriptASTParser::parameterList()
         	    break;
         	case 2:
         	    {
-        	         this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_parameterList1394);
+        	         this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_parameterList1566);
         	        if  (this->hasException())
         	        {
         	            goto ruleparameterListEx;
         	        }
 
 
-        	         this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_parameterList1396);
+        	         this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_parameterList1568);
         	        if  (this->hasException())
         	        {
         	            goto ruleparameterListEx;
@@ -1825,46 +2609,46 @@ WNScriptASTParser::assign_type()
     {
         {
 
-            ANTLR_UINT32 alt5;
+            ANTLR_UINT32 alt9;
 
-            alt5=6;
+            alt9=6;
 
             switch ( this->LA(1) )
             {
-            case 62:
+            case 65:
             	{
-            		alt5=1;
+            		alt9=1;
             	}
                 break;
-            case 54:
+            case 57:
             	{
-            		alt5=2;
-            	}
-                break;
-            case 56:
-            	{
-            		alt5=3;
-            	}
-                break;
-            case 52:
-            	{
-            		alt5=4;
+            		alt9=2;
             	}
                 break;
             case 59:
             	{
-            		alt5=5;
+            		alt9=3;
             	}
                 break;
-            case 49:
+            case 55:
             	{
-            		alt5=6;
+            		alt9=4;
+            	}
+                break;
+            case 62:
+            	{
+            		alt9=5;
+            	}
+                break;
+            case 52:
+            	{
+            		alt9=6;
             	}
                 break;
 
             default:
                 ExceptionBaseType* ex = new ANTLR_Exception< WNScriptASTParserImplTraits, NO_VIABLE_ALT_EXCEPTION, StreamType>( this->get_rec(), "" );
-                ex->set_decisionNum( 5 );
+                ex->set_decisionNum( 9 );
                 ex->set_state( 0 );
 
 
@@ -1872,11 +2656,11 @@ WNScriptASTParser::assign_type()
 
             }
 
-            switch (alt5)
+            switch (alt9)
             {
         	case 1:
         	    {
-        	         this->matchToken(62, &FOLLOW_62_in_assign_type1432);
+        	         this->matchToken(65, &FOLLOW_65_in_assign_type1604);
         	        if  (this->hasException())
         	        {
         	            goto ruleassign_typeEx;
@@ -1892,7 +2676,7 @@ WNScriptASTParser::assign_type()
         	    break;
         	case 2:
         	    {
-        	         this->matchToken(54, &FOLLOW_54_in_assign_type1446);
+        	         this->matchToken(57, &FOLLOW_57_in_assign_type1618);
         	        if  (this->hasException())
         	        {
         	            goto ruleassign_typeEx;
@@ -1908,7 +2692,7 @@ WNScriptASTParser::assign_type()
         	    break;
         	case 3:
         	    {
-        	         this->matchToken(56, &FOLLOW_56_in_assign_type1459);
+        	         this->matchToken(59, &FOLLOW_59_in_assign_type1631);
         	        if  (this->hasException())
         	        {
         	            goto ruleassign_typeEx;
@@ -1924,7 +2708,7 @@ WNScriptASTParser::assign_type()
         	    break;
         	case 4:
         	    {
-        	         this->matchToken(52, &FOLLOW_52_in_assign_type1472);
+        	         this->matchToken(55, &FOLLOW_55_in_assign_type1644);
         	        if  (this->hasException())
         	        {
         	            goto ruleassign_typeEx;
@@ -1940,7 +2724,7 @@ WNScriptASTParser::assign_type()
         	    break;
         	case 5:
         	    {
-        	         this->matchToken(59, &FOLLOW_59_in_assign_type1485);
+        	         this->matchToken(62, &FOLLOW_62_in_assign_type1657);
         	        if  (this->hasException())
         	        {
         	            goto ruleassign_typeEx;
@@ -1956,7 +2740,7 @@ WNScriptASTParser::assign_type()
         	    break;
         	case 6:
         	    {
-        	         this->matchToken(49, &FOLLOW_49_in_assign_type1498);
+        	         this->matchToken(52, &FOLLOW_52_in_assign_type1670);
         	        if  (this->hasException())
         	        {
         	            goto ruleassign_typeEx;
@@ -1999,7 +2783,7 @@ WNScriptASTParser::lvalue()
     scripting::lvalue* node;
 
 
-    scripting::expression* unary_ex16;
+    scripting::expression* unary_ex20;
 
 
 
@@ -2011,8 +2795,8 @@ WNScriptASTParser::lvalue()
 
     {
         {
-            this->followPush(FOLLOW_unary_ex_in_lvalue1528);
-            unary_ex16=unary_ex();
+            this->followPush(FOLLOW_unary_ex_in_lvalue1700);
+            unary_ex20=unary_ex();
 
             this->followPop();
             if  (this->hasException())
@@ -2022,8 +2806,8 @@ WNScriptASTParser::lvalue()
 
 
             {
-                 node = m_allocator->make_allocated<scripting::lvalue>(m_allocator, unary_ex16
-                ); SET_LOCATION_FROM_NODE(node, unary_ex16
+                 node = m_allocator->make_allocated<scripting::lvalue>(m_allocator, unary_ex20
+                ); SET_LOCATION_FROM_NODE(node, unary_ex20
                 );
             }
 
@@ -2071,7 +2855,7 @@ WNScriptASTParser::arglist()
         {
             {
                 {
-                    this->followPush(FOLLOW_expr_in_arglist1586);
+                    this->followPush(FOLLOW_expr_in_arglist1758);
                     a=expr();
 
                     this->followPop();
@@ -2097,22 +2881,22 @@ WNScriptASTParser::arglist()
 
             for (;;)
             {
-                int alt7=2;
+                int alt11=2;
                 switch ( this->LA(1) )
                 {
                 case COMMA:
                 	{
-                		alt7=1;
+                		alt11=1;
                 	}
                     break;
 
                 }
 
-                switch (alt7)
+                switch (alt11)
                 {
             	case 1:
             	    {
-            	         this->matchToken(COMMA, &FOLLOW_COMMA_in_arglist1619);
+            	         this->matchToken(COMMA, &FOLLOW_COMMA_in_arglist1791);
             	        if  (this->hasException())
             	        {
             	            goto rulearglistEx;
@@ -2120,7 +2904,7 @@ WNScriptASTParser::arglist()
 
 
             	        {
-            	            int alt6=2;
+            	            int alt10=2;
             	            switch ( this->LA(1) )
             	            {
             	            case BOOL:
@@ -2137,24 +2921,22 @@ WNScriptASTParser::arglist()
             	            case LBRACKET:
             	            case NULLTOK:
             	            case STRING:
-            	            case STRING_TYPE:
-            	            case TYPE:
             	            case VOID_TYPE:
-            	            case 55:
+            	            case 58:
             	            	{
-            	            		alt6=1;
+            	            		alt10=1;
             	            	}
             	                break;
             	            case COMMA:
             	            case RBRACKET:
             	            	{
-            	            		alt6=2;
+            	            		alt10=2;
             	            	}
             	                break;
 
             	            default:
             	                ExceptionBaseType* ex = new ANTLR_Exception< WNScriptASTParserImplTraits, NO_VIABLE_ALT_EXCEPTION, StreamType>( this->get_rec(), "" );
-            	                ex->set_decisionNum( 6 );
+            	                ex->set_decisionNum( 10 );
             	                ex->set_state( 0 );
 
 
@@ -2162,12 +2944,12 @@ WNScriptASTParser::arglist()
 
             	            }
 
-            	            switch (alt6)
+            	            switch (alt10)
             	            {
             	        	case 1:
             	        	    {
             	        	        {
-            	        	            this->followPush(FOLLOW_expr_in_arglist1663);
+            	        	            this->followPush(FOLLOW_expr_in_arglist1835);
             	        	            d=expr();
 
             	        	            this->followPop();
@@ -2201,11 +2983,11 @@ WNScriptASTParser::arglist()
             	    break;
 
             	default:
-            	    goto loop7;
+            	    goto loop11;
             	    break;
                 }
             }
-            loop7: ;
+            loop11: ;
 
 
         }
@@ -2236,7 +3018,7 @@ WNScriptASTParser::expr()
     scripting::expression* node;
 
 
-    scripting::expression* cond_ex17;
+    scripting::expression* cond_ex21;
 
 
 
@@ -2248,8 +3030,8 @@ WNScriptASTParser::expr()
 
     {
         {
-            this->followPush(FOLLOW_cond_ex_in_expr1738);
-            cond_ex17=cond_ex();
+            this->followPush(FOLLOW_cond_ex_in_expr1910);
+            cond_ex21=cond_ex();
 
             this->followPop();
             if  (this->hasException())
@@ -2259,7 +3041,7 @@ WNScriptASTParser::expr()
 
 
             {
-                 node = cond_ex17
+                 node = cond_ex21
                 ;
             }
 
@@ -2294,7 +3076,7 @@ WNScriptASTParser::cond_ex()
 
     scripting::expression* b;
     scripting::expression* c;
-    scripting::expression* or_ex18;
+    scripting::expression* or_ex22;
 
 
 
@@ -2306,8 +3088,8 @@ WNScriptASTParser::cond_ex()
 
     {
         {
-            this->followPush(FOLLOW_or_ex_in_cond_ex1776);
-            or_ex18=or_ex();
+            this->followPush(FOLLOW_or_ex_in_cond_ex1948);
+            or_ex22=or_ex();
 
             this->followPop();
             if  (this->hasException())
@@ -2317,34 +3099,34 @@ WNScriptASTParser::cond_ex()
 
 
             {
-                 node = or_ex18
+                 node = or_ex22
                 ;
             }
 
 
             {
-                int alt8=2;
+                int alt12=2;
                 switch ( this->LA(1) )
                 {
-                    case 66:
+                    case QUESTION:
                     	{
-                    		alt8=1;
+                    		alt12=1;
                     	}
                         break;
                 }
 
-                switch (alt8)
+                switch (alt12)
                 {
             	case 1:
             	    {
-            	         this->matchToken(66, &FOLLOW_66_in_cond_ex1799);
+            	         this->matchToken(QUESTION, &FOLLOW_QUESTION_in_cond_ex1971);
             	        if  (this->hasException())
             	        {
             	            goto rulecond_exEx;
             	        }
 
 
-            	        this->followPush(FOLLOW_expr_in_cond_ex1803);
+            	        this->followPush(FOLLOW_expr_in_cond_ex1975);
             	        b=expr();
 
             	        this->followPop();
@@ -2354,14 +3136,14 @@ WNScriptASTParser::cond_ex()
             	        }
 
 
-            	         this->matchToken(COLON, &FOLLOW_COLON_in_cond_ex1805);
+            	         this->matchToken(COLON, &FOLLOW_COLON_in_cond_ex1977);
             	        if  (this->hasException())
             	        {
             	            goto rulecond_exEx;
             	        }
 
 
-            	        this->followPush(FOLLOW_cond_ex_in_cond_ex1809);
+            	        this->followPush(FOLLOW_cond_ex_in_cond_ex1981);
             	        c=cond_ex();
 
             	        this->followPop();
@@ -2374,7 +3156,7 @@ WNScriptASTParser::cond_ex()
             	        {
             	             node = m_allocator->make_allocated<scripting::cond_expression>(m_allocator, node, b
             	            , c
-            	            );  SET_LOCATION_FROM_NODE(node, or_ex18
+            	            );  SET_LOCATION_FROM_NODE(node, or_ex22
             	            ); SET_END_LOCATION_FROM_NODE(node, c
             	            );
             	        }
@@ -2427,7 +3209,7 @@ WNScriptASTParser::or_ex()
 
     {
         {
-            this->followPush(FOLLOW_and_ex_in_or_ex1856);
+            this->followPush(FOLLOW_and_ex_in_or_ex2028);
             a=and_ex();
 
             this->followPop();
@@ -2446,29 +3228,29 @@ WNScriptASTParser::or_ex()
 
             for (;;)
             {
-                int alt9=2;
+                int alt13=2;
                 switch ( this->LA(1) )
                 {
-                case 67:
+                case 69:
                 	{
-                		alt9=1;
+                		alt13=1;
                 	}
                     break;
 
                 }
 
-                switch (alt9)
+                switch (alt13)
                 {
             	case 1:
             	    {
-            	         this->matchToken(67, &FOLLOW_67_in_or_ex1873);
+            	         this->matchToken(69, &FOLLOW_69_in_or_ex2045);
             	        if  (this->hasException())
             	        {
             	            goto ruleor_exEx;
             	        }
 
 
-            	        this->followPush(FOLLOW_and_ex_in_or_ex1877);
+            	        this->followPush(FOLLOW_and_ex_in_or_ex2049);
             	        b=and_ex();
 
             	        this->followPop();
@@ -2490,11 +3272,11 @@ WNScriptASTParser::or_ex()
             	    break;
 
             	default:
-            	    goto loop9;
+            	    goto loop13;
             	    break;
                 }
             }
-            loop9: ;
+            loop13: ;
 
 
         }
@@ -2538,7 +3320,7 @@ WNScriptASTParser::and_ex()
 
     {
         {
-            this->followPush(FOLLOW_eq_ex_in_and_ex1920);
+            this->followPush(FOLLOW_eq_ex_in_and_ex2092);
             a=eq_ex();
 
             this->followPop();
@@ -2557,29 +3339,29 @@ WNScriptASTParser::and_ex()
 
             for (;;)
             {
-                int alt10=2;
+                int alt14=2;
                 switch ( this->LA(1) )
                 {
-                case 50:
+                case 53:
                 	{
-                		alt10=1;
+                		alt14=1;
                 	}
                     break;
 
                 }
 
-                switch (alt10)
+                switch (alt14)
                 {
             	case 1:
             	    {
-            	         this->matchToken(50, &FOLLOW_50_in_and_ex1937);
+            	         this->matchToken(53, &FOLLOW_53_in_and_ex2109);
             	        if  (this->hasException())
             	        {
             	            goto ruleand_exEx;
             	        }
 
 
-            	        this->followPush(FOLLOW_eq_ex_in_and_ex1941);
+            	        this->followPush(FOLLOW_eq_ex_in_and_ex2113);
             	        b=eq_ex();
 
             	        this->followPop();
@@ -2601,11 +3383,11 @@ WNScriptASTParser::and_ex()
             	    break;
 
             	default:
-            	    goto loop10;
+            	    goto loop14;
             	    break;
                 }
             }
-            loop10: ;
+            loop14: ;
 
 
         }
@@ -2650,7 +3432,7 @@ WNScriptASTParser::eq_ex()
 
     {
         {
-            this->followPush(FOLLOW_rel_ex_in_eq_ex1977);
+            this->followPush(FOLLOW_rel_ex_in_eq_ex2149);
             a=rel_ex();
 
             this->followPop();
@@ -2669,35 +3451,35 @@ WNScriptASTParser::eq_ex()
 
             for (;;)
             {
-                int alt11=3;
+                int alt15=3;
                 switch ( this->LA(1) )
                 {
-                case 63:
+                case 66:
                 	{
-                		alt11=1;
+                		alt15=1;
                 	}
                     break;
-                case 47:
+                case 50:
                 	{
-                		alt11=2;
+                		alt15=2;
                 	}
                     break;
 
                 }
 
-                switch (alt11)
+                switch (alt15)
                 {
             	case 1:
             	    {
             	        {
-            	             this->matchToken(63, &FOLLOW_63_in_eq_ex2012);
+            	             this->matchToken(66, &FOLLOW_66_in_eq_ex2184);
             	            if  (this->hasException())
             	            {
             	                goto ruleeq_exEx;
             	            }
 
 
-            	            this->followPush(FOLLOW_rel_ex_in_eq_ex2016);
+            	            this->followPush(FOLLOW_rel_ex_in_eq_ex2188);
             	            b=rel_ex();
 
             	            this->followPop();
@@ -2723,14 +3505,14 @@ WNScriptASTParser::eq_ex()
             	case 2:
             	    {
             	        {
-            	             this->matchToken(47, &FOLLOW_47_in_eq_ex2039);
+            	             this->matchToken(50, &FOLLOW_50_in_eq_ex2211);
             	            if  (this->hasException())
             	            {
             	                goto ruleeq_exEx;
             	            }
 
 
-            	            this->followPush(FOLLOW_rel_ex_in_eq_ex2043);
+            	            this->followPush(FOLLOW_rel_ex_in_eq_ex2215);
             	            c=rel_ex();
 
             	            this->followPop();
@@ -2755,11 +3537,11 @@ WNScriptASTParser::eq_ex()
             	    break;
 
             	default:
-            	    goto loop11;
+            	    goto loop15;
             	    break;
                 }
             }
-            loop11: ;
+            loop15: ;
 
 
         }
@@ -2806,7 +3588,7 @@ WNScriptASTParser::rel_ex()
 
     {
         {
-            this->followPush(FOLLOW_add_ex_in_rel_ex2101);
+            this->followPush(FOLLOW_add_ex_in_rel_ex2273);
             a=add_ex();
 
             this->followPop();
@@ -2825,45 +3607,45 @@ WNScriptASTParser::rel_ex()
 
             for (;;)
             {
-                int alt12=5;
+                int alt16=5;
                 switch ( this->LA(1) )
                 {
-                case 60:
+                case 63:
                 	{
-                		alt12=1;
+                		alt16=1;
+                	}
+                    break;
+                case 67:
+                	{
+                		alt16=2;
                 	}
                     break;
                 case 64:
                 	{
-                		alt12=2;
+                		alt16=3;
                 	}
                     break;
-                case 61:
+                case 68:
                 	{
-                		alt12=3;
-                	}
-                    break;
-                case 65:
-                	{
-                		alt12=4;
+                		alt16=4;
                 	}
                     break;
 
                 }
 
-                switch (alt12)
+                switch (alt16)
                 {
             	case 1:
             	    {
             	        {
-            	             this->matchToken(60, &FOLLOW_60_in_rel_ex2137);
+            	             this->matchToken(63, &FOLLOW_63_in_rel_ex2309);
             	            if  (this->hasException())
             	            {
             	                goto rulerel_exEx;
             	            }
 
 
-            	            this->followPush(FOLLOW_add_ex_in_rel_ex2141);
+            	            this->followPush(FOLLOW_add_ex_in_rel_ex2313);
             	            b=add_ex();
 
             	            this->followPop();
@@ -2889,14 +3671,14 @@ WNScriptASTParser::rel_ex()
             	case 2:
             	    {
             	        {
-            	             this->matchToken(64, &FOLLOW_64_in_rel_ex2165);
+            	             this->matchToken(67, &FOLLOW_67_in_rel_ex2337);
             	            if  (this->hasException())
             	            {
             	                goto rulerel_exEx;
             	            }
 
 
-            	            this->followPush(FOLLOW_add_ex_in_rel_ex2169);
+            	            this->followPush(FOLLOW_add_ex_in_rel_ex2341);
             	            c=add_ex();
 
             	            this->followPop();
@@ -2922,14 +3704,14 @@ WNScriptASTParser::rel_ex()
             	case 3:
             	    {
             	        {
-            	             this->matchToken(61, &FOLLOW_61_in_rel_ex2193);
+            	             this->matchToken(64, &FOLLOW_64_in_rel_ex2365);
             	            if  (this->hasException())
             	            {
             	                goto rulerel_exEx;
             	            }
 
 
-            	            this->followPush(FOLLOW_add_ex_in_rel_ex2197);
+            	            this->followPush(FOLLOW_add_ex_in_rel_ex2369);
             	            d=add_ex();
 
             	            this->followPop();
@@ -2955,14 +3737,14 @@ WNScriptASTParser::rel_ex()
             	case 4:
             	    {
             	        {
-            	             this->matchToken(65, &FOLLOW_65_in_rel_ex2221);
+            	             this->matchToken(68, &FOLLOW_68_in_rel_ex2393);
             	            if  (this->hasException())
             	            {
             	                goto rulerel_exEx;
             	            }
 
 
-            	            this->followPush(FOLLOW_add_ex_in_rel_ex2225);
+            	            this->followPush(FOLLOW_add_ex_in_rel_ex2397);
             	            e=add_ex();
 
             	            this->followPop();
@@ -2987,11 +3769,11 @@ WNScriptASTParser::rel_ex()
             	    break;
 
             	default:
-            	    goto loop12;
+            	    goto loop16;
             	    break;
                 }
             }
-            loop12: ;
+            loop16: ;
 
 
         }
@@ -3036,7 +3818,7 @@ WNScriptASTParser::add_ex()
 
     {
         {
-            this->followPush(FOLLOW_mult_ex_in_add_ex2286);
+            this->followPush(FOLLOW_mult_ex_in_add_ex2458);
             a=mult_ex();
 
             this->followPop();
@@ -3055,35 +3837,35 @@ WNScriptASTParser::add_ex()
 
             for (;;)
             {
-                int alt13=3;
+                int alt17=3;
                 switch ( this->LA(1) )
                 {
-                case 53:
+                case 56:
                 	{
-                		alt13=1;
+                		alt17=1;
                 	}
                     break;
-                case 55:
+                case 58:
                 	{
-                		alt13=2;
+                		alt17=2;
                 	}
                     break;
 
                 }
 
-                switch (alt13)
+                switch (alt17)
                 {
             	case 1:
             	    {
             	        {
-            	             this->matchToken(53, &FOLLOW_53_in_add_ex2321);
+            	             this->matchToken(56, &FOLLOW_56_in_add_ex2493);
             	            if  (this->hasException())
             	            {
             	                goto ruleadd_exEx;
             	            }
 
 
-            	            this->followPush(FOLLOW_mult_ex_in_add_ex2325);
+            	            this->followPush(FOLLOW_mult_ex_in_add_ex2497);
             	            b=mult_ex();
 
             	            this->followPop();
@@ -3109,14 +3891,14 @@ WNScriptASTParser::add_ex()
             	case 2:
             	    {
             	        {
-            	             this->matchToken(55, &FOLLOW_55_in_add_ex2347);
+            	             this->matchToken(58, &FOLLOW_58_in_add_ex2519);
             	            if  (this->hasException())
             	            {
             	                goto ruleadd_exEx;
             	            }
 
 
-            	            this->followPush(FOLLOW_mult_ex_in_add_ex2351);
+            	            this->followPush(FOLLOW_mult_ex_in_add_ex2523);
             	            c=mult_ex();
 
             	            this->followPop();
@@ -3141,11 +3923,11 @@ WNScriptASTParser::add_ex()
             	    break;
 
             	default:
-            	    goto loop13;
+            	    goto loop17;
             	    break;
                 }
             }
-            loop13: ;
+            loop17: ;
 
 
         }
@@ -3191,7 +3973,7 @@ WNScriptASTParser::mult_ex()
 
     {
         {
-            this->followPush(FOLLOW_unary_ex_in_mult_ex2410);
+            this->followPush(FOLLOW_unary_ex_in_mult_ex2582);
             a=unary_ex();
 
             this->followPop();
@@ -3210,40 +3992,40 @@ WNScriptASTParser::mult_ex()
 
             for (;;)
             {
-                int alt14=4;
+                int alt18=4;
                 switch ( this->LA(1) )
                 {
+                case 54:
+                	{
+                		alt18=1;
+                	}
+                    break;
+                case 61:
+                	{
+                		alt18=2;
+                	}
+                    break;
                 case 51:
                 	{
-                		alt14=1;
-                	}
-                    break;
-                case 58:
-                	{
-                		alt14=2;
-                	}
-                    break;
-                case 48:
-                	{
-                		alt14=3;
+                		alt18=3;
                 	}
                     break;
 
                 }
 
-                switch (alt14)
+                switch (alt18)
                 {
             	case 1:
             	    {
             	        {
-            	             this->matchToken(51, &FOLLOW_51_in_mult_ex2449);
+            	             this->matchToken(54, &FOLLOW_54_in_mult_ex2621);
             	            if  (this->hasException())
             	            {
             	                goto rulemult_exEx;
             	            }
 
 
-            	            this->followPush(FOLLOW_unary_ex_in_mult_ex2453);
+            	            this->followPush(FOLLOW_unary_ex_in_mult_ex2625);
             	            b=unary_ex();
 
             	            this->followPop();
@@ -3269,14 +4051,14 @@ WNScriptASTParser::mult_ex()
             	case 2:
             	    {
             	        {
-            	             this->matchToken(58, &FOLLOW_58_in_mult_ex2479);
+            	             this->matchToken(61, &FOLLOW_61_in_mult_ex2651);
             	            if  (this->hasException())
             	            {
             	                goto rulemult_exEx;
             	            }
 
 
-            	            this->followPush(FOLLOW_unary_ex_in_mult_ex2483);
+            	            this->followPush(FOLLOW_unary_ex_in_mult_ex2655);
             	            c=unary_ex();
 
             	            this->followPop();
@@ -3302,14 +4084,14 @@ WNScriptASTParser::mult_ex()
             	case 3:
             	    {
             	        {
-            	             this->matchToken(48, &FOLLOW_48_in_mult_ex2509);
+            	             this->matchToken(51, &FOLLOW_51_in_mult_ex2681);
             	            if  (this->hasException())
             	            {
             	                goto rulemult_exEx;
             	            }
 
 
-            	            this->followPush(FOLLOW_unary_ex_in_mult_ex2513);
+            	            this->followPush(FOLLOW_unary_ex_in_mult_ex2685);
             	            d=unary_ex();
 
             	            this->followPop();
@@ -3334,11 +4116,11 @@ WNScriptASTParser::mult_ex()
             	    break;
 
             	default:
-            	    goto loop14;
+            	    goto loop18;
             	    break;
                 }
             }
-            loop14: ;
+            loop18: ;
 
 
         }
@@ -3385,9 +4167,9 @@ WNScriptASTParser::unary_ex()
     {
         {
 
-            ANTLR_UINT32 alt15;
+            ANTLR_UINT32 alt19;
 
-            alt15=4;
+            alt19=4;
 
             switch ( this->LA(1) )
             {
@@ -3403,32 +4185,30 @@ WNScriptASTParser::unary_ex()
             case LBRACKET:
             case NULLTOK:
             case STRING:
-            case STRING_TYPE:
-            case TYPE:
             case VOID_TYPE:
             	{
-            		alt15=1;
+            		alt19=1;
             	}
                 break;
             case DOUBINC:
             	{
-            		alt15=2;
+            		alt19=2;
             	}
                 break;
             case DOUBDEC:
             	{
-            		alt15=3;
+            		alt19=3;
             	}
                 break;
-            case 55:
+            case 58:
             	{
-            		alt15=4;
+            		alt19=4;
             	}
                 break;
 
             default:
                 ExceptionBaseType* ex = new ANTLR_Exception< WNScriptASTParserImplTraits, NO_VIABLE_ALT_EXCEPTION, StreamType>( this->get_rec(), "" );
-                ex->set_decisionNum( 15 );
+                ex->set_decisionNum( 19 );
                 ex->set_state( 0 );
 
 
@@ -3436,11 +4216,11 @@ WNScriptASTParser::unary_ex()
 
             }
 
-            switch (alt15)
+            switch (alt19)
             {
         	case 1:
         	    {
-        	        this->followPush(FOLLOW_post_ex_in_unary_ex2565);
+        	        this->followPush(FOLLOW_post_ex_in_unary_ex2737);
         	        a=post_ex();
 
         	        this->followPop();
@@ -3460,14 +4240,14 @@ WNScriptASTParser::unary_ex()
         	    break;
         	case 2:
         	    {
-        	         this->matchToken(DOUBINC, &FOLLOW_DOUBINC_in_unary_ex2578);
+        	         this->matchToken(DOUBINC, &FOLLOW_DOUBINC_in_unary_ex2750);
         	        if  (this->hasException())
         	        {
         	            goto ruleunary_exEx;
         	        }
 
 
-        	        this->followPush(FOLLOW_unary_ex_in_unary_ex2582);
+        	        this->followPush(FOLLOW_unary_ex_in_unary_ex2754);
         	        b=unary_ex();
 
         	        this->followPop();
@@ -3488,14 +4268,14 @@ WNScriptASTParser::unary_ex()
         	    break;
         	case 3:
         	    {
-        	         this->matchToken(DOUBDEC, &FOLLOW_DOUBDEC_in_unary_ex2595);
+        	         this->matchToken(DOUBDEC, &FOLLOW_DOUBDEC_in_unary_ex2767);
         	        if  (this->hasException())
         	        {
         	            goto ruleunary_exEx;
         	        }
 
 
-        	        this->followPush(FOLLOW_unary_ex_in_unary_ex2599);
+        	        this->followPush(FOLLOW_unary_ex_in_unary_ex2771);
         	        c=unary_ex();
 
         	        this->followPop();
@@ -3516,14 +4296,14 @@ WNScriptASTParser::unary_ex()
         	    break;
         	case 4:
         	    {
-        	         this->matchToken(55, &FOLLOW_55_in_unary_ex2612);
+        	         this->matchToken(58, &FOLLOW_58_in_unary_ex2784);
         	        if  (this->hasException())
         	        {
         	            goto ruleunary_exEx;
         	        }
 
 
-        	        this->followPush(FOLLOW_unary_ex_in_unary_ex2616);
+        	        this->followPush(FOLLOW_unary_ex_in_unary_ex2788);
         	        d=unary_ex();
 
         	        this->followPop();
@@ -3578,8 +4358,8 @@ WNScriptASTParser::post_ex_proper()
     const ImplTraits::CommonTokenType* h = NULL;
     const ImplTraits::CommonTokenType* i = NULL;
     const ImplTraits::CommonTokenType* c = NULL;
-    const ImplTraits::CommonTokenType* DOUBINC19 = NULL;
-    const ImplTraits::CommonTokenType* DOUBDEC20 = NULL;
+    const ImplTraits::CommonTokenType* DOUBINC23 = NULL;
+    const ImplTraits::CommonTokenType* DOUBDEC24 = NULL;
     scripting::expression* a;
     scripting::arg_list* b;
 
@@ -3594,15 +4374,15 @@ WNScriptASTParser::post_ex_proper()
     {
         {
 
-            ANTLR_UINT32 alt16;
+            ANTLR_UINT32 alt20;
 
-            alt16=6;
+            alt20=6;
 
             switch ( this->LA(1) )
             {
             case LSQBRACKET:
             	{
-            		alt16=1;
+            		alt20=1;
             	}
                 break;
             case LBRACKET:
@@ -3611,7 +4391,7 @@ WNScriptASTParser::post_ex_proper()
             		{
             		case RBRACKET:
             			{
-            				alt16=2;
+            				alt20=2;
             			}
             		    break;
             		case BOOL:
@@ -3628,18 +4408,16 @@ WNScriptASTParser::post_ex_proper()
             		case LBRACKET:
             		case NULLTOK:
             		case STRING:
-            		case STRING_TYPE:
-            		case TYPE:
             		case VOID_TYPE:
-            		case 55:
+            		case 58:
             			{
-            				alt16=3;
+            				alt20=3;
             			}
             		    break;
 
             		default:
             		    ExceptionBaseType* ex = new ANTLR_Exception< WNScriptASTParserImplTraits, NO_VIABLE_ALT_EXCEPTION, StreamType>( this->get_rec(), "" );
-            		    ex->set_decisionNum( 16 );
+            		    ex->set_decisionNum( 20 );
             		    ex->set_state( 2 );
 
 
@@ -3649,25 +4427,25 @@ WNScriptASTParser::post_ex_proper()
 
             	}
                 break;
-            case 57:
+            case 60:
             	{
-            		alt16=4;
+            		alt20=4;
             	}
                 break;
             case DOUBINC:
             	{
-            		alt16=5;
+            		alt20=5;
             	}
                 break;
             case DOUBDEC:
             	{
-            		alt16=6;
+            		alt20=6;
             	}
                 break;
 
             default:
                 ExceptionBaseType* ex = new ANTLR_Exception< WNScriptASTParserImplTraits, NO_VIABLE_ALT_EXCEPTION, StreamType>( this->get_rec(), "" );
-                ex->set_decisionNum( 16 );
+                ex->set_decisionNum( 20 );
                 ex->set_state( 0 );
 
 
@@ -3675,18 +4453,18 @@ WNScriptASTParser::post_ex_proper()
 
             }
 
-            switch (alt16)
+            switch (alt20)
             {
         	case 1:
         	    {
-        	        d =  this->matchToken(LSQBRACKET, &FOLLOW_LSQBRACKET_in_post_ex_proper2654);
+        	        d =  this->matchToken(LSQBRACKET, &FOLLOW_LSQBRACKET_in_post_ex_proper2826);
         	        if  (this->hasException())
         	        {
         	            goto rulepost_ex_properEx;
         	        }
 
 
-        	        this->followPush(FOLLOW_expr_in_post_ex_proper2658);
+        	        this->followPush(FOLLOW_expr_in_post_ex_proper2830);
         	        a=expr();
 
         	        this->followPop();
@@ -3696,7 +4474,7 @@ WNScriptASTParser::post_ex_proper()
         	        }
 
 
-        	        e =  this->matchToken(RSQBRACKET, &FOLLOW_RSQBRACKET_in_post_ex_proper2662);
+        	        e =  this->matchToken(RSQBRACKET, &FOLLOW_RSQBRACKET_in_post_ex_proper2834);
         	        if  (this->hasException())
         	        {
         	            goto rulepost_ex_properEx;
@@ -3713,14 +4491,14 @@ WNScriptASTParser::post_ex_proper()
         	    break;
         	case 2:
         	    {
-        	        f =  this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_post_ex_proper2677);
+        	        f =  this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_post_ex_proper2849);
         	        if  (this->hasException())
         	        {
         	            goto rulepost_ex_properEx;
         	        }
 
 
-        	        g =  this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_post_ex_proper2681);
+        	        g =  this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_post_ex_proper2853);
         	        if  (this->hasException())
         	        {
         	            goto rulepost_ex_properEx;
@@ -3736,14 +4514,14 @@ WNScriptASTParser::post_ex_proper()
         	    break;
         	case 3:
         	    {
-        	        h =  this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_post_ex_proper2709);
+        	        h =  this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_post_ex_proper2881);
         	        if  (this->hasException())
         	        {
         	            goto rulepost_ex_properEx;
         	        }
 
 
-        	        this->followPush(FOLLOW_arglist_in_post_ex_proper2715);
+        	        this->followPush(FOLLOW_arglist_in_post_ex_proper2887);
         	        b=arglist();
 
         	        this->followPop();
@@ -3753,7 +4531,7 @@ WNScriptASTParser::post_ex_proper()
         	        }
 
 
-        	        i =  this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_post_ex_proper2719);
+        	        i =  this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_post_ex_proper2891);
         	        if  (this->hasException())
         	        {
         	            goto rulepost_ex_properEx;
@@ -3770,14 +4548,14 @@ WNScriptASTParser::post_ex_proper()
         	    break;
         	case 4:
         	    {
-        	         this->matchToken(57, &FOLLOW_57_in_post_ex_proper2732);
+        	         this->matchToken(60, &FOLLOW_60_in_post_ex_proper2904);
         	        if  (this->hasException())
         	        {
         	            goto rulepost_ex_properEx;
         	        }
 
 
-        	        c =  this->matchToken(ID, &FOLLOW_ID_in_post_ex_proper2736);
+        	        c =  this->matchToken(ID, &FOLLOW_ID_in_post_ex_proper2908);
         	        if  (this->hasException())
         	        {
         	            goto rulepost_ex_properEx;
@@ -3793,7 +4571,7 @@ WNScriptASTParser::post_ex_proper()
         	    break;
         	case 5:
         	    {
-        	        DOUBINC19 =  this->matchToken(DOUBINC, &FOLLOW_DOUBINC_in_post_ex_proper2763);
+        	        DOUBINC23 =  this->matchToken(DOUBINC, &FOLLOW_DOUBINC_in_post_ex_proper2935);
         	        if  (this->hasException())
         	        {
         	            goto rulepost_ex_properEx;
@@ -3801,7 +4579,7 @@ WNScriptASTParser::post_ex_proper()
 
 
         	        {
-        	             node = m_allocator->make_allocated<scripting::post_unary_expression>(m_allocator, scripting::post_unary_type::post_increment); SET_LOCATION(node, DOUBINC19);
+        	             node = m_allocator->make_allocated<scripting::post_unary_expression>(m_allocator, scripting::post_unary_type::post_increment); SET_LOCATION(node, DOUBINC23);
         	        }
 
 
@@ -3809,7 +4587,7 @@ WNScriptASTParser::post_ex_proper()
         	    break;
         	case 6:
         	    {
-        	        DOUBDEC20 =  this->matchToken(DOUBDEC, &FOLLOW_DOUBDEC_in_post_ex_proper2792);
+        	        DOUBDEC24 =  this->matchToken(DOUBDEC, &FOLLOW_DOUBDEC_in_post_ex_proper2964);
         	        if  (this->hasException())
         	        {
         	            goto rulepost_ex_properEx;
@@ -3817,7 +4595,7 @@ WNScriptASTParser::post_ex_proper()
 
 
         	        {
-        	             node = m_allocator->make_allocated<scripting::post_unary_expression>(m_allocator, scripting::post_unary_type::post_decrement); SET_LOCATION(node, DOUBDEC20);
+        	             node = m_allocator->make_allocated<scripting::post_unary_expression>(m_allocator, scripting::post_unary_type::post_decrement); SET_LOCATION(node, DOUBDEC24);
         	        }
 
 
@@ -3853,7 +4631,7 @@ WNScriptASTParser::post_ex()
 
 
     scripting::post_expression* a;
-    scripting::expression * prim_ex21;
+    scripting::expression * prim_ex25;
 
 
 
@@ -3865,8 +4643,8 @@ WNScriptASTParser::post_ex()
 
     {
         {
-            this->followPush(FOLLOW_prim_ex_in_post_ex2845);
-            prim_ex21=prim_ex();
+            this->followPush(FOLLOW_prim_ex_in_post_ex3017);
+            prim_ex25=prim_ex();
 
             this->followPop();
             if  (this->hasException())
@@ -3876,7 +4654,7 @@ WNScriptASTParser::post_ex()
 
 
             {
-                 node = prim_ex21
+                 node = prim_ex25
                 ;
             }
 
@@ -3884,26 +4662,26 @@ WNScriptASTParser::post_ex()
 
             for (;;)
             {
-                int alt17=2;
+                int alt21=2;
                 switch ( this->LA(1) )
                 {
                 case DOUBDEC:
                 case DOUBINC:
                 case LBRACKET:
                 case LSQBRACKET:
-                case 57:
+                case 60:
                 	{
-                		alt17=1;
+                		alt21=1;
                 	}
                     break;
 
                 }
 
-                switch (alt17)
+                switch (alt21)
                 {
             	case 1:
             	    {
-            	        this->followPush(FOLLOW_post_ex_proper_in_post_ex2864);
+            	        this->followPush(FOLLOW_post_ex_proper_in_post_ex3036);
             	        a=post_ex_proper();
 
             	        this->followPop();
@@ -3925,11 +4703,11 @@ WNScriptASTParser::post_ex()
             	    break;
 
             	default:
-            	    goto loop17;
+            	    goto loop21;
             	    break;
                 }
             }
-            loop17: ;
+            loop21: ;
 
 
         }
@@ -3960,9 +4738,9 @@ WNScriptASTParser::assignment()
     scripting::assignment_instruction* node;
 
 
-    scripting::lvalue* lvalue22;
-    scripting::assign_type assign_type23;
-    scripting::expression* expr24;
+    scripting::lvalue* lvalue26;
+    scripting::assign_type assign_type27;
+    scripting::expression* expr28;
 
 
 
@@ -3974,8 +4752,8 @@ WNScriptASTParser::assignment()
 
     {
         {
-            this->followPush(FOLLOW_lvalue_in_assignment2893);
-            lvalue22=lvalue();
+            this->followPush(FOLLOW_lvalue_in_assignment3065);
+            lvalue26=lvalue();
 
             this->followPop();
             if  (this->hasException())
@@ -3985,34 +4763,34 @@ WNScriptASTParser::assignment()
 
 
             {
-                 node = m_allocator->make_allocated<scripting::assignment_instruction>(m_allocator, lvalue22
-                ); SET_LOCATION_FROM_NODE(node, lvalue22
+                 node = m_allocator->make_allocated<scripting::assignment_instruction>(m_allocator, lvalue26
+                ); SET_LOCATION_FROM_NODE(node, lvalue26
                 );
             }
 
 
             {
-                int alt18=2;
+                int alt22=2;
                 switch ( this->LA(1) )
                 {
-                    case 49:
                     case 52:
-                    case 54:
-                    case 56:
+                    case 55:
+                    case 57:
                     case 59:
                     case 62:
+                    case 65:
                     	{
-                    		alt18=1;
+                    		alt22=1;
                     	}
                         break;
                 }
 
-                switch (alt18)
+                switch (alt22)
                 {
             	case 1:
             	    {
-            	        this->followPush(FOLLOW_assign_type_in_assignment2906);
-            	        assign_type23=assign_type();
+            	        this->followPush(FOLLOW_assign_type_in_assignment3078);
+            	        assign_type27=assign_type();
 
             	        this->followPop();
             	        if  (this->hasException())
@@ -4021,8 +4799,8 @@ WNScriptASTParser::assignment()
             	        }
 
 
-            	        this->followPush(FOLLOW_expr_in_assignment2908);
-            	        expr24=expr();
+            	        this->followPush(FOLLOW_expr_in_assignment3080);
+            	        expr28=expr();
 
             	        this->followPop();
             	        if  (this->hasException())
@@ -4032,9 +4810,9 @@ WNScriptASTParser::assignment()
 
 
             	        {
-            	             node->add_value(assign_type23
-            	            , expr24
-            	            ); SET_END_LOCATION_FROM_NODE(node, expr24
+            	             node->add_value(assign_type27
+            	            , expr28
+            	            ); SET_END_LOCATION_FROM_NODE(node, expr28
             	            );
             	        }
 
@@ -4094,52 +4872,50 @@ WNScriptASTParser::constant()
     {
         {
 
-            ANTLR_UINT32 alt19;
+            ANTLR_UINT32 alt23;
 
-            alt19=6;
+            alt23=6;
 
             switch ( this->LA(1) )
             {
             case INT:
             	{
-            		alt19=1;
+            		alt23=1;
             	}
                 break;
             case FLOAT:
             	{
-            		alt19=2;
+            		alt23=2;
             	}
                 break;
             case CHAR:
             	{
-            		alt19=3;
+            		alt23=3;
             	}
                 break;
             case STRING:
             	{
-            		alt19=4;
+            		alt23=4;
             	}
                 break;
             case BOOL:
             	{
-            		alt19=5;
+            		alt23=5;
             	}
                 break;
             case BOOL_TYPE:
             case CHAR_TYPE:
             case FLOAT_TYPE:
             case INT_TYPE:
-            case STRING_TYPE:
-            case TYPE:
             case VOID_TYPE:
             	{
-            		alt19=6;
+            		alt23=6;
             	}
                 break;
 
             default:
                 ExceptionBaseType* ex = new ANTLR_Exception< WNScriptASTParserImplTraits, NO_VIABLE_ALT_EXCEPTION, StreamType>( this->get_rec(), "" );
-                ex->set_decisionNum( 19 );
+                ex->set_decisionNum( 23 );
                 ex->set_state( 0 );
 
 
@@ -4147,11 +4923,11 @@ WNScriptASTParser::constant()
 
             }
 
-            switch (alt19)
+            switch (alt23)
             {
         	case 1:
         	    {
-        	        a =  this->matchToken(INT, &FOLLOW_INT_in_constant2943);
+        	        a =  this->matchToken(INT, &FOLLOW_INT_in_constant3115);
         	        if  (this->hasException())
         	        {
         	            goto ruleconstantEx;
@@ -4167,7 +4943,7 @@ WNScriptASTParser::constant()
         	    break;
         	case 2:
         	    {
-        	        b =  this->matchToken(FLOAT, &FOLLOW_FLOAT_in_constant2961);
+        	        b =  this->matchToken(FLOAT, &FOLLOW_FLOAT_in_constant3133);
         	        if  (this->hasException())
         	        {
         	            goto ruleconstantEx;
@@ -4183,7 +4959,7 @@ WNScriptASTParser::constant()
         	    break;
         	case 3:
         	    {
-        	        c =  this->matchToken(CHAR, &FOLLOW_CHAR_in_constant2977);
+        	        c =  this->matchToken(CHAR, &FOLLOW_CHAR_in_constant3149);
         	        if  (this->hasException())
         	        {
         	            goto ruleconstantEx;
@@ -4199,7 +4975,7 @@ WNScriptASTParser::constant()
         	    break;
         	case 4:
         	    {
-        	        d =  this->matchToken(STRING, &FOLLOW_STRING_in_constant2994);
+        	        d =  this->matchToken(STRING, &FOLLOW_STRING_in_constant3166);
         	        if  (this->hasException())
         	        {
         	            goto ruleconstantEx;
@@ -4215,7 +4991,7 @@ WNScriptASTParser::constant()
         	    break;
         	case 5:
         	    {
-        	        e =  this->matchToken(BOOL, &FOLLOW_BOOL_in_constant3009);
+        	        e =  this->matchToken(BOOL, &FOLLOW_BOOL_in_constant3181);
         	        if  (this->hasException())
         	        {
         	            goto ruleconstantEx;
@@ -4231,7 +5007,7 @@ WNScriptASTParser::constant()
         	    break;
         	case 6:
         	    {
-        	        this->followPush(FOLLOW_scalarType_in_constant3026);
+        	        this->followPush(FOLLOW_scalarType_in_constant3198);
         	        f=scalarType();
 
         	        this->followPop();
@@ -4241,21 +5017,21 @@ WNScriptASTParser::constant()
         	        }
 
 
-        	        g =  this->matchToken(LBRACE, &FOLLOW_LBRACE_in_constant3030);
+        	        g =  this->matchToken(LBRACE, &FOLLOW_LBRACE_in_constant3202);
         	        if  (this->hasException())
         	        {
         	            goto ruleconstantEx;
         	        }
 
 
-        	        h =  this->matchToken(STRING, &FOLLOW_STRING_in_constant3034);
+        	        h =  this->matchToken(STRING, &FOLLOW_STRING_in_constant3206);
         	        if  (this->hasException())
         	        {
         	            goto ruleconstantEx;
         	        }
 
 
-        	        i =  this->matchToken(RBRACE, &FOLLOW_RBRACE_in_constant3038);
+        	        i =  this->matchToken(RBRACE, &FOLLOW_RBRACE_in_constant3210);
         	        if  (this->hasException())
         	        {
         	            goto ruleconstantEx;
@@ -4304,7 +5080,7 @@ WNScriptASTParser::prim_ex()
     const ImplTraits::CommonTokenType* ba = NULL;
     const ImplTraits::CommonTokenType* bb = NULL;
     const ImplTraits::CommonTokenType* d = NULL;
-    const ImplTraits::CommonTokenType* ID25 = NULL;
+    const ImplTraits::CommonTokenType* ID29 = NULL;
     scripting::expression* a;
     scripting::constant_expression* b;
     scripting::type* c;
@@ -4323,20 +5099,20 @@ WNScriptASTParser::prim_ex()
     {
         {
 
-            ANTLR_UINT32 alt21;
+            ANTLR_UINT32 alt25;
 
-            alt21=5;
+            alt25=5;
 
             switch ( this->LA(1) )
             {
             case ID:
             	{
-            		alt21=1;
+            		alt25=1;
             	}
                 break;
             case LBRACKET:
             	{
-            		alt21=2;
+            		alt25=2;
             	}
                 break;
             case BOOL:
@@ -4345,35 +5121,7 @@ WNScriptASTParser::prim_ex()
             case INT:
             case STRING:
             	{
-            		alt21=3;
-            	}
-                break;
-            case TYPE:
-            	{
-            		switch ( this->LA(2) )
-            		{
-            		case LBRACE:
-            			{
-            				alt21=3;
-            			}
-            		    break;
-            		case LBRACKET:
-            		case LSQBRACKET:
-            			{
-            				alt21=4;
-            			}
-            		    break;
-
-            		default:
-            		    ExceptionBaseType* ex = new ANTLR_Exception< WNScriptASTParserImplTraits, NO_VIABLE_ALT_EXCEPTION, StreamType>( this->get_rec(), "" );
-            		    ex->set_decisionNum( 21 );
-            		    ex->set_state( 4 );
-
-
-            		    goto ruleprim_exEx;
-
-            		}
-
+            		alt25=3;
             	}
                 break;
             case VOID_TYPE:
@@ -4382,20 +5130,20 @@ WNScriptASTParser::prim_ex()
             		{
             		case LBRACE:
             			{
-            				alt21=3;
+            				alt25=3;
             			}
             		    break;
             		case LBRACKET:
             		case LSQBRACKET:
             			{
-            				alt21=4;
+            				alt25=4;
             			}
             		    break;
 
             		default:
             		    ExceptionBaseType* ex = new ANTLR_Exception< WNScriptASTParserImplTraits, NO_VIABLE_ALT_EXCEPTION, StreamType>( this->get_rec(), "" );
-            		    ex->set_decisionNum( 21 );
-            		    ex->set_state( 5 );
+            		    ex->set_decisionNum( 25 );
+            		    ex->set_state( 4 );
 
 
             		    goto ruleprim_exEx;
@@ -4410,20 +5158,20 @@ WNScriptASTParser::prim_ex()
             		{
             		case LBRACE:
             			{
-            				alt21=3;
+            				alt25=3;
             			}
             		    break;
             		case LBRACKET:
             		case LSQBRACKET:
             			{
-            				alt21=4;
+            				alt25=4;
             			}
             		    break;
 
             		default:
             		    ExceptionBaseType* ex = new ANTLR_Exception< WNScriptASTParserImplTraits, NO_VIABLE_ALT_EXCEPTION, StreamType>( this->get_rec(), "" );
-            		    ex->set_decisionNum( 21 );
-            		    ex->set_state( 6 );
+            		    ex->set_decisionNum( 25 );
+            		    ex->set_state( 5 );
 
 
             		    goto ruleprim_exEx;
@@ -4438,20 +5186,20 @@ WNScriptASTParser::prim_ex()
             		{
             		case LBRACE:
             			{
-            				alt21=3;
+            				alt25=3;
             			}
             		    break;
             		case LBRACKET:
             		case LSQBRACKET:
             			{
-            				alt21=4;
+            				alt25=4;
             			}
             		    break;
 
             		default:
             		    ExceptionBaseType* ex = new ANTLR_Exception< WNScriptASTParserImplTraits, NO_VIABLE_ALT_EXCEPTION, StreamType>( this->get_rec(), "" );
-            		    ex->set_decisionNum( 21 );
-            		    ex->set_state( 7 );
+            		    ex->set_decisionNum( 25 );
+            		    ex->set_state( 6 );
 
 
             		    goto ruleprim_exEx;
@@ -4466,48 +5214,20 @@ WNScriptASTParser::prim_ex()
             		{
             		case LBRACE:
             			{
-            				alt21=3;
+            				alt25=3;
             			}
             		    break;
             		case LBRACKET:
             		case LSQBRACKET:
             			{
-            				alt21=4;
+            				alt25=4;
             			}
             		    break;
 
             		default:
             		    ExceptionBaseType* ex = new ANTLR_Exception< WNScriptASTParserImplTraits, NO_VIABLE_ALT_EXCEPTION, StreamType>( this->get_rec(), "" );
-            		    ex->set_decisionNum( 21 );
-            		    ex->set_state( 8 );
-
-
-            		    goto ruleprim_exEx;
-
-            		}
-
-            	}
-                break;
-            case STRING_TYPE:
-            	{
-            		switch ( this->LA(2) )
-            		{
-            		case LBRACE:
-            			{
-            				alt21=3;
-            			}
-            		    break;
-            		case LBRACKET:
-            		case LSQBRACKET:
-            			{
-            				alt21=4;
-            			}
-            		    break;
-
-            		default:
-            		    ExceptionBaseType* ex = new ANTLR_Exception< WNScriptASTParserImplTraits, NO_VIABLE_ALT_EXCEPTION, StreamType>( this->get_rec(), "" );
-            		    ex->set_decisionNum( 21 );
-            		    ex->set_state( 9 );
+            		    ex->set_decisionNum( 25 );
+            		    ex->set_state( 7 );
 
 
             		    goto ruleprim_exEx;
@@ -4522,20 +5242,20 @@ WNScriptASTParser::prim_ex()
             		{
             		case LBRACE:
             			{
-            				alt21=3;
+            				alt25=3;
             			}
             		    break;
             		case LBRACKET:
             		case LSQBRACKET:
             			{
-            				alt21=4;
+            				alt25=4;
             			}
             		    break;
 
             		default:
             		    ExceptionBaseType* ex = new ANTLR_Exception< WNScriptASTParserImplTraits, NO_VIABLE_ALT_EXCEPTION, StreamType>( this->get_rec(), "" );
-            		    ex->set_decisionNum( 21 );
-            		    ex->set_state( 10 );
+            		    ex->set_decisionNum( 25 );
+            		    ex->set_state( 8 );
 
 
             		    goto ruleprim_exEx;
@@ -4546,13 +5266,13 @@ WNScriptASTParser::prim_ex()
                 break;
             case NULLTOK:
             	{
-            		alt21=5;
+            		alt25=5;
             	}
                 break;
 
             default:
                 ExceptionBaseType* ex = new ANTLR_Exception< WNScriptASTParserImplTraits, NO_VIABLE_ALT_EXCEPTION, StreamType>( this->get_rec(), "" );
-                ex->set_decisionNum( 21 );
+                ex->set_decisionNum( 25 );
                 ex->set_state( 0 );
 
 
@@ -4560,11 +5280,11 @@ WNScriptASTParser::prim_ex()
 
             }
 
-            switch (alt21)
+            switch (alt25)
             {
         	case 1:
         	    {
-        	        ID25 =  this->matchToken(ID, &FOLLOW_ID_in_prim_ex3068);
+        	        ID29 =  this->matchToken(ID, &FOLLOW_ID_in_prim_ex3240);
         	        if  (this->hasException())
         	        {
         	            goto ruleprim_exEx;
@@ -4572,7 +5292,7 @@ WNScriptASTParser::prim_ex()
 
 
         	        {
-        	             node = m_allocator->make_allocated<scripting::id_expression>(m_allocator, (ID25->getText()).c_str()); SET_LOCATION(node, ID25);
+        	             node = m_allocator->make_allocated<scripting::id_expression>(m_allocator, (ID29->getText()).c_str()); SET_LOCATION(node, ID29);
         	        }
 
 
@@ -4580,14 +5300,14 @@ WNScriptASTParser::prim_ex()
         	    break;
         	case 2:
         	    {
-        	        ba =  this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_prim_ex3083);
+        	        ba =  this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_prim_ex3255);
         	        if  (this->hasException())
         	        {
         	            goto ruleprim_exEx;
         	        }
 
 
-        	        this->followPush(FOLLOW_expr_in_prim_ex3087);
+        	        this->followPush(FOLLOW_expr_in_prim_ex3259);
         	        a=expr();
 
         	        this->followPop();
@@ -4597,7 +5317,7 @@ WNScriptASTParser::prim_ex()
         	        }
 
 
-        	        bb =  this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_prim_ex3091);
+        	        bb =  this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_prim_ex3263);
         	        if  (this->hasException())
         	        {
         	            goto ruleprim_exEx;
@@ -4614,7 +5334,7 @@ WNScriptASTParser::prim_ex()
         	    break;
         	case 3:
         	    {
-        	        this->followPush(FOLLOW_constant_in_prim_ex3106);
+        	        this->followPush(FOLLOW_constant_in_prim_ex3278);
         	        b=constant();
 
         	        this->followPop();
@@ -4634,7 +5354,7 @@ WNScriptASTParser::prim_ex()
         	    break;
         	case 4:
         	    {
-        	        this->followPush(FOLLOW_scalarType_in_prim_ex3121);
+        	        this->followPush(FOLLOW_scalarType_in_prim_ex3293);
         	        c=scalarType();
 
         	        this->followPop();
@@ -4645,7 +5365,7 @@ WNScriptASTParser::prim_ex()
 
 
         	        {
-        	            int alt20=3;
+        	            int alt24=3;
         	            switch ( this->LA(1) )
         	            {
         	            case LBRACKET:
@@ -4654,7 +5374,7 @@ WNScriptASTParser::prim_ex()
         	            		{
         	            		case RBRACKET:
         	            			{
-        	            				alt20=1;
+        	            				alt24=1;
         	            			}
         	            		    break;
         	            		case BOOL:
@@ -4671,18 +5391,16 @@ WNScriptASTParser::prim_ex()
         	            		case LBRACKET:
         	            		case NULLTOK:
         	            		case STRING:
-        	            		case STRING_TYPE:
-        	            		case TYPE:
         	            		case VOID_TYPE:
-        	            		case 55:
+        	            		case 58:
         	            			{
-        	            				alt20=2;
+        	            				alt24=2;
         	            			}
         	            		    break;
 
         	            		default:
         	            		    ExceptionBaseType* ex = new ANTLR_Exception< WNScriptASTParserImplTraits, NO_VIABLE_ALT_EXCEPTION, StreamType>( this->get_rec(), "" );
-        	            		    ex->set_decisionNum( 20 );
+        	            		    ex->set_decisionNum( 24 );
         	            		    ex->set_state( 1 );
 
 
@@ -4694,13 +5412,13 @@ WNScriptASTParser::prim_ex()
         	                break;
         	            case LSQBRACKET:
         	            	{
-        	            		alt20=3;
+        	            		alt24=3;
         	            	}
         	                break;
 
         	            default:
         	                ExceptionBaseType* ex = new ANTLR_Exception< WNScriptASTParserImplTraits, NO_VIABLE_ALT_EXCEPTION, StreamType>( this->get_rec(), "" );
-        	                ex->set_decisionNum( 20 );
+        	                ex->set_decisionNum( 24 );
         	                ex->set_state( 0 );
 
 
@@ -4708,12 +5426,12 @@ WNScriptASTParser::prim_ex()
 
         	            }
 
-        	            switch (alt20)
+        	            switch (alt24)
         	            {
         	        	case 1:
         	        	    {
         	        	        {
-        	        	            this->followPush(FOLLOW_structInit_in_prim_ex3153);
+        	        	            this->followPush(FOLLOW_structInit_in_prim_ex3325);
         	        	            e=structInit();
 
         	        	            this->followPop();
@@ -4740,7 +5458,7 @@ WNScriptASTParser::prim_ex()
         	        	case 2:
         	        	    {
         	        	        {
-        	        	            this->followPush(FOLLOW_cast_in_prim_ex3178);
+        	        	            this->followPush(FOLLOW_cast_in_prim_ex3350);
         	        	            f=cast();
 
         	        	            this->followPop();
@@ -4767,7 +5485,7 @@ WNScriptASTParser::prim_ex()
         	        	case 3:
         	        	    {
         	        	        {
-        	        	            this->followPush(FOLLOW_arrayInit_in_prim_ex3201);
+        	        	            this->followPush(FOLLOW_arrayInit_in_prim_ex3373);
         	        	            g=arrayInit();
 
         	        	            this->followPop();
@@ -4799,7 +5517,7 @@ WNScriptASTParser::prim_ex()
         	    break;
         	case 5:
         	    {
-        	        d =  this->matchToken(NULLTOK, &FOLLOW_NULLTOK_in_prim_ex3230);
+        	        d =  this->matchToken(NULLTOK, &FOLLOW_NULLTOK_in_prim_ex3402);
         	        if  (this->hasException())
         	        {
         	            goto ruleprim_exEx;
@@ -4856,14 +5574,14 @@ WNScriptASTParser::cast()
 
     {
         {
-            a =  this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_cast3259);
+            a =  this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_cast3431);
             if  (this->hasException())
             {
                 goto rulecastEx;
             }
 
 
-            this->followPush(FOLLOW_expr_in_cast3263);
+            this->followPush(FOLLOW_expr_in_cast3435);
             b=expr();
 
             this->followPop();
@@ -4873,7 +5591,7 @@ WNScriptASTParser::cast()
             }
 
 
-            c =  this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_cast3267);
+            c =  this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_cast3439);
             if  (this->hasException())
             {
                 goto rulecastEx;
@@ -4928,14 +5646,14 @@ WNScriptASTParser::structInit()
 
     {
         {
-            a =  this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_structInit3296);
+            a =  this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_structInit3468);
             if  (this->hasException())
             {
                 goto rulestructInitEx;
             }
 
 
-            b =  this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_structInit3300);
+            b =  this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_structInit3472);
             if  (this->hasException())
             {
                 goto rulestructInitEx;
@@ -4991,7 +5709,7 @@ WNScriptASTParser::arrayInit()
     {
         {
             {
-                int alt25=2;
+                int alt29=2;
                 switch ( this->LA(1) )
                 {
                 case LSQBRACKET:
@@ -5000,7 +5718,7 @@ WNScriptASTParser::arrayInit()
                 		{
                 		case RSQBRACKET:
                 			{
-                				alt25=2;
+                				alt29=2;
                 			}
                 		    break;
                 		case BOOL:
@@ -5017,18 +5735,16 @@ WNScriptASTParser::arrayInit()
                 		case LBRACKET:
                 		case NULLTOK:
                 		case STRING:
-                		case STRING_TYPE:
-                		case TYPE:
                 		case VOID_TYPE:
-                		case 55:
+                		case 58:
                 			{
-                				alt25=1;
+                				alt29=1;
                 			}
                 		    break;
 
                 		default:
                 		    ExceptionBaseType* ex = new ANTLR_Exception< WNScriptASTParserImplTraits, NO_VIABLE_ALT_EXCEPTION, StreamType>( this->get_rec(), "" );
-                		    ex->set_decisionNum( 25 );
+                		    ex->set_decisionNum( 29 );
                 		    ex->set_state( 1 );
 
 
@@ -5041,7 +5757,7 @@ WNScriptASTParser::arrayInit()
 
                 default:
                     ExceptionBaseType* ex = new ANTLR_Exception< WNScriptASTParserImplTraits, NO_VIABLE_ALT_EXCEPTION, StreamType>( this->get_rec(), "" );
-                    ex->set_decisionNum( 25 );
+                    ex->set_decisionNum( 29 );
                     ex->set_state( 0 );
 
 
@@ -5049,17 +5765,17 @@ WNScriptASTParser::arrayInit()
 
                 }
 
-                switch (alt25)
+                switch (alt29)
                 {
             	case 1:
             	    {
             	        {
             	            {
-            	                int cnt22=0;
+            	                int cnt26=0;
 
             	                for (;;)
             	                {
-            	                    int alt22=2;
+            	                    int alt26=2;
             	            	switch ( this->LA(1) )
             	            	{
             	            	case LSQBRACKET:
@@ -5080,12 +5796,10 @@ WNScriptASTParser::arrayInit()
             	            			case LBRACKET:
             	            			case NULLTOK:
             	            			case STRING:
-            	            			case STRING_TYPE:
-            	            			case TYPE:
             	            			case VOID_TYPE:
-            	            			case 55:
+            	            			case 58:
             	            				{
-            	            					alt22=1;
+            	            					alt26=1;
             	            				}
             	            			    break;
 
@@ -5096,18 +5810,18 @@ WNScriptASTParser::arrayInit()
 
             	            	}
 
-            	            	switch (alt22)
+            	            	switch (alt26)
             	            	{
             	            	    case 1:
             	            	        {
-            	            	             this->matchToken(LSQBRACKET, &FOLLOW_LSQBRACKET_in_arrayInit3362);
+            	            	             this->matchToken(LSQBRACKET, &FOLLOW_LSQBRACKET_in_arrayInit3534);
             	            	            if  (this->hasException())
             	            	            {
             	            	                goto rulearrayInitEx;
             	            	            }
 
 
-            	            	            this->followPush(FOLLOW_expr_in_arrayInit3366);
+            	            	            this->followPush(FOLLOW_expr_in_arrayInit3538);
             	            	            e=expr();
 
             	            	            this->followPop();
@@ -5117,7 +5831,7 @@ WNScriptASTParser::arrayInit()
             	            	            }
 
 
-            	            	             this->matchToken(RSQBRACKET, &FOLLOW_RSQBRACKET_in_arrayInit3368);
+            	            	             this->matchToken(RSQBRACKET, &FOLLOW_RSQBRACKET_in_arrayInit3540);
             	            	            if  (this->hasException())
             	            	            {
             	            	                goto rulearrayInitEx;
@@ -5135,9 +5849,9 @@ WNScriptASTParser::arrayInit()
 
             	            	    default:
 
-            	            		if ( cnt22 >= 1 )
+            	            		if ( cnt26 >= 1 )
             	            		{
-            	            		    goto loop22;
+            	            		    goto loop26;
             	            		}
 
 
@@ -5146,37 +5860,37 @@ WNScriptASTParser::arrayInit()
 
             	            		goto rulearrayInitEx;
             	            	}
-            	            	cnt22++;
+            	            	cnt26++;
             	                }
-            	                loop22: ;
+            	                loop26: ;
             	            }
 
 
             	            for (;;)
             	            {
-            	                int alt23=2;
+            	                int alt27=2;
             	                switch ( this->LA(1) )
             	                {
             	                case LSQBRACKET:
             	                	{
-            	                		alt23=1;
+            	                		alt27=1;
             	                	}
             	                    break;
 
             	                }
 
-            	                switch (alt23)
+            	                switch (alt27)
             	                {
             	            	case 1:
             	            	    {
-            	            	         this->matchToken(LSQBRACKET, &FOLLOW_LSQBRACKET_in_arrayInit3392);
+            	            	         this->matchToken(LSQBRACKET, &FOLLOW_LSQBRACKET_in_arrayInit3564);
             	            	        if  (this->hasException())
             	            	        {
             	            	            goto rulearrayInitEx;
             	            	        }
 
 
-            	            	         this->matchToken(RSQBRACKET, &FOLLOW_RSQBRACKET_in_arrayInit3394);
+            	            	         this->matchToken(RSQBRACKET, &FOLLOW_RSQBRACKET_in_arrayInit3566);
             	            	        if  (this->hasException())
             	            	        {
             	            	            goto rulearrayInitEx;
@@ -5192,11 +5906,11 @@ WNScriptASTParser::arrayInit()
             	            	    break;
 
             	            	default:
-            	            	    goto loop23;
+            	            	    goto loop27;
             	            	    break;
             	                }
             	            }
-            	            loop23: ;
+            	            loop27: ;
 
 
             	        }
@@ -5207,33 +5921,33 @@ WNScriptASTParser::arrayInit()
             	case 2:
             	    {
             	        {
-            	            int cnt24=0;
+            	            int cnt28=0;
 
             	            for (;;)
             	            {
-            	                int alt24=2;
+            	                int alt28=2;
             	        	switch ( this->LA(1) )
             	        	{
             	        	case LSQBRACKET:
             	        		{
-            	        			alt24=1;
+            	        			alt28=1;
             	        		}
             	        	    break;
 
             	        	}
 
-            	        	switch (alt24)
+            	        	switch (alt28)
             	        	{
             	        	    case 1:
             	        	        {
-            	        	             this->matchToken(LSQBRACKET, &FOLLOW_LSQBRACKET_in_arrayInit3432);
+            	        	             this->matchToken(LSQBRACKET, &FOLLOW_LSQBRACKET_in_arrayInit3604);
             	        	            if  (this->hasException())
             	        	            {
             	        	                goto rulearrayInitEx;
             	        	            }
 
 
-            	        	             this->matchToken(RSQBRACKET, &FOLLOW_RSQBRACKET_in_arrayInit3434);
+            	        	             this->matchToken(RSQBRACKET, &FOLLOW_RSQBRACKET_in_arrayInit3606);
             	        	            if  (this->hasException())
             	        	            {
             	        	                goto rulearrayInitEx;
@@ -5250,9 +5964,9 @@ WNScriptASTParser::arrayInit()
 
             	        	    default:
 
-            	        		if ( cnt24 >= 1 )
+            	        		if ( cnt28 >= 1 )
             	        		{
-            	        		    goto loop24;
+            	        		    goto loop28;
             	        		}
 
 
@@ -5261,9 +5975,9 @@ WNScriptASTParser::arrayInit()
 
             	        		goto rulearrayInitEx;
             	        	}
-            	        	cnt24++;
+            	        	cnt28++;
             	            }
-            	            loop24: ;
+            	            loop28: ;
             	        }
 
             	    }
@@ -5273,7 +5987,7 @@ WNScriptASTParser::arrayInit()
             }
 
             {
-                int alt26=2;
+                int alt30=2;
                 switch ( this->LA(1) )
                 {
                 case LBRACKET:
@@ -5282,7 +5996,7 @@ WNScriptASTParser::arrayInit()
                 		{
                 		case RBRACKET:
                 			{
-                				alt26=1;
+                				alt30=1;
                 			}
                 		    break;
                 		case BOOL:
@@ -5299,18 +6013,16 @@ WNScriptASTParser::arrayInit()
                 		case LBRACKET:
                 		case NULLTOK:
                 		case STRING:
-                		case STRING_TYPE:
-                		case TYPE:
                 		case VOID_TYPE:
-                		case 55:
+                		case 58:
                 			{
-                				alt26=2;
+                				alt30=2;
                 			}
                 		    break;
 
                 		default:
                 		    ExceptionBaseType* ex = new ANTLR_Exception< WNScriptASTParserImplTraits, NO_VIABLE_ALT_EXCEPTION, StreamType>( this->get_rec(), "" );
-                		    ex->set_decisionNum( 26 );
+                		    ex->set_decisionNum( 30 );
                 		    ex->set_state( 1 );
 
 
@@ -5323,7 +6035,7 @@ WNScriptASTParser::arrayInit()
 
                 default:
                     ExceptionBaseType* ex = new ANTLR_Exception< WNScriptASTParserImplTraits, NO_VIABLE_ALT_EXCEPTION, StreamType>( this->get_rec(), "" );
-                    ex->set_decisionNum( 26 );
+                    ex->set_decisionNum( 30 );
                     ex->set_state( 0 );
 
 
@@ -5331,19 +6043,19 @@ WNScriptASTParser::arrayInit()
 
                 }
 
-                switch (alt26)
+                switch (alt30)
                 {
             	case 1:
             	    {
             	        {
-            	             this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_arrayInit3475);
+            	             this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_arrayInit3647);
             	            if  (this->hasException())
             	            {
             	                goto rulearrayInitEx;
             	            }
 
 
-            	            a =  this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_arrayInit3479);
+            	            a =  this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_arrayInit3651);
             	            if  (this->hasException())
             	            {
             	                goto rulearrayInitEx;
@@ -5363,14 +6075,14 @@ WNScriptASTParser::arrayInit()
             	case 2:
             	    {
             	        {
-            	             this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_arrayInit3513);
+            	             this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_arrayInit3685);
             	            if  (this->hasException())
             	            {
             	                goto rulearrayInitEx;
             	            }
 
 
-            	            this->followPush(FOLLOW_expr_in_arrayInit3517);
+            	            this->followPush(FOLLOW_expr_in_arrayInit3689);
             	            b=expr();
 
             	            this->followPop();
@@ -5380,7 +6092,7 @@ WNScriptASTParser::arrayInit()
             	            }
 
 
-            	            c =  this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_arrayInit3521);
+            	            c =  this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_arrayInit3693);
             	            if  (this->hasException())
             	            {
             	                goto rulearrayInitEx;
@@ -5442,7 +6154,7 @@ WNScriptASTParser::declaration()
 
     {
         {
-            this->followPush(FOLLOW_param_in_declaration3566);
+            this->followPush(FOLLOW_param_in_declaration3738);
             a=param();
 
             this->followPop();
@@ -5461,7 +6173,7 @@ WNScriptASTParser::declaration()
 
             {
                 {
-                     this->matchToken(62, &FOLLOW_62_in_declaration3601);
+                     this->matchToken(65, &FOLLOW_65_in_declaration3773);
                     if  (this->hasException())
                     {
                         goto ruledeclarationEx;
@@ -5470,7 +6182,7 @@ WNScriptASTParser::declaration()
 
                     {
                         {
-                            this->followPush(FOLLOW_expr_in_declaration3608);
+                            this->followPush(FOLLOW_expr_in_declaration3780);
                             c=expr();
 
                             this->followPop();
@@ -5527,8 +6239,8 @@ WNScriptASTParser::instructionScalar()
     scripting::instruction* node;
 
 
-    scripting::declaration* declaration26;
-    scripting::assignment_instruction* assignment27;
+    scripting::declaration* declaration30;
+    scripting::assignment_instruction* assignment31;
 
 
 
@@ -5541,22 +6253,22 @@ WNScriptASTParser::instructionScalar()
     {
         {
 
-            ANTLR_UINT32 alt27;
+            ANTLR_UINT32 alt31;
 
-            alt27=2;
+            alt31=2;
 
-            alt27 = cdfa27.predict(this, this->get_rec(), this->get_istream(), cdfa27 );
+            alt31 = cdfa31.predict(this, this->get_rec(), this->get_istream(), cdfa31 );
             if  (this->hasException())
             {
                 goto ruleinstructionScalarEx;
             }
 
-            switch (alt27)
+            switch (alt31)
             {
         	case 1:
         	    {
-        	        this->followPush(FOLLOW_declaration_in_instructionScalar3657);
-        	        declaration26=declaration();
+        	        this->followPush(FOLLOW_declaration_in_instructionScalar3829);
+        	        declaration30=declaration();
 
         	        this->followPop();
         	        if  (this->hasException())
@@ -5566,7 +6278,7 @@ WNScriptASTParser::instructionScalar()
 
 
         	        {
-        	            node = declaration26
+        	            node = declaration30
         	            ;
         	        }
 
@@ -5575,8 +6287,8 @@ WNScriptASTParser::instructionScalar()
         	    break;
         	case 2:
         	    {
-        	        this->followPush(FOLLOW_assignment_in_instructionScalar3670);
-        	        assignment27=assignment();
+        	        this->followPush(FOLLOW_assignment_in_instructionScalar3842);
+        	        assignment31=assignment();
 
         	        this->followPop();
         	        if  (this->hasException())
@@ -5586,7 +6298,7 @@ WNScriptASTParser::instructionScalar()
 
 
         	        {
-        	            node = assignment27
+        	            node = assignment31
         	            ;
         	        }
 
@@ -5626,7 +6338,7 @@ WNScriptASTParser::returnInst()
     const ImplTraits::CommonTokenType* b = NULL;
     const ImplTraits::CommonTokenType* c = NULL;
     const ImplTraits::CommonTokenType* d = NULL;
-    scripting::expression* expr28;
+    scripting::expression* expr32;
 
 
 
@@ -5639,9 +6351,9 @@ WNScriptASTParser::returnInst()
     {
         {
 
-            ANTLR_UINT32 alt28;
+            ANTLR_UINT32 alt32;
 
-            alt28=2;
+            alt32=2;
 
             switch ( this->LA(1) )
             {
@@ -5651,7 +6363,7 @@ WNScriptASTParser::returnInst()
             		{
             		case SEMICOLON:
             			{
-            				alt28=2;
+            				alt32=2;
             			}
             		    break;
             		case BOOL:
@@ -5668,18 +6380,16 @@ WNScriptASTParser::returnInst()
             		case LBRACKET:
             		case NULLTOK:
             		case STRING:
-            		case STRING_TYPE:
-            		case TYPE:
             		case VOID_TYPE:
-            		case 55:
+            		case 58:
             			{
-            				alt28=1;
+            				alt32=1;
             			}
             		    break;
 
             		default:
             		    ExceptionBaseType* ex = new ANTLR_Exception< WNScriptASTParserImplTraits, NO_VIABLE_ALT_EXCEPTION, StreamType>( this->get_rec(), "" );
-            		    ex->set_decisionNum( 28 );
+            		    ex->set_decisionNum( 32 );
             		    ex->set_state( 1 );
 
 
@@ -5692,7 +6402,7 @@ WNScriptASTParser::returnInst()
 
             default:
                 ExceptionBaseType* ex = new ANTLR_Exception< WNScriptASTParserImplTraits, NO_VIABLE_ALT_EXCEPTION, StreamType>( this->get_rec(), "" );
-                ex->set_decisionNum( 28 );
+                ex->set_decisionNum( 32 );
                 ex->set_state( 0 );
 
 
@@ -5700,19 +6410,19 @@ WNScriptASTParser::returnInst()
 
             }
 
-            switch (alt28)
+            switch (alt32)
             {
         	case 1:
         	    {
-        	        a =  this->matchToken(RETURN, &FOLLOW_RETURN_in_returnInst3702);
+        	        a =  this->matchToken(RETURN, &FOLLOW_RETURN_in_returnInst3874);
         	        if  (this->hasException())
         	        {
         	            goto rulereturnInstEx;
         	        }
 
 
-        	        this->followPush(FOLLOW_expr_in_returnInst3704);
-        	        expr28=expr();
+        	        this->followPush(FOLLOW_expr_in_returnInst3876);
+        	        expr32=expr();
 
         	        this->followPop();
         	        if  (this->hasException())
@@ -5721,7 +6431,7 @@ WNScriptASTParser::returnInst()
         	        }
 
 
-        	        b =  this->matchToken(SEMICOLON, &FOLLOW_SEMICOLON_in_returnInst3708);
+        	        b =  this->matchToken(SEMICOLON, &FOLLOW_SEMICOLON_in_returnInst3880);
         	        if  (this->hasException())
         	        {
         	            goto rulereturnInstEx;
@@ -5729,7 +6439,7 @@ WNScriptASTParser::returnInst()
 
 
         	        {
-        	             node = m_allocator->make_allocated<scripting::return_instruction>(m_allocator, expr28
+        	             node = m_allocator->make_allocated<scripting::return_instruction>(m_allocator, expr32
         	            ); SET_LOCATION(node, a); SET_END_LOCATION(node, b);
         	        }
 
@@ -5738,14 +6448,14 @@ WNScriptASTParser::returnInst()
         	    break;
         	case 2:
         	    {
-        	        c =  this->matchToken(RETURN, &FOLLOW_RETURN_in_returnInst3722);
+        	        c =  this->matchToken(RETURN, &FOLLOW_RETURN_in_returnInst3894);
         	        if  (this->hasException())
         	        {
         	            goto rulereturnInstEx;
         	        }
 
 
-        	        d =  this->matchToken(SEMICOLON, &FOLLOW_SEMICOLON_in_returnInst3726);
+        	        d =  this->matchToken(SEMICOLON, &FOLLOW_SEMICOLON_in_returnInst3898);
         	        if  (this->hasException())
         	        {
         	            goto rulereturnInstEx;
@@ -5788,9 +6498,9 @@ WNScriptASTParser::whileInst()
     scripting::instruction* node;
 
 
-    const ImplTraits::CommonTokenType* WHILE31 = NULL;
-    scripting::expression* expr29;
-    scripting::instruction_list* body30;
+    const ImplTraits::CommonTokenType* WHILE35 = NULL;
+    scripting::expression* expr33;
+    scripting::instruction_list* body34;
 
 
 
@@ -5802,22 +6512,22 @@ WNScriptASTParser::whileInst()
 
     {
         {
-            WHILE31 =  this->matchToken(WHILE, &FOLLOW_WHILE_in_whileInst3759);
+            WHILE35 =  this->matchToken(WHILE, &FOLLOW_WHILE_in_whileInst3931);
             if  (this->hasException())
             {
                 goto rulewhileInstEx;
             }
 
 
-             this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_whileInst3761);
+             this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_whileInst3933);
             if  (this->hasException())
             {
                 goto rulewhileInstEx;
             }
 
 
-            this->followPush(FOLLOW_expr_in_whileInst3763);
-            expr29=expr();
+            this->followPush(FOLLOW_expr_in_whileInst3935);
+            expr33=expr();
 
             this->followPop();
             if  (this->hasException())
@@ -5826,15 +6536,15 @@ WNScriptASTParser::whileInst()
             }
 
 
-             this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_whileInst3765);
+             this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_whileInst3937);
             if  (this->hasException())
             {
                 goto rulewhileInstEx;
             }
 
 
-            this->followPush(FOLLOW_body_in_whileInst3767);
-            body30=body();
+            this->followPush(FOLLOW_body_in_whileInst3939);
+            body34=body();
 
             this->followPop();
             if  (this->hasException())
@@ -5844,10 +6554,10 @@ WNScriptASTParser::whileInst()
 
 
             {
-                 node = m_allocator->make_allocated<scripting::while_instruction>(m_allocator, expr29
-                , body30
-                ); SET_LOCATION(node, WHILE31); SET_END_LOCATION_FROM_NODE(node,
-                body30
+                 node = m_allocator->make_allocated<scripting::while_instruction>(m_allocator, expr33
+                , body34
+                ); SET_LOCATION(node, WHILE35); SET_END_LOCATION_FROM_NODE(node,
+                body34
                 );
             }
 
@@ -5880,10 +6590,10 @@ WNScriptASTParser::doInst()
     scripting::instruction* node;
 
 
-    const ImplTraits::CommonTokenType* DO34 = NULL;
-    const ImplTraits::CommonTokenType* SEMICOLON35 = NULL;
-    scripting::expression* expr32;
-    scripting::instruction_list* body33;
+    const ImplTraits::CommonTokenType* DO38 = NULL;
+    const ImplTraits::CommonTokenType* SEMICOLON39 = NULL;
+    scripting::expression* expr36;
+    scripting::instruction_list* body37;
 
 
 
@@ -5895,15 +6605,15 @@ WNScriptASTParser::doInst()
 
     {
         {
-            DO34 =  this->matchToken(DO, &FOLLOW_DO_in_doInst3803);
+            DO38 =  this->matchToken(DO, &FOLLOW_DO_in_doInst3975);
             if  (this->hasException())
             {
                 goto ruledoInstEx;
             }
 
 
-            this->followPush(FOLLOW_body_in_doInst3805);
-            body33=body();
+            this->followPush(FOLLOW_body_in_doInst3977);
+            body37=body();
 
             this->followPop();
             if  (this->hasException())
@@ -5912,22 +6622,22 @@ WNScriptASTParser::doInst()
             }
 
 
-             this->matchToken(WHILE, &FOLLOW_WHILE_in_doInst3807);
+             this->matchToken(WHILE, &FOLLOW_WHILE_in_doInst3979);
             if  (this->hasException())
             {
                 goto ruledoInstEx;
             }
 
 
-             this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_doInst3809);
+             this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_doInst3981);
             if  (this->hasException())
             {
                 goto ruledoInstEx;
             }
 
 
-            this->followPush(FOLLOW_expr_in_doInst3811);
-            expr32=expr();
+            this->followPush(FOLLOW_expr_in_doInst3983);
+            expr36=expr();
 
             this->followPop();
             if  (this->hasException())
@@ -5936,14 +6646,14 @@ WNScriptASTParser::doInst()
             }
 
 
-             this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_doInst3813);
+             this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_doInst3985);
             if  (this->hasException())
             {
                 goto ruledoInstEx;
             }
 
 
-            SEMICOLON35 =  this->matchToken(SEMICOLON, &FOLLOW_SEMICOLON_in_doInst3815);
+            SEMICOLON39 =  this->matchToken(SEMICOLON, &FOLLOW_SEMICOLON_in_doInst3987);
             if  (this->hasException())
             {
                 goto ruledoInstEx;
@@ -5951,9 +6661,9 @@ WNScriptASTParser::doInst()
 
 
             {
-                node = m_allocator->make_allocated<scripting::do_instruction>(m_allocator, expr32
-                , body33
-                ); SET_LOCATION(node, DO34); SET_END_LOCATION(node, SEMICOLON35);
+                node = m_allocator->make_allocated<scripting::do_instruction>(m_allocator, expr36
+                , body37
+                ); SET_LOCATION(node, DO38); SET_END_LOCATION(node, SEMICOLON39);
             }
 
 
@@ -5985,7 +6695,7 @@ WNScriptASTParser::forInst()
     scripting::for_instruction* node;
 
 
-    const ImplTraits::CommonTokenType* FOR36 = NULL;
+    const ImplTraits::CommonTokenType* FOR40 = NULL;
     scripting::instruction* a;
     scripting::expression* b;
     scripting::instruction* c;
@@ -6001,14 +6711,14 @@ WNScriptASTParser::forInst()
 
     {
         {
-            FOR36 =  this->matchToken(FOR, &FOLLOW_FOR_in_forInst3847);
+            FOR40 =  this->matchToken(FOR, &FOLLOW_FOR_in_forInst4019);
             if  (this->hasException())
             {
                 goto ruleforInstEx;
             }
 
 
-             this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_forInst3849);
+             this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_forInst4021);
             if  (this->hasException())
             {
                 goto ruleforInstEx;
@@ -6016,12 +6726,12 @@ WNScriptASTParser::forInst()
 
 
             {
-                 SET_LOCATION(node, FOR36);
+                 SET_LOCATION(node, FOR40);
             }
 
 
             {
-                int alt29=2;
+                int alt33=2;
                 switch ( this->LA(1) )
                 {
                     case BOOL:
@@ -6037,22 +6747,24 @@ WNScriptASTParser::forInst()
                     case INT_TYPE:
                     case LBRACKET:
                     case NULLTOK:
+                    case SHARED_REF:
                     case STRING:
                     case STRING_TYPE:
                     case TYPE:
                     case VOID_TYPE:
-                    case 55:
+                    case WEAK_REF:
+                    case 58:
                     	{
-                    		alt29=1;
+                    		alt33=1;
                     	}
                         break;
                 }
 
-                switch (alt29)
+                switch (alt33)
                 {
             	case 1:
             	    {
-            	        this->followPush(FOLLOW_instructionScalar_in_forInst3877);
+            	        this->followPush(FOLLOW_instructionScalar_in_forInst4049);
             	        a=instructionScalar();
 
             	        this->followPop();
@@ -6074,7 +6786,7 @@ WNScriptASTParser::forInst()
                 }
             }
 
-             this->matchToken(SEMICOLON, &FOLLOW_SEMICOLON_in_forInst3883);
+             this->matchToken(SEMICOLON, &FOLLOW_SEMICOLON_in_forInst4055);
             if  (this->hasException())
             {
                 goto ruleforInstEx;
@@ -6082,7 +6794,7 @@ WNScriptASTParser::forInst()
 
 
             {
-                int alt30=2;
+                int alt34=2;
                 switch ( this->LA(1) )
                 {
                     case BOOL:
@@ -6099,21 +6811,19 @@ WNScriptASTParser::forInst()
                     case LBRACKET:
                     case NULLTOK:
                     case STRING:
-                    case STRING_TYPE:
-                    case TYPE:
                     case VOID_TYPE:
-                    case 55:
+                    case 58:
                     	{
-                    		alt30=1;
+                    		alt34=1;
                     	}
                         break;
                 }
 
-                switch (alt30)
+                switch (alt34)
                 {
             	case 1:
             	    {
-            	        this->followPush(FOLLOW_expr_in_forInst3908);
+            	        this->followPush(FOLLOW_expr_in_forInst4080);
             	        b=expr();
 
             	        this->followPop();
@@ -6135,7 +6845,7 @@ WNScriptASTParser::forInst()
                 }
             }
 
-             this->matchToken(SEMICOLON, &FOLLOW_SEMICOLON_in_forInst3922);
+             this->matchToken(SEMICOLON, &FOLLOW_SEMICOLON_in_forInst4094);
             if  (this->hasException())
             {
                 goto ruleforInstEx;
@@ -6143,7 +6853,7 @@ WNScriptASTParser::forInst()
 
 
             {
-                int alt31=2;
+                int alt35=2;
                 switch ( this->LA(1) )
                 {
                     case BOOL:
@@ -6159,22 +6869,24 @@ WNScriptASTParser::forInst()
                     case INT_TYPE:
                     case LBRACKET:
                     case NULLTOK:
+                    case SHARED_REF:
                     case STRING:
                     case STRING_TYPE:
                     case TYPE:
                     case VOID_TYPE:
-                    case 55:
+                    case WEAK_REF:
+                    case 58:
                     	{
-                    		alt31=1;
+                    		alt35=1;
                     	}
                         break;
                 }
 
-                switch (alt31)
+                switch (alt35)
                 {
             	case 1:
             	    {
-            	        this->followPush(FOLLOW_instructionScalar_in_forInst3947);
+            	        this->followPush(FOLLOW_instructionScalar_in_forInst4119);
             	        c=instructionScalar();
 
             	        this->followPop();
@@ -6196,7 +6908,7 @@ WNScriptASTParser::forInst()
                 }
             }
 
-             this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_forInst3953);
+             this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_forInst4125);
             if  (this->hasException())
             {
                 goto ruleforInstEx;
@@ -6204,7 +6916,7 @@ WNScriptASTParser::forInst()
 
 
             {
-                this->followPush(FOLLOW_body_in_forInst3978);
+                this->followPush(FOLLOW_body_in_forInst4150);
                 d=body();
 
                 this->followPop();
@@ -6252,9 +6964,9 @@ WNScriptASTParser::elsemiddle()
     scripting::else_if_instruction* node;
 
 
-    const ImplTraits::CommonTokenType* ELSE39 = NULL;
-    scripting::expression* expr37;
-    scripting::instruction_list* body38;
+    const ImplTraits::CommonTokenType* ELSE43 = NULL;
+    scripting::expression* expr41;
+    scripting::instruction_list* body42;
 
 
 
@@ -6266,29 +6978,29 @@ WNScriptASTParser::elsemiddle()
 
     {
         {
-            ELSE39 =  this->matchToken(ELSE, &FOLLOW_ELSE_in_elsemiddle4026);
+            ELSE43 =  this->matchToken(ELSE, &FOLLOW_ELSE_in_elsemiddle4198);
             if  (this->hasException())
             {
                 goto ruleelsemiddleEx;
             }
 
 
-             this->matchToken(IF, &FOLLOW_IF_in_elsemiddle4028);
+             this->matchToken(IF, &FOLLOW_IF_in_elsemiddle4200);
             if  (this->hasException())
             {
                 goto ruleelsemiddleEx;
             }
 
 
-             this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_elsemiddle4030);
+             this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_elsemiddle4202);
             if  (this->hasException())
             {
                 goto ruleelsemiddleEx;
             }
 
 
-            this->followPush(FOLLOW_expr_in_elsemiddle4032);
-            expr37=expr();
+            this->followPush(FOLLOW_expr_in_elsemiddle4204);
+            expr41=expr();
 
             this->followPop();
             if  (this->hasException())
@@ -6297,15 +7009,15 @@ WNScriptASTParser::elsemiddle()
             }
 
 
-             this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_elsemiddle4034);
+             this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_elsemiddle4206);
             if  (this->hasException())
             {
                 goto ruleelsemiddleEx;
             }
 
 
-            this->followPush(FOLLOW_body_in_elsemiddle4036);
-            body38=body();
+            this->followPush(FOLLOW_body_in_elsemiddle4208);
+            body42=body();
 
             this->followPop();
             if  (this->hasException())
@@ -6315,10 +7027,10 @@ WNScriptASTParser::elsemiddle()
 
 
             {
-                 node = m_allocator->make_allocated<scripting::else_if_instruction>(m_allocator, expr37
-                , body38
-                ); SET_LOCATION(node, ELSE39); SET_END_LOCATION_FROM_NODE(node,
-                body38
+                 node = m_allocator->make_allocated<scripting::else_if_instruction>(m_allocator, expr41
+                , body42
+                ); SET_LOCATION(node, ELSE43); SET_END_LOCATION_FROM_NODE(node,
+                body42
                 );
             }
 
@@ -6351,7 +7063,7 @@ WNScriptASTParser::endif()
     scripting::instruction_list* node;
 
 
-    scripting::instruction_list* body40;
+    scripting::instruction_list* body44;
 
 
 
@@ -6363,15 +7075,15 @@ WNScriptASTParser::endif()
 
     {
         {
-             this->matchToken(ELSE, &FOLLOW_ELSE_in_endif4069);
+             this->matchToken(ELSE, &FOLLOW_ELSE_in_endif4241);
             if  (this->hasException())
             {
                 goto ruleendifEx;
             }
 
 
-            this->followPush(FOLLOW_body_in_endif4071);
-            body40=body();
+            this->followPush(FOLLOW_body_in_endif4243);
+            body44=body();
 
             this->followPop();
             if  (this->hasException())
@@ -6381,7 +7093,7 @@ WNScriptASTParser::endif()
 
 
             {
-                node = body40
+                node = body44
                 ;
             }
 
@@ -6414,11 +7126,11 @@ WNScriptASTParser::ifInst()
     scripting::if_instruction* node;
 
 
-    const ImplTraits::CommonTokenType* IF43 = NULL;
-    scripting::expression* expr41;
-    scripting::instruction_list* body42;
-    scripting::else_if_instruction* elsemiddle44;
-    scripting::instruction_list* endif45;
+    const ImplTraits::CommonTokenType* IF47 = NULL;
+    scripting::expression* expr45;
+    scripting::instruction_list* body46;
+    scripting::else_if_instruction* elsemiddle48;
+    scripting::instruction_list* endif49;
 
 
 
@@ -6430,22 +7142,22 @@ WNScriptASTParser::ifInst()
 
     {
         {
-            IF43 =  this->matchToken(IF, &FOLLOW_IF_in_ifInst4101);
+            IF47 =  this->matchToken(IF, &FOLLOW_IF_in_ifInst4273);
             if  (this->hasException())
             {
                 goto ruleifInstEx;
             }
 
 
-             this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_ifInst4103);
+             this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_ifInst4275);
             if  (this->hasException())
             {
                 goto ruleifInstEx;
             }
 
 
-            this->followPush(FOLLOW_expr_in_ifInst4105);
-            expr41=expr();
+            this->followPush(FOLLOW_expr_in_ifInst4277);
+            expr45=expr();
 
             this->followPop();
             if  (this->hasException())
@@ -6454,15 +7166,15 @@ WNScriptASTParser::ifInst()
             }
 
 
-             this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_ifInst4107);
+             this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_ifInst4279);
             if  (this->hasException())
             {
                 goto ruleifInstEx;
             }
 
 
-            this->followPush(FOLLOW_body_in_ifInst4109);
-            body42=body();
+            this->followPush(FOLLOW_body_in_ifInst4281);
+            body46=body();
 
             this->followPop();
             if  (this->hasException())
@@ -6472,10 +7184,10 @@ WNScriptASTParser::ifInst()
 
 
             {
-                node = m_allocator->make_allocated<scripting::if_instruction>(m_allocator, expr41
-                , body42
-                ); SET_LOCATION(node, IF43); SET_END_LOCATION_FROM_NODE(node,
-                body42
+                node = m_allocator->make_allocated<scripting::if_instruction>(m_allocator, expr45
+                , body46
+                ); SET_LOCATION(node, IF47); SET_END_LOCATION_FROM_NODE(node,
+                body46
                 );
             }
 
@@ -6483,7 +7195,7 @@ WNScriptASTParser::ifInst()
 
             for (;;)
             {
-                int alt32=2;
+                int alt36=2;
                 switch ( this->LA(1) )
                 {
                 case ELSE:
@@ -6492,7 +7204,7 @@ WNScriptASTParser::ifInst()
                 		{
                 		case IF:
                 			{
-                				alt32=1;
+                				alt36=1;
                 			}
                 		    break;
 
@@ -6503,12 +7215,12 @@ WNScriptASTParser::ifInst()
 
                 }
 
-                switch (alt32)
+                switch (alt36)
                 {
             	case 1:
             	    {
-            	        this->followPush(FOLLOW_elsemiddle_in_ifInst4126);
-            	        elsemiddle44=elsemiddle();
+            	        this->followPush(FOLLOW_elsemiddle_in_ifInst4298);
+            	        elsemiddle48=elsemiddle();
 
             	        this->followPop();
             	        if  (this->hasException())
@@ -6518,8 +7230,8 @@ WNScriptASTParser::ifInst()
 
 
             	        {
-            	            node->add_else_if(elsemiddle44
-            	            ); SET_END_LOCATION_FROM_NODE(node, elsemiddle44
+            	            node->add_else_if(elsemiddle48
+            	            ); SET_END_LOCATION_FROM_NODE(node, elsemiddle48
             	            );
             	        }
 
@@ -6528,30 +7240,30 @@ WNScriptASTParser::ifInst()
             	    break;
 
             	default:
-            	    goto loop32;
+            	    goto loop36;
             	    break;
                 }
             }
-            loop32: ;
+            loop36: ;
 
 
             {
-                int alt33=2;
+                int alt37=2;
                 switch ( this->LA(1) )
                 {
                     case ELSE:
                     	{
-                    		alt33=1;
+                    		alt37=1;
                     	}
                         break;
                 }
 
-                switch (alt33)
+                switch (alt37)
                 {
             	case 1:
             	    {
-            	        this->followPush(FOLLOW_endif_in_ifInst4146);
-            	        endif45=endif();
+            	        this->followPush(FOLLOW_endif_in_ifInst4318);
+            	        endif49=endif();
 
             	        this->followPop();
             	        if  (this->hasException())
@@ -6561,9 +7273,9 @@ WNScriptASTParser::ifInst()
 
 
             	        {
-            	            node->add_else(endif45
-            	            ); SET_LOCATION(node, IF43); SET_END_LOCATION_FROM_NODE(node,
-            	            endif45
+            	            node->add_else(endif49
+            	            ); SET_LOCATION(node, IF47); SET_END_LOCATION_FROM_NODE(node,
+            	            endif49
             	            );
             	        }
 
@@ -6602,12 +7314,12 @@ WNScriptASTParser::instruction()
     scripting::instruction* node;
 
 
-    scripting::if_instruction* ifInst46;
-    scripting::instruction* whileInst47;
-    scripting::instruction* doInst48;
-    scripting::for_instruction* forInst49;
-    scripting::instruction* instructionScalar50;
-    scripting::return_instruction* returnInst51;
+    scripting::if_instruction* ifInst50;
+    scripting::instruction* whileInst51;
+    scripting::instruction* doInst52;
+    scripting::for_instruction* forInst53;
+    scripting::instruction* instructionScalar54;
+    scripting::return_instruction* returnInst55;
 
 
 
@@ -6620,30 +7332,30 @@ WNScriptASTParser::instruction()
     {
         {
 
-            ANTLR_UINT32 alt34;
+            ANTLR_UINT32 alt38;
 
-            alt34=6;
+            alt38=6;
 
             switch ( this->LA(1) )
             {
             case IF:
             	{
-            		alt34=1;
+            		alt38=1;
             	}
                 break;
             case WHILE:
             	{
-            		alt34=2;
+            		alt38=2;
             	}
                 break;
             case DO:
             	{
-            		alt34=3;
+            		alt38=3;
             	}
                 break;
             case FOR:
             	{
-            		alt34=4;
+            		alt38=4;
             	}
                 break;
             case BOOL:
@@ -6659,24 +7371,26 @@ WNScriptASTParser::instruction()
             case INT_TYPE:
             case LBRACKET:
             case NULLTOK:
+            case SHARED_REF:
             case STRING:
             case STRING_TYPE:
             case TYPE:
             case VOID_TYPE:
-            case 55:
+            case WEAK_REF:
+            case 58:
             	{
-            		alt34=5;
+            		alt38=5;
             	}
                 break;
             case RETURN:
             	{
-            		alt34=6;
+            		alt38=6;
             	}
                 break;
 
             default:
                 ExceptionBaseType* ex = new ANTLR_Exception< WNScriptASTParserImplTraits, NO_VIABLE_ALT_EXCEPTION, StreamType>( this->get_rec(), "" );
-                ex->set_decisionNum( 34 );
+                ex->set_decisionNum( 38 );
                 ex->set_state( 0 );
 
 
@@ -6684,12 +7398,12 @@ WNScriptASTParser::instruction()
 
             }
 
-            switch (alt34)
+            switch (alt38)
             {
         	case 1:
         	    {
-        	        this->followPush(FOLLOW_ifInst_in_instruction4180);
-        	        ifInst46=ifInst();
+        	        this->followPush(FOLLOW_ifInst_in_instruction4352);
+        	        ifInst50=ifInst();
 
         	        this->followPop();
         	        if  (this->hasException())
@@ -6699,7 +7413,7 @@ WNScriptASTParser::instruction()
 
 
         	        {
-        	             node = ifInst46
+        	             node = ifInst50
         	            ;
         	        }
 
@@ -6708,8 +7422,8 @@ WNScriptASTParser::instruction()
         	    break;
         	case 2:
         	    {
-        	        this->followPush(FOLLOW_whileInst_in_instruction4201);
-        	        whileInst47=whileInst();
+        	        this->followPush(FOLLOW_whileInst_in_instruction4373);
+        	        whileInst51=whileInst();
 
         	        this->followPop();
         	        if  (this->hasException())
@@ -6719,7 +7433,7 @@ WNScriptASTParser::instruction()
 
 
         	        {
-        	            node = whileInst47
+        	            node = whileInst51
         	            ;
         	        }
 
@@ -6728,8 +7442,8 @@ WNScriptASTParser::instruction()
         	    break;
         	case 3:
         	    {
-        	        this->followPush(FOLLOW_doInst_in_instruction4218);
-        	        doInst48=doInst();
+        	        this->followPush(FOLLOW_doInst_in_instruction4390);
+        	        doInst52=doInst();
 
         	        this->followPop();
         	        if  (this->hasException())
@@ -6739,7 +7453,7 @@ WNScriptASTParser::instruction()
 
 
         	        {
-        	            node = doInst48
+        	            node = doInst52
         	            ;
         	        }
 
@@ -6748,8 +7462,8 @@ WNScriptASTParser::instruction()
         	    break;
         	case 4:
         	    {
-        	        this->followPush(FOLLOW_forInst_in_instruction4238);
-        	        forInst49=forInst();
+        	        this->followPush(FOLLOW_forInst_in_instruction4410);
+        	        forInst53=forInst();
 
         	        this->followPop();
         	        if  (this->hasException())
@@ -6759,7 +7473,7 @@ WNScriptASTParser::instruction()
 
 
         	        {
-        	            node = forInst49
+        	            node = forInst53
         	            ;
         	        }
 
@@ -6768,8 +7482,8 @@ WNScriptASTParser::instruction()
         	    break;
         	case 5:
         	    {
-        	        this->followPush(FOLLOW_instructionScalar_in_instruction4258);
-        	        instructionScalar50=instructionScalar();
+        	        this->followPush(FOLLOW_instructionScalar_in_instruction4430);
+        	        instructionScalar54=instructionScalar();
 
         	        this->followPop();
         	        if  (this->hasException())
@@ -6778,7 +7492,7 @@ WNScriptASTParser::instruction()
         	        }
 
 
-        	         this->matchToken(SEMICOLON, &FOLLOW_SEMICOLON_in_instruction4260);
+        	         this->matchToken(SEMICOLON, &FOLLOW_SEMICOLON_in_instruction4432);
         	        if  (this->hasException())
         	        {
         	            goto ruleinstructionEx;
@@ -6786,7 +7500,7 @@ WNScriptASTParser::instruction()
 
 
         	        {
-        	            node = instructionScalar50
+        	            node = instructionScalar54
         	            ;
         	        }
 
@@ -6795,8 +7509,8 @@ WNScriptASTParser::instruction()
         	    break;
         	case 6:
         	    {
-        	        this->followPush(FOLLOW_returnInst_in_instruction4273);
-        	        returnInst51=returnInst();
+        	        this->followPush(FOLLOW_returnInst_in_instruction4445);
+        	        returnInst55=returnInst();
 
         	        this->followPop();
         	        if  (this->hasException())
@@ -6806,7 +7520,7 @@ WNScriptASTParser::instruction()
 
 
         	        {
-        	            node = returnInst51
+        	            node = returnInst55
         	            ;
         	        }
 
@@ -6855,7 +7569,7 @@ WNScriptASTParser::instruction_list()
 
     {
         {
-            this->followPush(FOLLOW_instruction_in_instruction_list4305);
+            this->followPush(FOLLOW_instruction_in_instruction_list4477);
             a=instruction();
 
             this->followPop();
@@ -6875,7 +7589,7 @@ WNScriptASTParser::instruction_list()
 
             for (;;)
             {
-                int alt35=2;
+                int alt39=2;
                 switch ( this->LA(1) )
                 {
                 case BOOL:
@@ -6895,24 +7609,26 @@ WNScriptASTParser::instruction_list()
                 case LBRACKET:
                 case NULLTOK:
                 case RETURN:
+                case SHARED_REF:
                 case STRING:
                 case STRING_TYPE:
                 case TYPE:
                 case VOID_TYPE:
+                case WEAK_REF:
                 case WHILE:
-                case 55:
+                case 58:
                 	{
-                		alt35=1;
+                		alt39=1;
                 	}
                     break;
 
                 }
 
-                switch (alt35)
+                switch (alt39)
                 {
             	case 1:
             	    {
-            	        this->followPush(FOLLOW_instruction_in_instruction_list4321);
+            	        this->followPush(FOLLOW_instruction_in_instruction_list4493);
             	        b=instruction();
 
             	        this->followPop();
@@ -6933,11 +7649,11 @@ WNScriptASTParser::instruction_list()
             	    break;
 
             	default:
-            	    goto loop35;
+            	    goto loop39;
             	    break;
                 }
             }
-            loop35: ;
+            loop39: ;
 
 
         }
@@ -6972,7 +7688,7 @@ WNScriptASTParser::body()
     const ImplTraits::CommonTokenType* b = NULL;
     const ImplTraits::CommonTokenType* d = NULL;
     const ImplTraits::CommonTokenType* e = NULL;
-    scripting::instruction_list* instruction_list52;
+    scripting::instruction_list* instruction_list56;
 
 
 
@@ -6985,9 +7701,9 @@ WNScriptASTParser::body()
     {
         {
 
-            ANTLR_UINT32 alt36;
+            ANTLR_UINT32 alt40;
 
-            alt36=2;
+            alt40=2;
 
             switch ( this->LA(1) )
             {
@@ -6997,7 +7713,7 @@ WNScriptASTParser::body()
             		{
             		case RBRACE:
             			{
-            				alt36=1;
+            				alt40=1;
             			}
             		    break;
             		case BOOL:
@@ -7017,20 +7733,22 @@ WNScriptASTParser::body()
             		case LBRACKET:
             		case NULLTOK:
             		case RETURN:
+            		case SHARED_REF:
             		case STRING:
             		case STRING_TYPE:
             		case TYPE:
             		case VOID_TYPE:
+            		case WEAK_REF:
             		case WHILE:
-            		case 55:
+            		case 58:
             			{
-            				alt36=2;
+            				alt40=2;
             			}
             		    break;
 
             		default:
             		    ExceptionBaseType* ex = new ANTLR_Exception< WNScriptASTParserImplTraits, NO_VIABLE_ALT_EXCEPTION, StreamType>( this->get_rec(), "" );
-            		    ex->set_decisionNum( 36 );
+            		    ex->set_decisionNum( 40 );
             		    ex->set_state( 1 );
 
 
@@ -7043,7 +7761,7 @@ WNScriptASTParser::body()
 
             default:
                 ExceptionBaseType* ex = new ANTLR_Exception< WNScriptASTParserImplTraits, NO_VIABLE_ALT_EXCEPTION, StreamType>( this->get_rec(), "" );
-                ex->set_decisionNum( 36 );
+                ex->set_decisionNum( 40 );
                 ex->set_state( 0 );
 
 
@@ -7051,18 +7769,18 @@ WNScriptASTParser::body()
 
             }
 
-            switch (alt36)
+            switch (alt40)
             {
         	case 1:
         	    {
-        	        a =  this->matchToken(LBRACE, &FOLLOW_LBRACE_in_body4355);
+        	        a =  this->matchToken(LBRACE, &FOLLOW_LBRACE_in_body4527);
         	        if  (this->hasException())
         	        {
         	            goto rulebodyEx;
         	        }
 
 
-        	        b =  this->matchToken(RBRACE, &FOLLOW_RBRACE_in_body4359);
+        	        b =  this->matchToken(RBRACE, &FOLLOW_RBRACE_in_body4531);
         	        if  (this->hasException())
         	        {
         	            goto rulebodyEx;
@@ -7078,15 +7796,15 @@ WNScriptASTParser::body()
         	    break;
         	case 2:
         	    {
-        	        d =  this->matchToken(LBRACE, &FOLLOW_LBRACE_in_body4374);
+        	        d =  this->matchToken(LBRACE, &FOLLOW_LBRACE_in_body4546);
         	        if  (this->hasException())
         	        {
         	            goto rulebodyEx;
         	        }
 
 
-        	        this->followPush(FOLLOW_instruction_list_in_body4376);
-        	        instruction_list52=instruction_list();
+        	        this->followPush(FOLLOW_instruction_list_in_body4548);
+        	        instruction_list56=instruction_list();
 
         	        this->followPop();
         	        if  (this->hasException())
@@ -7095,7 +7813,7 @@ WNScriptASTParser::body()
         	        }
 
 
-        	        e =  this->matchToken(RBRACE, &FOLLOW_RBRACE_in_body4380);
+        	        e =  this->matchToken(RBRACE, &FOLLOW_RBRACE_in_body4552);
         	        if  (this->hasException())
         	        {
         	            goto rulebodyEx;
@@ -7103,7 +7821,7 @@ WNScriptASTParser::body()
 
 
         	        {
-        	            node = instruction_list52
+        	            node = instruction_list56
         	            ; SET_LOCATION(node, d); SET_END_LOCATION(node, e);
         	        }
 
@@ -7139,9 +7857,9 @@ WNScriptASTParser::function()
     scripting::function* node;
 
 
-    scripting::parameter* param53;
-    scripting::parameter_list* parameterList54;
-    scripting::instruction_list* body55;
+    scripting::parameter* param57;
+    scripting::parameter_list* parameterList58;
+    scripting::instruction_list* body59;
 
 
 
@@ -7153,8 +7871,8 @@ WNScriptASTParser::function()
 
     {
         {
-            this->followPush(FOLLOW_param_in_function4410);
-            param53=param();
+            this->followPush(FOLLOW_param_in_function4582);
+            param57=param();
 
             this->followPop();
             if  (this->hasException())
@@ -7163,8 +7881,8 @@ WNScriptASTParser::function()
             }
 
 
-            this->followPush(FOLLOW_parameterList_in_function4412);
-            parameterList54=parameterList();
+            this->followPush(FOLLOW_parameterList_in_function4584);
+            parameterList58=parameterList();
 
             this->followPop();
             if  (this->hasException())
@@ -7173,8 +7891,8 @@ WNScriptASTParser::function()
             }
 
 
-            this->followPush(FOLLOW_body_in_function4414);
-            body55=body();
+            this->followPush(FOLLOW_body_in_function4586);
+            body59=body();
 
             this->followPop();
             if  (this->hasException())
@@ -7184,11 +7902,11 @@ WNScriptASTParser::function()
 
 
             {
-                 node = m_allocator->make_allocated<scripting::function>(m_allocator, param53
-                , parameterList54
-                , body55
-                ); SET_LOCATION_FROM_NODE(node, param53
-                ); SET_END_LOCATION_FROM_NODE(node, body55
+                 node = m_allocator->make_allocated<scripting::function>(m_allocator, param57
+                , parameterList58
+                , body59
+                ); SET_LOCATION_FROM_NODE(node, param57
+                ); SET_END_LOCATION_FROM_NODE(node, body59
                 );
             }
 
@@ -7221,9 +7939,9 @@ WNScriptASTParser::structDecl()
     scripting::struct_definition* node;
 
 
-    const ImplTraits::CommonTokenType* TYPE56 = NULL;
-    const ImplTraits::CommonTokenType* STRUCT57 = NULL;
-    const ImplTraits::CommonTokenType* RBRACE58 = NULL;
+    const ImplTraits::CommonTokenType* TYPE60 = NULL;
+    const ImplTraits::CommonTokenType* STRUCT61 = NULL;
+    const ImplTraits::CommonTokenType* RBRACE62 = NULL;
     scripting::declaration* a;
 
 
@@ -7236,14 +7954,14 @@ WNScriptASTParser::structDecl()
 
     {
         {
-            STRUCT57 =  this->matchToken(STRUCT, &FOLLOW_STRUCT_in_structDecl4444);
+            STRUCT61 =  this->matchToken(STRUCT, &FOLLOW_STRUCT_in_structDecl4616);
             if  (this->hasException())
             {
                 goto rulestructDeclEx;
             }
 
 
-            TYPE56 =  this->matchToken(TYPE, &FOLLOW_TYPE_in_structDecl4446);
+            TYPE60 =  this->matchToken(TYPE, &FOLLOW_TYPE_in_structDecl4618);
             if  (this->hasException())
             {
                 goto rulestructDeclEx;
@@ -7251,11 +7969,11 @@ WNScriptASTParser::structDecl()
 
 
             {
-                node= m_allocator->make_allocated<scripting::struct_definition>(m_allocator, (TYPE56->getText()).c_str()); SET_LOCATION(node, STRUCT57);
+                node= m_allocator->make_allocated<scripting::struct_definition>(m_allocator, (TYPE60->getText()).c_str()); SET_LOCATION(node, STRUCT61);
             }
 
 
-             this->matchToken(LBRACE, &FOLLOW_LBRACE_in_structDecl4462);
+             this->matchToken(LBRACE, &FOLLOW_LBRACE_in_structDecl4634);
             if  (this->hasException())
             {
                 goto rulestructDeclEx;
@@ -7265,28 +7983,30 @@ WNScriptASTParser::structDecl()
 
             for (;;)
             {
-                int alt37=2;
+                int alt41=2;
                 switch ( this->LA(1) )
                 {
                 case BOOL_TYPE:
                 case CHAR_TYPE:
                 case FLOAT_TYPE:
                 case INT_TYPE:
+                case SHARED_REF:
                 case STRING_TYPE:
                 case TYPE:
                 case VOID_TYPE:
+                case WEAK_REF:
                 	{
-                		alt37=1;
+                		alt41=1;
                 	}
                     break;
 
                 }
 
-                switch (alt37)
+                switch (alt41)
                 {
             	case 1:
             	    {
-            	        this->followPush(FOLLOW_declaration_in_structDecl4467);
+            	        this->followPush(FOLLOW_declaration_in_structDecl4639);
             	        a=declaration();
 
             	        this->followPop();
@@ -7302,7 +8022,7 @@ WNScriptASTParser::structDecl()
             	        }
 
 
-            	         this->matchToken(SEMICOLON, &FOLLOW_SEMICOLON_in_structDecl4471);
+            	         this->matchToken(SEMICOLON, &FOLLOW_SEMICOLON_in_structDecl4643);
             	        if  (this->hasException())
             	        {
             	            goto rulestructDeclEx;
@@ -7313,14 +8033,14 @@ WNScriptASTParser::structDecl()
             	    break;
 
             	default:
-            	    goto loop37;
+            	    goto loop41;
             	    break;
                 }
             }
-            loop37: ;
+            loop41: ;
 
 
-            RBRACE58 =  this->matchToken(RBRACE, &FOLLOW_RBRACE_in_structDecl4476);
+            RBRACE62 =  this->matchToken(RBRACE, &FOLLOW_RBRACE_in_structDecl4648);
             if  (this->hasException())
             {
                 goto rulestructDeclEx;
@@ -7328,7 +8048,7 @@ WNScriptASTParser::structDecl()
 
 
             {
-                 SET_END_LOCATION(node, RBRACE58);
+                 SET_END_LOCATION(node, RBRACE62);
             }
 
 
@@ -7365,7 +8085,7 @@ WNScriptASTParser::classDecl()
     const ImplTraits::CommonTokenType* g = NULL;
     const ImplTraits::CommonTokenType* d = NULL;
     const ImplTraits::CommonTokenType* e = NULL;
-    const ImplTraits::CommonTokenType* RBRACE59 = NULL;
+    const ImplTraits::CommonTokenType* RBRACE63 = NULL;
     scripting::declaration* a;
     scripting::function* b;
     scripting::function* h;
@@ -7382,7 +8102,7 @@ WNScriptASTParser::classDecl()
     {
         {
             {
-                int alt38=2;
+                int alt42=2;
                 switch ( this->LA(1) )
                 {
                 case CLASS:
@@ -7395,18 +8115,18 @@ WNScriptASTParser::classDecl()
                 				{
                 				case COLON:
                 					{
-                						alt38=2;
+                						alt42=2;
                 					}
                 				    break;
                 				case LBRACE:
                 					{
-                						alt38=1;
+                						alt42=1;
                 					}
                 				    break;
 
                 				default:
                 				    ExceptionBaseType* ex = new ANTLR_Exception< WNScriptASTParserImplTraits, NO_VIABLE_ALT_EXCEPTION, StreamType>( this->get_rec(), "" );
-                				    ex->set_decisionNum( 38 );
+                				    ex->set_decisionNum( 42 );
                 				    ex->set_state( 2 );
 
 
@@ -7419,7 +8139,7 @@ WNScriptASTParser::classDecl()
 
                 		default:
                 		    ExceptionBaseType* ex = new ANTLR_Exception< WNScriptASTParserImplTraits, NO_VIABLE_ALT_EXCEPTION, StreamType>( this->get_rec(), "" );
-                		    ex->set_decisionNum( 38 );
+                		    ex->set_decisionNum( 42 );
                 		    ex->set_state( 1 );
 
 
@@ -7432,7 +8152,7 @@ WNScriptASTParser::classDecl()
 
                 default:
                     ExceptionBaseType* ex = new ANTLR_Exception< WNScriptASTParserImplTraits, NO_VIABLE_ALT_EXCEPTION, StreamType>( this->get_rec(), "" );
-                    ex->set_decisionNum( 38 );
+                    ex->set_decisionNum( 42 );
                     ex->set_state( 0 );
 
 
@@ -7440,19 +8160,19 @@ WNScriptASTParser::classDecl()
 
                 }
 
-                switch (alt38)
+                switch (alt42)
                 {
             	case 1:
             	    {
             	        {
-            	            f =  this->matchToken(CLASS, &FOLLOW_CLASS_in_classDecl4529);
+            	            f =  this->matchToken(CLASS, &FOLLOW_CLASS_in_classDecl4701);
             	            if  (this->hasException())
             	            {
             	                goto ruleclassDeclEx;
             	            }
 
 
-            	            c =  this->matchToken(TYPE, &FOLLOW_TYPE_in_classDecl4533);
+            	            c =  this->matchToken(TYPE, &FOLLOW_TYPE_in_classDecl4705);
             	            if  (this->hasException())
             	            {
             	                goto ruleclassDeclEx;
@@ -7472,28 +8192,28 @@ WNScriptASTParser::classDecl()
             	case 2:
             	    {
             	        {
-            	            g =  this->matchToken(CLASS, &FOLLOW_CLASS_in_classDecl4553);
+            	            g =  this->matchToken(CLASS, &FOLLOW_CLASS_in_classDecl4725);
             	            if  (this->hasException())
             	            {
             	                goto ruleclassDeclEx;
             	            }
 
 
-            	            d =  this->matchToken(TYPE, &FOLLOW_TYPE_in_classDecl4557);
+            	            d =  this->matchToken(TYPE, &FOLLOW_TYPE_in_classDecl4729);
             	            if  (this->hasException())
             	            {
             	                goto ruleclassDeclEx;
             	            }
 
 
-            	             this->matchToken(COLON, &FOLLOW_COLON_in_classDecl4559);
+            	             this->matchToken(COLON, &FOLLOW_COLON_in_classDecl4731);
             	            if  (this->hasException())
             	            {
             	                goto ruleclassDeclEx;
             	            }
 
 
-            	            e =  this->matchToken(TYPE, &FOLLOW_TYPE_in_classDecl4563);
+            	            e =  this->matchToken(TYPE, &FOLLOW_TYPE_in_classDecl4735);
             	            if  (this->hasException())
             	            {
             	                goto ruleclassDeclEx;
@@ -7514,7 +8234,7 @@ WNScriptASTParser::classDecl()
                 }
             }
 
-             this->matchToken(LBRACE, &FOLLOW_LBRACE_in_classDecl4590);
+             this->matchToken(LBRACE, &FOLLOW_LBRACE_in_classDecl4762);
             if  (this->hasException())
             {
                 goto ruleclassDeclEx;
@@ -7524,19 +8244,19 @@ WNScriptASTParser::classDecl()
 
             for (;;)
             {
-                int alt39=5;
-                alt39 = cdfa39.predict(this, this->get_rec(), this->get_istream(), cdfa39 );
+                int alt43=5;
+                alt43 = cdfa43.predict(this, this->get_rec(), this->get_istream(), cdfa43 );
                 if  (this->hasException())
                 {
                     goto ruleclassDeclEx;
                 }
 
-                switch (alt39)
+                switch (alt43)
                 {
             	case 1:
             	    {
             	        {
-            	            this->followPush(FOLLOW_declaration_in_classDecl4633);
+            	            this->followPush(FOLLOW_declaration_in_classDecl4805);
             	            a=declaration();
 
             	            this->followPop();
@@ -7552,7 +8272,7 @@ WNScriptASTParser::classDecl()
             	            }
 
 
-            	             this->matchToken(SEMICOLON, &FOLLOW_SEMICOLON_in_classDecl4637);
+            	             this->matchToken(SEMICOLON, &FOLLOW_SEMICOLON_in_classDecl4809);
             	            if  (this->hasException())
             	            {
             	                goto ruleclassDeclEx;
@@ -7567,7 +8287,7 @@ WNScriptASTParser::classDecl()
             	case 2:
             	    {
             	        {
-            	            this->followPush(FOLLOW_function_in_classDecl4663);
+            	            this->followPush(FOLLOW_function_in_classDecl4835);
             	            b=function();
 
             	            this->followPop();
@@ -7591,14 +8311,14 @@ WNScriptASTParser::classDecl()
             	case 3:
             	    {
             	        {
-            	             this->matchToken(VIRTUAL, &FOLLOW_VIRTUAL_in_classDecl4692);
+            	             this->matchToken(VIRTUAL, &FOLLOW_VIRTUAL_in_classDecl4864);
             	            if  (this->hasException())
             	            {
             	                goto ruleclassDeclEx;
             	            }
 
 
-            	            this->followPush(FOLLOW_function_in_classDecl4696);
+            	            this->followPush(FOLLOW_function_in_classDecl4868);
             	            h=function();
 
             	            this->followPop();
@@ -7623,14 +8343,14 @@ WNScriptASTParser::classDecl()
             	case 4:
             	    {
             	        {
-            	             this->matchToken(OVERRIDE, &FOLLOW_OVERRIDE_in_classDecl4722);
+            	             this->matchToken(OVERRIDE, &FOLLOW_OVERRIDE_in_classDecl4894);
             	            if  (this->hasException())
             	            {
             	                goto ruleclassDeclEx;
             	            }
 
 
-            	            this->followPush(FOLLOW_function_in_classDecl4726);
+            	            this->followPush(FOLLOW_function_in_classDecl4898);
             	            i=function();
 
             	            this->followPop();
@@ -7654,14 +8374,14 @@ WNScriptASTParser::classDecl()
             	    break;
 
             	default:
-            	    goto loop39;
+            	    goto loop43;
             	    break;
                 }
             }
-            loop39: ;
+            loop43: ;
 
 
-            RBRACE59 =  this->matchToken(RBRACE, &FOLLOW_RBRACE_in_classDecl4762);
+            RBRACE63 =  this->matchToken(RBRACE, &FOLLOW_RBRACE_in_classDecl4934);
             if  (this->hasException())
             {
                 goto ruleclassDeclEx;
@@ -7669,7 +8389,7 @@ WNScriptASTParser::classDecl()
 
 
             {
-                 SET_END_LOCATION(node, RBRACE59);
+                 SET_END_LOCATION(node, RBRACE63);
             }
 
 
@@ -7701,7 +8421,7 @@ WNScriptASTParser::inc()
     const wn_char* file;
 
 
-    const ImplTraits::CommonTokenType* STRING60 = NULL;
+    const ImplTraits::CommonTokenType* STRING64 = NULL;
 
 
 
@@ -7714,14 +8434,14 @@ WNScriptASTParser::inc()
 
     {
         {
-             this->matchToken(INCLUDE, &FOLLOW_INCLUDE_in_inc4792);
+             this->matchToken(INCLUDE, &FOLLOW_INCLUDE_in_inc4964);
             if  (this->hasException())
             {
                 goto ruleincEx;
             }
 
 
-            STRING60 =  this->matchToken(STRING, &FOLLOW_STRING_in_inc4794);
+            STRING64 =  this->matchToken(STRING, &FOLLOW_STRING_in_inc4966);
             if  (this->hasException())
             {
                 goto ruleincEx;
@@ -7729,7 +8449,7 @@ WNScriptASTParser::inc()
 
 
             {
-                 file = (STRING60->getText()).c_str();
+                 file = (STRING64->getText()).c_str();
             }
 
 
@@ -7761,10 +8481,10 @@ WNScriptASTParser::program()
     scripting::script_file* node;
 
 
-    scripting::function* function61;
-    scripting::struct_definition* structDecl62;
-    scripting::struct_definition* classDecl63;
-    const wn_char* inc64;
+    scripting::function* function65;
+    scripting::struct_definition* structDecl66;
+    scripting::struct_definition* classDecl67;
+    const wn_char* inc68;
 
 
 
@@ -7779,44 +8499,46 @@ WNScriptASTParser::program()
 
             for (;;)
             {
-                int alt40=5;
+                int alt44=5;
                 switch ( this->LA(1) )
                 {
                 case BOOL_TYPE:
                 case CHAR_TYPE:
                 case FLOAT_TYPE:
                 case INT_TYPE:
+                case SHARED_REF:
                 case STRING_TYPE:
                 case TYPE:
                 case VOID_TYPE:
+                case WEAK_REF:
                 	{
-                		alt40=1;
+                		alt44=1;
                 	}
                     break;
                 case STRUCT:
                 	{
-                		alt40=2;
+                		alt44=2;
                 	}
                     break;
                 case CLASS:
                 	{
-                		alt40=3;
+                		alt44=3;
                 	}
                     break;
                 case INCLUDE:
                 	{
-                		alt40=4;
+                		alt44=4;
                 	}
                     break;
 
                 }
 
-                switch (alt40)
+                switch (alt44)
                 {
             	case 1:
             	    {
-            	        this->followPush(FOLLOW_function_in_program4840);
-            	        function61=function();
+            	        this->followPush(FOLLOW_function_in_program5012);
+            	        function65=function();
 
             	        this->followPop();
             	        if  (this->hasException())
@@ -7826,7 +8548,7 @@ WNScriptASTParser::program()
 
 
             	        {
-            	             node->add_function(function61
+            	             node->add_function(function65
             	            );
             	        }
 
@@ -7835,8 +8557,8 @@ WNScriptASTParser::program()
             	    break;
             	case 2:
             	    {
-            	        this->followPush(FOLLOW_structDecl_in_program4862);
-            	        structDecl62=structDecl();
+            	        this->followPush(FOLLOW_structDecl_in_program5034);
+            	        structDecl66=structDecl();
 
             	        this->followPop();
             	        if  (this->hasException())
@@ -7846,7 +8568,7 @@ WNScriptASTParser::program()
 
 
             	        {
-            	             node->add_struct(structDecl62
+            	             node->add_struct(structDecl66
             	            );
             	        }
 
@@ -7855,8 +8577,8 @@ WNScriptASTParser::program()
             	    break;
             	case 3:
             	    {
-            	        this->followPush(FOLLOW_classDecl_in_program4882);
-            	        classDecl63=classDecl();
+            	        this->followPush(FOLLOW_classDecl_in_program5054);
+            	        classDecl67=classDecl();
 
             	        this->followPop();
             	        if  (this->hasException())
@@ -7866,7 +8588,7 @@ WNScriptASTParser::program()
 
 
             	        {
-            	             node->add_struct(classDecl63
+            	             node->add_struct(classDecl67
             	            );
             	        }
 
@@ -7875,8 +8597,8 @@ WNScriptASTParser::program()
             	    break;
             	case 4:
             	    {
-            	        this->followPush(FOLLOW_inc_in_program4903);
-            	        inc64=inc();
+            	        this->followPush(FOLLOW_inc_in_program5075);
+            	        inc68=inc();
 
             	        this->followPop();
             	        if  (this->hasException())
@@ -7886,7 +8608,7 @@ WNScriptASTParser::program()
 
 
             	        {
-            	             node->add_include(inc64
+            	             node->add_include(inc68
             	            );
             	        }
 
@@ -7895,11 +8617,11 @@ WNScriptASTParser::program()
             	    break;
 
             	default:
-            	    goto loop40;
+            	    goto loop44;
             	    break;
                 }
             }
-            loop40: ;
+            loop44: ;
 
 
         }

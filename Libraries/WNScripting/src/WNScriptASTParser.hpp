@@ -133,9 +133,6 @@ public:
 	enum Tokens
 	{
 		EOF_TOKEN = WNScriptASTParserImplTraits::CommonTokenType::TOKEN_EOF
-		, T__47 = 47
-		, T__48 = 48
-		, T__49 = 49
 		, T__50 = 50
 		, T__51 = 51
 		, T__52 = 52
@@ -154,6 +151,8 @@ public:
 		, T__65 = 65
 		, T__66 = 66
 		, T__67 = 67
+		, T__68 = 68
+		, T__69 = 69
 		, BOOL = 4
 		, BOOL_TYPE = 5
 		, CHAR = 6
@@ -183,20 +182,23 @@ public:
 		, NULLTOK = 30
 		, OCTAL_ESC = 31
 		, OVERRIDE = 32
-		, RBRACE = 33
-		, RBRACKET = 34
-		, RETURN = 35
-		, RSQBRACKET = 36
-		, SEMICOLON = 37
-		, STRING = 38
-		, STRING_TYPE = 39
-		, STRUCT = 40
-		, TYPE = 41
-		, UNICODE_ESC = 42
-		, VIRTUAL = 43
-		, VOID_TYPE = 44
-		, WHILE = 45
-		, WS = 46
+		, QUESTION = 33
+		, RBRACE = 34
+		, RBRACKET = 35
+		, RETURN = 36
+		, RSQBRACKET = 37
+		, SEMICOLON = 38
+		, SHARED_REF = 39
+		, STRING = 40
+		, STRING_TYPE = 41
+		, STRUCT = 42
+		, TYPE = 43
+		, UNICODE_ESC = 44
+		, VIRTUAL = 45
+		, VOID_TYPE = 46
+		, WEAK_REF = 47
+		, WHILE = 48
+		, WS = 49
 	};
 
 };
@@ -231,7 +233,9 @@ public:
       }
 
 
+     scripting::type* objectType ();
      scripting::type* scalarType ();
+     scripting::type* compoundType ();
      scripting::type* type ();
      scripting::parameter* param ();
      scripting::parameter_list* paramList ();

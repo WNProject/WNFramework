@@ -98,9 +98,10 @@ TEST_P(c_translator_direct_translation_test, translations) {
 
   mapping->initialize_files({{"file.wns", input_str}});
   wn::scripting::c_translator translator(
-      &validator, &allocator, mapping.get(), WNLogging::get_null_logger());
+      &validator, &allocator, mapping.get(), &log);
   EXPECT_EQ(
-      wn::scripting::parse_error::ok, translator.translate_file("file.wns"));
+      wn::scripting::parse_error::ok, translator.translate_file("file.wns")) <<
+    (log.Flush(), buff.c_str());
   EXPECT_EQ(std::string(expected_output.c_str()),
       get_file_data(mapping, "file.wns.c"));
 }
@@ -211,6 +212,63 @@ INSTANTIATE_TEST_CASE_P(
           },
 })));
 // clang-format on
+
+// clang-format off
+INSTANTIATE_TEST_CASE_P(
+    struct_definition_tests, c_translator_direct_translation_test,
+    ::testing::ValuesIn(
+        wn::containers::dynamic_array<wn::containers::dynamic_array<source_pair>>({
+          {
+            {"struct Foo {",          "struct Foo {"                 },
+            {"  Int x = 0;",          "  wn_int32 x;"                },
+            {"}",                     "}"                            },
+            {"",                      "\n"                           }
+          },
+          {
+            {"struct Bar {",          "struct Bar {"                 },
+            {"  Int x = 0;",          "  wn_int32 x;"                },
+            {"  Int y = 0;",          "  wn_int32 y;"                },
+            {"  Float z = 0;",        "  wn_float32 z;"              },
+            {"}",                     "}"                            },
+            {"",                      "\n"                           }
+          },
+          {
+            {"struct Foo {",          "struct Foo {"                 },
+            {"  Int x = 0;",          "  wn_int32 x;"                },
+            {"  Int y = 0;",          "  wn_int32 y;"                },
+            {"  Float z = 0;",        "  wn_float32 z;"              },
+            {"}",                     "}"                            },
+            {"",                      "\n"                           },
+            {"struct Bar {",          "struct Bar {"                 },
+            {"  Int x = 0;",          "  wn_int32 x;"                },
+            {"  Int y = 0;",          "  wn_int32 y;"                },
+            {"  Float z = 0;",        "  wn_float32 z;"              },
+            {"}",                     "}"                            },
+            {"",                      "\n"                           }
+          },
+          {
+            {"struct Foo {",          "struct Foo {"                 },
+            {"  Int x = 0;",          "  wn_int32 x;"                },
+            {"  Int y = 0;",          "  wn_int32 y;"                },
+            {"  Float z = 0;",        "  wn_float32 z;"              },
+            {"}",                     "}"                            },
+            {"",                      "\n"                           },
+            {"struct Bar {",          "struct Bar {"                 },
+            {"  Int x = 0;",          "  wn_int32 x;"                },
+            {"  Int y = 0;",          "  wn_int32 y;"                },
+            {"  Float z = 0;",        "  wn_float32 z;"              },
+            {"}",                     "}"                            },
+            {"",                      "\n"                           },
+            {"Int main(Int x) {",     "wn_int32 _Z3wns4mainEll(wn_int32 x) {"  },
+            {"  if (x == 3) {",       "if ((x == 3)) {"              },
+            {"    return 7;",         "return 7;"                    },
+            {"  }",                   "}"                            },
+            {"  return 9;",           "return 9;"                    },
+            {"}",                     "}"                            }
+          },
+})));
+// clang-format on
+
 
 using c_translator_function_params =
     ::testing::TestWithParam<std::tuple<const char*, const char*, const char*>>;

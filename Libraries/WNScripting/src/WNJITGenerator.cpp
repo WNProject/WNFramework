@@ -71,33 +71,33 @@ namespace scripting {
 
 void ast_jit_engine::walk_type(
     const scripting::type* _type, llvm::Type** _value) {
-  switch (_type->get_classification()) {
-    case scripting::type_classification::invalid_type:
+  switch (_type->get_index()) {
+    case static_cast<uint32_t>(type_classification::invalid_type):
       WN_RELEASE_ASSERT_DESC(wn_false, "Cannot classify invalid types");
       break;
-    case scripting::type_classification::void_type:
+    case static_cast<uint32_t>(type_classification::void_type):
       *_value = llvm::Type::getVoidTy(*m_context);
       return;
-    case scripting::type_classification::int_type:
+    case static_cast<uint32_t>(type_classification::int_type):
       *_value = llvm::IntegerType::getInt32Ty(*m_context);
       return;
-    case scripting::type_classification::float_type:
+    case static_cast<uint32_t>(type_classification::float_type):
       *_value = llvm::Type::getFloatTy(*m_context);
       return;
-    case scripting::type_classification::char_type:
+    case static_cast<uint32_t>(type_classification::char_type):
       *_value = llvm::IntegerType::get(*m_context, 8);
       return;
-    case scripting::type_classification::string_type:
+    case static_cast<uint32_t>(type_classification::string_type):
       WN_RELEASE_ASSERT_DESC(wn_false, "Not implemented: string type");
       break;
-    case scripting::type_classification::bool_type:
+    case static_cast<uint32_t>(type_classification::bool_type):
       *_value = llvm::IntegerType::get(*m_context, 1);
       return;
       break;
-    case scripting::type_classification::custom_type:
+    case static_cast<uint32_t>(type_classification::custom_type):
       WN_RELEASE_ASSERT_DESC(wn_false, "Not implemented: custom types");
       break;
-    case scripting::type_classification::max:
+    case static_cast<uint32_t>(type_classification::max):
       WN_RELEASE_ASSERT_DESC(wn_false, "Type out of range");
       break;
   }
@@ -105,14 +105,14 @@ void ast_jit_engine::walk_type(
 
 void ast_jit_engine::walk_expression(
     const constant_expression* _const, expression_dat* _val) {
-  switch (_const->get_type()->get_classification()) {
-    case type_classification::int_type: {
+  switch (_const->get_type()->get_index()) {
+    case static_cast<uint32_t>(type_classification::int_type): {
       long long val = atoll(_const->get_type_text().c_str());
       _val->value = llvm::ConstantInt::getSigned(
           m_generator->get_data(_const->get_type()), val);
       return;
     }
-    case type_classification::bool_type: {
+    case static_cast<uint32_t>(type_classification::bool_type): {
       bool bVal = containers::string_view(_const->get_type_text()) == "true";
       _val->value = llvm::ConstantInt::get(
           m_generator->get_data(_const->get_type()), bVal ? 1 : 0);
@@ -161,9 +161,9 @@ void ast_jit_engine::walk_expression(
   const expression_dat& rhs = m_generator->get_data(_binary->get_rhs());
   llvm::Instruction* inst = wn_nullptr;
   arithmetic_type type = _binary->get_arithmetic_type();
-  switch (_binary->get_type()->get_classification()) {
-    case type_classification::int_type:
-    case type_classification::bool_type:  // Booleans are just 1-bit integers.
+  switch (_binary->get_type()->get_index()) {
+    case static_cast<uint32_t>(type_classification::int_type):
+    case static_cast<uint32_t>(type_classification::bool_type):  // Booleans are just 1-bit integers.
       if (type <= arithmetic_type::arithmetic_mod) {
         inst = llvm::BinaryOperator::Create(
             integer_ops[static_cast<size_t>(type)], lhs.value, rhs.value);
@@ -361,6 +361,11 @@ void ast_jit_engine::walk_parameter(
     const parameter* _param, llvm::Instruction** _val) {
   *_val = new llvm::AllocaInst(m_generator->get_data(_param->get_type()),
       make_string_ref(_param->get_name()));
+}
+
+void ast_jit_engine::walk_struct_definition(
+    const struct_definition*, llvm::Type**) {
+  WN_RELEASE_ASSERT_DESC(false, "Not implemented");
 }
 
 void ast_jit_engine::walk_function(const function* _func, llvm::Function** _f) {

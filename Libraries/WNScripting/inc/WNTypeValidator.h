@@ -200,6 +200,18 @@ struct type_definition {
         [_val](cast_operation& cast) { return _val == cast.cast_to; });
     return (it == m_casts.end()) ? 0 : it->type;
   }
+
+  // Registers a subtype with the given name. Returns
+  // false if the type already exists.
+  bool register_sub_type(
+      containers::string_view _member, wn_uint32 sub_type_type) {
+    if (get_member_id(_member)) {
+      return false;
+    }
+    m_ids.push_back(member_id({_member.to_string(m_allocator), sub_type_type}));
+    return true;
+  }
+
   wn_uint32 get_member_id(containers::string_view _member) {
     auto it = std::find_if(m_ids.begin(), m_ids.end(),
         [_member](member_id& id) { return _member == id.id; });
@@ -237,6 +249,22 @@ struct type_definition {
   memory::allocator* m_allocator;
 };
 
+WN_INLINE void append_number(size_t number, containers::string& _str) {
+    auto insert_pt = _str.end();
+
+    if (number == 0) {
+      _str.push_back('0');
+      return;
+    }
+
+    while (number > 0) {
+      _str.insert(insert_pt, '0' + number % 10);
+      number -= number % 10;
+      number /= 10;
+      insert_pt = _str.end() - 1;
+    }
+}
+
 // The main class for all type-related operations.
 // Queryable for operations, methods, custom types,
 // name mangling etc.
@@ -250,12 +278,25 @@ public:
       m_types(_allocator),
       m_allocator(_allocator),
       m_max_types(1) {
+    m_names.emplace_back("", m_allocator);
     m_mapping.insert(std::make_pair("Void", m_max_types++));
+    m_names.emplace_back("Void", m_allocator);
+
     m_mapping.insert(std::make_pair("Int", m_max_types++));
+    m_names.emplace_back("Int", m_allocator);
+
     m_mapping.insert(std::make_pair("Float", m_max_types++));
+    m_names.emplace_back("Float", m_allocator);
+
     m_mapping.insert(std::make_pair("Char", m_max_types++));
+    m_names.emplace_back("Char", m_allocator);
+
     m_mapping.insert(std::make_pair("String", m_max_types++));
+    m_names.emplace_back("String", m_allocator);
+
     m_mapping.insert(std::make_pair("Bool", m_max_types++));
+    m_names.emplace_back("Bool", m_allocator);
+
     m_types.push_back(type_definition(m_allocator));
     for (size_t i = 1; i < 9; ++i) {
       m_types.push_back(
@@ -298,18 +339,31 @@ public:
     wn_uint32 type = m_max_types++;
     m_mapping.insert(std::make_pair(*str_it, type));
     m_types.push_back(type_definition(m_allocator));
+    wn_size_t total_length = 10 + 2 + _name.size();
+
+    m_types.back().m_mangling = containers::string(m_allocator);
+    m_types.back().m_mangling.reserve(total_length);
+    m_types.back().m_mangling.push_back('E');
+    append_number(m_types.size(), m_types.back().m_mangling);
+    m_types.back().m_mangling.append(_name.data(), _name.size());
+    m_types.back().m_mangling.push_back('T');
+
     return type;
   }
 
   wn_uint32 get_type(const containers::string_view& _name) {
     auto it = m_mapping.find(_name);
-    if (it != m_mapping.end()) {
+    if (it == m_mapping.end()) {
       return 0;
     }
     return it->second;
   }
 
   const type_definition& get_operations(wn_uint32 _type) const {
+    return m_types[_type];
+  }
+
+  type_definition& get_operations(wn_uint32 _type) {
     return m_types[_type];
   }
 

@@ -43,6 +43,7 @@ struct ast_jit_traits {
   using parameter_data = llvm::Instruction*;
   using function_data = llvm::Function*;
   using type_data = llvm::Type*;
+  using struct_definition_data = llvm::Type*;
   using code_gen = ast_jit_engine;
 };
 
@@ -72,6 +73,7 @@ class ast_jit_engine {
   void walk_instruction(const if_instruction*, instruction_dat*);
 
   void walk_parameter(const parameter* _param, llvm::Instruction**);
+  void walk_struct_definition(const struct_definition* _def, llvm::Type**);
   void walk_function(const function* _func, llvm::Function**);
   void walk_script_file(const script_file* _file);
 
