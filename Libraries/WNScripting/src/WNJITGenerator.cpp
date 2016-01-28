@@ -25,6 +25,7 @@
 #include <llvm/IR/Instructions.h>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
+#include <llvm/IR/Type.h>
 #include <llvm/IR/Value.h>
 #include <llvm/IR/Verifier.h>
 
@@ -163,7 +164,8 @@ void ast_jit_engine::walk_expression(
   arithmetic_type type = _binary->get_arithmetic_type();
   switch (_binary->get_type()->get_index()) {
     case static_cast<uint32_t>(type_classification::int_type):
-    case static_cast<uint32_t>(type_classification::bool_type):  // Booleans are just 1-bit integers.
+    case static_cast<uint32_t>(
+        type_classification::bool_type):  // Booleans are just 1-bit integers.
       if (type <= arithmetic_type::arithmetic_mod) {
         inst = llvm::BinaryOperator::Create(
             integer_ops[static_cast<size_t>(type)], lhs.value, rhs.value);
@@ -364,8 +366,16 @@ void ast_jit_engine::walk_parameter(
 }
 
 void ast_jit_engine::walk_struct_definition(
-    const struct_definition*, llvm::Type**) {
-  WN_RELEASE_ASSERT_DESC(false, "Not implemented");
+    const struct_definition* _def, llvm::Type** _t) {
+  containers::dynamic_array<llvm::Type*> types(m_allocator);
+
+  for (auto& a : _def->get_struct_members()) {
+    types.push_back(m_generator->get_data(a->get_type()));
+  }
+  llvm::StructType* t =
+      llvm::StructType::get(*m_context, make_array_ref(types), false);
+  t->setName(_def->get_name());
+  *_t = t;
 }
 
 void ast_jit_engine::walk_function(const function* _func, llvm::Function** _f) {
