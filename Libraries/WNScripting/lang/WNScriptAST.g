@@ -270,7 +270,7 @@ type    returns[scripting::type* node]
     node = wn_nullptr;
 }
     : compoundType { node = $compoundType.node; }
-    | scalarType   { node = $scalarType.node; }    
+    | scalarType   { node = $scalarType.node; }
     ;
 
 param returns[scripting::parameter* node]

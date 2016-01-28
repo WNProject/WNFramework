@@ -1,4 +1,4 @@
-add_wn_library(WNScripting SOURCES
+set(WN_SCRIPT_SOURCES
   inc/WNASTWalker.h
   inc/WNASTWalker.inl
   inc/WNASTCodeGenerator.h
@@ -27,8 +27,21 @@ add_wn_library(WNScripting SOURCES
   src/WNScriptASTParser.hpp
   src/WNScriptASTLexer.cpp
   src/WNScriptASTParser.cpp
-  src/WNScriptHelpers.cpp
+  src/WNScriptHelpers.cpp)
+
+
+if (WN_SYSTEM STREQUAL "Windows")
+  list(APPEND WN_SCRIPT_SOURCES lang/WNScriptAST.g)
+endif()
+add_wn_library(WNScripting SOURCES
+  ${WN_SCRIPT_SOURCES}
 )
+
+if (WN_SYSTEM STREQUAL "Windows")
+  set_source_files_properties(lang/WNScriptAST.g
+    PROPERTIES HEADER_FILE_ONLY true)
+  source_group("lang" FILES lang/WNScriptAST.g)
+endif()
 
 set(WNScriptingLLVMComponents codegen instrumentation objcarcopts support mcjit ipo native)
 if (WN_SYSTEM STREQUAL "Android")
