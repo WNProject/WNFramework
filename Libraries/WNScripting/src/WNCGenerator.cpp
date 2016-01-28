@@ -174,14 +174,15 @@ void ast_c_translator::walk_function(
 
 void ast_c_translator::walk_struct_definition(
     const struct_definition* _definition, containers::string* _str) {
-  *_str = containers::string(m_allocator) + "struct " +
-          _definition->get_name() + " {\n";
+  *_str = containers::string(m_allocator) + "typedef struct {\n";
   for (const auto& a : _definition->get_struct_members()) {
     *_str += "  " + m_generator->get_data(a->get_type()) + " ";
     _str->append(a->get_name().data(), a->get_name().size());
     _str->append(";\n");
   }
-  *_str += "}\n\n";
+  *_str += "} ";
+  *_str += _definition->get_name();
+  *_str += ";\n\n";
 }
 
 void ast_c_translator::walk_script_file(const script_file* _file) {
