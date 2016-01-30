@@ -212,11 +212,19 @@ struct type_definition {
     return true;
   }
 
-  wn_uint32 get_member_id(containers::string_view _member) {
+  wn_uint32 get_member_id(containers::string_view _member) const {
     auto it = std::find_if(m_ids.begin(), m_ids.end(),
-        [_member](member_id& id) { return _member == id.id; });
+        [_member](const member_id& id) { return _member == id.id; });
     return (it != m_ids.end()) ? it->type_id : 0;
   }
+
+  wn_uint32 get_member_index(containers::string_view _member) const {
+    auto it = std::find_if(m_ids.begin(), m_ids.end(),
+        [_member](const member_id& id) { return _member == id.id; });
+    return (it != m_ids.end()) ? static_cast<wn_uint32>(it - m_ids.begin())
+                               : static_cast<wn_uint32>(-1);
+  }
+
   wn_uint32 get_function_call(containers::string_view _function) {
     auto it = std::find_if(m_functions.begin(), m_functions.end(),
         [_function](member_function& funct) {
@@ -250,19 +258,19 @@ struct type_definition {
 };
 
 WN_INLINE void append_number(size_t number, containers::string& _str) {
-    auto insert_pt = _str.end();
+  auto insert_pt = _str.end();
 
-    if (number == 0) {
-      _str.push_back('0');
-      return;
-    }
+  if (number == 0) {
+    _str.push_back('0');
+    return;
+  }
 
-    while (number > 0) {
-      _str.insert(insert_pt, '0' + number % 10);
-      number -= number % 10;
-      number /= 10;
-      insert_pt = _str.end() - 1;
-    }
+  while (number > 0) {
+    _str.insert(insert_pt, '0' + number % 10);
+    number -= number % 10;
+    number /= 10;
+    insert_pt = _str.end() - 1;
+  }
 }
 
 // The main class for all type-related operations.

@@ -192,8 +192,8 @@ public:
 
   void walk_expression(constant_expression* _expr) {
     if (!_expr->get_type()) {
-      type* t = m_allocator->make_allocated<type>(
-          m_allocator, _expr->get_index());
+      type* t =
+          m_allocator->make_allocated<type>(m_allocator, _expr->get_index());
       t->copy_location_from(_expr);
       _expr->set_type(t);
     }
@@ -259,8 +259,28 @@ public:
     WN_RELEASE_ASSERT_DESC(
         return_type < static_cast<uint32_t>(type_classification::custom_type),
         "Not Implemented: Custom types");
-    type* t = m_allocator->make_allocated<type>(
-        m_allocator, return_type);
+    type* t = m_allocator->make_allocated<type>(m_allocator, return_type);
+    t->copy_location_from(_expr);
+    _expr->set_type(t);
+  }
+
+  void walk_expression(member_access_expression* _expr) {
+    uint32_t type_index = 0;
+    const type* obj = _expr->get_base_expression()->get_type();
+    if (obj) {
+      type_index = obj->get_type_value();
+    }
+    const type_definition& def = m_validator->get_operations(type_index);
+    uint32_t member_type = def.get_member_id(_expr->get_name());
+    if (member_type == 0) {
+      m_log->Log(WNLogging::eError, 0, "Type does not have member: ",
+          _expr->get_name());
+      _expr->log_line(*m_log, WNLogging::eError);
+      ++m_num_errors;
+      return;
+    }
+
+    type* t = m_allocator->make_allocated<type>(m_allocator, member_type);
     t->copy_location_from(_expr);
     _expr->set_type(t);
   }
@@ -270,7 +290,7 @@ public:
   void walk_struct_definition(struct_definition* _definition) {
     if (m_validator->get_type(_definition->get_name())) {
       m_log->Log(WNLogging::eError, 0, "Duplicate struct defined: ",
-        _definition->get_name());
+          _definition->get_name());
       _definition->log_line(*m_log, WNLogging::eError);
       ++m_num_errors;
       return;
@@ -279,7 +299,7 @@ public:
         m_validator->get_or_register_type(_definition->get_name());
 
     type_definition& def = m_validator->get_operations(type);
-    for(const auto& a: _definition->get_struct_members()) {
+    for (const auto& a : _definition->get_struct_members()) {
       if (!def.register_sub_type(a->get_name(), a->get_type()->get_index())) {
         m_log->Log(WNLogging::eError, 0, "Duplicate struct element defined: ",
             a->get_name());
@@ -375,12 +395,11 @@ public:
     }
 
     containers::dynamic_array<uint32_t> params(m_allocator);
-    uint32_t return_type = static_cast<uint32_t>(
-        _func->get_signature()->get_type()->get_index());
+    uint32_t return_type =
+        static_cast<uint32_t>(_func->get_signature()->get_type()->get_index());
     if (_func->get_parameters()) {
       for (const auto& param : _func->get_parameters()->get_parameters()) {
-        params.push_back(
-            static_cast<uint32_t>(param->get_type()->get_index()));
+        params.push_back(static_cast<uint32_t>(param->get_type()->get_index()));
       }
     }
     _func->set_mangled_name(m_validator->get_mangled_name(

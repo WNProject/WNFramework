@@ -47,6 +47,7 @@
 #include "WNScripting/inc/WNJITGenerator.h"
 #include "WNScripting/inc/WNNodeTypes.h"
 #include "WNScripting/inc/WNScriptHelpers.h"
+#include "WNScripting/inc/WNTypeValidator.h"
 
 #include <algorithm>
 
@@ -95,12 +96,12 @@ void ast_jit_engine::walk_type(
       *_value = llvm::IntegerType::get(*m_context, 1);
       return;
       break;
-    case static_cast<uint32_t>(type_classification::custom_type):
-      WN_RELEASE_ASSERT_DESC(wn_false, "Not implemented: custom types");
-      break;
-    case static_cast<uint32_t>(type_classification::max):
-      WN_RELEASE_ASSERT_DESC(wn_false, "Type out of range");
-      break;
+    default: {
+      auto elem = m_struct_map.find(_type->get_index());
+      WN_RELEASE_ASSERT_DESC(
+          elem != m_struct_map.end(), "Cannot determine type");
+      *_value = elem->second;
+    }
   }
 }
 
@@ -190,6 +191,52 @@ void ast_jit_engine::walk_expression(
       rhs.instructions.end());
   _val->instructions.push_back(inst);
   _val->value = inst;
+}
+
+void ast_jit_engine::walk_expression(
+    const struct_allocation_expression* _alloc, expression_dat* _val) {
+  _val->instructions =
+      containers::dynamic_array<llvm::Instruction*>(m_allocator);
+
+  containers::string_view name = _alloc->get_type()->custom_type_name();
+  uint32_t type_index = m_validator->get_type(name);
+
+  llvm::Type* t = m_struct_map[type_index];
+  _val->instructions.push_back(new llvm::AllocaInst(t->getPointerElementType(),
+      make_string_ref(_alloc->get_type()->custom_type_name())));
+  _val->value = _val->instructions.back();
+  // TODO(awoloszyn): Call constructor here. This means you will have to
+  // Generate 2 instructions, 1) Alloca x, 2) return Construct(x);
+}
+
+void ast_jit_engine::walk_expression(
+    const member_access_expression* _alloc, expression_dat* _val) {
+  _val->instructions =
+      containers::dynamic_array<llvm::Instruction*>(m_allocator);
+
+  const expression_dat& dat =
+      m_generator->get_data(_alloc->get_base_expression());
+
+  WN_RELEASE_ASSERT_DESC(dat.instructions.back() == dat.value,
+      "The last value is not the one returned, something is wrong");
+  _val->instructions.insert(_val->instructions.end(), dat.instructions.begin(),
+      dat.instructions.end());
+
+  wn_uint32 member_offset =
+      m_validator->get_operations(
+                     _alloc->get_base_expression()->get_type()->get_index())
+          .get_member_index(_alloc->get_name());
+  llvm::Type* int32_type = llvm::IntegerType::getInt32Ty(*m_context);
+
+  llvm::Instruction* v = llvm::GetElementPtrInst::CreateInBounds(
+      dat.value, llvm::makeArrayRef<llvm::Value*, 2>(
+                     {llvm::ConstantInt::get(int32_type, 0),
+                         llvm::ConstantInt::get(int32_type, member_offset)}));
+  llvm::Instruction* l =
+      new llvm::LoadInst(v, make_string_ref(_alloc->get_name()));
+  _val->instructions.push_back(v);
+  _val->instructions.push_back(l);
+  _val->value = l;
 }
 
 void ast_jit_engine::walk_instruction(
@@ -372,10 +419,11 @@ void ast_jit_engine::walk_struct_definition(
   for (auto& a : _def->get_struct_members()) {
     types.push_back(m_generator->get_data(a->get_type()));
   }
+
   llvm::StructType* t =
       llvm::StructType::get(*m_context, make_array_ref(types), false);
-  t->setName(_def->get_name());
-  *_t = t;
+  *_t = t->getPointerTo();
+  m_struct_map[m_validator->get_type(_def->get_name())] = t->getPointerTo();
 }
 
 void ast_jit_engine::walk_function(const function* _func, llvm::Function** _f) {

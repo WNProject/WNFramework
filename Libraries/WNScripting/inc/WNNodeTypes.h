@@ -441,6 +441,20 @@ public:
     m_base_expression = memory::default_allocated_ptr(m_allocator, _expr);
   }
 
+  const expression* get_base_expression() const {
+    return m_base_expression.get();
+  }
+
+  virtual void walk_children(
+      const walk_ftype<expression*>& expr, const walk_ftype<type*>&) {
+    expr(m_base_expression.get());
+  }
+
+  virtual void walk_children(const walk_ftype<const expression*>& expr,
+      const walk_ftype<const type*>&) {
+    expr(m_base_expression.get());
+  }
+
 protected:
   memory::allocated_ptr<expression> m_base_expression;
 };
@@ -475,6 +489,9 @@ public:
   member_access_expression(memory::allocator* _allocator, const char* _member)
     : post_expression(_allocator, node_type::member_access_expression),
       m_member(_member, _allocator) {}
+  const containers::string_view get_name() const {
+    return m_member;
+  }
 
 private:
   containers::string m_member;

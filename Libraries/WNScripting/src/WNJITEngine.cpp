@@ -142,11 +142,12 @@ parse_error jit_engine::parse_file(const char* _file) {
 
   ast_code_generator<ast_jit_traits> generator;
   ast_jit_engine engine(
-      m_allocator, m_context.get(), module.m_module, &generator);
+      m_allocator, m_validator, m_context.get(), module.m_module, &generator);
   generator.set_generator(&engine);
 
   run_ast_pass<ast_code_generator<ast_jit_traits>>(
       &generator, parsed_file.get());
+
   module.m_engine->finalizeObject();
 
   for (auto& function : module.m_module->getFunctionList()) {

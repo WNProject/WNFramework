@@ -349,4 +349,23 @@ INSTANTIATE_TEST_CASE_P(
             "{ y = 4; } return y; }",
         {{0, 4}, {-1, 4}, {2, 4}, {3, 4}, {8, 8}, {100, 100}}},
    })));
+
+INSTANTIATE_TEST_CASE_P(
+    struct_access_tests, integer_tests,
+    ::testing::ValuesIn(wn::containers::dynamic_array<integer_test>({
+      {"struct Foo { Int x = 0; } Int main(Int x) { Foo f = Foo(); f.x = x; return f.x; }",
+        {{0, 0}, {-1, -1}, {2, 2}, {3, 3}, {4, 4}, {50, 50}}},
+      {"struct Foo { Int x = 0; Int y = 0; } Int main(Int x) { Foo f = Foo(); f.y = x; return f.y; }",
+        {{0, 0}, {-1, -1}, {2, 2}, {3, 3}, {4, 4}, {50, 50}}},
+      {"struct Foo {"
+       "  Int x = 0; Int y = 0;"
+       "}"
+       "Int main(Int x) { "
+       "  Foo f = Foo();"
+       "  f.x = x;"
+       "  f.y = x * 2;"
+       "  return f.x + f.y;"
+      "}", {{0, 0}, {-1, -3}, {2, 6}, {50, 150}}},
+  })));
+
 // clang-format on

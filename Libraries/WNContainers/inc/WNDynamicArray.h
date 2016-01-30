@@ -329,7 +329,7 @@ public:
   }
 
   const_reference back() const {
-    const_reference i = cend();
+    const_iterator i = cend();
 
     --i;
 

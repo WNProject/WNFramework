@@ -543,6 +543,8 @@ public:
 
     for (size_type i = 0; i < _count; ++i) {
       _Type& t = *(erase_start++);
+      (void)t; // If _Type does not have a destructor
+               // some compilers will complain without this.
       t.~_Type();
     }
 
