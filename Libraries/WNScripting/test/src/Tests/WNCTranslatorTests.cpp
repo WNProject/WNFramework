@@ -269,6 +269,25 @@ INSTANTIATE_TEST_CASE_P(
 })));
 // clang-format on
 
+// clang-format off
+INSTANTIATE_TEST_CASE_P(
+    struct_explicit_declaration, c_translator_direct_translation_test,
+    ::testing::ValuesIn(
+        wn::containers::dynamic_array<wn::containers::dynamic_array<source_pair>>({
+          {
+            {"struct Foo {",          "typedef struct {"             },
+            {"  Int x = 0;",          "  wn_int32 x;"                },
+            {"}",                     "} Foo;"                       },
+            {"",                      "\n"                           },
+            {"Int main(Int x) {",     "wn_int32 _Z3wns4mainEll(wn_int32 x) {"   },
+            {" Foo f = Foo();",       "Foo __wns_temp0;"             },
+            {"",                      "Foo* f = &__wns_temp0;"       },
+            {" return 4;",            "return 4;"                    },
+            {"}",                     "}"                            }
+          },
+})));
+// clang-format on
+
 
 using c_translator_function_params =
     ::testing::TestWithParam<std::tuple<const char*, const char*, const char*>>;

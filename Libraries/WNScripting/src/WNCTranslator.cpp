@@ -39,7 +39,7 @@ parse_error c_translator::translate_file(const char* file_) {
     return wn::scripting::parse_error::parse_failed;
   }
   ast_code_generator<ast_c_traits> generator;
-  ast_c_translator translator(m_allocator, &generator);
+  ast_c_translator translator(m_allocator, &generator, m_validator);
   generator.set_generator(&translator);
   run_ast_pass<ast_code_generator<ast_c_traits>>(&generator, parsed_file.get());
 

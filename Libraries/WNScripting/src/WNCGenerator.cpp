@@ -3,6 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "WNContainers/inc/WNString.h"
+#include "WNMemory/inc/WNStringUtility.h"
 #include "WNScripting/inc/WNCGenerator.h"
 #include "WNScripting/inc/WNScriptHelpers.h"
 
@@ -17,6 +18,8 @@ void initialize_data(memory::allocator* _allocator,
 }  // anonymous namespace
 
 void ast_c_translator::walk_type(const type* _type, containers::string* _str) {
+  WN_RELEASE_ASSERT_DESC(_type->get_index() != 0, "Invalid type id");
+
   switch (_type->get_index()) {
     case static_cast<uint32_t>(type_classification::invalid_type):
       WN_RELEASE_ASSERT_DESC(wn_false, "Cannot classify invalid types");
@@ -39,12 +42,11 @@ void ast_c_translator::walk_type(const type* _type, containers::string* _str) {
     case static_cast<uint32_t>(type_classification::bool_type):
       *_str = std::move(containers::string(m_allocator) + "wn_bool");
       break;
-    case static_cast<uint32_t>(type_classification::custom_type):
-      *_str = _type->custom_type_name().to_string(m_allocator);
-      break;
-    case static_cast<uint32_t>(type_classification::max):
-      WN_RELEASE_ASSERT_DESC(wn_false, "Type out of range");
-      break;
+    default: {
+      const containers::string_view view =
+          m_validator->get_type_name(_type->get_index());
+      *_str = containers::string(view.data(), view.size(), m_allocator);
+    } break;
   }
 }
 
@@ -100,6 +102,25 @@ void ast_c_translator::walk_expression(const id_expression* _id,
   _str->second = _id->get_name().to_string(m_allocator);
 }
 
+void ast_c_translator::walk_expression(
+    const struct_allocation_expression* _alloc,
+    containers::pair<containers::string, containers::string>* _str) {
+  initialize_data(m_allocator, _str);
+
+  wn::memory::writeuint32(
+      m_last_temporary, m_temporaries++, sizeof(m_last_temporary) - 1);
+  containers::string name("__wns_temp", m_allocator);
+  name.append(m_last_temporary);
+
+  _str->first.append(m_generator->get_data(_alloc->get_type()));
+  _str->first.append(" ");
+  _str->first.append(name);
+  _str->first.append(";\n");
+
+  _str->second.append("&");
+  _str->second.append(name);
+}
+
 void ast_c_translator::walk_parameter(
     const parameter* _param, containers::string* _str) {
   *_str = containers::string(m_allocator) +
@@ -127,8 +148,11 @@ void ast_c_translator::walk_instruction(const declaration* _decl,
   const auto& expr = m_generator->get_data(_decl->get_expression());
   _str->second.append(expr.first);
 
-  _str->second += m_generator->get_data(_decl->get_type()) + " " +
-           _decl->get_name().to_string(m_allocator) + " = ";
+  _str->second += m_generator->get_data(_decl->get_type());
+  if (_decl->get_type()->get_qualifier() == type_qualifier::non_nullable) {
+    _str->second += "*";
+  }
+  _str->second += " " + _decl->get_name().to_string(m_allocator) + " = ";
   _str->second += expr.second;
   _str->second += ";";
 }

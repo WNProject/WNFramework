@@ -309,7 +309,13 @@ public:
   }
 
   void walk_instruction(declaration* _decl) {
-    if (*_decl->get_type() != *_decl->get_expression()->get_type()) {
+    // TODO(awoloszyn): Handle types other than non_nullable.
+    if (_decl->get_type()->get_qualifier() == type_qualifier::non_nullable) {
+      _decl->propagate_qualifier();
+    }
+
+    if (_decl->get_type()->get_index() !=
+        _decl->get_expression()->get_type()->get_index()) {
       m_log->Log(WNLogging::eError, 0,
           "Cannot inintialize variable with expression of a different type.");
       _decl->log_line(*m_log, WNLogging::eError);
@@ -382,7 +388,19 @@ public:
   }
 
   void walk_script_file(script_file*) {}
-  void walk_type(type*) {}
+  void walk_type(type* _type) {
+    if (_type->get_index() == 0) {
+      uint32_t type_index = m_validator->get_type(_type->custom_type_name());
+      if (type_index) {
+        _type->set_type_index(type_index);
+      } else {
+        m_log->Log(
+            WNLogging::eError, 0, "Unknown Type: ", _type->custom_type_name());
+        _type->log_line(*m_log, WNLogging::eError);
+        m_num_errors += 1;
+      }
+    }
+  }
 
 private:
   containers::deque<return_instruction*> m_returns;

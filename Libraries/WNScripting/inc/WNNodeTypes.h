@@ -177,8 +177,7 @@ public:
   // Only valid after the type_association
   // pass is run.
   bool operator==(const type& _other) const {
-    return m_type == _other.m_type &&
-      m_qualifier == _other.m_qualifier;
+    return m_type == _other.m_type && m_qualifier == _other.m_qualifier;
   }
 
   void set_qualifier(type_qualifier _qualifier) {
@@ -204,6 +203,10 @@ public:
     return m_custom_type;
   }
 
+  type_qualifier get_qualifier() const {
+    return m_qualifier;
+  }
+
 private:
   wn_uint32 m_type;
   type_qualifier m_qualifier;
@@ -214,7 +217,7 @@ class array_type : public type {
 public:
   array_type(memory::allocator* _allocator, type* _sub_type)
     : type(_allocator, type_classification::array_type),
-      m_subtype(memory::default_allocated_ptr(_allocator, _sub_type)){}
+      m_subtype(memory::default_allocated_ptr(_allocator, _sub_type)) {}
 
   const type* get_subtype() const {
     return m_subtype.get();
@@ -254,6 +257,10 @@ public:
 
   void set_type(type* _type) {
     m_type = memory::default_allocated_ptr(m_allocator, _type);
+  }
+
+  virtual void propagate_qualifier(type_qualifier _qualifier) {
+    m_type->set_qualifier(_qualifier);
   }
 
   virtual void walk_children(
@@ -503,6 +510,16 @@ public:
         memory::default_allocated_ptr(m_allocator, _expression);
   }
 
+  virtual void walk_children(
+      const walk_ftype<expression*>&, const walk_ftype<type*>& _type) {
+    _type(m_type.get());
+  }
+
+  virtual void walk_children(const walk_ftype<const expression*>&,
+      const walk_ftype<const type*>& _type) const {
+    _type(m_type.get());
+  }
+
 private:
   memory::allocated_ptr<expression> m_copy_initializer;
 };
@@ -717,6 +734,10 @@ public:
     m_unsized_array_initializers += 1;
   }
 
+  void propagate_qualifier() {
+    m_expression->propagate_qualifier(m_parameter->get_type()->get_qualifier());
+  }
+
   const expression* get_expression() const {
     return m_expression.get();
   }
@@ -798,13 +819,12 @@ public:
     return (m_name.c_str());
   }
 
-  containers::deque<memory::allocated_ptr<declaration>>&
-    get_struct_members() {
+  containers::deque<memory::allocated_ptr<declaration>>& get_struct_members() {
     return m_struct_members;
   }
 
   const containers::deque<memory::allocated_ptr<declaration>>&
-    get_struct_members() const {
+  get_struct_members() const {
     return m_struct_members;
   }
 
@@ -813,13 +833,13 @@ public:
     // and assignment have to happen in slightly different places,
     // so this is not a "NORMAL" assignment.
 
-    for(auto& member: m_struct_members) {
+    for (auto& member : m_struct_members) {
       type(member->get_type());
     }
   }
 
   virtual void walk_children(const walk_ftype<const type*>& type) const {
-    for(auto& member: m_struct_members) {
+    for (auto& member : m_struct_members) {
       type(member->get_type());
     }
   }
@@ -1217,13 +1237,12 @@ public:
   virtual void walk_children(const walk_scope&, const walk_scope&,
       const walk_ftype<instruction*>&, const walk_ftype<expression*>&,
       const walk_ftype<function*>& f, const walk_ftype<struct_definition*>& s) {
+    for (auto& def : m_structs) {
+      s(def.get());
+    }
     for (auto& function : m_functions) {
       f(function.get());
     }
-    for (auto& def: m_structs) {
-      s(def.get());
-    }
-
   }
 
   virtual void walk_children(const walk_scope&, const walk_scope&,
@@ -1231,13 +1250,12 @@ public:
       const walk_ftype<const expression*>&,
       const walk_ftype<const function*>& f,
       const walk_ftype<struct_definition*>& s) const {
+    for (auto& def : m_structs) {
+      s(def.get());
+    }
     for (auto& function : m_functions) {
       f(function.get());
     }
-    for (auto& def: m_structs) {
-      s(def.get());
-    }
-
   }
 
 private:

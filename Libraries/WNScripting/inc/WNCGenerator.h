@@ -10,20 +10,15 @@
 namespace wn {
 namespace scripting {
 class ast_c_translator;
+class type_validator;
 struct ast_c_traits {
   using instruction_list_data = containers::string;
-  // The first string is pre-instruction data.
-  // This has to be placed before this instruction.
-  // In the normal case, this will just be prepended.
-  // There are some cases, like an else-if clause,
-  // where is has to be hoisted to before the first if.
+  // the first element is a list of temporaries
+  // to be hoisted out of the expression.
   using instruction_data =
       containers::pair<containers::string, containers::string>;
-  // The first string must be hoisted out of the instruction,
-  // and placed before the instruction.
-  // For example, a constructor of the form:
-  // Foo f = Foo();
-  // could be <"Foo _f;\n", "Construct_Foo(&_f);\n">
+  // The first element is a list of any temporaries,
+  // that must be hoisted out of the expression.
   using expression_data =
       containers::pair<containers::string, containers::string>;
   using parameter_data = containers::string;
@@ -40,10 +35,15 @@ struct ast_c_traits {
 class ast_c_translator {
 public:
   ast_c_translator(memory::allocator* _allocator,
-      ast_code_generator<ast_c_traits>* _generator)
-    : m_allocator(_allocator),
+      ast_code_generator<ast_c_traits>* _generator, type_validator* _validator)
+    : m_temporaries(0),
+      m_allocator(_allocator),
       m_output_string(_allocator),
-      m_generator(_generator) {}
+      m_generator(_generator),
+      m_validator(_validator) {
+    wn::memory::memory_set(m_last_temporary, 0, sizeof(m_last_temporary));
+  }
+
   const containers::string& get_output() {
     return m_output_string;
   }
@@ -54,6 +54,8 @@ public:
   void walk_expression(const id_expression* _const,
       containers::pair<containers::string, containers::string>* _str);
   void walk_expression(const binary_expression* _binary,
+      containers::pair<containers::string, containers::string>* _str);
+  void walk_expression(const struct_allocation_expression* _alloc,
       containers::pair<containers::string, containers::string>* _str);
   void walk_instruction_list(
       const instruction_list* _list, containers::string* _str);
@@ -77,9 +79,12 @@ public:
   void walk_script_file(const script_file* _file);
 
 private:
+  wn_uint32 m_temporaries;
+  char m_last_temporary[11];
   memory::allocator* m_allocator;
   containers::string m_output_string;
   ast_code_generator<ast_c_traits>* m_generator;
+  type_validator* m_validator;
 };
 
 }  // namespace scripting

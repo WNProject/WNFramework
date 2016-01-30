@@ -331,13 +331,13 @@ public:
   }
 
   wn_uint32 get_or_register_type(const containers::string_view& _name) {
-    auto it = m_mapping.find(_name);
+    auto it = m_mapping.find(_name.to_string(m_allocator));
     if (it != m_mapping.end()) {
       return it->second;
     }
-    auto str_it = m_names.insert(m_names.end(), _name.to_string());
+    auto str_it = m_names.insert(m_names.end(), _name.to_string(m_allocator));
     wn_uint32 type = m_max_types++;
-    m_mapping.insert(std::make_pair(*str_it, type));
+    m_mapping.insert(std::make_pair(_name.to_string(m_allocator), type));
     m_types.push_back(type_definition(m_allocator));
     wn_size_t total_length = 10 + 2 + _name.size();
 
@@ -352,11 +352,15 @@ public:
   }
 
   wn_uint32 get_type(const containers::string_view& _name) {
-    auto it = m_mapping.find(_name);
+    auto it = m_mapping.find(_name.to_string(m_allocator));
     if (it == m_mapping.end()) {
       return 0;
     }
     return it->second;
+  }
+
+  const containers::string_view get_type_name(uint32_t _type) const {
+    return m_names[_type];
   }
 
   const type_definition& get_operations(wn_uint32 _type) const {
@@ -461,7 +465,7 @@ public:
   }
 
 private:
-  containers::hash_map<containers::string_view, wn_uint32> m_mapping;
+  containers::hash_map<containers::string, wn_uint32> m_mapping;
   containers::deque<containers::string> m_names;  // list of all type names
   containers::deque<type_definition> m_types;
   memory::allocator* m_allocator;

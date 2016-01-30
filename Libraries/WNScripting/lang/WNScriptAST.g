@@ -482,12 +482,11 @@ prim_ex returns[scripting::expression * node]
     |    ba=LBRACKET a=expr bb=RBRACKET {node = $a.node; SET_LOCATION(node, $ba); SET_END_LOCATION(node, $bb); }
     |    b=constant  {node = $b.node; }
     |   c=scalarType
-          (
-              ( e=structInit ) { $e.node->set_type($c.node); node=$e.node; SET_START_LOCATION_FROM_NODE(node, $c.node); }
-            |  ( f=cast) { $f.node->set_type($c.node); node=$f.node; SET_START_LOCATION_FROM_NODE(node, $c.node); }
+          (   ( f=cast) { $f.node->set_type($c.node); node=$f.node; SET_START_LOCATION_FROM_NODE(node, $c.node); }
             | ( g=arrayInit )  { $g.node->set_type($c.node); node=$g.node; SET_START_LOCATION_FROM_NODE(node, $c.node); }
           )
     |   d=NULLTOK { node = m_allocator->make_allocated<scripting::null_allocation_expression>(m_allocator); SET_LOCATION(node, $NULLTOK); }
+    |   e=objectType h=structInit { $h.node->set_type($e.node); node=$h.node; SET_START_LOCATION_FROM_NODE(node, $e.node); }
     ;
 
 cast returns[scripting::cast_expression* node]
