@@ -102,6 +102,19 @@ void ast_c_translator::walk_expression(const id_expression* _id,
   _str->second = _id->get_name().to_string(m_allocator);
 }
 
+void ast_c_translator::walk_expression(const member_access_expression* _access,
+    containers::pair<containers::string, containers::string>* _str) {
+  initialize_data(m_allocator, _str);
+
+  const auto& root_expr = m_generator->get_data(_access->get_base_expression());
+
+  _str->first.append(root_expr.first);
+  _str->second.append(root_expr.second);
+
+  _str->second.append("->");
+  _str->second.append(_access->get_name().data(), _access->get_name().length());
+}
+
 void ast_c_translator::walk_expression(
     const struct_allocation_expression* _alloc,
     containers::pair<containers::string, containers::string>* _str) {

@@ -47,6 +47,7 @@ public:
   const containers::string& get_output() {
     return m_output_string;
   }
+
   void walk_expression(const expression*,
       containers::pair<containers::string, containers::string>*) {}
   void walk_expression(const constant_expression* _const,
@@ -57,6 +58,9 @@ public:
       containers::pair<containers::string, containers::string>* _str);
   void walk_expression(const struct_allocation_expression* _alloc,
       containers::pair<containers::string, containers::string>* _str);
+  void walk_expression(const member_access_expression* _access,
+      containers::pair<containers::string, containers::string>* _str);
+
   void walk_instruction_list(
       const instruction_list* _list, containers::string* _str);
   void walk_type(const type* _type, containers::string* _str);

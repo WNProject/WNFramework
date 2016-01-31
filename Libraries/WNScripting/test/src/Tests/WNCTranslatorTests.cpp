@@ -288,6 +288,39 @@ INSTANTIATE_TEST_CASE_P(
 })));
 // clang-format on
 
+// clang-format off
+INSTANTIATE_TEST_CASE_P(
+    struct_usage, c_translator_direct_translation_test,
+    ::testing::ValuesIn(
+        wn::containers::dynamic_array<wn::containers::dynamic_array<source_pair>>({
+          {
+            {"struct Foo {",          "typedef struct {"             },
+            {"  Int x = 0;",          "  wn_int32 x;"                },
+            {"}",                     "} Foo;"                       },
+            {"",                      "\n"                           },
+            {"Int main(Int x) {",     "wn_int32 _Z3wns4mainEll(wn_int32 x) {"   },
+            {" Foo f = Foo();",       "Foo __wns_temp0;"             },
+            {"",                      "Foo* f = &__wns_temp0;"       },
+            {" f.x = x;",             "f->x = x;"                    },
+            {" return f.x;",          "return f->x;"                 },
+            {"}",                     "}"                            }
+          },
+          {
+            {"struct Foo {",          "typedef struct {"             },
+            {"  Int x = 0;",          "  wn_int32 x;"                },
+            {"  Int y = 0;",          "  wn_int32 y;"                },
+            {"}",                     "} Foo;"                       },
+            {"",                      "\n"                           },
+            {"Int main(Int x) {",     "wn_int32 _Z3wns4mainEll(wn_int32 x) {"   },
+            {" Foo f = Foo();",       "Foo __wns_temp0;"             },
+            {"",                      "Foo* f = &__wns_temp0;"       },
+            {" f.x = x;",             "f->x = x;"                    },
+            {" f.y = 2 * x;",         "f->y = (2 * x);"              },
+            {" return f.x + f.y;",    "return (f->x + f->y);"        },
+            {"}",                     "}"                            }
+          },
+})));
+// clang-format on
 
 using c_translator_function_params =
     ::testing::TestWithParam<std::tuple<const char*, const char*, const char*>>;
