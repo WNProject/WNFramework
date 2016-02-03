@@ -8,7 +8,7 @@
 #define __WN_NETWORKING_NETWORK_MANAGER_WINDOWS_H__
 
 #include "WNNetworking/inc/WNNetworkManager.h"
-#include "WNThreads/inc/WNSpinLock.h"
+#include "WNMultiTasking/inc/WNSpinLock.h"
 
 #include <vector>
 
@@ -54,13 +54,13 @@ namespace WNNetworking {
         HANDLE mAcceptEvent;
         HANDLE mShutdownEvent;
         eWNWindowsInitializationState mInitializationState;
-        wn::threads::thread<wn_void>* mListenThread;
-        wn::threads::spin_lock mListenerMutex;
-        wn::threads::spin_lock mRecievedMutex;
-        wn::threads::spin_lock mInvalidMutex;
-        wn::threads::spin_lock mOutgoingMutex;
+        wn::multi_tasking::thread<wn_void>* mListenThread;
+        wn::multi_tasking::spin_lock mListenerMutex;
+        wn::multi_tasking::spin_lock mRecievedMutex;
+        wn::multi_tasking::spin_lock mInvalidMutex;
+        wn::multi_tasking::spin_lock mOutgoingMutex;
 
-        std::vector<wn::threads::thread<wn_void>*> mThreads;
+        std::vector<wn::multi_tasking::thread<wn_void>*> mThreads;
         std::list<WNListenConnectionWindows*> mIncommingConnections;
         std::list<WNOutConnectionWindows*> mOutgoingConnections;
         std::list<WNInConnectionWindows*> mReceivedConnections;

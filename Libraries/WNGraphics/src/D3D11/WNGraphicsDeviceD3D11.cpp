@@ -367,7 +367,7 @@ WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceD3D11::
 
 wn_bool WNGraphics::WNGraphicsDeviceD3D11::ProcessWindowMessage(wn::surface::WNSurfaceEventType _message, wn::surface* _surface) {
     if (_message == wn::surface::eWNSETResize) {
-        std::lock_guard<wn::threads::recursive_mutex> mScopeLock(mResizeMutex);
+        std::lock_guard<wn::multi_tasking::recursive_mutex> mScopeLock(mResizeMutex);
         WNWindowData* dat = _surface->GetRegisteredData<WNWindowData>(wn::surface::eWNRDTGraphics);
 
         dat->mForceResize = WN_RESIZE_RETRY_COUNT;
@@ -484,7 +484,7 @@ WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceD3D11::
         return(WNGraphics::WNGraphicsDeviceReturnCode::ok);
     }
 
-    std::lock_guard<wn::threads::recursive_mutex> scopeLock(mResizeMutex);
+    std::lock_guard<wn::multi_tasking::recursive_mutex> scopeLock(mResizeMutex);
 
     if (dat->mFullScreen) {
         dat->mCurrentWidth = mScreenWidth;

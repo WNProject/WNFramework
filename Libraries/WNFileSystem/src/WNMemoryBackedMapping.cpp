@@ -221,7 +221,7 @@ bool memory_backed_mapping::exists_directory(
 
 file_ptr memory_backed_mapping::create_file(
     const containers::string_view _path, result& _result) {
-  threads::mutex_guard guard(m_system_lock);
+  multi_tasking::mutex_guard guard(m_system_lock);
   containers::string path(m_allocator);
   containers::string_view filename;
   if (!sanitize_and_validate_path(_path, path)) {
@@ -246,7 +246,7 @@ file_ptr memory_backed_mapping::create_file(
 
 result memory_backed_mapping::create_directory(
     const containers::string_view _path) {
-  threads::mutex_guard guard(m_system_lock);
+  multi_tasking::mutex_guard guard(m_system_lock);
   containers::string path(m_allocator);
   containers::string_view file_name;
   if (!sanitize_and_validate_path(_path, path)) {
@@ -266,7 +266,7 @@ result memory_backed_mapping::create_directory(
 
 file_ptr memory_backed_mapping::open_file(
     const containers::string_view _path, result& _result) {
-  threads::mutex_guard guard(m_system_lock);
+  multi_tasking::mutex_guard guard(m_system_lock);
   containers::string path(m_allocator);
   containers::string_view filename;
   if (!sanitize_and_validate_path(_path, path)) {

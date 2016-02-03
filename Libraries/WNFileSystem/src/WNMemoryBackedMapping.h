@@ -7,8 +7,8 @@
 #include "WNFileSystem/inc/WNFile.h"
 #include "WNFileSystem/inc/WNMapping.h"
 #include "WNFileSystem/src/WNUtilities.h"
-#include "WNThreads/inc/WNMutex.h"
-#include "WNThreads/inc/WNSpinLock.h"
+#include "WNMultiTasking/inc/WNMutex.h"
+#include "WNMultiTasking/inc/WNSpinLock.h"
 
 #ifndef __WN_MEMORY_BACKED_MAPPING_H__
 #define __WN_MEMORY_BACKED_MAPPING_H__
@@ -46,7 +46,7 @@ private:
     void swap_data(memory::intrusive_ptr<memory_backed_file_store>& other);
 
     memory_backed_file_store_ptr m_data;
-    threads::spin_lock m_lock;
+    multi_tasking::spin_lock m_lock;
   };
 
   using memory_backed_file_location_ptr =
@@ -147,7 +147,7 @@ private:
   // A map of directory names to virtual directories.
   // Each virtual directory is a map of file names to virtual files.
   memory_backed_directory m_root_dir;
-  threads::mutex m_system_lock;
+  multi_tasking::mutex m_system_lock;
 };
 
 }  // namespace file_system
