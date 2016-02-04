@@ -48,7 +48,7 @@ public:
 
   WN_INLINE result_type initialize(const uint32_t _worker_count) {
     if (m_shutdown == false) {
-      return (result::already_initialized);
+      return result::already_initialized;
     }
 
 #ifdef _WN_WINDOWS
@@ -56,7 +56,7 @@ public:
         ::CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 0);
 
     if (io_completion_port == INVALID_HANDLE_VALUE) {
-      return (result::error);
+      return result::error;
     }
 
     m_io_completion_port = std::move(io_completion_port);
@@ -76,12 +76,12 @@ public:
 
     m_shutdown = false;
 
-    return (result::ok);
+    return result::ok;
   }
 
   WN_FORCE_INLINE result_type enqueue(thread_task_ptr&& task) {
     if (!task || m_shutdown) {
-      return (result::invalid_parameters);
+      return result::invalid_parameters;
     }
 
 #ifdef _WN_WINDOWS
@@ -92,7 +92,7 @@ public:
             reinterpret_cast<ULONG_PTR>(task_ptr), 0)) {
       m_allocator->destroy(task_ptr);
 
-      return (result::uninitialized);
+      return result::uninitialized;
     }
 #else
     {
@@ -104,7 +104,7 @@ public:
     m_task_available_semaphore.notify();
 #endif
 
-    return (result::ok);
+    return result::ok;
   }
 
   WN_FORCE_INLINE result_type enqueue(const thread_task_ptr& task) {

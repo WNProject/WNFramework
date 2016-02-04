@@ -174,7 +174,7 @@ public:
   WN_FORCE_INLINE thread& operator=(thread&& other) {
     thread(core::move(other)).swap(*this);
 
-    return (*this);
+    return *this;
   }
 
   WN_FORCE_INLINE bool joinable() const {
@@ -183,10 +183,10 @@ public:
 
   WN_FORCE_INLINE thread_id get_id() const {
     if (m_data) {
-      return (thread_id(m_data->m_id));
+      return thread_id(m_data->m_id);
     }
 
-    return (thread_id());
+    return thread_id();
   }
 
   WN_FORCE_INLINE bool join() const {
@@ -363,11 +363,11 @@ namespace this_thread {
 
 WN_INLINE thread_id get_id() {
 #ifdef _WN_WINDOWS
-  return (thread_id(::GetCurrentThreadId()));
+  return thread_id(::GetCurrentThreadId());
 #elif defined _WN_LINUX
-  return (thread_id(static_cast<pid_t>(::syscall(SYS_gettid))));
+  return thread_id(static_cast<pid_t>(::syscall(SYS_gettid)));
 #elif defined _WN_ANDROID
-  return (thread_id(::gettid()));
+  return thread_id(::gettid());
 #endif
 }
 

@@ -141,7 +141,7 @@ public:
 
     if (!owner) {
       if (!m_spin_lock.try_lock()) {
-        return (false);
+        return false;
       }
 
 #ifdef _WN_POSIX
@@ -153,7 +153,7 @@ public:
 
     m_recursion_count++;
 
-    return (true);
+    return true;
   }
 
   WN_FORCE_INLINE void unlock() {

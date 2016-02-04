@@ -96,7 +96,7 @@ public:
 
   WN_FORCE_INLINE void notify(const uint16_t count) {
     WN_DEBUG_ASSERT_DESC(
-        count != 0, "Posted a semaphore object with a count of 0");
+        count != 0, "posted a semaphore object with a count of 0");
 
 #ifdef _WN_WINDOWS
     if (count > 0) {

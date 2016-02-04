@@ -226,7 +226,7 @@ public:
   }
 
   WN_FORCE_INLINE uint32_t spin_count() const {
-    return (m_spin_count);
+    return m_spin_count;
   }
 
   WN_FORCE_INLINE void set_spin_count(const uint32_t spin_count) {
