@@ -39,6 +39,7 @@ add_wn_library(WNMultiTasking SOURCES
   inc/WNConditionVariable.h
   inc/WNFiber.h
   src/WNFiber.cpp
+  inc/WNLockGuard.h
   inc/WNMutex.h
   inc/WNSemaphore.h
   inc/WNSharedMutex.h

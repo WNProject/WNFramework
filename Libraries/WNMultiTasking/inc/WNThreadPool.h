@@ -32,11 +32,11 @@ public:
 
   WN_FORCE_INLINE thread_pool(memory::allocator* _allocator)
     : m_allocator(_allocator),
-    m_threads(_allocator),
+      m_threads(_allocator),
 #ifdef _WN_POSIX
-    m_tasks(_allocator),
+      m_tasks(_allocator),
 #endif
-    m_shutdown(wn_true) {
+      m_shutdown(true) {
 #ifdef _WN_WINDOWS
     m_io_completion_port = INVALID_HANDLE_VALUE;
 #endif
@@ -46,8 +46,8 @@ public:
     cleanup();
   }
 
-  WN_INLINE result_type initialize(const wn_uint32 _worker_count) {
-    if (m_shutdown == wn_false) {
+  WN_INLINE result_type initialize(const uint32_t _worker_count) {
+    if (m_shutdown == false) {
       return (result::already_initialized);
     }
 
@@ -63,10 +63,10 @@ public:
 #endif
 
     {
-      const std::lock_guard<spin_lock> guard(m_thread_mutex);
+      const spin_lock_guard guard(m_thread_mutex);
 
-      for (wn_uint32 i = 0; i < _worker_count; ++i) {
-        thread<wn_void>* worker = m_allocator->construct<thread<wn_void>>(
+      for (uint32_t i = 0; i < _worker_count; ++i) {
+        thread<void>* worker = m_allocator->construct<thread<void>>(
             m_allocator, &thread_pool::worker_thread, this);
 
         m_threads.push_back(worker);
@@ -74,7 +74,7 @@ public:
       }
     }
 
-    m_shutdown = wn_false;
+    m_shutdown = false;
 
     return (result::ok);
   }
@@ -96,7 +96,7 @@ public:
     }
 #else
     {
-      const std::lock_guard<spin_lock> guard(m_task_lock);
+      const spin_lock_guard guard(m_task_lock);
 
       m_tasks.push_back(std::move(task));
     }
@@ -112,20 +112,20 @@ public:
   }
 
 private:
-  WN_INLINE wn_void cleanup() {
-    m_shutdown = wn_true;
+  WN_INLINE void cleanup() {
+    m_shutdown = true;
 
     {
-      const std::lock_guard<spin_lock> guard(m_thread_mutex);
+      const spin_lock_guard guard(m_thread_mutex);
 
 #ifdef _WN_WINDOWS
-      for (wn_size_t i = 0; i < m_threads.size(); ++i) {
+      for (size_t i = 0; i < m_threads.size(); ++i) {
         ::PostQueuedCompletionStatus(m_io_completion_port, 0, NULL, 0);
       }
 #else
-      for (wn_size_t i = 0; i < m_threads.size(); ++i) {
+      for (size_t i = 0; i < m_threads.size(); ++i) {
         {
-          const std::lock_guard<spin_lock> guard(m_task_lock);
+          const spin_lock_guard guard(m_task_lock);
 
           m_tasks.push_back(thread_task_ptr());
         }
@@ -134,7 +134,7 @@ private:
       }
 #endif
 
-      for (wn_size_t i = 0; i < m_threads.size(); ++i) {
+      for (size_t i = 0; i < m_threads.size(); ++i) {
         m_threads[i]->join();
 
         m_allocator->destroy(m_threads[i]);
@@ -152,7 +152,7 @@ private:
 #endif
   }
 
-  wn_void worker_thread() {
+  void worker_thread() {
     m_worker_start_mutex.notify();
 
 #ifdef _WN_WINDOWS
@@ -173,7 +173,7 @@ private:
           case 0:
             return;
           default:
-            WN_RELEASE_ASSERT_DESC(wn_false, "invalid message received");
+            WN_RELEASE_ASSERT_DESC(false, "invalid message received");
 
             break;
         }
@@ -214,11 +214,11 @@ private:
   spin_lock m_task_lock;
 #endif
 
-  containers::dynamic_array<thread<wn_void>*> m_threads;
+  containers::dynamic_array<thread<void>*> m_threads;
   spin_lock m_thread_mutex;
   semaphore m_worker_start_mutex;
   memory::allocator* m_allocator;
-  volatile wn_bool m_shutdown;
+  volatile bool m_shutdown;
 };
 
 }  // namespace multi_tasking

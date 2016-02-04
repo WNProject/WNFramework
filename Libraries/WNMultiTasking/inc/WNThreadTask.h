@@ -21,36 +21,35 @@ class thread_task : public memory::intrusive_ptr_base {
 public:
   virtual ~thread_task() = default;
 
-  WN_FORCE_INLINE wn_bool join() {
+  WN_FORCE_INLINE bool join() {
     if (!run_task()) {
       m_completion_semaphore.wait();
       m_completion_semaphore.notify();
     }
 
-    return(wn_true);
+    return true;
   }
 
 protected:
-  WN_FORCE_INLINE thread_task() :
-    memory::intrusive_ptr_base() {
+  WN_FORCE_INLINE thread_task() : memory::intrusive_ptr_base() {
     m_executed.clear(std::memory_order_release);
   }
 
-  virtual wn_void run() = 0;
+  virtual void run() = 0;
 
 private:
   friend class thread_pool;
 
-  WN_FORCE_INLINE wn_bool run_task() {
+  WN_FORCE_INLINE bool run_task() {
     if (!m_executed.test_and_set(std::memory_order_acquire)) {
       run();
 
       m_completion_semaphore.notify();
 
-      return(wn_true);
+      return true;
     }
 
-    return(wn_false);
+    return false;
   }
 
   std::atomic_flag m_executed;
@@ -59,7 +58,7 @@ private:
 
 typedef memory::intrusive_ptr<thread_task> thread_task_ptr;
 
-} // namespace multi_tasking
-} // namespace wn
+}  // namespace multi_tasking
+}  // namespace wn
 
-#endif // __WN_MULTI_TASKING_THREAD_TASK_H__
+#endif  // __WN_MULTI_TASKING_THREAD_TASK_H__

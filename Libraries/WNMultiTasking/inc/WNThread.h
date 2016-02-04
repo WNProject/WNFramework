@@ -79,7 +79,7 @@ struct thread_data final : public thread_data_common {
 };
 
 template <>
-struct thread_data<wn_void> : public thread_data_common {
+struct thread_data<void> : public thread_data_common {
   WN_FORCE_INLINE thread_data(memory::allocator* _allocator)
     : thread_data_common(_allocator) {}
 };
@@ -213,7 +213,7 @@ public:
 
   template <typename T = R,
       typename = core::enable_if_t<core::bool_and<core::is_same<T, R>::value,
-          !core::is_same<T, wn_void>::value>::value>>
+          !core::is_same<T, void>::value>::value>>
   WN_FORCE_INLINE bool join(T& result) const {
     const bool join_result = join();
 
@@ -224,11 +224,11 @@ public:
     return join_result;
   }
 
-  WN_FORCE_INLINE wn_void detach() {
+  WN_FORCE_INLINE void detach() {
     m_data.reset();
   }
 
-  WN_FORCE_INLINE wn_void swap(thread& other) {
+  WN_FORCE_INLINE void swap(thread& other) {
     m_data.swap(other.m_data);
   }
 
@@ -288,7 +288,7 @@ private:
 #endif
   }
 
-  static WN_FORCE_INLINE wn_void execute_helper(
+  static WN_FORCE_INLINE void execute_helper(
       const thread_execution_data* execution_data) {
     internal::thread_data<R>* data = execution_data->m_data.get();
 
@@ -297,7 +297,7 @@ private:
     data->m_result = execution_data->m_function();
   }
 
-  WN_INLINE wn_void execute(
+  WN_INLINE void execute(
       memory::allocator* _allocator, containers::function<R()>&& _function) {
     memory::intrusive_ptr<internal::thread_data<R>> data(
         memory::make_intrusive<internal::thread_data<R>>(
@@ -354,7 +354,7 @@ private:
 };
 
 template <>
-WN_FORCE_INLINE wn_void thread<wn_void>::execute_helper(
+WN_FORCE_INLINE void thread<void>::execute_helper(
     const thread_execution_data* execution_data) {
   execution_data->m_function();
 }
@@ -371,7 +371,7 @@ WN_INLINE thread_id get_id() {
 #endif
 }
 
-WN_INLINE wn_void yield() {
+WN_INLINE void yield() {
 #ifdef _WN_WINDOWS
   static std::once_flag once;
   static bool mutli_threaded = false;
@@ -402,8 +402,7 @@ WN_INLINE wn_void yield() {
 }
 
 template <typename Rep, typename Period>
-WN_INLINE wn_void sleep_for(
-    const std::chrono::duration<Rep, Period>& duration) {
+WN_INLINE void sleep_for(const std::chrono::duration<Rep, Period>& duration) {
 #ifdef _WN_WINDOWS
   ::Sleep(static_cast<DWORD>(
       std::chrono::duration_cast<std::chrono::milliseconds>(duration).count()));

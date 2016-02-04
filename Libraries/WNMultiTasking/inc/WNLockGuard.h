@@ -4,19 +4,19 @@
 
 #pragma once
 
-#ifndef __WN_MULTI_TASKING_CONDITION_VARIABLE_H__
-#define __WN_MULTI_TASKING_CONDITION_VARIABLE_H__
+#ifndef __WN_MULTI_TASKING_LOCK_GUARD_H__
+#define __WN_MULTI_TASKING_LOCK_GUARD_H__
 
 #include "WNCore/inc/WNTypes.h"
 
-#include <condition_variable>
+#include <mutex>
 
 namespace wn {
 namespace multi_tasking {
 
-using condition_variable = std::condition_variable_any;
+using std::lock_guard;
 
 }  // namespace multi_tasking
 }  // namespace wn
 
-#endif  // __WN_MULTI_TASKING_CONDITION_VARIABLE_H__
+#endif  // __WN_MULTI_TASKING_LOCK_GUARD_H__

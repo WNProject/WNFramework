@@ -38,8 +38,8 @@ public:
 
   using thread_task::join;
 
-  WN_FORCE_INLINE wn_bool join(R& result) {
-    const wn_bool join_result = join();
+  WN_FORCE_INLINE bool join(R& result) {
+    const bool join_result = join();
 
     if (join_result) {
       result = m_result;
@@ -49,7 +49,7 @@ public:
   }
 
 private:
-  virtual WN_FORCE_INLINE wn_void run() override {
+  virtual WN_FORCE_INLINE void run() override {
     m_result = m_callback();
   }
 
@@ -58,13 +58,13 @@ private:
 };
 
 template <>
-class callback_task<wn_void> : public thread_task {
+class callback_task<void> : public thread_task {
 public:
-  typedef wn_void result_type;
+  typedef void result_type;
 
   template <typename F, typename... Args>
   WN_FORCE_INLINE callback_task(F&& f, Args&&... args) : thread_task() {
-    static_assert(core::is_same<wn_void, core::result_of_t<F(Args...)>>::value,
+    static_assert(core::is_same<void, core::result_of_t<F(Args...)>>::value,
         "thread function return type does not match thread return type");
 
     m_callback = std::bind(core::decay_copy(core::forward<F>(f)),
@@ -74,11 +74,11 @@ public:
   virtual ~callback_task() override = default;
 
 private:
-  virtual WN_FORCE_INLINE wn_void run() override {
+  virtual WN_FORCE_INLINE void run() override {
     m_callback();
   }
 
-  containers::function<wn_void()> m_callback;
+  containers::function<void()> m_callback;
 };
 
 template <typename R>

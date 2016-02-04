@@ -21,7 +21,7 @@ namespace multi_tasking {
 class fiber;
 class fiber_id final {};
 
-static const wn_size_t kDefaultStackSize = (1024 * 1024);
+static const size_t default_fiber_stack_size = (1024 * 1024);
 
 namespace this_fiber {
 
@@ -32,6 +32,7 @@ void revert_from_fiber();
 WN_FORCE_INLINE fiber_id get_id() {
   return fiber_id();
 }
+
 void* get_local_storage();
 void set_local_storage(void*);
 void swap_to(fiber* _fiber);
@@ -51,7 +52,7 @@ public:
   ~fiber() {
 #ifdef _WN_WINDOWS
     if (m_fiber_context && !m_is_top_level_fiber) {
-      DeleteFiber(m_fiber_context);
+      ::DeleteFiber(m_fiber_context);
     }
 #elif defined _WN_POSIX
     if (m_stack_pointer) {
@@ -80,7 +81,7 @@ public:
   WN_FORCE_INLINE explicit fiber(
       memory::allocator* _allocator, F&& _f, Args&&... _args)
     : m_is_top_level_fiber(false), m_allocator(_allocator) {
-    create(kDefaultStackSize,
+    create(default_fiber_stack_size,
         containers::function<void()>(
                std::bind(core::decay_copy(std::forward<F>(_f)),
                    core::decay_copy(std::forward<Args>(_args))...)));
@@ -103,7 +104,7 @@ public:
 
 #ifdef _WN_WINDOWS
     if (m_fiber_context && !m_is_top_level_fiber) {
-      DeleteFiber(m_fiber_context);
+      ::DeleteFiber(m_fiber_context);
     }
     m_fiber_context = nullptr;
 #elif defined _WN_POSIX
@@ -114,6 +115,7 @@ public:
 #endif
 
     _other.swap(*this);
+
     return *this;
   }
 
@@ -121,15 +123,18 @@ public:
     core::swap(m_data, _other.m_data);
     core::swap(m_is_top_level_fiber, _other.m_is_top_level_fiber);
     core::swap(m_allocator, _other.m_allocator);
+
 #if defined _WN_POSIX
     core::swap(m_stack_pointer, _other.m_stack_pointer);
     core::swap(m_fiber_context, _other.m_fiber_context);
 #elif defined _WN_WINDOWS
     core::swap(m_fiber_context, _other.m_fiber_context);
 #endif
+
     if (m_data) {
       m_data->m_fiber = this;
     }
+
     if (_other.m_data) {
       _other.m_data->m_fiber = &_other;
     }
