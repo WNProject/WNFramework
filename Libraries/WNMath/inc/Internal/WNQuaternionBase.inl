@@ -26,28 +26,28 @@ namespace wn {
         }
 
         template <typename QuaternionType, typename type>
-        WN_FORCE_INLINE type& __WNQuaternionBaseCommon<QuaternionType, type>::operator [] (const wn_uint32 _index) {
+        WN_FORCE_INLINE type& __WNQuaternionBaseCommon<QuaternionType, type>::operator [] (const uint32_t _index) {
             WN_DEBUG_ASSERT_DESC(_index < 4, "Index out of range of quaternion elements");
 
             return(this->mElements.mValues[_index]);
         }
 
         template <typename QuaternionType, typename type>
-        WN_FORCE_INLINE const type& __WNQuaternionBaseCommon<QuaternionType, type>::operator [] (const wn_uint32 _index) const {
+        WN_FORCE_INLINE const type& __WNQuaternionBaseCommon<QuaternionType, type>::operator [] (const uint32_t _index) const {
             WN_DEBUG_ASSERT_DESC(_index < 4, "Index out of range of quaternion elements");
 
             return(this->mElements.mValues[_index]);
         }
 
         template <typename QuaternionType, typename type>
-        WN_FORCE_INLINE type& __WNQuaternionBaseCommon<QuaternionType, type>::operator () (const wn_uint32 _index) {
+        WN_FORCE_INLINE type& __WNQuaternionBaseCommon<QuaternionType, type>::operator () (const uint32_t _index) {
             WN_DEBUG_ASSERT_DESC(_index < 4, "Index out of range of quaternion elements");
 
             return(this->mElements.mValues[_index]);
         }
 
         template <typename QuaternionType, typename type>
-        WN_FORCE_INLINE const type& __WNQuaternionBaseCommon<QuaternionType, type>::operator () (const wn_uint32 _index) const {
+        WN_FORCE_INLINE const type& __WNQuaternionBaseCommon<QuaternionType, type>::operator () (const uint32_t _index) const {
             WN_DEBUG_ASSERT_DESC(_index < 4, "Index out of range of quaternion elements");
 
             return(this->mElements.mValues[_index]);
@@ -157,22 +157,22 @@ namespace wn {
         }
 
         template <typename QuaternionType, typename type>
-        WN_FORCE_INLINE wn_bool __WNQuaternionBaseCommon<QuaternionType, type>::operator == (const QuaternionType& _quaternion) const {
+        WN_FORCE_INLINE bool __WNQuaternionBaseCommon<QuaternionType, type>::operator == (const QuaternionType& _quaternion) const {
             return(__WNGeneralOpEqual<type, 4>::Execute(this->mElements, _quaternion.mElements));
         }
 
         template <typename QuaternionType, typename type>
-        WN_FORCE_INLINE wn_bool __WNQuaternionBaseCommon<QuaternionType, type>::operator != (const QuaternionType& _quaternion) const {
+        WN_FORCE_INLINE bool __WNQuaternionBaseCommon<QuaternionType, type>::operator != (const QuaternionType& _quaternion) const {
             return(__WNGeneralOpNotEqual<type, 4>::Execute(this->mElements, _quaternion.mElements));
         }
 
         template <typename QuaternionType, typename type>
-        WN_FORCE_INLINE wn_void __WNQuaternionBaseCommon<QuaternionType, type>::Zero() {
+        WN_FORCE_INLINE void __WNQuaternionBaseCommon<QuaternionType, type>::Zero() {
             this->mElements = __WNGeneralOpZero<type, 4>::Execute(this->mElements);
         }
 
         template <typename QuaternionType, typename type>
-        WN_FORCE_INLINE wn_void __WNQuaternionBaseCommon<QuaternionType, type>::Identity() {
+        WN_FORCE_INLINE void __WNQuaternionBaseCommon<QuaternionType, type>::Identity() {
             this->mElements[0] = static_cast<type>(0);
             this->mElements[1] = static_cast<type>(0);
             this->mElements[2] = static_cast<type>(0);
@@ -198,34 +198,34 @@ namespace wn {
         }
 
         template <typename QuaternionType, typename type>
-        WN_FORCE_INLINE wn_bool __WNQuaternionBaseCommon<QuaternionType, type>::IsZero() const {
+        WN_FORCE_INLINE bool __WNQuaternionBaseCommon<QuaternionType, type>::IsZero() const {
             return(this->mElements[0] == static_cast<type>(0) && this->mElements[1] == static_cast<type>(0) &&
                    this->mElements[2] == static_cast<type>(0) && this->mElements[3] == static_cast<type>(0));
         }
 
         template <typename QuaternionType, typename type>
-        WN_FORCE_INLINE wn_bool __WNQuaternionBaseCommon<QuaternionType, type>::IsIdentity() const {
+        WN_FORCE_INLINE bool __WNQuaternionBaseCommon<QuaternionType, type>::IsIdentity() const {
             return(this->mElements[0] == static_cast<type>(0) && this->mElements[1] == static_cast<type>(0) &&
                    this->mElements[2] == static_cast<type>(0) && this->mElements[3] == static_cast<type>(1));
         }
 
         template <typename QuaternionType, typename type>
-        WN_FORCE_INLINE wn_void __WNQuaternionBaseCommon<QuaternionType, type>::Set(const QuaternionType& _quaternion) {
+        WN_FORCE_INLINE void __WNQuaternionBaseCommon<QuaternionType, type>::Set(const QuaternionType& _quaternion) {
             *static_cast<QuaternionType*>(this) = _quaternion;
         }
 
         template <typename QuaternionType, typename type>
-        WN_FORCE_INLINE wn_void __WNQuaternionBaseCommon<QuaternionType, type>::Set(const type& _number) {
+        WN_FORCE_INLINE void __WNQuaternionBaseCommon<QuaternionType, type>::Set(const type& _number) {
             this->mElements = __WNGeneralOpSetNumber<type, 4>::Execute(this->mElements, _number);
         }
 
         template <typename QuaternionType, typename type>
-        WN_FORCE_INLINE wn_void __WNQuaternionBaseCommon<QuaternionType, type>::Set(const type* _numbers) {
+        WN_FORCE_INLINE void __WNQuaternionBaseCommon<QuaternionType, type>::Set(const type* _numbers) {
             this->mElements = __WNGeneralOpSetNumbers<type, 4>::Execute(this->mElements, _numbers);
         }
 
         template <typename QuaternionType, typename type>
-        WN_FORCE_INLINE wn_void __WNQuaternionBaseCommon<QuaternionType, type>::Set(const type& _x, const type& _y, const type& _z, const type& _w) {
+        WN_FORCE_INLINE void __WNQuaternionBaseCommon<QuaternionType, type>::Set(const type& _x, const type& _y, const type& _z, const type& _w) {
             this->mElements[0] = _x;
             this->mElements[1] = _y;
             this->mElements[2] = _z;
@@ -233,19 +233,19 @@ namespace wn {
         }
 
         template <typename QuaternionType, typename type>
-        WN_FORCE_INLINE wn_void __WNQuaternionBase<QuaternionType, type, typename std::enable_if<wn::is_real<type>::value>::type>::Normalize() {
+        WN_FORCE_INLINE void __WNQuaternionBase<QuaternionType, type, typename std::enable_if<wn::is_real<type>::value>::type>::Normalize() {
             this->mElements = __WNVectorOpNormalize<type, 4>::Execute(this->mElements);
         }
 
         template <typename QuaternionType, typename type>
-        WN_FORCE_INLINE wn_void __WNQuaternionBase<QuaternionType, type, typename std::enable_if<wn::is_real<type>::value>::type>::Invert() {
+        WN_FORCE_INLINE void __WNQuaternionBase<QuaternionType, type, typename std::enable_if<wn::is_real<type>::value>::type>::Invert() {
             *this = GetConjugate();
 
             Normalize();
         }
 
         template <typename QuaternionType, typename type>
-        WN_FORCE_INLINE wn_void __WNQuaternionBase<QuaternionType, type, typename std::enable_if<wn::is_real<type>::value>::type>::Logarithm() {
+        WN_FORCE_INLINE void __WNQuaternionBase<QuaternionType, type, typename std::enable_if<wn::is_real<type>::value>::type>::Logarithm() {
             if (WNAbs(this->mElements[3]) <= static_cast<type>(1)) {
                 const type theta = WNACos(this->mElements[3]);
                 const type thetaOverSinTheta  = theta / WNSin(theta);
@@ -259,7 +259,7 @@ namespace wn {
         }
 
         template <typename QuaternionType, typename type>
-        WN_FORCE_INLINE wn_void __WNQuaternionBase<QuaternionType, type, typename std::enable_if<wn::is_real<type>::value>::type>::Exponent() {
+        WN_FORCE_INLINE void __WNQuaternionBase<QuaternionType, type, typename std::enable_if<wn::is_real<type>::value>::type>::Exponent() {
             const type theta = wn::sqrt(this->mElements[0] * this->mElements[0] +
                                       this->mElements[1] * this->mElements[1] +
                                       this->mElements[2] * this->mElements[2]);
@@ -278,7 +278,7 @@ namespace wn {
         }
 
         template <typename QuaternionType, typename type>
-        WN_FORCE_INLINE wn_void __WNQuaternionBase<QuaternionType, type, typename std::enable_if<wn::is_real<type>::value>::type>::Rotate(const QuaternionType& _rotation) {
+        WN_FORCE_INLINE void __WNQuaternionBase<QuaternionType, type, typename std::enable_if<wn::is_real<type>::value>::type>::Rotate(const QuaternionType& _rotation) {
             *this *= _rotation;
         }
 

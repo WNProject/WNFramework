@@ -21,7 +21,7 @@
 
 using namespace WNNetworking;
 
-WNListenConnectionLinux::WNListenConnectionLinux(WNNetworkManager& _manager, WNConnectionType::type _type, wn_uint16 _port, WNConnectedCallback _connected) :
+WNListenConnectionLinux::WNListenConnectionLinux(WNNetworkManager& _manager, WNConnectionType::type _type, uint16_t _port, WNConnectedCallback _connected) :
     WNConnectionLinux(_manager),
     mPort(_port),
     mType(_type),
@@ -33,7 +33,7 @@ WNNetworkManagerReturnCode::type WNListenConnectionLinux::Initialize() {
 
     struct addrinfo hints;
     struct addrinfo *result, *rp;
-    wn_int32 sock;
+    int32_t sock;
 
     wn::memory::memzero(&hints, sizeof(struct addrinfo));
 
@@ -68,7 +68,7 @@ WNNetworkManagerReturnCode::type WNListenConnectionLinux::Initialize() {
         return(WNNetworkManagerReturnCode::eWNCannotAssociate);
     }
 
-    wn_int32 flags;
+    int32_t flags;
 
     flags = fcntl(mSockFD, F_GETFL, 0);
 
@@ -91,7 +91,7 @@ WNNetworkManagerReturnCode::type WNListenConnectionLinux::Initialize() {
     }
 
     const int nameLen = wn::memory::snprintf(NULL, 0, "Listen:%d", mPort);
-    wn_char* name = wn::memory::heap_allocate<wn_char>(nameLen + 1);
+    char* name = wn::memory::heap_allocate<char>(nameLen + 1);
 
     wn::memory::snprintf(name, nameLen + 1, "Listen:%d", mPort);
 
@@ -102,19 +102,19 @@ WNNetworkManagerReturnCode::type WNListenConnectionLinux::Initialize() {
 WNInConnectionLinux* WNListenConnectionLinux::ReceiveConnection() {
     struct sockaddr addr;
     socklen_t len = sizeof(sockaddr);
-    wn_int32 sockFD;
+    int32_t sockFD;
 
     sockFD = accept(mSockFD, &addr, &len);
 
     if (sockFD == -1){
         if ((errno == EAGAIN) || (errno == EWOULDBLOCK)) {
-            return(wn_nullptr);
+            return(nullptr);
         } else {
             char* s = strerror(errno);
 
             perror(NULL);
             //REPORT THE ERROR OR SOMETHING.. COULD NOT ACCEPT CONNECTION
-            return(wn_nullptr);
+            return(nullptr);
         }
     }
 

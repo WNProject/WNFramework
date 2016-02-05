@@ -17,24 +17,24 @@
 #include <time.h>
 
 namespace wn {
-    WN_FORCE_INLINE wn_uint64 WNGetBigTime() {
+    WN_FORCE_INLINE uint64_t WNGetBigTime() {
         struct timeval time;
 
         gettimeofday(&time, NULL);
 
-        return(static_cast<wn_uint64>(time.tv_sec * 1000LL + time.tv_usec / 1000LL));
+        return(static_cast<uint64_t>(time.tv_sec * 1000LL + time.tv_usec / 1000LL));
     }
 
-    WN_FORCE_INLINE wn_uint32 WNGetTickCount() {
-        return(static_cast<wn_uint32>(WNGetBigTickCount()));
+    WN_FORCE_INLINE uint32_t WNGetTickCount() {
+        return(static_cast<uint32_t>(WNGetBigTickCount()));
     }
 
-    WN_FORCE_INLINE wn_uint64 WNGetBigTickCount() {
+    WN_FORCE_INLINE uint64_t WNGetBigTickCount() {
         struct timespec time;
 
         clock_gettime(CLOCK_MONOTONIC, &time);
 
-        return(static_cast<wn_uint64>(time.tv_sec * 1000LL + time.tv_nsec / 1000000LL));
+        return(static_cast<uint64_t>(time.tv_sec * 1000LL + time.tv_nsec / 1000000LL));
     }
 }
 

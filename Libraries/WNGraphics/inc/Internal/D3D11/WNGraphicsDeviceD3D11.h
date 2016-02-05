@@ -24,31 +24,31 @@ namespace WNGraphics {
     public:
         WNGraphicsDeviceD3D11(WNGraphics::WNGraphicsResourceFactory* _factory);
 
-        virtual WNGraphicsDeviceReturnCode::type Initialize(wn_uint32 _adapter, wn_uint32 _output);
-        virtual wn_void Release();
+        virtual WNGraphicsDeviceReturnCode::type Initialize(uint32_t _adapter, uint32_t _output);
+        virtual void Release();
 
         virtual WNGraphicsDeviceReturnCode::type SetActiveSurface(wn::memory::intrusive_ptr<wn::surface> _surface);
 
         // State Querying
-        virtual wn_uint32 GetCapability(WNDeviceCaps _cap);
+        virtual uint32_t GetCapability(WNDeviceCaps _cap);
 
         // Resource Creation
-        virtual WNShader* CreateShader(WNShaderTypes _type, wn_char* _text);
-        virtual WNBuffer* CreateBuffer(WNBufferTypes _type, wn_uint32 _elementSize, wn_uint32 _w, wn_uint32 _h, wn_uint32 _d);
-        virtual WNTexture* CreateTexture(WNTextureTypes _type, WNTextureFormat _format, wn_uint32 _elementSize, wn_uint32 _w, wn_uint32 _h, wn_uint32 _d);
+        virtual WNShader* CreateShader(WNShaderTypes _type, char* _text);
+        virtual WNBuffer* CreateBuffer(WNBufferTypes _type, uint32_t _elementSize, uint32_t _w, uint32_t _h, uint32_t _d);
+        virtual WNTexture* CreateTexture(WNTextureTypes _type, WNTextureFormat _format, uint32_t _elementSize, uint32_t _w, uint32_t _h, uint32_t _d);
         virtual WNRenderTarget* CreateRenderTarget(WNTexture* _texture);
         virtual WNDrawList* CreateDrawList();
 
         // Resource Binding
         virtual WNGraphicsDeviceReturnCode::type BindShader(WNShader* _resource);
-        virtual WNGraphicsDeviceReturnCode::type BindBuffer(WNBuffer* _resource, wn_uint32 _location);
-        virtual WNGraphicsDeviceReturnCode::type BindTexture(WNTexture* _texture, wn_uint32 _location);
-        virtual WNGraphicsDeviceReturnCode::type BindRenderTarget(WNRenderTarget* _texture, wn_uint32 _location);
+        virtual WNGraphicsDeviceReturnCode::type BindBuffer(WNBuffer* _resource, uint32_t _location);
+        virtual WNGraphicsDeviceReturnCode::type BindTexture(WNTexture* _texture, uint32_t _location);
+        virtual WNGraphicsDeviceReturnCode::type BindRenderTarget(WNRenderTarget* _texture, uint32_t _location);
 
         // State Setting
-        virtual wn_void SetClearColor(wn_float32* _color);
+        virtual void SetClearColor(float* _color);
 
-        virtual WNGraphicsDeviceReturnCode::type BindSurface(wn::memory::intrusive_ptr<wn::surface>& _surface, wn_bool _sync = wn_true);
+        virtual WNGraphicsDeviceReturnCode::type BindSurface(wn::memory::intrusive_ptr<wn::surface>& _surface, bool _sync = true);
 
         // Drawing
         virtual WNGraphicsDeviceReturnCode::type SetDrawList(WNDrawList* _list);
@@ -71,18 +71,18 @@ namespace WNGraphics {
         struct WNWindowData {
             ID3D11RenderTargetView* mBackBufferView;
             IDXGISwapChain* mSwapChain;
-            wn_int32 mForceResize;
-            wn_bool mRequestedFullScreen;
-            wn_bool mFullScreen;
-            wn_uint32 mLastWindowedWidth;
-            wn_uint32 mLastWindowedHeight;
-            wn_uint32 mCurrentWidth;
-            wn_uint32 mCurrentHeight;
+            int32_t mForceResize;
+            bool mRequestedFullScreen;
+            bool mFullScreen;
+            uint32_t mLastWindowedWidth;
+            uint32_t mLastWindowedHeight;
+            uint32_t mCurrentWidth;
+            uint32_t mCurrentHeight;
         };
 
     private:
-        wn_void Cleanup();
-        wn_bool ProcessWindowMessage(wn::surface::WNSurfaceEventType _message, wn::surface* _surface);
+        void Cleanup();
+        bool ProcessWindowMessage(wn::surface::WNSurfaceEventType _message, wn::surface* _surface);
         WNGraphicsDeviceReturnCode::type ResizeSwapChain();
 
     private:
@@ -97,19 +97,19 @@ namespace WNGraphics {
         WNGraphicsResourceFactory * mResourceFactory;
         wn::multi_tasking::recursive_mutex mResizeMutex;
 
-        wn_float32 mClearColor[4];
+        float mClearColor[4];
 
         WNDrawList* mCurrentDrawList;
 
-        wn_size_t mMemory;
-        wn_uint32 mFeatureLevel;
-        wn_uint32 mScreenWidth;
-        wn_uint32 mScreenHeight;
-        wn_uint32 mScreenNumerator;
-        wn_uint32 mScreenDenominator;
+        size_t mMemory;
+        uint32_t mFeatureLevel;
+        uint32_t mScreenWidth;
+        uint32_t mScreenHeight;
+        uint32_t mScreenNumerator;
+        uint32_t mScreenDenominator;
 
-        wn_bool mVSync;
-        wn_bool mBackBufferBound;
+        bool mVSync;
+        bool mBackBufferBound;
         WNInitializationState mInitializationState;
     };
 }

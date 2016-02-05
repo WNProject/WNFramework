@@ -2,9 +2,9 @@
 #include "WNTesting/inc/WNTestHarness.h"
 
 TEST(sphere, construction) {
-    wn::sphere<wn_int32> sphere1;
+    wn::sphere<int32_t> sphere1;
 
-    const wn::vector3<wn_int32> temp;
+    const wn::vector3<int32_t> temp;
 
-    wn::sphere<wn_int32> sphere2(temp, 1);
+    wn::sphere<int32_t> sphere2(temp, 1);
 }

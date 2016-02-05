@@ -20,12 +20,12 @@ namespace wn {
         virtual WN_FORCE_INLINE ~WNSurfaceManagerAndroid() {}
 
         virtual WNSurfaceManagerReturnCode::type Initialize();
-        virtual WNSurfaceManagerReturnCode::type CreateSurface(wn_uint32 _x, wn_uint32 _y, wn_uint32 _width, wn_uint32 _height, memory::intrusive_ptr<surface>& _surface);
+        virtual WNSurfaceManagerReturnCode::type CreateSurface(uint32_t _x, uint32_t _y, uint32_t _width, uint32_t _height, memory::intrusive_ptr<surface>& _surface);
         virtual WNSurfaceManagerReturnCode::type Release();
 
-        wn_bool InitializeDisplay(EGLDisplay& _display, EGLConfig& _config);
-        wn_bool DestroyDisplay();
-        wn_bool SurfaceDestroyed();
+        bool InitializeDisplay(EGLDisplay& _display, EGLConfig& _config);
+        bool DestroyDisplay();
+        bool SurfaceDestroyed();
     private:
         WNSurfaceManagerAndroid(const WNSurfaceManagerAndroid&);
         WNSurfaceManagerAndroid& operator = (const WNSurfaceManagerAndroid&);
@@ -34,7 +34,7 @@ namespace wn {
 		wn::memory::basic_allocator allocator;
         EGLDisplay mDisplay;
         EGLConfig  mConfig;
-        wn_bool    mValidSurface;
+        bool    mValidSurface;
     };
 };
 

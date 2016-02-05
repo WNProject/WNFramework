@@ -30,8 +30,8 @@ WNGraphics::WNGraphicsDeviceD3D11::WNGraphicsDeviceD3D11(WNGraphics::WNGraphicsR
     mScreenHeight(0),
     mScreenNumerator(0),
     mScreenDenominator(0),
-    mVSync(wn_false),
-    mBackBufferBound(wn_false),
+    mVSync(false),
+    mBackBufferBound(false),
     mInitializationState(eWNISUninitialized) {
     mClearColor[0] = 0.0f;
     mClearColor[1] = 0.0f;
@@ -39,7 +39,7 @@ WNGraphics::WNGraphicsDeviceD3D11::WNGraphicsDeviceD3D11(WNGraphics::WNGraphicsR
     mClearColor[3] = 1.0f;
 }
 
-WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceD3D11::Initialize(wn_uint32 _adapter, wn_uint32 _output) {
+WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceD3D11::Initialize(uint32_t _adapter, uint32_t _output) {
     if (CreateDXGIFactory1(__uuidof(IDXGIFactory1), reinterpret_cast<void**>(&mFactory)) != S_OK) {
         Cleanup();
     }
@@ -94,7 +94,7 @@ WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceD3D11::
       }
     }
 
-    mFeatureLevel = static_cast<wn_uint32>(level);
+    mFeatureLevel = static_cast<uint32_t>(level);
     mInitializationState = WNGraphics::WNGraphicsDeviceD3D11::eWNISD3D11DeviceInitialized;
 
     DXGI_ADAPTER_DESC1 adapterDesc = {0};
@@ -105,26 +105,26 @@ WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceD3D11::
     return(WNGraphics::WNGraphicsDeviceReturnCode::ok);
 }
 
-wn_void WNGraphics::WNGraphicsDeviceD3D11::Release() {
+void WNGraphics::WNGraphicsDeviceD3D11::Release() {
     Cleanup();
 }
 
-wn_void WNGraphics::WNGraphicsDeviceD3D11::Cleanup() {
+void WNGraphics::WNGraphicsDeviceD3D11::Cleanup() {
     switch(mInitializationState) {
     case WNGraphics::WNGraphicsDeviceD3D11::eWNISD3D11DeviceInitialized:
         mDevice->Release();
-        mDevice = wn_nullptr;
+        mDevice = nullptr;
         mContext->Release();
-        mContext = wn_nullptr;
+        mContext = nullptr;
     case WNGraphics::WNGraphicsDeviceD3D11::eWNISDXGIOutputInitialized:
         mOutput->Release();
-        mOutput = wn_nullptr;
+        mOutput = nullptr;
     case WNGraphics::WNGraphicsDeviceD3D11::eWNISDXGIAdapterInitialized:
         mAdapter->Release();
-        mAdapter = wn_nullptr;
+        mAdapter = nullptr;
     case WNGraphics::WNGraphicsDeviceD3D11::eWNISDXGIFactoryInitialized:
         mFactory->Release();
-        mFactory = wn_nullptr;
+        mFactory = nullptr;
     case WNGraphics::WNGraphicsDeviceD3D11::eWNISUninitialized:
         break;
     };
@@ -132,7 +132,7 @@ wn_void WNGraphics::WNGraphicsDeviceD3D11::Cleanup() {
     mInitializationState = eWNISUninitialized;
 }
 
-wn_uint32 WNGraphics::WNGraphicsDeviceD3D11::GetCapability(WNGraphics::WNDeviceCaps _cap) {
+uint32_t WNGraphics::WNGraphicsDeviceD3D11::GetCapability(WNGraphics::WNDeviceCaps _cap) {
     switch(_cap) {
         case WNGraphics::eWNMultiDrawDevice:
             return(1);
@@ -141,24 +141,24 @@ wn_uint32 WNGraphics::WNGraphicsDeviceD3D11::GetCapability(WNGraphics::WNDeviceC
     return(0);
 }
 
-WNGraphics::WNShader* WNGraphics::WNGraphicsDeviceD3D11::CreateShader(WNGraphics::WNShaderTypes _type, wn_char* _shaderText) {
+WNGraphics::WNShader* WNGraphics::WNGraphicsDeviceD3D11::CreateShader(WNGraphics::WNShaderTypes _type, char* _shaderText) {
     WN_UNUSED_ARGUMENT(_type);
     WN_UNUSED_ARGUMENT(_shaderText);
 
-    return(wn_nullptr);
+    return(nullptr);
 }
 
-WNGraphics::WNBuffer* WNGraphics::WNGraphicsDeviceD3D11::CreateBuffer(WNGraphics::WNBufferTypes _type, wn_uint32 _elementSize, wn_uint32 _w, wn_uint32 _h, wn_uint32 _d) {
+WNGraphics::WNBuffer* WNGraphics::WNGraphicsDeviceD3D11::CreateBuffer(WNGraphics::WNBufferTypes _type, uint32_t _elementSize, uint32_t _w, uint32_t _h, uint32_t _d) {
     WN_UNUSED_ARGUMENT(_type);
     WN_UNUSED_ARGUMENT(_elementSize);
     WN_UNUSED_ARGUMENT(_w);
     WN_UNUSED_ARGUMENT(_h);
     WN_UNUSED_ARGUMENT(_d);
 
-    return(wn_nullptr);
+    return(nullptr);
 }
 
-WNGraphics::WNTexture* WNGraphics::WNGraphicsDeviceD3D11::CreateTexture(WNGraphics::WNTextureTypes _type, WNGraphics::WNTextureFormat _format, wn_uint32 _elementSize, wn_uint32 _w, wn_uint32 _h, wn_uint32 _d) {
+WNGraphics::WNTexture* WNGraphics::WNGraphicsDeviceD3D11::CreateTexture(WNGraphics::WNTextureTypes _type, WNGraphics::WNTextureFormat _format, uint32_t _elementSize, uint32_t _w, uint32_t _h, uint32_t _d) {
     WN_UNUSED_ARGUMENT(_type);
     WN_UNUSED_ARGUMENT(_format);
     WN_UNUSED_ARGUMENT(_elementSize);
@@ -166,24 +166,24 @@ WNGraphics::WNTexture* WNGraphics::WNGraphicsDeviceD3D11::CreateTexture(WNGraphi
     WN_UNUSED_ARGUMENT(_h);
     WN_UNUSED_ARGUMENT(_d);
 
-    return(wn_nullptr);
+    return(nullptr);
 }
 
 WNGraphics::WNRenderTarget* WNGraphics::WNGraphicsDeviceD3D11::CreateRenderTarget(WNGraphics::WNTexture* _texture) {
     WN_UNUSED_ARGUMENT(_texture);
 
-    return(wn_nullptr);
+    return(nullptr);
 }
 
 WNGraphics::WNDrawList* WNGraphics::WNGraphicsDeviceD3D11::CreateDrawList() {
-    return(wn_nullptr);
+    return(nullptr);
 }
 
-wn_void WNGraphics::WNGraphicsDeviceD3D11::SetClearColor(wn_float32* _color) {
+void WNGraphics::WNGraphicsDeviceD3D11::SetClearColor(float* _color) {
     wn::memory::memory_copy(mClearColor, _color, 4);
 }
 
-WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceD3D11::BindSurface(wn::memory::intrusive_ptr<wn::surface>& _surface, wn_bool _sync) {
+WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceD3D11::BindSurface(wn::memory::intrusive_ptr<wn::surface>& _surface, bool _sync) {
     HWND handle = _surface->GetNativeHandle();
     UINT numModes = 0;
     DXGI_OUTPUT_DESC outputDesc = {0};
@@ -200,8 +200,8 @@ WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceD3D11::
         return(WNGraphics::WNGraphicsDeviceReturnCode::eWNGDEMonitorError);
     }
 
-    const wn_uint32 width = static_cast<wn_uint32>(monitorInfo.rcMonitor.right - monitorInfo.rcMonitor.left);
-    const wn_uint32 height = static_cast<wn_uint32>(monitorInfo.rcMonitor.bottom - monitorInfo.rcMonitor.top);
+    const uint32_t width = static_cast<uint32_t>(monitorInfo.rcMonitor.right - monitorInfo.rcMonitor.left);
+    const uint32_t height = static_cast<uint32_t>(monitorInfo.rcMonitor.bottom - monitorInfo.rcMonitor.top);
     const HRESULT hr = mOutput->GetDisplayModeList(DXGI_FORMAT_B8G8R8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &numModes, NULL);
 
     if (S_OK == hr) {
@@ -217,7 +217,7 @@ WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceD3D11::
 
         mScreenNumerator = mScreenDenominator = 0;
 
-        for (wn_uint32 i = 0; i < static_cast<wn_uint32>(numModes); ++i) {
+        for (uint32_t i = 0; i < static_cast<uint32_t>(numModes); ++i) {
             if (modeDesc[i].Width == static_cast<UINT>(width) && modeDesc[i].Height == static_cast<UINT>(height)) {
                 mScreenNumerator = modeDesc[i].RefreshRate.Numerator;
                 mScreenDenominator = modeDesc[i].RefreshRate.Denominator;
@@ -270,14 +270,14 @@ WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceD3D11::
 
     if (mFactory->MakeWindowAssociation(handle, DXGI_MWA_NO_ALT_ENTER) != S_OK) {
         dat->mSwapChain->Release();
-        dat->mSwapChain = wn_nullptr;
+        dat->mSwapChain = nullptr;
 
         return(WNGraphics::WNGraphicsDeviceReturnCode::eWNGDESwapChainCreationError);
     }
 
     if (dat->mSwapChain->ResizeBuffers(0, _surface->GetWidth(), _surface->GetHeight(), DXGI_FORMAT_UNKNOWN, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH) != S_OK) {
         dat->mSwapChain->Release();
-        dat->mSwapChain = wn_nullptr;
+        dat->mSwapChain = nullptr;
 
         return(WNGraphics::WNGraphicsDeviceReturnCode::eWNGDESwapChainCreationError);
     }
@@ -291,7 +291,7 @@ WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceD3D11::
 
     if (dat->mSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&backBufferTexture) != S_OK) {
         dat->mSwapChain->Release();
-        dat->mSwapChain = wn_nullptr;
+        dat->mSwapChain = nullptr;
 
         return(WNGraphics::WNGraphicsDeviceReturnCode::eWNGDEBackBufferError);
     }
@@ -299,7 +299,7 @@ WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceD3D11::
     if (mDevice->CreateRenderTargetView(backBufferTexture, NULL, &dat->mBackBufferView) != S_OK) {
         backBufferTexture->Release();
         dat->mSwapChain->Release();
-        dat->mSwapChain = wn_nullptr;
+        dat->mSwapChain = nullptr;
 
         return(WNGraphics::WNGraphicsDeviceReturnCode::eWNGDEBackBufferError);
     }
@@ -310,7 +310,7 @@ WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceD3D11::
     _surface->RegisterCallback(wn::surface::eWNSETResize, wn::surface::WNSurfaceEventCallback(&WNGraphicsDeviceD3D11::ProcessWindowMessage, this));
     _surface->RegisterCallback(wn::surface::eWNSETDestroyed, wn::surface::WNSurfaceEventCallback(&WNGraphicsDeviceD3D11::ProcessWindowMessage, this));
 
-    BindRenderTarget(wn_nullptr, 0);
+    BindRenderTarget(nullptr, 0);
 
     return(WNGraphics::WNGraphicsDeviceReturnCode::ok);
 }
@@ -344,7 +344,7 @@ WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceD3D11::
         }
     }
 
-    if (mCurrentDrawList == wn_nullptr) {
+    if (mCurrentDrawList == nullptr) {
         if (mVSync) {
             if (dat->mSwapChain->Present(1, 0) != S_OK) {
                 dat->mForceResize = WN_RESIZE_RETRY_COUNT;
@@ -365,7 +365,7 @@ WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceD3D11::
     return(WNGraphics::WNGraphicsDeviceReturnCode::ok);
 }
 
-wn_bool WNGraphics::WNGraphicsDeviceD3D11::ProcessWindowMessage(wn::surface::WNSurfaceEventType _message, wn::surface* _surface) {
+bool WNGraphics::WNGraphicsDeviceD3D11::ProcessWindowMessage(wn::surface::WNSurfaceEventType _message, wn::surface* _surface) {
     if (_message == wn::surface::eWNSETResize) {
         wn::multi_tasking::recursive_mutex_guard mScopeLock(mResizeMutex);
         WNWindowData* dat = _surface->GetRegisteredData<WNWindowData>(wn::surface::eWNRDTGraphics);
@@ -382,14 +382,14 @@ WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceD3D11::
     return(WNGraphics::WNGraphicsDeviceReturnCode::ok);
 }
 
-WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceD3D11::BindBuffer(WNGraphics::WNBuffer* _resource, wn_uint32 _location) {
+WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceD3D11::BindBuffer(WNGraphics::WNBuffer* _resource, uint32_t _location) {
     WN_UNUSED_ARGUMENT(_resource);
     WN_UNUSED_ARGUMENT(_location);
 
     return(WNGraphics::WNGraphicsDeviceReturnCode::ok);
 }
 
-WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceD3D11::BindTexture(WNGraphics::WNTexture* _texture, wn_uint32 _location) {
+WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceD3D11::BindTexture(WNGraphics::WNTexture* _texture, uint32_t _location) {
     WN_UNUSED_ARGUMENT(_texture);
     WN_UNUSED_ARGUMENT(_location);
 
@@ -402,14 +402,14 @@ WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceD3D11::
     return(WNGraphics::WNGraphicsDeviceReturnCode::ok);
 }
 
-WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceD3D11::BindRenderTarget(WNGraphics::WNRenderTarget* _texture, wn_uint32 _location) {
-    if (_texture == wn_nullptr && _location == 0 && mActiveSurface) {
+WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceD3D11::BindRenderTarget(WNGraphics::WNRenderTarget* _texture, uint32_t _location) {
+    if (_texture == nullptr && _location == 0 && mActiveSurface) {
         WNWindowData* dat = mActiveSurface->GetRegisteredData<WNWindowData>(wn::surface::eWNRDTGraphics);
 
         mContext->OMSetRenderTargets(1, &dat->mBackBufferView, NULL);
-        mBackBufferBound = wn_true;
+        mBackBufferBound = true;
     } else if (_location == 0) {
-        mBackBufferBound = wn_false;
+        mBackBufferBound = false;
     }
 
     return(WNGraphics::WNGraphicsDeviceReturnCode::ok);
@@ -462,7 +462,7 @@ WNGraphics::WNGraphicsDeviceReturnCode::type WNGraphics::WNGraphicsDeviceD3D11::
         }
 
         mOutput->Release();
-        mOutput = wn_nullptr;
+        mOutput = nullptr;
 
         if (dat->mSwapChain->GetContainingOutput(&mOutput) != S_OK) {
             dat->mFullScreen = !dat->mFullScreen;

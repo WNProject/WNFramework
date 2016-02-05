@@ -77,12 +77,12 @@ namespace wn {
 
     template <typename _Type>
     WN_FORCE_INLINE _Type deg_to_rad(const _Type& _value) {
-        return(static_cast<_Type>(static_cast<wn_float64>(_value)* (WN_PI / 180.0)));
+        return(static_cast<_Type>(static_cast<double>(_value)* (WN_PI / 180.0)));
     }
 
     template <typename _Type>
     WN_FORCE_INLINE _Type rad_to_deg(const _Type& _value) {
-        return(static_cast<_Type>(static_cast<wn_float64>(_value)* (180.0 / WN_PI)));
+        return(static_cast<_Type>(static_cast<double>(_value)* (180.0 / WN_PI)));
     }
 }
 

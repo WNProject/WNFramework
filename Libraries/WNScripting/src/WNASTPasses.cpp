@@ -18,10 +18,10 @@ public:
       m_num_warnings(0),
       m_num_errors(0) {}
 
-  wn_size_t warnings() const {
+  size_t warnings() const {
     return m_num_warnings;
   }
-  wn_size_t errors() const {
+  size_t errors() const {
     return m_num_errors;
   }
 
@@ -29,8 +29,8 @@ protected:
   WNLogging::WNLog* m_log;
   memory::allocator* m_allocator;
   type_validator* m_validator;
-  wn_size_t m_num_warnings;
-  wn_size_t m_num_errors;
+  size_t m_num_warnings;
+  size_t m_num_errors;
 };
 
 class dead_code_elimination_pass : public pass {
@@ -160,7 +160,7 @@ private:
         return &(val->second);
       }
     }
-    return wn_nullptr;
+    return nullptr;
   }
 
   containers::deque<
@@ -186,7 +186,7 @@ public:
       t->copy_location_from(_expr);
       _expr->set_type(t);
     } else {
-      WN_DEBUG_ASSERT_DESC(wn_false, "Source for this ID.");
+      WN_DEBUG_ASSERT_DESC(false, "Source for this ID.");
     }
   }
 
@@ -198,15 +198,15 @@ public:
     }
     // Actually validate the text.
     switch (_expr->get_type()->get_index()) {
-      case static_cast<wn_uint32>(type_classification::int_type): {
-        const wn_char* text = _expr->get_type_text().c_str();
+      case static_cast<uint32_t>(type_classification::int_type): {
+        const char* text = _expr->get_type_text().c_str();
         bool error = false;
         if (wn::memory::strnlen(text, 13) > 12) {
           error = true;
         } else {
-          wn_int64 val = atoll(text);
-          if (val < std::numeric_limits<wn_int32>::min() ||
-              val > std::numeric_limits<wn_int32>::max()) {
+          int64_t val = atoll(text);
+          if (val < std::numeric_limits<int32_t>::min() ||
+              val > std::numeric_limits<int32_t>::max()) {
             error = true;
           }
         }
@@ -216,12 +216,12 @@ public:
         }
         break;
       }
-      case static_cast<wn_uint32>(type_classification::bool_type): {
+      case static_cast<uint32_t>(type_classification::bool_type): {
         break;
       }
       default:
         WN_RELEASE_ASSERT_DESC(
-            wn_false, "No Implemented: non-integer contants");
+            false, "No Implemented: non-integer contants");
     }
   }
 
@@ -238,7 +238,7 @@ public:
 
     uint32_t return_type =
         m_validator->get_operations(
-                       static_cast<wn_int32>(lhs_type->get_index()))
+                       static_cast<int32_t>(lhs_type->get_index()))
             .get_operation(_expr->get_arithmetic_type());
 
     if (return_type ==
@@ -344,7 +344,7 @@ public:
 
   void walk_instruction(else_if_instruction* _else_if) {
     if (_else_if->get_condition()->get_type()->get_index() !=
-        static_cast<wn_uint32>(type_classification::bool_type)) {
+        static_cast<uint32_t>(type_classification::bool_type)) {
       m_log->Log(WNLogging::eError, 0,
           "Else If conditional must be a boolean expression");
       _else_if->get_condition()->log_line(*m_log, WNLogging::eError);
@@ -354,7 +354,7 @@ public:
 
   void walk_instruction(if_instruction* _if) {
     if (_if->get_condition()->get_type()->get_index() !=
-        static_cast<wn_uint32>(type_classification::bool_type)) {
+        static_cast<uint32_t>(type_classification::bool_type)) {
       m_log->Log(
           WNLogging::eError, 0, "If conditional must be a boolean expression");
       _if->get_condition()->log_line(*m_log, WNLogging::eError);
@@ -365,7 +365,7 @@ public:
   void walk_function(function* _func) {
     const type* function_return_type = _func->get_signature()->get_type();
     if (function_return_type->get_index() >=
-        static_cast<wn_uint32>(type_classification::custom_type)) {
+        static_cast<uint32_t>(type_classification::custom_type)) {
       WN_RELEASE_ASSERT_DESC(false, "Not implented: custom return type");
     }
 
@@ -373,7 +373,7 @@ public:
       // TODO(awoloszyn): Add type mananger to do more rigorous type matching.
       if (!return_inst->get_expression()) {
         if (function_return_type->get_index() !=
-            static_cast<wn_uint32>(type_classification::void_type)) {
+            static_cast<uint32_t>(type_classification::void_type)) {
           m_log->Log(WNLogging::eError, 0, "Expected non-void return");
           return_inst->log_line(*m_log, WNLogging::eError);
           m_num_errors += 1;
@@ -426,8 +426,8 @@ private:
 }  // anonymous namespace
 
 bool run_type_association_pass(script_file* _file, WNLogging::WNLog* _log,
-    type_validator* _validator, wn_size_t* _num_warnings,
-    wn_size_t* _num_errors) {
+    type_validator* _validator, size_t* _num_warnings,
+    size_t* _num_errors) {
   if (!_file)
     return false;
   type_association_pass pass(_validator, _log, _file->get_allocator());
@@ -442,8 +442,8 @@ bool run_type_association_pass(script_file* _file, WNLogging::WNLog* _log,
 }
 
 bool run_id_association_pass(script_file* _file, WNLogging::WNLog* _log,
-    type_validator* _validator, wn_size_t* _num_warnings,
-    wn_size_t* _num_errors) {
+    type_validator* _validator, size_t* _num_warnings,
+    size_t* _num_errors) {
   if (!_file)
     return false;
   id_association_pass pass(_validator, _log, _file->get_allocator());
@@ -458,8 +458,8 @@ bool run_id_association_pass(script_file* _file, WNLogging::WNLog* _log,
 }
 
 bool run_dce_pass(script_file* _file, WNLogging::WNLog* _log,
-    type_validator* _validator, wn_size_t* _num_warnings,
-    wn_size_t* _num_errors) {
+    type_validator* _validator, size_t* _num_warnings,
+    size_t* _num_errors) {
   if (!_file)
     return false;
   dead_code_elimination_pass pass(_validator, _log, _file->get_allocator());

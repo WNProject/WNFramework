@@ -14,11 +14,11 @@ namespace WNScripting {
     public:
         virtual ~WNScopedVariableListImpl();
         virtual eWNTypeError PushVariable(WNScriptVariable* _variable);
-        virtual wn_void PushScopeBlock(WNCodeModule& _module);
-        virtual eWNTypeError PopScopeBlock(WNCodeModule& _module, wn_bool _cleanStack, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog);
+        virtual void PushScopeBlock(WNCodeModule& _module);
+        virtual eWNTypeError PopScopeBlock(WNCodeModule& _module, bool _cleanStack, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog);
         virtual eWNTypeError GenerateReturn(WNCodeModule& _module, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog);
-        virtual const WNScriptVariable* GetVariable(const wn_char* _functionName);
-        virtual wn_void ClearScope();
+        virtual const WNScriptVariable* GetVariable(const char* _functionName);
+        virtual void ClearScope();
     private:
         std::vector<WNScriptVariable*> mScriptVariables;
         std::vector<llvm::Value*> mScopeBlocks;

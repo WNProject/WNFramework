@@ -22,23 +22,23 @@ namespace WNNetworking {
         WNConnectionLinux(WNNetworkManager& _manager);
         virtual ~WNConnectionLinux();
 
-        virtual wn_void Invalidate();
-        virtual wn_void SendBuffer(WNNetworkWriteBuffer& _buffer);
-        wn_int32 GetLinuxSocket();
-        wn_void NotifyReadyToSend(wn_bool socketFree);
-        wn_void NotifyReadReady();
+        virtual void Invalidate();
+        virtual void SendBuffer(WNNetworkWriteBuffer& _buffer);
+        int32_t GetLinuxSocket();
+        void NotifyReadyToSend(bool socketFree);
+        void NotifyReadReady();
 
     protected:
-        wn_void ReadReady();
-        wn_bool Send();
+        void ReadReady();
+        bool Send();
         WNNetworkManager& mManager;
-        wn_bool mReadyToWrite;
-        wn_int32 mSockFD;
-        wn_size_t mBufferChunkCount;
-        wn_size_t mBufferWritten;
-        wn_size_t mTotalSent;
-        std::atomic<wn_atom_t> mReadAtomic;
-        std::atomic<wn_atom_t> mWriteAtomic;
+        bool mReadyToWrite;
+        int32_t mSockFD;
+        size_t mBufferChunkCount;
+        size_t mBufferWritten;
+        size_t mTotalSent;
+        std::atomic<size_t> mReadAtomic;
+        std::atomic<size_t> mWriteAtomic;
         wn::multi_tasking::spin_lock mReadLock;
         wn::multi_tasking::spin_lock mWriteLock;
         wn::multi_tasking::spin_lock mSendBufferLock;
@@ -46,12 +46,12 @@ namespace WNNetworking {
 
         wn::memory::basic_allocator allocator;
         WNNetworkReadBuffer mCurrentReadBuffer;
-        wn_size_t mInProcessedBytes;
-        wn_size_t mReadHead;
-        wn_size_t mBufferBase;
+        size_t mInProcessedBytes;
+        size_t mReadHead;
+        size_t mBufferBase;
         wn::memory::intrusive_ptr<WNBufferResource> mReadLocation;
-        wn_size_t mOverflowAmount;
-        wn_char mOverflowLocation[8];
+        size_t mOverflowAmount;
+        char mOverflowLocation[8];
     };
 };
 

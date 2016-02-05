@@ -9,7 +9,7 @@
 
 namespace WNLogging {
     WN_INLINE const char* DefaultFunctionName() {
-        return(wn_nullptr);
+        return(nullptr);
     }
 
     template<const char*(*T_FileFunction)() = DefaultFunctionName>
@@ -23,21 +23,21 @@ namespace WNLogging {
             }
             else
             {
-                mOutFile = wn_nullptr;
+                mOutFile = nullptr;
             }
         }
 
         ~WNFileLogger() {
             if(mOutFile) {
                 fclose(mOutFile);
-                mOutFile = wn_nullptr;
+                mOutFile = nullptr;
             }
         }
-        wn_void FlushBuffer(const wn_char* _buffer, wn_size_t bufferSize, const std::vector<WNLogColorElement>&) {
+        void FlushBuffer(const char* _buffer, size_t bufferSize, const std::vector<WNLogColorElement>&) {
             if(mOutFile)
             {
-                wn_size_t written = 0;
-                wn_size_t toWrite = bufferSize;
+                size_t written = 0;
+                size_t toWrite = bufferSize;
                 do {
                     written = fwrite(_buffer + written, 1, toWrite, mOutFile);
                     toWrite -= written;
@@ -48,7 +48,7 @@ namespace WNLogging {
             }
             else
             {
-                printf("%.*s", static_cast<wn_int32>(bufferSize), _buffer);
+                printf("%.*s", static_cast<int32_t>(bufferSize), _buffer);
             }
         }
     private:

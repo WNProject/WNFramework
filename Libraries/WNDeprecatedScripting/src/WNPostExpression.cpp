@@ -7,7 +7,7 @@
 using namespace WNScripting;
 
 WNPostExpression::WNPostExpression():
-    mBaseExpression(wn_nullptr) {
+    mBaseExpression(nullptr) {
 }
 
 WNPostExpression::~WNPostExpression() {

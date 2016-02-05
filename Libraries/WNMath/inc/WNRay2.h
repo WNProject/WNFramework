@@ -24,15 +24,15 @@ namespace wn {
         WNRay2 operator + () const;
         WNRay2 operator - () const;
 
-        wn_bool operator == (const WNRay2& _ray) const;
-        wn_bool operator != (const WNRay2& _ray) const;
+        bool operator == (const WNRay2& _ray) const;
+        bool operator != (const WNRay2& _ray) const;
 
-        wn_void Zero();
+        void Zero();
 
-        wn_bool IsZero() const;
+        bool IsZero() const;
 
-        wn_void Set(const type* _numbers);
-        wn_void Set(const vector2<type>& _location, const vector2<type>& _direction);
+        void Set(const type* _numbers);
+        void Set(const vector2<type>& _location, const vector2<type>& _direction);
 
         WNLine2<type> ToLine2() const;
         WNLine3<type> ToLine3() const;

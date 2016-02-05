@@ -51,7 +51,7 @@ class hash_map_iterator
     m_end_bucket = _other.m_end_bucket;
   }
 
-  hash_map_iterator& operator+=(wn_size_t _count) {
+  hash_map_iterator& operator+=(size_t _count) {
     while (_count-- > 0) {
       ++m_element;
       while (m_element == m_bucket->tend(lit())) {
@@ -109,8 +109,8 @@ public:
   using key_type = _KeyType;
   using mapped_type = _ValueType;
   using value_type = std::pair<_KeyType, _ValueType>;
-  using size_type = wn_size_t;
-  using difference_type = wn_signed_t;
+  using size_type = size_t;
+  using difference_type = signed_t;
   using hasher = _HashOperator;
   using key_equal = _EqualityOperator;
   using reference = value_type&;
@@ -133,7 +133,7 @@ public:
 
   explicit hash_map(size_type _n = 0u, const hasher& _hasher = hasher(),
                     const key_equal& _key_equal = key_equal(),
-                    memory::allocator* _allocator = wn_nullptr)
+                    memory::allocator* _allocator = nullptr)
       : m_allocator(_allocator),
         m_buckets(0, list_type(_allocator), _allocator),
         m_total_elements(0),
@@ -148,11 +148,11 @@ public:
   hash_map(std::initializer_list<value_type> initializer, size_type _n = 0u,
            const hasher& _hasher = hasher(),
            const key_equal& _key_equal = key_equal(),
-           memory::allocator* _allocator = wn_nullptr)
+           memory::allocator* _allocator = nullptr)
       : hash_map(0u /* we will resize */, _hasher, _key_equal, _allocator) {
     auto begin = std::begin(initializer);
     auto end = std::end(initializer);
-    wn_size_t count = end - begin;
+    size_t count = end - begin;
     m_buckets.insert(m_buckets.begin(), (count > _n ? count : _n),
                      list_type(get_allocator()));
     for (; begin != end; ++begin) {
@@ -186,7 +186,7 @@ public:
   bool empty() const { return m_total_elements == 0; }
 
   std::pair<iterator, bool> insert(const value_type& element) {
-    wn_size_t hash = get_hash(element.first);
+    size_t hash = get_hash(element.first);
     iterator old_position =
         iterator_from_const_iterator(find_hashed(element.first, hash));
     if (old_position != end()) {
@@ -204,7 +204,7 @@ public:
   }
 
   std::pair<iterator, bool> insert(value_type&& element) {
-    wn_size_t hash;
+    size_t hash;
     hash = get_hash(element.first);
     iterator old_position =
         iterator_from_const_iterator(find_hashed(element.first, hash));
@@ -254,7 +254,7 @@ public:
     if (empty()) {
       return (end());
     }
-    wn_size_t hash = get_hash(key);
+    size_t hash = get_hash(key);
     return iterator_from_const_iterator(find_hashed(key, hash));
   }
 
@@ -262,7 +262,7 @@ public:
     if (empty()) {
       return (cend());
     }
-    wn_size_t hash = get_hash(key);
+    size_t hash = get_hash(key);
     return find_hashed(key, hash);
   }
 
@@ -321,7 +321,7 @@ public:
   // The only allocation that rehash performs is an
   // increase on the number of buckets, all of the elements
   // in the buckets are left unchanged.
-  void rehash(wn_size_t n) {
+  void rehash(size_t n) {
     if (n == m_buckets.size()) {
       return;
     }
@@ -332,7 +332,7 @@ public:
     array_type new_buckets(n, list_type(get_allocator()), get_allocator());
     for (auto& bucket : m_buckets) {
       for (auto it = bucket.begin(); it != bucket.end();) {
-        wn_size_t hash = get_hash(it->first, n);
+        size_t hash = get_hash(it->first, n);
         it = bucket.transfer_to(it, new_buckets[hash].end(), new_buckets[hash]);
       }
     }
@@ -347,7 +347,7 @@ public:
                                  }) == new_buckets.end());
   }
 
-  wn_size_t size() const { return m_total_elements; }
+  size_t size() const { return m_total_elements; }
 
  private:
   iterator iterator_from_const_iterator(const_iterator it) {
@@ -358,7 +358,7 @@ public:
     return new_it;
    }
 
-  const_iterator find_hashed(const key_type& key, wn_size_t hash) const {
+  const_iterator find_hashed(const key_type& key, size_t hash) const {
     if (empty()) {
       return (cend());
     }
@@ -372,20 +372,20 @@ public:
     return cend();
   }
 
-  wn_size_t get_hash(const key_type& key) const {
+  size_t get_hash(const key_type& key) const {
     return get_hash(key, m_buckets.size());
   }
 
-  wn_size_t get_hash(const key_type& key, wn_size_t buckets) const {
-    wn_size_t hash = m_hasher(key);
+  size_t get_hash(const key_type& key, size_t buckets) const {
+    size_t hash = m_hasher(key);
     if (buckets == 0) {
       return 0;
     }
     return hash % buckets;
   }
 
-  bool rehash_if_needed(wn_size_t num_expected_elements) {
-    wn_size_t i = required_buckets(num_expected_elements);
+  bool rehash_if_needed(size_t num_expected_elements) {
+    size_t i = required_buckets(num_expected_elements);
     if (i > m_buckets.size()) {
       // If we are allocating buckets, let's give ourselves
       // at least 10 buckets.
@@ -393,9 +393,9 @@ public:
 
       // If we are expanding past 10 buckets then we should probably
       // pick some exponential factor. (1.5 for now).
-      wn_size_t exponential_buckets =
+      size_t exponential_buckets =
           static_cast<size_t>(m_buckets.size() * 1.5f);
-      wn_size_t num_new_buckets =
+      size_t num_new_buckets =
           i > exponential_buckets ? i : exponential_buckets;
       rehash(num_new_buckets);
       return true;
@@ -403,8 +403,8 @@ public:
     return false;
   }
 
-  wn_size_t required_buckets(wn_size_t num_expected_elements) const {
-    return static_cast<wn_size_t>(num_expected_elements / m_max_load_factor);
+  size_t required_buckets(size_t num_expected_elements) const {
+    return static_cast<size_t>(num_expected_elements / m_max_load_factor);
   }
 
  private:
@@ -414,8 +414,8 @@ public:
 
    memory::allocator* m_allocator;
    array_type m_buckets;
-   wn_size_t m_total_elements;
-   wn_float32 m_max_load_factor;
+   size_t m_total_elements;
+   float m_max_load_factor;
 
    hasher m_hasher;
    key_equal m_key_equal;

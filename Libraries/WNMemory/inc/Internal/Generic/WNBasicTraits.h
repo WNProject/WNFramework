@@ -16,33 +16,33 @@ namespace memory {
 namespace internal {
 
 struct basic_traits_generic : core::non_constructable_non_copyable {
-  static WN_FORCE_INLINE wn_void* memzero(wn_void* dest,
-                                          const wn_size_t count) {
+  static WN_FORCE_INLINE void* memzero(void* dest,
+                                          const size_t count) {
     return(memset(dest, 0, count));
   }
 
-  static WN_FORCE_INLINE wn_void* memset(wn_void* dest, const wn_uint8 value,
-                                         const wn_size_t count) {
+  static WN_FORCE_INLINE void* memset(void* dest, const uint8_t value,
+                                         const size_t count) {
     return(std::memset(dest, value, count));
   }
 
-  static  WN_FORCE_INLINE wn_void* memcpy(wn_void* dest, const wn_void* src,
-                                          const wn_size_t count) {
+  static  WN_FORCE_INLINE void* memcpy(void* dest, const void* src,
+                                          const size_t count) {
     return(std::memcpy(dest, src, count));
   }
 
-  static WN_FORCE_INLINE wn_void* memmove(wn_void* dest, const wn_void* src,
-                                          const wn_size_t count) {
+  static WN_FORCE_INLINE void* memmove(void* dest, const void* src,
+                                          const size_t count) {
     return(std::memmove(dest, src, count));
   }
 
-  static WN_FORCE_INLINE wn_int32 memcmp(const wn_void* lhs, const wn_void* rhs,
-                                         const wn_size_t count) {
+  static WN_FORCE_INLINE int32_t memcmp(const void* lhs, const void* rhs,
+                                         const size_t count) {
     return(std::memcmp(lhs, rhs, count));
   }
 
   template <typename T>
-  static WN_FORCE_INLINE wn_void prefetch(const T* ptr) {
+  static WN_FORCE_INLINE void prefetch(const T* ptr) {
     WN_UNUSED_ARGUMENT(ptr);
   }
 };

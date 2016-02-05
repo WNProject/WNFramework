@@ -46,9 +46,9 @@ TEST(jit_engine, basic_parsing) {
   wn::scripting::engine::void_func bar;
   EXPECT_TRUE(jit_engine.get_function_pointer("bar", bar));
 
-  ASSERT_NE(wn_nullptr, main);
-  ASSERT_NE(wn_nullptr, foo);
-  ASSERT_NE(wn_nullptr, bar);
+  ASSERT_NE(nullptr, main);
+  ASSERT_NE(nullptr, foo);
+  ASSERT_NE(nullptr, bar);
 
   // No returns so lets just see if we crash trying to call.
   (*main)();
@@ -73,7 +73,7 @@ TEST(jit_engine, multiple_returns) {
   wn::scripting::engine::void_func main;
   ASSERT_TRUE(jit_engine.get_function_pointer("main", main));
 
-  EXPECT_NE(wn_nullptr, main);
+  EXPECT_NE(nullptr, main);
 
   // No returns so lets just see if we crash trying to call.
   (*main)();
@@ -96,7 +96,7 @@ TEST(jit_engine, parse_error) {
 
 struct int_test {
   const char* val;
-  wn_int32 number;
+  int32_t number;
 };
 
 class jit_int_params : public ::testing::TestWithParam<int_test> {};
@@ -150,12 +150,12 @@ TEST_P(jit_int_params, int_passthrough) {
 INSTANTIATE_TEST_CASE_P(int_tests, jit_int_params,
     ::testing::Values(int_test({"0", 0}), int_test({"-1", -1}),
                             int_test({"-32", -32}), int_test({"-4096", -4096}),
-                            int_test({"2147483647", WN_INT32_MAX}),
-                            int_test({"-2147483648", (WN_INT32_MIN)})));
+                            int_test({"2147483647", INT32_MAX}),
+                            int_test({"-2147483648", (INT32_MIN)})));
 
 struct int_binary_test {
   const char* code;
-  wn_int32 expected_return;
+  int32_t expected_return;
 };
 
 using jit_binary_arithmetic = ::testing::TestWithParam<int_binary_test>;
@@ -217,7 +217,7 @@ TEST_P(bool_arithmetic_tests, boolean_arithmetic) {
       &validator, &allocator, mapping.get(), WNLogging::get_null_logger());
   EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file.wns"));
 
-  wn_bool (*new_func)(wn_bool);
+  bool (*new_func)(bool);
   ASSERT_TRUE(jit_engine.get_function_pointer("main", new_func));
 
   EXPECT_EQ(GetParam().expected_return, (*new_func)(GetParam().input));
@@ -240,7 +240,7 @@ INSTANTIATE_TEST_CASE_P(bool_tests, bool_arithmetic_tests,
 struct two_params_test {
   const char* code;
   std::vector<
-      std::pair<std::pair<wn_uint32, wn_uint32>, wn_uint32>>
+      std::pair<std::pair<uint32_t, uint32_t>, uint32_t>>
       cases;
 };
 using two_params_tests = ::testing::TestWithParam<two_params_test>;
@@ -278,7 +278,7 @@ INSTANTIATE_TEST_CASE_P(
 
 struct integer_test {
   const char* code;
-  std::vector<std::pair<wn_int32, wn_int32>> cases;
+  std::vector<std::pair<int32_t, int32_t>> cases;
 };
 
 using integer_tests = ::testing::TestWithParam<integer_test>;

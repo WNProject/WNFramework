@@ -17,14 +17,14 @@ namespace WNLogging {
     public:
         WNConsoleLogger();
         ~WNConsoleLogger();
-        virtual WN_INLINE wn_void FlushBuffer(const wn_char* _buffer, wn_size_t bufferSize, const std::vector<WNLogColorElement>&);
+        virtual WN_INLINE void FlushBuffer(const char* _buffer, size_t bufferSize, const std::vector<WNLogColorElement>&);
     private:
 #if defined(_WN_WINDOWS)
         HANDLE mConsoleHandle;
         BOOL   mConsoleCreated;
         BOOL   mInitialized;
 #elif defined(_WN_ANDROID)
-        wn_int32 mLogPriority;
+        int32_t mLogPriority;
 #endif
     };
 }

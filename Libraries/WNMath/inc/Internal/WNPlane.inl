@@ -93,17 +93,17 @@ namespace wn {
     }
 
     template <typename type>
-    wn_bool WNPlane<type>::operator == (const WNPlane<type>& _plane) const {
+    bool WNPlane<type>::operator == (const WNPlane<type>& _plane) const {
         return(this->mA == _plane.mA && this->mB == _plane.mB && this->mC == _plane.mC && this->mD == _plane.mD);
     }
 
     template <typename type>
-    wn_bool WNPlane<type>::operator != (const WNPlane<type>& _plane) const {
+    bool WNPlane<type>::operator != (const WNPlane<type>& _plane) const {
         return(this->mA != _plane.mA || this->mB != _plane.mB || this->mC != _plane.mC || this->mD != _plane.mD);
     }
 
     template <typename type>
-    wn_void WNPlane<type>::Zero() {
+    void WNPlane<type>::Zero() {
         this->mA = static_cast<type>(0);
         this->mB = static_cast<type>(0);
         this->mC = static_cast<type>(0);
@@ -111,7 +111,7 @@ namespace wn {
     }
 
     template <typename type>
-    wn_void WNPlane<type>::Set(const type* _numbers) {
+    void WNPlane<type>::Set(const type* _numbers) {
         this->mA = _numbers[0];
         this->mB = _numbers[1];
         this->mC = _numbers[2];
@@ -119,7 +119,7 @@ namespace wn {
     }
 
     template <typename type>
-    wn_void WNPlane<type>::Set(type _a, type _b, type _c, type _d) {
+    void WNPlane<type>::Set(type _a, type _b, type _c, type _d) {
         this->mA = _a;
         this->mB = _b;
         this->mC = _c;
@@ -127,7 +127,7 @@ namespace wn {
     }
 
     template <typename type>
-    wn_void WNPlane<type>::Define(const WNVector3<type>& _vector1, const WNVector3<type>& _vector2, const WNVector3<type>& _vector3) {
+    void WNPlane<type>::Define(const WNVector3<type>& _vector1, const WNVector3<type>& _vector2, const WNVector3<type>& _vector3) {
         const WNVector3<type> normal = _vector1.Cross(_vector2);
 
         this->mA = normal.mX;
@@ -138,7 +138,7 @@ namespace wn {
     }
 
     template <typename type>
-    wn_void WNPlane<type>::Normalize() {
+    void WNPlane<type>::Normalize() {
         const WNVector3<type> vector = Normal().GetNormalized();
 
         this->mA = vector.mX;
@@ -147,7 +147,7 @@ namespace wn {
     }
 
     template <typename type>
-    wn_void WNPlane<type>::Translate(const WNVector3<type>& _translation) {
+    void WNPlane<type>::Translate(const WNVector3<type>& _translation) {
         this->mD -= _translation.Dot(Normal());
     }
 
@@ -177,7 +177,7 @@ namespace wn {
 
     #ifndef __WN_MATH_HAS_PLANE_CUSTOM_PREFETCH
         template <typename type>
-        wn_void WNPlane<type>::Prefetch() const {
+        void WNPlane<type>::Prefetch() const {
             // Default
         }
     #endif

@@ -23,21 +23,21 @@ namespace wn {
         explicit WNBox(const vector3<type>& _location, const vector3<type>& _extents, const WNQuaternion<type>& _rotation);
         explicit WNBox(const vector3<type>& _vector);
 
-        wn_bool operator == (const WNBox& _rectangle) const;
-        wn_bool operator != (const WNBox& _rectangle) const;
+        bool operator == (const WNBox& _rectangle) const;
+        bool operator != (const WNBox& _rectangle) const;
 
-        wn_void Zero();
-        wn_void Expand(type _amount);
-        wn_bool Expand(const vector3<type>& _vector, wn_bool _anchor = wn_false);
-        wn_bool Expand(const sphere<type>& _sphere, wn_bool _anchor = wn_false);
-        wn_bool Expand(const WNBounds3<type>& _bounds, wn_bool _anchor = wn_false);
-        wn_bool Expand(const WNBox& _box, wn_bool _anchor = wn_false);
-        wn_void Translate(type _x, type _y, type _z);
-        wn_void Translate(const vector3<type>& _vector);
-        wn_void Rotate(const WNQuaternion<type>& _rotation);
-        wn_void Scale(type _scale);
-        wn_void Scale(type _x, type _y, type _z);
-        wn_void Scale(const vector3<type>& _scale);
+        void Zero();
+        void Expand(type _amount);
+        bool Expand(const vector3<type>& _vector, bool _anchor = false);
+        bool Expand(const sphere<type>& _sphere, bool _anchor = false);
+        bool Expand(const WNBounds3<type>& _bounds, bool _anchor = false);
+        bool Expand(const WNBox& _box, bool _anchor = false);
+        void Translate(type _x, type _y, type _z);
+        void Translate(const vector3<type>& _vector);
+        void Rotate(const WNQuaternion<type>& _rotation);
+        void Scale(type _scale);
+        void Scale(type _x, type _y, type _z);
+        void Scale(const vector3<type>& _scale);
 
         type Length() const;
         type Width() const;
@@ -45,18 +45,18 @@ namespace wn {
         type SurfaceArea() const;
         type Volume() const;
 
-        wn_bool IsZero() const;
-        wn_bool IsInsideOut() const;
+        bool IsZero() const;
+        bool IsInsideOut() const;
 
-        wn_void Set(const type* _numbers);
-        wn_void Set(const vector3<type>& _location, vector3<type>& _extents, const WNQuaternion<type>& _rotation);
-        wn_void Set(const vector3<type>& _vector);
+        void Set(const type* _numbers);
+        void Set(const vector3<type>& _location, vector3<type>& _extents, const WNQuaternion<type>& _rotation);
+        void Set(const vector3<type>& _vector);
 
         WNBox GetExpanded(type _amount) const;
-        WNBox GetExpanded(const vector3<type>& _vector, wn_bool _anchor = wn_false) const;
-        WNBox GetExpanded(const sphere<type>& _sphere, wn_bool _anchor = wn_false) const;
-        WNBox GetExpanded(const WNBounds3<type>& _bounds, wn_bool _anchor = wn_false) const;
-        WNBox GetExpanded(const WNBox& _box, wn_bool _anchor = wn_false) const;
+        WNBox GetExpanded(const vector3<type>& _vector, bool _anchor = false) const;
+        WNBox GetExpanded(const sphere<type>& _sphere, bool _anchor = false) const;
+        WNBox GetExpanded(const WNBounds3<type>& _bounds, bool _anchor = false) const;
+        WNBox GetExpanded(const WNBox& _box, bool _anchor = false) const;
         WNBox GetTranslated(type _x, type _y, type _z);
         WNBox GetTranslated(const vector3<type>& _vector) const;
         WNBox GetRotated(const WNQuaternion<type>& _rotation) const;
@@ -64,7 +64,7 @@ namespace wn {
         WNBox GetScaled(type _x, type _y, type _z) const;
         WNBox GetScaled(const vector3<type>& _scale) const;
 
-        wn_void GetPoints(vector3<type>* _vectors) const;
+        void GetPoints(vector3<type>* _vectors) const;
 
     public:
         vector3<type> mLocation;

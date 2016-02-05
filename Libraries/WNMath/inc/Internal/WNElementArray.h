@@ -20,10 +20,10 @@
         namespace internal {
             namespace math {
                 #ifdef __WN_HAS_CPP11_USING_ALIAS_DECLARATIONS
-                    template <typename type, const wn_size_t dimension>
+                    template <typename type, const size_t dimension>
                     using element_array = element_array_generic<type, dimension>;
                 #else
-                    template <typename type, const wn_size_t dimension>
+                    template <typename type, const size_t dimension>
                     struct element_array : element_array_generic<type, dimension> {};
                 #endif
             }

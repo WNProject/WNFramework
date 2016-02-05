@@ -43,8 +43,8 @@ namespace wn {
     public:
         surface() :
             memory::intrusive_ptr_base() {
-            for (wn_size_t i = 0; i < eWNRDTMAX; ++i) {
-                mRegisteredTypes[i] = wn_nullptr;
+            for (size_t i = 0; i < eWNRDTMAX; ++i) {
+                mRegisteredTypes[i] = nullptr;
             }
         }
 
@@ -75,25 +75,25 @@ namespace wn {
             eWNRDTMAX
         };
 
-        typedef wn::containers::function<wn_bool(WNSurfaceEventType, surface*)> WNSurfaceEventCallback;
+        typedef wn::containers::function<bool(WNSurfaceEventType, surface*)> WNSurfaceEventCallback;
 
         virtual WNSurfaceNativeHandle GetNativeHandle() const = 0;
-        virtual WNSurfaceError Resize(wn_uint32 _width, wn_uint32 _height) = 0;
-        virtual WNSurfaceError Move(wn_uint32 _x, wn_uint32 _y) = 0;
-        virtual wn_bool IsFullscreen() const = 0;
-        virtual WNSurfaceError SetFullscreen(wn_bool _fullscreen) = 0;
-        virtual wn_uint32 GetWidth() const = 0;
-        virtual wn_uint32 GetHeight() const = 0;
-        virtual wn_uint32 GetX() const = 0;
-        virtual wn_uint32 GetY() const = 0;
+        virtual WNSurfaceError Resize(uint32_t _width, uint32_t _height) = 0;
+        virtual WNSurfaceError Move(uint32_t _x, uint32_t _y) = 0;
+        virtual bool IsFullscreen() const = 0;
+        virtual WNSurfaceError SetFullscreen(bool _fullscreen) = 0;
+        virtual uint32_t GetWidth() const = 0;
+        virtual uint32_t GetHeight() const = 0;
+        virtual uint32_t GetX() const = 0;
+        virtual uint32_t GetY() const = 0;
 
-        wn_void RegisterCallback(WNSurfaceEventType _type, const WNSurfaceEventCallback& _callback) {
+        void RegisterCallback(WNSurfaceEventType _type, const WNSurfaceEventCallback& _callback) {
             mEventCallbacks[_type].push_back(_callback);
         }
 
-        wn_void RegisterData(WNRegisteredDataTypes _type, wn_void* _data) {
+        void RegisterData(WNRegisteredDataTypes _type, void* _data) {
             WN_RELEASE_ASSERT(_type < eWNRDTMAX);
-            WN_RELEASE_ASSERT(mRegisteredTypes[_type] == wn_nullptr);
+            WN_RELEASE_ASSERT(mRegisteredTypes[_type] == nullptr);
 
             mRegisteredTypes[_type] = _data;
         }
@@ -108,7 +108,7 @@ namespace wn {
         }
 
     protected:
-        wn_void FireCallback(WNSurfaceEventType _type) {
+        void FireCallback(WNSurfaceEventType _type) {
             for (std::list<WNSurfaceEventCallback>::iterator i = mEventCallbacks[_type].begin(); i != mEventCallbacks[_type].end(); ++i) {
                 (*i)(_type, this);
             }
@@ -116,7 +116,7 @@ namespace wn {
 
     private:
         std::list<WNSurfaceEventCallback> mEventCallbacks[eWNSETMAX];
-        wn_void* mRegisteredTypes[eWNRDTMAX];
+        void* mRegisteredTypes[eWNRDTMAX];
     };
 
     typedef memory::intrusive_ptr<surface> surface_handle;

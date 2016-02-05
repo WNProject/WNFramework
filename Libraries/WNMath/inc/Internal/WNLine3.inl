@@ -48,35 +48,35 @@ namespace wn {
     }
 
     template <typename type>
-    wn_bool WNLine3<type>::operator == (const WNLine3<type>& _line) const {
+    bool WNLine3<type>::operator == (const WNLine3<type>& _line) const {
         return(mPoint1 == _line.mPoint1 && mPoint2 == _line.mPoint2);
     }
 
     template <typename type>
-    wn_bool WNLine3<type>::operator != (const WNLine3<type>& _line) const {
+    bool WNLine3<type>::operator != (const WNLine3<type>& _line) const {
         return(mPoint1 != _line.mPoint1 || mPoint2 != _line.mPoint2);
     }
 
     template <typename type>
-    wn_void WNLine3<type>::Zero() {
+    void WNLine3<type>::Zero() {
         mPoint1.Zero();
         mPoint2.Zero();
     }
 
     template <typename type>
-    wn_void WNLine3<type>::Set(const WNLine3<type>& _line) {
+    void WNLine3<type>::Set(const WNLine3<type>& _line) {
         mPoint1.Set(_line.mPoint1);
         mPoint2.Set(_line.mPoint1);
     }
 
     template <typename type>
-    wn_void WNLine3<type>::Set(const type* _numbers) {
+    void WNLine3<type>::Set(const type* _numbers) {
         mPoint1.Set(&_numbers[0]);
         mPoint2.Set(&_numbers[3]);
     }
 
     template <typename type>
-    wn_void WNLine3<type>::Set(const WNVector3<type>& _point1, const WNVector3<type>& _point2) {
+    void WNLine3<type>::Set(const WNVector3<type>& _point1, const WNVector3<type>& _point2) {
         mPoint1 = _point1;
         mPoint2 = _point2;
     }

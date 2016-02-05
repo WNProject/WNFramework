@@ -22,16 +22,16 @@ namespace wn {
         explicit WNBounds3(const vector3<type>& _vector);
         explicit WNBounds3(const vector3<type>& _min, const vector3<type>& _max);
 
-        wn_bool operator == (const WNBounds3& _bounds) const;
-        wn_bool operator != (const WNBounds3& _bounds) const;
+        bool operator == (const WNBounds3& _bounds) const;
+        bool operator != (const WNBounds3& _bounds) const;
 
-        wn_void Zero();
-        wn_void Expand(type _amount);
-        wn_bool Expand(const vector3<type>& _vector);
-        wn_bool Expand(const WNBox<type>& _box);
-        wn_bool Expand(const sphere<type>& _sphere);
-        wn_bool Expand(const WNBounds3& _bounds);
-        wn_void Translate(const vector3<type>& _vector);
+        void Zero();
+        void Expand(type _amount);
+        bool Expand(const vector3<type>& _vector);
+        bool Expand(const WNBox<type>& _box);
+        bool Expand(const sphere<type>& _sphere);
+        bool Expand(const WNBounds3& _bounds);
+        void Translate(const vector3<type>& _vector);
 
         type Length() const;
         type Width() const;
@@ -40,8 +40,8 @@ namespace wn {
         type SurfaceArea() const;
         type Volume() const;
 
-        wn_bool IsZero() const;
-        wn_bool IsInsideOut() const;
+        bool IsZero() const;
+        bool IsInsideOut() const;
 
         WNBounds3 GetExpanded(type _amount) const;
         WNBounds3 GetExpanded(const vector3<type>& _vector) const;
@@ -50,7 +50,7 @@ namespace wn {
         WNBounds3 GetExpanded(const WNBounds3& _bounds) const;
         WNBounds3 GetTranslated(const vector3<type>& _vector) const;
 
-        wn_void GetPoints(vector3<type>* _vectors) const;
+        void GetPoints(vector3<type>* _vectors) const;
 
         WNBox<type> ToBox() const;
 

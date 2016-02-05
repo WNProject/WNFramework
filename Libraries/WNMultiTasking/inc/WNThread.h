@@ -137,7 +137,7 @@ WN_FORCE_INLINE bool operator==(const thread_id& lhs, const thread_id& rhs) {
 #ifdef _WN_WINDOWS
   return (lhs.m_id == rhs.m_id);
 #elif defined _WN_POSIX
-  return (static_cast<wn_uint64>(lhs.m_id) == static_cast<wn_uint64>(rhs.m_id));
+  return (static_cast<uint64_t>(lhs.m_id) == static_cast<uint64_t>(rhs.m_id));
 #endif
 }
 

@@ -16,7 +16,7 @@ namespace wn {
 
         class serializer_base : public core::non_copyable {
         public:
-            virtual wn_size_t serialize(data_buffer& _buffer, const wn_uint32 _flags) const = 0;
+            virtual size_t serialize(data_buffer& _buffer, const uint32_t _flags) const = 0;
         };
     }
 }

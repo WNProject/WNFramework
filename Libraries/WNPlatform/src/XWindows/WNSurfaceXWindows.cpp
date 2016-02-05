@@ -10,12 +10,12 @@ wn::WNSurfaceXWindows::WNSurfaceXWindows(wn::WNSurfaceManagerXWindows& _surfaceM
     mManager(_surfaceManager),
     mDisplay(NULL),
     mWindow(0),
-    mSurfaceThread(wn_nullptr),
-    mExiting(wn_false) {
+    mSurfaceThread(nullptr),
+    mExiting(false) {
 }
 
 wn::WNSurfaceXWindows::~WNSurfaceXWindows() {
-    mExiting = wn_true;
+    mExiting = true;
 
     if (mWindow && mSurfaceThread) {
         XDestroyWindow(mDisplay, mWindow);
@@ -24,10 +24,10 @@ wn::WNSurfaceXWindows::~WNSurfaceXWindows() {
     }
 
     mWindow = 0;
-    mSurfaceThread = wn_nullptr;
+    mSurfaceThread = nullptr;
 }
 
-wn_bool wn::WNSurfaceXWindows::Initialize(wn_uint32 _x, wn_uint32 _y, wn_uint32 _width, wn_uint32 _height, Display* _display, XVisualInfo* _visualInfo) {
+bool wn::WNSurfaceXWindows::Initialize(uint32_t _x, uint32_t _y, uint32_t _width, uint32_t _height, Display* _display, XVisualInfo* _visualInfo) {
     WN_RELEASE_ASSERT(_display != NULL);
 
     mDisplay = _display;
@@ -42,7 +42,7 @@ wn_bool wn::WNSurfaceXWindows::Initialize(wn_uint32 _x, wn_uint32 _y, wn_uint32 
     mWindow = XCreateWindow( mDisplay, RootWindow(mDisplay, _visualInfo->screen), _x, _y, _width, _height, 0, _visualInfo->depth, InputOutput, _visualInfo->visual, CWBorderPixel|CWColormap|CWEventMask, &swa);
 
     if (!mWindow) {
-        return(wn_false);
+        return(false);
     }
 
     XSelectInput(_display, mWindow, StructureNotifyMask);
@@ -52,12 +52,12 @@ wn_bool wn::WNSurfaceXWindows::Initialize(wn_uint32 _x, wn_uint32 _y, wn_uint32 
 
     XSetWMProtocols(mDisplay, mWindow, &mDeleteMessage, 1);
 
-    mSurfaceThread = wn::memory::construct<wn::multi_tasking::thread<wn_void> >(&m_allocator, &wn::WNSurfaceXWindows::SurfaceThread, this);
+    mSurfaceThread = wn::memory::construct<wn::multi_tasking::thread<void> >(&m_allocator, &wn::WNSurfaceXWindows::SurfaceThread, this);
 
-    return(wn_true);
+    return(true);
 }
 
-wn_void wn::WNSurfaceXWindows::SurfaceThread() {
+void wn::WNSurfaceXWindows::SurfaceThread() {
     for(;;) {
         XEvent e;
 
@@ -103,34 +103,34 @@ wn::WNSurfaceNativeHandle wn::WNSurfaceXWindows::GetNativeHandle() const {
     return(mWindow);
 }
 
-wn::surface::WNSurfaceError wn::WNSurfaceXWindows::Resize(wn_uint32, wn_uint32) {
+wn::surface::WNSurfaceError wn::WNSurfaceXWindows::Resize(uint32_t, uint32_t) {
     return(ok);
 }
 
-wn::surface::WNSurfaceError wn::WNSurfaceXWindows::Move(wn_uint32, wn_uint32) {
+wn::surface::WNSurfaceError wn::WNSurfaceXWindows::Move(uint32_t, uint32_t) {
     return(ok);
 }
 
-wn_bool wn::WNSurfaceXWindows::IsFullscreen() const {
-    return(wn_false);
+bool wn::WNSurfaceXWindows::IsFullscreen() const {
+    return(false);
 }
 
-wn::surface::WNSurfaceError wn::WNSurfaceXWindows::SetFullscreen(wn_bool) {
+wn::surface::WNSurfaceError wn::WNSurfaceXWindows::SetFullscreen(bool) {
     return(ok);
 }
 
-wn_uint32 wn::WNSurfaceXWindows::GetWidth() const {
+uint32_t wn::WNSurfaceXWindows::GetWidth() const {
     return(mWidth);
 }
 
-wn_uint32 wn::WNSurfaceXWindows::GetHeight() const {
+uint32_t wn::WNSurfaceXWindows::GetHeight() const {
     return(mHeight);
 }
 
-wn_uint32 wn::WNSurfaceXWindows::GetX() const {
+uint32_t wn::WNSurfaceXWindows::GetX() const {
     return(mX);
 }
 
-wn_uint32 wn::WNSurfaceXWindows::GetY() const {
+uint32_t wn::WNSurfaceXWindows::GetY() const {
     return(mY);
 }

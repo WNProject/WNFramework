@@ -15,7 +15,7 @@
 
 
 namespace wn {
-    WN_FORCE_INLINE wn_uint64 WNGetBigTime() {
+    WN_FORCE_INLINE uint64_t WNGetBigTime() {
         SYSTEMTIME systemTime;
 
         GetSystemTime(&systemTime);
@@ -29,15 +29,15 @@ namespace wn {
         largerIntegerTime.LowPart = fileTime.dwLowDateTime;
         largerIntegerTime.HighPart = fileTime.dwHighDateTime;
 
-        return(static_cast<wn_uint64>((largerIntegerTime.QuadPart / 10000LL) - 11644473600000LL));
+        return(static_cast<uint64_t>((largerIntegerTime.QuadPart / 10000LL) - 11644473600000LL));
     }
 
-    WN_FORCE_INLINE wn_uint32 WNGetTickCount() {
-        return(static_cast<wn_uint32>(GetTickCount()));
+    WN_FORCE_INLINE uint32_t WNGetTickCount() {
+        return(static_cast<uint32_t>(GetTickCount()));
     }
 
-    WN_FORCE_INLINE wn_uint64 WNGetBigTickCount() {
-        return(static_cast<wn_uint64>(GetTickCount64()));
+    WN_FORCE_INLINE uint64_t WNGetBigTickCount() {
+        return(static_cast<uint64_t>(GetTickCount64()));
     }
 }
 

@@ -43,7 +43,7 @@ namespace wn {
         }
 
         template <typename type>
-        WN_FORCE_INLINE wn_void __WNMatrix3Base<type, typename std::enable_if<wn::is_real<type>::value>::type>::MakeRotation(const type& _angle) {
+        WN_FORCE_INLINE void __WNMatrix3Base<type, typename std::enable_if<wn::is_real<type>::value>::type>::MakeRotation(const type& _angle) {
             const type sinTheta = WNSin(_angle);
             const type cosTheta = WNCos(_angle);
 
@@ -64,7 +64,7 @@ namespace wn {
         }
 
         template <typename type>
-        WN_FORCE_INLINE wn_void __WNMatrix3Base<type, typename std::enable_if<wn::is_real<type>::value>::type>::MakeOrthographic(const type& _width, const type& _height, const type& _near, const type& _far) {
+        WN_FORCE_INLINE void __WNMatrix3Base<type, typename std::enable_if<wn::is_real<type>::value>::type>::MakeOrthographic(const type& _width, const type& _height, const type& _near, const type& _far) {
             // First Column
             this->mElements.mValues[0] = static_cast<type>(2) / _width;
             this->mElements.mValues[1] = static_cast<type>(0);

@@ -28,7 +28,7 @@ WNScriptType WNLValue::GetValueType() {
     return(mExpression->GetType());
 }
 
-wn_bool WNLValue::RequiredUse() {
+bool WNLValue::RequiredUse() {
     return(mExpression->RequiredUse());
 }
 

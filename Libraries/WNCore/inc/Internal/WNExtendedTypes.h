@@ -15,7 +15,7 @@ namespace wn {
             template <typename _TraitsType>
             struct arithmetic_type;
 
-            template <typename _Type, const wn_uint8 _Precision>
+            template <typename _Type, const uint8_t _Precision>
             struct fixed_point_traits;
 
             template <typename _Type, typename _ConversionType>
@@ -27,17 +27,17 @@ namespace wn {
     }
 }
 
-typedef wn::core::internal::arithmetic_type<wn::core::internal::fixed_point_traits<wn_int8, 4>> wn_fixed8;
-typedef wn::core::internal::arithmetic_type<wn::core::internal::fixed_point_traits<wn_int16, 8>> wn_fixed16;
-typedef wn::core::internal::arithmetic_type<wn::core::internal::fixed_point_traits<wn_int32, 16>> wn_fixed32;
-typedef wn::core::internal::arithmetic_type<wn::core::internal::fixed_point_traits<wn_int64, 32>> wn_fixed64;
+typedef wn::core::internal::arithmetic_type<wn::core::internal::fixed_point_traits<int8_t, 4>> wn_fixed8;
+typedef wn::core::internal::arithmetic_type<wn::core::internal::fixed_point_traits<int16_t, 8>> wn_fixed16;
+typedef wn::core::internal::arithmetic_type<wn::core::internal::fixed_point_traits<int32_t, 16>> wn_fixed32;
+typedef wn::core::internal::arithmetic_type<wn::core::internal::fixed_point_traits<int64_t, 32>> wn_fixed64;
 
-template <typename _Type, const wn_uint8 _Precision>
+template <typename _Type, const uint8_t _Precision>
 using wn_fixed = wn::core::internal::arithmetic_type<wn::core::internal::fixed_point_traits<_Type, _Precision>>;
 
-typedef wn::core::internal::arithmetic_type<wn::core::internal::floating_point_traits<wn_uint8,
+typedef wn::core::internal::arithmetic_type<wn::core::internal::floating_point_traits<uint8_t,
                                                                                       wn::core::internal::float8_conversions>> wn_float8;
-typedef wn::core::internal::arithmetic_type<wn::core::internal::floating_point_traits<wn_uint16,
+typedef wn::core::internal::arithmetic_type<wn::core::internal::floating_point_traits<uint16_t,
                                                                                       wn::core::internal::float16_conversions>> wn_float16;
 
 #endif // __WN_CORE_INTERNAL_EXTENDED_TYPE_DECLARES_H__

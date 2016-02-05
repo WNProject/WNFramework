@@ -13,20 +13,14 @@
 namespace wn {
     namespace core {
         namespace internal {
-            WN_FORCE_INLINE wn_void swap_byte(wn_byte& _first, wn_byte& _second) {
+            WN_FORCE_INLINE void swap_byte(uint8_t& _first, uint8_t& _second) {
                 _first ^= _second;
                 _second ^= _first;
                 _first ^= _second;
             }
 
-            template <typename _Type, const wn_size_t _Size = sizeof(_Type)>
-            struct swap_bytes {
-                static WN_FORCE_INLINE _Type execute(const _Type _value) {
-                    static_assert(dependent_false<_Type>::value, "You cannot convert this _Type from big endian");
-
-                    return(_value);
-                }
-            };
+            template <typename _Type, const size_t _Size = sizeof(_Type)>
+            struct swap_bytes {};
 
             template <typename _Type>
             struct swap_bytes<_Type, 1> {
@@ -67,10 +61,10 @@ namespace wn {
             };
 
             template <>
-            struct swap_bytes<wn_float32, 4> {
-                static WN_FORCE_INLINE wn_float32 execute(const wn_float32 _value) {
-                    wn_float32 value = _value;
-                    wn_byte* bytes = reinterpret_cast<wn_byte*>(&value);
+            struct swap_bytes<float, 4> {
+                static WN_FORCE_INLINE float execute(const float _value) {
+                    float value = _value;
+                    uint8_t* bytes = reinterpret_cast<uint8_t*>(&value);
 
                     swap_byte(bytes[0], bytes[3]);
                     swap_byte(bytes[1], bytes[2]);
@@ -80,10 +74,10 @@ namespace wn {
             };
 
             template <>
-            struct swap_bytes<wn_float64, 8> {
-                static WN_FORCE_INLINE wn_float64 execute(const wn_float64 _value) {
-                    wn_float64 value = _value;
-                    wn_byte* bytes = reinterpret_cast<wn_byte*>(&value);
+            struct swap_bytes<double, 8> {
+                static WN_FORCE_INLINE double execute(const double _value) {
+                    double value = _value;
+                    uint8_t* bytes = reinterpret_cast<uint8_t*>(&value);
 
                     swap_byte(bytes[0], bytes[7]);
                     swap_byte(bytes[1], bytes[6]);

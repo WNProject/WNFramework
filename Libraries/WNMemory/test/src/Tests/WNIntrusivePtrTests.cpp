@@ -8,7 +8,7 @@
 template <typename T>
 struct intrusive_ptr : testing::Test {};
 
-typedef ::testing::Types<wn_uint8, wn_uint16, wn_uint32, wn_uint64>
+typedef ::testing::Types<uint8_t, uint16_t, uint32_t, uint64_t>
     intrusive_ptr_testing_types;
 
 TYPED_TEST_CASE(intrusive_ptr, intrusive_ptr_testing_types);

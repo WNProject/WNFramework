@@ -15,7 +15,7 @@
 using namespace WNScripting;
 
 WNIDExpression::WNIDExpression(const char* _name) :
-    mName(wn_nullptr){
+    mName(nullptr){
     COPY_STRING(_name, mName);
 }
 

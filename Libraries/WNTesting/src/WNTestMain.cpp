@@ -16,7 +16,7 @@ void test_dummy() {}
 }  // wn
 #endif  //_WN_ANDROID || _WN_LINUX
 
-wn_int32 wn_main(wn_int32 _argc, wn_char* _argv[]) {
+int32_t wn_main(int32_t _argc, char* _argv[]) {
   wn_dummy();
 
   ::testing::InitGoogleTest(&_argc, _argv);

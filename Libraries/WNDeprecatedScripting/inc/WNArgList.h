@@ -11,18 +11,18 @@
 namespace WNScripting {
     class WNExpression;
     struct WNFunctionExpression {
-        WNFunctionExpression(WNExpression* _expr, wn_bool _handOwnership) :
+        WNFunctionExpression(WNExpression* _expr, bool _handOwnership) :
             expr(_expr), handOwnership(_handOwnership) {
         }
         WNExpression* expr;
-        wn_bool handOwnership;
+        bool handOwnership;
     };
 
     class WNArgList : public WNNode {
     public:
         WNArgList();
         virtual ~WNArgList();
-        void AddExpression(WNExpression* _expr, wn_bool _handOwnership = wn_false);
+        void AddExpression(WNExpression* _expr, bool _handOwnership = false);
         WNScriptLinkedList<WNFunctionExpression>& GetExpressions();
     private:
         WNScriptLinkedList<WNFunctionExpression> mExpressionList;

@@ -19,7 +19,7 @@ namespace scripting {
 
 // Walks a script_file and calls all of the associated
 // walk_* calls on the associated walker.
-template <typename T, bool Const = wn_false>
+template <typename T, bool Const = false>
 class ast_walker {
 public:
   ast_walker(T* t) : m_walker(t) {}

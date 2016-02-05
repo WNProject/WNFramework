@@ -43,29 +43,29 @@ namespace wn {
         WNPlane operator + (const WNPlane& _plane) const;
         WNPlane operator - (const WNPlane& _plane) const;
 
-        wn_bool operator == (const WNPlane& _plane) const;
-        wn_bool operator != (const WNPlane& _plane) const;
+        bool operator == (const WNPlane& _plane) const;
+        bool operator != (const WNPlane& _plane) const;
 
-        wn_void Zero();
-        wn_void Normalize();
-        wn_void Translate(const vector3<type>& _translation);
+        void Zero();
+        void Normalize();
+        void Translate(const vector3<type>& _translation);
 
         vector3<type> Normal() const;
         type Distance() const;
 
-        wn_bool IsZero() const;
+        bool IsZero() const;
 
-        wn_void Set(const type* _numbers);
-        wn_void Set(type _a, type _b, type _c, type _d);
+        void Set(const type* _numbers);
+        void Set(type _a, type _b, type _c, type _d);
 
-        wn_void Define(const vector3<type>& _vector1, const vector3<type>& _vector2, const vector3<type>& _vector3);
+        void Define(const vector3<type>& _vector1, const vector3<type>& _vector2, const vector3<type>& _vector3);
 
         WNPlane GetNormalized() const;
         WNPlane GetTranslated(const vector3<type>& _translation) const;
 
         type* RetrieveRaw(type* _numbers);
 
-        wn_void Prefetch() const;
+        void Prefetch() const;
 
         template <typename NewType>
         WNPlane<NewType> ConvertTo() const;

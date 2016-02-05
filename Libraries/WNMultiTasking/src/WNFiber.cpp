@@ -114,7 +114,7 @@ void convert_to_fiber(memory::allocator* _allocator) {
     f->m_fiber_context =
         tl_thread_as_fiber
             ? tl_thread_as_fiber
-            : ::ConvertThreadToFiberEx(wn_nullptr, FIBER_FLAG_FLOAT_SWITCH);
+            : ::ConvertThreadToFiberEx(nullptr, FIBER_FLAG_FLOAT_SWITCH);
     tl_thread_as_fiber = f->m_fiber_context;
 #elif defined _WN_ANDROID
     wn_getcontext(&f->m_fiber_context);
@@ -131,7 +131,7 @@ void revert_from_fiber() {
   fiber* f = tl_this_fiber->m_fiber;
   f->~fiber();
   alloc->deallocate(f);
-  tl_this_fiber = wn_nullptr;
+  tl_this_fiber = nullptr;
 }
 
 fiber* get_self() {

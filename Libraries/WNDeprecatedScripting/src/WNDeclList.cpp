@@ -11,7 +11,7 @@ WNDeclList::WNDeclList(WNDeclaration* _decl) {
 }
 
 WNDeclList::~WNDeclList() {
-    for(WNScriptLinkedList<WNDeclaration>::WNScriptLinkedListNode* i = mDeclarations.first; i != wn_nullptr; i=i->next) {
+    for(WNScriptLinkedList<WNDeclaration>::WNScriptLinkedListNode* i = mDeclarations.first; i != nullptr; i=i->next) {
         wn::memory::destroy(i->value);
     }
 }
@@ -22,7 +22,7 @@ void WNDeclList::AddDeclaration(WNDeclaration* _decl) {
 
 eWNTypeError WNDeclList::GetTypeList(WNTypeManager& _manager, std::vector<WNScriptType>& _vector, WNLogging::WNLog& _compilationLog) {
     eWNTypeError err = ok;
-    for(WNScriptLinkedList<WNDeclaration>::WNScriptLinkedListNode *i = mDeclarations.first; i != wn_nullptr; i = i->next) {
+    for(WNScriptLinkedList<WNDeclaration>::WNScriptLinkedListNode *i = mDeclarations.first; i != nullptr; i = i->next) {
         WNScriptType t;
         if(ok != (err = i->value->GetType(_manager, t, _compilationLog))) {
             _compilationLog.Log(WNLogging::eError, 0, "Cannot find type for variable: ", i->value->GetName());

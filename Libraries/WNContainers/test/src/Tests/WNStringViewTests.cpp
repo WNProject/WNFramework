@@ -6,21 +6,21 @@
 #include "WNTesting/inc/WNTestHarness.h"
 
 TEST(string_view, construction) {
-  const wn_char* raw = "string1";
+  const char* raw = "string1";
   wn::containers::string_view view1;
-  const wn::containers::string_view view2(wn_nullptr);
-  const wn::containers::string_view view3(wn_nullptr, wn_nullptr);
+  const wn::containers::string_view view2(nullptr);
+  const wn::containers::string_view view3(nullptr, nullptr);
   const wn::containers::string_view view4(raw, raw + 7);
   const wn::containers::string_view view5(raw, 7);
   const wn::containers::string_view view6(raw);
   wn::containers::string_view view7(view6);
 
   EXPECT_TRUE(view1.empty());
-  EXPECT_EQ(view1.data(), wn_nullptr);
+  EXPECT_EQ(view1.data(), nullptr);
   EXPECT_TRUE(view2.empty());
-  EXPECT_EQ(view2.data(), wn_nullptr);
+  EXPECT_EQ(view2.data(), nullptr);
   EXPECT_TRUE(view3.empty());
-  EXPECT_EQ(view3.data(), wn_nullptr);
+  EXPECT_EQ(view3.data(), nullptr);
   EXPECT_FALSE(view4.empty());
   EXPECT_EQ(view4.data(), raw);
   EXPECT_EQ(view4, "string1");
@@ -37,12 +37,12 @@ TEST(string_view, construction) {
   wn::containers::string_view view8(std::move(view7));
 
   EXPECT_TRUE(view7.empty());
-  EXPECT_EQ(view7.data(), wn_nullptr);
+  EXPECT_EQ(view7.data(), nullptr);
   EXPECT_FALSE(view8.empty());
   EXPECT_EQ(view8.data(), raw);
   EXPECT_EQ(view8, "string1");
 
-  wn::containers::contiguous_range<const wn_char> range(raw, 7);
+  wn::containers::contiguous_range<const char> range(raw, 7);
 
   EXPECT_FALSE(range.empty());
   EXPECT_EQ(range.data(), raw);
@@ -56,7 +56,7 @@ TEST(string_view, construction) {
   wn::containers::string_view view10(std::move(range));
 
   EXPECT_TRUE(range.empty());
-  EXPECT_EQ(range.data(), wn_nullptr);
+  EXPECT_EQ(range.data(), nullptr);
   EXPECT_FALSE(view10.empty());
   EXPECT_EQ(view10.data(), raw);
   EXPECT_EQ(view10, "string1");
@@ -84,10 +84,10 @@ TEST(string_view, construction) {
 }
 
 TEST(string_view, assignment) {
-  const wn_char* raw = "string";
+  const char* raw = "string";
   wn::containers::string_view view1(raw);
 
-  view1 = wn_nullptr;
+  view1 = nullptr;
 
   wn::containers::string_view view2;
 
@@ -98,7 +98,7 @@ TEST(string_view, assignment) {
   view3 = view2;
 
   EXPECT_TRUE(view1.empty());
-  EXPECT_EQ(view1.data(), wn_nullptr);
+  EXPECT_EQ(view1.data(), nullptr);
   EXPECT_FALSE(view2.empty());
   EXPECT_EQ(view2.data(), raw);
   EXPECT_FALSE(view3.empty());
@@ -109,13 +109,13 @@ TEST(string_view, assignment) {
   view4 = std::move(view3);
 
   EXPECT_TRUE(view3.empty());
-  EXPECT_EQ(view3.data(), wn_nullptr);
+  EXPECT_EQ(view3.data(), nullptr);
   EXPECT_FALSE(view4.empty());
   EXPECT_EQ(view4.data(), raw);
 }
 
 TEST(string_view, access) {
-  const wn_char* string = "string";
+  const char* string = "string";
   wn::containers::string_view view1(string);
 
   ASSERT_FALSE(view1.empty());
@@ -136,7 +136,7 @@ TEST(string_view, access) {
 }
 
 TEST(string_view, capacity) {
-  const wn_char* string = "string";
+  const char* string = "string";
   const wn::containers::string_view view1(string);
 
   EXPECT_EQ(view1.size(), 6);
@@ -153,8 +153,8 @@ TEST(string_view, capacity) {
 }
 
 TEST(string_view, swap) {
-  const wn_char* string1 = "1string2";
-  const wn_char* string2 = "3string4";
+  const char* string1 = "1string2";
+  const char* string2 = "3string4";
   wn::containers::string_view view1(string1);
   wn::containers::string_view view2(string2);
 
@@ -180,7 +180,7 @@ TEST(string_view, swap) {
 }
 
 TEST(string_view, substr) {
-  const wn_char* string = "string";
+  const char* string = "string";
   const wn::containers::string_view view1(string);
   const wn::containers::string_view view2(view1.substr());
 
@@ -207,12 +207,12 @@ TEST(string_view, substr) {
 }
 
 TEST(string_view, find) {
-  const wn_char* string = "      string";
+  const char* string = "      string";
   const wn::containers::string_view view(string);
 
   EXPECT_FALSE(view.empty());
 
-  wn_size_t pos = view.find("ing");
+  size_t pos = view.find("ing");
 
   EXPECT_EQ(pos, 9);
 
@@ -222,12 +222,12 @@ TEST(string_view, find) {
 }
 
 TEST(string_view, rfind) {
-  const wn_char* string = "      string";
+  const char* string = "      string";
   const wn::containers::string_view view(string);
 
   EXPECT_FALSE(view.empty());
 
-  wn_size_t pos = view.rfind("ri");
+  size_t pos = view.rfind("ri");
 
   EXPECT_EQ(pos, 8);
 
@@ -237,12 +237,12 @@ TEST(string_view, rfind) {
 }
 
 TEST(string_view, find_first_of) {
-  const wn_char* string = "      string";
+  const char* string = "      string";
   const wn::containers::string_view view(string);
 
   EXPECT_FALSE(view.empty());
 
-  wn_size_t pos = view.find_first_of('s');
+  size_t pos = view.find_first_of('s');
 
   EXPECT_EQ(pos, 6);
 
@@ -260,12 +260,12 @@ TEST(string_view, find_first_of) {
 }
 
 TEST(string_view, find_last_of) {
-  const wn_char* string1 = "      strings";
+  const char* string1 = "      strings";
   const wn::containers::string_view view1(string1);
 
   EXPECT_FALSE(view1.empty());
 
-  wn_size_t pos = view1.find_last_of('s');
+  size_t pos = view1.find_last_of('s');
 
   EXPECT_EQ(pos, 12);
 
@@ -283,12 +283,12 @@ TEST(string_view, find_last_of) {
 }
 
 TEST(string_view, find_first_not_of) {
-  const wn_char* string = "      string";
+  const char* string = "      string";
   const wn::containers::string_view view(string);
 
   EXPECT_FALSE(view.empty());
 
-  wn_size_t pos = view.find_first_not_of(' ');
+  size_t pos = view.find_first_not_of(' ');
 
   EXPECT_EQ(pos, 6);
 
@@ -306,12 +306,12 @@ TEST(string_view, find_first_not_of) {
 }
 
 TEST(string_view, find_last_not_of) {
-  const wn_char* string = "      strings";
+  const char* string = "      strings";
   const wn::containers::string_view view(string);
 
   EXPECT_FALSE(view.empty());
 
-  wn_size_t pos = view.find_last_not_of(' ');
+  size_t pos = view.find_last_not_of(' ');
 
   EXPECT_EQ(pos, 12);
 

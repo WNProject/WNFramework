@@ -14,14 +14,14 @@ namespace WNNetworking {
 
     class WNListenConnectionLinux: public WNConnectionLinux {
     public:
-        WNListenConnectionLinux(WNNetworkManager& _manager, WNConnectionType::type _type, wn_uint16 _port, WNConnectedCallback _connected);
+        WNListenConnectionLinux(WNNetworkManager& _manager, WNConnectionType::type _type, uint16_t _port, WNConnectedCallback _connected);
         virtual WN_FORCE_INLINE ~WNListenConnectionLinux() {}
 
         WNNetworkManagerReturnCode::type Initialize();
         WNInConnectionLinux* ReceiveConnection();
 
     private:
-        wn_uint16 mPort;
+        uint16_t mPort;
         WNConnectedCallback mConnectedCallback;
         WNConnectionType::type mType;
     };

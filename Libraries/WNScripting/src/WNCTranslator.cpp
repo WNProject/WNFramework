@@ -35,7 +35,7 @@ parse_error c_translator::translate_file(const char* file_) {
       parse_script(m_allocator, m_validator, file_, file->typed_range<char>(),
           m_compilation_log, &m_num_warnings, &m_num_errors);
 
-  if (parsed_file == wn_nullptr) {
+  if (parsed_file == nullptr) {
     return wn::scripting::parse_error::parse_failed;
   }
   ast_code_generator<ast_c_traits> generator(m_allocator);

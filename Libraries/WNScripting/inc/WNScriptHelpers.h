@@ -21,8 +21,8 @@ class type_validator;
 // passes that are required to make the AST valid.
 memory::unique_ptr<wn::scripting::script_file> parse_script(
     memory::allocator* _allocator, type_validator* _validator,
-    const wn_char* file_name, containers::string_view view,
-    WNLogging::WNLog* _log, wn_size_t* _num_warnings, wn_size_t* _num_errors);
+    const char* file_name, containers::string_view view,
+    WNLogging::WNLog* _log, size_t* _num_warnings, size_t* _num_errors);
 }  // namespace scripting
 }  // namespace wn
 

@@ -75,7 +75,7 @@ void ast_jit_engine::walk_type(
     const scripting::type* _type, llvm::Type** _value) {
   switch (_type->get_index()) {
     case static_cast<uint32_t>(type_classification::invalid_type):
-      WN_RELEASE_ASSERT_DESC(wn_false, "Cannot classify invalid types");
+      WN_RELEASE_ASSERT_DESC(false, "Cannot classify invalid types");
       break;
     case static_cast<uint32_t>(type_classification::void_type):
       *_value = llvm::Type::getVoidTy(*m_context);
@@ -90,7 +90,7 @@ void ast_jit_engine::walk_type(
       *_value = llvm::IntegerType::get(*m_context, 8);
       return;
     case static_cast<uint32_t>(type_classification::string_type):
-      WN_RELEASE_ASSERT_DESC(wn_false, "Not implemented: string type");
+      WN_RELEASE_ASSERT_DESC(false, "Not implemented: string type");
       break;
     case static_cast<uint32_t>(type_classification::bool_type):
       *_value = llvm::IntegerType::get(*m_context, 1);
@@ -121,7 +121,7 @@ void ast_jit_engine::walk_expression(
       return;
     }
     default:
-      WN_RELEASE_ASSERT_DESC(wn_false, "Not Implemented");
+      WN_RELEASE_ASSERT_DESC(false, "Not Implemented");
   }
 }
 
@@ -146,7 +146,7 @@ static const llvm::BinaryOperator::BinaryOps integer_ops[] = {
     llvm::BinaryOperator::BinaryOps::Mul, llvm::BinaryOperator::BinaryOps::SDiv,
     llvm::BinaryOperator::BinaryOps::SRem};
 
-static const wn_int16 integer_compares[] = {llvm::CmpInst::Predicate::ICMP_EQ,
+static const int16_t integer_compares[] = {llvm::CmpInst::Predicate::ICMP_EQ,
     llvm::CmpInst::Predicate::ICMP_NE, llvm::CmpInst::Predicate::ICMP_SLE,
     llvm::CmpInst::Predicate::ICMP_SGE, llvm::CmpInst::Predicate::ICMP_SLT,
     llvm::CmpInst::Predicate::ICMP_SGT};
@@ -161,7 +161,7 @@ void ast_jit_engine::walk_expression(
     const binary_expression* _binary, expression_dat* _val) {
   const expression_dat& lhs = m_generator->get_data(_binary->get_lhs());
   const expression_dat& rhs = m_generator->get_data(_binary->get_rhs());
-  llvm::Instruction* inst = wn_nullptr;
+  llvm::Instruction* inst = nullptr;
   arithmetic_type type = _binary->get_arithmetic_type();
   switch (_binary->get_type()->get_index()) {
     case static_cast<uint32_t>(type_classification::int_type):
@@ -181,7 +181,7 @@ void ast_jit_engine::walk_expression(
       break;
     default:
       WN_RELEASE_ASSERT_DESC(
-          wn_false, "Not implemnted, non-integer arithmetic");
+          false, "Not implemnted, non-integer arithmetic");
   }
   _val->instructions =
       containers::dynamic_array<llvm::Instruction*>(m_allocator);
@@ -222,7 +222,7 @@ void ast_jit_engine::walk_expression(
   _val->instructions.insert(_val->instructions.end(), dat.instructions.begin(),
       dat.instructions.end());
 
-  wn_uint32 member_offset =
+  uint32_t member_offset =
       m_validator->get_operations(
                      _alloc->get_base_expression()->get_type()->get_index())
           .get_member_index(_alloc->get_name());
@@ -272,7 +272,7 @@ void ast_jit_engine::walk_instruction(
       m_generator->get_data(_inst->get_body());
 
   llvm::BasicBlock* post_if =
-      _inst->returns() ? wn_nullptr
+      _inst->returns() ? nullptr
                        : llvm::BasicBlock::Create(*m_context, "end_if");
   llvm::BasicBlock* next_if = llvm::BasicBlock::Create(*m_context, "next_if");
 
@@ -438,7 +438,7 @@ void ast_jit_engine::walk_function(const function* _func, llvm::Function** _f) {
 
   llvm::FunctionType* t = llvm::FunctionType::get(
       m_generator->get_data(_func->get_signature()->get_type()),
-      make_array_ref(parameters), wn_false);
+      make_array_ref(parameters), false);
   *_f = llvm::Function::Create(t,
       llvm::GlobalValue::LinkageTypes::ExternalLinkage,
       make_string_ref(_func->get_mangled_name()));

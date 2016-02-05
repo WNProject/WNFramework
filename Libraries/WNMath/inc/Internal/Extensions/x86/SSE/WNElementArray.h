@@ -15,16 +15,16 @@
 namespace wn {
     namespace internal {
         namespace math {
-            template <typename type, const wn_size_t dimension>
+            template <typename type, const size_t dimension>
             struct element_array_sse : element_array_generic<type, dimension> {};
 
-            template <const wn_size_t dimension>
-            struct WN_ALIGN(16) element_array_sse<wn_float32, dimension> {
+            template <const size_t dimension>
+            struct WN_ALIGN(16) element_array_sse<float, dimension> {
                 static_assert(dimension > 1, "Must have a dimension of at least 2");
 
                 union {
                     __m128 m_xmm_values[xmm_count_ps<dimension>::value];
-                    wn_float32 m_values[dimension];
+                    float m_values[dimension];
                 };
             };
         }

@@ -25,7 +25,7 @@ namespace wn {
 
         virtual WNSurfaceManagerReturnCode::type Initialize() = 0;
         virtual WNSurfaceManagerReturnCode::type Release() = 0;
-        virtual WNSurfaceManagerReturnCode::type CreateSurface(wn_uint32 _x, wn_uint32 _y, wn_uint32 _width, wn_uint32 _height, wn::surface_handle& _surface) = 0;
+        virtual WNSurfaceManagerReturnCode::type CreateSurface(uint32_t _x, uint32_t _y, uint32_t _width, uint32_t _height, wn::surface_handle& _surface) = 0;
     };
 }
 

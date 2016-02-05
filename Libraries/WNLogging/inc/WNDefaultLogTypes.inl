@@ -14,78 +14,78 @@
 namespace WNLogging {
 #define DEFINE_DEFAULT_LOG(type, encoding) \
     template<typename T> \
-    struct _Enc##type { static const wn_char* GetVal(){return encoding;} }; \
-    template<> struct _Enc##type<wn_wchar> { static const wn_wchar* GetVal(){return L##encoding;} }; \
+    struct _Enc##type { static const char* GetVal(){return encoding;} }; \
+    template<> struct _Enc##type<wchar_t> { static const wchar_t* GetVal(){return L##encoding;} }; \
     template<typename BuffType> \
     struct LogTypeHelper<type, BuffType> { \
-        WN_FORCE_INLINE static wn_bool DoLog(const type& _0, BuffType* _buffer, wn_size_t& _bufferLeft) { \
+        WN_FORCE_INLINE static bool DoLog(const type& _0, BuffType* _buffer, size_t& _bufferLeft) { \
             int printed = wn::memory::snprintf(_buffer, _bufferLeft, _Enc##type<BuffType>::GetVal(), _0); \
-            if(printed < 0 || static_cast<wn_size_t>(printed) >= _bufferLeft) { \
-                return(wn_false); \
+            if(printed < 0 || static_cast<size_t>(printed) >= _bufferLeft) { \
+                return(false); \
             } \
             _bufferLeft -= printed; \
-            return(wn_true); \
+            return(true); \
         } \
     };
 
 #ifdef _WN_WINDOWS
     template<typename T>
     struct _EncWNChar {};
-    template<> struct _EncWNChar<wn_char> { static const wn_char* GetVal(){return "%s";} };
-    template<> struct _EncWNChar<wn_wchar> { static const wn_wchar* GetVal(){return L"%S";} };
+    template<> struct _EncWNChar<char> { static const char* GetVal(){return "%s";} };
+    template<> struct _EncWNChar<wchar_t> { static const wchar_t* GetVal(){return L"%S";} };
 #else
     template<typename T>
     struct _EncWNChar {};
-    template<> struct _EncWNChar<wn_char> { static const wn_char* GetVal(){return "%s";} };
-    template<> struct _EncWNChar<wn_wchar> { static const wn_wchar* GetVal(){return L"%ls";} };
+    template<> struct _EncWNChar<char> { static const char* GetVal(){return "%s";} };
+    template<> struct _EncWNChar<wchar_t> { static const wchar_t* GetVal(){return L"%ls";} };
 #endif
     template<typename BuffType>
-    struct LogTypeHelper<wn_char*,  BuffType> {
-        WN_FORCE_INLINE static wn_bool DoLog(wn_char*const & _0, BuffType* _buffer, wn_size_t& _bufferLeft) {
+    struct LogTypeHelper<char*,  BuffType> {
+        WN_FORCE_INLINE static bool DoLog(char*const & _0, BuffType* _buffer, size_t& _bufferLeft) {
             int printed = wn::memory::snprintf(_buffer, _bufferLeft, _EncWNChar<BuffType>::GetVal(), _0);
-            if(printed < 0 || static_cast<wn_size_t>(printed) >= _bufferLeft) {
-                return(wn_false);
+            if(printed < 0 || static_cast<size_t>(printed) >= _bufferLeft) {
+                return(false);
             }
             _bufferLeft -= printed;
-            return(wn_true);
+            return(true);
         }
     };
 
     template<typename BuffType>
-    struct LogTypeHelper<const wn_char*,  BuffType> {
-        WN_FORCE_INLINE static wn_bool DoLog(const wn_char*const & _0, BuffType* _buffer, wn_size_t& _bufferLeft) {
+    struct LogTypeHelper<const char*,  BuffType> {
+        WN_FORCE_INLINE static bool DoLog(const char*const & _0, BuffType* _buffer, size_t& _bufferLeft) {
             int printed = wn::memory::snprintf(_buffer, _bufferLeft, _EncWNChar<BuffType>::GetVal(), _0);
-            if(printed < 0 || static_cast<wn_size_t>(printed) >= _bufferLeft) {
-                return(wn_false);
+            if(printed < 0 || static_cast<size_t>(printed) >= _bufferLeft) {
+                return(false);
             }
             _bufferLeft -= printed;
-            return(wn_true);
+            return(true);
         }
     };
 
     template<typename BuffType>
     struct LogTypeHelper<wn::containers::string_view, BuffType> {
-      WN_FORCE_INLINE static wn_bool DoLog(
+      WN_FORCE_INLINE static bool DoLog(
           const wn::containers::string_view& _0, BuffType* _buffer,
-          wn_size_t& _bufferLeft) {
+          size_t& _bufferLeft) {
         int printed = wn::memory::snprintf(_buffer, _bufferLeft,
                                            "%.*s", (uint32_t)_0.size(), (void*)_0.data());
-        if (printed < 0 || static_cast<wn_size_t>(printed) >= _bufferLeft) {
-          return (wn_false);
+        if (printed < 0 || static_cast<size_t>(printed) >= _bufferLeft) {
+          return (false);
         }
         _bufferLeft -= printed;
-        return (wn_true);
+        return (true);
       }
     };
 
-    DEFINE_DEFAULT_LOG(wn_int32, "%d");
-    DEFINE_DEFAULT_LOG(wn_uint32, "%d");
+    DEFINE_DEFAULT_LOG(int32_t, "%d");
+    DEFINE_DEFAULT_LOG(uint32_t, "%d");
 #ifdef _WN_WINDOWS
-    DEFINE_DEFAULT_LOG(wn_int64, "%I64d");
-    DEFINE_DEFAULT_LOG(wn_uint64, "%I64u");
+    DEFINE_DEFAULT_LOG(int64_t, "%I64d");
+    DEFINE_DEFAULT_LOG(uint64_t, "%I64u");
 #else
-    DEFINE_DEFAULT_LOG(wn_int64, "%lld");
-    DEFINE_DEFAULT_LOG(wn_uint64, "%llu");
+    DEFINE_DEFAULT_LOG(int64_t, "%lld");
+    DEFINE_DEFAULT_LOG(uint64_t, "%llu");
 #endif
 
 }

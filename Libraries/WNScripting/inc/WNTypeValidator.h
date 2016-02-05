@@ -29,14 +29,14 @@ enum cast_type {
 
 // Data for builtin operations
 struct allowed_builtin_operations {
-  uint32_t m_arithmetic[static_cast<wn_uint32>(arithmetic_type::max)];
-  uint32_t m_assignment[static_cast<wn_uint32>(assign_type::max)];
-  uint32_t m_unary[static_cast<wn_uint32>(unary_type::max)];
-  uint32_t m_post_unary[static_cast<wn_uint32>(post_unary_type::max)];
-  uint32_t m_short_circuit[static_cast<wn_uint32>(short_circuit_type::max)];
+  uint32_t m_arithmetic[static_cast<uint32_t>(arithmetic_type::max)];
+  uint32_t m_assignment[static_cast<uint32_t>(assign_type::max)];
+  uint32_t m_unary[static_cast<uint32_t>(unary_type::max)];
+  uint32_t m_post_unary[static_cast<uint32_t>(post_unary_type::max)];
+  uint32_t m_short_circuit[static_cast<uint32_t>(short_circuit_type::max)];
 };
 
-static_assert(static_cast<wn_size_t>(type_classification::max) == 10,
+static_assert(static_cast<size_t>(type_classification::max) == 10,
     "The number of classifications has changed, please update these tables");
 static const uint32_t INVALID_TYPE =
     static_cast<uint32_t>(type_classification::invalid_type);
@@ -157,19 +157,19 @@ const allowed_builtin_operations valid_builtin_operations[9]{
 };
 
 struct cast_operation {
-  wn_uint32 cast_to;
+  uint32_t cast_to;
   cast_type type;
 };
 
 struct member_id {
   containers::string id;
-  wn_uint32 type_id;
+  uint32_t type_id;
 };
 
 struct member_function {
   containers::string function_name;
-  wn_uint32 type_id;
-  wn::containers::dynamic_array<wn_uint32> parameter_ids;
+  uint32_t type_id;
+  wn::containers::dynamic_array<uint32_t> parameter_ids;
 };
 
 // All of the data associated with a given type.
@@ -195,7 +195,7 @@ struct type_definition {
       m_mangling(_allocator) {
     m_ops = operation;
   }
-  wn_uint32 get_cast_type(wn_uint32 _val) {
+  uint32_t get_cast_type(uint32_t _val) {
     auto it = std::find_if(m_casts.begin(), m_casts.end(),
         [_val](cast_operation& cast) { return _val == cast.cast_to; });
     return (it == m_casts.end()) ? 0 : it->type;
@@ -204,7 +204,7 @@ struct type_definition {
   // Registers a subtype with the given name. Returns
   // false if the type already exists.
   bool register_sub_type(
-      containers::string_view _member, wn_uint32 sub_type_type) {
+      containers::string_view _member, uint32_t sub_type_type) {
     if (get_member_id(_member)) {
       return false;
     }
@@ -212,20 +212,20 @@ struct type_definition {
     return true;
   }
 
-  wn_uint32 get_member_id(containers::string_view _member) const {
+  uint32_t get_member_id(containers::string_view _member) const {
     auto it = std::find_if(m_ids.begin(), m_ids.end(),
         [_member](const member_id& id) { return _member == id.id; });
     return (it != m_ids.end()) ? it->type_id : 0;
   }
 
-  wn_uint32 get_member_index(containers::string_view _member) const {
+  uint32_t get_member_index(containers::string_view _member) const {
     auto it = std::find_if(m_ids.begin(), m_ids.end(),
         [_member](const member_id& id) { return _member == id.id; });
-    return (it != m_ids.end()) ? static_cast<wn_uint32>(it - m_ids.begin())
-                               : static_cast<wn_uint32>(-1);
+    return (it != m_ids.end()) ? static_cast<uint32_t>(it - m_ids.begin())
+                               : static_cast<uint32_t>(-1);
   }
 
-  wn_uint32 get_function_call(containers::string_view _function) {
+  uint32_t get_function_call(containers::string_view _function) {
     auto it = std::find_if(m_functions.begin(), m_functions.end(),
         [_function](member_function& funct) {
           return _function == funct.function_name;
@@ -234,19 +234,19 @@ struct type_definition {
   }
 
   uint32_t get_operation(arithmetic_type _op) const {
-    return m_ops.m_arithmetic[static_cast<wn_uint32>(_op)];
+    return m_ops.m_arithmetic[static_cast<uint32_t>(_op)];
   }
   uint32_t get_operation(assign_type _op) const {
-    return m_ops.m_assignment[static_cast<wn_uint32>(_op)];
+    return m_ops.m_assignment[static_cast<uint32_t>(_op)];
   }
   uint32_t get_operation(unary_type _op) const {
-    return m_ops.m_unary[static_cast<wn_uint32>(_op)];
+    return m_ops.m_unary[static_cast<uint32_t>(_op)];
   }
   uint32_t get_operation(post_unary_type _op) const {
-    return m_ops.m_post_unary[static_cast<wn_uint32>(_op)];
+    return m_ops.m_post_unary[static_cast<uint32_t>(_op)];
   }
   uint32_t get_operation(short_circuit_type _op) const {
-    return m_ops.m_short_circuit[static_cast<wn_uint32>(_op)];
+    return m_ops.m_short_circuit[static_cast<uint32_t>(_op)];
   }
 
   allowed_builtin_operations m_ops;
@@ -338,16 +338,16 @@ public:
     m_types[6].m_mangling = "b";
   }
 
-  wn_uint32 get_or_register_type(const containers::string_view& _name) {
+  uint32_t get_or_register_type(const containers::string_view& _name) {
     auto it = m_mapping.find(_name.to_string(m_allocator));
     if (it != m_mapping.end()) {
       return it->second;
     }
     auto str_it = m_names.insert(m_names.end(), _name.to_string(m_allocator));
-    wn_uint32 type = m_max_types++;
+    uint32_t type = m_max_types++;
     m_mapping.insert(std::make_pair(_name.to_string(m_allocator), type));
     m_types.push_back(type_definition(m_allocator));
-    wn_size_t total_length = 10 + 2 + _name.size();
+    size_t total_length = 10 + 2 + _name.size();
 
     m_types.back().m_mangling = containers::string(m_allocator);
     m_types.back().m_mangling.reserve(total_length);
@@ -359,7 +359,7 @@ public:
     return type;
   }
 
-  wn_uint32 get_type(const containers::string_view& _name) {
+  uint32_t get_type(const containers::string_view& _name) {
     auto it = m_mapping.find(_name.to_string(m_allocator));
     if (it == m_mapping.end()) {
       return 0;
@@ -371,22 +371,22 @@ public:
     return m_names[_type];
   }
 
-  const type_definition& get_operations(wn_uint32 _type) const {
+  const type_definition& get_operations(uint32_t _type) const {
     return m_types[_type];
   }
 
-  type_definition& get_operations(wn_uint32 _type) {
+  type_definition& get_operations(uint32_t _type) {
     return m_types[_type];
   }
 
-  bool is_valid_type(wn_uint32 _type) {
+  bool is_valid_type(uint32_t _type) {
     return _type != 0 && _type <= m_types.size();
   }
 
-  void enable_cast(wn_uint32 _from_type, wn_uint32 _to_type, cast_type _type) {
-    WN_DEBUG_ASSERT_DESC(_from_type >= static_cast<wn_uint32>(
+  void enable_cast(uint32_t _from_type, uint32_t _to_type, cast_type _type) {
+    WN_DEBUG_ASSERT_DESC(_from_type >= static_cast<uint32_t>(
                                            type_classification::custom_type) ||
-                             _to_type >= static_cast<wn_uint32>(
+                             _to_type >= static_cast<uint32_t>(
                                              type_classification::custom_type),
         "It is invalid to redefine a builtin cast type");
     WN_DEBUG_ASSERT_DESC(m_types[_from_type].get_cast_type(_to_type) == 0,
@@ -396,7 +396,7 @@ public:
   }
 
   void add_id(
-      wn_uint32 _type, containers::string_view _id, wn_uint32 _out_type) {
+      uint32_t _type, containers::string_view _id, uint32_t _out_type) {
     WN_DEBUG_ASSERT_DESC(
         _type < m_types.size(), "Trying to index non-existent type");
     WN_DEBUG_ASSERT_DESC(
@@ -405,8 +405,8 @@ public:
     m_types[_type].m_ids.push_back({_id.to_string(m_allocator), _out_type});
   }
 
-  void add_method(wn_uint32 _type, containers::string_view _name,
-      wn_uint32 _return_type, containers::contiguous_range<wn_uint32> _types) {
+  void add_method(uint32_t _type, containers::string_view _name,
+      uint32_t _return_type, containers::contiguous_range<uint32_t> _types) {
     WN_DEBUG_ASSERT_DESC(
         _type < m_types.size(), "Trying to index non-existent type");
     WN_DEBUG_ASSERT_DESC(_return_type < m_types.size(),
@@ -414,30 +414,30 @@ public:
     WN_DEBUG_ASSERT_DESC(
         _types.end() ==
             std::find_if(_types.begin(), _types.end(),
-                [this](wn_uint32 type) { return type >= m_types.size(); }),
+                [this](uint32_t type) { return type >= m_types.size(); }),
         "One of the return types is out of bounds");
 
     m_types[_type].m_functions.push_back({_name.to_string(m_allocator),
-        _return_type, containers::dynamic_array<wn_uint32>(_types.begin(),
+        _return_type, containers::dynamic_array<uint32_t>(_types.begin(),
                                               _types.end(), m_allocator)});
   }
 
-  bool is_cast_possible(wn_uint32 _from_type, wn_uint32 _to_type) {
+  bool is_cast_possible(uint32_t _from_type, uint32_t _to_type) {
     WN_DEBUG_ASSERT_DESC(
         _from_type < m_types.size() && _to_type < m_types.size(),
         "Undefined type name");
     return m_types[_from_type].get_cast_type(_to_type) != 0;
   }
 
-  cast_direction get_cast_direction(wn_uint32 _from_type, wn_uint32 _to_type) {
+  cast_direction get_cast_direction(uint32_t _from_type, uint32_t _to_type) {
     if (_from_type >=
-            static_cast<wn_uint32>(type_classification::custom_type) &&
-        _to_type >= static_cast<wn_uint32>(type_classification::custom_type)) {
+            static_cast<uint32_t>(type_classification::custom_type) &&
+        _to_type >= static_cast<uint32_t>(type_classification::custom_type)) {
       return cast_direction::invalid;
     }
 
-    wn_uint32 a_to_b = m_types[_from_type].get_cast_type(_to_type);
-    wn_uint32 b_to_a = m_types[_to_type].get_cast_type(_from_type);
+    uint32_t a_to_b = m_types[_from_type].get_cast_type(_to_type);
+    uint32_t b_to_a = m_types[_to_type].get_cast_type(_from_type);
 
     WN_DEBUG_ASSERT_DESC(a_to_b == 0 || a_to_b != b_to_a,
         "Cannot determine in which direction to cast");
@@ -473,11 +473,11 @@ public:
   }
 
 private:
-  containers::hash_map<containers::string, wn_uint32> m_mapping;
+  containers::hash_map<containers::string, uint32_t> m_mapping;
   containers::deque<containers::string> m_names;  // list of all type names
   containers::deque<type_definition> m_types;
   memory::allocator* m_allocator;
-  wn_uint32 m_max_types;
+  uint32_t m_max_types;
 };
 }  // namespace scripting
 }  // namesapce wn

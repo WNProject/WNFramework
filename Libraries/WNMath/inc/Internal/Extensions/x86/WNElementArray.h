@@ -18,18 +18,18 @@ namespace wn {
         namespace math {
             #ifdef __WN_SSE2_AVAILABLE
                 #ifdef __WN_HAS_CPP11_USING_ALIAS_DECLARATIONS
-                    template <typename type, const wn_size_t dimension>
+                    template <typename type, const size_t dimension>
                     using element_array = element_array_sse2<type, dimension>;
                 #else
-                    template <typename type, const wn_size_t dimension>
+                    template <typename type, const size_t dimension>
                     struct element_array : element_array_sse2<type, dimension> {};
                 #endif
             #elif defined _WN_X86_SSE
                 #ifdef __WN_HAS_CPP11_USING_ALIAS_DECLARATIONS
-                    template <typename type, const wn_size_t dimension>
+                    template <typename type, const size_t dimension>
                     using element_array = element_array_sse<type, dimension>;
                 #else
-                    template <typename type, const wn_size_t dimension>
+                    template <typename type, const size_t dimension>
                     struct element_array : element_array_sse<type, dimension> {};
                 #endif
             #endif

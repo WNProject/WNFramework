@@ -28,12 +28,12 @@ namespace wn {
     }
 
     template <typename type>
-    WN_FORCE_INLINE wn_void WNMatrix3<type>::MakeTranslation(const type& _translation) {
+    WN_FORCE_INLINE void WNMatrix3<type>::MakeTranslation(const type& _translation) {
         this->MakeTranslation(_translation, _translation);
     }
 
     template <typename type>
-    WN_FORCE_INLINE wn_void WNMatrix3<type>::MakeTranslation(const type& _x, const type& _y) {
+    WN_FORCE_INLINE void WNMatrix3<type>::MakeTranslation(const type& _x, const type& _y) {
         // First Column
         this->mElements.mValues[0] = static_cast<type>(1);
         this->mElements.mValues[1] = static_cast<type>(0);
@@ -51,17 +51,17 @@ namespace wn {
     }
 
     template <typename type>
-    WN_FORCE_INLINE wn_void WNMatrix3<type>::MakeTranslation(const WNVector2<type>& _translation) {
+    WN_FORCE_INLINE void WNMatrix3<type>::MakeTranslation(const WNVector2<type>& _translation) {
         this->MakeScale(_translation.GetX(), _translation.GetY());
     }
 
     template <typename type>
-    WN_FORCE_INLINE wn_void WNMatrix3<type>::MakeScale(const type& _scale) {
+    WN_FORCE_INLINE void WNMatrix3<type>::MakeScale(const type& _scale) {
         this->MakeScale(_scale, _scale);
     }
 
     template <typename type>
-    WN_FORCE_INLINE wn_void WNMatrix3<type>::MakeScale(const type& _x, const type& _y) {
+    WN_FORCE_INLINE void WNMatrix3<type>::MakeScale(const type& _x, const type& _y) {
         // First Column
         this->mElements.mValues[0] = _x;
         this->mElements.mValues[1] = static_cast<type>(0);
@@ -79,7 +79,7 @@ namespace wn {
     }
 
     template <typename type>
-    WN_FORCE_INLINE wn_void WNMatrix3<type>::MakeScale(const WNVector2<type>& _scale) {
+    WN_FORCE_INLINE void WNMatrix3<type>::MakeScale(const WNVector2<type>& _scale) {
         this->MakeScale(_scale.GetX(), _scale.GetY());
     }
 

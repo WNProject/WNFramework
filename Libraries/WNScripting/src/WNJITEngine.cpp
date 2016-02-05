@@ -64,11 +64,11 @@ llvm::StringRef make_string_ref(const wn::containers::string& _view) {
 namespace wn {
 namespace scripting {
 
-CompiledModule::CompiledModule() : m_module(wn_nullptr) {}
+CompiledModule::CompiledModule() : m_module(nullptr) {}
 
 CompiledModule::CompiledModule(CompiledModule&& _other)
   : m_engine(std::move(_other.m_engine)), m_module(std::move(_other.m_module)) {
-  _other.m_module = wn_nullptr;
+  _other.m_module = nullptr;
 }
 
 jit_engine::jit_engine(type_validator* _validator,
@@ -136,7 +136,7 @@ parse_error jit_engine::parse_file(const char* _file) {
       parse_script(m_allocator, m_validator, _file, file->typed_range<char>(),
           m_compilation_log, &m_num_warnings, &m_num_errors);
 
-  if (parsed_file == wn_nullptr) {
+  if (parsed_file == nullptr) {
     return parse_error::parse_failed;
   }
   CompiledModule& module = add_module(_file);

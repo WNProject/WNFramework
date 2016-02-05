@@ -18,12 +18,6 @@ using std::move;
 using std::forward;
 using std::swap;
 
-template <typename T>
-struct dependent_true : true_type {};
-
-template <typename T>
-struct dependent_false : false_type {};
-
 class non_constructable {
 protected:
   non_constructable() = delete;

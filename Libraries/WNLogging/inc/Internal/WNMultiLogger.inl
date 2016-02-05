@@ -11,7 +11,7 @@ WNLogging::WNMultiLogger<T_Logger1, T_Logger2, T_BufferSize>::~WNMultiLogger() {
 }
 
 template<typename T_Logger1, typename T_Logger2, int T_BufferSize>
-wn_void WNLogging::WNMultiLogger<T_Logger1, T_Logger2, T_BufferSize>::FlushExternal(const wn_char* _buffer, wn_size_t _bufferSize, std::vector<WNLogColorElement>* _colors) {
+void WNLogging::WNMultiLogger<T_Logger1, T_Logger2, T_BufferSize>::FlushExternal(const char* _buffer, size_t _bufferSize, std::vector<WNLogColorElement>* _colors) {
     mLogger1.FlushExternal(_buffer, _bufferSize, _colors);
     mLogger2.FlushExternal(_buffer, _bufferSize, _colors);
 }

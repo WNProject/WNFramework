@@ -28,15 +28,15 @@ namespace WNNetworking {
         WNNetworkManagerWindows();
         virtual ~WNNetworkManagerWindows();
 
-        virtual WNNetworkManagerReturnCode::type Initialize(wn_uint32 _numWorkerThreads);
-        virtual WNNetworkManagerReturnCode::type ConnectTo(WNConnection*& _outHandle, WNConnectionType::type _type, const wn_char* _target, wn_uint16 _port);
-        virtual WNNetworkManagerReturnCode::type CreateListener(WNConnection*& _outHandle, WNConnectionType::type _type, wn_uint16 _port, const WNConnectedCallback& _callback);
-        virtual wn_void Cleanup();
-        virtual wn_void DestroyConnection(WNConnection* _connection);
+        virtual WNNetworkManagerReturnCode::type Initialize(uint32_t _numWorkerThreads);
+        virtual WNNetworkManagerReturnCode::type ConnectTo(WNConnection*& _outHandle, WNConnectionType::type _type, const char* _target, uint16_t _port);
+        virtual WNNetworkManagerReturnCode::type CreateListener(WNConnection*& _outHandle, WNConnectionType::type _type, uint16_t _port, const WNConnectedCallback& _callback);
+        virtual void Cleanup();
+        virtual void DestroyConnection(WNConnection* _connection);
 
     private:
-        wn_void IOCPThread();
-        wn_void ListenThread();
+        void IOCPThread();
+        void ListenThread();
 
         enum eWNWindowsInitializationState {
             eWNNotStarted,
@@ -49,18 +49,18 @@ namespace WNNetworking {
         };
 
         wn::memory::basic_allocator allocator;
-        wn_uint32 mMaxThreads;
+        uint32_t mMaxThreads;
         HANDLE mIOCP;
         HANDLE mAcceptEvent;
         HANDLE mShutdownEvent;
         eWNWindowsInitializationState mInitializationState;
-        wn::multi_tasking::thread<wn_void>* mListenThread;
+        wn::multi_tasking::thread<void>* mListenThread;
         wn::multi_tasking::spin_lock mListenerMutex;
         wn::multi_tasking::spin_lock mRecievedMutex;
         wn::multi_tasking::spin_lock mInvalidMutex;
         wn::multi_tasking::spin_lock mOutgoingMutex;
 
-        std::vector<wn::multi_tasking::thread<wn_void>*> mThreads;
+        std::vector<wn::multi_tasking::thread<void>*> mThreads;
         std::list<WNListenConnectionWindows*> mIncommingConnections;
         std::list<WNOutConnectionWindows*> mOutgoingConnections;
         std::list<WNInConnectionWindows*> mReceivedConnections;

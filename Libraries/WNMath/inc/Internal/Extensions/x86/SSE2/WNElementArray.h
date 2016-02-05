@@ -14,16 +14,16 @@
 namespace wn {
     namespace internal {
         namespace math {
-            template <typename type, const wn_size_t dimension>
+            template <typename type, const size_t dimension>
             struct element_array_sse2 : element_array_sse<type, dimension> {};
 
-            template <const wn_size_t dimension>
-            struct WN_ALIGN(16) element_array_sse2<wn_float64, dimension> {
+            template <const size_t dimension>
+            struct WN_ALIGN(16) element_array_sse2<double, dimension> {
                 static_assert(dimension > 1, "Must have a dimension of at least 2");
 
                 union {
                     __m128d m_xmm_values[xmm_count_pd<dimension>::value];
-                    wn_float64 m_values[dimension];
+                    double m_values[dimension];
                 };
             };
         }

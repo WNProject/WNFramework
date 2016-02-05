@@ -5,37 +5,37 @@
 #include "WNTesting/inc/WNTestHarness.h"
 #include "WNMultiTasking/inc/WNThread.h"
 
-static wn_void test_function1() {}
+static void test_function1() {}
 
-static wn_uint32 test_function2() {
+static uint32_t test_function2() {
   return (1);
 }
 
-static wn_void test_function3(wn_void* _input) {
+static void test_function3(void* _input) {
   WN_UNUSED_ARGUMENT(_input);
 }
 
-static wn_void* test_function4(wn_void* _input) {
+static void* test_function4(void* _input) {
   return (_input);
 }
 
-static wn_void test_function5(wn_uint32 _input) {
+static void test_function5(uint32_t _input) {
   WN_UNUSED_ARGUMENT(_input);
 }
 
-static wn_uint32 test_function6(wn_uint32 _input) {
+static uint32_t test_function6(uint32_t _input) {
   return (_input);
 }
 
-static wn_uint32 test_function7(wn_uint32* _input) {
+static uint32_t test_function7(uint32_t* _input) {
   return (*_input);
 }
 
-static wn_uint32* test_function8(wn_uint32* _input) {
+static uint32_t* test_function8(uint32_t* _input) {
   return (_input);
 }
 
-static wn_void test_function9(wn_uint32& _input) {
+static void test_function9(uint32_t& _input) {
   _input = 1;
 }
 
@@ -43,42 +43,42 @@ class test_object {
 public:
   test_object() : mTestVar(0) {}
 
-  wn_void test_function1() {
+  void test_function1() {
     mTestVar++;
   }
 
-  wn_uint32 test_function2() {
+  uint32_t test_function2() {
     return (mTestVar + 1);
   }
 
 public:
-  wn_uint32 mTestVar;
+  uint32_t mTestVar;
 };
 
 TEST(thread, basic_usage) {
   wn::testing::allocator allocator;
 
   {
-    wn_void* temp;
-    wn_void* pointer_test = &temp;
-    wn_uint32 number_test1 = 5;
-    wn_uint32 number_test2 = 0;
+    void* temp;
+    void* pointer_test = &temp;
+    uint32_t number_test1 = 5;
+    uint32_t number_test2 = 0;
 
-    wn::multi_tasking::thread<wn_void> test1(&allocator, &test_function1);
-    wn::multi_tasking::thread<wn_uint32> test2(&allocator, &test_function2);
-    wn::multi_tasking::thread<wn_void> test3(
+    wn::multi_tasking::thread<void> test1(&allocator, &test_function1);
+    wn::multi_tasking::thread<uint32_t> test2(&allocator, &test_function2);
+    wn::multi_tasking::thread<void> test3(
         &allocator, &test_function3, pointer_test);
-    wn::multi_tasking::thread<wn_void*> test4(
+    wn::multi_tasking::thread<void*> test4(
         &allocator, &test_function4, pointer_test);
-    wn::multi_tasking::thread<wn_void> test5(
+    wn::multi_tasking::thread<void> test5(
         &allocator, &test_function5, number_test1);
-    wn::multi_tasking::thread<wn_uint32> test6(
+    wn::multi_tasking::thread<uint32_t> test6(
         &allocator, &test_function6, number_test1);
-    wn::multi_tasking::thread<wn_uint32> test7(
+    wn::multi_tasking::thread<uint32_t> test7(
         &allocator, &test_function7, &number_test1);
-    wn::multi_tasking::thread<wn_uint32*> test8(
+    wn::multi_tasking::thread<uint32_t*> test8(
         &allocator, &test_function8, &number_test1);
-    wn::multi_tasking::thread<wn_void> test9(
+    wn::multi_tasking::thread<void> test9(
         &allocator, &test_function9, std::ref(number_test2));
 
     EXPECT_TRUE(test1.join());
@@ -86,11 +86,11 @@ TEST(thread, basic_usage) {
     EXPECT_TRUE(test5.join());
     EXPECT_TRUE(test9.join());
 
-    wn_uint32 test2_result;
-    wn_void* test4_result;
-    wn_uint32 test6_result;
-    wn_uint32 test7_result;
-    wn_uint32* test8_result;
+    uint32_t test2_result;
+    void* test4_result;
+    uint32_t test6_result;
+    uint32_t test7_result;
+    uint32_t* test8_result;
 
     EXPECT_TRUE(test2.join(test2_result));
     EXPECT_TRUE(test4.join(test4_result));
@@ -107,14 +107,14 @@ TEST(thread, basic_usage) {
     test_object test_object1;
     test_object test_object2;
 
-    wn::multi_tasking::thread<wn_void> test10(
+    wn::multi_tasking::thread<void> test10(
         &allocator, &test_object::test_function1, &test_object1);
-    wn::multi_tasking::thread<wn_uint32> test11(
+    wn::multi_tasking::thread<uint32_t> test11(
         &allocator, &test_object::test_function2, &test_object2);
 
     EXPECT_TRUE(test10.join());
 
-    wn_uint32 test11_result;
+    uint32_t test11_result;
 
     EXPECT_TRUE(test11.join(test11_result));
     EXPECT_EQ(test_object1.mTestVar, 1);
@@ -127,14 +127,14 @@ TEST(thread, joinable) {
   wn::testing::allocator allocator;
 
   {
-    wn::multi_tasking::thread<wn_void> thread;
+    wn::multi_tasking::thread<void> thread;
 
     ASSERT_FALSE(thread.joinable());
 
     bool executed = false;
 
-    thread = wn::multi_tasking::thread<wn_void>(
-        &allocator, [](bool& flag) { flag = wn_true; }, std::ref(executed));
+    thread = wn::multi_tasking::thread<void>(
+        &allocator, [](bool& flag) { flag = true; }, std::ref(executed));
 
     ASSERT_TRUE(thread.joinable());
     ASSERT_TRUE(thread.join());
@@ -147,14 +147,14 @@ TEST(thread, detach) {
   wn::testing::allocator allocator;
 
   {
-    wn::multi_tasking::thread<wn_void> thread;
+    wn::multi_tasking::thread<void> thread;
 
     ASSERT_FALSE(thread.joinable());
 
     bool executed = false;
 
-    thread = wn::multi_tasking::thread<wn_void>(
-        &allocator, [](bool& flag) { flag = wn_true; }, std::ref(executed));
+    thread = wn::multi_tasking::thread<void>(
+        &allocator, [](bool& flag) { flag = true; }, std::ref(executed));
 
     ASSERT_TRUE(thread.joinable());
     ASSERT_TRUE(thread.join());

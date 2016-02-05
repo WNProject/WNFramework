@@ -2,7 +2,7 @@
 #define __WN_CONSOLE_LOGGER_LINUX_INL__
 #include "WNLogging/inc/WNConsoleLogger.h"
 
-static const wn_char* LogColors[WNLogging::eLogMax] = {
+static const char* LogColors[WNLogging::eLogMax] = {
     "\e[0m",
     "\e[1;4;31m",
     "\e[31m",
@@ -27,21 +27,21 @@ WNLogging::WNConsoleLogger<T_Level>::~WNConsoleLogger() {
 }
 
 template<WNLogging::WNConsoleLocation T_Level>
-wn_void WNLogging::WNConsoleLogger<T_Level>::FlushBuffer(const wn_char* _buffer, wn_size_t _bufferSize, const  std::vector<WNLogging::WNLogColorElement>& _colors) {
+void WNLogging::WNConsoleLogger<T_Level>::FlushBuffer(const char* _buffer, size_t _bufferSize, const  std::vector<WNLogging::WNLogColorElement>& _colors) {
     if(_colors.size() > 0) {
         {
-            wn_size_t len =  _colors.front().mPosition - _buffer;
-            fprintf(mFiles[T_Level], "%.*s", static_cast<wn_int32>(len), _buffer);
+            size_t len =  _colors.front().mPosition - _buffer;
+            fprintf(mFiles[T_Level], "%.*s", static_cast<int32_t>(len), _buffer);
         }
             
-        for(wn_size_t i = 0; i < _colors.size(); ++i) {
+        for(size_t i = 0; i < _colors.size(); ++i) {
             fprintf(mFiles[T_Level], "%s", LogColors[(_colors)[i].mLevel]);
-            const wn_char* endColor = ((_colors).size() == i+1)? _buffer + _bufferSize: (_colors)[i+1].mPosition;
-            wn_size_t len =  endColor - (_colors)[i].mPosition;
-            fprintf(mFiles[T_Level], "%.*s", static_cast<wn_int32>(len), (_colors)[i].mPosition);
+            const char* endColor = ((_colors).size() == i+1)? _buffer + _bufferSize: (_colors)[i+1].mPosition;
+            size_t len =  endColor - (_colors)[i].mPosition;
+            fprintf(mFiles[T_Level], "%.*s", static_cast<int32_t>(len), (_colors)[i].mPosition);
         }
     } else {
-        fprintf(mFiles[T_Level], "%.*s", static_cast<wn_int32>(_bufferSize), _buffer);
+        fprintf(mFiles[T_Level], "%.*s", static_cast<int32_t>(_bufferSize), _buffer);
     }
 }
 

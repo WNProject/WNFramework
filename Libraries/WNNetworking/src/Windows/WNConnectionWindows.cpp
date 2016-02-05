@@ -35,7 +35,7 @@ WNConnectionWindows::~WNConnectionWindows() {
     }
 }
 
-wn_void WNConnectionWindows::Invalidate() {
+void WNConnectionWindows::Invalidate() {
     WNConnection::Invalidate();
 
     if (mSocket != 0) {
@@ -49,7 +49,7 @@ SOCKET WNConnectionWindows::GetWindowsSocket() {
     return(mSocket);
 }
 
-wn_bool WNConnectionWindows::Receive() {
+bool WNConnectionWindows::Receive() {
     DWORD bytes;
     DWORD flags = 0;
 
@@ -59,10 +59,10 @@ wn_bool WNConnectionWindows::Receive() {
     int lastError = WSAGetLastError();
 
     if (SOCKET_ERROR == received && (WSA_IO_PENDING != lastError)) {
-        return(wn_false);
+        return(false);
     }
 
-    return(wn_true);
+    return(true);
 }
 
 WNConnectionWindows::eWNNetworkOperation WNConnectionWindows::GetOperation(LPOVERLAPPED _overlapped) {
@@ -75,12 +75,12 @@ WNConnectionWindows::eWNNetworkOperation WNConnectionWindows::GetOperation(LPOVE
     }
 }
 
-wn_bool WNConnectionWindows::ProcessRead(WNNetworkManagerWindows* _windowsManager, DWORD _bytesTransferred) {
-    wn_size_t processedBytes = 0;
+bool WNConnectionWindows::ProcessRead(WNNetworkManagerWindows* _windowsManager, DWORD _bytesTransferred) {
+    size_t processedBytes = 0;
     WN_RELEASE_ASSERT(mReadHead <= wn::containers::MAX_DATA_WRITE);
     while(processedBytes != _bytesTransferred) {
         WN_RELEASE_ASSERT(processedBytes < _bytesTransferred);
-        wn_size_t transferToOverflow = wn::min<wn_size_t>(8 - mOverflowAmount, _bytesTransferred);
+        size_t transferToOverflow = wn::min<size_t>(8 - mOverflowAmount, _bytesTransferred);
         wn::memory::memcpy(mOverflowLocation + mOverflowAmount, (mReadLocation->GetBaseLocation()) + mReadHead, transferToOverflow);
         mOverflowAmount += transferToOverflow;
         processedBytes += transferToOverflow;
@@ -99,13 +99,13 @@ wn_bool WNConnectionWindows::ProcessRead(WNNetworkManagerWindows* _windowsManage
             break;
         }
 
-        wn_uint32 num = *reinterpret_cast<wn_uint32*>(mOverflowLocation);
-        wn_uint32 callback = *reinterpret_cast<wn_uint32*>(mOverflowLocation + 4);
+        uint32_t num = *reinterpret_cast<uint32_t*>(mOverflowLocation);
+        uint32_t callback = *reinterpret_cast<uint32_t*>(mOverflowLocation + 4);
 
         callback = wn::core::from_big_endian(callback);
         num = wn::core::from_big_endian(num);
 
-        wn_size_t mMaxWrite = wn::min<wn_size_t>(_bytesTransferred, (num - mInProcessedBytes));
+        size_t mMaxWrite = wn::min<size_t>(_bytesTransferred, (num - mInProcessedBytes));
 
         mReadHead += mMaxWrite;
         processedBytes += mMaxWrite;
@@ -134,10 +134,10 @@ wn_bool WNConnectionWindows::ProcessRead(WNNetworkManagerWindows* _windowsManage
         }
     }
 
-    return(wn_true);
+    return(true);
 }
 
-wn_void WNConnectionWindows::AppendSendBuffer(WNNetworkWriteBuffer& _buff) {
+void WNConnectionWindows::AppendSendBuffer(WNNetworkWriteBuffer& _buff) {
     std::lock_guard<wn::multi_tasking::mutex> guard(mSendMutex);
 
     mWriteBuffers.push_back(_buff);
@@ -147,7 +147,7 @@ wn_void WNConnectionWindows::AppendSendBuffer(WNNetworkWriteBuffer& _buff) {
     }
 }
 
-wn_void WNConnectionWindows::Send() {
+void WNConnectionWindows::Send() {
     WNNetworkWriteBuffer& buff = mWriteBuffers.front();
     const std::vector<wn::memory::intrusive_ptr<WNBufferResource> >& sendBuffs = buff.GetChunks();
     mWSAWriteBuffers.clear();
@@ -161,7 +161,7 @@ wn_void WNConnectionWindows::Send() {
     }
 }
 
-wn_void WNConnectionWindows::ProcessWrite() {
+void WNConnectionWindows::ProcessWrite() {
     std::lock_guard< wn::multi_tasking::mutex> guard(mSendMutex);
     mWriteBuffers.pop_front();
     if(mWriteBuffers.size() > 0){
@@ -169,7 +169,7 @@ wn_void WNConnectionWindows::ProcessWrite() {
     }
 }
 
-wn_void WNConnectionWindows::SendBuffer(WNNetworkWriteBuffer& _buffer) {
+void WNConnectionWindows::SendBuffer(WNNetworkWriteBuffer& _buffer) {
     _buffer.FlushWrite();
     AppendSendBuffer(_buffer);
 }

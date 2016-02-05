@@ -17,15 +17,15 @@ namespace WNNetworking {
         WNBufferResource(const WNNetworkManager& _manager);
         virtual ~WNBufferResource();
 
-        wn_char* GetPointer() const;
-        wn_char* GetBaseLocation() const;
-        wn_size_t GetSize() const;
-        wn_size_t GetWritten() const;
-        wn_void FlushWrite();
-        wn_void PrepareRead();
-        wn_void AddData(wn_size_t _data);
-        wn_void FillData();
-        wn_void Clear();
+        char* GetPointer() const;
+        char* GetBaseLocation() const;
+        size_t GetSize() const;
+        size_t GetWritten() const;
+        void FlushWrite();
+        void PrepareRead();
+        void AddData(size_t _data);
+        void FillData();
+        void Clear();
 
         #ifdef _WN_WINDOWS
             WN_FORCE_INLINE const WSABUF* GetWriteWinBuf() const;
@@ -42,9 +42,9 @@ namespace WNNetworking {
             WSABUF mWinBuf;
         #endif
 
-        wn_char* mBuffer;
-        wn_size_t mBaseLocation;
-        wn_size_t mCurLocation;
+        char* mBuffer;
+        size_t mBaseLocation;
+        size_t mCurLocation;
     };
 }
 

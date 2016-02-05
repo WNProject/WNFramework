@@ -15,14 +15,14 @@ struct AdditionalFunction {
     void* mFunctionPointer;
 };
 #ifdef _WN_ANDROID
-wn_uint32 WN_INLINE __WN_Sync_Fetch_And_Add_4 (wn_uint32* ptr, wn_uint32 val) {
-    wn_uint32 a = *ptr;
+uint32_t WN_INLINE __WN_Sync_Fetch_And_Add_4 (uint32_t* ptr, uint32_t val) {
+    uint32_t a = *ptr;
     *ptr = *ptr + val;
     return(a);
     //return(__sync_fetch_and_add(ptr, val));
 }
-wn_uint32 WN_INLINE __WN_Sync_Fetch_And_Sub_4 (wn_uint32* ptr, wn_uint32 val) {
-    wn_uint32 a = *ptr;
+uint32_t WN_INLINE __WN_Sync_Fetch_And_Sub_4 (uint32_t* ptr, uint32_t val) {
+    uint32_t a = *ptr;
     *ptr = *ptr - val;
     return(a);
     ///return(__sync_fetch_and_sub(ptr, val));
@@ -66,7 +66,7 @@ namespace WNScripting {
         }
         static void* mMalloc(size_t size) {
             void* v = calloc(size, 1);
-            printf("Mallocing: %d -> %p\n", static_cast<wn_int32>(size), v);
+            printf("Mallocing: %d -> %p\n", static_cast<int32_t>(size), v);
             return(v);
         }
         //Not sure why, but in win32/winx64 this gets called and getPointerToNamedFunction does not

@@ -19,14 +19,14 @@ WNNetworkReadBuffer::WNNetworkReadBuffer(WNNetworkManager& _manager) :
     mManager(_manager),
     mBufferPointer(0),
     mTotalRead(0),
-    mInitialized(wn_false),
+    mInitialized(false),
     mTotalSize(0),
-    mLastChunk(wn_false),
+    mLastChunk(false),
     mDataOverflow(wn::memory::make_intrusive<WNBufferResource, WNNetworkManager&>(&allocator, _manager)) {
 }
 
-wn_bool WNNetworkReadBuffer::serialize(const wn::containers::serializer_base& _serializer, const wn_uint32 _flags) {
-    const wn_size_t read = _serializer.serialize(*this, _flags);
+bool WNNetworkReadBuffer::serialize(const wn::containers::serializer_base& _serializer, const uint32_t _flags) {
+    const size_t read = _serializer.serialize(*this, _flags);
 
     mBufferPointer += read;
     mTotalRead += read;
@@ -38,14 +38,14 @@ wn_bool WNNetworkReadBuffer::serialize(const wn::containers::serializer_base& _s
         mCurrentChunk = mChunks.erase(mCurrentChunk);
     }
 
-    return(wn_true);
+    return(true);
 }
 
 wn::containers::data_buffer_type WNNetworkReadBuffer::type() const {
     return(wn::containers::data_buffer_type::read_binary);
 }
 
-wn_char* WNNetworkReadBuffer::reserve(const wn_size_t _numBytes, wn_size_t& _returnedBytes) {
+char* WNNetworkReadBuffer::reserve(const size_t _numBytes, size_t& _returnedBytes) {
     if (mBufferPointer == wn::containers::MAX_DATA_WRITE) {
         mBufferPointer = 0;
         mCurrentChunk++;
@@ -59,16 +59,16 @@ wn_char* WNNetworkReadBuffer::reserve(const wn_size_t _numBytes, wn_size_t& _ret
     return((*mCurrentChunk)->GetPointer());
 }
 
-wn_void WNNetworkReadBuffer::AppendBuffer(wn::memory::intrusive_ptr<WNBufferResource>&  _buffer, wn_size_t _datacount, wn_size_t _dataOffset) {
+void WNNetworkReadBuffer::AppendBuffer(wn::memory::intrusive_ptr<WNBufferResource>&  _buffer, size_t _datacount, size_t _dataOffset) {
     WN_RELEASE_ASSERT_DESC(_datacount < wn::containers::MAX_DATA_WRITE, "You cannot append a buffer larger than the set size");
 
-    mInitialized = wn_true;
-    wn_bool firstChunk = wn_false;
+    mInitialized = true;
+    bool firstChunk = false;
 
     if (mChunks.empty()) {
         mWriteOffset = _dataOffset;
         mBufferPointer = _dataOffset;
-        firstChunk = wn_true;
+        firstChunk = true;
     } else {
         WN_RELEASE_ASSERT_DESC(_dataOffset == 0, "Cannot append a buffer to a position other than the start of the stream if it has a space at the start");
     }
@@ -82,30 +82,30 @@ wn_void WNNetworkReadBuffer::AppendBuffer(wn::memory::intrusive_ptr<WNBufferReso
     if ((_datacount + _dataOffset) != wn::containers::MAX_DATA_WRITE) {
         WN_RELEASE_ASSERT_DESC(!mLastChunk, "Error trying to append a non-full buffer to a write stream");
 
-        mLastChunk = wn_true;
+        mLastChunk = true;
     }
 
     mTotalSize += _datacount;
 }
 
-wn_bool WNNetworkReadBuffer::Initialized() {
+bool WNNetworkReadBuffer::Initialized() {
     return(mInitialized);
 }
 
-wn_void WNNetworkReadBuffer::Clear() {
-    mInitialized = wn_false;
+void WNNetworkReadBuffer::Clear() {
+    mInitialized = false;
     mTotalSize = mWriteOffset = mBufferPointer = mTotalRead = mTotalSize = 0;
-    mLastChunk = wn_false;
+    mLastChunk = false;
 
     mChunks.clear();
 }
 
-wn_char* WNNetworkReadBuffer::GetLastBuffer() {
+char* WNNetworkReadBuffer::GetLastBuffer() {
     WN_DEBUG_ASSERT(mChunks.size() > 0);
 
     return(mChunks.back()->GetBaseLocation());
 }
 
-wn_void WNNetworkReadBuffer::PrepareRead() {
+void WNNetworkReadBuffer::PrepareRead() {
     mChunks.back()->PrepareRead();
 }

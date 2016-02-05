@@ -63,7 +63,7 @@ static const char*
         "Int", "Float", "Char", "Char", "Bool", "Custom"};
 
 // How deep each of the types is in in terms of array indexing.
-static const wn_size_t type_array_depth[static_cast<size_t>(
+static const size_t type_array_depth[static_cast<size_t>(
     type_classification::max)] = {0, 0, 0, 0, 0, 1, 0, 1, 0, 0};
 
 // All possible binary arithmetic operations in WNScript.

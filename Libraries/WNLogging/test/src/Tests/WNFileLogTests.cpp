@@ -12,7 +12,7 @@
 
 const char* sFileName = FILE_PREFIX "test" _WN_PLATFORM_NAME _WN_ARCH_NAME _WN_CONFIG_NAME ".txt";
 
-wn_size_t NumWritten() {
+size_t NumWritten() {
     FILE * fp = fopen(sFileName, "r");
     if(!fp) {
        return(false);
@@ -31,7 +31,7 @@ wn_size_t NumWritten() {
     return(sz);
 }
 
-const wn_char* GetTempFile()
+const char* GetTempFile()
 {
     return(sFileName);
 }

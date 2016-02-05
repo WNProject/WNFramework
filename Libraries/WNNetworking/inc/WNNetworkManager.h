@@ -72,29 +72,29 @@ namespace WNNetworking {
     typedef wn::memory::intrusive_ptr<WNConnection> WNConnectionPtr;
     typedef wn::memory::intrusive_ptr<WNConnectionGroup> WNConnectionGroupPtr;
 
-    typedef wn::containers::function<wn_bool(const wn_char*)> WNConnectedCallback;
-    typedef wn::containers::function<wn_void(WNConnection*, WNNetworkReadBuffer&)> WNMessageCallback;
+    typedef wn::containers::function<bool(const char*)> WNConnectedCallback;
+    typedef wn::containers::function<void(WNConnection*, WNNetworkReadBuffer&)> WNMessageCallback;
 
     class WNNetworkManager {
     public:
         WN_FORCE_INLINE WNNetworkManager() {}
         virtual WN_FORCE_INLINE ~WNNetworkManager() {}
 
-        virtual WNNetworkManagerReturnCode::type Initialize(wn_uint32 _numWorkerThreads) = 0;
+        virtual WNNetworkManagerReturnCode::type Initialize(uint32_t _numWorkerThreads) = 0;
         //You do not own this connection, you must ask the network manager to destroy it for you
-        virtual WNNetworkManagerReturnCode::type ConnectTo(WNConnection*& _outHandle, WNConnectionType::type _type, const wn_char* _target, wn_uint16 _port) = 0;
+        virtual WNNetworkManagerReturnCode::type ConnectTo(WNConnection*& _outHandle, WNConnectionType::type _type, const char* _target, uint16_t _port) = 0;
         //You do not own this connection, you must ask the network manager to destroy it for you
-        virtual WNNetworkManagerReturnCode::type CreateListener(WNConnection*& _outHandle, WNConnectionType::type _type, wn_uint16 _port, const WNConnectedCallback& _callback) = 0;
-        virtual wn_void DestroyConnection(WNConnection* _connection) = 0;
+        virtual WNNetworkManagerReturnCode::type CreateListener(WNConnection*& _outHandle, WNConnectionType::type _type, uint16_t _port, const WNConnectedCallback& _callback) = 0;
+        virtual void DestroyConnection(WNConnection* _connection) = 0;
 
-        virtual wn_void Cleanup();
-        wn_void InitializeBuffer(WNNetworkWriteBuffer& _buffer, wn_uint32 _number);
-        wn_void SetCallback(wn_uint32 _identifier, const WNMessageCallback& _callback);
-        wn_void FireCallback(wn_uint32 _callbackNumber, WNConnection* _connection, WNNetworkReadBuffer& _buffer);
+        virtual void Cleanup();
+        void InitializeBuffer(WNNetworkWriteBuffer& _buffer, uint32_t _number);
+        void SetCallback(uint32_t _identifier, const WNMessageCallback& _callback);
+        void FireCallback(uint32_t _callbackNumber, WNConnection* _connection, WNNetworkReadBuffer& _buffer);
 
         //You do not own this connection, you must ask the network manager to destroy it for you
-        WNNetworkManagerReturnCode::type CreateConnectionGroup(WNConnectionGroup*& _outHandle, const wn_char* _groupName);
-        wn_void DestroyConnectionGroup(WNConnectionGroup* _group);
+        WNNetworkManagerReturnCode::type CreateConnectionGroup(WNConnectionGroup*& _outHandle, const char* _groupName);
+        void DestroyConnectionGroup(WNConnectionGroup* _group);
 
     protected:
         enum WNCallbackMessage {
@@ -103,10 +103,10 @@ namespace WNNetworking {
         };
 
     protected:
-        wn_void UnregisterConnection(WNConnection* _connection);
+        void UnregisterConnection(WNConnection* _connection);
 
     private:
-        WN_UNORDERED_MAP<wn_uint32, WNMessageCallback> mCallbackMap;
+        WN_UNORDERED_MAP<uint32_t, WNMessageCallback> mCallbackMap;
         std::list<WNConnectionGroup*> mGroupList;
     };
 }

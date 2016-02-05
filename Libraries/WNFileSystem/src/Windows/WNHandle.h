@@ -19,7 +19,7 @@ class handle final : core::non_copyable {
 public:
   WN_FORCE_INLINE handle() : m_handle(NULL) {}
 
-  WN_FORCE_INLINE handle(const wn_nullptr_t) : handle() {}
+  WN_FORCE_INLINE handle(const nullptr_t) : handle() {}
 
   WN_FORCE_INLINE handle(HANDLE _handle) : m_handle(_handle) {}
 

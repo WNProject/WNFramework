@@ -11,8 +11,8 @@ namespace wn {
   WNSurfaceAndroid::WNSurfaceAndroid(WNSurfaceManagerAndroid& _surfaceManager) :
       surface(),
       mManager(_surfaceManager),
-      mExiting(wn_false),
-      mInitialized(wn_false) {
+      mExiting(false),
+      mInitialized(false) {
       mDisplay = EGL_NO_DISPLAY;
       mSurface = EGL_NO_SURFACE;
       mConfig = 0;
@@ -23,26 +23,26 @@ namespace wn {
           WNUtils::WNAndroidEventPump::GetInstance().SubscribeToEvent(WNUtils::WNAndroidEventPump::eDisplayCreated, NULL, NULL);
           WNUtils::WNAndroidEventPump::GetInstance().SubscribeToEvent(WNUtils::WNAndroidEventPump::eDisplayDestroyed, NULL, NULL);
       }
-      mExiting = wn_true;
+      mExiting = true;
       CleanupWindow(WNUtils::gAndroidApp);
       mManager.SurfaceDestroyed();
   }
 
-  wn_bool WNSurfaceAndroid::Initialize() {
+  bool WNSurfaceAndroid::Initialize() {
       android_app* app = WNUtils::gAndroidApp;
       if(!app)
       {
-          return(wn_false);
+          return(false);
       }
 
       WNUtils::WNAndroidEventPump::GetInstance().SubscribeToEvent(WNUtils::WNAndroidEventPump::eDisplayCreated, &WNSurfaceAndroid::HandleWindowCommand, this);
       WNUtils::WNAndroidEventPump::GetInstance().SubscribeToEvent(WNUtils::WNAndroidEventPump::eDisplayDestroyed, &WNSurfaceAndroid::HandleWindowCommand, this);
       mCreationSemaphore.wait();
       mInitialized = (mSurface != EGL_NO_SURFACE);
-      return(wn_true);
+      return(true);
   }
 
-  wn_void WNSurfaceAndroid::HandleWindowCommand(WNUtils::WNAndroidEventPump::eMessageType _msg, android_app* _app, wn_uint32 _val, wn_void* appData) {
+  void WNSurfaceAndroid::HandleWindowCommand(WNUtils::WNAndroidEventPump::eMessageType _msg, android_app* _app, uint32_t _val, void* appData) {
       WNSurfaceAndroid* surface = reinterpret_cast<WNSurfaceAndroid*>(appData);
       switch(_msg){
           case WNUtils::WNAndroidEventPump::eDisplayCreated:
@@ -56,24 +56,24 @@ namespace wn {
       }
   }
 
-  wn_bool WNSurfaceAndroid::InitializeWindow(android_app* state) {
+  bool WNSurfaceAndroid::InitializeWindow(android_app* state) {
       if(!mManager.InitializeDisplay(mDisplay, mConfig)) {
           mCreationSemaphore.notify();
-          return(wn_false);
+          return(false);
       }
       
       EGLint format;
       if(EGL_FALSE == eglGetConfigAttrib(mDisplay, mConfig, EGL_NATIVE_VISUAL_ID, &format)) {
           mCreationSemaphore.notify();
-          return(wn_false);
+          return(false);
       }
       if(0 > ANativeWindow_setBuffersGeometry(state->window, 0, 0, format)) {
           mCreationSemaphore.notify();
-          return(wn_false);
+          return(false);
       }
       if(EGL_NO_SURFACE == (mSurface = eglCreateWindowSurface(mDisplay, mConfig, state->window, NULL))) {
           mCreationSemaphore.notify();
-          return(wn_false); 
+          return(false); 
       }
       
       EGLint w, h;
@@ -82,10 +82,10 @@ namespace wn {
       mWidth = w;
       mHeight = h;
       mCreationSemaphore.notify();
-      return(wn_true); 
+      return(true); 
   }
 
-  wn_bool WNSurfaceAndroid::CleanupWindow(android_app* state) {
+  bool WNSurfaceAndroid::CleanupWindow(android_app* state) {
       FireCallback(eWNSETDestroyed); //callback also not locked
       if(mDisplay != EGL_NO_DISPLAY) {
           eglMakeCurrent(mDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
@@ -95,45 +95,45 @@ namespace wn {
       }
       mSurface = EGL_NO_SURFACE;
       mDisplay = EGL_NO_DISPLAY;
-      mConfig = wn_nullptr;
+      mConfig = nullptr;
       if(!mManager.DestroyDisplay()) {
-         return(wn_false); 
+         return(false); 
       }
-      return(wn_true);
+      return(true);
   }
   WNSurfaceNativeHandle WNSurfaceAndroid::GetNativeHandle() const {
       return(mSurface);
   }
 
-  surface::WNSurfaceError WNSurfaceAndroid::Resize(wn_uint32, wn_uint32) {
+  surface::WNSurfaceError WNSurfaceAndroid::Resize(uint32_t, uint32_t) {
       return(ok);
   }
 
-  surface::WNSurfaceError WNSurfaceAndroid::Move(wn_uint32, wn_uint32) {
+  surface::WNSurfaceError WNSurfaceAndroid::Move(uint32_t, uint32_t) {
       return(ok);
   }
 
-  wn_bool WNSurfaceAndroid::IsFullscreen() const {
-      return(wn_true);
+  bool WNSurfaceAndroid::IsFullscreen() const {
+      return(true);
   }
 
-  surface::WNSurfaceError WNSurfaceAndroid::SetFullscreen(wn_bool) {
+  surface::WNSurfaceError WNSurfaceAndroid::SetFullscreen(bool) {
       return(ok);
   }
 
-  wn_uint32 WNSurfaceAndroid::GetWidth() const {
+  uint32_t WNSurfaceAndroid::GetWidth() const {
       return(mWidth);
   }
 
-  wn_uint32 WNSurfaceAndroid::GetHeight() const {
+  uint32_t WNSurfaceAndroid::GetHeight() const {
       return(mHeight);
   }
 
-  wn_uint32 WNSurfaceAndroid::GetX() const {
+  uint32_t WNSurfaceAndroid::GetX() const {
       return(0);
   }
 
-  wn_uint32 WNSurfaceAndroid::GetY() const {
+  uint32_t WNSurfaceAndroid::GetY() const {
       return(0);
   }
 }

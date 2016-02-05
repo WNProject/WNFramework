@@ -15,20 +15,20 @@ namespace wn {
 namespace core {
 
 template <typename _InputIt1, typename _InputIt2>
-WN_FORCE_INLINE wn_bool equal(
+WN_FORCE_INLINE bool equal(
     _InputIt1 _first1, _InputIt1 _last1, _InputIt2 _first2) {
   return std::equal(_first1, _last1, _first2);
 }
 
 template <typename _InputIt1, typename _InputIt2>
-WN_FORCE_INLINE wn_bool equal(
+WN_FORCE_INLINE bool equal(
     _InputIt1 _first1, _InputIt1 _last1, _InputIt2 _first2, _InputIt2 _last2) {
 #ifdef _WN_HAS_CPP14_STD_EQUAL
   return std::equal(_first1, _last1, _first2, _last2);
 #else
   for (; (_first1 != _last1 && _first2 != _last2); ++_first1, ++_first2) {
     if (*_first1 != *_first2) {
-      return wn_false;
+      return false;
     }
   }
 
@@ -37,20 +37,20 @@ WN_FORCE_INLINE wn_bool equal(
 }
 
 template <typename _InputIt1, typename _InputIt2, typename _Predicate>
-WN_FORCE_INLINE wn_bool equal_if(
+WN_FORCE_INLINE bool equal_if(
     _InputIt1 _first1, _InputIt1 _last1, _InputIt2 _first2, _Predicate _p) {
   return std::equal(_first1, _last1, _first2, _p);
 }
 
 template <typename _InputIt1, typename _InputIt2, typename _Predicate>
-WN_FORCE_INLINE wn_bool equal_if(_InputIt1 _first1, _InputIt1 _last1,
+WN_FORCE_INLINE bool equal_if(_InputIt1 _first1, _InputIt1 _last1,
     _InputIt2 _first2, _InputIt2 _last2, _Predicate _p) {
 #ifdef _WN_HAS_CPP14_STD_EQUAL_VARIANT
   return std::equal(_first1, _last1, _first2, _last2, _p);
 #else
   for (; (_first1 != _last1 && _first2 != _last2); ++_first1, ++_first2) {
     if (!_p(*_first1, *_first2)) {
-      return wn_false;
+      return false;
     }
   }
 

@@ -17,7 +17,7 @@ namespace internal {
 
 struct basic_traits_3dnow : basic_traits_generic {
   template <typename T>
-  static WN_FORCE_INLINE wn_void prefetch(const T* ptr) {
+  static WN_FORCE_INLINE void prefetch(const T* ptr) {
     _m_prefetchw(reinterpret_cast<const void*>(ptr));
   }
 };

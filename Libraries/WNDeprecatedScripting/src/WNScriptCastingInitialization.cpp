@@ -14,7 +14,7 @@
 
 namespace WNScripting {
     struct GenerateFPToIntCast: public GenerateCastingOperation {
-        GenerateFPToIntCast(WNScriptType _destType, wn_bool _destSigned) :
+        GenerateFPToIntCast(WNScriptType _destType, bool _destSigned) :
             mDestInt(_destType),
             mDestSigned(_destSigned) {
         }
@@ -31,11 +31,11 @@ namespace WNScripting {
         }
     private:
         WNScriptType mDestInt;
-        wn_bool mDestSigned;
+        bool mDestSigned;
     };
 
     struct GenerateIntToFPCast: public GenerateCastingOperation {
-        GenerateIntToFPCast(WNScriptType _destType, wn_bool _srcSigned) :
+        GenerateIntToFPCast(WNScriptType _destType, bool _srcSigned) :
             mDestInt(_destType),
             mSrcSigned(_srcSigned) {
         }
@@ -52,11 +52,11 @@ namespace WNScripting {
         }
     private:
         WNScriptType mDestInt;
-        wn_bool mSrcSigned;
+        bool mSrcSigned;
     };
 
     struct GenerateIntToIntCast: public GenerateCastingOperation {
-        GenerateIntToIntCast(WNScriptType _destType, wn_bool _srcSigned) :
+        GenerateIntToIntCast(WNScriptType _destType, bool _srcSigned) :
             mDestInt(_destType),
             mSrcSigned(_srcSigned) {
         }
@@ -68,7 +68,7 @@ namespace WNScripting {
         }
     private:
         WNScriptType mDestInt;
-        wn_bool mSrcSigned;
+        bool mSrcSigned;
     };
 
     eWNTypeError WNBuiltIninitializer::InitializeScriptingCasts(WNScriptingEngine*, WNTypeManager& _manager) {

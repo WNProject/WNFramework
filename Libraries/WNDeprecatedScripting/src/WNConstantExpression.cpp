@@ -12,7 +12,7 @@ using namespace WNScripting;
 
 WNConstantExpression::WNConstantExpression(WNScriptTypeName _type, const char* _text) :
     mTypeName(_type),
-    mText(wn_nullptr) {
+    mText(nullptr) {
     COPY_STRING(_text, mText);
 }
 
@@ -34,7 +34,7 @@ eWNTypeError WNConstantExpression::GenerateCode(WNCodeModule& _module, const WNF
         return(eWNBadType);
     }
 
-    for(wn_size_t i = 0; i < WNScriptTypeLevels[mTypeName]; ++i) {
+    for(size_t i = 0; i < WNScriptTypeLevels[mTypeName]; ++i) {
         _module.GetTypeManager().get_array_of(mScriptType, mScriptType);
     }
 

@@ -17,11 +17,11 @@
 namespace wn {
 namespace scripting {
 struct source_location {
-  wn_int64 m_start_index;
-  wn_int64 m_end_index;
-  const wn_byte* m_line_start;
-  wn_size_t m_line_number;
-  wn_size_t m_char_number;
+  int64_t m_start_index;
+  int64_t m_end_index;
+  const uint8_t* m_line_start;
+  size_t m_line_number;
+  size_t m_char_number;
 };
 
 // clang-format off
@@ -88,18 +88,18 @@ public:
     : m_allocator(_allocator), m_type(_type), m_is_dead(false) {}
   virtual ~node() {}
 
-  wn_void copy_location_from(const node* _node) {
+  void copy_location_from(const node* _node) {
     m_source_location = _node->m_source_location;
   }
 
   // Sets the start location of first character representing this node.
-  wn_void set_start_location(const source_location& _location) {
+  void set_start_location(const source_location& _location) {
     m_source_location = _location;
   }
 
   // Modifies the source_location with the given source index of the last
   // character that represents this node.
-  wn_void set_end_index(wn_int64 _idx) {
+  void set_end_index(int64_t _idx) {
     m_source_location.m_end_index = _idx;
   }
 
@@ -109,22 +109,22 @@ public:
   }
 
   // Writes the first line of this expression to the given log.
-  wn_void log_line(WNLogging::WNLog& _log, WNLogging::WNLogLevel _level) const {
-    wn_size_t line_length = 1023;
-    const wn_char* c = memory::strnchr(
-        reinterpret_cast<const wn_char*>(m_source_location.m_line_start), '\n',
+  void log_line(WNLogging::WNLog& _log, WNLogging::WNLogLevel _level) const {
+    size_t line_length = 1023;
+    const char* c = memory::strnchr(
+        reinterpret_cast<const char*>(m_source_location.m_line_start), '\n',
         1023);
-    if (c == wn_nullptr) {
+    if (c == nullptr) {
       // If there is no \n then we simply print everything
-      c = reinterpret_cast<const wn_char*>(m_source_location.m_line_start) +
+      c = reinterpret_cast<const char*>(m_source_location.m_line_start) +
           memory::strnlen(
-              reinterpret_cast<const wn_char*>(m_source_location.m_line_start),
+              reinterpret_cast<const char*>(m_source_location.m_line_start),
               1023);
     }
     line_length =
-        (c - reinterpret_cast<const wn_char*>(m_source_location.m_line_start));
-    wn_char* data_buffer =
-        static_cast<wn_char*>(WN_STACK_ALLOC(line_length + 1));
+        (c - reinterpret_cast<const char*>(m_source_location.m_line_start));
+    char* data_buffer =
+        static_cast<char*>(WN_STACK_ALLOC(line_length + 1));
     memcpy(data_buffer, m_source_location.m_line_start, line_length);
     data_buffer[line_length] = '\0';
     _log.Log(_level, 0, "Line: ", m_source_location.m_line_number, "\n",
@@ -155,14 +155,14 @@ public:
       m_qualifier(type_qualifier::none),
       m_custom_type(_custom_type, _allocator) {}
 
-  type(memory::allocator* _allocator, wn_uint32 _type)
+  type(memory::allocator* _allocator, uint32_t _type)
     : node(_allocator, node_type::type),
       m_type(_type),
       m_qualifier(type_qualifier::none) {}
 
   type(memory::allocator* _allocator, type_classification _type)
     : node(_allocator, node_type::type),
-      m_type(static_cast<wn_uint32>(_type)),
+      m_type(static_cast<uint32_t>(_type)),
       m_qualifier(type_qualifier::none),
       m_custom_type(_allocator) {}
 
@@ -184,7 +184,7 @@ public:
     m_qualifier = _qualifier;
   }
 
-  void set_type_index(wn_uint32 _index) {
+  void set_type_index(uint32_t _index) {
     m_type = _index;
   }
 
@@ -192,8 +192,8 @@ public:
     return !(*this == _other);
   }
 
-  wn_uint32 get_type_value() const {
-    return static_cast<wn_uint32>(m_type);
+  uint32_t get_type_value() const {
+    return static_cast<uint32_t>(m_type);
   }
 
   uint32_t get_index() const {
@@ -208,7 +208,7 @@ public:
   }
 
 private:
-  wn_uint32 m_type;
+  uint32_t m_type;
   type_qualifier m_qualifier;
   containers::string m_custom_type;
 };
@@ -232,22 +232,22 @@ class expression : public node {
 public:
   expression(memory::allocator* _allocator, node_type _type)
     : node(_allocator, _type),
-      m_type(wn_nullptr),
-      m_force_use(wn_false),
-      m_newly_created(wn_false) {}
+      m_type(nullptr),
+      m_force_use(false),
+      m_newly_created(false) {}
 
   expression(memory::allocator* _allocator, node_type _node_type, type* _type)
     : node(_allocator, _node_type),
       m_type(memory::unique_ptr<type>(_allocator, _type)),
-      m_force_use(wn_false),
-      m_newly_created(wn_false) {}
+      m_force_use(false),
+      m_newly_created(false) {}
 
   // Returns true if the value of this expression cannot be ignored.
-  wn_bool required_use() const {
+  bool required_use() const {
     return m_force_use;
   }
 
-  wn_bool is_newly_created() {
+  bool is_newly_created() {
     return m_newly_created;
   }
 
@@ -276,8 +276,8 @@ protected:
   memory::unique_ptr<type> m_type;
 
 private:
-  wn_bool m_force_use;
-  wn_bool m_newly_created;
+  bool m_force_use;
+  bool m_newly_created;
 };
 
 class array_allocation_expression : public expression {
@@ -287,15 +287,15 @@ public:
       m_array_initializers(_allocator),
       m_levels(0) {}
 
-  wn_void add_expression(expression* _expr) {
+  void add_expression(expression* _expr) {
     m_array_initializers.emplace_back(
         memory::unique_ptr<expression>(m_allocator, _expr));
     m_levels++;
   }
-  wn_void add_level() {
+  void add_level() {
     m_levels++;
   }
-  wn_void set_copy_initializer(expression* _expression) {
+  void set_copy_initializer(expression* _expression) {
     m_copy_initializer =
         memory::unique_ptr<expression>(m_allocator, _expression);
   }
@@ -303,7 +303,7 @@ public:
 private:
   containers::deque<memory::unique_ptr<expression>> m_array_initializers;
   memory::unique_ptr<expression> m_copy_initializer;
-  wn_size_t m_levels;
+  size_t m_levels;
 };
 
 class binary_expression : public expression {
@@ -360,7 +360,7 @@ public:
   constant_expression(memory::allocator* _allocator, type_classification _type,
       const char* _text)
     : expression(_allocator, node_type::constant_expression),
-      m_type_classification(static_cast<wn_uint32>(_type)),
+      m_type_classification(static_cast<uint32_t>(_type)),
       m_text(_text, _allocator) {}
 
   constant_expression(
@@ -369,7 +369,7 @@ public:
       m_type_classification(_type->get_index()),
       m_text(_text, _allocator) {}
 
-  wn_uint32 get_index() const {
+  uint32_t get_index() const {
     return m_type_classification;
   }
   const containers::string& get_type_text() const {
@@ -386,7 +386,7 @@ public:
   }
 
 private:
-  wn_uint32 m_type_classification;
+  uint32_t m_type_classification;
   containers::string m_text;
 };
 
@@ -394,7 +394,7 @@ class id_expression : public expression {
 public:
   id_expression(memory::allocator* _allocator, const char* _name)
     : expression(_allocator, node_type::id_expression),
-      m_source({wn_nullptr, wn_nullptr}),
+      m_source({nullptr, nullptr}),
       m_name(_name, _allocator) {}
   containers::string_view get_name() const {
     return m_name;
@@ -521,8 +521,8 @@ class struct_allocation_expression : public expression {
 public:
   struct_allocation_expression(memory::allocator* _allocator)
     : expression(_allocator, node_type::struct_allocation_expression),
-      m_copy_initializer(wn_nullptr) {}
-  wn_void set_copy_initializer(expression* _expression) {
+      m_copy_initializer(nullptr) {}
+  void set_copy_initializer(expression* _expression) {
     m_copy_initializer =
         memory::unique_ptr<expression>(m_allocator, _expression);
   }
@@ -558,13 +558,13 @@ class instruction_list;
 class instruction : public node {
 public:
   instruction(memory::allocator* _allocator, node_type _type)
-    : node(_allocator, _type), m_returns(wn_false), m_is_dead(wn_false) {}
-  instruction(memory::allocator* _allocator, node_type _type, wn_bool _returns)
+    : node(_allocator, _type), m_returns(false), m_is_dead(false) {}
+  instruction(memory::allocator* _allocator, node_type _type, bool _returns)
     : instruction(_allocator, _type) {
     m_returns = _returns;
   }
   // Returns true if this instruction causes the function to return.
-  wn_bool returns() const {
+  bool returns() const {
     return (m_returns);
   }
 
@@ -583,24 +583,24 @@ public:
   void set_is_dead() {
     m_is_dead = true;
   }
-  void set_returns(wn_bool returns) {
+  void set_returns(bool returns) {
     m_returns = returns;
   }
-  wn_bool is_dead() const {
+  bool is_dead() const {
     return m_is_dead;
   }
 
 protected:
-  wn_bool m_is_dead;
-  wn_bool m_returns;
+  bool m_is_dead;
+  bool m_returns;
 };
 
 struct function_expression {
   function_expression(
-      memory::allocator* _allocator, expression* _expr, wn_bool _hand_ownership)
+      memory::allocator* _allocator, expression* _expr, bool _hand_ownership)
     : m_expr(_allocator, _expr), m_hand_ownership(_hand_ownership) {}
   memory::unique_ptr<expression> m_expr;
-  wn_bool m_hand_ownership;
+  bool m_hand_ownership;
 };
 
 class instruction_list : public node {
@@ -608,11 +608,11 @@ public:
   instruction_list(memory::allocator* _allocator)
     : node(_allocator, node_type::instruction_list),
       m_instructions(_allocator),
-      m_returns(wn_false) {}
+      m_returns(false) {}
   instruction_list(memory::allocator* _allocator, instruction* inst)
     : node(_allocator, node_type::instruction_list),
       m_instructions(_allocator),
-      m_returns(wn_false) {
+      m_returns(false) {
     m_instructions.push_back(
         memory::unique_ptr<instruction>(m_allocator, inst));
   }
@@ -622,7 +622,7 @@ public:
         memory::unique_ptr<instruction>(m_allocator, inst));
   }
 
-  wn_bool returns() const {
+  bool returns() const {
     return (m_returns);
   }
   void set_returns() {
@@ -667,14 +667,14 @@ public:
 
 private:
   containers::deque<memory::unique_ptr<instruction>> m_instructions;
-  wn_bool m_returns;
+  bool m_returns;
 };
 
 class arg_list : public node {
 public:
   arg_list(memory::allocator* _allocator)
     : node(_allocator, node_type::arg_list), m_expression_list(_allocator) {}
-  void add_expression(expression* _expr, wn_bool _hand_ownership = wn_false) {
+  void add_expression(expression* _expr, bool _hand_ownership = false) {
     m_expression_list.emplace_back(memory::make_unique<function_expression>(
         m_allocator, m_allocator, _expr, _hand_ownership));
   }
@@ -771,7 +771,7 @@ public:
       const {
     return m_sized_array_initializers;
   }
-  wn_size_t get_num_unsized_array_initializers() const {
+  size_t get_num_unsized_array_initializers() const {
     return m_unsized_array_initializers;
   }
 
@@ -802,14 +802,14 @@ private:
   memory::unique_ptr<parameter> m_parameter;
   memory::unique_ptr<expression> m_expression;
   containers::deque<memory::unique_ptr<expression>> m_sized_array_initializers;
-  wn_size_t m_unsized_array_initializers;
+  size_t m_unsized_array_initializers;
 };
 
 class function;
 class struct_definition : public node {
 public:
   struct_definition(memory::allocator* _allocator, const char* _name,
-      bool _is_class = false, const char* _parent_type = wn_nullptr)
+      bool _is_class = false, const char* _parent_type = nullptr)
     : node(_allocator, node_type::struct_definition),
       m_name(_name, _allocator),
       m_parent_name(_allocator),
@@ -831,7 +831,7 @@ public:
         memory::unique_ptr<function>(m_allocator, _func));
   }
 
-  const wn_char* get_name() const {
+  const char* get_name() const {
     return (m_name.c_str());
   }
 
@@ -897,8 +897,8 @@ public:
       m_signature(memory::unique_ptr<parameter>(m_allocator, _signature)),
       m_parameters(memory::unique_ptr<parameter_list>(m_allocator, _params)),
       m_body(memory::unique_ptr<instruction_list>(m_allocator, _body)),
-      m_is_override(wn_false),
-      m_is_virtual(wn_false) {}
+      m_is_override(false),
+      m_is_virtual(false) {}
   void set_is_virtual(bool is_virtual) {
     m_is_virtual = is_virtual;
   }
@@ -969,7 +969,7 @@ public:
   lvalue(memory::allocator* _allocator, expression* _expr)
     : node(_allocator, node_type::lvalue),
       m_expression(memory::unique_ptr<expression>(_allocator, _expr)) {}
-  wn_bool required_use() {
+  bool required_use() {
     return m_expression->required_use();
   }
   const expression* get_expression() const {
@@ -1178,7 +1178,7 @@ public:
 
   return_instruction(memory::allocator* _allocator)
     : instruction(_allocator, node_type::return_instruction, true) {
-    m_change_ownership = wn_false;
+    m_change_ownership = false;
   }
 
   const expression* get_expression() const {
@@ -1202,7 +1202,7 @@ public:
 
 private:
   memory::unique_ptr<expression> m_expression;
-  wn_bool m_change_ownership;
+  bool m_change_ownership;
 };
 
 class while_instruction : public instruction {

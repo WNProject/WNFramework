@@ -47,24 +47,24 @@ namespace wn {
     }
 
     template <typename type>
-    wn_bool WNBox<type>::operator == (const WNBox& _box) const {
+    bool WNBox<type>::operator == (const WNBox& _box) const {
         return(mExtents == _box.mExtents && mLocation == _box.mLocation && mRotation == _box.mRotation);
     }
 
     template <typename type>
-    wn_bool WNBox<type>::operator != (const WNBox& _box) const {
+    bool WNBox<type>::operator != (const WNBox& _box) const {
         return(mExtents != _box.mExtents || mLocation != _box.mLocation || mRotation != _box.mRotation);
     }
 
     template <typename type>
-    wn_void WNBox<type>::Zero() {
+    void WNBox<type>::Zero() {
         mLocation.Zero();
         mExtents.Zero();
         mRotation.Identity();
     }
 
     template <typename type>
-    wn_void WNBox<type>::Set(const type* _numbers) {
+    void WNBox<type>::Set(const type* _numbers) {
         mLocation.mX = _numbers[0];
         mLocation.mY = _numbers[1];
         mLocation.mZ = _numbers[2];
@@ -80,26 +80,26 @@ namespace wn {
     }
 
     template <typename type>
-    wn_void WNBox<type>::Set(const WNVector<type>& _location, WNVector<type>& _extents, const WNQuaternion<type>& _rotation) {
+    void WNBox<type>::Set(const WNVector<type>& _location, WNVector<type>& _extents, const WNQuaternion<type>& _rotation) {
         mLocation = _location;
         mExtents = _extents;
         mRotation = _rotation;
     }
 
     template <typename type>
-    wn_void WNBox<type>::Set(const WNVector<type>& _vector) {
+    void WNBox<type>::Set(const WNVector<type>& _vector) {
         mLocation = _vector;
         mExtents.Zero();
         mRotation.Identity();
     }
 
     template <typename type>
-    wn_void WNBox<type>::Expand(type _amount) {
+    void WNBox<type>::Expand(type _amount) {
         mExtents += _amount;
     }
 
     template <typename type>
-    wn_bool WNBox<type>::Expand(const WNVector<type>& _vector, wn_bool _anchor) {
+    bool WNBox<type>::Expand(const WNVector<type>& _vector, bool _anchor) {
         const WNVector<type> transformedPoint = ((_vector - mLocation).GetRotated(mRotation.GetInverted()).ToPoint3());
 
         if (!_anchor) {
@@ -111,7 +111,7 @@ namespace wn {
                 mLocation += newRectange.mLocation.ToVector3();
                 mExtents = newRectange.mExtents;
 
-                return(wn_true);
+                return(true);
             }
         } else {
             const type transformedAbsX = WNAbs(transformedPoint.mX);
@@ -121,34 +121,34 @@ namespace wn {
             const type extendsAbsY = WNAbs(mExtents.mY);
             const type extendsAbsZ = WNAbs(mExtents.mZ);
 
-            wn_bool expanded = wn_false;
+            bool expanded = false;
 
             if (transformedAbsX > extendsAbsX) {
                 mExtents.mX = transformedPoint.mX;
 
-                expanded = wn_true;
+                expanded = true;
             }
 
             if (transformedAbsY > extendsAbsY) {
                 mExtents.mY = transformedPoint.mY;
 
-                expanded = wn_true;
+                expanded = true;
             }
 
             if (transformedAbsZ > extendsAbsY) {
                 mExtents.mZ = transformedPoint.mZ;
 
-                expanded = wn_true;
+                expanded = true;
             }
 
             return(expanded);
         }
 
-        return(wn_false);
+        return(false);
     }
 
     template <typename type>
-    wn_bool WNBox<type>::Expand(const WNBounds3<type>& _bounds, wn_bool _anchor) {
+    bool WNBox<type>::Expand(const WNBounds3<type>& _bounds, bool _anchor) {
         WNVector<type> points[8];
 
         _bounds.GetPoints(points);
@@ -160,7 +160,7 @@ namespace wn {
     }
 
     template <typename type>
-    wn_bool WNBox<type>::Expand(const WNBox& _box, wn_bool _anchor) {
+    bool WNBox<type>::Expand(const WNBox& _box, bool _anchor) {
         WNVector<type> points[8];
 
         _box.GetPoints(points);
@@ -172,7 +172,7 @@ namespace wn {
     }
 
     template <typename type>
-    wn_bool WNBox<type>::Expand(const WNSphere<type>& _sphere, wn_bool _anchor) {
+    bool WNBox<type>::Expand(const WNSphere<type>& _sphere, bool _anchor) {
         const WNVector<type> transformedLocation = ((_sphere.mLocation - mLocation).GetRotated(mRotation.GetInverted()).ToPoint3());
         const WNVector<type> componentX = WNVector<type>(_sphere.mRadius, static_cast<type>(0), static_cast<type>(0));
         const WNVector<type> componentY = WNVector<type>(static_cast<type>(0), _sphere.mRadius, static_cast<type>(0));
@@ -190,34 +190,34 @@ namespace wn {
     }
 
     template <typename type>
-    wn_void WNBox<type>::Translate(type _x, type _y, type _z) {
+    void WNBox<type>::Translate(type _x, type _y, type _z) {
         mLocation.mX += _x;
         mLocation.mY += _y;
         mLocation.mZ += _z;
     }
 
     template <typename type>
-    wn_void WNBox<type>::Translate(const WNVector<type>& _vector) {
+    void WNBox<type>::Translate(const WNVector<type>& _vector) {
         mLocation += _vector;
     }
 
     template <typename type>
-    wn_void WNBox<type>::Rotate(const WNQuaternion<type>& _rotation) {
+    void WNBox<type>::Rotate(const WNQuaternion<type>& _rotation) {
         mRotation.Rotate(_rotation);
     }
 
     template <typename type>
-    wn_void WNBox<type>::Scale(type _scale) {
+    void WNBox<type>::Scale(type _scale) {
         mExtents.Scale(_scale);
     }
 
     template <typename type>
-    wn_void WNBox<type>::Scale(type _x, type _y, type _z) {
+    void WNBox<type>::Scale(type _x, type _y, type _z) {
         mExtents.Scale(_x, _y, _z);
     }
 
     template <typename type>
-    wn_void WNBox<type>::Scale(const WNVector<type>& _scale) {
+    void WNBox<type>::Scale(const WNVector<type>& _scale) {
         mExtents.Scale(_scale);
     }
 
@@ -256,12 +256,12 @@ namespace wn {
     }
 
     template <typename type>
-    wn_bool WNBox<type>::IsZero() const {
+    bool WNBox<type>::IsZero() const {
         return(mLocation.IsZero() && mExtents.IsZero() && mRotation.IsZero());
     }
 
     template <typename type>
-    wn_bool WNBox<type>::IsInsideOut() const {
+    bool WNBox<type>::IsInsideOut() const {
         return(mExtents.mX < static_cast<type>(0) || mExtents.mY < static_cast<type>(0) || mExtents.mZ < static_cast<type>(0));
     }
 
@@ -273,28 +273,28 @@ namespace wn {
     }
 
     template <typename type>
-    WNBox<type> WNBox<type>::GetExpanded(const WNVector<type>& _vector, wn_bool _anchor) const {
+    WNBox<type> WNBox<type>::GetExpanded(const WNVector<type>& _vector, bool _anchor) const {
         WNBox<type> box = *this;
 
         return(box.Expand(_vector, _anchor), box);
     }
 
     template <typename type>
-    WNBox<type> WNBox<type>::GetExpanded(const WNSphere<type>& _sphere, wn_bool _anchor) const {
+    WNBox<type> WNBox<type>::GetExpanded(const WNSphere<type>& _sphere, bool _anchor) const {
         WNBox<type> box = *this;
 
         return(box.Expand(_sphere, _anchor), box);
     }
 
     template <typename type>
-    WNBox<type> WNBox<type>::GetExpanded(const WNBounds3<type>& _bounds, wn_bool _anchor) const {
+    WNBox<type> WNBox<type>::GetExpanded(const WNBounds3<type>& _bounds, bool _anchor) const {
         WNBox<type> box = *this;
 
         return(box.Expand(_bounds, _anchor), box);
     }
 
     template <typename type>
-    WNBox<type> WNBox<type>::GetExpanded(const WNBox& _box, wn_bool _anchor) const {
+    WNBox<type> WNBox<type>::GetExpanded(const WNBox& _box, bool _anchor) const {
         WNBox<type> box = *this;
 
         return(box.Expand(_box, _anchor), box);
@@ -343,7 +343,7 @@ namespace wn {
     }
 
     template <typename type>
-    wn_void WNBox<type>::GetPoints(WNVector<type>* _vectors) const{
+    void WNBox<type>::GetPoints(WNVector<type>* _vectors) const{
         const WNVector<type> transformedExtents = mExtents.GetRotated(mRotation);
         const WNVector<type> transformedXExtents = (mExtents * WNVector<type>(static_cast<type>(-1), static_cast<type>(1), static_cast<type>(1))).GetRotated(mRotation);
         const WNVector<type> transformedYExtents = (mExtents * WNVector<type>(static_cast<type>(1), -static_cast<type>(-1), static_cast<type>(1))).GetRotated(mRotation);

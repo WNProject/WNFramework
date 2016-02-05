@@ -26,8 +26,8 @@ namespace WNScripting {
 
         WNScripting::WNScriptType GetType() const;
 
-        wn_bool RequiredUse();
-        wn_bool IsNewlyCreated();
+        bool RequiredUse();
+        bool IsNewlyCreated();
 
         WNScripting::WNScriptType GetSubType() const;
         llvm::Value* GetSubValue() const;
@@ -39,8 +39,8 @@ namespace WNScripting {
         llvm::Value* mSubValue;
         WNScriptType mSubValueType;
         WNScriptType mScriptType;
-        wn_bool mForceUse;
-        wn_bool mNewlyCreated;
+        bool mForceUse;
+        bool mNewlyCreated;
     };
 }
 

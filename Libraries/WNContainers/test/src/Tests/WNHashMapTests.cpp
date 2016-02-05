@@ -8,7 +8,7 @@
 template <typename _Type>
 struct hash_map : ::testing::Test {};
 
-typedef ::testing::Types<wn_uint8, wn_uint16, wn_uint32, wn_uint64>
+typedef ::testing::Types<uint8_t, uint16_t, uint32_t, uint64_t>
     hash_map_testing_types;
 
 TYPED_TEST_CASE(hash_map, hash_map_testing_types);
@@ -189,7 +189,7 @@ TYPED_TEST(hash_map, move_test) {
   {
     wn::containers::hash_map<TypeParam, TypeParam> my_map(
         {{221, 1}, {201, 2}, {213, 3}}, &allocator);
-    wn_size_t allocated = allocator.allocated();
+    size_t allocated = allocator.allocated();
 
     EXPECT_EQ(3, my_map.size());
 
@@ -210,7 +210,7 @@ TYPED_TEST(hash_map, copy_test) {
   {
     wn::containers::hash_map<TypeParam, TypeParam> my_map(
         {{221, 1}, {201, 2}, {213, 3}}, &allocator);
-    wn_size_t allocated = allocator.allocated();
+    size_t allocated = allocator.allocated();
     EXPECT_EQ(3, my_map.size());
     wn::containers::hash_map<TypeParam, TypeParam> new_map(my_map);
     EXPECT_EQ(3, my_map.size());

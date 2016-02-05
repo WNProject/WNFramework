@@ -48,28 +48,28 @@ namespace wn {
     }
 
     template <typename type>
-    wn_bool WNLine2<type>::operator == (const WNLine2& _line) const {
+    bool WNLine2<type>::operator == (const WNLine2& _line) const {
         return(mPoint1 == _line.mPoint1 && mPoint2 == _line.mPoint2);
     }
 
     template <typename type>
-    wn_bool WNLine2<type>::operator != (const WNLine2& _line) const {
+    bool WNLine2<type>::operator != (const WNLine2& _line) const {
         return(mPoint1 != _line.mPoint1 || mPoint2 != _line.mPoint2);
     }
 
     template <typename type>
-    wn_void WNLine2<type>::Zero() {
+    void WNLine2<type>::Zero() {
         mPoint1.Zero();
         mPoint2.Zero();
     }
 
     template <typename type>
-    wn_void WNLine2<type>::Set(const WNLine2<type>& _line) {
+    void WNLine2<type>::Set(const WNLine2<type>& _line) {
         *this = _line;
     }
 
     template <typename type>
-    wn_void WNLine2<type>::Set(const type* _numbers) {
+    void WNLine2<type>::Set(const type* _numbers) {
         mPoint1.mX = _numbers[0];
         mPoint1.mY = _numbers[1];
 
@@ -78,7 +78,7 @@ namespace wn {
     }
 
     template <typename type>
-    wn_void WNLine2<type>::Set(const WNVector2<type>& _point1, const WNVector2<type>& _point2) {
+    void WNLine2<type>::Set(const WNVector2<type>& _point1, const WNVector2<type>& _point2) {
         mPoint1 = _point1;
         mPoint2 = _point2;
     }

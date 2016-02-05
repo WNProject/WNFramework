@@ -46,12 +46,12 @@ WNScriptingEngineImplDeprecated::WNScriptingEngineImplDeprecated()
 WNScriptingEngineImplDeprecated::~WNScriptingEngineImplDeprecated() {
 }
 
-wn_void* WNScriptingEngineImplDeprecated::CompileLazyFile(wn_void* _scriptingEngine, wn_void* _requestedFunction) {
+void* WNScriptingEngineImplDeprecated::CompileLazyFile(void* _scriptingEngine, void* _requestedFunction) {
     WNScriptingEngine* scriptingEngine = reinterpret_cast<WNScriptingEngine*>(_scriptingEngine);
     WNFunctionDefinition* def = reinterpret_cast<WNFunctionDefinition*>(_requestedFunction);
-    wn_void* funcPtr = wn_nullptr;
+    void* funcPtr = nullptr;
     if( ok != scriptingEngine->get_function_pointer(def->mContainedFile->mFileName, def->mName, def->mReturn, def->mTypes, funcPtr)) {
-        return(wn_nullptr);
+        return(nullptr);
     }
     return(funcPtr);
 }
@@ -64,11 +64,11 @@ eWNTypeError WNScriptingEngineImplDeprecated::initialize() {
     mTypeManager = WNScriptingFactoryInternal::CreateTypeManager();
     eWNTypeError err = ok;
     WNScriptType throwawayType;
-    mTypeManager->RegisterScalarType("-Function", this, 0, throwawayType, 0, sizeof(wn_size_t));
-    mTypeManager->RegisterScalarType("-Ptr", this, 0, throwawayType, llvm::Type::getInt8PtrTy(llvm::getGlobalContext()), sizeof(wn_size_t));
-    mTypeManager->RegisterScalarType("-Object", this, 0, throwawayType, llvm::Type::getInt8PtrTy(llvm::getGlobalContext()), sizeof(wn_size_t));
+    mTypeManager->RegisterScalarType("-Function", this, 0, throwawayType, 0, sizeof(size_t));
+    mTypeManager->RegisterScalarType("-Ptr", this, 0, throwawayType, llvm::Type::getInt8PtrTy(llvm::getGlobalContext()), sizeof(size_t));
+    mTypeManager->RegisterScalarType("-Object", this, 0, throwawayType, llvm::Type::getInt8PtrTy(llvm::getGlobalContext()), sizeof(size_t));
     mTypeManager->RegisterStructType("-Null", this, throwawayType);
-    mTypeManager->RegisterScalarType("-Array", this, 0, throwawayType, llvm::Type::getInt8PtrTy(llvm::getGlobalContext()), sizeof(wn_size_t));
+    mTypeManager->RegisterScalarType("-Array", this, 0, throwawayType, llvm::Type::getInt8PtrTy(llvm::getGlobalContext()), sizeof(size_t));
 
     if(( err = WNBuiltIninitializer::InitializeIntTypes(this, *mTypeManager)) != ok) return err;
     if(( err = WNBuiltIninitializer::InitializeFloatTypes(this, *mTypeManager)) != ok) return err;
@@ -90,18 +90,18 @@ eWNTypeError WNScriptingEngineImplDeprecated::initialize() {
     return(ok);
 }
 
-WNCodeModule* WNScriptingEngineImplDeprecated::GetCompiledModule(const wn_char* _file) const {
-    wn_char* c = wn::memory::strndup(_file, 1024);
+WNCodeModule* WNScriptingEngineImplDeprecated::GetCompiledModule(const char* _file) const {
+    char* c = wn::memory::strndup(_file, 1024);
     WNFileSystem::WNFile::CollapseFolderStructure(c);
 
-    for(std::vector<std::pair<wn_char*, WNCodeModule*> >::const_iterator i = mFileList.begin(); i != mFileList.end(); ++i) {
+    for(std::vector<std::pair<char*, WNCodeModule*> >::const_iterator i = mFileList.begin(); i != mFileList.end(); ++i) {
         if(wn::memory::strcmp(c, i->first) == 0){
             wn::memory::heap_free(c);
             return(i->second);
         }
     }
     wn::memory::heap_free(c);
-    return(wn_nullptr);
+    return(nullptr);
 }
 
 eWNTypeError WNScriptingEngineImplDeprecated::DumpIntoModule(WNCodeModule*& _module, bool mCurrentFile, WNPreprocessedFile* _preprocessedFile, std::deque<WNPreprocessedFile*>& _nextToProcess) {
@@ -119,7 +119,7 @@ eWNTypeError WNScriptingEngineImplDeprecated::DumpIntoModule(WNCodeModule*& _mod
         } else {
             (*i)->mCurrentFile = false;
         }
-        (*i)->mFunction = wn_nullptr;
+        (*i)->mFunction = nullptr;
         eWNTypeError err = ok;
         WNFunctionDefinition* def;
         if(ok != (err = _module->AddExternalScriptFunction(*i, def))) {
@@ -163,7 +163,7 @@ eWNTypeError WNScriptingEngineImplDeprecated::DumpPreprocessedfile(WNCodeModule*
 }
 
 eWNTypeError WNScriptingEngineImplDeprecated::LinkStructs(WNCodeModule*& _module, std::list<WNStruct*>& _toBeLinked) {
-    wn_size_t listSize = _toBeLinked.size();
+    size_t listSize = _toBeLinked.size();
     WNTypeManager& manager = _module->GetTypeManager();
     eWNTypeError err = ok;
     mCompilationLog->Log(WNLogging::eInfo, 0, "Starting type link ", listSize);
@@ -176,7 +176,7 @@ eWNTypeError WNScriptingEngineImplDeprecated::LinkStructs(WNCodeModule*& _module
                 std::vector<WNPreprocessedFile*> toRemoveFiles;
                 std::vector<WNScriptType> toRemoveTypes;
 				for (std::list<WNStruct*>::iterator link = _toBeLinked.begin(); link != _toBeLinked.end(); ++link) {
-                    if((*link)->GetType()->mContainedFile != wn_nullptr) {
+                    if((*link)->GetType()->mContainedFile != nullptr) {
                         for(std::vector<WNScriptType>::iterator j = (*i)->GetType()->mContainedFile->mExposedTypes.begin();
                             j != (*link)->GetType()->mContainedFile->mExposedTypes.end(); ++j) {
                             toRemoveTypes.push_back(*j);
@@ -220,7 +220,7 @@ eWNTypeError WNScriptingEngineImplDeprecated::LinkStructs(WNCodeModule*& _module
     return(ok);
 }
 
-eWNTypeError WNScriptingEngineImplDeprecated::PreprocessFile(const wn_char* _file, WNCodeModule*& _module, WNPreprocessedFile*& _outFile, std::list<WNStruct*>& _toBeLinked) {
+eWNTypeError WNScriptingEngineImplDeprecated::PreprocessFile(const char* _file, WNCodeModule*& _module, WNPreprocessedFile*& _outFile, std::list<WNStruct*>& _toBeLinked) {
     char cBuff[2048] ;
     wn::memory::strncpy(cBuff, _file, 2047);
     WNFileSystem::WNFile::CollapseFolderStructure(cBuff);
@@ -238,9 +238,9 @@ eWNTypeError WNScriptingEngineImplDeprecated::PreprocessFile(const wn_char* _fil
     if(WNFileSystem::WNFile::ok != f.OpenFile(cBuff, WNFileSystem::WNFile::eWNFMRead)) {
         return(eWNInvalidFile);
     }
-    wn_char* c = wn::memory::strndup(cBuff, 1024);
+    char* c = wn::memory::strndup(cBuff, 1024);
 
-    const wn_char* buff = f.GetDataBuffer();
+    const char* buff = f.GetDataBuffer();
     WNScriptASTDeprecatedLexer::InputStreamType input(reinterpret_cast<const ANTLR_UINT8*>(buff), ANTLR_ENC_8BIT, static_cast<ANTLR_UINT32>(f.GetFileSize()), reinterpret_cast<ANTLR_UINT8*>(c));
 
     WNScriptASTDeprecatedLexer lexer(&input);
@@ -265,9 +265,9 @@ eWNTypeError WNScriptingEngineImplDeprecated::PreprocessFile(const wn_char* _fil
     }
     mPreprocessedFiles.push_back(preFile);
     _outFile = preFile;
-    wn_char* folderName = WNFileSystem::WNFile::GetFolderName(cBuff);
-    for(const WNScriptLinkedList<wn_char>::WNScriptLinkedListNode* i = scriptFile->GetFirstInclude(); i != wn_nullptr; i = i->next) {
-        wn_char filename[2048];
+    char* folderName = WNFileSystem::WNFile::GetFolderName(cBuff);
+    for(const WNScriptLinkedList<char>::WNScriptLinkedListNode* i = scriptFile->GetFirstInclude(); i != nullptr; i = i->next) {
+        char filename[2048];
         wn::memory::strncpy(filename, folderName, wn::memory::strlen(folderName) + 1);
         wn::memory::strncat(filename, "/", sizeof(filename) - wn::memory::strlen(filename) - 1);
         wn::memory::strncat(filename, i->value+1, sizeof(filename) - wn::memory::strlen(filename) - 1);
@@ -286,7 +286,7 @@ eWNTypeError WNScriptingEngineImplDeprecated::PreprocessFile(const wn_char* _fil
                 mPreprocessedFiles.erase(toRemove);
             }
             delete(preFile);
-            _outFile = wn_nullptr;
+            _outFile = nullptr;
             return(err);
         }
         preFile->mIncludedFiles.push_back(includedFile);
@@ -306,7 +306,7 @@ eWNTypeError WNScriptingEngineImplDeprecated::PreprocessFile(const wn_char* _fil
     return(ok);
 }
 
-eWNTypeError WNScriptingEngineImplDeprecated::compile_file(const wn_char* _file) {
+eWNTypeError WNScriptingEngineImplDeprecated::compile_file(const char* _file) {
     WNCodeModule* module;
     if(GetCompiledModule(_file)){
         return(ok);
@@ -314,8 +314,8 @@ eWNTypeError WNScriptingEngineImplDeprecated::compile_file(const wn_char* _file)
     return(compile_file(_file, module));
 }
 
-eWNTypeError WNScriptingEngineImplDeprecated::compile_file(const wn_char* _file, WNCodeModule*& _module) {
-    if((_module = GetCompiledModule(_file)) != wn_nullptr) {
+eWNTypeError WNScriptingEngineImplDeprecated::compile_file(const char* _file, WNCodeModule*& _module) {
+    if((_module = GetCompiledModule(_file)) != nullptr) {
         return(ok);
     }
     WNFileSystem::WNFile f;
@@ -323,10 +323,10 @@ eWNTypeError WNScriptingEngineImplDeprecated::compile_file(const wn_char* _file,
         return(eWNInvalidFile);
     }
     mInternalLogger.Log(WNLogging::eInfo, 0, "WNScriptingEngine Started Compiling File: ", _file);
-    wn_char* c = wn::memory::strndup(_file, 1024);
+    char* c = wn::memory::strndup(_file, 1024);
     WNFileSystem::WNFile::CollapseFolderStructure(c);
 
-    const wn_char* buff = f.GetDataBuffer();
+    const char* buff = f.GetDataBuffer();
     WNScriptASTDeprecatedLexer::InputStreamType input(reinterpret_cast<const ANTLR_UINT8*>(buff), ANTLR_ENC_8BIT, static_cast<ANTLR_UINT32>(f.GetFileSize()), reinterpret_cast<ANTLR_UINT8*>(c));
 
     WNScriptASTDeprecatedLexer lexer(&input);
@@ -352,7 +352,7 @@ eWNTypeError WNScriptingEngineImplDeprecated::compile_file(const wn_char* _file,
 
 
     eWNTypeError err = ok;
-    WNPreprocessedFile* preFile = wn_nullptr;
+    WNPreprocessedFile* preFile = nullptr;
     std::list<WNStruct*> unlinkedStructs;
     if(ok != (err = PreprocessFile(_file,_module, preFile, unlinkedStructs))) {
         if(preFile) {
@@ -440,13 +440,13 @@ eWNTypeError WNScriptingEngineImplDeprecated::compile_file(const wn_char* _file,
 
     wn::memory::destroy(variableList);
     wn::memory::destroy(scriptFile);
-    mFileList.push_back(std::pair<wn_char*, WNCodeModule*>(c, _module));
+    mFileList.push_back(std::pair<char*, WNCodeModule*>(c, _module));
 
-    for(wn_size_t i = 0; i < preFile->mFunctionDefinitions.size(); ++i) {
+    for(size_t i = 0; i < preFile->mFunctionDefinitions.size(); ++i) {
         preFile->mFunctionDefinitions[i]->mFunctionPointer = _module->GetExecutionEngine()->getPointerToFunction(preFile->mFunctionDefinitions[i]->mFunction);
     }
 
-    for(wn_size_t i = 0; i < preFile->mExposedTypes.size(); ++i) {
+    for(size_t i = 0; i < preFile->mExposedTypes.size(); ++i) {
         char exposedName[1024];
         exposedName[0] = '\0';
         wn::memory::strcat(exposedName, preFile->mExposedTypes[i]->mName);
@@ -461,26 +461,26 @@ eWNTypeError WNScriptingEngineImplDeprecated::compile_file(const wn_char* _file,
         {
             mInternalLogger.Log(WNLogging::eCritical, 0, "WNScriptingEngine Failed to find destructor that it would have generated in: ", _file);
         }
-        reinterpret_cast<wn_void**>(preFile->mExposedTypes[i]->mStoredVTable)[0] = (*func)->mFunctionPointer;
+        reinterpret_cast<void**>(preFile->mExposedTypes[i]->mStoredVTable)[0] = (*func)->mFunctionPointer;
         reinterpret_cast<WNScriptType*>(preFile->mExposedTypes[i]->mStoredVTable)[1] = preFile->mExposedTypes[i];
         std::vector<WNContainedStructType>& st = preFile->mExposedTypes[i]->mStructTypes;
         const llvm::StructLayout* layout = _module->GetExecutionEngine()->getDataLayout()->getStructLayout(preFile->mExposedTypes[i]->mLLVMStructType);
-        for(wn_uint32 j = 0; j < static_cast<wn_uint32>(st.size()); ++j) {
-            st[j].mCppOffset = static_cast<wn_int32>(layout->getElementOffset(j));
+        for(uint32_t j = 0; j < static_cast<uint32_t>(st.size()); ++j) {
+            st[j].mCppOffset = static_cast<int32_t>(layout->getElementOffset(j));
         }
     }
     mInternalLogger.Log(WNLogging::eInfo, 0, "WNScriptingEngine Finished Compiling File: ", _file);
     return(ok);
 }
 
-wn_int32 WNScriptingEngineImplDeprecated::get_virtual_function_index(const wn_char* _functionName, WNScriptType& _type, const std::vector<WNScriptType>& _params) {
+int32_t WNScriptingEngineImplDeprecated::get_virtual_function_index(const char* _functionName, WNScriptType& _type, const std::vector<WNScriptType>& _params) {
     return(WNScripting::get_virtual_function_index(*mTypeManager, _functionName, _params, _type, false));
 }
 
-eWNTypeError WNScriptingEngineImplDeprecated::GetExistingFunctionPointer(const wn_char* _file, const wn_char* _functionName, WNScriptType& _retParam, const std::vector<WNScriptType>& _params, void*& _ptr) const {
+eWNTypeError WNScriptingEngineImplDeprecated::GetExistingFunctionPointer(const char* _file, const char* _functionName, WNScriptType& _retParam, const std::vector<WNScriptType>& _params, void*& _ptr) const {
 
-    WNCodeModule* codeModule = wn_nullptr;
-    if((codeModule = GetCompiledModule(_file)) == wn_nullptr) {
+    WNCodeModule* codeModule = nullptr;
+    if((codeModule = GetCompiledModule(_file)) == nullptr) {
         return(does_not_exist);
     }
     WNFunctionDefinition* f = codeModule->GetFunctionDefinition(_functionName, _params);
@@ -506,9 +506,9 @@ eWNTypeError WNScriptingEngineImplDeprecated::GetExistingFunctionPointer(const w
 }
 
 
-eWNTypeError WNScriptingEngineImplDeprecated::get_function_pointer(const wn_char* _file, const wn_char* _functionName, WNScriptType& _retParam, const std::vector<WNScriptType>& _params, void*& _ptr) {
+eWNTypeError WNScriptingEngineImplDeprecated::get_function_pointer(const char* _file, const char* _functionName, WNScriptType& _retParam, const std::vector<WNScriptType>& _params, void*& _ptr) {
 
-    WNCodeModule* codeModule = wn_nullptr;
+    WNCodeModule* codeModule = nullptr;
     eWNTypeError err = compile_file(_file, codeModule);
     if(err != ok) {
         printf("Could not compile file %s\n", _file);
@@ -537,7 +537,7 @@ eWNTypeError WNScriptingEngineImplDeprecated::get_function_pointer(const wn_char
     return(ok);
 }
 
-WNScriptType WNScriptingEngineImplDeprecated::get_type_by_name(const wn_char* _typeName) const {
+WNScriptType WNScriptingEngineImplDeprecated::get_type_by_name(const char* _typeName) const {
     if(!mTypeManager) {
         return(0);
     }
@@ -570,7 +570,7 @@ WNScriptType WNScriptingEngineImplDeprecated::get_existing_array_of(WNScriptType
     return(t);
 }
 
-eWNTypeError WNScriptingEngineImplDeprecated::register_function(const wn_char* _functionName, const WNScriptType _retParam, const std::vector<WNScriptType>& _params, void* _ptr) {
+eWNTypeError WNScriptingEngineImplDeprecated::register_function(const char* _functionName, const WNScriptType _retParam, const std::vector<WNScriptType>& _params, void* _ptr) {
     if(!mTypeManager) {
         mInternalLogger.Log(WNLogging::eCritical, 0, "type manager was not correctly created ", _functionName);
         return(error);
@@ -600,11 +600,11 @@ eWNTypeError WNScriptingEngineImplDeprecated::register_function(const wn_char* _
         }
     }
     mInternalLogger.Log(WNLogging::eDebug, 0, "WNScriptingEngine Function Registered: ", _functionName);
-    wn_size_t len = wn::memory::strlen(_functionName);
-    wn_char* functionName = wn::memory::heap_allocate<wn_char>(len + 4 * _params.size() + 2);
+    size_t len = wn::memory::strlen(_functionName);
+    char* functionName = wn::memory::heap_allocate<char>(len + 4 * _params.size() + 2);
     functionName[len + 4*_params.size() + 1] = '\0';
     wn::memory::memcpy(functionName, _functionName, len);
-    wn_char* loc = functionName + len + 1;
+    char* loc = functionName + len + 1;
     functionName[len] = '@';
     for(std::vector<WNScriptType>::const_iterator i = _params.begin(); i != _params.end(); ++i) {
         wn::memory::memcpy(loc, (*i)->mTag, 4);
@@ -616,10 +616,10 @@ eWNTypeError WNScriptingEngineImplDeprecated::register_function(const wn_char* _
     mRegisteredFunctions.back().mRegisteredFunctionTag = functionName;
     mRegisteredFunctions.back().mParams.assign(_params.begin(), _params.end());
     mRegisteredFunctions.back().mRetParam = _retParam;
-    mRegisteredFunctions.back().mThisType = wn_nullptr;
+    mRegisteredFunctions.back().mThisType = nullptr;
     return(ok);
 }
-eWNTypeError WNScriptingEngineImplDeprecated::register_member(const wn_char* _varName, const WNScriptType _thisType, const WNScriptType _varType, wn_size_t _offset) {
+eWNTypeError WNScriptingEngineImplDeprecated::register_member(const char* _varName, const WNScriptType _thisType, const WNScriptType _varType, size_t _offset) {
     bool err = false;
     std::vector<WNContainedStructType>::iterator i = std::find_if(_thisType->mStructTypes.begin(), _thisType->mStructTypes.end(), [_varName](WNContainedStructType& t) {
         return(wn::memory::strcmp(_varName, t.mName) == 0);
@@ -627,12 +627,12 @@ eWNTypeError WNScriptingEngineImplDeprecated::register_member(const wn_char* _va
     if(i != _thisType->mStructTypes.end()) {
         return(eWNAlreadyExists);
     }
-    WNContainedStructType t = {wn::memory::strndup(_varName, 1024), _varType, static_cast<wn_int32>(_offset)};
+    WNContainedStructType t = {wn::memory::strndup(_varName, 1024), _varType, static_cast<int32_t>(_offset)};
     _thisType->mStructTypes.push_back(t);
     return(ok);
 }
 
-eWNTypeError WNScriptingEngineImplDeprecated::register_member_function(const wn_char* _functionName, const WNScriptType _thisType, const WNScriptType _retParam, const std::vector<WNScriptType>& _params, void* _ptr) {
+eWNTypeError WNScriptingEngineImplDeprecated::register_member_function(const char* _functionName, const WNScriptType _thisType, const WNScriptType _retParam, const std::vector<WNScriptType>& _params, void* _ptr) {
     if(!mTypeManager) {
         mInternalLogger.Log(WNLogging::eCritical, 0, "type manager was not correctly created ", _functionName);
         return(error);
@@ -648,7 +648,7 @@ eWNTypeError WNScriptingEngineImplDeprecated::register_member_function(const wn_
         }
         const char* funcName = i->mFunctionName;
         funcName = strstr(funcName, "$");
-        funcName = (funcName == wn_nullptr)? i->mFunctionName: funcName + 1;
+        funcName = (funcName == nullptr)? i->mFunctionName: funcName + 1;
         if(wn::memory::strncmp(_functionName, funcName, 256) == 0) {
             if(i->mParams.size() != _params.size()) {
                 continue;
@@ -672,10 +672,10 @@ eWNTypeError WNScriptingEngineImplDeprecated::register_member_function(const wn_
         }
     }
 
-    wn_size_t len = wn::memory::strlen(_functionName);
-    wn_size_t prefixLen = wn::memory::strlen(_thisType->mName);
-    wn_char* functionName = wn::memory::heap_allocate<wn_char>(prefixLen + 1 + len + 4 * _params.size() + 2);
-    wn_char* exportedfunctionName = wn::memory::heap_allocate<wn_char>(prefixLen + 1 + len + 1);
+    size_t len = wn::memory::strlen(_functionName);
+    size_t prefixLen = wn::memory::strlen(_thisType->mName);
+    char* functionName = wn::memory::heap_allocate<char>(prefixLen + 1 + len + 4 * _params.size() + 2);
+    char* exportedfunctionName = wn::memory::heap_allocate<char>(prefixLen + 1 + len + 1);
     functionName[prefixLen + 1 + len + 4*_params.size() + 1] = '\0';
     wn::memory::memcpy(functionName, _thisType->mName, len);
     functionName[prefixLen] = '$';
@@ -683,7 +683,7 @@ eWNTypeError WNScriptingEngineImplDeprecated::register_member_function(const wn_
     functionName[prefixLen + 1 + len] = '\0'; // so we can print out the name so far
     wn::memory::memcpy(exportedfunctionName, functionName, prefixLen + 1 + len + 1);
     mInternalLogger.Log(WNLogging::eDebug, 0, "WNScriptingEngine Function Registered: ", functionName);
-    wn_char* loc = functionName + len + 1 + prefixLen + 1;
+    char* loc = functionName + len + 1 + prefixLen + 1;
     functionName[len + prefixLen + 1] = '@';
     for(std::vector<WNScriptType>::const_iterator i = _params.begin(); i != _params.end(); ++i) {
         wn::memory::memcpy(loc, (*i)->mTag, 4);
@@ -701,27 +701,27 @@ eWNTypeError WNScriptingEngineImplDeprecated::register_member_function(const wn_
     return(ok);
 }
 
-void* WNScriptingEngineImplDeprecated::get_registered_function(const wn_char* _functionName) const {
+void* WNScriptingEngineImplDeprecated::get_registered_function(const char* _functionName) const {
     for(std::vector<WNFunctionRegistry>::const_iterator i = mRegisteredFunctions.begin(); i != mRegisteredFunctions.end(); ++i) {
         if(wn::memory::strncmp(_functionName, i->mRegisteredFunctionTag, 1024) == 0) {
             return(i->functionPointer);
         }
     }
     mCompilationLog->Log(WNLogging::eInfo, 0, "WNScripting: No Explicit function: ", _functionName);
-    return(wn_nullptr);
+    return(nullptr);
 }
 
 
-wn_void WNScriptingEngineImplDeprecated::set_internal_log_level(WNLogging::WNLogLevel _level) {
+void WNScriptingEngineImplDeprecated::set_internal_log_level(WNLogging::WNLogLevel _level) {
     mInternalLogger.SetLogLevel(_level);
     mLogLevel = _level;
 }
 
-wn_void WNScriptingEngineImplDeprecated::set_log_level(WNLogging::WNLogLevel _level) {
+void WNScriptingEngineImplDeprecated::set_log_level(WNLogging::WNLogLevel _level) {
     mCompilationLog->SetLogLevel(_level);
 }
 
-wn_void WNScriptingEngineImplDeprecated::set_compilation_log(WNLogging::WNLog* _compilationLog) {
+void WNScriptingEngineImplDeprecated::set_compilation_log(WNLogging::WNLog* _compilationLog) {
     if(!_compilationLog)
     {
         mCompilationLog = &mInternalLogger;
@@ -732,7 +732,7 @@ wn_void WNScriptingEngineImplDeprecated::set_compilation_log(WNLogging::WNLog* _
     }
 }
 
-wn_void WNScriptingEngineImplDeprecated::BufferFlushCallback(wn_void* _context, const wn_char* buffer, wn_size_t bufferLength, const std::vector<WNLogging::WNLogColorElement>& colors) {
+void WNScriptingEngineImplDeprecated::BufferFlushCallback(void* _context, const char* buffer, size_t bufferLength, const std::vector<WNLogging::WNLogColorElement>& colors) {
     WNScriptingEngineImplDeprecated* impl = reinterpret_cast<WNScriptingEngineImplDeprecated*>(_context);
     if(!(impl->mErrorCallback)) {
         return;
@@ -741,7 +741,7 @@ wn_void WNScriptingEngineImplDeprecated::BufferFlushCallback(wn_void* _context, 
     impl->mErrorCallback(buffer, bufferLength, colors);
 }
 
-eWNTypeError WNScriptingEngineImplDeprecated::register_external_type(const wn_char* _typeName, void(*ptr)(void*)) {
+eWNTypeError WNScriptingEngineImplDeprecated::register_external_type(const char* _typeName, void(*ptr)(void*)) {
     WNScriptType outType;
     eWNTypeError err = ok;
     if(ok != (err = mTypeManager->RegisterCStruct(this, _typeName, outType))){
@@ -765,13 +765,13 @@ eWNTypeError WNScriptingEngineImplDeprecated::register_external_type(const wn_ch
     mTypeManager->RegisterAssignmentOperator(outType, AT_CHOWN, wn::memory::construct<GenerateStructTransfer>());
     mTypeManager->RegisterDestructionOperator(outType, wn::memory::construct<GenerateCStructDestruction>());
     mTypeManager->RegisterCastingOperator(nullType, outType, wn::memory::construct<GenerateReinterpretCastOperation>(outType));
-    mTypeManager->RegisterArithmeticOperator(AR_EQ, outType, outType, wn::memory::construct<GenerateStructCompare>(boolType, wn_true));
-    mTypeManager->RegisterArithmeticOperator(AR_NEQ, outType, outType, wn::memory::construct<GenerateStructCompare>(boolType, wn_false));
+    mTypeManager->RegisterArithmeticOperator(AR_EQ, outType, outType, wn::memory::construct<GenerateStructCompare>(boolType, true));
+    mTypeManager->RegisterArithmeticOperator(AR_NEQ, outType, outType, wn::memory::construct<GenerateStructCompare>(boolType, false));
     mTypeManager->RegisterIDAccessOperator(outType, wn::memory::construct<GenerateCPPStructAccessor>(outType, functionType));
     return(ok);
 }
 
-eWNTypeError WNScriptingEngineImplDeprecated::register_external_type(const wn_char* _typeName, const wn_char* _parentType, void(*ptr)(void*)) {
+eWNTypeError WNScriptingEngineImplDeprecated::register_external_type(const char* _typeName, const char* _parentType, void(*ptr)(void*)) {
     WNScriptType outType;
     eWNTypeError err = ok;
     WNScriptType parentType;
@@ -800,8 +800,8 @@ eWNTypeError WNScriptingEngineImplDeprecated::register_external_type(const wn_ch
     mTypeManager->RegisterAssignmentOperator(outType, AT_CHOWN, wn::memory::construct<GenerateStructTransfer>());
     mTypeManager->RegisterDestructionOperator(outType, wn::memory::construct<GenerateCStructDestruction>());
     mTypeManager->RegisterCastingOperator(nullType, outType, wn::memory::construct<GenerateReinterpretCastOperation>(outType));
-    mTypeManager->RegisterArithmeticOperator(AR_EQ, outType, outType, wn::memory::construct<GenerateStructCompare>(boolType, wn_true));
-    mTypeManager->RegisterArithmeticOperator(AR_NEQ, outType, outType, wn::memory::construct<GenerateStructCompare>(boolType, wn_false));
+    mTypeManager->RegisterArithmeticOperator(AR_EQ, outType, outType, wn::memory::construct<GenerateStructCompare>(boolType, true));
+    mTypeManager->RegisterArithmeticOperator(AR_NEQ, outType, outType, wn::memory::construct<GenerateStructCompare>(boolType, false));
     mTypeManager->RegisterIDAccessOperator(outType, wn::memory::construct<GenerateCPPStructAccessor>(outType, functionType));
     while(parentType) {
         mTypeManager->RegisterCastingOperator(outType, parentType, wn::memory::construct<GenerateReinterpretCastOperation>(parentType));
@@ -810,49 +810,49 @@ eWNTypeError WNScriptingEngineImplDeprecated::register_external_type(const wn_ch
     return(ok);
 }
 
-//virtual eWNTypeError get_function_pointer(const wn_char* _file, const wn_char* _functionName, WNScriptType& _retParam, const std::vector<WNScriptType>& _params, void*& _ptr);
+//virtual eWNTypeError get_function_pointer(const char* _file, const char* _functionName, WNScriptType& _retParam, const std::vector<WNScriptType>& _params, void*& _ptr);
 
-eWNTypeError WNScriptingEngineImplDeprecated::construct_scripting_object(WNScriptType _type, wn_void*& _retVal) const {
+eWNTypeError WNScriptingEngineImplDeprecated::construct_scripting_object(WNScriptType _type, void*& _retVal) const {
     StructInternalType* tp = wn::memory::heap_allocate<StructInternalType>();
     wn::memory::memory_zero(tp);
-    wn_size_t size = 0;
-    for(wn_size_t i = 0; i < _type->mStructTypes.size(); ++i) {
+    size_t size = 0;
+    for(size_t i = 0; i < _type->mStructTypes.size(); ++i) {
         size += _type->mStructTypes[i].mType->mTypeSize;
     }
     void* sType = wn::memory::malloc(size);
     tp->structLoc = sType;
     void* fPtr;
-    wn_char strName[1024];
-    wn_size_t nameLen = wn::memory::strlen(_type->mName);
+    char strName[1024];
+    size_t nameLen = wn::memory::strlen(_type->mName);
     wn::memory::memcpy(strName, _type->mName, nameLen);
     wn::memory::memcpy(strName + nameLen, "Const", 6);
     std::vector<WNScriptType> params;
     params.push_back(_type);
-    WNScriptType retType = wn_nullptr;
+    WNScriptType retType = nullptr;
     eWNTypeError err = ok;
-    if(wn_nullptr == (retType = get_type_by_name("Void"))) {
+    if(nullptr == (retType = get_type_by_name("Void"))) {
         return(eWNPlatformError);
     }
     if(ok != (err = GetExistingFunctionPointer(_type->mContainedFile->mFileName, strName, retType, params, fPtr))) {
         return(err);
     }
-    wn_void(*castedPtr)(void*) = reinterpret_cast<wn_void(*)(void*)>(fPtr);
+    void(*castedPtr)(void*) = reinterpret_cast<void(*)(void*)>(fPtr);
     castedPtr(tp);
     _retVal = tp;
     return(ok);
 }
 
-eWNTypeError WNScriptingEngineImplDeprecated::construct_scripting_array(WNScriptType _type, wn_size_t _size, wn_void*& _retVal) const {
+eWNTypeError WNScriptingEngineImplDeprecated::construct_scripting_array(WNScriptType _type, size_t _size, void*& _retVal) const {
     StructInternalType* tp = wn::memory::heap_allocate<StructInternalType>();
     wn::memory::memory_zero(tp);
-    wn_size_t typeSize = _type->mArrayType->mTypeSize;
-    wn_void* sType = wn::memory::malloc(sizeof(wn_size_t) * 2 + (_size * typeSize));
+    size_t typeSize = _type->mArrayType->mTypeSize;
+    void* sType = wn::memory::malloc(sizeof(size_t) * 2 + (_size * typeSize));
     tp->structLoc = sType;
-    *reinterpret_cast<wn_size_t*>(sType) = _size;
-    reinterpret_cast<wn_void**>(sType)[1] = _type;
+    *reinterpret_cast<size_t*>(sType) = _size;
+    reinterpret_cast<void**>(sType)[1] = _type;
     if(_type->mArrayType->mArrayType || _type->mArrayType->mLLVMStructType) {
-        wn_void** items = reinterpret_cast<wn_void**>(sType);
-        for(wn_size_t i = 0; i < _size; ++i){
+        void** items = reinterpret_cast<void**>(sType);
+        for(size_t i = 0; i < _size; ++i){
             StructInternalType* nt = wn::memory::heap_allocate<StructInternalType>();
             nt->owner = &(items[i+2]);
             nt->refCount++;

@@ -46,29 +46,29 @@ namespace wn {
     }
 
     template <typename type>
-    wn_bool WNRectangle<type>::operator == (const WNRectangle<type>& _rectangle) const {
+    bool WNRectangle<type>::operator == (const WNRectangle<type>& _rectangle) const {
         return(mExtents == _rectangle.mExtents && mLocation == _rectangle.mLocation && mRotation == _rectangle.mRotation);
     }
 
     template <typename type>
-    wn_bool WNRectangle<type>::operator != (const WNRectangle<type>& _rectangle) const {
+    bool WNRectangle<type>::operator != (const WNRectangle<type>& _rectangle) const {
         return(mExtents != _rectangle.mExtents || mLocation != _rectangle.mLocation || mRotation != _rectangle.mRotation);
     }
 
     template <typename type>
-    wn_void WNRectangle<type>::Zero() {
+    void WNRectangle<type>::Zero() {
         mLocation.Zero();
         mExtents.Zero();
         mRotation = static_cast<type>(0);
     }
 
     template <typename type>
-    wn_void WNRectangle<type>::Expand(type _amount) {
+    void WNRectangle<type>::Expand(type _amount) {
         mExtents += _amount;
     }
 
     template <typename type>
-    wn_bool WNRectangle<type>::Expand(const WNVector3<type>& _vector, wn_bool _anchor) {
+    bool WNRectangle<type>::Expand(const WNVector3<type>& _vector, bool _anchor) {
         const WNVector3<type> transformedPoint = ((_vector - mLocation).GetRotated(-mRotation).ToPoint2());
 
         if (!_anchor) {
@@ -80,7 +80,7 @@ namespace wn {
                 mLocation += newRectange.mLocation.ToVector2();
                 mExtents = newRectange.mExtents;
 
-                return(wn_true);
+                return(true);
             }
         } else {
             const type transformedAbsX = WNAbs(transformedPoint.mX);
@@ -88,28 +88,28 @@ namespace wn {
             const type extendsAbsX = WNAbs(mExtents.mX);
             const type extendsAbsY = WNAbs(mExtents.mY);
 
-            wn_bool expanded = wn_false;
+            bool expanded = false;
 
             if (transformedAbsX > extendsAbsX) {
                 mExtents.mX = transformedPoint.mX;
 
-                expanded = wn_true;
+                expanded = true;
             }
 
             if (transformedAbsY > extendsAbsY) {
                 mExtents.mY = transformedPoint.mY;
 
-                expanded = wn_true;
+                expanded = true;
             }
 
             return(expanded);
         }
 
-        return(wn_false);
+        return(false);
     }
 
     template <typename type>
-    wn_bool WNRectangle<type>::Expand(const WNBounds2<type>& _bounds, wn_bool _anchor) {
+    bool WNRectangle<type>::Expand(const WNBounds2<type>& _bounds, bool _anchor) {
         WNVector3<type> points[4];
 
         _bounds.GetPoints(points);
@@ -119,7 +119,7 @@ namespace wn {
     }
 
     template <typename type>
-    wn_bool WNRectangle<type>::Expand(const WNRectangle<type>& _rectangle, wn_bool _anchor) {
+    bool WNRectangle<type>::Expand(const WNRectangle<type>& _rectangle, bool _anchor) {
         WNVector3<type> points[4];
 
         _rectangle.GetPoints(points);
@@ -129,7 +129,7 @@ namespace wn {
     }
 
     template <typename type>
-    wn_bool WNRectangle<type>::Expand(const WNCircle<type>& _circle, wn_bool _anchor) {
+    bool WNRectangle<type>::Expand(const WNCircle<type>& _circle, bool _anchor) {
         const WNVector3<type> transformedLocation = ((_circle.mLocation - mLocation).GetRotated(-mRotation).ToPoint2());
         const WNVector3<type> componentX = WNVector3<type>(_circle.mRadius, static_cast<type>(0));
         const WNVector3<type> componentY = WNVector3<type>(static_cast<type>(0), _circle.mRadius);
@@ -143,33 +143,33 @@ namespace wn {
     }
 
     template <typename type>
-    wn_void WNRectangle<type>::Translate(type _x, type _y) {
+    void WNRectangle<type>::Translate(type _x, type _y) {
         mLocation.mX += _x;
         mLocation.mY += _y;
     }
 
     template <typename type>
-    wn_void WNRectangle<type>::Translate(const WNVector3<type>& _vector) {
+    void WNRectangle<type>::Translate(const WNVector3<type>& _vector) {
         mLocation += _vector;
     }
 
     template <typename type>
-    wn_void WNRectangle<type>::Rotate(type _angle) {
+    void WNRectangle<type>::Rotate(type _angle) {
         mExtents.Scale(_angle);
     }
 
     template <typename type>
-    wn_void WNRectangle<type>::Scale(type _scale) {
+    void WNRectangle<type>::Scale(type _scale) {
         mExtents.Scale(_scale);
     }
 
     template <typename type>
-    wn_void WNRectangle<type>::Scale(type _x, type _y) {
+    void WNRectangle<type>::Scale(type _x, type _y) {
         mExtents.Scale(_x, _y);
     }
 
     template <typename type>
-    wn_void WNRectangle<type>::Scale(const WNVector3<type>& _scale) {
+    void WNRectangle<type>::Scale(const WNVector3<type>& _scale) {
         mExtents.Scale(_scale);
     }
 
@@ -196,17 +196,17 @@ namespace wn {
     }
 
     template <typename type>
-    wn_bool WNRectangle<type>::IsZero() const {
+    bool WNRectangle<type>::IsZero() const {
         return(mLocation.IsZero() && mExtents.IsZero() && mRotation == static_cast<type>(0));
     }
 
     template <typename type>
-    wn_bool WNRectangle<type>::IsInsideOut() const {
+    bool WNRectangle<type>::IsInsideOut() const {
         return(mExtents.mX < static_cast<type>(0) || mExtents.mY < static_cast<type>(0));
     }
 
     template <typename type>
-    wn_void WNRectangle<type>::Set(const type* _numbers) {
+    void WNRectangle<type>::Set(const type* _numbers) {
         mLocation.mX = _numbers[0];
         mLocation.mY = _numbers[1];
         mExtents.mX = _numbers[2];
@@ -215,14 +215,14 @@ namespace wn {
     }
 
     template <typename type>
-    wn_void WNRectangle<type>::Set(const WNVector3<type>& _location, WNVector3<type>& _extents, type _rotation) {
+    void WNRectangle<type>::Set(const WNVector3<type>& _location, WNVector3<type>& _extents, type _rotation) {
         mLocation = _location;
         mExtents = _extents;
         mRotation = _rotation;
     }
 
     template <typename type>
-    wn_void WNRectangle<type>::Set(type _x1, type _y1, type _x2, type _y2, type _rotation) {
+    void WNRectangle<type>::Set(type _x1, type _y1, type _x2, type _y2, type _rotation) {
         mLocation.mX = _x1;
         mLocation.mY = _y1;
         mExtents.mX = _x2;
@@ -238,28 +238,28 @@ namespace wn {
     }
 
     template <typename type>
-    WNRectangle<type> WNRectangle<type>::GetExpanded(const WNVector3<type>& _vector, wn_bool _anchor) const {
+    WNRectangle<type> WNRectangle<type>::GetExpanded(const WNVector3<type>& _vector, bool _anchor) const {
         WNRectangle<type> rectangle = *this;
 
         return(rectangle.Expand(_vector, _anchor), rectangle);
     }
 
     template <typename type>
-    WNRectangle<type> WNRectangle<type>::GetExpanded(const WNBounds2<type>& _bounds, wn_bool _anchor) const {
+    WNRectangle<type> WNRectangle<type>::GetExpanded(const WNBounds2<type>& _bounds, bool _anchor) const {
         WNRectangle<type> rectangle = *this;
 
         return(rectangle.Expand(_bounds, _anchor), rectangle);
     }
 
     template <typename type>
-    WNRectangle<type> WNRectangle<type>::GetExpanded(const WNRectangle<type>& _rectangle, wn_bool _anchor) const {
+    WNRectangle<type> WNRectangle<type>::GetExpanded(const WNRectangle<type>& _rectangle, bool _anchor) const {
         WNRectangle<type> rectangle = *this;
 
         return(rectangle.Expand(_rectangle, _anchor), rectangle);
     }
 
     template <typename type>
-    WNRectangle<type> WNRectangle<type>::GetExpanded(const WNCircle<type>& _circle, wn_bool _anchor) const {
+    WNRectangle<type> WNRectangle<type>::GetExpanded(const WNCircle<type>& _circle, bool _anchor) const {
         WNRectangle<type> rectangle = *this;
 
         return(rectangle.Expand(_circle, _anchor), rectangle);
@@ -308,7 +308,7 @@ namespace wn {
     }
 
     template <typename type>
-    wn_void WNRectangle<type>::GetPoints(WNVector3<type>* _vectors) const {
+    void WNRectangle<type>::GetPoints(WNVector3<type>* _vectors) const {
         const WNVector3<type> transformedExtents = mExtents.GetRotated(mRotation);
         const WNVector3<type> transformedFlippedXExtents = (mExtents * WNVector3<type>(static_cast<type>(-1), static_cast<type>(1))).GetRotated(mRotation);
         const WNVector3<type> transformedFlippedYExtents = (mExtents * WNVector3<type>(static_cast<type>(1), -static_cast<type>(-1))).GetRotated(mRotation);

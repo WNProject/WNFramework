@@ -17,9 +17,9 @@
 #include "WNDeprecatedScripting/inc/WNCodeModule.h"
 #include "WNMemory/inc/WNBasic.h"
 
-WN_FORCE_INLINE wn_float32 strtoflt32(const wn_char* _string) {
+WN_FORCE_INLINE float strtoflt32(const char* _string) {
   #ifdef _WN_WINDOWS
-    wn_char* flt = const_cast<wn_char*>(_string);
+    char* flt = const_cast<char*>(_string);
     _CRT_FLOAT f;
 
     ::_atoflt(&f, flt);
@@ -92,8 +92,8 @@ namespace WNScripting {
             mDestFlt(_destType) {
         }
         virtual ~GenerateFloatConstant() {}
-        virtual eWNTypeError Execute(WNCodeModule&, const wn_char* _constant, bool&, llvm::Value*& _outLocation) const {
-            wn_float32 flt = strtoflt32(_constant);
+        virtual eWNTypeError Execute(WNCodeModule&, const char* _constant, bool&, llvm::Value*& _outLocation) const {
+            float flt = strtoflt32(_constant);
             _outLocation = llvm::ConstantFP::get(mDestFlt->mLLVMType, flt);
              return(ok);
         }
@@ -113,7 +113,7 @@ namespace WNScripting {
     eWNTypeError WNBuiltIninitializer::InitializeFloatTypes(WNScriptingEngine* _engine, WNTypeManager& _manager) {
         WNScriptType scriptType;
         WNScriptType boolType;
-        WN_RELEASE_ASSERT(_manager.RegisterScalarType("Float", _engine, 100.0f, scriptType, llvm::Type::getFloatTy(llvm::getGlobalContext()), sizeof(wn_float32)) == ok);
+        WN_RELEASE_ASSERT(_manager.RegisterScalarType("Float", _engine, 100.0f, scriptType, llvm::Type::getFloatTy(llvm::getGlobalContext()), sizeof(float)) == ok);
 
 
         _manager.RegisterArithmeticOperator(AR_ADD, scriptType, scriptType,

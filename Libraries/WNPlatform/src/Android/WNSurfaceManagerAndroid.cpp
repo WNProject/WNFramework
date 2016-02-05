@@ -11,7 +11,7 @@ namespace wn {
      return(WNSurfaceManagerReturnCode::ok);
   }
 
-  WNSurfaceManagerReturnCode::type WNSurfaceManagerAndroid::CreateSurface(wn_uint32 _x, wn_uint32 _y, wn_uint32 _width, wn_uint32 _height, memory::intrusive_ptr<surface>& _surface) {
+  WNSurfaceManagerReturnCode::type WNSurfaceManagerAndroid::CreateSurface(uint32_t _x, uint32_t _y, uint32_t _width, uint32_t _height, memory::intrusive_ptr<surface>& _surface) {
       if(mValidSurface)
       {
           return(WNSurfaceManagerReturnCode::eWNResourceLimitReached);
@@ -23,7 +23,7 @@ namespace wn {
       }
 
       _surface = ptr;
-      mValidSurface = wn_true;
+      mValidSurface = true;
       return(WNSurfaceManagerReturnCode::ok);
   }
 
@@ -33,12 +33,12 @@ namespace wn {
 
   WNSurfaceManagerAndroid::WNSurfaceManagerAndroid() :
       mDisplay(EGL_NO_DISPLAY),
-      mConfig(wn_nullptr),
-      mValidSurface(wn_false) {
+      mConfig(nullptr),
+      mValidSurface(false) {
   }
 
 
-  wn_bool WNSurfaceManagerAndroid::InitializeDisplay(EGLDisplay& _display, EGLConfig& _config) {
+  bool WNSurfaceManagerAndroid::InitializeDisplay(EGLDisplay& _display, EGLConfig& _config) {
       const EGLint attributes[] = {
           EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
           EGL_BLUE_SIZE, 8,
@@ -53,22 +53,22 @@ namespace wn {
       eglChooseConfig(mDisplay, attributes, &mConfig, 1, &numConfigs);
       _config = mConfig;
       _display = mDisplay;
-      return(wn_true);
+      return(true);
 
   }
 
-  wn_bool WNSurfaceManagerAndroid::DestroyDisplay() {
+  bool WNSurfaceManagerAndroid::DestroyDisplay() {
       if(mDisplay != EGL_NO_DISPLAY)
       {
           eglTerminate(mDisplay);
           mDisplay = EGL_NO_DISPLAY;
       }
-      return(wn_true);
+      return(true);
   }
 
-  wn_bool WNSurfaceManagerAndroid::SurfaceDestroyed() {
+  bool WNSurfaceManagerAndroid::SurfaceDestroyed() {
       DestroyDisplay();
-      mValidSurface = wn_false;
-      return(wn_true);
+      mValidSurface = false;
+      return(true);
   }
 }

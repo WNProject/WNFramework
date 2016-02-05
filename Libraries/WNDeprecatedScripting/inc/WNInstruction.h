@@ -17,9 +17,9 @@ namespace WNScripting {
         WNInstruction();
         virtual ~WNInstruction();
         virtual eWNTypeError GenerateCode(WNCodeModule&, const WNFunctionDefinition*, WNLogging::WNLog& _compilationLog) = 0;
-        wn_bool Returns();
+        bool Returns();
     protected:
-        wn_bool mReturns;
+        bool mReturns;
     };
 }
 #endif//__WN_INSTRUCTION_H__

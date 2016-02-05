@@ -1398,7 +1398,7 @@ WNScriptASTParser::objectType()
 
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
 
@@ -1506,7 +1506,7 @@ WNScriptASTParser::scalarType()
 
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
 
@@ -1675,7 +1675,7 @@ WNScriptASTParser::compoundType()
 
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
 
@@ -1858,7 +1858,7 @@ WNScriptASTParser::type()
 
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
 
@@ -2111,7 +2111,7 @@ WNScriptASTParser::param()
 
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
 
@@ -2344,7 +2344,7 @@ WNScriptASTParser::paramList()
 
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
 
@@ -2457,7 +2457,7 @@ WNScriptASTParser::parameterList()
 
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
 
@@ -2569,7 +2569,7 @@ WNScriptASTParser::parameterList()
 
 
         	        {
-        	             node = wn_nullptr;
+        	             node = nullptr;
         	        }
 
 
@@ -2796,7 +2796,7 @@ WNScriptASTParser::lvalue()
 
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
 
@@ -2970,7 +2970,7 @@ WNScriptASTParser::arglist()
 
             	        	            {
             	        	                 node->add_expression(d
-            	        	                , wn_true); SET_END_LOCATION_FROM_NODE(node, d
+            	        	                , true); SET_END_LOCATION_FROM_NODE(node, d
             	        	                );
             	        	            }
 
@@ -3033,7 +3033,7 @@ WNScriptASTParser::expr()
 
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
 
@@ -3091,7 +3091,7 @@ WNScriptASTParser::cond_ex()
 
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
 
@@ -3212,7 +3212,7 @@ WNScriptASTParser::or_ex()
 
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
 
@@ -3323,7 +3323,7 @@ WNScriptASTParser::and_ex()
 
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
 
@@ -3435,7 +3435,7 @@ WNScriptASTParser::eq_ex()
 
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
 
@@ -3591,7 +3591,7 @@ WNScriptASTParser::rel_ex()
 
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
 
@@ -3821,7 +3821,7 @@ WNScriptASTParser::add_ex()
 
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
 
@@ -3976,7 +3976,7 @@ WNScriptASTParser::mult_ex()
 
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
 
@@ -4169,7 +4169,7 @@ WNScriptASTParser::unary_ex()
 
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
 
@@ -4378,7 +4378,7 @@ WNScriptASTParser::post_ex_proper()
 
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
 
@@ -4650,7 +4650,7 @@ WNScriptASTParser::post_ex()
 
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
 
@@ -4759,7 +4759,7 @@ WNScriptASTParser::assignment()
 
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
 
@@ -4878,7 +4878,7 @@ WNScriptASTParser::constant()
 
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
 
@@ -5106,7 +5106,7 @@ WNScriptASTParser::prim_ex()
 
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
 
@@ -5557,7 +5557,7 @@ WNScriptASTParser::cast()
 
 
 
-      node = wn_nullptr;
+      node = nullptr;
 
 
 
@@ -5629,7 +5629,7 @@ WNScriptASTParser::structInit()
 
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
 
@@ -6241,7 +6241,7 @@ WNScriptASTParser::instructionScalar()
 
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
 
@@ -6339,7 +6339,7 @@ WNScriptASTParser::returnInst()
 
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
 
@@ -6503,7 +6503,7 @@ WNScriptASTParser::whileInst()
 
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
 
@@ -6596,7 +6596,7 @@ WNScriptASTParser::doInst()
 
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
 
@@ -6971,7 +6971,7 @@ WNScriptASTParser::elsemiddle()
 
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
 
@@ -7068,7 +7068,7 @@ WNScriptASTParser::endif()
 
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
 
@@ -7135,7 +7135,7 @@ WNScriptASTParser::ifInst()
 
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
 
@@ -7324,7 +7324,7 @@ WNScriptASTParser::instruction()
 
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
 
@@ -7562,7 +7562,7 @@ WNScriptASTParser::instruction_list()
 
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
 
@@ -7693,7 +7693,7 @@ WNScriptASTParser::body()
 
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
 
@@ -7864,7 +7864,7 @@ WNScriptASTParser::function()
 
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
 
@@ -7947,7 +7947,7 @@ WNScriptASTParser::structDecl()
 
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
 
@@ -8094,7 +8094,7 @@ WNScriptASTParser::classDecl()
 
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
 
@@ -8330,7 +8330,7 @@ WNScriptASTParser::classDecl()
             	            {
             	                 node->add_function(h
             	                ); h
-            	                ->set_is_virtual(wn_true);
+            	                ->set_is_virtual(true);
             	            }
 
 
@@ -8362,7 +8362,7 @@ WNScriptASTParser::classDecl()
             	            {
             	                 node->add_function(i
             	                ); i
-            	                ->set_is_override(wn_true);
+            	                ->set_is_override(true);
             	            }
 
 
@@ -8412,12 +8412,12 @@ WNScriptASTParser::classDecl()
 
 
 
-const wn_char*
+const char*
 WNScriptASTParser::inc()
 {
         WNScriptASTParserImplTraits::RuleReturnValueType _antlr_rule_exit(this);
 
-    const wn_char* file;
+    const char* file;
 
 
     const ImplTraits::CommonTokenType* STRING64 = NULL;
@@ -8427,7 +8427,7 @@ WNScriptASTParser::inc()
 
 
 
-        file = wn_nullptr;
+        file = nullptr;
 
 
 
@@ -8483,7 +8483,7 @@ WNScriptASTParser::program()
     scripting::function* function65;
     scripting::struct_definition* structDecl66;
     scripting::struct_definition* classDecl67;
-    const wn_char* inc68;
+    const char* inc68;
 
 
 

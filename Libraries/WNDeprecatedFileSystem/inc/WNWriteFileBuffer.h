@@ -14,22 +14,22 @@
 namespace WNFileSystem {
     class WNWriteTextFileBuffer : public WNFileBuffer {
     public:
-        WNWriteTextFileBuffer(const WNFileBufferType _type, const wn_size_t _initialBufferSize = 1024*1024);
+        WNWriteTextFileBuffer(const WNFileBufferType _type, const size_t _initialBufferSize = 1024*1024);
         virtual ~WNWriteTextFileBuffer();
 
-        virtual wn_bool serialize(const wn::containers::serializer_base& _serializer, const wn_uint32 _flags) override;
-        virtual WNFile::WNFileError SetFile(const wn_char* fileName);
-        virtual wn_char* reserve(const wn_size_t _numBytes, wn_size_t& _returnedBytes) override;
+        virtual bool serialize(const wn::containers::serializer_base& _serializer, const uint32_t _flags) override;
+        virtual WNFile::WNFileError SetFile(const char* fileName);
+        virtual char* reserve(const size_t _numBytes, size_t& _returnedBytes) override;
         virtual wn::containers::data_buffer_type type() const override;
 
     private:
-        wn_bool DumpToFile();
+        bool DumpToFile();
 
     private:
         WNFile mFile;
-        wn_char* mCurrentBuffer;
-        wn_size_t mBufferUsage;
-        wn_size_t mBufferSize;
+        char* mCurrentBuffer;
+        size_t mBufferUsage;
+        size_t mBufferSize;
     };
 }
 

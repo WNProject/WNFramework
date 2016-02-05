@@ -15,9 +15,9 @@ namespace wn {
 namespace scripting {
 
 memory::unique_ptr<script_file> parse_script(memory::allocator* _allocator,
-    wn::scripting::type_validator* _validator, const wn_char* file_name,
+    wn::scripting::type_validator* _validator, const char* file_name,
     containers::string_view view, WNLogging::WNLog* _log,
-    wn_size_t* _num_warnings, wn_size_t* _num_errors) {
+    size_t* _num_warnings, size_t* _num_errors) {
   memory::unique_ptr<script_file> ptr;
   {
     WNScriptASTLexer::InputStreamType input(
@@ -37,19 +37,19 @@ memory::unique_ptr<script_file> parse_script(memory::allocator* _allocator,
       if (_num_errors) {
         _num_errors += parser.getNumberOfSyntaxErrors();
       }
-      return wn_nullptr;
+      return nullptr;
     }
     if (!run_dce_pass(
             ptr.get(), _log, _validator, _num_warnings, _num_errors)) {
-      return wn_nullptr;
+      return nullptr;
     }
     if (!run_id_association_pass(
             ptr.get(), _log, _validator, _num_warnings, _num_errors)) {
-      return wn_nullptr;
+      return nullptr;
     }
     if (!run_type_association_pass(
             ptr.get(), _log, _validator, _num_warnings, _num_errors)) {
-      return wn_nullptr;
+      return nullptr;
     }
   }
   return std::move(ptr);

@@ -4,7 +4,7 @@
 #include "WNUtils/inc/Android/WNLoggingData.h"
 #include <android/log.h>
 #include <android/log.h>
-const wn_int32 logLevels[] = {
+const int32_t logLevels[] = {
     ANDROID_LOG_SILENT,
     ANDROID_LOG_FATAL,
     ANDROID_LOG_ERROR,
@@ -24,18 +24,18 @@ WNLogging::WNConsoleLogger<T_Level>::~WNConsoleLogger() {
 }
 
 template<WNLogging::WNConsoleLocation T_Level>
-wn_void WNLogging::WNConsoleLogger<T_Level>::FlushBuffer(const wn_char* _buffer, wn_size_t _bufferSize, const  std::vector<WNLogging::WNLogColorElement>& _colors) {
+void WNLogging::WNConsoleLogger<T_Level>::FlushBuffer(const char* _buffer, size_t _bufferSize, const  std::vector<WNLogging::WNLogColorElement>& _colors) {
     if(_colors.size() > 0) {
-        for(wn_size_t i = 0; i < _colors.size(); ++i) {
+        for(size_t i = 0; i < _colors.size(); ++i) {
             if(_colors[i].mLevel > 0)
             {
                 mLogPriority = _colors[i].mLevel;
             }
             else
             {
-                const wn_char* endColor = ((_colors).size() == i+1)? _buffer + _bufferSize: (_colors)[i+1].mPosition;
-                wn_size_t len =  endColor - (_colors)[i].mPosition;
-                __android_log_print(mLogPriority, WNUtils::gAndroidLogTag, "%.*s", static_cast<wn_int32>(len), (_colors)[i].mPosition);
+                const char* endColor = ((_colors).size() == i+1)? _buffer + _bufferSize: (_colors)[i+1].mPosition;
+                size_t len =  endColor - (_colors)[i].mPosition;
+                __android_log_print(mLogPriority, WNUtils::gAndroidLogTag, "%.*s", static_cast<int32_t>(len), (_colors)[i].mPosition);
             }
         }
     } else {

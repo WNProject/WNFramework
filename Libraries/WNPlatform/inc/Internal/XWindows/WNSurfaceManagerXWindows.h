@@ -21,7 +21,7 @@ namespace wn {
         virtual WN_FORCE_INLINE ~WNSurfaceManagerXWindows() {}
 
         virtual WNSurfaceManagerReturnCode::type Initialize();
-        virtual WNSurfaceManagerReturnCode::type CreateSurface(wn_uint32 _x, wn_uint32 _y, wn_uint32 _width, wn_uint32 _height, wn::memory::intrusive_ptr<surface>& _surface);
+        virtual WNSurfaceManagerReturnCode::type CreateSurface(uint32_t _x, uint32_t _y, uint32_t _width, uint32_t _height, wn::memory::intrusive_ptr<surface>& _surface);
         virtual WNSurfaceManagerReturnCode::type Release();
 
     private:

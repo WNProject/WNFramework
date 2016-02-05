@@ -22,7 +22,7 @@ namespace wn {
                 }
 
                 template <>
-                static WN_FORCE_INLINE wn_float32 mod(const wn_float32& _dividend, const wn_float32& _divisor) {
+                static WN_FORCE_INLINE float mod(const float& _dividend, const float& _divisor) {
                     const __m128 divisor = _mm_load_ss(&_divisor);
 
                     #ifdef __WN_MATH_APPROXIMATIONS_ENABLED
@@ -37,7 +37,7 @@ namespace wn {
                 }
 
                 template <>
-                static WN_FORCE_INLINE wn_float64 mod(const wn_float64& _dividend, const wn_float64& _divisor) {
+                static WN_FORCE_INLINE double mod(const double& _dividend, const double& _divisor) {
                     const __m128d divisor = _mm_load_sd(&_divisor);
                     const __m128d result = _mm_div_sd(_mm_load_sd(&_dividend), divisor);
                     const __m128d interger_portion = _mm_round_sd(_mm_setzero_pd(), result, _MM_FROUND_TRUNC);
@@ -51,12 +51,12 @@ namespace wn {
                 }
 
                 template <>
-                static WN_FORCE_INLINE wn_float32 round(const wn_float32& _value) {
+                static WN_FORCE_INLINE float round(const float& _value) {
                     return(_mm_cvtss_f32(_mm_round_ss(_mm_setzero_ps(), _mm_load_ss(&_value), _MM_FROUND_NINT)));
                 }
 
                 template <>
-                static WN_FORCE_INLINE wn_float64 round(const wn_float64& _value) {
+                static WN_FORCE_INLINE double round(const double& _value) {
                     return(_mm_cvtsd_f64(_mm_round_sd(_mm_setzero_pd(), _mm_load_sd(&_value), _MM_FROUND_NINT)));
                 }
 
@@ -66,12 +66,12 @@ namespace wn {
                 }
 
                 template <>
-                static WN_FORCE_INLINE wn_float32 ceil(const wn_float32& _value) {
+                static WN_FORCE_INLINE float ceil(const float& _value) {
                     return(_mm_cvtss_f32(_mm_ceil_ss(_mm_setzero_ps(), _mm_load_ss(&_value))));
                 }
 
                 template <>
-                static WN_FORCE_INLINE wn_float64 ceil(const wn_float64& _value) {
+                static WN_FORCE_INLINE double ceil(const double& _value) {
                     return(_mm_cvtsd_f64(_mm_ceil_sd(_mm_setzero_pd(), _mm_load_sd(&_value))));
                 }
 
@@ -81,12 +81,12 @@ namespace wn {
                 }
 
                 template <>
-                static WN_FORCE_INLINE wn_float32 floor(const wn_float32& _value) {
+                static WN_FORCE_INLINE float floor(const float& _value) {
                     return(_mm_cvtss_f32(_mm_floor_ss(_mm_setzero_ps(), _mm_load_ss(&_value))));
                 }
 
                 template <>
-                static WN_FORCE_INLINE wn_float64 floor(const wn_float64& _value) {
+                static WN_FORCE_INLINE double floor(const double& _value) {
                     return(_mm_cvtsd_f64(_mm_floor_sd(_mm_setzero_pd(), _mm_load_sd(&_value))));
                 }
 
@@ -96,12 +96,12 @@ namespace wn {
                 }
 
                 template <>
-                static WN_FORCE_INLINE wn_float32 trunc(const wn_float32& _value) {
+                static WN_FORCE_INLINE float trunc(const float& _value) {
                     return(_mm_cvtss_f32(_mm_round_ss(_mm_setzero_ps(), _mm_load_ss(&_value), _MM_FROUND_TRUNC)));
                 }
 
                 template <>
-                static WN_FORCE_INLINE wn_float64 trunc(const wn_float64& _value) {
+                static WN_FORCE_INLINE double trunc(const double& _value) {
                     return(_mm_cvtsd_f64(_mm_round_sd(_mm_setzero_pd(), _mm_load_sd(&_value), _MM_FROUND_TRUNC)));
                 }
 

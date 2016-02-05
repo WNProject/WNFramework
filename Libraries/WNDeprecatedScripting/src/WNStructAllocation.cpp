@@ -17,8 +17,8 @@
 using namespace WNScripting;
 
 WNStructAllocation::WNStructAllocation() :
-    mType(wn_nullptr),
-    mCopyinitializer(wn_nullptr) {
+    mType(nullptr),
+    mCopyinitializer(nullptr) {
 }
 
 WNStructAllocation::~WNStructAllocation() {
@@ -27,18 +27,18 @@ WNStructAllocation::~WNStructAllocation() {
     }
 }
 
-wn_void WNStructAllocation::SetType(WNTypeNode* _type) {
+void WNStructAllocation::SetType(WNTypeNode* _type) {
     mType = _type;
 }
 
-wn_void WNStructAllocation::SetCopyInitializer(WNExpression* _expr) {
+void WNStructAllocation::SetCopyInitializer(WNExpression* _expr) {
     mCopyinitializer = _expr;
 }
 
 eWNTypeError WNStructAllocation::GenerateCode(WNCodeModule& _module, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog) {
-    mNewlyCreated = wn_true;
-    mForceUse = wn_true;
-    WNScriptType structType = wn_nullptr;
+    mNewlyCreated = true;
+    mForceUse = true;
+    WNScriptType structType = nullptr;
     eWNTypeError err = ok;
     if(ok != (err = mType->GetType(_module.GetTypeManager(), structType, _compilationLog))) {
         return(err);
@@ -48,7 +48,7 @@ eWNTypeError WNStructAllocation::GenerateCode(WNCodeModule& _module, const WNFun
         LogLine(_compilationLog, WNLogging::eError);
         return(eWNBadType);
     }
-    llvm::Value* copyValue = wn_nullptr;
+    llvm::Value* copyValue = nullptr;
     if(mCopyinitializer) {
         if(ok != (err = mCopyinitializer->GenerateCode(_module, _def, _compilationLog))) {
             return(err);
@@ -77,7 +77,7 @@ eWNTypeError WNStructAllocation::GenerateCode(WNCodeModule& _module, const WNFun
             _compilationLog.Log(WNLogging::eCritical, 0, "No Constructor for ", structType->mName );
             LogLine(_compilationLog, WNLogging::eCritical);
         }
-        if(ok != (err = construction->Execute(_module, outValue, structType, wn_nullptr, _def, _compilationLog))) {
+        if(ok != (err = construction->Execute(_module, outValue, structType, nullptr, _def, _compilationLog))) {
             _compilationLog.Log(WNLogging::eError, 0, "Cannot allocate Struct: ", structType->mName);
             LogLine(_compilationLog, WNLogging::eError);
             return(err);

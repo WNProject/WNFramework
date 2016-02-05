@@ -64,7 +64,7 @@ namespace WNScripting {
         eWNTypeError Execute(llvm::IRBuilderBase* _builder, llvm::Value* _expr1, llvm::Value* _expr2, WNScriptType& _destType, llvm::Value*& _outReturnVal) const;
     private:
         WNScriptType mBoolType;
-        wn_bool mEq;
+        bool mEq;
     };
 
     struct GeneratePreUnaryOperation {
@@ -112,19 +112,19 @@ namespace WNScripting {
 
     struct GenerateIDAccessOperation {
         virtual ~GenerateIDAccessOperation() {};
-        virtual eWNTypeError Execute(llvm::IRBuilderBase* _builder, llvm::Value*, llvm::Value*, wn_char*, WNScriptType &_outType, llvm::Value*& _outValue, llvm::Value*& _outLocation) const = 0;
+        virtual eWNTypeError Execute(llvm::IRBuilderBase* _builder, llvm::Value*, llvm::Value*, char*, WNScriptType &_outType, llvm::Value*& _outValue, llvm::Value*& _outLocation) const = 0;
     };
-    template<eWNTypeError (*T)(llvm::IRBuilderBase*, llvm::Value*, llvm::Value*, wn_char*, WNScriptType &, llvm::Value*&, llvm::Value*&)>
+    template<eWNTypeError (*T)(llvm::IRBuilderBase*, llvm::Value*, llvm::Value*, char*, WNScriptType &, llvm::Value*&, llvm::Value*&)>
     struct IDAccessFunction : public GenerateIDAccessOperation {
         virtual ~IDAccessFunction () {}
-        virtual eWNTypeError Execute(llvm::IRBuilderBase* _builder, llvm::Value* _expr1, llvm::Value* _expr2, wn_char* _id, WNScriptType &_outType, llvm::Value*& _outReturnValue, llvm::Value*& _outLocation) const {
+        virtual eWNTypeError Execute(llvm::IRBuilderBase* _builder, llvm::Value* _expr1, llvm::Value* _expr2, char* _id, WNScriptType &_outType, llvm::Value*& _outReturnValue, llvm::Value*& _outLocation) const {
             return(T(_builder, _expr1, _expr2, _id, _outType, _outReturnValue, _outLocation));
         }
     };
     struct GenerateDefaultStructAccessor : public GenerateIDAccessOperation {
         virtual ~GenerateDefaultStructAccessor() {};
         GenerateDefaultStructAccessor(WNScriptType _scriptType, WNScriptType _functionType);
-        virtual eWNTypeError Execute(llvm::IRBuilderBase* _builder, llvm::Value*, llvm::Value*, wn_char*, WNScriptType &_outType, llvm::Value*& _outValue, llvm::Value*& _outLocation) const;
+        virtual eWNTypeError Execute(llvm::IRBuilderBase* _builder, llvm::Value*, llvm::Value*, char*, WNScriptType &_outType, llvm::Value*& _outValue, llvm::Value*& _outLocation) const;
     private:
         WNScriptType mStructType;
         WNScriptType mFunctionType;
@@ -133,7 +133,7 @@ namespace WNScripting {
     struct GenerateCPPStructAccessor : public GenerateIDAccessOperation {
         virtual ~GenerateCPPStructAccessor () {};
         GenerateCPPStructAccessor (WNScriptType _scriptType, WNScriptType _functionType);
-        virtual eWNTypeError Execute(llvm::IRBuilderBase* _builder, llvm::Value*, llvm::Value*, wn_char*, WNScriptType &_outType, llvm::Value*& _outValue, llvm::Value*& _outLocation) const;
+        virtual eWNTypeError Execute(llvm::IRBuilderBase* _builder, llvm::Value*, llvm::Value*, char*, WNScriptType &_outType, llvm::Value*& _outValue, llvm::Value*& _outLocation) const;
     private:
         WNScriptType mStructType;
         WNScriptType mFunctionType;
@@ -142,7 +142,7 @@ namespace WNScripting {
     struct GenerateArrayIDOperator : public GenerateIDAccessOperation {
         virtual ~GenerateArrayIDOperator() {};
         GenerateArrayIDOperator(WNScriptType _scriptType, WNScriptType _intType, WNScriptType _functionType);
-        virtual eWNTypeError Execute(llvm::IRBuilderBase* _builder, llvm::Value*, llvm::Value*, wn_char*, WNScriptType &_outType, llvm::Value*& _outValue, llvm::Value*& _outLocation) const;
+        virtual eWNTypeError Execute(llvm::IRBuilderBase* _builder, llvm::Value*, llvm::Value*, char*, WNScriptType &_outType, llvm::Value*& _outValue, llvm::Value*& _outLocation) const;
     private:
         WNScriptType mStructType;
         WNScriptType mIntType;
@@ -151,22 +151,22 @@ namespace WNScripting {
 
     struct GenerateConstantOperation {
         virtual ~GenerateConstantOperation() {};
-        virtual eWNTypeError Execute(WNCodeModule& _builder, const wn_char*, bool& mForceUse, llvm::Value*& _outLocation) const = 0;
+        virtual eWNTypeError Execute(WNCodeModule& _builder, const char*, bool& mForceUse, llvm::Value*& _outLocation) const = 0;
     };
-    template<eWNTypeError (*T)(llvm::IRBuilderBase*, const wn_char*, llvm::Value*& _outLocation)>
+    template<eWNTypeError (*T)(llvm::IRBuilderBase*, const char*, llvm::Value*& _outLocation)>
     struct ConstantFunction : public GenerateConstantOperation {
         virtual ~ConstantFunction() {}
-        virtual eWNTypeError Execute(llvm::IRBuilderBase* _builder, const wn_char* _constant, llvm::Value*& _outLocation) const {
+        virtual eWNTypeError Execute(llvm::IRBuilderBase* _builder, const char* _constant, llvm::Value*& _outLocation) const {
             return(T(_builder, _constant, _outLocation));
         }
     };
 
     struct GenerateAllocation {
         virtual ~GenerateAllocation() {};
-        virtual eWNTypeError Execute(WNCodeModule& _builder, WNScriptType _node, const wn_char* _name, wn_bool _onHeap, llvm::Value*& _outLocation) const = 0;
+        virtual eWNTypeError Execute(WNCodeModule& _builder, WNScriptType _node, const char* _name, bool _onHeap, llvm::Value*& _outLocation) const = 0;
     };
     struct GenerateDefaultAllocation : public GenerateAllocation {
-        virtual eWNTypeError Execute(WNCodeModule& _module, WNScriptType _node, const wn_char* _name, wn_bool _onHeap, llvm::Value*& _outLocation) const;
+        virtual eWNTypeError Execute(WNCodeModule& _module, WNScriptType _node, const char* _name, bool _onHeap, llvm::Value*& _outLocation) const;
     };
 
     struct GenerateConstruction {
@@ -228,10 +228,10 @@ namespace WNScripting {
 
     class WNTypeManager {
     public:
-        virtual eWNTypeError RegisterScalarType(const wn_char* name, const WNScriptingEngine* _engine, wn_float32 priority, WNScriptType& _outType, llvm::Type* _type, wn_size_t _size) = 0;
-        virtual eWNTypeError RegisterStructType(const wn_char* name, const WNScriptingEngine* _engine, WNScriptType& _outType) = 0;
-        virtual eWNTypeError RegisterCStruct(const WNScriptingEngine* _engine, const wn_char* _type, WNScriptType& _outType) = 0;
-        virtual eWNTypeError RegisterAliasedStruct(const wn_char* name, WNScriptType copyType, WNScriptType& _outType) = 0;
+        virtual eWNTypeError RegisterScalarType(const char* name, const WNScriptingEngine* _engine, float priority, WNScriptType& _outType, llvm::Type* _type, size_t _size) = 0;
+        virtual eWNTypeError RegisterStructType(const char* name, const WNScriptingEngine* _engine, WNScriptType& _outType) = 0;
+        virtual eWNTypeError RegisterCStruct(const WNScriptingEngine* _engine, const char* _type, WNScriptType& _outType) = 0;
+        virtual eWNTypeError RegisterAliasedStruct(const char* name, WNScriptType copyType, WNScriptType& _outType) = 0;
 
         virtual eWNTypeError RegisterArithmeticOperator(WNArithmeticType _type, WNScriptType _operand1, WNScriptType _operand2,  GenerateArithmeticOperation* _operation) = 0;
         virtual eWNTypeError RegisterCastingOperator(WNScriptType _fromType, WNScriptType _toType, GenerateCastingOperation* operation) = 0;
@@ -259,12 +259,12 @@ namespace WNScripting {
         virtual const GenerateConstruction* GetConstructionOperation(WNScriptType _type) const = 0;
         virtual const GenerateCopyConstruction* GetCopyConstructionOperation(WNScriptType _type) const = 0;
 
-        virtual eWNTypeError get_type_by_name(const wn_char* name, WNScriptType& _outType) const = 0;
+        virtual eWNTypeError get_type_by_name(const char* name, WNScriptType& _outType) const = 0;
         virtual eWNTypeError get_array_of(WNScriptType& _type, WNScriptType& _outType) = 0;
         virtual eWNTypeError get_existing_array_of(WNScriptType& _type, WNScriptType& _outType) const = 0;
-        virtual wn_void RemoveType(const WNScriptType _type) = 0;
+        virtual void RemoveType(const WNScriptType _type) = 0;
     };
 
-    wn_int32 get_virtual_function_index(WNTypeManager& manager, const wn_char* _functionName, std::vector<WNScriptType> mTypes, WNScriptType mLookupClass, bool allowCast = true);
+    int32_t get_virtual_function_index(WNTypeManager& manager, const char* _functionName, std::vector<WNScriptType> mTypes, WNScriptType mLookupClass, bool allowCast = true);
 }
 #endif // __WN_SCRIPTING_TYPE_MANAGER_H__

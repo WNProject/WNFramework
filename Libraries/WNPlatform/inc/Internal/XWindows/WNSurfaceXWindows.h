@@ -32,37 +32,37 @@ namespace wn {
         WNSurfaceXWindows(wn::WNSurfaceManagerXWindows& _surfaceManager);
         virtual ~WNSurfaceXWindows();
 
-        wn_bool Initialize(wn_uint32 _x, wn_uint32 _y, wn_uint32 _width, wn_uint32 _height, Display* _display, XVisualInfo* _visualInfo);
+        bool Initialize(uint32_t _x, uint32_t _y, uint32_t _width, uint32_t _height, Display* _display, XVisualInfo* _visualInfo);
 
         virtual WNSurfaceNativeHandle GetNativeHandle() const;
 
-        virtual WNSurfaceError Resize(wn_uint32 _width, wn_uint32 _height);
-        virtual WNSurfaceError Move(wn_uint32 _x, wn_uint32 _y);
-        virtual wn_bool IsFullscreen() const;
-        virtual WNSurfaceError SetFullscreen(wn_bool _fullscreen);
+        virtual WNSurfaceError Resize(uint32_t _width, uint32_t _height);
+        virtual WNSurfaceError Move(uint32_t _x, uint32_t _y);
+        virtual bool IsFullscreen() const;
+        virtual WNSurfaceError SetFullscreen(bool _fullscreen);
 
-        virtual wn_uint32 GetWidth() const;
-        virtual wn_uint32 GetHeight() const;
-        virtual wn_uint32 GetX() const;
-        virtual wn_uint32 GetY() const;
+        virtual uint32_t GetWidth() const;
+        virtual uint32_t GetHeight() const;
+        virtual uint32_t GetX() const;
+        virtual uint32_t GetY() const;
 
     private:
-        wn_void SurfaceThread();
+        void SurfaceThread();
 
     private:
         wn::memory::basic_allocator m_allocator;
         Atom mDeleteMessage;
-        wn_bool mExiting;
+        bool mExiting;
         wn::WNSurfaceManagerXWindows& mManager;
         wn::multi_tasking::semaphore mThreadCreationMutex;
         Display* mDisplay;
         Window mWindow;
-        wn::multi_tasking::thread<wn_void>* mSurfaceThread;
-        wn_bool mFullscreen;
-        wn_uint32 mX;
-        wn_uint32 mY;
-        wn_uint32 mWidth;
-        wn_uint32 mHeight;
+        wn::multi_tasking::thread<void>* mSurfaceThread;
+        bool mFullscreen;
+        uint32_t mX;
+        uint32_t mY;
+        uint32_t mWidth;
+        uint32_t mHeight;
     };
 }
 

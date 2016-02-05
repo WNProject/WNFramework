@@ -42,17 +42,17 @@ namespace wn {
     }
 
     template <typename type>
-    wn_bool WNBounds2<type>::operator == (const WNBounds2<type>& _bounds) const {
+    bool WNBounds2<type>::operator == (const WNBounds2<type>& _bounds) const {
         return(mMinimum == _bounds.mMinimum && mMaximum == _bounds.mMaximum);
     }
 
     template <typename type>
-    wn_bool WNBounds2<type>::operator != (const WNBounds2<type>& _bounds) const {
+    bool WNBounds2<type>::operator != (const WNBounds2<type>& _bounds) const {
         return(mMinimum != _bounds.mMinimum || mMaximum != _bounds.mMaximum);
     }
 
     template <typename type>
-    wn_void WNBounds2<type>::Zero() {
+    void WNBounds2<type>::Zero() {
         mMinimum.Zero();
         mMaximum.Zero();
     }
@@ -82,7 +82,7 @@ namespace wn {
     type WNBounds2<type>::Radius() const {
         type total = static_cast<type>(0);
 
-        for (wn_uint8 i = 0; i < 2; i++) {
+        for (uint8_t i = 0; i < 2; i++) {
             const type minComponent = WNAbs(mMinimum[i]);
             const type maxComponent = WNAbs(mMaximum[i]);
 
@@ -104,17 +104,17 @@ namespace wn {
     }
 
     template <typename type>
-    wn_bool WNBounds2<type>::IsZero() const {
+    bool WNBounds2<type>::IsZero() const {
         return(mMinimum.IsZero() && mMaximum.IsZero());
     }
 
     template <typename type>
-    wn_bool WNBounds2<type>::IsInsideOut() const {
+    bool WNBounds2<type>::IsInsideOut() const {
         return(mMinimum.mX > mMaximum.mX || mMinimum.mY > mMaximum.mY);
     }
 
     template <typename type>
-    wn_void WNBounds2<type>::Expand(type _amount) {
+    void WNBounds2<type>::Expand(type _amount) {
         const WNVector2<type> expand = WNVector2<type>(_amount);
 
         mMaximum += expand;
@@ -122,38 +122,38 @@ namespace wn {
     }
 
     template <typename type>
-    wn_bool WNBounds2<type>::Expand(const WNVector2<type>& _vector) {
-        wn_bool expanded = wn_false;
+    bool WNBounds2<type>::Expand(const WNVector2<type>& _vector) {
+        bool expanded = false;
 
         if (_vector.mX < mMinimum.mX) {
             mMinimum.mX = _vector.mX;
 
-            expanded = wn_true;
+            expanded = true;
         }
 
         if (_vector.mX > mMaximum.mX) {
             mMaximum.mX = _vector.mX;
 
-            expanded = wn_true;
+            expanded = true;
         }
 
         if (_vector.mY < mMinimum.mY) {
             mMinimum.mY = _vector.mY;
 
-            expanded = wn_true;
+            expanded = true;
         }
 
         if (_vector.mY > mMaximum.mY) {
             mMaximum.mY = _vector.mY;
 
-            expanded = wn_true;
+            expanded = true;
         }
 
         return(expanded);
     }
 
     template <typename type>
-    wn_bool WNBounds2<type>::Expand(const WNRectangle<type>& _rectangle) {
+    bool WNBounds2<type>::Expand(const WNRectangle<type>& _rectangle) {
         const WNVector2<type> extents = _rectangle.mExtents.GetRotated(_rectangle.mRotation);
         const WNVector2<type> point1 = _rectangle.mLocation + extents;
         const WNVector2<type> point2 = _rectangle.mLocation + WNVector2<type>(-extents.mX, extents.mY);
@@ -164,7 +164,7 @@ namespace wn {
     }
 
     template <typename type>
-    wn_bool WNBounds2<type>::Expand(const WNCircle<type>& _circle) {
+    bool WNBounds2<type>::Expand(const WNCircle<type>& _circle) {
         const WNVector2<type> point1 = WNVector2<type>(_circle.mLocation.mX + _circle.mRadius, _circle.mLocation.mY);
         const WNVector2<type> point2 = WNVector2<type>(_circle.mLocation.mX - _circle.mRadius, _circle.mLocation.mY);
         const WNVector2<type> point3 = WNVector2<type>(_circle.mLocation.mX, _circle.mLocation.mY + _circle.mRadius);
@@ -174,38 +174,38 @@ namespace wn {
     }
 
     template <typename type>
-    wn_bool WNBounds2<type>::Expand(const WNBounds2<type>& _bounds) {
-        wn_bool expanded = wn_false;
+    bool WNBounds2<type>::Expand(const WNBounds2<type>& _bounds) {
+        bool expanded = false;
 
         if (_bounds.mMinimum.mX < mMinimum.mX) {
             mMinimum.mX = _bounds.mMinimum.mX;
 
-            expanded = wn_true;
+            expanded = true;
         }
 
         if (_bounds.mMinimum.mY < mMinimum.mY) {
             mMinimum.mY = _bounds.mMinimum.mY;
 
-            expanded = wn_true;
+            expanded = true;
         }
 
         if (_bounds.mMaximum.mX > mMaximum.mX) {
             mMaximum.mX = _bounds.mMaximum.mX;
 
-            expanded = wn_true;
+            expanded = true;
         }
 
         if (_bounds.mMaximum.mY > mMaximum.mY) {
             mMaximum.mY = _bounds.mMaximum.mY;
 
-            expanded = wn_true;
+            expanded = true;
         }
 
         return(expanded);
     }
 
     template <typename type>
-    wn_void WNBounds2<type>::Translate(const WNVector2<type>& _vector) {
+    void WNBounds2<type>::Translate(const WNVector2<type>& _vector) {
         mMinimum += _vector;
         mMaximum += _vector;
     }
@@ -253,7 +253,7 @@ namespace wn {
     }
 
     template <typename type>
-    wn_void WNBounds2<type>::GetPoints(WNVector2<type>* _vectors) const {
+    void WNBounds2<type>::GetPoints(WNVector2<type>* _vectors) const {
         _vectors[0] = mMaximum;
         _vectors[1] = (mMinimum * WNVector2<type>(static_cast<type>(0), static_cast<type>(1)) +
                       mMaximum * WNVector2<type>(static_cast<type>(1), static_cast<type>(0))).ToPoint2();

@@ -91,67 +91,67 @@ namespace wn {
                     return(*this);
                 }
 
-                wn_bool operator == (const arithmetic_type& _in_value) const {
+                bool operator == (const arithmetic_type& _in_value) const {
                     return(traits_type::equal(representation, _in_value.representation));
                 }
 
-                wn_bool operator != (const arithmetic_type& _in_value) const {
+                bool operator != (const arithmetic_type& _in_value) const {
                     return(!traits_type::equal(representation, _in_value.representation));
                 }
 
-                wn_bool operator < (const arithmetic_type& _in_value) const {
+                bool operator < (const arithmetic_type& _in_value) const {
                     return(traits_type::less_than(representation, _in_value.representation));
                 }
 
-                wn_bool operator <= (const arithmetic_type& _in_value) const {
+                bool operator <= (const arithmetic_type& _in_value) const {
                     return(!traits_type::greater_than(representation, _in_value.representation));
                 }
 
-                wn_bool operator > (const arithmetic_type& _in_value) const {
+                bool operator > (const arithmetic_type& _in_value) const {
                     return(traits_type::greater_than(representation, _in_value.representation));
                 }
 
-                wn_bool operator >= (const arithmetic_type& _in_value) const {
+                bool operator >= (const arithmetic_type& _in_value) const {
                     return(!traits_type::less_than(representation, _in_value.representation));
                 }
 
                 template <typename type>
-                typename enable_if<supported<type>::value, wn_bool>::type operator == (const type& _in_value) const {
+                typename enable_if<supported<type>::value, bool>::type operator == (const type& _in_value) const {
                     const arithmetic_type in_value(_in_value);
 
                     return(traits_type::template equal(representation, in_value.representation));
                 }
 
                 template <typename type>
-                typename enable_if<supported<type>::value, wn_bool>::type operator != (const type& _in_value) const {
+                typename enable_if<supported<type>::value, bool>::type operator != (const type& _in_value) const {
                     const arithmetic_type in_value(_in_value);
 
                     return(!traits_type::template equal(representation, in_value.representation));
                 }
 
                 template <typename type>
-                typename enable_if<supported<type>::value, wn_bool>::type operator < (const type& _in_value) const {
+                typename enable_if<supported<type>::value, bool>::type operator < (const type& _in_value) const {
                     const arithmetic_type in_value(_in_value);
 
                     return(traits_type::template less_than(representation, in_value.representation));
                 }
 
                 template <typename type>
-                typename enable_if<supported<type>::value, wn_bool>::type operator <= (const type& _in_value) const {
+                typename enable_if<supported<type>::value, bool>::type operator <= (const type& _in_value) const {
                     const arithmetic_type in_value(_in_value);
 
                     return(!traits_type::template greater_than(representation, in_value.representation));
                 }
 
                 template <typename type>
-                typename enable_if<supported<type>::value, wn_bool>::type operator > (const type& _in_value) const {
+                typename enable_if<supported<type>::value, bool>::type operator > (const type& _in_value) const {
                     const arithmetic_type in_value(_in_value);
 
                     return(traits_type::template greater_than(representation, in_value.representation));
                 }
 
                 template <typename type>
-                typename enable_if<supported<type>::value, wn_bool>::type operator >= (const type& _in_value) const {
+                typename enable_if<supported<type>::value, bool>::type operator >= (const type& _in_value) const {
                     const arithmetic_type in_value(_in_value);
 
                     return(!traits_type::template less_than(representation, in_value.representation));
@@ -301,35 +301,35 @@ namespace wn {
                 template <typename _TestType>
                 struct higher_precedence : std::false_type {};
 
-                static wn_void negate(value_type& _in_out_value) {
+                static void negate(value_type& _in_out_value) {
                     _in_out_value = (-_in_out_value);
                 }
 
-                static wn_void add(value_type& _in_out_value, const value_type& _in_value) {
+                static void add(value_type& _in_out_value, const value_type& _in_value) {
                     _in_out_value += _in_value;
                 }
 
-                static wn_void subtract(value_type& _in_out_value, const value_type& _in_value) {
+                static void subtract(value_type& _in_out_value, const value_type& _in_value) {
                     _in_out_value -= _in_value;
                 }
 
-                static wn_void multiply(value_type& _in_out_value, const value_type& _in_value) {
+                static void multiply(value_type& _in_out_value, const value_type& _in_value) {
                     _in_out_value *= _in_value;
                 }
 
-                static wn_void divide(value_type& _in_out_value, const value_type& _in_value) {
+                static void divide(value_type& _in_out_value, const value_type& _in_value) {
                     _in_out_value /= _in_value;
                 }
 
-                static wn_bool equal(const value_type& _in_value1, const value_type& _in_value2) {
+                static bool equal(const value_type& _in_value1, const value_type& _in_value2) {
                     return(_in_value1 == _in_value2);
                 }
 
-                static wn_bool less_than(const value_type& _in_value1, const value_type& _in_value2) {
+                static bool less_than(const value_type& _in_value1, const value_type& _in_value2) {
                     return(_in_value1 < _in_value2);
                 }
 
-                static wn_bool greater_than(const value_type& _in_value1, const value_type& _in_value2) {
+                static bool greater_than(const value_type& _in_value1, const value_type& _in_value2) {
                     return(_in_value1 > _in_value2);
                 }
             };
@@ -342,52 +342,50 @@ namespace wn {
 
             namespace {
                 template <typename _Type>
-                struct select_scale_type {
-                    static_assert(dependent_false<_Type>::value, "type is not a valid integer type");
+                struct select_scale_type {};
+
+                template <>
+                struct select_scale_type<int8_t> {
+                    typedef int16_t type;
                 };
 
                 template <>
-                struct select_scale_type<wn_int8> {
-                    typedef wn_int16 type;
+                struct select_scale_type<int16_t> {
+                    typedef int32_t type;
                 };
 
                 template <>
-                struct select_scale_type<wn_int16> {
-                    typedef wn_int32 type;
+                struct select_scale_type<int32_t> {
+                    typedef int64_t type;
                 };
 
                 template <>
-                struct select_scale_type<wn_int32> {
-                    typedef wn_int64 type;
+                struct select_scale_type<int64_t> {
+                    typedef int64_t type;
                 };
 
                 template <>
-                struct select_scale_type<wn_int64> {
-                    typedef wn_int64 type;
+                struct select_scale_type<uint8_t> {
+                    typedef uint16_t type;
                 };
 
                 template <>
-                struct select_scale_type<wn_uint8> {
-                    typedef wn_uint16 type;
+                struct select_scale_type<uint16_t> {
+                    typedef uint32_t type;
                 };
 
                 template <>
-                struct select_scale_type<wn_uint16> {
-                    typedef wn_uint32 type;
+                struct select_scale_type<uint32_t> {
+                    typedef uint64_t type;
                 };
 
                 template <>
-                struct select_scale_type<wn_uint32> {
-                    typedef wn_uint64 type;
-                };
-
-                template <>
-                struct select_scale_type<wn_uint64> {
-                    typedef wn_uint64 type;
+                struct select_scale_type<uint64_t> {
+                    typedef uint64_t type;
                 };
             }
 
-            template <typename _Type, const wn_uint8 _Precision>
+            template <typename _Type, const uint8_t _Precision>
             struct fixed_point_traits_base : arithmetic_traits<_Type> {
                 typedef typename arithmetic_traits<_Type>::value_type value_type;
                 static_assert(std::is_integral<value_type>::value && std::is_arithmetic<value_type>::value,
@@ -449,20 +447,20 @@ namespace wn {
                 template <typename type>
                 static typename enable_if<(is_floating_point<type>::value && !std::is_floating_point<type>::value),
                                                value_type>::type construct(const type& _in_value) {
-                    const wn_float32 in_value = static_cast<wn_float32>(_in_value);
-                    const wn_float32 adjustment = (_in_value >= 0.0f ? 0.5f : -0.5f);
+                    const float in_value = static_cast<float>(_in_value);
+                    const float adjustment = (_in_value >= 0.0f ? 0.5f : -0.5f);
 
                     return(static_cast<value_type>((in_value * static_cast<value_type>(one)) + adjustment));
                 }
 
                 template <typename type>
-                static typename enable_if<is_same_decayed<type, wn_bool>::value, wn_bool>::type
+                static typename enable_if<is_same_decayed<type, bool>::value, bool>::type
                 convert(const value_type& _in_value) {
-                    return(_in_value == 0 ? wn_false : wn_true);
+                    return(_in_value == 0 ? false : true);
                 }
 
                 template <typename type>
-                static typename enable_if<(std::is_integral<type>::value && !is_same_decayed<type, wn_bool>::value),
+                static typename enable_if<(std::is_integral<type>::value && !is_same_decayed<type, bool>::value),
                                                type>::type convert(const value_type& _in_value) {
                     return(static_cast<type>(_in_value >> precision));
                 }
@@ -473,7 +471,7 @@ namespace wn {
                 }
             };
 
-            template <typename _Type, const wn_uint8 _Precision>
+            template <typename _Type, const uint8_t _Precision>
             struct fixed_point_traits : fixed_point_traits_base<_Type, _Precision> {
                 typedef typename fixed_point_traits_base<_Type, _Precision>::value_type value_type;
                 typedef typename fixed_point_traits_base<_Type, _Precision>::scale_type scale_type;
@@ -481,70 +479,70 @@ namespace wn {
                     one = (static_cast<value_type>(1) << _Precision),
                     precision = _Precision
                 };
-                static wn_void multiply(value_type& _in_out_value, const value_type& _in_value) {
+                static void multiply(value_type& _in_out_value, const value_type& _in_value) {
                     const scale_type in_out_value = static_cast<scale_type>(_in_out_value);
                     const scale_type in_value = static_cast<scale_type>(_in_value);
 
                     _in_out_value = static_cast<value_type>((in_out_value * in_value) >> precision);
                 }
 
-                static wn_void divide(value_type& _in_out_value, const value_type& _in_value) {
+                static void divide(value_type& _in_out_value, const value_type& _in_value) {
                     const scale_type in_out_value = static_cast<scale_type>(_in_out_value);
 
                     _in_out_value = static_cast<value_type>((in_out_value << precision) / _in_value);
                 }
             };
 
-            template <const wn_uint8 precision>
-            struct fixed_point_traits<wn_int64, precision> : fixed_point_traits_base<wn_int64, precision> {
-                typedef typename fixed_point_traits_base<wn_int64, precision>::value_type value_type;
-                static wn_void multiply(wn_int64& _in_out_value, const wn_int64& _in_value) {
+            template <const uint8_t precision>
+            struct fixed_point_traits<int64_t, precision> : fixed_point_traits_base<int64_t, precision> {
+                typedef typename fixed_point_traits_base<int64_t, precision>::value_type value_type;
+                static void multiply(int64_t& _in_out_value, const int64_t& _in_value) {
                     #if defined _WN_WINDOWS && defined _WN_64_BIT
                         _in_out_value = static_cast<value_type>(::MultiplyExtract128(_in_out_value, _in_value, precision));
                     #else
-                        const wn_uint64 a1 = _in_out_value >> precision;
-                        const wn_uint64 a0 = _in_out_value - (a1 << precision);
-                        const wn_uint64 b1 = _in_value >> precision;
-                        const wn_uint64 b0 = _in_value - (b1 << precision);
-                        const wn_uint64 d = a0 * b0;
-                        const wn_uint64 d1 = d >> precision;
-                        const wn_uint64 d0 = d - (d1 << precision);
-                        const wn_uint64 e = a0 * b1;
-                        const wn_uint64 e1 = e >> precision;
-                        const wn_uint64 e0 = e - (e1 << precision);
-                        const wn_uint64 f = a1 * b0;
-                        const wn_uint64 f1 = f >> precision;
-                        const wn_uint64 f0 = f - (f1 << precision);
-                        const wn_uint64 g = a1 * b1;
-                        const wn_uint64 g1 = g >> precision;
-                        const wn_uint64 g0 = g - (g1 << precision);
-                        const wn_uint64 roll = 1ULL << precision;
-                        const wn_uint64 pmax = roll - 1;
-                        wn_uint64 sum = d1 + e0 + f0;
-                        wn_uint64 carry = 0;
+                        const uint64_t a1 = _in_out_value >> precision;
+                        const uint64_t a0 = _in_out_value - (a1 << precision);
+                        const uint64_t b1 = _in_value >> precision;
+                        const uint64_t b0 = _in_value - (b1 << precision);
+                        const uint64_t d = a0 * b0;
+                        const uint64_t d1 = d >> precision;
+                        const uint64_t d0 = d - (d1 << precision);
+                        const uint64_t e = a0 * b1;
+                        const uint64_t e1 = e >> precision;
+                        const uint64_t e0 = e - (e1 << precision);
+                        const uint64_t f = a1 * b0;
+                        const uint64_t f1 = f >> precision;
+                        const uint64_t f0 = f - (f1 << precision);
+                        const uint64_t g = a1 * b1;
+                        const uint64_t g1 = g >> precision;
+                        const uint64_t g0 = g - (g1 << precision);
+                        const uint64_t roll = 1ULL << precision;
+                        const uint64_t pmax = roll - 1;
+                        uint64_t sum = d1 + e0 + f0;
+                        uint64_t carry = 0;
 
                         while (pmax < sum) {
                             sum -= roll;
                             carry++;
                         }
 
-                        const wn_int64 high_product = carry + e1 + f1 + g0 + (g1 << precision);
-                        const wn_int64 low_product = d0 + (sum << precision);
-                        wn_uint64 unsigned_high_product = static_cast<wn_uint64>(high_product);
-                        wn_uint64 unsigned_low_product = static_cast<wn_uint64>(low_product);
-                        wn_bool negate = wn_false;
+                        const int64_t high_product = carry + e1 + f1 + g0 + (g1 << precision);
+                        const int64_t low_product = d0 + (sum << precision);
+                        uint64_t unsigned_high_product = static_cast<uint64_t>(high_product);
+                        uint64_t unsigned_low_product = static_cast<uint64_t>(low_product);
+                        bool negate = false;
 
                         if (high_product < 0) {
-                            negate = wn_true;
-                            unsigned_high_product = static_cast<wn_uint64>(-high_product);
-                            unsigned_low_product = static_cast<wn_uint64>(-low_product);
+                            negate = true;
+                            unsigned_high_product = static_cast<uint64_t>(-high_product);
+                            unsigned_low_product = static_cast<uint64_t>(-low_product);
 
                             if (unsigned_low_product != 0) {
                                 unsigned_high_product -= 1;
                             }
                         }
 
-                        wn_int64 extracted_product = static_cast<wn_int64>((unsigned_high_product << precision) |
+                        int64_t extracted_product = static_cast<int64_t>((unsigned_high_product << precision) |
                                                                            (unsigned_low_product >> precision));
 
                         if (negate) {
@@ -555,10 +553,10 @@ namespace wn {
                     #endif
                 }
 
-                static wn_void divide(wn_int64& _in_out_value, const wn_int64& _in_value) {
-                    wn_int64 quotient = _in_out_value;
-                    wn_int64 divisor = _in_value;
-                    wn_bool negate = wn_false;
+                static void divide(int64_t& _in_out_value, const int64_t& _in_value) {
+                    int64_t quotient = _in_out_value;
+                    int64_t divisor = _in_value;
+                    bool negate = false;
 
                     if (divisor < 0) {
                         divisor = -divisor;
@@ -570,14 +568,14 @@ namespace wn {
                         negate = !negate;
                     }
 
-                    wn_uint64 quotient_hi = quotient >> precision;
-                    wn_uint64 quotient_low = quotient << precision;
-                    wn_int64 remainder = 0;
+                    uint64_t quotient_hi = quotient >> precision;
+                    uint64_t quotient_low = quotient << precision;
+                    int64_t remainder = 0;
 
                     for (auto i = 0; i < 128; ++i) {
-                        static const wn_uint64 highest_bit = 0x8000000000000000ull;
-                        const wn_uint64 high_bit = quotient_hi & highest_bit;
-                        const wn_uint64 shift_bit = quotient_low & highest_bit;
+                        static const uint64_t highest_bit = 0x8000000000000000ull;
+                        const uint64_t high_bit = quotient_hi & highest_bit;
+                        const uint64_t shift_bit = quotient_low & highest_bit;
 
                         remainder <<= 1;
 
@@ -599,10 +597,10 @@ namespace wn {
                     }
 
                     if (negate) {
-                        quotient_low = static_cast<wn_uint64>(-static_cast<wn_int64>(quotient_low));
+                        quotient_low = static_cast<uint64_t>(-static_cast<int64_t>(quotient_low));
                     }
 
-                    _in_out_value = static_cast<wn_int64>(quotient_low);
+                    _in_out_value = static_cast<int64_t>(quotient_low);
                 }
             };
 
@@ -620,70 +618,70 @@ namespace wn {
 
                 template <typename type>
                 static typename enable_if<supported<type>::value, value_type>::type construct(const type& _in_value) {
-                    return(conversion_type::compress(static_cast<wn_float32>(_in_value)));
+                    return(conversion_type::compress(static_cast<float>(_in_value)));
                 }
 
                 template <typename type>
-                static typename enable_if<is_same_decayed<type, wn_bool>::value, wn_bool>::type
+                static typename enable_if<is_same_decayed<type, bool>::value, bool>::type
                 convert(const value_type& _in_value) {
-                    return(conversion_type::decompress(_in_value) == 0.0f ? wn_false : wn_true);
+                    return(conversion_type::decompress(_in_value) == 0.0f ? false : true);
                 }
 
                 template <typename type>
-                static typename enable_if<(supported<type>::value && !is_same_decayed<type, wn_bool>::value), type>::type
+                static typename enable_if<(supported<type>::value && !is_same_decayed<type, bool>::value), type>::type
                 convert(const value_type& _in_value) {
                     return(static_cast<type>(conversion_type::decompress(_in_value)));
                 }
 
-                static wn_void negate(value_type& _in_out_value) {
-                    wn_float32 out_value = conversion_type::decompress(_in_out_value);
+                static void negate(value_type& _in_out_value) {
+                    float out_value = conversion_type::decompress(_in_out_value);
 
                     out_value = -out_value;
 
                     _in_out_value = conversion_type::compress(out_value);
                 }
 
-                static wn_void add(value_type& _in_out_value, const value_type& _in_value) {
-                    wn_float32 out_value = conversion_type::decompress(_in_out_value);
+                static void add(value_type& _in_out_value, const value_type& _in_value) {
+                    float out_value = conversion_type::decompress(_in_out_value);
 
                     out_value += conversion_type::decompress(_in_value);
 
                     _in_out_value = conversion_type::compress(out_value);
                 }
 
-                static wn_void subtract(value_type& _in_out_value, const value_type& _in_value) {
-                    wn_float32 out_value = conversion_type::decompress(_in_out_value);
+                static void subtract(value_type& _in_out_value, const value_type& _in_value) {
+                    float out_value = conversion_type::decompress(_in_out_value);
 
                     out_value -= conversion_type::decompress(_in_value);
 
                     _in_out_value = conversion_type::compress(out_value);
                 }
 
-                static wn_void multiply(value_type& _in_out_value, const value_type& _in_value) {
-                    wn_float32 out_value = conversion_type::decompress(_in_out_value);
+                static void multiply(value_type& _in_out_value, const value_type& _in_value) {
+                    float out_value = conversion_type::decompress(_in_out_value);
 
                     out_value *= conversion_type::decompress(_in_value);
 
                     _in_out_value = conversion_type::compress(out_value);
                 }
 
-                static wn_void divide(value_type& _in_out_value, const value_type& _in_value) {
-                    wn_float32 out_value = conversion_type::decompress(_in_out_value);
+                static void divide(value_type& _in_out_value, const value_type& _in_value) {
+                    float out_value = conversion_type::decompress(_in_out_value);
 
                     out_value /= conversion_type::decompress(_in_value);
 
                     _in_out_value = conversion_type::compress(out_value);
                 }
 
-                static wn_bool equal(const value_type& _in_value1, const value_type& _in_value2) {
+                static bool equal(const value_type& _in_value1, const value_type& _in_value2) {
                     return(conversion_type::decompress(_in_value1) == conversion_type::decompress(_in_value2));
                 }
 
-                static wn_bool less_than(const value_type& _in_value1, const value_type& _in_value2) {
+                static bool less_than(const value_type& _in_value1, const value_type& _in_value2) {
                     return(conversion_type::decompress(_in_value1) < conversion_type::decompress(_in_value2));
                 }
 
-                static wn_bool greater_than(const value_type& _in_value1, const value_type& _in_value2) {
+                static bool greater_than(const value_type& _in_value1, const value_type& _in_value2) {
                     return(conversion_type::decompress(_in_value1) > conversion_type::decompress(_in_value2));
                 }
             };
@@ -691,20 +689,20 @@ namespace wn {
             struct float_conversions : non_constructable_non_copyable {
             protected:
                 union bits {
-                    wn_float32 f32;
-                    wn_int32 si32;
-                    wn_uint32 ui32;
+                    float f32;
+                    int32_t si32;
+                    uint32_t ui32;
                 };
             };
 
             struct float8_conversions : float_conversions {
-                static wn_uint8 compress(const wn_float32& _in_value) {
+                static uint8_t compress(const float& _in_value) {
                     WN_UNUSED_ARGUMENT(_in_value);
 
                     return(1);
                 }
 
-                static wn_float32 decompress(const wn_uint8& _in_value) {
+                static float decompress(const uint8_t& _in_value) {
                     WN_UNUSED_ARGUMENT(_in_value);
 
                     return(1.0f);
@@ -712,15 +710,15 @@ namespace wn {
             };
 
             struct float16_conversions : float_conversions {
-                static wn_uint16 compress(const wn_float32& _in_value) {
+                static uint16_t compress(const float& _in_value) {
                     #ifdef __WN_F16C_AVAILABLE
-                        return(static_cast<wn_uint16>(_mm_cvtsi128_si32(_mm_cvtps_ph(_mm_set_ss(_in_value), 0))));
+                        return(static_cast<uint16_t>(_mm_cvtsi128_si32(_mm_cvtps_ph(_mm_set_ss(_in_value), 0))));
                     #else
                         bits in_value_raw;
 
                         in_value_raw.f32 = _in_value;
 
-                        wn_uint32 sign = in_value_raw.si32 & f32_sign_bit;
+                        uint32_t sign = in_value_raw.si32 & f32_sign_bit;
 
                         in_value_raw.si32 ^= sign;
                         sign >>= f16_sign_shift;
@@ -729,9 +727,9 @@ namespace wn {
 
                         temp_raw.si32 = mulN;
 
-                        const wn_float32 fix_subnormals = temp_raw.f32 * in_value_raw.f32;
+                        const float fix_subnormals = temp_raw.f32 * in_value_raw.f32;
 
-                        temp_raw.si32 = *reinterpret_cast<const wn_int32*>(&fix_subnormals);
+                        temp_raw.si32 = *reinterpret_cast<const int32_t*>(&fix_subnormals);
                         in_value_raw.si32 ^= (temp_raw.si32 ^ in_value_raw.si32) & -(f16_min_normal_as_f32 > in_value_raw.si32);
                         in_value_raw.si32 ^= (f32_infinity ^ in_value_raw.si32) &
                                              -((f32_infinity > in_value_raw.si32) & (in_value_raw.si32 > f16_max_normal_as_f32));
@@ -743,19 +741,19 @@ namespace wn {
                         in_value_raw.si32 ^= ((in_value_raw.si32 - minD) ^ in_value_raw.si32) &
                                              -(in_value_raw.si32 > f32_max_subnormal_downshifted);
 
-                        return(static_cast<wn_uint16>(in_value_raw.ui32 | sign));
+                        return(static_cast<uint16_t>(in_value_raw.ui32 | sign));
                     #endif
                 }
 
-                static wn_float32 decompress(const wn_uint16& _in_value) {
+                static float decompress(const uint16_t& _in_value) {
                     #ifdef __WN_F16C_AVAILABLE
-                        return(_mm_cvtss_f32(_mm_cvtph_ps(_mm_cvtsi32_si128(static_cast<wn_uint32>(_in_value)))));
+                        return(_mm_cvtss_f32(_mm_cvtph_ps(_mm_cvtsi32_si128(static_cast<uint32_t>(_in_value)))));
                     #else
                         bits in_value_raw;
 
                         in_value_raw.ui32 = _in_value;
 
-                        wn_int32 sign = in_value_raw.si32 & f16_sign_bit;
+                        int32_t sign = in_value_raw.si32 & f16_sign_bit;
 
                         in_value_raw.si32 ^= sign;
                         sign <<= f16_sign_shift;
@@ -769,7 +767,7 @@ namespace wn {
                         temp_raw.si32 = mulC;
                         temp_raw.f32 *= in_value_raw.si32;
 
-                        const wn_int32 mask = -(f32_min_normal_downshifted > in_value_raw.si32);
+                        const int32_t mask = -(f32_min_normal_downshifted > in_value_raw.si32);
 
                         in_value_raw.si32 <<= f16_shift;
                         in_value_raw.si32 ^= (temp_raw.si32 ^ in_value_raw.si32) & mask;
@@ -780,7 +778,7 @@ namespace wn {
                 }
 
             private:
-                enum : wn_uint32 {
+                enum : uint32_t {
                     f16_shift = 13,
                     f16_sign_shift = 16,
                     f32_infinity = 0x7F800000, // float32 infinity

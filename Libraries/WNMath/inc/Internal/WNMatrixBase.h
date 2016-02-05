@@ -12,17 +12,17 @@
 
 namespace wn {
     namespace internal {
-        template <typename MatrixType, typename type, wn_uint32 Order>
+        template <typename MatrixType, typename type, uint32_t Order>
         class __WNMatrixBaseCommon {
         public:
-            type& operator [] (const wn_uint32 _index);
-            const type& operator [] (const wn_uint32 _index) const;
+            type& operator [] (const uint32_t _index);
+            const type& operator [] (const uint32_t _index) const;
 
-            type& operator () (const wn_uint32 _index);
-            const type& operator () (const wn_uint32 _index) const;
+            type& operator () (const uint32_t _index);
+            const type& operator () (const uint32_t _index) const;
 
-            type& operator () (const wn_uint32 _index1, const wn_uint32 _index2);
-            const type& operator () (const wn_uint32 _index1, const wn_uint32 _index2) const;
+            type& operator () (const uint32_t _index1, const uint32_t _index2);
+            const type& operator () (const uint32_t _index1, const uint32_t _index2) const;
 
             MatrixType operator + () const;
             MatrixType operator - () const;
@@ -43,23 +43,23 @@ namespace wn {
             MatrixType operator * (const type& _number) const;
             MatrixType operator / (const type& _number) const;
 
-            wn_bool operator == (const MatrixType& _matrix) const;
-            wn_bool operator != (const MatrixType& _matrix) const;
+            bool operator == (const MatrixType& _matrix) const;
+            bool operator != (const MatrixType& _matrix) const;
 
-            wn_void Zero();
-            wn_void Identity();
-            wn_void Transpose();
+            void Zero();
+            void Identity();
+            void Transpose();
 
             type Trace() const;
             type Determinant() const; // need to fix
 
-            wn_bool IsIdentity() const;
-            wn_bool IsSymmetric() const;
-            wn_bool IsDiagonal() const;
+            bool IsIdentity() const;
+            bool IsSymmetric() const;
+            bool IsDiagonal() const;
 
-            wn_void Set(const MatrixType& _matrix);
-            wn_void Set(const type& _number);
-            wn_void Set(const type* _numbers);
+            void Set(const MatrixType& _matrix);
+            void Set(const type& _number);
+            void Set(const type* _numbers);
 
             MatrixType GetTransposed() const;
 
@@ -79,16 +79,16 @@ namespace wn {
             element_array<type, dimension> mElements;
         };
 
-        template <typename MatrixType, typename type, wn_uint32 Order, typename = std::enable_if<wn_true>::type>
+        template <typename MatrixType, typename type, uint32_t Order, typename = std::enable_if<true>::type>
         class __WNMatrixBase : public __WNMatrixBaseCommon<MatrixType, type, Order> {
         protected:
             WN_FORCE_INLINE __WNMatrixBase() {}
         };
 
-        template <typename MatrixType, typename type, wn_uint32 Order>
+        template <typename MatrixType, typename type, uint32_t Order>
         class __WNMatrixBase<MatrixType, type, Order, typename std::enable_if<wn::is_real<type>::value>::type> : public __WNMatrixBaseCommon<MatrixType, type, Order> {
         public:
-            WN_FORCE_INLINE wn_bool Invert() {}
+            WN_FORCE_INLINE bool Invert() {}
 
             MatrixType GetInverted() const;
             WN_FORCE_INLINE MatrixType GetAdjugate() const {}

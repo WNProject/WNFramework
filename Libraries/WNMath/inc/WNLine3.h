@@ -23,16 +23,16 @@ namespace wn {
         WNLine3 operator + () const;
         WNLine3 operator - () const;
 
-        wn_bool operator == (const WNLine3& _line) const;
-        wn_bool operator != (const WNLine3& _line) const;
+        bool operator == (const WNLine3& _line) const;
+        bool operator != (const WNLine3& _line) const;
 
-        wn_void Zero();
+        void Zero();
 
         vector3<type> Direction() const;
 
-        wn_void Set(const WNLine3& _line);
-        wn_void Set(const type* _numbers);
-        wn_void Set(const vector3<type>& _point1, const vector3<type>& _point2);
+        void Set(const WNLine3& _line);
+        void Set(const type* _numbers);
+        void Set(const vector3<type>& _point1, const vector3<type>& _point2);
 
     public:
         vector3<type> mPoint1;

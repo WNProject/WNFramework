@@ -20,7 +20,7 @@
 
 using namespace WNNetworking;
 
-WNConnectionGroup::WNConnectionGroup(const wn_char* _groupName) {
+WNConnectionGroup::WNConnectionGroup(const char* _groupName) {
   WN_DEBUG_ASSERT_DESC(wn::memory::strlen(_groupName) < 255, "Your group name must be < 255 characters long");
 
   mConnectionName = wn::memory::strndup(_groupName, 255);
@@ -30,13 +30,13 @@ WNConnectionGroup::~WNConnectionGroup() {
     wn::memory::heap_free(mConnectionName);
 }
 
-wn_void WNConnectionGroup::AddConnection(WNConnection* _connection) {
+void WNConnectionGroup::AddConnection(WNConnection* _connection) {
     WN_DEBUG_ASSERT_DESC(std::find(mConnections.begin(), mConnections.end(), _connection) == mConnections.end(), "This connection is has already been added");
 
     mConnections.push_back(_connection);
 }
 
-wn_void WNConnectionGroup::CleanConnection(WNConnection* _connection) {
+void WNConnectionGroup::CleanConnection(WNConnection* _connection) {
     //If we find this is happening a LOT, should probably switch off to a std::list
     std::vector<WNConnection*>::iterator i = std::find(mConnections.begin(), mConnections.end(), _connection);
 
@@ -45,7 +45,7 @@ wn_void WNConnectionGroup::CleanConnection(WNConnection* _connection) {
     }
 }
 
-wn_void WNConnectionGroup::SendBuffer(WNNetworkWriteBuffer& buffer) {
+void WNConnectionGroup::SendBuffer(WNNetworkWriteBuffer& buffer) {
     WN_UNUSED_ARGUMENT(buffer);
 
     //DONOTHINGYET

@@ -19,15 +19,15 @@ namespace wn {
 
         virtual WNSurfaceNativeHandle GetNativeHandle() const;
 
-        virtual WNSurfaceError Resize(wn_uint32 _width, wn_uint32 _height);
-        virtual WNSurfaceError Move(wn_uint32 _x, wn_uint32 _y);
-        virtual wn_bool IsFullscreen() const;
-        virtual WNSurfaceError SetFullscreen(wn_bool _fullscreen);
+        virtual WNSurfaceError Resize(uint32_t _width, uint32_t _height);
+        virtual WNSurfaceError Move(uint32_t _x, uint32_t _y);
+        virtual bool IsFullscreen() const;
+        virtual WNSurfaceError SetFullscreen(bool _fullscreen);
 
-        virtual wn_uint32 GetWidth() const;
-        virtual wn_uint32 GetHeight() const;
-        virtual wn_uint32 GetX() const;
-        virtual wn_uint32 GetY() const;
+        virtual uint32_t GetWidth() const;
+        virtual uint32_t GetHeight() const;
+        virtual uint32_t GetX() const;
+        virtual uint32_t GetY() const;
 
     private:
         friend class WNSurfaceManagerWindows;
@@ -35,16 +35,16 @@ namespace wn {
     private:
         WNSurfaceWindows& operator = (const WNSurfaceWindows&);
 
-        wn_void ProcessCallback(UINT _msg, LPARAM _lparam, WPARAM _wparam);
-        wn_void SetNativeHandle(HWND _handle);
+        void ProcessCallback(UINT _msg, LPARAM _lparam, WPARAM _wparam);
+        void SetNativeHandle(HWND _handle);
 
     private:
         WNSurfaceManagerWindows& mSurfaceManager;
-        wn_bool mFullscreen;
-        wn_uint32 mXSize;
-        wn_uint32 mYSize;
-        wn_uint32 mWidth;
-        wn_uint32 mHeight;
+        bool mFullscreen;
+        uint32_t mXSize;
+        uint32_t mYSize;
+        uint32_t mWidth;
+        uint32_t mHeight;
         HWND mNativeWindowHandle;
     };
 }

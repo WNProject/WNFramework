@@ -41,7 +41,7 @@ WNInstructionList* WNElseIf::GetBody() {
 WNIFInstruction::WNIFInstruction(WNExpression* _cond, WNInstructionList* _body) :
     mCondition(_cond),
     mBody(_body),
-    mElse(wn_nullptr) {
+    mElse(nullptr) {
 }
 
 WNIFInstruction::~WNIFInstruction() {
@@ -50,7 +50,7 @@ WNIFInstruction::~WNIFInstruction() {
     if(mElse) {
         wn::memory::destroy(mElse);
     }
-    for(WNScriptLinkedList<WNElseIf>::WNScriptLinkedListNode*i =  mElseIfNodes.first; i != wn_nullptr; i = i->next) {
+    for(WNScriptLinkedList<WNElseIf>::WNScriptLinkedListNode*i =  mElseIfNodes.first; i != nullptr; i = i->next) {
         wn::memory::destroy(i->value);
     }
 }
@@ -74,7 +74,7 @@ eWNTypeError WNIFInstruction::GenerateCode(WNCodeModule& _module, const WNFuncti
         endBlock = 0;
     }
 
-    WNScriptType boolType = wn_nullptr;
+    WNScriptType boolType = nullptr;
     if(ok != (err = _module.GetTypeManager().get_type_by_name("Bool", boolType))) {
         return(err);
     }
@@ -83,7 +83,7 @@ eWNTypeError WNIFInstruction::GenerateCode(WNCodeModule& _module, const WNFuncti
     WNInstructionList* curBody = mBody;
 
     llvm::Value* cv = llvm::ConstantInt::get(boolType->mLLVMType, 0);
-    for(WNScriptLinkedList<WNElseIf>::WNScriptLinkedListNode * i = mElseIfNodes.first; i != wn_nullptr; i = i->next) {
+    for(WNScriptLinkedList<WNElseIf>::WNScriptLinkedListNode * i = mElseIfNodes.first; i != nullptr; i = i->next) {
         if(ok != (err = curCondition->GenerateCode(_module, _def, _compilationLog))) {
             return(err);
         }

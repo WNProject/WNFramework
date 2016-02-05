@@ -304,7 +304,7 @@ public:
      WNFunction* function (); 
      WNStruct* structDecl (); 
      WNStruct* classDecl (); 
-     wn_char* inc (); 
+     char* inc (); 
      WNScriptFile* program (); 
     // Delegated rules
 

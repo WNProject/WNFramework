@@ -24,10 +24,10 @@ namespace WNScripting {
 
         eWNTypeError GenerateCode(WNCodeModule& _module, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog);
 
-        wn_bool Returns();
+        bool Returns();
     private:
         WNScriptLinkedList<WNInstruction> mInstructions;
-        wn_bool mReturns;
+        bool mReturns;
     };
 }
 #endif//__WN_INSTRUCTION_LIST_H__

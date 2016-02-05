@@ -37,27 +37,27 @@ namespace WNNetworking {
         typedef std::vector<wn::memory::intrusive_ptr<WNNetworking::WNBufferResource>> WNBufferQueue;
 
     public:
-        WNNetworkWriteBuffer(WNNetworkManager& _manager, wn_uint32 _number);
+        WNNetworkWriteBuffer(WNNetworkManager& _manager, uint32_t _number);
         WNNetworkWriteBuffer(const WNNetworkWriteBuffer& _other);
         virtual WN_FORCE_INLINE ~WNNetworkWriteBuffer() {}
 
         WNNetworkWriteBuffer& operator = (const WNNetworkWriteBuffer& _other);
 
-        virtual wn_bool serialize(const wn::containers::serializer_base& _serializer, const wn_uint32 _flags) override;
-        virtual wn_char* reserve(const wn_size_t _numBytes, wn_size_t& _returnedBytes) override;
+        virtual bool serialize(const wn::containers::serializer_base& _serializer, const uint32_t _flags) override;
+        virtual char* reserve(const size_t _numBytes, size_t& _returnedBytes) override;
         virtual wn::containers::data_buffer_type type() const override;
 
         const WNBufferQueue& GetChunks() const;
-        wn_void FlushWrite();
+        void FlushWrite();
 
     private:
         wn::memory::basic_allocator allocator;
         WNNetworkManager& mManager;
         WNBufferQueue mChunks;
 
-        wn_bool mFlushed;
-        wn_size_t mTotalWritten;
-        wn_size_t mBufferPointer;
+        bool mFlushed;
+        size_t mTotalWritten;
+        size_t mBufferPointer;
     };
 }
 

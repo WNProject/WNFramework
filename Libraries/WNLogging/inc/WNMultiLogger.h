@@ -11,7 +11,7 @@ namespace WNLogging {
     class WNMultiLogger: public WNLogger {
     public:
         ~WNMultiLogger();
-        wn_void FlushBuffer(const wn_char* _buffer, wn_size_t bufferSize, const std::vector<WNLogColorElement>* mColors);
+        void FlushBuffer(const char* _buffer, size_t bufferSize, const std::vector<WNLogColorElement>* mColors);
     private:
         T_Logger1 mLogger1;
         T_Logger2 mLogger2;

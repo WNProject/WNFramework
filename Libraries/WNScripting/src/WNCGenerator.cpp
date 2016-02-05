@@ -22,25 +22,25 @@ void ast_c_translator::walk_type(const type* _type, containers::string* _str) {
 
   switch (_type->get_index()) {
     case static_cast<uint32_t>(type_classification::invalid_type):
-      WN_RELEASE_ASSERT_DESC(wn_false, "Cannot classify invalid types");
+      WN_RELEASE_ASSERT_DESC(false, "Cannot classify invalid types");
       break;
     case static_cast<uint32_t>(type_classification::void_type):
       *_str = std::move(containers::string(m_allocator) + "void");
       return;
     case static_cast<uint32_t>(type_classification::int_type):
-      *_str = std::move(containers::string(m_allocator) + "wn_int32");
+      *_str = std::move(containers::string(m_allocator) + "int32_t");
       return;
     case static_cast<uint32_t>(type_classification::float_type):
-      *_str = std::move(containers::string(m_allocator) + "wn_float32");
+      *_str = std::move(containers::string(m_allocator) + "float");
       return;
     case static_cast<uint32_t>(type_classification::char_type):
-      *_str = std::move(containers::string(m_allocator) + "wn_char");
+      *_str = std::move(containers::string(m_allocator) + "char");
       return;
     case static_cast<uint32_t>(type_classification::string_type):
-      WN_RELEASE_ASSERT_DESC(wn_false, "Unimplemented string types");
+      WN_RELEASE_ASSERT_DESC(false, "Unimplemented string types");
       break;
     case static_cast<uint32_t>(type_classification::bool_type):
-      *_str = std::move(containers::string(m_allocator) + "wn_bool");
+      *_str = std::move(containers::string(m_allocator) + "bool");
       break;
     default: {
       const containers::string_view view =
@@ -63,17 +63,17 @@ void ast_c_translator::walk_expression(const constant_expression* _const,
       break;
     default:
       WN_RELEASE_ASSERT_DESC(
-          wn_false, "Non-integer constants not supported yet.");
+          false, "Non-integer constants not supported yet.");
   }
 }
 
 void ast_c_translator::walk_expression(const binary_expression* _binary,
     containers::pair<containers::string, containers::string>* _str) {
   initialize_data(m_allocator, _str);
-  const wn_char* m_operators[] = {" + ", " - ", " * ", " / ", " % ", " == ",
+  const char* m_operators[] = {" + ", " - ", " * ", " / ", " % ", " == ",
       " != ", " <= ", " >= ", " < ", " > "};
   static_assert(sizeof(m_operators) / sizeof(m_operators[0]) ==
-                    static_cast<wn_size_t>(arithmetic_type::max),
+                    static_cast<size_t>(arithmetic_type::max),
       "New oeprator type detected");
   const auto& lhs = m_generator->get_data(_binary->get_lhs());
   const auto& rhs = m_generator->get_data(_binary->get_rhs());
@@ -86,13 +86,13 @@ void ast_c_translator::walk_expression(const binary_expression* _binary,
       _str->second.append("(");
       _str->second.append(lhs.second);
       _str->second.append(
-          m_operators[static_cast<wn_size_t>(_binary->get_arithmetic_type())]);
+          m_operators[static_cast<size_t>(_binary->get_arithmetic_type())]);
       _str->second.append(rhs.second);
       _str->second.append(")");
       break;
     default:
       WN_RELEASE_ASSERT_DESC(
-          wn_false, "Non-integer binary expressions not supported yet.");
+          false, "Non-integer binary expressions not supported yet.");
   }
 }
 
@@ -233,13 +233,13 @@ void ast_c_translator::walk_function(
   *_str = containers::string(m_allocator) +
           m_generator->get_data(_func->get_signature()->get_type()) + " " +
           _func->get_mangled_name() + "(";
-  wn_bool first_param = wn_true;
+  bool first_param = true;
   if (_func->get_parameters()) {
     for (auto& a : _func->get_parameters()->get_parameters()) {
       if (!first_param) {
         *_str += ",";
       }
-      first_param = wn_false;
+      first_param = false;
       *_str += m_generator->get_data(a.get());
     }
   }
@@ -262,7 +262,7 @@ void ast_c_translator::walk_struct_definition(
 }
 
 void ast_c_translator::walk_script_file(const script_file* _file) {
-  wn_bool first = wn_true;
+  bool first = true;
   for (auto& strt : _file->get_structs()) {
     m_output_string += m_generator->get_data(strt.get());
   }
@@ -270,7 +270,7 @@ void ast_c_translator::walk_script_file(const script_file* _file) {
     if (!first) {
       m_output_string += "\n";
     }
-    first = wn_false;
+    first = false;
     m_output_string += m_generator->get_data(func.get());
   }
 }

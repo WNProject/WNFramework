@@ -14,10 +14,10 @@ TEST(semaphore, wait_notify) {
 
   {
     std::stringstream numbers;
-    wn_uint32 count = 0;
+    uint32_t count = 0;
     wn::multi_tasking::semaphore semaphore;
 
-    const auto thread_function = [&numbers, &count, &semaphore]() -> wn_void {
+    const auto thread_function = [&numbers, &count, &semaphore]() -> void {
       semaphore.wait();
 
       numbers << count;
@@ -27,10 +27,10 @@ TEST(semaphore, wait_notify) {
       semaphore.notify();
     };
 
-    std::vector<std::shared_ptr<wn::multi_tasking::thread<wn_void>>> threads;
+    std::vector<std::shared_ptr<wn::multi_tasking::thread<void>>> threads;
 
     for (auto i = 0; i < 10; ++i) {
-      threads.push_back(std::make_shared<wn::multi_tasking::thread<wn_void>>(
+      threads.push_back(std::make_shared<wn::multi_tasking::thread<void>>(
           &allocator, thread_function));
     }
 
@@ -59,13 +59,13 @@ TEST(semaphore, try_wait) {
 
     semaphore.notify();
 
-    wn_bool result = wn_false;
+    bool result = false;
 
-    const auto thread_function = [&semaphore, &result]() -> wn_void {
+    const auto thread_function = [&semaphore, &result]() -> void {
       result = semaphore.try_wait();
     };
 
-    wn::multi_tasking::thread<wn_void> thread(&allocator, thread_function);
+    wn::multi_tasking::thread<void> thread(&allocator, thread_function);
 
     thread.join();
 
@@ -82,16 +82,16 @@ TEST(semaphore, initial_count) {
     std::atomic_int count = {0};
     wn::multi_tasking::semaphore semaphore(10);
 
-    const auto thread_function = [&count, &semaphore]() -> wn_void {
+    const auto thread_function = [&count, &semaphore]() -> void {
       semaphore.wait();
 
       count++;
     };
 
-    std::vector<std::shared_ptr<wn::multi_tasking::thread<wn_void>>> threads;
+    std::vector<std::shared_ptr<wn::multi_tasking::thread<void>>> threads;
 
     for (auto i = 0; i < 15; ++i) {
-      threads.push_back(std::make_shared<wn::multi_tasking::thread<wn_void>>(
+      threads.push_back(std::make_shared<wn::multi_tasking::thread<void>>(
           &allocator, thread_function));
     }
 

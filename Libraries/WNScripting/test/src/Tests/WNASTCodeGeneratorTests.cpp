@@ -12,7 +12,7 @@
 using ::testing::Eq;
 using ::testing::Ge;
 
-void flush_buffer(wn_void* v, const wn_char* bytes, wn_size_t length,
+void flush_buffer(void* v, const char* bytes, size_t length,
     const std::vector<WNLogging::WNLogColorElement>&) {
   wn::containers::string* s = static_cast<wn::containers::string*>(v);
   s->append(bytes, length);
@@ -35,13 +35,13 @@ struct test_context {
   log_buff buffer;
   buffer_logger logger;
   WNLogging::WNLog log;
-  wn_size_t num_warnings;
-  wn_size_t num_errors;
+  size_t num_warnings;
+  size_t num_errors;
 
-  bool test_parse_file(const wn_char* _file) {
+  bool test_parse_file(const char* _file) {
     bool success =
         wn::scripting::test_parse_file(_file, mapping.get(), &allocator, &log,
-            &num_warnings, &num_errors) != wn_nullptr;
+            &num_warnings, &num_errors) != nullptr;
     log.Flush();
     return success;
   }

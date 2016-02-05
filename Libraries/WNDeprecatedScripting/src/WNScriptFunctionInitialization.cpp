@@ -7,18 +7,18 @@
 #include <stdlib.h>
 
 namespace WNScripting {
-    wn_void* TestMalloc(wn_size_t size) {
+    void* TestMalloc(size_t size) {
         void* x = malloc(size);
         return(x);
     }
 
-    wn_void TestFree(wn_void* ptr) {
+    void TestFree(void* ptr) {
         return(free(ptr));
     }
-    wn_void Assert() {
+    void Assert() {
         assert(false);
     }
-    wn_void DebugPrint(int x) {
+    void DebugPrint(int x) {
         printf("%d\n", x);
     }
 

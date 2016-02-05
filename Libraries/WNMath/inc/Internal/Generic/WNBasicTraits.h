@@ -47,7 +47,7 @@ namespace wn {
                 static WN_FORCE_INLINE typename core::enable_if<(core::is_floating_point<type>::value &&
                                                                  !std::is_fundamental<type>::value), type>::type
                 abs(const type& _value) {
-                    return(static_cast<type>(abs(static_cast<wn_float32>(_value))));
+                    return(static_cast<type>(abs(static_cast<float>(_value))));
                 }
 
                 template <typename type>
@@ -84,71 +84,71 @@ namespace wn {
                 static WN_FORCE_INLINE typename core::enable_if<(core::is_floating_point<type>::value &&
                                                                  !std::is_floating_point<type>::value), type>::type
                 mod(const type& _dividend, const type& _divisor) {
-                    return(static_cast<type>(mod(static_cast<wn_float32>(_dividend), static_cast<wn_float32>(_divisor))));
+                    return(static_cast<type>(mod(static_cast<float>(_dividend), static_cast<float>(_divisor))));
                 }
 
-                static WN_FORCE_INLINE wn_float32 sqrt(const wn_float32& _value) {
+                static WN_FORCE_INLINE float sqrt(const float& _value) {
                     #ifdef __WN_MATH_APPROXIMATIONS_ENABLED
-                        const wn_uint32 equal_zero = -(_value == 0.0f);
-                        const wn_float32 result = invsqrt(_value);
-                        wn_int32 int_value = *reinterpret_cast<const wn_int32*>(&result);
+                        const uint32_t equal_zero = -(_value == 0.0f);
+                        const float result = invsqrt(_value);
+                        int32_t int_value = *reinterpret_cast<const int32_t*>(&result);
 
                         int_value &= ~(equal_zero);
 
-                        return(_value * (*reinterpret_cast<const wn_float32*>(&int_value)));
+                        return(_value * (*reinterpret_cast<const float*>(&int_value)));
                     #else
                         return(::sqrt(_value));
                     #endif
                 }
 
-                static WN_FORCE_INLINE wn_float64 sqrt(const wn_float64& _value) {
+                static WN_FORCE_INLINE double sqrt(const double& _value) {
                     return(::sqrt(_value));
                 }
 
                 template <typename type>
                 static WN_FORCE_INLINE typename core::enable_if<std::is_integral<type>::value, type>::type
                 sqrt(const type& _value) {
-                    return(static_cast<type>(sqrt(static_cast<wn_float64>(_value))));
+                    return(static_cast<type>(sqrt(static_cast<double>(_value))));
                 }
 
                 template <typename type>
                 static WN_FORCE_INLINE typename core::enable_if<(core::is_floating_point<type>::value &&
                                                                  !std::is_floating_point<type>::value), type>::type
                 sqrt(const type& _value) {
-                    return(static_cast<type>(sqrt(static_cast<wn_float32>(_value))));
+                    return(static_cast<type>(sqrt(static_cast<float>(_value))));
                 }
 
                 template <typename type>
                 static WN_FORCE_INLINE typename core::enable_if<(std::is_floating_point<type>::value &&
-                                                                 !core::is_same<type, wn_float32>::value &&
-                                                                 !core::is_same<type, wn_float64>::value), type>::type
+                                                                 !core::is_same<type, float>::value &&
+                                                                 !core::is_same<type, double>::value), type>::type
                 sqrt(const type& _value) {
                     return(::sqrt(_value));
                 }
 
-                static WN_FORCE_INLINE wn_float32 invsqrt(const wn_float32& _value) {
+                static WN_FORCE_INLINE float invsqrt(const float& _value) {
                     #ifdef __WN_MATH_APPROXIMATIONS_ENABLED
-                        const wn_uint32 less_than_zero = -(_value < 0.0f);
-                        const wn_uint32 equal_zero = -(_value == 0.0f);
-                        const wn_float32 half_number = _value * 0.5f;
-                        wn_int32 int_value = *reinterpret_cast<const wn_int32*>(&_value);
+                        const uint32_t less_than_zero = -(_value < 0.0f);
+                        const uint32_t equal_zero = -(_value == 0.0f);
+                        const float half_number = _value * 0.5f;
+                        int32_t int_value = *reinterpret_cast<const int32_t*>(&_value);
 
                         int_value = 0x5F375A86 - (int_value >> 1);
 
-                        wn_float32 real_value = *reinterpret_cast<const wn_float32*>(&int_value);
+                        float real_value = *reinterpret_cast<const float*>(&int_value);
 
                         real_value = real_value * (1.5f - real_value * real_value * half_number);
-                        int_value = *reinterpret_cast<const wn_int32*>(&real_value);
+                        int_value = *reinterpret_cast<const int32_t*>(&real_value);
                         int_value = (int_value & ~less_than_zero) ^ (less_than_zero & 0xFFC00000);
                         int_value = (int_value & 0x80000000) | ((int_value & ~equal_zero) ^ (equal_zero & 0x7F800000));
 
-                        return(*reinterpret_cast<const wn_float32*>(&int_value));
+                        return(*reinterpret_cast<const float*>(&int_value));
                     #else
                         return(1.0f / sqrt(_value));
                     #endif
                 }
 
-                static WN_FORCE_INLINE wn_float64 invsqrt(const wn_float64& _value) {
+                static WN_FORCE_INLINE double invsqrt(const double& _value) {
                     return(1.0 / sqrt(_value));
                 }
 
@@ -156,13 +156,13 @@ namespace wn {
                 static WN_FORCE_INLINE typename core::enable_if<(core::is_floating_point<type>::value &&
                                                                  !std::is_floating_point<type>::value), type>::type
                 invsqrt(const type& _value) {
-                    return(static_cast<type>(invsqrt(static_cast<wn_float32>(_value))));
+                    return(static_cast<type>(invsqrt(static_cast<float>(_value))));
                 }
 
                 template <typename type>
                 static WN_FORCE_INLINE typename core::enable_if<(std::is_floating_point<type>::value &&
-                                                                 !core::is_same<type, wn_float32>::value &&
-                                                                 !core::is_same<type, wn_float64>::value), type>::type
+                                                                 !core::is_same<type, float>::value &&
+                                                                 !core::is_same<type, double>::value), type>::type
                 invsqrt(const type& _value) {
                     return(static_cast<type>(1.0) / sqrt(_value));
                 }
@@ -183,7 +183,7 @@ namespace wn {
                 static WN_FORCE_INLINE typename core::enable_if<(core::is_floating_point<type>::value &&
                                                                  !std::is_floating_point<type>::value), type>::type
                 min(const type& _value1, const type& _value2) {
-                    return(static_cast<type>(min(static_cast<wn_float32>(_value1), static_cast<wn_float32>(_value2))));
+                    return(static_cast<type>(min(static_cast<float>(_value1), static_cast<float>(_value2))));
                 }
 
                 template <typename type>
@@ -209,7 +209,7 @@ namespace wn {
                 static WN_FORCE_INLINE typename core::enable_if<(core::is_floating_point<type>::value &&
                                                                  !std::is_floating_point<type>::value), type>::type
                 max(const type& _value1, const type& _value2) {
-                    return(static_cast<type>(max(static_cast<wn_float32>(_value1), static_cast<wn_float32>(_value2))));
+                    return(static_cast<type>(max(static_cast<float>(_value1), static_cast<float>(_value2))));
                 }
 
                 template <typename type>
@@ -257,7 +257,7 @@ namespace wn {
                 static WN_FORCE_INLINE typename core::enable_if<(core::is_floating_point<type>::value &&
                                                                  !std::is_floating_point<type>::value), type>::type
                 pow(const type& _base, const type& _exponent) {
-                    return(static_cast<type>(pow(static_cast<wn_float32>(_base), static_cast<wn_float32>(_exponent))));
+                    return(static_cast<type>(pow(static_cast<float>(_base), static_cast<float>(_exponent))));
                 }
 
                 template <typename type>
@@ -283,7 +283,7 @@ namespace wn {
                 static WN_FORCE_INLINE typename core::enable_if<(core::is_floating_point<type>::value &&
                                                                  !std::is_floating_point<type>::value), type>::type
                 ceil(const type& _value) {
-                    return(static_cast<type>(ceil(static_cast<wn_float32>(_value))));
+                    return(static_cast<type>(ceil(static_cast<float>(_value))));
                 }
 
                 template <typename type>
@@ -308,7 +308,7 @@ namespace wn {
                 static WN_FORCE_INLINE typename core::enable_if<(core::is_floating_point<type>::value &&
                                                                  !std::is_floating_point<type>::value), type>::type
                 floor(const type& _value) {
-                    return(static_cast<type>(floor(static_cast<wn_float32>(_value))));
+                    return(static_cast<type>(floor(static_cast<float>(_value))));
                 }
 
                 template <typename type>
@@ -326,7 +326,7 @@ namespace wn {
                 static WN_FORCE_INLINE typename core::enable_if<(core::is_floating_point<type>::value &&
                                                                  !std::is_floating_point<type>::value), type>::type
                 round(const type& _value) {
-                    return(static_cast<type>(round(static_cast<wn_float32>(_value))));
+                    return(static_cast<type>(round(static_cast<float>(_value))));
                 }
 
                 template <typename type>
@@ -354,7 +354,7 @@ namespace wn {
                 static WN_FORCE_INLINE typename core::enable_if<(core::is_floating_point<type>::value &&
                                                                  !std::is_floating_point<type>::value), type>::type
                 trunc(const type& _value) {
-                    return(static_cast<type>(trunc(static_cast<wn_float32>(_value))));
+                    return(static_cast<type>(trunc(static_cast<float>(_value))));
                 }
 
                 template <typename type>

@@ -18,7 +18,7 @@
     #define _WN_POSIX
 #endif
 
-#define WN_UNUSED_ARGUMENT(_argument) (static_cast<wn_void>(sizeof((_argument), 0)))
+#define WN_UNUSED_ARGUMENT(_argument) (static_cast<void>(sizeof((_argument), 0)))
 
 #if defined _WN_LINUX
     #include <signal.h>

@@ -275,7 +275,7 @@ public:
      scripting::function* function ();
      scripting::struct_definition* structDecl ();
      scripting::struct_definition* classDecl ();
-     const wn_char* inc ();
+     const char* inc ();
      scripting::script_file* program ();
 
     const char *    getGrammarFileName();

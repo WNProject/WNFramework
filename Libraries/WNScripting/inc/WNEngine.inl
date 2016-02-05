@@ -22,7 +22,7 @@ struct type_registry {
   // for scripting. The registered type indices
   // will probably not be consistent across modules.
   static void* get_registered_index() {
-    static wn_size_t i = 0;
+    static size_t i = 0;
     ++i;
     return &(i);
   }

@@ -42,34 +42,34 @@ namespace WNLogging {
 
     struct WNLogColorElement {
         WNLogLevel mLevel;
-        wn_char* mPosition;
+        char* mPosition;
     };
 
     class WNLogger {
     public:
-        virtual wn_void FlushBuffer(const wn_char* _buffer, wn_size_t bufferSize, const std::vector<WNLogColorElement>& mColors) = 0;
+        virtual void FlushBuffer(const char* _buffer, size_t bufferSize, const std::vector<WNLogColorElement>& mColors) = 0;
     };
 
     #define LOGGER_ENCODING_HELPER(type, formatter) \
     template<typename T> \
-    struct _Enc##type { static const wn_char* GetVal(){return formatter;} }; \
-    template<> struct _Enc##type<wn_wchar> { static const wn_wchar* GetVal(){return L##formatter;} };
+    struct _Enc##type { static const char* GetVal(){return formatter;} }; \
+    template<> struct _Enc##type<wchar_t> { static const wchar_t* GetVal(){return L##formatter;} };
 
     LOGGER_ENCODING_HELPER(Ptr, "%p");
     template<typename T, typename BuffType>
     struct LogTypeHelper {
-        WN_FORCE_INLINE static wn_bool DoLog(const T& _0, BuffType* _buffer, wn_size_t& _bufferLeft) {
+        WN_FORCE_INLINE static bool DoLog(const T& _0, BuffType* _buffer, size_t& _bufferLeft) {
             int printed = wn::memory::snprintf(_buffer, _bufferLeft, _EncPtr<BuffType>::GetVal(), _0);
-            if(printed < 0 || static_cast<wn_size_t>(printed) >= _bufferLeft) {
-                return(wn_false);
+            if(printed < 0 || static_cast<size_t>(printed) >= _bufferLeft) {
+                return(false);
             }
             _bufferLeft -= printed;
-            return(wn_true);
+            return(true);
         }
     };
 
     template<typename T, typename BuffType>
-    WN_FORCE_INLINE wn_bool LogType(const T&_0, BuffType* _buffer, wn_size_t& _bufferLeft) {
+    WN_FORCE_INLINE bool LogType(const T&_0, BuffType* _buffer, size_t& _bufferLeft) {
         return(LogTypeHelper<T, BuffType>::DoLog(_0, _buffer, _bufferLeft));
     }
 
@@ -83,58 +83,58 @@ namespace WNLogging {
 
     class WNLog {
     public:
-     WNLog(WNLogger* logger, WNLogLevel lvl = eError, wn_size_t size = 1024,
-           wn_bool flush = wn_false)
+     WNLog(WNLogger* logger, WNLogLevel lvl = eError, size_t size = 1024,
+           bool flush = false)
          : mLogger(logger) {
             mBufferSize = size;
             mBufferLeft = mBufferSize;
             mCurrentLogLevel = lvl;
-            mLogBuffer = static_cast<wn_char*>(malloc(mBufferSize));
+            mLogBuffer = static_cast<char*>(malloc(mBufferSize));
             mFlushAfterMessage = flush;
         }
 
         ~WNLog() { Flush(); }
-        WN_FORCE_INLINE wn_void SetLogLevel(WNLogLevel _level) { mCurrentLogLevel = _level; }
-        WN_FORCE_INLINE wn_void Flush();
-        WN_FORCE_INLINE wn_void FlushExternal(const wn_char* _buffer, wn_size_t _bufferSize, const std::vector<WNLogColorElement>& mColors);
+        WN_FORCE_INLINE void SetLogLevel(WNLogLevel _level) { mCurrentLogLevel = _level; }
+        WN_FORCE_INLINE void Flush();
+        WN_FORCE_INLINE void FlushExternal(const char* _buffer, size_t _bufferSize, const std::vector<WNLogColorElement>& mColors);
 
         template<LTM(0)>
-        WN_FORCE_INLINE wn_void Log(WNLogLevel, wn_size_t, LVM(0));
+        WN_FORCE_INLINE void Log(WNLogLevel, size_t, LVM(0));
         template<LTM(0), LTM(1)>
-        WN_FORCE_INLINE wn_void Log(WNLogLevel, wn_size_t, LVM(0), LVM(1));
+        WN_FORCE_INLINE void Log(WNLogLevel, size_t, LVM(0), LVM(1));
         template<LTM(0), LTM(1), LTM(2)>
-        WN_FORCE_INLINE wn_void Log(WNLogLevel, wn_size_t, LVM(0), LVM(1), LVM(2));
+        WN_FORCE_INLINE void Log(WNLogLevel, size_t, LVM(0), LVM(1), LVM(2));
         template<LTM(0), LTM(1), LTM(2), LTM(3)>
-        WN_FORCE_INLINE wn_void Log(WNLogLevel, wn_size_t, LVM(0), LVM(1), LVM(2), LVM(3));
+        WN_FORCE_INLINE void Log(WNLogLevel, size_t, LVM(0), LVM(1), LVM(2), LVM(3));
         template<LTM(0), LTM(1), LTM(2), LTM(3), LTM(4)>
-        WN_FORCE_INLINE wn_void Log(WNLogLevel, wn_size_t, LVM(0), LVM(1), LVM(2), LVM(3), LVM(4));
+        WN_FORCE_INLINE void Log(WNLogLevel, size_t, LVM(0), LVM(1), LVM(2), LVM(3), LVM(4));
         template<LTM(0), LTM(1), LTM(2), LTM(3), LTM(4), LTM(5)>
-        WN_FORCE_INLINE wn_void Log(WNLogLevel, wn_size_t, LVM(0), LVM(1), LVM(2), LVM(3), LVM(4), LVM(5));
+        WN_FORCE_INLINE void Log(WNLogLevel, size_t, LVM(0), LVM(1), LVM(2), LVM(3), LVM(4), LVM(5));
         template<LTM(0), LTM(1), LTM(2), LTM(3), LTM(4), LTM(5), LTM(6)>
-        WN_FORCE_INLINE wn_void Log(WNLogLevel, wn_size_t, LVM(0), LVM(1), LVM(2), LVM(3), LVM(4), LVM(5), LVM(6));
+        WN_FORCE_INLINE void Log(WNLogLevel, size_t, LVM(0), LVM(1), LVM(2), LVM(3), LVM(4), LVM(5), LVM(6));
         template<LTM(0), LTM(1), LTM(2), LTM(3), LTM(4), LTM(5), LTM(6), LTM(7)>
-        WN_FORCE_INLINE wn_void Log(WNLogLevel, wn_size_t, LVM(0), LVM(1), LVM(2), LVM(3), LVM(4), LVM(5), LVM(6), LVM(7));
+        WN_FORCE_INLINE void Log(WNLogLevel, size_t, LVM(0), LVM(1), LVM(2), LVM(3), LVM(4), LVM(5), LVM(6), LVM(7));
         template<LTM(0), LTM(1), LTM(2), LTM(3), LTM(4), LTM(5), LTM(6), LTM(7), LTM(8)>
-        WN_FORCE_INLINE wn_void Log(WNLogLevel, wn_size_t, LVM(0), LVM(1), LVM(2), LVM(3), LVM(4), LVM(5), LVM(6), LVM(7), LVM(8));
+        WN_FORCE_INLINE void Log(WNLogLevel, size_t, LVM(0), LVM(1), LVM(2), LVM(3), LVM(4), LVM(5), LVM(6), LVM(7), LVM(8));
         template<LTM(0), LTM(1), LTM(2), LTM(3), LTM(4), LTM(5), LTM(6), LTM(7), LTM(8), LTM(9)>
-        WN_FORCE_INLINE wn_void Log(WNLogLevel, wn_size_t, LVM(0), LVM(1), LVM(2), LVM(3), LVM(4), LVM(5), LVM(6), LVM(7), LVM(8), LVM(9));
+        WN_FORCE_INLINE void Log(WNLogLevel, size_t, LVM(0), LVM(1), LVM(2), LVM(3), LVM(4), LVM(5), LVM(6), LVM(7), LVM(8), LVM(9));
     private:
         WNLog& operator=(const WNLog& _other); // dont want an assignment
-        WN_FORCE_INLINE wn_void LogHeader(WNLogLevel);
-        WN_FORCE_INLINE wn_void LogNewline();
-        template<typename T0> wn_void LogParam(const T0& _val);
+        WN_FORCE_INLINE void LogHeader(WNLogLevel);
+        WN_FORCE_INLINE void LogNewline();
+        template<typename T0> void LogParam(const T0& _val);
 
         WNLogger* mLogger;
-        wn_char* mLogBuffer;
-        wn_size_t mBufferLeft;
-        wn_size_t mBufferSize;
+        char* mLogBuffer;
+        size_t mBufferLeft;
+        size_t mBufferSize;
         std::vector<WNLogColorElement> mColorElements;
-        wn_size_t mCurrentLogLevel;
-        wn_bool mFlushAfterMessage;
+        size_t mCurrentLogLevel;
+        bool mFlushAfterMessage;
     };
 
     WN_FORCE_INLINE WNLog* get_null_logger() {
-      static WNLog m_null_logger(wn_nullptr, eNone, 0, wn_false);
+      static WNLog m_null_logger(nullptr, eNone, 0, false);
       return &m_null_logger;
     }
 }

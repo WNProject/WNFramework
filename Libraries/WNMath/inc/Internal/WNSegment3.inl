@@ -47,23 +47,23 @@ namespace wn {
     }
 
     template <typename type>
-    wn_bool WNSegment3<type>::operator == (const WNSegment3<type>& _segment) const {
+    bool WNSegment3<type>::operator == (const WNSegment3<type>& _segment) const {
         return(mStart == _segment.start && mEnd == _segment.end);
     }
 
     template <typename type>
-    wn_bool WNSegment3<type>::operator != (const WNSegment3<type>& _segment) const {
+    bool WNSegment3<type>::operator != (const WNSegment3<type>& _segment) const {
         return(mStart != _segment.start || mEnd != _segment.end);
     }
 
     template <typename type>
-    wn_void WNSegment3<type>::Zero() {
+    void WNSegment3<type>::Zero() {
         mStart.Zero();
         mEnd.Zero();
     }
 
     template <typename type>
-    wn_void WNSegment3<type>::Set(const type* _numbers) {
+    void WNSegment3<type>::Set(const type* _numbers) {
         mStart.mX = _numbers[0];
         mStart.mY = _numbers[1];
         mStart.mZ = _numbers[2];
@@ -74,7 +74,7 @@ namespace wn {
     }
 
     template <typename type>
-    wn_void WNSegment3<type>::Set(const WNVector3<type>& _start, const WNVector3<type>& _end) {
+    void WNSegment3<type>::Set(const WNVector3<type>& _start, const WNVector3<type>& _end) {
         mStart = _start;
         mEnd = _end;
     }

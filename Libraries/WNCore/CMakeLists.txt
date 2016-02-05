@@ -255,6 +255,15 @@ check_cxx_source_compiles(
   HAS___ALIGNOF__
 )
 
+check_cxx_source_compiles(
+  "
+    int main() {
+      return __alignof__(int);
+    }
+  "
+  HAS___ALIGNOF__
+)
+
 # make specifier selections
 
 set(WN_INLINE)
@@ -564,6 +573,34 @@ check_include_file_cxx(cstdint HAS_CSTDINT)
 if (NOT HAS_CSTDINT)
   message(FATAL_ERROR "Unable to locate required integer types header")
 endif()
+
+# run literal/type tests
+
+check_cxx_source_compiles(
+  "
+    int main() {
+	  int* i = nullptr;
+	  int x = 2;
+	  i = &x;
+      return *i;
+    }
+  "
+  HAS_CPP11_NULLPTR
+)
+
+check_cxx_source_compiles(
+  "
+    #include <cstddef>
+    #include <type_traits>
+    int main() {
+      return std::is_same<decltype(nullptr), nullptr_t>::value ? 1 : 0;
+    }
+  "
+  HAS_CPP11_NULLPTR_T
+)
+
+set(_WN_HAS_CPP11_NULLPTR ${HAS_CPP11_NULLPTR})
+set(_WN_HAS_CPP11_NULLPTR_T ${HAS_CPP11_NULLPTR_T})
 
 # run stl feature tests
 

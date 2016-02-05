@@ -26,15 +26,13 @@ namespace WNScripting {
     struct StructInternalType {
         void* owner;
         void* structLoc;
-        std::atomic<wn_size_t> refCount;
+        std::atomic<size_t> refCount;
     };
     template<typename InType> struct InCaster;
     template<typename OutType> struct OutCaster;
 
    template<typename T>
-    struct TypeMapping {
-        static const wn_char * get_type_name() { static_assert(wn::core::dependent_false<T>::value, "No type mapping for type"); }
-    };
+    struct TypeMapping {};
 
 }
 

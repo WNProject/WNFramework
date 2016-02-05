@@ -21,15 +21,15 @@
 
 #include <stdlib.h>
 
-WN_FORCE_INLINE wn_int64 strtoint64(const wn_char* _string, wn_bool& _consumedString) {
+WN_FORCE_INLINE int64_t strtoint64(const char* _string, bool& _consumedString) {
   #ifdef _WN_WINDOWS
-    wn_char* outVal;
-    wn_int64 val = _strtoi64(_string, &outVal, 10);
+    char* outVal;
+    int64_t val = _strtoi64(_string, &outVal, 10);
     _consumedString = (*outVal) == '\0';
     return(val);
   #else
-    wn_char* outVal;
-    wn_int64 val = strtoll(_string, &outVal, 10);
+    char* outVal;
+    int64_t val = strtoll(_string, &outVal, 10);
     _consumedString = (*outVal) == '\0';
     return(val);
   #endif
@@ -156,7 +156,7 @@ namespace WNScripting {
         llvm::Type* type = _expr1.GetType()->mLLVMType;
         llvm::Value* val = llvm::ConstantInt::get(type, 1);
         _value = ((*builder).*T)(_expr1.GetValue(), val, "", false, false);
-        if(wn_nullptr != _expr1.GetValueLocation()) {
+        if(nullptr != _expr1.GetValueLocation()) {
             builder->CreateStore(_value, _expr1.GetValueLocation(), false);
         }
         return(ok);
@@ -165,7 +165,7 @@ namespace WNScripting {
     template<llvm::Value* (llvm::IRBuilder<>::*T)(llvm::Value*, llvm::Value*, const llvm::Twine&, bool, bool)>
     eWNTypeError GeneratePostValue(llvm::IRBuilderBase* _builder, const WNExpression& _expr1, llvm::Value*& _value) {
         llvm::IRBuilder<>* builder = reinterpret_cast<llvm::IRBuilder<>* >(_builder);
-        if(wn_nullptr == _expr1.GetValueLocation()) {
+        if(nullptr == _expr1.GetValueLocation()) {
             return(invalid_parameters);
         }
         _value = _expr1.GetValue();
@@ -188,7 +188,7 @@ namespace WNScripting {
     eWNTypeError GenerateIntNegation(llvm::IRBuilderBase* _builder, const WNExpression&  _expr1, llvm::Value*& _value) {
         llvm::IRBuilder<>* builder = reinterpret_cast<llvm::IRBuilder<>* >(_builder);
         llvm::Type* type = _expr1.GetType()->mLLVMType;
-        llvm::Value* val = llvm::ConstantInt::get(type, static_cast<wn_uint64>(-1));
+        llvm::Value* val = llvm::ConstantInt::get(type, static_cast<uint64_t>(-1));
         _value = builder->CreateMul(_expr1.GetValue(), val, "", false, false);
         return(ok);
     }
@@ -198,9 +198,9 @@ namespace WNScripting {
             mDestInt(_destType) {
         }
         virtual ~GenerateIntConstant() {}
-        virtual eWNTypeError Execute(WNCodeModule&, const wn_char* _constant, bool&, llvm::Value*& _outLocation) const {
-            wn_bool consumedString = false;
-            wn_int64 constVal = strtoint64(_constant, consumedString);
+        virtual eWNTypeError Execute(WNCodeModule&, const char* _constant, bool&, llvm::Value*& _outLocation) const {
+            bool consumedString = false;
+            int64_t constVal = strtoint64(_constant, consumedString);
             if(!consumedString) {
                 return(eWNInvalidConstant);
             }
@@ -216,11 +216,11 @@ namespace WNScripting {
         GenerateStringConstant(WNScriptType _destType) :
             mDestInt(_destType) {
         }
-        virtual eWNTypeError Execute(WNCodeModule& _module, const wn_char* _constant, bool& mForceUse, llvm::Value*& _outLocation) const {
+        virtual eWNTypeError Execute(WNCodeModule& _module, const char* _constant, bool& mForceUse, llvm::Value*& _outLocation) const {
             //string constant time
-            wn_int32 val = 0;
+            int32_t val = 0;
             std::vector<llvm::Constant*> mConstantValues;
-            const wn_char* ptr = _constant;
+            const char* ptr = _constant;
             ++ptr; //consume opening "
             while(*ptr != '\0') {
                 if(*ptr == '\\') {
@@ -268,18 +268,18 @@ namespace WNScripting {
             mConstantValues.pop_back(); //get rid of ending "
 
             //////////create actual constant values to insert
-            wn_size_t len = mConstantValues.size();
-            wn_size_t zLen = 0;
-            llvm::Constant* preConstants[2 * sizeof(wn_size_t)];
-            wn_char* ch = reinterpret_cast<wn_char*>(&len);
-            for(int i = 0; i < sizeof(wn_size_t); ++i) {
+            size_t len = mConstantValues.size();
+            size_t zLen = 0;
+            llvm::Constant* preConstants[2 * sizeof(size_t)];
+            char* ch = reinterpret_cast<char*>(&len);
+            for(int i = 0; i < sizeof(size_t); ++i) {
                 preConstants[i] = llvm::ConstantInt::get(mDestInt->mArrayType->mLLVMType, ch[i]);
             }
-            ch = reinterpret_cast<wn_char*>(&zLen);
-            for(int i = 0; i < sizeof(wn_size_t); ++i) {
-                preConstants[i+sizeof(wn_size_t)] = llvm::ConstantInt::get(mDestInt->mArrayType->mLLVMType, ch[i]);
+            ch = reinterpret_cast<char*>(&zLen);
+            for(int i = 0; i < sizeof(size_t); ++i) {
+                preConstants[i+sizeof(size_t)] = llvm::ConstantInt::get(mDestInt->mArrayType->mLLVMType, ch[i]);
             }
-            mConstantValues.insert(mConstantValues.begin(), &preConstants[0], &preConstants[2*sizeof(wn_size_t)]);
+            mConstantValues.insert(mConstantValues.begin(), &preConstants[0], &preConstants[2*sizeof(size_t)]);
             llvm::ArrayType* arrType = llvm::ArrayType::get(mDestInt->mArrayType->mLLVMType, mConstantValues.size());
             llvm::Constant* cArray = llvm::ConstantArray::get(arrType, mConstantValues);
             llvm::IRBuilder<>* builder = reinterpret_cast<llvm::IRBuilder<>* >(_module.GetBuilder());
@@ -294,7 +294,7 @@ namespace WNScripting {
             //////
 
             eWNTypeError err = ok;
-            llvm::Value* allocLocation = wn_nullptr;
+            llvm::Value* allocLocation = nullptr;
             const GenerateAllocation* alloc = _module.GetTypeManager().GetAllocationOperation(mDestInt);
             if(!alloc) {
                 return(eWNCannotCreateType);
@@ -305,10 +305,10 @@ namespace WNScripting {
 
         #ifdef _WN_64_BIT
             llvm::Type* ptrType = llvm::IntegerType::getInt64Ty(llvm::getGlobalContext());
-            const wn_size_t ptrSize = 8;
+            const size_t ptrSize = 8;
         #else
             llvm::Type* ptrType = llvm::IntegerType::getInt32Ty(llvm::getGlobalContext());
-            const wn_size_t ptrSize = 4;
+            const size_t ptrSize = 4;
         #endif
             WNScriptType sizeTType = 0;
             WNScriptType intType = 0;
@@ -342,7 +342,7 @@ namespace WNScripting {
 
             {
                         llvm::Value* arraySize = llvm::ConstantInt::get(ptrType, len);
-                        wn_uint64 allocSize = _module.GetExecutionEngine()->getDataLayout()->getTypeAllocSize(mDestInt->mArrayType->mLLVMType);
+                        uint64_t allocSize = _module.GetExecutionEngine()->getDataLayout()->getTypeAllocSize(mDestInt->mArrayType->mLLVMType);
                         llvm::Value* allocationSize = builder->CreateMul(arraySize, llvm::ConstantInt::get(ptrType, allocSize));
                         allocationSize = builder->CreateAdd(allocationSize, llvm::ConstantInt::get(ptrType, (ptrSize * 2)));
 
@@ -371,7 +371,7 @@ namespace WNScripting {
                         llvm::Value* typeLocation = builder->CreatePtrToInt(actualArray, ptrType);
                         typeLocation = builder->CreateAdd(typeLocation, llvm::ConstantInt::get(ptrType, ptrSize));
                         typeLocation = builder->CreateIntToPtr(typeLocation, ptrType->getPointerTo(0));
-                        builder->CreateStore(llvm::ConstantInt::get(ptrType, reinterpret_cast<wn_int64>(mDestInt)), typeLocation);
+                        builder->CreateStore(llvm::ConstantInt::get(ptrType, reinterpret_cast<int64_t>(mDestInt)), typeLocation);
             }
         ////////////////////////////////////
         _outLocation = v;
@@ -386,9 +386,9 @@ namespace WNScripting {
             mDestInt(_destType) {
         }
         virtual ~GenerateCharConstant() {}
-        virtual eWNTypeError Execute(WNCodeModule&, const wn_char* _constant, bool&, llvm::Value*& _outLocation) const {
-            wn_int32 val = 0;
-            const wn_char* ptr = _constant;
+        virtual eWNTypeError Execute(WNCodeModule&, const char* _constant, bool&, llvm::Value*& _outLocation) const {
+            int32_t val = 0;
+            const char* ptr = _constant;
             if(*ptr == '\\') {
                 ptr++;
                 switch(*ptr) {
@@ -440,8 +440,8 @@ namespace WNScripting {
             mDestInt(_destType) {
         }
         virtual ~GenerateBoolConstant() {}
-        virtual eWNTypeError Execute(WNCodeModule&, const wn_char* _constant, bool&, llvm::Value*& _outLocation) const {
-            wn_bool bConst = wn::memory::strncmp(_constant, "true", 4) == 0;
+        virtual eWNTypeError Execute(WNCodeModule&, const char* _constant, bool&, llvm::Value*& _outLocation) const {
+            bool bConst = wn::memory::strncmp(_constant, "true", 4) == 0;
             _outLocation = llvm::ConstantInt::get(mDestInt->mLLVMType, bConst? 1 : 0);
             return(ok);
         }
@@ -454,7 +454,7 @@ namespace WNScripting {
             mDestInt(_destType) {
         }
         virtual ~GenerateVoidConstant() {}
-        virtual eWNTypeError Execute(WNCodeModule&, const wn_char*, bool&, llvm::Value*& _outLocation) const {
+        virtual eWNTypeError Execute(WNCodeModule&, const char*, bool&, llvm::Value*& _outLocation) const {
             _outLocation = llvm::ConstantInt::get(mDestInt->mLLVMType, 0);
             return(ok);
         }
@@ -469,14 +469,14 @@ namespace WNScripting {
         WNScriptType voidType;
         WNScriptType sizeTType;
         WNScriptType charArrayType;
-        WN_RELEASE_ASSERT(_manager.RegisterScalarType("Int", _engine, 50.0f, intType, llvm::IntegerType::getInt32Ty(llvm::getGlobalContext()), sizeof(wn_int32)) == ok);
-        WN_RELEASE_ASSERT(_manager.RegisterScalarType("Char", _engine, 25.0f, charType, llvm::IntegerType::getInt8Ty(llvm::getGlobalContext()), sizeof(wn_int8)) == ok);
-        WN_RELEASE_ASSERT(_manager.RegisterScalarType("Bool", _engine, 10.0f, boolType, llvm::IntegerType::getInt8Ty(llvm::getGlobalContext()), sizeof(wn_int8)) == ok);
-        WN_RELEASE_ASSERT(_manager.RegisterScalarType("Void", _engine, 0.0f, voidType, llvm::IntegerType::getInt32Ty(llvm::getGlobalContext()), sizeof(wn_int32) ) == ok);
+        WN_RELEASE_ASSERT(_manager.RegisterScalarType("Int", _engine, 50.0f, intType, llvm::IntegerType::getInt32Ty(llvm::getGlobalContext()), sizeof(int32_t)) == ok);
+        WN_RELEASE_ASSERT(_manager.RegisterScalarType("Char", _engine, 25.0f, charType, llvm::IntegerType::getInt8Ty(llvm::getGlobalContext()), sizeof(int8_t)) == ok);
+        WN_RELEASE_ASSERT(_manager.RegisterScalarType("Bool", _engine, 10.0f, boolType, llvm::IntegerType::getInt8Ty(llvm::getGlobalContext()), sizeof(int8_t)) == ok);
+        WN_RELEASE_ASSERT(_manager.RegisterScalarType("Void", _engine, 0.0f, voidType, llvm::IntegerType::getInt32Ty(llvm::getGlobalContext()), sizeof(int32_t) ) == ok);
 #ifdef _WN_64_BIT
-        WN_RELEASE_ASSERT(_manager.RegisterScalarType("-SizeT", _engine, 0.f, sizeTType, llvm::IntegerType::getInt64Ty(llvm::getGlobalContext()), sizeof(wn_size_t) ) == ok);
+        WN_RELEASE_ASSERT(_manager.RegisterScalarType("-SizeT", _engine, 0.f, sizeTType, llvm::IntegerType::getInt64Ty(llvm::getGlobalContext()), sizeof(size_t) ) == ok);
 #else
-        WN_RELEASE_ASSERT(_manager.RegisterScalarType("-SizeT", _engine, 0.f, sizeTType, llvm::IntegerType::getInt32Ty(llvm::getGlobalContext()), sizeof(wn_size_t)  ) == ok);
+        WN_RELEASE_ASSERT(_manager.RegisterScalarType("-SizeT", _engine, 0.f, sizeTType, llvm::IntegerType::getInt32Ty(llvm::getGlobalContext()), sizeof(size_t)  ) == ok);
 #endif
         WN_RELEASE_ASSERT(_manager.get_array_of(charType, charArrayType) == ok);
         _manager.RegisterArithmeticOperator(AR_ADD, intType, intType,

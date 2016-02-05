@@ -14,38 +14,38 @@ using namespace WNScripting;
 
 WNArrayAllocation::WNArrayAllocation() :
     mLevels(0),
-    mType(wn_nullptr),
-    mCopyinitializer(wn_nullptr) {
+    mType(nullptr),
+    mCopyinitializer(nullptr) {
 }
 
 WNArrayAllocation::~WNArrayAllocation() {
     if(mType) {
         wn::memory::destroy(mType);
     }
-    for(WNScriptLinkedList<WNExpression>::WNScriptLinkedListNode* i = mArrayinitializers.first; i != wn_nullptr; i = i->next) {
+    for(WNScriptLinkedList<WNExpression>::WNScriptLinkedListNode* i = mArrayinitializers.first; i != nullptr; i = i->next) {
         wn::memory::destroy(i->value);
     }
 }
 
-wn_void WNArrayAllocation::SetType(WNTypeNode* _typeNode) {
+void WNArrayAllocation::SetType(WNTypeNode* _typeNode) {
     mType = _typeNode;
 }
 
-wn_void WNArrayAllocation::AddExpression(WNExpression* _expr) {
+void WNArrayAllocation::AddExpression(WNExpression* _expr) {
     mArrayinitializers.PushBack(_expr);
     mLevels++;
 }
 
-wn_void WNArrayAllocation::AddLevel() {
+void WNArrayAllocation::AddLevel() {
     mLevels++;
 }
 
 eWNTypeError WNArrayAllocation::GenerateCode(WNCodeModule& _module, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog) {
-    mNewlyCreated = wn_true;
-    mForceUse = wn_true;
+    mNewlyCreated = true;
+    mForceUse = true;
     eWNTypeError err = ok;
 
-    if(mArrayinitializers.first != wn_nullptr && mCopyinitializer != wn_nullptr) {
+    if(mArrayinitializers.first != nullptr && mCopyinitializer != nullptr) {
         _compilationLog.Log(WNLogging::eError, 0, "Cannot specify both size and copy construction");
         LogLine(_compilationLog, WNLogging::eError);
     }
@@ -56,7 +56,7 @@ eWNTypeError WNArrayAllocation::GenerateCode(WNCodeModule& _module, const WNFunc
         LogLine(_compilationLog, WNLogging::eError);
         return(err);
     }
-    for(wn_size_t i = 0; i < mLevels; ++i){
+    for(size_t i = 0; i < mLevels; ++i){
         if(ok != (err = _module.GetTypeManager().get_array_of(mScriptType, mScriptType))) {
             _compilationLog.Log(WNLogging::eError, 0, "Cannot create array of ", mScriptType->mName);
             LogLine(_compilationLog, WNLogging::eError);
@@ -114,6 +114,6 @@ eWNTypeError WNArrayAllocation::GenerateCode(WNCodeModule& _module, const WNFunc
     return(ok);
 }
 
-wn_void WNArrayAllocation::SetCopyInitializer(WNExpression* _expression) {
+void WNArrayAllocation::SetCopyInitializer(WNExpression* _expression) {
     mCopyinitializer = _expression;
 }

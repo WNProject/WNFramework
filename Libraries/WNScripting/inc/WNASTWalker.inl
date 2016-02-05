@@ -123,7 +123,7 @@ void ast_walker<T, Const>::walk_expression(expression_type _expression) {
       m_walker->walk_expression(cast_to<unary_expression>(_expression));
       break;
     default:
-      WN_DEBUG_ASSERT_DESC(wn_false, "Invalid expression type");
+      WN_DEBUG_ASSERT_DESC(false, "Invalid expression type");
       break;
   }
 }
@@ -177,7 +177,7 @@ void ast_walker<T, Const>::walk_instruction(instruction_type _instruction) {
           cast_to<while_instruction>(_instruction));
       break;
     default:
-      WN_DEBUG_ASSERT_DESC(wn_false, "Invalid instruction type");
+      WN_DEBUG_ASSERT_DESC(false, "Invalid instruction type");
   }
 }
 

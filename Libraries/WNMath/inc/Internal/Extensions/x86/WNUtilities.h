@@ -16,46 +16,46 @@
 namespace wn {
     namespace internal {
         namespace math {
-            template <const wn_size_t _dimension>
+            template <const size_t _dimension>
             using mm_count_pi32 = core::index_constant<_dimension / 2>;
 
-            template <const wn_size_t _dimension>
+            template <const size_t _dimension>
             using mm_count_ps = core::index_constant<(_dimension + 1) / 2>;
 
-            template <const wn_size_t _dimension>
+            template <const size_t _dimension>
             using xmm_count_pi32 = core::index_constant<(_dimension % 4) == 1 ? (_dimension / 4) : ((_dimension + 3) / 4)>;
 
-            template <const wn_size_t _dimension>
+            template <const size_t _dimension>
             using xmm_count_pi64 = core::index_constant<(_dimension % 2) == 1 ? (_dimension / 2) : ((_dimension + 1) / 2)>;
 
-            template <const wn_size_t _dimension>
+            template <const size_t _dimension>
             using xmm_count_ps = core::index_constant<(_dimension + 3) / 4>;
 
-            template <const wn_size_t _dimension>
+            template <const size_t _dimension>
             using xmm_count_pd = core::index_constant<(_dimension + 1) / 2>;
 
-            template <wn_uint32 dimension>
+            template <uint32_t dimension>
             struct __WNNumberRegisters_YMM_PI32 {
                 enum {
                     Value = (dimension % 8) >= 5 ? ((dimension + 7) / 8) : (dimension / 8)
                 };
             };
 
-            template <wn_uint32 dimension>
+            template <uint32_t dimension>
             struct __WNNumberRegisters_YMM_PI64 {
                 enum {
                     Value = (dimension % 4) >= 3 ? ((dimension + 3) / 4) : (dimension / 4)
                 };
             };
 
-            template <wn_uint32 dimension>
+            template <uint32_t dimension>
             struct __WNNumberRegisters_YMM_PS {
                 enum {
                     Value = (dimension % 8) >= 5 ? ((dimension + 7) / 8) : (dimension / 8)
                 };
             };
 
-            template <wn_uint32 dimension>
+            template <uint32_t dimension>
             struct __WNNumberRegisters_YMM_PD {
                 enum {
                     Value = (dimension % 4) >= 3 ? ((dimension + 3) / 4) : (dimension / 4)
@@ -66,7 +66,7 @@ namespace wn {
 };
 
 #ifdef __AVX_AVAILABLE
-WN_FORCE_INLINE wn_void avx_zero_upper() {
+WN_FORCE_INLINE void avx_zero_upper() {
     #ifndef __WN_VEX_AVAILABLE
         _mm256_zeroupper();
     #endif

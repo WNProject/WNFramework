@@ -19,7 +19,7 @@ using namespace WNContainers;
 WNConnectionLinux::WNConnectionLinux(WNNetworkManager& _manager) :
     WNConnection(),
     mManager(_manager),
-    mReadyToWrite(wn_false),
+    mReadyToWrite(false),
     mSockFD(-1),
     mBufferChunkCount(0),
     mBufferWritten(0),
@@ -40,7 +40,7 @@ WNConnectionLinux::~WNConnectionLinux() {
     }
 }
 
-wn_void WNConnectionLinux::Invalidate() {
+void WNConnectionLinux::Invalidate() {
     WNConnection::Invalidate();
 
     if (mSockFD >= 0) {
@@ -50,25 +50,25 @@ wn_void WNConnectionLinux::Invalidate() {
     }
 }
 
-wn_int32 WNConnectionLinux::GetLinuxSocket() {
+int32_t WNConnectionLinux::GetLinuxSocket() {
     return(mSockFD);
 }
 
-wn_void WNConnectionLinux::SendBuffer(WNNetworkWriteBuffer& _buffer) {
+void WNConnectionLinux::SendBuffer(WNNetworkWriteBuffer& _buffer) {
     _buffer.FlushWrite();
     mSendBufferLock.lock();
     mSendBuffers.push_back(_buffer);
     mSendBufferLock.unlock();
 
-    NotifyReadyToSend(wn_false);
+    NotifyReadyToSend(false);
 }
 
-wn_void WNConnectionLinux::NotifyReadyToSend(wn_bool socketFree) {
+void WNConnectionLinux::NotifyReadyToSend(bool socketFree) {
     if (socketFree) {
         mWriteAtomic = 1;
     }
     
-    wn_atom_t expected = 1;
+    size_t expected = 1;
     while (mWriteAtomic.compare_exchange_strong(expected, 1)) {
         if (!mWriteLock.try_lock()) {
             return;
@@ -90,12 +90,12 @@ wn_void WNConnectionLinux::NotifyReadyToSend(wn_bool socketFree) {
     }
 }
 
-wn_bool WNConnectionLinux::Send() {
+bool WNConnectionLinux::Send() {
     {
         std::lock_guard<wn::multi_tasking::spin_lock> guard(mSendBufferLock);
 
         if (mSendBuffers.empty()) {
-            return(wn_false);
+            return(false);
         }
     }
 
@@ -109,40 +109,40 @@ wn_bool WNConnectionLinux::Send() {
         const WNNetworkWriteBuffer::WNBufferQueue& q = buff.GetChunks();
 
         WN_RELEASE_ASSERT(q.size() > 0);
-        wn_size_t buffLeft = q.size() - mBufferChunkCount;
-        wn_size_t writeLeft =  q[mBufferChunkCount]->GetWritten() - mBufferWritten;
+        size_t buffLeft = q.size() - mBufferChunkCount;
+        size_t writeLeft =  q[mBufferChunkCount]->GetWritten() - mBufferWritten;
         WN_RELEASE_ASSERT(writeLeft > 0);
         do{
-            wn_int32 s = write(mSockFD, q[mBufferChunkCount]->GetBaseLocation() + mBufferWritten, writeLeft);
+            int32_t s = write(mSockFD, q[mBufferChunkCount]->GetBaseLocation() + mBufferWritten, writeLeft);
             if(s > 0) {
                 mBufferWritten += s;
                 writeLeft -= s;
                 mTotalSent += s;
             } else if(s == -1) {
                 if(errno == EAGAIN) {
-                    return(wn_true);
+                    return(true);
                 }
                 // char* s = strerror(errno);
                 perror(NULL);
                 mManager.DestroyConnection(this);
-                return(wn_true);
+                return(true);
             } else {
                 // char* s = strerror(errno);
                 perror(NULL);
                 // SOME REALLY BAD ERROR
-                WN_RELEASE_ASSERT_DESC(wn_false, "WTF?");
+                WN_RELEASE_ASSERT_DESC(false, "WTF?");
             }
             if(writeLeft == 0) {
                 buffLeft -= 1;
                 if(buffLeft == 0) {
-                    wn_bool empty = wn_false;
+                    bool empty = false;
                     mSendBufferLock.lock();
                     mSendBuffers.pop_front();
                     empty = mSendBuffers.empty();
                     mSendBufferLock.unlock();
                     mBufferWritten = 0;
                     if(mSendBuffers.empty()){
-                        return(wn_false);
+                        return(false);
                     }
                     break;
                 } else {
@@ -151,14 +151,14 @@ wn_bool WNConnectionLinux::Send() {
                    writeLeft = q[mBufferChunkCount]->GetWritten();
                 }
             }
-       } while(wn_true);
+       } while(true);
    }
-   return(wn_true);
+   return(true);
 }
 
-wn_void WNConnectionLinux::NotifyReadReady() {
+void WNConnectionLinux::NotifyReadReady() {
     mReadAtomic = 1;
-    wn_atom_t expected = 1;
+    size_t expected = 1;
 
     while(mReadAtomic.compare_exchange_strong(expected, 1) == 1) {
         if(!mReadLock.try_lock()) {
@@ -170,11 +170,11 @@ wn_void WNConnectionLinux::NotifyReadReady() {
     }
 }
 
-wn_void WNConnectionLinux::ReadReady() {
-   wn_size_t processedBytes = 0;
+void WNConnectionLinux::ReadReady() {
+   size_t processedBytes = 0;
 
    while(1){
-        wn_uint32 transferred = read(mSockFD, mReadLocation->GetPointer(), mReadLocation->GetSize() - mReadLocation->GetWritten());
+        uint32_t transferred = read(mSockFD, mReadLocation->GetPointer(), mReadLocation->GetSize() - mReadLocation->GetWritten());
         if(transferred == -1){
             if(errno != EAGAIN) {
                 char* s = strerror(errno);
@@ -188,11 +188,11 @@ wn_void WNConnectionLinux::ReadReady() {
             return;
         }
 
-        wn_size_t processedBytes = 0;
+        size_t processedBytes = 0;
         WN_RELEASE_ASSERT(mReadHead <= wn::containers::MAX_DATA_WRITE);
         while(processedBytes != transferred) {
             WN_RELEASE_ASSERT(processedBytes < transferred);
-            wn_size_t transferToOverflow = wn::min<wn_size_t>(8 - mOverflowAmount, transferred);
+            size_t transferToOverflow = wn::min<size_t>(8 - mOverflowAmount, transferred);
             wn::memory::memcpy(mOverflowLocation + mOverflowAmount, (mReadLocation->GetBaseLocation()) + mReadHead, transferToOverflow);
             mOverflowAmount += transferToOverflow;
             processedBytes += transferToOverflow;
@@ -211,13 +211,13 @@ wn_void WNConnectionLinux::ReadReady() {
                 break;
             }
 
-            wn_uint32 num = *reinterpret_cast<wn_uint32*>(mOverflowLocation);
-            wn_uint32 callback = *reinterpret_cast<wn_uint32*>(mOverflowLocation + 4);
+            uint32_t num = *reinterpret_cast<uint32_t*>(mOverflowLocation);
+            uint32_t callback = *reinterpret_cast<uint32_t*>(mOverflowLocation + 4);
 
             callback = wn::core::from_big_endian(callback);
             num = wn::core::from_big_endian(num);
 
-            wn_size_t mMaxWrite = wn::min<wn_size_t>(transferred, (num - mInProcessedBytes));
+            size_t mMaxWrite = wn::min<size_t>(transferred, (num - mInProcessedBytes));
 
             mReadHead += mMaxWrite;
             processedBytes += mMaxWrite;

@@ -25,7 +25,7 @@ WNFunction::WNFunction(WNDeclaration* _decl, WNDeclList* _params, WNInstructionL
     mDeclaration(_decl),
     mParameters(_params),
     mBody(_body),
-    mThisType(wn_nullptr),
+    mThisType(nullptr),
     mIsOverride(false),
     mIsVirtual(false){
 }
@@ -48,7 +48,7 @@ eWNTypeError WNFunction::GenerateCode(WNCodeModule& _module, WNScriptType owning
     llvm::IRBuilder<>* builder = reinterpret_cast<llvm::IRBuilder<>*>(_module.GetBuilder());
     eWNTypeError err = ok;
     WNScriptType returnType;
-    wn_char funcName[2048];
+    char funcName[2048];
     funcName[0] = '\0';
 
     if(owningType && owningType->mName) {
@@ -128,10 +128,10 @@ eWNTypeError WNFunction::GenerateCode(WNCodeModule& _module, WNScriptType owning
         }
 
         WNScriptLinkedList<WNDeclaration>::WNScriptLinkedListNode* iter = declarations->first;
-        for(;iter != wn_nullptr && fIter != def->mFunction->arg_end();
+        for(;iter != nullptr && fIter != def->mFunction->arg_end();
                                             iter = iter->next, ++fIter) {
             fIter->setName(iter->value->GetName());
-            WNScriptType t = wn_nullptr;
+            WNScriptType t = nullptr;
             if(ok != (err = iter->value->GetType(_module.GetTypeManager(), t, _compilationLog))) {
                 _compilationLog.Log(WNLogging::eError, 0, "Cannot find type for declaration: ", iter->value->GetName());
                 LogLine(_compilationLog, WNLogging::eError);
@@ -143,7 +143,7 @@ eWNTypeError WNFunction::GenerateCode(WNCodeModule& _module, WNScriptType owning
                 LogLine(_compilationLog, WNLogging::eError);
                 return(eWNCannotCreateType);
             }
-            llvm::Value* allocLoc = wn_nullptr;
+            llvm::Value* allocLoc = nullptr;
             if(ok != (err = alloc->Execute(_module, t, iter->value->GetName(), false, allocLoc))) {
                 _compilationLog.Log(WNLogging::eCritical, 0, "Error allocating a variable of type: ", t->mName);
                 LogLine(_compilationLog, WNLogging::eCritical);
@@ -167,7 +167,7 @@ eWNTypeError WNFunction::GenerateCode(WNCodeModule& _module, WNScriptType owning
                 return(err);
             }
         }
-        if(fIter != def->mFunction->arg_end() && iter != wn_nullptr) {
+        if(fIter != def->mFunction->arg_end() && iter != nullptr) {
             _compilationLog.Log(WNLogging::eError, 0, "Invalid number of parameters to function");
             LogLine(_compilationLog, WNLogging::eError);
             return(error);
@@ -199,7 +199,7 @@ eWNTypeError WNFunction::ExportFunctions(WNCodeModule& _module, WNScriptType own
     eWNTypeError err = ok;
     WNScriptType returnType;
 
-    wn_char funcName[2048];
+    char funcName[2048];
     funcName[0] = '\0';
     if(mIsOverride && !owningType) {
         _compilationLog.Log(WNLogging::eError, 0, "Error it is invalid to have an override function that is not in a class");
@@ -227,7 +227,7 @@ eWNTypeError WNFunction::ExportFunctions(WNCodeModule& _module, WNScriptType own
             return(err);
         }
     }
-    WNFunctionDefinition* def = wn_nullptr;
+    WNFunctionDefinition* def = nullptr;
     if(ok != (err = _module.GenerateFunctionDefinition(funcName, parameterTypes, returnType, def, owningType, mIsVirtual || mIsOverride))) {
         parameterTypes.clear();
         return(err);
@@ -238,7 +238,7 @@ eWNTypeError WNFunction::ExportFunctions(WNCodeModule& _module, WNScriptType own
         llvmTypes.push_back((*i)->mLLVMType);
     }
 
-    llvm::FunctionType* fType = llvm::FunctionType::get(returnType->mLLVMType, llvmTypes, wn_false);
+    llvm::FunctionType* fType = llvm::FunctionType::get(returnType->mLLVMType, llvmTypes, false);
     def->mFunctionType = fType;
 
     _definitions.push_back(def);
@@ -255,7 +255,7 @@ eWNTypeError WNFunction::GenerateHeader(WNCodeModule& _module, WNScriptType owni
 
     eWNTypeError err = ok;
     WNScriptType returnType;
-    wn_char funcName[2048];
+    char funcName[2048];
     funcName[0] = '\0';
 
     if(owningType && owningType->mName) {
@@ -280,8 +280,8 @@ eWNTypeError WNFunction::GenerateHeader(WNCodeModule& _module, WNScriptType owni
             return(err);
         }
     }
-    WNFunctionDefinition* def = wn_nullptr;
-    WNFunctionDefinition* equivDef = wn_nullptr;
+    WNFunctionDefinition* def = nullptr;
+    WNFunctionDefinition* equivDef = nullptr;
     if(ok != (err = _module.AddFunctionDefinition(funcName, parameterTypes, returnType, def, equivDef, owningType))) {
         if(err != eWNAlreadyExists || !def->mCurrentFile) {
             parameterTypes.clear();
@@ -294,7 +294,7 @@ eWNTypeError WNFunction::GenerateHeader(WNCodeModule& _module, WNScriptType owni
         llvmTypes.push_back((*i)->mLLVMType);
     }
 
-    llvm::FunctionType* fType = llvm::FunctionType::get(returnType->mLLVMType, llvmTypes, wn_false);
+    llvm::FunctionType* fType = llvm::FunctionType::get(returnType->mLLVMType, llvmTypes, false);
     llvm::Function* func = llvm::Function::Create(fType, llvm::GlobalValue::ExternalLinkage, funcName, _module.GetModule());
     def->mFunction = func;
     def->mFunctionType = fType;

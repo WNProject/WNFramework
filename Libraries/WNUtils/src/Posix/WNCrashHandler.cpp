@@ -88,6 +88,6 @@ void StackUnwinder::error_func(int sig, siginfo_t* info, void* context) {
     }
 }
 
-wn_void WNUtils::InitializeCrashHandler() {
+void WNUtils::InitializeCrashHandler() {
     g_CrashHandler = new(StackUnwinder);
 }

@@ -26,11 +26,11 @@ namespace WNNetworking {
         WNNetworkManagerLinux();
         virtual ~WNNetworkManagerLinux();
 
-        virtual WNNetworkManagerReturnCode::type Initialize(wn_uint32 _numWorkerThreads);
-        virtual WNNetworkManagerReturnCode::type ConnectTo(WNConnection*& _outHandle, WNConnectionType::type _type, const wn_char* _target, wn_uint16 _port);
-        virtual WNNetworkManagerReturnCode::type CreateListener(WNConnection*& _outHandle, WNConnectionType::type _type, wn_uint16 _port, const WNConnectedCallback& _callback);
-        virtual wn_void Cleanup();
-        virtual wn_void DestroyConnection(WNConnection* _connection);
+        virtual WNNetworkManagerReturnCode::type Initialize(uint32_t _numWorkerThreads);
+        virtual WNNetworkManagerReturnCode::type ConnectTo(WNConnection*& _outHandle, WNConnectionType::type _type, const char* _target, uint16_t _port);
+        virtual WNNetworkManagerReturnCode::type CreateListener(WNConnection*& _outHandle, WNConnectionType::type _type, uint16_t _port, const WNConnectedCallback& _callback);
+        virtual void Cleanup();
+        virtual void DestroyConnection(WNConnection* _connection);
 
     private:
         enum eWNLinuxInitializationState {
@@ -45,12 +45,12 @@ namespace WNNetworking {
         };
 
     private:
-        wn_bool AddToReadEPoll(WNConnectionLinux* _conn);
-        wn_bool AddToWriteEPoll(WNConnectionLinux* _conn);
-        wn_void CleanAllConnections();
-        wn_void ReadThread();
-        wn_void WriteThread();
-        wn_void ListenThread();
+        bool AddToReadEPoll(WNConnectionLinux* _conn);
+        bool AddToWriteEPoll(WNConnectionLinux* _conn);
+        void CleanAllConnections();
+        void ReadThread();
+        void WriteThread();
+        void ListenThread();
 
     private:
         wn::multi_tasking::spin_lock mListenMutex;
@@ -60,13 +60,13 @@ namespace WNNetworking {
 
         wn::memory::basic_allocator allocator;
         eWNLinuxInitializationState mInitializationState;
-        wn_int32 mWriteEPollInstance;
-        wn_int32 mReadEPollInstance;
-        wn_int32 mListenEPollInstance;
-        wn::multi_tasking::thread<wn_void>* mListenThread;
-        wn_bool mShuttingDown;
-        std::vector<wn::multi_tasking::thread<wn_void>*> mReadThreads;
-        std::vector<wn::multi_tasking::thread<wn_void>*> mWriteThreads;
+        int32_t mWriteEPollInstance;
+        int32_t mReadEPollInstance;
+        int32_t mListenEPollInstance;
+        wn::multi_tasking::thread<void>* mListenThread;
+        bool mShuttingDown;
+        std::vector<wn::multi_tasking::thread<void>*> mReadThreads;
+        std::vector<wn::multi_tasking::thread<void>*> mWriteThreads;
         std::list<WNListenConnectionLinux*> mListenConnections;
         std::list<WNConnection*> mInvalidConnections;
         std::list<WNConnectionLinux*> mIncommingConnections;

@@ -1189,7 +1189,7 @@ WNScriptASTDeprecatedParser::scalarType()
      
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
  
@@ -1246,7 +1246,7 @@ WNScriptASTDeprecatedParser::type()
      
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
  
@@ -1358,7 +1358,7 @@ WNScriptASTDeprecatedParser::decl()
      
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
  
@@ -1428,7 +1428,7 @@ WNScriptASTDeprecatedParser::declList()
      
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
  
@@ -1547,7 +1547,7 @@ WNScriptASTDeprecatedParser::parameterList()
      
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
  
@@ -1654,7 +1654,7 @@ WNScriptASTDeprecatedParser::parameterList()
 
 
         	        {
-        	             node = wn_nullptr; 
+        	             node = nullptr; 
         	        }
 
 
@@ -1914,7 +1914,7 @@ WNScriptASTDeprecatedParser::lvalue()
      
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
  
@@ -2078,7 +2078,7 @@ WNScriptASTDeprecatedParser::arglist()
 
             	            {
             	                node->AddExpression(b
-            	                , wn_true); SetLocationFromNode(node, b
+            	                , true); SetLocationFromNode(node, b
             	                ); 
             	            }
 
@@ -2217,7 +2217,7 @@ WNScriptASTDeprecatedParser::arglist()
 
             	        	            {
             	        	                 node->AddExpression(d
-            	        	                , wn_true); SetEndLocationFromNode(node, d
+            	        	                , true); SetEndLocationFromNode(node, d
             	        	                ); 
             	        	            }
 
@@ -2283,7 +2283,7 @@ WNScriptASTDeprecatedParser::expression()
      
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
  
@@ -2345,7 +2345,7 @@ WNScriptASTDeprecatedParser::cond_ex()
      
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
  
@@ -2472,7 +2472,7 @@ WNScriptASTDeprecatedParser::or_ex()
      
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
  
@@ -2589,7 +2589,7 @@ WNScriptASTDeprecatedParser::and_ex()
      
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
  
@@ -2707,7 +2707,7 @@ WNScriptASTDeprecatedParser::eq_ex()
      
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
  
@@ -2874,7 +2874,7 @@ WNScriptASTDeprecatedParser::rel_ex()
      
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
  
@@ -3121,7 +3121,7 @@ WNScriptASTDeprecatedParser::add_ex()
      
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
  
@@ -3287,7 +3287,7 @@ WNScriptASTDeprecatedParser::mult_ex()
      
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
  
@@ -3494,7 +3494,7 @@ WNScriptASTDeprecatedParser::unary_ex()
      
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
  
@@ -3704,7 +3704,7 @@ WNScriptASTDeprecatedParser::post_ex_proper()
      
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
  
@@ -3980,7 +3980,7 @@ WNScriptASTDeprecatedParser::post_ex()
      
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
  
@@ -4095,7 +4095,7 @@ WNScriptASTDeprecatedParser::assignment()
      
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
  
@@ -4218,7 +4218,7 @@ WNScriptASTDeprecatedParser::constant()
      
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
  
@@ -4400,7 +4400,7 @@ WNScriptASTDeprecatedParser::prim_ex()
      
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
  
@@ -5311,7 +5311,7 @@ WNScriptASTDeprecatedParser::declaration()
      
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
  
@@ -5498,7 +5498,7 @@ WNScriptASTDeprecatedParser::instructionScalar()
      
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
  
@@ -5604,7 +5604,7 @@ WNScriptASTDeprecatedParser::returnInst()
      
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
  
@@ -5807,7 +5807,7 @@ WNScriptASTDeprecatedParser::whileInst()
      
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
  
@@ -5904,7 +5904,7 @@ WNScriptASTDeprecatedParser::doInst()
      
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
  
@@ -6274,7 +6274,7 @@ WNScriptASTDeprecatedParser::elsemiddle()
      
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
  
@@ -6375,7 +6375,7 @@ WNScriptASTDeprecatedParser::endif()
      
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
  
@@ -6447,7 +6447,7 @@ WNScriptASTDeprecatedParser::ifInst()
 
 
         WNIFInstruction* inst;
-        node = wn_nullptr;
+        node = nullptr;
 
 
  
@@ -7745,14 +7745,14 @@ WNScriptASTDeprecatedParser::classDecl()
 
 /**
  * $ANTLR start inc
- * C:\\Users\\Andre\\Documents\\Development\\WNFramework\\Libraries\\WNScripting\\lang\\WNScriptASTDeprecated.g:621:1: inc returns [wn_char* file] : INCLUDE STRING ;
+ * C:\\Users\\Andre\\Documents\\Development\\WNFramework\\Libraries\\WNScripting\\lang\\WNScriptASTDeprecated.g:621:1: inc returns [char* file] : INCLUDE STRING ;
  */
-wn_char*
+char*
 WNScriptASTDeprecatedParser::inc()
 {
         WNScriptASTDeprecatedParserImplTraits::RuleReturnValueType _antlr_rule_exit(this);
       
-    wn_char* file;
+    char* file;
 
 
     const ImplTraits::CommonTokenType* STRING59 = NULL;
@@ -7819,7 +7819,7 @@ WNScriptASTDeprecatedParser::program()
     WNFunction* function60;
     WNStruct* structDecl61;
     WNStruct* classDecl62;
-    wn_char* inc63;
+    char* inc63;
     /* Initialize rule variables
      */
      

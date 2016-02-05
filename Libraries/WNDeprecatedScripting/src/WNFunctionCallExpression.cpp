@@ -19,7 +19,7 @@
 
 using namespace WNScripting;
 WNFunctionCallExpr::WNFunctionCallExpr() :
-    mArgs(wn_nullptr) {
+    mArgs(nullptr) {
 
 }
 
@@ -62,7 +62,7 @@ eWNTypeError WNFunctionCallExpr::GenerateCode(WNCodeModule& _module, const WNFun
     llvm::Value* testValue = mBaseExpression->GetSubValue();
     WNScriptType testType = mBaseExpression->GetSubType();
     bool forceThis = false;
-    if((testValue == wn_nullptr || testType == wn_nullptr) && _def->mThisType != wn_nullptr) {
+    if((testValue == nullptr || testType == nullptr) && _def->mThisType != nullptr) {
         testType = _def->mThisType;
         const WNScriptVariable* var = _module.GetScopedVariableList().GetVariable("this");
         if(!var) {
@@ -78,7 +78,7 @@ eWNTypeError WNFunctionCallExpr::GenerateCode(WNCodeModule& _module, const WNFun
     static WNScriptLinkedList<WNFunctionExpression> staticList;
     WNScriptLinkedList<WNFunctionExpression>& localExpressionList = mArgs? mArgs->GetExpressions() : staticList;
     std::vector<FunctionParam> scriptTypes;
-    for(WNScriptLinkedList<WNFunctionExpression>::WNScriptLinkedListNode* i = localExpressionList.first; i != wn_nullptr; i = i->next) {
+    for(WNScriptLinkedList<WNFunctionExpression>::WNScriptLinkedListNode* i = localExpressionList.first; i != nullptr; i = i->next) {
         if(ok != (err = i->value->expr->GenerateCode(_module, _def, _compilationLog))) {
             return(err);
         }
@@ -120,7 +120,7 @@ eWNTypeError WNFunctionCallExpr::GenerateCode(WNCodeModule& _module, const WNFun
         FunctionParam param = {testValue, testType};
         if(ok != (err = GenerateRecursiveThisFunctionCall(_module,
                                                  _def,
-                                                 reinterpret_cast<wn_char*>(mBaseExpression->GetValue()),
+                                                 reinterpret_cast<char*>(mBaseExpression->GetValue()),
                                                  scriptTypes,
                                                  mScriptType,
                                                  mValue,
@@ -141,7 +141,7 @@ eWNTypeError WNFunctionCallExpr::GenerateCode(WNCodeModule& _module, const WNFun
     }
     if(ok != (err = GenerateFunctionCall(_module,
                                                  _def,
-                                                 reinterpret_cast<wn_char*>(mBaseExpression->GetValue()),
+                                                 reinterpret_cast<char*>(mBaseExpression->GetValue()),
                                                  scriptTypes,
                                                  true,
                                                  mScriptType,

@@ -17,10 +17,10 @@
 using namespace WNScripting;
 
 WNForInstruction::WNForInstruction() :
-    minitializer(wn_nullptr),
-    mCondition(wn_nullptr),
-    mPostOp(wn_nullptr),
-    mBody(wn_nullptr) {
+    minitializer(nullptr),
+    mCondition(nullptr),
+    mPostOp(nullptr),
+    mBody(nullptr) {
 }
 
 WNForInstruction::~WNForInstruction() {
@@ -64,15 +64,15 @@ eWNTypeError WNForInstruction::GenerateCode(WNCodeModule& _module, const WNFunct
             return(err);
         }
     }
-    llvm::BasicBlock* condBlock = wn_nullptr;
+    llvm::BasicBlock* condBlock = nullptr;
     llvm::BasicBlock* bodyBlock = llvm::BasicBlock::Create(llvm::getGlobalContext(), "", _def->mFunction);
-    llvm::BasicBlock* endBlock = wn_nullptr;
+    llvm::BasicBlock* endBlock = nullptr;
     if(mCondition) {
         endBlock = llvm::BasicBlock::Create(llvm::getGlobalContext(), "", _def->mFunction);
         condBlock = llvm::BasicBlock::Create(llvm::getGlobalContext(), "", _def->mFunction);
         builder->CreateBr(condBlock);
         builder->SetInsertPoint(condBlock);
-        WNScriptType boolType = wn_nullptr;
+        WNScriptType boolType = nullptr;
         if(ok != (err = _module.GetTypeManager().get_type_by_name("Bool", boolType))) {
             _compilationLog.Log(WNLogging::eCritical, 0, "Error cannot find bool type");
             LogLine(_compilationLog, WNLogging::eCritical);

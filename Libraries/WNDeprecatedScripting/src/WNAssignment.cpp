@@ -13,7 +13,7 @@ using namespace WNScripting;
 WNAssignment::WNAssignment(WNLValue* _lValue):
     mLValue(_lValue),
     mAssignType(AT_MAX),
-    mAssignExpression(wn_nullptr) {
+    mAssignExpression(nullptr) {
 }
 
 WNAssignment::~WNAssignment() {
@@ -63,7 +63,7 @@ eWNTypeError WNAssignment::GenerateCode(WNCodeModule& _module, const WNFunctionD
     llvm::Value* val = mAssignExpression->GetValue();
     if(mAssignExpression->GetType() != type) {
         const GenerateCastingOperation* op = _module.GetTypeManager().GetCastingOperation(mAssignExpression->GetType(), mLValue->GetValueType());
-        if(op == wn_nullptr) {
+        if(op == nullptr) {
             _compilationLog.Log(WNLogging::eError, 0, "Cannot cast from ", mAssignExpression->GetType()->mName, " to ", mLValue->GetValueType()->mName);
             LogLine(_compilationLog, WNLogging::eError);
             return(eWNInvalidCast);

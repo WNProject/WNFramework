@@ -12,11 +12,11 @@
 #include <unistd.h>
 #include <android/log.h>
 
-extern wn_int32 wn_main(wn_int32 _argc, wn_char* _argv[]);
+extern int32_t wn_main(int32_t _argc, char* _argv[]);
 
 void wn_dummy() {}
 
-wn_char* GetPackageName(struct android_app* state) {
+char* GetPackageName(struct android_app* state) {
     ANativeActivity* activity = state->activity;
     JNIEnv* env = 0;
 
@@ -26,15 +26,15 @@ wn_char* GetPackageName(struct android_app* state) {
     jmethodID methodID = env->GetMethodID(cls, "getPackageName", "()Ljava/lang/String;");
     jobject result = env->CallObjectMethod(activity->clazz, methodID);
 
-    wn_char* tempstr;
-    const wn_char* str;
+    char* tempstr;
+    const char* str;
     jboolean isCopy;
 
     str = env->GetStringUTFChars((jstring)result, &isCopy);
 
     int newLen = strlen(str);
 
-    tempstr = static_cast<wn_char*>(malloc(sizeof(char) * newLen + 1));
+    tempstr = static_cast<char*>(malloc(sizeof(char) * newLen + 1));
 
     memcpy(tempstr, str, newLen);
 
@@ -49,8 +49,8 @@ wn_char* GetPackageName(struct android_app* state) {
 void* main_proxy_thread(void* _package_name) {
     WNUtils::InitializeCrashHandler();
 
-    wn_char* package_name = static_cast<wn_char*>(_package_name);
-    wn_int32 retVal = wn_main(1, &package_name);
+    char* package_name = static_cast<char*>(_package_name);
+    int32_t retVal = wn_main(1, &package_name);
 
     __android_log_print(ANDROID_LOG_INFO, WNUtils::gAndroidLogTag, "--FINISHED");
     __android_log_print(ANDROID_LOG_INFO, WNUtils::gAndroidLogTag, "RETURN %d", retVal);
@@ -62,7 +62,7 @@ void* main_proxy_thread(void* _package_name) {
 
 void android_main(struct android_app* state)
 {
-    wn_char* packageName = GetPackageName(state);
+    char* packageName = GetPackageName(state);
 
     WNUtils::gAndroidLogTag = packageName;
     WNUtils::gAndroidApp = state;

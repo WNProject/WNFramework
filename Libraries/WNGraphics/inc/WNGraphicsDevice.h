@@ -92,32 +92,32 @@ namespace WNGraphics {
 
     class WNGraphicsDevice {
     public:
-        virtual WNGraphicsDeviceReturnCode::type Initialize(wn_uint32 _adapter, wn_uint32 _device) = 0;
-        virtual wn_void Release() = 0;
+        virtual WNGraphicsDeviceReturnCode::type Initialize(uint32_t _adapter, uint32_t _device) = 0;
+        virtual void Release() = 0;
 
         // Window
         virtual WNGraphicsDeviceReturnCode::type SetActiveSurface(wn::memory::intrusive_ptr<wn::surface> _surface) = 0;
 
         // State Querying
-        virtual wn_uint32 GetCapability(WNDeviceCaps _cap) = 0;
+        virtual uint32_t GetCapability(WNDeviceCaps _cap) = 0;
 
         // Resource Creation
-        virtual WNShader* CreateShader(WNShaderTypes _type, wn_char* _shaderText) = 0;
-        virtual WNBuffer* CreateBuffer(WNBufferTypes _type, wn_uint32 _elementSize, wn_uint32 _w, wn_uint32 _h, wn_uint32 _d) = 0;
-        virtual WNTexture* CreateTexture(WNTextureTypes _type, WNTextureFormat _format, wn_uint32 _elementSize, wn_uint32 _w, wn_uint32 _h, wn_uint32 _d) = 0;
+        virtual WNShader* CreateShader(WNShaderTypes _type, char* _shaderText) = 0;
+        virtual WNBuffer* CreateBuffer(WNBufferTypes _type, uint32_t _elementSize, uint32_t _w, uint32_t _h, uint32_t _d) = 0;
+        virtual WNTexture* CreateTexture(WNTextureTypes _type, WNTextureFormat _format, uint32_t _elementSize, uint32_t _w, uint32_t _h, uint32_t _d) = 0;
         virtual WNRenderTarget* CreateRenderTarget(WNTexture* _texture) = 0;
         virtual WNDrawList* CreateDrawList() = 0;
 
         // Resource Binding
         virtual WNGraphicsDeviceReturnCode::type BindShader(WNShader* _resource) = 0;
-        virtual WNGraphicsDeviceReturnCode::type BindBuffer(WNBuffer* _resource, wn_uint32 _location) = 0;
-        virtual WNGraphicsDeviceReturnCode::type BindTexture(WNTexture* _texture, wn_uint32 _location) = 0;
-        virtual WNGraphicsDeviceReturnCode::type BindRenderTarget(WNRenderTarget* _texture, wn_uint32 _location) = 0;
+        virtual WNGraphicsDeviceReturnCode::type BindBuffer(WNBuffer* _resource, uint32_t _location) = 0;
+        virtual WNGraphicsDeviceReturnCode::type BindTexture(WNTexture* _texture, uint32_t _location) = 0;
+        virtual WNGraphicsDeviceReturnCode::type BindRenderTarget(WNRenderTarget* _texture, uint32_t _location) = 0;
 
         // State Setting
-        virtual wn_void SetClearColor(wn_float32* _color) = 0;
+        virtual void SetClearColor(float* _color) = 0;
 
-        virtual WNGraphicsDeviceReturnCode::type BindSurface(wn::memory::intrusive_ptr<wn::surface>& _surface, wn_bool _sync = wn_true) = 0;
+        virtual WNGraphicsDeviceReturnCode::type BindSurface(wn::memory::intrusive_ptr<wn::surface>& _surface, bool _sync = true) = 0;
 
         // Drawing
         virtual WNGraphicsDeviceReturnCode::type SetDrawList(WNDrawList* _list) = 0;

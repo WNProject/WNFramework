@@ -15,13 +15,13 @@ namespace wn {
     namespace internal {
         namespace math {
             struct vector_traits_sse4_1 : vector_traits_sse2 {
-                template <typename type, const wn_size_t dimension>
+                template <typename type, const size_t dimension>
                 static WN_FORCE_INLINE type length(const element_array<type, dimension>& _element_array) {
                     return(base::length(_element_array));
                 }
 
                 template <>
-                static WN_FORCE_INLINE wn_float32 length(const element_array<wn_float32, 2>& _element_array) {
+                static WN_FORCE_INLINE float length(const element_array<float, 2>& _element_array) {
                     const __m128 squared = _mm_mul_ps(_element_array.m_xmm_values[0], _element_array.m_xmm_values[0]);
                     const __m128 length_squared = _mm_dp_ps(squared, squared, 0x31);
 
@@ -35,7 +35,7 @@ namespace wn {
                 }
 
                 template <>
-                static WN_FORCE_INLINE wn_float32 length(const element_array<wn_float32, 3>& _element_array) {
+                static WN_FORCE_INLINE float length(const element_array<float, 3>& _element_array) {
                     const __m128 squared = _mm_mul_ps(_element_array.m_xmm_values[0], _element_array.m_xmm_values[0]);
                     const __m128 length_squared = _mm_dp_ps(squared, squared, 0x71);
 
@@ -49,7 +49,7 @@ namespace wn {
                 }
 
                 template <>
-                static WN_FORCE_INLINE wn_float32 length(const element_array<wn_float32, 4>& _element_array) {
+                static WN_FORCE_INLINE float length(const element_array<float, 4>& _element_array) {
                     const __m128 squared = _mm_mul_ps(_element_array.m_xmm_values[0], _element_array.m_xmm_values[0]);
                     const __m128 length_squared = _mm_dp_ps(squared, squared, 0xF1);
 
@@ -62,39 +62,39 @@ namespace wn {
                     return(_mm_cvtss_f32(length));
                 }
 
-                template <typename type, const wn_size_t dimension>
+                template <typename type, const size_t dimension>
                 static WN_FORCE_INLINE type length_squared(const element_array<type, dimension>& _element_array) {
                     return(base::length_squared(_element_array));
                 }
 
                 template <>
-                static WN_FORCE_INLINE wn_float32 length_squared(const element_array<wn_float32, 2>& _element_array) {
+                static WN_FORCE_INLINE float length_squared(const element_array<float, 2>& _element_array) {
                     const __m128 squared = _mm_mul_ps(_element_array.m_xmm_values[0], _element_array.m_xmm_values[0]);
 
                     return(_mm_cvtss_f32(_mm_dp_ps(squared, squared, 0x31)));
                 }
 
                 template <>
-                static WN_FORCE_INLINE wn_float32 length_squared(const element_array<wn_float32, 3>& _element_array) {
+                static WN_FORCE_INLINE float length_squared(const element_array<float, 3>& _element_array) {
                     const __m128 squared = _mm_mul_ps(_element_array.m_xmm_values[0], _element_array.m_xmm_values[0]);
 
                     return(_mm_cvtss_f32(_mm_dp_ps(squared, squared, 0x71)));
                 }
 
                 template <>
-                static WN_FORCE_INLINE wn_float32 length_squared(const element_array<wn_float32, 4>& _element_array) {
+                static WN_FORCE_INLINE float length_squared(const element_array<float, 4>& _element_array) {
                     const __m128 squared = _mm_mul_ps(_element_array.m_xmm_values[0], _element_array.m_xmm_values[0]);
 
                     return(_mm_cvtss_f32(_mm_dp_ps(squared, squared, 0xF1)));
                 }
 
-                template <typename type, const wn_size_t dimension>
-                static WN_FORCE_INLINE wn_void normalize(element_array<type, dimension>& _element_array) {
+                template <typename type, const size_t dimension>
+                static WN_FORCE_INLINE void normalize(element_array<type, dimension>& _element_array) {
                     base::normalize(_element_array);
                 }
 
                 template <>
-                static WN_FORCE_INLINE wn_void normalize(element_array<wn_float32, 4>& _element_array) {
+                static WN_FORCE_INLINE void normalize(element_array<float, 4>& _element_array) {
                     const __m128 squared = _mm_mul_ps(_element_array.m_xmm_values[0], _element_array.m_xmm_values[0]);
                     const __m128 length_squared = _mm_dp_ps(squared, squared, 0xFF);
 

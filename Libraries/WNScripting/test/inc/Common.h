@@ -25,11 +25,11 @@ namespace scripting {
 
 memory::unique_ptr<scripting::script_file> test_parse_file(const char* _file,
     file_system::mapping* _mapping, memory::allocator* _allocator,
-    WNLogging::WNLog* _log, wn_size_t* _num_warnings, wn_size_t* _num_errors) {
+    WNLogging::WNLog* _log, size_t* _num_warnings, size_t* _num_errors) {
   scripting::type_validator validator(_allocator);
   file_system::result res;
   file_system::file_ptr buff = _mapping->open_file(_file, res);
-  EXPECT_NE(wn_nullptr, buff);
+  EXPECT_NE(nullptr, buff);
 
   memory::unique_ptr<scripting::script_file> ptr =
       scripting::parse_script(_allocator, &validator, _file,
@@ -40,7 +40,7 @@ memory::unique_ptr<scripting::script_file> test_parse_file(const char* _file,
 
 memory::unique_ptr<scripting::script_file> test_parse_file(const char* _file,
     file_system::mapping* _mapping, memory::allocator* _allocator,
-    wn_size_t* _num_warnings, wn_size_t* _num_errors) {
+    size_t* _num_warnings, size_t* _num_errors) {
   return test_parse_file(_file, _mapping, _allocator,
       WNLogging::get_null_logger(), _num_warnings, _num_errors);
 }

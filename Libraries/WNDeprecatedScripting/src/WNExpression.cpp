@@ -7,13 +7,13 @@
 using namespace WNScripting;
 
 WNExpression::WNExpression() :
-    mValue(wn_nullptr),
-    mValueLocation(wn_nullptr),
-    mScriptType(wn_nullptr),
-    mSubValue(wn_nullptr),
-    mSubValueType(wn_nullptr),
-    mForceUse(wn_false),
-    mNewlyCreated(wn_false) {
+    mValue(nullptr),
+    mValueLocation(nullptr),
+    mScriptType(nullptr),
+    mSubValue(nullptr),
+    mSubValueType(nullptr),
+    mForceUse(false),
+    mNewlyCreated(false) {
 }
 
 WNExpression::~WNExpression() {
@@ -32,11 +32,11 @@ WNScripting::WNScriptType WNExpression::GetType() const {
     return(mScriptType);
 }
 
-wn_bool WNExpression::RequiredUse() {
+bool WNExpression::RequiredUse() {
     return(mForceUse);
 }
 
-wn_bool WNExpression::IsNewlyCreated() {
+bool WNExpression::IsNewlyCreated() {
     return(mNewlyCreated);
 }
 

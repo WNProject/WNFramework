@@ -14,7 +14,7 @@ namespace WNScripting {
     }
 
     template<typename T>
-    wn_void Destructor(void* ptr) {
+    void Destructor(void* ptr) {
         StructInternalType* internalPtr = reinterpret_cast<StructInternalType*>(ptr);
         (void) internalPtr;//if the destructor is null, then the next line goes away, and VS things internalPtr is not referenced
         // So that we can get a T* from scripting, and we can call the destructor correctly
@@ -95,7 +95,7 @@ namespace WNScripting {
         if(!t) {
                 return(error);
         }
-        void* v = wn_nullptr;
+        void* v = nullptr;
         if(ok == construct_scripting_object(t, v)) {
             _outType = WNScriptingObject<T1, T2>(v);
         }
@@ -103,12 +103,12 @@ namespace WNScripting {
     }
 
     template<typename T1>
-    eWNTypeError WNScriptingEngine::construct_scripting_array(WNScriptingArray<T1>& _outType, wn_size_t _size) {
+    eWNTypeError WNScriptingEngine::construct_scripting_array(WNScriptingArray<T1>& _outType, size_t _size) {
         WNScriptType t = get_type_for_type<WNScriptingArray<T1> >();
         if(!t) {
                 return(error);
         }
-        void* v = wn_nullptr;
+        void* v = nullptr;
         if(ok == construct_scripting_array(t, _size, v)) {
             _outType = WNScriptingArray<T1>(v);
         }
@@ -136,7 +136,7 @@ namespace WNScripting {
     }
 
     template<typename T, typename PT, PT T::*V>
-    eWNTypeError WNScriptingEngine::register_cpp_member(const wn_char* _name) {
+    eWNTypeError WNScriptingEngine::register_cpp_member(const char* _name) {
         WNScriptType t = get_type_for_type<T>();
         if(!t) {
             return(does_not_exist);
@@ -147,12 +147,12 @@ namespace WNScripting {
         }
         void* v = &((reinterpret_cast<T*>(0))->*V);
 
-        register_member(_name, t, pt, reinterpret_cast<wn_size_t>(v));
+        register_member(_name, t, pt, reinterpret_cast<size_t>(v));
         return(ok);
     }
 
     template<typename T, typename R>
-    eWNTypeError WNScriptingEngine::get_pointer_to_member_function(const wn_char* _file, const wn_char* _functionName, WNMemberFunctionPointer<T, R>& _outVal) {
+    eWNTypeError WNScriptingEngine::get_pointer_to_member_function(const char* _file, const char* _functionName, WNMemberFunctionPointer<T, R>& _outVal) {
         eWNTypeError err = compile_file(_file);
         if(err != ok) {
             return(err);
@@ -169,13 +169,13 @@ namespace WNScripting {
         void* ptr = NULL;
         std::vector<WNScriptType> params;
         params.push_back(t);
-        wn_int32 mVirtualIndex;
+        int32_t mVirtualIndex;
         if(0 <= (mVirtualIndex = get_virtual_function_index(_functionName, t, params))) {
             _outVal.Assign(mVirtualIndex);
             _outVal.SetOutType(t);
             return(ok);
         }
-        wn_char fPtr[2048];
+        char fPtr[2048];
         memcpy(fPtr, t->mName, wn::memory::strlen(t->mName) + 1);
         wn::memory::strcat(fPtr, "$");
         wn::memory::strcat(fPtr, _functionName);
@@ -189,7 +189,7 @@ namespace WNScripting {
     }
 
     template<typename R>
-    eWNTypeError WNScriptingEngine::get_pointer_to_function(const wn_char* _file, const wn_char* _functionName, WNFunctionPointer<R>& _outVal ) {
+    eWNTypeError WNScriptingEngine::get_pointer_to_function(const char* _file, const char* _functionName, WNFunctionPointer<R>& _outVal ) {
         eWNTypeError err = compile_file(_file);
         if(err != ok) {
             return(err);
@@ -211,7 +211,7 @@ namespace WNScripting {
     }
 
     template<typename R, typename T1>
-    eWNTypeError WNScriptingEngine::get_pointer_to_function(const wn_char* _file, const wn_char* _functionName,WNFunctionPointer<R, T1>& _outVal ) {
+    eWNTypeError WNScriptingEngine::get_pointer_to_function(const char* _file, const char* _functionName,WNFunctionPointer<R, T1>& _outVal ) {
         eWNTypeError err = compile_file(_file);
         if(err != ok) {
             return(err);
@@ -237,7 +237,7 @@ namespace WNScripting {
     }
 
     template<typename R, typename T1, typename T2>
-    eWNTypeError WNScriptingEngine::get_pointer_to_function(const wn_char* _file, const wn_char* _functionName, WNFunctionPointer<R, T1, T2>& _outVal ) {
+    eWNTypeError WNScriptingEngine::get_pointer_to_function(const char* _file, const char* _functionName, WNFunctionPointer<R, T1, T2>& _outVal ) {
         eWNTypeError err = compile_file(_file);
         if(err != ok) {
             return(err);
@@ -268,7 +268,7 @@ namespace WNScripting {
     }
 
     template<typename R, typename T1, typename T2, typename T3>
-    eWNTypeError WNScriptingEngine::get_pointer_to_function(const wn_char* _file, const wn_char* _functionName, WNFunctionPointer<R, T1, T2, T3>& _outVal ) {
+    eWNTypeError WNScriptingEngine::get_pointer_to_function(const char* _file, const char* _functionName, WNFunctionPointer<R, T1, T2, T3>& _outVal ) {
         eWNTypeError err = compile_file(_file);
         if(err != ok) {
             return(err);
@@ -302,7 +302,7 @@ namespace WNScripting {
     }
 
     template<typename R, typename T1, typename T2, typename T3, typename T4>
-    eWNTypeError WNScriptingEngine::get_pointer_to_function(const wn_char* _file, const wn_char* _functionName, WNFunctionPointer<R, T1, T2, T3, T4>& _outVal   ) {
+    eWNTypeError WNScriptingEngine::get_pointer_to_function(const char* _file, const char* _functionName, WNFunctionPointer<R, T1, T2, T3, T4>& _outVal   ) {
         eWNTypeError err = compile_file(_file);
         if(err != ok) {
             return(err);
@@ -340,7 +340,7 @@ namespace WNScripting {
     }
 
     template<typename R, typename T1, typename T2, typename T3, typename T4, typename T5>
-    eWNTypeError WNScriptingEngine::get_pointer_to_function(const wn_char* _file, const wn_char* _functionName, WNFunctionPointer<R, T1, T2, T3, T4, T5>& _outVal) {
+    eWNTypeError WNScriptingEngine::get_pointer_to_function(const char* _file, const char* _functionName, WNFunctionPointer<R, T1, T2, T3, T4, T5>& _outVal) {
         eWNTypeError err = compile_file(_file);
         if(err != ok) {
             return(err);
@@ -382,7 +382,7 @@ namespace WNScripting {
     }
 
     template<typename R, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
-    eWNTypeError WNScriptingEngine::get_pointer_to_function(const wn_char* _file, const wn_char* _functionName,  WNFunctionPointer<R, T1, T2, T3, T4, T5, T6>& _outVal ) {
+    eWNTypeError WNScriptingEngine::get_pointer_to_function(const char* _file, const char* _functionName,  WNFunctionPointer<R, T1, T2, T3, T4, T5, T6>& _outVal ) {
         eWNTypeError err = compile_file(_file);
         if(err != ok) {
             return(err);
@@ -428,7 +428,7 @@ namespace WNScripting {
     }
 
     template<typename T, typename R, R (T::*P)()>
-    eWNTypeError WNScriptingEngine::register_cpp_memberFunction(const wn_char* _name) {
+    eWNTypeError WNScriptingEngine::register_cpp_memberFunction(const char* _name) {
         WNScriptType ret = get_type_for_type<R>();
         WNScriptType objectType = get_type_for_type<T>();
         if(!ret) {
@@ -445,7 +445,7 @@ namespace WNScripting {
     }
 
     template<typename T, typename R, typename T1, R (T::*P)(T1)>
-    eWNTypeError WNScriptingEngine::register_cpp_memberFunction(const wn_char* _name) {
+    eWNTypeError WNScriptingEngine::register_cpp_memberFunction(const char* _name) {
         WNScriptType ret = get_type_for_type<R>();
         WNScriptType objectType = get_type_for_type<T>();
         if(!ret) {
@@ -468,7 +468,7 @@ namespace WNScripting {
     }
 
     template<typename T, typename R, typename T1, typename T2, R (T::*P)(T1, T2)>
-    eWNTypeError WNScriptingEngine::register_cpp_memberFunction(const wn_char* _name) {
+    eWNTypeError WNScriptingEngine::register_cpp_memberFunction(const char* _name) {
         WNScriptType ret = get_type_for_type<R>();
         WNScriptType objectType = get_type_for_type<T>();
         if(!ret) {
@@ -494,7 +494,7 @@ namespace WNScripting {
         return(ok);
     }
     template<typename T, typename R, typename T1, typename T2, typename T3, R (T::*P)(T1, T2, T3)>
-    eWNTypeError WNScriptingEngine::register_cpp_memberFunction(const wn_char* _name) {
+    eWNTypeError WNScriptingEngine::register_cpp_memberFunction(const char* _name) {
         WNScriptType ret = get_type_for_type<R>();
         WNScriptType objectType = get_type_for_type<T>();
         if(!ret) {
@@ -526,7 +526,7 @@ namespace WNScripting {
         return(ok);
     }
     template<typename T, typename R, typename T1, typename T2, typename T3, typename T4, R (T::*P)(T1, T2, T3, T4)>
-    eWNTypeError WNScriptingEngine::register_cpp_memberFunction(const wn_char* _name) {
+    eWNTypeError WNScriptingEngine::register_cpp_memberFunction(const char* _name) {
         WNScriptType ret = get_type_for_type<R>();
         WNScriptType objectType = get_type_for_type<T>();
         if(!ret) {
@@ -562,7 +562,7 @@ namespace WNScripting {
         return(ok);
     }
     template<typename T, typename R, typename T1, typename T2, typename T3, typename T4, typename T5, R (T::*P)(T1, T2, T3, T4, T5)>
-    eWNTypeError WNScriptingEngine::register_cpp_memberFunction(const wn_char* _name) {
+    eWNTypeError WNScriptingEngine::register_cpp_memberFunction(const char* _name) {
         WNScriptType ret = get_type_for_type<R>();
         WNScriptType objectType = get_type_for_type<T>();
         if(!ret) {
@@ -603,7 +603,7 @@ namespace WNScripting {
         return(ok);
     }
     template<typename T, typename R, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, R (T::*P)(T1, T2, T3, T4, T5, T6)>
-    eWNTypeError WNScriptingEngine::register_cpp_memberFunction(const wn_char* _name) {
+    eWNTypeError WNScriptingEngine::register_cpp_memberFunction(const char* _name) {
         WNScriptType ret = get_type_for_type<R>();
         WNScriptType objectType = get_type_for_type<T>();
         if(!ret) {
@@ -650,7 +650,7 @@ namespace WNScripting {
     }
 
     template<typename R>
-    eWNTypeError WNScriptingEngine::register_c_function(const wn_char* _name, R (*_ptr)()) {
+    eWNTypeError WNScriptingEngine::register_c_function(const char* _name, R (*_ptr)()) {
         WNScriptType t = get_type_for_type<R>();
         if(!t) {
             return(eWNBadType);
@@ -665,7 +665,7 @@ namespace WNScripting {
     }
 
     template<typename R, typename T1>
-    eWNTypeError WNScriptingEngine::register_c_function(const wn_char* _name, R (*_ptr)(T1)) {
+    eWNTypeError WNScriptingEngine::register_c_function(const char* _name, R (*_ptr)(T1)) {
         WNScriptType t = get_type_for_type<R>();
         if(!t) {
             return(eWNBadType);
@@ -687,7 +687,7 @@ namespace WNScripting {
     }
 
     template<typename R, typename T1, typename T2>
-    eWNTypeError WNScriptingEngine::register_c_function(const wn_char* _name, R (*_ptr)(T1, T2)) {
+    eWNTypeError WNScriptingEngine::register_c_function(const char* _name, R (*_ptr)(T1, T2)) {
         WNScriptType t = get_type_for_type<R>();
         if(!t) {
             return(eWNBadType);
@@ -715,7 +715,7 @@ namespace WNScripting {
     }
 
     template<typename R, typename T1, typename T2, typename T3>
-    eWNTypeError WNScriptingEngine::register_c_function(const wn_char* _name, R (*_ptr)(T1, T2, T3)) {
+    eWNTypeError WNScriptingEngine::register_c_function(const char* _name, R (*_ptr)(T1, T2, T3)) {
         WNScriptType t = get_type_for_type<R>();
         if(!t) {
             return(eWNBadType);
@@ -749,7 +749,7 @@ namespace WNScripting {
     }
 
     template<typename R, typename T1, typename T2, typename T3, typename T4>
-    eWNTypeError WNScriptingEngine::register_c_function(const wn_char* _name, R (*_ptr)(T1, T2, T3, T4)) {
+    eWNTypeError WNScriptingEngine::register_c_function(const char* _name, R (*_ptr)(T1, T2, T3, T4)) {
         WNScriptType t = get_type_for_type<R>();
         if(!t) {
             return(eWNBadType);
@@ -789,7 +789,7 @@ namespace WNScripting {
     }
 
     template<typename R, typename T1, typename T2, typename T3, typename T4, typename T5>
-    eWNTypeError WNScriptingEngine::register_c_function(const wn_char* _name, R (*_ptr)(T1, T2, T3, T4, T5)) {
+    eWNTypeError WNScriptingEngine::register_c_function(const char* _name, R (*_ptr)(T1, T2, T3, T4, T5)) {
         WNScriptType t = get_type_for_type<R>();
         if(!t) {
             return(eWNBadType);
@@ -835,7 +835,7 @@ namespace WNScripting {
     }
 
     template<typename R, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
-    eWNTypeError WNScriptingEngine::register_c_function(const wn_char* _name, R (*_ptr)(T1, T2, T3, T4, T5, T6)) {
+    eWNTypeError WNScriptingEngine::register_c_function(const char* _name, R (*_ptr)(T1, T2, T3, T4, T5, T6)) {
         WNScriptType t = get_type_for_type<R>();
         if(!t) {
             return(eWNBadType);

@@ -40,15 +40,15 @@ namespace WNNetworking {
 
         virtual WN_FORCE_INLINE ~WNNetworkReadBuffer() {}
 
-        virtual wn_bool serialize(const wn::containers::serializer_base& _serializer, const wn_uint32 _flags) override;
-        virtual wn_char* reserve(const wn_size_t _numBytes, wn_size_t& _returnedBytes) override;
+        virtual bool serialize(const wn::containers::serializer_base& _serializer, const uint32_t _flags) override;
+        virtual char* reserve(const size_t _numBytes, size_t& _returnedBytes) override;
         virtual wn::containers::data_buffer_type type() const override;
 
-        wn_void AppendBuffer(wn::memory::intrusive_ptr<WNBufferResource>& _buffer, wn_size_t _dataCount, wn_size_t _dataOffset);
-        wn_bool Initialized();
-        wn_void Clear();
-        wn_char* GetLastBuffer();
-        wn_void PrepareRead();
+        void AppendBuffer(wn::memory::intrusive_ptr<WNBufferResource>& _buffer, size_t _dataCount, size_t _dataOffset);
+        bool Initialized();
+        void Clear();
+        char* GetLastBuffer();
+        void PrepareRead();
 
     private:
         WNNetworkReadBuffer& operator = (const WNNetworkReadBuffer&);
@@ -60,12 +60,12 @@ namespace WNNetworking {
         WNBufferQueue mChunks;
 
         WNBufferQueue::iterator mCurrentChunk;
-        wn_size_t mBufferPointer;
-        wn_size_t mWriteOffset;
-        wn_size_t mTotalSize;
-        wn_size_t mTotalRead;
-        wn_bool   mLastChunk;
-        wn_bool   mInitialized;
+        size_t mBufferPointer;
+        size_t mWriteOffset;
+        size_t mTotalSize;
+        size_t mTotalRead;
+        bool   mLastChunk;
+        bool   mInitialized;
     };
 }
 

@@ -27,9 +27,9 @@ namespace WNScripting {
 
         void AddStruct(WNStruct* _node);
 
-        void AddInclude(wn_char* _node);
+        void AddInclude(char* _node);
 
-        const WNScriptLinkedList<wn_char>::WNScriptLinkedListNode* GetFirstInclude() const;
+        const WNScriptLinkedList<char>::WNScriptLinkedListNode* GetFirstInclude() const;
 
         eWNTypeError PreProcess(WNCodeModule& _module, std::vector<WNScriptType>& _containedTypes, std::vector<WNFunctionDefinition*>& _containedFunctions, WNLogging::WNLog& _compilationLog);
 
@@ -42,7 +42,7 @@ namespace WNScripting {
     private:
         WNScriptLinkedList<WNFunction> mFunctions;
         WNScriptLinkedList<WNStruct>   mStructs;
-        WNScriptLinkedList<wn_char>    mIncludes;
+        WNScriptLinkedList<char>    mIncludes;
     };
 }
 #endif //__WN_SCRIPT_FILE_H__

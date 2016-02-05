@@ -20,7 +20,7 @@ namespace wn {
     class WNMatrix3;
 
     namespace internal {
-        template <typename type, typename = std::enable_if<wn_true>::type>
+        template <typename type, typename = std::enable_if<true>::type>
         class __WNMatrix3Base : public __WNMatrixBase<WNMatrix3<type>, type, 3> {
         protected:
             WN_FORCE_INLINE __WNMatrix3Base() {}
@@ -36,8 +36,8 @@ namespace wn {
             WN_FORCE_INLINE WNVector2<type>& TransformVectorInPlace(WNVector2<type>& _vector, type& _zComponent) const {}
             WN_FORCE_INLINE WNVector3<type>& TransformVectorInPlace(WNVector3<type>& _vector) const {}
 
-            wn_void MakeRotation(const type& _angle);
-            wn_void MakeOrthographic(const type& _width, const type& _height, const type& _near, const type& _far);
+            void MakeRotation(const type& _angle);
+            void MakeOrthographic(const type& _width, const type& _height, const type& _near, const type& _far);
 
         public:
             static WNMatrix3<type> CreateRotation(const type& _angle);

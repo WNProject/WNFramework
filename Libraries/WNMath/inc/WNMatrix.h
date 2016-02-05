@@ -25,7 +25,7 @@ namespace wn {
         }
     }
 
-    template <typename _type, const wn_size_t _order>
+    template <typename _type, const size_t _order>
     class matrix final {
     public:
         enum {
@@ -86,11 +86,11 @@ namespace wn {
             return(m_element_array.m_values);
         }
 
-        WN_FORCE_INLINE value_type& operator [] (const wn_size_t _index) {
+        WN_FORCE_INLINE value_type& operator [] (const size_t _index) {
             return(at(_index));
         }
 
-        WN_FORCE_INLINE const value_type& operator [] (const wn_size_t _index) const {
+        WN_FORCE_INLINE const value_type& operator [] (const size_t _index) const {
             return(at(_index));
         }
 
@@ -151,13 +151,13 @@ namespace wn {
         WN_FORCE_INLINE matrix& operator *= (const matrix& _matrix) {
             matrix matrix(*this);
 
-            for (wn_size_t i = 0; i < _order; ++i) {
-                const wn_size_t row_offset = i * _order;
+            for (size_t i = 0; i < _order; ++i) {
+                const size_t row_offset = i * _order;
 
-                for (wn_size_t j = 0; j < _order; ++j) {
+                for (size_t j = 0; j < _order; ++j) {
                     value_type result = static_cast<value_type>(0);
 
-                    for (wn_size_t k = 0; k < _order; ++k) {
+                    for (size_t k = 0; k < _order; ++k) {
                         result += (matrix.m_element_array.m_values[row_offset + k] *
                                    _matrix.m_element_array.m_values[k * _order + j]);
                     }
@@ -249,11 +249,11 @@ namespace wn {
             return(matrix);
         }
 
-        WN_FORCE_INLINE wn_bool operator == (const matrix& _matrix) const {
+        WN_FORCE_INLINE bool operator == (const matrix& _matrix) const {
             return(traits_type::equal(m_element_array, _matrix.m_element_array));
         }
 
-        WN_FORCE_INLINE wn_bool operator != (const matrix& _matrix) const {
+        WN_FORCE_INLINE bool operator != (const matrix& _matrix) const {
             return(traits_type::not_equal(m_element_array, _matrix.m_element_array));
         }
 
@@ -289,21 +289,21 @@ namespace wn {
             return(const_reverse_iterator(cbegin()));
         }
 
-        template <const wn_size_t _index>
+        template <const size_t _index>
         WN_FORCE_INLINE value_type& at() {
             static_assert(_index < _dimension, "Attempting to get element outside of bounds");
 
             return(at(_index));
         }
 
-        template <const wn_size_t _index>
+        template <const size_t _index>
         WN_FORCE_INLINE const value_type& at() const {
             static_assert(_index < _dimension, "Attempting to get element outside of bounds");
 
             return(at(_index));
         }
 
-        template <const wn_size_t _row, const wn_size_t _column>
+        template <const size_t _row, const size_t _column>
         WN_FORCE_INLINE value_type& at() {
             static_assert(_row < _order, "Attempting to get element outside of bounds");
             static_assert(_column < _order, "Attempting to get element outside of bounds");
@@ -311,7 +311,7 @@ namespace wn {
             return(at((_row * _order) + _column));
         }
 
-        template <const wn_size_t _row, const wn_size_t _column>
+        template <const size_t _row, const size_t _column>
         WN_FORCE_INLINE const value_type& at() const {
             static_assert(_row < _order, "Attempting to get element outside of bounds");
             static_assert(_column < _order, "Attempting to get element outside of bounds");
@@ -319,26 +319,26 @@ namespace wn {
             return(at((_row * _order) + _column));
         }
 
-        WN_FORCE_INLINE value_type& at(const wn_size_t _index) {
+        WN_FORCE_INLINE value_type& at(const size_t _index) {
             WN_DEBUG_ASSERT_DESC(_index < _dimension, "Attempting to get element outside of bounds");
 
             return(m_element_array.m_values[_index]);
         }
 
-        WN_FORCE_INLINE const value_type& at(const wn_size_t _index) const {
+        WN_FORCE_INLINE const value_type& at(const size_t _index) const {
             WN_DEBUG_ASSERT_DESC(_index < _dimension, "Attempting to get element outside of bounds");
 
             return(m_element_array.m_values[_index]);
         }
 
-        WN_FORCE_INLINE value_type& at(const wn_size_t _row, const wn_size_t _column) {
+        WN_FORCE_INLINE value_type& at(const size_t _row, const size_t _column) {
             WN_DEBUG_ASSERT_DESC(_row < _order, "Attempting to get element outside of bounds");
             WN_DEBUG_ASSERT_DESC(_column < _order, "Attempting to get element outside of bounds");
 
             return(at((_row * _order) + _column));
         }
 
-        WN_FORCE_INLINE const value_type& at(const wn_size_t _row, const wn_size_t _column) const {
+        WN_FORCE_INLINE const value_type& at(const size_t _row, const size_t _column) const {
             WN_DEBUG_ASSERT_DESC(_row < _order, "Attempting to get element outside of bounds");
             WN_DEBUG_ASSERT_DESC(_column < _order, "Attempting to get element outside of bounds");
 
@@ -353,18 +353,18 @@ namespace wn {
             return(m_element_array.m_values);
         }
 
-        WN_FORCE_INLINE wn_size_t order() const {
+        WN_FORCE_INLINE size_t order() const {
             return(_order);
         }
 
-        WN_FORCE_INLINE wn_size_t dimension() const {
+        WN_FORCE_INLINE size_t dimension() const {
             return(_dimension);
         }
 
         WN_FORCE_INLINE value_type trace() const {
             value_type trace = static_cast<value_type>(0);
 
-            for (wn_size_t i = 0; i < _order; ++i) {
+            for (size_t i = 0; i < _order; ++i) {
                 trace += m_element_array.m_values[(i * _order) + i];
             }
 
@@ -373,67 +373,67 @@ namespace wn {
 
         WN_FORCE_INLINE value_type determinant() const;
 
-        WN_FORCE_INLINE wn_bool identity() const {
-            for (wn_size_t i = 0; i < _order; ++i) {
-                const wn_size_t row_offset = i * _order;
+        WN_FORCE_INLINE bool identity() const {
+            for (size_t i = 0; i < _order; ++i) {
+                const size_t row_offset = i * _order;
 
-                for (wn_size_t j = 0; j < _order; ++j) {
-                    const wn_size_t index = row_offset + j;
+                for (size_t j = 0; j < _order; ++j) {
+                    const size_t index = row_offset + j;
 
                     if (i == j) {
                         if (m_element_array.m_values[index] != static_cast<value_type>(1)) {
-                            return(wn_false);
+                            return(false);
                         }
                     } else {
                         if (m_element_array.m_values[index] != static_cast<value_type>(0)) {
-                            return(wn_false);
+                            return(false);
                         }
                     }
                 }
             }
         }
 
-        WN_FORCE_INLINE wn_bool symmetric() const {
+        WN_FORCE_INLINE bool symmetric() const {
 
         }
 
-        WN_FORCE_INLINE wn_bool diagonal() const {
-            for (wn_size_t i = 0; i < _order; ++i) {
-                const wn_size_t row_offset = i * _order;
+        WN_FORCE_INLINE bool diagonal() const {
+            for (size_t i = 0; i < _order; ++i) {
+                const size_t row_offset = i * _order;
 
-                for (wn_size_t j = 0; j < _order; ++j) {
+                for (size_t j = 0; j < _order; ++j) {
                     if (i != j) {
-                        const wn_size_t index = row_offset + j;
+                        const size_t index = row_offset + j;
 
                         if (m_element_array.m_values[index] != static_cast<value_type>(0)) {
-                            return(wn_false);
+                            return(false);
                         }
                     }
                 }
             }
         }
 
-        WN_FORCE_INLINE wn_void transpose() {
-            for (wn_size_t i = 0; i < _order; ++i) {
-                const wn_size_t row_offset = i * _order;
+        WN_FORCE_INLINE void transpose() {
+            for (size_t i = 0; i < _order; ++i) {
+                const size_t row_offset = i * _order;
 
-                for (wn_size_t j = 0; j < _order; ++j) {
-                    const wn_size_t index = row_offset + j;
+                for (size_t j = 0; j < _order; ++j) {
+                    const size_t index = row_offset + j;
 
                     std::swap(m_element_array.m_values[index], m_element_array.m_values[index]);
                 }
             }
         }
 
-        WN_FORCE_INLINE wn_void assign(matrix&& _vector) {
+        WN_FORCE_INLINE void assign(matrix&& _vector) {
             traits_type::assign(m_element_array, std::move(_vector.m_element_array));
         }
 
-        WN_FORCE_INLINE wn_void assign(const matrix& _vector) {
+        WN_FORCE_INLINE void assign(const matrix& _vector) {
             traits_type::assign(m_element_array, _vector.m_element_array);
         }
 
-        WN_FORCE_INLINE wn_void assign(const value_type& _value) {
+        WN_FORCE_INLINE void assign(const value_type& _value) {
             traits_type::assign(m_element_array, _value);
         }
 
@@ -441,32 +441,32 @@ namespace wn {
                   typename... types,
                   typename = core::enable_if_t<core::bool_and<core::are_same<value_type, types..., value_type>::value,
                                                      sizeof...(types) == (_dimension - 1), (_order > 1)>::value>>
-        WN_FORCE_INLINE wn_void assign(const value_type& _value, const types&... _values) {
+        WN_FORCE_INLINE void assign(const value_type& _value, const types&... _values) {
             assign({ _value, _values... });
         }
 
-        WN_FORCE_INLINE wn_void assign(const std::array<value_type, _dimension>& _array) {
+        WN_FORCE_INLINE void assign(const std::array<value_type, _dimension>& _array) {
             traits_type::assign(m_element_array, _array.cbegin(), _array.cend());
         }
 
-        WN_FORCE_INLINE wn_void assign(const std::initializer_list<value_type>& _initializer_list) {
+        WN_FORCE_INLINE void assign(const std::initializer_list<value_type>& _initializer_list) {
             WN_DEBUG_ASSERT_DESC(_initializer_list.size() <= _dimension, "too many initializers");
 
             traits_type::assign(m_element_array, _initializer_list.begin(), _initializer_list.end());
         }
 
-        WN_FORCE_INLINE wn_void assign(const value_type* _values) {
+        WN_FORCE_INLINE void assign(const value_type* _values) {
             traits_type::assign(m_element_array, _values);
         }
 
-        WN_FORCE_INLINE wn_void set_zero() {
+        WN_FORCE_INLINE void set_zero() {
             traits_type::set_zero(m_element_array);
         }
 
-        WN_FORCE_INLINE wn_void set_identity() {
-            for (wn_size_t i = 0; i < _order; ++i) {
-                for (wn_size_t j = 0; j < _order; ++j) {
-                    const wn_size_t index = (i * _order) + j;
+        WN_FORCE_INLINE void set_identity() {
+            for (size_t i = 0; i < _order; ++i) {
+                for (size_t j = 0; j < _order; ++j) {
+                    const size_t index = (i * _order) + j;
 
                     if (i == j) {
                         m_element_array.m_values[index] = static_cast<value_type>(1);
@@ -483,20 +483,20 @@ namespace wn {
             return(matrix.transpose(), matrix);
         }
 
-        WN_FORCE_INLINE matrix<value_type, (_order - 1)> extract_sub_matrix(const wn_size_t _row, const wn_size_t _column) {
+        WN_FORCE_INLINE matrix<value_type, (_order - 1)> extract_sub_matrix(const size_t _row, const size_t _column) {
             matrix<value_type, (_order - 1)> matrix;
-            wn_size_t column_count = 0;
-            wn_size_t row_count = 0;
+            size_t column_count = 0;
+            size_t row_count = 0;
 
-            for (wn_size_t i = 0; i < _order; ++i) {
+            for (size_t i = 0; i < _order; ++i) {
                 if (i != _row) {
-                    const wn_size_t row_offset = row_count * _order;
+                    const size_t row_offset = row_count * _order;
 
                     column_count = 0;
 
-                    for (wn_size_t j = 0; j < _order; ++j) {
+                    for (size_t j = 0; j < _order; ++j) {
                         if (j != _column) {
-                            const wn_size_t index = row_offset + column_count;
+                            const size_t index = row_offset + column_count;
 
                             m_element_array.m_values[index] = matrix.m_element_array.m_values[index];
 
@@ -512,7 +512,7 @@ namespace wn {
         }
 
     private:
-        template <typename _other_type, const wn_size_t _other_order>
+        template <typename _other_type, const size_t _other_order>
         friend class matrix;
 
         internal::math::element_array<value_type, _dimension> m_element_array;
@@ -528,32 +528,32 @@ namespace wn {
     using matrix4 = matrix<_type, 4>;
 }
 
-template <typename type, const wn_size_t order>
+template <typename type, const size_t order>
 wn::matrix<type, order> operator + (const type& _value, wn::matrix<type, order>&& _matrix) {
     return(_matrix += _value);
 }
 
-template <typename type, const wn_size_t order>
+template <typename type, const size_t order>
 wn::matrix<type, order> operator + (const type& _value, const wn::matrix<type, order>& _matrix) {
     return(_matrix + _value);
 }
 
-template <typename type, const wn_size_t order>
+template <typename type, const size_t order>
 wn::matrix<type, order> operator - (const type& _value, const wn::matrix<type, order>& _matrix) {
     return(wn::matrix<type, order>(_value) -= _matrix);
 }
 
-template <typename type, const wn_size_t order>
+template <typename type, const size_t order>
 wn::matrix<type, order> operator * (const type& _value, wn::matrix<type, order>&& _matrix) {
     return(_matrix *= _value);
 }
 
-template <typename type, const wn_size_t order>
+template <typename type, const size_t order>
 wn::matrix<type, order> operator * (const type& _value, const wn::matrix<type, order>& _matrix) {
     return(_matrix * _value);
 }
 
-template <typename type, const wn_size_t order>
+template <typename type, const size_t order>
 wn::matrix<type, order> operator / (const type& _value, const wn::matrix<type, order>& _matrix) {
     return(wn::matrix<type, order>(_value) /= _matrix);
 }

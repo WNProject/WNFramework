@@ -11,14 +11,14 @@ WN_ENABLE_TYPED_TEST(pair);
 struct dummy {
   WN_FORCE_INLINE dummy() : dummy(0) {}
 
-  WN_FORCE_INLINE dummy(const wn_uint8 value)
+  WN_FORCE_INLINE dummy(const uint8_t value)
     : m_value1(value), m_value2(value) {}
 
-  wn_uint8 m_value1;
-  wn_uint64 m_value2;
+  uint8_t m_value1;
+  uint64_t m_value2;
 };
 
-WN_FORCE_INLINE wn_bool operator==(const dummy& dummy1, const dummy& dummy2) {
+WN_FORCE_INLINE bool operator==(const dummy& dummy1, const dummy& dummy2) {
   return dummy1.m_value1 == dummy2.m_value1 &&
          dummy1.m_value2 == dummy2.m_value2;
 }
@@ -29,9 +29,9 @@ struct multi_type final {
   using second_type = U;
 };
 
-using pair_testing_types = ::testing::Types<multi_type<wn_uint8, wn_int64>,
-    multi_type<wn_uint16, dummy>, multi_type<wn_uint32, wn_float32>,
-    multi_type<wn_uint64, wn_float64>, multi_type<dummy, wn_int8>>;
+using pair_testing_types = ::testing::Types<multi_type<uint8_t, int64_t>,
+    multi_type<uint16_t, dummy>, multi_type<uint32_t, float>,
+    multi_type<uint64_t, double>, multi_type<dummy, int8_t>>;
 
 TYPED_TEST_CASE(pair, pair_testing_types);
 
@@ -89,15 +89,15 @@ TYPED_TEST(pair, assignment) {
   EXPECT_EQ(pair1.first, first_type(3));
   EXPECT_EQ(pair1.second, second_type(4));
 
-  const wn::containers::pair<wn_uint8, wn_uint8> pair3(
-      wn_uint8(5), wn_uint8(6));
+  const wn::containers::pair<uint8_t, uint8_t> pair3(
+      uint8_t(5), uint8_t(6));
 
   pair1 = pair3;
 
   EXPECT_EQ(pair1.first, first_type(pair3.first));
   EXPECT_EQ(pair1.second, second_type(pair3.second));
 
-  pair1 = wn::containers::make_pair(wn_uint8(7), wn_uint8(8));
+  pair1 = wn::containers::make_pair(uint8_t(7), uint8_t(8));
 
   EXPECT_EQ(pair1.first, first_type(7));
   EXPECT_EQ(pair1.second, second_type(8));

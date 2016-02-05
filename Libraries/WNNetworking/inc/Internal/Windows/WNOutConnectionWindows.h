@@ -17,7 +17,7 @@ namespace WNNetworking {
         WNOutConnectionWindows(WNNetworkManager& _manager);
         virtual WN_FORCE_INLINE ~WNOutConnectionWindows () {}
 
-        WNNetworkManagerReturnCode::type Initialize(WNConnectionType::type& _type, const wn_char* _target, wn_uint16 _port);
+        WNNetworkManagerReturnCode::type Initialize(WNConnectionType::type& _type, const char* _target, uint16_t _port);
 
     private:
         WNConnectedCallback mCallback;

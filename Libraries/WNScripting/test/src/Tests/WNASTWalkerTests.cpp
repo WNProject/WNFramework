@@ -39,7 +39,7 @@ void RunMatcherTest(T& _t,
     std::initializer_list<wn::containers::pair<wn::containers::string_view,
         wn::containers::string_view>>
         _files,
-    const char* _file, wn_size_t* _num_warnings, wn_size_t* _num_errors) {
+    const char* _file, size_t* _num_warnings, size_t* _num_errors) {
   wn::testing::allocator allocator;
   wn::file_system::mapping_ptr mapping =
       wn::file_system::factory().make_mapping(
@@ -56,7 +56,7 @@ void RunMatcherTest(T& _t,
 TEST(ast_code_generator, simplest_function) {
   mock_walk walk;
   wn::scripting::ast_walker<mock_walk> walker(&walk);
-  wn_size_t num_warnings, num_errors;
+  size_t num_warnings, num_errors;
   num_warnings = num_errors = 0;
 
   EXPECT_CALL(walk, walk_expression(_)).Times(0);
@@ -74,7 +74,7 @@ TEST(ast_code_generator, simplest_function) {
 TEST(ast_code_generator, type_association_test) {
   wn::testing::allocator allocator;
   wn::scripting::type_validator validator(&allocator);
-  wn_size_t num_warnings, num_errors;
+  size_t num_warnings, num_errors;
   num_warnings = num_errors = 0;
 
   wn::file_system::mapping_ptr mapping =

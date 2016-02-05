@@ -26,8 +26,8 @@ public:
   typedef T& reference;
   typedef const T* const_pointer;
   typedef const T& const_reference;
-  typedef wn_size_t size_type;
-  typedef wn_signed_t difference_type;
+  typedef size_t size_type;
+  typedef signed_t difference_type;
   typedef std::false_type propagate_on_container_copy_assignment;
   typedef std::true_type propagate_on_container_move_assignment;
   typedef std::false_type propagate_on_container_swap;
@@ -68,7 +68,7 @@ public:
 
   void deallocate(pointer _p, size_type) { return m_allocator->deallocate(_p); }
   size_type max_size() const {
-    return std::numeric_limits<wn_size_t>::max() / sizeof(value_type);
+    return std::numeric_limits<size_t>::max() / sizeof(value_type);
   }
   template <class U, class... Args>
   void construct(U* _p, Args&&... _args) {
@@ -89,8 +89,8 @@ struct passthrough_stl_allocator<void, DefaultAlloc>
   typedef void value_type;
   typedef void* pointer;
   typedef const void* const_pointer;
-  typedef wn_size_t size_type;
-  typedef wn_signed_t difference_type;
+  typedef size_t size_type;
+  typedef signed_t difference_type;
   typedef std::false_type propagate_on_container_copy_assignment;
   typedef std::true_type propagate_on_container_move_assignment;
   typedef std::false_type propagate_on_container_swap;
@@ -122,12 +122,12 @@ struct passthrough_stl_allocator<void, DefaultAlloc>
   pointer allocate(
       size_type _n,
       typename passthrough_stl_allocator<void, DA>::const_pointer = 0) {
-    return wn_nullptr;
+    return nullptr;
   }
 
   void deallocate(pointer _p, size_type) { return m_allocator->deallocate(_p); }
   size_type max_size() const {
-    return std::numeric_limits<wn_size_t>::max();
+    return std::numeric_limits<size_t>::max();
   }
   template <class U, class... Args>
   void construct(U* _p, Args&&... _args) {

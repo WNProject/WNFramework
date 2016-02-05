@@ -11,14 +11,14 @@ WN_ENABLE_TYPED_TEST(tuple);
 struct dummy {
   WN_FORCE_INLINE dummy() : dummy(0) {}
 
-  WN_FORCE_INLINE dummy(const wn_uint8 value)
+  WN_FORCE_INLINE dummy(const uint8_t value)
     : m_value1(value), m_value2(value) {}
 
-  wn_uint8 m_value1;
-  wn_uint64 m_value2;
+  uint8_t m_value1;
+  uint64_t m_value2;
 };
 
-WN_FORCE_INLINE wn_bool operator==(const dummy& dummy1, const dummy& dummy2) {
+WN_FORCE_INLINE bool operator==(const dummy& dummy1, const dummy& dummy2) {
   return dummy1.m_value1 == dummy2.m_value1 &&
          dummy1.m_value2 == dummy2.m_value2;
 }
@@ -31,11 +31,11 @@ struct multi_type final {
 };
 
 using tuple_testing_types =
-    ::testing::Types<multi_type<wn_uint8, wn_int64, wn_int16>,
-        multi_type<wn_uint16, dummy, wn_float32>,
-        multi_type<wn_uint32, wn_float32, wn_int8>,
-        multi_type<wn_uint64, wn_float64, dummy>,
-        multi_type<dummy, wn_int8, wn_uint32>>;
+    ::testing::Types<multi_type<uint8_t, int64_t, int16_t>,
+        multi_type<uint16_t, dummy, float>,
+        multi_type<uint32_t, float, int8_t>,
+        multi_type<uint64_t, double, dummy>,
+        multi_type<dummy, int8_t, uint32_t>>;
 
 TYPED_TEST_CASE(tuple, tuple_testing_types);
 
@@ -98,8 +98,8 @@ TYPED_TEST(tuple, assignment) {
   EXPECT_EQ(wn::containers::get<1>(tuple1), second_type(5));
   EXPECT_EQ(wn::containers::get<2>(tuple1), third_type(6));
 
-  const wn::containers::tuple<wn_uint8, wn_uint8, wn_uint8> tuple3(
-      wn_uint8(7), wn_uint8(8), wn_uint8(9));
+  const wn::containers::tuple<uint8_t, uint8_t, uint8_t> tuple3(
+      uint8_t(7), uint8_t(8), uint8_t(9));
 
   tuple1 = tuple3;
 
@@ -107,7 +107,7 @@ TYPED_TEST(tuple, assignment) {
   EXPECT_EQ(wn::containers::get<1>(tuple1), second_type(8));
   EXPECT_EQ(wn::containers::get<2>(tuple1), third_type(9));
 
-  tuple1 = wn::containers::make_tuple(wn_uint8(10), wn_uint8(11), wn_uint8(12));
+  tuple1 = wn::containers::make_tuple(uint8_t(10), uint8_t(11), uint8_t(12));
 
   EXPECT_EQ(wn::containers::get<0>(tuple1), first_type(10));
   EXPECT_EQ(wn::containers::get<1>(tuple1), second_type(11));

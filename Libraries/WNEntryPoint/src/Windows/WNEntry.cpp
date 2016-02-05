@@ -5,7 +5,7 @@
 #include "WNCore/inc/WNTypes.h"
 #include "WNUtils/inc/WNCrashHandler.h"
 
-extern wn_int32 wn_main(wn_int32 _argc, wn_char* _argv[]);
+extern int32_t wn_main(int32_t _argc, char* _argv[]);
 
 void wn_dummy() {}
 

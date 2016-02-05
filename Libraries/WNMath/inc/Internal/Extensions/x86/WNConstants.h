@@ -7,11 +7,11 @@
 #ifndef __WN_MATH_INTERNAL_X86_CONSTANTS_MM_H__
 #define __WN_MATH_INTERNAL_X86_CONSTANTS_MM_H__
 
-#define __WN_MM_PS_CONST_1(_name, _value) static const wn_float32 __WN##_name##_MM[2] = {_value, _value}
-#define __WN_MM_PS_CONST_2(_name, _value1, _value2) static const wn_float32 __WN##_name##_MM[2] = {_value1, _value2}
+#define __WN_MM_PS_CONST_1(_name, _value) static const float __WN##_name##_MM[2] = {_value, _value}
+#define __WN_MM_PS_CONST_2(_name, _value1, _value2) static const float __WN##_name##_MM[2] = {_value1, _value2}
 
-#define __WN_MM_PI32_CONST_1(_name, _value) static const wn_int32 __WN##_name##_MM[2] = {static_cast<wn_int32>(_value), static_cast<wn_int32>(_value)}
-#define __WN_MM_PI32_CONST_2(_name, _value1, _value2) static const wn_int32 __WN##_name##_MM[2] = {static_cast<wn_int32>(_value1), static_cast<wn_int32>(_value2)}
+#define __WN_MM_PI32_CONST_1(_name, _value) static const int32_t __WN##_name##_MM[2] = {static_cast<int32_t>(_value), static_cast<int32_t>(_value)}
+#define __WN_MM_PI32_CONST_2(_name, _value1, _value2) static const int32_t __WN##_name##_MM[2] = {static_cast<int32_t>(_value1), static_cast<int32_t>(_value2)}
 
 #define __WN_MM_GET_PS_CONST(_name) (*reinterpret_cast<const __m64*>(__WN##_name##_MM))
 #define __WN_MM_GET_PI8_CONST(_name) (*reinterpret_cast<const __m64*>(__WN##_name##_MM))
@@ -28,15 +28,15 @@ namespace wn {
     }
 };
 
-#define __WN_XMM_PS_CONST_1(_name, _value) static const WN_ALIGN(16) wn_float32 __WN##_name##_XMM[4] = {_value, _value, _value, _value}
-#define __WN_XMM_PS_CONST_4(_name, _value1, _value2, _value3, _value4) static const WN_ALIGN(16) wn_float32 __WN##_name##_XMM[4] = {_value1, _value2, _value3, _value4}
-#define __WN_XMM_PD_CONST_1(_name, _value) static const WN_ALIGN(16) wn_float64 __WN##_name##_XMM[2] = {_value, _value}
-#define __WN_XMM_PD_CONST_2(_name, _value1, _value2) static const WN_ALIGN(16) wn_float64 __WN##_name##_XMM[2] = {_value1, _value2}
+#define __WN_XMM_PS_CONST_1(_name, _value) static const WN_ALIGN(16) float __WN##_name##_XMM[4] = {_value, _value, _value, _value}
+#define __WN_XMM_PS_CONST_4(_name, _value1, _value2, _value3, _value4) static const WN_ALIGN(16) float __WN##_name##_XMM[4] = {_value1, _value2, _value3, _value4}
+#define __WN_XMM_PD_CONST_1(_name, _value) static const WN_ALIGN(16) double __WN##_name##_XMM[2] = {_value, _value}
+#define __WN_XMM_PD_CONST_2(_name, _value1, _value2) static const WN_ALIGN(16) double __WN##_name##_XMM[2] = {_value1, _value2}
 
-#define __WN_XMM_PI32_CONST_1(_name, _value) static const WN_ALIGN(16) wn_int32 __WN##_name##_XMM[4] = {static_cast<wn_int32>(_value), static_cast<wn_int32>(_value), static_cast<wn_int32>(_value), static_cast<wn_int32>(_value)}
-#define __WN_XMM_PI32_CONST_4(_name, _value1, _value2, _value3, _value4) static const WN_ALIGN(16) wn_int32 __WN##_name##_XMM[4] = {static_cast<wn_int32>(_value1), static_cast<wn_int32>(_value2), static_cast<wn_int32>(_value3), static_cast<wn_int32>(_value4)}
-#define __WN_XMM_PI64_CONST_1(_name, _value) static const WN_ALIGN(16) wn_int64 __WN##_name##_XMM[2] = {static_cast<wn_int64>(_value), static_cast<wn_int64>(_value)}
-#define __WN_XMM_PI64_CONST_2(_name, _value1, _value2) static const WN_ALIGN(16) wn_int64 __WN##_name##_XMM[2] = {static_cast<wn_int64>(_value1), static_cast<wn_int64>(_value2)}
+#define __WN_XMM_PI32_CONST_1(_name, _value) static const WN_ALIGN(16) int32_t __WN##_name##_XMM[4] = {static_cast<int32_t>(_value), static_cast<int32_t>(_value), static_cast<int32_t>(_value), static_cast<int32_t>(_value)}
+#define __WN_XMM_PI32_CONST_4(_name, _value1, _value2, _value3, _value4) static const WN_ALIGN(16) int32_t __WN##_name##_XMM[4] = {static_cast<int32_t>(_value1), static_cast<int32_t>(_value2), static_cast<int32_t>(_value3), static_cast<int32_t>(_value4)}
+#define __WN_XMM_PI64_CONST_1(_name, _value) static const WN_ALIGN(16) int64_t __WN##_name##_XMM[2] = {static_cast<int64_t>(_value), static_cast<int64_t>(_value)}
+#define __WN_XMM_PI64_CONST_2(_name, _value1, _value2) static const WN_ALIGN(16) int64_t __WN##_name##_XMM[2] = {static_cast<int64_t>(_value1), static_cast<int64_t>(_value2)}
 
 #define __WN_XMM_GET_PS_CONST(_name) (*reinterpret_cast<const __m128*>(__WN##_name##_XMM))
 #define __WN_XMM_GET_PD_CONST(_name) (*reinterpret_cast<const __m128d*>(__WN##_name##_XMM))

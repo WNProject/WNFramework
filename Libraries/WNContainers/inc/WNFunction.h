@@ -15,10 +15,7 @@ namespace wn {
 namespace containers {
 
 template <typename T>
-class function final {
-  static_assert(core::dependent_false<T>::value,
-    "type provided is not a function prototype");
-};
+class function final {};
 
 template <typename R, typename... Args>
 class function<R(Args...)> {
@@ -26,13 +23,13 @@ public:
   using result_type = R;
 
   WN_FORCE_INLINE function() :
-    m_callable(wn_nullptr),
-    m_executor(wn_nullptr),
-    m_copier(wn_nullptr),
-    m_deleter(wn_nullptr) {
+    m_callable(nullptr),
+    m_executor(nullptr),
+    m_copier(nullptr),
+    m_deleter(nullptr) {
   }
 
-  WN_FORCE_INLINE function(const wn_nullptr_t) :
+  WN_FORCE_INLINE function(const nullptr_t) :
     function() {
   }
 
@@ -42,7 +39,7 @@ public:
   }
 
   WN_FORCE_INLINE function(const function& other) :
-    m_callable(wn_nullptr),
+    m_callable(nullptr),
     m_executor(other.m_executor),
     m_copier(other.m_copier),
     m_deleter(other.m_deleter) {
@@ -80,8 +77,8 @@ public:
     }
   }
 
-  WN_FORCE_INLINE function& operator = (const wn_nullptr_t) {
-    function(wn_nullptr).swap(*this);
+  WN_FORCE_INLINE function& operator = (const nullptr_t) {
+    function(nullptr).swap(*this);
 
     return(*this);
   }
@@ -108,7 +105,7 @@ public:
     return(*this);
   }
 
-  explicit WN_FORCE_INLINE operator wn_bool () const {
+  explicit WN_FORCE_INLINE operator bool () const {
     return(m_callable && m_executor && m_deleter && m_copier);
   }
 
@@ -119,24 +116,24 @@ public:
     return(m_executor(&m_callable, args...));
   }
 
-  WN_FORCE_INLINE wn_void assign(const wn_nullptr_t) {
-    *this = wn_nullptr;
+  WN_FORCE_INLINE void assign(const nullptr_t) {
+    *this = nullptr;
   }
 
   template <typename F,
             typename = core::enable_if_t<core::bool_and<
               core::is_callable<F, R(Args...)>::value,
               !core::is_same_decayed<F, function>::value>::value>>
-  WN_FORCE_INLINE wn_void assign(F&& f) {
+  WN_FORCE_INLINE void assign(F&& f) {
     *this = std::forward<F>(f);
   }
 
   template <typename T>
-  WN_FORCE_INLINE wn_void assign(R(T::*f)(Args...), T* obj) {
+  WN_FORCE_INLINE void assign(R(T::*f)(Args...), T* obj) {
     function(f, obj).swap(*this);
   }
 
-  WN_FORCE_INLINE wn_void swap(function& other) {
+  WN_FORCE_INLINE void swap(function& other) {
     if ((&other) != this) {
       std::swap(m_callable, other.m_callable);
       std::swap(m_executor, other.m_executor);
@@ -146,9 +143,9 @@ public:
   }
 
 private:
- using executor_type = R (*)(wn_void* const*, Args...);
- using copier_type = wn_void (*)(wn_void* const*, wn_void**);
- using deleter_type = wn_void (*)(wn_void**);
+ using executor_type = R (*)(void* const*, Args...);
+ using copier_type = void (*)(void* const*, void**);
+ using deleter_type = void (*)(void**);
 
   template <typename F>
   WN_FORCE_INLINE typename core::enable_if<core::bool_and<
@@ -160,11 +157,11 @@ private:
     WN_RELEASE_ASSERT_DESC(m_callable,
       "failed to construct lambda/function object");
 
-    m_executor = [](wn_void* const* f, Args... args) -> R {
+    m_executor = [](void* const* f, Args... args) -> R {
       return((*reinterpret_cast<F* const*>(f))->operator()(args...));
     };
 
-    m_copier = [](wn_void* const* f, wn_void** ptr) -> wn_void {
+    m_copier = [](void* const* f, void** ptr) -> void {
       F* const p = *reinterpret_cast<F* const*>(f);
 
       (*ptr) = memory::construct<F>(std::forward<F>(*p));
@@ -173,7 +170,7 @@ private:
         "failed to construct lambda/function object");
     };
 
-    m_deleter = [](wn_void** f) -> wn_void {
+    m_deleter = [](void** f) -> void {
       memory::destroy<F>(reinterpret_cast<F*>(*f));
     };
   }
@@ -183,47 +180,47 @@ private:
     std::is_convertible<F, R(*)(Args...)>::value,
     std::is_function<F>::value>::value>::type
   construct(F&& f) {
-    m_callable = reinterpret_cast<wn_void*>(static_cast<R(*)(Args...)>(f));
+    m_callable = reinterpret_cast<void*>(static_cast<R(*)(Args...)>(f));
 
-    m_executor = [](wn_void* const* f, Args... args) -> R {
+    m_executor = [](void* const* f, Args... args) -> R {
       return((*reinterpret_cast<R(*const*)(Args...)>(f))(args...));
     };
 
-    m_copier = [](wn_void* const* f, wn_void** ptr) -> wn_void {
+    m_copier = [](void* const* f, void** ptr) -> void {
       (*ptr) = (*f);
     };
 
-    m_deleter = [](wn_void**) -> wn_void {};
+    m_deleter = [](void**) -> void {};
   }
 
-  wn_void* m_callable;
+  void* m_callable;
   copier_type m_copier;
   deleter_type m_deleter;
   executor_type m_executor;
 };
 
 template <typename R, typename... Args>
-WN_FORCE_INLINE wn_bool
-operator == (const function<R(Args...)>& f, const wn_nullptr_t) {
+WN_FORCE_INLINE bool
+operator == (const function<R(Args...)>& f, const nullptr_t) {
   return(!f);
 }
 
 template <typename R, typename... Args>
-WN_FORCE_INLINE wn_bool
-operator == (const wn_nullptr_t, const function<R(Args...)>& f) {
-  return(f == wn_nullptr);
+WN_FORCE_INLINE bool
+operator == (const nullptr_t, const function<R(Args...)>& f) {
+  return(f == nullptr);
 }
 
 template <typename R, typename... Args>
-WN_FORCE_INLINE wn_bool
-operator != (const function<R(Args...)>& f, const wn_nullptr_t) {
-  return(static_cast<wn_bool>(f));
+WN_FORCE_INLINE bool
+operator != (const function<R(Args...)>& f, const nullptr_t) {
+  return(static_cast<bool>(f));
 }
 
 template <typename R, typename... Args>
-WN_FORCE_INLINE wn_bool
-operator != (const wn_nullptr_t, const function<R(Args...)>& f) {
-  return(f != wn_nullptr);
+WN_FORCE_INLINE bool
+operator != (const nullptr_t, const function<R(Args...)>& f) {
+  return(f != nullptr);
 }
 
 } // namespace containers

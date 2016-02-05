@@ -8,7 +8,7 @@
 template <typename _Type>
 struct hash_set : ::testing::Test {};
 
-typedef ::testing::Types<wn_uint8, wn_uint16, wn_uint32, wn_uint64>
+typedef ::testing::Types<uint8_t, uint16_t, uint32_t, uint64_t>
     hash_set_testing_types;
 
 TYPED_TEST_CASE(hash_set, hash_set_testing_types);

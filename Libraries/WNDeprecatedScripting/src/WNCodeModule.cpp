@@ -49,7 +49,7 @@ WNScopedVariableList& WNCodeModule::GetScopedVariableList() {
     return(mScopedVariableList);
 }
 
-eWNTypeError WNCodeModule::initialize(wn_uint32 flags) {
+eWNTypeError WNCodeModule::initialize(uint32_t flags) {
     std::unique_ptr<llvm::Module> module =
       std::make_unique<llvm::Module>("MCJitModule", llvm::getGlobalContext());
 
@@ -80,13 +80,13 @@ eWNTypeError WNCodeModule::initialize(wn_uint32 flags) {
     }
     mEngine = builder.create();
     if(!mEngine) {
-        mModule = wn_nullptr;
+        mModule = nullptr;
         return(error);
     }
     mBuilder = wn::memory::construct<llvm::IRBuilder<>>(llvm::getGlobalContext());
     if(!mBuilder) {
          wn::memory::destroy(mEngine);
-          mModule = wn_nullptr;
+          mModule = nullptr;
          return(error);
     }
     return(ok);
@@ -104,7 +104,7 @@ llvm::IRBuilderBase* WNCodeModule::GetBuilder() {
     return(mBuilder);
 }
 
-WNFunctionDefinition* WNCodeModule::GetFunctionDefinition(const wn_char* _name, const std::vector<WNParameter>& _params) {
+WNFunctionDefinition* WNCodeModule::GetFunctionDefinition(const char* _name, const std::vector<WNParameter>& _params) {
     for(std::vector<WNFunctionDefinition*>::iterator i = mFunctions.begin(); i != mFunctions.end(); ++i) {
         if(wn::memory::strcmp((*i)->mName, _name) == 0) {
 
@@ -122,10 +122,10 @@ WNFunctionDefinition* WNCodeModule::GetFunctionDefinition(const wn_char* _name, 
             }
         }
     }
-    return(wn_nullptr);
+    return(nullptr);
 }
 
-WNFunctionDefinition* WNCodeModule::GetFunctionDefinition(const wn_char* _name, const std::vector<WNScriptType>& _params) {
+WNFunctionDefinition* WNCodeModule::GetFunctionDefinition(const char* _name, const std::vector<WNScriptType>& _params) {
     for(std::vector<WNFunctionDefinition*>::iterator i = mFunctions.begin(); i != mFunctions.end(); ++i) {
         if(wn::memory::strcmp((*i)->mName, _name) == 0) {
 
@@ -143,14 +143,14 @@ WNFunctionDefinition* WNCodeModule::GetFunctionDefinition(const wn_char* _name, 
             }
         }
     }
-    return(wn_nullptr);
+    return(nullptr);
 }
 
 struct CountingIntHelper {
-    CountingIntHelper(wn_int32 _def): def(_def), numCasts(0) {
+    CountingIntHelper(int32_t _def): def(_def), numCasts(0) {
     }
     int numCasts;
-    wn_uint32 def;
+    uint32_t def;
 };
 
 struct CountingStructHelper {
@@ -160,18 +160,18 @@ struct CountingStructHelper {
     WNFunctionDefinition* def;
 };
 
-eWNTypeError WNCodeModule::GetNonCastableVirtualFunction(const wn_char* _name, const WNScriptType thisType, const std::vector<WNScriptType>& _params, wn_int32& _outIndex) {
+eWNTypeError WNCodeModule::GetNonCastableVirtualFunction(const char* _name, const WNScriptType thisType, const std::vector<WNScriptType>& _params, int32_t& _outIndex) {
     if(thisType->mVTable.size() == 0) {
         return(does_not_exist);
     }
     std::vector<WNFunctionDefinition*>& functions = thisType->mVTable;
     std::vector<CountingIntHelper> sharedNameDefs;
-    for(wn_size_t i = 0; i < functions.size(); ++i) {
-        const wn_char* lookupFunc = wn::memory::strstr(functions[i]->mName, "$");
+    for(size_t i = 0; i < functions.size(); ++i) {
+        const char* lookupFunc = wn::memory::strstr(functions[i]->mName, "$");
         lookupFunc = lookupFunc == NULL? functions[i]->mName: lookupFunc + 1;
         if(wn::memory::strcmp(lookupFunc, _name) == 0) {
             if(functions[i]->mTypes.size() == _params.size() + 1) {
-                sharedNameDefs.push_back(CountingIntHelper(static_cast<wn_int32>(i)));
+                sharedNameDefs.push_back(CountingIntHelper(static_cast<int32_t>(i)));
             }
         }
     }
@@ -196,13 +196,13 @@ eWNTypeError WNCodeModule::GetNonCastableVirtualFunction(const wn_char* _name, c
     return( ok);
 }
 
-eWNTypeError WNCodeModule::GetThisCallFunction(const wn_char* _name, WNScriptType thisType, const std::vector<FunctionParam>& _params, wn_int32& _outIndex, WNFunctionDefinition*& _outDefinition) {
-    wn_int32 outIndex = -1;
+eWNTypeError WNCodeModule::GetThisCallFunction(const char* _name, WNScriptType thisType, const std::vector<FunctionParam>& _params, int32_t& _outIndex, WNFunctionDefinition*& _outDefinition) {
+    int32_t outIndex = -1;
 
     std::vector<CountingStructHelper> sharedNameDefs;
     eWNTypeError virtualErr = GetCastableVirtualFunction(_name, thisType, _params, outIndex);
 
-    wn_char funcName[2048];
+    char funcName[2048];
     while(thisType) {
         funcName[0] = '\0';
         if(_name[0] != '$') { //names starting with $ are special this means they are exposed
@@ -247,7 +247,7 @@ eWNTypeError WNCodeModule::GetThisCallFunction(const wn_char* _name, WNScriptTyp
         return(virtualErr);
     }
 
-    WNFunctionDefinition* perfectFunction = wn_nullptr;
+    WNFunctionDefinition* perfectFunction = nullptr;
     std::vector<CountingStructHelper>::iterator i = std::find_if(sharedNameDefs.begin(), sharedNameDefs.end(), [](CountingStructHelper& val){ return(val.numCasts == 0); });
     if(i != sharedNameDefs.end()) {
         perfectFunction = (*i).def;
@@ -280,18 +280,18 @@ eWNTypeError WNCodeModule::GetThisCallFunction(const wn_char* _name, WNScriptTyp
     return(perfectFunction? ok : eWNPartiallyAmbiguous);
 }
 
-eWNTypeError WNCodeModule::GetCastableVirtualFunction(const wn_char* _name, const WNScriptType thisType, const std::vector<FunctionParam>& _params, wn_int32& _outIndex) {
+eWNTypeError WNCodeModule::GetCastableVirtualFunction(const char* _name, const WNScriptType thisType, const std::vector<FunctionParam>& _params, int32_t& _outIndex) {
     if(thisType->mVTable.size() == 0) {
         return(does_not_exist);
     }
     std::vector<WNFunctionDefinition*>& functions = thisType->mVTable;
      std::vector<CountingIntHelper> sharedNameDefs;
-    for(wn_size_t i = 0; i < functions.size(); ++i) {
-        const wn_char* lookupFunc = wn::memory::strstr(functions[i]->mName, "$");
+    for(size_t i = 0; i < functions.size(); ++i) {
+        const char* lookupFunc = wn::memory::strstr(functions[i]->mName, "$");
         lookupFunc = lookupFunc == NULL? functions[i]->mName: lookupFunc + 1;
         if(wn::memory::strcmp(lookupFunc, _name) == 0) {
             if(functions[i]->mTypes.size() == _params.size() + 1) {
-                sharedNameDefs.push_back(CountingIntHelper(static_cast<wn_int32>(i)));
+                sharedNameDefs.push_back(CountingIntHelper(static_cast<int32_t>(i)));
             }
         }
     }
@@ -314,7 +314,7 @@ eWNTypeError WNCodeModule::GetCastableVirtualFunction(const wn_char* _name, cons
     if(sharedNameDefs.empty()) {
         return(error);
     }
-    wn_int32 perfectFunction = -1;
+    int32_t perfectFunction = -1;
     std::vector<CountingIntHelper>::iterator i = std::find_if(sharedNameDefs.begin(), sharedNameDefs.end(), [](CountingIntHelper& val){ return(val.numCasts == 0); });
     if(i != sharedNameDefs.end()) {
         perfectFunction = (*i).def;
@@ -333,7 +333,7 @@ eWNTypeError WNCodeModule::GetCastableVirtualFunction(const wn_char* _name, cons
     return((perfectFunction >=0)? ok : eWNPartiallyAmbiguous);
 }
 
-eWNTypeError WNCodeModule::GetCastableFunctionDefinition(const wn_char* _name, const std::vector<WNScriptType>& _params, WNFunctionDefinition*& _outDefinition) {
+eWNTypeError WNCodeModule::GetCastableFunctionDefinition(const char* _name, const std::vector<WNScriptType>& _params, WNFunctionDefinition*& _outDefinition) {
     std::vector<CountingStructHelper> sharedNameDefs;
 
     for(std::vector<WNFunctionDefinition*>::iterator i = mFunctions.begin(); i != mFunctions.end(); ++i) {
@@ -363,7 +363,7 @@ eWNTypeError WNCodeModule::GetCastableFunctionDefinition(const wn_char* _name, c
         return(error);
     }
 
-    WNFunctionDefinition* perfectFunction = wn_nullptr;
+    WNFunctionDefinition* perfectFunction = nullptr;
     std::vector<CountingStructHelper>::iterator i = std::find_if(sharedNameDefs.begin(), sharedNameDefs.end(), [](CountingStructHelper& val){ return(val.numCasts == 0); });
     if(i != sharedNameDefs.end()) {
         perfectFunction = (*i).def;
@@ -382,7 +382,7 @@ eWNTypeError WNCodeModule::GetCastableFunctionDefinition(const wn_char* _name, c
     return(perfectFunction? ok : eWNPartiallyAmbiguous);
 }
 
-eWNTypeError WNCodeModule::GenerateFunctionDefinition(const wn_char* _name, const std::vector<WNScriptType>& _params, const WNScriptType& _return, WNFunctionDefinition*& _outFunctionDefinition, WNScriptType _thisType, bool _virtual) {
+eWNTypeError WNCodeModule::GenerateFunctionDefinition(const char* _name, const std::vector<WNScriptType>& _params, const WNScriptType& _return, WNFunctionDefinition*& _outFunctionDefinition, WNScriptType _thisType, bool _virtual) {
     _outFunctionDefinition = GetFunctionDefinition(_name, _params);
     if(_outFunctionDefinition){
         return(eWNAlreadyExists);
@@ -391,9 +391,9 @@ eWNTypeError WNCodeModule::GenerateFunctionDefinition(const wn_char* _name, cons
     def->mName = wn::memory::strndup(_name, 256);
     def->mReturn = _return;
     def->mTypes.assign(_params.begin(), _params.end());
-    def->mFunction = wn_nullptr;
-    def->mFunctionType = wn_nullptr;
-    def->mFunctionPointer = wn_nullptr;
+    def->mFunction = nullptr;
+    def->mFunctionType = nullptr;
+    def->mFunctionPointer = nullptr;
     def->mThisType = _thisType;
     def->mIsVirtual = _virtual;
     def->mScriptingEngine = mScriptingEngine;
@@ -401,12 +401,12 @@ eWNTypeError WNCodeModule::GenerateFunctionDefinition(const wn_char* _name, cons
     return(ok);
 }
 
-eWNTypeError WNCodeModule::AddFunctionDefinition(const wn_char* _name, const std::vector<WNScriptType>& _params, const WNScriptType& _return, WNFunctionDefinition*& _outFunctionDefinition, WNFunctionDefinition*& _equivalentFunction, WNScriptType _thisType, bool _virtual) {
+eWNTypeError WNCodeModule::AddFunctionDefinition(const char* _name, const std::vector<WNScriptType>& _params, const WNScriptType& _return, WNFunctionDefinition*& _outFunctionDefinition, WNFunctionDefinition*& _equivalentFunction, WNScriptType _thisType, bool _virtual) {
     eWNTypeError err = GenerateFunctionDefinition(_name, _params, _return, _outFunctionDefinition, _thisType, _virtual);
     if(ok != err) {
         return(err);
     }
-     if(wn_nullptr != (_equivalentFunction = GetCallableEquivalent(_outFunctionDefinition))) {
+     if(nullptr != (_equivalentFunction = GetCallableEquivalent(_outFunctionDefinition))) {
         return(eWNAlreadyExists);
     }
     mFunctions.push_back(_outFunctionDefinition);
@@ -414,7 +414,7 @@ eWNTypeError WNCodeModule::AddFunctionDefinition(const wn_char* _name, const std
 }
 
 eWNTypeError WNCodeModule::AddExternalScriptFunction(WNFunctionDefinition* _functionDefinition,WNFunctionDefinition*& _equivalentFunction) {
-    if(wn_nullptr != (_equivalentFunction = GetCallableEquivalent(_functionDefinition))) {
+    if(nullptr != (_equivalentFunction = GetCallableEquivalent(_functionDefinition))) {
         return(eWNAlreadyExists);
     }
     mFunctions.push_back(_functionDefinition);
@@ -422,7 +422,7 @@ eWNTypeError WNCodeModule::AddExternalScriptFunction(WNFunctionDefinition* _func
     return(ok);
 }
 
-bool WNCodeModule::NamedFunctionExists(const wn_char* _name) const {
+bool WNCodeModule::NamedFunctionExists(const char* _name) const {
     for(std::vector<WNFunctionDefinition*>::const_iterator i = mFunctions.begin(); i != mFunctions.end(); ++i) {
         if(wn::memory::strcmp((*i)->mName, _name) == 0) {
             return(true);
@@ -431,7 +431,7 @@ bool WNCodeModule::NamedFunctionExists(const wn_char* _name) const {
     return(false);
 }
 
-eWNTypeError WNCodeModule::AddExternalDefinition(const wn_char* _name, const wn_char* _tag, WNScriptType _thisType, const std::vector<WNScriptType>& _params, const WNScriptType& _return) {
+eWNTypeError WNCodeModule::AddExternalDefinition(const char* _name, const char* _tag, WNScriptType _thisType, const std::vector<WNScriptType>& _params, const WNScriptType& _return) {
     if(GetFunctionDefinition(_name, _params)) {
         return(eWNAlreadyExists);
     }
@@ -456,11 +456,11 @@ eWNTypeError WNCodeModule::AddExternalDefinition(const wn_char* _name, const wn_
 }
 
 WNFunctionDefinition* WNCodeModule::GetCallableEquivalent(WNFunctionDefinition* def) const {
-    const wn_char* _name = wn::memory::strstr(def->mName, "$");
+    const char* _name = wn::memory::strstr(def->mName, "$");
     _name = _name == NULL? def->mName: _name + 1;
 
-    for(wn_size_t i = 0; i < mFunctions.size(); ++i) {
-        const wn_char* lookupFunc = wn::memory::strstr(mFunctions[i]->mName, "$");
+    for(size_t i = 0; i < mFunctions.size(); ++i) {
+        const char* lookupFunc = wn::memory::strstr(mFunctions[i]->mName, "$");
         lookupFunc = lookupFunc == NULL? mFunctions[i]->mName: lookupFunc + 1;
         if(wn::memory::strcmp(lookupFunc, _name) == 0) {
             if(mFunctions[i]->mTypes.size() == def->mTypes.size()) {
@@ -485,5 +485,5 @@ WNFunctionDefinition* WNCodeModule::GetCallableEquivalent(WNFunctionDefinition* 
             }
         }
     }
-    return(wn_nullptr);
+    return(nullptr);
 }

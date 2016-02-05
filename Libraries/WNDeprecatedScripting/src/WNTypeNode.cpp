@@ -29,7 +29,7 @@ eWNTypeError WNTypeNode::GetType(WNTypeManager& _manager, WNScriptType& _outType
         LogLine(_compilationLog, WNLogging::eError);
         return(err);
     }
-    for(wn_size_t i = 0; i < mNumArrayLevels; ++i) {
+    for(size_t i = 0; i < mNumArrayLevels; ++i) {
         if(ok != (err = _manager.get_array_of(_outType, _outType))) {
             _compilationLog.Log(WNLogging::eError, 0, "Could not find type ", mCustomType);
             LogLine(_compilationLog, WNLogging::eError);

@@ -20,13 +20,13 @@ WNScopedVariableListImpl::~WNScopedVariableListImpl() {
 }
 
 eWNTypeError WNScopedVariableListImpl::PushVariable(WNScriptVariable* _variable) {
-    WN_DEBUG_ASSERT(_variable != wn_nullptr);
+    WN_DEBUG_ASSERT(_variable != nullptr);
     if(!mScriptVariables.empty()) {
-        for(wn_int64 i = mScriptVariables.size() - 1; i >= 0; --i) {
-            if(!mScriptVariables[static_cast<wn_size_t>(i)]) {
+        for(int64_t i = mScriptVariables.size() - 1; i >= 0; --i) {
+            if(!mScriptVariables[static_cast<size_t>(i)]) {
                 break;
             }
-            if(0 == wn::memory::strncmp(_variable->GetName(), mScriptVariables[static_cast<wn_size_t>(i)]->GetName(), 256)) {
+            if(0 == wn::memory::strncmp(_variable->GetName(), mScriptVariables[static_cast<size_t>(i)]->GetName(), 256)) {
                 return(eWNAlreadyExists);
             }
         }
@@ -37,11 +37,11 @@ eWNTypeError WNScopedVariableListImpl::PushVariable(WNScriptVariable* _variable)
     return(ok);
 }
 
-wn_void WNScopedVariableListImpl::PushScopeBlock(WNCodeModule& _module) {
+void WNScopedVariableListImpl::PushScopeBlock(WNCodeModule& _module) {
     llvm::IRBuilder<>* builder = reinterpret_cast<llvm::IRBuilder<>* >(_module.GetBuilder());
     llvm::Function* fnc = llvm::Intrinsic::getDeclaration(_module.GetModule(), llvm::Intrinsic::stacksave);
     mScopeBlocks.push_back(builder->CreateCall(fnc, llvm::ArrayRef<llvm::Value*>(), ""));
-    mScriptVariables.push_back(wn_nullptr);
+    mScriptVariables.push_back(nullptr);
 }
 
 eWNTypeError WNScopedVariableListImpl::GenerateReturn(WNCodeModule& _module, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog) {
@@ -49,14 +49,14 @@ eWNTypeError WNScopedVariableListImpl::GenerateReturn(WNCodeModule& _module, con
     if(mScriptVariables.empty()) {
         return(ok);
     }
-    for(wn_int64 i = mScriptVariables.size() - 1; i >= 0; --i) {
-        if(mScriptVariables[static_cast<wn_size_t>(i)] == wn_nullptr || !mScriptVariables[static_cast<wn_size_t>(i)]->Clean()) {
+    for(int64_t i = mScriptVariables.size() - 1; i >= 0; --i) {
+        if(mScriptVariables[static_cast<size_t>(i)] == nullptr || !mScriptVariables[static_cast<size_t>(i)]->Clean()) {
             continue;
         }
 
-        const GenerateDestruction* dest = _module.GetTypeManager().GetDestructionOperation(mScriptVariables[static_cast<wn_size_t>(i)]->GetType());
+        const GenerateDestruction* dest = _module.GetTypeManager().GetDestructionOperation(mScriptVariables[static_cast<size_t>(i)]->GetType());
         if(dest) {
-            if(ok != (err = dest->Execute(_module, mScriptVariables[static_cast<wn_size_t>(i)]->GetType(), mScriptVariables[static_cast<wn_size_t>(i)]->GetLocation(), _def, _compilationLog)))
+            if(ok != (err = dest->Execute(_module, mScriptVariables[static_cast<size_t>(i)]->GetType(), mScriptVariables[static_cast<size_t>(i)]->GetLocation(), _def, _compilationLog)))
             {
                 return(err);
             }
@@ -65,12 +65,12 @@ eWNTypeError WNScopedVariableListImpl::GenerateReturn(WNCodeModule& _module, con
     return(ok);
 }
 
-wn_void WNScopedVariableListImpl::ClearScope() {
+void WNScopedVariableListImpl::ClearScope() {
     if(mScriptVariables.empty()) {
         return;
     }
-    for(wn_int32 i = static_cast<wn_int32>(mScriptVariables.size()) - 1; i >= 0; --i) {
-        if(mScriptVariables[wn_size_t(i)] == wn_nullptr) {
+    for(int32_t i = static_cast<int32_t>(mScriptVariables.size()) - 1; i >= 0; --i) {
+        if(mScriptVariables[size_t(i)] == nullptr) {
             mScriptVariables.pop_back();
             continue;
         }
@@ -79,25 +79,25 @@ wn_void WNScopedVariableListImpl::ClearScope() {
     }
 }
 
-eWNTypeError WNScopedVariableListImpl::PopScopeBlock(WNCodeModule& _module, wn_bool _cleanStack, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog) {
+eWNTypeError WNScopedVariableListImpl::PopScopeBlock(WNCodeModule& _module, bool _cleanStack, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog) {
     eWNTypeError err = ok;
 
     WN_DEBUG_ASSERT(!mScriptVariables.empty() && !mScopeBlocks.empty());
     llvm::IRBuilder<>* builder = reinterpret_cast<llvm::IRBuilder<>* >(_module.GetBuilder());
-    for(wn_int32 i = static_cast<wn_int32>(mScriptVariables.size()) - 1; i >= 0; --i) {
-        if(mScriptVariables[static_cast<wn_size_t>(i)] == wn_nullptr) {
+    for(int32_t i = static_cast<int32_t>(mScriptVariables.size()) - 1; i >= 0; --i) {
+        if(mScriptVariables[static_cast<size_t>(i)] == nullptr) {
             mScriptVariables.pop_back();
             break;
         }
         if(_cleanStack) {
-            const GenerateDestruction* dest = _module.GetTypeManager().GetDestructionOperation(mScriptVariables[static_cast<wn_size_t>(i)]->GetType());
+            const GenerateDestruction* dest = _module.GetTypeManager().GetDestructionOperation(mScriptVariables[static_cast<size_t>(i)]->GetType());
             if(dest) {
-                if(ok != (err = dest->Execute(_module, mScriptVariables[i]->GetType(), mScriptVariables[static_cast<wn_size_t>(i)]->GetLocation(), _def, _compilationLog))) {
+                if(ok != (err = dest->Execute(_module, mScriptVariables[i]->GetType(), mScriptVariables[static_cast<size_t>(i)]->GetLocation(), _def, _compilationLog))) {
                     return(err);
                 }
             }
         }
-        wn::memory::destroy(mScriptVariables[static_cast<wn_size_t>(i)]);
+        wn::memory::destroy(mScriptVariables[static_cast<size_t>(i)]);
         mScriptVariables.pop_back();
     }
     if(_cleanStack) {
@@ -108,14 +108,14 @@ eWNTypeError WNScopedVariableListImpl::PopScopeBlock(WNCodeModule& _module, wn_b
     return(ok);
 }
 
-const WNScriptVariable* WNScopedVariableListImpl::GetVariable(const wn_char* _variableName) {
+const WNScriptVariable* WNScopedVariableListImpl::GetVariable(const char* _variableName) {
     if(mScriptVariables.empty()) {
-        return(wn_nullptr);
+        return(nullptr);
     }
-    for(wn_int64 i = mScriptVariables.size() - 1; i >= 0; --i) {
-        if(mScriptVariables[static_cast<wn_size_t>(i)] && (0 == wn::memory::strncmp(_variableName, mScriptVariables[static_cast<wn_size_t>(i)]->GetName(), 256))) {
-            return(mScriptVariables[static_cast<wn_size_t>(i)]);
+    for(int64_t i = mScriptVariables.size() - 1; i >= 0; --i) {
+        if(mScriptVariables[static_cast<size_t>(i)] && (0 == wn::memory::strncmp(_variableName, mScriptVariables[static_cast<size_t>(i)]->GetName(), 256))) {
+            return(mScriptVariables[static_cast<size_t>(i)]);
         }
     }
-    return(wn_nullptr);
+    return(nullptr);
 }

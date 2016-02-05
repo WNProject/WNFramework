@@ -14,17 +14,17 @@ namespace WNScripting {
             mType(_type) {
         }
         WNParameter() :
-            mType(wn_nullptr) {
+            mType(nullptr) {
         }
         WNScriptType mType;
 
         union {
-            wn_size_t mSizetVal;
-            wn_uint32 mUint32Val;
-            wn_int32 mInt32Val;
-            wn_int64 mInt64val;
-            wn_float32 mFloatVal;
-            wn_float64 mDoubleVal;
+            size_t mSizetVal;
+            uint32_t mUint32Val;
+            int32_t mInt32Val;
+            int64_t mInt64val;
+            float mFloatVal;
+            double mDoubleVal;
         };
     };
 }

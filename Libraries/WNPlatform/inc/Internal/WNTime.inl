@@ -12,8 +12,8 @@
 #endif
 
 namespace wn {
-    WN_FORCE_INLINE wn_uint32 WNGetTime() {
-        return(static_cast<wn_uint32>(WNGetBigTime()));
+    WN_FORCE_INLINE uint32_t WNGetTime() {
+        return(static_cast<uint32_t>(WNGetBigTime()));
     }
 }
 

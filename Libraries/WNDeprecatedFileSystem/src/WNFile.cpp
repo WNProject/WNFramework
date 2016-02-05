@@ -20,14 +20,14 @@
 WNFileSystem::WNFile::WNFile() :
     mMaxBufferSize(0),
     mFileSize(0),
-    mFileBuffer(wn_nullptr),
+    mFileBuffer(nullptr),
     #ifdef _WN_WINDOWS
         mFileHandle(INVALID_HANDLE_VALUE),
     #elif defined _WN_LINUX || defined _WN_ANDROID
         mFileHandle(NULL),
     #endif
-    mIsFileOpen(wn_false),
-    mIsValid(wn_false) {
+    mIsFileOpen(false),
+    mIsValid(false) {
 }
 
 WNFileSystem::WNFile::~WNFile() {
@@ -50,7 +50,7 @@ WNFileSystem::WNFile::~WNFile() {
     #endif
 }
 
-WNFileSystem::WNFile::WNFileError WNFileSystem::WNFile::OpenFile(const wn_char* _name, wn_uint32 _mode) {
+WNFileSystem::WNFile::WNFileError WNFileSystem::WNFile::OpenFile(const char* _name, uint32_t _mode) {
     WN_DEBUG_ASSERT(!mIsFileOpen);
 
     mStream = (_mode & WNFileSystem::WNFile::eWNFMStream) == WNFileSystem::WNFile::eWNFMStream;
@@ -59,7 +59,7 @@ WNFileSystem::WNFile::WNFileError WNFileSystem::WNFile::OpenFile(const wn_char* 
         return(WNFileSystem::WNFile::eWNFEBadMode);
     }
 
-    const wn_bool shouldCheckForFile = !(_mode & WNFileSystem::WNFile::eWNFMCreate);
+    const bool shouldCheckForFile = !(_mode & WNFileSystem::WNFile::eWNFMCreate);
 
     if (shouldCheckForFile && !DoesFileExist(_name)) {
         return(WNFileSystem::WNFile::does_not_exist);
@@ -78,7 +78,7 @@ WNFileSystem::WNFile::WNFileError WNFileSystem::WNFile::OpenFile(const wn_char* 
             creationDisposition = CREATE_ALWAYS;
         }
 
-        mFileHandle = CreateFile(_name, accessType, sharing, wn_nullptr, creationDisposition, 0, 0);
+        mFileHandle = CreateFile(_name, accessType, sharing, nullptr, creationDisposition, 0, 0);
 
         if (mFileHandle == INVALID_HANDLE_VALUE) {
             return(WNFileSystem::WNFile::eWNFEBadMode);
@@ -93,13 +93,13 @@ WNFileSystem::WNFile::WNFileError WNFileSystem::WNFile::OpenFile(const wn_char* 
                 return(WNFileSystem::WNFile::eWNFEBadMode);
             }
 
-            if (static_cast<LONGLONG>(static_cast<wn_size_t>(filesize.QuadPart)) != filesize.QuadPart) {
+            if (static_cast<LONGLONG>(static_cast<size_t>(filesize.QuadPart)) != filesize.QuadPart) {
                 CloseHandle(mFileHandle);
 
                 return(WNFileSystem::WNFile::eWNFETooLarge);
             }
 
-            mFileSize = static_cast<wn_size_t>(filesize.QuadPart);
+            mFileSize = static_cast<size_t>(filesize.QuadPart);
         }
     #elif defined _WN_LINUX || defined _WN_ANDROID
         if (_mode & WNFileSystem::WNFile::eWNFMClobber) {
@@ -127,36 +127,36 @@ WNFileSystem::WNFile::WNFileError WNFileSystem::WNFile::OpenFile(const wn_char* 
         fseek(mFileHandle, 0L, SEEK_SET);
     #endif
 
-    mIsFileOpen = wn_true;
+    mIsFileOpen = true;
     mFileMode = _mode;
-    mIsValid = wn_true;
+    mIsValid = true;
 
     return(WNFileSystem::WNFile::ok);
 }
 
-wn_size_t WNFileSystem::WNFile::GetFileSize() const {
+size_t WNFileSystem::WNFile::GetFileSize() const {
     return(mFileSize);
 }
 
-wn_char* WNFileSystem::WNFile::GetFolderName(const wn_char* _name) {
+char* WNFileSystem::WNFile::GetFolderName(const char* _name) {
     std::string str(_name);
-    wn_size_t loc = str.find_last_of("/\\");
+    size_t loc = str.find_last_of("/\\");
     if(loc == std::string::npos) {
         return(wn::memory::strndup("", 2));
     }
     return(wn::memory::strndup(_name, loc + 1));
 }
 
-wn_char* WNFileSystem::WNFile::GetFileName(const wn_char* _name) {
+char* WNFileSystem::WNFile::GetFileName(const char* _name) {
     std::string str(_name);
-    wn_size_t loc = str.find_last_of("/\\");
+    size_t loc = str.find_last_of("/\\");
     if(loc == std::string::npos) {
       return(wn::memory::strndup(_name, 1024));
     }
     return(wn::memory::strndup(_name + loc, wn::memory::strlen(_name) - loc + 1));
 }
 
-wn_bool WNFileSystem::WNFile::DeleteFile(const wn_char* _name) {
+bool WNFileSystem::WNFile::DeleteFile(const char* _name) {
 #ifdef _WN_WINDOWS
     return(::DeleteFile(_name) == TRUE);
 #else
@@ -164,13 +164,13 @@ wn_bool WNFileSystem::WNFile::DeleteFile(const wn_char* _name) {
 #endif
 }
 
-wn_void WNFileSystem::WNFile::CollapseFolderStructure(wn_char* _name) {
-    wn_char* lastSeperator = _name;
-    wn_char* olderSeperator = wn_nullptr;
-    wn_bool lastDot = false;
-    wn_bool lastDoubleDot = false;
-    wn_bool collapsed = false;
-    for(wn_char* it = _name ; *it != '\0'; ++it) {
+void WNFileSystem::WNFile::CollapseFolderStructure(char* _name) {
+    char* lastSeperator = _name;
+    char* olderSeperator = nullptr;
+    bool lastDot = false;
+    bool lastDoubleDot = false;
+    bool collapsed = false;
+    for(char* it = _name ; *it != '\0'; ++it) {
         if(*it == '\\') {
             *it = '/';
         }
@@ -213,16 +213,16 @@ wn_void WNFileSystem::WNFile::CollapseFolderStructure(wn_char* _name) {
 }
 
 
-wn_bool WNFileSystem::WNFile::DoesFileExist(const wn_char* _name) {
+bool WNFileSystem::WNFile::DoesFileExist(const char* _name) {
     #ifdef _WN_WINDOWS
         const DWORD fileAttributes = GetFileAttributes(_name);
 
         if (fileAttributes == INVALID_FILE_ATTRIBUTES) {
-            return(wn_false);
+            return(false);
         }
 
         if ((fileAttributes & FILE_ATTRIBUTE_NORMAL) == fileAttributes) {
-            return(wn_true);
+            return(true);
         }
 
         if ((fileAttributes & FILE_ATTRIBUTE_DIRECTORY) ||
@@ -230,36 +230,36 @@ wn_bool WNFileSystem::WNFile::DoesFileExist(const wn_char* _name) {
             (fileAttributes & FILE_ATTRIBUTE_OFFLINE) ||
             (fileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) ||
             (fileAttributes & FILE_ATTRIBUTE_SYSTEM)) {
-                return(wn_false);
+                return(false);
         }
     #elif defined _WN_LINUX || defined _WN_ANDROID
         FILE* file;
 
-        if ((file = fopen(_name, "r")) == wn_nullptr) {
-            return(wn_false);
+        if ((file = fopen(_name, "r")) == nullptr) {
+            return(false);
         }
 
         fclose(file);
     #endif
 
-    return(wn_true);
+    return(true);
 }
 
-wn_char* WNFileSystem::WNFile::GetDataBuffer() {
+char* WNFileSystem::WNFile::GetDataBuffer() {
     WN_DEBUG_ASSERT_DESC(!mStream, "You cannot get a data buffer for a streamed file");
 
-    if (mFileBuffer != wn_nullptr || mFileSize == 0) {
+    if (mFileBuffer != nullptr || mFileSize == 0) {
         return(mFileBuffer);
     }
 
-    mFileBuffer = wn::memory::heap_allocate<wn_char>(mFileSize);
+    mFileBuffer = wn::memory::heap_allocate<char>(mFileSize);
 
-    if (mFileBuffer == wn_nullptr) {
-        return(wn_nullptr);
+    if (mFileBuffer == nullptr) {
+        return(nullptr);
     }
 
     #ifdef _WN_WINDOWS
-        wn_size_t readLeft = mFileSize;
+        size_t readLeft = mFileSize;
 
         do {
             const DWORD maxRead = (static_cast<DWORD>(readLeft) == readLeft) ? static_cast<DWORD>(readLeft) : -1;
@@ -269,53 +269,53 @@ wn_char* WNFileSystem::WNFile::GetDataBuffer() {
                           mFileBuffer + (mFileSize - readLeft),
                           maxRead,
                           &amountRead,
-                          wn_nullptr)) {
+                          nullptr)) {
                     wn::memory::heap_free(mFileBuffer);
 
-                    return(wn_nullptr);
+                    return(nullptr);
             }
 
             readLeft -= amountRead;
         } while (readLeft > 0);
     #elif defined _WN_LINUX || defined _WN_ANDROID
         if(!mFileHandle) {
-            return(wn_nullptr);
+            return(nullptr);
         }
-        if (fread(mFileBuffer, sizeof(wn_char), mFileSize, static_cast<FILE*>(mFileHandle)) != mFileSize) {
+        if (fread(mFileBuffer, sizeof(char), mFileSize, static_cast<FILE*>(mFileHandle)) != mFileSize) {
             wn::memory::heap_free(mFileBuffer);
 
-            return(wn_nullptr);
+            return(nullptr);
         }
     #endif
 
     return(mFileBuffer);
 }
 
-wn_char* WNFileSystem::WNFile::ResizeDataBuffer(wn_size_t _size) {
+char* WNFileSystem::WNFile::ResizeDataBuffer(size_t _size) {
     if (mFileBuffer) {
         mFileBuffer = wn::memory::heap_reallocate(mFileBuffer, _size);
     } else {
-        mFileBuffer = wn::memory::heap_allocate<wn_char>(_size);
+        mFileBuffer = wn::memory::heap_allocate<char>(_size);
     }
 
     mFileSize = _size;
 
     if (mFileSize > 0) {
-        WN_RELEASE_ASSERT(mFileBuffer != wn_nullptr);
+        WN_RELEASE_ASSERT(mFileBuffer != nullptr);
     }
 
     return(mFileBuffer);
 }
 
-wn_bool WNFileSystem::WNFile::CommitFileBuffer() {
-    WN_DEBUG_ASSERT(mFileBuffer != wn_nullptr);
+bool WNFileSystem::WNFile::CommitFileBuffer() {
+    WN_DEBUG_ASSERT(mFileBuffer != nullptr);
 
     if (!(mFileMode & WNFileSystem::WNFile::eWNFMWrite)) {
-        return(wn_false);
+        return(false);
     }
 
     #ifdef _WN_WINDOWS
-        wn_size_t writeLeft = mFileSize;
+        size_t writeLeft = mFileSize;
 
         do {
             const DWORD maxWrite = (static_cast<DWORD>(writeLeft) == writeLeft) ? static_cast<DWORD>(writeLeft) : -1;
@@ -325,31 +325,31 @@ wn_bool WNFileSystem::WNFile::CommitFileBuffer() {
                            mFileBuffer + (mFileSize - writeLeft),
                            maxWrite,
                            &amountWrote,
-                           wn_nullptr)) {
-                    return(wn_false);
+                           nullptr)) {
+                    return(false);
             }
 
             writeLeft -= amountWrote;
         } while (writeLeft > 0);
     #elif defined _WN_LINUX || defined _WN_ANDROID
-        if (fwrite(mFileBuffer, sizeof(wn_char), mFileSize, mFileHandle) != mFileSize) {
-            return(wn_false);
+        if (fwrite(mFileBuffer, sizeof(char), mFileSize, mFileHandle) != mFileSize) {
+            return(false);
         }
 
         if (fflush(mFileHandle) == EOF) {
-            return(wn_false);
+            return(false);
         }
     #endif
 
-    return(wn_true);
+    return(true);
 }
 
-wn_size_t WNFileSystem::WNFile::ReadData(wn_char* _outBuffer, wn_size_t _amount) {
-    WN_DEBUG_ASSERT(_outBuffer != wn_nullptr && _amount > 0);
+size_t WNFileSystem::WNFile::ReadData(char* _outBuffer, size_t _amount) {
+    WN_DEBUG_ASSERT(_outBuffer != nullptr && _amount > 0);
 
     #ifdef _WN_WINDOWS
-        wn_size_t totalRead = 0;
-        wn_size_t readLeft = _amount;
+        size_t totalRead = 0;
+        size_t readLeft = _amount;
         DWORD amountRead = 0;
 
         do {
@@ -359,7 +359,7 @@ wn_size_t WNFileSystem::WNFile::ReadData(wn_char* _outBuffer, wn_size_t _amount)
                           _outBuffer + (_amount - readLeft),
                           maxRead,
                           &amountRead,
-                          wn_nullptr)) {
+                          nullptr)) {
                     if (GetLastError() == ERROR_HANDLE_EOF) {
                         totalRead += amountRead;
 
@@ -382,7 +382,7 @@ wn_size_t WNFileSystem::WNFile::ReadData(wn_char* _outBuffer, wn_size_t _amount)
         if(!mFileHandle) {
             return(0);
         }
-        const wn_size_t amountRead = fread(_outBuffer, sizeof(wn_char), _amount, mFileHandle);
+        const size_t amountRead = fread(_outBuffer, sizeof(char), _amount, mFileHandle);
 
         if (amountRead != _amount) {
             if (feof(mFileHandle)) {
@@ -396,12 +396,12 @@ wn_size_t WNFileSystem::WNFile::ReadData(wn_char* _outBuffer, wn_size_t _amount)
     #endif
 }
 
-wn_size_t WNFileSystem::WNFile::WriteData(const wn_char* _inBuffer, wn_size_t _amount) {
-    WN_DEBUG_ASSERT(_inBuffer != wn_nullptr && _amount > 0);
+size_t WNFileSystem::WNFile::WriteData(const char* _inBuffer, size_t _amount) {
+    WN_DEBUG_ASSERT(_inBuffer != nullptr && _amount > 0);
 
     #ifdef _WN_WINDOWS
-        wn_size_t totalWritten = 0;
-        wn_size_t writeLeft = _amount;
+        size_t totalWritten = 0;
+        size_t writeLeft = _amount;
 
         do {
             const DWORD maxWrite = (static_cast<DWORD>(writeLeft) == writeLeft) ? static_cast<DWORD>(writeLeft) : -1;
@@ -411,7 +411,7 @@ wn_size_t WNFileSystem::WNFile::WriteData(const wn_char* _inBuffer, wn_size_t _a
                           _inBuffer + (_amount - writeLeft),
                            maxWrite,
                            &amountWrote,
-                           wn_nullptr)) {
+                           nullptr)) {
                return(0);
             }
 
@@ -421,7 +421,7 @@ wn_size_t WNFileSystem::WNFile::WriteData(const wn_char* _inBuffer, wn_size_t _a
 
         return(totalWritten);
     #elif defined _WN_LINUX || defined _WN_ANDROID
-        const wn_size_t amountWritten = fwrite(_inBuffer, sizeof(wn_char), _amount, mFileHandle);
+        const size_t amountWritten = fwrite(_inBuffer, sizeof(char), _amount, mFileHandle);
 
         if (amountWritten != _amount) {
             return(0);
@@ -431,6 +431,6 @@ wn_size_t WNFileSystem::WNFile::WriteData(const wn_char* _inBuffer, wn_size_t _a
     #endif
 }
 
-wn_bool WNFileSystem::WNFile::IsValid() {
+bool WNFileSystem::WNFile::IsValid() {
     return(mIsValid);
 }

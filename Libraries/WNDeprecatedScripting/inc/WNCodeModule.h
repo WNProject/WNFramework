@@ -29,7 +29,7 @@ namespace WNScripting {
     class WNScriptingEngine;
 
     struct WNPreprocessedFile {
-        const wn_char* mFileName;
+        const char* mFileName;
         bool mMarked;
         std::vector<WNFunctionDefinition*> mFunctionDefinitions;
         std::vector<WNScriptType>          mExposedTypes;
@@ -39,21 +39,21 @@ namespace WNScripting {
 
     struct WNFunctionDefinition {
         WNFunctionDefinition():
-            mName(wn_nullptr),
-            mTag(wn_nullptr),
-            mReturn(wn_nullptr),
-            mThisType(wn_nullptr),
-            mFunction(wn_nullptr),
-            mFunctionType(wn_nullptr),
+            mName(nullptr),
+            mTag(nullptr),
+            mReturn(nullptr),
+            mThisType(nullptr),
+            mFunction(nullptr),
+            mFunctionType(nullptr),
             mCurrentFile(false),
-            mContainedFile(wn_nullptr),
-            mFunctionPointer(wn_nullptr),
+            mContainedFile(nullptr),
+            mFunctionPointer(nullptr),
             mIsVirtual(false),
-            mScriptingEngine(wn_nullptr)
+            mScriptingEngine(nullptr)
         {
         }
-        wn_char* mName;
-        wn_char* mTag;
+        char* mName;
+        char* mTag;
         WNScriptType mReturn;
         WNScriptType mThisType;
         std::vector<WNScriptType> mTypes;
@@ -62,7 +62,7 @@ namespace WNScripting {
         bool mCurrentFile;
         WNPreprocessedFile* mContainedFile;
         void* mFunctionPointer;
-        wn_bool mIsVirtual;
+        bool mIsVirtual;
         WNScriptingEngine* mScriptingEngine;
     };
 
@@ -74,21 +74,21 @@ namespace WNScripting {
     class WNCodeModule {
     public:
         WNCodeModule(WNTypeManager& _typeManager, WNScopedVariableList& _scopedVariableList, WNScriptingEngine* _scriptingEngine);
-        eWNTypeError initialize(wn_uint32 flags);
+        eWNTypeError initialize(uint32_t flags);
         llvm::ExecutionEngine* GetExecutionEngine();
         llvm::Module* GetModule();
         llvm::IRBuilderBase* GetBuilder();
-        WNFunctionDefinition* GetFunctionDefinition(const wn_char* _name, const std::vector<WNParameter>& _params);
-        WNFunctionDefinition* GetFunctionDefinition(const wn_char* _name, const std::vector<WNScriptType>& _params);
-        eWNTypeError GetCastableFunctionDefinition(const wn_char* _name, const std::vector<WNScriptType>& _params, WNFunctionDefinition*& _definition);
-        eWNTypeError GetCastableVirtualFunction(const wn_char* _name, const WNScriptType thisType, const std::vector<FunctionParam>& _params, wn_int32& _outIndex);
-        eWNTypeError GetNonCastableVirtualFunction(const wn_char* _name, const WNScriptType thisType, const std::vector<WNScriptType>& _params, wn_int32& _outIndex);
-        eWNTypeError AddFunctionDefinition(const wn_char* _name, const std::vector<WNScriptType>& _params, const WNScriptType& _return, WNFunctionDefinition*& _outFunctionDefinition, WNFunctionDefinition*& _equivalentFunction, WNScriptType _thisType = wn_nullptr, bool _virtual = false);
-        eWNTypeError GenerateFunctionDefinition(const wn_char* _name, const std::vector<WNScriptType>& _params, const WNScriptType& _return, WNFunctionDefinition*& _outFunctionDefinition, WNScriptType _thisType = wn_nullptr, bool _virtual = false);
-        eWNTypeError AddExternalDefinition(const wn_char* _name, const wn_char* _tag, const WNScriptType _thisType, const std::vector<WNScriptType>& _params, const WNScriptType& _return);
+        WNFunctionDefinition* GetFunctionDefinition(const char* _name, const std::vector<WNParameter>& _params);
+        WNFunctionDefinition* GetFunctionDefinition(const char* _name, const std::vector<WNScriptType>& _params);
+        eWNTypeError GetCastableFunctionDefinition(const char* _name, const std::vector<WNScriptType>& _params, WNFunctionDefinition*& _definition);
+        eWNTypeError GetCastableVirtualFunction(const char* _name, const WNScriptType thisType, const std::vector<FunctionParam>& _params, int32_t& _outIndex);
+        eWNTypeError GetNonCastableVirtualFunction(const char* _name, const WNScriptType thisType, const std::vector<WNScriptType>& _params, int32_t& _outIndex);
+        eWNTypeError AddFunctionDefinition(const char* _name, const std::vector<WNScriptType>& _params, const WNScriptType& _return, WNFunctionDefinition*& _outFunctionDefinition, WNFunctionDefinition*& _equivalentFunction, WNScriptType _thisType = nullptr, bool _virtual = false);
+        eWNTypeError GenerateFunctionDefinition(const char* _name, const std::vector<WNScriptType>& _params, const WNScriptType& _return, WNFunctionDefinition*& _outFunctionDefinition, WNScriptType _thisType = nullptr, bool _virtual = false);
+        eWNTypeError AddExternalDefinition(const char* _name, const char* _tag, const WNScriptType _thisType, const std::vector<WNScriptType>& _params, const WNScriptType& _return);
         eWNTypeError AddExternalScriptFunction(WNFunctionDefinition* functionDef,  WNFunctionDefinition*& _equivalentFunction);
-        eWNTypeError GetThisCallFunction(const wn_char* _name, const WNScriptType thisType, const std::vector<FunctionParam>& _params, wn_int32& _outIndex, WNFunctionDefinition*& _outDefinition);
-        bool NamedFunctionExists(const wn_char* _name) const;
+        eWNTypeError GetThisCallFunction(const char* _name, const WNScriptType thisType, const std::vector<FunctionParam>& _params, int32_t& _outIndex, WNFunctionDefinition*& _outDefinition);
+        bool NamedFunctionExists(const char* _name) const;
         WNTypeManager& GetTypeManager() const;
         WNScopedVariableList& GetScopedVariableList();
         const WNScriptingEngine* GetScriptingEngine() const;

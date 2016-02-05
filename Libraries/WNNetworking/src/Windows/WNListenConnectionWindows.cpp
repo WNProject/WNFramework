@@ -10,12 +10,12 @@
 
 using namespace WNNetworking;
 
-WNListenConnectionWindows::WNListenConnectionWindows(WNNetworkManager& _manager, WNConnectionType::type _type, wn_uint16 _port, WNConnectedCallback _connected) :
+WNListenConnectionWindows::WNListenConnectionWindows(WNNetworkManager& _manager, WNConnectionType::type _type, uint16_t _port, WNConnectedCallback _connected) :
     WNConnectionWindows(_manager),
     mPort(_port),
     mConnectedCallback(_connected),
     mType(_type),
-    mInitialized(wn_false) {
+    mInitialized(false) {
     WN_RELEASE_ASSERT_DESC(_type == WNConnectionType::eWNReliable, "We do not support unreliable connections yet");
 }
 
@@ -46,13 +46,13 @@ WNNetworkManagerReturnCode::type WNListenConnectionWindows::Initialize() {
         return(WNNetworkManagerReturnCode::eWNCannotCreateSocket);
     }
 
-    const wn_uint32 nameLen = wn::memory::snprintf(NULL, 0, "Listen:%d", mPort);
-    wn_char* name = wn::memory::heap_allocate<wn_char>(nameLen + 1);
+    const uint32_t nameLen = wn::memory::snprintf(NULL, 0, "Listen:%d", mPort);
+    char* name = wn::memory::heap_allocate<char>(nameLen + 1);
 
     wn::memory::snprintf(name, nameLen + 1, "Listen:%d", mPort);
 
     mConnectionName = name;
-    mInitialized = wn_true;
+    mInitialized = true;
 
     return(WNNetworkManagerReturnCode::ok);
 }

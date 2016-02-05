@@ -18,23 +18,23 @@
 namespace wn {
 namespace memory {
 
-WN_FORCE_INLINE wn_size_t strlen(const wn_char* str) {
+WN_FORCE_INLINE size_t strlen(const char* str) {
   WN_DEBUG_ASSERT_DESC(str, "string must not be nullptr");
 
   return(std::strlen(str));
 }
 
-WN_FORCE_INLINE wn_size_t strnlen(const wn_char* str, const wn_size_t count) {
+WN_FORCE_INLINE size_t strnlen(const char* str, const size_t count) {
   WN_DEBUG_ASSERT_DESC(str, "string must not be nullptr");
 
-  wn_size_t size = 0;
+  size_t size = 0;
 
   for (; size < count && str[size] != '\0'; ++size) {}
 
   return(size);
 }
 
-WN_FORCE_INLINE wn_char* strcpy(wn_char* dest, const wn_char* src) {
+WN_FORCE_INLINE char* strcpy(char* dest, const char* src) {
   WN_DEBUG_ASSERT_DESC(dest, "destination string must not be nullptr");
   WN_DEBUG_ASSERT_DESC(src, "source string must not be nullptr");
   WN_DEBUG_ASSERT_DESC(dest != src,
@@ -43,8 +43,8 @@ WN_FORCE_INLINE wn_char* strcpy(wn_char* dest, const wn_char* src) {
   return(std::strcpy(dest, src));
 }
 
-WN_FORCE_INLINE wn_char* strncpy(wn_char* dest, const wn_char* src,
-                                 const wn_size_t count) {
+WN_FORCE_INLINE char* strncpy(char* dest, const char* src,
+                                 const size_t count) {
   WN_DEBUG_ASSERT_DESC(dest, "destination string must not be nullptr");
   WN_DEBUG_ASSERT_DESC(src, "source string must not be nullptr");
   WN_DEBUG_ASSERT_DESC(dest != src,
@@ -53,7 +53,7 @@ WN_FORCE_INLINE wn_char* strncpy(wn_char* dest, const wn_char* src,
   return(std::strncpy(dest, src, count));
 }
 
-WN_FORCE_INLINE wn_char* strcat(wn_char* dest, const wn_char* src) {
+WN_FORCE_INLINE char* strcat(char* dest, const char* src) {
   WN_DEBUG_ASSERT_DESC(dest, "destination string must not be nullptr");
   WN_DEBUG_ASSERT_DESC(src, "source string must not be nullptr");
   WN_DEBUG_ASSERT_DESC(dest != src,
@@ -62,8 +62,8 @@ WN_FORCE_INLINE wn_char* strcat(wn_char* dest, const wn_char* src) {
   return(std::strcat(dest, src));
 }
 
-WN_FORCE_INLINE wn_char* strncat(wn_char* dest, const wn_char* src,
-                                 const wn_size_t count) {
+WN_FORCE_INLINE char* strncat(char* dest, const char* src,
+                                 const size_t count) {
   WN_DEBUG_ASSERT_DESC(dest, "destination string must not be nullptr");
   WN_DEBUG_ASSERT_DESC(src, "source string must not be nullptr");
   WN_DEBUG_ASSERT_DESC(dest != src,
@@ -72,26 +72,26 @@ WN_FORCE_INLINE wn_char* strncat(wn_char* dest, const wn_char* src,
   return(std::strncat(dest, src, count));
 }
 
-WN_FORCE_INLINE wn_int32 strcmp(const wn_char* lhs, const wn_char* rhs) {
+WN_FORCE_INLINE int32_t strcmp(const char* lhs, const char* rhs) {
   WN_DEBUG_ASSERT_DESC(lhs, "string must not be nullptr");
   WN_DEBUG_ASSERT_DESC(rhs, "string must not be nullptr");
 
   return(std::strcmp(lhs, rhs));
 }
 
-WN_FORCE_INLINE wn_int32 strncmp(const wn_char* lhs, const wn_char* rhs,
-                                  const wn_size_t count) {
+WN_FORCE_INLINE int32_t strncmp(const char* lhs, const char* rhs,
+                                  const size_t count) {
   WN_DEBUG_ASSERT_DESC(lhs, "string must not be nullptr");
   WN_DEBUG_ASSERT_DESC(rhs, "string must not be nullptr");
 
   return(std::strncmp(lhs, rhs, count));
 }
 
-WN_FORCE_INLINE wn_char* strdup(const wn_char* str) {
+WN_FORCE_INLINE char* strdup(const char* str) {
   WN_DEBUG_ASSERT_DESC(str, "string must not be nullptr");
 
-  const wn_size_t size = strlen(str);
-  wn_char* copy = heap_allocate<wn_char>(size + 1);
+  const size_t size = strlen(str);
+  char* copy = heap_allocate<char>(size + 1);
 
   if (copy) {
     if (size > 0) {
@@ -104,11 +104,11 @@ WN_FORCE_INLINE wn_char* strdup(const wn_char* str) {
   return(copy);
 }
 
-WN_FORCE_INLINE wn_char* strndup(const wn_char* str, const wn_size_t count) {
+WN_FORCE_INLINE char* strndup(const char* str, const size_t count) {
   WN_DEBUG_ASSERT_DESC(str, "string must not be nullptr");
 
-  const wn_size_t size = strnlen(str, count);
-  wn_char* copy = heap_allocate<wn_char>(size + 1);
+  const size_t size = strnlen(str, count);
+  char* copy = heap_allocate<char>(size + 1);
 
   if (copy) {
     if (size > 0) {
@@ -121,61 +121,61 @@ WN_FORCE_INLINE wn_char* strndup(const wn_char* str, const wn_size_t count) {
   return(copy);
 }
 
-WN_FORCE_INLINE wn_char* strchr(wn_char* str, const wn_char c) {
+WN_FORCE_INLINE char* strchr(char* str, const char c) {
   WN_DEBUG_ASSERT_DESC(str, "string must not be nullptr");
 
   return(std::strchr(str, c));
 }
 
-WN_FORCE_INLINE const wn_char* strchr(const wn_char* str, const wn_char c) {
+WN_FORCE_INLINE const char* strchr(const char* str, const char c) {
   WN_DEBUG_ASSERT_DESC(str, "string must not be nullptr");
 
   return(std::strchr(str, c));
 }
 
-WN_FORCE_INLINE wn_char* strnchr(wn_char* str, const wn_char c,
-                                 const wn_size_t count) {
+WN_FORCE_INLINE char* strnchr(char* str, const char c,
+                                 const size_t count) {
   WN_DEBUG_ASSERT_DESC(str, "string must not be nullptr");
   for (size_t i = 0; i < count; ++i) {
     if (str[i] == '\0') {
-      return wn_nullptr;
+      return nullptr;
     } else if (str[i] == c) {
       return &str[i];
     }
   }
-  return wn_nullptr;
+  return nullptr;
 }
 
-WN_FORCE_INLINE const wn_char* strnchr(const wn_char* str, const wn_char c,
-                                       const wn_size_t count) {
+WN_FORCE_INLINE const char* strnchr(const char* str, const char c,
+                                       const size_t count) {
   WN_DEBUG_ASSERT_DESC(str, "string must not be nullptr");
   for (size_t i = 0; i < count; ++i) {
     if (str[i] == '\0') {
-      return wn_nullptr;
+      return nullptr;
     } else if (str[i] == c) {
       return &str[i];
     }
   }
-  return wn_nullptr;
+  return nullptr;
 }
 
-WN_FORCE_INLINE wn_char* strstr(wn_char* lhs, const wn_char* rhs) {
+WN_FORCE_INLINE char* strstr(char* lhs, const char* rhs) {
   WN_DEBUG_ASSERT_DESC(lhs, "string must not be nullptr");
   WN_DEBUG_ASSERT_DESC(rhs, "string must not be nullptr");
 
   return(std::strstr(lhs, rhs));
 }
 
-WN_FORCE_INLINE const wn_char* strstr(const wn_char* lhs, const wn_char* rhs) {
+WN_FORCE_INLINE const char* strstr(const char* lhs, const char* rhs) {
   WN_DEBUG_ASSERT_DESC(lhs, "string must not be nullptr");
   WN_DEBUG_ASSERT_DESC(rhs, "string must not be nullptr");
 
   return(std::strstr(lhs, rhs));
 }
 
-WN_FORCE_INLINE wn_size_t strnhash(const wn_char* _str, wn_size_t _length) {
+WN_FORCE_INLINE size_t strnhash(const char* _str, size_t _length) {
   WN_DEBUG_ASSERT_DESC(_str, "string must not be nullptr");
-  wn_size_t hash = 0;
+  size_t hash = 0;
   for(size_t i = 0; i < _length && _str[i] != '\0'; ++i) {
     hash = _str[i] + (hash << 6) + (hash << 16) - hash;
   }
@@ -183,20 +183,20 @@ WN_FORCE_INLINE wn_size_t strnhash(const wn_char* _str, wn_size_t _length) {
   return(hash);
 }
 
-WN_FORCE_INLINE wn_size_t strhash(const wn_char* str) {
+WN_FORCE_INLINE size_t strhash(const char* str) {
   WN_DEBUG_ASSERT_DESC(str, "string must not be nullptr");
 
-  wn_size_t hash = 0;
-  wn_size_t c;
+  size_t hash = 0;
+  size_t c;
 
-  while ((c = static_cast<wn_size_t>(*(str++))) != 0) {
+  while ((c = static_cast<size_t>(*(str++))) != 0) {
     hash = c + (hash << 6) + (hash << 16) - hash;
   }
 
   return(hash);
 }
 
-WN_FORCE_INLINE wn_char* strlwr(wn_char* str) {
+WN_FORCE_INLINE char* strlwr(char* str) {
   WN_DEBUG_ASSERT_DESC(str, "string must not be nullptr");
 
   std::transform(str, str + strlen(str), str, ::tolower);
@@ -204,7 +204,7 @@ WN_FORCE_INLINE wn_char* strlwr(wn_char* str) {
   return(str);
 }
 
-WN_FORCE_INLINE wn_char* strnlwr(wn_char* str, const wn_size_t count) {
+WN_FORCE_INLINE char* strnlwr(char* str, const size_t count) {
   WN_DEBUG_ASSERT_DESC(str, "string must not be nullptr");
 
   std::transform(str, str + strnlen(str, count), str, ::tolower);
@@ -212,7 +212,7 @@ WN_FORCE_INLINE wn_char* strnlwr(wn_char* str, const wn_size_t count) {
   return(str);
 }
 
-WN_FORCE_INLINE wn_char* strupr(wn_char* str) {
+WN_FORCE_INLINE char* strupr(char* str) {
   WN_DEBUG_ASSERT_DESC(str, "string must not be nullptr");
 
   std::transform(str, str + strlen(str), str, ::toupper);
@@ -220,7 +220,7 @@ WN_FORCE_INLINE wn_char* strupr(wn_char* str) {
   return(str);
 }
 
-WN_FORCE_INLINE wn_char* strnupr(wn_char* str, const wn_size_t count) {
+WN_FORCE_INLINE char* strnupr(char* str, const size_t count) {
   WN_DEBUG_ASSERT_DESC(str, "string must not be nullptr");
 
   std::transform(str, str + strnlen(str, count), str, ::toupper);
@@ -228,31 +228,31 @@ WN_FORCE_INLINE wn_char* strnupr(wn_char* str, const wn_size_t count) {
   return(str);
 }
 
-WN_INLINE wn_int32 snprintf(wn_char* buffer, const wn_size_t count,
-                            const wn_char* format, ...) {
+WN_INLINE int32_t snprintf(char* buffer, const size_t count,
+                            const char* format, ...) {
   va_list argptr;
   va_start(argptr, format);
 
   #ifdef _WN_WINDOWS
-    wn_int32 ret_val = ::_vsnprintf(buffer, count, format, argptr);
+    int32_t ret_val = ::_vsnprintf(buffer, count, format, argptr);
   #else
-    wn_int32 ret_val = ::vsnprintf(buffer, count, format, argptr);
+    int32_t ret_val = ::vsnprintf(buffer, count, format, argptr);
   #endif
     va_end(argptr);
     return ret_val;
 }
 
-WN_FORCE_INLINE wn_size_t writeuint32(wn_char* _buffer, wn_uint32 _int, wn_size_t _maxSize) {
+WN_FORCE_INLINE size_t writeuint32(char* _buffer, uint32_t _int, size_t _maxSize) {
   WN_RELEASE_ASSERT_DESC(_maxSize > 0, "Must have at least room for 1 character to write out an integer");
 
-  wn_size_t counter = 0;
+  size_t counter = 0;
 
   for (;;) {
     if (counter >= _maxSize) {
       return(0);
     }
 
-    const wn_int8 test = _int % 10;
+    const int8_t test = _int % 10;
 
     _int -= test;
     _int /= 10;
@@ -264,7 +264,7 @@ WN_FORCE_INLINE wn_size_t writeuint32(wn_char* _buffer, wn_uint32 _int, wn_size_
   }
 
   //Right now the integer is in swapped order, fix that
-  for (wn_size_t i = 0; i < counter / 2; ++i) {
+  for (size_t i = 0; i < counter / 2; ++i) {
     _buffer[i] ^= _buffer[counter - i - 1];
     _buffer[counter - i - 1] ^= _buffer[i];
     _buffer[i] ^= _buffer[counter - i - 1];
@@ -273,10 +273,10 @@ WN_FORCE_INLINE wn_size_t writeuint32(wn_char* _buffer, wn_uint32 _int, wn_size_
   return(counter);
 }
 
-WN_FORCE_INLINE wn_size_t writeint32(wn_char* _buffer, wn_int32 _int, const wn_size_t _maxSize) {
+WN_FORCE_INLINE size_t writeint32(char* _buffer, int32_t _int, const size_t _maxSize) {
   WN_RELEASE_ASSERT_DESC(_maxSize > 0, "Must have at least 1 characters of space for a signed int");
 
-  wn_size_t counter = 0;
+  size_t counter = 0;
 
   if (_int < 0) {
     _buffer[counter] = '-';
@@ -285,7 +285,7 @@ WN_FORCE_INLINE wn_size_t writeint32(wn_char* _buffer, wn_int32 _int, const wn_s
     counter++;
   }
 
-  const wn_size_t actualInt = writeuint32(_buffer, static_cast<wn_uint32>(_int), _maxSize - counter);
+  const size_t actualInt = writeuint32(_buffer, static_cast<uint32_t>(_int), _maxSize - counter);
 
   if (actualInt == 0) {
     return(0);
@@ -296,32 +296,32 @@ WN_FORCE_INLINE wn_size_t writeint32(wn_char* _buffer, wn_int32 _int, const wn_s
   return(counter);
 }
 
-WN_FORCE_INLINE wn_size_t WNWriteSimpleFloat32(wn_char* _buffer, wn_float32 _flt, wn_size_t _maxSize) {
+WN_FORCE_INLINE size_t WNWriteSimpleFloat32(char* _buffer, float _flt, size_t _maxSize) {
   WN_RELEASE_ASSERT_DESC(_maxSize > 0, "Can not fill an empty buffer");
   if (_flt == 0.f) {
     _buffer[0] = '0';
     return(1);
   }
-  wn_float32 absFloat = _flt > 0.f ? _flt : -_flt;
+  float absFloat = _flt > 0.f ? _flt : -_flt;
   WN_RELEASE_ASSERT_DESC(absFloat < 10000000.f && absFloat > 0.0001, "Floating point writing should be limited");
-  wn_size_t numsLeft = 7;
-  wn_bool losingprecision = wn_false;
-  wn_size_t counter = 0;
+  size_t numsLeft = 7;
+  bool losingprecision = false;
+  size_t counter = 0;
   if (_flt < 0) {
     _buffer[counter++] = '-';
   }
 
-  wn_uint32 wholePart = static_cast<wn_uint32>(absFloat - fmodf(absFloat, 1.0f));
-  wn_size_t wholeChars = static_cast<wn_size_t>(writeuint32(_buffer + counter, wholePart, _maxSize - counter));
+  uint32_t wholePart = static_cast<uint32_t>(absFloat - fmodf(absFloat, 1.0f));
+  size_t wholeChars = static_cast<size_t>(writeuint32(_buffer + counter, wholePart, _maxSize - counter));
   if (wholeChars == 0) {
     return(0);
   }
   counter += wholeChars;
   if (wholePart != 0) {
-    losingprecision = wn_true;
+    losingprecision = true;
     numsLeft -= wholeChars;
   }
-  wn_float32 floatPart = fmodf(absFloat, 1.0f);
+  float floatPart = fmodf(absFloat, 1.0f);
   if (floatPart == 0.f || numsLeft <= 0) {
     return(counter);
   }
@@ -335,11 +335,11 @@ WN_FORCE_INLINE wn_size_t WNWriteSimpleFloat32(wn_char* _buffer, wn_float32 _flt
       return(0);
     }
     floatPart *= 10.0f;
-    wn_byte bPart = static_cast<wn_byte>(floatPart - fmodf(floatPart, 1.0f));
+    uint8_t bPart = static_cast<uint8_t>(floatPart - fmodf(floatPart, 1.0f));
     floatPart = fmodf(floatPart, 1.0f);
     _buffer[counter++] = '0' + bPart;
     if (bPart != 0) {
-      losingprecision = wn_true;
+      losingprecision = true;
     }
     if (losingprecision) {
       numsLeft -= 1;
@@ -348,24 +348,24 @@ WN_FORCE_INLINE wn_size_t WNWriteSimpleFloat32(wn_char* _buffer, wn_float32 _flt
   return(counter);
 }
 
-WN_FORCE_INLINE wn_size_t WNWriteFloat32(wn_char* _buffer, wn_float32 _flt, wn_size_t _maxSize) {
+WN_FORCE_INLINE size_t WNWriteFloat32(char* _buffer, float _flt, size_t _maxSize) {
   WN_RELEASE_ASSERT_DESC(_maxSize > 0, "Can not fill an empty buffer");
   if (fabs(_flt) < 10000000.f && fabs(_flt) > 0.0001) {
     return(WNWriteSimpleFloat32(_buffer, _flt, _maxSize));
   }
 
-  const wn_float32 LOG10_LOG2 = 3.321928095f;
-  wn_int32 exp = 0;
-  wn_bool neg = (_flt < 0.0f);
+  const float LOG10_LOG2 = 3.321928095f;
+  int32_t exp = 0;
+  bool neg = (_flt < 0.0f);
   _flt *= (neg ? -1.0f : 1.0f);
-  wn_float32 base = frexpf(_flt, &exp);
-  wn_bool negExp = (exp < 0);
+  float base = frexpf(_flt, &exp);
+  bool negExp = (exp < 0);
   exp *= (negExp ? -1 : 1);
-  wn_float32 exp10 = static_cast<wn_float32>(exp) / LOG10_LOG2;
-  wn_float32 multiplier = fmodf(exp10, 1.0f) * (negExp ? -1.0f : 1.0f);
+  float exp10 = static_cast<float>(exp) / LOG10_LOG2;
+  float multiplier = fmodf(exp10, 1.0f) * (negExp ? -1.0f : 1.0f);
   base *= powf(10.0f, multiplier);
-  exp = static_cast<wn_uint32>(exp10 - fmodf(exp10, 1.0));
-  wn_int32 dir = (base > 10.f ? -1 :
+  exp = static_cast<uint32_t>(exp10 - fmodf(exp10, 1.0));
+  int32_t dir = (base > 10.f ? -1 :
     (base < 1.0f ? 1 :
     0));
 
@@ -380,9 +380,9 @@ WN_FORCE_INLINE wn_size_t WNWriteFloat32(wn_char* _buffer, wn_float32 _flt, wn_s
   }
 
   if (exp == 0) {
-    negExp = wn_false;
+    negExp = false;
   }
-  wn_size_t counter = 0;
+  size_t counter = 0;
   if (neg) {
     _buffer[counter++] = '-';
   }
@@ -391,8 +391,8 @@ WN_FORCE_INLINE wn_size_t WNWriteFloat32(wn_char* _buffer, wn_float32 _flt, wn_s
     return(0);
   }
 
-  wn_byte wholePart = static_cast<wn_byte>(base - fmodf(base, 1.0f));
-  base = base - static_cast<wn_float32>(wholePart);
+  uint8_t wholePart = static_cast<uint8_t>(base - fmodf(base, 1.0f));
+  base = base - static_cast<float>(wholePart);
   _buffer[counter++] = '0' + wholePart;
 
   if (counter >= _maxSize) {
@@ -409,7 +409,7 @@ WN_FORCE_INLINE wn_size_t WNWriteFloat32(wn_char* _buffer, wn_float32 _flt, wn_s
       break;
     }
     base = base * 10.0f;
-    wholePart = static_cast<wn_byte>(base - fmodf(base, 1.0f));
+    wholePart = static_cast<uint8_t>(base - fmodf(base, 1.0f));
     base = fmodf(base, 1.0f);
     _buffer[counter++] = '0' + wholePart;
   }
@@ -424,7 +424,7 @@ WN_FORCE_INLINE wn_size_t WNWriteFloat32(wn_char* _buffer, wn_float32 _flt, wn_s
   if (negExp) {
     _buffer[counter++] = '-';
   }
-  wn_size_t expPart = writeuint32(_buffer + counter, exp, _maxSize - counter);
+  size_t expPart = writeuint32(_buffer + counter, exp, _maxSize - counter);
   if (expPart == 0) {
     return(0);
   }
@@ -432,17 +432,17 @@ WN_FORCE_INLINE wn_size_t WNWriteFloat32(wn_char* _buffer, wn_float32 _flt, wn_s
   return(counter);
 }
 
-WN_FORCE_INLINE wn_size_t writeuint64(wn_char* _buffer, wn_uint64 _int, wn_size_t _maxSize) {
+WN_FORCE_INLINE size_t writeuint64(char* _buffer, uint64_t _int, size_t _maxSize) {
   WN_RELEASE_ASSERT_DESC(_maxSize > 0, "Must have at least room for 1 character to write out an integer");
 
-  wn_size_t counter = 0;
+  size_t counter = 0;
 
   for (;;) {
     if (counter >= _maxSize) {
       return(0);
     }
 
-    const wn_int8 test = _int % 10;
+    const int8_t test = _int % 10;
 
     _int -= test;
     _int /= 10;
@@ -454,7 +454,7 @@ WN_FORCE_INLINE wn_size_t writeuint64(wn_char* _buffer, wn_uint64 _int, wn_size_
   }
 
   //Right now the integer is in swapped order, fix that
-  for (wn_size_t i = 0; i < counter / 2; ++i) {
+  for (size_t i = 0; i < counter / 2; ++i) {
     _buffer[i] ^= _buffer[counter - i - 1];
     _buffer[counter - i - 1] ^= _buffer[i];
     _buffer[i] ^= _buffer[counter - i - 1];
@@ -463,10 +463,10 @@ WN_FORCE_INLINE wn_size_t writeuint64(wn_char* _buffer, wn_uint64 _int, wn_size_
   return(counter);
 }
 
-WN_FORCE_INLINE wn_size_t writeint64(wn_char* _buffer, wn_int64 _int, wn_size_t _maxSize) {
+WN_FORCE_INLINE size_t writeint64(char* _buffer, int64_t _int, size_t _maxSize) {
   WN_RELEASE_ASSERT_DESC(_maxSize > 0, "Must have at least 1 characters of space for a signed int");
 
-  wn_size_t counter = 0;
+  size_t counter = 0;
 
   if (_int < 0) {
     _buffer[counter] = '-';
@@ -475,7 +475,7 @@ WN_FORCE_INLINE wn_size_t writeint64(wn_char* _buffer, wn_int64 _int, wn_size_t 
     counter++;
   }
 
-  const wn_size_t actualInt = writeuint64(_buffer, static_cast<wn_uint32>(_int), _maxSize - counter);
+  const size_t actualInt = writeuint64(_buffer, static_cast<uint32_t>(_int), _maxSize - counter);
 
   if (actualInt == 0) {
     return(0);
@@ -486,10 +486,10 @@ WN_FORCE_INLINE wn_size_t writeint64(wn_char* _buffer, wn_int64 _int, wn_size_t 
   return(counter);
 }
 
-WN_FORCE_INLINE wn_size_t WNReadUInt32(wn_char* _buff, wn_uint32& _number, wn_size_t _maxSize) {
+WN_FORCE_INLINE size_t WNReadUInt32(char* _buff, uint32_t& _number, size_t _maxSize) {
   WN_RELEASE_ASSERT_DESC(_maxSize > 0, "You cannot store a number in less than 1 byte");
 
-  wn_size_t counter = 0;
+  size_t counter = 0;
 
   _number = 0;
 
@@ -501,19 +501,19 @@ WN_FORCE_INLINE wn_size_t WNReadUInt32(wn_char* _buff, wn_uint32& _number, wn_si
   return(counter);
 }
 
-WN_FORCE_INLINE wn_size_t WNReadInt32(wn_char* _buffer, wn_int32& _number, wn_size_t _maxSize) {
+WN_FORCE_INLINE size_t WNReadInt32(char* _buffer, int32_t& _number, size_t _maxSize) {
   WN_RELEASE_ASSERT_DESC(_maxSize > 0, "You cannot store a number in less than 1 byte");
 
-  wn_size_t counter = 0;
-  wn_bool negative = wn_false;
+  size_t counter = 0;
+  bool negative = false;
 
   if (_buffer[counter] == '-') {
-    negative = wn_true;
+    negative = true;
     counter++;
   }
 
-  wn_uint32 num = 0;
-  const wn_size_t readNum = WNReadUInt32(_buffer + counter, num, _maxSize);
+  uint32_t num = 0;
+  const size_t readNum = WNReadUInt32(_buffer + counter, num, _maxSize);
 
   if (readNum == 0) {
     return(0);
@@ -525,15 +525,15 @@ WN_FORCE_INLINE wn_size_t WNReadInt32(wn_char* _buffer, wn_int32& _number, wn_si
   return(counter);
 }
 
-WN_FORCE_INLINE wn_size_t WNReadFloat32(wn_char* _buff, wn_float32& _number, wn_size_t _maxSize) {
+WN_FORCE_INLINE size_t WNReadFloat32(char* _buff, float& _number, size_t _maxSize) {
   WN_RELEASE_ASSERT_DESC(_maxSize > 0, "You cannot store a number in less than 1 byte");
-  const wn_float32 LOG10_LOG2 = 3.321928095f;
-  wn_size_t counter = 0;
-  wn_bool negative = wn_false;
-  wn_uint32 wholePart = 0;
+  const float LOG10_LOG2 = 3.321928095f;
+  size_t counter = 0;
+  bool negative = false;
+  uint32_t wholePart = 0;
   if (_buff[counter] == '-') {
     counter++;
-    negative = wn_true;
+    negative = true;
   }
   while (_buff[counter] >= '0' && _buff[counter] <= '9' && counter < _maxSize) {
     wholePart = wholePart * 10;
@@ -541,25 +541,25 @@ WN_FORCE_INLINE wn_size_t WNReadFloat32(wn_char* _buff, wn_float32& _number, wn_
   }
 
   if (counter >= _maxSize || _buff[counter] != '.') {
-    _number = static_cast<wn_float32>(wholePart)* (negative ? -1.0f : 1.0f);
+    _number = static_cast<float>(wholePart)* (negative ? -1.0f : 1.0f);
     return(counter);
   }
   counter++;
-  wn_float32 floatPart = 0;
-  wn_float32 floatMult = 0.1f;
+  float floatPart = 0;
+  float floatMult = 0.1f;
   while (_buff[counter] >= '0' && _buff[counter] <= '9' && counter < _maxSize) {
-    floatPart = floatPart + static_cast<wn_float32>(_buff[counter++] - '0') * floatMult;
+    floatPart = floatPart + static_cast<float>(_buff[counter++] - '0') * floatMult;
     floatMult /= 10.0f;
   }
   if (counter >= _maxSize || _buff[counter] != 'e') {
-    _number = (static_cast<wn_float32>(wholePart)+floatPart) * (negative ? -1.0f : 1.0f);
+    _number = (static_cast<float>(wholePart)+floatPart) * (negative ? -1.0f : 1.0f);
     return(counter);
   }
   counter++;
-  wn_bool negExp = wn_false;
-  wn_int32 exp = 0;
+  bool negExp = false;
+  int32_t exp = 0;
   if (_buff[counter] == '-') {
-    negExp = wn_true;
+    negExp = true;
   }
 
   while (_buff[counter] >= '0' && _buff[counter] <= '9' && counter < _maxSize) {
@@ -569,9 +569,9 @@ WN_FORCE_INLINE wn_size_t WNReadFloat32(wn_char* _buff, wn_float32& _number, wn_
 
   exp = exp * (negExp ? -1 : 1);
   while (wholePart > 0) {
-    wn_byte lastDigit = wholePart % 10;
+    uint8_t lastDigit = wholePart % 10;
     floatPart /= 10.0f;
-    floatPart += wn_float32(lastDigit) / 10.0f;
+    floatPart += float(lastDigit) / 10.0f;
     exp += 1;
     wholePart -= lastDigit;
     wholePart /= 10;
@@ -579,8 +579,8 @@ WN_FORCE_INLINE wn_size_t WNReadFloat32(wn_char* _buff, wn_float32& _number, wn_
   negExp = exp < 0;
   exp = exp * (negExp ? -1 : 1);
 
-  wn_float32 exp2 = exp * LOG10_LOG2;
-  exp = static_cast<wn_int32>(exp2 - fmodf(exp2, 1.0f));
+  float exp2 = exp * LOG10_LOG2;
+  exp = static_cast<int32_t>(exp2 - fmodf(exp2, 1.0f));
   exp2 = fmodf(exp2, 1.0f);
   floatPart *= powf(2.0f, exp2);
   exp = exp * (negExp ? -1 : 1);
@@ -588,10 +588,10 @@ WN_FORCE_INLINE wn_size_t WNReadFloat32(wn_char* _buff, wn_float32& _number, wn_
   return(counter);
 }
 
-WN_FORCE_INLINE wn_size_t WNReadUInt64(wn_char* _buff, wn_uint64& _number, wn_size_t _maxSize) {
+WN_FORCE_INLINE size_t WNReadUInt64(char* _buff, uint64_t& _number, size_t _maxSize) {
   WN_RELEASE_ASSERT_DESC(_maxSize > 0, "You cannot store a number in less than 1 byte");
 
-  wn_size_t counter = 0;
+  size_t counter = 0;
 
   _number = 0;
 
@@ -603,19 +603,19 @@ WN_FORCE_INLINE wn_size_t WNReadUInt64(wn_char* _buff, wn_uint64& _number, wn_si
   return(counter);
 }
 
-WN_FORCE_INLINE wn_size_t WNReadInt64(wn_char* _buffer, wn_int64& _number, wn_size_t _maxSize) {
+WN_FORCE_INLINE size_t WNReadInt64(char* _buffer, int64_t& _number, size_t _maxSize) {
   WN_RELEASE_ASSERT_DESC(_maxSize > 0, "You cannot store a number in less than 1 byte");
 
-  wn_size_t counter = 0;
-  wn_bool negative = wn_false;
+  size_t counter = 0;
+  bool negative = false;
 
   if (_buffer[counter] == '-') {
-    negative = wn_true;
+    negative = true;
     counter++;
   }
 
-  wn_uint64 num = 0;
-  const wn_size_t readNum = WNReadUInt64(_buffer + counter, num, _maxSize);
+  uint64_t num = 0;
+  const size_t readNum = WNReadUInt64(_buffer + counter, num, _maxSize);
 
   if (readNum == 0) {
     return(0);

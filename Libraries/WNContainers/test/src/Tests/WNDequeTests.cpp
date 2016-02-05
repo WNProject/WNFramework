@@ -8,7 +8,7 @@
 template <typename _Type>
 struct deque : ::testing::Test {};
 
-typedef ::testing::Types<wn_uint8, wn_uint16, wn_uint32, wn_uint64>
+typedef ::testing::Types<uint8_t, uint16_t, uint32_t, uint64_t>
     deque_testing_types;
 
 TYPED_TEST_CASE(deque, deque_testing_types);
@@ -44,7 +44,7 @@ TYPED_TEST(deque, construction) {
     ASSERT_FALSE(deque4.empty());
     ASSERT_EQ(deque4.size(), 11);
 
-    for (wn_size_t i = 0; i < 11; ++i) {
+    for (size_t i = 0; i < 11; ++i) {
       ASSERT_EQ(deque4[i], static_cast<TypeParam>(i));
     }
 
@@ -54,7 +54,7 @@ TYPED_TEST(deque, construction) {
     ASSERT_FALSE(deque5.empty());
     ASSERT_EQ(deque5.size(), 9);
 
-    for (wn_size_t i = 0; i < 9; ++i) {
+    for (size_t i = 0; i < 9; ++i) {
       ASSERT_EQ(deque5[i], static_cast<TypeParam>(i));
     }
   }

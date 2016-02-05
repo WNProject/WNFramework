@@ -17,11 +17,11 @@
 using namespace WNScripting;
 WNDeclaration::WNDeclaration(WNTypeNode* _type, const char* _name) :
     mType(_type),
-    mName(wn_nullptr),
-    mExpr(wn_nullptr),
-    mScalarType(wn_nullptr),
+    mName(nullptr),
+    mExpr(nullptr),
+    mScalarType(nullptr),
     mUnsizedArrayinitializers(0),
-    mInitAssign(wn_false) {
+    mInitAssign(false) {
     COPY_STRING(_name, mName);
 }
 
@@ -36,7 +36,7 @@ WNDeclaration::~WNDeclaration() {
     }
 }
 
-const wn_char* WNDeclaration::GetName() {
+const char* WNDeclaration::GetName() {
     return(mName);
 }
 
@@ -60,7 +60,7 @@ void WNDeclaration::AddUnsizedArrayinitializer() {
 eWNTypeError WNDeclaration::GenerateCode(WNCodeModule& _module, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog) {
     llvm::IRBuilder<>* builder = reinterpret_cast<llvm::IRBuilder<>*>(_module.GetBuilder());
     WNScriptType t;
-    llvm::Value* allocLocation = wn_nullptr;
+    llvm::Value* allocLocation = nullptr;
     eWNTypeError err = ok;
 
     if(_module.GetScopedVariableList().GetVariable(mName)){

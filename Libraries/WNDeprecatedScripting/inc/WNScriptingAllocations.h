@@ -13,23 +13,23 @@
 #ifdef _WN_WINDOWS
 #define COPY_STRING(src, dest) { \
     if(src) { \
-        wn_size_t allocSize = strnlen_s(src, 256) + 1; \
+        size_t allocSize = strnlen_s(src, 256) + 1; \
         dest = static_cast<char*>(WN_SCRIPTNODE_MALLOC(allocSize)); \
         strncpy(dest, src, allocSize-1); \
         dest[allocSize-1] = '\0'; \
     } else { \
-        dest = wn_nullptr; \
+        dest = nullptr; \
     }\
 }
 #else
 #define COPY_STRING(src, dest) { \
     if(src) { \
-        wn_size_t allocSize = strnlen(src, 256) + 1; \
+        size_t allocSize = strnlen(src, 256) + 1; \
         dest = static_cast<char*>(WN_SCRIPTNODE_MALLOC(allocSize)); \
         strncpy(dest, src, allocSize-1); \
         dest[allocSize-1] = '\0'; \
     } else { \
-        dest = wn_nullptr; \
+        dest = nullptr; \
     } \
 }
 #endif

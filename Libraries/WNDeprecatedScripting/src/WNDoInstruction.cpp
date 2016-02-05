@@ -38,7 +38,7 @@ eWNTypeError WNDoInstruction::GenerateCode(WNCodeModule& _module, const WNFuncti
         return(ok);
     }
     llvm::BasicBlock* endBlock = llvm::BasicBlock::Create(llvm::getGlobalContext(), "", _def->mFunction);
-    WNScriptType boolType = wn_nullptr;
+    WNScriptType boolType = nullptr;
     if(ok != (err = _module.GetTypeManager().get_type_by_name("Bool", boolType))) {
         _compilationLog.Log(WNLogging::eCritical, 0, "Error, cannot find Bool type");
         LogLine(_compilationLog, WNLogging::eCritical);

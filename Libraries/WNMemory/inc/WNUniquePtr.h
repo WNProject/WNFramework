@@ -25,7 +25,7 @@ public:
 
   WN_FORCE_INLINE unique_ptr() : m_allocator(nullptr), m_pointer(nullptr) {}
 
-  WN_FORCE_INLINE unique_ptr(const wn_nullptr_t) : unique_ptr() {}
+  WN_FORCE_INLINE unique_ptr(const nullptr_t) : unique_ptr() {}
 
   template <typename U,
       typename = core::enable_if_t<core::is_convertible<U*, pointer>::value>>
@@ -65,7 +65,7 @@ public:
     return (get() != nullptr);
   }
 
-  WN_FORCE_INLINE unique_ptr& operator=(const wn_nullptr_t) {
+  WN_FORCE_INLINE unique_ptr& operator=(const nullptr_t) {
     unique_ptr(nullptr).swap(*this);
 
     return *this;
@@ -96,7 +96,7 @@ public:
     unique_ptr().swap(*this);
   }
 
-  WN_FORCE_INLINE void reset(const wn_nullptr_t) {
+  WN_FORCE_INLINE void reset(const nullptr_t) {
     unique_ptr(nullptr).swap(*this);
   }
 
@@ -169,62 +169,62 @@ WN_FORCE_INLINE bool operator>=(
 }
 
 template <typename T>
-WN_FORCE_INLINE bool operator==(const unique_ptr<T>& _ptr, const wn_nullptr_t) {
+WN_FORCE_INLINE bool operator==(const unique_ptr<T>& _ptr, const nullptr_t) {
   return (_ptr.get() == nullptr);
 }
 
 template <typename T>
-WN_FORCE_INLINE bool operator==(const wn_nullptr_t, const unique_ptr<T>& _ptr) {
+WN_FORCE_INLINE bool operator==(const nullptr_t, const unique_ptr<T>& _ptr) {
   return (nullptr == _ptr.get());
 }
 
 template <typename T>
-WN_FORCE_INLINE bool operator!=(const unique_ptr<T>& _ptr, const wn_nullptr_t) {
+WN_FORCE_INLINE bool operator!=(const unique_ptr<T>& _ptr, const nullptr_t) {
   return (_ptr.get() != nullptr);
 }
 
 template <typename T>
-WN_FORCE_INLINE bool operator!=(const wn_nullptr_t, const unique_ptr<T>& _ptr) {
+WN_FORCE_INLINE bool operator!=(const nullptr_t, const unique_ptr<T>& _ptr) {
   return (nullptr != _ptr.get());
 }
 
 template <typename T>
-WN_FORCE_INLINE bool operator<(const unique_ptr<T>& _ptr, const wn_nullptr_t) {
+WN_FORCE_INLINE bool operator<(const unique_ptr<T>& _ptr, const nullptr_t) {
   return (_ptr.get() < nullptr);
 }
 
 template <typename T>
-WN_FORCE_INLINE bool operator<(const wn_nullptr_t, const unique_ptr<T>& _ptr) {
+WN_FORCE_INLINE bool operator<(const nullptr_t, const unique_ptr<T>& _ptr) {
   return (nullptr < _ptr.get());
 }
 
 template <typename T>
-WN_FORCE_INLINE bool operator>(const unique_ptr<T>& _ptr, const wn_nullptr_t) {
+WN_FORCE_INLINE bool operator>(const unique_ptr<T>& _ptr, const nullptr_t) {
   return (_ptr.get() > nullptr);
 }
 
 template <typename T>
-WN_FORCE_INLINE bool operator>(const wn_nullptr_t, const unique_ptr<T>& _ptr) {
+WN_FORCE_INLINE bool operator>(const nullptr_t, const unique_ptr<T>& _ptr) {
   return (nullptr > _ptr.get());
 }
 
 template <typename T>
-WN_FORCE_INLINE bool operator<=(const unique_ptr<T>& _ptr, const wn_nullptr_t) {
+WN_FORCE_INLINE bool operator<=(const unique_ptr<T>& _ptr, const nullptr_t) {
   return (_ptr.get() <= nullptr);
 }
 
 template <typename T>
-WN_FORCE_INLINE bool operator<=(const wn_nullptr_t, const unique_ptr<T>& _ptr) {
+WN_FORCE_INLINE bool operator<=(const nullptr_t, const unique_ptr<T>& _ptr) {
   return (nullptr <= _ptr.get());
 }
 
 template <typename T>
-WN_FORCE_INLINE bool operator>=(const unique_ptr<T>& _ptr, const wn_nullptr_t) {
+WN_FORCE_INLINE bool operator>=(const unique_ptr<T>& _ptr, const nullptr_t) {
   return (_ptr.get() >= nullptr);
 }
 
 template <typename T>
-WN_FORCE_INLINE bool operator>=(const wn_nullptr_t, const unique_ptr<T>& _ptr) {
+WN_FORCE_INLINE bool operator>=(const nullptr_t, const unique_ptr<T>& _ptr) {
   return (nullptr >= _ptr.get());
 }
 

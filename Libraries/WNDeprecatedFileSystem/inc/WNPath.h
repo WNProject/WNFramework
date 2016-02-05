@@ -11,9 +11,9 @@
 #include "WNMemory/inc/WNStringUtility.h"
 
 namespace WNFileSystem {
-    WN_FORCE_INLINE wn_size_t WNGetPathFromFilename(const wn_char* _file) {
-        const wn_char* tempFile = _file;
-        wn_size_t braceChar = 0;
+    WN_FORCE_INLINE size_t WNGetPathFromFilename(const char* _file) {
+        const char* tempFile = _file;
+        size_t braceChar = 0;
 
         for (; *tempFile != '\0'; ++tempFile) {
             if (*tempFile == '/' || *tempFile == '\\') {
@@ -24,18 +24,18 @@ namespace WNFileSystem {
         return(braceChar > 0 ? braceChar + 1 : braceChar);
     }
 
-    WN_FORCE_INLINE wn_bool WNAppendPath(wn_char* _path, const wn_char* _append, wn_size_t _maxSize) {
-        const wn_size_t appendLen = wn::memory::strlen(_append);
-        wn_size_t pathLen = wn::memory::strlen(_path);
-        wn_bool addPath = wn_false;
+    WN_FORCE_INLINE bool WNAppendPath(char* _path, const char* _append, size_t _maxSize) {
+        const size_t appendLen = wn::memory::strlen(_append);
+        size_t pathLen = wn::memory::strlen(_path);
+        bool addPath = false;
 
         if (_path[pathLen - 1] != '/' && _path[pathLen - 1] != '\\') {
             pathLen += 1;
-            addPath = wn_true;
+            addPath = true;
         }
 
         if (_maxSize < appendLen + pathLen) {
-            return(wn_false);
+            return(false);
         }
 
         if (addPath) {
@@ -46,7 +46,7 @@ namespace WNFileSystem {
 
         _path[pathLen + appendLen] = '\0';
 
-        return(wn_true);
+        return(true);
     }
 }
 

@@ -13,7 +13,7 @@
 namespace wn {
     namespace internal {
         namespace math {
-            template <typename type, const wn_size_t dimension>
+            template <typename type, const size_t dimension>
             struct element_array_generic : core::non_copyable {
                 static_assert(dimension > 1, "Must have a dimension of at least 2");
 

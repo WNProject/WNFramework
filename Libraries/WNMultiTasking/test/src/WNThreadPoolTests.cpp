@@ -21,7 +21,7 @@ TEST(WNThreadPoolValidation, Creation) {
   wn::testing::allocator allocator;
 
   {
-    for (wn_uint32 i = 0; i < 50; ++i) {
+    for (uint32_t i = 0; i < 50; ++i) {
       wn::multi_tasking::thread_pool thread_pool(&allocator);
 
       ASSERT_EQ(
@@ -30,7 +30,7 @@ TEST(WNThreadPoolValidation, Creation) {
   }
 }
 
-static wn_void SimpleCallback() {
+static void SimpleCallback() {
   return;
 }
 
@@ -40,11 +40,11 @@ TEST(WNThreadPoolValidation, CaughtUninitialized) {
   {
     wn::multi_tasking::thread_pool thread_pool(&allocator);
 
-    ASSERT_NE(thread_pool.enqueue(wn::multi_tasking::make_callback_task<wn_void>(
+    ASSERT_NE(thread_pool.enqueue(wn::multi_tasking::make_callback_task<void>(
                   &allocator, &SimpleCallback)),
         wn::multi_tasking::thread_pool::result::ok);
     ASSERT_EQ(thread_pool.initialize(10), wn::multi_tasking::thread_pool::result::ok);
-    ASSERT_EQ(thread_pool.enqueue(wn::multi_tasking::make_callback_task<wn_void>(
+    ASSERT_EQ(thread_pool.enqueue(wn::multi_tasking::make_callback_task<void>(
                   &allocator, &SimpleCallback)),
         wn::multi_tasking::thread_pool::result::ok);
   }
@@ -82,9 +82,9 @@ TEST(WNThreadPoolValidation, CreationMore) {
   }
 }
 
-static std::atomic<wn_size_t> SimpleS1(0);
+static std::atomic<size_t> SimpleS1(0);
 
-wn_void SimpleCallback1() {
+void SimpleCallback1() {
   SimpleS1++;
 }
 
@@ -96,8 +96,8 @@ TEST(WNThreadPoolValidation, SimpleCallback) {
 
     ASSERT_EQ(thread_pool.initialize(16), wn::multi_tasking::thread_pool::result::ok);
 
-    for (wn_size_t i = 0; i < 10000; ++i) {
-      thread_pool.enqueue(wn::multi_tasking::make_callback_task<wn_void>(
+    for (size_t i = 0; i < 10000; ++i) {
+      thread_pool.enqueue(wn::multi_tasking::make_callback_task<void>(
           &allocator, &SimpleCallback1));
     }
   }
@@ -105,12 +105,10 @@ TEST(WNThreadPoolValidation, SimpleCallback) {
   ASSERT_EQ(SimpleS1, 10000);
 }
 
-static std::atomic<wn_size_t> SimpleS2Vals[1000];
+static std::atomic<size_t> SimpleS2Vals[1000];
 
-wn_void SimpleCallback2(wn_uint32 _val) {
-  wn_atom_t val = _val;
-
-  SimpleS2Vals[_val] = val;
+void SimpleCallback2(uint32_t _val) {
+  SimpleS2Vals[_val] = _val;
 }
 
 TEST(WNThreadPoolValidation, OneParameterCallback) {
@@ -121,18 +119,18 @@ TEST(WNThreadPoolValidation, OneParameterCallback) {
 
     ASSERT_EQ(thread_pool.initialize(16), wn::multi_tasking::thread_pool::result::ok);
 
-    for (wn_uint32 i = 0; i < 1000; ++i) {
-      thread_pool.enqueue(wn::multi_tasking::make_callback_task<wn_void>(
+    for (uint32_t i = 0; i < 1000; ++i) {
+      thread_pool.enqueue(wn::multi_tasking::make_callback_task<void>(
           &allocator, &SimpleCallback2, i));
     }
   }
 
-  for (wn_size_t i = 0; i < 1000; ++i) {
+  for (size_t i = 0; i < 1000; ++i) {
     ASSERT_EQ(SimpleS2Vals[i], i);
   }
 }
 
-wn_uint32 SimpleCallback3(wn_uint32 _val) {
+uint32_t SimpleCallback3(uint32_t _val) {
   return (_val);
 }
 
@@ -140,7 +138,7 @@ TEST(WNThreadPoolValidation, OneParameterReturnCallback) {
   wn::testing::allocator allocator;
 
   {
-    std::vector<wn::multi_tasking::callback_task_ptr<wn_uint32>> jobCallbacks;
+    std::vector<wn::multi_tasking::callback_task_ptr<uint32_t>> jobCallbacks;
 
     {
       wn::multi_tasking::thread_pool thread_pool(&allocator);
@@ -148,9 +146,9 @@ TEST(WNThreadPoolValidation, OneParameterReturnCallback) {
       ASSERT_EQ(
           thread_pool.initialize(16), wn::multi_tasking::thread_pool::result::ok);
 
-      for (wn_uint32 i = 0; i < 1000; ++i) {
-        wn::multi_tasking::callback_task_ptr<wn_uint32> j =
-            wn::multi_tasking::make_callback_task<wn_uint32>(
+      for (uint32_t i = 0; i < 1000; ++i) {
+        wn::multi_tasking::callback_task_ptr<uint32_t> j =
+            wn::multi_tasking::make_callback_task<uint32_t>(
                 &allocator, &SimpleCallback3, i);
 
         jobCallbacks.push_back(j);
@@ -158,8 +156,8 @@ TEST(WNThreadPoolValidation, OneParameterReturnCallback) {
       }
     }
 
-    for (wn_size_t i = 0; i < 1000; ++i) {
-      wn_uint32 result;
+    for (size_t i = 0; i < 1000; ++i) {
+      uint32_t result;
 
       jobCallbacks[i]->join(result);
 
@@ -172,30 +170,30 @@ TEST(WNThreadPoolValidation, JobsGetCleaned) {
   wn::testing::allocator allocator;
 
   {
-    std::vector<wn::multi_tasking::callback_task_ptr<wn_uint32>> jobCallbacks;
+    std::vector<wn::multi_tasking::callback_task_ptr<uint32_t>> jobCallbacks;
     wn::multi_tasking::thread_pool thread_pool(&allocator);
 
     ASSERT_EQ(thread_pool.initialize(16), wn::multi_tasking::thread_pool::result::ok);
 
-    for (wn_uint32 i = 0; i < 1000; ++i) {
-      wn::multi_tasking::callback_task_ptr<wn_uint32> j(
-          wn::multi_tasking::make_callback_task<wn_uint32>(
+    for (uint32_t i = 0; i < 1000; ++i) {
+      wn::multi_tasking::callback_task_ptr<uint32_t> j(
+          wn::multi_tasking::make_callback_task<uint32_t>(
               &allocator, &SimpleCallback3, i));
 
       jobCallbacks.push_back(j);
       thread_pool.enqueue(j);
     }
 
-    for (wn_uint32 i = 0; i < 1000; ++i) {
-      wn_uint32 result;
+    for (uint32_t i = 0; i < 1000; ++i) {
+      uint32_t result;
 
       jobCallbacks[i]->join(result);
 
       ASSERT_EQ(result, i);
     }
 
-    for (wn_int32 i = 1000 - 1; i >= 0; --i) {
-      wn_uint32 result;
+    for (int32_t i = 1000 - 1; i >= 0; --i) {
+      uint32_t result;
 
       jobCallbacks[i]->join(result);
 
@@ -204,17 +202,17 @@ TEST(WNThreadPoolValidation, JobsGetCleaned) {
 
     jobCallbacks.clear();
 
-    for (wn_uint32 i = 0; i < 1000; ++i) {
-      wn::multi_tasking::callback_task_ptr<wn_uint32> j(
-          wn::multi_tasking::make_callback_task<wn_uint32>(
+    for (uint32_t i = 0; i < 1000; ++i) {
+      wn::multi_tasking::callback_task_ptr<uint32_t> j(
+          wn::multi_tasking::make_callback_task<uint32_t>(
               &allocator, &SimpleCallback3, i));
 
       jobCallbacks.push_back(j);
       thread_pool.enqueue(j);
     }
 
-    for (wn_int32 i = 1000 - 1; i >= 0; --i) {
-      wn_uint32 result;
+    for (int32_t i = 1000 - 1; i >= 0; --i) {
+      uint32_t result;
 
       jobCallbacks[i]->join(result);
 

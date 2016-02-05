@@ -1187,7 +1187,7 @@ WNScriptASTParser::scalarType()
      
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
  
@@ -1244,7 +1244,7 @@ WNScriptASTParser::type()
      
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
  
@@ -1356,7 +1356,7 @@ WNScriptASTParser::decl()
      
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
  
@@ -1426,7 +1426,7 @@ WNScriptASTParser::declList()
      
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
  
@@ -1545,7 +1545,7 @@ WNScriptASTParser::parameterList()
      
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
  
@@ -1652,7 +1652,7 @@ WNScriptASTParser::parameterList()
 
 
         	        {
-        	             node = wn_nullptr; 
+        	             node = nullptr; 
         	        }
 
 
@@ -1912,7 +1912,7 @@ WNScriptASTParser::lvalue()
      
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
  
@@ -2076,7 +2076,7 @@ WNScriptASTParser::arglist()
 
             	            {
             	                node->AddExpression(b
-            	                , wn_true); SetLocationFromNode(node, b
+            	                , true); SetLocationFromNode(node, b
             	                ); 
             	            }
 
@@ -2215,7 +2215,7 @@ WNScriptASTParser::arglist()
 
             	        	            {
             	        	                 node->AddExpression(d
-            	        	                , wn_true); SetEndLocationFromNode(node, d
+            	        	                , true); SetEndLocationFromNode(node, d
             	        	                ); 
             	        	            }
 
@@ -2281,7 +2281,7 @@ WNScriptASTParser::expression()
      
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
  
@@ -2343,7 +2343,7 @@ WNScriptASTParser::cond_ex()
      
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
  
@@ -2470,7 +2470,7 @@ WNScriptASTParser::or_ex()
      
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
  
@@ -2587,7 +2587,7 @@ WNScriptASTParser::and_ex()
      
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
  
@@ -2705,7 +2705,7 @@ WNScriptASTParser::eq_ex()
      
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
  
@@ -2872,7 +2872,7 @@ WNScriptASTParser::rel_ex()
      
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
  
@@ -3119,7 +3119,7 @@ WNScriptASTParser::add_ex()
      
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
  
@@ -3285,7 +3285,7 @@ WNScriptASTParser::mult_ex()
      
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
  
@@ -3492,7 +3492,7 @@ WNScriptASTParser::unary_ex()
      
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
  
@@ -3702,7 +3702,7 @@ WNScriptASTParser::post_ex_proper()
      
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
  
@@ -3978,7 +3978,7 @@ WNScriptASTParser::post_ex()
      
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
  
@@ -4093,7 +4093,7 @@ WNScriptASTParser::assignment()
      
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
  
@@ -4216,7 +4216,7 @@ WNScriptASTParser::constant()
      
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
  
@@ -4398,7 +4398,7 @@ WNScriptASTParser::prim_ex()
      
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
  
@@ -5309,7 +5309,7 @@ WNScriptASTParser::declaration()
      
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
  
@@ -5496,7 +5496,7 @@ WNScriptASTParser::instructionScalar()
      
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
  
@@ -5602,7 +5602,7 @@ WNScriptASTParser::returnInst()
      
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
  
@@ -5805,7 +5805,7 @@ WNScriptASTParser::whileInst()
      
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
  
@@ -5902,7 +5902,7 @@ WNScriptASTParser::doInst()
      
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
  
@@ -6272,7 +6272,7 @@ WNScriptASTParser::elsemiddle()
      
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
  
@@ -6373,7 +6373,7 @@ WNScriptASTParser::endif()
      
 
 
-        node = wn_nullptr;
+        node = nullptr;
 
 
  
@@ -6445,7 +6445,7 @@ WNScriptASTParser::ifInst()
 
 
         WNIFInstruction* inst;
-        node = wn_nullptr;
+        node = nullptr;
 
 
  
@@ -7743,14 +7743,14 @@ WNScriptASTParser::classDecl()
 
 /**
  * $ANTLR start inc
- * C:\\Users\\Andre\\Documents\\Development\\WNFramework\\Libraries\\WNDeprecatedScripting\\lang\\WNScriptAST.g:617:1: inc returns [wn_char* file] : INCLUDE STRING ;
+ * C:\\Users\\Andre\\Documents\\Development\\WNFramework\\Libraries\\WNDeprecatedScripting\\lang\\WNScriptAST.g:617:1: inc returns [char* file] : INCLUDE STRING ;
  */
-wn_char*
+char*
 WNScriptASTParser::inc()
 {
         WNScriptASTParserImplTraits::RuleReturnValueType _antlr_rule_exit(this);
       
-    wn_char* file;
+    char* file;
 
 
     const ImplTraits::CommonTokenType* STRING59 = NULL;
@@ -7817,7 +7817,7 @@ WNScriptASTParser::program()
     WNFunction* function60;
     WNStruct* structDecl61;
     WNStruct* classDecl62;
-    wn_char* inc63;
+    char* inc63;
     /* Initialize rule variables
      */
      

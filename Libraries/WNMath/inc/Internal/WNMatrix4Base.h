@@ -23,7 +23,7 @@ namespace wn {
     class WNQuaternion;
 
     namespace internal {
-        template <typename type, typename = std::enable_if<wn_true>::type>
+        template <typename type, typename = std::enable_if<true>::type>
         class __WNMatrix4Base : public __WNMatrixBase<WNMatrix4<type>, type, 4> {
         protected:
             WN_FORCE_INLINE __WNMatrix4Base() {}
@@ -39,12 +39,12 @@ namespace wn {
             WNVector3<type>& TransformVectorInPlace(WNVector3<type>& _vector, type& _wComponent) const;
             WNVector4<type>& TransformVectorInPlace(WNVector4<type>& _vector) const;
 
-            wn_void MakeRotation(const WNQuaternion<type>& _rotation);
-            wn_void MakeRotationX(const type& _angle);
-            wn_void MakeRotationY(const type& _angle);
-            wn_void MakeRotationZ(const type& _angle);
-            wn_void MakeRotationAxis(const type& _angle, const WNVector3<type>& _axis);
-            wn_void MakeRotationAxis(const type& _angle, const type& _x, const type& _y, const type& _z);
+            void MakeRotation(const WNQuaternion<type>& _rotation);
+            void MakeRotationX(const type& _angle);
+            void MakeRotationY(const type& _angle);
+            void MakeRotationZ(const type& _angle);
+            void MakeRotationAxis(const type& _angle, const WNVector3<type>& _axis);
+            void MakeRotationAxis(const type& _angle, const type& _x, const type& _y, const type& _z);
 
         public:
             static WNMatrix4<type> CreateRotation(const WNQuaternion<type>& _rotation);

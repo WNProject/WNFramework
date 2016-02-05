@@ -3,7 +3,7 @@
 #include "WNCore/inc/WNTypes.h"
 
 namespace WNUtils {
-    extern wn_void InitializeCrashHandler();
+    extern void InitializeCrashHandler();
 }
 
 #endif//__WN_CRASH_HANDLER_H__

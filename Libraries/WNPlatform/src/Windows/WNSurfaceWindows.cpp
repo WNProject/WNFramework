@@ -12,7 +12,7 @@ wn::WNSurfaceWindows::WNSurfaceWindows(wn::WNSurfaceManagerWindows& _manager) :
     mHeight(0) {
 }
 
-wn_void wn::WNSurfaceWindows::SetNativeHandle(HWND _handle) {
+void wn::WNSurfaceWindows::SetNativeHandle(HWND _handle) {
     mNativeWindowHandle = _handle;
 }
 
@@ -20,7 +20,7 @@ wn::WNSurfaceNativeHandle wn::WNSurfaceWindows::GetNativeHandle() const {
     return(mNativeWindowHandle);
 }
 
-wn_void wn::WNSurfaceWindows::ProcessCallback(UINT _msg, LPARAM _lparam, WPARAM _wparam) {
+void wn::WNSurfaceWindows::ProcessCallback(UINT _msg, LPARAM _lparam, WPARAM _wparam) {
     WN_UNUSED_ARGUMENT(_wparam);
 
     switch (_msg) {
@@ -34,7 +34,7 @@ wn_void wn::WNSurfaceWindows::ProcessCallback(UINT _msg, LPARAM _lparam, WPARAM 
     }
 }
 
-wn::surface::WNSurfaceError wn::WNSurfaceWindows::Resize(wn_uint32 _width, wn_uint32 _height) {
+wn::surface::WNSurfaceError wn::WNSurfaceWindows::Resize(uint32_t _width, uint32_t _height) {
     if (mNativeWindowHandle != NULL) {
         RECT rcClient, rcWind;
         POINT ptDiff;
@@ -54,35 +54,35 @@ wn::surface::WNSurfaceError wn::WNSurfaceWindows::Resize(wn_uint32 _width, wn_ui
     return(ok);
 }
 
-wn::surface::WNSurfaceError wn::WNSurfaceWindows::Move(wn_uint32 _x, wn_uint32 _y) {
+wn::surface::WNSurfaceError wn::WNSurfaceWindows::Move(uint32_t _x, uint32_t _y) {
     WN_UNUSED_ARGUMENT(_x);
     WN_UNUSED_ARGUMENT(_y);
 
     return(ok);
 }
 
-wn_bool wn::WNSurfaceWindows::IsFullscreen() const {
-    return(wn_false);
+bool wn::WNSurfaceWindows::IsFullscreen() const {
+    return(false);
 }
 
-wn::surface::WNSurfaceError wn::WNSurfaceWindows::SetFullscreen(wn_bool _fullscreen) {
+wn::surface::WNSurfaceError wn::WNSurfaceWindows::SetFullscreen(bool _fullscreen) {
     WN_UNUSED_ARGUMENT(_fullscreen);
 
     return(ok);
 }
 
-wn_uint32 wn::WNSurfaceWindows::GetWidth() const {
+uint32_t wn::WNSurfaceWindows::GetWidth() const {
     return(mWidth);
 }
 
-wn_uint32 wn::WNSurfaceWindows::GetHeight() const {
+uint32_t wn::WNSurfaceWindows::GetHeight() const {
     return(mHeight);
 }
 
-wn_uint32 wn::WNSurfaceWindows::GetX() const {
+uint32_t wn::WNSurfaceWindows::GetX() const {
     return(0);
 }
 
-wn_uint32 wn::WNSurfaceWindows::GetY() const {
+uint32_t wn::WNSurfaceWindows::GetY() const {
     return(0);
 }

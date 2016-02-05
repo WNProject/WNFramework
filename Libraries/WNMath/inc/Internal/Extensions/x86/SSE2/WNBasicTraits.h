@@ -21,7 +21,7 @@ namespace wn {
                 }
 
                 template <typename type>
-                static WN_FORCE_INLINE typename core::enable_if<core::is_same<wn_float64, type>::value, type>::type abs(const wn_float64& _value) {
+                static WN_FORCE_INLINE typename core::enable_if<core::is_same<double, type>::value, type>::type abs(const double& _value) {
                     return(_mm_cvtsd_f64(_mm_andnot_pd(_mm_set_sd(-0.0), _mm_set_sd(_value))));
                 }
 
@@ -32,7 +32,7 @@ namespace wn {
                 }
 
                 template <typename type>
-                static WN_FORCE_INLINE typename core::enable_if<core::is_same<wn_float64, type>::value, type>::type sqrt(const wn_float64& _value) {
+                static WN_FORCE_INLINE typename core::enable_if<core::is_same<double, type>::value, type>::type sqrt(const double& _value) {
                     return(_mm_cvtsd_f64(_mm_sqrt_sd(_mm_setzero_pd(), _mm_set_sd(_value))));
                 }
 
@@ -43,7 +43,7 @@ namespace wn {
                 }
 
                 template <typename type>
-                static WN_FORCE_INLINE typename core::enable_if<core::is_same<wn_float64, type>::value, type>::type  invsqrt(const wn_float64& _value) {
+                static WN_FORCE_INLINE typename core::enable_if<core::is_same<double, type>::value, type>::type  invsqrt(const double& _value) {
                     return(_mm_cvtsd_f64(_mm_div_sd(_mm_set_sd(1.0), _mm_sqrt_sd(_mm_setzero_pd(), _mm_set_sd(_value)))));
                 }
 
@@ -53,7 +53,7 @@ namespace wn {
                 }
 
                 template <typename type>
-                static WN_FORCE_INLINE typename core::enable_if<core::is_same<wn_float64, type>::value, type>::type min(const wn_float64& _value1, const wn_float64& _value2) {
+                static WN_FORCE_INLINE typename core::enable_if<core::is_same<double, type>::value, type>::type min(const double& _value1, const double& _value2) {
                     return(_mm_cvtsd_f64(_mm_min_sd(_mm_set_sd(_value1), _mm_set_sd(_value2))));
                 }
 
@@ -63,7 +63,7 @@ namespace wn {
                 }
 
                 template <typename type>
-                static WN_FORCE_INLINE typename core::enable_if<core::is_same<wn_float64, type>::value, type>::type max(const wn_float64& _value1, const wn_float64& _value2) {
+                static WN_FORCE_INLINE typename core::enable_if<core::is_same<double, type>::value, type>::type max(const double& _value1, const double& _value2) {
                     return(_mm_cvtsd_f64(_mm_max_sd(_mm_set_sd(_value1), _mm_set_sd(_value2))));
                 }
 
@@ -73,8 +73,8 @@ namespace wn {
                 }
 
                 template <typename type>
-                static WN_FORCE_INLINE typename core::enable_if<core::is_same<wn_float64, type>::value, type>::type clamp(const wn_float64& _value, const wn_float64& _min,
-                                                        const wn_float64& _max) {
+                static WN_FORCE_INLINE typename core::enable_if<core::is_same<double, type>::value, type>::type clamp(const double& _value, const double& _min,
+                                                        const double& _max) {
                     return(_mm_cvtsd_f64(_mm_min_sd(_mm_max_sd(_mm_set_sd(_value), _mm_set_sd(_min)), _mm_set_sd(_max))));
                 }
 

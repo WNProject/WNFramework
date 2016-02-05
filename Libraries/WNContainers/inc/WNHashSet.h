@@ -31,7 +31,7 @@ public:
   hash_set_iterator(const hash_set_iterator<_IT, _CT>& _other)
     : m_map_iterator(_other.m_map_iterator) {}
 
-  hash_set_iterator& operator+=(wn_size_t _count) {
+  hash_set_iterator& operator+=(size_t _count) {
     m_map_iterator += _count;
     return *this;
   }
@@ -84,8 +84,8 @@ public:
 
   using key_type = _Key;
   using value_type = _Key;
-  using size_type = wn_size_t;
-  using difference_type = wn_signed_t;
+  using size_type = size_t;
+  using difference_type = signed_t;
   using hasher = _HashOperator;
   using key_equal = _EqualityOperator;
   using reference = value_type&;
@@ -101,7 +101,7 @@ public:
 
   hash_set(size_type _n = 0u, const hasher& _hasher = hasher(),
       const key_equal& _key_equal = key_equal(),
-      memory::allocator* _allocator = wn_nullptr)
+      memory::allocator* _allocator = nullptr)
     : m_map(_n, _hasher, _key_equal, _allocator) {}
   hash_set(memory::allocator* _allocator)
     : hash_set(0u, hasher(), key_equal(), _allocator) {}
@@ -111,8 +111,8 @@ public:
     : hash_set(0u, _hasher, _key_equal, _allocator) {
     auto begin = std::begin(initializer);
     auto end = std::end(initializer);
-    wn_size_t count = end - begin;
-    wn_size_t buckets = _n < count ? _n : count;
+    size_t count = end - begin;
+    size_t buckets = _n < count ? _n : count;
     m_map.rehash(buckets);
     for (; begin != end; ++begin) {
       insert(*begin);
@@ -158,11 +158,11 @@ public:
     return const_iterator(m_map.cend());
   }
 
-  void rehash(wn_size_t n) {
+  void rehash(size_t n) {
     m_map.rehash(n);
   }
 
-  wn_size_t size() const {
+  size_t size() const {
     return m_map.size();
   }
 

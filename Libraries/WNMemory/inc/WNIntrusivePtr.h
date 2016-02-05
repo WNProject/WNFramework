@@ -75,7 +75,7 @@ public:
 
   WN_FORCE_INLINE intrusive_ptr() : m_pointer(nullptr) {}
 
-  WN_FORCE_INLINE intrusive_ptr(const wn_nullptr_t) : intrusive_ptr() {}
+  WN_FORCE_INLINE intrusive_ptr(const nullptr_t) : intrusive_ptr() {}
 
   template <typename U,
       typename = core::enable_if_t<core::is_convertible<U*, pointer>::value>>
@@ -124,7 +124,7 @@ public:
     return (get() != nullptr);
   }
 
-  WN_FORCE_INLINE intrusive_ptr& operator=(const wn_nullptr_t) {
+  WN_FORCE_INLINE intrusive_ptr& operator=(const nullptr_t) {
     intrusive_ptr(nullptr).swap(*this);
 
     return *this;
@@ -180,7 +180,7 @@ public:
     intrusive_ptr().swap(*this);
   }
 
-  WN_FORCE_INLINE void reset(const wn_nullptr_t) {
+  WN_FORCE_INLINE void reset(const nullptr_t) {
     intrusive_ptr(nullptr).swap(*this);
   }
 
@@ -272,62 +272,62 @@ WN_FORCE_INLINE bool operator>=(
 }
 
 template <typename T>
-WN_FORCE_INLINE bool operator==(const intrusive_ptr<T>& ptr, const wn_nullptr_t) {
+WN_FORCE_INLINE bool operator==(const intrusive_ptr<T>& ptr, const nullptr_t) {
   return (ptr.get() == nullptr);
 }
 
 template <typename T>
-WN_FORCE_INLINE bool operator==(const wn_nullptr_t, const intrusive_ptr<T>& ptr) {
+WN_FORCE_INLINE bool operator==(const nullptr_t, const intrusive_ptr<T>& ptr) {
   return (nullptr == ptr.get());
 }
 
 template <typename T>
-WN_FORCE_INLINE bool operator!=(const intrusive_ptr<T>& ptr, const wn_nullptr_t) {
+WN_FORCE_INLINE bool operator!=(const intrusive_ptr<T>& ptr, const nullptr_t) {
   return (ptr.get() != nullptr);
 }
 
 template <typename T>
-WN_FORCE_INLINE bool operator!=(const wn_nullptr_t, const intrusive_ptr<T>& ptr) {
+WN_FORCE_INLINE bool operator!=(const nullptr_t, const intrusive_ptr<T>& ptr) {
   return (nullptr != ptr.get());
 }
 
 template <typename T>
-WN_FORCE_INLINE bool operator<(const intrusive_ptr<T>& ptr, const wn_nullptr_t) {
+WN_FORCE_INLINE bool operator<(const intrusive_ptr<T>& ptr, const nullptr_t) {
   return (ptr.get() < nullptr);
 }
 
 template <typename T>
-WN_FORCE_INLINE bool operator<(const wn_nullptr_t, const intrusive_ptr<T>& ptr) {
+WN_FORCE_INLINE bool operator<(const nullptr_t, const intrusive_ptr<T>& ptr) {
   return (nullptr < ptr.get());
 }
 
 template <typename T>
-WN_FORCE_INLINE bool operator>(const intrusive_ptr<T>& ptr, const wn_nullptr_t) {
+WN_FORCE_INLINE bool operator>(const intrusive_ptr<T>& ptr, const nullptr_t) {
   return (ptr.get() > nullptr);
 }
 
 template <typename T>
-WN_FORCE_INLINE bool operator>(const wn_nullptr_t, const intrusive_ptr<T>& ptr) {
+WN_FORCE_INLINE bool operator>(const nullptr_t, const intrusive_ptr<T>& ptr) {
   return (nullptr > ptr.get());
 }
 
 template <typename T>
-WN_FORCE_INLINE bool operator<=(const intrusive_ptr<T>& ptr, const wn_nullptr_t) {
+WN_FORCE_INLINE bool operator<=(const intrusive_ptr<T>& ptr, const nullptr_t) {
   return (ptr.get() <= nullptr);
 }
 
 template <typename T>
-WN_FORCE_INLINE bool operator<=(const wn_nullptr_t, const intrusive_ptr<T>& ptr) {
+WN_FORCE_INLINE bool operator<=(const nullptr_t, const intrusive_ptr<T>& ptr) {
   return (nullptr <= ptr.get());
 }
 
 template <typename T>
-WN_FORCE_INLINE bool operator>=(const intrusive_ptr<T>& ptr, const wn_nullptr_t) {
+WN_FORCE_INLINE bool operator>=(const intrusive_ptr<T>& ptr, const nullptr_t) {
   return (ptr.get() >= nullptr);
 }
 
 template <typename T>
-WN_FORCE_INLINE bool operator>=(const wn_nullptr_t, const intrusive_ptr<T>& ptr) {
+WN_FORCE_INLINE bool operator>=(const nullptr_t, const intrusive_ptr<T>& ptr) {
   return (nullptr >= ptr.get());
 }
 

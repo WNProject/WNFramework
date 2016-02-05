@@ -83,7 +83,7 @@ public:
   void walk_script_file(const script_file* _file);
 
 private:
-  wn_uint32 m_temporaries;
+  uint32_t m_temporaries;
   char m_last_temporary[11];
   memory::allocator* m_allocator;
   containers::string m_output_string;

@@ -46,11 +46,11 @@ WNSurfaceManagerWindows::WNSurfaceManagerWindows() :
 }
 
 WNSurfaceManagerReturnCode::type WNSurfaceManagerWindows::Release() {
-    for (wn_size_t i = 0; i < mMessagePumps.size(); ++i) {
+    for (size_t i = 0; i < mMessagePumps.size(); ++i) {
         SendNotifyMessage(mMessagePumps[i]->mWindow->GetNativeHandle(), WM_USER, 0, 0);
     }
 
-    for (wn_size_t i = 0; i < mMessagePumps.size(); ++i) {
+    for (size_t i = 0; i < mMessagePumps.size(); ++i) {
         mMessagePumps[i]->mThread->join();
 
         wn::memory::destroy(mMessagePumps[i]);
@@ -61,7 +61,7 @@ WNSurfaceManagerReturnCode::type WNSurfaceManagerWindows::Release() {
     return(WNSurfaceManagerReturnCode::ok);
 }
 
-WNSurfaceManagerReturnCode::type WNSurfaceManagerWindows::CreateSurface(wn_uint32 _x, wn_uint32 _y, wn_uint32 _width, wn_uint32 _height, wn::memory::intrusive_ptr<surface>& _surface) {
+WNSurfaceManagerReturnCode::type WNSurfaceManagerWindows::CreateSurface(uint32_t _x, uint32_t _y, uint32_t _width, uint32_t _height, wn::memory::intrusive_ptr<surface>& _surface) {
     wn::memory::intrusive_ptr<WNSurfaceWindows> ptr = wn::memory::make_intrusive<WNSurfaceWindows, WNSurfaceManagerWindows&>(&allocator, *this);
 
     ptr->Resize(_width, _height);
@@ -72,7 +72,7 @@ WNSurfaceManagerReturnCode::type WNSurfaceManagerWindows::CreateSurface(wn_uint3
     mWindowCreationLock.lock();
     mPendingHwnd = 0;
 
-    wn::multi_tasking::thread<wn_bool>* thread = wn::memory::construct<wn::multi_tasking::thread<wn_bool>>(&allocator, MessagePump, dat);
+    wn::multi_tasking::thread<bool>* thread = wn::memory::construct<wn::multi_tasking::thread<bool>>(&allocator, MessagePump, dat);
 
     dat->mThread = thread;
 
@@ -108,14 +108,14 @@ LRESULT CALLBACK WNSurfaceManagerWindows::WindowProc(HWND hwnd, UINT uMsg, WPARA
         case WM_USER:
             if (wParam == static_cast<WPARAM>(lParam) && wParam == 0) {
                 if (data) {
-                    data->mExit = wn_true;
+                    data->mExit = true;
                 }
 
                 return(-1);
             }
         case WM_DESTROY:
             if (data) {
-                data->mExit = wn_true;
+                data->mExit = true;
 
                 return(DefWindowProc(hwnd, uMsg, wParam, lParam));
             }
@@ -125,7 +125,7 @@ LRESULT CALLBACK WNSurfaceManagerWindows::WindowProc(HWND hwnd, UINT uMsg, WPARA
 }
 
 
-wn_bool WNSurfaceManagerWindows::MessagePump(WNWindowThreadData* _data) {
+bool WNSurfaceManagerWindows::MessagePump(WNWindowThreadData* _data) {
     WNSurfaceManagerWindows& manager = _data->mWindow->mSurfaceManager;
     RECT r;
 
@@ -145,7 +145,7 @@ wn_bool WNSurfaceManagerWindows::MessagePump(WNWindowThreadData* _data) {
     if (manager.mPendingHwnd == 0) {
         manager.mCreatedWindowLock.notify();
 
-        return(wn_false);
+        return(false);
     }
 
     _data->mWindow->SetNativeHandle(wnd);
@@ -169,11 +169,11 @@ wn_bool WNSurfaceManagerWindows::MessagePump(WNWindowThreadData* _data) {
         Sleep(1);
     }
 
-    return(wn_true);
+    return(true);
 }
 
 
 WNSurfaceManagerWindows::WNWindowThreadData::WNWindowThreadData(wn::memory::intrusive_ptr<WNSurfaceWindows> _wnd) :
     mWindow(_wnd),
-    mExit(wn_false) {
+    mExit(false) {
 }

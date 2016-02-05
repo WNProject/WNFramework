@@ -20,12 +20,12 @@ namespace wn {
             write_text
         };
 
-        static const wn_size_t MAX_DATA_WRITE = 1024;
+        static const size_t MAX_DATA_WRITE = 1024;
 
         class data_buffer {
         public:
-            virtual wn_bool serialize(const serializer_base& _serializer, const wn_uint32 _flags) = 0;
-            virtual wn_char* reserve(const wn_size_t _count, wn_size_t& _reserved_count) = 0;
+            virtual bool serialize(const serializer_base& _serializer, const uint32_t _flags) = 0;
+            virtual char* reserve(const size_t _count, size_t& _reserved_count) = 0;
             virtual data_buffer_type type() const = 0;
         };
     }

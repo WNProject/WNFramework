@@ -13,7 +13,7 @@ wn::scripting::scripting_engine_factory::create_scripting_engine(
   case wn::scripting::factory_type::deprecated_engine:
     return (wn::memory::construct<WNScripting::WNScriptingEngineImplDeprecated>());
   case wn::scripting::factory_type::jit_engine:
-    return (wn_nullptr);
+    return (nullptr);
   }
-  return (wn_nullptr);
+  return (nullptr);
 }

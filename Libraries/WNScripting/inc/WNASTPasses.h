@@ -24,22 +24,22 @@ class type_validator;
 // Returns false, and writes to the _log parameter if a type
 // could not be determined.
 bool run_type_association_pass(script_file* _file, WNLogging::WNLog* _log,
-    type_validator* _validator, wn_size_t* _num_warnings,
-    wn_size_t* _num_errors);
+    type_validator* _validator, size_t* _num_warnings,
+    size_t* _num_errors);
 
 // Associates all IDs with the parameters/declaration of the id.
 // Returns false, and writes to the _log parameter if an id was not
 // accessible in the current scope.
 bool run_id_association_pass(script_file* _file, WNLogging::WNLog* _log,
-    type_validator* _validator, wn_size_t* _num_warnings,
-    wn_size_t* _num_errors);
+    type_validator* _validator, size_t* _num_warnings,
+    size_t* _num_errors);
 
 // Removes dead code from the tree. Examples include:
 // Code after return.
 // TODO(awoloszyn): Remove constant branches.
 bool run_dce_pass(script_file* _file, WNLogging::WNLog* _log,
-    type_validator* _validator, wn_size_t* _num_warnings,
-    wn_size_t* _num_errors);
+    type_validator* _validator, size_t* _num_warnings,
+    size_t* _num_errors);
 
 // TODO(awoloszyn): Constant folding pass.
 

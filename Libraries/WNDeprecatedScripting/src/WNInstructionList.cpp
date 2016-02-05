@@ -24,7 +24,7 @@ WNInstructionList::WNInstructionList(WNInstruction* inst) :
 }
 
 WNInstructionList::~WNInstructionList() {
-    for(WNScriptLinkedList<WNInstruction>::WNScriptLinkedListNode* i = mInstructions.first; i != wn_nullptr; i = i->next) {
+    for(WNScriptLinkedList<WNInstruction>::WNScriptLinkedListNode* i = mInstructions.first; i != nullptr; i = i->next) {
         wn::memory::destroy(i->value);
     }
 }
@@ -42,7 +42,7 @@ eWNTypeError WNInstructionList::GenerateCode(WNCodeModule& _module, const WNFunc
     }
     builder->SetInsertPoint(bb);
     _module.GetScopedVariableList().PushScopeBlock(_module);
-    for(WNScriptLinkedList<WNInstruction>::WNScriptLinkedListNode* i = mInstructions.first; i != wn_nullptr; i = i->next) {
+    for(WNScriptLinkedList<WNInstruction>::WNScriptLinkedListNode* i = mInstructions.first; i != nullptr; i = i->next) {
         if(ok != (err = i->value->GenerateCode(_module, _def, _compilationLog))) {
             return(err);
         }
@@ -55,5 +55,5 @@ eWNTypeError WNInstructionList::GenerateCode(WNCodeModule& _module, const WNFunc
     return(ok);
 }
 
-wn_bool WNInstructionList::Returns() { return(mReturns); }
+bool WNInstructionList::Returns() { return(mReturns); }
 

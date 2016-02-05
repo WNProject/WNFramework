@@ -16,7 +16,7 @@ namespace WNNetworking {
     public:
         WNInConnectionLinux(WNNetworkManager& _manager);
 
-        wn_bool Initialize(wn_int32 _mySocket, sockaddr& _addr, socklen_t addrLen);
+        bool Initialize(int32_t _mySocket, sockaddr& _addr, socklen_t addrLen);
     };
 };
 

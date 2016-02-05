@@ -27,15 +27,15 @@ namespace WNNetworking {
 
     class WNConnectionGroup : public WNConnection {
     public:
-        WNConnectionGroup(const wn_char* _name);
+        WNConnectionGroup(const char* _name);
         virtual ~WNConnectionGroup();
 
-        virtual wn_void SendBuffer(WNNetworkWriteBuffer& buffer);
-        wn_void AddConnection(WNConnection* _connection);
-        wn_void CleanConnection(WNConnection* _connection);
+        virtual void SendBuffer(WNNetworkWriteBuffer& buffer);
+        void AddConnection(WNConnection* _connection);
+        void CleanConnection(WNConnection* _connection);
 
     private:
-        wn_char* mConnectionName;
+        char* mConnectionName;
         std::vector<WNConnection*> mConnections;
     };
 };

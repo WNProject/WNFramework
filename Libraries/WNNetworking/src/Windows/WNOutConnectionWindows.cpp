@@ -16,7 +16,7 @@ WNOutConnectionWindows::WNOutConnectionWindows(WNNetworkManager& _manager) :
     WNConnectionWindows(_manager) {
 }
 
-WNNetworkManagerReturnCode::type WNOutConnectionWindows::Initialize(WNConnectionType::type& _type, const wn_char* _target, wn_uint16 _port) {
+WNNetworkManagerReturnCode::type WNOutConnectionWindows::Initialize(WNConnectionType::type& _type, const char* _target, uint16_t _port) {
     WN_RELEASE_ASSERT_DESC(_type == WNConnectionType::eWNReliable, "WNNetworking does not support unreliable connections... YET");
     WN_RELEASE_ASSERT_DESC(_port <= 0xFFFF, "Error port must be within range");
 
@@ -44,9 +44,9 @@ WNNetworkManagerReturnCode::type WNOutConnectionWindows::Initialize(WNConnection
 
     address.sin_port = htons(static_cast<u_short>(_port));
 
-    wn_size_t length = wn::memory::snprintf(NULL, 0, "%s:%d", _target, ntohs(address.sin_port));
+    size_t length = wn::memory::snprintf(NULL, 0, "%s:%d", _target, ntohs(address.sin_port));
 
-    mConnectionName = wn::memory::heap_allocate<wn_char>(length + 1);
+    mConnectionName = wn::memory::heap_allocate<char>(length + 1);
 
     wn::memory::snprintf(mConnectionName, length + 1, "%s:%d", _target, ntohs(address.sin_port));
 

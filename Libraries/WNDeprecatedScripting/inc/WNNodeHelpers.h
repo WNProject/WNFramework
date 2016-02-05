@@ -37,8 +37,8 @@ namespace WNScripting {
         if(fDefinition->mFunction) {
             _returnValue = builder->CreateCall(fDefinition->mFunction, arguments, "");
         } else {
-            WNScriptType voidStar = wn_nullptr;
-            WNScriptType sizeTType = wn_nullptr;
+            WNScriptType voidStar = nullptr;
+            WNScriptType sizeTType = nullptr;
             if(ok != (err = _module.GetTypeManager().get_type_by_name("-Ptr", voidStar))) {
                 _compilationLog.Log(WNLogging::eCritical, 0, "Cannot find Ptr type");
                 return(err);
@@ -112,7 +112,7 @@ namespace WNScripting {
                 _compilationLog.Log(WNLogging::eError, 0, "Invalid cast from ", _thisType.mType->mName, " to ", fDefinition->mTypes[0]->mName );
                 return(eWNInvalidCast);
             }
-            llvm::Value* outType = wn_nullptr;
+            llvm::Value* outType = nullptr;
             if(ok != (err = op->Execute(_module.GetBuilder(), _thisType.mValue, outType)))
             {
                 _compilationLog.Log(WNLogging::eError, 0, "Could not generate cast from ", _thisType.mType->mName, " to ", fDefinition->mTypes[0]->mName );
@@ -123,7 +123,7 @@ namespace WNScripting {
             arguments.push_back(_thisType.mValue);
         }
 
-        for(wn_size_t i = 0; i < _funcParams.size(); ++i) {
+        for(size_t i = 0; i < _funcParams.size(); ++i) {
             if(_funcParams[i].mType == fDefinition->mTypes[i + 1]) {
                 arguments.push_back(_funcParams[i].mValue);
             } else {
@@ -147,7 +147,7 @@ namespace WNScripting {
 
 
 
-    inline eWNTypeError GenerateVirtualFunctionCall(WNCodeModule& _module, const WNFunctionDefinition* _currentFunction, wn_int32 _virtualIndex, const std::vector<FunctionParam>& _funcParams, WNScriptType& _returnType, llvm::Value*& _returnValue, FunctionParam& _thisVal, WNLogging::WNLog& _compilationLog) {
+    inline eWNTypeError GenerateVirtualFunctionCall(WNCodeModule& _module, const WNFunctionDefinition* _currentFunction, int32_t _virtualIndex, const std::vector<FunctionParam>& _funcParams, WNScriptType& _returnType, llvm::Value*& _returnValue, FunctionParam& _thisVal, WNLogging::WNLog& _compilationLog) {
         llvm::IRBuilder<>* builder = reinterpret_cast<llvm::IRBuilder<>*>(_module.GetBuilder());
         WNFunctionDefinition* fDefinition = _thisVal.mType->mVTable[_virtualIndex];
         std::vector<llvm::Value*> arguments;
@@ -167,7 +167,7 @@ namespace WNScripting {
                 if(!op) {
                     _compilationLog.Log(WNLogging::eError, 0, "Invalid cast from ", _thisVal.mType->mName, " to ", fDefinition->mTypes[0]->mName );
                 }
-                llvm::Value* outType = wn_nullptr;
+                llvm::Value* outType = nullptr;
                 if(ok != (err = op->Execute(_module.GetBuilder(), _thisVal.mValue, outType)))
                 {
                     _compilationLog.Log(WNLogging::eError, 0, "Could not generate cast from ", _thisVal.mType->mName, " to ", fDefinition->mTypes[0]->mName );
@@ -178,7 +178,7 @@ namespace WNScripting {
                 arguments.push_back(_thisVal.mValue);
             }
 
-            for(wn_size_t i = 0; i < _funcParams.size(); ++i) {
+            for(size_t i = 0; i < _funcParams.size(); ++i) {
                 if(_funcParams[i].mType == fDefinition->mTypes[i + 1]) {
                     arguments.push_back(_funcParams[i].mValue);
                 } else {
@@ -197,8 +197,8 @@ namespace WNScripting {
             }
 
 
-        WNScriptType voidStar = wn_nullptr;
-        WNScriptType sizeTType = wn_nullptr;
+        WNScriptType voidStar = nullptr;
+        WNScriptType sizeTType = nullptr;
         if(ok != (err = _module.GetTypeManager().get_type_by_name("-Ptr", voidStar))) {
             _compilationLog.Log(WNLogging::eCritical, 0, "Cannot find Ptr type");
             return(err);
@@ -263,7 +263,7 @@ namespace WNScripting {
         return(ok);
     }
 
-    inline eWNTypeError GenerateFunctionCall(WNCodeModule& _module, const WNFunctionDefinition* _currentFunction, const wn_char* functionName, const std::vector<FunctionParam>& _funcParams, bool _castable, WNScriptType& _returnType, llvm::Value*& _returnValue, WNLogging::WNLog& _compilationLog) {
+    inline eWNTypeError GenerateFunctionCall(WNCodeModule& _module, const WNFunctionDefinition* _currentFunction, const char* functionName, const std::vector<FunctionParam>& _funcParams, bool _castable, WNScriptType& _returnType, llvm::Value*& _returnValue, WNLogging::WNLog& _compilationLog) {
         llvm::IRBuilder<>* builder = reinterpret_cast<llvm::IRBuilder<>*>(_module.GetBuilder());
         WNFunctionDefinition* fDefinition;
         std::vector<WNScriptType> scriptTypes;
@@ -285,7 +285,7 @@ namespace WNScripting {
                     return(err);
                 }
             }
-            for(wn_size_t i = 0; i < _funcParams.size(); ++i) {
+            for(size_t i = 0; i < _funcParams.size(); ++i) {
                 if(_funcParams[i].mType == fDefinition->mTypes[i]) {
                     arguments.push_back(_funcParams[i].mValue);
                 } else {
@@ -308,17 +308,17 @@ namespace WNScripting {
                 _compilationLog.Log(WNLogging::eError, 0, "Function ", functionName, " does not exist with given types");
                 return(eWNPlatformError);
             }
-            for(wn_size_t i = 0; i < _funcParams.size(); ++i) {
+            for(size_t i = 0; i < _funcParams.size(); ++i) {
                 arguments.push_back(_funcParams[i].mValue);
             }
         }
         return(GenerateActualCall(_module, _currentFunction, fDefinition, arguments, _returnType, _returnValue, _compilationLog));
     }
-    inline eWNTypeError GenerateRecursiveThisFunctionCall(WNCodeModule& _module, const WNFunctionDefinition* _currentFunction, const wn_char* _functionName, const std::vector<FunctionParam>& _funcParams, WNScriptType& _returnType, llvm::Value*& _returnValue, FunctionParam& _thisType, WNLogging::WNLog& _compilationLog) {
+    inline eWNTypeError GenerateRecursiveThisFunctionCall(WNCodeModule& _module, const WNFunctionDefinition* _currentFunction, const char* _functionName, const std::vector<FunctionParam>& _funcParams, WNScriptType& _returnType, llvm::Value*& _returnValue, FunctionParam& _thisType, WNLogging::WNLog& _compilationLog) {
         eWNTypeError err = error;
         WNScriptType thisType = _thisType.mType;
-        wn_int32 castableLocation = -1;
-        WNFunctionDefinition* def = wn_nullptr;
+        int32_t castableLocation = -1;
+        WNFunctionDefinition* def = nullptr;
 
         err = _module.GetThisCallFunction(_functionName, thisType, _funcParams, castableLocation, def);
         if(eWNAmbiguous == err) {
@@ -340,7 +340,7 @@ namespace WNScripting {
       WN_INLINE eWNTypeError GenerateVOIDReturn(WNCodeModule& _module, const WNFunctionDefinition* _def) {
         eWNTypeError err = ok;
         llvm::IRBuilder<>* builder = reinterpret_cast<llvm::IRBuilder<>*>(_module.GetBuilder());
-        WNScriptType t = wn_nullptr;
+        WNScriptType t = nullptr;
         if(ok != (err = _module.GetTypeManager().get_type_by_name("Void", t))) {
             return(err);
         }
@@ -351,8 +351,8 @@ namespace WNScripting {
         if(!constOp) {
             return(eWNBadType);
         }
-        llvm::Value* v = wn_nullptr;
-        wn_bool _forceUse = wn_false;
+        llvm::Value* v = nullptr;
+        bool _forceUse = false;
         if(ok != (err = constOp->Execute(_module, "", _forceUse, v))) {
             return(err);
         }
@@ -371,7 +371,7 @@ namespace WNScripting {
             return(err);
         }
 
-        llvm::Value* allocLocation = wn_nullptr;
+        llvm::Value* allocLocation = nullptr;
         const GenerateAllocation* alloc = _module.GetTypeManager().GetAllocationOperation(_outType);
         if(!alloc) {
             return(eWNCannotCreateType);

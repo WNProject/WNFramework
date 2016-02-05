@@ -18,12 +18,12 @@ namespace wn {
         explicit WNMatrix4(const type& _number);
         explicit WNMatrix4(const type* _numbers);
 
-        wn_void MakeTranslation(const type& _translation);
-        wn_void MakeTranslation(const vector3<type>& _translation);
-        wn_void MakeTranslation(const type& _x, const type& _y, const type& _z);
-        wn_void MakeScale(const type& _scale);
-        wn_void MakeScale(const vector3<type>& _scale);
-        wn_void MakeScale(const type& _x, const type& _y, const type& _z);
+        void MakeTranslation(const type& _translation);
+        void MakeTranslation(const vector3<type>& _translation);
+        void MakeTranslation(const type& _x, const type& _y, const type& _z);
+        void MakeScale(const type& _scale);
+        void MakeScale(const vector3<type>& _scale);
+        void MakeScale(const type& _x, const type& _y, const type& _z);
 
     public:
         static WNMatrix4 CreateTranslation(const type& _translation);

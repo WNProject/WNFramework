@@ -8,7 +8,7 @@
 template <typename _Type>
 struct list : ::testing::Test {};
 
-typedef ::testing::Types<wn_uint8, wn_uint16, wn_uint32, wn_uint64>
+typedef ::testing::Types<uint8_t, uint16_t, uint32_t, uint64_t>
     list_testing_types;
 
 TYPED_TEST_CASE(list, list_testing_types);
@@ -236,7 +236,7 @@ struct construction_test_struct {
     type = construction_type::constructor;
   }
 
-  construction_test_struct(wn_int64 v1, wn_int8 v2) : v1(v1), v2(v2) {
+  construction_test_struct(int64_t v1, int8_t v2) : v1(v1), v2(v2) {
     type = construction_type::typed_constructor;
   }
 
@@ -251,15 +251,15 @@ struct construction_test_struct {
   }
 
   construction_type type;
-  wn_int64 v1;
-  wn_int8 v2;
+  int64_t v1;
+  int8_t v2;
 };
 
 TEST(list, emplace) {
   wn::memory::basic_allocator alloc;
   wn::containers::list<construction_test_struct> l(&alloc);
-  l.emplace(l.begin(), 32, static_cast<wn_int8>(4));
-  l.emplace(l.begin(), 4, static_cast<wn_int8>(12));
+  l.emplace(l.begin(), 32, static_cast<int8_t>(4));
+  l.emplace(l.begin(), 4, static_cast<int8_t>(12));
   EXPECT_EQ(construction_test_struct::construction_type::typed_constructor,
       l.begin()->type);
   EXPECT_EQ(construction_test_struct::construction_type::typed_constructor,

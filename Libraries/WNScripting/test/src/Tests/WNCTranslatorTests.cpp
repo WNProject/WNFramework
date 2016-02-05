@@ -10,7 +10,7 @@
 #include "WNScripting/test/inc/Common.h"
 #include "WNTesting/inc/WNTestHarness.h"
 
-void flush_buffer(wn_void* v, const wn_char* bytes, wn_size_t length,
+void flush_buffer(void* v, const char* bytes, size_t length,
     const std::vector<WNLogging::WNLogColorElement>&) {
   wn::containers::string* s = static_cast<wn::containers::string*>(v);
   s->append(bytes, length);
@@ -61,7 +61,7 @@ using c_translator_direct_translation_test =
 
 // The format of these tests is a vector of pairs of strings.
 // This is entirely so that the test can be written as
-// { "Int main() {", "wn_int32 main() {"},
+// { "Int main() {", "int32_t main() {"},
 // { "  return 4;",  "return 4;"},
 // ...
 // A \n in automatically appended to each string.
@@ -112,7 +112,7 @@ INSTANTIATE_TEST_CASE_P(
     ::testing::ValuesIn(
         std::vector<std::vector<source_pair>>({
             {
-              {"Int main(Int x) {",     "wn_int32 _Z3wns4mainEll(wn_int32 x) {"  },
+              {"Int main(Int x) {",     "int32_t _Z3wns4mainEll(int32_t x) {"  },
               {"  if (x == 3) {",       "if ((x == 3)) {"              },
               {"    return 7;",         "return 7;"                    },
               {"  }",                   "}"                            },
@@ -120,7 +120,7 @@ INSTANTIATE_TEST_CASE_P(
               {"}",                     "}"                            },
             },
             {
-              {"Int main(Int x) {",     "wn_int32 _Z3wns4mainEll(wn_int32 x) {"  },
+              {"Int main(Int x) {",     "int32_t _Z3wns4mainEll(int32_t x) {"  },
               {"  if (x == 3) {",       "if ((x == 3)) {"              },
               {"    return 7;",         "return 7;"                    },
               {"  } else {",            "} else {"                     },
@@ -130,7 +130,7 @@ INSTANTIATE_TEST_CASE_P(
               {"}",                     "}"                            },
             },
             {
-              {"Int main(Int x) {",     "wn_int32 _Z3wns4mainEll(wn_int32 x) {"  },
+              {"Int main(Int x) {",     "int32_t _Z3wns4mainEll(int32_t x) {"  },
               {"  if (x == 4) {",       "if ((x == 4)) {"              },
               {"    if (x > 3) {",      "if ((x > 3)) {"               },
               {"      return 9;",       "return 9;"                    },
@@ -143,7 +143,7 @@ INSTANTIATE_TEST_CASE_P(
               {"}",                     ""                             },
             },
             {
-              {"Int main(Int x) {",        "wn_int32 _Z3wns4mainEll(wn_int32 x) {" },
+              {"Int main(Int x) {",        "int32_t _Z3wns4mainEll(int32_t x) {" },
               {"  if (x == 4) {",          "if ((x == 4)) {"             },
               {"    if (x > 3) {",         "if ((x > 3)) {"              },
               {"      return 9;",          "return 9;"                   },
@@ -168,9 +168,9 @@ INSTANTIATE_TEST_CASE_P(
     ::testing::ValuesIn(
         std::vector<std::vector<source_pair>>({
           {
-            {"Int main(Int x) {",     "wn_int32 _Z3wns4mainEll(wn_int32 x) {"  },
-            {"  Int y = x;",          "wn_int32 y = x;"              },
-            {"  Bool b = y == 4;",    "wn_bool b = (y == 4);"        },
+            {"Int main(Int x) {",     "int32_t _Z3wns4mainEll(int32_t x) {"  },
+            {"  Int y = x;",          "int32_t y = x;"              },
+            {"  Bool b = y == 4;",    "bool b = (y == 4);"        },
             {"  if (b) {    ",        "if (b) {"                     },
             {"     return 3;",        "return 3;"                    },
             {"  }",                   "}"                            },
@@ -186,22 +186,22 @@ INSTANTIATE_TEST_CASE_P(
     ::testing::ValuesIn(
         std::vector<std::vector<source_pair>>({
           {
-            {"Int main(Int x) {",     "wn_int32 _Z3wns4mainEll(wn_int32 x) {"  },
-            {"  Int y = 0;",          "wn_int32 y = 0;"              },
+            {"Int main(Int x) {",     "int32_t _Z3wns4mainEll(int32_t x) {"  },
+            {"  Int y = 0;",          "int32_t y = 0;"              },
             {"  x = y;",              "x = y;"                       },
             {"  return x;",           "return x;"                    },
             {"}",                     "}"                            },
           },
           {
-            {"Bool main(Int x) {",    "wn_bool _Z3wns4mainEbl(wn_int32 x) {"   },
-            {"  Bool b = false;",     "wn_bool b = false;"           },
+            {"Bool main(Int x) {",    "bool _Z3wns4mainEbl(int32_t x) {"   },
+            {"  Bool b = false;",     "bool b = false;"           },
             {"  b = x == 4;",         "b = (x == 4);"                },
             {"  return b;",           "return b;"                    },
             {"}",                     "}"                            },
           },
           {
-            {"Int main(Bool x) {",    "wn_int32 _Z3wns4mainElb(wn_bool x) {"   },
-            {"  Int y = 4;",          "wn_int32 y = 4;"              },
+            {"Int main(Bool x) {",    "int32_t _Z3wns4mainElb(bool x) {"   },
+            {"  Int y = 4;",          "int32_t y = 4;"              },
             {"  if (x) {",            "if (x) {"                     },
             {"    y = 10;",           "y = 10;"                      },
             {"  } else {",            "} else {"                     },
@@ -220,46 +220,46 @@ INSTANTIATE_TEST_CASE_P(
         std::vector<std::vector<source_pair>>({
           {
             {"struct Foo {",          "typedef struct {"             },
-            {"  Int x = 0;",          "  wn_int32 x;"                },
+            {"  Int x = 0;",          "  int32_t x;"                },
             {"}",                     "} Foo;"                       },
             {"",                      "\n"                           }
           },
           {
             {"struct Bar {",          "typedef struct {"             },
-            {"  Int x = 0;",          "  wn_int32 x;"                },
-            {"  Int y = 0;",          "  wn_int32 y;"                },
-            {"  Float z = 0;",        "  wn_float32 z;"              },
+            {"  Int x = 0;",          "  int32_t x;"                },
+            {"  Int y = 0;",          "  int32_t y;"                },
+            {"  Float z = 0;",        "  float z;"              },
             {"}",                     "} Bar;"                       },
             {"",                      "\n"                           }
           },
           {
             {"struct Foo {",          "typedef struct {"             },
-            {"  Int x = 0;",          "  wn_int32 x;"                },
-            {"  Int y = 0;",          "  wn_int32 y;"                },
-            {"  Float z = 0;",        "  wn_float32 z;"              },
+            {"  Int x = 0;",          "  int32_t x;"                },
+            {"  Int y = 0;",          "  int32_t y;"                },
+            {"  Float z = 0;",        "  float z;"              },
             {"}",                     "} Foo;"                       },
             {"",                      "\n"                           },
             {"struct Bar {",          "typedef struct {"             },
-            {"  Int x = 0;",          "  wn_int32 x;"                },
-            {"  Int y = 0;",          "  wn_int32 y;"                },
-            {"  Float z = 0;",        "  wn_float32 z;"              },
+            {"  Int x = 0;",          "  int32_t x;"                },
+            {"  Int y = 0;",          "  int32_t y;"                },
+            {"  Float z = 0;",        "  float z;"              },
             {"}",                     "} Bar;"                       },
             {"",                      "\n"                           }
           },
           {
             {"struct Foo {",          "typedef struct {"             },
-            {"  Int x = 0;",          "  wn_int32 x;"                },
-            {"  Int y = 0;",          "  wn_int32 y;"                },
-            {"  Float z = 0;",        "  wn_float32 z;"              },
+            {"  Int x = 0;",          "  int32_t x;"                },
+            {"  Int y = 0;",          "  int32_t y;"                },
+            {"  Float z = 0;",        "  float z;"              },
             {"}",                     "} Foo;"                       },
             {"",                      "\n"                           },
             {"struct Bar {",          "typedef struct {"             },
-            {"  Int x = 0;",          "  wn_int32 x;"                },
-            {"  Int y = 0;",          "  wn_int32 y;"                },
-            {"  Float z = 0;",        "  wn_float32 z;"              },
+            {"  Int x = 0;",          "  int32_t x;"                },
+            {"  Int y = 0;",          "  int32_t y;"                },
+            {"  Float z = 0;",        "  float z;"              },
             {"}",                     "} Bar;"                       },
             {"",                      "\n"                           },
-            {"Int main(Int x) {",     "wn_int32 _Z3wns4mainEll(wn_int32 x) {"  },
+            {"Int main(Int x) {",     "int32_t _Z3wns4mainEll(int32_t x) {"  },
             {"  if (x == 3) {",       "if ((x == 3)) {"              },
             {"    return 7;",         "return 7;"                    },
             {"  }",                   "}"                            },
@@ -276,10 +276,10 @@ INSTANTIATE_TEST_CASE_P(
         std::vector<std::vector<source_pair>>({
           {
             {"struct Foo {",          "typedef struct {"             },
-            {"  Int x = 0;",          "  wn_int32 x;"                },
+            {"  Int x = 0;",          "  int32_t x;"                },
             {"}",                     "} Foo;"                       },
             {"",                      "\n"                           },
-            {"Int main(Int x) {",     "wn_int32 _Z3wns4mainEll(wn_int32 x) {"   },
+            {"Int main(Int x) {",     "int32_t _Z3wns4mainEll(int32_t x) {"   },
             {" Foo f = Foo();",       "Foo __wns_temp0;"             },
             {"",                      "Foo* f = &__wns_temp0;"       },
             {" return 4;",            "return 4;"                    },
@@ -295,10 +295,10 @@ INSTANTIATE_TEST_CASE_P(
        std::vector<std::vector<source_pair>>({
           {
             {"struct Foo {",          "typedef struct {"             },
-            {"  Int x = 0;",          "  wn_int32 x;"                },
+            {"  Int x = 0;",          "  int32_t x;"                },
             {"}",                     "} Foo;"                       },
             {"",                      "\n"                           },
-            {"Int main(Int x) {",     "wn_int32 _Z3wns4mainEll(wn_int32 x) {"   },
+            {"Int main(Int x) {",     "int32_t _Z3wns4mainEll(int32_t x) {"   },
             {" Foo f = Foo();",       "Foo __wns_temp0;"             },
             {"",                      "Foo* f = &__wns_temp0;"       },
             {" f.x = x;",             "f->x = x;"                    },
@@ -307,11 +307,11 @@ INSTANTIATE_TEST_CASE_P(
           },
           {
             {"struct Foo {",          "typedef struct {"             },
-            {"  Int x = 0;",          "  wn_int32 x;"                },
-            {"  Int y = 0;",          "  wn_int32 y;"                },
+            {"  Int x = 0;",          "  int32_t x;"                },
+            {"  Int y = 0;",          "  int32_t y;"                },
             {"}",                     "} Foo;"                       },
             {"",                      "\n"                           },
-            {"Int main(Int x) {",     "wn_int32 _Z3wns4mainEll(wn_int32 x) {"   },
+            {"Int main(Int x) {",     "int32_t _Z3wns4mainEll(int32_t x) {"   },
             {" Foo f = Foo();",       "Foo __wns_temp0;"             },
             {"",                      "Foo* f = &__wns_temp0;"       },
             {" f.x = x;",             "f->x = x;"                    },
@@ -355,10 +355,10 @@ INSTANTIATE_TEST_CASE_P(
     parameter_tests, c_translator_function_params,
     ::testing::ValuesIn(
         std::vector<std::tuple<const char*, const char*, const char*>>(
-            {std::make_tuple("Int", "wn_int32", "l"),
-                std::make_tuple("Float", "wn_float32", "f"),
-                std::make_tuple("Bool", "wn_bool", "b"),
-                std::make_tuple("Char", "wn_char", "c")})));
+            {std::make_tuple("Int", "int32_t", "l"),
+                std::make_tuple("Float", "float", "f"),
+                std::make_tuple("Bool", "bool", "b"),
+                std::make_tuple("Char", "char", "c")})));
 
 TEST(c_translator, multiple_c_functions) {
   wn::testing::allocator allocator;
@@ -420,7 +420,7 @@ TEST_P(c_int_params, int_return) {
 
   wn::containers::string expected(&allocator);
   expected +=
-      "wn_int32 _Z3wns4mainEl() {\n"
+      "int32_t _Z3wns4mainEl() {\n"
       "return ";
   expected += GetParam();
   expected += ";\n}\n";
@@ -458,7 +458,7 @@ TEST_P(c_arith_params, binary_arithmetic) {
 
   wn::containers::string expected(&allocator);
   expected +=
-      "wn_int32 _Z3wns4mainEl() {\n"
+      "int32_t _Z3wns4mainEl() {\n"
       "return ";
   expected += GetParam().dest;
   expected += ";\n}\n";
@@ -495,7 +495,7 @@ TEST_P(c_bool_params, boolean_arithmetic) {
 
   wn::containers::string expected(&allocator);
   expected +=
-      "wn_bool _Z3wns7wn_mainEbb(wn_bool b) {\n"
+      "bool _Z3wns7wn_mainEbb(bool b) {\n"
       "return ";
   expected += GetParam().dest;
   expected += ";\n}\n";

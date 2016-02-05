@@ -63,19 +63,19 @@ namespace wn {
             m_radius(_radius) {
         }
 
-        WN_FORCE_INLINE value_type& operator [] (const wn_size_t _index) {
+        WN_FORCE_INLINE value_type& operator [] (const size_t _index) {
             return(at(_index));
         }
 
-        WN_FORCE_INLINE const value_type& operator [] (const wn_size_t _index) const {
+        WN_FORCE_INLINE const value_type& operator [] (const size_t _index) const {
             return(at(_index));
         }
 
-        WN_FORCE_INLINE value_type& operator () (const wn_size_t _index) {
+        WN_FORCE_INLINE value_type& operator () (const size_t _index) {
             return(at(_index));
         }
 
-        WN_FORCE_INLINE const value_type& operator () (const wn_size_t _index) const {
+        WN_FORCE_INLINE const value_type& operator () (const size_t _index) const {
             return(at(_index));
         }
 
@@ -93,35 +93,35 @@ namespace wn {
             return(*this);
         }
 
-        WN_FORCE_INLINE wn_bool operator == (const circle& _circle) const {
+        WN_FORCE_INLINE bool operator == (const circle& _circle) const {
             return(m_location == _circle.m_location && m_radius == _circle.m_radius);
         }
 
-        WN_FORCE_INLINE wn_bool operator != (const circle& _circle) const {
+        WN_FORCE_INLINE bool operator != (const circle& _circle) const {
             return(m_location != _circle.m_location || m_radius != _circle.m_radius);
         }
 
-        template <const wn_size_t _index>
+        template <const size_t _index>
         WN_FORCE_INLINE value_type& at() {
             static_assert(_index < 3, "Attempting to get element outside of bounds");
 
             return(at(_index));
         }
 
-        template <const wn_size_t _index>
+        template <const size_t _index>
         WN_FORCE_INLINE const value_type& at() const {
             static_assert(_index < 3, "Attempting to get element outside of bounds");
 
             return(at(_index));
         }
 
-        WN_FORCE_INLINE value_type& at(const wn_size_t _index) {
+        WN_FORCE_INLINE value_type& at(const size_t _index) {
             WN_DEBUG_ASSERT_DESC(_index < 3, "Attempting to get element outside of bounds");
 
             return(_index > 1 ? m_radius : m_location[_index]);
         }
 
-        WN_FORCE_INLINE const value_type& at(const wn_size_t _index) const {
+        WN_FORCE_INLINE const value_type& at(const size_t _index) const {
             WN_DEBUG_ASSERT_DESC(_index < 3, "Attempting to get element outside of bounds");
 
             return(_index > 1 ? m_radius : m_location[_index]);
@@ -143,23 +143,23 @@ namespace wn {
             return(static_cast<value_type>(WN_PI) * m_radius * m_radius);
         }
 
-        WN_FORCE_INLINE wn_bool zero() const {
+        WN_FORCE_INLINE bool zero() const {
             return(m_location.zero() && m_radius == static_cast<value_type>(0));
         }
 
         template <typename _type = value_type,
                   typename = core::enable_if_t<core::is_signed<_type>::value>>
-        WN_FORCE_INLINE wn_bool inside_out() const {
+        WN_FORCE_INLINE bool inside_out() const {
             return(m_radius < static_cast<value_type>(0));
         }
 
-        WN_FORCE_INLINE wn_void expand(const value_type& _amount) {
+        WN_FORCE_INLINE void expand(const value_type& _amount) {
             m_radius += _amount;
         }
 
-        wn_bool Expand(const vector2<value_type>& _vector, wn_bool _anchor = wn_false);
+        bool Expand(const vector2<value_type>& _vector, bool _anchor = false);
 
-        WN_FORCE_INLINE wn_bool expand(const WNRectangle<value_type>& _box, const wn_bool _anchor = wn_false) {
+        WN_FORCE_INLINE bool expand(const WNRectangle<value_type>& _box, const bool _anchor = false) {
             vector2<value_type> points[4];
 
             _box.GetPoints(points);
@@ -168,7 +168,7 @@ namespace wn {
                    expand(points[2], _anchor) || expand(points[3], _anchor));
         }
 
-        WN_FORCE_INLINE wn_bool expand(const WNBounds2<value_type>& _bounds, const wn_bool _anchor = wn_false) {
+        WN_FORCE_INLINE bool expand(const WNBounds2<value_type>& _bounds, const bool _anchor = false) {
             vector2<value_type> points[4];
 
             _bounds.GetPoints(points);
@@ -177,68 +177,68 @@ namespace wn {
                    expand(points[2], _anchor) || expand(points[3], _anchor));
         }
 
-        wn_bool Expand(const circle& _circle, wn_bool _anchor = wn_false);
+        bool Expand(const circle& _circle, bool _anchor = false);
 
-        WN_FORCE_INLINE wn_void translate(const vector2<value_type>& _vector) {
+        WN_FORCE_INLINE void translate(const vector2<value_type>& _vector) {
             m_location.translate(_vector);
         }
 
-        WN_FORCE_INLINE wn_void translate(const value_type& _x, const value_type& _y) {
+        WN_FORCE_INLINE void translate(const value_type& _x, const value_type& _y) {
             m_location.translate(_x, _y);
         }
 
-        WN_FORCE_INLINE wn_void translate_x(const value_type& _value) {
+        WN_FORCE_INLINE void translate_x(const value_type& _value) {
             m_location[0] += _value;
         }
 
-        WN_FORCE_INLINE wn_void translate_y(const value_type& _value) {
+        WN_FORCE_INLINE void translate_y(const value_type& _value) {
             m_location[1] += _value;
         }
 
-        WN_FORCE_INLINE wn_void scale(const value_type& _factor) {
+        WN_FORCE_INLINE void scale(const value_type& _factor) {
             m_radius *= _factor;
         }
 
-        WN_FORCE_INLINE wn_void assign(vector2<value_type>&& _location, const value_type& _radius) {
+        WN_FORCE_INLINE void assign(vector2<value_type>&& _location, const value_type& _radius) {
             set_location(std::move(_location));
             set_radius(_radius);
         }
 
-        WN_FORCE_INLINE wn_void assign(const vector2<value_type>& _location, const value_type& _radius) {
+        WN_FORCE_INLINE void assign(const vector2<value_type>& _location, const value_type& _radius) {
             set_location(_location);
             set_radius(_radius);
         }
 
-        WN_FORCE_INLINE wn_void assign(const value_type& _x, const value_type& _y, const value_type& _radius) {
+        WN_FORCE_INLINE void assign(const value_type& _x, const value_type& _y, const value_type& _radius) {
             set_location(vector2<value_type>(_x, _y));
             set_radius(_radius);
         }
 
-        WN_FORCE_INLINE wn_void set_radius(const value_type& _value) {
+        WN_FORCE_INLINE void set_radius(const value_type& _value) {
             m_radius = _value;
         }
 
-        WN_FORCE_INLINE wn_void set_location(vector2<value_type>&& _vector) {
+        WN_FORCE_INLINE void set_location(vector2<value_type>&& _vector) {
             m_location = std::move(_vector);
         }
 
-        WN_FORCE_INLINE wn_void set_location(const vector2<value_type>& _vector) {
+        WN_FORCE_INLINE void set_location(const vector2<value_type>& _vector) {
             m_location = _vector;
         }
 
-        WN_FORCE_INLINE wn_void set_location(const value_type& _x, const value_type& _y) {
+        WN_FORCE_INLINE void set_location(const value_type& _x, const value_type& _y) {
             m_location.assign(_x, _y);
         }
 
-        WN_FORCE_INLINE wn_void set_location_x(const value_type& _value) {
+        WN_FORCE_INLINE void set_location_x(const value_type& _value) {
             m_location[0] = _value;
         }
 
-        WN_FORCE_INLINE wn_void set_location_y(const value_type& _value) {
+        WN_FORCE_INLINE void set_location_y(const value_type& _value) {
             m_location[1] = _value;
         }
 
-        WN_FORCE_INLINE wn_void set_zero() {
+        WN_FORCE_INLINE void set_zero() {
             m_location.set_zero();
 
             m_radius = static_cast<value_type>(0);
@@ -250,10 +250,10 @@ namespace wn {
             return(circle.expand(_amount), circle);
         }
 
-        circle GetExpanded(const vector2<value_type>& _vector, wn_bool _anchor = wn_false) const;
-        circle GetExpanded(const WNRectangle<value_type>& _rectangle, wn_bool _anchor = wn_false) const;
-        circle GetExpanded(const WNBounds2<value_type>& _bounds, wn_bool _anchor = wn_false) const;
-        circle GetExpanded(const circle& _circle, wn_bool _anchor = wn_false) const;
+        circle GetExpanded(const vector2<value_type>& _vector, bool _anchor = false) const;
+        circle GetExpanded(const WNRectangle<value_type>& _rectangle, bool _anchor = false) const;
+        circle GetExpanded(const WNBounds2<value_type>& _bounds, bool _anchor = false) const;
+        circle GetExpanded(const circle& _circle, bool _anchor = false) const;
 
         WN_FORCE_INLINE circle extract_translated(const vector2<value_type>& _vector) const {
             circle circle(*this);

@@ -44,29 +44,29 @@ namespace wn {
     }
 
     template <typename type>
-    wn_bool WNRay2<type>::operator == (const WNRay2<type>& _ray) const {
+    bool WNRay2<type>::operator == (const WNRay2<type>& _ray) const {
         return(mLocation == _ray.mLocation && mDirection == _ray.mDirection);
     }
 
     template <typename type>
-    wn_bool WNRay2<type>::operator != (const WNRay2<type>& _ray) const {
+    bool WNRay2<type>::operator != (const WNRay2<type>& _ray) const {
         return(mLocation != _ray.mLocation || mDirection != _ray.mDirection);
     }
 
     template <typename type>
-    wn_void WNRay2<type>::Zero() {
+    void WNRay2<type>::Zero() {
         mLocation.Zero();
         mDirection.Zero();
     }
 
     template <typename type>
-    wn_void WNRay2<type>::Set(const type* _numbers) {
+    void WNRay2<type>::Set(const type* _numbers) {
         mLocation.Set(&_numbers[0]);
         mDirection.Set(&_numbers[2]);
     }
 
     template <typename type>
-    wn_void WNRay2<type>::Set(const WNVector2<type>& _location, const WNVector2<type>& _direction) {
+    void WNRay2<type>::Set(const WNVector2<type>& _location, const WNVector2<type>& _direction) {
         mLocation = _location;
         mDirection = _direction;
     }

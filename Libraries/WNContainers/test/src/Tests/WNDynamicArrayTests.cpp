@@ -8,7 +8,7 @@
 template <typename _Type>
 struct dynamic_array : ::testing::Test {};
 
-typedef ::testing::Types<wn_uint8, wn_uint16, wn_uint32, wn_uint64>
+typedef ::testing::Types<uint8_t, uint16_t, uint32_t, uint64_t>
     dynamic_array_testing_types;
 
 TYPED_TEST_CASE(dynamic_array, dynamic_array_testing_types);

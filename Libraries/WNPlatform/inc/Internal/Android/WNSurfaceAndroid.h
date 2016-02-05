@@ -29,33 +29,33 @@ namespace wn {
         WNSurfaceAndroid(WNSurfaceManagerAndroid& _surfaceManager);
         virtual ~WNSurfaceAndroid();
 
-        wn_bool Initialize();
+        bool Initialize();
         virtual WNSurfaceNativeHandle GetNativeHandle() const;
-        virtual WNSurfaceError Resize(wn_uint32 _width, wn_uint32 _height);
-        virtual WNSurfaceError Move(wn_uint32 _x, wn_uint32 _y);
-        virtual wn_bool IsFullscreen() const;
-        virtual WNSurfaceError SetFullscreen(wn_bool _fullscreen);
+        virtual WNSurfaceError Resize(uint32_t _width, uint32_t _height);
+        virtual WNSurfaceError Move(uint32_t _x, uint32_t _y);
+        virtual bool IsFullscreen() const;
+        virtual WNSurfaceError SetFullscreen(bool _fullscreen);
 
-        virtual wn_uint32 GetWidth() const;
-        virtual wn_uint32 GetHeight() const;
-        virtual wn_uint32 GetX() const;
-        virtual wn_uint32 GetY() const;
+        virtual uint32_t GetWidth() const;
+        virtual uint32_t GetHeight() const;
+        virtual uint32_t GetX() const;
+        virtual uint32_t GetY() const;
 
     private:
-        static wn_void HandleWindowCommand(WNUtils::WNAndroidEventPump::eMessageType _msg, android_app* _app, wn_uint32 _val, wn_void* appData);
-        wn_bool InitializeWindow(android_app* app);
-        wn_bool CleanupWindow(android_app* app);
+        static void HandleWindowCommand(WNUtils::WNAndroidEventPump::eMessageType _msg, android_app* _app, uint32_t _val, void* appData);
+        bool InitializeWindow(android_app* app);
+        bool CleanupWindow(android_app* app);
     private:
         wn::multi_tasking::semaphore mCreationSemaphore;
-        wn_bool mExiting;
-        wn_bool mInitialized;
+        bool mExiting;
+        bool mInitialized;
         WNSurfaceManagerAndroid& mManager;
         EGLDisplay mDisplay;
         EGLConfig mConfig;
         EGLSurface mSurface;
-        wn_bool mFullscreen;
-        wn_uint32 mWidth;
-        wn_uint32 mHeight;
+        bool mFullscreen;
+        uint32_t mWidth;
+        uint32_t mHeight;
     };
 }
 

@@ -24,28 +24,28 @@ class dynamic_array_iterator {
 public:
   using iterator_category = std::random_access_iterator_tag;
   using value_type = typename std::remove_const<T>::type;
-  using difference_type = wn_signed_t;
+  using difference_type = signed_t;
   using pointer = T*;
   using reference = T&;
 
-  dynamic_array_iterator() : m_ptr(wn_nullptr) {}
+  dynamic_array_iterator() : m_ptr(nullptr) {}
 
   template <typename _T2>
   dynamic_array_iterator(const dynamic_array_iterator<_T2>& _other) {
     m_ptr = _other.m_ptr;
   }
 
-  dynamic_array_iterator& operator+=(wn_size_t i) {
+  dynamic_array_iterator& operator+=(size_t i) {
     m_ptr += i;
     return (*this);
   }
 
-  dynamic_array_iterator& operator-=(wn_size_t i) {
+  dynamic_array_iterator& operator-=(size_t i) {
     m_ptr -= i;
     return *this;
   }
 
-  wn_size_t operator-(const dynamic_array_iterator& other) {
+  size_t operator-(const dynamic_array_iterator& other) {
     return (m_ptr - other.m_ptr);
   }
 
@@ -141,8 +141,8 @@ template <typename _Type, const size_t _ExpandPercentage>
 class dynamic_array final {
 public:
   typedef _Type value_type;
-  typedef wn_size_t size_type;
-  typedef wn_signed_t difference_type;
+  typedef size_t size_type;
+  typedef signed_t difference_type;
   typedef value_type& reference;
   typedef const value_type& const_reference;
 
@@ -151,24 +151,24 @@ public:
   typedef std::reverse_iterator<iterator> reverse_iterator;
   typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
-  dynamic_array() : dynamic_array(wn_nullptr) {}
+  dynamic_array() : dynamic_array(nullptr) {}
 
   explicit dynamic_array(memory::allocator* _allocator)
-    : m_allocator(_allocator), m_data(wn_nullptr), m_size(0), m_capacity(0) {}
+    : m_allocator(_allocator), m_data(nullptr), m_size(0), m_capacity(0) {}
 
   explicit dynamic_array(
-      const size_type _count, memory::allocator* _allocator = wn_nullptr)
+      const size_type _count, memory::allocator* _allocator = nullptr)
     : dynamic_array(_count, _Type(), _allocator) {}
 
   dynamic_array(const size_type _count, const _Type& _value,
-      memory::allocator* _allocator = wn_nullptr)
+      memory::allocator* _allocator = nullptr)
     : dynamic_array(_allocator) {
     insert(iterator(m_data), _count, _value);
   }
 
   template <const size_t _ExpandPercentageOther>
   dynamic_array(const dynamic_array<_Type, _ExpandPercentageOther>& _other,
-      memory::allocator* _allocator = wn_nullptr)
+      memory::allocator* _allocator = nullptr)
     : dynamic_array(_allocator) {
     (*this) = _other;
   }
@@ -199,7 +199,7 @@ public:
 
   template <typename TOther>
   dynamic_array(
-      TOther begin, TOther end, memory::allocator* _alloc = wn_nullptr)
+      TOther begin, TOther end, memory::allocator* _alloc = nullptr)
     : dynamic_array(_alloc) {
     reserve(end - begin);
     while (begin != end) {
@@ -225,14 +225,14 @@ public:
       return (*this);
     }
     if (m_data) {
-      for (wn_size_t i = 0; i < m_size; ++i) {
+      for (size_t i = 0; i < m_size; ++i) {
         m_data[i].~_Type();
       }
     }
     m_size = 0;
     reserve(_other.m_size);
-    for (wn_size_t i = 0; i < _other.m_size; ++i) {
-      new (reinterpret_cast<wn_void*>(&m_data[i])) _Type(_other.m_data[i]);
+    for (size_t i = 0; i < _other.m_size; ++i) {
+      new (reinterpret_cast<void*>(&m_data[i])) _Type(_other.m_data[i]);
     }
     m_size = _other.m_size;
     return (*this);
@@ -243,14 +243,14 @@ public:
       return (*this);
     }
     if (m_data) {
-      for (wn_size_t i = 0; i < m_size; ++i) {
+      for (size_t i = 0; i < m_size; ++i) {
         m_data[i].~_Type();
       }
     }
     m_size = 0;
     reserve(_other.m_size);
-    for (wn_size_t i = 0; i < _other.m_size; ++i) {
-      new (reinterpret_cast<wn_void*>(&m_data[i])) _Type(_other.m_data[i]);
+    for (size_t i = 0; i < _other.m_size; ++i) {
+      new (reinterpret_cast<void*>(&m_data[i])) _Type(_other.m_data[i]);
     }
     m_size = _other.m_size;
     return (*this);
@@ -261,13 +261,13 @@ public:
       return (*this);
     }
     if (m_data) {
-      for (wn_size_t i = 0; i < m_size; ++i) {
+      for (size_t i = 0; i < m_size; ++i) {
         m_data[i].~_Type();
       }
       deallocate(m_data);
     }
     m_allocator = _other.m_allocator;
-    _other.m_allocator = wn_nullptr;
+    _other.m_allocator = nullptr;
     m_capacity = _other.m_capacity;
     _other.m_capacity = 0;
     m_data = _other.m_data;
@@ -284,13 +284,13 @@ public:
       return (*this);
     }
     if (m_data) {
-      for (wn_size_t i = 0; i < m_size; ++i) {
+      for (size_t i = 0; i < m_size; ++i) {
         m_data[i].~_Type();
       }
       deallocate(m_data);
     }
     m_allocator = _other.m_allocator;
-    _other.m_allocator = wn_nullptr;
+    _other.m_allocator = nullptr;
     m_capacity = _other.m_capacity;
     _other.m_capacity = 0;
     m_data = _other.m_data;
@@ -414,7 +414,7 @@ public:
     return (m_capacity);
   }
 
-  wn_void reserve(const size_type _new_cap) {
+  void reserve(const size_type _new_cap) {
     if (_new_cap > m_capacity) {
       if (!m_data) {
         void* p = allocate(sizeof(_Type), _new_cap);
@@ -425,8 +425,8 @@ public:
         void* p = allocate(sizeof(_Type), _new_cap);
         m_capacity = _new_cap;
         _Type* newData = reinterpret_cast<_Type*>(p);
-        for (wn_size_t i = 0; i < m_size; ++i) {
-          new (reinterpret_cast<wn_void*>(&newData[i]))
+        for (size_t i = 0; i < m_size; ++i) {
+          new (reinterpret_cast<void*>(&newData[i]))
               _Type(std::move(m_data[i]));
           m_data[i].~_Type();
         }
@@ -438,8 +438,8 @@ public:
 
   // modifiers
 
-  wn_void clear() {
-    if (m_data != wn_nullptr) {
+  void clear() {
+    if (m_data != nullptr) {
       for (size_type i = 0; i < m_size; ++i) {
         m_data[i].~_Type();
       }
@@ -544,32 +544,32 @@ public:
     return iterator(m_data + (_first.m_ptr - m_data));
   }
 
-  wn_void push_back(_Type&& _value) {
+  void push_back(_Type&& _value) {
     insert(cend(), std::move(_value));
   }
 
-  wn_void push_back(const _Type& _value) {
+  void push_back(const _Type& _value) {
     _Type value(_value);
 
     push_back(std::move(value));
   }
 
   template <typename... _Arguments>
-  wn_void emplace_back(_Arguments&&... _arguments) {
+  void emplace_back(_Arguments&&... _arguments) {
     _Type value(std::forward<_Arguments>(_arguments)...);
 
     push_back(std::move(value));
   }
 
-  wn_void pop_back() {
+  void pop_back() {
     erase(cend() - 1);
   }
 
-  wn_void resize(const size_type _count) {
+  void resize(const size_type _count) {
     resize(_count, value_type());
   }
 
-  wn_void resize(const size_type _count, const value_type& _value) {
+  void resize(const size_type _count, const value_type& _value) {
     if (_count > m_size) {
       insert(const_iterator(m_data + m_size), (_count - m_size), _value);
     } else {
@@ -577,7 +577,7 @@ public:
     }
   }
 
-  wn_void swap(dynamic_array& _other) {
+  void swap(dynamic_array& _other) {
     if (&_other != this) {
       std::swap(m_allocator, _other.m_allocator);
       std::swap(m_capacity, _other.m_capacity);
@@ -591,7 +591,7 @@ private:
     WN_DEBUG_ASSERT(_pos <= const_iterator(m_data + m_size) &&
                     (_pos >= const_iterator(m_data)));
 
-    wn_size_t originalPosition = _pos.m_ptr - m_data;
+    size_t originalPosition = _pos.m_ptr - m_data;
 
     if (m_capacity < (m_size + _count)) {
       iterator startPt = iterator(m_data + (_pos - begin()));
@@ -602,12 +602,12 @@ private:
       _Type* newData = reinterpret_cast<_Type*>(alloc);
       _Type* allocated = newData;
       for (_Type* i = m_data; i < startPt.m_ptr; ++i) {
-        new (reinterpret_cast<wn_void*>(newData++)) _Type(std::move(*i));
+        new (reinterpret_cast<void*>(newData++)) _Type(std::move(*i));
         i->~_Type();
       }
       newData += _count;
       for (_Type* i = startPt.m_ptr; i < m_data + m_size; ++i) {
-        new (reinterpret_cast<wn_void*>(newData++)) _Type(std::move(*i));
+        new (reinterpret_cast<void*>(newData++)) _Type(std::move(*i));
         i->~_Type();
       }
       deallocate(m_data);
@@ -615,7 +615,7 @@ private:
     } else {
       for (_Type* i = m_data + m_size + _count - 1;
            i > (_pos.m_ptr + _count - 1); --i) {
-        new (reinterpret_cast<wn_void*>(i)) _Type(std::move(*(i - _count - 1)));
+        new (reinterpret_cast<void*>(i)) _Type(std::move(*(i - _count - 1)));
         (i - _count - 1)->~_Type();
       }
     }
@@ -623,7 +623,7 @@ private:
     return (iterator(m_data + originalPosition));
   }
 
-  void* allocate(const wn_size_t _size, const wn_size_t _count) {
+  void* allocate(const size_t _size, const size_t _count) {
     return m_allocator->allocate(_size * _count);
   }
 
@@ -632,7 +632,7 @@ private:
       m_allocator->deallocate(ptr);
     } else {
       WN_DEBUG_ASSERT_DESC(
-          ptr == wn_nullptr, "m_allocator is nullptr, where did ptr come from");
+          ptr == nullptr, "m_allocator is nullptr, where did ptr come from");
     }
   }
 
@@ -648,7 +648,7 @@ private:
     }
 
     for (_Type* i = startPt.m_ptr + _count; i < m_data + m_size; ++i) {
-      new (reinterpret_cast<wn_void*>(i - _count)) _Type(std::move(*i));
+      new (reinterpret_cast<void*>(i - _count)) _Type(std::move(*i));
       i->~_Type();
     }
     m_size = m_size - _count;

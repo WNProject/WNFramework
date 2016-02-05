@@ -21,7 +21,7 @@ namespace wn {
 
     template <typename type>
     class WNFrustum {
-        static_assert(wn::is_real<type>::value == wn_true, "Frustums of non real number types don't make sense.  Please use one of the available real number types.");
+        static_assert(wn::is_real<type>::value == true, "Frustums of non real number types don't make sense.  Please use one of the available real number types.");
 
     public:
         explicit WNFrustum(const WNMatrix4<type>& _transform, type _near, type _far, type _aspect, type _fov, WNFieldOfView::WNHorizontal _horizontal);
@@ -29,12 +29,12 @@ namespace wn {
         explicit WNFrustum(type _near, type _far, type _fov, type _aspect, WNFieldOfView::WNHorizontal _horizontal);
         explicit WNFrustum(type _near, type _far, type _fov, type _aspect, WNFieldOfView::WNVertical _vertical);
 
-        wn_void Transform(const WNMatrix4<type>& _updateTransform);
-        wn_void SetTransform(const WNMatrix4<type>& _setTransform);
+        void Transform(const WNMatrix4<type>& _updateTransform);
+        void SetTransform(const WNMatrix4<type>& _setTransform);
 
-        wn_bool Intersects(const WNBox<type>& _box) const;
-        wn_bool Intersects(const sphere<type>& _sphere) const;
-        wn_bool Intersects(const WNBounds3<type>& _bounds) const;
+        bool Intersects(const WNBox<type>& _box) const;
+        bool Intersects(const sphere<type>& _sphere) const;
+        bool Intersects(const WNBounds3<type>& _bounds) const;
 
     public:
         vector3<type> mPoints[8];

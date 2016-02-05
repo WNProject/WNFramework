@@ -23,7 +23,7 @@ WNReturn::WNReturn(WNExpression* _expr, bool _changeOwnership):
 }
 
 WNReturn::WNReturn() :
-    mExpression(wn_nullptr) {
+    mExpression(nullptr) {
 }
 
 WNReturn::~WNReturn() {
@@ -37,7 +37,7 @@ eWNTypeError WNReturn::GenerateCode(WNCodeModule& _module, const WNFunctionDefin
     mReturns = true;
     eWNTypeError err;
     if(mExpression) {
-        llvm::Value* v = wn_nullptr;
+        llvm::Value* v = nullptr;
         if(ok != (err = mExpression->GenerateCode(_module, _def, _compilationLog)) ) {
             return(err);
         }

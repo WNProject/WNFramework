@@ -38,7 +38,7 @@ eWNTypeError WNWhileInstruction::GenerateCode(WNCodeModule& _module, const WNFun
     if(ok != (err = mCondition->GenerateCode(_module, _def, _compilationLog))) {
         return(err);
     }
-    WNScriptType boolType = wn_nullptr;
+    WNScriptType boolType = nullptr;
     if(ok != (err = _module.GetTypeManager().get_type_by_name("Bool", boolType))) {
         _compilationLog.Log(WNLogging::eCritical, 0, "Error cannot find Bool type");
         LogLine(_compilationLog, WNLogging::eCritical);

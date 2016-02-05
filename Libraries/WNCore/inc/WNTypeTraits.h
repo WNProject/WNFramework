@@ -539,8 +539,8 @@ private:
   template <typename T, typename U, typename... A>
   struct same_return<T, true, U, A...> : is_same<result_of_t<T(A...)>, U> {};
 
-  using invalid = wn_char(&)[1];
-  using valid = wn_char(&)[2];
+  using invalid = char (&)[1];
+  using valid = char (&)[2];
 
   template <typename T>
   struct helper;

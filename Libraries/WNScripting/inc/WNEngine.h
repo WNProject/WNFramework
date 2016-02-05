@@ -40,12 +40,12 @@ public:
 
   // Returns the number of errors that were encountered in
   // parsing the file.
-  wn_size_t errors() const {
+  size_t errors() const {
     return m_num_errors;
   }
 
   // Returns the number of warnings encountered in parsing the file.
-  wn_size_t warnings() const {
+  size_t warnings() const {
     return m_num_warnings;
   }
 
@@ -58,8 +58,8 @@ public:
       containers::string_view _name, T (*&function)(Args...)) const;
   typedef void (*void_func)();
 protected:
-  wn_size_t m_num_warnings;
-  wn_size_t m_num_errors;
+  size_t m_num_warnings;
+  size_t m_num_errors;
   memory::allocator* m_allocator;
   type_validator* m_validator;
 

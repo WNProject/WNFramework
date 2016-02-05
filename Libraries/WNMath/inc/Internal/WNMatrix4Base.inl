@@ -84,12 +84,12 @@ namespace wn {
         }
 
         template <typename type>
-        WN_FORCE_INLINE wn_void __WNMatrix4Base<type, typename std::enable_if<wn::is_real<type>::value>::type>::MakeRotation(const WNQuaternion<type>& _rotation) {
+        WN_FORCE_INLINE void __WNMatrix4Base<type, typename std::enable_if<wn::is_real<type>::value>::type>::MakeRotation(const WNQuaternion<type>& _rotation) {
             *this *= _rotation.ToMatrix4();
         }
 
         template <typename type>
-        WN_FORCE_INLINE wn_void __WNMatrix4Base<type, typename std::enable_if<wn::is_real<type>::value>::type>::MakeRotationX(const type& _angle) {
+        WN_FORCE_INLINE void __WNMatrix4Base<type, typename std::enable_if<wn::is_real<type>::value>::type>::MakeRotationX(const type& _angle) {
             const type sinTheta = WNSin(_angle);
             const type cosTheta = WNCos(_angle);
 
@@ -119,7 +119,7 @@ namespace wn {
         }
 
         template <typename type>
-        WN_FORCE_INLINE wn_void __WNMatrix4Base<type, typename std::enable_if<wn::is_real<type>::value>::type>::MakeRotationY(const type& _angle) {
+        WN_FORCE_INLINE void __WNMatrix4Base<type, typename std::enable_if<wn::is_real<type>::value>::type>::MakeRotationY(const type& _angle) {
             const type sinTheta = WNSin(_angle);
             const type cosTheta = WNCos(_angle);
 
@@ -149,7 +149,7 @@ namespace wn {
         }
 
         template <typename type>
-        WN_FORCE_INLINE wn_void __WNMatrix4Base<type, typename std::enable_if<wn::is_real<type>::value>::type>::MakeRotationZ(const type& _angle) {
+        WN_FORCE_INLINE void __WNMatrix4Base<type, typename std::enable_if<wn::is_real<type>::value>::type>::MakeRotationZ(const type& _angle) {
             const type sinTheta = WNSin(_angle);
             const type cosTheta = WNCos(_angle);
 
@@ -179,12 +179,12 @@ namespace wn {
         }
 
         template <typename type>
-        WN_FORCE_INLINE wn_void __WNMatrix4Base<type, typename std::enable_if<wn::is_real<type>::value>::type>::MakeRotationAxis(const type& _angle, const WNVector<type>& _axis) {
+        WN_FORCE_INLINE void __WNMatrix4Base<type, typename std::enable_if<wn::is_real<type>::value>::type>::MakeRotationAxis(const type& _angle, const WNVector<type>& _axis) {
             this->MakeRotationAxis(_angle, _axis.GetX(), _axis.GetY(), _axis.GetZ());
         }
 
         template <typename type>
-        WN_FORCE_INLINE wn_void __WNMatrix4Base<type, typename std::enable_if<wn::is_real<type>::value>::type>::MakeRotationAxis(const type& _angle, const type& _x, const type& _y, const type& _z) {
+        WN_FORCE_INLINE void __WNMatrix4Base<type, typename std::enable_if<wn::is_real<type>::value>::type>::MakeRotationAxis(const type& _angle, const type& _x, const type& _y, const type& _z) {
             const type x2 = _x * _x;
             const type y2 = _y * _y;
             const type z2 = _z * _z;

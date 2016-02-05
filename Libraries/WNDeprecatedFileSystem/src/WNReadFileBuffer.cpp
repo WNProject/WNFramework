@@ -6,26 +6,26 @@
 #include "WNMemory/inc/WNBasic.h"
 #include "WNContainers/inc/WNSerializer.h"
 
-WNFileSystem::WNReadTextFileBuffer::WNReadTextFileBuffer(const WNFileSystem::WNFileBufferType _type, const wn_size_t _bufferSize) :
+WNFileSystem::WNReadTextFileBuffer::WNReadTextFileBuffer(const WNFileSystem::WNFileBufferType _type, const size_t _bufferSize) :
     WNFileBuffer(_type),
     mBufferUsage(0),
     mBufferSize(_bufferSize),
     mBufferPosition(0),
-    mEndFile(wn_false) {
-    mCurrentBuffer = wn::memory::heap_allocate<wn_char>(_bufferSize);
+    mEndFile(false) {
+    mCurrentBuffer = wn::memory::heap_allocate<char>(_bufferSize);
 
-    WN_RELEASE_ASSERT(mCurrentBuffer != wn_nullptr);
+    WN_RELEASE_ASSERT(mCurrentBuffer != nullptr);
 }
 
 WNFileSystem::WNReadTextFileBuffer::~WNReadTextFileBuffer() {
     if (mFile.IsValid()) {
-        if (mCurrentBuffer != wn_nullptr) {
+        if (mCurrentBuffer != nullptr) {
             wn::memory::heap_free(mCurrentBuffer);
         }
     }
 }
 
-wn_char* WNFileSystem::WNReadTextFileBuffer::reserve(const wn_size_t _numBytes, wn_size_t& _returnedBytes) {
+char* WNFileSystem::WNReadTextFileBuffer::reserve(const size_t _numBytes, size_t& _returnedBytes) {
     if (_numBytes + mBufferPosition > mBufferSize) {
         if (_numBytes > mBufferSize) {
             WN_DEBUG_ASSERT(mBufferPosition <= mBufferUsage);
@@ -44,7 +44,7 @@ wn_char* WNFileSystem::WNReadTextFileBuffer::reserve(const wn_size_t _numBytes, 
 
             wn::memory::memcpy(mSpareBuffer, mCurrentBuffer + mBufferPosition, mBufferUsage - mBufferPosition);
 
-            wn_char* currentBuffer = mCurrentBuffer;
+            char* currentBuffer = mCurrentBuffer;
 
             mCurrentBuffer = mSpareBuffer;
             mSpareBuffer = currentBuffer;
@@ -53,13 +53,13 @@ wn_char* WNFileSystem::WNReadTextFileBuffer::reserve(const wn_size_t _numBytes, 
         }
     }
 
-    wn_size_t haveData = mBufferUsage - mBufferPosition;
+    size_t haveData = mBufferUsage - mBufferPosition;
 
     if (!mEndFile && haveData < _numBytes) {
-        const wn_size_t bytesRead = mFile.ReadData(mCurrentBuffer + mBufferUsage, _numBytes - haveData);
+        const size_t bytesRead = mFile.ReadData(mCurrentBuffer + mBufferUsage, _numBytes - haveData);
 
         if (bytesRead == 0) {
-            mEndFile = wn_true;
+            mEndFile = true;
         }
 
         mBufferUsage += bytesRead;
@@ -82,16 +82,16 @@ wn::containers::data_buffer_type WNFileSystem::WNReadTextFileBuffer::type() cons
     return(wn::containers::data_buffer_type::read_text);
 }
 
-WNFileSystem::WNFile::WNFileError WNFileSystem::WNReadTextFileBuffer::SetFile(const wn_char* _fileName) {
-    mEndFile = wn_false;
+WNFileSystem::WNFile::WNFileError WNFileSystem::WNReadTextFileBuffer::SetFile(const char* _fileName) {
+    mEndFile = false;
 
     WN_RELEASE_ASSERT_DESC(!mFile.IsValid(), "Error, trying to set a file on a text buffer that already exists");
 
     return(mFile.OpenFile(_fileName, WNFileSystem::WNFile::eWNFMExclusive | WNFileSystem::WNFile::eWNFMRead | WNFileSystem::WNFile::eWNFMStream));
 }
 
-wn_bool WNFileSystem::WNReadTextFileBuffer::serialize(const wn::containers::serializer_base& _serializer, const wn_uint32 _flags) {
+bool WNFileSystem::WNReadTextFileBuffer::serialize(const wn::containers::serializer_base& _serializer, const uint32_t _flags) {
     mBufferPosition += _serializer.serialize(*this, _flags);
 
-    return(wn_true);
+    return(true);
 }

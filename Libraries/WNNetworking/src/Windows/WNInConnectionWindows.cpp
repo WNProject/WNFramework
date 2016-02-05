@@ -29,9 +29,9 @@ WNNetworkManagerReturnCode::type WNInConnectionWindows::Initialize(SOCKET _liste
         return(WNNetworkManagerReturnCode::eWNCannotCreateSocket);
     }
 
-    wn_size_t length = wn::memory::snprintf(NULL, 0, "%s:%d", inet_ntoa(address.sin_addr), ntohs(address.sin_port));
+    size_t length = wn::memory::snprintf(NULL, 0, "%s:%d", inet_ntoa(address.sin_addr), ntohs(address.sin_port));
 
-    mConnectionName = wn::memory::heap_allocate<wn_char>(length + 1);
+    mConnectionName = wn::memory::heap_allocate<char>(length + 1);
 
     wn::memory::snprintf(mConnectionName, length + 1, "%s:%d", inet_ntoa(address.sin_addr), ntohs(address.sin_port));
 
@@ -40,6 +40,6 @@ WNNetworkManagerReturnCode::type WNInConnectionWindows::Initialize(SOCKET _liste
     return(WNNetworkManagerReturnCode::ok);
 }
 
-wn_bool WNInConnectionWindows::FireCallback() {
+bool WNInConnectionWindows::FireCallback() {
     return(mCallback(mConnectionName));
 }

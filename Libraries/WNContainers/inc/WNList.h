@@ -23,40 +23,40 @@ struct list_iterator final
   : public std::iterator<std::bidirectional_iterator_tag, _ValueType> {
   using reference = _ValueType&;
   using pointer = _ValueType*;
-  list_iterator& operator+=(const wn_size_t _amount) {
+  list_iterator& operator+=(const size_t _amount) {
     for (size_t i = 0; i < _amount; ++i) {
       m_ptr = m_ptr->m_next;
     }
     return (*this);
   }
 
-  list_iterator& operator-=(const wn_size_t _amount) {
+  list_iterator& operator-=(const size_t _amount) {
     for (size_t i = 0; i < _amount; ++i) {
       m_ptr = m_ptr->m_prev;
     }
     return (*this);
   }
 
-  list_iterator operator+(const wn_size_t amount) {
+  list_iterator operator+(const size_t amount) {
     list_iterator i(*this);
     i += amount;
     return i;
   }
 
-  list_iterator operator-(const wn_size_t amount) {
+  list_iterator operator-(const size_t amount) {
     list_iterator i(*this);
     i -= amount;
     return i;
   }
 
-  list_iterator operator++(wn_int32) {
+  list_iterator operator++(int32_t) {
     list_iterator i(*this);
     (*this) += 1;
 
     return (i);
   }
 
-  list_iterator operator--(wn_int32) {
+  list_iterator operator--(int32_t) {
     list_iterator i(*this);
     (*this) -= 1;
 
@@ -64,12 +64,12 @@ struct list_iterator final
   }
 
   template <typename _T1, typename _T2>
-  wn_bool operator==(const list_iterator<_T1, _T2>& _other) const {
+  bool operator==(const list_iterator<_T1, _T2>& _other) const {
     return (m_ptr == _other.m_ptr);
   }
 
   template <typename _T1, typename _T2>
-  wn_bool operator!=(const list_iterator<_T1, _T2>& _other) const {
+  bool operator!=(const list_iterator<_T1, _T2>& _other) const {
     return (m_ptr != _other.m_ptr);
   }
 
@@ -84,7 +84,7 @@ struct list_iterator final
     m_ptr = _other.m_ptr;
   }
 
-  list_iterator() : m_ptr(wn_nullptr) {}
+  list_iterator() : m_ptr(nullptr) {}
 
 private:
   _NodeType* m_ptr;
@@ -116,8 +116,8 @@ class list final {
 
  public:
   using value_type = _Type;
-  using size_type = wn_size_t;
-  using difference_type = wn_signed_t;
+  using size_type = size_t;
+  using difference_type = signed_t;
   using allocator_type = _Allocator;
   using reference = _Type&;
   using const_reference = const _Type&;
@@ -130,11 +130,11 @@ class list final {
   using reverse_iterator = std::reverse_iterator<iterator>;
   using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
-  list(memory::allocator* _allocator = wn_nullptr)
+  list(memory::allocator* _allocator = nullptr)
       : m_allocator(_allocator),
         m_size(0),
         m_begin(reinterpret_cast<list_node*>(&m_dummy_end_node)) {
-    m_begin->m_prev = wn_nullptr;
+    m_begin->m_prev = nullptr;
     m_begin->m_next = m_begin;
   }
   ~list() { clear(); }
@@ -204,7 +204,7 @@ class list final {
       return source_it;
     }
     if (m_allocator == _other.m_allocator) {
-      wn_size_t count = 0;
+      size_t count = 0;
       for (list_node* node = source_it.m_ptr; node != source_it_end.m_ptr;
            node = node->m_next) {
         count += 1;
@@ -266,10 +266,10 @@ class list final {
 
   bool empty() const { return m_size == 0; }
 
-  wn_size_t size() const { return m_size; }
+  size_t size() const { return m_size; }
 
  private:
-  iterator unlink(iterator _start, iterator _end, wn_size_t count) {
+  iterator unlink(iterator _start, iterator _end, size_t count) {
     WN_DEBUG_ASSERT_DESC(static_cast<void*>(_start.m_ptr) !=
                              static_cast<void*>(&m_dummy_end_node),
                          "You are trying to delete end()");
@@ -320,7 +320,7 @@ class list final {
     return iterator(_node);
   }
   iterator link(iterator _it, list_node* _first, list_node* _last,
-                wn_size_t count) {
+                size_t count) {
     // m_end->prev == nullptr if there is nothing allocated yet.
     if (_it.m_ptr->m_prev) {
       _first->m_prev = _it.m_ptr->m_prev;
@@ -347,13 +347,13 @@ class list final {
       m_allocator->deallocate(ptr);
     } else {
       WN_DEBUG_ASSERT_DESC(
-          ptr == wn_nullptr, "m_allocator is nullptr, where did ptr come from");
+          ptr == nullptr, "m_allocator is nullptr, where did ptr come from");
     }
   }
 
   memory::allocator* m_allocator;
   dummy_end_node m_dummy_end_node;
-  wn_size_t m_size;
+  size_t m_size;
   list_node* m_begin;
 };
 }

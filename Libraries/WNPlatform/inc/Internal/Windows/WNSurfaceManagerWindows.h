@@ -22,7 +22,7 @@ namespace wn {
         virtual WN_FORCE_INLINE ~WNSurfaceManagerWindows() {}
 
         virtual WNSurfaceManagerReturnCode::type Initialize();
-        virtual WNSurfaceManagerReturnCode::type CreateSurface(wn_uint32 _x, wn_uint32 _y, wn_uint32 _width, wn_uint32 _height, wn::memory::intrusive_ptr<surface>& _surface);
+        virtual WNSurfaceManagerReturnCode::type CreateSurface(uint32_t _x, uint32_t _y, uint32_t _width, uint32_t _height, wn::memory::intrusive_ptr<surface>& _surface);
         virtual WNSurfaceManagerReturnCode::type Release();
 
     private:
@@ -35,16 +35,16 @@ namespace wn {
             WNWindowThreadData(wn::memory::intrusive_ptr<wn::WNSurfaceWindows> _wnd);
 
         public:
-            wn::multi_tasking::thread<wn_bool>* mThread;
+            wn::multi_tasking::thread<bool>* mThread;
             wn::memory::intrusive_ptr<wn::WNSurfaceWindows> mWindow;
-            wn_atom_t mExit;
+            bool mExit;
         };
 
     private:
 		wn::memory::basic_allocator allocator;
         HWND mPendingHwnd;
         static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-        static wn_bool MessagePump(WNWindowThreadData* _data);
+        static bool MessagePump(WNWindowThreadData* _data);
         std::vector<WNWindowThreadData*> mMessagePumps;
 
         wn::multi_tasking::semaphore mCreatedWindowLock;

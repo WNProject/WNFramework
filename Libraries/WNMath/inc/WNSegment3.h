@@ -26,19 +26,19 @@ namespace wn {
         WNSegment3 operator + () const;
         WNSegment3 operator - () const;
 
-        wn_bool operator == (const WNSegment3& _segment) const;
-        wn_bool operator != (const WNSegment3& _segment) const;
+        bool operator == (const WNSegment3& _segment) const;
+        bool operator != (const WNSegment3& _segment) const;
 
-        wn_void Zero();
+        void Zero();
 
         type Length() const;
         type LengthSquared() const;
         vector3<type> Direction() const;
 
-        wn_bool IsZero() const;
+        bool IsZero() const;
 
-        wn_void Set(const type* _numbers);
-        wn_void Set(const vector3<type>& _start, const vector3<type>& _end);
+        void Set(const type* _numbers);
+        void Set(const vector3<type>& _start, const vector3<type>& _end);
 
         WNLine2<type> ToLine2() const;
         WNLine3<type> ToLine3() const;

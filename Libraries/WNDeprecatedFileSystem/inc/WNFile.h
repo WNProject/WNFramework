@@ -41,30 +41,30 @@ namespace WNFileSystem {
             eWNFEMax
         };
 
-        WNFileError OpenFile(const wn_char* _name, wn_uint32 _mode );
-        wn_char* GetDataBuffer();
-        wn_bool CommitFileBuffer();
-        wn_char* ResizeDataBuffer(wn_size_t _size );
-        wn_size_t ReadData(wn_char* outBuffer, wn_size_t _amount);
-        wn_size_t WriteData(const wn_char* inBuffer, wn_size_t _amount);
-        wn_size_t GetFileSize() const ;
+        WNFileError OpenFile(const char* _name, uint32_t _mode );
+        char* GetDataBuffer();
+        bool CommitFileBuffer();
+        char* ResizeDataBuffer(size_t _size );
+        size_t ReadData(char* outBuffer, size_t _amount);
+        size_t WriteData(const char* inBuffer, size_t _amount);
+        size_t GetFileSize() const ;
 
-        wn_bool IsValid();
+        bool IsValid();
 
-        static wn_bool DoesFileExist(const wn_char* _name );
-        static wn_char* GetFolderName(const wn_char* _name);
-        static wn_char* GetFileName(const wn_char* _name);
-        static wn_void CollapseFolderStructure(wn_char* _name);
-        static wn_bool DeleteFile(const wn_char* _name);
+        static bool DoesFileExist(const char* _name );
+        static char* GetFolderName(const char* _name);
+        static char* GetFileName(const char* _name);
+        static void CollapseFolderStructure(char* _name);
+        static bool DeleteFile(const char* _name);
 
     private:
-        wn_uint32 mFileMode;
-        wn_size_t mMaxBufferSize;
-        wn_size_t mFileSize;
-        wn_char* mFileBuffer;
-        wn_bool mIsFileOpen;
-        wn_bool mStream;
-        wn_bool mIsValid;
+        uint32_t mFileMode;
+        size_t mMaxBufferSize;
+        size_t mFileSize;
+        char* mFileBuffer;
+        bool mIsFileOpen;
+        bool mStream;
+        bool mIsValid;
 
         #ifdef _WN_WINDOWS
             HANDLE mFileHandle;

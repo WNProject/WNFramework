@@ -10,22 +10,22 @@ struct contiguous_range : ::testing::Test {};
 
 // 72 bit struct
 struct dummy {
-  WN_FORCE_INLINE dummy(const wn_uint8 value) :
+  WN_FORCE_INLINE dummy(const uint8_t value) :
     m_value1(value),
     m_value2(value) {
   }
 
-  wn_uint8 m_value1;
-  wn_uint64 m_value2;
+  uint8_t m_value1;
+  uint64_t m_value2;
 };
 
-WN_FORCE_INLINE wn_bool operator == (const dummy& dummy1,
+WN_FORCE_INLINE bool operator == (const dummy& dummy1,
                                      const dummy& dummy2) {
   return(dummy1.m_value1 == dummy2.m_value1 &&
          dummy1.m_value2 == dummy2.m_value2);
 }
 
-typedef ::testing::Types<wn_uint8, wn_uint16, wn_uint32, wn_uint64, dummy>
+typedef ::testing::Types<uint8_t, uint16_t, uint32_t, uint64_t, dummy>
   contiguous_range_testing_types;
 
 TYPED_TEST_CASE(contiguous_range, contiguous_range_testing_types);
@@ -35,19 +35,19 @@ TYPED_TEST(contiguous_range, construction) {
                           TypeParam(3), TypeParam(4),
                           TypeParam(5) };
   wn::containers::contiguous_range<TypeParam> range1;
-  wn::containers::contiguous_range<TypeParam> range2(wn_nullptr);
-  wn::containers::contiguous_range<TypeParam> range3(wn_nullptr, wn_nullptr);
+  wn::containers::contiguous_range<TypeParam> range2(nullptr);
+  wn::containers::contiguous_range<TypeParam> range3(nullptr, nullptr);
   wn::containers::contiguous_range<TypeParam> range4(buffer, buffer + 5);
   wn::containers::contiguous_range<const TypeParam> range5(buffer, 5);
   wn::containers::contiguous_range<TypeParam> range6(buffer);
   wn::containers::contiguous_range<TypeParam> range7(range6);
 
   EXPECT_TRUE(range1.empty());
-  EXPECT_EQ(range1.data(), wn_nullptr);
+  EXPECT_EQ(range1.data(), nullptr);
   EXPECT_TRUE(range2.empty());
-  EXPECT_EQ(range2.data(), wn_nullptr);
+  EXPECT_EQ(range2.data(), nullptr);
   EXPECT_TRUE(range3.empty());
-  EXPECT_EQ(range3.data(), wn_nullptr);
+  EXPECT_EQ(range3.data(), nullptr);
   EXPECT_FALSE(range4.empty());
   EXPECT_EQ(range4.data(), buffer);
   EXPECT_FALSE(range5.empty());
@@ -60,12 +60,12 @@ TYPED_TEST(contiguous_range, construction) {
   wn::containers::contiguous_range<const TypeParam> range8(std::move(range7));
 
   EXPECT_TRUE(range7.empty());
-  EXPECT_EQ(range7.data(), wn_nullptr);
+  EXPECT_EQ(range7.data(), nullptr);
   EXPECT_FALSE(range8.empty());
   EXPECT_EQ(range8.data(), buffer);
 
   WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED({
-      const wn::containers::contiguous_range<TypeParam> range(wn_nullptr,
+      const wn::containers::contiguous_range<TypeParam> range(nullptr,
                                                               buffer + 5);
     },
     "assertion failed!\n\nfile: .*\nline: .*\nmessage: invalid input "
@@ -74,7 +74,7 @@ TYPED_TEST(contiguous_range, construction) {
 
   WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED({
       const wn::containers::contiguous_range<TypeParam> range(buffer,
-                                                              wn_nullptr);
+                                                              nullptr);
     },
     "assertion failed!\n\nfile: .*\nline: .*\nmessage: invalid input "
     "parameters, both must be null or non-null"
@@ -87,7 +87,7 @@ TYPED_TEST(contiguous_range, assignment) {
                           TypeParam(5) };
   wn::containers::contiguous_range<TypeParam> range1(buffer);
 
-  range1 = wn_nullptr;
+  range1 = nullptr;
 
   wn::containers::contiguous_range<TypeParam> range2;
 
@@ -98,7 +98,7 @@ TYPED_TEST(contiguous_range, assignment) {
   range3 = range2;
 
   EXPECT_TRUE(range1.empty());
-  EXPECT_EQ(range1.data(), wn_nullptr);
+  EXPECT_EQ(range1.data(), nullptr);
   EXPECT_FALSE(range2.empty());
   EXPECT_EQ(range2.data(), buffer);
   EXPECT_FALSE(range3.empty());
@@ -109,7 +109,7 @@ TYPED_TEST(contiguous_range, assignment) {
   range4 = std::move(range3);
 
   EXPECT_TRUE(range3.empty());
-  EXPECT_EQ(range3.data(), wn_nullptr);
+  EXPECT_EQ(range3.data(), nullptr);
   EXPECT_FALSE(range4.empty());
   EXPECT_EQ(range4.data(), buffer);
 }
@@ -210,7 +210,7 @@ TYPED_TEST(contiguous_range, iteration) {
                           TypeParam(5) };
   wn::containers::contiguous_range<TypeParam> range1(buffer);
 
-  wn_uint8 count = 1;
+  uint8_t count = 1;
 
   for (auto i = range1.begin(); i != range1.end(); ++i) {
     EXPECT_EQ(*i, TypeParam(count));
@@ -385,7 +385,7 @@ TYPED_TEST(contiguous_range, multiple_ranges_same_source) {
   EXPECT_EQ(range2.size(), 3);
   EXPECT_EQ(range3.size(), 4);
 
-  wn_uint8 count = 1;
+  uint8_t count = 1;
 
   for (auto i = range1.cbegin(); i != range1.cend(); ++i) {
     EXPECT_EQ(*i, TypeParam(count));

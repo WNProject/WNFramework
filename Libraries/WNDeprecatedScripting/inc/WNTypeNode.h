@@ -23,7 +23,7 @@ namespace WNScripting {
     private:
         WNScriptTypeName mType;
         char* mCustomType;
-        wn_size_t mNumArrayLevels;
+        size_t mNumArrayLevels;
     };
 }
 #endif//__WN_TYPE_NODE_H__
