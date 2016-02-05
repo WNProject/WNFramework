@@ -368,7 +368,7 @@ function(wn_create_test)
     endif()
   endif()
   set_property(TARGET ${PARSED_ARGS_TEST_NAME}_test PROPERTY FOLDER
-    WNTests/${PARSED_ARGS_TEST_PREFIX})
+    Tests/${PARSED_ARGS_TEST_PREFIX})
 endfunction()
 
 # Arguments
@@ -423,7 +423,7 @@ function(add_wn_library target)
   endif()
 
   target_include_directories(${target} PUBLIC ${CMAKE_BINARY_DIR}/Libraries)
-  set_property(TARGET ${target} PROPERTY FOLDER WNLibraries)
+  set_property(TARGET ${target} PROPERTY FOLDER Libraries)
 
   if(PARSED_ARGS_PRE_LINK_FLAGS)
     set_property(TARGET ${target} PROPERTY WN_PRE_LINK_FLAGS
@@ -487,7 +487,7 @@ function(add_wn_header_library target)
     source_group("inc" REGULAR_EXPRESSION ".*[.](h|hpp)$")
     source_group("inl" REGULAR_EXPRESSION ".*[.](inl)$")
     add_wn_library(${target} SOURCES ${ARGN})
-    set_property(TARGET ${target} PROPERTY FOLDER WNLibraries)
+    set_property(TARGET ${target} PROPERTY FOLDER Libraries)
     set_property(TARGET ${target} PROPERTY LINKER_LANGUAGE CXX)
   endif()
 endfunction(add_wn_header_library)
@@ -526,5 +526,5 @@ function(add_wn_tool target)
   source_group("inl" REGULAR_EXPRESSION ".*[.](inl)$")
   add_wn_executable(${target} LINK_LIBRARIES ${PARSED_ARGS_LINK_LIBRARIES}
     SOURCES ${PARSED_ARGS_SOURCES})
-  set_property(TARGET ${target} PROPERTY FOLDER WNTools)
+  set_property(TARGET ${target} PROPERTY FOLDER Tools)
 endfunction(add_wn_tool)
