@@ -2,13 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
+#include "WNScripting/inc/WNCTranslator.h"
 #include "WNContainers/inc/WNString.h"
 #include "WNFileSystem/inc/WNMapping.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNScripting/inc/WNASTCodeGenerator.h"
 #include "WNScripting/inc/WNASTWalker.h"
 #include "WNScripting/inc/WNCGenerator.h"
-#include "WNScripting/inc/WNCTranslator.h"
 #include "WNScripting/inc/WNScriptHelpers.h"
 #include "WNScripting/inc/WNTypeValidator.h"
 

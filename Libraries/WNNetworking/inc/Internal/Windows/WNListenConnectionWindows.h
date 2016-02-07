@@ -11,22 +11,24 @@
 #include "WNNetworking/inc/WNNetworkManager.h"
 
 namespace WNNetworking {
-    class WNInConnectionWindows;
+class WNInConnectionWindows;
 
-    class WNListenConnectionWindows : public WNConnectionWindows {
-    public:
-        WNListenConnectionWindows(WNNetworkManager& _manager, WNConnectionType::type _type, uint16_t _port, WNConnectedCallback _connected);
-        virtual WN_FORCE_INLINE ~WNListenConnectionWindows() {}
+class WNListenConnectionWindows : public WNConnectionWindows {
+public:
+  WNListenConnectionWindows(WNNetworkManager& _manager,
+      WNConnectionType::type _type, uint16_t _port,
+      WNConnectedCallback _connected);
+  virtual WN_FORCE_INLINE ~WNListenConnectionWindows() {}
 
-        WNNetworkManagerReturnCode::type Initialize();
-        WNInConnectionWindows* AcceptConnection();
+  WNNetworkManagerReturnCode::type Initialize();
+  WNInConnectionWindows* AcceptConnection();
 
-    private:
-        uint16_t mPort;
-        WNConnectedCallback mConnectedCallback;
-        WNConnectionType::type mType;
-        bool mInitialized;
-    };
+private:
+  uint16_t mPort;
+  WNConnectedCallback mConnectedCallback;
+  WNConnectionType::type mType;
+  bool mInitialized;
+};
 };
 
-#endif//__WN_NETWORKING_WINDOWS_LISTEN_CONNECTION_H__
+#endif  //__WN_NETWORKING_WINDOWS_LISTEN_CONNECTION_H__

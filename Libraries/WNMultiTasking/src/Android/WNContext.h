@@ -10,6 +10,5 @@ int wn_getcontext(ucontext_t* _ucontext);
 int __noreturn wn_setcontext(ucontext_t* _ucontext);
 int wn_swapcontext(ucontext_t* from, ucontext_t* to);
 void wn_makecontext(ucontext_t* c, void (*func)(void*), void* data);
-void wn_fiber_func(ucontext_t* c, void(*func)(void*), void* data);
-
+void wn_fiber_func(ucontext_t* c, void (*func)(void*), void* data);
 }

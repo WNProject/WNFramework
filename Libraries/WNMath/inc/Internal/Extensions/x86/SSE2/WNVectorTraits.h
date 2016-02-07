@@ -12,43 +12,52 @@
 #include <emmintrin.h>
 
 namespace wn {
-    namespace internal {
-        namespace math {
-            struct vector_traits_sse2 : vector_traits_sse {
-                template <typename type, const size_t dimension>
-                static WN_FORCE_INLINE void normalize(element_array<type, dimension>& _element_array) {
-                    base::normalize(_element_array);
-                }
+namespace internal {
+namespace math {
+struct vector_traits_sse2 : vector_traits_sse {
+  template <typename type, const size_t dimension>
+  static WN_FORCE_INLINE void normalize(
+      element_array<type, dimension>& _element_array) {
+    base::normalize(_element_array);
+  }
 
-                template <typename type>
-                static WN_FORCE_INLINE typename core::enable_if<core::is_same<type, void>::value>::type normalize(element_array<float, 4>& _element_array) {
-                    const __m128 squared = _mm_mul_ps(_element_array.m_xmm_values[0], _element_array.m_xmm_values[0]);
-                    __m128 length_squared = _mm_add_ps(squared, sse2_shuffle_ps<_MM_SHUFFLE(1, 0, 3, 2)>(squared));
+  template <typename type>
+  static WN_FORCE_INLINE
+      typename core::enable_if<core::is_same<type, void>::value>::type
+      normalize(element_array<float, 4>& _element_array) {
+    const __m128 squared = _mm_mul_ps(
+        _element_array.m_xmm_values[0], _element_array.m_xmm_values[0]);
+    __m128 length_squared =
+        _mm_add_ps(squared, sse2_shuffle_ps<_MM_SHUFFLE(1, 0, 3, 2)>(squared));
 
-                    length_squared = _mm_add_ps(length_squared, sse2_shuffle_ps<_MM_SHUFFLE(0, 1, 0, 1)>(length_squared));
+    length_squared = _mm_add_ps(length_squared,
+        sse2_shuffle_ps<_MM_SHUFFLE(0, 1, 0, 1)>(length_squared));
 
-                    #ifdef __WN_MATH_APPROXIMATIONS_ENABLED
-                        const __m128 inverse_length = _mm_rsqrt_ps(length_squared);
+#ifdef __WN_MATH_APPROXIMATIONS_ENABLED
+    const __m128 inverse_length = _mm_rsqrt_ps(length_squared);
 
-                        _element_array.m_xmm_values[0] = _mm_mul_ps(_element_array.m_xmm_values[0], inverse_length);
-                    #else
-                        const __m128 length = _mm_sqrt_ps(length_squared);
+    _element_array.m_xmm_values[0] =
+        _mm_mul_ps(_element_array.m_xmm_values[0], inverse_length);
+#else
+    const __m128 length = _mm_sqrt_ps(length_squared);
 
-                        _element_array.m_xmm_values[0] = _mm_div_ps(_element_array.m_xmm_values[0], length);
-                    #endif
-                }
+    _element_array.m_xmm_values[0] =
+        _mm_div_ps(_element_array.m_xmm_values[0], length);
+#endif
+  }
 
-            protected:
-                template <const int32_t mask>
-                static WN_FORCE_INLINE __m128 sse2_shuffle_ps(__m128 _value) {
-                    return(_mm_castsi128_ps(_mm_shuffle_epi32(_mm_castps_si128(_value), mask)));
-                }
+protected:
+  template <const int32_t mask>
+  static WN_FORCE_INLINE __m128 sse2_shuffle_ps(__m128 _value) {
+    return (
+        _mm_castsi128_ps(_mm_shuffle_epi32(_mm_castps_si128(_value), mask)));
+  }
 
-            private:
-                typedef vector_traits_sse base;
-            };
-        }
-    }
+private:
+  typedef vector_traits_sse base;
+};
+}
+}
 }
 
-#endif // __WN_MATH_INTERNAL_X86_SSE2_VECTOR_TRAITS_H__
+#endif  // __WN_MATH_INTERNAL_X86_SSE2_VECTOR_TRAITS_H__

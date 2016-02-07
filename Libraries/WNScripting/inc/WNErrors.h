@@ -19,4 +19,4 @@ enum class parse_error {
 }
 }
 
-#endif //__WN_SCRIPTING_ERRORS_H__
+#endif  //__WN_SCRIPTING_ERRORS_H__

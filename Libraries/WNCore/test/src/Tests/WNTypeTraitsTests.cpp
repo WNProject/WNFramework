@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNTesting/inc/WNTestHarness.h"
+#include "WNCore/inc/WNTypeTraits.h"
 #include "WNCore/inc/WNExtendedTypes.h"
 #include "WNCore/inc/WNTypes.h"
-#include "WNCore/inc/WNTypeTraits.h"
+#include "WNTesting/inc/WNTestHarness.h"
 
 TEST(type_traits, integral_constant) {
   EXPECT_TRUE((wn::core::integral_constant<bool, true>::value));
@@ -41,8 +41,7 @@ TEST(type_traits, is_same) {
   EXPECT_FALSE((wn::core::is_same<volatile float, float>::value));
   EXPECT_FALSE((wn::core::is_same<const bool, uint32_t>::value));
   EXPECT_FALSE((wn::core::is_same<int32_t, volatile float>::value));
-  EXPECT_FALSE(
-      (wn::core::is_same<const volatile uint32_t, const bool>::value));
+  EXPECT_FALSE((wn::core::is_same<const volatile uint32_t, const bool>::value));
   EXPECT_FALSE((wn::core::is_same<volatile float, int32_t>::value));
   EXPECT_FALSE((wn::core::is_same<uint32_t, bool>::value));
   EXPECT_FALSE((wn::core::is_same<float, int32_t>::value));
@@ -59,15 +58,12 @@ TEST(type_traits, is_same_decayed) {
   EXPECT_TRUE((wn::core::is_same_decayed<int32_t, volatile int32_t>::value));
   EXPECT_TRUE((wn::core::is_same_decayed<const volatile uint32_t,
       const uint32_t>::value));
-  EXPECT_TRUE(
-      (wn::core::is_same_decayed<volatile float, float>::value));
+  EXPECT_TRUE((wn::core::is_same_decayed<volatile float, float>::value));
   EXPECT_FALSE((wn::core::is_same_decayed<const bool, uint32_t>::value));
+  EXPECT_FALSE((wn::core::is_same_decayed<int32_t, volatile float>::value));
   EXPECT_FALSE(
-      (wn::core::is_same_decayed<int32_t, volatile float>::value));
-  EXPECT_FALSE((wn::core::is_same_decayed<const volatile uint32_t,
-      const bool>::value));
-  EXPECT_FALSE(
-      (wn::core::is_same_decayed<volatile float, int32_t>::value));
+      (wn::core::is_same_decayed<const volatile uint32_t, const bool>::value));
+  EXPECT_FALSE((wn::core::is_same_decayed<volatile float, int32_t>::value));
   EXPECT_FALSE((wn::core::is_same_decayed<uint32_t, bool>::value));
   EXPECT_FALSE((wn::core::is_same_decayed<float, int32_t>::value));
   EXPECT_FALSE((wn::core::is_same_decayed<uint32_t, int32_t>::value));

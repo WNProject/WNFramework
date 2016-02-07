@@ -8,7 +8,8 @@
 #define __WN_CORE_INTERNAL_BASE_MSVC_H__
 
 #if _MSC_VER < 1800
-    #error "Compiler not supported: MSVC 12 (Visual Studio 2013) or higher must be used"
+#error                                                                         \
+    "Compiler not supported: MSVC 12 (Visual Studio 2013) or higher must be used"
 #endif
 
 #define _WN_MSVC _MSC_FULL_VER
@@ -24,9 +25,10 @@
 #define __WN_HAS_CPP11_TYPE_TRAITS
 #define __WN_HAS_CPP11_DECLTYPE
 
-// Before Visual Studio 2015 using alias declaration crashes the compiler in a number of instances
+// Before Visual Studio 2015 using alias declaration crashes the compiler in a
+// number of instances
 #if _WN_MSVC_MAJOR > 18
-    #define __WN_HAS_CPP11_USING_ALIAS_DECLARATIONS
+#define __WN_HAS_CPP11_USING_ALIAS_DECLARATIONS
 #endif
 
 #define __WN_HAS_CPP11_CONSTRUCTOR_DELEGATION
@@ -39,21 +41,21 @@
 #define __WN_HAS_CPP14_STD_MAKE_UNIQUE
 
 #if defined _WIN32 || defined _WIN64
-    #define NOMINMAX
+#define NOMINMAX
+// clang-format off
+#include <winsock2.h>
+#include <Windows.h>
+// clang-format on
+#if !defined _WIN32_WINNT_VISTA || _WIN32_WINNT < _WIN32_WINNT_VISTA
+#error "Windows API Version not supported: Windows Vista or higher must be used"
+#endif
 
-    #include <winsock2.h>
-    #include <Windows.h>
+#define WN_OSCALL_BEGIN WINAPI
+#define WN_OSCALL_END
 
-    #if !defined _WIN32_WINNT_VISTA || _WIN32_WINNT < _WIN32_WINNT_VISTA
-        #error "Windows API Version not supported: Windows Vista or higher must be used"
-    #endif
-
-    #define WN_OSCALL_BEGIN WINAPI
-    #define WN_OSCALL_END
-
-    #define WN_UNUSED_ARGUMENT(_argument) UNREFERENCED_PARAMETER(_argument)
+#define WN_UNUSED_ARGUMENT(_argument) UNREFERENCED_PARAMETER(_argument)
 #endif
 
 #define WN_DEBUG_BREAK() __debugbreak()
 
-#endif // __WN_CORE_INTERNAL_BASE_MSVC_H__
+#endif  // __WN_CORE_INTERNAL_BASE_MSVC_H__

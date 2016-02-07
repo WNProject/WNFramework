@@ -111,10 +111,9 @@ void convert_to_fiber(memory::allocator* _allocator) {
     f->m_is_top_level_fiber = true;
     tl_this_fiber = f->m_data.get();
 #if defined _WN_WINDOWS
-    f->m_fiber_context =
-        tl_thread_as_fiber
-            ? tl_thread_as_fiber
-            : ::ConvertThreadToFiberEx(nullptr, FIBER_FLAG_FLOAT_SWITCH);
+    f->m_fiber_context = tl_thread_as_fiber ? tl_thread_as_fiber
+                                            : ::ConvertThreadToFiberEx(nullptr,
+                                                  FIBER_FLAG_FLOAT_SWITCH);
     tl_thread_as_fiber = f->m_fiber_context;
 #elif defined _WN_ANDROID
     wn_getcontext(&f->m_fiber_context);

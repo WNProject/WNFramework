@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNTesting/inc/WNTestHarness.h"
 #include "WNContainers/inc/WNFunction.h"
+#include "WNTesting/inc/WNTestHarness.h"
 
 void test_function1() {}
 
@@ -12,15 +12,15 @@ void test_function2(int32_t) {}
 void test_function3(int32_t, int32_t) {}
 
 int32_t test_function4() {
-  return(1);
+  return (1);
 }
 
 int32_t test_function5(int32_t) {
-  return(1);
+  return (1);
 }
 
 int32_t test_function6(int32_t, int32_t) {
-  return(1);
+  return (1);
 }
 
 struct test_object final {
@@ -31,15 +31,15 @@ struct test_object final {
   void test_member_function3(int32_t, int32_t) {}
 
   int32_t test_member_function4() {
-    return(m_value);
+    return (m_value);
   }
 
   int32_t test_member_function5(int32_t) {
-    return(m_value);
+    return (m_value);
   }
 
   int32_t test_member_function6(int32_t, int32_t) {
-    return(m_value);
+    return (m_value);
   }
 
   int32_t m_value = 1;
@@ -68,11 +68,11 @@ TEST(function, construct) {
   const wn::containers::function<void(int32_t, int32_t)> function9(
       [](int32_t, int32_t) -> void {});
   const wn::containers::function<int32_t()> function10(
-      []() -> int32_t { return(1); });
+      []() -> int32_t { return (1); });
   const wn::containers::function<int32_t(int32_t)> function11(
-      [](int32_t) -> int32_t { return(1); });
+      [](int32_t) -> int32_t { return (1); });
   const wn::containers::function<int32_t(int32_t, int32_t)> function12(
-      [](int32_t, int32_t) -> int32_t { return(1); });
+      [](int32_t, int32_t) -> int32_t { return (1); });
 
   EXPECT_TRUE(function7);
   EXPECT_TRUE(function8);
@@ -89,11 +89,11 @@ TEST(function, construct) {
   const wn::containers::function<void(int32_t, int32_t)> function15(
       [value](int32_t, int32_t) -> void {});
   const wn::containers::function<int32_t()> function16(
-      [value]() -> int32_t { return(1); });
+      [value]() -> int32_t { return (1); });
   const wn::containers::function<int32_t(int32_t)> function17(
-      [value](int32_t) -> int32_t { return(1); });
+      [value](int32_t) -> int32_t { return (1); });
   const wn::containers::function<int32_t(int32_t, int32_t)> function18(
-      [value](int32_t, int32_t) -> int32_t { return(1); });
+      [value](int32_t, int32_t) -> int32_t { return (1); });
 
   EXPECT_TRUE(function13);
   EXPECT_TRUE(function14);
@@ -108,8 +108,7 @@ TEST(function, construct) {
   const wn::containers::function<void(int32_t, int32_t)> function21(
       &test_function3);
   const wn::containers::function<int32_t()> function22(&test_function4);
-  const wn::containers::function<int32_t(int32_t)> function23(
-      &test_function5);
+  const wn::containers::function<int32_t(int32_t)> function23(&test_function5);
   const wn::containers::function<int32_t(int32_t, int32_t)> function24(
       &test_function6);
 
@@ -146,7 +145,7 @@ TEST(function, construct) {
 TEST(function, move) {
   const int32_t value = 1;
   wn::containers::function<int32_t()> function1(
-      [value]() -> int32_t { return(value); });
+      [value]() -> int32_t { return (value); });
 
   EXPECT_TRUE(function1);
   EXPECT_EQ(function1(), 1);
@@ -167,7 +166,7 @@ TEST(function, move) {
 TEST(function, copy) {
   const int32_t value = 1;
   const wn::containers::function<int32_t()> function1(
-      [value]() -> int32_t { return(value); });
+      [value]() -> int32_t { return (value); });
 
   EXPECT_TRUE(function1);
   EXPECT_EQ(function1(), 1);
@@ -197,7 +196,7 @@ TEST(function, assign) {
 
   const int32_t value = 1;
 
-  function1.assign([value]() -> int32_t { return(value); });
+  function1.assign([value]() -> int32_t { return (value); });
 
   EXPECT_TRUE(function1);
   EXPECT_EQ(function1(), 1);
@@ -206,9 +205,9 @@ TEST(function, assign) {
 TEST(function, swap) {
   const int32_t value = 1;
   wn::containers::function<int32_t()> function1(
-      [value]() -> int32_t { return(value); });
+      [value]() -> int32_t { return (value); });
   wn::containers::function<int32_t()> function2(
-      [value]() -> int32_t { return(value + 1); });
+      [value]() -> int32_t { return (value + 1); });
 
   EXPECT_TRUE(function1);
   EXPECT_TRUE(function2);
@@ -234,17 +233,17 @@ TEST(function, swap) {
 }
 
 TEST(function, large_parameter_count) {
-  wn::containers::function<int32_t(float, double, int8_t, int16_t,
-                                    int32_t, int64_t, uint8_t, uint16_t,
-                                    uint32_t, uint64_t, size_t,
-                                    signed_t)> function1;
+  wn::containers::function<int32_t(float, double, int8_t, int16_t, int32_t,
+      int64_t, uint8_t, uint16_t, uint32_t, uint64_t, size_t, signed_t)>
+      function1;
 
   EXPECT_FALSE(function1);
 
-  function1 = [](float a, double b, int8_t c, int16_t d, int32_t e,
-                 int64_t f, uint8_t g, uint16_t h, uint32_t i, uint64_t j,
-                 size_t k, signed_t l) -> int32_t {
-    return(static_cast<int32_t>(a * b + c - d + e - f + g - h + i - j + k - l));
+  function1 = [](float a, double b, int8_t c, int16_t d, int32_t e, int64_t f,
+      uint8_t g, uint16_t h, uint32_t i, uint64_t j, size_t k,
+      signed_t l) -> int32_t {
+    return (
+        static_cast<int32_t>(a * b + c - d + e - f + g - h + i - j + k - l));
   };
 
   EXPECT_TRUE(function1);

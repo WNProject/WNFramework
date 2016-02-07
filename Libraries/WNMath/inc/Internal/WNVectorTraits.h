@@ -10,19 +10,19 @@
 #include "WNMath/inc/WNConfig.h"
 
 #ifdef __WN_MATH_EXTENSIONS_ENABLED
-    #ifdef _WN_X86
-        #include "WNMath/inc/Internal/Extensions/x86/WNVectorTraits.h"
-    #endif
+#ifdef _WN_X86
+#include "WNMath/inc/Internal/Extensions/x86/WNVectorTraits.h"
+#endif
 #else
-    #include "WNMath/inc/Internal/Generic/WNVectorTraits.h"
+#include "WNMath/inc/Internal/Generic/WNVectorTraits.h"
 
-    namespace wn {
-        namespace internal {
-            namespace math {
-                typedef vector_traits_generic vector_traits;
-            }
-        }
-    }
+namespace wn {
+namespace internal {
+namespace math {
+typedef vector_traits_generic vector_traits;
+}
+}
+}
 #endif
 
-#endif // __WN_MATH_INTERNAL_GENERAL_TRAITS_H__
+#endif  // __WN_MATH_INTERNAL_GENERAL_TRAITS_H__

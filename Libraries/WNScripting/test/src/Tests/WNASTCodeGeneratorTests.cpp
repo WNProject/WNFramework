@@ -2,11 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
+#include "WNScripting/inc/WNASTCodeGenerator.h"
 #include "WNContainers/inc/WNString.h"
 #include "WNFileSystem/inc/WNFactory.h"
 #include "WNFileSystem/inc/WNMapping.h"
 #include "WNLogging/inc/WNBufferLogger.h"
-#include "WNScripting/inc/WNASTCodeGenerator.h"
 #include "WNScripting/test/inc/Common.h"
 #include "WNTesting/inc/WNTestHarness.h"
 using ::testing::Eq;
@@ -39,9 +39,8 @@ struct test_context {
   size_t num_errors;
 
   bool test_parse_file(const char* _file) {
-    bool success =
-        wn::scripting::test_parse_file(_file, mapping.get(), &allocator, &log,
-            &num_warnings, &num_errors) != nullptr;
+    bool success = wn::scripting::test_parse_file(_file, mapping.get(),
+                       &allocator, &log, &num_warnings, &num_errors) != nullptr;
     log.Flush();
     return success;
   }

@@ -10,11 +10,11 @@
 #include "WNMemory/inc/Internal/WNConfig.h"
 
 #ifdef _WN_MEMORY_USE_EXTENSION
-  #include "WNMemory/inc/Internal/Extension/WNBasicTraits.h"
+#include "WNMemory/inc/Internal/Extension/WNBasicTraits.h"
 #endif
 
 #if !defined _WN_MEMORY_USE_EXTENSION || defined _WN_MEMORY_NO_EXTENSION
-  #include "WNMemory/inc/Internal/Generic/WNBasicTraits.h"
+#include "WNMemory/inc/Internal/Generic/WNBasicTraits.h"
 #endif
 
 namespace wn {
@@ -22,13 +22,13 @@ namespace memory {
 namespace internal {
 
 #if defined _WN_MEMORY_USE_EXTENSION && !defined _WN_MEMORY_NO_EXTENSION
-  typedef basic_traits_extension basic_traits;
+typedef basic_traits_extension basic_traits;
 #else
-  typedef basic_traits_generic basic_traits;
+typedef basic_traits_generic basic_traits;
 #endif
 
-} // namespace internal
-} // namespace memory
-} // namespace wn
+}  // namespace internal
+}  // namespace memory
+}  // namespace wn
 
-#endif // __WN_MEMORY_INTERNAL_BASIC_TRAITS_H__
+#endif  // __WN_MEMORY_INTERNAL_BASIC_TRAITS_H__

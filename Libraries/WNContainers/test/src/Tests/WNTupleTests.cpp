@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNTesting/inc/WNTestHarness.h"
 #include "WNContainers/inc/WNTuple.h"
+#include "WNTesting/inc/WNTestHarness.h"
 
 WN_ENABLE_TYPED_TEST(tuple);
 
@@ -32,8 +32,7 @@ struct multi_type final {
 
 using tuple_testing_types =
     ::testing::Types<multi_type<uint8_t, int64_t, int16_t>,
-        multi_type<uint16_t, dummy, float>,
-        multi_type<uint32_t, float, int8_t>,
+        multi_type<uint16_t, dummy, float>, multi_type<uint32_t, float, int8_t>,
         multi_type<uint64_t, double, dummy>,
         multi_type<dummy, int8_t, uint32_t>>;
 
@@ -161,7 +160,8 @@ TYPED_TEST(tuple, size) {
 
   wn::containers::tuple<first_type, second_type, third_type> tuple1;
   wn::containers::tuple<first_type, second_type, third_type, first_type,
-      second_type, third_type> tuple2;
+      second_type, third_type>
+      tuple2;
 
   EXPECT_EQ(wn::containers::tuple_size<decltype(tuple1)>::value, 3);
   EXPECT_EQ(wn::containers::tuple_size<decltype(tuple2)>::value, 6);

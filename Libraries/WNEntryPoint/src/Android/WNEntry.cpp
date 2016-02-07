@@ -3,98 +3,98 @@
 // found in the LICENSE.txt file.
 
 #include "WNCore/inc/WNTypes.h"
-#include "WNUtils/inc/Android/WNLoggingData.h"
-#include "WNUtils/inc/Android/WNAppData.h"
 #include "WNUtils/inc/Android/WNAndroidEventPump.h"
+#include "WNUtils/inc/Android/WNAppData.h"
+#include "WNUtils/inc/Android/WNLoggingData.h"
 #include "WNUtils/inc/WNCrashHandler.h"
 
+#include <android/log.h>
 #include <android_native_app_glue.h>
 #include <unistd.h>
-#include <android/log.h>
 
 extern int32_t wn_main(int32_t _argc, char* _argv[]);
 
 void wn_dummy() {}
 
 char* GetPackageName(struct android_app* state) {
-    ANativeActivity* activity = state->activity;
-    JNIEnv* env = 0;
+  ANativeActivity* activity = state->activity;
+  JNIEnv* env = 0;
 
-    activity->vm->AttachCurrentThread(&env, 0);
+  activity->vm->AttachCurrentThread(&env, 0);
 
-    jclass cls = env->GetObjectClass(activity->clazz);
-    jmethodID methodID = env->GetMethodID(cls, "getPackageName", "()Ljava/lang/String;");
-    jobject result = env->CallObjectMethod(activity->clazz, methodID);
+  jclass cls = env->GetObjectClass(activity->clazz);
+  jmethodID methodID =
+      env->GetMethodID(cls, "getPackageName", "()Ljava/lang/String;");
+  jobject result = env->CallObjectMethod(activity->clazz, methodID);
 
-    char* tempstr;
-    const char* str;
-    jboolean isCopy;
+  char* tempstr;
+  const char* str;
+  jboolean isCopy;
 
-    str = env->GetStringUTFChars((jstring)result, &isCopy);
+  str = env->GetStringUTFChars((jstring)result, &isCopy);
 
-    int newLen = strlen(str);
+  int newLen = strlen(str);
 
-    tempstr = static_cast<char*>(malloc(sizeof(char) * newLen + 1));
+  tempstr = static_cast<char*>(malloc(sizeof(char) * newLen + 1));
 
-    memcpy(tempstr, str, newLen);
+  memcpy(tempstr, str, newLen);
 
-    tempstr[newLen] = '\0';
+  tempstr[newLen] = '\0';
 
-    env->ReleaseStringUTFChars((jstring)result, str);
-    activity->vm->DetachCurrentThread();
+  env->ReleaseStringUTFChars((jstring)result, str);
+  activity->vm->DetachCurrentThread();
 
-    return(tempstr);
+  return (tempstr);
 }
 
 void* main_proxy_thread(void* _package_name) {
-    WNUtils::InitializeCrashHandler();
+  WNUtils::InitializeCrashHandler();
 
-    char* package_name = static_cast<char*>(_package_name);
-    int32_t retVal = wn_main(1, &package_name);
+  char* package_name = static_cast<char*>(_package_name);
+  int32_t retVal = wn_main(1, &package_name);
 
-    __android_log_print(ANDROID_LOG_INFO, WNUtils::gAndroidLogTag, "--FINISHED");
-    __android_log_print(ANDROID_LOG_INFO, WNUtils::gAndroidLogTag, "RETURN %d", retVal);
+  __android_log_print(ANDROID_LOG_INFO, WNUtils::gAndroidLogTag, "--FINISHED");
+  __android_log_print(
+      ANDROID_LOG_INFO, WNUtils::gAndroidLogTag, "RETURN %d", retVal);
 
-    WNUtils::WNAndroidEventPump::GetInstance().KillMessagePump();
+  WNUtils::WNAndroidEventPump::GetInstance().KillMessagePump();
 
-    return(NULL);
+  return (NULL);
 }
 
-void android_main(struct android_app* state)
-{
-    char* packageName = GetPackageName(state);
+void android_main(struct android_app* state) {
+  char* packageName = GetPackageName(state);
 
-    WNUtils::gAndroidLogTag = packageName;
-    WNUtils::gAndroidApp = state;
-    WNUtils::gMainLooper = ALooper_forThread();
+  WNUtils::gAndroidLogTag = packageName;
+  WNUtils::gAndroidApp = state;
+  WNUtils::gMainLooper = ALooper_forThread();
 
-    app_dummy();
+  app_dummy();
 
-    __android_log_print(ANDROID_LOG_INFO, packageName, "--STARTED");
+  __android_log_print(ANDROID_LOG_INFO, packageName, "--STARTED");
 
-    #if defined _WN_DEBUG
-        FILE* debugFile = fopen("/sdcard/wait-for-debugger.txt", "r");
+#if defined _WN_DEBUG
+  FILE* debugFile = fopen("/sdcard/wait-for-debugger.txt", "r");
 
-        if (debugFile)
-        {
-            __android_log_print(ANDROID_LOG_INFO, packageName, "--SLEEPING");
+  if (debugFile) {
+    __android_log_print(ANDROID_LOG_INFO, packageName, "--SLEEPING");
 
-            sleep(10); //sleep so that if we want to connect a debugger we can
+    sleep(10);  // sleep so that if we want to connect a debugger we can
 
-            __android_log_print(ANDROID_LOG_INFO, packageName, "--WAKING UP");
+    __android_log_print(ANDROID_LOG_INFO, packageName, "--WAKING UP");
 
-            fclose(debugFile);
-        }
-    #endif
+    fclose(debugFile);
+  }
+#endif
 
-    pthread_t mThread;
+  pthread_t mThread;
 
-    pthread_create(&mThread, NULL, main_proxy_thread, packageName);
+  pthread_create(&mThread, NULL, main_proxy_thread, packageName);
 
-    WNUtils::WNAndroidEventPump::GetInstance().PumpMessages(state);
+  WNUtils::WNAndroidEventPump::GetInstance().PumpMessages(state);
 
-    pthread_join(mThread, NULL);
+  pthread_join(mThread, NULL);
 
-    free(packageName);
-    fclose(stdout);
+  free(packageName);
+  fclose(stdout);
 }

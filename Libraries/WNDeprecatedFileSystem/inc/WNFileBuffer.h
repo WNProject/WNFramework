@@ -10,18 +10,15 @@
 #include "WNContainers/inc/WNDataBuffer.h"
 
 namespace WNFileSystem {
-    enum WNFileBufferType {
-        eWNBinary,
-        eWNText
-    };
+enum WNFileBufferType { eWNBinary, eWNText };
 
-    class WNFileBuffer : public wn::containers::data_buffer {
-    public:
-        WNFileBuffer(WNFileBufferType _type);
+class WNFileBuffer : public wn::containers::data_buffer {
+public:
+  WNFileBuffer(WNFileBufferType _type);
 
-    protected:
-        WNFileBufferType mType;
-    };
- }
+protected:
+  WNFileBufferType mType;
+};
+}
 
-#endif // __WN_FILE_SYSTEM_FILE_BUFFER_H__
+#endif  // __WN_FILE_SYSTEM_FILE_BUFFER_H__

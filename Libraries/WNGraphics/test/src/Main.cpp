@@ -1,8 +1,8 @@
+#include "WNEntryPoint/inc/WNEntry.h"
 #include "WNGraphics/inc/WNGraphicsDevice.h"
 #include "WNGraphics/inc/WNGraphicsDeviceFactory.h"
-#include "WNPlatform/inc/WNSurfaceManager.h"
 #include "WNPlatform/inc/WNPlatformFactory.h"
-#include "WNEntryPoint/inc/WNEntry.h"
+#include "WNPlatform/inc/WNSurfaceManager.h"
 
 using namespace WNGraphics;
 using namespace wn;

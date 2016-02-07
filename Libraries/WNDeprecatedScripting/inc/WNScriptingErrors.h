@@ -7,16 +7,16 @@
 
 enum eWNTypeError {
 #include "WNCore/inc/Internal/WNErrors.inc"
-    eWNAlreadyExists,
-    eWNInvalidName,
-    eWNInvalidConstant,
-    eWNInvalidCast,
-    eWNCannotCreateType,
-    eWNInvalidOperation,
-    eWNAmbiguous,
-    eWNPartiallyAmbiguous,
-    eWNUnknownResolution,
-    eWNNoVirtual
+  eWNAlreadyExists,
+  eWNInvalidName,
+  eWNInvalidConstant,
+  eWNInvalidCast,
+  eWNCannotCreateType,
+  eWNInvalidOperation,
+  eWNAmbiguous,
+  eWNPartiallyAmbiguous,
+  eWNUnknownResolution,
+  eWNNoVirtual
 };
 
-#endif//__WN_SCRIPTING_ERRORS_H__
+#endif  //__WN_SCRIPTING_ERRORS_H__

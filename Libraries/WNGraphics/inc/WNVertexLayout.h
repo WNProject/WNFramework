@@ -8,9 +8,7 @@
 #define __WN_GRAPHICS_VERTEX_LAYOUT_H__
 
 namespace WNGraphics {
-    class WNVertexLayout {
-        
-    };
+class WNVertexLayout {};
 }
 
-#endif // __WN_GRAPHICS_VERTEX_LAYOUT_H__
+#endif  // __WN_GRAPHICS_VERTEX_LAYOUT_H__

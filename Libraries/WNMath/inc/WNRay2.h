@@ -11,38 +11,41 @@
 #include "WNMath/inc/vector2.h"
 
 namespace wn {
-    template <typename type> class WNLine2;
-    template <typename type> class WNLine3;
+template <typename type>
+class WNLine2;
+template <typename type>
+class WNLine3;
 
-    template <typename type>
-    class WNRay2 {
-    public:
-        WNRay2();
-        explicit WNRay2(const type* _numbers);
-        explicit WNRay2(const vector2<type>& _location, const vector2<type>& _direction);
+template <typename type>
+class WNRay2 {
+public:
+  WNRay2();
+  explicit WNRay2(const type* _numbers);
+  explicit WNRay2(
+      const vector2<type>& _location, const vector2<type>& _direction);
 
-        WNRay2 operator + () const;
-        WNRay2 operator - () const;
+  WNRay2 operator+() const;
+  WNRay2 operator-() const;
 
-        bool operator == (const WNRay2& _ray) const;
-        bool operator != (const WNRay2& _ray) const;
+  bool operator==(const WNRay2& _ray) const;
+  bool operator!=(const WNRay2& _ray) const;
 
-        void Zero();
+  void Zero();
 
-        bool IsZero() const;
+  bool IsZero() const;
 
-        void Set(const type* _numbers);
-        void Set(const vector2<type>& _location, const vector2<type>& _direction);
+  void Set(const type* _numbers);
+  void Set(const vector2<type>& _location, const vector2<type>& _direction);
 
-        WNLine2<type> ToLine2() const;
-        WNLine3<type> ToLine3() const;
+  WNLine2<type> ToLine2() const;
+  WNLine3<type> ToLine3() const;
 
-    public:
-        vector2<type> mLocation;
-        vector2<type> mDirection;
-    };
+public:
+  vector2<type> mLocation;
+  vector2<type> mDirection;
+};
 }
 
 #include "WNMath/inc/Internal/WNRay2.inl"
 
-#endif // __WN_MATH_RAY_2_H__
+#endif  // __WN_MATH_RAY_2_H__

@@ -8,18 +8,19 @@
 #include "WNDeprecatedScripting/inc/WNInstruction.h"
 
 namespace WNScripting {
-    class WNExpression;
-    class WNReturn : public WNInstruction {
-    public:
-        WNReturn(WNExpression* _expr, bool _changeOwnership = false);
-        WNReturn();
-        virtual ~WNReturn();
+class WNExpression;
+class WNReturn : public WNInstruction {
+public:
+  WNReturn(WNExpression* _expr, bool _changeOwnership = false);
+  WNReturn();
+  virtual ~WNReturn();
 
-        virtual eWNTypeError GenerateCode(WNCodeModule& _module, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog);
+  virtual eWNTypeError GenerateCode(WNCodeModule& _module,
+      const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog);
 
-    private:
-        WNExpression* mExpression;
-        bool mChangeOwnership;
-    };
+private:
+  WNExpression* mExpression;
+  bool mChangeOwnership;
+};
 }
-#endif//__WN_RETURN_H__
+#endif  //__WN_RETURN_H__

@@ -4,6 +4,5 @@
 
 #include "WNDeprecatedFileSystem/inc/WNFileBuffer.h"
 
-WNFileSystem::WNFileBuffer::WNFileBuffer(WNFileSystem::WNFileBufferType _type) :
-    mType(_type) {
-}
+WNFileSystem::WNFileBuffer::WNFileBuffer(WNFileSystem::WNFileBufferType _type)
+  : mType(_type) {}

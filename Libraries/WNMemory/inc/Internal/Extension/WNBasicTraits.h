@@ -8,9 +8,9 @@
 #define __WN_MEMORY_INTERNAL_EXTENSION_BASIC_TRAITS_H__
 
 #ifdef _WN_X86
-  #include "WNMemory/inc/Internal/Extension/x86/WNBasicTraits.h"
+#include "WNMemory/inc/Internal/Extension/x86/WNBasicTraits.h"
 #else
-  #define _WN_MEMORY_NO_EXTENSION
+#define _WN_MEMORY_NO_EXTENSION
 #endif
 
 namespace wn {
@@ -18,12 +18,11 @@ namespace memory {
 namespace internal {
 
 #ifdef _WN_X86
-  typedef basic_traits_x86 basic_traits_extension;
+typedef basic_traits_x86 basic_traits_extension;
 #endif
 
-} // namespace internal
-} // namespace memory
-} // namespace wn
+}  // namespace internal
+}  // namespace memory
+}  // namespace wn
 
-
-#endif // __WN_MEMORY_INTERNAL_EXTENSION_BASIC_TRAITS_H__
+#endif  // __WN_MEMORY_INTERNAL_EXTENSION_BASIC_TRAITS_H__

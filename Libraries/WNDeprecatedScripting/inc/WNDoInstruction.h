@@ -7,18 +7,18 @@
 
 #include "WNDeprecatedScripting/inc/WNInstruction.h"
 namespace WNScripting {
-    class WNExpression;
-    class WNInstructionList;
-    class WNDoInstruction : public WNInstruction {
-    public:
-        WNDoInstruction(WNExpression* _cond, WNInstructionList* _body);
-        virtual ~WNDoInstruction();
-        virtual eWNTypeError GenerateCode(WNCodeModule& _module, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog);
-    private:
-        WNExpression* mCondition;
-        WNInstructionList* mBody;
-    };
+class WNExpression;
+class WNInstructionList;
+class WNDoInstruction : public WNInstruction {
+public:
+  WNDoInstruction(WNExpression* _cond, WNInstructionList* _body);
+  virtual ~WNDoInstruction();
+  virtual eWNTypeError GenerateCode(WNCodeModule& _module,
+      const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog);
+
+private:
+  WNExpression* mCondition;
+  WNInstructionList* mBody;
+};
 }
-#endif//__WN_DO_INSTRUCTION_H__
-
-
+#endif  //__WN_DO_INSTRUCTION_H__

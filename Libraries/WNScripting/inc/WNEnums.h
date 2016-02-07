@@ -8,14 +8,7 @@
 namespace wn {
 namespace scripting {
 
-enum class type_qualifier {
-  none,
-  shared,
-  weak,
-  nullable,
-  non_nullable,
-  max
-};
+enum class type_qualifier { none, shared, weak, nullable, non_nullable, max };
 
 // All possible asisgnment operators in WNScript.
 enum class assign_type {

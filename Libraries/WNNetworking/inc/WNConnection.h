@@ -10,22 +10,22 @@
 #include "WNCore/inc/WNTypes.h"
 
 namespace WNNetworking {
-    class WNNetworkWriteBuffer;
+class WNNetworkWriteBuffer;
 
-    class WNConnection {
-    public:
-        WNConnection();
-        virtual ~WNConnection();
+class WNConnection {
+public:
+  WNConnection();
+  virtual ~WNConnection();
 
-        const char* GetName();
-        bool IsValid();
-        virtual void Invalidate();
-        virtual void SendBuffer(WNNetworkWriteBuffer& buffer) = 0;
+  const char* GetName();
+  bool IsValid();
+  virtual void Invalidate();
+  virtual void SendBuffer(WNNetworkWriteBuffer& buffer) = 0;
 
-    protected:
-        char* mConnectionName;
-        bool mIsValid;
-    };
+protected:
+  char* mConnectionName;
+  bool mIsValid;
+};
 };
 
-#endif // __WN_NETWORKING_CONNECTION_H__
+#endif  // __WN_NETWORKING_CONNECTION_H__

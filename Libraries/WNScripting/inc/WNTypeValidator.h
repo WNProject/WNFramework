@@ -384,10 +384,9 @@ public:
   }
 
   void enable_cast(uint32_t _from_type, uint32_t _to_type, cast_type _type) {
-    WN_DEBUG_ASSERT_DESC(_from_type >= static_cast<uint32_t>(
-                                           type_classification::custom_type) ||
-                             _to_type >= static_cast<uint32_t>(
-                                             type_classification::custom_type),
+    WN_DEBUG_ASSERT_DESC(
+        _from_type >= static_cast<uint32_t>(type_classification::custom_type) ||
+            _to_type >= static_cast<uint32_t>(type_classification::custom_type),
         "It is invalid to redefine a builtin cast type");
     WN_DEBUG_ASSERT_DESC(m_types[_from_type].get_cast_type(_to_type) == 0,
         "This cast has already been defined");
@@ -395,8 +394,7 @@ public:
     m_types[_from_type].m_casts.push_back({_to_type, _type});
   }
 
-  void add_id(
-      uint32_t _type, containers::string_view _id, uint32_t _out_type) {
+  void add_id(uint32_t _type, containers::string_view _id, uint32_t _out_type) {
     WN_DEBUG_ASSERT_DESC(
         _type < m_types.size(), "Trying to index non-existent type");
     WN_DEBUG_ASSERT_DESC(
@@ -430,8 +428,7 @@ public:
   }
 
   cast_direction get_cast_direction(uint32_t _from_type, uint32_t _to_type) {
-    if (_from_type >=
-            static_cast<uint32_t>(type_classification::custom_type) &&
+    if (_from_type >= static_cast<uint32_t>(type_classification::custom_type) &&
         _to_type >= static_cast<uint32_t>(type_classification::custom_type)) {
       return cast_direction::invalid;
     }

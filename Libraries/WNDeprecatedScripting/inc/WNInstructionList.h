@@ -5,29 +5,31 @@
 #ifndef __WN_INSTRUCTION_LIST_H__
 #define __WN_INSTRUCTION_LIST_H__
 
+#include "WNCore/inc/WNTypes.h"
 #include "WNDeprecatedScripting/inc/WNNode.h"
 #include "WNDeprecatedScripting/inc/WNScriptLinkedList.h"
 #include "WNDeprecatedScripting/inc/WNScriptingErrors.h"
-#include "WNCore/inc/WNTypes.h"
 #include "WNLogging/inc/WNLog.h"
 
 namespace WNScripting {
-    class WNInstruction;
-    class WNCodeModule;
-    struct WNFunctionDefinition;
-    class WNInstructionList : public WNNode {
-    public:
-        WNInstructionList();
-        WNInstructionList(WNInstruction* inst);
-        virtual ~WNInstructionList();
-        void AddInstruction(WNInstruction* inst);
+class WNInstruction;
+class WNCodeModule;
+struct WNFunctionDefinition;
+class WNInstructionList : public WNNode {
+public:
+  WNInstructionList();
+  WNInstructionList(WNInstruction* inst);
+  virtual ~WNInstructionList();
+  void AddInstruction(WNInstruction* inst);
 
-        eWNTypeError GenerateCode(WNCodeModule& _module, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog);
+  eWNTypeError GenerateCode(WNCodeModule& _module,
+      const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog);
 
-        bool Returns();
-    private:
-        WNScriptLinkedList<WNInstruction> mInstructions;
-        bool mReturns;
-    };
+  bool Returns();
+
+private:
+  WNScriptLinkedList<WNInstruction> mInstructions;
+  bool mReturns;
+};
 }
-#endif//__WN_INSTRUCTION_LIST_H__
+#endif  //__WN_INSTRUCTION_LIST_H__

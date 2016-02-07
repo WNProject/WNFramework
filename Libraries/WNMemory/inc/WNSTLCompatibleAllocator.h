@@ -6,7 +6,7 @@
 namespace wn {
 namespace memory {
 
-template<typename DefaultAlloc>
+template <typename DefaultAlloc>
 struct passthrough_allocator_base {
   static DefaultAlloc* get_default_allocator() {
     static DefaultAlloc* alloc = new DefaultAlloc();
@@ -37,36 +37,41 @@ public:
   }
 
   passthrough_stl_allocator()
-      : passthrough_stl_allocator(
-            passthrough_allocator_base<DefaultAlloc>::get_default_allocator()) {}
+    : passthrough_stl_allocator(
+          passthrough_allocator_base<DefaultAlloc>::get_default_allocator()) {}
   passthrough_stl_allocator(wn::memory::allocator* _allocator)
-      : m_allocator(_allocator) {}
+    : m_allocator(_allocator) {}
   template <typename T0, typename T1>
   passthrough_stl_allocator(const passthrough_stl_allocator<T0, T1>& _other)
-      : m_allocator(_other.m_allocator) {}
+    : m_allocator(_other.m_allocator) {}
 
   template <class Type>
   struct rebind {
     typedef passthrough_stl_allocator<Type, DefaultAlloc> other;
   };
 
-  template<typename T0, typename T1>
-  inline bool operator==(const passthrough_stl_allocator<T0, T1>& _other) const {
+  template <typename T0, typename T1>
+  inline bool operator==(
+      const passthrough_stl_allocator<T0, T1>& _other) const {
     return m_allocator == _other.m_allocator;
   }
 
-  pointer address(reference _r) { return &_r; }
-  const_pointer address(const_reference _r) { return &_r; }
-
-  template <typename DA = DefaultAlloc>
-  pointer allocate(
-      size_type _n,
-      typename passthrough_stl_allocator<void, DA>::const_pointer = 0) {
-    return static_cast<pointer>(
-        m_allocator->allocate(sizeof(value_type) * _n));
+  pointer address(reference _r) {
+    return &_r;
+  }
+  const_pointer address(const_reference _r) {
+    return &_r;
   }
 
-  void deallocate(pointer _p, size_type) { return m_allocator->deallocate(_p); }
+  template <typename DA = DefaultAlloc>
+  pointer allocate(size_type _n,
+      typename passthrough_stl_allocator<void, DA>::const_pointer = 0) {
+    return static_cast<pointer>(m_allocator->allocate(sizeof(value_type) * _n));
+  }
+
+  void deallocate(pointer _p, size_type) {
+    return m_allocator->deallocate(_p);
+  }
   size_type max_size() const {
     return std::numeric_limits<size_t>::max() / sizeof(value_type);
   }
@@ -100,32 +105,34 @@ struct passthrough_stl_allocator<void, DefaultAlloc>
   }
 
   passthrough_stl_allocator()
-      : passthrough_stl_allocator(
-            passthrough_allocator_base<DefaultAlloc>::get_default_allocator()) {}
+    : passthrough_stl_allocator(
+          passthrough_allocator_base<DefaultAlloc>::get_default_allocator()) {}
   passthrough_stl_allocator(wn::memory::allocator* _allocator)
-      : m_allocator(_allocator) {}
+    : m_allocator(_allocator) {}
   template <typename T0, typename T1>
   passthrough_stl_allocator(const passthrough_stl_allocator<T0, T1>& _other)
-      : m_allocator(_other.m_allocator) {}
+    : m_allocator(_other.m_allocator) {}
 
   template <class Type>
   struct rebind {
     typedef passthrough_stl_allocator<Type, DefaultAlloc> other;
   };
 
-  template<typename T0, typename T1>
-  inline bool operator==(const passthrough_stl_allocator<T0, T1>& _other) const {
+  template <typename T0, typename T1>
+  inline bool operator==(
+      const passthrough_stl_allocator<T0, T1>& _other) const {
     return m_allocator == _other.m_allocator;
   }
 
   template <typename DA = DefaultAlloc>
-  pointer allocate(
-      size_type _n,
+  pointer allocate(size_type _n,
       typename passthrough_stl_allocator<void, DA>::const_pointer = 0) {
     return nullptr;
   }
 
-  void deallocate(pointer _p, size_type) { return m_allocator->deallocate(_p); }
+  void deallocate(pointer _p, size_type) {
+    return m_allocator->deallocate(_p);
+  }
   size_type max_size() const {
     return std::numeric_limits<size_t>::max();
   }

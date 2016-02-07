@@ -7,22 +7,20 @@
 #ifndef __WN_CONTAINERS_HASH_MAP_H__
 #define __WN_CONTAINERS_HASH_MAP_H__
 
-#include "WNMemory/inc/WNAllocator.h"
-#include "WNContainers/inc/WNDynamicArray.h"
-#include "WNContainers/inc/WNList.h"
 #include <algorithm>
-#include <utility>
 #include <initializer_list>
 #include <iterator>
+#include <utility>
+#include "WNContainers/inc/WNDynamicArray.h"
+#include "WNContainers/inc/WNList.h"
+#include "WNMemory/inc/WNAllocator.h"
 
 namespace wn {
 namespace containers {
 
-
-
 template <typename _KeyType, typename _ValueType,
-          typename _HashOperator = std::hash<_KeyType>,
-          typename _EqualityOperator = std::equal_to<_KeyType>>
+    typename _HashOperator = std::hash<_KeyType>,
+    typename _EqualityOperator = std::equal_to<_KeyType>>
 class hash_map;
 namespace internal {
 // hash_map_iterator is not a child_type of hash_map
@@ -31,15 +29,14 @@ namespace internal {
 template <typename _ContainedType>
 class hash_map_iterator
     : std::iterator<std::forward_iterator_tag, _ContainedType> {
- public:
+public:
   using T = _ContainedType;
-  using ait = typename std::conditional<
-      core::is_const<T>::value,
-      typename dynamic_array<list<typename std::remove_const<T>::type>>::const_iterator,
+  using ait = typename std::conditional<core::is_const<T>::value,
+      typename dynamic_array<list<typename std::remove_const<T>::type>>::
+          const_iterator,
       typename dynamic_array<list<T>>::iterator>::type;
 
-  using lit = typename std::conditional<
-      core::is_const<T>::value,
+  using lit = typename std::conditional<core::is_const<T>::value,
       typename list<typename std::remove_const<T>::type>::const_iterator,
       typename list<T>::iterator>::type;
 
@@ -65,7 +62,9 @@ class hash_map_iterator
     return *this;
   }
 
-  hash_map_iterator& operator++() { return (*this += 1); }
+  hash_map_iterator& operator++() {
+    return (*this += 1);
+  }
   hash_map_iterator operator++(int) {
     hash_map_iterator it = *this;
     *this += 1;
@@ -82,19 +81,23 @@ class hash_map_iterator
     return !(*this == _other);
   }
 
-  T* operator->() const { return &(*m_element); }
+  T* operator->() const {
+    return &(*m_element);
+  }
 
-  T& operator*() const { return *m_element; }
+  T& operator*() const {
+    return *m_element;
+  }
 
- private:
+private:
   hash_map_iterator(ait bucket, ait end_bucket, lit element)
-      : m_bucket(bucket), m_end_bucket(end_bucket), m_element(element) {}
+    : m_bucket(bucket), m_end_bucket(end_bucket), m_element(element) {}
   ait m_bucket;
   ait m_end_bucket;
   lit m_element;
 
   template <typename _KeyType, typename _ValueType, typename _HashOperator,
-            typename _EqualityOperator>
+      typename _EqualityOperator>
   friend class wn::containers::hash_map;
 
   template <typename _CT>
@@ -103,7 +106,7 @@ class hash_map_iterator
 }  // namespace internal
 
 template <typename _KeyType, typename _ValueType, typename _HashOperator,
-          typename _EqualityOperator>
+    typename _EqualityOperator>
 class hash_map final {
 public:
   using key_type = _KeyType;
@@ -121,69 +124,70 @@ public:
   using list_type = list<value_type>;
   using array_type = dynamic_array<containers::list<value_type>>;
 
-  using iterator =
-      internal::hash_map_iterator<value_type>;
-  using const_iterator =
-      internal::hash_map_iterator<const value_type>;
+  using iterator = internal::hash_map_iterator<value_type>;
+  using const_iterator = internal::hash_map_iterator<const value_type>;
   using local_iterator = typename list_type::iterator;
   using const_local_iterator = typename list_type::const_iterator;
 
   explicit hash_map(memory::allocator* _allocator)
-      : hash_map(0u, hasher(), key_equal(), _allocator) {}
+    : hash_map(0u, hasher(), key_equal(), _allocator) {}
 
   explicit hash_map(size_type _n = 0u, const hasher& _hasher = hasher(),
-                    const key_equal& _key_equal = key_equal(),
-                    memory::allocator* _allocator = nullptr)
-      : m_allocator(_allocator),
-        m_buckets(0, list_type(_allocator), _allocator),
-        m_total_elements(0),
-        m_max_load_factor(1.0),
-        m_hasher(_hasher),
-        m_key_equal(_key_equal) {
+      const key_equal& _key_equal = key_equal(),
+      memory::allocator* _allocator = nullptr)
+    : m_allocator(_allocator),
+      m_buckets(0, list_type(_allocator), _allocator),
+      m_total_elements(0),
+      m_max_load_factor(1.0),
+      m_hasher(_hasher),
+      m_key_equal(_key_equal) {
     if (_n > 0) {
       m_buckets = array_type(_n, list_type(get_allocator()), get_allocator());
     }
   }
 
   hash_map(std::initializer_list<value_type> initializer, size_type _n = 0u,
-           const hasher& _hasher = hasher(),
-           const key_equal& _key_equal = key_equal(),
-           memory::allocator* _allocator = nullptr)
-      : hash_map(0u /* we will resize */, _hasher, _key_equal, _allocator) {
+      const hasher& _hasher = hasher(),
+      const key_equal& _key_equal = key_equal(),
+      memory::allocator* _allocator = nullptr)
+    : hash_map(0u /* we will resize */, _hasher, _key_equal, _allocator) {
     auto begin = std::begin(initializer);
     auto end = std::end(initializer);
     size_t count = end - begin;
     m_buckets.insert(m_buckets.begin(), (count > _n ? count : _n),
-                     list_type(get_allocator()));
+        list_type(get_allocator()));
     for (; begin != end; ++begin) {
       insert(*begin);
     }
   }
 
   hash_map(std::initializer_list<value_type> initializer,
-           memory::allocator* _allocator)
-      : hash_map(initializer, 0u, hasher(), key_equal(), _allocator) {}
+      memory::allocator* _allocator)
+    : hash_map(initializer, 0u, hasher(), key_equal(), _allocator) {}
 
-  hash_map(hash_map<_KeyType, _ValueType, _HashOperator, _EqualityOperator>&& _other)
-      : m_allocator(_other.m_allocator),
-        m_buckets(std::move(_other.m_buckets)),
-        m_total_elements(_other.m_total_elements),
-        m_max_load_factor(_other.m_max_load_factor),
-        m_hasher(std::move(_other.m_hasher)),
-        m_key_equal(std::move(_other.m_key_equal)) {
+  hash_map(
+      hash_map<_KeyType, _ValueType, _HashOperator, _EqualityOperator>&& _other)
+    : m_allocator(_other.m_allocator),
+      m_buckets(std::move(_other.m_buckets)),
+      m_total_elements(_other.m_total_elements),
+      m_max_load_factor(_other.m_max_load_factor),
+      m_hasher(std::move(_other.m_hasher)),
+      m_key_equal(std::move(_other.m_key_equal)) {
     _other.m_total_elements = 0;
     _other.m_max_load_factor = 1.0f;
   }
 
   hash_map(const hash_map& _other)
-      : m_allocator(_other.m_allocator),
-        m_buckets(_other.m_buckets),
-        m_total_elements(_other.m_total_elements),
-        m_max_load_factor(_other.m_max_load_factor),
-        m_hasher(_other.m_hasher),
-        m_key_equal(_other.m_key_equal) {}
+    : m_allocator(_other.m_allocator),
+      m_buckets(_other.m_buckets),
+      m_total_elements(_other.m_total_elements),
+      m_max_load_factor(_other.m_max_load_factor),
+      m_hasher(_other.m_hasher),
+      m_key_equal(_other.m_key_equal) {}
 
-  bool empty() const { return m_total_elements == 0; }
+  bool empty() const {
+    return m_total_elements == 0;
+  }
 
   std::pair<iterator, bool> insert(const value_type& element) {
     size_t hash = get_hash(element.first);
@@ -199,7 +203,7 @@ public:
     m_total_elements += 1;
     return std::make_pair<iterator, bool>(
         iterator(m_buckets.begin() + hash, m_buckets.end(),
-                 m_buckets[hash].end() - 1),
+            m_buckets[hash].end() - 1),
         true);
   }
 
@@ -218,7 +222,7 @@ public:
     m_total_elements += 1;
     return std::make_pair<iterator, bool>(
         iterator(m_buckets.begin() + hash, m_buckets.end(),
-                 m_buckets[hash].end() - 1),
+            m_buckets[hash].end() - 1),
         true);
   }
 
@@ -266,12 +270,14 @@ public:
     return find_hashed(key, hash);
   }
 
-  void clear() { m_buckets.clear(); }
+  void clear() {
+    m_buckets.clear();
+  }
 
   iterator erase(const_iterator _it) {
     size_t bucket_num = _it.m_bucket - m_buckets.begin();
     iterator it = iterator(m_buckets.begin() + bucket_num, m_buckets.end(),
-                           m_buckets[bucket_num].erase(_it.m_element));
+        m_buckets[bucket_num].erase(_it.m_element));
     while (it != end()) {
       if (it.m_bucket->empty()) {
         it.m_bucket += 1;
@@ -288,8 +294,8 @@ public:
     if (empty()) {
       return (end());
     }
-    const_iterator it = const_iterator(m_buckets.cbegin(), m_buckets.cend(),
-                                       m_buckets.cbegin()->cbegin());
+    const_iterator it = const_iterator(
+        m_buckets.cbegin(), m_buckets.cend(), m_buckets.cbegin()->cbegin());
     while (it.m_bucket->empty()) {
       it.m_bucket += 1;
     }
@@ -301,7 +307,9 @@ public:
     return iterator_from_const_iterator(cbegin());
   }
 
-  const_iterator cbegin() const { return begin(); }
+  const_iterator cbegin() const {
+    return begin();
+  }
 
   iterator end() {
     return iterator_from_const_iterator(cend());
@@ -310,13 +318,14 @@ public:
   const_iterator end() const {
     if (m_buckets.size() == 0) {
       return iterator(typename array_type::iterator(),
-                      typename array_type::iterator(),
-                      typename list_type::iterator());
+          typename array_type::iterator(), typename list_type::iterator());
     }
-    return const_iterator(m_buckets.cend() - 1, m_buckets.cend(),
-                    (m_buckets.cend() - 1)->cend());
+    return const_iterator(
+        m_buckets.cend() - 1, m_buckets.cend(), (m_buckets.cend() - 1)->cend());
   }
-  const_iterator cend() const { return end(); }
+  const_iterator cend() const {
+    return end();
+  }
 
   // The only allocation that rehash performs is an
   // increase on the number of buckets, all of the elements
@@ -339,24 +348,26 @@ public:
     m_buckets.swap(new_buckets);
     // new_buckets should have only empty elements;
     WN_DEBUG_ASSERT(std::find_if(new_buckets.begin(), new_buckets.end(),
-                                 [](list_type& bucket) {
-                                   if (!bucket.empty()) {
-                                     return true;
-                                   }
-                                   return false;
-                                 }) == new_buckets.end());
+                        [](list_type& bucket) {
+                          if (!bucket.empty()) {
+                            return true;
+                          }
+                          return false;
+                        }) == new_buckets.end());
   }
 
-  size_t size() const { return m_total_elements; }
+  size_t size() const {
+    return m_total_elements;
+  }
 
- private:
+private:
   iterator iterator_from_const_iterator(const_iterator it) {
     iterator new_it;
     new_it.m_bucket = m_buckets.begin() + (it.m_bucket - m_buckets.cbegin());
     new_it.m_end_bucket = m_buckets.end();
     new_it.m_element = new_it.m_bucket->convert_iterator(it.m_element);
     return new_it;
-   }
+  }
 
   const_iterator find_hashed(const key_type& key, size_t hash) const {
     if (empty()) {
@@ -393,8 +404,7 @@ public:
 
       // If we are expanding past 10 buckets then we should probably
       // pick some exponential factor. (1.5 for now).
-      size_t exponential_buckets =
-          static_cast<size_t>(m_buckets.size() * 1.5f);
+      size_t exponential_buckets = static_cast<size_t>(m_buckets.size() * 1.5f);
       size_t num_new_buckets =
           i > exponential_buckets ? i : exponential_buckets;
       rehash(num_new_buckets);
@@ -407,20 +417,19 @@ public:
     return static_cast<size_t>(num_expected_elements / m_max_load_factor);
   }
 
- private:
-   memory::allocator* get_allocator() {
-     return m_allocator;
-   }
+private:
+  memory::allocator* get_allocator() {
+    return m_allocator;
+  }
 
-   memory::allocator* m_allocator;
-   array_type m_buckets;
-   size_t m_total_elements;
-   float m_max_load_factor;
+  memory::allocator* m_allocator;
+  array_type m_buckets;
+  size_t m_total_elements;
+  float m_max_load_factor;
 
-   hasher m_hasher;
-   key_equal m_key_equal;
+  hasher m_hasher;
+  key_equal m_key_equal;
 };
-
 }
 }
 

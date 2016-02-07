@@ -7,13 +7,14 @@
 #include "WNDeprecatedScripting/inc/WNExpression.h"
 
 namespace WNScripting {
-    class WNPostExpression : public WNExpression {
-    public:
-        WNPostExpression();
-        virtual ~WNPostExpression();
-        void AddBaseExpr(WNExpression* _expr);
-    protected:
-        WNExpression* mBaseExpression;
-    };
+class WNPostExpression : public WNExpression {
+public:
+  WNPostExpression();
+  virtual ~WNPostExpression();
+  void AddBaseExpr(WNExpression* _expr);
+
+protected:
+  WNExpression* mBaseExpression;
+};
 }
-#endif//__WN_POST_EXPRESSION_H__
+#endif  //__WN_POST_EXPRESSION_H__

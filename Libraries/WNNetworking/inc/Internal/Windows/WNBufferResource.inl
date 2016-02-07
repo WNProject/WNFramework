@@ -10,13 +10,13 @@
 #include "WNCore/inc/WNBase.h"
 
 namespace WNNetworking {
-    WN_FORCE_INLINE const WSABUF* WNBufferResource::GetWriteWinBuf() const {
-        return(&mWinBuf);
-    }
-
-    WN_FORCE_INLINE WSABUF* WNBufferResource::GetReadWinBuf() {
-        return(&mWinBuf);
-    }
+WN_FORCE_INLINE const WSABUF* WNBufferResource::GetWriteWinBuf() const {
+  return (&mWinBuf);
 }
 
-#endif // __WN_NETWORKING_INTERNAL_WINDOWS_BUFFER_RESOURCE_INL__
+WN_FORCE_INLINE WSABUF* WNBufferResource::GetReadWinBuf() {
+  return (&mWinBuf);
+}
+}
+
+#endif  // __WN_NETWORKING_INTERNAL_WINDOWS_BUFFER_RESOURCE_INL__

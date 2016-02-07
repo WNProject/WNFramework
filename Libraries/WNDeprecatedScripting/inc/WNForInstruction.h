@@ -7,23 +7,25 @@
 
 #include "WNDeprecatedScripting/inc/WNInstruction.h"
 namespace WNScripting {
-    class WNExpression;
-    class WNInstructionList;
-    class WNForInstruction : public WNInstruction {
-    public:
-        WNForInstruction();
-        virtual ~WNForInstruction();
-        void AddInitializer(WNInstruction* _init);
-        void AddCondition(WNExpression* cond);
-        void AddPostOp(WNInstruction* _inst);
-        void AddBody(WNInstructionList* _body);
+class WNExpression;
+class WNInstructionList;
+class WNForInstruction : public WNInstruction {
+public:
+  WNForInstruction();
+  virtual ~WNForInstruction();
+  void AddInitializer(WNInstruction* _init);
+  void AddCondition(WNExpression* cond);
+  void AddPostOp(WNInstruction* _inst);
+  void AddBody(WNInstructionList* _body);
 
-        virtual eWNTypeError GenerateCode(WNCodeModule& _module, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog);
-    private:
-        WNInstruction* minitializer;
-        WNExpression* mCondition;
-        WNInstruction* mPostOp;
-        WNInstructionList* mBody;
-    };
+  virtual eWNTypeError GenerateCode(WNCodeModule& _module,
+      const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog);
+
+private:
+  WNInstruction* minitializer;
+  WNExpression* mCondition;
+  WNInstruction* mPostOp;
+  WNInstructionList* mBody;
+};
 }
-#endif//__WN_FOR_INSTRUCTION_H__
+#endif  //__WN_FOR_INSTRUCTION_H__

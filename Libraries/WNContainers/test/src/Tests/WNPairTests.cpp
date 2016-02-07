@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNTesting/inc/WNTestHarness.h"
 #include "WNContainers/inc/WNPair.h"
+#include "WNTesting/inc/WNTestHarness.h"
 
 WN_ENABLE_TYPED_TEST(pair);
 
@@ -89,8 +89,7 @@ TYPED_TEST(pair, assignment) {
   EXPECT_EQ(pair1.first, first_type(3));
   EXPECT_EQ(pair1.second, second_type(4));
 
-  const wn::containers::pair<uint8_t, uint8_t> pair3(
-      uint8_t(5), uint8_t(6));
+  const wn::containers::pair<uint8_t, uint8_t> pair3(uint8_t(5), uint8_t(6));
 
   pair1 = pair3;
 

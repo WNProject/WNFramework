@@ -7,15 +7,17 @@
 #include "WNLogging/inc/WNLog.h"
 namespace WNLogging {
 
-    template<typename T_Logger1, typename T_Logger2>
-    class WNMultiLogger: public WNLogger {
-    public:
-        ~WNMultiLogger();
-        void FlushBuffer(const char* _buffer, size_t bufferSize, const std::vector<WNLogColorElement>* mColors);
-    private:
-        T_Logger1 mLogger1;
-        T_Logger2 mLogger2;
-    };
+template <typename T_Logger1, typename T_Logger2>
+class WNMultiLogger : public WNLogger {
+public:
+  ~WNMultiLogger();
+  void FlushBuffer(const char* _buffer, size_t bufferSize,
+      const std::vector<WNLogColorElement>* mColors);
+
+private:
+  T_Logger1 mLogger1;
+  T_Logger2 mLogger2;
+};
 };
 
 #include "WNLogging/inc/Internal/WNMultiLogger.inl"

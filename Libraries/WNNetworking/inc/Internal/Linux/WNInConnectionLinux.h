@@ -12,12 +12,12 @@
 #include <netdb.h>
 
 namespace WNNetworking {
-    class WNInConnectionLinux: public WNConnectionLinux {
-    public:
-        WNInConnectionLinux(WNNetworkManager& _manager);
+class WNInConnectionLinux : public WNConnectionLinux {
+public:
+  WNInConnectionLinux(WNNetworkManager& _manager);
 
-        bool Initialize(int32_t _mySocket, sockaddr& _addr, socklen_t addrLen);
-    };
+  bool Initialize(int32_t _mySocket, sockaddr& _addr, socklen_t addrLen);
+};
 };
 
-#endif // __WN_NETWORKING_LINUX_IN_CONNECTION_H__
+#endif  // __WN_NETWORKING_LINUX_IN_CONNECTION_H__

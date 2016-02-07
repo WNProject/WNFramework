@@ -2,12 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
+#include "WNScripting/inc/WNScriptHelpers.h"
 #include "WNContainers/inc/WNStringView.h"
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNMemory/inc/WNUniquePtr.h"
 #include "WNScripting/inc/WNASTPasses.h"
 #include "WNScripting/inc/WNNodeTypes.h"
-#include "WNScripting/inc/WNScriptHelpers.h"
 #include "WNScripting/src/WNScriptASTLexer.hpp"
 #include "WNScripting/src/WNScriptASTParser.hpp"
 
@@ -16,8 +16,8 @@ namespace scripting {
 
 memory::unique_ptr<script_file> parse_script(memory::allocator* _allocator,
     wn::scripting::type_validator* _validator, const char* file_name,
-    containers::string_view view, WNLogging::WNLog* _log,
-    size_t* _num_warnings, size_t* _num_errors) {
+    containers::string_view view, WNLogging::WNLog* _log, size_t* _num_warnings,
+    size_t* _num_errors) {
   memory::unique_ptr<script_file> ptr;
   {
     WNScriptASTLexer::InputStreamType input(

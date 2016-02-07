@@ -1,5 +1,5 @@
-#include "WNLogging/inc/WNLog.h"
 #include "WNScripting/inc/WNASTPasses.h"
+#include "WNLogging/inc/WNLog.h"
 #include "WNScripting/inc/WNASTWalker.h"
 #include "WNScripting/inc/WNNodeTypes.h"
 
@@ -220,8 +220,7 @@ public:
         break;
       }
       default:
-        WN_RELEASE_ASSERT_DESC(
-            false, "No Implemented: non-integer contants");
+        WN_RELEASE_ASSERT_DESC(false, "No Implemented: non-integer contants");
     }
   }
 
@@ -237,8 +236,7 @@ public:
     }
 
     uint32_t return_type =
-        m_validator->get_operations(
-                       static_cast<int32_t>(lhs_type->get_index()))
+        m_validator->get_operations(static_cast<int32_t>(lhs_type->get_index()))
             .get_operation(_expr->get_arithmetic_type());
 
     if (return_type ==
@@ -426,8 +424,7 @@ private:
 }  // anonymous namespace
 
 bool run_type_association_pass(script_file* _file, WNLogging::WNLog* _log,
-    type_validator* _validator, size_t* _num_warnings,
-    size_t* _num_errors) {
+    type_validator* _validator, size_t* _num_warnings, size_t* _num_errors) {
   if (!_file)
     return false;
   type_association_pass pass(_validator, _log, _file->get_allocator());
@@ -442,8 +439,7 @@ bool run_type_association_pass(script_file* _file, WNLogging::WNLog* _log,
 }
 
 bool run_id_association_pass(script_file* _file, WNLogging::WNLog* _log,
-    type_validator* _validator, size_t* _num_warnings,
-    size_t* _num_errors) {
+    type_validator* _validator, size_t* _num_warnings, size_t* _num_errors) {
   if (!_file)
     return false;
   id_association_pass pass(_validator, _log, _file->get_allocator());
@@ -458,8 +454,7 @@ bool run_id_association_pass(script_file* _file, WNLogging::WNLog* _log,
 }
 
 bool run_dce_pass(script_file* _file, WNLogging::WNLog* _log,
-    type_validator* _validator, size_t* _num_warnings,
-    size_t* _num_errors) {
+    type_validator* _validator, size_t* _num_warnings, size_t* _num_errors) {
   if (!_file)
     return false;
   dead_code_elimination_pass pass(_validator, _log, _file->get_allocator());

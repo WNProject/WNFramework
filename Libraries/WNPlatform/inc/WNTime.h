@@ -13,13 +13,13 @@ typedef uint32_t (*WN_TICK_COUNT_FUNCTION_T)();
 typedef uint64_t (*WN_BIG_TICK_COUNT_FUNCTION_T)();
 
 namespace wn {
-    uint32_t WNGetTime();
-    uint64_t WNGetBigTime();
+uint32_t WNGetTime();
+uint64_t WNGetBigTime();
 
-    uint32_t WNGetTickCount();
-    uint64_t WNGetBigTickCount();
+uint32_t WNGetTickCount();
+uint64_t WNGetBigTickCount();
 }
 
 #include "WNPlatform/inc/Internal/WNTime.inl"
 
-#endif // __WN_PLATFORM_TIME_H__
+#endif  // __WN_PLATFORM_TIME_H__

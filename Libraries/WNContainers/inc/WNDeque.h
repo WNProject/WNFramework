@@ -53,8 +53,8 @@ public:
   template <typename _OtherContainer = _NonConstContainer>
   deque_iterator(deque_iterator<_OtherContainer, _OtherContainer,
                      typename _OtherContainer::value_type>&& _other,
-      typename core::enable_if<!core::is_same<_Container,
-          _OtherContainer>::value>::type* = nullptr)
+      typename core::enable_if<
+          !core::is_same<_Container, _OtherContainer>::value>::type* = nullptr)
     : m_deque(std::move(_other.m_deque)),
       m_element(std::move(_other.m_element)) {
     _other.clear();
@@ -63,8 +63,8 @@ public:
   template <typename _OtherContainer = _NonConstContainer>
   deque_iterator(const deque_iterator<_OtherContainer, _OtherContainer,
                      typename _OtherContainer::value_type>& _other,
-      typename core::enable_if<!core::is_same<_Container,
-          _OtherContainer>::value>::type* = nullptr)
+      typename core::enable_if<
+          !core::is_same<_Container, _OtherContainer>::value>::type* = nullptr)
     : m_deque(_other.m_deque), m_element(_other.m_element) {}
 
   deque_iterator& operator=(deque_iterator&& _other) {
@@ -532,8 +532,8 @@ public:
 
     for (size_type i = 0; i < _count; ++i) {
       _Type& t = *(erase_start++);
-      (void)t; // If _Type does not have a destructor
-               // some compilers will complain without this.
+      (void)t;  // If _Type does not have a destructor
+                // some compilers will complain without this.
       t.~_Type();
     }
 

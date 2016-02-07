@@ -10,12 +10,13 @@
 #include "WNNetworking/inc/Internal/Linux/WNConnectionLinux.h"
 
 namespace WNNetworking {
-    class WNOutConnectionLinux: public WNConnectionLinux {
-    public:
-        WNOutConnectionLinux(WNNetworkManager& _manager);
+class WNOutConnectionLinux : public WNConnectionLinux {
+public:
+  WNOutConnectionLinux(WNNetworkManager& _manager);
 
-        WNNetworkManagerReturnCode::type Initialize(WNConnectionType::type& _type, const char* _target, uint16_t _port);
-    };
+  WNNetworkManagerReturnCode::type Initialize(
+      WNConnectionType::type& _type, const char* _target, uint16_t _port);
+};
 };
 
-#endif // __WN_NETWORKING_INTERNAL_LINUX_OUT_LISTEN_CONNECTION_LINUX_H__
+#endif  // __WN_NETWORKING_INTERNAL_LINUX_OUT_LISTEN_CONNECTION_LINUX_H__

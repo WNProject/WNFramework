@@ -7,13 +7,15 @@
 
 #include "WNDeprecatedScripting/inc/WNPostExpression.h"
 namespace WNScripting {
-    class WNArrayAccessExpr : public WNPostExpression {
-    public:
-        WNArrayAccessExpr(WNExpression* _expr);
-        virtual ~WNArrayAccessExpr();
-        virtual eWNTypeError GenerateCode(WNCodeModule& _module, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog);
-    protected:
-        WNExpression* mArrayAccess;
-    };
+class WNArrayAccessExpr : public WNPostExpression {
+public:
+  WNArrayAccessExpr(WNExpression* _expr);
+  virtual ~WNArrayAccessExpr();
+  virtual eWNTypeError GenerateCode(WNCodeModule& _module,
+      const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog);
+
+protected:
+  WNExpression* mArrayAccess;
+};
 }
-#endif//__WN_ARRAY_ACCESS_EXPR_H__
+#endif  //__WN_ARRAY_ACCESS_EXPR_H__

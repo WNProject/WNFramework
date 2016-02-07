@@ -1,5 +1,5 @@
 #ifndef __WN_USE_PRECOMPILED_HEADER
-    #pragma once
+#pragma once
 #endif
 
 #ifndef __WN_MATH_TESTS_COMMON_H__
@@ -14,10 +14,10 @@
 #define MATRIX_X_DIMENSION (MATRIX_X_ORDER * MATRIX_X_ORDER)
 
 #include "WNCore/inc/WNExtendedTypes.h"
-#include "WNPlatform/inc/WNTime.h"
 #include "WNMath/inc/WNMath.h"
+#include "WNPlatform/inc/WNTime.h"
 
-#include <math.h>
 #include <float.h>
+#include <math.h>
 
-#endif // __WN_MATH_TESTS_COMMON_H__
+#endif  // __WN_MATH_TESTS_COMMON_H__

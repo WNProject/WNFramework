@@ -7,28 +7,25 @@
 
 using namespace WNScripting;
 
-WNLValue::WNLValue(WNExpression* _expr) :
-    mExpression(_expr) {
-
-}
+WNLValue::WNLValue(WNExpression* _expr) : mExpression(_expr) {}
 
 WNLValue::~WNLValue() {
-    wn::memory::destroy(mExpression);
+  wn::memory::destroy(mExpression);
 }
 
-eWNTypeError WNLValue::GenerateCode(WNCodeModule& _module, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog) {
-    return(mExpression->GenerateCode(_module, _def, _compilationLog));
+eWNTypeError WNLValue::GenerateCode(WNCodeModule& _module,
+    const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog) {
+  return (mExpression->GenerateCode(_module, _def, _compilationLog));
 }
 
 llvm::Value* WNLValue::GetValueLocation() {
-    return(mExpression->GetValueLocation());
+  return (mExpression->GetValueLocation());
 }
 
 WNScriptType WNLValue::GetValueType() {
-    return(mExpression->GetType());
+  return (mExpression->GetType());
 }
 
 bool WNLValue::RequiredUse() {
-    return(mExpression->RequiredUse());
+  return (mExpression->RequiredUse());
 }
-

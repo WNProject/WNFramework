@@ -7,4 +7,4 @@
 #ifndef __WN_GRAPHICS_H__
 #define __WN_GRAPHICS_H__
 
-#endif // __WN_GRAPHICS_H__
+#endif  // __WN_GRAPHICS_H__

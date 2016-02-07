@@ -239,9 +239,7 @@ INSTANTIATE_TEST_CASE_P(bool_tests, bool_arithmetic_tests,
 
 struct two_params_test {
   const char* code;
-  std::vector<
-      std::pair<std::pair<uint32_t, uint32_t>, uint32_t>>
-      cases;
+  std::vector<std::pair<std::pair<uint32_t, uint32_t>, uint32_t>> cases;
 };
 using two_params_tests = ::testing::TestWithParam<two_params_test>;
 

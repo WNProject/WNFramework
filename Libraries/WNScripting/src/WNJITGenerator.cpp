@@ -180,8 +180,7 @@ void ast_jit_engine::walk_expression(
       }
       break;
     default:
-      WN_RELEASE_ASSERT_DESC(
-          false, "Not implemnted, non-integer arithmetic");
+      WN_RELEASE_ASSERT_DESC(false, "Not implemnted, non-integer arithmetic");
   }
   _val->instructions =
       containers::dynamic_array<llvm::Instruction*>(m_allocator);
@@ -223,8 +222,9 @@ void ast_jit_engine::walk_expression(
       dat.instructions.end());
 
   uint32_t member_offset =
-      m_validator->get_operations(
-                     _alloc->get_base_expression()->get_type()->get_index())
+      m_validator
+          ->get_operations(
+              _alloc->get_base_expression()->get_type()->get_index())
           .get_member_index(_alloc->get_name());
   llvm::Type* int32_type = llvm::IntegerType::getInt32Ty(*m_context);
 

@@ -4,86 +4,84 @@
 
 #ifndef __WN_SCRIPTING_MEMORY_MANAGER_H__
 #define __WN_SCRIPTING_MEMORY_MANAGER_H__
+// clang-format off
 #include "WNDeprecatedScripting/inc/WNIncludeLLVM.h"
-#include "llvm/ExecutionEngine/SectionMemoryManager.h"
 #include "llvm/ExecutionEngine/RTDyldMemoryManager.h"
+#include "llvm/ExecutionEngine/SectionMemoryManager.h"
 #include "WNDeprecatedScripting/inc/WNEndIncludeLLVM.h"
-#include "WNDeprecatedScripting/inc/WNScriptingEngine.h"
+// clang-format on
 
+#include "WNDeprecatedScripting/inc/WNScriptingEngine.h"
 struct AdditionalFunction {
-    const char* mFunctionName;
-    void* mFunctionPointer;
+  const char* mFunctionName;
+  void* mFunctionPointer;
 };
 #ifdef _WN_ANDROID
-uint32_t WN_INLINE __WN_Sync_Fetch_And_Add_4 (uint32_t* ptr, uint32_t val) {
-    uint32_t a = *ptr;
-    *ptr = *ptr + val;
-    return(a);
-    //return(__sync_fetch_and_add(ptr, val));
+uint32_t WN_INLINE __WN_Sync_Fetch_And_Add_4(uint32_t* ptr, uint32_t val) {
+  uint32_t a = *ptr;
+  *ptr = *ptr + val;
+  return (a);
+  // return(__sync_fetch_and_add(ptr, val));
 }
-uint32_t WN_INLINE __WN_Sync_Fetch_And_Sub_4 (uint32_t* ptr, uint32_t val) {
-    uint32_t a = *ptr;
-    *ptr = *ptr - val;
-    return(a);
-    ///return(__sync_fetch_and_sub(ptr, val));
+uint32_t WN_INLINE __WN_Sync_Fetch_And_Sub_4(uint32_t* ptr, uint32_t val) {
+  uint32_t a = *ptr;
+  *ptr = *ptr - val;
+  return (a);
+  /// return(__sync_fetch_and_sub(ptr, val));
 }
 static const AdditionalFunction gAdditionalFunctions[] = {
-    { "__sync_fetch_and_add_4", (void*)&__WN_Sync_Fetch_And_Add_4 },
-    { "__sync_fetch_and_sub_4", (void*)&__WN_Sync_Fetch_And_Sub_4 }
-};
+    {"__sync_fetch_and_add_4", (void*)&__WN_Sync_Fetch_And_Add_4},
+    {"__sync_fetch_and_sub_4", (void*)&__WN_Sync_Fetch_And_Sub_4}};
 #endif
 
 namespace WNScripting {
-    class WNScriptingMemoryManager : public llvm::SectionMemoryManager {
-    public:
-        WNScriptingMemoryManager(WNScriptingEngine& _engine) :
-        mEngine(_engine)
-        {
-        }
-        virtual void *getPointerToNamedFunction(const std::string &Name,
-                                            bool ) {
+class WNScriptingMemoryManager : public llvm::SectionMemoryManager {
+public:
+  WNScriptingMemoryManager(WNScriptingEngine& _engine) : mEngine(_engine) {}
+  virtual void* getPointerToNamedFunction(const std::string& Name, bool) {
 #ifdef _WN_ANDROID
-                                                int s = 0;
-            int e = sizeof(gAdditionalFunctions) / sizeof(gAdditionalFunctions[0]);
-            while(e > s) {
-                int m = (s + (e - s) / 2);
-                int cmp = strcmp(Name.c_str(), gAdditionalFunctions[m].mFunctionName);
-                if(cmp == 0) {
-                    return(gAdditionalFunctions[m].mFunctionPointer);
-                } else if (cmp > 0) {
-                    s = m + 1;
-                } else if (cmp < 0) {
-                    e = m;
-                }
-            }
+    int s = 0;
+    int e = sizeof(gAdditionalFunctions) / sizeof(gAdditionalFunctions[0]);
+    while (e > s) {
+      int m = (s + (e - s) / 2);
+      int cmp = strcmp(Name.c_str(), gAdditionalFunctions[m].mFunctionName);
+      if (cmp == 0) {
+        return (gAdditionalFunctions[m].mFunctionPointer);
+      } else if (cmp > 0) {
+        s = m + 1;
+      } else if (cmp < 0) {
+        e = m;
+      }
+    }
 #endif
-            void* v = mEngine.get_registered_function(Name.c_str());
-            return(v);
-        }
-        static void mFree(void* ptr) {
-            printf("Freeing: %p\n", ptr);
-            free(ptr);
-        }
-        static void* mMalloc(size_t size) {
-            void* v = calloc(size, 1);
-            printf("Mallocing: %d -> %p\n", static_cast<int32_t>(size), v);
-            return(v);
-        }
-        //Not sure why, but in win32/winx64 this gets called and getPointerToNamedFunction does not
-        uint64_t getSymbolAddress(const std::string &Name) {
-            void* v = mEngine.get_registered_function(Name.c_str());
-            if(!v)
-            {
-                if("malloc" == Name) {
-                    return(reinterpret_cast<uint64_t>(&mMalloc));
-                } else if ("free" == Name) {
-                    return(reinterpret_cast<uint64_t>(&mFree));
-                }
-            }
-            return(reinterpret_cast<uint64_t>(v));
-        }
-        private:
-        WNScriptingEngine& mEngine;
-    };
+    void* v = mEngine.get_registered_function(Name.c_str());
+    return (v);
+  }
+  static void mFree(void* ptr) {
+    printf("Freeing: %p\n", ptr);
+    free(ptr);
+  }
+  static void* mMalloc(size_t size) {
+    void* v = calloc(size, 1);
+    printf("Mallocing: %d -> %p\n", static_cast<int32_t>(size), v);
+    return (v);
+  }
+  // Not sure why, but in win32/winx64 this gets called and
+  // getPointerToNamedFunction does not
+  uint64_t getSymbolAddress(const std::string& Name) {
+    void* v = mEngine.get_registered_function(Name.c_str());
+    if (!v) {
+      if ("malloc" == Name) {
+        return (reinterpret_cast<uint64_t>(&mMalloc));
+      } else if ("free" == Name) {
+        return (reinterpret_cast<uint64_t>(&mFree));
+      }
+    }
+    return (reinterpret_cast<uint64_t>(v));
+  }
+
+private:
+  WNScriptingEngine& mEngine;
+};
 }
-#endif//__WN_SCRIPTING_MEMORY_MANAGER_H__
+#endif  //__WN_SCRIPTING_MEMORY_MANAGER_H__

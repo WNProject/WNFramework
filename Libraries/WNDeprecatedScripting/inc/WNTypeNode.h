@@ -4,26 +4,27 @@
 
 #ifndef __WN_TYPE_NODE_H__
 #define __WN_TYPE_NODE_H__
-#include "WNDeprecatedScripting/inc/WNNode.h"
-#include "WNDeprecatedScripting/inc/WNScriptingErrors.h"
-#include "WNDeprecatedScripting/inc/WNScriptingEnums.h"
-#include "WNDeprecatedScripting/inc/WNTypeElement.h"
 #include "WNCore/inc/WNTypes.h"
+#include "WNDeprecatedScripting/inc/WNNode.h"
+#include "WNDeprecatedScripting/inc/WNScriptingEnums.h"
+#include "WNDeprecatedScripting/inc/WNScriptingErrors.h"
+#include "WNDeprecatedScripting/inc/WNTypeElement.h"
 
 namespace WNScripting {
-    class WNTypeManager;
-    class WNTypeNode : public WNNode {
-    public:
-        WNTypeNode(const char* _customType);
-        virtual ~WNTypeNode();
-        void AddArrayLevel();
+class WNTypeManager;
+class WNTypeNode : public WNNode {
+public:
+  WNTypeNode(const char* _customType);
+  virtual ~WNTypeNode();
+  void AddArrayLevel();
 
-        eWNTypeError GetType(WNTypeManager& _module, WNScriptType& _outType, WNLogging::WNLog& _compilationLog) const;
+  eWNTypeError GetType(WNTypeManager& _module, WNScriptType& _outType,
+      WNLogging::WNLog& _compilationLog) const;
 
-    private:
-        WNScriptTypeName mType;
-        char* mCustomType;
-        size_t mNumArrayLevels;
-    };
+private:
+  WNScriptTypeName mType;
+  char* mCustomType;
+  size_t mNumArrayLevels;
+};
 }
-#endif//__WN_TYPE_NODE_H__
+#endif  //__WN_TYPE_NODE_H__

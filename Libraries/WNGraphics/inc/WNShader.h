@@ -8,9 +8,7 @@
 #define __WN_GRAPHICS_SHADER_H__
 
 namespace WNGraphics {
-    class WNShader : public WNGraphicsResource {
-        
-    };
+class WNShader : public WNGraphicsResource {};
 }
 
-#endif // __WN_GRAPHICS_SHADER_H__
+#endif  // __WN_GRAPHICS_SHADER_H__

@@ -8,9 +8,7 @@
 #define __WN_GRAPHICS_GRAPHICS_BUFFER_H__
 
 namespace WNGraphics {
-    class WNGraphicsBuffer : public WNGraphicsResource {
-
-    };
+class WNGraphicsBuffer : public WNGraphicsResource {};
 }
 
-#endif // __WN_GRAPHICS_GRAPHICS_BUFFER_H__
+#endif  // __WN_GRAPHICS_GRAPHICS_BUFFER_H__

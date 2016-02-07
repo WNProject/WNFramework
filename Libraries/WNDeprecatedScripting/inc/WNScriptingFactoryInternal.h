@@ -6,13 +6,13 @@
 #define __WN_SCRIPTING_FACTORY_INTERNAL_H__
 
 namespace WNScripting {
-    class WNTypeManager;
-    class WNScopedVariableList;
-    class WNScriptingFactoryInternal {
-    public:
-        static WNTypeManager* CreateTypeManager();
-        static WNScopedVariableList* CreateScopedVariableList();
-    };
+class WNTypeManager;
+class WNScopedVariableList;
+class WNScriptingFactoryInternal {
+public:
+  static WNTypeManager* CreateTypeManager();
+  static WNScopedVariableList* CreateScopedVariableList();
+};
 };
 
-#endif//__WN_SCRIPTING_ENGINE_FACTORY_H__
+#endif  //__WN_SCRIPTING_ENGINE_FACTORY_H__

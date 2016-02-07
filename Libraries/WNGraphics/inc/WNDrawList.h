@@ -8,8 +8,7 @@
 #define __WN_GRAPHICS_DRAWLIST_H__
 
 namespace WNGraphics {
-    class WNDrawList {
-    };
+class WNDrawList {};
 }
 
-#endif // __WN_GRAPHICS_DRAWLIST_H__
+#endif  // __WN_GRAPHICS_DRAWLIST_H__

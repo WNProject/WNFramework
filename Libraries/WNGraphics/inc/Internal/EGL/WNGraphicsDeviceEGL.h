@@ -12,48 +12,58 @@
 #include <EGL/egl.h>
 
 namespace WNGraphics {
-    class WNGraphicsDeviceEGL : public WNGraphicsDevice {
-    public:
-        WNGraphicsDeviceEGL(WNGraphics::WNGraphicsResourceFactory* _factory);
+class WNGraphicsDeviceEGL : public WNGraphicsDevice {
+public:
+  WNGraphicsDeviceEGL(WNGraphics::WNGraphicsResourceFactory* _factory);
 
-        virtual WNGraphicsDeviceReturnCode::type Initialize(uint32_t _adapter, uint32_t _output);
-        virtual WN_FORCE_INLINE void Release() {}
+  virtual WNGraphicsDeviceReturnCode::type Initialize(
+      uint32_t _adapter, uint32_t _output);
+  virtual WN_FORCE_INLINE void Release() {}
 
-        // State Querying
-        virtual uint32_t GetCapability(WNDeviceCaps _cap);
-        virtual WNGraphicsDeviceReturnCode::type GetSize(uint32_t &_width, uint32_t &_height);
-        virtual WNGraphicsDeviceReturnCode::type SetActiveSurface(wn::memory::intrusive_ptr<wn::surface> _surface);
+  // State Querying
+  virtual uint32_t GetCapability(WNDeviceCaps _cap);
+  virtual WNGraphicsDeviceReturnCode::type GetSize(
+      uint32_t& _width, uint32_t& _height);
+  virtual WNGraphicsDeviceReturnCode::type SetActiveSurface(
+      wn::memory::intrusive_ptr<wn::surface> _surface);
 
-        // Resource Creation
-        virtual WNShader* CreateShader(WNShaderTypes _type, char* _shaderText);
-        virtual WNBuffer* CreateBuffer(WNBufferTypes _type, uint32_t _elementSize, uint32_t _w, uint32_t _h, uint32_t _d);
-        virtual WNTexture* CreateTexture(WNTextureTypes _type, WNTextureFormat _format, uint32_t _elementSize, uint32_t _w, uint32_t _h, uint32_t _d);
-        virtual WNRenderTarget* CreateRenderTarget(WNTexture* _texture);
-        virtual WNDrawList* CreateDrawList();
+  // Resource Creation
+  virtual WNShader* CreateShader(WNShaderTypes _type, char* _shaderText);
+  virtual WNBuffer* CreateBuffer(WNBufferTypes _type, uint32_t _elementSize,
+      uint32_t _w, uint32_t _h, uint32_t _d);
+  virtual WNTexture* CreateTexture(WNTextureTypes _type,
+      WNTextureFormat _format, uint32_t _elementSize, uint32_t _w, uint32_t _h,
+      uint32_t _d);
+  virtual WNRenderTarget* CreateRenderTarget(WNTexture* _texture);
+  virtual WNDrawList* CreateDrawList();
 
-        // Resource Binding
-        virtual WNGraphicsDeviceReturnCode::type BindShader(WNShader* _resource);
-        virtual WNGraphicsDeviceReturnCode::type BindBuffer(WNBuffer* _resource, uint32_t _location);
-        virtual WNGraphicsDeviceReturnCode::type BindTexture(WNTexture* _texture, uint32_t _location);
-        virtual WNGraphicsDeviceReturnCode::type BindRenderTarget(WNRenderTarget* _texture, uint32_t _location);
+  // Resource Binding
+  virtual WNGraphicsDeviceReturnCode::type BindShader(WNShader* _resource);
+  virtual WNGraphicsDeviceReturnCode::type BindBuffer(
+      WNBuffer* _resource, uint32_t _location);
+  virtual WNGraphicsDeviceReturnCode::type BindTexture(
+      WNTexture* _texture, uint32_t _location);
+  virtual WNGraphicsDeviceReturnCode::type BindRenderTarget(
+      WNRenderTarget* _texture, uint32_t _location);
 
-        // State Setting
-        virtual void SetClearColor(float* _color);
-        virtual WNGraphicsDeviceReturnCode::type BindSurface(wn::memory::intrusive_ptr<wn::surface>& _surface, bool _sync);
+  // State Setting
+  virtual void SetClearColor(float* _color);
+  virtual WNGraphicsDeviceReturnCode::type BindSurface(
+      wn::memory::intrusive_ptr<wn::surface>& _surface, bool _sync);
 
-        // Drawing
-        virtual WNGraphicsDeviceReturnCode::type SetDrawList(WNDrawList* _list);
-        virtual WNGraphicsDeviceReturnCode::type StartDraw();
-        virtual WNGraphicsDeviceReturnCode::type EndDraw();
-        virtual WNGraphicsDeviceReturnCode::type SubmitDrawList(WNDrawList* _list);
-        virtual WNGraphicsDeviceReturnCode::type Clear();
+  // Drawing
+  virtual WNGraphicsDeviceReturnCode::type SetDrawList(WNDrawList* _list);
+  virtual WNGraphicsDeviceReturnCode::type StartDraw();
+  virtual WNGraphicsDeviceReturnCode::type EndDraw();
+  virtual WNGraphicsDeviceReturnCode::type SubmitDrawList(WNDrawList* _list);
+  virtual WNGraphicsDeviceReturnCode::type Clear();
 
-    private:
-        wn::memory::intrusive_ptr<wn::surface> mActiveSurface;
-        WNGraphicsResourceFactory* mResourceFactory;
-        EGLContext mContext;
-        EGLDisplay mDisplay;
-    };
+private:
+  wn::memory::intrusive_ptr<wn::surface> mActiveSurface;
+  WNGraphicsResourceFactory* mResourceFactory;
+  EGLContext mContext;
+  EGLDisplay mDisplay;
+};
 }
 
-#endif // __WN_GRAPHICS_GLX_GRAPHICS_DEVICE_GLX_H__
+#endif  // __WN_GRAPHICS_GLX_GRAPHICS_DEVICE_GLX_H__

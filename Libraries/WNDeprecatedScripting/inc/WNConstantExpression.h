@@ -8,15 +8,16 @@
 #include "WNDeprecatedScripting/inc/WNExpression.h"
 #include "WNDeprecatedScripting/inc/WNScriptingEnums.h"
 namespace WNScripting {
-    class WNConstantExpression : public WNExpression {
-    public:
-        WNConstantExpression(WNScriptTypeName _type, const char* _text);
-        virtual ~WNConstantExpression();
-        virtual eWNTypeError GenerateCode(WNCodeModule& _module, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog);
-    private:
-        WNScriptTypeName mTypeName;
-        char* mText;
-    };
-}
-#endif//__WN_CONSTANT_EXPRESSION_H__
+class WNConstantExpression : public WNExpression {
+public:
+  WNConstantExpression(WNScriptTypeName _type, const char* _text);
+  virtual ~WNConstantExpression();
+  virtual eWNTypeError GenerateCode(WNCodeModule& _module,
+      const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog);
 
+private:
+  WNScriptTypeName mTypeName;
+  char* mText;
+};
+}
+#endif  //__WN_CONSTANT_EXPRESSION_H__

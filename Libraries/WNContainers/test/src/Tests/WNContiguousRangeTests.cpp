@@ -2,38 +2,34 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNTesting/inc/WNTestHarness.h"
 #include "WNContainers/inc/WNContiguousRange.h"
+#include "WNTesting/inc/WNTestHarness.h"
 
 template <typename _Type>
 struct contiguous_range : ::testing::Test {};
 
 // 72 bit struct
 struct dummy {
-  WN_FORCE_INLINE dummy(const uint8_t value) :
-    m_value1(value),
-    m_value2(value) {
-  }
+  WN_FORCE_INLINE dummy(const uint8_t value)
+    : m_value1(value), m_value2(value) {}
 
   uint8_t m_value1;
   uint64_t m_value2;
 };
 
-WN_FORCE_INLINE bool operator == (const dummy& dummy1,
-                                     const dummy& dummy2) {
-  return(dummy1.m_value1 == dummy2.m_value1 &&
-         dummy1.m_value2 == dummy2.m_value2);
+WN_FORCE_INLINE bool operator==(const dummy& dummy1, const dummy& dummy2) {
+  return (
+      dummy1.m_value1 == dummy2.m_value1 && dummy1.m_value2 == dummy2.m_value2);
 }
 
 typedef ::testing::Types<uint8_t, uint16_t, uint32_t, uint64_t, dummy>
-  contiguous_range_testing_types;
+    contiguous_range_testing_types;
 
 TYPED_TEST_CASE(contiguous_range, contiguous_range_testing_types);
 
 TYPED_TEST(contiguous_range, construction) {
-  TypeParam buffer[5] = { TypeParam(1), TypeParam(2),
-                          TypeParam(3), TypeParam(4),
-                          TypeParam(5) };
+  TypeParam buffer[5] = {
+      TypeParam(1), TypeParam(2), TypeParam(3), TypeParam(4), TypeParam(5)};
   wn::containers::contiguous_range<TypeParam> range1;
   wn::containers::contiguous_range<TypeParam> range2(nullptr);
   wn::containers::contiguous_range<TypeParam> range3(nullptr, nullptr);
@@ -64,27 +60,26 @@ TYPED_TEST(contiguous_range, construction) {
   EXPECT_FALSE(range8.empty());
   EXPECT_EQ(range8.data(), buffer);
 
-  WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED({
-      const wn::containers::contiguous_range<TypeParam> range(nullptr,
-                                                              buffer + 5);
-    },
-    "assertion failed!\n\nfile: .*\nline: .*\nmessage: invalid input "
-    "parameters, both must be null or non-null"
-  );
+  WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED(
+      {
+        const wn::containers::contiguous_range<TypeParam> range(
+            nullptr, buffer + 5);
+      },
+      "assertion failed!\n\nfile: .*\nline: .*\nmessage: invalid input "
+      "parameters, both must be null or non-null");
 
-  WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED({
-      const wn::containers::contiguous_range<TypeParam> range(buffer,
-                                                              nullptr);
-    },
-    "assertion failed!\n\nfile: .*\nline: .*\nmessage: invalid input "
-    "parameters, both must be null or non-null"
-  );
+  WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED(
+      {
+        const wn::containers::contiguous_range<TypeParam> range(
+            buffer, nullptr);
+      },
+      "assertion failed!\n\nfile: .*\nline: .*\nmessage: invalid input "
+      "parameters, both must be null or non-null");
 }
 
 TYPED_TEST(contiguous_range, assignment) {
-  TypeParam buffer[5] = { TypeParam(1), TypeParam(2),
-                          TypeParam(3), TypeParam(4),
-                          TypeParam(5) };
+  TypeParam buffer[5] = {
+      TypeParam(1), TypeParam(2), TypeParam(3), TypeParam(4), TypeParam(5)};
   wn::containers::contiguous_range<TypeParam> range1(buffer);
 
   range1 = nullptr;
@@ -115,9 +110,8 @@ TYPED_TEST(contiguous_range, assignment) {
 }
 
 TYPED_TEST(contiguous_range, capacity) {
-  TypeParam buffer[5] = { TypeParam(1), TypeParam(2),
-                          TypeParam(3), TypeParam(4),
-                          TypeParam(5) };
+  TypeParam buffer[5] = {
+      TypeParam(1), TypeParam(2), TypeParam(3), TypeParam(4), TypeParam(5)};
   const wn::containers::contiguous_range<TypeParam> range1(buffer);
 
   EXPECT_EQ(range1.size(), 5);
@@ -132,9 +126,8 @@ TYPED_TEST(contiguous_range, capacity) {
 }
 
 TYPED_TEST(contiguous_range, access) {
-  TypeParam buffer[5] = { TypeParam(1), TypeParam(2),
-                          TypeParam(3), TypeParam(4),
-                          TypeParam(5) };
+  TypeParam buffer[5] = {
+      TypeParam(1), TypeParam(2), TypeParam(3), TypeParam(4), TypeParam(5)};
   const wn::containers::contiguous_range<TypeParam> range1(buffer);
 
   ASSERT_FALSE(range1.empty());
@@ -153,61 +146,64 @@ TYPED_TEST(contiguous_range, access) {
   EXPECT_EQ(range2[1], TypeParam(3));
   EXPECT_EQ(range2.data(), buffer + 1);
 
-  WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED({
-      const wn::containers::contiguous_range<TypeParam> range;
+  WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED(
+      {
+        const wn::containers::contiguous_range<TypeParam> range;
 
-      range.at(0);
-    },
-    "assertion failed!\n\nfile: .*\nline: .*\nmessage: invalid contiguous range"
-  );
+        range.at(0);
+      },
+      "assertion failed!\n\nfile: .*\nline: .*\nmessage: invalid contiguous "
+      "range");
 
-  WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED({
-      const wn::containers::contiguous_range<TypeParam> range(buffer,
-                                                              buffer + 5);
+  WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED(
+      {
+        const wn::containers::contiguous_range<TypeParam> range(
+            buffer, buffer + 5);
 
-      range.at(5);
-    },
-    "assertion failed!\n\nfile: .*\nline: .*\nmessage: index out of bounds"
-  );
+        range.at(5);
+      },
+      "assertion failed!\n\nfile: .*\nline: .*\nmessage: index out of bounds");
 
-  WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED({
-      const wn::containers::contiguous_range<TypeParam> range;
+  WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED(
+      {
+        const wn::containers::contiguous_range<TypeParam> range;
 
-      range[0];
-    },
-    "assertion failed!\n\nfile: .*\nline: .*\nmessage: invalid contiguous range"
-  );
+        range[0];
+      },
+      "assertion failed!\n\nfile: .*\nline: .*\nmessage: invalid contiguous "
+      "range");
 
-  WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED({
-      const wn::containers::contiguous_range<TypeParam> range(buffer,
-                                                              buffer + 5);
+  WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED(
+      {
+        const wn::containers::contiguous_range<TypeParam> range(
+            buffer, buffer + 5);
 
-      range[5];
-    },
-    "assertion failed!\n\nfile: .*\nline: .*\nmessage: index out of bounds"
-  );
+        range[5];
+      },
+      "assertion failed!\n\nfile: .*\nline: .*\nmessage: index out of bounds");
 
-  WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED({
-      const wn::containers::contiguous_range<TypeParam> range;
+  WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED(
+      {
+        const wn::containers::contiguous_range<TypeParam> range;
 
-      range.front();
-    },
-    "assertion failed!\n\nfile: .*\nline: .*\nmessage: invalid contiguous range"
-  );
+        range.front();
+      },
+      "assertion failed!\n\nfile: .*\nline: .*\nmessage: invalid contiguous "
+      "range");
 
-  WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED({
-      const wn::containers::contiguous_range<TypeParam> range;
+  WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED(
+      {
+        const wn::containers::contiguous_range<TypeParam> range;
 
-      range.back();
-    },
-    "assertion failed!\n\nfile: .*\nline: .*\nmessage: invalid contiguous range"
-  );
+        range.back();
+      },
+      "assertion failed!\n\nfile: .*\nline: .*\nmessage: invalid contiguous "
+      "range");
 }
 
 TYPED_TEST(contiguous_range, iteration) {
-  TypeParam buffer[5] = { TypeParam(1), TypeParam(2),
-                          TypeParam(3), TypeParam(4),
-                          TypeParam(5) };
+  TypeParam buffer[5] = {
+      TypeParam(1), TypeParam(2), TypeParam(3), TypeParam(4), TypeParam(5)};
   wn::containers::contiguous_range<TypeParam> range1(buffer);
 
   uint8_t count = 1;
@@ -262,9 +258,8 @@ TYPED_TEST(contiguous_range, iteration) {
 }
 
 TYPED_TEST(contiguous_range, clear) {
-  TypeParam buffer[5] = { TypeParam(1), TypeParam(2),
-                          TypeParam(3), TypeParam(4),
-                          TypeParam(5) };
+  TypeParam buffer[5] = {
+      TypeParam(1), TypeParam(2), TypeParam(3), TypeParam(4), TypeParam(5)};
   wn::containers::contiguous_range<TypeParam> range(buffer);
 
   EXPECT_FALSE(range.empty());
@@ -277,12 +272,10 @@ TYPED_TEST(contiguous_range, clear) {
 }
 
 TYPED_TEST(contiguous_range, swap) {
-  TypeParam buffer1[5] = { TypeParam(1), TypeParam(2),
-                           TypeParam(3), TypeParam(4),
-                           TypeParam(5) };
-  TypeParam buffer2[5] = { TypeParam(6), TypeParam(7),
-                           TypeParam(8), TypeParam(9),
-                           TypeParam(10) };
+  TypeParam buffer1[5] = {
+      TypeParam(1), TypeParam(2), TypeParam(3), TypeParam(4), TypeParam(5)};
+  TypeParam buffer2[5] = {
+      TypeParam(6), TypeParam(7), TypeParam(8), TypeParam(9), TypeParam(10)};
   wn::containers::contiguous_range<TypeParam> range1(buffer1);
   wn::containers::contiguous_range<TypeParam> range2(buffer2);
 
@@ -308,9 +301,8 @@ TYPED_TEST(contiguous_range, swap) {
 }
 
 TYPED_TEST(contiguous_range, remove_prefix) {
-  TypeParam buffer[5] = { TypeParam(1), TypeParam(2),
-                          TypeParam(3), TypeParam(4),
-                          TypeParam(5) };
+  TypeParam buffer[5] = {
+      TypeParam(1), TypeParam(2), TypeParam(3), TypeParam(4), TypeParam(5)};
   wn::containers::contiguous_range<TypeParam> range(buffer);
 
   ASSERT_FALSE(range.empty());
@@ -322,27 +314,28 @@ TYPED_TEST(contiguous_range, remove_prefix) {
   EXPECT_EQ(range.front(), TypeParam(3));
   EXPECT_EQ(range.back(), TypeParam(5));
 
-  WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED({
-      wn::containers::contiguous_range<TypeParam> fail_range;
+  WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED(
+      {
+        wn::containers::contiguous_range<TypeParam> fail_range;
 
-      fail_range.remove_prefix(0);
-    },
-    "assertion failed!\n\nfile: .*\nline: .*\nmessage: invalid contiguous range"
-  );
+        fail_range.remove_prefix(0);
+      },
+      "assertion failed!\n\nfile: .*\nline: .*\nmessage: invalid contiguous "
+      "range");
 
-  WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED({
-      wn::containers::contiguous_range<TypeParam> fail_range(buffer, buffer + 5);
+  WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED(
+      {
+        wn::containers::contiguous_range<TypeParam> fail_range(
+            buffer, buffer + 5);
 
-      fail_range.remove_prefix(6);
-    },
-    "assertion failed!\n\nfile: .*\nline: .*\nmessage: count too large"
-  );
+        fail_range.remove_prefix(6);
+      },
+      "assertion failed!\n\nfile: .*\nline: .*\nmessage: count too large");
 }
 
 TYPED_TEST(contiguous_range, remove_suffix) {
-  TypeParam buffer[5] = { TypeParam(1), TypeParam(2),
-                          TypeParam(3), TypeParam(4),
-                          TypeParam(5) };
+  TypeParam buffer[5] = {
+      TypeParam(1), TypeParam(2), TypeParam(3), TypeParam(4), TypeParam(5)};
   wn::containers::contiguous_range<TypeParam> range(buffer);
 
   ASSERT_FALSE(range.empty());
@@ -354,29 +347,29 @@ TYPED_TEST(contiguous_range, remove_suffix) {
   EXPECT_EQ(range.front(), TypeParam(1));
   EXPECT_EQ(range.back(), TypeParam(3));
 
-  WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED({
-      wn::containers::contiguous_range<TypeParam> fail_range;
+  WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED(
+      {
+        wn::containers::contiguous_range<TypeParam> fail_range;
 
-      fail_range.remove_suffix(0);
-    },
-    "assertion failed!\n\nfile: .*\nline: .*\nmessage: invalid contiguous range"
-  );
+        fail_range.remove_suffix(0);
+      },
+      "assertion failed!\n\nfile: .*\nline: .*\nmessage: invalid contiguous "
+      "range");
 
-  WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED({
-      wn::containers::contiguous_range<TypeParam> fail_range(buffer, buffer + 5);
+  WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED(
+      {
+        wn::containers::contiguous_range<TypeParam> fail_range(
+            buffer, buffer + 5);
 
-      fail_range.remove_suffix(6);
-    },
-    "assertion failed!\n\nfile: .*\nline: .*\nmessage: count too large"
-  );
+        fail_range.remove_suffix(6);
+      },
+      "assertion failed!\n\nfile: .*\nline: .*\nmessage: count too large");
 }
 
 TYPED_TEST(contiguous_range, multiple_ranges_same_source) {
-  TypeParam buffer[10] = { TypeParam(1), TypeParam(2),
-                           TypeParam(3), TypeParam(4),
-                           TypeParam(5), TypeParam(6),
-                           TypeParam(7), TypeParam(8),
-                           TypeParam(9), TypeParam(10) };
+  TypeParam buffer[10] = {TypeParam(1), TypeParam(2), TypeParam(3),
+      TypeParam(4), TypeParam(5), TypeParam(6), TypeParam(7), TypeParam(8),
+      TypeParam(9), TypeParam(10)};
   wn::containers::contiguous_range<TypeParam> range1(buffer);
   wn::containers::contiguous_range<TypeParam> range2(buffer, 3);
   wn::containers::contiguous_range<TypeParam> range3(buffer + 2, 4);

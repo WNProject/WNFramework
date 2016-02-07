@@ -6,33 +6,33 @@
 #define __WN_LVALUE_H__
 
 #include "WNDeprecatedScripting/inc/WNNode.h"
-#include "WNDeprecatedScripting/inc/WNTypeElement.h"
 #include "WNDeprecatedScripting/inc/WNScriptingErrors.h"
+#include "WNDeprecatedScripting/inc/WNTypeElement.h"
 #include "WNLogging/inc/WNLog.h"
 
 namespace llvm {
-    class Value;
+class Value;
 }
 
 namespace WNScripting {
-    class WNExpression;
-    class WNCodeModule;
-    struct WNFunctionDefinition;
-    class WNLValue : public WNNode {
-    public:
+class WNExpression;
+class WNCodeModule;
+struct WNFunctionDefinition;
+class WNLValue : public WNNode {
+public:
+  WNLValue(WNExpression* _expr);
+  virtual ~WNLValue();
+  virtual eWNTypeError GenerateCode(WNCodeModule& _module,
+      const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog);
 
-        WNLValue(WNExpression* _expr);
-        virtual ~WNLValue();
-        virtual eWNTypeError GenerateCode(WNCodeModule& _module, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog);
+  llvm::Value* GetValueLocation();
 
-        llvm::Value* GetValueLocation();
+  WNScriptType GetValueType();
 
-        WNScriptType GetValueType();
+  bool RequiredUse();
 
-        bool RequiredUse();
-
-    private:
-        WNExpression* mExpression;
-    };
+private:
+  WNExpression* mExpression;
+};
 }
-#endif//__WN_LVALUE_H__
+#endif  //__WN_LVALUE_H__

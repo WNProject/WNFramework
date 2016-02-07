@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
+#include "WNScripting/inc/WNCTranslator.h"
 #include "WNFileSystem/inc/WNFactory.h"
 #include "WNFileSystem/inc/WNMapping.h"
 #include "WNLogging/inc/WNBufferLogger.h"
-#include "WNScripting/inc/WNCTranslator.h"
 #include "WNScripting/test/inc/Common.h"
 #include "WNScripting/test/inc/Common.h"
 #include "WNTesting/inc/WNTestHarness.h"
@@ -100,8 +100,8 @@ TEST_P(c_translator_direct_translation_test, translations) {
   wn::scripting::c_translator translator(
       &validator, &allocator, mapping.get(), &log);
   EXPECT_EQ(
-      wn::scripting::parse_error::ok, translator.translate_file("file.wns")) <<
-    (log.Flush(), buff.c_str());
+      wn::scripting::parse_error::ok, translator.translate_file("file.wns"))
+      << (log.Flush(), buff.c_str());
   EXPECT_EQ(std::string(expected_output.c_str()),
       get_file_data(mapping, "file.wns.c"));
 }

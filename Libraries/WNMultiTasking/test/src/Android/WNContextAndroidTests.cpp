@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNTesting/inc/WNTestHarness.h"
 #include "WNMultiTasking/src/Android/WNContext.h"
+#include "WNTesting/inc/WNTestHarness.h"
 
 int foo(volatile int* x, volatile int* y, ucontext_t* _ucontext) {
   EXPECT_LE(*x, 100);
@@ -77,14 +77,14 @@ struct contexts {
   int data;
 };
 
-void new_func1 (void* f) {
+void new_func1(void* f) {
   contexts* ctx = static_cast<contexts*>(f);
   ctx->data += 102;
   wn_swapcontext(ctx->mine, ctx->next);
   ctx->data += 40;
 }
 
-void new_func2 (void* f) {
+void new_func2(void* f) {
   contexts* ctx = static_cast<contexts*>(f);
   ctx->data += 12;
   wn_swapcontext(ctx->mine, ctx->next);
@@ -123,4 +123,3 @@ TEST(context_android, swap_context) {
   EXPECT_EQ(32 + 102 + 40, f1_ctx.data);
   EXPECT_EQ(41 + 12 - 100, f2_ctx.data);
 }
-

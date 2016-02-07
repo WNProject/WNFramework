@@ -8,13 +8,15 @@
 #include "WNDeprecatedScripting/inc/WNPostExpression.h"
 
 namespace WNScripting {
-    class WNMemberAccessExpr : public WNPostExpression {
-    public:
-        WNMemberAccessExpr(const char* _member);
-        virtual ~WNMemberAccessExpr();
-        virtual eWNTypeError GenerateCode(WNCodeModule& _module, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog);
-    private:
-        char* mMember;
-    };
+class WNMemberAccessExpr : public WNPostExpression {
+public:
+  WNMemberAccessExpr(const char* _member);
+  virtual ~WNMemberAccessExpr();
+  virtual eWNTypeError GenerateCode(WNCodeModule& _module,
+      const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog);
+
+private:
+  char* mMember;
+};
 }
-#endif//__WN_MEMBER_ACCESS_EXPR_H__
+#endif  //__WN_MEMBER_ACCESS_EXPR_H__

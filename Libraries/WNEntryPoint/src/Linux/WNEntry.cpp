@@ -10,7 +10,7 @@ extern int32_t wn_main(int32_t _argc, char* _argv[]);
 void wn_dummy() {}
 
 int main(int _argc, char** _argv) {
-    WNUtils::InitializeCrashHandler();
+  WNUtils::InitializeCrashHandler();
 
-    return(wn_main(_argc, _argv));
+  return (wn_main(_argc, _argv));
 }

@@ -70,13 +70,13 @@ public:
         "attempting to access outside of string bounds");
   }
 
-  template <typename U, typename = core::enable_if_t<
-                            std::is_convertible<U*, const char*>::value>>
+  template <typename U,
+      typename = core::enable_if_t<std::is_convertible<U*, const char*>::value>>
   WN_FORCE_INLINE string_view(contiguous_range<U>&& range)
     : m_range(std::move(range)) {}
 
-  template <typename U, typename = core::enable_if_t<
-                            std::is_convertible<U*, const char*>::value>>
+  template <typename U,
+      typename = core::enable_if_t<std::is_convertible<U*, const char*>::value>>
   WN_FORCE_INLINE string_view(const contiguous_range<U>& range)
     : m_range(range) {}
 
@@ -104,16 +104,16 @@ public:
     return (*this);
   }
 
-  template <typename U, typename = core::enable_if_t<
-                            std::is_convertible<U*, const char*>::value>>
+  template <typename U,
+      typename = core::enable_if_t<std::is_convertible<U*, const char*>::value>>
   WN_FORCE_INLINE string_view& operator=(contiguous_range<U>&& range) {
     string_view(std::move(range)).swap(*this);
 
     return (*this);
   }
 
-  template <typename U, typename = core::enable_if_t<
-                            std::is_convertible<U*, const char*>::value>>
+  template <typename U,
+      typename = core::enable_if_t<std::is_convertible<U*, const char*>::value>>
   WN_FORCE_INLINE string_view& operator=(const contiguous_range<U>& range) {
     string_view(range).swap(*this);
 
@@ -295,8 +295,7 @@ public:
     return (i == cend() ? npos : static_cast<size_type>(i - cbegin()));
   }
 
-  WN_FORCE_INLINE size_type find(
-      const char c, const size_type pos = 0) const {
+  WN_FORCE_INLINE size_type find(const char c, const size_type pos = 0) const {
     return (find(string_view(&c, 1), pos));
   }
 
@@ -318,8 +317,7 @@ public:
     return (i == e ? npos : static_cast<size_type>(i.base() - view.size() - b));
   }
 
-  WN_FORCE_INLINE size_type rfind(
-      const char c, const size_type pos = 0) const {
+  WN_FORCE_INLINE size_type rfind(const char c, const size_type pos = 0) const {
     return (rfind(string_view(&c, 1), pos));
   }
 
@@ -445,8 +443,7 @@ WN_FORCE_INLINE bool operator!=(
   return (lhs.compare(rhs) != 0);
 }
 
-WN_FORCE_INLINE bool operator<(
-    const string_view& lhs, const string_view& rhs) {
+WN_FORCE_INLINE bool operator<(const string_view& lhs, const string_view& rhs) {
   return (lhs.compare(rhs) < 0);
 }
 
@@ -455,8 +452,7 @@ WN_FORCE_INLINE bool operator<=(
   return (lhs.compare(rhs) <= 0);
 }
 
-WN_FORCE_INLINE bool operator>(
-    const string_view& lhs, const string_view& rhs) {
+WN_FORCE_INLINE bool operator>(const string_view& lhs, const string_view& rhs) {
   return (lhs.compare(rhs) > 0);
 }
 

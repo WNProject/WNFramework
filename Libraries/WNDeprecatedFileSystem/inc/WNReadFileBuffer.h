@@ -12,25 +12,28 @@
 #include "WNDeprecatedFileSystem/inc/WNFileBuffer.h"
 
 namespace WNFileSystem {
-    class WNReadTextFileBuffer : public WNFileBuffer {
-    public:
-        WNReadTextFileBuffer(const WNFileBufferType _type, const size_t _initialBufferSize = 1024);
-        virtual ~WNReadTextFileBuffer();
+class WNReadTextFileBuffer : public WNFileBuffer {
+public:
+  WNReadTextFileBuffer(
+      const WNFileBufferType _type, const size_t _initialBufferSize = 1024);
+  virtual ~WNReadTextFileBuffer();
 
-        virtual bool serialize(const wn::containers::serializer_base& _serializer, const uint32_t _flags) override;
-        virtual WNFile::WNFileError SetFile(const char* fileName);
-        virtual char* reserve(const size_t _numBytes, size_t& _returnedBytes) override;
-        virtual wn::containers::data_buffer_type type() const override;
+  virtual bool serialize(const wn::containers::serializer_base& _serializer,
+      const uint32_t _flags) override;
+  virtual WNFile::WNFileError SetFile(const char* fileName);
+  virtual char* reserve(
+      const size_t _numBytes, size_t& _returnedBytes) override;
+  virtual wn::containers::data_buffer_type type() const override;
 
-    private:
-        WNFile mFile;
-        char* mCurrentBuffer;
-        char* mSpareBuffer;
-        size_t mBufferUsage;
-        size_t mBufferPosition;
-        size_t mBufferSize;
-        bool mEndFile;
-    };
+private:
+  WNFile mFile;
+  char* mCurrentBuffer;
+  char* mSpareBuffer;
+  size_t mBufferUsage;
+  size_t mBufferPosition;
+  size_t mBufferSize;
+  bool mEndFile;
+};
 }
 
-#endif // __WN_FILE_SYSTEM_READ_FILE_BUFFER__
+#endif  // __WN_FILE_SYSTEM_READ_FILE_BUFFER__

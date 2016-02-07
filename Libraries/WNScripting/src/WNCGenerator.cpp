@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
+#include "WNScripting/inc/WNCGenerator.h"
 #include "WNContainers/inc/WNString.h"
 #include "WNMemory/inc/WNStringUtility.h"
-#include "WNScripting/inc/WNCGenerator.h"
 #include "WNScripting/inc/WNScriptHelpers.h"
 
 namespace wn {
@@ -62,8 +62,7 @@ void ast_c_translator::walk_expression(const constant_expression* _const,
       _str->second.append(_const->get_type_text());
       break;
     default:
-      WN_RELEASE_ASSERT_DESC(
-          false, "Non-integer constants not supported yet.");
+      WN_RELEASE_ASSERT_DESC(false, "Non-integer constants not supported yet.");
   }
 }
 
@@ -217,8 +216,8 @@ void ast_c_translator::walk_instruction(const if_instruction* _i,
   }
 }
 
-void ast_c_translator::walk_instruction_list(const instruction_list* l,
-    containers::string* _str) {
+void ast_c_translator::walk_instruction_list(
+    const instruction_list* l, containers::string* _str) {
   *_str = containers::string(m_allocator) + "{\n";
   for (auto& a : l->get_instructions()) {
     const auto& dat = m_generator->get_data(a.get());

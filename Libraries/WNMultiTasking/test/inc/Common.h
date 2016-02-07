@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 #ifndef __WN_USE_PRECOMPILED_HEADER
-    #pragma once
+#pragma once
 #endif
 
 #ifndef __WN_CONCURRENCY_TESTS_COMMON_H__
@@ -16,7 +16,7 @@
 
 #include "WNPlatform/inc/WNTime.h"
 
-#include <vector>
 #include <memory>
+#include <vector>
 
-#endif // __WN_CONCURRENCY_TESTS_COMMON_H__
+#endif  // __WN_CONCURRENCY_TESTS_COMMON_H__

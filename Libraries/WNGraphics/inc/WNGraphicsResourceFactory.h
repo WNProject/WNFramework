@@ -8,9 +8,7 @@
 #define __WN_GRAPHICS_GRAPHICS_RESOURCE_FACTORY_H__
 
 namespace WNGraphics {
-    class WNGraphicsResourceFactory {
-    };
+class WNGraphicsResourceFactory {};
 }
 
-
-#endif // __WN_GRAPHICS_GRAPHICS_RESOURCE_FACTORY_H__
+#endif  // __WN_GRAPHICS_GRAPHICS_RESOURCE_FACTORY_H__

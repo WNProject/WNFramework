@@ -12,4 +12,4 @@
 #include "WNPlatform/inc/WNSurfaceManager.h"
 #include "WNPlatform/inc/WNTime.h"
 
-#endif // __WN_PLATFORM_H__
+#endif  // __WN_PLATFORM_H__

@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "WNFileSystem/src/Windows/WNMappingWindows.h"
 #include "WNCore/inc/WNAssert.h"
 #include "WNFileSystem/src/Windows/WNFileWindows.h"
-#include "WNFileSystem/src/Windows/WNMappingWindows.h"
 
 namespace wn {
 namespace file_system {

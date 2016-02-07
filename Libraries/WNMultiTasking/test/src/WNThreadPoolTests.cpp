@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNTesting/inc/WNTestHarness.h"
-#include "WNMultiTasking/inc/WNCallbackTask.h"
 #include "WNMultiTasking/inc/WNThreadPool.h"
+#include "WNMultiTasking/inc/WNCallbackTask.h"
+#include "WNTesting/inc/WNTestHarness.h"
 
 #ifdef _WN_MSVC
 #pragma warning(push)
@@ -24,8 +24,8 @@ TEST(WNThreadPoolValidation, Creation) {
     for (uint32_t i = 0; i < 50; ++i) {
       wn::multi_tasking::thread_pool thread_pool(&allocator);
 
-      ASSERT_EQ(
-          thread_pool.initialize(i), wn::multi_tasking::thread_pool::result::ok);
+      ASSERT_EQ(thread_pool.initialize(i),
+          wn::multi_tasking::thread_pool::result::ok);
     }
   }
 }
@@ -43,7 +43,8 @@ TEST(WNThreadPoolValidation, CaughtUninitialized) {
     ASSERT_NE(thread_pool.enqueue(wn::multi_tasking::make_callback_task<void>(
                   &allocator, &SimpleCallback)),
         wn::multi_tasking::thread_pool::result::ok);
-    ASSERT_EQ(thread_pool.initialize(10), wn::multi_tasking::thread_pool::result::ok);
+    ASSERT_EQ(
+        thread_pool.initialize(10), wn::multi_tasking::thread_pool::result::ok);
     ASSERT_EQ(thread_pool.enqueue(wn::multi_tasking::make_callback_task<void>(
                   &allocator, &SimpleCallback)),
         wn::multi_tasking::thread_pool::result::ok);
@@ -56,29 +57,29 @@ TEST(WNThreadPoolValidation, CreationMore) {
   {
     wn::multi_tasking::thread_pool thread_pool(&allocator);
 
-    ASSERT_EQ(
-        thread_pool.initialize(100), wn::multi_tasking::thread_pool::result::ok);
+    ASSERT_EQ(thread_pool.initialize(100),
+        wn::multi_tasking::thread_pool::result::ok);
   }
 
   {
     wn::multi_tasking::thread_pool thread_pool(&allocator);
 
-    ASSERT_EQ(
-        thread_pool.initialize(100), wn::multi_tasking::thread_pool::result::ok);
+    ASSERT_EQ(thread_pool.initialize(100),
+        wn::multi_tasking::thread_pool::result::ok);
   }
 
   {
     wn::multi_tasking::thread_pool thread_pool(&allocator);
 
-    ASSERT_EQ(
-        thread_pool.initialize(100), wn::multi_tasking::thread_pool::result::ok);
+    ASSERT_EQ(thread_pool.initialize(100),
+        wn::multi_tasking::thread_pool::result::ok);
   }
 
   {
     wn::multi_tasking::thread_pool thread_pool(&allocator);
 
-    ASSERT_EQ(
-        thread_pool.initialize(100), wn::multi_tasking::thread_pool::result::ok);
+    ASSERT_EQ(thread_pool.initialize(100),
+        wn::multi_tasking::thread_pool::result::ok);
   }
 }
 
@@ -94,7 +95,8 @@ TEST(WNThreadPoolValidation, SimpleCallback) {
   {
     wn::multi_tasking::thread_pool thread_pool(&allocator);
 
-    ASSERT_EQ(thread_pool.initialize(16), wn::multi_tasking::thread_pool::result::ok);
+    ASSERT_EQ(
+        thread_pool.initialize(16), wn::multi_tasking::thread_pool::result::ok);
 
     for (size_t i = 0; i < 10000; ++i) {
       thread_pool.enqueue(wn::multi_tasking::make_callback_task<void>(
@@ -117,7 +119,8 @@ TEST(WNThreadPoolValidation, OneParameterCallback) {
   {
     wn::multi_tasking::thread_pool thread_pool(&allocator);
 
-    ASSERT_EQ(thread_pool.initialize(16), wn::multi_tasking::thread_pool::result::ok);
+    ASSERT_EQ(
+        thread_pool.initialize(16), wn::multi_tasking::thread_pool::result::ok);
 
     for (uint32_t i = 0; i < 1000; ++i) {
       thread_pool.enqueue(wn::multi_tasking::make_callback_task<void>(
@@ -143,8 +146,8 @@ TEST(WNThreadPoolValidation, OneParameterReturnCallback) {
     {
       wn::multi_tasking::thread_pool thread_pool(&allocator);
 
-      ASSERT_EQ(
-          thread_pool.initialize(16), wn::multi_tasking::thread_pool::result::ok);
+      ASSERT_EQ(thread_pool.initialize(16),
+          wn::multi_tasking::thread_pool::result::ok);
 
       for (uint32_t i = 0; i < 1000; ++i) {
         wn::multi_tasking::callback_task_ptr<uint32_t> j =
@@ -173,7 +176,8 @@ TEST(WNThreadPoolValidation, JobsGetCleaned) {
     std::vector<wn::multi_tasking::callback_task_ptr<uint32_t>> jobCallbacks;
     wn::multi_tasking::thread_pool thread_pool(&allocator);
 
-    ASSERT_EQ(thread_pool.initialize(16), wn::multi_tasking::thread_pool::result::ok);
+    ASSERT_EQ(
+        thread_pool.initialize(16), wn::multi_tasking::thread_pool::result::ok);
 
     for (uint32_t i = 0; i < 1000; ++i) {
       wn::multi_tasking::callback_task_ptr<uint32_t> j(

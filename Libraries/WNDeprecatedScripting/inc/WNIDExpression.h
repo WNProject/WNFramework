@@ -6,13 +6,15 @@
 #define __WN_ID_EXPRESSION_H__
 #include "WNDeprecatedScripting/inc/WNExpression.h"
 namespace WNScripting {
-    class WNIDExpression : public WNExpression {
-    public:
-        WNIDExpression(const char* _name);
-        virtual ~WNIDExpression();
-        virtual eWNTypeError GenerateCode(WNCodeModule& _module, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog);
-    private:
-        char* mName;
-    };
+class WNIDExpression : public WNExpression {
+public:
+  WNIDExpression(const char* _name);
+  virtual ~WNIDExpression();
+  virtual eWNTypeError GenerateCode(WNCodeModule& _module,
+      const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog);
+
+private:
+  char* mName;
+};
 }
-#endif//__WN_ID_EXPRESSION_H__
+#endif  //__WN_ID_EXPRESSION_H__

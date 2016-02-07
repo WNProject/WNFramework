@@ -8,6 +8,4 @@
 #include <unordered_set>
 #define WN_UNORDERED_SET std::unordered_set
 
-
-
-#endif//__WN_SCRIPTING_ENGINE_ADDITIONAL_TYPES_H__
+#endif  //__WN_SCRIPTING_ENGINE_ADDITIONAL_TYPES_H__

@@ -8,8 +8,7 @@
 #define __WN_GRAPHICS_BASE_TEXTURE_H__
 
 namespace WNGraphics {
-    class WNBaseTexture : public WNGraphicsResource {
-    };
+class WNBaseTexture : public WNGraphicsResource {};
 }
 
-#endif // __WN_GRAPHICS_BASE_TEXTURE_H__
+#endif  // __WN_GRAPHICS_BASE_TEXTURE_H__

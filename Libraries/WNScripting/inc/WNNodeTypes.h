@@ -123,8 +123,7 @@ public:
     }
     line_length =
         (c - reinterpret_cast<const char*>(m_source_location.m_line_start));
-    char* data_buffer =
-        static_cast<char*>(WN_STACK_ALLOC(line_length + 1));
+    char* data_buffer = static_cast<char*>(WN_STACK_ALLOC(line_length + 1));
     memcpy(data_buffer, m_source_location.m_line_start, line_length);
     data_buffer[line_length] = '\0';
     _log.Log(_level, 0, "Line: ", m_source_location.m_line_number, "\n",
@@ -655,7 +654,8 @@ public:
   }
 
   void remove_dead_instructions() {
-    containers::deque<memory::unique_ptr<instruction>> instructions(m_allocator);
+    containers::deque<memory::unique_ptr<instruction>> instructions(
+        m_allocator);
     while (!m_instructions.empty()) {
       if (!m_instructions.front()->is_dead()) {
         instructions.push_back(std::move(*m_instructions.begin()));

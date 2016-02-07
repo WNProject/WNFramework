@@ -3,13 +3,13 @@
 #include "WNPlatform/inc/WNPlatformFactory.h"
 #include "WNPlatform/inc/WNSurfaceManager.h"
 
-
 TEST(surface, SurfaceCreationTest) {
-   wn::WNSurfaceManager* manager = wn::WNPlatformFactory::CreateSurfaceManager();
+  wn::WNSurfaceManager* manager = wn::WNPlatformFactory::CreateSurfaceManager();
 
-   manager->Initialize();
+  manager->Initialize();
 
-   wn::surface_handle surface;
+  wn::surface_handle surface;
 
-   EXPECT_EQ(wn::WNSurfaceManagerReturnCode::ok, manager->CreateSurface(0, 0, 128, 128, surface));
+  EXPECT_EQ(wn::WNSurfaceManagerReturnCode::ok,
+      manager->CreateSurface(0, 0, 128, 128, surface));
 }

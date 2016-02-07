@@ -7,46 +7,46 @@
 #ifndef __WN_PLATFORM_INTERNAL_WINDOWS_SURFACE_WINDOWS_H__
 #define __WN_PLATFORM_INTERNAL_WINDOWS_SURFACE_WINDOWS_H__
 
-#include "WNPlatform/inc/WNSurface.h"
 #include "WNMemory/inc/WNIntrusivePtr.h"
+#include "WNPlatform/inc/WNSurface.h"
 
 namespace wn {
-    class WNSurfaceManagerWindows;
+class WNSurfaceManagerWindows;
 
-    class WNSurfaceWindows : public surface {
-    public:
-        WNSurfaceWindows(WNSurfaceManagerWindows& _surfaceManager);
+class WNSurfaceWindows : public surface {
+public:
+  WNSurfaceWindows(WNSurfaceManagerWindows& _surfaceManager);
 
-        virtual WNSurfaceNativeHandle GetNativeHandle() const;
+  virtual WNSurfaceNativeHandle GetNativeHandle() const;
 
-        virtual WNSurfaceError Resize(uint32_t _width, uint32_t _height);
-        virtual WNSurfaceError Move(uint32_t _x, uint32_t _y);
-        virtual bool IsFullscreen() const;
-        virtual WNSurfaceError SetFullscreen(bool _fullscreen);
+  virtual WNSurfaceError Resize(uint32_t _width, uint32_t _height);
+  virtual WNSurfaceError Move(uint32_t _x, uint32_t _y);
+  virtual bool IsFullscreen() const;
+  virtual WNSurfaceError SetFullscreen(bool _fullscreen);
 
-        virtual uint32_t GetWidth() const;
-        virtual uint32_t GetHeight() const;
-        virtual uint32_t GetX() const;
-        virtual uint32_t GetY() const;
+  virtual uint32_t GetWidth() const;
+  virtual uint32_t GetHeight() const;
+  virtual uint32_t GetX() const;
+  virtual uint32_t GetY() const;
 
-    private:
-        friend class WNSurfaceManagerWindows;
+private:
+  friend class WNSurfaceManagerWindows;
 
-    private:
-        WNSurfaceWindows& operator = (const WNSurfaceWindows&);
+private:
+  WNSurfaceWindows& operator=(const WNSurfaceWindows&);
 
-        void ProcessCallback(UINT _msg, LPARAM _lparam, WPARAM _wparam);
-        void SetNativeHandle(HWND _handle);
+  void ProcessCallback(UINT _msg, LPARAM _lparam, WPARAM _wparam);
+  void SetNativeHandle(HWND _handle);
 
-    private:
-        WNSurfaceManagerWindows& mSurfaceManager;
-        bool mFullscreen;
-        uint32_t mXSize;
-        uint32_t mYSize;
-        uint32_t mWidth;
-        uint32_t mHeight;
-        HWND mNativeWindowHandle;
-    };
+private:
+  WNSurfaceManagerWindows& mSurfaceManager;
+  bool mFullscreen;
+  uint32_t mXSize;
+  uint32_t mYSize;
+  uint32_t mWidth;
+  uint32_t mHeight;
+  HWND mNativeWindowHandle;
+};
 }
 
-#endif // __WN_PLATFORM_INTERNAL_WINDOWS_SURFACE_WINDOWS_H__
+#endif  // __WN_PLATFORM_INTERNAL_WINDOWS_SURFACE_WINDOWS_H__

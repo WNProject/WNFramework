@@ -9,4 +9,4 @@
 
 #include "WNCore/inc/Internal/ARM/WNBase_GCC.h"
 
-#endif // __WN_CORE_INTERNAL_ARM_BASE_CLANG_H__
+#endif  // __WN_CORE_INTERNAL_ARM_BASE_CLANG_H__

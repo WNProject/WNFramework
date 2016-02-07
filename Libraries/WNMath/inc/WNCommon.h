@@ -8,19 +8,14 @@
 #define __WN_MATH_COMMON_H__
 
 namespace wn {
-    enum class snap_direction {
-        nearest,
-        down,
-        up,
-        truncate
-    };
+enum class snap_direction { nearest, down, up, truncate };
 
-    typedef snap_direction snap_direction_type;
+typedef snap_direction snap_direction_type;
 
-    namespace WNFieldOfView {
-        struct WNHorizontal {};
-        struct WNVertical {};
-    };
+namespace WNFieldOfView {
+struct WNHorizontal {};
+struct WNVertical {};
+};
 }
 
-#endif // __WN_MATH_COMMON_H__
+#endif  // __WN_MATH_COMMON_H__

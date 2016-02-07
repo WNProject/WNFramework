@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNMemory/inc/WNAllocator.h"
 #include "WNFileSystem/inc/WNFactory.h"
+#include "WNMemory/inc/WNAllocator.h"
 #include "WNScripting/inc/WNFactory.h"
 #include "WNScripting/test/inc/Common.h"
 #include "WNTesting/inc/WNTestHarness.h"

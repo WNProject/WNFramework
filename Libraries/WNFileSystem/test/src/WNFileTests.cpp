@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "WNFileSystem/inc/WNFactory.h"
 #include "WNFileSystem/inc/WNFile.h"
+#include "WNFileSystem/inc/WNFactory.h"
 #include "WNTesting/inc/WNTestHarness.h"
 
 using file_tests = ::testing::TestWithParam<wn::file_system::mapping_type>;

@@ -8,16 +8,19 @@
 #include "WNDeprecatedScripting/inc/WNScriptingErrors.h"
 
 namespace WNScripting {
-    class WNTypeManager;
-    class WNScriptingEngine;
-    class WNBuiltIninitializer {
-    public:
-        static eWNTypeError InitializeIntTypes(WNScriptingEngine* _engine, WNTypeManager& _manager);
-        static eWNTypeError InitializeFloatTypes(WNScriptingEngine* _engine, WNTypeManager& _manager);
-        //static eWNTypeError initializeStringTypes();
-        static eWNTypeError InitializeScriptingCasts(WNScriptingEngine* _engine, WNTypeManager& _manager);
-        static eWNTypeError InitializeFunctions(WNScriptingEngine& _engine);
-    };
+class WNTypeManager;
+class WNScriptingEngine;
+class WNBuiltIninitializer {
+public:
+  static eWNTypeError InitializeIntTypes(
+      WNScriptingEngine* _engine, WNTypeManager& _manager);
+  static eWNTypeError InitializeFloatTypes(
+      WNScriptingEngine* _engine, WNTypeManager& _manager);
+  // static eWNTypeError initializeStringTypes();
+  static eWNTypeError InitializeScriptingCasts(
+      WNScriptingEngine* _engine, WNTypeManager& _manager);
+  static eWNTypeError InitializeFunctions(WNScriptingEngine& _engine);
+};
 }
 
-#endif//__WN_BUILTIN_TYPE_INITIALIZATION_H__
+#endif  //__WN_BUILTIN_TYPE_INITIALIZATION_H__

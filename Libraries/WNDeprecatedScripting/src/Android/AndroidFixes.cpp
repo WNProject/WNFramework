@@ -7,12 +7,12 @@
 #include <math.h>
 extern "C" {
 double log2(double x) {
-  return log(x)/log(2.0);
+  return log(x) / log(2.0);
 }
 
 #ifndef __clang__
 long double log2l(long double x) {
-  return log((double)x)/log(2.0);
+  return log((double)x) / log(2.0);
 }
 #endif
 }

@@ -10,9 +10,9 @@
 #include "WNMemory/inc/WNConfig.h"
 
 #ifndef _WN_MEMORY_CONFIG_DISABLE_EXTENSIONS
-  #include "WNCore/inc/WNBase.h"
+#include "WNCore/inc/WNBase.h"
 
-  #define _WN_MEMORY_USE_EXTENSION
+#define _WN_MEMORY_USE_EXTENSION
 #endif
 
-#endif // __WN_MEMORY_INTERNAL_CONFIG_H__
+#endif  // __WN_MEMORY_INTERNAL_CONFIG_H__

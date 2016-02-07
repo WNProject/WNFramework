@@ -3,26 +3,26 @@
 // found in the LICENSE.txt file.
 
 #include "WNDeprecatedScripting/inc/WNArgList.h"
-#include "WNMemory/inc/WNBasic.h"
 #include "WNDeprecatedScripting/inc/WNExpression.h"
+#include "WNMemory/inc/WNBasic.h"
 
 using namespace WNScripting;
 
-WNArgList::WNArgList() {
-}
+WNArgList::WNArgList() {}
 
 WNArgList::~WNArgList() {
-    for(WNScriptLinkedList<WNFunctionExpression>::WNScriptLinkedListNode * i = mExpressionList.first; i != nullptr; i = i->next) {
-        wn::memory::destroy(i->value->expr);
-        wn::memory::destroy(i->value);
-    }
+  for (WNScriptLinkedList<WNFunctionExpression>::WNScriptLinkedListNode* i =
+           mExpressionList.first;
+       i != nullptr; i = i->next) {
+    wn::memory::destroy(i->value->expr);
+    wn::memory::destroy(i->value);
+  }
 }
 
 void WNArgList::AddExpression(WNExpression* _expr, bool _handOwnership) {
-    mExpressionList.PushBack(new WNFunctionExpression(_expr, _handOwnership));
+  mExpressionList.PushBack(new WNFunctionExpression(_expr, _handOwnership));
 }
 
 WNScriptLinkedList<WNFunctionExpression>& WNArgList::GetExpressions() {
-    return(mExpressionList);
+  return (mExpressionList);
 }
-

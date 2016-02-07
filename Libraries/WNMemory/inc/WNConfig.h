@@ -10,4 +10,4 @@
 // Disables all extension for the current configuration
 //#define _WN_MEMORY_CONFIG_DISABLE_EXTENSIONS
 
-#endif // __WN_MEMORY_CONFIG_H__
+#endif  // __WN_MEMORY_CONFIG_H__

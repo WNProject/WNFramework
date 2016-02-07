@@ -10,15 +10,15 @@
 #include "WNCore/inc/WNBase.h"
 
 namespace wn {
-    class WNSurfaceManager;
+class WNSurfaceManager;
 
-    class WNPlatformFactory {
-    public:
-        static WNSurfaceManager* CreateSurfaceManager();
+class WNPlatformFactory {
+public:
+  static WNSurfaceManager* CreateSurfaceManager();
 
-    private:
-        WN_FORCE_INLINE WNPlatformFactory() {}
-    };
+private:
+  WN_FORCE_INLINE WNPlatformFactory() {}
+};
 }
 
-#endif // __WN_PLATFORM_PLATFORM_FACTORY_H__
+#endif  // __WN_PLATFORM_PLATFORM_FACTORY_H__

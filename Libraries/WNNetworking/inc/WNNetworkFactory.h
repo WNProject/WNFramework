@@ -10,15 +10,15 @@
 #include "WNCore/inc/WNBase.h"
 
 namespace WNNetworking {
-    class WNNetworkManager;
+class WNNetworkManager;
 
-    class WNNetworkFactory {
-    public:
-        static WNNetworkManager* CreateNetworkManager();
+class WNNetworkFactory {
+public:
+  static WNNetworkManager* CreateNetworkManager();
 
-    private:
-        WN_FORCE_INLINE WNNetworkFactory() {}
-    };
+private:
+  WN_FORCE_INLINE WNNetworkFactory() {}
+};
 }
 
-#endif // __WN_NETWORKING_NETWORK_FACTORY_H__
+#endif  // __WN_NETWORKING_NETWORK_FACTORY_H__

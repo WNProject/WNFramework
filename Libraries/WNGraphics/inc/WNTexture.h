@@ -7,9 +7,8 @@
 #ifndef __WN_GRAPHICS_TEXTURE_H__
 #define __WN_GRAPHICS_TEXTURE_H__
 
-namespace WNGraphics{
-    class WNTexture : public WNBaseTexture {
-    };
+namespace WNGraphics {
+class WNTexture : public WNBaseTexture {};
 }
 
-#endif // __WN_GRAPHICS_TEXTURE_H__
+#endif  // __WN_GRAPHICS_TEXTURE_H__

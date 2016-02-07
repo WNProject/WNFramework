@@ -11,28 +11,29 @@
 #define WN_SCRIPTNODE_MALLOC(T) (malloc(T))
 
 #ifdef _WN_WINDOWS
-#define COPY_STRING(src, dest) { \
-    if(src) { \
-        size_t allocSize = strnlen_s(src, 256) + 1; \
-        dest = static_cast<char*>(WN_SCRIPTNODE_MALLOC(allocSize)); \
-        strncpy(dest, src, allocSize-1); \
-        dest[allocSize-1] = '\0'; \
-    } else { \
-        dest = nullptr; \
-    }\
-}
+#define COPY_STRING(src, dest)                                                 \
+  {                                                                            \
+    if (src) {                                                                 \
+      size_t allocSize = strnlen_s(src, 256) + 1;                              \
+      dest = static_cast<char*>(WN_SCRIPTNODE_MALLOC(allocSize));              \
+      strncpy(dest, src, allocSize - 1);                                       \
+      dest[allocSize - 1] = '\0';                                              \
+    } else {                                                                   \
+      dest = nullptr;                                                          \
+    }                                                                          \
+  }
 #else
-#define COPY_STRING(src, dest) { \
-    if(src) { \
-        size_t allocSize = strnlen(src, 256) + 1; \
-        dest = static_cast<char*>(WN_SCRIPTNODE_MALLOC(allocSize)); \
-        strncpy(dest, src, allocSize-1); \
-        dest[allocSize-1] = '\0'; \
-    } else { \
-        dest = nullptr; \
-    } \
-}
+#define COPY_STRING(src, dest)                                                 \
+  {                                                                            \
+    if (src) {                                                                 \
+      size_t allocSize = strnlen(src, 256) + 1;                                \
+      dest = static_cast<char*>(WN_SCRIPTNODE_MALLOC(allocSize));              \
+      strncpy(dest, src, allocSize - 1);                                       \
+      dest[allocSize - 1] = '\0';                                              \
+    } else {                                                                   \
+      dest = nullptr;                                                          \
+    }                                                                          \
+  }
 #endif
 
-
-#endif//__WN_SCRIPTING_ALLOCATIONS_H__
+#endif  //__WN_SCRIPTING_ALLOCATIONS_H__

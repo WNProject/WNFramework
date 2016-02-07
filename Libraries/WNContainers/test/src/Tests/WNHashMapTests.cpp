@@ -193,7 +193,8 @@ TYPED_TEST(hash_map, move_test) {
 
     EXPECT_EQ(3, my_map.size());
 
-    wn::containers::hash_map<TypeParam, TypeParam> new_map(wn::core::move(my_map));
+    wn::containers::hash_map<TypeParam, TypeParam> new_map(
+        wn::core::move(my_map));
 
     EXPECT_EQ(0, my_map.size());
     EXPECT_EQ(3, new_map.size());

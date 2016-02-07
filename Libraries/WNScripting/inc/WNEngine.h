@@ -57,6 +57,7 @@ public:
   bool get_function_pointer(
       containers::string_view _name, T (*&function)(Args...)) const;
   typedef void (*void_func)();
+
 protected:
   size_t m_num_warnings;
   size_t m_num_errors;

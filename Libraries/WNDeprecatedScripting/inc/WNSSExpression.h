@@ -7,15 +7,17 @@
 #include "WNDeprecatedScripting/inc/WNExpression.h"
 #include "WNDeprecatedScripting/inc/WNScriptingEnums.h"
 namespace WNScripting {
-    class WNSSExpression : public WNExpression {
-    public:
-        WNSSExpression(WNSSType _type, WNExpression* _lhs, WNExpression* _rhs);
-        virtual ~WNSSExpression();
-        virtual eWNTypeError GenerateCode(WNCodeModule& _module, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog);
-    private:
-        WNSSType mSSType;
-        WNExpression* mLHS;
-        WNExpression* mRHS;
-    };
+class WNSSExpression : public WNExpression {
+public:
+  WNSSExpression(WNSSType _type, WNExpression* _lhs, WNExpression* _rhs);
+  virtual ~WNSSExpression();
+  virtual eWNTypeError GenerateCode(WNCodeModule& _module,
+      const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog);
+
+private:
+  WNSSType mSSType;
+  WNExpression* mLHS;
+  WNExpression* mRHS;
+};
 }
-#endif//__WN_SS_EXPRESSION_H__
+#endif  //__WN_SS_EXPRESSION_H__

@@ -7,12 +7,14 @@
 #include "WNDeprecatedScripting/inc/WNExpression.h"
 
 namespace WNScripting {
-    class WNNullAllocation : public WNExpression {
-    public:
-        WNNullAllocation();
-        virtual ~WNNullAllocation();
-        eWNTypeError GenerateCode(WNCodeModule& _module, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog);
-    private:
-    };
+class WNNullAllocation : public WNExpression {
+public:
+  WNNullAllocation();
+  virtual ~WNNullAllocation();
+  eWNTypeError GenerateCode(WNCodeModule& _module,
+      const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog);
+
+private:
+};
 }
-#endif//__WN_NULL_ALLOCATION_H__
+#endif  //__WN_NULL_ALLOCATION_H__

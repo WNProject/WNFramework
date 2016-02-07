@@ -22,8 +22,8 @@ struct basic_traits_3dnow : basic_traits_generic {
   }
 };
 
-} // namespace internal
-} // namespace memory
-} // namespace wn
+}  // namespace internal
+}  // namespace memory
+}  // namespace wn
 
-#endif // __WN_MEMORY_INTERNAL_EXTENSION_X86_3DNOW_BASIC_TRAITS_H__
+#endif  // __WN_MEMORY_INTERNAL_EXTENSION_X86_3DNOW_BASIC_TRAITS_H__

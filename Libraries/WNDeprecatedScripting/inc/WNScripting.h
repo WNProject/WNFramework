@@ -7,4 +7,4 @@
 #ifndef __WN_SCRIPTING_SCRIPTING_H__
 #define __WN_SCRIPTING_SCRIPTING_H__
 
-#endif // __WNSCRIPTING_H__
+#endif  // __WNSCRIPTING_H__

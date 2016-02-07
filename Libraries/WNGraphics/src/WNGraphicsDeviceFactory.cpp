@@ -7,19 +7,24 @@
 #include "WNMemory/inc/WNBasic.h"
 
 #ifdef _WN_WINDOWS
-    #include "WNGraphics/inc/Internal/D3D11/WNGraphicsDeviceD3D11.h"
+#include "WNGraphics/inc/Internal/D3D11/WNGraphicsDeviceD3D11.h"
 #elif defined _WN_LINUX
-    #include "WNGraphics/inc/Internal/GLX/WNGraphicsDeviceGLX.h"
+#include "WNGraphics/inc/Internal/GLX/WNGraphicsDeviceGLX.h"
 #elif defined _WN_ANDROID
-    #include "WNGraphics/inc/Internal/EGL/WNGraphicsDeviceEGL.h"
+#include "WNGraphics/inc/Internal/EGL/WNGraphicsDeviceEGL.h"
 #endif
 
-WNGraphics::WNGraphicsDevice* WNGraphics::WNGraphicsDeviceFactory::CreateGraphicsDevice(WNGraphics::WNGraphicsResourceFactory* _resourceFactory) {
-    #ifdef _WN_WINDOWS
-        return(wn::memory::construct<WNGraphics::WNGraphicsDeviceD3D11>(_resourceFactory));
-    #elif defined _WN_LINUX
-        return(wn::memory::construct<WNGraphics::WNGraphicsDeviceGLX>(_resourceFactory));
-    #elif defined _WN_ANDROID
-        return(wn::memory::construct<WNGraphics::WNGraphicsDeviceEGL>(_resourceFactory));
-    #endif
+WNGraphics::WNGraphicsDevice*
+WNGraphics::WNGraphicsDeviceFactory::CreateGraphicsDevice(
+    WNGraphics::WNGraphicsResourceFactory* _resourceFactory) {
+#ifdef _WN_WINDOWS
+  return (wn::memory::construct<WNGraphics::WNGraphicsDeviceD3D11>(
+      _resourceFactory));
+#elif defined _WN_LINUX
+  return (
+      wn::memory::construct<WNGraphics::WNGraphicsDeviceGLX>(_resourceFactory));
+#elif defined _WN_ANDROID
+  return (
+      wn::memory::construct<WNGraphics::WNGraphicsDeviceEGL>(_resourceFactory));
+#endif
 }

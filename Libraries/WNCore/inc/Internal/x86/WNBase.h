@@ -8,25 +8,25 @@
 #define __WN_CORE_INTERNAL_X86_BASE_H__
 
 #ifdef _WN_MSVC
-    #include "WNCore/inc/Internal/x86/WNBase_MSVC.h"
+#include "WNCore/inc/Internal/x86/WNBase_MSVC.h"
 #elif defined _WN_GCC
-    #include "WNCore/inc/Internal/x86/WNBase_GCC.h"
+#include "WNCore/inc/Internal/x86/WNBase_GCC.h"
 #elif defined _WN_CLANG
-    #include "WNCore/inc/Internal/x86/WNBase_Clang.h"
+#include "WNCore/inc/Internal/x86/WNBase_Clang.h"
 #endif
 
 #ifndef __WN_FPU_AVAILABLE
-    #define __WN_FPU_AVAILABLE
+#define __WN_FPU_AVAILABLE
 #endif
 
 #ifdef _WN_64_BIT
-    #ifndef _WN_X86_SSE
-        #define _WN_X86_SSE
-    #endif
-
-    #ifndef __WN_SSE2_AVAILABLE
-        #define __WN_SSE2_AVAILABLE
-    #endif
+#ifndef _WN_X86_SSE
+#define _WN_X86_SSE
 #endif
 
-#endif // __WN_CORE_INTERNAL_X86_BASE_H__
+#ifndef __WN_SSE2_AVAILABLE
+#define __WN_SSE2_AVAILABLE
+#endif
+#endif
+
+#endif  // __WN_CORE_INTERNAL_X86_BASE_H__

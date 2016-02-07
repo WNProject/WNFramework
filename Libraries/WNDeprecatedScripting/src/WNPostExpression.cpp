@@ -6,17 +6,14 @@
 
 using namespace WNScripting;
 
-WNPostExpression::WNPostExpression():
-    mBaseExpression(nullptr) {
-}
+WNPostExpression::WNPostExpression() : mBaseExpression(nullptr) {}
 
 WNPostExpression::~WNPostExpression() {
-    if(mBaseExpression) {
-        wn::memory::destroy(mBaseExpression);
-    }
+  if (mBaseExpression) {
+    wn::memory::destroy(mBaseExpression);
+  }
 }
 
 void WNPostExpression::AddBaseExpr(WNExpression* _expr) {
-    mBaseExpression = _expr;
+  mBaseExpression = _expr;
 }
-

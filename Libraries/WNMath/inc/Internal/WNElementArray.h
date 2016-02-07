@@ -10,25 +10,25 @@
 #include "WNMath/inc/WNConfig.h"
 
 #ifdef __WN_MATH_EXTENSIONS_ENABLED
-    #ifdef _WN_X86
-        #include "WNMath/inc/Internal/Extensions/x86/WNElementArray.h"
-    #endif
+#ifdef _WN_X86
+#include "WNMath/inc/Internal/Extensions/x86/WNElementArray.h"
+#endif
 #else
-    #include "WNMath/inc/Internal/Generic/WNElementArray.h"
+#include "WNMath/inc/Internal/Generic/WNElementArray.h"
 
-    namespace wn {
-        namespace internal {
-            namespace math {
-                #ifdef __WN_HAS_CPP11_USING_ALIAS_DECLARATIONS
-                    template <typename type, const size_t dimension>
-                    using element_array = element_array_generic<type, dimension>;
-                #else
-                    template <typename type, const size_t dimension>
-                    struct element_array : element_array_generic<type, dimension> {};
-                #endif
-            }
-        }
-    }
+namespace wn {
+namespace internal {
+namespace math {
+#ifdef __WN_HAS_CPP11_USING_ALIAS_DECLARATIONS
+template <typename type, const size_t dimension>
+using element_array = element_array_generic<type, dimension>;
+#else
+template <typename type, const size_t dimension>
+struct element_array : element_array_generic<type, dimension> {};
+#endif
+}
+}
+}
 #endif
 
-#endif // __WN_MATH_INTERNAL_ELEMENT_ARRAY_H__
+#endif  // __WN_MATH_INTERNAL_ELEMENT_ARRAY_H__

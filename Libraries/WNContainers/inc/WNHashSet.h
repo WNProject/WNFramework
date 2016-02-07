@@ -105,7 +105,8 @@ public:
     : m_map(_n, _hasher, _key_equal, _allocator) {}
   hash_set(memory::allocator* _allocator)
     : hash_set(0u, hasher(), key_equal(), _allocator) {}
-  hash_set(memory::allocator* _allocator, std::initializer_list<key_type> initializer, size_type _n = 0u,
+  hash_set(memory::allocator* _allocator,
+      std::initializer_list<key_type> initializer, size_type _n = 0u,
       const hasher& _hasher = hasher(),
       const key_equal& _key_equal = key_equal())
     : hash_set(0u, _hasher, _key_equal, _allocator) {

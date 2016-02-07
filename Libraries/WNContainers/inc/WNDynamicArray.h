@@ -198,8 +198,7 @@ public:
   }
 
   template <typename TOther>
-  dynamic_array(
-      TOther begin, TOther end, memory::allocator* _alloc = nullptr)
+  dynamic_array(TOther begin, TOther end, memory::allocator* _alloc = nullptr)
     : dynamic_array(_alloc) {
     reserve(end - begin);
     while (begin != end) {

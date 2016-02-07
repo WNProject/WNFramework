@@ -8,9 +8,7 @@
 #define __WN_GRAPHICS_RENDER_TARGET_H__
 
 namespace WNGraphics {
-    class WNRenderTarget : public WNBaseTexture {
-
-    };
+class WNRenderTarget : public WNBaseTexture {};
 }
 
-#endif // __WN_GRAPHICS_RENDER_TARGET_H__
+#endif  // __WN_GRAPHICS_RENDER_TARGET_H__

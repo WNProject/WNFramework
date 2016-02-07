@@ -8,14 +8,14 @@
 #include "WNDeprecatedScripting/inc/WNTypeElement.h"
 
 namespace llvm {
-    class Value;
+class Value;
 }
 
 namespace WNScripting {
-    struct FunctionParam {
-        llvm::Value* mValue;
-        WNScriptType mType;
-    };
+struct FunctionParam {
+  llvm::Value* mValue;
+  WNScriptType mType;
+};
 }
 
-#endif//__WN_FUNCTION_PARAM_H__
+#endif  //__WN_FUNCTION_PARAM_H__

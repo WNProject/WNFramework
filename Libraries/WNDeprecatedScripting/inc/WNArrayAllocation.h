@@ -8,22 +8,23 @@
 #include "WNDeprecatedScripting/inc/WNScriptLinkedList.h"
 
 namespace WNScripting {
-    class WNTypeNode;
-    class WNArrayAllocation : public WNExpression {
-    public:
-        WNArrayAllocation();
-        virtual ~WNArrayAllocation();
-        void SetType(WNTypeNode* _typeNode);
-        void AddExpression(WNExpression* _expr);
-        void AddLevel();
-        void SetCopyInitializer(WNExpression* _expression);
-        eWNTypeError GenerateCode(WNCodeModule& _module, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog);
+class WNTypeNode;
+class WNArrayAllocation : public WNExpression {
+public:
+  WNArrayAllocation();
+  virtual ~WNArrayAllocation();
+  void SetType(WNTypeNode* _typeNode);
+  void AddExpression(WNExpression* _expr);
+  void AddLevel();
+  void SetCopyInitializer(WNExpression* _expression);
+  eWNTypeError GenerateCode(WNCodeModule& _module,
+      const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog);
 
-    private:
-        WNScriptLinkedList<WNExpression> mArrayinitializers;
-        WNExpression* mCopyinitializer;
-        WNTypeNode* mType;
-        size_t mLevels;
-    };
+private:
+  WNScriptLinkedList<WNExpression> mArrayinitializers;
+  WNExpression* mCopyinitializer;
+  WNTypeNode* mType;
+  size_t mLevels;
+};
 }
-#endif//__WN_ARRAY_ALLOCATION_H__
+#endif  //__WN_ARRAY_ALLOCATION_H__

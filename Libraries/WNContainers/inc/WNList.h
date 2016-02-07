@@ -7,10 +7,10 @@
 #ifndef __WN_CONTAINERS_LIST_H__
 #define __WN_CONTAINERS_LIST_H__
 
+#include <iterator>
+#include <utility>
 #include "WNCore/inc/WNTypes.h"
 #include "WNMemory/inc/WNAllocator.h"
-#include <utility>
-#include <iterator>
 
 namespace wn {
 namespace containers {
@@ -20,7 +20,7 @@ class list;
 
 template <typename _NodeType, typename _ValueType>
 struct list_iterator final
-  : public std::iterator<std::bidirectional_iterator_tag, _ValueType> {
+    : public std::iterator<std::bidirectional_iterator_tag, _ValueType> {
   using reference = _ValueType&;
   using pointer = _ValueType*;
   list_iterator& operator+=(const size_t _amount) {
@@ -73,11 +73,19 @@ struct list_iterator final
     return (m_ptr != _other.m_ptr);
   }
 
-  list_iterator& operator++() { return ((*this) += 1); }
-  list_iterator& operator--() { return ((*this) -= 1); }
+  list_iterator& operator++() {
+    return ((*this) += 1);
+  }
+  list_iterator& operator--() {
+    return ((*this) -= 1);
+  }
 
-  reference operator*() const { return m_ptr->m_element; }
-  pointer operator->() const { return (&(m_ptr->m_element)); }
+  reference operator*() const {
+    return m_ptr->m_element;
+  }
+  pointer operator->() const {
+    return (&(m_ptr->m_element));
+  }
 
   template <typename _T1, typename _T2>
   list_iterator(const list_iterator<_T1, _T2>& _other) {
@@ -98,12 +106,11 @@ private:
 
 template <typename _Type, typename _Allocator>
 class list final {
- private:
+private:
   struct list_node {
-   public:
+  public:
     template <typename... _Args>
-    list_node(_Args&&... _args)
-        : m_element(std::forward<_Args>(_args)...) {}
+    list_node(_Args&&... _args) : m_element(std::forward<_Args>(_args)...) {}
     list_node* m_prev;
     list_node* m_next;
     _Type m_element;
@@ -114,7 +121,7 @@ class list final {
     list_node* m_next;
   };
 
- public:
+public:
   using value_type = _Type;
   using size_type = size_t;
   using difference_type = signed_t;
@@ -124,20 +131,22 @@ class list final {
   using pointer = _Type*;
   using const_pointer = const _Type*;
 
- public:
+public:
   using iterator = list_iterator<list_node, _Type>;
   using const_iterator = list_iterator<list_node, const _Type>;
   using reverse_iterator = std::reverse_iterator<iterator>;
   using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
   list(memory::allocator* _allocator = nullptr)
-      : m_allocator(_allocator),
-        m_size(0),
-        m_begin(reinterpret_cast<list_node*>(&m_dummy_end_node)) {
+    : m_allocator(_allocator),
+      m_size(0),
+      m_begin(reinterpret_cast<list_node*>(&m_dummy_end_node)) {
     m_begin->m_prev = nullptr;
     m_begin->m_next = m_begin;
   }
-  ~list() { clear(); }
+  ~list() {
+    clear();
+  }
 
   list(const list& _other) : list(_other.m_allocator) {
     for (auto it = _other.cbegin(); it != _other.cend(); ++it) {
@@ -149,12 +158,16 @@ class list final {
     _other.transfer_to(_other.begin(), _other.end(), end(), *this);
   }
 
-  iterator convert_iterator(const_iterator& it)  {
+  iterator convert_iterator(const_iterator& it) {
     return iterator(it.m_ptr);
   }
 
-  iterator begin() { return iterator(m_begin); }
-  const_iterator cbegin() const { return const_iterator(m_begin); }
+  iterator begin() {
+    return iterator(m_begin);
+  }
+  const_iterator cbegin() const {
+    return const_iterator(m_begin);
+  }
 
   iterator end() {
     return iterator(reinterpret_cast<list_node*>(&m_dummy_end_node));
@@ -164,26 +177,42 @@ class list final {
         reinterpret_cast<const list_node*>(&m_dummy_end_node)));
   }
 
-  reverse_iterator rbegin() { return reverse_iterator(end()); }
-  reverse_iterator rend() { return reverse_iterator(begin()); }
+  reverse_iterator rbegin() {
+    return reverse_iterator(end());
+  }
+  reverse_iterator rend() {
+    return reverse_iterator(begin());
+  }
 
-  const_reverse_iterator crbegin() { return const_reverse_iterator(cend()); }
-  const_reverse_iterator crend() { return const_reverse_iterator(cbegin()); }
+  const_reverse_iterator crbegin() {
+    return const_reverse_iterator(cend());
+  }
+  const_reverse_iterator crend() {
+    return const_reverse_iterator(cbegin());
+  }
 
-  const_iterator tbegin(const const_iterator&) const { return cbegin(); }
-  iterator tbegin(const iterator&) { return begin(); }
+  const_iterator tbegin(const const_iterator&) const {
+    return cbegin();
+  }
+  iterator tbegin(const iterator&) {
+    return begin();
+  }
 
   // tbegin are used to return const/non-const iterators
   // as appropriate. This is so that templated objects,
   // that just have an iterator type can do the right thing.
   // see hash_map_iterator::+= for an example.
-  const_iterator tend(const const_iterator&) const { return cend(); }
-  iterator tend(const iterator&) { return end(); }
+  const_iterator tend(const const_iterator&) const {
+    return cend();
+  }
+  iterator tend(const iterator&) {
+    return end();
+  }
 
   template <typename _Alloc>
   iterator transfer_to(const_iterator source_it,
-                       typename list<_Type, _Alloc>::iterator dest_it,
-                       list<_Type, _Alloc>& _other) {
+      typename list<_Type, _Alloc>::iterator dest_it,
+      list<_Type, _Alloc>& _other) {
     if (m_allocator == _other.m_allocator) {
       list_node* node = source_it.m_ptr;
       iterator it = unlink(source_it);
@@ -198,8 +227,8 @@ class list final {
 
   template <typename _Alloc>
   iterator transfer_to(const_iterator source_it, const_iterator source_it_end,
-                       typename list<_Type, _Alloc>::iterator dest_it,
-                       list<_Type, _Alloc>& _other) {
+      typename list<_Type, _Alloc>::iterator dest_it,
+      list<_Type, _Alloc>& _other) {
     if (source_it == source_it_end) {
       return source_it;
     }
@@ -225,7 +254,7 @@ class list final {
         it = erase(it);
       }
       return it;
-  }
+    }
   }
 
   template <typename... _Args>
@@ -246,9 +275,13 @@ class list final {
     return (link(_it, new_node));
   }
 
-  void push_back(const _Type& _element) { insert(end(), _element); }
+  void push_back(const _Type& _element) {
+    insert(end(), _element);
+  }
 
-  void push_back(_Type&& _element) { insert(end(), std::move(_element)); }
+  void push_back(_Type&& _element) {
+    insert(end(), std::move(_element));
+  }
 
   iterator erase(const_iterator _it) {
     list_node* ptr = _it.m_ptr;
@@ -264,15 +297,19 @@ class list final {
     }
   }
 
-  bool empty() const { return m_size == 0; }
+  bool empty() const {
+    return m_size == 0;
+  }
 
-  size_t size() const { return m_size; }
+  size_t size() const {
+    return m_size;
+  }
 
- private:
+private:
   iterator unlink(iterator _start, iterator _end, size_t count) {
     WN_DEBUG_ASSERT_DESC(static_cast<void*>(_start.m_ptr) !=
                              static_cast<void*>(&m_dummy_end_node),
-                         "You are trying to delete end()");
+        "You are trying to delete end()");
     list_node* ptr = _start.m_ptr;
     list_node* end_ptr = _end.m_ptr;
     if (ptr->m_prev) {
@@ -319,8 +356,8 @@ class list final {
     m_size += 1;
     return iterator(_node);
   }
-  iterator link(iterator _it, list_node* _first, list_node* _last,
-                size_t count) {
+  iterator link(
+      iterator _it, list_node* _first, list_node* _last, size_t count) {
     // m_end->prev == nullptr if there is nothing allocated yet.
     if (_it.m_ptr->m_prev) {
       _first->m_prev = _it.m_ptr->m_prev;
@@ -338,7 +375,7 @@ class list final {
   }
 
   template <typename T, typename... Args>
-  T *make_allocated(Args &&... _args) {
+  T* make_allocated(Args&&... _args) {
     return m_allocator->construct(std::forward<Args>(_args)...);
   }
 

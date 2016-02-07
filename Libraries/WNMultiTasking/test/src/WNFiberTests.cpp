@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNContainers/inc/WNDynamicArray.h"
 #include "WNMultiTasking/inc/WNFiber.h"
+#include "WNContainers/inc/WNDynamicArray.h"
 #include "WNTesting/inc/WNTestHarness.h"
 
 using ::testing::ElementsAreArray;
@@ -65,7 +65,8 @@ TEST(fibers, dynamic_array_of_fibers) {
   }
 }
 
-void deep_call(int32_t* x, int32_t depth, wn::multi_tasking::fiber* next_fiber) {
+void deep_call(
+    int32_t* x, int32_t depth, wn::multi_tasking::fiber* next_fiber) {
   if (depth == 0) {
     wn::multi_tasking::this_fiber::swap_to(next_fiber);
     // In order to appease the compiler, we call return here.
@@ -86,8 +87,8 @@ TEST(fibers, deep_function) {
 
     wn::multi_tasking::this_fiber::convert_to_fiber(&allocator);
 
-    wn::multi_tasking::fiber f(
-        &allocator, deep_call, &x, 2048, wn::multi_tasking::this_fiber::get_self());
+    wn::multi_tasking::fiber f(&allocator, deep_call, &x, 2048,
+        wn::multi_tasking::this_fiber::get_self());
 
     wn::multi_tasking::this_fiber::swap_to(&f);
     wn::multi_tasking::this_fiber::revert_from_fiber();
@@ -98,7 +99,8 @@ TEST(fibers, deep_function) {
 
 // This generator generates 6 numbers every time it is swapped to
 // and takes no action after that point.
-void generator_function(int32_t* destination, wn::multi_tasking::fiber* main_fiber) {
+void generator_function(
+    int32_t* destination, wn::multi_tasking::fiber* main_fiber) {
   *destination = 32;
   wn::multi_tasking::this_fiber::swap_to(main_fiber);
   *destination = 42;

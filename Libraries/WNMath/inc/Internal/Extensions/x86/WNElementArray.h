@@ -8,33 +8,33 @@
 #define __WN_MATH_INTERNAL_X86_ELEMENT_ARRAY_H__
 
 #ifdef __WN_SSE2_AVAILABLE
-    #include "WNMath/inc/Internal/Extensions/x86/SSE2/WNElementArray.h"
+#include "WNMath/inc/Internal/Extensions/x86/SSE2/WNElementArray.h"
 #elif defined _WN_X86_SSE
-    #include "WNMath/inc/Internal/Extensions/x86/SSE/WNElementArray.h"
+#include "WNMath/inc/Internal/Extensions/x86/SSE/WNElementArray.h"
 #endif
 
 namespace wn {
-    namespace internal {
-        namespace math {
-            #ifdef __WN_SSE2_AVAILABLE
-                #ifdef __WN_HAS_CPP11_USING_ALIAS_DECLARATIONS
-                    template <typename type, const size_t dimension>
-                    using element_array = element_array_sse2<type, dimension>;
-                #else
-                    template <typename type, const size_t dimension>
-                    struct element_array : element_array_sse2<type, dimension> {};
-                #endif
-            #elif defined _WN_X86_SSE
-                #ifdef __WN_HAS_CPP11_USING_ALIAS_DECLARATIONS
-                    template <typename type, const size_t dimension>
-                    using element_array = element_array_sse<type, dimension>;
-                #else
-                    template <typename type, const size_t dimension>
-                    struct element_array : element_array_sse<type, dimension> {};
-                #endif
-            #endif
-        }
-    }
+namespace internal {
+namespace math {
+#ifdef __WN_SSE2_AVAILABLE
+#ifdef __WN_HAS_CPP11_USING_ALIAS_DECLARATIONS
+template <typename type, const size_t dimension>
+using element_array = element_array_sse2<type, dimension>;
+#else
+template <typename type, const size_t dimension>
+struct element_array : element_array_sse2<type, dimension> {};
+#endif
+#elif defined _WN_X86_SSE
+#ifdef __WN_HAS_CPP11_USING_ALIAS_DECLARATIONS
+template <typename type, const size_t dimension>
+using element_array = element_array_sse<type, dimension>;
+#else
+template <typename type, const size_t dimension>
+struct element_array : element_array_sse<type, dimension> {};
+#endif
+#endif
+}
+}
 }
 
-#endif // __WN_MATH_INTERNAL_X86_ELEMENT_ARRAY_H__
+#endif  // __WN_MATH_INTERNAL_X86_ELEMENT_ARRAY_H__

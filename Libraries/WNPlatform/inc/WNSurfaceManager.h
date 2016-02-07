@@ -11,22 +11,24 @@
 #include "WNPlatform/inc/WNSurface.h"
 
 namespace wn {
-    namespace WNSurfaceManagerReturnCode {
-        enum type {
-            #include "WNCore/inc/Internal/WNErrors.inc"
-            eWNInitializationFailure,
-            eWNResourceLimitReached
-        };
-    }
-
-    class WNSurfaceManager {
-    public:
-        virtual WN_FORCE_INLINE ~WNSurfaceManager() {}
-
-        virtual WNSurfaceManagerReturnCode::type Initialize() = 0;
-        virtual WNSurfaceManagerReturnCode::type Release() = 0;
-        virtual WNSurfaceManagerReturnCode::type CreateSurface(uint32_t _x, uint32_t _y, uint32_t _width, uint32_t _height, wn::surface_handle& _surface) = 0;
-    };
+namespace WNSurfaceManagerReturnCode {
+enum type {
+#include "WNCore/inc/Internal/WNErrors.inc"
+  eWNInitializationFailure,
+  eWNResourceLimitReached
+};
 }
 
-#endif // __WN_PLATFORM_SURFACE_MANAGER_H__
+class WNSurfaceManager {
+public:
+  virtual WN_FORCE_INLINE ~WNSurfaceManager() {}
+
+  virtual WNSurfaceManagerReturnCode::type Initialize() = 0;
+  virtual WNSurfaceManagerReturnCode::type Release() = 0;
+  virtual WNSurfaceManagerReturnCode::type CreateSurface(uint32_t _x,
+      uint32_t _y, uint32_t _width, uint32_t _height,
+      wn::surface_handle& _surface) = 0;
+};
+}
+
+#endif  // __WN_PLATFORM_SURFACE_MANAGER_H__

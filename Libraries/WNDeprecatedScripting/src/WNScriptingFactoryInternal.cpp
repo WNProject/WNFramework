@@ -3,14 +3,16 @@
 // found in the LICENSE.txt file.
 
 #include "WNDeprecatedScripting/inc/WNScriptingFactoryInternal.h"
+#include "WNDeprecatedScripting/inc/WNScopedVaraiableListImpl.h"
 #include "WNDeprecatedScripting/inc/WNTypeManagerImpl.h"
 #include "WNMemory/inc/WNBasic.h"
-#include "WNDeprecatedScripting/inc/WNScopedVaraiableListImpl.h"
 
-WNScripting::WNTypeManager* WNScripting::WNScriptingFactoryInternal::CreateTypeManager() {
-    return(wn::memory::construct<WNScripting::WNTypeManagerImpl>());
+WNScripting::WNTypeManager*
+WNScripting::WNScriptingFactoryInternal::CreateTypeManager() {
+  return (wn::memory::construct<WNScripting::WNTypeManagerImpl>());
 }
 
-WNScripting::WNScopedVariableList* WNScripting::WNScriptingFactoryInternal::CreateScopedVariableList() {
-    return(wn::memory::construct<WNScripting::WNScopedVariableListImpl>());
+WNScripting::WNScopedVariableList*
+WNScripting::WNScriptingFactoryInternal::CreateScopedVariableList() {
+  return (wn::memory::construct<WNScripting::WNScopedVariableListImpl>());
 }

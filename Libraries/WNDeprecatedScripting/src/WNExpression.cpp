@@ -6,44 +6,41 @@
 
 using namespace WNScripting;
 
-WNExpression::WNExpression() :
-    mValue(nullptr),
+WNExpression::WNExpression()
+  : mValue(nullptr),
     mValueLocation(nullptr),
     mScriptType(nullptr),
     mSubValue(nullptr),
     mSubValueType(nullptr),
     mForceUse(false),
-    mNewlyCreated(false) {
-}
+    mNewlyCreated(false) {}
 
-WNExpression::~WNExpression() {
-
-}
+WNExpression::~WNExpression() {}
 
 llvm::Value* WNExpression::GetValue() const {
-    return(mValue);
+  return (mValue);
 }
 
 llvm::Value* WNExpression::GetValueLocation() const {
-    return(mValueLocation);
+  return (mValueLocation);
 }
 
 WNScripting::WNScriptType WNExpression::GetType() const {
-    return(mScriptType);
+  return (mScriptType);
 }
 
 bool WNExpression::RequiredUse() {
-    return(mForceUse);
+  return (mForceUse);
 }
 
 bool WNExpression::IsNewlyCreated() {
-    return(mNewlyCreated);
+  return (mNewlyCreated);
 }
 
 WNScripting::WNScriptType WNExpression::GetSubType() const {
-    return(mSubValueType);
+  return (mSubValueType);
 }
 
 llvm::Value* WNExpression::GetSubValue() const {
-    return(mSubValue);
+  return (mSubValue);
 }

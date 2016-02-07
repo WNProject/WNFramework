@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "WNFileSystem/src/Posix/WNMappingPosix.h"
 #include "WNCore/inc/WNAssert.h"
 #include "WNFileSystem/src/Posix/WNFilePosix.h"
-#include "WNFileSystem/src/Posix/WNMappingPosix.h"
 
 #include <fcntl.h>
 #include <stdio.h>

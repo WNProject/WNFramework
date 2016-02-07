@@ -8,13 +8,14 @@
 #define __WN_GRAPHICS_GRAPHICS_DEVICE_FACTORY_H__
 
 namespace WNGraphics {
-    class WNGraphicsDevice;
-    class WNGraphicsResourceFactory;
+class WNGraphicsDevice;
+class WNGraphicsResourceFactory;
 
-    class WNGraphicsDeviceFactory {
-    public:
-        static WNGraphicsDevice* CreateGraphicsDevice(WNGraphicsResourceFactory* _resourceFactory);
-    };
+class WNGraphicsDeviceFactory {
+public:
+  static WNGraphicsDevice* CreateGraphicsDevice(
+      WNGraphicsResourceFactory* _resourceFactory);
+};
 }
 
-#endif // __WN_GRAPHICS_GRAPHICS_DEVICE_FACTORY_H__
+#endif  // __WN_GRAPHICS_GRAPHICS_DEVICE_FACTORY_H__

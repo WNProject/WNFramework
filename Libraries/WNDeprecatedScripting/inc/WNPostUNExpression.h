@@ -8,14 +8,15 @@
 #include "WNDeprecatedScripting/inc/WNPostExpression.h"
 #include "WNDeprecatedScripting/inc/WNScriptingEnums.h"
 namespace WNScripting {
-    class WNPostUNExpression : public WNPostExpression {
-    public:
-        WNPostUNExpression(WNPostUNType _type);
-        virtual ~WNPostUNExpression();
-        virtual eWNTypeError GenerateCode(WNCodeModule& _module, const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog);
-    private:
-        WNPostUNType mType;
+class WNPostUNExpression : public WNPostExpression {
+public:
+  WNPostUNExpression(WNPostUNType _type);
+  virtual ~WNPostUNExpression();
+  virtual eWNTypeError GenerateCode(WNCodeModule& _module,
+      const WNFunctionDefinition* _def, WNLogging::WNLog& _compilationLog);
 
-    };
+private:
+  WNPostUNType mType;
+};
 }
-#endif//__WN_POST_UN_EXPRESSION_H__
+#endif  //__WN_POST_UN_EXPRESSION_H__

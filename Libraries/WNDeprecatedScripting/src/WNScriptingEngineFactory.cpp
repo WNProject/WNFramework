@@ -6,14 +6,15 @@
 #include "WNDeprecatedScripting/inc/WNScriptingEngineImplDeprecated.h"
 #include "WNMemory/inc/WNBasic.h"
 
-WNScripting::WNScriptingEngine *
+WNScripting::WNScriptingEngine*
 wn::scripting::scripting_engine_factory::create_scripting_engine(
     wn::scripting::factory_type _type) {
-  switch (_type) { 
-  case wn::scripting::factory_type::deprecated_engine:
-    return (wn::memory::construct<WNScripting::WNScriptingEngineImplDeprecated>());
-  case wn::scripting::factory_type::jit_engine:
-    return (nullptr);
+  switch (_type) {
+    case wn::scripting::factory_type::deprecated_engine:
+      return (wn::memory::construct<
+          WNScripting::WNScriptingEngineImplDeprecated>());
+    case wn::scripting::factory_type::jit_engine:
+      return (nullptr);
   }
   return (nullptr);
 }

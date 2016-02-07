@@ -27,4 +27,4 @@
 #include "WNMath/inc/WNSphere.h"
 #include "WNMath/inc/WNVector.h"
 
-#endif // __WN_MATH_H__
+#endif  // __WN_MATH_H__
