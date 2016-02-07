@@ -47,6 +47,18 @@ check_cxx_source_compiles(
   HAS___INLINE__
 )
 
+if (HAS_INLINE)
+  set(WN_INLINE inline)
+elseif (HAS___INLINE__)
+  set(WN_INLINE __inline__)
+elseif (HAS___INLINE)
+  set(WN_INLINE __inline)
+elseif (HAS__INLINE)
+  set(WN_INLINE _inline)
+else()
+  message(FATAL_ERROR "No inline style keyword was found")
+endif()
+
 check_cxx_source_compiles(
   "
     __forceinline void temp() {}
@@ -60,7 +72,7 @@ check_cxx_source_compiles(
 
 check_cxx_source_compiles(
   "
-    __attribute__((always_inline)) void temp() {}
+    ${WN_INLINE} __attribute__((always_inline)) void temp() {}
     int main() {
       temp();
       return 0;
@@ -266,7 +278,6 @@ check_cxx_source_compiles(
 
 # make specifier selections
 
-set(WN_INLINE)
 set(WN_FORCE_INLINE)
 set(WN_NO_INLINE)
 set(WN_THREAD_LOCAL)
@@ -276,18 +287,6 @@ set(WN_FINAL)
 set(WN_OVERRIDE)
 set(WN_ALIGN)
 set(WN_ALIGN_OF)
-
-if (HAS_INLINE)
-  set(WN_INLINE inline)
-elseif (HAS___INLINE__)
-  set(WN_INLINE __inline__)
-elseif (HAS___INLINE)
-  set(WN_INLINE __inline)
-elseif (HAS__INLINE)
-  set(WN_INLINE _inline)
-else()
-  message(FATAL_ERROR "No inline style keyword was found")
-endif()
 
 if (HAS___ATTRIBUTE__ALWAYS_INLINE)
   set(WN_FORCE_INLINE "${WN_INLINE} __attribute__((always_inline))")
