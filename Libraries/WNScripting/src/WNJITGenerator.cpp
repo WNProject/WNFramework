@@ -239,6 +239,27 @@ void ast_jit_engine::walk_expression(
   _val->value = l;
 }
 
+
+void ast_jit_engine::walk_expression(
+    const function_call_expression* _call, expression_dat* _val) {
+  _val->instructions =
+      containers::dynamic_array<llvm::Instruction*>(m_allocator);
+
+  containers::dynamic_array<llvm::Value*> parameters(m_allocator);
+  for (const auto& expr: _call->get_expressions()) {
+    const auto& dat = m_generator->get_data(expr->m_expr.get());
+    _val->instructions.insert(_val->instructions.end(),
+      dat.instructions.begin(), dat.instructions.end());
+    parameters.push_back(dat.value);
+  }
+
+  llvm::CallInst* call = llvm::CallInst::Create(
+      m_generator->get_data(_call->callee()), make_array_ref(parameters),
+      make_string_ref(_call->callee()->get_mangled_name()));
+  _val->instructions.push_back(call);
+  _val->value = call;
+}
+
 void ast_jit_engine::walk_instruction(
     const else_if_instruction* _inst, instruction_dat* _val) {
   _val->instructions =

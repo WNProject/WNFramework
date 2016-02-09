@@ -67,6 +67,9 @@ public:
       const struct_allocation_expression* _alloc, expression_dat* _str);
   void walk_expression(
       const member_access_expression* _alloc, expression_dat* _str);
+  void walk_expression(
+      const function_call_expression* _call, expression_dat* _str);
+
   void walk_type(const type* _type, llvm::Type** _val);
   void walk_instruction(const instruction*, instruction_dat*) {}
   void walk_instruction_list(

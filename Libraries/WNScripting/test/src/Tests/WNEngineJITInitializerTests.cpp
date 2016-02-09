@@ -365,4 +365,19 @@ INSTANTIATE_TEST_CASE_P(
       "}", {{0, 0}, {-1, -3}, {2, 6}, {50, 150}}},
   })));
 
+INSTANTIATE_TEST_CASE_P(
+    simple_function_call_tests, integer_tests,
+    ::testing::ValuesIn(std::vector<integer_test>({
+      {"Int foo() { return 4; }"
+       "Int main(Int x) { return x + foo(); }",
+        {{0, 4}, {-1, 3}, {2, 6}, {3, 7}, {4, 8}, {50, 54}}},
+      {"Int foo(Int x) { return 4 + x; }"
+       "Int main(Int x) { return foo(x); }",
+        {{0, 4}, {-1, 3}, {2, 6}, {3, 7}, {4, 8}, {50, 54}}},
+      {"Int foo(Int x, Int y) { return x + y; }"
+       "Int main(Int x) { return foo(x, x); }",
+        {{0, 0}, {-1, -2}, {2, 4}, {3, 6}, {4, 8}, {50, 100}}},
+
+})));
+
 // clang-format on
