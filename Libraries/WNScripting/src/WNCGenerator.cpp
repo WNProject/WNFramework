@@ -133,6 +133,24 @@ void ast_c_translator::walk_expression(
   _str->second.append(name);
 }
 
+void ast_c_translator::walk_expression(
+    const function_call_expression* _call,
+    containers::pair<containers::string, containers::string>* _str) {
+  initialize_data(m_allocator, _str);
+
+  _str->second.append(_call->callee()->get_mangled_name());
+  _str->second.append("(");
+  const char* comma = "";
+  for(auto& expr : _call->get_expressions()) {
+    const auto& dat = m_generator->get_data(expr->m_expr.get());
+    _str->first.append(dat.first);
+    _str->second.append(comma);
+    comma = ", ";
+    _str->second.append(dat.second);
+  }
+  _str->second.append(")");
+}
+
 void ast_c_translator::walk_parameter(
     const parameter* _param, containers::string* _str) {
   *_str = containers::string(m_allocator) +
@@ -236,7 +254,7 @@ void ast_c_translator::walk_function(
   if (_func->get_parameters()) {
     for (auto& a : _func->get_parameters()->get_parameters()) {
       if (!first_param) {
-        *_str += ",";
+        *_str += ", ";
       }
       first_param = false;
       *_str += m_generator->get_data(a.get());

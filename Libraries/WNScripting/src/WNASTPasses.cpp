@@ -93,8 +93,6 @@ public:
   id_association_pass(type_validator* _validator, WNLogging::WNLog* _log,
       memory::allocator* _allocator)
     : pass(_validator, _log, _allocator), id_map(_allocator) {}
-  // TODO(awoloszyn): Handle declarations here
-  //                  for now this just handles parameter ids.
 
   void walk_expression(expression*) {}
   void walk_instruction_list(instruction_list*) {}
@@ -172,7 +170,9 @@ class type_association_pass : public pass {
 public:
   type_association_pass(type_validator* _validator, WNLogging::WNLog* _log,
       memory::allocator* _allocator)
-    : pass(_validator, _log, _allocator), m_returns(_allocator) {}
+    : pass(_validator, _log, _allocator),
+      m_returns(_allocator),
+      m_functions(_allocator) {}
   void walk_expression(expression*) {}
   void walk_parameter(parameter*) {}
   void enter_scope_block() {}
@@ -278,6 +278,72 @@ public:
     }
 
     type* t = m_allocator->construct<type>(m_allocator, member_type);
+    t->copy_location_from(_expr);
+    _expr->set_type(t);
+  }
+
+  void walk_expression(function_call_expression* _expr) {
+    const expression* base_expr = _expr->get_base_expression();
+    // TODO(awoloszyn): handle the other cases that give you functions (are
+    // there any?)
+    if (base_expr->get_node_type() != node_type::id_expression) {
+      m_log->Log(WNLogging::eError, 0, "Cannot call function on non-id: ");
+      _expr->log_line(*m_log, WNLogging::eError);
+      ++m_num_errors;
+      return;
+    }
+
+    const id_expression* id = static_cast<const id_expression*>(base_expr);
+    auto possible_function = m_functions.find(id->get_name());
+    if (possible_function == m_functions.end()) {
+      m_log->Log(
+          WNLogging::eError, 0, "Cannot find function: ", id->get_name());
+      _expr->log_line(*m_log, WNLogging::eError);
+      ++m_num_errors;
+      return;
+    }
+
+    function* callee = nullptr;
+    const auto& parameters = _expr->get_expressions();
+
+    for(auto func: possible_function->second) {
+      if (parameters.size() != 0) {
+        if (!func->get_parameters()) {
+          continue;
+        }
+
+        const auto& function_parameters =
+            func->get_parameters()->get_parameters();
+        if (function_parameters.size() != parameters.size()) {
+          continue;
+        }
+        size_t i = 0;
+        for (; i < parameters.size(); ++i) {
+          if (*parameters[i]->m_expr->get_type() !=
+              *function_parameters[i]->get_type()) {
+            break;
+          }
+        }
+        if (i != parameters.size()) {
+          continue;
+        }
+      } else if (func->get_parameters() &&
+                 func->get_parameters()->get_parameters().size() != 0) {
+         continue;
+      }
+      if (callee) {
+        m_log->Log(
+            WNLogging::eError, 0, "Ambiguous Function call: ", id->get_name());
+        _expr->log_line(*m_log, WNLogging::eError);
+        ++m_num_errors;
+        return;
+      }
+      callee = func;
+    }
+    // TODO(awoloszyn): Insert explicit cast operations if we need do here.
+    _expr->set_callee(callee);
+    type* t =
+        m_allocator->construct<type>(*callee->get_signature()->get_type());
     t->copy_location_from(_expr);
     _expr->set_type(t);
   }
@@ -399,8 +465,29 @@ public:
         params.push_back(static_cast<uint32_t>(param->get_type()->get_index()));
       }
     }
-    _func->set_mangled_name(m_validator->get_mangled_name(
-        _func->get_signature()->get_name(), return_type, params));
+
+    containers::string_view name = _func->get_signature()->get_name();
+    containers::string mangled_name =
+        m_validator->get_mangled_name(name, return_type, params);
+    _func->set_mangled_name(mangled_name);
+
+    auto function_it = m_functions.find(name);
+    if (function_it == m_functions.end()) {
+      std::tie(function_it, std::ignore) = m_functions.insert(
+          std::make_pair(name, containers::deque<function*>(m_allocator)));
+    }
+
+    if (std::find_if(function_it->second.begin(), function_it->second.end(),
+            [&mangled_name](function* _f) {
+              return (_f->get_mangled_name() == mangled_name);
+            }) != function_it->second.end()) {
+      m_log->Log(WNLogging::eError, 0, "Conflicting function found: ",
+          containers::string_view(_func->get_mangled_name()));
+      _func->log_line(*m_log, WNLogging::eError);
+      m_num_errors += 1;
+    } else {
+      function_it->second.push_back(_func);
+    }
   }
 
   void walk_script_file(script_file*) {}
@@ -420,6 +507,8 @@ public:
 
 private:
   containers::deque<return_instruction*> m_returns;
+  containers::hash_map<containers::string_view, containers::deque<function*>>
+      m_functions;
 };
 }  // anonymous namespace
 

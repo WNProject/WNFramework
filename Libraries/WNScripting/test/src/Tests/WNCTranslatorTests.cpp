@@ -322,6 +322,42 @@ INSTANTIATE_TEST_CASE_P(
 })));
 // clang-format on
 
+// clang-format off
+INSTANTIATE_TEST_CASE_P(
+    function_calls, c_translator_direct_translation_test,
+    ::testing::ValuesIn(
+       std::vector<std::vector<source_pair>>({
+          {
+            {"Int foo() {",           "int32_t _Z3wns3fooEl() {"     },
+            {"  return 4;",           "return 4;"                    },
+            {"}",                     "}"                            },
+            {"",                      "\n"                           },
+            {"Int main(Int x) {",     "int32_t _Z3wns4mainEll(int32_t x) {"   },
+            {"  return foo() + x;",   "return (_Z3wns3fooEl() + x);" },
+            {"}",                     "}"                            }
+          },
+          {
+            {"Int foo(Int x) {",      "int32_t _Z3wns3fooEll(int32_t x) {"    },
+            {"  return x + 4;",       "return (x + 4);"              },
+            {"}",                     "}"                            },
+            {"",                      "\n"                           },
+            {"Int main(Int x) {",     "int32_t _Z3wns4mainEll(int32_t x) {"   },
+            {"  return foo(x);",      "return _Z3wns3fooEll(x);"     },
+            {"}",                     "}"                            }
+          },
+         {
+            {"Int foo(Int x, Int y){","int32_t _Z3wns3fooElll(int32_t x, int32_t y) {"    },
+            {"  return x + y;",       "return (x + y);"              },
+            {"}",                     "}"                            },
+            {"",                      "\n"                           },
+            {"Int main(Int x) {",     "int32_t _Z3wns4mainEll(int32_t x) {"   },
+            {"  return foo(x, x);",   "return _Z3wns3fooElll(x, x);" },
+            {"}",                     "}"                            }
+          },
+})));
+// clang-format on
+
+
 using c_translator_function_params =
     ::testing::TestWithParam<std::tuple<const char*, const char*, const char*>>;
 TEST_P(c_translator_function_params, single_parameter) {

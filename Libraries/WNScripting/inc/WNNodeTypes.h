@@ -393,7 +393,7 @@ class id_expression : public expression {
 public:
   id_expression(memory::allocator* _allocator, const char* _name)
     : expression(_allocator, node_type::id_expression),
-      m_source({nullptr, nullptr}),
+      m_source({nullptr, nullptr, containers::deque<function*>(_allocator)}),
       m_name(_name, _allocator) {}
   containers::string_view get_name() const {
     return m_name;
@@ -408,13 +408,23 @@ public:
   struct id_source {
     parameter* param_source;
     declaration* declaration_source;
+    containers::deque<function*> function_sources;
+    void copy_from(const id_source& _other) {
+      param_source = _other.param_source;
+      declaration_source = _other.declaration_source, function_sources.clear();
+      function_sources.insert(function_sources.begin(),
+          _other.function_sources.begin(), _other.function_sources.end());
+    }
   };
+
   void set_id_source(const id_source& _source) {
     WN_RELEASE_ASSERT_DESC(
-        (_source.param_source == 0) ^ (_source.declaration_source == 0),
-        "Either the source must be a parameter or a declaration");
-    m_source = _source;
+        ((_source.param_source == 0) + (_source.declaration_source == 0) +
+            (!_source.function_sources.empty())) == 1,
+        "The source must have come from somewhere.");
+    m_source.copy_from(_source);
   };
+
   const id_source& get_id_source() const {
     return m_source;
   }
@@ -441,6 +451,10 @@ public:
   }
 
   const expression* get_base_expression() const {
+    return m_base_expression.get();
+  }
+
+  expression* get_base_expression() {
     return m_base_expression.get();
   }
 
@@ -684,6 +698,11 @@ public:
     return (m_expression_list);
   }
 
+  const containers::deque<memory::unique_ptr<function_expression>>&
+  get_expressions() const {
+    return (m_expression_list);
+  }
+
 private:
   containers::deque<memory::unique_ptr<function_expression>> m_expression_list;
 };
@@ -696,7 +715,45 @@ public:
     : post_expression(_allocator, node_type::function_call_expression),
       m_args(_allocator, _list) {}
 
+  virtual void walk_children(
+      const walk_ftype<expression*>& _func, const walk_ftype<type*>&) {
+    if (!m_args) {
+      return;
+    }
+    for (auto& a : m_args->get_expressions()) {
+      _func(a->m_expr.get());
+    }
+  }
+
+  virtual void walk_children(const walk_ftype<const expression*>& _func,
+      const walk_ftype<const type*>&) const {
+    if (!m_args) {
+      return;
+    }
+    for (auto& a : m_args->get_expressions()) {
+      _func(a->m_expr.get());
+    }
+  }
+
+  void set_callee(function* _callee) {
+    m_callee = _callee;
+  }
+
+  const function* callee() const {
+    return m_callee;
+  }
+  const containers::deque<memory::unique_ptr<function_expression>>&
+  get_expressions() const {
+    if (m_args) {
+      return m_args->get_expressions();
+    }
+    static const containers::deque<memory::unique_ptr<function_expression>>
+        empty_expressions;
+    return empty_expressions;
+  }
+
 private:
+  function* m_callee;
   memory::unique_ptr<arg_list> m_args;
 };
 

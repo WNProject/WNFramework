@@ -60,6 +60,8 @@ public:
       containers::pair<containers::string, containers::string>* _str);
   void walk_expression(const member_access_expression* _access,
       containers::pair<containers::string, containers::string>* _str);
+  void walk_expression(const function_call_expression* _call,
+      containers::pair<containers::string, containers::string>* _str);
 
   void walk_instruction_list(
       const instruction_list* _list, containers::string* _str);
