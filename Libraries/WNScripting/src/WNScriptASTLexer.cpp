@@ -5,8 +5,7 @@
  *
  * Editing it, at least manually, is not wise.
  *
- * C++ language generator and runtime by Gokulakannan Somasundaram ( heavy
- * lifting from C Run-time by Jim Idle )
+ * C++ language generator and runtime by Gokulakannan Somasundaram ( heavy lifting from C Run-time by Jim Idle )
  *
  *
 */
@@ -36,128 +35,223 @@
 // THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 
-#include "WNScriptASTLexer.hpp"
 
-static ANTLR_UCHAR lit_1[] = {0x21, 0x3D, antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR lit_2[] = {0x25, 0x3D, antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR lit_3[] = {0x26, 0x26, antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR lit_4[] = {0x2A, 0x3D, antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR lit_5[] = {0x2B, 0x3D, antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR lit_6[] = {0x2D, 0x3D, antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR lit_7[] = {0x2F, 0x3D, antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR lit_8[] = {0x3C, 0x3D, antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR lit_9[] = {0x3D, 0x3D, antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR lit_10[] = {0x3E, 0x3D, antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR lit_11[] = {0x7C, 0x7C, antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR lit_12[] = {0x2B, 0x2B, antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR lit_13[] = {0x2D, 0x2D, antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR lit_14[] = {
-    0x72, 0x65, 0x74, 0x75, 0x72, 0x6E, antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR lit_15[] = {
-    0x77, 0x68, 0x69, 0x6C, 0x65, antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR lit_16[] = {0x64, 0x6F, antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR lit_17[] = {0x69, 0x66, antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR lit_18[] = {
-    0x65, 0x6C, 0x73, 0x65, antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR lit_19[] = {
-    0x66, 0x6F, 0x72, antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR lit_20[] = {
-    0x73, 0x74, 0x72, 0x75, 0x63, 0x74, antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR lit_21[] = {
-    0x63, 0x6C, 0x61, 0x73, 0x73, antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR lit_22[] = {
-    0x76, 0x69, 0x72, 0x74, 0x75, 0x61, 0x6C, antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR lit_23[] = {0x6F, 0x76, 0x65, 0x72, 0x72, 0x69, 0x64, 0x65,
-    antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR lit_24[] = {0x23, 0x69, 0x6E, 0x63, 0x6C, 0x75, 0x64, 0x65,
-    antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR lit_25[] = {
-    0x56, 0x6F, 0x69, 0x64, antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR lit_26[] = {
-    0x49, 0x6E, 0x74, antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR lit_27[] = {
-    0x46, 0x6C, 0x6F, 0x61, 0x74, antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR lit_28[] = {
-    0x42, 0x6F, 0x6F, 0x6C, antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR lit_29[] = {
-    0x53, 0x74, 0x72, 0x69, 0x6E, 0x67, antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR lit_30[] = {
-    0x43, 0x68, 0x61, 0x72, antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR lit_31[] = {
-    0x77, 0x65, 0x61, 0x6B, antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR lit_32[] = {
-    0x73, 0x68, 0x61, 0x72, 0x65, 0x64, antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR lit_33[] = {
-    0x74, 0x72, 0x75, 0x65, antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR lit_34[] = {
-    0x66, 0x61, 0x6C, 0x73, 0x65, antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR lit_35[] = {0x2F, 0x2F, antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR lit_36[] = {0x2F, 0x2A, antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR lit_37[] = {0x2A, 0x2F, antlr3::ANTLR_STRING_TERMINATOR};
+
+
+#include    "WNScriptASTLexer.hpp"
+
+
+
+
+
+
+
+
+
+
+
+static ANTLR_UCHAR	lit_1[]  = { 0x21, 0x3D,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_2[]  = { 0x25, 0x3D,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_3[]  = { 0x26, 0x26,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_4[]  = { 0x2A, 0x3D,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_5[]  = { 0x2B, 0x3D,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_6[]  = { 0x2D, 0x3D,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_7[]  = { 0x2F, 0x3D,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_8[]  = { 0x3C, 0x3D,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_9[]  = { 0x3D, 0x3D,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_10[]  = { 0x3E, 0x3D,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_11[]  = { 0x7C, 0x7C,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_12[]  = { 0x2B, 0x2B,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_13[]  = { 0x2D, 0x2D,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_14[]  = { 0x72, 0x65, 0x74, 0x75, 0x72, 0x6E,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_15[]  = { 0x77, 0x68, 0x69, 0x6C, 0x65,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_16[]  = { 0x64, 0x6F,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_17[]  = { 0x69, 0x66,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_18[]  = { 0x65, 0x6C, 0x73, 0x65,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_19[]  = { 0x66, 0x6F, 0x72,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_20[]  = { 0x73, 0x74, 0x72, 0x75, 0x63, 0x74,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_21[]  = { 0x63, 0x6C, 0x61, 0x73, 0x73,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_22[]  = { 0x76, 0x69, 0x72, 0x74, 0x75, 0x61, 0x6C,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_23[]  = { 0x6F, 0x76, 0x65, 0x72, 0x72, 0x69, 0x64, 0x65,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_24[]  = { 0x23, 0x69, 0x6E, 0x63, 0x6C, 0x75, 0x64, 0x65,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_25[]  = { 0x56, 0x6F, 0x69, 0x64,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_26[]  = { 0x49, 0x6E, 0x74,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_27[]  = { 0x46, 0x6C, 0x6F, 0x61, 0x74,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_28[]  = { 0x42, 0x6F, 0x6F, 0x6C,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_29[]  = { 0x53, 0x74, 0x72, 0x69, 0x6E, 0x67,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_30[]  = { 0x43, 0x68, 0x61, 0x72,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_31[]  = { 0x77, 0x65, 0x61, 0x6B,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_32[]  = { 0x73, 0x68, 0x61, 0x72, 0x65, 0x64,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_33[]  = { 0x74, 0x72, 0x75, 0x65,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_34[]  = { 0x66, 0x61, 0x6C, 0x73, 0x65,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_35[]  = { 0x2F, 0x2F,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_36[]  = { 0x2F, 0x2A,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_37[]  = { 0x2A, 0x2F,  antlr3::ANTLR_STRING_TERMINATOR};
+
+
+
+
+
+
+
+
 
 using namespace antlr3;
 
-WNScriptASTLexer::~WNScriptASTLexer() {}
 
-void WNScriptASTLexer::reset() {
-  this->get_rec()->reset();
+
+
+
+
+
+
+
+WNScriptASTLexer::~WNScriptASTLexer()
+{
 }
+
+void
+WNScriptASTLexer::reset()
+{
+    this->get_rec()->reset();
+}
+
+
 
 static const char fileName[] = "WNScriptAST.g";
 
-const char* WNScriptASTLexer::getGrammarFileName() {
-  return fileName;
+
+
+const char* WNScriptASTLexer::getGrammarFileName()
+{
+	return fileName;
 }
+
+
+
+
+
+
+
 
 WNScriptASTLexer::WNScriptASTLexer(StreamType* instream)
-  : WNScriptASTLexerImplTraits::BaseLexerType(ANTLR_SIZE_HINT, instream, NULL) {
-  this->init(instream);
+:WNScriptASTLexerImplTraits::BaseLexerType(ANTLR_SIZE_HINT, instream, NULL)
+{
+	this->init(instream );
 }
 
-WNScriptASTLexer::WNScriptASTLexer(
-    StreamType* instream, RecognizerSharedStateType* state)
-  : WNScriptASTLexerImplTraits::BaseLexerType(
-        ANTLR_SIZE_HINT, instream, state) {
-  this->init(instream);
+
+
+
+
+
+
+
+
+WNScriptASTLexer::WNScriptASTLexer(StreamType* instream, RecognizerSharedStateType* state)
+:WNScriptASTLexerImplTraits::BaseLexerType(ANTLR_SIZE_HINT, instream, state)
+{
+	this->init(instream );
 }
 
-void WNScriptASTLexer::init(StreamType* instream) {}
+void WNScriptASTLexer::init(StreamType* instream)
+{
 
-static const ANTLR_INT32 dfa12_eot[5] = {-1, -1, -1, -1, -1};
-static const ANTLR_INT32 dfa12_eof[5] = {-1, -1, -1, -1, -1};
-static const ANTLR_INT32 dfa12_min[5] = {46, 46, -1, -1, -1};
-static const ANTLR_INT32 dfa12_max[5] = {57, 101, -1, -1, -1};
-static const ANTLR_INT32 dfa12_accept[5] = {-1, -1, 2, 1, 3};
-static const ANTLR_INT32 dfa12_special[5] = {-1, -1, -1, -1, -1};
 
-static const ANTLR_INT32* dfa12_T_empty = NULL;
 
-static const ANTLR_INT32 dfa12_T0[] = {2, -1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-static const ANTLR_INT32 dfa12_T1[] = {3, -1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1,
-    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 4, -1, -1, -1, -1, -1, -1, -1, -1,
-    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-    -1, -1, -1, -1, 4};
 
-static const ANTLR_INT32* const dfa12_transitions[] = {
-    dfa12_T0, dfa12_T1, NULL, NULL, NULL};
 
-class WNScriptASTLexerCyclicDFA12
-    : public CyclicDFA<WNScriptASTLexerImplTraits, WNScriptASTLexer>,
-      public WNScriptASTLexerTokens {
+
+
+
+
+
+
+}
+
+
+
+
+
+
+
+
+static const ANTLR_INT32 dfa12_eot[5] =
+    {
+	-1, -1, -1, -1, -1
+    };
+static const ANTLR_INT32 dfa12_eof[5] =
+    {
+	-1, -1, -1, -1, -1
+    };
+static const ANTLR_INT32 dfa12_min[5] =
+    {
+	46, 46, -1, -1, -1
+    };
+static const ANTLR_INT32 dfa12_max[5] =
+    {
+	57, 101, -1, -1, -1
+    };
+static const ANTLR_INT32 dfa12_accept[5] =
+    {
+	-1, -1, 2, 1, 3
+    };
+static const ANTLR_INT32 dfa12_special[5] =
+    {
+	-1, -1, -1, -1, -1
+    };
+
+
+static const ANTLR_INT32* dfa12_T_empty	 =   NULL;
+
+static const ANTLR_INT32 dfa12_T0[] =
+    {
+	2, -1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+    };
+static const ANTLR_INT32 dfa12_T1[] =
+    {
+	3, -1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+	-1, -1, 4, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 4
+    };
+
+
+
+
+
+static const ANTLR_INT32 * const dfa12_transitions[] =
+{
+    dfa12_T0, dfa12_T1, NULL, NULL, NULL
+};
+
+
+
+
+class WNScriptASTLexerCyclicDFA12 : public CyclicDFA< WNScriptASTLexerImplTraits, WNScriptASTLexer >, public WNScriptASTLexerTokens
+{
 public:
-  typedef CyclicDFA<WNScriptASTLexerImplTraits, WNScriptASTLexer> BaseType;
-  typedef BaseType::ContextType CtxType;
+	typedef CyclicDFA< WNScriptASTLexerImplTraits, WNScriptASTLexer >  BaseType;
+	typedef BaseType::ContextType CtxType;
 
 private:
+
+
 public:
-  WNScriptASTLexerCyclicDFA12(ANTLR_INT32 decisionNumber,
-      const ANTLR_UCHAR* description, const ANTLR_INT32* const eot,
-      const ANTLR_INT32* const eof, const ANTLR_INT32* const min,
-      const ANTLR_INT32* const max, const ANTLR_INT32* const accept,
-      const ANTLR_INT32* const special,
-      const ANTLR_INT32* const* const transition)
-    : BaseType(decisionNumber, description, eot, eof, min, max, accept, special,
-          transition) {}
+	WNScriptASTLexerCyclicDFA12( ANTLR_INT32	decisionNumber
+					, const ANTLR_UCHAR*	description
+					, const ANTLR_INT32* const	eot
+					, const ANTLR_INT32* const	eof
+					, const ANTLR_INT32* const	min
+					, const ANTLR_INT32* const	max
+					, const ANTLR_INT32* const	accept
+					, const ANTLR_INT32* const	special
+					, const ANTLR_INT32* const *const	transition)
+					:BaseType( decisionNumber, description, eot, eof, min, max, accept,
+								special, transition )
+	{
+
+	}
+
 };
 
 static WNScriptASTLexerCyclicDFA12  cdfa12(
@@ -174,214 +268,500 @@ static WNScriptASTLexerCyclicDFA12  cdfa12(
 
 	);
 
-static const ANTLR_INT32 dfa23_eot[162] = {-1, -1, 49, -1, 51, 54, 57, 59, 63,
-    65, 67, 69, -1, -1, -1, -1, -1, -1, -1, -1, 41, -1, -1, 41, 41, 41, 41, 41,
-    41, 41, 41, 41, -1, 42, 42, 42, 42, 42, 42, -1, 41, -1, -1, 58, -1, -1, -1,
-    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-    -1, -1, -1, -1, 41, 41, 41, 93, 94, 41, 41, 41, 41, 41, 41, 41, 41, 42, 42,
-    42, 42, 42, 42, 41, 41, 41, 41, -1, -1, 41, 114, 41, 41, 41, 41, 41, 41, 42,
-    122, 42, 42, 42, 42, 41, 41, 41, 130, 131, -1, 41, 41, 41, 41, 41, 41, 138,
-    -1, 42, 140, 42, 142, 143, 41, 145, -1, -1, 143, 41, 41, 148, 41, 41, -1,
-    151, -1, 42, -1, -1, 153, -1, 154, 155, -1, 41, 41, -1, 158, -1, -1, -1,
-    159, 41, -1, -1, 161, -1};
-static const ANTLR_INT32 dfa23_eof[162] = {-1, -1, -1, -1, -1, -1, -1, -1, -1,
-    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-    -1};
-static const ANTLR_INT32 dfa23_min[162] = {9, -1, 61, -1, 61, 43, 45, 48, 42,
-    61, 61, 61, -1, -1, -1, -1, -1, -1, -1, -1, 101, -1, -1, 101, 111, 102, 108,
-    97, 104, 108, 105, 118, -1, 111, 110, 108, 111, 116, 104, -1, 114, -1, -1,
-    46, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-    -1, -1, -1, -1, -1, -1, -1, -1, 116, 105, 97, 48, 48, 115, 114, 108, 114,
-    97, 97, 114, 101, 105, 116, 111, 111, 114, 97, 117, 117, 108, 107, -1, -1,
-    101, 48, 115, 117, 114, 115, 116, 114, 100, 48, 97, 108, 105, 114, 101, 114,
-    101, 48, 48, -1, 101, 99, 101, 115, 117, 114, 48, -1, 116, 48, 110, 48, 48,
-    110, 48, -1, -1, 48, 116, 100, 48, 97, 105, -1, 48, -1, 103, -1, -1, 48, -1,
-    48, 48, -1, 108, 100, -1, 48, -1, -1, -1, 48, 101, -1, -1, 48, -1};
-static const ANTLR_INT32 dfa23_max[162] = {126, -1, 61, -1, 61, 61, 61, 57, 61,
-    61, 61, 61, -1, -1, -1, -1, -1, -1, -1, -1, 101, -1, -1, 104, 111, 102, 108,
-    111, 116, 108, 105, 118, -1, 111, 110, 108, 111, 116, 104, -1, 114, -1, -1,
-    101, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-    -1, -1, -1, -1, -1, -1, -1, -1, 116, 105, 97, 122, 122, 115, 114, 108, 114,
-    97, 97, 114, 101, 105, 116, 111, 111, 114, 97, 117, 117, 108, 107, -1, -1,
-    101, 122, 115, 117, 114, 115, 116, 114, 100, 122, 97, 108, 105, 114, 101,
-    114, 101, 122, 122, -1, 101, 99, 101, 115, 117, 114, 122, -1, 116, 122, 110,
-    122, 122, 110, 122, -1, -1, 122, 116, 100, 122, 97, 105, -1, 122, -1, 103,
-    -1, -1, 122, -1, 122, 122, -1, 108, 100, -1, 122, -1, -1, -1, 122, 101, -1,
-    -1, 122, -1};
-static const ANTLR_INT32 dfa23_accept[162] = {-1, 1, -1, 4, -1, -1, -1, -1, -1,
-    -1, -1, -1, 20, 21, 22, 23, 24, 25, 26, 27, -1, 31, 32, -1, -1, -1, -1, -1,
-    -1, -1, -1, -1, 42, -1, -1, -1, -1, -1, -1, 49, -1, 53, 54, -1, 58, 59, 60,
-    61, 3, 2, 6, 5, 8, 28, 7, 10, 29, 9, 55, 11, 56, 13, 57, 12, 15, 14, 17, 16,
-    19, 18, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-    -1, -1, -1, -1, -1, -1, 34, 35, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-    -1, -1, -1, -1, -1, -1, -1, -1, 37, -1, -1, -1, -1, -1, -1, -1, 44, -1, -1,
-    -1, -1, -1, -1, -1, 50, 36, -1, -1, -1, -1, -1, -1, 43, -1, 46, -1, 48, 52,
-    -1, 33, -1, -1, 39, -1, -1, 45, -1, 30, 38, 51, -1, -1, 47, 40, -1, 41};
-static const ANTLR_INT32 dfa23_special[162] = {-1, -1, -1, -1, -1, -1, -1, -1,
-    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-    -1, -1};
 
-static const ANTLR_INT32* dfa23_T_empty = NULL;
 
-static const ANTLR_INT32 dfa23_T0[] = {108};
-static const ANTLR_INT32 dfa23_T1[] = {126};
-static const ANTLR_INT32 dfa23_T2[] = {81};
-static const ANTLR_INT32 dfa23_T3[] = {50};
-static const ANTLR_INT32 dfa23_T4[] = {42, 42, 42, 42, 42, 42, 42, 42, 42, 42,
-    -1, -1, -1, -1, -1, -1, -1, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42,
-    42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, -1, -1, -1, -1, 42,
-    -1, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42,
-    42, 42, 42, 42, 42, 42, 42, 42};
-static const ANTLR_INT32 dfa23_T5[] = {82};
-static const ANTLR_INT32 dfa23_T6[] = {41, 41, 41, 41, 41, 41, 41, 41, 41, 41,
-    -1, -1, -1, -1, -1, -1, -1, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41,
-    41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, -1, -1, -1, -1, 41,
-    -1, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41,
-    41, 41, 41, 41, 41, 41, 41, 41};
-static const ANTLR_INT32 dfa23_T7[] = {
-    53, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 52};
-static const ANTLR_INT32 dfa23_T8[] = {60, -1, 43, 43, 43, 43, 43, 43, 43, 43,
-    43, 43, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 60, -1, -1, -1, -1, -1,
-    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-    -1, -1, -1, -1, -1, -1, -1, 60};
-static const ANTLR_INT32 dfa23_T9[] = {90};
-static const ANTLR_INT32 dfa23_T10[] = {110};
-static const ANTLR_INT32 dfa23_T11[] = {128};
-static const ANTLR_INT32 dfa23_T12[] = {144};
-static const ANTLR_INT32 dfa23_T13[] = {91};
-static const ANTLR_INT32 dfa23_T14[] = {111};
-static const ANTLR_INT32 dfa23_T15[] = {129};
-static const ANTLR_INT32 dfa23_T16[] = {89};
-static const ANTLR_INT32 dfa23_T17[] = {83};
-static const ANTLR_INT32 dfa23_T18[] = {72, -1, -1, 71};
-static const ANTLR_INT32 dfa23_T19[] = {95};
-static const ANTLR_INT32 dfa23_T20[] = {84};
-static const ANTLR_INT32 dfa23_T21[] = {113};
-static const ANTLR_INT32 dfa23_T22[] = {85};
-static const ANTLR_INT32 dfa23_T23[] = {96};
-static const ANTLR_INT32 dfa23_T24[] = {98};
-static const ANTLR_INT32 dfa23_T25[] = {60, 60, 60, 60, 60, 60, 60, 60, 60, 60};
-static const ANTLR_INT32 dfa23_T26[] = {116};
-static const ANTLR_INT32 dfa23_T27[] = {86};
-static const ANTLR_INT32 dfa23_T28[] = {133};
-static const ANTLR_INT32 dfa23_T29[] = {146};
-static const ANTLR_INT32 dfa23_T30[] = {87};
-static const ANTLR_INT32 dfa23_T31[] = {100};
-static const ANTLR_INT32 dfa23_T32[] = {118};
-static const ANTLR_INT32 dfa23_T33[] = {135};
-static const ANTLR_INT32 dfa23_T34[] = {101};
-static const ANTLR_INT32 dfa23_T35[] = {88};
-static const ANTLR_INT32 dfa23_T36[] = {119};
-static const ANTLR_INT32 dfa23_T37[] = {136};
-static const ANTLR_INT32 dfa23_T38[] = {149};
-static const ANTLR_INT32 dfa23_T39[] = {156};
-static const ANTLR_INT32 dfa23_T40[] = {
-    56, -1, -1, 58, 58, 58, 58, 58, 58, 58, 58, 58, 58, -1, -1, -1, 55};
-static const ANTLR_INT32 dfa23_T41[] = {
-    79, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 78};
-static const ANTLR_INT32 dfa23_T42[] = {102};
-static const ANTLR_INT32 dfa23_T43[] = {120};
-static const ANTLR_INT32 dfa23_T44[] = {137};
-static const ANTLR_INT32 dfa23_T45[] = {150};
-static const ANTLR_INT32 dfa23_T46[] = {157};
-static const ANTLR_INT32 dfa23_T47[] = {62, -1, -1, -1, -1, 62, -1, -1, -1, -1,
-    -1, -1, -1, -1, -1, -1, -1, -1, -1, 61};
-static const ANTLR_INT32 dfa23_T48[] = {160};
-static const ANTLR_INT32 dfa23_T49[] = {
-    77, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 76};
-static const ANTLR_INT32 dfa23_T50[] = {64};
-static const ANTLR_INT32 dfa23_T51[] = {44, 44, -1, -1, 44, -1, -1, -1, -1, -1,
-    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 44, 1, 45, 32, -1, 2, 3,
-    46, 15, 16, 4, 5, 19, 6, 7, 8, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 22,
-    21, 9, 10, 11, 39, -1, 42, 36, 38, 42, 42, 35, 42, 42, 34, 42, 42, 42, 42,
-    42, 42, 42, 42, 42, 37, 42, 42, 33, 42, 42, 42, 42, 13, -1, 14, -1, 41, -1,
-    41, 41, 29, 24, 26, 27, 41, 41, 25, 41, 41, 41, 41, 41, 31, 41, 41, 20, 28,
-    40, 41, 30, 23, 41, 41, 41, 17, 12, 18, 47};
-static const ANTLR_INT32 dfa23_T52[] = {70};
-static const ANTLR_INT32 dfa23_T53[] = {66};
-static const ANTLR_INT32 dfa23_T54[] = {48};
-static const ANTLR_INT32 dfa23_T55[] = {73};
-static const ANTLR_INT32 dfa23_T56[] = {92};
-static const ANTLR_INT32 dfa23_T57[] = {103};
-static const ANTLR_INT32 dfa23_T58[] = {112};
-static const ANTLR_INT32 dfa23_T59[] = {121};
-static const ANTLR_INT32 dfa23_T60[] = {74};
-static const ANTLR_INT32 dfa23_T61[] = {99};
-static const ANTLR_INT32 dfa23_T62[] = {104};
-static const ANTLR_INT32 dfa23_T63[] = {117};
-static const ANTLR_INT32 dfa23_T64[] = {134};
-static const ANTLR_INT32 dfa23_T65[] = {75};
-static const ANTLR_INT32 dfa23_T66[] = {147};
-static const ANTLR_INT32 dfa23_T67[] = {68};
-static const ANTLR_INT32 dfa23_T68[] = {105};
-static const ANTLR_INT32 dfa23_T69[] = {123};
-static const ANTLR_INT32 dfa23_T70[] = {139};
-static const ANTLR_INT32 dfa23_T71[] = {109};
-static const ANTLR_INT32 dfa23_T72[] = {127};
-static const ANTLR_INT32 dfa23_T73[] = {97};
-static const ANTLR_INT32 dfa23_T74[] = {106};
-static const ANTLR_INT32 dfa23_T75[] = {115};
-static const ANTLR_INT32 dfa23_T76[] = {124};
-static const ANTLR_INT32 dfa23_T77[] = {132};
-static const ANTLR_INT32 dfa23_T78[] = {107};
-static const ANTLR_INT32 dfa23_T79[] = {125};
-static const ANTLR_INT32 dfa23_T80[] = {141};
-static const ANTLR_INT32 dfa23_T81[] = {152};
-static const ANTLR_INT32 dfa23_T82[] = {80};
 
-static const ANTLR_INT32* const dfa23_transitions[] = {dfa23_T51, NULL,
-    dfa23_T54, NULL, dfa23_T3, dfa23_T7, dfa23_T40, dfa23_T25, dfa23_T47,
-    dfa23_T50, dfa23_T53, dfa23_T67, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, dfa23_T52, NULL, NULL, dfa23_T18, dfa23_T55, dfa23_T60, dfa23_T65,
-    dfa23_T49, dfa23_T41, dfa23_T82, dfa23_T2, dfa23_T5, NULL, dfa23_T17,
-    dfa23_T20, dfa23_T22, dfa23_T27, dfa23_T30, dfa23_T35, NULL, dfa23_T16,
-    NULL, NULL, dfa23_T8, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+
+
+
+static const ANTLR_INT32 dfa23_eot[162] =
+    {
+	-1, -1, 49, -1, 51, 54, 57, 59, 63, 65, 67, 69, -1, -1, -1, -1, -1, -1,
+	-1, -1, 41, -1, -1, 41, 41, 41, 41, 41, 41, 41, 41, 41, -1, 42, 42, 42,
+	42, 42, 42, -1, 41, -1, -1, 58, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 41, 41,
+	41, 93, 94, 41, 41, 41, 41, 41, 41, 41, 41, 42, 42, 42, 42, 42, 42, 41,
+	41, 41, 41, -1, -1, 41, 114, 41, 41, 41, 41, 41, 41, 42, 122, 42, 42, 42,
+	42, 41, 41, 41, 130, 131, -1, 41, 41, 41, 41, 41, 41, 138, -1, 42, 140,
+	42, 142, 143, 41, 145, -1, -1, 143, 41, 41, 148, 41, 41, -1, 151, -1, 42,
+	-1, -1, 153, -1, 154, 155, -1, 41, 41, -1, 158, -1, -1, -1, 159, 41, -1,
+	-1, 161, -1
+    };
+static const ANTLR_INT32 dfa23_eof[162] =
+    {
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
+    };
+static const ANTLR_INT32 dfa23_min[162] =
+    {
+	9, -1, 61, -1, 61, 43, 45, 48, 42, 61, 61, 61, -1, -1, -1, -1, -1, -1,
+	-1, -1, 101, -1, -1, 101, 111, 102, 108, 97, 104, 108, 105, 118, -1, 111,
+	110, 108, 111, 116, 104, -1, 114, -1, -1, 46, -1, -1, -1, -1, -1, -1, -1,
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+	-1, 116, 105, 97, 48, 48, 115, 114, 108, 114, 97, 97, 114, 101, 105, 116,
+	111, 111, 114, 97, 117, 117, 108, 107, -1, -1, 101, 48, 115, 117, 114,
+	115, 116, 114, 100, 48, 97, 108, 105, 114, 101, 114, 101, 48, 48, -1, 101,
+	99, 101, 115, 117, 114, 48, -1, 116, 48, 110, 48, 48, 110, 48, -1, -1,
+	48, 116, 100, 48, 97, 105, -1, 48, -1, 103, -1, -1, 48, -1, 48, 48, -1,
+	108, 100, -1, 48, -1, -1, -1, 48, 101, -1, -1, 48, -1
+    };
+static const ANTLR_INT32 dfa23_max[162] =
+    {
+	126, -1, 61, -1, 61, 61, 61, 57, 61, 61, 61, 61, -1, -1, -1, -1, -1, -1,
+	-1, -1, 101, -1, -1, 104, 111, 102, 108, 111, 116, 108, 105, 118, -1, 111,
+	110, 108, 111, 116, 104, -1, 114, -1, -1, 101, -1, -1, -1, -1, -1, -1,
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+	-1, -1, 116, 105, 97, 122, 122, 115, 114, 108, 114, 97, 97, 114, 101, 105,
+	116, 111, 111, 114, 97, 117, 117, 108, 107, -1, -1, 101, 122, 115, 117,
+	114, 115, 116, 114, 100, 122, 97, 108, 105, 114, 101, 114, 101, 122, 122,
+	-1, 101, 99, 101, 115, 117, 114, 122, -1, 116, 122, 110, 122, 122, 110,
+	122, -1, -1, 122, 116, 100, 122, 97, 105, -1, 122, -1, 103, -1, -1, 122,
+	-1, 122, 122, -1, 108, 100, -1, 122, -1, -1, -1, 122, 101, -1, -1, 122,
+	-1
+    };
+static const ANTLR_INT32 dfa23_accept[162] =
+    {
+	-1, 1, -1, 4, -1, -1, -1, -1, -1, -1, -1, -1, 20, 21, 22, 23, 24, 25, 26,
+	27, -1, 31, 32, -1, -1, -1, -1, -1, -1, -1, -1, -1, 42, -1, -1, -1, -1,
+	-1, -1, 49, -1, 53, 54, -1, 58, 59, 60, 61, 3, 2, 6, 5, 8, 28, 7, 10, 29,
+	9, 55, 11, 56, 13, 57, 12, 15, 14, 17, 16, 19, 18, -1, -1, -1, -1, -1,
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+	34, 35, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+	-1, -1, -1, 37, -1, -1, -1, -1, -1, -1, -1, 44, -1, -1, -1, -1, -1, -1,
+	-1, 50, 36, -1, -1, -1, -1, -1, -1, 43, -1, 46, -1, 48, 52, -1, 33, -1,
+	-1, 39, -1, -1, 45, -1, 30, 38, 51, -1, -1, 47, 40, -1, 41
+    };
+static const ANTLR_INT32 dfa23_special[162] =
+    {
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
+    };
+
+
+static const ANTLR_INT32* dfa23_T_empty	 =   NULL;
+
+static const ANTLR_INT32 dfa23_T0[] =
+    {
+	108
+    };
+static const ANTLR_INT32 dfa23_T1[] =
+    {
+	126
+    };
+static const ANTLR_INT32 dfa23_T2[] =
+    {
+	81
+    };
+static const ANTLR_INT32 dfa23_T3[] =
+    {
+	50
+    };
+static const ANTLR_INT32 dfa23_T4[] =
+    {
+	42, 42, 42, 42, 42, 42, 42, 42, 42, 42, -1, -1, -1, -1, -1, -1, -1, 42,
+	42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42,
+	42, 42, 42, 42, 42, 42, 42, -1, -1, -1, -1, 42, -1, 42, 42, 42, 42, 42,
+	42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42,
+	42, 42, 42
+    };
+static const ANTLR_INT32 dfa23_T5[] =
+    {
+	82
+    };
+static const ANTLR_INT32 dfa23_T6[] =
+    {
+	41, 41, 41, 41, 41, 41, 41, 41, 41, 41, -1, -1, -1, -1, -1, -1, -1, 41,
+	41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41,
+	41, 41, 41, 41, 41, 41, 41, -1, -1, -1, -1, 41, -1, 41, 41, 41, 41, 41,
+	41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41,
+	41, 41, 41
+    };
+static const ANTLR_INT32 dfa23_T7[] =
+    {
+	53, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+	52
+    };
+static const ANTLR_INT32 dfa23_T8[] =
+    {
+	60, -1, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, -1, -1, -1, -1, -1, -1,
+	-1, -1, -1, -1, -1, 60, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+	-1, 60
+    };
+static const ANTLR_INT32 dfa23_T9[] =
+    {
+	90
+    };
+static const ANTLR_INT32 dfa23_T10[] =
+    {
+	110
+    };
+static const ANTLR_INT32 dfa23_T11[] =
+    {
+	128
+    };
+static const ANTLR_INT32 dfa23_T12[] =
+    {
+	144
+    };
+static const ANTLR_INT32 dfa23_T13[] =
+    {
+	91
+    };
+static const ANTLR_INT32 dfa23_T14[] =
+    {
+	111
+    };
+static const ANTLR_INT32 dfa23_T15[] =
+    {
+	129
+    };
+static const ANTLR_INT32 dfa23_T16[] =
+    {
+	89
+    };
+static const ANTLR_INT32 dfa23_T17[] =
+    {
+	83
+    };
+static const ANTLR_INT32 dfa23_T18[] =
+    {
+	72, -1, -1, 71
+    };
+static const ANTLR_INT32 dfa23_T19[] =
+    {
+	95
+    };
+static const ANTLR_INT32 dfa23_T20[] =
+    {
+	84
+    };
+static const ANTLR_INT32 dfa23_T21[] =
+    {
+	113
+    };
+static const ANTLR_INT32 dfa23_T22[] =
+    {
+	85
+    };
+static const ANTLR_INT32 dfa23_T23[] =
+    {
+	96
+    };
+static const ANTLR_INT32 dfa23_T24[] =
+    {
+	98
+    };
+static const ANTLR_INT32 dfa23_T25[] =
+    {
+	60, 60, 60, 60, 60, 60, 60, 60, 60, 60
+    };
+static const ANTLR_INT32 dfa23_T26[] =
+    {
+	116
+    };
+static const ANTLR_INT32 dfa23_T27[] =
+    {
+	86
+    };
+static const ANTLR_INT32 dfa23_T28[] =
+    {
+	133
+    };
+static const ANTLR_INT32 dfa23_T29[] =
+    {
+	146
+    };
+static const ANTLR_INT32 dfa23_T30[] =
+    {
+	87
+    };
+static const ANTLR_INT32 dfa23_T31[] =
+    {
+	100
+    };
+static const ANTLR_INT32 dfa23_T32[] =
+    {
+	118
+    };
+static const ANTLR_INT32 dfa23_T33[] =
+    {
+	135
+    };
+static const ANTLR_INT32 dfa23_T34[] =
+    {
+	101
+    };
+static const ANTLR_INT32 dfa23_T35[] =
+    {
+	88
+    };
+static const ANTLR_INT32 dfa23_T36[] =
+    {
+	119
+    };
+static const ANTLR_INT32 dfa23_T37[] =
+    {
+	136
+    };
+static const ANTLR_INT32 dfa23_T38[] =
+    {
+	149
+    };
+static const ANTLR_INT32 dfa23_T39[] =
+    {
+	156
+    };
+static const ANTLR_INT32 dfa23_T40[] =
+    {
+	56, -1, -1, 58, 58, 58, 58, 58, 58, 58, 58, 58, 58, -1, -1, -1, 55
+    };
+static const ANTLR_INT32 dfa23_T41[] =
+    {
+	79, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 78
+    };
+static const ANTLR_INT32 dfa23_T42[] =
+    {
+	102
+    };
+static const ANTLR_INT32 dfa23_T43[] =
+    {
+	120
+    };
+static const ANTLR_INT32 dfa23_T44[] =
+    {
+	137
+    };
+static const ANTLR_INT32 dfa23_T45[] =
+    {
+	150
+    };
+static const ANTLR_INT32 dfa23_T46[] =
+    {
+	157
+    };
+static const ANTLR_INT32 dfa23_T47[] =
+    {
+	62, -1, -1, -1, -1, 62, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+	-1, 61
+    };
+static const ANTLR_INT32 dfa23_T48[] =
+    {
+	160
+    };
+static const ANTLR_INT32 dfa23_T49[] =
+    {
+	77, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 76
+    };
+static const ANTLR_INT32 dfa23_T50[] =
+    {
+	64
+    };
+static const ANTLR_INT32 dfa23_T51[] =
+    {
+	44, 44, -1, -1, 44, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+	-1, -1, -1, -1, -1, 44, 1, 45, 32, -1, 2, 3, 46, 15, 16, 4, 5, 19, 6, 7,
+	8, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 22, 21, 9, 10, 11, 39, -1, 42,
+	36, 38, 42, 42, 35, 42, 42, 34, 42, 42, 42, 42, 42, 42, 42, 42, 42, 37,
+	42, 42, 33, 42, 42, 42, 42, 13, -1, 14, -1, 41, -1, 41, 41, 29, 24, 26,
+	27, 41, 41, 25, 41, 41, 41, 41, 41, 31, 41, 41, 20, 28, 40, 41, 30, 23,
+	41, 41, 41, 17, 12, 18, 47
+    };
+static const ANTLR_INT32 dfa23_T52[] =
+    {
+	70
+    };
+static const ANTLR_INT32 dfa23_T53[] =
+    {
+	66
+    };
+static const ANTLR_INT32 dfa23_T54[] =
+    {
+	48
+    };
+static const ANTLR_INT32 dfa23_T55[] =
+    {
+	73
+    };
+static const ANTLR_INT32 dfa23_T56[] =
+    {
+	92
+    };
+static const ANTLR_INT32 dfa23_T57[] =
+    {
+	103
+    };
+static const ANTLR_INT32 dfa23_T58[] =
+    {
+	112
+    };
+static const ANTLR_INT32 dfa23_T59[] =
+    {
+	121
+    };
+static const ANTLR_INT32 dfa23_T60[] =
+    {
+	74
+    };
+static const ANTLR_INT32 dfa23_T61[] =
+    {
+	99
+    };
+static const ANTLR_INT32 dfa23_T62[] =
+    {
+	104
+    };
+static const ANTLR_INT32 dfa23_T63[] =
+    {
+	117
+    };
+static const ANTLR_INT32 dfa23_T64[] =
+    {
+	134
+    };
+static const ANTLR_INT32 dfa23_T65[] =
+    {
+	75
+    };
+static const ANTLR_INT32 dfa23_T66[] =
+    {
+	147
+    };
+static const ANTLR_INT32 dfa23_T67[] =
+    {
+	68
+    };
+static const ANTLR_INT32 dfa23_T68[] =
+    {
+	105
+    };
+static const ANTLR_INT32 dfa23_T69[] =
+    {
+	123
+    };
+static const ANTLR_INT32 dfa23_T70[] =
+    {
+	139
+    };
+static const ANTLR_INT32 dfa23_T71[] =
+    {
+	109
+    };
+static const ANTLR_INT32 dfa23_T72[] =
+    {
+	127
+    };
+static const ANTLR_INT32 dfa23_T73[] =
+    {
+	97
+    };
+static const ANTLR_INT32 dfa23_T74[] =
+    {
+	106
+    };
+static const ANTLR_INT32 dfa23_T75[] =
+    {
+	115
+    };
+static const ANTLR_INT32 dfa23_T76[] =
+    {
+	124
+    };
+static const ANTLR_INT32 dfa23_T77[] =
+    {
+	132
+    };
+static const ANTLR_INT32 dfa23_T78[] =
+    {
+	107
+    };
+static const ANTLR_INT32 dfa23_T79[] =
+    {
+	125
+    };
+static const ANTLR_INT32 dfa23_T80[] =
+    {
+	141
+    };
+static const ANTLR_INT32 dfa23_T81[] =
+    {
+	152
+    };
+static const ANTLR_INT32 dfa23_T82[] =
+    {
+	80
+    };
+
+
+
+
+
+static const ANTLR_INT32 * const dfa23_transitions[] =
+{
+    dfa23_T51, NULL, dfa23_T54, NULL, dfa23_T3, dfa23_T7, dfa23_T40, dfa23_T25,
+    dfa23_T47, dfa23_T50, dfa23_T53, dfa23_T67, NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL, dfa23_T52, NULL, NULL, dfa23_T18, dfa23_T55,
+    dfa23_T60, dfa23_T65, dfa23_T49, dfa23_T41, dfa23_T82, dfa23_T2, dfa23_T5,
+    NULL, dfa23_T17, dfa23_T20, dfa23_T22, dfa23_T27, dfa23_T30, dfa23_T35,
+    NULL, dfa23_T16, NULL, NULL, dfa23_T8, NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, dfa23_T9, dfa23_T13, dfa23_T56, dfa23_T6,
-    dfa23_T6, dfa23_T19, dfa23_T23, dfa23_T73, dfa23_T24, dfa23_T61, dfa23_T31,
-    dfa23_T34, dfa23_T42, dfa23_T57, dfa23_T62, dfa23_T68, dfa23_T74, dfa23_T78,
-    dfa23_T0, dfa23_T71, dfa23_T10, dfa23_T14, dfa23_T58, NULL, NULL, dfa23_T21,
-    dfa23_T6, dfa23_T75, dfa23_T26, dfa23_T63, dfa23_T32, dfa23_T36, dfa23_T43,
-    dfa23_T59, dfa23_T4, dfa23_T69, dfa23_T76, dfa23_T79, dfa23_T1, dfa23_T72,
-    dfa23_T11, dfa23_T15, dfa23_T6, dfa23_T6, NULL, dfa23_T77, dfa23_T28,
-    dfa23_T64, dfa23_T33, dfa23_T37, dfa23_T44, dfa23_T4, NULL, dfa23_T70,
-    dfa23_T4, dfa23_T80, dfa23_T4, dfa23_T6, dfa23_T12, dfa23_T6, NULL, NULL,
-    dfa23_T6, dfa23_T29, dfa23_T66, dfa23_T6, dfa23_T38, dfa23_T45, NULL,
-    dfa23_T4, NULL, dfa23_T81, NULL, NULL, dfa23_T6, NULL, dfa23_T6, dfa23_T6,
-    NULL, dfa23_T39, dfa23_T46, NULL, dfa23_T4, NULL, NULL, NULL, dfa23_T6,
-    dfa23_T48, NULL, NULL, dfa23_T6, NULL};
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, dfa23_T9, dfa23_T13,
+    dfa23_T56, dfa23_T6, dfa23_T6, dfa23_T19, dfa23_T23, dfa23_T73, dfa23_T24,
+    dfa23_T61, dfa23_T31, dfa23_T34, dfa23_T42, dfa23_T57, dfa23_T62, dfa23_T68,
+    dfa23_T74, dfa23_T78, dfa23_T0, dfa23_T71, dfa23_T10, dfa23_T14, dfa23_T58,
+    NULL, NULL, dfa23_T21, dfa23_T6, dfa23_T75, dfa23_T26, dfa23_T63, dfa23_T32,
+    dfa23_T36, dfa23_T43, dfa23_T59, dfa23_T4, dfa23_T69, dfa23_T76, dfa23_T79,
+    dfa23_T1, dfa23_T72, dfa23_T11, dfa23_T15, dfa23_T6, dfa23_T6, NULL,
+    dfa23_T77, dfa23_T28, dfa23_T64, dfa23_T33, dfa23_T37, dfa23_T44, dfa23_T4,
+    NULL, dfa23_T70, dfa23_T4, dfa23_T80, dfa23_T4, dfa23_T6, dfa23_T12,
+    dfa23_T6, NULL, NULL, dfa23_T6, dfa23_T29, dfa23_T66, dfa23_T6, dfa23_T38,
+    dfa23_T45, NULL, dfa23_T4, NULL, dfa23_T81, NULL, NULL, dfa23_T6, NULL,
+    dfa23_T6, dfa23_T6, NULL, dfa23_T39, dfa23_T46, NULL, dfa23_T4, NULL,
+    NULL, NULL, dfa23_T6, dfa23_T48, NULL, NULL, dfa23_T6, NULL
+};
 
-class WNScriptASTLexerCyclicDFA23
-    : public CyclicDFA<WNScriptASTLexerImplTraits, WNScriptASTLexer>,
-      public WNScriptASTLexerTokens {
+
+
+
+class WNScriptASTLexerCyclicDFA23 : public CyclicDFA< WNScriptASTLexerImplTraits, WNScriptASTLexer >, public WNScriptASTLexerTokens
+{
 public:
-  typedef CyclicDFA<WNScriptASTLexerImplTraits, WNScriptASTLexer> BaseType;
-  typedef BaseType::ContextType CtxType;
+	typedef CyclicDFA< WNScriptASTLexerImplTraits, WNScriptASTLexer >  BaseType;
+	typedef BaseType::ContextType CtxType;
 
 private:
+
+
 public:
-  WNScriptASTLexerCyclicDFA23(ANTLR_INT32 decisionNumber,
-      const ANTLR_UCHAR* description, const ANTLR_INT32* const eot,
-      const ANTLR_INT32* const eof, const ANTLR_INT32* const min,
-      const ANTLR_INT32* const max, const ANTLR_INT32* const accept,
-      const ANTLR_INT32* const special,
-      const ANTLR_INT32* const* const transition)
-    : BaseType(decisionNumber, description, eot, eof, min, max, accept, special,
-          transition) {}
+	WNScriptASTLexerCyclicDFA23( ANTLR_INT32	decisionNumber
+					, const ANTLR_UCHAR*	description
+					, const ANTLR_INT32* const	eot
+					, const ANTLR_INT32* const	eof
+					, const ANTLR_INT32* const	min
+					, const ANTLR_INT32* const	max
+					, const ANTLR_INT32* const	accept
+					, const ANTLR_INT32* const	special
+					, const ANTLR_INT32* const *const	transition)
+					:BaseType( decisionNumber, description, eot, eof, min, max, accept,
+								special, transition )
+	{
+
+	}
+
 };
 
 static WNScriptASTLexerCyclicDFA23  cdfa23(
@@ -398,1311 +778,1991 @@ static WNScriptASTLexerCyclicDFA23  cdfa23(
 
 	);
 
-void WNScriptASTLexer::mT__50() {
-  ANTLR_UINT32 _type;
 
-  _type = T__50;
 
-  {
-    this->matchs(lit_1);
-    if (this->hasException()) {
-      goto ruleT__50Ex;
-    }
-  }
 
-  this->get_lexstate()->set_type(_type);
-  goto ruleT__50Ex;
-ruleT__50Ex:;
-}
 
-void WNScriptASTLexer::mT__51() {
-  ANTLR_UINT32 _type;
 
-  _type = T__51;
 
-  {
-    this->matchc('%');
-    if (this->hasException()) {
-      goto ruleT__51Ex;
-    }
-  }
 
-  this->get_lexstate()->set_type(_type);
-  goto ruleT__51Ex;
-ruleT__51Ex:;
-}
 
-void WNScriptASTLexer::mT__52() {
-  ANTLR_UINT32 _type;
 
-  _type = T__52;
 
-  {
-    this->matchs(lit_2);
-    if (this->hasException()) {
-      goto ruleT__52Ex;
-    }
-  }
 
-  this->get_lexstate()->set_type(_type);
-  goto ruleT__52Ex;
-ruleT__52Ex:;
-}
 
-void WNScriptASTLexer::mT__53() {
-  ANTLR_UINT32 _type;
 
-  _type = T__53;
 
-  {
-    this->matchs(lit_3);
-    if (this->hasException()) {
-      goto ruleT__53Ex;
-    }
-  }
 
-  this->get_lexstate()->set_type(_type);
-  goto ruleT__53Ex;
-ruleT__53Ex:;
-}
 
-void WNScriptASTLexer::mT__54() {
-  ANTLR_UINT32 _type;
 
-  _type = T__54;
 
-  {
-    this->matchc('*');
-    if (this->hasException()) {
-      goto ruleT__54Ex;
-    }
-  }
 
-  this->get_lexstate()->set_type(_type);
-  goto ruleT__54Ex;
-ruleT__54Ex:;
-}
 
-void WNScriptASTLexer::mT__55() {
-  ANTLR_UINT32 _type;
 
-  _type = T__55;
 
-  {
-    this->matchs(lit_4);
-    if (this->hasException()) {
-      goto ruleT__55Ex;
-    }
-  }
 
-  this->get_lexstate()->set_type(_type);
-  goto ruleT__55Ex;
-ruleT__55Ex:;
-}
+void WNScriptASTLexer::mT__50()
+{
+    ANTLR_UINT32	_type;
 
-void WNScriptASTLexer::mT__56() {
-  ANTLR_UINT32 _type;
 
-  _type = T__56;
+    _type	    = T__50;
 
-  {
-    this->matchc('+');
-    if (this->hasException()) {
-      goto ruleT__56Ex;
-    }
-  }
 
-  this->get_lexstate()->set_type(_type);
-  goto ruleT__56Ex;
-ruleT__56Ex:;
-}
-
-void WNScriptASTLexer::mT__57() {
-  ANTLR_UINT32 _type;
-
-  _type = T__57;
-
-  {
-    this->matchs(lit_5);
-    if (this->hasException()) {
-      goto ruleT__57Ex;
-    }
-  }
-
-  this->get_lexstate()->set_type(_type);
-  goto ruleT__57Ex;
-ruleT__57Ex:;
-}
-
-void WNScriptASTLexer::mT__58() {
-  ANTLR_UINT32 _type;
-
-  _type = T__58;
-
-  {
-    this->matchc('-');
-    if (this->hasException()) {
-      goto ruleT__58Ex;
-    }
-  }
-
-  this->get_lexstate()->set_type(_type);
-  goto ruleT__58Ex;
-ruleT__58Ex:;
-}
-
-void WNScriptASTLexer::mT__59() {
-  ANTLR_UINT32 _type;
-
-  _type = T__59;
-
-  {
-    this->matchs(lit_6);
-    if (this->hasException()) {
-      goto ruleT__59Ex;
-    }
-  }
-
-  this->get_lexstate()->set_type(_type);
-  goto ruleT__59Ex;
-ruleT__59Ex:;
-}
-
-void WNScriptASTLexer::mT__60() {
-  ANTLR_UINT32 _type;
-
-  _type = T__60;
-
-  {
-    this->matchc('.');
-    if (this->hasException()) {
-      goto ruleT__60Ex;
-    }
-  }
-
-  this->get_lexstate()->set_type(_type);
-  goto ruleT__60Ex;
-ruleT__60Ex:;
-}
-
-void WNScriptASTLexer::mT__61() {
-  ANTLR_UINT32 _type;
-
-  _type = T__61;
-
-  {
-    this->matchc('/');
-    if (this->hasException()) {
-      goto ruleT__61Ex;
-    }
-  }
-
-  this->get_lexstate()->set_type(_type);
-  goto ruleT__61Ex;
-ruleT__61Ex:;
-}
-
-void WNScriptASTLexer::mT__62() {
-  ANTLR_UINT32 _type;
-
-  _type = T__62;
-
-  {
-    this->matchs(lit_7);
-    if (this->hasException()) {
-      goto ruleT__62Ex;
-    }
-  }
-
-  this->get_lexstate()->set_type(_type);
-  goto ruleT__62Ex;
-ruleT__62Ex:;
-}
-
-void WNScriptASTLexer::mT__63() {
-  ANTLR_UINT32 _type;
-
-  _type = T__63;
-
-  {
-    this->matchc('<');
-    if (this->hasException()) {
-      goto ruleT__63Ex;
-    }
-  }
-
-  this->get_lexstate()->set_type(_type);
-  goto ruleT__63Ex;
-ruleT__63Ex:;
-}
-
-void WNScriptASTLexer::mT__64() {
-  ANTLR_UINT32 _type;
-
-  _type = T__64;
-
-  {
-    this->matchs(lit_8);
-    if (this->hasException()) {
-      goto ruleT__64Ex;
-    }
-  }
-
-  this->get_lexstate()->set_type(_type);
-  goto ruleT__64Ex;
-ruleT__64Ex:;
-}
-
-void WNScriptASTLexer::mT__65() {
-  ANTLR_UINT32 _type;
-
-  _type = T__65;
-
-  {
-    this->matchc('=');
-    if (this->hasException()) {
-      goto ruleT__65Ex;
-    }
-  }
-
-  this->get_lexstate()->set_type(_type);
-  goto ruleT__65Ex;
-ruleT__65Ex:;
-}
-
-void WNScriptASTLexer::mT__66() {
-  ANTLR_UINT32 _type;
-
-  _type = T__66;
-
-  {
-    this->matchs(lit_9);
-    if (this->hasException()) {
-      goto ruleT__66Ex;
-    }
-  }
-
-  this->get_lexstate()->set_type(_type);
-  goto ruleT__66Ex;
-ruleT__66Ex:;
-}
-
-void WNScriptASTLexer::mT__67() {
-  ANTLR_UINT32 _type;
-
-  _type = T__67;
-
-  {
-    this->matchc('>');
-    if (this->hasException()) {
-      goto ruleT__67Ex;
-    }
-  }
-
-  this->get_lexstate()->set_type(_type);
-  goto ruleT__67Ex;
-ruleT__67Ex:;
-}
-
-void WNScriptASTLexer::mT__68() {
-  ANTLR_UINT32 _type;
-
-  _type = T__68;
-
-  {
-    this->matchs(lit_10);
-    if (this->hasException()) {
-      goto ruleT__68Ex;
-    }
-  }
-
-  this->get_lexstate()->set_type(_type);
-  goto ruleT__68Ex;
-ruleT__68Ex:;
-}
-
-void WNScriptASTLexer::mT__69() {
-  ANTLR_UINT32 _type;
-
-  _type = T__69;
-
-  {
-    this->matchs(lit_11);
-    if (this->hasException()) {
-      goto ruleT__69Ex;
-    }
-  }
-
-  this->get_lexstate()->set_type(_type);
-  goto ruleT__69Ex;
-ruleT__69Ex:;
-}
-
-void WNScriptASTLexer::mLSQBRACKET() {
-  ANTLR_UINT32 _type;
-
-  _type = LSQBRACKET;
-
-  {
-    this->matchc('[');
-    if (this->hasException()) {
-      goto ruleLSQBRACKETEx;
-    }
-  }
-
-  this->get_lexstate()->set_type(_type);
-  goto ruleLSQBRACKETEx;
-ruleLSQBRACKETEx:;
-}
-
-void WNScriptASTLexer::mRSQBRACKET() {
-  ANTLR_UINT32 _type;
-
-  _type = RSQBRACKET;
-
-  {
-    this->matchc(']');
-    if (this->hasException()) {
-      goto ruleRSQBRACKETEx;
-    }
-  }
-
-  this->get_lexstate()->set_type(_type);
-  goto ruleRSQBRACKETEx;
-ruleRSQBRACKETEx:;
-}
-
-void WNScriptASTLexer::mLBRACKET() {
-  ANTLR_UINT32 _type;
-
-  _type = LBRACKET;
-
-  {
-    this->matchc('(');
-    if (this->hasException()) {
-      goto ruleLBRACKETEx;
-    }
-  }
-
-  this->get_lexstate()->set_type(_type);
-  goto ruleLBRACKETEx;
-ruleLBRACKETEx:;
-}
-
-void WNScriptASTLexer::mRBRACKET() {
-  ANTLR_UINT32 _type;
-
-  _type = RBRACKET;
-
-  {
-    this->matchc(')');
-    if (this->hasException()) {
-      goto ruleRBRACKETEx;
-    }
-  }
-
-  this->get_lexstate()->set_type(_type);
-  goto ruleRBRACKETEx;
-ruleRBRACKETEx:;
-}
-
-void WNScriptASTLexer::mLBRACE() {
-  ANTLR_UINT32 _type;
-
-  _type = LBRACE;
-
-  {
-    this->matchc('{');
-    if (this->hasException()) {
-      goto ruleLBRACEEx;
-    }
-  }
-
-  this->get_lexstate()->set_type(_type);
-  goto ruleLBRACEEx;
-ruleLBRACEEx:;
-}
-
-void WNScriptASTLexer::mRBRACE() {
-  ANTLR_UINT32 _type;
-
-  _type = RBRACE;
-
-  {
-    this->matchc('}');
-    if (this->hasException()) {
-      goto ruleRBRACEEx;
-    }
-  }
-
-  this->get_lexstate()->set_type(_type);
-  goto ruleRBRACEEx;
-ruleRBRACEEx:;
-}
-
-void WNScriptASTLexer::mCOMMA() {
-  ANTLR_UINT32 _type;
-
-  _type = COMMA;
-
-  {
-    this->matchc(',');
-    if (this->hasException()) {
-      goto ruleCOMMAEx;
-    }
-  }
-
-  this->get_lexstate()->set_type(_type);
-  goto ruleCOMMAEx;
-ruleCOMMAEx:;
-}
-
-void WNScriptASTLexer::mDOUBINC() {
-  ANTLR_UINT32 _type;
-
-  _type = DOUBINC;
-
-  {
-    this->matchs(lit_12);
-    if (this->hasException()) {
-      goto ruleDOUBINCEx;
-    }
-  }
-
-  this->get_lexstate()->set_type(_type);
-  goto ruleDOUBINCEx;
-ruleDOUBINCEx:;
-}
-
-void WNScriptASTLexer::mDOUBDEC() {
-  ANTLR_UINT32 _type;
-
-  _type = DOUBDEC;
-
-  {
-    this->matchs(lit_13);
-    if (this->hasException()) {
-      goto ruleDOUBDECEx;
-    }
-  }
-
-  this->get_lexstate()->set_type(_type);
-  goto ruleDOUBDECEx;
-ruleDOUBDECEx:;
-}
-
-void WNScriptASTLexer::mRETURN() {
-  ANTLR_UINT32 _type;
-
-  _type = RETURN;
-
-  {
-    this->matchs(lit_14);
-    if (this->hasException()) {
-      goto ruleRETURNEx;
-    }
-  }
-
-  this->get_lexstate()->set_type(_type);
-  goto ruleRETURNEx;
-ruleRETURNEx:;
-}
-
-void WNScriptASTLexer::mSEMICOLON() {
-  ANTLR_UINT32 _type;
-
-  _type = SEMICOLON;
-
-  {
-    this->matchc(';');
-    if (this->hasException()) {
-      goto ruleSEMICOLONEx;
-    }
-  }
-
-  this->get_lexstate()->set_type(_type);
-  goto ruleSEMICOLONEx;
-ruleSEMICOLONEx:;
-}
-
-void WNScriptASTLexer::mCOLON() {
-  ANTLR_UINT32 _type;
-
-  _type = COLON;
-
-  {
-    this->matchc(':');
-    if (this->hasException()) {
-      goto ruleCOLONEx;
-    }
-  }
-
-  this->get_lexstate()->set_type(_type);
-  goto ruleCOLONEx;
-ruleCOLONEx:;
-}
-
-void WNScriptASTLexer::mWHILE() {
-  ANTLR_UINT32 _type;
-
-  _type = WHILE;
-
-  {
-    this->matchs(lit_15);
-    if (this->hasException()) {
-      goto ruleWHILEEx;
-    }
-  }
-
-  this->get_lexstate()->set_type(_type);
-  goto ruleWHILEEx;
-ruleWHILEEx:;
-}
-
-void WNScriptASTLexer::mDO() {
-  ANTLR_UINT32 _type;
-
-  _type = DO;
-
-  {
-    this->matchs(lit_16);
-    if (this->hasException()) {
-      goto ruleDOEx;
-    }
-  }
-
-  this->get_lexstate()->set_type(_type);
-  goto ruleDOEx;
-ruleDOEx:;
-}
-
-void WNScriptASTLexer::mIF() {
-  ANTLR_UINT32 _type;
-
-  _type = IF;
-
-  {
-    this->matchs(lit_17);
-    if (this->hasException()) {
-      goto ruleIFEx;
-    }
-  }
-
-  this->get_lexstate()->set_type(_type);
-  goto ruleIFEx;
-ruleIFEx:;
-}
-
-void WNScriptASTLexer::mELSE() {
-  ANTLR_UINT32 _type;
-
-  _type = ELSE;
-
-  {
-    this->matchs(lit_18);
-    if (this->hasException()) {
-      goto ruleELSEEx;
-    }
-  }
-
-  this->get_lexstate()->set_type(_type);
-  goto ruleELSEEx;
-ruleELSEEx:;
-}
-
-void WNScriptASTLexer::mFOR() {
-  ANTLR_UINT32 _type;
-
-  _type = FOR;
-
-  {
-    this->matchs(lit_19);
-    if (this->hasException()) {
-      goto ruleFOREx;
-    }
-  }
-
-  this->get_lexstate()->set_type(_type);
-  goto ruleFOREx;
-ruleFOREx:;
-}
-
-void WNScriptASTLexer::mSTRUCT() {
-  ANTLR_UINT32 _type;
-
-  _type = STRUCT;
-
-  {
-    this->matchs(lit_20);
-    if (this->hasException()) {
-      goto ruleSTRUCTEx;
-    }
-  }
-
-  this->get_lexstate()->set_type(_type);
-  goto ruleSTRUCTEx;
-ruleSTRUCTEx:;
-}
-
-void WNScriptASTLexer::mCLASS() {
-  ANTLR_UINT32 _type;
-
-  _type = CLASS;
-
-  {
-    this->matchs(lit_21);
-    if (this->hasException()) {
-      goto ruleCLASSEx;
-    }
-  }
-
-  this->get_lexstate()->set_type(_type);
-  goto ruleCLASSEx;
-ruleCLASSEx:;
-}
-
-void WNScriptASTLexer::mVIRTUAL() {
-  ANTLR_UINT32 _type;
-
-  _type = VIRTUAL;
-
-  {
-    this->matchs(lit_22);
-    if (this->hasException()) {
-      goto ruleVIRTUALEx;
-    }
-  }
-
-  this->get_lexstate()->set_type(_type);
-  goto ruleVIRTUALEx;
-ruleVIRTUALEx:;
-}
-
-void WNScriptASTLexer::mOVERRIDE() {
-  ANTLR_UINT32 _type;
-
-  _type = OVERRIDE;
-
-  {
-    this->matchs(lit_23);
-    if (this->hasException()) {
-      goto ruleOVERRIDEEx;
-    }
-  }
-
-  this->get_lexstate()->set_type(_type);
-  goto ruleOVERRIDEEx;
-ruleOVERRIDEEx:;
-}
-
-void WNScriptASTLexer::mINCLUDE() {
-  ANTLR_UINT32 _type;
-
-  _type = INCLUDE;
-
-  {
-    this->matchs(lit_24);
-    if (this->hasException()) {
-      goto ruleINCLUDEEx;
-    }
-  }
-
-  this->get_lexstate()->set_type(_type);
-  goto ruleINCLUDEEx;
-ruleINCLUDEEx:;
-}
-
-void WNScriptASTLexer::mVOID_TYPE() {
-  ANTLR_UINT32 _type;
-
-  _type = VOID_TYPE;
-
-  {
-    this->matchs(lit_25);
-    if (this->hasException()) {
-      goto ruleVOID_TYPEEx;
-    }
-  }
-
-  this->get_lexstate()->set_type(_type);
-  goto ruleVOID_TYPEEx;
-ruleVOID_TYPEEx:;
-}
-
-void WNScriptASTLexer::mINT_TYPE() {
-  ANTLR_UINT32 _type;
-
-  _type = INT_TYPE;
-
-  {
-    this->matchs(lit_26);
-    if (this->hasException()) {
-      goto ruleINT_TYPEEx;
-    }
-  }
-
-  this->get_lexstate()->set_type(_type);
-  goto ruleINT_TYPEEx;
-ruleINT_TYPEEx:;
-}
-
-void WNScriptASTLexer::mFLOAT_TYPE() {
-  ANTLR_UINT32 _type;
-
-  _type = FLOAT_TYPE;
-
-  {
-    this->matchs(lit_27);
-    if (this->hasException()) {
-      goto ruleFLOAT_TYPEEx;
-    }
-  }
-
-  this->get_lexstate()->set_type(_type);
-  goto ruleFLOAT_TYPEEx;
-ruleFLOAT_TYPEEx:;
-}
-
-void WNScriptASTLexer::mBOOL_TYPE() {
-  ANTLR_UINT32 _type;
-
-  _type = BOOL_TYPE;
-
-  {
-    this->matchs(lit_28);
-    if (this->hasException()) {
-      goto ruleBOOL_TYPEEx;
-    }
-  }
-
-  this->get_lexstate()->set_type(_type);
-  goto ruleBOOL_TYPEEx;
-ruleBOOL_TYPEEx:;
-}
-
-void WNScriptASTLexer::mSTRING_TYPE() {
-  ANTLR_UINT32 _type;
-
-  _type = STRING_TYPE;
-
-  {
-    this->matchs(lit_29);
-    if (this->hasException()) {
-      goto ruleSTRING_TYPEEx;
-    }
-  }
-
-  this->get_lexstate()->set_type(_type);
-  goto ruleSTRING_TYPEEx;
-ruleSTRING_TYPEEx:;
-}
-
-void WNScriptASTLexer::mCHAR_TYPE() {
-  ANTLR_UINT32 _type;
-
-  _type = CHAR_TYPE;
-
-  {
-    this->matchs(lit_30);
-    if (this->hasException()) {
-      goto ruleCHAR_TYPEEx;
-    }
-  }
-
-  this->get_lexstate()->set_type(_type);
-  goto ruleCHAR_TYPEEx;
-ruleCHAR_TYPEEx:;
-}
-
-void WNScriptASTLexer::mQUESTION() {
-  ANTLR_UINT32 _type;
-
-  _type = QUESTION;
-
-  {
-    this->matchc('?');
-    if (this->hasException()) {
-      goto ruleQUESTIONEx;
-    }
-  }
-
-  this->get_lexstate()->set_type(_type);
-  goto ruleQUESTIONEx;
-ruleQUESTIONEx:;
-}
-
-void WNScriptASTLexer::mWEAK_REF() {
-  ANTLR_UINT32 _type;
-
-  _type = WEAK_REF;
-
-  {
-    this->matchs(lit_31);
-    if (this->hasException()) {
-      goto ruleWEAK_REFEx;
-    }
-  }
-
-  this->get_lexstate()->set_type(_type);
-  goto ruleWEAK_REFEx;
-ruleWEAK_REFEx:;
-}
-
-void WNScriptASTLexer::mSHARED_REF() {
-  ANTLR_UINT32 _type;
-
-  _type = SHARED_REF;
-
-  {
-    this->matchs(lit_32);
-    if (this->hasException()) {
-      goto ruleSHARED_REFEx;
-    }
-  }
-
-  this->get_lexstate()->set_type(_type);
-  goto ruleSHARED_REFEx;
-ruleSHARED_REFEx:;
-}
-
-void WNScriptASTLexer::mBOOL() {
-  ANTLR_UINT32 _type;
-
-  _type = BOOL;
-
-  {
-    ANTLR_UINT32 alt1;
-
-    alt1 = 2;
-
-    switch (this->LA(1)) {
-      case 't': {
-        alt1 = 1;
-      } break;
-      case 'f': {
-        alt1 = 2;
-      } break;
-
-      default:
-        ExceptionBaseType* ex = new ANTLR_Exception<WNScriptASTLexerImplTraits,
-            NO_VIABLE_ALT_EXCEPTION, StreamType>(this->get_rec(), "");
-        ex->set_decisionNum(1);
-        ex->set_state(0);
-
-        goto ruleBOOLEx;
-    }
-
-    switch (alt1) {
-      case 1: {
-        this->matchs(lit_33);
-        if (this->hasException()) {
-          goto ruleBOOLEx;
+    {
+        this->matchs(lit_1);
+        if  (this->hasException())
+        {
+            goto ruleT__50Ex;
         }
 
-      } break;
-      case 2: {
-        this->matchs(lit_34);
-        if (this->hasException()) {
-          goto ruleBOOLEx;
-        }
 
-      } break;
+
+
     }
-  }
-  this->get_lexstate()->set_type(_type);
-  goto ruleBOOLEx;
-ruleBOOLEx:;
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleT__50Ex;
+    ruleT__50Ex: ;
+
 }
 
-void WNScriptASTLexer::mID() {
-  ANTLR_UINT32 _type;
 
-  _type = ID;
 
-  {
-    if (this->LA(1) == '_' || ((this->LA(1) >= 'a') && (this->LA(1) <= 'z'))) {
-      this->consume();
-    } else {
-      new ANTLR_Exception<WNScriptASTLexerImplTraits, MISMATCHED_SET_EXCEPTION,
-          StreamType>(this->get_rec(), "");
 
-      this->recover();
-      goto ruleIDEx;
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mT__51()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = T__51;
+
+
+    {
+         this->matchc('%');
+        if  (this->hasException())
+        {
+            goto ruleT__51Ex;
+        }
+
+
     }
 
-    for (;;) {
-      int alt2 = 2;
-      switch (this->LA(1)) {
-        case '0':
-        case '1':
-        case '2':
-        case '3':
-        case '4':
-        case '5':
-        case '6':
-        case '7':
-        case '8':
-        case '9':
-        case 'A':
-        case 'B':
-        case 'C':
-        case 'D':
-        case 'E':
-        case 'F':
-        case 'G':
-        case 'H':
-        case 'I':
-        case 'J':
-        case 'K':
-        case 'L':
-        case 'M':
-        case 'N':
-        case 'O':
-        case 'P':
-        case 'Q':
-        case 'R':
-        case 'S':
-        case 'T':
-        case 'U':
-        case 'V':
-        case 'W':
-        case 'X':
-        case 'Y':
-        case 'Z':
-        case '_':
-        case 'a':
-        case 'b':
-        case 'c':
-        case 'd':
-        case 'e':
-        case 'f':
-        case 'g':
-        case 'h':
-        case 'i':
-        case 'j':
-        case 'k':
-        case 'l':
-        case 'm':
-        case 'n':
-        case 'o':
-        case 'p':
-        case 'q':
-        case 'r':
-        case 's':
+	this->get_lexstate()->set_type(_type);
+    goto ruleT__51Ex;
+    ruleT__51Ex: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mT__52()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = T__52;
+
+
+    {
+        this->matchs(lit_2);
+        if  (this->hasException())
+        {
+            goto ruleT__52Ex;
+        }
+
+
+
+
+    }
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleT__52Ex;
+    ruleT__52Ex: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mT__53()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = T__53;
+
+
+    {
+        this->matchs(lit_3);
+        if  (this->hasException())
+        {
+            goto ruleT__53Ex;
+        }
+
+
+
+
+    }
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleT__53Ex;
+    ruleT__53Ex: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mT__54()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = T__54;
+
+
+    {
+         this->matchc('*');
+        if  (this->hasException())
+        {
+            goto ruleT__54Ex;
+        }
+
+
+    }
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleT__54Ex;
+    ruleT__54Ex: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mT__55()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = T__55;
+
+
+    {
+        this->matchs(lit_4);
+        if  (this->hasException())
+        {
+            goto ruleT__55Ex;
+        }
+
+
+
+
+    }
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleT__55Ex;
+    ruleT__55Ex: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mT__56()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = T__56;
+
+
+    {
+         this->matchc('+');
+        if  (this->hasException())
+        {
+            goto ruleT__56Ex;
+        }
+
+
+    }
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleT__56Ex;
+    ruleT__56Ex: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mT__57()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = T__57;
+
+
+    {
+        this->matchs(lit_5);
+        if  (this->hasException())
+        {
+            goto ruleT__57Ex;
+        }
+
+
+
+
+    }
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleT__57Ex;
+    ruleT__57Ex: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mT__58()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = T__58;
+
+
+    {
+         this->matchc('-');
+        if  (this->hasException())
+        {
+            goto ruleT__58Ex;
+        }
+
+
+    }
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleT__58Ex;
+    ruleT__58Ex: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mT__59()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = T__59;
+
+
+    {
+        this->matchs(lit_6);
+        if  (this->hasException())
+        {
+            goto ruleT__59Ex;
+        }
+
+
+
+
+    }
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleT__59Ex;
+    ruleT__59Ex: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mT__60()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = T__60;
+
+
+    {
+         this->matchc('.');
+        if  (this->hasException())
+        {
+            goto ruleT__60Ex;
+        }
+
+
+    }
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleT__60Ex;
+    ruleT__60Ex: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mT__61()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = T__61;
+
+
+    {
+         this->matchc('/');
+        if  (this->hasException())
+        {
+            goto ruleT__61Ex;
+        }
+
+
+    }
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleT__61Ex;
+    ruleT__61Ex: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mT__62()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = T__62;
+
+
+    {
+        this->matchs(lit_7);
+        if  (this->hasException())
+        {
+            goto ruleT__62Ex;
+        }
+
+
+
+
+    }
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleT__62Ex;
+    ruleT__62Ex: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mT__63()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = T__63;
+
+
+    {
+         this->matchc('<');
+        if  (this->hasException())
+        {
+            goto ruleT__63Ex;
+        }
+
+
+    }
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleT__63Ex;
+    ruleT__63Ex: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mT__64()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = T__64;
+
+
+    {
+        this->matchs(lit_8);
+        if  (this->hasException())
+        {
+            goto ruleT__64Ex;
+        }
+
+
+
+
+    }
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleT__64Ex;
+    ruleT__64Ex: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mT__65()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = T__65;
+
+
+    {
+         this->matchc('=');
+        if  (this->hasException())
+        {
+            goto ruleT__65Ex;
+        }
+
+
+    }
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleT__65Ex;
+    ruleT__65Ex: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mT__66()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = T__66;
+
+
+    {
+        this->matchs(lit_9);
+        if  (this->hasException())
+        {
+            goto ruleT__66Ex;
+        }
+
+
+
+
+    }
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleT__66Ex;
+    ruleT__66Ex: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mT__67()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = T__67;
+
+
+    {
+         this->matchc('>');
+        if  (this->hasException())
+        {
+            goto ruleT__67Ex;
+        }
+
+
+    }
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleT__67Ex;
+    ruleT__67Ex: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mT__68()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = T__68;
+
+
+    {
+        this->matchs(lit_10);
+        if  (this->hasException())
+        {
+            goto ruleT__68Ex;
+        }
+
+
+
+
+    }
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleT__68Ex;
+    ruleT__68Ex: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mT__69()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = T__69;
+
+
+    {
+        this->matchs(lit_11);
+        if  (this->hasException())
+        {
+            goto ruleT__69Ex;
+        }
+
+
+
+
+    }
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleT__69Ex;
+    ruleT__69Ex: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mLSQBRACKET()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = LSQBRACKET;
+
+
+    {
+         this->matchc('[');
+        if  (this->hasException())
+        {
+            goto ruleLSQBRACKETEx;
+        }
+
+
+    }
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleLSQBRACKETEx;
+    ruleLSQBRACKETEx: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mRSQBRACKET()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = RSQBRACKET;
+
+
+    {
+         this->matchc(']');
+        if  (this->hasException())
+        {
+            goto ruleRSQBRACKETEx;
+        }
+
+
+    }
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleRSQBRACKETEx;
+    ruleRSQBRACKETEx: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mLBRACKET()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = LBRACKET;
+
+
+    {
+         this->matchc('(');
+        if  (this->hasException())
+        {
+            goto ruleLBRACKETEx;
+        }
+
+
+    }
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleLBRACKETEx;
+    ruleLBRACKETEx: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mRBRACKET()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = RBRACKET;
+
+
+    {
+         this->matchc(')');
+        if  (this->hasException())
+        {
+            goto ruleRBRACKETEx;
+        }
+
+
+    }
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleRBRACKETEx;
+    ruleRBRACKETEx: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mLBRACE()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = LBRACE;
+
+
+    {
+         this->matchc('{');
+        if  (this->hasException())
+        {
+            goto ruleLBRACEEx;
+        }
+
+
+    }
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleLBRACEEx;
+    ruleLBRACEEx: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mRBRACE()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = RBRACE;
+
+
+    {
+         this->matchc('}');
+        if  (this->hasException())
+        {
+            goto ruleRBRACEEx;
+        }
+
+
+    }
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleRBRACEEx;
+    ruleRBRACEEx: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mCOMMA()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = COMMA;
+
+
+    {
+         this->matchc(',');
+        if  (this->hasException())
+        {
+            goto ruleCOMMAEx;
+        }
+
+
+    }
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleCOMMAEx;
+    ruleCOMMAEx: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mDOUBINC()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = DOUBINC;
+
+
+    {
+        this->matchs(lit_12);
+        if  (this->hasException())
+        {
+            goto ruleDOUBINCEx;
+        }
+
+
+
+
+    }
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleDOUBINCEx;
+    ruleDOUBINCEx: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mDOUBDEC()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = DOUBDEC;
+
+
+    {
+        this->matchs(lit_13);
+        if  (this->hasException())
+        {
+            goto ruleDOUBDECEx;
+        }
+
+
+
+
+    }
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleDOUBDECEx;
+    ruleDOUBDECEx: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mRETURN()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = RETURN;
+
+
+    {
+        this->matchs(lit_14);
+        if  (this->hasException())
+        {
+            goto ruleRETURNEx;
+        }
+
+
+
+
+    }
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleRETURNEx;
+    ruleRETURNEx: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mSEMICOLON()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = SEMICOLON;
+
+
+    {
+         this->matchc(';');
+        if  (this->hasException())
+        {
+            goto ruleSEMICOLONEx;
+        }
+
+
+    }
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleSEMICOLONEx;
+    ruleSEMICOLONEx: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mCOLON()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = COLON;
+
+
+    {
+         this->matchc(':');
+        if  (this->hasException())
+        {
+            goto ruleCOLONEx;
+        }
+
+
+    }
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleCOLONEx;
+    ruleCOLONEx: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mWHILE()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = WHILE;
+
+
+    {
+        this->matchs(lit_15);
+        if  (this->hasException())
+        {
+            goto ruleWHILEEx;
+        }
+
+
+
+
+    }
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleWHILEEx;
+    ruleWHILEEx: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mDO()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = DO;
+
+
+    {
+        this->matchs(lit_16);
+        if  (this->hasException())
+        {
+            goto ruleDOEx;
+        }
+
+
+
+
+    }
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleDOEx;
+    ruleDOEx: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mIF()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = IF;
+
+
+    {
+        this->matchs(lit_17);
+        if  (this->hasException())
+        {
+            goto ruleIFEx;
+        }
+
+
+
+
+    }
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleIFEx;
+    ruleIFEx: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mELSE()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = ELSE;
+
+
+    {
+        this->matchs(lit_18);
+        if  (this->hasException())
+        {
+            goto ruleELSEEx;
+        }
+
+
+
+
+    }
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleELSEEx;
+    ruleELSEEx: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mFOR()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = FOR;
+
+
+    {
+        this->matchs(lit_19);
+        if  (this->hasException())
+        {
+            goto ruleFOREx;
+        }
+
+
+
+
+    }
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleFOREx;
+    ruleFOREx: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mSTRUCT()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = STRUCT;
+
+
+    {
+        this->matchs(lit_20);
+        if  (this->hasException())
+        {
+            goto ruleSTRUCTEx;
+        }
+
+
+
+
+    }
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleSTRUCTEx;
+    ruleSTRUCTEx: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mCLASS()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = CLASS;
+
+
+    {
+        this->matchs(lit_21);
+        if  (this->hasException())
+        {
+            goto ruleCLASSEx;
+        }
+
+
+
+
+    }
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleCLASSEx;
+    ruleCLASSEx: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mVIRTUAL()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = VIRTUAL;
+
+
+    {
+        this->matchs(lit_22);
+        if  (this->hasException())
+        {
+            goto ruleVIRTUALEx;
+        }
+
+
+
+
+    }
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleVIRTUALEx;
+    ruleVIRTUALEx: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mOVERRIDE()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = OVERRIDE;
+
+
+    {
+        this->matchs(lit_23);
+        if  (this->hasException())
+        {
+            goto ruleOVERRIDEEx;
+        }
+
+
+
+
+    }
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleOVERRIDEEx;
+    ruleOVERRIDEEx: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mINCLUDE()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = INCLUDE;
+
+
+    {
+        this->matchs(lit_24);
+        if  (this->hasException())
+        {
+            goto ruleINCLUDEEx;
+        }
+
+
+
+
+    }
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleINCLUDEEx;
+    ruleINCLUDEEx: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mVOID_TYPE()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = VOID_TYPE;
+
+
+    {
+        this->matchs(lit_25);
+        if  (this->hasException())
+        {
+            goto ruleVOID_TYPEEx;
+        }
+
+
+
+
+    }
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleVOID_TYPEEx;
+    ruleVOID_TYPEEx: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mINT_TYPE()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = INT_TYPE;
+
+
+    {
+        this->matchs(lit_26);
+        if  (this->hasException())
+        {
+            goto ruleINT_TYPEEx;
+        }
+
+
+
+
+    }
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleINT_TYPEEx;
+    ruleINT_TYPEEx: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mFLOAT_TYPE()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = FLOAT_TYPE;
+
+
+    {
+        this->matchs(lit_27);
+        if  (this->hasException())
+        {
+            goto ruleFLOAT_TYPEEx;
+        }
+
+
+
+
+    }
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleFLOAT_TYPEEx;
+    ruleFLOAT_TYPEEx: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mBOOL_TYPE()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = BOOL_TYPE;
+
+
+    {
+        this->matchs(lit_28);
+        if  (this->hasException())
+        {
+            goto ruleBOOL_TYPEEx;
+        }
+
+
+
+
+    }
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleBOOL_TYPEEx;
+    ruleBOOL_TYPEEx: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mSTRING_TYPE()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = STRING_TYPE;
+
+
+    {
+        this->matchs(lit_29);
+        if  (this->hasException())
+        {
+            goto ruleSTRING_TYPEEx;
+        }
+
+
+
+
+    }
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleSTRING_TYPEEx;
+    ruleSTRING_TYPEEx: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mCHAR_TYPE()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = CHAR_TYPE;
+
+
+    {
+        this->matchs(lit_30);
+        if  (this->hasException())
+        {
+            goto ruleCHAR_TYPEEx;
+        }
+
+
+
+
+    }
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleCHAR_TYPEEx;
+    ruleCHAR_TYPEEx: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mQUESTION()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = QUESTION;
+
+
+    {
+         this->matchc('?');
+        if  (this->hasException())
+        {
+            goto ruleQUESTIONEx;
+        }
+
+
+    }
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleQUESTIONEx;
+    ruleQUESTIONEx: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mWEAK_REF()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = WEAK_REF;
+
+
+    {
+        this->matchs(lit_31);
+        if  (this->hasException())
+        {
+            goto ruleWEAK_REFEx;
+        }
+
+
+
+
+    }
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleWEAK_REFEx;
+    ruleWEAK_REFEx: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mSHARED_REF()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = SHARED_REF;
+
+
+    {
+        this->matchs(lit_32);
+        if  (this->hasException())
+        {
+            goto ruleSHARED_REFEx;
+        }
+
+
+
+
+    }
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleSHARED_REFEx;
+    ruleSHARED_REFEx: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mBOOL()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = BOOL;
+
+
+    {
+
+        ANTLR_UINT32 alt1;
+
+        alt1=2;
+
+        switch ( this->LA(1) )
+        {
         case 't':
-        case 'u':
-        case 'v':
-        case 'w':
-        case 'x':
-        case 'y':
-        case 'z': {
-          alt2 = 1;
-        } break;
-      }
+        	{
+        		alt1=1;
+        	}
+            break;
+        case 'f':
+        	{
+        		alt1=2;
+        	}
+            break;
 
-      switch (alt2) {
-        case 1: {
-          if (((this->LA(1) >= '0') && (this->LA(1) <= '9')) ||
-              ((this->LA(1) >= 'A') && (this->LA(1) <= 'Z')) ||
-              this->LA(1) == '_' ||
-              ((this->LA(1) >= 'a') && (this->LA(1) <= 'z'))) {
+        default:
+            ExceptionBaseType* ex = new ANTLR_Exception< WNScriptASTLexerImplTraits, NO_VIABLE_ALT_EXCEPTION, StreamType>( this->get_rec(), "" );
+            ex->set_decisionNum( 1 );
+            ex->set_state( 0 );
+
+
+            goto ruleBOOLEx;
+
+        }
+
+        switch (alt1)
+        {
+    	case 1:
+    	    {
+    	        this->matchs(lit_33);
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleBOOLEx;
+    	        }
+
+
+
+
+    	    }
+    	    break;
+    	case 2:
+    	    {
+    	        this->matchs(lit_34);
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleBOOLEx;
+    	        }
+
+
+
+
+    	    }
+    	    break;
+
+        }
+    }
+	this->get_lexstate()->set_type(_type);
+    goto ruleBOOLEx;
+    ruleBOOLEx: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mID()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = ID;
+
+
+    {
+        if ( this->LA(1) == '_' || ((this->LA(1) >= 'a') && (this->LA(1) <= 'z')) )
+        {
             this->consume();
-          } else {
-            new ANTLR_Exception<WNScriptASTLexerImplTraits,
-                MISMATCHED_SET_EXCEPTION, StreamType>(this->get_rec(), "");
+        }
+        else
+        {
+            new ANTLR_Exception< WNScriptASTLexerImplTraits, MISMATCHED_SET_EXCEPTION, StreamType>( this->get_rec(), "" );
 
             this->recover();
             goto ruleIDEx;
-          }
-
-        } break;
-
-        default:
-          goto loop2;
-          break;
-      }
-    }
-  loop2:;
-  }
-
-  this->get_lexstate()->set_type(_type);
-  goto ruleIDEx;
-ruleIDEx:;
-}
-
-void WNScriptASTLexer::mTYPE() {
-  ANTLR_UINT32 _type;
-
-  _type = TYPE;
-
-  {
-    if (((this->LA(1) >= 'A') && (this->LA(1) <= 'Z'))) {
-      this->consume();
-    } else {
-      new ANTLR_Exception<WNScriptASTLexerImplTraits, MISMATCHED_SET_EXCEPTION,
-          StreamType>(this->get_rec(), "");
-
-      this->recover();
-      goto ruleTYPEEx;
-    }
-
-    for (;;) {
-      int alt3 = 2;
-      switch (this->LA(1)) {
-        case '0':
-        case '1':
-        case '2':
-        case '3':
-        case '4':
-        case '5':
-        case '6':
-        case '7':
-        case '8':
-        case '9':
-        case 'A':
-        case 'B':
-        case 'C':
-        case 'D':
-        case 'E':
-        case 'F':
-        case 'G':
-        case 'H':
-        case 'I':
-        case 'J':
-        case 'K':
-        case 'L':
-        case 'M':
-        case 'N':
-        case 'O':
-        case 'P':
-        case 'Q':
-        case 'R':
-        case 'S':
-        case 'T':
-        case 'U':
-        case 'V':
-        case 'W':
-        case 'X':
-        case 'Y':
-        case 'Z':
-        case '_':
-        case 'a':
-        case 'b':
-        case 'c':
-        case 'd':
-        case 'e':
-        case 'f':
-        case 'g':
-        case 'h':
-        case 'i':
-        case 'j':
-        case 'k':
-        case 'l':
-        case 'm':
-        case 'n':
-        case 'o':
-        case 'p':
-        case 'q':
-        case 'r':
-        case 's':
-        case 't':
-        case 'u':
-        case 'v':
-        case 'w':
-        case 'x':
-        case 'y':
-        case 'z': {
-          alt3 = 1;
-        } break;
-      }
-
-      switch (alt3) {
-        case 1: {
-          if (((this->LA(1) >= '0') && (this->LA(1) <= '9')) ||
-              ((this->LA(1) >= 'A') && (this->LA(1) <= 'Z')) ||
-              this->LA(1) == '_' ||
-              ((this->LA(1) >= 'a') && (this->LA(1) <= 'z'))) {
-            this->consume();
-          } else {
-            new ANTLR_Exception<WNScriptASTLexerImplTraits,
-                MISMATCHED_SET_EXCEPTION, StreamType>(this->get_rec(), "");
-
-            this->recover();
-            goto ruleTYPEEx;
-          }
-
-        } break;
-
-        default:
-          goto loop3;
-          break;
-      }
-    }
-  loop3:;
-  }
-
-  this->get_lexstate()->set_type(_type);
-  goto ruleTYPEEx;
-ruleTYPEEx:;
-}
-
-void WNScriptASTLexer::mINT() {
-  ANTLR_UINT32 _type;
-
-  _type = INT;
-
-  {
-    {
-      int alt4 = 2;
-      switch (this->LA(1)) {
-        case '-': {
-          alt4 = 1;
-        } break;
-      }
-
-      switch (alt4) {
-        case 1: {
-          this->matchc('-');
-          if (this->hasException()) {
-            goto ruleINTEx;
-          }
-
-        } break;
-      }
-    }
-
-    {
-      int cnt5 = 0;
-
-      for (;;) {
-        int alt5 = 2;
-        switch (this->LA(1)) {
-          case '0':
-          case '1':
-          case '2':
-          case '3':
-          case '4':
-          case '5':
-          case '6':
-          case '7':
-          case '8':
-          case '9': {
-            alt5 = 1;
-          } break;
         }
 
-        switch (alt5) {
-          case 1: {
-            if (((this->LA(1) >= '0') && (this->LA(1) <= '9'))) {
-              this->consume();
-            } else {
-              new ANTLR_Exception<WNScriptASTLexerImplTraits,
-                  MISMATCHED_SET_EXCEPTION, StreamType>(this->get_rec(), "");
 
-              this->recover();
-              goto ruleINTEx;
-            }
 
-          } break;
-
-          default:
-
-            if (cnt5 >= 1) {
-              goto loop5;
-            }
-
-            new ANTLR_Exception<WNScriptASTLexerImplTraits,
-                EARLY_EXIT_EXCEPTION, StreamType>(this->get_rec(), "");
-
-            goto ruleINTEx;
-        }
-        cnt5++;
-      }
-    loop5:;
-    }
-  }
-
-  this->get_lexstate()->set_type(_type);
-  goto ruleINTEx;
-ruleINTEx:;
-}
-
-void WNScriptASTLexer::mFLOAT() {
-  ANTLR_UINT32 _type;
-
-  _type = FLOAT;
-
-  {
-    ANTLR_UINT32 alt12;
-
-    alt12 = 3;
-
-    alt12 = cdfa12.predict(this, this->get_rec(), this->get_istream(), cdfa12);
-    if (this->hasException()) {
-      goto ruleFLOATEx;
-    }
-
-    switch (alt12) {
-      case 1: {
+        for (;;)
         {
-          int cnt6 = 0;
-
-          for (;;) {
-            int alt6 = 2;
-            switch (this->LA(1)) {
-              case '0':
-              case '1':
-              case '2':
-              case '3':
-              case '4':
-              case '5':
-              case '6':
-              case '7':
-              case '8':
-              case '9': {
-                alt6 = 1;
-              } break;
-            }
-
-            switch (alt6) {
-              case 1: {
-                if (((this->LA(1) >= '0') && (this->LA(1) <= '9'))) {
-                  this->consume();
-                } else {
-                  new ANTLR_Exception<WNScriptASTLexerImplTraits,
-                      MISMATCHED_SET_EXCEPTION, StreamType>(
-                      this->get_rec(), "");
-
-                  this->recover();
-                  goto ruleFLOATEx;
-                }
-
-              } break;
-
-              default:
-
-                if (cnt6 >= 1) {
-                  goto loop6;
-                }
-
-                new ANTLR_Exception<WNScriptASTLexerImplTraits,
-                    EARLY_EXIT_EXCEPTION, StreamType>(this->get_rec(), "");
-
-                goto ruleFLOATEx;
-            }
-            cnt6++;
-          }
-        loop6:;
-        }
-
-        this->matchc('.');
-        if (this->hasException()) {
-          goto ruleFLOATEx;
-        }
-
-        for (;;) {
-          int alt7 = 2;
-          switch (this->LA(1)) {
+            int alt2=2;
+            switch ( this->LA(1) )
+            {
             case '0':
             case '1':
             case '2':
@@ -1712,1405 +2772,2754 @@ void WNScriptASTLexer::mFLOAT() {
             case '6':
             case '7':
             case '8':
-            case '9': {
-              alt7 = 1;
-            } break;
-          }
-
-          switch (alt7) {
-            case 1: {
-              if (((this->LA(1) >= '0') && (this->LA(1) <= '9'))) {
-                this->consume();
-              } else {
-                new ANTLR_Exception<WNScriptASTLexerImplTraits,
-                    MISMATCHED_SET_EXCEPTION, StreamType>(this->get_rec(), "");
-
-                this->recover();
-                goto ruleFLOATEx;
-              }
-
-            } break;
-
-            default:
-              goto loop7;
-              break;
-          }
-        }
-      loop7:;
-
-        {
-          int alt8 = 2;
-          switch (this->LA(1)) {
+            case '9':
+            case 'A':
+            case 'B':
+            case 'C':
+            case 'D':
             case 'E':
-            case 'e': {
-              alt8 = 1;
-            } break;
-          }
+            case 'F':
+            case 'G':
+            case 'H':
+            case 'I':
+            case 'J':
+            case 'K':
+            case 'L':
+            case 'M':
+            case 'N':
+            case 'O':
+            case 'P':
+            case 'Q':
+            case 'R':
+            case 'S':
+            case 'T':
+            case 'U':
+            case 'V':
+            case 'W':
+            case 'X':
+            case 'Y':
+            case 'Z':
+            case '_':
+            case 'a':
+            case 'b':
+            case 'c':
+            case 'd':
+            case 'e':
+            case 'f':
+            case 'g':
+            case 'h':
+            case 'i':
+            case 'j':
+            case 'k':
+            case 'l':
+            case 'm':
+            case 'n':
+            case 'o':
+            case 'p':
+            case 'q':
+            case 'r':
+            case 's':
+            case 't':
+            case 'u':
+            case 'v':
+            case 'w':
+            case 'x':
+            case 'y':
+            case 'z':
+            	{
+            		alt2=1;
+            	}
+                break;
 
-          switch (alt8) {
-            case 1: {
-              mEXPONENT();
-              if (this->hasException()) {
-                goto ruleFLOATEx;
-              }
-
-            } break;
-          }
-        }
-
-      } break;
-      case 2: {
-        this->matchc('.');
-        if (this->hasException()) {
-          goto ruleFLOATEx;
-        }
-
-        {
-          int cnt9 = 0;
-
-          for (;;) {
-            int alt9 = 2;
-            switch (this->LA(1)) {
-              case '0':
-              case '1':
-              case '2':
-              case '3':
-              case '4':
-              case '5':
-              case '6':
-              case '7':
-              case '8':
-              case '9': {
-                alt9 = 1;
-              } break;
             }
 
-            switch (alt9) {
-              case 1: {
-                if (((this->LA(1) >= '0') && (this->LA(1) <= '9'))) {
-                  this->consume();
-                } else {
-                  new ANTLR_Exception<WNScriptASTLexerImplTraits,
-                      MISMATCHED_SET_EXCEPTION, StreamType>(
-                      this->get_rec(), "");
+            switch (alt2)
+            {
+        	case 1:
+        	    {
+        	        if ( ((this->LA(1) >= '0') && (this->LA(1) <= '9')) || ((this->LA(1) >= 'A') && (this->LA(1) <= 'Z')) || this->LA(1) == '_' || ((this->LA(1) >= 'a') && (this->LA(1) <= 'z')) )
+        	        {
+        	            this->consume();
+        	        }
+        	        else
+        	        {
+        	            new ANTLR_Exception< WNScriptASTLexerImplTraits, MISMATCHED_SET_EXCEPTION, StreamType>( this->get_rec(), "" );
 
-                  this->recover();
-                  goto ruleFLOATEx;
-                }
+        	            this->recover();
+        	            goto ruleIDEx;
+        	        }
 
-              } break;
 
-              default:
+        	    }
+        	    break;
 
-                if (cnt9 >= 1) {
-                  goto loop9;
-                }
-
-                new ANTLR_Exception<WNScriptASTLexerImplTraits,
-                    EARLY_EXIT_EXCEPTION, StreamType>(this->get_rec(), "");
-
-                goto ruleFLOATEx;
+        	default:
+        	    goto loop2;
+        	    break;
             }
-            cnt9++;
-          }
-        loop9:;
         }
+        loop2: ;
 
-        {
-          int alt10 = 2;
-          switch (this->LA(1)) {
-            case 'E':
-            case 'e': {
-              alt10 = 1;
-            } break;
-          }
 
-          switch (alt10) {
-            case 1: {
-              mEXPONENT();
-              if (this->hasException()) {
-                goto ruleFLOATEx;
-              }
-
-            } break;
-          }
-        }
-
-      } break;
-      case 3: {
-        {
-          int cnt11 = 0;
-
-          for (;;) {
-            int alt11 = 2;
-            switch (this->LA(1)) {
-              case '0':
-              case '1':
-              case '2':
-              case '3':
-              case '4':
-              case '5':
-              case '6':
-              case '7':
-              case '8':
-              case '9': {
-                alt11 = 1;
-              } break;
-            }
-
-            switch (alt11) {
-              case 1: {
-                if (((this->LA(1) >= '0') && (this->LA(1) <= '9'))) {
-                  this->consume();
-                } else {
-                  new ANTLR_Exception<WNScriptASTLexerImplTraits,
-                      MISMATCHED_SET_EXCEPTION, StreamType>(
-                      this->get_rec(), "");
-
-                  this->recover();
-                  goto ruleFLOATEx;
-                }
-
-              } break;
-
-              default:
-
-                if (cnt11 >= 1) {
-                  goto loop11;
-                }
-
-                new ANTLR_Exception<WNScriptASTLexerImplTraits,
-                    EARLY_EXIT_EXCEPTION, StreamType>(this->get_rec(), "");
-
-                goto ruleFLOATEx;
-            }
-            cnt11++;
-          }
-        loop11:;
-        }
-
-        mEXPONENT();
-        if (this->hasException()) {
-          goto ruleFLOATEx;
-        }
-
-      } break;
     }
-  }
-  this->get_lexstate()->set_type(_type);
-  goto ruleFLOATEx;
-ruleFLOATEx:;
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleIDEx;
+    ruleIDEx: ;
+
 }
 
-void WNScriptASTLexer::mCOMMENT() {
-  ANTLR_UINT32 _type;
 
-  _type = COMMENT;
 
-  {
-    ANTLR_UINT32 alt16;
 
-    alt16 = 2;
 
-    switch (this->LA(1)) {
-      case '/': {
-        switch (this->LA(2)) {
-          case '/': {
-            alt16 = 1;
-          } break;
-          case '*': {
-            alt16 = 2;
-          } break;
 
-          default:
-            ExceptionBaseType* ex =
-                new ANTLR_Exception<WNScriptASTLexerImplTraits,
-                    NO_VIABLE_ALT_EXCEPTION, StreamType>(this->get_rec(), "");
-            ex->set_decisionNum(16);
-            ex->set_state(1);
 
-            goto ruleCOMMENTEx;
-        }
 
-      } break;
 
-      default:
-        ExceptionBaseType* ex = new ANTLR_Exception<WNScriptASTLexerImplTraits,
-            NO_VIABLE_ALT_EXCEPTION, StreamType>(this->get_rec(), "");
-        ex->set_decisionNum(16);
-        ex->set_state(0);
 
-        goto ruleCOMMENTEx;
-    }
 
-    switch (alt16) {
-      case 1: {
-        this->matchs(lit_35);
-        if (this->hasException()) {
-          goto ruleCOMMENTEx;
-        }
 
-        for (;;) {
-          int alt13 = 2;
-          {
-            int LA13_0 = this->LA(1);
-            if ((((LA13_0 >= 0x0000) && (LA13_0 <= '\t')) ||
-                    ((LA13_0 >= 0x000B) && (LA13_0 <= '\f')) ||
-                    ((LA13_0 >= 0x000E) && (LA13_0 <= 0xFFFF)))) {
-              alt13 = 1;
-            }
-          }
-          switch (alt13) {
-            case 1: {
-              if (((this->LA(1) >= 0x0000) && (this->LA(1) <= '\t')) ||
-                  ((this->LA(1) >= 0x000B) && (this->LA(1) <= '\f')) ||
-                  ((this->LA(1) >= 0x000E) && (this->LA(1) <= 0xFFFF))) {
-                this->consume();
-              } else {
-                new ANTLR_Exception<WNScriptASTLexerImplTraits,
-                    MISMATCHED_SET_EXCEPTION, StreamType>(this->get_rec(), "");
+void WNScriptASTLexer::mTYPE()
+{
+    ANTLR_UINT32	_type;
 
-                this->recover();
-                goto ruleCOMMENTEx;
-              }
 
-            } break;
+    _type	    = TYPE;
 
-            default:
-              goto loop13;
-              break;
-          }
-        }
-      loop13:;
 
+    {
+        if ( ((this->LA(1) >= 'A') && (this->LA(1) <= 'Z')) )
         {
-          int alt14 = 2;
-          switch (this->LA(1)) {
-            case '\r': {
-              alt14 = 1;
-            } break;
-          }
-
-          switch (alt14) {
-            case 1: {
-              this->matchc('\r');
-              if (this->hasException()) {
-                goto ruleCOMMENTEx;
-              }
-
-            } break;
-          }
-        }
-
-        this->matchc('\n');
-        if (this->hasException()) {
-          goto ruleCOMMENTEx;
-        }
-
-        { this->get_state()->get_channel() = HIDDEN; }
-
-      } break;
-      case 2: {
-        this->matchs(lit_36);
-        if (this->hasException()) {
-          goto ruleCOMMENTEx;
-        }
-
-        for (;;) {
-          int alt15 = 2;
-          {
-            int LA15_0 = this->LA(1);
-            if ((LA15_0 == '*')) {
-              {
-                int LA15_1 = this->LA(2);
-                if ((LA15_1 == '/')) {
-                  alt15 = 2;
-                } else if ((((LA15_1 >= 0x0000) && (LA15_1 <= '.')) ||
-                               ((LA15_1 >= '0') && (LA15_1 <= 0xFFFF)))) {
-                  alt15 = 1;
-                }
-              }
-            } else if ((((LA15_0 >= 0x0000) && (LA15_0 <= ')')) ||
-                           ((LA15_0 >= '+') && (LA15_0 <= 0xFFFF)))) {
-              alt15 = 1;
-            }
-          }
-          switch (alt15) {
-            case 1: {
-              this->matchAny();
-              if (this->hasException()) {
-                goto ruleCOMMENTEx;
-              }
-
-            } break;
-
-            default:
-              goto loop15;
-              break;
-          }
-        }
-      loop15:;
-
-        this->matchs(lit_37);
-        if (this->hasException()) {
-          goto ruleCOMMENTEx;
-        }
-
-        { this->get_state()->get_channel() = HIDDEN; }
-
-      } break;
-    }
-  }
-  this->get_lexstate()->set_type(_type);
-  goto ruleCOMMENTEx;
-ruleCOMMENTEx:;
-}
-
-void WNScriptASTLexer::mWS() {
-  ANTLR_UINT32 _type;
-
-  _type = WS;
-
-  {
-    if (((this->LA(1) >= '\t') && (this->LA(1) <= '\n')) ||
-        this->LA(1) == '\r' || this->LA(1) == ' ') {
-      this->consume();
-    } else {
-      new ANTLR_Exception<WNScriptASTLexerImplTraits, MISMATCHED_SET_EXCEPTION,
-          StreamType>(this->get_rec(), "");
-
-      this->recover();
-      goto ruleWSEx;
-    }
-
-    { this->get_state()->get_channel() = HIDDEN; }
-  }
-
-  this->get_lexstate()->set_type(_type);
-  goto ruleWSEx;
-ruleWSEx:;
-}
-
-void WNScriptASTLexer::mSTRING() {
-  ANTLR_UINT32 _type;
-
-  _type = STRING;
-
-  {
-    this->matchc('"');
-    if (this->hasException()) {
-      goto ruleSTRINGEx;
-    }
-
-    for (;;) {
-      int alt17 = 3;
-      {
-        int LA17_0 = this->LA(1);
-        if ((LA17_0 == '\\')) {
-          alt17 = 1;
-        } else if ((((LA17_0 >= 0x0000) && (LA17_0 <= '!')) ||
-                       ((LA17_0 >= '#') && (LA17_0 <= '[')) ||
-                       ((LA17_0 >= ']') && (LA17_0 <= 0xFFFF)))) {
-          alt17 = 2;
-        }
-      }
-      switch (alt17) {
-        case 1: {
-          mESC_SEQ();
-          if (this->hasException()) {
-            goto ruleSTRINGEx;
-          }
-
-        } break;
-        case 2: {
-          if (((this->LA(1) >= 0x0000) && (this->LA(1) <= '!')) ||
-              ((this->LA(1) >= '#') && (this->LA(1) <= '[')) ||
-              ((this->LA(1) >= ']') && (this->LA(1) <= 0xFFFF))) {
             this->consume();
-          } else {
-            new ANTLR_Exception<WNScriptASTLexerImplTraits,
-                MISMATCHED_SET_EXCEPTION, StreamType>(this->get_rec(), "");
+        }
+        else
+        {
+            new ANTLR_Exception< WNScriptASTLexerImplTraits, MISMATCHED_SET_EXCEPTION, StreamType>( this->get_rec(), "" );
 
             this->recover();
-            goto ruleSTRINGEx;
-          }
+            goto ruleTYPEEx;
+        }
 
-        } break;
+
+
+        for (;;)
+        {
+            int alt3=2;
+            switch ( this->LA(1) )
+            {
+            case '0':
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+            case '6':
+            case '7':
+            case '8':
+            case '9':
+            case 'A':
+            case 'B':
+            case 'C':
+            case 'D':
+            case 'E':
+            case 'F':
+            case 'G':
+            case 'H':
+            case 'I':
+            case 'J':
+            case 'K':
+            case 'L':
+            case 'M':
+            case 'N':
+            case 'O':
+            case 'P':
+            case 'Q':
+            case 'R':
+            case 'S':
+            case 'T':
+            case 'U':
+            case 'V':
+            case 'W':
+            case 'X':
+            case 'Y':
+            case 'Z':
+            case '_':
+            case 'a':
+            case 'b':
+            case 'c':
+            case 'd':
+            case 'e':
+            case 'f':
+            case 'g':
+            case 'h':
+            case 'i':
+            case 'j':
+            case 'k':
+            case 'l':
+            case 'm':
+            case 'n':
+            case 'o':
+            case 'p':
+            case 'q':
+            case 'r':
+            case 's':
+            case 't':
+            case 'u':
+            case 'v':
+            case 'w':
+            case 'x':
+            case 'y':
+            case 'z':
+            	{
+            		alt3=1;
+            	}
+                break;
+
+            }
+
+            switch (alt3)
+            {
+        	case 1:
+        	    {
+        	        if ( ((this->LA(1) >= '0') && (this->LA(1) <= '9')) || ((this->LA(1) >= 'A') && (this->LA(1) <= 'Z')) || this->LA(1) == '_' || ((this->LA(1) >= 'a') && (this->LA(1) <= 'z')) )
+        	        {
+        	            this->consume();
+        	        }
+        	        else
+        	        {
+        	            new ANTLR_Exception< WNScriptASTLexerImplTraits, MISMATCHED_SET_EXCEPTION, StreamType>( this->get_rec(), "" );
+
+        	            this->recover();
+        	            goto ruleTYPEEx;
+        	        }
+
+
+        	    }
+        	    break;
+
+        	default:
+        	    goto loop3;
+        	    break;
+            }
+        }
+        loop3: ;
+
+
+    }
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleTYPEEx;
+    ruleTYPEEx: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mINT()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = INT;
+
+
+    {
+        {
+            int alt4=2;
+            switch ( this->LA(1) )
+            {
+                case '-':
+                	{
+                		alt4=1;
+                	}
+                    break;
+            }
+
+            switch (alt4)
+            {
+        	case 1:
+        	    {
+        	         this->matchc('-');
+        	        if  (this->hasException())
+        	        {
+        	            goto ruleINTEx;
+        	        }
+
+
+        	    }
+        	    break;
+
+            }
+        }
+
+        {
+            int cnt5=0;
+
+            for (;;)
+            {
+                int alt5=2;
+        	switch ( this->LA(1) )
+        	{
+        	case '0':
+        	case '1':
+        	case '2':
+        	case '3':
+        	case '4':
+        	case '5':
+        	case '6':
+        	case '7':
+        	case '8':
+        	case '9':
+        		{
+        			alt5=1;
+        		}
+        	    break;
+
+        	}
+
+        	switch (alt5)
+        	{
+        	    case 1:
+        	        {
+        	            if ( ((this->LA(1) >= '0') && (this->LA(1) <= '9')) )
+        	            {
+        	                this->consume();
+        	            }
+        	            else
+        	            {
+        	                new ANTLR_Exception< WNScriptASTLexerImplTraits, MISMATCHED_SET_EXCEPTION, StreamType>( this->get_rec(), "" );
+
+        	                this->recover();
+        	                goto ruleINTEx;
+        	            }
+
+
+        	        }
+        	        break;
+
+        	    default:
+
+        		if ( cnt5 >= 1 )
+        		{
+        		    goto loop5;
+        		}
+
+
+        		new ANTLR_Exception< WNScriptASTLexerImplTraits, EARLY_EXIT_EXCEPTION, StreamType>( this->get_rec(), "" );
+
+
+        		goto ruleINTEx;
+        	}
+        	cnt5++;
+            }
+            loop5: ;
+        }
+
+    }
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleINTEx;
+    ruleINTEx: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mFLOAT()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = FLOAT;
+
+
+    {
+
+        ANTLR_UINT32 alt12;
+
+        alt12=3;
+
+        alt12 = cdfa12.predict(this, this->get_rec(), this->get_istream(), cdfa12 );
+        if  (this->hasException())
+        {
+            goto ruleFLOATEx;
+        }
+
+        switch (alt12)
+        {
+    	case 1:
+    	    {
+    	        {
+    	            int cnt6=0;
+
+    	            for (;;)
+    	            {
+    	                int alt6=2;
+    	        	switch ( this->LA(1) )
+    	        	{
+    	        	case '0':
+    	        	case '1':
+    	        	case '2':
+    	        	case '3':
+    	        	case '4':
+    	        	case '5':
+    	        	case '6':
+    	        	case '7':
+    	        	case '8':
+    	        	case '9':
+    	        		{
+    	        			alt6=1;
+    	        		}
+    	        	    break;
+
+    	        	}
+
+    	        	switch (alt6)
+    	        	{
+    	        	    case 1:
+    	        	        {
+    	        	            if ( ((this->LA(1) >= '0') && (this->LA(1) <= '9')) )
+    	        	            {
+    	        	                this->consume();
+    	        	            }
+    	        	            else
+    	        	            {
+    	        	                new ANTLR_Exception< WNScriptASTLexerImplTraits, MISMATCHED_SET_EXCEPTION, StreamType>( this->get_rec(), "" );
+
+    	        	                this->recover();
+    	        	                goto ruleFLOATEx;
+    	        	            }
+
+
+    	        	        }
+    	        	        break;
+
+    	        	    default:
+
+    	        		if ( cnt6 >= 1 )
+    	        		{
+    	        		    goto loop6;
+    	        		}
+
+
+    	        		new ANTLR_Exception< WNScriptASTLexerImplTraits, EARLY_EXIT_EXCEPTION, StreamType>( this->get_rec(), "" );
+
+
+    	        		goto ruleFLOATEx;
+    	        	}
+    	        	cnt6++;
+    	            }
+    	            loop6: ;
+    	        }
+
+    	         this->matchc('.');
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleFLOATEx;
+    	        }
+
+
+
+    	        for (;;)
+    	        {
+    	            int alt7=2;
+    	            switch ( this->LA(1) )
+    	            {
+    	            case '0':
+    	            case '1':
+    	            case '2':
+    	            case '3':
+    	            case '4':
+    	            case '5':
+    	            case '6':
+    	            case '7':
+    	            case '8':
+    	            case '9':
+    	            	{
+    	            		alt7=1;
+    	            	}
+    	                break;
+
+    	            }
+
+    	            switch (alt7)
+    	            {
+    	        	case 1:
+    	        	    {
+    	        	        if ( ((this->LA(1) >= '0') && (this->LA(1) <= '9')) )
+    	        	        {
+    	        	            this->consume();
+    	        	        }
+    	        	        else
+    	        	        {
+    	        	            new ANTLR_Exception< WNScriptASTLexerImplTraits, MISMATCHED_SET_EXCEPTION, StreamType>( this->get_rec(), "" );
+
+    	        	            this->recover();
+    	        	            goto ruleFLOATEx;
+    	        	        }
+
+
+    	        	    }
+    	        	    break;
+
+    	        	default:
+    	        	    goto loop7;
+    	        	    break;
+    	            }
+    	        }
+    	        loop7: ;
+
+
+    	        {
+    	            int alt8=2;
+    	            switch ( this->LA(1) )
+    	            {
+    	                case 'E':
+    	                case 'e':
+    	                	{
+    	                		alt8=1;
+    	                	}
+    	                    break;
+    	            }
+
+    	            switch (alt8)
+    	            {
+    	        	case 1:
+    	        	    {
+
+    	        	        mEXPONENT();
+    	        	        if  (this->hasException())
+    	        	        {
+    	        	            goto ruleFLOATEx;
+    	        	        }
+
+
+
+    	        	    }
+    	        	    break;
+
+    	            }
+    	        }
+
+    	    }
+    	    break;
+    	case 2:
+    	    {
+    	         this->matchc('.');
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleFLOATEx;
+    	        }
+
+
+    	        {
+    	            int cnt9=0;
+
+    	            for (;;)
+    	            {
+    	                int alt9=2;
+    	        	switch ( this->LA(1) )
+    	        	{
+    	        	case '0':
+    	        	case '1':
+    	        	case '2':
+    	        	case '3':
+    	        	case '4':
+    	        	case '5':
+    	        	case '6':
+    	        	case '7':
+    	        	case '8':
+    	        	case '9':
+    	        		{
+    	        			alt9=1;
+    	        		}
+    	        	    break;
+
+    	        	}
+
+    	        	switch (alt9)
+    	        	{
+    	        	    case 1:
+    	        	        {
+    	        	            if ( ((this->LA(1) >= '0') && (this->LA(1) <= '9')) )
+    	        	            {
+    	        	                this->consume();
+    	        	            }
+    	        	            else
+    	        	            {
+    	        	                new ANTLR_Exception< WNScriptASTLexerImplTraits, MISMATCHED_SET_EXCEPTION, StreamType>( this->get_rec(), "" );
+
+    	        	                this->recover();
+    	        	                goto ruleFLOATEx;
+    	        	            }
+
+
+    	        	        }
+    	        	        break;
+
+    	        	    default:
+
+    	        		if ( cnt9 >= 1 )
+    	        		{
+    	        		    goto loop9;
+    	        		}
+
+
+    	        		new ANTLR_Exception< WNScriptASTLexerImplTraits, EARLY_EXIT_EXCEPTION, StreamType>( this->get_rec(), "" );
+
+
+    	        		goto ruleFLOATEx;
+    	        	}
+    	        	cnt9++;
+    	            }
+    	            loop9: ;
+    	        }
+
+    	        {
+    	            int alt10=2;
+    	            switch ( this->LA(1) )
+    	            {
+    	                case 'E':
+    	                case 'e':
+    	                	{
+    	                		alt10=1;
+    	                	}
+    	                    break;
+    	            }
+
+    	            switch (alt10)
+    	            {
+    	        	case 1:
+    	        	    {
+
+    	        	        mEXPONENT();
+    	        	        if  (this->hasException())
+    	        	        {
+    	        	            goto ruleFLOATEx;
+    	        	        }
+
+
+
+    	        	    }
+    	        	    break;
+
+    	            }
+    	        }
+
+    	    }
+    	    break;
+    	case 3:
+    	    {
+    	        {
+    	            int cnt11=0;
+
+    	            for (;;)
+    	            {
+    	                int alt11=2;
+    	        	switch ( this->LA(1) )
+    	        	{
+    	        	case '0':
+    	        	case '1':
+    	        	case '2':
+    	        	case '3':
+    	        	case '4':
+    	        	case '5':
+    	        	case '6':
+    	        	case '7':
+    	        	case '8':
+    	        	case '9':
+    	        		{
+    	        			alt11=1;
+    	        		}
+    	        	    break;
+
+    	        	}
+
+    	        	switch (alt11)
+    	        	{
+    	        	    case 1:
+    	        	        {
+    	        	            if ( ((this->LA(1) >= '0') && (this->LA(1) <= '9')) )
+    	        	            {
+    	        	                this->consume();
+    	        	            }
+    	        	            else
+    	        	            {
+    	        	                new ANTLR_Exception< WNScriptASTLexerImplTraits, MISMATCHED_SET_EXCEPTION, StreamType>( this->get_rec(), "" );
+
+    	        	                this->recover();
+    	        	                goto ruleFLOATEx;
+    	        	            }
+
+
+    	        	        }
+    	        	        break;
+
+    	        	    default:
+
+    	        		if ( cnt11 >= 1 )
+    	        		{
+    	        		    goto loop11;
+    	        		}
+
+
+    	        		new ANTLR_Exception< WNScriptASTLexerImplTraits, EARLY_EXIT_EXCEPTION, StreamType>( this->get_rec(), "" );
+
+
+    	        		goto ruleFLOATEx;
+    	        	}
+    	        	cnt11++;
+    	            }
+    	            loop11: ;
+    	        }
+
+
+    	        mEXPONENT();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleFLOATEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+
+        }
+    }
+	this->get_lexstate()->set_type(_type);
+    goto ruleFLOATEx;
+    ruleFLOATEx: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mCOMMENT()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = COMMENT;
+
+
+    {
+
+        ANTLR_UINT32 alt16;
+
+        alt16=2;
+
+        switch ( this->LA(1) )
+        {
+        case '/':
+        	{
+        		switch ( this->LA(2) )
+        		{
+        		case '/':
+        			{
+        				alt16=1;
+        			}
+        		    break;
+        		case '*':
+        			{
+        				alt16=2;
+        			}
+        		    break;
+
+        		default:
+        		    ExceptionBaseType* ex = new ANTLR_Exception< WNScriptASTLexerImplTraits, NO_VIABLE_ALT_EXCEPTION, StreamType>( this->get_rec(), "" );
+        		    ex->set_decisionNum( 16 );
+        		    ex->set_state( 1 );
+
+
+        		    goto ruleCOMMENTEx;
+
+        		}
+
+        	}
+            break;
 
         default:
-          goto loop17;
-          break;
-      }
-    }
-  loop17:;
+            ExceptionBaseType* ex = new ANTLR_Exception< WNScriptASTLexerImplTraits, NO_VIABLE_ALT_EXCEPTION, StreamType>( this->get_rec(), "" );
+            ex->set_decisionNum( 16 );
+            ex->set_state( 0 );
 
-    this->matchc('"');
-    if (this->hasException()) {
-      goto ruleSTRINGEx;
-    }
-  }
 
-  this->get_lexstate()->set_type(_type);
-  goto ruleSTRINGEx;
-ruleSTRINGEx:;
+            goto ruleCOMMENTEx;
+
+        }
+
+        switch (alt16)
+        {
+    	case 1:
+    	    {
+    	        this->matchs(lit_35);
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleCOMMENTEx;
+    	        }
+
+
+
+
+
+    	        for (;;)
+    	        {
+    	            int alt13=2;
+    	            {
+
+
+    	                int LA13_0 = this->LA(1);
+    	                if ( (((LA13_0 >= 0x0000) && (LA13_0 <= '\t')) || ((LA13_0 >= 0x000B) && (LA13_0 <= '\f')) || ((LA13_0 >= 0x000E) && (LA13_0 <= 0xFFFF))))
+    	                {
+    	                    alt13=1;
+    	                }
+
+    	            }
+    	            switch (alt13)
+    	            {
+    	        	case 1:
+    	        	    {
+    	        	        if ( ((this->LA(1) >= 0x0000) && (this->LA(1) <= '\t')) || ((this->LA(1) >= 0x000B) && (this->LA(1) <= '\f')) || ((this->LA(1) >= 0x000E) && (this->LA(1) <= 0xFFFF)) )
+    	        	        {
+    	        	            this->consume();
+    	        	        }
+    	        	        else
+    	        	        {
+    	        	            new ANTLR_Exception< WNScriptASTLexerImplTraits, MISMATCHED_SET_EXCEPTION, StreamType>( this->get_rec(), "" );
+
+    	        	            this->recover();
+    	        	            goto ruleCOMMENTEx;
+    	        	        }
+
+
+    	        	    }
+    	        	    break;
+
+    	        	default:
+    	        	    goto loop13;
+    	        	    break;
+    	            }
+    	        }
+    	        loop13: ;
+
+
+    	        {
+    	            int alt14=2;
+    	            switch ( this->LA(1) )
+    	            {
+    	                case '\r':
+    	                	{
+    	                		alt14=1;
+    	                	}
+    	                    break;
+    	            }
+
+    	            switch (alt14)
+    	            {
+    	        	case 1:
+    	        	    {
+    	        	         this->matchc('\r');
+    	        	        if  (this->hasException())
+    	        	        {
+    	        	            goto ruleCOMMENTEx;
+    	        	        }
+
+
+    	        	    }
+    	        	    break;
+
+    	            }
+    	        }
+
+    	         this->matchc('\n');
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleCOMMENTEx;
+    	        }
+
+
+    	        {
+    	            this->get_state()->get_channel()=HIDDEN;
+    	        }
+
+
+    	    }
+    	    break;
+    	case 2:
+    	    {
+    	        this->matchs(lit_36);
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleCOMMENTEx;
+    	        }
+
+
+
+
+
+    	        for (;;)
+    	        {
+    	            int alt15=2;
+    	            {
+
+
+    	                int LA15_0 = this->LA(1);
+    	                if ( (LA15_0 == '*'))
+    	                {
+    	                    {
+
+
+    	                        int LA15_1 = this->LA(2);
+    	                        if ( (LA15_1 == '/'))
+    	                        {
+    	                            alt15=2;
+    	                        }
+    	                        else if ( (((LA15_1 >= 0x0000) && (LA15_1 <= '.')) || ((LA15_1 >= '0') && (LA15_1 <= 0xFFFF))))
+    	                        {
+    	                            alt15=1;
+    	                        }
+
+    	                    }
+    	                }
+    	                else if ( (((LA15_0 >= 0x0000) && (LA15_0 <= ')')) || ((LA15_0 >= '+') && (LA15_0 <= 0xFFFF))))
+    	                {
+    	                    alt15=1;
+    	                }
+
+    	            }
+    	            switch (alt15)
+    	            {
+    	        	case 1:
+    	        	    {
+    	        	        this->matchAny();
+    	        	        if  (this->hasException())
+    	        	        {
+    	        	            goto ruleCOMMENTEx;
+    	        	        }
+
+
+    	        	    }
+    	        	    break;
+
+    	        	default:
+    	        	    goto loop15;
+    	        	    break;
+    	            }
+    	        }
+    	        loop15: ;
+
+
+    	        this->matchs(lit_37);
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleCOMMENTEx;
+    	        }
+
+
+
+
+    	        {
+    	            this->get_state()->get_channel()=HIDDEN;
+    	        }
+
+
+    	    }
+    	    break;
+
+        }
+    }
+	this->get_lexstate()->set_type(_type);
+    goto ruleCOMMENTEx;
+    ruleCOMMENTEx: ;
+
 }
 
-void WNScriptASTLexer::mCHAR() {
-  ANTLR_UINT32 _type;
 
-  _type = CHAR;
 
-  {
-    this->matchc('\'');
-    if (this->hasException()) {
-      goto ruleCHAREx;
-    }
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mWS()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = WS;
+
 
     {
-      int alt18 = 2;
-      {
-        int LA18_0 = this->LA(1);
-        if ((LA18_0 == '\\')) {
-          alt18 = 1;
-        } else if ((((LA18_0 >= 0x0000) && (LA18_0 <= '&')) ||
-                       ((LA18_0 >= '(') && (LA18_0 <= '[')) ||
-                       ((LA18_0 >= ']') && (LA18_0 <= 0xFFFF)))) {
-          alt18 = 2;
-        } else {
-          ExceptionBaseType* ex =
-              new ANTLR_Exception<WNScriptASTLexerImplTraits,
-                  NO_VIABLE_ALT_EXCEPTION, StreamType>(this->get_rec(), "");
-          ex->set_decisionNum(18);
-          ex->set_state(0);
-
-          goto ruleCHAREx;
-        }
-      }
-      switch (alt18) {
-        case 1: {
-          mESC_SEQ();
-          if (this->hasException()) {
-            goto ruleCHAREx;
-          }
-
-        } break;
-        case 2: {
-          if (((this->LA(1) >= 0x0000) && (this->LA(1) <= '&')) ||
-              ((this->LA(1) >= '(') && (this->LA(1) <= '[')) ||
-              ((this->LA(1) >= ']') && (this->LA(1) <= 0xFFFF))) {
+        if ( ((this->LA(1) >= '\t') && (this->LA(1) <= '\n')) || this->LA(1) == '\r' || this->LA(1) == ' ' )
+        {
             this->consume();
-          } else {
-            new ANTLR_Exception<WNScriptASTLexerImplTraits,
-                MISMATCHED_SET_EXCEPTION, StreamType>(this->get_rec(), "");
+        }
+        else
+        {
+            new ANTLR_Exception< WNScriptASTLexerImplTraits, MISMATCHED_SET_EXCEPTION, StreamType>( this->get_rec(), "" );
 
             this->recover();
-            goto ruleCHAREx;
-          }
+            goto ruleWSEx;
+        }
 
-        } break;
-      }
+
+        {
+            this->get_state()->get_channel()=HIDDEN;
+        }
+
+
     }
 
-    this->matchc('\'');
-    if (this->hasException()) {
-      goto ruleCHAREx;
-    }
-  }
+	this->get_lexstate()->set_type(_type);
+    goto ruleWSEx;
+    ruleWSEx: ;
 
-  this->get_lexstate()->set_type(_type);
-  goto ruleCHAREx;
-ruleCHAREx:;
 }
 
-void WNScriptASTLexer::mNULLTOK() {
-  ANTLR_UINT32 _type;
 
-  _type = NULLTOK;
 
-  {
-    this->matchc('~');
-    if (this->hasException()) {
-      goto ruleNULLTOKEx;
-    }
-  }
 
-  this->get_lexstate()->set_type(_type);
-  goto ruleNULLTOKEx;
-ruleNULLTOKEx:;
-}
 
-void WNScriptASTLexer::mEXPONENT() {
-  ANTLR_UINT32 _type;
 
-  {
-    if (this->LA(1) == 'E' || this->LA(1) == 'e') {
-      this->consume();
-    } else {
-      new ANTLR_Exception<WNScriptASTLexerImplTraits, MISMATCHED_SET_EXCEPTION,
-          StreamType>(this->get_rec(), "");
 
-      this->recover();
-      goto ruleEXPONENTEx;
-    }
+
+
+
+
+
+void WNScriptASTLexer::mSTRING()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = STRING;
+
 
     {
-      int alt19 = 2;
-      switch (this->LA(1)) {
-        case '+':
-        case '-': {
-          alt19 = 1;
-        } break;
-      }
-
-      switch (alt19) {
-        case 1: {
-          if (this->LA(1) == '+' || this->LA(1) == '-') {
-            this->consume();
-          } else {
-            new ANTLR_Exception<WNScriptASTLexerImplTraits,
-                MISMATCHED_SET_EXCEPTION, StreamType>(this->get_rec(), "");
-
-            this->recover();
-            goto ruleEXPONENTEx;
-          }
-
-        } break;
-      }
-    }
-
-    {
-      int cnt20 = 0;
-
-      for (;;) {
-        int alt20 = 2;
-        switch (this->LA(1)) {
-          case '0':
-          case '1':
-          case '2':
-          case '3':
-          case '4':
-          case '5':
-          case '6':
-          case '7':
-          case '8':
-          case '9': {
-            alt20 = 1;
-          } break;
+         this->matchc('"');
+        if  (this->hasException())
+        {
+            goto ruleSTRINGEx;
         }
 
-        switch (alt20) {
-          case 1: {
-            if (((this->LA(1) >= '0') && (this->LA(1) <= '9'))) {
-              this->consume();
-            } else {
-              new ANTLR_Exception<WNScriptASTLexerImplTraits,
-                  MISMATCHED_SET_EXCEPTION, StreamType>(this->get_rec(), "");
 
-              this->recover();
-              goto ruleEXPONENTEx;
-            }
 
-          } break;
+        for (;;)
+        {
+            int alt17=3;
+            {
 
-          default:
 
-            if (cnt20 >= 1) {
-              goto loop20;
-            }
-
-            new ANTLR_Exception<WNScriptASTLexerImplTraits,
-                EARLY_EXIT_EXCEPTION, StreamType>(this->get_rec(), "");
-
-            goto ruleEXPONENTEx;
-        }
-        cnt20++;
-      }
-    loop20:;
-    }
-  }
-
-  goto ruleEXPONENTEx;
-ruleEXPONENTEx:;
-}
-
-void WNScriptASTLexer::mHEX_DIGIT() {
-  ANTLR_UINT32 _type;
-
-  {
-    if (((this->LA(1) >= '0') && (this->LA(1) <= '9')) ||
-        ((this->LA(1) >= 'A') && (this->LA(1) <= 'F')) ||
-        ((this->LA(1) >= 'a') && (this->LA(1) <= 'f'))) {
-      this->consume();
-    } else {
-      new ANTLR_Exception<WNScriptASTLexerImplTraits, MISMATCHED_SET_EXCEPTION,
-          StreamType>(this->get_rec(), "");
-
-      this->recover();
-      goto ruleHEX_DIGITEx;
-    }
-  }
-
-  goto ruleHEX_DIGITEx;
-ruleHEX_DIGITEx:;
-}
-
-void WNScriptASTLexer::mESC_SEQ() {
-  ANTLR_UINT32 _type;
-
-  {
-    ANTLR_UINT32 alt21;
-
-    alt21 = 3;
-
-    switch (this->LA(1)) {
-      case '\\': {
-        switch (this->LA(2)) {
-          case 'u': {
-            alt21 = 1;
-          } break;
-          case '0':
-          case '1':
-          case '2':
-          case '3':
-          case '4':
-          case '5':
-          case '6':
-          case '7': {
-            alt21 = 2;
-          } break;
-          case '"':
-          case '\'':
-          case '\\':
-          case 'b':
-          case 'f':
-          case 'n':
-          case 'r':
-          case 't': {
-            alt21 = 3;
-          } break;
-
-          default:
-            ExceptionBaseType* ex =
-                new ANTLR_Exception<WNScriptASTLexerImplTraits,
-                    NO_VIABLE_ALT_EXCEPTION, StreamType>(this->get_rec(), "");
-            ex->set_decisionNum(21);
-            ex->set_state(1);
-
-            goto ruleESC_SEQEx;
-        }
-
-      } break;
-
-      default:
-        ExceptionBaseType* ex = new ANTLR_Exception<WNScriptASTLexerImplTraits,
-            NO_VIABLE_ALT_EXCEPTION, StreamType>(this->get_rec(), "");
-        ex->set_decisionNum(21);
-        ex->set_state(0);
-
-        goto ruleESC_SEQEx;
-    }
-
-    switch (alt21) {
-      case 1: {
-        mUNICODE_ESC();
-        if (this->hasException()) {
-          goto ruleESC_SEQEx;
-        }
-
-      } break;
-      case 2: {
-        mOCTAL_ESC();
-        if (this->hasException()) {
-          goto ruleESC_SEQEx;
-        }
-
-      } break;
-      case 3: {
-        this->matchc('\\');
-        if (this->hasException()) {
-          goto ruleESC_SEQEx;
-        }
-
-        if (this->LA(1) == '"' || this->LA(1) == '\'' || this->LA(1) == '\\' ||
-            this->LA(1) == 'b' || this->LA(1) == 'f' || this->LA(1) == 'n' ||
-            this->LA(1) == 'r' || this->LA(1) == 't') {
-          this->consume();
-        } else {
-          new ANTLR_Exception<WNScriptASTLexerImplTraits,
-              MISMATCHED_SET_EXCEPTION, StreamType>(this->get_rec(), "");
-
-          this->recover();
-          goto ruleESC_SEQEx;
-        }
-
-      } break;
-    }
-  }
-
-  goto ruleESC_SEQEx;
-ruleESC_SEQEx:;
-}
-
-void WNScriptASTLexer::mOCTAL_ESC() {
-  ANTLR_UINT32 _type;
-
-  {
-    ANTLR_UINT32 alt22;
-
-    alt22 = 3;
-
-    switch (this->LA(1)) {
-      case '\\': {
-        switch (this->LA(2)) {
-          case '0':
-          case '1':
-          case '2':
-          case '3': {
-            switch (this->LA(3)) {
-              case '0':
-              case '1':
-              case '2':
-              case '3':
-              case '4':
-              case '5':
-              case '6':
-              case '7': {
-                switch (this->LA(4)) {
-                  case '0':
-                  case '1':
-                  case '2':
-                  case '3':
-                  case '4':
-                  case '5':
-                  case '6':
-                  case '7': {
-                    alt22 = 1;
-                  } break;
-
-                  default:
-                    alt22 = 2;
+                int LA17_0 = this->LA(1);
+                if ( (LA17_0 == '\\'))
+                {
+                    alt17=1;
+                }
+                else if ( (((LA17_0 >= 0x0000) && (LA17_0 <= '!')) || ((LA17_0 >= '#') && (LA17_0 <= '[')) || ((LA17_0 >= ']') && (LA17_0 <= 0xFFFF))))
+                {
+                    alt17=2;
                 }
 
-              } break;
+            }
+            switch (alt17)
+            {
+        	case 1:
+        	    {
 
-              default:
-                alt22 = 3;
+        	        mESC_SEQ();
+        	        if  (this->hasException())
+        	        {
+        	            goto ruleSTRINGEx;
+        	        }
+
+
+
+        	    }
+        	    break;
+        	case 2:
+        	    {
+        	        if ( ((this->LA(1) >= 0x0000) && (this->LA(1) <= '!')) || ((this->LA(1) >= '#') && (this->LA(1) <= '[')) || ((this->LA(1) >= ']') && (this->LA(1) <= 0xFFFF)) )
+        	        {
+        	            this->consume();
+        	        }
+        	        else
+        	        {
+        	            new ANTLR_Exception< WNScriptASTLexerImplTraits, MISMATCHED_SET_EXCEPTION, StreamType>( this->get_rec(), "" );
+
+        	            this->recover();
+        	            goto ruleSTRINGEx;
+        	        }
+
+
+        	    }
+        	    break;
+
+        	default:
+        	    goto loop17;
+        	    break;
+            }
+        }
+        loop17: ;
+
+
+         this->matchc('"');
+        if  (this->hasException())
+        {
+            goto ruleSTRINGEx;
+        }
+
+
+    }
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleSTRINGEx;
+    ruleSTRINGEx: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mCHAR()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = CHAR;
+
+
+    {
+         this->matchc('\'');
+        if  (this->hasException())
+        {
+            goto ruleCHAREx;
+        }
+
+
+        {
+            int alt18=2;
+            {
+                int LA18_0 = this->LA(1);
+                if ( (LA18_0 == '\\'))
+                {
+                    alt18=1;
+                }
+                else if ( (((LA18_0 >= 0x0000) && (LA18_0 <= '&')) || ((LA18_0 >= '(') && (LA18_0 <= '[')) || ((LA18_0 >= ']') && (LA18_0 <= 0xFFFF))))
+                {
+                    alt18=2;
+                }
+                else
+                {
+
+                    ExceptionBaseType* ex = new ANTLR_Exception< WNScriptASTLexerImplTraits, NO_VIABLE_ALT_EXCEPTION, StreamType>( this->get_rec(), "" );
+                    ex->set_decisionNum( 18 );
+                    ex->set_state( 0 );
+
+
+                    goto ruleCHAREx;
+
+                }
+            }
+            switch (alt18)
+            {
+        	case 1:
+        	    {
+
+        	        mESC_SEQ();
+        	        if  (this->hasException())
+        	        {
+        	            goto ruleCHAREx;
+        	        }
+
+
+
+        	    }
+        	    break;
+        	case 2:
+        	    {
+        	        if ( ((this->LA(1) >= 0x0000) && (this->LA(1) <= '&')) || ((this->LA(1) >= '(') && (this->LA(1) <= '[')) || ((this->LA(1) >= ']') && (this->LA(1) <= 0xFFFF)) )
+        	        {
+        	            this->consume();
+        	        }
+        	        else
+        	        {
+        	            new ANTLR_Exception< WNScriptASTLexerImplTraits, MISMATCHED_SET_EXCEPTION, StreamType>( this->get_rec(), "" );
+
+        	            this->recover();
+        	            goto ruleCHAREx;
+        	        }
+
+
+        	    }
+        	    break;
+
+            }
+        }
+
+         this->matchc('\'');
+        if  (this->hasException())
+        {
+            goto ruleCHAREx;
+        }
+
+
+    }
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleCHAREx;
+    ruleCHAREx: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mNULLTOK()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = NULLTOK;
+
+
+    {
+         this->matchc('~');
+        if  (this->hasException())
+        {
+            goto ruleNULLTOKEx;
+        }
+
+
+    }
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleNULLTOKEx;
+    ruleNULLTOKEx: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mEXPONENT()
+{
+    ANTLR_UINT32	_type;
+
+
+
+    {
+        if ( this->LA(1) == 'E' || this->LA(1) == 'e' )
+        {
+            this->consume();
+        }
+        else
+        {
+            new ANTLR_Exception< WNScriptASTLexerImplTraits, MISMATCHED_SET_EXCEPTION, StreamType>( this->get_rec(), "" );
+
+            this->recover();
+            goto ruleEXPONENTEx;
+        }
+
+
+        {
+            int alt19=2;
+            switch ( this->LA(1) )
+            {
+                case '+':
+                case '-':
+                	{
+                		alt19=1;
+                	}
+                    break;
             }
 
-          } break;
-          case '4':
-          case '5':
-          case '6':
-          case '7': {
-            switch (this->LA(3)) {
-              case '0':
-              case '1':
-              case '2':
-              case '3':
-              case '4':
-              case '5':
-              case '6':
-              case '7': {
-                alt22 = 2;
-              } break;
+            switch (alt19)
+            {
+        	case 1:
+        	    {
+        	        if ( this->LA(1) == '+' || this->LA(1) == '-' )
+        	        {
+        	            this->consume();
+        	        }
+        	        else
+        	        {
+        	            new ANTLR_Exception< WNScriptASTLexerImplTraits, MISMATCHED_SET_EXCEPTION, StreamType>( this->get_rec(), "" );
 
-              default:
-                alt22 = 3;
+        	            this->recover();
+        	            goto ruleEXPONENTEx;
+        	        }
+
+
+        	    }
+        	    break;
+
             }
+        }
 
-          } break;
+        {
+            int cnt20=0;
 
-          default:
-            ExceptionBaseType* ex =
-                new ANTLR_Exception<WNScriptASTLexerImplTraits,
-                    NO_VIABLE_ALT_EXCEPTION, StreamType>(this->get_rec(), "");
-            ex->set_decisionNum(22);
-            ex->set_state(1);
+            for (;;)
+            {
+                int alt20=2;
+        	switch ( this->LA(1) )
+        	{
+        	case '0':
+        	case '1':
+        	case '2':
+        	case '3':
+        	case '4':
+        	case '5':
+        	case '6':
+        	case '7':
+        	case '8':
+        	case '9':
+        		{
+        			alt20=1;
+        		}
+        	    break;
+
+        	}
+
+        	switch (alt20)
+        	{
+        	    case 1:
+        	        {
+        	            if ( ((this->LA(1) >= '0') && (this->LA(1) <= '9')) )
+        	            {
+        	                this->consume();
+        	            }
+        	            else
+        	            {
+        	                new ANTLR_Exception< WNScriptASTLexerImplTraits, MISMATCHED_SET_EXCEPTION, StreamType>( this->get_rec(), "" );
+
+        	                this->recover();
+        	                goto ruleEXPONENTEx;
+        	            }
+
+
+        	        }
+        	        break;
+
+        	    default:
+
+        		if ( cnt20 >= 1 )
+        		{
+        		    goto loop20;
+        		}
+
+
+        		new ANTLR_Exception< WNScriptASTLexerImplTraits, EARLY_EXIT_EXCEPTION, StreamType>( this->get_rec(), "" );
+
+
+        		goto ruleEXPONENTEx;
+        	}
+        	cnt20++;
+            }
+            loop20: ;
+        }
+
+    }
+
+
+    goto ruleEXPONENTEx;
+    ruleEXPONENTEx: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mHEX_DIGIT()
+{
+    ANTLR_UINT32	_type;
+
+
+
+    {
+        if ( ((this->LA(1) >= '0') && (this->LA(1) <= '9')) || ((this->LA(1) >= 'A') && (this->LA(1) <= 'F')) || ((this->LA(1) >= 'a') && (this->LA(1) <= 'f')) )
+        {
+            this->consume();
+        }
+        else
+        {
+            new ANTLR_Exception< WNScriptASTLexerImplTraits, MISMATCHED_SET_EXCEPTION, StreamType>( this->get_rec(), "" );
+
+            this->recover();
+            goto ruleHEX_DIGITEx;
+        }
+
+
+    }
+
+
+    goto ruleHEX_DIGITEx;
+    ruleHEX_DIGITEx: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mESC_SEQ()
+{
+    ANTLR_UINT32	_type;
+
+
+
+    {
+
+        ANTLR_UINT32 alt21;
+
+        alt21=3;
+
+        switch ( this->LA(1) )
+        {
+        case '\\':
+        	{
+        		switch ( this->LA(2) )
+        		{
+        		case 'u':
+        			{
+        				alt21=1;
+        			}
+        		    break;
+        		case '0':
+        		case '1':
+        		case '2':
+        		case '3':
+        		case '4':
+        		case '5':
+        		case '6':
+        		case '7':
+        			{
+        				alt21=2;
+        			}
+        		    break;
+        		case '"':
+        		case '\'':
+        		case '\\':
+        		case 'b':
+        		case 'f':
+        		case 'n':
+        		case 'r':
+        		case 't':
+        			{
+        				alt21=3;
+        			}
+        		    break;
+
+        		default:
+        		    ExceptionBaseType* ex = new ANTLR_Exception< WNScriptASTLexerImplTraits, NO_VIABLE_ALT_EXCEPTION, StreamType>( this->get_rec(), "" );
+        		    ex->set_decisionNum( 21 );
+        		    ex->set_state( 1 );
+
+
+        		    goto ruleESC_SEQEx;
+
+        		}
+
+        	}
+            break;
+
+        default:
+            ExceptionBaseType* ex = new ANTLR_Exception< WNScriptASTLexerImplTraits, NO_VIABLE_ALT_EXCEPTION, StreamType>( this->get_rec(), "" );
+            ex->set_decisionNum( 21 );
+            ex->set_state( 0 );
+
+
+            goto ruleESC_SEQEx;
+
+        }
+
+        switch (alt21)
+        {
+    	case 1:
+    	    {
+
+    	        mUNICODE_ESC();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleESC_SEQEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 2:
+    	    {
+
+    	        mOCTAL_ESC();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleESC_SEQEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 3:
+    	    {
+    	         this->matchc('\\');
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleESC_SEQEx;
+    	        }
+
+
+    	        if ( this->LA(1) == '"' || this->LA(1) == '\'' || this->LA(1) == '\\' || this->LA(1) == 'b' || this->LA(1) == 'f' || this->LA(1) == 'n' || this->LA(1) == 'r' || this->LA(1) == 't' )
+    	        {
+    	            this->consume();
+    	        }
+    	        else
+    	        {
+    	            new ANTLR_Exception< WNScriptASTLexerImplTraits, MISMATCHED_SET_EXCEPTION, StreamType>( this->get_rec(), "" );
+
+    	            this->recover();
+    	            goto ruleESC_SEQEx;
+    	        }
+
+
+    	    }
+    	    break;
+
+        }
+    }
+
+    goto ruleESC_SEQEx;
+    ruleESC_SEQEx: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mOCTAL_ESC()
+{
+    ANTLR_UINT32	_type;
+
+
+
+    {
+
+        ANTLR_UINT32 alt22;
+
+        alt22=3;
+
+        switch ( this->LA(1) )
+        {
+        case '\\':
+        	{
+        		switch ( this->LA(2) )
+        		{
+        		case '0':
+        		case '1':
+        		case '2':
+        		case '3':
+        			{
+        				switch ( this->LA(3) )
+        				{
+        				case '0':
+        				case '1':
+        				case '2':
+        				case '3':
+        				case '4':
+        				case '5':
+        				case '6':
+        				case '7':
+        					{
+        						switch ( this->LA(4) )
+        						{
+        						case '0':
+        						case '1':
+        						case '2':
+        						case '3':
+        						case '4':
+        						case '5':
+        						case '6':
+        						case '7':
+        							{
+        								alt22=1;
+        							}
+        						    break;
+
+        						default:
+        						    alt22=2;
+        						}
+
+        					}
+        				    break;
+
+        				default:
+        				    alt22=3;
+        				}
+
+        			}
+        		    break;
+        		case '4':
+        		case '5':
+        		case '6':
+        		case '7':
+        			{
+        				switch ( this->LA(3) )
+        				{
+        				case '0':
+        				case '1':
+        				case '2':
+        				case '3':
+        				case '4':
+        				case '5':
+        				case '6':
+        				case '7':
+        					{
+        						alt22=2;
+        					}
+        				    break;
+
+        				default:
+        				    alt22=3;
+        				}
+
+        			}
+        		    break;
+
+        		default:
+        		    ExceptionBaseType* ex = new ANTLR_Exception< WNScriptASTLexerImplTraits, NO_VIABLE_ALT_EXCEPTION, StreamType>( this->get_rec(), "" );
+        		    ex->set_decisionNum( 22 );
+        		    ex->set_state( 1 );
+
+
+        		    goto ruleOCTAL_ESCEx;
+
+        		}
+
+        	}
+            break;
+
+        default:
+            ExceptionBaseType* ex = new ANTLR_Exception< WNScriptASTLexerImplTraits, NO_VIABLE_ALT_EXCEPTION, StreamType>( this->get_rec(), "" );
+            ex->set_decisionNum( 22 );
+            ex->set_state( 0 );
+
 
             goto ruleOCTAL_ESCEx;
+
         }
 
-      } break;
+        switch (alt22)
+        {
+    	case 1:
+    	    {
+    	         this->matchc('\\');
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleOCTAL_ESCEx;
+    	        }
 
-      default:
-        ExceptionBaseType* ex = new ANTLR_Exception<WNScriptASTLexerImplTraits,
-            NO_VIABLE_ALT_EXCEPTION, StreamType>(this->get_rec(), "");
-        ex->set_decisionNum(22);
-        ex->set_state(0);
 
-        goto ruleOCTAL_ESCEx;
+    	        if ( ((this->LA(1) >= '0') && (this->LA(1) <= '3')) )
+    	        {
+    	            this->consume();
+    	        }
+    	        else
+    	        {
+    	            new ANTLR_Exception< WNScriptASTLexerImplTraits, MISMATCHED_SET_EXCEPTION, StreamType>( this->get_rec(), "" );
+
+    	            this->recover();
+    	            goto ruleOCTAL_ESCEx;
+    	        }
+
+
+    	        if ( ((this->LA(1) >= '0') && (this->LA(1) <= '7')) )
+    	        {
+    	            this->consume();
+    	        }
+    	        else
+    	        {
+    	            new ANTLR_Exception< WNScriptASTLexerImplTraits, MISMATCHED_SET_EXCEPTION, StreamType>( this->get_rec(), "" );
+
+    	            this->recover();
+    	            goto ruleOCTAL_ESCEx;
+    	        }
+
+
+    	        if ( ((this->LA(1) >= '0') && (this->LA(1) <= '7')) )
+    	        {
+    	            this->consume();
+    	        }
+    	        else
+    	        {
+    	            new ANTLR_Exception< WNScriptASTLexerImplTraits, MISMATCHED_SET_EXCEPTION, StreamType>( this->get_rec(), "" );
+
+    	            this->recover();
+    	            goto ruleOCTAL_ESCEx;
+    	        }
+
+
+    	    }
+    	    break;
+    	case 2:
+    	    {
+    	         this->matchc('\\');
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleOCTAL_ESCEx;
+    	        }
+
+
+    	        if ( ((this->LA(1) >= '0') && (this->LA(1) <= '7')) )
+    	        {
+    	            this->consume();
+    	        }
+    	        else
+    	        {
+    	            new ANTLR_Exception< WNScriptASTLexerImplTraits, MISMATCHED_SET_EXCEPTION, StreamType>( this->get_rec(), "" );
+
+    	            this->recover();
+    	            goto ruleOCTAL_ESCEx;
+    	        }
+
+
+    	        if ( ((this->LA(1) >= '0') && (this->LA(1) <= '7')) )
+    	        {
+    	            this->consume();
+    	        }
+    	        else
+    	        {
+    	            new ANTLR_Exception< WNScriptASTLexerImplTraits, MISMATCHED_SET_EXCEPTION, StreamType>( this->get_rec(), "" );
+
+    	            this->recover();
+    	            goto ruleOCTAL_ESCEx;
+    	        }
+
+
+    	    }
+    	    break;
+    	case 3:
+    	    {
+    	         this->matchc('\\');
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleOCTAL_ESCEx;
+    	        }
+
+
+    	        if ( ((this->LA(1) >= '0') && (this->LA(1) <= '7')) )
+    	        {
+    	            this->consume();
+    	        }
+    	        else
+    	        {
+    	            new ANTLR_Exception< WNScriptASTLexerImplTraits, MISMATCHED_SET_EXCEPTION, StreamType>( this->get_rec(), "" );
+
+    	            this->recover();
+    	            goto ruleOCTAL_ESCEx;
+    	        }
+
+
+    	    }
+    	    break;
+
+        }
     }
 
-    switch (alt22) {
-      case 1: {
-        this->matchc('\\');
-        if (this->hasException()) {
-          goto ruleOCTAL_ESCEx;
-        }
+    goto ruleOCTAL_ESCEx;
+    ruleOCTAL_ESCEx: ;
 
-        if (((this->LA(1) >= '0') && (this->LA(1) <= '3'))) {
-          this->consume();
-        } else {
-          new ANTLR_Exception<WNScriptASTLexerImplTraits,
-              MISMATCHED_SET_EXCEPTION, StreamType>(this->get_rec(), "");
-
-          this->recover();
-          goto ruleOCTAL_ESCEx;
-        }
-
-        if (((this->LA(1) >= '0') && (this->LA(1) <= '7'))) {
-          this->consume();
-        } else {
-          new ANTLR_Exception<WNScriptASTLexerImplTraits,
-              MISMATCHED_SET_EXCEPTION, StreamType>(this->get_rec(), "");
-
-          this->recover();
-          goto ruleOCTAL_ESCEx;
-        }
-
-        if (((this->LA(1) >= '0') && (this->LA(1) <= '7'))) {
-          this->consume();
-        } else {
-          new ANTLR_Exception<WNScriptASTLexerImplTraits,
-              MISMATCHED_SET_EXCEPTION, StreamType>(this->get_rec(), "");
-
-          this->recover();
-          goto ruleOCTAL_ESCEx;
-        }
-
-      } break;
-      case 2: {
-        this->matchc('\\');
-        if (this->hasException()) {
-          goto ruleOCTAL_ESCEx;
-        }
-
-        if (((this->LA(1) >= '0') && (this->LA(1) <= '7'))) {
-          this->consume();
-        } else {
-          new ANTLR_Exception<WNScriptASTLexerImplTraits,
-              MISMATCHED_SET_EXCEPTION, StreamType>(this->get_rec(), "");
-
-          this->recover();
-          goto ruleOCTAL_ESCEx;
-        }
-
-        if (((this->LA(1) >= '0') && (this->LA(1) <= '7'))) {
-          this->consume();
-        } else {
-          new ANTLR_Exception<WNScriptASTLexerImplTraits,
-              MISMATCHED_SET_EXCEPTION, StreamType>(this->get_rec(), "");
-
-          this->recover();
-          goto ruleOCTAL_ESCEx;
-        }
-
-      } break;
-      case 3: {
-        this->matchc('\\');
-        if (this->hasException()) {
-          goto ruleOCTAL_ESCEx;
-        }
-
-        if (((this->LA(1) >= '0') && (this->LA(1) <= '7'))) {
-          this->consume();
-        } else {
-          new ANTLR_Exception<WNScriptASTLexerImplTraits,
-              MISMATCHED_SET_EXCEPTION, StreamType>(this->get_rec(), "");
-
-          this->recover();
-          goto ruleOCTAL_ESCEx;
-        }
-
-      } break;
-    }
-  }
-
-  goto ruleOCTAL_ESCEx;
-ruleOCTAL_ESCEx:;
 }
 
-void WNScriptASTLexer::mUNICODE_ESC() {
-  ANTLR_UINT32 _type;
 
-  {
-    this->matchc('\\');
-    if (this->hasException()) {
-      goto ruleUNICODE_ESCEx;
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mUNICODE_ESC()
+{
+    ANTLR_UINT32	_type;
+
+
+
+    {
+         this->matchc('\\');
+        if  (this->hasException())
+        {
+            goto ruleUNICODE_ESCEx;
+        }
+
+
+         this->matchc('u');
+        if  (this->hasException())
+        {
+            goto ruleUNICODE_ESCEx;
+        }
+
+
+
+        mHEX_DIGIT();
+        if  (this->hasException())
+        {
+            goto ruleUNICODE_ESCEx;
+        }
+
+
+
+
+        mHEX_DIGIT();
+        if  (this->hasException())
+        {
+            goto ruleUNICODE_ESCEx;
+        }
+
+
+
+
+        mHEX_DIGIT();
+        if  (this->hasException())
+        {
+            goto ruleUNICODE_ESCEx;
+        }
+
+
+
+
+        mHEX_DIGIT();
+        if  (this->hasException())
+        {
+            goto ruleUNICODE_ESCEx;
+        }
+
+
+
     }
 
-    this->matchc('u');
-    if (this->hasException()) {
-      goto ruleUNICODE_ESCEx;
-    }
 
-    mHEX_DIGIT();
-    if (this->hasException()) {
-      goto ruleUNICODE_ESCEx;
-    }
+    goto ruleUNICODE_ESCEx;
+    ruleUNICODE_ESCEx: ;
 
-    mHEX_DIGIT();
-    if (this->hasException()) {
-      goto ruleUNICODE_ESCEx;
-    }
-
-    mHEX_DIGIT();
-    if (this->hasException()) {
-      goto ruleUNICODE_ESCEx;
-    }
-
-    mHEX_DIGIT();
-    if (this->hasException()) {
-      goto ruleUNICODE_ESCEx;
-    }
-  }
-
-  goto ruleUNICODE_ESCEx;
-ruleUNICODE_ESCEx:;
 }
 
-void WNScriptASTLexer::mTokens() {
-  {
-    ANTLR_UINT32 alt23;
 
-    alt23 = 61;
 
-    alt23 = cdfa23.predict(this, this->get_rec(), this->get_istream(), cdfa23);
-    if (this->hasException()) {
-      goto ruleTokensEx;
+
+void
+WNScriptASTLexer::mTokens()
+{
+    {
+
+        ANTLR_UINT32 alt23;
+
+        alt23=61;
+
+        alt23 = cdfa23.predict(this, this->get_rec(), this->get_istream(), cdfa23 );
+        if  (this->hasException())
+        {
+            goto ruleTokensEx;
+        }
+
+        switch (alt23)
+        {
+    	case 1:
+    	    {
+
+    	        mT__50();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 2:
+    	    {
+
+    	        mT__51();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 3:
+    	    {
+
+    	        mT__52();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 4:
+    	    {
+
+    	        mT__53();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 5:
+    	    {
+
+    	        mT__54();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 6:
+    	    {
+
+    	        mT__55();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 7:
+    	    {
+
+    	        mT__56();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 8:
+    	    {
+
+    	        mT__57();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 9:
+    	    {
+
+    	        mT__58();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 10:
+    	    {
+
+    	        mT__59();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 11:
+    	    {
+
+    	        mT__60();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 12:
+    	    {
+
+    	        mT__61();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 13:
+    	    {
+
+    	        mT__62();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 14:
+    	    {
+
+    	        mT__63();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 15:
+    	    {
+
+    	        mT__64();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 16:
+    	    {
+
+    	        mT__65();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 17:
+    	    {
+
+    	        mT__66();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 18:
+    	    {
+
+    	        mT__67();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 19:
+    	    {
+
+    	        mT__68();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 20:
+    	    {
+
+    	        mT__69();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 21:
+    	    {
+
+    	        mLSQBRACKET();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 22:
+    	    {
+
+    	        mRSQBRACKET();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 23:
+    	    {
+
+    	        mLBRACKET();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 24:
+    	    {
+
+    	        mRBRACKET();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 25:
+    	    {
+
+    	        mLBRACE();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 26:
+    	    {
+
+    	        mRBRACE();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 27:
+    	    {
+
+    	        mCOMMA();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 28:
+    	    {
+
+    	        mDOUBINC();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 29:
+    	    {
+
+    	        mDOUBDEC();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 30:
+    	    {
+
+    	        mRETURN();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 31:
+    	    {
+
+    	        mSEMICOLON();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 32:
+    	    {
+
+    	        mCOLON();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 33:
+    	    {
+
+    	        mWHILE();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 34:
+    	    {
+
+    	        mDO();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 35:
+    	    {
+
+    	        mIF();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 36:
+    	    {
+
+    	        mELSE();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 37:
+    	    {
+
+    	        mFOR();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 38:
+    	    {
+
+    	        mSTRUCT();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 39:
+    	    {
+
+    	        mCLASS();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 40:
+    	    {
+
+    	        mVIRTUAL();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 41:
+    	    {
+
+    	        mOVERRIDE();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 42:
+    	    {
+
+    	        mINCLUDE();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 43:
+    	    {
+
+    	        mVOID_TYPE();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 44:
+    	    {
+
+    	        mINT_TYPE();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 45:
+    	    {
+
+    	        mFLOAT_TYPE();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 46:
+    	    {
+
+    	        mBOOL_TYPE();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 47:
+    	    {
+
+    	        mSTRING_TYPE();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 48:
+    	    {
+
+    	        mCHAR_TYPE();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 49:
+    	    {
+
+    	        mQUESTION();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 50:
+    	    {
+
+    	        mWEAK_REF();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 51:
+    	    {
+
+    	        mSHARED_REF();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 52:
+    	    {
+
+    	        mBOOL();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 53:
+    	    {
+
+    	        mID();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 54:
+    	    {
+
+    	        mTYPE();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 55:
+    	    {
+
+    	        mINT();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 56:
+    	    {
+
+    	        mFLOAT();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 57:
+    	    {
+
+    	        mCOMMENT();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 58:
+    	    {
+
+    	        mWS();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 59:
+    	    {
+
+    	        mSTRING();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 60:
+    	    {
+
+    	        mCHAR();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 61:
+    	    {
+
+    	        mNULLTOK();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+
+        }
     }
 
-    switch (alt23) {
-      case 1: {
-        mT__50();
-        if (this->hasException()) {
-          goto ruleTokensEx;
-        }
 
-      } break;
-      case 2: {
-        mT__51();
-        if (this->hasException()) {
-          goto ruleTokensEx;
-        }
-
-      } break;
-      case 3: {
-        mT__52();
-        if (this->hasException()) {
-          goto ruleTokensEx;
-        }
-
-      } break;
-      case 4: {
-        mT__53();
-        if (this->hasException()) {
-          goto ruleTokensEx;
-        }
-
-      } break;
-      case 5: {
-        mT__54();
-        if (this->hasException()) {
-          goto ruleTokensEx;
-        }
-
-      } break;
-      case 6: {
-        mT__55();
-        if (this->hasException()) {
-          goto ruleTokensEx;
-        }
-
-      } break;
-      case 7: {
-        mT__56();
-        if (this->hasException()) {
-          goto ruleTokensEx;
-        }
-
-      } break;
-      case 8: {
-        mT__57();
-        if (this->hasException()) {
-          goto ruleTokensEx;
-        }
-
-      } break;
-      case 9: {
-        mT__58();
-        if (this->hasException()) {
-          goto ruleTokensEx;
-        }
-
-      } break;
-      case 10: {
-        mT__59();
-        if (this->hasException()) {
-          goto ruleTokensEx;
-        }
-
-      } break;
-      case 11: {
-        mT__60();
-        if (this->hasException()) {
-          goto ruleTokensEx;
-        }
-
-      } break;
-      case 12: {
-        mT__61();
-        if (this->hasException()) {
-          goto ruleTokensEx;
-        }
-
-      } break;
-      case 13: {
-        mT__62();
-        if (this->hasException()) {
-          goto ruleTokensEx;
-        }
-
-      } break;
-      case 14: {
-        mT__63();
-        if (this->hasException()) {
-          goto ruleTokensEx;
-        }
-
-      } break;
-      case 15: {
-        mT__64();
-        if (this->hasException()) {
-          goto ruleTokensEx;
-        }
-
-      } break;
-      case 16: {
-        mT__65();
-        if (this->hasException()) {
-          goto ruleTokensEx;
-        }
-
-      } break;
-      case 17: {
-        mT__66();
-        if (this->hasException()) {
-          goto ruleTokensEx;
-        }
-
-      } break;
-      case 18: {
-        mT__67();
-        if (this->hasException()) {
-          goto ruleTokensEx;
-        }
-
-      } break;
-      case 19: {
-        mT__68();
-        if (this->hasException()) {
-          goto ruleTokensEx;
-        }
-
-      } break;
-      case 20: {
-        mT__69();
-        if (this->hasException()) {
-          goto ruleTokensEx;
-        }
-
-      } break;
-      case 21: {
-        mLSQBRACKET();
-        if (this->hasException()) {
-          goto ruleTokensEx;
-        }
-
-      } break;
-      case 22: {
-        mRSQBRACKET();
-        if (this->hasException()) {
-          goto ruleTokensEx;
-        }
-
-      } break;
-      case 23: {
-        mLBRACKET();
-        if (this->hasException()) {
-          goto ruleTokensEx;
-        }
-
-      } break;
-      case 24: {
-        mRBRACKET();
-        if (this->hasException()) {
-          goto ruleTokensEx;
-        }
-
-      } break;
-      case 25: {
-        mLBRACE();
-        if (this->hasException()) {
-          goto ruleTokensEx;
-        }
-
-      } break;
-      case 26: {
-        mRBRACE();
-        if (this->hasException()) {
-          goto ruleTokensEx;
-        }
-
-      } break;
-      case 27: {
-        mCOMMA();
-        if (this->hasException()) {
-          goto ruleTokensEx;
-        }
-
-      } break;
-      case 28: {
-        mDOUBINC();
-        if (this->hasException()) {
-          goto ruleTokensEx;
-        }
-
-      } break;
-      case 29: {
-        mDOUBDEC();
-        if (this->hasException()) {
-          goto ruleTokensEx;
-        }
-
-      } break;
-      case 30: {
-        mRETURN();
-        if (this->hasException()) {
-          goto ruleTokensEx;
-        }
-
-      } break;
-      case 31: {
-        mSEMICOLON();
-        if (this->hasException()) {
-          goto ruleTokensEx;
-        }
-
-      } break;
-      case 32: {
-        mCOLON();
-        if (this->hasException()) {
-          goto ruleTokensEx;
-        }
-
-      } break;
-      case 33: {
-        mWHILE();
-        if (this->hasException()) {
-          goto ruleTokensEx;
-        }
-
-      } break;
-      case 34: {
-        mDO();
-        if (this->hasException()) {
-          goto ruleTokensEx;
-        }
-
-      } break;
-      case 35: {
-        mIF();
-        if (this->hasException()) {
-          goto ruleTokensEx;
-        }
-
-      } break;
-      case 36: {
-        mELSE();
-        if (this->hasException()) {
-          goto ruleTokensEx;
-        }
-
-      } break;
-      case 37: {
-        mFOR();
-        if (this->hasException()) {
-          goto ruleTokensEx;
-        }
-
-      } break;
-      case 38: {
-        mSTRUCT();
-        if (this->hasException()) {
-          goto ruleTokensEx;
-        }
-
-      } break;
-      case 39: {
-        mCLASS();
-        if (this->hasException()) {
-          goto ruleTokensEx;
-        }
-
-      } break;
-      case 40: {
-        mVIRTUAL();
-        if (this->hasException()) {
-          goto ruleTokensEx;
-        }
-
-      } break;
-      case 41: {
-        mOVERRIDE();
-        if (this->hasException()) {
-          goto ruleTokensEx;
-        }
-
-      } break;
-      case 42: {
-        mINCLUDE();
-        if (this->hasException()) {
-          goto ruleTokensEx;
-        }
-
-      } break;
-      case 43: {
-        mVOID_TYPE();
-        if (this->hasException()) {
-          goto ruleTokensEx;
-        }
-
-      } break;
-      case 44: {
-        mINT_TYPE();
-        if (this->hasException()) {
-          goto ruleTokensEx;
-        }
-
-      } break;
-      case 45: {
-        mFLOAT_TYPE();
-        if (this->hasException()) {
-          goto ruleTokensEx;
-        }
-
-      } break;
-      case 46: {
-        mBOOL_TYPE();
-        if (this->hasException()) {
-          goto ruleTokensEx;
-        }
-
-      } break;
-      case 47: {
-        mSTRING_TYPE();
-        if (this->hasException()) {
-          goto ruleTokensEx;
-        }
-
-      } break;
-      case 48: {
-        mCHAR_TYPE();
-        if (this->hasException()) {
-          goto ruleTokensEx;
-        }
-
-      } break;
-      case 49: {
-        mQUESTION();
-        if (this->hasException()) {
-          goto ruleTokensEx;
-        }
-
-      } break;
-      case 50: {
-        mWEAK_REF();
-        if (this->hasException()) {
-          goto ruleTokensEx;
-        }
-
-      } break;
-      case 51: {
-        mSHARED_REF();
-        if (this->hasException()) {
-          goto ruleTokensEx;
-        }
-
-      } break;
-      case 52: {
-        mBOOL();
-        if (this->hasException()) {
-          goto ruleTokensEx;
-        }
-
-      } break;
-      case 53: {
-        mID();
-        if (this->hasException()) {
-          goto ruleTokensEx;
-        }
-
-      } break;
-      case 54: {
-        mTYPE();
-        if (this->hasException()) {
-          goto ruleTokensEx;
-        }
-
-      } break;
-      case 55: {
-        mINT();
-        if (this->hasException()) {
-          goto ruleTokensEx;
-        }
-
-      } break;
-      case 56: {
-        mFLOAT();
-        if (this->hasException()) {
-          goto ruleTokensEx;
-        }
-
-      } break;
-      case 57: {
-        mCOMMENT();
-        if (this->hasException()) {
-          goto ruleTokensEx;
-        }
-
-      } break;
-      case 58: {
-        mWS();
-        if (this->hasException()) {
-          goto ruleTokensEx;
-        }
-
-      } break;
-      case 59: {
-        mSTRING();
-        if (this->hasException()) {
-          goto ruleTokensEx;
-        }
-
-      } break;
-      case 60: {
-        mCHAR();
-        if (this->hasException()) {
-          goto ruleTokensEx;
-        }
-
-      } break;
-      case 61: {
-        mNULLTOK();
-        if (this->hasException()) {
-          goto ruleTokensEx;
-        }
-
-      } break;
-    }
-  }
-
-  goto ruleTokensEx;
-ruleTokensEx:;
+    goto ruleTokensEx;
+ruleTokensEx: ;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

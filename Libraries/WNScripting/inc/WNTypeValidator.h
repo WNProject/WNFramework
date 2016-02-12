@@ -183,18 +183,22 @@ struct type_definition {
       m_ids(_allocator),
       m_functions(_allocator),
       m_allocator(_allocator),
+      m_mode(reference_type::max),
       m_mangling(_allocator) {
     m_ops = valid_builtin_operations[0];  // default to nothing valid
   }
+
   type_definition(const allowed_builtin_operations& operation,
       memory::allocator* _allocator)
     : m_casts(_allocator),
       m_ids(_allocator),
       m_functions(_allocator),
       m_allocator(_allocator),
+      m_mode(reference_type::max),
       m_mangling(_allocator) {
     m_ops = operation;
   }
+
   uint32_t get_cast_type(uint32_t _val) {
     auto it = std::find_if(m_casts.begin(), m_casts.end(),
         [_val](cast_operation& cast) { return _val == cast.cast_to; });
@@ -254,6 +258,7 @@ struct type_definition {
   containers::dynamic_array<member_id> m_ids;
   containers::dynamic_array<member_function> m_functions;
   containers::string m_mangling;
+  reference_type m_mode;
   memory::allocator* m_allocator;
 };
 
@@ -338,25 +343,43 @@ public:
     m_types[6].m_mangling = "b";
   }
 
-  uint32_t get_or_register_type(const containers::string_view& _name) {
+  // This will register 4 types, 1 for each reference mode.
+  // The value returned will be that of the base type.
+  // The reference_types::max values starting at the returned value,
+  // represent the additional types.
+  uint32_t register_struct_type(const containers::string_view& _name) {
     auto it = m_mapping.find(_name.to_string(m_allocator));
     if (it != m_mapping.end()) {
       return it->second;
     }
-    auto str_it = m_names.insert(m_names.end(), _name.to_string(m_allocator));
-    uint32_t type = m_max_types++;
-    m_mapping.insert(std::make_pair(_name.to_string(m_allocator), type));
-    m_types.push_back(type_definition(m_allocator));
-    size_t total_length = 10 + 2 + _name.size();
 
-    m_types.back().m_mangling = containers::string(m_allocator);
-    m_types.back().m_mangling.reserve(total_length);
-    m_types.back().m_mangling.push_back('E');
-    append_number(m_types.size(), m_types.back().m_mangling);
-    m_types.back().m_mangling.append(_name.data(), _name.size());
-    m_types.back().m_mangling.push_back('T');
+    const char* struct_modes[static_cast<uint32_t>(reference_type::max)] = {
+        "", "R", "RP", "P", "PP"};
 
-    return type;
+    uint32_t returned_type = 0;
+    for (size_t i = 0; i < static_cast<uint32_t>(reference_type::max); ++i) {
+      auto str_it = m_names.insert(m_names.end(), _name.to_string(m_allocator));
+      uint32_t type = m_max_types++;
+      returned_type = (returned_type == 0) ? type : returned_type;
+      containers::string name_string = _name.to_string(m_allocator);
+      if (i == 0) {
+        m_mapping.insert(std::make_pair(_name.to_string(m_allocator), type));
+      }
+
+      m_types.push_back(type_definition(m_allocator));
+      m_types.back().m_mode = static_cast<reference_type>(i);
+      size_t total_length = 10 + 2 + 2 + _name.size();
+
+      m_types.back().m_mangling = containers::string(m_allocator);
+      m_types.back().m_mangling.reserve(total_length);
+      m_types.back().m_mangling.push_back('E');
+      m_types.back().m_mangling.append(struct_modes[i]);
+      append_number(m_types.size(), m_types.back().m_mangling);
+      m_types.back().m_mangling.append(_name.data(), _name.size());
+      m_types.back().m_mangling.push_back('T');
+    }
+
+    return returned_type;
   }
 
   uint32_t get_type(const containers::string_view& _name) {

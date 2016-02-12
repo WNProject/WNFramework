@@ -280,18 +280,18 @@ param returns[scripting::parameter* node]
     :    scalarType a=ID {
             node = m_allocator->construct<scripting::parameter>(m_allocator, $scalarType.node, $a.text.c_str()); SET_LOCATION_FROM_NODE(node, $scalarType.node); SET_END_LOCATION(node, $a); }
     |    bb=compoundType aa=ID {
-            $bb.node->set_qualifier(scripting::type_qualifier::non_nullable);
+            $bb.node->set_reference_type(scripting::reference_type::unique);
             node = m_allocator->construct<scripting::parameter>(m_allocator, $bb.node, $aa.text.c_str()); SET_LOCATION_FROM_NODE(node, $bb.node); SET_END_LOCATION(node, $aa); }
     |    SHARED_REF b=compoundType c=ID {
-           $b.node->set_qualifier(scripting::type_qualifier::shared);
+           $b.node->set_reference_type(scripting::reference_type::shared);
            node = m_allocator->construct<scripting::parameter>(m_allocator, $b.node, $c.text.c_str()); SET_LOCATION(node, $SHARED_REF); SET_END_LOCATION(node, $c);
          }
     |    WEAK_REF d=compoundType  e=ID {
-           $d.node->set_qualifier(scripting::type_qualifier::weak);
+           $d.node->set_reference_type(scripting::reference_type::weak);
            node = m_allocator->construct<scripting::parameter>(m_allocator, $d.node, $e.text.c_str()); SET_LOCATION(node, $WEAK_REF); SET_END_LOCATION(node, $e);
          }
     |    f=compoundType QUESTION  g=ID {
-           $f.node->set_qualifier(scripting::type_qualifier::nullable);
+           $f.node->set_reference_type(scripting::reference_type::nullable);
            node = m_allocator->construct<scripting::parameter>(m_allocator, $f.node, $g.text.c_str()); SET_LOCATION_FROM_NODE(node, $f.node); SET_END_LOCATION(node, $g);
          }
     ;

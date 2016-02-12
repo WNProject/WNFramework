@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNScripting/inc/WNCGenerator.h"
 #include "WNContainers/inc/WNString.h"
 #include "WNMemory/inc/WNStringUtility.h"
+#include "WNScripting/inc/WNCGenerator.h"
 #include "WNScripting/inc/WNScriptHelpers.h"
 
 namespace wn {
@@ -133,15 +133,14 @@ void ast_c_translator::walk_expression(
   _str->second.append(name);
 }
 
-void ast_c_translator::walk_expression(
-    const function_call_expression* _call,
+void ast_c_translator::walk_expression(const function_call_expression* _call,
     containers::pair<containers::string, containers::string>* _str) {
   initialize_data(m_allocator, _str);
 
   _str->second.append(_call->callee()->get_mangled_name());
   _str->second.append("(");
   const char* comma = "";
-  for(auto& expr : _call->get_expressions()) {
+  for (auto& expr : _call->get_expressions()) {
     const auto& dat = m_generator->get_data(expr->m_expr.get());
     _str->first.append(dat.first);
     _str->second.append(comma);
@@ -179,7 +178,7 @@ void ast_c_translator::walk_instruction(const declaration* _decl,
   _str->second.append(expr.first);
 
   _str->second += m_generator->get_data(_decl->get_type());
-  if (_decl->get_type()->get_qualifier() == type_qualifier::non_nullable) {
+  if (_decl->get_type()->get_reference_type() == reference_type::unique) {
     _str->second += "*";
   }
   _str->second += " " + _decl->get_name().to_string(m_allocator) + " = ";

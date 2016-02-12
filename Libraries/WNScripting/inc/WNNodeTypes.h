@@ -151,24 +151,24 @@ public:
   type(memory::allocator* _allocator, const char* _custom_type)
     : node(_allocator, node_type::type),
       m_type(0),
-      m_qualifier(type_qualifier::none),
+      m_reference_type(reference_type::raw),
       m_custom_type(_custom_type, _allocator) {}
 
   type(memory::allocator* _allocator, uint32_t _type)
     : node(_allocator, node_type::type),
       m_type(_type),
-      m_qualifier(type_qualifier::none) {}
+      m_reference_type(reference_type::raw) {}
 
   type(memory::allocator* _allocator, type_classification _type)
     : node(_allocator, node_type::type),
       m_type(static_cast<uint32_t>(_type)),
-      m_qualifier(type_qualifier::none),
+      m_reference_type(reference_type::raw),
       m_custom_type(_allocator) {}
 
   type(const type& _other)
     : node(_other.m_allocator, node_type::type),
       m_type(_other.m_type),
-      m_qualifier(type_qualifier::none),
+      m_reference_type(reference_type::raw),
       m_custom_type(get_allocator()) {
     m_custom_type = _other.m_custom_type;
   }
@@ -176,15 +176,22 @@ public:
   // Only valid after the type_association
   // pass is run.
   bool operator==(const type& _other) const {
-    return m_type == _other.m_type && m_qualifier == _other.m_qualifier;
+    return m_type == _other.m_type &&
+           m_reference_type == _other.m_reference_type;
   }
 
-  void set_qualifier(type_qualifier _qualifier) {
-    m_qualifier = _qualifier;
+  void set_reference_type(reference_type _reference_type) {
+    // If we adjust the reference type, then we have to
+    // adjust the type id as well.
+    if (m_type) {
+      m_type += (static_cast<int32_t>(_reference_type) -
+                 static_cast<int32_t>(m_reference_type));
+    }
+    m_reference_type = _reference_type;
   }
 
   void set_type_index(uint32_t _index) {
-    m_type = _index;
+    m_type = _index + (static_cast<uint32_t>(m_reference_type));
   }
 
   bool operator!=(const type& _other) const {
@@ -202,13 +209,13 @@ public:
     return m_custom_type;
   }
 
-  type_qualifier get_qualifier() const {
-    return m_qualifier;
+  reference_type get_reference_type() const {
+    return m_reference_type;
   }
 
 private:
   uint32_t m_type;
-  type_qualifier m_qualifier;
+  reference_type m_reference_type;
   containers::string m_custom_type;
 };
 
@@ -258,8 +265,8 @@ public:
     m_type = memory::unique_ptr<type>(m_allocator, _type);
   }
 
-  virtual void propagate_qualifier(type_qualifier _qualifier) {
-    m_type->set_qualifier(_qualifier);
+  virtual void propagate_reference_type(reference_type _reference_type) {
+    m_type->set_reference_type(_reference_type);
   }
 
   virtual void walk_children(
@@ -808,8 +815,9 @@ public:
     m_unsized_array_initializers += 1;
   }
 
-  void propagate_qualifier() {
-    m_expression->propagate_qualifier(m_parameter->get_type()->get_qualifier());
+  void propagate_reference_type() {
+    m_expression->propagate_reference_type(
+        m_parameter->get_type()->get_reference_type());
   }
 
   const expression* get_expression() const {

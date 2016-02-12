@@ -1,5 +1,5 @@
-#include "WNScripting/inc/WNASTPasses.h"
 #include "WNLogging/inc/WNLog.h"
+#include "WNScripting/inc/WNASTPasses.h"
 #include "WNScripting/inc/WNASTWalker.h"
 #include "WNScripting/inc/WNNodeTypes.h"
 
@@ -306,7 +306,7 @@ public:
     function* callee = nullptr;
     const auto& parameters = _expr->get_expressions();
 
-    for(auto func: possible_function->second) {
+    for (auto func : possible_function->second) {
       if (parameters.size() != 0) {
         if (!func->get_parameters()) {
           continue;
@@ -329,7 +329,7 @@ public:
         }
       } else if (func->get_parameters() &&
                  func->get_parameters()->get_parameters().size() != 0) {
-         continue;
+        continue;
       }
       if (callee) {
         m_log->Log(
@@ -358,10 +358,13 @@ public:
       ++m_num_errors;
       return;
     }
-    const uint32_t type =
-        m_validator->get_or_register_type(_definition->get_name());
 
-    type_definition& def = m_validator->get_operations(type);
+    const uint32_t type =
+        m_validator->register_struct_type(_definition->get_name());
+
+    type_definition& def = m_validator->get_operations(
+        type + static_cast<uint32_t>(reference_type::unique));
+
     for (const auto& a : _definition->get_struct_members()) {
       if (!def.register_sub_type(a->get_name(), a->get_type()->get_index())) {
         m_log->Log(WNLogging::eError, 0, "Duplicate struct element defined: ",
@@ -393,10 +396,9 @@ public:
 
   void walk_instruction(declaration* _decl) {
     // TODO(awoloszyn): Handle types other than non_nullable.
-    if (_decl->get_type()->get_qualifier() == type_qualifier::non_nullable) {
-      _decl->propagate_qualifier();
+    if (_decl->get_type()->get_reference_type() == reference_type::unique) {
+      _decl->propagate_reference_type();
     }
-
     if (_decl->get_type()->get_index() !=
         _decl->get_expression()->get_type()->get_index()) {
       m_log->Log(WNLogging::eError, 0,

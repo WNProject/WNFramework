@@ -97,10 +97,24 @@ void ast_jit_engine::walk_type(
       return;
       break;
     default: {
-      auto elem = m_struct_map.find(_type->get_index());
+      // First we have to normalize the id with the reference type.
+      uint32_t index = _type->get_index();
+      uint32_t normalized_index =
+          index - static_cast<uint32_t>(_type->get_reference_type());
+      auto elem = m_struct_map.find(normalized_index);
       WN_RELEASE_ASSERT_DESC(
           elem != m_struct_map.end(), "Cannot determine type");
-      *_value = elem->second;
+
+      switch(_type->get_reference_type()) {
+        case reference_type::raw:
+          *_value = elem->second;
+          break;
+        case reference_type::unique:
+          *_value = elem->second->getPointerTo();
+          break;
+        default:
+          WN_RELEASE_ASSERT_DESC(false, "Not Implemented");
+      }
     }
   }
 }
@@ -197,13 +211,24 @@ void ast_jit_engine::walk_expression(
   _val->instructions =
       containers::dynamic_array<llvm::Instruction*>(m_allocator);
 
-  containers::string_view name = _alloc->get_type()->custom_type_name();
-  uint32_t type_index = m_validator->get_type(name);
+  uint32_t index = _alloc->get_type()->get_index();
+  uint32_t normalized_index =
+      index - static_cast<uint32_t>(_alloc->get_type()->get_reference_type());
 
-  llvm::Type* t = m_struct_map[type_index];
-  _val->instructions.push_back(new llvm::AllocaInst(t->getPointerElementType(),
-      make_string_ref(_alloc->get_type()->custom_type_name())));
-  _val->value = _val->instructions.back();
+  llvm::Type* t = m_struct_map[normalized_index];
+
+  switch (_alloc->get_type()->get_reference_type()) {
+    case reference_type::raw:
+      WN_RELEASE_ASSERT_DESC(false, "Should not be possible to get here");
+      break;
+    case reference_type::unique:
+      _val->instructions.push_back(new llvm::AllocaInst(
+          t, make_string_ref(_alloc->get_type()->custom_type_name())));
+      _val->value = _val->instructions.back();
+      break;
+    default:
+      WN_RELEASE_ASSERT_DESC(false, "Not Implemented");
+  }
   // TODO(awoloszyn): Call constructor here. This means you will have to
   // Generate 2 instructions, 1) Alloca x, 2) return Construct(x);
 }
@@ -443,8 +468,8 @@ void ast_jit_engine::walk_struct_definition(
 
   llvm::StructType* t =
       llvm::StructType::get(*m_context, make_array_ref(types), false);
-  *_t = t->getPointerTo();
-  m_struct_map[m_validator->get_type(_def->get_name())] = t->getPointerTo();
+  *_t = t;
+  m_struct_map[m_validator->get_type(_def->get_name())] = t;
 }
 
 void ast_jit_engine::walk_function(const function* _func, llvm::Function** _f) {
