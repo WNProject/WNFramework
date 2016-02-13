@@ -273,7 +273,7 @@ void ast_c_translator::walk_struct_definition(
     _str->append(";\n");
   }
   *_str += "} ";
-  *_str += _definition->get_name();
+  _str->append(_definition->get_name().data(), _definition->get_name().size());
   *_str += ";\n\n";
 }
 

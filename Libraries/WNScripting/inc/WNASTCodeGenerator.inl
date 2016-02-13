@@ -18,44 +18,45 @@ namespace scripting {
 
 template <typename Traits>
 template <typename T>
-void ast_code_generator<Traits>::walk_expression(T* _expr) {
+void ast_code_generator<Traits>::walk_expression(const T* _expr) {
   m_generator->walk_expression(_expr, &m_expression_map[_expr]);
 }
 
 template <typename Traits>
 template <typename T>
-void ast_code_generator<Traits>::walk_instruction(T* _inst) {
+void ast_code_generator<Traits>::walk_instruction(const T* _inst) {
   m_generator->walk_instruction(_inst, &m_instruction_map[_inst]);
 }
 
 template <typename Traits>
-void ast_code_generator<Traits>::walk_instruction_list(instruction_list* _l) {
+void ast_code_generator<Traits>::walk_instruction_list(
+    const instruction_list* _l) {
   m_generator->walk_instruction_list(_l, &m_instruction_list_map[_l]);
 }
 
 template <typename Traits>
-void ast_code_generator<Traits>::walk_parameter(parameter* _param) {
+void ast_code_generator<Traits>::walk_parameter(const parameter* _param) {
   m_generator->walk_parameter(_param, &m_parameter_map[_param]);
 }
 
 template <typename Traits>
-void ast_code_generator<Traits>::walk_function(function* _func) {
+void ast_code_generator<Traits>::walk_function(const function* _func) {
   m_generator->walk_function(_func, &m_function_map[_func]);
 }
 
 template <typename Traits>
-void ast_code_generator<Traits>::walk_type(type* _type) {
+void ast_code_generator<Traits>::walk_type(const type* _type) {
   m_generator->walk_type(_type, &m_type_map[_type]);
 }
 
 template <typename Traits>
 void ast_code_generator<Traits>::walk_struct_definition(
-    struct_definition* _def) {
+    const struct_definition* _def) {
   m_generator->walk_struct_definition(_def, &m_struct_definition_map[_def]);
 }
 
 template <typename Traits>
-void ast_code_generator<Traits>::walk_script_file(script_file* _file) {
+void ast_code_generator<Traits>::walk_script_file(const script_file* _file) {
   m_generator->walk_script_file(_file);
 }
 

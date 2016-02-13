@@ -2,7 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNScripting/inc/WNASTWalker.h"
 #include "WNContainers/inc/WNHashMap.h"
 #include "WNContainers/inc/WNPair.h"
 #include "WNContainers/inc/WNString.h"
@@ -10,6 +9,7 @@
 #include "WNFileSystem/inc/WNFactory.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNScripting/inc/WNASTPasses.h"
+#include "WNScripting/inc/WNASTWalker.h"
 #include "WNScripting/test/inc/Common.h"
 #include "WNScripting/test/inc/Common.h"
 #include "WNTesting/inc/WNTestHarness.h"
@@ -21,15 +21,18 @@ using ::testing::TypedEq;
 
 class mock_walk {
 public:
-  MOCK_METHOD1(walk_expression, void(wn::scripting::expression*));
-  MOCK_METHOD1(walk_instruction, void(wn::scripting::instruction*));
-  MOCK_METHOD1(walk_instruction, void(wn::scripting::return_instruction*));
-  MOCK_METHOD1(walk_function, void(wn::scripting::function*));
-  MOCK_METHOD1(walk_parameter, void(wn::scripting::parameter*));
-  MOCK_METHOD1(walk_script_file, void(wn::scripting::script_file*));
-  MOCK_METHOD1(walk_type, void(wn::scripting::type*));
-  MOCK_METHOD1(walk_struct_definition, void(wn::scripting::struct_definition*));
-  MOCK_METHOD1(walk_instruction_list, void(wn::scripting::instruction_list*));
+  MOCK_METHOD1(walk_expression, void(const wn::scripting::expression*));
+  MOCK_METHOD1(walk_instruction, void(const wn::scripting::instruction*));
+  MOCK_METHOD1(
+      walk_instruction, void(const wn::scripting::return_instruction*));
+  MOCK_METHOD1(walk_function, void(const wn::scripting::function*));
+  MOCK_METHOD1(walk_parameter, void(const wn::scripting::parameter*));
+  MOCK_METHOD1(walk_script_file, void(const wn::scripting::script_file*));
+  MOCK_METHOD1(walk_type, void(const wn::scripting::type*));
+  MOCK_METHOD1(
+      walk_struct_definition, void(const wn::scripting::struct_definition*));
+  MOCK_METHOD1(
+      walk_instruction_list, void(const wn::scripting::instruction_list*));
   MOCK_METHOD0(enter_scope_block, void());
   MOCK_METHOD0(leave_scope_block, void());
 };
@@ -49,8 +52,9 @@ void RunMatcherTest(T& _t,
 
   auto a = wn::scripting::test_parse_file(
       _file, mapping.get(), &allocator, _num_warnings, _num_errors);
-  wn::scripting::ast_walker<T> walker(&_t);
-  walker.walk_script_file(a.get());
+  wn::scripting::ast_walker<T, true> walker(&_t);
+  walker.walk_script_file(
+      static_cast<const wn::scripting::script_file*>(a.get()));
 }
 
 TEST(ast_code_generator, simplest_function) {
@@ -62,8 +66,8 @@ TEST(ast_code_generator, simplest_function) {
   EXPECT_CALL(walk, walk_expression(_)).Times(0);
   EXPECT_CALL(walk, walk_function(_)).Times(1);
   EXPECT_CALL(walk, walk_type(_)).Times(1);
-  EXPECT_CALL(
-      walk, walk_instruction(Matcher<wn::scripting::return_instruction*>(_)))
+  EXPECT_CALL(walk,
+      walk_instruction(Matcher<const wn::scripting::return_instruction*>(_)))
       .Times(1);
   RunMatcherTest(walk, {{"file.wns", "Void main() { return; }"}}, "file.wns",
       &num_warnings, &num_errors);

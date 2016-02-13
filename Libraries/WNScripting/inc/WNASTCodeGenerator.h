@@ -67,16 +67,16 @@ public:
   // All of the following create new *_data objects, and call
   // the underlying m_generator->walk_... function.
   template <typename T>
-  void walk_expression(T* t);
+  void walk_expression(const T* t);
   template <typename T>
-  void walk_instruction(T* t);
-  void walk_parameter(parameter* _p);
-  void walk_instruction_list(instruction_list* _l);
-  void walk_function(function* _f);
-  void walk_type(type* _t);
-  void walk_struct_definition(struct_definition* _s);
+  void walk_instruction(const T* t);
+  void walk_parameter(const parameter* _p);
+  void walk_instruction_list(const instruction_list* _l);
+  void walk_function(const function* _f);
+  void walk_type(const type* _t);
+  void walk_struct_definition(const struct_definition* _s);
   // Calls the underlying m_generator->walk_script_file function.
-  void walk_script_file(script_file* _f);
+  void walk_script_file(const script_file* _f);
   // Called when a scope block is entered or left.
   // No-ops here, needed for the correct interface to ASTWalker.
   void enter_scope_block() {}

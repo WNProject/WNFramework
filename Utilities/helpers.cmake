@@ -162,6 +162,7 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL Windows)
   add_compile_options(/W4) # Adjust warnings to level 4
   add_compile_options(/WX) # Enable warnings as errors
   add_compile_options(/GR-) # Disable run-time type information
+  add_compile_options(/MP) # Enable multi-processor compilation
   add_compile_options($<$<CONFIG:Debug>:/MTd> # Adjust CRT usage to static for all configs
                       $<$<NOT:$<CONFIG:Debug>>:/MT>)
   add_compile_options($<$<CONFIG:Release>:/Ox>) # Adjust optimization to full optimization
@@ -171,7 +172,6 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL Windows)
   add_compile_options($<$<CONFIG:Release>:/Oi>) # Enable intrinsic functions
   add_compile_options($<$<CONFIG:Release>:/GT>) # Enable fiber-safe optimizations
   add_compile_options($<$<CONFIG:Release>:/GL>) # Enable whole program optimization
-  add_compile_options($<$<CONFIG:Release>:/MP>) # Enable multi-processor compilation
   add_compile_options($<$<CONFIG:Release>:/Gm->) # Disable minimal rebuild
   # Linker options
   foreach(type EXE SHARED STATIC)

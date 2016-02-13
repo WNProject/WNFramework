@@ -147,7 +147,7 @@ parse_error jit_engine::parse_file(const char* _file) {
   generator.set_generator(&engine);
 
   run_ast_pass<ast_code_generator<ast_jit_traits>>(
-      &generator, parsed_file.get());
+      &generator, static_cast<const script_file*>(parsed_file.get()));
 
   module.m_engine->finalizeObject();
 

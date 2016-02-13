@@ -19,6 +19,14 @@ namespace scripting {
 
 // Walks a script_file and calls all of the associated
 // walk_* calls on the associated walker.
+// Walking non-const expressions is the only special case.
+// It must return a unique_ptr. If this unique_ptr is
+// non-null, then the expression that was evaluated will
+// be replaced with the given expression.
+// If you want to effectively remove the expression, you can
+// use a replaced_expression with zero internals.
+// Note: the expression will be deleted as soon as it is
+// completed.
 template <typename T, bool Const = false>
 class ast_walker {
 public:
@@ -42,7 +50,33 @@ public:
   void walk_script_file(script_file_type file);
 
 private:
-  void walk_expression(expression_type _expr);
+  void walk_expression(const expression* _expr);
+  memory::unique_ptr<expression> walk_mut_expression(expression* _expr);
+
+  struct get_expr_const {
+    containers::function<void(const expression*)> operator()(
+        ast_walker* _this) {
+      return containers::function<void(const expression*)>(
+          &ast_walker<T, true>::walk_expression, _this);
+    }
+  };
+
+  friend struct ast_walker<T, Const>::get_expr_const;
+  struct get_expr_non_const {
+    containers::function<memory::unique_ptr<expression>(expression*)>
+    operator()(ast_walker* _this) {
+      return containers::function<memory::unique_ptr<expression>(expression*)>(
+          &ast_walker<T, false>::walk_mut_expression, _this);
+    }
+  };
+
+  friend struct ast_walker<T, Const>::get_expr_non_const;
+
+  using expr_func = typename std::conditional<Const,
+      walk_ftype<expression_type>, walk_mutable_expression>::type;
+  using get_expr = typename std::conditional<Const, get_expr_const,
+      get_expr_non_const>::type;
+
   void walk_instruction(instruction_type _inst);
   void walk_instruction_list(instruction_list_type _inst);
   void walk_function(function_type _func);

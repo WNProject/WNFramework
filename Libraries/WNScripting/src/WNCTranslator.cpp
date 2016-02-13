@@ -41,7 +41,8 @@ parse_error c_translator::translate_file(const char* file_) {
   ast_code_generator<ast_c_traits> generator(m_allocator);
   ast_c_translator translator(m_allocator, &generator, m_validator);
   generator.set_generator(&translator);
-  run_ast_pass<ast_code_generator<ast_c_traits>>(&generator, parsed_file.get());
+  run_ast_pass<ast_code_generator<ast_c_traits>>(
+      &generator, static_cast<const script_file*>(parsed_file.get()));
 
   const containers::string& output_string(translator.get_output());
   containers::string output_filename(file_, m_allocator);

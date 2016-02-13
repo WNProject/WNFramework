@@ -23,7 +23,7 @@ void ast_walker<T, Const>::walk_script_file(script_file_type _file) {
       walk_scope(&ast_walker<T, Const>::leave_scope_block, this),
       walk_ftype<instruction_type>(
           &ast_walker<T, Const>::walk_instruction, this),
-      walk_ftype<expression_type>(&ast_walker<T, Const>::walk_expression, this),
+      get_expr()(this),
       walk_ftype<function_type>(&ast_walker<T, Const>::walk_function, this),
       walk_ftype<struct_definition_type>(
           &ast_walker<T, Const>::walk_struct_definition, this));
@@ -72,9 +72,64 @@ void ast_walker<T, Const>::walk_function(function_type _function) {
 }
 
 template <typename T, bool Const>
-void ast_walker<T, Const>::walk_expression(expression_type _expression) {
+memory::unique_ptr<expression> ast_walker<T, Const>::walk_mut_expression(
+    expression* _expression) {
   _expression->walk_children(
-      walk_ftype<expression_type>(&ast_walker<T, Const>::walk_expression, this),
+      get_expr()(this),
+      walk_ftype<type_type>(&ast_walker<T, Const>::walk_type, this));
+  switch (_expression->get_node_type()) {
+    case node_type::array_allocation_expression:
+      return m_walker->walk_expression(
+          cast_to<array_allocation_expression>(_expression));
+    case node_type::binary_expression:
+      return m_walker->walk_expression(cast_to<binary_expression>(_expression));
+    case node_type::cast_expression:
+      return m_walker->walk_expression(cast_to<cast_expression>(_expression));
+    case node_type::cond_expression:
+      return m_walker->walk_expression(cast_to<cond_expression>(_expression));
+    case node_type::constant_expression:
+      return m_walker->walk_expression(
+          cast_to<constant_expression>(_expression));
+    case node_type::id_expression:
+      return m_walker->walk_expression(cast_to<id_expression>(_expression));
+    case node_type::null_allocation_expression:
+      return m_walker->walk_expression(
+          cast_to<null_allocation_expression>(_expression));
+    case node_type::array_access_expression:
+      return m_walker->walk_expression(
+          cast_to<array_access_expression>(_expression));
+    case node_type::function_call_expression:
+      return m_walker->walk_expression(
+          cast_to<function_call_expression>(_expression));
+    case node_type::member_access_expression:
+      return m_walker->walk_expression(
+          cast_to<member_access_expression>(_expression));
+    case node_type::post_unary_expression:
+      return m_walker->walk_expression(
+          cast_to<post_unary_expression>(_expression));
+    case node_type::short_circuit_expression:
+      return m_walker->walk_expression(
+          cast_to<short_circuit_expression>(_expression));
+    case node_type::struct_allocation_expression:
+      return m_walker->walk_expression(
+          cast_to<struct_allocation_expression>(_expression));
+    case node_type::unary_expression:
+      return m_walker->walk_expression(cast_to<unary_expression>(_expression));
+    case node_type::replaced_expression:
+      // Intentionally do nothing for replaced expressions. Once replaced,
+      // these should be completely transparent to anything walking the AST.
+      return nullptr;
+    default:
+      WN_RELEASE_ASSERT_DESC(false, "You added a new expression"
+        " type but did not handle it here");
+      return nullptr;
+  }
+}
+
+template <typename T, bool Const>
+void ast_walker<T, Const>::walk_expression(const expression* _expression) {
+  _expression->walk_children(
+      get_expr()(this),
       walk_ftype<type_type>(&ast_walker<T, Const>::walk_type, this));
   switch (_expression->get_node_type()) {
     case node_type::array_allocation_expression:
@@ -143,7 +198,7 @@ void ast_walker<T, Const>::walk_instruction(instruction_type _instruction) {
   _instruction->walk_children(
       walk_ftype<instruction_type>(
           &ast_walker<T, Const>::walk_instruction, this),
-      walk_ftype<expression_type>(&ast_walker<T, Const>::walk_expression, this),
+      get_expr()(this),
       walk_ftype<type_type>(&ast_walker<T, Const>::walk_type, this),
       walk_ftype<instruction_list_type>(
           &ast_walker<T, Const>::walk_instruction_list, this));

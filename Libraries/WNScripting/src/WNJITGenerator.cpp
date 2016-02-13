@@ -264,7 +264,6 @@ void ast_jit_engine::walk_expression(
   _val->value = l;
 }
 
-
 void ast_jit_engine::walk_expression(
     const function_call_expression* _call, expression_dat* _val) {
   _val->instructions =

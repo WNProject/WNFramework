@@ -40,7 +40,9 @@ public:
     : pass(_validator, _log, _allocator) {}
   void enter_scope_block() {}
   void leave_scope_block() {}
-  void walk_expression(expression*) {}
+  memory::unique_ptr<expression> walk_expression(expression*) {
+    return nullptr;
+  }
 
   void walk_instruction_list(instruction_list* _inst) {
     bool returns = false;
@@ -94,7 +96,9 @@ public:
       memory::allocator* _allocator)
     : pass(_validator, _log, _allocator), id_map(_allocator) {}
 
-  void walk_expression(expression*) {}
+  memory::unique_ptr<expression> walk_expression(expression*) {
+    return nullptr;
+  }
   void walk_instruction_list(instruction_list*) {}
   void walk_instruction(instruction*) {}
   void walk_function(function*) {}
@@ -134,16 +138,17 @@ public:
     id_map.back()[_decl->get_name()] = {0, _decl};
   }
 
-  void walk_expression(id_expression* _expr) {
+  memory::unique_ptr<expression> walk_expression(id_expression* _expr) {
     auto param = find_param(_expr->get_name());
     if (!param) {
       m_log->Log(
           WNLogging::eError, 0, "Could not find id: ", _expr->get_name());
       _expr->log_line(*m_log, WNLogging::eError);
       ++m_num_errors;
-      return;
+      return nullptr;
     }
     _expr->set_id_source(*param);
+    return nullptr;
   }
 
   void walk_script_file(script_file*) {}
@@ -173,11 +178,14 @@ public:
     : pass(_validator, _log, _allocator),
       m_returns(_allocator),
       m_functions(_allocator) {}
-  void walk_expression(expression*) {}
+  memory::unique_ptr<expression> walk_expression(expression*) {
+    return nullptr;
+  }
+
   void walk_parameter(parameter*) {}
   void enter_scope_block() {}
   void leave_scope_block() {}
-  void walk_expression(id_expression* _expr) {
+  memory::unique_ptr<expression> walk_expression(id_expression* _expr) {
     const id_expression::id_source& source = _expr->get_id_source();
     if (source.param_source || source.declaration_source) {
       type* t = m_allocator->construct<type>(
@@ -188,9 +196,10 @@ public:
     } else {
       WN_DEBUG_ASSERT_DESC(false, "Source for this ID.");
     }
+    return nullptr;
   }
 
-  void walk_expression(constant_expression* _expr) {
+  memory::unique_ptr<expression> walk_expression(constant_expression* _expr) {
     if (!_expr->get_type()) {
       type* t = m_allocator->construct<type>(m_allocator, _expr->get_index());
       t->copy_location_from(_expr);
@@ -222,9 +231,10 @@ public:
       default:
         WN_RELEASE_ASSERT_DESC(false, "No Implemented: non-integer contants");
     }
+    return nullptr;
   }
 
-  void walk_expression(binary_expression* _expr) {
+  memory::unique_ptr<expression> walk_expression(binary_expression* _expr) {
     const type* lhs_type = _expr->get_lhs()->get_type();
     const type* rhs_type = _expr->get_rhs()->get_type();
 
@@ -232,7 +242,7 @@ public:
       m_log->Log(WNLogging::eError, 0, "Expected LHS and RHS to match");
       _expr->log_line(*m_log, WNLogging::eError);
       ++m_num_errors;
-      return;
+      return nullptr;
     }
 
     uint32_t return_type =
@@ -244,13 +254,13 @@ public:
       m_log->Log(WNLogging::eError, 0, "Invalid operation for types");
       _expr->log_line(*m_log, WNLogging::eError);
       ++m_num_errors;
-      return;
+      return nullptr;
     } else if (return_type ==
                static_cast<uint32_t>(type_classification::void_type)) {
       m_log->Log(WNLogging::eError, 0, "Void return is invalid for arithmetic");
       _expr->log_line(*m_log, WNLogging::eError);
       ++m_num_errors;
-      return;
+      return nullptr;
     }
 
     WN_RELEASE_ASSERT_DESC(
@@ -259,9 +269,12 @@ public:
     type* t = m_allocator->construct<type>(m_allocator, return_type);
     t->copy_location_from(_expr);
     _expr->set_type(t);
+
+    return nullptr;
   }
 
-  void walk_expression(member_access_expression* _expr) {
+  memory::unique_ptr<expression> walk_expression(
+      member_access_expression* _expr) {
     uint32_t type_index = 0;
     const type* obj = _expr->get_base_expression()->get_type();
     if (obj) {
@@ -274,15 +287,18 @@ public:
           _expr->get_name());
       _expr->log_line(*m_log, WNLogging::eError);
       ++m_num_errors;
-      return;
+      return nullptr;
     }
 
     type* t = m_allocator->construct<type>(m_allocator, member_type);
     t->copy_location_from(_expr);
     _expr->set_type(t);
+
+    return nullptr;
   }
 
-  void walk_expression(function_call_expression* _expr) {
+  memory::unique_ptr<expression> walk_expression(
+      function_call_expression* _expr) {
     const expression* base_expr = _expr->get_base_expression();
     // TODO(awoloszyn): handle the other cases that give you functions (are
     // there any?)
@@ -290,7 +306,7 @@ public:
       m_log->Log(WNLogging::eError, 0, "Cannot call function on non-id: ");
       _expr->log_line(*m_log, WNLogging::eError);
       ++m_num_errors;
-      return;
+      return nullptr;
     }
 
     const id_expression* id = static_cast<const id_expression*>(base_expr);
@@ -300,7 +316,7 @@ public:
           WNLogging::eError, 0, "Cannot find function: ", id->get_name());
       _expr->log_line(*m_log, WNLogging::eError);
       ++m_num_errors;
-      return;
+      return nullptr;
     }
 
     function* callee = nullptr;
@@ -336,7 +352,7 @@ public:
             WNLogging::eError, 0, "Ambiguous Function call: ", id->get_name());
         _expr->log_line(*m_log, WNLogging::eError);
         ++m_num_errors;
-        return;
+        return nullptr;
       }
       callee = func;
     }
@@ -346,6 +362,7 @@ public:
         m_allocator->construct<type>(*callee->get_signature()->get_type());
     t->copy_location_from(_expr);
     _expr->set_type(t);
+    return nullptr;
   }
 
   void walk_instruction(instruction*) {}
@@ -512,13 +529,149 @@ private:
   containers::hash_map<containers::string_view, containers::deque<function*>>
       m_functions;
 };
+
+class member_reassociation_pass : public pass {
+public:
+  member_reassociation_pass(type_validator* _validator, WNLogging::WNLog* _log,
+      memory::allocator* _allocator)
+    : pass(_validator, _log, _allocator) {}
+
+  memory::unique_ptr<expression> walk_expression(expression*) {
+    return nullptr;
+  }
+  void walk_parameter(parameter*) {}
+  void walk_instruction_list(instruction_list*) {}
+
+  void walk_script_file(script_file* _file) {
+    for (auto& func : m_additional_functions) {
+      _file->add_function(std::move(func));
+    }
+    m_additional_functions.clear();
+  }
+
+  // Turn
+  // struct X {
+  //   Int x = 4;
+  //   Int y = 3;
+  // }
+  //
+  // Into:
+  // struct X {
+  //   Int x;
+  //   Int y;
+  // }
+  //
+  // X _construct_X(X _this) {
+  //   _this.x = 4;
+  //   _this.y = 3;
+  //   return _this;
+  // }
+  // Note this is in roughly WNScript syntax, so _this is passed by
+  // reference.
+  // TODO(awoloszyn): Add a "self" identifier in the language.
+  // TODO(awoloszyn): In the id-association pass, start promoting
+  // member access. Ie. allow struct X { int x = 4; int y = x + 3; }
+
+  void walk_struct_definition(struct_definition* _definition) {
+    memory::unique_ptr<instruction_list> instructions =
+        memory::make_unique<instruction_list>(m_allocator, m_allocator);
+    instructions->copy_location_from(_definition);
+
+    // Make all of the instructions to put into the constructor.
+    // This means: Remove all of the right-hand-sides from the
+    // declarations, and create assignment instructions in an instruction list.
+    for (auto& a : _definition->get_struct_members()) {
+      memory::unique_ptr<expression> expression(a->take_expression());
+
+      memory::unique_ptr<member_access_expression> access =
+          memory::make_unique<member_access_expression>(
+              m_allocator, m_allocator, a->get_name());
+      access->copy_location_from(a.get());
+
+      memory::unique_ptr<id_expression> id =
+          memory::make_unique<id_expression>(m_allocator, m_allocator, "_this");
+      id->copy_location_from(a.get());
+
+      access->add_base_expression(std::move(id));
+
+      memory::unique_ptr<lvalue> lval = memory::make_unique<lvalue>(
+          m_allocator, m_allocator, std::move(access));
+      lval->copy_location_from(a.get());
+
+      memory::unique_ptr<assignment_instruction> assignment =
+          memory::make_unique<assignment_instruction>(
+              m_allocator, m_allocator, std::move(lval));
+      assignment->copy_location_from(expression.get());
+      assignment->add_value(assign_type::equal, std::move(expression));
+      instructions->add_instruction(std::move(assignment));
+    }
+
+    memory::unique_ptr<id_expression> id =
+        memory::make_unique<id_expression>(m_allocator, m_allocator, "_this");
+    id->copy_location_from(_definition);
+
+    memory::unique_ptr<return_instruction> ret =
+        memory::make_unique<return_instruction>(
+            m_allocator, m_allocator, std::move(id));
+    ret->copy_location_from(_definition);
+    instructions->add_instruction(std::move(ret));
+
+    containers::string_view struct_name = _definition->get_name();
+
+    memory::unique_ptr<type> parameter_type = memory::make_unique<type>(
+        m_allocator, m_allocator, _definition->get_name());
+    parameter_type->copy_location_from(_definition);
+
+    // The constructor return_type and name are here.
+    memory::unique_ptr<type> return_type =
+        memory::make_unique<type>(m_allocator, *parameter_type);
+    return_type->copy_location_from(parameter_type.get());
+
+    containers::string m_constructor_name(m_allocator);
+    m_constructor_name.append("_construct_");
+    m_constructor_name.append(struct_name.data(), struct_name.length());
+    memory::unique_ptr<parameter> name_ret = memory::make_unique<parameter>(
+        m_allocator, m_allocator, std::move(return_type), m_constructor_name);
+    name_ret->copy_location_from(parameter_type.get());
+
+    memory::unique_ptr<parameter> this_param = memory::make_unique<parameter>(
+        m_allocator, m_allocator, std::move(parameter_type), "_this");
+    this_param->copy_location_from(_definition);
+
+    memory::unique_ptr<parameter_list> parameters =
+        memory::make_unique<parameter_list>(
+            m_allocator, m_allocator, std::move(this_param));
+    parameters->copy_location_from(_definition);
+
+    memory::unique_ptr<function> constructor = memory::make_unique<function>(
+        m_allocator, m_allocator, std::move(name_ret), std::move(parameters),
+        std::move(instructions));
+    constructor->copy_location_from(_definition);
+    constructor->set_this_pointer(_definition);
+
+    m_additional_functions.push_back(std::move(constructor));
+  }
+
+  void walk_type(type*) {}
+  void walk_function(function*) {}
+  void walk_instruction(instruction*) {}
+  void enter_scope_block() {}
+  void leave_scope_block() {}
+
+private:
+  containers::deque<memory::unique_ptr<function>> m_additional_functions;
+  // TODO(awoloszyn): Once inline constructors are supported,
+  // there will likely be inline types here, handle that.
+};
+
 }  // anonymous namespace
 
-bool run_type_association_pass(script_file* _file, WNLogging::WNLog* _log,
+template <typename T>
+bool run_pass(script_file* _file, WNLogging::WNLog* _log,
     type_validator* _validator, size_t* _num_warnings, size_t* _num_errors) {
   if (!_file)
     return false;
-  type_association_pass pass(_validator, _log, _file->get_allocator());
+  T pass(_validator, _log, _file->get_allocator());
   run_ast_pass(&pass, _file);
   if (_num_errors) {
     *_num_errors += pass.errors();
@@ -527,36 +680,30 @@ bool run_type_association_pass(script_file* _file, WNLogging::WNLog* _log,
     *_num_warnings += pass.warnings();
   }
   return pass.errors() == 0;
+}
+
+bool run_type_association_pass(script_file* _file, WNLogging::WNLog* _log,
+    type_validator* _validator, size_t* _num_warnings, size_t* _num_errors) {
+  return run_pass<type_association_pass>(
+      _file, _log, _validator, _num_warnings, _num_errors);
 }
 
 bool run_id_association_pass(script_file* _file, WNLogging::WNLog* _log,
     type_validator* _validator, size_t* _num_warnings, size_t* _num_errors) {
-  if (!_file)
-    return false;
-  id_association_pass pass(_validator, _log, _file->get_allocator());
-  run_ast_pass(&pass, _file);
-  if (_num_errors) {
-    *_num_errors += pass.errors();
-  }
-  if (_num_warnings) {
-    *_num_warnings += pass.warnings();
-  }
-  return pass.errors() == 0;
+  return run_pass<id_association_pass>(
+      _file, _log, _validator, _num_warnings, _num_errors);
 }
 
 bool run_dce_pass(script_file* _file, WNLogging::WNLog* _log,
     type_validator* _validator, size_t* _num_warnings, size_t* _num_errors) {
-  if (!_file)
-    return false;
-  dead_code_elimination_pass pass(_validator, _log, _file->get_allocator());
-  run_ast_pass(&pass, _file);
-  if (_num_errors) {
-    *_num_errors += pass.errors();
-  }
-  if (_num_warnings) {
-    *_num_warnings += pass.warnings();
-  }
-  return pass.errors() == 0;
+  return run_pass<dead_code_elimination_pass>(
+      _file, _log, _validator, _num_warnings, _num_errors);
+}
+
+bool run_member_reassociation_pass(script_file* _file, WNLogging::WNLog* _log,
+    type_validator* _validator, size_t* _num_warnings, size_t* _num_errors) {
+  return run_pass<member_reassociation_pass>(
+      _file, _log, _validator, _num_warnings, _num_errors);
 }
 
 }  // namespace scripting

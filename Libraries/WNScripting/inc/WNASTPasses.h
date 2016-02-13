@@ -38,6 +38,12 @@ bool run_id_association_pass(script_file* _file, WNLogging::WNLog* _log,
 bool run_dce_pass(script_file* _file, WNLogging::WNLog* _log,
     type_validator* _validator, size_t* _num_warnings, size_t* _num_errors);
 
+// Re-writes member functions and constructors as standalone
+// functions.
+// TODO(awoloszyn): also generate inline types/constructors here.
+bool run_member_reassociation_pass(script_file* _file, WNLogging::WNLog* _log,
+    type_validator* _validator, size_t* _num_warnings, size_t* _num_errors);
+
 // TODO(awoloszyn): Constant folding pass.
 
 }  // namespace scripting
