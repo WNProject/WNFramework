@@ -20,11 +20,14 @@
 namespace wn {
 namespace scripting {
 
-enum class cast_direction { left, right, invalid, none };
-
 enum cast_type {
-  down = 1 << 0,
-  up = 1 << 1,
+  invalid,
+  down,
+  up,
+  transparent,
+  only_explicit,
+  // This can only be explcitly cast.
+  max
 };
 
 // Data for builtin operations
@@ -199,10 +202,10 @@ struct type_definition {
     m_ops = operation;
   }
 
-  uint32_t get_cast_type(uint32_t _val) {
+  cast_type get_cast_type(uint32_t _val) {
     auto it = std::find_if(m_casts.begin(), m_casts.end(),
         [_val](cast_operation& cast) { return _val == cast.cast_to; });
-    return (it == m_casts.end()) ? 0 : it->type;
+    return (it == m_casts.end()) ? cast_type::invalid : it->type;
   }
 
   // Registers a subtype with the given name. Returns
@@ -310,6 +313,10 @@ public:
     m_mapping.insert(std::make_pair("Bool", m_max_types++));
     m_names.emplace_back("Bool", m_allocator);
 
+    // Increment max_types by 2. This is because we keep
+    // dummy types around for array and struct.
+    m_max_types += 2;
+
     m_types.push_back(type_definition(m_allocator));
     for (size_t i = 1; i < 9; ++i) {
       m_types.push_back(
@@ -354,7 +361,7 @@ public:
     }
 
     const char* struct_modes[static_cast<uint32_t>(reference_type::max)] = {
-        "", "R", "RP", "P", "PP"};
+        "", "R", "P", "RP", "RR", "PP"};
 
     uint32_t returned_type = 0;
     for (size_t i = 0; i < static_cast<uint32_t>(reference_type::max); ++i) {
@@ -367,16 +374,17 @@ public:
       }
 
       m_types.push_back(type_definition(m_allocator));
-      m_types.back().m_mode = static_cast<reference_type>(i);
+      type_definition& def = m_types.back();
+      def.m_mode = static_cast<reference_type>(i);
       size_t total_length = 10 + 2 + 2 + _name.size();
 
-      m_types.back().m_mangling = containers::string(m_allocator);
-      m_types.back().m_mangling.reserve(total_length);
-      m_types.back().m_mangling.push_back('E');
-      m_types.back().m_mangling.append(struct_modes[i]);
-      append_number(m_types.size(), m_types.back().m_mangling);
-      m_types.back().m_mangling.append(_name.data(), _name.size());
-      m_types.back().m_mangling.push_back('T');
+      def.m_mangling = containers::string(m_allocator);
+      def.m_mangling.reserve(total_length);
+      def.m_mangling.push_back('N');
+      def.m_mangling.append(struct_modes[i]);
+      append_number(_name.size(), def.m_mangling);
+      def.m_mangling.append(_name.data(), _name.size());
+      def.m_mangling.push_back('E');
     }
 
     return returned_type;
@@ -407,14 +415,14 @@ public:
   }
 
   void enable_cast(uint32_t _from_type, uint32_t _to_type, cast_type _type) {
-    WN_DEBUG_ASSERT_DESC(
-        _from_type >= static_cast<uint32_t>(type_classification::custom_type) ||
-            _to_type >= static_cast<uint32_t>(type_classification::custom_type),
-        "It is invalid to redefine a builtin cast type");
-    WN_DEBUG_ASSERT_DESC(m_types[_from_type].get_cast_type(_to_type) == 0,
-        "This cast has already been defined");
-    WN_DEBUG_ASSERT_DESC(_type != 0, "Cannot define a NON cast");
-    m_types[_from_type].m_casts.push_back({_to_type, _type});
+    return m_types[_from_type].m_casts.push_back({_to_type, _type});
+  }
+
+  cast_type get_cast(uint32_t _from_type, uint32_t _to_type) {
+    if (_from_type == _to_type) {
+      return cast_type::transparent;
+    }
+    return m_types[_from_type].get_cast_type(_to_type);
   }
 
   void add_id(uint32_t _type, containers::string_view _id, uint32_t _out_type) {
@@ -441,30 +449,6 @@ public:
     m_types[_type].m_functions.push_back({_name.to_string(m_allocator),
         _return_type, containers::dynamic_array<uint32_t>(_types.begin(),
                                               _types.end(), m_allocator)});
-  }
-
-  bool is_cast_possible(uint32_t _from_type, uint32_t _to_type) {
-    WN_DEBUG_ASSERT_DESC(
-        _from_type < m_types.size() && _to_type < m_types.size(),
-        "Undefined type name");
-    return m_types[_from_type].get_cast_type(_to_type) != 0;
-  }
-
-  cast_direction get_cast_direction(uint32_t _from_type, uint32_t _to_type) {
-    if (_from_type >= static_cast<uint32_t>(type_classification::custom_type) &&
-        _to_type >= static_cast<uint32_t>(type_classification::custom_type)) {
-      return cast_direction::invalid;
-    }
-
-    uint32_t a_to_b = m_types[_from_type].get_cast_type(_to_type);
-    uint32_t b_to_a = m_types[_to_type].get_cast_type(_from_type);
-
-    WN_DEBUG_ASSERT_DESC(a_to_b == 0 || a_to_b != b_to_a,
-        "Cannot determine in which direction to cast");
-    if (a_to_b || b_to_a) {
-      return a_to_b > b_to_a ? cast_direction::left : cast_direction::right;
-    }
-    return cast_direction::invalid;
   }
 
   containers::string get_mangled_name(const containers::string_view& name,

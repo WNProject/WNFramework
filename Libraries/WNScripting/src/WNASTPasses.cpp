@@ -213,9 +213,11 @@ public:
         if (wn::memory::strnlen(text, 13) > 12) {
           error = true;
         } else {
-          int64_t val = atoll(text);
+          int64_t val = strtol(text, nullptr, 10);
           if (val < std::numeric_limits<int32_t>::min() ||
-              val > std::numeric_limits<int32_t>::max()) {
+              val > std::numeric_limits<int32_t>::max() ||
+              errno == ERANGE) {
+            errno = 0;
             error = true;
           }
         }
@@ -228,8 +230,25 @@ public:
       case static_cast<uint32_t>(type_classification::bool_type): {
         break;
       }
+      case static_cast<uint32_t>(type_classification::float_type): {
+        const char* text = _expr->get_type_text().c_str();
+        bool error = false;
+        double d = strtod(text, nullptr);
+        if (errno == ERANGE ||
+          d < -std::numeric_limits<float>::max() ||
+          d > std::numeric_limits<float>::max()) {
+          error = true;
+          errno = 0;
+        }
+        if (error) {
+          m_log->Log(
+              WNLogging::eError, 0, "Invalid floating point constant", text);
+          m_num_errors += 1;
+        }
+        break;
+      }
       default:
-        WN_RELEASE_ASSERT_DESC(false, "No Implemented: non-integer contants");
+        WN_RELEASE_ASSERT_DESC(false, "No Implemented: constant type");
     }
     return nullptr;
   }
@@ -356,6 +375,7 @@ public:
       }
       callee = func;
     }
+
     // TODO(awoloszyn): Insert explicit cast operations if we need do here.
     _expr->set_callee(callee);
     type* t =
@@ -378,17 +398,17 @@ public:
 
     const uint32_t type =
         m_validator->register_struct_type(_definition->get_name());
-
-    type_definition& def = m_validator->get_operations(
-        type + static_cast<uint32_t>(reference_type::unique));
-
-    for (const auto& a : _definition->get_struct_members()) {
-      if (!def.register_sub_type(a->get_name(), a->get_type()->get_index())) {
-        m_log->Log(WNLogging::eError, 0, "Duplicate struct element defined: ",
-            a->get_name());
-        a->log_line(*m_log, WNLogging::eError);
-        ++m_num_errors;
-        return;
+    for (auto ref_type : {reference_type::self, reference_type::unique}) {
+      type_definition& def =
+          m_validator->get_operations(type + static_cast<uint32_t>(ref_type));
+      for (const auto& a : _definition->get_struct_members()) {
+        if (!def.register_sub_type(a->get_name(), a->get_type()->get_index())) {
+          m_log->Log(WNLogging::eError, 0, "Duplicate struct element defined: ",
+              a->get_name());
+          a->log_line(*m_log, WNLogging::eError);
+          ++m_num_errors;
+          return;
+        }
       }
     }
   }
@@ -413,11 +433,8 @@ public:
 
   void walk_instruction(declaration* _decl) {
     // TODO(awoloszyn): Handle types other than non_nullable.
-    if (_decl->get_type()->get_reference_type() == reference_type::unique) {
-      _decl->propagate_reference_type();
-    }
-    if (_decl->get_type()->get_index() !=
-        _decl->get_expression()->get_type()->get_index()) {
+    if (m_validator->get_cast(_decl->get_expression()->get_type()->get_index(),
+            _decl->get_type()->get_index()) != cast_type::transparent) {
       m_log->Log(WNLogging::eError, 0,
           "Cannot inintialize variable with expression of a different type.");
       _decl->log_line(*m_log, WNLogging::eError);
@@ -447,10 +464,6 @@ public:
 
   void walk_function(function* _func) {
     const type* function_return_type = _func->get_signature()->get_type();
-    if (function_return_type->get_index() >=
-        static_cast<uint32_t>(type_classification::custom_type)) {
-      WN_RELEASE_ASSERT_DESC(false, "Not implented: custom return type");
-    }
 
     for (const auto& return_inst : m_returns) {
       // TODO(awoloszyn): Add type mananger to do more rigorous type matching.
@@ -507,6 +520,8 @@ public:
     } else {
       function_it->second.push_back(_func);
     }
+
+    m_returns.clear();
   }
 
   void walk_script_file(script_file*) {}
@@ -534,17 +549,112 @@ class member_reassociation_pass : public pass {
 public:
   member_reassociation_pass(type_validator* _validator, WNLogging::WNLog* _log,
       memory::allocator* _allocator)
-    : pass(_validator, _log, _allocator) {}
+    : pass(_validator, _log, _allocator), m_additional_functions(_allocator) {}
 
   memory::unique_ptr<expression> walk_expression(expression*) {
     return nullptr;
   }
+
+  void walk_instruction(declaration* _decl) {
+    if (_decl->get_type()->get_reference_type() ==
+      reference_type::raw) {
+      return;
+    }
+    WN_RELEASE_ASSERT_DESC(
+        _decl->get_type()->get_reference_type() == reference_type::unique,
+        "Not Implemented: Other types of reference declarations");
+
+    if (_decl->get_expression()->get_node_type() !=
+        node_type::function_call_expression) {
+      m_log->Log(WNLogging::eError, 0, "Expected constructor call");
+      _decl->log_line(*m_log, WNLogging::eError);
+      ++m_num_errors;
+      return;
+    }
+    function_call_expression* expr =
+        cast_to<function_call_expression>(_decl->get_expression());
+
+    if(expr->get_expressions().size() < 1 ||
+      expr->get_expressions()[0]->m_expr->get_node_type() !=
+      node_type::struct_allocation_expression) {
+      m_log->Log(WNLogging::eError, 0, "Expected constructor call");
+      _decl->log_line(*m_log, WNLogging::eError);
+      ++m_num_errors;
+      return;
+    }
+
+    memory::unique_ptr<expression> alloc =
+        std::move(expr->get_expressions()[0]->m_expr);
+
+    const type* alloc_type = alloc->get_type();
+
+    memory::unique_ptr<cast_expression> cast1 =
+        memory::make_unique<cast_expression>(
+            m_allocator, m_allocator, std::move(alloc));
+    cast1->copy_location_from(cast1->get_expression());
+    cast1->set_type(memory::make_unique<type>(m_allocator, *alloc_type));
+    cast1->get_type()->set_reference_type(reference_type::self);
+    expr->get_expressions()[0]->m_expr = std::move(cast1);
+
+    memory::unique_ptr<expression> rhs = _decl->take_expression();
+    memory::unique_ptr<cast_expression> cast =
+      memory::make_unique<cast_expression>(m_allocator,
+        m_allocator, std::move(rhs));
+    cast->copy_location_from(cast->get_expression());
+    cast->set_type(memory::make_unique<type>(m_allocator, *alloc_type));
+    cast->get_type()->set_reference_type(reference_type::unique);
+
+    _decl->set_expression(std::move(cast));
+  }
+
+  memory::unique_ptr<expression> walk_expression(
+      struct_allocation_expression* _alloc) {
+    // Replace struct_allocation with function_call to constructor with
+    // struct allocation as argument.
+    if (_alloc->set_initialization_mode() !=
+        struct_initialization_mode::invalid) {
+      return nullptr;
+    }
+    containers::string constructor_name("_construct_", m_allocator);
+    constructor_name.append(_alloc->get_type()->custom_type_name().data(),
+        _alloc->get_type()->custom_type_name().size());
+
+    memory::unique_ptr<struct_allocation_expression> alloc =
+        memory::make_unique<struct_allocation_expression>(
+            m_allocator, m_allocator);
+    alloc->set_initialization_mode(struct_initialization_mode::unspecified);
+    alloc->copy_location_from(_alloc);
+    alloc->set_type(_alloc->transfer_out_type());
+    alloc->set_copy_initializer(_alloc->transfer_copy_initializer());
+
+    memory::unique_ptr<arg_list> args =
+        memory::make_unique<arg_list>(m_allocator, m_allocator);
+    args->copy_location_from(alloc.get());
+    args->add_expression(std::move(alloc));
+
+    memory::unique_ptr<function_call_expression> call =
+      memory::make_unique<function_call_expression>(
+        m_allocator, m_allocator, std::move(args));
+    call->copy_location_from(call->get_args());
+
+    memory::unique_ptr<id_expression> constructor =
+      memory::make_unique<id_expression>(m_allocator,
+        m_allocator, constructor_name);
+    constructor->copy_location_from(call.get());
+
+    call->add_base_expression(std::move(constructor));
+
+    return std::move(call);
+  }
+
   void walk_parameter(parameter*) {}
   void walk_instruction_list(instruction_list*) {}
 
   void walk_script_file(script_file* _file) {
     for (auto& func : m_additional_functions) {
-      _file->add_function(std::move(func));
+      // We want to prepend these functions
+      // because we want these to show up before the normal functions.
+      _file->prepend_function(std::move(func));
     }
     m_additional_functions.clear();
   }
@@ -571,7 +681,6 @@ public:
   // TODO(awoloszyn): Add a "self" identifier in the language.
   // TODO(awoloszyn): In the id-association pass, start promoting
   // member access. Ie. allow struct X { int x = 4; int y = x + 3; }
-
   void walk_struct_definition(struct_definition* _definition) {
     memory::unique_ptr<instruction_list> instructions =
         memory::make_unique<instruction_list>(m_allocator, m_allocator);
@@ -620,6 +729,7 @@ public:
 
     memory::unique_ptr<type> parameter_type = memory::make_unique<type>(
         m_allocator, m_allocator, _definition->get_name());
+    parameter_type->set_reference_type(reference_type::self);
     parameter_type->copy_location_from(_definition);
 
     // The constructor return_type and name are here.

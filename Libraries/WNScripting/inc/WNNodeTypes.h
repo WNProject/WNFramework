@@ -187,7 +187,7 @@ public:
   type(const type& _other)
     : node(_other.m_allocator, node_type::type),
       m_type(_other.m_type),
-      m_reference_type(reference_type::raw),
+      m_reference_type(_other.m_reference_type),
       m_custom_type(get_allocator()) {
     m_custom_type = _other.m_custom_type;
   }
@@ -279,13 +279,15 @@ public:
   const type* get_type() const {
     return m_type.get();
   }
-
+  type* get_type() {
+    return m_type.get();
+  }
   void set_type(type* _type) {
     m_type = memory::unique_ptr<type>(m_allocator, _type);
   }
 
-  virtual void propagate_reference_type(reference_type _reference_type) {
-    m_type->set_reference_type(_reference_type);
+  void set_type(memory::unique_ptr<type>&& _type) {
+    m_type = std::move(_type);
   }
 
   virtual void walk_children(
@@ -295,6 +297,10 @@ public:
   virtual void walk_children(const walk_ftype<const expression*>&,
       const walk_ftype<const type*>&) const {
     WN_RELEASE_ASSERT_DESC(false, "Not implemented yet");
+  }
+
+  memory::unique_ptr<type> transfer_out_type() {
+    return std::move(m_type);
   }
 
 protected:
@@ -591,8 +597,39 @@ public:
     : expression(_allocator, node_type::cast_expression),
       m_expression(memory::unique_ptr<expression>(m_allocator, _expression)) {}
 
+  cast_expression(memory::allocator* _allocator,
+      memory::unique_ptr<expression>&& _expression)
+    : expression(_allocator, node_type::cast_expression),
+      m_expression(std::move(_expression)) {}
+
+
+  const expression* get_expression() const {
+    return m_expression.get();
+  }
+
+  virtual void walk_children(
+      const walk_mutable_expression& _expr, const walk_ftype<type*>& _type) {
+    handle_expression(_expr, m_expression);
+    _type(m_type.get());
+
+  }
+
+  virtual void walk_children(const walk_ftype<const expression*>& _expr,
+      const walk_ftype<const type*>& _type) const {
+    _expr(m_expression.get());
+    _type(m_type.get());
+  }
+
 private:
   memory::unique_ptr<expression> m_expression;
+};
+
+enum class struct_initialization_mode {
+  invalid,
+  unspecified,
+  unique,
+  strong,
+  max
 };
 
 class struct_allocation_expression : public expression {
@@ -600,10 +637,25 @@ public:
   struct_allocation_expression(memory::allocator* _allocator)
     : expression(_allocator, node_type::struct_allocation_expression),
       m_copy_initializer(nullptr),
-      m_constructor(nullptr) {}
+      m_init_mode(struct_initialization_mode::invalid) {}
+
   void set_copy_initializer(expression* _expression) {
     m_copy_initializer =
         memory::unique_ptr<expression>(m_allocator, _expression);
+  }
+
+  void set_initialization_mode(struct_initialization_mode _init) {
+    m_init_mode = _init;
+  }
+  struct_initialization_mode set_initialization_mode() const {
+    return m_init_mode;
+  }
+  void set_copy_initializer(memory::unique_ptr<expression>&& _expression) {
+    m_copy_initializer = std::move(_expression);
+  }
+
+  memory::unique_ptr<expression> transfer_copy_initializer() {
+    return std::move(m_copy_initializer);
   }
 
   virtual void walk_children(
@@ -616,17 +668,9 @@ public:
     _type(m_type.get());
   }
 
-  function* get_constructor() {
-    return m_constructor;
-  }
-
-  void set_constructor(function* _function) {
-    m_constructor = _function;
-  }
-
 private:
   memory::unique_ptr<expression> m_copy_initializer;
-  function* m_constructor;
+  struct_initialization_mode m_init_mode;
 };
 
 class unary_expression : public expression {
@@ -687,6 +731,9 @@ struct function_expression {
   function_expression(
       memory::allocator* _allocator, expression* _expr, bool _hand_ownership)
     : m_expr(_allocator, _expr), m_hand_ownership(_hand_ownership) {}
+  function_expression(
+      memory::unique_ptr<expression>&& _expr, bool _hand_ownership)
+    : m_expr(std::move(_expr)), m_hand_ownership(_hand_ownership) {}
   memory::unique_ptr<expression> m_expr;
   bool m_hand_ownership;
 };
@@ -772,6 +819,12 @@ public:
         m_allocator, m_allocator, _expr, _hand_ownership));
   }
 
+  void add_expression(
+      memory::unique_ptr<expression> _expr, bool _hand_ownership = false) {
+    m_expression_list.emplace_back(memory::make_unique<function_expression>(
+        m_allocator, std::move(_expr), _hand_ownership));
+  }
+
   containers::deque<memory::unique_ptr<function_expression>>&
   get_expressions() {
     return (m_expression_list);
@@ -793,6 +846,11 @@ public:
   function_call_expression(memory::allocator* _allocator, arg_list* _list)
     : post_expression(_allocator, node_type::function_call_expression),
       m_args(_allocator, _list) {}
+
+  function_call_expression(
+      memory::allocator* _allocator, memory::unique_ptr<arg_list>&& _list)
+    : post_expression(_allocator, node_type::function_call_expression),
+      m_args(std::move(_list)) {}
 
   virtual void walk_children(
       const walk_mutable_expression& _func, const walk_ftype<type*>&) {
@@ -821,6 +879,7 @@ public:
   const function* callee() const {
     return m_callee;
   }
+
   const containers::deque<memory::unique_ptr<function_expression>>&
   get_expressions() const {
     if (m_args) {
@@ -831,6 +890,19 @@ public:
     return empty_expressions;
   }
 
+  containers::deque<memory::unique_ptr<function_expression>>&
+  get_expressions() {
+    if (m_args) {
+      return m_args->get_expressions();
+    }
+    static containers::deque<memory::unique_ptr<function_expression>>
+        empty_expressions;
+    return empty_expressions;
+  }
+
+  const arg_list* get_args() const {
+    return m_args.get();
+  }
 private:
   function* m_callee;
   memory::unique_ptr<arg_list> m_args;
@@ -894,9 +966,8 @@ public:
     m_unsized_array_initializers += 1;
   }
 
-  void propagate_reference_type() {
-    m_expression->propagate_reference_type(
-        m_parameter->get_type()->get_reference_type());
+  expression* get_expression() {
+    return m_expression.get();
   }
 
   const expression* get_expression() const {
@@ -905,6 +976,10 @@ public:
 
   memory::unique_ptr<expression> take_expression() {
     return std::move(m_expression);
+  }
+
+  void set_expression(memory::unique_ptr<expression>&& _expr) {
+    m_expression = std::move(_expr);
   }
 
   const type* get_type() const {
@@ -1432,6 +1507,10 @@ public:
       m_includes(_allocator) {}
   void add_function(function* _node) {
     m_functions.emplace_back(memory::unique_ptr<function>(m_allocator, _node));
+  }
+
+  void prepend_function(memory::unique_ptr<function>&& _function) {
+    m_functions.push_front(std::move(_function));
   }
 
   void add_function(memory::unique_ptr<function>&& _function) {

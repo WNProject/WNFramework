@@ -136,7 +136,7 @@ TEST_P(ast_code_generator_valid_bools, valid_bools) {
   str += "; }\n";
 
   c.mapping->initialize_files({{"file.wns", str}});
-  EXPECT_TRUE(c.test_parse_file("file.wns"));
+  EXPECT_TRUE(c.test_parse_file("file.wns")) << c.buffer;
   EXPECT_THAT(c.num_errors, Eq(0u));
   EXPECT_THAT(c.num_warnings, Eq(0u));
 }

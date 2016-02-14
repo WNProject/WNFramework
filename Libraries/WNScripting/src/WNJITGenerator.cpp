@@ -110,6 +110,7 @@ void ast_jit_engine::walk_type(
           *_value = elem->second;
           break;
         case reference_type::unique:
+        case reference_type::self:
           *_value = elem->second->getPointerTo();
           break;
         default:
@@ -117,6 +118,27 @@ void ast_jit_engine::walk_type(
       }
     }
   }
+}
+
+void ast_jit_engine::walk_expression(
+    const cast_expression* _cast, expression_dat* _val) {
+  _val->instructions =
+      containers::dynamic_array<llvm::Instruction*>(m_allocator);
+
+  const expression_dat& sub_dat =
+      m_generator->get_data(_cast->get_expression());
+  _val->instructions.insert(_val->instructions.begin(),
+      sub_dat.instructions.begin(), sub_dat.instructions.end());
+
+  if (_cast->get_type()->get_type_value() -
+          static_cast<uint32_t>(_cast->get_type()->get_reference_type()) ==
+      _cast->get_expression()->get_type()->get_type_value() -
+          static_cast<uint32_t>(
+              _cast->get_expression()->get_type()->get_reference_type())) {
+    _val->value = sub_dat.value;
+    return;
+  }
+  WN_RELEASE_ASSERT_DESC(false, "Not implemented: Other types of cast");
 }
 
 void ast_jit_engine::walk_expression(
@@ -132,6 +154,12 @@ void ast_jit_engine::walk_expression(
       bool bVal = containers::string_view(_const->get_type_text()) == "true";
       _val->value = llvm::ConstantInt::get(
           m_generator->get_data(_const->get_type()), bVal ? 1 : 0);
+      return;
+    }
+    case static_cast<uint32_t>(type_classification::float_type): {
+      double val = atof(_const->get_type_text().c_str());
+      _val->value =
+          llvm::ConstantFP::get(m_generator->get_data(_const->get_type()), val);
       return;
     }
     default:
@@ -219,9 +247,6 @@ void ast_jit_engine::walk_expression(
 
   switch (_alloc->get_type()->get_reference_type()) {
     case reference_type::raw:
-      WN_RELEASE_ASSERT_DESC(false, "Should not be possible to get here");
-      break;
-    case reference_type::unique:
       _val->instructions.push_back(new llvm::AllocaInst(
           t, make_string_ref(_alloc->get_type()->custom_type_name())));
       _val->value = _val->instructions.back();
@@ -229,8 +254,6 @@ void ast_jit_engine::walk_expression(
     default:
       WN_RELEASE_ASSERT_DESC(false, "Not Implemented");
   }
-  // TODO(awoloszyn): Call constructor here. This means you will have to
-  // Generate 2 instructions, 1) Alloca x, 2) return Construct(x);
 }
 
 void ast_jit_engine::walk_expression(

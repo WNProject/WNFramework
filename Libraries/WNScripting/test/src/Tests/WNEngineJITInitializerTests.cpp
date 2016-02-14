@@ -380,4 +380,14 @@ INSTANTIATE_TEST_CASE_P(
 
 })));
 
+INSTANTIATE_TEST_CASE_P(
+    constructor_tests, integer_tests,
+    ::testing::ValuesIn(std::vector<integer_test>({
+      {"struct Foo { Int x = 0; } Int main(Int x) { Foo f = Foo(); return x + f.x; }",
+        {{0, 0}, {-1, -1}, {2, 2}, {3, 3}, {4, 4}, {50, 50}}},
+      {"struct Foo { Int x = 10; } Int main(Int x) { Foo f = Foo(); return x + f.x; }",
+        {{0, 10}, {-1, 9}, {2, 12}, {3, 13}, {4, 14}, {50, 60}}},
+      {"struct Foo { Int x = 10; Int y = 4; } Int main(Int x) { Foo f = Foo(); return f.y + x + f.x; }",
+        {{0, 14}, {-1, 13}, {2, 16}, {3, 17}, {4, 18}, {50, 64}}},
+})));
 // clang-format on

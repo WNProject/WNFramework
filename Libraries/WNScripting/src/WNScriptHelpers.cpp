@@ -43,6 +43,10 @@ memory::unique_ptr<script_file> parse_script(memory::allocator* _allocator,
             ptr.get(), _log, _validator, _num_warnings, _num_errors)) {
       return nullptr;
     }
+    if (!run_member_reassociation_pass(
+            ptr.get(), _log, _validator, _num_warnings, _num_errors)) {
+      return nullptr;
+    }
     if (!run_id_association_pass(
             ptr.get(), _log, _validator, _num_warnings, _num_errors)) {
       return nullptr;

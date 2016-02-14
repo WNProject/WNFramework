@@ -46,6 +46,14 @@ void ast_c_translator::walk_type(const type* _type, containers::string* _str) {
       const containers::string_view view =
           m_validator->get_type_name(_type->get_index());
       *_str = containers::string(view.data(), view.size(), m_allocator);
+      switch (_type->get_reference_type()) {
+        case reference_type::self:
+        case reference_type::unique:
+          _str->append("*");
+          break;
+        default:
+          break;
+      }
     } break;
   }
 }
@@ -53,13 +61,17 @@ void ast_c_translator::walk_type(const type* _type, containers::string* _str) {
 void ast_c_translator::walk_expression(const constant_expression* _const,
     containers::pair<containers::string, containers::string>* _str) {
   initialize_data(m_allocator, _str);
-  // TODO(awoloszyn): Validate this somewhere.
+
   switch (_const->get_type()->get_index()) {
     case static_cast<uint32_t>(type_classification::int_type):
       _str->second.append(_const->get_type_text());
       break;
     case static_cast<uint32_t>(type_classification::bool_type):
       _str->second.append(_const->get_type_text());
+      break;
+    case static_cast<uint32_t>(type_classification::float_type):
+      _str->second.append(_const->get_type_text());
+      _str->second.append("f");
       break;
     default:
       WN_RELEASE_ASSERT_DESC(false, "Non-integer constants not supported yet.");
@@ -128,9 +140,30 @@ void ast_c_translator::walk_expression(
   _str->first.append(" ");
   _str->first.append(name);
   _str->first.append(";\n");
-
-  _str->second.append("&");
   _str->second.append(name);
+}
+
+void ast_c_translator::walk_expression(const cast_expression* _cast,
+    containers::pair<containers::string, containers::string>* _str) {
+  initialize_data(m_allocator, _str);
+  const auto& dat = m_generator->get_data(_cast->get_expression());
+  _str->first.append(dat.first);
+
+  if (_cast->get_type()->get_type_value() -
+          static_cast<uint32_t>(_cast->get_type()->get_reference_type()) ==
+      _cast->get_expression()->get_type()->get_type_value() -
+          static_cast<uint32_t>(
+              _cast->get_expression()->get_type()->get_reference_type())) {
+    if (_cast->get_type()->get_reference_type() == reference_type::self &&
+      _cast->get_expression()->get_type()->get_reference_type() == reference_type::raw) {
+      _str->second.append("&");
+    }
+    // If the types are identical, EXCEPT for the reference type, then
+    // we don't have to do anything, it's all the same in C, for now.
+    _str->second.append(dat.second);
+    return;
+  }
+  WN_RELEASE_ASSERT_DESC(false, "Not implemented: other types of casts");
 }
 
 void ast_c_translator::walk_expression(const function_call_expression* _call,
@@ -178,9 +211,6 @@ void ast_c_translator::walk_instruction(const declaration* _decl,
   _str->second.append(expr.first);
 
   _str->second += m_generator->get_data(_decl->get_type());
-  if (_decl->get_type()->get_reference_type() == reference_type::unique) {
-    _str->second += "*";
-  }
   _str->second += " " + _decl->get_name().to_string(m_allocator) + " = ";
   _str->second += expr.second;
   _str->second += ";";

@@ -60,6 +60,7 @@ public:
       m_generator(_generator) {}
 
   void walk_expression(const expression*, expression_dat*) {}
+  void walk_expression(const cast_expression* _const, expression_dat* _val);
   void walk_expression(const constant_expression* _const, expression_dat* _str);
   void walk_expression(const id_expression* _const, expression_dat* _str);
   void walk_expression(const binary_expression* _binary, expression_dat* _str);
