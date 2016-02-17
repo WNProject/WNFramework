@@ -58,13 +58,13 @@ private:
   HANDLE mAcceptEvent;
   HANDLE mShutdownEvent;
   eWNWindowsInitializationState mInitializationState;
-  wn::multi_tasking::thread<void>* mListenThread;
+  wn::multi_tasking::thread* mListenThread;
   wn::multi_tasking::spin_lock mListenerMutex;
   wn::multi_tasking::spin_lock mRecievedMutex;
   wn::multi_tasking::spin_lock mInvalidMutex;
   wn::multi_tasking::spin_lock mOutgoingMutex;
 
-  std::vector<wn::multi_tasking::thread<void>*> mThreads;
+  std::vector<wn::multi_tasking::thread*> mThreads;
   std::list<WNListenConnectionWindows*> mIncommingConnections;
   std::list<WNOutConnectionWindows*> mOutgoingConnections;
   std::list<WNInConnectionWindows*> mReceivedConnections;

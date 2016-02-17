@@ -37,17 +37,18 @@ private:
     WNWindowThreadData(wn::memory::intrusive_ptr<wn::WNSurfaceWindows> _wnd);
 
   public:
-    wn::multi_tasking::thread<bool>* mThread;
+    wn::multi_tasking::thread* mThread;
     wn::memory::intrusive_ptr<wn::WNSurfaceWindows> mWindow;
     bool mExit;
   };
 
 private:
+  bool m_message_pump_result;
   wn::memory::basic_allocator allocator;
   HWND mPendingHwnd;
   static LRESULT CALLBACK WindowProc(
       HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-  static bool MessagePump(WNWindowThreadData* _data);
+  static void MessagePump(bool& _result, WNWindowThreadData* _data);
   std::vector<WNWindowThreadData*> mMessagePumps;
 
   wn::multi_tasking::semaphore mCreatedWindowLock;

@@ -27,10 +27,10 @@ TEST(semaphore, wait_notify) {
       semaphore.notify();
     };
 
-    std::vector<std::shared_ptr<wn::multi_tasking::thread<void>>> threads;
+    std::vector<std::shared_ptr<wn::multi_tasking::thread>> threads;
 
     for (auto i = 0; i < 10; ++i) {
-      threads.push_back(std::make_shared<wn::multi_tasking::thread<void>>(
+      threads.push_back(std::make_shared<wn::multi_tasking::thread>(
           &allocator, thread_function));
     }
 
@@ -65,7 +65,7 @@ TEST(semaphore, try_wait) {
       result = semaphore.try_wait();
     };
 
-    wn::multi_tasking::thread<void> thread(&allocator, thread_function);
+    wn::multi_tasking::thread thread(&allocator, thread_function);
 
     thread.join();
 
@@ -88,10 +88,10 @@ TEST(semaphore, initial_count) {
       count++;
     };
 
-    std::vector<std::shared_ptr<wn::multi_tasking::thread<void>>> threads;
+    std::vector<std::shared_ptr<wn::multi_tasking::thread>> threads;
 
     for (auto i = 0; i < 15; ++i) {
-      threads.push_back(std::make_shared<wn::multi_tasking::thread<void>>(
+      threads.push_back(std::make_shared<wn::multi_tasking::thread>(
           &allocator, thread_function));
     }
 

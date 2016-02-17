@@ -18,7 +18,6 @@
 namespace wn {
 namespace multi_tasking {
 
-template <typename R>
 class thread;
 
 }  // namespace multi_tasking
@@ -58,7 +57,7 @@ private:
   wn::multi_tasking::semaphore mThreadCreationMutex;
   Display* mDisplay;
   Window mWindow;
-  wn::multi_tasking::thread<void>* mSurfaceThread;
+  wn::multi_tasking::thread* mSurfaceThread;
   bool mFullscreen;
   uint32_t mX;
   uint32_t mY;

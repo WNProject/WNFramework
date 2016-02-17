@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNPlatform/inc/Internal/Windows/WNSurfaceManagerWindows.h"
 #include "WNMemory/inc/WNBasic.h"
+#include "WNPlatform/inc/Internal/Windows/WNSurfaceManagerWindows.h"
 #include "WNPlatform/inc/Internal/Windows/WNSurfaceWindows.h"
 
 #include <tchar.h>
@@ -75,9 +75,9 @@ WNSurfaceManagerReturnCode::type WNSurfaceManagerWindows::CreateSurface(
   mWindowCreationLock.lock();
   mPendingHwnd = 0;
 
-  wn::multi_tasking::thread<bool>* thread =
-      wn::memory::construct<wn::multi_tasking::thread<bool>>(
-          &allocator, MessagePump, dat);
+  wn::multi_tasking::thread* thread =
+      wn::memory::construct<wn::multi_tasking::thread>(
+          &allocator, MessagePump, std::ref(m_message_pump_result), dat);
 
   dat->mThread = thread;
 
@@ -131,7 +131,8 @@ LRESULT CALLBACK WNSurfaceManagerWindows::WindowProc(
   }
 }
 
-bool WNSurfaceManagerWindows::MessagePump(WNWindowThreadData* _data) {
+void WNSurfaceManagerWindows::MessagePump(
+    bool& _result, WNWindowThreadData* _data) {
   WNSurfaceManagerWindows& manager = _data->mWindow->mSurfaceManager;
   RECT r;
 
@@ -151,7 +152,9 @@ bool WNSurfaceManagerWindows::MessagePump(WNWindowThreadData* _data) {
   if (manager.mPendingHwnd == 0) {
     manager.mCreatedWindowLock.notify();
 
-    return (false);
+    _result = false;
+
+    return;
   }
 
   _data->mWindow->SetNativeHandle(wnd);
@@ -175,7 +178,7 @@ bool WNSurfaceManagerWindows::MessagePump(WNWindowThreadData* _data) {
     Sleep(1);
   }
 
-  return (true);
+  _result = true;
 }
 
 WNSurfaceManagerWindows::WNWindowThreadData::WNWindowThreadData(

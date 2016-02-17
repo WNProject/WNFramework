@@ -54,7 +54,7 @@ set(WNPlatformSources
   ${INC_INTERNAL_XWINDOWS})
 
 set(WNPlatformLinkLibraries
-  "")
+  WNMultiTasking)
 
 if (WN_SYSTEM STREQUAL "Android")
   list(APPEND WNPlatformSources

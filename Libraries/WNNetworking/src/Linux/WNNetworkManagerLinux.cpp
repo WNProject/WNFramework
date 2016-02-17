@@ -2,7 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNNetworking/inc/Internal/Linux/WNNetworkManagerLinux.h"
 #include "WNCore/inc/WNAssert.h"
 #include "WNMath/inc/WNBasic.h"
 #include "WNMemory/inc/WNBasic.h"
@@ -11,6 +10,7 @@
 #include "WNNetworking/inc/Internal/Linux/WNConnectionLinux.h"
 #include "WNNetworking/inc/Internal/Linux/WNInConnectionLinux.h"
 #include "WNNetworking/inc/Internal/Linux/WNListenConnectionLinux.h"
+#include "WNNetworking/inc/Internal/Linux/WNNetworkManagerLinux.h"
 #include "WNNetworking/inc/Internal/Linux/WNOutConnectionLinux.h"
 
 #include <fcntl.h>
@@ -91,8 +91,8 @@ WNNetworkManagerReturnCode::type WNNetworkManagerLinux::Initialize(
 
   for (uint32_t i = 0;
        i < wn::ceil(static_cast<float>(_numWorkerThreads) / 2.0f); ++i) {
-    wn::multi_tasking::thread<void>* thread =
-        wn::memory::construct<wn::multi_tasking::thread<void>>(
+    wn::multi_tasking::thread* thread =
+        wn::memory::construct<wn::multi_tasking::thread>(
             &allocator, &WNNetworkManagerLinux::WriteThread, this);
 
     mReadThreads.push_back(thread);
@@ -115,8 +115,8 @@ WNNetworkManagerReturnCode::type WNNetworkManagerLinux::Initialize(
 
   for (uint32_t i = 0;
        i < wn::ceil(static_cast<float>(_numWorkerThreads) / 2.0f); ++i) {
-    wn::multi_tasking::thread<void>* thread =
-        wn::memory::construct<wn::multi_tasking::thread<void>>(
+    wn::multi_tasking::thread* thread =
+        wn::memory::construct<wn::multi_tasking::thread>(
             &allocator, &WNNetworkManagerLinux::ReadThread, this);
 
     mReadThreads.push_back(thread);
@@ -137,7 +137,7 @@ WNNetworkManagerReturnCode::type WNNetworkManagerLinux::Initialize(
   }
 
   mInitializationState = eWNEPollListenCreated;
-  mListenThread = wn::memory::construct<wn::multi_tasking::thread<void>>(
+  mListenThread = wn::memory::construct<wn::multi_tasking::thread>(
       &allocator, &WNNetworkManagerLinux::ListenThread, this);
   mInitializationState = eWNListenThreadCreated;
   mInitializationState = eWNInitializationComplete;

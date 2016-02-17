@@ -67,10 +67,10 @@ private:
   int32_t mWriteEPollInstance;
   int32_t mReadEPollInstance;
   int32_t mListenEPollInstance;
-  wn::multi_tasking::thread<void>* mListenThread;
+  wn::multi_tasking::thread* mListenThread;
   bool mShuttingDown;
-  std::vector<wn::multi_tasking::thread<void>*> mReadThreads;
-  std::vector<wn::multi_tasking::thread<void>*> mWriteThreads;
+  std::vector<wn::multi_tasking::thread*> mReadThreads;
+  std::vector<wn::multi_tasking::thread*> mWriteThreads;
   std::list<WNListenConnectionLinux*> mListenConnections;
   std::list<WNConnection*> mInvalidConnections;
   std::list<WNConnectionLinux*> mIncommingConnections;

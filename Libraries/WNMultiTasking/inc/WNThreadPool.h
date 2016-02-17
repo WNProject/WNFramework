@@ -66,7 +66,7 @@ public:
       const spin_lock_guard guard(m_thread_mutex);
 
       for (uint32_t i = 0; i < _worker_count; ++i) {
-        thread<void>* worker = m_allocator->construct<thread<void>>(
+        thread* worker = m_allocator->construct<thread>(
             m_allocator, &thread_pool::worker_thread, this);
 
         m_threads.push_back(worker);
@@ -214,7 +214,7 @@ private:
   spin_lock m_task_lock;
 #endif
 
-  containers::dynamic_array<thread<void>*> m_threads;
+  containers::dynamic_array<thread*> m_threads;
   spin_lock m_thread_mutex;
   semaphore m_worker_start_mutex;
   memory::allocator* m_allocator;

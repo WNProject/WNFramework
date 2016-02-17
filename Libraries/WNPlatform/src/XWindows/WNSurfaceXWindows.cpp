@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNPlatform/inc/Internal/XWindows/WNSurfaceXWindows.h"
 #include "WNMultiTasking/inc/WNThread.h"
+#include "WNPlatform/inc/Internal/XWindows/WNSurfaceXWindows.h"
 
 wn::WNSurfaceXWindows::WNSurfaceXWindows(
     wn::WNSurfaceManagerXWindows& _surfaceManager)
@@ -58,7 +58,7 @@ bool wn::WNSurfaceXWindows::Initialize(uint32_t _x, uint32_t _y,
 
   XSetWMProtocols(mDisplay, mWindow, &mDeleteMessage, 1);
 
-  mSurfaceThread = wn::memory::construct<wn::multi_tasking::thread<void>>(
+  mSurfaceThread = wn::memory::construct<wn::multi_tasking::thread>(
       &m_allocator, &wn::WNSurfaceXWindows::SurfaceThread, this);
 
   return (true);

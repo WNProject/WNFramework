@@ -46,6 +46,7 @@ add_wn_library(WNMultiTasking SOURCES
   inc/WNSharedMutex.h
   inc/WNSpinLock.h
   inc/WNThread.h
+  src/WNThread.cpp
   inc/WNThreadPool.h
   inc/WNThreadTask.h
   ${SRC_ADDITIONAL}

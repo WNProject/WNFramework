@@ -2,11 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNNetworking/inc/Internal/Windows/WNNetworkManagerWindows.h"
 #include "WNMemory/inc/WNBasic.h"
 #include "WNMultiTasking/inc/WNThread.h"
 #include "WNNetworking/inc/Internal/Windows/WNInConnectionWindows.h"
 #include "WNNetworking/inc/Internal/Windows/WNListenConnectionWindows.h"
+#include "WNNetworking/inc/Internal/Windows/WNNetworkManagerWindows.h"
 #include "WNNetworking/inc/Internal/Windows/WNOutConnectionWindows.h"
 
 #ifdef _WN_MSVC
@@ -252,12 +252,12 @@ WNNetworking::WNNetworkManagerWindows::Initialize(uint32_t _numWorkerThreads) {
   mInitializationState = eWNIOCPCreated;
 
   for (uint32_t i = 0; i < mMaxThreads; ++i) {
-    mThreads.push_back(wn::memory::construct<wn::multi_tasking::thread<void>>(
+    mThreads.push_back(wn::memory::construct<wn::multi_tasking::thread>(
         &allocator, &WNNetworkManagerWindows::IOCPThread, this));
   }
 
   mInitializationState = eWNThreadsCreated;
-  mListenThread = wn::memory::construct<wn::multi_tasking::thread<void>>(
+  mListenThread = wn::memory::construct<wn::multi_tasking::thread>(
       &allocator, &WNNetworkManagerWindows::ListenThread, this);
 
   mInitializationState = eWNInitializationCompleted;
