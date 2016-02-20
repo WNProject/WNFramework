@@ -1,0 +1,1 @@
+#include "WNGraphics/inc/Internal/D3D12/WNDevice.h"
