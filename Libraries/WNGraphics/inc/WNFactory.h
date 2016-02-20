@@ -11,7 +11,7 @@
 #include "WNContainers/inc/WNDynamicArray.h"
 #include "WNGraphics/inc/WNPhysicalDevice.h"
 #include "WNLogging/inc/WNLog.h"
-#include <mutex>
+#include "WNMultiTasking/inc/WNCallOnce.h"
 
 namespace wn {
 namespace graphics {
@@ -32,7 +32,7 @@ private:
   void query_devices() const;
 
   mutable containers::dynamic_array<physical_device_ptr> m_physical_devices;
-  mutable std::once_flag m_query_physical_device_once_flag;
+  mutable multi_tasking::once_flag m_query_physical_device_once_flag;
   memory::allocator* m_allocator;
   WNLogging::WNLog* m_log;
 };
@@ -40,4 +40,4 @@ private:
 }  // namespace graphics
 }  // namespace wn
 
-#endif  // _WN_GRAPHICS_FACTORY_H__s
+#endif  // _WN_GRAPHICS_FACTORY_H__

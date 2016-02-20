@@ -10,7 +10,7 @@ namespace graphics {
 
 containers::contiguous_range<const physical_device_ptr>
 factory::query_physical_devices() const {
-  std::call_once(m_query_physical_device_once_flag,
+  multi_tasking::call_once(m_query_physical_device_once_flag,
       containers::function<void()>(std::bind(&factory::query_devices, this)));
 
   return containers::contiguous_range<const physical_device_ptr>(
