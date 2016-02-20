@@ -27,10 +27,6 @@ add_wn_library(WNEntryPoint SOURCES ${WNEntryPointSources}
 wn_target_link_libraries(WNEntryPoint ${WNAdditionalEntryLibs}
   WNUtils)
 
-target_include_directories(WNEntryPoint
-  PUBLIC
-  ${CMAKE_SOURCE_DIR}/Libraries)
-
 if (WN_SYSTEM STREQUAL "Windows")
   source_group("src\\Windows" FILES ${WN_WINDOWS_SOURCES})
   source_group("src\\Posix" FILES ${WN_POSIX_SOURCES})

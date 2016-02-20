@@ -50,8 +50,4 @@ add_wn_library(WNMultiTasking SOURCES
   ${SRC_ADDITIONAL}
 )
 
-target_include_directories(WNMultiTasking PUBLIC
-  ${CMAKE_SOURCE_DIR}/Libraries
-)
-
 add_subdirectory(test)

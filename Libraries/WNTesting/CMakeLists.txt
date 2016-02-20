@@ -42,7 +42,6 @@ endif()
 
 target_include_directories(WNTesting
   PUBLIC
-    ${CMAKE_SOURCE_DIR}/Libraries
     ${gmock_SOURCE_DIR}/include
     ${gtest_SOURCE_DIR}/include
 )

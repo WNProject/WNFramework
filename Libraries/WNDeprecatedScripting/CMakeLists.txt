@@ -135,4 +135,4 @@ target_include_directories(WNScriptingDeprecated PUBLIC
   ${CMAKE_SOURCE_DIR}/Externals/antlr
   ${CMAKE_SOURCE_DIR}/Externals/llvm/include
   ${CMAKE_BINARY_DIR}/Externals/llvm/include
-  ${CMAKE_SOURCE_DIR}/Libraries)
+)

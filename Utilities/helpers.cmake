@@ -422,9 +422,16 @@ function(add_wn_library target)
     add_library(${target} STATIC ${PARSED_ARGS_SOURCES})
   endif()
 
-  target_include_directories(${target} PUBLIC ${CMAKE_BINARY_DIR}/Libraries)
+  target_include_directories(${target} PUBLIC
+    ${WNFramework_SOURCE_DIR}/Libraries
+  )
+  
+  target_include_directories(${target} PUBLIC
+    ${WNFramework_BINARY_DIR}/Libraries
+  )
+  
   set_property(TARGET ${target} PROPERTY FOLDER Libraries)
-
+  
   if(PARSED_ARGS_PRE_LINK_FLAGS)
     set_property(TARGET ${target} PROPERTY WN_PRE_LINK_FLAGS
       ${PARSED_ARGS_PRE_LINK_FLAGS})

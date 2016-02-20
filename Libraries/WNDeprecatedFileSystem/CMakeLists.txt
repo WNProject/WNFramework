@@ -1,4 +1,3 @@
-
 add_wn_library(WNFileSystemDeprecated SOURCES
   inc/WNFile.h
   inc/WNFileBuffer.h
@@ -9,10 +8,6 @@ add_wn_library(WNFileSystemDeprecated SOURCES
   src/WNWriteFileBuffer.cpp
   src/WNFile.cpp
   src/WNFileBuffer.cpp)
-
-target_include_directories(WNFileSystemDeprecated
-  PUBLIC
-  ${CMAKE_SOURCE_DIR}/Libraries)
 
 if(ANDROID)
   set_property(TARGET WNFileSystemDeprecated PROPERTY WN_ANDROID_PERMISSIONS

@@ -228,10 +228,6 @@ if (WN_SYSTEM STREQUAL "Windows")
   wn_target_link_libraries(${WN_TARGET_NAME} Rpcrt4.lib)
 endif()
 
-target_include_directories(${WN_TARGET_NAME} PUBLIC
-  ${CMAKE_SOURCE_DIR}/Libraries
-)
-
 if (WN_SYSTEM STREQUAL "Android")
   set_property(TARGET ${WN_TARGET_NAME} PROPERTY WN_ANDROID_PERMISSIONS
     WRITE_EXTERNAL_STORAGE

@@ -74,6 +74,3 @@ if (WN_SYSTEM STREQUAL "Windows")
 	set_source_files_properties(${SRC_LINUX} 
 		PROPERTIES HEADER_FILE_ONLY true)
 endif()
-
-target_include_directories(WNNetworking PUBLIC
-  ${CMAKE_SOURCE_DIR}/Libraries)

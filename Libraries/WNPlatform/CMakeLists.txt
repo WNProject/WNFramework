@@ -88,7 +88,6 @@ endif()
 
 wn_target_link_libraries(WNPlatform PUBLIC ${WNPlatformLinkLibraries})
 target_include_directories(WNPlatform PUBLIC
-  ${CMAKE_SOURCE_DIR}/Libraries
   ${WNAdditionalPlatformIncludes})
 
 add_subdirectory(test)

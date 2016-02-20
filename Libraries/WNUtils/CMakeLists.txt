@@ -48,7 +48,6 @@ endif()
 
 target_include_directories(WNUtils
   PUBLIC
-  ${CMAKE_SOURCE_DIR}/Libraries
   ${WNAdditionalUtilIncludes})
 
 

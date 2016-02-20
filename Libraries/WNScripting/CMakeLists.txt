@@ -58,6 +58,6 @@ target_include_directories(WNScripting PUBLIC
   ${CMAKE_SOURCE_DIR}/Externals/antlr
   ${CMAKE_SOURCE_DIR}/Externals/llvm/include
   ${CMAKE_BINARY_DIR}/Externals/llvm/include
-  ${CMAKE_SOURCE_DIR}/Libraries)
+)
 
 add_subdirectory(test)
