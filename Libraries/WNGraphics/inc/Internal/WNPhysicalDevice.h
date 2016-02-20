@@ -7,6 +7,7 @@
 #ifndef __WN_GRAPHICS_INTERNAL_PHYSICAL_DEVICE_H__
 #define __WN_GRAPHICS_INTERNAL_PHYSICAL_DEVICE_H__
 
+#include "WNContainers/inc/WNStringView.h"
 #include "WNGraphics/inc/WNDevice.h"
 
 namespace wn {

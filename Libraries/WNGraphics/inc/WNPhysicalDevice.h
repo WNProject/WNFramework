@@ -7,8 +7,7 @@
 #ifndef _WN_GRAPHICS_PHYSICAL_DEVICE_H__
 #define _WN_GRAPHICS_PHYSICAL_DEVICE_H__
 
-#include "WNContainers/inc/WNString.h"
-#include "WNContainers/inc/WNStringView.h"
+#include "WNCore/inc/WNBase.h"
 
 #if defined _ONLY_VULKAN || defined _WN_ANDROID
 #include "WNGraphics/inc/Internal/Vulkan/WNPhysicalDevice.h"

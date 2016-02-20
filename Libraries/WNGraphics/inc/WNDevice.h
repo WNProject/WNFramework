@@ -7,7 +7,6 @@
 #ifndef __WN_GRAPHICS_DEVICE_H__
 #define __WN_GRAPHICS_DEVICE_H__
 
-#include "WNCore/inc/WNBase.h"
 #include "WNMemory/inc/WNUniquePtr.h"
 
 #if defined _ONLY_VULKAN || defined _WN_ANDROID

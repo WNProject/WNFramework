@@ -9,11 +9,9 @@
 
 #include "WNContainers/inc/WNContiguousRange.h"
 #include "WNContainers/inc/WNDynamicArray.h"
-#include "WNContainers/inc/WNFunction.h"
+#include "WNGraphics/inc/WNPhysicalDevice.h"
 
 #include <mutex>
-
-#include "WNGraphics/inc/WNPhysicalDevice.h"
 
 namespace wn {
 namespace graphics {

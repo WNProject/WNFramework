@@ -1,4 +1,4 @@
-#include "WNGraphics/inc/WNDevice.h"
+#include "WNContainers/inc/WNFunction.h"
 #include "WNGraphics/inc/WNFactory.h"
 
 namespace wn {
