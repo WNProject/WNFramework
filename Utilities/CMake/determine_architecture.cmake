@@ -13,7 +13,6 @@ function(wn_check_any_symbol_exists LIST_VARIABLE_NAME VARIABLE)
       list(APPEND CMAKE_PASSTHROUGH_FLAGS
         "-DCMAKE_ANDROID_ARCH=${CMAKE_ANDROID_ARCH}")
     endif()
-
     wn_check_symbol_exists(${SYMBOL} "" ${CHECK_VARIABLE_NAME})
     if (${CHECK_VARIABLE_NAME})
       set(${VARIABLE} true PARENT_SCOPE)
