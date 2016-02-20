@@ -36,6 +36,7 @@ endif()
 
 add_wn_library(WNMultiTasking SOURCES
   inc/WNCallbackTask.h
+  inc/WNCallOnce.h
   inc/WNConditionVariable.h
   inc/WNFiber.h
   src/WNFiber.cpp
