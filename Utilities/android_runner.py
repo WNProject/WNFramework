@@ -208,15 +208,16 @@ class Runner:
       run_p_silent([adb, 'pull', '/system/%s/libc.so' % libdir_name,
              os.path.join(obj_path, "libc.so")])
       info("Downloading ", '/system/%s/libc.so' % (libdir_name))
-      run_p_silent([adb, "shell", "am", "start", "%s/.%s" % (args.package_name,
-             args.activity_name)])
-      info("Starting %s/.%s" % (args.package_name, args.activity_name))
 
       p = subprocess.Popen([
-          adb, "logcat", "-s", args.package_name + ":V",
+          adb, "logcat", "-v", "brief", "-s", args.package_name + ":V",
           "*:F"],
           stdout=subprocess.PIPE,
           bufsize=1)
+
+      run_p_silent([adb, "shell", "am", "start", "%s/.%s" % (args.package_name,
+             args.activity_name)])
+      info("Starting %s/.%s" % (args.package_name, args.activity_name))
 
       startre = re.compile("^--STARTED..?$")
       strip_stuff = re.compile("[A-Z]/" +
@@ -225,6 +226,7 @@ class Runner:
       pid = 0
       while(True):
         line = p.stdout.readline()
+
         original_line = line
         if not line:
           break
