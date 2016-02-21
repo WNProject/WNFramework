@@ -7,25 +7,26 @@
 #ifndef __WN_GRAPHICS_DEVICE_H__
 #define __WN_GRAPHICS_DEVICE_H__
 
+#include "WNGraphics/inc/Internal/WNConfig.h"
 #include "WNMemory/inc/WNUniquePtr.h"
 
-#if defined _ONLY_VULKAN || defined _WN_ANDROID
-#include "WNGraphics/inc/Internal/Vulkan/WNDevice.h"
-#elif defined _ONLY_D3D12
-#include "WNGraphics/inc/Internal/D3D12/WNDevice.h"
-#else
+#if _WN_GRAPHICS_DEVICE_TYPES_AVAILABLE > 1
 #include "WNGraphics/inc/Internal/WNDevice.h"
+#elif defined _WN_GRAPHICS_VULKAN_DEVICE_TYPE_AVAILABLE
+#include "WNGraphics/inc/Internal/Vulkan/WNDevice.h"
+#elif defined _WN_GRAPHICS_D3D12_DEVICE_TYPE_AVAILABLE
+#include "WNGraphics/inc/Internal/D3D12/WNDevice.h"
 #endif
 
 namespace wn {
 namespace graphics {
 
-#if defined _ONLY_VULKAN || defined _WN_ANDROID
-using device = internal::vulkan::device;
-#elif defined _ONLY_D3D12
-using device = internal::d3d12::device;
-#else
+#if _WN_GRAPHICS_DEVICE_TYPES_AVAILABLE > 1
 using device = internal::device;
+#elif defined _WN_GRAPHICS_VULKAN_DEVICE_TYPE_AVAILABLE
+using device = internal::vulkan::device;
+#elif defined _WN_GRAPHICS_D3D12_DEVICE_TYPE_AVAILABLE
+using device = internal::d3d12::device;
 #endif
 
 using device_ptr = memory::unique_ptr<device>;

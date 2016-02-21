@@ -1,0 +1,17 @@
+// Copyright (c) 2016, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+#pragma once
+
+#ifndef __WN_GRAPHICS_INTERNAL_CONFIG_H__
+#define __WN_GRAPHICS_INTERNAL_CONFIG_H__
+
+// define for each available device type
+#cmakedefine _WN_GRAPHICS_D3D12_DEVICE_TYPE_AVAILABLE
+#cmakedefine _WN_GRAPHICS_VULKAN_DEVICE_TYPE_AVAILABLE
+
+// number of graphics device types available
+#define _WN_GRAPHICS_DEVICE_TYPES_AVAILABLE ${WN_GRAPHICS_DEVICE_TYPES_AVAILABLE_COUNT}
+
+#endif  // __WN_GRAPHICS_INTERNAL_CONFIG_H__

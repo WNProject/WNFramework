@@ -7,25 +7,26 @@
 #ifndef _WN_GRAPHICS_PHYSICAL_DEVICE_H__
 #define _WN_GRAPHICS_PHYSICAL_DEVICE_H__
 
-#include "WNCore/inc/WNBase.h"
+#include "WNGraphics/inc/Internal/WNConfig.h"
+#include "WNMemory/inc/WNUniquePtr.h"
 
-#if defined _ONLY_VULKAN || defined _WN_ANDROID
-#include "WNGraphics/inc/Internal/Vulkan/WNPhysicalDevice.h"
-#elif defined _ONLY_D3D12
-#include "WNGraphics/inc/Internal/D3D12/WNPhysicalDevice.h"
-#else
+#if _WN_GRAPHICS_DEVICE_TYPES_AVAILABLE > 1
 #include "WNGraphics/inc/Internal/WNPhysicalDevice.h"
+#elif defined _WN_GRAPHICS_VULKAN_DEVICE_TYPE_AVAILABLE
+#include "WNGraphics/inc/Internal/Vulkan/WNPhysicalDevice.h"
+#elif defined _WN_GRAPHICS_D3D12_DEVICE_TYPE_AVAILABLE
+#include "WNGraphics/inc/Internal/D3D12/WNPhysicalDevice.h"
 #endif
 
 namespace wn {
 namespace graphics {
 
-#if defined _ONLY_VULKAN || defined _WN_ANDROID
-using physical_device = internal::vulkan::physical_device;
-#elif defined _ONLY_D3D12
-using physical_device = internal::d3d12::physical_device;
-#else
+#if _WN_GRAPHICS_DEVICE_TYPES_AVAILABLE > 1
 using physical_device = internal::physical_device;
+#elif defined _WN_GRAPHICS_VULKAN_DEVICE_TYPE_AVAILABLE
+using physical_device = internal::vulkan::physical_device;
+#elif defined _WN_GRAPHICS_D3D12_DEVICE_TYPE_AVAILABLE
+using physical_device = internal::d3d12::physical_device;
 #endif
 
 using physical_device_ptr = memory::unique_ptr<physical_device>;
