@@ -21,7 +21,7 @@ namespace graphics {
 class factory {
 public:
   WN_FORCE_INLINE factory(memory::allocator* _allocator, WNLogging::WNLog* _log)
-    : m_allocator(_allocator), m_log(_log) {}
+    : m_physical_devices(_allocator), m_allocator(_allocator), m_log(_log) {}
 
   virtual ~factory() = default;
 

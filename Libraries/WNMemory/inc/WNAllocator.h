@@ -27,6 +27,12 @@ public:
   virtual void* reallocate(void* _ptr, const size_t _new_size) = 0;
   virtual void deallocate(void* _ptr) = 0;
 
+  virtual void* aligned_allocate(
+      const size_t _size, const size_t _alignment) = 0;
+  virtual void* aligned_reallocate(
+      void* _ptr, const size_t _new_size, const size_t _alignment) = 0;
+  virtual void aligned_deallocate(void* _ptr) = 0;
+
   template <typename T, typename... Args>
   WN_FORCE_INLINE T* construct(Args&&... _args) {
     void* ptr = allocate(sizeof(T));
@@ -64,7 +70,7 @@ public:
         empty(), "memory leak detected, did not deallocate all allocations");
   }
 
-  WN_FORCE_INLINE virtual void* allocate(const size_t _size) override {
+  WN_INLINE virtual void* allocate(const size_t _size) override {
     void* ptr = m_allocator->allocate(_size);
 
     notify_allocated(ptr, _size);
@@ -72,7 +78,7 @@ public:
     return ptr;
   }
 
-  WN_FORCE_INLINE virtual void* reallocate(
+  WN_INLINE virtual void* reallocate(
       void* _ptr, const size_t _new_size) override {
     void* ptr = m_allocator->reallocate(_ptr, _new_size);
 
@@ -81,10 +87,33 @@ public:
     return ptr;
   }
 
-  WN_FORCE_INLINE virtual void deallocate(void* _ptr) override {
+  WN_INLINE virtual void deallocate(void* _ptr) override {
     notify_deallocated(_ptr);
 
     m_allocator->deallocate(_ptr);
+  }
+
+  WN_INLINE virtual void* aligned_allocate(const size_t _size, const size_t _alignment) override {
+    void* ptr = m_allocator->aligned_allocate(_size, _alignment);
+
+    notify_allocated(ptr, _size);
+
+    return ptr;
+  }
+
+  WN_INLINE virtual void* aligned_reallocate(
+      void* _ptr, const size_t _new_size, const size_t _alignment) override {
+    void* ptr = m_allocator->aligned_reallocate(_ptr, _new_size, _alignment);
+
+    notify_reallocated(_ptr, ptr, _new_size);
+
+    return ptr;
+  }
+
+  WN_INLINE virtual void aligned_deallocate(void* _ptr) override {
+    notify_deallocated(_ptr);
+
+    m_allocator->aligned_deallocate(_ptr);
   }
 
   WN_FORCE_INLINE size_t allocated() const {
@@ -157,6 +186,19 @@ public:
 
   WN_FORCE_INLINE virtual void deallocate(void* _ptr) override {
     free(_ptr);
+  }
+
+  WN_FORCE_INLINE virtual void* aligned_allocate(const size_t _size, const size_t _alignment) override {
+    return aligned_malloc(_size, _alignment);
+  }
+
+  WN_FORCE_INLINE virtual void* aligned_reallocate(
+      void* _ptr, const size_t _new_size, const size_t _alignment) override {
+    return aligned_realloc(_ptr, _new_size, _alignment);
+  }
+
+  WN_FORCE_INLINE virtual void aligned_deallocate(void* _ptr) override {
+    aligned_free(_ptr);
   }
 };
 

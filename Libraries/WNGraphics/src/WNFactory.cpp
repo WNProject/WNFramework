@@ -5,6 +5,10 @@
 #include "WNContainers/inc/WNFunction.h"
 #include "WNGraphics/inc/WNFactory.h"
 
+#ifdef _WN_GRAPHICS_VULKAN_DEVICE_TYPE_AVAILABLE
+#include "WNGraphics/src/Vulkan/WNHelpers.h"
+#endif
+
 namespace wn {
 namespace graphics {
 
@@ -17,7 +21,12 @@ factory::query_physical_devices() const {
       m_physical_devices.data(), m_physical_devices.size());
 }
 
-void factory::query_devices() const {}
+void factory::query_devices() const {
+#ifdef _WN_GRAPHICS_VULKAN_DEVICE_TYPE_AVAILABLE
+  internal::vulkan::enumerate_physical_devices(
+      m_allocator, m_log, m_physical_devices);
+#endif
+}
 
 }  // namespace graphics
 }  // namespace wn

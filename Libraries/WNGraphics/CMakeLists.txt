@@ -83,10 +83,14 @@ set(WN_GRAPHICS_INTERNAL_SRC
 set(WN_GRAPHICS_INTERNAL_VULKAN_SRC
   inc/Internal/Vulkan/WNDevice.h
   inc/Internal/Vulkan/WNPhysicalDevice.h
+  inc/Internal/Vulkan/WNVulkanContext.h
 )
 
 set(WN_GRAPHICS_VULKAN_SRC
   src/Vulkan/WNDevice.cpp
+  src/Vulkan/WNPhysicalDevice.cpp
+  src/Vulkan/WNHelpers.cpp
+  src/Vulkan/WNHelpers.h
 )
 
 source_group("inc\\Internal" FILES ${WN_GRAPHICS_INTERNAL_SRC})
@@ -107,5 +111,13 @@ add_wn_library(WNGraphics
     inc/WNPhysicalDevice.h
     src/WNFactory.cpp
 )
+
+target_include_directories(WNGraphics PUBLIC
+  ${CMAKE_SOURCE_DIR}/Externals/vulkan
+)
+
+if(WN_PLATFORM STREQUAL Linux)
+  wn_target_link_libraries(WNGraphics dl)
+endif()
 
 add_subdirectory(test)
