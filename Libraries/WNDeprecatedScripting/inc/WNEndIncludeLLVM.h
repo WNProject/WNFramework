@@ -6,5 +6,11 @@
 // It is intended for multiple inclusion.
 #ifdef _MSC_VER
 #pragma warning(disable: 4193)
+#undef PRId64
+#undef PRIi64
+#undef PRIo64
+#undef PRIu64
+#undef PRIx64
+#undef PRIX64
 #pragma warning(pop)
 #endif

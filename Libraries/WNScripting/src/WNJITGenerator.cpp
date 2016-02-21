@@ -35,6 +35,12 @@
 #include <llvm/Support/TargetSelect.h>
 
 #ifdef _MSC_VER
+#undef PRIi64
+#undef PRId64
+#undef PRIo64
+#undef PRIu64
+#undef PRIx64
+#undef PRIX64
 #pragma warning(pop)
 #endif
 
