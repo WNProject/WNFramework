@@ -15,6 +15,9 @@ if (WN_PLATFORM STREQUAL Windows)
 
   set(WN_GRAPHICS_D3D12_SRC
     src/D3D12/WNDevice.cpp
+    src/D3D12/WNHelpers.h
+    src/D3D12/WNHelpers.cpp
+    src/D3D12/WNPhysicalDevice.cpp
   )
 
   list(APPEND WN_GRAPHICS_SRC
@@ -25,7 +28,9 @@ if (WN_PLATFORM STREQUAL Windows)
   source_group("inc\\Internal\\D3D12" FILES ${WN_GRAPHICS_INTERNAL_D3D12_SRC})
   source_group("src\\D3D12" FILES ${WN_GRAPHICS_D3D12_SRC})
 
-  list(APPEND WN_GRAPHICS_DEVICE_TYPES_AVAILABLE d3d12)
+  if (MSVC_VERSION GREATER 1800)
+    list(APPEND WN_GRAPHICS_DEVICE_TYPES_AVAILABLE d3d12)
+  endif()
 endif()
 
 list(APPEND WN_GRAPHICS_DEVICE_TYPES_AVAILABLE vulkan)
@@ -112,12 +117,32 @@ add_wn_library(WNGraphics
     src/WNFactory.cpp
 )
 
-target_include_directories(WNGraphics PUBLIC
-  ${CMAKE_SOURCE_DIR}/Externals/vulkan
-)
+list(FIND WN_GRAPHICS_DEVICE_TYPES_ENABLED d3d12 WN_FOUND_DEVICE_TYPE)
 
-if(WN_PLATFORM STREQUAL Linux)
-  wn_target_link_libraries(WNGraphics dl)
+if (NOT WN_FOUND_DEVICE_TYPE EQUAL -1) # d3d12 is enabled
+  wn_target_link_libraries(WNGraphics DXGI.lib D3D12.lib)
+else() # d3d12 is not enabled
+  set_source_files_properties(
+    ${WN_GRAPHICS_D3D12_SRC}
+    PROPERTIES HEADER_FILE_ONLY true
+  )
+endif()
+
+list(FIND WN_GRAPHICS_DEVICE_TYPES_ENABLED vulkan WN_FOUND_DEVICE_TYPE)
+
+if (NOT WN_FOUND_DEVICE_TYPE EQUAL -1) # vulkan is enabled
+  target_include_directories(WNGraphics PUBLIC
+    ${CMAKE_SOURCE_DIR}/Externals/vulkan
+  )
+
+  if(WN_PLATFORM STREQUAL Linux)
+    wn_target_link_libraries(WNGraphics dl)
+  endif()
+else() # vulkan is not enabled
+  set_source_files_properties(
+    ${WN_GRAPHICS_VULKAN_SRC}
+    PROPERTIES HEADER_FILE_ONLY true
+  )
 endif()
 
 add_subdirectory(test)

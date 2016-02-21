@@ -5,6 +5,10 @@
 #include "WNContainers/inc/WNFunction.h"
 #include "WNGraphics/inc/WNFactory.h"
 
+#ifdef _WN_GRAPHICS_D3D12_DEVICE_TYPE_AVAILABLE
+#include "WNGraphics/src/D3D12/WNHelpers.h"
+#endif
+
 #ifdef _WN_GRAPHICS_VULKAN_DEVICE_TYPE_AVAILABLE
 #include "WNGraphics/src/Vulkan/WNHelpers.h"
 #endif
@@ -22,6 +26,11 @@ factory::query_physical_devices() const {
 }
 
 void factory::query_devices() const {
+#ifdef _WN_GRAPHICS_D3D12_DEVICE_TYPE_AVAILABLE
+  internal::d3d12::enumerate_physical_devices(
+      m_allocator, m_log, m_physical_devices);
+#endif
+
 #ifdef _WN_GRAPHICS_VULKAN_DEVICE_TYPE_AVAILABLE
   internal::vulkan::enumerate_physical_devices(
       m_allocator, m_log, m_physical_devices);
