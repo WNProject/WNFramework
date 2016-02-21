@@ -40,7 +40,7 @@ TEST(factory_test, physical_devices) {
 }
 
 
-TEST(factory_test, DISABLED_device_test) {
+TEST(factory_test, device_test) {
   wn::memory::basic_allocator allocator;
   log_buff buff;
   buffer_logger logger(&buff);

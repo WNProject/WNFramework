@@ -7,8 +7,8 @@
 #ifndef __WN_GRAPHICS_INTERNAL_VULKAN_PHYSICAL_DEVICE_H__
 #define __WN_GRAPHICS_INTERNAL_VULKAN_PHYSICAL_DEVICE_H__
 
-#include "WNGraphics/inc/Internal/WNPhysicalDevice.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanContext.h"
+#include "WNGraphics/inc/Internal/WNPhysicalDevice.h"
 #include "WNMemory/inc/WNIntrusivePtr.h"
 
 #include <vulkan.h>
@@ -34,6 +34,7 @@ public:
       memory::allocator* _allocator, WNLogging::WNLog*) const;
 
   ~physical_device() {}
+
 private:
   const memory::intrusive_ptr<vulkan_context> m_context;
   VkPhysicalDevice m_physical_device;

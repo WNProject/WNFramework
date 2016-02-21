@@ -13,14 +13,14 @@ namespace WNLogging {
 
 class WNLog;
 
-} // namespace WNLogging
+}  // namespace WNLogging
 
 namespace wn {
 namespace memory {
 
 class allocator;
 
-} // namespace memory
+}  // namespace memory
 
 namespace graphics {
 namespace internal {

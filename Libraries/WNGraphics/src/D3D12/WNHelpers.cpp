@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "WNCore/inc/WNUtility.h"
 #include "WNGraphics/inc/Internal/D3D12/WNPhysicalDevice.h"
 #include "WNGraphics/inc/WNPhysicalDevice.h"
 #include "WNGraphics/src/D3D12/WNHelpers.h"
@@ -46,8 +47,8 @@ void enumerate_physical_devices(memory::allocator* _allocator,
     containers::dynamic_array<physical_device_ptr>& _physical_devices) {
   _log->Log(WNLogging::eInfo, 0, "Enumerating D3D12 Dvices");
 
-  Microsoft::WRL::ComPtr<IDXGIFactory1> factory;
-  HRESULT hr = ::CreateDXGIFactory1(__uuidof(IDXGIFactory1), &factory);
+  Microsoft::WRL::ComPtr<IDXGIFactory1> dxgi_factory;
+  HRESULT hr = ::CreateDXGIFactory1(__uuidof(IDXGIFactory1), &dxgi_factory);
 
   if (FAILED(hr)) {
     _log->Log(
@@ -57,9 +58,9 @@ void enumerate_physical_devices(memory::allocator* _allocator,
   }
 
   for (UINT i = 0;; ++i) {
-    Microsoft::WRL::ComPtr<IDXGIAdapter1> adapter;
+    Microsoft::WRL::ComPtr<IDXGIAdapter1> dxgi_adapter;
 
-    hr = factory->EnumAdapters1(i, &adapter);
+    hr = dxgi_factory->EnumAdapters1(i, &dxgi_adapter);
 
     if (hr == DXGI_ERROR_NOT_FOUND) {
       _log->Log(WNLogging::eInfo, 0, "Finished Enumerating D3D12 Dvices");
@@ -75,8 +76,8 @@ void enumerate_physical_devices(memory::allocator* _allocator,
     // This is set to D3D_FEATURE_LEVEL_11_0 because this is the lowest posible
     // d3d version d3d12 supports.  This allows us to scale up on device
     // capabilities and work on older hardware
-    hr = ::D3D12CreateDevice(
-        adapter.Get(), D3D_FEATURE_LEVEL_11_0, __uuidof(ID3D12Device), nullptr);
+    hr = ::D3D12CreateDevice(dxgi_adapter.Get(), D3D_FEATURE_LEVEL_11_0,
+        __uuidof(ID3D12Device), nullptr);
 
     if (FAILED(hr)) {
       _log->Log(
@@ -85,9 +86,9 @@ void enumerate_physical_devices(memory::allocator* _allocator,
       continue;
     }
 
-    DXGI_ADAPTER_DESC1 description;
+    DXGI_ADAPTER_DESC1 dxgi_adapter_desc;
 
-    hr = adapter->GetDesc1(&description);
+    hr = dxgi_adapter->GetDesc1(&dxgi_adapter_desc);
 
     if (FAILED(hr)) {
       _log->Log(WNLogging::eError, 0,
@@ -98,8 +99,9 @@ void enumerate_physical_devices(memory::allocator* _allocator,
 
     containers::string name(_allocator);
 
-    if (!convert_to_utf8(description.Description,
-            static_cast<DWORD>(::wcslen(description.Description)), name)) {
+    if (!convert_to_utf8(dxgi_adapter_desc.Description,
+            static_cast<DWORD>(::wcslen(dxgi_adapter_desc.Description)),
+            name)) {
       _log->Log(
           WNLogging::eError, 0, "Could not convert adapter name to utf-8");
 
@@ -109,15 +111,15 @@ void enumerate_physical_devices(memory::allocator* _allocator,
     _log->Log(WNLogging::eInfo, 0, "D3D12 Device: ", i + 1);
     _log->Log(WNLogging::eInfo, 0, "------------------------------");
     _log->Log(WNLogging::eInfo, 0, "Name: ", name.c_str());
-    _log->Log(WNLogging::eInfo, 0, "Vendor: ", description.DeviceId);
-    _log->Log(WNLogging::eInfo, 0, "Device: ", description.VendorId);
+    _log->Log(WNLogging::eInfo, 0, "Vendor: ", dxgi_adapter_desc.DeviceId);
+    _log->Log(WNLogging::eInfo, 0, "Device: ", dxgi_adapter_desc.VendorId);
     _log->Log(WNLogging::eInfo, 0, "------------------------------");
 
     memory::unique_ptr<physical_device> phys_device(
         memory::make_unique<internal::d3d12::physical_device>(_allocator,
-            std::move(adapter), std::move(name),
-            static_cast<uint32_t>(description.DeviceId),
-            static_cast<uint32_t>(description.VendorId)));
+            core::move(dxgi_adapter), core::move(name),
+            static_cast<uint32_t>(dxgi_adapter_desc.DeviceId),
+            static_cast<uint32_t>(dxgi_adapter_desc.VendorId)));
 
     _physical_devices.push_back(std::move(phys_device));
   }

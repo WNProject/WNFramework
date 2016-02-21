@@ -7,8 +7,8 @@
 #ifndef __WN_GRAPHICS_INTERNAL_VULKAN_DEVICE_H__
 #define __WN_GRAPHICS_INTERNAL_VULKAN_DEVICE_H__
 
-#include "WNGraphics/inc/Internal/WNDevice.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanContext.h"
+#include "WNGraphics/inc/Internal/WNDevice.h"
 
 namespace wn {
 namespace graphics {
@@ -17,12 +17,12 @@ namespace vulkan {
 
 class device : public internal::device {
 public:
-  device(memory::allocator* _allocator, WNLogging::WNLog* _log,
-      VkDevice _device);
+  device(
+      memory::allocator* _allocator, WNLogging::WNLog* _log, VkDevice _device);
+
   bool initialize(vulkan_context* _context, uint32_t graphics_and_device_queue);
 
 private:
-
   PFN_vkGetDeviceProcAddr vkGetDeviceProcAddr;
   PFN_vkGetDeviceQueue vkGetDeviceQueue;
 

@@ -10,7 +10,6 @@
 #include "WNContainers/inc/WNStringView.h"
 #include "WNCore/inc/WNUtility.h"
 #include "WNGraphics/inc/WNDevice.h"
-#include "WNLogging/inc/WNLog.h"
 
 namespace wn {
 namespace graphics {
