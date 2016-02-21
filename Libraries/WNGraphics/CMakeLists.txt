@@ -51,3 +51,5 @@ add_wn_library(WNGraphics
     inc/WNPhysicalDevice.h
     src/WNFactory.cpp
 )
+
+add_subdirectory(test)

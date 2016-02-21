@@ -16,7 +16,7 @@ namespace internal {
 
 class physical_device {
 public:
-  enum class api_type { vulkan, d3d12 };
+  enum class api_type { invalid, vulkan, d3d12, max };
 
   virtual ~physical_device() = default;
 
