@@ -8,6 +8,7 @@
 #define __WN_GRAPHICS_INTERNAL_PHYSICAL_DEVICE_H__
 
 #include "WNContainers/inc/WNStringView.h"
+#include "WNCore/inc/WNUtility.h"
 #include "WNGraphics/inc/WNDevice.h"
 #include "WNLogging/inc/WNLog.h"
 
@@ -15,9 +16,17 @@ namespace wn {
 namespace graphics {
 namespace internal {
 
-class physical_device {
+class physical_device : core::non_copyable {
 public:
   enum class api_type { invalid, vulkan, d3d12, max };
+
+  WN_FORCE_INLINE physical_device(containers::string&& _name,
+      const uint32_t _vendor_id, const uint32_t _device_id,
+      const api_type _api_type)
+    : m_name(std::move(_name)),
+      m_vendor_id(_vendor_id),
+      m_device_id(_device_id),
+      m_api(_api_type) {}
 
   virtual ~physical_device() = default;
 
@@ -39,11 +48,11 @@ public:
     return m_api;
   }
 
-private:
-  containers::string m_name;
-  uint32_t m_vendor_id;
-  uint32_t m_device_id;
-  api_type m_api;
+protected:
+  const containers::string m_name;
+  const uint32_t m_vendor_id;
+  const uint32_t m_device_id;
+  const api_type m_api;
 };
 
 }  // namespace internal
