@@ -9,6 +9,7 @@
 
 #include "WNContainers/inc/WNStringView.h"
 #include "WNGraphics/inc/WNDevice.h"
+#include "WNLogging/inc/WNLog.h"
 
 namespace wn {
 namespace graphics {
@@ -20,7 +21,7 @@ public:
 
   virtual ~physical_device() = default;
 
-  virtual device_ptr make_device() const = 0;
+  virtual device_ptr make_device(WNLogging::WNLog* _log) const = 0;
 
   WN_FORCE_INLINE containers::string_view name() const {
     return m_name;

@@ -10,7 +10,7 @@
 #include "WNContainers/inc/WNContiguousRange.h"
 #include "WNContainers/inc/WNDynamicArray.h"
 #include "WNGraphics/inc/WNPhysicalDevice.h"
-
+#include "WNLogging/inc/WNLog.h"
 #include <mutex>
 
 namespace wn {
@@ -20,8 +20,8 @@ namespace graphics {
 // devices
 class factory {
 public:
-  WN_FORCE_INLINE factory(memory::allocator* _allocator)
-    : m_allocator(_allocator) {}
+  WN_FORCE_INLINE factory(memory::allocator* _allocator, WNLogging::WNLog* _log)
+    : m_allocator(_allocator), m_log(_log) {}
 
   virtual ~factory() = default;
 
@@ -34,6 +34,7 @@ private:
   mutable containers::dynamic_array<physical_device_ptr> m_physical_devices;
   mutable std::once_flag m_query_physical_device_once_flag;
   memory::allocator* m_allocator;
+  WNLogging::WNLog* m_log;
 };
 
 }  // namespace graphics
