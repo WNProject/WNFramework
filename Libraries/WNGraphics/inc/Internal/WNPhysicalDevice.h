@@ -30,7 +30,8 @@ public:
 
   virtual ~physical_device() = default;
 
-  virtual device_ptr make_device(WNLogging::WNLog* _log) const = 0;
+  virtual device_ptr make_device(
+      memory::allocator* _allocator, WNLogging::WNLog* _log) const = 0;
 
   WN_FORCE_INLINE containers::string_view name() const {
     return m_name;

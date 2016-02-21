@@ -61,8 +61,7 @@ void VKAPI_CALL free(void* _user_data, void* _data) {
     _log->Log(WNLogging::eInfo, 0, "Vulkan will not be available.");           \
     return nullptr;                                                            \
   }                                                                            \
-  _log->Log(WNLogging::eDebug, 0, #symbol " is at ",                           \
-      context->symbol);
+  _log->Log(WNLogging::eDebug, 0, #symbol " is at ", context->symbol);
 
 memory::intrusive_ptr<vulkan_context> get_vulkan_context(
     memory::allocator* _allocator, WNLogging::WNLog* _log) {
@@ -119,7 +118,10 @@ memory::intrusive_ptr<vulkan_context> get_vulkan_context(
   LOAD_VK_SYMBOL(context->instance, vkDestroyInstance);
   LOAD_VK_SYMBOL(context->instance, vkEnumeratePhysicalDevices);
   LOAD_VK_SYMBOL(context->instance, vkGetPhysicalDeviceProperties);
+  LOAD_VK_SYMBOL(context->instance, vkGetPhysicalDeviceQueueFamilyProperties);
 
+  LOAD_VK_SYMBOL(context->instance, vkCreateDevice);
+  LOAD_VK_SYMBOL(context->instance, vkDestroyDevice);
   return wn::core::move(context);
 }
 
@@ -152,16 +154,52 @@ void enumerate_physical_devices(memory::allocator* _allocator,
   for (size_t i = 0; i < num_physical_devices; ++i) {
     VkPhysicalDeviceProperties properties;
     context->vkGetPhysicalDeviceProperties(devices[i], &properties);
-    _log->Log(WNLogging::eInfo, 0, "Vulkan Device: ", i+1);
-    _log->Log(WNLogging::eInfo, 0, "------------------------------");
+    _log->Log(WNLogging::eInfo, 0, "Vulkan Device: ", i + 1);
+    _log->Log(WNLogging::eInfo, 0, "--------------------------------");
     _log->Log(WNLogging::eInfo, 0, "Name: ", properties.deviceName);
     _log->Log(WNLogging::eInfo, 0, "Vendor: ", properties.vendorID);
     _log->Log(WNLogging::eInfo, 0, "Device: ", properties.deviceID);
-    _log->Log(WNLogging::eInfo, 0, "------------------------------");
-    _arr.emplace_back(
-        wn::memory::make_unique<physical_device>(_allocator, context,
-            devices[i], containers::string(properties.deviceName, _allocator),
-            properties.vendorID, properties.deviceID));
+
+    uint32_t num_queue_families;
+
+    context->vkGetPhysicalDeviceQueueFamilyProperties(
+        devices[i], &num_queue_families, nullptr);
+    _log->Log(WNLogging::eInfo, 0, "Device supports ", num_queue_families,
+        " queue types.");
+
+    containers::dynamic_array<VkQueueFamilyProperties> queue_properties(
+        num_queue_families, _allocator);
+
+    context->vkGetPhysicalDeviceQueueFamilyProperties(
+        devices[i], &num_queue_families, queue_properties.data());
+
+    uint32_t graphics_and_compute_queue = static_cast<uint32_t>(-1);
+
+    for (uint32_t j = 0; j < num_queue_families; ++j) {
+      _log->Log(WNLogging::eInfo, 0, "Queue type ", j + 1);
+      _log->Log(WNLogging::eInfo, 0, "--------------------------------");
+      _log->Log(
+          WNLogging::eInfo, 0, "Num Queues: ", queue_properties[j].queueCount);
+      _log->Log(
+          WNLogging::eInfo, 0, "Bits:       ", queue_properties[j].queueFlags);
+      _log->Log(WNLogging::eInfo, 0, "--------------------------------");
+      // We only care about graphics && compute devices.
+      if (graphics_and_compute_queue == static_cast<uint32_t>(-1) &&
+          ((queue_properties[j].queueFlags &
+               (VK_QUEUE_COMPUTE_BIT | VK_QUEUE_GRAPHICS_BIT)) ==
+              (VK_QUEUE_COMPUTE_BIT | VK_QUEUE_GRAPHICS_BIT))) {
+        graphics_and_compute_queue = j;
+      }
+    }
+    if (graphics_and_compute_queue == static_cast<uint32_t>(-1)) {
+      _log->Log(WNLogging::eInfo, 0,
+          "Does not support graphics and compute, ignoring");
+    }
+    _log->Log(WNLogging::eInfo, 0, "--------------------------------");
+    _arr.emplace_back(wn::memory::make_unique<physical_device>(_allocator,
+        context, devices[i],
+        containers::string(properties.deviceName, _allocator),
+        properties.vendorID, properties.deviceID, graphics_and_compute_queue));
   }
 }
 

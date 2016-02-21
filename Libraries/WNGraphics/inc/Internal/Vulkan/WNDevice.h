@@ -8,13 +8,27 @@
 #define __WN_GRAPHICS_INTERNAL_VULKAN_DEVICE_H__
 
 #include "WNGraphics/inc/Internal/WNDevice.h"
+#include "WNGraphics/inc/Internal/Vulkan/WNVulkanContext.h"
 
 namespace wn {
 namespace graphics {
 namespace internal {
 namespace vulkan {
 
-class device : public internal::device {};
+class device : public internal::device {
+public:
+  device(memory::allocator* _allocator, WNLogging::WNLog* _log,
+      VkDevice _device);
+  bool initialize(vulkan_context* _context, uint32_t graphics_and_device_queue);
+
+private:
+
+  PFN_vkGetDeviceProcAddr vkGetDeviceProcAddr;
+  PFN_vkGetDeviceQueue vkGetDeviceQueue;
+
+  VkDevice m_device;
+  VkQueue m_queue;
+};
 
 }  // namespace vulkan
 }  // namespace internal

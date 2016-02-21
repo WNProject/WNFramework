@@ -38,3 +38,22 @@ TEST(factory_test, physical_devices) {
   // On normal operation the log buffer should be empty.
   EXPECT_EQ("", buff);
 }
+
+
+TEST(factory_test, DISABLED_device_test) {
+  wn::memory::basic_allocator allocator;
+  log_buff buff;
+  buffer_logger logger(&buff);
+  WNLogging::WNLog log(&logger);
+
+  wn::graphics::factory device_factory(&allocator, &log);
+
+  for (auto& physical_device : device_factory.query_physical_devices()) {
+    wn::graphics::device_ptr device =
+        physical_device->make_device(&allocator, &log);
+    EXPECT_NE(nullptr, device);
+  }
+  log.Flush();
+  // On normal operation the log buffer should be empty.
+  EXPECT_EQ("", buff);
+}

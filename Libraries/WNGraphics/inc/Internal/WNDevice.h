@@ -7,13 +7,33 @@
 #ifndef __WN_GRAPHICS_INTERNAL_DEVICE_H__
 #define __WN_GRAPHICS_INTERNAL_DEVICE_H__
 
-#include "WNCore/inc/WNTypes.h"
+#include "WNCore/inc/WNUtility.h"
+
+namespace WNLogging {
+
+class WNLog;
+
+} // namespace WNLogging
 
 namespace wn {
+namespace memory {
+
+class allocator;
+
+} // namespace memory
+
 namespace graphics {
 namespace internal {
 
-class device {};
+class device : public core::non_copyable {
+public:
+  WN_FORCE_INLINE device(memory::allocator* _allocator, WNLogging::WNLog* _log)
+    : m_allocator(_allocator), m_log(_log) {}
+
+protected:
+  memory::allocator* m_allocator;
+  WNLogging::WNLog* m_log;
+};
 
 }  // namespace internal
 }  // namespace graphics

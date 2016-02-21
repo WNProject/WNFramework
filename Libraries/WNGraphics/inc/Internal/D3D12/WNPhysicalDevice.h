@@ -34,7 +34,7 @@ public:
   virtual ~physical_device() override = default;
 
   WN_FORCE_INLINE virtual device_ptr make_device(
-      WNLogging::WNLog*) const override {
+      memory::allocator*, WNLogging::WNLog*) const override {
     return nullptr;
   }
 
