@@ -145,4 +145,12 @@ else() # vulkan is not enabled
   )
 endif()
 
+string(REPLACE ";" "," WN_GRAPHICS_DEVICE_TYPES_ENABLED_LIST
+  "${WN_GRAPHICS_DEVICE_TYPES_ENABLED}"
+)
+
+message(STATUS
+  "Graphics Device Types: ${WN_GRAPHICS_DEVICE_TYPES_ENABLED_LIST}"
+)
+
 add_subdirectory(test)
