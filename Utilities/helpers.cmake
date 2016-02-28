@@ -345,9 +345,6 @@ function(wn_create_test)
   if(NOT PARSED_ARGS_SOURCES)
     message(FATAL_ERROR "You must provide at least one source file")
   endif()
-  source_group("src" REGULAR_EXPRESSION ".*[.](c|cc|cpp|cxx)$")
-  source_group("inc" REGULAR_EXPRESSION ".*[.](h|hpp)$")
-  source_group("inl" REGULAR_EXPRESSION ".*[.](inl)$")
   add_wn_executable(${PARSED_ARGS_TEST_NAME}_test SOURCES ${PARSED_ARGS_SOURCES}
     LINK_LIBRARIES WNTesting WNUtils ${PARSED_ARGS_LIBS})
   target_include_directories(${PARSED_ARGS_TEST_NAME}_test PRIVATE
@@ -369,6 +366,15 @@ function(wn_create_test)
   endif()
   set_property(TARGET ${PARSED_ARGS_TEST_NAME}_test PROPERTY FOLDER
     Tests/${PARSED_ARGS_TEST_PREFIX})
+endfunction()
+
+function(wn_set_source_groups)
+  foreach(ARG ${ARGN})
+    string(REGEX MATCH ".*[/]" SOURCE_PATH ${ARG})
+    string(REPLACE ${CMAKE_CURRENT_BINARY_DIR} "" SOURCE_PATH ${SOURCE_PATH})
+    string(REPLACE "/" "\\" SOURCE_PATH ${SOURCE_PATH})
+    source_group("${SOURCE_PATH}" FILES ${ARG})
+  endforeach()
 endfunction()
 
 # Arguments
@@ -410,10 +416,8 @@ function(add_wn_library target)
     ""
     "PRE_LINK_FLAGS;POST_LINK_FLAGS;SOURCES"
     ${ARGN})
-  source_group("src" REGULAR_EXPRESSION ".*[.](c|cc|cpp|cxx)$")
-  source_group("asm" REGULAR_EXPRESSION ".*[.](s|S|asm)$")
-  source_group("inc" REGULAR_EXPRESSION ".*[.](h|hpp)$")
-  source_group("inl" REGULAR_EXPRESSION ".*[.](inl)$")
+  wn_set_source_groups(${PARSED_ARGS_SOURCES})
+
   if (PARSED_ARGS_SHARED)
     add_library(${target} SHARED ${PARSED_ARGS_SOURCES})
   elseif(PARSED_ARGS_OBJECT)
@@ -425,13 +429,13 @@ function(add_wn_library target)
   target_include_directories(${target} PUBLIC
     ${WNFramework_SOURCE_DIR}/Libraries
   )
-  
+
   target_include_directories(${target} PUBLIC
     ${WNFramework_BINARY_DIR}/Libraries
   )
-  
+
   set_property(TARGET ${target} PROPERTY FOLDER Libraries)
-  
+
   if(PARSED_ARGS_PRE_LINK_FLAGS)
     set_property(TARGET ${target} PROPERTY WN_PRE_LINK_FLAGS
       ${PARSED_ARGS_PRE_LINK_FLAGS})
@@ -491,8 +495,6 @@ function(add_wn_header_library target)
   # Only build a header-only library for display in
   # multi-configuration tools. (Visual studio)
   if (NOT ${NUM_TYPES} EQUAL 1)
-    source_group("inc" REGULAR_EXPRESSION ".*[.](h|hpp)$")
-    source_group("inl" REGULAR_EXPRESSION ".*[.](inl)$")
     add_wn_library(${target} SOURCES ${ARGN})
     set_property(TARGET ${target} PROPERTY FOLDER Libraries)
     set_property(TARGET ${target} PROPERTY LINKER_LANGUAGE CXX)
@@ -509,8 +511,10 @@ function(add_wn_executable target)
   if (WN_SYSTEM STREQUAL "Android" AND NOT ${WN_IS_TEGRA})
     add_wn_library(${target} SHARED SOURCES ${PARSED_ARGS_SOURCES})
   else()
+    wn_set_source_groups(${PARSED_ARGS_SOURCES})
     add_executable(${target} ${PARSED_ARGS_SOURCES})
   endif()
+
   if (PARSED_ARGS_LINK_LIBRARIES)
     wn_target_link_libraries(${target} PRIVATE ${PARSED_ARGS_LINK_LIBRARIES})
   endif()
@@ -527,10 +531,6 @@ function(add_wn_tool target)
     ""
     "SOURCES;LINK_LIBRARIES"
     ${ARGN})
-  source_group("src" REGULAR_EXPRESSION ".*[.](c|cc|cpp|cxx)$")
-  source_group("asm" REGULAR_EXPRESSION ".*[.](s|S|asm)$")
-  source_group("inc" REGULAR_EXPRESSION ".*[.](h|hpp)$")
-  source_group("inl" REGULAR_EXPRESSION ".*[.](inl)$")
   add_wn_executable(${target} LINK_LIBRARIES ${PARSED_ARGS_LINK_LIBRARIES}
     SOURCES ${PARSED_ARGS_SOURCES})
   set_property(TARGET ${target} PROPERTY FOLDER Tools)

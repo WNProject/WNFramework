@@ -19,7 +19,6 @@ set(WNUtilsSources
 	inc/WNCrashHandler.h
 	${INC_ANDROID}
 )
-source_group("inc\\Android" FILES ${INC_ANDROID})
 
 if (WN_SYSTEM STREQUAL "Android")
   list(APPEND WNUtilsSources
@@ -39,9 +38,6 @@ add_wn_library(WNUtils SOURCES
 
 
 if (WN_SYSTEM STREQUAL "Windows")
-	source_group("src\\Windows" FILES ${SRC_WINDOWS})
-	source_group("src\\Posix" FILES ${SRC_POSIX})
-	source_group("src\\Android" FILES ${SRC_ANDROID})
 	set_source_files_properties(${SRC_POSIX} ${SRC_ANDROID} 
 		PROPERTIES HEADER_FILE_ONLY true)
 endif()

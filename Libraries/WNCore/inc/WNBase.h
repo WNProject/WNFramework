@@ -82,8 +82,6 @@
 #error "Compiler not supported"
 #endif
 
-#include "WNCore/inc/WNConfigOld.h"
-
 #ifdef _WN_X86
 #include "WNCore/inc/Internal/x86/WNBase.h"
 #elif defined _WN_ARM

@@ -49,12 +49,6 @@ if (MSVC OR WN_IS_TEGRA)
     ${WN_SRC_ANDROID_SYSTEM_PATHS}
   )
 
-  source_group("src\\Windows" FILES ${WN_SRC_WINDOWS})
-  source_group("src\\Posix" FILES ${WN_SRC_POSIX})
-  source_group("src\\Posix" FILES ${WN_SRC_POSIX_SYSTEM_PATHS})
-  source_group("src\\Android" FILES ${WN_SRC_ANDROID_SYSTEM_PATHS})
-  source_group("src" FILES ${WN_SRC})
-
   if (WN_PLATFORM STREQUAL "Windows")
     set_source_files_properties(
       ${WN_SRC_POSIX}

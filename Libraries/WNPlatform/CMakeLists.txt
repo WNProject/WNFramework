@@ -1,44 +1,46 @@
 set(INC_INTERNAL
   inc/Internal/WNTime.inl
 )
+
 set(INC_INTERNAL_ANDROID
   inc/Internal/Android/WNSurfaceAndroid.h
   inc/Internal/Android/WNSurfaceManagerAndroid.h
 )
+
 set(SRC_ANDROID
   src/Android/WNSurfaceAndroid.cpp
   src/Android/WNSurfaceManagerAndroid.cpp
 )
+
 set(INC_INTERNAL_LINUX
   inc/Internal/Linux/WNTime.inl
 )
+
 set(SRC_XWINDOWS
   src/XWindows/WNSurfaceManagerXWindows.cpp
   src/XWindows/WNSurfaceXWindows.cpp
 )
+
 set(INC_INTERNAL_WINDOWS
   inc/Internal/Windows/WNSurfaceManagerWindows.h
   inc/Internal/Windows/WNSurfaceWindows.h
   inc/Internal/Windows/WNTime.inl
 )
+
 set(SRC_WINDOWS
   src/Windows/WNSurfaceManagerWindows.cpp
   src/Windows/WNSurfaceWindows.cpp
 )
+
 set(INC_INTERNAL_XWINDOWS
   inc/Internal/XWindows/WNSurfaceManagerXWindows.h
   inc/Internal/XWindows/WNSurfaceXWindows.h
 )
+
 set(SRC_XWINDOWS
   src/XWindows/WNSurfaceManagerXWindows.cpp
   src/XWindows/WNSurfaceXWindows.cpp
 )
-source_group("inc\\Internal" FILES ${INC_INTERNAL})
-source_group("inc\\Internal\\Linux" FILES ${INC_INTERNAL_LINUX})
-source_group("inc\\Internal\\Android" FILES ${INC_INTERNAL_ANDROID})
-source_group("inc\\Internal\\Windows" FILES ${INC_INTERNAL_WINDOWS})
-source_group("inc\\Internal\\XWindows" FILES ${INC_INTERNAL_XWINDOWS})
-
 
 set(WNPlatformSources
   inc/WNPlatform.h
@@ -79,9 +81,6 @@ add_wn_library(WNPlatform SOURCES
   )
 
 if (WN_SYSTEM STREQUAL "Windows")
-	source_group("src\\XWindows" FILES ${SRC_XWINDOWS})
-	source_group("src\\Windows" FILES ${SRC_WINDOWS})
-	source_group("src\\Android" FILES ${SRC_ANDROID})
 	set_source_files_properties(${SRC_XWINDOWS} ${SRC_ANDROID} 
 		PROPERTIES HEADER_FILE_ONLY true)
 endif()

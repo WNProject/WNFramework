@@ -25,9 +25,6 @@ if (WN_PLATFORM STREQUAL Windows)
     ${WN_GRAPHICS_D3D12_SRC}
   )
 
-  source_group("inc\\Internal\\D3D12" FILES ${WN_GRAPHICS_INTERNAL_D3D12_SRC})
-  source_group("src\\D3D12" FILES ${WN_GRAPHICS_D3D12_SRC})
-
   if (MSVC_VERSION GREATER 1800)
     list(APPEND WN_GRAPHICS_DEVICE_TYPES_AVAILABLE d3d12)
   endif()
@@ -97,10 +94,6 @@ set(WN_GRAPHICS_VULKAN_SRC
   src/Vulkan/WNHelpers.cpp
   src/Vulkan/WNHelpers.h
 )
-
-source_group("inc\\Internal" FILES ${WN_GRAPHICS_INTERNAL_SRC})
-source_group("inc\\Internal\\Vulkan" FILES ${WN_GRAPHICS_INTERNAL_VULKAN_SRC})
-source_group("src\\Vulkan" FILES ${WN_GRAPHICS_VULKAN_SRC})
 
 list(APPEND WN_GRAPHICS_SRC
   ${WN_GRAPHICS_INTERNAL_VULKAN_SRC}

@@ -28,6 +28,7 @@ set(INC_INTERNAL
   inc/Internal/WNSegment3.inl
   inc/Internal/WNVectorTraits.h
 )
+
 set(INC_INTERNAL_EXTENSIONS_X86
   inc/Internal/Extensions/x86/WNBasicTraits.h
   inc/Internal/Extensions/x86/WNConfig.h
@@ -37,33 +38,32 @@ set(INC_INTERNAL_EXTENSIONS_X86
   inc/Internal/Extensions/x86/WNUtilities.h
   inc/Internal/Extensions/x86/WNVectorTraits.h
 )
+
 set(INC_INTERNAL_EXTENSIONS_X86_SSE
   inc/Internal/Extensions/x86/SSE/WNBasicTraits.h
   inc/Internal/Extensions/x86/SSE/WNElementArray.h
   inc/Internal/Extensions/x86/SSE/WNGeneralTraits.h
   inc/Internal/Extensions/x86/SSE/WNVectorTraits.h
 )
+
 set(INC_INTERNAL_EXTENSIONS_X86_SSE2
   inc/Internal/Extensions/x86/SSE2/WNBasicTraits.h
   inc/Internal/Extensions/x86/SSE2/WNElementArray.h
   inc/Internal/Extensions/x86/SSE2/WNVectorTraits.h
 )
+
 set(INC_INTERNAL_EXTENSIONS_X86_SSE41
   inc/Internal/Extensions/x86/SSE4.1/WNBasicTraits.h
   inc/Internal/Extensions/x86/SSE4.1/WNVectorTraits.h
 )
+
 set(INC_INTERNAL_GENERIC
   inc/Internal/Generic/WNBasicTraits.h
   inc/Internal/Generic/WNElementArray.h
   inc/Internal/Generic/WNGeneralTraits.h
   inc/Internal/Generic/WNVectorTraits.h
 )
-source_group("inc\\Internal" FILES ${INC_INTERNAL})
-source_group("inc\\Internal\\Extensions\\x86" FILES ${INC_INTERNAL_EXTENSIONS_X86})
-source_group("inc\\Internal\\Extensions\\x86\\SSE" FILES ${INC_INTERNAL_EXTENSIONS_X86_SSE})
-source_group("inc\\Internal\\Extensions\\x86\\SSE2" FILES ${INC_INTERNAL_EXTENSIONS_X86_SSE2})
-source_group("inc\\Internal\\Extensions\\x86\\SSE4.1" FILES ${INC_INTERNAL_EXTENSIONS_X86_SSE41})
-source_group("inc\\Internal\\Generic" FILES ${INC_INTERNAL_GENERIC})
+
 add_wn_header_library(WNMath
   inc/WNBasic.h
   inc/WNBounds2.h

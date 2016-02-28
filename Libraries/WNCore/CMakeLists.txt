@@ -894,52 +894,34 @@ set(CONFIG_FILE_OUTPUT_PATH
 )
 
 # setup target
-set(INC_INTERNAL
-  inc/Internal/WNBase_Clang.h
-  inc/Internal/WNBase_Clang_GCC.h
-  inc/Internal/WNBase_GCC.h
-  inc/Internal/WNBase_MSVC.h
-  inc/Internal/WNConfigOld.h
-  inc/Internal/WNConfig.h.in
-  inc/Internal/WNErrors.inc
-  inc/Internal/WNExtendedTypes.h
-  ${CONFIG_FILE_INPUT_PATH}
-  ${CONFIG_FILE_OUTPUT_PATH}
-)
-
-set(INC_INTERNAL_ARM
+add_wn_header_library(WNCore
   inc/Internal/ARM/WNBase.h
   inc/Internal/ARM/WNBase_Clang.h
   inc/Internal/ARM/WNBase_GCC.h
   inc/Internal/ARM/WNBase_MSVC.h
   inc/Internal/ARM/WNConfig.h
-)
-
-set(INC_INTERNAL_X86
-  inc/Internal/X86/WNBase.h
-  inc/Internal/X86/WNBase_Clang.h
-  inc/Internal/X86/WNBase_GCC.h
-  inc/Internal/X86/WNBase_MSVC.h
-  inc/Internal/X86/WNConfig.h
-)
-
-source_group("inc\\Internal" FILES ${INC_INTERNAL})
-source_group("inc\\Internal\\ARM" FILES ${INC_INTERNAL_ARM})
-source_group("inc\\Internal\\x86" FILES ${INC_INTERNAL_X86})
-
-add_wn_header_library(WNCore
+  inc/Internal/x86/WNBase.h
+  inc/Internal/x86/WNBase_Clang.h
+  inc/Internal/x86/WNBase_GCC.h
+  inc/Internal/x86/WNBase_MSVC.h
+  inc/Internal/x86/WNConfig.h
+  inc/Internal/WNBase_Clang.h
+  inc/Internal/WNBase_Clang_GCC.h
+  inc/Internal/WNBase_GCC.h
+  inc/Internal/WNBase_MSVC.h
+  inc/Internal/WNConfig.h.in
+  inc/Internal/WNErrors.inc
+  inc/Internal/WNExtendedTypes.h
+  ${CONFIG_FILE_INPUT_PATH}
+  ${CONFIG_FILE_OUTPUT_PATH}
   inc/WNAlgorithm.h
   inc/WNAssert.h
   inc/WNBase.h
-  inc/WNConfigOld.h
   inc/WNEndian.h
   inc/WNExtendedTypes.h
   inc/WNTypes.h
   inc/WNTypeTraits.h
   inc/WNUtility.h
-  ${INC_INTERNAL}
-  ${INC_INTERNAL_ARM}
-  ${INC_INTERNAL_X86}
 )
 
 add_subdirectory(test)

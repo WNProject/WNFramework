@@ -29,7 +29,6 @@ if (${WN_SYSTEM} STREQUAL "Android")
     )
   endif()
 
-  source_group("src\\Android" FILES ${SRC_ANDROID})
   list(APPEND SRC_ADDITIONAL ${SRC_ANDROID})
   list(APPEND SRC_ADDITIONAL ${ANDROID_ASSEMBLY})
 endif()

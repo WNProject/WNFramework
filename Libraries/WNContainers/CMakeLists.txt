@@ -8,8 +8,6 @@ if (MSVC)
   )
 
   list(APPEND WN_CONTAINERS_FILES ${NATVIS_FILES})
-
-  source_group("natvis" FILES ${NATVIS_FILES})
 endif()
 
 add_wn_header_library(WNContainers

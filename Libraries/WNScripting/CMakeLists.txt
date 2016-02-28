@@ -40,7 +40,6 @@ add_wn_library(WNScripting SOURCES
 if (WN_SYSTEM STREQUAL "Windows")
   set_source_files_properties(lang/WNScriptAST.g
     PROPERTIES HEADER_FILE_ONLY true)
-  source_group("lang" FILES lang/WNScriptAST.g)
 endif()
 
 set(WNScriptingLLVMComponents codegen instrumentation objcarcopts support mcjit ipo native)

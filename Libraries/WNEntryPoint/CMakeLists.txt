@@ -28,9 +28,6 @@ wn_target_link_libraries(WNEntryPoint ${WNAdditionalEntryLibs}
   WNUtils)
 
 if (WN_SYSTEM STREQUAL "Windows")
-  source_group("src\\Windows" FILES ${WN_WINDOWS_SOURCES})
-  source_group("src\\Posix" FILES ${WN_POSIX_SOURCES})
-  source_group("src\\Android" FILES ${WN_ANDROID_SOURCES})
   set_source_files_properties(${WN_POSIX_SOURCES} ${WN_ANDROID_SOURCES}
     PROPERTIES HEADER_FILE_ONLY true)
 endif()

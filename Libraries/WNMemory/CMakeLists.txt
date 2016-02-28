@@ -32,30 +32,6 @@ set(WN_MEMORY_FILES
   ${INC_INTERNAL}
 )
 
-source_group("inc\\Internal\\Extension\\x86\\3DNow"
-  FILES ${INC_INTERNAL_EXTENSION_X86_3DNOW}
-)
-
-source_group("inc\\Internal\\Extension\\x86\\SSE"
-  FILES ${INC_INTERNAL_EXTENSION_X86_SSE}
-)
-
-source_group("inc\\Internal\\Extension\\x86"
-  FILES ${INC_INTERNAL_EXTENSION_X86}
-)
-
-source_group("inc\\Internal\\Extension"
-  FILES ${INC_INTERNAL_EXTENSION}
-)
-
-source_group("inc\\Internal\\Generic"
-  FILES ${INC_INTERNAL_GENERIC}
-)
-
-source_group("inc\\Internal"
-  FILES ${INC_INTERNAL}
-)
-
 if (MSVC)
   set(NATVIS_FILES
     natvis/WNIntrusivePtr.natvis
@@ -63,8 +39,6 @@ if (MSVC)
   )
 
   list(APPEND WN_MEMORY_FILES ${NATVIS_FILES})
-
-  source_group("natvis" FILES ${NATVIS_FILES})
 endif()
 
 add_wn_header_library(WNMemory

@@ -5,6 +5,7 @@ set(SRC_LINUX
   src/Linux/WNNetworkManagerLinux.cpp
   src/Linux/WNListenConnectionLinux.cpp
 )
+
 set(SRC_WINDOWS
     src/Windows/WNOutConnectionWindows.cpp
     src/Windows/WNListenConnectionWindows.cpp
@@ -12,6 +13,7 @@ set(SRC_WINDOWS
     src/Windows/WNInConnectionWindows.cpp
     src/Windows/WNNetworkManagerWindows.cpp
 )
+
 set(INC_INTERNAL_LINUX
   inc/Internal/Linux/WNConnectionLinux.h
   inc/Internal/Linux/WNInConnectionLinux.h
@@ -19,6 +21,7 @@ set(INC_INTERNAL_LINUX
   inc/Internal/Linux/WNNetworkManagerLinux.h
   inc/Internal/Linux/WNOutConnectionLinux.h
 )
+
 set(INC_INTERNAL_WINDOWS
   inc/Internal/Windows/WNBufferResource.inl
   inc/Internal/Windows/WNConnectionWindows.h
@@ -27,9 +30,6 @@ set(INC_INTERNAL_WINDOWS
   inc/Internal/Windows/WNNetworkManagerWindows.h
   inc/Internal/Windows/WNOutConnectionWindows.h
 )
-
-source_group("inc\\Internal\\Linux" FILES ${INC_INTERNAL_LINUX})
-source_group("inc\\Internal\\Windows" FILES ${INC_INTERNAL_WINDOWS})
 
 set(WNNetworkingSources
   inc/WNBufferResource.h
@@ -69,8 +69,6 @@ if(ANDROID)
 endif()
 
 if (WN_SYSTEM STREQUAL "Windows")
-	source_group("src\\Linux" FILES ${SRC_LINUX})
-	source_group("src\\Windows" FILES ${SRC_WINDOWS})
 	set_source_files_properties(${SRC_LINUX} 
 		PROPERTIES HEADER_FILE_ONLY true)
 endif()
