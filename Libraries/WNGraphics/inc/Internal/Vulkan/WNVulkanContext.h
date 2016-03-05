@@ -57,6 +57,7 @@ struct vulkan_context : public memory::intrusive_ptr_base {
   PFN_vkCreateDevice vkCreateDevice;
   PFN_vkDestroyDevice vkDestroyDevice;
 
+  PFN_vkGetPhysicalDeviceMemoryProperties vkGetPhysicalDeviceMemoryProperties;
   library_type library;
 // TODO(awoloszyn): Fill this out as we need more functions.
 // TODO(awoloszyn): Add allocators to vulkan.

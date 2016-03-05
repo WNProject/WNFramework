@@ -30,7 +30,7 @@ namespace graphics {
 namespace internal {
 namespace d3d12 {
 
-class device : public internal::device {
+class device final : public internal::device {
 public:
   WN_FORCE_INLINE device(memory::allocator* _allocator, WNLogging::WNLog* _log,
       Microsoft::WRL::ComPtr<ID3D12Device>&& _d3d12_device,
@@ -39,7 +39,13 @@ public:
       m_d3d12_device(core::move(_d3d12_device)),
       m_d3d12_command_queue(core::move(_d3d12_command_queue)) {}
 
+  upload_heap_ptr create_upload_heap(size_t num_bytes) final;
+
 private:
+  void flush_mapped_range(
+      upload_heap* _buffer, size_t offset, size_t num_bytes) final;
+  void destroy_upload_heap(upload_heap* _heap) final;
+
   Microsoft::WRL::ComPtr<ID3D12Device> m_d3d12_device;
   Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_d3d12_command_queue;
 };

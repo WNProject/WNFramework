@@ -80,6 +80,7 @@ set(WN_GRAPHICS_INTERNAL_SRC
   ${CONFIG_FILE_OUTPUT_PATH}
   inc/Internal/WNDevice.h
   inc/Internal/WNPhysicalDevice.h
+  inc/Internal/WNSetFriendDevices.h
 )
 
 set(WN_GRAPHICS_INTERNAL_VULKAN_SRC
@@ -106,6 +107,7 @@ add_wn_library(WNGraphics
     ${WN_GRAPHICS_SRC}
     inc/WNDevice.h
     inc/WNFactory.h
+    inc/WNHeap.h
     inc/WNPhysicalDevice.h
     src/WNFactory.cpp
 )

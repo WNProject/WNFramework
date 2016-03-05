@@ -295,7 +295,7 @@ private:
 }  // namespace internal
 
 template <typename T>
-class contiguous_range final {
+class contiguous_range {
 private:
   typedef contiguous_range<T> self_type;
 

@@ -30,6 +30,8 @@ public:
       m_physical_device(device),
       m_compute_and_graphics_queue(_compute_and_graphics_queue) {}
 
+  void initialize_device();
+
   virtual device_ptr make_device(
       memory::allocator* _allocator, WNLogging::WNLog*) const;
 
@@ -38,6 +40,7 @@ public:
 private:
   const memory::intrusive_ptr<vulkan_context> m_context;
   VkPhysicalDevice m_physical_device;
+  VkPhysicalDeviceMemoryProperties m_memory_properties;
   uint32_t m_compute_and_graphics_queue;
 };
 

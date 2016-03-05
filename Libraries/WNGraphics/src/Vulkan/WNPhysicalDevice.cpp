@@ -49,13 +49,19 @@ device_ptr physical_device::make_device(
     _log->Log(WNLogging::eError, 0, "Could not create device");
     return nullptr;
   }
-  auto device_ptr =
-      memory::make_unique<device>(_allocator, _allocator, _log, vk_device);
+  auto device_ptr = memory::make_unique<device>(_allocator, _allocator, _log,
+      vk_device, m_context->vkDestroyDevice, &m_memory_properties);
   if (!device_ptr->initialize(m_context.get(), m_compute_and_graphics_queue)) {
     return nullptr;
   }
 
   return core::move(device_ptr);
+}
+
+
+void physical_device::initialize_device() {
+  m_context->vkGetPhysicalDeviceMemoryProperties(
+      m_physical_device, &m_memory_properties);
 }
 
 }  // namespace vulkan

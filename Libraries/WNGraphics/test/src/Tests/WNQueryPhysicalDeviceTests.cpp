@@ -3,28 +3,11 @@
 // found in the LICENSE.txt file.
 
 #include "WNGraphics/inc/WNFactory.h"
-#include "WNLogging/inc/WNBufferLogger.h"
-#include "WNMemory/inc/WNAllocator.h"
-#include "WNTesting/inc/WNTestHarness.h"
+#include "WNGraphics/test/inc/WNTestFixture.h"
 
-#include "WNLogging/inc/WNConsoleLogger.h"
-
-void flush_buffer(void* v, const char* bytes, size_t length,
-    const std::vector<WNLogging::WNLogColorElement>&) {
-  wn::containers::string* s = static_cast<wn::containers::string*>(v);
-  s->append(bytes, length);
-}
-
-using buffer_logger = WNLogging::WNBufferLogger<flush_buffer>;
-using log_buff = wn::containers::string;
-
-TEST(factory_test, physical_devices) {
-  wn::memory::basic_allocator allocator;
-  log_buff buff;
-  buffer_logger logger(&buff);
-  WNLogging::WNLog log(&logger);
-
-  wn::graphics::factory device_factory(&allocator, &log);
+using factory_test = wn::graphics::testing::test;
+TEST_F(factory_test, physical_devices) {
+  wn::graphics::factory device_factory(&m_allocator, &m_log);
 
   for (auto& physical_device : device_factory.query_physical_devices()) {
     EXPECT_NE("", physical_device->name());
@@ -34,26 +17,19 @@ TEST(factory_test, physical_devices) {
         physical_device->api());
   }
 
-  log.Flush();
+  m_log.Flush();
   // On normal operation the log buffer should be empty.
-  EXPECT_EQ("", buff);
+  EXPECT_EQ("", m_buffer);
 }
 
-
-TEST(factory_test, device_test) {
-  wn::memory::basic_allocator allocator;
-  log_buff buff;
-  buffer_logger logger(&buff);
-  WNLogging::WNLog log(&logger);
-
-  wn::graphics::factory device_factory(&allocator, &log);
-
+TEST_F(factory_test, device_test) {
+  wn::graphics::factory device_factory(&m_allocator, &m_log);
   for (auto& physical_device : device_factory.query_physical_devices()) {
     wn::graphics::device_ptr device =
-        physical_device->make_device(&allocator, &log);
+        physical_device->make_device(&m_allocator, &m_log);
     EXPECT_NE(nullptr, device);
   }
-  log.Flush();
+  m_log.Flush();
   // On normal operation the log buffer should be empty.
-  EXPECT_EQ("", buff);
+  EXPECT_EQ("", m_buffer);
 }

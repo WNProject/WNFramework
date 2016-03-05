@@ -20,6 +20,19 @@
 
 namespace wn {
 namespace graphics {
+namespace internal {
+namespace d3d12 {
+
+class device;
+
+}  // namespace d3d12
+
+namespace vulkan {
+
+class device;
+
+}  // namespace vulkan
+}  // namespace internal
 
 #if _WN_GRAPHICS_DEVICE_TYPES_AVAILABLE > 1
 using device = internal::device;

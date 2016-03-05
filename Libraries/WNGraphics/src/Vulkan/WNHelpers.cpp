@@ -122,6 +122,8 @@ memory::intrusive_ptr<vulkan_context> get_vulkan_context(
 
   LOAD_VK_SYMBOL(context->instance, vkCreateDevice);
   LOAD_VK_SYMBOL(context->instance, vkDestroyDevice);
+
+  LOAD_VK_SYMBOL(context->instance, vkGetPhysicalDeviceMemoryProperties);
   return wn::core::move(context);
 }
 
@@ -196,10 +198,14 @@ void enumerate_physical_devices(memory::allocator* _allocator,
           "Does not support graphics and compute, ignoring");
     }
     _log->Log(WNLogging::eInfo, 0, "--------------------------------");
-    _arr.emplace_back(wn::memory::make_unique<physical_device>(_allocator,
-        context, devices[i],
-        containers::string(properties.deviceName, _allocator),
-        properties.vendorID, properties.deviceID, graphics_and_compute_queue));
+
+    memory::unique_ptr<physical_device> device =
+        memory::make_unique<physical_device>(_allocator, context, devices[i],
+            containers::string(properties.deviceName, _allocator),
+            properties.vendorID, properties.deviceID,
+            graphics_and_compute_queue);
+    device->initialize_device();
+    _arr.emplace_back(core::move(device));
   }
 }
 
