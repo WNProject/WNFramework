@@ -53,6 +53,7 @@ TEST_P(upload_heap_writing_test, write_values) {
     for (size_t i = 0; i < range.size(); i += std::get<1>(GetParam())) {
       range[i] = i & 0xFF;
     }
+    upload->flush_range(range);
   }
   m_log.Flush();
   // On normal operation the log buffer should be empty.

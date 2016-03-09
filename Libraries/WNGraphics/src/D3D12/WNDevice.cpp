@@ -24,8 +24,7 @@ const static D3D12_HEAP_PROPERTIES s_upload_heap_props = {
     0,                                // VisibleNodeMask
 };
 
-upload_heap_ptr device::create_upload_heap(
-    size_t num_bytes) {
+upload_heap_ptr device::create_upload_heap(size_t num_bytes) {
   WN_DEBUG_ASSERT_DESC(
       num_bytes >= 1, "Upload heaps must be at least one byte");
 
@@ -33,7 +32,7 @@ upload_heap_ptr device::create_upload_heap(
   // friended class.
   upload_heap* heap_mem =
       static_cast<upload_heap*>(m_allocator->allocate(sizeof(upload_heap)));
-  heap_mem = new(heap_mem) upload_heap(this);
+  heap_mem = new (heap_mem) upload_heap(this);
   upload_heap_ptr heap(m_allocator, heap_mem);
 
   Microsoft::WRL::ComPtr<ID3D12Resource>& res =
@@ -56,9 +55,9 @@ upload_heap_ptr device::create_upload_heap(
       D3D12_RESOURCE_FLAG_NONE,        // Flags
   };
 
-  HRESULT hr = m_d3d12_device->CreateCommittedResource(
-    &s_upload_heap_props, D3D12_HEAP_FLAG_NONE, &heap_desc, D3D12_RESOURCE_STATE_GENERIC_READ,
-    nullptr, __uuidof(ID3D12Resource), &res);
+  HRESULT hr = m_d3d12_device->CreateCommittedResource(&s_upload_heap_props,
+      D3D12_HEAP_FLAG_NONE, &heap_desc, D3D12_RESOURCE_STATE_GENERIC_READ,
+      nullptr, __uuidof(ID3D12Resource), &res);
   if (FAILED(hr)) {
     m_log->Log(WNLogging::eError, 0,
         "Could not successfully create upload heap of size ", num_bytes, ".");
@@ -79,8 +78,7 @@ void device::destroy_upload_heap(upload_heap* _heap) {
   res.Reset();
 }
 
-void device::flush_mapped_range(
-    upload_heap*, size_t, size_t) {}
+void device::flush_mapped_range(upload_heap*, size_t, size_t) {}
 
 }  // namespace d3d12
 }  // namesapce internal

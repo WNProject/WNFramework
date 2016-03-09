@@ -72,10 +72,9 @@ private:
   friend class upload_heap;
 };
 
-// TODO(awoloszyn): Investigate if we really want to keep the explicit flush.
-// It is not strictly necessary for the current implementation of our DX12/Vk
-// upload heaps, but if we change the coherency properties we may get better
-// performance (but need more flushing).
+// The memory returned by this heap type may or may not be
+// coherent. Make sure to flush any range before use. This will
+// get optimized away if a flush was not strictly necessary.
 class upload_heap {
 public:
   ~upload_heap() {
@@ -93,7 +92,7 @@ public:
   template <typename T = uint8_t>
   WN_FORCE_INLINE void flush_range(const write_only_range<T>& _range) {
     m_device->flush_mapped_range(
-        *this, _range.m_offset, sizeof(T) * _range.size());
+        this, _range.m_offset, sizeof(T) * _range.size());
   }
 
 protected:

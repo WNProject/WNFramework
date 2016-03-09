@@ -15,7 +15,8 @@ template <typename T>
 class test_internal : public T {
 public:
   test_internal()
-    : T(), m_log(&m_logger), m_logger(&m_buffer), m_buffer(&m_allocator) {}
+    : T(), m_log(&m_logger), m_logger(&m_buffer), m_buffer(&m_allocator) {
+  }
 
   static void flush_buffer(void* v, const char* bytes, size_t length,
       const std::vector<WNLogging::WNLogColorElement>&) {

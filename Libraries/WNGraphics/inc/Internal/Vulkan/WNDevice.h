@@ -28,6 +28,7 @@ private:
   void flush_mapped_range(
       upload_heap* _buffer, size_t offset, size_t num_bytes) final;
   void destroy_upload_heap(upload_heap*) final;
+  uint32_t get_memory_type_index(uint32_t types, VkFlags properties) const;
 
   PFN_vkGetDeviceProcAddr vkGetDeviceProcAddr;
   PFN_vkGetDeviceQueue vkGetDeviceQueue;
@@ -42,13 +43,16 @@ private:
   PFN_vkMapMemory vkMapMemory;
   PFN_vkUnmapMemory vkUnmapMemory;
 
-#ifdef _WN_DEBUG
+  PFN_vkFlushMappedMemoryRanges vkFlushMappedMemoryRanges;
+
   PFN_vkGetBufferMemoryRequirements vkGetBufferMemoryRequirements;
-#endif
+
   VkDevice m_device;
   VkQueue m_queue;
   uint32_t m_upload_memory_type_index;
+  bool m_upload_heap_is_coherent;
 
+  const VkPhysicalDeviceMemoryProperties* m_physical_device_memory_properties;
   friend class wn::graphics::upload_heap;
 };
 
