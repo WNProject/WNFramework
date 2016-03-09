@@ -46,7 +46,7 @@ public:
 
   WN_FORCE_INLINE explicit string_view(
       const char* s, const size_t offset, const size_type size)
-    : m_range(s + offset, size) {}
+    : m_range(s, offset, size) {}
 
   WN_FORCE_INLINE explicit string_view(const char* s, const size_type size)
     : string_view(s, 0, size) {}

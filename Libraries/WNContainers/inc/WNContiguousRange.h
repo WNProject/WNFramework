@@ -9,7 +9,9 @@
 
 #include "WNContainers/inc/WNArray.h"
 #include "WNCore/inc/WNAssert.h"
+#include "WNCore/inc/WNTypeTraits.h"
 #include "WNCore/inc/WNUtility.h"
+#include "WNMemory/inc/WNBasic.h"
 
 #include <iterator>
 
@@ -23,7 +25,7 @@ namespace internal {
 
 template <typename Container, typename NonConstContainer = Container,
     typename Element = typename Container::value_type>
-class contiguous_range_iterator final
+class contiguous_range_iterator WN_FINAL
     : public std::iterator<std::random_access_iterator_tag, Element,
           typename Container::difference_type> {
 private:
@@ -43,8 +45,8 @@ public:
     : m_owner(nullptr), m_pointer(nullptr) {}
 
   WN_FORCE_INLINE contiguous_range_iterator(contiguous_range_iterator&& _other)
-    : m_owner(std::move(_other.m_owner)),
-      m_pointer(std::move(_other.m_pointer)) {
+    : m_owner(core::move(_other.m_owner)),
+      m_pointer(core::move(_other.m_pointer)) {
     _other.clear();
   }
 
@@ -58,8 +60,8 @@ public:
   WN_FORCE_INLINE contiguous_range_iterator(
       contiguous_range_iterator<OtherContainer, OtherContainer,
           typename OtherContainer::value_type>&& _other)
-    : m_owner(std::move(_other.m_owner)),
-      m_pointer(std::move(_other.m_pointer)) {
+    : m_owner(core::move(_other.m_owner)),
+      m_pointer(core::move(_other.m_pointer)) {
     _other.clear();
   }
 
@@ -74,7 +76,7 @@ public:
   WN_FORCE_INLINE contiguous_range_iterator() : m_pointer(nullptr) {}
 
   WN_FORCE_INLINE contiguous_range_iterator(contiguous_range_iterator&& _other)
-    : m_pointer(std::move(_other.m_pointer)) {
+    : m_pointer(core::move(_other.m_pointer)) {
     _other.clear();
   }
 
@@ -88,7 +90,7 @@ public:
   WN_FORCE_INLINE contiguous_range_iterator(
       contiguous_range_iterator<OtherContainer, OtherContainer,
           typename OtherContainer::value_type>&& _other)
-    : m_pointer(std::move(_other.m_pointer)) {
+    : m_pointer(core::move(_other.m_pointer)) {
     _other.clear();
   }
 
@@ -103,7 +105,7 @@ public:
 
   WN_FORCE_INLINE contiguous_range_iterator& operator=(
       contiguous_range_iterator&& _other) {
-    contiguous_range_iterator(std::move(_other)).swap(*this);
+    contiguous_range_iterator(core::move(_other)).swap(*this);
 
     return *this;
   }
@@ -121,7 +123,7 @@ public:
   WN_FORCE_INLINE contiguous_range_iterator& operator=(
       contiguous_range_iterator<OtherContainer, OtherContainer,
           typename OtherContainer::value_type>&& _other) {
-    contiguous_range_iterator(std::move(_other)).swap(*this);
+    contiguous_range_iterator(core::move(_other)).swap(*this);
 
     return *this;
   }
@@ -271,10 +273,10 @@ private:
 
   WN_FORCE_INLINE void swap(contiguous_range_iterator& _other) {
 #ifdef _WN_DEBUG
-    std::swap(m_owner, _other.m_owner);
+    core::swap(m_owner, _other.m_owner);
 #endif
 
-    std::swap(m_pointer, _other.m_pointer);
+    core::swap(m_pointer, _other.m_pointer);
   }
 
   WN_FORCE_INLINE void clear() {
@@ -295,9 +297,62 @@ private:
 }  // namespace internal
 
 template <typename T>
+class write_only WN_FINAL {
+public:
+  WN_FORCE_INLINE write_only& operator=(const T& _value) {
+    m_value = _value;
+
+    return *this;
+  }
+
+  write_only(write_only&&) = delete;
+  write_only(const write_only&) = delete;
+
+private:
+  volatile T m_value;
+};
+
+namespace internal {
+
+template <typename T>
+struct is_write_only : core::false_type {};
+
+template <typename T>
+struct is_write_only<write_only<T>> : core::true_type {};
+
+template <typename T>
+struct remove_write_only {
+  using type = T;
+};
+
+template <typename T>
+struct remove_write_only<write_only<T>> {
+  using type = T;
+};
+
+}  // namespace internal
+
+template <typename T>
+using is_write_only = internal::is_write_only<core::decay_t<T>>;
+
+template <typename T>
+using remove_write_only = internal::remove_write_only<
+    core::conditional_t<is_write_only<T>::value, core::decay_t<T>, T>>;
+
+template <typename T>
+using remove_write_only_t = typename remove_write_only<T>::type;
+
+template <typename T>
 class contiguous_range {
 private:
-  typedef contiguous_range<T> self_type;
+  static_assert(sizeof(remove_write_only_t<T>[2]) == sizeof(T[2]),
+      "write only value of type not compatible with raw pointer of same type");
+  static_assert(!is_write_only<T>::value ||
+                    (is_write_only<T>::value && !core::is_const<T>::value &&
+                        !core::is_const<remove_write_only_t<T>>::value),
+      "contiguous ranges of write only values cannot be const");
+
+  using self_type = contiguous_range<T>;
 
 public:
   typedef T value_type;
@@ -321,33 +376,45 @@ public:
   WN_FORCE_INLINE explicit contiguous_range(const nullptr_t, const nullptr_t)
     : contiguous_range() {}
 
-  WN_FORCE_INLINE explicit contiguous_range(T* _begin, T* _end)
-    : m_begin(_begin), m_end(_end) {
-    WN_RELEASE_ASSERT_DESC((m_begin && m_end) || (!m_begin && !m_end),
+  template <typename U, typename = core::enable_if_t<core::is_convertible<U*,
+                            remove_write_only_t<T>*>::value>>
+  WN_FORCE_INLINE explicit contiguous_range(U* _begin, U* _end)
+    : m_begin(reinterpret_cast<T*>(_begin)), m_end(reinterpret_cast<T*>(_end)) {
+    WN_DEBUG_ASSERT_DESC((m_begin && m_end) || (!m_begin && !m_end),
         "invalid input parameters, both must be null or non-null");
   }
 
-  WN_FORCE_INLINE explicit contiguous_range(T* _ptr, const size_type _size)
+  template <typename U, typename = core::enable_if_t<core::is_convertible<U*,
+                            remove_write_only_t<T>*>::value>>
+  WN_FORCE_INLINE explicit contiguous_range(U* _ptr, const size_type _size)
     : contiguous_range(_ptr, _ptr + _size) {}
 
-  template <typename U, std::size_t N,
-      typename = core::enable_if_t<std::is_convertible<U*, T*>::value>>
-  WN_FORCE_INLINE explicit contiguous_range(array<U, N>& value)
-    : contiguous_range(value.data(), N) {}
+  template <typename U, typename = core::enable_if_t<core::is_convertible<U*,
+                            remove_write_only_t<T>*>::value>>
+  WN_FORCE_INLINE explicit contiguous_range(
+      U* _ptr, const size_type _offset, const size_type _size)
+    : contiguous_range(_ptr + _offset, _size) {}
 
   template <typename U, const size_t N,
-      typename = core::enable_if_t<std::is_convertible<U*, T*>::value>>
+      typename = core::enable_if_t<
+          core::is_convertible<U*, remove_write_only_t<T>*>::value>>
+  WN_FORCE_INLINE contiguous_range(array<U, N>& _array)
+    : contiguous_range(_array.data(), N) {}
+
+  template <typename U, const size_t N,
+      typename = core::enable_if_t<
+          core::is_convertible<U*, remove_write_only_t<T>*>::value>>
   WN_FORCE_INLINE contiguous_range(U (&_ptr)[N]) : contiguous_range(_ptr, N) {}
 
-  template <typename U,
-      typename = core::enable_if_t<std::is_convertible<U*, T*>::value>>
+  template <typename U, typename = core::enable_if_t<core::is_convertible<U*,
+                            remove_write_only_t<T>*>::value>>
   WN_FORCE_INLINE contiguous_range(contiguous_range<U>&& _other)
     : contiguous_range(_other.data(), _other.size()) {
     _other = nullptr;
   }
 
-  template <typename U,
-      typename = core::enable_if_t<std::is_convertible<U*, T*>::value>>
+  template <typename U, typename = core::enable_if_t<core::is_convertible<U*,
+                            remove_write_only_t<T>*>::value>>
   WN_FORCE_INLINE contiguous_range(const contiguous_range<U>& _other)
     : contiguous_range(_other.data(), _other.size()) {}
 
@@ -366,23 +433,33 @@ public:
   }
 
   template <typename U, const size_t N,
-      typename = core::enable_if_t<std::is_convertible<U*, T*>::value>>
+      typename = core::enable_if_t<
+          core::is_convertible<U*, remove_write_only_t<T>*>::value>>
+  WN_FORCE_INLINE contiguous_range& operator=(array<U, N>& _array) {
+    contiguous_range(_array).swap(*this);
+
+    return *this;
+  }
+
+  template <typename U, const size_t N,
+      typename = core::enable_if_t<
+          core::is_convertible<U*, remove_write_only_t<T>*>::value>>
   WN_FORCE_INLINE contiguous_range& operator=(U (&_ptr)[N]) {
     contiguous_range(_ptr, N).swap(*this);
 
     return *this;
   }
 
-  template <typename U,
-      typename = core::enable_if_t<std::is_convertible<U*, T*>::value>>
+  template <typename U, typename = core::enable_if_t<core::is_convertible<U*,
+                            remove_write_only_t<T>*>::value>>
   WN_FORCE_INLINE contiguous_range& operator=(contiguous_range<U>&& _other) {
-    contiguous_range(std::move(_other)).swap(*this);
+    contiguous_range(core::move(_other)).swap(*this);
 
     return *this;
   }
 
-  template <typename U,
-      typename = core::enable_if_t<std::is_convertible<U*, T*>::value>>
+  template <typename U, typename = core::enable_if_t<core::is_convertible<U*,
+                            remove_write_only_t<T>*>::value>>
   WN_FORCE_INLINE contiguous_range& operator=(
       const contiguous_range<U>& _other) {
     contiguous_range(_other).swap(*this);
@@ -391,7 +468,7 @@ public:
   }
 
   WN_FORCE_INLINE contiguous_range& operator=(contiguous_range&& _other) {
-    contiguous_range(std::move(_other)).swap(*this);
+    contiguous_range(core::move(_other)).swap(*this);
 
     return *this;
   }
@@ -413,15 +490,15 @@ public:
   }
 
   WN_FORCE_INLINE reference at(const size_type _pos) {
-    WN_RELEASE_ASSERT_DESC(m_begin, "invalid contiguous range");
-    WN_RELEASE_ASSERT_DESC((m_begin + _pos) < m_end, "index out of bounds");
+    WN_DEBUG_ASSERT_DESC(m_begin, "invalid contiguous range");
+    WN_DEBUG_ASSERT_DESC((m_begin + _pos) < m_end, "index out of bounds");
 
     return (*(m_begin + _pos));
   }
 
   WN_FORCE_INLINE const_reference at(const size_type _pos) const {
-    WN_RELEASE_ASSERT_DESC(m_begin, "invalid contiguous range");
-    WN_RELEASE_ASSERT_DESC((m_begin + _pos) < m_end, "index out of bounds");
+    WN_DEBUG_ASSERT_DESC(m_begin, "invalid contiguous range");
+    WN_DEBUG_ASSERT_DESC((m_begin + _pos) < m_end, "index out of bounds");
 
     return (*(m_begin + _pos));
   }
@@ -537,23 +614,23 @@ public:
   }
 
   WN_FORCE_INLINE void remove_prefix(const size_type _count) {
-    WN_RELEASE_ASSERT_DESC(m_begin, "invalid contiguous range");
-    WN_RELEASE_ASSERT_DESC((m_begin + _count) < m_end, "count too large");
+    WN_DEBUG_ASSERT_DESC(m_begin, "invalid contiguous range");
+    WN_DEBUG_ASSERT_DESC((m_begin + _count) < m_end, "count too large");
 
     m_begin += _count;
   }
 
   WN_FORCE_INLINE void remove_suffix(const size_type _count) {
-    WN_RELEASE_ASSERT_DESC(m_begin, "invalid contiguous range");
-    WN_RELEASE_ASSERT_DESC((m_end - _count) >= m_begin, "count too large");
+    WN_DEBUG_ASSERT_DESC(m_begin, "invalid contiguous range");
+    WN_DEBUG_ASSERT_DESC((m_end - _count) >= m_begin, "count too large");
 
     m_end -= _count;
   }
 
   WN_FORCE_INLINE void swap(contiguous_range& _other) {
     if (&_other != this) {
-      std::swap(m_begin, _other.m_begin);
-      std::swap(m_end, _other.m_end);
+      core::swap(m_begin, _other.m_begin);
+      core::swap(m_end, _other.m_end);
     }
   }
 
@@ -561,6 +638,19 @@ private:
   pointer m_begin;
   pointer m_end;
 };
+
+namespace internal {
+
+template <typename T>
+struct is_contiguous_range : core::false_type {};
+
+template <typename T>
+struct is_contiguous_range<contiguous_range<T>> : core::true_type {};
+
+}  // namespace internal
+
+template <typename T>
+using is_contiguous_range = internal::is_contiguous_range<core::decay_t<T>>;
 
 template <typename T, typename U>
 WN_FORCE_INLINE bool operator==(
@@ -607,6 +697,66 @@ WN_FORCE_INLINE bool operator>=(
           (_lhs.data() == _rhs.data() &&
               (_lhs.data() + _lhs.size()) >= (_rhs.data() + _rhs.size())));
 }
+
+template <typename T, typename U>
+WN_FORCE_INLINE typename core::enable_if<
+    core::conjunction<core::is_same_decayed<U, remove_write_only_t<T>>,
+        core::is_trivial<U>>::value>::type
+copy_to(contiguous_range<T>* _dest, const U* _src, const size_t _offset,
+    const size_t _count) {
+  static_assert(!core::is_const<remove_write_only_t<T>>::value,
+      "cannot copy to a contiguous range containing const values");
+  WN_DEBUG_ASSERT_DESC(
+      (_dest->data() + _offset + _count) <= (_dest->data() + _dest->size()),
+      "attmepting to copy outside of bounds of contiguous range");
+
+  memory::memory_copy(
+      reinterpret_cast<U*>(_dest->data() + _offset), _src, _count);
+}
+
+template <typename T, typename U>
+WN_FORCE_INLINE typename core::enable_if<
+    core::conjunction<core::is_convertible<U*, remove_write_only_t<T>*>,
+        core::negation<core::is_trivial<U>>>::value>::type
+copy_to(contiguous_range<T>* _dest, const U* _src, const size_t _offset,
+    const size_t _count) {
+  static_assert(!core::is_const<remove_write_only_t<T>>::value,
+      "cannot copy to a contiguous range containing const values");
+  WN_DEBUG_ASSERT_DESC(
+      (_dest->data() + _offset + _count) <= (_dest->data() + _dest->size()),
+      "attmepting to copy outside the bounds of given contiguous range");
+
+  T* ptr = _dest->data() + _offset;
+
+  for (size_t i = 0; i < _count; ++i) {
+    *(ptr + i) = _src[i];
+  }
+}
+
+template <typename T, typename U>
+WN_FORCE_INLINE typename core::enable_if<
+    core::is_convertible<U*, remove_write_only_t<T>*>::value>::type
+copy_to(contiguous_range<T>* _dest, const U* _src, const size_t _count) {
+  copy_to(_dest, _src, 0, _count);
+}
+
+template <typename T, typename U>
+WN_FORCE_INLINE typename core::enable_if<
+    core::is_convertible<typename core::remove_const<U>::type*,
+        remove_write_only_t<T>*>::value>::type
+copy_to(contiguous_range<T>* _dest, const contiguous_range<U>& _src) {
+  WN_DEBUG_ASSERT_DESC(_dest->size() <= _src.size(),
+      "attmepting to copy outside the bounds of given contiguous range");
+
+  copy_to(_dest, _src.data(), _src.size());
+}
+
+template <typename T>
+using read_only_contiguous_range =
+    contiguous_range<typename core::add_const<T>::type>;
+
+template <typename T>
+using write_only_contiguous_range = contiguous_range<write_only<T>>;
 
 }  // namespace containers
 }  // namespace wn

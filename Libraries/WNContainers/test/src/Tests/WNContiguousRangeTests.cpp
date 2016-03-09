@@ -9,20 +9,43 @@ template <typename _Type>
 struct contiguous_range : ::testing::Test {};
 
 // 72 bit struct
-struct dummy {
-  WN_FORCE_INLINE dummy(const uint8_t value)
-    : m_value1(value), m_value2(value) {}
+struct dummy1 {
+  WN_FORCE_INLINE dummy1(const uint8_t _value)
+    : m_value1(_value), m_value2(_value) {}
+
+  WN_FORCE_INLINE volatile dummy1& operator=(const dummy1& _other) volatile {
+    m_value1 = _other.m_value1;
+    m_value2 = _other.m_value2;
+
+    return *this;
+  }
 
   uint8_t m_value1;
   uint64_t m_value2;
 };
 
-WN_FORCE_INLINE bool operator==(const dummy& dummy1, const dummy& dummy2) {
-  return (
-      dummy1.m_value1 == dummy2.m_value1 && dummy1.m_value2 == dummy2.m_value2);
+// non trivial assignment
+struct dummy2 {
+  WN_FORCE_INLINE dummy2(const uint8_t _value) : m_value(_value) {}
+
+  WN_FORCE_INLINE dummy2& operator=(const dummy2& _other) {
+    m_value = _other.m_value + 1;
+
+    return *this;
+  }
+
+  uint8_t m_value;
+};
+
+WN_FORCE_INLINE bool operator==(const dummy1& _lhs, const dummy1& _rhs) {
+  return (_lhs.m_value1 == _rhs.m_value1 && _lhs.m_value2 == _rhs.m_value2);
 }
 
-typedef ::testing::Types<uint8_t, uint16_t, uint32_t, uint64_t, dummy>
+WN_FORCE_INLINE bool operator==(const dummy2& _lhs, const dummy2& _rhs) {
+  return (_lhs.m_value == _rhs.m_value);
+}
+
+typedef ::testing::Types<uint8_t, uint16_t, uint32_t, uint64_t, dummy1>
     contiguous_range_testing_types;
 
 TYPED_TEST_CASE(contiguous_range, contiguous_range_testing_types);
@@ -53,7 +76,8 @@ TYPED_TEST(contiguous_range, construction) {
   EXPECT_FALSE(range7.empty());
   EXPECT_EQ(range7.data(), buffer);
 
-  wn::containers::contiguous_range<const TypeParam> range8(std::move(range7));
+  wn::containers::contiguous_range<const TypeParam> range8(
+      wn::core::move(range7));
 
   EXPECT_TRUE(range7.empty());
   EXPECT_EQ(range7.data(), nullptr);
@@ -62,16 +86,17 @@ TYPED_TEST(contiguous_range, construction) {
 
   WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED(
       {
+        TypeParam* null = nullptr;
         const wn::containers::contiguous_range<TypeParam> range(
-            nullptr, buffer + 5);
+            null, buffer + 5);
       },
       "assertion failed!\n\nfile: .*\nline: .*\nmessage: invalid input "
       "parameters, both must be null or non-null");
 
   WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED(
       {
-        const wn::containers::contiguous_range<TypeParam> range(
-            buffer, nullptr);
+        TypeParam* null = nullptr;
+        const wn::containers::contiguous_range<TypeParam> range(buffer, null);
       },
       "assertion failed!\n\nfile: .*\nline: .*\nmessage: invalid input "
       "parameters, both must be null or non-null");
@@ -101,7 +126,7 @@ TYPED_TEST(contiguous_range, assignment) {
 
   wn::containers::contiguous_range<const TypeParam> range4;
 
-  range4 = std::move(range3);
+  range4 = wn::core::move(range3);
 
   EXPECT_TRUE(range3.empty());
   EXPECT_EQ(range3.data(), nullptr);
@@ -400,5 +425,100 @@ TYPED_TEST(contiguous_range, multiple_ranges_same_source) {
     EXPECT_EQ(*i, TypeParam(count));
 
     count++;
+  }
+}
+
+TYPED_TEST(contiguous_range, const_range) {
+  TypeParam buffer[10] = {TypeParam(1), TypeParam(2), TypeParam(3),
+      TypeParam(4), TypeParam(5), TypeParam(6), TypeParam(7), TypeParam(8),
+      TypeParam(9), TypeParam(10)};
+
+  using ConstTypeParam = typename wn::core::add_const<TypeParam>::type;
+
+  wn::containers::contiguous_range<ConstTypeParam> range(buffer, 10);
+
+  for (auto i = 0u; i < 10u; ++i) {
+    EXPECT_EQ(buffer[i], range[i]);
+  }
+}
+
+TYPED_TEST(contiguous_range, read_only_range) {
+  TypeParam buffer[10] = {TypeParam(1), TypeParam(2), TypeParam(3),
+      TypeParam(4), TypeParam(5), TypeParam(6), TypeParam(7), TypeParam(8),
+      TypeParam(9), TypeParam(10)};
+  wn::containers::read_only_contiguous_range<TypeParam> range(buffer, 10);
+
+  for (auto i = 0u; i < 10u; ++i) {
+    EXPECT_EQ(buffer[i], range[i]);
+  }
+}
+
+TYPED_TEST(contiguous_range, write_only_range) {
+  TypeParam buffer1[10] = {TypeParam(1), TypeParam(2), TypeParam(3),
+      TypeParam(4), TypeParam(5), TypeParam(6), TypeParam(7), TypeParam(8),
+      TypeParam(9), TypeParam(10)};
+  wn::containers::write_only_contiguous_range<TypeParam> range1(buffer1, 10);
+
+  for (auto& value : range1) {
+    value = TypeParam(11);
+  }
+
+  for (auto& value : buffer1) {
+    EXPECT_EQ(value, TypeParam(11));
+  }
+
+  TypeParam buffer2[10] = {TypeParam(12), TypeParam(12), TypeParam(12),
+      TypeParam(12), TypeParam(12), TypeParam(12), TypeParam(12), TypeParam(12),
+      TypeParam(12), TypeParam(12)};
+
+  wn::containers::copy_to(&range1, buffer2, 10);
+
+  for (auto& value : buffer2) {
+    EXPECT_EQ(value, TypeParam(12));
+  }
+
+  TypeParam buffer3[10] = {TypeParam(13), TypeParam(13), TypeParam(13),
+      TypeParam(13), TypeParam(13), TypeParam(13), TypeParam(13), TypeParam(13),
+      TypeParam(13), TypeParam(13)};
+
+  wn::containers::contiguous_range<TypeParam> range2(buffer3, 10);
+
+  wn::containers::copy_to(&range1, range2);
+
+  for (auto& value : buffer3) {
+    EXPECT_EQ(value, TypeParam(13));
+  }
+}
+
+TEST(contiguous_range, copy_to_trivial_vs_non_trivial) {
+  uint8_t buffer1[10] = {uint8_t(1), uint8_t(1), uint8_t(1), uint8_t(1),
+      uint8_t(1), uint8_t(1), uint8_t(1), uint8_t(1), uint8_t(1), uint8_t(1)};
+
+  const wn::containers::contiguous_range<uint8_t> range1(buffer1);
+
+  uint8_t buffer2[10] = {0};
+
+  wn::containers::contiguous_range<uint8_t> range2(buffer2);
+
+  wn::containers::copy_to(&range2, range1);
+
+  for (auto& value : buffer1) {
+    EXPECT_EQ(value, uint8_t(1));
+  }
+
+  dummy2 buffer3[10] = {dummy2(1), dummy2(1), dummy2(1), dummy2(1), dummy2(1),
+      dummy2(1), dummy2(1), dummy2(1), dummy2(1), dummy2(1)};
+
+  wn::containers::contiguous_range<const dummy2> range3(buffer3);
+
+  dummy2 buffer4[10] = {dummy2(0), dummy2(0), dummy2(0), dummy2(0), dummy2(0),
+      dummy2(0), dummy2(0), dummy2(0), dummy2(0), dummy2(0)};
+
+  wn::containers::contiguous_range<dummy2> range4(buffer4);
+
+  wn::containers::copy_to(&range4, range3);
+
+  for (auto& value : buffer4) {
+    EXPECT_EQ(value, dummy2(2));
   }
 }
