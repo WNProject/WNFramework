@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "WNFileSystem/src/Windows/WNMappingWindows.h"
 #include "WNCore/inc/WNAssert.h"
 #include "WNFileSystem/src/Windows/WNFileWindows.h"
+#include "WNFileSystem/src/Windows/WNMappingWindows.h"
 
 namespace wn {
 namespace file_system {
@@ -60,8 +60,8 @@ file_ptr mapping_windows::create_file(
     return nullptr;
   }
 
-  handle file_handle(::CreateFileW(unicode_buffer, GENERIC_READ | GENERIC_WRITE,
-      0, NULL, CREATE_NEW, 0, NULL));
+  utilities::windows::handle file_handle(::CreateFileW(unicode_buffer,
+      GENERIC_READ | GENERIC_WRITE, 0, nullptr, CREATE_NEW, 0, nullptr));
 
   if (!file_handle.is_valid()) {
     _result = result::fail;
@@ -89,7 +89,7 @@ result mapping_windows::create_directory(const containers::string_view _path) {
     return result::fail;
   }
 
-  if (::CreateDirectoryW(unicode_buffer, NULL) != TRUE) {
+  if (::CreateDirectoryW(unicode_buffer, nullptr) != TRUE) {
     return result::fail;
   }
 
@@ -115,8 +115,8 @@ file_ptr mapping_windows::open_file(
     return nullptr;
   }
 
-  handle file_handle(::CreateFileW(unicode_buffer, GENERIC_READ | GENERIC_WRITE,
-      0, NULL, OPEN_EXISTING, 0, NULL));
+  utilities::windows::handle file_handle(::CreateFileW(unicode_buffer,
+      GENERIC_READ | GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, 0, nullptr));
 
   if (!file_handle.is_valid()) {
     _result = result::fail;
@@ -140,8 +140,9 @@ file_ptr mapping_windows::open_file(
   }
 
   if (file_size.QuadPart > 0) {
-    handle file_mapping_handle(::CreateFileMappingW(file_handle.value(), NULL,
-        PAGE_READWRITE, file_size.HighPart, file_size.LowPart, NULL));
+    utilities::windows::handle file_mapping_handle(
+        ::CreateFileMappingW(file_handle.value(), nullptr, PAGE_READWRITE,
+            file_size.HighPart, file_size.LowPart, nullptr));
 
     if (!file_mapping_handle.is_valid()) {
       _result = result::fail;
@@ -242,7 +243,7 @@ bool mapping_windows::recursive_remove_directory(
   WIN32_FIND_DATAW find_file_data;
   const HANDLE find_handle = ::FindFirstFileW(path.data(), &find_file_data);
 
-  if (find_handle != NULL) {
+  if (find_handle != nullptr) {
     do {
       const WCHAR* file_name = find_file_data.cFileName;
 

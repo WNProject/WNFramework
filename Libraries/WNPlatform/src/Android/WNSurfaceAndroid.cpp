@@ -4,7 +4,7 @@
 
 #include "WNPlatform/inc/Internal/Android/WNSurfaceAndroid.h"
 #include "WNPlatform/inc/Internal/Android/WNSurfaceManagerAndroid.h"
-#include "WNUtils/inc/Android/WNAppData.h"
+#include "WNUtilities/inc/Android/WNAppData.h"
 
 namespace wn {
 
@@ -17,27 +17,27 @@ WNSurfaceAndroid::WNSurfaceAndroid(WNSurfaceManagerAndroid& _surfaceManager)
 
 WNSurfaceAndroid::~WNSurfaceAndroid() {
   if (mInitialized) {
-    WNUtils::WNAndroidEventPump::GetInstance().SubscribeToEvent(
-        WNUtils::WNAndroidEventPump::eDisplayCreated, NULL, NULL);
-    WNUtils::WNAndroidEventPump::GetInstance().SubscribeToEvent(
-        WNUtils::WNAndroidEventPump::eDisplayDestroyed, NULL, NULL);
+    utilities::WNAndroidEventPump::GetInstance().SubscribeToEvent(
+        utilities::WNAndroidEventPump::eDisplayCreated, NULL, NULL);
+    utilities::WNAndroidEventPump::GetInstance().SubscribeToEvent(
+        utilities::WNAndroidEventPump::eDisplayDestroyed, NULL, NULL);
   }
   mExiting = true;
-  CleanupWindow(WNUtils::gAndroidApp);
+  CleanupWindow(utilities::gAndroidApp);
   mManager.SurfaceDestroyed();
 }
 
 bool WNSurfaceAndroid::Initialize() {
-  android_app* app = WNUtils::gAndroidApp;
+  android_app* app = utilities::gAndroidApp;
   if (!app) {
     return (false);
   }
 
-  WNUtils::WNAndroidEventPump::GetInstance().SubscribeToEvent(
-      WNUtils::WNAndroidEventPump::eDisplayCreated,
+  utilities::WNAndroidEventPump::GetInstance().SubscribeToEvent(
+      utilities::WNAndroidEventPump::eDisplayCreated,
       &WNSurfaceAndroid::HandleWindowCommand, this);
-  WNUtils::WNAndroidEventPump::GetInstance().SubscribeToEvent(
-      WNUtils::WNAndroidEventPump::eDisplayDestroyed,
+  utilities::WNAndroidEventPump::GetInstance().SubscribeToEvent(
+      utilities::WNAndroidEventPump::eDisplayDestroyed,
       &WNSurfaceAndroid::HandleWindowCommand, this);
   mCreationSemaphore.wait();
   mInitialized = (mSurface != EGL_NO_SURFACE);
@@ -45,14 +45,14 @@ bool WNSurfaceAndroid::Initialize() {
 }
 
 void WNSurfaceAndroid::HandleWindowCommand(
-    WNUtils::WNAndroidEventPump::eMessageType _msg, android_app* _app,
+    utilities::WNAndroidEventPump::eMessageType _msg, android_app* _app,
     uint32_t _val, void* appData) {
   WNSurfaceAndroid* surface = reinterpret_cast<WNSurfaceAndroid*>(appData);
   switch (_msg) {
-    case WNUtils::WNAndroidEventPump::eDisplayCreated:
+    case utilities::WNAndroidEventPump::eDisplayCreated:
       surface->InitializeWindow(_app);
       break;
-    case WNUtils::WNAndroidEventPump::eDisplayDestroyed:
+    case utilities::WNAndroidEventPump::eDisplayDestroyed:
       surface->CleanupWindow(_app);
       break;
     default:

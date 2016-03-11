@@ -3,10 +3,10 @@
 // found in the LICENSE.txt file.
 
 #include "WNCore/inc/WNTypes.h"
-#include "WNUtils/inc/Android/WNAndroidEventPump.h"
-#include "WNUtils/inc/Android/WNAppData.h"
-#include "WNUtils/inc/Android/WNLoggingData.h"
-#include "WNUtils/inc/WNCrashHandler.h"
+#include "WNUtilities/inc/Android/WNAndroidEventPump.h"
+#include "WNUtilities/inc/Android/WNAppData.h"
+#include "WNUtilities/inc/Android/WNLoggingData.h"
+#include "WNUtilities/inc/WNCrashHandler.h"
 
 #include <android/log.h>
 #include <android_native_app_glue.h>
@@ -48,16 +48,16 @@ char* GetPackageName(struct android_app* state) {
 }
 
 void* main_proxy_thread(void* _package_name) {
-  WNUtils::InitializeCrashHandler();
+  wn::utilities::initialize_crash_handler();
 
   char* package_name = static_cast<char*>(_package_name);
   int32_t retVal = wn_main(1, &package_name);
 
-  __android_log_print(ANDROID_LOG_INFO, WNUtils::gAndroidLogTag, "--FINISHED");
+  __android_log_print(ANDROID_LOG_INFO, wn::utilities::gAndroidLogTag, "--FINISHED");
   __android_log_print(
-      ANDROID_LOG_INFO, WNUtils::gAndroidLogTag, "RETURN %d", retVal);
+      ANDROID_LOG_INFO, wn::utilities::gAndroidLogTag, "RETURN %d", retVal);
 
-  WNUtils::WNAndroidEventPump::GetInstance().KillMessagePump();
+  wn::utilities::WNAndroidEventPump::GetInstance().KillMessagePump();
 
   return (NULL);
 }
@@ -65,9 +65,9 @@ void* main_proxy_thread(void* _package_name) {
 void android_main(struct android_app* state) {
   char* packageName = GetPackageName(state);
 
-  WNUtils::gAndroidLogTag = packageName;
-  WNUtils::gAndroidApp = state;
-  WNUtils::gMainLooper = ALooper_forThread();
+  wn::utilities::gAndroidLogTag = packageName;
+  wn::utilities::gAndroidApp = state;
+  wn::utilities::gMainLooper = ALooper_forThread();
 
   app_dummy();
 
@@ -91,7 +91,7 @@ void android_main(struct android_app* state) {
 
   pthread_create(&mThread, NULL, main_proxy_thread, packageName);
 
-  WNUtils::WNAndroidEventPump::GetInstance().PumpMessages(state);
+  wn::utilities::WNAndroidEventPump::GetInstance().PumpMessages(state);
 
   pthread_join(mThread, NULL);
 

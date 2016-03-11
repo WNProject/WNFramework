@@ -1,9 +1,12 @@
 #ifndef __WN_CONSOLE_LOGGER_LINUX_INL__
 #define __WN_CONSOLE_LOGGER_LINUX_INL__
+
 #include <android/log.h>
 #include <android/log.h>
+
 #include "WNLogging/inc/WNConsoleLogger.h"
-#include "WNUtils/inc/Android/WNLoggingData.h"
+#include "WNUtilities/inc/Android/WNLoggingData.h"
+
 const int32_t logLevels[] = {ANDROID_LOG_SILENT, ANDROID_LOG_FATAL,
     ANDROID_LOG_ERROR, ANDROID_LOG_WARN, ANDROID_LOG_WARN, ANDROID_LOG_INFO,
     ANDROID_LOG_DEBUG, ANDROID_LOG_DEFAULT};
@@ -28,13 +31,13 @@ void WNLogging::WNConsoleLogger<T_Level>::FlushBuffer(const char* _buffer,
                                    ? _buffer + _bufferSize
                                    : (_colors)[i + 1].mPosition;
         size_t len = endColor - (_colors)[i].mPosition;
-        __android_log_print(mLogPriority, WNUtils::gAndroidLogTag, "%.*s",
+        __android_log_print(mLogPriority, wn::utilities::gAndroidLogTag, "%.*s",
             static_cast<int32_t>(len), (_colors)[i].mPosition);
       }
     }
   } else {
     __android_log_print(
-        mLogPriority, WNUtils::gAndroidLogTag, "%.*s", (_bufferSize), _buffer);
+        mLogPriority, wn::utilities::gAndroidLogTag, "%.*s", (_bufferSize), _buffer);
   }
 }
 

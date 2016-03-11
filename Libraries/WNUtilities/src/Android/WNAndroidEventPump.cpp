@@ -1,18 +1,21 @@
-#include "WNUtils/inc/Android/WNAndroidEventPump.h"
+#include "WNUtilities/inc/Android/WNAndroidEventPump.h"
 
-WNUtils::WNAndroidEventPump& WNUtils::WNAndroidEventPump::GetInstance() {
+namespace wn {
+namespace utilities {
+
+WNAndroidEventPump& WNAndroidEventPump::GetInstance() {
   static WNAndroidEventPump sPump;
   return (sPump);
 }
 
-WNUtils::WNAndroidEventPump::WNAndroidEventPump()
+WNAndroidEventPump::WNAndroidEventPump()
   : mExiting(false), mDisplayActive(false) {
   memset(mCallbacks, 0, sizeof(mCallbacks));
   memset(mCallbackData, 0, sizeof(mCallbackData));
   mMainLooper = NULL;
 }
 
-void WNUtils::WNAndroidEventPump::FireCallback(
+void WNAndroidEventPump::FireCallback(
     eMessageType _event, int32_t _param, android_app* _state) {
   mCallbackLock.lock();
   if (mCallbacks[_event] != 0) {
@@ -21,7 +24,7 @@ void WNUtils::WNAndroidEventPump::FireCallback(
   mCallbackLock.unlock();
 }
 
-void WNUtils::WNAndroidEventPump::SubscribeToEvent(
+void WNAndroidEventPump::SubscribeToEvent(
     eMessageType _message, WNAndroidEventCallback _callback, void* _userData) {
   mCallbackLock.lock();
   mCallbacks[_message] = _callback;
@@ -32,16 +35,16 @@ void WNUtils::WNAndroidEventPump::SubscribeToEvent(
   mCallbackLock.unlock();
 }
 
-void WNUtils::WNAndroidEventPump::KillMessagePump() {
+void WNAndroidEventPump::KillMessagePump() {
   PushMessage(eExit);
 }
 
-void WNUtils::WNAndroidEventPump::WaitForInit() {
+void WNAndroidEventPump::WaitForInit() {
   mStartedSemaphore.wait();
   mStartedSemaphore.notify();
 }
 
-bool WNUtils::WNAndroidEventPump::PushMessage(eInternalMessage _message) {
+bool WNAndroidEventPump::PushMessage(eInternalMessage _message) {
   mQueueLock.lock();
   if (mExiting) {
     return (false);
@@ -56,8 +59,7 @@ bool WNUtils::WNAndroidEventPump::PushMessage(eInternalMessage _message) {
   return (true);
 }
 
-void WNUtils::WNAndroidEventPump::HandleWindowCommand(
-    android_app* app, int32_t cmd) {
+void WNAndroidEventPump::HandleWindowCommand(android_app* app, int32_t cmd) {
   WNAndroidEventPump* pump =
       reinterpret_cast<WNAndroidEventPump*>(app->userData);
   switch (cmd) {
@@ -72,7 +74,7 @@ void WNUtils::WNAndroidEventPump::HandleWindowCommand(
   }
 }
 
-void WNUtils::WNAndroidEventPump::PumpMessages(android_app* state) {
+void WNAndroidEventPump::PumpMessages(android_app* state) {
   if (!state) {
     return;
   }
@@ -120,3 +122,6 @@ void WNUtils::WNAndroidEventPump::PumpMessages(android_app* state) {
     }
   }
 }
+
+}  // namespace utilities
+}  // namespace wn

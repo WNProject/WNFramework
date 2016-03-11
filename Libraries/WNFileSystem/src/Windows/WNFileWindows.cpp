@@ -51,8 +51,9 @@ bool file_windows::resize(const size_type _size) {
       }
 
       if (size.QuadPart != 0) {
-        handle file_mapping_handle(::CreateFileMappingW(m_file_handle.value(),
-            NULL, PAGE_READWRITE, size.HighPart, size.LowPart, NULL));
+        utilities::windows::handle file_mapping_handle(
+            ::CreateFileMappingW(m_file_handle.value(), nullptr, PAGE_READWRITE,
+                size.HighPart, size.LowPart, nullptr));
 
         if (!file_mapping_handle.is_valid()) {
           return false;
@@ -61,7 +62,7 @@ bool file_windows::resize(const size_type _size) {
         LPVOID memory_mapped = ::MapViewOfFile(
             file_mapping_handle.value(), FILE_MAP_WRITE, 0, 0, 0);
 
-        if (memory_mapped == NULL) {
+        if (memory_mapped == nullptr) {
           return false;
         }
 
@@ -83,10 +84,10 @@ bool file_windows::resize(const size_type _size) {
 }
 
 void file_windows::unmap() {
-  if (m_mapped_memory != NULL) {
+  if (m_mapped_memory != nullptr) {
     const BOOL result = ::UnmapViewOfFile(m_mapped_memory);
 
-    m_mapped_memory = NULL;
+    m_mapped_memory = nullptr;
 
 #ifndef _WN_DEBUG
     WN_UNUSED_ARGUMENT(result);
@@ -101,8 +102,9 @@ void file_windows::unmap() {
 
 bool file_windows::remap() {
   if (m_size.QuadPart != 0) {
-    handle file_mapping_handle(::CreateFileMappingW(m_file_handle.value(), NULL,
-        PAGE_READWRITE, m_size.HighPart, m_size.LowPart, NULL));
+    utilities::windows::handle file_mapping_handle(
+        ::CreateFileMappingW(m_file_handle.value(), nullptr, PAGE_READWRITE,
+            m_size.HighPart, m_size.LowPart, nullptr));
 
     if (!file_mapping_handle.is_valid()) {
       return false;
@@ -111,7 +113,7 @@ bool file_windows::remap() {
     LPVOID memory_mapped =
         ::MapViewOfFile(file_mapping_handle.value(), FILE_MAP_WRITE, 0, 0, 0);
 
-    if (memory_mapped == NULL) {
+    if (memory_mapped == nullptr) {
       return false;
     }
 

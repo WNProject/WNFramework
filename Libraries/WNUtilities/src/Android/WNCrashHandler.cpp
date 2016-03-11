@@ -1,11 +1,17 @@
-#include "WNUtils/inc/WNCrashHandler.h"
+#include "WNUtilities/inc/WNCrashHandler.h"
+#include "WNUtilities/inc/Android/WNLoggingData.h"
+
 #include <android/log.h>
 #include <dlfcn.h>
 #include <fcntl.h>
 #include <pthread.h>
 #include <sys/stat.h>
-#include "WNUtils/inc/Android/WNLoggingData.h"
+
 #define COUNT_OF(x) (sizeof(x) / sizeof(x[0]))
+
+namespace wn {
+namespace utilities {
+namespace {
 
 typedef struct {
   uintptr_t absolute_pc;
@@ -142,9 +148,9 @@ void StackUnwinder::error_func(int sig, siginfo_t* info, void* context) {
 
   pthread_setspecific(
       g_CrashHandler->mProcessingKey, reinterpret_cast<void*>(0));
-  if (WNUtils::gAndroidLogTag != NULL) {
+  if (gAndroidLogTag != NULL) {
     __android_log_print(
-        ANDROID_LOG_FATAL, WNUtils::gAndroidLogTag, "--CRASHED--");
+        ANDROID_LOG_FATAL, gAndroidLogTag, "--CRASHED--");
   } else {
     __android_log_print(ANDROID_LOG_FATAL, "APP", "--CRASHED--");
   }
@@ -156,6 +162,11 @@ void StackUnwinder::error_func(int sig, siginfo_t* info, void* context) {
   }
 }
 
-void WNUtils::InitializeCrashHandler() {
-  g_CrashHandler = new (StackUnwinder);
+}  // anonymous namespace
+
+void initialize_crash_handler() {
+  g_CrashHandler = new StackUnwinder();
 }
+
+}  // namespace utilities
+}  // namespace wn

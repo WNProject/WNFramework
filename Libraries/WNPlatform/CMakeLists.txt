@@ -65,7 +65,7 @@ if (WN_SYSTEM STREQUAL "Android")
   set(WNAdditionalPlatformIncludes
     ${ANDROID_NDK}/sources/android/native_app_glue)
   list(APPEND WNPlatformLinkLibraries
-    EGL WNUtils)
+    EGL WNUtilities)
 elseif (WN_SYSTEM STREQUAL "Linux")
   list(APPEND WNPlatformSources
     ${SRC_XWINDOWS})

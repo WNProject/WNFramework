@@ -37,9 +37,6 @@ public:
       m_tasks(_allocator),
 #endif
       m_shutdown(true) {
-#ifdef _WN_WINDOWS
-    m_io_completion_port = INVALID_HANDLE_VALUE;
-#endif
   }
 
   WN_FORCE_INLINE ~thread_pool() {
@@ -53,13 +50,13 @@ public:
 
 #ifdef _WN_WINDOWS
     const HANDLE io_completion_port =
-        ::CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 0);
+        ::CreateIoCompletionPort(INVALID_HANDLE_VALUE, nullptr, 0, 0);
 
     if (io_completion_port == INVALID_HANDLE_VALUE) {
       return result::error;
     }
 
-    m_io_completion_port = std::move(io_completion_port);
+    m_io_completion_port = io_completion_port;
 #endif
 
     {
@@ -88,7 +85,7 @@ public:
     thread_task_ptr* task_ptr =
         m_allocator->construct<thread_task_ptr>(core::move(task));
 
-    if (!::PostQueuedCompletionStatus(m_io_completion_port, 0,
+    if (!::PostQueuedCompletionStatus(m_io_completion_port.value(), 0,
             reinterpret_cast<ULONG_PTR>(task_ptr), 0)) {
       m_allocator->destroy(task_ptr);
 
@@ -120,7 +117,7 @@ private:
 
 #ifdef _WN_WINDOWS
       for (size_t i = 0; i < m_threads.size(); ++i) {
-        ::PostQueuedCompletionStatus(m_io_completion_port, 0, NULL, 0);
+        ::PostQueuedCompletionStatus(m_io_completion_port.value(), 0, 0, 0);
       }
 #else
       for (size_t i = 0; i < m_threads.size(); ++i) {
@@ -144,9 +141,7 @@ private:
     }
 
 #ifdef _WN_WINDOWS
-    ::CloseHandle(m_io_completion_port);
-
-    m_io_completion_port = INVALID_HANDLE_VALUE;
+    m_io_completion_port.dispose();
 #else
     m_tasks.clear();
 #endif
@@ -156,14 +151,14 @@ private:
     m_worker_start_mutex.notify();
 
 #ifdef _WN_WINDOWS
-    LPOVERLAPPED overlapped = NULL;
+    LPOVERLAPPED overlapped = nullptr;
     DWORD bytes_transferred = 0;
     ULONG_PTR completion_key = 0;
 
     for (;;) {
       const BOOL completion_status_result =
-          ::GetQueuedCompletionStatus(m_io_completion_port, &bytes_transferred,
-              &completion_key, &overlapped, INFINITE);
+          ::GetQueuedCompletionStatus(m_io_completion_port.value(),
+              &bytes_transferred, &completion_key, &overlapped, INFINITE);
 
       WN_RELEASE_ASSERT_DESC(completion_status_result,
           "failed to get completion status from the queue");
@@ -207,7 +202,7 @@ private:
 
 private:
 #ifdef _WN_WINDOWS
-  HANDLE m_io_completion_port;
+  utilities::windows::handle m_io_completion_port;
 #else
   containers::deque<thread_task_ptr> m_tasks;
   semaphore m_task_available_semaphore;

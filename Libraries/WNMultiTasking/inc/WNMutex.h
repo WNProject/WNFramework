@@ -12,6 +12,8 @@
 #include "WNMultiTasking/inc/WNLockGuard.h"
 
 #ifdef _WN_WINDOWS
+#include "WNUtilities/inc/Windows/WNHandle.h"
+
 #include <Windows.h>
 #elif defined _WN_POSIX
 #include <pthread.h>
@@ -22,19 +24,17 @@
 namespace wn {
 namespace multi_tasking {
 
-const static uint32_t default_mutex_spin_count = 4000;
-
 class mutex final : public core::non_copyable {
 public:
-  WN_FORCE_INLINE mutex() : mutex(default_mutex_spin_count) {}
+  WN_FORCE_INLINE mutex() : mutex(4000) {}
 
   WN_FORCE_INLINE mutex(const uint32_t spin_count)
     : m_spin_count(spin_count), m_lock_count(0) {
 #ifdef _WN_WINDOWS
-    m_semaphore = ::CreateSemaphoreW(NULL, 0, 1, NULL);
+    m_semaphore = ::CreateSemaphoreW(nullptr, 0, 1, nullptr);
 
     WN_RELEASE_ASSERT_DESC(
-        m_semaphore != NULL, "failed to create mutex object");
+        m_semaphore != nullptr, "failed to create mutex object");
 #elif defined _WN_POSIX
     pthread_mutexattr_t attributes;
     int result;
@@ -60,16 +60,7 @@ public:
   }
 
   WN_FORCE_INLINE ~mutex() {
-#ifdef _WN_WINDOWS
-    const BOOL close_result = ::CloseHandle(m_semaphore);
-
-    WN_DEBUG_ASSERT_DESC(
-        close_result != FALSE, "failed to destroy mutex object");
-
-#ifndef _WN_DEBUG
-    WN_UNUSED_ARGUMENT(close_result);
-#endif
-#elif defined _WN_POSIX
+#if defined _WN_POSIX
     const int destroy_result = ::pthread_mutex_destroy(&m_mutex);
 
     WN_DEBUG_ASSERT_DESC(destroy_result == 0, "failed to destroy mutex object");
@@ -89,7 +80,7 @@ public:
 
     if (m_lock_count.fetch_add(1, std::memory_order_acquire) > 0) {
 #ifdef _WN_WINDOWS
-      const DWORD result = ::WaitForSingleObject(m_semaphore, INFINITE);
+      const DWORD result = ::WaitForSingleObject(m_semaphore.value(), INFINITE);
 
       WN_RELEASE_ASSERT_DESC(
           result == WAIT_OBJECT_0, "failed to lock mutex object");
@@ -111,7 +102,7 @@ public:
   WN_FORCE_INLINE void unlock() {
     if (m_lock_count.fetch_sub(1, std::memory_order_release) > 1) {
 #ifdef _WN_WINDOWS
-      const BOOL result = ::ReleaseSemaphore(m_semaphore, 1, NULL);
+      const BOOL result = ::ReleaseSemaphore(m_semaphore.value(), 1, nullptr);
 
       WN_RELEASE_ASSERT_DESC(result != FALSE, "failed to unlock mutex object");
 #elif defined _WN_POSIX
@@ -132,7 +123,7 @@ public:
 
 private:
 #ifdef _WN_WINDOWS
-  HANDLE m_semaphore;
+  utilities::windows::handle m_semaphore;
 #elif defined _WN_POSIX
   pthread_mutex_t m_mutex;
 #endif
@@ -143,8 +134,7 @@ private:
 
 class recursive_mutex final : public core::non_copyable {
 public:
-  WN_FORCE_INLINE recursive_mutex()
-    : recursive_mutex(default_mutex_spin_count) {}
+  WN_FORCE_INLINE recursive_mutex() : recursive_mutex(4000) {}
 
   WN_FORCE_INLINE recursive_mutex(const uint32_t spin_count)
     : m_spin_count(spin_count) {

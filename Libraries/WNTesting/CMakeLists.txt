@@ -29,7 +29,7 @@ add_wn_library(WNTesting SOURCES
 )
 
 wn_target_link_libraries(WNTesting
-  WNEntryPoint WNUtils gmock
+  WNEntryPoint WNUtilities gmock
 )
 
 if (WN_SYSTEM STREQUAL "Windows")

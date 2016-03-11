@@ -346,7 +346,7 @@ function(wn_create_test)
     message(FATAL_ERROR "You must provide at least one source file")
   endif()
   add_wn_executable(${PARSED_ARGS_TEST_NAME}_test SOURCES ${PARSED_ARGS_SOURCES}
-    LINK_LIBRARIES WNTesting WNUtils ${PARSED_ARGS_LIBS})
+    LINK_LIBRARIES WNTesting WNUtilities ${PARSED_ARGS_LIBS})
   target_include_directories(${PARSED_ARGS_TEST_NAME}_test PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR})
 

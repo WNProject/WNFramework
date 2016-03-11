@@ -12,7 +12,7 @@
 #include "WNMemory/inc/WNIntrusivePtr.h"
 #include "WNMultiTasking/inc/WNSemaphore.h"
 #include "WNPlatform/inc/WNSurface.h"
-#include "WNUtils/inc/Android/WNAndroidEventPump.h"
+#include "WNUtilities/inc/Android/WNAndroidEventPump.h"
 
 struct android_app;
 namespace WNConcurrency {
@@ -42,7 +42,7 @@ public:
 
 private:
   static void HandleWindowCommand(
-      WNUtils::WNAndroidEventPump::eMessageType _msg, android_app* _app,
+      utilities::WNAndroidEventPump::eMessageType _msg, android_app* _app,
       uint32_t _val, void* appData);
   bool InitializeWindow(android_app* app);
   bool CleanupWindow(android_app* app);

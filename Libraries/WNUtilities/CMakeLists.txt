@@ -13,6 +13,7 @@ set(SRC_POSIX
     src/Posix/WNCrashHandler.cpp
 )
 set(SRC_WINDOWS
+    inc/Windows/WNHandle.h
     src/Windows/WNCrashHandler.cpp
 )
 set(WNUtilsSources
@@ -32,17 +33,17 @@ elseif (WN_SYSTEM STREQUAL "Windows")
   list(APPEND WNUtilsSources
   ${SRC_WINDOWS} ${SRC_POSIX} ${SRC_ANDROID})
 endif()
-add_wn_library(WNUtils SOURCES
+add_wn_library(WNUtilities SOURCES
   ${WNUtilsSources}
 )
 
 
 if (WN_SYSTEM STREQUAL "Windows")
-	set_source_files_properties(${SRC_POSIX} ${SRC_ANDROID} 
+	set_source_files_properties(${SRC_POSIX} ${SRC_ANDROID}
 		PROPERTIES HEADER_FILE_ONLY true)
 endif()
 
-target_include_directories(WNUtils
+target_include_directories(WNUtilities
   PUBLIC
   ${WNAdditionalUtilIncludes})
 

@@ -8,7 +8,6 @@ set(WN_SRC_WINDOWS
   src/Windows/WNFileWindows.cpp
   src/Windows/WNMappingWindows.h
   src/Windows/WNMappingWindows.cpp
-  src/Windows/WNHandle.h
   src/Windows/WNSystemPaths.h
   src/Windows/WNSystemPaths.cpp
 )
@@ -216,7 +215,7 @@ add_wn_library(${WN_TARGET_NAME} SOURCES
   ${WN_FILE_SYSTEM_FILES}
 )
 
-wn_target_link_libraries(${WN_TARGET_NAME} WNUtils)
+wn_target_link_libraries(${WN_TARGET_NAME} WNUtilities)
 
 if (WN_SYSTEM STREQUAL "Windows")
   wn_target_link_libraries(${WN_TARGET_NAME} Rpcrt4.lib)

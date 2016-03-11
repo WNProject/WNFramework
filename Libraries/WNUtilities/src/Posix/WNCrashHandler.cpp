@@ -1,4 +1,4 @@
-#include "WNUtils/inc/WNCrashHandler.h"
+#include "WNUtilities/inc/WNCrashHandler.h"
 
 #include <errno.h>
 #include <execinfo.h>
@@ -8,6 +8,10 @@
 #include <cstdio>
 
 #define COUNT_OF(x) (sizeof(x) / sizeof(x[0]))
+
+namespace wn {
+namespace utilities {
+namespace {
 
 const int signalsToCatch[] = {SIGSEGV, SIGILL};
 
@@ -96,6 +100,11 @@ void StackUnwinder::error_func(int sig, siginfo_t* info, void* context) {
   }
 }
 
-void WNUtils::InitializeCrashHandler() {
-  g_CrashHandler = new (StackUnwinder);
+}  // anonymous namespace
+
+void initialize_crash_handler() {
+  g_CrashHandler = new StackUnwinder();
 }
+
+}  // namespace utilities
+}  // namespace wn

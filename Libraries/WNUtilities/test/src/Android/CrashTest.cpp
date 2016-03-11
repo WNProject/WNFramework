@@ -1,8 +1,9 @@
+#include "WNUtilities/inc/Android/WNLoggingData.h"
+#include "WNUtilities/inc/WNCrashHandler.h"
+
 #include <android/log.h>
 #include <android_native_app_glue.h>
 #include <unistd.h>
-#include "WNUtils/inc/Android/WNLoggingData.h"
-#include "WNUtils/inc/WNCrashHandler.h"
 
 WN_CHAR* GetPackageName(struct android_app* state) {
   ANativeActivity* activity = state->activity;
@@ -53,7 +54,7 @@ void android_main(struct android_app* state) {
   freopen("/sdcard/stdout.txt", "a", stdout);
   app_dummy();
   WN_CHAR* packageName = GetPackageName(state);
-  WNUtils::gAndroidLogTag = packageName;
+  wn::utilities::gAndroidLogTag = packageName;
   FILE* debugFile = fopen("/sdcard/waitdebugger.txt", "r");
   if (debugFile) {
     __android_log_print(ANDROID_LOG_INFO, packageName, "--SLEEPING");
@@ -62,7 +63,7 @@ void android_main(struct android_app* state) {
     fclose(debugFile);
   }
 
-  WNUtils::InitializeCrashHandler();
+  wn::utilities::initialize_crash_handler();
   __android_log_print(ANDROID_LOG_INFO, packageName, "--STARTED");
 
   testa();  // this should crash

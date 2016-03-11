@@ -3,8 +3,7 @@
 // found in the LICENSE file.
 
 #include "WNFileSystem/src/Posix/WNSystemPaths.h"
-
-#include "WNUtils/inc/Android/WNAppData.h"
+#include "WNUtilities/inc/Android/WNAppData.h"
 
 #include <jni.h>
 #include <sys/stat.h>
@@ -38,7 +37,7 @@ WN_INLINE bool get_class_and_method(JNIEnv* _env,
 }
 
 bool get_temp_path(containers::string& _path) {
-  android_app* app = WNUtils::gAndroidApp;
+  android_app* app = utilities::gAndroidApp;
 
   if (!app) {
     return false;

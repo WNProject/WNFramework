@@ -1,17 +1,26 @@
-#include "WNUtils/inc/WNCrashHandler.h"
+#include "WNUtilities/inc/WNCrashHandler.h"
+
 #include <errno.h>
 #include <fcntl.h>
+
 #define COUNT_OF(x) (sizeof(x) / sizeof(x[0]))
+
 #include <stdio.h>
+
 #if _WN_MSVC_MAJOR >= 19
 #pragma warning(push)
-// Ignores warnings in VS2015 with DbgHelp.
-#pragma warning(disable : 4091)
+#pragma warning(disable : 4091)  // ignores warnings in VS2015 with DbgHelp.
 #endif
+
 #include <DbgHelp.h>
+
 #if _WN_MSVC_MAJOR >= 19
 #pragma warning(pop)
 #endif
+
+namespace wn {
+namespace utilities {
+namespace {
 
 typedef BOOL(__stdcall* tStackWalk)(_In_ DWORD MachineType,
     _In_ HANDLE hProcess, _In_ HANDLE hThread,
@@ -79,6 +88,11 @@ LONG WINAPI exceptionFilter(_In_ struct _EXCEPTION_POINTERS* ExceptionInfo) {
       g_oldFilter ? (*g_oldFilter)(ExceptionInfo) : EXCEPTION_EXECUTE_HANDLER);
 }
 
-void WNUtils::InitializeCrashHandler() {
-  g_oldFilter = SetUnhandledExceptionFilter(&exceptionFilter);
+}  // anonymous namespace
+
+void initialize_crash_handler() {
+  g_oldFilter = ::SetUnhandledExceptionFilter(&exceptionFilter);
 }
+
+}  // namespace utilities
+}  // namespace wn

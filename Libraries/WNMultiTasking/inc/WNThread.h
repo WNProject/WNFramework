@@ -14,6 +14,8 @@
 #include "WNMultiTasking/inc/WNSemaphore.h"
 
 #if defined _WN_WINDOWS
+#include "WNUtilities/inc/Windows/WNHandle.h"
+
 #include <Windows.h>
 #include <mutex>
 #elif defined _WN_POSIX
@@ -133,7 +135,8 @@ public:
         m_data->m_joined = true;
 
 #ifdef _WN_WINDOWS
-        const DWORD result = ::WaitForSingleObject(m_data->m_handle, INFINITE);
+        const DWORD result =
+            ::WaitForSingleObject(m_data->m_handle.value(), INFINITE);
 
         if (result == WAIT_OBJECT_0) {
           return true;
@@ -162,29 +165,13 @@ private:
     WN_FORCE_INLINE private_data(memory::allocator* _allocator)
       : memory::intrusive_ptr_base(_allocator),
 #ifdef _WN_WINDOWS
-        m_handle(NULL),
         m_id(0),
 #endif
         m_joined(false) {
     }
 
-    WN_FORCE_INLINE ~private_data() {
 #ifdef _WN_WINDOWS
-      if (m_handle != NULL) {
-        const BOOL close_result = ::CloseHandle(m_handle);
-
-        WN_DEBUG_ASSERT_DESC(
-            close_result != FALSE, "failed to destory thread object");
-
-#ifndef _WN_DEBUG
-        WN_UNUSED_ARGUMENT(close_result);
-#endif
-      }
-#endif
-    }
-
-#ifdef _WN_WINDOWS
-    HANDLE m_handle;
+    utilities::windows::handle m_handle;
     DWORD m_id;
 #elif defined _WN_POSIX
     semaphore m_start_lock;

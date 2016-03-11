@@ -8,7 +8,7 @@
 #define __WN_FILE_SYSTEM_WINDOWS_FILE_WINDOWS_H__
 
 #include "WNFileSystem/inc/WNFile.h"
-#include "WNFileSystem/src/Windows/WNHandle.h"
+#include "WNUtilities/inc/Windows/WNHandle.h"
 
 namespace wn {
 namespace file_system {
@@ -17,15 +17,16 @@ namespace internal {
 class file_windows final : public file {
 public:
   WN_FORCE_INLINE file_windows(
-      memory::allocator* _allocator, handle&& _file_handle)
+      memory::allocator* _allocator, utilities::windows::handle&& _file_handle)
     : file(_allocator),
       m_file_handle(std::move(_file_handle)),
       m_mapped_memory(NULL),
       m_size({0}) {}
 
   WN_FORCE_INLINE file_windows(memory::allocator* _allocator,
-      handle&& _file_handle, handle&& _file_mapping_handle,
-      LPVOID _mapped_memory, LARGE_INTEGER _size)
+      utilities::windows::handle&& _file_handle,
+      utilities::windows::handle&& _file_mapping_handle, LPVOID _mapped_memory,
+      LARGE_INTEGER _size)
     : file(_allocator),
       m_file_handle(std::move(_file_handle)),
       m_file_mapping_handle(std::move(_file_mapping_handle)),
@@ -83,8 +84,8 @@ private:
   void unmap();
   bool remap();
 
-  handle m_file_handle;
-  handle m_file_mapping_handle;
+  utilities::windows::handle m_file_handle;
+  utilities::windows::handle m_file_mapping_handle;
   LPVOID m_mapped_memory;
   LARGE_INTEGER m_size;
 };

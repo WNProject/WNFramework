@@ -7,7 +7,9 @@
 #include "WNMultiTasking/inc/WNSemaphore.h"
 #include "WNMultiTasking/inc/WNSpinLock.h"
 
-namespace WNUtils {
+namespace wn {
+namespace utilities {
+
 class WNAndroidEventPump {
 public:
   enum eMessageType { eDisplayCreated, eDisplayDestroyed, eMaxValue };
@@ -36,6 +38,8 @@ private:
   ALooper* mMainLooper;
   wn::multi_tasking::semaphore mStartedSemaphore;
 };
-};
+
+}  // namespace utilities
+}  // namespace wn
 
 #endif  //__WN_UTILS_ANDROID_EVENT_PUMP_H__

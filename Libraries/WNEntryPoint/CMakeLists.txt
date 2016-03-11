@@ -25,7 +25,7 @@ add_wn_library(WNEntryPoint SOURCES ${WNEntryPointSources}
   ${WN_SOURCES} ${WNEntryPreLinkFlags} ${WNEntryPostLinkFlags})
 
 wn_target_link_libraries(WNEntryPoint ${WNAdditionalEntryLibs}
-  WNUtils)
+  WNUtilities)
 
 if (WN_SYSTEM STREQUAL "Windows")
   set_source_files_properties(${WN_POSIX_SOURCES} ${WN_ANDROID_SOURCES}
