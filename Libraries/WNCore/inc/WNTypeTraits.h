@@ -322,6 +322,14 @@ using index_sequence = integral_sequence<size_t, Values...>;
 
 // type modifications
 
+#ifdef _WN_HAS_CPP14_STD_ADD_CONST_T
+template <typename T>
+using add_const_t = std::add_const_t<T>;
+#else
+template <typename T>
+using add_const_t = typename add_const<T>::type;
+#endif
+
 #ifdef _WN_HAS_CPP14_STD_ADD_LVALUE_REFERENCE_T
 template <typename T>
 using add_lvalue_reference_t = std::add_lvalue_reference_t<T>;
@@ -365,11 +373,11 @@ using conditional_t = typename conditional<Test, T1, T2>::type;
 #endif
 
 #ifdef _WN_HAS_CPP14_STD_COMMON_TYPE_T
-template <typename... T>
-using common_type_t = std::common_type_t<T...>;
+template <typename... Ts>
+using common_type_t = std::common_type_t<Ts...>;
 #else
-template <typename... T>
-using common_type_t = typename common_type<T...>::type;
+template <typename... Ts>
+using common_type_t = typename common_type<Ts...>::type;
 #endif
 
 #ifdef _WN_HAS_CPP14_STD_UNDERLYING_TYPE_T
@@ -405,7 +413,7 @@ using bool_constant = integral_constant<bool, Value>;
 #ifdef _WN_HAS_CPP17_STD_CONJUNCTION
 using std::conjunction;
 #else
-template <typename... T>
+template <typename... Ts>
 struct conjunction : true_type {};
 
 template <typename T>
@@ -419,7 +427,7 @@ struct conjunction<T, Ts...>
 #ifdef _WN_HAS_CPP17_STD_DISJUNCTION
 using std::disjunction;
 #else
-template <typename... T>
+template <typename... Ts>
 struct disjunction : false_type {};
 
 template <typename T>
@@ -441,8 +449,8 @@ struct negation : bool_constant<!T::value> {};
 
 // type properties
 
-template <typename... T>
-struct are_pod : conjunction<is_pod<T>...> {};
+template <typename... Ts>
+struct are_pod : conjunction<is_pod<Ts>...> {};
 
 // type constants
 

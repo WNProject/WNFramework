@@ -758,8 +758,7 @@ copy_to(contiguous_range<T>* _dest, const contiguous_range<U>& _src) {
 }
 
 template <typename T>
-using read_only_contiguous_range =
-    contiguous_range<typename core::add_const<T>::type>;
+using read_only_contiguous_range = contiguous_range<core::add_const_t<T>>;
 
 template <typename T>
 using write_only_contiguous_range = contiguous_range<write_only<T>>;
