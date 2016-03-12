@@ -58,7 +58,6 @@ device_ptr physical_device::make_device(
   return core::move(device_ptr);
 }
 
-
 void physical_device::initialize_device() {
   m_context->vkGetPhysicalDeviceMemoryProperties(
       m_physical_device, &m_memory_properties);

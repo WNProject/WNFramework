@@ -40,12 +40,30 @@ public:
       m_d3d12_command_queue(core::move(_d3d12_command_queue)) {}
 
   upload_heap create_upload_heap(size_t _num_bytes) final;
+  download_heap create_download_heap(size_t _num_bytes) final;
 
 private:
-  friend class upload_heap;
-  void flush_mapped_range(
+  template <typename T>
+  friend class graphics::heap;
+  uint8_t* acquire_range(
       upload_heap* _buffer, size_t _offset, size_t _num_bytes) final;
-  void destroy_upload_heap(upload_heap* _heap) final;
+  void release_range(
+      upload_heap* _buffer, size_t _offset, size_t _num_bytes) final;
+  void destroy_heap(upload_heap* _heap) final;
+
+  uint8_t* acquire_range(
+      download_heap* _buffer, size_t _offset, size_t _num_bytes) final;
+  void release_range(
+      download_heap* _buffer, size_t _offset, size_t _num_bytes) final;
+  void destroy_heap(download_heap* _heap) final;
+
+  // Templated heap helpers
+  template <typename heap_type>
+  heap_type create_heap(size_t _num_bytes,
+      const D3D12_HEAP_PROPERTIES& _params,
+      const D3D12_RESOURCE_STATES& _states);
+  template <typename heap_type>
+  void destroy_typed_heap(heap_type* type);
 
   Microsoft::WRL::ComPtr<ID3D12Device> m_d3d12_device;
   Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_d3d12_command_queue;

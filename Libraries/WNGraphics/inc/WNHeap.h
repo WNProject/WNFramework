@@ -9,38 +9,66 @@
 
 #include "WNContainers/inc/WNContiguousRange.h"
 #include "WNGraphics/inc/WNDevice.h"
+#include "WNGraphics/inc/WNHeapTraits.h"
 #include "WNMemory/inc/WNBasic.h"
-#include "WNMemory/inc/WNUniquePtr.h"
 
 namespace wn {
 namespace graphics {
 
+template<typename T, typename HeapTraits>
+class heap_buffer {
+public:
+  using range_type = typename HeapTraits::template range_type<T>;
+
+  ~heap_buffer();
+
+  heap_buffer(heap_buffer&& _other)
+    : m_heap(core::move(_other.m_heap)), m_range(core::move(_other.m_range)) {
+    _other.m_heap = nullptr;
+  }
+
+  range_type& range() {
+    return m_range;
+  }
+
+private:
+  heap_buffer(heap<HeapTraits>* _heap, size_t _offset,
+      typename HeapTraits::template range_type<T>&& _range);
+
+  heap<HeapTraits>* m_heap;
+  size_t m_offset;
+  typename HeapTraits::template range_type<T> m_range;
+  template <typename F>
+  friend class heap;
+};
+
 // The memory returned by this heap type may or may not be
 // coherent. Make sure to flush any range before use. This will
 // get optimized away if a flush was not strictly necessary.
-class upload_heap {
+template <typename HeapTraits>
+class heap {
 public:
-  ~upload_heap() {
-    m_device->destroy_upload_heap(this);
+  ~heap() {
+    m_device->destroy_heap(this);
   }
 
   template <typename T = uint8_t>
-  WN_FORCE_INLINE containers::write_only_contiguous_range<T> get_range(
+  WN_FORCE_INLINE heap_buffer<T, HeapTraits> get_range(
       size_t _offset_in_bytes, size_t _num_elements) {
-    uint8_t* base_value = m_root_address + _offset_in_bytes;
-    return containers::write_only_contiguous_range<T>(
-        reinterpret_cast<T*>(base_value), _num_elements);
+    uint8_t* root = m_device->acquire_range(
+        this, _offset_in_bytes, sizeof(T) * _num_elements);
+    typename HeapTraits::template range_type<T> range(
+        reinterpret_cast<T*>(root), _num_elements);
+
+    return heap_buffer<T, HeapTraits>(this, _offset_in_bytes,
+      core::move(range));
   }
 
-  template <typename T = uint8_t>
-  WN_FORCE_INLINE void flush_range(
-      const containers::write_only_contiguous_range<T>& _range) {
-    m_device->flush_mapped_range(this,
-        reinterpret_cast<const uint8_t*>(_range.data()) - m_root_address,
-        sizeof(T) * _range.size());
+  bool is_valid() const {
+    return m_device != nullptr;
   }
 
-  WN_FORCE_INLINE upload_heap(upload_heap&& _other) {
+  WN_FORCE_INLINE heap(heap&& _other) {
     ::memcpy(&m_data, &_other.m_data, sizeof(opaque_data));
     m_root_address = _other.m_root_address;
     m_device = _other.m_device;
@@ -49,19 +77,25 @@ public:
     memory::memset(&_other.m_data, 0x0, sizeof(opaque_data));
   }
 
-  bool is_valid() const {
-    return m_device != nullptr;
-  }
-
-protected:
-  WN_FORCE_INLINE upload_heap(device* _device)
+private:
+  WN_FORCE_INLINE heap(device* _device)
     : m_device(_device), m_root_address(0), m_data({0, 0}) {}
+
+  template <typename T = uint8_t>
+  void release_range(
+      heap_buffer<T, HeapTraits>& _range) {
+    m_device->release_range(
+        this, _range.m_offset, sizeof(T) * _range.range().size());
+  }
 
   template <typename T>
   T& data_as() {
     static_assert(sizeof(opaque_data) >= sizeof(T), "Invalid cast");
     return *reinterpret_cast<T*>(&m_data);
   }
+
+  template<typename T, typename HT>
+  friend class heap_buffer;
 
 #include "WNGraphics/inc/Internal/WNSetFriendDevices.h"
   // The opaque_data must be trivially copyable.
@@ -74,6 +108,18 @@ protected:
   uint8_t* m_root_address;
   device* m_device;
 };
+
+template <typename T, typename HeapTraits>
+heap_buffer<T, HeapTraits>::heap_buffer(
+    heap<HeapTraits>* _heap, size_t _offset, range_type&& _range)
+  : m_heap(_heap), m_offset(_offset), m_range(core::move(_range)) {}
+
+template <typename T, typename HeapTraits>
+heap_buffer<T, HeapTraits>::~heap_buffer() {
+  if (m_heap) {
+    m_heap->release_range(*this);
+  }
+}
 
 }  // namespace graphics
 }  // namespace wn

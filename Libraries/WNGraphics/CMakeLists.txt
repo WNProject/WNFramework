@@ -107,6 +107,7 @@ add_wn_library(WNGraphics
     inc/WNDevice.h
     inc/WNFactory.h
     inc/WNHeap.h
+    inc/WNHeapTraits.h
     inc/WNPhysicalDevice.h
     src/WNFactory.cpp
 )

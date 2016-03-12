@@ -7,10 +7,10 @@
 #include "WNGraphics/inc/WNHeap.h"
 #include "WNGraphics/test/inc/WNTestFixture.h"
 
-using upload_heap_creation_test =
+using download_heap_creation_test =
     wn::graphics::testing::parameterized_test<size_t>;
 
-TEST_P(upload_heap_creation_test, many_sizes) {
+TEST_P(download_heap_creation_test, many_sizes) {
   wn::graphics::factory device_factory(&m_allocator, &m_log);
 
   for (auto& physical_device : device_factory.query_physical_devices()) {
@@ -18,25 +18,26 @@ TEST_P(upload_heap_creation_test, many_sizes) {
         physical_device->make_device(&m_allocator, &m_log);
     ASSERT_NE(nullptr, device);
 
-    wn::graphics::upload_heap upload = device->create_upload_heap(GetParam());
-    EXPECT_TRUE(upload.is_valid());
+    wn::graphics::download_heap download =
+        device->create_download_heap(GetParam());
+    EXPECT_TRUE(download.is_valid());
   }
   m_log.Flush();
   // On normal operation the log buffer should be empty.
   EXPECT_EQ("", m_buffer);
 }
 
-INSTANTIATE_TEST_CASE_P(small_values, upload_heap_creation_test,
+INSTANTIATE_TEST_CASE_P(small_values, download_heap_creation_test,
     ::testing::Range<size_t>(1, 50, 7));
 
-INSTANTIATE_TEST_CASE_P(large_values, upload_heap_creation_test,
+INSTANTIATE_TEST_CASE_P(large_values, download_heap_creation_test,
     ::testing::Values(1024, 1024 - 1, 1024 * 1024, 1024 * 1024 - 1,
                             128 * 1024 * 1024));
 
-using upload_heap_writing_test =
+using download_heap_writing_test =
     wn::graphics::testing::parameterized_test<std::tuple<size_t, size_t>>;
 
-TEST_P(upload_heap_writing_test, write_values) {
+TEST_P(download_heap_writing_test, read_values) {
   wn::graphics::factory device_factory(&m_allocator, &m_log);
 
   for (auto& physical_device : device_factory.query_physical_devices()) {
@@ -44,14 +45,14 @@ TEST_P(upload_heap_writing_test, write_values) {
         physical_device->make_device(&m_allocator, &m_log);
     ASSERT_NE(nullptr, device);
 
-    wn::graphics::upload_heap upload =
-        device->create_upload_heap(std::get<0>(GetParam()));
-    ASSERT_TRUE(upload.is_valid());
+    wn::graphics::download_heap download =
+        device->create_download_heap(std::get<0>(GetParam()));
+    ASSERT_TRUE(download.is_valid());
 
-    auto buffer = upload.get_range(0, std::get<0>(GetParam()));
-    for (size_t i = 0; i < buffer.range().size();
-         i += std::get<1>(GetParam())) {
-      buffer.range()[i] = i & 0xFF;
+    auto buffer = download.get_range(0, std::get<0>(GetParam()));
+    for (size_t i = 0; i < buffer.range().size(); i += std::get<1>(GetParam())) {
+      volatile char x = buffer.range()[i];
+      (void)x;
     }
   }
   m_log.Flush();
@@ -59,11 +60,11 @@ TEST_P(upload_heap_writing_test, write_values) {
   EXPECT_EQ("", m_buffer);
 }
 
-INSTANTIATE_TEST_CASE_P(small_values, upload_heap_writing_test,
+INSTANTIATE_TEST_CASE_P(small_values, download_heap_writing_test,
     ::testing::Combine(::testing::Range<size_t>(1, 50, 7),
                             ::testing::Values(1)));
 
-INSTANTIATE_TEST_CASE_P(large_values, upload_heap_writing_test,
+INSTANTIATE_TEST_CASE_P(large_values, download_heap_writing_test,
     ::testing::ValuesIn(std::vector<std::tuple<size_t, size_t>>(
         {std::make_tuple(1024, 1), std::make_tuple(1024 - 1, 1),
             std::make_tuple(1024 * 1024, 121),

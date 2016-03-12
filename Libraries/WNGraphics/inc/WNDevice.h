@@ -8,6 +8,7 @@
 #define __WN_GRAPHICS_DEVICE_H__
 
 #include "WNGraphics/inc/Internal/WNConfig.h"
+#include "WNGraphics/inc/WNHeapTraits.h"
 #include "WNMemory/inc/WNUniquePtr.h"
 
 namespace WNLogging {
@@ -16,8 +17,6 @@ class WNLog;
 
 namespace wn {
 namespace graphics {
-class upload_heap;
-
 namespace internal {
 namespace d3d12 {
 
@@ -39,13 +38,24 @@ public:
   // On success, returns an upload_heap object. This heap must be at least,
   // 1 byte in size. If creation fails a nullptr will be returned.
   virtual upload_heap create_upload_heap(size_t _num_bytes) = 0;
+  virtual download_heap create_download_heap(size_t _num_bytes) = 0;
 
 protected:
-  friend class upload_heap;
+  template <typename heap_type>
+  friend class heap;
   // Upload heap methods
-  virtual void flush_mapped_range(
+  virtual uint8_t* acquire_range(
       upload_heap* _buffer, size_t _offset, size_t _num_bytes) = 0;
-  virtual void destroy_upload_heap(upload_heap* _heap) = 0;
+  virtual void release_range(
+      upload_heap* _buffer, size_t _offset, size_t _num_bytes) = 0;
+  virtual void destroy_heap(upload_heap* _heap) = 0;
+
+  // Download heap methods
+  virtual uint8_t* acquire_range(
+      download_heap* _buffer, size_t _offset, size_t _num_bytes) = 0;
+  virtual void release_range(
+      download_heap* _buffer, size_t _offset, size_t _num_bytes) = 0;
+  virtual void destroy_heap(download_heap* _heap) = 0;
 
   memory::allocator* m_allocator;
   WNLogging::WNLog* m_log;
