@@ -55,7 +55,6 @@ TYPED_TEST(contiguous_range, construction) {
       TypeParam(1), TypeParam(2), TypeParam(3), TypeParam(4), TypeParam(5)};
   wn::containers::contiguous_range<TypeParam> range1;
   wn::containers::contiguous_range<TypeParam> range2(nullptr);
-  wn::containers::contiguous_range<TypeParam> range3(nullptr, nullptr);
   wn::containers::contiguous_range<TypeParam> range4(buffer, buffer + 5);
   wn::containers::contiguous_range<const TypeParam> range5(buffer, 5);
   wn::containers::contiguous_range<TypeParam> range6(buffer);
@@ -65,8 +64,6 @@ TYPED_TEST(contiguous_range, construction) {
   EXPECT_EQ(range1.data(), nullptr);
   EXPECT_TRUE(range2.empty());
   EXPECT_EQ(range2.data(), nullptr);
-  EXPECT_TRUE(range3.empty());
-  EXPECT_EQ(range3.data(), nullptr);
   EXPECT_FALSE(range4.empty());
   EXPECT_EQ(range4.data(), buffer);
   EXPECT_FALSE(range5.empty());
@@ -489,6 +486,25 @@ TYPED_TEST(contiguous_range, write_only_range) {
     EXPECT_EQ(value, TypeParam(13));
   }
 }
+
+
+TYPED_TEST(contiguous_range, copy_write_only_range) {
+  TypeParam buffer1[10] = {TypeParam(1), TypeParam(2), TypeParam(3),
+      TypeParam(4), TypeParam(5), TypeParam(6), TypeParam(7), TypeParam(8),
+      TypeParam(9), TypeParam(10)};
+  wn::containers::write_only_contiguous_range<TypeParam> range1(buffer1, 10);
+
+  wn::containers::write_only_contiguous_range<TypeParam> range2(range1);
+
+  for (auto& value : range2) {
+    value = TypeParam(11);
+  }
+
+  for (auto& value : buffer1) {
+    EXPECT_EQ(value, TypeParam(11));
+  }
+}
+
 
 TEST(contiguous_range, copy_to_trivial_vs_non_trivial) {
   uint8_t buffer1[10] = {uint8_t(1), uint8_t(1), uint8_t(1), uint8_t(1),

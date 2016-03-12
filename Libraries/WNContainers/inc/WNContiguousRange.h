@@ -384,6 +384,12 @@ public:
         "invalid input parameters, both must be null or non-null");
   }
 
+  WN_FORCE_INLINE explicit contiguous_range(T* _begin, T* _end)
+    : m_begin(_begin), m_end(_end) {
+    WN_DEBUG_ASSERT_DESC((m_begin && m_end) || (!m_begin && !m_end),
+        "invalid input parameters, both must be null or non-null");
+  }
+
   template <typename U, typename = core::enable_if_t<core::is_convertible<U*,
                             remove_write_only_t<T>*>::value>>
   WN_FORCE_INLINE explicit contiguous_range(U* _ptr, const size_type _size)
