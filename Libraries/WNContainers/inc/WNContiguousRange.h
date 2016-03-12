@@ -764,6 +764,20 @@ using read_only_contiguous_range =
 template <typename T>
 using write_only_contiguous_range = contiguous_range<write_only<T>>;
 
+template <typename T>
+using is_read_only_contiguous_range =
+    core::conditional_t<is_contiguous_range<T>::value,
+        core::conditional_t<core::is_const<typename T::value_type>::value,
+                            core::true_type, core::false_type>,
+        core::false_type>;
+
+template <typename T>
+using is_write_only_contiguous_range =
+    core::conditional_t<is_contiguous_range<T>::value,
+        core::conditional_t<is_write_only<typename T::value_type>::value,
+                            core::true_type, core::false_type>,
+        core::false_type>;
+
 }  // namespace containers
 }  // namespace wn
 

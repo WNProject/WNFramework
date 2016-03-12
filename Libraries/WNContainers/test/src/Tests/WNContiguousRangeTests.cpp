@@ -538,3 +538,25 @@ TEST(contiguous_range, copy_to_trivial_vs_non_trivial) {
     EXPECT_EQ(value, dummy2(2));
   }
 }
+
+TYPED_TEST(contiguous_range, is_read_only_contiguous_range) {
+  EXPECT_TRUE(wn::containers::is_read_only_contiguous_range<
+      wn::containers::read_only_contiguous_range<TypeParam>>::value);
+  EXPECT_TRUE(wn::containers::is_read_only_contiguous_range<
+      wn::containers::contiguous_range<const TypeParam>>::value);
+  EXPECT_FALSE(wn::containers::is_read_only_contiguous_range<
+      wn::containers::write_only_contiguous_range<TypeParam>>::value);
+  EXPECT_FALSE(wn::containers::is_read_only_contiguous_range<wn::containers::
+          contiguous_range<wn::containers::write_only<TypeParam>>>::value);
+}
+
+TYPED_TEST(contiguous_range, is_write_only_contiguous_range) {
+  EXPECT_TRUE(wn::containers::is_write_only_contiguous_range<
+      wn::containers::write_only_contiguous_range<TypeParam>>::value);
+  EXPECT_TRUE(wn::containers::is_write_only_contiguous_range<wn::containers::
+          contiguous_range<wn::containers::write_only<TypeParam>>>::value);
+  EXPECT_FALSE(wn::containers::is_write_only_contiguous_range<
+      wn::containers::read_only_contiguous_range<TypeParam>>::value);
+  EXPECT_FALSE(wn::containers::is_write_only_contiguous_range<
+      wn::containers::contiguous_range<const TypeParam>>::value);
+}
