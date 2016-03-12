@@ -15,63 +15,6 @@
 namespace wn {
 namespace graphics {
 
-template <typename T>
-class write_only_value {
-public:
-  WN_FORCE_INLINE write_only_value& operator=(const T& _other) {
-    m_t = _other;
-    return *this;
-  }
-
-  write_only_value(const write_only_value& _other) = delete;
-  write_only_value(write_only_value&& _other) = delete;
-
-private:
-  template <typename F>
-  friend class write_only_range;
-  volatile T m_t;
-};
-
-template <typename T>
-class write_only_range
-    : public containers::contiguous_range<write_only_value<T>> {
-  // Make sure that the types are the same size, and that
-  // they will line up when put in an array.
-  static_assert(sizeof(write_only_value<T>[2]) == sizeof(T[2]),
-      "The size of the write-only value should be the same as the"
-      "size of the underlying type");
-  using range_type = containers::contiguous_range<write_only_value<T>>;
-
-public:
-  using value_type = typename range_type::value_type;
-  using size_type = typename range_type::size_type;
-  using difference_type = typename range_type::difference_type;
-  using pointer = typename range_type::pointer;
-  using const_pointer = typename range_type::const_pointer;
-  using reference = typename range_type::reference;
-  using const_reference = typename range_type::const_reference;
-  using iterator = typename range_type::iterator;
-  using const_iterator = typename range_type::const_iterator;
-  using reverse_iterator = typename range_type::reverse_iterator;
-  using const_reverse_iterator = typename range_type::const_reverse_iterator;
-
-  ~write_only_range() {}
-
-  WN_FORCE_INLINE void memcpy_in(
-      size_t _offset, T* _source, size_t num_elements) {
-    memory::memory_copy(
-        reinterpret_cast<T*>(range_type::data()), _source, num_elements);
-  }
-
-private:
-  write_only_range(size_t _offset, T* _value, size_t _num_elements)
-    : range_type(reinterpret_cast<write_only_value<T>*>(_value), _num_elements),
-      m_offset(_offset) {}
-
-  size_t m_offset;
-  friend class upload_heap;
-};
-
 // The memory returned by this heap type may or may not be
 // coherent. Make sure to flush any range before use. This will
 // get optimized away if a flush was not strictly necessary.
@@ -82,17 +25,32 @@ public:
   }
 
   template <typename T = uint8_t>
-  WN_FORCE_INLINE write_only_range<T> get_range(
+  WN_FORCE_INLINE containers::write_only_contiguous_range<T> get_range(
       size_t _offset_in_bytes, size_t _num_elements) {
-    uint8_t* base_value =
-        static_cast<uint8_t*>(m_root_address) + _offset_in_bytes;
-    return write_only_range<T>(_offset_in_bytes, base_value, _num_elements);
+    uint8_t* base_value = m_root_address + _offset_in_bytes;
+    return containers::write_only_contiguous_range<T>(
+        reinterpret_cast<T*>(base_value), _num_elements);
   }
 
   template <typename T = uint8_t>
-  WN_FORCE_INLINE void flush_range(const write_only_range<T>& _range) {
-    m_device->flush_mapped_range(
-        this, _range.m_offset, sizeof(T) * _range.size());
+  WN_FORCE_INLINE void flush_range(
+      const containers::write_only_contiguous_range<T>& _range) {
+    m_device->flush_mapped_range(this,
+        reinterpret_cast<const uint8_t*>(_range.data()) - m_root_address,
+        sizeof(T) * _range.size());
+  }
+
+  WN_FORCE_INLINE upload_heap(upload_heap&& _other) {
+    ::memcpy(&m_data, &_other.m_data, sizeof(opaque_data));
+    m_root_address = _other.m_root_address;
+    m_device = _other.m_device;
+
+    _other.m_root_address = nullptr;
+    memory::memset(&_other.m_data, 0x0, sizeof(opaque_data));
+  }
+
+  bool is_valid() const {
+    return m_device != nullptr;
   }
 
 protected:
@@ -106,15 +64,17 @@ protected:
   }
 
 #include "WNGraphics/inc/Internal/WNSetFriendDevices.h"
+  // The opaque_data must be trivially copyable.
+  // It also must be considered uninitialized when
+  // memset to 0.
   struct opaque_data {
     uint64_t _dummy[2];
   } m_data;
 
-  void* m_root_address;
+  uint8_t* m_root_address;
   device* m_device;
 };
 
-using upload_heap_ptr = memory::unique_ptr<upload_heap>;
 }  // namespace graphics
 }  // namespace wn
 

@@ -18,9 +18,8 @@ TEST_P(upload_heap_creation_test, many_sizes) {
         physical_device->make_device(&m_allocator, &m_log);
     ASSERT_NE(nullptr, device);
 
-    wn::graphics::upload_heap_ptr upload =
-        device->create_upload_heap(GetParam());
-    EXPECT_NE(nullptr, upload);
+    wn::graphics::upload_heap upload = device->create_upload_heap(GetParam());
+    EXPECT_TRUE(upload.is_valid());
   }
   m_log.Flush();
   // On normal operation the log buffer should be empty.
@@ -45,15 +44,15 @@ TEST_P(upload_heap_writing_test, write_values) {
         physical_device->make_device(&m_allocator, &m_log);
     ASSERT_NE(nullptr, device);
 
-    wn::graphics::upload_heap_ptr upload =
+    wn::graphics::upload_heap upload =
         device->create_upload_heap(std::get<0>(GetParam()));
-    EXPECT_NE(nullptr, upload);
+    ASSERT_TRUE(upload.is_valid());
 
-    auto range = upload->get_range(0, std::get<0>(GetParam()));
+    auto range = upload.get_range(0, std::get<0>(GetParam()));
     for (size_t i = 0; i < range.size(); i += std::get<1>(GetParam())) {
       range[i] = i & 0xFF;
     }
-    upload->flush_range(range);
+    upload.flush_range(range);
   }
   m_log.Flush();
   // On normal operation the log buffer should be empty.

@@ -8,7 +8,7 @@
 #define __WN_GRAPHICS_INTERNAL_D3D12_PHYSICAL_DEVICE_H__
 
 #include "WNCore/inc/WNUtility.h"
-#include "WNGraphics/inc/Internal/WNDevice.h"
+#include "WNGraphics/inc/WNDevice.h"
 #include "WNGraphics/inc/Internal/WNPhysicalDevice.h"
 
 #include <DXGI.h>

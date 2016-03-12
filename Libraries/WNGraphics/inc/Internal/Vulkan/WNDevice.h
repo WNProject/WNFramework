@@ -8,7 +8,7 @@
 #define __WN_GRAPHICS_INTERNAL_VULKAN_DEVICE_H__
 
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanContext.h"
-#include "WNGraphics/inc/Internal/WNDevice.h"
+#include "WNGraphics/inc/WNDevice.h"
 
 namespace wn {
 namespace graphics {
@@ -19,16 +19,17 @@ class device : public internal::device {
 public:
   device(memory::allocator* _allocator, WNLogging::WNLog* _log,
       VkDevice _device, PFN_vkDestroyDevice _destroy_device,
-      const VkPhysicalDeviceMemoryProperties* memory_properties);
+      const VkPhysicalDeviceMemoryProperties* _memory_properties);
   ~device();
-  bool initialize(vulkan_context* _context, uint32_t graphics_and_device_queue);
-  upload_heap_ptr create_upload_heap(size_t num_bytes) final;
+  bool initialize(vulkan_context* _context, uint32_t _graphics_and_device_queue);
+  upload_heap create_upload_heap(size_t _num_bytes) final;
 
 private:
+  friend class upload_heap;
   void flush_mapped_range(
-      upload_heap* _buffer, size_t offset, size_t num_bytes) final;
-  void destroy_upload_heap(upload_heap*) final;
-  uint32_t get_memory_type_index(uint32_t types, VkFlags properties) const;
+      upload_heap* _buffer, size_t _offset, size_t _num_bytes) final;
+  void destroy_upload_heap(upload_heap* _heap) final;
+  uint32_t get_memory_type_index(uint32_t _types, VkFlags _properties) const;
 
   PFN_vkGetDeviceProcAddr vkGetDeviceProcAddr;
   PFN_vkGetDeviceQueue vkGetDeviceQueue;

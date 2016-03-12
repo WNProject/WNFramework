@@ -8,7 +8,7 @@
 #define __WN_GRAPHICS_INTERNAL_D3D12_DEVICE_H__
 
 #include "WNCore/inc/WNUtility.h"
-#include "WNGraphics/inc/Internal/WNDevice.h"
+#include "WNGraphics/inc/WNDevice.h"
 
 #include <D3D12.h>
 #include <wrl.h>
@@ -39,11 +39,12 @@ public:
       m_d3d12_device(core::move(_d3d12_device)),
       m_d3d12_command_queue(core::move(_d3d12_command_queue)) {}
 
-  upload_heap_ptr create_upload_heap(size_t num_bytes) final;
+  upload_heap create_upload_heap(size_t _num_bytes) final;
 
 private:
+  friend class upload_heap;
   void flush_mapped_range(
-      upload_heap* _buffer, size_t offset, size_t num_bytes) final;
+      upload_heap* _buffer, size_t _offset, size_t _num_bytes) final;
   void destroy_upload_heap(upload_heap* _heap) final;
 
   Microsoft::WRL::ComPtr<ID3D12Device> m_d3d12_device;

@@ -78,7 +78,6 @@ set(CONFIG_FILE_OUTPUT_PATH
 set(WN_GRAPHICS_INTERNAL_SRC
   ${CONFIG_FILE_INPUT_PATH}
   ${CONFIG_FILE_OUTPUT_PATH}
-  inc/Internal/WNDevice.h
   inc/Internal/WNPhysicalDevice.h
   inc/Internal/WNSetFriendDevices.h
 )
