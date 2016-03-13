@@ -148,31 +148,31 @@ public:
   }
 
   WN_FORCE_INLINE contiguous_range_iterator& operator+=(
-      const size_type _amount) {
-    m_pointer += _amount;
+      const size_type _count) {
+    m_pointer += _count;
 
     return *this;
   }
 
   WN_FORCE_INLINE contiguous_range_iterator& operator-=(
-      const size_type _amount) {
-    m_pointer -= _amount;
+      const size_type _count) {
+    m_pointer -= _count;
 
     return *this;
   }
 
   WN_FORCE_INLINE contiguous_range_iterator operator+(
-      const size_type _amount) const {
+      const size_type _count) const {
     contiguous_range_iterator i(*this);
 
-    return (i += _amount);
+    return (i += _count);
   }
 
   WN_FORCE_INLINE contiguous_range_iterator operator-(
-      const size_type _amount) const {
+      const size_type _count) const {
     contiguous_range_iterator i(*this);
 
-    return (i -= _amount);
+    return (i -= _count);
   }
 
   WN_FORCE_INLINE reference operator*() const {
