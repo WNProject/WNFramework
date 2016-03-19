@@ -14,11 +14,14 @@
 
 namespace wn {
 namespace containers {
+
 template <typename _Type, const size_t _ExpandPercentage = 50>
 class dynamic_array;
-}  // containers
+
+}  // namespace containers
 
 namespace internal {
+
 template <typename T>
 class dynamic_array_iterator {
 public:
@@ -37,7 +40,7 @@ public:
 
   dynamic_array_iterator& operator+=(size_t i) {
     m_ptr += i;
-    return (*this);
+    return *this;
   }
 
   dynamic_array_iterator& operator-=(size_t i) {
@@ -79,7 +82,7 @@ public:
   template <typename _T2>
   dynamic_array_iterator& operator=(const dynamic_array_iterator<_T2>& _other) {
     m_ptr = _other.m_ptr;
-    return (*this);
+    return *this;
   }
 
   template <typename _T>
@@ -133,7 +136,7 @@ private:
   friend class dynamic_array_iterator;
 };
 
-}  // internal
+}  // namespace internal
 
 namespace containers {
 
@@ -221,7 +224,7 @@ public:
   dynamic_array& operator=(
       const dynamic_array<_Type, _ExpandPercentageOther>& _other) {
     if (&_other == this) {
-      return (*this);
+      return *this;
     }
     if (m_data) {
       for (size_t i = 0; i < m_size; ++i) {
@@ -234,12 +237,12 @@ public:
       new (reinterpret_cast<void*>(&m_data[i])) _Type(_other.m_data[i]);
     }
     m_size = _other.m_size;
-    return (*this);
+    return *this;
   }
 
   dynamic_array& operator=(const dynamic_array& _other) {
     if (&_other == this) {
-      return (*this);
+      return *this;
     }
     if (m_data) {
       for (size_t i = 0; i < m_size; ++i) {
@@ -252,12 +255,12 @@ public:
       new (reinterpret_cast<void*>(&m_data[i])) _Type(_other.m_data[i]);
     }
     m_size = _other.m_size;
-    return (*this);
+    return *this;
   }
 
   dynamic_array& operator=(dynamic_array&& _other) {
     if (&_other == this) {
-      return (*this);
+      return *this;
     }
     if (m_data) {
       for (size_t i = 0; i < m_size; ++i) {
@@ -273,14 +276,14 @@ public:
     _other.m_data = 0;
     m_size = _other.m_size;
     _other.m_size = 0;
-    return (*this);
+    return *this;
   }
 
   template <const size_t _ExpandPercentageOther>
   dynamic_array& operator=(
       dynamic_array<_Type, _ExpandPercentageOther>&& _other) {
     if (&_other == this) {
-      return (*this);
+      return *this;
     }
     if (m_data) {
       for (size_t i = 0; i < m_size; ++i) {
@@ -296,7 +299,7 @@ public:
     _other.m_data = 0;
     m_size = _other.m_size;
     _other.m_size = 0;
-    return (*this);
+    return *this;
   }
 
   // element access
@@ -659,7 +662,8 @@ private:
   size_type m_capacity;
   size_type m_size;
 };
-}
-};
+
+}  // namespace containers
+}  // namespace wn
 
 #endif

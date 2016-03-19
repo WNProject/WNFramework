@@ -73,14 +73,14 @@ public:
 
     _other.clear();
 
-    return (*this);
+    return *this;
   }
 
   deque_iterator& operator=(const deque_iterator& _other) {
     m_deque = _other.m_deque;
     m_element = _other.m_element;
 
-    return (*this);
+    return *this;
   }
 
   template <typename _OtherContainer = _NonConstContainer>
@@ -93,7 +93,7 @@ public:
 
     _other.clear();
 
-    return (*this);
+    return *this;
   }
 
   template <typename _OtherContainer = _NonConstContainer>
@@ -104,7 +104,7 @@ public:
     m_deque = _other.m_deque;
     m_element = _other.m_element;
 
-    return (*this);
+    return *this;
   }
 
   difference_type operator-(const deque_iterator& _other) const {
@@ -117,13 +117,13 @@ public:
   deque_iterator& operator+=(const size_t _amount) {
     m_element += _amount;
 
-    return (*this);
+    return *this;
   }
 
   deque_iterator& operator-=(const size_t _amount) {
     m_element -= _amount;
 
-    return (*this);
+    return *this;
   }
 
   deque_iterator operator+(const size_t _amount) const {

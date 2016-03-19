@@ -34,28 +34,28 @@ public:
     : first(_first), second(_second) {}
 
   template <typename U,
-      typename = core::enable_if_t<core::bool_and<core::is_same<T1, T2>::value,
-          core::is_constructible<T1, const U&>::value>::value>>
+      typename = core::enable_if_t<core::conjunction<core::is_same<T1, T2>,
+          core::is_constructible<T1, const U&>>::value>>
   WN_FORCE_INLINE pair(const U& _value) : pair(_value, _value) {}
 
   template <typename U1, typename U2,
-      typename = core::enable_if_t<
-          core::bool_and<core::is_constructible<T1, U1&&>::value,
-              core::is_constructible<T2, U2&&>::value>::value>>
+      typename =
+          core::enable_if_t<core::conjunction<core::is_constructible<T1, U1&&>,
+              core::is_constructible<T2, U2&&>>::value>>
   WN_FORCE_INLINE pair(U1&& _first, U2&& _second)
     : first(core::forward<U1>(_first)), second(core::forward<U2>(_second)) {}
 
   template <typename U1, typename U2,
-      typename = core::enable_if_t<
-          core::bool_and<core::is_constructible<T1, U1&&>::value,
-              core::is_constructible<T2, U2&&>::value>::value>>
+      typename =
+          core::enable_if_t<core::conjunction<core::is_constructible<T1, U1&&>,
+              core::is_constructible<T2, U2&&>>::value>>
   WN_FORCE_INLINE pair(pair<U1, U2>&& _other)
     : pair(core::forward<U1>(_other.first), core::forward<U2>(_other.second)) {}
 
   template <typename U1, typename U2,
       typename = core::enable_if_t<
-          core::bool_and<core::is_constructible<T1, const U1&>::value,
-              core::is_constructible<T2, const U2&>::value>::value>>
+          core::conjunction<core::is_constructible<T1, const U1&>,
+              core::is_constructible<T2, const U2&>>::value>>
   WN_FORCE_INLINE pair(const pair<U1, U2>& _other)
     : pair(_other.first, _other.second) {}
 
@@ -74,8 +74,8 @@ public:
   }
 
   template <typename U,
-      typename = core::enable_if_t<core::bool_and<core::is_same<T1, T2>::value,
-          core::is_constructible<T1, const U&>::value>::value>>
+      typename = core::enable_if_t<core::conjunction<core::is_same<T1, T2>,
+          core::is_constructible<T1, const U&>>::value>>
   WN_FORCE_INLINE pair& operator=(const U& _value) {
     pair(_value).swap(*this);
 
@@ -83,9 +83,9 @@ public:
   }
 
   template <typename U1, typename U2,
-      typename = core::enable_if_t<
-          core::bool_and<core::is_constructible<T1, U1&&>::value,
-              core::is_constructible<T2, U2&&>::value>::value>>
+      typename =
+          core::enable_if_t<core::conjunction<core::is_constructible<T1, U1&&>,
+              core::is_constructible<T2, U2&&>>::value>>
   WN_FORCE_INLINE pair& operator=(pair<U1, U2>&& _other) {
     pair(core::move(_other)).swap(*this);
 
@@ -94,8 +94,8 @@ public:
 
   template <typename U1, typename U2,
       typename = core::enable_if_t<
-          core::bool_and<core::is_constructible<T1, const U1&>::value,
-              core::is_constructible<T2, const U2&>::value>::value>>
+          core::conjunction<core::is_constructible<T1, const U1&>,
+              core::is_constructible<T2, const U2&>>::value>>
   WN_FORCE_INLINE pair& operator=(const pair<U1, U2>& _other) {
     pair(_other).swap(*this);
 
@@ -105,8 +105,10 @@ public:
   // modifiers
 
   WN_FORCE_INLINE void swap(pair& _other) {
-    core::swap(first, _other.first);
-    core::swap(second, _other.second);
+    if ((&_other) != this) {
+      core::swap(first, _other.first);
+      core::swap(second, _other.second);
+    }
   }
 
   // objects

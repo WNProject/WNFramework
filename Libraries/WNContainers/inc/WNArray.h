@@ -12,9 +12,10 @@
 namespace wn {
 namespace containers {
 
-template <typename T, std::size_t N>
-using array = std::array<T, N>;
+template <typename T, const size_t Dimension>
+using array = std::array<T, Dimension>;
 
 }  // namespace containers
 }  // namespace wn
+
 #endif  // __WN_CONTAINERS_ARRAY_H__

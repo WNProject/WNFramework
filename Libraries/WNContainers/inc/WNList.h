@@ -27,14 +27,14 @@ struct list_iterator final
     for (size_t i = 0; i < _amount; ++i) {
       m_ptr = m_ptr->m_next;
     }
-    return (*this);
+    return *this;
   }
 
   list_iterator& operator-=(const size_t _amount) {
     for (size_t i = 0; i < _amount; ++i) {
       m_ptr = m_ptr->m_prev;
     }
-    return (*this);
+    return *this;
   }
 
   list_iterator operator+(const size_t amount) {

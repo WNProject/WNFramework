@@ -11,6 +11,7 @@
 
 namespace wn {
 namespace containers {
+
 class serializer_base;
 
 enum class data_buffer_type {
@@ -29,7 +30,8 @@ public:
   virtual char* reserve(const size_t _count, size_t& _reserved_count) = 0;
   virtual data_buffer_type type() const = 0;
 };
-}
-}
+
+} // namespace containers
+} // namespace wn
 
 #endif  // __WN_CONTAINERS_DATA_BUFFER_H__
