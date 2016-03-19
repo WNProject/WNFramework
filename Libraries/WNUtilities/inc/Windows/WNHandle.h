@@ -16,9 +16,9 @@ namespace wn {
 namespace utilities {
 namespace windows {
 
-class handle final : core::non_copyable {
+class handle final {
 public:
-  WN_FORCE_INLINE handle() : m_handle(nullptr) {}
+  WN_FORCE_INLINE handle() : m_handle(NULL) {}
 
   WN_FORCE_INLINE handle(const nullptr_t) : handle() {}
 
@@ -26,7 +26,21 @@ public:
 
   WN_FORCE_INLINE handle(handle&& _other)
     : m_handle(std::move(_other.m_handle)) {
-    _other.m_handle = nullptr;
+    _other.m_handle = NULL;
+  }
+
+  WN_FORCE_INLINE handle(const handle& _other) : handle() {
+    const HANDLE process_handle = ::GetCurrentProcess();
+    const BOOL duplicate_result =
+        ::DuplicateHandle(process_handle, _other.m_handle, process_handle,
+            &m_handle, 0, FALSE, DUPLICATE_SAME_ACCESS);
+
+    WN_DEBUG_ASSERT_DESC(
+        duplicate_result == TRUE, "failed to duplicate handle");
+
+#ifndef _WN_DEBUG
+    WN_UNUSED_ARGUMENT(duplicate_result);
+#endif
   }
 
   WN_FORCE_INLINE ~handle() {
@@ -46,13 +60,19 @@ public:
   }
 
   WN_FORCE_INLINE handle& operator=(handle&& _other) {
-    handle(std::move(_other)).swap(*this);
+    handle(core::move(_other)).swap(*this);
+
+    return *this;
+  }
+
+  WN_FORCE_INLINE handle& operator=(const handle& _other) {
+    handle(_other).swap(*this);
 
     return *this;
   }
 
   WN_FORCE_INLINE bool is_null() const {
-    return (m_handle == nullptr);
+    return (m_handle == NULL);
   }
 
   WN_FORCE_INLINE bool is_valid() const {
@@ -67,7 +87,7 @@ public:
     if (is_valid()) {
       const BOOL close_result = ::CloseHandle(m_handle);
 
-      m_handle = nullptr;
+      m_handle = NULL;
 
       WN_DEBUG_ASSERT_DESC(close_result == TRUE, "failed to close handle");
 
@@ -90,15 +110,15 @@ WN_FORCE_INLINE bool operator==(const handle& _handle, const nullptr_t) {
 }
 
 WN_FORCE_INLINE bool operator==(const nullptr_t, const handle& _handle) {
-  return (_handle == nullptr);
+  return (_handle == NULL);
 }
 
 WN_FORCE_INLINE bool operator!=(const handle& _handle, const nullptr_t) {
-  return !(_handle == nullptr);
+  return !(_handle == NULL);
 }
 
 WN_FORCE_INLINE bool operator!=(const nullptr_t, const handle& _handle) {
-  return (_handle != nullptr);
+  return (_handle != NULL);
 }
 
 }  // namespace windows
