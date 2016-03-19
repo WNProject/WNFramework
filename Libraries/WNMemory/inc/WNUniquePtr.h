@@ -244,10 +244,16 @@ WN_FORCE_INLINE unique_ptr<T> make_unique(
 
 template <typename T, typename F>
 WN_FORCE_INLINE unique_ptr<T> make_unique_delegated(
-    allocator* _allocator, F&& delegator) {
+    allocator* _allocator, F&& _delegator) {
   static_assert(!core::is_array<T>::value, "array 'T[]' types not allowed");
+  static_assert(core::is_callable<F, T*(void*)>::value,
+      "delegate must be of the format T*(void*)");
 
-  T* ptr = delegator(_allocator->allocate(sizeof(T)));
+  void* raw_ptr = _allocator->allocate(sizeof(T));
+  T* ptr = _delegator(raw_ptr);
+
+  WN_DEBUG_ASSERT_DESC(
+      ptr == raw_ptr, "delegator did not construct into given memory");
 
   if (ptr) {
     return unique_ptr<T>(_allocator, ptr);

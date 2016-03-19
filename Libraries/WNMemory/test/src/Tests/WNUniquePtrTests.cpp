@@ -200,3 +200,33 @@ TYPED_TEST(unique_ptr, release) {
     allocator.destroy(value);
   }
 }
+
+struct b {
+  int i;
+
+private:
+  friend struct a;
+
+  b() : i(42) {}
+};
+
+struct a {
+  wn::memory::unique_ptr<b> make_b(wn::memory::allocator* _allocator) const {
+    wn::memory::unique_ptr<b> p(wn::memory::make_unique_delegated<b>(
+        _allocator, [](void* _p) { return new (_p) b(); }));
+
+    return wn::core::move(p);
+  }
+};
+
+TEST(unique_ptr, delegated) {
+  wn::testing::allocator allocator;
+
+  {
+    wn::memory::unique_ptr<b> temp;
+
+    temp = a().make_b(&allocator);
+
+    EXPECT_EQ(temp->i, 42);
+  }
+}
