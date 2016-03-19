@@ -13,11 +13,9 @@ struct dummy1 {
   WN_FORCE_INLINE dummy1(const uint8_t _value)
     : m_value1(_value), m_value2(_value) {}
 
-  WN_FORCE_INLINE volatile dummy1& operator=(const dummy1& _other) volatile {
+  WN_FORCE_INLINE void operator=(const dummy1& _other) volatile {
     m_value1 = _other.m_value1;
     m_value2 = _other.m_value2;
-
-    return *this;
   }
 
   uint8_t m_value1;
@@ -487,7 +485,6 @@ TYPED_TEST(contiguous_range, write_only_range) {
   }
 }
 
-
 TYPED_TEST(contiguous_range, copy_write_only_range) {
   TypeParam buffer1[10] = {TypeParam(1), TypeParam(2), TypeParam(3),
       TypeParam(4), TypeParam(5), TypeParam(6), TypeParam(7), TypeParam(8),
@@ -504,7 +501,6 @@ TYPED_TEST(contiguous_range, copy_write_only_range) {
     EXPECT_EQ(value, TypeParam(11));
   }
 }
-
 
 TEST(contiguous_range, copy_to_trivial_vs_non_trivial) {
   uint8_t buffer1[10] = {uint8_t(1), uint8_t(1), uint8_t(1), uint8_t(1),

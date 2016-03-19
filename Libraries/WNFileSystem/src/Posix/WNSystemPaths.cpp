@@ -56,22 +56,26 @@ bool get_scratch_path(containers::string& _path) {
   containers::string temp_path;
 
   if (get_temp_path(temp_path)) {
-    char name_template[7] = {0};
-
     for (;;) {
-      memory::strncpy(name_template, "XXXXXX", 6);
+      char name_template[9] = {0};
+      uint32_t t = ::rand() % 100000000;
+      int pos = 0;
 
-      if (::mktemp(name_template)) {
-        containers::string path(temp_path + "scratch." + name_template + "/");
-        static const mode_t mode = S_IRWXU | S_IRWXG;
+      while (t) {
+        name_template[++pos] = (t % 10 + '0');
+        t -= t % 10;
+        t /= 10;
+      }
 
-        if (::mkdir(path.c_str(), mode) == 0) {
-          _path = std::move(path);
+      containers::string path(temp_path + "scratch." + name_template + "/");
+      static const mode_t mode = S_IRWXU | S_IRWXG;
 
-          return true;
-        } else if (errno == EEXIST) {
-          continue;
-        }
+      if (::mkdir(path.c_str(), mode) == 0) {
+        _path = std::move(path);
+
+        return true;
+      } else if (errno == EEXIST) {
+        continue;
       }
 
       break;
