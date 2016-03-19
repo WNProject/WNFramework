@@ -9,26 +9,21 @@
 
 #include "WNGraphics/inc/Internal/WNConfig.h"
 #include "WNGraphics/inc/WNHeapTraits.h"
+#include "WNGraphics/inc/WNQueueForward.h"
 #include "WNMemory/inc/WNUniquePtr.h"
 
 namespace WNLogging {
+
 class WNLog;
+
 }  // namespace WNLogging
 
 namespace wn {
 namespace graphics {
+
+class fence;
+
 namespace internal {
-namespace d3d12 {
-
-class device;
-
-}  // namespace d3d12
-
-namespace vulkan {
-
-class device;
-
-}  // namespace vulkan
 
 class device : public core::non_copyable {
 public:
@@ -40,9 +35,15 @@ public:
   virtual upload_heap create_upload_heap(size_t _num_bytes) = 0;
   virtual download_heap create_download_heap(size_t _num_bytes) = 0;
 
+  // It is only valid to have a single queue active at a time.
+  virtual queue_ptr create_queue() = 0;
+  virtual fence create_fence() = 0;
+
 protected:
   template <typename heap_type>
-  friend class heap;
+  friend class graphics::heap;
+  friend class graphics::fence;
+
   // Upload heap methods
   virtual uint8_t* acquire_range(
       upload_heap* _buffer, size_t _offset, size_t _num_bytes) = 0;
@@ -57,40 +58,28 @@ protected:
       download_heap* _buffer, size_t _offset, size_t _num_bytes) = 0;
   virtual void destroy_heap(download_heap* _heap) = 0;
 
+  // Destruction methods
+  virtual void destroy_queue(graphics::queue* _queue) = 0;
+  virtual void destroy_fence(fence* _fence) = 0;
+
+  // Fence methods
+  virtual void wait_fence(const fence* _fence) const = 0;
+  virtual void reset_fence(fence* _fence) = 0;
+#include "WNGraphics/inc/Internal/WNSetFriendQueues.h"
   memory::allocator* m_allocator;
   WNLogging::WNLog* m_log;
 };
+
 }  // namespace internal
-
 }  // namespace graphics
 }  // namespace wn
 
-#if _WN_GRAPHICS_DEVICE_TYPES_AVAILABLE > 1
-namespace wn {
-namespace graphics {
-using device = internal::device;
-}  // namespace graphics
-}  // namespace wn
-#elif defined _WN_GRAPHICS_VULKAN_DEVICE_TYPE_AVAILABLE
+#if _WN_GRAPHICS_DEVICE_TYPES_AVAILABLE == 1
+#if defined _WN_GRAPHICS_VULKAN_DEVICE_TYPE_AVAILABLE
 #include "WNGraphics/inc/Internal/Vulkan/WNDevice.h"
-namespace wn {
-namespace graphics {
-using device = internal::vulkan::device;
-}  // namespace graphics
-}  // namespace wn
 #elif defined _WN_GRAPHICS_D3D12_DEVICE_TYPE_AVAILABLE
 #include "WNGraphics/inc/Internal/D3D12/WNDevice.h"
-namespace wn {
-namespace graphics {
-using device = internal::d3d12::device;
-}  // namespace graphics
-}  // namespace wn
 #endif
-
-namespace wn {
-namespace graphics {
-using device_ptr = memory::unique_ptr<device>;
-}  // namespace graphics
-}  // namespace wn
+#endif
 
 #endif  // __WN_GRAPHICS_DEVICE_H__

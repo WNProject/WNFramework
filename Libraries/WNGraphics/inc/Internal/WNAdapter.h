@@ -9,7 +9,13 @@
 
 #include "WNContainers/inc/WNStringView.h"
 #include "WNCore/inc/WNUtility.h"
-#include "WNGraphics/inc/WNDevice.h"
+#include "WNGraphics/inc/WNDeviceForward.h"
+
+namespace WNLogging {
+
+class WNLog;
+
+} // namespace WNLogging
 
 namespace wn {
 namespace graphics {

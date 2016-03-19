@@ -23,7 +23,9 @@ public:
   ~heap_buffer();
 
   heap_buffer(heap_buffer&& _other)
-    : m_heap(core::move(_other.m_heap)), m_range(core::move(_other.m_range)) {
+    : m_heap(core::move(_other.m_heap)),
+      m_offset(_other.m_offset),
+      m_range(core::move(_other.m_range)) {
     _other.m_heap = nullptr;
   }
 
@@ -46,10 +48,12 @@ private:
 // coherent. Make sure to flush any range before use. This will
 // get optimized away if a flush was not strictly necessary.
 template <typename HeapTraits>
-class heap {
+class heap  : public core::non_copyable {
 public:
   ~heap() {
-    m_device->destroy_heap(this);
+    if (m_device) {
+      m_device->destroy_heap(this);
+    }
   }
 
   template <typename T = uint8_t>
@@ -69,12 +73,12 @@ public:
   }
 
   WN_FORCE_INLINE heap(heap&& _other) {
-    ::memcpy(&m_data, &_other.m_data, sizeof(opaque_data));
+    memory::memcpy(&m_data, &_other.m_data, sizeof(opaque_data));
     m_root_address = _other.m_root_address;
     m_device = _other.m_device;
-
+    _other.m_device = nullptr;
     _other.m_root_address = nullptr;
-    memory::memset(&_other.m_data, 0x0, sizeof(opaque_data));
+    memory::memzero(&_other.m_data, sizeof(opaque_data));
   }
 
 private:

@@ -242,6 +242,20 @@ WN_FORCE_INLINE unique_ptr<T> make_unique(
   return nullptr;
 }
 
+template <typename T, typename F>
+WN_FORCE_INLINE unique_ptr<T> make_unique_delegated(
+    allocator* _allocator, F&& delegator) {
+  static_assert(!core::is_array<T>::value, "array 'T[]' types not allowed");
+
+  T* ptr = delegator(_allocator->allocate(sizeof(T)));
+
+  if (ptr) {
+    return unique_ptr<T>(_allocator, ptr);
+  }
+
+  return nullptr;
+}
+
 template <typename T, typename... Args>
 WN_FORCE_INLINE std::unique_ptr<T> make_std_unique(Args&&... args) {
   return std::unique_ptr<T>(new T(core::forward<Args>(args)...));

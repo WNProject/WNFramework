@@ -3,7 +3,10 @@
 // found in the LICENSE file.
 
 #include "WNGraphics/inc/Internal/Vulkan/WNDevice.h"
+#include "WNGraphics/inc/Internal/Vulkan/WNQueue.h"
+#include "WNGraphics/inc/WNFence.h"
 #include "WNGraphics/inc/WNHeap.h"
+#include "WNGraphics/inc/WNQueue.h"
 #include "WNLogging/inc/WNLog.h"
 
 namespace wn {
@@ -77,6 +80,16 @@ device::~device() {
   }                                                                            \
   m_log->Log(WNLogging::eDebug, 0, #symbol " is at ", symbol);
 
+#define LOAD_VK_SUB_DEVICE_SYMBOL(device, sub_struct, symbol)                  \
+  sub_struct.symbol =                                                          \
+      reinterpret_cast<PFN_##symbol>(vkGetDeviceProcAddr(device, #symbol));    \
+  if (!sub_struct.symbol) {                                                               \
+    m_log->Log(WNLogging::eError, 0, "Could not find " #symbol ".");           \
+    m_log->Log(WNLogging::eError, 0, "Error configuring device");              \
+    return false;                                                              \
+  }                                                                            \
+  m_log->Log(WNLogging::eDebug, 0, #symbol " is at ", sub_struct.symbol);
+
 bool device::initialize(
     vulkan_context* _context, uint32_t graphics_and_device_queue) {
   vkGetDeviceProcAddr =
@@ -106,7 +119,16 @@ bool device::initialize(
 
   LOAD_VK_DEVICE_SYMBOL(m_device, vkGetBufferMemoryRequirements);
 
-  vkGetDeviceQueue(m_device, graphics_and_device_queue, 0, &m_queue);
+  LOAD_VK_DEVICE_SYMBOL(m_device, vkCreateFence);
+  LOAD_VK_DEVICE_SYMBOL(m_device, vkDestroyFence);
+  LOAD_VK_DEVICE_SYMBOL(m_device, vkWaitForFences);
+  LOAD_VK_DEVICE_SYMBOL(m_device, vkResetFences);
+
+  LOAD_VK_SUB_DEVICE_SYMBOL(m_device, m_queue_context, vkQueueSubmit);
+
+  VkQueue queue;
+  vkGetDeviceQueue(m_device, graphics_and_device_queue, 0, &queue);
+  m_queue.exchange(queue);
 
   {
     // Create 1-byte upload buffer. This seems to be the only way to
@@ -329,6 +351,57 @@ uint8_t* device::acquire_range(
     vkInvalidateMappedMemoryRanges(m_device, 1, &range);
   }
   return _heap->m_root_address + _offset;
+}
+
+queue_ptr device::create_queue() {
+  VkQueue q = nullptr;
+  q = m_queue.exchange(q);
+  if (!q) {
+    return nullptr;
+  }
+
+  return memory::make_unique_delegated<vulkan::queue>(
+      m_allocator, [this, &q](void* memory) {
+        return new (memory) vulkan::queue(this, &m_queue_context, q);
+      });
+}
+
+void device::destroy_queue(graphics::queue* _queue) {
+  vulkan::queue* queue = reinterpret_cast<vulkan::queue*>(_queue);
+  m_queue.exchange(queue->m_queue);
+}
+
+const static VkFenceCreateInfo s_create_fence{
+    VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,  // sType
+    nullptr,                              // pNext
+    0,                                    // flags
+};
+
+fence device::create_fence() {
+  fence res(this);
+
+  VkFence& data = res.data_as<VkFence>();
+
+  VkResult hr = vkCreateFence(m_device, &s_create_fence, nullptr, &data);
+  (void)hr;
+  WN_DEBUG_ASSERT_DESC(hr == VK_SUCCESS, "Cannot create fence");
+  return core::move(res);
+}
+
+void device::destroy_fence(fence* _fence) {
+  VkFence& data = _fence->data_as<VkFence>();
+  vkDestroyFence(m_device, data, nullptr);
+}
+
+void device::wait_fence(const fence* _fence) const {
+  const VkFence& data = _fence->data_as<VkFence>();
+  while (VK_TIMEOUT == vkWaitForFences(m_device, 1, &data, false,
+                           static_cast<uint32_t>(-1)));
+}
+
+void device::reset_fence(fence* _fence) {
+  VkFence& data = _fence->data_as<VkFence>();
+  vkResetFences(m_device, 1, &data);
 }
 
 }  // namespace vulkan

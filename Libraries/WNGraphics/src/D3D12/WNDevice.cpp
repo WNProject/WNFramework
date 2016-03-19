@@ -3,7 +3,11 @@
 // found in the LICENSE file.
 
 #include "WNGraphics/inc/Internal/D3D12/WNDevice.h"
+#include "WNGraphics/inc/Internal/D3D12/WNFenceData.h"
+#include "WNGraphics/inc/Internal/D3D12/WNQueue.h"
+#include "WNGraphics/inc/WNFence.h"
 #include "WNGraphics/inc/WNHeap.h"
+
 #include "WNLogging/inc/WNLog.h"
 
 namespace wn {
@@ -16,7 +20,9 @@ static_assert(
                                sizeof(void*) + sizeof(void*)),
     "The data is an unexpected size");
 
-const static D3D12_HEAP_PROPERTIES s_upload_heap_props = {
+namespace {
+
+const D3D12_HEAP_PROPERTIES s_upload_heap_props = {
     D3D12_HEAP_TYPE_UPLOAD,           // Type
     D3D12_CPU_PAGE_PROPERTY_UNKNOWN,  // CPUPageProperty
     D3D12_MEMORY_POOL_UNKNOWN,        // MemoryPoolPreference
@@ -24,13 +30,22 @@ const static D3D12_HEAP_PROPERTIES s_upload_heap_props = {
     0,                                // VisibleNodeMask
 };
 
-const static D3D12_HEAP_PROPERTIES s_download_heap_props = {
+const D3D12_HEAP_PROPERTIES s_download_heap_props = {
     D3D12_HEAP_TYPE_READBACK,         // Type
     D3D12_CPU_PAGE_PROPERTY_UNKNOWN,  // CPUPageProperty
     D3D12_MEMORY_POOL_UNKNOWN,        // MemoryPoolPreference
     0,                                // CreationNodeMask
     0,                                // VisibleNodeMask
 };
+
+const D3D12_COMMAND_QUEUE_DESC s_command_queue_props = {
+    D3D12_COMMAND_LIST_TYPE_DIRECT,     // Type
+    D3D12_COMMAND_QUEUE_PRIORITY_HIGH,  // Priority
+    D3D12_COMMAND_QUEUE_FLAG_NONE,      // Flags
+    0
+};
+
+} // anonymous namespace
 
 template <typename heap_type>
 heap_type device::create_heap(size_t _num_bytes,
@@ -60,8 +75,8 @@ heap_type device::create_heap(size_t _num_bytes,
       D3D12_RESOURCE_FLAG_NONE,        // Flags
   };
 
-  HRESULT hr =
-      m_d3d12_device->CreateCommittedResource(&_params, D3D12_HEAP_FLAG_NONE,
+  const HRESULT hr =
+      m_device->CreateCommittedResource(&_params, D3D12_HEAP_FLAG_NONE,
           &heap_desc, _states, nullptr, __uuidof(ID3D12Resource), &res);
   if (FAILED(hr)) {
     m_log->Log(WNLogging::eError, 0,
@@ -136,6 +151,66 @@ void device::release_range(
       _heap->data_as<Microsoft::WRL::ComPtr<ID3D12Resource>>();
   D3D12_RANGE range{_offset, _size_in_bytes};
   res->Unmap(0, &range);
+}
+
+queue_ptr device::create_queue() {
+  uint32_t expected_created = 0;
+  if (!m_num_queues.compare_exchange_strong(expected_created, 1)) {
+    return nullptr;
+  }
+
+  Microsoft::WRL::ComPtr<ID3D12CommandQueue> res;
+
+  const HRESULT hr = m_device->CreateCommandQueue(&s_command_queue_props,
+    __uuidof(ID3D12CommandQueue), &res);
+
+  (void)hr;
+  WN_DEBUG_ASSERT_DESC(!FAILED(hr), "Could not create command queue");
+
+  queue_ptr queue = memory::make_unique_delegated<d3d12::queue>(
+      m_allocator, [this, &res](void* memory) {
+        return new (memory) d3d12::queue(this, core::move(res));
+      });
+
+  return core::move(queue);
+}
+
+void device::destroy_queue(graphics::queue*) {
+  uint32_t expected_created = 1;
+  m_num_queues.compare_exchange_strong(expected_created, 0);
+}
+
+fence device::create_fence() {
+  fence res(this);
+
+  fence_data& data = res.data_as<fence_data>();
+
+  const HRESULT hr = m_device->CreateFence(
+      0, D3D12_FENCE_FLAG_NONE, __uuidof(ID3D12Fence), &data.fence);
+  (void)hr;
+  WN_DEBUG_ASSERT_DESC(SUCCEEDED(hr), "Cannot create fence");
+  data.event = CreateEvent(NULL, TRUE, FALSE, NULL);
+  WN_DEBUG_ASSERT_DESC(data.event, "Cannot create event for fence");
+
+  data.fence->SetEventOnCompletion(1, data.event);
+  return core::move(res);
+}
+
+void device::destroy_fence(fence* _fence) {
+  fence_data& data = _fence->data_as<fence_data>();
+  data.fence.Reset();
+  ::CloseHandle(data.event);
+}
+
+void device::wait_fence(const fence* _fence) const {
+  const fence_data& data = _fence->data_as<fence_data>();
+  ::WaitForSingleObject(data.event, INFINITE);
+}
+
+void device::reset_fence(fence* _fence) {
+  fence_data& data = _fence->data_as<fence_data>();
+  ::ResetEvent(data.event);
+  data.fence->Signal(0);
 }
 
 }  // namespace d3d12

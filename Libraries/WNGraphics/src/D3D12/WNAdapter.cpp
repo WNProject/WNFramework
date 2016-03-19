@@ -32,27 +32,8 @@ device_ptr adapter::make_device(
     return nullptr;
   }
 
-  const D3D12_COMMAND_QUEUE_DESC d3d12_command_queue_desc = {
-      D3D12_COMMAND_LIST_TYPE_DIRECT,     // Type
-      D3D12_COMMAND_QUEUE_PRIORITY_HIGH,  // Priority
-      D3D12_COMMAND_QUEUE_FLAG_NONE,      // Flags
-      0                                   // NodeMask
-  };
-
-  Microsoft::WRL::ComPtr<ID3D12CommandQueue> d3d12_command_queue;
-
-  hr = d3d12_device->CreateCommandQueue(&d3d12_command_queue_desc,
-      __uuidof(ID3D12CommandQueue), &d3d12_command_queue);
-
-  if (FAILED(hr)) {
-    _log->Log(
-        WNLogging::eError, 0, "Could not create D3D12 command queue, hr: ", hr);
-
-    return nullptr;
-  }
-
   return memory::make_unique<d3d12::device>(_allocator, _allocator, _log,
-      core::move(d3d12_device), core::move(d3d12_command_queue));
+      core::move(d3d12_device));
 }
 
 }  // namespace d3d12
