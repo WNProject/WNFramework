@@ -57,32 +57,33 @@ TEST(WNThreadPoolValidation, CreationMore) {
   {
     wn::multi_tasking::thread_pool thread_pool(&allocator);
 
-    ASSERT_EQ(thread_pool.initialize(100),
+    ASSERT_EQ(thread_pool.initialize(10),
         wn::multi_tasking::thread_pool::result::ok);
   }
 
   {
     wn::multi_tasking::thread_pool thread_pool(&allocator);
 
-    ASSERT_EQ(thread_pool.initialize(100),
+    ASSERT_EQ(thread_pool.initialize(10),
         wn::multi_tasking::thread_pool::result::ok);
   }
 
   {
     wn::multi_tasking::thread_pool thread_pool(&allocator);
 
-    ASSERT_EQ(thread_pool.initialize(100),
+    ASSERT_EQ(thread_pool.initialize(10),
         wn::multi_tasking::thread_pool::result::ok);
   }
 
   {
     wn::multi_tasking::thread_pool thread_pool(&allocator);
 
-    ASSERT_EQ(thread_pool.initialize(100),
+    ASSERT_EQ(thread_pool.initialize(10),
         wn::multi_tasking::thread_pool::result::ok);
   }
 }
 
+// TODO: remove global state
 static std::atomic<size_t> SimpleS1(0);
 
 void SimpleCallback1() {
@@ -107,6 +108,7 @@ TEST(WNThreadPoolValidation, SimpleCallback) {
   ASSERT_EQ(SimpleS1, 10000);
 }
 
+// TODO: remove global state
 static std::atomic<size_t> SimpleS2Vals[1000];
 
 void SimpleCallback2(uint32_t _val) {

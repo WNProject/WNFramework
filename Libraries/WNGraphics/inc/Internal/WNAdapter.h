@@ -15,19 +15,18 @@ namespace wn {
 namespace graphics {
 namespace internal {
 
-class physical_device : core::non_copyable {
+class adapter : core::non_copyable {
 public:
   enum class api_type { invalid, vulkan, d3d12, max };
 
-  WN_FORCE_INLINE physical_device(containers::string&& _name,
-      const uint32_t _vendor_id, const uint32_t _device_id,
-      const api_type _api_type)
+  WN_FORCE_INLINE adapter(containers::string&& _name, const uint32_t _vendor_id,
+      const uint32_t _device_id, const api_type _api_type)
     : m_name(std::move(_name)),
       m_vendor_id(_vendor_id),
       m_device_id(_device_id),
       m_api(_api_type) {}
 
-  virtual ~physical_device() = default;
+  virtual ~adapter() = default;
 
   virtual device_ptr make_device(
       memory::allocator* _allocator, WNLogging::WNLog* _log) const = 0;

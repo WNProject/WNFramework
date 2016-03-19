@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 #include "WNContainers/inc/WNDynamicArray.h"
-#include "WNGraphics/inc/Internal/Vulkan/WNPhysicalDevice.h"
+#include "WNGraphics/inc/Internal/Vulkan/WNAdapter.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNDevice.h"
 #include "WNLogging/inc/WNLog.h"
 
@@ -12,7 +12,7 @@ namespace graphics {
 namespace internal {
 namespace vulkan {
 
-device_ptr physical_device::make_device(
+device_ptr adapter::make_device(
     memory::allocator* _allocator, WNLogging::WNLog* _log) const {
   float queue_priority = 1.0f;
   VkDeviceQueueCreateInfo queue_create_info = {
@@ -30,15 +30,15 @@ device_ptr physical_device::make_device(
 
   VkDeviceCreateInfo create_info = {
       VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,  // sType;
-      nullptr,                              // pNext;
-      0,                                    // flags;
-      1,                                    // queueCreateInfoCount;
-      &queue_create_info,                   // pQueueCreateInfos;
-      0,                                    // enabledLayerCount;
-      nullptr,                              // ppEnabledLayerNames;
-      0,                                    // enabledExtensionCount;
-      nullptr,                              // ppEnabledExtensionNames;
-      &physical_features                    // pEnabledFeatures;
+      nullptr,                               // pNext;
+      0,                                     // flags;
+      1,                                     // queueCreateInfoCount;
+      &queue_create_info,                    // pQueueCreateInfos;
+      0,                                     // enabledLayerCount;
+      nullptr,                               // ppEnabledLayerNames;
+      0,                                     // enabledExtensionCount;
+      nullptr,                               // ppEnabledExtensionNames;
+      &physical_features                     // pEnabledFeatures;
   };
 
   VkDevice vk_device;
@@ -58,7 +58,7 @@ device_ptr physical_device::make_device(
   return core::move(device_ptr);
 }
 
-void physical_device::initialize_device() {
+void adapter::initialize_device() {
   m_context->vkGetPhysicalDeviceMemoryProperties(
       m_physical_device, &m_memory_properties);
 }

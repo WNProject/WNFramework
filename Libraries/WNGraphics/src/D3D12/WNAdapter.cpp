@@ -3,8 +3,8 @@
 // found in the LICENSE file.
 
 #include "WNCore/inc/WNUtility.h"
+#include "WNGraphics/inc/Internal/D3D12/WNAdapter.h"
 #include "WNGraphics/inc/Internal/D3D12/WNDevice.h"
-#include "WNGraphics/inc/Internal/D3D12/WNPhysicalDevice.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/WNAllocator.h"
 
@@ -16,7 +16,7 @@ namespace graphics {
 namespace internal {
 namespace d3d12 {
 
-device_ptr physical_device::make_device(
+device_ptr adapter::make_device(
     memory::allocator* _allocator, WNLogging::WNLog* _log) const {
   Microsoft::WRL::ComPtr<ID3D12Device> d3d12_device;
 

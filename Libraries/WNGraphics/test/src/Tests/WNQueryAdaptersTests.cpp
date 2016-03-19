@@ -9,12 +9,11 @@ using factory_test = wn::graphics::testing::test;
 TEST_F(factory_test, physical_devices) {
   wn::graphics::factory device_factory(&m_allocator, &m_log);
 
-  for (auto& physical_device : device_factory.query_physical_devices()) {
-    EXPECT_NE("", physical_device->name());
-    EXPECT_NE(0u, physical_device->vendor_id());
-    EXPECT_NE(0u, physical_device->device_id());
-    EXPECT_NE(wn::graphics::physical_device::api_type::invalid,
-        physical_device->api());
+  for (auto& adapter : device_factory.query_adapters()) {
+    EXPECT_NE("", adapter->name());
+    EXPECT_NE(0u, adapter->vendor_id());
+    EXPECT_NE(0u, adapter->device_id());
+    EXPECT_NE(wn::graphics::adapter::api_type::invalid, adapter->api());
   }
 
   m_log.Flush();
@@ -24,9 +23,9 @@ TEST_F(factory_test, physical_devices) {
 
 TEST_F(factory_test, device_test) {
   wn::graphics::factory device_factory(&m_allocator, &m_log);
-  for (auto& physical_device : device_factory.query_physical_devices()) {
+  for (auto& adapter : device_factory.query_adapters()) {
     wn::graphics::device_ptr device =
-        physical_device->make_device(&m_allocator, &m_log);
+        adapter->make_device(&m_allocator, &m_log);
     EXPECT_NE(nullptr, device);
   }
   m_log.Flush();

@@ -59,8 +59,7 @@ private:
 
   // Templated heap helpers
   template <typename heap_type>
-  heap_type create_heap(size_t _num_bytes,
-      const D3D12_HEAP_PROPERTIES& _params,
+  heap_type create_heap(size_t _num_bytes, const D3D12_HEAP_PROPERTIES& _params,
       const D3D12_RESOURCE_STATES& _states);
   template <typename heap_type>
   void destroy_typed_heap(heap_type* type);

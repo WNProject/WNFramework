@@ -3,8 +3,8 @@
 // found in the LICENSE file.
 
 #include "WNCore/inc/WNUtility.h"
-#include "WNGraphics/inc/Internal/D3D12/WNPhysicalDevice.h"
-#include "WNGraphics/inc/WNPhysicalDevice.h"
+#include "WNGraphics/inc/Internal/D3D12/WNAdapter.h"
+#include "WNGraphics/inc/WNAdapter.h"
 #include "WNGraphics/src/D3D12/WNHelpers.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/WNAllocator.h"
@@ -44,7 +44,7 @@ WN_INLINE bool convert_to_utf8(
 
 void enumerate_physical_devices(memory::allocator* _allocator,
     WNLogging::WNLog* _log,
-    containers::dynamic_array<physical_device_ptr>& _physical_devices) {
+    containers::dynamic_array<adapter_ptr>& _physical_devices) {
   _log->Log(WNLogging::eInfo, 0, "Enumerating D3D12 Dvices");
 
   Microsoft::WRL::ComPtr<IDXGIFactory1> dxgi_factory;
@@ -115,8 +115,8 @@ void enumerate_physical_devices(memory::allocator* _allocator,
     _log->Log(WNLogging::eInfo, 0, "Device: ", dxgi_adapter_desc.VendorId);
     _log->Log(WNLogging::eInfo, 0, "------------------------------");
 
-    memory::unique_ptr<physical_device> phys_device(
-        memory::make_unique<internal::d3d12::physical_device>(_allocator,
+    memory::unique_ptr<adapter> phys_device(
+        memory::make_unique<internal::d3d12::adapter>(_allocator,
             core::move(dxgi_adapter), core::move(name),
             static_cast<uint32_t>(dxgi_adapter_desc.DeviceId),
             static_cast<uint32_t>(dxgi_adapter_desc.VendorId)));

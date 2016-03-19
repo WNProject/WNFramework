@@ -11,25 +11,25 @@
 #include "WNMemory/inc/WNUniquePtr.h"
 
 #if _WN_GRAPHICS_DEVICE_TYPES_AVAILABLE > 1
-#include "WNGraphics/inc/Internal/WNPhysicalDevice.h"
+#include "WNGraphics/inc/Internal/WNAdapter.h"
 #elif defined _WN_GRAPHICS_VULKAN_DEVICE_TYPE_AVAILABLE
-#include "WNGraphics/inc/Internal/Vulkan/WNPhysicalDevice.h"
+#include "WNGraphics/inc/Internal/Vulkan/WNAdapter.h"
 #elif defined _WN_GRAPHICS_D3D12_DEVICE_TYPE_AVAILABLE
-#include "WNGraphics/inc/Internal/D3D12/WNPhysicalDevice.h"
+#include "WNGraphics/inc/Internal/D3D12/WNAdapter.h"
 #endif
 
 namespace wn {
 namespace graphics {
 
 #if _WN_GRAPHICS_DEVICE_TYPES_AVAILABLE > 1
-using physical_device = internal::physical_device;
+using adapter = internal::adapter;
 #elif defined _WN_GRAPHICS_VULKAN_DEVICE_TYPE_AVAILABLE
-using physical_device = internal::vulkan::physical_device;
+using adapter = internal::vulkan::adapter;
 #elif defined _WN_GRAPHICS_D3D12_DEVICE_TYPE_AVAILABLE
-using physical_device = internal::d3d12::physical_device;
+using adapter = internal::d3d12::adapter;
 #endif
 
-using physical_device_ptr = memory::unique_ptr<physical_device>;
+using adapter_ptr = memory::unique_ptr<adapter>;
 
 }  // namespace graphics
 }  // namespace wn

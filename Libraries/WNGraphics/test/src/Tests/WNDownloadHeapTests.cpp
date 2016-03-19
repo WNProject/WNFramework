@@ -13,7 +13,7 @@ using download_heap_creation_test =
 TEST_P(download_heap_creation_test, many_sizes) {
   wn::graphics::factory device_factory(&m_allocator, &m_log);
 
-  for (auto& physical_device : device_factory.query_physical_devices()) {
+  for (auto& physical_device : device_factory.query_adapters()) {
     wn::graphics::device_ptr device =
         physical_device->make_device(&m_allocator, &m_log);
     ASSERT_NE(nullptr, device);
@@ -40,7 +40,7 @@ using download_heap_writing_test =
 TEST_P(download_heap_writing_test, read_values) {
   wn::graphics::factory device_factory(&m_allocator, &m_log);
 
-  for (auto& physical_device : device_factory.query_physical_devices()) {
+  for (auto& physical_device : device_factory.query_adapters()) {
     wn::graphics::device_ptr device =
         physical_device->make_device(&m_allocator, &m_log);
     ASSERT_NE(nullptr, device);
@@ -50,7 +50,8 @@ TEST_P(download_heap_writing_test, read_values) {
     ASSERT_TRUE(download.is_valid());
 
     auto buffer = download.get_range(0, std::get<0>(GetParam()));
-    for (size_t i = 0; i < buffer.range().size(); i += std::get<1>(GetParam())) {
+    for (size_t i = 0; i < buffer.range().size();
+         i += std::get<1>(GetParam())) {
       volatile char x = buffer.range()[i];
       (void)x;
     }

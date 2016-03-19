@@ -9,7 +9,7 @@
 
 #include "WNContainers/inc/WNContiguousRange.h"
 #include "WNContainers/inc/WNDynamicArray.h"
-#include "WNGraphics/inc/WNPhysicalDevice.h"
+#include "WNGraphics/inc/WNAdapter.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNMultiTasking/inc/WNCallOnce.h"
 
@@ -25,14 +25,14 @@ public:
 
   virtual ~factory() = default;
 
-  virtual containers::contiguous_range<const physical_device_ptr>
-  query_physical_devices() const;
+  virtual containers::contiguous_range<const adapter_ptr> query_adapters()
+      const;
 
 private:
   void query_devices() const;
 
-  mutable containers::dynamic_array<physical_device_ptr> m_physical_devices;
-  mutable multi_tasking::once_flag m_query_physical_device_once_flag;
+  mutable containers::dynamic_array<adapter_ptr> m_physical_devices;
+  mutable multi_tasking::once_flag m_query_adapter_once_flag;
   memory::allocator* m_allocator;
   WNLogging::WNLog* m_log;
 };

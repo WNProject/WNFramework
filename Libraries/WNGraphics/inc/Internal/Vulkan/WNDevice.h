@@ -21,7 +21,8 @@ public:
       VkDevice _device, PFN_vkDestroyDevice _destroy_device,
       const VkPhysicalDeviceMemoryProperties* _memory_properties);
   ~device();
-  bool initialize(vulkan_context* _context, uint32_t _graphics_and_device_queue);
+  bool initialize(
+      vulkan_context* _context, uint32_t _graphics_and_device_queue);
   upload_heap create_upload_heap(size_t _num_bytes) final;
   download_heap create_download_heap(size_t _num_bytes) final;
 
@@ -42,8 +43,8 @@ private:
   void destroy_heap(download_heap* _heap) final;
 
   template <typename heap_type>
-  heap_type create_heap(size_t _num_bytes,
-      const VkBufferCreateInfo& _info, uint32_t memory_type_index);
+  heap_type create_heap(size_t _num_bytes, const VkBufferCreateInfo& _info,
+      uint32_t memory_type_index);
   template <typename heap_type>
   void destroy_typed_heap(heap_type* type);
 

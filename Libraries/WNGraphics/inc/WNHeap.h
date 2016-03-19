@@ -15,7 +15,7 @@
 namespace wn {
 namespace graphics {
 
-template<typename T, typename HeapTraits>
+template <typename T, typename HeapTraits>
 class heap_buffer {
 public:
   using range_type = typename HeapTraits::template range_type<T>;
@@ -60,8 +60,8 @@ public:
     typename HeapTraits::template range_type<T> range(
         reinterpret_cast<T*>(root), _num_elements);
 
-    return heap_buffer<T, HeapTraits>(this, _offset_in_bytes,
-      core::move(range));
+    return heap_buffer<T, HeapTraits>(
+        this, _offset_in_bytes, core::move(range));
   }
 
   bool is_valid() const {
@@ -82,8 +82,7 @@ private:
     : m_device(_device), m_root_address(0), m_data({0, 0}) {}
 
   template <typename T = uint8_t>
-  void release_range(
-      heap_buffer<T, HeapTraits>& _range) {
+  void release_range(heap_buffer<T, HeapTraits>& _range) {
     m_device->release_range(
         this, _range.m_offset, sizeof(T) * _range.range().size());
   }
@@ -94,7 +93,7 @@ private:
     return *reinterpret_cast<T*>(&m_data);
   }
 
-  template<typename T, typename HT>
+  template <typename T, typename HT>
   friend class heap_buffer;
 
 #include "WNGraphics/inc/Internal/WNSetFriendDevices.h"

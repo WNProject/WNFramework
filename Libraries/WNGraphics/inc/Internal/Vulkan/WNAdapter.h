@@ -8,7 +8,7 @@
 #define __WN_GRAPHICS_INTERNAL_VULKAN_PHYSICAL_DEVICE_H__
 
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanContext.h"
-#include "WNGraphics/inc/Internal/WNPhysicalDevice.h"
+#include "WNGraphics/inc/Internal/WNAdapter.h"
 #include "WNMemory/inc/WNIntrusivePtr.h"
 
 #include <vulkan.h>
@@ -18,14 +18,14 @@ namespace graphics {
 namespace internal {
 namespace vulkan {
 
-class physical_device : public internal::physical_device {
+class adapter : public internal::adapter {
 public:
-  physical_device(const memory::intrusive_ptr<vulkan_context>& context,
+  adapter(const memory::intrusive_ptr<vulkan_context>& context,
       VkPhysicalDevice device, containers::string&& _name,
       const uint32_t _vendor_id, const uint32_t _device_id,
       const uint32_t _compute_and_graphics_queue)
-    : internal::physical_device(std::move(_name), _vendor_id, _device_id,
-          internal::physical_device::api_type::vulkan),
+    : internal::adapter(std::move(_name), _vendor_id, _device_id,
+          internal::adapter::api_type::vulkan),
       m_context(context),
       m_physical_device(device),
       m_compute_and_graphics_queue(_compute_and_graphics_queue) {}
@@ -35,7 +35,7 @@ public:
   virtual device_ptr make_device(
       memory::allocator* _allocator, WNLogging::WNLog*) const;
 
-  ~physical_device() {}
+  ~adapter() {}
 
 private:
   const memory::intrusive_ptr<vulkan_context> m_context;

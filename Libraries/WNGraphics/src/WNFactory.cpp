@@ -16,12 +16,12 @@
 namespace wn {
 namespace graphics {
 
-containers::contiguous_range<const physical_device_ptr>
-factory::query_physical_devices() const {
-  multi_tasking::call_once(m_query_physical_device_once_flag,
+containers::contiguous_range<const adapter_ptr> factory::query_adapters()
+    const {
+  multi_tasking::call_once(m_query_adapter_once_flag,
       containers::function<void()>(std::bind(&factory::query_devices, this)));
 
-  return containers::contiguous_range<const physical_device_ptr>(
+  return containers::contiguous_range<const adapter_ptr>(
       m_physical_devices.data(), m_physical_devices.size());
 }
 

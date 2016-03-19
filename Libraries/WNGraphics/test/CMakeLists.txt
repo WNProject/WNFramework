@@ -2,7 +2,7 @@ wn_create_tests_from_list(TEST_PREFIX WNGraphics
   SOURCE_DIR src/Tests
   SOURCES
     WNDownloadHeap
-    WNQueryPhysicalDevice
+    WNQueryAdapters
     WNUploadHeap
   COMMON_SOURCES
     inc/WNTestFixture.h

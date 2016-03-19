@@ -9,15 +9,15 @@ set(WN_GRAPHICS_DEVICE_TYPES_AVAILABLE)
 
 if (WN_PLATFORM STREQUAL Windows)
   set(WN_GRAPHICS_INTERNAL_D3D12_SRC
+    inc/Internal/D3D12/WNAdapter.h
     inc/Internal/D3D12/WNDevice.h
-    inc/Internal/D3D12/WNPhysicalDevice.h
   )
 
   set(WN_GRAPHICS_D3D12_SRC
+    src/D3D12/WNAdapter.cpp
     src/D3D12/WNDevice.cpp
     src/D3D12/WNHelpers.h
     src/D3D12/WNHelpers.cpp
-    src/D3D12/WNPhysicalDevice.cpp
   )
 
   list(APPEND WN_GRAPHICS_SRC
@@ -78,19 +78,19 @@ set(CONFIG_FILE_OUTPUT_PATH
 set(WN_GRAPHICS_INTERNAL_SRC
   ${CONFIG_FILE_INPUT_PATH}
   ${CONFIG_FILE_OUTPUT_PATH}
-  inc/Internal/WNPhysicalDevice.h
+  inc/Internal/WNAdapter.h
   inc/Internal/WNSetFriendDevices.h
 )
 
 set(WN_GRAPHICS_INTERNAL_VULKAN_SRC
+  inc/Internal/Vulkan/WNAdapter.h
   inc/Internal/Vulkan/WNDevice.h
-  inc/Internal/Vulkan/WNPhysicalDevice.h
   inc/Internal/Vulkan/WNVulkanContext.h
 )
 
 set(WN_GRAPHICS_VULKAN_SRC
+  src/Vulkan/WNAdapter.cpp
   src/Vulkan/WNDevice.cpp
-  src/Vulkan/WNPhysicalDevice.cpp
   src/Vulkan/WNHelpers.cpp
   src/Vulkan/WNHelpers.h
 )
@@ -104,11 +104,11 @@ list(APPEND WN_GRAPHICS_SRC
 add_wn_library(WNGraphics
   SOURCES
     ${WN_GRAPHICS_SRC}
+    inc/WNAdapter.h
     inc/WNDevice.h
     inc/WNFactory.h
     inc/WNHeap.h
     inc/WNHeapTraits.h
-    inc/WNPhysicalDevice.h
     src/WNFactory.cpp
 )
 

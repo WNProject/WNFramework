@@ -8,23 +8,22 @@
 #define __WN_GRAPHICS_SRC_VULKAN_VULKAN_HELPERS_H__
 
 #include "WNContainers/inc/WNDynamicArray.h"
-#include "WNGraphics/inc/Internal/Vulkan/WNPhysicalDevice.h"
-#include "WNGraphics/inc/WNPhysicalDevice.h"
+#include "WNGraphics/inc/Internal/Vulkan/WNAdapter.h"
+#include "WNGraphics/inc/WNAdapter.h"
 
 namespace WNLogging {
 class WNLog;
 }
 namespace wn {
 namespace memory {
-  class allocator;
+class allocator;
 }
 namespace graphics {
 namespace internal {
 namespace vulkan {
 
 void enumerate_physical_devices(memory::allocator* _allocator,
-    WNLogging::WNLog* _log,
-    containers::dynamic_array<physical_device_ptr>& _arr);
+    WNLogging::WNLog* _log, containers::dynamic_array<adapter_ptr>& _arr);
 
 }  // namespace vulkan
 }  // namespace internal

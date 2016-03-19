@@ -128,8 +128,7 @@ memory::intrusive_ptr<vulkan_context> get_vulkan_context(
 }
 
 void enumerate_physical_devices(memory::allocator* _allocator,
-    WNLogging::WNLog* _log,
-    containers::dynamic_array<physical_device_ptr>& _arr) {
+    WNLogging::WNLog* _log, containers::dynamic_array<adapter_ptr>& _arr) {
   vulkan_context_ptr context = get_vulkan_context(_allocator, _log);
   if (!context) {
     return;
@@ -199,11 +198,10 @@ void enumerate_physical_devices(memory::allocator* _allocator,
     }
     _log->Log(WNLogging::eInfo, 0, "--------------------------------");
 
-    memory::unique_ptr<physical_device> device =
-        memory::make_unique<physical_device>(_allocator, context, devices[i],
-            containers::string(properties.deviceName, _allocator),
-            properties.vendorID, properties.deviceID,
-            graphics_and_compute_queue);
+    memory::unique_ptr<adapter> device = memory::make_unique<adapter>(
+        _allocator, context, devices[i],
+        containers::string(properties.deviceName, _allocator),
+        properties.vendorID, properties.deviceID, graphics_and_compute_queue);
     device->initialize_device();
     _arr.emplace_back(core::move(device));
   }

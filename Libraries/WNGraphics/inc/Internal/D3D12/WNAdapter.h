@@ -8,8 +8,8 @@
 #define __WN_GRAPHICS_INTERNAL_D3D12_PHYSICAL_DEVICE_H__
 
 #include "WNCore/inc/WNUtility.h"
+#include "WNGraphics/inc/Internal/WNAdapter.h"
 #include "WNGraphics/inc/WNDevice.h"
-#include "WNGraphics/inc/Internal/WNPhysicalDevice.h"
 
 #include <DXGI.h>
 #include <wrl.h>
@@ -34,17 +34,16 @@ class factory;
 namespace internal {
 namespace d3d12 {
 
-class physical_device : public internal::physical_device {
+class adapter : public internal::adapter {
 public:
-  WN_FORCE_INLINE physical_device(
-      Microsoft::WRL::ComPtr<IDXGIAdapter1>&& _dxgi_adapter,
+  WN_FORCE_INLINE adapter(Microsoft::WRL::ComPtr<IDXGIAdapter1>&& _dxgi_adapter,
       containers::string&& _name, const uint32_t _vendor_id,
       const uint32_t _device_id)
-    : internal::physical_device(
+    : internal::adapter(
           core::move(_name), _vendor_id, _device_id, api_type::d3d12),
       m_dxgi_adapter(core::move(_dxgi_adapter)) {}
 
-  virtual ~physical_device() override = default;
+  virtual ~adapter() override = default;
 
   virtual device_ptr make_device(
       memory::allocator* _allocator, WNLogging::WNLog* _log) const override;

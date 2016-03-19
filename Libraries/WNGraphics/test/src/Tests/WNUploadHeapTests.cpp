@@ -13,9 +13,9 @@ using upload_heap_creation_test =
 TEST_P(upload_heap_creation_test, many_sizes) {
   wn::graphics::factory device_factory(&m_allocator, &m_log);
 
-  for (auto& physical_device : device_factory.query_physical_devices()) {
+  for (auto& adapter : device_factory.query_adapters()) {
     wn::graphics::device_ptr device =
-        physical_device->make_device(&m_allocator, &m_log);
+        adapter->make_device(&m_allocator, &m_log);
     ASSERT_NE(nullptr, device);
 
     wn::graphics::upload_heap upload = device->create_upload_heap(GetParam());
@@ -39,9 +39,9 @@ using upload_heap_writing_test =
 TEST_P(upload_heap_writing_test, write_values) {
   wn::graphics::factory device_factory(&m_allocator, &m_log);
 
-  for (auto& physical_device : device_factory.query_physical_devices()) {
+  for (auto& adapter : device_factory.query_adapters()) {
     wn::graphics::device_ptr device =
-        physical_device->make_device(&m_allocator, &m_log);
+        adapter->make_device(&m_allocator, &m_log);
     ASSERT_NE(nullptr, device);
 
     wn::graphics::upload_heap upload =
