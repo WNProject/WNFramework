@@ -25,7 +25,7 @@ public:
   WN_FORCE_INLINE handle(const HANDLE _handle) : m_handle(_handle) {}
 
   WN_FORCE_INLINE handle(handle&& _other)
-    : m_handle(std::move(_other.m_handle)) {
+    : m_handle(core::move(_other.m_handle)) {
     _other.m_handle = NULL;
   }
 

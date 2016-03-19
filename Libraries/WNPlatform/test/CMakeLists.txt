@@ -10,5 +10,4 @@ wn_create_tests_from_list(TEST_PREFIX WNPlatform
   RUN_WRAPPER ${WNPlatformTestsTool}
   SOURCES
     WNSurface
-    WNTime
   )

@@ -1,7 +1,3 @@
-set(INC_INTERNAL
-  inc/Internal/WNTime.inl
-)
-
 set(INC_INTERNAL_ANDROID
   inc/Internal/Android/WNSurfaceAndroid.h
   inc/Internal/Android/WNSurfaceManagerAndroid.h
@@ -12,10 +8,6 @@ set(SRC_ANDROID
   src/Android/WNSurfaceManagerAndroid.cpp
 )
 
-set(INC_INTERNAL_LINUX
-  inc/Internal/Linux/WNTime.inl
-)
-
 set(SRC_XWINDOWS
   src/XWindows/WNSurfaceManagerXWindows.cpp
   src/XWindows/WNSurfaceXWindows.cpp
@@ -24,7 +16,6 @@ set(SRC_XWINDOWS
 set(INC_INTERNAL_WINDOWS
   inc/Internal/Windows/WNSurfaceManagerWindows.h
   inc/Internal/Windows/WNSurfaceWindows.h
-  inc/Internal/Windows/WNTime.inl
 )
 
 set(SRC_WINDOWS
@@ -43,14 +34,10 @@ set(SRC_XWINDOWS
 )
 
 set(WNPlatformSources
-  inc/WNPlatform.h
   inc/WNPlatformFactory.h
   inc/WNSurface.h
   inc/WNSurfaceManager.h
-  inc/WNTime.h
   src/WNPlatformFactory.cpp
-  ${INC_INTERNAL}
-  ${INC_INTERNAL_LINUX}
   ${INC_INTERNAL_ANDROID}
   ${INC_INTERNAL_WINDOWS}
   ${INC_INTERNAL_XWINDOWS})

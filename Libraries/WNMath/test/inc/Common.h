@@ -15,7 +15,6 @@
 
 #include "WNCore/inc/WNExtendedTypes.h"
 #include "WNMath/inc/WNMath.h"
-#include "WNPlatform/inc/WNTime.h"
 
 #include <float.h>
 #include <math.h>
