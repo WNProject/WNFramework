@@ -18,14 +18,14 @@ namespace graphics {
 namespace internal {
 namespace vulkan {
 
-class adapter : public internal::adapter {
+class vulkan_adapter : public internal_adapter {
 public:
-  adapter(const memory::intrusive_ptr<vulkan_context>& context,
+  vulkan_adapter(const memory::intrusive_ptr<vulkan_context>& context,
       VkPhysicalDevice device, containers::string&& _name,
       const uint32_t _vendor_id, const uint32_t _device_id,
       const uint32_t _compute_and_graphics_queue)
-    : internal::adapter(std::move(_name), _vendor_id, _device_id,
-          internal::adapter::api_type::vulkan),
+    : internal_adapter(std::move(_name), _vendor_id, _device_id,
+          internal_adapter::api_type::vulkan),
       m_context(context),
       m_physical_device(device),
       m_compute_and_graphics_queue(_compute_and_graphics_queue) {}
@@ -35,7 +35,7 @@ public:
   virtual device_ptr make_device(
       memory::allocator* _allocator, WNLogging::WNLog*) const;
 
-  ~adapter() {}
+  ~vulkan_adapter() {}
 
 private:
   const memory::intrusive_ptr<vulkan_context> m_context;

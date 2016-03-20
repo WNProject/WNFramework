@@ -198,10 +198,11 @@ void enumerate_physical_devices(memory::allocator* _allocator,
     }
     _log->Log(WNLogging::eInfo, 0, "--------------------------------");
 
-    memory::unique_ptr<adapter> device = memory::make_unique<adapter>(
-        _allocator, context, devices[i],
-        containers::string(properties.deviceName, _allocator),
-        properties.vendorID, properties.deviceID, graphics_and_compute_queue);
+    memory::unique_ptr<vulkan_adapter> device =
+        memory::make_unique<vulkan_adapter>(_allocator, context, devices[i],
+            containers::string(properties.deviceName, _allocator),
+            properties.vendorID, properties.deviceID,
+            graphics_and_compute_queue);
     device->initialize_device();
     _arr.emplace_back(core::move(device));
   }

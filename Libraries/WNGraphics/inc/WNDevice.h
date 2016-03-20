@@ -22,12 +22,14 @@ namespace wn {
 namespace graphics {
 
 class fence;
-
+template<typename T>
+class heap;
 namespace internal {
 
-class device : public core::non_copyable {
+class internal_device : public core::non_copyable {
 public:
-  WN_FORCE_INLINE device(memory::allocator* _allocator, WNLogging::WNLog* _log)
+  WN_FORCE_INLINE internal_device(
+      memory::allocator* _allocator, WNLogging::WNLog* _log)
     : m_allocator(_allocator), m_log(_log) {}
 
   // On success, returns an upload_heap object. This heap must be at least,

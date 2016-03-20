@@ -14,17 +14,17 @@ namespace wn {
 namespace graphics {
 namespace internal {
 
-class device;
+class internal_device;
 
 namespace d3d12 {
 
-class device;
+class d3d12_device;
 
 }  // namespace d3d12
 
 namespace vulkan {
 
-class device;
+class vulkan_device;
 
 }  // namespace vulkan
 }  // namespace internal
@@ -35,7 +35,7 @@ class device;
 namespace wn {
 namespace graphics {
 
-using device = internal::device;
+using device = internal::internal_device;
 
 }  // namespace graphics
 }  // namespace wn
@@ -43,7 +43,7 @@ using device = internal::device;
 namespace wn {
 namespace graphics {
 
-using device = internal::vulkan::device;
+using device = internal::vulkan::vulkan_device;
 
 }  // namespace graphics
 }  // namespace wn
@@ -51,7 +51,7 @@ using device = internal::vulkan::device;
 namespace wn {
 namespace graphics {
 
-using device = internal::d3d12::device;
+using device = internal::d3d12::d3d12_device;
 
 }  // namespace graphics
 }  // namespace wn
@@ -66,4 +66,3 @@ using device_ptr = memory::unique_ptr<device>;
 }  // namespace wn
 
 #endif  // __WN_GRAPHICS_DEVICE_FORWARD_H__
-

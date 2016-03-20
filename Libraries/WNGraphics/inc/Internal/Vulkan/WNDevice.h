@@ -19,12 +19,12 @@ namespace graphics {
 namespace internal {
 namespace vulkan {
 
-class device : public internal::device {
+class vulkan_device : public internal_device {
 public:
-  device(memory::allocator* _allocator, WNLogging::WNLog* _log,
+  vulkan_device(memory::allocator* _allocator, WNLogging::WNLog* _log,
       VkDevice _device, PFN_vkDestroyDevice _destroy_device,
       const VkPhysicalDeviceMemoryProperties* _memory_properties);
-  ~device();
+  ~vulkan_device();
   bool initialize(
       vulkan_context* _context, uint32_t _graphics_and_device_queue);
   upload_heap create_upload_heap(size_t _num_bytes) final;
@@ -32,11 +32,12 @@ public:
 
   queue_ptr create_queue() final;
   fence create_fence() final;
+
 private:
   template <typename T>
   friend class graphics::heap;
   friend class graphics::fence;
-  friend class queue;
+  friend class vulkan_queue;
 
   uint8_t* acquire_range(
       upload_heap* _buffer, size_t _offset, size_t _num_bytes) final;

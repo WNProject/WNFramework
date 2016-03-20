@@ -16,16 +16,18 @@ namespace graphics {
 namespace internal {
 namespace d3d12 {
 
-class queue;
+class d3d12_queue;
+class d3d12_device;
 
-} // namespace d3d12
+}  // namespace d3d12
 
 namespace vulkan {
 
-class queue;
+class vulkan_device;
+class vulkan_queue;
 
-} // namespace vulkan
-} // namesapce internal
+}  // namespace vulkan
+}  // namesapce internal
 
 // The memory returned by this heap type may or may not be
 // coherent. Make sure to flush any range before use. This will
@@ -58,9 +60,8 @@ public:
   }
 
 private:
-  friend class internal::queue;
-  WN_FORCE_INLINE fence(device* _device)
-    : m_device(_device), m_data({0}) {}
+  friend class internal::internal_queue;
+  WN_FORCE_INLINE fence(device* _device) : m_device(_device), m_data({0}) {}
 
   template <typename T>
   T& data_as() {

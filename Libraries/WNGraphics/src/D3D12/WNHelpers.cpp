@@ -116,9 +116,8 @@ void enumerate_physical_devices(memory::allocator* _allocator,
     _log->Log(WNLogging::eInfo, 0, "------------------------------");
 
     memory::unique_ptr<adapter> phys_device(
-        memory::make_unique<internal::d3d12::adapter>(_allocator,
-            core::move(dxgi_adapter), core::move(name),
-            static_cast<uint32_t>(dxgi_adapter_desc.DeviceId),
+        memory::make_unique<d3d12_adapter>(_allocator, core::move(dxgi_adapter),
+            core::move(name), static_cast<uint32_t>(dxgi_adapter_desc.DeviceId),
             static_cast<uint32_t>(dxgi_adapter_desc.VendorId)));
 
     _physical_devices.push_back(std::move(phys_device));

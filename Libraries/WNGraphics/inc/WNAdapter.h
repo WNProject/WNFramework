@@ -22,11 +22,11 @@ namespace wn {
 namespace graphics {
 
 #if _WN_GRAPHICS_DEVICE_TYPES_AVAILABLE > 1
-using adapter = internal::adapter;
+using adapter = internal::internal_adapter;
 #elif defined _WN_GRAPHICS_VULKAN_DEVICE_TYPE_AVAILABLE
-using adapter = internal::vulkan::adapter;
+using adapter = internal::vulkan::vulkan_adapter;
 #elif defined _WN_GRAPHICS_D3D12_DEVICE_TYPE_AVAILABLE
-using adapter = internal::d3d12::adapter;
+using adapter = internal::d3d12::d3d12_adapter;
 #endif
 
 using adapter_ptr = memory::unique_ptr<adapter>;

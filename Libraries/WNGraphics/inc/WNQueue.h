@@ -19,22 +19,24 @@ class fence;
 
 namespace internal {
 
-class queue : public core::non_copyable {
+class internal_queue : public core::non_copyable {
 public:
   // Note; You must call device->destroy_queue in your
   // deconstructor. There is a good reason why this
   // is not done here.
-  virtual ~queue() {}
+  virtual ~internal_queue() {}
   bool is_valid() {
     return m_device != nullptr;
   }
 
   virtual void enqueue_signal(fence& _fence) = 0;
-protected:
-  WN_FORCE_INLINE queue(graphics::device* _device) : m_device(_device) {}
 
-  #include "WNGraphics/inc/Internal/WNSetFriendDevices.h"
-  graphics::device* const m_device;
+protected:
+  WN_FORCE_INLINE internal_queue(graphics::device* _device)
+    : m_device(_device) {}
+
+#include "WNGraphics/inc/Internal/WNSetFriendDevices.h"
+  device* const m_device;
 };
 
 }  // namespace internal
@@ -42,7 +44,6 @@ protected:
 }  // namespace wn
 
 #if _WN_GRAPHICS_DEVICE_TYPES_AVAILABLE == 1
-
 #if defined _WN_GRAPHICS_VULKAN_DEVICE_TYPE_AVAILABLE
 #include "WNGraphics/inc/Internal/Vulkan/WNQueue.h"
 #elif defined _WN_GRAPHICS_D3D12_DEVICE_TYPE_AVAILABLE

@@ -16,15 +16,15 @@ namespace graphics {
 namespace internal {
 namespace d3d12 {
 
-device_ptr adapter::make_device(
+device_ptr d3d12_adapter::make_device(
     memory::allocator* _allocator, WNLogging::WNLog* _log) const {
-  Microsoft::WRL::ComPtr<ID3D12Device> d3d12_device;
+  Microsoft::WRL::ComPtr<ID3D12Device> device;
 
   // This is set to D3D_FEATURE_LEVEL_11_0 because this is the lowest posible
   // d3d version d3d12 supports.  This allows us to scale up on device
   // capabilities and work on older hardware
   HRESULT hr = ::D3D12CreateDevice(m_dxgi_adapter.Get(), D3D_FEATURE_LEVEL_11_0,
-      __uuidof(ID3D12Device), &d3d12_device);
+      __uuidof(ID3D12Device), &device);
 
   if (FAILED(hr)) {
     _log->Log(WNLogging::eError, 0, "Could not create D3D12 device, hr: ", hr);
@@ -32,8 +32,8 @@ device_ptr adapter::make_device(
     return nullptr;
   }
 
-  return memory::make_unique<d3d12::device>(_allocator, _allocator, _log,
-      core::move(d3d12_device));
+  return memory::make_unique<d3d12_device>(
+      _allocator, _allocator, _log, core::move(device));
 }
 
 }  // namespace d3d12

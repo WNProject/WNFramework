@@ -8,28 +8,29 @@
 #define __WN_GRAPHICS_INC_INTERNAL_D3D12_QUEUE_H__
 
 #include "WNCore/inc/WNUtility.h"
-#include "WNGraphics/inc/WNDevice.h"
 #include "WNGraphics/inc/Internal/D3D12/WNDevice.h"
+#include "WNGraphics/inc/WNDevice.h"
 #include "WNGraphics/inc/WNQueue.h"
 
-#include <wrl.h>
 #include <d3d12.h>
+#include <wrl.h>
 
 namespace wn {
 namespace graphics {
 namespace internal {
 namespace d3d12 {
 
-class queue : public internal::queue {
+class d3d12_queue : public internal_queue {
 public:
-  ~queue();
+  ~d3d12_queue();
   void enqueue_signal(fence& _fence) final;
-private:
-  WN_FORCE_INLINE queue(
-    d3d12::device* _device, Microsoft::WRL::ComPtr<ID3D12CommandQueue>&& _queue)
-    : internal::queue(_device), m_queue(core::move(_queue)) {}
 
-  friend class device;
+private:
+  WN_FORCE_INLINE d3d12_queue(d3d12_device* _device,
+      Microsoft::WRL::ComPtr<ID3D12CommandQueue>&& _queue)
+    : internal_queue(_device), m_queue(core::move(_queue)) {}
+
+  friend class d3d12_device;
 
   Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_queue;
 };

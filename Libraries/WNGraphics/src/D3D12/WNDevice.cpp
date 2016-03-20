@@ -42,13 +42,12 @@ const D3D12_COMMAND_QUEUE_DESC s_command_queue_props = {
     D3D12_COMMAND_LIST_TYPE_DIRECT,     // Type
     D3D12_COMMAND_QUEUE_PRIORITY_HIGH,  // Priority
     D3D12_COMMAND_QUEUE_FLAG_NONE,      // Flags
-    0
-};
+    0};
 
-} // anonymous namespace
+}  // anonymous namespace
 
 template <typename heap_type>
-heap_type device::create_heap(size_t _num_bytes,
+heap_type d3d12_device::create_heap(size_t _num_bytes,
     const D3D12_HEAP_PROPERTIES& _params,
     const D3D12_RESOURCE_STATES& _states) {
   WN_DEBUG_ASSERT_DESC(
@@ -88,32 +87,32 @@ heap_type device::create_heap(size_t _num_bytes,
 }
 
 template <typename heap_type>
-void device::destroy_typed_heap(heap_type* _heap) {
+void d3d12_device::destroy_typed_heap(heap_type* _heap) {
   Microsoft::WRL::ComPtr<ID3D12Resource>& res =
       _heap->data_as<Microsoft::WRL::ComPtr<ID3D12Resource>>();
   res.Reset();
 }
 
-upload_heap device::create_upload_heap(size_t _num_bytes) {
+upload_heap d3d12_device::create_upload_heap(size_t _num_bytes) {
   // TODO(awoloszyn): Try and minimize D3D12_RESOURCE_STATE_GENERIC_READ
   return create_heap<upload_heap>(
       _num_bytes, s_upload_heap_props, D3D12_RESOURCE_STATE_GENERIC_READ);
 }
 
-download_heap device::create_download_heap(size_t _num_bytes) {
+download_heap d3d12_device::create_download_heap(size_t _num_bytes) {
   return create_heap<download_heap>(
       _num_bytes, s_download_heap_props, D3D12_RESOURCE_STATE_COPY_DEST);
 }
 
-void device::destroy_heap(upload_heap* _heap) {
+void d3d12_device::destroy_heap(upload_heap* _heap) {
   return destroy_typed_heap(_heap);
 }
 
-void device::destroy_heap(download_heap* _heap) {
+void d3d12_device::destroy_heap(download_heap* _heap) {
   return destroy_typed_heap(_heap);
 }
 
-uint8_t* device::acquire_range(
+uint8_t* d3d12_device::acquire_range(
     upload_heap* _heap, size_t _offset, size_t _size_in_bytes) {
   Microsoft::WRL::ComPtr<ID3D12Resource>& res =
       _heap->data_as<Microsoft::WRL::ComPtr<ID3D12Resource>>();
@@ -125,7 +124,7 @@ uint8_t* device::acquire_range(
   return addr;
 }
 
-uint8_t* device::synchronize(
+uint8_t* d3d12_device::synchronize(
     upload_heap* _heap, size_t _offset, size_t _size_in_bytes) {
   Microsoft::WRL::ComPtr<ID3D12Resource>& res =
       _heap->data_as<Microsoft::WRL::ComPtr<ID3D12Resource>>();
@@ -138,7 +137,7 @@ uint8_t* device::synchronize(
   return addr;
 }
 
-uint8_t* device::acquire_range(
+uint8_t* d3d12_device::acquire_range(
     download_heap* _heap, size_t _offset, size_t _size_in_bytes) {
   Microsoft::WRL::ComPtr<ID3D12Resource>& res =
       _heap->data_as<Microsoft::WRL::ComPtr<ID3D12Resource>>();
@@ -150,7 +149,7 @@ uint8_t* device::acquire_range(
   return addr;
 }
 
-uint8_t* device::synchronize(
+uint8_t* d3d12_device::synchronize(
     download_heap* _heap, size_t _offset, size_t _size_in_bytes) {
   Microsoft::WRL::ComPtr<ID3D12Resource>& res =
       _heap->data_as<Microsoft::WRL::ComPtr<ID3D12Resource>>();
@@ -163,7 +162,7 @@ uint8_t* device::synchronize(
   return addr;
 }
 
-void device::release_range(
+void d3d12_device::release_range(
     upload_heap* _heap, size_t _offset, size_t _size_in_bytes) {
   Microsoft::WRL::ComPtr<ID3D12Resource>& res =
       _heap->data_as<Microsoft::WRL::ComPtr<ID3D12Resource>>();
@@ -171,7 +170,7 @@ void device::release_range(
   res->Unmap(0, &range);
 }
 
-void device::release_range(
+void d3d12_device::release_range(
     download_heap* _heap, size_t _offset, size_t _size_in_bytes) {
   Microsoft::WRL::ComPtr<ID3D12Resource>& res =
       _heap->data_as<Microsoft::WRL::ComPtr<ID3D12Resource>>();
@@ -179,7 +178,7 @@ void device::release_range(
   res->Unmap(0, &range);
 }
 
-queue_ptr device::create_queue() {
+queue_ptr d3d12_device::create_queue() {
   uint32_t expected_created = 0;
   if (!m_num_queues.compare_exchange_strong(expected_created, 1)) {
     return nullptr;
@@ -187,26 +186,26 @@ queue_ptr device::create_queue() {
 
   Microsoft::WRL::ComPtr<ID3D12CommandQueue> res;
 
-  const HRESULT hr = m_device->CreateCommandQueue(&s_command_queue_props,
-    __uuidof(ID3D12CommandQueue), &res);
+  const HRESULT hr = m_device->CreateCommandQueue(
+      &s_command_queue_props, __uuidof(ID3D12CommandQueue), &res);
 
   (void)hr;
   WN_DEBUG_ASSERT_DESC(!FAILED(hr), "Could not create command queue");
 
-  queue_ptr queue = memory::make_unique_delegated<d3d12::queue>(
+  queue_ptr queue = memory::make_unique_delegated<d3d12_queue>(
       m_allocator, [this, &res](void* memory) {
-        return new (memory) d3d12::queue(this, core::move(res));
+        return new (memory) d3d12_queue(this, core::move(res));
       });
 
   return core::move(queue);
 }
 
-void device::destroy_queue(graphics::queue*) {
+void d3d12_device::destroy_queue(graphics::queue*) {
   uint32_t expected_created = 1;
   m_num_queues.compare_exchange_strong(expected_created, 0);
 }
 
-fence device::create_fence() {
+fence d3d12_device::create_fence() {
   fence res(this);
 
   fence_data& data = res.data_as<fence_data>();
@@ -222,18 +221,18 @@ fence device::create_fence() {
   return core::move(res);
 }
 
-void device::destroy_fence(fence* _fence) {
+void d3d12_device::destroy_fence(fence* _fence) {
   fence_data& data = _fence->data_as<fence_data>();
   data.fence.Reset();
   ::CloseHandle(data.event);
 }
 
-void device::wait_fence(const fence* _fence) const {
+void d3d12_device::wait_fence(const fence* _fence) const {
   const fence_data& data = _fence->data_as<fence_data>();
   ::WaitForSingleObject(data.event, INFINITE);
 }
 
-void device::reset_fence(fence* _fence) {
+void d3d12_device::reset_fence(fence* _fence) {
   fence_data& data = _fence->data_as<fence_data>();
   ::ResetEvent(data.event);
   data.fence->Signal(0);

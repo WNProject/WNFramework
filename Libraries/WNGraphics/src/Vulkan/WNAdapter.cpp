@@ -12,7 +12,7 @@ namespace graphics {
 namespace internal {
 namespace vulkan {
 
-device_ptr adapter::make_device(
+device_ptr vulkan_adapter::make_device(
     memory::allocator* _allocator, WNLogging::WNLog* _log) const {
   float queue_priority = 1.0f;
   VkDeviceQueueCreateInfo queue_create_info = {
@@ -49,8 +49,8 @@ device_ptr adapter::make_device(
     _log->Log(WNLogging::eError, 0, "Could not create device");
     return nullptr;
   }
-  auto device_ptr = memory::make_unique<device>(_allocator, _allocator, _log,
-      vk_device, m_context->vkDestroyDevice, &m_memory_properties);
+  auto device_ptr = memory::make_unique<vulkan_device>(_allocator, _allocator,
+      _log, vk_device, m_context->vkDestroyDevice, &m_memory_properties);
   if (!device_ptr->initialize(m_context.get(), m_compute_and_graphics_queue)) {
     return nullptr;
   }
@@ -58,7 +58,7 @@ device_ptr adapter::make_device(
   return core::move(device_ptr);
 }
 
-void adapter::initialize_device() {
+void vulkan_adapter::initialize_device() {
   m_context->vkGetPhysicalDeviceMemoryProperties(
       m_physical_device, &m_memory_properties);
 }

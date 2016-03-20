@@ -50,10 +50,11 @@ static const VkBufferCreateInfo s_download_buffer{
 // TODO LIST: When we want to optimize heap types:
 //  Only determine the heap type once we know what we are allocating.
 
-device::device(memory::allocator* _allocator, WNLogging::WNLog* _log,
-    VkDevice _device, PFN_vkDestroyDevice _destroy_device,
+vulkan_device::vulkan_device(memory::allocator* _allocator,
+    WNLogging::WNLog* _log, VkDevice _device,
+    PFN_vkDestroyDevice _destroy_device,
     const VkPhysicalDeviceMemoryProperties* _memory_properties)
-  : internal::device(_allocator, _log),
+  : internal_device(_allocator, _log),
     vkDestroyDevice(_destroy_device),
     m_device(_device),
     m_queue(VK_NULL_HANDLE),
@@ -66,7 +67,7 @@ device::device(memory::allocator* _allocator, WNLogging::WNLog* _log,
       "The data is an unexpected size");
 }
 
-device::~device() {
+vulkan_device::~vulkan_device() {
   vkDestroyDevice(m_device, nullptr);
 }
 
@@ -83,14 +84,14 @@ device::~device() {
 #define LOAD_VK_SUB_DEVICE_SYMBOL(device, sub_struct, symbol)                  \
   sub_struct.symbol =                                                          \
       reinterpret_cast<PFN_##symbol>(vkGetDeviceProcAddr(device, #symbol));    \
-  if (!sub_struct.symbol) {                                                               \
+  if (!sub_struct.symbol) {                                                    \
     m_log->Log(WNLogging::eError, 0, "Could not find " #symbol ".");           \
     m_log->Log(WNLogging::eError, 0, "Error configuring device");              \
     return false;                                                              \
   }                                                                            \
   m_log->Log(WNLogging::eDebug, 0, #symbol " is at ", sub_struct.symbol);
 
-bool device::initialize(
+bool vulkan_device::initialize(
     vulkan_context* _context, uint32_t graphics_and_device_queue) {
   vkGetDeviceProcAddr =
       reinterpret_cast<PFN_vkGetDeviceProcAddr>(_context->vkGetInstanceProcAddr(
@@ -208,7 +209,7 @@ bool device::initialize(
 }
 
 template <typename heap_type>
-heap_type WN_FORCE_INLINE device::create_heap(size_t _size_in_bytes,
+heap_type WN_FORCE_INLINE vulkan_device::create_heap(size_t _size_in_bytes,
     const VkBufferCreateInfo& _info, uint32_t _memory_type_index) {
   heap_type heap(this);
 
@@ -260,18 +261,18 @@ heap_type WN_FORCE_INLINE device::create_heap(size_t _size_in_bytes,
   return core::move(heap);
 }
 
-upload_heap device::create_upload_heap(size_t _size_in_bytes) {
+upload_heap vulkan_device::create_upload_heap(size_t _size_in_bytes) {
   return create_heap<upload_heap>(
       _size_in_bytes, s_upload_buffer, m_upload_memory_type_index);
 }
 
-download_heap device::create_download_heap(size_t _size_in_bytes) {
+download_heap vulkan_device::create_download_heap(size_t _size_in_bytes) {
   return create_heap<download_heap>(
       _size_in_bytes, s_download_buffer, m_download_memory_type_index);
 }
 
 template <typename heap_type>
-void WN_FORCE_INLINE device::destroy_typed_heap(heap_type* _heap) {
+void WN_FORCE_INLINE vulkan_device::destroy_typed_heap(heap_type* _heap) {
   buffer_data& res = _heap->template data_as<buffer_data>();
   if (res.device_memory != VK_NULL_HANDLE) {
     vkFreeMemory(m_device, res.device_memory, nullptr);
@@ -282,15 +283,15 @@ void WN_FORCE_INLINE device::destroy_typed_heap(heap_type* _heap) {
   }
 }
 
-void device::destroy_heap(upload_heap* _heap) {
+void vulkan_device::destroy_heap(upload_heap* _heap) {
   return destroy_typed_heap(_heap);
 }
 
-void device::destroy_heap(download_heap* _heap) {
+void vulkan_device::destroy_heap(download_heap* _heap) {
   return destroy_typed_heap(_heap);
 }
 
-void device::release_range(
+void vulkan_device::release_range(
     upload_heap* _heap, size_t _offset_in_bytes, size_t _num_bytes) {
   // If our upload heap was coherent, then we do not have to ever
   // call flush on it.
@@ -311,9 +312,9 @@ void device::release_range(
   vkFlushMappedMemoryRanges(m_device, 1, &range);
 }
 
-void device::release_range(download_heap*, size_t, size_t) {}
+void vulkan_device::release_range(download_heap*, size_t, size_t) {}
 
-uint32_t device::get_memory_type_index(
+uint32_t vulkan_device::get_memory_type_index(
     uint32_t _types, VkFlags _properties) const {
   uint32_t i = 0;
   do {
@@ -329,11 +330,12 @@ uint32_t device::get_memory_type_index(
   return uint32_t(-1);
 }
 
-uint8_t* device::acquire_range(upload_heap* _heap, size_t _offset, size_t) {
+uint8_t* vulkan_device::acquire_range(
+    upload_heap* _heap, size_t _offset, size_t) {
   return _heap->m_root_address + _offset;
 }
 
-uint8_t* device::synchronize(
+uint8_t* vulkan_device::synchronize(
     upload_heap* _heap, size_t _offset, size_t _num_bytes) {
   if (!m_upload_heap_is_coherent) {
     buffer_data& res = _heap->template data_as<buffer_data>();
@@ -351,7 +353,7 @@ uint8_t* device::synchronize(
   return _heap->m_root_address + _offset;
 }
 
-uint8_t* device::acquire_range(
+uint8_t* vulkan_device::acquire_range(
     download_heap* _heap, size_t _offset, size_t _num_bytes) {
   // If our upload heap was coherent, then we do not have to ever
   // call flush on it.
@@ -371,26 +373,26 @@ uint8_t* device::acquire_range(
   return _heap->m_root_address + _offset;
 }
 
-uint8_t* device::synchronize(
+uint8_t* vulkan_device::synchronize(
     download_heap* _heap, size_t _offset, size_t _num_bytes) {
   return acquire_range(_heap, _offset, _num_bytes);
 }
 
-queue_ptr device::create_queue() {
+queue_ptr vulkan_device::create_queue() {
   VkQueue q = nullptr;
   q = m_queue.exchange(q);
   if (!q) {
     return nullptr;
   }
 
-  return memory::make_unique_delegated<vulkan::queue>(
+  return memory::make_unique_delegated<vulkan_queue>(
       m_allocator, [this, &q](void* memory) {
-        return new (memory) vulkan::queue(this, &m_queue_context, q);
+        return new (memory) vulkan_queue(this, &m_queue_context, q);
       });
 }
 
-void device::destroy_queue(graphics::queue* _queue) {
-  vulkan::queue* queue = reinterpret_cast<vulkan::queue*>(_queue);
+void vulkan_device::destroy_queue(graphics::queue* _queue) {
+  vulkan_queue* queue = reinterpret_cast<vulkan_queue*>(_queue);
   m_queue.exchange(queue->m_queue);
 }
 
@@ -400,7 +402,7 @@ const static VkFenceCreateInfo s_create_fence{
     0,                                    // flags
 };
 
-fence device::create_fence() {
+fence vulkan_device::create_fence() {
   fence res(this);
 
   VkFence& data = res.data_as<VkFence>();
@@ -411,18 +413,19 @@ fence device::create_fence() {
   return core::move(res);
 }
 
-void device::destroy_fence(fence* _fence) {
+void vulkan_device::destroy_fence(fence* _fence) {
   VkFence& data = _fence->data_as<VkFence>();
   vkDestroyFence(m_device, data, nullptr);
 }
 
-void device::wait_fence(const fence* _fence) const {
+void vulkan_device::wait_fence(const fence* _fence) const {
   const VkFence& data = _fence->data_as<VkFence>();
-  while (VK_TIMEOUT == vkWaitForFences(m_device, 1, &data, false,
-                           static_cast<uint32_t>(-1)));
+  while (VK_TIMEOUT ==
+         vkWaitForFences(m_device, 1, &data, false, static_cast<uint32_t>(-1)))
+    ;
 }
 
-void device::reset_fence(fence* _fence) {
+void vulkan_device::reset_fence(fence* _fence) {
   VkFence& data = _fence->data_as<VkFence>();
   vkResetFences(m_device, 1, &data);
 }

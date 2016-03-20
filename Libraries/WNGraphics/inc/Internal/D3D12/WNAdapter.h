@@ -34,16 +34,17 @@ class factory;
 namespace internal {
 namespace d3d12 {
 
-class adapter : public internal::adapter {
+class d3d12_adapter : public internal_adapter {
 public:
-  WN_FORCE_INLINE adapter(Microsoft::WRL::ComPtr<IDXGIAdapter1>&& _dxgi_adapter,
+  WN_FORCE_INLINE d3d12_adapter(
+      Microsoft::WRL::ComPtr<IDXGIAdapter1>&& _dxgi_adapter,
       containers::string&& _name, const uint32_t _vendor_id,
       const uint32_t _device_id)
-    : internal::adapter(
+    : internal_adapter(
           core::move(_name), _vendor_id, _device_id, api_type::d3d12),
       m_dxgi_adapter(core::move(_dxgi_adapter)) {}
 
-  virtual ~adapter() override = default;
+  virtual ~d3d12_adapter() override = default;
 
   virtual device_ptr make_device(
       memory::allocator* _allocator, WNLogging::WNLog* _log) const override;

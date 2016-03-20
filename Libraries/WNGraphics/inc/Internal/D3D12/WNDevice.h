@@ -11,9 +11,9 @@
 #include "WNGraphics/inc/WNDevice.h"
 #include "WNGraphics/inc/WNDeviceForward.h"
 
-#include <atomic>
 #include <D3D12.h>
 #include <wrl.h>
+#include <atomic>
 
 namespace WNLogging {
 
@@ -32,11 +32,12 @@ namespace graphics {
 namespace internal {
 namespace d3d12 {
 
-class device final : public internal::device {
+class d3d12_device final : public internal_device {
 public:
-  WN_FORCE_INLINE device(memory::allocator* _allocator, WNLogging::WNLog* _log,
+  WN_FORCE_INLINE d3d12_device(memory::allocator* _allocator,
+      WNLogging::WNLog* _log,
       Microsoft::WRL::ComPtr<ID3D12Device>&& _d3d12_device)
-    : internal::device(_allocator, _log),
+    : internal_device(_allocator, _log),
       m_device(core::move(_d3d12_device)),
       m_num_queues(0) {}
 
@@ -48,9 +49,9 @@ public:
 
 private:
   template <typename T>
-  friend class graphics::heap;
-  friend class graphics::fence;
-  friend class queue;
+  friend class heap;
+  friend class fence;
+  friend class vulkan_queue;
 
   uint8_t* acquire_range(
       upload_heap* _buffer, size_t _offset, size_t _num_bytes) final;

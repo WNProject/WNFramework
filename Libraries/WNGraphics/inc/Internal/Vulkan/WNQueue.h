@@ -18,15 +18,15 @@ namespace vulkan {
 
 class device;
 
-class queue : public internal::queue {
+class vulkan_queue : public internal::internal_queue {
 public:
-  ~queue();
+  ~vulkan_queue();
   void enqueue_signal(fence& _fence) final;
-private:
-  queue(
-      vulkan::device* _device, queue_context* _context, VkQueue queue);
 
-  friend class vulkan::device;
+private:
+  vulkan_queue(vulkan_device* _device, queue_context* _context, VkQueue queue);
+
+  friend class vulkan_device;
 
   VkQueue m_queue;
   queue_context* const m_queue_context;
@@ -36,13 +36,5 @@ private:
 }  // namespace internal
 }  // namespace graphics
 }  // namespace wn
-
-#if _WN_GRAPHICS_DEVICE_TYPES_AVAILABLE == 1
-#if defined _WN_GRAPHICS_VULKAN_DEVICE_TYPE_AVAILABLE
-#include "WNGraphics/inc/Internal/Vulkan/WNQueue.h"
-#elif defined _WN_GRAPHICS_D3D12_DEVICE_TYPE_AVAILABLE
-#include "WNGraphics/inc/Internal/D3D12/WNQueue.h"
-#endif
-#endif
 
 #endif  // __WN_GRAPHICS_INC_INTERNAL_VULKAN_QUEUE_H__

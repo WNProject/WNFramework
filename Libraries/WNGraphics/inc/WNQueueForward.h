@@ -13,17 +13,17 @@ namespace wn {
 namespace graphics {
 namespace internal {
 
-class queue;
+class internal_queue;
 
 namespace d3d12 {
 
-class queue;
+class d3d12_queue;
 
 }  // namespace d3d12
 
 namespace vulkan {
 
-class queue;
+class vulkan_queue;
 
 }  // namespace vulkan
 }  // namespace internal
@@ -34,7 +34,7 @@ class queue;
 namespace wn {
 namespace graphics {
 
-using queue = wn::graphics::internal::queue;
+using queue = internal::internal_queue;
 
 }  // namespace graphics
 }  // namespace wn
@@ -42,7 +42,7 @@ using queue = wn::graphics::internal::queue;
 namespace wn {
 namespace graphics {
 
-using queue = internal::vulkan::queue;
+using queue = internal::vulkan::vulkan_queue;
 
 }  // namespace graphics
 }  // namespace wn
@@ -50,7 +50,7 @@ using queue = internal::vulkan::queue;
 namespace wn {
 namespace graphics {
 
-using queue = internal::d3d12::queue;
+using queue = internal::d3d12::d3d12_queue;
 
 }  // namespace graphics
 }  // namespace wn
