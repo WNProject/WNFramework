@@ -54,11 +54,15 @@ private:
 
   uint8_t* acquire_range(
       upload_heap* _buffer, size_t _offset, size_t _num_bytes) final;
+  uint8_t* synchronize(
+      upload_heap* _buffer, size_t _offset, size_t _num_bytes) final;
   void release_range(
       upload_heap* _buffer, size_t _offset, size_t _num_bytes) final;
   void destroy_heap(upload_heap* _heap) final;
 
   uint8_t* acquire_range(
+      download_heap* _buffer, size_t _offset, size_t _num_bytes) final;
+  uint8_t* synchronize(
       download_heap* _buffer, size_t _offset, size_t _num_bytes) final;
   void release_range(
       download_heap* _buffer, size_t _offset, size_t _num_bytes) final;

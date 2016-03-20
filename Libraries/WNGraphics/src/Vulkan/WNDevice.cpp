@@ -333,6 +333,24 @@ uint8_t* device::acquire_range(upload_heap* _heap, size_t _offset, size_t) {
   return _heap->m_root_address + _offset;
 }
 
+uint8_t* device::synchronize(
+    upload_heap* _heap, size_t _offset, size_t _num_bytes) {
+  if (!m_upload_heap_is_coherent) {
+    buffer_data& res = _heap->template data_as<buffer_data>();
+
+    VkMappedMemoryRange range{
+        VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE,  // sType
+        nullptr,                                // pNext
+        res.device_memory,                      // memory
+        _offset,                                // offset
+        _num_bytes                              // size
+    };
+
+    vkFlushMappedMemoryRanges(m_device, 1, &range);
+  }
+  return _heap->m_root_address + _offset;
+}
+
 uint8_t* device::acquire_range(
     download_heap* _heap, size_t _offset, size_t _num_bytes) {
   // If our upload heap was coherent, then we do not have to ever
@@ -351,6 +369,11 @@ uint8_t* device::acquire_range(
     vkInvalidateMappedMemoryRanges(m_device, 1, &range);
   }
   return _heap->m_root_address + _offset;
+}
+
+uint8_t* device::synchronize(
+    download_heap* _heap, size_t _offset, size_t _num_bytes) {
+  return acquire_range(_heap, _offset, _num_bytes);
 }
 
 queue_ptr device::create_queue() {

@@ -10,6 +10,8 @@
 using download_heap_creation_test =
     wn::graphics::testing::parameterized_test<size_t>;
 
+using download_heap_synchronization_test = wn::graphics::testing::test;
+
 TEST_P(download_heap_creation_test, many_sizes) {
   wn::graphics::factory device_factory(&m_allocator, &m_log);
 
@@ -71,6 +73,27 @@ INSTANTIATE_TEST_CASE_P(large_values, download_heap_writing_test,
             std::make_tuple(1024 * 1024, 121),
             std::make_tuple(1024 * 1024 - 1, 119),
             std::make_tuple(128 * 1024 * 1024, 2023)})));
+
+TEST_F(download_heap_synchronization_test, synchronize_writes) {
+  wn::graphics::factory device_factory(&m_allocator, &m_log);
+
+  for (auto& adapter : device_factory.query_adapters()) {
+    wn::graphics::device_ptr device =
+        adapter->make_device(&m_allocator, &m_log);
+    ASSERT_NE(nullptr, device);
+
+    wn::graphics::download_heap download =
+        device->create_download_heap(1024 * 1024);  // 1MB Heap
+    ASSERT_TRUE(download.is_valid());
+
+    auto buffer = download.get_range(0, 1024 * 1024);
+    for (size_t i = 0; i < 1024 * 1024; i += 967) {
+      buffer.synchronize();
+      volatile int j = buffer.range()[i];
+      (void)j;
+    }
+  }
+}
 
 // TODO(awoloszyn): Create a null device, and hook it up.
 // Then create some tests around it for making sure ranges

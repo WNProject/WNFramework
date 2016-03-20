@@ -47,12 +47,16 @@ protected:
   // Upload heap methods
   virtual uint8_t* acquire_range(
       upload_heap* _buffer, size_t _offset, size_t _num_bytes) = 0;
+  virtual uint8_t* synchronize(
+      upload_heap* _buffer, size_t _offset, size_t _num_bytes) = 0;
   virtual void release_range(
       upload_heap* _buffer, size_t _offset, size_t _num_bytes) = 0;
   virtual void destroy_heap(upload_heap* _heap) = 0;
 
   // Download heap methods
   virtual uint8_t* acquire_range(
+      download_heap* _buffer, size_t _offset, size_t _num_bytes) = 0;
+  virtual uint8_t* synchronize(
       download_heap* _buffer, size_t _offset, size_t _num_bytes) = 0;
   virtual void release_range(
       download_heap* _buffer, size_t _offset, size_t _num_bytes) = 0;

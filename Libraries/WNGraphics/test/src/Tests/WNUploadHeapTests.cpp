@@ -10,6 +10,8 @@
 using upload_heap_creation_test =
     wn::graphics::testing::parameterized_test<size_t>;
 
+using upload_heap_synchronization_test = wn::graphics::testing::test;
+
 TEST_P(upload_heap_creation_test, many_sizes) {
   wn::graphics::factory device_factory(&m_allocator, &m_log);
 
@@ -69,6 +71,26 @@ INSTANTIATE_TEST_CASE_P(large_values, upload_heap_writing_test,
             std::make_tuple(1024 * 1024, 121),
             std::make_tuple(1024 * 1024 - 1, 119),
             std::make_tuple(128 * 1024 * 1024, 2023)})));
+
+TEST_F(upload_heap_synchronization_test, synchronize_writes) {
+  wn::graphics::factory device_factory(&m_allocator, &m_log);
+
+  for (auto& adapter : device_factory.query_adapters()) {
+    wn::graphics::device_ptr device =
+        adapter->make_device(&m_allocator, &m_log);
+    ASSERT_NE(nullptr, device);
+
+    wn::graphics::upload_heap upload =
+        device->create_upload_heap(1024 * 1024);  // 1MB Heap
+    ASSERT_TRUE(upload.is_valid());
+
+    auto buffer = upload.get_range(0, 1024 * 1024);
+    for (size_t i = 0; i < 1024 * 1024; i += 967) {
+      buffer.range()[i] = 32;
+      buffer.synchronize();
+    }
+  }
+}
 
 // TODO(awoloszyn): Create a null device, and hook it up.
 // Then create some tests around it for making sure ranges

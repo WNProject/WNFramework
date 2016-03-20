@@ -125,15 +125,41 @@ uint8_t* device::acquire_range(
   return addr;
 }
 
+uint8_t* device::synchronize(
+    upload_heap* _heap, size_t _offset, size_t _size_in_bytes) {
+  Microsoft::WRL::ComPtr<ID3D12Resource>& res =
+      _heap->data_as<Microsoft::WRL::ComPtr<ID3D12Resource>>();
+  uint8_t* addr = 0;
+  D3D12_RANGE range{_offset, _size_in_bytes};
+  res->Unmap(0, &range);
+  HRESULT hr = res->Map(0, &range, (void**)&addr);
+  (void)hr;
+  WN_DEBUG_ASSERT_DESC(!FAILED(hr), "Synchronizing Failed");
+  return addr;
+}
+
 uint8_t* device::acquire_range(
     download_heap* _heap, size_t _offset, size_t _size_in_bytes) {
   Microsoft::WRL::ComPtr<ID3D12Resource>& res =
       _heap->data_as<Microsoft::WRL::ComPtr<ID3D12Resource>>();
   uint8_t* addr = 0;
   D3D12_RANGE range{_offset, _size_in_bytes};
-  HRESULT hr = res->Map(0, &range, (void**)&addr);
+  const HRESULT hr = res->Map(0, &range, (void**)&addr);
   (void)hr;
   WN_DEBUG_ASSERT_DESC(!FAILED(hr), "Mapping failed");
+  return addr;
+}
+
+uint8_t* device::synchronize(
+    download_heap* _heap, size_t _offset, size_t _size_in_bytes) {
+  Microsoft::WRL::ComPtr<ID3D12Resource>& res =
+      _heap->data_as<Microsoft::WRL::ComPtr<ID3D12Resource>>();
+  uint8_t* addr = 0;
+  D3D12_RANGE range{_offset, _size_in_bytes};
+  res->Unmap(0, &range);
+  const HRESULT hr = res->Map(0, &range, (void**)&addr);
+  (void)hr;
+  WN_DEBUG_ASSERT_DESC(!FAILED(hr), "Synchronizing Failed");
   return addr;
 }
 
