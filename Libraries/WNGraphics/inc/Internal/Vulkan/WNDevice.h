@@ -7,6 +7,7 @@
 #ifndef __WN_GRAPHICS_INTERNAL_VULKAN_DEVICE_H__
 #define __WN_GRAPHICS_INTERNAL_VULKAN_DEVICE_H__
 
+#include "WNGraphics/inc/Internal/Vulkan/WNVulkanCommandListContext.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanContext.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanQueueContext.h"
 #include "WNGraphics/inc/WNDevice.h"
@@ -33,10 +34,14 @@ public:
   queue_ptr create_queue() final;
   fence create_fence() final;
 
+  command_allocator create_command_allocator() final;
+
 private:
   template <typename T>
   friend class graphics::heap;
   friend class graphics::fence;
+  friend class graphics::command_allocator;
+  friend class vulkan_command_list;
   friend class vulkan_queue;
 
   uint8_t* acquire_range(
@@ -69,6 +74,9 @@ private:
   void wait_fence(const fence* _fence) const final;
   void reset_fence(fence* _fence) final;
 
+  void destroy_command_allocator(command_allocator*) final;
+  command_list_ptr create_command_list(command_allocator*) final;
+
   uint32_t get_memory_type_index(uint32_t _types, VkFlags _properties) const;
 
   PFN_vkGetDeviceProcAddr vkGetDeviceProcAddr;
@@ -91,10 +99,17 @@ private:
   PFN_vkWaitForFences vkWaitForFences;
   PFN_vkResetFences vkResetFences;
 
+  PFN_vkCreateCommandPool vkCreateCommandPool;
+  PFN_vkDestroyCommandPool vkDestroyCommandPool;
+
   PFN_vkFlushMappedMemoryRanges vkFlushMappedMemoryRanges;
   PFN_vkInvalidateMappedMemoryRanges vkInvalidateMappedMemoryRanges;
 
+  PFN_vkAllocateCommandBuffers vkAllocateCommandBuffers;
+  PFN_vkFreeCommandBuffers vkFreeCommandBuffers;
+
   PFN_vkGetBufferMemoryRequirements vkGetBufferMemoryRequirements;
+  PFN_vkBeginCommandBuffer vkBeginCommandBuffer;
 
   VkDevice m_device;
   std::atomic<VkQueue> m_queue;
@@ -106,6 +121,7 @@ private:
 
   const VkPhysicalDeviceMemoryProperties* m_physical_device_memory_properties;
   queue_context m_queue_context;
+  command_list_context m_command_list_context;
 };
 
 }  // namespace vulkan

@@ -32,6 +32,7 @@ namespace graphics {
 namespace internal {
 namespace d3d12 {
 
+
 class d3d12_device final : public internal_device {
 public:
   WN_FORCE_INLINE d3d12_device(memory::allocator* _allocator,
@@ -47,11 +48,13 @@ public:
   queue_ptr create_queue() final;
   fence create_fence() final;
 
+  command_allocator create_command_allocator() final;
 private:
   template <typename T>
-  friend class heap;
-  friend class fence;
-  friend class vulkan_queue;
+  friend class graphics::heap;
+  friend class graphics::fence;
+  friend class graphics::command_allocator;
+  friend class d3d12_queue;
 
   uint8_t* acquire_range(
       upload_heap* _buffer, size_t _offset, size_t _num_bytes) final;
@@ -83,6 +86,9 @@ private:
       const D3D12_RESOURCE_STATES& _states);
   template <typename heap_type>
   void destroy_typed_heap(heap_type* type);
+
+  void destroy_command_allocator(command_allocator*) final;
+  command_list_ptr create_command_list(command_allocator*) final;
 
   Microsoft::WRL::ComPtr<ID3D12Device> m_device;
   std::atomic<uint32_t> m_num_queues;

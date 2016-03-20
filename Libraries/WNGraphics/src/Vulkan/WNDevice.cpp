@@ -2,8 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "WNGraphics/inc/Internal/Vulkan/WNBufferData.h"
+#include "WNGraphics/inc/Internal/Vulkan/WNCommandList.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNDevice.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNQueue.h"
+#include "WNGraphics/inc/WNCommandAllocator.h"
 #include "WNGraphics/inc/WNFence.h"
 #include "WNGraphics/inc/WNHeap.h"
 #include "WNGraphics/inc/WNQueue.h"
@@ -14,10 +17,6 @@ namespace graphics {
 namespace internal {
 namespace vulkan {
 
-struct buffer_data {
-  VkDeviceMemory device_memory;
-  VkBuffer buffer;
-};
 namespace {
 static const VkBufferCreateInfo s_upload_buffer{
     VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,  // sType
@@ -38,6 +37,12 @@ static const VkBufferCreateInfo s_download_buffer{
     VK_SHARING_MODE_EXCLUSIVE,             // sharingMode
     0,                                     // queueFamilyIndexCount
     0,                                     // pQueueFamilyIndices
+};
+static const VkCommandPoolCreateInfo s_command_pool_create{
+    VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,  // sType
+    nullptr,                                     // pNext
+    0,                                           // flags
+    0                                            // queueFamilyIndex
 };
 }  // anonymous namespace
 
@@ -125,7 +130,26 @@ bool vulkan_device::initialize(
   LOAD_VK_DEVICE_SYMBOL(m_device, vkWaitForFences);
   LOAD_VK_DEVICE_SYMBOL(m_device, vkResetFences);
 
+  LOAD_VK_DEVICE_SYMBOL(m_device, vkCreateCommandPool);
+  LOAD_VK_DEVICE_SYMBOL(m_device, vkDestroyCommandPool);
+
+  LOAD_VK_DEVICE_SYMBOL(m_device, vkAllocateCommandBuffers);
+  LOAD_VK_DEVICE_SYMBOL(m_device, vkFreeCommandBuffers);
+  LOAD_VK_DEVICE_SYMBOL(m_device, vkBeginCommandBuffer);
+
   LOAD_VK_SUB_DEVICE_SYMBOL(m_device, m_queue_context, vkQueueSubmit);
+
+  m_queue_context.m_device = this;
+
+  LOAD_VK_SUB_DEVICE_SYMBOL(
+      m_device, m_command_list_context, vkFreeCommandBuffers);
+  LOAD_VK_SUB_DEVICE_SYMBOL(
+      m_device, m_command_list_context, vkCmdPipelineBarrier);
+  LOAD_VK_SUB_DEVICE_SYMBOL(m_device, m_command_list_context, vkCmdCopyBuffer);
+  LOAD_VK_SUB_DEVICE_SYMBOL(
+      m_device, m_command_list_context, vkEndCommandBuffer);
+
+  m_command_list_context.m_device = this;
 
   VkQueue queue;
   vkGetDeviceQueue(m_device, graphics_and_device_queue, 0, &queue);
@@ -428,6 +452,47 @@ void vulkan_device::wait_fence(const fence* _fence) const {
 void vulkan_device::reset_fence(fence* _fence) {
   VkFence& data = _fence->data_as<VkFence>();
   vkResetFences(m_device, 1, &data);
+}
+
+command_allocator vulkan_device::create_command_allocator() {
+  command_allocator alloc(this);
+  VkCommandPool& pool = alloc.data_as<VkCommandPool>();
+  vkCreateCommandPool(m_device, &s_command_pool_create, nullptr, &pool);
+  return core::move(alloc);
+}
+
+void vulkan_device::destroy_command_allocator(command_allocator* _alloc) {
+  VkCommandPool& pool = _alloc->data_as<VkCommandPool>();
+  vkDestroyCommandPool(m_device, pool, nullptr);
+}
+
+command_list_ptr vulkan_device::create_command_list(command_allocator* _alloc) {
+  VkCommandPool& pool = _alloc->data_as<VkCommandPool>();
+
+  VkCommandBufferAllocateInfo allocation{
+      VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,  // sType
+      nullptr,                                         // pNext
+      pool,                                            // commandPool
+      VK_COMMAND_BUFFER_LEVEL_PRIMARY,                 // level
+      1                                                // commandBufferCount
+  };
+  VkCommandBuffer buffer;
+  vkAllocateCommandBuffers(m_device, &allocation, &buffer);
+
+  VkCommandBufferBeginInfo begin_info{
+      VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,  // sType
+      nullptr,                                      // pNext
+      0,                                            // flags
+      nullptr,                                      // pInheritanceInfo
+  };
+
+  vkBeginCommandBuffer(buffer, &begin_info);
+
+  return memory::make_unique_delegated<vulkan_command_list>(
+      m_allocator, [this, &buffer, &pool](void* memory) {
+        return new (memory)
+            vulkan_command_list(buffer, pool, &m_command_list_context);
+      });
 }
 
 }  // namespace vulkan

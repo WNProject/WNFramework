@@ -22,6 +22,7 @@ class vulkan_queue : public internal::internal_queue {
 public:
   ~vulkan_queue();
   void enqueue_signal(fence& _fence) final;
+  void enqueue_command_list(command_list* _command) final;
 
 private:
   vulkan_queue(vulkan_device* _device, queue_context* _context, VkQueue queue);

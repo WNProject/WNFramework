@@ -45,6 +45,7 @@ WN_INLINE bool convert_to_utf8(
 void enumerate_physical_devices(memory::allocator* _allocator,
     WNLogging::WNLog* _log,
     containers::dynamic_array<adapter_ptr>& _physical_devices) {
+
   _log->Log(WNLogging::eInfo, 0, "Enumerating D3D12 Dvices");
 
   Microsoft::WRL::ComPtr<IDXGIFactory1> dxgi_factory;

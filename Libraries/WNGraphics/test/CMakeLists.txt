@@ -3,6 +3,7 @@ wn_create_tests_from_list(TEST_PREFIX WNGraphics
   SOURCES
     WNDownloadHeap
     WNQueryAdapters
+    WNResourceCopy
     WNUploadHeap
     WNFence
   COMMON_SOURCES

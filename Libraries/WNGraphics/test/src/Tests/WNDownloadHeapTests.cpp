@@ -71,8 +71,7 @@ INSTANTIATE_TEST_CASE_P(large_values, download_heap_writing_test,
     ::testing::ValuesIn(std::vector<std::tuple<size_t, size_t>>(
         {std::make_tuple(1024, 1), std::make_tuple(1024 - 1, 1),
             std::make_tuple(1024 * 1024, 121),
-            std::make_tuple(1024 * 1024 - 1, 119),
-            std::make_tuple(128 * 1024 * 1024, 2023)})));
+            std::make_tuple(1024 * 1024 - 1, 119)})));
 
 TEST_F(download_heap_synchronization_test, synchronize_writes) {
   wn::graphics::factory device_factory(&m_allocator, &m_log);

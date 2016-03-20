@@ -8,6 +8,8 @@
 #define __WN_GRAPHICS_DEVICE_H__
 
 #include "WNGraphics/inc/Internal/WNConfig.h"
+#include "WNGraphics/inc/WNCommandListForward.h"
+#include "WNGraphics/inc/WNDeviceForward.h"
 #include "WNGraphics/inc/WNHeapTraits.h"
 #include "WNGraphics/inc/WNQueueForward.h"
 #include "WNMemory/inc/WNUniquePtr.h"
@@ -20,9 +22,9 @@ class WNLog;
 
 namespace wn {
 namespace graphics {
-
+class command_allocator;
 class fence;
-template<typename T>
+template <typename T>
 class heap;
 namespace internal {
 
@@ -41,10 +43,12 @@ public:
   virtual queue_ptr create_queue() = 0;
   virtual fence create_fence() = 0;
 
+  virtual command_allocator create_command_allocator() = 0;
 protected:
   template <typename heap_type>
   friend class graphics::heap;
   friend class graphics::fence;
+  friend class graphics::command_allocator;
 
   // Upload heap methods
   virtual uint8_t* acquire_range(
@@ -71,6 +75,10 @@ protected:
   // Fence methods
   virtual void wait_fence(const fence* _fence) const = 0;
   virtual void reset_fence(fence* _fence) = 0;
+
+  virtual void destroy_command_allocator(command_allocator*) = 0;
+  virtual command_list_ptr create_command_list(command_allocator*) = 0;
+
 #include "WNGraphics/inc/Internal/WNSetFriendQueues.h"
   memory::allocator* m_allocator;
   WNLogging::WNLog* m_log;

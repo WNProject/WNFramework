@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include "WNCore/inc/WNUtility.h"
+#include "WNGraphics/inc/Internal/D3D12/WNCommandList.h"
 #include "WNGraphics/inc/Internal/D3D12/WNFenceData.h"
 #include "WNGraphics/inc/Internal/D3D12/WNQueue.h"
 #include "WNGraphics/inc/WNDevice.h"
@@ -20,6 +21,13 @@ void d3d12_queue::enqueue_signal(fence& _fence) {
 
 d3d12_queue::~d3d12_queue() {
   m_device->destroy_queue(this);
+}
+
+void d3d12_queue::enqueue_command_list(command_list* _command) {
+  d3d12_command_list* command_list =
+      reinterpret_cast<d3d12_command_list*>(_command);
+  ID3D12CommandList* list = command_list->command_list();
+  m_queue->ExecuteCommandLists(1, &list);
 }
 
 }  // namespace d3d12

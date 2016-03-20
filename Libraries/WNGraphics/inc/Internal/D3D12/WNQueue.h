@@ -24,6 +24,7 @@ class d3d12_queue : public internal_queue {
 public:
   ~d3d12_queue();
   void enqueue_signal(fence& _fence) final;
+  void enqueue_command_list(command_list* _command) final;
 
 private:
   WN_FORCE_INLINE d3d12_queue(d3d12_device* _device,

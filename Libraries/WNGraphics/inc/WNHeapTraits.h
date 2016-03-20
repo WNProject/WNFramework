@@ -20,13 +20,20 @@ struct upload_heap_traits {
   using range_type = containers::write_only_contiguous_range<T>;
 };
 
+template <typename T, typename HeapTraits>
+class heap_buffer;
+
 using upload_heap = heap<upload_heap_traits>;
+template<typename T>
+using upload_heap_buffer = heap_buffer<T, upload_heap_traits>;
 
 struct download_heap_traits {
   template <typename T>
   using range_type = containers::read_only_contiguous_range<T>;
 };
 using download_heap = heap<download_heap_traits>;
+template<typename T>
+using download_heap_buffer = heap_buffer<T, download_heap_traits>;
 
 }  // namespace graphics
 }  // namespace wn

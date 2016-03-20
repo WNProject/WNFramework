@@ -32,8 +32,7 @@ INSTANTIATE_TEST_CASE_P(small_values, upload_heap_creation_test,
     ::testing::Range<size_t>(1, 50, 7));
 
 INSTANTIATE_TEST_CASE_P(large_values, upload_heap_creation_test,
-    ::testing::Values(1024, 1024 - 1, 1024 * 1024, 1024 * 1024 - 1,
-                            128 * 1024 * 1024));
+    ::testing::Values(1024, 1024 - 1, 1024 * 1024, 1024 * 1024 - 1));
 
 using upload_heap_writing_test =
     wn::graphics::testing::parameterized_test<std::tuple<size_t, size_t>>;

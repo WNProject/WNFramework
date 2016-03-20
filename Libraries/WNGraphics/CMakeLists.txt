@@ -10,6 +10,7 @@ set(WN_GRAPHICS_DEVICE_TYPES_AVAILABLE)
 if (WN_PLATFORM STREQUAL Windows)
   set(WN_GRAPHICS_INTERNAL_D3D12_SRC
     inc/Internal/D3D12/WNAdapter.h
+    inc/Internal/D3D12/WNCommandList.h
     inc/Internal/D3D12/WNDevice.h
     inc/Internal/D3D12/WNFenceData.h
     inc/Internal/D3D12/WNQueue.h
@@ -17,6 +18,7 @@ if (WN_PLATFORM STREQUAL Windows)
 
   set(WN_GRAPHICS_D3D12_SRC
     src/D3D12/WNAdapter.cpp
+    src/D3D12/WNCommandList.cpp
     src/D3D12/WNDevice.cpp
     src/D3D12/WNHelpers.h
     src/D3D12/WNHelpers.cpp
@@ -88,14 +90,18 @@ set(WN_GRAPHICS_INTERNAL_SRC
 
 set(WN_GRAPHICS_INTERNAL_VULKAN_SRC
   inc/Internal/Vulkan/WNAdapter.h
+  inc/Internal/Vulkan/WNBufferData.h
+  inc/Internal/Vulkan/WNCommandList.h
   inc/Internal/Vulkan/WNDevice.h
   inc/Internal/Vulkan/WNQueue.h
+  inc/Internal/Vulkan/WNVulkanCommandListContext.h
   inc/Internal/Vulkan/WNVulkanContext.h
   inc/Internal/Vulkan/WNVulkanQueueContext.h
 )
 
 set(WN_GRAPHICS_VULKAN_SRC
   src/Vulkan/WNAdapter.cpp
+  src/Vulkan/WNCommandList.cpp
   src/Vulkan/WNDevice.cpp
   src/Vulkan/WNHelpers.cpp
   src/Vulkan/WNHelpers.h
@@ -112,6 +118,9 @@ add_wn_library(WNGraphics
   SOURCES
     ${WN_GRAPHICS_SRC}
     inc/WNAdapter.h
+    inc/WNCommandAllocator.h
+    inc/WNCommandList.h
+    inc/WNCommandListForward.h
     inc/WNDevice.h
     inc/WNDeviceForward.h
     inc/WNFactory.h

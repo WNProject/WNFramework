@@ -14,6 +14,9 @@
 
 namespace wn {
 namespace graphics {
+namespace internal {
+class internal_command_list;
+} // namespace internal
 
 // On creation this heap_buffer is guaranteed
 // to be synchronized with the GPU.
@@ -37,6 +40,10 @@ public:
     return m_range;
   }
 
+  const range_type& range() const {
+    return m_range;
+  }
+
   // Refreshes the range on the CPU or the GPU
   // as needed. Call this before/after reading/writing
   // to/from the heap in order to make sure that
@@ -45,6 +52,7 @@ public:
   void synchronize();
 
 private:
+  friend class internal::internal_command_list;
   heap_buffer(heap<HeapTraits>* _heap, size_t _offset,
       typename HeapTraits::template range_type<T>&& _range);
 
@@ -95,6 +103,8 @@ public:
   }
 
 private:
+  friend class internal::internal_command_list;
+
   WN_FORCE_INLINE heap(device* _device)
     : m_device(_device), m_root_address(0), m_data({0, 0}) {}
 
@@ -118,10 +128,17 @@ private:
     return *reinterpret_cast<T*>(&m_data);
   }
 
+  template <typename T>
+  const T& data_as() const {
+    static_assert(sizeof(opaque_data) >= sizeof(T), "Invalid cast");
+    return *reinterpret_cast<const T*>(&m_data);
+  }
+
   template <typename T, typename HT>
   friend class heap_buffer;
 
 #include "WNGraphics/inc/Internal/WNSetFriendDevices.h"
+#include "WNGraphics/inc/Internal/WNSetFriendQueues.h"
   // The opaque_data must be trivially copyable.
   // It also must be considered uninitialized when
   // memset to 0.

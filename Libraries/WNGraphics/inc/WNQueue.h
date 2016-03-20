@@ -3,8 +3,10 @@
 // found in the LICENSE file.
 
 #include "WNCore/inc/WNUtility.h"
+#include "WNGraphics/inc/WNCommandListForward.h"
 #include "WNGraphics/inc/WNDeviceForward.h"
 #include "WNGraphics/inc/WNQueueForward.h"
+#include "WNGraphics/inc/WNHeapTraits.h"
 #include "WNMemory/inc/WNUniquePtr.h"
 
 #pragma once
@@ -30,11 +32,11 @@ public:
   }
 
   virtual void enqueue_signal(fence& _fence) = 0;
+  virtual void enqueue_command_list(command_list* _command) = 0;
 
 protected:
   WN_FORCE_INLINE internal_queue(graphics::device* _device)
     : m_device(_device) {}
-
 #include "WNGraphics/inc/Internal/WNSetFriendDevices.h"
   device* const m_device;
 };
@@ -51,13 +53,5 @@ protected:
 #endif
 
 #endif
-
-namespace wn {
-namespace graphics {
-
-using queue_ptr = memory::unique_ptr<queue>;
-
-}  // namespace graphics
-}  // namespace wn
 
 #endif  // __WN_GRAPHICS_QUEUE_H__

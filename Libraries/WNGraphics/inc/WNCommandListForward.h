@@ -3,8 +3,8 @@
 // found in the LICENSE file.
 
 #pragma once
-#ifndef __WN_GRAPHICS_QUEUE_FORWARD_H__
-#define __WN_GRAPHICS_QUEUE_FORWARD_H__
+#ifndef __WN_GRAPHICS_COMMAND_LIST_FORWARD_H__
+#define __WN_GRAPHICS_COMMAND_LIST_FORWARD_H__
 
 #include "WNGraphics/inc/Internal/WNConfig.h"
 #include "WNMemory/inc/WNUniquePtr.h"
@@ -13,18 +13,16 @@ namespace wn {
 namespace graphics {
 namespace internal {
 
-class internal_queue;
+class internal_command_list;
 
 namespace d3d12 {
 
-class d3d12_queue;
 class d3d12_command_list;
 
 }  // namespace d3d12
 
 namespace vulkan {
 
-class vulkan_queue;
 class vulkan_command_list;
 
 }  // namespace vulkan
@@ -36,7 +34,7 @@ class vulkan_command_list;
 namespace wn {
 namespace graphics {
 
-using queue = internal::internal_queue;
+using command_list = internal::internal_command_list;
 
 }  // namespace graphics
 }  // namespace wn
@@ -44,7 +42,7 @@ using queue = internal::internal_queue;
 namespace wn {
 namespace graphics {
 
-using queue = internal::vulkan::vulkan_queue;
+using command_list = internal::vulkan::vulkan_command_list;
 
 }  // namespace graphics
 }  // namespace wn
@@ -52,7 +50,7 @@ using queue = internal::vulkan::vulkan_queue;
 namespace wn {
 namespace graphics {
 
-using queue = internal::d3d12::d3d12_queue;
+using command_list = internal::d3d12::d3d12_command_list;
 
 }  // namespace graphics
 }  // namespace wn
@@ -61,9 +59,9 @@ using queue = internal::d3d12::d3d12_queue;
 namespace wn {
 namespace graphics {
 
-using queue_ptr = memory::unique_ptr<queue>;
+using command_list_ptr = memory::unique_ptr<command_list>;
 
 }  // namespace graphics
 }  // namespace wn
 
-#endif  // __WN_GRAPHICS_QUEUE_FORWARD_H__
+#endif  // __WN_GRAPHICS_COMMAND_LIST_FORWARD_H__

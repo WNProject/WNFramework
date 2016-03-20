@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef __WN_GRAPHICS_INTERNAL_VULKAN_VULKAN_QUEUE_CONTEXT_H__
-#define __WN_GRAPHICS_INTERNAL_VULKAN_VULKAN_QUEUE_CONTEXT_H__
+#ifndef __WN_GRAPHICS_INTERNAL_VULKAN_COMMAND_LIST_CONTEXT_H__
+#define __WN_GRAPHICS_INTERNAL_VULKAN_COMMAND_LIST_CONTEXT_H__
 
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNMemory/inc/WNIntrusivePtr.h"
@@ -20,10 +20,13 @@ namespace vulkan {
 
 class vulkan_device;
 
-struct queue_context final {
-  queue_context() : m_device(nullptr) {}
+struct command_list_context final {
+  command_list_context() : m_device(nullptr) {}
   vulkan_device* m_device;
-  PFN_vkQueueSubmit vkQueueSubmit;
+  PFN_vkFreeCommandBuffers vkFreeCommandBuffers;
+  PFN_vkCmdPipelineBarrier vkCmdPipelineBarrier;
+  PFN_vkCmdCopyBuffer vkCmdCopyBuffer;
+  PFN_vkEndCommandBuffer vkEndCommandBuffer;
 };
 
 }  // namespace vulkan
@@ -31,4 +34,4 @@ struct queue_context final {
 }  // namespace graphics
 }  // namespace wn
 
-#endif  // __WN_GRAPHICS_INTERNAL_VULKAN_VULKAN_QUEUE_CONTEXT_H__
+#endif  // __WN_GRAPHICS_INTERNAL_VULKAN_COMMAND_LIST_CONTEXT_H__
