@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef __WN_GRAPHICS_INTERNAL_VULKAN_PHYSICAL_DEVICE_H__
-#define __WN_GRAPHICS_INTERNAL_VULKAN_PHYSICAL_DEVICE_H__
+#ifndef __WN_GRAPHICS_INTERNAL_VULKAN_ADAPTER_H__
+#define __WN_GRAPHICS_INTERNAL_VULKAN_ADAPTER_H__
 
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanContext.h"
 #include "WNGraphics/inc/Internal/WNAdapter.h"
@@ -49,4 +49,4 @@ private:
 }  // namespace graphics
 }  // namespace wn
 
-#endif  // __WN_GRAPHICS_INTERNAL_VULKAN_PHYSICAL_DEVICE_H__
+#endif  // __WN_GRAPHICS_INTERNAL_VULKAN_ADAPTER_H__

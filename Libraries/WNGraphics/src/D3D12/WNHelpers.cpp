@@ -42,7 +42,7 @@ WN_INLINE bool convert_to_utf8(
 
 }  // anonymous namespace
 
-void enumerate_physical_devices(memory::allocator* _allocator,
+void enumerate_adapters(memory::allocator* _allocator,
     WNLogging::WNLog* _log,
     containers::dynamic_array<adapter_ptr>& _physical_devices) {
 

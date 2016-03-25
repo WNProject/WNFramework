@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef __WN_GRAPHICS_INTERNAL_PHYSICAL_DEVICE_H__
-#define __WN_GRAPHICS_INTERNAL_PHYSICAL_DEVICE_H__
+#ifndef __WN_GRAPHICS_INTERNAL_ADAPTER_H__
+#define __WN_GRAPHICS_INTERNAL_ADAPTER_H__
 
 #include "WNContainers/inc/WNStringView.h"
 #include "WNCore/inc/WNUtility.h"
@@ -65,4 +65,4 @@ protected:
 }  // namespace graphics
 }  // namespace wn
 
-#endif  // __WN_GRAPHICS_INTERNAL_PHYSICAL_DEVICE_H__
+#endif  // __WN_GRAPHICS_INTERNAL_ADAPTER_H__

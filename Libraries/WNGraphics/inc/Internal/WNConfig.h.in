@@ -7,11 +7,20 @@
 #ifndef __WN_GRAPHICS_INTERNAL_CONFIG_H__
 #define __WN_GRAPHICS_INTERNAL_CONFIG_H__
 
+#include "WNCore/inc/WNBase.h"
+
 // define for each available device type
 #cmakedefine _WN_GRAPHICS_D3D12_DEVICE_TYPE_AVAILABLE
 #cmakedefine _WN_GRAPHICS_VULKAN_DEVICE_TYPE_AVAILABLE
 
 // number of graphics device types available
 #define _WN_GRAPHICS_DEVICE_TYPES_AVAILABLE ${WN_GRAPHICS_DEVICE_TYPES_AVAILABLE_COUNT}
+
+// will be defined if only a single device type is available
+#cmakedefine _WN_GRAPHICS_SINGLE_DEVICE_TYPE
+
+// will be defined as WN_FINAL if multiple device types are available
+#define WN_GRAPHICS_FINAL ${WN_GRAPHICS_FINAL}
+#define WN_GRAPHICS_OVERRIDE ${WN_GRAPHICS_OVERRIDE}
 
 #endif  // __WN_GRAPHICS_INTERNAL_CONFIG_H__

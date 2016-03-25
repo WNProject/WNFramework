@@ -21,7 +21,7 @@ namespace graphics {
 class factory {
 public:
   WN_FORCE_INLINE factory(memory::allocator* _allocator, WNLogging::WNLog* _log)
-    : m_physical_devices(_allocator), m_allocator(_allocator), m_log(_log) {}
+    : m_adapters(_allocator), m_allocator(_allocator), m_log(_log) {}
 
   virtual ~factory() = default;
 
@@ -31,7 +31,7 @@ public:
 private:
   void query_devices() const;
 
-  mutable containers::dynamic_array<adapter_ptr> m_physical_devices;
+  mutable containers::dynamic_array<adapter_ptr> m_adapters;
   mutable multi_tasking::once_flag m_query_adapter_once_flag;
   memory::allocator* m_allocator;
   WNLogging::WNLog* m_log;

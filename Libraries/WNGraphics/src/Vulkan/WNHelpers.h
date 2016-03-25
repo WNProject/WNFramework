@@ -22,7 +22,7 @@ namespace graphics {
 namespace internal {
 namespace vulkan {
 
-void enumerate_physical_devices(memory::allocator* _allocator,
+void enumerate_adapters(memory::allocator* _allocator,
     WNLogging::WNLog* _log, containers::dynamic_array<adapter_ptr>& _arr);
 
 }  // namespace vulkan
@@ -30,4 +30,4 @@ void enumerate_physical_devices(memory::allocator* _allocator,
 }  // namespace graphics
 }  // namespace wn
 
-#endif  // __WN_GRAPHICS_INTERNAL_VULKAN_PHYSICAL_DEVICE_H__
+#endif  // __WN_GRAPHICS_INTERNAL_VULKAN_ADAPTER_H__

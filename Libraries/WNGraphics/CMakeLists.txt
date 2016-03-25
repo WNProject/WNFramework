@@ -30,7 +30,9 @@ if (WN_PLATFORM STREQUAL Windows)
     ${WN_GRAPHICS_D3D12_SRC}
   )
 
-  if (MSVC_VERSION GREATER 1800)
+  check_include_file_cxx(d3d12.h HAS_D3D12_H)
+
+  if (HAS_D3D12_H)
     list(APPEND WN_GRAPHICS_DEVICE_TYPES_AVAILABLE d3d12)
   endif()
 endif()
@@ -64,6 +66,13 @@ foreach(WN_GRAPHICS_DEVICE_TYPE ${WN_GRAPHICS_DEVICE_TYPES_ENABLED})
     TRUE
   )
 endforeach()
+
+if (WN_GRAPHICS_DEVICE_TYPES_AVAILABLE_COUNT EQUAL 1)
+  set(_WN_GRAPHICS_SINGLE_DEVICE_TYPE true)
+else()
+  set(WN_GRAPHICS_FINAL WN_FINAL)
+  set(WN_GRAPHICS_OVERRIDE WN_OVERRIDE)
+endif()
 
 # generate config file
 set(CONFIG_FILE_INPUT_PATH_RELATIVE inc/Internal/WNConfig.h.in)

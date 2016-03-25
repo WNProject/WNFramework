@@ -127,7 +127,7 @@ memory::intrusive_ptr<vulkan_context> get_vulkan_context(
   return wn::core::move(context);
 }
 
-void enumerate_physical_devices(memory::allocator* _allocator,
+void enumerate_adapters(memory::allocator* _allocator,
     WNLogging::WNLog* _log, containers::dynamic_array<adapter_ptr>& _arr) {
   vulkan_context_ptr context = get_vulkan_context(_allocator, _log);
   if (!context) {
