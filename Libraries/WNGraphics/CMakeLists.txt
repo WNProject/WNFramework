@@ -92,9 +92,6 @@ set(CONFIG_FILE_OUTPUT_PATH
 set(WN_GRAPHICS_INTERNAL_SRC
   ${CONFIG_FILE_INPUT_PATH}
   ${CONFIG_FILE_OUTPUT_PATH}
-  inc/Internal/WNAdapter.h
-  inc/Internal/WNSetFriendDevices.h
-  inc/Internal/WNSetFriendQueues.h
 )
 
 set(WN_GRAPHICS_INTERNAL_VULKAN_SRC
@@ -129,16 +126,15 @@ add_wn_library(WNGraphics
     inc/WNAdapter.h
     inc/WNCommandAllocator.h
     inc/WNCommandList.h
-    inc/WNCommandListForward.h
     inc/WNDevice.h
-    inc/WNDeviceForward.h
     inc/WNFactory.h
     inc/WNFence.h
     inc/WNHeap.h
     inc/WNHeapTraits.h
     inc/WNQueue.h
-    inc/WNQueueForward.h
+    src/WNDevice.cpp
     src/WNFactory.cpp
+    src/WNQueue.cpp
 )
 
 list(FIND WN_GRAPHICS_DEVICE_TYPES_ENABLED d3d12 WN_FOUND_DEVICE_TYPE)

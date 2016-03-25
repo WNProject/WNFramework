@@ -7,9 +7,15 @@
 #ifndef __WN_GRAPHICS_INTERNAL_D3D12_DEVICE_H__
 #define __WN_GRAPHICS_INTERNAL_D3D12_DEVICE_H__
 
-#include "WNCore/inc/WNUtility.h"
+#include "WNGraphics/inc/Internal/WNConfig.h"
+#include "WNGraphics/inc/WNHeapTraits.h"
+#include "WNMemory/inc/WNUniquePtr.h"
+
+#ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
 #include "WNGraphics/inc/WNDevice.h"
-#include "WNGraphics/inc/WNDeviceForward.h"
+#else
+#include "WNCore/inc/WNUtility.h"
+#endif
 
 #include <D3D12.h>
 #include <wrl.h>
@@ -29,68 +35,101 @@ class allocator;
 }  // namespace memory
 
 namespace graphics {
+
+class command_allocator;
+class command_list;
+class fence;
+class queue;
+
+using queue_ptr = memory::unique_ptr<queue>;
+using command_list_ptr = memory::unique_ptr<command_list>;
+
 namespace internal {
 namespace d3d12 {
 
+class d3d12_adapter;
 
-class d3d12_device final : public internal_device {
+#ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
+using d3d12_device_base = device;
+#else
+using d3d12_device_base = core::non_copyable;
+#endif
+
+class d3d12_device WN_GRAPHICS_FINAL : public d3d12_device_base {
 public:
-  WN_FORCE_INLINE d3d12_device(memory::allocator* _allocator,
-      WNLogging::WNLog* _log,
-      Microsoft::WRL::ComPtr<ID3D12Device>&& _d3d12_device)
-    : internal_device(_allocator, _log),
-      m_device(core::move(_d3d12_device)),
+  ~d3d12_device() WN_GRAPHICS_OVERRIDE_FINAL = default;
+
+  queue_ptr create_queue() WN_GRAPHICS_OVERRIDE_FINAL;
+
+protected:
+  friend class fence;
+  friend class queue;
+  friend class d3d12_queue;
+  friend class d3d12_adapter;
+
+  WN_FORCE_INLINE d3d12_device()
+    : d3d12_device_base(),
+      m_allocator(nullptr),
+      m_log(nullptr),
       m_num_queues(0) {}
 
-  upload_heap create_upload_heap(size_t _num_bytes) final;
-  download_heap create_download_heap(size_t _num_bytes) final;
+  WN_FORCE_INLINE void initialize(memory::allocator* _allocator,
+      WNLogging::WNLog* _log,
+      Microsoft::WRL::ComPtr<ID3D12Device>&& _d3d12_device) {
+    m_allocator = _allocator;
+    m_log = _log;
+    m_device = core::move(_d3d12_device);
+  }
 
-  queue_ptr create_queue() final;
-  fence create_fence() final;
+  void initialize_upload_heap(upload_heap* _upload_heap,
+      const size_t _num_bytes) WN_GRAPHICS_OVERRIDE_FINAL;
+  uint8_t* acquire_range(upload_heap* _buffer, size_t _offset,
+      size_t _num_bytes) WN_GRAPHICS_OVERRIDE_FINAL;
+  uint8_t* synchronize(upload_heap* _buffer, size_t _offset,
+      size_t _num_bytes) WN_GRAPHICS_OVERRIDE_FINAL;
+  void release_range(upload_heap* _buffer, size_t _offset,
+      size_t _num_bytes) WN_GRAPHICS_OVERRIDE_FINAL;
+  void destroy_heap(upload_heap* _heap) WN_GRAPHICS_OVERRIDE_FINAL;
 
-  command_allocator create_command_allocator() final;
-private:
-  template <typename T>
-  friend class graphics::heap;
-  friend class graphics::fence;
-  friend class graphics::command_allocator;
-  friend class d3d12_queue;
-
-  uint8_t* acquire_range(
-      upload_heap* _buffer, size_t _offset, size_t _num_bytes) final;
-  uint8_t* synchronize(
-      upload_heap* _buffer, size_t _offset, size_t _num_bytes) final;
-  void release_range(
-      upload_heap* _buffer, size_t _offset, size_t _num_bytes) final;
-  void destroy_heap(upload_heap* _heap) final;
-
-  uint8_t* acquire_range(
-      download_heap* _buffer, size_t _offset, size_t _num_bytes) final;
-  uint8_t* synchronize(
-      download_heap* _buffer, size_t _offset, size_t _num_bytes) final;
-  void release_range(
-      download_heap* _buffer, size_t _offset, size_t _num_bytes) final;
-  void destroy_heap(download_heap* _heap) final;
+  void initialize_download_heap(download_heap* _download_heap,
+      const size_t _num_bytes) WN_GRAPHICS_OVERRIDE_FINAL;
+  uint8_t* acquire_range(download_heap* _buffer, size_t _offset,
+      size_t _num_bytes) WN_GRAPHICS_OVERRIDE_FINAL;
+  uint8_t* synchronize(download_heap* _buffer, size_t _offset,
+      size_t _num_bytes) WN_GRAPHICS_OVERRIDE_FINAL;
+  void release_range(download_heap* _buffer, size_t _offset,
+      size_t _num_bytes) WN_GRAPHICS_OVERRIDE_FINAL;
+  void destroy_heap(download_heap* _heap) WN_GRAPHICS_OVERRIDE_FINAL;
 
   // Destroy methods
-  void destroy_queue(graphics::queue* _queue) final;
-  void destroy_fence(fence* _fence) final;
+  void destroy_queue(queue* _queue) WN_GRAPHICS_OVERRIDE_FINAL;
 
-  // Fance methods
-  void wait_fence(const fence* _fence) const final;
-  void reset_fence(fence* _fence) final;
+  // command allocator methods
+  void initialize_command_allocator(
+      command_allocator* _command_allocator) WN_GRAPHICS_OVERRIDE_FINAL;
+  void destroy_command_allocator(command_allocator*) WN_GRAPHICS_OVERRIDE_FINAL;
+
+  // fence methods
+  void initialize_fence(fence* _fence) WN_GRAPHICS_OVERRIDE_FINAL;
+  void destroy_fence(fence* _fence) WN_GRAPHICS_OVERRIDE_FINAL;
+  void wait_fence(const fence* _fence) const WN_GRAPHICS_OVERRIDE_FINAL;
+  void reset_fence(fence* _fence) WN_GRAPHICS_OVERRIDE_FINAL;
 
   // Templated heap helpers
-  template <typename heap_type>
-  heap_type create_heap(size_t _num_bytes, const D3D12_HEAP_PROPERTIES& _params,
+  template <typename HeapType>
+  void initialize_heap(HeapType* _heap, const size_t _num_bytes,
+      const D3D12_HEAP_PROPERTIES& _params,
       const D3D12_RESOURCE_STATES& _states);
-  template <typename heap_type>
-  void destroy_typed_heap(heap_type* type);
 
-  void destroy_command_allocator(command_allocator*) final;
-  command_list_ptr create_command_list(command_allocator*) final;
+  template <typename HeapType>
+  void destroy_typed_heap(HeapType* type);
+
+  command_list_ptr create_command_list(
+      command_allocator*) WN_GRAPHICS_OVERRIDE_FINAL;
 
   Microsoft::WRL::ComPtr<ID3D12Device> m_device;
+  memory::allocator* m_allocator;
+  WNLogging::WNLog* m_log;
   std::atomic<uint32_t> m_num_queues;
 };
 

@@ -10,72 +10,131 @@
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanCommandListContext.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanContext.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanQueueContext.h"
+#include "WNGraphics/inc/Internal/WNConfig.h"
+#include "WNGraphics/inc/WNHeapTraits.h"
+#include "WNMemory/inc/WNUniquePtr.h"
+
+#ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
 #include "WNGraphics/inc/WNDevice.h"
-#include "WNGraphics/inc/WNDeviceForward.h"
+#else
+#include "WNCore/inc/WNUtility.h"
+#endif
 
 #include <atomic>
 
+#define VK_NO_PROTOTYPES
+
+#include <vulkan.h>
+
+namespace WNLogging {
+
+class WNLog;
+
+}  // namespace WNLogging
+
 namespace wn {
+namespace memory {
+
+class allocator;
+
+}  // namespace memory
+
 namespace graphics {
+
+class command_allocator;
+class command_list;
+class fence;
+class queue;
+
+using queue_ptr = memory::unique_ptr<queue>;
+using command_list_ptr = memory::unique_ptr<command_list>;
+
 namespace internal {
 namespace vulkan {
 
-class vulkan_device : public internal_device {
+class vulkan_command_list;
+class vulkan_adapter;
+
+#ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
+using vulkan_device_base = device;
+#else
+using vulkan_device_base = core::non_copyable;
+#endif
+
+class vulkan_device WN_GRAPHICS_FINAL : public vulkan_device_base {
 public:
-  vulkan_device(memory::allocator* _allocator, WNLogging::WNLog* _log,
-      VkDevice _device, PFN_vkDestroyDevice _destroy_device,
-      const VkPhysicalDeviceMemoryProperties* _memory_properties);
-  ~vulkan_device();
-  bool initialize(
-      vulkan_context* _context, uint32_t _graphics_and_device_queue);
-  upload_heap create_upload_heap(size_t _num_bytes) final;
-  download_heap create_download_heap(size_t _num_bytes) final;
+  ~vulkan_device() WN_GRAPHICS_OVERRIDE_FINAL;
 
-  queue_ptr create_queue() final;
-  fence create_fence() final;
+  queue_ptr create_queue() WN_GRAPHICS_OVERRIDE_FINAL;
 
-  command_allocator create_command_allocator() final;
-
-private:
-  template <typename T>
-  friend class graphics::heap;
+protected:
   friend class graphics::fence;
-  friend class graphics::command_allocator;
-  friend class vulkan_command_list;
+  friend class graphics::queue;
   friend class vulkan_queue;
+  friend class vulkan_adapter;
+  friend class vulkan_command_list;
 
-  uint8_t* acquire_range(
-      upload_heap* _buffer, size_t _offset, size_t _num_bytes) final;
-  uint8_t* synchronize(
-      upload_heap* _buffer, size_t _offset, size_t _num_bytes) final;
-  void release_range(
-      upload_heap* _buffer, size_t _offset, size_t _num_bytes) final;
-  void destroy_heap(upload_heap* _heap) final;
+  WN_FORCE_INLINE vulkan_device()
+    : vulkan_device_base(),
+      m_device(VK_NULL_HANDLE),
+      m_queue(VK_NULL_HANDLE),
+      m_allocator(nullptr),
+      m_log(nullptr),
+      m_upload_memory_type_index(uint32_t(-1)),
+      m_download_memory_type_index(uint32_t(-1)),
+      m_upload_heap_is_coherent(false),
+      m_download_heap_is_coherent(false) {}
 
-  uint8_t* acquire_range(
-      download_heap* _buffer, size_t _offset, size_t _num_bytes) final;
-  uint8_t* synchronize(
-      download_heap* _buffer, size_t _offset, size_t _num_bytes) final;
-  void release_range(
-      download_heap* _buffer, size_t _offset, size_t _num_bytes) final;
-  void destroy_heap(download_heap* _heap) final;
+  bool initialize(memory::allocator* _allocator, WNLogging::WNLog* _log,
+      VkDevice _device, PFN_vkDestroyDevice _destroy_device,
+      const VkPhysicalDeviceMemoryProperties* _memory_properties,
+      vulkan_context* _context, uint32_t _graphics_and_device_queue);
 
-  template <typename heap_type>
-  heap_type create_heap(size_t _num_bytes, const VkBufferCreateInfo& _info,
-      uint32_t memory_type_index);
-  template <typename heap_type>
-  void destroy_typed_heap(heap_type* type);
+  uint8_t* acquire_range(upload_heap* _buffer, size_t _offset,
+      size_t _num_bytes) WN_GRAPHICS_OVERRIDE_FINAL;
+  uint8_t* synchronize(upload_heap* _buffer, size_t _offset,
+      size_t _num_bytes) WN_GRAPHICS_OVERRIDE_FINAL;
+  void release_range(upload_heap* _buffer, size_t _offset,
+      size_t _num_bytes) WN_GRAPHICS_OVERRIDE_FINAL;
+  void destroy_heap(upload_heap* _heap) WN_GRAPHICS_OVERRIDE_FINAL;
 
-  // Queue methods
-  void destroy_queue(graphics::queue* _queue) final;
-  void destroy_fence(fence* _fence) final;
+  uint8_t* acquire_range(download_heap* _buffer, size_t _offset,
+      size_t _num_bytes) WN_GRAPHICS_OVERRIDE_FINAL;
+  uint8_t* synchronize(download_heap* _buffer, size_t _offset,
+      size_t _num_bytes) WN_GRAPHICS_OVERRIDE_FINAL;
+  void release_range(download_heap* _buffer, size_t _offset,
+      size_t _num_bytes) WN_GRAPHICS_OVERRIDE_FINAL;
+  void destroy_heap(download_heap* _heap) WN_GRAPHICS_OVERRIDE_FINAL;
 
-  // Fence methods
-  void wait_fence(const fence* _fence) const final;
-  void reset_fence(fence* _fence) final;
+  template <typename HeapType>
+  void initialize_heap(HeapType* _heap, const size_t _num_bytes,
+      const VkBufferCreateInfo& _info, uint32_t memory_type_index);
 
-  void destroy_command_allocator(command_allocator*) final;
-  command_list_ptr create_command_list(command_allocator*) final;
+  void initialize_upload_heap(
+      upload_heap* _upload_heap, const size_t _size_in_bytes);
+
+  void initialize_download_heap(
+      download_heap* _download_heap, const size_t _size_in_bytes);
+
+  template <typename HeapType>
+  void destroy_typed_heap(HeapType* type);
+
+  // command allocator methods
+  void initialize_command_allocator(
+      command_allocator* _command_allocator) WN_GRAPHICS_OVERRIDE_FINAL;
+  void destroy_command_allocator(command_allocator*) WN_GRAPHICS_OVERRIDE_FINAL;
+
+  // fence methods
+  void initialize_fence(fence* _fence) WN_GRAPHICS_OVERRIDE_FINAL;
+  void destroy_fence(fence* _fence) WN_GRAPHICS_OVERRIDE_FINAL;
+  void wait_fence(const fence* _fence) const WN_GRAPHICS_OVERRIDE_FINAL;
+  void reset_fence(fence* _fence) WN_GRAPHICS_OVERRIDE_FINAL;
+
+  // queue methods
+  void destroy_queue(queue* _queue) WN_GRAPHICS_OVERRIDE_FINAL;
+
+  command_list_ptr create_command_list(
+      command_allocator*) WN_GRAPHICS_OVERRIDE_FINAL;
 
   uint32_t get_memory_type_index(uint32_t _types, VkFlags _properties) const;
 
@@ -111,17 +170,17 @@ private:
   PFN_vkGetBufferMemoryRequirements vkGetBufferMemoryRequirements;
   PFN_vkBeginCommandBuffer vkBeginCommandBuffer;
 
-  VkDevice m_device;
-  std::atomic<VkQueue> m_queue;
-  uint32_t m_upload_memory_type_index;
-  uint32_t m_download_memory_type_index;
-
-  bool m_upload_heap_is_coherent;
-  bool m_download_heap_is_coherent;
-
-  const VkPhysicalDeviceMemoryProperties* m_physical_device_memory_properties;
   queue_context m_queue_context;
   command_list_context m_command_list_context;
+  std::atomic<VkQueue> m_queue;
+  VkDevice m_device;
+  const VkPhysicalDeviceMemoryProperties* m_physical_device_memory_properties;
+  memory::allocator* m_allocator;
+  WNLogging::WNLog* m_log;
+  uint32_t m_upload_memory_type_index;
+  uint32_t m_download_memory_type_index;
+  bool m_upload_heap_is_coherent;
+  bool m_download_heap_is_coherent;
 };
 
 }  // namespace vulkan

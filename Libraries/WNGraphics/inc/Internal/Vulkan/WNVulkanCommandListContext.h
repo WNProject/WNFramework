@@ -11,6 +11,7 @@
 #include "WNMemory/inc/WNIntrusivePtr.h"
 
 #define VK_NO_PROTOTYPES
+
 #include <vulkan.h>
 
 namespace wn {
@@ -20,7 +21,7 @@ namespace vulkan {
 
 class vulkan_device;
 
-struct command_list_context final {
+struct command_list_context WN_FINAL {
   command_list_context() : m_device(nullptr) {}
   vulkan_device* m_device;
   PFN_vkFreeCommandBuffers vkFreeCommandBuffers;

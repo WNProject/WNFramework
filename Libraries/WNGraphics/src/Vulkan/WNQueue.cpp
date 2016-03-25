@@ -2,7 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "WNCore/inc/WNUtility.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNBufferData.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNCommandList.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNDevice.h"
@@ -16,13 +15,13 @@ namespace graphics {
 namespace internal {
 namespace vulkan {
 
-vulkan_queue::vulkan_queue(
-    vulkan_device* _device, queue_context* _context, VkQueue queue)
-  : internal_queue(_device), m_queue_context(_context), m_queue(queue) {}
-
+#ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
 vulkan_queue::~vulkan_queue() {
-  m_device->destroy_queue(this);
+  if (is_valid()) {
+    m_device->destroy_queue(this);
+  }
 }
+#endif
 
 void vulkan_queue::enqueue_signal(fence& _fence) {
   m_queue_context->vkQueueSubmit(m_queue, 0, 0, _fence.data_as<VkFence>());
@@ -41,8 +40,9 @@ void vulkan_queue::enqueue_command_list(command_list* _command) {
       1,                              // commandBufferCount
       &buffer,                        // pCommandBuffers
       0,                              // signalSemaphoreCount
-      nullptr,                        // pSignalSemaphores
+      nullptr                         // pSignalSemaphores
   };
+
   m_queue_context->vkQueueSubmit(m_queue, 1, &info, VK_NULL_HANDLE);
 }
 

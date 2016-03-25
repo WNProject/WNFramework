@@ -3,14 +3,21 @@
 // found in the LICENSE file.
 
 #include "WNGraphics/inc/Internal/Vulkan/WNBufferData.h"
-#include "WNGraphics/inc/Internal/Vulkan/WNCommandList.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNDevice.h"
-#include "WNGraphics/inc/Internal/Vulkan/WNQueue.h"
 #include "WNGraphics/inc/WNCommandAllocator.h"
+#include "WNGraphics/inc/WNCommandList.h"
 #include "WNGraphics/inc/WNFence.h"
 #include "WNGraphics/inc/WNHeap.h"
 #include "WNGraphics/inc/WNQueue.h"
 #include "WNLogging/inc/WNLog.h"
+
+#ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
+#include "WNGraphics/inc/Internal/Vulkan/WNCommandList.h"
+#include "WNGraphics/inc/Internal/Vulkan/WNQueue.h"
+#else
+#include "WNGraphics/inc/WNCommandList.h"
+#include "WNGraphics/inc/WNQueue.h"
+#endif
 
 namespace wn {
 namespace graphics {
@@ -18,6 +25,7 @@ namespace internal {
 namespace vulkan {
 
 namespace {
+
 static const VkBufferCreateInfo s_upload_buffer{
     VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,  // sType
     nullptr,                               // pNext
@@ -26,8 +34,9 @@ static const VkBufferCreateInfo s_upload_buffer{
     VK_BUFFER_USAGE_TRANSFER_SRC_BIT,      // usage
     VK_SHARING_MODE_EXCLUSIVE,             // sharingMode
     0,                                     // queueFamilyIndexCount
-    0,                                     // pQueueFamilyIndices
+    0                                      // pQueueFamilyIndices
 };
+
 static const VkBufferCreateInfo s_download_buffer{
     VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,  // sType
     nullptr,                               // pNext
@@ -36,14 +45,24 @@ static const VkBufferCreateInfo s_download_buffer{
     VK_BUFFER_USAGE_TRANSFER_DST_BIT,      // usage
     VK_SHARING_MODE_EXCLUSIVE,             // sharingMode
     0,                                     // queueFamilyIndexCount
-    0,                                     // pQueueFamilyIndices
+    0                                      // pQueueFamilyIndices
 };
+
 static const VkCommandPoolCreateInfo s_command_pool_create{
     VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,  // sType
     nullptr,                                     // pNext
     0,                                           // flags
     0                                            // queueFamilyIndex
 };
+
+#ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
+using vulkan_command_list_constructable = vulkan_command_list;
+using vulkan_queue_constructable = vulkan_queue;
+#else
+using vulkan_command_list_constructable = command_list;
+using vulkan_queue_constructable = queue;
+#endif
+
 }  // anonymous namespace
 
 // TODO LIST for when we support multiple queues
@@ -54,23 +73,6 @@ static const VkCommandPoolCreateInfo s_command_pool_create{
 
 // TODO LIST: When we want to optimize heap types:
 //  Only determine the heap type once we know what we are allocating.
-
-vulkan_device::vulkan_device(memory::allocator* _allocator,
-    WNLogging::WNLog* _log, VkDevice _device,
-    PFN_vkDestroyDevice _destroy_device,
-    const VkPhysicalDeviceMemoryProperties* _memory_properties)
-  : internal_device(_allocator, _log),
-    vkDestroyDevice(_destroy_device),
-    m_device(_device),
-    m_queue(VK_NULL_HANDLE),
-    m_upload_memory_type_index(uint32_t(-1)),
-    m_upload_heap_is_coherent(false),
-    m_download_memory_type_index(uint32_t(-1)),
-    m_download_heap_is_coherent(false),
-    m_physical_device_memory_properties(_memory_properties) {
-  static_assert(sizeof(buffer_data) == sizeof(upload_heap::opaque_data),
-      "The data is an unexpected size");
-}
 
 vulkan_device::~vulkan_device() {
   vkDestroyDevice(m_device, nullptr);
@@ -96,8 +98,25 @@ vulkan_device::~vulkan_device() {
   }                                                                            \
   m_log->Log(WNLogging::eDebug, 0, #symbol " is at ", sub_struct.symbol);
 
-bool vulkan_device::initialize(
-    vulkan_context* _context, uint32_t graphics_and_device_queue) {
+bool vulkan_device::initialize(memory::allocator* _allocator,
+    WNLogging::WNLog* _log, VkDevice _device,
+    PFN_vkDestroyDevice _destroy_device,
+    const VkPhysicalDeviceMemoryProperties* _memory_properties,
+    vulkan_context* _context, uint32_t _graphics_and_device_queue) {
+  static_assert(sizeof(buffer_data) == sizeof(upload_heap::opaque_data),
+      "the data is an unexpected size");
+
+  m_allocator = _allocator;
+  m_log = _log;
+  vkDestroyDevice = _destroy_device;
+  m_device = _device;
+  m_queue = VK_NULL_HANDLE;
+  m_upload_memory_type_index = uint32_t(-1);
+  m_upload_heap_is_coherent = false;
+  m_download_memory_type_index = uint32_t(-1);
+  m_download_heap_is_coherent = false;
+  m_physical_device_memory_properties = _memory_properties;
+
   vkGetDeviceProcAddr =
       reinterpret_cast<PFN_vkGetDeviceProcAddr>(_context->vkGetInstanceProcAddr(
           _context->instance, "vkGetDeviceProcAddr"));
@@ -152,7 +171,7 @@ bool vulkan_device::initialize(
   m_command_list_context.m_device = this;
 
   VkQueue queue;
-  vkGetDeviceQueue(m_device, graphics_and_device_queue, 0, &queue);
+  vkGetDeviceQueue(m_device, _graphics_and_device_queue, 0, &queue);
   m_queue.exchange(queue);
 
   {
@@ -232,12 +251,11 @@ bool vulkan_device::initialize(
   return true;
 }
 
-template <typename heap_type>
-heap_type WN_FORCE_INLINE vulkan_device::create_heap(size_t _size_in_bytes,
-    const VkBufferCreateInfo& _info, uint32_t _memory_type_index) {
-  heap_type heap(this);
-
-  buffer_data& res = heap.template data_as<buffer_data>();
+template <typename HeapType>
+void vulkan_device::initialize_heap(HeapType* _heap,
+    const size_t _size_in_bytes, const VkBufferCreateInfo& _info,
+    uint32_t _memory_type_index) {
+  buffer_data& res = _heap->template data_as<buffer_data>();
   VkBufferCreateInfo create_info = _info;
   create_info.size = _size_in_bytes;
   if (VK_SUCCESS !=
@@ -245,7 +263,8 @@ heap_type WN_FORCE_INLINE vulkan_device::create_heap(size_t _size_in_bytes,
     m_log->Log(WNLogging::eError, 0,
         "Could not successfully create upload heap of size ", _size_in_bytes,
         ".");
-    return heap_type(nullptr);
+
+    return;
   }
 
   VkMemoryRequirements requirements;
@@ -267,36 +286,37 @@ heap_type WN_FORCE_INLINE vulkan_device::create_heap(size_t _size_in_bytes,
     m_log->Log(WNLogging::eError, 0,
         "Could not successfully allocate device memory of size ",
         _size_in_bytes, ".");
-    return heap_type(nullptr);
+    return;
   }
 
   if (VK_SUCCESS !=
       vkBindBufferMemory(m_device, res.buffer, res.device_memory, 0)) {
     m_log->Log(WNLogging::eError, 0, "Could not bind buffer memory ",
         _size_in_bytes, ".");
-    return heap_type(nullptr);
+    return;
   }
+
   if (VK_SUCCESS != vkMapMemory(m_device, res.device_memory, 0,
-                        requirements.size, 0, (void**)&heap.m_root_address)) {
+                        requirements.size, 0, (void**)&_heap->m_root_address)) {
     m_log->Log(WNLogging::eError, 0, "Could not map buffer memory ",
         _size_in_bytes, ".");
-    return heap_type(nullptr);
   }
-  return core::move(heap);
 }
 
-upload_heap vulkan_device::create_upload_heap(size_t _size_in_bytes) {
-  return create_heap<upload_heap>(
-      _size_in_bytes, s_upload_buffer, m_upload_memory_type_index);
+void vulkan_device::initialize_upload_heap(
+    upload_heap* _upload_heap, const size_t _size_in_bytes) {
+  initialize_heap(_upload_heap, _size_in_bytes, s_upload_buffer,
+      m_upload_memory_type_index);
 }
 
-download_heap vulkan_device::create_download_heap(size_t _size_in_bytes) {
-  return create_heap<download_heap>(
-      _size_in_bytes, s_download_buffer, m_download_memory_type_index);
+void vulkan_device::initialize_download_heap(
+    download_heap* _download_heap, const size_t _size_in_bytes) {
+  initialize_heap(_download_heap, _size_in_bytes, s_download_buffer,
+      m_download_memory_type_index);
 }
 
-template <typename heap_type>
-void WN_FORCE_INLINE vulkan_device::destroy_typed_heap(heap_type* _heap) {
+template <typename HeapType>
+void WN_FORCE_INLINE vulkan_device::destroy_typed_heap(HeapType* _heap) {
   buffer_data& res = _heap->template data_as<buffer_data>();
   if (res.device_memory != VK_NULL_HANDLE) {
     vkFreeMemory(m_device, res.device_memory, nullptr);
@@ -362,7 +382,7 @@ uint8_t* vulkan_device::acquire_range(
 uint8_t* vulkan_device::synchronize(
     upload_heap* _heap, size_t _offset, size_t _num_bytes) {
   if (!m_upload_heap_is_coherent) {
-    buffer_data& res = _heap->template data_as<buffer_data>();
+    buffer_data& res = _heap->data_as<buffer_data>();
 
     VkMappedMemoryRange range{
         VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE,  // sType
@@ -404,19 +424,30 @@ uint8_t* vulkan_device::synchronize(
 
 queue_ptr vulkan_device::create_queue() {
   VkQueue q = nullptr;
+
   q = m_queue.exchange(q);
+
   if (!q) {
     return nullptr;
   }
 
-  return memory::make_unique_delegated<vulkan_queue>(
-      m_allocator, [this, &q](void* memory) {
-        return new (memory) vulkan_queue(this, &m_queue_context, q);
-      });
+  memory::unique_ptr<vulkan_queue_constructable> ptr(
+      memory::make_unique_delegated<vulkan_queue_constructable>(
+          m_allocator, [](void* _memory) {
+            return new (_memory) vulkan_queue_constructable();
+          }));
+
+  if (ptr) {
+    ptr->initialize(this, &m_queue_context, q);
+  }
+
+  return core::move(ptr);
 }
 
-void vulkan_device::destroy_queue(graphics::queue* _queue) {
-  vulkan_queue* queue = reinterpret_cast<vulkan_queue*>(_queue);
+void vulkan_device::destroy_queue(queue* _queue) {
+  vulkan_queue_constructable* queue =
+      reinterpret_cast<vulkan_queue_constructable*>(_queue);
+
   m_queue.exchange(queue->m_queue);
 }
 
@@ -426,15 +457,12 @@ const static VkFenceCreateInfo s_create_fence{
     0,                                    // flags
 };
 
-fence vulkan_device::create_fence() {
-  fence res(this);
-
-  VkFence& data = res.data_as<VkFence>();
+void vulkan_device::initialize_fence(fence* _fence) {
+  VkFence& data = _fence->data_as<VkFence>();
 
   VkResult hr = vkCreateFence(m_device, &s_create_fence, nullptr, &data);
   (void)hr;
   WN_DEBUG_ASSERT_DESC(hr == VK_SUCCESS, "Cannot create fence");
-  return core::move(res);
 }
 
 void vulkan_device::destroy_fence(fence* _fence) {
@@ -454,11 +482,11 @@ void vulkan_device::reset_fence(fence* _fence) {
   vkResetFences(m_device, 1, &data);
 }
 
-command_allocator vulkan_device::create_command_allocator() {
-  command_allocator alloc(this);
-  VkCommandPool& pool = alloc.data_as<VkCommandPool>();
+void vulkan_device::initialize_command_allocator(
+    command_allocator* _command_allocator) {
+  VkCommandPool& pool = _command_allocator->data_as<VkCommandPool>();
+
   vkCreateCommandPool(m_device, &s_command_pool_create, nullptr, &pool);
-  return core::move(alloc);
 }
 
 void vulkan_device::destroy_command_allocator(command_allocator* _alloc) {
@@ -488,11 +516,17 @@ command_list_ptr vulkan_device::create_command_list(command_allocator* _alloc) {
 
   vkBeginCommandBuffer(buffer, &begin_info);
 
-  return memory::make_unique_delegated<vulkan_command_list>(
-      m_allocator, [this, &buffer, &pool](void* memory) {
-        return new (memory)
-            vulkan_command_list(buffer, pool, &m_command_list_context);
-      });
+  memory::unique_ptr<vulkan_command_list_constructable> ptr(
+      memory::make_unique_delegated<vulkan_command_list_constructable>(
+          m_allocator, [](void* _memory) {
+            return new (_memory) vulkan_command_list_constructable();
+          }));
+
+  if (ptr) {
+    ptr->initialize(buffer, pool, &m_command_list_context);
+  }
+
+  return core::move(ptr);
 }
 
 }  // namespace vulkan

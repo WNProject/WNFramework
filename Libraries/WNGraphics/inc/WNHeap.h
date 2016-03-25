@@ -14,9 +14,26 @@
 
 namespace wn {
 namespace graphics {
+
+class command_list;
+
 namespace internal {
-class internal_command_list;
-} // namespace internal
+namespace d3d12 {
+
+class d3d12_queue;
+class d3d12_device;
+class d3d12_command_list;
+
+}  // namespace d3d12
+
+namespace vulkan {
+
+class vulkan_device;
+class vulkan_queue;
+class vulkan_command_list;
+
+}  // namespace vulkan
+}  // namesapce internal
 
 // On creation this heap_buffer is guaranteed
 // to be synchronized with the GPU.
@@ -52,7 +69,8 @@ public:
   void synchronize();
 
 private:
-  friend class internal::internal_command_list;
+  friend class command_list;
+
   heap_buffer(heap<HeapTraits>* _heap, size_t _offset,
       typename HeapTraits::template range_type<T>&& _range);
 
@@ -69,7 +87,7 @@ private:
 template <typename HeapTraits>
 class heap : public core::non_copyable {
 public:
-  template<typename T>
+  template <typename T>
   using range_type = typename HeapTraits::template range_type<T>;
 
   ~heap() {
@@ -90,20 +108,30 @@ public:
   }
 
   bool is_valid() const {
-    return m_device != nullptr;
+    return (m_device != nullptr);
   }
 
   WN_FORCE_INLINE heap(heap&& _other) {
     memory::memcpy(&m_data, &_other.m_data, sizeof(opaque_data));
+
     m_root_address = _other.m_root_address;
     m_device = _other.m_device;
     _other.m_device = nullptr;
     _other.m_root_address = nullptr;
+
     memory::memzero(&_other.m_data, sizeof(opaque_data));
   }
 
 private:
-  friend class internal::internal_command_list;
+  friend class command_list;
+  friend class device;
+  friend class queue;
+  friend class internal::d3d12::d3d12_command_list;
+  friend class internal::d3d12::d3d12_device;
+  friend class internal::d3d12::d3d12_queue;
+  friend class internal::vulkan::vulkan_command_list;
+  friend class internal::vulkan::vulkan_device;
+  friend class internal::vulkan::vulkan_queue;
 
   WN_FORCE_INLINE heap(device* _device)
     : m_device(_device), m_root_address(0), m_data({0, 0}) {}
@@ -137,14 +165,13 @@ private:
   template <typename T, typename HT>
   friend class heap_buffer;
 
-#include "WNGraphics/inc/Internal/WNSetFriendDevices.h"
-#include "WNGraphics/inc/Internal/WNSetFriendQueues.h"
   // The opaque_data must be trivially copyable.
   // It also must be considered uninitialized when
   // memset to 0.
   struct opaque_data {
     uint64_t _dummy[2];
   } m_data;
+
   uint8_t* m_root_address;
   device* m_device;
 };

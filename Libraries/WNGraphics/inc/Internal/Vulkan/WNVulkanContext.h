@@ -11,6 +11,7 @@
 #include "WNMemory/inc/WNIntrusivePtr.h"
 
 #define VK_NO_PROTOTYPES
+
 #include <vulkan.h>
 
 namespace wn {

@@ -12,14 +12,14 @@ namespace d3d12 {
 
 void d3d12_command_list::enqueue_upload_barrier(
     const upload_heap&, size_t, size_t) {
-  // No-op for now. We do not need a barrier between
-  // data upload and copy operations.
+  // No-op for now. We do not need a barrier between data upload and copy
+  // operations.
 }
 
 void d3d12_command_list::enqueue_download_barrier(
     const download_heap&, size_t, size_t) {
-  // No-op for now. We do not need a barrier between
-  // copy and data download operations.
+  // No-op for now. We do not need a barrier between copy and data download
+  // operations.
 }
 
 void d3d12_command_list::enqueue_copy(const upload_heap& _upload_heap,
@@ -33,10 +33,6 @@ void d3d12_command_list::enqueue_copy(const upload_heap& _upload_heap,
   m_command_list->CopyBufferRegion(download_res.Get(),
       _download_offset_in_bytes, upload_res.Get(), _upload_offset_in_bytes,
       _upload_size);
-}
-
-void d3d12_command_list::finalize() {
-  m_command_list->Close();
 }
 
 }  // namespace d3d12

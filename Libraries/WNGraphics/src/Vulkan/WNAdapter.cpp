@@ -4,18 +4,32 @@
 
 #include "WNContainers/inc/WNDynamicArray.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNAdapter.h"
-#include "WNGraphics/inc/Internal/Vulkan/WNDevice.h"
 #include "WNLogging/inc/WNLog.h"
+
+#ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
+#include "WNGraphics/inc/Internal/Vulkan/WNDevice.h"
+#else
+#include "WNGraphics/inc/WNDevice.h"
+#endif
 
 namespace wn {
 namespace graphics {
 namespace internal {
 namespace vulkan {
+namespace {
+
+#ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
+using vulkan_device_constructable = vulkan_device;
+#else
+using vulkan_device_constructable = device;
+#endif
+
+}  // anonymous namespace
 
 device_ptr vulkan_adapter::make_device(
     memory::allocator* _allocator, WNLogging::WNLog* _log) const {
-  float queue_priority = 1.0f;
-  VkDeviceQueueCreateInfo queue_create_info = {
+  const float queue_priority = 1.0f;
+  VkDeviceQueueCreateInfo queue_create_info{
       VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,  // sType;
       nullptr,                                     // pNext;
       0,                                           // flags;
@@ -24,11 +38,9 @@ device_ptr vulkan_adapter::make_device(
       &queue_priority,                             // pQueuePriorities;
   };
 
-  VkPhysicalDeviceFeatures physical_features = {
-      0,
-  };
+  VkPhysicalDeviceFeatures physical_features{0};
 
-  VkDeviceCreateInfo create_info = {
+  VkDeviceCreateInfo create_info{
       VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,  // sType;
       nullptr,                               // pNext;
       0,                                     // flags;
@@ -42,20 +54,30 @@ device_ptr vulkan_adapter::make_device(
   };
 
   VkDevice vk_device;
+
   // TODO(awoloszyn): Add alloactors.
-  if (VK_SUCCESS !=
-      m_context->vkCreateDevice(
-          m_physical_device, &create_info, nullptr, &vk_device)) {
+  if (m_context->vkCreateDevice(
+          m_physical_device, &create_info, nullptr, &vk_device) != VK_SUCCESS) {
     _log->Log(WNLogging::eError, 0, "Could not create device");
-    return nullptr;
-  }
-  auto device_ptr = memory::make_unique<vulkan_device>(_allocator, _allocator,
-      _log, vk_device, m_context->vkDestroyDevice, &m_memory_properties);
-  if (!device_ptr->initialize(m_context.get(), m_compute_and_graphics_queue)) {
+
     return nullptr;
   }
 
-  return core::move(device_ptr);
+  memory::unique_ptr<vulkan_device_constructable> ptr(
+      memory::make_unique_delegated<vulkan_device_constructable>(
+          _allocator, [](void* _memory) {
+            return new (_memory) vulkan_device_constructable();
+          }));
+
+  if (ptr) {
+    if (!ptr->initialize(_allocator, _log, vk_device,
+            m_context->vkDestroyDevice, &m_memory_properties, m_context.get(),
+            m_compute_and_graphics_queue)) {
+      return nullptr;
+    }
+  }
+
+  return core::move(ptr);
 }
 
 void vulkan_adapter::initialize_device() {

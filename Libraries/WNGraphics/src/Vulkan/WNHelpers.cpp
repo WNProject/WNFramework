@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "WNGraphics/inc/Internal/Vulkan/WNAdapter.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanContext.h"
 #include "WNGraphics/src/Vulkan/WNHelpers.h"
 #include "WNLogging/inc/WNLog.h"
@@ -35,6 +36,7 @@ void* load_symbol(library_type _lib, const char* _symbol) {
 #endif
 
 namespace {
+
 void* VKAPI_CALL allocate(void* _user_data, size_t _size, size_t _alignment,
     VkSystemAllocationScope) {
   memory::allocator* alloc = reinterpret_cast<memory::allocator*>(_user_data);
@@ -51,6 +53,13 @@ void VKAPI_CALL free(void* _user_data, void* _data) {
   memory::allocator* alloc = reinterpret_cast<memory::allocator*>(_user_data);
   return alloc->aligned_deallocate(_data);
 }
+
+#ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
+using vulkan_adapter_constructable = vulkan_adapter;
+#else
+using vulkan_adapter_constructable = adapter;
+#endif
+
 }  // anonymous namespace
 
 #define LOAD_VK_SYMBOL(instance, symbol)                                       \
@@ -127,8 +136,8 @@ memory::intrusive_ptr<vulkan_context> get_vulkan_context(
   return wn::core::move(context);
 }
 
-void enumerate_adapters(memory::allocator* _allocator,
-    WNLogging::WNLog* _log, containers::dynamic_array<adapter_ptr>& _arr) {
+void enumerate_adapters(memory::allocator* _allocator, WNLogging::WNLog* _log,
+    containers::dynamic_array<adapter_ptr>& _arr) {
   vulkan_context_ptr context = get_vulkan_context(_allocator, _log);
   if (!context) {
     return;
@@ -198,13 +207,20 @@ void enumerate_adapters(memory::allocator* _allocator,
     }
     _log->Log(WNLogging::eInfo, 0, "--------------------------------");
 
-    memory::unique_ptr<vulkan_adapter> device =
-        memory::make_unique<vulkan_adapter>(_allocator, context, devices[i],
-            containers::string(properties.deviceName, _allocator),
-            properties.vendorID, properties.deviceID,
-            graphics_and_compute_queue);
-    device->initialize_device();
-    _arr.emplace_back(core::move(device));
+    memory::unique_ptr<vulkan_adapter_constructable> ptr(
+        memory::make_unique_delegated<vulkan_adapter_constructable>(
+            _allocator, [](void* _memory) {
+              return new (_memory) vulkan_adapter_constructable();
+            }));
+
+    if (ptr) {
+      ptr->initialize(context, devices[i],
+          containers::string(properties.deviceName, _allocator),
+          properties.vendorID, properties.deviceID, graphics_and_compute_queue);
+      ptr->initialize_device();
+    }
+
+    _arr.emplace_back(core::move(ptr));
   }
 }
 

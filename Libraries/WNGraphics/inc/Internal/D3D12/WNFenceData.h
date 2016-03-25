@@ -7,6 +7,8 @@
 #ifndef __WN_GRAPHICS_INTERNAL_D3D12_FENCE_DATA_H__
 #define __WN_GRAPHICS_INTERNAL_D3D12_FENCE_DATA_H__
 
+#include "WNUtilities/inc/Windows/WNHandle.h"
+
 #include <d3d12.h>
 #include <wrl.h>
 
@@ -15,9 +17,9 @@ namespace graphics {
 namespace internal {
 namespace d3d12 {
 
-struct fence_data final {
+struct fence_data WN_FINAL {
   Microsoft::WRL::ComPtr<ID3D12Fence> fence;
-  HANDLE event;
+  utilities::windows::handle event;
 };
 
 }  // namespace d3d12

@@ -4,7 +4,6 @@
 
 #include "WNCore/inc/WNUtility.h"
 #include "WNGraphics/inc/Internal/D3D12/WNAdapter.h"
-#include "WNGraphics/inc/WNAdapter.h"
 #include "WNGraphics/src/D3D12/WNHelpers.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/WNAllocator.h"
@@ -17,6 +16,12 @@ namespace graphics {
 namespace internal {
 namespace d3d12 {
 namespace {
+
+#ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
+using d3d12_adapter_constructable = d3d12_adapter;
+#else
+using d3d12_adapter_constructable = adapter;
+#endif
 
 WN_INLINE bool convert_to_utf8(
     LPCWSTR _buffer, const DWORD _buffer_size, containers::string& _path) {
@@ -42,10 +47,8 @@ WN_INLINE bool convert_to_utf8(
 
 }  // anonymous namespace
 
-void enumerate_adapters(memory::allocator* _allocator,
-    WNLogging::WNLog* _log,
+void enumerate_adapters(memory::allocator* _allocator, WNLogging::WNLog* _log,
     containers::dynamic_array<adapter_ptr>& _physical_devices) {
-
   _log->Log(WNLogging::eInfo, 0, "Enumerating D3D12 Dvices");
 
   Microsoft::WRL::ComPtr<IDXGIFactory1> dxgi_factory;
@@ -116,12 +119,19 @@ void enumerate_adapters(memory::allocator* _allocator,
     _log->Log(WNLogging::eInfo, 0, "Device: ", dxgi_adapter_desc.VendorId);
     _log->Log(WNLogging::eInfo, 0, "------------------------------");
 
-    memory::unique_ptr<adapter> phys_device(
-        memory::make_unique<d3d12_adapter>(_allocator, core::move(dxgi_adapter),
-            core::move(name), static_cast<uint32_t>(dxgi_adapter_desc.DeviceId),
-            static_cast<uint32_t>(dxgi_adapter_desc.VendorId)));
+    memory::unique_ptr<d3d12_adapter_constructable> ptr(
+        memory::make_unique_delegated<d3d12_adapter_constructable>(
+            _allocator, [](void* _memory) {
+              return new (_memory) d3d12_adapter_constructable();
+            }));
 
-    _physical_devices.push_back(std::move(phys_device));
+    if (ptr) {
+      ptr->initialize(core::move(dxgi_adapter), core::move(name),
+          static_cast<uint32_t>(dxgi_adapter_desc.DeviceId),
+          static_cast<uint32_t>(dxgi_adapter_desc.VendorId));
+    }
+
+    _physical_devices.push_back(core::move(ptr));
   }
 }
 

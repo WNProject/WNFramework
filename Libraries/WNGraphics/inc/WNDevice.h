@@ -8,11 +8,18 @@
 #define __WN_GRAPHICS_DEVICE_H__
 
 #include "WNGraphics/inc/Internal/WNConfig.h"
-#include "WNGraphics/inc/WNCommandListForward.h"
-#include "WNGraphics/inc/WNDeviceForward.h"
 #include "WNGraphics/inc/WNHeapTraits.h"
-#include "WNGraphics/inc/WNQueueForward.h"
 #include "WNMemory/inc/WNUniquePtr.h"
+
+#ifdef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
+#ifdef _WN_GRAPHICS_VULKAN_DEVICE_TYPE_AVAILABLE
+#include "WNGraphics/inc/Internal/Vulkan/WNDevice.h"
+#elif defined _WN_GRAPHICS_D3D12_DEVICE_TYPE_AVAILABLE
+#include "WNGraphics/inc/Internal/D3D12/WNDevice.h"
+#endif
+#else
+#include "WNCore/inc/WNUtility.h"
+#endif
 
 namespace WNLogging {
 
@@ -22,35 +29,65 @@ class WNLog;
 
 namespace wn {
 namespace graphics {
-class command_allocator;
-class fence;
-template <typename T>
-class heap;
 namespace internal {
 
-class internal_device : public core::non_copyable {
-public:
-  WN_FORCE_INLINE internal_device(
-      memory::allocator* _allocator, WNLogging::WNLog* _log)
-    : m_allocator(_allocator), m_log(_log) {}
+#ifdef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
+#ifdef _WN_GRAPHICS_VULKAN_DEVICE_TYPE_AVAILABLE
+using device_base = vulkan::vulkan_device;
+#elif defined _WN_GRAPHICS_D3D12_DEVICE_TYPE_AVAILABLE
+using device_base = d3d12::d3d12_device;
+#endif
+#else
+using device_base = core::non_copyable;
+#endif
 
-  // On success, returns an upload_heap object. This heap must be at least,
-  // 1 byte in size. If creation fails a nullptr will be returned.
-  virtual upload_heap create_upload_heap(size_t _num_bytes) = 0;
-  virtual download_heap create_download_heap(size_t _num_bytes) = 0;
+}  // namespace internal
+
+class command_allocator;
+class command_list;
+class fence;
+
+template <typename HeapTraits>
+class heap;
+
+class queue;
+
+using command_list_ptr = memory::unique_ptr<command_list>;
+using queue_ptr = memory::unique_ptr<queue>;
+
+class device : public internal::device_base {
+public:
+  WN_FORCE_INLINE device() : internal::device_base() {}
+
+#ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
+  virtual ~device() = default;
 
   // It is only valid to have a single queue active at a time.
   virtual queue_ptr create_queue() = 0;
-  virtual fence create_fence() = 0;
+#endif
 
-  virtual command_allocator create_command_allocator() = 0;
+  upload_heap create_upload_heap(const size_t _num_bytes);
+  download_heap create_download_heap(const size_t _num_bytes);
+
+  command_allocator create_command_allocator();
+
+  fence create_fence();
+
 protected:
-  template <typename heap_type>
-  friend class graphics::heap;
-  friend class graphics::fence;
-  friend class graphics::command_allocator;
+  friend class command_allocator;
+  friend class fence;
 
+  template <typename HeapTraits>
+  friend class heap;
+
+  friend class queue;
+  friend class vulkan_queue;
+  friend class vulkan_adapter;
+
+#ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
   // Upload heap methods
+  virtual void initialize_upload_heap(
+      upload_heap* _upload_heap, const size_t _num_bytes) = 0;
   virtual uint8_t* acquire_range(
       upload_heap* _buffer, size_t _offset, size_t _num_bytes) = 0;
   virtual uint8_t* synchronize(
@@ -60,6 +97,8 @@ protected:
   virtual void destroy_heap(upload_heap* _heap) = 0;
 
   // Download heap methods
+  virtual void initialize_download_heap(
+      download_heap* _download_heap, const size_t _num_bytes) = 0;
   virtual uint8_t* acquire_range(
       download_heap* _buffer, size_t _offset, size_t _num_bytes) = 0;
   virtual uint8_t* synchronize(
@@ -69,31 +108,27 @@ protected:
   virtual void destroy_heap(download_heap* _heap) = 0;
 
   // Destruction methods
-  virtual void destroy_queue(graphics::queue* _queue) = 0;
-  virtual void destroy_fence(fence* _fence) = 0;
+  virtual void destroy_queue(queue* _queue) = 0;
 
-  // Fence methods
+  // command allocator methods
+  virtual void initialize_command_allocator(
+      command_allocator* _command_allocator) = 0;
+  virtual void destroy_command_allocator(
+      command_allocator* _command_allocator) = 0;
+
+  // command list methods
+  virtual command_list_ptr create_command_list(
+      command_allocator* _command_allocator) = 0;
+
+  // fence methods
+  virtual void initialize_fence(fence* _fence) = 0;
+  virtual void destroy_fence(fence* _fence) = 0;
   virtual void wait_fence(const fence* _fence) const = 0;
   virtual void reset_fence(fence* _fence) = 0;
-
-  virtual void destroy_command_allocator(command_allocator*) = 0;
-  virtual command_list_ptr create_command_list(command_allocator*) = 0;
-
-#include "WNGraphics/inc/Internal/WNSetFriendQueues.h"
-  memory::allocator* m_allocator;
-  WNLogging::WNLog* m_log;
+#endif
 };
 
-}  // namespace internal
 }  // namespace graphics
 }  // namespace wn
-
-#if _WN_GRAPHICS_DEVICE_TYPES_AVAILABLE == 1
-#if defined _WN_GRAPHICS_VULKAN_DEVICE_TYPE_AVAILABLE
-#include "WNGraphics/inc/Internal/Vulkan/WNDevice.h"
-#elif defined _WN_GRAPHICS_D3D12_DEVICE_TYPE_AVAILABLE
-#include "WNGraphics/inc/Internal/D3D12/WNDevice.h"
-#endif
-#endif
 
 #endif  // __WN_GRAPHICS_DEVICE_H__

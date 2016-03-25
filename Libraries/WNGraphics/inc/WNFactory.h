@@ -25,7 +25,7 @@ public:
 
   virtual ~factory() = default;
 
-  virtual containers::contiguous_range<const adapter_ptr> query_adapters()
+  virtual containers::read_only_contiguous_range<adapter_ptr> query_adapters()
       const;
 
 private:

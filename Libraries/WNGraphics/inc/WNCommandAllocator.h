@@ -7,65 +7,84 @@
 #ifndef __WN_GRAPHICS_COMMAND_ALLOCATOR_H__
 #define __WN_GRAPHICS_COMMAND_ALLOCATOR_H__
 
-#include "WNCore/inc/WNBase.h"
 #include "WNGraphics/inc/WNDevice.h"
-#include "WNGraphics/inc/WNCommandListForward.h"
+#include "WNMemory/inc/WNBasic.h"
 
 namespace wn {
 namespace graphics {
+namespace internal {
+namespace d3d12 {
 
-class command_allocator : public core::non_copyable {
+class d3d12_device;
+
+}  // namespace d3d12
+
+namespace vulkan {
+
+class vulkan_device;
+
+}  // namespace vulkan
+}  // namesapce internal
+
+class command_allocator WN_FINAL : public core::non_copyable {
 public:
-  WN_FORCE_INLINE command_allocator(device* _device)
-    : m_device(_device), m_data({0}) {}
+  command_allocator() = delete;
 
-  // TODO(awoloszyn): Allow secondary command buffers.
-  command_list_ptr create_command_list() {
-    return m_device->create_command_list(this);
-  }
-
-  WN_FORCE_INLINE command_allocator(command_allocator&& _other) {
-    memory::memcpy(&m_data, &_other.m_data, sizeof(opaque_data));
-    m_device = _other.m_device;
-    memory::memzero(&_other.m_data, sizeof(opaque_data));
+  WN_FORCE_INLINE command_allocator(command_allocator&& _other)
+    : m_device(_other.m_device) {
     _other.m_device = nullptr;
+
+    memory::memcpy(&m_data, &_other.m_data, sizeof(opaque_data));
+    memory::memzero(&_other.m_data, sizeof(opaque_data));
   }
 
-  ~command_allocator() {
+  WN_FORCE_INLINE ~command_allocator() {
     if (m_device) {
       m_device->destroy_command_allocator(this);
     }
   }
 
-  bool WN_FORCE_INLINE is_valid() const {
-    return m_device != nullptr;
+  WN_FORCE_INLINE bool is_valid() const {
+    return (m_device != nullptr);
   }
+
+  // TODO(awoloszyn): Allow secondary command buffers.
+  WN_FORCE_INLINE command_list_ptr create_command_list() {
+    return m_device->create_command_list(this);
+  }
+
 protected:
+  friend class internal::d3d12::d3d12_device;
+  friend class internal::vulkan::vulkan_device;
+  friend class device;
+
+  WN_FORCE_INLINE command_allocator(device* _device)
+    : m_device(_device), m_data({0}) {}
 
   template <typename T>
-  T& data_as() {
-    static_assert(sizeof(opaque_data) >= sizeof(T), "Invalid cast");
+  WN_FORCE_INLINE T& data_as() {
+    static_assert(sizeof(opaque_data) >= sizeof(T),
+        "invalid cast, target type size does not match opaque data size");
+
     return *reinterpret_cast<T*>(&m_data);
   }
 
   template <typename T>
-  const T& data_as() const {
-    static_assert(sizeof(opaque_data) >= sizeof(T), "Invalid cast");
+  WN_FORCE_INLINE const T& data_as() const {
+    static_assert(sizeof(opaque_data) >= sizeof(T),
+        "invalid cast, target type size does not match opaque data size");
+
     return *reinterpret_cast<const T*>(&m_data);
   }
-
-#include "WNGraphics/inc/Internal/WNSetFriendDevices.h"
-#include "WNGraphics/inc/Internal/WNSetFriendQueues.h"
 
   // The opaque_data must be trivially copyable.
   // It also must be considered uninitialized when
   // memset to 0.
-  struct opaque_data {
+  struct opaque_data WN_FINAL {
     uint64_t _dummy[1];
   } m_data;
 
   device* m_device;
-
 };
 
 }  // namespace graphics
