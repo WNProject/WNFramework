@@ -62,6 +62,11 @@ void* main_proxy_thread(void* _package_name) {
   return (NULL);
 }
 
+int main(int _argc, char* _argv[]) {
+  wn::utilities::gAndroidLogTag = _argv[0];
+  return wn_main(_argc, _argv);
+}
+
 void android_main(struct android_app* state) {
   char* packageName = GetPackageName(state);
 

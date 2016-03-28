@@ -335,7 +335,7 @@ endforeach()
 function(wn_create_test)
   cmake_parse_arguments(
     PARSED_ARGS
-    ""
+    "SYSTEMS_TEST"
     "TEST_NAME;RUN_WRAPPER;TEST_PREFIX"
     "SOURCES;ADDITIONAL_INCLUDES;LIBS"
     ${ARGN})
@@ -345,16 +345,29 @@ function(wn_create_test)
   if(NOT PARSED_ARGS_SOURCES)
     message(FATAL_ERROR "You must provide at least one source file")
   endif()
+
+  set(MINIMAL_TEST)
+  if (NOT PARSED_ARGS_SYSTEMS_TEST)
+    set(MINIMAL_TEST "MINIMAL_EXECUTABLE")
+  endif()
+
   add_wn_executable(${PARSED_ARGS_TEST_NAME}_test SOURCES ${PARSED_ARGS_SOURCES}
+    ${MINIMAL_TEST}
     LINK_LIBRARIES WNTesting WNUtilities ${PARSED_ARGS_LIBS})
   target_include_directories(${PARSED_ARGS_TEST_NAME}_test PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR})
 
   if (ANDROID)
     find_host_program(PYTHON python)
-    add_test(${PARSED_ARGS_TEST_NAME}
-      ${PYTHON} ${CMAKE_CURRENT_BINARY_DIR}/${PARSED_ARGS_TEST_NAME}_test/${PARSED_ARGS_TEST_NAME}_test.py
-      --install --run --remove)
+    if (MINIMAL_TEST)
+      add_test(${PARSED_ARGS_TEST_NAME}
+        ${PYTHON} ${CMAKE_CURRENT_BINARY_DIR}/${PARSED_ARGS_TEST_NAME}_test.py
+        --install --run --remove)
+    else()
+      add_test(${PARSED_ARGS_TEST_NAME}
+        ${PYTHON} ${CMAKE_CURRENT_BINARY_DIR}/${PARSED_ARGS_TEST_NAME}_test/${PARSED_ARGS_TEST_NAME}_test.py
+        --install --run --remove)
+    endif()
   else()
     if (PARSED_ARGS_RUN_WRAPPER)
       add_test(${PARSED_ARGS_TEST_NAME}
@@ -388,15 +401,21 @@ endfunction()
 function(wn_create_tests_from_list)
   cmake_parse_arguments(
     PARSED_ARGS
-    ""
+    "SYSTEMS_TEST"
     "RUN_WRAPPER;TEST_PREFIX;SOURCE_DIR"
     "SOURCES;COMMON_SOURCES;ADDITIONAL_INCLUDES;LIBS"
     ${ARGN})
   if(NOT PARSED_ARGS_SOURCES)
     message(FATAL_ERROR "You must provide at least one source file")
   endif()
+  set(ST)
+  if (PARSED_ARGS_SYSTEMS_TEST)
+    set(ST "SYSTEMS_TEST")
+  endif()
+
   foreach(source ${PARSED_ARGS_SOURCES})
     wn_create_test(TEST_NAME ${PARSED_ARGS_TEST_PREFIX}_${source}
+      ${ST}
       TEST_PREFIX ${PARSED_ARGS_TEST_PREFIX}
       SOURCES ${PARSED_ARGS_SOURCE_DIR}/${source}Tests.cpp
          ${PARSED_ARGS_COMMON_SOURCES}
@@ -504,13 +523,18 @@ endfunction(add_wn_header_library)
 function(add_wn_executable target)
   cmake_parse_arguments(
     PARSED_ARGS
-    ""
+    "MINIMAL_EXECUTABLE"
     ""
     "SOURCES;LINK_LIBRARIES"
     ${ARGN})
-  if (WN_SYSTEM STREQUAL "Android" AND NOT ${WN_IS_TEGRA})
+  if (NOT PARSED_ARGS_MINIMAL_EXECUTABLE AND
+      WN_SYSTEM STREQUAL "Android" AND NOT ${WN_IS_TEGRA})
     add_wn_library(${target} SHARED SOURCES ${PARSED_ARGS_SOURCES})
   else()
+    if (WN_SYSTEM STREQUAL "Android")
+      configure_file("${PROJECT_SOURCE_DIR}/Utilities/native_runner.py.in"
+                     "${target}.py")
+    endif()
     wn_set_source_groups(${PARSED_ARGS_SOURCES})
     add_executable(${target} ${PARSED_ARGS_SOURCES})
   endif()
@@ -518,7 +542,8 @@ function(add_wn_executable target)
   if (PARSED_ARGS_LINK_LIBRARIES)
     wn_target_link_libraries(${target} PRIVATE ${PARSED_ARGS_LINK_LIBRARIES})
   endif()
-  if (WN_SYSTEM STREQUAL "Android")
+
+  if (NOT PARSED_ARGS_MINIMAL_EXECUTABLE AND WN_SYSTEM STREQUAL "Android")
     build_apk(ACTIVITY ${target} PROGRAM_NAME ${target} TARGET ${target})
   endif()
 endfunction()
