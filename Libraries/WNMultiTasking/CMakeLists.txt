@@ -1,6 +1,7 @@
 set(SRC_ANDROID
   src/Android/WNContext.h
   src/Android/WNContext_arm.h
+  src/Android/WNContext_arm64.h
   src/Android/WNContext_x86.h
   src/Android/WNMakeContext.cpp
   src/Android/WNSwapContext.cpp
@@ -10,7 +11,12 @@ set(SRC_ADDITIONAL)
 set(ANDROID_ASSEMBLY)
 
 if (${WN_SYSTEM} STREQUAL "Android")
-  if (${ANDROID_ARCH_NAME} MATCHES "^(arm.*|ARM.*)")
+  if (${ANDROID_ARCH_NAME} MATCHES "^(arm64.*|ARM64.*)")
+    list(APPEND ANDROID_ASSEMBLY asm/Android/WNGetContext_arm64.S
+      asm/Android/WNSetContext_arm64.S)
+    list(APPEND SRC_ANDROID
+      src/Android/WNMakeContext_arm64.cpp)
+  elseif (${ANDROID_ARCH_NAME} MATCHES "^(arm.*|ARM.*)")
     list(APPEND ANDROID_ASSEMBLY asm/Android/WNGetContext_arm.S
       asm/Android/WNSetContext_arm.S)
     list(APPEND SRC_ANDROID
