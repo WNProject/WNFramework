@@ -1,5 +1,0 @@
-#include "MCJitTest.wns"
-
-Int test3() {
-	return(a());
-}

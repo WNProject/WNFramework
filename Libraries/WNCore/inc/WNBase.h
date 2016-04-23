@@ -83,7 +83,7 @@
 #endif
 
 #ifdef _WN_X86
-#include "WNCore/inc/Internal/x86/WNBase.h"
+#include "WNCore/inc/Internal/X86/WNBase.h"
 #elif defined _WN_ARM
 #include "WNCore/inc/Internal/ARM/WNBase.h"
 #endif

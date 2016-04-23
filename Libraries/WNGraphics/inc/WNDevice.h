@@ -12,11 +12,7 @@
 #include "WNMemory/inc/WNUniquePtr.h"
 
 #ifdef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
-#ifdef _WN_GRAPHICS_VULKAN_DEVICE_TYPE_AVAILABLE
-#include "WNGraphics/inc/Internal/Vulkan/WNDevice.h"
-#elif defined _WN_GRAPHICS_D3D12_DEVICE_TYPE_AVAILABLE
-#include "WNGraphics/inc/Internal/D3D12/WNDevice.h"
-#endif
+#include "WNGraphics/inc/Internal/WNDeviceIncludes.h"
 #else
 #include "WNCore/inc/WNUtility.h"
 #endif
@@ -27,16 +23,17 @@ class WNLog;
 
 }  // namespace WNLogging
 
+
+WN_GRAPHICS_FORWARD(device);
+WN_GRAPHICS_FORWARD(queue);
+WN_GRAPHICS_FORWARD(adapter);
+
 namespace wn {
 namespace graphics {
 namespace internal {
-
 #ifdef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
-#ifdef _WN_GRAPHICS_VULKAN_DEVICE_TYPE_AVAILABLE
-using device_base = vulkan::vulkan_device;
-#elif defined _WN_GRAPHICS_D3D12_DEVICE_TYPE_AVAILABLE
-using device_base = d3d12::d3d12_device;
-#endif
+using device_base =
+    _WN_GRAPHICS_DEVICE_TYPE::WN_GRAPHICS_PREFIXED_TYPE(device);
 #else
 using device_base = core::non_copyable;
 #endif
@@ -81,8 +78,8 @@ protected:
   friend class heap;
 
   friend class queue;
-  friend class vulkan_queue;
-  friend class vulkan_adapter;
+  WN_GRAPHICS_ADD_FRIENDS(queue)
+  WN_GRAPHICS_ADD_FRIENDS(adapter)
 
 #ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
   // Upload heap methods

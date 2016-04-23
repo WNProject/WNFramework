@@ -1,33 +1,8 @@
-set(WNEntryPointSources)
+enable_overlay_directory()
 
-set(WN_ANDROID_SOURCES src/Android/WNEntry.cpp)
-set(WN_WINDOWS_SOURCES src/Windows/WNEntry.cpp)
-set(WN_POSIX_SOURCES src/Linux/WNEntry.cpp)
-set(WN_SOURCES inc/WNEntry.h)
-
-if (WN_SYSTEM STREQUAL "Android")
-  list(APPEND WNEntryPointSources ${WN_ANDROID_SOURCES})
-  # We should be building android_native_app_glue here.
-  add_wn_library(WNAndroidAppGlue SOURCES
-    ${ANDROID_NDK}/sources/android/native_app_glue/android_native_app_glue.c)
-  wn_target_link_libraries(WNAndroidAppGlue log android)
-  target_include_directories(WNAndroidAppGlue PUBLIC
-    ${ANDROID_NDK}/sources/android/native_app_glue)
-  set(WNAdditionalEntryLibs WNAndroidAppGlue android log)
-elseif (WN_POSIX)
-  list(APPEND WNEntryPointSources ${WN_POSIX_SOURCES})
-elseif (WN_SYSTEM STREQUAL "Windows")
-  list(APPEND WNEntryPointSources ${WN_WINDOWS_SOURCES}
-  ${WN_POSIX_SOURCES} ${WN_ANDROID_SOURCES})
-endif()
-
-add_wn_library(WNEntryPoint SOURCES ${WNEntryPointSources}
-  ${WN_SOURCES} ${WNEntryPreLinkFlags} ${WNEntryPostLinkFlags})
-
-wn_target_link_libraries(WNEntryPoint ${WNAdditionalEntryLibs}
-  WNUtilities)
-
-if (WN_SYSTEM STREQUAL "Windows")
-  set_source_files_properties(${WN_POSIX_SOURCES} ${WN_ANDROID_SOURCES}
-    PROPERTIES HEADER_FILE_ONLY true)
-endif()
+add_wn_library(WNEntryPoint
+  SOURCES
+    inc/WNEntry.h
+  LIBS
+    WNUtilities
+)

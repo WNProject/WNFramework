@@ -1,0 +1,24 @@
+// Copyright (c) 2016, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE.txt file.
+
+#pragma once
+
+#ifndef __WN_MATH_INTERNAL_CONFIG_H__
+#define __WN_MATH_INTERNAL_CONFIG_H__
+
+#ifndef __WN_MATH_CONFIG_H__
+#error "Internal/WNConfig.h should never be included directly."
+#endif
+
+#ifndef _WN_MATH_CONFIG_DISABLE_APPROXIMATIONS
+#define __WN_MATH_APPROXIMATIONS_ENABLED
+#endif
+
+#define ${WN_MATH_EXTENSIONS}
+
+#ifdef _WN_MATH_EXTENSIONS_ENABLED
+#include "WNCore/inc/WNBase.h"
+#endif
+
+#endif  // __WN_MATH_INTERNAL_CONFIG_H__

@@ -7,16 +7,16 @@
 #include "WNFileSystem/src/WNUtilities.h"
 
 #ifdef _WN_WINDOWS
-#include "WNFileSystem/src/Windows/WNMappingWindows.h"
-#include "WNFileSystem/src/Windows/WNSystemPaths.h"
+#include "WNFileSystem/src/WNMappingWindows.h"
+#include "WNFileSystem/src/WNSystemPaths.h"
 #elif defined _WN_ANDROID
-#include "WNFileSystem/src/Android/WNSystemPaths.h"
+#include "WNFileSystem/src/WNSystemPaths.h"
 #elif defined _WN_POSIX
-#include "WNFileSystem/src/Posix/WNSystemPaths.h"
+#include "WNFileSystem/src/WNSystemPaths.h"
 #endif
 
 #ifdef _WN_POSIX
-#include "WNFileSystem/src/Posix/WNMappingPosix.h"
+#include "WNFileSystem/src/WNMappingPosix.h"
 #endif
 
 namespace wn {

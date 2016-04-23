@@ -51,6 +51,7 @@
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNScripting/inc/WNASTCodeGenerator.h"
 #include "WNScripting/inc/WNASTWalker.h"
+#include "WNScripting/inc/WNJITConfiguration.h"
 #include "WNScripting/inc/WNJITEngine.h"
 #include "WNScripting/inc/WNJITGenerator.h"
 #include "WNScripting/inc/WNScriptHelpers.h"
@@ -102,23 +103,10 @@ CompiledModule& jit_engine::add_module(containers::string_view _file) {
   CompiledModule& code_module = m_modules.back();
   code_module.m_module = module.get();
 
-#ifdef _WN_ANDROID
-#ifdef _WN_ARM
-  code_module.m_module->setTargetTriple(
-      llvm::Triple::normalize("armv7a-linux-androideabi"));
-#else
-  code_module.m_module->setTargetTriple(
-      llvm::Triple::normalize("i686-linux-androideabi"));
-#endif
-#elif defined(_WN_WINDOWS)
-#ifdef _WN_64_BIT
-  code_module.m_module->setTargetTriple(
-      llvm::Triple::normalize("x86_64-pc-win32-elf"));
-#else
-  code_module.m_module->setTargetTriple(
-      llvm::Triple::normalize("i686-pc-win32-elf"));
-#endif
-#endif  // otherwise let it figure itself out
+  #ifdef WN_LLVM_OVERRIDDEN_TRIPLE
+    code_module.m_module->setTargetTriple(
+      llvm::Triple::normalize(internal::llvm_triple));
+  #endif
 
   llvm::EngineBuilder builder(std::move(module));
   builder.setEngineKind(llvm::EngineKind::JIT);

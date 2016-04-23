@@ -1,6 +1,8 @@
 include(CheckIncludeFileCXX)
 include(CheckCXXSourceCompiles)
 
+enable_overlay_directory()
+
 # run specifier tests
 
 check_cxx_source_compiles(
@@ -895,20 +897,6 @@ set(CONFIG_FILE_OUTPUT_PATH
 
 # setup target
 add_wn_header_library(WNCore
-  inc/Internal/ARM/WNBase.h
-  inc/Internal/ARM/WNBase_Clang.h
-  inc/Internal/ARM/WNBase_GCC.h
-  inc/Internal/ARM/WNBase_MSVC.h
-  inc/Internal/ARM/WNConfig.h
-  inc/Internal/x86/WNBase.h
-  inc/Internal/x86/WNBase_Clang.h
-  inc/Internal/x86/WNBase_GCC.h
-  inc/Internal/x86/WNBase_MSVC.h
-  inc/Internal/x86/WNConfig.h
-  inc/Internal/WNBase_Clang.h
-  inc/Internal/WNBase_Clang_GCC.h
-  inc/Internal/WNBase_GCC.h
-  inc/Internal/WNBase_MSVC.h
   inc/Internal/WNConfig.h.in
   inc/Internal/WNErrors.inc
   inc/Internal/WNExtendedTypes.h
@@ -919,6 +907,7 @@ add_wn_header_library(WNCore
   inc/WNBase.h
   inc/WNEndian.h
   inc/WNExtendedTypes.h
+  inc/WNMacroUtilities.h
   inc/WNTypes.h
   inc/WNTypeTraits.h
   inc/WNUtility.h

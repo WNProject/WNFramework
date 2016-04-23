@@ -1,0 +1,7 @@
+set(ENABLED OFF)
+if (WN_ARCHITECTURE STREQUAL "x86" OR
+    WN_ARCHITECTURE STREQUAL "x86-64")
+  set(ENABLED ON)
+endif()
+
+register_overlay(${ENABLED} X86)

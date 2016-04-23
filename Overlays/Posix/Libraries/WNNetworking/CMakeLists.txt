@@ -1,0 +1,14 @@
+overlay_library_sources(
+  WNNetworking
+  SOURCES
+    inc/Internal/Linux/WNConnectionLinux.h
+    inc/Internal/Linux/WNInConnectionLinux.h
+    inc/Internal/Linux/WNListenConnectionLinux.h
+    inc/Internal/Linux/WNNetworkManagerLinux.h
+    inc/Internal/Linux/WNOutConnectionLinux.h
+    src/Linux/WNConnectionLinux.cpp
+    src/Linux/WNInConnectionLinux.cpp
+    src/Linux/WNListenConnectionLinux.cpp
+    src/Linux/WNNetworkManagerLinux.cpp
+    src/Linux/WNOutConnectionLinux.cpp
+)

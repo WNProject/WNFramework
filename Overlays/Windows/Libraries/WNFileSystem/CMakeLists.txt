@@ -1,0 +1,11 @@
+overlay_library_sources(WNFileSystem
+  SOURCES
+    src/WNFileWindows.cpp
+    src/WNFileWindows.h
+    src/WNMappingWindows.cpp
+    src/WNMappingWindows.h
+    src/WNSystemPaths.cpp
+    src/WNSystemPaths.h
+  LIBS
+    Rpcrt4.lib
+)

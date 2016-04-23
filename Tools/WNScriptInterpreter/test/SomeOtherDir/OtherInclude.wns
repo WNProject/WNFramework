@@ -1,3 +1,0 @@
-Int function add(Int a, Int b){
-	return(a + b);
-}

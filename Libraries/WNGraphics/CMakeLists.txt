@@ -1,60 +1,13 @@
-set(WN_GRAPHICS_SRC)
+set(WN_GRAPHICS_DEVICE_TYPES_AVAILABLE)
+
+enable_overlay_directory()
 
 option(WN_GRAPHICS_DEVICE_TYPES
   "List of device types to include in build" ${WN_GRAPHICS_DEVICE_TYPES}
 )
 
 string(REPLACE "," ";" WN_GRAPHICS_DEVICE_TYPES "${WN_GRAPHICS_DEVICE_TYPES}")
-set(WN_GRAPHICS_DEVICE_TYPES_AVAILABLE)
 
-if (WN_PLATFORM STREQUAL Windows)
-  set(WN_GRAPHICS_INTERNAL_D3D12_SRC
-    inc/Internal/D3D12/WNAdapter.h
-    inc/Internal/D3D12/WNCommandList.h
-    inc/Internal/D3D12/WNDevice.h
-    inc/Internal/D3D12/WNFenceData.h
-    inc/Internal/D3D12/WNQueue.h
-  )
-
-  set(WN_GRAPHICS_D3D12_SRC
-    src/D3D12/WNAdapter.cpp
-    src/D3D12/WNCommandList.cpp
-    src/D3D12/WNDevice.cpp
-    src/D3D12/WNHelpers.h
-    src/D3D12/WNHelpers.cpp
-    src/D3D12/WNQueue.cpp
-  )
-
-  list(APPEND WN_GRAPHICS_SRC
-    ${WN_GRAPHICS_INTERNAL_D3D12_SRC}
-    ${WN_GRAPHICS_D3D12_SRC}
-  )
-
-  check_include_file_cxx(d3d12.h HAS_D3D12_H)
-
-  if (HAS_D3D12_H)
-    list(APPEND WN_GRAPHICS_DEVICE_TYPES_AVAILABLE d3d12)
-  endif()
-endif()
-
-list(APPEND WN_GRAPHICS_DEVICE_TYPES_AVAILABLE vulkan)
-
-if (NOT WN_GRAPHICS_DEVICE_TYPES)
-  set(WN_GRAPHICS_DEVICE_TYPES_ENABLED ${WN_GRAPHICS_DEVICE_TYPES_AVAILABLE})
-else()
-  foreach (WN_GRAPHICS_DEVICE_TYPE ${WN_GRAPHICS_DEVICE_TYPES})
-    list(FIND WN_GRAPHICS_DEVICE_TYPES_AVAILABLE
-      ${WN_GRAPHICS_DEVICE_TYPE} WN_FOUND_DEVICE_TYPE
-    )
-
-    if (WN_FOUND_DEVICE_TYPE EQUAL -1)
-      message(FATAL_ERROR
-        "Device type '${WN_GRAPHICS_DEVICE_TYPE}' not valid")
-    endif()
-  endforeach()
-
-  set(WN_GRAPHICS_DEVICE_TYPES_ENABLED ${WN_GRAPHICS_DEVICE_TYPES})
-endif()
 
 list(LENGTH WN_GRAPHICS_DEVICE_TYPES_ENABLED
   WN_GRAPHICS_DEVICE_TYPES_AVAILABLE_COUNT
@@ -74,55 +27,51 @@ else()
   set(WN_GRAPHICS_OVERRIDE WN_OVERRIDE)
 endif()
 
-# generate config file
-set(CONFIG_FILE_INPUT_PATH_RELATIVE inc/Internal/WNConfig.h.in)
-set(CONFIG_FILE_OUTPUT_PATH_RELATIVE inc/Internal/WNConfig.h)
+string(REPLACE ";" "," WN_GRAPHICS_TYPE_LIST
+  "${WN_GRAPHICS_DEVICE_TYPES_ENABLED}")
+string(TOLOWER "${WN_GRAPHICS_TYPE_LIST}" WN_GRAPHICS_TYPE_LIST)
 
-configure_file(
-  ${CONFIG_FILE_INPUT_PATH_RELATIVE}
-  ${CONFIG_FILE_OUTPUT_PATH_RELATIVE}
-)
+set(_WN_GRAPHICS_DEVICE_TYPE ${WN_GRAPHICS_TYPE_LIST})
 
-set(CONFIG_FILE_INPUT_PATH ${CONFIG_FILE_INPUT_PATH_RELATIVE})
+expand_list(WN_ADAPTER_INCLUDES "#include \"WNGraphics/inc/Internal/"
+  "/WNAdapter.h\"" "\n" ${WN_GRAPHICS_DEVICE_TYPES_ENABLED})
+expand_list(WN_COMMAND_LIST_INCLUDES "#include \"WNGraphics/inc/Internal/"
+  "/WNCommandList.h\"" "\n" ${WN_GRAPHICS_DEVICE_TYPES_ENABLED})
+expand_list(WN_DEVICE_INCLUDES "#include \"WNGraphics/inc/Internal/"
+  "/WNDevice.h\"" "\n" ${WN_GRAPHICS_DEVICE_TYPES_ENABLED})
+expand_list(WN_HELPER_INCLUDES "#include \"WNGraphics/src/"
+  "/WNHelpers.h\"" "\n" ${WN_GRAPHICS_DEVICE_TYPES_ENABLED})
+expand_list(WN_QUEUE_INCLUDES "#include \"WNGraphics/inc/Internal/"
+  "/WNQueue.h\"" "\n" ${WN_GRAPHICS_DEVICE_TYPES_ENABLED})
 
-set(CONFIG_FILE_OUTPUT_PATH
-  ${CMAKE_CURRENT_BINARY_DIR}/${CONFIG_FILE_OUTPUT_PATH_RELATIVE}
-)
+configure_file(inc/Internal/WNConfig.h.in
+  inc/Internal/WNConfig.h)
+configure_file(inc/Internal/WNHelperIncludes.h.in
+  inc/Internal/WNHelperIncludes.h)
+configure_file(inc/Internal/WNAdapterIncludes.h.in
+  inc/Internal/WNAdapterIncludes.h)
+configure_file(inc/Internal/WNCommandListIncludes.h.in
+  inc/Internal/WNCommandListIncludes.h)
+configure_file(inc/Internal/WNDeviceIncludes.h.in
+  inc/Internal/WNDeviceIncludes.h)
+configure_file(inc/Internal/WNQueueIncludes.h.in
+  inc/Internal/WNQueueIncludes.h)
 
-set(WN_GRAPHICS_INTERNAL_SRC
-  ${CONFIG_FILE_INPUT_PATH}
-  ${CONFIG_FILE_OUTPUT_PATH}
-)
-
-set(WN_GRAPHICS_INTERNAL_VULKAN_SRC
-  inc/Internal/Vulkan/WNAdapter.h
-  inc/Internal/Vulkan/WNBufferData.h
-  inc/Internal/Vulkan/WNCommandList.h
-  inc/Internal/Vulkan/WNDevice.h
-  inc/Internal/Vulkan/WNQueue.h
-  inc/Internal/Vulkan/WNVulkanCommandListContext.h
-  inc/Internal/Vulkan/WNVulkanContext.h
-  inc/Internal/Vulkan/WNVulkanQueueContext.h
-)
-
-set(WN_GRAPHICS_VULKAN_SRC
-  src/Vulkan/WNAdapter.cpp
-  src/Vulkan/WNCommandList.cpp
-  src/Vulkan/WNDevice.cpp
-  src/Vulkan/WNHelpers.cpp
-  src/Vulkan/WNHelpers.h
-  src/Vulkan/WNQueue.cpp
-)
-
-list(APPEND WN_GRAPHICS_SRC
-  ${WN_GRAPHICS_INTERNAL_VULKAN_SRC}
-  ${WN_GRAPHICS_INTERNAL_SRC}
-  ${WN_GRAPHICS_VULKAN_SRC}
-)
 
 add_wn_library(WNGraphics
   SOURCES
-    ${WN_GRAPHICS_SRC}
+    inc/Internal/WNAdapterIncludes.h.in
+    ${CMAKE_CURRENT_BINARY_DIR}/inc/Internal/WNAdapterIncludes.h
+    inc/Internal/WNCommandListIncludes.h.in
+    ${CMAKE_CURRENT_BINARY_DIR}/inc/Internal/WNCommandListIncludes.h
+    inc/Internal/WNConfig.h.in
+    ${CMAKE_CURRENT_BINARY_DIR}/inc/Internal/WNConfig.h
+    inc/Internal/WNDeviceIncludes.h.in
+    ${CMAKE_CURRENT_BINARY_DIR}/inc/Internal/WNDeviceIncludes.h
+    inc/Internal/WNHelperIncludes.h.in
+    ${CMAKE_CURRENT_BINARY_DIR}/inc/Internal/WNHelperIncludes.h
+    inc/Internal/WNQueueIncludes.h.in
+    ${CMAKE_CURRENT_BINARY_DIR}/inc/Internal/WNQueueIncludes.h
     inc/WNAdapter.h
     inc/WNCommandAllocator.h
     inc/WNCommandList.h
@@ -136,34 +85,6 @@ add_wn_library(WNGraphics
     src/WNFactory.cpp
     src/WNQueue.cpp
 )
-
-list(FIND WN_GRAPHICS_DEVICE_TYPES_ENABLED d3d12 WN_FOUND_DEVICE_TYPE)
-
-if (NOT WN_FOUND_DEVICE_TYPE EQUAL -1) # d3d12 is enabled
-  wn_target_link_libraries(WNGraphics DXGI.lib D3D12.lib)
-else() # d3d12 is not enabled
-  set_source_files_properties(
-    ${WN_GRAPHICS_D3D12_SRC}
-    PROPERTIES HEADER_FILE_ONLY true
-  )
-endif()
-
-list(FIND WN_GRAPHICS_DEVICE_TYPES_ENABLED vulkan WN_FOUND_DEVICE_TYPE)
-
-if (NOT WN_FOUND_DEVICE_TYPE EQUAL -1) # vulkan is enabled
-  target_include_directories(WNGraphics PUBLIC
-    ${CMAKE_SOURCE_DIR}/Externals/vulkan
-  )
-
-  if(WN_PLATFORM STREQUAL Linux)
-    wn_target_link_libraries(WNGraphics dl)
-  endif()
-else() # vulkan is not enabled
-  set_source_files_properties(
-    ${WN_GRAPHICS_VULKAN_SRC}
-    PROPERTIES HEADER_FILE_ONLY true
-  )
-endif()
 
 string(REPLACE ";" "," WN_GRAPHICS_DEVICE_TYPES_ENABLED_LIST
   "${WN_GRAPHICS_DEVICE_TYPES_ENABLED}"

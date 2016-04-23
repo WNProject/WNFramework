@@ -1,0 +1,23 @@
+// Copyright (c) 2016, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE.txt file.
+
+#pragma once
+
+#ifndef __WN_MATH_INTERNAL_GENERAL_TRAITS_H__
+#define __WN_MATH_INTERNAL_GENERAL_TRAITS_H__
+
+#include "WNMath/inc/WNConfig.h"
+
+
+#include "${WN_MATH_GENERAL_TRAITS_H}"
+
+namespace wn {
+namespace internal {
+namespace math {
+typedef ${WN_MATH_GENERAL_TRAITS_TYPE} general_traits;
+}
+}
+}
+
+#endif  // __WN_MATH_INTERNAL_GENERAL_TRAITS_H__

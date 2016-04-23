@@ -7,28 +7,15 @@
 #ifndef __WN_GRAPHICS_FENCE_H__
 #define __WN_GRAPHICS_FENCE_H__
 
+#include "WNGraphics/inc/Internal/WNConfig.h"
 #include "WNGraphics/inc/WNDevice.h"
 #include "WNMemory/inc/WNBasic.h"
 
+WN_GRAPHICS_FORWARD(queue)
+WN_GRAPHICS_FORWARD(device)
+
 namespace wn {
 namespace graphics {
-namespace internal {
-namespace d3d12 {
-
-class d3d12_queue;
-class d3d12_device;
-
-}  // namespace d3d12
-
-namespace vulkan {
-
-class vulkan_device;
-class vulkan_queue;
-
-}  // namespace vulkan
-}  // namesapce internal
-
-class queue;
 
 class fence WN_FINAL : public core::non_copyable {
 public:
@@ -60,12 +47,8 @@ public:
   }
 
 private:
-  friend class internal::d3d12::d3d12_queue;
-  friend class internal::d3d12::d3d12_device;
-  friend class internal::vulkan::vulkan_queue;
-  friend class internal::vulkan::vulkan_device;
-  friend class device;
-  friend class queue;
+  WN_GRAPHICS_ADD_FRIENDS(queue)
+  WN_GRAPHICS_ADD_FRIENDS(device)
 
   WN_FORCE_INLINE fence(device* _device) : m_device(_device), m_data({0}) {}
 

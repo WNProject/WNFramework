@@ -12,11 +12,7 @@
 #include "WNMemory/inc/WNUniquePtr.h"
 
 #ifdef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
-#ifdef _WN_GRAPHICS_VULKAN_DEVICE_TYPE_AVAILABLE
-#include "WNGraphics/inc/Internal/Vulkan/WNCommandList.h"
-#elif defined _WN_GRAPHICS_D3D12_DEVICE_TYPE_AVAILABLE
-#include "WNGraphics/inc/Internal/D3D12/WNCommandList.h"
-#endif
+#include "WNGraphics/inc/Internal/WNCommandListIncludes.h"
 #else
 #include "WNCore/inc/WNUtility.h"
 #endif
@@ -26,11 +22,8 @@ namespace graphics {
 namespace internal {
 
 #ifdef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
-#ifdef _WN_GRAPHICS_VULKAN_DEVICE_TYPE_AVAILABLE
-using command_list_base = vulkan::vulkan_command_list;
-#elif defined _WN_GRAPHICS_D3D12_DEVICE_TYPE_AVAILABLE
-using command_list_base = d3d12::d3d12_command_list;
-#endif
+using command_list_base  =
+  _WN_GRAPHICS_DEVICE_TYPE::WN_GRAPHICS_PREFIXED_TYPE(command_list);
 #else
 using command_list_base = core::non_copyable;
 #endif

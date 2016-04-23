@@ -1,62 +1,120 @@
-set(WN_SCRIPT_SOURCES
-  inc/WNASTWalker.h
-  inc/WNASTWalker.inl
-  inc/WNASTCodeGenerator.h
-  inc/WNASTCodeGenerator.inl
-  inc/WNASTPasses.h
-  inc/WNCGenerator.h
-  inc/WNCTranslator.h
-  inc/WNEngine.h
-  inc/WNEngine.inl
-  inc/WNFactory.h
-  inc/WNEnums.h
-  inc/WNErrors.h
-  inc/WNJITEngine.h
-  inc/WNJITGenerator.h
-  inc/WNNodeTypes.h
-  inc/WNScriptHelpers.h
-  inc/WNTranslator.h
-  inc/WNTypeValidator.h
-  src/WNASTPasses.cpp
-  src/WNCGenerator.cpp
-  src/WNCTranslator.cpp
-  src/WNFactory.cpp
-  src/WNJITEngine.cpp
-  src/WNJITGenerator.cpp
-  src/WNScriptASTLexer.hpp
-  src/WNScriptASTParser.hpp
-  src/WNScriptASTLexer.cpp
-  src/WNScriptASTParser.cpp
-  src/WNScriptHelpers.cpp)
-
-
-if (WN_SYSTEM STREQUAL "Windows")
-  list(APPEND WN_SCRIPT_SOURCES lang/WNScriptAST.g)
+set(WN_LLVM_EXTRA_FLAGS)
+set(WN_LLVM_WRAPPER)
+set(WN_LLVM_TOOLCHAIN)
+set(WN_LLVM_CXX_COMPILER)
+set(WN_LLVM_C_COMPILER)
+set(WN_LLVM_TRIPLE)
+set(WN_LLVM_ADDITIONAL_BUILD_FLAGS)
+set(WN_LLVM_OVERRIDDEN_TRIPLE "WN_LLVM_NON_OVERRIDDEN_TRIPLE")
+enable_overlay_directory()
+if(WN_LLVM_TRIPLE)
+  set(WN_LLVM_OVERRIDDEN_TRIPLE "WN_LLVM_OVERRIDDEN_TRIPLE")
 endif()
-add_wn_library(WNScripting SOURCES
-  ${WN_SCRIPT_SOURCES}
+
+if (NOT LLVM_CONFIGURED)
+  if(WN_LLVM_CXX_COMPILER)
+    list(APPEND WN_LLVM_EXTRA_FLAGS
+      "-DCROSS_TOOLCHAIN_FLAGS_NATIVE=-DCMAKE_C_COMPILER=${WN_LLVM_C_COMPILER}\;-DCMAKE_CXX_COMPILER=${WN_LLVM_CXX_COMPILER}")
+  endif()
+  if(CMAKE_GENERATOR_TOOLSET)
+    list(APPEND WN_LLVM_EXTRA_FLAGS "-T\"${CMAKE_GENERATOR_TOOLSET}\"")
+  endif()
+  if (NOT WN_LLVM_TOOLCHAIN)
+    set(WN_LLVM_TOOLCHAIN ${CMAKE_TOOLCHAIN_FILE})
+  endif()
+  if (WN_LLVM_TOOLCHAIN)
+    list(APPEND WN_LLVM_EXTRA_FLAGS "-DCMAKE_TOOLCHAIN_FILE=${WN_LLVM_TOOLCHAIN}")
+  endif()
+
+  list(APPEND WN_LLVM_EXTRA_FLAGS "-DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}")
+
+  execute_process(
+   COMMAND ${CMAKE_COMMAND} -E make_directory
+    ${WNFramework_BINARY_DIR}/Externals
+    COMMAND ${CMAKE_COMMAND} -E make_directory
+    ${WNFramework_BINARY_DIR}/Externals/llvm
+  )
+
+  execute_process(
+    COMMAND ${WN_LLVM_WRAPPER} ${CMAKE_COMMAND}
+    -DLLVM_BUILD_TOOLS=OFF
+    -DLLVM_INCLUDE_EXAMPLES=OFF
+    -DLLVM_INCLUDE_TESTS=OFF
+    -DLLVM_ENABLE_ZLIB=OFF
+    ${WN_LLVM_EXTRA_FLAGS}
+    -G ${CMAKE_GENERATOR} ${WNFramework_SOURCE_DIR}/Externals/llvm
+    WORKING_DIRECTORY ${WNFramework_BINARY_DIR}/Externals/llvm
+  )
+  set(LLVM_CONFIGURED TRUE CACHE INTERNAL "llvm has been configured" FORCE)
+endif()
+
+add_custom_target(llvm_target
+    COMMAND ${CMAKE_COMMAND} --build . ${WN_LLVM_ADDITIONAL_BUILD_FLAGS}
+    WORKING_DIRECTORY ${WNFramework_BINARY_DIR}/Externals/llvm)
+
+include(${WNFramework_BINARY_DIR}/Externals/llvm/share/llvm/cmake/LLVMConfig.cmake)
+
+set(WNScriptingLLVMComponents codegen instrumentation objcarcopts support mcjit
+  ipo native)
+llvm_map_components_to_libnames(WNScriptingLLVMLibs ${WNScriptingLLVMComponents})
+
+option(WN_BUILD_LLVM_MANUALLY
+  "Do not automatically build llvm when a dependency is built"
+  ${WN_BUILD_LLVM_MANUALLY})
+
+if (NOT ${WN_BUILD_LLVM_MANUALLY})
+  foreach (llvm_lib ${WNScriptingLLVMLibs})
+    add_dependencies(${llvm_lib} llvm_target)
+  endforeach()
+endif()
+configure_file(
+  inc/WNJITConfiguration.h.in
+  inc/WNJITConfiguration.h)
+
+add_wn_library(WNScripting
+  SOURCES
+    inc/WNASTWalker.h
+    inc/WNASTWalker.inl
+    inc/WNASTCodeGenerator.h
+    inc/WNASTCodeGenerator.inl
+    inc/WNASTPasses.h
+    inc/WNCGenerator.h
+    inc/WNCTranslator.h
+    inc/WNEngine.h
+    inc/WNEngine.inl
+    inc/WNFactory.h
+    inc/WNEnums.h
+    inc/WNErrors.h
+    inc/WNJITConfiguration.h.in
+    ${CMAKE_CURRENT_BINARY_DIR}/inc/WNJITConfiguration.h
+    inc/WNJITEngine.h
+    inc/WNJITGenerator.h
+    inc/WNNodeTypes.h
+    inc/WNScriptHelpers.h
+    inc/WNTranslator.h
+    inc/WNTypeValidator.h
+    src/WNASTPasses.cpp
+    src/WNCGenerator.cpp
+    src/WNCTranslator.cpp
+    src/WNFactory.cpp
+    src/WNJITEngine.cpp
+    src/WNJITGenerator.cpp
+    src/WNScriptASTLexer.hpp
+    src/WNScriptASTParser.hpp
+    src/WNScriptASTLexer.cpp
+    src/WNScriptASTParser.cpp
+    src/WNScriptHelpers.cpp
+    lang/WNScriptAST.g
+  LIBS
+    WNFileSystem
+    ${WNScriptingLLVMLibs}
+  INCLUDES
+    ${CMAKE_SOURCE_DIR}/Externals/antlr
+    ${CMAKE_SOURCE_DIR}/Externals/llvm/include
+    ${CMAKE_BINARY_DIR}/Externals/llvm/include
 )
 
-if (WN_SYSTEM STREQUAL "Windows")
-  set_source_files_properties(lang/WNScriptAST.g
-    PROPERTIES HEADER_FILE_ONLY true)
-endif()
-
-set(WNScriptingLLVMComponents codegen instrumentation objcarcopts support mcjit ipo native)
-if (WN_SYSTEM STREQUAL "Android")
-  add_wn_library(WNScriptingFixes SOURCES src/Android/AndroidFixes.cpp)
-  set(WNScriptingAdditionalLibs WNScriptingFixes)
-endif()
-
-wn_target_link_libraries(WNScripting ${WNScriptingLLVMLibs}
-  ${WNScriptingAdditionalLibs}
-  WNFileSystem)
-add_definitions(${LLVM_DEFINITIONS})
-
-target_include_directories(WNScripting PUBLIC
-  ${CMAKE_SOURCE_DIR}/Externals/antlr
-  ${CMAKE_SOURCE_DIR}/Externals/llvm/include
-  ${CMAKE_BINARY_DIR}/Externals/llvm/include
-)
+set_source_files_properties(lang/WNScriptAST.g
+  PROPERTIES HEADER_FILE_ONLY true)
 
 add_subdirectory(test)

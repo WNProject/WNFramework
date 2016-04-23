@@ -7,11 +7,11 @@
 #include "WNMemory/inc/WNBasic.h"
 
 #ifdef _WN_WINDOWS
-#include "WNPlatform/inc/Internal/Windows/WNSurfaceManagerWindows.h"
+#include "WNPlatform/inc/Internal/WNSurfaceManagerWindows.h"
 #elif defined _WN_LINUX
-#include "WNPlatform/inc/Internal/XWindows/WNSurfaceManagerXWindows.h"
+#include "WNPlatform/inc/Internal/WNSurfaceManagerXWindows.h"
 #elif defined _WN_ANDROID
-#include "WNPlatform/inc/Internal/Android/WNSurfaceManagerAndroid.h"
+#include "WNPlatform/inc/Internal/WNSurfaceManagerAndroid.h"
 #endif
 
 wn::WNSurfaceManager* wn::WNPlatformFactory::CreateSurfaceManager() {

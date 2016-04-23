@@ -1,5 +1,0 @@
-#include "SomeOtherDir/OtherInclude.wns"
-
-Int function includeTest(){
-	return add(5, 3);
-}

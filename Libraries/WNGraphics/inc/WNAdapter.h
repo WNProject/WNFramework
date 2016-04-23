@@ -11,11 +11,7 @@
 #include "WNMemory/inc/WNUniquePtr.h"
 
 #ifdef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
-#ifdef _WN_GRAPHICS_VULKAN_DEVICE_TYPE_AVAILABLE
-#include "WNGraphics/inc/Internal/Vulkan/WNAdapter.h"
-#elif defined _WN_GRAPHICS_D3D12_DEVICE_TYPE_AVAILABLE
-#include "WNGraphics/inc/Internal/D3D12/WNAdapter.h"
-#endif
+#include "WNGraphics/inc/Internal/WNAdapterIncludes.h"
 #else
 #include "WNContainers/inc/WNString.h"
 #include "WNContainers/inc/WNStringView.h"
@@ -33,11 +29,8 @@ namespace graphics {
 namespace internal {
 
 #ifdef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
-#ifdef _WN_GRAPHICS_VULKAN_DEVICE_TYPE_AVAILABLE
-using adapter_base = internal::vulkan::vulkan_adapter;
-#elif defined _WN_GRAPHICS_D3D12_DEVICE_TYPE_AVAILABLE
-using adapter_base = internal::d3d12::d3d12_adapter;
-#endif
+using adapter_base =
+    _WN_GRAPHICS_DEVICE_TYPE::WN_GRAPHICS_PREFIXED_TYPE(adapter);
 #else
 using adapter_base = core::non_copyable;
 #endif

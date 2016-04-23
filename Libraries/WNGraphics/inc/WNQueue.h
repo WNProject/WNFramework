@@ -11,36 +11,19 @@
 #include "WNMemory/inc/WNUniquePtr.h"
 
 #ifdef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
-#ifdef _WN_GRAPHICS_VULKAN_DEVICE_TYPE_AVAILABLE
-#include "WNGraphics/inc/Internal/Vulkan/WNQueue.h"
-#elif defined _WN_GRAPHICS_D3D12_DEVICE_TYPE_AVAILABLE
-#include "WNGraphics/inc/Internal/D3D12/WNQueue.h"
-#endif
+#include "WNGraphics/inc/Internal/WNQueueIncludes.h"
 #else
 #include "WNCore/inc/WNUtility.h"
 #endif
 
+WN_GRAPHICS_FORWARD(device);
+
 namespace wn {
 namespace graphics {
 namespace internal {
-namespace d3d12 {
-
-class d3d12_device;
-
-}  // namespace d3d12
-
-namespace vulkan {
-
-class vulkan_device;
-
-}  // namespace vulkan
 
 #ifdef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
-#ifdef _WN_GRAPHICS_VULKAN_DEVICE_TYPE_AVAILABLE
-using queue_base = internal::vulkan::vulkan_queue;
-#elif defined _WN_GRAPHICS_D3D12_DEVICE_TYPE_AVAILABLE
-using queue_base = internal::d3d12::d3d12_queue;
-#endif
+using queue_base = _WN_GRAPHICS_DEVICE_TYPE::WN_GRAPHICS_PREFIXED_TYPE(queue);
 #else
 using queue_base = core::non_copyable;
 #endif

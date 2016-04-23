@@ -7,24 +7,14 @@
 #ifndef __WN_GRAPHICS_COMMAND_ALLOCATOR_H__
 #define __WN_GRAPHICS_COMMAND_ALLOCATOR_H__
 
+#include "WNGraphics/inc/Internal/WNConfig.h"
 #include "WNGraphics/inc/WNDevice.h"
 #include "WNMemory/inc/WNBasic.h"
 
+WN_GRAPHICS_FORWARD(device);
+
 namespace wn {
 namespace graphics {
-namespace internal {
-namespace d3d12 {
-
-class d3d12_device;
-
-}  // namespace d3d12
-
-namespace vulkan {
-
-class vulkan_device;
-
-}  // namespace vulkan
-}  // namesapce internal
 
 class command_allocator WN_FINAL : public core::non_copyable {
 public:
@@ -54,9 +44,7 @@ public:
   }
 
 protected:
-  friend class internal::d3d12::d3d12_device;
-  friend class internal::vulkan::vulkan_device;
-  friend class device;
+  WN_GRAPHICS_ADD_FRIENDS(device)
 
   WN_FORCE_INLINE command_allocator(device* _device)
     : m_device(_device), m_data({0}) {}

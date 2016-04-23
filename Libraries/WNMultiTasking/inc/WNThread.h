@@ -14,7 +14,7 @@
 #include "WNMultiTasking/inc/WNSemaphore.h"
 
 #if defined _WN_WINDOWS
-#include "WNUtilities/inc/Windows/WNHandle.h"
+#include "WNUtilities/inc/WNHandle.h"
 
 #include <Windows.h>
 #include <mutex>

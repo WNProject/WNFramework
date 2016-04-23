@@ -4,14 +4,8 @@
 
 #include "WNContainers/inc/WNFunction.h"
 #include "WNGraphics/inc/WNFactory.h"
-
-#ifdef _WN_GRAPHICS_D3D12_DEVICE_TYPE_AVAILABLE
-#include "WNGraphics/src/D3D12/WNHelpers.h"
-#endif
-
-#ifdef _WN_GRAPHICS_VULKAN_DEVICE_TYPE_AVAILABLE
-#include "WNGraphics/src/Vulkan/WNHelpers.h"
-#endif
+#include "WNGraphics/inc/Internal/WNConfig.h"
+#include "WNGraphics/inc/Internal/WNHelperIncludes.h"
 
 namespace wn {
 namespace graphics {
@@ -25,15 +19,13 @@ containers::contiguous_range<const adapter_ptr> factory::query_adapters()
       m_adapters.data(), m_adapters.size());
 }
 
-void factory::query_devices() const {
-#ifdef _WN_GRAPHICS_D3D12_DEVICE_TYPE_AVAILABLE
-  internal::d3d12::enumerate_adapters(m_allocator, m_log, m_adapters);
-#endif
+#define WN_GRAPHICS_ENUMERATE(unused,engine) \
+  internal::engine::enumerate_adapters(m_allocator, m_log, m_adapters);
 
-#ifdef _WN_GRAPHICS_VULKAN_DEVICE_TYPE_AVAILABLE
-  internal::vulkan::enumerate_adapters(m_allocator, m_log, m_adapters);
-#endif
+void factory::query_devices() const {
+  FOR_EACH(WN_GRAPHICS_ENUMERATE,unused,_WN_GRAPHICS_TYPE_LIST)
 }
 
+#undef WN_GRAPHICS_ENUMERATE
 }  // namespace graphics
 }  // namespace wn

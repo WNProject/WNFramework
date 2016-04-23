@@ -9,8 +9,6 @@
 
 //#define _WN_MATH_CONFIG_DISABLE_APPROXIMATIONS        // Disables all
 //approximations
-//#define _WN_MATH_CONFIG_DISABLE_EXTENSIONS            // Disables all
-//extension for the current configuration
 
 #include "WNMath/inc/Internal/WNConfig.h"
 

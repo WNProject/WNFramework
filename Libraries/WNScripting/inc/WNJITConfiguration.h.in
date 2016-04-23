@@ -1,0 +1,20 @@
+// Copyright (c) 2016, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE.txt file.
+
+#ifndef __WN_SCRIPTING_JIT_CONFIGURATION_H__
+#define __WN_SCRIPTING_JIT_CONFIGURATION_H__
+
+#define ${WN_LLVM_OVERRIDDEN_TRIPLE}
+
+#ifdef WN_LLVM_OVERRIDDEN_TRIPLE
+namespace wn {
+namespace scripting {
+namespace internal {
+const char* llvm_triple = "${WN_LLVM_TRIPLE}";
+}
+}
+}
+#endif
+
+#endif // __WN_SCRIPTING_JIT_CONFIGURATION_H_

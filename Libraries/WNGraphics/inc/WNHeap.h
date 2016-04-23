@@ -12,28 +12,12 @@
 #include "WNGraphics/inc/WNHeapTraits.h"
 #include "WNMemory/inc/WNBasic.h"
 
+WN_GRAPHICS_FORWARD(queue)
+WN_GRAPHICS_FORWARD(device)
+WN_GRAPHICS_FORWARD(command_list)
+
 namespace wn {
 namespace graphics {
-
-class command_list;
-
-namespace internal {
-namespace d3d12 {
-
-class d3d12_queue;
-class d3d12_device;
-class d3d12_command_list;
-
-}  // namespace d3d12
-
-namespace vulkan {
-
-class vulkan_device;
-class vulkan_queue;
-class vulkan_command_list;
-
-}  // namespace vulkan
-}  // namesapce internal
 
 // On creation this heap_buffer is guaranteed
 // to be synchronized with the GPU.
@@ -69,7 +53,7 @@ public:
   void synchronize();
 
 private:
-  friend class command_list;
+  WN_GRAPHICS_ADD_FRIENDS(command_list)
 
   heap_buffer(heap<HeapTraits>* _heap, size_t _offset,
       typename HeapTraits::template range_type<T>&& _range);
@@ -123,15 +107,9 @@ public:
   }
 
 private:
-  friend class command_list;
-  friend class device;
-  friend class queue;
-  friend class internal::d3d12::d3d12_command_list;
-  friend class internal::d3d12::d3d12_device;
-  friend class internal::d3d12::d3d12_queue;
-  friend class internal::vulkan::vulkan_command_list;
-  friend class internal::vulkan::vulkan_device;
-  friend class internal::vulkan::vulkan_queue;
+  WN_GRAPHICS_ADD_FRIENDS(command_list)
+  WN_GRAPHICS_ADD_FRIENDS(device)
+  WN_GRAPHICS_ADD_FRIENDS(queue)
 
   WN_FORCE_INLINE heap(device* _device)
     : m_device(_device), m_root_address(0), m_data({0, 0}) {}

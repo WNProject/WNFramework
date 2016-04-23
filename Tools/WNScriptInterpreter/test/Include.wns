@@ -1,5 +1,0 @@
-#include "StringTest.wns"
- 
-Int function includeTest(){
-	return test2();
-}

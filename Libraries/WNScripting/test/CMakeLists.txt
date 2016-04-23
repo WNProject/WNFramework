@@ -1,4 +1,3 @@
-
 wn_create_tests_from_list(TEST_PREFIX WNScripting
   TEST_NAME WNScripting
   SOURCE_DIR src/Tests
@@ -8,5 +7,5 @@ wn_create_tests_from_list(TEST_PREFIX WNScripting
     WNCTranslator
     WNFactory
     WNEngineJITInitializer
-  LIBS WNScripting WNFileSystemDeprecated
+  LIBS WNScripting
 )

@@ -1,0 +1,5 @@
+set(ENABLED OFF)
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  set(ENABLED ON)
+endif()
+register_overlay(${ENABLED} Clang)
