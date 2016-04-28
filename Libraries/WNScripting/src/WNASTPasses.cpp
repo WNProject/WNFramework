@@ -215,8 +215,7 @@ public:
         } else {
           int64_t val = strtol(text, nullptr, 10);
           if (val < std::numeric_limits<int32_t>::min() ||
-              val > std::numeric_limits<int32_t>::max() ||
-              errno == ERANGE) {
+              val > std::numeric_limits<int32_t>::max() || errno == ERANGE) {
             errno = 0;
             error = true;
           }
@@ -234,9 +233,8 @@ public:
         const char* text = _expr->get_type_text().c_str();
         bool error = false;
         double d = strtod(text, nullptr);
-        if (errno == ERANGE ||
-          d < -std::numeric_limits<float>::max() ||
-          d > std::numeric_limits<float>::max()) {
+        if (errno == ERANGE || d < -std::numeric_limits<float>::max() ||
+            d > std::numeric_limits<float>::max()) {
           error = true;
           errno = 0;
         }
@@ -556,8 +554,7 @@ public:
   }
 
   void walk_instruction(declaration* _decl) {
-    if (_decl->get_type()->get_reference_type() ==
-      reference_type::raw) {
+    if (_decl->get_type()->get_reference_type() == reference_type::raw) {
       return;
     }
     WN_RELEASE_ASSERT_DESC(
@@ -574,9 +571,9 @@ public:
     function_call_expression* expr =
         cast_to<function_call_expression>(_decl->get_expression());
 
-    if(expr->get_expressions().size() < 1 ||
-      expr->get_expressions()[0]->m_expr->get_node_type() !=
-      node_type::struct_allocation_expression) {
+    if (expr->get_expressions().size() < 1 ||
+        expr->get_expressions()[0]->m_expr->get_node_type() !=
+            node_type::struct_allocation_expression) {
       m_log->Log(WNLogging::eError, 0, "Expected constructor call");
       _decl->log_line(*m_log, WNLogging::eError);
       ++m_num_errors;
@@ -584,27 +581,27 @@ public:
     }
 
     memory::unique_ptr<expression> alloc =
-        std::move(expr->get_expressions()[0]->m_expr);
+        core::move(expr->get_expressions()[0]->m_expr);
 
     const type* alloc_type = alloc->get_type();
 
     memory::unique_ptr<cast_expression> cast1 =
         memory::make_unique<cast_expression>(
-            m_allocator, m_allocator, std::move(alloc));
+            m_allocator, m_allocator, core::move(alloc));
     cast1->copy_location_from(cast1->get_expression());
     cast1->set_type(memory::make_unique<type>(m_allocator, *alloc_type));
     cast1->get_type()->set_reference_type(reference_type::self);
-    expr->get_expressions()[0]->m_expr = std::move(cast1);
+    expr->get_expressions()[0]->m_expr = core::move(cast1);
 
     memory::unique_ptr<expression> rhs = _decl->take_expression();
     memory::unique_ptr<cast_expression> cast =
-      memory::make_unique<cast_expression>(m_allocator,
-        m_allocator, std::move(rhs));
+        memory::make_unique<cast_expression>(
+            m_allocator, m_allocator, core::move(rhs));
     cast->copy_location_from(cast->get_expression());
     cast->set_type(memory::make_unique<type>(m_allocator, *alloc_type));
     cast->get_type()->set_reference_type(reference_type::unique);
 
-    _decl->set_expression(std::move(cast));
+    _decl->set_expression(core::move(cast));
   }
 
   memory::unique_ptr<expression> walk_expression(
@@ -630,21 +627,21 @@ public:
     memory::unique_ptr<arg_list> args =
         memory::make_unique<arg_list>(m_allocator, m_allocator);
     args->copy_location_from(alloc.get());
-    args->add_expression(std::move(alloc));
+    args->add_expression(core::move(alloc));
 
     memory::unique_ptr<function_call_expression> call =
-      memory::make_unique<function_call_expression>(
-        m_allocator, m_allocator, std::move(args));
+        memory::make_unique<function_call_expression>(
+            m_allocator, m_allocator, core::move(args));
     call->copy_location_from(call->get_args());
 
     memory::unique_ptr<id_expression> constructor =
-      memory::make_unique<id_expression>(m_allocator,
-        m_allocator, constructor_name);
+        memory::make_unique<id_expression>(
+            m_allocator, m_allocator, constructor_name);
     constructor->copy_location_from(call.get());
 
-    call->add_base_expression(std::move(constructor));
+    call->add_base_expression(core::move(constructor));
 
-    return std::move(call);
+    return core::move(call);
   }
 
   void walk_parameter(parameter*) {}
@@ -654,7 +651,7 @@ public:
     for (auto& func : m_additional_functions) {
       // We want to prepend these functions
       // because we want these to show up before the normal functions.
-      _file->prepend_function(std::move(func));
+      _file->prepend_function(core::move(func));
     }
     m_additional_functions.clear();
   }
@@ -682,84 +679,77 @@ public:
   // TODO(awoloszyn): In the id-association pass, start promoting
   // member access. Ie. allow struct X { int x = 4; int y = x + 3; }
   void walk_struct_definition(struct_definition* _definition) {
-    memory::unique_ptr<instruction_list> instructions =
-        memory::make_unique<instruction_list>(m_allocator, m_allocator);
-    instructions->copy_location_from(_definition);
+    { // Destructor
+      memory::unique_ptr<instruction_list> instructions =
+          memory::make_unique<instruction_list>(m_allocator, m_allocator);
+      instructions->copy_location_from(_definition);
 
-    // Make all of the instructions to put into the constructor.
-    // This means: Remove all of the right-hand-sides from the
-    // declarations, and create assignment instructions in an instruction list.
-    for (auto& a : _definition->get_struct_members()) {
-      memory::unique_ptr<expression> expression(a->take_expression());
+      memory::unique_ptr<type> void_type = memory::make_unique<type>(
+          m_allocator, m_allocator, type_classification::void_type);
+      void_type->copy_location_from(_definition);
 
-      memory::unique_ptr<member_access_expression> access =
-          memory::make_unique<member_access_expression>(
-              m_allocator, m_allocator, a->get_name());
-      access->copy_location_from(a.get());
+      memory::unique_ptr<return_instruction> ret =
+          memory::make_unique<return_instruction>(m_allocator, m_allocator);
+      ret->copy_location_from(_definition);
+      instructions->add_instruction(core::move(ret));
+
+      add_function_from_definition("_destruct_", core::move(void_type),
+          _definition, core::move(instructions));
+    }
+    { // Constructor
+      memory::unique_ptr<instruction_list> instructions =
+          memory::make_unique<instruction_list>(m_allocator, m_allocator);
+      instructions->copy_location_from(_definition);
+
+      // Make all of the instructions to put into the constructor.
+      // This means: Remove all of the right-hand-sides from the
+      // declarations, and create assignment instructions in an instruction
+      // list.
+      for (auto& a : _definition->get_struct_members()) {
+        memory::unique_ptr<expression> expression(a->take_expression());
+
+        memory::unique_ptr<member_access_expression> access =
+            memory::make_unique<member_access_expression>(
+                m_allocator, m_allocator, a->get_name());
+        access->copy_location_from(a.get());
+
+        memory::unique_ptr<id_expression> id =
+            memory::make_unique<id_expression>(
+                m_allocator, m_allocator, "_this");
+        id->copy_location_from(a.get());
+
+        access->add_base_expression(core::move(id));
+
+        memory::unique_ptr<lvalue> lval = memory::make_unique<lvalue>(
+            m_allocator, m_allocator, core::move(access));
+        lval->copy_location_from(a.get());
+
+        memory::unique_ptr<assignment_instruction> assignment =
+            memory::make_unique<assignment_instruction>(
+                m_allocator, m_allocator, core::move(lval));
+        assignment->copy_location_from(expression.get());
+        assignment->add_value(assign_type::equal, core::move(expression));
+        instructions->add_instruction(core::move(assignment));
+      }
 
       memory::unique_ptr<id_expression> id =
           memory::make_unique<id_expression>(m_allocator, m_allocator, "_this");
-      id->copy_location_from(a.get());
+      id->copy_location_from(_definition);
 
-      access->add_base_expression(std::move(id));
+      memory::unique_ptr<return_instruction> ret =
+          memory::make_unique<return_instruction>(
+              m_allocator, m_allocator, core::move(id));
+      ret->copy_location_from(_definition);
+      instructions->add_instruction(core::move(ret));
 
-      memory::unique_ptr<lvalue> lval = memory::make_unique<lvalue>(
-          m_allocator, m_allocator, std::move(access));
-      lval->copy_location_from(a.get());
+      memory::unique_ptr<type> return_type = memory::make_unique<type>(
+          m_allocator, m_allocator, _definition->get_name());
+      return_type->set_reference_type(reference_type::self);
+      return_type->copy_location_from(_definition);
 
-      memory::unique_ptr<assignment_instruction> assignment =
-          memory::make_unique<assignment_instruction>(
-              m_allocator, m_allocator, std::move(lval));
-      assignment->copy_location_from(expression.get());
-      assignment->add_value(assign_type::equal, std::move(expression));
-      instructions->add_instruction(std::move(assignment));
+      add_function_from_definition("_construct_", core::move(return_type),
+          _definition, core::move(instructions));
     }
-
-    memory::unique_ptr<id_expression> id =
-        memory::make_unique<id_expression>(m_allocator, m_allocator, "_this");
-    id->copy_location_from(_definition);
-
-    memory::unique_ptr<return_instruction> ret =
-        memory::make_unique<return_instruction>(
-            m_allocator, m_allocator, std::move(id));
-    ret->copy_location_from(_definition);
-    instructions->add_instruction(std::move(ret));
-
-    containers::string_view struct_name = _definition->get_name();
-
-    memory::unique_ptr<type> parameter_type = memory::make_unique<type>(
-        m_allocator, m_allocator, _definition->get_name());
-    parameter_type->set_reference_type(reference_type::self);
-    parameter_type->copy_location_from(_definition);
-
-    // The constructor return_type and name are here.
-    memory::unique_ptr<type> return_type =
-        memory::make_unique<type>(m_allocator, *parameter_type);
-    return_type->copy_location_from(parameter_type.get());
-
-    containers::string m_constructor_name(m_allocator);
-    m_constructor_name.append("_construct_");
-    m_constructor_name.append(struct_name.data(), struct_name.length());
-    memory::unique_ptr<parameter> name_ret = memory::make_unique<parameter>(
-        m_allocator, m_allocator, std::move(return_type), m_constructor_name);
-    name_ret->copy_location_from(parameter_type.get());
-
-    memory::unique_ptr<parameter> this_param = memory::make_unique<parameter>(
-        m_allocator, m_allocator, std::move(parameter_type), "_this");
-    this_param->copy_location_from(_definition);
-
-    memory::unique_ptr<parameter_list> parameters =
-        memory::make_unique<parameter_list>(
-            m_allocator, m_allocator, std::move(this_param));
-    parameters->copy_location_from(_definition);
-
-    memory::unique_ptr<function> constructor = memory::make_unique<function>(
-        m_allocator, m_allocator, std::move(name_ret), std::move(parameters),
-        std::move(instructions));
-    constructor->copy_location_from(_definition);
-    constructor->set_this_pointer(_definition);
-
-    m_additional_functions.push_back(std::move(constructor));
   }
 
   void walk_type(type*) {}
@@ -769,6 +759,41 @@ public:
   void leave_scope_block() {}
 
 private:
+  void add_function_from_definition(containers::string_view _name,
+      memory::unique_ptr<type>&& _return_type, struct_definition* _definition,
+      memory::unique_ptr<instruction_list>&& _instructions) {
+    // The constructor return_type and name are here.
+
+    memory::unique_ptr<type> parameter_type = memory::make_unique<type>(
+        m_allocator, m_allocator, _definition->get_name());
+    parameter_type->set_reference_type(reference_type::self);
+    parameter_type->copy_location_from(_definition);
+
+    containers::string m_constructor_name(_name.to_string(m_allocator));
+    m_constructor_name.append(
+        _definition->get_name().data(), _definition->get_name().length());
+    memory::unique_ptr<parameter> name_ret = memory::make_unique<parameter>(
+        m_allocator, m_allocator, core::move(_return_type), m_constructor_name);
+    name_ret->copy_location_from(_definition);
+
+    memory::unique_ptr<parameter> this_param = memory::make_unique<parameter>(
+        m_allocator, m_allocator, core::move(parameter_type), "_this");
+    this_param->copy_location_from(_definition);
+
+    memory::unique_ptr<parameter_list> parameters =
+        memory::make_unique<parameter_list>(
+            m_allocator, m_allocator, core::move(this_param));
+    parameters->copy_location_from(_definition);
+
+    memory::unique_ptr<function> constructor = memory::make_unique<function>(
+        m_allocator, m_allocator, core::move(name_ret), core::move(parameters),
+        core::move(_instructions));
+    constructor->copy_location_from(_definition);
+    constructor->set_this_pointer(_definition);
+
+    m_additional_functions.push_back(core::move(constructor));
+  }
+
   containers::deque<memory::unique_ptr<function>> m_additional_functions;
   // TODO(awoloszyn): Once inline constructors are supported,
   // there will likely be inline types here, handle that.
