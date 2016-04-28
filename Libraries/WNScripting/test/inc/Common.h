@@ -33,7 +33,7 @@ memory::unique_ptr<scripting::script_file> test_parse_file(const char* _file,
 
   memory::unique_ptr<scripting::script_file> ptr =
       scripting::parse_script(_allocator, &validator, _file,
-          buff->typed_range<char>(), _log, _num_warnings, _num_errors);
+          buff->typed_range<char>(), true, _log, _num_warnings, _num_errors);
 
   return std::move(ptr);
 }

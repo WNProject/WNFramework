@@ -44,6 +44,42 @@ bool run_dce_pass(script_file* _file, WNLogging::WNLog* _log,
 bool run_member_reassociation_pass(script_file* _file, WNLogging::WNLog* _log,
     type_validator* _validator, size_t* _num_warnings, size_t* _num_errors);
 
+// If reassociation pass
+// Optional pass for Generators only supporting structure control.
+// (Shading languages, C without Goto)
+// This takes if statements of the form
+//
+// if (blah()) {
+//   do thing;
+// } else if (blar()) {
+//   do second thing;
+// } else {
+//   do else thing;
+// }
+//
+// and convertes them into the form.
+//
+// Bool _tmp = False;
+// {
+//   _tmp = blah();
+// }
+// if (_tmp) {
+//   do thing;
+// }
+// {
+//   _tmp = !_tmp && blar();
+// }
+// if (_tmp) {
+//   do second thing;
+// }
+// if (!_tmp) {
+//  do else thing
+// }
+// This should be run before the id_reassociation pass since this
+// can generate new IDs on the fly.
+bool run_if_reassociation_pass(script_file* _file, WNLogging::WNLog* _log,
+    type_validator* _validator, size_t* _num_warnings, size_t* _num_errors);
+
 // TODO(awoloszyn): Constant folding pass.
 
 }  // namespace scripting

@@ -16,8 +16,8 @@ namespace scripting {
 
 memory::unique_ptr<script_file> parse_script(memory::allocator* _allocator,
     wn::scripting::type_validator* _validator, const char* file_name,
-    containers::string_view view, WNLogging::WNLog* _log, size_t* _num_warnings,
-    size_t* _num_errors) {
+    containers::string_view view, bool structured_control,
+    WNLogging::WNLog* _log, size_t* _num_warnings, size_t* _num_errors) {
   memory::unique_ptr<script_file> ptr;
   {
     WNScriptASTLexer::InputStreamType input(
@@ -43,6 +43,12 @@ memory::unique_ptr<script_file> parse_script(memory::allocator* _allocator,
             ptr.get(), _log, _validator, _num_warnings, _num_errors)) {
       return nullptr;
     }
+
+    if (structured_control && !run_if_reassociation_pass(
+            ptr.get(), _log, _validator, _num_warnings, _num_errors)) {
+      return nullptr;
+    }
+
     if (!run_member_reassociation_pass(
             ptr.get(), _log, _validator, _num_warnings, _num_errors)) {
       return nullptr;

@@ -33,7 +33,7 @@ parse_error c_translator::translate_file(const char* file_) {
 
   memory::unique_ptr<script_file> parsed_file =
       parse_script(m_allocator, m_validator, file_, file->typed_range<char>(),
-          m_compilation_log, &m_num_warnings, &m_num_errors);
+          true, m_compilation_log, &m_num_warnings, &m_num_errors);
 
   if (parsed_file == nullptr) {
     return wn::scripting::parse_error::parse_failed;

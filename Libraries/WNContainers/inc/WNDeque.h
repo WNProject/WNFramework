@@ -320,9 +320,9 @@ public:
   // If the allocator is the same, then we just core::move other.
   // If the allocator is different, then we core::move the elements,
   // and clear the other.
-  deque& take_over(deque&& _other) {
+  void take_over(deque&& _other) {
     if (m_allocator == _other.m_allocator) {
-      return *this = core::move(_other);
+      *this = core::move(_other);
     } else {
       clear();
       clean_blocks();

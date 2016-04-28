@@ -956,6 +956,11 @@ public:
   void set_parameter(parameter* _parameter) {
     m_parameter = memory::unique_ptr<parameter>(m_allocator, _parameter);
   }
+
+  void set_parameter(memory::unique_ptr<parameter> _parameter) {
+    m_parameter = core::move(_parameter);
+  }
+
   void add_expression_initializer(expression* _expr) {
     m_expression = memory::unique_ptr<expression>(m_allocator, _expr);
   }
@@ -1407,6 +1412,14 @@ public:
 
   const expression* get_condition() const {
     return m_condition.get();
+  }
+
+  memory::unique_ptr<expression> release_condition() {
+    return core::move(m_condition);
+  }
+
+  void set_condition(memory::unique_ptr<expression>&& _expr) {
+    m_condition = core::move(_expr);
   }
 
   const instruction_list* get_body() const {
