@@ -180,6 +180,45 @@ INSTANTIATE_TEST_CASE_P(
 })));
 // clang-format on
 
+
+// clang-format off
+INSTANTIATE_TEST_CASE_P(
+    scope_tests, c_translator_direct_translation_test,
+    ::testing::ValuesIn(
+        std::vector<std::vector<source_pair>>({
+          {
+            {"Int main(Int x) {",     "int32_t _Z3wns4mainEll(int32_t x) {"  },
+            {"  Int y = x;",          "int32_t y = x;"               },
+            {"  {",                   "{"                            },
+            {"    y = 4;",            "y = 4;"                       },
+            {"  }",                   "}"                            },
+            {"}",                     "}"                            },
+          },
+          {
+            {"Int main(Int x) {",     "int32_t _Z3wns4mainEll(int32_t x) {"  },
+            {"  Int y = x;",          "int32_t y = x;"               },
+            {"  {",                   "{"                            },
+            {"    {",                 "{"                            },
+            {"      y = 4;",          "y = 4;"                       },
+            {"    }",                 "}"                            },
+            {"    return 3; ",        "return 3;"                    },
+            {"  }",                   "}"                            },
+            {"return 4; ",            ""                             },
+            {"}",                     "}"                            },
+          },
+          {
+            {"Int main(Int x) {",     "int32_t _Z3wns4mainEll(int32_t x) {"  },
+            {"  Int y = x;",          "int32_t y = x;"               },
+            {"  {",                   "{"                            },
+            {"     return 3; ",       "return 3;"                    },
+            {"  }",                   "}"                            },
+            {"return 4; ",            ""                             },
+            {"}",                     "}"                            },
+          }
+})));
+// clang-format on
+
+
 // clang-format off
 INSTANTIATE_TEST_CASE_P(
     assignment_tests, c_translator_direct_translation_test,

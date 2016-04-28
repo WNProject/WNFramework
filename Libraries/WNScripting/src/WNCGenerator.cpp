@@ -237,19 +237,24 @@ void ast_c_translator::walk_instruction(const else_if_instruction* _i,
   _str->second += " else if (";
   _str->second += cond.second;
   _str->second += ") ";
-  _str->second += m_generator->get_data(_i->get_body());
+  auto& dat = m_generator->get_data(_i->get_body());
+  _str->second += dat.first;
+  _str->second += dat.second;
+
 }
 
 void ast_c_translator::walk_instruction(const if_instruction* _i,
     containers::pair<containers::string, containers::string>* _str) {
   initialize_data(m_allocator, _str);
   const auto& condition = m_generator->get_data(_i->get_condition());
+  auto& dat = m_generator->get_data(_i->get_body());
 
+  _str->first.append(dat.first);
   _str->first.append(condition.first);
   _str->second += "if (";
   _str->second += condition.second;
   _str->second += ") ";
-  _str->second += m_generator->get_data(_i->get_body());
+  _str->second += dat.second;
   for (auto& else_inst : _i->get_else_if_instructions()) {
     const auto& else_data = m_generator->get_data(else_inst.get());
     _str->first.append(else_data.first);
@@ -258,20 +263,23 @@ void ast_c_translator::walk_instruction(const if_instruction* _i,
 
   const instruction_list* else_clause = _i->get_else();
   if (else_clause) {
+    auto& else_dat = m_generator->get_data(else_clause);
+    _str->first += else_dat.first;
     _str->second += " else ";
-    _str->second += m_generator->get_data(else_clause);
+    _str->second += else_dat.second;
   }
 }
 
-void ast_c_translator::walk_instruction_list(
-    const instruction_list* l, containers::string* _str) {
-  *_str = containers::string(m_allocator) + "{\n";
+void ast_c_translator::walk_instruction_list(const instruction_list* l,
+    containers::pair<containers::string, containers::string>* _str) {
+  initialize_data(m_allocator, _str);
+  _str->second += containers::string(m_allocator) + "{\n";
   for (auto& a : l->get_instructions()) {
     const auto& dat = m_generator->get_data(a.get());
-    *_str += dat.first;
-    *_str += dat.second + "\n";
+    _str->second += dat.first;
+    _str->second += dat.second + "\n";
   }
-  *_str += "}";
+  _str->second += "}";
 }
 
 void ast_c_translator::walk_function(
@@ -290,7 +298,10 @@ void ast_c_translator::walk_function(
     }
   }
   *_str += ") ";
-  *_str += m_generator->get_data(_func->get_body());
+
+  const auto& else_data = m_generator->get_data(_func->get_body());
+  *_str += else_data.first;
+  *_str += else_data.second;
   *_str += "\n";
 }
 

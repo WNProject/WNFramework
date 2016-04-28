@@ -25,7 +25,6 @@ namespace scripting {
 //  They will be default destructed when the
 //    ast_code_generator is destroyed.
 struct null_traits {
-  using instruction_list_data = void;
   using instruction_data = void;
   using expression_data = void;
   using parameter_data = void;
@@ -38,8 +37,7 @@ template <typename Traits = null_traits>
 class ast_code_generator {
 public:
   ast_code_generator(memory::allocator* _allocator)
-    : m_instruction_list_map(_allocator),
-      m_instruction_map(_allocator),
+    : m_instruction_map(_allocator),
       m_expression_map(_allocator),
       m_parameter_map(_allocator),
       m_function_map(_allocator),
@@ -50,7 +48,7 @@ public:
   // following methods:
   // void walk_expression(const expression*, Traits::expression_data*);
   // void walk_instruction_list(
-  //     const instruction_list*, Traits::instruction_list_data*);
+  //     const instruction_list*, Traits::instruction_data*);
   // void walk_type(const type*, Traits::type_data*);
   // void walk_instruction(const instruction*, Traits::instruction_data*);
   // void walk_parameter(const parameter*, Traits::parameter_data*);
@@ -84,8 +82,6 @@ public:
 
   // Given a scripting node, returns the data that was
   // created in the associated call to walk_*.
-  typename Traits::instruction_list_data& get_data(
-      const instruction_list* _inst);
   typename Traits::instruction_data& get_data(const instruction* _inst);
   typename Traits::expression_data& get_data(const expression* _expr);
   typename Traits::parameter_data& get_data(const parameter* _param);
@@ -97,9 +93,6 @@ public:
 private:
   typename Traits::code_gen* m_generator;
   // A collection of scripting nodes to their associated data.
-  containers::hash_map<const instruction_list*,
-      typename Traits::instruction_list_data>
-      m_instruction_list_map;
   containers::hash_map<const instruction*, typename Traits::instruction_data>
       m_instruction_map;
   containers::hash_map<const expression*, typename Traits::expression_data>

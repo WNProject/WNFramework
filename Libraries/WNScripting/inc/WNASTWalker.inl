@@ -185,23 +185,31 @@ void ast_walker<T, Const>::walk_expression(const expression* _expression) {
 
 template <typename T, bool Const>
 void ast_walker<T, Const>::walk_instruction_list(instruction_list_type _list) {
-  _list->walk_children(
+  _list->walk_children(walk_ftype<instruction_type>(
+                           &ast_walker<T, Const>::walk_instruction, this),
+      get_expr()(this),
+      walk_ftype<type_type>(&ast_walker<T, Const>::walk_type, this),
+      walk_ftype<instruction_list_type>(
+                           &ast_walker<T, Const>::walk_instruction_list, this),
       walk_scope(&ast_walker<T, Const>::enter_scope_block, this),
-      walk_scope(&ast_walker<T, Const>::leave_scope_block, this),
-      walk_ftype<instruction_type>(
-          &ast_walker<T, Const>::walk_instruction, this));
+      walk_scope(&ast_walker<T, Const>::leave_scope_block, this));
   m_walker->walk_instruction_list(_list);
 }
 
 template <typename T, bool Const>
 void ast_walker<T, Const>::walk_instruction(instruction_type _instruction) {
-  _instruction->walk_children(
-      walk_ftype<instruction_type>(
-          &ast_walker<T, Const>::walk_instruction, this),
-      get_expr()(this),
-      walk_ftype<type_type>(&ast_walker<T, Const>::walk_type, this),
-      walk_ftype<instruction_list_type>(
-          &ast_walker<T, Const>::walk_instruction_list, this));
+  if (_instruction->get_node_type() != node_type::instruction_list) {
+    _instruction->walk_children(
+        walk_ftype<instruction_type>(
+            &ast_walker<T, Const>::walk_instruction, this),
+        get_expr()(this),
+        walk_ftype<type_type>(&ast_walker<T, Const>::walk_type, this),
+        walk_ftype<instruction_list_type>(
+            &ast_walker<T, Const>::walk_instruction_list, this),
+        walk_scope(&ast_walker<T, Const>::enter_scope_block, this),
+        walk_scope(&ast_walker<T, Const>::leave_scope_block, this));
+  }
+
   switch (_instruction->get_node_type()) {
     case node_type::assignment_instruction:
       return m_walker->walk_instruction(
@@ -231,6 +239,8 @@ void ast_walker<T, Const>::walk_instruction(instruction_type _instruction) {
       return m_walker->walk_instruction(
           cast_to<while_instruction>(_instruction));
       break;
+    case node_type::instruction_list:
+      return walk_instruction_list(cast_to<instruction_list>(_instruction));
     default:
       WN_DEBUG_ASSERT_DESC(false, "Invalid instruction type");
   }

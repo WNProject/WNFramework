@@ -56,7 +56,7 @@ public:
       returns |= inst->returns();
     }
     if (returns) {
-      _inst->set_returns();
+      _inst->set_returns(returns);
     }
     _inst->remove_dead_instructions();
   }

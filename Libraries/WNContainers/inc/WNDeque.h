@@ -42,8 +42,8 @@ public:
   deque_iterator() : m_deque(nullptr), m_element(0) {}
 
   deque_iterator(deque_iterator&& _other)
-    : m_deque(std::move(_other.m_deque)),
-      m_element(std::move(_other.m_element)) {
+    : m_deque(core::move(_other.m_deque)),
+      m_element(core::move(_other.m_element)) {
     _other.clear();
   }
 
@@ -55,8 +55,8 @@ public:
                      typename _OtherContainer::value_type>&& _other,
       typename core::enable_if<
           !core::is_same<_Container, _OtherContainer>::value>::type* = nullptr)
-    : m_deque(std::move(_other.m_deque)),
-      m_element(std::move(_other.m_element)) {
+    : m_deque(core::move(_other.m_deque)),
+      m_element(core::move(_other.m_element)) {
     _other.clear();
   }
 
@@ -68,8 +68,8 @@ public:
     : m_deque(_other.m_deque), m_element(_other.m_element) {}
 
   deque_iterator& operator=(deque_iterator&& _other) {
-    m_deque = std::move(_other.m_deque);
-    m_element = std::move(_other.m_element);
+    m_deque = core::move(_other.m_deque);
+    m_element = core::move(_other.m_element);
 
     _other.clear();
 
@@ -88,8 +88,8 @@ public:
       deque_iterator>::type&
   operator=(deque_iterator<_OtherContainer, _OtherContainer,
       typename _OtherContainer::value_type>&& _other) {
-    m_deque = std::move(_other.m_deque);
-    m_element = std::move(_other.m_element);
+    m_deque = core::move(_other.m_deque);
+    m_element = core::move(_other.m_element);
 
     _other.clear();
 
@@ -274,13 +274,13 @@ public:
       m_element_count(_other.m_element_count) {}
 
   deque(deque&& _other)
-    : m_allocator(std::move(_other.m_allocator)),
-      m_block_list(std::move(_other.m_block_list)),
-      m_used_blocks(std::move(_other.m_used_blocks)),
-      m_start_block(std::move(_other.m_start_block)),
-      m_start_location(std::move(_other.m_start_location)),
-      m_allocated_blocks(std::move(_other.m_allocated_blocks)),
-      m_element_count(std::move(_other.m_element_count)) {
+    : m_allocator(core::move(_other.m_allocator)),
+      m_block_list(core::move(_other.m_block_list)),
+      m_used_blocks(core::move(_other.m_used_blocks)),
+      m_start_block(core::move(_other.m_start_block)),
+      m_start_location(core::move(_other.m_start_location)),
+      m_allocated_blocks(core::move(_other.m_allocated_blocks)),
+      m_element_count(core::move(_other.m_element_count)) {
     _other.m_used_blocks = 0;
     _other.m_start_block = 0;
     _other.m_start_location = 0;
@@ -317,16 +317,34 @@ public:
       memory::allocator* _allocator)
     : deque(_initializer_list.begin(), _initializer_list.end(), _allocator) {}
 
+  // If the allocator is the same, then we just core::move other.
+  // If the allocator is different, then we core::move the elements,
+  // and clear the other.
+  deque& take_over(deque&& _other) {
+    if (m_allocator == _other.m_allocator) {
+      return *this = core::move(_other);
+    } else {
+      clear();
+      clean_blocks();
+      for(deque::iterator it = _other.begin();
+        it != _other.end(); ++it) {
+        emplace_back(core::move(*it));
+      }
+      _other.clear();
+      _other.clean_blocks();
+    }
+  }
+
   deque& operator=(deque&& _other) {
     clear();
     clean_blocks();
-    m_allocator = std::move(_other.m_allocator);
-    m_block_list = std::move(_other.m_block_list);
-    m_used_blocks = std::move(_other.m_used_blocks);
-    m_start_block = std::move(_other.m_start_block);
-    m_start_location = std::move(_other.m_start_location);
-    m_allocated_blocks = std::move(_other.m_allocated_blocks);
-    m_element_count = std::move(_other.m_element_count);
+    m_allocator = core::move(_other.m_allocator);
+    m_block_list = core::move(_other.m_block_list);
+    m_used_blocks = core::move(_other.m_used_blocks);
+    m_start_block = core::move(_other.m_start_block);
+    m_start_location = core::move(_other.m_start_location);
+    m_allocated_blocks = core::move(_other.m_allocated_blocks);
+    m_element_count = core::move(_other.m_element_count);
     _other.m_used_blocks = 0;
     _other.m_start_block = 0;
     _other.m_start_location = 0;
@@ -466,7 +484,7 @@ public:
     iterator iter = allocate(_pos, 1);
     iterator newIter = iter;
 
-    memory::construct_at<_Type>(&(*(newIter++)), std::move(_value));
+    memory::construct_at<_Type>(&(*(newIter++)), core::move(_value));
 
     return (iter);
   }
@@ -474,7 +492,7 @@ public:
   iterator insert(const_iterator _pos, const _Type& _value) {
     _Type value(_value);
 
-    return (insert(_pos, std::move(value)));
+    return (insert(_pos, core::move(value)));
   }
 
   iterator insert(
@@ -516,7 +534,7 @@ public:
     iterator new_position = position;
 
     for (size_type i = 0; i < _count; ++i) {
-      memory::construct_at<_Type>(&(*(position++)), std::move(_generator(i++)));
+      memory::construct_at<_Type>(&(*(position++)), core::move(_generator(i++)));
     }
 
     return (new_position);
@@ -543,7 +561,7 @@ public:
       const size_type copy_count = pos - begin();
 
       for (size_type i = 0; i < copy_count; ++i) {
-        memory::construct_at<_Type>(&(*copy_to), std::move(*copy_from));
+        memory::construct_at<_Type>(&(*copy_to), core::move(*copy_from));
 
         (*copy_from).~_Type();
 
@@ -561,7 +579,7 @@ public:
       const size_type copy_count = m_element_count - location;
 
       for (size_type i = 0; i < copy_count; ++i) {
-        memory::construct_at<_Type>(&(*copy_to), std::move(*copy_from));
+        memory::construct_at<_Type>(&(*copy_to), core::move(*copy_from));
 
         (*copy_from).~_Type();
 
@@ -587,13 +605,13 @@ public:
     memory::construct_at<_Type>(&(*(newIter++)), std::forward<Args>(_args)...);
   }
   void push_front(_Type&& _value) {
-    insert(cbegin(), std::move(_value));
+    insert(cbegin(), core::move(_value));
   }
 
   void push_front(const _Type& _value) {
     _Type value(_value);
 
-    push_front(std::move(value));
+    push_front(core::move(value));
   }
 
   template <typename... Args>
@@ -605,12 +623,12 @@ public:
   }
 
   void push_back(_Type&& _value) {
-    insert(cbegin() + m_element_count, std::move(_value));
+    insert(cbegin() + m_element_count, core::move(_value));
   }
 
   void push_back(const _Type& _value) {
     _Type value(_value);
-    push_back(std::move(value));
+    push_back(core::move(value));
   }
 
   void pop_front() {
@@ -688,7 +706,7 @@ private:
       iterator copy_from = copy_to + _count;
 
       for (size_type i = 0; i < location; ++i) {
-        memory::construct_at<_Type>(&(*copy_to), std::move(*copy_from));
+        memory::construct_at<_Type>(&(*copy_to), core::move(*copy_from));
 
         (*copy_from).~value_type();
 
@@ -707,7 +725,7 @@ private:
       iterator copy_from = begin() + location + elements_to_end - 1;
 
       for (size_type i = 0; i < elements_to_end; ++i) {
-        memory::construct_at<_Type>(&(*copy_to), std::move(*copy_from));
+        memory::construct_at<_Type>(&(*copy_to), core::move(*copy_from));
 
         (*copy_from).~value_type();
 

@@ -38,7 +38,6 @@ struct instruction_dat {
 class ast_jit_engine;
 struct ast_jit_traits {
   using instruction_data = instruction_dat;
-  using instruction_list_data = containers::dynamic_array<llvm::BasicBlock*>;
   using expression_data = expression_dat;
   using parameter_data = llvm::Instruction*;
   using function_data = llvm::Function*;
@@ -74,7 +73,7 @@ public:
   void walk_type(const type* _type, llvm::Type** _val);
   void walk_instruction(const instruction*, instruction_dat*) {}
   void walk_instruction_list(
-      const instruction_list*, containers::dynamic_array<llvm::BasicBlock*>*);
+      const instruction_list*, instruction_dat*);
   void walk_instruction(const return_instruction* _inst, instruction_dat*);
   void walk_instruction(const declaration* _inst, instruction_dat*);
   void walk_instruction(const assignment_instruction* _inst, instruction_dat*);

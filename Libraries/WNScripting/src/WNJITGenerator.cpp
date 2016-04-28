@@ -111,7 +111,7 @@ void ast_jit_engine::walk_type(
       WN_RELEASE_ASSERT_DESC(
           elem != m_struct_map.end(), "Cannot determine type");
 
-      switch(_type->get_reference_type()) {
+      switch (_type->get_reference_type()) {
         case reference_type::raw:
           *_value = elem->second;
           break;
@@ -276,9 +276,8 @@ void ast_jit_engine::walk_expression(
       dat.instructions.end());
 
   uint32_t member_offset =
-      m_validator
-          ->get_operations(
-              _alloc->get_base_expression()->get_type()->get_index())
+      m_validator->get_operations(
+                     _alloc->get_base_expression()->get_type()->get_index())
           .get_member_index(_alloc->get_name());
   llvm::Type* int32_type = llvm::IntegerType::getInt32Ty(*m_context);
 
@@ -299,10 +298,10 @@ void ast_jit_engine::walk_expression(
       containers::dynamic_array<llvm::Instruction*>(m_allocator);
 
   containers::dynamic_array<llvm::Value*> parameters(m_allocator);
-  for (const auto& expr: _call->get_expressions()) {
+  for (const auto& expr : _call->get_expressions()) {
     const auto& dat = m_generator->get_data(expr->m_expr.get());
     _val->instructions.insert(_val->instructions.end(),
-      dat.instructions.begin(), dat.instructions.end());
+        dat.instructions.begin(), dat.instructions.end());
     parameters.push_back(dat.value);
   }
 
@@ -321,7 +320,7 @@ void ast_jit_engine::walk_instruction(
 
   expression_dat& dat = m_generator->get_data(_inst->get_condition());
   containers::dynamic_array<llvm::BasicBlock*>& body =
-      m_generator->get_data(_inst->get_body());
+      m_generator->get_data(_inst->get_body()).blocks;
 
   llvm::BasicBlock* no_execute =
       llvm::BasicBlock::Create(*m_context, "no_execute");
@@ -343,7 +342,7 @@ void ast_jit_engine::walk_instruction(
 
   expression_dat& dat = m_generator->get_data(_inst->get_condition());
   containers::dynamic_array<llvm::BasicBlock*>& body =
-      m_generator->get_data(_inst->get_body());
+      m_generator->get_data(_inst->get_body()).blocks;
 
   llvm::BasicBlock* post_if =
       _inst->returns() ? nullptr
@@ -382,7 +381,7 @@ void ast_jit_engine::walk_instruction(
   }
   if (_inst->get_else()) {
     containers::dynamic_array<llvm::BasicBlock*>& list_dat =
-        m_generator->get_data(_inst->get_else());
+        m_generator->get_data(_inst->get_else()).blocks;
     next_if->getInstList().push_back(
         llvm::BranchInst::Create(list_dat.front()));
     if (!_inst->get_else()->returns()) {
@@ -463,18 +462,30 @@ void ast_jit_engine::walk_instruction(
 }
 
 void ast_jit_engine::walk_instruction_list(
-    const instruction_list* _instructions,
-    containers::dynamic_array<llvm::BasicBlock*>* _list) {
-  *_list = containers::dynamic_array<llvm::BasicBlock*>(m_allocator);
+    const instruction_list* _instructions, instruction_dat* _val) {
+  _val->instructions =
+      containers::dynamic_array<llvm::Instruction*>(m_allocator);
+  _val->blocks = containers::dynamic_array<llvm::BasicBlock*>(m_allocator);
   llvm::BasicBlock* bb = llvm::BasicBlock::Create(*m_context, "block");
-  _list->push_back(bb);
+  _val->blocks.push_back(bb);
+
   for (auto& inst : _instructions->get_instructions()) {
     instruction_dat& instructions = m_generator->get_data(inst.get());
     for (llvm::Instruction* i : instructions.instructions) {
       bb->getInstList().push_back(i);
     }
+
+    if (instructions.instructions.empty() && !instructions.blocks.empty()) {
+      // This was a naked basic block. There is nothing to
+      // let us enter. These are created by naked scope blocks.
+      // Our 2 options are to take all of the instructions FROM them,
+      // or just branch into them, we choose the latter.
+      bb->getInstList().push_back(
+          llvm::BranchInst::Create(*instructions.blocks.begin()));
+    }
+
     for (llvm::BasicBlock* b : instructions.blocks) {
-      _list->push_back(b);
+      _val->blocks.push_back(b);
       bb = b;
     }
   }
@@ -531,7 +542,8 @@ void ast_jit_engine::walk_function(const function* _func, llvm::Function** _f) {
 
   (*_f)->getBasicBlockList().push_front(bb);
   bool first = true;
-  for (auto& block : m_generator->get_data(_func->get_body())) {
+
+  for (auto& block : m_generator->get_data(_func->get_body()).blocks) {
     if (first) {
       bb->getInstList().push_back(llvm::BranchInst::Create(block));
       first = false;

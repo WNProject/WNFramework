@@ -12,7 +12,6 @@ namespace scripting {
 class ast_c_translator;
 class type_validator;
 struct ast_c_traits {
-  using instruction_list_data = containers::string;
   // the first element is a list of temporaries
   // to be hoisted out of the expression.
   using instruction_data =
@@ -65,8 +64,8 @@ public:
   void walk_expression(const function_call_expression* _call,
       containers::pair<containers::string, containers::string>* _str);
 
-  void walk_instruction_list(
-      const instruction_list* _list, containers::string* _str);
+  void walk_instruction_list(const instruction_list* _list,
+      containers::pair<containers::string, containers::string>* _str);
   void walk_type(const type* _type, containers::string* _str);
   void walk_instruction(const instruction*,
       containers::pair<containers::string, containers::string>*) {}

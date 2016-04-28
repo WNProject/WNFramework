@@ -271,7 +271,6 @@ public:
      scripting::if_instruction* ifInst ();
      scripting::instruction* instruction ();
      scripting::instruction_list* instruction_list ();
-     scripting::instruction_list* body ();
      scripting::function* function ();
      scripting::struct_definition* structDecl ();
      scripting::struct_definition* classDecl ();

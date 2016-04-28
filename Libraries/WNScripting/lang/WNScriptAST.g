@@ -551,13 +551,13 @@ whileInst     returns[scripting::instruction* node]
 @init {
     node = nullptr;
 }
-        :    WHILE LBRACKET expr RBRACKET body { node = m_allocator->construct<scripting::while_instruction>(m_allocator, $expr.node, $body.node); SET_LOCATION(node, $WHILE); SET_END_LOCATION_FROM_NODE(node, $body.node); }
+        :    WHILE LBRACKET expr RBRACKET instruction_list { node = m_allocator->construct<scripting::while_instruction>(m_allocator, $expr.node, $instruction_list.node); SET_LOCATION(node, $WHILE); SET_END_LOCATION_FROM_NODE(node, $instruction_list.node); }
         ;
 doInst    returns[scripting::instruction* node]
 @init {
     node = nullptr;
 }
-    :    DO body WHILE LBRACKET expr RBRACKET SEMICOLON {node = m_allocator->construct<scripting::do_instruction>(m_allocator, $expr.node, $body.node); SET_LOCATION(node, $DO); SET_END_LOCATION(node, $SEMICOLON); }
+    :    DO instruction_list WHILE LBRACKET expr RBRACKET SEMICOLON {node = m_allocator->construct<scripting::do_instruction>(m_allocator, $expr.node, $instruction_list.node); SET_LOCATION(node, $DO); SET_END_LOCATION(node, $SEMICOLON); }
     ;
 
 forInst    returns[scripting::for_instruction* node]
@@ -568,7 +568,7 @@ forInst    returns[scripting::for_instruction* node]
                     (a=instructionScalar {node->add_initializer($a.node);})? SEMICOLON
                     (b=expr         {node->add_condition($b.node); })? SEMICOLON
                     (c=instructionScalar {node->add_post_op($c.node); })? RBRACKET
-                    (d=body                 {node->add_body($d.node); SET_END_LOCATION_FROM_NODE(node, $d.node); })
+                    (d=instruction_list                 {node->add_body($d.node); SET_END_LOCATION_FROM_NODE(node, $d.node); })
     ;
 
 
@@ -576,21 +576,21 @@ elsemiddle returns[scripting::else_if_instruction* node]
 @init {
     node = nullptr;
 }
-    :    ELSE IF LBRACKET expr RBRACKET body { node = m_allocator->construct<scripting::else_if_instruction>(m_allocator, $expr.node, $body.node); SET_LOCATION(node, $ELSE); SET_END_LOCATION_FROM_NODE(node, $body.node); }
+    :    ELSE IF LBRACKET expr RBRACKET instruction_list { node = m_allocator->construct<scripting::else_if_instruction>(m_allocator, $expr.node, $instruction_list.node); SET_LOCATION(node, $ELSE); SET_END_LOCATION_FROM_NODE(node, $instruction_list.node); }
     ;
 
 endif    returns[scripting::instruction_list* node]
 @init {
     node = nullptr;
 }
-    :    'else' body {node = $body.node; }
+    :    'else' instruction_list {node = $instruction_list.node; }
     ;
 
 ifInst returns[scripting::if_instruction* node]
 @init {
     node = nullptr;
 }
-    :    IF LBRACKET expr RBRACKET body {node = m_allocator->construct<scripting::if_instruction>(m_allocator, $expr.node, $body.node); SET_LOCATION(node, $IF); SET_END_LOCATION_FROM_NODE(node, $body.node); }
+    :    IF LBRACKET expr RBRACKET instruction_list {node = m_allocator->construct<scripting::if_instruction>(m_allocator, $expr.node, $instruction_list.node); SET_LOCATION(node, $IF); SET_END_LOCATION_FROM_NODE(node, $instruction_list.node); }
             (elsemiddle {node->add_else_if($elsemiddle.node); SET_END_LOCATION_FROM_NODE(node, $elsemiddle.node); } )*
             (endif {node->add_else($endif.node); SET_LOCATION(node, $IF); SET_END_LOCATION_FROM_NODE(node, $endif.node); } )?
     ;
@@ -605,29 +605,25 @@ instruction returns [scripting::instruction* node]
     |    forInst        {node = $forInst.node; }
     |    instructionScalar ';' {node = $instructionScalar.node;}
     |    returnInst {node = $returnInst.node; }
+    |    instruction_list { node = $instruction_list.node; }
     ;
 
 instruction_list returns[scripting::instruction_list* node]
 @init {
-    node = nullptr;
+    node = m_allocator->construct<scripting::instruction_list>(m_allocator);
 }
-    :    a=instruction  {node = m_allocator->construct<scripting::instruction_list>(m_allocator, $a.node); SET_LOCATION_FROM_NODE(node, $a.node); }
-        (b=instruction {node->add_instruction($b.node); SET_END_LOCATION_FROM_NODE(node, $b.node); })*
-    ;
-
-body returns[scripting::instruction_list* node]
-@init {
-    node = nullptr;
-}
-    :    a=LBRACE b=RBRACE { node = m_allocator->construct<scripting::instruction_list>(m_allocator); SET_LOCATION(node, $a); SET_END_LOCATION(node, $b); }
-    |    d=LBRACE instruction_list e=RBRACE {node = $instruction_list.node; SET_LOCATION(node, $d); SET_END_LOCATION(node, $e); }
+    :    lb=LBRACE
+            (b=instruction {node->add_instruction($b.node);})*
+         rb=RBRACE {
+          SET_LOCATION(node, $lb); SET_END_LOCATION(node, $rb);
+         }
     ;
 
 function returns[scripting::function* node]
 @init {
     node = nullptr;
 }
-    :    param parameterList body { node = m_allocator->construct<scripting::function>(m_allocator, $param.node, $parameterList.node, $body.node); SET_LOCATION_FROM_NODE(node, $param.node); SET_END_LOCATION_FROM_NODE(node, $body.node); }
+    :    param parameterList instruction_list { node = m_allocator->construct<scripting::function>(m_allocator, $param.node, $parameterList.node, $instruction_list.node); SET_LOCATION_FROM_NODE(node, $param.node); SET_END_LOCATION_FROM_NODE(node, $instruction_list.node); }
     ;
 
 structDecl returns[scripting::struct_definition* node]

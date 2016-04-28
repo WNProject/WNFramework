@@ -390,4 +390,15 @@ INSTANTIATE_TEST_CASE_P(
       {"struct Foo { Int x = 10; Int y = 4; } Int main(Int x) { Foo f = Foo(); return f.y + x + f.x; }",
         {{0, 14}, {-1, 13}, {2, 16}, {3, 17}, {4, 18}, {50, 64}}},
 })));
+
+INSTANTIATE_TEST_CASE_P(
+    scope_tests, integer_tests,
+    ::testing::ValuesIn(std::vector<integer_test>({
+      {"Int main(Int x) { Int y = x; { return 5; } return y;}",
+        {{0, 5}, {-1, 5}}},
+      {"Int main(Int x) { Int y = x; { return y; } return 3;}",
+        {{0, 0}, {-1, -1}, {2, 2}}},
+      {"Int main(Int x) { Int y = x; { y = 3; { return y; } } return 3;}",
+        {{0, 3}, {-1, 3}, {2, 3}}},
+})));
 // clang-format on
