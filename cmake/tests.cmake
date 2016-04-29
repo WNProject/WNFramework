@@ -30,7 +30,7 @@ function(wn_create_tests_from_list)
 
   foreach(source ${${PARSED_ARGS_TEST_PREFIX}_test_OVERLAY_SOURCES})
     get_filename_component(source ${source} NAME)
-    overload_create_test(TEST_NAME ${PARSED_ARGS_TEST_PREFIX}_${source}
+    overload_create_test_wrapper(TEST_NAME ${PARSED_ARGS_TEST_PREFIX}_${source}
       ${ST}
       TEST_PREFIX ${PARSED_ARGS_TEST_PREFIX}
       SOURCES ${PARSED_ARGS_SOURCE_DIR}/${source}Tests.cpp
