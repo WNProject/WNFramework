@@ -677,37 +677,14 @@ public:
       ++m_num_errors;
       return;
     }
-    function_call_expression* expr =
-        cast_to<function_call_expression>(_decl->get_expression());
-
-    if (expr->get_expressions().size() < 1 ||
-        expr->get_expressions()[0]->m_expr->get_node_type() !=
-            node_type::struct_allocation_expression) {
-      m_log->Log(WNLogging::eError, 0, "Expected constructor call");
-      _decl->log_line(*m_log, WNLogging::eError);
-      ++m_num_errors;
-      return;
-    }
-
-    memory::unique_ptr<expression> alloc =
-        core::move(expr->get_expressions()[0]->m_expr);
-
-    const type* alloc_type = alloc->get_type();
-
-    memory::unique_ptr<cast_expression> cast1 =
-        memory::make_unique<cast_expression>(
-            m_allocator, m_allocator, core::move(alloc));
-    cast1->copy_location_from(cast1->get_expression());
-    cast1->set_type(memory::make_unique<type>(m_allocator, *alloc_type));
-    cast1->get_type()->set_reference_type(reference_type::self);
-    expr->get_expressions()[0]->m_expr = core::move(cast1);
 
     memory::unique_ptr<expression> rhs = _decl->take_expression();
     memory::unique_ptr<cast_expression> cast =
         memory::make_unique<cast_expression>(
             m_allocator, m_allocator, core::move(rhs));
     cast->copy_location_from(cast->get_expression());
-    cast->set_type(memory::make_unique<type>(m_allocator, *alloc_type));
+    cast->set_type(memory::make_unique<type>(
+        m_allocator, *cast->get_expression()->get_type()));
     cast->get_type()->set_reference_type(reference_type::unique);
 
     _decl->set_expression(core::move(cast));
@@ -733,15 +710,27 @@ public:
     alloc->set_type(_alloc->transfer_out_type());
     alloc->set_copy_initializer(_alloc->transfer_copy_initializer());
 
+    const type* alloc_type = alloc->get_type();
+
+    memory::unique_ptr<cast_expression> cast1 =
+        memory::make_unique<cast_expression>(
+            m_allocator, m_allocator, core::move(alloc));
+    cast1->copy_location_from(cast1->get_expression());
+    cast1->set_type(memory::make_unique<type>(m_allocator, *alloc_type));
+    cast1->get_type()->set_reference_type(reference_type::self);
+
     memory::unique_ptr<arg_list> args =
         memory::make_unique<arg_list>(m_allocator, m_allocator);
-    args->copy_location_from(alloc.get());
-    args->add_expression(core::move(alloc));
+    args->copy_location_from(cast1.get());
+    args->add_expression(core::move(cast1));
 
     memory::unique_ptr<function_call_expression> call =
         memory::make_unique<function_call_expression>(
             m_allocator, m_allocator, core::move(args));
     call->copy_location_from(call->get_args());
+    call->set_type(
+        memory::make_unique<type>(m_allocator, *alloc_type));
+    call->get_type()->set_reference_type(reference_type::self);
 
     memory::unique_ptr<id_expression> constructor =
         memory::make_unique<id_expression>(
