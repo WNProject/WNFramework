@@ -1,10 +1,11 @@
-macro(_overlay_add_sources name)
+macro(_overlay_add_enabled_sources name)
   cmake_parse_arguments(
     PARSED_ARGS
     ""
     ""
     "SOURCES;LIBS;COMPILE_OPTIONS;INCLUDES"
     ${ARGN})
+
   set(local_overlay_sources)
   set(local_overlay_logical_sources)
   set(local_overlay_rooted_sources)
@@ -61,7 +62,7 @@ macro(_overlay_add_sources name)
 
   foreach(source ${local_new_sources})
     if (IS_ABSOLUTE ${source})
-      list(APPEND local_overlay_logical_sources ${source})
+      list(APPEND local_overlay_sources ${source})
     else()
       list(APPEND local_overlay_sources ${CMAKE_CURRENT_SOURCE_DIR}/${source})
     endif()
@@ -72,7 +73,7 @@ macro(_overlay_add_sources name)
 
   foreach(source ${local_replaced_sources})
     if (IS_ABSOLUTE ${source})
-      list(APPEND local_overlay_logical_sources ${source})    
+      list(APPEND local_overlay_sources ${source})
     else()
       list(APPEND local_overlay_sources ${CMAKE_CURRENT_SOURCE_DIR}/${source})
     endif()
@@ -103,7 +104,7 @@ macro(_overlay_add_sources name)
     PARENT_SCOPE)
   set(${name}_OVERLAY_REMOVED_ROOTED_SOURCES
     ${local_removed_overlay_logical_sources} PARENT_SCOPE)
- 
+
   set(${name}_OVERLAY_LIBS ${local_libs} PARENT_SCOPE)
   set(${name}_OVERLAY_COMPILE_OPTIONS ${compile_opts} PARENT_SCOPE)
   set(${name}_OVERLAY_INCLUDES ${include_directories} PARENT_SCOPE)
@@ -115,8 +116,46 @@ macro(_overlay_add_sources name)
     PARENT_SCOPE)
 endmacro()
 
+macro(_overlay_add_disabled_sources name)
+  cmake_parse_arguments(
+    PARSED_ARGS
+    ""
+    ""
+    "SOURCES;LIBS;COMPILE_OPTIONS;INCLUDES"
+    ${ARGN})
+
+  set(local_overlay_sources ${${name}_OVERLAY_DISABLED_SOURCES})
+  set(local_overlay_logical_sources ${${name}_OVERLAY_DISABLED_LOGICAL_SOURCES})
+  set(local_overlay_rooted_sources ${${name}_OVERLAY_DISABLED_ROOTED_SOURCES})
+
+  foreach(source ${PARSED_ARGS_SOURCES})
+    if (IS_ABSOLUTE ${source})
+      list(APPEND local_overlay_sources ${source})
+    else()
+      list(APPEND local_overlay_sources ${CMAKE_CURRENT_SOURCE_DIR}/${source})
+    endif()
+    list(APPEND local_overlay_logical_sources ${source})
+    merge_paths(named_path ${WN_CURRENT_OVERLAY} ${source})
+    list(APPEND local_overlay_rooted_sources ${named_path})
+  endforeach()
+
+  set(${name}_OVERLAY_DISABLED_SOURCES ${local_overlay_sources} PARENT_SCOPE)
+  set(${name}_OVERLAY_DISABLED_LOGICAL_SOURCES ${local_overlay_logical_sources} PARENT_SCOPE)
+  set(${name}_OVERLAY_DISABLED_ROOTED_SOURCES ${local_overlay_rooted_sources} PARENT_SCOPE)
+endmacro()
+
+macro(_overlay_add_sources name)
+  if (WN_OVERLAY_IS_ENABLED)
+    _overlay_add_enabled_sources(${name} ${ARGN})
+  else()
+    _overlay_add_disabled_sources(${name} ${ARGN})
+  endif()
+endmacro()
+
 macro(overlay_set_variable variable value)
-  set(${variable} ${value} PARENT_SCOPE)
+  if (WN_OVERLAY_IS_ENABLED)
+    set(${variable} ${value} PARENT_SCOPE)
+  endif()
 endmacro()
 
 macro(_add_sources_to_target name)
@@ -126,7 +165,7 @@ macro(_add_sources_to_target name)
     ""
     "SOURCES;LIBS;COMPILE_OPTIONS;INCLUDES"
     ${ARGN})
- 
+
   foreach(source ${ADDED_SOURCES_PARSED_ARGS_SOURCES})
     list(FIND ${name}_OVERLAY_LOGICAL_SOURCES ${source} index)
     if (${index} EQUAL -1)
@@ -147,6 +186,13 @@ macro(_add_sources_to_target name)
     math(EXPR num_local_existing_sources "${num_local_existing_sources} - 1")
   else()
     set(num_local_existing_sources -1)
+  endif()
+
+  if (${name}_OVERLAY_DISABLED_LOGCIAL_SOURCES)
+    LIST(LENGTH ${name}_OVERLAY_DISABLED_LOGCIAL_SOURCES num_local_disabled_sources)
+    math(EXPR num_local_disabled_sources "${num_local_disabled_sources} - 1")
+  else()
+    set(num_local_disabled_sources -1)
   endif()
 
   foreach(lib ${ADDED_SOURCES_PARSED_ARGS_LIBS})
@@ -176,7 +222,25 @@ macro(_add_sources_to_target name)
 
       string(REPLACE "/" "\\" dir_name ${dir_name})
       source_group("${overlay_group}${dir_name}" FILES "${existing_full_source}")
-    endif()    
+    endif()
+  endforeach()
+
+  foreach(index RANGE 0 ${num_local_disabled_sources})
+    list(GET ${name}_OVERLAY_DISABLED_SOURCES ${index} existing_full_source)
+    list(GET ${name}_OVERLAY_DISABLED_ROOTED_SOURCES ${index} existing_rooted_overlay)
+
+    get_filename_component(dir_name ${existing_rooted_overlay} DIRECTORY)
+    set(overlay_group "Disabled\\")
+    if (dir_name)
+      if (${existing_rooted_overlay} STREQUAL ".")
+        list(GET ${name}_OVERLAY_LOGICAL_SOURCES ${index} dir_name)
+        get_filename_component(dir_name ${dir_name} DIRECTORY)
+        set(overlay_group "")
+      endif()
+
+      string(REPLACE "/" "\\" dir_name ${dir_name})
+      source_group("${overlay_group}${dir_name}" FILES "${existing_full_source}")
+    endif()
   endforeach()
 endmacro()
 
@@ -234,71 +298,77 @@ function(overload_add_header_library name)
 endfunction()
 
 function(add_wn_library name)
-  cmake_parse_arguments(
-    PARSED_ARGS
-    "SHARED"
-    ""
-    "SOURCES;LIBS;INCLUDES;COMPILE_OPTIONS"
-    ${ARGN})
- 
-  _add_sources_to_target(${name} SOURCES ${PARSED_ARGS_SOURCES} LIBS
-    ${PARSED_ARGS_LIBS} INCLUDES ${PARSED_ARGS_INCLUDES})
+  if (WN_OVERLAY_IS_ENABLED)
+    cmake_parse_arguments(
+      PARSED_ARGS
+      "SHARED"
+      ""
+      "SOURCES;LIBS;INCLUDES;COMPILE_OPTIONS"
+      ${ARGN})
 
-  if (NOT ${name}_OVERLAY_SOURCES)
-    message(FATAL_ERROR "Must supply at least one source file for ${name}")
-  endif()
-  set(IS_SHARED)
-  if (PARSED_ARGS_SHARED)
-    set(IS_SHARED SHARED)
-  endif()
+    _add_sources_to_target(${name} SOURCES ${PARSED_ARGS_SOURCES} LIBS
+      ${PARSED_ARGS_LIBS} INCLUDES ${PARSED_ARGS_INCLUDES})
 
-  overlay_named_file(cmake/target_functions/pre_add_library.cmake)
-  overload_add_library(${name} SOURCES ${${name}_OVERLAY_SOURCES}
-    LIBS ${${name}_OVERLAY_LIBS} INCLUDES ${${name}_OVERLAY_INCLUDES}
-    COMPILE_OPTIONS ${${name}_OVERLAY_COMPILE_OPTIONS}
-    ${IS_SHARED})
-  overlay_named_file(cmake/target_functions/post_add_library.cmake)
+    if (NOT ${name}_OVERLAY_SOURCES)
+      message(FATAL_ERROR "Must supply at least one source file for ${name}")
+    endif()
+    set(IS_SHARED)
+    if (PARSED_ARGS_SHARED)
+      set(IS_SHARED SHARED)
+    endif()
+
+    overlay_named_file(cmake/target_functions/pre_add_library.cmake)
+    overload_add_library(${name} SOURCES ${${name}_OVERLAY_SOURCES}
+      LIBS ${${name}_OVERLAY_LIBS} INCLUDES ${${name}_OVERLAY_INCLUDES}
+      COMPILE_OPTIONS ${${name}_OVERLAY_COMPILE_OPTIONS}
+      ${IS_SHARED})
+    overlay_named_file(cmake/target_functions/post_add_library.cmake)
+  endif()
 endfunction()
 
 function(add_wn_executable name)
-  cmake_parse_arguments(
-    PARSED_ARGS
-    ""
-    ""
-    "SOURCES;LIBS"
-    ${ARGN})
+  if (WN_OVERLAY_IS_ENABLED)
+    cmake_parse_arguments(
+      PARSED_ARGS
+      ""
+      ""
+      "SOURCES;LIBS"
+      ${ARGN})
 
-  _add_sources_to_target(${name} SOURCES ${PARSED_ARGS_SOURCES} LIBS
-    ${PARSED_ARGS_LIBS})
+    _add_sources_to_target(${name} SOURCES ${PARSED_ARGS_SOURCES} LIBS
+      ${PARSED_ARGS_LIBS})
 
-  overlay_named_file(cmake/target_functions/pre_add_executable.cmake)
+    overlay_named_file(cmake/target_functions/pre_add_executable.cmake)
 
-  if (NOT ${name}_OVERLAY_SOURCES)
-    message(FATAL_ERROR "Must supply at least one source file for ${name}")
+    if (NOT ${name}_OVERLAY_SOURCES)
+      message(FATAL_ERROR "Must supply at least one source file for ${name}")
+    endif()
+
+    overload_add_executable(${name} SOURCES ${${name}_OVERLAY_SOURCES} LIBS
+      ${${name}_OVERLAY_LIBS})
+    overlay_named_file(cmake/target_functions/post_add_executable.cmake)
   endif()
-
-  overload_add_executable(${name} SOURCES ${${name}_OVERLAY_SOURCES} LIBS
-    ${${name}_OVERLAY_LIBS})
-  overlay_named_file(cmake/target_functions/post_add_executable.cmake)
 endfunction()
 
 function (add_wn_header_library name)
- cmake_parse_arguments(
-    PARSED_ARGS
-    ""
-    ""
-    "SOURCES"
-    ${ARGN})
+  if (WN_OVERLAY_IS_ENABLED)
+    cmake_parse_arguments(
+      PARSED_ARGS
+      ""
+      ""
+     "SOURCES"
+      ${ARGN})
 
-  _add_sources_to_target(${name} SOURCES ${PARSED_ARGS_SOURCES})
+     _add_sources_to_target(${name} SOURCES ${PARSED_ARGS_SOURCES})
 
-  if (NOT ${name}_OVERLAY_SOURCES)
-    message(FATAL_ERROR "Must supply at least one source file for ${name}")
+     if (NOT ${name}_OVERLAY_SOURCES)
+       message(FATAL_ERROR "Must supply at least one source file for ${name}")
+     endif()
+
+     overlay_named_file(cmake/target_functions/pre_add_header_library.cmake)
+     overload_add_header_library(${name} SOURCES ${${name}_OVERLAY_SOURCES})
+     overlay_named_file(cmake/target_functions/post_add_header_library.cmake)
   endif()
- 
-  overlay_named_file(cmake/target_functions/pre_add_header_library.cmake)
-  overload_add_header_library(${name} SOURCES ${${name}_OVERLAY_SOURCES})
-  overlay_named_file(cmake/target_functions/post_add_header_library.cmake)
 endfunction()
 
 enable_overlay_file()

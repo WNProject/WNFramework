@@ -1,0 +1,20 @@
+include(CheckSymbolExists)
+include(CheckIncludeFile)
+
+macro(wn_check_include_file)
+if (WN_OVERLAY_IS_ENABLED)
+  check_include_file(${ARGN})
+endif()
+endmacro()
+
+macro(wn_check_symbol_exists)
+if (WN_OVERLAY_IS_ENABLED)
+  check_symbol_exists(${ARGN})
+endif()
+endmacro()
+
+macro(wn_fail_bad_symbol)
+if (WN_OVERLAY_IS_ENABLED)
+  message(FATAL_ERROR ${ARGN})
+endif()
+endmacro()

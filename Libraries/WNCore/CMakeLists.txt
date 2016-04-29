@@ -897,20 +897,21 @@ set(CONFIG_FILE_OUTPUT_PATH
 
 # setup target
 add_wn_header_library(WNCore
-  inc/Internal/WNConfig.h.in
-  inc/Internal/WNErrors.inc
-  inc/Internal/WNExtendedTypes.h
-  ${CONFIG_FILE_INPUT_PATH}
-  ${CONFIG_FILE_OUTPUT_PATH}
-  inc/WNAlgorithm.h
-  inc/WNAssert.h
-  inc/WNBase.h
-  inc/WNEndian.h
-  inc/WNExtendedTypes.h
-  inc/WNMacroUtilities.h
-  inc/WNTypes.h
-  inc/WNTypeTraits.h
-  inc/WNUtility.h
+  SOURCES
+    inc/Internal/WNConfig.h.in
+    inc/Internal/WNErrors.inc
+    inc/Internal/WNExtendedTypes.h
+    ${CONFIG_FILE_INPUT_PATH}
+    ${CONFIG_FILE_OUTPUT_PATH}
+    inc/WNAlgorithm.h
+    inc/WNAssert.h
+    inc/WNBase.h
+    inc/WNEndian.h
+    inc/WNExtendedTypes.h
+    inc/WNMacroUtilities.h
+    inc/WNTypes.h
+    inc/WNTypeTraits.h
+    inc/WNUtility.h
 )
 
 add_subdirectory(test)
