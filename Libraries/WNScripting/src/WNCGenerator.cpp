@@ -78,6 +78,33 @@ void ast_c_translator::walk_expression(const constant_expression* _const,
   }
 }
 
+void ast_c_translator::walk_expression(const short_circuit_expression* _ss,
+    containers::pair<containers::string, containers::string>* _str) {
+  initialize_data(m_allocator, _str);
+  const char* m_operators[] = {" && ", " || "};
+  static_assert(sizeof(m_operators) / sizeof(m_operators[0]) ==
+                    static_cast<size_t>(short_circuit_type::max),
+      "New oeprator type detected");
+  const auto& lhs = m_generator->get_data(_ss->get_lhs());
+  const auto& rhs = m_generator->get_data(_ss->get_rhs());
+  _str->first.append(lhs.first);
+  _str->first.append(rhs.first);
+  switch (_ss->get_type()->get_index()) {
+    case static_cast<uint32_t>(type_classification::int_type):
+    case static_cast<uint32_t>(type_classification::bool_type):
+      _str->second.append("(");
+      _str->second.append(lhs.second);
+      _str->second.append(
+          m_operators[static_cast<size_t>(_ss->get_ss_type())]);
+      _str->second.append(rhs.second);
+      _str->second.append(")");
+      break;
+    default:
+      WN_RELEASE_ASSERT_DESC(
+          false, "Non-integer short_circuit expressions not supported yet.");
+  }
+}
+
 void ast_c_translator::walk_expression(const binary_expression* _binary,
     containers::pair<containers::string, containers::string>* _str) {
   initialize_data(m_allocator, _str);

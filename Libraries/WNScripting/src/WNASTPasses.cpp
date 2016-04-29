@@ -90,21 +90,69 @@ public:
 private:
 };
 
-memory::unique_ptr<declaration> make_declaration(memory::allocator* _allocator,
-    memory::unique_ptr<type>&& _type,
-    memory::unique_ptr<expression>&& _initializer,
-    containers::string_view name) {
+memory::unique_ptr<declaration> make_constant_declaration(
+    memory::allocator* _allocator, node* _location_root,
+    type_classification _type, containers::string_view _name,
+    containers::string_view _init) {
+  memory::unique_ptr<type> decl_type =
+      memory::make_unique<type>(_allocator, _allocator, _type);
+  decl_type->copy_location_from(_location_root);
+
   memory::unique_ptr<declaration> decl =
       memory::make_unique<declaration>(_allocator, _allocator);
-  decl->copy_location_from(_type.get());
+  decl->copy_location_from(_location_root);
+
+  memory::unique_ptr<constant_expression> initializer =
+      memory::make_unique<constant_expression>(
+          _allocator, _allocator, _type, _init.to_string(_allocator).c_str());
+
+  initializer->set_type(memory::make_unique<type>(_allocator, *decl_type));
+  initializer->get_type()->copy_location_from(_location_root);
 
   memory::unique_ptr<parameter> param = memory::make_unique<parameter>(
-      _allocator, _allocator, core::move(_type), name);
-  param->copy_location_from(decl.get());
+      _allocator, _allocator, core::move(decl_type), _name);
+  param->copy_location_from(_location_root);
 
   decl->set_parameter(core::move(param));
-  decl->set_expression(core::move(_initializer));
+  decl->set_expression(core::move(initializer));
   return core::move(decl);
+}
+
+memory::unique_ptr<assignment_instruction> make_assignment(
+    memory::allocator* _allocator, node* _location_root,
+    containers::string_view _name, memory::unique_ptr<expression>&& _expr) {
+  memory::unique_ptr<id_expression> lhs =
+      memory::make_unique<id_expression>(_allocator, _allocator, _name);
+  lhs->copy_location_from(_location_root);
+
+  memory::unique_ptr<lvalue> lval =
+      memory::make_unique<lvalue>(_allocator, _allocator, core::move(lhs));
+  lval->copy_location_from(_location_root);
+
+  memory::unique_ptr<assignment_instruction> assign =
+      memory::make_unique<assignment_instruction>(
+          _allocator, _allocator, core::move(lval));
+  assign->copy_location_from(_location_root);
+  assign->add_value(assign_type::equal, core::move(_expr));
+
+  return core::move(assign);
+}
+
+memory::unique_ptr<assignment_instruction> make_constant_assignment(
+    memory::allocator* _allocator, node* _location_root,
+    type_classification _type, containers::string_view _name,
+    containers::string_view _init) {
+  memory::unique_ptr<type> constant_type =
+      memory::make_unique<type>(_allocator, _allocator, _type);
+  constant_type->copy_location_from(_location_root);
+
+  memory::unique_ptr<constant_expression> rhs =
+      memory::make_unique<constant_expression>(
+          _allocator, _allocator, _type, _init.to_string(_allocator).c_str());
+  rhs->set_type(core::move(constant_type));
+  rhs->get_type()->copy_location_from(_location_root);
+
+  return make_assignment(_allocator, _location_root, _name, core::move(rhs));
 }
 
 class if_reassociation_pass : public pass {
@@ -118,14 +166,17 @@ public:
     return nullptr;
   }
   void walk_instruction_list(instruction_list* _inst) {
-    using instruction_queue = containers::deque<memory::unique_ptr<instruction>>;
-    instruction_queue replaced_instructions(
-        m_allocator);
-    for(instruction_queue::iterator it = _inst->get_instructions().begin();
-      it != _inst->get_instructions().end(); ++it) {
+    using instruction_queue =
+        containers::deque<memory::unique_ptr<instruction>>;
+    instruction_queue replaced_instructions(m_allocator);
+    for (instruction_queue::iterator it = _inst->get_instructions().begin();
+         it != _inst->get_instructions().end(); ++it) {
       if ((*it)->get_node_type() == node_type::if_instruction) {
-        if_instruction* if_inst =
-            static_cast<if_instruction*>(it->get());
+        if_instruction* if_inst = static_cast<if_instruction*>(it->get());
+
+        containers::deque<memory::unique_ptr<else_if_instruction>>&
+            else_if_insts = if_inst->get_else_if_instructions();
+
         // This is where we actually do the work.
         char temporary_name[12] = {0};
 
@@ -134,53 +185,124 @@ public:
         containers::string name("__wns_if_temp", m_allocator);
         name.append(temporary_name);
 
-        memory::unique_ptr<type> bool_type = memory::make_unique<type>(
-            m_allocator, m_allocator, type_classification::bool_type);
-        bool_type->copy_location_from(if_inst);
-
-        memory::unique_ptr<constant_expression> constant =
-            memory::make_unique<constant_expression>(m_allocator, m_allocator,
-                type_classification::bool_type, "false");
-        constant->set_type(core::move(bool_type));
-        constant->copy_location_from(if_inst);
-
-        bool_type = memory::make_unique<type>(
-            m_allocator, m_allocator, type_classification::bool_type);
-        bool_type->copy_location_from(if_inst);
-
         memory::unique_ptr<declaration> temp_decl =
-            make_declaration(m_allocator, core::move(bool_type),
-                core::move(constant), name);
+            make_constant_declaration(m_allocator, if_inst,
+                type_classification::bool_type, name, "false");
+
         replaced_instructions.emplace_back(core::move(temp_decl));
 
+        // If we have an else_if instruction we have to track whether
+        // or not we have entered any previous blocks.
+        // This means that every if/if else must also set this
+        // flag as its first instruction.
+        containers::string elseif_name(m_allocator);
+        elseif_name += "__wns_if_temp";
+
+        if (!else_if_insts.empty()) {
+          wn::memory::writeuint32(
+              temporary_name, m_last_temporary++, sizeof(temporary_name) - 1);
+          elseif_name += temporary_name;
+
+          memory::unique_ptr<declaration> elseif_temp_decl =
+              make_constant_declaration(m_allocator, if_inst,
+                  type_classification::bool_type, elseif_name, "true");
+          replaced_instructions.emplace_back(core::move(elseif_temp_decl));
+        }
+
         {
+          // Add a new scope block that contains the condition.
+          // We do this in a scope-block so that any temporaries
+          // will be freed before the if statement.
           memory::unique_ptr<instruction_list> inst_list =
               memory::make_unique<instruction_list>(m_allocator, m_allocator);
           inst_list->copy_location_from(if_inst);
+
+          // Actually move the condition for the if statement to an assignemnt
+          // to __wns_temp0.
+          memory::unique_ptr<assignment_instruction> assign = make_assignment(
+              m_allocator, if_inst, name, if_inst->release_condition());
+          inst_list->add_instruction(core::move(assign));
+          replaced_instructions.emplace_back(core::move(inst_list));
+
           memory::unique_ptr<id_expression> id_expr =
               memory::make_unique<id_expression>(
                   m_allocator, m_allocator, name);
           id_expr->copy_location_from(if_inst);
-          memory::unique_ptr<lvalue> lval = memory::make_unique<lvalue>(
-              m_allocator, m_allocator, core::move(id_expr));
-          lval->copy_location_from(if_inst);
-          memory::unique_ptr<assignment_instruction> assign =
-              memory::make_unique<assignment_instruction>(
-                  m_allocator, m_allocator, core::move(lval));
-          assign->copy_location_from(if_inst);
-          assign->add_value(
-              assign_type::equal, core::move(if_inst->release_condition()));
-          inst_list->add_instruction(core::move(assign));
-          replaced_instructions.emplace_back(core::move(inst_list));
+          if_inst->set_condition(core::move(id_expr));
         }
 
-        memory::unique_ptr<id_expression> id_expr =
-            memory::make_unique<id_expression>(
-                m_allocator, m_allocator, name);
-        id_expr->copy_location_from(if_inst);
-        if_inst->set_condition(core::move(id_expr));
-
         replaced_instructions.emplace_back(core::move(*it));
+
+        if (!else_if_insts.empty()) {
+          {
+            if_inst->get_body()->get_instructions().emplace_front(
+                make_constant_assignment(m_allocator, if_inst,
+                    type_classification::bool_type, elseif_name, "false"));
+          }
+
+          for (auto& else_if : else_if_insts) {
+            // Take the original body and condition.
+            memory::unique_ptr<instruction_list> else_if_body =
+                else_if->take_body();
+            memory::unique_ptr<expression> else_if_condition =
+                else_if->take_condition();
+
+            // Inside the body we have to set the entering flag
+            // to true
+            else_if_body->get_instructions().emplace_front(
+                make_constant_assignment(m_allocator, else_if.get(),
+                    type_classification::bool_type, elseif_name, "false"));
+
+            // Same as above except the condition will be of the form:
+            // bool inst = (may_enter && (original_condition));
+            memory::unique_ptr<instruction_list> inst_list =
+                memory::make_unique<instruction_list>(m_allocator, m_allocator);
+            inst_list->copy_location_from(else_if.get());
+
+            memory::unique_ptr<id_expression> may_enter =
+                memory::make_unique<id_expression>(
+                    m_allocator, m_allocator, elseif_name);
+
+            memory::unique_ptr<short_circuit_expression> elseif_enter_expr =
+                memory::make_unique<short_circuit_expression>(m_allocator,
+                    m_allocator, short_circuit_type::and_operator,
+                    core::move(may_enter), core::move(else_if_condition));
+
+            inst_list->add_instruction(make_assignment(m_allocator,
+                else_if.get(), name, core::move(elseif_enter_expr)));
+            replaced_instructions.emplace_back(core::move(inst_list));
+
+            memory::unique_ptr<id_expression> id_expr =
+                memory::make_unique<id_expression>(
+                    m_allocator, m_allocator, name);
+            id_expr->copy_location_from(else_if.get());
+
+            memory::unique_ptr<if_instruction> replaced_if_inst =
+                memory::make_unique<if_instruction>(m_allocator, m_allocator);
+            replaced_if_inst->set_condition(core::move(id_expr));
+            replaced_if_inst->set_body(core::move(else_if_body));
+            replaced_instructions.emplace_back(core::move(replaced_if_inst));
+          }
+
+          if (if_inst->get_else()) {
+            // The else_if will be replaced by a if (may_enter) meaning we
+            // have not entered yet.
+
+            memory::unique_ptr<id_expression> id_expr =
+                memory::make_unique<id_expression>(
+                    m_allocator, m_allocator, elseif_name);
+            id_expr->copy_location_from(if_inst->get_else());
+
+            memory::unique_ptr<if_instruction> replaced_if_inst =
+                memory::make_unique<if_instruction>(m_allocator, m_allocator);
+            replaced_if_inst->set_condition(core::move(id_expr));
+            replaced_if_inst->set_body(core::move(if_inst->release_else()));
+            replaced_instructions.emplace_back(core::move(replaced_if_inst));
+          }
+          if_inst->clear_else_ifs();
+          if_inst->clear_else_node();
+        }
+
       } else {
         replaced_instructions.emplace_back(core::move(*it));
       }
@@ -195,6 +317,7 @@ public:
   void walk_struct_definition(struct_definition*) {}
   void walk_instruction(else_if_instruction*) {}
   void walk_instruction(if_instruction*) {}
+
 private:
   uint32_t m_last_temporary;
 };
@@ -360,31 +483,31 @@ public:
     return nullptr;
   }
 
-  memory::unique_ptr<expression> walk_expression(binary_expression* _expr) {
-    const type* lhs_type = _expr->get_lhs()->get_type();
-    const type* rhs_type = _expr->get_rhs()->get_type();
-
+  template <typename T>
+  memory::unique_ptr<expression> handle_binary_expression(
+      expression* _root_expression, const type* lhs_type, const type* rhs_type,
+      T _expression_type) {
     if (lhs_type->get_index() != rhs_type->get_index()) {
       m_log->Log(WNLogging::eError, 0, "Expected LHS and RHS to match");
-      _expr->log_line(*m_log, WNLogging::eError);
+      _root_expression->log_line(*m_log, WNLogging::eError);
       ++m_num_errors;
       return nullptr;
     }
 
     uint32_t return_type =
         m_validator->get_operations(static_cast<int32_t>(lhs_type->get_index()))
-            .get_operation(_expr->get_arithmetic_type());
+            .get_operation(_expression_type);
 
     if (return_type ==
         static_cast<uint32_t>(type_classification::invalid_type)) {
       m_log->Log(WNLogging::eError, 0, "Invalid operation for types");
-      _expr->log_line(*m_log, WNLogging::eError);
+      _root_expression->log_line(*m_log, WNLogging::eError);
       ++m_num_errors;
       return nullptr;
     } else if (return_type ==
                static_cast<uint32_t>(type_classification::void_type)) {
       m_log->Log(WNLogging::eError, 0, "Void return is invalid for arithmetic");
-      _expr->log_line(*m_log, WNLogging::eError);
+      _root_expression->log_line(*m_log, WNLogging::eError);
       ++m_num_errors;
       return nullptr;
     }
@@ -392,11 +515,28 @@ public:
     WN_RELEASE_ASSERT_DESC(
         return_type < static_cast<uint32_t>(type_classification::custom_type),
         "Not Implemented: Custom types");
-    type* t = m_allocator->construct<type>(m_allocator, return_type);
-    t->copy_location_from(_expr);
-    _expr->set_type(t);
-
+    memory::unique_ptr<type> t =
+        memory::make_unique<type>(m_allocator, m_allocator, return_type);
+    t->copy_location_from(_root_expression);
+    _root_expression->set_type(core::move(t));
     return nullptr;
+  }
+
+  memory::unique_ptr<expression> walk_expression(binary_expression* _expr) {
+    const type* lhs_type = _expr->get_lhs()->get_type();
+    const type* rhs_type = _expr->get_rhs()->get_type();
+
+    return handle_binary_expression(
+        _expr, lhs_type, rhs_type, _expr->get_arithmetic_type());
+  }
+
+  memory::unique_ptr<expression> walk_expression(
+      short_circuit_expression* _expr) {
+    const type* lhs_type = _expr->get_lhs()->get_type();
+    const type* rhs_type = _expr->get_rhs()->get_type();
+
+    return handle_binary_expression(
+        _expr, lhs_type, rhs_type, _expr->get_ss_type());
   }
 
   memory::unique_ptr<expression> walk_expression(
@@ -728,8 +868,7 @@ public:
         memory::make_unique<function_call_expression>(
             m_allocator, m_allocator, core::move(args));
     call->copy_location_from(call->get_args());
-    call->set_type(
-        memory::make_unique<type>(m_allocator, *alloc_type));
+    call->set_type(memory::make_unique<type>(m_allocator, *alloc_type));
     call->get_type()->set_reference_type(reference_type::self);
 
     memory::unique_ptr<id_expression> constructor =
@@ -777,7 +916,7 @@ public:
   // TODO(awoloszyn): In the id-association pass, start promoting
   // member access. Ie. allow struct X { int x = 4; int y = x + 3; }
   void walk_struct_definition(struct_definition* _definition) {
-    { // Destructor
+    {  // Destructor
       memory::unique_ptr<instruction_list> instructions =
           memory::make_unique<instruction_list>(m_allocator, m_allocator);
       instructions->copy_location_from(_definition);
@@ -794,7 +933,7 @@ public:
       add_function_from_definition("_destruct_", core::move(void_type),
           _definition, core::move(instructions));
     }
-    { // Constructor
+    {  // Constructor
       memory::unique_ptr<instruction_list> instructions =
           memory::make_unique<instruction_list>(m_allocator, m_allocator);
       instructions->copy_location_from(_definition);

@@ -48,12 +48,16 @@ public:
   }
 
   void walk_expression(const expression*,
-      containers::pair<containers::string, containers::string>*) {}
+      containers::pair<containers::string, containers::string>*) {
+    WN_RELEASE_ASSERT_DESC(false, "Not implemented expression type");
+  }
   void walk_expression(const constant_expression* _const,
       containers::pair<containers::string, containers::string>* _str);
   void walk_expression(const id_expression* _const,
       containers::pair<containers::string, containers::string>* _str);
   void walk_expression(const binary_expression* _binary,
+      containers::pair<containers::string, containers::string>* _str);
+  void walk_expression(const short_circuit_expression* _binary,
       containers::pair<containers::string, containers::string>* _str);
   void walk_expression(const struct_allocation_expression* _alloc,
       containers::pair<containers::string, containers::string>* _str);

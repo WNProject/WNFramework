@@ -558,6 +558,38 @@ public:
       m_lhs(memory::unique_ptr<expression>(m_allocator, _lhs)),
       m_rhs(memory::unique_ptr<expression>(m_allocator, _rhs)) {}
 
+  short_circuit_expression(memory::allocator* _allocator,
+      short_circuit_type _type, memory::unique_ptr<expression>&& _lhs,
+      memory::unique_ptr<expression>&& _rhs)
+    : expression(_allocator, node_type::short_circuit_expression),
+      m_ss_type(_type),
+      m_lhs(core::move(_lhs)),
+      m_rhs(core::move(_rhs)) {}
+
+  const expression* get_lhs() const {
+    return m_lhs.get();
+  }
+
+  const expression* get_rhs() const {
+    return m_rhs.get();
+  }
+
+  virtual void walk_children(
+      const walk_mutable_expression& _func, const walk_ftype<type*>&) override {
+    handle_expression(_func, m_lhs);
+    handle_expression(_func, m_rhs);
+  }
+
+  virtual void walk_children(const walk_ftype<const expression*>& _func,
+      const walk_ftype<const type*>&) const override {
+    _func(m_lhs.get());
+    _func(m_rhs.get());
+  }
+
+  short_circuit_type get_ss_type() const {
+    return m_ss_type;
+  }
+
 private:
   short_circuit_type m_ss_type;
   memory::unique_ptr<expression> m_lhs;
@@ -1339,8 +1371,16 @@ public:
     return m_condition.get();
   }
 
+  memory::unique_ptr<expression> take_condition() {
+    return core::move(m_condition);
+  }
+
   const instruction_list* get_body() const {
     return m_body.get();
+  }
+
+  memory::unique_ptr<instruction_list> take_body() {
+    return core::move(m_body);
   }
 
   virtual void walk_children(const walk_ftype<instruction*>&,
@@ -1373,12 +1413,29 @@ public:
       m_body(memory::unique_ptr<instruction_list>(m_allocator, _body)),
       m_else_if_nodes(_allocator) {}
 
+  if_instruction(
+      memory::allocator* _allocator)
+    : instruction(_allocator, node_type::if_instruction),
+      m_else_if_nodes(_allocator) {}
+
   void add_else_if(else_if_instruction* _elseif) {
     m_else_if_nodes.emplace_back(
         memory::unique_ptr<else_if_instruction>(m_allocator, _elseif));
   }
   void add_else(instruction_list* _else) {
     m_else = memory::unique_ptr<instruction_list>(m_allocator, _else);
+  }
+
+  void set_body(memory::unique_ptr<instruction_list>&& instructions) {
+    m_body = core::move(instructions);
+  }
+
+  void clear_else_ifs() {
+    m_else_if_nodes.clear();
+  }
+
+  void clear_else_node() {
+    m_else.reset();
   }
 
   virtual void walk_children(const walk_ftype<instruction*>& _inst,
@@ -1426,8 +1483,21 @@ public:
     return m_body.get();
   }
 
+  instruction_list* get_body() {
+    return m_body.get();
+  }
+
   const instruction_list* get_else() const {
     return m_else.get();
+  }
+
+  memory::unique_ptr<instruction_list> release_else() {
+    return core::move(m_else);
+  }
+
+  containers::deque<memory::unique_ptr<else_if_instruction>>&
+  get_else_if_instructions() {
+    return m_else_if_nodes;
   }
 
   const containers::deque<memory::unique_ptr<else_if_instruction>>&
