@@ -47,7 +47,7 @@
     #pragma warning(disable: 4703)
 #endif
     #include "WNMemory/inc/WNAllocator.h"
-	  #include "WNScripting/src/WNScriptASTLexer.hpp"
+    #include "WNScripting/src/WNScriptASTLexer.hpp"
     #include "WNScripting/inc/WNNodeTypes.h"
 
     using namespace wn;

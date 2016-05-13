@@ -74,8 +74,7 @@ void ast_walker<T, Const>::walk_function(function_type _function) {
 template <typename T, bool Const>
 memory::unique_ptr<expression> ast_walker<T, Const>::walk_mut_expression(
     expression* _expression) {
-  _expression->walk_children(
-      get_expr()(this),
+  _expression->walk_children(get_expr()(this),
       walk_ftype<type_type>(&ast_walker<T, Const>::walk_type, this));
   switch (_expression->get_node_type()) {
     case node_type::array_allocation_expression:
@@ -120,16 +119,16 @@ memory::unique_ptr<expression> ast_walker<T, Const>::walk_mut_expression(
       // these should be completely transparent to anything walking the AST.
       return nullptr;
     default:
-      WN_RELEASE_ASSERT_DESC(false, "You added a new expression"
-        " type but did not handle it here");
+      WN_RELEASE_ASSERT_DESC(false,
+          "You added a new expression"
+          " type but did not handle it here");
       return nullptr;
   }
 }
 
 template <typename T, bool Const>
 void ast_walker<T, Const>::walk_expression(const expression* _expression) {
-  _expression->walk_children(
-      get_expr()(this),
+  _expression->walk_children(get_expr()(this),
       walk_ftype<type_type>(&ast_walker<T, Const>::walk_type, this));
   switch (_expression->get_node_type()) {
     case node_type::array_allocation_expression:
@@ -214,31 +213,26 @@ void ast_walker<T, Const>::walk_instruction(instruction_type _instruction) {
     case node_type::assignment_instruction:
       return m_walker->walk_instruction(
           cast_to<assignment_instruction>(_instruction));
-      break;
     case node_type::declaration:
       return m_walker->walk_instruction(cast_to<declaration>(_instruction));
-      break;
     case node_type::do_instruction:
       return m_walker->walk_instruction(cast_to<do_instruction>(_instruction));
-      break;
     case node_type::else_if_instruction:
       return m_walker->walk_instruction(
           cast_to<else_if_instruction>(_instruction));
-      break;
+    case node_type::expression_instruction:
+      return m_walker->walk_instruction(
+          cast_to<expression_instruction>(_instruction));
     case node_type::for_instruction:
       return m_walker->walk_instruction(cast_to<for_instruction>(_instruction));
-      break;
     case node_type::if_instruction:
       return m_walker->walk_instruction(cast_to<if_instruction>(_instruction));
-      break;
     case node_type::return_instruction:
       return m_walker->walk_instruction(
           cast_to<return_instruction>(_instruction));
-      break;
     case node_type::while_instruction:
       return m_walker->walk_instruction(
           cast_to<while_instruction>(_instruction));
-      break;
     case node_type::instruction_list:
       return walk_instruction_list(cast_to<instruction_list>(_instruction));
     default:

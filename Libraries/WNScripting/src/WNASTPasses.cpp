@@ -253,24 +253,42 @@ public:
                 make_constant_assignment(m_allocator, else_if.get(),
                     type_classification::bool_type, elseif_name, "false"));
 
-            // Same as above except the condition will be of the form:
-            // bool inst = (may_enter && (original_condition));
+            // Switch this to the form
+            // inst = may_enter;
+            // if (inst) {
+            //   inst = original_condition;
+            // }
+
+            // inst = may_enter
+            memory::unique_ptr<id_expression> may_enter =
+                memory::make_unique<id_expression>(
+                    m_allocator, m_allocator, elseif_name);
+            may_enter->copy_location_from(else_if.get());
+
+            replaced_instructions.emplace_back(make_assignment(
+                m_allocator, else_if.get(), name, core::move(may_enter)));
+
+            // if (inst) {
+            memory::unique_ptr<if_instruction> conditional_if =
+                memory::make_unique<if_instruction>(m_allocator, m_allocator);
+
+            memory::unique_ptr<id_expression> entering =
+                memory::make_unique<id_expression>(
+                    m_allocator, m_allocator, name);
+            entering->copy_location_from(else_if.get());
+
+            conditional_if->set_condition(core::move(entering));
+
+            // inst = original_condition
             memory::unique_ptr<instruction_list> inst_list =
                 memory::make_unique<instruction_list>(m_allocator, m_allocator);
             inst_list->copy_location_from(else_if.get());
 
-            memory::unique_ptr<id_expression> may_enter =
-                memory::make_unique<id_expression>(
-                    m_allocator, m_allocator, elseif_name);
-
-            memory::unique_ptr<short_circuit_expression> elseif_enter_expr =
-                memory::make_unique<short_circuit_expression>(m_allocator,
-                    m_allocator, short_circuit_type::and_operator,
-                    core::move(may_enter), core::move(else_if_condition));
-
             inst_list->add_instruction(make_assignment(m_allocator,
-                else_if.get(), name, core::move(elseif_enter_expr)));
-            replaced_instructions.emplace_back(core::move(inst_list));
+                else_if.get(), name, core::move(else_if_condition)));
+
+            conditional_if->set_body(core::move(inst_list));
+            replaced_instructions.emplace_back(core::move(conditional_if));
 
             memory::unique_ptr<id_expression> id_expr =
                 memory::make_unique<id_expression>(
@@ -279,6 +297,7 @@ public:
 
             memory::unique_ptr<if_instruction> replaced_if_inst =
                 memory::make_unique<if_instruction>(m_allocator, m_allocator);
+            replaced_if_inst->copy_location_from(else_if.get());
             replaced_if_inst->set_condition(core::move(id_expr));
             replaced_if_inst->set_body(core::move(else_if_body));
             replaced_instructions.emplace_back(core::move(replaced_if_inst));
@@ -792,15 +811,35 @@ private:
       m_functions;
 };
 
+containers::deque<const struct_allocation_expression*> accumulate_temporaries(
+    memory::allocator* _allocator, const expression* _root,
+    bool _include_top_expression) {
+  containers::deque<const struct_allocation_expression*> expressions(
+      _allocator);
+  if (!_root) {
+    return expressions;
+  }
+  if (_include_top_expression) {
+    if (_root->get_node_type() == node_type::struct_allocation_expression) {
+      expressions.push_back(
+          static_cast<const struct_allocation_expression*>(_root));
+    }
+  } else {
+    _root->accumulate_expression_subtree([&expressions](const expression* e) {
+      if (e->get_node_type() == node_type::struct_allocation_expression) {
+        expressions.push_back(
+            static_cast<const struct_allocation_expression*>(e));
+      }
+    });
+  }
+  return core::move(expressions);
+}
+
 class member_reassociation_pass : public pass {
 public:
   member_reassociation_pass(type_validator* _validator, WNLogging::WNLog* _log,
       memory::allocator* _allocator)
     : pass(_validator, _log, _allocator), m_additional_functions(_allocator) {}
-
-  memory::unique_ptr<expression> walk_expression(expression*) {
-    return nullptr;
-  }
 
   void walk_instruction(declaration* _decl) {
     if (_decl->get_type()->get_reference_type() == reference_type::raw) {
@@ -828,6 +867,49 @@ public:
     cast->get_type()->set_reference_type(reference_type::unique);
 
     _decl->set_expression(core::move(cast));
+    for (auto& t :
+        accumulate_temporaries(m_allocator, _decl->get_expression(), false)) {
+      _decl->add_temporary(t);
+    }
+  }
+
+  void walk_instruction(assignment_instruction* _assign) {
+    for (auto& t :
+        accumulate_temporaries(m_allocator, _assign->get_expression(), true)) {
+      _assign->add_temporary(t);
+    }
+  }
+
+  void walk_instruction(if_instruction* _if) {
+    for (auto& t :
+        accumulate_temporaries(m_allocator, _if->get_condition(), true)) {
+      _if->add_temporary(t);
+    }
+  }
+
+  void walk_instruction(expression_instruction* _expr) {
+    for (auto& t :
+        accumulate_temporaries(m_allocator, _expr->get_expression(), true)) {
+      _expr->add_temporary(t);
+    }
+  }
+
+  void walk_instruction(else_if_instruction*) {
+    WN_DEBUG_ASSERT_DESC(false,
+        "We should not end up here"
+        "all else_if blocks should have been removed in the if_reassociation "
+        "pass");
+  }
+
+  void walk_instruction(return_instruction* _ret) {
+    for (auto& t :
+        accumulate_temporaries(m_allocator, _ret->get_expression(), true)) {
+      _ret->add_temporary(t);
+    }
+  }
+
+  memory::unique_ptr<expression> walk_expression(expression*) {
+    return nullptr;
   }
 
   memory::unique_ptr<expression> walk_expression(

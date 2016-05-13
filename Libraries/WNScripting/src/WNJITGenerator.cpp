@@ -313,28 +313,6 @@ void ast_jit_engine::walk_expression(
 }
 
 void ast_jit_engine::walk_instruction(
-    const else_if_instruction* _inst, instruction_dat* _val) {
-  _val->instructions =
-      containers::dynamic_array<llvm::Instruction*>(m_allocator);
-  _val->blocks = containers::dynamic_array<llvm::BasicBlock*>(m_allocator);
-
-  expression_dat& dat = m_generator->get_data(_inst->get_condition());
-  containers::dynamic_array<llvm::BasicBlock*>& body =
-      m_generator->get_data(_inst->get_body()).blocks;
-
-  llvm::BasicBlock* no_execute =
-      llvm::BasicBlock::Create(*m_context, "no_execute");
-
-  _val->instructions.insert(_val->instructions.begin(),
-      dat.instructions.begin(), dat.instructions.end());
-  _val->blocks.insert(_val->blocks.begin(), body.begin(), body.end());
-
-  _val->instructions.push_back(
-      llvm::BranchInst::Create(*_val->blocks.begin(), no_execute, dat.value));
-  _val->blocks.insert(_val->blocks.end(), no_execute);
-}
-
-void ast_jit_engine::walk_instruction(
     const if_instruction* _inst, instruction_dat* _val) {
   _val->instructions =
       containers::dynamic_array<llvm::Instruction*>(m_allocator);
@@ -362,23 +340,6 @@ void ast_jit_engine::walk_instruction(
   }
   _val->blocks.push_back(next_if);
 
-  for (auto& else_if : _inst->get_else_if_instructions()) {
-    instruction_dat& inst_dat = m_generator->get_data(else_if.get());
-    // The very last block in the else_if is the block that gets branched
-    // to if the else_if did not get run.
-    // The second to last block, is the last block inside of the if statement.
-    // If this doesn't return it should branch to the post_if block.
-    if (!else_if->returns()) {
-      (*(inst_dat.blocks.rbegin() + 1))
-          ->getInstList()
-          .push_back(llvm::BranchInst::Create(post_if));
-    }
-    next_if->getInstList().insert(next_if->getInstList().end(),
-        inst_dat.instructions.begin(), inst_dat.instructions.end());
-    _val->blocks.insert(
-        _val->blocks.end(), inst_dat.blocks.begin(), inst_dat.blocks.end());
-    next_if = _val->blocks.back();
-  }
   if (_inst->get_else()) {
     containers::dynamic_array<llvm::BasicBlock*>& list_dat =
         m_generator->get_data(_inst->get_else()).blocks;

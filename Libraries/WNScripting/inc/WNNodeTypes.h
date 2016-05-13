@@ -52,6 +52,7 @@ enum class node_type {
     declaration,
     do_instruction,
     else_if_instruction,
+    expression_instruction,
     for_instruction,
     if_instruction,
     return_instruction,
@@ -252,29 +253,17 @@ private:
   memory::unique_ptr<type> m_subtype;
 };
 
+class struct_allocation_expression;
+
 // Base class for all expression nodes in the AST.
 class expression : public node {
 public:
   expression(memory::allocator* _allocator, node_type _type)
-    : node(_allocator, _type),
-      m_type(nullptr),
-      m_force_use(false),
-      m_newly_created(false) {}
+    : node(_allocator, _type), m_type(nullptr) {}
 
   expression(memory::allocator* _allocator, node_type _node_type, type* _type)
     : node(_allocator, _node_type),
-      m_type(memory::unique_ptr<type>(_allocator, _type)),
-      m_force_use(false),
-      m_newly_created(false) {}
-
-  // Returns true if the value of this expression cannot be ignored.
-  bool required_use() const {
-    return m_force_use;
-  }
-
-  bool is_newly_created() {
-    return m_newly_created;
-  }
+      m_type(memory::unique_ptr<type>(_allocator, _type)) {}
 
   const type* get_type() const {
     return m_type.get();
@@ -303,12 +292,11 @@ public:
     return std::move(m_type);
   }
 
+  virtual void accumulate_expression_subtree(
+      const containers::function<void(const expression*)>&) const {}
+
 protected:
   memory::unique_ptr<type> m_type;
-
-private:
-  bool m_force_use;
-  bool m_newly_created;
 };
 
 class replaced_expression : public expression {
@@ -330,6 +318,15 @@ class replaced_expression : public expression {
       const walk_ftype<const type*>&) const override {
     for (auto& a : m_replacements) {
       ex(a.get());
+    }
+  }
+
+  void accumulate_expression_subtree(
+      const containers::function<void(const expression*)>& _func)
+      const override {
+    for (auto& a : m_replacements) {
+      _func(a.get());
+      a->accumulate_expression_subtree(_func);
     }
   }
 
@@ -355,6 +352,19 @@ public:
   void set_copy_initializer(expression* _expression) {
     m_copy_initializer =
         memory::unique_ptr<expression>(m_allocator, _expression);
+  }
+
+  void accumulate_expression_subtree(
+      const containers::function<void(const expression*)>& _func)
+      const override {
+    for (auto& a : m_array_initializers) {
+      _func(a.get());
+      a->accumulate_expression_subtree(_func);
+    }
+    if (m_copy_initializer) {
+      _func(m_copy_initializer.get());
+      m_copy_initializer->accumulate_expression_subtree(_func);
+    }
   }
 
 private:
@@ -390,6 +400,15 @@ public:
       const walk_ftype<const type*>&) const override {
     _func(m_lhs.get());
     _func(m_rhs.get());
+  }
+
+  void accumulate_expression_subtree(
+      const containers::function<void(const expression*)>& _func)
+      const override {
+    _func(m_lhs.get());
+    m_lhs->accumulate_expression_subtree(_func);
+    _func(m_rhs.get());
+    m_rhs->accumulate_expression_subtree(_func);
   }
 
 private:
@@ -535,6 +554,13 @@ public:
     expr(m_base_expression.get());
   }
 
+  void accumulate_expression_subtree(
+      const containers::function<void(const expression*)>& _func)
+      const override {
+    _func(m_base_expression.get());
+    m_base_expression->accumulate_expression_subtree(_func);
+  }
+
 protected:
   memory::unique_ptr<expression> m_base_expression;
 };
@@ -588,6 +614,15 @@ public:
 
   short_circuit_type get_ss_type() const {
     return m_ss_type;
+  }
+
+  void accumulate_expression_subtree(
+      const containers::function<void(const expression*)>& _func)
+      const override {
+    _func(m_lhs.get());
+    m_lhs->accumulate_expression_subtree(_func);
+    _func(m_rhs.get());
+    m_rhs->accumulate_expression_subtree(_func);
   }
 
 private:
@@ -650,6 +685,13 @@ public:
     _type(m_type.get());
   }
 
+  void accumulate_expression_subtree(
+      const containers::function<void(const expression*)>& _func)
+      const override {
+    _func(m_expression.get());
+    m_expression->accumulate_expression_subtree(_func);
+  }
+
 private:
   memory::unique_ptr<expression> m_expression;
 };
@@ -698,6 +740,15 @@ public:
     _type(m_type.get());
   }
 
+  void accumulate_expression_subtree(
+      const containers::function<void(const expression*)>& _func)
+      const override {
+    if (m_copy_initializer) {
+      _func(m_copy_initializer.get());
+      m_copy_initializer->accumulate_expression_subtree(_func);
+    }
+  }
+
 private:
   memory::unique_ptr<expression> m_copy_initializer;
   struct_initialization_mode m_init_mode;
@@ -711,6 +762,13 @@ public:
       m_unary_type(_type),
       m_root_expression(memory::unique_ptr<expression>(m_allocator, _expr)) {}
 
+  void accumulate_expression_subtree(
+      const containers::function<void(const expression*)>& _func)
+      const override {
+    _func(m_root_expression.get());
+    m_root_expression->accumulate_expression_subtree(_func);
+  }
+
 private:
   unary_type m_unary_type;
   memory::unique_ptr<expression> m_root_expression;
@@ -720,7 +778,10 @@ class instruction_list;
 class instruction : public node {
 public:
   instruction(memory::allocator* _allocator, node_type _type)
-    : node(_allocator, _type), m_returns(false), m_is_dead(false) {}
+    : node(_allocator, _type),
+      m_returns(false),
+      m_is_dead(false),
+      m_temporaries(_allocator) {}
   instruction(memory::allocator* _allocator, node_type _type, bool _returns)
     : instruction(_allocator, _type) {
     m_returns = _returns;
@@ -754,7 +815,12 @@ public:
     return m_is_dead;
   }
 
+  void add_temporary(const struct_allocation_expression* _temp) {
+    m_temporaries.push_back(_temp);
+  }
+
 protected:
+  containers::deque<const struct_allocation_expression*> m_temporaries;
   bool m_is_dead;
   bool m_returns;
 };
@@ -766,8 +832,43 @@ struct function_expression {
   function_expression(
       memory::unique_ptr<expression>&& _expr, bool _hand_ownership)
     : m_expr(std::move(_expr)), m_hand_ownership(_hand_ownership) {}
+
+  void accumulate_expression_subtree(
+      const containers::function<void(const expression*)>& _func) const {
+    _func(m_expr.get());
+    m_expr->accumulate_expression_subtree(_func);
+  }
+
   memory::unique_ptr<expression> m_expr;
   bool m_hand_ownership;
+};
+
+struct expression_instruction : public instruction {
+  expression_instruction(memory::allocator* _allocator, expression* _expr)
+    : instruction(_allocator, node_type::expression_instruction),
+      m_expression(memory::unique_ptr<expression>(m_allocator, _expr)) {}
+
+  virtual void walk_children(const walk_ftype<instruction*>&,
+      const walk_mutable_expression& _cond, const walk_ftype<type*>&,
+      const walk_ftype<instruction_list*>&, const walk_scope&,
+      const walk_scope&) override {
+    handle_expression(_cond, m_expression);
+  }
+
+  virtual void walk_children(const walk_ftype<const instruction*>&,
+      const walk_ftype<const expression*>& _cond,
+      const walk_ftype<const type*>&,
+      const walk_ftype<const instruction_list*>&, const walk_scope&,
+      const walk_scope&) const override {
+    _cond(m_expression.get());
+  }
+
+  const expression* get_expression() const {
+    return m_expression.get();
+  }
+
+private:
+  memory::unique_ptr<expression> m_expression;
 };
 
 class instruction_list : public instruction {
@@ -869,6 +970,13 @@ public:
     return (m_expression_list);
   }
 
+  void accumulate_expression_subtree(
+      const containers::function<void(const expression*)>& _func) const {
+    for (auto& a : m_expression_list) {
+      a->accumulate_expression_subtree(_func);
+    }
+  }
+
 private:
   containers::deque<memory::unique_ptr<function_expression>> m_expression_list;
 };
@@ -936,6 +1044,14 @@ public:
 
   const arg_list* get_args() const {
     return m_args.get();
+  }
+
+  void accumulate_expression_subtree(
+      const containers::function<void(const expression*)>& _func)
+      const override {
+    if (m_args) {
+      m_args->accumulate_expression_subtree(_func);
+    }
   }
 
 private:
@@ -1273,10 +1389,6 @@ public:
 
   lvalue(memory::allocator* _allocator, memory::unique_ptr<expression>&& _expr)
     : node(_allocator, node_type::lvalue), m_expression(std::move(_expr)) {}
-
-  bool required_use() {
-    return m_expression->required_use();
-  }
   const expression* get_expression() const {
     return m_expression.get();
   }
@@ -1413,8 +1525,7 @@ public:
       m_body(memory::unique_ptr<instruction_list>(m_allocator, _body)),
       m_else_if_nodes(_allocator) {}
 
-  if_instruction(
-      memory::allocator* _allocator)
+  if_instruction(memory::allocator* _allocator)
     : instruction(_allocator, node_type::if_instruction),
       m_else_if_nodes(_allocator) {}
 
