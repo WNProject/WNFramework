@@ -2,8 +2,9 @@ set(WN_GRAPHICS_DEVICE_TYPES_AVAILABLE)
 
 enable_overlay_directory()
 
-option(WN_GRAPHICS_DEVICE_TYPES
-  "List of device types to include in build" ${WN_GRAPHICS_DEVICE_TYPES}
+set(WN_GRAPHICS_DEVICE_TYPES
+  ${WN_GRAPHICS_DEVICE_TYPES}
+  CACHE STRING "List of device types to include in build"
 )
 
 string(REPLACE "," ";" WN_GRAPHICS_DEVICE_TYPES "${WN_GRAPHICS_DEVICE_TYPES}")
