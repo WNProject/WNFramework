@@ -360,6 +360,17 @@ void ast_jit_engine::walk_instruction(
 }
 
 void ast_jit_engine::walk_instruction(
+    const expression_instruction* _expr, instruction_dat* _val) {
+  _val->instructions =
+      containers::dynamic_array<llvm::Instruction*>(m_allocator);
+  if (_expr->get_expression()) {
+    const expression_dat& dat = m_generator->get_data(_expr->get_expression());
+    _val->instructions.insert(_val->instructions.end(), dat.instructions.data(),
+        dat.instructions.data() + dat.instructions.size());
+  }
+}
+
+void ast_jit_engine::walk_instruction(
     const return_instruction* _inst, instruction_dat* _val) {
   _val->instructions =
       containers::dynamic_array<llvm::Instruction*>(m_allocator);

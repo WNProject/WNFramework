@@ -217,6 +217,15 @@ void ast_c_translator::walk_parameter(
           _param->get_name().to_string(m_allocator);
 }
 
+void ast_c_translator::walk_instruction(const expression_instruction* _expr,
+    containers::pair<containers::string, containers::string>* _str) {
+  initialize_data(m_allocator, _str);
+  const auto& expr = m_generator->get_data(_expr->get_expression());
+    _str->second.append(expr.first);
+    _str->second.append(expr.second);
+    _str->second.append(";");
+}
+
 void ast_c_translator::walk_instruction(const return_instruction* _ret,
     containers::pair<containers::string, containers::string>* _str) {
   initialize_data(m_allocator, _str);

@@ -220,6 +220,20 @@ INSTANTIATE_TEST_CASE_P(
 
 // clang-format off
 INSTANTIATE_TEST_CASE_P(
+    empty_expressions, c_translator_direct_translation_test,
+    ::testing::ValuesIn(
+        std::vector<std::vector<source_pair>>({
+          {
+            {"Int main(Int x) {",     "int32_t _Z3wns4mainEll(int32_t x) {"  },
+            {"  x + 3;",              "(x + 3);"                     },
+            {"  return x;",           "return x;"                    },
+            {"}",                     "}"                            },
+          },
+})));
+// clang-format on
+
+// clang-format off
+INSTANTIATE_TEST_CASE_P(
     scope_tests, c_translator_direct_translation_test,
     ::testing::ValuesIn(
         std::vector<std::vector<source_pair>>({

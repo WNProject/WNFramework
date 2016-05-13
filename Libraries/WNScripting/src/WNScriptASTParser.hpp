@@ -241,7 +241,6 @@ public:
      scripting::parameter_list* paramList ();
      scripting::parameter_list* parameterList ();
      scripting::assign_type assign_type ();
-     scripting::lvalue* lvalue ();
      scripting::arg_list* arglist ();
      scripting::expression* expr ();
      scripting::expression* cond_ex ();
@@ -254,7 +253,7 @@ public:
      scripting::expression* unary_ex ();
      scripting::post_expression* post_ex_proper ();
      scripting::expression* post_ex ();
-     scripting::assignment_instruction* assignment ();
+     scripting::instruction* assignment_or_expression ();
      scripting::constant_expression* constant ();
      scripting::expression * prim_ex ();
      scripting::cast_expression* cast ();

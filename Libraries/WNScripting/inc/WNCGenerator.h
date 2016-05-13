@@ -72,7 +72,11 @@ public:
       containers::pair<containers::string, containers::string>* _str);
   void walk_type(const type* _type, containers::string* _str);
   void walk_instruction(const instruction*,
-      containers::pair<containers::string, containers::string>*) {}
+      containers::pair<containers::string, containers::string>*) {
+    WN_RELEASE_ASSERT_DESC(false, "Unimplemented instruction:");
+  }
+  void walk_instruction(const expression_instruction*,
+      containers::pair<containers::string, containers::string>*);
   void walk_instruction(const return_instruction* _inst,
       containers::pair<containers::string, containers::string>* _str);
   void walk_instruction(const declaration* _inst,

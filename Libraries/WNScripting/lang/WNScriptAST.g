@@ -325,13 +325,6 @@ assign_type returns[scripting::assign_type node]
     |    '%=' { node = scripting::assign_type::mod_equal; }
     ;
 
-lvalue returns[scripting::lvalue* node]
-@init {
-    node = nullptr;
-}
-    :    unary_ex { node = m_allocator->construct<scripting::lvalue>(m_allocator, $unary_ex.node); SET_LOCATION_FROM_NODE(node, $unary_ex.node); }
-    ;
-
 arglist returns[scripting::arg_list* node]
 @init {
     node = m_allocator->construct<scripting::arg_list>(m_allocator);
@@ -455,13 +448,30 @@ post_ex    returns[scripting::expression* node]
         :   prim_ex { node = $prim_ex.node; }
             (a=post_ex_proper {$a.node->add_base_expression(node); SET_END_LOCATION_FROM_NODE($a.node, node); node = $a.node;  } )* ;
 
-assignment returns[scripting::assignment_instruction* node]
+assignment_or_expression returns[scripting::instruction* node]
 @init {
     node = nullptr;
 }
-    :    lvalue { node = m_allocator->construct<scripting::assignment_instruction>(m_allocator, $lvalue.node); SET_LOCATION_FROM_NODE(node, $lvalue.node); }
-        (assign_type expr { node->add_value($assign_type.node, $expr.node); SET_END_LOCATION_FROM_NODE(node, $expr.node); }  )?
+    :    a=expr
+           (
+              (b=assign_type c=expr {
+                  scripting::lvalue* lval = m_allocator->construct<scripting::lvalue>(m_allocator, $a.node);
+                  SET_LOCATION_FROM_NODE(lval, $c.node);
+
+                  scripting::assignment_instruction* assign = m_allocator->construct<scripting::assignment_instruction>(m_allocator, lval);
+                  SET_LOCATION_FROM_NODE(assign , lval);
+
+                  assign->add_value($b.node, $c.node);
+                  SET_END_LOCATION_FROM_NODE(assign, $c.node);
+                  node = assign;
+                })
+              | ({
+                  node = m_allocator->construct<scripting::expression_instruction>(m_allocator, $a.node);
+                  SET_LOCATION_FROM_NODE(node, $a.node);
+                })
+           )
     ;
+
 constant returns[scripting::constant_expression* node]
 @init {
     node = nullptr;
@@ -537,7 +547,7 @@ instructionScalar returns[scripting::instruction* node]
     node = nullptr;
 }
     :    declaration {node = $declaration.node; }
-    |    assignment  {node = $assignment.node; }
+    |    assignment_or_expression  {node = $assignment_or_expression.node; }
     ;
 
 returnInst returns[scripting::return_instruction* node]

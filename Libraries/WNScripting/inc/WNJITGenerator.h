@@ -71,9 +71,11 @@ public:
       const function_call_expression* _call, expression_dat* _str);
 
   void walk_type(const type* _type, llvm::Type** _val);
-  void walk_instruction(const instruction*, instruction_dat*) {}
-  void walk_instruction_list(
-      const instruction_list*, instruction_dat*);
+  void walk_instruction(const instruction*, instruction_dat*) {
+    WN_RELEASE_ASSERT_DESC(false, "Unimplemented instruction type implemented");
+  }
+  void walk_instruction_list(const instruction_list*, instruction_dat*);
+  void walk_instruction(const expression_instruction* _inst, instruction_dat*);
   void walk_instruction(const return_instruction* _inst, instruction_dat*);
   void walk_instruction(const declaration* _inst, instruction_dat*);
   void walk_instruction(const assignment_instruction* _inst, instruction_dat*);

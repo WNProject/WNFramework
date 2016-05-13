@@ -685,6 +685,31 @@ public:
           false, "Not Implemented: Non-equality assignment instructions.");
     }
 
+    switch (_assign->get_lvalue()->get_expression()->get_node_type()) {
+      case node_type::replaced_expression:
+        WN_RELEASE_ASSERT_DESC(false, "TODO: handle replaced instructions here");
+      case node_type::cast_expression:
+      case node_type::id_expression:
+      case node_type::unary_expression:
+      case node_type::post_expression:
+      case node_type::post_unary_expression:
+      case node_type::array_access_expression:
+      case node_type::member_access_expression:
+        break;
+      case node_type::function_call_expression:
+      case node_type::short_circuit_expression:
+      case node_type::struct_allocation_expression:
+      case node_type::constant_expression:
+      case node_type::null_allocation_expression:
+      case node_type::cond_expression:
+      case node_type::binary_expression:
+      case node_type::array_allocation_expression:
+        m_log->Log(WNLogging::eError, 0, "Cannot assign to expression.");
+        _assign->log_line(*m_log, WNLogging::eError);
+        ++m_num_errors;
+        return;
+    }
+
     if (*_assign->get_lvalue()->get_expression()->get_type() !=
         *_assign->get_expression()->get_type()) {
       m_log->Log(WNLogging::eError, 0, "Cannot assign incompatible types.");
