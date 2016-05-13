@@ -529,6 +529,33 @@ INSTANTIATE_TEST_CASE_P(
             {" return f.x + f.y;",    "return (f->x + f->y);"        },
             {"}",                     "}"                            }
           },
+          {
+            {"struct Foo {",          "typedef struct {"             },
+            {"  Int x = 32;",         "  int32_t x;"                 },
+            {"  Int y = 7;",          "  int32_t y;"                 },
+            {"}",                     "} Foo;"                       },
+            {"",                      "\n"                           },
+            {"",                      "Foo* _Z3wns14_construct_FooENR3FooENR3FooE(Foo* _this) {" },
+            {"",                      "_this->x = 32;"               },
+            {"",                      "_this->y = 7;"                },
+            {"",                      "return _this;"                },
+            {"",                      "}"                            },
+            {"",                      "\n"                           },
+            {"",                      "void _Z3wns13_destruct_FooEvNR3FooE(Foo* _this) {"   },
+            {"",                      "return;"                      },
+            {"",                      "}"                            },
+            {"",                      "\n"                           },
+            {"Int main(Int x) {",     "int32_t _Z3wns4mainEll(int32_t x) {"   },
+            {"Int r = 0;",            "int32_t r = 0;"               },
+            {"{",                     "{"                            },
+            {" Foo f = Foo();",       "Foo __wns_temp0;"             },
+            {"",                      "Foo* f = _Z3wns14_construct_FooENR3FooENR3FooE(&__wns_temp0);" },
+            {" r = f.x;",             "r = f->x;"                    },
+            {"",                      "_Z3wns13_destruct_FooEvNR3FooE(f);"},
+            {"}",                     "}"                            },
+            {" return r + x;",        "return (r + x);"              },
+            {"}",                     "}"                            }
+          },
 })));
 // clang-format on
 

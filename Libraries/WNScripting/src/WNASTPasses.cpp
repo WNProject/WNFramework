@@ -362,8 +362,6 @@ public:
   }
 
   void leave_scope_block() {
-    // TODO(awoloszyn): Once we have object support, we will need to
-    //                  add dereference operations on scope leave.
     id_map.pop_back();
   }
 
@@ -428,14 +426,19 @@ public:
       memory::allocator* _allocator)
     : pass(_validator, _log, _allocator),
       m_returns(_allocator),
-      m_functions(_allocator) {}
+      m_functions(_allocator),
+      m_local_objects(_allocator) {}
   memory::unique_ptr<expression> walk_expression(expression*) {
     return nullptr;
   }
 
   void walk_parameter(parameter*) {}
-  void enter_scope_block() {}
+  void enter_scope_block() {
+    m_local_objects.push_back(containers::deque<declaration*>(m_allocator));
+  }
+
   void leave_scope_block() {}
+
   memory::unique_ptr<expression> walk_expression(id_expression* _expr) {
     const id_expression::id_source& source = _expr->get_id_source();
     if (source.param_source || source.declaration_source) {
@@ -652,7 +655,73 @@ public:
   }
 
   void walk_instruction(instruction*) {}
-  void walk_instruction_list(instruction_list*) {}
+  void walk_instruction_list(instruction_list* instructions) {
+    // If we are leaving a scope-block that had a return
+    // at the end, then we do not need to emit desctuctors,
+    // that will have already been done in the return.
+    if (instructions->get_instructions().size() > 1 &&
+        (instructions->get_instructions().back()->is_dead() ||
+            instructions->get_instructions().back()->get_node_type() ==
+                node_type::return_instruction)) {
+      m_local_objects.pop_back();
+      return;
+    }
+    if (m_local_objects.back().empty()) {
+      m_local_objects.pop_back();
+      return;
+    }
+
+    // We have walked every instruction in the instruction list,
+     // we are just about to leave the scope block.
+     // This means we have to run the destructor for any objects
+     // that are bound by this scope.
+    for(auto& decl: m_local_objects.back()) {
+
+      containers::string m_destructor_name("_destruct_", m_allocator);
+      m_destructor_name.append(decl->get_type()->custom_type_name().data(),
+          decl->get_type()->custom_type_name().length());
+
+      memory::unique_ptr<id_expression> object_id =
+          memory::make_unique<id_expression>(
+              m_allocator, m_allocator, decl->get_name());
+      object_id->set_id_source({0, decl});
+      object_id->copy_location_from(instructions);
+      object_id->set_type(memory::make_unique<type>(m_allocator, *decl->get_type()));
+
+      memory::unique_ptr<cast_expression> cast1 =
+        memory::make_unique<cast_expression>(
+            m_allocator, m_allocator, core::move(object_id));
+      cast1->copy_location_from(cast1->get_expression());
+      cast1->set_type(memory::make_unique<type>(m_allocator, *decl->get_type()));
+      cast1->get_type()->set_reference_type(reference_type::self);
+
+      memory::unique_ptr<arg_list> args =
+          memory::make_unique<arg_list>(m_allocator, m_allocator);
+      args->copy_location_from(instructions);
+      args->add_expression(core::move(cast1));
+
+      memory::unique_ptr<function_call_expression> call =
+          memory::make_unique<function_call_expression>(
+              m_allocator, m_allocator, core::move(args));
+      call->copy_location_from(call->get_args());
+      call->set_type(memory::make_unique<type>(
+          m_allocator, m_allocator, type_classification::void_type));
+
+      memory::unique_ptr<id_expression> destructor =
+          memory::make_unique<id_expression>(
+              m_allocator, m_allocator, m_destructor_name);
+      destructor->copy_location_from(call.get());
+
+      call->add_base_expression(core::move(destructor));
+
+      walk_expression(call.get());  // Have the type_association pass handle
+      // setting up this function call.
+      instructions->add_instruction(memory::make_unique<expression_instruction>(
+          m_allocator, m_allocator, core::move(call)));
+    }
+    m_local_objects.pop_back();
+  }
+
   void walk_struct_definition(struct_definition* _definition) {
     if (m_validator->get_type(_definition->get_name())) {
       m_log->Log(WNLogging::eError, 0, "Duplicate struct defined: ",
@@ -730,6 +799,10 @@ public:
           "Cannot inintialize variable with expression of a different type.");
       _decl->log_line(*m_log, WNLogging::eError);
       ++m_num_errors;
+    }
+
+    if (_decl->get_type()->get_reference_type() == reference_type::unique) {
+      m_local_objects.back().push_back(_decl);
     }
   }
 
@@ -834,6 +907,7 @@ private:
   containers::deque<return_instruction*> m_returns;
   containers::hash_map<containers::string_view, containers::deque<function*>>
       m_functions;
+  containers::deque<containers::deque<declaration*>> m_local_objects;
 };
 
 containers::deque<const struct_allocation_expression*> accumulate_temporaries(

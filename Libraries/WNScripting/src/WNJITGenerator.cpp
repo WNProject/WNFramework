@@ -304,10 +304,17 @@ void ast_jit_engine::walk_expression(
         dat.instructions.begin(), dat.instructions.end());
     parameters.push_back(dat.value);
   }
-
-  llvm::CallInst* call = llvm::CallInst::Create(
-      m_generator->get_data(_call->callee()), make_array_ref(parameters),
-      make_string_ref(_call->callee()->get_mangled_name()));
+  llvm::CallInst* call;
+  // We are not allowed naming void values.
+  if (_call->get_type()->get_index() ==
+      static_cast<uint32_t>(type_classification::void_type)) {
+    call = llvm::CallInst::Create(m_generator->get_data(_call->callee()),
+        make_array_ref(parameters));
+  } else {
+    call = llvm::CallInst::Create(m_generator->get_data(_call->callee()),
+        make_array_ref(parameters),
+        make_string_ref(_call->callee()->get_mangled_name()));
+  }
   _val->instructions.push_back(call);
   _val->value = call;
 }

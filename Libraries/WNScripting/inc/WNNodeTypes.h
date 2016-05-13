@@ -848,6 +848,11 @@ struct expression_instruction : public instruction {
     : instruction(_allocator, node_type::expression_instruction),
       m_expression(memory::unique_ptr<expression>(m_allocator, _expr)) {}
 
+  expression_instruction(
+      memory::allocator* _allocator, memory::unique_ptr<expression>&& _expr)
+    : instruction(_allocator, node_type::expression_instruction),
+      m_expression(core::move(_expr)) {}
+
   virtual void walk_children(const walk_ftype<instruction*>&,
       const walk_mutable_expression& _cond, const walk_ftype<type*>&,
       const walk_ftype<instruction_list*>&, const walk_scope&,

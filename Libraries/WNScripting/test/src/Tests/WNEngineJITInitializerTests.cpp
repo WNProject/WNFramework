@@ -411,6 +411,14 @@ INSTANTIATE_TEST_CASE_P(
 })));
 
 INSTANTIATE_TEST_CASE_P(
+    struct_cleanup_tests, integer_tests,
+    ::testing::ValuesIn(std::vector<integer_test>({
+      {"struct Foo { Int x = 4; }"
+      "Int main(Int x) { Int r = 3; { Foo f = Foo(); r = f.x + x; } return r; }",
+        {{0, 4}, {-1, 3}}},
+})));
+
+INSTANTIATE_TEST_CASE_P(
     empty_expression_test, integer_tests,
     ::testing::ValuesIn(std::vector<integer_test>({
       {"Int main(Int x) { x + 4; x - 3; return x; }",
