@@ -61,7 +61,6 @@ private:
     }
   };
 
-  friend struct ast_walker<T, Const>::get_expr_const;
   struct get_expr_non_const {
     containers::function<memory::unique_ptr<expression>(expression*)>
     operator()(ast_walker* _this) {
@@ -70,14 +69,37 @@ private:
     }
   };
 
+  friend struct ast_walker<T, Const>::get_expr_const;
   friend struct ast_walker<T, Const>::get_expr_non_const;
 
-  using expr_func = typename std::conditional<Const,
-      walk_ftype<expression_type>, walk_mutable_expression>::type;
   using get_expr = typename std::conditional<Const, get_expr_const,
       get_expr_non_const>::type;
 
-  void walk_instruction(instruction_type _inst);
+  void walk_instruction(const instruction* _inst);
+  memory::unique_ptr<instruction> walk_mutable_instruction(instruction* _inst);
+
+  struct get_inst_const {
+    containers::function<void(const instruction*)> operator()(
+    ast_walker* _this) {
+      return containers::function<void(const instruction*)>(
+          &ast_walker<T, true>::walk_instruction, _this);
+    }
+  };
+
+  struct get_inst_non_const {
+    containers::function<memory::unique_ptr<instruction>(instruction*)>
+    operator()(ast_walker* _this) {
+      return containers::function<memory::unique_ptr<instruction>(
+          instruction*)>(&ast_walker<T, false>::walk_mutable_instruction, _this);
+    }
+  };
+
+  friend struct ast_walker<T, Const>::get_inst_const;
+  friend struct ast_walker<T, Const>::get_inst_non_const;
+
+  using get_inst = typename std::conditional<Const, get_inst_const,
+      get_inst_non_const>::type;
+
   void walk_instruction_list(instruction_list_type _inst);
   void walk_function(function_type _func);
   void walk_parameter(parameter_type _param);

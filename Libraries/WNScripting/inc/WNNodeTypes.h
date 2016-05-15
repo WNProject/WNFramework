@@ -91,7 +91,16 @@ using walk_scope = containers::function<void()>;
 WN_INLINE void handle_expression(const walk_mutable_expression& function,
     memory::unique_ptr<expression>& expr) {
   while (auto a = function(expr.get())) {
-    expr = std::move(a);
+    expr = core::move(a);
+  }
+}
+
+using walk_mutable_instruction =
+    containers::function<memory::unique_ptr<instruction>(instruction*)>;
+WN_INLINE void handle_instruction(const walk_mutable_instruction& function,
+    memory::unique_ptr<instruction>& inst) {
+  while (auto a = function(inst.get())) {
+    inst = core::move(a);
   }
 }
 
@@ -276,7 +285,7 @@ public:
   }
 
   void set_type(memory::unique_ptr<type>&& _type) {
-    m_type = std::move(_type);
+    m_type = core::move(_type);
   }
 
   virtual void walk_children(
@@ -289,7 +298,7 @@ public:
   }
 
   memory::unique_ptr<type> transfer_out_type() {
-    return std::move(m_type);
+    return core::move(m_type);
   }
 
   virtual void accumulate_expression_subtree(
@@ -305,7 +314,7 @@ class replaced_expression : public expression {
       m_replacements(_allocator) {}
 
   void add_expression(memory::unique_ptr<expression>&& replacement) {
-    m_replacements.push_back(std::move(replacement));
+    m_replacements.push_back(core::move(replacement));
   }
 
   virtual void walk_children(
@@ -533,7 +542,7 @@ public:
     m_base_expression = memory::unique_ptr<expression>(m_allocator, _expr);
   }
   void add_base_expression(memory::unique_ptr<expression>&& _expr) {
-    m_base_expression = std::move(_expr);
+    m_base_expression = core::move(_expr);
   }
 
   const expression* get_base_expression() const {
@@ -667,7 +676,7 @@ public:
   cast_expression(memory::allocator* _allocator,
       memory::unique_ptr<expression>&& _expression)
     : expression(_allocator, node_type::cast_expression),
-      m_expression(std::move(_expression)) {}
+      m_expression(core::move(_expression)) {}
 
   const expression* get_expression() const {
     return m_expression.get();
@@ -723,11 +732,11 @@ public:
     return m_init_mode;
   }
   void set_copy_initializer(memory::unique_ptr<expression>&& _expression) {
-    m_copy_initializer = std::move(_expression);
+    m_copy_initializer = core::move(_expression);
   }
 
   memory::unique_ptr<expression> transfer_copy_initializer() {
-    return std::move(m_copy_initializer);
+    return core::move(m_copy_initializer);
   }
 
   virtual void walk_children(
@@ -791,7 +800,7 @@ public:
     return (m_returns);
   }
 
-  virtual void walk_children(const walk_ftype<instruction*>&,
+  virtual void walk_children(const walk_mutable_instruction&,
       const walk_mutable_expression&, const walk_ftype<type*>&,
       const walk_ftype<instruction_list*>&, const walk_scope&,
       const walk_scope&) {
@@ -831,7 +840,7 @@ struct function_expression {
     : m_expr(_allocator, _expr), m_hand_ownership(_hand_ownership) {}
   function_expression(
       memory::unique_ptr<expression>&& _expr, bool _hand_ownership)
-    : m_expr(std::move(_expr)), m_hand_ownership(_hand_ownership) {}
+    : m_expr(core::move(_expr)), m_hand_ownership(_hand_ownership) {}
 
   void accumulate_expression_subtree(
       const containers::function<void(const expression*)>& _func) const {
@@ -853,7 +862,7 @@ struct expression_instruction : public instruction {
     : instruction(_allocator, node_type::expression_instruction),
       m_expression(core::move(_expr)) {}
 
-  virtual void walk_children(const walk_ftype<instruction*>&,
+  virtual void walk_children(const walk_mutable_instruction&,
       const walk_mutable_expression& _cond, const walk_ftype<type*>&,
       const walk_ftype<instruction_list*>&, const walk_scope&,
       const walk_scope&) override {
@@ -894,7 +903,7 @@ public:
   }
 
   void add_instruction(memory::unique_ptr<instruction>&& inst) {
-    m_instructions.push_back(std::move(inst));
+    m_instructions.push_back(core::move(inst));
   }
 
   const containers::deque<memory::unique_ptr<instruction>>& get_instructions()
@@ -908,16 +917,16 @@ public:
 
   void set_instructions(
       containers::deque<memory::unique_ptr<instruction>>&& instructions) {
-    m_instructions.take_over(std::move(instructions));
+    m_instructions.take_over(core::move(instructions));
   }
 
-  void walk_children(const walk_ftype<instruction*>& _instruction,
+  void walk_children(const walk_mutable_instruction& _instruction,
       const walk_mutable_expression&, const walk_ftype<type*>&,
       const walk_ftype<instruction_list*>&, const walk_scope& _enter_scope,
       const walk_scope& _leave_scope) override {
     _enter_scope();
     for (auto& inst : m_instructions) {
-      _instruction(inst.get());
+      handle_instruction(_instruction, inst);
     }
     _leave_scope();
   }
@@ -939,11 +948,11 @@ public:
         m_allocator);
     while (!m_instructions.empty()) {
       if (!m_instructions.front()->is_dead()) {
-        instructions.push_back(std::move(*m_instructions.begin()));
+        instructions.push_back(core::move(*m_instructions.begin()));
       }
       m_instructions.pop_front();
     }
-    m_instructions = std::move(instructions);
+    m_instructions = core::move(instructions);
   }
 
 private:
@@ -962,7 +971,7 @@ public:
   void add_expression(
       memory::unique_ptr<expression> _expr, bool _hand_ownership = false) {
     m_expression_list.emplace_back(memory::make_unique<function_expression>(
-        m_allocator, std::move(_expr), _hand_ownership));
+        m_allocator, core::move(_expr), _hand_ownership));
   }
 
   containers::deque<memory::unique_ptr<function_expression>>&
@@ -997,7 +1006,7 @@ public:
   function_call_expression(
       memory::allocator* _allocator, memory::unique_ptr<arg_list>&& _list)
     : post_expression(_allocator, node_type::function_call_expression),
-      m_args(std::move(_list)) {}
+      m_args(core::move(_list)) {}
 
   virtual void walk_children(
       const walk_mutable_expression& _func, const walk_ftype<type*>&) override {
@@ -1074,7 +1083,7 @@ public:
   parameter(memory::allocator* _allocator, memory::unique_ptr<type>&& _type,
       containers::string_view _name)
     : node(_allocator, scripting::node_type::parameter),
-      m_type(std::move(_type)),
+      m_type(core::move(_type)),
       m_name(_name.to_string(_allocator)) {}
 
   const containers::string_view get_name() const {
@@ -1136,11 +1145,11 @@ public:
   }
 
   memory::unique_ptr<expression> take_expression() {
-    return std::move(m_expression);
+    return core::move(m_expression);
   }
 
   void set_expression(memory::unique_ptr<expression>&& _expr) {
-    m_expression = std::move(_expr);
+    m_expression = core::move(_expr);
   }
 
   const type* get_type() const {
@@ -1160,7 +1169,7 @@ public:
     return m_unsized_array_initializers;
   }
 
-  virtual void walk_children(const walk_ftype<instruction*>&,
+  virtual void walk_children(const walk_mutable_instruction&,
       const walk_mutable_expression& expr, const walk_ftype<type*>& type,
       const walk_ftype<instruction_list*>&, const walk_scope&,
       const walk_scope&) override {
@@ -1438,7 +1447,7 @@ public:
   }
 
 private:
-  virtual void walk_children(const walk_ftype<instruction*>&,
+  virtual void walk_children(const walk_mutable_instruction&,
       const walk_mutable_expression& expr, const walk_ftype<type*>&,
       const walk_ftype<instruction_list*>&, const walk_scope&,
       const walk_scope&) override {
@@ -1500,7 +1509,7 @@ public:
     return core::move(m_body);
   }
 
-  virtual void walk_children(const walk_ftype<instruction*>&,
+  virtual void walk_children(const walk_mutable_instruction&,
       const walk_mutable_expression& _cond, const walk_ftype<type*>&,
       const walk_ftype<instruction_list*>& _body, const walk_scope&,
       const walk_scope&) override {
@@ -1554,14 +1563,14 @@ public:
     m_else.reset();
   }
 
-  virtual void walk_children(const walk_ftype<instruction*>& _inst,
+  virtual void walk_children(const walk_mutable_instruction& _inst,
       const walk_mutable_expression& _cond, const walk_ftype<type*>&,
       const walk_ftype<instruction_list*>& _body, const walk_scope&,
       const walk_scope&) override {
     handle_expression(_cond, m_condition);
     _body(m_body.get());
     for (auto& else_inst : m_else_if_nodes) {
-      _inst(else_inst.get());
+      handle_instruction(_inst, else_inst);
     }
     if (m_else) {
       _body(m_else.get());
@@ -1611,12 +1620,12 @@ public:
     return core::move(m_else);
   }
 
-  containers::deque<memory::unique_ptr<else_if_instruction>>&
+  containers::deque<memory::unique_ptr<instruction>>&
   get_else_if_instructions() {
     return m_else_if_nodes;
   }
 
-  const containers::deque<memory::unique_ptr<else_if_instruction>>&
+  const containers::deque<memory::unique_ptr<instruction>>&
   get_else_if_instructions() const {
     return m_else_if_nodes;
   }
@@ -1625,7 +1634,7 @@ private:
   memory::unique_ptr<expression> m_condition;
   memory::unique_ptr<instruction_list> m_else;
   memory::unique_ptr<instruction_list> m_body;
-  containers::deque<memory::unique_ptr<else_if_instruction>> m_else_if_nodes;
+  containers::deque<memory::unique_ptr<instruction>> m_else_if_nodes;
 };
 
 class for_instruction : public instruction {
@@ -1674,7 +1683,7 @@ public:
   const expression* get_expression() const {
     return m_expression.get();
   }
-  virtual void walk_children(const walk_ftype<instruction*>&,
+  virtual void walk_children(const walk_mutable_instruction&,
       const walk_mutable_expression& expr, const walk_ftype<type*>&,
       const walk_ftype<instruction_list*>&, const walk_scope&,
       const walk_scope&) override {
@@ -1751,7 +1760,7 @@ public:
   }
 
   virtual void walk_children(const walk_scope&, const walk_scope&,
-      const walk_ftype<instruction*>&, const walk_mutable_expression&,
+      const walk_mutable_instruction&, const walk_mutable_expression&,
       const walk_ftype<function*>& f, const walk_ftype<struct_definition*>& s) {
     for (auto& def : m_structs) {
       s(def.get());

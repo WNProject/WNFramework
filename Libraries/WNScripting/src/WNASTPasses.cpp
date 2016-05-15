@@ -65,18 +65,21 @@ public:
   void walk_parameter(parameter*) {}
   void walk_script_file(script_file*) {}
   void walk_type(type*) {}
-  void walk_instruction(instruction*) {}
+  memory::unique_ptr<instruction> walk_instruction(instruction*) {
+    return nullptr;
+  }
   void walk_struct_definition(struct_definition*) {}
-  void walk_instruction(else_if_instruction* _inst) {
+  memory::unique_ptr<instruction> walk_instruction(else_if_instruction* _inst) {
     _inst->set_returns(_inst->get_body()->returns());
+    return nullptr;
   }
 
-  void walk_instruction(if_instruction* _inst) {
+  memory::unique_ptr<instruction> walk_instruction(if_instruction* _inst) {
     if (!_inst->get_else()) {
       // If we do not have an else clause, then we
       // have an out (since we have not done constant
       // propagation yet).
-      return;
+      return nullptr;
     }
 
     bool returns = _inst->get_body()->returns();
@@ -85,6 +88,7 @@ public:
     }
     returns &= _inst->get_else()->returns();
     _inst->set_returns(returns);
+    return nullptr;
   }
 
 private:
@@ -174,8 +178,8 @@ public:
       if ((*it)->get_node_type() == node_type::if_instruction) {
         if_instruction* if_inst = static_cast<if_instruction*>(it->get());
 
-        containers::deque<memory::unique_ptr<else_if_instruction>>&
-            else_if_insts = if_inst->get_else_if_instructions();
+        containers::deque<memory::unique_ptr<instruction>>& else_if_insts =
+            if_inst->get_else_if_instructions();
 
         // This is where we actually do the work.
         char temporary_name[12] = {0};
@@ -240,7 +244,12 @@ public:
                     type_classification::bool_type, elseif_name, "false"));
           }
 
-          for (auto& else_if : else_if_insts) {
+          for (auto& elif : else_if_insts) {
+            WN_DEBUG_ASSERT_DESC(
+                elif->get_node_type() == node_type::else_if_instruction,
+                "This should ALWAYS be an else-if instruction");
+            else_if_instruction* else_if =
+                static_cast<else_if_instruction*>(elif.get());
             // Take the original body and condition.
             memory::unique_ptr<instruction_list> else_if_body =
                 else_if->take_body();
@@ -250,7 +259,7 @@ public:
             // Inside the body we have to set the entering flag
             // to true
             else_if_body->get_instructions().emplace_front(
-                make_constant_assignment(m_allocator, else_if.get(),
+                make_constant_assignment(m_allocator, else_if,
                     type_classification::bool_type, elseif_name, "false"));
 
             // Switch this to the form
@@ -263,10 +272,10 @@ public:
             memory::unique_ptr<id_expression> may_enter =
                 memory::make_unique<id_expression>(
                     m_allocator, m_allocator, elseif_name);
-            may_enter->copy_location_from(else_if.get());
+            may_enter->copy_location_from(else_if);
 
             replaced_instructions.emplace_back(make_assignment(
-                m_allocator, else_if.get(), name, core::move(may_enter)));
+                m_allocator, else_if, name, core::move(may_enter)));
 
             // if (inst) {
             memory::unique_ptr<if_instruction> conditional_if =
@@ -275,17 +284,17 @@ public:
             memory::unique_ptr<id_expression> entering =
                 memory::make_unique<id_expression>(
                     m_allocator, m_allocator, name);
-            entering->copy_location_from(else_if.get());
+            entering->copy_location_from(else_if);
 
             conditional_if->set_condition(core::move(entering));
 
             // inst = original_condition
             memory::unique_ptr<instruction_list> inst_list =
                 memory::make_unique<instruction_list>(m_allocator, m_allocator);
-            inst_list->copy_location_from(else_if.get());
+            inst_list->copy_location_from(else_if);
 
-            inst_list->add_instruction(make_assignment(m_allocator,
-                else_if.get(), name, core::move(else_if_condition)));
+            inst_list->add_instruction(make_assignment(
+                m_allocator, else_if, name, core::move(else_if_condition)));
 
             conditional_if->set_body(core::move(inst_list));
             replaced_instructions.emplace_back(core::move(conditional_if));
@@ -293,11 +302,11 @@ public:
             memory::unique_ptr<id_expression> id_expr =
                 memory::make_unique<id_expression>(
                     m_allocator, m_allocator, name);
-            id_expr->copy_location_from(else_if.get());
+            id_expr->copy_location_from(else_if);
 
             memory::unique_ptr<if_instruction> replaced_if_inst =
                 memory::make_unique<if_instruction>(m_allocator, m_allocator);
-            replaced_if_inst->copy_location_from(else_if.get());
+            replaced_if_inst->copy_location_from(else_if);
             replaced_if_inst->set_condition(core::move(id_expr));
             replaced_if_inst->set_body(core::move(else_if_body));
             replaced_instructions.emplace_back(core::move(replaced_if_inst));
@@ -332,10 +341,16 @@ public:
   void walk_parameter(parameter*) {}
   void walk_script_file(script_file*) {}
   void walk_type(type*) {}
-  void walk_instruction(instruction*) {}
+  memory::unique_ptr<instruction> walk_instruction(instruction*) {
+    return nullptr;
+  }
   void walk_struct_definition(struct_definition*) {}
-  void walk_instruction(else_if_instruction*) {}
-  void walk_instruction(if_instruction*) {}
+  memory::unique_ptr<instruction> walk_instruction(else_if_instruction*) {
+    return nullptr;
+  }
+  memory::unique_ptr<instruction> walk_instruction(if_instruction*) {
+    return nullptr;
+  }
 
 private:
   uint32_t m_last_temporary;
@@ -351,7 +366,9 @@ public:
     return nullptr;
   }
   void walk_instruction_list(instruction_list*) {}
-  void walk_instruction(instruction*) {}
+  memory::unique_ptr<instruction> walk_instruction(instruction*) {
+    return nullptr;
+  }
   void walk_function(function*) {}
   void walk_struct_definition(struct_definition*) {}
 
@@ -376,15 +393,17 @@ public:
     id_map.back()[_param->get_name()] = {_param, 0};
   }
 
-  void walk_instruction(declaration* _decl) {
+  memory::unique_ptr<instruction> walk_instruction(declaration* _decl) {
     if (find_param(_decl->get_name())) {
       m_log->Log(WNLogging::eError, 0, "Declaration of ", _decl->get_name(),
           "hides id of the same name");
       _decl->log_line(*m_log, WNLogging::eError);
       ++m_num_errors;
-      return;
+      return nullptr;
+      ;
     }
     id_map.back()[_decl->get_name()] = {0, _decl};
+    return nullptr;
   }
 
   memory::unique_ptr<expression> walk_expression(id_expression* _expr) {
@@ -654,7 +673,55 @@ public:
     return nullptr;
   }
 
-  void walk_instruction(instruction*) {}
+  memory::unique_ptr<instruction> create_destructor(
+      declaration* _decl, node* _location_copy) {
+    containers::string m_destructor_name("_destruct_", m_allocator);
+    m_destructor_name.append(_decl->get_type()->custom_type_name().data(),
+        _decl->get_type()->custom_type_name().length());
+
+    memory::unique_ptr<id_expression> object_id =
+        memory::make_unique<id_expression>(
+            m_allocator, m_allocator, _decl->get_name());
+    object_id->set_id_source({0, _decl});
+    object_id->copy_location_from(_location_copy);
+    object_id->set_type(
+        memory::make_unique<type>(m_allocator, *_decl->get_type()));
+
+    memory::unique_ptr<cast_expression> cast1 =
+        memory::make_unique<cast_expression>(
+            m_allocator, m_allocator, core::move(object_id));
+    cast1->copy_location_from(cast1->get_expression());
+    cast1->set_type(memory::make_unique<type>(m_allocator, *_decl->get_type()));
+    cast1->get_type()->set_reference_type(reference_type::self);
+
+    memory::unique_ptr<arg_list> args =
+        memory::make_unique<arg_list>(m_allocator, m_allocator);
+    args->copy_location_from(_location_copy);
+    args->add_expression(core::move(cast1));
+
+    memory::unique_ptr<function_call_expression> call =
+        memory::make_unique<function_call_expression>(
+            m_allocator, m_allocator, core::move(args));
+    call->copy_location_from(call->get_args());
+    call->set_type(memory::make_unique<type>(
+        m_allocator, m_allocator, type_classification::void_type));
+
+    memory::unique_ptr<id_expression> destructor =
+        memory::make_unique<id_expression>(
+            m_allocator, m_allocator, m_destructor_name);
+    destructor->copy_location_from(call.get());
+
+    call->add_base_expression(core::move(destructor));
+
+    walk_expression(call.get());  // Have the type_association pass handle
+    // setting up this function call.
+    return memory::make_unique<expression_instruction>(
+        m_allocator, m_allocator, core::move(call));
+  }
+
+  memory::unique_ptr<instruction> walk_instruction(instruction*) {
+    return nullptr;
+  }
   void walk_instruction_list(instruction_list* instructions) {
     // If we are leaving a scope-block that had a return
     // at the end, then we do not need to emit desctuctors,
@@ -672,52 +739,11 @@ public:
     }
 
     // We have walked every instruction in the instruction list,
-     // we are just about to leave the scope block.
-     // This means we have to run the destructor for any objects
-     // that are bound by this scope.
-    for(auto& decl: m_local_objects.back()) {
-
-      containers::string m_destructor_name("_destruct_", m_allocator);
-      m_destructor_name.append(decl->get_type()->custom_type_name().data(),
-          decl->get_type()->custom_type_name().length());
-
-      memory::unique_ptr<id_expression> object_id =
-          memory::make_unique<id_expression>(
-              m_allocator, m_allocator, decl->get_name());
-      object_id->set_id_source({0, decl});
-      object_id->copy_location_from(instructions);
-      object_id->set_type(memory::make_unique<type>(m_allocator, *decl->get_type()));
-
-      memory::unique_ptr<cast_expression> cast1 =
-        memory::make_unique<cast_expression>(
-            m_allocator, m_allocator, core::move(object_id));
-      cast1->copy_location_from(cast1->get_expression());
-      cast1->set_type(memory::make_unique<type>(m_allocator, *decl->get_type()));
-      cast1->get_type()->set_reference_type(reference_type::self);
-
-      memory::unique_ptr<arg_list> args =
-          memory::make_unique<arg_list>(m_allocator, m_allocator);
-      args->copy_location_from(instructions);
-      args->add_expression(core::move(cast1));
-
-      memory::unique_ptr<function_call_expression> call =
-          memory::make_unique<function_call_expression>(
-              m_allocator, m_allocator, core::move(args));
-      call->copy_location_from(call->get_args());
-      call->set_type(memory::make_unique<type>(
-          m_allocator, m_allocator, type_classification::void_type));
-
-      memory::unique_ptr<id_expression> destructor =
-          memory::make_unique<id_expression>(
-              m_allocator, m_allocator, m_destructor_name);
-      destructor->copy_location_from(call.get());
-
-      call->add_base_expression(core::move(destructor));
-
-      walk_expression(call.get());  // Have the type_association pass handle
-      // setting up this function call.
-      instructions->add_instruction(memory::make_unique<expression_instruction>(
-          m_allocator, m_allocator, core::move(call)));
+    // we are just about to leave the scope block.
+    // This means we have to run the destructor for any objects
+    // that are bound by this scope.
+    for (auto& decl : m_local_objects.back()) {
+      instructions->add_instruction(create_destructor(decl, instructions));
     }
     m_local_objects.pop_back();
   }
@@ -748,7 +774,8 @@ public:
     }
   }
 
-  void walk_instruction(assignment_instruction* _assign) {
+  memory::unique_ptr<instruction> walk_instruction(
+      assignment_instruction* _assign) {
     if (_assign->get_assignment_type() != assign_type::equal) {
       WN_RELEASE_ASSERT_DESC(
           false, "Not Implemented: Non-equality assignment instructions.");
@@ -756,7 +783,8 @@ public:
 
     switch (_assign->get_lvalue()->get_expression()->get_node_type()) {
       case node_type::replaced_expression:
-        WN_RELEASE_ASSERT_DESC(false, "TODO: handle replaced instructions here");
+        WN_RELEASE_ASSERT_DESC(
+            false, "TODO: handle replaced instructions here");
       case node_type::cast_expression:
       case node_type::id_expression:
       case node_type::unary_expression:
@@ -776,7 +804,7 @@ public:
         m_log->Log(WNLogging::eError, 0, "Cannot assign to expression.");
         _assign->log_line(*m_log, WNLogging::eError);
         ++m_num_errors;
-        return;
+        return nullptr;
     }
 
     if (*_assign->get_lvalue()->get_expression()->get_type() !=
@@ -785,13 +813,15 @@ public:
       _assign->log_line(*m_log, WNLogging::eError);
       ++m_num_errors;
     }
+    return nullptr;
   }
 
-  void walk_instruction(return_instruction* _ret) {
+  memory::unique_ptr<instruction> walk_instruction(return_instruction* _ret) {
     m_returns.push_back(_ret);
+    return nullptr;
   }
 
-  void walk_instruction(declaration* _decl) {
+  memory::unique_ptr<instruction> walk_instruction(declaration* _decl) {
     // TODO(awoloszyn): Handle types other than non_nullable.
     if (m_validator->get_cast(_decl->get_expression()->get_type()->get_index(),
             _decl->get_type()->get_index()) != cast_type::transparent) {
@@ -804,9 +834,11 @@ public:
     if (_decl->get_type()->get_reference_type() == reference_type::unique) {
       m_local_objects.back().push_back(_decl);
     }
+    return nullptr;
   }
 
-  void walk_instruction(else_if_instruction* _else_if) {
+  memory::unique_ptr<instruction> walk_instruction(
+      else_if_instruction* _else_if) {
     if (_else_if->get_condition()->get_type()->get_index() !=
         static_cast<uint32_t>(type_classification::bool_type)) {
       m_log->Log(WNLogging::eError, 0,
@@ -814,9 +846,10 @@ public:
       _else_if->get_condition()->log_line(*m_log, WNLogging::eError);
       ++m_num_errors;
     }
+    return nullptr;
   }
 
-  void walk_instruction(if_instruction* _if) {
+  memory::unique_ptr<instruction> walk_instruction(if_instruction* _if) {
     if (_if->get_condition()->get_type()->get_index() !=
         static_cast<uint32_t>(type_classification::bool_type)) {
       m_log->Log(
@@ -824,6 +857,7 @@ public:
       _if->get_condition()->log_line(*m_log, WNLogging::eError);
       ++m_num_errors;
     }
+    return nullptr;
   }
 
   void walk_function(function* _func) {
@@ -940,9 +974,9 @@ public:
       memory::allocator* _allocator)
     : pass(_validator, _log, _allocator), m_additional_functions(_allocator) {}
 
-  void walk_instruction(declaration* _decl) {
+  memory::unique_ptr<instruction> walk_instruction(declaration* _decl) {
     if (_decl->get_type()->get_reference_type() == reference_type::raw) {
-      return;
+      return nullptr;
     }
     WN_RELEASE_ASSERT_DESC(
         _decl->get_type()->get_reference_type() == reference_type::unique,
@@ -953,7 +987,7 @@ public:
       m_log->Log(WNLogging::eError, 0, "Expected constructor call");
       _decl->log_line(*m_log, WNLogging::eError);
       ++m_num_errors;
-      return;
+      return nullptr;
     }
 
     memory::unique_ptr<expression> rhs = _decl->take_expression();
@@ -970,41 +1004,49 @@ public:
         accumulate_temporaries(m_allocator, _decl->get_expression(), false)) {
       _decl->add_temporary(t);
     }
+    return nullptr;
   }
 
-  void walk_instruction(assignment_instruction* _assign) {
+  memory::unique_ptr<instruction> walk_instruction(
+      assignment_instruction* _assign) {
     for (auto& t :
         accumulate_temporaries(m_allocator, _assign->get_expression(), true)) {
       _assign->add_temporary(t);
     }
+    return nullptr;
   }
 
-  void walk_instruction(if_instruction* _if) {
+  memory::unique_ptr<instruction> walk_instruction(if_instruction* _if) {
     for (auto& t :
         accumulate_temporaries(m_allocator, _if->get_condition(), true)) {
       _if->add_temporary(t);
     }
+    return nullptr;
   }
 
-  void walk_instruction(expression_instruction* _expr) {
+  memory::unique_ptr<instruction> walk_instruction(
+      expression_instruction* _expr) {
     for (auto& t :
         accumulate_temporaries(m_allocator, _expr->get_expression(), true)) {
       _expr->add_temporary(t);
     }
+    return nullptr;
   }
 
-  void walk_instruction(else_if_instruction*) {
+  memory::unique_ptr<instruction> walk_instruction(else_if_instruction*) {
     WN_DEBUG_ASSERT_DESC(false,
         "We should not end up here"
         "all else_if blocks should have been removed in the if_reassociation "
         "pass");
+    return nullptr;
   }
 
-  void walk_instruction(return_instruction* _ret) {
+  memory::unique_ptr<instruction> walk_instruction(return_instruction* _ret) {
     for (auto& t :
         accumulate_temporaries(m_allocator, _ret->get_expression(), true)) {
       _ret->add_temporary(t);
     }
+    return nullptr;
   }
 
   memory::unique_ptr<expression> walk_expression(expression*) {
@@ -1172,7 +1214,9 @@ public:
 
   void walk_type(type*) {}
   void walk_function(function*) {}
-  void walk_instruction(instruction*) {}
+  memory::unique_ptr<instruction> walk_instruction(instruction*) {
+    return nullptr;
+  }
   void enter_scope_block() {}
   void leave_scope_block() {}
 
