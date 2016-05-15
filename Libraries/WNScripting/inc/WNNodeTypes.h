@@ -1701,6 +1701,10 @@ public:
     }
   }
 
+  memory::unique_ptr<expression> take_expression() {
+    return core::move(m_expression);
+  }
+
 private:
   memory::unique_ptr<expression> m_expression;
   bool m_change_ownership;

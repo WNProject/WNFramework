@@ -451,7 +451,11 @@ INSTANTIATE_TEST_CASE_P(
             {"Int main(Int x) {",     "int32_t _Z3wns4mainEll(int32_t x) {"   },
             {" Foo f = Foo();",       "Foo __wns_temp0;"             },
             {"",                      "Foo* f = _Z3wns14_construct_FooENR3FooENR3FooE(&__wns_temp0);"       },
-            {" return 4;",            "return 4;"                    },
+            {"",                      "{"                            },
+            {"",                      "int32_t __wns_ret_temp0 = 4;" },
+            {"",                      "_Z3wns13_destruct_FooEvNR3FooE(f);"},
+            {" return 4;",            "return __wns_ret_temp0;"      },
+            {"",                      "}"},
             {"}",                     "}"                            }
           },
 })));
@@ -480,7 +484,11 @@ INSTANTIATE_TEST_CASE_P(
             {" Foo f = Foo();",       "Foo __wns_temp0;"             },
             {"",                      "Foo* f = _Z3wns14_construct_FooENR3FooENR3FooE(&__wns_temp0);" },
             {" f.x = x;",             "f->x = x;"                    },
-            {" return f.x;",          "return f->x;"                 },
+            {"",                      "{"                            },
+            {"",                      "int32_t __wns_ret_temp0 = f->x;" },
+            {"",                      "_Z3wns13_destruct_FooEvNR3FooE(f);"},
+            {" return f.x;",          "return __wns_ret_temp0;"      },
+            {"",                      "}"                            },
             {"}",                     "}"                            }
           },
           {
@@ -504,7 +512,11 @@ INSTANTIATE_TEST_CASE_P(
             {"",                      "Foo* f = _Z3wns14_construct_FooENR3FooENR3FooE(&__wns_temp0);" },
             {" f.x = x;",             "f->x = x;"                    },
             {" f.y = 2 * x;",         "f->y = (2 * x);"              },
-            {" return f.x + f.y;",    "return (f->x + f->y);"        },
+            {"",                      "{"                            },
+            {"",                      "int32_t __wns_ret_temp0 = (f->x + f->y);" },
+            {"",                      "_Z3wns13_destruct_FooEvNR3FooE(f);"},
+            {" return f.x + f.y;",    "return __wns_ret_temp0;"      },
+            {"",                      "}"                            },
             {"}",                     "}"                            }
           },
          {
@@ -526,7 +538,11 @@ INSTANTIATE_TEST_CASE_P(
             {"Int main(Int x) {",     "int32_t _Z3wns4mainEll(int32_t x) {"   },
             {" Foo f = Foo();",       "Foo __wns_temp0;"             },
             {"",                      "Foo* f = _Z3wns14_construct_FooENR3FooENR3FooE(&__wns_temp0);" },
-            {" return f.x + f.y;",    "return (f->x + f->y);"        },
+            {"",                      "{"                            },
+            {"",                      "int32_t __wns_ret_temp0 = (f->x + f->y);" },
+            {"",                      "_Z3wns13_destruct_FooEvNR3FooE(f);"},
+            {" return f.x + f.y;",    "return __wns_ret_temp0;"      },
+            {"",                      "}"                            },
             {"}",                     "}"                            }
           },
           {

@@ -15,6 +15,7 @@ public:
     : m_log(_log),
       m_allocator(_allocator),
       m_validator(_validator),
+      m_last_temporary(0),
       m_num_warnings(0),
       m_num_errors(0) {}
 
@@ -29,6 +30,7 @@ protected:
   WNLogging::WNLog* m_log;
   memory::allocator* m_allocator;
   type_validator* m_validator;
+  uint32_t m_last_temporary;
   size_t m_num_warnings;
   size_t m_num_errors;
 };
@@ -163,7 +165,7 @@ class if_reassociation_pass : public pass {
 public:
   if_reassociation_pass(type_validator* _validator, WNLogging::WNLog* _log,
       memory::allocator* _allocator)
-    : pass(_validator, _log, _allocator), m_last_temporary(0) {}
+    : pass(_validator, _log, _allocator) {}
   void enter_scope_block() {}
   void leave_scope_block() {}
   memory::unique_ptr<expression> walk_expression(expression*) {
@@ -184,7 +186,7 @@ public:
         // This is where we actually do the work.
         char temporary_name[12] = {0};
 
-        wn::memory::writeuint32(
+        memory::writeuint32(
             temporary_name, m_last_temporary++, sizeof(temporary_name) - 1);
         containers::string name("__wns_if_temp", m_allocator);
         name.append(temporary_name);
@@ -203,7 +205,7 @@ public:
         elseif_name += "__wns_if_temp";
 
         if (!else_if_insts.empty()) {
-          wn::memory::writeuint32(
+          memory::writeuint32(
               temporary_name, m_last_temporary++, sizeof(temporary_name) - 1);
           elseif_name += temporary_name;
 
@@ -351,9 +353,6 @@ public:
   memory::unique_ptr<instruction> walk_instruction(if_instruction*) {
     return nullptr;
   }
-
-private:
-  uint32_t m_last_temporary;
 };
 
 class id_association_pass : public pass {
@@ -483,7 +482,7 @@ public:
       case static_cast<uint32_t>(type_classification::int_type): {
         const char* text = _expr->get_type_text().c_str();
         bool error = false;
-        if (wn::memory::strnlen(text, 13) > 12) {
+        if (memory::strnlen(text, 13) > 12) {
           error = true;
         } else {
           int64_t val = strtol(text, nullptr, 10);
@@ -726,6 +725,10 @@ public:
     // If we are leaving a scope-block that had a return
     // at the end, then we do not need to emit desctuctors,
     // that will have already been done in the return.
+    if (instructions->returns()) {
+      m_local_objects.pop_back();
+      return;
+    }
     if (instructions->get_instructions().size() > 1 &&
         (instructions->get_instructions().back()->is_dead() ||
             instructions->get_instructions().back()->get_node_type() ==
@@ -817,8 +820,106 @@ public:
   }
 
   memory::unique_ptr<instruction> walk_instruction(return_instruction* _ret) {
-    m_returns.push_back(_ret);
-    return nullptr;
+    // Generate all of our destructors here.
+    // Turn
+    // return 3;
+    // into
+    // {
+    //  Int _x = 3;
+    //  call all destructors;
+    //  return _x;
+    // }
+    if (std::find(m_returns.begin(), m_returns.end(), _ret) !=
+        m_returns.end()) {
+      // If we have already processed this return, we do not want to re-process
+      // it
+      // to generate more destructors.
+      return nullptr;
+    }
+
+    bool leave = true;
+    // Insert ALL of the destructors here.
+    for (auto it = m_local_objects.rbegin(); it != m_local_objects.rend();
+         ++it) {
+      if (!it->empty()) {
+        leave = false;
+      }
+    }
+    // Small optimization, if there are NO objects to destroy,
+    // then we can avoid doing anything.
+    if (leave) {
+      m_returns.push_back(_ret);
+      return nullptr;
+    }
+
+    memory::unique_ptr<expression> expr(_ret->take_expression());
+
+    memory::unique_ptr<instruction_list> instructions(
+        memory::make_unique<instruction_list>(m_allocator, m_allocator));
+    instructions->copy_location_from(_ret);
+
+    char temporary_name[12] = {0};
+
+    memory::writeuint32(
+        temporary_name, m_last_temporary++, sizeof(temporary_name) - 1);
+    containers::string name("__wns_ret_temp", m_allocator);
+    name.append(temporary_name);
+
+    memory::unique_ptr<type> return_type;
+    declaration* ret_decl = nullptr;
+    if (expr) {
+      // Type __wns_ret_temp0 = {rhs};
+      memory::unique_ptr<type> decl_type(
+          memory::make_unique<type>(m_allocator, *expr->get_type()));
+      decl_type->copy_location_from(_ret);
+
+      return_type = memory::make_unique<type>(m_allocator, *expr->get_type());
+      return_type->copy_location_from(_ret);
+
+      memory::unique_ptr<parameter> param(memory::make_unique<parameter>(
+          m_allocator, m_allocator, core::move(decl_type), name));
+
+      memory::unique_ptr<declaration> decl(
+          memory::make_unique<declaration>(m_allocator, m_allocator));
+      decl->copy_location_from(_ret);
+      decl->set_parameter(core::move(param));
+      decl->set_expression(core::move(expr));
+      ret_decl = decl.get();
+
+      instructions->add_instruction(core::move(decl));
+    }
+    // Insert ALL of the destructors here.
+    for (auto it = m_local_objects.rbegin(); it != m_local_objects.rend();
+         ++it) {
+      for (auto it2 = it->rbegin(); it2 != it->rend(); ++it2) {
+        instructions->add_instruction(create_destructor(*it2, _ret));
+      }
+    }
+    if (return_type) {
+      // return __wns_ret_temp0;
+      memory::unique_ptr<id_expression> return_id(
+          memory::make_unique<id_expression>(m_allocator, m_allocator, name));
+      return_id->copy_location_from(_ret);
+      return_id->set_type(core::move(return_type));
+      return_id->set_id_source({nullptr, ret_decl});
+
+      memory::unique_ptr<return_instruction> new_ret_inst(
+          memory::make_unique<return_instruction>(
+              m_allocator, m_allocator, core::move(return_id)));
+      new_ret_inst->copy_location_from(_ret);
+      new_ret_inst->set_returns(true);
+      m_returns.push_back(new_ret_inst.get());
+      instructions->add_instruction(core::move(new_ret_inst));
+    } else {
+      memory::unique_ptr<return_instruction> new_ret_inst(
+          memory::make_unique<return_instruction>(m_allocator, m_allocator));
+      new_ret_inst->copy_location_from(_ret);
+      new_ret_inst->set_returns(true);
+      m_returns.push_back(new_ret_inst.get());
+      instructions->add_instruction(core::move(new_ret_inst));
+    }
+    instructions->set_returns(true);
+    return core::move(instructions);
   }
 
   memory::unique_ptr<instruction> walk_instruction(declaration* _decl) {
