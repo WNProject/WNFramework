@@ -25,22 +25,22 @@ void ast_c_translator::walk_type(const type* _type, containers::string* _str) {
       WN_RELEASE_ASSERT_DESC(false, "Cannot classify invalid types");
       break;
     case static_cast<uint32_t>(type_classification::void_type):
-      *_str = std::move(containers::string(m_allocator) + "void");
+      *_str = core::move(containers::string(m_allocator) + "void");
       return;
     case static_cast<uint32_t>(type_classification::int_type):
-      *_str = std::move(containers::string(m_allocator) + "int32_t");
+      *_str = core::move(containers::string(m_allocator) + "int32_t");
       return;
     case static_cast<uint32_t>(type_classification::float_type):
-      *_str = std::move(containers::string(m_allocator) + "float");
+      *_str = core::move(containers::string(m_allocator) + "float");
       return;
     case static_cast<uint32_t>(type_classification::char_type):
-      *_str = std::move(containers::string(m_allocator) + "char");
+      *_str = core::move(containers::string(m_allocator) + "char");
       return;
     case static_cast<uint32_t>(type_classification::string_type):
       WN_RELEASE_ASSERT_DESC(false, "Unimplemented string types");
       break;
     case static_cast<uint32_t>(type_classification::bool_type):
-      *_str = std::move(containers::string(m_allocator) + "bool");
+      *_str = core::move(containers::string(m_allocator) + "bool");
       break;
     default: {
       const containers::string_view view =
@@ -158,7 +158,7 @@ void ast_c_translator::walk_expression(
     containers::pair<containers::string, containers::string>* _str) {
   initialize_data(m_allocator, _str);
 
-  wn::memory::writeuint32(
+  memory::writeuint32(
       m_last_temporary, m_temporaries++, sizeof(m_last_temporary) - 1);
   containers::string name("__wns_temp", m_allocator);
   name.append(m_last_temporary);

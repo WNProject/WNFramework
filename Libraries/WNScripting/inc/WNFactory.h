@@ -38,7 +38,7 @@ public:
   // with the given allocator.
   virtual memory::unique_ptr<engine> get_engine(scripting_engine_type _type,
       type_validator* _validator, file_system::mapping* _file_mapping,
-      WNLogging::WNLog* _log, wn::memory::allocator* _allocator);
+      WNLogging::WNLog* _log, memory::allocator* _allocator);
 
   // Returns a wn::scripting::translator of the given type.
   // The translator will be constructed with the given allocator,
@@ -46,7 +46,7 @@ public:
   // with the given allocator.
   virtual memory::unique_ptr<translator> get_translator(translator_type _type,
       type_validator* _validator, file_system::mapping* _file_mapping,
-      WNLogging::WNLog* _log, wn::memory::allocator* _allocator);
+      WNLogging::WNLog* _log, memory::allocator* _allocator);
 };
 }  // namespace scripting
 }  // namespace wn

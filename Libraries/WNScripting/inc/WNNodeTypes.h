@@ -1275,7 +1275,7 @@ public:
   parameter_list(
       memory::allocator* _allocator, memory::unique_ptr<parameter>&& _param)
     : node(_allocator, node_type::parameter_list), m_parameters(_allocator) {
-    m_parameters.push_back(std::move(_param));
+    m_parameters.push_back(core::move(_param));
   }
 
   void add_parameter(parameter* _param) {
@@ -1309,9 +1309,9 @@ public:
       memory::unique_ptr<parameter_list>&& _params,
       memory::unique_ptr<instruction_list>&& _body)
     : node(_allocator, node_type::function),
-      m_signature(std::move(_signature)),
-      m_parameters(std::move(_params)),
-      m_body(std::move(_body)),
+      m_signature(core::move(_signature)),
+      m_parameters(core::move(_params)),
+      m_body(core::move(_body)),
       m_this_pointer(nullptr),
       m_is_override(false),
       m_is_virtual(false) {}
@@ -1402,7 +1402,7 @@ public:
       m_expression(memory::unique_ptr<expression>(_allocator, _expr)) {}
 
   lvalue(memory::allocator* _allocator, memory::unique_ptr<expression>&& _expr)
-    : node(_allocator, node_type::lvalue), m_expression(std::move(_expr)) {}
+    : node(_allocator, node_type::lvalue), m_expression(core::move(_expr)) {}
   const expression* get_expression() const {
     return m_expression.get();
   }
@@ -1422,12 +1422,12 @@ public:
   assignment_instruction(
       memory::allocator* _allocator, memory::unique_ptr<lvalue>&& _lvalue)
     : instruction(_allocator, node_type::assignment_instruction),
-      m_lvalue(std::move(_lvalue)),
+      m_lvalue(core::move(_lvalue)),
       m_assign_type(assign_type::max) {}
 
   void add_value(assign_type _type, memory::unique_ptr<expression>&& _value) {
     m_assign_type = _type;
-    m_assign_expression = std::move(_value);
+    m_assign_expression = core::move(_value);
   }
 
   void add_value(assign_type _type, expression* _value) {
@@ -1672,7 +1672,7 @@ public:
   return_instruction(memory::allocator* _allocator,
       memory::unique_ptr<expression>&& _expr, bool _change_ownership = false)
     : instruction(_allocator, node_type::return_instruction, true),
-      m_expression(std::move(_expr)),
+      m_expression(core::move(_expr)),
       m_change_ownership(_change_ownership) {}
 
   return_instruction(memory::allocator* _allocator)
@@ -1735,11 +1735,11 @@ public:
   }
 
   void prepend_function(memory::unique_ptr<function>&& _function) {
-    m_functions.push_front(std::move(_function));
+    m_functions.push_front(core::move(_function));
   }
 
   void add_function(memory::unique_ptr<function>&& _function) {
-    m_functions.push_back(std::move(_function));
+    m_functions.push_back(core::move(_function));
   }
 
   void add_struct(struct_definition* _node) {

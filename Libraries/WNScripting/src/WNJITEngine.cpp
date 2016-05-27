@@ -74,7 +74,7 @@ namespace scripting {
 CompiledModule::CompiledModule() : m_module(nullptr) {}
 
 CompiledModule::CompiledModule(CompiledModule&& _other)
-  : m_engine(std::move(_other.m_engine)), m_module(std::move(_other.m_module)) {
+  : m_engine(core::move(_other.m_engine)), m_module(core::move(_other.m_module)) {
   _other.m_module = nullptr;
 }
 
@@ -108,7 +108,7 @@ CompiledModule& jit_engine::add_module(containers::string_view _file) {
       llvm::Triple::normalize(internal::llvm_triple));
   #endif
 
-  llvm::EngineBuilder builder(std::move(module));
+  llvm::EngineBuilder builder(core::move(module));
   builder.setEngineKind(llvm::EngineKind::JIT);
   builder.setMCJITMemoryManager(
       memory::make_std_unique<llvm::SectionMemoryManager>());

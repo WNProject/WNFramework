@@ -40,7 +40,7 @@ public:
       m_output_string(_allocator),
       m_generator(_generator),
       m_validator(_validator) {
-    wn::memory::memory_set(m_last_temporary, 0, sizeof(m_last_temporary));
+    memory::memory_set(m_last_temporary, 0, sizeof(m_last_temporary));
   }
 
   const containers::string& get_output() {

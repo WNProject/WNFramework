@@ -19,7 +19,7 @@ class script_file;
 class type_validator;
 // Simple helper that parses a script and runs any
 // passes that are required to make the AST valid.
-memory::unique_ptr<wn::scripting::script_file> parse_script(
+memory::unique_ptr<scripting::script_file> parse_script(
     memory::allocator* _allocator, type_validator* _validator,
     const char* file_name, containers::string_view view, WNLogging::WNLog* _log,
     size_t* _num_warnings, size_t* _num_errors);

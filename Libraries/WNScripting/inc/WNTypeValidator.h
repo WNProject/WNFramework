@@ -172,7 +172,7 @@ struct member_id {
 struct member_function {
   containers::string function_name;
   uint32_t type_id;
-  wn::containers::dynamic_array<uint32_t> parameter_ids;
+  containers::dynamic_array<uint32_t> parameter_ids;
 };
 
 // All of the data associated with a given type.
@@ -473,7 +473,7 @@ public:
       value += (m_types[parameters[i]].m_mangling);
     }
 
-    return std::move(value);
+    return core::move(value);
   }
 
 private:

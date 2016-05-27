@@ -15,7 +15,7 @@ namespace wn {
 namespace scripting {
 
 memory::unique_ptr<script_file> parse_script(memory::allocator* _allocator,
-    wn::scripting::type_validator* _validator, const char* file_name,
+    scripting::type_validator* _validator, const char* file_name,
     containers::string_view view, WNLogging::WNLog* _log, size_t* _num_warnings,
     size_t* _num_errors) {
   memory::unique_ptr<script_file> ptr;
@@ -30,7 +30,7 @@ memory::unique_ptr<script_file> parse_script(memory::allocator* _allocator,
         ANTLR_SIZE_HINT, lexer.get_tokSource());
     WNScriptASTParser parser(&tStream);
     parser.set_allocator(_allocator);
-    ptr = std::move(
+    ptr = core::move(
         memory::unique_ptr<script_file>(_allocator, parser.program()));
     if (parser.getNumberOfSyntaxErrors() != 0 ||
         lexer.getNumberOfSyntaxErrors() != 0) {
@@ -62,7 +62,7 @@ memory::unique_ptr<script_file> parse_script(memory::allocator* _allocator,
       return nullptr;
     }
   }
-  return std::move(ptr);
+  return core::move(ptr);
 }
 
 }  // namespace scripting
