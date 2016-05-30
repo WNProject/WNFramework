@@ -6,10 +6,13 @@ overlay_library_sources(WNGraphics
     inc/Internal/Vulkan/WNBufferData.h
     inc/Internal/Vulkan/WNCommandList.h
     inc/Internal/Vulkan/WNDevice.h
+    inc/Internal/Vulkan/WNImageFormats.h
+    inc/Internal/Vulkan/WNResourceStates.h
     inc/Internal/Vulkan/WNQueue.h
     inc/Internal/Vulkan/WNVulkanCommandListContext.h
     inc/Internal/Vulkan/WNVulkanContext.h
     inc/Internal/Vulkan/WNVulkanQueueContext.h
+    inc/Internal/Vulkan/WNVulkanImage.h
     src/Vulkan/WNAdapter.cpp
     src/Vulkan/WNCommandList.cpp
     src/Vulkan/WNDevice.cpp

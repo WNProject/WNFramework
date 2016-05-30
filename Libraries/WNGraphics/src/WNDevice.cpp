@@ -4,6 +4,7 @@
 #include "WNGraphics/inc/WNFence.h"
 #include "WNGraphics/inc/WNHeap.h"
 #include "WNGraphics/inc/WNHeapTraits.h"
+#include "WNGraphics/inc/WNImage.h"
 
 namespace wn {
 namespace graphics {
@@ -38,6 +39,12 @@ fence device::create_fence() {
   initialize_fence(&new_fence);
 
   return core::move(new_fence);
+}
+
+image device::create_image(const image_create_info& _info) {
+  image new_image(this);
+  initialize_image(_info, &new_image);
+  return core::move(new_image);
 }
 
 }  // namespace graphics

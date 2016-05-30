@@ -28,6 +28,9 @@ struct command_list_context WN_FINAL {
   PFN_vkCmdPipelineBarrier vkCmdPipelineBarrier;
   PFN_vkCmdCopyBuffer vkCmdCopyBuffer;
   PFN_vkEndCommandBuffer vkEndCommandBuffer;
+
+  PFN_vkCmdCopyImageToBuffer vkCmdCopyImageToBuffer;
+  PFN_vkCmdCopyBufferToImage vkCmdCopyBufferToImage;
 };
 
 }  // namespace vulkan

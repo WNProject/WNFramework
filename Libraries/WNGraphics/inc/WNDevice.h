@@ -27,6 +27,7 @@ class WNLog;
 WN_GRAPHICS_FORWARD(device);
 WN_GRAPHICS_FORWARD(queue);
 WN_GRAPHICS_FORWARD(adapter);
+WN_GRAPHICS_FORWARD(image)
 
 namespace wn {
 namespace graphics {
@@ -43,6 +44,7 @@ using device_base = core::non_copyable;
 class command_allocator;
 class command_list;
 class fence;
+struct image_create_info;
 
 template <typename HeapTraits>
 class heap;
@@ -61,15 +63,18 @@ public:
 
   // It is only valid to have a single queue active at a time.
   virtual queue_ptr create_queue() = 0;
+
+  virtual size_t get_image_upload_buffer_alignment() = 0;
+  virtual size_t get_buffer_upload_buffer_alignment() = 0;
 #endif
 
   upload_heap create_upload_heap(const size_t _num_bytes);
   download_heap create_download_heap(const size_t _num_bytes);
 
   command_allocator create_command_allocator();
-
   fence create_fence();
 
+  image create_image(const image_create_info& _info);
 protected:
   friend class command_allocator;
   friend class fence;
@@ -80,6 +85,7 @@ protected:
   friend class queue;
   WN_GRAPHICS_ADD_FRIENDS(queue)
   WN_GRAPHICS_ADD_FRIENDS(adapter)
+  WN_GRAPHICS_ADD_FRIENDS(image)
 
 #ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
   // Upload heap methods
@@ -122,6 +128,12 @@ protected:
   virtual void destroy_fence(fence* _fence) = 0;
   virtual void wait_fence(const fence* _fence) const = 0;
   virtual void reset_fence(fence* _fence) = 0;
+
+  // Image methods
+  virtual void initialize_image(
+      const image_create_info& _info, image* _image) = 0;
+  virtual void destroy_image(image* _image) = 0;
+
 #endif
 };
 

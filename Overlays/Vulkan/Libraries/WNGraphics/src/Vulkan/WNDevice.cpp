@@ -4,6 +4,9 @@
 
 #include "WNGraphics/inc/Internal/Vulkan/WNBufferData.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNDevice.h"
+#include "WNGraphics/inc/Internal/Vulkan/WNImageFormats.h"
+#include "WNGraphics/inc/Internal/Vulkan/WNResourceStates.h"
+#include "WNGraphics/inc/Internal/Vulkan/WNVulkanImage.h"
 #include "WNGraphics/inc/WNCommandAllocator.h"
 #include "WNGraphics/inc/WNCommandList.h"
 #include "WNGraphics/inc/WNFence.h"
@@ -156,6 +159,11 @@ bool vulkan_device::initialize(memory::allocator* _allocator,
   LOAD_VK_DEVICE_SYMBOL(m_device, vkFreeCommandBuffers);
   LOAD_VK_DEVICE_SYMBOL(m_device, vkBeginCommandBuffer);
 
+  LOAD_VK_DEVICE_SYMBOL(m_device, vkCreateImage);
+  LOAD_VK_DEVICE_SYMBOL(m_device, vkDestroyImage);
+  LOAD_VK_DEVICE_SYMBOL(m_device, vkGetImageMemoryRequirements);
+  LOAD_VK_DEVICE_SYMBOL(m_device, vkBindImageMemory);
+
   LOAD_VK_SUB_DEVICE_SYMBOL(m_device, m_queue_context, vkQueueSubmit);
 
   m_queue_context.m_device = this;
@@ -167,6 +175,10 @@ bool vulkan_device::initialize(memory::allocator* _allocator,
   LOAD_VK_SUB_DEVICE_SYMBOL(m_device, m_command_list_context, vkCmdCopyBuffer);
   LOAD_VK_SUB_DEVICE_SYMBOL(
       m_device, m_command_list_context, vkEndCommandBuffer);
+  LOAD_VK_SUB_DEVICE_SYMBOL(
+      m_device, m_command_list_context, vkCmdCopyImageToBuffer);
+  LOAD_VK_SUB_DEVICE_SYMBOL(
+      m_device, m_command_list_context, vkCmdCopyBufferToImage);
 
   m_command_list_context.m_device = this;
 
@@ -242,7 +254,46 @@ bool vulkan_device::initialize(memory::allocator* _allocator,
                 .propertyFlags &
             VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) != 0;
   }
+  // TODO(awoloszyn): If we plan on supporting sparse binding
+  // then we need test that here as well.
+  // TODO(awoloszyn): Same thing with Linear Tiling.
+  // Create a 1x1 image so we can figure out the memory type
+  {
+      VkImage test_image;
+      VkImageCreateInfo create_info{
+        VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,            // sType
+        nullptr,                                        // pNext
+        0,                                              // flags
+        VK_IMAGE_TYPE_2D,                               // imageType
+        VK_FORMAT_R8G8B8A8_UNORM,                       // format
+        VkExtent3D{ 1, 1, 1 },                          // extent
+        1,                                              // mipLevels
+        1,                                              // arrayLayers
+        VK_SAMPLE_COUNT_1_BIT,                          // samples
+        VK_IMAGE_TILING_OPTIMAL,                        // tiling
+        VK_IMAGE_USAGE_TRANSFER_DST_BIT |
+        VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
+        VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,  // usage
+        VK_SHARING_MODE_EXCLUSIVE,            // sharingMode
+        0,                                    // queueFamilyIndexCount
+        nullptr,                              // pQueueFamilyIndices
+        VK_IMAGE_LAYOUT_UNDEFINED             // initialLayout
+      };
 
+      if (VK_SUCCESS != vkCreateImage(m_device, &create_info, nullptr, &test_image)) {
+          m_log->Log(WNLogging::eError, 0,
+            "Could not determine the memory type for a download heap.");
+        return false;
+      }
+
+      VkMemoryRequirements requirements;
+      vkGetImageMemoryRequirements(m_device, test_image, &requirements);
+      m_image_memory_type_index = get_memory_type_index(
+        requirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+      vkDestroyImage(m_device, test_image, nullptr);
+
+  }
   m_log->Log(WNLogging::eDebug, 0, "Upload heap is using ",
       m_upload_heap_is_coherent ? "coherent" : "non-coherent", "memory");
 
@@ -527,6 +578,88 @@ command_list_ptr vulkan_device::create_command_list(command_allocator* _alloc) {
   }
 
   return core::move(ptr);
+}
+
+void vulkan_device::initialize_image(
+    const image_create_info& _info, image* _image) {
+  VulkanImage& img = _image->data_as<VulkanImage>();
+
+  VkImageCreateInfo create_info{
+      VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,            // sType
+      nullptr,                                        // pNext
+      0,                                              // flags
+      VK_IMAGE_TYPE_2D,                               // imageType
+      image_format_to_vulkan_format(_info.m_format),  // format
+      VkExtent3D{static_cast<uint32_t>(_info.m_width),
+          static_cast<uint32_t>(_info.m_height), 1},  // extent
+      1,                                              // mipLevels
+      1,                                              // arrayLayers
+      VK_SAMPLE_COUNT_1_BIT,                          // samples
+      VK_IMAGE_TILING_OPTIMAL,                        // tiling
+      VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
+          VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,  // usage
+      VK_SHARING_MODE_EXCLUSIVE,                // sharingMode
+      0,                                        // queueFamilyIndexCount
+      nullptr,                                  // pQueueFamilyIndices
+      VK_IMAGE_LAYOUT_UNDEFINED                 // initialLayout
+  };
+
+  if (VK_SUCCESS != vkCreateImage(m_device, &create_info, nullptr, &img.image)) {
+    m_log->Log(WNLogging::eError, 0, "Could not create image.");
+  }
+
+  VkMemoryRequirements requirements;
+  vkGetImageMemoryRequirements(m_device, img.image, &requirements);
+
+  WN_DEBUG_ASSERT_DESC(
+    (requirements.memoryTypeBits & (1 << (m_image_memory_type_index))) != 0,
+    "Unexpected memory type");
+
+  VkMemoryAllocateInfo allocate_info{
+    VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,  // sType
+    nullptr,                                 // pNext
+    requirements.size,                       // allocationSize
+    m_image_memory_type_index,               // memoryTypeIndex
+  };
+
+  if (VK_SUCCESS !=
+    vkAllocateMemory(m_device, &allocate_info, nullptr, &img.device_memory)) {
+    m_log->Log(WNLogging::eError, 0,
+      "Could not successfully allocate device memory of size ",
+      requirements.size, ".");
+    return;
+  }
+
+  vkBindImageMemory(m_device, img.image, img.device_memory, 0);
+
+  _image->m_resource_info.depth = 1;
+  _image->m_resource_info.height = _info.m_height;
+  _image->m_resource_info.width = _info.m_width;
+  _image->m_resource_info.offset_in_bytes = 0;
+  _image->m_resource_info.row_pitch_in_bytes =
+      _info.m_width *
+      4;  // TODO(awoloszyn): Optimize this, and make it dependent on image type
+  _image->m_resource_info.total_memory_required =
+      _image->m_resource_info.row_pitch_in_bytes *
+      _info.m_height;  // TODO(awoloszyn): Make this dependent on image type
+  _image->m_resource_info.format = _info.m_format;
+}
+
+// TODO(awoloszyn): As far as I can tell, Vulkan
+// has no alignment requirements for buffers. Should probably
+// double check this to make sure
+size_t vulkan_device::get_image_upload_buffer_alignment() {
+  return 32;  // Texel Size, maximum right now is 4*32.
+}
+
+size_t vulkan_device::get_buffer_upload_buffer_alignment() {
+  return 1;
+}
+
+void vulkan_device::destroy_image(image* _image) {
+  VulkanImage& img = _image->data_as<VulkanImage>();
+  vkFreeMemory(m_device, img.device_memory, nullptr);
+  vkDestroyImage(m_device, img.image, nullptr);
 }
 
 }  // namespace vulkan

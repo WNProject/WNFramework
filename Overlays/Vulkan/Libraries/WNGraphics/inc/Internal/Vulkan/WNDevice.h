@@ -45,6 +45,8 @@ class command_allocator;
 class command_list;
 class fence;
 class queue;
+struct image_create_info;
+class image;
 
 using queue_ptr = memory::unique_ptr<queue>;
 using command_list_ptr = memory::unique_ptr<command_list>;
@@ -66,6 +68,9 @@ public:
   ~vulkan_device() WN_GRAPHICS_OVERRIDE_FINAL;
 
   queue_ptr create_queue() WN_GRAPHICS_OVERRIDE_FINAL;
+
+  size_t get_image_upload_buffer_alignment() WN_GRAPHICS_OVERRIDE_FINAL;
+  size_t get_buffer_upload_buffer_alignment() WN_GRAPHICS_OVERRIDE_FINAL;
 
 protected:
   friend class graphics::fence;
@@ -119,6 +124,12 @@ protected:
   template <typename HeapType>
   void destroy_typed_heap(HeapType* type);
 
+
+  // image methods
+  void initialize_image(
+      const image_create_info& _info, image* _image) WN_GRAPHICS_OVERRIDE_FINAL;
+  void destroy_image(image* _image) WN_GRAPHICS_OVERRIDE_FINAL;
+
   // command allocator methods
   void initialize_command_allocator(
       command_allocator* _command_allocator) WN_GRAPHICS_OVERRIDE_FINAL;
@@ -144,6 +155,12 @@ protected:
 
   PFN_vkAllocateMemory vkAllocateMemory;
   PFN_vkFreeMemory vkFreeMemory;
+
+  // Images
+  PFN_vkCreateImage vkCreateImage;
+  PFN_vkDestroyImage vkDestroyImage;
+  PFN_vkGetImageMemoryRequirements vkGetImageMemoryRequirements;
+  PFN_vkBindImageMemory vkBindImageMemory;
 
   // Buffers
   PFN_vkCreateBuffer vkCreateBuffer;
@@ -179,6 +196,7 @@ protected:
   WNLogging::WNLog* m_log;
   uint32_t m_upload_memory_type_index;
   uint32_t m_download_memory_type_index;
+  uint32_t m_image_memory_type_index;
   bool m_upload_heap_is_coherent;
   bool m_download_heap_is_coherent;
 };

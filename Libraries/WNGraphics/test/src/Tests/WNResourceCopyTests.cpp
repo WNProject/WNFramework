@@ -38,7 +38,7 @@ TEST_P(heap_copy_test, many_sizes) {
       wn::graphics::upload_heap_buffer<uint8_t> upload_buffer =
           upload.get_range(0, GetParam());
       list->enqueue_barrier(upload_buffer);
-      list->enqueue_buffer_copy(upload_buffer, download_buffer);
+      list->enqueue_copy(upload_buffer, download_buffer);
       list->enqueue_barrier(download_buffer);
       list->finalize();
 

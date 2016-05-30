@@ -33,6 +33,11 @@ device_ptr d3d12_adapter::make_device(
     memory::allocator* _allocator, WNLogging::WNLog* _log) const {
   Microsoft::WRL::ComPtr<ID3D12Device> device;
 
+  Microsoft::WRL::ComPtr<ID3D12Debug> debug_controller;
+  if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debug_controller)))) {
+    debug_controller->EnableDebugLayer();
+  }
+
   // This is set to D3D_FEATURE_LEVEL_11_0 because this is the lowest possible
   // d3d version d3d12 supports.  This allows us to scale up on device
   // capabilities and work on older hardware

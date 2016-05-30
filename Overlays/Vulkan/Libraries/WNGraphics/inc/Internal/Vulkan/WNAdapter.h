@@ -11,6 +11,7 @@
 #include "WNContainers/inc/WNString.h"
 #include "WNContainers/inc/WNStringView.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanContext.h"
+
 #include "WNGraphics/inc/Internal/WNConfig.h"
 #include "WNMemory/inc/WNIntrusivePtr.h"
 #include "WNMemory/inc/WNUniquePtr.h"

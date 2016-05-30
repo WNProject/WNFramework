@@ -40,6 +40,8 @@ class command_allocator;
 class command_list;
 class fence;
 class queue;
+struct image_create_info;
+class image;
 
 using queue_ptr = memory::unique_ptr<queue>;
 using command_list_ptr = memory::unique_ptr<command_list>;
@@ -60,6 +62,9 @@ public:
   ~d3d12_device() WN_GRAPHICS_OVERRIDE_FINAL = default;
 
   queue_ptr create_queue() WN_GRAPHICS_OVERRIDE_FINAL;
+
+  size_t get_image_upload_buffer_alignment() WN_GRAPHICS_OVERRIDE_FINAL;
+  size_t get_buffer_upload_buffer_alignment() WN_GRAPHICS_OVERRIDE_FINAL;
 
 protected:
   friend class fence;
@@ -115,6 +120,11 @@ protected:
   void wait_fence(const fence* _fence) const WN_GRAPHICS_OVERRIDE_FINAL;
   void reset_fence(fence* _fence) WN_GRAPHICS_OVERRIDE_FINAL;
 
+  // image methods
+  void initialize_image(
+      const image_create_info& _info, image* _image) WN_GRAPHICS_OVERRIDE_FINAL;
+  void destroy_image(image* _image) WN_GRAPHICS_OVERRIDE_FINAL;
+
   // Templated heap helpers
   template <typename HeapType>
   void initialize_heap(HeapType* _heap, const size_t _num_bytes,
@@ -126,7 +136,7 @@ protected:
 
   command_list_ptr create_command_list(
       command_allocator*) WN_GRAPHICS_OVERRIDE_FINAL;
-
+public:
   Microsoft::WRL::ComPtr<ID3D12Device> m_device;
   memory::allocator* m_allocator;
   WNLogging::WNLog* m_log;

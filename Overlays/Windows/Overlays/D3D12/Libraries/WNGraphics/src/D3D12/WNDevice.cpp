@@ -5,10 +5,13 @@
 #include "WNGraphics/inc/Internal/D3D12/WNCommandList.h"
 #include "WNGraphics/inc/Internal/D3D12/WNDevice.h"
 #include "WNGraphics/inc/Internal/D3D12/WNFenceData.h"
+#include "WNGraphics/inc/Internal/D3D12/WNImageFormats.h"
+#include "WNGraphics/inc/Internal/D3D12/WNResourceStates.h"
 #include "WNGraphics/inc/WNCommandAllocator.h"
 #include "WNGraphics/inc/WNFence.h"
 #include "WNGraphics/inc/WNHeap.h"
 #include "WNGraphics/inc/WNHeapTraits.h"
+#include "WNGraphics/inc/WNImage.h"
 #include "WNLogging/inc/WNLog.h"
 
 #ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
@@ -41,6 +44,14 @@ const D3D12_HEAP_PROPERTIES s_upload_heap_props = {
 
 const D3D12_HEAP_PROPERTIES s_download_heap_props = {
     D3D12_HEAP_TYPE_READBACK,         // Type
+    D3D12_CPU_PAGE_PROPERTY_UNKNOWN,  // CPUPageProperty
+    D3D12_MEMORY_POOL_UNKNOWN,        // MemoryPoolPreference
+    0,                                // CreationNodeMask
+    0                                 // VisibleNodeMask
+};
+
+const D3D12_HEAP_PROPERTIES s_default_heap_props = {
+    D3D12_HEAP_TYPE_DEFAULT,          // Type
     D3D12_CPU_PAGE_PROPERTY_UNKNOWN,  // CPUPageProperty
     D3D12_MEMORY_POOL_UNKNOWN,        // MemoryPoolPreference
     0,                                // CreationNodeMask
@@ -111,7 +122,6 @@ void d3d12_device::destroy_typed_heap(heap_type* _heap) {
 
 void d3d12_device::initialize_upload_heap(
     upload_heap* _upload_heap, const size_t _num_bytes) {
-  // TODO(awoloszyn): Try and minimize D3D12_RESOURCE_STATE_GENERIC_READ
   initialize_heap(_upload_heap, _num_bytes, s_upload_heap_props,
       D3D12_RESOURCE_STATE_GENERIC_READ);
 }
@@ -135,11 +145,11 @@ uint8_t* d3d12_device::acquire_range(
   Microsoft::WRL::ComPtr<ID3D12Resource>& resource =
       _heap->data_as<Microsoft::WRL::ComPtr<ID3D12Resource>>();
   uint8_t* addr = 0;
-  D3D12_RANGE range{_offset, _size_in_bytes};
+  D3D12_RANGE range{_offset, _offset + _size_in_bytes};
   HRESULT hr = resource->Map(0, &range, (void**)&addr);
   (void)hr;
   WN_DEBUG_ASSERT_DESC(!FAILED(hr), "Mapping failed");
-  return addr;
+  return addr + _offset;
 }
 
 uint8_t* d3d12_device::synchronize(
@@ -147,7 +157,7 @@ uint8_t* d3d12_device::synchronize(
   Microsoft::WRL::ComPtr<ID3D12Resource>& resource =
       _heap->data_as<Microsoft::WRL::ComPtr<ID3D12Resource>>();
   uint8_t* addr = 0;
-  D3D12_RANGE range{_offset, _size_in_bytes};
+  D3D12_RANGE range{_offset, _offset + _size_in_bytes};
   resource->Unmap(0, &range);
   HRESULT hr = resource->Map(0, &range, (void**)&addr);
   (void)hr;
@@ -160,11 +170,11 @@ uint8_t* d3d12_device::acquire_range(
   Microsoft::WRL::ComPtr<ID3D12Resource>& resource =
       _heap->data_as<Microsoft::WRL::ComPtr<ID3D12Resource>>();
   uint8_t* addr = 0;
-  D3D12_RANGE range{_offset, _size_in_bytes};
+  D3D12_RANGE range{_offset, _offset + _size_in_bytes};
   const HRESULT hr = resource->Map(0, &range, (void**)&addr);
   (void)hr;
   WN_DEBUG_ASSERT_DESC(!FAILED(hr), "Mapping failed");
-  return addr;
+  return addr + _offset;
 }
 
 uint8_t* d3d12_device::synchronize(
@@ -172,21 +182,21 @@ uint8_t* d3d12_device::synchronize(
   Microsoft::WRL::ComPtr<ID3D12Resource>& resource =
       _heap->data_as<Microsoft::WRL::ComPtr<ID3D12Resource>>();
   uint8_t* addr = 0;
-  D3D12_RANGE range{_offset, _size_in_bytes};
+  D3D12_RANGE range{_offset, _offset + _size_in_bytes};
   resource->Unmap(0, nullptr);  // We simply want to reduce the number of maps.
   // We can't actually synchronize in the unmap direction
   // for our download heap.
   const HRESULT hr = resource->Map(0, &range, (void**)&addr);
   (void)hr;
   WN_DEBUG_ASSERT_DESC(!FAILED(hr), "Synchronizing Failed");
-  return addr;
+  return addr + _offset;
 }
 
 void d3d12_device::release_range(
     upload_heap* _heap, size_t _offset, size_t _size_in_bytes) {
   Microsoft::WRL::ComPtr<ID3D12Resource>& resource =
       _heap->data_as<Microsoft::WRL::ComPtr<ID3D12Resource>>();
-  D3D12_RANGE range{_offset, _size_in_bytes};
+  D3D12_RANGE range{_offset, _offset + _size_in_bytes};
 
   resource->Unmap(0, &range);
 }
@@ -343,7 +353,77 @@ void d3d12_device::reset_fence(fence* _fence) {
 #endif
 }
 
+void d3d12_device::initialize_image(
+    const image_create_info& _info, image* _image) {
+  Microsoft::WRL::ComPtr<ID3D12Resource>& resource =
+      _image->data_as<Microsoft::WRL::ComPtr<ID3D12Resource>>();
+
+  D3D12_RESOURCE_DESC texture_desc = {
+      D3D12_RESOURCE_DIMENSION_TEXTURE2D,           // Dimension
+      0,                                            // Alignment
+      static_cast<UINT>(_info.m_width),             // Width
+      static_cast<UINT>(_info.m_height),            // Height
+      1,                                            // DepthOrArraySize
+      1,                                            // MipLevels
+      image_format_to_dxgi_format(_info.m_format),  // Format
+      {
+          1,                         // Count
+          0,                         // Quality
+      },                             // SampleDesc
+      D3D12_TEXTURE_LAYOUT_UNKNOWN,  // Layout
+      D3D12_RESOURCE_FLAG_NONE       // Flags
+  };
+
+  const HRESULT hr = m_device->CreateCommittedResource(&s_default_heap_props,
+      D3D12_HEAP_FLAG_NONE, &texture_desc,
+      D3D12_RESOURCE_STATE_COMMON, nullptr,
+      __uuidof(ID3D12Resource), &resource);
+
+  if (FAILED(hr)) {
+    m_log->Log(WNLogging::eError, 0,
+        "Could not successfully create texture of size (", _info.m_width, "x",
+        _info.m_height, ").");
+  }
+
+  uint64_t required_size = 0;
+  D3D12_PLACED_SUBRESOURCE_FOOTPRINT layout;
+  uint32_t num_rows;
+  uint64_t row_sizes_in_bytes;
+
+  m_device->GetCopyableFootprints(&texture_desc, 0, 1, 0, &layout, &num_rows,
+      &row_sizes_in_bytes, &required_size);
+
+  _image->m_resource_info.depth = 1;
+  _image->m_resource_info.height = _info.m_height;
+  _image->m_resource_info.width = _info.m_width;
+  _image->m_resource_info.offset_in_bytes = static_cast<size_t>(layout.Offset);
+  _image->m_resource_info.row_pitch_in_bytes =
+      static_cast<size_t>(layout.Footprint.RowPitch);
+  _image->m_resource_info.total_memory_required =
+      static_cast<size_t>(required_size);
+  _image->m_resource_info.format = _info.m_format;
+}
+
+// TODO(awoloszyn): D3D12 guarantees that 64k will work
+// for everything but MSAA textures (which require 4MB).
+// There are some conditions under which that number
+// can be smaller (down to 512 bytes). Figure out what those are,
+// and have this function be more dynamic.
+size_t d3d12_device::get_image_upload_buffer_alignment() {
+  return 64 * 1024;
+}
+
+size_t d3d12_device::get_buffer_upload_buffer_alignment() {
+  return 64 * 1024;
+}
+
+void d3d12_device::destroy_image(image* _image) {
+  Microsoft::WRL::ComPtr<ID3D12Resource>& resource =
+      _image->data_as<Microsoft::WRL::ComPtr<ID3D12Resource>>();
+  resource.Reset();
+}
+
 }  // namespace d3d12
 }  // namesapce internal
 }  // namespace graphics
-}  // namspace wn
+}  // namespace wn

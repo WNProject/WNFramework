@@ -81,7 +81,9 @@ add_wn_library(WNGraphics
     inc/WNFence.h
     inc/WNHeap.h
     inc/WNHeapTraits.h
+    inc/WNImage.h
     inc/WNQueue.h
+    inc/WNResourceStates.h
     src/WNDevice.cpp
     src/WNFactory.cpp
     src/WNQueue.cpp
