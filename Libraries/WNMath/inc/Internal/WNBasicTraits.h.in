@@ -7,16 +7,16 @@
 #ifndef __WN_MATH_INTERNAL_BASIC_TRAITS_H__
 #define __WN_MATH_INTERNAL_BASIC_TRAITS_H__
 
-#include "WNMath/inc/WNConfig.h"
-
 #include "${WN_MATH_BASIC_TRAITS_H}"
 
 namespace wn {
-namespace internal {
 namespace math {
-typedef ${WN_MATH_BASIC_TRAITS_TYPE} basic_traits;
-}
-}
-}
+namespace internal {
+
+using basic_traits = ${WN_MATH_BASIC_TRAITS_TYPE};
+
+}  // namespace internal
+}  // namespace math
+}  // namespace wn
 
 #endif  // __WN_MATH_INTERNAL_BASIC_TRAITS_H__

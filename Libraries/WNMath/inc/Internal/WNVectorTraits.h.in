@@ -7,16 +7,17 @@
 #ifndef __WN_MATH_INTERNAL_VECTOR_TRAITS_H__
 #define __WN_MATH_INTERNAL_VECTOR_TRAITS_H__
 
-#include "WNMath/inc/WNConfig.h"
-
 #include "${WN_MATH_VECTOR_TRAITS_H}"
 
 namespace wn {
-namespace internal {
 namespace math {
-typedef  ${WN_MATH_VECTOR_TRAITS_TYPE} vector_traits;
-}
-}
-}
+namespace internal {
 
-#endif  // __WN_MATH_INTERNAL_GENERAL_TRAITS_H__
+template <typename T, const size_t Dimension, const bool Precise = false>
+using vector_traits = ${WN_MATH_VECTOR_TRAITS_TYPE}<T, Dimension, Precise>;
+
+}  // namespace internal
+}  // namespace math
+}  // namespace wn
+
+#endif  // __WN_MATH_INTERNAL_VECTOR_TRAITS_H__

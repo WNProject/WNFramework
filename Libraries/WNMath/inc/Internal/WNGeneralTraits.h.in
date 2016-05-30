@@ -7,17 +7,17 @@
 #ifndef __WN_MATH_INTERNAL_GENERAL_TRAITS_H__
 #define __WN_MATH_INTERNAL_GENERAL_TRAITS_H__
 
-#include "WNMath/inc/WNConfig.h"
-
-
 #include "${WN_MATH_GENERAL_TRAITS_H}"
 
 namespace wn {
-namespace internal {
 namespace math {
-typedef ${WN_MATH_GENERAL_TRAITS_TYPE} general_traits;
-}
-}
-}
+namespace internal {
+
+template <typename T, const size_t Count, const bool Precise = false>
+using general_traits = ${WN_MATH_GENERAL_TRAITS_TYPE}<T, Count, Precise>;
+
+}  // namespace internal
+}  // namespace math
+}  // namespace wn
 
 #endif  // __WN_MATH_INTERNAL_GENERAL_TRAITS_H__

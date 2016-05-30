@@ -7,22 +7,17 @@
 #ifndef __WN_MATH_INTERNAL_ELEMENT_ARRAY_H__
 #define __WN_MATH_INTERNAL_ELEMENT_ARRAY_H__
 
-#include "WNMath/inc/WNConfig.h"
-
 #include "${WN_MATH_ELEMENT_ARRAY_H}"
 
 namespace wn {
-namespace internal {
 namespace math {
-#ifdef __WN_HAS_CPP11_USING_ALIAS_DECLARATIONS
-template <typename type, const size_t dimension>
-using element_array = ${WN_MATH_ELEMENT_ARRAY_TYPE}<type, dimension>;
-#else
-template <typename type, const size_t dimension>
-struct element_array : ${WN_MATH_ELEMENT_ARRAY_TYPE}<type, dimension> {};
-#endif
-}
-}
-}
+namespace internal {
+
+template <typename T, const size_t Columns, const size_t Rows = 1>
+using element_array = ${WN_MATH_ELEMENT_ARRAY_TYPE}<T, Columns, Rows>;
+
+}  // namespace internal
+}  // namespace math
+}  // namespace wn
 
 #endif  // __WN_MATH_INTERNAL_ELEMENT_ARRAY_H__

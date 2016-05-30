@@ -15,8 +15,9 @@
 #include <cmath>
 
 namespace wn {
-namespace internal {
 namespace math {
+namespace internal {
+
 struct basic_traits_generic : core::non_constructable_non_copyable {
   template <typename type>
   static WN_FORCE_INLINE
@@ -108,17 +109,7 @@ struct basic_traits_generic : core::non_constructable_non_copyable {
   }
 
   static WN_FORCE_INLINE float sqrt(const float& _value) {
-#ifdef __WN_MATH_APPROXIMATIONS_ENABLED
-    const uint32_t equal_zero = -(_value == 0.0f);
-    const float result = invsqrt(_value);
-    int32_t int_value = *reinterpret_cast<const int32_t*>(&result);
-
-    int_value &= ~(equal_zero);
-
-    return (_value * (*reinterpret_cast<const float*>(&int_value)));
-#else
     return (::sqrt(_value));
-#endif
   }
 
   static WN_FORCE_INLINE double sqrt(const double& _value) {
@@ -152,26 +143,7 @@ struct basic_traits_generic : core::non_constructable_non_copyable {
   }
 
   static WN_FORCE_INLINE float invsqrt(const float& _value) {
-#ifdef __WN_MATH_APPROXIMATIONS_ENABLED
-    const uint32_t less_than_zero = -(_value < 0.0f);
-    const uint32_t equal_zero = -(_value == 0.0f);
-    const float half_number = _value * 0.5f;
-    int32_t int_value = *reinterpret_cast<const int32_t*>(&_value);
-
-    int_value = 0x5F375A86 - (int_value >> 1);
-
-    float real_value = *reinterpret_cast<const float*>(&int_value);
-
-    real_value = real_value * (1.5f - real_value * real_value * half_number);
-    int_value = *reinterpret_cast<const int32_t*>(&real_value);
-    int_value = (int_value & ~less_than_zero) ^ (less_than_zero & 0xFFC00000);
-    int_value = (int_value & 0x80000000) |
-                ((int_value & ~equal_zero) ^ (equal_zero & 0x7F800000));
-
-    return (*reinterpret_cast<const float*>(&int_value));
-#else
     return (1.0f / sqrt(_value));
-#endif
   }
 
   static WN_FORCE_INLINE double invsqrt(const double& _value) {
@@ -445,8 +417,9 @@ private:
   template <typename type>
   struct pow2<type, 0> : core::integral_constant<type, 1> {};
 };
-}
-}
-}
+
+}  // namespace internal
+}  // namespace math
+}  // namespace wn
 
 #endif  // __WN_MATH_INTERNAL_GENERIC_BASIC_TRAITS_H__

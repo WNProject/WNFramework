@@ -13,726 +13,858 @@
 #include "WNMath/inc/Internal/WNVectorTraits.h"
 #include "WNMath/inc/WNCommon.h"
 
-#include <array>
-#include <initializer_list>
-
 namespace wn {
-template <typename _Type, const size_t _dimension>
-class vector final {
-public:
-  static_assert(_dimension > 1, "dimension must be at greater than 1");
+namespace math {
 
-  typedef _Type value_type;
-  typedef internal::math::vector_traits traits_type;
-  typedef value_type& reference;
-  typedef const value_type& const_reference;
-  typedef value_type* iterator;
-  typedef value_type const* const_iterator;
+template <typename T, const size_t Dimension>
+class packed_vector;
+
+template <typename T, const size_t Dimension,
+    typename TraitsType = internal::vector_traits<T, Dimension>>
+class basic_vector final {
+  static_assert(Dimension > 0,
+      "template integral parameter 'Dimension' must be greater than 0");
+  static_assert(!core::is_const<T>::value,
+      "template type parameter 'T' must not be const type");
+  static_assert(!core::is_reference<T>::value,
+      "template type paramter 'T' must not be a reference type");
+
+public:
+  typedef T value_type;
+  typedef TraitsType traits_type;
+  typedef core::add_lvalue_reference_t<T> reference;
+  typedef core::add_lvalue_reference_t<core::add_const_t<T>> const_reference;
+  typedef typename core::add_pointer<T>::type pointer;
+  typedef typename core::add_pointer<core::add_const_t<T>>::type const_pointer;
+  typedef T* iterator;
+  typedef T const* const_iterator;
   typedef std::reverse_iterator<iterator> reverse_iterator;
   typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
-  WN_FORCE_INLINE vector() {
-    traits_type::initialize(m_element_array);
+  enum { dimension = Dimension };
+
+  basic_vector() = default;
+
+  WN_FORCE_INLINE basic_vector(basic_vector&& _vector) {
+    TraitsType::assign(m_elements, core::move(_vector.m_elements));
   }
 
-  WN_FORCE_INLINE vector(vector&& _vector) {
-    assign(std::move(_vector));
+  WN_FORCE_INLINE basic_vector(const basic_vector& _vector) {
+    TraitsType::assign(m_elements, _vector.m_elements);
   }
 
-  WN_FORCE_INLINE vector(const vector& _vector) {
+  template <const size_t OtherDimension, typename OtherTraitsType>
+  WN_FORCE_INLINE basic_vector(
+      basic_vector<T, OtherDimension, OtherTraitsType>&& _vector) {
+    TraitsType::assign(m_elements, core::move(_vector.m_elements));
+  }
+
+  template <const size_t OtherDimension, typename OtherTraitsType>
+  WN_FORCE_INLINE basic_vector(
+      const basic_vector<T, OtherDimension, OtherTraitsType>& _vector) {
+    TraitsType::assign(m_elements, _vector.m_elements);
+  }
+
+  basic_vector(const packed_vector<T, Dimension>& _vector);
+
+  WN_FORCE_INLINE explicit basic_vector(const T& _value) {
+    TraitsType::assign(m_elements, _value);
+  }
+
+  WN_FORCE_INLINE explicit basic_vector(const T* _values)
+    : basic_vector(_values, Dimension) {}
+
+  WN_FORCE_INLINE explicit basic_vector(const T* _values, const size_t _size) {
+    TraitsType::assign(m_elements, _values, _size);
+  }
+
+  WN_FORCE_INLINE explicit basic_vector(const T (&_values)[Dimension])
+    : basic_vector(&(_values[0])) {}
+
+  WN_FORCE_INLINE basic_vector& operator=(basic_vector&& _vector) {
+    assign(core::move(_vector));
+
+    return *this;
+  }
+
+  WN_FORCE_INLINE basic_vector& operator=(const basic_vector& _vector) {
     assign(_vector);
+
+    return *this;
   }
 
-  WN_FORCE_INLINE explicit vector(const value_type& _value) {
+  template <const size_t OtherDimension, typename OtherTraitsType>
+  WN_FORCE_INLINE basic_vector& operator=(
+      basic_vector<T, OtherDimension, OtherTraitsType>&& _vector) {
+    assign(core::move(_vector));
+
+    return *this;
+  }
+
+  template <const size_t OtherDimension, typename OtherTraitsType>
+  WN_FORCE_INLINE basic_vector& operator=(
+      const basic_vector<T, OtherDimension, OtherTraitsType>& _vector) {
+    assign(_vector);
+
+    return *this;
+  }
+
+  WN_FORCE_INLINE basic_vector& operator=(
+      const packed_vector<T, Dimension>& _vector) {
+    assign(_vector);
+
+    return *this;
+  }
+
+  WN_FORCE_INLINE basic_vector& operator=(const T& _value) {
     assign(_value);
+
+    return *this;
   }
 
-  template <typename type, typename... types,
-      typename = core::enable_if_t<
-          core::bool_and<core::are_same<type, types..., value_type>::value,
-              (sizeof...(types) == (_dimension - 1)), (_dimension > 1)>::value>>
-  WN_FORCE_INLINE explicit vector(const type& _value, const types&... _values)
-    : vector({_value, _values...}) {}
-
-  WN_FORCE_INLINE explicit vector(
-      const std::array<value_type, _dimension>& _array) {
-    assign(_array);
-  }
-
-  WN_FORCE_INLINE explicit vector(
-      const std::initializer_list<value_type>& _initializer_list) {
-    assign(_initializer_list);
-  }
-
-  WN_FORCE_INLINE explicit vector(const value_type* _values) {
+  WN_FORCE_INLINE basic_vector& operator=(const T (&_values)[Dimension]) {
     assign(_values);
+
+    return *this;
   }
 
-  WN_FORCE_INLINE operator value_type*() {
-    return (m_element_array.m_values);
+  WN_FORCE_INLINE void assign(basic_vector&& _vector) {
+    basic_vector(core::move(_vector)).swap(*this);
   }
 
-  WN_FORCE_INLINE operator const value_type*() const {
-    return (m_element_array.m_values);
+  WN_FORCE_INLINE void assign(const basic_vector& _vector) {
+    basic_vector(_vector).swap(*this);
   }
 
-  WN_FORCE_INLINE value_type& operator[](const size_t _index) {
-    return (at(_index));
+  template <const size_t OtherDimension, typename OtherTraitsType>
+  WN_FORCE_INLINE void assign(
+      basic_vector<T, OtherDimension, OtherTraitsType>&& _vector) {
+    basic_vector(core::move(_vector)).swap(*this);
   }
 
-  WN_FORCE_INLINE const value_type& operator[](const size_t _index) const {
-    return (at(_index));
+  template <const size_t OtherDimension, typename OtherTraitsType>
+  WN_FORCE_INLINE void assign(
+      const basic_vector<T, OtherDimension, OtherTraitsType>& _vector) {
+    basic_vector(_vector).swap(*this);
   }
 
-  WN_FORCE_INLINE vector& operator=(vector&& _vector) {
-    assign(std::move(_vector));
-
-    return (*this);
+  WN_FORCE_INLINE void assign(const packed_vector<T, Dimension>& _vector) {
+    basic_vector(_vector).swap(*this);
   }
 
-  WN_FORCE_INLINE vector& operator=(const vector& _vector) {
-    assign(_vector);
-
-    return (*this);
+  WN_FORCE_INLINE void assign(const T& _value) {
+    basic_vector(_value).swap(*this);
   }
 
-  WN_FORCE_INLINE vector& operator=(const value_type& _value) {
-    assign(_value);
-
-    return (*this);
+  WN_FORCE_INLINE void assign(const T* _values) {
+    basic_vector(_values).swap(*this);
   }
 
-  WN_FORCE_INLINE vector& operator=(
-      const std::array<value_type, _dimension>& _array) {
-    assign(_array);
-
-    return (*this);
+  WN_FORCE_INLINE void assign(const T* _values, const size_t _size) {
+    basic_vector(_values, _size).swap(*this);
   }
 
-  WN_FORCE_INLINE vector& operator=(
-      const std::initializer_list<value_type>& _initializer_list) {
-    assign(_initializer_list);
-
-    return (*this);
+  WN_FORCE_INLINE void assign(const T (&_values)[Dimension]) {
+    basic_vector(_values).swap(*this);
   }
 
-  WN_FORCE_INLINE vector operator+() const {
-    return (*this);
+  // element access
+
+  WN_FORCE_INLINE reference operator[](const size_t _index) {
+    return at(_index);
   }
 
-  template <typename type = value_type,
-      typename = core::enable_if_t<core::is_signed<type>::value>>
-  WN_FORCE_INLINE vector operator-() const {
-    vector vector(*this);
-
-    traits_type::negate(vector.m_element_array);
-
-    return (vector);
+  WN_FORCE_INLINE const_reference operator[](const size_t _index) const {
+    return at(_index);
   }
 
-  WN_FORCE_INLINE vector& operator+=(const vector& _vector) {
-    traits_type::add(m_element_array, _vector.m_element_array);
-
-    return (*this);
+  WN_FORCE_INLINE reference at(const size_t _index) {
+    return m_elements[_index];
   }
 
-  WN_FORCE_INLINE vector& operator-=(const vector& _vector) {
-    traits_type::subtract(m_element_array, _vector.m_element_array);
-
-    return (*this);
+  WN_FORCE_INLINE const_reference at(const size_t _index) const {
+    return m_elements[_index];
   }
 
-  WN_FORCE_INLINE vector& operator*=(const vector& _vector) {
-    traits_type::multiply(m_element_array, _vector.m_element_array);
-
-    return (*this);
+  WN_FORCE_INLINE pointer data() {
+    return m_elements.data();
   }
 
-  WN_FORCE_INLINE vector& operator/=(const vector& _vector) {
-    traits_type::divide(m_element_array, _vector.m_element_array);
-
-    return (*this);
+  WN_FORCE_INLINE const_pointer data() const {
+    return m_elements.data();
   }
 
-  WN_FORCE_INLINE vector& operator+=(const value_type& _value) {
-    traits_type::add(m_element_array, _value);
-
-    return (*this);
+  template <typename U = T,
+      typename = core::enable_if_t<core::conjunction<core::is_same<T, U>,
+          core::bool_constant<(Dimension <= 4)>>::value>>
+  WN_FORCE_INLINE U& x() {
+    return at(0);
   }
 
-  WN_FORCE_INLINE vector& operator-=(const value_type& _value) {
-    traits_type::subtract(m_element_array, _value);
-
-    return (*this);
+  template <typename U = T,
+      typename = core::enable_if_t<core::conjunction<core::is_same<T, U>,
+          core::bool_constant<(Dimension <= 4)>>::value>>
+  WN_FORCE_INLINE const U& x() const {
+    return at(0);
   }
 
-  WN_FORCE_INLINE vector& operator*=(const value_type& _value) {
-    traits_type::multiply(m_element_array, _value);
-
-    return (*this);
+  template <typename U = T,
+      typename = core::enable_if_t<core::conjunction<core::is_same<T, U>,
+          core::bool_constant<(Dimension <= 4 && Dimension > 1)>>::value>>
+  WN_FORCE_INLINE U& y() {
+    return at(1);
   }
 
-  WN_FORCE_INLINE vector& operator/=(const value_type& _value) {
-    traits_type::divide(m_element_array, _value);
-
-    return (*this);
+  template <typename U = T,
+      typename = core::enable_if_t<core::conjunction<core::is_same<T, U>,
+          core::bool_constant<(Dimension <= 4 && Dimension > 1)>>::value>>
+  WN_FORCE_INLINE const U& y() const {
+    return at(1);
   }
 
-  WN_FORCE_INLINE vector operator+(const vector& _vector) const {
-    vector vector(*this);
-
-    return (vector += _vector, vector);
+  template <typename U = T,
+      typename = core::enable_if_t<core::conjunction<core::is_same<T, U>,
+          core::bool_constant<(Dimension <= 4 && Dimension > 2)>>::value>>
+  WN_FORCE_INLINE U& z() {
+    return at(2);
   }
 
-  WN_FORCE_INLINE vector operator-(const vector& _vector) const {
-    vector vector(*this);
-
-    return (vector -= _vector, vector);
+  template <typename U = T,
+      typename = core::enable_if_t<core::conjunction<core::is_same<T, U>,
+          core::bool_constant<(Dimension <= 4 && Dimension > 2)>>::value>>
+  WN_FORCE_INLINE const U& z() const {
+    return at(2);
   }
 
-  WN_FORCE_INLINE vector operator*(const vector& _vector) const {
-    vector vector(*this);
-
-    return (vector *= _vector, vector);
+  template <typename U = T,
+      typename = core::enable_if_t<core::conjunction<core::is_same<T, U>,
+          core::bool_constant<(Dimension == 4)>>::value>>
+  WN_FORCE_INLINE U& w() {
+    return at(3);
   }
 
-  WN_FORCE_INLINE vector operator/(const vector& _vector) const {
-    vector vector(*this);
-
-    return (vector /= _vector, vector);
+  template <typename U = T,
+      typename = core::enable_if_t<core::conjunction<core::is_same<T, U>,
+          core::bool_constant<(Dimension == 4)>>::value>>
+  WN_FORCE_INLINE const U& w() const {
+    return at(3);
   }
 
-  WN_FORCE_INLINE vector operator+(const value_type& _value) const {
-    vector vector(*this);
-
-    return (vector += _value, vector);
-  }
-
-  WN_FORCE_INLINE vector operator-(const value_type& _value) const {
-    vector vector(*this);
-
-    return (vector -= _value, vector);
-  }
-
-  WN_FORCE_INLINE vector operator*(const value_type& _value) const {
-    vector vector(*this);
-
-    return (vector *= _value, vector);
-  }
-
-  WN_FORCE_INLINE vector operator/(const value_type& _value) const {
-    vector vector(*this);
-
-    return (vector /= _value, vector);
-  }
-
-  WN_FORCE_INLINE bool operator==(const vector& _vector) const {
-    return (
-        traits_type::template equal(m_element_array, _vector.m_element_array));
-  }
-
-  WN_FORCE_INLINE bool operator!=(const vector& _vector) const {
-    return (traits_type::template not_equal(
-        m_element_array, _vector.m_element_array));
-  }
+  // iterators
 
   WN_FORCE_INLINE iterator begin() {
-    return (m_element_array.m_values);
+    return m_elements.data();
+  }
+
+  WN_FORCE_INLINE const_iterator begin() const {
+    return cbegin();
   }
 
   WN_FORCE_INLINE const_iterator cbegin() const {
-    return (m_element_array.m_values);
+    return m_elements.data();
   }
 
   WN_FORCE_INLINE iterator end() {
-    return (m_element_array.m_values + _dimension);
+    return (m_elements.data() + Dimension);
+  }
+
+  WN_FORCE_INLINE const_iterator end() const {
+    return cend();
   }
 
   WN_FORCE_INLINE const_iterator cend() const {
-    return (m_element_array.m_values + _dimension);
+    return (m_elements.data() + Dimension);
   }
 
   WN_FORCE_INLINE reverse_iterator rbegin() {
-    return (reverse_iterator(end()));
+    return reverse_iterator(end());
   }
 
   WN_FORCE_INLINE const_reverse_iterator crbegin() const {
-    return (const_reverse_iterator(cend()));
+    return const_reverse_iterator(cend());
   }
 
   WN_FORCE_INLINE reverse_iterator rend() {
-    return (reverse_iterator(begin()));
+    return reverse_iterator(begin());
   }
 
   WN_FORCE_INLINE const_reverse_iterator crend() const {
-    return (const_reverse_iterator(cbegin()));
+    return const_reverse_iterator(cbegin());
   }
 
-  template <const size_t _index>
-  WN_FORCE_INLINE value_type& at() {
-    static_assert(
-        _index < _dimension, "Attempting to get element outside of bounds");
+  // properties
 
-    return (at(_index));
+  WN_FORCE_INLINE T length() const {
+    return TraitsType::length(m_elements);
   }
 
-  template <const size_t _index>
-  WN_FORCE_INLINE const value_type& at() const {
-    static_assert(
-        _index < _dimension, "Attempting to get element outside of bounds");
-
-    return (at(_index));
+  template <typename U = T, typename = core::enable_if_t<core::conjunction<
+                                core::is_same<T, U>, core::is_real<U>>::value>>
+  WN_FORCE_INLINE U inverse_length() const {
+    return TraitsType::inverse_length(m_elements);
   }
 
-  WN_FORCE_INLINE value_type& at(const size_t _index) {
-    WN_DEBUG_ASSERT_DESC(
-        _index < _dimension, "Attempting to get element outside of bounds");
-
-    return (m_element_array.m_values[_index]);
+  WN_FORCE_INLINE T length_squared() const {
+    return TraitsType::length_squared(m_elements);
   }
 
-  WN_FORCE_INLINE const value_type& at(const size_t _index) const {
-    WN_DEBUG_ASSERT_DESC(
-        _index < _dimension, "Attempting to get element outside of bounds");
-
-    return (m_element_array.m_values[_index]);
+  WN_FORCE_INLINE T dot(const basic_vector& _vector) const {
+    return TraitsType::dot(m_elements, _vector.m_elements);
   }
 
-  WN_FORCE_INLINE value_type* data() {
-    return (m_element_array.m_values);
+  template <typename U = basic_vector,
+      typename =
+          core::enable_if_t<core::conjunction<core::is_same<U, basic_vector>,
+              core::bool_constant<(Dimension == 3)>>::value>>
+  WN_FORCE_INLINE U cross(const basic_vector& _vector) const {
+    basic_vector destination;
+
+    TraitsType::cross(destination.m_elements, m_elements, _vector.m_elements);
+
+    return core::move(destination);
   }
 
-  WN_FORCE_INLINE const value_type* data() const {
-    return (m_element_array.m_values);
+  // operators
+
+  WN_FORCE_INLINE void make_zero() {
+    TraitsType::make_zero(m_elements);
   }
 
-  template <const size_t dimension = _dimension,
-      typename = core::enable_if_t<(dimension > 1 && dimension < 5)>>
-  WN_FORCE_INLINE value_type& x() {
-    return (at<0>());
+  WN_FORCE_INLINE basic_vector operator+() const {
+    basic_vector copy(*this);
+
+    return core::move(copy);
   }
 
-  template <const size_t dimension = _dimension,
-      typename = core::enable_if_t<(dimension > 1 && dimension < 5)>>
-  WN_FORCE_INLINE const value_type& x() const {
-    return (at<0>());
+  WN_FORCE_INLINE
+  typename core::enable_if<core::is_signed<T>::value, basic_vector>::type
+  operator-() const {
+    basic_vector copy(*this);
+
+    TraitsType::negate(copy.m_elements);
+
+    return core::move(copy);
   }
 
-  template <const size_t dimension = _dimension,
-      typename = core::enable_if_t<(dimension > 1 && dimension < 5)>>
-  WN_FORCE_INLINE value_type& y() {
-    return (at<1>());
+  WN_FORCE_INLINE basic_vector& operator+=(const basic_vector& _vector) {
+    TraitsType::add(m_elements, _vector.m_elements);
+
+    return *this;
   }
 
-  template <const size_t dimension = _dimension,
-      typename = core::enable_if_t<(dimension > 1 && dimension < 5)>>
-  WN_FORCE_INLINE const value_type& y() const {
-    return (at<1>());
+  WN_FORCE_INLINE basic_vector& operator-=(const basic_vector& _vector) {
+    TraitsType::subtract(m_elements, _vector.m_elements);
+
+    return *this;
   }
 
-  template <const size_t dimension = _dimension,
-      typename = core::enable_if_t<(dimension > 2 && dimension < 5)>>
-  WN_FORCE_INLINE value_type& z() {
-    return (at<2>());
+  WN_FORCE_INLINE basic_vector& operator*=(const basic_vector& _vector) {
+    TraitsType::multiply(m_elements, _vector.m_elements);
+
+    return *this;
   }
 
-  template <const size_t dimension = _dimension,
-      typename = core::enable_if_t<(dimension > 2 && dimension < 5)>>
-  WN_FORCE_INLINE const value_type& z() const {
-    return (at<2>());
+  WN_FORCE_INLINE basic_vector& operator/=(const basic_vector& _vector) {
+    TraitsType::divide(m_elements, _vector.m_elements);
+
+    return *this;
   }
 
-  template <const size_t dimension = _dimension,
-      typename = core::enable_if_t<(dimension > 3 && dimension < 5)>>
-  WN_FORCE_INLINE value_type& w() {
-    return (at<3>());
+  WN_FORCE_INLINE basic_vector& operator+=(const T& _value) {
+    TraitsType::add(m_elements, _value);
+
+    return *this;
   }
 
-  template <const size_t dimension = _dimension,
-      typename = core::enable_if_t<(dimension > 3 && dimension < 5)>>
-  WN_FORCE_INLINE const value_type& w() const {
-    return (at<3>());
+  WN_FORCE_INLINE basic_vector& operator-=(const T& _value) {
+    TraitsType::subtract(m_elements, _value);
+
+    return *this;
   }
 
-  WN_FORCE_INLINE size_t dimension() const {
-    return (_dimension);
+  WN_FORCE_INLINE basic_vector& operator*=(const T& _value) {
+    TraitsType::multiply(m_elements, _value);
+
+    return *this;
   }
 
-  WN_FORCE_INLINE value_type length() const {
-    return (traits_type::length(m_element_array));
+  WN_FORCE_INLINE basic_vector& operator/=(const T& _value) {
+    TraitsType::divide(m_elements, _value);
+
+    return *this;
   }
 
-  WN_FORCE_INLINE value_type length_squared() const {
-    return (traits_type::length_squared(m_element_array));
+  WN_FORCE_INLINE basic_vector operator+(const basic_vector& _vector) const {
+    basic_vector copy(*this);
+
+    copy += _vector;
+
+    return core::move(copy);
   }
 
-  WN_FORCE_INLINE value_type dot(const vector& _vector) const {
-    return (traits_type::dot(m_element_array, _vector.m_element_array));
+  WN_FORCE_INLINE basic_vector operator-(const basic_vector& _vector) const {
+    basic_vector copy(*this);
+
+    copy -= _vector;
+
+    return core::move(copy);
   }
 
-  WN_FORCE_INLINE bool zero() const {
-    return (traits_type::zero(m_element_array));
+  WN_FORCE_INLINE basic_vector operator*(const basic_vector& _vector) const {
+    basic_vector copy(*this);
+
+    copy *= _vector;
+
+    return core::move(copy);
+  }
+
+  WN_FORCE_INLINE basic_vector operator/(const basic_vector& _vector) const {
+    basic_vector copy(*this);
+
+    copy /= _vector;
+
+    return core::move(copy);
+  }
+
+  WN_FORCE_INLINE basic_vector operator+(const T& _value) const {
+    basic_vector copy(*this);
+
+    copy += _value;
+
+    return core::move(copy);
+  }
+
+  WN_FORCE_INLINE basic_vector operator-(const T& _value) const {
+    basic_vector copy(*this);
+
+    copy -= _value;
+
+    return core::move(copy);
+  }
+
+  WN_FORCE_INLINE basic_vector operator*(const T& _value) const {
+    basic_vector copy(*this);
+
+    copy *= _value;
+
+    return core::move(copy);
+  }
+
+  WN_FORCE_INLINE basic_vector operator/(const T& _value) const {
+    basic_vector copy(*this);
+
+    copy /= _value;
+
+    return core::move(copy);
+  }
+
+  WN_FORCE_INLINE bool operator==(const basic_vector& _vector) const {
+    return TraitsType::equal(m_elements, _vector.m_elements);
+  }
+
+  WN_FORCE_INLINE bool operator!=(const basic_vector& _vector) const {
+    return TraitsType::not_equal(m_elements, _vector.m_elements);
   }
 
   WN_FORCE_INLINE void multiply_add(
-      const vector& _vector1, const vector& _vector2) {
-    traits_type::multiply_add(
-        m_element_array, _vector1.m_element_array, _vector2.m_element_array);
+      const basic_vector& _vector1, const basic_vector& _vector2) {
+    TraitsType::multiply_add(
+        m_elements, _vector1.m_elements, _vector2.m_elements);
   }
 
-  WN_FORCE_INLINE void multiply_add(
-      const value_type& _number1, const value_type& _number2) {
-    traits_type::multiply_add(m_element_array, _number1, _number2);
-  }
-
-  WN_FORCE_INLINE void multiply_subtract(
-      const vector& _vector1, const vector& _vector2) {
-    traits_type::multiply_subtract(
-        m_element_array, _vector1.m_element_array, _vector2.m_element_array);
+  WN_FORCE_INLINE void multiply_add(const T& _number1, const T& _number2) {
+    TraitsType::multiply_add(m_elements, _number1, _number2);
   }
 
   WN_FORCE_INLINE void multiply_subtract(
-      const value_type& _number1, const value_type& _number2) {
-    traits_type::multiply_subtract(m_element_array, _number1, _number2);
+      const basic_vector& _vector1, const basic_vector& _vector2) {
+    TraitsType::multiply_subtract(
+        m_elements, _vector1.m_elements, _vector2.m_elements);
   }
 
-  WN_FORCE_INLINE void clamp(const vector& _minimum, const vector& _maximum) {
-    for (size_t i = 0; i < _dimension; ++i) {
-      m_element_array.m_values[i] = clamp(m_element_array.m_values[i],
-          _minimum.m_element_array.m_values[i],
-          _maximum.m_element_array.m_values[i]);
-    }
+  WN_FORCE_INLINE void multiply_subtract(const T& _number1, const T& _number2) {
+    TraitsType::multiply_subtract(m_elements, _number1, _number2);
   }
 
-  WN_FORCE_INLINE void clamp(
-      const value_type& _minimum, const value_type& _maximum) {
-    for (size_t i = 0; i < _dimension; ++i) {
-      m_element_array.m_values[i] =
-          clamp(m_element_array.m_values[i], _minimum, _maximum);
-    }
-  }
-
-  WN_FORCE_INLINE void minimum(const vector& _vector) {
-    for (size_t i = 0; i < _dimension; ++i) {
-      m_element_array.m_values[i] =
-          min(m_element_array.m_values[i], _vector.m_element_array.m_values[i]);
-    }
-  }
-
-  WN_FORCE_INLINE void maximum(const vector& _vector) {
-    for (size_t i = 0; i < _dimension; ++i) {
-      m_element_array.m_values[i] =
-          max(m_element_array.m_values[i], _vector.m_element_array.m_values[i]);
-    }
-  }
-
-  WN_FORCE_INLINE void average(const vector& _vector) {
-    for (size_t i = 0; i < _dimension; ++i) {
-      m_element_array.m_values[i] += _vector.m_element_array.m_values[i];
-      m_element_array.m_values[i] /= static_cast<value_type>(2);
-    }
-  }
-
-  WN_FORCE_INLINE void saturate() {
-    for (size_t i = 0; i < _dimension; ++i) {
-      m_element_array.m_values[i] = clamp(m_element_array.m_values[i],
-          static_cast<value_type>(0), static_cast<value_type>(1));
-    }
-  }
-
-  WN_FORCE_INLINE void reverse() {
-    for (size_t i = 0; i < (_dimension / 2); ++i) {
-      std::swap(m_element_array.m_values[i],
-          m_element_array.m_values[(_dimension - 1) - i]);
-    }
-  }
-
-  // reflect
-  // refract
-
-  template <typename type = value_type,
-      typename = core::enable_if_t<
-          core::bool_and<core::is_same<type, value_type>::value,
-              core::is_real<type>::value>::value>>
-  WN_FORCE_INLINE void normalize() {
-    traits_type::normalize(m_element_array);
-  }
-
-  template <typename type = value_type,
-      typename = core::enable_if_t<
-          core::bool_and<core::is_same<type, value_type>::value,
-              core::is_real<type>::value>::value>>
-  WN_FORCE_INLINE void truncate(const value_type& _length) {
-    traits_type::truncate(m_element_array, _length);
-  }
-
-  template <typename type = value_type,
-      typename = core::enable_if_t<
-          core::bool_and<core::is_same<type, value_type>::value,
-              core::is_real<type>::value>::value>>
-  WN_FORCE_INLINE void snap(
-      const snap_direction_type _direction = snap_direction::nearest) {
-    traits_type::snap(m_element_array, _direction);
-  }
-
-  template <typename type = value_type,
-      typename = core::enable_if_t<
-          core::bool_and<core::is_same<type, value_type>::value,
-              core::is_real<type>::value>::value>>
-  WN_FORCE_INLINE void recipricol() {
-    traits_type::recipricol(m_element_array);
-  }
-
-  WN_FORCE_INLINE void translate(const vector& _vector) {
+  WN_FORCE_INLINE void translate(const basic_vector& _vector) {
     (*this) += _vector;
   }
 
-  WN_FORCE_INLINE void translate(const value_type& _value) {
+  WN_FORCE_INLINE void translate(const T& _value) {
     (*this) += _value;
   }
 
-  template <typename... types,
-      typename = core::enable_if_t<
-          core::bool_and<core::are_same<types..., value_type>::value,
-              sizeof...(types) == (_dimension - 1)>::value>>
-  WN_FORCE_INLINE void translate(
-      const value_type& _value, const types&... _values) {
-    (*this) += vector(_value, _values...);
+  template <typename... Us,
+      typename = core::enable_if_t<core::conjunction<core::are_same<T, Us...>,
+          core::bool_constant<(sizeof...(Us) == Dimension)>,
+          core::bool_constant<(Dimension > 1)>>::value>>
+  WN_FORCE_INLINE void translate(const Us&... _values) {
+    (*this) += basic_vector(_values...);
   }
 
-  WN_FORCE_INLINE void scale(const vector& _vector) {
+  WN_FORCE_INLINE void scale(const basic_vector& _vector) {
     (*this) *= _vector;
   }
 
-  WN_FORCE_INLINE void scale(const value_type& _value) {
+  WN_FORCE_INLINE void scale(const T& _value) {
     (*this) *= _value;
   }
 
-  template <typename... types,
-      typename = core::enable_if_t<
-          core::bool_and<core::are_same<types..., value_type>::value,
-              sizeof...(types) == (_dimension - 1)>::value>>
-  WN_FORCE_INLINE void scale(
-      const value_type& _value, const types&... _values) {
-    (*this) *= vector(_value, _values...);
+  template <typename... Us,
+      typename = core::enable_if_t<core::conjunction<core::are_same<T, Us...>,
+          core::bool_constant<(sizeof...(Us) == Dimension)>,
+          core::bool_constant<(Dimension > 1)>>::value>>
+  WN_FORCE_INLINE void scale(const Us&... _values) {
+    (*this) *= basic_vector(_values...);
   }
 
-  WN_FORCE_INLINE void homogenize() {
-    m_element_array.m_values[_dimension - 1] = static_cast<value_type>(1);
+  WN_FORCE_INLINE void reverse() {
+    TraitsType::reverse(m_elements);
   }
 
-  WN_FORCE_INLINE void assign(vector&& _vector) {
-    traits_type::assign(m_element_array, std::move(_vector.m_element_array));
+  WN_FORCE_INLINE void clamp(
+      const basic_vector& _minimum, const basic_vector& _maximum) {
+    TraitsType::clamp(m_elements, _minimum.m_elements, _maximum.m_elements);
   }
 
-  WN_FORCE_INLINE void assign(const vector& _vector) {
-    traits_type::assign(m_element_array, _vector.m_element_array);
+  WN_FORCE_INLINE void clamp(const T& _minimum, const T& _maximum) {
+    TraitsType::clamp(m_elements, _minimum, _maximum);
   }
 
-  WN_FORCE_INLINE void assign(const value_type& _value) {
-    traits_type::assign(m_element_array, _value);
+  WN_FORCE_INLINE void saturate() {
+    TraitsType::saturate(m_elements);
   }
 
-  template <typename type, typename... types,
-      typename = core::enable_if_t<
-          core::bool_and<core::are_same<type, types..., value_type>::value,
-              sizeof...(types) == (_dimension - 1), (_dimension > 1)>::value>>
-  WN_FORCE_INLINE void assign(const type& _value, const types&... _values) {
-    assign({_value, _values...});
+  WN_FORCE_INLINE void minimum(const basic_vector& _vector) {
+    TraitsType::minimum(m_elements, _vector.m_elements);
   }
 
-  WN_FORCE_INLINE void assign(
-      const std::array<value_type, _dimension>& _array) {
-    traits_type::assign(m_element_array, _array.cbegin(), _array.cend());
+  WN_FORCE_INLINE void maximum(const basic_vector& _vector) {
+    TraitsType::maximum(m_elements, _vector.m_elements);
   }
 
-  WN_FORCE_INLINE void assign(
-      const std::initializer_list<value_type>& _initializer_list) {
-    WN_DEBUG_ASSERT_DESC(
-        _initializer_list.size() <= _dimension, "too many initializers");
-
-    traits_type::assign(
-        m_element_array, _initializer_list.begin(), _initializer_list.end());
+  WN_FORCE_INLINE void average(const basic_vector& _vector) {
+    TraitsType::average(m_elements, _vector.m_elements);
   }
 
-  WN_FORCE_INLINE void assign(const value_type* _values) {
-    traits_type::assign(m_element_array, _values);
+  WN_FORCE_INLINE void truncate(const T& _length) {
+    TraitsType::truncate(m_elements, _length);
   }
 
-  template <const size_t dimension = _dimension,
-      typename = core::enable_if_t<(dimension > 1 && dimension < 5)>>
-  WN_FORCE_INLINE void assign_x(const value_type& _value) {}
-
-  template <const size_t dimension = _dimension,
-      typename = core::enable_if_t<(dimension > 1 && dimension < 5)>>
-  WN_FORCE_INLINE void assign_y(const value_type& _value) {}
-
-  template <const size_t dimension = _dimension,
-      typename = core::enable_if_t<(dimension > 2 && dimension < 5)>>
-  WN_FORCE_INLINE void assign_z(const value_type& _value) {}
-
-  template <const size_t dimension = _dimension,
-      typename = core::enable_if_t<(dimension > 3 && dimension < 5)>>
-  WN_FORCE_INLINE void assign_w(const value_type& _value) {}
-
-  WN_FORCE_INLINE void set_zero() {
-    traits_type::set_zero(m_element_array);
+  template <typename U = T, typename = core::enable_if_t<core::conjunction<
+                                core::is_same<T, U>, core::is_real<U>>::value>>
+  WN_FORCE_INLINE void normalize() {
+    TraitsType::normalize(m_elements);
   }
 
-  WN_FORCE_INLINE vector extract_clamped(
-      const vector& _minimum, const vector& _maximum) const {
-    vector vector(*this);
-
-    return (vector.clamp(_minimum, _maximum), vector);
+  template <typename U = T, typename = core::enable_if_t<core::conjunction<
+                                core::is_same<T, U>, core::is_real<U>>::value>>
+  WN_FORCE_INLINE void snap(
+      const snap_direction _direction = snap_direction::nearest) {
+    TraitsType::snap(m_elements, _direction);
   }
 
-  WN_FORCE_INLINE vector extract_clamped(
-      const value_type& _minimum, const value_type& _maximum) const {
-    vector vector(*this);
-
-    return (vector.clamp(_minimum, _maximum), vector);
+  template <typename U = T, typename = core::enable_if_t<core::conjunction<
+                                core::is_same<T, U>, core::is_real<U>>::value>>
+  WN_FORCE_INLINE void recipricol() {
+    TraitsType::recipricol(m_elements);
   }
 
-  WN_FORCE_INLINE vector extract_minimum(const vector& _vector) const {
-    vector vector(*this);
-
-    return (vector.minimum(_vector), vector);
-  }
-
-  WN_FORCE_INLINE vector extract_maximum(const vector& _vector) const {
-    vector vector(*this);
-
-    return (vector.maximum(_vector), vector);
-  }
-
-  WN_FORCE_INLINE vector extract_scaled(const value_type& _value) const {
-    vector vector(*this);
-
-    return (vector.scale(_value), vector);
-  }
-
-  WN_FORCE_INLINE vector extract_scaled(const vector& _vector) const {
-    vector vector(*this);
-
-    return (vector.scale(_vector), vector);
-  }
-
-  WN_FORCE_INLINE vector extract_average(const vector& _vector) const {
-    vector vector(*this);
-
-    return (vector.average(_vector), vector);
-  }
-
-  WN_FORCE_INLINE vector extract_saturated() const {
-    vector vector(*this);
-
-    return (vector.saturate(), vector);
-  }
-
-  WN_FORCE_INLINE vector extract_reversed() const {
-    vector vector(*this);
-
-    return (vector.reverse(), vector);
-  }
-
-  template <typename type = value_type,
-      typename = core::enable_if_t<
-          core::bool_and<core::is_same<type, value_type>::value,
-              core::is_real<type>::value>::value>>
-  WN_FORCE_INLINE vector extract_normalized() const {
-    vector vector(*this);
-
-    return (vector.normalize(), vector);
-  }
-
-  template <typename type = value_type,
-      typename = core::enable_if_t<
-          core::bool_and<core::is_same<type, value_type>::value,
-              core::is_real<type>::value>::value>>
-  WN_FORCE_INLINE vector extract_truncated(const value_type& _length) const {
-    vector vector(*this);
-
-    return (vector.truncate(_length), vector);
-  }
-
-  template <typename type = value_type,
-      typename = core::enable_if_t<
-          core::bool_and<core::is_same<type, value_type>::value,
-              core::is_real<type>::value>::value>>
-  WN_FORCE_INLINE vector extract_snaped(
-      const snap_direction _direction = snap_direction::nearest) const {
-    vector vector(*this);
-
-    return (vector.snap(_direction), vector);
-  }
-
-  template <typename type = value_type,
-      typename = core::enable_if_t<
-          core::bool_and<core::is_same<type, value_type>::value,
-              core::is_real<type>::value>::value>>
-  WN_FORCE_INLINE vector extract_recipricol() const {
-    vector vector(*this);
-
-    return (vector.recipricol(), vector);
-  }
-
-  WN_FORCE_INLINE vector extract_homogenious() {
-    vector vector(*this);
-
-    return (vector.homogenize(), vector);
+  WN_FORCE_INLINE void swap(basic_vector& _other) {
+    TraitsType::swap(m_elements, _other.m_elements);
   }
 
 private:
-  template <typename _other_type, const size_t _other_dimension>
-  friend class vector;
+  template <typename U, const size_t OtherDimension, typename OtherTraitsType>
+  friend class basic_vector;
 
-  internal::math::element_array<value_type, _dimension> m_element_array;
+  internal::element_array<T, Dimension> m_elements;
 };
 
-template <typename _Type>
-using vector2 = vector<_Type, 2>;
+template <typename T, const size_t Dimension, typename TraitsType>
+WN_FORCE_INLINE basic_vector<T, Dimension, TraitsType> operator+(
+    const T& _lhs, basic_vector<T, Dimension, TraitsType>&& _rhs) {
+  _rhs += _lhs;
 
-template <typename _Type>
-using vector3 = vector<_Type, 3>;
-
-template <typename _Type>
-using vector4 = vector<_Type, 4>;
+  return core::move(_rhs);
 }
 
-template <typename type, const size_t dimension>
-wn::vector<type, dimension> operator+(
-    const type& _value, wn::vector<type, dimension>&& _vector) {
-  return (_vector += _value);
+template <typename T, const size_t Dimension, typename TraitsType>
+WN_FORCE_INLINE basic_vector<T, Dimension, TraitsType> operator+(
+    const T& _lhs, const basic_vector<T, Dimension, TraitsType>& _rhs) {
+  return (_rhs + _lhs);
 }
 
-template <typename type, const size_t dimension>
-wn::vector<type, dimension> operator+(
-    const type& _value, const wn::vector<type, dimension>& _vector) {
-  return (_vector + _value);
+template <typename T, const size_t Dimension, typename TraitsType>
+WN_FORCE_INLINE basic_vector<T, Dimension, TraitsType> operator-(
+    const T& _lhs, const basic_vector<T, Dimension, TraitsType>& _rhs) {
+  return (basic_vector<T, Dimension, TraitsType>(_lhs) -= _rhs);
 }
 
-template <typename type, const size_t dimension>
-wn::vector<type, dimension> operator-(
-    const type& _value, const wn::vector<type, dimension>& _vector) {
-  return (wn::vector<type, dimension>(_value) -= _vector);
+template <typename T, const size_t Dimension, typename TraitsType>
+WN_FORCE_INLINE basic_vector<T, Dimension, TraitsType> operator*(
+    const T& _lhs, basic_vector<T, Dimension, TraitsType>&& _rhs) {
+  _rhs *= _lhs;
+
+  return core::move(_rhs);
 }
 
-template <typename type, const size_t dimension>
-wn::vector<type, dimension> operator*(
-    const type& _value, wn::vector<type, dimension>&& _vector) {
-  return (_vector *= _value);
+template <typename T, const size_t Dimension, typename TraitsType>
+WN_FORCE_INLINE basic_vector<T, Dimension, TraitsType> operator*(
+    const T& _lhs, const basic_vector<T, Dimension, TraitsType>& _rhs) {
+  return (_rhs * _lhs);
 }
 
-template <typename type, const size_t dimension>
-wn::vector<type, dimension> operator*(
-    const type& _value, const wn::vector<type, dimension>& _vector) {
-  return (_vector * _value);
+template <typename T, const size_t Dimension, typename TraitsType>
+WN_FORCE_INLINE basic_vector<T, Dimension, TraitsType> operator/(
+    const T& _lhs, const basic_vector<T, Dimension, TraitsType>& _rhs) {
+  return (basic_vector<T, Dimension, TraitsType>(_lhs) /= _rhs);
 }
 
-template <typename type, const size_t dimension>
-wn::vector<type, dimension> operator/(
-    const type& _value, const wn::vector<type, dimension>& _vector) {
-  return (wn::vector<type, dimension>(_value) /= _vector);
-}
+template <typename T, const size_t Dimension>
+class packed_vector final {
+public:
+  typedef T value_type;
+  typedef core::add_lvalue_reference_t<T> reference;
+  typedef core::add_lvalue_reference_t<core::add_const_t<T>> const_reference;
+  typedef typename core::add_pointer<T>::type pointer;
+  typedef typename core::add_pointer<core::add_const_t<T>>::type const_pointer;
+  typedef T* iterator;
+  typedef T const* const_iterator;
+  typedef std::reverse_iterator<iterator> reverse_iterator;
+  typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
+
+  packed_vector() = default;
+
+  WN_FORCE_INLINE packed_vector(packed_vector&& _vector) {
+    internal::general_traits_generic<T, Dimension>::assign(
+        m_elements, core::move(_vector.m_elements));
+  }
+
+  WN_FORCE_INLINE packed_vector(const packed_vector& _vector) {
+    internal::general_traits_generic<T, Dimension>::assign(
+        m_elements, _vector.m_elements);
+  }
+
+  template <typename Traits>
+  WN_FORCE_INLINE packed_vector(
+      const basic_vector<T, Dimension, Traits>& _vector) {
+    internal::general_traits_generic<T, Dimension>::assign(
+        m_elements, _vector.data(), Dimension);
+  }
+
+  WN_FORCE_INLINE packed_vector& operator=(packed_vector&& _vector) {
+    assign(std::move(_vector));
+
+    return *this;
+  }
+
+  WN_FORCE_INLINE packed_vector& operator=(const packed_vector& _vector) {
+    assign(_vector);
+
+    return *this;
+  }
+
+  template <typename Traits>
+  WN_FORCE_INLINE packed_vector& operator=(
+      const basic_vector<T, Dimension, Traits>& _vector) {
+    assign(_vector);
+
+    return *this;
+  }
+
+  WN_FORCE_INLINE void assign(packed_vector&& _vector) {
+    packed_vector(std::move(_vector)).swap(*this);
+  }
+
+  WN_FORCE_INLINE void assign(const packed_vector& _vector) {
+    packed_vector(_vector).swap(*this);
+  }
+
+  template <typename Traits>
+  WN_FORCE_INLINE void assign(
+      const basic_vector<T, Dimension, Traits>& _vector) {
+    packed_vector(_vector).swap(*this);
+  }
+
+  WN_FORCE_INLINE reference operator[](const size_t _index) {
+    return at(_index);
+  }
+
+  WN_FORCE_INLINE const_reference operator[](const size_t _index) const {
+    return at(_index);
+  }
+
+  WN_FORCE_INLINE reference at(const size_t _index) {
+    WN_DEBUG_ASSERT_DESC(
+        _index < Dimension, "attempting to get element outside of bounds");
+
+    return m_elements[_index];
+  }
+
+  WN_FORCE_INLINE const_reference at(const size_t _index) const {
+    WN_DEBUG_ASSERT_DESC(
+        _index < Dimension, "attempting to get element outside of bounds");
+
+    return m_elements[_index];
+  }
+
+  WN_FORCE_INLINE pointer data() {
+    return m_elements.data();
+  }
+
+  WN_FORCE_INLINE const_pointer data() const {
+    return m_elements.data();
+  }
+
+  // iterators
+
+  WN_FORCE_INLINE iterator begin() {
+    return m_elements.data();
+  }
+
+  WN_FORCE_INLINE const_iterator begin() const {
+    return cbegin();
+  }
+
+  WN_FORCE_INLINE const_iterator cbegin() const {
+    return m_elements.data();
+  }
+
+  WN_FORCE_INLINE iterator end() {
+    return (m_elements.data() + Dimension);
+  }
+
+  WN_FORCE_INLINE const_iterator end() const {
+    return cend();
+  }
+
+  WN_FORCE_INLINE const_iterator cend() const {
+    return (m_elements.data() + Dimension);
+  }
+
+  WN_FORCE_INLINE reverse_iterator rbegin() {
+    return reverse_iterator(end());
+  }
+
+  WN_FORCE_INLINE const_reverse_iterator crbegin() const {
+    return const_reverse_iterator(cend());
+  }
+
+  WN_FORCE_INLINE reverse_iterator rend() {
+    return reverse_iterator(begin());
+  }
+
+  WN_FORCE_INLINE const_reverse_iterator crend() const {
+    return const_reverse_iterator(cbegin());
+  }
+
+  WN_FORCE_INLINE void swap(packed_vector& _other) {
+    internal::general_traits_generic<T, Dimension>::swap(
+        m_elements, _other.m_elements);
+  }
+
+private:
+  internal::element_array_generic<T, Dimension> m_elements;
+};
+
+template <typename T, const size_t Dimension, typename TraitsType>
+WN_FORCE_INLINE basic_vector<T, Dimension, TraitsType>::basic_vector(
+    const packed_vector<T, Dimension>& _vector)
+  : basic_vector(_vector.data(), Dimension) {}
+
+// short forms
+
+template <typename T, const size_t Dimension>
+using vector = basic_vector<T, Dimension>;
+
+template <typename T>
+using vector2 = vector<T, 2>;
+
+template <typename T>
+using vector3 = vector<T, 3>;
+
+template <typename T>
+using vector4 = vector<T, 4>;
+
+template <typename T, const size_t Dimension>
+using vector_precise =
+    basic_vector<T, Dimension, internal::vector_traits<T, Dimension, true>>;
+
+template <typename T>
+using vector2_precise = vector_precise<T, 2>;
+
+template <typename T>
+using vector3_precise = vector_precise<T, 3>;
+
+template <typename T>
+using vector4_precise = vector_precise<T, 4>;
+
+// short, short forms
+
+template <typename T>
+using vec2 = vector2<T>;
+
+template <typename T>
+using vec3 = vector3<T>;
+
+template <typename T>
+using vec4 = vector4<T>;
+
+template <typename T>
+using vec2_p = vector2_precise<T>;
+
+template <typename T>
+using vec3_p = vector3_precise<T>;
+
+template <typename T>
+using vec4_p = vector4_precise<T>;
+
+// short, short, short forms
+
+using vec2i8 = vec2<int8_t>;
+using vec2i16 = vec2<int16_t>;
+using vec2i32 = vec2<int32_t>;
+using vec2i64 = vec2<int64_t>;
+using vec2u8 = vec2<uint8_t>;
+using vec2u16 = vec2<uint16_t>;
+using vec2u32 = vec2<uint32_t>;
+using vec2u64 = vec2<uint64_t>;
+using vec2f = vec2<float>;
+using vec2d = vec2<double>;
+
+using vec3i8 = vec3<int8_t>;
+using vec3i16 = vec3<int16_t>;
+using vec3i32 = vec3<int32_t>;
+using vec3i64 = vec3<int64_t>;
+using vec3u8 = vec3<uint8_t>;
+using vec3u16 = vec3<uint16_t>;
+using vec3u32 = vec3<uint32_t>;
+using vec3u64 = vec3<uint64_t>;
+using vec3f = vec3<float>;
+using vec3d = vec3<double>;
+
+using vec4i8 = vec4<int8_t>;
+using vec4i16 = vec4<int16_t>;
+using vec4i32 = vec4<int32_t>;
+using vec4i64 = vec4<int64_t>;
+using vec4u8 = vec4<uint8_t>;
+using vec4u16 = vec4<uint16_t>;
+using vec4u32 = vec4<uint32_t>;
+using vec4u64 = vec4<uint64_t>;
+using vec4f = vec4<float>;
+using vec4d = vec4<double>;
+
+using vec2f_p = vec2_p<float>;
+using vec2d_p = vec2_p<double>;
+
+using vec3f_p = vec3_p<float>;
+using vec3d_p = vec3_p<double>;
+
+using vec4f_p = vec4_p<float>;
+using vec4d_p = vec4_p<double>;
+
+}  // namespace math
+}  // namespace wn
 
 #endif  // __WN_MATH_VECTOR_H__

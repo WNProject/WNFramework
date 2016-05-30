@@ -11,285 +11,295 @@
 #include "WNCore/inc/WNTypes.h"
 #include "WNCore/inc/WNUtility.h"
 #include "WNMath/inc/Internal/WNElementArray.h"
+#include "WNMath/inc/WNBasic.h"
 #include "WNMath/inc/WNCommon.h"
 #include "WNMath/inc/WNConfig.h"
 
 #include <cmath>
 
 namespace wn {
-namespace internal {
 namespace math {
-struct general_traits_generic : core::non_constructable_non_copyable {
-  template <typename type, const size_t dimension>
-  static WN_FORCE_INLINE void initialize(
-      element_array<type, dimension>& _values) {
-    for (size_t i = 0; i < dimension; ++i) {
-      _values.m_values[i] = static_cast<type>(0);
+namespace internal {
+
+template <typename T, const size_t Count, const bool Precise = false>
+class general_traits_generic : core::non_constructable_non_copyable {
+public:
+  static WN_FORCE_INLINE void assign(element_array<T, Count>& _destination,
+      element_array<T, Count>&& _source) {
+    for (size_t i = 0; i < Count; ++i) {
+      _destination[i] = core::move(_source[i]);
     }
   }
 
-  template <typename type, const size_t dimension>
-  static WN_FORCE_INLINE void assign(element_array<type, dimension>& _first,
-      element_array<type, dimension>&& _second) {
-    for (size_t i = 0; i < dimension; ++i) {
-      _first.m_values[i] = std::move(_second.m_values[i]);
+  static WN_FORCE_INLINE void assign(element_array<T, Count>& _destination,
+      const element_array<T, Count>& _source) {
+    for (size_t i = 0; i < Count; ++i) {
+      _destination[i] = _source[i];
     }
   }
 
-  template <typename type, const size_t dimension>
-  static WN_FORCE_INLINE void assign(element_array<type, dimension>& _first,
-      const element_array<type, dimension>& _second) {
-    for (size_t i = 0; i < dimension; ++i) {
-      _first.m_values[i] = _second.m_values[i];
+  template <const size_t OtherCount>
+  static WN_FORCE_INLINE void assign(element_array<T, Count>& _destination,
+      element_array<T, OtherCount>&& _source) {
+    const size_t copy_size = (Count < OtherCount) ? Count : OtherCount;
+    size_t i = 0;
+
+    for (; i < copy_size; ++i) {
+      _destination[i] = core::move(_source[i]);
+    }
+
+    for (; i < Count; ++i) {
+      _destination[i] = T(0);
     }
   }
 
-  template <typename type, const size_t dimension>
+  template <const size_t OtherCount>
+  static WN_FORCE_INLINE void assign(element_array<T, Count>& _destination,
+      const element_array<T, OtherCount>& _source) {
+    const size_t copy_size = (Count < OtherCount) ? Count : OtherCount;
+    size_t i = 0;
+
+    for (; i < copy_size; ++i) {
+      _destination[i] = _source[i];
+    }
+
+    for (; i < Count; ++i) {
+      _destination[i] = T(0);
+    }
+  }
+
   static WN_FORCE_INLINE void assign(
-      element_array<type, dimension>& _values, const type& _value) {
-    for (size_t i = 0; i < dimension; ++i) {
-      _values.m_values[i] = _value;
+      element_array<T, Count>& _destination, const T& _source) {
+    for (size_t i = 0; i < Count; ++i) {
+      _destination[i] = _source;
     }
   }
 
-  template <typename type, const size_t dimension, typename iterator>
-  static WN_FORCE_INLINE void assign(element_array<type, dimension>& _values,
-      iterator _first, iterator _last) {
-    size_t count = 0;
+  static WN_FORCE_INLINE void assign(element_array<T, Count>& _elements,
+      const T* _numbers, const size_t _count) {
+    const size_t count = (Count < _count) ? Count : _count;
+    size_t i = 0;
 
-    for (; _first != _last && count < dimension; ++_first, ++count) {
-      _values.m_values[count] = static_cast<type>(*_first);
+    for (; i < count; ++i) {
+      _elements[i] = _numbers[i];
     }
 
-    for (; count < dimension; ++count) {
-      _values.m_values[count] = static_cast<type>(0);
-    }
-  }
-
-  template <typename type, const size_t dimension>
-  static WN_FORCE_INLINE void assign(
-      element_array<type, dimension>& _values, const type* _numbers) {
-    for (size_t i = 0; i < dimension; ++i) {
-      _values.m_values[i] = _numbers[i];
+    for (; i < Count; ++i) {
+      _elements[i] = T(0);
     }
   }
 
-  template <typename type, const size_t dimension>
-  static WN_FORCE_INLINE void negate(element_array<type, dimension>& _values) {
-    for (size_t i = 0; i < dimension; ++i) {
-      _values.m_values[i] = -_values.m_values[i];
+  template <typename U = T>
+  static WN_FORCE_INLINE typename core::enable_if<
+      core::conjunction<core::is_same<T, U>, core::is_signed<U>>::value>::type
+  negate(element_array<T, Count>& _elements) {
+    for (size_t i = 0; i < Count; ++i) {
+      _elements[i] = (-_elements[i]);
     }
   }
 
-  template <typename type, const size_t dimension>
-  static WN_FORCE_INLINE void add(element_array<type, dimension>& _first,
-      const element_array<type, dimension>& _second) {
-    for (size_t i = 0; i < dimension; ++i) {
-      _first.m_values[i] += _second.m_values[i];
-    }
-  }
-
-  template <typename type, const size_t dimension>
   static WN_FORCE_INLINE void add(
-      element_array<type, dimension>& _values, const type& _value) {
-    for (size_t i = 0; i < dimension; ++i) {
-      _values.m_values[i] += _value;
+      element_array<T, Count>& _first, const element_array<T, Count>& _second) {
+    for (size_t i = 0; i < Count; ++i) {
+      _first[i] += _second[i];
     }
   }
 
-  template <typename type, const size_t dimension>
-  static WN_FORCE_INLINE bool equal(
-      const element_array<type, dimension>& _first,
-      const element_array<type, dimension>& _second) {
-    for (size_t i = 0; i < dimension; ++i) {
-      if (_first.m_values[i] != _second.m_values[i]) {
-        return (false);
+  static WN_FORCE_INLINE void add(
+      element_array<T, Count>& _elements, const T& _value) {
+    for (size_t i = 0; i < Count; ++i) {
+      _elements[i] += _value;
+    }
+  }
+
+  static WN_FORCE_INLINE bool equal(const element_array<T, Count>& _first,
+      const element_array<T, Count>& _second) {
+    for (size_t i = 0; i < Count; ++i) {
+      if (_first[i] != _second[i]) {
+        return false;
       }
     }
 
-    return (true);
+    return true;
   }
 
-  template <typename type, const size_t dimension>
-  static WN_FORCE_INLINE bool not_equal(
-      const element_array<type, dimension>& _first,
-      const element_array<type, dimension>& _second) {
-    for (size_t i = 0; i < dimension; ++i) {
-      if (_first.m_values[i] == _second.m_values[i]) {
-        return (false);
+  static WN_FORCE_INLINE bool not_equal(const element_array<T, Count>& _first,
+      const element_array<T, Count>& _second) {
+    return !equal(_first, _second);
+  }
+
+  static WN_FORCE_INLINE bool zero(const element_array<T, Count>& _first) {
+    for (size_t i = 0; i < Count; ++i) {
+      if (_first[i] != T(0)) {
+        return false;
       }
     }
 
-    return (true);
+    return true;
   }
 
-  template <typename type, const size_t dimension>
-  static WN_FORCE_INLINE type dot(const element_array<type, dimension>& _first,
-      const element_array<type, dimension>& _second) {
-    type accumulated_dot = static_cast<type>(0);
-
-    for (size_t i = 0; i < dimension; ++i) {
-      accumulated_dot += _first.m_values[i] * _second.m_values[i];
-    }
-
-    return (accumulated_dot);
-  }
-
-  template <typename type, const size_t dimension>
-  static WN_FORCE_INLINE bool zero(
-      const element_array<type, dimension>& _first) {
-    for (size_t i = 0; i < dimension; ++i) {
-      if (_first.m_values[i] != static_cast<type>(0)) {
-        return (false);
-      }
-    }
-
-    return (true);
-  }
-
-  template <typename type, const size_t dimension>
-  static WN_FORCE_INLINE void set_zero(
-      element_array<type, dimension>& _values) {
-    for (size_t i = 0; i < dimension; ++i) {
-      _values.m_values[i] = static_cast<type>(0);
+  static WN_FORCE_INLINE void make_zero(element_array<T, Count>& _values) {
+    for (size_t i = 0; i < Count; ++i) {
+      _values[i] = T(0);
     }
   }
 
-  template <typename type, const size_t dimension>
-  static WN_FORCE_INLINE void snap(
-      element_array<type, dimension>& _values, wn::snap_direction _direction) {
-    for (size_t i = 0; i < dimension; ++i) {
-      switch (_direction) {
-        case snap_direction::nearest:
-          _values.m_values[i] = wn::round(_values.m_values[i]);
-
-          break;
-        case snap_direction::down:
-          _values.m_values[i] = wn::floor(_values.m_values[i]);
-
-          break;
-        case snap_direction::up:
-          _values.m_values[i] = wn::ceil(_values.m_values[i]);
-
-          break;
-        case snap_direction::truncate:
-          _values.m_values[i] = wn::trunc(_values.m_values[i]);
-
-          break;
-      }
-    }
-  }
-
-  template <typename type, const size_t dimension>
-  static WN_FORCE_INLINE void subtract(element_array<type, dimension>& _first,
-      const element_array<type, dimension>& _second) {
-    for (size_t i = 0; i < dimension; ++i) {
-      _first.m_values[i] -= _second.m_values[i];
-    }
-  }
-
-  template <typename type, const size_t dimension>
   static WN_FORCE_INLINE void subtract(
-      element_array<type, dimension>& _values, const type& _value) {
-    for (size_t i = 0; i < dimension; ++i) {
-      _values.m_values[i] -= _value;
+      element_array<T, Count>& _first, const element_array<T, Count>& _second) {
+    for (size_t i = 0; i < Count; ++i) {
+      _first[i] -= _second[i];
     }
   }
 
-  template <typename type, const size_t dimension>
-  static WN_FORCE_INLINE void multiply(element_array<type, dimension>& _first,
-      const element_array<type, dimension>& _second) {
-    for (size_t i = 0; i < dimension; ++i) {
-      _first.m_values[i] *= _second.m_values[i];
+  static WN_FORCE_INLINE void subtract(
+      element_array<T, Count>& _elements, const T& _value) {
+    for (size_t i = 0; i < Count; ++i) {
+      _elements[i] -= _value;
     }
   }
 
-  template <typename type, const size_t dimension>
   static WN_FORCE_INLINE void multiply(
-      element_array<type, dimension>& _values, const type& _value) {
-    for (size_t i = 0; i < dimension; ++i) {
-      _values.m_values[i] *= _value;
+      element_array<T, Count>& _first, const element_array<T, Count>& _second) {
+    for (size_t i = 0; i < Count; ++i) {
+      _first[i] *= _second[i];
     }
   }
 
-  template <typename type, const size_t dimension>
-  static WN_FORCE_INLINE void divide(element_array<type, dimension>& _first,
-      const element_array<type, dimension>& _second) {
-    for (size_t i = 0; i < dimension; ++i) {
-      _first.m_values[i] /= _second.m_values[i];
+  static WN_FORCE_INLINE void multiply(
+      element_array<T, Count>& _values, const T& _value) {
+    for (size_t i = 0; i < Count; ++i) {
+      _values[i] *= _value;
     }
   }
 
-  template <typename type, const size_t dimension>
+  static WN_FORCE_INLINE void divide(
+      element_array<T, Count>& _first, const element_array<T, Count>& _second) {
+    for (size_t i = 0; i < Count; ++i) {
+      _first[i] /= _second[i];
+    }
+  }
+
+  template <typename U = T>
+  static WN_FORCE_INLINE typename core::enable_if<
+      core::conjunction<core::is_same<T, U>, core::is_real<U>,
+          core::negation<core::bool_constant<Precise>>>::value>::type
+  divide(element_array<T, Count>& _values, const T& _value) {
+    const U inverse_value(U(1) / _value);
+
+    multiply(_values, inverse_value);
+  }
+
+  template <typename U = T>
   static WN_FORCE_INLINE
-      typename core::enable_if<core::is_real<type>::value>::type
-      divide(element_array<type, dimension>& _values, const type& _value) {
-#ifdef __WN_MATH_APPROXIMATIONS_ENABLED
-    const type inverse_value = static_cast<type>(1) / _value;
-#endif
-
-    for (size_t i = 0; i < dimension; ++i) {
-#ifdef __WN_MATH_APPROXIMATIONS_ENABLED
-      _values.m_values[i] *= inverse_value;
-#else
-      _values.m_values[i] /= _value;
-#endif
+      typename core::enable_if<core::conjunction<core::is_same<T, U>,
+          core::disjunction<core::negation<core::is_real<U>>,
+              core::conjunction<core::is_real<U>,
+                  core::bool_constant<Precise>>>>::value>::type
+      divide(element_array<T, Count>& _values, const T& _value) {
+    for (size_t i = 0; i < Count; ++i) {
+      _values[i] /= _value;
     }
   }
 
-  template <typename type, const size_t dimension>
-  static WN_FORCE_INLINE
-      typename core::enable_if<!core::is_real<type>::value>::type
-      divide(element_array<type, dimension>& _values, const type& _value) {
-    for (size_t i = 0; i < dimension; ++i) {
-      _values.m_values[i] /= _value;
-    }
-  }
-
-  template <typename type, const size_t dimension>
   static WN_FORCE_INLINE void multiply_add(
-      element_array<type, dimension>& _values, const type& _value1,
-      const type& _value2) {
-    for (size_t i = 0; i < dimension; ++i) {
-      _values.m_values[i] *= _value1;
-      _values.m_values[i] += _value2;
+      element_array<T, Count>& _values, const T& _value1, const T& _value2) {
+    for (size_t i = 0; i < Count; ++i) {
+      _values[i] *= _value1;
+      _values[i] += _value2;
     }
   }
 
-  template <typename type, const size_t dimension>
-  static WN_FORCE_INLINE void multiply_add(
-      element_array<type, dimension>& _first,
-      const element_array<type, dimension>& _second,
-      const element_array<type, dimension>& _element_array3) {
-    for (size_t i = 0; i < dimension; ++i) {
-      _first.m_values[i] *= _second.m_values[i];
-      _first.m_values[i] += _element_array3.m_values[i];
+  static WN_FORCE_INLINE void multiply_add(element_array<T, Count>& _first,
+      const element_array<T, Count>& _second,
+      const element_array<T, Count>& _third) {
+    for (size_t i = 0; i < Count; ++i) {
+      _first[i] *= _second[i];
+      _first[i] += _third[i];
     }
   }
 
-  template <typename type, const size_t dimension>
+  static WN_FORCE_INLINE void multiply_subtract(element_array<T, Count>& _first,
+      const element_array<T, Count>& _second,
+      const element_array<T, Count>& _third) {
+    for (size_t i = 0; i < Count; ++i) {
+      _first[i] *= _second[i];
+      _first[i] -= _third[i];
+    }
+  }
+
   static WN_FORCE_INLINE void multiply_subtract(
-      element_array<type, dimension>& _first,
-      const element_array<type, dimension>& _second,
-      const element_array<type, dimension>& _element_array3) {
-    for (size_t i = 0; i < dimension; ++i) {
-      _first.m_values[i] *= _second.m_values[i];
-      _first.m_values[i] -= _element_array3.m_values[i];
+      element_array<T, Count>& _values, const T& _value1, const T& _value2) {
+    for (size_t i = 0; i < Count; ++i) {
+      _values[i] *= _value1;
+      _values[i] -= _value2;
     }
   }
 
-  template <typename type, const size_t dimension>
-  static WN_FORCE_INLINE void multiply_subtract(
-      element_array<type, dimension>& _values, const type& _value1,
-      const type& _value2) {
-    for (size_t i = 0; i < dimension; ++i) {
-      _values.m_values[i] *= _value1;
-      _values.m_values[i] -= _value2;
+  static WN_FORCE_INLINE void clamp(element_array<T, Count>& _values,
+      const element_array<T, Count>& _minimum,
+      const element_array<T, Count>& _maximum) {
+    for (size_t i = 0; i < Count; ++i) {
+      _values[i] = math::clamp(_values[i], _minimum[i], _maximum[i]);
+    }
+  }
+
+  static WN_FORCE_INLINE void clamp(
+      element_array<T, Count>& _values, const T& _minimum, const T& _maximum) {
+    for (size_t i = 0; i < Count; ++i) {
+      _values[i] = math::clamp(_values[i], _minimum, _maximum);
+    }
+  }
+
+  static WN_FORCE_INLINE void saturate(element_array<T, Count>& _first) {
+    clamp(_first, T(0), T(1));
+  }
+
+  static WN_FORCE_INLINE void reverse(element_array<T, Count>& _first) {
+    for (size_t i = 0; i < (Count / 2); ++i) {
+      core::swap(_first[i], _first[(Count - 1) - i]);
+    }
+  }
+
+  static WN_FORCE_INLINE void snap(
+      element_array<T, Count>& _values, snap_direction _direction) {
+    switch (_direction) {
+      case snap_direction::nearest:
+        for (size_t i = 0; i < Count; ++i) {
+          _values[i] = math::round(_values[i]);
+        }
+
+        break;
+      case snap_direction::down:
+        for (size_t i = 0; i < Count; ++i) {
+          _values[i] = math::floor(_values[i]);
+        }
+
+        break;
+      case snap_direction::up:
+        for (size_t i = 0; i < Count; ++i) {
+          _values[i] = math::ceil(_values[i]);
+        }
+
+        break;
+      case snap_direction::truncate:
+        for (size_t i = 0; i < Count; ++i) {
+          _values[i] = math::trunc(_values[i]);
+        }
+
+        break;
+    }
+  }
+
+  static WN_FORCE_INLINE void swap(
+      element_array<T, Count>& _first, element_array<T, Count>& _second) {
+    for (size_t i = 0; i < Count; ++i) {
+      core::swap(_first[i], _second[i]);
     }
   }
 };
-}
-}
-}
+
+}  // namespace internal
+}  // namespace math
+}  // namespace wn
 
 #endif  // __WN_MATH_INTERNAL_GENERIC_GENERAL_TRAITS_H__
