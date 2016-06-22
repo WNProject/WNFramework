@@ -10,6 +10,7 @@
 
 #include <android/log.h>
 #include <android_native_app_glue.h>
+#include <sys/prctl.h>
 #include <unistd.h>
 
 extern int32_t wn_main(int32_t _argc, char* _argv[]);
@@ -79,6 +80,10 @@ void android_main(struct android_app* state) {
   __android_log_print(ANDROID_LOG_INFO, packageName, "--STARTED");
 
 #if defined _WN_DEBUG
+  if (access("/proc/sys/kernel/yama/ptrace_scope", F_OK) != -1) {
+     prctl(PR_SET_PTRACER, PR_SET_PTRACER_ANY, 0, 0, 0);
+  }
+
   FILE* debugFile = fopen("/sdcard/wait-for-debugger.txt", "r");
 
   if (debugFile) {
