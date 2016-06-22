@@ -37,7 +37,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNFibers/src/Android/WNContext_x86.h"
+#include "WNMultiTasking/src/Android/WNContext_x86.h"
 
 .text
 .global wn_setcontext

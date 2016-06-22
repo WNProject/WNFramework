@@ -4,7 +4,7 @@
 
 #include <pthread.h>
 #include "WNCore/inc/WNAssert.h"
-#include "WNFibers/src/Android/WNContext.h"
+#include "WNMultiTasking/src/Android/WNContext.h"
 
 extern "C" {
 
