@@ -96,6 +96,14 @@ function(build_apk)
   set(WN_APK_LOCATION ${WN_TARGET_DIR}/bin/${WN_APK_NAME})
 
   get_target_property(PERMISSIONS ${PARSED_ARGS_TARGET} WN_ANDROID_PERMISSIONS)
+  if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    if (NOT PERMISSIONS)
+      set(PERMISSIONS "READ_EXTERNAL_STORAGE")
+    else()
+      list(APPEND PERMISSIONS "READ_EXTERNAL_STORAGE")
+    endif()
+  endif()
+ 
   if (PERMISSIONS)
     afix(APP_PERMISSIONS
       "      <uses-permission android:name=\"android.permission."
