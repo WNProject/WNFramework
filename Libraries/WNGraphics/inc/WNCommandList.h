@@ -58,13 +58,17 @@ public:
         _download_buffer.m_offset, sizeof(T) * _download_buffer.range().size());
   }
 
+  // Copies bytes from the _upload_buffer to the _download_buffer.
+  // Note: The size must be at least 1 byte.
   template <typename T>
   WN_FORCE_INLINE void enqueue_buffer_copy(
       const upload_heap_buffer<T>& _upload_buffer,
       const download_heap_buffer<T>& _download_buffer) {
     WN_DEBUG_ASSERT_DESC(
         _download_buffer.range().size() >= _upload_buffer.range().size(),
-        "The destionation is smaller than the source");
+        "The destination is smaller than the source");
+    WN_DEBUG_ASSERT_DESC(_upload_buffer.range().size() >= 1,
+        "The copy must be at least one byte");
 
     enqueue_copy(*(_upload_buffer.m_heap), _upload_buffer.m_offset,
         *(_download_buffer.m_heap), _download_buffer.m_offset,
