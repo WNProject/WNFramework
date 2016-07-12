@@ -762,7 +762,8 @@ public:
 
     const uint32_t type =
         m_validator->register_struct_type(_definition->get_name());
-    for (auto ref_type : {reference_type::self, reference_type::unique}) {
+    for (auto ref_type :
+        {reference_type::self, reference_type::unique}) {
       type_definition& def =
           m_validator->get_operations(type + static_cast<uint32_t>(ref_type));
       for (const auto& a : _definition->get_struct_members()) {
@@ -927,12 +928,12 @@ public:
     if (m_validator->get_cast(_decl->get_expression()->get_type()->get_index(),
             _decl->get_type()->get_index()) != cast_type::transparent) {
       m_log->Log(WNLogging::eError, 0,
-          "Cannot inintialize variable with expression of a different type.");
+          "Cannot initialize variable with expression of a different type.");
       _decl->log_line(*m_log, WNLogging::eError);
       ++m_num_errors;
     }
 
-    if (_decl->get_type()->get_reference_type() == reference_type::unique) {
+    if (m_validator->is_destructible_type(_decl->get_type()->get_index())) {
       m_local_objects.back().push_back(_decl);
     }
     return nullptr;
@@ -1045,29 +1046,134 @@ private:
   containers::deque<containers::deque<declaration*>> m_local_objects;
 };
 
-containers::deque<const struct_allocation_expression*> accumulate_temporaries(
-    memory::allocator* _allocator, const expression* _root,
+containers::deque<struct_allocation_expression*> accumulate_temporaries(
+    memory::allocator* _allocator, expression* _root,
     bool _include_top_expression) {
-  containers::deque<const struct_allocation_expression*> expressions(
+  containers::deque<struct_allocation_expression*> expressions(
       _allocator);
   if (!_root) {
     return expressions;
   }
   if (_include_top_expression) {
     if (_root->get_node_type() == node_type::struct_allocation_expression) {
+      static_cast<struct_allocation_expression*>(_root)->make_temporary();
       expressions.push_back(
-          static_cast<const struct_allocation_expression*>(_root));
+          static_cast<struct_allocation_expression*>(_root));
     }
-  } else {
-    _root->accumulate_expression_subtree([&expressions](const expression* e) {
-      if (e->get_node_type() == node_type::struct_allocation_expression) {
-        expressions.push_back(
-            static_cast<const struct_allocation_expression*>(e));
-      }
-    });
   }
+  _root->accumulate_expression_subtree([&expressions](expression* e) {
+    if (e->get_node_type() == node_type::struct_allocation_expression) {
+      expressions.push_back(static_cast<struct_allocation_expression*>(e));
+      static_cast<struct_allocation_expression*>(e)->make_temporary();
+    }
+  });
   return core::move(expressions);
 }
+
+
+class temporary_reification_pass : public pass {
+public:
+  temporary_reification_pass(type_validator* _validator, WNLogging::WNLog* _log,
+      memory::allocator* _allocator)
+    : pass(_validator, _log, _allocator),
+      m_temporary_declarations(_allocator) {}
+
+  memory::unique_ptr<expression> walk_expression(expression*) { return nullptr; }
+  memory::unique_ptr<instruction> walk_instruction(instruction* _inst) {
+    _inst->set_temp_declarations(core::move(m_temporary_declarations));
+    m_temporary_declarations =
+        containers::deque<memory::unique_ptr<declaration>>(m_allocator);
+    return nullptr;
+  }
+
+
+  void walk_instruction_list(instruction_list* _inst) {
+    using instruction_queue =
+        containers::deque<memory::unique_ptr<instruction>>;
+    instruction_queue replaced_instructions(m_allocator);
+    for (instruction_queue::iterator it = _inst->get_instructions().begin();
+         it != _inst->get_instructions().end(); ++it) {
+      containers::deque<memory::unique_ptr<declaration>> temp_decls =
+        (*it)->release_temp_declarations();
+      for(auto& decl : temp_decls) {
+        replaced_instructions.push_back(core::move(decl));
+      }
+      replaced_instructions.push_back(core::move(*it));
+    }
+    _inst->set_instructions(core::move(replaced_instructions));
+  }
+
+  memory::unique_ptr<expression> walk_expression(
+      struct_allocation_expression* _expr) {
+    if (!_expr->is_temporary()) {
+      return nullptr;
+    }
+
+    memory::unique_ptr<declaration> decl =
+        memory::make_unique<declaration>(m_allocator, m_allocator);
+
+    decl->copy_location_from(_expr);
+    char temporary_name[12] = {0};
+
+    containers::string name(m_allocator);
+    name += "__wns_temp_expression";
+    memory::writeuint32(
+        temporary_name, m_last_temporary++, sizeof(temporary_name) - 1);
+    name += temporary_name;
+
+    memory::unique_ptr<type> t =
+        memory::make_unique<type>(m_allocator, *_expr->get_type());
+    t->copy_location_from(_expr->get_type());
+
+
+    memory::unique_ptr<type> t2 =
+        memory::make_unique<type>(m_allocator, *_expr->get_type());
+    t2->copy_location_from(_expr->get_type());
+
+    memory::unique_ptr<parameter> t_param = memory::make_unique<parameter>(
+        m_allocator, m_allocator, core::move(t), name);
+    t_param->copy_location_from(_expr);
+
+    decl->set_parameter(core::move(t_param));
+
+    memory::unique_ptr<struct_allocation_expression> alloc =
+      memory::make_unique<struct_allocation_expression>(m_allocator, m_allocator);
+    alloc->set_initialization_mode(_expr->set_initialization_mode());
+    alloc->copy_location_from(_expr);
+    alloc->set_type(_expr->transfer_out_type());
+    alloc->get_type()->set_reference_type(reference_type::raw);
+    alloc->set_copy_initializer(_expr->transfer_copy_initializer());
+
+    decl->set_expression(core::move(alloc));
+
+    decl->get_type()->set_reference_type(reference_type::raw);
+
+    m_temporary_declarations.push_back(core::move(decl));
+
+    memory::unique_ptr<id_expression> id =
+        memory::make_unique<id_expression>(m_allocator, m_allocator, name);
+    id->copy_location_from(_expr);
+
+    memory::unique_ptr<cast_expression> cast =
+        memory::make_unique<cast_expression>(
+            m_allocator, m_allocator, core::move(id));
+    t2->set_reference_type(reference_type::unique);
+    cast->set_type(core::move(t2));
+
+    return core::move(cast);
+  }
+
+  void walk_script_file(script_file*) {}
+  void walk_type(type*) {}
+  void walk_function(function*) {}
+  void walk_struct_definition(struct_definition*) {}
+  void enter_scope_block() {}
+  void leave_scope_block() {}
+  void walk_parameter(parameter*) {}
+
+private:
+  containers::deque<memory::unique_ptr<declaration>> m_temporary_declarations;
+};
 
 class member_reassociation_pass : public pass {
 public:
@@ -1079,6 +1185,7 @@ public:
     if (_decl->get_type()->get_reference_type() == reference_type::raw) {
       return nullptr;
     }
+
     WN_RELEASE_ASSERT_DESC(
         _decl->get_type()->get_reference_type() == reference_type::unique,
         "Not Implemented: Other types of reference declarations");
@@ -1401,6 +1508,12 @@ bool run_dce_pass(script_file* _file, WNLogging::WNLog* _log,
 bool run_member_reassociation_pass(script_file* _file, WNLogging::WNLog* _log,
     type_validator* _validator, size_t* _num_warnings, size_t* _num_errors) {
   return run_pass<member_reassociation_pass>(
+      _file, _log, _validator, _num_warnings, _num_errors);
+}
+
+bool run_temporary_reification_pass(script_file* _file, WNLogging::WNLog* _log,
+    type_validator* _validator, size_t* _num_warnings, size_t* _num_errors) {
+  return run_pass<temporary_reification_pass>(
       _file, _log, _validator, _num_warnings, _num_errors);
 }
 

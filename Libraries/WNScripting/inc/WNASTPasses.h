@@ -44,6 +44,11 @@ bool run_dce_pass(script_file* _file, WNLogging::WNLog* _log,
 bool run_member_reassociation_pass(script_file* _file, WNLogging::WNLog* _log,
     type_validator* _validator, size_t* _num_warnings, size_t* _num_errors);
 
+// This takes all temporary objects Int x = Foo().x; for example,
+// and turns them into real actual objects.
+bool run_temporary_reification_pass(script_file* _file, WNLogging::WNLog* _log,
+    type_validator* _validator, size_t* _num_warnings, size_t* _num_errors);
+
 // If reassociation pass
 // Optional pass for Generators only supporting structure control.
 // (Shading languages, C without Goto)

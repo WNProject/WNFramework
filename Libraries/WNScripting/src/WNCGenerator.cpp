@@ -154,20 +154,10 @@ void ast_c_translator::walk_expression(const member_access_expression* _access,
 }
 
 void ast_c_translator::walk_expression(
-    const struct_allocation_expression* _alloc,
+    const struct_allocation_expression*,
     containers::pair<containers::string, containers::string>* _str) {
   initialize_data(m_allocator, _str);
-
-  memory::writeuint32(
-      m_last_temporary, m_temporaries++, sizeof(m_last_temporary) - 1);
-  containers::string name("__wns_temp", m_allocator);
-  name.append(m_last_temporary);
-
-  _str->first.append(m_generator->get_data(_alloc->get_type()));
-  _str->first.append(" ");
-  _str->first.append(name);
-  _str->first.append(";\n");
-  _str->second.append(name);
+  // There is actually NOTHING to do here.
 }
 
 void ast_c_translator::walk_expression(const cast_expression* _cast,
@@ -181,6 +171,10 @@ void ast_c_translator::walk_expression(const cast_expression* _cast,
       _cast->get_expression()->get_type()->get_type_value() -
           static_cast<uint32_t>(
               _cast->get_expression()->get_type()->get_reference_type())) {
+    if (_cast->get_type()->get_reference_type() == reference_type::unique &&
+      _cast->get_expression()->get_type()->get_reference_type() == reference_type::raw) {
+      _str->second.append("&");
+    }
     if (_cast->get_type()->get_reference_type() == reference_type::self &&
       _cast->get_expression()->get_type()->get_reference_type() == reference_type::raw) {
       _str->second.append("&");
@@ -244,10 +238,14 @@ void ast_c_translator::walk_instruction(const declaration* _decl,
     containers::pair<containers::string, containers::string>* _str) {
   initialize_data(m_allocator, _str);
   const auto& expr = m_generator->get_data(_decl->get_expression());
+
   _str->second.append(expr.first);
 
   _str->second += m_generator->get_data(_decl->get_type());
-  _str->second += " " + _decl->get_name().to_string(m_allocator) + " = ";
+  _str->second += " " + _decl->get_name().to_string(m_allocator);
+  if (_decl->get_expression()->get_node_type() != node_type::struct_allocation_expression) {
+    _str->second += " = ";
+  }
   _str->second += expr.second;
   _str->second += ";";
 }

@@ -302,6 +302,8 @@ public:
   }
 
   virtual void accumulate_expression_subtree(
+      const containers::function<void(expression*)>&) {}
+  virtual void accumulate_const_expression_subtree(
       const containers::function<void(const expression*)>&) const {}
 
 protected:
@@ -330,9 +332,17 @@ class replaced_expression : public expression {
     }
   }
 
-  void accumulate_expression_subtree(
+  void accumulate_const_expression_subtree(
       const containers::function<void(const expression*)>& _func)
       const override {
+    for (auto& a : m_replacements) {
+      _func(a.get());
+      a->accumulate_const_expression_subtree(_func);
+    }
+  }
+
+  void accumulate_expression_subtree(
+      const containers::function<void(expression*)>& _func) override {
     for (auto& a : m_replacements) {
       _func(a.get());
       a->accumulate_expression_subtree(_func);
@@ -363,9 +373,21 @@ public:
         memory::unique_ptr<expression>(m_allocator, _expression);
   }
 
-  void accumulate_expression_subtree(
+  void accumulate_const_expression_subtree(
       const containers::function<void(const expression*)>& _func)
       const override {
+    for (auto& a : m_array_initializers) {
+      _func(a.get());
+      a->accumulate_const_expression_subtree(_func);
+    }
+    if (m_copy_initializer) {
+      _func(m_copy_initializer.get());
+      m_copy_initializer->accumulate_const_expression_subtree(_func);
+    }
+  }
+
+  void accumulate_expression_subtree(
+      const containers::function<void(expression*)>& _func) override {
     for (auto& a : m_array_initializers) {
       _func(a.get());
       a->accumulate_expression_subtree(_func);
@@ -411,9 +433,17 @@ public:
     _func(m_rhs.get());
   }
 
-  void accumulate_expression_subtree(
+  void accumulate_const_expression_subtree(
       const containers::function<void(const expression*)>& _func)
       const override {
+    _func(m_lhs.get());
+    m_lhs->accumulate_const_expression_subtree(_func);
+    _func(m_rhs.get());
+    m_rhs->accumulate_const_expression_subtree(_func);
+  }
+
+  void accumulate_expression_subtree(
+      const containers::function<void(expression*)>& _func) override {
     _func(m_lhs.get());
     m_lhs->accumulate_expression_subtree(_func);
     _func(m_rhs.get());
@@ -563,9 +593,15 @@ public:
     expr(m_base_expression.get());
   }
 
-  void accumulate_expression_subtree(
+  void accumulate_const_expression_subtree(
       const containers::function<void(const expression*)>& _func)
       const override {
+    _func(m_base_expression.get());
+    m_base_expression->accumulate_const_expression_subtree(_func);
+  }
+
+  void accumulate_expression_subtree(
+      const containers::function<void(expression*)>& _func) override {
     _func(m_base_expression.get());
     m_base_expression->accumulate_expression_subtree(_func);
   }
@@ -625,9 +661,17 @@ public:
     return m_ss_type;
   }
 
-  void accumulate_expression_subtree(
+  void accumulate_const_expression_subtree(
       const containers::function<void(const expression*)>& _func)
       const override {
+    _func(m_lhs.get());
+    m_lhs->accumulate_const_expression_subtree(_func);
+    _func(m_rhs.get());
+    m_rhs->accumulate_const_expression_subtree(_func);
+  }
+
+  void accumulate_expression_subtree(
+      const containers::function<void(expression*)>& _func) override {
     _func(m_lhs.get());
     m_lhs->accumulate_expression_subtree(_func);
     _func(m_rhs.get());
@@ -694,9 +738,15 @@ public:
     _type(m_type.get());
   }
 
-  void accumulate_expression_subtree(
+  void accumulate_const_expression_subtree(
       const containers::function<void(const expression*)>& _func)
       const override {
+    _func(m_expression.get());
+    m_expression->accumulate_const_expression_subtree(_func);
+  }
+
+  void accumulate_expression_subtree(
+      const containers::function<void(expression*)>& _func) override {
     _func(m_expression.get());
     m_expression->accumulate_expression_subtree(_func);
   }
@@ -718,7 +768,8 @@ public:
   struct_allocation_expression(memory::allocator* _allocator)
     : expression(_allocator, node_type::struct_allocation_expression),
       m_copy_initializer(nullptr),
-      m_init_mode(struct_initialization_mode::invalid) {}
+      m_init_mode(struct_initialization_mode::invalid),
+      m_is_temporary(false) {}
 
   void set_copy_initializer(expression* _expression) {
     m_copy_initializer =
@@ -749,16 +800,33 @@ public:
     _type(m_type.get());
   }
 
-  void accumulate_expression_subtree(
+  void accumulate_const_expression_subtree(
       const containers::function<void(const expression*)>& _func)
       const override {
+    if (m_copy_initializer) {
+      _func(m_copy_initializer.get());
+      m_copy_initializer->accumulate_const_expression_subtree(_func);
+    }
+  }
+
+  void accumulate_expression_subtree(
+      const containers::function<void(expression*)>& _func) override {
     if (m_copy_initializer) {
       _func(m_copy_initializer.get());
       m_copy_initializer->accumulate_expression_subtree(_func);
     }
   }
 
+  bool is_temporary() const {
+    return m_is_temporary;
+  }
+
+  void make_temporary() {
+    m_is_temporary = true;
+  }
+
 private:
+  bool m_is_temporary;
   memory::unique_ptr<expression> m_copy_initializer;
   struct_initialization_mode m_init_mode;
 };
@@ -771,9 +839,15 @@ public:
       m_unary_type(_type),
       m_root_expression(memory::unique_ptr<expression>(m_allocator, _expr)) {}
 
-  void accumulate_expression_subtree(
+  void accumulate_const_expression_subtree(
       const containers::function<void(const expression*)>& _func)
       const override {
+    _func(m_root_expression.get());
+    m_root_expression->accumulate_const_expression_subtree(_func);
+  }
+
+  void accumulate_expression_subtree(
+      const containers::function<void(expression*)>& _func) override {
     _func(m_root_expression.get());
     m_root_expression->accumulate_expression_subtree(_func);
   }
@@ -790,7 +864,8 @@ public:
     : node(_allocator, _type),
       m_returns(false),
       m_is_dead(false),
-      m_temporaries(_allocator) {}
+      m_temporaries(_allocator),
+      m_temporary_declarations(_allocator) {}
   instruction(memory::allocator* _allocator, node_type _type, bool _returns)
     : instruction(_allocator, _type) {
     m_returns = _returns;
@@ -828,8 +903,18 @@ public:
     m_temporaries.push_back(_temp);
   }
 
+  void set_temp_declarations(
+      containers::deque<memory::unique_ptr<declaration>>&& declarations) {
+    m_temporary_declarations = core::move(declarations);
+  }
+
+  containers::deque<memory::unique_ptr<declaration>> release_temp_declarations(){
+    return core::move(m_temporary_declarations);
+  }
+
 protected:
   containers::deque<const struct_allocation_expression*> m_temporaries;
+  containers::deque<memory::unique_ptr<declaration>> m_temporary_declarations;
   bool m_is_dead;
   bool m_returns;
 };
@@ -842,8 +927,15 @@ struct function_expression {
       memory::unique_ptr<expression>&& _expr, bool _hand_ownership)
     : m_expr(core::move(_expr)), m_hand_ownership(_hand_ownership) {}
 
+  void accumulate_const_expression_subtree(
+      const containers::function<void(const expression*)>& _func)
+      const {
+    _func(m_expr.get());
+    m_expr->accumulate_const_expression_subtree(_func);
+  }
+
   void accumulate_expression_subtree(
-      const containers::function<void(const expression*)>& _func) const {
+      const containers::function<void(expression*)>& _func) {
     _func(m_expr.get());
     m_expr->accumulate_expression_subtree(_func);
   }
@@ -878,6 +970,10 @@ struct expression_instruction : public instruction {
   }
 
   const expression* get_expression() const {
+    return m_expression.get();
+  }
+
+  expression* get_expression() {
     return m_expression.get();
   }
 
@@ -984,12 +1080,20 @@ public:
     return (m_expression_list);
   }
 
-  void accumulate_expression_subtree(
+  void accumulate_const_expression_subtree(
       const containers::function<void(const expression*)>& _func) const {
+    for (auto& a : m_expression_list) {
+      a->accumulate_const_expression_subtree(_func);
+    }
+  }
+
+  void accumulate_expression_subtree(
+      const containers::function<void(expression*)>& _func) {
     for (auto& a : m_expression_list) {
       a->accumulate_expression_subtree(_func);
     }
   }
+
 
 private:
   containers::deque<memory::unique_ptr<function_expression>> m_expression_list;
@@ -1060,13 +1164,21 @@ public:
     return m_args.get();
   }
 
-  void accumulate_expression_subtree(
+  void accumulate_const_expression_subtree(
       const containers::function<void(const expression*)>& _func)
       const override {
+    if (m_args) {
+      m_args->accumulate_const_expression_subtree(_func);
+    }
+  }
+
+  void accumulate_expression_subtree(
+      const containers::function<void(expression*)>& _func) override {
     if (m_args) {
       m_args->accumulate_expression_subtree(_func);
     }
   }
+
 
 private:
   function* m_callee;
@@ -1445,7 +1557,9 @@ public:
   const lvalue* get_lvalue() const {
     return m_lvalue.get();
   }
-
+  expression* get_expression() {
+    return m_assign_expression.get();
+  }
 private:
   virtual void walk_children(const walk_mutable_instruction&,
       const walk_mutable_expression& expr, const walk_ftype<type*>&,
@@ -1596,6 +1710,10 @@ public:
     return m_condition.get();
   }
 
+  expression* get_condition() {
+    return m_condition.get();
+  }
+
   memory::unique_ptr<expression> release_condition() {
     return core::move(m_condition);
   }
@@ -1683,6 +1801,12 @@ public:
   const expression* get_expression() const {
     return m_expression.get();
   }
+
+  expression* get_expression() {
+    return m_expression.get();
+  }
+
+
   virtual void walk_children(const walk_mutable_instruction&,
       const walk_mutable_expression& expr, const walk_ftype<type*>&,
       const walk_ftype<instruction_list*>&, const walk_scope&,

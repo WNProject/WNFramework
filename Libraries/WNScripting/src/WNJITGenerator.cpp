@@ -136,15 +136,28 @@ void ast_jit_engine::walk_expression(
   _val->instructions.insert(_val->instructions.begin(),
       sub_dat.instructions.begin(), sub_dat.instructions.end());
 
-  if (_cast->get_type()->get_type_value() -
+  if (!_cast->get_type()->get_type_value() -
           static_cast<uint32_t>(_cast->get_type()->get_reference_type()) ==
       _cast->get_expression()->get_type()->get_type_value() -
           static_cast<uint32_t>(
               _cast->get_expression()->get_type()->get_reference_type())) {
-    _val->value = sub_dat.value;
+    WN_RELEASE_ASSERT_DESC(false, "Not implemented: Other types of cast");
     return;
   }
-  WN_RELEASE_ASSERT_DESC(false, "Not implemented: Other types of cast");
+
+  // If we are converting from raw to reference, then we can do away
+  // with the load-inst that caused us.
+  if ((_cast->get_type()->get_reference_type() == reference_type::self ||
+          _cast->get_type()->get_reference_type() == reference_type::unique) &&
+      _cast->get_expression()->get_type()->get_reference_type() ==
+          reference_type::raw) {
+    // TODO(awoloszyn): Delete the load instruction?
+    llvm::LoadInst* val = llvm::dyn_cast<llvm::LoadInst>(sub_dat.value);
+    _val->value = val->getPointerOperand();
+    return;
+  }
+
+  _val->value = sub_dat.value;
 }
 
 void ast_jit_engine::walk_expression(
@@ -245,17 +258,12 @@ void ast_jit_engine::walk_expression(
   _val->instructions =
       containers::dynamic_array<llvm::Instruction*>(m_allocator);
 
-  uint32_t index = _alloc->get_type()->get_index();
-  uint32_t normalized_index =
-      index - static_cast<uint32_t>(_alloc->get_type()->get_reference_type());
-
-  llvm::Type* t = m_struct_map[normalized_index];
-
   switch (_alloc->get_type()->get_reference_type()) {
     case reference_type::raw:
-      _val->instructions.push_back(new llvm::AllocaInst(
-          t, make_string_ref(_alloc->get_type()->custom_type_name())));
-      _val->value = _val->instructions.back();
+      // We actually have nothing to do in this case. The
+      // declaration will have turned this into a Alloca(type),
+      // and we have nothing interesting to store in it.
+      _val->value = nullptr;
       break;
     default:
       WN_RELEASE_ASSERT_DESC(false, "Not Implemented");
@@ -405,8 +413,17 @@ void ast_jit_engine::walk_instruction(
   _val->instructions.insert(_val->instructions.end(), expr.instructions.data(),
       expr.instructions.data() + expr.instructions.size());
 
+  // There are cases where there is no RHS to a declaration.
+  // Specifically Foo x = Foo(); effectively becomes
+  // Foo x;
+  // construct(&x);
+  // so we just don't initialize if RHS is empty.
+  // TODO(awoloszyn): If this seems too ugly, make the RHS
+  // an undef value.
+  if (expr.value) {
   _val->instructions.push_back(
       new llvm::StoreInst(expr.value, _val->instructions.front()));
+  }
 }
 
 void ast_jit_engine::walk_instruction(

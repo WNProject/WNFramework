@@ -181,24 +181,27 @@ struct member_function {
 // what functions are callable through an instance of this type
 // and what operations are allowable on this type.
 struct type_definition {
-  explicit type_definition(memory::allocator* _allocator)
+  explicit type_definition(
+      bool destructible_type, memory::allocator* _allocator)
     : m_casts(_allocator),
       m_ids(_allocator),
       m_functions(_allocator),
       m_allocator(_allocator),
       m_mode(reference_type::max),
-      m_mangling(_allocator) {
+      m_mangling(_allocator),
+      m_destructible_type(destructible_type) {
     m_ops = valid_builtin_operations[0];  // default to nothing valid
   }
 
   type_definition(const allowed_builtin_operations& operation,
-      memory::allocator* _allocator)
+      bool destructible_type, memory::allocator* _allocator)
     : m_casts(_allocator),
       m_ids(_allocator),
       m_functions(_allocator),
       m_allocator(_allocator),
       m_mode(reference_type::max),
-      m_mangling(_allocator) {
+      m_mangling(_allocator),
+      m_destructible_type(destructible_type) {
     m_ops = operation;
   }
 
@@ -262,6 +265,7 @@ struct type_definition {
   containers::dynamic_array<member_function> m_functions;
   containers::string m_mangling;
   reference_type m_mode;
+  bool m_destructible_type;
   memory::allocator* m_allocator;
 };
 
@@ -317,10 +321,10 @@ public:
     // dummy types around for array and struct.
     m_max_types += 2;
 
-    m_types.push_back(type_definition(m_allocator));
+    m_types.push_back(type_definition(false, m_allocator));
     for (size_t i = 1; i < 9; ++i) {
       m_types.push_back(
-          type_definition(valid_builtin_operations[i], m_allocator));
+          type_definition(valid_builtin_operations[i], false, m_allocator));
     }
 
     m_types[1].m_mangling = "v";
@@ -364,7 +368,7 @@ public:
         "", "R", "P", "RP", "RR", "PP"};
 
     uint32_t returned_type = 0;
-    for (size_t i = 0; i < static_cast<uint32_t>(reference_type::max); ++i) {
+    for (uint32_t i = 0; i < static_cast<uint32_t>(reference_type::max); ++i) {
       auto str_it = m_names.insert(m_names.end(), _name.to_string(m_allocator));
       uint32_t type = m_max_types++;
       returned_type = (returned_type == 0) ? type : returned_type;
@@ -373,7 +377,9 @@ public:
         m_mapping.insert(std::make_pair(_name.to_string(m_allocator), type));
       }
 
-      m_types.push_back(type_definition(m_allocator));
+      m_types.push_back(type_definition(
+          (i != static_cast<uint32_t>(reference_type::unique)), m_allocator));
+
       type_definition& def = m_types.back();
       def.m_mode = static_cast<reference_type>(i);
       size_t total_length = 10 + 2 + 2 + _name.size();
@@ -416,6 +422,10 @@ public:
 
   void enable_cast(uint32_t _from_type, uint32_t _to_type, cast_type _type) {
     return m_types[_from_type].m_casts.push_back({_to_type, _type});
+  }
+
+  bool is_destructible_type(uint32_t _type) const {
+    return m_types[_type].m_destructible_type;
   }
 
   cast_type get_cast(uint32_t _from_type, uint32_t _to_type) {

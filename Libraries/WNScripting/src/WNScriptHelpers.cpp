@@ -2,12 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNScripting/inc/WNScriptHelpers.h"
 #include "WNContainers/inc/WNStringView.h"
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNMemory/inc/WNUniquePtr.h"
 #include "WNScripting/inc/WNASTPasses.h"
 #include "WNScripting/inc/WNNodeTypes.h"
+#include "WNScripting/inc/WNScriptHelpers.h"
 #include "WNScripting/src/WNScriptASTLexer.hpp"
 #include "WNScripting/src/WNScriptASTParser.hpp"
 
@@ -50,6 +50,11 @@ memory::unique_ptr<script_file> parse_script(memory::allocator* _allocator,
     }
 
     if (!run_member_reassociation_pass(
+            ptr.get(), _log, _validator, _num_warnings, _num_errors)) {
+      return nullptr;
+    }
+
+    if (!run_temporary_reification_pass(
             ptr.get(), _log, _validator, _num_warnings, _num_errors)) {
       return nullptr;
     }
