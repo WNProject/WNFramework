@@ -187,7 +187,7 @@ struct type_definition {
       m_ids(_allocator),
       m_functions(_allocator),
       m_allocator(_allocator),
-      m_mode(reference_type::max),
+      m_mode(reference_type::raw),
       m_mangling(_allocator),
       m_destructible_type(destructible_type) {
     m_ops = valid_builtin_operations[0];  // default to nothing valid
@@ -199,10 +199,14 @@ struct type_definition {
       m_ids(_allocator),
       m_functions(_allocator),
       m_allocator(_allocator),
-      m_mode(reference_type::max),
+      m_mode(reference_type::raw),
       m_mangling(_allocator),
       m_destructible_type(destructible_type) {
     m_ops = operation;
+  }
+
+  reference_type get_reference_type() const {
+    return m_mode;
   }
 
   cast_type get_cast_type(uint32_t _val) {

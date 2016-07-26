@@ -641,6 +641,82 @@ INSTANTIATE_TEST_CASE_P(
 })));
 // clang-format on
 
+// clang-format off
+INSTANTIATE_TEST_CASE_P(
+    struct_in_struct, c_translator_direct_translation_test,
+    ::testing::ValuesIn(
+        std::vector<std::vector<source_pair>>({
+          {
+            {"struct Foo {",          "typedef struct {"  },
+            {"  Int x = 4;",          "  int32_t x;"      },
+            {"}",                     "} Foo;"            },
+            {"",                      "\n"                },
+            {"struct Bar {",          "typedef struct {"  },
+            {"  Foo f = Foo();",      "  Foo* f;"         },
+            {"",                      "  Foo __f;"        },
+            {"}",                     "} Bar;"            },
+            {"",                      "\n"                },
+            {"",                      "Bar* _Z3wns14_construct_BarENR3BarENR3BarE(Bar* _this) {" },
+            {"",                      "_this->f = _Z3wns14_construct_FooENR3FooENR3FooE(&_this->__f);"},
+            {"",                      "return _this;"                },
+            {"",                      "}"                            },
+            {"",                      "\n"                           },
+            {"",                      "void _Z3wns13_destruct_BarEvNR3BarE(Bar* _this) {"   },
+            {"",                      "_Z3wns13_destruct_FooEvNR3FooE(_this->f);"           },
+            {"",                      "return;"                      },
+            {"",                      "}"                            },
+            {"",                      "\n"                           },
+            {"",                      "Foo* _Z3wns14_construct_FooENR3FooENR3FooE(Foo* _this) {" },
+            {"",                      "_this->x = 4;"               },
+            {"",                      "return _this;"                },
+            {"",                      "}"                            },
+            {"",                      "\n"                           },
+            {"",                      "void _Z3wns13_destruct_FooEvNR3FooE(Foo* _this) {"   },
+            {"",                      "return;"                      },
+            {"",                      "}"                            }
+          },
+          {
+            {"struct Foo {",          "typedef struct {"  },
+            {"  Int x = 4;",          "  int32_t x;"      },
+            {"}",                     "} Foo;"            },
+            {"",                      "\n"                },
+            {"struct Bar {",          "typedef struct {"  },
+            {"  Foo f = Foo();",      "  Foo* f;"         },
+            {"",                      "  Foo __f;"        },
+            {"}",                     "} Bar;"            },
+            {"",                      "\n"                },
+            {"",                      "Bar* _Z3wns14_construct_BarENR3BarENR3BarE(Bar* _this) {" },
+            {"",                      "_this->f = _Z3wns14_construct_FooENR3FooENR3FooE(&_this->__f);"},
+            {"",                      "return _this;"                },
+            {"",                      "}"                            },
+            {"",                      "\n"                           },
+            {"",                      "void _Z3wns13_destruct_BarEvNR3BarE(Bar* _this) {"   },
+            {"",                      "_Z3wns13_destruct_FooEvNR3FooE(_this->f);"           },
+            {"",                      "return;"                      },
+            {"",                      "}"                            },
+            {"",                      "\n"                           },
+            {"",                      "Foo* _Z3wns14_construct_FooENR3FooENR3FooE(Foo* _this) {" },
+            {"",                      "_this->x = 4;"               },
+            {"",                      "return _this;"                },
+            {"",                      "}"                            },
+            {"",                      "\n"                           },
+            {"",                      "void _Z3wns13_destruct_FooEvNR3FooE(Foo* _this) {"   },
+            {"",                      "return;"                      },
+            {"",                      "}"                            },
+            {"",                      "\n"                           },
+            {"Int main(Int x) {",     "int32_t _Z3wns4mainEll(int32_t x) {"   },
+            {" Bar b = Bar();",       "Bar __wns_temp_expression0;"             },
+            {"",                      "Bar* b = _Z3wns14_construct_BarENR3BarENR3BarE(&__wns_temp_expression0);"       },
+            {"",                      "{"                            },
+            {"",                      "int32_t __wns_ret_temp0 = b->f->x;" },
+            {"",                      "_Z3wns13_destruct_BarEvNR3BarE(&__wns_temp_expression0);"},
+            {" return b.f.x;",        "return __wns_ret_temp0;"      },
+            {"",                      "}"},
+            {"}",                     "}"                            }
+          }
+})));
+// clang-format on
+
 using c_translator_function_params =
     ::testing::TestWithParam<std::tuple<const char*, const char*, const char*>>;
 TEST_P(c_translator_function_params, single_parameter) {

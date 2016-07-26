@@ -92,6 +92,7 @@ public:
   void walk_struct_definition(
       const struct_definition* _definition, containers::string* _str);
   void walk_script_file(const script_file* _file);
+  void pre_walk_script_file(const script_file*){}
 
 private:
   uint32_t m_temporaries;

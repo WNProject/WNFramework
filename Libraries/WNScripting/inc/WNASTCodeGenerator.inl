@@ -61,6 +61,11 @@ void ast_code_generator<Traits>::walk_script_file(const script_file* _file) {
 }
 
 template <typename Traits>
+void ast_code_generator<Traits>::pre_walk_script_file(const script_file* _file) {
+  m_generator->pre_walk_script_file(_file);
+}
+
+template <typename Traits>
 typename Traits::instruction_data& ast_code_generator<Traits>::get_data(
     const instruction* _inst) {
   return m_instruction_map[_inst];

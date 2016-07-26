@@ -188,6 +188,11 @@ public:
       m_type(_type),
       m_reference_type(reference_type::raw) {}
 
+  type(memory::allocator* _allocator, uint32_t _type, reference_type _ref)
+    : node(_allocator, node_type::type),
+      m_type(_type),
+      m_reference_type(_ref) {}
+
   type(memory::allocator* _allocator, type_classification _type)
     : node(_allocator, node_type::type),
       m_type(static_cast<uint32_t>(_type)),
@@ -1190,7 +1195,8 @@ public:
   parameter(memory::allocator* _allocator, type* _type, const char* _name)
     : node(_allocator, scripting::node_type::parameter),
       m_type(memory::unique_ptr<type>(_allocator, _type)),
-      m_name(_name, _allocator) {}
+      m_name(_name, _allocator) {
+  }
 
   parameter(memory::allocator* _allocator, memory::unique_ptr<type>&& _type,
       containers::string_view _name)
@@ -1231,7 +1237,7 @@ public:
     m_parameter = memory::unique_ptr<parameter>(m_allocator, _parameter);
   }
 
-  void set_parameter(memory::unique_ptr<parameter> _parameter) {
+  void set_parameter(memory::unique_ptr<parameter>&& _parameter) {
     m_parameter = core::move(_parameter);
   }
 
@@ -1437,7 +1443,13 @@ public:
   const parameter* get_signature() const {
     return m_signature.get();
   }
+  parameter* get_signature() {
+    return m_signature.get();
+  }
   const parameter_list* get_parameters() const {
+    return m_parameters.get();
+  }
+  parameter_list* get_parameters() {
     return m_parameters.get();
   }
   const instruction_list* get_body() const {

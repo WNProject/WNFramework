@@ -312,14 +312,15 @@ void ast_jit_engine::walk_expression(
         dat.instructions.begin(), dat.instructions.end());
     parameters.push_back(dat.value);
   }
+
   llvm::CallInst* call;
   // We are not allowed naming void values.
   if (_call->get_type()->get_index() ==
       static_cast<uint32_t>(type_classification::void_type)) {
-    call = llvm::CallInst::Create(m_generator->get_data(_call->callee()),
+    call = llvm::CallInst::Create(m_function_map[_call->callee()],
         make_array_ref(parameters));
   } else {
-    call = llvm::CallInst::Create(m_generator->get_data(_call->callee()),
+    call = llvm::CallInst::Create(m_function_map[_call->callee()],
         make_array_ref(parameters),
         make_string_ref(_call->callee()->get_mangled_name()));
   }
@@ -494,35 +495,50 @@ void ast_jit_engine::walk_parameter(
 }
 
 void ast_jit_engine::walk_struct_definition(
-    const struct_definition* _def, llvm::Type** _t) {
+    const struct_definition*, llvm::Type**) {
+}
+
+void ast_jit_engine::pre_walk_struct_definition(
+    const struct_definition* _def) {
   containers::dynamic_array<llvm::Type*> types(m_allocator);
 
   for (auto& a : _def->get_struct_members()) {
-    types.push_back(m_generator->get_data(a->get_type()));
+    llvm::Type* t;
+    walk_type(a->get_type(), &t);
+    types.push_back(t);
   }
 
   llvm::StructType* t =
       llvm::StructType::get(*m_context, make_array_ref(types), false);
-  *_t = t;
   m_struct_map[m_validator->get_type(_def->get_name())] = t;
 }
 
-void ast_jit_engine::walk_function(const function* _func, llvm::Function** _f) {
+void ast_jit_engine::pre_walk_function_definition(const function* _func){
+  llvm::Type* t;
+  walk_type(_func->get_signature()->get_type(), &t);
   containers::dynamic_array<llvm::Type*> parameters(m_allocator);
 
-  llvm::BasicBlock* bb = llvm::BasicBlock::Create(*m_context);
   if (_func->get_parameters()) {
     for (auto& a : _func->get_parameters()->get_parameters()) {
-      parameters.push_back(m_generator->get_data(a->get_type()));
+      llvm::Type* param_type;
+      walk_type(a->get_type(), &param_type);
+      parameters.push_back(param_type);
     }
   }
 
-  llvm::FunctionType* t = llvm::FunctionType::get(
-      m_generator->get_data(_func->get_signature()->get_type()),
-      make_array_ref(parameters), false);
-  *_f = llvm::Function::Create(t,
+  llvm::FunctionType* func_t =
+      llvm::FunctionType::get(t, make_array_ref(parameters), false);
+  llvm::Function* f = llvm::Function::Create(func_t,
       llvm::GlobalValue::LinkageTypes::ExternalLinkage,
       make_string_ref(_func->get_mangled_name()));
+  m_module->getFunctionList().push_back(f);
+  m_function_map[_func] = f;
+}
+
+void ast_jit_engine::walk_function(const function* _func, llvm::Function** _f) {
+
+  llvm::BasicBlock* bb = llvm::BasicBlock::Create(*m_context);
+  *_f = m_module->getFunction(make_string_ref(_func->get_mangled_name()));
   if (_func->get_parameters()) {
     auto llvm_args = (*_f)->arg_begin();
     auto arg_names = _func->get_parameters()->get_parameters().begin();
@@ -548,10 +564,18 @@ void ast_jit_engine::walk_function(const function* _func, llvm::Function** _f) {
   }
 }
 
+void ast_jit_engine::pre_walk_script_file(const script_file* _file) {
+  for(auto& strt: _file->get_structs()) {
+    pre_walk_struct_definition(strt.get());
+  }
+  for(auto& func: _file->get_functions()) {
+    pre_walk_function_definition(func.get());
+  }
+}
+
 void ast_jit_engine::walk_script_file(const script_file* _file) {
   for (auto& function : _file->get_functions()) {
     llvm::Function* func = m_generator->get_data(function.get());
-    m_module->getFunctionList().push_back(func);
     llvm::verifyFunction(*func);
   }
   llvm::verifyModule(*m_module);

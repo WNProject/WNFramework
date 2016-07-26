@@ -376,6 +376,15 @@ INSTANTIATE_TEST_CASE_P(
 })));
 
 INSTANTIATE_TEST_CASE_P(
+    nested_struct_tests, integer_tests,
+    ::testing::ValuesIn(std::vector<integer_test>({
+      {"struct Foo { Int x = 4; }"
+       "struct Bar { Foo f = Foo(); }"
+       "Int main(Int x) { Bar b = Bar(); return b.f.x + x; }",
+        {{0, 4}, {-1, 3}, {2, 6}, {3, 7}, {4, 8}, {50, 54}}},
+})));
+
+INSTANTIATE_TEST_CASE_P(
     constructor_tests, integer_tests,
     ::testing::ValuesIn(std::vector<integer_test>({
       {"struct Foo { Int x = 0; } Int main(Int x) { Foo f = Foo(); return x + f.x; }",

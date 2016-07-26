@@ -75,6 +75,7 @@ public:
   void walk_struct_definition(const struct_definition* _s);
   // Calls the underlying m_generator->walk_script_file function.
   void walk_script_file(const script_file* _f);
+  void pre_walk_script_file(const script_file* _f);
   // Called when a scope block is entered or left.
   // No-ops here, needed for the correct interface to ASTWalker.
   void enter_scope_block() {}

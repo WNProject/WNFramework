@@ -53,6 +53,7 @@ public:
       ast_code_generator<ast_jit_traits>* _generator)
     : m_allocator(_allocator),
       m_validator(_validator),
+      m_function_map(m_allocator),
       m_struct_map(m_allocator),
       m_context(_context),
       m_module(_module),
@@ -85,11 +86,17 @@ public:
   void walk_struct_definition(const struct_definition* _def, llvm::Type**);
   void walk_function(const function* _func, llvm::Function**);
   void walk_script_file(const script_file* _file);
-
+  void pre_walk_script_file(const script_file* _file);
 private:
+
+  void pre_walk_struct_definition(
+    const struct_definition* _def);
+  void pre_walk_function_definition(const function*_func);
+
   memory::allocator* m_allocator;
   type_validator* m_validator;
   containers::hash_map<uint32_t, llvm::Type*> m_struct_map;
+  containers::hash_map<const function*, llvm::Function*> m_function_map;
   ast_code_generator<ast_jit_traits>* m_generator;
   llvm::Module* m_module;
   llvm::LLVMContext* m_context;

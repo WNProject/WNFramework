@@ -18,6 +18,7 @@ namespace scripting {
 
 template <typename T, bool Const>
 void ast_walker<T, Const>::walk_script_file(script_file_type _file) {
+  m_walker->pre_walk_script_file(_file);
   _file->walk_children(
       walk_scope(&ast_walker<T, Const>::enter_scope_block, this),
       walk_scope(&ast_walker<T, Const>::leave_scope_block, this),
