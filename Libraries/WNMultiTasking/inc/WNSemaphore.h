@@ -25,7 +25,17 @@ namespace multi_tasking {
 class semaphore final : public core::non_copyable {
 public:
   WN_FORCE_INLINE semaphore() : semaphore(0) {}
-
+  WN_FORCE_INLINE semaphore(semaphore&& _other)
+  {
+#ifdef _WN_WINDOWS
+    m_handle = _other.m_handle;
+    _other.m_handle = nullptr;
+#elif defined _WN_POSIX
+    m_semaphore = _other.m_semaphore;
+    m_is_valid = _other.m_is_valid;
+    _other.m_is_valid = false;
+#endif
+  }
   WN_FORCE_INLINE semaphore(const uint16_t count) {
 #ifdef _WN_WINDOWS
     m_handle = ::CreateSemaphoreW(
@@ -38,18 +48,21 @@ public:
         ::sem_init(&m_semaphore, 0, static_cast<unsigned int>(count));
 
     WN_RELEASE_ASSERT_DESC(result == 0, "failed to create semaphore object");
+    m_is_valid = true;
 #endif
   }
 
   WN_FORCE_INLINE ~semaphore() {
 #if defined _WN_POSIX
-    const int result = ::sem_destroy(&m_semaphore);
+    if (m_is_valid) {
+      const int result = ::sem_destroy(&m_semaphore);
 
-    WN_DEBUG_ASSERT_DESC(result == 0, "failed to destroy semaphore object");
+      WN_DEBUG_ASSERT_DESC(result == 0, "failed to destroy semaphore object");
 
 #ifndef _WN_DEBUG
-    WN_UNUSED_ARGUMENT(result);
+      WN_UNUSED_ARGUMENT(result);
 #endif
+    }
 #endif
   }
 
@@ -115,6 +128,7 @@ private:
   utilities::windows::handle m_handle;
 #elif defined _WN_POSIX
   sem_t m_semaphore;
+  bool m_is_valid;
 #endif
 };
 
