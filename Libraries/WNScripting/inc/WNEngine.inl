@@ -91,8 +91,8 @@ struct expand_parameters<0> {
 }  // anonymous namespace
 
 template <typename T, typename... Args>
-bool WN_INLINE engine::get_function_pointer(
-    containers::string_view _name, T (*&function)(Args...)) const {
+bool WN_INLINE engine::get_function(
+    containers::string_view _name, script_function<T, Args...>& _function) const {
   containers::dynamic_array<uint32_t> parameters(m_allocator);
   bool error = false;
 
@@ -107,10 +107,16 @@ bool WN_INLINE engine::get_function_pointer(
   if (error) {
     return false;
   }
-  function = reinterpret_cast<T (*)(Args...)>(
-      get_function(m_validator->get_mangled_name(_name, return_type,
+  _function.m_function = reinterpret_cast<T (*)(Args...)>(
+      get_function_pointer(m_validator->get_mangled_name(_name, return_type,
           containers::contiguous_range<uint32_t>(parameters))));
-  return function != nullptr;
+  return _function.m_function != nullptr;
+}
+
+template <typename T, typename... Args>
+T WN_INLINE engine::invoke(
+    const script_function<T, Args...>& _function, const Args&... _args) const {
+  return _function.m_function(core::forward<const Args>(_args)...);
 }
 
 }  // namespace scripting

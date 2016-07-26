@@ -50,8 +50,10 @@ public:
   parse_error parse_file(const char* file) override;
 
 protected:
-  void_func get_function(containers::string_view _name) const override {
-    return m_pointers.find(_name)->second;
+
+   void_f get_function_pointer(containers::string_view _name) const override {
+    auto it = m_pointers.find(_name);
+    return it != m_pointers.end() ? it->second : nullptr;
   }
 
 private:

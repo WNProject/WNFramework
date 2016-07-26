@@ -16,6 +16,12 @@ namespace wn {
 namespace scripting {
 class type_validator;
 
+template <typename T, typename... Args>
+class script_function {
+  T (*m_function)(Args...);
+  friend class engine;
+};
+
 // Implementors of this class are expected to take
 // in files, and give access to function pointer callable from
 // C++.
@@ -54,17 +60,21 @@ public:
   // signature. The return types and all parameter types must
   // match exactly.
   template <typename T, typename... Args>
-  bool get_function_pointer(
-      containers::string_view _name, T (*&function)(Args...)) const;
-  typedef void (*void_func)();
+  bool WN_INLINE get_function(containers::string_view _name,
+      script_function<T, Args...>& _function) const;
+  using void_func = script_function<void>;
+
+  template <typename T, typename... Args>
+  T WN_INLINE invoke(
+      const script_function<T, Args...>& _function, const Args&... _args) const;
 
 protected:
   size_t m_num_warnings;
   size_t m_num_errors;
   memory::allocator* m_allocator;
   type_validator* m_validator;
-
-  virtual void_func get_function(containers::string_view _name) const = 0;
+  using void_f = void(*)();
+  virtual void_f get_function_pointer(containers::string_view _name) const = 0;
 
 private:
   void register_builtin_types();

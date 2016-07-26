@@ -40,20 +40,16 @@ TEST(jit_engine, basic_parsing) {
   EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file2.wns"));
 
   wn::scripting::engine::void_func main;
-  EXPECT_TRUE(jit_engine.get_function_pointer("main", main));
+  EXPECT_TRUE(jit_engine.get_function("main", main));
   wn::scripting::engine::void_func foo;
-  EXPECT_TRUE(jit_engine.get_function_pointer("foo", foo));
+  EXPECT_TRUE(jit_engine.get_function("foo", foo));
   wn::scripting::engine::void_func bar;
-  EXPECT_TRUE(jit_engine.get_function_pointer("bar", bar));
-
-  ASSERT_NE(nullptr, main);
-  ASSERT_NE(nullptr, foo);
-  ASSERT_NE(nullptr, bar);
+  EXPECT_TRUE(jit_engine.get_function("bar", bar));
 
   // No returns so lets just see if we crash trying to call.
-  (*main)();
-  (*foo)();
-  (*bar)();
+  jit_engine.invoke(main);
+  jit_engine.invoke(foo);
+  jit_engine.invoke(bar);
 }
 
 // Make sure that multiple returns get coalesced
@@ -71,12 +67,10 @@ TEST(jit_engine, multiple_returns) {
   EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file.wns"));
 
   wn::scripting::engine::void_func main;
-  ASSERT_TRUE(jit_engine.get_function_pointer("main", main));
-
-  EXPECT_NE(nullptr, main);
+  ASSERT_TRUE(jit_engine.get_function("main", main));
 
   // No returns so lets just see if we crash trying to call.
-  (*main)();
+  jit_engine.invoke(main);
 }
 
 TEST(jit_engine, parse_error) {
@@ -120,9 +114,9 @@ TEST_P(jit_int_params, int_return) {
       &validator, &allocator, mapping.get(), WNLogging::get_null_logger());
   EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file.wns"));
 
-  int32_t (*new_func)();
-  ASSERT_TRUE(jit_engine.get_function_pointer("main", new_func));
-  EXPECT_EQ(GetParam().number, (*new_func)());
+  wn::scripting::script_function<int32_t> new_func;
+  ASSERT_TRUE(jit_engine.get_function("main", new_func));
+  EXPECT_EQ(GetParam().number, jit_engine.invoke(new_func));
 }
 
 TEST_P(jit_int_params, int_passthrough) {
@@ -142,9 +136,9 @@ TEST_P(jit_int_params, int_passthrough) {
       &validator, &allocator, mapping.get(), WNLogging::get_null_logger());
   EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file.wns"));
 
-  int32_t (*new_func)(int32_t);
-  ASSERT_TRUE(jit_engine.get_function_pointer("main", new_func));
-  EXPECT_EQ(GetParam().number, (*new_func)(GetParam().number));
+  wn::scripting::script_function<int32_t, int32_t> new_func;
+  ASSERT_TRUE(jit_engine.get_function("main", new_func));
+  EXPECT_EQ(GetParam().number, jit_engine.invoke(new_func, GetParam().number));
 }
 
 INSTANTIATE_TEST_CASE_P(int_tests, jit_int_params,
@@ -180,9 +174,9 @@ TEST_P(jit_binary_arithmetic, simple_operations) {
       &validator, &allocator, mapping.get(), WNLogging::get_null_logger());
   EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file.wns"));
 
-  int32_t (*new_func)();
-  ASSERT_TRUE(jit_engine.get_function_pointer("main", new_func));
-  EXPECT_EQ(GetParam().expected_return, (*new_func)());
+  wn::scripting::script_function<int32_t> new_func;
+  ASSERT_TRUE(jit_engine.get_function("main", new_func));
+  EXPECT_EQ(GetParam().expected_return, jit_engine.invoke(new_func));
 }
 
 INSTANTIATE_TEST_CASE_P(int_arithmetic_tests, jit_binary_arithmetic,
@@ -217,10 +211,11 @@ TEST_P(bool_arithmetic_tests, boolean_arithmetic) {
       &validator, &allocator, mapping.get(), WNLogging::get_null_logger());
   EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file.wns"));
 
-  bool (*new_func)(bool);
-  ASSERT_TRUE(jit_engine.get_function_pointer("main", new_func));
 
-  EXPECT_EQ(GetParam().expected_return, (*new_func)(GetParam().input));
+  wn::scripting::script_function<bool, bool> new_func;
+  ASSERT_TRUE(jit_engine.get_function("main", new_func));
+
+  EXPECT_EQ(GetParam().expected_return, jit_engine.invoke(new_func, GetParam().input));
 }
 
 INSTANTIATE_TEST_CASE_P(bool_tests, bool_arithmetic_tests,
@@ -239,7 +234,7 @@ INSTANTIATE_TEST_CASE_P(bool_tests, bool_arithmetic_tests,
 
 struct two_params_test {
   const char* code;
-  std::vector<std::pair<std::pair<uint32_t, uint32_t>, uint32_t>> cases;
+  std::vector<std::pair<std::pair<int32_t, int32_t>, int32_t>> cases;
 };
 using two_params_tests = ::testing::TestWithParam<two_params_test>;
 
@@ -257,11 +252,11 @@ TEST_P(two_params_tests, int_in_out_tests) {
       &validator, &allocator, mapping.get(), WNLogging::get_null_logger());
   EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file.wns"));
 
-  int32_t (*new_func)(int32_t, int32_t);
-  ASSERT_TRUE(jit_engine.get_function_pointer("main", new_func));
+  wn::scripting::script_function<int32_t, int32_t, int32_t> new_func;
+  ASSERT_TRUE(jit_engine.get_function("main", new_func));
   for (auto& test_case : GetParam().cases) {
     EXPECT_EQ(test_case.second,
-        (*new_func)(test_case.first.first, test_case.first.second));
+        jit_engine.invoke(new_func, test_case.first.first, test_case.first.second));
   }
 }
 
@@ -295,10 +290,10 @@ TEST_P(integer_tests, int_in_out_tests) {
       &validator, &allocator, mapping.get(), WNLogging::get_null_logger());
   EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file.wns"));
 
-  int32_t (*new_func)(int32_t);
-  ASSERT_TRUE(jit_engine.get_function_pointer("main", new_func));
+  wn::scripting::script_function<int32_t, int32_t> new_func;
+  ASSERT_TRUE(jit_engine.get_function("main", new_func));
   for (auto& test_case : GetParam().cases) {
-    EXPECT_EQ(test_case.second, (*new_func)(test_case.first));
+    EXPECT_EQ(test_case.second, jit_engine.invoke(new_func, test_case.first));
   }
 }
 
