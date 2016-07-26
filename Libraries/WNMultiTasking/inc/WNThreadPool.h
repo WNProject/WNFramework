@@ -76,6 +76,23 @@ public:
     return result::ok;
   }
 
+  // This forces one thread that is waiting for a job to
+  // wake up. This many cancel any thread that is currently
+  // running.
+  WN_FORCE_INLINE void wake_waiting_thread() {
+#ifdef _WN_WINDOWS
+    ::PostQueuedCompletionStatus(m_io_completion_port.value(), 0, 0, 0);
+#else
+    {
+      const spin_lock_guard guard(m_task_lock);
+
+      m_tasks.push_back(thread_task_ptr());
+    }
+
+    m_task_available_semaphore.notify();
+#endif
+  }
+
   WN_FORCE_INLINE result_type enqueue(thread_task_ptr&& task) {
     if (!task || m_shutdown) {
       return result::invalid_parameters;
@@ -107,6 +124,56 @@ public:
   WN_FORCE_INLINE result_type enqueue(const thread_task_ptr& task) {
     return enqueue(thread_task_ptr(task));
   }
+
+#ifdef _WN_WINDOWS
+  bool process_single_task() {
+    LPOVERLAPPED overlapped = nullptr;
+    DWORD bytes_transferred = 0;
+    ULONG_PTR completion_key = 0;
+
+    const BOOL completion_status_result =
+        ::GetQueuedCompletionStatus(m_io_completion_port.value(),
+            &bytes_transferred, &completion_key, &overlapped, INFINITE);
+
+    WN_RELEASE_ASSERT_DESC(completion_status_result,
+        "failed to get completion status from the queue");
+
+    if (completion_key == 0) {
+      switch (bytes_transferred) {
+        case 0:
+          return false;
+        default:
+          WN_RELEASE_ASSERT_DESC(false, "invalid message received");
+          return false;
+      }
+    } else {
+      thread_task_ptr* task =
+          reinterpret_cast<thread_task_ptr*>(completion_key);
+
+      (*task)->run_task();
+
+      m_allocator->destroy(task);
+    }
+    return true;
+  }
+#else
+  bool process_single_task() {
+    m_task_available_semaphore.wait();
+    m_task_lock.lock();
+
+    thread_task_ptr task = m_tasks.front();
+
+    m_tasks.pop_front();
+    m_task_lock.unlock();
+
+    if (!task) {
+      return false;
+    }
+
+    task->run_task();
+    return true;
+  }
+#endif
 
 private:
   WN_INLINE void cleanup() {
@@ -149,55 +216,8 @@ private:
 
   void worker_thread() {
     m_worker_start_mutex.notify();
-
-#ifdef _WN_WINDOWS
-    LPOVERLAPPED overlapped = nullptr;
-    DWORD bytes_transferred = 0;
-    ULONG_PTR completion_key = 0;
-
-    for (;;) {
-      const BOOL completion_status_result =
-          ::GetQueuedCompletionStatus(m_io_completion_port.value(),
-              &bytes_transferred, &completion_key, &overlapped, INFINITE);
-
-      WN_RELEASE_ASSERT_DESC(completion_status_result,
-          "failed to get completion status from the queue");
-
-      if (completion_key == 0) {
-        switch (bytes_transferred) {
-          case 0:
-            return;
-          default:
-            WN_RELEASE_ASSERT_DESC(false, "invalid message received");
-
-            break;
-        }
-      } else {
-        thread_task_ptr* task =
-            reinterpret_cast<thread_task_ptr*>(completion_key);
-
-        (*task)->run_task();
-
-        m_allocator->destroy(task);
-      }
-    }
-#else
-    for (;;) {
-      m_task_available_semaphore.wait();
-      m_task_lock.lock();
-
-      thread_task_ptr job = m_tasks.front();
-
-      m_tasks.pop_front();
-      m_task_lock.unlock();
-
-      if (!job) {
-        return;
-      }
-
-      job->run_task();
-    }
-#endif
+    while (process_single_task())
+      ;  // Intentional
   }
 
 private:
