@@ -271,8 +271,9 @@ public:
     return (link(_it, new_node));
   }
 
-  template <typename = core::enable_if_t<core::is_copy_constructible<_Type>::value>>
-  iterator insert(const_iterator _it, const _Type& _element) {
+  template <typename _U,
+    typename = core::enable_if_t<core::is_same<_Type, _U>::value>>
+  iterator insert(const_iterator _it, const _U& _element) {
     list_node* new_node = m_allocator->construct<list_node>(_element);
     return (link(_it, new_node));
   }
@@ -283,8 +284,9 @@ public:
     return (link(_it, new_node));
   }
 
-  template <typename = core::enable_if_t<core::is_copy_constructible<_Type>::value>>
-  void push_back(const _Type& _element) {
+  template <typename _U,
+    typename = core::enable_if_t<core::is_same<_Type, _U>::value>>
+  void push_back(const _U& _element) {
     insert(end(), _element);
   }
 

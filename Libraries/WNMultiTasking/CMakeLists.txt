@@ -7,6 +7,7 @@ add_wn_library(WNMultiTasking
     inc/WNConditionVariable.h
     inc/WNFiber.h
     src/WNFiber.cpp
+    inc/WNJobPool.h
     inc/WNLockGuard.h
     inc/WNMutex.h
     inc/WNSemaphore.h
