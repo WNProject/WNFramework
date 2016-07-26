@@ -161,7 +161,12 @@ public:
 
   explicit dynamic_array(
       const size_type _count, memory::allocator* _allocator = nullptr)
-    : dynamic_array(_count, _Type(), _allocator) {}
+    : dynamic_array(_allocator) {
+    // We do it this way so we can handle non-copy-constructible types.
+    for (size_t i = 0; i < _count; ++i) {
+      insert(end(), _Type());
+    }
+  }
 
   dynamic_array(const size_type _count, const _Type& _value,
       memory::allocator* _allocator = nullptr)
@@ -176,11 +181,16 @@ public:
     (*this) = _other;
   }
 
-  dynamic_array(const dynamic_array& _other)
+  template <typename U,
+      typename = core::enable_if_t<core::conjunction<
+          core::is_same<core::remove_cv<U>, core::remove_cv<_Type>>,
+          core::is_copy_constructible<_Type>>::value>>
+  dynamic_array(const dynamic_array<U>& _other)
     : dynamic_array(_other.m_allocator) {
     (*this) = _other;
   }
 
+  template <typename = core::enable_if_t<true>>
   dynamic_array(dynamic_array&& _other) : dynamic_array() {
     (*this) = std::move(_other);
   }
@@ -220,7 +230,10 @@ public:
     deallocate(m_data);
   }
 
-  template <const size_t _ExpandPercentageOther>
+  template <const size_t _ExpandPercentageOther, typename U,
+      typename = core::enable_if_t<core::conjunction<
+          core::is_same<core::remove_cv<U>, core::remove_cv<_Type>>,
+          core::is_copy_constructible<_Type>>::value>>
   dynamic_array& operator=(
       const dynamic_array<_Type, _ExpandPercentageOther>& _other) {
     if (&_other == this) {
@@ -240,7 +253,11 @@ public:
     return *this;
   }
 
-  dynamic_array& operator=(const dynamic_array& _other) {
+  template <typename U,
+      typename = core::enable_if_t<core::conjunction<
+          core::is_same<core::remove_cv<U>, core::remove_cv<_Type>>,
+          core::is_copy_constructible<_Type>>::value>>
+  dynamic_array& operator=(const dynamic_array<U>& _other) {
     if (&_other == this) {
       return *this;
     }
@@ -258,6 +275,7 @@ public:
     return *this;
   }
 
+  template <typename = core::enable_if_t<true>>
   dynamic_array& operator=(dynamic_array&& _other) {
     if (&_other == this) {
       return *this;

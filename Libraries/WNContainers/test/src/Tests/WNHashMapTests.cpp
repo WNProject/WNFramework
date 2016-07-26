@@ -29,12 +29,12 @@ TYPED_TEST(hash_map, insert) {
 
   {
     wn::containers::hash_map<TypeParam, TypeParam> map(&allocator);
-    auto it = map.insert(std::make_pair(23, 32));
+    auto it = map.insert(wn::containers::make_pair(TypeParam(23), TypeParam(32)));
 
     EXPECT_TRUE(it.second);
     EXPECT_EQ(32, it.first->second);
 
-    it = map.insert(std::make_pair(23, 44));
+    it = map.insert(wn::containers::make_pair(TypeParam(23), TypeParam(44)));
 
     EXPECT_FALSE(it.second);
     EXPECT_EQ(32, it.first->second);
@@ -188,7 +188,9 @@ TYPED_TEST(hash_map, move_test) {
 
   {
     wn::containers::hash_map<TypeParam, TypeParam> my_map(
-        {{221, 1}, {201, 2}, {213, 3}}, &allocator);
+        {{TypeParam(221), TypeParam(1)}, {TypeParam(201), TypeParam(2)},
+            {TypeParam(213), TypeParam(3)}},
+        &allocator);
     size_t allocated = allocator.allocated();
 
     EXPECT_EQ(3, my_map.size());
@@ -210,7 +212,9 @@ TYPED_TEST(hash_map, copy_test) {
 
   {
     wn::containers::hash_map<TypeParam, TypeParam> my_map(
-        {{221, 1}, {201, 2}, {213, 3}}, &allocator);
+        {{TypeParam(221), TypeParam(1)}, {TypeParam(201), TypeParam(2)},
+            {TypeParam(213), TypeParam(3)}},
+        &allocator);
     size_t allocated = allocator.allocated();
     EXPECT_EQ(3, my_map.size());
     wn::containers::hash_map<TypeParam, TypeParam> new_map(my_map);
@@ -228,7 +232,9 @@ TYPED_TEST(hash_map, cbegin) {
 
   {
     const wn::containers::hash_map<TypeParam, TypeParam> my_map(
-        {{1, 1}, {2, 2}, {3, 3}}, &allocator);
+        {{TypeParam(1), TypeParam(1)}, {TypeParam(2), TypeParam(2)},
+            {TypeParam(3), TypeParam(3)}},
+        &allocator);
     EXPECT_EQ(3, my_map.size());
     typename wn::containers::hash_map<TypeParam, TypeParam>::const_iterator it =
         my_map.cbegin();

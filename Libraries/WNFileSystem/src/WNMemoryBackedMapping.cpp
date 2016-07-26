@@ -90,18 +90,6 @@ memory_backed_mapping::memory_backed_directory::memory_backed_directory(
     child_directories(_allocator),
     child_files(_allocator) {}
 
-memory_backed_mapping::memory_backed_directory::memory_backed_directory(
-    const memory_backed_directory& _other)
-  : m_allocator(_other.m_allocator),
-    child_directories(_other.child_directories),
-    child_files(_other.child_files) {}
-
-memory_backed_mapping::memory_backed_directory::memory_backed_directory(
-    memory_backed_directory&& _other)
-  : m_allocator(_other.m_allocator),
-    child_directories(std::move(_other.child_directories)),
-    child_files(std::move(_other.child_files)) {}
-
 void memory_backed_mapping::memory_backed_directory::clear() {
   child_directories.clear();
   child_files.clear();
@@ -112,7 +100,7 @@ memory_backed_mapping::memory_backed_directory::get_child_directory(
     containers::string_view& name) {
   auto child = child_directories.find(name.to_string(m_allocator));
   if (child != child_directories.end()) {
-    return &child->second;
+    return child->second.get();
   }
   return nullptr;
 }
@@ -127,7 +115,7 @@ memory_backed_mapping::memory_backed_directory::recursive_get_child_directory(
     return this;
   auto child = child_directories.find(begin->to_string(m_allocator));
   if (child != child_directories.end()) {
-    return child->second.recursive_get_child_directory(begin + 1, end);
+    return child->second->recursive_get_child_directory(begin + 1, end);
   }
   return nullptr;
 }
@@ -157,9 +145,9 @@ void memory_backed_mapping::memory_backed_directory::create_directory(
   if (get_child_directory(name)) {
     return;
   }
-  child_directories.insert(
-      std::pair<containers::string, memory_backed_directory>(
-          name.to_string(m_allocator), memory_backed_directory(m_allocator)));
+  child_directories.insert(containers::pair<containers::string,
+      memory::unique_ptr<memory_backed_directory>>(name.to_string(m_allocator),
+      memory::make_unique<memory_backed_directory>(m_allocator, m_allocator)));
 }
 
 memory_backed_mapping::memory_backed_file_ptr
@@ -171,7 +159,7 @@ memory_backed_mapping::memory_backed_directory::create_file(
     return nullptr;
   }
   auto it = child_files.insert(
-      std::pair<containers::string, memory_backed_file_location_ptr>(
+      containers::pair<containers::string, memory_backed_file_location_ptr>(
           std::move(name), memory::make_intrusive<memory_backed_file_location>(
                                m_allocator, m_allocator,
                                memory::make_intrusive<memory_backed_file_store>(

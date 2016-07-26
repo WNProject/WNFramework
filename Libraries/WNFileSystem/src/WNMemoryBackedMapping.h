@@ -92,8 +92,6 @@ private:
   class memory_backed_directory {
   public:
     memory_backed_directory(memory::allocator* _allocator);
-    memory_backed_directory(const memory_backed_directory& _other);
-    memory_backed_directory(memory_backed_directory&& _other);
 
     void clear();
 
@@ -116,8 +114,8 @@ private:
 
   private:
     memory::allocator* m_allocator;
-
-    containers::hash_map<containers::string, memory_backed_directory>
+    containers::hash_map<containers::string,
+        memory::unique_ptr<memory_backed_directory>>
         child_directories;
     containers::hash_map<containers::string, memory_backed_file_location_ptr>
         child_files;

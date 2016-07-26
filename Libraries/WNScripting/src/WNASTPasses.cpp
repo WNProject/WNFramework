@@ -1005,8 +1005,9 @@ public:
 
     auto function_it = m_functions.find(name);
     if (function_it == m_functions.end()) {
-      std::tie(function_it, std::ignore) = m_functions.insert(
-          std::make_pair(name, containers::deque<function*>(m_allocator)));
+      auto a = m_functions.insert(
+          containers::make_pair(name, containers::deque<function*>(m_allocator)));
+      function_it = a.first;
     }
 
     if (std::find_if(function_it->second.begin(), function_it->second.end(),

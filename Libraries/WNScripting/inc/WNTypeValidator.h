@@ -299,22 +299,22 @@ public:
       m_allocator(_allocator),
       m_max_types(1) {
     m_names.emplace_back("", m_allocator);
-    m_mapping.insert(std::make_pair("Void", m_max_types++));
+    m_mapping.insert(containers::make_pair("Void", m_max_types++));
     m_names.emplace_back("Void", m_allocator);
 
-    m_mapping.insert(std::make_pair("Int", m_max_types++));
+    m_mapping.insert(containers::make_pair("Int", m_max_types++));
     m_names.emplace_back("Int", m_allocator);
 
-    m_mapping.insert(std::make_pair("Float", m_max_types++));
+    m_mapping.insert(containers::make_pair("Float", m_max_types++));
     m_names.emplace_back("Float", m_allocator);
 
-    m_mapping.insert(std::make_pair("Char", m_max_types++));
+    m_mapping.insert(containers::make_pair("Char", m_max_types++));
     m_names.emplace_back("Char", m_allocator);
 
-    m_mapping.insert(std::make_pair("String", m_max_types++));
+    m_mapping.insert(containers::make_pair("String", m_max_types++));
     m_names.emplace_back("String", m_allocator);
 
-    m_mapping.insert(std::make_pair("Bool", m_max_types++));
+    m_mapping.insert(containers::make_pair("Bool", m_max_types++));
     m_names.emplace_back("Bool", m_allocator);
 
     // Increment max_types by 2. This is because we keep
@@ -374,7 +374,7 @@ public:
       returned_type = (returned_type == 0) ? type : returned_type;
       containers::string name_string = _name.to_string(m_allocator);
       if (i == 0) {
-        m_mapping.insert(std::make_pair(_name.to_string(m_allocator), type));
+        m_mapping.insert(containers::make_pair(_name.to_string(m_allocator), type));
       }
 
       m_types.push_back(type_definition(

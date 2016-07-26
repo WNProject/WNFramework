@@ -29,18 +29,16 @@ TYPED_TEST(hash_set, insert) {
 
   {
     wn::containers::hash_set<TypeParam> set(&allocator);
-    bool inserted = false;
-    typename wn::containers::hash_set<TypeParam>::iterator it;
 
-    std::tie(it, inserted) = set.insert(23);
+    auto a = set.insert(23);
 
-    EXPECT_TRUE(inserted);
-    EXPECT_EQ(23, *it);
+    EXPECT_TRUE(a.second);
+    EXPECT_EQ(23, *a.first);
 
-    std::tie(it, inserted) = set.insert(23);
+    a = set.insert(23);
 
-    EXPECT_FALSE(inserted);
-    EXPECT_EQ(23, *it);
+    EXPECT_FALSE(a.second);
+    EXPECT_EQ(23, *a.first);
   }
 }
 

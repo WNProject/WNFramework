@@ -92,6 +92,12 @@ struct list_iterator final
     m_ptr = _other.m_ptr;
   }
 
+  template <typename _T1, typename _T2>
+  list_iterator(list_iterator<_T1, _T2>&& _other) {
+    m_ptr = _other.m_ptr;
+    _other.m_ptr = nullptr;
+  }
+
   list_iterator() : m_ptr(nullptr) {}
 
 private:
@@ -110,7 +116,7 @@ private:
   struct list_node {
   public:
     template <typename... _Args>
-    list_node(_Args&&... _args) : m_element(std::forward<_Args>(_args)...) {}
+    list_node(_Args&&... _args) : m_element(core::forward<_Args>(_args)...) {}
     list_node* m_prev;
     list_node* m_next;
     _Type m_element;
@@ -154,6 +160,7 @@ public:
     }
   }
 
+  template <typename = core::enable_if_t<true>>
   list(list&& _other) : list(_other.m_allocator) {
     _other.transfer_to(_other.begin(), _other.end(), end(), *this);
   }
@@ -264,6 +271,7 @@ public:
     return (link(_it, new_node));
   }
 
+  template <typename = core::enable_if_t<core::is_copy_constructible<_Type>::value>>
   iterator insert(const_iterator _it, const _Type& _element) {
     list_node* new_node = m_allocator->construct<list_node>(_element);
     return (link(_it, new_node));
@@ -275,6 +283,7 @@ public:
     return (link(_it, new_node));
   }
 
+  template <typename = core::enable_if_t<core::is_copy_constructible<_Type>::value>>
   void push_back(const _Type& _element) {
     insert(end(), _element);
   }

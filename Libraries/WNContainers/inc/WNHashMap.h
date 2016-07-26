@@ -13,6 +13,7 @@
 #include <utility>
 #include "WNContainers/inc/WNDynamicArray.h"
 #include "WNContainers/inc/WNList.h"
+#include "WNContainers/inc/WNPair.h"
 #include "WNMemory/inc/WNAllocator.h"
 
 namespace wn {
@@ -111,7 +112,7 @@ class hash_map final {
 public:
   using key_type = _KeyType;
   using mapped_type = _ValueType;
-  using value_type = std::pair<_KeyType, _ValueType>;
+  using value_type = containers::pair<_KeyType, _ValueType>;
   using size_type = size_t;
   using difference_type = signed_t;
   using hasher = _HashOperator;
@@ -136,13 +137,17 @@ public:
       const key_equal& _key_equal = key_equal(),
       memory::allocator* _allocator = nullptr)
     : m_allocator(_allocator),
-      m_buckets(0, list_type(_allocator), _allocator),
+      m_buckets(_allocator),
       m_total_elements(0),
       m_max_load_factor(1.0),
       m_hasher(_hasher),
       m_key_equal(_key_equal) {
     if (_n > 0) {
-      m_buckets = array_type(_n, list_type(get_allocator()), get_allocator());
+      m_buckets.reserve(_n);
+      // Not all list_types are copy constructible
+      for (size_t i = 0; i < _n; ++i) {
+        m_buckets.push_back(list_type(get_allocator()));
+      }
     }
   }
 
@@ -154,8 +159,10 @@ public:
     auto begin = std::begin(initializer);
     auto end = std::end(initializer);
     size_t count = end - begin;
-    m_buckets.insert(m_buckets.begin(), (count > _n ? count : _n),
-        list_type(get_allocator()));
+    m_buckets.reserve(count > _n ? count : _n);
+    for (size_t i = 0; i < _n; ++i) {
+      m_buckets.insert(m_buckets.end(), list_type(get_allocator()));
+    }
     for (; begin != end; ++begin) {
       insert(*begin);
     }
@@ -165,6 +172,7 @@ public:
       memory::allocator* _allocator)
     : hash_map(initializer, 0u, hasher(), key_equal(), _allocator) {}
 
+  template <typename = core::enable_if_t<true>>
   hash_map(
       hash_map<_KeyType, _ValueType, _HashOperator, _EqualityOperator>&& _other)
     : m_allocator(_other.m_allocator),
@@ -179,55 +187,59 @@ public:
 
   hash_map(const hash_map& _other)
     : m_allocator(_other.m_allocator),
-      m_buckets(_other.m_buckets),
+      m_buckets(_other.m_allocator),
       m_total_elements(_other.m_total_elements),
       m_max_load_factor(_other.m_max_load_factor),
       m_hasher(_other.m_hasher),
-      m_key_equal(_other.m_key_equal) {}
+      m_key_equal(_other.m_key_equal) {
+    m_buckets.insert(
+        m_buckets.begin(), _other.m_buckets.begin(), _other.m_buckets.end());
+  }
 
   bool empty() const {
     return m_total_elements == 0;
   }
 
-  std::pair<iterator, bool> insert(const value_type& element) {
+  containers::pair<iterator, bool> insert(const value_type& element) {
     size_t hash = get_hash(element.first);
     iterator old_position =
         iterator_from_const_iterator(find_hashed(element.first, hash));
     if (old_position != end()) {
-      return std::make_pair(old_position, false);
+      return containers::make_pair(old_position, false);
     }
     if (rehash_if_needed(size() + 1)) {
       hash = get_hash(element.first);
     }
     m_buckets[hash].push_back(element);
     m_total_elements += 1;
-    return std::make_pair<iterator, bool>(
+    return containers::make_pair<iterator, bool>(
         iterator(m_buckets.begin() + hash, m_buckets.end(),
             m_buckets[hash].end() - 1),
         true);
   }
 
-  std::pair<iterator, bool> insert(value_type&& element) {
+  containers::pair<iterator, bool> insert(value_type&& element) {
     size_t hash;
     hash = get_hash(element.first);
     iterator old_position =
         iterator_from_const_iterator(find_hashed(element.first, hash));
     if (old_position != end()) {
-      return std::make_pair(old_position, false);
+      return containers::make_pair(old_position, false);
     }
     if (rehash_if_needed(size() + 1)) {
       hash = get_hash(element.first);
     }
     m_buckets[hash].push_back(std::move(element));
     m_total_elements += 1;
-    return std::make_pair<iterator, bool>(
+    return containers::make_pair<iterator, bool>(
         iterator(m_buckets.begin() + hash, m_buckets.end(),
             m_buckets[hash].end() - 1),
         true);
   }
 
-  std::pair<iterator, bool> insert(const key_type& kt, const mapped_type& mt) {
-    return insert(std::make_pair(kt, mt));
+  containers::pair<iterator, bool> insert(
+      const key_type& kt, const mapped_type& mt) {
+    return insert(containers::make_pair(kt, mt));
   }
 
   mapped_type& operator[](key_type&& key) {
@@ -235,7 +247,8 @@ public:
     if (it != end()) {
       return it->second;
     }
-    return insert(std::make_pair(std::move(key), mapped_type())).first->second;
+    return insert(containers::make_pair(std::move(key), mapped_type()))
+        .first->second;
   }
 
   mapped_type& operator[](const key_type& key) {
@@ -243,7 +256,7 @@ public:
     if (it != end()) {
       return it->second;
     }
-    return insert(std::make_pair(key, mapped_type())).first->second;
+    return insert(containers::make_pair(key, mapped_type())).first->second;
   }
 
   const mapped_type& operator[](const key_type& key) const {
@@ -338,7 +351,11 @@ public:
       return;
     }
 
-    array_type new_buckets(n, list_type(get_allocator()), get_allocator());
+    array_type new_buckets(m_allocator);
+    new_buckets.reserve(n);
+    for (size_t i = 0; i < n; ++i) {
+      new_buckets.push_back(list_type(get_allocator()));
+    }
     for (auto& bucket : m_buckets) {
       for (auto it = bucket.begin(); it != bucket.end();) {
         size_t hash = get_hash(it->first, n);
