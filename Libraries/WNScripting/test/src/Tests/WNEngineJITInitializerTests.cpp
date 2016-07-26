@@ -429,4 +429,16 @@ INSTANTIATE_TEST_CASE_P(
       {{0, 0}, {-1, -1}, {10, 10}}},
 })));
 
+INSTANTIATE_TEST_CASE_P(
+    struct_input_test, integer_tests,
+    ::testing::ValuesIn(std::vector<integer_test>({
+      {"struct Foo { Int x = 4; }"
+       "Int blah(Foo f) { return f.x; }"
+       "Int main(Int x) { "
+       "Foo f = Foo();"
+       "return blah(f);"
+       "}",
+      {{0, 4}, {-1, 4}, {10, 4}}},
+})));
+
 // clang-format on

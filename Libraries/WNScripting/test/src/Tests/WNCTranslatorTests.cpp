@@ -643,6 +643,41 @@ INSTANTIATE_TEST_CASE_P(
 
 // clang-format off
 INSTANTIATE_TEST_CASE_P(
+    function_taking_struct, c_translator_direct_translation_test,
+    ::testing::ValuesIn(
+        std::vector<std::vector<source_pair>>({
+          {
+            {"struct Foo {",          "typedef struct {"  },
+            {"  Int x = 4;",          "  int32_t x;"      },
+            {"}",                     "} Foo;"             },
+            {"",                      "\n"                           },
+            {"",                      "Foo* _Z3wns14_construct_FooENR3FooENR3FooE(Foo* _this) {" },
+            {"",                      "_this->x = 4;"               },
+            {"",                      "return _this;"                },
+            {"",                      "}"                            },
+            {"",                      "\n"                           },
+            {"",                      "void _Z3wns13_destruct_FooEvNR3FooE(Foo* _this) {"   },
+            {"",                      "return;"                      },
+            {"",                      "}"                            },
+            {"",                      "\n"                           },
+            {"Int blah(Foo f) {",     "int32_t _Z3wns4blahElNP3FooE(Foo* f) {"},
+            {" return f.x;",          "return f->x;"  },
+            {"}",                     "}"},
+            {"",                      "\n"},
+            {"Int main(Int x) {",     "int32_t _Z3wns4mainEll(int32_t x) {"   },
+            {" Foo f = Foo();",       "Foo __wns_temp_expression0;"             },
+            {"",                      "Foo* f = _Z3wns14_construct_FooENR3FooENR3FooE(&__wns_temp_expression0);"       },
+            {"",                      "{"                            },
+            {"",                      "int32_t __wns_ret_temp0 = _Z3wns4blahElNP3FooE(f);" },
+            {"",                      "_Z3wns13_destruct_FooEvNR3FooE(&__wns_temp_expression0);"},
+            {" return blah(f);",       "return __wns_ret_temp0;"      },
+            {"",                      "}"},
+            {"}",                     "}"                            }
+          }
+})));
+
+// clang-format off
+INSTANTIATE_TEST_CASE_P(
     struct_in_struct, c_translator_direct_translation_test,
     ::testing::ValuesIn(
         std::vector<std::vector<source_pair>>({
