@@ -592,7 +592,8 @@ public:
     }
     const type_definition& def = m_validator->get_operations(type_index);
     uint32_t member_type = def.get_member_id(_expr->get_name());
-    const type_definition& member_def = m_validator->get_operations(member_type);
+    const type_definition& member_def =
+        m_validator->get_operations(member_type);
     if (member_type == 0) {
       m_log->Log(WNLogging::eError, 0, "Type does not have member: ",
           _expr->get_name());
@@ -601,8 +602,8 @@ public:
       return nullptr;
     }
 
-    type* t = m_allocator->construct<type>(m_allocator, member_type,
-      member_def.get_reference_type());
+    type* t = m_allocator->construct<type>(
+        m_allocator, member_type, member_def.get_reference_type());
 
     t->copy_location_from(_expr);
     _expr->set_type(t);
@@ -1045,13 +1046,13 @@ public:
   }
 
   void pre_walk_script_file(script_file* _file) {
-    for (auto& strct: _file->get_structs()){
+    for (auto& strct : _file->get_structs()) {
       pre_register_struct_definition(strct.get());
     }
-    for (auto& strct: _file->get_structs()){
+    for (auto& strct : _file->get_structs()) {
       register_struct_definition(strct.get());
     }
-    for(auto& function: _file->get_functions()) {
+    for (auto& function : _file->get_functions()) {
       register_function(function.get());
     }
   }
@@ -1379,6 +1380,7 @@ public:
   // TODO(awoloszyn): In the id-association pass, start promoting
   // member access. Ie. allow struct X { int x = 4; int y = x + 3; }
   void walk_struct_definition(struct_definition* _definition) {
+    containers::deque<declaration*> decls(m_allocator);
     size_t num = _definition->get_struct_members().size();
     for (size_t i = 0; i < num; ++i) {
       auto& member = _definition->get_struct_members()[i];
@@ -1399,7 +1401,10 @@ public:
           memory::unique_ptr<parameter> param = memory::make_unique<parameter>(
               m_allocator, m_allocator, core::move(new_type), name.c_str());
           param->get_type()->set_reference_type(reference_type::raw);
+          param->get_type()->set_type_index(
+              m_validator->get_type(param->get_type()->custom_type_name()));
           decl->set_parameter(core::move(param));
+          decls.push_back(decl.get());
           _definition->get_struct_members().push_back(core::move(decl));
         } break;
         default:
@@ -1417,58 +1422,59 @@ public:
           m_allocator, m_allocator, type_classification::void_type);
       void_type->copy_location_from(_definition);
 
-      for (auto& a : _definition->get_struct_members()) {
-        if (a->get_type()->get_reference_type() == reference_type::unique) {
-          memory::unique_ptr<member_access_expression> access =
-              memory::make_unique<member_access_expression>(
-                  m_allocator, m_allocator, a->get_name());
-          access->copy_location_from(a.get());
+      for (auto& a : decls) {
+        // Unique objects are in practice backed by raw objects.
+        // It is those raw objects that we want to destroy.
+        WN_RELEASE_ASSERT_DESC(a->get_type()->get_reference_type() == reference_type::raw,
+          "Not Implemented: Destruction of non-unique objects");
 
-          memory::unique_ptr<id_expression> id =
-              memory::make_unique<id_expression>(
-                  m_allocator, m_allocator, "_this");
-          id->copy_location_from(a.get());
+        memory::unique_ptr<member_access_expression> access =
+            memory::make_unique<member_access_expression>(
+                m_allocator, m_allocator, a->get_name());
+        access->copy_location_from(a);
 
-          access->add_base_expression(core::move(id));
+        memory::unique_ptr<id_expression> id =
+            memory::make_unique<id_expression>(
+                m_allocator, m_allocator, "_this");
+        id->copy_location_from(a);
 
-          memory::unique_ptr<cast_expression> cast1 =
-              memory::make_unique<cast_expression>(
-                  m_allocator, m_allocator, core::move(access));
-          cast1->copy_location_from(cast1->get_expression());
-          cast1->set_type(
-              memory::make_unique<type>(m_allocator, *a->get_type()));
-          cast1->get_type()->set_reference_type(reference_type::self);
+        access->add_base_expression(core::move(id));
 
-          containers::string destructor_name("_destruct_", m_allocator);
-          destructor_name.append(a->get_type()->custom_type_name().data(),
-              a->get_type()->custom_type_name().size());
+        memory::unique_ptr<cast_expression> cast1 =
+            memory::make_unique<cast_expression>(
+                m_allocator, m_allocator, core::move(access));
+        cast1->copy_location_from(cast1->get_expression());
+        cast1->set_type(memory::make_unique<type>(m_allocator, *a->get_type()));
+        cast1->get_type()->set_reference_type(reference_type::self);
 
-          memory::unique_ptr<arg_list> args =
-              memory::make_unique<arg_list>(m_allocator, m_allocator);
-          args->copy_location_from(cast1.get());
-          args->add_expression(core::move(cast1));
+        containers::string destructor_name("_destruct_", m_allocator);
+        destructor_name.append(a->get_type()->custom_type_name().data(),
+            a->get_type()->custom_type_name().size());
 
-          memory::unique_ptr<function_call_expression> call =
-              memory::make_unique<function_call_expression>(
-                  m_allocator, m_allocator, core::move(args));
-          call->copy_location_from(call->get_args());
-          call->set_type(
-              memory::make_unique<type>(m_allocator, *a->get_type()));
-          call->get_type()->set_reference_type(reference_type::self);
+        memory::unique_ptr<arg_list> args =
+            memory::make_unique<arg_list>(m_allocator, m_allocator);
+        args->copy_location_from(cast1.get());
+        args->add_expression(core::move(cast1));
 
-          memory::unique_ptr<id_expression> destructor =
-              memory::make_unique<id_expression>(
-                  m_allocator, m_allocator, destructor_name);
-          destructor->copy_location_from(call.get());
+        memory::unique_ptr<function_call_expression> call =
+            memory::make_unique<function_call_expression>(
+                m_allocator, m_allocator, core::move(args));
+        call->copy_location_from(call->get_args());
+        call->set_type(memory::make_unique<type>(m_allocator, *a->get_type()));
+        call->get_type()->set_reference_type(reference_type::self);
 
-          call->add_base_expression(core::move(destructor));
+        memory::unique_ptr<id_expression> destructor =
+            memory::make_unique<id_expression>(
+                m_allocator, m_allocator, destructor_name);
+        destructor->copy_location_from(call.get());
 
-          memory::unique_ptr<expression_instruction> exprinst =
-              memory::make_unique<expression_instruction>(
-                  m_allocator, m_allocator, core::move(call));
-          exprinst->copy_location_from(exprinst->get_expression());
-          instructions->add_instruction(core::move(exprinst));
-        }
+        call->add_base_expression(core::move(destructor));
+
+        memory::unique_ptr<expression_instruction> exprinst =
+            memory::make_unique<expression_instruction>(
+                m_allocator, m_allocator, core::move(call));
+        exprinst->copy_location_from(exprinst->get_expression());
+        instructions->add_instruction(core::move(exprinst));
       }
 
       memory::unique_ptr<return_instruction> ret =
