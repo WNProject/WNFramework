@@ -98,6 +98,23 @@ public:
 private:
 };
 
+memory::unique_ptr<constant_expression> make_constant(memory::allocator* _allocator,
+    node* _location_root, type_classification _type,
+    containers::string_view _init) {
+
+  memory::unique_ptr<type> decl_type =
+      memory::make_unique<type>(_allocator, _allocator, _type);
+  decl_type->copy_location_from(_location_root);
+
+  memory::unique_ptr<constant_expression> constant =
+      memory::make_unique<constant_expression>(
+          _allocator, _allocator, _type, _init.to_string(_allocator).c_str());
+
+  constant->set_type(core::move(decl_type));
+  constant->get_type()->copy_location_from(_location_root);
+  return core::move(constant);
+}
+
 memory::unique_ptr<declaration> make_constant_declaration(
     memory::allocator* _allocator, node* _location_root,
     type_classification _type, containers::string_view _name,
@@ -110,19 +127,12 @@ memory::unique_ptr<declaration> make_constant_declaration(
       memory::make_unique<declaration>(_allocator, _allocator);
   decl->copy_location_from(_location_root);
 
-  memory::unique_ptr<constant_expression> initializer =
-      memory::make_unique<constant_expression>(
-          _allocator, _allocator, _type, _init.to_string(_allocator).c_str());
-
-  initializer->set_type(memory::make_unique<type>(_allocator, *decl_type));
-  initializer->get_type()->copy_location_from(_location_root);
-
   memory::unique_ptr<parameter> param = memory::make_unique<parameter>(
       _allocator, _allocator, core::move(decl_type), _name);
   param->copy_location_from(_location_root);
 
   decl->set_parameter(core::move(param));
-  decl->set_expression(core::move(initializer));
+  decl->set_expression(make_constant(_allocator, _location_root, _type, _init));
   return core::move(decl);
 }
 
@@ -682,48 +692,96 @@ public:
 
   memory::unique_ptr<instruction> create_destructor(
       declaration* _decl, node* _location_copy) {
-    containers::string m_destructor_name("_destruct_", m_allocator);
-    m_destructor_name.append(_decl->get_type()->custom_type_name().data(),
-        _decl->get_type()->custom_type_name().length());
+    if (_decl->get_type()->get_reference_type() == reference_type::unique ||
+        _decl->get_type()->get_reference_type() == reference_type::raw) {
+      containers::string m_destructor_name("_destruct_", m_allocator);
+      m_destructor_name.append(_decl->get_type()->custom_type_name().data(),
+          _decl->get_type()->custom_type_name().length());
 
-    memory::unique_ptr<id_expression> object_id =
-        memory::make_unique<id_expression>(
-            m_allocator, m_allocator, _decl->get_name());
-    object_id->set_id_source({0, _decl});
-    object_id->copy_location_from(_location_copy);
-    object_id->set_type(
-        memory::make_unique<type>(m_allocator, *_decl->get_type()));
+      memory::unique_ptr<id_expression> object_id =
+          memory::make_unique<id_expression>(
+              m_allocator, m_allocator, _decl->get_name());
+      object_id->set_id_source({0, _decl});
+      object_id->copy_location_from(_location_copy);
+      object_id->set_type(
+          memory::make_unique<type>(m_allocator, *_decl->get_type()));
 
-    memory::unique_ptr<cast_expression> cast1 =
-        memory::make_unique<cast_expression>(
-            m_allocator, m_allocator, core::move(object_id));
-    cast1->copy_location_from(cast1->get_expression());
-    cast1->set_type(memory::make_unique<type>(m_allocator, *_decl->get_type()));
-    cast1->get_type()->set_reference_type(reference_type::self);
+      memory::unique_ptr<cast_expression> cast1 =
+          memory::make_unique<cast_expression>(
+              m_allocator, m_allocator, core::move(object_id));
+      cast1->copy_location_from(cast1->get_expression());
+      cast1->set_type(
+          memory::make_unique<type>(m_allocator, *_decl->get_type()));
+      cast1->get_type()->set_reference_type(reference_type::self);
 
-    memory::unique_ptr<arg_list> args =
-        memory::make_unique<arg_list>(m_allocator, m_allocator);
-    args->copy_location_from(_location_copy);
-    args->add_expression(core::move(cast1));
+      memory::unique_ptr<arg_list> args =
+          memory::make_unique<arg_list>(m_allocator, m_allocator);
+      args->copy_location_from(_location_copy);
+      args->add_expression(core::move(cast1));
 
-    memory::unique_ptr<function_call_expression> call =
-        memory::make_unique<function_call_expression>(
-            m_allocator, m_allocator, core::move(args));
-    call->copy_location_from(call->get_args());
-    call->set_type(memory::make_unique<type>(
-        m_allocator, m_allocator, type_classification::void_type));
+      memory::unique_ptr<function_call_expression> call =
+          memory::make_unique<function_call_expression>(
+              m_allocator, m_allocator, core::move(args));
+      call->copy_location_from(call->get_args());
+      call->set_type(memory::make_unique<type>(
+          m_allocator, m_allocator, type_classification::void_type));
 
-    memory::unique_ptr<id_expression> destructor =
-        memory::make_unique<id_expression>(
-            m_allocator, m_allocator, m_destructor_name);
-    destructor->copy_location_from(call.get());
+      memory::unique_ptr<id_expression> destructor =
+          memory::make_unique<id_expression>(
+              m_allocator, m_allocator, m_destructor_name);
+      destructor->copy_location_from(call.get());
 
-    call->add_base_expression(core::move(destructor));
+      call->add_base_expression(core::move(destructor));
 
-    walk_expression(call.get());  // Have the type_association pass handle
-    // setting up this function call.
-    return memory::make_unique<expression_instruction>(
-        m_allocator, m_allocator, core::move(call));
+      walk_expression(call.get());  // Have the type_association pass handle
+      // setting up this function call.
+      return memory::make_unique<expression_instruction>(
+          m_allocator, m_allocator, core::move(call));
+    } else {
+      containers::string m_destructor_name("_deref_shared", m_allocator);
+
+      memory::unique_ptr<id_expression> object_id =
+          memory::make_unique<id_expression>(
+              m_allocator, m_allocator, _decl->get_name());
+      object_id->set_id_source({0, _decl});
+      object_id->copy_location_from(_location_copy);
+      object_id->set_type(
+          memory::make_unique<type>(m_allocator, *_decl->get_type()));
+
+      memory::unique_ptr<cast_expression> cast1 =
+          memory::make_unique<cast_expression>(
+              m_allocator, m_allocator, core::move(object_id));
+      cast1->copy_location_from(cast1->get_expression());
+      cast1->set_type(memory::make_unique<type>(
+          m_allocator, m_allocator, type_classification::void_ptr_type));
+      cast1->get_type()->copy_location_from(cast1->get_expression());
+
+      memory::unique_ptr<arg_list> args =
+          memory::make_unique<arg_list>(m_allocator, m_allocator);
+      args->copy_location_from(_location_copy);
+      args->add_expression(core::move(cast1));
+
+      memory::unique_ptr<function_call_expression> call =
+          memory::make_unique<function_call_expression>(
+              m_allocator, m_allocator, core::move(args));
+      call->copy_location_from(call->get_args());
+      call->set_type(memory::make_unique<type>(
+          m_allocator, m_allocator, type_classification::void_type));
+
+      memory::unique_ptr<id_expression> destructor =
+          memory::make_unique<id_expression>(
+              m_allocator, m_allocator, m_destructor_name);
+      destructor->copy_location_from(call.get());
+
+      call->add_base_expression(core::move(destructor));
+
+      walk_expression(call.get());  // Have the type_association pass handle
+      // setting up this function call.
+      return memory::make_unique<expression_instruction>(
+          m_allocator, m_allocator, core::move(call));
+    }
+
+
   }
 
   memory::unique_ptr<instruction> walk_instruction(instruction*) {
@@ -779,7 +837,8 @@ public:
       walk_type(a->get_type());
     }
 
-    for (auto ref_type : {reference_type::self, reference_type::unique}) {
+    for (auto ref_type : {reference_type::self, reference_type::unique,
+             reference_type::shared}) {
       type_definition& def =
           m_validator->get_operations(type + static_cast<uint32_t>(ref_type));
       for (const auto& a : _definition->get_struct_members()) {
@@ -802,9 +861,6 @@ public:
     }
 
     switch (_assign->get_lvalue()->get_expression()->get_node_type()) {
-      case node_type::replaced_expression:
-        WN_RELEASE_ASSERT_DESC(
-            false, "TODO: handle replaced instructions here");
       case node_type::cast_expression:
       case node_type::id_expression:
       case node_type::unary_expression:
@@ -833,6 +889,65 @@ public:
       _assign->log_line(*m_log, WNLogging::eError);
       ++m_num_errors;
     }
+
+    // If we are assigning a shared reference, then we have to increment the ref-count
+    if (_assign->get_lvalue()
+            ->get_expression()
+            ->get_type()
+            ->get_reference_type() == reference_type::shared) {
+
+      memory::unique_ptr<id_expression> increment_func =
+          memory::make_unique<id_expression>(
+              m_allocator, m_allocator, "_assign_shared");
+      increment_func->copy_location_from(_assign);
+
+
+      memory::unique_ptr<type> target = memory::make_unique<type>(
+          m_allocator, *_assign->get_lvalue()->get_expression()->get_type());
+      target->copy_location_from(_assign);
+
+      memory::unique_ptr<type> void_ptr_type = memory::make_unique<type>(
+        m_allocator, m_allocator, type_classification::void_ptr_type);
+      void_ptr_type->copy_location_from(_assign);
+
+      memory::unique_ptr<cast_expression> cast =
+          memory::make_unique<cast_expression>(
+              m_allocator, m_allocator, core::move(_assign->transfer_expression()));
+      cast->set_type(core::move(void_ptr_type));
+
+      void_ptr_type = memory::make_unique<type>(
+        m_allocator, m_allocator, type_classification::void_ptr_type);
+      void_ptr_type->copy_location_from(_assign);
+
+      memory::unique_ptr<cast_expression> cast2 =
+          memory::make_unique<cast_expression>(m_allocator, m_allocator,
+              core::move(clone_node(_assign->get_lvalue()->get_expression())));
+      cast2->set_type(core::move(void_ptr_type));
+
+      memory::unique_ptr<arg_list> args =
+          memory::make_unique<arg_list>(m_allocator, m_allocator);
+      args->copy_location_from(cast.get());
+      args->add_expression(core::move(cast));
+      args->add_expression(core::move(cast2));
+
+      memory::unique_ptr<function_call_expression> call =
+          memory::make_unique<function_call_expression>(
+              m_allocator, m_allocator, core::move(args));
+      call->copy_location_from(call->get_args());
+      call->set_type(memory::make_unique<type>(m_allocator, *target.get()));
+      call->get_type()->copy_location_from(_assign);
+
+      call->add_base_expression(core::move(increment_func));
+
+      walk_expression(call.get());  // Have the type_association pass handle
+
+      cast = memory::make_unique<cast_expression>(
+          m_allocator, m_allocator, core::move(call));
+      cast->set_type(core::move(target));
+      _assign->add_value(_assign->get_assignment_type(), core::move(cast));
+      return nullptr;
+    }
+
     return nullptr;
   }
 
@@ -912,20 +1027,77 @@ public:
       }
     }
     if (return_type) {
-      // return __wns_ret_temp0;
+      reference_type ref_type = return_type->get_reference_type();
       memory::unique_ptr<id_expression> return_id(
           memory::make_unique<id_expression>(m_allocator, m_allocator, name));
       return_id->copy_location_from(_ret);
       return_id->set_type(core::move(return_type));
       return_id->set_id_source({nullptr, ret_decl});
 
-      memory::unique_ptr<return_instruction> new_ret_inst(
-          memory::make_unique<return_instruction>(
-              m_allocator, m_allocator, core::move(return_id)));
-      new_ret_inst->copy_location_from(_ret);
-      new_ret_inst->set_returns(true);
-      m_returns.push_back(new_ret_inst.get());
-      instructions->add_instruction(core::move(new_ret_inst));
+      if (ref_type == reference_type::shared) {
+        // return (Foo*)_return_shared((void*)__wns_ret_temp0);
+
+        memory::unique_ptr<type> output_type =
+            memory::make_unique<type>(m_allocator, *return_id->get_type());
+        output_type->copy_location_from(_ret);
+
+        memory::unique_ptr<cast_expression> cast =
+            memory::make_unique<cast_expression>(
+                m_allocator, m_allocator, core::move(return_id));
+        cast->copy_location_from(_ret);
+        cast->set_type(memory::make_unique<type>(
+            m_allocator, m_allocator, type_classification::void_ptr_type));
+        cast->get_type()->copy_location_from(_ret);
+
+        memory::unique_ptr<id_expression> return_func =
+            memory::make_unique<id_expression>(
+                m_allocator, m_allocator, "_return_shared");
+        return_func->copy_location_from(_ret);
+
+        memory::unique_ptr<arg_list> return_args =
+            memory::make_unique<arg_list>(m_allocator, m_allocator);
+        return_args->copy_location_from(_ret);
+        return_args->add_expression(core::move(cast));
+
+        memory::unique_ptr<function_call_expression> return_shared=
+            memory::make_unique<function_call_expression>(
+                m_allocator, m_allocator, core::move(return_args));
+        return_shared->copy_location_from(return_shared->get_args());
+        return_shared->set_type(memory::make_unique<type>(
+            m_allocator, m_allocator, type_classification::void_ptr_type));
+        return_shared->get_type()->copy_location_from(_ret);
+
+        return_shared->add_base_expression(core::move(return_func));
+
+        // Walk the function now.
+        walk_expression(return_shared.get());
+
+        memory::unique_ptr<cast_expression> cast_back =
+            memory::make_unique<cast_expression>(
+                m_allocator, m_allocator, core::move(return_shared));
+        cast_back->copy_location_from(_ret);
+        cast_back->set_type(core::move(output_type));
+        cast_back->get_type()->copy_location_from(_ret);
+
+
+        memory::unique_ptr<return_instruction> new_ret_inst(
+            memory::make_unique<return_instruction>(
+                m_allocator, m_allocator, core::move(cast_back)));
+        new_ret_inst->copy_location_from(_ret);
+        new_ret_inst->set_returns(true);
+        m_returns.push_back(new_ret_inst.get());
+        instructions->add_instruction(core::move(new_ret_inst));
+      } else {
+        // return __wns_ret_temp0;
+
+        memory::unique_ptr<return_instruction> new_ret_inst(
+            memory::make_unique<return_instruction>(
+                m_allocator, m_allocator, core::move(return_id)));
+        new_ret_inst->copy_location_from(_ret);
+        new_ret_inst->set_returns(true);
+        m_returns.push_back(new_ret_inst.get());
+        instructions->add_instruction(core::move(new_ret_inst));
+      }
     } else {
       memory::unique_ptr<return_instruction> new_ret_inst(
           memory::make_unique<return_instruction>(m_allocator, m_allocator));
@@ -949,6 +1121,52 @@ public:
     }
 
     if (m_validator->is_destructible_type(_decl->get_type()->get_index())) {
+      if (_decl->get_type()->get_reference_type() == reference_type::shared) {
+        // Add an increment here
+        memory::unique_ptr<expression> alloc = _decl->take_expression();
+
+        memory::unique_ptr<cast_expression> cast =
+            memory::make_unique<cast_expression>(
+                m_allocator, m_allocator, core::move(alloc));
+        cast->copy_location_from(_decl);
+        cast->set_type(memory::make_unique<type>(
+            m_allocator, m_allocator, type_classification::void_ptr_type));
+        cast->get_type()->copy_location_from(_decl);
+
+        memory::unique_ptr<id_expression> assignment_func =
+            memory::make_unique<id_expression>(
+                m_allocator, m_allocator, "_assign_shared");
+        assignment_func->copy_location_from(_decl);
+
+        memory::unique_ptr<arg_list> assignment_args =
+            memory::make_unique<arg_list>(m_allocator, m_allocator);
+        assignment_args->copy_location_from(_decl);
+        assignment_args->add_expression(core::move(cast));
+        assignment_args->add_expression(make_constant(
+          m_allocator, _decl, type_classification::void_ptr_type, ""));
+
+        memory::unique_ptr<function_call_expression> increment =
+            memory::make_unique<function_call_expression>(
+                m_allocator, m_allocator, core::move(assignment_args));
+        increment->copy_location_from(increment->get_args());
+        increment->set_type(memory::make_unique<type>(
+            m_allocator, m_allocator, type_classification::void_ptr_type));
+        increment->get_type()->copy_location_from(_decl);
+
+        increment->add_base_expression(core::move(assignment_func));
+
+        // Walk the function now.
+        walk_expression(increment.get());
+
+        memory::unique_ptr<cast_expression> cast_back =
+            memory::make_unique<cast_expression>(
+                m_allocator, m_allocator, core::move(increment));
+        cast_back->copy_location_from(_decl);
+        cast_back->set_type(
+            memory::make_unique<type>(m_allocator, *_decl->get_type()));
+        cast_back->get_type()->copy_location_from(_decl);
+        _decl->set_expression(core::move(cast_back));
+      }
       m_local_objects.back().push_back(_decl);
     }
     return nullptr;
@@ -1052,6 +1270,10 @@ public:
     for (auto& strct : _file->get_structs()) {
       register_struct_definition(strct.get());
     }
+
+    for (auto& function: _file->get_external_functions()) {
+      register_function(function.get());
+    }
     for (auto& function : _file->get_functions()) {
       register_function(function.get());
     }
@@ -1079,28 +1301,6 @@ private:
   containers::deque<containers::deque<declaration*>> m_local_objects;
 };
 
-containers::deque<struct_allocation_expression*> accumulate_temporaries(
-    memory::allocator* _allocator, expression* _root,
-    bool _include_top_expression) {
-  containers::deque<struct_allocation_expression*> expressions(_allocator);
-  if (!_root) {
-    return expressions;
-  }
-  if (_include_top_expression) {
-    if (_root->get_node_type() == node_type::struct_allocation_expression) {
-      static_cast<struct_allocation_expression*>(_root)->make_temporary();
-      expressions.push_back(static_cast<struct_allocation_expression*>(_root));
-    }
-  }
-  _root->accumulate_expression_subtree([&expressions](expression* e) {
-    if (e->get_node_type() == node_type::struct_allocation_expression) {
-      expressions.push_back(static_cast<struct_allocation_expression*>(e));
-      static_cast<struct_allocation_expression*>(e)->make_temporary();
-    }
-  });
-  return core::move(expressions);
-}
-
 class temporary_reification_pass : public pass {
 public:
   temporary_reification_pass(type_validator* _validator, WNLogging::WNLog* _log,
@@ -1108,9 +1308,6 @@ public:
     : pass(_validator, _log, _allocator),
       m_temporary_declarations(_allocator) {}
 
-  memory::unique_ptr<expression> walk_expression(expression*) {
-    return nullptr;
-  }
   memory::unique_ptr<instruction> walk_instruction(instruction* _inst) {
     _inst->set_temp_declarations(core::move(m_temporary_declarations));
     m_temporary_declarations =
@@ -1134,12 +1331,11 @@ public:
     _inst->set_instructions(core::move(replaced_instructions));
   }
 
-  memory::unique_ptr<expression> walk_expression(
-      struct_allocation_expression* _expr) {
+  memory::unique_ptr<expression> walk_expression(expression* _expr) {
     if (!_expr->is_temporary()) {
       return nullptr;
     }
-
+    memory::unique_ptr<expression> copied_expr = _expr->transfer_to_new();
     memory::unique_ptr<declaration> decl =
         memory::make_unique<declaration>(m_allocator, m_allocator);
 
@@ -1153,45 +1349,55 @@ public:
     name += temporary_name;
 
     memory::unique_ptr<type> t =
-        memory::make_unique<type>(m_allocator, *_expr->get_type());
-    t->copy_location_from(_expr->get_type());
+        memory::make_unique<type>(m_allocator, *copied_expr->get_type());
+    t->copy_location_from(copied_expr->get_type());
 
     memory::unique_ptr<type> t2 =
-        memory::make_unique<type>(m_allocator, *_expr->get_type());
-    t2->copy_location_from(_expr->get_type());
+          memory::make_unique<type>(m_allocator, *copied_expr->get_type());
+      t2->copy_location_from(copied_expr->get_type());
 
     memory::unique_ptr<parameter> t_param = memory::make_unique<parameter>(
         m_allocator, m_allocator, core::move(t), name);
-    t_param->copy_location_from(_expr);
+    t_param->copy_location_from(copied_expr.get());
 
     decl->set_parameter(core::move(t_param));
+    if (copied_expr->get_type()->get_reference_type() == reference_type::unique) {
+      copied_expr->get_type()->set_reference_type(reference_type::raw);
 
-    memory::unique_ptr<struct_allocation_expression> alloc =
-        memory::make_unique<struct_allocation_expression>(
-            m_allocator, m_allocator);
-    alloc->set_initialization_mode(_expr->set_initialization_mode());
-    alloc->copy_location_from(_expr);
-    alloc->set_type(_expr->transfer_out_type());
-    alloc->get_type()->set_reference_type(reference_type::raw);
-    alloc->set_copy_initializer(_expr->transfer_copy_initializer());
+      decl->set_expression(core::move(copied_expr));
 
-    decl->set_expression(core::move(alloc));
+      decl->get_type()->set_reference_type(reference_type::raw);
 
-    decl->get_type()->set_reference_type(reference_type::raw);
+      m_temporary_declarations.push_back(core::move(decl));
 
-    m_temporary_declarations.push_back(core::move(decl));
+      memory::unique_ptr<id_expression> id =
+          memory::make_unique<id_expression>(m_allocator, m_allocator, name);
+      id->copy_location_from(_expr);
 
-    memory::unique_ptr<id_expression> id =
-        memory::make_unique<id_expression>(m_allocator, m_allocator, name);
-    id->copy_location_from(_expr);
+      memory::unique_ptr<cast_expression> cast =
+          memory::make_unique<cast_expression>(
+              m_allocator, m_allocator, core::move(id));
+      t2->set_reference_type(reference_type::unique);
+      cast->set_type(core::move(t2));
 
-    memory::unique_ptr<cast_expression> cast =
-        memory::make_unique<cast_expression>(
-            m_allocator, m_allocator, core::move(id));
-    t2->set_reference_type(reference_type::unique);
-    cast->set_type(core::move(t2));
+      return core::move(cast);
+    } else if (copied_expr->get_type()->get_reference_type() ==
+               reference_type::shared) {
 
-    return core::move(cast);
+      copied_expr->get_type()->set_reference_type(reference_type::shared);
+
+      decl->set_expression(core::move(copied_expr));
+      decl->get_type()->set_reference_type(reference_type::shared);
+      m_temporary_declarations.push_back(core::move(decl));
+
+      memory::unique_ptr<id_expression> id =
+          memory::make_unique<id_expression>(m_allocator, m_allocator, name);
+      id->copy_location_from(_expr);
+
+      return core::move(id);
+    }
+
+    return nullptr;
   }
 
   void pre_walk_script_file(script_file*) {}
@@ -1217,7 +1423,14 @@ public:
     if (_decl->get_type()->get_reference_type() == reference_type::raw) {
       return nullptr;
     }
-
+    if (_decl->get_type()->get_reference_type() == reference_type::shared) {
+      // This may have previously gotten set to temporary, BUT
+      // We are defintely assigning it to a real thing, so lets make it no
+      // longer temporary.
+      _decl->get_expression()->set_temporary(false);
+      // TODO(awoloszyn): Increment reference count here.
+      return nullptr;
+    }
     WN_RELEASE_ASSERT_DESC(
         _decl->get_type()->get_reference_type() == reference_type::unique,
         "Not Implemented: Other types of reference declarations");
@@ -1240,35 +1453,17 @@ public:
     cast->get_type()->set_reference_type(reference_type::unique);
 
     _decl->set_expression(core::move(cast));
-    for (auto& t :
-        accumulate_temporaries(m_allocator, _decl->get_expression(), false)) {
-      _decl->add_temporary(t);
-    }
     return nullptr;
   }
 
   memory::unique_ptr<instruction> walk_instruction(
       assignment_instruction* _assign) {
-    for (auto& t :
-        accumulate_temporaries(m_allocator, _assign->get_expression(), true)) {
-      _assign->add_temporary(t);
-    }
-    return nullptr;
-  }
-
-  memory::unique_ptr<instruction> walk_instruction(if_instruction* _if) {
-    for (auto& t :
-        accumulate_temporaries(m_allocator, _if->get_condition(), true)) {
-      _if->add_temporary(t);
-    }
-    return nullptr;
-  }
-
-  memory::unique_ptr<instruction> walk_instruction(
-      expression_instruction* _expr) {
-    for (auto& t :
-        accumulate_temporaries(m_allocator, _expr->get_expression(), true)) {
-      _expr->add_temporary(t);
+    if (_assign->get_expression()->get_type() &&
+       _assign->get_expression()->get_type()->get_reference_type() ==
+      reference_type::shared) {
+      // If we have an HRS in our assignment that is shared
+      // we know it is not a temporary, so do not create one.
+      _assign->get_expression()->set_temporary(false);
     }
     return nullptr;
   }
@@ -1282,9 +1477,12 @@ public:
   }
 
   memory::unique_ptr<instruction> walk_instruction(return_instruction* _ret) {
-    for (auto& t :
-        accumulate_temporaries(m_allocator, _ret->get_expression(), true)) {
-      _ret->add_temporary(t);
+    if (_ret->get_expression() && _ret->get_expression()->get_type() &&
+        _ret->get_expression()->get_type()->get_reference_type() ==
+            reference_type::shared) {
+      // If we are returning a shared object, then we can also know
+      // that we do not need a temporary.
+      _ret->get_expression()->set_temporary(false);
     }
     return nullptr;
   }
@@ -1301,47 +1499,114 @@ public:
         struct_initialization_mode::invalid) {
       return nullptr;
     }
+
     containers::string constructor_name("_construct_", m_allocator);
     constructor_name.append(_alloc->get_type()->custom_type_name().data(),
         _alloc->get_type()->custom_type_name().size());
 
-    memory::unique_ptr<struct_allocation_expression> alloc =
-        memory::make_unique<struct_allocation_expression>(
-            m_allocator, m_allocator);
-    alloc->set_initialization_mode(struct_initialization_mode::unspecified);
-    alloc->copy_location_from(_alloc);
-    alloc->set_type(_alloc->transfer_out_type());
-    alloc->set_copy_initializer(_alloc->transfer_copy_initializer());
-
-    const type* alloc_type = alloc->get_type();
-
-    memory::unique_ptr<cast_expression> cast1 =
-        memory::make_unique<cast_expression>(
-            m_allocator, m_allocator, core::move(alloc));
-    cast1->copy_location_from(cast1->get_expression());
-    cast1->set_type(memory::make_unique<type>(m_allocator, *alloc_type));
-    cast1->get_type()->set_reference_type(reference_type::self);
-
-    memory::unique_ptr<arg_list> args =
-        memory::make_unique<arg_list>(m_allocator, m_allocator);
-    args->copy_location_from(cast1.get());
-    args->add_expression(core::move(cast1));
-
-    memory::unique_ptr<function_call_expression> call =
-        memory::make_unique<function_call_expression>(
-            m_allocator, m_allocator, core::move(args));
-    call->copy_location_from(call->get_args());
-    call->set_type(memory::make_unique<type>(m_allocator, *alloc_type));
-    call->get_type()->set_reference_type(reference_type::self);
-
     memory::unique_ptr<id_expression> constructor =
         memory::make_unique<id_expression>(
             m_allocator, m_allocator, constructor_name);
-    constructor->copy_location_from(call.get());
 
-    call->add_base_expression(core::move(constructor));
+    constructor->copy_location_from(_alloc);
 
-    return core::move(call);
+    if (_alloc->get_type()->get_reference_type() == reference_type::unique) {
+      memory::unique_ptr<struct_allocation_expression> alloc =
+          memory::make_unique<struct_allocation_expression>(
+              m_allocator, m_allocator);
+      alloc->set_initialization_mode(struct_initialization_mode::unspecified);
+      alloc->copy_location_from(_alloc);
+      alloc->set_type(_alloc->transfer_out_type());
+      alloc->set_copy_initializer(_alloc->transfer_copy_initializer());
+
+      alloc->set_temporary(true);
+      const type* alloc_type = alloc->get_type();
+
+      memory::unique_ptr<cast_expression> cast1 =
+          memory::make_unique<cast_expression>(
+              m_allocator, m_allocator, core::move(alloc));
+      cast1->copy_location_from(cast1->get_expression());
+      cast1->set_type(memory::make_unique<type>(m_allocator, *alloc_type));
+      cast1->get_type()->set_reference_type(reference_type::self);
+
+      memory::unique_ptr<arg_list> args =
+          memory::make_unique<arg_list>(m_allocator, m_allocator);
+      args->copy_location_from(cast1.get());
+      args->add_expression(core::move(cast1));
+
+      memory::unique_ptr<function_call_expression> call =
+          memory::make_unique<function_call_expression>(
+              m_allocator, m_allocator, core::move(args));
+      call->copy_location_from(call->get_args());
+      call->set_type(memory::make_unique<type>(m_allocator, *alloc_type));
+      call->get_type()->set_reference_type(reference_type::self);
+
+      call->add_base_expression(core::move(constructor));
+
+      return core::move(call);
+    } else if (_alloc->get_type()->get_reference_type() == reference_type::shared) {
+      memory::unique_ptr<id_expression> alloc_func =
+          memory::make_unique<id_expression>(
+              m_allocator, m_allocator, "_allocate_shared");
+      alloc_func->copy_location_from(_alloc);
+
+      memory::unique_ptr<sizeof_expression> size_of =
+        memory::make_unique<sizeof_expression>(m_allocator, m_allocator,
+          memory::make_unique<type>(m_allocator, *_alloc->get_type()));
+      size_of->set_type(memory::make_unique<type>(m_allocator, m_allocator,
+        type_classification::size_type));
+      size_of->get_type()->copy_location_from(_alloc);
+      size_of->get_sized_type()->copy_location_from(_alloc);
+      size_of->copy_location_from(_alloc);
+      size_of->get_sized_type()->set_reference_type(reference_type::raw);
+
+      memory::unique_ptr<arg_list> args =
+          memory::make_unique<arg_list>(m_allocator, m_allocator);
+      args->copy_location_from(_alloc);
+      args->add_expression(core::move(size_of));
+
+      memory::unique_ptr<function_call_expression> allocate =
+          memory::make_unique<function_call_expression>(
+              m_allocator, m_allocator, core::move(args));
+      allocate->add_base_expression(core::move(alloc_func));
+      allocate->copy_location_from(_alloc);
+      allocate->set_type(memory::make_unique<type>(m_allocator, m_allocator,
+        type_classification::void_ptr_type));
+      allocate->get_type()->copy_location_from(_alloc);
+
+      memory::unique_ptr<cast_expression> cast_to_self =
+          memory::make_unique<cast_expression>(
+              m_allocator, m_allocator, core::move(allocate));
+      cast_to_self->copy_location_from(_alloc);
+      cast_to_self->set_type(
+          memory::make_unique<type>(m_allocator, *_alloc->get_type()));
+      cast_to_self->get_type()->set_reference_type(reference_type::self);
+
+      args = memory::make_unique<arg_list>(m_allocator, m_allocator);
+      args->copy_location_from(_alloc);
+      args->add_expression(core::move(cast_to_self));
+
+      memory::unique_ptr<function_call_expression> construct =
+        memory::make_unique<function_call_expression>(
+          m_allocator, m_allocator, core::move(args));
+
+      construct->copy_location_from(_alloc);
+      construct->set_type(memory::make_unique<type>(m_allocator, *_alloc->get_type()));
+      construct->get_type()->set_reference_type(reference_type::self);
+      construct->add_base_expression(core::move(constructor));
+
+      memory::unique_ptr<cast_expression> cast =
+          memory::make_unique<cast_expression>(
+              m_allocator, m_allocator, core::move(construct));
+      cast->copy_location_from(_alloc);
+      cast->set_type(
+          memory::make_unique<type>(m_allocator, *_alloc->get_type()));
+      cast->get_type()->copy_location_from(_alloc);
+      cast->set_temporary(true);
+      return core::move(cast);
+    }
+    return nullptr;
+
   }
 
   void walk_parameter(parameter*) {}
@@ -1425,8 +1690,9 @@ public:
       for (auto& a : decls) {
         // Unique objects are in practice backed by raw objects.
         // It is those raw objects that we want to destroy.
-        WN_RELEASE_ASSERT_DESC(a->get_type()->get_reference_type() == reference_type::raw,
-          "Not Implemented: Destruction of non-unique objects");
+        WN_RELEASE_ASSERT_DESC(
+            a->get_type()->get_reference_type() == reference_type::raw,
+            "Not Implemented: Destruction of non-unique objects");
 
         memory::unique_ptr<member_access_expression> access =
             memory::make_unique<member_access_expression>(

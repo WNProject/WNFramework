@@ -17,12 +17,21 @@ namespace wn {
 namespace scripting {
 class script_file;
 class type_validator;
+
+struct external_function {
+  containers::string_view name;
+  uint32_t ret_type;
+  containers::contiguous_range<uint32_t> params;
+};
+
 // Simple helper that parses a script and runs any
 // passes that are required to make the AST valid.
-memory::unique_ptr<scripting::script_file> parse_script(
-    memory::allocator* _allocator, type_validator* _validator,
-    const char* file_name, containers::string_view view, WNLogging::WNLog* _log,
-    size_t* _num_warnings, size_t* _num_errors);
+
+memory::unique_ptr<script_file> parse_script(memory::allocator* _allocator,
+    scripting::type_validator* _validator, const char* file_name,
+    const containers::contiguous_range<external_function>& _external_functions,
+    containers::string_view view, WNLogging::WNLog* _log, size_t* _num_warnings,
+    size_t* _num_errors);
 }  // namespace scripting
 }  // namespace wn
 

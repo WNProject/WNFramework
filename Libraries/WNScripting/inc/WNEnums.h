@@ -44,6 +44,8 @@ enum class type_classification {
   char_type,
   string_type,
   bool_type,
+  size_type,
+  void_ptr_type,
   array_type,
   struct_type,
   custom_type,

@@ -43,6 +43,7 @@ enum class node_type {
       function_call_expression,
       member_access_expression,
       post_unary_expression,
+    sizeof_expression,
     short_circuit_expression,
     struct_allocation_expression,
     unary_expression,
@@ -80,6 +81,24 @@ template <typename T>
 T* cast_to(node* _node) {
   return static_cast<T*>(_node);
 }
+
+template<typename T>
+memory::unique_ptr<T> clone_node(const T* val) {
+  memory::unique_ptr<node> n = val->clone();
+  memory::allocator* alloc = n.get_allocator();
+  // FUNCTION CALLS DO NOT GUARANTEE ARGUMENT ORDERING.
+  // the allocator may have already been destroyed if you call
+  // n.get_allocator()         vvvvv    there
+  return memory::unique_ptr<T>(alloc, static_cast<T*>(n.release()));
+}
+
+template<typename T>
+memory::unique_ptr<T> clone_node(const memory::unique_ptr<T>& val) {
+  memory::unique_ptr<node> n = val->clone();
+  memory::allocator* alloc = n.get_allocator();
+  return memory::unique_ptr<T>(alloc, static_cast<T*>(n.release()));
+}
+
 
 using walk_mutable_expression =
     containers::function<memory::unique_ptr<expression>(expression*)>;
@@ -160,7 +179,14 @@ public:
     return m_allocator;
   }
 
+  virtual memory::unique_ptr<node> clone() const = 0;
+
 protected:
+  void copy_node(const node* _other) {
+    copy_location_from(_other);
+    m_is_dead = _other->m_is_dead;
+  }
+
   // Location of the first character of the first token contributing
   // to this node.
   source_location m_source_location;
@@ -176,6 +202,9 @@ public:
       m_type(0),
       m_reference_type(reference_type::raw),
       m_custom_type(_custom_type, _allocator) {}
+
+  explicit type(memory::allocator* _allocator)
+    : node(_allocator, node_type::type) {}
 
   type(memory::allocator* _allocator, containers::string_view _custom_type)
     : node(_allocator, node_type::type),
@@ -205,6 +234,13 @@ public:
       m_reference_type(_other.m_reference_type),
       m_custom_type(get_allocator()) {
     m_custom_type = _other.m_custom_type;
+  }
+
+  memory::unique_ptr<node> clone() const override {
+    memory::unique_ptr<type> t = memory::make_unique<type>(
+      m_allocator, m_allocator);
+    t->copy_type(this);
+    return core::move(t);
   }
 
   // Only valid after the type_association
@@ -247,7 +283,15 @@ public:
     return m_reference_type;
   }
 
-private:
+protected:
+  void copy_type(const type* _other) {
+    copy_node(_other);
+    m_type = _other->m_type;
+    m_reference_type = _other->m_reference_type;
+    m_custom_type =
+        containers::string(_other->m_custom_type.c_str(), m_allocator);
+  }
+
   uint32_t m_type;
   reference_type m_reference_type;
   containers::string m_custom_type;
@@ -259,8 +303,19 @@ public:
     : type(_allocator, type_classification::array_type),
       m_subtype(memory::unique_ptr<type>(_allocator, _sub_type)) {}
 
+  explicit array_type(memory::allocator* _allocator)
+    : type(_allocator, type_classification::array_type) {}
+
   const type* get_subtype() const {
     return m_subtype.get();
+  }
+
+  memory::unique_ptr<node> clone() const override {
+    memory::unique_ptr<array_type> t = memory::make_unique<array_type>(
+      m_allocator, m_allocator);
+    t->copy_type(this);
+    t->m_subtype = clone_node(m_subtype);
+    return core::move(t);
   }
 
 private:
@@ -273,11 +328,11 @@ class struct_allocation_expression;
 class expression : public node {
 public:
   expression(memory::allocator* _allocator, node_type _type)
-    : node(_allocator, _type), m_type(nullptr) {}
+    : node(_allocator, _type), m_type(nullptr), m_is_temporary(false) {}
 
   expression(memory::allocator* _allocator, node_type _node_type, type* _type)
     : node(_allocator, _node_type),
-      m_type(memory::unique_ptr<type>(_allocator, _type)) {}
+      m_type(memory::unique_ptr<type>(_allocator, _type)), m_is_temporary(false) {}
 
   const type* get_type() const {
     return m_type.get();
@@ -306,61 +361,32 @@ public:
     return core::move(m_type);
   }
 
-  virtual void accumulate_expression_subtree(
-      const containers::function<void(expression*)>&) {}
-  virtual void accumulate_const_expression_subtree(
-      const containers::function<void(const expression*)>&) const {}
+  // Constructs a new expression from this expression but transfers out
+  // all of the internals.
+  virtual memory::unique_ptr<expression> transfer_to_new() = 0;
+
+  bool is_temporary() const {
+    return m_is_temporary;
+  }
+
+  void set_temporary(bool _temporary) {
+    m_is_temporary = _temporary;
+  }
 
 protected:
+  void copy_expression(const expression* _other) {
+    copy_node(_other);
+    m_type = clone_node(_other->m_type);
+    m_is_temporary = _other->m_is_temporary;
+  }
+
   memory::unique_ptr<type> m_type;
-};
-
-class replaced_expression : public expression {
-  replaced_expression(memory::allocator* _allocator)
-    : expression(_allocator, node_type::replaced_expression),
-      m_replacements(_allocator) {}
-
-  void add_expression(memory::unique_ptr<expression>&& replacement) {
-    m_replacements.push_back(core::move(replacement));
-  }
-
-  virtual void walk_children(
-      const walk_mutable_expression& ex, const walk_ftype<type*>&) override {
-    for (auto& a : m_replacements) {
-      handle_expression(ex, a);
-    }
-  }
-  virtual void walk_children(const walk_ftype<const expression*>& ex,
-      const walk_ftype<const type*>&) const override {
-    for (auto& a : m_replacements) {
-      ex(a.get());
-    }
-  }
-
-  void accumulate_const_expression_subtree(
-      const containers::function<void(const expression*)>& _func)
-      const override {
-    for (auto& a : m_replacements) {
-      _func(a.get());
-      a->accumulate_const_expression_subtree(_func);
-    }
-  }
-
-  void accumulate_expression_subtree(
-      const containers::function<void(expression*)>& _func) override {
-    for (auto& a : m_replacements) {
-      _func(a.get());
-      a->accumulate_expression_subtree(_func);
-    }
-  }
-
-private:
-  containers::deque<memory::unique_ptr<expression>> m_replacements;
+  bool m_is_temporary;
 };
 
 class array_allocation_expression : public expression {
 public:
-  array_allocation_expression(memory::allocator* _allocator)
+  explicit array_allocation_expression(memory::allocator* _allocator)
     : expression(_allocator, node_type::array_allocation_expression),
       m_array_initializers(_allocator),
       m_levels(0) {}
@@ -378,29 +404,32 @@ public:
         memory::unique_ptr<expression>(m_allocator, _expression);
   }
 
-  void accumulate_const_expression_subtree(
-      const containers::function<void(const expression*)>& _func)
-      const override {
-    for (auto& a : m_array_initializers) {
-      _func(a.get());
-      a->accumulate_const_expression_subtree(_func);
-    }
-    if (m_copy_initializer) {
-      _func(m_copy_initializer.get());
-      m_copy_initializer->accumulate_const_expression_subtree(_func);
-    }
+  // Constructs a new expression from this expression but transfers out
+  // all of the internals.
+  virtual memory::unique_ptr<expression> transfer_to_new(){
+      memory::unique_ptr<array_allocation_expression> alloc =
+          memory::make_unique<array_allocation_expression>(m_allocator, m_allocator);
+      alloc->copy_location_from(this);
+      alloc->set_type(core::move(m_type));
+      alloc->m_is_dead = m_is_dead;
+      alloc->m_is_temporary = m_is_temporary;
+      alloc->m_array_initializers = core::move(m_array_initializers);
+      alloc->m_copy_initializer = core::move(m_copy_initializer);
+      alloc->m_levels = core::move(m_copy_initializer);
+      return core::move(alloc);
   }
 
-  void accumulate_expression_subtree(
-      const containers::function<void(expression*)>& _func) override {
-    for (auto& a : m_array_initializers) {
-      _func(a.get());
-      a->accumulate_expression_subtree(_func);
+  memory::unique_ptr<node> clone() const override {
+    memory::unique_ptr<array_allocation_expression> t =
+        memory::make_unique<array_allocation_expression>(
+            m_allocator, m_allocator);
+    t->copy_expression(this);
+
+    for(auto& a: m_array_initializers) {
+      t->m_array_initializers.emplace_back(clone_node(a));
     }
-    if (m_copy_initializer) {
-      _func(m_copy_initializer.get());
-      m_copy_initializer->accumulate_expression_subtree(_func);
-    }
+    t->m_copy_initializer = clone_node(m_copy_initializer);
+    return core::move(t);
   }
 
 private:
@@ -417,6 +446,37 @@ public:
       m_arith_type(_type),
       m_lhs(memory::unique_ptr<expression>(m_allocator, _lhs)),
       m_rhs(memory::unique_ptr<expression>(m_allocator, _rhs)) {}
+  explicit binary_expression(memory::allocator* _allocator)
+    : expression(_allocator, node_type::binary_expression),
+      m_arith_type(arithmetic_type::max) {}
+
+  // Constructs a new expression from this expression but transfers out
+  // all of the internals.
+  virtual memory::unique_ptr<expression> transfer_to_new(){
+      memory::unique_ptr<binary_expression> expr =
+          memory::make_unique<binary_expression>(m_allocator, m_allocator);
+      expr->copy_location_from(this);
+      expr->set_type(core::move(m_type));
+      expr->m_is_dead = m_is_dead;
+      expr->m_is_temporary = m_is_temporary;
+      expr->m_arith_type = m_arith_type;
+      expr->m_lhs = core::move(m_lhs);
+      expr->m_rhs = core::move(m_rhs);
+      return core::move(expr);
+  }
+
+  memory::unique_ptr<node> clone() const override {
+    memory::unique_ptr<binary_expression> t =
+        memory::make_unique<binary_expression>(m_allocator, m_allocator);
+    t->copy_expression(this);
+
+    t->m_arith_type = m_arith_type;
+    t->m_lhs = clone_node(m_lhs);
+    t->m_rhs = clone_node(m_rhs);
+
+    return core::move(t);
+  }
+
   const expression* get_lhs() const {
     return m_lhs.get();
   }
@@ -438,23 +498,6 @@ public:
     _func(m_rhs.get());
   }
 
-  void accumulate_const_expression_subtree(
-      const containers::function<void(const expression*)>& _func)
-      const override {
-    _func(m_lhs.get());
-    m_lhs->accumulate_const_expression_subtree(_func);
-    _func(m_rhs.get());
-    m_rhs->accumulate_const_expression_subtree(_func);
-  }
-
-  void accumulate_expression_subtree(
-      const containers::function<void(expression*)>& _func) override {
-    _func(m_lhs.get());
-    m_lhs->accumulate_expression_subtree(_func);
-    _func(m_rhs.get());
-    m_rhs->accumulate_expression_subtree(_func);
-  }
-
 private:
   arithmetic_type m_arith_type;
   memory::unique_ptr<expression> m_lhs;
@@ -469,6 +512,34 @@ public:
       m_condition(memory::unique_ptr<expression>(m_allocator, _cond)),
       m_lhs(memory::unique_ptr<expression>(m_allocator, _lhs)),
       m_rhs(memory::unique_ptr<expression>(m_allocator, _rhs)) {}
+
+  explicit cond_expression(memory::allocator* _allocator)
+    : expression(_allocator, node_type::cond_expression) {}
+
+  virtual memory::unique_ptr<expression> transfer_to_new() {
+    memory::unique_ptr<cond_expression> expr =
+        memory::make_unique<cond_expression>(m_allocator, m_allocator);
+    expr->copy_location_from(this);
+    expr->set_type(core::move(m_type));
+    expr->m_is_dead = m_is_dead;
+    expr->m_is_temporary = m_is_temporary;
+    expr->m_condition = core::move(m_condition);
+    expr->m_lhs = core::move(m_lhs);
+    expr->m_rhs = core::move(m_rhs);
+    return core::move(expr);
+  }
+
+  memory::unique_ptr<node> clone() const override {
+    memory::unique_ptr<cond_expression> t =
+        memory::make_unique<cond_expression>(m_allocator, m_allocator);
+    t->copy_expression(this);
+
+    t->m_condition = clone_node(m_condition);
+    t->m_lhs = clone_node(m_lhs);
+    t->m_rhs = clone_node(m_rhs);
+
+    return core::move(t);
+  }
 
 private:
   memory::unique_ptr<expression> m_condition;
@@ -489,6 +560,9 @@ public:
       m_type_classification(_type->get_index()),
       m_text(_text, _allocator) {}
 
+  explicit constant_expression(memory::allocator* _allocator)
+    : expression(_allocator, node_type::constant_expression) {}
+
   uint32_t get_index() const {
     return m_type_classification;
   }
@@ -503,6 +577,29 @@ public:
   virtual void walk_children(const walk_ftype<const expression*>&,
       const walk_ftype<const type*>& _type) const override {
     _type(m_type.get());
+  }
+
+  virtual memory::unique_ptr<expression> transfer_to_new() {
+    memory::unique_ptr<constant_expression> expr =
+        memory::make_unique<constant_expression>(m_allocator, m_allocator);
+    expr->copy_location_from(this);
+    expr->set_type(core::move(m_type));
+    expr->m_is_dead = m_is_dead;
+    expr->m_is_temporary = m_is_temporary;
+    expr->m_type_classification = m_type_classification;
+    expr->m_text = core::move(m_text);
+    return core::move(expr);
+  }
+
+  memory::unique_ptr<node> clone() const override {
+    memory::unique_ptr<constant_expression> t =
+        memory::make_unique<constant_expression>(m_allocator, m_allocator);
+    t->copy_expression(this);
+
+    t->m_type_classification = m_type_classification;
+    t->m_text = containers::string(m_text.c_str(), m_allocator);
+
+    return core::move(t);
   }
 
 private:
@@ -521,6 +618,10 @@ public:
     : expression(_allocator, node_type::id_expression),
       m_source({nullptr, nullptr, containers::deque<function*>(_allocator)}),
       m_name(_name.to_string(_allocator)) {}
+
+  explicit id_expression(memory::allocator* _allocator)
+    : expression(_allocator, node_type::id_expression),
+      m_source({nullptr, nullptr, containers::deque<function*>(_allocator)}) {}
 
   containers::string_view get_name() const {
     return m_name;
@@ -556,6 +657,29 @@ public:
     return m_source;
   }
 
+  virtual memory::unique_ptr<expression> transfer_to_new() {
+    memory::unique_ptr<id_expression> expr =
+        memory::make_unique<id_expression>(m_allocator, m_allocator);
+    expr->copy_location_from(this);
+    expr->set_type(core::move(m_type));
+    expr->m_is_dead = m_is_dead;
+    expr->m_is_temporary = m_is_temporary;
+    expr->m_source.copy_from(m_source);
+    expr->m_name = core::move(m_name);
+    return core::move(expr);
+  }
+
+  memory::unique_ptr<node> clone() const override {
+    memory::unique_ptr<id_expression> t =
+        memory::make_unique<id_expression>(m_allocator, m_allocator);
+    t->copy_expression(this);
+
+    t->set_id_source(m_source);
+    t->m_name= containers::string(m_name.c_str(), m_allocator);
+
+    return core::move(t);
+  }
+
 private:
   id_source m_source;
   containers::string m_name;
@@ -565,6 +689,21 @@ class null_allocation_expression : public expression {
 public:
   null_allocation_expression(memory::allocator* _allocator)
     : expression(_allocator, node_type::null_allocation_expression) {}
+  virtual memory::unique_ptr<expression> transfer_to_new() {
+    memory::unique_ptr<null_allocation_expression> expr =
+        memory::make_unique<null_allocation_expression>(m_allocator, m_allocator);
+    expr->copy_location_from(this);
+    expr->set_type(core::move(m_type));
+    expr->m_is_dead = m_is_dead;
+    expr->m_is_temporary = m_is_temporary;
+    return core::move(expr);
+  }
+  memory::unique_ptr<node> clone() const override {
+    memory::unique_ptr<null_allocation_expression> t =
+        memory::make_unique<null_allocation_expression>(m_allocator, m_allocator);
+    t->copy_expression(this);
+    return core::move(t);
+  }
 
 private:
 };
@@ -598,20 +737,11 @@ public:
     expr(m_base_expression.get());
   }
 
-  void accumulate_const_expression_subtree(
-      const containers::function<void(const expression*)>& _func)
-      const override {
-    _func(m_base_expression.get());
-    m_base_expression->accumulate_const_expression_subtree(_func);
-  }
-
-  void accumulate_expression_subtree(
-      const containers::function<void(expression*)>& _func) override {
-    _func(m_base_expression.get());
-    m_base_expression->accumulate_expression_subtree(_func);
-  }
-
 protected:
+  void copy_post_expression(const post_expression* _other) {
+    copy_expression(_other);
+    m_base_expression = clone_node(_other->m_base_expression);
+  }
   memory::unique_ptr<expression> m_base_expression;
 };
 
@@ -620,6 +750,29 @@ public:
   array_access_expression(memory::allocator* _allocator, expression* _expr)
     : post_expression(_allocator, node_type::array_access_expression),
       m_array_access(memory::unique_ptr<expression>(m_allocator, _expr)) {}
+
+  explicit array_access_expression(memory::allocator* _allocator)
+    : post_expression(_allocator, node_type::array_access_expression) {}
+
+  virtual memory::unique_ptr<expression> transfer_to_new() {
+    memory::unique_ptr<array_access_expression> expr =
+        memory::make_unique<array_access_expression>(m_allocator, m_allocator);
+    expr->copy_location_from(this);
+    expr->set_type(core::move(m_type));
+    expr->m_is_dead = m_is_dead;
+    expr->m_is_temporary = m_is_temporary;
+    expr->m_base_expression = core::move(m_base_expression);
+    expr->m_array_access = core::move(m_array_access);
+    return core::move(expr);
+  }
+
+  memory::unique_ptr<node> clone() const override {
+    memory::unique_ptr<array_access_expression> t =
+        memory::make_unique<array_access_expression>(m_allocator, m_allocator);
+    t->copy_post_expression(this);
+    t->m_array_access = clone_node(m_array_access);
+    return core::move(t);
+  }
 
 private:
   memory::unique_ptr<expression> m_array_access;
@@ -641,6 +794,9 @@ public:
       m_ss_type(_type),
       m_lhs(core::move(_lhs)),
       m_rhs(core::move(_rhs)) {}
+
+  explicit short_circuit_expression(memory::allocator* _allocator)
+    : expression(_allocator, node_type::short_circuit_expression) {}
 
   const expression* get_lhs() const {
     return m_lhs.get();
@@ -666,21 +822,27 @@ public:
     return m_ss_type;
   }
 
-  void accumulate_const_expression_subtree(
-      const containers::function<void(const expression*)>& _func)
-      const override {
-    _func(m_lhs.get());
-    m_lhs->accumulate_const_expression_subtree(_func);
-    _func(m_rhs.get());
-    m_rhs->accumulate_const_expression_subtree(_func);
+  virtual memory::unique_ptr<expression> transfer_to_new() {
+    memory::unique_ptr<short_circuit_expression> expr =
+        memory::make_unique<short_circuit_expression>(m_allocator, m_allocator);
+    expr->copy_location_from(this);
+    expr->set_type(core::move(m_type));
+    expr->m_is_dead = m_is_dead;
+    expr->m_is_temporary = m_is_temporary;
+    expr->m_ss_type = m_ss_type;
+    expr->m_lhs = core::move(m_lhs);
+    expr->m_rhs = core::move(m_rhs);
+    return core::move(expr);
   }
 
-  void accumulate_expression_subtree(
-      const containers::function<void(expression*)>& _func) override {
-    _func(m_lhs.get());
-    m_lhs->accumulate_expression_subtree(_func);
-    _func(m_rhs.get());
-    m_rhs->accumulate_expression_subtree(_func);
+  memory::unique_ptr<node> clone() const override {
+    memory::unique_ptr<short_circuit_expression> t =
+        memory::make_unique<short_circuit_expression>(m_allocator, m_allocator);
+    t->copy_expression(this);
+    t->m_ss_type = m_ss_type;
+    t->m_lhs = clone_node(m_lhs);
+    t->m_rhs = clone_node(m_rhs);
+    return core::move(t);
   }
 
 private:
@@ -694,12 +856,36 @@ public:
   member_access_expression(memory::allocator* _allocator, const char* _member)
     : post_expression(_allocator, node_type::member_access_expression),
       m_member(_member, _allocator) {}
+
   member_access_expression(
       memory::allocator* _allocator, containers::string_view _member)
     : post_expression(_allocator, node_type::member_access_expression),
       m_member(_member.to_string(_allocator)) {}
+
+  member_access_expression(memory::allocator* _allocator)
+    : post_expression(_allocator, node_type::member_access_expression) {}
+
   const containers::string_view get_name() const {
     return m_member;
+  }
+  virtual memory::unique_ptr<expression> transfer_to_new() {
+    memory::unique_ptr<member_access_expression> expr =
+        memory::make_unique<member_access_expression>(m_allocator, m_allocator);
+    expr->copy_location_from(this);
+    expr->set_type(core::move(m_type));
+    expr->m_is_dead = m_is_dead;
+    expr->m_is_temporary = m_is_temporary;
+    expr->m_base_expression = core::move(m_base_expression);
+    expr->m_member = core::move(m_member);
+    return core::move(expr);
+  }
+
+  memory::unique_ptr<node> clone() const override {
+    memory::unique_ptr<member_access_expression> t =
+        memory::make_unique<member_access_expression>(m_allocator, m_allocator);
+    t->copy_post_expression(this);
+    t->m_member = containers::string(m_member.c_str(), m_allocator);
+    return core::move(t);
   }
 
 private:
@@ -711,6 +897,28 @@ public:
   post_unary_expression(memory::allocator* _allocator, post_unary_type _type)
     : post_expression(_allocator, node_type::post_unary_expression),
       m_unary_type(_type) {}
+  explicit post_unary_expression(memory::allocator* _allocator)
+    : post_expression(_allocator, node_type::post_unary_expression){}
+
+  virtual memory::unique_ptr<expression> transfer_to_new() {
+    memory::unique_ptr<post_unary_expression> expr =
+        memory::make_unique<post_unary_expression>(m_allocator, m_allocator);
+    expr->copy_location_from(this);
+    expr->set_type(core::move(m_type));
+    expr->m_is_dead = m_is_dead;
+    expr->m_is_temporary = m_is_temporary;
+    expr->m_base_expression = core::move(m_base_expression);
+    expr->m_unary_type = core::move(m_unary_type);
+    return core::move(expr);
+  }
+
+  memory::unique_ptr<node> clone() const override {
+    memory::unique_ptr<post_unary_expression> t =
+        memory::make_unique<post_unary_expression>(m_allocator, m_allocator);
+    t->copy_post_expression(this);
+    t->m_unary_type = m_unary_type;
+    return core::move(t);
+  }
 
 private:
   post_unary_type m_unary_type;
@@ -726,6 +934,9 @@ public:
       memory::unique_ptr<expression>&& _expression)
     : expression(_allocator, node_type::cast_expression),
       m_expression(core::move(_expression)) {}
+
+  explicit cast_expression(memory::allocator* _allocator)
+    : expression(_allocator, node_type::cast_expression) {}
 
   const expression* get_expression() const {
     return m_expression.get();
@@ -743,21 +954,79 @@ public:
     _type(m_type.get());
   }
 
-  void accumulate_const_expression_subtree(
-      const containers::function<void(const expression*)>& _func)
-      const override {
-    _func(m_expression.get());
-    m_expression->accumulate_const_expression_subtree(_func);
+  virtual memory::unique_ptr<expression> transfer_to_new() {
+    memory::unique_ptr<cast_expression> expr =
+        memory::make_unique<cast_expression>(m_allocator, m_allocator);
+    expr->copy_location_from(this);
+    expr->set_type(core::move(m_type));
+    expr->m_is_dead = m_is_dead;
+    expr->m_is_temporary = m_is_temporary;
+    expr->m_expression = core::move(m_expression);
+    return core::move(expr);
   }
 
-  void accumulate_expression_subtree(
-      const containers::function<void(expression*)>& _func) override {
-    _func(m_expression.get());
-    m_expression->accumulate_expression_subtree(_func);
+  memory::unique_ptr<node> clone() const override {
+    memory::unique_ptr<cast_expression> t =
+        memory::make_unique<cast_expression>(m_allocator, m_allocator);
+    t->copy_expression(this);
+    t->m_expression = clone_node(m_expression);
+    return core::move(t);
   }
 
 private:
   memory::unique_ptr<expression> m_expression;
+};
+
+class sizeof_expression: public expression {
+public:
+  sizeof_expression(
+      memory::allocator* _allocator, memory::unique_ptr<type>&& _type)
+    : expression(_allocator, node_type::sizeof_expression),
+      m_sized_type(core::move(_type)) {}
+  explicit sizeof_expression(memory::allocator* _allocator)
+    : expression(_allocator, node_type::sizeof_expression) {}
+
+  const type* get_sized_type() const {
+    return m_sized_type.get();
+  }
+
+  type* get_sized_type() {
+    return m_sized_type.get();
+  }
+
+  virtual void walk_children(const walk_mutable_expression&,
+      const walk_ftype<type*>& _type) override {
+    _type(m_type.get());
+    _type(m_sized_type.get());
+  }
+
+  virtual void walk_children(const walk_ftype<const expression*>&,
+      const walk_ftype<const type*>& _type) const override {
+    _type(m_type.get());
+    _type(m_sized_type.get());
+  }
+
+  virtual memory::unique_ptr<expression> transfer_to_new() {
+    memory::unique_ptr<sizeof_expression> expr =
+        memory::make_unique<sizeof_expression>(m_allocator, m_allocator);
+    expr->copy_location_from(this);
+    expr->set_type(core::move(m_type));
+    expr->m_is_dead = m_is_dead;
+    expr->m_is_temporary = m_is_temporary;
+    expr->m_sized_type = core::move(m_sized_type);
+    return core::move(expr);
+  }
+
+  memory::unique_ptr<node> clone() const override {
+    memory::unique_ptr<sizeof_expression> t =
+        memory::make_unique<sizeof_expression>(m_allocator, m_allocator);
+    t->copy_expression(this);
+    t->m_sized_type = clone_node(m_sized_type);
+    return core::move(t);
+  }
+
+private:
+  memory::unique_ptr<type> m_sized_type;
 };
 
 enum class struct_initialization_mode {
@@ -770,11 +1039,10 @@ enum class struct_initialization_mode {
 
 class struct_allocation_expression : public expression {
 public:
-  struct_allocation_expression(memory::allocator* _allocator)
+  explicit struct_allocation_expression(memory::allocator* _allocator)
     : expression(_allocator, node_type::struct_allocation_expression),
       m_copy_initializer(nullptr),
-      m_init_mode(struct_initialization_mode::invalid),
-      m_is_temporary(false) {}
+      m_init_mode(struct_initialization_mode::invalid) {}
 
   void set_copy_initializer(expression* _expression) {
     m_copy_initializer =
@@ -805,33 +1073,28 @@ public:
     _type(m_type.get());
   }
 
-  void accumulate_const_expression_subtree(
-      const containers::function<void(const expression*)>& _func)
-      const override {
-    if (m_copy_initializer) {
-      _func(m_copy_initializer.get());
-      m_copy_initializer->accumulate_const_expression_subtree(_func);
-    }
+  virtual memory::unique_ptr<expression> transfer_to_new() {
+    memory::unique_ptr<struct_allocation_expression> expr =
+        memory::make_unique<struct_allocation_expression>(m_allocator, m_allocator);
+    expr->copy_location_from(this);
+    expr->set_type(core::move(m_type));
+    expr->m_is_dead = m_is_dead;
+    expr->m_is_temporary = m_is_temporary;
+    expr->m_copy_initializer = core::move(m_copy_initializer);
+    expr->m_init_mode = m_init_mode;
+    return core::move(expr);
   }
 
-  void accumulate_expression_subtree(
-      const containers::function<void(expression*)>& _func) override {
-    if (m_copy_initializer) {
-      _func(m_copy_initializer.get());
-      m_copy_initializer->accumulate_expression_subtree(_func);
-    }
-  }
-
-  bool is_temporary() const {
-    return m_is_temporary;
-  }
-
-  void make_temporary() {
-    m_is_temporary = true;
+  memory::unique_ptr<node> clone() const override {
+    memory::unique_ptr<struct_allocation_expression> t =
+        memory::make_unique<struct_allocation_expression>(m_allocator, m_allocator);
+    t->copy_expression(this);
+    t->m_copy_initializer = clone_node(m_copy_initializer);
+    t->m_init_mode = m_init_mode;
+    return core::move(t);
   }
 
 private:
-  bool m_is_temporary;
   memory::unique_ptr<expression> m_copy_initializer;
   struct_initialization_mode m_init_mode;
 };
@@ -844,17 +1107,28 @@ public:
       m_unary_type(_type),
       m_root_expression(memory::unique_ptr<expression>(m_allocator, _expr)) {}
 
-  void accumulate_const_expression_subtree(
-      const containers::function<void(const expression*)>& _func)
-      const override {
-    _func(m_root_expression.get());
-    m_root_expression->accumulate_const_expression_subtree(_func);
+  explicit unary_expression(memory::allocator* _allocator)
+    : expression(_allocator, node_type::unary_expression) {}
+
+  virtual memory::unique_ptr<expression> transfer_to_new() {
+    memory::unique_ptr<unary_expression> expr =
+        memory::make_unique<unary_expression>(m_allocator, m_allocator);
+    expr->copy_location_from(this);
+    expr->set_type(core::move(m_type));
+    expr->m_is_dead = m_is_dead;
+    expr->m_is_temporary = m_is_temporary;
+    expr->m_root_expression = core::move(m_root_expression);
+    expr->m_unary_type = m_unary_type;
+    return core::move(expr);
   }
 
-  void accumulate_expression_subtree(
-      const containers::function<void(expression*)>& _func) override {
-    _func(m_root_expression.get());
-    m_root_expression->accumulate_expression_subtree(_func);
+  memory::unique_ptr<node> clone() const override {
+    memory::unique_ptr<unary_expression> t =
+        memory::make_unique<unary_expression>(m_allocator, m_allocator);
+    t->copy_expression(this);
+    t->m_root_expression = clone_node(m_root_expression);
+    t->m_unary_type = m_unary_type;
+    return core::move(t);
   }
 
 private:
@@ -875,6 +1149,7 @@ public:
     : instruction(_allocator, _type) {
     m_returns = _returns;
   }
+
   // Returns true if this instruction causes the function to return.
   bool returns() const {
     return (m_returns);
@@ -918,35 +1193,20 @@ public:
   }
 
 protected:
+  void copy_instruction(const instruction* _other) {
+    copy_node(_other);
+    m_temporaries.insert(m_temporaries.end(), _other->m_temporaries.begin(),
+        _other->m_temporaries.end());
+    for (const auto& temp : _other->m_temporary_declarations) {
+      m_temporary_declarations.emplace_back(clone_node(temp));
+    }
+    m_is_dead = _other->m_is_dead;
+    m_returns = _other->m_returns;
+  }
   containers::deque<const struct_allocation_expression*> m_temporaries;
   containers::deque<memory::unique_ptr<declaration>> m_temporary_declarations;
   bool m_is_dead;
   bool m_returns;
-};
-
-struct function_expression {
-  function_expression(
-      memory::allocator* _allocator, expression* _expr, bool _hand_ownership)
-    : m_expr(_allocator, _expr), m_hand_ownership(_hand_ownership) {}
-  function_expression(
-      memory::unique_ptr<expression>&& _expr, bool _hand_ownership)
-    : m_expr(core::move(_expr)), m_hand_ownership(_hand_ownership) {}
-
-  void accumulate_const_expression_subtree(
-      const containers::function<void(const expression*)>& _func)
-      const {
-    _func(m_expr.get());
-    m_expr->accumulate_const_expression_subtree(_func);
-  }
-
-  void accumulate_expression_subtree(
-      const containers::function<void(expression*)>& _func) {
-    _func(m_expr.get());
-    m_expr->accumulate_expression_subtree(_func);
-  }
-
-  memory::unique_ptr<expression> m_expr;
-  bool m_hand_ownership;
 };
 
 struct expression_instruction : public instruction {
@@ -958,6 +1218,9 @@ struct expression_instruction : public instruction {
       memory::allocator* _allocator, memory::unique_ptr<expression>&& _expr)
     : instruction(_allocator, node_type::expression_instruction),
       m_expression(core::move(_expr)) {}
+
+  expression_instruction(memory::allocator* _allocator)
+    : instruction(_allocator, node_type::expression_instruction) {}
 
   virtual void walk_children(const walk_mutable_instruction&,
       const walk_mutable_expression& _cond, const walk_ftype<type*>&,
@@ -980,6 +1243,14 @@ struct expression_instruction : public instruction {
 
   expression* get_expression() {
     return m_expression.get();
+  }
+
+  memory::unique_ptr<node> clone() const override {
+    memory::unique_ptr<expression_instruction> t =
+        memory::make_unique<expression_instruction>(m_allocator, m_allocator);
+    t->copy_instruction(this);
+    t->m_expression = clone_node(m_expression);
+    return core::move(t);
   }
 
 private:
@@ -1056,8 +1327,30 @@ public:
     m_instructions = core::move(instructions);
   }
 
+  memory::unique_ptr<node> clone() const override {
+    memory::unique_ptr<instruction_list> t =
+        memory::make_unique<instruction_list>(m_allocator, m_allocator);
+    t->copy_instruction(this);
+    for(const auto& inst: m_instructions) {
+      t->m_instructions.push_back(clone_node(inst));
+    }
+    return core::move(t);
+  }
+
 private:
   containers::deque<memory::unique_ptr<instruction>> m_instructions;
+};
+
+struct function_expression {
+  function_expression(
+      memory::allocator* _allocator, expression* _expr, bool _hand_ownership)
+    : m_expr(_allocator, _expr), m_hand_ownership(_hand_ownership) {}
+  function_expression(
+      memory::unique_ptr<expression>&& _expr, bool _hand_ownership)
+    : m_expr(core::move(_expr)), m_hand_ownership(_hand_ownership) {}
+
+  memory::unique_ptr<expression> m_expr;
+  bool m_hand_ownership;
 };
 
 class arg_list : public node {
@@ -1085,20 +1378,16 @@ public:
     return (m_expression_list);
   }
 
-  void accumulate_const_expression_subtree(
-      const containers::function<void(const expression*)>& _func) const {
-    for (auto& a : m_expression_list) {
-      a->accumulate_const_expression_subtree(_func);
+  memory::unique_ptr<node> clone() const override {
+    memory::unique_ptr<arg_list> t =
+        memory::make_unique<arg_list>(m_allocator, m_allocator);
+    t->copy_node(this);
+    for(const auto& expr: m_expression_list) {
+      t->m_expression_list.push_back(memory::make_unique<function_expression>(
+          m_allocator, clone_node(expr->m_expr), expr->m_hand_ownership));
     }
+    return core::move(t);
   }
-
-  void accumulate_expression_subtree(
-      const containers::function<void(expression*)>& _func) {
-    for (auto& a : m_expression_list) {
-      a->accumulate_expression_subtree(_func);
-    }
-  }
-
 
 private:
   containers::deque<memory::unique_ptr<function_expression>> m_expression_list;
@@ -1141,6 +1430,10 @@ public:
     m_callee = _callee;
   }
 
+  function* callee() {
+    return m_callee;
+  }
+
   const function* callee() const {
     return m_callee;
   }
@@ -1165,25 +1458,34 @@ public:
     return empty_expressions;
   }
 
+  memory::unique_ptr<arg_list> copy_out_args() {
+    return core::move(m_args);
+  }
+
   const arg_list* get_args() const {
     return m_args.get();
   }
 
-  void accumulate_const_expression_subtree(
-      const containers::function<void(const expression*)>& _func)
-      const override {
-    if (m_args) {
-      m_args->accumulate_const_expression_subtree(_func);
-    }
+  virtual memory::unique_ptr<expression> transfer_to_new(){
+      memory::unique_ptr<function_call_expression> alloc =
+          memory::make_unique<function_call_expression>(m_allocator, m_allocator);
+      alloc->copy_location_from(this);
+      alloc->set_type(core::move(m_type));
+      alloc->m_is_dead = m_is_dead;
+      alloc->m_is_temporary = m_is_temporary;
+      alloc->m_callee = m_callee;
+      alloc->m_args = core::move(m_args);
+      return core::move(alloc);
   }
 
-  void accumulate_expression_subtree(
-      const containers::function<void(expression*)>& _func) override {
-    if (m_args) {
-      m_args->accumulate_expression_subtree(_func);
-    }
+  memory::unique_ptr<node> clone() const override {
+    memory::unique_ptr<function_call_expression> t =
+        memory::make_unique<function_call_expression>(m_allocator, m_allocator);
+    t->copy_post_expression(this);
+    t->m_callee = m_callee;
+    t->m_args = clone_node(m_args);
+    return core::move(t);
   }
-
 
 private:
   function* m_callee;
@@ -1204,6 +1506,9 @@ public:
       m_type(core::move(_type)),
       m_name(_name.to_string(_allocator)) {}
 
+  explicit parameter(memory::allocator* _allocator)
+    : node(_allocator, scripting::node_type::parameter) {}
+
   const containers::string_view get_name() const {
     return (m_name.c_str());
   }
@@ -1219,6 +1524,15 @@ public:
   }
   virtual void walk_children(const walk_ftype<const type*>& _type_func) const {
     _type_func(m_type.get());
+  }
+
+  memory::unique_ptr<node> clone() const override {
+    memory::unique_ptr<parameter> t =
+        memory::make_unique<parameter>(m_allocator, m_allocator);
+    t->copy_node(this);
+    t->m_name = containers::string(m_name.c_str(), m_allocator);
+    t->m_type = clone_node(m_type);
+    return core::move(t);
   }
 
 private:
@@ -1312,6 +1626,19 @@ public:
     }
   }
 
+  memory::unique_ptr<node> clone() const override {
+    memory::unique_ptr<declaration> t =
+        memory::make_unique<declaration>(m_allocator, m_allocator);
+    t->copy_instruction(this);
+    t->m_parameter = clone_node(m_parameter);
+    t->m_expression = clone_node(m_expression);
+    t->m_unsized_array_initializers = m_unsized_array_initializers;
+    for(const auto& expr: m_sized_array_initializers) {
+      t->m_sized_array_initializers.push_back(clone_node(expr));
+    }
+    return core::move(t);
+  }
+
 private:
   memory::unique_ptr<parameter> m_parameter;
   memory::unique_ptr<expression> m_expression;
@@ -1334,6 +1661,11 @@ public:
       m_parent_name = _parent_type;
     }
   }
+
+  struct_definition(memory::allocator* _allocator)
+    : node(_allocator, node_type::struct_definition),
+      m_struct_members(_allocator),
+      m_struct_functions(_allocator) {}
 
   void add_struct_elem(declaration* _decl) {
     m_struct_members.emplace_back(
@@ -1374,6 +1706,22 @@ public:
     }
   }
 
+  memory::unique_ptr<node> clone() const override {
+    memory::unique_ptr<struct_definition> t =
+        memory::make_unique<struct_definition>(m_allocator, m_allocator);
+    t->copy_node(this);
+    t->m_name = containers::string(m_name.c_str(), m_allocator);
+    t->m_parent_name = containers::string(m_parent_name.c_str(), m_allocator);
+    t->m_is_class = m_is_class;
+    for (auto& member : m_struct_members) {
+      t->m_struct_members.push_back(clone_node(member));
+    }
+    for(auto& function: m_struct_functions) {
+      t->m_struct_functions.push_back(clone_node(function));
+    }
+    return core::move(t);
+  }
+
 private:
   containers::string m_name;
   containers::string m_parent_name;
@@ -1384,8 +1732,10 @@ private:
 
 class parameter_list : public node {
 public:
+  explicit parameter_list(memory::allocator* _allocator)
+    : node(_allocator, node_type::parameter_list), m_parameters(_allocator) {}
   parameter_list(memory::allocator* _allocator, parameter* _param)
-    : node(_allocator, node_type::parameter_list), m_parameters(_allocator) {
+    : parameter_list(_allocator) {
     m_parameters.emplace_back(
         memory::unique_ptr<parameter>(m_allocator, _param));
   }
@@ -1401,9 +1751,23 @@ public:
         memory::unique_ptr<parameter>(m_allocator, _param));
   }
 
+  void add_parameter(memory::unique_ptr<parameter>&& _param) {
+    m_parameters.emplace_back(core::move(_param));
+  }
+
   const containers::deque<memory::unique_ptr<parameter>>& get_parameters()
       const {
     return m_parameters;
+  }
+
+  memory::unique_ptr<node> clone() const override {
+    memory::unique_ptr<parameter_list> t =
+        memory::make_unique<parameter_list>(m_allocator, m_allocator);
+    t->copy_node(this);
+    for (auto& param : m_parameters) {
+      t->m_parameters.push_back(clone_node(param));
+    }
+    return core::move(t);
   }
 
 private:
@@ -1421,6 +1785,9 @@ public:
       m_this_pointer(nullptr),
       m_is_override(false),
       m_is_virtual(false) {}
+
+  explicit function(memory::allocator* _allocator)
+    : node(_allocator, node_type::function) {}
 
   function(memory::allocator* _allocator,
       memory::unique_ptr<parameter>&& _signature,
@@ -1462,12 +1829,16 @@ public:
       const walk_ftype<type*>& _type) {
     m_signature->walk_children(_type);
     _enter_scope();
-    if (m_parameters) {
-      for (auto& param : m_parameters->get_parameters()) {
-        _parameter(param.get());
+    if (m_body) {
+      if (m_parameters) {
+        for (auto& param : m_parameters->get_parameters()) {
+          _parameter(param.get());
+        }
       }
+
+      _instructions(m_body.get());
     }
-    _instructions(m_body.get());
+
     _leave_scope();
   }
 
@@ -1481,12 +1852,15 @@ public:
     tmp_param->walk_children(_type);
 
     _enter_scope();
-    if (m_parameters) {
-      for (auto& param : m_parameters->get_parameters()) {
-        _parameter(param.get());
+    if (m_body) {
+      if (m_parameters) {
+        for (auto& param : m_parameters->get_parameters()) {
+          _parameter(param.get());
+        }
       }
+
+      _instructions(m_body.get());
     }
-    _instructions(m_body.get());
     _leave_scope();
   }
 
@@ -1508,6 +1882,20 @@ public:
     return m_this_pointer;
   }
 
+  memory::unique_ptr<node> clone() const override {
+    memory::unique_ptr<function> t =
+        memory::make_unique<function>(m_allocator, m_allocator);
+    t->copy_node(this);
+    t->m_signature = clone_node(m_signature);
+    t->m_parameters = clone_node(m_parameters);
+    t->m_body = clone_node(m_body);
+    t->m_this_pointer = m_this_pointer;
+    t->m_mangled_name = containers::string(m_mangled_name.c_str(), m_allocator);
+    t->m_is_override = m_is_override;
+    t->m_is_virtual = m_is_virtual;
+    return core::move(t);
+  }
+
 private:
   memory::unique_ptr<parameter> m_signature;
   memory::unique_ptr<parameter_list> m_parameters;
@@ -1527,8 +1915,24 @@ public:
 
   lvalue(memory::allocator* _allocator, memory::unique_ptr<expression>&& _expr)
     : node(_allocator, node_type::lvalue), m_expression(core::move(_expr)) {}
+
+  explicit lvalue(memory::allocator* _allocator)
+    : node(_allocator, node_type::lvalue) {}
+
   const expression* get_expression() const {
     return m_expression.get();
+  }
+
+  memory::unique_ptr<expression> transfer_expression() {
+    return core::move(m_expression);
+  }
+
+  memory::unique_ptr<node> clone() const override {
+    memory::unique_ptr<lvalue> t =
+        memory::make_unique<lvalue>(m_allocator, m_allocator);
+    t->copy_node(this);
+    t->m_expression = clone_node(m_expression);
+    return core::move(t);
   }
 
 private:
@@ -1542,6 +1946,9 @@ public:
     : instruction(_allocator, node_type::assignment_instruction),
       m_lvalue(memory::unique_ptr<lvalue>(m_allocator, _lvalue)),
       m_assign_type(assign_type::max) {}
+
+  explicit assignment_instruction(memory::allocator* _allocator)
+    : instruction(_allocator, node_type::assignment_instruction) {}
 
   assignment_instruction(
       memory::allocator* _allocator, memory::unique_ptr<lvalue>&& _lvalue)
@@ -1569,10 +1976,17 @@ public:
   const lvalue* get_lvalue() const {
     return m_lvalue.get();
   }
+  lvalue* get_lvalue() {
+    return m_lvalue.get();
+  }
   expression* get_expression() {
     return m_assign_expression.get();
   }
-private:
+
+  memory::unique_ptr<expression> transfer_expression() {
+    return core::move(m_assign_expression);
+  }
+
   virtual void walk_children(const walk_mutable_instruction&,
       const walk_mutable_expression& expr, const walk_ftype<type*>&,
       const walk_ftype<instruction_list*>&, const walk_scope&,
@@ -1593,6 +2007,17 @@ private:
     }
   }
 
+  memory::unique_ptr<node> clone() const override {
+    memory::unique_ptr<assignment_instruction> t =
+        memory::make_unique<assignment_instruction>(m_allocator, m_allocator);
+    t->copy_instruction(this);
+    t->m_lvalue = clone_node(m_lvalue);
+    t->m_assign_expression = clone_node(m_assign_expression);
+    t->m_assign_type = m_assign_type;
+    return core::move(t);
+  }
+
+private:
   assign_type m_assign_type;
   memory::unique_ptr<lvalue> m_lvalue;
   memory::unique_ptr<expression> m_assign_expression;
@@ -1606,6 +2031,18 @@ public:
       m_condition(memory::unique_ptr<expression>(m_allocator, _cond)),
       m_body(memory::unique_ptr<instruction_list>(m_allocator, _body)) {}
 
+  do_instruction(memory::allocator* _allocator)
+    : instruction(_allocator, node_type::do_instruction) {}
+
+  memory::unique_ptr<node> clone() const override {
+    memory::unique_ptr<do_instruction> t =
+        memory::make_unique<do_instruction>(m_allocator, m_allocator);
+    t->copy_instruction(this);
+    t->m_condition = clone_node(m_condition);
+    t->m_body = clone_node(m_body);
+    return core::move(t);
+  }
+
 private:
   memory::unique_ptr<expression> m_condition;
   memory::unique_ptr<instruction_list> m_body;
@@ -1618,6 +2055,9 @@ public:
     : instruction(_allocator, node_type::else_if_instruction),
       m_condition(memory::unique_ptr<expression>(m_allocator, _cond)),
       m_body(memory::unique_ptr<instruction_list>(m_allocator, _body)) {}
+
+  explicit else_if_instruction(memory::allocator* _allocator)
+    : instruction(_allocator, node_type::else_if_instruction) {}
 
   const expression* get_condition() const {
     return m_condition.get();
@@ -1649,6 +2089,15 @@ public:
       const walk_scope&) const override {
     _cond(m_condition.get());
     _body(m_body.get());
+  }
+
+  memory::unique_ptr<node> clone() const override {
+    memory::unique_ptr<else_if_instruction> t =
+        memory::make_unique<else_if_instruction>(m_allocator, m_allocator);
+    t->copy_instruction(this);
+    t->m_condition = clone_node(m_condition);
+    t->m_body = clone_node(m_body);
+    return core::move(t);
   }
 
 private:
@@ -1760,6 +2209,19 @@ public:
     return m_else_if_nodes;
   }
 
+  memory::unique_ptr<node> clone() const override {
+    memory::unique_ptr<if_instruction> t =
+        memory::make_unique<if_instruction>(m_allocator, m_allocator);
+    t->copy_instruction(this);
+    t->m_condition = clone_node(m_condition);
+    t->m_else = clone_node(m_else);
+    t->m_body = clone_node(m_body);
+    for(const auto& e: m_else_if_nodes) {
+      t->m_else_if_nodes.push_back(clone_node(e));
+    }
+    return core::move(t);
+  }
+
 private:
   memory::unique_ptr<expression> m_condition;
   memory::unique_ptr<instruction_list> m_else;
@@ -1782,6 +2244,17 @@ public:
   }
   void add_body(instruction_list* _body) {
     m_body = memory::unique_ptr<instruction_list>(m_allocator, _body);
+  }
+
+  memory::unique_ptr<node> clone() const override {
+    memory::unique_ptr<for_instruction> t =
+        memory::make_unique<for_instruction>(m_allocator, m_allocator);
+    t->copy_instruction(this);
+    t->m_condition = clone_node(m_condition);
+    t->m_initializer = clone_node(m_initializer);
+    t->m_body = clone_node(m_body);
+    t->m_post_op = clone_node(m_post_op);
+    return core::move(t);
   }
 
 private:
@@ -1841,6 +2314,15 @@ public:
     return core::move(m_expression);
   }
 
+  memory::unique_ptr<node> clone() const override {
+    memory::unique_ptr<return_instruction> t =
+        memory::make_unique<return_instruction>(m_allocator, m_allocator);
+    t->copy_instruction(this);
+    t->m_expression = clone_node(m_expression);
+    t->m_change_ownership = m_change_ownership;
+    return core::move(t);
+  }
+
 private:
   memory::unique_ptr<expression> m_expression;
   bool m_change_ownership;
@@ -1854,6 +2336,18 @@ public:
       m_condition(memory::unique_ptr<expression>(m_allocator, _cond)),
       m_body(memory::unique_ptr<instruction_list>(m_allocator, _body)) {}
 
+  while_instruction(memory::allocator* _allocator)
+    : instruction(_allocator, node_type::while_instruction) {}
+
+  memory::unique_ptr<node> clone() const override {
+    memory::unique_ptr<while_instruction> t =
+        memory::make_unique<while_instruction>(m_allocator, m_allocator);
+    t->copy_instruction(this);
+    t->m_condition = clone_node(m_condition);
+    t->m_body = clone_node(m_body);
+    return core::move(t);
+  }
+
 private:
   memory::unique_ptr<expression> m_condition;
   memory::unique_ptr<instruction_list> m_body;
@@ -1864,6 +2358,7 @@ public:
   script_file(memory::allocator* _allocator)
     : node(_allocator, node_type::script_file),
       m_functions(_allocator),
+      m_external_functions(_allocator),
       m_structs(_allocator),
       m_includes(_allocator) {}
   void add_function(function* _node) {
@@ -1878,6 +2373,10 @@ public:
     m_functions.push_back(core::move(_function));
   }
 
+  void add_external_function(memory::unique_ptr<function>&& _function) {
+    m_external_functions.push_back(core::move(_function));
+  }
+
   void add_struct(struct_definition* _node) {
     m_structs.emplace_back(
         memory::unique_ptr<struct_definition>(m_allocator, _node));
@@ -1885,6 +2384,10 @@ public:
 
   void add_include(const char* _node) {
     m_includes.emplace_back(_node, m_allocator);
+  }
+
+  const containers::deque<memory::unique_ptr<function>>& get_external_functions() const {
+    return m_external_functions;
   }
 
   const containers::deque<memory::unique_ptr<function>>& get_functions() const {
@@ -1905,6 +2408,9 @@ public:
     for (auto& def : m_structs) {
       s(def.get());
     }
+    for (auto& function: m_external_functions) {
+      f(function.get());
+    }
     for (auto& function : m_functions) {
       f(function.get());
     }
@@ -1918,13 +2424,36 @@ public:
     for (auto& def : m_structs) {
       s(def.get());
     }
+    for (auto& function: m_external_functions) {
+      f(function.get());
+    }
     for (auto& function : m_functions) {
       f(function.get());
     }
   }
 
+  memory::unique_ptr<node> clone() const override {
+    memory::unique_ptr<script_file> t =
+        memory::make_unique<script_file>(m_allocator, m_allocator);
+    t->copy_node(this);
+    for(const auto& function: m_functions) {
+      t->m_functions.push_back(clone_node(function));
+    }
+    for(const auto& external_function: m_external_functions) {
+      t->m_external_functions.push_back(clone_node(external_function));
+    }
+    for(const auto& strt : m_structs) {
+      t->m_structs.push_back(clone_node(strt));
+    }
+    for (const auto& include : m_includes) {
+      t->m_includes.push_back(containers::string(include.c_str(), m_allocator));
+    }
+    return core::move(t);
+  }
+
 private:
   containers::deque<memory::unique_ptr<function>> m_functions;
+  containers::deque<memory::unique_ptr<function>> m_external_functions;
   containers::deque<memory::unique_ptr<struct_definition>> m_structs;
   containers::deque<containers::string> m_includes;
 };

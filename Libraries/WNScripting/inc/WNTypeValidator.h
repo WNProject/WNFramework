@@ -39,7 +39,7 @@ struct allowed_builtin_operations {
   uint32_t m_short_circuit[static_cast<uint32_t>(short_circuit_type::max)];
 };
 
-static_assert(static_cast<size_t>(type_classification::max) == 10,
+static_assert(static_cast<size_t>(type_classification::max) == 12,
     "The number of classifications has changed, please update these tables");
 static const uint32_t INVALID_TYPE =
     static_cast<uint32_t>(type_classification::invalid_type);
@@ -53,9 +53,14 @@ static const uint32_t BOOL_TYPE =
     static_cast<uint32_t>(type_classification::bool_type);
 static const uint32_t CHAR_TYPE =
     static_cast<uint32_t>(type_classification::char_type);
+static const uint32_t SIZE_TYPE =
+    static_cast<uint32_t>(type_classification::size_type);
+static const uint32_t VOID_PTR_TYPE  =
+    static_cast<uint32_t>(type_classification::void_ptr_type);
+
 
 // Tables for all of the internal types.
-const allowed_builtin_operations valid_builtin_operations[9]{
+const allowed_builtin_operations valid_builtin_operations[11]{
     // clang-format off
     // empty
     {//+            -             *             /             %             ==            !=            <=            >=            <             >
@@ -134,6 +139,30 @@ const allowed_builtin_operations valid_builtin_operations[9]{
      {INVALID_TYPE, INVALID_TYPE},
      // &&   ||
      {BOOL_TYPE, BOOL_TYPE}},
+     // size_type this should not be used for any normal operations
+     // TODO(awoloszyn): Expose this later to the user.
+    {//+            -             *             /             %             ==         !=         <=            >=            <             >
+     {INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE},
+     //=         +=            -=            *=            /=            %=            <==
+     {INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE},
+     // ++x         --x           -x
+     {INVALID_TYPE, INVALID_TYPE, INVALID_TYPE},
+     // x++         x--
+     {INVALID_TYPE, INVALID_TYPE},
+     // &&   ||
+     {INVALID_TYPE, INVALID_TYPE}},
+    // void_ptr_type: This should not be exposed to the user.
+    //                This is just so we can generate certain casts.
+    {//+            -             *             /             %             ==         !=         <=            >=            <             >
+     {INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE},
+     //=         +=            -=            *=            /=            %=            <==
+     {INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE},
+     // ++x         --x           -x
+     {INVALID_TYPE, INVALID_TYPE, INVALID_TYPE},
+     // x++         x--
+     {INVALID_TYPE, INVALID_TYPE},
+     // &&   ||
+     {INVALID_TYPE, INVALID_TYPE}},
     // array
     {//+            -             *             /             %             ==         !=         <=            >=            <             >
      {INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, BOOL_TYPE, BOOL_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE},
@@ -321,12 +350,21 @@ public:
     m_mapping.insert(containers::make_pair("Bool", m_max_types++));
     m_names.emplace_back("Bool", m_allocator);
 
+    m_mapping.insert(containers::make_pair("_Size", m_max_types++));
+    m_names.emplace_back("_Size", m_allocator);
+
+    m_mapping.insert(containers::make_pair("_VoidPtr", m_max_types++));
+    m_names.emplace_back("_VoidPtr", m_allocator);
+
+    // Need to add extras to m_names
+    m_names.push_back(containers::string());
+    m_names.push_back(containers::string());
     // Increment max_types by 2. This is because we keep
     // dummy types around for array and struct.
     m_max_types += 2;
 
     m_types.push_back(type_definition(false, m_allocator));
-    for (size_t i = 1; i < 9; ++i) {
+    for (size_t i = 1; i < 11; ++i) {
       m_types.push_back(
           type_definition(valid_builtin_operations[i], false, m_allocator));
     }
@@ -334,28 +372,32 @@ public:
     m_types[1].m_mangling = "v";
 
     // Int casts up to float, down to char, bool
-    m_types[2].m_casts.push_back({2, up});
-    m_types[2].m_casts.push_back({3, down});
-    m_types[2].m_casts.push_back({5, down});
-    m_types[2].m_mangling = "l";
+    m_types[INT_TYPE].m_casts.push_back({2, up});
+    m_types[INT_TYPE].m_casts.push_back({3, down});
+    m_types[INT_TYPE].m_casts.push_back({5, down});
+    m_types[INT_TYPE].m_mangling = "l";
 
     // Float casts down to everything
-    m_types[3].m_casts.push_back({1, down});
-    m_types[3].m_casts.push_back({3, down});
-    m_types[3].m_casts.push_back({5, down});
-    m_types[3].m_mangling = "f";
+    m_types[FLOAT_TYPE].m_casts.push_back({1, down});
+    m_types[FLOAT_TYPE].m_casts.push_back({3, down});
+    m_types[FLOAT_TYPE].m_casts.push_back({5, down});
+    m_types[FLOAT_TYPE].m_mangling = "f";
 
     // Char casts up to float and int, down to bool
-    m_types[4].m_casts.push_back({1, up});
-    m_types[4].m_casts.push_back({2, up});
-    m_types[4].m_casts.push_back({5, down});
-    m_types[4].m_mangling = "c";
+    m_types[CHAR_TYPE].m_casts.push_back({1, up});
+    m_types[CHAR_TYPE].m_casts.push_back({2, up});
+    m_types[CHAR_TYPE].m_casts.push_back({5, down});
+    m_types[CHAR_TYPE].m_mangling = "c";
 
     // Bool casts up to int, bool, and char
-    m_types[6].m_casts.push_back({1, up});
-    m_types[6].m_casts.push_back({2, up});
-    m_types[6].m_casts.push_back({3, up});
-    m_types[6].m_mangling = "b";
+    m_types[BOOL_TYPE].m_casts.push_back({1, up});
+    m_types[BOOL_TYPE].m_casts.push_back({2, up});
+    m_types[BOOL_TYPE].m_casts.push_back({3, up});
+    m_types[BOOL_TYPE].m_mangling = "b";
+
+    m_types[VOID_PTR_TYPE].m_mangling = "vp";
+
+    m_types[SIZE_TYPE].m_mangling = "s";
   }
 
   // This will register 4 types, 1 for each reference mode.
@@ -383,6 +425,13 @@ public:
 
       m_types.push_back(type_definition(
           (i != static_cast<uint32_t>(reference_type::unique)), m_allocator));
+      // Sharable types (i.e. heap objects) are castable to/from void*.
+      if (i == static_cast<uint32_t>(reference_type::shared)) {
+        m_types.back().m_casts.push_back(
+            {VOID_PTR_TYPE, cast_type::transparent});
+        m_types[VOID_PTR_TYPE].m_casts.push_back(
+            {type, cast_type::transparent});
+      }
 
       type_definition& def = m_types.back();
       def.m_mode = static_cast<reference_type>(i);

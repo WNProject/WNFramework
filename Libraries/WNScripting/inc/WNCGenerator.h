@@ -51,6 +51,8 @@ public:
       containers::pair<containers::string, containers::string>*) {
     WN_RELEASE_ASSERT_DESC(false, "Not implemented expression type");
   }
+  void walk_expression(const sizeof_expression* _sizeof,
+      containers::pair<containers::string, containers::string>* _str);
   void walk_expression(const constant_expression* _const,
       containers::pair<containers::string, containers::string>* _str);
   void walk_expression(const id_expression* _const,

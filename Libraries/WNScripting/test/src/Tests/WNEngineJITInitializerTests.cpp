@@ -5,6 +5,7 @@
 #include "WNContainers/inc/WNDynamicArray.h"
 #include "WNFileSystem/inc/WNFactory.h"
 #include "WNFileSystem/inc/WNMapping.h"
+#include "WNLogging/inc/WNBufferLogger.h"
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNScripting/inc/WNFactory.h"
 #include "WNScripting/inc/WNJITEngine.h"
@@ -276,6 +277,15 @@ struct integer_test {
 
 using integer_tests = ::testing::TestWithParam<integer_test>;
 
+void flush_buffer(void* v, const char* bytes, size_t length,
+    const std::vector<WNLogging::WNLogColorElement>&) {
+  wn::containers::string* s = static_cast<wn::containers::string*>(v);
+  s->append(bytes, length);
+}
+
+using buffer_logger = WNLogging::WNBufferLogger<flush_buffer>;
+using log_buff = wn::containers::string;
+
 TEST_P(integer_tests, int_in_out_tests) {
   wn::testing::allocator allocator;
   wn::scripting::type_validator validator(&allocator);
@@ -286,12 +296,17 @@ TEST_P(integer_tests, int_in_out_tests) {
 
   mapping->initialize_files({{"file.wns", str}});
 
+  log_buff buff(&allocator);
+  buffer_logger logger(&buff);
+  WNLogging::WNLog log(&logger);
+
   wn::scripting::jit_engine jit_engine(
-      &validator, &allocator, mapping.get(), WNLogging::get_null_logger());
+      &validator, &allocator, mapping.get(), &log);
   EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file.wns"));
+  log.Flush();
 
   wn::scripting::script_function<int32_t, int32_t> new_func;
-  ASSERT_TRUE(jit_engine.get_function("main", new_func));
+  ASSERT_TRUE(jit_engine.get_function("main", new_func)) << buff.c_str();
   for (auto& test_case : GetParam().cases) {
     EXPECT_EQ(test_case.second, jit_engine.invoke(new_func, test_case.first));
   }
@@ -408,6 +423,15 @@ INSTANTIATE_TEST_CASE_P(
 
 
 INSTANTIATE_TEST_CASE_P(
+    struct_in_struct_test, integer_tests,
+    ::testing::ValuesIn(std::vector<integer_test>({
+      {"struct Foo { Int x = 4; }"
+      "struct Bar { Foo f = Foo(); }"
+      "Int main(Int x) { return Bar().f.x; }",
+       {{0, 4}, {-1, 4}, {10, 4}}},
+})));
+
+INSTANTIATE_TEST_CASE_P(
     temporary_struct_test, integer_tests,
     ::testing::ValuesIn(std::vector<integer_test>({
       {"struct Foo { Int x = 4; } Int main(Int x) { return Foo().x + x; }",
@@ -427,6 +451,29 @@ INSTANTIATE_TEST_CASE_P(
     ::testing::ValuesIn(std::vector<integer_test>({
       {"Int main(Int x) { x + 4; x - 3; return x; }",
       {{0, 0}, {-1, -1}, {10, 10}}},
+})));
+
+INSTANTIATE_TEST_CASE_P(
+    shared_struct, integer_tests,
+    ::testing::ValuesIn(std::vector<integer_test>({
+      {"struct Foo { Int x = 4; }"
+       "Int main(Int x) { shared Foo f = shared Foo(); return f.x; }",
+      {{0, 4}, {-1, 4}, {10, 4}}},
+      {"struct Foo {   Int x = 42; }"
+      "Int main(Int x) { return (shared Foo()).x; }",
+       {{0, 42}, {-1, 42}, {10, 42}}},
+      {"struct Foo { Int x = 4; }"
+       "shared Foo bar() { return shared Foo(); } "
+      "Int main(Int x) { return bar().x; }",
+       {{0, 4}, {-1, 4}, {10, 4}}},
+      {"struct Foo { Int x = 4; }"
+       "Int main(Int x) { "
+       "  shared Foo f = shared Foo();"
+       "  f.x = 3;"
+       "  f = shared Foo();"
+       "  return f.x;"
+       "}",
+      {{0, 4}, {-1, 4}, {10, 4}}},
 })));
 
 INSTANTIATE_TEST_CASE_P(

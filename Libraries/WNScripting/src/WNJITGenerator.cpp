@@ -101,7 +101,12 @@ void ast_jit_engine::walk_type(
     case static_cast<uint32_t>(type_classification::bool_type):
       *_value = llvm::IntegerType::get(*m_context, 1);
       return;
-      break;
+    case static_cast<uint32_t>(type_classification::size_type):
+      *_value = llvm::IntegerType::get(*m_context, 8 * sizeof(size_t));
+      return;
+    case static_cast<uint32_t>(type_classification::void_ptr_type):
+      *_value = llvm::IntegerType::get(*m_context, 8)->getPointerTo();
+      return;
     default: {
       // First we have to normalize the id with the reference type.
       uint32_t index = _type->get_index();
@@ -117,6 +122,7 @@ void ast_jit_engine::walk_type(
           break;
         case reference_type::unique:
         case reference_type::self:
+        case reference_type::shared:
           *_value = elem->second->getPointerTo();
           break;
         default:
@@ -124,6 +130,15 @@ void ast_jit_engine::walk_type(
       }
     }
   }
+}
+
+void ast_jit_engine::walk_expression(
+    const sizeof_expression* _sizeof, expression_dat* _val) {
+  llvm::Type* type = m_generator->get_data(_sizeof->get_type());
+
+  _val->value =
+      llvm::ConstantInt::getSigned(m_generator->get_data(_sizeof->get_type()),
+          m_data_layout.getTypeAllocSize(type));
 }
 
 void ast_jit_engine::walk_expression(
@@ -136,8 +151,37 @@ void ast_jit_engine::walk_expression(
   _val->instructions.insert(_val->instructions.begin(),
       sub_dat.instructions.begin(), sub_dat.instructions.end());
 
-  if (!_cast->get_type()->get_type_value() -
-          static_cast<uint32_t>(_cast->get_type()->get_reference_type()) ==
+  if (_cast->get_expression()->get_type()->get_type_value() ==
+          static_cast<uint32_t>(type_classification::void_ptr_type) &&
+      _cast->get_type()->get_reference_type() == reference_type::self) {
+    llvm::Type* type_dat = m_generator->get_data(_cast->get_type());
+    _val->instructions.push_back(new llvm::BitCastInst(sub_dat.value, type_dat));
+    _val->value = _val->instructions.back();
+    return;
+  }
+
+  if (_cast->get_expression()->get_type()->get_type_value() ==
+          static_cast<uint32_t>(type_classification::void_ptr_type) &&
+      _cast->get_type()->get_reference_type() == reference_type::shared) {
+    llvm::Type* type_dat = m_generator->get_data(_cast->get_type());
+    _val->instructions.push_back(new llvm::BitCastInst(sub_dat.value, type_dat));
+    _val->value = _val->instructions.back();
+    return;
+  }
+
+  if (_cast->get_expression()->get_type()->get_reference_type() ==
+          reference_type::shared &&
+      _cast->get_type()->get_type_value() ==
+          static_cast<uint32_t>(type_classification::void_ptr_type)) {
+    llvm::Type* type_dat = m_generator->get_data(_cast->get_type());
+    _val->instructions.push_back(new llvm::BitCastInst(sub_dat.value, type_dat));
+    _val->value = _val->instructions.back();
+
+    return;
+  }
+
+  if (_cast->get_type()->get_type_value() -
+          static_cast<uint32_t>(_cast->get_type()->get_reference_type()) !=
       _cast->get_expression()->get_type()->get_type_value() -
           static_cast<uint32_t>(
               _cast->get_expression()->get_type()->get_reference_type())) {
@@ -179,6 +223,12 @@ void ast_jit_engine::walk_expression(
       double val = atof(_const->get_type_text().c_str());
       _val->value =
           llvm::ConstantFP::get(m_generator->get_data(_const->get_type()), val);
+      return;
+    }
+    case static_cast<uint32_t>(type_classification::void_ptr_type): {
+      _val->value =
+          llvm::ConstantPointerNull::get(llvm::dyn_cast<llvm::PointerType>(
+              m_generator->get_data(_const->get_type())));
       return;
     }
     default:
@@ -317,8 +367,8 @@ void ast_jit_engine::walk_expression(
   // We are not allowed naming void values.
   if (_call->get_type()->get_index() ==
       static_cast<uint32_t>(type_classification::void_type)) {
-    call = llvm::CallInst::Create(m_function_map[_call->callee()],
-        make_array_ref(parameters));
+    call = llvm::CallInst::Create(
+        m_function_map[_call->callee()], make_array_ref(parameters));
   } else {
     call = llvm::CallInst::Create(m_function_map[_call->callee()],
         make_array_ref(parameters),
@@ -422,8 +472,8 @@ void ast_jit_engine::walk_instruction(
   // TODO(awoloszyn): If this seems too ugly, make the RHS
   // an undef value.
   if (expr.value) {
-  _val->instructions.push_back(
-      new llvm::StoreInst(expr.value, _val->instructions.front()));
+    _val->instructions.push_back(
+        new llvm::StoreInst(expr.value, _val->instructions.front()));
   }
 }
 
@@ -495,11 +545,9 @@ void ast_jit_engine::walk_parameter(
 }
 
 void ast_jit_engine::walk_struct_definition(
-    const struct_definition*, llvm::Type**) {
-}
+    const struct_definition*, llvm::Type**) {}
 
-void ast_jit_engine::pre_walk_struct_definition(
-    const struct_definition* _def) {
+void ast_jit_engine::pre_walk_struct_definition(const struct_definition* _def) {
   containers::dynamic_array<llvm::Type*> types(m_allocator);
 
   for (auto& a : _def->get_struct_members()) {
@@ -513,7 +561,7 @@ void ast_jit_engine::pre_walk_struct_definition(
   m_struct_map[m_validator->get_type(_def->get_name())] = t;
 }
 
-void ast_jit_engine::pre_walk_function_definition(const function* _func){
+void ast_jit_engine::pre_walk_function_definition(const function* _func) {
   llvm::Type* t;
   walk_type(_func->get_signature()->get_type(), &t);
   containers::dynamic_array<llvm::Type*> parameters(m_allocator);
@@ -536,7 +584,11 @@ void ast_jit_engine::pre_walk_function_definition(const function* _func){
 }
 
 void ast_jit_engine::walk_function(const function* _func, llvm::Function** _f) {
-
+  // If this was an external function, then do not
+  // try to generate a body.
+  if (!_func->get_body()) {
+    return;
+  }
   llvm::BasicBlock* bb = llvm::BasicBlock::Create(*m_context);
   *_f = m_module->getFunction(make_string_ref(_func->get_mangled_name()));
   if (_func->get_parameters()) {
@@ -565,10 +617,14 @@ void ast_jit_engine::walk_function(const function* _func, llvm::Function** _f) {
 }
 
 void ast_jit_engine::pre_walk_script_file(const script_file* _file) {
-  for(auto& strt: _file->get_structs()) {
+  for (auto& strt : _file->get_structs()) {
     pre_walk_struct_definition(strt.get());
   }
-  for(auto& func: _file->get_functions()) {
+  for (auto& func : _file->get_external_functions()) {
+    pre_walk_function_definition(func.get());
+  }
+
+  for (auto& func : _file->get_functions()) {
     pre_walk_function_definition(func.get());
   }
 }

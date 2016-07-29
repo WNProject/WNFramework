@@ -496,7 +496,8 @@ prim_ex returns[scripting::expression * node]
             | ( g=arrayInit )  { $g.node->set_type($c.node); node=$g.node; SET_START_LOCATION_FROM_NODE(node, $c.node); }
           )
     |   d=NULLTOK { node = m_allocator->construct<scripting::null_allocation_expression>(m_allocator); SET_LOCATION(node, $NULLTOK); }
-    |   e=objectType h=structInit { $h.node->set_type($e.node); node=$h.node; SET_START_LOCATION_FROM_NODE(node, $e.node); }
+    |   e=objectType h=structInit { $e.node->set_reference_type(scripting::reference_type::unique); $h.node->set_type($e.node); node=$h.node; SET_START_LOCATION_FROM_NODE(node, $e.node); }
+    |   SHARED_REF i=objectType j=structInit { $i.node->set_reference_type(scripting::reference_type::shared); $j.node->set_type($i.node); node=$j.node; SET_START_LOCATION_FROM_NODE(node, $i.node); }
     ;
 
 cast returns[scripting::cast_expression* node]
@@ -538,7 +539,7 @@ declaration returns[scripting::declaration* node]
 }
     :    a=param { node->set_parameter($a.node); SET_LOCATION_FROM_NODE(node, $a.node);}
             (
-                ('=' ( (c=expr) { node->add_expression_initializer($c.node); SET_END_LOCATION_FROM_NODE(node, $c.node); } ) )
+                ('=' ( (c=expr) { node->add_expression_initializer($c.node); SET_END_LOCATION_FROM_NODE(node, $c.node);} ) )
             )
     ;
 

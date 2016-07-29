@@ -13,6 +13,8 @@
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNScripting/inc/WNASTCodeGenerator.h"
 #include "WNScripting/inc/WNNodeTypes.h"
+#include <llvm/IR/DataLayout.h>
+
 namespace llvm {
 class Instruction;
 class Type;
@@ -57,10 +59,14 @@ public:
       m_struct_map(m_allocator),
       m_context(_context),
       m_module(_module),
-      m_generator(_generator) {}
+      m_generator(_generator),
+      m_data_layout(_module) {}
 
-  void walk_expression(const expression*, expression_dat*) {}
+  void walk_expression(const expression*, expression_dat*) {
+    WN_RELEASE_ASSERT_DESC(false, "Unimplemented expression type");
+  }
   void walk_expression(const cast_expression* _const, expression_dat* _val);
+  void walk_expression(const sizeof_expression* _sizeof, expression_dat* _val);
   void walk_expression(const constant_expression* _const, expression_dat* _str);
   void walk_expression(const id_expression* _const, expression_dat* _str);
   void walk_expression(const binary_expression* _binary, expression_dat* _str);
@@ -100,6 +106,7 @@ private:
   ast_code_generator<ast_jit_traits>* m_generator;
   llvm::Module* m_module;
   llvm::LLVMContext* m_context;
+  llvm::DataLayout m_data_layout;
 };
 
 }  // namespace scripting

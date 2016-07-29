@@ -105,6 +105,8 @@ memory::unique_ptr<expression> ast_walker<T, Const>::walk_mut_expression(
     case node_type::post_unary_expression:
       return m_walker->walk_expression(
           cast_to<post_unary_expression>(_expression));
+    case node_type::sizeof_expression:
+      return m_walker->walk_expression(cast_to<sizeof_expression>(_expression));
     case node_type::short_circuit_expression:
       return m_walker->walk_expression(
           cast_to<short_circuit_expression>(_expression));
@@ -113,10 +115,6 @@ memory::unique_ptr<expression> ast_walker<T, Const>::walk_mut_expression(
           cast_to<struct_allocation_expression>(_expression));
     case node_type::unary_expression:
       return m_walker->walk_expression(cast_to<unary_expression>(_expression));
-    case node_type::replaced_expression:
-      // Intentionally do nothing for replaced expressions. Once replaced,
-      // these should be completely transparent to anything walking the AST.
-      return nullptr;
     default:
       WN_RELEASE_ASSERT_DESC(false,
           "You added a new expression"
@@ -165,6 +163,8 @@ void ast_walker<T, Const>::walk_expression(const expression* _expression) {
     case node_type::post_unary_expression:
       m_walker->walk_expression(cast_to<post_unary_expression>(_expression));
       break;
+    case node_type::sizeof_expression:
+      return m_walker->walk_expression(cast_to<sizeof_expression>(_expression));
     case node_type::short_circuit_expression:
       m_walker->walk_expression(cast_to<short_circuit_expression>(_expression));
       break;

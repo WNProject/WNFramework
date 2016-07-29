@@ -44,11 +44,13 @@
 #endif
 
 #include "WNContainers/inc/WNContiguousRange.h"
+#include "WNContainers/inc/WNArray.h"
 #include "WNContainers/inc/WNDynamicArray.h"
 #include "WNContainers/inc/WNList.h"
 #include "WNFileSystem/inc/WNMapping.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/WNAllocator.h"
+#include "WNMemory/inc/WNBasic.h"
 #include "WNScripting/inc/WNASTCodeGenerator.h"
 #include "WNScripting/inc/WNASTWalker.h"
 #include "WNScripting/inc/WNJITConfiguration.h"
@@ -57,6 +59,15 @@
 #include "WNScripting/inc/WNScriptHelpers.h"
 
 #include <algorithm>
+extern "C" {
+#if defined(_WN_WINDOWS)
+#if defined(_WN_64_BIT)
+void __chkstk();
+#else
+void _chkstk();
+#endif
+#endif
+}
 
 namespace {
 llvm::StringRef make_string_ref(const wn::containers::string_view& _view) {
@@ -70,6 +81,99 @@ llvm::StringRef make_string_ref(const wn::containers::string& _view) {
 
 namespace wn {
 namespace scripting {
+
+// This is the layout of our object.
+struct object {
+  std::atomic_size_t ref_count;
+};
+
+// TODO(awoloszyn): Use our thread (fiber)-local
+// allocator for this.
+
+// Temp this is going to have to change.
+void* allocate_shared(size_t i) {
+  // DO NOT CHECK THIS IN: deref _old
+  object* obj = static_cast<object*>(memory::malloc(sizeof(obj) + i));
+  obj->ref_count = 0;
+  return (uint8_t*)(obj) + sizeof(object);
+}
+
+// Temp this is going to have to change.
+void deref_shared(uint8_t* val) {
+  // DO NOT CHECK THIS IN: deref _old
+  if (val == nullptr) return;
+  object* obj = (object*)(val - sizeof(object));
+  if (obj->ref_count.fetch_sub(1) == 1) {
+    memory::free(obj);
+  }
+}
+
+// Temp this is going to have to change.
+void* assign_shared(uint8_t* a, uint8_t* b) {
+  deref_shared(b);
+  object* obj = (object*)(a - sizeof(object));
+  obj->ref_count.fetch_add(1);
+  return a;
+}
+
+// Temp this is going to have to change.
+void* return_shared(uint8_t* a) {
+  object* obj = (object*)(a - sizeof(object));
+  obj->ref_count.fetch_sub(1);
+  return a;
+}
+
+namespace {
+  class CustomMemoryManager : public llvm::SectionMemoryManager {
+  public:
+    CustomMemoryManager(WNLogging::WNLog* _log): m_log(_log) {
+    }
+
+    llvm::RuntimeDyld::SymbolInfo findSymbol(const std::string &Name) override {
+      m_log->Log(WNLogging::eInfo, 0, "Resolving ", Name.c_str(), ".");
+      if (Name == "_Z3wns16_allocate_sharedEvps") {
+        return llvm::RuntimeDyld::SymbolInfo(
+            reinterpret_cast<uint64_t>(&allocate_shared),
+            llvm::JITSymbolFlags::Exported);
+      } else if (Name == "_Z3wns13_deref_sharedEvvp") {
+        return llvm::RuntimeDyld::SymbolInfo(
+            reinterpret_cast<uint64_t>(&deref_shared),
+            llvm::JITSymbolFlags::Exported);
+      } else if (Name == "_Z3wns14_assign_sharedEvpvpvp") {
+        return llvm::RuntimeDyld::SymbolInfo(
+            reinterpret_cast<uint64_t>(&assign_shared),
+            llvm::JITSymbolFlags::Exported);
+      } else if (Name == "_Z3wns14_return_sharedEvpvp") {
+        return llvm::RuntimeDyld::SymbolInfo(
+            reinterpret_cast<uint64_t>(&return_shared),
+            llvm::JITSymbolFlags::Exported);
+      }
+#if defined(_WN_WINDOWS)
+#if defined(_WN_64_BIT)
+      // On windows64, enable _chkstk. LLVM generates calls
+      // to this.
+      if (Name == "__chkstk") {
+        return llvm::RuntimeDyld::SymbolInfo(
+            reinterpret_cast<uint64_t>(&__chkstk),
+            llvm::JITSymbolFlags::Exported);
+      }
+#else
+      // On windows32, enable _chkstk. LLVM generates calls
+      // to this.
+      if (Name == "_chkstk") {
+        return llvm::RuntimeDyld::SymbolInfo(
+            reinterpret_cast<uint64_t>(&_chkstk),
+            llvm::JITSymbolFlags::Exported);
+      }
+#endif
+#endif
+      return llvm::RuntimeDyld::SymbolInfo(0, llvm::JITSymbolFlags::Exported);
+    }
+
+  private:
+    WNLogging::WNLog* m_log;
+  };
+}
 
 CompiledModule::CompiledModule() : m_module(nullptr) {}
 
@@ -111,7 +215,7 @@ CompiledModule& jit_engine::add_module(containers::string_view _file) {
   llvm::EngineBuilder builder(core::move(module));
   builder.setEngineKind(llvm::EngineKind::JIT);
   builder.setMCJITMemoryManager(
-      memory::make_std_unique<llvm::SectionMemoryManager>());
+      memory::make_std_unique<CustomMemoryManager>(m_compilation_log));
 
   code_module.m_engine =
       std::unique_ptr<llvm::ExecutionEngine>(builder.create());
@@ -126,9 +230,41 @@ parse_error jit_engine::parse_file(const char* _file) {
     return parse_error::does_not_exist;
   }
 
-  memory::unique_ptr<script_file> parsed_file =
-      parse_script(m_allocator, m_validator, _file, file->typed_range<char>(),
-          m_compilation_log, &m_num_warnings, &m_num_errors);
+  containers::array<uint32_t, 1> allocate_shared_params = {
+    static_cast<uint32_t>(type_classification::size_type)
+  };
+
+  containers::array<uint32_t, 1> deref_shared_params = {
+    static_cast<uint32_t>(type_classification::void_ptr_type)
+  };
+  containers::array<uint32_t, 2> assign_params = {
+    static_cast<uint32_t>(type_classification::void_ptr_type),
+    static_cast<uint32_t>(type_classification::void_ptr_type)
+  };
+
+  // We have a set of functions that we MUST expose to the scripting
+  // engine.
+  containers::array<external_function, 4> required_functions;
+  required_functions[0] = {"_allocate_shared",
+      static_cast<uint32_t>(type_classification::void_ptr_type),
+      allocate_shared_params};
+  required_functions[1] = {"_deref_shared",
+      static_cast<uint32_t>(type_classification::void_type),
+      deref_shared_params};
+  required_functions[2] = {"_assign_shared",
+      static_cast<uint32_t>(type_classification::void_ptr_type),
+      assign_params};
+  // _return_shared is a little bit special.
+  // It dereferences a value, but does not delete the object if it
+  // ends up being 0. This will get injected at return sites,
+  // since we know that the results will always be incremented.
+  required_functions[3] = {"_return_shared",
+      static_cast<uint32_t>(type_classification::void_ptr_type),
+      deref_shared_params};
+
+  memory::unique_ptr<script_file> parsed_file = parse_script(m_allocator,
+      m_validator, _file, required_functions, file->typed_range<char>(),
+      m_compilation_log, &m_num_warnings, &m_num_errors);
 
   if (parsed_file == nullptr) {
     return parse_error::parse_failed;

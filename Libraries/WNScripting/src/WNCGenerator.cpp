@@ -42,6 +42,12 @@ void ast_c_translator::walk_type(const type* _type, containers::string* _str) {
     case static_cast<uint32_t>(type_classification::bool_type):
       *_str = core::move(containers::string(m_allocator) + "bool");
       break;
+    case static_cast<uint32_t>(type_classification::size_type):
+      *_str = core::move(containers::string(m_allocator) + "size_t");
+      break;
+    case static_cast<uint32_t>(type_classification::void_ptr_type):
+      *_str = core::move(containers::string(m_allocator) + "void*");
+      break;
     default: {
       const containers::string_view view =
           m_validator->get_type_name(_type->get_index());
@@ -49,6 +55,7 @@ void ast_c_translator::walk_type(const type* _type, containers::string* _str) {
       switch (_type->get_reference_type()) {
         case reference_type::self:
         case reference_type::unique:
+        case reference_type::shared:
           _str->append("*");
           break;
         default:
@@ -73,6 +80,9 @@ void ast_c_translator::walk_expression(const constant_expression* _const,
       _str->second.append(_const->get_type_text());
       _str->second.append("f");
       break;
+    case static_cast<uint32_t>(type_classification::void_ptr_type):
+      _str->second.append("NULL");
+      break;
     default:
       WN_RELEASE_ASSERT_DESC(false, "Non-integer constants not supported yet.");
   }
@@ -94,8 +104,7 @@ void ast_c_translator::walk_expression(const short_circuit_expression* _ss,
     case static_cast<uint32_t>(type_classification::bool_type):
       _str->second.append("(");
       _str->second.append(lhs.second);
-      _str->second.append(
-          m_operators[static_cast<size_t>(_ss->get_ss_type())]);
+      _str->second.append(m_operators[static_cast<size_t>(_ss->get_ss_type())]);
       _str->second.append(rhs.second);
       _str->second.append(")");
       break;
@@ -140,6 +149,16 @@ void ast_c_translator::walk_expression(const id_expression* _id,
   _str->second = _id->get_name().to_string(m_allocator);
 }
 
+void ast_c_translator::walk_expression(const sizeof_expression* _sizeof,
+    containers::pair<containers::string, containers::string>* _str) {
+  initialize_data(m_allocator, _str);
+  const auto& root_expr = m_generator->get_data(_sizeof->get_sized_type());
+
+  _str->second.append("sizeof(");
+  _str->second.append(root_expr);
+  _str->second.append(")");
+}
+
 void ast_c_translator::walk_expression(const member_access_expression* _access,
     containers::pair<containers::string, containers::string>* _str) {
   initialize_data(m_allocator, _str);
@@ -153,8 +172,7 @@ void ast_c_translator::walk_expression(const member_access_expression* _access,
   _str->second.append(_access->get_name().data(), _access->get_name().length());
 }
 
-void ast_c_translator::walk_expression(
-    const struct_allocation_expression*,
+void ast_c_translator::walk_expression(const struct_allocation_expression*,
     containers::pair<containers::string, containers::string>* _str) {
   initialize_data(m_allocator, _str);
   // There is actually NOTHING to do here.
@@ -172,18 +190,46 @@ void ast_c_translator::walk_expression(const cast_expression* _cast,
           static_cast<uint32_t>(
               _cast->get_expression()->get_type()->get_reference_type())) {
     if (_cast->get_type()->get_reference_type() == reference_type::unique &&
-      _cast->get_expression()->get_type()->get_reference_type() == reference_type::raw) {
+        _cast->get_expression()->get_type()->get_reference_type() ==
+            reference_type::raw) {
       _str->second.append("&");
     }
     if (_cast->get_type()->get_reference_type() == reference_type::self &&
-      _cast->get_expression()->get_type()->get_reference_type() == reference_type::raw) {
+        _cast->get_expression()->get_type()->get_reference_type() ==
+            reference_type::raw) {
       _str->second.append("&");
     }
+
     // If the types are identical, EXCEPT for the reference type, then
     // we don't have to do anything, it's all the same in C, for now.
     _str->second.append(dat.second);
     return;
   }
+
+  if (_cast->get_expression()->get_type()->get_type_value() ==
+          static_cast<uint32_t>(type_classification::void_ptr_type) &&
+      _cast->get_type()->get_reference_type() == reference_type::self) {
+    const auto& type_dat = m_generator->get_data(_cast->get_type());
+    _str->second.append("(").append(type_dat).append(")").append(dat.second);
+    return;
+  }
+
+  if (_cast->get_expression()->get_type()->get_type_value() ==
+          static_cast<uint32_t>(type_classification::void_ptr_type) &&
+      _cast->get_type()->get_reference_type() == reference_type::shared) {
+    const auto& type_dat = m_generator->get_data(_cast->get_type());
+    _str->second.append("(").append(type_dat).append(")").append(dat.second);
+    return;
+  }
+
+  if (_cast->get_expression()->get_type()->get_reference_type() ==
+          reference_type::shared &&
+      _cast->get_type()->get_type_value() ==
+          static_cast<uint32_t>(type_classification::void_ptr_type)) {
+    _str->second.append("(void*)").append(dat.second);
+    return;
+  }
+
   WN_RELEASE_ASSERT_DESC(false, "Not implemented: other types of casts");
 }
 
@@ -215,9 +261,9 @@ void ast_c_translator::walk_instruction(const expression_instruction* _expr,
     containers::pair<containers::string, containers::string>* _str) {
   initialize_data(m_allocator, _str);
   const auto& expr = m_generator->get_data(_expr->get_expression());
-    _str->second.append(expr.first);
-    _str->second.append(expr.second);
-    _str->second.append(";");
+  _str->second.append(expr.first);
+  _str->second.append(expr.second);
+  _str->second.append(";");
 }
 
 void ast_c_translator::walk_instruction(const return_instruction* _ret,
@@ -243,7 +289,8 @@ void ast_c_translator::walk_instruction(const declaration* _decl,
 
   _str->second += m_generator->get_data(_decl->get_type());
   _str->second += " " + _decl->get_name().to_string(m_allocator);
-  if (_decl->get_expression()->get_node_type() != node_type::struct_allocation_expression) {
+  if (_decl->get_expression()->get_node_type() !=
+      node_type::struct_allocation_expression) {
     _str->second += " = ";
   }
   _str->second += expr.second;
