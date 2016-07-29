@@ -975,16 +975,21 @@ public:
         m_allocator, m_allocator, type_classification::void_ptr_type);
       void_ptr_type->copy_location_from(_assign);
 
-      memory::unique_ptr<cast_expression> cast2 =
-          memory::make_unique<cast_expression>(m_allocator, m_allocator,
-              core::move(clone_node(_assign->get_lvalue()->get_expression())));
-      cast2->set_type(core::move(void_ptr_type));
+      memory::unique_ptr<expression> second_arg;
+      if (!_assign->is_constructor_assigment()) {
+        second_arg = memory::make_unique<cast_expression>(m_allocator, m_allocator,
+            core::move(clone_node(_assign->get_lvalue()->get_expression())));
+        second_arg->set_type(core::move(void_ptr_type));
+      } else {
+        second_arg = make_constant(
+            m_allocator, _assign, type_classification::void_ptr_type, "");
+      }
 
       memory::unique_ptr<arg_list> args =
           memory::make_unique<arg_list>(m_allocator, m_allocator);
       args->copy_location_from(cast.get());
       args->add_expression(core::move(cast));
-      args->add_expression(core::move(cast2));
+      args->add_expression(core::move(second_arg));
 
       memory::unique_ptr<function_call_expression> call =
           memory::make_unique<function_call_expression>(
@@ -1616,7 +1621,6 @@ public:
       size_of->copy_location_from(_alloc);
       size_of->get_sized_type()->set_reference_type(reference_type::raw);
 
-
       containers::string destructor_name("_destruct_", m_allocator);
       destructor_name.append(_alloc->get_type()->custom_type_name().data(),
           _alloc->get_type()->custom_type_name().size());
@@ -1716,6 +1720,7 @@ public:
   // member access. Ie. allow struct X { int x = 4; int y = x + 3; }
   void walk_struct_definition(struct_definition* _definition) {
     containers::deque<declaration*> decls(m_allocator);
+    containers::deque<declaration*> shared_ids(m_allocator);
     size_t num = _definition->get_struct_members().size();
     for (size_t i = 0; i < num; ++i) {
       auto& member = _definition->get_struct_members()[i];
@@ -1742,6 +1747,10 @@ public:
           decls.push_back(decl.get());
           _definition->get_struct_members().push_back(core::move(decl));
         } break;
+        case reference_type::shared:
+          // do nothing;
+          shared_ids.push_back(member.get());
+          break;
         default:
           WN_RELEASE_ASSERT_DESC(
               false, "Not implemented: complex reference_types");
@@ -1812,6 +1821,54 @@ public:
         exprinst->copy_location_from(exprinst->get_expression());
         instructions->add_instruction(core::move(exprinst));
       }
+      for (auto& shared_id: shared_ids) {
+        memory::unique_ptr<member_access_expression> access =
+            memory::make_unique<member_access_expression>(
+                m_allocator, m_allocator, shared_id->get_name());
+        access->copy_location_from(shared_id);
+
+        memory::unique_ptr<id_expression> id =
+            memory::make_unique<id_expression>(
+                m_allocator, m_allocator, "_this");
+        id->copy_location_from(shared_id);
+
+        access->add_base_expression(core::move(id));
+
+        memory::unique_ptr<cast_expression> cast1 =
+            memory::make_unique<cast_expression>(
+                m_allocator, m_allocator, core::move(access));
+        cast1->copy_location_from(cast1->get_expression());
+        cast1->set_type(memory::make_unique<type>(
+            m_allocator, m_allocator, type_classification::void_ptr_type));
+
+        containers::string deref_name("_deref_shared", m_allocator);
+
+        memory::unique_ptr<arg_list> args =
+            memory::make_unique<arg_list>(m_allocator, m_allocator);
+        args->copy_location_from(cast1.get());
+        args->add_expression(core::move(cast1));
+
+        memory::unique_ptr<function_call_expression> call =
+            memory::make_unique<function_call_expression>(
+                m_allocator, m_allocator, core::move(args));
+        call->copy_location_from(call->get_args());
+        call->set_type(memory::make_unique<type>(
+            m_allocator, m_allocator, type_classification::void_type));
+
+        memory::unique_ptr<id_expression> deref =
+            memory::make_unique<id_expression>(
+                m_allocator, m_allocator, deref_name);
+        deref->copy_location_from(call.get());
+
+        call->add_base_expression(core::move(deref));
+
+        memory::unique_ptr<expression_instruction> exprinst =
+            memory::make_unique<expression_instruction>(
+                m_allocator, m_allocator, core::move(call));
+        exprinst->copy_location_from(exprinst->get_expression());
+
+        instructions->add_instruction(core::move(exprinst));
+      }
 
       memory::unique_ptr<return_instruction> ret =
           memory::make_unique<return_instruction>(m_allocator, m_allocator);
@@ -1831,12 +1888,12 @@ public:
       // declarations, and create assignment instructions in an instruction
       // list.
       for (auto& a : _definition->get_struct_members()) {
-        memory::unique_ptr<expression> expression(a->take_expression());
+        memory::unique_ptr<expression> expr(a->take_expression());
         // There is no way to write code that is missing an expression on the
         // RHS.
         // This means we have removed the RHS, and so we should not create a
         // constructor for it.
-        if (!expression) {
+        if (!expr) {
           continue;
         }
         memory::unique_ptr<member_access_expression> access =
@@ -1858,11 +1915,11 @@ public:
         memory::unique_ptr<assignment_instruction> assignment =
             memory::make_unique<assignment_instruction>(
                 m_allocator, m_allocator, core::move(lval));
-        assignment->copy_location_from(expression.get());
+        assignment->copy_location_from(expr.get());
 
         switch (a->get_type()->get_reference_type()) {
           case reference_type::raw: {
-            assignment->add_value(assign_type::equal, core::move(expression));
+            assignment->add_value(assign_type::equal, core::move(expr));
           } break;
           case reference_type::unique: {
             // If this is a unique, that means the RHS was a struct_creation.
@@ -1927,6 +1984,22 @@ public:
 
             assignment->add_value(assign_type::equal, core::move(cast2));
           } break;
+          case reference_type::shared: {
+            if (expr->get_node_type() ==
+                node_type::struct_allocation_expression) {
+              memory::unique_ptr<expression> new_expr = walk_expression(
+                  cast_to<struct_allocation_expression>(expr.get()));
+              if (new_expr) {
+                expr = core::move(new_expr);
+              }
+              expr->set_temporary(false);
+            }
+            assignment->set_in_constructor(true);
+            assignment->add_value(assign_type::equal, core::move(expr));
+            break;
+          }
+          default:
+            WN_RELEASE_ASSERT_DESC(false, "Not Implemented other types in structs");
         }
         instructions->add_instruction(core::move(assignment));
       }

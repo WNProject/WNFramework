@@ -397,6 +397,10 @@ INSTANTIATE_TEST_CASE_P(
        "struct Bar { Foo f = Foo(); }"
        "Int main(Int x) { Bar b = Bar(); return b.f.x + x; }",
         {{0, 4}, {-1, 3}, {2, 6}, {3, 7}, {4, 8}, {50, 54}}},
+      {"struct Foo { Int x = 4; }"
+       "struct Bar { shared Foo f = shared Foo(); }"
+       "Int main(Int x) { shared Bar b = shared Bar(); return b.f.x + x; }",
+        {{0, 4}, {-1, 3}, {2, 6}, {3, 7}, {4, 8}, {50, 54}}},
 })));
 
 INSTANTIATE_TEST_CASE_P(

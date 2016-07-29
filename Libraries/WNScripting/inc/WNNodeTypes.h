@@ -2045,7 +2045,8 @@ public:
   assignment_instruction(memory::allocator* _allocator, lvalue* _lvalue)
     : instruction(_allocator, node_type::assignment_instruction),
       m_lvalue(memory::unique_ptr<lvalue>(m_allocator, _lvalue)),
-      m_assign_type(assign_type::max) {}
+      m_assign_type(assign_type::max),
+      m_in_constructor(false){}
 
   explicit assignment_instruction(memory::allocator* _allocator)
     : instruction(_allocator, node_type::assignment_instruction) {}
@@ -2054,7 +2055,8 @@ public:
       memory::allocator* _allocator, memory::unique_ptr<lvalue>&& _lvalue)
     : instruction(_allocator, node_type::assignment_instruction),
       m_lvalue(core::move(_lvalue)),
-      m_assign_type(assign_type::max) {}
+      m_assign_type(assign_type::max),
+      m_in_constructor(false) {}
 
   void add_value(assign_type _type, memory::unique_ptr<expression>&& _value) {
     m_assign_type = _type;
@@ -2064,6 +2066,14 @@ public:
   void add_value(assign_type _type, expression* _value) {
     m_assign_type = _type;
     m_assign_expression = memory::unique_ptr<expression>(m_allocator, _value);
+  }
+
+  bool is_constructor_assigment() const {
+    return m_in_constructor;
+  }
+
+  void set_in_constructor(bool _in) {
+    m_in_constructor = _in;
   }
 
   assign_type get_assignment_type() const {
@@ -2114,6 +2124,7 @@ public:
     t->m_lvalue = clone_node(m_lvalue);
     t->m_assign_expression = clone_node(m_assign_expression);
     t->m_assign_type = m_assign_type;
+    t->m_in_constructor = m_in_constructor;
     return core::move(t);
   }
 
@@ -2121,6 +2132,7 @@ private:
   assign_type m_assign_type;
   memory::unique_ptr<lvalue> m_lvalue;
   memory::unique_ptr<expression> m_assign_expression;
+  bool m_in_constructor;
 };
 
 class do_instruction : public instruction {
