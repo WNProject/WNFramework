@@ -70,6 +70,7 @@ public:
   void walk_expression(const constant_expression* _const, expression_dat* _str);
   void walk_expression(const id_expression* _const, expression_dat* _str);
   void walk_expression(const binary_expression* _binary, expression_dat* _str);
+  void walk_expression(const function_pointer_expression* _ptr, expression_dat* _str);
   void walk_expression(
       const struct_allocation_expression* _alloc, expression_dat* _str);
   void walk_expression(

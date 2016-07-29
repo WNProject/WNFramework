@@ -39,7 +39,7 @@ struct allowed_builtin_operations {
   uint32_t m_short_circuit[static_cast<uint32_t>(short_circuit_type::max)];
 };
 
-static_assert(static_cast<size_t>(type_classification::max) == 12,
+static_assert(static_cast<size_t>(type_classification::max) == 13,
     "The number of classifications has changed, please update these tables");
 static const uint32_t INVALID_TYPE =
     static_cast<uint32_t>(type_classification::invalid_type);
@@ -57,10 +57,12 @@ static const uint32_t SIZE_TYPE =
     static_cast<uint32_t>(type_classification::size_type);
 static const uint32_t VOID_PTR_TYPE  =
     static_cast<uint32_t>(type_classification::void_ptr_type);
+static const uint32_t FUNCTION_PTR_TYPE =
+    static_cast<uint32_t>(type_classification::function_ptr_type);
 
 
 // Tables for all of the internal types.
-const allowed_builtin_operations valid_builtin_operations[11]{
+const allowed_builtin_operations valid_builtin_operations[12]{
     // clang-format off
     // empty
     {//+            -             *             /             %             ==            !=            <=            >=            <             >
@@ -152,6 +154,18 @@ const allowed_builtin_operations valid_builtin_operations[11]{
      // &&   ||
      {INVALID_TYPE, INVALID_TYPE}},
     // void_ptr_type: This should not be exposed to the user.
+    //                This is just so we can generate certain casts.
+    {//+            -             *             /             %             ==         !=         <=            >=            <             >
+     {INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE},
+     //=         +=            -=            *=            /=            %=            <==
+     {INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE},
+     // ++x         --x           -x
+     {INVALID_TYPE, INVALID_TYPE, INVALID_TYPE},
+     // x++         x--
+     {INVALID_TYPE, INVALID_TYPE},
+     // &&   ||
+     {INVALID_TYPE, INVALID_TYPE}},
+     // function_pointer_type: This should not be exposed to the user.
     //                This is just so we can generate certain casts.
     {//+            -             *             /             %             ==         !=         <=            >=            <             >
      {INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE},
@@ -356,6 +370,9 @@ public:
     m_mapping.insert(containers::make_pair("_VoidPtr", m_max_types++));
     m_names.emplace_back("_VoidPtr", m_allocator);
 
+    m_mapping.insert(containers::make_pair("_FunctionPtr", m_max_types++));
+    m_names.emplace_back("_FunctionPtr", m_allocator);
+
     // Need to add extras to m_names
     m_names.push_back(containers::string());
     m_names.push_back(containers::string());
@@ -364,7 +381,7 @@ public:
     m_max_types += 2;
 
     m_types.push_back(type_definition(false, m_allocator));
-    for (size_t i = 1; i < 11; ++i) {
+    for (size_t i = 1; i < 12; ++i) {
       m_types.push_back(
           type_definition(valid_builtin_operations[i], false, m_allocator));
     }
@@ -398,6 +415,8 @@ public:
     m_types[VOID_PTR_TYPE].m_mangling = "vp";
 
     m_types[SIZE_TYPE].m_mangling = "s";
+
+    m_types[FUNCTION_PTR_TYPE].m_mangling = "fp";
   }
 
   // This will register 4 types, 1 for each reference mode.

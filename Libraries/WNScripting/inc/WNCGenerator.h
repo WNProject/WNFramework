@@ -57,6 +57,8 @@ public:
       containers::pair<containers::string, containers::string>* _str);
   void walk_expression(const id_expression* _const,
       containers::pair<containers::string, containers::string>* _str);
+  void walk_expression(const function_pointer_expression* _ptr,
+      containers::pair<containers::string, containers::string>* _str);
   void walk_expression(const binary_expression* _binary,
       containers::pair<containers::string, containers::string>* _str);
   void walk_expression(const short_circuit_expression* _binary,

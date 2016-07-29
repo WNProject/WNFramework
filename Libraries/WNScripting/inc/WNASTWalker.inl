@@ -90,6 +90,8 @@ memory::unique_ptr<expression> ast_walker<T, Const>::walk_mut_expression(
           cast_to<constant_expression>(_expression));
     case node_type::id_expression:
       return m_walker->walk_expression(cast_to<id_expression>(_expression));
+    case node_type::function_pointer_expression:
+      return m_walker->walk_expression(cast_to<function_pointer_expression>(_expression));
     case node_type::null_allocation_expression:
       return m_walker->walk_expression(
           cast_to<null_allocation_expression>(_expression));
@@ -147,6 +149,8 @@ void ast_walker<T, Const>::walk_expression(const expression* _expression) {
     case node_type::id_expression:
       m_walker->walk_expression(cast_to<id_expression>(_expression));
       break;
+    case node_type::function_pointer_expression:
+      return m_walker->walk_expression(cast_to<function_pointer_expression>(_expression));
     case node_type::null_allocation_expression:
       m_walker->walk_expression(
           cast_to<null_allocation_expression>(_expression));

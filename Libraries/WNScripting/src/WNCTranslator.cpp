@@ -31,8 +31,9 @@ parse_error c_translator::translate_file(const char* file_) {
   if (!file) {
     return parse_error::does_not_exist;
   }
-  containers::array<uint32_t, 1> allocate_shared_params = {
-    static_cast<uint32_t>(type_classification::size_type)
+  containers::array<uint32_t, 2> allocate_shared_params = {
+    static_cast<uint32_t>(type_classification::size_type),
+    static_cast<uint32_t>(type_classification::function_ptr_type)
   };
 
   containers::array<uint32_t, 1> deref_shared_params = {

@@ -85,25 +85,26 @@ namespace scripting {
 // This is the layout of our object.
 struct object {
   std::atomic_size_t ref_count;
+  void (*destructor)(void*);
 };
 
 // TODO(awoloszyn): Use our thread (fiber)-local
 // allocator for this.
 
 // Temp this is going to have to change.
-void* allocate_shared(size_t i) {
-  // DO NOT CHECK THIS IN: deref _old
-  object* obj = static_cast<object*>(memory::malloc(sizeof(obj) + i));
+void* allocate_shared(size_t i, void(*_destructor)(void*)) {
+  object* obj = static_cast<object*>(memory::malloc(sizeof(object) + i));
   obj->ref_count = 0;
+  obj->destructor = _destructor;
   return (uint8_t*)(obj) + sizeof(object);
 }
 
 // Temp this is going to have to change.
 void deref_shared(uint8_t* val) {
-  // DO NOT CHECK THIS IN: deref _old
   if (val == nullptr) return;
   object* obj = (object*)(val - sizeof(object));
   if (obj->ref_count.fetch_sub(1) == 1) {
+    obj->destructor(val);
     memory::free(obj);
   }
 }
@@ -131,7 +132,7 @@ namespace {
 
     llvm::RuntimeDyld::SymbolInfo findSymbol(const std::string &Name) override {
       m_log->Log(WNLogging::eInfo, 0, "Resolving ", Name.c_str(), ".");
-      if (Name == "_Z3wns16_allocate_sharedEvps") {
+      if (Name == "_Z3wns16_allocate_sharedEvpsfp") {
         return llvm::RuntimeDyld::SymbolInfo(
             reinterpret_cast<uint64_t>(&allocate_shared),
             llvm::JITSymbolFlags::Exported);
@@ -230,8 +231,9 @@ parse_error jit_engine::parse_file(const char* _file) {
     return parse_error::does_not_exist;
   }
 
-  containers::array<uint32_t, 1> allocate_shared_params = {
-    static_cast<uint32_t>(type_classification::size_type)
+  containers::array<uint32_t, 2> allocate_shared_params = {
+    static_cast<uint32_t>(type_classification::size_type),
+    static_cast<uint32_t>(type_classification::function_ptr_type)
   };
 
   containers::array<uint32_t, 1> deref_shared_params = {

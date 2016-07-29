@@ -107,6 +107,9 @@ void ast_jit_engine::walk_type(
     case static_cast<uint32_t>(type_classification::void_ptr_type):
       *_value = llvm::IntegerType::get(*m_context, 8)->getPointerTo();
       return;
+    case static_cast<uint32_t>(type_classification::function_ptr_type):
+      *_value = llvm::IntegerType::get(*m_context, 8)->getPointerTo();
+      return;
     default: {
       // First we have to normalize the id with the reference type.
       uint32_t index = _type->get_index();
@@ -318,6 +321,16 @@ void ast_jit_engine::walk_expression(
     default:
       WN_RELEASE_ASSERT_DESC(false, "Not Implemented");
   }
+}
+
+void ast_jit_engine::walk_expression(
+    const function_pointer_expression* _alloc, expression_dat* _val) {
+  _val->instructions =
+      containers::dynamic_array<llvm::Instruction*>(m_allocator);
+  llvm::Type* type_dat = m_generator->get_data(_alloc->get_type());
+  _val->instructions.push_back(new llvm::BitCastInst(m_module->getFunction(
+      make_string_ref(_alloc->get_source()->get_mangled_name())), type_dat));
+  _val->value = _val->instructions.back();
 }
 
 void ast_jit_engine::walk_expression(

@@ -37,6 +37,7 @@ enum class node_type {
     cond_expression,
     constant_expression,
     id_expression,
+    function_pointer_expression,
     null_allocation_expression,
     post_expression,
       array_access_expression,
@@ -607,6 +608,98 @@ private:
   containers::string m_text;
 };
 
+class function_pointer_expression : public expression {
+public:
+  function_pointer_expression(memory::allocator* _allocator, const char* _name)
+    : expression(_allocator, node_type::function_pointer_expression),
+      m_source(nullptr),
+      m_name(_name, _allocator),
+      m_types(_allocator) {}
+
+  function_pointer_expression(
+      memory::allocator* _allocator, containers::string_view _name)
+    : expression(_allocator, node_type::function_pointer_expression),
+      m_source(nullptr),
+      m_name(_name.to_string(_allocator)),
+      m_types(_allocator) {}
+
+  explicit function_pointer_expression(memory::allocator* _allocator)
+    : expression(_allocator, node_type::function_pointer_expression),
+      m_source(nullptr),
+      m_types(_allocator) {}
+
+  containers::string_view get_name() const {
+    return m_name;
+  }
+
+  virtual void walk_children(
+      const walk_mutable_expression&, const walk_ftype<type*>& _type) override {
+    if (m_type) {
+      _type(m_type.get());
+    }
+    for (auto& type : m_types) {
+      _type(type.get());
+    }
+  }
+
+  virtual void walk_children(const walk_ftype<const expression*>&,
+      const walk_ftype<const type*>& _type) const override {
+    if (m_type) {
+      _type(m_type.get());
+    }
+    for (auto& type : m_types) {
+      _type(type.get());
+    }
+  }
+
+  void set_source(function* _source) {
+    m_source = _source;
+  };
+
+  const function* get_source() const {
+    return m_source;
+  }
+
+  virtual memory::unique_ptr<expression> transfer_to_new() {
+    memory::unique_ptr<function_pointer_expression> expr =
+        memory::make_unique<function_pointer_expression>(
+            m_allocator, m_allocator);
+    expr->copy_location_from(this);
+    expr->set_type(core::move(m_type));
+    expr->m_is_dead = m_is_dead;
+    expr->m_is_temporary = m_is_temporary;
+    expr->m_source = m_source;
+    expr->m_name = core::move(m_name);
+    return core::move(expr);
+  }
+
+  memory::unique_ptr<node> clone() const override {
+    memory::unique_ptr<function_pointer_expression> t =
+        memory::make_unique<function_pointer_expression>(m_allocator, m_allocator);
+    t->copy_expression(this);
+    t->set_source(m_source);
+    t->m_name = containers::string(m_name.c_str(), m_allocator);
+    for(const auto& ty: m_types) {
+      t->m_types.push_back(clone_node(ty));
+    }
+    return core::move(t);
+  }
+
+  void add_param(memory::unique_ptr<type>&& _type) {
+    m_types.push_back(core::move(_type));
+  }
+
+  const containers::deque<memory::unique_ptr<type>>& get_types() {
+    return m_types;
+  }
+
+private:
+  function* m_source;
+  containers::deque<memory::unique_ptr<type>> m_types;
+  containers::string m_name;
+  containers::string m_mangled_name;
+};
+
 class id_expression : public expression {
 public:
   id_expression(memory::allocator* _allocator, const char* _name)
@@ -626,12 +719,6 @@ public:
   containers::string_view get_name() const {
     return m_name;
   }
-
-  virtual void walk_children(
-      const walk_mutable_expression&, const walk_ftype<type*>&) override {}
-
-  virtual void walk_children(const walk_ftype<const expression*>&,
-      const walk_ftype<const type*>&) const override {}
 
   struct id_source {
     parameter* param_source;
@@ -678,6 +765,19 @@ public:
     t->m_name= containers::string(m_name.c_str(), m_allocator);
 
     return core::move(t);
+  }
+
+  virtual void walk_children(
+      const walk_mutable_expression&, const walk_ftype<type*>& _type) {
+    if (m_type) {
+      _type(m_type.get());
+    }
+  }
+  virtual void walk_children(const walk_ftype<const expression*>&,
+      const walk_ftype<const type*>& _type) const {
+    if (m_type) {
+      _type(m_type.get());
+    }
   }
 
 private:

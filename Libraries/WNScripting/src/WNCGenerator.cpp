@@ -48,6 +48,9 @@ void ast_c_translator::walk_type(const type* _type, containers::string* _str) {
     case static_cast<uint32_t>(type_classification::void_ptr_type):
       *_str = core::move(containers::string(m_allocator) + "void*");
       break;
+    case static_cast<uint32_t>(type_classification::function_ptr_type):
+      *_str = core::move(containers::string(m_allocator) + "void(*)()");
+      break;
     default: {
       const containers::string_view view =
           m_validator->get_type_name(_type->get_index());
@@ -147,6 +150,13 @@ void ast_c_translator::walk_expression(const id_expression* _id,
     containers::pair<containers::string, containers::string>* _str) {
   initialize_data(m_allocator, _str);
   _str->second = _id->get_name().to_string(m_allocator);
+}
+
+void ast_c_translator::walk_expression(const function_pointer_expression* _ptr,
+    containers::pair<containers::string, containers::string>* _str) {
+  initialize_data(m_allocator, _str);
+  _str->second = containers::string("&", m_allocator)
+                     .append(_ptr->get_source()->get_mangled_name());
 }
 
 void ast_c_translator::walk_expression(const sizeof_expression* _sizeof,

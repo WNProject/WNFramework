@@ -622,6 +622,62 @@ public:
   }
 
   memory::unique_ptr<expression> walk_expression(
+      function_pointer_expression* _expr) {
+    function* callee = nullptr;
+    auto possible_function = m_functions.find(_expr->get_name());
+    if (possible_function == m_functions.end()) {
+      m_log->Log(
+          WNLogging::eError, 0, "Cannot find function: ", _expr->get_name());
+      _expr->log_line(*m_log, WNLogging::eError);
+      ++m_num_errors;
+      return nullptr;
+    }
+
+    for (auto func : possible_function->second) {
+      if (_expr->get_types().size() != 0) {
+        if (!func->get_parameters()) {
+          continue;
+        }
+
+        const auto& function_parameters =
+            func->get_parameters()->get_parameters();
+        if (function_parameters.size() != _expr->get_types().size()) {
+          continue;
+        }
+        size_t i = 0;
+        for (; i < _expr->get_types().size(); ++i) {
+          if (*_expr->get_types()[i] !=
+              *function_parameters[i]->get_type()) {
+            break;
+          }
+        }
+        if (i != _expr->get_types().size()) {
+          continue;
+        }
+      } else if (func->get_parameters() &&
+                 func->get_parameters()->get_parameters().size() != 0) {
+        continue;
+      }
+
+      if (callee) {
+        m_log->Log(
+            WNLogging::eError, 0, "Ambiguous Function call: ", _expr->get_name());
+        _expr->log_line(*m_log, WNLogging::eError);
+        ++m_num_errors;
+        return nullptr;
+      }
+      callee = func;
+    }
+
+    // TODO(awoloszyn): Insert explicit cast operations if we need do here.
+    _expr->set_source(callee);
+    memory::unique_ptr<type> t = memory::make_unique<type>(
+        m_allocator, m_allocator, type_classification::function_ptr_type);
+    _expr->set_type(core::move(t));
+    return nullptr;
+  }
+
+  memory::unique_ptr<expression> walk_expression(
       function_call_expression* _expr) {
     const expression* base_expr = _expr->get_base_expression();
     // TODO(awoloszyn): handle the other cases that give you functions (are
@@ -1560,10 +1616,24 @@ public:
       size_of->copy_location_from(_alloc);
       size_of->get_sized_type()->set_reference_type(reference_type::raw);
 
+
+      containers::string destructor_name("_destruct_", m_allocator);
+      destructor_name.append(_alloc->get_type()->custom_type_name().data(),
+          _alloc->get_type()->custom_type_name().size());
+
+      memory::unique_ptr<function_pointer_expression> fn_ptr =
+          memory::make_unique<function_pointer_expression>(
+              m_allocator, m_allocator, destructor_name);
+      memory::unique_ptr<type> set_type = clone_node(_alloc->get_type());
+      set_type->set_reference_type(reference_type::self);
+      fn_ptr->copy_location_from(_alloc);
+      fn_ptr->add_param(core::move(set_type));
+
       memory::unique_ptr<arg_list> args =
           memory::make_unique<arg_list>(m_allocator, m_allocator);
       args->copy_location_from(_alloc);
       args->add_expression(core::move(size_of));
+      args->add_expression(core::move(fn_ptr));
 
       memory::unique_ptr<function_call_expression> allocate =
           memory::make_unique<function_call_expression>(
