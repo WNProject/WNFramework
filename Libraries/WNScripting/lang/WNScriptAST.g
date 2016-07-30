@@ -530,7 +530,6 @@ arrayInit returns[scripting::array_allocation_expression* node]
             |
             ( LBRACKET b=expr c=RBRACKET { node->set_copy_initializer(b); SET_LOCATION(node, $c); } )
         )
-
     ;
 
 declaration returns[scripting::declaration* node]

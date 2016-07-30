@@ -40,8 +40,8 @@ public:
   dead_code_elimination_pass(type_validator* _validator, WNLogging::WNLog* _log,
       memory::allocator* _allocator)
     : pass(_validator, _log, _allocator) {}
-  void enter_scope_block() {}
-  void leave_scope_block() {}
+  void enter_scope_block(const node*) {}
+  void leave_scope_block(const node*) {}
   memory::unique_ptr<expression> walk_expression(expression*) {
     return nullptr;
   }
@@ -99,7 +99,7 @@ private:
 };
 
 memory::unique_ptr<constant_expression> make_constant(memory::allocator* _allocator,
-    node* _location_root, type_classification _type,
+    const node* _location_root, type_classification _type,
     containers::string_view _init) {
 
   memory::unique_ptr<type> decl_type =
@@ -177,12 +177,75 @@ class if_reassociation_pass : public pass {
 public:
   if_reassociation_pass(type_validator* _validator, WNLogging::WNLog* _log,
       memory::allocator* _allocator)
-    : pass(_validator, _log, _allocator) {}
-  void enter_scope_block() {}
-  void leave_scope_block() {}
+    : pass(_validator, _log, _allocator), m_break_instructions(_allocator) {}
+  void enter_scope_block(const node*) {}
+  void leave_scope_block(const node*) {}
+  containers::deque<break_instruction*> m_break_instructions;
   memory::unique_ptr<expression> walk_expression(expression*) {
     return nullptr;
   }
+
+  memory::unique_ptr<break_instruction> walk_instruction(break_instruction* _inst) {
+    m_break_instructions.push_back(_inst);
+    return nullptr;
+  }
+
+  memory::unique_ptr<do_instruction> walk_instruction(do_instruction* _inst) {
+    // If we have already marked, then return.
+    // This allows us to guarantee that there is at least one "break"
+    // instruction from every do loop.
+    if (_inst->get_body()->returns()) {
+      const constant_expression* expr =
+          cast_to<const constant_expression>(_inst->get_condition());
+      if (expr->get_index() ==
+              static_cast<uint32_t>(type_classification::bool_type) &&
+          expr->get_type_text() == "true") {
+        for(auto& inst: m_break_instructions) {
+          inst->set_loop(_inst);
+        }
+        m_break_instructions.clear();
+        return nullptr;
+      }
+    }
+
+    memory::unique_ptr<instruction_list> body =
+      _inst->take_body();
+    memory::unique_ptr<do_instruction> new_do =
+        memory::make_unique<do_instruction>(m_allocator, m_allocator);
+    new_do->copy_location_from(_inst);
+    new_do->set_condition(make_constant(m_allocator, _inst->get_condition(),
+        type_classification::bool_type, "true"));
+
+    memory::unique_ptr<binary_expression> bin_expr =
+        memory::make_unique<binary_expression>(m_allocator, m_allocator,
+            arithmetic_type::arithmetic_equal, _inst->take_condition(),
+            make_constant(m_allocator, _inst, type_classification::bool_type,
+                                                   "false"));
+
+    memory::unique_ptr<if_instruction> if_inst =
+        memory::make_unique<if_instruction>(m_allocator, m_allocator);
+    if_inst->copy_location_from(new_do->get_condition());
+    if_inst->set_condition(core::move(bin_expr));
+
+    memory::unique_ptr<break_instruction> break_inst =
+        memory::make_unique<break_instruction>(m_allocator, m_allocator);
+    break_inst->copy_location_from(if_inst->get_condition());
+
+    memory::unique_ptr<instruction_list> if_body =
+        memory::make_unique<instruction_list>(m_allocator, m_allocator);
+    if_body->copy_location_from(if_inst->get_condition());
+    if_body->add_instruction(core::move(break_inst));
+    if_inst->set_body(core::move(if_body));
+    if_inst->set_returns(true);
+    body->add_instruction(core::move(if_inst));
+    // Since this pass turns every do {} while (cond),
+    // into do { if (!cond) { break; } };
+    body->set_returns(true);
+    new_do->set_body(core::move(body));
+
+    return core::move(new_do);
+  }
+
   void walk_instruction_list(instruction_list* _inst) {
     using instruction_queue =
         containers::deque<memory::unique_ptr<instruction>>;
@@ -344,7 +407,6 @@ public:
           if_inst->clear_else_ifs();
           if_inst->clear_else_node();
         }
-
       } else {
         replaced_instructions.emplace_back(core::move(*it));
       }
@@ -359,6 +421,7 @@ public:
   memory::unique_ptr<instruction> walk_instruction(instruction*) {
     return nullptr;
   }
+
   void walk_struct_definition(struct_definition*) {}
   memory::unique_ptr<instruction> walk_instruction(else_if_instruction*) {
     return nullptr;
@@ -384,13 +447,13 @@ public:
   void walk_function(function*) {}
   void walk_struct_definition(struct_definition*) {}
 
-  void enter_scope_block() {
+  void enter_scope_block(const node*) {
     id_map.emplace_back(
         containers::hash_map<containers::string_view, id_expression::id_source>(
             m_allocator));
   }
 
-  void leave_scope_block() {
+  void leave_scope_block(const node*) {
     id_map.pop_back();
   }
 
@@ -465,11 +528,11 @@ public:
   }
 
   void walk_parameter(parameter*) {}
-  void enter_scope_block() {
-    m_local_objects.push_back(containers::deque<declaration*>(m_allocator));
+  void enter_scope_block(const node* _node) {
+    m_local_objects.push_back(local_scope(_node, m_allocator));
   }
 
-  void leave_scope_block() {}
+  void leave_scope_block(const node*) {}
 
   memory::unique_ptr<expression> walk_expression(id_expression* _expr) {
     const id_expression::id_source& source = _expr->get_id_source();
@@ -858,7 +921,7 @@ public:
       m_local_objects.pop_back();
       return;
     }
-    if (m_local_objects.back().empty()) {
+    if (m_local_objects.back().objects.empty()) {
       m_local_objects.pop_back();
       return;
     }
@@ -867,7 +930,7 @@ public:
     // we are just about to leave the scope block.
     // This means we have to run the destructor for any objects
     // that are bound by this scope.
-    for (auto& decl : m_local_objects.back()) {
+    for (auto& decl : m_local_objects.back().objects) {
       instructions->add_instruction(create_destructor(decl, instructions));
     }
     m_local_objects.pop_back();
@@ -1012,6 +1075,28 @@ public:
     return nullptr;
   }
 
+  memory::unique_ptr<instruction> walk_instruction(break_instruction* _break) {
+    // Insert ALL of the destructors here.
+    if (_break->returns())
+      return nullptr;  // If the break returns we have already been handled.
+    memory::unique_ptr<instruction_list> new_list =
+        memory::make_unique<instruction_list>(m_allocator, m_allocator);
+    new_list->copy_location_from(_break);
+
+    for (auto it = m_local_objects.rbegin(); it != m_local_objects.rend();
+         ++it) {
+      for (auto it2 = it->objects.rbegin(); it2 != it->objects.rend(); ++it2) {
+        new_list->add_instruction(create_destructor(*it2, _break));
+      }
+      // If we have hit the header, don't destroy any further.
+      if (it->m_header == _break->get_do_instruction()->get_body())
+        break;
+    }
+    _break->set_returns(true);
+    new_list->add_instruction(clone_node(_break));
+    return core::move(new_list);
+  }
+
   memory::unique_ptr<instruction> walk_instruction(return_instruction* _ret) {
     // Generate all of our destructors here.
     // Turn
@@ -1033,7 +1118,7 @@ public:
     // Insert ALL of the destructors here.
     for (auto it = m_local_objects.rbegin(); it != m_local_objects.rend();
          ++it) {
-      if (!it->empty()) {
+      if (!it->objects.empty()) {
         leave = false;
       }
     }
@@ -1083,7 +1168,7 @@ public:
     // Insert ALL of the destructors here.
     for (auto it = m_local_objects.rbegin(); it != m_local_objects.rend();
          ++it) {
-      for (auto it2 = it->rbegin(); it2 != it->rend(); ++it2) {
+      for (auto it2 = it->objects.rbegin(); it2 != it->objects.rend(); ++it2) {
         instructions->add_instruction(create_destructor(*it2, _ret));
       }
     }
@@ -1228,7 +1313,7 @@ public:
         cast_back->get_type()->copy_location_from(_decl);
         _decl->set_expression(core::move(cast_back));
       }
-      m_local_objects.back().push_back(_decl);
+      m_local_objects.back().objects.push_back(_decl);
     }
     return nullptr;
   }
@@ -1359,7 +1444,18 @@ private:
   containers::deque<return_instruction*> m_returns;
   containers::hash_map<containers::string_view, containers::deque<function*>>
       m_functions;
-  containers::deque<containers::deque<declaration*>> m_local_objects;
+  struct local_scope {
+    // We have to add this here as VS2013 does not automatically
+    // generate move constructors.
+    local_scope(local_scope&& _other)
+      : m_header(_other.m_header), objects(core::move(_other.objects)) {}
+    local_scope(const node* _header, memory::allocator* _allocator)
+      : m_header(_header), objects(_allocator) {}
+
+    const node* m_header;
+    containers::deque<declaration*> objects;
+  };
+  containers::deque<local_scope> m_local_objects;
 };
 
 class temporary_reification_pass : public pass {
@@ -1466,8 +1562,8 @@ public:
   void walk_type(type*) {}
   void walk_function(function*) {}
   void walk_struct_definition(struct_definition*) {}
-  void enter_scope_block() {}
-  void leave_scope_block() {}
+  void enter_scope_block(const node*) {}
+  void leave_scope_block(const node*) {}
   void walk_parameter(parameter*) {}
 
 private:
@@ -2029,8 +2125,8 @@ public:
   memory::unique_ptr<instruction> walk_instruction(instruction*) {
     return nullptr;
   }
-  void enter_scope_block() {}
-  void leave_scope_block() {}
+  void enter_scope_block(const node*) {}
+  void leave_scope_block(const node*) {}
 
 private:
   void add_function_from_definition(containers::string_view _name,

@@ -34,8 +34,8 @@ public:
       walk_struct_definition, void(const wn::scripting::struct_definition*));
   MOCK_METHOD1(
       walk_instruction_list, void(const wn::scripting::instruction_list*));
-  MOCK_METHOD0(enter_scope_block, void());
-  MOCK_METHOD0(leave_scope_block, void());
+  MOCK_METHOD1(enter_scope_block, void(const wn::scripting::node*));
+  MOCK_METHOD1(leave_scope_block, void(const wn::scripting::node*));
 };
 
 template <typename T>

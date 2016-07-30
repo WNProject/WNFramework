@@ -51,6 +51,7 @@ enum class node_type {
   function,
   instruction,
     assignment_instruction,
+    break_instruction,
     declaration,
     do_instruction,
     else_if_instruction,
@@ -106,7 +107,7 @@ using walk_mutable_expression =
 
 template <typename T>
 using walk_ftype = containers::function<void(T)>;
-using walk_scope = containers::function<void()>;
+using walk_scope = containers::function<void(const node*)>;
 
 WN_INLINE void handle_expression(const walk_mutable_expression& function,
     memory::unique_ptr<expression>& expr) {
@@ -447,6 +448,14 @@ public:
       m_arith_type(_type),
       m_lhs(memory::unique_ptr<expression>(m_allocator, _lhs)),
       m_rhs(memory::unique_ptr<expression>(m_allocator, _rhs)) {}
+
+  binary_expression(memory::allocator* _allocator, arithmetic_type _type,
+      memory::unique_ptr<expression> _lhs, memory::unique_ptr<expression> _rhs)
+    : expression(_allocator, node_type::binary_expression),
+      m_arith_type(_type),
+      m_lhs(core::move(_lhs)),
+      m_rhs(core::move(_rhs)) {}
+
   explicit binary_expression(memory::allocator* _allocator)
     : expression(_allocator, node_type::binary_expression),
       m_arith_type(arithmetic_type::max) {}
@@ -1396,11 +1405,11 @@ public:
       const walk_mutable_expression&, const walk_ftype<type*>&,
       const walk_ftype<instruction_list*>&, const walk_scope& _enter_scope,
       const walk_scope& _leave_scope) override {
-    _enter_scope();
+    _enter_scope(this);
     for (auto& inst : m_instructions) {
       handle_instruction(_instruction, inst);
     }
-    _leave_scope();
+    _leave_scope(this);
   }
 
   void walk_children(const walk_ftype<const instruction*>& _instruction,
@@ -1408,11 +1417,11 @@ public:
       const walk_ftype<const instruction_list*>&,
       const walk_scope& _enter_scope,
       const walk_scope& _leave_scope) const override {
-    _enter_scope();
+    _enter_scope(this);
     for (auto& inst : m_instructions) {
       _instruction(inst.get());
     }
-    _leave_scope();
+    _leave_scope(this);
   }
 
   void remove_dead_instructions() {
@@ -1928,7 +1937,7 @@ public:
       const walk_ftype<instruction_list*>& _instructions,
       const walk_ftype<type*>& _type) {
     m_signature->walk_children(_type);
-    _enter_scope();
+    _enter_scope(this);
     if (m_body) {
       if (m_parameters) {
         for (auto& param : m_parameters->get_parameters()) {
@@ -1939,7 +1948,7 @@ public:
       _instructions(m_body.get());
     }
 
-    _leave_scope();
+    _leave_scope(this);
   }
 
   virtual void walk_children(const walk_scope& _enter_scope,
@@ -1951,7 +1960,7 @@ public:
     const parameter* tmp_param = m_signature.get();
     tmp_param->walk_children(_type);
 
-    _enter_scope();
+    _enter_scope(this);
     if (m_body) {
       if (m_parameters) {
         for (auto& param : m_parameters->get_parameters()) {
@@ -1961,7 +1970,7 @@ public:
 
       _instructions(m_body.get());
     }
-    _leave_scope();
+    _leave_scope(this);
   }
 
   void set_mangled_name(const containers::string& _name) {
@@ -2135,6 +2144,40 @@ private:
   bool m_in_constructor;
 };
 
+class do_instruction;
+class break_instruction : public instruction {
+public:
+  break_instruction(memory::allocator* _allocator)
+    : instruction(_allocator, node_type::break_instruction) {}
+
+  virtual void walk_children(const walk_mutable_instruction&,
+      const walk_mutable_expression&, const walk_ftype<type*>&,
+      const walk_ftype<instruction_list*>&, const walk_scope&,
+      const walk_scope&) override {}
+
+  virtual void walk_children(const walk_ftype<const instruction*>&,
+      const walk_ftype<const expression*>&, const walk_ftype<const type*>&,
+      const walk_ftype<const instruction_list*>&, const walk_scope&,
+      const walk_scope&) const override {}
+
+  memory::unique_ptr<node> clone() const override {
+    memory::unique_ptr<break_instruction> t =
+        memory::make_unique<break_instruction>(m_allocator, m_allocator);
+    t->copy_instruction(this);
+    return core::move(t);
+  }
+
+  void set_loop(do_instruction* _inst) {
+    m_loop_break = _inst;
+  }
+
+  const do_instruction* get_do_instruction() {
+    return m_loop_break;
+  }
+private:
+  const do_instruction* m_loop_break;
+};
+
 class do_instruction : public instruction {
 public:
   do_instruction(
@@ -2146,6 +2189,14 @@ public:
   do_instruction(memory::allocator* _allocator)
     : instruction(_allocator, node_type::do_instruction) {}
 
+  void set_condition(memory::unique_ptr<expression>&& _expr) {
+    m_condition = core::move(_expr);
+  }
+
+  void set_body(memory::unique_ptr<instruction_list>&& _body) {
+    m_body = core::move(_body);
+  }
+
   memory::unique_ptr<node> clone() const override {
     memory::unique_ptr<do_instruction> t =
         memory::make_unique<do_instruction>(m_allocator, m_allocator);
@@ -2153,6 +2204,46 @@ public:
     t->m_condition = clone_node(m_condition);
     t->m_body = clone_node(m_body);
     return core::move(t);
+  }
+
+  virtual void walk_children(const walk_mutable_instruction&,
+      const walk_mutable_expression& _expr, const walk_ftype<type*>&,
+      const walk_ftype<instruction_list*>& _inst, const walk_scope&,
+      const walk_scope&) override {
+    if (_expr) {
+      handle_expression(_expr, m_condition);
+    }
+    if (_inst) {
+      _inst(m_body.get());
+    }
+  }
+
+  virtual void walk_children(const walk_ftype<const instruction*>&,
+      const walk_ftype<const expression*>& _expr, const walk_ftype<const type*>&,
+      const walk_ftype<const instruction_list*>& _inst, const walk_scope&,
+      const walk_scope&) const override {
+    if (_expr) {
+      _expr(m_condition.get());
+      }
+    if (_inst) {
+      _inst(m_body.get());
+    }
+  }
+
+  const expression* get_condition() const {
+    return m_condition.get();
+  }
+
+  memory::unique_ptr<expression> take_condition() {
+    return core::move(m_condition);
+  }
+
+  const instruction_list* get_body() const {
+    return m_body.get();
+  }
+
+  memory::unique_ptr<instruction_list> take_body() {
+    return core::move(m_body);
   }
 
 private:

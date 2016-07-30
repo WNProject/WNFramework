@@ -78,8 +78,8 @@ public:
   void pre_walk_script_file(const script_file* _f);
   // Called when a scope block is entered or left.
   // No-ops here, needed for the correct interface to ASTWalker.
-  void enter_scope_block() {}
-  void leave_scope_block() {}
+  void enter_scope_block(const node*) {}
+  void leave_scope_block(const node*) {}
 
   // Given a scripting node, returns the data that was
   // created in the associated call to walk_*.

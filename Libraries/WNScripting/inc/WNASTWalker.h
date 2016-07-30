@@ -105,8 +105,8 @@ private:
   void walk_parameter(parameter_type _param);
   void walk_struct_definition(struct_definition_type _decl);
   void walk_type(type_type _type);
-  void enter_scope_block();
-  void leave_scope_block();
+  void enter_scope_block(const node* _node);
+  void leave_scope_block(const node* _node);
   T* m_walker;
 };
 

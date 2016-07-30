@@ -576,7 +576,11 @@ public:
       iterator copy_to = pos;
       iterator copy_from = copy_to + _count;
       const size_type location = (pos - begin());
-      const size_type copy_count = m_element_count - location;
+      // m_element_count - location gives us the number of elements between
+      // pos and the end, (it is the same as end() - pos), we have to subtract
+      // _count to determine how many elements need copying. This correctly handles
+      // for example, when end() - 1 is the element being removed.
+      const size_type copy_count = m_element_count - location - _count;
 
       for (size_type i = 0; i < copy_count; ++i) {
         memory::construct_at<_Type>(&(*copy_to), core::move(*copy_from));

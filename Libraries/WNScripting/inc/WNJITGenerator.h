@@ -60,7 +60,8 @@ public:
       m_context(_context),
       m_module(_module),
       m_generator(_generator),
-      m_data_layout(_module) {}
+      m_data_layout(_module),
+      m_break_instructions(_allocator) {}
 
   void walk_expression(const expression*, expression_dat*) {
     WN_RELEASE_ASSERT_DESC(false, "Unimplemented expression type");
@@ -88,6 +89,8 @@ public:
   void walk_instruction(const declaration* _inst, instruction_dat*);
   void walk_instruction(const assignment_instruction* _inst, instruction_dat*);
   void walk_instruction(const if_instruction*, instruction_dat*);
+  void walk_instruction(const do_instruction* _inst, instruction_dat*);
+  void walk_instruction(const break_instruction* _inst, instruction_dat*);
 
   void walk_parameter(const parameter* _param, llvm::Instruction**);
   void walk_struct_definition(const struct_definition* _def, llvm::Type**);
@@ -108,6 +111,7 @@ private:
   llvm::Module* m_module;
   llvm::LLVMContext* m_context;
   llvm::DataLayout m_data_layout;
+  containers::deque<llvm::BranchInst*> m_break_instructions;
 };
 
 }  // namespace scripting

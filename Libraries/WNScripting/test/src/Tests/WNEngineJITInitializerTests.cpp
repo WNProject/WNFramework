@@ -492,4 +492,38 @@ INSTANTIATE_TEST_CASE_P(
       {{0, 4}, {-1, 4}, {10, 4}}},
 })));
 
+INSTANTIATE_TEST_CASE_P(
+    loop_test, integer_tests,
+    ::testing::ValuesIn(std::vector<integer_test>({
+      {"Int main(Int x) { "
+      "Int y = 0;"
+      "do { y = y + 1; x = x - 1; } while( x > 0 );"
+      "return y;"
+      "}",
+      {{0, 1}, {-1, 1}, {10, 10}}},
+      {"struct Foo { Int x = 4; }"
+      "Int main(Int x) { "
+      "Int y = 0;"
+      "do { y = y + 1; } while( Foo().x != 4 );"
+      "return y;"
+      "}",
+      {{0, 1}, {-1, 1}, {10, 1}}},
+      {"struct Foo { Int x = 4; }"
+      "Int main(Int x) { "
+      "Int y = 0;"
+      "do { Foo f = Foo(); "
+      "     y = y + 1; } while( f.x != 4 );"
+      "return y;"
+      "}",
+      {{0, 1}, {-1, 1}, {10, 1}}},
+      {"struct Foo { Int x = 4; }"
+      "Int main(Int x) { "
+      "Int y = 0;"
+      "do { shared Foo f = shared Foo(); "
+      "     y = y + 1; } while( f.x != 4 );"
+      "return y;"
+      "}",
+      {{0, 1}, {-1, 1}, {10, 1}}},
+})));
+
 // clang-format on

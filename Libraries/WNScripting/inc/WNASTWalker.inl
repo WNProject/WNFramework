@@ -49,13 +49,13 @@ void ast_walker<T, Const>::walk_type(type_type _type) {
 }
 
 template <typename T, bool Const>
-void ast_walker<T, Const>::enter_scope_block() {
-  m_walker->enter_scope_block();
+void ast_walker<T, Const>::enter_scope_block(const node* _node) {
+  m_walker->enter_scope_block(_node);
 }
 
 template <typename T, bool Const>
-void ast_walker<T, Const>::leave_scope_block() {
-  m_walker->leave_scope_block();
+void ast_walker<T, Const>::leave_scope_block(const node* _node) {
+  m_walker->leave_scope_block(_node);
 }
 
 template <typename T, bool Const>
@@ -212,6 +212,9 @@ void ast_walker<T, Const>::walk_instruction(const instruction* _instruction) {
     case node_type::assignment_instruction:
       return m_walker->walk_instruction(
           cast_to<assignment_instruction>(_instruction));
+    case node_type::break_instruction:
+      return m_walker->walk_instruction(
+          cast_to<break_instruction>(_instruction));
     case node_type::declaration:
       return m_walker->walk_instruction(cast_to<declaration>(_instruction));
     case node_type::do_instruction:
@@ -256,6 +259,9 @@ memory::unique_ptr<instruction> ast_walker<T, Const>::walk_mutable_instruction(
     case node_type::assignment_instruction:
       return m_walker->walk_instruction(
           cast_to<assignment_instruction>(_instruction));
+    case node_type::break_instruction:
+      return m_walker->walk_instruction(
+          cast_to<break_instruction>(_instruction));
     case node_type::declaration:
       return m_walker->walk_instruction(cast_to<declaration>(_instruction));
     case node_type::do_instruction:

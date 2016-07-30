@@ -413,7 +413,7 @@ void ast_jit_engine::walk_instruction(
   _val->instructions.push_back(
       llvm::BranchInst::Create(_val->blocks.front(), next_if, dat.value));
 
-  if (!_inst->get_body()->returns()) {
+  if (!_inst->get_body()->returns() && post_if) {
     _val->blocks.back()->getInstList().push_back(
         llvm::BranchInst::Create(post_if));
   }
@@ -429,7 +429,7 @@ void ast_jit_engine::walk_instruction(
           llvm::BranchInst::Create(post_if));
     }
     _val->blocks.insert(_val->blocks.end(), list_dat.begin(), list_dat.end());
-  } else {
+  } else if (post_if) {
     next_if->getInstList().push_back(llvm::BranchInst::Create(post_if));
   }
 
@@ -447,6 +447,44 @@ void ast_jit_engine::walk_instruction(
     _val->instructions.insert(_val->instructions.end(), dat.instructions.data(),
         dat.instructions.data() + dat.instructions.size());
   }
+}
+
+void ast_jit_engine::walk_instruction(
+  const break_instruction*, instruction_dat* _val) {
+  _val->instructions =
+      containers::dynamic_array<llvm::Instruction*>(m_allocator);
+  // We have to create a dummy basic block so that llvm doe snot
+  // yell at us.
+  // We will delete it later.
+  m_break_instructions.push_back(
+      llvm::BranchInst::Create(llvm::BasicBlock::Create(*m_context, "dummy")));
+  _val->instructions.push_back(m_break_instructions.back());
+}
+
+// All do instructions have now been turned into
+// infinite loops with breaks.
+void ast_jit_engine::walk_instruction(
+    const do_instruction* _expr, instruction_dat* _val) {
+  auto& instructions = m_generator->get_data(_expr->get_body());
+  _val->instructions =
+      containers::dynamic_array<llvm::Instruction*>(m_allocator);
+  _val->blocks = containers::dynamic_array<llvm::BasicBlock*>(m_allocator);
+
+  llvm::BasicBlock* bb = llvm::BasicBlock::Create(*m_context, "do_end");
+  for(auto& block: instructions.blocks) {
+    _val->blocks.push_back(block);
+  }
+  _val->blocks.back()->getInstList().push_back(
+          llvm::BranchInst::Create(_val->blocks.front()));
+  _val->blocks.front()->setName("do_start");
+  _val->blocks.push_back(bb);
+
+  for(auto& branch: m_break_instructions) {
+    llvm::BasicBlock* dummy_block = branch->getSuccessor(0);
+    branch->setSuccessor(0, bb);
+    delete dummy_block;
+  }
+  m_break_instructions.clear();
 }
 
 void ast_jit_engine::walk_instruction(
@@ -526,7 +564,7 @@ void ast_jit_engine::walk_instruction_list(
   _val->instructions =
       containers::dynamic_array<llvm::Instruction*>(m_allocator);
   _val->blocks = containers::dynamic_array<llvm::BasicBlock*>(m_allocator);
-  llvm::BasicBlock* bb = llvm::BasicBlock::Create(*m_context, "block");
+  llvm::BasicBlock* bb = llvm::BasicBlock::Create(*m_context, "scope_block");
   _val->blocks.push_back(bb);
 
   for (auto& inst : _instructions->get_instructions()) {
@@ -602,7 +640,7 @@ void ast_jit_engine::walk_function(const function* _func, llvm::Function** _f) {
   if (!_func->get_body()) {
     return;
   }
-  llvm::BasicBlock* bb = llvm::BasicBlock::Create(*m_context);
+  llvm::BasicBlock* bb = llvm::BasicBlock::Create(*m_context, "function_body");
   *_f = m_module->getFunction(make_string_ref(_func->get_mangled_name()));
   if (_func->get_parameters()) {
     auto llvm_args = (*_f)->arg_begin();
