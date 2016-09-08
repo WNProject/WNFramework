@@ -48,17 +48,22 @@ public:
 
   void walk_instruction_list(instruction_list* _inst) {
     bool returns = false;
+    bool is_non_linear = false;
     for (auto& inst : _inst->get_instructions()) {
-      if (returns) {
+      if (returns | is_non_linear) {
         inst->set_is_dead();
-        m_log->Log(WNLogging::eWarning, 0, "Code after return statement");
+        m_log->Log(WNLogging::eWarning, 0, "Unreachable code detected");
         inst->log_line(*m_log, WNLogging::eWarning);
         ++m_num_warnings;
       }
       returns |= inst->returns();
+      is_non_linear |= inst->is_non_linear();
     }
     if (returns) {
       _inst->set_returns(returns);
+    }
+    if (is_non_linear) {
+      _inst->set_is_non_linear(is_non_linear);
     }
     _inst->remove_dead_instructions();
   }
@@ -194,16 +199,16 @@ public:
     // If we have already marked, then return.
     // This allows us to guarantee that there is at least one "break"
     // instruction from every do loop.
+    for (auto& inst : m_break_instructions) {
+      inst->set_loop(_inst);
+    }
+    m_break_instructions.clear();
     if (_inst->get_body()->returns()) {
       const constant_expression* expr =
           cast_to<const constant_expression>(_inst->get_condition());
       if (expr->get_index() ==
               static_cast<uint32_t>(type_classification::bool_type) &&
           expr->get_type_text() == "true") {
-        for(auto& inst: m_break_instructions) {
-          inst->set_loop(_inst);
-        }
-        m_break_instructions.clear();
         return nullptr;
       }
     }

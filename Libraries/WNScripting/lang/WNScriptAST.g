@@ -146,6 +146,7 @@ COMMA:    ',';
 DOUBINC:   '++';
 DOUBDEC:   '--';
 RETURN:    'return';
+BREAK:     'break';
 SEMICOLON: ';';
 COLON:     ':';
 WHILE:     'while';
@@ -550,6 +551,13 @@ instructionScalar returns[scripting::instruction* node]
     |    assignment_or_expression  {node = $assignment_or_expression.node; }
     ;
 
+breakInst returns[scripting::break_instruction* node]
+@init {
+    node = nullptr;
+}
+    :   a=BREAK b=SEMICOLON { node = m_allocator->construct<scripting::break_instruction>(m_allocator); SET_LOCATION(node, $a); SET_END_LOCATION(node, $b);};
+
+
 returnInst returns[scripting::return_instruction* node]
 @init {
     node = nullptr;
@@ -614,6 +622,7 @@ instruction returns [scripting::instruction* node]
     |    doInst        {node = $doInst.node; }
     |    forInst        {node = $forInst.node; }
     |    instructionScalar ';' {node = $instructionScalar.node;}
+    |    breakInst {node = $breakInst.node;}
     |    returnInst {node = $returnInst.node; }
     |    instruction_list { node = $instruction_list.node; }
     ;

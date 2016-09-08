@@ -524,6 +524,17 @@ INSTANTIATE_TEST_CASE_P(
       "return y;"
       "}",
       {{0, 1}, {-1, 1}, {10, 1}}},
+      {"Int main(Int x) { "
+      "Int y = x;"
+      "do { "
+      " y = y - 1; "
+      " if (y < 2) {"
+      "   break;"
+      " } "
+      "} while( true );"
+      "return y;"
+      "}",
+      {{0, -1}, {1, 0}, {3, 1}}},
 })));
 
 // clang-format on

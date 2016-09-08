@@ -84,7 +84,7 @@ T* cast_to(node* _node) {
   return static_cast<T*>(_node);
 }
 
-template<typename T>
+template <typename T>
 memory::unique_ptr<T> clone_node(const T* val) {
   memory::unique_ptr<node> n = val->clone();
   memory::allocator* alloc = n.get_allocator();
@@ -94,13 +94,12 @@ memory::unique_ptr<T> clone_node(const T* val) {
   return memory::unique_ptr<T>(alloc, static_cast<T*>(n.release()));
 }
 
-template<typename T>
+template <typename T>
 memory::unique_ptr<T> clone_node(const memory::unique_ptr<T>& val) {
   memory::unique_ptr<node> n = val->clone();
   memory::allocator* alloc = n.get_allocator();
   return memory::unique_ptr<T>(alloc, static_cast<T*>(n.release()));
 }
-
 
 using walk_mutable_expression =
     containers::function<memory::unique_ptr<expression>(expression*)>;
@@ -239,8 +238,8 @@ public:
   }
 
   memory::unique_ptr<node> clone() const override {
-    memory::unique_ptr<type> t = memory::make_unique<type>(
-      m_allocator, m_allocator);
+    memory::unique_ptr<type> t =
+        memory::make_unique<type>(m_allocator, m_allocator);
     t->copy_type(this);
     return core::move(t);
   }
@@ -313,8 +312,8 @@ public:
   }
 
   memory::unique_ptr<node> clone() const override {
-    memory::unique_ptr<array_type> t = memory::make_unique<array_type>(
-      m_allocator, m_allocator);
+    memory::unique_ptr<array_type> t =
+        memory::make_unique<array_type>(m_allocator, m_allocator);
     t->copy_type(this);
     t->m_subtype = clone_node(m_subtype);
     return core::move(t);
@@ -334,7 +333,8 @@ public:
 
   expression(memory::allocator* _allocator, node_type _node_type, type* _type)
     : node(_allocator, _node_type),
-      m_type(memory::unique_ptr<type>(_allocator, _type)), m_is_temporary(false) {}
+      m_type(memory::unique_ptr<type>(_allocator, _type)),
+      m_is_temporary(false) {}
 
   const type* get_type() const {
     return m_type.get();
@@ -408,17 +408,18 @@ public:
 
   // Constructs a new expression from this expression but transfers out
   // all of the internals.
-  virtual memory::unique_ptr<expression> transfer_to_new(){
-      memory::unique_ptr<array_allocation_expression> alloc =
-          memory::make_unique<array_allocation_expression>(m_allocator, m_allocator);
-      alloc->copy_location_from(this);
-      alloc->set_type(core::move(m_type));
-      alloc->m_is_dead = m_is_dead;
-      alloc->m_is_temporary = m_is_temporary;
-      alloc->m_array_initializers = core::move(m_array_initializers);
-      alloc->m_copy_initializer = core::move(m_copy_initializer);
-      alloc->m_levels = core::move(m_copy_initializer);
-      return core::move(alloc);
+  virtual memory::unique_ptr<expression> transfer_to_new() {
+    memory::unique_ptr<array_allocation_expression> alloc =
+        memory::make_unique<array_allocation_expression>(
+            m_allocator, m_allocator);
+    alloc->copy_location_from(this);
+    alloc->set_type(core::move(m_type));
+    alloc->m_is_dead = m_is_dead;
+    alloc->m_is_temporary = m_is_temporary;
+    alloc->m_array_initializers = core::move(m_array_initializers);
+    alloc->m_copy_initializer = core::move(m_copy_initializer);
+    alloc->m_levels = core::move(m_copy_initializer);
+    return core::move(alloc);
   }
 
   memory::unique_ptr<node> clone() const override {
@@ -427,7 +428,7 @@ public:
             m_allocator, m_allocator);
     t->copy_expression(this);
 
-    for(auto& a: m_array_initializers) {
+    for (auto& a : m_array_initializers) {
       t->m_array_initializers.emplace_back(clone_node(a));
     }
     t->m_copy_initializer = clone_node(m_copy_initializer);
@@ -462,17 +463,17 @@ public:
 
   // Constructs a new expression from this expression but transfers out
   // all of the internals.
-  virtual memory::unique_ptr<expression> transfer_to_new(){
-      memory::unique_ptr<binary_expression> expr =
-          memory::make_unique<binary_expression>(m_allocator, m_allocator);
-      expr->copy_location_from(this);
-      expr->set_type(core::move(m_type));
-      expr->m_is_dead = m_is_dead;
-      expr->m_is_temporary = m_is_temporary;
-      expr->m_arith_type = m_arith_type;
-      expr->m_lhs = core::move(m_lhs);
-      expr->m_rhs = core::move(m_rhs);
-      return core::move(expr);
+  virtual memory::unique_ptr<expression> transfer_to_new() {
+    memory::unique_ptr<binary_expression> expr =
+        memory::make_unique<binary_expression>(m_allocator, m_allocator);
+    expr->copy_location_from(this);
+    expr->set_type(core::move(m_type));
+    expr->m_is_dead = m_is_dead;
+    expr->m_is_temporary = m_is_temporary;
+    expr->m_arith_type = m_arith_type;
+    expr->m_lhs = core::move(m_lhs);
+    expr->m_rhs = core::move(m_rhs);
+    return core::move(expr);
   }
 
   memory::unique_ptr<node> clone() const override {
@@ -684,11 +685,12 @@ public:
 
   memory::unique_ptr<node> clone() const override {
     memory::unique_ptr<function_pointer_expression> t =
-        memory::make_unique<function_pointer_expression>(m_allocator, m_allocator);
+        memory::make_unique<function_pointer_expression>(
+            m_allocator, m_allocator);
     t->copy_expression(this);
     t->set_source(m_source);
     t->m_name = containers::string(m_name.c_str(), m_allocator);
-    for(const auto& ty: m_types) {
+    for (const auto& ty : m_types) {
       t->m_types.push_back(clone_node(ty));
     }
     return core::move(t);
@@ -771,7 +773,7 @@ public:
     t->copy_expression(this);
 
     t->set_id_source(m_source);
-    t->m_name= containers::string(m_name.c_str(), m_allocator);
+    t->m_name = containers::string(m_name.c_str(), m_allocator);
 
     return core::move(t);
   }
@@ -800,7 +802,8 @@ public:
     : expression(_allocator, node_type::null_allocation_expression) {}
   virtual memory::unique_ptr<expression> transfer_to_new() {
     memory::unique_ptr<null_allocation_expression> expr =
-        memory::make_unique<null_allocation_expression>(m_allocator, m_allocator);
+        memory::make_unique<null_allocation_expression>(
+            m_allocator, m_allocator);
     expr->copy_location_from(this);
     expr->set_type(core::move(m_type));
     expr->m_is_dead = m_is_dead;
@@ -809,7 +812,8 @@ public:
   }
   memory::unique_ptr<node> clone() const override {
     memory::unique_ptr<null_allocation_expression> t =
-        memory::make_unique<null_allocation_expression>(m_allocator, m_allocator);
+        memory::make_unique<null_allocation_expression>(
+            m_allocator, m_allocator);
     t->copy_expression(this);
     return core::move(t);
   }
@@ -1007,7 +1011,7 @@ public:
     : post_expression(_allocator, node_type::post_unary_expression),
       m_unary_type(_type) {}
   explicit post_unary_expression(memory::allocator* _allocator)
-    : post_expression(_allocator, node_type::post_unary_expression){}
+    : post_expression(_allocator, node_type::post_unary_expression) {}
 
   virtual memory::unique_ptr<expression> transfer_to_new() {
     memory::unique_ptr<post_unary_expression> expr =
@@ -1086,7 +1090,7 @@ private:
   memory::unique_ptr<expression> m_expression;
 };
 
-class sizeof_expression: public expression {
+class sizeof_expression : public expression {
 public:
   sizeof_expression(
       memory::allocator* _allocator, memory::unique_ptr<type>&& _type)
@@ -1103,8 +1107,8 @@ public:
     return m_sized_type.get();
   }
 
-  virtual void walk_children(const walk_mutable_expression&,
-      const walk_ftype<type*>& _type) override {
+  virtual void walk_children(
+      const walk_mutable_expression&, const walk_ftype<type*>& _type) override {
     _type(m_type.get());
     _type(m_sized_type.get());
   }
@@ -1184,7 +1188,8 @@ public:
 
   virtual memory::unique_ptr<expression> transfer_to_new() {
     memory::unique_ptr<struct_allocation_expression> expr =
-        memory::make_unique<struct_allocation_expression>(m_allocator, m_allocator);
+        memory::make_unique<struct_allocation_expression>(
+            m_allocator, m_allocator);
     expr->copy_location_from(this);
     expr->set_type(core::move(m_type));
     expr->m_is_dead = m_is_dead;
@@ -1196,7 +1201,8 @@ public:
 
   memory::unique_ptr<node> clone() const override {
     memory::unique_ptr<struct_allocation_expression> t =
-        memory::make_unique<struct_allocation_expression>(m_allocator, m_allocator);
+        memory::make_unique<struct_allocation_expression>(
+            m_allocator, m_allocator);
     t->copy_expression(this);
     t->m_copy_initializer = clone_node(m_copy_initializer);
     t->m_init_mode = m_init_mode;
@@ -1252,16 +1258,24 @@ public:
     : node(_allocator, _type),
       m_returns(false),
       m_is_dead(false),
+      m_non_linear(false),
       m_temporaries(_allocator),
       m_temporary_declarations(_allocator) {}
-  instruction(memory::allocator* _allocator, node_type _type, bool _returns)
+  instruction(memory::allocator* _allocator, node_type _type, bool _returns,
+    bool _is_non_linear = false)
     : instruction(_allocator, _type) {
     m_returns = _returns;
+    m_non_linear = _is_non_linear;
   }
 
   // Returns true if this instruction causes the function to return.
   bool returns() const {
     return (m_returns);
+  }
+
+  // Returns true if this instruction involves non-linear control flow.
+  bool is_non_linear() const {
+    return m_returns || m_non_linear;
   }
 
   virtual void walk_children(const walk_mutable_instruction&,
@@ -1284,6 +1298,9 @@ public:
   void set_returns(bool returns) {
     m_returns = returns;
   }
+  void set_is_non_linear(bool _is_non_linear) {
+    m_non_linear = _is_non_linear;
+  }
   bool is_dead() const {
     return m_is_dead;
   }
@@ -1297,7 +1314,8 @@ public:
     m_temporary_declarations = core::move(declarations);
   }
 
-  containers::deque<memory::unique_ptr<declaration>> release_temp_declarations(){
+  containers::deque<memory::unique_ptr<declaration>>
+  release_temp_declarations() {
     return core::move(m_temporary_declarations);
   }
 
@@ -1311,11 +1329,13 @@ protected:
     }
     m_is_dead = _other->m_is_dead;
     m_returns = _other->m_returns;
+    m_non_linear = _other->m_non_linear;
   }
   containers::deque<const struct_allocation_expression*> m_temporaries;
   containers::deque<memory::unique_ptr<declaration>> m_temporary_declarations;
   bool m_is_dead;
   bool m_returns;
+  bool m_non_linear;
 };
 
 struct expression_instruction : public instruction {
@@ -1440,7 +1460,7 @@ public:
     memory::unique_ptr<instruction_list> t =
         memory::make_unique<instruction_list>(m_allocator, m_allocator);
     t->copy_instruction(this);
-    for(const auto& inst: m_instructions) {
+    for (const auto& inst : m_instructions) {
       t->m_instructions.push_back(clone_node(inst));
     }
     return core::move(t);
@@ -1491,7 +1511,7 @@ public:
     memory::unique_ptr<arg_list> t =
         memory::make_unique<arg_list>(m_allocator, m_allocator);
     t->copy_node(this);
-    for(const auto& expr: m_expression_list) {
+    for (const auto& expr : m_expression_list) {
       t->m_expression_list.push_back(memory::make_unique<function_expression>(
           m_allocator, clone_node(expr->m_expr), expr->m_hand_ownership));
     }
@@ -1575,16 +1595,16 @@ public:
     return m_args.get();
   }
 
-  virtual memory::unique_ptr<expression> transfer_to_new(){
-      memory::unique_ptr<function_call_expression> alloc =
-          memory::make_unique<function_call_expression>(m_allocator, m_allocator);
-      alloc->copy_location_from(this);
-      alloc->set_type(core::move(m_type));
-      alloc->m_is_dead = m_is_dead;
-      alloc->m_is_temporary = m_is_temporary;
-      alloc->m_callee = m_callee;
-      alloc->m_args = core::move(m_args);
-      return core::move(alloc);
+  virtual memory::unique_ptr<expression> transfer_to_new() {
+    memory::unique_ptr<function_call_expression> alloc =
+        memory::make_unique<function_call_expression>(m_allocator, m_allocator);
+    alloc->copy_location_from(this);
+    alloc->set_type(core::move(m_type));
+    alloc->m_is_dead = m_is_dead;
+    alloc->m_is_temporary = m_is_temporary;
+    alloc->m_callee = m_callee;
+    alloc->m_args = core::move(m_args);
+    return core::move(alloc);
   }
 
   memory::unique_ptr<node> clone() const override {
@@ -1606,8 +1626,7 @@ public:
   parameter(memory::allocator* _allocator, type* _type, const char* _name)
     : node(_allocator, scripting::node_type::parameter),
       m_type(memory::unique_ptr<type>(_allocator, _type)),
-      m_name(_name, _allocator) {
-  }
+      m_name(_name, _allocator) {}
 
   parameter(memory::allocator* _allocator, memory::unique_ptr<type>&& _type,
       containers::string_view _name)
@@ -1742,7 +1761,7 @@ public:
     t->m_parameter = clone_node(m_parameter);
     t->m_expression = clone_node(m_expression);
     t->m_unsized_array_initializers = m_unsized_array_initializers;
-    for(const auto& expr: m_sized_array_initializers) {
+    for (const auto& expr : m_sized_array_initializers) {
       t->m_sized_array_initializers.push_back(clone_node(expr));
     }
     return core::move(t);
@@ -1825,7 +1844,7 @@ public:
     for (auto& member : m_struct_members) {
       t->m_struct_members.push_back(clone_node(member));
     }
-    for(auto& function: m_struct_functions) {
+    for (auto& function : m_struct_functions) {
       t->m_struct_functions.push_back(clone_node(function));
     }
     return core::move(t);
@@ -2055,7 +2074,7 @@ public:
     : instruction(_allocator, node_type::assignment_instruction),
       m_lvalue(memory::unique_ptr<lvalue>(m_allocator, _lvalue)),
       m_assign_type(assign_type::max),
-      m_in_constructor(false){}
+      m_in_constructor(false) {}
 
   explicit assignment_instruction(memory::allocator* _allocator)
     : instruction(_allocator, node_type::assignment_instruction) {}
@@ -2148,7 +2167,7 @@ class do_instruction;
 class break_instruction : public instruction {
 public:
   break_instruction(memory::allocator* _allocator)
-    : instruction(_allocator, node_type::break_instruction) {}
+    : instruction(_allocator, node_type::break_instruction, false, true) {}
 
   virtual void walk_children(const walk_mutable_instruction&,
       const walk_mutable_expression&, const walk_ftype<type*>&,
@@ -2174,6 +2193,7 @@ public:
   const do_instruction* get_do_instruction() {
     return m_loop_break;
   }
+
 private:
   const do_instruction* m_loop_break;
 };
@@ -2219,12 +2239,13 @@ public:
   }
 
   virtual void walk_children(const walk_ftype<const instruction*>&,
-      const walk_ftype<const expression*>& _expr, const walk_ftype<const type*>&,
+      const walk_ftype<const expression*>& _expr,
+      const walk_ftype<const type*>&,
       const walk_ftype<const instruction_list*>& _inst, const walk_scope&,
       const walk_scope&) const override {
     if (_expr) {
       _expr(m_condition.get());
-      }
+    }
     if (_inst) {
       _inst(m_body.get());
     }
@@ -2419,7 +2440,7 @@ public:
     t->m_condition = clone_node(m_condition);
     t->m_else = clone_node(m_else);
     t->m_body = clone_node(m_body);
-    for(const auto& e: m_else_if_nodes) {
+    for (const auto& e : m_else_if_nodes) {
       t->m_else_if_nodes.push_back(clone_node(e));
     }
     return core::move(t);
@@ -2493,7 +2514,6 @@ public:
   expression* get_expression() {
     return m_expression.get();
   }
-
 
   virtual void walk_children(const walk_mutable_instruction&,
       const walk_mutable_expression& expr, const walk_ftype<type*>&,
@@ -2589,7 +2609,8 @@ public:
     m_includes.emplace_back(_node, m_allocator);
   }
 
-  const containers::deque<memory::unique_ptr<function>>& get_external_functions() const {
+  const containers::deque<memory::unique_ptr<function>>&
+  get_external_functions() const {
     return m_external_functions;
   }
 
@@ -2611,7 +2632,7 @@ public:
     for (auto& def : m_structs) {
       s(def.get());
     }
-    for (auto& function: m_external_functions) {
+    for (auto& function : m_external_functions) {
       f(function.get());
     }
     for (auto& function : m_functions) {
@@ -2627,7 +2648,7 @@ public:
     for (auto& def : m_structs) {
       s(def.get());
     }
-    for (auto& function: m_external_functions) {
+    for (auto& function : m_external_functions) {
       f(function.get());
     }
     for (auto& function : m_functions) {
@@ -2639,13 +2660,13 @@ public:
     memory::unique_ptr<script_file> t =
         memory::make_unique<script_file>(m_allocator, m_allocator);
     t->copy_node(this);
-    for(const auto& function: m_functions) {
+    for (const auto& function : m_functions) {
       t->m_functions.push_back(clone_node(function));
     }
-    for(const auto& external_function: m_external_functions) {
+    for (const auto& external_function : m_external_functions) {
       t->m_external_functions.push_back(clone_node(external_function));
     }
-    for(const auto& strt : m_structs) {
+    for (const auto& strt : m_structs) {
       t->m_structs.push_back(clone_node(strt));
     }
     for (const auto& include : m_includes) {

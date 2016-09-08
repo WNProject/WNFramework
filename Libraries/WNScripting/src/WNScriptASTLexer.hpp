@@ -110,7 +110,6 @@ public:
 	enum Tokens
 	{
 		EOF_TOKEN = WNScriptASTLexerImplTraits::CommonTokenType::TOKEN_EOF
-		, T__50 = 50
 		, T__51 = 51
 		, T__52 = 52
 		, T__53 = 53
@@ -130,52 +129,54 @@ public:
 		, T__67 = 67
 		, T__68 = 68
 		, T__69 = 69
+		, T__70 = 70
 		, BOOL = 4
 		, BOOL_TYPE = 5
-		, CHAR = 6
-		, CHAR_TYPE = 7
-		, CLASS = 8
-		, COLON = 9
-		, COMMA = 10
-		, COMMENT = 11
-		, DO = 12
-		, DOUBDEC = 13
-		, DOUBINC = 14
-		, ELSE = 15
-		, ESC_SEQ = 16
-		, EXPONENT = 17
-		, FLOAT = 18
-		, FLOAT_TYPE = 19
-		, FOR = 20
-		, HEX_DIGIT = 21
-		, ID = 22
-		, IF = 23
-		, INCLUDE = 24
-		, INT = 25
-		, INT_TYPE = 26
-		, LBRACE = 27
-		, LBRACKET = 28
-		, LSQBRACKET = 29
-		, NULLTOK = 30
-		, OCTAL_ESC = 31
-		, OVERRIDE = 32
-		, QUESTION = 33
-		, RBRACE = 34
-		, RBRACKET = 35
-		, RETURN = 36
-		, RSQBRACKET = 37
-		, SEMICOLON = 38
-		, SHARED_REF = 39
-		, STRING = 40
-		, STRING_TYPE = 41
-		, STRUCT = 42
-		, TYPE = 43
-		, UNICODE_ESC = 44
-		, VIRTUAL = 45
-		, VOID_TYPE = 46
-		, WEAK_REF = 47
-		, WHILE = 48
-		, WS = 49
+		, BREAK = 6
+		, CHAR = 7
+		, CHAR_TYPE = 8
+		, CLASS = 9
+		, COLON = 10
+		, COMMA = 11
+		, COMMENT = 12
+		, DO = 13
+		, DOUBDEC = 14
+		, DOUBINC = 15
+		, ELSE = 16
+		, ESC_SEQ = 17
+		, EXPONENT = 18
+		, FLOAT = 19
+		, FLOAT_TYPE = 20
+		, FOR = 21
+		, HEX_DIGIT = 22
+		, ID = 23
+		, IF = 24
+		, INCLUDE = 25
+		, INT = 26
+		, INT_TYPE = 27
+		, LBRACE = 28
+		, LBRACKET = 29
+		, LSQBRACKET = 30
+		, NULLTOK = 31
+		, OCTAL_ESC = 32
+		, OVERRIDE = 33
+		, QUESTION = 34
+		, RBRACE = 35
+		, RBRACKET = 36
+		, RETURN = 37
+		, RSQBRACKET = 38
+		, SEMICOLON = 39
+		, SHARED_REF = 40
+		, STRING = 41
+		, STRING_TYPE = 42
+		, STRUCT = 43
+		, TYPE = 44
+		, UNICODE_ESC = 45
+		, VIRTUAL = 46
+		, VOID_TYPE = 47
+		, WEAK_REF = 48
+		, WHILE = 49
+		, WS = 50
 	};
 
 };
@@ -203,7 +204,6 @@ public:
 
 
 
-    void  mT__50( );
     void  mT__51( );
     void  mT__52( );
     void  mT__53( );
@@ -223,6 +223,7 @@ public:
     void  mT__67( );
     void  mT__68( );
     void  mT__69( );
+    void  mT__70( );
     void  mLSQBRACKET( );
     void  mRSQBRACKET( );
     void  mLBRACKET( );
@@ -233,6 +234,7 @@ public:
     void  mDOUBINC( );
     void  mDOUBDEC( );
     void  mRETURN( );
+    void  mBREAK( );
     void  mSEMICOLON( );
     void  mCOLON( );
     void  mWHILE( );

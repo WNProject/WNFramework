@@ -402,8 +402,8 @@ void ast_jit_engine::walk_instruction(
       m_generator->get_data(_inst->get_body()).blocks;
 
   llvm::BasicBlock* post_if =
-      _inst->returns() ? nullptr
-                       : llvm::BasicBlock::Create(*m_context, "end_if");
+      _inst->is_non_linear() ? nullptr
+                             : llvm::BasicBlock::Create(*m_context, "end_if");
   llvm::BasicBlock* next_if = llvm::BasicBlock::Create(*m_context, "next_if");
 
   _val->blocks.insert(_val->blocks.begin(), body.begin(), body.end());
@@ -413,7 +413,7 @@ void ast_jit_engine::walk_instruction(
   _val->instructions.push_back(
       llvm::BranchInst::Create(_val->blocks.front(), next_if, dat.value));
 
-  if (!_inst->get_body()->returns() && post_if) {
+  if (!_inst->get_body()->is_non_linear() && post_if) {
     _val->blocks.back()->getInstList().push_back(
         llvm::BranchInst::Create(post_if));
   }
@@ -424,7 +424,7 @@ void ast_jit_engine::walk_instruction(
         m_generator->get_data(_inst->get_else()).blocks;
     next_if->getInstList().push_back(
         llvm::BranchInst::Create(list_dat.front()));
-    if (!_inst->get_else()->returns()) {
+    if (!_inst->get_else()->is_non_linear()) {
       list_dat.back()->getInstList().push_back(
           llvm::BranchInst::Create(post_if));
     }
@@ -453,7 +453,7 @@ void ast_jit_engine::walk_instruction(
   const break_instruction*, instruction_dat* _val) {
   _val->instructions =
       containers::dynamic_array<llvm::Instruction*>(m_allocator);
-  // We have to create a dummy basic block so that llvm doe snot
+  // We have to create a dummy basic block so that llvm does not
   // yell at us.
   // We will delete it later.
   m_break_instructions.push_back(

@@ -348,6 +348,46 @@ INSTANTIATE_TEST_CASE_P(
 
 // clang-format off
 INSTANTIATE_TEST_CASE_P(
+    break_tests, c_translator_direct_translation_test,
+    ::testing::ValuesIn(
+        std::vector<std::vector<source_pair>>({
+          {
+            {"Int main(Int x) {",     "int32_t _Z3wns4mainEll(int32_t x) {"  },
+            {"  Int y = x;",          "int32_t y = x;"                },
+            {"  do {",                "do "                           },
+            {"",                      "{"                             },
+            {"y = y - 1;",            "y = (y - 1);"                  },
+            {"",                      "bool __wns_if_temp0 = false;"  },
+            {"",                      "{"                             },
+            {"",                      "__wns_if_temp0 = (y < 2);"     },
+            {"",                      "}",                            },
+            {"",                      "bool __wns_if_temp1 = false;"  },
+            {"",                      "{"                             },
+            {"",                      "__wns_if_temp1 = __wns_if_temp0;"},
+            {"",                      "}"                             },
+            {"if (y < 2) { ",         "if (__wns_if_temp1) {"         },
+            {"",                      "{"                             },
+            {"break;",                "break;"                        },
+            {"",                      "}"                             },
+            {"}",                     "}"                             },
+            {"",                      "bool __wns_if_temp2 = false;"  },
+            {"",                      "{"                             },
+            {"",                      "__wns_if_temp2 = (true == false);"},
+            {"",                      "}"                             },
+            {"",                      "if (__wns_if_temp2) {"         },
+            {"",                      "{"                             },
+            {"",                      "break;"                        },
+            {"",                      "}"                             },
+            {"",                      "}"                             },
+            {"} while(true);",        "} while(true);"                },
+            {"return y;",             "return y;"                     },
+            {"}",                     "}"                             }
+          }
+})));
+// clang-format on
+
+// clang-format off
+INSTANTIATE_TEST_CASE_P(
     declaration_tests, c_translator_direct_translation_test,
     ::testing::ValuesIn(
         std::vector<std::vector<source_pair>>({
