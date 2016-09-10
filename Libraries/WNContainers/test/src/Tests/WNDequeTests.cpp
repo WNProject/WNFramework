@@ -202,3 +202,34 @@ TYPED_TEST(deque, move) {
     EXPECT_EQ(0, deque2.size());
   }
 }
+
+TYPED_TEST(deque, clear_and_add) {
+  wn::testing::allocator allocator;
+
+  {
+    wn::containers::deque<TypeParam> deque(23, 3, &allocator);
+
+    EXPECT_FALSE(deque.empty());
+    EXPECT_EQ(23, deque.size());
+
+    for (const TypeParam& element : deque) {
+      EXPECT_EQ(element, static_cast<TypeParam>(3));
+    }
+
+    deque.clear();
+    for (size_t i = 0; i < 23; ++i) {
+      deque.push_back(static_cast<TypeParam>(3));
+    }
+    for (const TypeParam& element : deque) {
+      EXPECT_EQ(element, static_cast<TypeParam>(3));
+    }
+
+    deque.clear();
+    for (size_t i = 0; i < 23; ++i) {
+      deque.push_back(static_cast<TypeParam>(3));
+    }
+    for (const TypeParam& element : deque) {
+      EXPECT_EQ(element, static_cast<TypeParam>(3));
+    }
+  }
+}

@@ -835,7 +835,10 @@ private:
 
   void remove_front(const size_type _count) {
     size_type count = _count;
-    size_type elements_in_first_block = m_start_location;
+    size_type elements_in_first_block = (_BlockSize - m_start_location);
+    elements_in_first_block = elements_in_first_block > m_element_count
+                                  ? m_element_count
+                                  : elements_in_first_block;
 
     if (elements_in_first_block < count) {
       while (count > elements_in_first_block && elements_in_first_block > 0) {
