@@ -265,6 +265,7 @@ INSTANTIATE_TEST_CASE_P(
             {"",                         "break;"},
             {"",                         "}"},
             {"",                         "}"},
+            {"",                         "_Z3wns13_destruct_FooEvNR3FooE(&__wns_temp_expression0);"},
             {"",                         "} while(true);"},
             {"return y;",                "return y;"},
             {"}",                        "}"},
@@ -300,6 +301,7 @@ INSTANTIATE_TEST_CASE_P(
             {"",                                "break;"},
             {"",                                "}"},
             {"",                                "}"},
+            {"",                                "_Z3wns13_deref_sharedEvvp((void*)f);"},
             {"} while (f.x > 0);",              "} while(true);"},
             {"return y;",                       "return y;"},
             {"}",                               "}"},
@@ -335,6 +337,7 @@ INSTANTIATE_TEST_CASE_P(
             {"",                                "break;"},
             {"",                                "}"},
             {"",                                "}"},
+            {"",                                "_Z3wns13_deref_sharedEvvp((void*)f);"},
             {"} while (f.x > 0);",              "} while(true);"},
             {"",                                "{"},
             {"",                                "int32_t __wns_ret_temp0 = y;"},
@@ -381,6 +384,33 @@ INSTANTIATE_TEST_CASE_P(
             {"",                      "}"                             },
             {"} while(true);",        "} while(true);"                },
             {"return y;",             "return y;"                     },
+            {"}",                     "}"                             }
+          }
+})));
+// clang-format on
+
+// clang-format off
+INSTANTIATE_TEST_CASE_P(
+    continue_tests, c_translator_direct_translation_test,
+    ::testing::ValuesIn(
+        std::vector<std::vector<source_pair>>({
+          {
+            {"Int main(Int x) {",     "int32_t _Z3wns4mainEll(int32_t x) {"  },
+            {"  Int y = x;",          "int32_t y = x;"                },
+            {"  do {",                "do "                           },
+            {"",                      "{"                             },
+            {"y = y - 1;",            "y = (y - 1);"                  },
+            {"",                      "bool __wns_if_temp0 = false;"  },
+            {"",                      "{"                             },
+            {"",                      "__wns_if_temp0 = (y > 2);"     },
+            {"",                      "}",                            },
+            {"if (y > 2) { ",         "if (__wns_if_temp0) {"         },
+            {"",                      "{"                             },
+            {"continue;",                "continue;"                  },
+            {"}",                     "}"                             },
+            {"",                      "}"                             },
+            {"return y;",             "return y;"                     },
+            {"} while(true);",        "} while(true);"                },
             {"}",                     "}"                             }
           }
 })));

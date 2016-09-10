@@ -287,6 +287,11 @@ void ast_c_translator::walk_instruction(const break_instruction*,
   _str->second.append("break;");
 }
 
+void ast_c_translator::walk_instruction(const continue_instruction*,
+    containers::pair<containers::string, containers::string>* _str) {
+  initialize_data(m_allocator, _str);
+  _str->second.append("continue;");
+}
 
 void ast_c_translator::walk_instruction(const expression_instruction* _expr,
     containers::pair<containers::string, containers::string>* _str) {

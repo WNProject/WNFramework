@@ -85,6 +85,8 @@ public:
       containers::pair<containers::string, containers::string>*);
   void walk_instruction(const break_instruction* _break,
       containers::pair<containers::string, containers::string>* _str);
+  void walk_instruction(const continue_instruction* _continue,
+      containers::pair<containers::string, containers::string>* _str);
   void walk_instruction(const return_instruction* _inst,
       containers::pair<containers::string, containers::string>* _str);
   void walk_instruction(const declaration* _inst,

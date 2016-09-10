@@ -49,6 +49,7 @@ public:
   void walk_instruction_list(instruction_list* _inst) {
     bool returns = false;
     bool is_non_linear = false;
+    bool breaks = false;
     for (auto& inst : _inst->get_instructions()) {
       if (returns | is_non_linear) {
         inst->set_is_dead();
@@ -58,9 +59,13 @@ public:
       }
       returns |= inst->returns();
       is_non_linear |= inst->is_non_linear();
+      breaks |= (inst->breaks() && !inst->is_dead());
     }
-    if (returns) {
+    if (returns && !breaks) {
       _inst->set_returns(returns);
+    }
+    if (breaks) {
+      _inst->set_breaks(breaks);
     }
     if (is_non_linear) {
       _inst->set_is_non_linear(is_non_linear);
@@ -77,9 +82,17 @@ public:
   memory::unique_ptr<instruction> walk_instruction(instruction*) {
     return nullptr;
   }
+
   void walk_struct_definition(struct_definition*) {}
   memory::unique_ptr<instruction> walk_instruction(else_if_instruction* _inst) {
     _inst->set_returns(_inst->get_body()->returns());
+    return nullptr;
+  }
+
+  memory::unique_ptr<instruction> walk_instruction(do_instruction* _inst) {
+    if (_inst->get_body()->returns()) {
+      _inst->set_returns(true);
+    }
     return nullptr;
   }
 
@@ -182,16 +195,24 @@ class if_reassociation_pass : public pass {
 public:
   if_reassociation_pass(type_validator* _validator, WNLogging::WNLog* _log,
       memory::allocator* _allocator)
-    : pass(_validator, _log, _allocator), m_break_instructions(_allocator) {}
+    : pass(_validator, _log, _allocator),
+      m_break_instructions(_allocator),
+      m_continue_instructions(_allocator) {}
   void enter_scope_block(const node*) {}
   void leave_scope_block(const node*) {}
   containers::deque<break_instruction*> m_break_instructions;
+  containers::deque<continue_instruction*> m_continue_instructions;
   memory::unique_ptr<expression> walk_expression(expression*) {
     return nullptr;
   }
 
   memory::unique_ptr<break_instruction> walk_instruction(break_instruction* _inst) {
     m_break_instructions.push_back(_inst);
+    return nullptr;
+  }
+
+  memory::unique_ptr<continue_instruction> walk_instruction(continue_instruction* _inst) {
+    m_continue_instructions.push_back(_inst);
     return nullptr;
   }
 
@@ -202,8 +223,11 @@ public:
     for (auto& inst : m_break_instructions) {
       inst->set_loop(_inst);
     }
+    for (auto& inst: m_continue_instructions) {
+      inst->set_loop(_inst);
+    }
     m_break_instructions.clear();
-    if (_inst->get_body()->returns()) {
+    if (_inst->get_body()->is_non_linear()) {
       const constant_expression* expr =
           cast_to<const constant_expression>(_inst->get_condition());
       if (expr->get_index() ==
@@ -241,11 +265,11 @@ public:
     if_body->copy_location_from(if_inst->get_condition());
     if_body->add_instruction(core::move(break_inst));
     if_inst->set_body(core::move(if_body));
-    if_inst->set_returns(true);
+    if_inst->set_is_non_linear(true);
     body->add_instruction(core::move(if_inst));
     // Since this pass turns every do {} while (cond),
     // into do { if (!cond) { break; } };
-    body->set_returns(true);
+    body->set_is_non_linear(true);
     new_do->set_body(core::move(body));
 
     return core::move(new_do);
@@ -1099,6 +1123,28 @@ public:
     }
     _break->set_returns(true);
     new_list->add_instruction(clone_node(_break));
+    return core::move(new_list);
+  }
+
+  memory::unique_ptr<instruction> walk_instruction(continue_instruction* _continue) {
+    // Insert ALL of the destructors here.
+    if (_continue->returns())
+      return nullptr;  // If the break returns we have already been handled.
+    memory::unique_ptr<instruction_list> new_list =
+        memory::make_unique<instruction_list>(m_allocator, m_allocator);
+    new_list->copy_location_from(_continue);
+
+    for (auto it = m_local_objects.rbegin(); it != m_local_objects.rend();
+         ++it) {
+      for (auto it2 = it->objects.rbegin(); it2 != it->objects.rend(); ++it2) {
+        new_list->add_instruction(create_destructor(*it2, _continue));
+      }
+      // If we have hit the header, don't destroy any further.
+      if (it->m_header == _continue->get_do_instruction()->get_body())
+        break;
+    }
+    _continue->set_returns(true);
+    new_list->add_instruction(clone_node(_continue));
     return core::move(new_list);
   }
 

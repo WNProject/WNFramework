@@ -215,6 +215,9 @@ void ast_walker<T, Const>::walk_instruction(const instruction* _instruction) {
     case node_type::break_instruction:
       return m_walker->walk_instruction(
           cast_to<break_instruction>(_instruction));
+    case node_type::continue_instruction:
+      return m_walker->walk_instruction(
+          cast_to<continue_instruction>(_instruction));
     case node_type::declaration:
       return m_walker->walk_instruction(cast_to<declaration>(_instruction));
     case node_type::do_instruction:
@@ -262,6 +265,9 @@ memory::unique_ptr<instruction> ast_walker<T, Const>::walk_mutable_instruction(
     case node_type::break_instruction:
       return m_walker->walk_instruction(
           cast_to<break_instruction>(_instruction));
+    case node_type::continue_instruction:
+      return m_walker->walk_instruction(
+          cast_to<continue_instruction>(_instruction));
     case node_type::declaration:
       return m_walker->walk_instruction(cast_to<declaration>(_instruction));
     case node_type::do_instruction:

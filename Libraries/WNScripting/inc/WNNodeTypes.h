@@ -52,6 +52,7 @@ enum class node_type {
   instruction,
     assignment_instruction,
     break_instruction,
+    continue_instruction,
     declaration,
     do_instruction,
     else_if_instruction,
@@ -1258,14 +1259,16 @@ public:
     : node(_allocator, _type),
       m_returns(false),
       m_is_dead(false),
+      m_breaks(false),
       m_non_linear(false),
       m_temporaries(_allocator),
       m_temporary_declarations(_allocator) {}
   instruction(memory::allocator* _allocator, node_type _type, bool _returns,
-    bool _is_non_linear = false)
+      bool _is_non_linear = false, bool _breaks = false)
     : instruction(_allocator, _type) {
     m_returns = _returns;
     m_non_linear = _is_non_linear;
+    m_breaks = _breaks;
   }
 
   // Returns true if this instruction causes the function to return.
@@ -1276,6 +1279,10 @@ public:
   // Returns true if this instruction involves non-linear control flow.
   bool is_non_linear() const {
     return m_returns || m_non_linear;
+  }
+
+  bool breaks() const {
+    return m_breaks;
   }
 
   virtual void walk_children(const walk_mutable_instruction&,
@@ -1297,6 +1304,9 @@ public:
   }
   void set_returns(bool returns) {
     m_returns = returns;
+  }
+  void set_breaks(bool breaks) {
+    m_breaks = breaks;
   }
   void set_is_non_linear(bool _is_non_linear) {
     m_non_linear = _is_non_linear;
@@ -1328,11 +1338,13 @@ protected:
       m_temporary_declarations.emplace_back(clone_node(temp));
     }
     m_is_dead = _other->m_is_dead;
+    m_breaks = _other->m_breaks;
     m_returns = _other->m_returns;
     m_non_linear = _other->m_non_linear;
   }
   containers::deque<const struct_allocation_expression*> m_temporaries;
   containers::deque<memory::unique_ptr<declaration>> m_temporary_declarations;
+  bool m_breaks;
   bool m_is_dead;
   bool m_returns;
   bool m_non_linear;
@@ -2198,6 +2210,40 @@ private:
   const do_instruction* m_loop_break;
 };
 
+class continue_instruction : public instruction {
+public:
+  continue_instruction(memory::allocator* _allocator)
+    : instruction(_allocator, node_type::continue_instruction, false, true) {}
+
+  virtual void walk_children(const walk_mutable_instruction&,
+      const walk_mutable_expression&, const walk_ftype<type*>&,
+      const walk_ftype<instruction_list*>&, const walk_scope&,
+      const walk_scope&) override {}
+
+  virtual void walk_children(const walk_ftype<const instruction*>&,
+      const walk_ftype<const expression*>&, const walk_ftype<const type*>&,
+      const walk_ftype<const instruction_list*>&, const walk_scope&,
+      const walk_scope&) const override {}
+
+  memory::unique_ptr<node> clone() const override {
+    memory::unique_ptr<continue_instruction> t =
+        memory::make_unique<continue_instruction>(m_allocator, m_allocator);
+    t->copy_instruction(this);
+    return core::move(t);
+  }
+
+  void set_loop(do_instruction* _inst) {
+    m_loop_break = _inst;
+  }
+
+  const do_instruction* get_do_instruction() {
+    return m_loop_break;
+  }
+
+private:
+  const do_instruction* m_loop_break;
+};
+
 class do_instruction : public instruction {
 public:
   do_instruction(
@@ -2492,18 +2538,18 @@ class return_instruction : public instruction {
 public:
   return_instruction(memory::allocator* _allocator, expression* _expr,
       bool _change_ownership = false)
-    : instruction(_allocator, node_type::return_instruction, true),
+    : instruction(_allocator, node_type::return_instruction, true, true),
       m_expression(memory::unique_ptr<expression>(m_allocator, _expr)),
       m_change_ownership(_change_ownership) {}
 
   return_instruction(memory::allocator* _allocator,
       memory::unique_ptr<expression>&& _expr, bool _change_ownership = false)
-    : instruction(_allocator, node_type::return_instruction, true),
+    : instruction(_allocator, node_type::return_instruction, true, true),
       m_expression(core::move(_expr)),
       m_change_ownership(_change_ownership) {}
 
   return_instruction(memory::allocator* _allocator)
-    : instruction(_allocator, node_type::return_instruction, true) {
+    : instruction(_allocator, node_type::return_instruction, true, true) {
     m_change_ownership = false;
   }
 

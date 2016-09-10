@@ -158,7 +158,8 @@ void ast_jit_engine::walk_expression(
           static_cast<uint32_t>(type_classification::void_ptr_type) &&
       _cast->get_type()->get_reference_type() == reference_type::self) {
     llvm::Type* type_dat = m_generator->get_data(_cast->get_type());
-    _val->instructions.push_back(new llvm::BitCastInst(sub_dat.value, type_dat));
+    _val->instructions.push_back(
+        new llvm::BitCastInst(sub_dat.value, type_dat));
     _val->value = _val->instructions.back();
     return;
   }
@@ -167,7 +168,8 @@ void ast_jit_engine::walk_expression(
           static_cast<uint32_t>(type_classification::void_ptr_type) &&
       _cast->get_type()->get_reference_type() == reference_type::shared) {
     llvm::Type* type_dat = m_generator->get_data(_cast->get_type());
-    _val->instructions.push_back(new llvm::BitCastInst(sub_dat.value, type_dat));
+    _val->instructions.push_back(
+        new llvm::BitCastInst(sub_dat.value, type_dat));
     _val->value = _val->instructions.back();
     return;
   }
@@ -177,7 +179,8 @@ void ast_jit_engine::walk_expression(
       _cast->get_type()->get_type_value() ==
           static_cast<uint32_t>(type_classification::void_ptr_type)) {
     llvm::Type* type_dat = m_generator->get_data(_cast->get_type());
-    _val->instructions.push_back(new llvm::BitCastInst(sub_dat.value, type_dat));
+    _val->instructions.push_back(
+        new llvm::BitCastInst(sub_dat.value, type_dat));
     _val->value = _val->instructions.back();
 
     return;
@@ -328,8 +331,10 @@ void ast_jit_engine::walk_expression(
   _val->instructions =
       containers::dynamic_array<llvm::Instruction*>(m_allocator);
   llvm::Type* type_dat = m_generator->get_data(_alloc->get_type());
-  _val->instructions.push_back(new llvm::BitCastInst(m_module->getFunction(
-      make_string_ref(_alloc->get_source()->get_mangled_name())), type_dat));
+  _val->instructions.push_back(
+      new llvm::BitCastInst(m_module->getFunction(make_string_ref(
+                                _alloc->get_source()->get_mangled_name())),
+          type_dat));
   _val->value = _val->instructions.back();
 }
 
@@ -450,7 +455,7 @@ void ast_jit_engine::walk_instruction(
 }
 
 void ast_jit_engine::walk_instruction(
-  const break_instruction*, instruction_dat* _val) {
+    const break_instruction*, instruction_dat* _val) {
   _val->instructions =
       containers::dynamic_array<llvm::Instruction*>(m_allocator);
   // We have to create a dummy basic block so that llvm does not
@@ -459,6 +464,18 @@ void ast_jit_engine::walk_instruction(
   m_break_instructions.push_back(
       llvm::BranchInst::Create(llvm::BasicBlock::Create(*m_context, "dummy")));
   _val->instructions.push_back(m_break_instructions.back());
+}
+
+void ast_jit_engine::walk_instruction(
+    const continue_instruction*, instruction_dat* _val) {
+  _val->instructions =
+      containers::dynamic_array<llvm::Instruction*>(m_allocator);
+  // We have to create a dummy basic block so that llvm does not
+  // yell at us.
+  // We will delete it later.
+  m_continue_instructions.push_back(
+      llvm::BranchInst::Create(llvm::BasicBlock::Create(*m_context, "dummy")));
+  _val->instructions.push_back(m_continue_instructions.back());
 }
 
 // All do instructions have now been turned into
@@ -470,21 +487,42 @@ void ast_jit_engine::walk_instruction(
       containers::dynamic_array<llvm::Instruction*>(m_allocator);
   _val->blocks = containers::dynamic_array<llvm::BasicBlock*>(m_allocator);
 
-  llvm::BasicBlock* bb = llvm::BasicBlock::Create(*m_context, "do_end");
-  for(auto& block: instructions.blocks) {
+  llvm::BasicBlock* bb = nullptr;
+
+  for (auto& block : instructions.blocks) {
     _val->blocks.push_back(block);
   }
-  _val->blocks.back()->getInstList().push_back(
-          llvm::BranchInst::Create(_val->blocks.front()));
-  _val->blocks.front()->setName("do_start");
-  _val->blocks.push_back(bb);
 
-  for(auto& branch: m_break_instructions) {
+  if (!_expr->get_body()->returns()) {
+    // If we are guaranteed to return, that means
+    // we do not need to ever branch to start or
+    // branch out of the block. This also means we are
+    // guaranteed to not have a break instruction.
+    bb = llvm::BasicBlock::Create(*m_context, "do_end");
+    _val->blocks.back()->getInstList().push_back(
+        llvm::BranchInst::Create(_val->blocks.front()));
+    _val->blocks.push_back(bb);
+  } else {
+      WN_DEBUG_ASSERT_DESC(m_break_instructions.empty(),
+        "Is it not possible to have a break instruction"
+        " and be guaranteed to return");
+  }
+  _val->blocks.front()->setName("do_start");
+  llvm::BasicBlock* b_begin = _val->blocks.front();
+
+  for (auto& branch : m_break_instructions) {
     llvm::BasicBlock* dummy_block = branch->getSuccessor(0);
     branch->setSuccessor(0, bb);
     delete dummy_block;
   }
   m_break_instructions.clear();
+
+  for (auto& branch : m_continue_instructions) {
+    llvm::BasicBlock* dummy_block = branch->getSuccessor(0);
+    branch->setSuccessor(0, b_begin);
+    delete dummy_block;
+  }
+  m_continue_instructions.clear();
 }
 
 void ast_jit_engine::walk_instruction(
