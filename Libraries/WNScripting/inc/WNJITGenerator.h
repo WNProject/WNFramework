@@ -72,7 +72,8 @@ public:
   void walk_expression(const constant_expression* _const, expression_dat* _str);
   void walk_expression(const id_expression* _const, expression_dat* _str);
   void walk_expression(const binary_expression* _binary, expression_dat* _str);
-  void walk_expression(const function_pointer_expression* _ptr, expression_dat* _str);
+  void walk_expression(
+      const function_pointer_expression* _ptr, expression_dat* _str);
   void walk_expression(
       const struct_allocation_expression* _alloc, expression_dat* _str);
   void walk_expression(
@@ -99,11 +100,11 @@ public:
   void walk_function(const function* _func, llvm::Function**);
   void walk_script_file(const script_file* _file);
   void pre_walk_script_file(const script_file* _file);
-private:
+  void post_walk_structs(const script_file* _file);
 
-  void pre_walk_struct_definition(
-    const struct_definition* _def);
-  void pre_walk_function_definition(const function*_func);
+private:
+  void pre_walk_struct_definition(const struct_definition* _def);
+  void pre_walk_function_definition(const function* _func);
 
   memory::allocator* m_allocator;
   type_validator* m_validator;

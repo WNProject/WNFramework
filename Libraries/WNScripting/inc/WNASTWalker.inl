@@ -19,7 +19,15 @@ namespace scripting {
 template <typename T, bool Const>
 void ast_walker<T, Const>::walk_script_file(script_file_type _file) {
   m_walker->pre_walk_script_file(_file);
-  _file->walk_children(
+  _file->walk_structs(
+      walk_scope(&ast_walker<T, Const>::enter_scope_block, this),
+      walk_scope(&ast_walker<T, Const>::leave_scope_block, this),
+      get_inst()(this), get_expr()(this),
+      walk_ftype<function_type>(&ast_walker<T, Const>::walk_function, this),
+      walk_ftype<struct_definition_type>(
+          &ast_walker<T, Const>::walk_struct_definition, this));
+  m_walker->post_walk_structs(_file);
+  _file->walk_functions(
       walk_scope(&ast_walker<T, Const>::enter_scope_block, this),
       walk_scope(&ast_walker<T, Const>::leave_scope_block, this),
       get_inst()(this), get_expr()(this),
@@ -45,7 +53,19 @@ void ast_walker<T, Const>::walk_struct_definition(struct_definition_type _def) {
 
 template <typename T, bool Const>
 void ast_walker<T, Const>::walk_type(type_type _type) {
-  m_walker->walk_type(_type);
+  _type->walk_children(
+      walk_ftype<type_type>(&ast_walker<T, Const>::walk_type, this));
+
+  switch (_type->get_node_type()) {
+    case node_type::type:
+      m_walker->walk_type(_type);
+      break;
+    case node_type::array_type:
+      m_walker->walk_type(cast_to<array_type>(_type));
+      break;
+    case node_type::concretized_array_type:
+      m_walker->walk_type(cast_to<concretized_array_type>(_type));
+  }
 }
 
 template <typename T, bool Const>
@@ -91,7 +111,8 @@ memory::unique_ptr<expression> ast_walker<T, Const>::walk_mut_expression(
     case node_type::id_expression:
       return m_walker->walk_expression(cast_to<id_expression>(_expression));
     case node_type::function_pointer_expression:
-      return m_walker->walk_expression(cast_to<function_pointer_expression>(_expression));
+      return m_walker->walk_expression(
+          cast_to<function_pointer_expression>(_expression));
     case node_type::null_allocation_expression:
       return m_walker->walk_expression(
           cast_to<null_allocation_expression>(_expression));
@@ -150,7 +171,8 @@ void ast_walker<T, Const>::walk_expression(const expression* _expression) {
       m_walker->walk_expression(cast_to<id_expression>(_expression));
       break;
     case node_type::function_pointer_expression:
-      return m_walker->walk_expression(cast_to<function_pointer_expression>(_expression));
+      return m_walker->walk_expression(
+          cast_to<function_pointer_expression>(_expression));
     case node_type::null_allocation_expression:
       m_walker->walk_expression(
           cast_to<null_allocation_expression>(_expression));
@@ -235,6 +257,9 @@ void ast_walker<T, Const>::walk_instruction(const instruction* _instruction) {
     case node_type::return_instruction:
       return m_walker->walk_instruction(
           cast_to<return_instruction>(_instruction));
+    case node_type::set_array_length:
+      return m_walker->walk_instruction(
+          cast_to<set_array_length>(_instruction));
     case node_type::while_instruction:
       return m_walker->walk_instruction(
           cast_to<while_instruction>(_instruction));
@@ -285,6 +310,9 @@ memory::unique_ptr<instruction> ast_walker<T, Const>::walk_mutable_instruction(
     case node_type::return_instruction:
       return m_walker->walk_instruction(
           cast_to<return_instruction>(_instruction));
+    case node_type::set_array_length:
+      return m_walker->walk_instruction(
+          cast_to<set_array_length>(_instruction));
     case node_type::while_instruction:
       return m_walker->walk_instruction(
           cast_to<while_instruction>(_instruction));

@@ -231,7 +231,9 @@ struct type_definition {
       m_allocator(_allocator),
       m_mode(reference_type::raw),
       m_mangling(_allocator),
-      m_destructible_type(destructible_type) {
+      m_destructible_type(destructible_type),
+      m_array_of_type(0),
+      m_is_array_of(0) {
     m_ops = valid_builtin_operations[0];  // default to nothing valid
   }
 
@@ -243,7 +245,9 @@ struct type_definition {
       m_allocator(_allocator),
       m_mode(reference_type::raw),
       m_mangling(_allocator),
-      m_destructible_type(destructible_type) {
+      m_destructible_type(destructible_type),
+      m_array_of_type(0),
+      m_is_array_of(0) {
     m_ops = operation;
   }
 
@@ -311,6 +315,8 @@ struct type_definition {
   containers::dynamic_array<member_function> m_functions;
   containers::string m_mangling;
   reference_type m_mode;
+  uint32_t m_array_of_type;
+  uint32_t m_is_array_of;
   bool m_destructible_type;
   memory::allocator* m_allocator;
 };
@@ -438,8 +444,7 @@ public:
       returned_type = (returned_type == 0) ? type : returned_type;
       containers::string name_string = _name.to_string(m_allocator);
       if (i == 0) {
-        m_mapping.insert(
-            core::make_pair(_name.to_string(m_allocator), type));
+        m_mapping.insert(core::make_pair(_name.to_string(m_allocator), type));
       }
 
       m_types.push_back(type_definition(
@@ -466,6 +471,28 @@ public:
     }
 
     return returned_type;
+  }
+
+  uint32_t get_array_of(uint32_t index) {
+    uint32_t array_type = m_types[index].m_array_of_type;
+    if (array_type) {
+      return array_type;
+    }
+    for (size_t i = 0; i <= static_cast<uint32_t>(reference_type::unique);
+         ++i) {
+      m_max_types++;
+      array_type = static_cast<uint32_t>(m_types.size());
+      m_types.push_back(type_definition(true, m_allocator));
+      m_types.back().m_mode = static_cast<reference_type>(i);
+      m_types.back().m_is_array_of = index;
+      containers::string name(m_allocator);
+      name += m_names[index];
+      name += "_array";
+      m_names.push_back(core::move(name));
+    }
+    m_types[index].m_array_of_type =
+        array_type - static_cast<uint32_t>(reference_type::unique);
+    return m_types[index].m_array_of_type;
   }
 
   uint32_t get_type(const containers::string_view& _name) {
@@ -529,8 +556,8 @@ public:
         "One of the return types is out of bounds");
 
     m_types[_type].m_functions.push_back({_name.to_string(m_allocator),
-        _return_type, containers::dynamic_array<uint32_t>(
-                          _types.begin(), _types.end(), m_allocator)});
+        _return_type, containers::dynamic_array<uint32_t>(_types.begin(),
+                                              _types.end(), m_allocator)});
   }
 
   containers::string get_mangled_name(const containers::string_view& name,

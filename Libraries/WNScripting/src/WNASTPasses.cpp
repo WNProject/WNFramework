@@ -1,4 +1,6 @@
 #include "WNScripting/inc/WNASTPasses.h"
+
+#include "WNCore/inc/WNPair.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNScripting/inc/WNASTWalker.h"
 #include "WNScripting/inc/WNNodeTypes.h"
@@ -77,6 +79,7 @@ public:
   void walk_parameter(parameter*) {}
 
   void pre_walk_script_file(script_file*) {}
+  void post_walk_structs(script_file*) {}
   void walk_script_file(script_file*) {}
   void walk_type(type*) {}
   memory::unique_ptr<instruction> walk_instruction(instruction*) {
@@ -190,6 +193,162 @@ memory::unique_ptr<assignment_instruction> make_constant_assignment(
   return make_assignment(_allocator, _location_root, _name, core::move(rhs));
 }
 
+class array_determination_pass : public pass {
+public:
+  array_determination_pass(type_validator* _validator, WNLogging::WNLog* _log,
+      memory::allocator* _allocator)
+    : pass(_validator, _log, _allocator) {}
+  void enter_scope_block(const node*) {}
+  void leave_scope_block(const node*) {}
+
+  memory::unique_ptr<expression> walk_expression(expression*) {
+    return nullptr;
+  }
+
+  memory::unique_ptr<expression> walk_expression(
+      array_allocation_expression* _expr) {
+    containers::dynamic_array<uint32_t> static_initializers(m_allocator);
+    static_initializers.reserve(_expr->get_array_initializers().size());
+    uint32_t base_type = _expr->get_type()->get_type_value();
+    memory::unique_ptr<type> old_type = _expr->transfer_out_type();
+    memory::unique_ptr<concretized_array_type> new_type =
+        memory::make_unique<concretized_array_type>(m_allocator, m_allocator);
+    new_type->set_subtype(core::move(old_type));
+    if (_expr->get_copy_initializer() &&
+        _expr->get_copy_initializer()->get_node_type() ==
+            node_type::struct_allocation_expression) {
+      new_type->get_subtype()->set_reference_type(reference_type::unique);
+    }
+    for (const memory::unique_ptr<expression>& e :
+        _expr->get_array_initializers()) {
+      base_type = m_validator->get_array_of(base_type);
+      if (e->get_node_type() != node_type::constant_expression) {
+        return nullptr;
+      }
+      const constant_expression* expr = cast_to<constant_expression>(e.get());
+      if (expr->get_index() !=
+          static_cast<uint32_t>(type_classification::int_type)) {
+        return nullptr;
+      }
+      const long long val = atoll(expr->get_type_text().c_str());
+      if (val < 0) {
+        m_log->Log(
+            WNLogging::eError, 0, "Array initializer cannot be negative");
+        _expr->log_line(*m_log, WNLogging::eError);
+        ++m_num_errors;
+        return nullptr;
+      }
+      if (val > 0xFFFFFFFF) {
+        m_log->Log(WNLogging::eError, 0, "Array size too large");
+        _expr->log_line(*m_log, WNLogging::eError);
+        ++m_num_errors;
+        return nullptr;
+      }
+      static_initializers.push_back(static_cast<uint32_t>(val));
+    }
+    new_type->set_type_index(base_type);
+    new_type->set_array_sizes(static_initializers);
+    _expr->set_type(core::move(new_type));
+    _expr->get_array_initializers().clear();
+    _expr->set_static_array_initializers(core::move(static_initializers));
+    return nullptr;
+  }
+  void walk_instruction_list(instruction_list*) {}
+  void walk_function(function*) {}
+  void walk_parameter(parameter*) {}
+  void pre_walk_script_file(script_file*) {}
+  void post_walk_structs(script_file*) {}
+  void walk_script_file(script_file*) {}
+  void walk_type(type*) {}
+
+  memory::unique_ptr<instruction> walk_instruction(instruction*) {
+    return nullptr;
+  }
+
+  memory::unique_ptr<instruction> walk_instruction(declaration* _decl) {
+    uint32_t base_array_type = 0;
+    if (_decl->get_expression()->get_node_type() ==
+        node_type::array_allocation_expression) {
+      // If the declaration is a non-concretized type, concretize it.
+      if (_decl->get_type()->get_node_type() == node_type::array_type) {
+        array_type* decl_type = cast_to<array_type>(_decl->get_type());
+        concretized_array_type* expr_type = cast_to<concretized_array_type>(
+            _decl->get_expression()->get_type());
+        uint32_t num_vals = 1;
+        const array_type* arr = decl_type;
+        while (arr) {
+          if (arr->get_subtype()->get_node_type() == node_type::array_type) {
+            num_vals += 1;
+            arr = cast_to<array_type>(arr->get_subtype());
+          } else {
+            if (*expr_type->get_subtype() != *arr->get_subtype()) {
+              m_log->Log(WNLogging::eError, 0, "Array bases do not match.");
+              _decl->log_line(*m_log, WNLogging::eError);
+              ++m_num_errors;
+              return nullptr;
+            }
+            base_array_type = arr->get_subtype()->get_index();
+            arr = nullptr;
+          }
+        }
+        if (num_vals != expr_type->get_sizes().size()) {
+          m_log->Log(WNLogging::eError, 0, "Array sizes to not match");
+          _decl->log_line(*m_log, WNLogging::eError);
+          ++m_num_errors;
+          return nullptr;
+        }
+        _decl->set_type(clone_node(expr_type));
+      }
+      if (*_decl->get_expression()->get_type() != *_decl->get_type()) {
+        m_log->Log(WNLogging::eError, 0, "Incompatible types");
+        _decl->log_line(*m_log, WNLogging::eError);
+        ++m_num_errors;
+        return nullptr;
+      }
+      // If this is not a static sized array, do nothing.
+      if (!cast_to<array_allocation_expression>(_decl->get_expression())
+               ->is_static_sized()) {
+        return nullptr;
+      }
+    } else {
+      return nullptr;
+    }
+    const auto& static_array_sizes =
+        cast_to<array_allocation_expression>(_decl->get_expression())
+            ->get_static_array_initializers();
+    for (auto& unused : static_array_sizes) {
+      WN_UNUSED_ARGUMENT(unused);
+      base_array_type = m_validator->get_array_of(base_array_type);
+    }
+
+    _decl->get_type()->set_type_index(base_array_type);
+    memory::unique_ptr<concretized_array_type> array =
+        memory::make_unique<concretized_array_type>(m_allocator, m_allocator);
+    array->set_array_sizes(static_array_sizes);
+    array->set_type_index(base_array_type);
+    concretized_array_type* t =
+        cast_to<concretized_array_type>(_decl->get_type());
+    t->set_array_sizes(static_array_sizes);
+    array->set_subtype(clone_node(t->get_subtype()));
+    _decl->get_expression()->set_type(core::move(array));
+
+    _decl->get_expression()->set_temporary(true);
+    _decl->get_type()->set_reference_type(reference_type::unique);
+    _decl->get_expression()->get_type()->set_reference_type(
+        reference_type::unique);
+
+    return nullptr;
+  }
+
+  void walk_struct_definition(struct_definition*) {}
+  memory::unique_ptr<instruction> walk_instruction(else_if_instruction*) {
+    return nullptr;
+  }
+  memory::unique_ptr<instruction> walk_instruction(if_instruction*) {
+    return nullptr;
+  }
+};
+
 class if_reassociation_pass : public pass {
 public:
   if_reassociation_pass(type_validator* _validator, WNLogging::WNLog* _log,
@@ -248,8 +407,8 @@ public:
     memory::unique_ptr<binary_expression> bin_expr =
         memory::make_unique<binary_expression>(m_allocator, m_allocator,
             arithmetic_type::arithmetic_equal, _inst->take_condition(),
-            make_constant(
-                m_allocator, _inst, type_classification::bool_type, "false"));
+            make_constant(m_allocator, _inst, type_classification::bool_type,
+                                                   "false"));
 
     memory::unique_ptr<if_instruction> if_inst =
         memory::make_unique<if_instruction>(m_allocator, m_allocator);
@@ -325,7 +484,6 @@ public:
           // will be freed before the if statement.
           memory::unique_ptr<instruction_list> inst_list =
               memory::make_unique<instruction_list>(m_allocator, m_allocator);
-          inst_list->copy_location_from(if_inst);
 
           // Actually move the condition for the if statement to an assignemnt
           // to __wns_temp0.
@@ -445,6 +603,7 @@ public:
   void walk_function(function*) {}
   void walk_parameter(parameter*) {}
   void pre_walk_script_file(script_file*) {}
+  void post_walk_structs(script_file*) {}
   void walk_script_file(script_file*) {}
   void walk_type(type*) {}
   memory::unique_ptr<instruction> walk_instruction(instruction*) {
@@ -524,6 +683,7 @@ public:
   }
 
   void pre_walk_script_file(script_file*) {}
+  void post_walk_structs(script_file*) {}
   void walk_script_file(script_file*) {}
   void walk_type(type*) {}
 
@@ -566,11 +726,11 @@ public:
   memory::unique_ptr<expression> walk_expression(id_expression* _expr) {
     const id_expression::id_source& source = _expr->get_id_source();
     if (source.param_source || source.declaration_source) {
-      type* t = m_allocator->construct<type>(
-          source.param_source ? *source.param_source->get_type()
-                              : *source.declaration_source->get_type());
+      memory::unique_ptr<type> t = clone_node(
+          source.param_source ? source.param_source->get_type()
+                              : source.declaration_source->get_type());
       t->copy_location_from(_expr);
-      _expr->set_type(t);
+      _expr->set_type(core::move(t));
     } else {
       WN_DEBUG_ASSERT_DESC(false, "Source for this ID.");
     }
@@ -704,12 +864,46 @@ public:
       return nullptr;
     }
 
-    type* t = m_allocator->construct<type>(
-        m_allocator, member_type, member_def.get_reference_type());
+    if (member_def.m_is_array_of != 0) {
+      const type_definition& child_type =
+          m_validator->get_operations(member_def.m_is_array_of);
+      memory::unique_ptr<type> at =
+          memory::make_unique<type>(m_allocator, m_allocator,
+              member_def.m_is_array_of, child_type.get_reference_type());
+      at->copy_location_from(_expr);
+      memory::unique_ptr<array_type> t = memory::make_unique<array_type>(
+          m_allocator, m_allocator, core::move(at));
+      t->set_reference_type(member_def.get_reference_type());
+      t->set_type_index(
+          member_type - static_cast<uint32_t>(member_def.get_reference_type()));
 
-    t->copy_location_from(_expr);
-    _expr->set_type(t);
+      t->copy_location_from(_expr);
+      _expr->set_type(core::move(t));
+    } else {
+      type* t = m_allocator->construct<type>(
+          m_allocator, member_type, member_def.get_reference_type());
 
+      t->copy_location_from(_expr);
+      _expr->set_type(t);
+    }
+
+    return nullptr;
+  }
+
+  memory::unique_ptr<expression> walk_expression(
+      array_access_expression* _expr) {
+    if (_expr->get_base_expression()->get_type()->get_node_type() !=
+            node_type::array_type &&
+        _expr->get_base_expression()->get_type()->get_node_type() !=
+            node_type::concretized_array_type) {
+      m_log->Log(WNLogging::eError, 0, "You can only index array types");
+      _expr->log_line(*m_log, WNLogging::eError);
+      ++m_num_errors;
+      return nullptr;
+    }
+    array_type* t =
+        cast_to<array_type>(_expr->get_base_expression()->get_type());
+    _expr->set_type(clone_node(t->get_subtype()));
     return nullptr;
   }
 
@@ -828,17 +1022,29 @@ public:
       callee = func;
     }
 
+    if (!callee) {
+      m_log->Log(
+          WNLogging::eError, 0, "Cannot find function: ", id->get_name());
+      _expr->log_line(*m_log, WNLogging::eError);
+      ++m_num_errors;
+      return nullptr;
+    }
     // TODO(awoloszyn): Insert explicit cast operations if we need do here.
     _expr->set_callee(callee);
-    type* t =
-        m_allocator->construct<type>(*callee->get_signature()->get_type());
+    memory::unique_ptr<type> t =
+        clone_node(callee->get_signature()->get_type());
     t->copy_location_from(_expr);
-    _expr->set_type(t);
+    _expr->set_type(core::move(t));
     return nullptr;
   }
 
   memory::unique_ptr<instruction> create_destructor(
       declaration* _decl, node* _location_copy) {
+    if (_decl->get_type()->get_subtype() &&
+        !m_validator->is_destructible_type(
+            _decl->get_type()->get_subtype()->get_index())) {
+      return nullptr;
+    }
     if (_decl->get_type()->get_reference_type() == reference_type::unique ||
         _decl->get_type()->get_reference_type() == reference_type::raw) {
       containers::string m_destructor_name("_destruct_", m_allocator);
@@ -850,15 +1056,13 @@ public:
               m_allocator, m_allocator, _decl->get_name());
       object_id->set_id_source({0, _decl});
       object_id->copy_location_from(_location_copy);
-      object_id->set_type(
-          memory::make_unique<type>(m_allocator, *_decl->get_type()));
+      object_id->set_type(clone_node(_decl->get_type()));
 
       memory::unique_ptr<cast_expression> cast1 =
           memory::make_unique<cast_expression>(
               m_allocator, m_allocator, core::move(object_id));
       cast1->copy_location_from(cast1->get_expression());
-      cast1->set_type(
-          memory::make_unique<type>(m_allocator, *_decl->get_type()));
+      cast1->set_type(clone_node(_decl->get_type()));
       cast1->get_type()->set_reference_type(reference_type::self);
 
       memory::unique_ptr<arg_list> args =
@@ -892,8 +1096,7 @@ public:
               m_allocator, m_allocator, _decl->get_name());
       object_id->set_id_source({0, _decl});
       object_id->copy_location_from(_location_copy);
-      object_id->set_type(
-          memory::make_unique<type>(m_allocator, *_decl->get_type()));
+      object_id->set_type(clone_node(_decl->get_type()));
 
       memory::unique_ptr<cast_expression> cast1 =
           memory::make_unique<cast_expression>(
@@ -1046,8 +1249,9 @@ public:
               m_allocator, m_allocator, "_assign_shared");
       increment_func->copy_location_from(_assign);
 
-      memory::unique_ptr<type> target = memory::make_unique<type>(
-          m_allocator, *_assign->get_lvalue()->get_expression()->get_type());
+      memory::unique_ptr<type> target =
+          clone_node(_assign->get_lvalue()->get_expression()->get_type());
+
       target->copy_location_from(_assign);
 
       memory::unique_ptr<type> void_ptr_type = memory::make_unique<type>(
@@ -1084,7 +1288,7 @@ public:
           memory::make_unique<function_call_expression>(
               m_allocator, m_allocator, core::move(args));
       call->copy_location_from(call->get_args());
-      call->set_type(memory::make_unique<type>(m_allocator, *target.get()));
+      call->set_type(clone_node(target.get()));
       call->get_type()->copy_location_from(_assign);
 
       call->add_base_expression(core::move(increment_func));
@@ -1158,7 +1362,8 @@ public:
     // }
     if (std::find(m_returns.begin(), m_returns.end(), _ret) !=
         m_returns.end()) {
-      // If we have already processed this return, we do not want to re-process
+      // If we have already processed this return, we do not want to
+      // re-process
       // it to generate more destructors.
       return nullptr;
     }
@@ -1169,6 +1374,7 @@ public:
          ++it) {
       if (!it->objects.empty()) {
         leave = false;
+        break;
       }
     }
     // Small optimization, if there are NO objects to destroy,
@@ -1195,11 +1401,10 @@ public:
     declaration* ret_decl = nullptr;
     if (expr) {
       // Type __wns_ret_temp0 = {rhs};
-      memory::unique_ptr<type> decl_type(
-          memory::make_unique<type>(m_allocator, *expr->get_type()));
+      memory::unique_ptr<type> decl_type(clone_node(expr->get_type()));
       decl_type->copy_location_from(_ret);
 
-      return_type = memory::make_unique<type>(m_allocator, *expr->get_type());
+      return_type = clone_node(expr->get_type());
       return_type->copy_location_from(_ret);
 
       memory::unique_ptr<parameter> param(memory::make_unique<parameter>(
@@ -1218,7 +1423,10 @@ public:
     for (auto it = m_local_objects.rbegin(); it != m_local_objects.rend();
          ++it) {
       for (auto it2 = it->objects.rbegin(); it2 != it->objects.rend(); ++it2) {
-        instructions->add_instruction(create_destructor(*it2, _ret));
+        memory::unique_ptr<instruction> dest = create_destructor(*it2, _ret);
+        if (dest) {
+          instructions->add_instruction(core::move(dest));
+        }
       }
     }
     if (return_type) {
@@ -1233,7 +1441,7 @@ public:
         // return (Foo*)_return_shared((void*)__wns_ret_temp0);
 
         memory::unique_ptr<type> output_type =
-            memory::make_unique<type>(m_allocator, *return_id->get_type());
+            clone_node(return_id->get_type());
         output_type->copy_location_from(_ret);
 
         memory::unique_ptr<cast_expression> cast =
@@ -1356,8 +1564,7 @@ public:
             memory::make_unique<cast_expression>(
                 m_allocator, m_allocator, core::move(increment));
         cast_back->copy_location_from(_decl);
-        cast_back->set_type(
-            memory::make_unique<type>(m_allocator, *_decl->get_type()));
+        cast_back->set_type(clone_node(_decl->get_type()));
         cast_back->get_type()->copy_location_from(_decl);
         _decl->set_expression(core::move(cast_back));
       }
@@ -1472,10 +1679,37 @@ public:
       register_function(function.get());
     }
   }
-
+  void post_walk_structs(script_file*) {}
   void walk_script_file(script_file*) {}
+
+  template <typename T>
+  void walk_array_type(T* _at) {
+    walk_type(_at->get_subtype());
+    uint32_t sub_type_index = _at->get_subtype()->get_index();
+    if (!sub_type_index) {
+      m_log->Log(WNLogging::eError, 0, "Unknown array subtype");
+      _at->log_line(*m_log, WNLogging::eError);
+      return;
+    }
+    _at->set_type_index(m_validator->get_array_of(sub_type_index));
+  }
+
   void walk_type(type* _type) {
-    if (_type->get_index() == 0) {
+    if (_type->get_index() == 0 ||
+        _type->get_index() ==
+            static_cast<uint32_t>(type_classification::array_type)) {
+      if (_type->get_node_type() == node_type::array_type) {
+        walk_array_type(cast_to<array_type>(_type));
+        return;
+      }
+
+      if (_type->get_node_type() == node_type::concretized_array_type) {
+        walk_array_type(cast_to<concretized_array_type>(_type));
+        return;
+      }
+
+      // If this is an array-type we have to correctly
+      // dereference it.
       uint32_t type_index = m_validator->get_type(_type->custom_type_name());
       if (type_index) {
         _type->set_type_index(type_index);
@@ -1553,13 +1787,8 @@ public:
         temporary_name, m_last_temporary++, sizeof(temporary_name) - 1);
     name += temporary_name;
 
-    memory::unique_ptr<type> t =
-        memory::make_unique<type>(m_allocator, *copied_expr->get_type());
-    t->copy_location_from(copied_expr->get_type());
-
-    memory::unique_ptr<type> t2 =
-        memory::make_unique<type>(m_allocator, *copied_expr->get_type());
-    t2->copy_location_from(copied_expr->get_type());
+    memory::unique_ptr<type> t = clone_node(copied_expr->get_type());
+    memory::unique_ptr<type> t2 = clone_node(copied_expr->get_type());
 
     memory::unique_ptr<parameter> t_param = memory::make_unique<parameter>(
         m_allocator, m_allocator, core::move(t), name);
@@ -1606,6 +1835,7 @@ public:
   }
 
   void pre_walk_script_file(script_file*) {}
+  void post_walk_structs(script_file*) {}
   void walk_script_file(script_file*) {}
   void walk_type(type*) {}
   void walk_function(function*) {}
@@ -1653,8 +1883,7 @@ public:
         memory::make_unique<cast_expression>(
             m_allocator, m_allocator, core::move(rhs));
     cast->copy_location_from(cast->get_expression());
-    cast->set_type(memory::make_unique<type>(
-        m_allocator, *cast->get_expression()->get_type()));
+    cast->set_type(clone_node(cast->get_expression()->get_type()));
     cast->get_type()->set_reference_type(reference_type::unique);
 
     _decl->set_expression(core::move(cast));
@@ -1696,6 +1925,354 @@ public:
     return nullptr;
   }
 
+  core::pair<containers::string, containers::string>
+  create_array_construct_destruct(array_allocation_expression* _alloc) {
+    memory::unique_ptr<do_instruction> new_do =
+        memory::make_unique<do_instruction>(m_allocator, m_allocator);
+    new_do->copy_location_from(_alloc);
+    new_do->set_condition(make_constant(
+        m_allocator, _alloc, type_classification::bool_type, "true"));
+    memory::unique_ptr<instruction_list> do_body =
+        memory::make_unique<instruction_list>(m_allocator, m_allocator);
+    do_body->copy_location_from(_alloc);
+
+    // This is where we actually do the work.
+    char temporary_name[12] = {0};
+    char num_elements[12] = {0};
+    memory::writeuint32(
+        temporary_name, m_last_temporary++, sizeof(temporary_name) - 1);
+    containers::string name("__wns_if_temp", m_allocator);
+    name.append(temporary_name);
+
+    memory::writeuint32(num_elements,
+        _alloc->get_static_array_initializers()[0], sizeof(num_elements) - 1);
+
+    memory::unique_ptr<declaration> temp_decl = make_constant_declaration(
+        m_allocator, _alloc, type_classification::int_type, name, num_elements);
+
+    memory::unique_ptr<id_expression> val_id =
+        memory::make_unique<id_expression>(
+            m_allocator, m_allocator, name.c_str());
+    val_id->copy_location_from(_alloc);
+    memory::unique_ptr<id_expression> use_id =
+        memory::make_unique<id_expression>(
+            m_allocator, m_allocator, name.c_str());
+    use_id->copy_location_from(_alloc);
+    memory::unique_ptr<id_expression> create_id =
+        memory::make_unique<id_expression>(
+            m_allocator, m_allocator, name.c_str());
+    use_id->copy_location_from(_alloc);
+
+    memory::unique_ptr<binary_expression> bin_expr =
+        memory::make_unique<binary_expression>(m_allocator, m_allocator,
+            arithmetic_type::arithmetic_equal, core::move(val_id),
+            make_constant(m_allocator, _alloc, type_classification::int_type,
+                                                   "0"));
+    bin_expr->copy_location_from(_alloc);
+
+    memory::unique_ptr<if_instruction> if_inst =
+        memory::make_unique<if_instruction>(m_allocator, m_allocator);
+    if_inst->copy_location_from(_alloc);
+    if_inst->set_condition(core::move(bin_expr));
+
+    memory::unique_ptr<instruction_list> if_body =
+        memory::make_unique<instruction_list>(m_allocator, m_allocator);
+    if_body->copy_location_from(_alloc);
+
+    memory::unique_ptr<break_instruction> break_inst =
+        memory::make_unique<break_instruction>(m_allocator, m_allocator);
+    break_inst->copy_location_from(_alloc);
+    break_inst->set_loop(new_do.get());
+
+    memory::unique_ptr<id_expression> self =
+        memory::make_unique<id_expression>(m_allocator, m_allocator, "_this");
+    self->copy_location_from(_alloc);
+
+    memory::unique_ptr<lvalue> lval =
+        memory::make_unique<lvalue>(m_allocator, m_allocator, core::move(self));
+    lval->copy_location_from(lval->get_expression());
+
+    memory::unique_ptr<assignment_instruction> assignment =
+        memory::make_unique<assignment_instruction>(m_allocator, m_allocator);
+    memory::unique_ptr<expression_instruction> destructor_call = nullptr;
+
+    memory::unique_ptr<cast_expression> assign_cast =
+        memory::make_unique<cast_expression>(
+            m_allocator, m_allocator, _alloc->take_initializer());
+
+    if (assign_cast->get_expression()->get_node_type() ==
+        node_type::struct_allocation_expression) {
+      struct_allocation_expression* expr =
+          cast_to<struct_allocation_expression>(assign_cast->get_expression());
+      memory::unique_ptr<array_access_expression> assign_access =
+          memory::make_unique<array_access_expression>(
+              m_allocator, m_allocator, core::move(create_id));
+      assign_access->copy_location_from(_alloc);
+
+      memory::unique_ptr<array_access_expression> array_access =
+          memory::make_unique<scripting::array_access_expression>(
+              m_allocator, m_allocator, clone_node(use_id));
+      array_access->add_base_expression(clone_node(lval->get_expression()));
+      array_access->set_type(clone_node(_alloc->get_type()->get_subtype()));
+      array_access->copy_location_from(_alloc);
+
+      memory::unique_ptr<cast_expression> construct_to_self =
+          memory::make_unique<cast_expression>(
+              m_allocator, m_allocator, core::move(array_access));
+      construct_to_self->set_type(
+          clone_node(construct_to_self->get_expression()->get_type()));
+      construct_to_self->get_type()->set_reference_type(reference_type::self);
+
+      memory::unique_ptr<arg_list> args =
+          memory::make_unique<arg_list>(m_allocator, m_allocator);
+      args->copy_location_from(_alloc);
+      args->add_expression(clone_node(construct_to_self));
+
+      memory::unique_ptr<type> t = memory::make_unique<type>(
+          m_allocator, m_allocator, type_classification::void_type);
+
+      containers::string destructor_name("_destruct_", m_allocator);
+      destructor_name.append(
+          _alloc->get_type()->get_subtype()->custom_type_name().data(),
+          _alloc->get_type()->get_subtype()->custom_type_name().size());
+
+      memory::unique_ptr<id_expression> destructor =
+          memory::make_unique<id_expression>(
+              m_allocator, m_allocator, destructor_name);
+      destructor->copy_location_from(_alloc);
+      destructor_name.append(_alloc->get_type()->custom_type_name().data(),
+          _alloc->get_type()->custom_type_name().size());
+
+      memory::unique_ptr<function_call_expression> destructor_call_expr =
+          memory::make_unique<function_call_expression>(
+              m_allocator, m_allocator, core::move(args));
+      destructor_call_expr->copy_location_from(
+          destructor_call_expr->get_args());
+
+      destructor_call_expr->set_type(core::move(t));
+      destructor_call_expr->add_base_expression(core::move(destructor));
+      destructor_call = memory::make_unique<expression_instruction>(
+          m_allocator, m_allocator, core::move(destructor_call_expr));
+
+      assign_access->add_base_expression(clone_node(lval->get_expression()));
+      assign_access->set_construction();
+      expr->set_data_source(core::move(assign_access));
+      expr->data_source()->set_type(
+          clone_node(_alloc->get_type()->get_subtype()));
+      expr->data_source()->get_type()->set_reference_type(reference_type::raw);
+      memory::unique_ptr<expression> new_expr = walk_expression(expr);
+      if (new_expr) {
+        assign_cast->set_expression(core::move(new_expr));
+      }
+    }
+    assign_cast->set_type(clone_node(_alloc->get_type()->get_subtype()));
+    assign_cast->copy_location_from(_alloc);
+
+    assignment->add_value(assign_type::equal, core::move(assign_cast));
+    assignment->copy_location_from(_alloc);
+    assignment->set_lvalue(core::move(lval));
+
+    lval = clone_node(assignment->get_lvalue());
+
+    memory::unique_ptr<array_access_expression> array_access =
+        memory::make_unique<scripting::array_access_expression>(
+            m_allocator, m_allocator, core::move(use_id));
+    array_access->add_base_expression(
+        assignment->get_lvalue()->transfer_expression());
+    array_access->copy_location_from(_alloc);
+
+    array_access->set_type(clone_node(_alloc->get_type()));
+
+    assignment->get_lvalue()->set_expression(core::move(array_access));
+
+    memory::unique_ptr<id_expression> increment_read_id =
+        memory::make_unique<id_expression>(
+            m_allocator, m_allocator, name.c_str());
+    increment_read_id->copy_location_from(new_do.get());
+
+    memory::unique_ptr<id_expression> increment_write_id =
+        clone_node(increment_read_id.get());
+    memory::make_unique<id_expression>(m_allocator, m_allocator, name.c_str());
+    increment_write_id->copy_location_from(new_do.get());
+
+    memory::unique_ptr<binary_expression> increment =
+        memory::make_unique<binary_expression>(
+            m_allocator, m_allocator, arithmetic_type::arithmetic_sub,
+            core::move(increment_read_id),
+            make_constant(
+                m_allocator, new_do.get(), type_classification::int_type, "1"));
+    increment->copy_location_from(new_do.get());
+
+    memory::unique_ptr<lvalue> increment_lval = memory::make_unique<lvalue>(
+        m_allocator, m_allocator, core::move(increment_write_id));
+    increment_lval->copy_location_from(new_do.get());
+
+    memory::unique_ptr<assignment_instruction> increment_assign =
+        memory::make_unique<assignment_instruction>(
+            m_allocator, m_allocator, core::move(increment_lval));
+    increment_assign->copy_location_from(new_do.get());
+    increment_assign->add_value(assign_type::equal, core::move(increment));
+    do_body->add_instruction(core::move(increment_assign));
+
+    do_body->add_instruction(core::move(assignment));
+
+    containers::string construct_name(m_allocator);
+    construct_name += "_construct_array";
+    memory::writeuint32(
+        temporary_name, m_last_temporary++, sizeof(temporary_name) - 1);
+    construct_name += temporary_name;
+    _alloc->set_constructor_name(construct_name);
+
+    memory::unique_ptr<type> parameter_type = clone_node(_alloc->get_type());
+
+    parameter_type->set_reference_type(reference_type::self);
+
+    memory::unique_ptr<parameter> name_ret = memory::make_unique<parameter>(
+        m_allocator, m_allocator, clone_node(parameter_type), construct_name);
+    name_ret->copy_location_from(_alloc);
+
+    memory::unique_ptr<parameter> this_param = memory::make_unique<parameter>(
+        m_allocator, m_allocator, core::move(parameter_type), "_this");
+    this_param->copy_location_from(_alloc);
+
+    memory::unique_ptr<parameter_list> parameters =
+        memory::make_unique<parameter_list>(
+            m_allocator, m_allocator, core::move(this_param));
+    parameters->copy_location_from(_alloc);
+
+    memory::unique_ptr<instruction_list> instructions =
+        memory::make_unique<instruction_list>(m_allocator, m_allocator);
+
+    memory::unique_ptr<expression> e = make_constant(
+        m_allocator, _alloc, type_classification::int_type, num_elements);
+    memory::unique_ptr<set_array_length> al =
+        memory::make_unique<set_array_length>(
+            m_allocator, m_allocator, core::move(lval), core::move(e));
+
+    instructions->add_instruction(core::move(al));
+    instructions->add_instruction(core::move(temp_decl));
+
+    if (destructor_call) {
+      memory::unique_ptr<type> void_type = memory::make_unique<type>(
+          m_allocator, m_allocator, type_classification::void_type);
+      void_type->copy_location_from(instructions.get());
+
+      containers::string destruct_name(m_allocator);
+      destruct_name += "_destruct_array";
+      destruct_name += temporary_name;
+
+      memory::unique_ptr<parameter> destructor_sig =
+          memory::make_unique<parameter>(
+              m_allocator, m_allocator, core::move(void_type), destruct_name);
+      destructor_sig->copy_location_from(_alloc);
+
+      memory::unique_ptr<instruction_list> copied_instructions =
+          clone_node(instructions);
+      memory::unique_ptr<break_instruction> copied_break_instruction =
+          clone_node(break_inst);
+      memory::unique_ptr<if_instruction> copied_if_inst = clone_node(if_inst);
+      memory::unique_ptr<instruction_list> copied_if_body = clone_node(if_body);
+      memory::unique_ptr<instruction_list> copied_do_body = clone_node(do_body);
+      memory::unique_ptr<do_instruction> copied_do = clone_node(new_do);
+      memory::unique_ptr<parameter_list> copied_parameters =
+          clone_node(parameters);
+
+      if_body->add_instruction(core::move(break_inst));
+      if_inst->set_body(core::move(if_body));
+      do_body->prepend_instruction(core::move(if_inst));
+      do_body->pop_back();
+      do_body->add_instruction(core::move(destructor_call));
+      new_do->set_body(core::move(do_body));
+      instructions->add_instruction(core::move(new_do));
+      memory::unique_ptr<function> destructor = memory::make_unique<function>(
+          m_allocator, m_allocator, core::move(destructor_sig),
+          core::move(parameters), core::move(instructions));
+      destructor->copy_location_from(_alloc);
+
+      copied_break_instruction->set_loop(copied_do.get());
+      copied_if_body->add_instruction(core::move(copied_break_instruction));
+      copied_if_inst->set_body(core::move(copied_if_body));
+      copied_do_body->prepend_instruction(core::move(copied_if_inst));
+      copied_do->set_body(core::move(copied_do_body));
+      copied_instructions->add_instruction(core::move(copied_do));
+
+      memory::unique_ptr<function> constructor = memory::make_unique<function>(
+          m_allocator, m_allocator, core::move(name_ret),
+          core::move(copied_parameters), core::move(copied_instructions));
+      constructor->copy_location_from(_alloc);
+
+      m_additional_functions.push_back(core::move(constructor));
+      m_additional_functions.push_back(core::move(destructor));
+
+      return core::make_pair(construct_name, destruct_name);
+    } else {
+      if_body->add_instruction(core::move(break_inst));
+      if_inst->set_body(core::move(if_body));
+      do_body->add_instruction(core::move(if_inst));
+      new_do->set_body(core::move(do_body));
+      instructions->add_instruction(core::move(new_do));
+
+      memory::unique_ptr<function> constructor = memory::make_unique<function>(
+          m_allocator, m_allocator, core::move(name_ret),
+          core::move(parameters), core::move(instructions));
+      constructor->copy_location_from(_alloc);
+      m_additional_functions.push_back(core::move(constructor));
+
+      return core::make_pair(construct_name, "");
+    }
+  }
+
+  memory::unique_ptr<expression> walk_expression(
+      array_allocation_expression* _alloc) {
+    // Replace array_allocation with function_call to constructor with
+    // array allocation as argument.
+    if (_alloc->set_initialization_mode() !=
+        struct_initialization_mode::invalid) {
+      return nullptr;
+    }
+
+    if (m_validator->is_destructible_type(
+            _alloc->get_type()->get_subtype()->get_type_value())) {
+      _alloc->get_type()->get_subtype()->set_reference_type(
+          reference_type::unique);
+    }
+
+    auto nm = create_array_construct_destruct(_alloc);
+    containers::string& construct_name = nm.first;
+
+    memory::unique_ptr<id_expression> constructor =
+        memory::make_unique<id_expression>(
+            m_allocator, m_allocator, construct_name);
+    constructor->copy_location_from(_alloc);
+    memory::unique_ptr<array_allocation_expression> alloc = clone_node(_alloc);
+    alloc->set_initialization_mode(struct_initialization_mode::unspecified);
+    alloc->set_temporary(true);
+
+    const type* alloc_type = alloc->get_type();
+
+    memory::unique_ptr<cast_expression> cast1 =
+        memory::make_unique<cast_expression>(
+            m_allocator, m_allocator, core::move(alloc));
+    cast1->copy_location_from(cast1->get_expression());
+    cast1->set_type(clone_node(alloc_type));
+    cast1->get_type()->set_reference_type(reference_type::self);
+
+    memory::unique_ptr<arg_list> args =
+        memory::make_unique<arg_list>(m_allocator, m_allocator);
+    args->copy_location_from(cast1.get());
+    args->add_expression(core::move(cast1));
+
+    memory::unique_ptr<function_call_expression> call =
+        memory::make_unique<function_call_expression>(
+            m_allocator, m_allocator, core::move(args));
+    call->copy_location_from(call->get_args());
+    call->set_type(clone_node(alloc_type));
+    call->get_type()->set_reference_type(reference_type::self);
+
+    call->add_base_expression(core::move(constructor));
+    return core::move(call);
+  }
+
   memory::unique_ptr<expression> walk_expression(
       struct_allocation_expression* _alloc) {
     // Replace struct_allocation with function_call to constructor with
@@ -1716,22 +2293,29 @@ public:
     constructor->copy_location_from(_alloc);
 
     if (_alloc->get_type()->get_reference_type() == reference_type::unique) {
-      memory::unique_ptr<struct_allocation_expression> alloc =
-          memory::make_unique<struct_allocation_expression>(
-              m_allocator, m_allocator);
-      alloc->set_initialization_mode(struct_initialization_mode::unspecified);
-      alloc->copy_location_from(_alloc);
-      alloc->set_type(_alloc->transfer_out_type());
-      alloc->set_copy_initializer(_alloc->transfer_copy_initializer());
+      memory::unique_ptr<expression> alloc;
+      if (_alloc->data_source()) {
+        alloc = _alloc->transfer_out_data_source();
+      } else {
+        memory::unique_ptr<struct_allocation_expression> a =
+            memory::make_unique<struct_allocation_expression>(
+                m_allocator, m_allocator);
+        a->set_initialization_mode(struct_initialization_mode::unspecified);
+        a->copy_location_from(_alloc);
+        a->set_type(_alloc->transfer_out_type());
+        a->set_copy_initializer(_alloc->transfer_copy_initializer());
 
-      alloc->set_temporary(true);
+        a->set_temporary(true);
+        alloc = core::move(a);
+      }
+
       const type* alloc_type = alloc->get_type();
 
       memory::unique_ptr<cast_expression> cast1 =
           memory::make_unique<cast_expression>(
               m_allocator, m_allocator, core::move(alloc));
       cast1->copy_location_from(cast1->get_expression());
-      cast1->set_type(memory::make_unique<type>(m_allocator, *alloc_type));
+      cast1->set_type(clone_node(alloc_type));
       cast1->get_type()->set_reference_type(reference_type::self);
 
       memory::unique_ptr<arg_list> args =
@@ -1743,7 +2327,7 @@ public:
           memory::make_unique<function_call_expression>(
               m_allocator, m_allocator, core::move(args));
       call->copy_location_from(call->get_args());
-      call->set_type(memory::make_unique<type>(m_allocator, *alloc_type));
+      call->set_type(clone_node(alloc_type));
       call->get_type()->set_reference_type(reference_type::self);
 
       call->add_base_expression(core::move(constructor));
@@ -1757,8 +2341,8 @@ public:
       alloc_func->copy_location_from(_alloc);
 
       memory::unique_ptr<sizeof_expression> size_of =
-          memory::make_unique<sizeof_expression>(m_allocator, m_allocator,
-              memory::make_unique<type>(m_allocator, *_alloc->get_type()));
+          memory::make_unique<sizeof_expression>(
+              m_allocator, m_allocator, clone_node(_alloc->get_type()));
       size_of->set_type(memory::make_unique<type>(
           m_allocator, m_allocator, type_classification::size_type));
       size_of->get_type()->copy_location_from(_alloc);
@@ -1797,8 +2381,7 @@ public:
           memory::make_unique<cast_expression>(
               m_allocator, m_allocator, core::move(allocate));
       cast_to_self->copy_location_from(_alloc);
-      cast_to_self->set_type(
-          memory::make_unique<type>(m_allocator, *_alloc->get_type()));
+      cast_to_self->set_type(clone_node(_alloc->get_type()));
       cast_to_self->get_type()->set_reference_type(reference_type::self);
 
       args = memory::make_unique<arg_list>(m_allocator, m_allocator);
@@ -1810,8 +2393,7 @@ public:
               m_allocator, m_allocator, core::move(args));
 
       construct->copy_location_from(_alloc);
-      construct->set_type(
-          memory::make_unique<type>(m_allocator, *_alloc->get_type()));
+      construct->set_type(clone_node(_alloc->get_type()));
       construct->get_type()->set_reference_type(reference_type::self);
       construct->add_base_expression(core::move(constructor));
 
@@ -1819,8 +2401,7 @@ public:
           memory::make_unique<cast_expression>(
               m_allocator, m_allocator, core::move(construct));
       cast->copy_location_from(_alloc);
-      cast->set_type(
-          memory::make_unique<type>(m_allocator, *_alloc->get_type()));
+      cast->set_type(clone_node(_alloc->get_type()));
       cast->get_type()->copy_location_from(_alloc);
       cast->set_temporary(true);
       return core::move(cast);
@@ -1832,6 +2413,14 @@ public:
   void walk_instruction_list(instruction_list*) {}
 
   void pre_walk_script_file(script_file*) {}
+  void post_walk_structs(script_file* _file) {
+    for (auto& func : m_additional_functions) {
+      // We want to prepend these functions
+      // because we want these to show up before the normal functions.
+      _file->prepend_function(core::move(func));
+    }
+    m_additional_functions.clear();
+  }
   void walk_script_file(script_file* _file) {
     for (auto& func : m_additional_functions) {
       // We want to prepend these functions
@@ -1869,28 +2458,181 @@ public:
     size_t num = _definition->get_struct_members().size();
     for (size_t i = 0; i < num; ++i) {
       auto& member = _definition->get_struct_members()[i];
+      bool is_array_type =
+          member->get_type()->get_node_type() == node_type::array_type;
       switch (member->get_type()->get_reference_type()) {
-        case reference_type::raw:
-          break;
+        case reference_type::raw: {
+        } break;
         case reference_type::unique: {
-          // push back a raw value with a name
-          // __#name
-          containers::string name("__", m_allocator);
-          name += member->get_name().to_string(m_allocator);
-          memory::unique_ptr<declaration> decl =
-              memory::make_unique<declaration>(m_allocator, m_allocator);
-          decl->copy_location_from(member.get());
-          memory::unique_ptr<type> new_type =
-              memory::make_unique<type>(m_allocator, *member->get_type());
-          new_type->copy_location_from(member->get_type());
-          memory::unique_ptr<parameter> param = memory::make_unique<parameter>(
-              m_allocator, m_allocator, core::move(new_type), name.c_str());
-          param->get_type()->set_reference_type(reference_type::raw);
-          param->get_type()->set_type_index(
-              m_validator->get_type(param->get_type()->custom_type_name()));
-          decl->set_parameter(core::move(param));
-          decls.push_back(decl.get());
-          _definition->get_struct_members().push_back(core::move(decl));
+          if (is_array_type) {
+            // The thing on the right hand side should be an array
+            // initializer. Furthermore the values in it should be
+            // constant. Grab those values out now, since we will need them.
+            // Also add a new value to this struct with a name of __#name
+            containers::string name("__", m_allocator);
+            name += member->get_name().to_string(m_allocator);
+
+            memory::unique_ptr<declaration> decl =
+                memory::make_unique<declaration>(m_allocator, m_allocator);
+            decl->copy_location_from(member.get());
+
+            memory::unique_ptr<concretized_array_type> new_type =
+                memory::make_unique<concretized_array_type>(
+                    m_allocator, m_allocator);
+
+            if (member->get_expression()->get_node_type() !=
+                node_type::array_allocation_expression) {
+              m_log->Log(WNLogging::eError, 0,
+                  "Arrays in structs must be constant sized");
+              member->log_line(*m_log, WNLogging::eError);
+              ++m_num_errors;
+              return;
+            }
+
+            member->get_expression()->get_type()->set_reference_type(
+                cast_to<array_type>(member->get_type())
+                    ->get_subtype()
+                    ->get_reference_type());
+            array_allocation_expression* expr =
+                cast_to<array_allocation_expression>(member->get_expression());
+
+            new_type->copy_location_from(member->get_type());
+            new_type->set_subtype(
+                clone_node(member->get_type()->get_subtype()));
+
+            containers::dynamic_array<uint32_t> initializers(m_allocator);
+            containers::dynamic_array<uint32_t> zero_initializers(m_allocator);
+
+            for (auto& array_expr : expr->get_array_initializers()) {
+              if (array_expr->get_node_type() !=
+                  node_type::constant_expression) {
+                m_log->Log(WNLogging::eError, 0,
+                    "The array initializer must be a constant");
+                array_expr->log_line(*m_log, WNLogging::eError);
+                ++m_num_errors;
+                return;
+              }
+              long long val =
+                  atoll(cast_to<constant_expression>(array_expr.get())
+                            ->get_type_text()
+                            .c_str());
+              if (val < 0) {
+                m_log->Log(WNLogging::eError, 0,
+                    "The array initializer must be positive");
+                array_expr->log_line(*m_log, WNLogging::eError);
+                ++m_num_errors;
+                return;
+              }
+              initializers.push_back(static_cast<uint32_t>(val));
+              zero_initializers.push_back(0u);
+            }
+            containers::dynamic_array<uint32_t> sized_initializers(m_allocator);
+            sized_initializers.insert(sized_initializers.begin(),
+                initializers.begin(), initializers.end());
+            expr->set_static_array_initializers(core::move(initializers));
+
+            auto& array_initializers = expr->get_static_array_initializers();
+            new_type->set_array_sizes(array_initializers);
+
+            uint32_t array_type = expr->get_type()->get_type_value();
+            for (auto& init : array_initializers) {
+              WN_UNUSED_ARGUMENT(init);
+              array_type = m_validator->get_array_of(array_type);
+            }
+
+            memory::unique_ptr<concretized_array_type> replace_type =
+                clone_node(new_type);
+            replace_type->set_array_sizes(core::move(sized_initializers));
+            replace_type->set_type_index(array_type);
+            replace_type->set_reference_type(reference_type::unique);
+
+            expr->set_type(clone_node(replace_type));
+            replace_type->set_array_sizes(core::move(zero_initializers));
+
+            memory::unique_ptr<parameter> param =
+                memory::make_unique<parameter>(m_allocator, m_allocator,
+                    core::move(new_type), name.c_str());
+            param->get_type()->set_type_index(array_type);
+            decl->set_parameter(core::move(param));
+
+            auto nm = create_array_construct_destruct(expr);
+            containers::string& constructor_name = nm.first;
+
+            member->get_type()->set_reference_type(reference_type::raw);
+            member->set_destructor(nm.second);
+            decls.push_back(member.get());
+
+            memory::unique_ptr<id_expression> function_id =
+                memory::make_unique<id_expression>(
+                    m_allocator, m_allocator, constructor_name);
+            function_id->copy_location_from(member.get());
+
+            memory::unique_ptr<member_access_expression> access =
+                memory::make_unique<member_access_expression>(
+                    m_allocator, m_allocator, name);
+            access->copy_location_from(member.get());
+            access->set_type(clone_node(replace_type));
+            access->get_type()->set_reference_type(reference_type::raw);
+
+            memory::unique_ptr<id_expression> id =
+                memory::make_unique<id_expression>(
+                    m_allocator, m_allocator, "_this");
+            id->copy_location_from(member.get());
+            access->add_base_expression(core::move(id));
+
+            memory::unique_ptr<arg_list> args =
+                memory::make_unique<arg_list>(m_allocator, m_allocator);
+            args->copy_location_from(access.get());
+
+            memory::unique_ptr<type> fType = clone_node(access->get_type());
+
+            memory::unique_ptr<cast_expression> to_self =
+                memory::make_unique<cast_expression>(
+                    m_allocator, m_allocator, core::move(access));
+            to_self->copy_location_from(to_self->get_expression());
+            to_self->set_type(clone_node(fType));
+            to_self->get_type()->set_reference_type(reference_type::self);
+
+            args->add_expression(core::move(to_self));
+
+            memory::unique_ptr<function_call_expression> call =
+                memory::make_unique<function_call_expression>(
+                    m_allocator, m_allocator, core::move(args));
+            call->copy_location_from(call->get_args());
+            call->set_type(core::move(fType));
+            call->get_type()->set_reference_type(reference_type::self);
+            call->add_base_expression(core::move(function_id));
+
+            memory::unique_ptr<cast_expression> cast1 =
+                memory::make_unique<cast_expression>(
+                    m_allocator, m_allocator, core::move(call));
+            cast1->copy_location_from(cast1->get_expression());
+            cast1->set_type(clone_node(replace_type));
+
+            member->set_expression(core::move(cast1));
+            member->set_type(core::move(replace_type));
+
+            _definition->get_struct_members().push_back(core::move(decl));
+          } else {
+            // push back a raw value with a name
+            // __#name
+            containers::string name("__", m_allocator);
+            name += member->get_name().to_string(m_allocator);
+            memory::unique_ptr<declaration> decl =
+                memory::make_unique<declaration>(m_allocator, m_allocator);
+            decl->copy_location_from(member.get());
+            memory::unique_ptr<type> new_type = clone_node(member->get_type());
+            new_type->copy_location_from(member->get_type());
+            memory::unique_ptr<parameter> param =
+                memory::make_unique<parameter>(m_allocator, m_allocator,
+                    core::move(new_type), name.c_str());
+            param->get_type()->set_reference_type(reference_type::raw);
+            param->get_type()->set_type_index(
+                m_validator->get_type(param->get_type()->custom_type_name()));
+            decl->set_parameter(core::move(param));
+            decls.push_back(decl.get());
+            _definition->get_struct_members().push_back(core::move(decl));
+          }
         } break;
         case reference_type::shared:
           // do nothing;
@@ -1915,7 +2657,9 @@ public:
         // Unique objects are in practice backed by raw objects.
         // It is those raw objects that we want to destroy.
         WN_RELEASE_ASSERT_DESC(
-            a->get_type()->get_reference_type() == reference_type::raw,
+            a->get_type()->get_node_type() ==
+                    node_type::concretized_array_type ||
+                a->get_type()->get_reference_type() == reference_type::raw,
             "Not Implemented: Destruction of non-unique objects");
 
         memory::unique_ptr<member_access_expression> access =
@@ -1934,12 +2678,21 @@ public:
             memory::make_unique<cast_expression>(
                 m_allocator, m_allocator, core::move(access));
         cast1->copy_location_from(cast1->get_expression());
-        cast1->set_type(memory::make_unique<type>(m_allocator, *a->get_type()));
+        cast1->set_type(clone_node(a->get_type()));
         cast1->get_type()->set_reference_type(reference_type::self);
 
         containers::string destructor_name("_destruct_", m_allocator);
-        destructor_name.append(a->get_type()->custom_type_name().data(),
-            a->get_type()->custom_type_name().size());
+        if (a->get_type()->get_node_type() ==
+            node_type::concretized_array_type) {
+          containers::string_view nm = a->get_destructor_name();
+          if (nm.empty()) {
+            continue;
+          }
+          destructor_name.assign(nm.begin(), nm.end());
+        } else {
+          destructor_name.append(a->get_type()->custom_type_name().data(),
+              a->get_type()->custom_type_name().size());
+        }
 
         memory::unique_ptr<arg_list> args =
             memory::make_unique<arg_list>(m_allocator, m_allocator);
@@ -1950,7 +2703,7 @@ public:
             memory::make_unique<function_call_expression>(
                 m_allocator, m_allocator, core::move(args));
         call->copy_location_from(call->get_args());
-        call->set_type(memory::make_unique<type>(m_allocator, *a->get_type()));
+        call->set_type(clone_node(a->get_type()));
         call->get_type()->set_reference_type(reference_type::self);
 
         memory::unique_ptr<id_expression> destructor =
@@ -2069,65 +2822,67 @@ public:
           case reference_type::unique: {
             // If this is a unique, that means the RHS was a struct_creation.
             // At least for now, so we should turn this into a construct call.
-            containers::string constructor_name("_construct_", m_allocator);
-            constructor_name.append(a->get_type()->custom_type_name().data(),
-                a->get_type()->custom_type_name().size());
+            containers::string constructor_name;
+            if (a->get_type()->get_subtype()) {
+              assignment->add_value(assign_type::equal, core::move(expr));
+            } else {
+              constructor_name = containers::string("_construct_", m_allocator);
+              constructor_name.append(a->get_type()->custom_type_name().data(),
+                  a->get_type()->custom_type_name().size());
 
-            // Create _this->x = construct(&_this->__x);
+              // Create _this->x = construct(&_this->__x);
 
-            memory::unique_ptr<id_expression> this_id =
-                memory::make_unique<id_expression>(
-                    m_allocator, m_allocator, "_this");
-            this_id->copy_location_from(_definition);
+              memory::unique_ptr<id_expression> this_id =
+                  memory::make_unique<id_expression>(
+                      m_allocator, m_allocator, "_this");
+              this_id->copy_location_from(_definition);
 
-            containers::string val("__", m_allocator);
-            val += a->get_name().to_string(m_allocator);
+              containers::string val("__", m_allocator);
+              val += a->get_name().to_string(m_allocator);
 
-            memory::unique_ptr<member_access_expression> real_access =
-                memory::make_unique<member_access_expression>(
-                    m_allocator, m_allocator, val);
-            real_access->copy_location_from(a.get());
-            real_access->add_base_expression(core::move(this_id));
-            // real_access is now _this->__x
+              memory::unique_ptr<member_access_expression> real_access =
+                  memory::make_unique<member_access_expression>(
+                      m_allocator, m_allocator, val);
+              real_access->copy_location_from(a.get());
+              real_access->add_base_expression(core::move(this_id));
+              // real_access is now _this->__x
 
-            memory::unique_ptr<cast_expression> cast1 =
-                memory::make_unique<cast_expression>(
-                    m_allocator, m_allocator, core::move(real_access));
-            cast1->copy_location_from(cast1->get_expression());
-            cast1->set_type(
-                memory::make_unique<type>(m_allocator, *a->get_type()));
-            cast1->get_type()->set_reference_type(reference_type::self);
+              memory::unique_ptr<cast_expression> cast1 =
+                  memory::make_unique<cast_expression>(
+                      m_allocator, m_allocator, core::move(real_access));
+              cast1->copy_location_from(cast1->get_expression());
+              cast1->set_type(clone_node(a->get_type()));
+              cast1->get_type()->set_reference_type(reference_type::self);
 
-            // cast1 is now &_this->__x;
-            memory::unique_ptr<arg_list> args =
-                memory::make_unique<arg_list>(m_allocator, m_allocator);
-            args->copy_location_from(cast1.get());
-            args->add_expression(core::move(cast1));
+              // cast1 is now &_this->__x;
+              memory::unique_ptr<arg_list> args =
+                  memory::make_unique<arg_list>(m_allocator, m_allocator);
+              args->copy_location_from(cast1.get());
+              args->add_expression(core::move(cast1));
 
-            memory::unique_ptr<function_call_expression> call =
-                memory::make_unique<function_call_expression>(
-                    m_allocator, m_allocator, core::move(args));
-            call->copy_location_from(call->get_args());
-            call->set_type(
-                memory::make_unique<type>(m_allocator, *a->get_type()));
-            call->get_type()->set_reference_type(reference_type::self);
+              memory::unique_ptr<function_call_expression> call =
+                  memory::make_unique<function_call_expression>(
+                      m_allocator, m_allocator, core::move(args));
+              call->copy_location_from(call->get_args());
+              call->set_type(clone_node(a->get_type()));
+              call->get_type()->set_reference_type(reference_type::self);
 
-            memory::unique_ptr<id_expression> constructor =
-                memory::make_unique<id_expression>(
-                    m_allocator, m_allocator, constructor_name);
-            constructor->copy_location_from(call.get());
+              memory::unique_ptr<id_expression> constructor =
+                  memory::make_unique<id_expression>(
+                      m_allocator, m_allocator, constructor_name);
+              constructor->copy_location_from(call.get());
 
-            call->add_base_expression(core::move(constructor));
+              call->add_base_expression(core::move(constructor));
 
-            memory::unique_ptr<cast_expression> cast2 =
-                memory::make_unique<cast_expression>(
-                    m_allocator, m_allocator, core::move(call));
-            cast2->copy_location_from(cast2->get_expression());
-            cast2->set_type(memory::make_unique<type>(
-                m_allocator, *cast2->get_expression()->get_type()));
-            cast2->get_type()->set_reference_type(reference_type::unique);
+              memory::unique_ptr<cast_expression> cast2 =
+                  memory::make_unique<cast_expression>(
+                      m_allocator, m_allocator, core::move(call));
+              cast2->copy_location_from(cast2->get_expression());
+              cast2->set_type(clone_node(cast2->get_expression()->get_type()));
+              cast2->get_type()->set_reference_type(reference_type::unique);
 
-            assignment->add_value(assign_type::equal, core::move(cast2));
+              assignment->add_value(assign_type::equal, core::move(cast2));
+            }
           } break;
           case reference_type::shared: {
             if (expr->get_node_type() ==
@@ -2141,8 +2896,7 @@ public:
             }
             assignment->set_in_constructor(true);
             assignment->add_value(assign_type::equal, core::move(expr));
-            break;
-          }
+          } break;
           default:
             WN_RELEASE_ASSERT_DESC(
                 false, "Not Implemented other types in structs");
@@ -2171,6 +2925,12 @@ public:
   }
 
   void walk_type(type*) {}
+
+  void walk_type(array_type* array_type) {
+    array_type->set_type_index(
+        m_validator->get_array_of(array_type->get_subtype()->get_type_value()));
+  }
+
   void walk_function(function*) {}
   memory::unique_ptr<instruction> walk_instruction(instruction*) {
     return nullptr;
@@ -2270,6 +3030,12 @@ bool run_temporary_reification_pass(script_file* _file, WNLogging::WNLog* _log,
 bool run_if_reassociation_pass(script_file* _file, WNLogging::WNLog* _log,
     type_validator* _validator, size_t* _num_warnings, size_t* _num_errors) {
   return run_pass<if_reassociation_pass>(
+      _file, _log, _validator, _num_warnings, _num_errors);
+}
+
+bool run_array_determination_pass(script_file* _file, WNLogging::WNLog* _log,
+    type_validator* _validator, size_t* _num_warnings, size_t* _num_errors) {
+  return run_pass<array_determination_pass>(
       _file, _log, _validator, _num_warnings, _num_errors);
 }
 

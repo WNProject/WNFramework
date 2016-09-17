@@ -45,7 +45,8 @@ void ast_code_generator<Traits>::walk_function(const function* _func) {
 }
 
 template <typename Traits>
-void ast_code_generator<Traits>::walk_type(const type* _type) {
+template <typename T>
+void ast_code_generator<Traits>::walk_type(const T* _type) {
   m_generator->walk_type(_type, &m_type_map[_type]);
 }
 
@@ -63,6 +64,11 @@ void ast_code_generator<Traits>::walk_script_file(const script_file* _file) {
 template <typename Traits>
 void ast_code_generator<Traits>::pre_walk_script_file(const script_file* _file) {
   m_generator->pre_walk_script_file(_file);
+}
+
+template <typename Traits>
+void ast_code_generator<Traits>::post_walk_structs(const script_file* _file) {
+  m_generator->post_walk_structs(_file);
 }
 
 template <typename Traits>

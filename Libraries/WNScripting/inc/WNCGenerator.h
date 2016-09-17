@@ -14,12 +14,10 @@ class type_validator;
 struct ast_c_traits {
   // the first element is a list of temporaries
   // to be hoisted out of the expression.
-  using instruction_data =
-      core::pair<containers::string, containers::string>;
+  using instruction_data = core::pair<containers::string, containers::string>;
   // The first element is a list of any temporaries,
   // that must be hoisted out of the expression.
-  using expression_data =
-      core::pair<containers::string, containers::string>;
+  using expression_data = core::pair<containers::string, containers::string>;
   using parameter_data = containers::string;
   using function_data = containers::string;
   using type_data = containers::string;
@@ -47,11 +45,15 @@ public:
     return m_output_string;
   }
 
-  void walk_expression(const expression*,
-      core::pair<containers::string, containers::string>*) {
+  void walk_expression(
+      const expression*, core::pair<containers::string, containers::string>*) {
     WN_RELEASE_ASSERT_DESC(false, "Not implemented expression type");
   }
+  void walk_expression(const array_access_expression* _access,
+      core::pair<containers::string, containers::string>* _str);
   void walk_expression(const sizeof_expression* _sizeof,
+      core::pair<containers::string, containers::string>* _str);
+  void walk_expression(const array_allocation_expression* _alloc,
       core::pair<containers::string, containers::string>* _str);
   void walk_expression(const constant_expression* _const,
       core::pair<containers::string, containers::string>* _str);
@@ -75,14 +77,19 @@ public:
   void walk_instruction_list(const instruction_list* _list,
       core::pair<containers::string, containers::string>* _str);
   void walk_type(const type* _type, containers::string* _str);
-  void walk_instruction(const instruction*,
-      core::pair<containers::string, containers::string>*) {
+  void walk_type(const array_type* _array_type, containers::string* _str);
+  void walk_type(
+      const concretized_array_type* _array_type, containers::string* _str);
+  void walk_instruction(
+      const instruction*, core::pair<containers::string, containers::string>*) {
     WN_RELEASE_ASSERT_DESC(false, "Unimplemented instruction:");
   }
   void walk_instruction(const expression_instruction*,
       core::pair<containers::string, containers::string>*);
   void walk_instruction(const do_instruction*,
       core::pair<containers::string, containers::string>*);
+  void walk_instruction(const set_array_length* arr_len,
+      core::pair<containers::string, containers::string>* _str);
   void walk_instruction(const break_instruction* _break,
       core::pair<containers::string, containers::string>* _str);
   void walk_instruction(const continue_instruction* _continue,
@@ -103,6 +110,7 @@ public:
       const struct_definition* _definition, containers::string* _str);
   void walk_script_file(const script_file* _file);
   void pre_walk_script_file(const script_file*) {}
+  void post_walk_structs(const script_file*) {}
 
 private:
   uint32_t m_temporaries;

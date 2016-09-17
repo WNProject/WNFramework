@@ -71,11 +71,13 @@ public:
   void walk_parameter(const parameter* _p);
   void walk_instruction_list(const instruction_list* _l);
   void walk_function(const function* _f);
-  void walk_type(const type* _t);
+  template <typename T>
+  void walk_type(const T* _type);
   void walk_struct_definition(const struct_definition* _s);
   // Calls the underlying m_generator->walk_script_file function.
   void walk_script_file(const script_file* _f);
   void pre_walk_script_file(const script_file* _f);
+  void post_walk_structs(const script_file* _f);
   // Called when a scope block is entered or left.
   // No-ops here, needed for the correct interface to ASTWalker.
   void enter_scope_block(const node*) {}

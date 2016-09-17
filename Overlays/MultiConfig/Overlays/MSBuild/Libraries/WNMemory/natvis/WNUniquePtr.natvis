@@ -8,6 +8,7 @@
     <Expand>
       <Item Condition="m_pointer != 0" Name="[ptr]">m_pointer</Item>
       <Item Condition="m_allocator != 0" Name="[allocator]">m_allocator</Item>
+      <ExpandedItem>*m_pointer</ExpandedItem>
     </Expand>
   </Type>
 </AutoVisualizer>

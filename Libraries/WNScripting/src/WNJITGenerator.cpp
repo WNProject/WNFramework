@@ -704,6 +704,7 @@ void ast_jit_engine::walk_function(const function* _func, llvm::Function** _f) {
     (*_f)->getBasicBlockList().push_back(block);
   }
 }
+void ast_jit_engine::post_walk_structs(const script_file*) {}
 
 void ast_jit_engine::pre_walk_script_file(const script_file* _file) {
   for (auto& strt : _file->get_structs()) {

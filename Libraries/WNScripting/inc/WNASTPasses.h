@@ -85,6 +85,18 @@ bool run_temporary_reification_pass(script_file* _file, WNLogging::WNLog* _log,
 bool run_if_reassociation_pass(script_file* _file, WNLogging::WNLog* _log,
     type_validator* _validator, size_t* _num_warnings, size_t* _num_errors);
 
+// Optimizes compile_time sized static arrays so that we can determine
+// their sizes before-hand.
+// Effectively turns
+// Int[][] x = Int[3][4](32);
+// into
+// Int[3][4] x = Int[3][4](32);
+// But will leave
+// Int[] x = Int[my_variable](32);
+// alone, since it is run-time sized.
+bool run_array_determination_pass(script_file* _file, WNLogging::WNLog* _log,
+    type_validator* _validator, size_t* _num_warnings, size_t* _num_errors);
+
 // TODO(awoloszyn): Constant folding pass.
 
 }  // namespace scripting

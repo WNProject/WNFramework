@@ -2,13 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
+#include "WNScripting/inc/WNScriptHelpers.h"
 #include "WNContainers/inc/WNStringView.h"
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNMemory/inc/WNUniquePtr.h"
 #include "WNScripting/inc/WNASTPasses.h"
 #include "WNScripting/inc/WNNodeTypes.h"
 #include "WNScripting/inc/WNTypeValidator.h"
-#include "WNScripting/inc/WNScriptHelpers.h"
 #include "WNScripting/src/WNScriptASTLexer.hpp"
 #include "WNScripting/src/WNScriptASTParser.hpp"
 
@@ -20,22 +20,22 @@ memory::unique_ptr<function> create_external_function(
     memory::allocator* _allocator, const type_validator* _validator,
     const containers::string_view& _file, const external_function& _function) {
   const type_definition& ops = _validator->get_operations(_function.ret_type);
-  memory::unique_ptr<type> ret_type =
-    memory::make_unique<type>(_allocator, _allocator, _function.ret_type,
-      ops.get_reference_type());
+  memory::unique_ptr<type> ret_type = memory::make_unique<type>(
+      _allocator, _allocator, _function.ret_type, ops.get_reference_type());
   ret_type->set_start_location(
       {0, 0, reinterpret_cast<const uint8_t*>(_file.data()), 0, 0});
 
   memory::unique_ptr<parameter_list> params =
-    memory::make_unique<parameter_list>(_allocator, _allocator);
+      memory::make_unique<parameter_list>(_allocator, _allocator);
   params->copy_location_from(ret_type.get());
 
   char name[5] = {'_', '\0', '\0', '\0', '\0'};
   WN_RELEASE_ASSERT_DESC(_function.params.size() < 32,
       "Invalid to have a function with more than 31 parameters");
-  for(uint32_t i = 0; i < _function.params.size(); ++i) {
+  for (uint32_t i = 0; i < _function.params.size(); ++i) {
     memory::writeuint32(name + 1, i, sizeof(name) - 2);
-    const type_definition& param_ops = _validator->get_operations(_function.params[i]);
+    const type_definition& param_ops =
+        _validator->get_operations(_function.params[i]);
 
     memory::unique_ptr<type> param_type = memory::make_unique<type>(_allocator,
         _allocator, _function.params[i], param_ops.get_reference_type());
@@ -50,8 +50,8 @@ memory::unique_ptr<function> create_external_function(
   memory::unique_ptr<parameter> signature = memory::make_unique<parameter>(
       _allocator, _allocator, core::move(ret_type), _function.name);
   signature->copy_location_from(signature->get_type());
-  memory::unique_ptr<function> fn = memory::make_unique<function>(_allocator, _allocator,
-      core::move(signature), core::move(params), nullptr);
+  memory::unique_ptr<function> fn = memory::make_unique<function>(_allocator,
+      _allocator, core::move(signature), core::move(params), nullptr);
   fn->set_mangled_name(_validator->get_mangled_name(
       _function.name, _function.ret_type, _function.params));
   return core::move(fn);
@@ -85,12 +85,17 @@ memory::unique_ptr<script_file> parse_script(memory::allocator* _allocator,
       return nullptr;
     }
 
-    for(const auto& func: _external_functions) {
+    for (const auto& func : _external_functions) {
       ptr->add_external_function(
           create_external_function(_allocator, _validator, view, func));
     }
 
     if (!run_dce_pass(
+            ptr.get(), _log, _validator, _num_warnings, _num_errors)) {
+      return nullptr;
+    }
+
+    if (!run_array_determination_pass(
             ptr.get(), _log, _validator, _num_warnings, _num_errors)) {
       return nullptr;
     }

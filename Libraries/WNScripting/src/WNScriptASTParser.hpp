@@ -45,6 +45,7 @@
 // THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 
+// clang-format off
 #ifndef	_WNScriptASTParser_H
 #define _WNScriptASTParser_H
 
@@ -237,7 +238,9 @@ public:
 
      scripting::type* objectType ();
      scripting::type* scalarType ();
+     scripting::type* arrayType ();
      scripting::type* compoundType ();
+     scripting::type* nonArrayType ();
      scripting::type* type ();
      scripting::parameter* param ();
      scripting::parameter_list* paramList ();

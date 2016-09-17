@@ -17,6 +17,102 @@ void initialize_data(memory::allocator* _allocator,
 }
 }  // anonymous namespace
 
+void ast_c_translator::walk_type(
+    const array_type* _array_type, containers::string* _str) {
+  *_str = containers::string(m_allocator);
+  uint32_t num_bases = 1;
+  const array_type* t = _array_type;
+  const type* basest_type = t->get_subtype();
+  while (t->get_subtype()->get_node_type() == node_type::array_type) {
+    basest_type = t->get_subtype();
+    t = cast_to<array_type>(t->get_subtype());
+    num_bases += 1;
+  }
+
+  containers::string& base_type_string = m_generator->get_data(basest_type);
+
+  *_str += "struct { ";
+  uint32_t current_index = 0;
+  uint32_t total_size = 1;
+
+  char scratch[12] = {0};
+
+  for (uint32_t i = 0; i < num_bases; ++i) {
+    memory::writeuint32(scratch, current_index++, sizeof(scratch) - 1);
+    *_str += "uint32_t size";
+    *_str += scratch;
+    *_str += "; ";
+  }
+  memory::memset(scratch, 0, sizeof(scratch));
+  memory::writeuint32(scratch, total_size, sizeof(scratch) - 1);
+  *_str += base_type_string + " _val[]; }";
+
+  switch (_array_type->get_reference_type()) {
+    case reference_type::self:
+    case reference_type::unique:
+    case reference_type::shared:
+      _str->append("*");
+      break;
+    case reference_type::raw:
+    default:
+      break;
+  }
+}
+
+void ast_c_translator::walk_type(
+    const concretized_array_type* _array_type, containers::string* _str) {
+  WN_RELEASE_ASSERT_DESC(_array_type->get_index() != 0, "Invalid type id");
+
+  containers::string& sub_type =
+      m_generator->get_data(_array_type->get_subtype());
+  *_str = containers::string(m_allocator);
+  *_str += "struct { ";
+  uint32_t current_index = 0;
+  uint32_t total_size = 1;
+
+  char scratch[12] = {0};
+
+  for (uint32_t size : _array_type->get_sizes()) {
+    total_size *= size;
+    memory::writeuint32(scratch, current_index++, sizeof(scratch) - 1);
+    *_str += "uint32_t size";
+    *_str += scratch;
+    *_str += "; ";
+  }
+  memory::memset(scratch, 0, sizeof(scratch));
+  memory::writeuint32(scratch, total_size, sizeof(scratch) - 1);
+  *_str += sub_type + " _val[";
+  if (_array_type->get_reference_type() == reference_type::raw ||
+      _array_type->get_reference_type() == reference_type::self) {
+    *_str += scratch;
+  }
+  *_str += "];";
+
+  if (_array_type->get_reference_type() == reference_type::raw ||
+      _array_type->get_reference_type() == reference_type::self) {
+    if (_array_type->get_subtype()->get_reference_type() ==
+        reference_type::unique) {
+      *_str += " ";
+      *_str += sub_type.substr(0, sub_type.size() - 1);
+      *_str += " _c_val[";
+      *_str += scratch;
+      *_str += "];";
+    }
+  }
+
+  *_str += "}";
+  switch (_array_type->get_reference_type()) {
+    case reference_type::self:
+    case reference_type::unique:
+    case reference_type::shared:
+      _str->append("*");
+      break;
+    case reference_type::raw:
+    default:
+      break;
+  }
+}
+
 void ast_c_translator::walk_type(const type* _type, containers::string* _str) {
   WN_RELEASE_ASSERT_DESC(_type->get_index() != 0, "Invalid type id");
 
@@ -155,8 +251,39 @@ void ast_c_translator::walk_expression(const id_expression* _id,
 void ast_c_translator::walk_expression(const function_pointer_expression* _ptr,
     core::pair<containers::string, containers::string>* _str) {
   initialize_data(m_allocator, _str);
-  _str->second = containers::string("&",
-      m_allocator).append(_ptr->get_source()->get_mangled_name());
+  _str->second = containers::string("&", m_allocator)
+                     .append(_ptr->get_source()->get_mangled_name());
+}
+
+void ast_c_translator::walk_expression(const array_access_expression* _access,
+    core::pair<containers::string, containers::string>* _str) {
+  initialize_data(m_allocator, _str);
+  const auto& root_expr = m_generator->get_data(_access->get_base_expression());
+  const auto& index_expr = m_generator->get_data(_access->get_access());
+
+  _str->first.append(root_expr.first);
+  _str->first.append(index_expr.first);
+
+  _str->second.append(root_expr.second);
+  switch (_access->get_base_expression()->get_type()->get_reference_type()) {
+    case reference_type::unique:
+    case reference_type::self:
+      if (_access->is_construction()) {
+        containers::string s = _str->second;
+        _str->second = containers::string("&", m_allocator);
+        _str->second.append(s);
+        _str->second.append("->_c");
+      } else {
+        _str->second.append("->");
+      }
+      break;
+    case reference_type::raw:
+      _str->second.append(".");
+      break;
+  }
+  _str->second.append("_val[");
+  _str->second.append(index_expr.second);
+  _str->second.append("]");
 }
 
 void ast_c_translator::walk_expression(const sizeof_expression* _sizeof,
@@ -167,6 +294,13 @@ void ast_c_translator::walk_expression(const sizeof_expression* _sizeof,
   _str->second.append("sizeof(");
   _str->second.append(root_expr);
   _str->second.append(")");
+}
+
+void ast_c_translator::walk_expression(const array_allocation_expression*,
+    core::pair<containers::string, containers::string>* _str) {
+  initialize_data(m_allocator, _str);
+
+  _str->second.append("{}");
 }
 
 void ast_c_translator::walk_expression(const member_access_expression* _access,
@@ -279,6 +413,34 @@ void ast_c_translator::walk_instruction(const do_instruction* _do,
   _str->second.append(" while(");
   _str->second.append(expr.second);
   _str->second.append(");");
+}
+
+void ast_c_translator::walk_instruction(const set_array_length* _arr_len,
+    core::pair<containers::string, containers::string>* _str) {
+  initialize_data(m_allocator, _str);
+  const auto& lvalue =
+      m_generator->get_data(_arr_len->get_lvalue()->get_expression());
+  const auto& expr = m_generator->get_data(_arr_len->get_expression());
+
+  _str->second.append(lvalue.first);
+  _str->second.append(expr.first);
+  _str->second.append(lvalue.second);
+  switch (_arr_len->get_lvalue()
+              ->get_expression()
+              ->get_type()
+              ->get_reference_type()) {
+    case reference_type::unique:
+    case reference_type::self:
+      _str->second.append("->");
+      break;
+    case reference_type::raw:
+      _str->second.append(".");
+      break;
+  }
+  _str->second.append("size0");
+  _str->second.append(" = ");
+  _str->second.append(expr.second);
+  _str->second.append(";");
 }
 
 void ast_c_translator::walk_instruction(const break_instruction*,

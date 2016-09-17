@@ -27,6 +27,8 @@ struct source_location {
 // clang-format off
 enum class node_type {
   arg_list,
+  array_type,
+  concretized_array_type,
   parameter_list,
   parameter,
   expression,
@@ -54,6 +56,7 @@ enum class node_type {
     break_instruction,
     continue_instruction,
     declaration,
+    set_array_length,
     do_instruction,
     else_if_instruction,
     expression_instruction,
@@ -97,6 +100,9 @@ memory::unique_ptr<T> clone_node(const T* val) {
 
 template <typename T>
 memory::unique_ptr<T> clone_node(const memory::unique_ptr<T>& val) {
+  if (!val) {
+    return memory::unique_ptr<T>(nullptr);
+  }
   memory::unique_ptr<node> n = val->clone();
   memory::allocator* alloc = n.get_allocator();
   return memory::unique_ptr<T>(alloc, static_cast<T*>(n.release()));
@@ -224,19 +230,15 @@ public:
       m_type(_type),
       m_reference_type(_ref) {}
 
-  type(memory::allocator* _allocator, type_classification _type)
-    : node(_allocator, node_type::type),
+  type(memory::allocator* _allocator, type_classification _type,
+      node_type _node_type = node_type::type,
+      reference_type _ref = reference_type::raw)
+    : node(_allocator, _node_type),
       m_type(static_cast<uint32_t>(_type)),
-      m_reference_type(reference_type::raw),
+      m_reference_type(_ref),
       m_custom_type(_allocator) {}
 
-  type(const type& _other)
-    : node(_other.m_allocator, node_type::type),
-      m_type(_other.m_type),
-      m_reference_type(_other.m_reference_type),
-      m_custom_type(get_allocator()) {
-    m_custom_type = _other.m_custom_type;
-  }
+  type(const type& _other) = delete;
 
   memory::unique_ptr<node> clone() const override {
     memory::unique_ptr<type> t =
@@ -285,6 +287,18 @@ public:
     return m_reference_type;
   }
 
+  virtual const type* get_subtype() const {
+    return nullptr;
+  }
+
+  virtual type* get_subtype() {
+    return nullptr;
+  }
+
+  virtual void walk_children(const walk_ftype<type*>&) {}
+
+  virtual void walk_children(const walk_ftype<const type*>&) const {}
+
 protected:
   void copy_type(const type* _other) {
     copy_node(_other);
@@ -302,14 +316,35 @@ protected:
 class array_type : public type {
 public:
   array_type(memory::allocator* _allocator, type* _sub_type)
-    : type(_allocator, type_classification::array_type),
+    : type(_allocator, type_classification::array_type, node_type::array_type),
       m_subtype(memory::unique_ptr<type>(_allocator, _sub_type)) {}
 
-  explicit array_type(memory::allocator* _allocator)
-    : type(_allocator, type_classification::array_type) {}
+  array_type(memory::allocator* _allocator, memory::unique_ptr<type> _sub_type)
+    : type(_allocator, type_classification::array_type, node_type::array_type),
+      m_subtype(core::move(_sub_type)) {}
 
-  const type* get_subtype() const {
+  explicit array_type(memory::allocator* _allocator)
+    : type(_allocator, type_classification::array_type, node_type::array_type) {
+  }
+
+  array_type(memory::allocator* _allocator, node_type _node_type)
+    : type(_allocator, type_classification::array_type, _node_type) {}
+
+  array_type(memory::allocator* _allocator, node_type _node_type,
+      memory::unique_ptr<type> _sub_type)
+    : type(_allocator, type_classification::array_type, _node_type),
+      m_subtype(core::move(_sub_type)) {}
+
+  const type* get_subtype() const override {
     return m_subtype.get();
+  }
+
+  type* get_subtype() override {
+    return m_subtype.get();
+  }
+
+  void set_subtype(memory::unique_ptr<type>&& _subtype) {
+    m_subtype = core::move(_subtype);
   }
 
   memory::unique_ptr<node> clone() const override {
@@ -320,7 +355,83 @@ public:
     return core::move(t);
   }
 
+  void copy_array_type(const array_type* _other) {
+    copy_type(_other);
+    m_subtype = clone_node(_other->m_subtype);
+  }
+
+  void walk_children(const walk_ftype<type*>& _type) override {
+    _type(m_subtype.get());
+  }
+
+  void walk_children(const walk_ftype<const type*>& _type) const override {
+    _type(m_subtype.get());
+  }
+
 private:
+  memory::unique_ptr<type> m_subtype;
+};
+
+class concretized_array_type : public type {
+public:
+  concretized_array_type(memory::allocator* _allocator)
+    : type(_allocator, type_classification::array_type,
+          node_type::concretized_array_type),
+      m_array_sizes(_allocator) {}
+
+  void set_array_sizes(const containers::dynamic_array<uint32_t>& _size) {
+    m_array_sizes.clear();
+    m_array_sizes.insert(m_array_sizes.begin(), _size.begin(), _size.end());
+  }
+
+  void add_array_size(uint32_t size) {
+    m_array_sizes.push_back(size);
+  }
+
+  const containers::dynamic_array<uint32_t>& get_sizes() const {
+    return m_array_sizes;
+  }
+
+  void walk_children(const walk_ftype<type*>& _type) override {
+    _type(m_subtype.get());
+  }
+
+  void walk_children(const walk_ftype<const type*>& _type) const override {
+    _type(m_subtype.get());
+  }
+
+  const type* get_subtype() const override {
+    return m_subtype.get();
+  }
+
+  type* get_subtype() override {
+    return m_subtype.get();
+  }
+
+  void set_subtype(memory::unique_ptr<type>&& _subtype) {
+    m_subtype = core::move(_subtype);
+  }
+
+  memory::unique_ptr<node> clone() const override {
+    memory::unique_ptr<concretized_array_type> t =
+        memory::make_unique<concretized_array_type>(m_allocator, m_allocator);
+    t->copy_type(this);
+    t->m_subtype = clone_node(m_subtype);
+    t->m_array_sizes.insert(
+        t->m_array_sizes.begin(), m_array_sizes.begin(), m_array_sizes.end());
+    return core::move(t);
+  }
+
+  void copy_array_type(const concretized_array_type* _other) {
+    copy_type(_other);
+    m_subtype = clone_node(_other->m_subtype);
+    m_array_sizes.clear();
+    m_array_sizes.insert(m_array_sizes.begin(), _other->m_array_sizes.begin(),
+        _other->m_array_sizes.end());
+  }
+
+private:
+  containers::dynamic_array<uint32_t> m_array_sizes;
   memory::unique_ptr<type> m_subtype;
 };
 
@@ -387,12 +498,48 @@ protected:
   bool m_is_temporary;
 };
 
+enum class struct_initialization_mode {
+  invalid,
+  unspecified,
+  unique,
+  strong,
+  max
+};
+
 class array_allocation_expression : public expression {
 public:
   explicit array_allocation_expression(memory::allocator* _allocator)
     : expression(_allocator, node_type::array_allocation_expression),
       m_array_initializers(_allocator),
-      m_levels(0) {}
+      m_levels(0),
+      m_init_mode(struct_initialization_mode::invalid) {}
+
+  containers::deque<memory::unique_ptr<expression>>& get_array_initializers() {
+    return m_array_initializers;
+  }
+
+  void set_static_array_initializers(
+      containers::dynamic_array<uint32_t>&& _dynamic_array) {
+    m_static_array_initializers = core::move(_dynamic_array);
+    m_array_initializers.clear();
+  }
+
+  struct_initialization_mode set_initialization_mode() const {
+    return m_init_mode;
+  }
+
+  void set_initialization_mode(struct_initialization_mode _mode) {
+    m_init_mode = _mode;
+  }
+
+  const containers::dynamic_array<uint32_t>& get_static_array_initializers()
+      const {
+    return m_static_array_initializers;
+  }
+
+  bool is_static_sized() const {
+    return m_static_array_initializers.size() > 0;
+  }
 
   void add_expression(expression* _expr) {
     m_array_initializers.emplace_back(
@@ -405,6 +552,22 @@ public:
   void set_copy_initializer(expression* _expression) {
     m_copy_initializer =
         memory::unique_ptr<expression>(m_allocator, _expression);
+  }
+
+  const expression* get_copy_initializer() const {
+    return m_copy_initializer.get();
+  }
+
+  memory::unique_ptr<expression> take_initializer() {
+    return core::move(m_copy_initializer);
+  }
+
+  containers::string constructor_name() {
+    return m_constructor_name;
+  }
+
+  void set_constructor_name(containers::string_view name) {
+    m_constructor_name = name.to_string(m_allocator);
   }
 
   // Constructs a new expression from this expression but transfers out
@@ -436,9 +599,30 @@ public:
     return core::move(t);
   }
 
+  virtual void walk_children(
+      const walk_mutable_expression& _expr, const walk_ftype<type*>& _type) {
+    for (auto& expr : m_array_initializers) {
+      handle_expression(_expr, expr);
+    }
+
+    _type(m_type.get());
+  }
+
+  virtual void walk_children(const walk_ftype<const expression*>& _expr,
+      const walk_ftype<const type*>& _type) const {
+    for (auto& expr : m_array_initializers) {
+      _expr(expr.get());
+    }
+
+    _type(m_type.get());
+  }
+
 private:
   containers::deque<memory::unique_ptr<expression>> m_array_initializers;
+  containers::dynamic_array<uint32_t> m_static_array_initializers;
   memory::unique_ptr<expression> m_copy_initializer;
+  containers::string m_constructor_name;
+  struct_initialization_mode m_init_mode;
   size_t m_levels;
 };
 
@@ -773,7 +957,11 @@ public:
         memory::make_unique<id_expression>(m_allocator, m_allocator);
     t->copy_expression(this);
 
-    t->set_id_source(m_source);
+    if (((m_source.param_source == 0) + (m_source.declaration_source == 0) +
+            (!m_source.function_sources.empty())) == 1) {
+      t->set_id_source(m_source);
+    }
+
     t->m_name = containers::string(m_name.c_str(), m_allocator);
 
     return core::move(t);
@@ -841,12 +1029,11 @@ public:
     return m_base_expression.get();
   }
 
-  virtual void walk_children(
+  void walk_children(
       const walk_mutable_expression& expr, const walk_ftype<type*>&) override {
     handle_expression(expr, m_base_expression);
   }
-
-  virtual void walk_children(const walk_ftype<const expression*>& expr,
+  void walk_children(const walk_ftype<const expression*>& expr,
       const walk_ftype<const type*>&) const override {
     expr(m_base_expression.get());
   }
@@ -863,7 +1050,14 @@ class array_access_expression : public post_expression {
 public:
   array_access_expression(memory::allocator* _allocator, expression* _expr)
     : post_expression(_allocator, node_type::array_access_expression),
-      m_array_access(memory::unique_ptr<expression>(m_allocator, _expr)) {}
+      m_array_access(memory::unique_ptr<expression>(m_allocator, _expr)),
+      m_is_construction(false) {}
+
+  array_access_expression(
+      memory::allocator* _allocator, memory::unique_ptr<expression> _expr)
+    : post_expression(_allocator, node_type::array_access_expression),
+      m_array_access(core::move(_expr)),
+      m_is_construction(false) {}
 
   explicit array_access_expression(memory::allocator* _allocator)
     : post_expression(_allocator, node_type::array_access_expression) {}
@@ -877,6 +1071,7 @@ public:
     expr->m_is_temporary = m_is_temporary;
     expr->m_base_expression = core::move(m_base_expression);
     expr->m_array_access = core::move(m_array_access);
+    expr->m_is_construction = m_is_construction;
     return core::move(expr);
   }
 
@@ -885,11 +1080,36 @@ public:
         memory::make_unique<array_access_expression>(m_allocator, m_allocator);
     t->copy_post_expression(this);
     t->m_array_access = clone_node(m_array_access);
+    t->m_is_construction = m_is_construction;
     return core::move(t);
+  }
+
+  virtual void walk_children(
+      const walk_mutable_expression& expr, const walk_ftype<type*>&) override {
+    handle_expression(expr, m_base_expression);
+    handle_expression(expr, m_array_access);
+  }
+
+  virtual void walk_children(const walk_ftype<const expression*>& expr,
+      const walk_ftype<const type*>&) const override {
+    expr(m_base_expression.get());
+    expr(m_array_access.get());
+  }
+
+  expression* get_access() const {
+    return m_array_access.get();
+  }
+
+  bool is_construction() const {
+    return m_is_construction;
+  }
+  void set_construction() {
+    m_is_construction = true;
   }
 
 private:
   memory::unique_ptr<expression> m_array_access;
+  bool m_is_construction;
 };
 
 class short_circuit_expression : public expression {
@@ -1055,7 +1275,12 @@ public:
   const expression* get_expression() const {
     return m_expression.get();
   }
-
+  expression* get_expression() {
+    return m_expression.get();
+  }
+  void set_expression(memory::unique_ptr<expression> expr) {
+    m_expression = core::move(expr);
+  }
   virtual void walk_children(const walk_mutable_expression& _expr,
       const walk_ftype<type*>& _type) override {
     handle_expression(_expr, m_expression);
@@ -1143,14 +1368,6 @@ private:
   memory::unique_ptr<type> m_sized_type;
 };
 
-enum class struct_initialization_mode {
-  invalid,
-  unspecified,
-  unique,
-  strong,
-  max
-};
-
 class struct_allocation_expression : public expression {
 public:
   explicit struct_allocation_expression(memory::allocator* _allocator)
@@ -1177,6 +1394,18 @@ public:
     return core::move(m_copy_initializer);
   }
 
+  expression* data_source() {
+    return m_data_source.get();
+  }
+
+  memory::unique_ptr<expression> transfer_out_data_source() {
+    return core::move(m_data_source);
+  }
+
+  void set_data_source(memory::unique_ptr<expression> source) {
+    m_data_source = core::move(source);
+  }
+
   virtual void walk_children(
       const walk_mutable_expression&, const walk_ftype<type*>& _type) override {
     _type(m_type.get());
@@ -1196,6 +1425,7 @@ public:
     expr->m_is_dead = m_is_dead;
     expr->m_is_temporary = m_is_temporary;
     expr->m_copy_initializer = core::move(m_copy_initializer);
+    expr->m_data_source = core::move(m_data_source);
     expr->m_init_mode = m_init_mode;
     return core::move(expr);
   }
@@ -1206,12 +1436,14 @@ public:
             m_allocator, m_allocator);
     t->copy_expression(this);
     t->m_copy_initializer = clone_node(m_copy_initializer);
+    t->m_data_source = clone_node(m_data_source);
     t->m_init_mode = m_init_mode;
     return core::move(t);
   }
 
 private:
   memory::unique_ptr<expression> m_copy_initializer;
+  memory::unique_ptr<expression> m_data_source;
   struct_initialization_mode m_init_mode;
 };
 
@@ -1417,6 +1649,14 @@ public:
 
   void add_instruction(memory::unique_ptr<instruction>&& inst) {
     m_instructions.push_back(core::move(inst));
+  }
+
+  void prepend_instruction(memory::unique_ptr<instruction>&& inst) {
+    m_instructions.push_front(core::move(inst));
+  }
+
+  void pop_back() {
+    m_instructions.pop_back();
   }
 
   const containers::deque<memory::unique_ptr<instruction>>& get_instructions()
@@ -1652,6 +1892,14 @@ public:
   const containers::string_view get_name() const {
     return (m_name.c_str());
   }
+
+  void set_name(const containers::string_view& view) {
+    m_name = view.to_string(m_allocator);
+  }
+  void set_type(memory::unique_ptr<type>&& _new_type) {
+    m_type = core::move(_new_type);
+  }
+
   const type* get_type() const {
     return m_type.get();
   }
@@ -1684,9 +1932,7 @@ private:
 class declaration : public instruction {
 public:
   declaration(memory::allocator* _allocator)
-    : instruction(_allocator, node_type::declaration),
-      m_sized_array_initializers(_allocator),
-      m_unsized_array_initializers(0) {}
+    : instruction(_allocator, node_type::declaration) {}
   void set_parameter(parameter* _parameter) {
     m_parameter = memory::unique_ptr<parameter>(m_allocator, _parameter);
   }
@@ -1699,13 +1945,8 @@ public:
     m_expression = memory::unique_ptr<expression>(m_allocator, _expr);
   }
 
-  void add_sized_array_initializer(expression* _expr) {
-    m_sized_array_initializers.emplace_back(
-        memory::unique_ptr<expression>(m_allocator, _expr));
-  }
-
-  void add_unsized_array_intitializer() {
-    m_unsized_array_initializers += 1;
+  void set_type(memory::unique_ptr<type>&& _new_type) {
+    m_parameter->set_type(core::move(_new_type));
   }
 
   expression* get_expression() {
@@ -1724,6 +1965,14 @@ public:
     m_expression = core::move(_expr);
   }
 
+  void set_destructor(containers::string_view view) {
+    m_destructor_name = view.to_string(m_allocator);
+  }
+
+  containers::string_view get_destructor_name() const {
+    return m_destructor_name;
+  }
+
   const type* get_type() const {
     return m_parameter->get_type();
   }
@@ -1732,13 +1981,6 @@ public:
   }
   const containers::string_view get_name() const {
     return m_parameter->get_name();
-  }
-  const containers::deque<memory::unique_ptr<expression>>& get_array_sizes()
-      const {
-    return m_sized_array_initializers;
-  }
-  size_t get_num_unsized_array_initializers() const {
-    return m_unsized_array_initializers;
   }
 
   virtual void walk_children(const walk_mutable_instruction&,
@@ -1772,18 +2014,13 @@ public:
     t->copy_instruction(this);
     t->m_parameter = clone_node(m_parameter);
     t->m_expression = clone_node(m_expression);
-    t->m_unsized_array_initializers = m_unsized_array_initializers;
-    for (const auto& expr : m_sized_array_initializers) {
-      t->m_sized_array_initializers.push_back(clone_node(expr));
-    }
     return core::move(t);
   }
 
 private:
   memory::unique_ptr<parameter> m_parameter;
   memory::unique_ptr<expression> m_expression;
-  containers::deque<memory::unique_ptr<expression>> m_sized_array_initializers;
-  size_t m_unsized_array_initializers;
+  containers::string m_destructor_name;
 };
 
 class function;
@@ -2047,6 +2284,7 @@ private:
 };
 
 class assignment_instruction;
+class set_array_length;
 class lvalue : public node {
 public:
   lvalue(memory::allocator* _allocator, expression* _expr)
@@ -2063,6 +2301,10 @@ public:
     return m_expression.get();
   }
 
+  void set_expression(memory::unique_ptr<expression> expr) {
+    m_expression = core::move(expr);
+  }
+
   memory::unique_ptr<expression> transfer_expression() {
     return core::move(m_expression);
   }
@@ -2077,6 +2319,7 @@ public:
 
 private:
   friend class assignment_instruction;
+  friend class set_array_length;
   memory::unique_ptr<expression> m_expression;
 };
 
@@ -2131,6 +2374,14 @@ public:
   }
   expression* get_expression() {
     return m_assign_expression.get();
+  }
+
+  memory::unique_ptr<lvalue> transfer_lvalue() {
+    return core::move(m_lvalue);
+  }
+
+  void set_lvalue(memory::unique_ptr<lvalue> lvalue) {
+    m_lvalue = core::move(lvalue);
   }
 
   memory::unique_ptr<expression> transfer_expression() {
@@ -2208,6 +2459,49 @@ public:
 
 private:
   const do_instruction* m_loop_break;
+};
+
+class set_array_length : public instruction {
+public:
+  set_array_length(memory::allocator* _allocator,
+      memory::unique_ptr<lvalue> arr, memory::unique_ptr<expression> val)
+    : instruction(_allocator, node_type::set_array_length, false, false),
+      m_lvalue(core::move(arr)),
+      m_expression(core::move(val)) {}
+  const expression* get_expression() const {
+    return m_expression.get();
+  }
+  const lvalue* get_lvalue() const {
+    return m_lvalue.get();
+  }
+
+  virtual memory::unique_ptr<node> clone() const {
+    memory::unique_ptr<set_array_length> t =
+        memory::make_unique<set_array_length>(m_allocator, m_allocator,
+            clone_node(m_lvalue.get()), clone_node(m_expression.get()));
+    t->copy_instruction(this);
+    return core::move(t);
+  }
+
+  virtual void walk_children(const walk_mutable_instruction&,
+      const walk_mutable_expression& e, const walk_ftype<type*>&,
+      const walk_ftype<instruction_list*>&, const walk_scope&,
+      const walk_scope&) override {
+    handle_expression(e, m_expression);
+    handle_expression(e, m_lvalue->m_expression);
+  }
+
+  virtual void walk_children(const walk_ftype<const instruction*>&,
+      const walk_ftype<const expression*>& e, const walk_ftype<const type*>&,
+      const walk_ftype<const instruction_list*>&, const walk_scope&,
+      const walk_scope&) const override {
+    e(m_expression.get());
+    e(m_lvalue->get_expression());
+  }
+
+private:
+  memory::unique_ptr<expression> m_expression;
+  memory::unique_ptr<lvalue> m_lvalue;
 };
 
 class continue_instruction : public instruction {
@@ -2672,12 +2966,26 @@ public:
     return m_includes;
   }
 
-  virtual void walk_children(const walk_scope&, const walk_scope&,
+  virtual void walk_structs(const walk_scope&, const walk_scope&,
       const walk_mutable_instruction&, const walk_mutable_expression&,
-      const walk_ftype<function*>& f, const walk_ftype<struct_definition*>& s) {
+      const walk_ftype<function*>&, const walk_ftype<struct_definition*>& s) {
     for (auto& def : m_structs) {
       s(def.get());
     }
+  }
+
+  virtual void walk_structs(const walk_scope&, const walk_scope&,
+      const walk_ftype<const instruction*>&,
+      const walk_ftype<const expression*>&, const walk_ftype<const function*>&,
+      const walk_ftype<struct_definition*>& s) const {
+    for (auto& def : m_structs) {
+      s(def.get());
+    }
+  }
+
+  virtual void walk_functions(const walk_scope&, const walk_scope&,
+      const walk_mutable_instruction&, const walk_mutable_expression&,
+      const walk_ftype<function*>& f, const walk_ftype<struct_definition*>&) {
     for (auto& function : m_external_functions) {
       f(function.get());
     }
@@ -2686,14 +2994,11 @@ public:
     }
   }
 
-  virtual void walk_children(const walk_scope&, const walk_scope&,
+  virtual void walk_functions(const walk_scope&, const walk_scope&,
       const walk_ftype<const instruction*>&,
       const walk_ftype<const expression*>&,
       const walk_ftype<const function*>& f,
-      const walk_ftype<struct_definition*>& s) const {
-    for (auto& def : m_structs) {
-      s(def.get());
-    }
+      const walk_ftype<struct_definition*>&) const {
     for (auto& function : m_external_functions) {
       f(function.get());
     }
