@@ -4,6 +4,7 @@
 *.sdf
 *.suo
 *.user
+.vscode/*
 /build*/
 /Externals/android-cmake/*
 /Externals/gtest/*
