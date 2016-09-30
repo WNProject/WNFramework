@@ -120,8 +120,7 @@ template <typename T>
 struct is_trivially_copy_constructible
     : is_trivially_constructible<T,
           typename std::add_lvalue_reference<
-                                     typename std::add_const<T>::type>::type> {
-};
+              typename std::add_const<T>::type>::type> {};
 #endif
 
 using std::is_nothrow_copy_constructible;
@@ -322,6 +321,14 @@ using index_sequence = integral_sequence<size_t, Values...>;
 
 // type modifications
 
+#ifdef _WN_HAS_CPP14_STD_REMOVE_CONST_T
+template <typename T>
+using remove_const_t = std::remove_const_t<T>;
+#else
+template <typename T>
+using remove_const_t = typename remove_const<T>::type;
+#endif
+
 #ifdef _WN_HAS_CPP14_STD_ADD_CONST_T
 template <typename T>
 using add_const_t = std::add_const_t<T>;
@@ -344,6 +351,14 @@ using add_rvalue_reference_t = std::add_rvalue_reference_t<T>;
 #else
 template <typename T>
 using add_rvalue_reference_t = typename add_rvalue_reference<T>::type;
+#endif
+
+#ifdef _WN_HAS_CPP14_STD_REMOVE_ALL_EXTENTS_T
+template <typename T>
+using remove_all_extents_t = std::remove_all_extents_t<T>;
+#else
+template <typename T>
+using remove_all_extents_t = typename remove_all_extents<T>::type;
 #endif
 
 // type transformations
@@ -499,9 +514,9 @@ template <typename T, typename = enable_if_t<true>>
 struct is_floating_point : std::is_floating_point<T> {};
 
 template <typename T>
-struct is_floating_point<
-    T, typename enable_if<
-           exists<typename T::traits_type::conversion_type>::value>::type>
+struct is_floating_point<T,
+    typename enable_if<
+        exists<typename T::traits_type::conversion_type>::value>::type>
     : true_type {};
 
 template <typename T, typename = enable_if_t<true>>

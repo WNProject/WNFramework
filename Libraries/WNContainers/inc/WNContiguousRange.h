@@ -376,52 +376,58 @@ public:
   WN_FORCE_INLINE explicit contiguous_range(const nullptr_t, const nullptr_t)
     : contiguous_range() {}
 
-  template <typename U, typename = core::enable_if_t<core::disjunction<
-                            core::is_convertible<U*, remove_write_only_t<T>*>,
-                            core::is_convertible<U*, T*>>::value>>
+  template <typename U,
+      typename = core::enable_if_t<core::disjunction<core::is_same<U, T>,
+          core::is_same<U, remove_write_only_t<T>>,
+          core::is_same<U, core::remove_const_t<T>>>::value>>
   WN_FORCE_INLINE explicit contiguous_range(U* _begin, U* _end)
     : m_begin(reinterpret_cast<T*>(_begin)), m_end(reinterpret_cast<T*>(_end)) {
     WN_DEBUG_ASSERT_DESC((m_begin && m_end) || (!m_begin && !m_end),
         "invalid input parameters, both must be null or non-null");
   }
 
-  template <typename U, typename = core::enable_if_t<core::disjunction<
-                            core::is_convertible<U*, remove_write_only_t<T>*>,
-                            core::is_convertible<U*, T*>>::value>>
+  template <typename U,
+      typename = core::enable_if_t<core::disjunction<core::is_same<U, T>,
+          core::is_same<U, remove_write_only_t<T>>,
+          core::is_same<U, core::remove_const_t<T>>>::value>>
   WN_FORCE_INLINE explicit contiguous_range(U* _ptr, const size_type _size)
     : contiguous_range(_ptr, _ptr + _size) {}
 
-  template <typename U, typename = core::enable_if_t<core::disjunction<
-                            core::is_convertible<U*, remove_write_only_t<T>*>,
-                            core::is_convertible<U*, T*>>::value>>
+  template <typename U,
+      typename = core::enable_if_t<core::disjunction<core::is_same<U, T>,
+          core::is_same<U, remove_write_only_t<T>>,
+          core::is_same<U, core::remove_const_t<T>>>::value>>
   WN_FORCE_INLINE explicit contiguous_range(
       U* _ptr, const size_type _offset, const size_type _size)
     : contiguous_range(_ptr + _offset, _size) {}
 
   template <typename U, const size_t N,
-      typename = core::enable_if_t<
-          core::disjunction<core::is_convertible<U*, remove_write_only_t<T>*>,
-              core::is_convertible<U*, T*>>::value>>
+      typename = core::enable_if_t<core::disjunction<core::is_same<U, T>,
+          core::is_same<U, remove_write_only_t<T>>,
+          core::is_same<U, core::remove_const_t<T>>>::value>>
   WN_FORCE_INLINE contiguous_range(array<U, N>& _array)
     : contiguous_range(_array.data(), N) {}
 
   template <typename U, const size_t N,
-      typename = core::enable_if_t<
-          core::disjunction<core::is_convertible<U*, remove_write_only_t<T>*>,
-              core::is_convertible<U*, T*>>::value>>
+      typename = core::enable_if_t<core::disjunction<core::is_same<U, T>,
+          core::is_same<core::remove_all_extents_t<U>, remove_write_only_t<T>>,
+          core::is_same<core::remove_all_extents_t<U>,
+              core::remove_const_t<T>>>::value>>
   WN_FORCE_INLINE contiguous_range(U (&_ptr)[N]) : contiguous_range(_ptr, N) {}
 
-  template <typename U, typename = core::enable_if_t<core::disjunction<
-                            core::is_convertible<U*, remove_write_only_t<T>*>,
-                            core::is_convertible<U*, T*>>::value>>
+  template <typename U,
+      typename = core::enable_if_t<core::disjunction<core::is_same<U, T>,
+          core::is_same<U, remove_write_only_t<T>>,
+          core::is_same<U, core::remove_const_t<T>>>::value>>
   WN_FORCE_INLINE contiguous_range(contiguous_range<U>&& _other)
     : contiguous_range(_other.data(), _other.size()) {
     _other = nullptr;
   }
 
-  template <typename U, typename = core::enable_if_t<core::disjunction<
-                            core::is_convertible<U*, remove_write_only_t<T>*>,
-                            core::is_convertible<U*, T*>>::value>>
+  template <typename U,
+      typename = core::enable_if_t<core::disjunction<core::is_same<U, T>,
+          core::is_same<U, remove_write_only_t<T>>,
+          core::is_same<U, core::remove_const_t<T>>>::value>>
   WN_FORCE_INLINE contiguous_range(const contiguous_range<U>& _other)
     : contiguous_range(_other.data(), _other.size()) {}
 
@@ -440,9 +446,9 @@ public:
   }
 
   template <typename U, const size_t N,
-      typename = core::enable_if_t<
-          core::disjunction<core::is_convertible<U*, remove_write_only_t<T>*>,
-              core::is_convertible<U*, T*>>::value>>
+      typename = core::enable_if_t<core::disjunction<core::is_same<U, T>,
+          core::is_same<U, remove_write_only_t<T>>,
+          core::is_same<U, core::remove_const_t<T>>>::value>>
   WN_FORCE_INLINE contiguous_range& operator=(array<U, N>& _array) {
     contiguous_range(_array).swap(*this);
 
@@ -450,27 +456,30 @@ public:
   }
 
   template <typename U, const size_t N,
-      typename = core::enable_if_t<
-          core::disjunction<core::is_convertible<U*, remove_write_only_t<T>*>,
-              core::is_convertible<U*, T*>>::value>>
+      typename = core::enable_if_t<core::disjunction<core::is_same<U, T>,
+          core::is_same<core::remove_all_extents_t<U>, remove_write_only_t<T>>,
+          core::is_same<core::remove_all_extents_t<U>,
+              core::remove_const_t<T>>>::value>>
   WN_FORCE_INLINE contiguous_range& operator=(U (&_ptr)[N]) {
     contiguous_range(_ptr, N).swap(*this);
 
     return *this;
   }
 
-  template <typename U, typename = core::enable_if_t<core::disjunction<
-                            core::is_convertible<U*, remove_write_only_t<T>*>,
-                            core::is_convertible<U*, T*>>::value>>
+  template <typename U,
+      typename = core::enable_if_t<core::disjunction<core::is_same<U, T>,
+          core::is_same<U, remove_write_only_t<T>>,
+          core::is_same<U, core::remove_const_t<T>>>::value>>
   WN_FORCE_INLINE contiguous_range& operator=(contiguous_range<U>&& _other) {
     contiguous_range(core::move(_other)).swap(*this);
 
     return *this;
   }
 
-  template <typename U, typename = core::enable_if_t<core::disjunction<
-                            core::is_convertible<U*, remove_write_only_t<T>*>,
-                            core::is_convertible<U*, T*>>::value>>
+  template <typename U,
+      typename = core::enable_if_t<core::disjunction<core::is_same<U, T>,
+          core::is_same<U, remove_write_only_t<T>>,
+          core::is_same<U, core::remove_const_t<T>>>::value>>
   WN_FORCE_INLINE contiguous_range& operator=(
       const contiguous_range<U>& _other) {
     contiguous_range(_other).swap(*this);
@@ -772,14 +781,14 @@ template <typename T>
 using is_read_only_contiguous_range =
     core::conditional_t<is_contiguous_range<T>::value,
         core::conditional_t<core::is_const<typename T::value_type>::value,
-                            core::true_type, core::false_type>,
+            core::true_type, core::false_type>,
         core::false_type>;
 
 template <typename T>
 using is_write_only_contiguous_range =
     core::conditional_t<is_contiguous_range<T>::value,
         core::conditional_t<is_write_only<typename T::value_type>::value,
-                            core::true_type, core::false_type>,
+            core::true_type, core::false_type>,
         core::false_type>;
 
 }  // namespace containers
