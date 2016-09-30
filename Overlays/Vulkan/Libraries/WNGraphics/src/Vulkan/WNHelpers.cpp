@@ -15,7 +15,6 @@ namespace internal {
 namespace vulkan {
 
 #ifdef _WN_WINDOWS
-#include <windows.h>
 using library_type = HMODULE;
 library_type open_function(const char* _name) {
   return LoadLibrary(_name);

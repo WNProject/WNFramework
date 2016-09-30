@@ -11,7 +11,6 @@
 #include "WNMultiTasking/inc/WNLockGuard.h"
 
 #ifdef _WN_WINDOWS
-#include <Windows.h>
 #elif defined _WN_POSIX
 #include "WNCore/inc/WNAssert.h"
 

@@ -9,8 +9,6 @@
 
 #include "WNFileSystem/inc/WNMapping.h"
 
-#include <Windows.h>
-
 namespace wn {
 namespace file_system {
 namespace internal {

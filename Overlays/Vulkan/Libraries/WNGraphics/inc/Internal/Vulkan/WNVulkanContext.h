@@ -20,7 +20,6 @@ namespace internal {
 namespace vulkan {
 
 #ifdef _WN_WINDOWS
-#include <Windows.h>
 using library_type = HMODULE;
 #else
 #include <dlfcn.h>

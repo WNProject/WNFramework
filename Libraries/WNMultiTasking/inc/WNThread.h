@@ -16,7 +16,6 @@
 #if defined _WN_WINDOWS
 #include "WNUtilities/inc/WNHandle.h"
 
-#include <Windows.h>
 #include <mutex>
 #elif defined _WN_POSIX
 #include <pthread.h>

@@ -13,7 +13,6 @@
 #ifdef _WN_WINDOWS
 #include "WNUtilities/inc/WNHandle.h"
 
-#include <Windows.h>
 #elif defined _WN_POSIX
 #include <errno.h>
 #include <semaphore.h>

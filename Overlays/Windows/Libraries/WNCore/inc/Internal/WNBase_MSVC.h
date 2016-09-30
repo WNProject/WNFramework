@@ -44,6 +44,7 @@
 #define NOMINMAX
 // clang-format off
 #include <winsock2.h>
+#include <ws2tcpip.h>
 #include <Windows.h>
 // clang-format on
 #if !defined _WIN32_WINNT_VISTA || _WIN32_WINNT < _WIN32_WINNT_VISTA

@@ -1,15 +1,11 @@
 overlay_library_sources(
   WNNetworking
   SOURCES
-    inc/Internal/Windows/WNBufferResource.inl
-    inc/Internal/Windows/WNConnectionWindows.h
-    inc/Internal/Windows/WNInConnectionWindows.h
-    inc/Internal/Windows/WNListenConnectionWindows.h
-    inc/Internal/Windows/WNNetworkManagerWindows.h
-    inc/Internal/Windows/WNOutConnectionWindows.h
-    src/Windows/WNConnectionWindows.cpp
-    src/Windows/WNInConnectionWindows.cpp
-    src/Windows/WNListenConnectionWindows.cpp
-    src/Windows/WNNetworkManagerWindows.cpp
-    src/Windows/WNOutConnectionWindows.cpp
+  inc/WNReliableNetworkTransportSocket.h
+  inc/WNReliableNetworkListenSocket.h
+  src/WNReliableNetworkTransportSocket.cpp
+  src/WNReliableNetworkListenSocket.cpp
+  src/WNNetworkManager.cpp
+  LIBS
+  ws2_32.lib
 )

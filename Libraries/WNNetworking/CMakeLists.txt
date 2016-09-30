@@ -2,18 +2,10 @@ enable_overlay_directory()
 
 add_wn_library(WNNetworking
   SOURCES
-    inc/WNBufferResource.h
-    inc/WNConnection.h
-    inc/WNConnectionGroup.h
-    inc/WNNetworkFactory.h
-    inc/WNNetworkManager.h
-    inc/WNNetworkReadBuffer.h
-    inc/WNNetworkWriteBuffer.h
-    src/WNNetworkReadBuffer.cpp
-    src/WNBufferResource.cpp
-    src/WNConnection.cpp
-    src/WNNetworkWriteBuffer.cpp
-    src/WNNetworkFactory.cpp
-    src/WNConnectionGroup.cpp
-    src/WNNetworkManager.cpp
+  inc/WNNetworkingErrors.h
+  inc/WNNetworkManager.h
+  inc/WNReliableConnection.h
+  src/WNNetworkManager.cpp
 )
+
+add_subdirectory(test)
