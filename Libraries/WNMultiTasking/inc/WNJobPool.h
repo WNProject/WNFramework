@@ -8,6 +8,7 @@
 #define __WN_MULTI_TASKING_JOB_POOL_H__
 
 #include "WNContainers/inc/WNDeque.h"
+#include "WNContainers/inc/WNFunction.h"
 #include "WNContainers/inc/WNHashMap.h"
 #include "WNContainers/inc/WNList.h"
 #include "WNContainers/inc/WNPair.h"
@@ -27,10 +28,14 @@ public:
   // use this constructor, it will handle the
   // job pool for you.
   explicit job_signal(size_t _value);
+  // If this is created with the default constructor,
+  // it is unassigned to any job pool.
+  job_signal();
   // If you are creating this from outside of a
   // job, use this job_signal.
   job_signal(job_pool* _pool, size_t _value) : pool(_pool), value(_value) {}
 
+  void initialize_signal(job_pool* pool, size_t _value);
   void increment(size_t _value);
   void decrement(size_t _value);
   void set(size_t _value);
@@ -67,13 +72,45 @@ class job_pool : public core::non_copyable {
 public:
   // This exists just to ensure that all subclasses provide a
   // number of threads.
-  explicit job_pool(size_t /*_n*/) {}
-  static WN_INLINE void block_job_until(job_signal* _signal, size_t _value) {
-    tl_this_job_pool->block_job(_signal, _value);
+  explicit job_pool(memory::allocator* _allocator, size_t /*_n*/)
+    : m_allocator(_allocator) {}
+  WN_INLINE void block_job_until(job_signal* _signal, size_t _value) {
+    block_job(_signal, _value);
   }
 
   virtual void add_job(const job_ptr& _ptr) = 0;
   virtual void add_job(job_ptr&& _ptr) = 0;
+
+  // Calls the given blocking function.
+
+  template <typename T, typename... Args>
+  T call_blocking_function(
+      const containers::function<T(Args...)>& func, Args&&... args) {
+    notify_blocking();
+    T ret = func(std::forward<Args>(args)...);
+    move_to_ready();
+    return core::move(ret);
+  }
+
+  template <typename... Args>
+  void call_blocking_function(
+      const containers::function<void(Args...)>& func, Args&&... args) {
+    notify_blocking();
+    func(std::forward<Args>(args)...);
+    move_to_ready();
+  }
+
+  // Calls the given blocking function asynchronously. _signal is incremented
+  // when the call completes.
+  void call_blocking_function_async(
+      const containers::function<void()>& func, job_signal* _signal) {
+    add_job(wn::multi_tasking::make_job(m_allocator, [this, func, _signal]() {
+      notify_blocking();
+      func();
+      _signal->increment(1);
+      move_to_ready();
+    }));
+  }
 
   void update_signal(job_signal* _signal, size_t _num) {
     _signal->value.exchange(_num, std::memory_order::memory_order_release);
@@ -94,16 +131,30 @@ public:
     notify_signalled(_signal, new_value);
   }
 
+protected:
+  memory::allocator* m_allocator;
+
 private:
   // This blocks the current
   virtual void block_job(job_signal* _signal, size_t _value) = 0;
   virtual void notify_signalled(job_signal* _signal, size_t _new_value) = 0;
+  virtual void notify_blocking() = 0;
+  virtual void move_to_ready() = 0;
   friend class job_signal;
 };
 
 job_signal::job_signal(size_t _value) {
   value = _value;
   pool = tl_this_job_pool;
+}
+
+job_signal::job_signal() : value(0), pool(nullptr) {}
+
+void job_signal::initialize_signal(job_pool* _pool, size_t _value) {
+  WN_DEBUG_ASSERT_DESC(
+      pool == nullptr, "You cannot initialize a job_signal twice");
+  pool = _pool;
+  value.exchange(_value);
 }
 
 void job_signal::increment(size_t _value) {
@@ -148,8 +199,7 @@ WN_THREAD_LOCAL thread_data* tl_this_thread;
 class thread_job_pool : public job_pool {
 public:
   thread_job_pool(memory::allocator* _allocator, size_t _n)
-    : job_pool(_n),
-      m_allocator(_allocator),
+    : job_pool(_allocator, _n),
       m_max_active_threads(_n),
       m_shutdown(false),
       m_thread_pool(_allocator),
@@ -161,6 +211,10 @@ public:
       m_dormant_threads(_allocator),
       m_pending_threads(_allocator),
       m_blocked_threads(_allocator),
+      // This is the list of threads that are currently
+      // running a blocking call, they will be made
+      // pending when they wake up.
+      m_blocking_threads(_allocator),
       m_pending_jobs(0) {
     // We initialize with 0 threads because we handle managing
     // the thread lifetimes ourselves. We just want to use the
@@ -182,18 +236,18 @@ public:
       m_shutdown = true;
     }
     for (size_t i = 0; i < m_max_active_threads; ++i) {
+      m_thread_pool.wake_waiting_thread();
       m_shutdown_semaphore.wait();
     }
 
-    for (auto& thread: m_dormant_threads) {
+    for (auto& thread : m_dormant_threads) {
       m_thread_pool.wake_waiting_thread();
       thread.m_dormant_semaphore.notify();
     }
 
-    for(auto& thread: m_all_threads) {
+    for (auto& thread : m_all_threads) {
       thread.join();
     }
-
   }
 
   void add_job(const job_ptr& _ptr) override {
@@ -215,21 +269,28 @@ private:
         return;
       }
       auto list = m_blocked_threads.insert(
+
           containers::make_pair(containers::make_pair(_signal, _value),
               containers::list<thread_data>(m_allocator)));
+
       m_active_threads.transfer_to(tl_this_thread->m_current_position,
           list.first->second.end(), list.first->second);
+
       (list.first->second.end() - 1)->m_current_position =
           (list.first->second.end() - 1);
+
       if (!m_dormant_threads.empty()) {
         m_dormant_threads.transfer_to(m_dormant_threads.begin(),
             m_active_threads.end(), m_active_threads);
-        (m_active_threads.end() - 1)->m_current_position = (m_active_threads.end() - 1);
+
+        (m_active_threads.end() - 1)->m_current_position =
+            (m_active_threads.end() - 1);
         (m_active_threads.end() - 1)->m_dormant_semaphore.notify();
       } else {
         m_active_threads.push_back(thread_data());
         (m_active_threads.end() - 1)->m_current_position =
             (m_active_threads.end() - 1);
+
         m_all_threads.push_back(
             thread(m_allocator, &thread_job_pool::thread_func, this,
                 &(*(m_active_threads.end() - 1))));
@@ -238,6 +299,42 @@ private:
     tl_this_thread->m_blocked_semaphore.wait();
     // Make sure that memory is coherent again.
     _signal->value.load(std::memory_order_acquire);
+  }
+
+  void notify_blocking() {
+    {
+      spin_lock_guard guard(m_thread_lock);
+      if (!m_dormant_threads.empty()) {
+        m_dormant_threads.transfer_to(m_dormant_threads.begin(),
+            m_active_threads.end(), m_active_threads);
+
+        (m_active_threads.end() - 1)->m_current_position =
+            (m_active_threads.end() - 1);
+        (m_active_threads.end() - 1)->m_dormant_semaphore.notify();
+      } else {
+        m_active_threads.push_back(thread_data());
+        (m_active_threads.end() - 1)->m_current_position =
+            (m_active_threads.end() - 1);
+
+        m_all_threads.push_back(
+            thread(m_allocator, &thread_job_pool::thread_func, this,
+                &(*(m_active_threads.end() - 1))));
+      }
+    }
+  }
+
+  void move_to_ready() {
+    {
+      {
+        spin_lock_guard guard(m_thread_lock);
+        m_active_threads.transfer_to(tl_this_thread->m_current_position,
+            m_pending_threads.end(), m_pending_threads);
+        (m_pending_threads.end() - 1)->m_current_position =
+            m_pending_threads.end() - 1;
+        m_thread_pool.wake_waiting_thread();
+      }
+      tl_this_thread->m_blocked_semaphore.wait();
+    }
   }
 
   void notify_signalled(job_signal* _signal, size_t _value) override {
@@ -271,7 +368,7 @@ private:
   void thread_function(thread_data* _data) {
     tl_this_job_pool = this;
     tl_this_thread = _data;
-    for(;;) {
+    for (;;) {
       if (!m_thread_pool.process_single_task()) {
         // We were kicked from processing a single task.
         // This means one of 2 things.
@@ -287,13 +384,13 @@ private:
         containers::list<thread_data>::iterator last_active_thread;
         {
           spin_lock_guard guard(m_thread_lock);
+          if (m_pending_threads.size() == 0) {
+            continue;
+          }
           m_active_threads.transfer_to(_data->m_current_position,
               m_dormant_threads.end(), m_dormant_threads);
           _data->m_current_position = m_dormant_threads.end() - 1;
 
-          WN_RELEASE_ASSERT_DESC(m_pending_threads.size() > 0,
-              "We were supposed to go dormant because there was a pending "
-              "thread, which is not there");
           m_pending_threads.transfer_to(
               m_pending_threads.begin()->m_current_position,
               m_active_threads.end(), m_active_threads);
@@ -312,7 +409,7 @@ private:
 
         --m_pending_jobs;
         if (m_shutdown && m_pending_jobs == 0) {
-          for(size_t i = 0; i < m_active_threads.size(); ++i) {
+          for (size_t i = 0; i < m_active_threads.size(); ++i) {
             m_thread_pool.wake_waiting_thread();
           }
         }
@@ -320,7 +417,6 @@ private:
     }
   }
 
-  memory::allocator* m_allocator;
   const size_t m_max_active_threads;
   thread_pool m_thread_pool;
   std::atomic<bool> m_shutdown;
@@ -330,6 +426,7 @@ private:
   containers::list<thread_data> m_active_threads;
   containers::list<thread_data> m_dormant_threads;
   containers::list<thread_data> m_pending_threads;
+  containers::list<thread_data> m_blocking_threads;
   semaphore m_shutdown_semaphore;
   size_t m_pending_jobs;
   // Because we only ever transfer ownership of the thread
