@@ -18,8 +18,10 @@ class WNReliableConnectListenSocket : public WNReliableAcceptConnection {
 public:
   network_error initialize(WNLogging::WNLog *_log, int _protocol,
                            uint16_t _port);
-  WNReliableConnectListenSocket(memory::allocator *_allocator)
-      : WNReliableAcceptConnection(_allocator), m_socket(INVALID_SOCKET) {}
+  WNReliableConnectListenSocket(
+      memory::allocator* _allocator, WNNetworkManager* _manager)
+    : WNReliableAcceptConnection(_allocator, _manager),
+      m_socket(INVALID_SOCKET) {}
   ~WNReliableConnectListenSocket() {
     if (m_socket != INVALID_SOCKET) {
       closesocket(m_socket);

@@ -20,8 +20,9 @@ class WNReliableConnectListenSocket : public WNReliableAcceptConnection {
 public:
   network_error initialize(
       WNLogging::WNLog* _log, int _protocol, uint16_t _port);
-  WNReliableConnectListenSocket(memory::allocator* _allocator)
-    : WNReliableAcceptConnection(_allocator), m_sock_fd(-1) {}
+  WNReliableConnectListenSocket(
+      memory::allocator* _allocator, WNNetworkManager* _manager)
+    : WNReliableAcceptConnection(_allocator, _manager), m_sock_fd(-1) {}
   ~WNReliableConnectListenSocket() {
     if (m_sock_fd != -1) {
       close(m_sock_fd);

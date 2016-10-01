@@ -7,11 +7,14 @@
 #ifndef __WN_NEWORKING_NETWORK_MANAGER_H__
 #define __WN_NEWORKING_NETWORK_MANAGER_H__
 
+#include "WNContainers/inc/WNDeque.h"
 #include "WNContainers/inc/WNStringView.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNMemory/inc/WNUniquePtr.h"
+#include "WNMultiTasking/inc/WNSpinLock.h"
 #include "WNNetworking/inc/WNNetworkingErrors.h"
+#include "WNNetworking/inc/WNReceiveBuffer.h"
 #include "WNNetworking/inc/WNReliableConnection.h"
 
 namespace wn {
@@ -20,13 +23,14 @@ class job_pool;
 }  // namespace multi_tasking
 
 namespace networking {
+const uint32_t MAX_NETWORK_BUFFER_SIZE = 1024;
 
 enum class available_network_kind_bits : uint32_t { remote = 0x1, local = 0x2 };
 
 enum class ip_protocol { ipv4, ipv6, ip_any };
 
 class WNNetworkManager {
-protected:
+public:
   explicit WNNetworkManager(memory::allocator* _allocator)
     : m_allocator(_allocator) {}
 
@@ -49,7 +53,18 @@ protected:
       const containers::string_view& target,
       network_error* _error = nullptr) = 0;
 
-public:
+  virtual void release_buffer(const void* _token) = 0;
+
+protected:
+  virtual WNReceiveBuffer acquire_buffer() = 0;
+  friend class WNReliableConnection;
+  friend class WNReliableAcceptConnection;
+
+  WNReceiveBuffer create_buffer(
+      const void* _token, const containers::contiguous_range<char>& _data) {
+    return WNReceiveBuffer(_token, this, _data);
+  }
+
   memory::allocator* m_allocator;
 };
 
@@ -57,7 +72,11 @@ class WNConcreteNetworkManager : public WNNetworkManager {
 public:
   WNConcreteNetworkManager(memory::allocator* _allocator,
       multi_tasking::job_pool* _job_pool, WNLogging::WNLog* _log)
-    : WNNetworkManager(_allocator), m_job_pool(_job_pool), m_log(_log) {
+    : WNNetworkManager(_allocator),
+      m_job_pool(_job_pool),
+      m_log(_log),
+      m_buffers(_allocator),
+      m_available_buffers(_allocator) {
     initialize();
   }
 
@@ -104,10 +123,33 @@ public:
     return nullptr;
   };
 
+  void release_buffer(const void* _token) {
+    multi_tasking::lock_guard<multi_tasking::spin_lock> lock(m_cache_lock);
+    m_available_buffers.push_back(
+        static_cast<char*>(const_cast<void*>(_token)));
+  }
+
+protected:
+  WNReceiveBuffer acquire_buffer() override {
+    multi_tasking::lock_guard<multi_tasking::spin_lock> lock(m_cache_lock);
+    if (m_available_buffers.size() > 0) {
+      char* buff = m_available_buffers.front();
+      m_available_buffers.pop_front();
+      return create_buffer(static_cast<const void*>(buff),
+          containers::contiguous_range<char>(buff, MAX_NETWORK_BUFFER_SIZE));
+    } else {
+      m_buffers.push_back(containers::array<char, MAX_NETWORK_BUFFER_SIZE>());
+      return create_buffer(m_buffers.back().data(), m_buffers.back());
+    }
+  }
+
 private:
   void initialize();
   WNLogging::WNLog* m_log;
   multi_tasking::job_pool* m_job_pool;
+  multi_tasking::spin_lock m_cache_lock;
+  containers::deque<containers::array<char, MAX_NETWORK_BUFFER_SIZE>> m_buffers;
+  containers::deque<char*> m_available_buffers;
 };
 
 }  // namespace networking

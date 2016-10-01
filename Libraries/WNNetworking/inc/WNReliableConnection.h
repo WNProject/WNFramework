@@ -10,6 +10,7 @@
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNMemory/inc/WNUniquePtr.h"
 #include "WNNetworking/inc/WNNetworkingErrors.h"
+#include "WNNetworking/inc/WNReceiveBuffer.h"
 
 namespace wn {
 
@@ -18,28 +19,60 @@ class job_pool;
 }  // namespace multi_tasking
 
 namespace networking {
+struct send_buffer {
+  const void* data;
+  size_t size;
+};
+
 class WNReliableConnection {
 public:
-  WNReliableConnection(memory::allocator* _allocator)
-    : m_allocator(_allocator) {}
+  WNReliableConnection(
+      memory::allocator* _allocator, WNNetworkManager* _manager)
+    : m_allocator(_allocator), m_manager(_manager) {}
 
   virtual ~WNReliableConnection() {}
 
-public:
+  template <typename It>
+  network_error send_sync(const It& begin, size_t size) {
+    const send_buffer** send_buffers = static_cast<const send_buffer**>(
+        WN_STACK_ALLOC(sizeof(send_buffer*) * size));
+    auto it = begin;
+    for (size_t i = 0; i < size; ++i, ++it) {
+      send_buffers[i] = &(*it);
+    }
+    containers::contiguous_range<const send_buffer*> send_range(
+        send_buffers, size);
+    return do_send(send_range);
+  }
+
+  network_error send_sync(
+      const std::initializer_list<const send_buffer>& list) {
+    return send_sync(list.begin(), list.size());
+  }
+
+  virtual WNReceiveBuffer recv_sync() = 0;
+
+protected:
+  WNReceiveBuffer get_receieve_buffer();
+  virtual network_error do_send(
+      const containers::contiguous_range<const send_buffer*>& buffers) = 0;
+  WNNetworkManager* m_manager;
   memory::allocator* m_allocator;
 };
 
 class WNReliableAcceptConnection {
 public:
-  WNReliableAcceptConnection(memory::allocator* _allocator)
-    : m_allocator(_allocator) {}
+  WNReliableAcceptConnection(
+      memory::allocator* _allocator, WNNetworkManager* _manager)
+    : m_allocator(_allocator), m_manager(_manager) {}
 
   virtual ~WNReliableAcceptConnection() {}
 
   virtual memory::unique_ptr<WNReliableConnection> accept_sync(
       network_error* _error = nullptr) = 0;
 
-public:
+protected:
+  WNNetworkManager* m_manager;
   memory::allocator* m_allocator;
 };
 

@@ -41,6 +41,7 @@ TEST_P(connection_tests, connection) {
         auto listen_socket = manager.listen_remote_sync(GetParam(), 8080);
         listen_started.notify();
         auto accepted_socket = listen_socket->accept_sync();
+        ASSERT_NE(nullptr, accepted_socket);
         final_semaphore.wait();
       }
       wait_for_done.notify();
@@ -52,6 +53,7 @@ TEST_P(connection_tests, connection) {
         auto connect_socket = manager.connect_remote_sync(
             localhost_addresses[static_cast<uint32_t>(GetParam())], GetParam(),
             8080, nullptr);
+        ASSERT_NE(nullptr, connect_socket);
         final_semaphore.notify();
       }
       wait_for_done.notify();
@@ -81,6 +83,7 @@ TEST_P(connection_tests, connect_to_any) {
         auto listen_socket = manager.listen_remote_sync(GetParam(), 8080);
         listen_started.notify();
         auto accepted_socket = listen_socket->accept_sync();
+        ASSERT_NE(nullptr, accepted_socket);
         final_semaphore.wait();
       }
       wait_for_done.notify();
@@ -92,6 +95,7 @@ TEST_P(connection_tests, connect_to_any) {
         auto connect_socket = manager.connect_remote_sync(
             localhost_addresses[static_cast<uint32_t>(GetParam())],
             wn::networking::ip_protocol::ip_any, 8080, nullptr);
+        ASSERT_NE(nullptr, connect_socket);
         final_semaphore.notify();
       }
       wait_for_done.notify();
@@ -102,6 +106,98 @@ TEST_P(connection_tests, connect_to_any) {
   }
 }
 
+TEST(raw_connection, send_data_from_server) {
+  wn::testing::allocator allocator;
+  log_buff buffer(&allocator);
+  buffer_logger logger(&buffer);
+  WNLogging::WNLog log(&logger);
+
+  wn::multi_tasking::thread_job_pool pool(&allocator, 2);
+  {
+    wn::multi_tasking::semaphore final_semaphore;
+    wn::multi_tasking::semaphore listen_started;
+    wn::multi_tasking::semaphore wait_for_done;
+
+    wn::networking::WNConcreteNetworkManager manager(&allocator, &pool, &log);
+
+    pool.add_job(wn::multi_tasking::make_job(&allocator, [&]() {
+      {
+        auto listen_socket =
+            manager.listen_remote_sync(wn::networking::ip_protocol::ipv4, 8080);
+        listen_started.notify();
+        auto accepted_socket = listen_socket->accept_sync();
+        ASSERT_NE(nullptr, accepted_socket);
+        wn::containers::string my_str("hello_world", &allocator);
+        accepted_socket->send_sync({{my_str.data(), my_str.length()}});
+      }
+      wait_for_done.notify();
+    }));
+
+    pool.add_job(wn::multi_tasking::make_job(&allocator, [&]() {
+      {
+        listen_started.wait();
+        auto connect_socket = manager.connect_remote_sync(
+            "127.0.0.1", wn::networking::ip_protocol::ipv4, 8080, nullptr);
+        ASSERT_NE(nullptr, connect_socket);
+        auto buff = connect_socket->recv_sync();
+        ASSERT_EQ(wn::networking::network_error::ok, buff.get_status());
+        ASSERT_EQ("hello_world",
+            wn::containers::string(buff.data.data(), buff.data.size()));
+      }
+      wait_for_done.notify();
+    }));
+
+    wait_for_done.wait();
+    wait_for_done.wait();
+  }
+}
+
+TEST(raw_connection, send_data_from_client) {
+  wn::testing::allocator allocator;
+  log_buff buffer(&allocator);
+  buffer_logger logger(&buffer);
+  WNLogging::WNLog log(&logger);
+
+  wn::multi_tasking::thread_job_pool pool(&allocator, 2);
+  {
+    wn::multi_tasking::semaphore final_semaphore;
+    wn::multi_tasking::semaphore listen_started;
+    wn::multi_tasking::semaphore wait_for_done;
+
+    wn::networking::WNConcreteNetworkManager manager(&allocator, &pool, &log);
+
+    pool.add_job(wn::multi_tasking::make_job(&allocator, [&]() {
+      {
+        auto listen_socket =
+            manager.listen_remote_sync(wn::networking::ip_protocol::ipv4, 8080);
+        listen_started.notify();
+        auto accepted_socket = listen_socket->accept_sync();
+        ASSERT_NE(nullptr, accepted_socket);
+        auto buff = accepted_socket->recv_sync();
+        ASSERT_EQ(wn::networking::network_error::ok, buff.get_status());
+        ASSERT_EQ("hello_world",
+            wn::containers::string(buff.data.data(), buff.data.size()));
+      }
+      wait_for_done.notify();
+    }));
+
+    pool.add_job(wn::multi_tasking::make_job(&allocator, [&]() {
+      {
+        listen_started.wait();
+        auto connect_socket = manager.connect_remote_sync(
+            "127.0.0.1", wn::networking::ip_protocol::ipv4, 8080, nullptr);
+        ASSERT_NE(nullptr, connect_socket);
+        wn::containers::string my_str("hello_world", &allocator);
+        connect_socket->send_sync({{my_str.data(), my_str.length()}});
+      }
+      wait_for_done.notify();
+    }));
+
+    wait_for_done.wait();
+    wait_for_done.wait();
+  }
+}
+
 INSTANTIATE_TEST_CASE_P(all_ip_types, connection_tests,
-    ::testing::Values(wn::networking::ip_protocol::ipv4,
-                            wn::networking::ip_protocol::ipv6));
+    ::testing::Values(
+        wn::networking::ip_protocol::ipv4, wn::networking::ip_protocol::ipv6));

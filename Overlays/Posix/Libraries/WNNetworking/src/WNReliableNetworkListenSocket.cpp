@@ -84,7 +84,7 @@ WNReliableConnectListenSocket::accept_sync(network_error* _error) {
     return nullptr;
   }
   return memory::make_unique<WNReliableNetworkTransportSocket>(
-      m_allocator, m_allocator, accepted);
+      m_allocator, m_allocator, accepted, m_manager);
 }
 
 }  // namespace networking

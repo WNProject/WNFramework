@@ -9,13 +9,14 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <sys/uio.h>
 
 namespace wn {
 namespace networking {
 
-network_error WNReliableNetworkTransportSocket::connect_to(WNLogging::WNLog* _log,
-    const containers::string_view& target, uint32_t _connection_type,
-    uint16_t _port) {
+network_error WNReliableNetworkTransportSocket::connect_to(
+    WNLogging::WNLog* _log, const containers::string_view& target,
+    uint32_t _connection_type, uint16_t _port) {
   char port_array[11] = {0};
   memory::writeuint32(port_array, _port, 10);
 
@@ -54,5 +55,51 @@ network_error WNReliableNetworkTransportSocket::connect_to(WNLogging::WNLog* _lo
   }
   return network_error::ok;
 }
+
+network_error WNReliableNetworkTransportSocket::do_send(
+    const containers::contiguous_range<const send_buffer*>& buffers) {
+  iovec* send_buffers =
+      static_cast<iovec*>(WN_STACK_ALLOC(sizeof(iovec) * buffers.size()));
+
+  size_t total_bytes = 0;
+  for (size_t i = 0; i < buffers.size(); ++i) {
+    total_bytes += buffers[i]->size;
+    send_buffers[i].iov_base = const_cast<void*>(buffers[i]->data);
+    send_buffers[i].iov_len = buffers[i]->size;
+  }
+
+  msghdr header = {nullptr,  // msg_name
+      0,                     // msg_namelen
+      send_buffers,          // msg_iov
+      buffers.size(),        // msg_iovlen
+      nullptr,               // msg_control
+      0,                     //  msg_controllen
+      0};
+
+  size_t num_sent = 0;
+  if (0 > (num_sent = sendmsg(m_sock_fd, &header, 0))) {
+    return network_error::could_not_send;
+  }
+  if (num_sent != total_bytes) {
+    return network_error::could_not_send;
+    close(m_sock_fd);
+    m_sock_fd = -1;
+  }
+  return network_error::ok;
+}
+
+WNReceiveBuffer WNReliableNetworkTransportSocket::recv_sync() {
+  WNReceiveBuffer buffer(get_receieve_buffer());
+  ssize_t received = 0;
+  if (0 >=
+      (received = recv(m_sock_fd, buffer.data.data(), buffer.data.size(), 0))) {
+    return WNReceiveBuffer(network_error::could_not_receive);
+  }
+  buffer.data =
+      containers::contiguous_range<char>(buffer.data.data(), received);
+
+  return core::move(buffer);
+}
+
 }  // namespace networking
 }  // wn

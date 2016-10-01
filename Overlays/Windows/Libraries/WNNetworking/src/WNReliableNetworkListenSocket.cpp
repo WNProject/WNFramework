@@ -69,16 +69,16 @@ WNReliableConnectListenSocket::accept_sync(network_error *_error) {
   network_error tmp;
   _error = _error ? _error : &tmp;
   *_error = network_error::ok;
-  sockaddr_in accepted_client;
-  int client_size = sizeof(sockaddr_in);
-  SOCKET accepted = WSAAccept(m_socket, (SOCKADDR *)&accepted_client,
-                              &client_size, nullptr, NULL);
+  char accept_addr[64] = {0};
+  int client_size = 64;
+  SOCKET accepted =
+      WSAAccept(m_socket, (SOCKADDR*)&accept_addr, &client_size, nullptr, NULL);
   if (INVALID_SOCKET == accepted) {
     *_error = network_error::invalid_parameters;
     return nullptr;
   }
   return memory::make_unique<WNReliableNetworkTransportSocket>(
-      m_allocator, m_allocator, accepted);
+      m_allocator, m_allocator, accepted, m_manager);
 }
 
 } // namespace networking

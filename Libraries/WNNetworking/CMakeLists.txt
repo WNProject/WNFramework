@@ -5,7 +5,8 @@ add_wn_library(WNNetworking
   inc/WNNetworkingErrors.h
   inc/WNNetworkManager.h
   inc/WNReliableConnection.h
-  src/WNNetworkManager.cpp
+  inc/WNReceiveBuffer.h
+  src/WNReceiveBuffer.cpp
 )
 
 add_subdirectory(test)

@@ -13,7 +13,9 @@ namespace networking {
 enum class network_error {
 #include "WNCore/inc/Internal/WNErrors.inc"
   could_not_bind,
-  could_not_resolve
+  could_not_resolve,
+  could_not_send,
+  could_not_receive
 };
 
 }  // namespace networking

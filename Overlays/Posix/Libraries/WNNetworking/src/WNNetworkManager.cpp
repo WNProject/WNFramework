@@ -3,8 +3,8 @@
 // found in the LICENSE.txt file.
 
 #include "WNNetworking/inc/WNNetworkManager.h"
-#include "WNNetworking/inc/WNReliableNetworkTransportSocket.h"
 #include "WNNetworking/inc/WNReliableNetworkListenSocket.h"
+#include "WNNetworking/inc/WNReliableNetworkTransportSocket.h"
 
 #include <sys/socket.h>
 
@@ -27,7 +27,7 @@ WNConcreteNetworkManager::listen_remote_sync(
   network_error tmp;
   _error = _error ? _error : &tmp;
   auto socket = memory::make_unique<WNReliableConnectListenSocket>(
-      m_allocator, m_allocator);
+      m_allocator, m_allocator, this);
   if (network_error::ok !=
       (*_error = socket->initialize(
            m_log, PROTOCOL_MAPPING[static_cast<uint32_t>(protocol)], _port))) {
@@ -43,7 +43,7 @@ WNConcreteNetworkManager::connect_remote_sync(
   network_error tmp;
   _error = _error ? _error : &tmp;
   auto socket = memory::make_unique<WNReliableNetworkTransportSocket>(
-      m_allocator, m_allocator);
+      m_allocator, m_allocator, this);
   if (network_error::ok !=
       (*_error = socket->connect_to(m_log, _target,
            PROTOCOL_MAPPING[static_cast<uint32_t>(protocol)], _port))) {
