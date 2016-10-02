@@ -89,7 +89,7 @@ network_error WNReliableNetworkTransportSocket::do_send(
 }
 
 WNReceiveBuffer WNReliableNetworkTransportSocket::recv_sync() {
-  WNReceiveBuffer buffer(get_receieve_buffer());
+  WNReceiveBuffer buffer(m_manager->acquire_buffer());
   ssize_t received = 0;
   if (0 >=
       (received = recv(m_sock_fd, buffer.data.data(), buffer.data.size(), 0))) {

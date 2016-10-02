@@ -71,7 +71,7 @@ network_error WNReliableNetworkTransportSocket::do_send(
 }
 
 WNReceiveBuffer WNReliableNetworkTransportSocket::recv_sync() {
-  WNReceiveBuffer buffer(get_receieve_buffer());
+  WNReceiveBuffer buffer(m_manager->acquire_buffer());
 
   WSABUF recv_buff{static_cast<ULONG>(buffer.data.size()), buffer.data.data()};
   DWORD recieved = 0;

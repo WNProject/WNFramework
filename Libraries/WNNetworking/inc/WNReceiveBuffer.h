@@ -14,6 +14,17 @@ namespace wn {
 namespace networking {
 
 class WNNetworkManager;
+class WNReceiveBuffer;
+class WNBufferManager {
+public:
+  virtual ~WNBufferManager() {}
+  virtual void release_buffer(const void* _token) = 0;
+  virtual WNReceiveBuffer acquire_buffer() = 0;
+
+protected:
+  WNReceiveBuffer construct_buffer(
+      const void* _token, const containers::contiguous_range<char>& _data);
+};
 
 class WNReceiveBuffer {
 public:
@@ -42,16 +53,16 @@ public:
   }
 
 private:
-  WNReceiveBuffer(const void* _token, WNNetworkManager* _manager,
+  WNReceiveBuffer(const void* _token, WNBufferManager* _manager,
       const containers::contiguous_range<char>& _data)
     : m_token(_token),
       m_owner(_manager),
       data(_data),
       m_error(network_error::ok) {}
   const void* m_token;
-  WNNetworkManager* m_owner;
+  WNBufferManager* m_owner;
   network_error m_error;
-  friend class WNNetworkManager;
+  friend class WNBufferManager;
 };
 
 }  // namespace networking

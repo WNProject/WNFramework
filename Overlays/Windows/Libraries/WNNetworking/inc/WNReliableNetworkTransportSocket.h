@@ -17,11 +17,11 @@ namespace networking {
 class WNReliableNetworkTransportSocket: public WNReliableConnection {
 public:
   WNReliableNetworkTransportSocket(
-      memory::allocator* _allocator, WNNetworkManager* _manager)
+      memory::allocator* _allocator, WNBufferManager* _manager)
     : WNReliableConnection(_allocator, _manager), m_socket(INVALID_SOCKET) {}
 
   WNReliableNetworkTransportSocket(
-      memory::allocator* _allocator, SOCKET _socket, WNNetworkManager* _manager)
+      memory::allocator* _allocator, SOCKET _socket, WNBufferManager* _manager)
     : WNReliableConnection(_allocator, _manager), m_socket(_socket) {}
 
   network_error connect_to(WNLogging::WNLog *_log,

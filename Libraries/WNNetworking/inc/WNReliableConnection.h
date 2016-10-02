@@ -26,8 +26,7 @@ struct send_buffer {
 
 class WNReliableConnection {
 public:
-  WNReliableConnection(
-      memory::allocator* _allocator, WNNetworkManager* _manager)
+  WNReliableConnection(memory::allocator* _allocator, WNBufferManager* _manager)
     : m_allocator(_allocator), m_manager(_manager) {}
 
   virtual ~WNReliableConnection() {}
@@ -53,17 +52,16 @@ public:
   virtual WNReceiveBuffer recv_sync() = 0;
 
 protected:
-  WNReceiveBuffer get_receieve_buffer();
   virtual network_error do_send(
       const containers::contiguous_range<const send_buffer*>& buffers) = 0;
-  WNNetworkManager* m_manager;
+  WNBufferManager* m_manager;
   memory::allocator* m_allocator;
 };
 
 class WNReliableAcceptConnection {
 public:
   WNReliableAcceptConnection(
-      memory::allocator* _allocator, WNNetworkManager* _manager)
+      memory::allocator* _allocator, WNBufferManager* _manager)
     : m_allocator(_allocator), m_manager(_manager) {}
 
   virtual ~WNReliableAcceptConnection() {}
@@ -72,7 +70,7 @@ public:
       network_error* _error = nullptr) = 0;
 
 protected:
-  WNNetworkManager* m_manager;
+  WNBufferManager* m_manager;
   memory::allocator* m_allocator;
 };
 

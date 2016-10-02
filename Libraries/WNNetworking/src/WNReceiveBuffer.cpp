@@ -16,8 +16,9 @@ WNReceiveBuffer::~WNReceiveBuffer() {
   }
 }
 
-WNReceiveBuffer WNReliableConnection::get_receieve_buffer() {
-  return m_manager->acquire_buffer();
+WNReceiveBuffer WNBufferManager::construct_buffer(
+    const void* _token, const containers::contiguous_range<char>& _data) {
+  return WNReceiveBuffer(_token, this, _data);
 }
 
 }  // namespace networking

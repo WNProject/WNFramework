@@ -19,7 +19,7 @@ public:
   network_error initialize(WNLogging::WNLog *_log, int _protocol,
                            uint16_t _port);
   WNReliableConnectListenSocket(
-      memory::allocator* _allocator, WNNetworkManager* _manager)
+      memory::allocator* _allocator, WNBufferManager* _manager)
     : WNReliableAcceptConnection(_allocator, _manager),
       m_socket(INVALID_SOCKET) {}
   ~WNReliableConnectListenSocket() {
