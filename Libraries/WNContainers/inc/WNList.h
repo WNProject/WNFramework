@@ -15,7 +15,7 @@
 namespace wn {
 namespace containers {
 
-template <typename _Type, typename _Allocator = memory::basic_allocator>
+template <typename _Type, typename _Allocator = memory::allocator>
 class list;
 
 template <typename _NodeType, typename _ValueType>

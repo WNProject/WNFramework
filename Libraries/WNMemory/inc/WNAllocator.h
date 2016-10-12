@@ -128,6 +128,11 @@ public:
     return allocated() == deallocated();
   }
 
+  WN_FORCE_INLINE std::unordered_map<void*, size_t> current_allocations()
+      const {
+    return m_elements;
+  }
+
 private:
   WN_FORCE_INLINE void notify_allocated(void* _ptr, const size_t _size) {
     const std::lock_guard<std::mutex> guard(m_lock);
