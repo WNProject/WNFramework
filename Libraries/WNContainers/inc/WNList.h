@@ -137,7 +137,6 @@ public:
   using pointer = _Type*;
   using const_pointer = const _Type*;
 
-public:
   using iterator = list_iterator<list_node, _Type>;
   using const_iterator = list_iterator<list_node, const _Type>;
   using reverse_iterator = std::reverse_iterator<iterator>;
@@ -272,7 +271,7 @@ public:
   }
 
   template <typename _U,
-    typename = core::enable_if_t<core::is_same<_Type, _U>::value>>
+      typename = core::enable_if_t<core::is_same<_Type, _U>::value>>
   iterator insert(const_iterator _it, const _U& _element) {
     list_node* new_node = m_allocator->construct<list_node>(_element);
     return (link(_it, new_node));
@@ -285,7 +284,7 @@ public:
   }
 
   template <typename _U,
-    typename = core::enable_if_t<core::is_same<_Type, _U>::value>>
+      typename = core::enable_if_t<core::is_same<_Type, _U>::value>>
   void push_back(const _U& _element) {
     insert(end(), _element);
   }

@@ -21,10 +21,42 @@ template <typename T>
 class object_pool;
 
 template <typename T>
+class unmanaged_object final {
+public:
+  unmanaged_object(unmanaged_object&& _other) {
+    it = _other.it;
+  }
+
+  unmanaged_object(const unmanaged_object& _other) : it(_other.it) {}
+
+  T& operator*() {
+    return *it;
+  }
+  T* operator->() {
+    return &(*it);
+  }
+
+  const T& operator*() const {
+    return *it;
+  }
+
+  const T* operator->() const {
+    return &(*it);
+  }
+
+private:
+  template <typename F>
+  friend class object_pool;
+
+  explicit unmanaged_object(typename containers::list<T>::iterator _it)
+    : it(_it) {}
+  typename containers::list<T>::iterator it;
+};
+
+template <typename T>
 class pooled_object final {
 public:
-  pooled_object(pooled_object&& _other) {
-    m_it = _other.m_it;
+  pooled_object(pooled_object&& _other) : m_val(core::move(_other.m_val)) {
     _other.m_valid = false;
     m_pool = _other.m_pool;
   }
@@ -32,30 +64,29 @@ public:
   ~pooled_object();
 
   T& operator*() {
-    return *m_it;
+    return *m_val;
   }
   T* operator->() {
-    return &(*m_it);
+    return &(*m_val);
   }
 
   const T& operator*() const {
-    return *m_it;
+    return *m_val;
   }
 
   const T* operator->() const {
-    return &(*m_it);
+    return &(*m_val);
   }
 
 private:
   template <typename F>
   friend class object_pool;
 
-  explicit pooled_object(
-      typename containers::list<T>::iterator _it, object_pool<T>* _pool)
-    : m_valid(true), m_it(_it), m_pool(_pool) {}
+  explicit pooled_object(unmanaged_object<T>&& _val, object_pool<T>* _pool)
+    : m_valid(true), m_val(core::move(_val)), m_pool(_pool) {}
 
   bool m_valid;
-  typename containers::list<T>::iterator m_it;
+  unmanaged_object<T> m_val;
   object_pool<T>* m_pool;
 };
 
@@ -83,7 +114,7 @@ private:
   };
 
 public:
-  using unmanaged_object = typename containers::list<T>::iterator;
+  using unmanaged_object_t = unmanaged_object<T>;
   object_pool(memory::allocator* _allocator,
       containers::function<T()> _create_function,
       containers::function<void(T*)> _reset_function)
@@ -97,8 +128,8 @@ public:
     : object_pool(_allocator, copyable_object(object_template),
           resettable_object(object_template)) {}
 
-  unmanaged_object get_unmanaged();
-  void release_unamanged(unmanaged_object object);
+  unmanaged_object_t get_unmanaged();
+  void release_unmanaged(unmanaged_object_t& object);
 
   pooled_object<T> get_object();
 
@@ -112,26 +143,30 @@ private:
 };
 
 template <typename T>
-typename object_pool<T>::unmanaged_object object_pool<T>::get_unmanaged() {
+typename object_pool<T>::unmanaged_object_t object_pool<T>::get_unmanaged() {
   multi_tasking::lock_guard<multi_tasking::mutex> guard(m_lock);
+  auto ret_iter = m_free_list.begin();
   if (!m_free_list.empty()) {
     auto val = m_free_list.begin();
     m_free_list.transfer_to(
         m_free_list.begin(), m_used_list.end(), m_used_list);
-    auto obj_iter = m_used_list.end() - 1;
-    m_reset_function(&(*obj_iter));
-    return obj_iter;
+    ret_iter = m_used_list.end() - 1;
+    m_reset_function(&(*ret_iter));
   } else {
     m_used_list.push_back(m_create_function());
-    return m_used_list.end() - 1;
+    ret_iter = m_used_list.end() - 1;
   }
+  return unmanaged_object_t(ret_iter);
 }
 
+// We will take advantage of the fact that we know
+// that unmanaged_object is a T*. Furthermore it is
+// a T* that lives within a linked-list node.
 template <typename T>
-void object_pool<T>::release_unamanged(
-    typename object_pool<T>::unmanaged_object obj) {
+void object_pool<T>::release_unmanaged(
+    typename object_pool<T>::unmanaged_object_t& obj) {
   multi_tasking::lock_guard<multi_tasking::mutex> guard(m_lock);
-  m_used_list.transfer_to(obj, m_free_list.end(), m_free_list);
+  m_used_list.transfer_to(obj.it, m_free_list.end(), m_free_list);
 }
 
 template <typename T>
@@ -142,7 +177,7 @@ pooled_object<T> object_pool<T>::get_object() {
 template <typename T>
 pooled_object<T>::~pooled_object() {
   if (m_valid) {
-    m_pool->release_unamanged(m_it);
+    m_pool->release_unmanaged(m_val);
   }
 }
 
