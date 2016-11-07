@@ -15,6 +15,7 @@
 #include "WNCore/inc/WNUtility.h"
 #include "WNMultiTasking/inc/WNCallbackTask.h"
 #include "WNMultiTasking/inc/WNThread.h"
+#include "WNMultiTasking/inc/WNSynchronized.h"
 #include "WNMultiTasking/inc/WNThreadPool.h"
 
 namespace wn {
@@ -22,39 +23,40 @@ namespace multi_tasking {
 
 class job_pool;
 
-class job_signal : core::non_copyable {
-public:
-  // If this is created from within a task, then
-  // use this constructor, it will handle the
-  // job pool for you.
-  explicit job_signal(size_t _value);
-  // If this is created with the default constructor,
-  // it is unassigned to any job pool.
-  job_signal();
-  // If you are creating this from outside of a
-  // job, use this job_signal.
-  job_signal(job_pool* _pool, size_t _value) : pool(_pool), value(_value) {}
-
-  void initialize_signal(job_pool* pool, size_t _value);
-  void increment(size_t _value);
-  void decrement(size_t _value);
-  void set(size_t _value);
-  void wait_until(size_t _value);
-
-private:
-  std::atomic<size_t> value;
-  job_pool* pool;
-  friend class thread_job_pool;
-  friend class job_pool;
-};
-
 using job = callback_task<void>;
-typedef memory::intrusive_ptr<job> job_ptr;
+using job_ptr = memory::intrusive_ptr<job>;
 
-template <typename... Args>
+template <typename T, typename... Args>
 WN_FORCE_INLINE job_ptr make_job(
-    memory::allocator* _allocator, Args&&... _args) {
-  return memory::make_intrusive<job>(_allocator, core::forward<Args>(_args)...);
+    memory::allocator* _allocator, T&& func, Args&&... _args) {
+  // TODO(awoloszyn) Add more data to job such that we can
+  // detect this more easily.
+  return memory::make_intrusive<job>(
+      _allocator, std::bind(func, core::forward<Args>(_args)...));
+}
+
+template <typename T, typename... Args>
+WN_FORCE_INLINE
+    typename core::enable_if<wn::multi_tasking::is_synchronized<T>::type::value,
+        job_ptr>::type
+    make_job(memory::allocator* _allocator, T* _c, void (T::*fn)(Args...),
+        Args&&... _args) {
+  // TODO(awoloszyn) Add more data to job such that we can
+  // detect this more easily, and, instead of wrapping the job,
+  // put it directly into the sleep state.
+  synchronization_data* data = _c->get_synchronization_data();
+  containers::function<void()>* func =
+      _allocator->construct<containers::function<void()>>(
+          std::bind(fn, _c, core::forward<Args>(_args)...));
+  size_t wait_value =
+      data->next_job.fetch_add(1, std::memory_order::memory_order_release);
+  return memory::make_intrusive<job>(
+      _allocator, [_allocator, wait_value, data, func]() {
+        data->signal.wait_until(wait_value);
+        (*func)();
+        _allocator->destroy(func);
+        data->signal.increment(1);
+      });
 }
 
 // T must either be a thread or a fiber.
@@ -67,7 +69,6 @@ WN_FORCE_INLINE job_ptr make_job(
 // 2) Any job that has not been started is next.
 // 3) Jobs are restarted in the order that they
 //    become unblocked.
-static WN_THREAD_LOCAL job_pool* tl_this_job_pool = 0;
 class job_pool : public core::non_copyable {
 public:
   // This exists just to ensure that all subclasses provide a
@@ -131,7 +132,10 @@ public:
     notify_signalled(_signal, new_value);
   }
 
+  static job_pool* this_job_pool();
+
 protected:
+  static void set_this_job_pool(job_pool* _pool);
   memory::allocator* m_allocator;
 
 private:
@@ -142,36 +146,6 @@ private:
   virtual void move_to_ready() = 0;
   friend class job_signal;
 };
-
-job_signal::job_signal(size_t _value) {
-  value = _value;
-  pool = tl_this_job_pool;
-}
-
-job_signal::job_signal() : value(0), pool(nullptr) {}
-
-void job_signal::initialize_signal(job_pool* _pool, size_t _value) {
-  WN_DEBUG_ASSERT_DESC(
-      pool == nullptr, "You cannot initialize a job_signal twice");
-  pool = _pool;
-  value.exchange(_value);
-}
-
-void job_signal::increment(size_t _value) {
-  pool->increment_signal(this, _value);
-}
-
-void job_signal::decrement(size_t _value) {
-  pool->decrement_signal(this, _value);
-}
-
-void job_signal::set(size_t _value) {
-  pool->update_signal(this, _value);
-}
-
-void job_signal::wait_until(size_t _value) {
-  pool->block_job_until(this, _value);
-}
 
 struct thread_data {
   thread_data() {}
@@ -189,8 +163,6 @@ struct thread_data {
                                   // signaled when we are no longer
                                   // blocked and should continue.
 };
-
-WN_THREAD_LOCAL thread_data* tl_this_thread;
 
 // This constructs a job_pool that is backed by threads.
 // Any time a thread blocks, a new thread may be spun up to replace it.
@@ -231,8 +203,15 @@ public:
   }
 
   ~thread_job_pool() {
+    join();
+  }
+
+  void join() {
     {
       spin_lock_guard guard(m_thread_lock);
+      if (m_shutdown) {
+        return;
+      }
       m_shutdown = true;
     }
     for (size_t i = 0; i < m_max_active_threads; ++i) {
@@ -262,7 +241,11 @@ public:
   }
 
 private:
+  static thread_data* this_thread();
+  static void set_this_thread(thread_data*);
+
   void block_job(job_signal* _signal, size_t _value) override {
+    thread_data* self_thread = this_thread();
     {
       spin_lock_guard guard(m_thread_lock);
       if (_signal->value == _value) {
@@ -273,7 +256,7 @@ private:
           containers::make_pair(containers::make_pair(_signal, _value),
               containers::list<thread_data>(m_allocator)));
 
-      m_active_threads.transfer_to(tl_this_thread->m_current_position,
+      m_active_threads.transfer_to(self_thread->m_current_position,
           list.first->second.end(), list.first->second);
 
       (list.first->second.end() - 1)->m_current_position =
@@ -296,12 +279,12 @@ private:
                 &(*(m_active_threads.end() - 1))));
       }
     }
-    tl_this_thread->m_blocked_semaphore.wait();
+    self_thread->m_blocked_semaphore.wait();
     // Make sure that memory is coherent again.
     _signal->value.load(std::memory_order_acquire);
   }
 
-  void notify_blocking() {
+  void notify_blocking() override {
     {
       spin_lock_guard guard(m_thread_lock);
       if (!m_dormant_threads.empty()) {
@@ -323,17 +306,18 @@ private:
     }
   }
 
-  void move_to_ready() {
+  void move_to_ready() override {
     {
+      thread_data* self_thread = this_thread();
       {
         spin_lock_guard guard(m_thread_lock);
-        m_active_threads.transfer_to(tl_this_thread->m_current_position,
+        m_active_threads.transfer_to(self_thread->m_current_position,
             m_pending_threads.end(), m_pending_threads);
         (m_pending_threads.end() - 1)->m_current_position =
             m_pending_threads.end() - 1;
         m_thread_pool.wake_waiting_thread();
       }
-      tl_this_thread->m_blocked_semaphore.wait();
+      self_thread->m_blocked_semaphore.wait();
     }
   }
 
@@ -366,8 +350,8 @@ private:
   }
 
   void thread_function(thread_data* _data) {
-    tl_this_job_pool = this;
-    tl_this_thread = _data;
+    set_this_job_pool(this);
+    set_this_thread(_data);
     for (;;) {
       if (!m_thread_pool.process_single_task()) {
         // We were kicked from processing a single task.

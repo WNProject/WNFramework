@@ -3,6 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "WNMultiTasking/inc/WNJobPool.h"
+#include "WNMemory/inc/WNUniquePtr.h"
 #include "WNTesting/inc/WNTestHarness.h"
 
 void job(int32_t* _val) {
@@ -197,5 +198,46 @@ TEST(job_pool, blocking_call_async) {
 
       last_wait.wait();
     }
+  }
+}
+
+struct synchronized_object : public wn::multi_tasking::synchronized<> {
+  void increment_number(wn::multi_tasking::semaphore* sem) {
+    volatile uint32_t n = number;
+    // wn::multi_tasking::this_thread::sleep_for(std::chrono::milliseconds(1));
+    number = n + 1;
+    sem->notify();
+  }
+  uint32_t number = 0;
+};
+
+TEST(job_pool, synchronizing_test) {
+  wn::memory::basic_allocator m_allocator;
+  wn::multi_tasking::semaphore sem;
+  const uint32_t NUM_JOBS = 1000;
+  {
+    wn::memory::unique_ptr<synchronized_object> obj;
+    // Create a pile of threads, because in reality only one should be
+    // active at any given time.
+    wn::multi_tasking::thread_job_pool pool(&m_allocator, 30);
+    // A bit of strangeness here, only because synchronized objects
+    // are expected to be created inside jobs.
+    pool.add_job(
+        wn::multi_tasking::make_job(&m_allocator, [&m_allocator, &obj, &sem]() {
+          obj = wn::memory::make_unique<synchronized_object>(&m_allocator);
+          sem.notify();
+        }));
+    sem.wait();
+    for (size_t i = 0; i < NUM_JOBS; ++i) {
+      pool.add_job(wn::multi_tasking::make_job(&m_allocator, obj.get(),
+          &synchronized_object::increment_number, &sem));
+    }
+
+    for (size_t i = 0; i < NUM_JOBS; ++i) {
+      sem.wait();
+    }
+
+    pool.join();
+    EXPECT_EQ(obj->number, NUM_JOBS);
   }
 }

@@ -8,11 +8,15 @@ add_wn_library(WNMultiTasking
     inc/WNFiber.h
     src/WNFiber.cpp
     inc/WNJobPool.h
+    src/WNJobPool.cpp
+    inc/WNJobSignal.h
+    src/WNJobSignal.cpp
     inc/WNLockGuard.h
     inc/WNMutex.h
     inc/WNSemaphore.h
     inc/WNSharedMutex.h
     inc/WNSpinLock.h
+    inc/WNSynchronized.h
     inc/WNThread.h
     src/WNThread.cpp
     inc/WNThreadPool.h

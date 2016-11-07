@@ -8,6 +8,7 @@ wn_create_tests_from_list(TEST_PREFIX WNMultiTasking
     WNSemaphore
     WNThreadPool
     WNThread
+    WNSynchronized
 )
 
 if (WN_PLATFORM STREQUAL "Android")
