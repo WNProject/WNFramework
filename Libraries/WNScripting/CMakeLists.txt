@@ -11,6 +11,13 @@ if(WN_LLVM_TRIPLE)
   set(WN_LLVM_OVERRIDDEN_TRIPLE "WN_LLVM_OVERRIDDEN_TRIPLE")
 endif()
 
+set(WN_LLVM_SOURCE_DIR
+    ${WNFramework_SOURCE_DIR}/Externals/llvm
+    CACHE STRING "Location of the llvm source checkout"
+)
+
+file(TO_CMAKE_PATH ${WN_LLVM_SOURCE_DIR} LLVM_SOURCE_DIR_CMAKE_PATH)
+
 if (NOT LLVM_CONFIGURED)
   if(WN_LLVM_CXX_COMPILER)
     list(APPEND WN_LLVM_EXTRA_FLAGS
@@ -42,7 +49,7 @@ if (NOT LLVM_CONFIGURED)
     -DLLVM_INCLUDE_TESTS=OFF
     -DLLVM_ENABLE_ZLIB=OFF
     ${WN_LLVM_EXTRA_FLAGS}
-    -G ${CMAKE_GENERATOR} ${WNFramework_SOURCE_DIR}/Externals/llvm
+    -G ${CMAKE_GENERATOR} ${WN_LLVM_SOURCE_DIR}
     WORKING_DIRECTORY ${WNFramework_BINARY_DIR}/Externals/llvm
   )
   set(LLVM_CONFIGURED TRUE CACHE INTERNAL "llvm has been configured" FORCE)
@@ -110,7 +117,7 @@ add_wn_library(WNScripting
     ${WNScriptingLLVMLibs}
   INCLUDES
     ${CMAKE_SOURCE_DIR}/Externals/antlr
-    ${CMAKE_SOURCE_DIR}/Externals/llvm/include
+    ${LLVM_SOURCE_DIR_CMAKE_PATH}/include
     ${CMAKE_BINARY_DIR}/Externals/llvm/include
 )
 
