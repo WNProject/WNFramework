@@ -36,7 +36,7 @@ TEST_P(connection_tests, connection) {
 
     wn::networking::WNConcreteNetworkManager manager(&allocator, &pool, &log);
 
-    pool.add_job(wn::multi_tasking::make_job(&allocator, [&]() {
+    pool.add_job(wn::multi_tasking::make_job(&allocator, nullptr, [&]() {
       {
         auto listen_socket = manager.listen_remote_sync(GetParam(), 8080);
         listen_started.notify();
@@ -47,7 +47,7 @@ TEST_P(connection_tests, connection) {
       wait_for_done.notify();
     }));
 
-    pool.add_job(wn::multi_tasking::make_job(&allocator, [&]() {
+    pool.add_job(wn::multi_tasking::make_job(&allocator, nullptr, [&]() {
       {
         listen_started.wait();
         auto connect_socket = manager.connect_remote_sync(
@@ -78,7 +78,7 @@ TEST_P(connection_tests, connect_to_any) {
 
     wn::networking::WNConcreteNetworkManager manager(&allocator, &pool, &log);
 
-    pool.add_job(wn::multi_tasking::make_job(&allocator, [&]() {
+    pool.add_job(wn::multi_tasking::make_job(&allocator, nullptr, [&]() {
       {
         auto listen_socket = manager.listen_remote_sync(GetParam(), 8080);
         listen_started.notify();
@@ -89,7 +89,7 @@ TEST_P(connection_tests, connect_to_any) {
       wait_for_done.notify();
     }));
 
-    pool.add_job(wn::multi_tasking::make_job(&allocator, [&]() {
+    pool.add_job(wn::multi_tasking::make_job(&allocator, nullptr, [&]() {
       {
         listen_started.wait();
         auto connect_socket = manager.connect_remote_sync(
@@ -120,7 +120,7 @@ TEST(raw_connection, send_data_from_server) {
 
     wn::networking::WNConcreteNetworkManager manager(&allocator, &pool, &log);
 
-    pool.add_job(wn::multi_tasking::make_job(&allocator, [&]() {
+    pool.add_job(wn::multi_tasking::make_job(&allocator, nullptr, [&]() {
       {
         auto listen_socket =
             manager.listen_remote_sync(wn::networking::ip_protocol::ipv4, 8080);
@@ -133,7 +133,7 @@ TEST(raw_connection, send_data_from_server) {
       wait_for_done.notify();
     }));
 
-    pool.add_job(wn::multi_tasking::make_job(&allocator, [&]() {
+    pool.add_job(wn::multi_tasking::make_job(&allocator, nullptr, [&]() {
       {
         listen_started.wait();
         auto connect_socket = manager.connect_remote_sync(
@@ -166,7 +166,7 @@ TEST(raw_connection, send_data_from_client) {
 
     wn::networking::WNConcreteNetworkManager manager(&allocator, &pool, &log);
 
-    pool.add_job(wn::multi_tasking::make_job(&allocator, [&]() {
+    pool.add_job(wn::multi_tasking::make_job(&allocator, nullptr, [&]() {
       {
         auto listen_socket =
             manager.listen_remote_sync(wn::networking::ip_protocol::ipv4, 8080);
@@ -181,7 +181,7 @@ TEST(raw_connection, send_data_from_client) {
       wait_for_done.notify();
     }));
 
-    pool.add_job(wn::multi_tasking::make_job(&allocator, [&]() {
+    pool.add_job(wn::multi_tasking::make_job(&allocator, nullptr, [&]() {
       {
         listen_started.wait();
         auto connect_socket = manager.connect_remote_sync(

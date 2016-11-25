@@ -19,6 +19,10 @@ namespace multi_tasking {
 
 struct synchronization_data {
   synchronization_data() : signal(0) {}
+  size_t increment_job() {
+    return next_job.fetch_add(1, std::memory_order::memory_order_release);
+  }
+
   job_signal signal;
   std::atomic<size_t> next_job;
 };

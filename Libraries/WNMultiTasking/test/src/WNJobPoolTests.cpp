@@ -16,7 +16,7 @@ TEST(job_pool, simple_job) {
   {  // The only way to make sure a job_pool has finished all jobs
     // is to destroy it.
     wn::multi_tasking::thread_job_pool pool(&m_allocator, 1u);
-    pool.add_job(wn::multi_tasking::make_job(&m_allocator, &job, &x));
+    pool.add_job(wn::multi_tasking::make_job(&m_allocator, nullptr, &job, &x));
   }
   EXPECT_EQ(33, x);
 }
@@ -27,10 +27,10 @@ TEST(job_pool, simple_co_operative_jobs) {
   {  // The only way to make sure a job_pool has finished all jobs
     // is to destroy it.
     wn::multi_tasking::thread_job_pool pool(&m_allocator, 1u);
-    pool.add_job(wn::multi_tasking::make_job(&m_allocator, [&]() {
+    pool.add_job(wn::multi_tasking::make_job(&m_allocator, nullptr, [&]() {
       x = 33;
       wn::multi_tasking::job_signal my_signal(0);
-      pool.add_job(wn::multi_tasking::make_job(&m_allocator, [&]() {
+      pool.add_job(wn::multi_tasking::make_job(&m_allocator, nullptr, [&]() {
         x = 34;
         my_signal.set(1);
       }));
@@ -48,11 +48,11 @@ TEST(job_pool, multiple_base_threads) {
     // is to destroy it.
     // Run 100 tasks on 4 threads
     wn::multi_tasking::thread_job_pool pool(&m_allocator, 4u);
-    pool.add_job(wn::multi_tasking::make_job(&m_allocator, [&]() {
+    pool.add_job(wn::multi_tasking::make_job(&m_allocator, nullptr, [&]() {
       x.fetch_add(1);
       wn::multi_tasking::job_signal my_signal(0);
       for (size_t i = 0; i < 100; ++i) {
-        pool.add_job(wn::multi_tasking::make_job(&m_allocator, [&]() {
+        pool.add_job(wn::multi_tasking::make_job(&m_allocator, nullptr, [&]() {
           x.fetch_add(1);
           my_signal.increment(1);
         }));
@@ -72,11 +72,11 @@ TEST(job_pool, too_many_base_threads) {
     // is to destroy it.
     // Run 100 tasks on 120 threads
     wn::multi_tasking::thread_job_pool pool(&m_allocator, 120);
-    pool.add_job(wn::multi_tasking::make_job(&m_allocator, [&]() {
+    pool.add_job(wn::multi_tasking::make_job(&m_allocator, nullptr, [&]() {
       x.fetch_add(1);
       wn::multi_tasking::job_signal my_signal(0);
       for (size_t i = 0; i < 100; ++i) {
-        pool.add_job(wn::multi_tasking::make_job(&m_allocator, [&]() {
+        pool.add_job(wn::multi_tasking::make_job(&m_allocator, nullptr, [&]() {
           x.fetch_add(1);
           my_signal.increment(1);
         }));
@@ -95,12 +95,12 @@ TEST(job_pool, many_blocked_threads) {
   {  // The only way to make sure a job_pool has finished all jobs
     // is to destroy it.
     wn::multi_tasking::thread_job_pool pool(&m_allocator, 2);
-    pool.add_job(wn::multi_tasking::make_job(&m_allocator, [&]() {
+    pool.add_job(wn::multi_tasking::make_job(&m_allocator, nullptr, [&]() {
       x.fetch_add(1);
       wn::multi_tasking::job_signal my_signal(0);
       wn::multi_tasking::job_signal my_signal2(0);
       for (size_t i = 0; i < 100; ++i) {
-        pool.add_job(wn::multi_tasking::make_job(&m_allocator, [&]() {
+        pool.add_job(wn::multi_tasking::make_job(&m_allocator, nullptr, [&]() {
           x.fetch_add(1);
           my_signal.increment(1);
           my_signal.wait_until(200);  // All threads will block here.
@@ -129,7 +129,7 @@ TEST(job_pool, wake_job_from_main_thread) {
     // destroyed AFTER pool.
     wn::multi_tasking::thread_job_pool pool(&m_allocator, 1);
     my_signal.initialize_signal(&pool, 0);
-    pool.add_job(wn::multi_tasking::make_job(&m_allocator, [&]() {
+    pool.add_job(wn::multi_tasking::make_job(&m_allocator, nullptr, [&]() {
       my_signal.wait_until(100);
       x.fetch_add(1);
       EXPECT_EQ(33, x);
@@ -150,7 +150,7 @@ TEST(job_pool, blocking_call) {
       wn::multi_tasking::semaphore sem2;
       wn::multi_tasking::semaphore last_wait;
 
-      pool.add_job(wn::multi_tasking::make_job(&m_allocator, [&]() {
+      pool.add_job(wn::multi_tasking::make_job(&m_allocator, nullptr, [&]() {
         pool.call_blocking_function(wn::containers::function<void()>([&]() {
           sem2.notify();
           sem.wait();
@@ -158,8 +158,8 @@ TEST(job_pool, blocking_call) {
         }));
       }));
       sem2.wait();
-      pool.add_job(
-          wn::multi_tasking::make_job(&m_allocator, [&]() { sem.notify(); }));
+      pool.add_job(wn::multi_tasking::make_job(
+          &m_allocator, nullptr, [&]() { sem.notify(); }));
       last_wait.wait();
     }
   }
@@ -188,10 +188,10 @@ TEST(job_pool, blocking_call_async) {
 
       sem2.wait();
 
-      pool.add_job(
-          wn::multi_tasking::make_job(&m_allocator, [&]() { sem.notify(); }));
+      pool.add_job(wn::multi_tasking::make_job(
+          &m_allocator, nullptr, [&]() { sem.notify(); }));
 
-      pool.add_job(wn::multi_tasking::make_job(&m_allocator, [&]() {
+      pool.add_job(wn::multi_tasking::make_job(&m_allocator, nullptr, [&]() {
         my_signal.wait_until(1);
         last_wait.notify();
       }));
@@ -222,15 +222,52 @@ TEST(job_pool, synchronizing_test) {
     wn::multi_tasking::thread_job_pool pool(&m_allocator, 30);
     // A bit of strangeness here, only because synchronized objects
     // are expected to be created inside jobs.
-    pool.add_job(
-        wn::multi_tasking::make_job(&m_allocator, [&m_allocator, &obj, &sem]() {
+    pool.add_job(wn::multi_tasking::make_job(
+        &m_allocator, nullptr, [&m_allocator, &obj, &sem]() {
           obj = wn::memory::make_unique<synchronized_object>(&m_allocator);
           sem.notify();
         }));
     sem.wait();
     for (size_t i = 0; i < NUM_JOBS; ++i) {
-      pool.add_job(wn::multi_tasking::make_job(&m_allocator, obj.get(),
-          &synchronized_object::increment_number, &sem));
+      pool.add_job(wn::multi_tasking::make_job(&m_allocator, nullptr,
+          &synchronized_object::increment_number, obj.get(), &sem));
+    }
+
+    for (size_t i = 0; i < NUM_JOBS; ++i) {
+      sem.wait();
+    }
+
+    pool.join();
+    EXPECT_EQ(obj->number, NUM_JOBS);
+  }
+}
+
+struct non_synchronized_object {
+  void increment_number(wn::multi_tasking::semaphore* sem) {
+    number.fetch_add(1);
+    sem->notify();
+  }
+  std::atomic<uint32_t> number = {0};
+};
+
+TEST(job_pool, non_synchronizing_test) {
+  wn::memory::basic_allocator m_allocator;
+  wn::multi_tasking::semaphore sem;
+  const uint32_t NUM_JOBS = 1000;
+  {
+    wn::memory::unique_ptr<non_synchronized_object> obj;
+    wn::multi_tasking::thread_job_pool pool(&m_allocator, 30);
+    // A bit of strangeness here, only because synchronized objects
+    // are expected to be created inside jobs.
+    pool.add_job(wn::multi_tasking::make_job(
+        &m_allocator, nullptr, [&m_allocator, &obj, &sem]() {
+          obj = wn::memory::make_unique<non_synchronized_object>(&m_allocator);
+          sem.notify();
+        }));
+    sem.wait();
+    for (size_t i = 0; i < NUM_JOBS; ++i) {
+      pool.add_job(wn::multi_tasking::make_job(&m_allocator, nullptr,
+          &non_synchronized_object::increment_number, obj.get(), &sem));
     }
 
     for (size_t i = 0; i < NUM_JOBS; ++i) {

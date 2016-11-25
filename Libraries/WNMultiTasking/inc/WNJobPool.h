@@ -27,20 +27,32 @@ using job = callback_task<void>;
 using job_ptr = memory::intrusive_ptr<job>;
 
 template <typename T, typename... Args>
-WN_FORCE_INLINE job_ptr make_job(
-    memory::allocator* _allocator, T&& func, Args&&... _args) {
+WN_FORCE_INLINE job_ptr make_job(memory::allocator* _allocator,
+    job_signal* _signal, T&& func, Args&&... _args) {
   // TODO(awoloszyn) Add more data to job such that we can
   // detect this more easily.
-  return memory::make_intrusive<job>(
-      _allocator, std::bind(func, core::forward<Args>(_args)...));
+  if (!_signal) {
+    return memory::make_intrusive<job>(
+        _allocator, std::bind(func, core::forward<Args>(_args)...));
+  } else {
+    containers::function<void()>* fn =
+        _allocator->construct<containers::function<void()>>(
+            std::bind(func, core::forward<Args>(_args)...));
+
+    return memory::make_intrusive<job>(_allocator, [_allocator, fn, _signal]() {
+      (*fn)();
+      _allocator->destroy(fn);
+      _signal->increment(1);
+    });
+  }
 }
 
 template <typename T, typename... Args>
 WN_FORCE_INLINE
     typename core::enable_if<wn::multi_tasking::is_synchronized<T>::type::value,
         job_ptr>::type
-    make_job(memory::allocator* _allocator, T* _c, void (T::*fn)(Args...),
-        Args&&... _args) {
+    make_job(memory::allocator* _allocator, job_signal* _signal,
+        void (T::*fn)(Args...), T* _c, Args&&... _args) {
   // TODO(awoloszyn) Add more data to job such that we can
   // detect this more easily, and, instead of wrapping the job,
   // put it directly into the sleep state.
@@ -48,14 +60,16 @@ WN_FORCE_INLINE
   containers::function<void()>* func =
       _allocator->construct<containers::function<void()>>(
           std::bind(fn, _c, core::forward<Args>(_args)...));
-  size_t wait_value =
-      data->next_job.fetch_add(1, std::memory_order::memory_order_release);
+  size_t wait_value = data->increment_job();
   return memory::make_intrusive<job>(
-      _allocator, [_allocator, wait_value, data, func]() {
+      _allocator, [_allocator, wait_value, data, func, _signal]() {
         data->signal.wait_until(wait_value);
         (*func)();
         _allocator->destroy(func);
         data->signal.increment(1);
+        if (_signal) {
+          _signal->increment(1);
+        }
       });
 }
 
@@ -105,12 +119,19 @@ public:
   // when the call completes.
   void call_blocking_function_async(
       const containers::function<void()>& func, job_signal* _signal) {
-    add_job(wn::multi_tasking::make_job(m_allocator, [this, func, _signal]() {
-      notify_blocking();
-      func();
-      _signal->increment(1);
-      move_to_ready();
-    }));
+    add_job(wn::multi_tasking::make_job(
+        m_allocator, nullptr, [this, func, _signal]() {
+          notify_blocking();
+          func();
+          _signal->increment(1);
+          move_to_ready();
+        }));
+  }
+
+  template <typename T, typename... Args>
+  void call_async(job_signal* _signal, T&& t, Args&&... args) {
+    add_job(wn::multi_tasking::make_job(
+        m_allocator, _signal, t, std::forward<Args>(args)...));
   }
 
   void update_signal(job_signal* _signal, size_t _num) {
