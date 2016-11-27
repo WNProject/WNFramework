@@ -107,7 +107,7 @@ public:
     WN_RELEASE_ASSERT_DESC(m_callable && m_executor,
         "function must be valid in order to be executed");
 
-    return m_executor(&m_callable, _args...);
+    return m_executor(&m_callable, core::forward<Args>(_args)...);
   }
 
   WN_FORCE_INLINE void assign(const nullptr_t) {
@@ -152,7 +152,9 @@ private:
         m_callable, "failed to construct lambda/function object");
 
     m_executor = [](void* const* _f, Args... _args) -> R {
-      return ((*reinterpret_cast<F* const*>(_f))->operator()(_args...));
+      return ((*reinterpret_cast<F* const*>(_f))
+                  ->
+                  operator()(core::forward<Args>(_args)...));
     };
 
     m_copier = [](void* const* _f, void** _ptr) -> void {
@@ -176,7 +178,8 @@ private:
     m_callable = reinterpret_cast<void*>(static_cast<R (*)(Args...)>(_f));
 
     m_executor = [](void* const* _f, Args... _args) -> R {
-      return ((*reinterpret_cast<R (*const*)(Args...)>(_f))(_args...));
+      return ((*reinterpret_cast<R (*const*)(Args...)>(_f))(
+          core::forward<Args>(_args)...));
     };
 
     m_copier = [](void* const* _f, void** _ptr) -> void { (*_ptr) = (*_f); };

@@ -249,3 +249,24 @@ TEST(function, large_parameter_count) {
   EXPECT_TRUE(function1);
   EXPECT_EQ(function1(1.0f, 2.0, 3, 4, 5, 6, 7u, 8u, 9u, 10u, 11u, 12), -3);
 }
+
+struct foo {
+  foo(int _x) : x(_x) {}
+  foo(const foo&) = delete;
+  foo& operator=(const foo&) = delete;
+
+  foo(foo&& o) : x(o.x) {}
+  int32_t x;
+};
+
+using foo_func = wn::containers::function<int32_t(foo)>;
+
+TEST(function, non_copyable_parameter_test) {
+  auto f = foo_func([](foo f) { return f.x; });
+  EXPECT_EQ(5, f(foo(5)));
+
+  foo_func f2(f);
+  EXPECT_EQ(6, f2(foo(6)));
+
+  EXPECT_EQ(9, [&f]() { return f(foo(9)); }());
+}
