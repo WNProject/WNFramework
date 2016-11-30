@@ -13,8 +13,8 @@ namespace wn {
 namespace math {
 namespace internal {
 
-template <typename T, const size_t Columns, const size_t Rows = 1>
-using element_array = ${WN_MATH_ELEMENT_ARRAY_TYPE}<T, Columns, Rows>;
+template <typename T, const size_t Dimension>
+using element_array = ${WN_MATH_ELEMENT_ARRAY_TYPE}<T, Dimension>;
 
 }  // namespace internal
 }  // namespace math
