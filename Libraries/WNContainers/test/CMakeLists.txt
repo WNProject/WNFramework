@@ -12,4 +12,5 @@ wn_create_tests_from_list(TEST_PREFIX WNContainers
     WNString
     WNStringView
     WNTuple
+    WNUniqueFunction
 )

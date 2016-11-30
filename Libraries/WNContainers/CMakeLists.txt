@@ -17,6 +17,7 @@ add_wn_header_library(WNContainers
     inc/WNString.h
     inc/WNStringView.h
     inc/WNTuple.h
+    inc/WNUniqueFunction.h
 )
 
 add_subdirectory(test)
