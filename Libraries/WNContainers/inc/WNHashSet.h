@@ -124,15 +124,17 @@ public:
     m_map.empty();
   }
 
-  containers::pair<iterator, bool> insert(const value_type& element) {
+  core::pair<iterator, bool> insert(const value_type& element) {
     auto internal_pair = m_map.insert(element, empty_element());
-    return containers::make_pair(iterator(internal_pair.first), internal_pair.second);
+    return core::make_pair(
+        iterator(internal_pair.first), internal_pair.second);
   }
 
-  containers::pair<iterator, bool> insert(value_type&& element) {
+  core::pair<iterator, bool> insert(value_type&& element) {
     auto internal_pair = m_map.insert(std::move(
-        containers::make_pair(std::move(element), std::move(empty_element()))));
-    return containers::make_pair(iterator(internal_pair.first), internal_pair.second);
+        core::make_pair(std::move(element), std::move(empty_element()))));
+    return core::make_pair(
+        iterator(internal_pair.first), internal_pair.second);
   }
 
   iterator find(const key_type& key) {

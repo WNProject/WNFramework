@@ -40,7 +40,7 @@ static __FIBER_RESULT_TYPE WN_FIBER_CALL_BEGIN wrapper(
 }  // namespace anonymous
 
 void fiber::create(
-    const size_t _stack_size, containers::function<void()>&& _f) {
+    const size_t _stack_size, functional::function<void()>&& _f) {
   memory::unique_ptr<fiber_data> data(
       memory::make_unique<fiber_data>(m_allocator));
 

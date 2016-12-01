@@ -3,7 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "WNContainers/inc/WNHashMap.h"
-#include "WNContainers/inc/WNPair.h"
+#include "WNCore/inc/WNPair.h"
 #include "WNContainers/inc/WNString.h"
 #include "WNContainers/inc/WNStringView.h"
 #include "WNFileSystem/inc/WNFactory.h"
@@ -40,7 +40,7 @@ public:
 
 template <typename T>
 void RunMatcherTest(T& _t,
-    std::initializer_list<wn::containers::pair<wn::containers::string_view,
+    std::initializer_list<wn::core::pair<wn::containers::string_view,
         wn::containers::string_view>>
         _files,
     const char* _file, size_t* _num_warnings, size_t* _num_errors) {

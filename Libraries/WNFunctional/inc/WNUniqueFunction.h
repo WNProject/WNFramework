@@ -4,15 +4,15 @@
 
 #pragma once
 
-#ifndef __WN_CONTAINERS_UNIQUE_FUNCTION_H__
-#define __WN_CONTAINERS_UNIQUE_FUNCTION_H__
+#ifndef __WN_FUNCTIONAL_UNIQUE_FUNCTION_H__
+#define __WN_FUNCTIONAL_UNIQUE_FUNCTION_H__
 
 #include "WNCore/inc/WNAssert.h"
 #include "WNCore/inc/WNUtility.h"
 #include "WNMemory/inc/WNBasic.h"
 
 namespace wn {
-namespace containers {
+namespace functional {
 
 template <typename T>
 class unique_function final {};
@@ -184,7 +184,7 @@ WN_FORCE_INLINE bool operator!=(
   return (_f != nullptr);
 }
 
-}  // namespace containers
+}  // namespace functional
 }  // namespace wn
 
-#endif  // __WN_CONTAINERS_UNIQUE_FUNCTION_H__
+#endif  // __WN_FUNCTIONAL_UNIQUE_FUNCTION_H__

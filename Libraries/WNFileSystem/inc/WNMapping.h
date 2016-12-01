@@ -7,10 +7,10 @@
 #ifndef __WN_FILE_SYSTEM_MAPPING_H__
 #define __WN_FILE_SYSTEM_MAPPING_H__
 
-#include "WNContainers/inc/WNPair.h"
 #include "WNContainers/inc/WNStringView.h"
 #include "WNFileSystem/inc/WNFile.h"
 #include "WNFileSystem/inc/WNResult.h"
+#include "WNCore/inc/WNPair.h"
 #include "WNMemory/inc/WNUniquePtr.h"
 
 namespace wn {
@@ -39,7 +39,7 @@ public:
   virtual result delete_file(const containers::string_view _path) = 0;
 
   result initialize_files(std::initializer_list<
-      containers::pair<containers::string_view, containers::string_view>>
+      core::pair<containers::string_view, containers::string_view>>
           _files);
 
 protected:

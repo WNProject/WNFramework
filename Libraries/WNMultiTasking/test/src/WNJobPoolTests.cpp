@@ -151,7 +151,7 @@ TEST(job_pool, blocking_call) {
       wn::multi_tasking::semaphore last_wait;
 
       pool.add_job(wn::multi_tasking::make_job(&m_allocator, nullptr, [&]() {
-        pool.call_blocking_function(wn::containers::function<void()>([&]() {
+        pool.call_blocking_function(wn::functional::function<void()>([&]() {
           sem2.notify();
           sem.wait();
           last_wait.notify();
@@ -180,7 +180,7 @@ TEST(job_pool, blocking_call_async) {
       wn::multi_tasking::thread_job_pool pool(&m_allocator, 1);
       my_signal.initialize_signal(&pool, 0);
 
-      pool.call_blocking_function_async(wn::containers::function<void()>([&]() {
+      pool.call_blocking_function_async(wn::functional::function<void()>([&]() {
                                           sem2.notify();
                                           sem.wait();
                                         }),

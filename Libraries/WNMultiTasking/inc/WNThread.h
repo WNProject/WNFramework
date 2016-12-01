@@ -7,9 +7,9 @@
 #ifndef __WN_MULTI_TASKING_THREAD_H__
 #define __WN_MULTI_TASKING_THREAD_H__
 
-#include "WNContainers/inc/WNFunction.h"
 #include "WNCore/inc/WNTypeTraits.h"
 #include "WNCore/inc/WNUtility.h"
+#include "WNFunctional/inc/WNFunction.h"
 #include "WNMemory/inc/WNIntrusivePtr.h"
 #include "WNMultiTasking/inc/WNSemaphore.h"
 
@@ -105,7 +105,7 @@ public:
 
     WN_RELEASE_ASSERT_DESC(_allocator, "allocator must not be nullptr");
 
-    create(_allocator, containers::function<void()>(std::bind(
+    create(_allocator, functional::function<void()>(std::bind(
                            core::decay_copy(core::forward<F>(_f)),
                            core::decay_copy(core::forward<Args>(_args))...)));
   }
@@ -183,18 +183,18 @@ private:
 
   struct private_execution_data final {
     WN_FORCE_INLINE private_execution_data(memory::allocator* _allocator,
-        containers::function<void()>&& _function,
+        functional::function<void()>&& _function,
         const memory::intrusive_ptr<private_data>& _data)
       : m_allocator(_allocator),
         m_function(core::move(_function)),
         m_data(_data) {}
 
-    containers::function<void()> m_function;
+    functional::function<void()> m_function;
     memory::intrusive_ptr<private_data> m_data;
     memory::allocator* m_allocator;
   };
 
-  void create(memory::allocator* _allocator, containers::function<void()>&& _f);
+  void create(memory::allocator* _allocator, functional::function<void()>&& _f);
 
 #ifdef _WN_WINDOWS
   using argument_type = LPVOID;

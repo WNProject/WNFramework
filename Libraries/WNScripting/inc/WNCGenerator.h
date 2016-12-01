@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNContainers/inc/WNPair.h"
 #include "WNContainers/inc/WNString.h"
+#include "WNCore/inc/WNPair.h"
 #include "WNScripting/inc/WNASTCodeGenerator.h"
 #include "WNScripting/inc/WNNodeTypes.h"
 
@@ -15,11 +15,11 @@ struct ast_c_traits {
   // the first element is a list of temporaries
   // to be hoisted out of the expression.
   using instruction_data =
-      containers::pair<containers::string, containers::string>;
+      core::pair<containers::string, containers::string>;
   // The first element is a list of any temporaries,
   // that must be hoisted out of the expression.
   using expression_data =
-      containers::pair<containers::string, containers::string>;
+      core::pair<containers::string, containers::string>;
   using parameter_data = containers::string;
   using function_data = containers::string;
   using type_data = containers::string;
@@ -48,61 +48,61 @@ public:
   }
 
   void walk_expression(const expression*,
-      containers::pair<containers::string, containers::string>*) {
+      core::pair<containers::string, containers::string>*) {
     WN_RELEASE_ASSERT_DESC(false, "Not implemented expression type");
   }
   void walk_expression(const sizeof_expression* _sizeof,
-      containers::pair<containers::string, containers::string>* _str);
+      core::pair<containers::string, containers::string>* _str);
   void walk_expression(const constant_expression* _const,
-      containers::pair<containers::string, containers::string>* _str);
+      core::pair<containers::string, containers::string>* _str);
   void walk_expression(const id_expression* _const,
-      containers::pair<containers::string, containers::string>* _str);
+      core::pair<containers::string, containers::string>* _str);
   void walk_expression(const function_pointer_expression* _ptr,
-      containers::pair<containers::string, containers::string>* _str);
+      core::pair<containers::string, containers::string>* _str);
   void walk_expression(const binary_expression* _binary,
-      containers::pair<containers::string, containers::string>* _str);
+      core::pair<containers::string, containers::string>* _str);
   void walk_expression(const short_circuit_expression* _binary,
-      containers::pair<containers::string, containers::string>* _str);
+      core::pair<containers::string, containers::string>* _str);
   void walk_expression(const struct_allocation_expression* _alloc,
-      containers::pair<containers::string, containers::string>* _str);
+      core::pair<containers::string, containers::string>* _str);
   void walk_expression(const member_access_expression* _access,
-      containers::pair<containers::string, containers::string>* _str);
+      core::pair<containers::string, containers::string>* _str);
   void walk_expression(const cast_expression* _cast,
-      containers::pair<containers::string, containers::string>* _str);
+      core::pair<containers::string, containers::string>* _str);
   void walk_expression(const function_call_expression* _call,
-      containers::pair<containers::string, containers::string>* _str);
+      core::pair<containers::string, containers::string>* _str);
 
   void walk_instruction_list(const instruction_list* _list,
-      containers::pair<containers::string, containers::string>* _str);
+      core::pair<containers::string, containers::string>* _str);
   void walk_type(const type* _type, containers::string* _str);
   void walk_instruction(const instruction*,
-      containers::pair<containers::string, containers::string>*) {
+      core::pair<containers::string, containers::string>*) {
     WN_RELEASE_ASSERT_DESC(false, "Unimplemented instruction:");
   }
   void walk_instruction(const expression_instruction*,
-      containers::pair<containers::string, containers::string>*);
+      core::pair<containers::string, containers::string>*);
   void walk_instruction(const do_instruction*,
-      containers::pair<containers::string, containers::string>*);
+      core::pair<containers::string, containers::string>*);
   void walk_instruction(const break_instruction* _break,
-      containers::pair<containers::string, containers::string>* _str);
+      core::pair<containers::string, containers::string>* _str);
   void walk_instruction(const continue_instruction* _continue,
-      containers::pair<containers::string, containers::string>* _str);
+      core::pair<containers::string, containers::string>* _str);
   void walk_instruction(const return_instruction* _inst,
-      containers::pair<containers::string, containers::string>* _str);
+      core::pair<containers::string, containers::string>* _str);
   void walk_instruction(const declaration* _inst,
-      containers::pair<containers::string, containers::string>* _str);
+      core::pair<containers::string, containers::string>* _str);
   void walk_instruction(const assignment_instruction* _inst,
-      containers::pair<containers::string, containers::string>* _str);
+      core::pair<containers::string, containers::string>* _str);
   void walk_instruction(const if_instruction* _inst,
-      containers::pair<containers::string, containers::string>* _str);
+      core::pair<containers::string, containers::string>* _str);
   void walk_instruction(const else_if_instruction* _inst,
-      containers::pair<containers::string, containers::string>* _str);
+      core::pair<containers::string, containers::string>* _str);
   void walk_parameter(const parameter* _param, containers::string* _str);
   void walk_function(const function* _func, containers::string* _str);
   void walk_struct_definition(
       const struct_definition* _definition, containers::string* _str);
   void walk_script_file(const script_file* _file);
-  void pre_walk_script_file(const script_file*){}
+  void pre_walk_script_file(const script_file*) {}
 
 private:
   uint32_t m_temporaries;

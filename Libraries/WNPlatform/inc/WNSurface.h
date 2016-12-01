@@ -7,9 +7,9 @@
 #ifndef __WN_PLATFORM_SURFACE_H__
 #define __WN_PLATFORM_SURFACE_H__
 
-#include "WNContainers/inc/WNFunction.h"
 #include "WNCore/inc/WNAssert.h"
 #include "WNCore/inc/WNTypes.h"
+#include "WNFunctional/inc/WNFunction.h"
 #include "WNMemory/inc/WNIntrusivePtr.h"
 
 #ifdef _WN_LINUX
@@ -71,7 +71,7 @@ public:
 
   enum WNRegisteredDataTypes { eWNRDTGraphics, eWNRDTMAX };
 
-  typedef wn::containers::function<bool(WNSurfaceEventType, surface*)>
+  typedef wn::functional::function<bool(WNSurfaceEventType, surface*)>
       WNSurfaceEventCallback;
 
   virtual WNSurfaceNativeHandle GetNativeHandle() const = 0;

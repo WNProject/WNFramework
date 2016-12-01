@@ -908,7 +908,9 @@ add_wn_header_library(WNCore
     inc/WNBase.h
     inc/WNEndian.h
     inc/WNExtendedTypes.h
-    inc/WNMacroUtilities.h
+    inc/WNMacros.h
+    inc/WNPair.h
+    inc/WNTuple.h
     inc/WNTypes.h
     inc/WNTypeTraits.h
     inc/WNUtility.h

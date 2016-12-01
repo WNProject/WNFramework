@@ -7,13 +7,14 @@
 #ifndef __WN_SCRIPTING_AST_WALKER_H__
 #define __WN_SCRIPTING_AST_WALKER_H__
 
+#include <type_traits>
+
 #include "WNContainers/inc/WNContiguousRange.h"
 #include "WNCore/inc/WNTypes.h"
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNScripting/inc/WNNodeTypes.h"
 #include "WNScripting/inc/WNTypeValidator.h"
 
-#include <type_traits>
 namespace wn {
 namespace scripting {
 
@@ -54,17 +55,17 @@ private:
   memory::unique_ptr<expression> walk_mut_expression(expression* _expr);
 
   struct get_expr_const {
-    containers::function<void(const expression*)> operator()(
+    functional::function<void(const expression*)> operator()(
         ast_walker* _this) {
-      return containers::function<void(const expression*)>(
+      return functional::function<void(const expression*)>(
           &ast_walker<T, true>::walk_expression, _this);
     }
   };
 
   struct get_expr_non_const {
-    containers::function<memory::unique_ptr<expression>(expression*)>
+    functional::function<memory::unique_ptr<expression>(expression*)>
     operator()(ast_walker* _this) {
-      return containers::function<memory::unique_ptr<expression>(expression*)>(
+      return functional::function<memory::unique_ptr<expression>(expression*)>(
           &ast_walker<T, false>::walk_mut_expression, _this);
     }
   };
@@ -79,18 +80,19 @@ private:
   memory::unique_ptr<instruction> walk_mutable_instruction(instruction* _inst);
 
   struct get_inst_const {
-    containers::function<void(const instruction*)> operator()(
-    ast_walker* _this) {
-      return containers::function<void(const instruction*)>(
+    functional::function<void(const instruction*)> operator()(
+        ast_walker* _this) {
+      return functional::function<void(const instruction*)>(
           &ast_walker<T, true>::walk_instruction, _this);
     }
   };
 
   struct get_inst_non_const {
-    containers::function<memory::unique_ptr<instruction>(instruction*)>
+    functional::function<memory::unique_ptr<instruction>(instruction*)>
     operator()(ast_walker* _this) {
-      return containers::function<memory::unique_ptr<instruction>(
-          instruction*)>(&ast_walker<T, false>::walk_mutable_instruction, _this);
+      return functional::function<memory::unique_ptr<instruction>(
+          instruction*)>(
+          &ast_walker<T, false>::walk_mutable_instruction, _this);
     }
   };
 

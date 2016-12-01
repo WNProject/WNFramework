@@ -29,12 +29,12 @@ TYPED_TEST(hash_map, insert) {
 
   {
     wn::containers::hash_map<TypeParam, TypeParam> map(&allocator);
-    auto it = map.insert(wn::containers::make_pair(TypeParam(23), TypeParam(32)));
+    auto it = map.insert(wn::core::make_pair(TypeParam(23), TypeParam(32)));
 
     EXPECT_TRUE(it.second);
     EXPECT_EQ(32, it.first->second);
 
-    it = map.insert(wn::containers::make_pair(TypeParam(23), TypeParam(44)));
+    it = map.insert(wn::core::make_pair(TypeParam(23), TypeParam(44)));
 
     EXPECT_FALSE(it.second);
     EXPECT_EQ(32, it.first->second);

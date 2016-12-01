@@ -8,14 +8,14 @@
 #define __WN_MULTI_TASKING_JOB_POOL_H__
 
 #include "WNContainers/inc/WNDeque.h"
-#include "WNContainers/inc/WNFunction.h"
 #include "WNContainers/inc/WNHashMap.h"
 #include "WNContainers/inc/WNList.h"
-#include "WNContainers/inc/WNPair.h"
+#include "WNCore/inc/WNPair.h"
 #include "WNCore/inc/WNUtility.h"
+#include "WNFunctional/inc/WNFunction.h"
 #include "WNMultiTasking/inc/WNCallbackTask.h"
-#include "WNMultiTasking/inc/WNThread.h"
 #include "WNMultiTasking/inc/WNSynchronized.h"
+#include "WNMultiTasking/inc/WNThread.h"
 #include "WNMultiTasking/inc/WNThreadPool.h"
 
 namespace wn {
@@ -35,8 +35,8 @@ WN_FORCE_INLINE job_ptr make_job(memory::allocator* _allocator,
     return memory::make_intrusive<job>(
         _allocator, std::bind(func, core::forward<Args>(_args)...));
   } else {
-    containers::function<void()>* fn =
-        _allocator->construct<containers::function<void()>>(
+    functional::function<void()>* fn =
+        _allocator->construct<functional::function<void()>>(
             std::bind(func, core::forward<Args>(_args)...));
 
     return memory::make_intrusive<job>(_allocator, [_allocator, fn, _signal]() {
@@ -57,8 +57,8 @@ WN_FORCE_INLINE
   // detect this more easily, and, instead of wrapping the job,
   // put it directly into the sleep state.
   synchronization_data* data = _c->get_synchronization_data();
-  containers::function<void()>* func =
-      _allocator->construct<containers::function<void()>>(
+  functional::function<void()>* func =
+      _allocator->construct<functional::function<void()>>(
           std::bind(fn, _c, core::forward<Args>(_args)...));
   size_t wait_value = data->increment_job();
   return memory::make_intrusive<job>(
@@ -100,7 +100,7 @@ public:
 
   template <typename T, typename... Args>
   T call_blocking_function(
-      const containers::function<T(Args...)>& func, Args&&... args) {
+      const functional::function<T(Args...)>& func, Args&&... args) {
     notify_blocking();
     T ret = func(std::forward<Args>(args)...);
     move_to_ready();
@@ -109,7 +109,7 @@ public:
 
   template <typename... Args>
   void call_blocking_function(
-      const containers::function<void(Args...)>& func, Args&&... args) {
+      const functional::function<void(Args...)>& func, Args&&... args) {
     notify_blocking();
     func(std::forward<Args>(args)...);
     move_to_ready();
@@ -118,7 +118,7 @@ public:
   // Calls the given blocking function asynchronously. _signal is incremented
   // when the call completes.
   void call_blocking_function_async(
-      const containers::function<void()>& func, job_signal* _signal) {
+      const functional::function<void()>& func, job_signal* _signal) {
     add_job(wn::multi_tasking::make_job(
         m_allocator, nullptr, [this, func, _signal]() {
           notify_blocking();
@@ -274,7 +274,7 @@ private:
       }
       auto list = m_blocked_threads.insert(
 
-          containers::make_pair(containers::make_pair(_signal, _value),
+          core::make_pair(core::make_pair(_signal, _value),
               containers::list<thread_data>(m_allocator)));
 
       m_active_threads.transfer_to(self_thread->m_current_position,
@@ -347,7 +347,7 @@ private:
     {
       spin_lock_guard guard(m_thread_lock);
 
-      auto it = m_blocked_threads.find(containers::make_pair(_signal, _value));
+      auto it = m_blocked_threads.find(core::make_pair(_signal, _value));
       if (it != m_blocked_threads.end()) {
         num_to_wake = it->second.size();
         auto it2 = it->second.begin();
@@ -438,20 +438,20 @@ private:
   // data, we can know for sure that the pointers never move.
 
   struct hasher {
-    size_t operator()(const containers::pair<job_signal*, size_t>& _val) const {
+    size_t operator()(const core::pair<job_signal*, size_t>& _val) const {
       return ::std::hash<const job_signal*>()(_val.first) ^
              ::std::hash<size_t>()(_val.second);
     }
   };
 
   struct equal {
-    size_t operator()(const containers::pair<job_signal*, size_t>& _first,
-        const containers::pair<job_signal*, size_t>& _second) const {
+    size_t operator()(const core::pair<job_signal*, size_t>& _first,
+        const core::pair<job_signal*, size_t>& _second) const {
       return _first.first == _second.first && _first.second == _second.second;
     }
   };
 
-  containers::hash_map<containers::pair<job_signal*, size_t>,
+  containers::hash_map<core::pair<job_signal*, size_t>,
       containers::list<thread_data>, hasher, equal>
       m_blocked_threads;
 };

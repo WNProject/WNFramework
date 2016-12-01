@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNContainers/inc/WNPair.h"
+#include "WNCore/inc/WNPair.h"
 #include "WNTesting/inc/WNTestHarness.h"
 
 WN_ENABLE_TYPED_TEST(pair);
@@ -39,33 +39,32 @@ TYPED_TEST(pair, construction) {
   using first_type = typename TypeParam::first_type;
   using second_type = typename TypeParam::second_type;
 
-  const wn::containers::pair<first_type, second_type> pair1;
+  const wn::core::pair<first_type, second_type> pair1;
 
   WN_UNUSED_ARGUMENT(pair1);
 
-  const wn::containers::pair<first_type, second_type> pair2(
+  const wn::core::pair<first_type, second_type> pair2(
       first_type(1), second_type(2));
 
   EXPECT_EQ(pair2.first, first_type(1));
   EXPECT_EQ(pair2.second, second_type(2));
 
-  wn::containers::pair<first_type, second_type> pair3(pair2);
+  wn::core::pair<first_type, second_type> pair3(pair2);
 
   EXPECT_EQ(pair3.first, first_type(1));
   EXPECT_EQ(pair3.second, second_type(2));
 
-  const wn::containers::pair<first_type, second_type> pair4(
-      wn::core::move(pair3));
+  const wn::core::pair<first_type, second_type> pair4(wn::core::move(pair3));
 
   EXPECT_EQ(pair4.first, first_type(1));
   EXPECT_EQ(pair4.second, second_type(2));
 
-  const wn::containers::pair<first_type> pair5(first_type(1));
+  const wn::core::pair<first_type> pair5(first_type(1));
 
   EXPECT_EQ(pair5.first, first_type(1));
   EXPECT_EQ(pair5.second, first_type(1));
 
-  const wn::containers::pair<first_type, first_type> pair6(first_type(1));
+  const wn::core::pair<first_type, first_type> pair6(first_type(1));
 
   EXPECT_EQ(pair6.first, first_type(1));
   EXPECT_EQ(pair6.second, first_type(1));
@@ -75,8 +74,8 @@ TYPED_TEST(pair, assignment) {
   using first_type = typename TypeParam::first_type;
   using second_type = typename TypeParam::second_type;
 
-  wn::containers::pair<first_type, second_type> pair1;
-  const wn::containers::pair<first_type, second_type> pair2(
+  wn::core::pair<first_type, second_type> pair1;
+  const wn::core::pair<first_type, second_type> pair2(
       first_type(1), second_type(2));
 
   pair1 = pair2;
@@ -84,19 +83,19 @@ TYPED_TEST(pair, assignment) {
   EXPECT_EQ(pair1.first, pair2.first);
   EXPECT_EQ(pair1.second, pair2.second);
 
-  pair1 = wn::containers::make_pair(first_type(3), second_type(4));
+  pair1 = wn::core::make_pair(first_type(3), second_type(4));
 
   EXPECT_EQ(pair1.first, first_type(3));
   EXPECT_EQ(pair1.second, second_type(4));
 
-  const wn::containers::pair<uint8_t, uint8_t> pair3(uint8_t(5), uint8_t(6));
+  const wn::core::pair<uint8_t, uint8_t> pair3(uint8_t(5), uint8_t(6));
 
   pair1 = pair3;
 
   EXPECT_EQ(pair1.first, first_type(pair3.first));
   EXPECT_EQ(pair1.second, second_type(pair3.second));
 
-  pair1 = wn::containers::make_pair(uint8_t(7), uint8_t(8));
+  pair1 = wn::core::make_pair(uint8_t(7), uint8_t(8));
 
   EXPECT_EQ(pair1.first, first_type(7));
   EXPECT_EQ(pair1.second, second_type(8));
@@ -106,19 +105,17 @@ TYPED_TEST(pair, type_access) {
   using first_type = typename TypeParam::first_type;
   using second_type = typename TypeParam::second_type;
 
-  EXPECT_TRUE(
-      (wn::core::is_same<first_type, typename wn::containers::pair<first_type,
-                                         second_type>::first_type>::value));
-  EXPECT_TRUE(
-      (wn::core::is_same<second_type, typename wn::containers::pair<first_type,
-                                          second_type>::second_type>::value));
+  EXPECT_TRUE((wn::core::is_same<first_type,
+      typename wn::core::pair<first_type, second_type>::first_type>::value));
+  EXPECT_TRUE((wn::core::is_same<second_type,
+      typename wn::core::pair<first_type, second_type>::second_type>::value));
 }
 
 TYPED_TEST(pair, element_access) {
   using first_type = typename TypeParam::first_type;
   using second_type = typename TypeParam::second_type;
 
-  const wn::containers::pair<first_type, second_type> pair(
+  const wn::core::pair<first_type, second_type> pair(
       first_type(1), second_type(2));
 
   EXPECT_EQ(pair.first, first_type(1));
@@ -129,10 +126,8 @@ TYPED_TEST(pair, swap) {
   using first_type = typename TypeParam::first_type;
   using second_type = typename TypeParam::second_type;
 
-  wn::containers::pair<first_type, second_type> pair1(
-      first_type(1), second_type(2));
-  wn::containers::pair<first_type, second_type> pair2(
-      first_type(3), second_type(4));
+  wn::core::pair<first_type, second_type> pair1(first_type(1), second_type(2));
+  wn::core::pair<first_type, second_type> pair2(first_type(3), second_type(4));
 
   EXPECT_EQ(pair1.first, first_type(1));
   EXPECT_EQ(pair1.second, second_type(2));

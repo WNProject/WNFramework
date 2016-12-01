@@ -7,8 +7,8 @@
 #ifndef __WN_MULTI_TASKING_FIBER_H__
 #define __WN_MULTI_TASKING_FIBER_H__
 
-#include "WNContainers/inc/WNFunction.h"
 #include "WNCore/inc/WNUtility.h"
+#include "WNFunctional/inc/WNFunction.h"
 #include "WNMemory/inc/WNUniquePtr.h"
 
 #ifdef _WN_POSIX
@@ -82,16 +82,16 @@ public:
       memory::allocator* _allocator, F&& _f, Args&&... _args)
     : m_is_top_level_fiber(false), m_allocator(_allocator) {
     create(default_fiber_stack_size,
-        containers::function<void()>(
-               std::bind(core::decay_copy(std::forward<F>(_f)),
-                   core::decay_copy(std::forward<Args>(_args))...)));
+        functional::function<void()>(
+            std::bind(core::decay_copy(std::forward<F>(_f)),
+                core::decay_copy(std::forward<Args>(_args))...)));
   }
 
   template <typename F, typename... Args>
   WN_FORCE_INLINE explicit fiber(const size_t _stack_size,
       memory::allocator* _allocator, F&& _f, Args&&... _args)
     : m_is_top_level_fiber(false), m_allocator(_allocator) {
-    create(_stack_size, containers::function<void()>(std::bind(
+    create(_stack_size, functional::function<void()>(std::bind(
                             core::decay_copy(std::forward<F>(_f)),
                             core::decay_copy(std::forward<Args>(_args))...)));
   }
@@ -141,7 +141,7 @@ public:
   }
 
   struct fiber_data final {
-    containers::function<void()> m_function;
+    functional::function<void()> m_function;
     fiber* m_fiber;
   };
 
@@ -163,7 +163,7 @@ private:
 #endif
 
   void* m_fiber_local_data;
-  void create(const size_t _stack_size, containers::function<void()>&& _f);
+  void create(const size_t _stack_size, functional::function<void()>&& _f);
 
   bool m_is_top_level_fiber;
   memory::allocator* m_allocator;

@@ -55,11 +55,10 @@ static const uint32_t CHAR_TYPE =
     static_cast<uint32_t>(type_classification::char_type);
 static const uint32_t SIZE_TYPE =
     static_cast<uint32_t>(type_classification::size_type);
-static const uint32_t VOID_PTR_TYPE  =
+static const uint32_t VOID_PTR_TYPE =
     static_cast<uint32_t>(type_classification::void_ptr_type);
 static const uint32_t FUNCTION_PTR_TYPE =
     static_cast<uint32_t>(type_classification::function_ptr_type);
-
 
 // Tables for all of the internal types.
 const allowed_builtin_operations valid_builtin_operations[12]{
@@ -346,31 +345,31 @@ public:
       m_allocator(_allocator),
       m_max_types(1) {
     m_names.emplace_back("", m_allocator);
-    m_mapping.insert(containers::make_pair("Void", m_max_types++));
+    m_mapping.insert(core::make_pair("Void", m_max_types++));
     m_names.emplace_back("Void", m_allocator);
 
-    m_mapping.insert(containers::make_pair("Int", m_max_types++));
+    m_mapping.insert(core::make_pair("Int", m_max_types++));
     m_names.emplace_back("Int", m_allocator);
 
-    m_mapping.insert(containers::make_pair("Float", m_max_types++));
+    m_mapping.insert(core::make_pair("Float", m_max_types++));
     m_names.emplace_back("Float", m_allocator);
 
-    m_mapping.insert(containers::make_pair("Char", m_max_types++));
+    m_mapping.insert(core::make_pair("Char", m_max_types++));
     m_names.emplace_back("Char", m_allocator);
 
-    m_mapping.insert(containers::make_pair("String", m_max_types++));
+    m_mapping.insert(core::make_pair("String", m_max_types++));
     m_names.emplace_back("String", m_allocator);
 
-    m_mapping.insert(containers::make_pair("Bool", m_max_types++));
+    m_mapping.insert(core::make_pair("Bool", m_max_types++));
     m_names.emplace_back("Bool", m_allocator);
 
-    m_mapping.insert(containers::make_pair("_Size", m_max_types++));
+    m_mapping.insert(core::make_pair("_Size", m_max_types++));
     m_names.emplace_back("_Size", m_allocator);
 
-    m_mapping.insert(containers::make_pair("_VoidPtr", m_max_types++));
+    m_mapping.insert(core::make_pair("_VoidPtr", m_max_types++));
     m_names.emplace_back("_VoidPtr", m_allocator);
 
-    m_mapping.insert(containers::make_pair("_FunctionPtr", m_max_types++));
+    m_mapping.insert(core::make_pair("_FunctionPtr", m_max_types++));
     m_names.emplace_back("_FunctionPtr", m_allocator);
 
     // Need to add extras to m_names
@@ -439,7 +438,8 @@ public:
       returned_type = (returned_type == 0) ? type : returned_type;
       containers::string name_string = _name.to_string(m_allocator);
       if (i == 0) {
-        m_mapping.insert(containers::make_pair(_name.to_string(m_allocator), type));
+        m_mapping.insert(
+            core::make_pair(_name.to_string(m_allocator), type));
       }
 
       m_types.push_back(type_definition(
@@ -529,8 +529,8 @@ public:
         "One of the return types is out of bounds");
 
     m_types[_type].m_functions.push_back({_name.to_string(m_allocator),
-        _return_type, containers::dynamic_array<uint32_t>(_types.begin(),
-                                              _types.end(), m_allocator)});
+        _return_type, containers::dynamic_array<uint32_t>(
+                          _types.begin(), _types.end(), m_allocator)});
   }
 
   containers::string get_mangled_name(const containers::string_view& name,

@@ -1,6 +1,7 @@
 // Copyright (c) 2016, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+
 #include "WNFileSystem/src/WNMemoryBackedMapping.h"
 
 namespace wn {
@@ -145,7 +146,7 @@ void memory_backed_mapping::memory_backed_directory::create_directory(
   if (get_child_directory(name)) {
     return;
   }
-  child_directories.insert(containers::pair<containers::string,
+  child_directories.insert(core::pair<containers::string,
       memory::unique_ptr<memory_backed_directory>>(name.to_string(m_allocator),
       memory::make_unique<memory_backed_directory>(m_allocator, m_allocator)));
 }
@@ -159,11 +160,11 @@ memory_backed_mapping::memory_backed_directory::create_file(
     return nullptr;
   }
   auto it = child_files.insert(
-      containers::pair<containers::string, memory_backed_file_location_ptr>(
-          std::move(name), memory::make_intrusive<memory_backed_file_location>(
-                               m_allocator, m_allocator,
-                               memory::make_intrusive<memory_backed_file_store>(
-                                   m_allocator, m_allocator))));
+      core::pair<containers::string, memory_backed_file_location_ptr>(
+          std::move(name),
+          memory::make_intrusive<memory_backed_file_location>(m_allocator,
+              m_allocator, memory::make_intrusive<memory_backed_file_store>(
+                               m_allocator, m_allocator))));
 
   return memory::make_intrusive<memory_backed_file>(
       m_allocator, m_allocator, it.first->second);

@@ -4,7 +4,7 @@ namespace wn {
 namespace multi_tasking {
 
 void thread::create(
-    memory::allocator* _allocator, containers::function<void()>&& _f) {
+    memory::allocator* _allocator, functional::function<void()>&& _f) {
   memory::intrusive_ptr<private_data> data(
       memory::make_intrusive<private_data>(_allocator, _allocator));
 

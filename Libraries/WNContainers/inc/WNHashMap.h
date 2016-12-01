@@ -11,9 +11,10 @@
 #include <initializer_list>
 #include <iterator>
 #include <utility>
+
 #include "WNContainers/inc/WNDynamicArray.h"
 #include "WNContainers/inc/WNList.h"
-#include "WNContainers/inc/WNPair.h"
+#include "WNCore/inc/WNPair.h"
 #include "WNMemory/inc/WNAllocator.h"
 
 namespace wn {
@@ -33,8 +34,8 @@ class hash_map_iterator
 public:
   using T = _ContainedType;
   using ait = typename std::conditional<core::is_const<T>::value,
-      typename dynamic_array<list<typename std::remove_const<T>::type>>::
-          const_iterator,
+      typename dynamic_array<
+          list<typename std::remove_const<T>::type>>::const_iterator,
       typename dynamic_array<list<T>>::iterator>::type;
 
   using lit = typename std::conditional<core::is_const<T>::value,
@@ -112,7 +113,7 @@ class hash_map final {
 public:
   using key_type = _KeyType;
   using mapped_type = _ValueType;
-  using value_type = containers::pair<_KeyType, _ValueType>;
+  using value_type = core::pair<_KeyType, _ValueType>;
   using size_type = size_t;
   using difference_type = signed_t;
   using hasher = _HashOperator;
@@ -200,46 +201,45 @@ public:
     return m_total_elements == 0;
   }
 
-  containers::pair<iterator, bool> insert(const value_type& element) {
+  core::pair<iterator, bool> insert(const value_type& element) {
     size_t hash = get_hash(element.first);
     iterator old_position =
         iterator_from_const_iterator(find_hashed(element.first, hash));
     if (old_position != end()) {
-      return containers::make_pair(old_position, false);
+      return core::make_pair(old_position, false);
     }
     if (rehash_if_needed(size() + 1)) {
       hash = get_hash(element.first);
     }
     m_buckets[hash].push_back(element);
     m_total_elements += 1;
-    return containers::make_pair<iterator, bool>(
+    return core::make_pair<iterator, bool>(
         iterator(m_buckets.begin() + hash, m_buckets.end(),
             m_buckets[hash].end() - 1),
         true);
   }
 
-  containers::pair<iterator, bool> insert(value_type&& element) {
+  core::pair<iterator, bool> insert(value_type&& element) {
     size_t hash;
     hash = get_hash(element.first);
     iterator old_position =
         iterator_from_const_iterator(find_hashed(element.first, hash));
     if (old_position != end()) {
-      return containers::make_pair(old_position, false);
+      return core::make_pair(old_position, false);
     }
     if (rehash_if_needed(size() + 1)) {
       hash = get_hash(element.first);
     }
     m_buckets[hash].push_back(std::move(element));
     m_total_elements += 1;
-    return containers::make_pair<iterator, bool>(
+    return core::make_pair<iterator, bool>(
         iterator(m_buckets.begin() + hash, m_buckets.end(),
             m_buckets[hash].end() - 1),
         true);
   }
 
-  containers::pair<iterator, bool> insert(
-      const key_type& kt, const mapped_type& mt) {
-    return insert(containers::make_pair(kt, mt));
+  core::pair<iterator, bool> insert(const key_type& kt, const mapped_type& mt) {
+    return insert(core::make_pair(kt, mt));
   }
 
   mapped_type& operator[](key_type&& key) {
@@ -247,7 +247,7 @@ public:
     if (it != end()) {
       return it->second;
     }
-    return insert(containers::make_pair(std::move(key), mapped_type()))
+    return insert(core::make_pair(std::move(key), mapped_type()))
         .first->second;
   }
 
@@ -256,7 +256,7 @@ public:
     if (it != end()) {
       return it->second;
     }
-    return insert(containers::make_pair(key, mapped_type())).first->second;
+    return insert(core::make_pair(key, mapped_type())).first->second;
   }
 
   const mapped_type& operator[](const key_type& key) const {
@@ -447,7 +447,8 @@ private:
   hasher m_hasher;
   key_equal m_key_equal;
 };
-}
-}
+
+}  // namespace containers
+}  // namespace wn
 
 #endif  //_WN_CONTAINERS_HASH_MAP_H__

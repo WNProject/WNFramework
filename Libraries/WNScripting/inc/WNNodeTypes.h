@@ -2,13 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#ifndef __WN_NODE_TYPES_H__
-#define __WN_NODE_TYPES_H__
+#ifndef __WN_SCRIPTING_NODE_TYPES_H__
+#define __WN_SCRIPTING_NODE_TYPES_H__
 
 #include "WNContainers/inc/WNDeque.h"
-#include "WNContainers/inc/WNFunction.h"
 #include "WNContainers/inc/WNString.h"
 #include "WNContainers/inc/WNStringView.h"
+#include "WNFunctional/inc/WNFunction.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/WNUniquePtr.h"
 #include "WNScripting/inc/WNEnums.h"
@@ -103,11 +103,11 @@ memory::unique_ptr<T> clone_node(const memory::unique_ptr<T>& val) {
 }
 
 using walk_mutable_expression =
-    containers::function<memory::unique_ptr<expression>(expression*)>;
+    functional::function<memory::unique_ptr<expression>(expression*)>;
 
 template <typename T>
-using walk_ftype = containers::function<void(T)>;
-using walk_scope = containers::function<void(const node*)>;
+using walk_ftype = functional::function<void(T)>;
+using walk_scope = functional::function<void(const node*)>;
 
 WN_INLINE void handle_expression(const walk_mutable_expression& function,
     memory::unique_ptr<expression>& expr) {
@@ -117,7 +117,7 @@ WN_INLINE void handle_expression(const walk_mutable_expression& function,
 }
 
 using walk_mutable_instruction =
-    containers::function<memory::unique_ptr<instruction>(instruction*)>;
+    functional::function<memory::unique_ptr<instruction>(instruction*)>;
 WN_INLINE void handle_instruction(const walk_mutable_instruction& function,
     memory::unique_ptr<instruction>& inst) {
   while (auto a = function(inst.get())) {
@@ -2730,4 +2730,5 @@ private:
 
 }  // namespace scripting
 }  // namespace wn
-#endif  //__WN_NODE_TYPES_H__
+
+#endif  // __WN_SCRIPTING_NODE_TYPES_H__

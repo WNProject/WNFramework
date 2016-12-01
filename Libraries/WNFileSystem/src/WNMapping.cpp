@@ -57,7 +57,7 @@ result mapping::recursive_create_directory(containers::string_view _directory) {
 }
 
 result mapping::initialize_files(std::initializer_list<
-    containers::pair<containers::string_view, containers::string_view>>
+    core::pair<containers::string_view, containers::string_view>>
         _files) {
   for (auto& file : _files) {
     containers::string sanitized_path(

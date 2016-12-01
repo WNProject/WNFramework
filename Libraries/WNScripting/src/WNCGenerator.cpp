@@ -2,16 +2,16 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
+#include "WNScripting/inc/WNCGenerator.h"
 #include "WNContainers/inc/WNString.h"
 #include "WNMemory/inc/WNStringUtility.h"
-#include "WNScripting/inc/WNCGenerator.h"
 #include "WNScripting/inc/WNScriptHelpers.h"
 
 namespace wn {
 namespace scripting {
 namespace {
 void initialize_data(memory::allocator* _allocator,
-    containers::pair<containers::string, containers::string>* expr_dat) {
+    core::pair<containers::string, containers::string>* expr_dat) {
   expr_dat->first = containers::string(_allocator);
   expr_dat->second = containers::string(_allocator);
 }
@@ -69,7 +69,7 @@ void ast_c_translator::walk_type(const type* _type, containers::string* _str) {
 }
 
 void ast_c_translator::walk_expression(const constant_expression* _const,
-    containers::pair<containers::string, containers::string>* _str) {
+    core::pair<containers::string, containers::string>* _str) {
   initialize_data(m_allocator, _str);
 
   switch (_const->get_type()->get_index()) {
@@ -92,7 +92,7 @@ void ast_c_translator::walk_expression(const constant_expression* _const,
 }
 
 void ast_c_translator::walk_expression(const short_circuit_expression* _ss,
-    containers::pair<containers::string, containers::string>* _str) {
+    core::pair<containers::string, containers::string>* _str) {
   initialize_data(m_allocator, _str);
   const char* m_operators[] = {" && ", " || "};
   static_assert(sizeof(m_operators) / sizeof(m_operators[0]) ==
@@ -118,7 +118,7 @@ void ast_c_translator::walk_expression(const short_circuit_expression* _ss,
 }
 
 void ast_c_translator::walk_expression(const binary_expression* _binary,
-    containers::pair<containers::string, containers::string>* _str) {
+    core::pair<containers::string, containers::string>* _str) {
   initialize_data(m_allocator, _str);
   const char* m_operators[] = {" + ", " - ", " * ", " / ", " % ", " == ",
       " != ", " <= ", " >= ", " < ", " > "};
@@ -147,20 +147,20 @@ void ast_c_translator::walk_expression(const binary_expression* _binary,
 }
 
 void ast_c_translator::walk_expression(const id_expression* _id,
-    containers::pair<containers::string, containers::string>* _str) {
+    core::pair<containers::string, containers::string>* _str) {
   initialize_data(m_allocator, _str);
   _str->second = _id->get_name().to_string(m_allocator);
 }
 
 void ast_c_translator::walk_expression(const function_pointer_expression* _ptr,
-    containers::pair<containers::string, containers::string>* _str) {
+    core::pair<containers::string, containers::string>* _str) {
   initialize_data(m_allocator, _str);
-  _str->second = containers::string("&", m_allocator)
-                     .append(_ptr->get_source()->get_mangled_name());
+  _str->second = containers::string("&",
+      m_allocator).append(_ptr->get_source()->get_mangled_name());
 }
 
 void ast_c_translator::walk_expression(const sizeof_expression* _sizeof,
-    containers::pair<containers::string, containers::string>* _str) {
+    core::pair<containers::string, containers::string>* _str) {
   initialize_data(m_allocator, _str);
   const auto& root_expr = m_generator->get_data(_sizeof->get_sized_type());
 
@@ -170,7 +170,7 @@ void ast_c_translator::walk_expression(const sizeof_expression* _sizeof,
 }
 
 void ast_c_translator::walk_expression(const member_access_expression* _access,
-    containers::pair<containers::string, containers::string>* _str) {
+    core::pair<containers::string, containers::string>* _str) {
   initialize_data(m_allocator, _str);
 
   const auto& root_expr = m_generator->get_data(_access->get_base_expression());
@@ -183,13 +183,13 @@ void ast_c_translator::walk_expression(const member_access_expression* _access,
 }
 
 void ast_c_translator::walk_expression(const struct_allocation_expression*,
-    containers::pair<containers::string, containers::string>* _str) {
+    core::pair<containers::string, containers::string>* _str) {
   initialize_data(m_allocator, _str);
   // There is actually NOTHING to do here.
 }
 
 void ast_c_translator::walk_expression(const cast_expression* _cast,
-    containers::pair<containers::string, containers::string>* _str) {
+    core::pair<containers::string, containers::string>* _str) {
   initialize_data(m_allocator, _str);
   const auto& dat = m_generator->get_data(_cast->get_expression());
   _str->first.append(dat.first);
@@ -244,7 +244,7 @@ void ast_c_translator::walk_expression(const cast_expression* _cast,
 }
 
 void ast_c_translator::walk_expression(const function_call_expression* _call,
-    containers::pair<containers::string, containers::string>* _str) {
+    core::pair<containers::string, containers::string>* _str) {
   initialize_data(m_allocator, _str);
 
   _str->second.append(_call->callee()->get_mangled_name());
@@ -268,7 +268,7 @@ void ast_c_translator::walk_parameter(
 }
 
 void ast_c_translator::walk_instruction(const do_instruction* _do,
-    containers::pair<containers::string, containers::string>* _str) {
+    core::pair<containers::string, containers::string>* _str) {
   initialize_data(m_allocator, _str);
 
   const auto& expr = m_generator->get_data(_do->get_condition());
@@ -282,19 +282,19 @@ void ast_c_translator::walk_instruction(const do_instruction* _do,
 }
 
 void ast_c_translator::walk_instruction(const break_instruction*,
-    containers::pair<containers::string, containers::string>* _str) {
+    core::pair<containers::string, containers::string>* _str) {
   initialize_data(m_allocator, _str);
   _str->second.append("break;");
 }
 
 void ast_c_translator::walk_instruction(const continue_instruction*,
-    containers::pair<containers::string, containers::string>* _str) {
+    core::pair<containers::string, containers::string>* _str) {
   initialize_data(m_allocator, _str);
   _str->second.append("continue;");
 }
 
 void ast_c_translator::walk_instruction(const expression_instruction* _expr,
-    containers::pair<containers::string, containers::string>* _str) {
+    core::pair<containers::string, containers::string>* _str) {
   initialize_data(m_allocator, _str);
   const auto& expr = m_generator->get_data(_expr->get_expression());
   _str->second.append(expr.first);
@@ -303,7 +303,7 @@ void ast_c_translator::walk_instruction(const expression_instruction* _expr,
 }
 
 void ast_c_translator::walk_instruction(const return_instruction* _ret,
-    containers::pair<containers::string, containers::string>* _str) {
+    core::pair<containers::string, containers::string>* _str) {
   initialize_data(m_allocator, _str);
   if (_ret->get_expression()) {
     const auto& expr = m_generator->get_data(_ret->get_expression());
@@ -317,7 +317,7 @@ void ast_c_translator::walk_instruction(const return_instruction* _ret,
 }
 
 void ast_c_translator::walk_instruction(const declaration* _decl,
-    containers::pair<containers::string, containers::string>* _str) {
+    core::pair<containers::string, containers::string>* _str) {
   initialize_data(m_allocator, _str);
   const auto& expr = m_generator->get_data(_decl->get_expression());
 
@@ -334,7 +334,7 @@ void ast_c_translator::walk_instruction(const declaration* _decl,
 }
 
 void ast_c_translator::walk_instruction(const assignment_instruction* _inst,
-    containers::pair<containers::string, containers::string>* _str) {
+    core::pair<containers::string, containers::string>* _str) {
   initialize_data(m_allocator, _str);
   WN_RELEASE_ASSERT_DESC(_inst->get_assignment_type() == assign_type::equal,
       "Not Implemented: Non equality assignment");
@@ -347,7 +347,7 @@ void ast_c_translator::walk_instruction(const assignment_instruction* _inst,
 }
 
 void ast_c_translator::walk_instruction(const else_if_instruction* _i,
-    containers::pair<containers::string, containers::string>* _str) {
+    core::pair<containers::string, containers::string>* _str) {
   initialize_data(m_allocator, _str);
   const auto& cond = m_generator->get_data(_i->get_condition());
   _str->first += cond.first;
@@ -357,11 +357,10 @@ void ast_c_translator::walk_instruction(const else_if_instruction* _i,
   auto& dat = m_generator->get_data(_i->get_body());
   _str->second += dat.first;
   _str->second += dat.second;
-
 }
 
 void ast_c_translator::walk_instruction(const if_instruction* _i,
-    containers::pair<containers::string, containers::string>* _str) {
+    core::pair<containers::string, containers::string>* _str) {
   initialize_data(m_allocator, _str);
   const auto& condition = m_generator->get_data(_i->get_condition());
   auto& dat = m_generator->get_data(_i->get_body());
@@ -388,7 +387,7 @@ void ast_c_translator::walk_instruction(const if_instruction* _i,
 }
 
 void ast_c_translator::walk_instruction_list(const instruction_list* l,
-    containers::pair<containers::string, containers::string>* _str) {
+    core::pair<containers::string, containers::string>* _str) {
   initialize_data(m_allocator, _str);
   _str->second += containers::string(m_allocator) + "{\n";
   for (auto& a : l->get_instructions()) {

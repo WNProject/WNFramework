@@ -7,9 +7,9 @@
 #ifndef __WN_MULTI_TASKING_CALLBACK_TASK_H__
 #define __WN_MULTI_TASKING_CALLBACK_TASK_H__
 
-#include "WNContainers/inc/WNFunction.h"
 #include "WNCore/inc/WNTypeTraits.h"
 #include "WNCore/inc/WNUtility.h"
+#include "WNFunctional/inc/WNFunction.h"
 #include "WNMemory/inc/WNIntrusivePtr.h"
 #include "WNMultiTasking/inc/WNThreadTask.h"
 
@@ -53,7 +53,7 @@ private:
     m_result = m_callback();
   }
 
-  containers::function<R()> m_callback;
+  functional::function<R()> m_callback;
   R m_result;
 };
 
@@ -78,7 +78,7 @@ private:
     m_callback();
   }
 
-  containers::function<void()> m_callback;
+  functional::function<void()> m_callback;
 };
 
 template <typename R>

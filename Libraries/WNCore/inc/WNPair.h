@@ -4,13 +4,13 @@
 
 #pragma once
 
-#ifndef __WN_CONTAINERS_PAIR_H__
-#define __WN_CONTAINERS_PAIR_H__
+#ifndef __WN_CORE_PAIR_H__
+#define __WN_CORE_PAIR_H__
 
 #include "WNCore/inc/WNUtility.h"
 
 namespace wn {
-namespace containers {
+namespace core {
 
 template <typename T1, typename T2 = T1>
 class pair final {
@@ -25,7 +25,7 @@ public:
   WN_FORCE_INLINE pair() : first(), second() {}
 
   WN_FORCE_INLINE pair(pair&& _other)
-    : pair(core::move(_other.first), core::move(_other.second)) {}
+    : pair(move(_other.first), move(_other.second)) {}
 
   WN_FORCE_INLINE pair(const pair& _other)
     : pair(_other.first, _other.second) {}
@@ -33,36 +33,32 @@ public:
   WN_FORCE_INLINE pair(const T1& _first, const T2& _second)
     : first(_first), second(_second) {}
 
-  template <typename U,
-      typename = core::enable_if_t<core::conjunction<core::is_same<T1, T2>,
-          core::is_constructible<T1, const U&>>::value>>
+  template <typename U, typename = enable_if_t<conjunction<is_same<T1, T2>,
+                            is_constructible<T1, const U&>>::value>>
   WN_FORCE_INLINE pair(const U& _value) : pair(_value, _value) {}
 
   template <typename U1, typename U2,
-      typename =
-          core::enable_if_t<core::conjunction<core::is_constructible<T1, U1&&>,
-              core::is_constructible<T2, U2&&>>::value>>
+      typename = enable_if_t<conjunction<is_constructible<T1, U1&&>,
+          is_constructible<T2, U2&&>>::value>>
   WN_FORCE_INLINE pair(U1&& _first, U2&& _second)
-    : first(core::forward<U1>(_first)), second(core::forward<U2>(_second)) {}
+    : first(forward<U1>(_first)), second(forward<U2>(_second)) {}
 
   template <typename U1, typename U2,
-      typename =
-          core::enable_if_t<core::conjunction<core::is_constructible<T1, U1&&>,
-              core::is_constructible<T2, U2&&>>::value>>
+      typename = enable_if_t<conjunction<is_constructible<T1, U1&&>,
+          is_constructible<T2, U2&&>>::value>>
   WN_FORCE_INLINE pair(pair<U1, U2>&& _other)
-    : pair(core::forward<U1>(_other.first), core::forward<U2>(_other.second)) {}
+    : pair(forward<U1>(_other.first), forward<U2>(_other.second)) {}
 
   template <typename U1, typename U2,
-      typename = core::enable_if_t<
-          core::conjunction<core::is_constructible<T1, const U1&>,
-              core::is_constructible<T2, const U2&>>::value>>
+      typename = enable_if_t<conjunction<is_constructible<T1, const U1&>,
+          is_constructible<T2, const U2&>>::value>>
   WN_FORCE_INLINE pair(const pair<U1, U2>& _other)
     : pair(_other.first, _other.second) {}
 
   // assignments
 
   WN_FORCE_INLINE pair& operator=(pair&& _other) {
-    pair(core::move(_other)).swap(*this);
+    pair(move(_other)).swap(*this);
 
     return *this;
   }
@@ -73,9 +69,8 @@ public:
     return *this;
   }
 
-  template <typename U,
-      typename = core::enable_if_t<core::conjunction<core::is_same<T1, T2>,
-          core::is_constructible<T1, const U&>>::value>>
+  template <typename U, typename = enable_if_t<conjunction<is_same<T1, T2>,
+                            is_constructible<T1, const U&>>::value>>
   WN_FORCE_INLINE pair& operator=(const U& _value) {
     pair(_value).swap(*this);
 
@@ -83,19 +78,17 @@ public:
   }
 
   template <typename U1, typename U2,
-      typename =
-          core::enable_if_t<core::conjunction<core::is_constructible<T1, U1&&>,
-              core::is_constructible<T2, U2&&>>::value>>
+      typename = enable_if_t<conjunction<is_constructible<T1, U1&&>,
+          is_constructible<T2, U2&&>>::value>>
   WN_FORCE_INLINE pair& operator=(pair<U1, U2>&& _other) {
-    pair(core::move(_other)).swap(*this);
+    pair(move(_other)).swap(*this);
 
     return *this;
   }
 
   template <typename U1, typename U2,
-      typename = core::enable_if_t<
-          core::conjunction<core::is_constructible<T1, const U1&>,
-              core::is_constructible<T2, const U2&>>::value>>
+      typename = enable_if_t<conjunction<is_constructible<T1, const U1&>,
+          is_constructible<T2, const U2&>>::value>>
   WN_FORCE_INLINE pair& operator=(const pair<U1, U2>& _other) {
     pair(_other).swap(*this);
 
@@ -121,7 +114,7 @@ namespace internal {
 
 template <typename T>
 struct arg_decay {
-  using type = core::decay_t<T>;
+  using type = decay_t<T>;
 };
 
 template <typename T>
@@ -138,7 +131,7 @@ template <typename T1, typename T2>
 WN_FORCE_INLINE pair<internal::arg_decay_t<T1>, internal::arg_decay_t<T2>>
 make_pair(T1&& _first, T2&& _second) {
   return pair<internal::arg_decay_t<T1>, internal::arg_decay_t<T2>>(
-      core::forward<T1>(_first), core::forward<T2>(_second));
+      forward<T1>(_first), forward<T2>(_second));
 }
 
 template <typename T>
@@ -148,11 +141,10 @@ WN_FORCE_INLINE pair<internal::arg_decay_t<T>> make_pair(const T& _value) {
 
 template <typename T1, typename T2>
 WN_FORCE_INLINE pair<T1&&, T2&&> forward_as_pair(T1&& _first, T2&& _second) {
-  return pair<T1&&, T2&&>(
-      core::forward<T1>(_first), core::forward<T2>(_second));
+  return pair<T1&&, T2&&>(forward<T1>(_first), forward<T2>(_second));
 }
 
-}  // namespace containers
+}  // namespace core
 }  // namespace wn
 
-#endif  // __WN_CONTAINERS_PAIR_H__
+#endif  // __WN_CORE_PAIR_H__

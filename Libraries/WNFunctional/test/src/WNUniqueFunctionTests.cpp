@@ -2,9 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNContainers/inc/WNFunction.h"
-
-#include "WNContainers/inc/WNUniqueFunction.h"
+#include "WNFunctional/inc/WNUniqueFunction.h"
 #include "WNMemory/inc/WNUniquePtr.h"
 #include "WNTesting/inc/WNTestHarness.h"
 
@@ -50,12 +48,12 @@ struct test_object final {
 
 TEST(unique_function, construct) {
   // default
-  const wn::containers::unique_function<void()> function1;
-  const wn::containers::unique_function<void(int32_t)> function2;
-  const wn::containers::unique_function<void(int32_t, int32_t)> function3;
-  const wn::containers::unique_function<int32_t()> function4;
-  const wn::containers::unique_function<int32_t(int32_t)> function5;
-  const wn::containers::unique_function<int32_t(int32_t, int32_t)> function6;
+  const wn::functional::unique_function<void()> function1;
+  const wn::functional::unique_function<void(int32_t)> function2;
+  const wn::functional::unique_function<void(int32_t, int32_t)> function3;
+  const wn::functional::unique_function<int32_t()> function4;
+  const wn::functional::unique_function<int32_t(int32_t)> function5;
+  const wn::functional::unique_function<int32_t(int32_t, int32_t)> function6;
 
   EXPECT_FALSE(function1);
   EXPECT_FALSE(function2);
@@ -65,16 +63,16 @@ TEST(unique_function, construct) {
   EXPECT_FALSE(function6);
 
   // lambda
-  const wn::containers::unique_function<void()> function7([]() -> void {});
-  const wn::containers::unique_function<void(int32_t)> function8(
+  const wn::functional::unique_function<void()> function7([]() -> void {});
+  const wn::functional::unique_function<void(int32_t)> function8(
       [](int32_t) -> void {});
-  const wn::containers::unique_function<void(int32_t, int32_t)> function9(
+  const wn::functional::unique_function<void(int32_t, int32_t)> function9(
       [](int32_t, int32_t) -> void {});
-  const wn::containers::unique_function<int32_t()> function10(
+  const wn::functional::unique_function<int32_t()> function10(
       []() -> int32_t { return (1); });
-  const wn::containers::unique_function<int32_t(int32_t)> function11(
+  const wn::functional::unique_function<int32_t(int32_t)> function11(
       [](int32_t) -> int32_t { return (1); });
-  const wn::containers::unique_function<int32_t(int32_t, int32_t)> function12(
+  const wn::functional::unique_function<int32_t(int32_t, int32_t)> function12(
       [](int32_t, int32_t) -> int32_t { return (1); });
 
   EXPECT_TRUE(function7);
@@ -86,17 +84,17 @@ TEST(unique_function, construct) {
 
   // lambda with capture
   const int32_t value = 1;
-  const wn::containers::unique_function<void()> function13(
+  const wn::functional::unique_function<void()> function13(
       [value]() -> void {});
-  const wn::containers::unique_function<void(int32_t)> function14(
+  const wn::functional::unique_function<void(int32_t)> function14(
       [value](int32_t) -> void {});
-  const wn::containers::unique_function<void(int32_t, int32_t)> function15(
+  const wn::functional::unique_function<void(int32_t, int32_t)> function15(
       [value](int32_t, int32_t) -> void {});
-  const wn::containers::unique_function<int32_t()> function16(
+  const wn::functional::unique_function<int32_t()> function16(
       [value]() -> int32_t { return (1); });
-  const wn::containers::unique_function<int32_t(int32_t)> function17(
+  const wn::functional::unique_function<int32_t(int32_t)> function17(
       [value](int32_t) -> int32_t { return (1); });
-  const wn::containers::unique_function<int32_t(int32_t, int32_t)> function18(
+  const wn::functional::unique_function<int32_t(int32_t, int32_t)> function18(
       [value](int32_t, int32_t) -> int32_t { return (1); });
 
   EXPECT_TRUE(function13);
@@ -107,15 +105,15 @@ TEST(unique_function, construct) {
   EXPECT_TRUE(function18);
 
   // functions
-  const wn::containers::unique_function<void()> function19(&test_function1);
-  const wn::containers::unique_function<void(int32_t)> function20(
+  const wn::functional::unique_function<void()> function19(&test_function1);
+  const wn::functional::unique_function<void(int32_t)> function20(
       &test_function2);
-  const wn::containers::unique_function<void(int32_t, int32_t)> function21(
+  const wn::functional::unique_function<void(int32_t, int32_t)> function21(
       &test_function3);
-  const wn::containers::unique_function<int32_t()> function22(&test_function4);
-  const wn::containers::unique_function<int32_t(int32_t)> function23(
+  const wn::functional::unique_function<int32_t()> function22(&test_function4);
+  const wn::functional::unique_function<int32_t(int32_t)> function23(
       &test_function5);
-  const wn::containers::unique_function<int32_t(int32_t, int32_t)> function24(
+  const wn::functional::unique_function<int32_t(int32_t, int32_t)> function24(
       &test_function6);
 
   EXPECT_TRUE(function19);
@@ -127,17 +125,17 @@ TEST(unique_function, construct) {
 
   // member functions
   test_object object;
-  const wn::containers::unique_function<void()> function25(
+  const wn::functional::unique_function<void()> function25(
       &test_object::test_member_function1, &object);
-  const wn::containers::unique_function<void(int32_t)> function26(
+  const wn::functional::unique_function<void(int32_t)> function26(
       &test_object::test_member_function2, &object);
-  const wn::containers::unique_function<void(int32_t, int32_t)> function27(
+  const wn::functional::unique_function<void(int32_t, int32_t)> function27(
       &test_object::test_member_function3, &object);
-  const wn::containers::unique_function<int32_t()> function28(
+  const wn::functional::unique_function<int32_t()> function28(
       &test_object::test_member_function4, &object);
-  const wn::containers::unique_function<int32_t(int32_t)> function29(
+  const wn::functional::unique_function<int32_t(int32_t)> function29(
       &test_object::test_member_function5, &object);
-  const wn::containers::unique_function<int32_t(int32_t, int32_t)> function30(
+  const wn::functional::unique_function<int32_t(int32_t, int32_t)> function30(
       &test_object::test_member_function6, &object);
 
   EXPECT_TRUE(function25);
@@ -150,13 +148,13 @@ TEST(unique_function, construct) {
 
 TEST(unique_function, move) {
   const int32_t value = 1;
-  wn::containers::unique_function<int32_t()> function1(
+  wn::functional::unique_function<int32_t()> function1(
       [value]() -> int32_t { return (value); });
 
   EXPECT_TRUE(function1);
   EXPECT_EQ(function1(), 1);
 
-  wn::containers::unique_function<int32_t()> function2(std::move(function1));
+  wn::functional::unique_function<int32_t()> function2(std::move(function1));
 
   EXPECT_FALSE(function1);
   EXPECT_TRUE(function2);
@@ -173,7 +171,7 @@ TEST(unique_function, move) {
   {
     wn::memory::unique_ptr<int32_t> int_ptr(
         wn::memory::make_unique<int32_t>(&allocator, 5));
-    wn::containers::unique_function<int32_t()> function3(std::bind(
+    wn::functional::unique_function<int32_t()> function3(std::bind(
         [&](wn::memory::unique_ptr<int32_t>& _ptr) -> int32_t {
           return *(_ptr.get());
         },
@@ -184,7 +182,7 @@ TEST(unique_function, move) {
 }
 
 TEST(unique_function, assign) {
-  wn::containers::unique_function<int32_t()> function1;
+  wn::functional::unique_function<int32_t()> function1;
 
   EXPECT_FALSE(function1);
 
@@ -198,9 +196,9 @@ TEST(unique_function, assign) {
 
 TEST(unique_function, swap) {
   const int32_t value = 1;
-  wn::containers::unique_function<int32_t()> function1(
+  wn::functional::unique_function<int32_t()> function1(
       [value]() -> int32_t { return (value); });
-  wn::containers::unique_function<int32_t()> function2(
+  wn::functional::unique_function<int32_t()> function2(
       [value]() -> int32_t { return (value + 1); });
 
   EXPECT_TRUE(function1);
@@ -215,7 +213,7 @@ TEST(unique_function, swap) {
   EXPECT_EQ(function1(), 2);
   EXPECT_EQ(function2(), 1);
 
-  wn::containers::unique_function<int32_t()> function3;
+  wn::functional::unique_function<int32_t()> function3;
 
   EXPECT_FALSE(function3);
 
@@ -227,7 +225,7 @@ TEST(unique_function, swap) {
 }
 
 TEST(unique_function, large_parameter_count) {
-  wn::containers::unique_function<int32_t(float, double, int8_t, int16_t,
+  wn::functional::unique_function<int32_t(float, double, int8_t, int16_t,
       int32_t, int64_t, uint8_t, uint16_t, uint32_t, uint64_t, size_t,
       signed_t)>
       function1;

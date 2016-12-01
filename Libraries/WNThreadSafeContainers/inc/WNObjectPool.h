@@ -7,8 +7,8 @@
 #ifndef __WN_THREADSAFE_CONTAINERS_OBJECT_POOL_H__
 #define __WN_THREADSAFE_CONTAINERS_OBJECT_POOL_H__
 
-#include "WNContainers/inc/WNFunction.h"
 #include "WNContainers/inc/WNList.h"
+#include "WNFunctional/inc/WNFunction.h"
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNMemory/inc/WNIntrusivePtr.h"
 #include "WNMultiTasking/inc/WNLockGuard.h"
@@ -116,8 +116,8 @@ private:
 public:
   using unmanaged_object_t = unmanaged_object<T>;
   object_pool(memory::allocator* _allocator,
-      containers::function<T()> _create_function,
-      containers::function<void(T*)> _reset_function)
+      functional::function<T()> _create_function,
+      functional::function<void(T*)> _reset_function)
     : m_allocator(_allocator),
       m_free_list(_allocator),
       m_used_list(_allocator),
@@ -138,8 +138,8 @@ private:
   containers::list<T> m_free_list;
   containers::list<T> m_used_list;
   multi_tasking::mutex m_lock;
-  containers::function<T()> m_create_function;
-  containers::function<void(T*)> m_reset_function;
+  functional::function<T()> m_create_function;
+  functional::function<void(T*)> m_reset_function;
 };
 
 template <typename T>

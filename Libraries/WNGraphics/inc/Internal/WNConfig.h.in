@@ -8,7 +8,7 @@
 #define __WN_GRAPHICS_INTERNAL_CONFIG_H__
 
 #include "WNCore/inc/WNBase.h"
-#include "WNCore/inc/WNMacroUtilities.h"
+#include "WNCore/inc/WNMacros.h"
 
 // number of graphics device types available
 #define _WN_GRAPHICS_DEVICE_TYPES_AVAILABLE ${WN_GRAPHICS_DEVICE_TYPES_AVAILABLE_COUNT}
