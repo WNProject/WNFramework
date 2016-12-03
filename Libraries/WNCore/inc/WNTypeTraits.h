@@ -319,6 +319,34 @@ template <const size_t... Values>
 using index_sequence = integral_sequence<size_t, Values...>;
 #endif
 
+namespace internal {
+
+template <const bool Negative, const bool Zero, typename IntegerConstant,
+    typename IntegerSequence>
+struct make_sequence {
+  static_assert(
+      !Negative, "make_integer_sequence<T, N> requires N to be non-negative.");
+};
+
+template <typename T, const T... Values>
+struct make_sequence<false, true, integral_constant<T, 0>,
+    integral_sequence<T, Values...>> : integral_sequence<T, Values...> {};
+
+template <typename T, const T Index, const T... Values>
+struct make_sequence<false, false, integral_constant<T, Index>,
+    integral_sequence<T, Values...>>
+    : make_sequence<false, Index == 1, integral_constant<T, Index - 1>,
+          integral_sequence<T, Index - 1, Values...>> {};
+
+}  // namespace internal
+
+template <typename T, const T N>
+using make_integral_sequence = typename internal::make_sequence<(N < 0), N == 0,
+    integral_constant<T, N>, integral_sequence<T>>::type;
+
+template <const size_t N>
+using make_index_sequence = make_integral_sequence<size_t, N>;
+
 // type modifications
 
 #ifdef _WN_HAS_CPP14_STD_REMOVE_CONST_T

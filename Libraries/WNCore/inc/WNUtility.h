@@ -14,8 +14,9 @@
 namespace wn {
 namespace core {
 
-using std::move;
+using std::declval;
 using std::forward;
+using std::move;
 using std::swap;
 
 class non_constructable {
