@@ -65,24 +65,12 @@ public:
     return m_error;
   }
 
-  // TODO: Once we fix up core::function to have a move-only version,
-  // then we can remove these. These are to pass a ReceiveBuffer through
-  // a job.
-  void decompose(const void** _token, WNBufferManager** _manager,
-      containers::contiguous_range<char>* _data, network_error* _err) {
-    *_token = m_token;
-    *_manager = m_owner;
-    *_data = data;
-    *_err = m_error;
-    m_owner = nullptr;
-  }
-
+private:
   WNReceiveBuffer(const void* _token, WNBufferManager* _manager,
       const containers::contiguous_range<char>& _data,
       network_error _err = network_error::ok)
     : m_token(_token), m_owner(_manager), data(_data), m_error(_err) {}
 
-private:
   void release();
   const void* m_token;
   WNBufferManager* m_owner;
