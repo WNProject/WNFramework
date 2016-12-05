@@ -38,5 +38,9 @@ void job_signal::wait_until(size_t _value) {
   pool->block_job_until(this, _value);
 }
 
-} // namespace multi_tasking
-} // namespace wn
+size_t job_signal::current_value() {
+  return value;
+}
+
+}  // namespace multi_tasking
+}  // namespace wn

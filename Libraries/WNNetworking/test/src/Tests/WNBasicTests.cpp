@@ -36,7 +36,7 @@ TEST_P(connection_tests, connection) {
 
     wn::networking::WNConcreteNetworkManager manager(&allocator, &pool, &log);
 
-    pool.add_job(wn::multi_tasking::make_job(&allocator, nullptr, [&]() {
+    pool.add_unsynchronized_job(nullptr, [&]() {
       {
         auto listen_socket = manager.listen_remote_sync(GetParam(), 8080);
         listen_started.notify();
@@ -45,9 +45,9 @@ TEST_P(connection_tests, connection) {
         final_semaphore.wait();
       }
       wait_for_done.notify();
-    }));
+    });
 
-    pool.add_job(wn::multi_tasking::make_job(&allocator, nullptr, [&]() {
+    pool.add_unsynchronized_job(nullptr, [&]() {
       {
         listen_started.wait();
         auto connect_socket = manager.connect_remote_sync(
@@ -57,7 +57,7 @@ TEST_P(connection_tests, connection) {
         final_semaphore.notify();
       }
       wait_for_done.notify();
-    }));
+    });
 
     wait_for_done.wait();
     wait_for_done.wait();
@@ -78,7 +78,7 @@ TEST_P(connection_tests, connect_to_any) {
 
     wn::networking::WNConcreteNetworkManager manager(&allocator, &pool, &log);
 
-    pool.add_job(wn::multi_tasking::make_job(&allocator, nullptr, [&]() {
+    pool.add_unsynchronized_job(nullptr, [&]() {
       {
         auto listen_socket = manager.listen_remote_sync(GetParam(), 8080);
         listen_started.notify();
@@ -87,9 +87,9 @@ TEST_P(connection_tests, connect_to_any) {
         final_semaphore.wait();
       }
       wait_for_done.notify();
-    }));
+    });
 
-    pool.add_job(wn::multi_tasking::make_job(&allocator, nullptr, [&]() {
+    pool.add_unsynchronized_job(nullptr, [&]() {
       {
         listen_started.wait();
         auto connect_socket = manager.connect_remote_sync(
@@ -99,7 +99,7 @@ TEST_P(connection_tests, connect_to_any) {
         final_semaphore.notify();
       }
       wait_for_done.notify();
-    }));
+    });
 
     wait_for_done.wait();
     wait_for_done.wait();
@@ -120,7 +120,7 @@ TEST(raw_connection, send_data_from_server) {
 
     wn::networking::WNConcreteNetworkManager manager(&allocator, &pool, &log);
 
-    pool.add_job(wn::multi_tasking::make_job(&allocator, nullptr, [&]() {
+    pool.add_unsynchronized_job(nullptr, [&]() {
       {
         auto listen_socket =
             manager.listen_remote_sync(wn::networking::ip_protocol::ipv4, 8080);
@@ -131,9 +131,9 @@ TEST(raw_connection, send_data_from_server) {
         accepted_socket->send_sync({{my_str.data(), my_str.length()}});
       }
       wait_for_done.notify();
-    }));
+    });
 
-    pool.add_job(wn::multi_tasking::make_job(&allocator, nullptr, [&]() {
+    pool.add_unsynchronized_job(nullptr, [&]() {
       {
         listen_started.wait();
         auto connect_socket = manager.connect_remote_sync(
@@ -145,7 +145,7 @@ TEST(raw_connection, send_data_from_server) {
             wn::containers::string(buff.data.data(), buff.data.size()));
       }
       wait_for_done.notify();
-    }));
+    });
 
     wait_for_done.wait();
     wait_for_done.wait();
@@ -166,7 +166,7 @@ TEST(raw_connection, send_data_from_client) {
 
     wn::networking::WNConcreteNetworkManager manager(&allocator, &pool, &log);
 
-    pool.add_job(wn::multi_tasking::make_job(&allocator, nullptr, [&]() {
+    pool.add_unsynchronized_job(nullptr, [&]() {
       {
         auto listen_socket =
             manager.listen_remote_sync(wn::networking::ip_protocol::ipv4, 8080);
@@ -179,9 +179,9 @@ TEST(raw_connection, send_data_from_client) {
             wn::containers::string(buff.data.data(), buff.data.size()));
       }
       wait_for_done.notify();
-    }));
+    });
 
-    pool.add_job(wn::multi_tasking::make_job(&allocator, nullptr, [&]() {
+    pool.add_unsynchronized_job(nullptr, [&]() {
       {
         listen_started.wait();
         auto connect_socket = manager.connect_remote_sync(
@@ -191,7 +191,7 @@ TEST(raw_connection, send_data_from_client) {
         connect_socket->send_sync({{my_str.data(), my_str.length()}});
       }
       wait_for_done.notify();
-    }));
+    });
 
     wait_for_done.wait();
     wait_for_done.wait();

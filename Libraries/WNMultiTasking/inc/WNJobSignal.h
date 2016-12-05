@@ -33,6 +33,7 @@ public:
   void decrement(size_t _value);
   void set(size_t _value);
   void wait_until(size_t _value);
+  size_t current_value();
 
 private:
   std::atomic<size_t> value;

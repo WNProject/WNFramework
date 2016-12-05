@@ -242,6 +242,10 @@ public:
     return insert(core::make_pair(kt, mt));
   }
 
+  core::pair<iterator, bool> insert(key_type&& kt, mapped_type&& mt) {
+    return insert(core::make_pair(core::move(kt), core::move(mt)));
+  }
+
   mapped_type& operator[](key_type&& key) {
     iterator it = find(key);
     if (it != end()) {

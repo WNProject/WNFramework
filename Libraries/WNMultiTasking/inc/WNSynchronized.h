@@ -18,7 +18,7 @@ namespace wn {
 namespace multi_tasking {
 
 struct synchronization_data {
-  synchronization_data() : signal(0) {}
+  synchronization_data() : signal(0), next_job(0) {}
   size_t increment_job() {
     return next_job.fetch_add(1, std::memory_order::memory_order_release);
   }

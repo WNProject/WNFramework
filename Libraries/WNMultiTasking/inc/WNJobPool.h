@@ -13,9 +13,11 @@
 #include "WNCore/inc/WNPair.h"
 #include "WNCore/inc/WNUtility.h"
 #include "WNFunctional/inc/WNFunction.h"
-#include "WNMultiTasking/inc/WNCallbackTask.h"
-#include "WNMultiTasking/inc/WNSynchronized.h"
+#include "WNFunctional/inc/WNUniqueFunction.h"
+#include "WNMemory/inc/WNIntrusivePtr.h"
+#include "WNMemory/inc/WNUniquePtr.h"
 #include "WNMultiTasking/inc/WNThread.h"
+#include "WNMultiTasking/inc/WNSynchronized.h"
 #include "WNMultiTasking/inc/WNThreadPool.h"
 
 namespace wn {
@@ -23,57 +25,144 @@ namespace multi_tasking {
 
 class job_pool;
 
-using job = callback_task<void>;
-using job_ptr = memory::intrusive_ptr<job>;
-
-template <typename T, typename... Args>
-WN_FORCE_INLINE job_ptr make_job(memory::allocator* _allocator,
-    job_signal* _signal, T&& func, Args&&... _args) {
-  // TODO(awoloszyn) Add more data to job such that we can
-  // detect this more easily.
-  if (!_signal) {
-    return memory::make_intrusive<job>(
-        _allocator, std::bind(func, core::forward<Args>(_args)...));
-  } else {
-    functional::function<void()>* fn =
-        _allocator->construct<functional::function<void()>>(
-            std::bind(func, core::forward<Args>(_args)...));
-
-    return memory::make_intrusive<job>(_allocator, [_allocator, fn, _signal]() {
-      (*fn)();
-      _allocator->destroy(fn);
-      _signal->increment(1);
-    });
+class job {
+public:
+  virtual ~job() = default;
+  void run() {
+    run_internal();
+    if (m_done_signal) {
+      m_done_signal->increment(1);
+    }
+    if (m_wait_signal) {
+      m_wait_signal->increment(1);
+    }
   }
+
+  job_signal* get_wait_signal() const {
+    return m_wait_signal;
+  }
+
+  void mark_ready() {
+    m_ready = true;
+  }
+
+  bool is_ready() const {
+    return m_ready;
+  }
+
+  size_t get_wait_condition() const {
+    return m_wait_count;
+  }
+
+  WN_FORCE_INLINE job(job_signal* _wait_signal, size_t _wait_count,
+      job_signal* _done_signal, bool _ready = false)
+    : m_wait_signal(_wait_signal),
+      m_wait_count(_wait_count),
+      m_done_signal(_done_signal),
+      m_ready(_ready) {}
+
+private:
+  virtual void run_internal() = 0;
+  job_signal* m_wait_signal;
+  size_t m_wait_count;
+  job_signal* m_done_signal;
+  bool m_ready;
+
+  friend class job_pool;
+};
+
+template <typename C, typename T>
+class synchronized_job : public job {
+public:
+  template <typename... Args>
+  WN_FORCE_INLINE synchronized_job(job_signal* _wait_signal, size_t _wait_count,
+      job_signal* _done_signal, C* _class, void (C::*_function)(T),
+      Args&&... _args)
+    : job(_wait_signal, _wait_count, _done_signal, _wait_signal == nullptr),
+      m_c(_class),
+      m_function(_function),
+      m_t{core::forward<Args>(_args)...} {}
+
+private:
+  void run_internal() override {
+    (m_c->*m_function)(core::forward<T>(m_t));
+  }
+
+  C* m_c;
+  typename core::remove_reference<T>::type m_t;
+  void (C::*m_function)(T);
+};
+
+class unsynchronized_job : public job {
+public:
+  WN_FORCE_INLINE unsynchronized_job(
+      job_signal* _done_signal, functional::function<void()> _function)
+    : job(nullptr, 0, _done_signal, true), m_function(_function) {}
+
+private:
+  void run_internal() override {
+    m_function();
+  }
+  functional::function<void()> m_function;
+};
+
+template <typename T>
+class callback : public core::non_copyable {
+public:
+  virtual ~callback() = default;
+  virtual void enqueue_job(job_pool* pool, T&& t) = 0;
+};
+
+template <typename T, typename C>
+class synchronized_callback : public callback<T> {
+public:
+  synchronized_callback(C* _c, void (C::*_func)(T))
+    : m_c(_c), m_function(_func) {}
+  virtual void enqueue_job(job_pool* pool, T&& t);
+
+private:
+  C* m_c;
+  void (C::*m_function)(T);
+};
+
+template <typename T>
+class unsynchronized_callback : public callback<T> {
+public:
+  unsynchronized_callback(const functional::function<void(T)>& _func)
+    : m_function(_func) {}
+  virtual void enqueue_job(job_pool* pool, T&& t);
+
+private:
+  functional::function<void(T)> m_function;
+};
+
+using job_ptr = memory::unique_ptr<job>;
+template <typename T>
+using callback_ptr = memory::unique_ptr<callback<T>>;
+
+class job_task : public thread_task {
+public:
+  job_task(job_ptr _ptr) : m_ptr(core::move(_ptr)) {}
+  void run() override {
+    m_ptr->run();
+  }
+
+private:
+  job_ptr m_ptr;
+};
+
+template <typename T>
+typename core::enable_if_t<std::is_move_constructible<T>::value, T&&>
+move_if_movable(T& t) {
+  return core::move(t);
 }
 
-template <typename T, typename... Args>
-WN_FORCE_INLINE
-    typename core::enable_if<wn::multi_tasking::is_synchronized<T>::type::value,
-        job_ptr>::type
-    make_job(memory::allocator* _allocator, job_signal* _signal,
-        void (T::*fn)(Args...), T* _c, Args&&... _args) {
-  // TODO(awoloszyn) Add more data to job such that we can
-  // detect this more easily, and, instead of wrapping the job,
-  // put it directly into the sleep state.
-  synchronization_data* data = _c->get_synchronization_data();
-  functional::function<void()>* func =
-      _allocator->construct<functional::function<void()>>(
-          std::bind(fn, _c, core::forward<Args>(_args)...));
-  size_t wait_value = data->increment_job();
-  return memory::make_intrusive<job>(
-      _allocator, [_allocator, wait_value, data, func, _signal]() {
-        data->signal.wait_until(wait_value);
-        (*func)();
-        _allocator->destroy(func);
-        data->signal.increment(1);
-        if (_signal) {
-          _signal->increment(1);
-        }
-      });
+template <typename T>
+typename core::enable_if_t<!std::is_move_constructible<T>::value, T>
+move_if_movable(T& t) {
+  return t;
 }
 
-// T must either be a thread or a fiber.
 // Jobs are a bit different than tasks (in WNThreadPool.h).
 // Jobs should never use normal threading constructs, they
 // should instead use those provided by the job pool.
@@ -93,45 +182,55 @@ public:
     block_job(_signal, _value);
   }
 
-  virtual void add_job(const job_ptr& _ptr) = 0;
-  virtual void add_job(job_ptr&& _ptr) = 0;
-
   // Calls the given blocking function.
 
-  template <typename T, typename... Args>
-  T call_blocking_function(
-      const functional::function<T(Args...)>& func, Args&&... args) {
+  template <typename T, typename Callable, typename... Args>
+  T call_blocking_function(Callable func, Args&&... args) {
     notify_blocking();
-    T ret = func(std::forward<Args>(args)...);
+    T ret = std::bind(func, core::forward<Args>(args)...)();
     move_to_ready();
     return core::move(ret);
   }
 
-  template <typename... Args>
-  void call_blocking_function(
-      const functional::function<void(Args...)>& func, Args&&... args) {
+  template <typename Callable, typename... Args>
+  void call_blocking_function(Callable func, Args&&... args) {
     notify_blocking();
-    func(std::forward<Args>(args)...);
+    std::bind(func, core::forward<Args>(args)...)();
     move_to_ready();
   }
 
-  // Calls the given blocking function asynchronously. _signal is incremented
-  // when the call completes.
-  void call_blocking_function_async(
-      const functional::function<void()>& func, job_signal* _signal) {
-    add_job(wn::multi_tasking::make_job(
-        m_allocator, nullptr, [this, func, _signal]() {
-          notify_blocking();
-          func();
-          _signal->increment(1);
-          move_to_ready();
-        }));
+  template <typename T, typename... Args>
+  WN_FORCE_INLINE typename core::enable_if<
+      !core::disjunction<core::is_lvalue_reference<Args>...>::value, bool>::type
+  add_unsynchronized_job(job_signal* _signal, T&& _func, Args... _args) {
+    add_job_internal(memory::make_unique<unsynchronized_job>(m_allocator,
+        _signal, std::bind<void>(_func, move_if_movable<Args>(_args)...)));
+    return true;  // This is because of a bug in VS2013.
+                  // Remove and switch to void return once that is done
   }
 
-  template <typename T, typename... Args>
-  void call_async(job_signal* _signal, T&& t, Args&&... args) {
-    add_job(wn::multi_tasking::make_job(
-        m_allocator, _signal, t, std::forward<Args>(args)...));
+  template <typename T, typename V, typename... Args>
+  WN_FORCE_INLINE
+      typename core::enable_if<multi_tasking::is_synchronized<T>::type::value,
+          bool>::type
+      add_job(job_signal* _signal, void (T::*_fn)(V), T* _c, Args&&... _args) {
+    synchronization_data* data = _c->get_synchronization_data();
+    add_job_internal(memory::make_unique<synchronized_job<T, V>>(m_allocator,
+        &data->signal, data->increment_job(), _signal, _c, _fn,
+        core::forward<Args>(_args)...));
+    return true;  // This is because of a bug in VS2013.
+                  // Remove and switch to void return once that is done
+  }
+
+  template <typename T, typename V, typename... Args>
+  WN_FORCE_INLINE
+      typename core::enable_if<!multi_tasking::is_synchronized<T>::type::value,
+          bool>::type
+      add_job(job_signal* _signal, void (T::*_fn)(V), T* _c, Args&&... _args) {
+    add_job_internal(memory::make_unique<synchronized_job<T, V>>(m_allocator,
+        nullptr, 0, _signal, _c, _fn, core::forward<Args>(_args)...));
+    return true;  // This is because of a bug in VS2013.
+                  // Remove and switch to void return once that is done
   }
 
   void update_signal(job_signal* _signal, size_t _num) {
@@ -159,6 +258,8 @@ protected:
   static void set_this_job_pool(job_pool* _pool);
   memory::allocator* m_allocator;
 
+  virtual void add_job_internal(job_ptr _ptr) = 0;
+
 private:
   // This blocks the current
   virtual void block_job(job_signal* _signal, size_t _value) = 0;
@@ -167,6 +268,30 @@ private:
   virtual void move_to_ready() = 0;
   friend class job_signal;
 };
+
+template <typename T, typename C>
+void synchronized_callback<T, C>::enqueue_job(job_pool* pool, T&& t) {
+  pool->add_job(nullptr, m_function, m_c, core::forward<T>(t));
+}
+
+template <typename T>
+void unsynchronized_callback<T>::enqueue_job(job_pool* pool, T&& t) {
+  pool->add_unsynchronized_job(nullptr, m_function, core::forward<T>(t));
+}
+
+template <typename T, typename C>
+WN_FORCE_INLINE memory::unique_ptr<synchronized_callback<T, C>> make_callback(
+    memory::allocator* _allocator, C* m_c, void (C::*_function)(T)) {
+  return memory::make_unique<synchronized_callback<T, C>>(
+      _allocator, m_c, _function);
+}
+
+template <typename T>
+WN_FORCE_INLINE memory::unique_ptr<unsynchronized_callback<T>>
+make_unsynchronized_callback(memory::allocator* _allocator,
+    const functional::function<void(T)>& _function) {
+  return memory::make_unique<unsynchronized_callback<T>>(_allocator, _function);
+}
 
 struct thread_data {
   thread_data() {}
@@ -208,6 +333,7 @@ public:
       // running a blocking call, they will be made
       // pending when they wake up.
       m_blocking_threads(_allocator),
+      m_preblocked_jobs(_allocator),
       m_pending_jobs(0) {
     // We initialize with 0 threads because we handle managing
     // the thread lifetimes ourselves. We just want to use the
@@ -250,15 +376,36 @@ public:
     }
   }
 
-  void add_job(const job_ptr& _ptr) override {
+protected:
+  void add_job_internal(job_ptr _ptr) override {
     spin_lock_guard guard(m_thread_lock);
-    m_pending_jobs += 1;
-    m_thread_pool.enqueue(_ptr);
-  }
-  void add_job(job_ptr&& _ptr) override {
-    spin_lock_guard guard(m_thread_lock);
-    m_pending_jobs += 1;
-    m_thread_pool.enqueue(core::move(_ptr));
+    if (!_ptr->is_ready() &&
+        _ptr->get_wait_signal()->current_value() !=
+            _ptr->get_wait_condition()) {
+      WN_DEBUG_ASSERT_DESC(_ptr->get_wait_signal(),
+          "Cannot have an unready job without a wait signal");
+      job_signal* signal = _ptr->get_wait_signal();
+      size_t wait_condition = _ptr->get_wait_condition();
+      if (m_preblocked_jobs.find(core::make_pair(signal, wait_condition)) ==
+          m_preblocked_jobs.end()) {
+        m_preblocked_jobs.insert(
+            core::make_pair(core::make_pair(signal, wait_condition),
+                containers::deque<job_ptr>(m_allocator)));
+      }
+      m_preblocked_jobs[core::make_pair(signal, wait_condition)].emplace_back(
+          core::move(_ptr));
+      m_pending_jobs += 1;
+    } else {
+      // If we have a wait signal but we are marked ready,
+      // meaning we fell through the loop above, then add a pending
+      // job right now.
+      if (!_ptr->get_wait_signal() || !_ptr->is_ready()) {
+        m_pending_jobs += 1;
+      }
+      _ptr->mark_ready();
+      m_thread_pool.enqueue(
+          memory::make_intrusive<job_task>(m_allocator, core::move(_ptr)));
+    }
   }
 
 private:
@@ -344,9 +491,9 @@ private:
 
   void notify_signalled(job_signal* _signal, size_t _value) override {
     size_t num_to_wake = 0;
+    containers::deque<job_ptr> start_jobs;
     {
       spin_lock_guard guard(m_thread_lock);
-
       auto it = m_blocked_threads.find(core::make_pair(_signal, _value));
       if (it != m_blocked_threads.end()) {
         num_to_wake = it->second.size();
@@ -359,10 +506,18 @@ private:
         }
         m_blocked_threads.erase(it);
       }
+      auto it2 = m_preblocked_jobs.find(core::make_pair(_signal, _value));
+      if (it2 != m_preblocked_jobs.end()) {
+        start_jobs = core::move(it2->second);
+      }
     }
 
     for (size_t i = 0; i < num_to_wake; ++i) {
       m_thread_pool.wake_waiting_thread();
+    }
+    for (auto&& job : start_jobs) {
+      job->mark_ready();
+      add_job_internal(core::move(job));
     }
   }
 
@@ -454,6 +609,9 @@ private:
   containers::hash_map<core::pair<job_signal*, size_t>,
       containers::list<thread_data>, hasher, equal>
       m_blocked_threads;
+  containers::hash_map<core::pair<job_signal*, size_t>,
+      containers::deque<job_ptr>, hasher, equal>
+      m_preblocked_jobs;
 };
 
 }  // namespace multi_tasking

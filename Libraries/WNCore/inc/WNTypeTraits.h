@@ -640,6 +640,19 @@ struct is_callable : false_type {};
 template <typename F, typename R, typename... Args>
 struct is_callable<F, R(Args...)> : internal::is_callable<F, R, Args...> {};
 
+template <typename T>
+struct remove_lvalue_reference {
+  typedef T type;
+};
+template <typename T>
+struct remove_lvalue_reference<T&> {
+  typedef T type;
+};
+template <typename T>
+struct remove_lvalue_reference<T&&> {
+  typedef T&& type;
+};
+
 }  // namespace core
 }  // namespace wn
 
