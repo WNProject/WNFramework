@@ -57,26 +57,27 @@ network_error WNReliableNetworkTransportSocket::connect_to(
 }
 
 network_error WNReliableNetworkTransportSocket::do_send(
-    const containers::contiguous_range<const send_buffer*>& buffers) {
+    const send_ranges& _buffers) {
   iovec* send_buffers =
-      static_cast<iovec*>(WN_STACK_ALLOC(sizeof(iovec) * buffers.size()));
+      static_cast<iovec*>(WN_STACK_ALLOC(sizeof(iovec) * _buffers.size()));
 
   size_t total_bytes = 0;
-  for (size_t i = 0; i < buffers.size(); ++i) {
-    total_bytes += buffers[i]->size;
-    send_buffers[i].iov_base = const_cast<void*>(buffers[i]->data);
-    send_buffers[i].iov_len = buffers[i]->size;
+  for (size_t i = 0; i < _buffers.size(); ++i) {
+    total_bytes += _buffers[i].size();
+    send_buffers[i].iov_base =
+        const_cast<void*>(static_cast<const void*>(_buffers[i].data()));
+    send_buffers[i].iov_len = _buffers[i].size();
   }
 
   msghdr header = {nullptr,  // msg_name
       0,                     // msg_namelen
       send_buffers,          // msg_iov
-      buffers.size(),        // msg_iovlen
+      _buffers.size(),       // msg_iovlen
       nullptr,               // msg_control
       0,                     //  msg_controllen
       0};
 
-  size_t num_sent = 0;
+  ssize_t num_sent = 0;
   if (0 > (num_sent = sendmsg(m_sock_fd, &header, 0))) {
     return network_error::could_not_send;
   }

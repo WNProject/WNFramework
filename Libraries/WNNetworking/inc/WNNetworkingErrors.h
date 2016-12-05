@@ -15,7 +15,8 @@ enum class network_error {
   could_not_bind,
   could_not_resolve,
   could_not_send,
-  could_not_receive
+  could_not_receive,
+  closed
 };
 
 }  // namespace networking

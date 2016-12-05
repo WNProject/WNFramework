@@ -70,7 +70,7 @@ network_error WNReliableConnectListenSocket::initialize(
   return network_error::ok;
 }
 
-memory::unique_ptr<WNReliableConnection>
+memory::unique_ptr<WNConnection>
 WNReliableConnectListenSocket::accept_sync(network_error* _error) {
   network_error tmp;
   _error = _error ? _error : &tmp;
@@ -84,7 +84,7 @@ WNReliableConnectListenSocket::accept_sync(network_error* _error) {
     return nullptr;
   }
   return memory::make_unique<WNReliableNetworkTransportSocket>(
-      m_allocator, m_allocator, accepted, m_manager);
+      m_allocator, m_allocator, m_pool, accepted, m_manager);
 }
 
 }  // namespace networking

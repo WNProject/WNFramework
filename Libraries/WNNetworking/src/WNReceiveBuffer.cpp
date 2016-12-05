@@ -11,6 +11,10 @@ namespace wn {
 namespace networking {
 
 WNReceiveBuffer::~WNReceiveBuffer() {
+  release();
+}
+
+void WNReceiveBuffer::release() {
   if (m_owner) {
     m_owner->release_buffer(m_token);
   }

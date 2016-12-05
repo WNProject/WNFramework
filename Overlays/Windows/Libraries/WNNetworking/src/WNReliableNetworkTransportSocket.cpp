@@ -54,16 +54,16 @@ network_error WNReliableNetworkTransportSocket::connect_to(
 }
 
 network_error WNReliableNetworkTransportSocket::do_send(
-    const containers::contiguous_range<const send_buffer*>& buffers) {
+    const send_ranges& _buffers) {
   WSABUF* send_buffers =
-      static_cast<WSABUF*>(WN_STACK_ALLOC(sizeof(WSABUF) * buffers.size()));
-  for (size_t i = 0; i < buffers.size(); ++i) {
+      static_cast<WSABUF*>(WN_STACK_ALLOC(sizeof(WSABUF) * _buffers.size()));
+  for (size_t i = 0; i < _buffers.size(); ++i) {
     send_buffers[i].buf =
-        static_cast<char*>(const_cast<void*>(buffers[i]->data));
-    send_buffers[i].len = static_cast<u_long>(buffers[i]->size);
+        reinterpret_cast<char*>(const_cast<uint8_t*>(_buffers[i].data()));
+    send_buffers[i].len = static_cast<u_long>(_buffers[i].size());
   }
   DWORD number_of_bytes_sent = 0;
-  if (0 != WSASend(m_socket, send_buffers, static_cast<DWORD>(buffers.size()),
+  if (0 != WSASend(m_socket, send_buffers, static_cast<DWORD>(_buffers.size()),
                &number_of_bytes_sent, 0, NULL, NULL)) {
     return network_error::could_not_send;
   }
@@ -78,6 +78,9 @@ WNReceiveBuffer WNReliableNetworkTransportSocket::recv_sync() {
   DWORD flags = 0;
   if (0 != WSARecv(m_socket, &recv_buff, 1, &recieved, &flags, NULL, NULL)) {
     return WNReceiveBuffer(network_error::could_not_receive);
+  }
+  if (recieved == 0) {
+    return WNReceiveBuffer(network_error::closed);
   }
   buffer.data =
       containers::contiguous_range<char>(buffer.data.data(), recieved);

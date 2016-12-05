@@ -18,13 +18,14 @@ namespace networking {
 
 class WNReliableNetworkTransportSocket : public WNReliableConnection {
 public:
-  WNReliableNetworkTransportSocket(
-      memory::allocator* _allocator, WNBufferManager* _manager)
-    : WNReliableConnection(_allocator, _manager), m_sock_fd(-1) {}
+  WNReliableNetworkTransportSocket(memory::allocator* _allocator,
+      multi_tasking::job_pool* _job_pool, WNBufferManager* _manager)
+    : WNReliableConnection(_allocator, _job_pool, _manager), m_sock_fd(-1) {}
 
-  WNReliableNetworkTransportSocket(
-      memory::allocator* _allocator, int _socket, WNBufferManager* _manager)
-    : WNReliableConnection(_allocator, _manager), m_sock_fd(_socket) {}
+  WNReliableNetworkTransportSocket(memory::allocator* _allocator,
+      multi_tasking::job_pool* _job_pool, int _socket,
+      WNBufferManager* _manager)
+    : WNReliableConnection(_allocator, _job_pool, _manager), m_sock_fd(_socket) {}
 
   network_error connect_to(WNLogging::WNLog* _log,
       const containers::string_view& target, uint32_t connection_type,
@@ -38,8 +39,7 @@ public:
   WNReceiveBuffer recv_sync() override;
 
 private:
-  network_error do_send(
-      const containers::contiguous_range<const send_buffer*>& buffers) override;
+  network_error do_send(const send_ranges& buffers) override;
   int m_sock_fd;
 };
 

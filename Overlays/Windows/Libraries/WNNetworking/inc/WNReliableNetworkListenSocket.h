@@ -16,11 +16,11 @@ namespace networking {
 
 class WNReliableConnectListenSocket : public WNReliableAcceptConnection {
 public:
-  network_error initialize(WNLogging::WNLog *_log, int _protocol,
-                           uint16_t _port);
-  WNReliableConnectListenSocket(
-      memory::allocator* _allocator, WNBufferManager* _manager)
-    : WNReliableAcceptConnection(_allocator, _manager),
+  network_error initialize(
+      WNLogging::WNLog* _log, int _protocol, uint16_t _port);
+  WNReliableConnectListenSocket(memory::allocator* _allocator,
+      multi_tasking::job_pool* _pool, WNBufferManager* _manager)
+    : WNReliableAcceptConnection(_allocator, _pool, _manager),
       m_socket(INVALID_SOCKET) {}
   ~WNReliableConnectListenSocket() {
     if (m_socket != INVALID_SOCKET) {
@@ -28,14 +28,14 @@ public:
     }
   }
 
-  memory::unique_ptr<WNReliableConnection>
-  accept_sync(network_error *_error = nullptr) override;
+  memory::unique_ptr<WNConnection> accept_sync(
+      network_error* _error = nullptr) override;
 
 private:
   SOCKET m_socket;
 };
 
-} // namespace networking
-} // namespace wn
+}  // namespace networking
+}  // namespace wn
 
-#endif // __WN_NEWORKING_RELIABLE_CONNECTION_LISTEN_SOCKET_H__
+#endif  // __WN_NEWORKING_RELIABLE_CONNECTION_LISTEN_SOCKET_H__
