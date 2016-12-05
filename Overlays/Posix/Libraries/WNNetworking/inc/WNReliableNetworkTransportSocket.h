@@ -11,6 +11,7 @@
 #include "WNNetworking/inc/WNNetworkManager.h"
 #include "WNNetworking/inc/WNReliableConnection.h"
 
+#include <sys/socket.h>
 #include <unistd.h>
 
 namespace wn {
@@ -25,7 +26,8 @@ public:
   WNReliableNetworkTransportSocket(memory::allocator* _allocator,
       multi_tasking::job_pool* _job_pool, int _socket,
       WNBufferManager* _manager)
-    : WNReliableConnection(_allocator, _job_pool, _manager), m_sock_fd(_socket) {}
+    : WNReliableConnection(_allocator, _job_pool, _manager),
+      m_sock_fd(_socket) {}
 
   network_error connect_to(WNLogging::WNLog* _log,
       const containers::string_view& target, uint32_t connection_type,
@@ -33,10 +35,17 @@ public:
 
   ~WNReliableNetworkTransportSocket() {
     if (m_sock_fd != -1) {
-      close(m_sock_fd);
+      ::close(m_sock_fd);
+      m_sock_fd = -1;
     }
   }
   WNReceiveBuffer recv_sync() override;
+  void close() override {
+    if (m_sock_fd != -1) {
+      ::shutdown(m_sock_fd, SHUT_RDWR);
+      m_sock_fd = -1;
+    }
+  }
 
 private:
   network_error do_send(const send_ranges& buffers) override;

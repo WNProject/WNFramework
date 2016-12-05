@@ -34,8 +34,8 @@ class hash_map_iterator
 public:
   using T = _ContainedType;
   using ait = typename std::conditional<core::is_const<T>::value,
-      typename dynamic_array<
-          list<typename std::remove_const<T>::type>>::const_iterator,
+      typename dynamic_array<list<typename std::remove_const<T>::type>>::
+          const_iterator,
       typename dynamic_array<list<T>>::iterator>::type;
 
   using lit = typename std::conditional<core::is_const<T>::value,
@@ -177,11 +177,11 @@ public:
   hash_map(
       hash_map<_KeyType, _ValueType, _HashOperator, _EqualityOperator>&& _other)
     : m_allocator(_other.m_allocator),
-      m_buckets(std::move(_other.m_buckets)),
+      m_buckets(core::move(_other.m_buckets)),
       m_total_elements(_other.m_total_elements),
       m_max_load_factor(_other.m_max_load_factor),
-      m_hasher(std::move(_other.m_hasher)),
-      m_key_equal(std::move(_other.m_key_equal)) {
+      m_hasher(core::move(_other.m_hasher)),
+      m_key_equal(core::move(_other.m_key_equal)) {
     _other.m_total_elements = 0;
     _other.m_max_load_factor = 1.0f;
   }
@@ -230,7 +230,7 @@ public:
     if (rehash_if_needed(size() + 1)) {
       hash = get_hash(element.first);
     }
-    m_buckets[hash].push_back(std::move(element));
+    m_buckets[hash].push_back(core::move(element));
     m_total_elements += 1;
     return core::make_pair<iterator, bool>(
         iterator(m_buckets.begin() + hash, m_buckets.end(),
@@ -251,7 +251,7 @@ public:
     if (it != end()) {
       return it->second;
     }
-    return insert(core::make_pair(std::move(key), mapped_type()))
+    return insert(core::make_pair(core::move(key), mapped_type()))
         .first->second;
   }
 
@@ -289,6 +289,15 @@ public:
 
   void clear() {
     m_buckets.clear();
+  }
+
+  size_t erase(const key_type& key) {
+    auto it = find(key);
+    if (it == end()) {
+      return 0;
+    }
+    erase(it);
+    return 1;
   }
 
   iterator erase(const_iterator _it) {

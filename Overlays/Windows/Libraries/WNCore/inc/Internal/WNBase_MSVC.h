@@ -59,4 +59,6 @@
 
 #define WN_DEBUG_BREAK() __debugbreak()
 
+#define PACK(decl) __pragma(pack(push, 1)) decl __pragma(pack(pop))
+
 #endif  // __WN_CORE_INTERNAL_BASE_MSVC_H__

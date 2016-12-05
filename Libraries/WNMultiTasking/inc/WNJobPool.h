@@ -107,10 +107,11 @@ private:
 };
 
 template <typename T>
-class callback : public core::non_copyable {
+class callback {
 public:
   virtual ~callback() = default;
   virtual void enqueue_job(job_pool* pool, T&& t) = 0;
+  virtual memory::unique_ptr<callback<T>> clone(memory::allocator*) = 0;
 };
 
 template <typename T, typename C>
@@ -119,6 +120,11 @@ public:
   synchronized_callback(C* _c, void (C::*_func)(T))
     : m_c(_c), m_function(_func) {}
   virtual void enqueue_job(job_pool* pool, T&& t);
+
+  virtual memory::unique_ptr<callback<T>> clone(memory::allocator* _allocator) {
+    return memory::make_unique<synchronized_callback<T, C>>(
+        _allocator, m_c, m_function);
+  }
 
 private:
   C* m_c;
@@ -131,6 +137,10 @@ public:
   unsynchronized_callback(const functional::function<void(T)>& _func)
     : m_function(_func) {}
   virtual void enqueue_job(job_pool* pool, T&& t);
+  virtual memory::unique_ptr<callback<T>> clone(memory::allocator* _allocator) {
+    return memory::make_unique<unsynchronized_callback<T>>(
+        _allocator, m_function);
+  }
 
 private:
   functional::function<void(T)> m_function;
@@ -212,25 +222,30 @@ public:
   template <typename T, typename V, typename... Args>
   WN_FORCE_INLINE
       typename core::enable_if<multi_tasking::is_synchronized<T>::type::value,
-          bool>::type
+          void>::type
       add_job(job_signal* _signal, void (T::*_fn)(V), T* _c, Args&&... _args) {
     synchronization_data* data = _c->get_synchronization_data();
     add_job_internal(memory::make_unique<synchronized_job<T, V>>(m_allocator,
         &data->signal, data->increment_job(), _signal, _c, _fn,
         core::forward<Args>(_args)...));
-    return true;  // This is because of a bug in VS2013.
-                  // Remove and switch to void return once that is done
   }
 
   template <typename T, typename V, typename... Args>
   WN_FORCE_INLINE
       typename core::enable_if<!multi_tasking::is_synchronized<T>::type::value,
-          bool>::type
+          void>::type
       add_job(job_signal* _signal, void (T::*_fn)(V), T* _c, Args&&... _args) {
     add_job_internal(memory::make_unique<synchronized_job<T, V>>(m_allocator,
         nullptr, 0, _signal, _c, _fn, core::forward<Args>(_args)...));
-    return true;  // This is because of a bug in VS2013.
-                  // Remove and switch to void return once that is done
+  }
+
+  template <typename T>
+  WN_FORCE_INLINE void destroy_synchronized(memory::unique_ptr<T> object) {
+    synchronization_data* data = object->get_synchronization_data();
+    add_job_internal(
+        memory::make_unique<synchronized_job<job_pool, memory::unique_ptr<T>&>>(
+            m_allocator, &data->signal, data->increment_job(), nullptr, this,
+            &job_pool::destroy_synchronized_internal<T>, core::move(object)));
   }
 
   void update_signal(job_signal* _signal, size_t _num) {
@@ -255,6 +270,9 @@ public:
   static job_pool* this_job_pool();
 
 protected:
+  template <typename T>
+  void destroy_synchronized_internal(memory::unique_ptr<T>&) {}
+
   static void set_this_job_pool(job_pool* _pool);
   memory::allocator* m_allocator;
 

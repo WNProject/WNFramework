@@ -27,4 +27,5 @@
 #endif
 #endif
 
+#define PACK(decl) decl __attribute__((__packed__))
 #endif  // __WN_CORE_INTERNAL_BASE_CLANG_GCC_H__

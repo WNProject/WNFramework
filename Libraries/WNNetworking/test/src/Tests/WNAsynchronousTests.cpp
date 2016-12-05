@@ -38,8 +38,8 @@ TEST(raw_connection, send_async_data_from_server) {
           listen_started.increment(1);
           auto accepted_socket = pool.call_blocking_function<
               wn::memory::unique_ptr<wn::networking::WNConnection>>(
-              &wn::networking::WNAcceptConnection::accept_sync, listen_socket.get(),
-              nullptr);
+              &wn::networking::WNAcceptConnection::accept_sync,
+              listen_socket.get(), nullptr);
           ASSERT_NE(nullptr, accepted_socket);
           wn::containers::string my_str("hello_world", &allocator);
           wn::multi_tasking::job_signal signal(0);
@@ -112,18 +112,25 @@ TEST(raw_connection, async_accept) {
         wn::multi_tasking::job_signal signal(0);
         wn::containers::string my_str("hello_world", &allocator);
 
-        listen_socket->accept_async([&my_str, &signal](
-            wn::memory::unique_ptr<wn::networking::WNConnection> connection) {
-          ASSERT_NE(nullptr, connection.get());
-          for (size_t i = 0; i < 10; ++i) {
-            connection->get_send_pipe()->send_async(&signal, nullptr,
-                {wn::networking::send_range(
-                    reinterpret_cast<const uint8_t*>(my_str.data()),
-                    my_str.length())});
+        struct cb_st {
+          wn::containers::string& str;
+          wn::multi_tasking::job_signal& signal;
+          void accept(
+              wn::memory::unique_ptr<wn::networking::WNConnection> connection) {
+            ASSERT_NE(nullptr, connection.get());
+            for (size_t i = 0; i < 10; ++i) {
+              connection->get_send_pipe()->send_async(&signal, nullptr,
+                  {wn::networking::send_range(
+                      reinterpret_cast<const uint8_t*>(str.data()),
+                      str.length())});
+            }
+            signal.wait_until(10);
+            signal.increment(1);
           }
-          signal.wait_until(10);
-          signal.increment(1);
-        });
+        } my_cb = {my_str, signal};
+
+        listen_socket->accept_async(wn::multi_tasking::make_callback(
+            &allocator, &my_cb, &cb_st::accept));
         signal.wait_until(11);
       }
       wait_for_done.notify();

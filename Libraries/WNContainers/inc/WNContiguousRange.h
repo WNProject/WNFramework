@@ -635,7 +635,7 @@ public:
 
   WN_FORCE_INLINE void remove_prefix(const size_type _count) {
     WN_DEBUG_ASSERT_DESC(m_begin, "invalid contiguous range");
-    WN_DEBUG_ASSERT_DESC((m_begin + _count) < m_end, "count too large");
+    WN_DEBUG_ASSERT_DESC((m_begin + _count) <= m_end, "count too large");
 
     m_begin += _count;
   }

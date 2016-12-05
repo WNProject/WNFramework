@@ -24,6 +24,7 @@ class job_pool;
 
 namespace networking {
 const uint32_t MAX_NETWORK_BUFFER_SIZE = 1024;
+const uint32_t MAX_NETWORK_MESSAGE_SIZE = 1000;
 
 enum class available_network_kind_bits : uint32_t { remote = 0x1, local = 0x2 };
 
@@ -68,11 +69,10 @@ public:
       network_error* _error) {
     containers::string s = target.to_string(m_allocator);
     m_job_pool->add_unsynchronized_job(_signal, [=] {
-      *_connection =
-          m_job_pool
-              ->call_blocking_function<memory::unique_ptr<WNReliableConnection>>(
-                  &WNNetworkManager::connect_remote_sync, this, s, protocol,
-                  port, _error);
+      *_connection = m_job_pool->call_blocking_function<
+          memory::unique_ptr<WNReliableConnection>>(
+          &WNNetworkManager::connect_remote_sync, this, s, protocol, port,
+          _error);
     });
   }
 

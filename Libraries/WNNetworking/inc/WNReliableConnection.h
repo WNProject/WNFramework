@@ -21,24 +21,22 @@ class WNReliableConnection : public WNConnection {
 public:
   WNReliableConnection(memory::allocator* _allocator,
       multi_tasking::job_pool* job_pool, WNBufferManager* _manager)
-    : WNConnection(_allocator, job_pool), m_manager(_manager) {}
+    : WNConnection(_allocator, job_pool, _manager) {}
 
   virtual ~WNReliableConnection() {}
 
 protected:
-  WNBufferManager* m_manager;
 };
 
 class WNReliableAcceptConnection : public WNAcceptConnection {
 public:
   WNReliableAcceptConnection(memory::allocator* _allocator,
       multi_tasking::job_pool* _pool, WNBufferManager* _manager)
-    : WNAcceptConnection(_pool), m_allocator(_allocator), m_manager(_manager) {}
+    : WNAcceptConnection(_pool, _manager), m_allocator(_allocator) {}
 
   virtual ~WNReliableAcceptConnection() {}
 
 protected:
-  WNBufferManager* m_manager;
   memory::allocator* m_allocator;
 };
 

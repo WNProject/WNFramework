@@ -40,7 +40,7 @@ network_error WNReliableNetworkTransportSocket::connect_to(
         continue;
       }
       if (0 != connect(m_sock_fd, ptr->ai_addr, ptr->ai_addrlen)) {
-        close(m_sock_fd);
+        ::close(m_sock_fd);
         m_sock_fd = -1;
         continue;
       }
@@ -83,7 +83,8 @@ network_error WNReliableNetworkTransportSocket::do_send(
   }
   if (num_sent != total_bytes) {
     return network_error::could_not_send;
-    close(m_sock_fd);
+    ::close(m_sock_fd);
+
     m_sock_fd = -1;
   }
   return network_error::ok;
