@@ -200,6 +200,58 @@ TEST(raw_connection, send_data_from_client) {
   }
 }
 
+TEST(raw_connection, multi_send) {
+  wn::testing::allocator allocator;
+  log_buff buffer(&allocator);
+  buffer_logger logger(&buffer);
+  WNLogging::WNLog log(&logger);
+
+  wn::multi_tasking::thread_job_pool pool(&allocator, 2);
+  {
+    wn::multi_tasking::semaphore final_semaphore;
+    wn::multi_tasking::semaphore listen_started;
+    wn::multi_tasking::semaphore wait_for_done;
+
+    wn::networking::WNConcreteNetworkManager manager(&allocator, &pool, &log);
+
+    pool.add_unsynchronized_job(nullptr, [&]() {
+      {
+        auto listen_socket =
+            manager.listen_remote_sync(wn::networking::ip_protocol::ipv4, 8080);
+        listen_started.notify();
+        auto accepted_socket = listen_socket->accept_sync();
+        ASSERT_NE(nullptr, accepted_socket);
+        const char* hello = "hello";
+        const char* world = "_world";
+
+        accepted_socket->get_send_pipe()->send_sync(
+            {{wn::networking::send_range(
+                 reinterpret_cast<const uint8_t*>(hello), strlen(hello))},
+                {wn::networking::send_range(
+                    reinterpret_cast<const uint8_t*>(world), strlen(world))}});
+      }
+      wait_for_done.notify();
+    });
+
+    pool.add_unsynchronized_job(nullptr, [&]() {
+      {
+        listen_started.wait();
+        auto connect_socket = manager.connect_remote_sync(
+            "127.0.0.1", wn::networking::ip_protocol::ipv4, 8080, nullptr);
+        ASSERT_NE(nullptr, connect_socket);
+        auto buff = connect_socket->get_recv_pipe()->recv_sync();
+        ASSERT_EQ(wn::networking::network_error::ok, buff.get_status());
+        EXPECT_EQ(wn::containers::string("hello_world"),
+            wn::containers::string(buff.data.data(), buff.data.size()));
+      }
+      wait_for_done.notify();
+    });
+
+    wait_for_done.wait();
+    wait_for_done.wait();
+  }
+}
+
 INSTANTIATE_TEST_CASE_P(all_ip_types, connection_tests,
     ::testing::Values(
         wn::networking::ip_protocol::ipv4, wn::networking::ip_protocol::ipv6));
