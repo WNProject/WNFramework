@@ -313,3 +313,107 @@ TEST(routed_connection, multiple_routes) {
     }
   }
 }
+
+TEST(routed_connection, multipart_message) {
+  wn::testing::allocator allocator;
+  log_buff buffer(&allocator);
+  buffer_logger logger(&buffer);
+  WNLogging::WNLog log(&logger);
+  {
+    wn::multi_tasking::thread_job_pool pool(&allocator, 3);
+    {
+      wn::multi_tasking::job_signal signal(&pool, 0);
+      wn::multi_tasking::semaphore wait_for_done;
+
+      wn::networking::WNConcreteNetworkManager manager(&allocator, &pool, &log);
+
+      pool.add_unsynchronized_job(nullptr, [&]() {
+        {
+          auto listen_socket = manager.listen_remote_sync(
+              wn::networking::ip_protocol::ipv4, 8080);
+
+          const char* sent_message = "HelloWorld";
+          struct connection_manager : wn::multi_tasking::synchronized<> {
+            void on_accept(
+                wn::memory::unique_ptr<wn::networking::WNRoutedConnection>
+                    conn) {
+              wn::multi_tasking::job_signal signal(0);
+
+              auto token = conn->start_multipart_message(0, &signal, nullptr,
+                  0xFFFFFFFFFFFFFFFF,
+                  {wn::networking::send_range(
+                      reinterpret_cast<const uint8_t*>(sent_message),
+                      strlen(sent_message))});
+
+              token = conn->continue_multipart_message(wn::core::move(token),
+                  &signal, nullptr,
+                  {wn::networking::send_range(
+                      reinterpret_cast<const uint8_t*>(sent_message),
+                      strlen(sent_message))});
+
+              conn->finish_multipart_message(wn::core::move(token), &signal,
+                  nullptr, {wn::networking::send_range(
+                               reinterpret_cast<const uint8_t*>(sent_message),
+                               strlen(sent_message))});
+
+              signal.wait_until(3);
+            }
+            void default_route(wn::networking::RoutedMessage&&) {
+              main_signal->increment(1);
+            }
+            const char* sent_message;
+            wn::multi_tasking::job_signal* main_signal;
+            connection_manager(
+                const char* _s, wn::multi_tasking::job_signal* main_signal)
+              : sent_message(_s), main_signal(main_signal) {}
+          } mgr(sent_message, &signal);
+          auto routed_accept = wn::networking::WNRoutedAcceptConnection(
+              &allocator, wn::core::move(listen_socket), &pool,
+              wn::multi_tasking::make_callback(
+                  &allocator, &mgr, &connection_manager::on_accept),
+              wn::multi_tasking::make_callback(
+                  &allocator, &mgr, &connection_manager::default_route));
+
+          wn::containers::string receieved(&allocator);
+          struct received_message : wn::multi_tasking::synchronized<> {
+            received_message(wn::multi_tasking::job_signal& signal,
+                wn::memory::allocator* _alloc, const char* sent_message)
+              : signal(signal), allocator(_alloc), sent_message(sent_message) {}
+            void default_route(wn::networking::RoutedMessage&& message) {
+              if (message.m_status != wn::networking::network_error::ok) {
+                signal.increment(1);
+                return;
+              }
+              auto received = wn::containers::string(
+                  message.data.data(), message.data.size(), allocator);
+              EXPECT_EQ(
+                  message_idx * strlen(sent_message), message.m_message_offset);
+              EXPECT_EQ(
+                  wn::containers::string(sent_message, allocator), received);
+              if (message_idx == 2) {
+                EXPECT_EQ(message.m_message_offset + message.data.size(),
+                    message.m_message_size);
+              }
+              signal.increment(1);
+              ++message_idx;
+            }
+            wn::multi_tasking::job_signal& signal;
+            wn::memory::allocator* allocator;
+            const char* sent_message;
+            size_t message_idx = 0;
+          } recv(signal, &allocator, sent_message);
+          wn::networking::WNRoutedConnection routed_conn(&allocator,
+              wn::multi_tasking::make_callback(
+                  &allocator, &recv, &received_message::default_route),
+              manager.connect_remote_sync("127.0.0.1",
+                  wn::networking::ip_protocol::ipv4, 8080, nullptr),
+              &pool);
+
+          signal.wait_until(5);
+        }
+        wait_for_done.notify();
+      });
+      wait_for_done.wait();
+    }
+  }
+}

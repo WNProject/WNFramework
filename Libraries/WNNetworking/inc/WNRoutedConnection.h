@@ -42,17 +42,19 @@ const uint64_t INVALID_LENGTH = 0xFFFFFFFFFFFFFFFF;
 
 // Internally a RoutedMessage has the following format:
 // | 32-bit route | 1-bit start | 1-bit end | 14-bit chunk_length
-// | 16-bit message_number | 64-bit message_info | <data>
+// | 16-bit packet_number | 64-bit message_info | <data>
 // route is a unique identfier to/from a particular connection
 // chunk_length defines how many bytes are in this chunk
 // message_offset is the offset in bytes from the start of the message
 // message_size is the total size of the message (0xFFFFFFFFFFFFFFFF) if
 // unknown
+// message_offset + chunk_size == message_size for the last message in any
+//   stream
 
 PACK(struct MessageHeader {
   uint16_t chunk_size;
-  uint16_t message_number;
-  uint32_t route;
+  uint16_t packet_number;
+  uint32_t target_route;
   uint64_t message_offset;
   uint64_t message_size;
 });
@@ -98,8 +100,8 @@ private:
       containers::contiguous_range<char> _data, network_error err)
     : m_buffer(_buffer), data(_data), m_status(err) {
     if (_header) {
-      m_message_id = core::from_big_endian(_header->message_number);
-      m_route = core::from_big_endian(_header->route);
+      m_message_id = core::from_big_endian(_header->packet_number);
+      m_route = core::from_big_endian(_header->target_route);
       m_message_size = core::from_big_endian(_header->message_size);
       m_message_offset = core::from_big_endian(_header->message_offset);
     }
@@ -159,9 +161,9 @@ public:
         core::move(_callback));
   }
   void send_async(route r, multi_tasking::job_signal* _signal,
-      network_error* _err,
+      network_error* _error,
       const std::initializer_list<const send_range> _ranges) {
-    return send_async(r, _signal, _err, _ranges.begin(), _ranges.size());
+    return send_async(r, _signal, _error, _ranges.begin(), _ranges.size());
   }
   // Sends a single message asynchronously.
   template <typename It>
@@ -188,8 +190,8 @@ public:
     metadata->chunk_size = static_cast<uint16_t>(total_message_length);
     metadata->message_size = total_message_length;
     metadata->message_offset = 0;
-    metadata->route = r;
-    metadata->message_number = 0;
+    metadata->target_route = r;
+    metadata->packet_number = 0;
 
     m_pool->add_job(
         nullptr, &metadata_deleter::delete_metadata, &deleter, core::move(dat));
@@ -198,27 +200,157 @@ public:
         &m_sender, core::move(ranges), metadata, r, _error);
   }
 
-  struct MessageToken {};
+  struct MessageToken_ {
+  private:
+    MessageToken_() {}
+    uint64_t message_offset;
+    uint64_t message_size;
+    route target_route;
+    friend class ::wn::networking::WNRoutedConnection;
+  };
+
+  using MessageToken = memory::unique_ptr<MessageToken_>;
 
   // Starts a new multi-part message, the message will be considered done
   // when a call to finish_multipart_message with the same MessageToken is
   // done.
+  MessageToken start_multipart_message(route r,
+      multi_tasking::job_signal* _signal, network_error* _error,
+      uint64_t _total_size,
+      const std::initializer_list<const send_range> _ranges) {
+    return start_multipart_message(
+        r, _signal, _error, _total_size, _ranges.begin(), _ranges.size());
+  }
+
   template <typename It>
-  MessageToken start_multipart_message(route, const It& _begin, size_t _size) {
-    // TODO(awoloszyn): Fill this in
+  MessageToken start_multipart_message(route r,
+      multi_tasking::job_signal* _signal, network_error* _error,
+      uint64_t _total_size, const It& _begin, size_t _size) {
+    containers::dynamic_array<send_range> ranges(m_connection->m_allocator);
+    ranges.reserve(_size + 1);
+
+    auto dat = memory::make_unique<metadata_deleter::metadata>(m_allocator);
+    dat->_signal_signal = _signal;
+    multi_tasking::job_signal* to_signal = &dat->_wait_signal;
+    auto metadata = &dat->_metadata;
+    ranges.push_back(send_range(
+        reinterpret_cast<uint8_t*>(&dat->_metadata), sizeof(dat->_metadata)));
+
+    uint32_t total_message_length = 0;
+    auto it = _begin;
+    for (size_t i = 0; i < _size; ++i, ++it) {
+      total_message_length += static_cast<uint32_t>(it->size());
+      ranges.push_back(*it);
+    }
+    WN_DEBUG_ASSERT_DESC(total_message_length <= MAX_NETWORK_MESSAGE_SIZE,
+        "The sent message must be less than MAX_NETWORK_MESSAGE_SIZE bytes");
+    metadata->chunk_size = static_cast<uint16_t>(total_message_length);
+    metadata->message_size = _total_size;
+    metadata->message_offset = 0;
+    metadata->target_route = r;
+    metadata->packet_number = 0;
+
+    void* mt = m_allocator->allocate(sizeof(MessageToken_));
+
+    MessageToken t = MessageToken(m_allocator, new (mt) MessageToken_());
+    t->message_offset = metadata->chunk_size;
+    t->target_route = r;
+    t->message_size = _total_size;
+    m_pool->add_job(
+        nullptr, &metadata_deleter::delete_metadata, &deleter, core::move(dat));
+
+    m_connection->m_job_pool->add_job(to_signal, &MessageSender::send_async,
+        &m_sender, core::move(ranges), metadata, r, _error);
+    return core::move(t);
+  }
+
+  MessageToken continue_multipart_message(MessageToken t,
+      multi_tasking::job_signal* _signal, network_error* _error,
+      const std::initializer_list<const send_range> _ranges) {
+    return continue_multipart_message(
+        core::move(t), _signal, _error, _ranges.begin(), _ranges.size());
   }
 
   // Continues a multi-part message.
   template <typename It>
-  MessageToken continue_multipart_message(
-      MessageToken token, const It& _begin, size_t _size) {
-    // TODO(awoloszyn): Fill this in
+  MessageToken continue_multipart_message(MessageToken t,
+      multi_tasking::job_signal* _signal, network_error* _error,
+      const It& _begin, size_t _size) {
+    containers::dynamic_array<send_range> ranges(m_connection->m_allocator);
+    ranges.reserve(_size + 1);
+
+    auto dat = memory::make_unique<metadata_deleter::metadata>(m_allocator);
+    dat->_signal_signal = _signal;
+    multi_tasking::job_signal* to_signal = &dat->_wait_signal;
+    auto metadata = &dat->_metadata;
+    ranges.push_back(send_range(
+        reinterpret_cast<uint8_t*>(&dat->_metadata), sizeof(dat->_metadata)));
+
+    uint32_t total_message_length = 0;
+    auto it = _begin;
+    for (size_t i = 0; i < _size; ++i, ++it) {
+      total_message_length += static_cast<uint32_t>(it->size());
+      ranges.push_back(*it);
+    }
+    WN_DEBUG_ASSERT_DESC(total_message_length <= MAX_NETWORK_MESSAGE_SIZE,
+        "The sent message must be less than MAX_NETWORK_MESSAGE_SIZE bytes");
+    metadata->chunk_size = static_cast<uint16_t>(total_message_length);
+    metadata->message_size = t->message_size;
+    metadata->message_offset = t->message_offset;
+    metadata->target_route = t->target_route;
+
+    t->message_offset += metadata->chunk_size;
+    m_pool->add_job(
+        nullptr, &metadata_deleter::delete_metadata, &deleter, core::move(dat));
+
+    m_connection->m_job_pool->add_job(to_signal, &MessageSender::send_async,
+        &m_sender, core::move(ranges), metadata, t->target_route, _error);
+    return core::move(t);
+  }
+
+  // Marks the end of a multi-part message
+  void finish_multipart_message(MessageToken t,
+      multi_tasking::job_signal* _signal, network_error* _error,
+      const std::initializer_list<const send_range> _ranges) {
+    finish_multipart_message(
+        core::move(t), _signal, _error, _ranges.begin(), _ranges.size());
   }
 
   template <typename It>
-  void finish_multipart_message(
-      MessageToken token, const It& _begin, size_t _size) {
-    // TODO(awoloszyn): Fill this in
+  void finish_multipart_message(MessageToken t,
+      multi_tasking::job_signal* _signal, network_error* _error,
+      const It& _begin, size_t _size) {
+    containers::dynamic_array<send_range> ranges(m_connection->m_allocator);
+    ranges.reserve(_size + 1);
+
+    auto dat = memory::make_unique<metadata_deleter::metadata>(m_allocator);
+    dat->_signal_signal = _signal;
+    multi_tasking::job_signal* to_signal = &dat->_wait_signal;
+    auto metadata = &dat->_metadata;
+    ranges.push_back(send_range(
+        reinterpret_cast<uint8_t*>(&dat->_metadata), sizeof(dat->_metadata)));
+
+    uint32_t total_message_length = 0;
+    auto it = _begin;
+    for (size_t i = 0; i < _size; ++i, ++it) {
+      total_message_length += static_cast<uint32_t>(it->size());
+      ranges.push_back(*it);
+    }
+    WN_DEBUG_ASSERT_DESC(total_message_length <= MAX_NETWORK_MESSAGE_SIZE,
+        "The sent message must be less than MAX_NETWORK_MESSAGE_SIZE bytes");
+    metadata->chunk_size = static_cast<uint16_t>(total_message_length);
+    metadata->message_offset = t->message_offset;
+    t->message_offset += metadata->chunk_size;
+
+    metadata->message_size = t->message_offset;
+    metadata->target_route = t->target_route;
+    metadata->packet_number = 0;
+
+    m_pool->add_job(
+        nullptr, &metadata_deleter::delete_metadata, &deleter, core::move(dat));
+
+    m_connection->m_job_pool->add_job(to_signal, &MessageSender::send_async,
+        &m_sender, core::move(ranges), metadata, t->target_route, _error);
   }
 
 protected:
@@ -250,19 +382,19 @@ protected:
     };
 
     void send_async(send_async_params& s) {
-      auto number = m_message_numbers.find(s._route);
-      if (number == m_message_numbers.end()) {
-        number = m_message_numbers.insert({s._route, static_cast<uint16_t>(0u)})
+      auto number = m_packet_numbers.find(s._route);
+      if (number == m_packet_numbers.end()) {
+        number = m_packet_numbers.insert({s._route, static_cast<uint16_t>(0u)})
                      .first;
         WN_DEBUG_ASSERT_DESC(s._params[0].size() == sizeof(MessageHeader),
             "The first block of the message must be a message header");
       }
       MessageHeader* header = s.header_block;
-      header->message_number = number->second++;
+      header->packet_number = number->second++;
 
-      header->route = core::to_big_endian(header->route);
+      header->target_route = core::to_big_endian(header->target_route);
       header->chunk_size = core::to_big_endian(header->chunk_size);
-      header->message_number = core::to_big_endian(header->message_number);
+      header->packet_number = core::to_big_endian(header->packet_number);
       header->message_size = core::to_big_endian(header->message_size);
       header->message_offset = core::to_big_endian(header->message_offset);
 
@@ -277,9 +409,9 @@ protected:
       }
     }
     MessageSender(memory::allocator* _allocator, WNConnection* _connection)
-      : m_message_numbers(_allocator), m_connection(_connection) {}
+      : m_packet_numbers(_allocator), m_connection(_connection) {}
 
-    containers::hash_map<route, uint16_t> m_message_numbers;
+    containers::hash_map<route, uint16_t> m_packet_numbers;
     WNConnection* m_connection;
   } m_sender;
 
@@ -361,7 +493,7 @@ protected:
             return;
           }
           m_temp_buffer.data.remove_suffix(m_temp_buffer.data.size() - length);
-          route r = core::from_big_endian(m_header->route);
+          route r = core::from_big_endian(m_header->target_route);
           auto* route_callback = &m_default_route;
           auto it = m_routes.find(r);
           if (it != m_routes.end()) {
@@ -371,8 +503,8 @@ protected:
           (*route_callback)
               ->enqueue_job(
                   m_pool, RoutedMessage(m_header,
-                              memory::make_intrusive<SharedBuffer>(
-                                  m_allocator, core::move(m_temp_buffer)),
+                              memory::make_intrusive<SharedBuffer>(m_allocator,
+                                            core::move(m_temp_buffer)),
                               dat, network_error::ok));
           m_has_temp_buffer = false;
           continue;
@@ -400,7 +532,7 @@ protected:
         }
 
         auto* route_callback = &m_default_route;
-        route r = core::from_big_endian(m_header->route);
+        route r = core::from_big_endian(m_header->target_route);
         auto it = m_routes.find(r);
         if (it != m_routes.end()) {
           route_callback = &it->second;
