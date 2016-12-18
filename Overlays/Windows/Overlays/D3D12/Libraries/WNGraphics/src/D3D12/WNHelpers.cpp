@@ -17,6 +17,9 @@ namespace internal {
 namespace d3d12 {
 namespace {
 
+const uint32_t MICROSOFT_VENDOR = 0x1414;
+const uint32_t BASIC_RENDER_DEVICE = 140;
+
 #ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
 using d3d12_adapter_constructable = d3d12_adapter;
 #else
@@ -109,6 +112,13 @@ void enumerate_adapters(memory::allocator* _allocator, WNLogging::WNLog* _log,
       _log->Log(
           WNLogging::eError, 0, "Could not convert adapter name to utf-8");
 
+      continue;
+    }
+
+    if (dxgi_adapter_desc.DeviceId == BASIC_RENDER_DEVICE &&
+        dxgi_adapter_desc.VendorId == MICROSOFT_VENDOR) {
+      // If this is the "Basic Renderer Driver" then ignore it
+      // we do not want to present that to the user.
       continue;
     }
 
