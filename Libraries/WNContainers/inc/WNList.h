@@ -270,9 +270,9 @@ public:
     return (link(_it, new_node));
   }
 
-  template <typename _U,
-      typename = core::enable_if_t<core::is_same<_Type, _U>::value>>
-  iterator insert(const_iterator _it, const _U& _element) {
+  template <typename _InsertType,
+      typename = core::enable_if_t<core::is_same<_Type, _InsertType>::value>>
+  iterator insert(const_iterator _it, const _InsertType& _element) {
     list_node* new_node = m_allocator->construct<list_node>(_element);
     return (link(_it, new_node));
   }
@@ -283,9 +283,9 @@ public:
     return (link(_it, new_node));
   }
 
-  template <typename _U,
-      typename = core::enable_if_t<core::is_same<_Type, _U>::value>>
-  void push_back(const _U& _element) {
+  template <typename _InsertType,
+      typename = core::enable_if_t<core::is_same<_Type, _InsertType>::value>>
+  void push_back(const _InsertType& _element) {
     insert(end(), _element);
   }
 

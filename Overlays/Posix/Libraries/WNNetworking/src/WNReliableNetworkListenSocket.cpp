@@ -27,8 +27,6 @@ network_error WNReliableConnectListenSocket::initialize(
       0) {
     WN_DEBUG_ASSERT_DESC(false, "setsockopt(SO_REUSEADDR) failed");
   }
-
-  WN_DEBUG_ASSERT_DESC(set_true == 0, "The socket should be set correctly");
   char port_array[11] = {0};
   memory::writeuint32(port_array, _port, 10);
 
@@ -70,13 +68,13 @@ network_error WNReliableConnectListenSocket::initialize(
   return network_error::ok;
 }
 
-memory::unique_ptr<WNConnection>
-WNReliableConnectListenSocket::accept_sync(network_error* _error) {
+memory::unique_ptr<WNConnection> WNReliableConnectListenSocket::accept_sync(
+    network_error* _error) {
   network_error tmp;
   _error = _error ? _error : &tmp;
   *_error = network_error::ok;
   sockaddr_in accepted_client;
-  unsigned int client_size = sizeof(sockaddr_in);
+  socklen_t client_size = sizeof(sockaddr_in);
   int accepted = accept(
       m_sock_fd, reinterpret_cast<sockaddr*>(&accepted_client), &client_size);
   if (-1 == accepted) {
