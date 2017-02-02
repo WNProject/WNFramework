@@ -74,7 +74,7 @@ TEST(string, allocator_swap) {
         &allocator1);
     wn::containers::string s2(
         "this is another very long string that will not get optimize daway",
-        &allocator2);
+        &allocator1);
 
     wn::core::swap(s, s2);
   }
@@ -82,10 +82,10 @@ TEST(string, allocator_swap) {
   {
     wn::containers::string s(
         "this is a very long string that will not get optimized away",
-        &allocator1);
+        &allocator2);
     wn::containers::string s2(
         "this is another very long string that will not get optimize daway",
-        &allocator1);
+        &allocator2);
 
     wn::core::swap(s, s2);
   }
