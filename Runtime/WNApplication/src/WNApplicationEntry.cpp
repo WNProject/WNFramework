@@ -36,7 +36,7 @@ int32_t wn_main(const wn::entry::system_data* _data, int32_t, char* []) {
           nullptr}};
   {
     main_application app;
-    wn::multi_tasking::thread_job_pool job_pool(&root_allocator, 2);
+    wn::multi_tasking::thread_job_pool job_pool(&root_allocator, 1);
     params.data.default_job_pool = &job_pool;
     // TODO(awoloszyn): Finish fiber job pool, start using that instead
     // of the super slow thread job pool.

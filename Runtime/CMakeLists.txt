@@ -5,3 +5,4 @@ foreach(overlay ${WN_ENABLED_OVERLAYS})
 endforeach()
 
 add_subdirectory(WNApplication)
+add_subdirectory(WNWindow)

@@ -34,7 +34,7 @@ int main(int _argc, char** _argv) {
     executable = full_path;
   }
 
-  wn::entry::host_specific_data host_data{executable};
+  wn::entry::host_specific_data host_data{executable, GetModuleHandle(NULL)};
 
   wn::entry::system_data system_data{&host_data, full_path};
 
