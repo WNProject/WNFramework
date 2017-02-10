@@ -9,9 +9,6 @@
 #include "WNLogging/inc/WNLog.h"
 #include "WNScripting/inc/WNTranslator.h"
 
-namespace WNLogging {
-class WNLogger;
-}
 
 namespace wn {
 namespace memory {
@@ -27,7 +24,7 @@ namespace scripting {
 class c_translator : public translator {
 public:
   c_translator(type_validator* _validator, memory::allocator* _allocator,
-      file_system::mapping* _mapping, WNLogging::WNLog* _log);
+      file_system::mapping* _mapping, logging::log* _log);
 
   // Looks in m_file_manager for the path given by the file parameter,
   // and translates the file into C. The file is saved in the same location
@@ -37,7 +34,7 @@ public:
 private:
   memory::allocator* m_allocator;
   file_system::mapping* m_file_mapping;
-  WNLogging::WNLog* m_compilation_log;
+  logging::log* m_compilation_log;
 };
 }  // namespace scripting
 }  // namespace wn

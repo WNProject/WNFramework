@@ -9,6 +9,7 @@
 
 #include "WNGraphics/inc/Internal/WNConfig.h"
 #include "WNGraphics/inc/WNHeapTraits.h"
+#include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/WNUniquePtr.h"
 
 #ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
@@ -20,12 +21,6 @@
 #include <D3D12.h>
 #include <wrl.h>
 #include <atomic>
-
-namespace WNLogging {
-
-class WNLog;
-
-}  // namespace WNLogging
 
 namespace wn {
 namespace memory {
@@ -79,7 +74,7 @@ protected:
       m_num_queues(0) {}
 
   WN_FORCE_INLINE void initialize(memory::allocator* _allocator,
-      WNLogging::WNLog* _log,
+      logging::log* _log,
       Microsoft::WRL::ComPtr<ID3D12Device>&& _d3d12_device) {
     m_allocator = _allocator;
     m_log = _log;
@@ -136,10 +131,11 @@ protected:
 
   command_list_ptr create_command_list(
       command_allocator*) WN_GRAPHICS_OVERRIDE_FINAL;
+
 public:
   Microsoft::WRL::ComPtr<ID3D12Device> m_device;
   memory::allocator* m_allocator;
-  WNLogging::WNLog* m_log;
+  logging::log* m_log;
   std::atomic<uint32_t> m_num_queues;
 };
 

@@ -1,0 +1,20 @@
+// Copyright (c) 2016, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE.txt file.
+
+#ifndef __WN_LOGGING_CONFIG_H__
+#define __WN_LOGGING_CONFIG_H__
+
+#include "WNLogging/inc/WNLogEnums.h"
+
+namespace wn {
+namespace logging {
+namespace internal {
+
+const log_level s_default_log_level = log_level::${WN_MAX_LOG_LEVEL};
+
+} // namespace internal
+} // namespace logging
+} // namespace wn
+
+#endif // __WN_LOGGING_CONFIG_H__

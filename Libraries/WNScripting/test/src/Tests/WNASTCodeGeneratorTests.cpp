@@ -13,12 +13,12 @@ using ::testing::Eq;
 using ::testing::Ge;
 
 void flush_buffer(void* v, const char* bytes, size_t length,
-    const std::vector<WNLogging::WNLogColorElement>&) {
+    const wn::logging::color_element*, size_t) {
   wn::containers::string* s = static_cast<wn::containers::string*>(v);
   s->append(bytes, length);
 }
 
-using buffer_logger = WNLogging::WNBufferLogger<flush_buffer>;
+using buffer_logger = wn::logging::buffer_logger<flush_buffer>;
 using log_buff = wn::containers::string;
 
 struct test_context {
@@ -34,14 +34,15 @@ struct test_context {
   wn::file_system::mapping_ptr mapping;
   log_buff buffer;
   buffer_logger logger;
-  WNLogging::WNLog log;
+  wn::logging::static_log<> log;
   size_t num_warnings;
   size_t num_errors;
 
   bool test_parse_file(const char* _file) {
-    bool success = wn::scripting::test_parse_file(_file, mapping.get(),
-                       &allocator, &log, &num_warnings, &num_errors) != nullptr;
-    log.Flush();
+    bool success =
+        wn::scripting::test_parse_file(_file, mapping.get(), &allocator,
+            log.log(), &num_warnings, &num_errors) != nullptr;
+    log.log()->flush();
     return success;
   }
 };

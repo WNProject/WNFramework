@@ -2,54 +2,58 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#ifndef __WN_FILE_LOGGER_H__
-#define __WN_FILE_LOGGER_H__
+#ifndef __WN_LOGGING_FILE_LOGGER_H__
+#define __WN_LOGGING_FILE_LOGGER_H__
 
 #include "WNLogging/inc/WNLog.h"
 
-namespace WNLogging {
-WN_INLINE const char* DefaultFunctionName() {
+namespace wn {
+namespace logging {
+
+WN_INLINE const char* default_function_name() {
   return (nullptr);
 }
 
-template <const char* (*T_FileFunction)() = DefaultFunctionName>
-class WNFileLogger : public WNLogger {
+template <const char* (*T_FileFunction)() = default_function_name>
+class file_logger : public logger {
 public:
-  WNFileLogger() {
-    const char* logName = T_FileFunction();
-    if (logName) {
-      mOutFile = fopen(logName, "w+");
+  file_logger() {
+    const char* log_name = T_FileFunction();
+    if (log_name) {
+      m_out_file = fopen(log_name, "w+");
     } else {
-      mOutFile = nullptr;
+      m_out_file = nullptr;
     }
   }
 
-  ~WNFileLogger() {
-    if (mOutFile) {
-      fclose(mOutFile);
-      mOutFile = nullptr;
+  ~file_logger() {
+    if (m_out_file) {
+      fclose(m_out_file);
+      m_out_file = nullptr;
     }
   }
-  void FlushBuffer(const char* _buffer, size_t bufferSize,
-      const std::vector<WNLogColorElement>&) {
-    if (mOutFile) {
+  void flush_buffer(
+      const char* _buffer, size_t _buffer_size, const color_element*, size_t) {
+    if (m_out_file) {
       size_t written = 0;
-      size_t toWrite = bufferSize;
+      size_t to_write = _buffer_size;
       do {
-        written = fwrite(_buffer + written, 1, toWrite, mOutFile);
-        toWrite -= written;
+        written = fwrite(_buffer + written, 1, to_write, m_out_file);
+        to_write -= written;
         if (written == 0) {
-          toWrite = 0;
+          to_write = 0;
         }
-      } while (toWrite > 0);
+      } while (to_write > 0);
     } else {
-      printf("%.*s", static_cast<int32_t>(bufferSize), _buffer);
+      printf("%.*s", static_cast<int32_t>(_buffer_size), _buffer);
     }
   }
 
 private:
-  FILE* mOutFile;
-};
+  FILE* m_out_file;
 };
 
-#endif  //__WN_FILE_LOGGER_H__
+}  // namespace logging
+}  // namespace wn
+
+#endif  // __WN_LOGGING_FILE_LOGGER_H__

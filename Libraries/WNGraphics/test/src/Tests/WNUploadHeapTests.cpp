@@ -13,17 +13,16 @@ using upload_heap_creation_test =
 using upload_heap_synchronization_test = wn::graphics::testing::test;
 
 TEST_P(upload_heap_creation_test, many_sizes) {
-  wn::graphics::factory device_factory(&m_allocator, &m_log);
+  wn::graphics::factory device_factory(&m_allocator, m_log);
 
   for (auto& adapter : device_factory.query_adapters()) {
-    wn::graphics::device_ptr device =
-        adapter->make_device(&m_allocator, &m_log);
+    wn::graphics::device_ptr device = adapter->make_device(&m_allocator, m_log);
     ASSERT_NE(nullptr, device);
 
     wn::graphics::upload_heap upload = device->create_upload_heap(GetParam());
     EXPECT_TRUE(upload.is_valid());
   }
-  m_log.Flush();
+  m_log->flush();
   // On normal operation the log buffer should be empty.
   EXPECT_EQ("", m_buffer);
 }
@@ -38,11 +37,10 @@ using upload_heap_writing_test =
     wn::graphics::testing::parameterized_test<std::tuple<size_t, size_t>>;
 
 TEST_P(upload_heap_writing_test, write_values) {
-  wn::graphics::factory device_factory(&m_allocator, &m_log);
+  wn::graphics::factory device_factory(&m_allocator, m_log);
 
   for (auto& adapter : device_factory.query_adapters()) {
-    wn::graphics::device_ptr device =
-        adapter->make_device(&m_allocator, &m_log);
+    wn::graphics::device_ptr device = adapter->make_device(&m_allocator, m_log);
     ASSERT_NE(nullptr, device);
 
     wn::graphics::upload_heap upload =
@@ -55,7 +53,7 @@ TEST_P(upload_heap_writing_test, write_values) {
       buffer.range()[i] = i & 0xFF;
     }
   }
-  m_log.Flush();
+  m_log->flush();
   // On normal operation the log buffer should be empty.
   EXPECT_EQ("", m_buffer);
 }
@@ -72,11 +70,10 @@ INSTANTIATE_TEST_CASE_P(large_values, upload_heap_writing_test,
             std::make_tuple(128 * 1024 * 1024, 2023)})));
 
 TEST_F(upload_heap_synchronization_test, synchronize_writes) {
-  wn::graphics::factory device_factory(&m_allocator, &m_log);
+  wn::graphics::factory device_factory(&m_allocator, m_log);
 
   for (auto& adapter : device_factory.query_adapters()) {
-    wn::graphics::device_ptr device =
-        adapter->make_device(&m_allocator, &m_log);
+    wn::graphics::device_ptr device = adapter->make_device(&m_allocator, m_log);
     ASSERT_NE(nullptr, device);
 
     wn::graphics::upload_heap upload =
@@ -89,6 +86,9 @@ TEST_F(upload_heap_synchronization_test, synchronize_writes) {
       buffer.synchronize();
     }
   }
+  m_log->flush();
+  // On normal operation the log buffer should be empty.
+  EXPECT_EQ("", m_buffer);
 }
 
 // TODO(awoloszyn): Create a null device, and hook it up.

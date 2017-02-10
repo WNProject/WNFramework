@@ -50,16 +50,15 @@ WN_INLINE bool convert_to_utf8(
 
 }  // anonymous namespace
 
-void enumerate_adapters(memory::allocator* _allocator, WNLogging::WNLog* _log,
+void enumerate_adapters(memory::allocator* _allocator, logging::log* _log,
     containers::dynamic_array<adapter_ptr>& _physical_devices) {
-  _log->Log(WNLogging::eInfo, 0, "Enumerating D3D12 Dvices");
+  _log->log_info("Enumerating D3D12 Dvices");
 
   Microsoft::WRL::ComPtr<IDXGIFactory1> dxgi_factory;
   HRESULT hr = ::CreateDXGIFactory1(__uuidof(IDXGIFactory1), &dxgi_factory);
 
   if (FAILED(hr)) {
-    _log->Log(
-        WNLogging::eError, 0, "Could not to create DXGI Factory, hr: ", hr);
+    _log->log_error("Could not to create DXGI Factory, hr: ", hr);
 
     return;
   }
@@ -70,12 +69,11 @@ void enumerate_adapters(memory::allocator* _allocator, WNLogging::WNLog* _log,
     hr = dxgi_factory->EnumAdapters1(i, &dxgi_adapter);
 
     if (hr == DXGI_ERROR_NOT_FOUND) {
-      _log->Log(WNLogging::eInfo, 0, "Finished Enumerating D3D12 Dvices");
+      _log->log_info("Finished Enumerating D3D12 Dvices");
 
       break;
     } else if (FAILED(hr)) {
-      _log->Log(
-          WNLogging::eError, 0, "Could not query for DXGI adapter, hr: ", hr);
+      _log->log_error("Could not query for DXGI adapter, hr: ", hr);
 
       continue;
     }
@@ -87,8 +85,7 @@ void enumerate_adapters(memory::allocator* _allocator, WNLogging::WNLog* _log,
         __uuidof(ID3D12Device), nullptr);
 
     if (FAILED(hr)) {
-      _log->Log(
-          WNLogging::eError, 0, "Could not determine D3D12 support, hr: ", hr);
+      _log->log_error("Could not determine D3D12 support, hr: ", hr);
 
       continue;
     }
@@ -98,8 +95,7 @@ void enumerate_adapters(memory::allocator* _allocator, WNLogging::WNLog* _log,
     hr = dxgi_adapter->GetDesc1(&dxgi_adapter_desc);
 
     if (FAILED(hr)) {
-      _log->Log(WNLogging::eError, 0,
-          "Could not get DXGI adapter description, hr: ", hr);
+      _log->log_error("Could not get DXGI adapter description, hr: ", hr);
 
       continue;
     }
@@ -109,8 +105,7 @@ void enumerate_adapters(memory::allocator* _allocator, WNLogging::WNLog* _log,
     if (!convert_to_utf8(dxgi_adapter_desc.Description,
             static_cast<DWORD>(::wcslen(dxgi_adapter_desc.Description)),
             name)) {
-      _log->Log(
-          WNLogging::eError, 0, "Could not convert adapter name to utf-8");
+      _log->log_error("Could not convert adapter name to utf-8");
 
       continue;
     }
@@ -122,12 +117,12 @@ void enumerate_adapters(memory::allocator* _allocator, WNLogging::WNLog* _log,
       continue;
     }
 
-    _log->Log(WNLogging::eInfo, 0, "D3D12 Device: ", i + 1);
-    _log->Log(WNLogging::eInfo, 0, "------------------------------");
-    _log->Log(WNLogging::eInfo, 0, "Name: ", name.c_str());
-    _log->Log(WNLogging::eInfo, 0, "Vendor: ", dxgi_adapter_desc.DeviceId);
-    _log->Log(WNLogging::eInfo, 0, "Device: ", dxgi_adapter_desc.VendorId);
-    _log->Log(WNLogging::eInfo, 0, "------------------------------");
+    _log->log_info("D3D12 Device: ", i + 1);
+    _log->log_info("------------------------------");
+    _log->log_info("Name: ", name.c_str());
+    _log->log_info("Vendor: ", dxgi_adapter_desc.DeviceId);
+    _log->log_info("Device: ", dxgi_adapter_desc.VendorId);
+    _log->log_info("------------------------------");
 
     memory::unique_ptr<d3d12_adapter_constructable> ptr(
         memory::make_unique_delegated<d3d12_adapter_constructable>(

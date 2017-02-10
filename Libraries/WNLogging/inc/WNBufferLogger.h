@@ -2,26 +2,30 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#ifndef __WN_BUFFER_LOGGER_H__
-#define __WN_BUFFER_LOGGER_H__
-#include <vector>
+#ifndef __WN_LOGGING_BUFFER_LOGGER_H__
+#define __WN_LOGGING_BUFFER_LOGGER_H__
+
 #include "WNCore/inc/WNBase.h"
 #include "WNLogging/inc/WNLog.h"
-namespace WNLogging {
+
+namespace wn {
+namespace logging {
 
 template <void (*T_FlushCB)(
-    void*, const char*, size_t, const std::vector<WNLogColorElement>&)>
-class WNBufferLogger : public WNLogger {
+    void*, const char*, size_t, const color_element*, size_t)>
+class buffer_logger : public logger {
 public:
-  WNBufferLogger(void* context);
-  ~WNBufferLogger();
-  virtual WN_INLINE void FlushBuffer(const char* _buffer, size_t bufferSize,
-      const std::vector<WNLogColorElement>& mColors);
+  buffer_logger(void* context);
+  ~buffer_logger();
+  virtual WN_INLINE void flush_buffer(
+      const char* _buffer, size_t buffer_size, const color_element*, size_t);
 
 private:
-  void* mContext;
-};
+  void* m_context;
 };
 
+}  // namesapce logging
+}  // namespace wn
+
 #include "WNLogging/inc/Internal/WNBufferLogger.inl"
-#endif
+#endif  // __WN_LOGGING_BUFFER_LOGGER_H__

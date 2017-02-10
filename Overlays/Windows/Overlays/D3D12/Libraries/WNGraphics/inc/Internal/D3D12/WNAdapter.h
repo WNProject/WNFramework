@@ -11,6 +11,7 @@
 #include "WNContainers/inc/WNString.h"
 #include "WNContainers/inc/WNStringView.h"
 #include "WNGraphics/inc/Internal/WNConfig.h"
+#include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/WNUniquePtr.h"
 
 #ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
@@ -21,12 +22,6 @@
 
 #include <DXGI.h>
 #include <wrl.h>
-
-namespace WNLogging {
-
-class WNLog;
-
-}  // namespace WNLogging
 
 namespace wn {
 namespace memory {
@@ -62,7 +57,7 @@ public:
   ~d3d12_adapter() WN_GRAPHICS_OVERRIDE_FINAL = default;
 
   device_ptr make_device(memory::allocator* _allocator,
-      WNLogging::WNLog* _log) const WN_GRAPHICS_OVERRIDE_FINAL;
+      logging::log* _log) const WN_GRAPHICS_OVERRIDE_FINAL;
 
   WN_FORCE_INLINE containers::string_view name() const
       WN_GRAPHICS_OVERRIDE_FINAL {
@@ -82,7 +77,7 @@ public:
   }
 
 protected:
-  friend void enumerate_adapters(memory::allocator*, WNLogging::WNLog*,
+  friend void enumerate_adapters(memory::allocator*, logging::log*,
       containers::dynamic_array<adapter_ptr>&);
 
   WN_FORCE_INLINE d3d12_adapter()

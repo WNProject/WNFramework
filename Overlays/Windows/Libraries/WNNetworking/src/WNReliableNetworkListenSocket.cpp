@@ -11,9 +11,8 @@ static const uint32_t kIncommingConnectionBacklog = 10;
 namespace wn {
 namespace networking {
 
-network_error WNReliableConnectListenSocket::initialize(WNLogging::WNLog *_log,
-                                                        int _protocol,
-                                                        uint16_t _port) {
+network_error WNReliableConnectListenSocket::initialize(
+    logging::log* _log, int _protocol, uint16_t _port) {
   m_socket = WSASocketW(_protocol, SOCK_STREAM, IPPROTO_TCP, nullptr, 0,
                         WSA_FLAG_OVERLAPPED);
   if (m_socket == INVALID_SOCKET) {
@@ -27,8 +26,7 @@ network_error WNReliableConnectListenSocket::initialize(WNLogging::WNLog *_log,
   addrinfo *ptr;
 
   if (0 != GetAddrInfoA(NULL, port_array, nullptr, &result)) {
-    _log->Log(WNLogging::eError, 0, "Could not resolve local port ",
-              port_array);
+    _log->log_error("Could not resolve local port ", port_array);
     return network_error::could_not_resolve;
   }
 
@@ -41,8 +39,7 @@ network_error WNReliableConnectListenSocket::initialize(WNLogging::WNLog *_log,
   }
 
   if (ptr == nullptr) {
-    _log->Log(WNLogging::eError, 0, "Could not resolve local port ",
-              port_array);
+    _log->log_error("Could not resolve local port ", port_array);
     FreeAddrInfoA(result);
     return network_error::could_not_resolve;
   }
@@ -50,14 +47,12 @@ network_error WNReliableConnectListenSocket::initialize(WNLogging::WNLog *_log,
   int error = bind(m_socket, ptr->ai_addr, static_cast<int>(ptr->ai_addrlen));
   FreeAddrInfoA(result);
   if (SOCKET_ERROR == error) {
-    _log->Log(WNLogging::eError, 0, "Could not bind to port ",
-              port_array);
+    _log->log_error("Could not bind to port ", port_array);
     return network_error::could_not_bind;
   }
 
   if (0 != listen(m_socket, kIncommingConnectionBacklog)) {
-    _log->Log(WNLogging::eError, 0, "Could not listen on port ",
-              port_array);
+    _log->log_error("Could not listen on port ", port_array);
     return network_error::could_not_bind;
   }
 

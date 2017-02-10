@@ -93,7 +93,7 @@ TEST(ast_code_generator, type_association_test) {
   auto a = wn::scripting::test_parse_file(
       "file.wns", mapping.get(), &allocator, &num_warnings, &num_errors);
   EXPECT_TRUE(wn::scripting::run_type_association_pass(a.get(),
-      WNLogging::get_null_logger(), &validator, &num_warnings, &num_errors));
+      wn::logging::get_null_logger(), &validator, &num_warnings, &num_errors));
 
   EXPECT_THAT(num_warnings, Eq(0u));
   EXPECT_THAT(num_errors, Eq(0u));

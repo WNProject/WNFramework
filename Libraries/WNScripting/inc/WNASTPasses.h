@@ -7,10 +7,7 @@
 #ifndef __WN_SCRIPTING_AST_PASSES_H__
 #define __WN_SCRIPTING_AST_PASSES_H__
 #include "WNCore/inc/WNTypes.h"
-
-namespace WNLogging {
-class WNLog;
-}
+#include "WNLogging/inc/WNLog.h"
 
 namespace wn {
 namespace scripting {
@@ -23,30 +20,30 @@ class type_validator;
 // of its operands.
 // Returns false, and writes to the _log parameter if a type
 // could not be determined.
-bool run_type_association_pass(script_file* _file, WNLogging::WNLog* _log,
+bool run_type_association_pass(script_file* _file, logging::log* _log,
     type_validator* _validator, size_t* _num_warnings, size_t* _num_errors);
 
 // Associates all IDs with the parameters/declaration of the id.
 // Returns false, and writes to the _log parameter if an id was not
 // accessible in the current scope.
-bool run_id_association_pass(script_file* _file, WNLogging::WNLog* _log,
+bool run_id_association_pass(script_file* _file, logging::log* _log,
     type_validator* _validator, size_t* _num_warnings, size_t* _num_errors);
 
 // Removes dead code from the tree. Examples include:
 // Code after return.
 // TODO(awoloszyn): Remove constant branches.
-bool run_dce_pass(script_file* _file, WNLogging::WNLog* _log,
+bool run_dce_pass(script_file* _file, logging::log* _log,
     type_validator* _validator, size_t* _num_warnings, size_t* _num_errors);
 
 // Re-writes member functions and constructors as standalone
 // functions.
 // TODO(awoloszyn): also generate inline types/constructors here.
-bool run_member_reassociation_pass(script_file* _file, WNLogging::WNLog* _log,
+bool run_member_reassociation_pass(script_file* _file, logging::log* _log,
     type_validator* _validator, size_t* _num_warnings, size_t* _num_errors);
 
 // This takes all temporary objects Int x = Foo().x; for example,
 // and turns them into real actual objects.
-bool run_temporary_reification_pass(script_file* _file, WNLogging::WNLog* _log,
+bool run_temporary_reification_pass(script_file* _file, logging::log* _log,
     type_validator* _validator, size_t* _num_warnings, size_t* _num_errors);
 
 // If reassociation pass
@@ -82,7 +79,7 @@ bool run_temporary_reification_pass(script_file* _file, WNLogging::WNLog* _log,
 // }
 // This should be run before the id_reassociation pass since this
 // can generate new IDs on the fly.
-bool run_if_reassociation_pass(script_file* _file, WNLogging::WNLog* _log,
+bool run_if_reassociation_pass(script_file* _file, logging::log* _log,
     type_validator* _validator, size_t* _num_warnings, size_t* _num_errors);
 
 // Optimizes compile_time sized static arrays so that we can determine
@@ -94,7 +91,7 @@ bool run_if_reassociation_pass(script_file* _file, WNLogging::WNLog* _log,
 // But will leave
 // Int[] x = Int[my_variable](32);
 // alone, since it is run-time sized.
-bool run_array_determination_pass(script_file* _file, WNLogging::WNLog* _log,
+bool run_array_determination_pass(script_file* _file, logging::log* _log,
     type_validator* _validator, size_t* _num_warnings, size_t* _num_errors);
 
 // TODO(awoloszyn): Constant folding pass.

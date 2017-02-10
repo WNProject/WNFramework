@@ -127,11 +127,10 @@ void* return_shared(uint8_t* a) {
 namespace {
   class CustomMemoryManager : public llvm::SectionMemoryManager {
   public:
-    CustomMemoryManager(WNLogging::WNLog* _log): m_log(_log) {
-    }
+    CustomMemoryManager(logging::log* _log) : m_log(_log) {}
 
     llvm::RuntimeDyld::SymbolInfo findSymbol(const std::string &Name) override {
-      m_log->Log(WNLogging::eInfo, 0, "Resolving ", Name.c_str(), ".");
+      m_log->log_info("Resolving ", Name.c_str(), ".");
       if (Name == "_Z3wns16_allocate_sharedEvpsfp") {
         return llvm::RuntimeDyld::SymbolInfo(
             reinterpret_cast<uint64_t>(&allocate_shared),
@@ -172,7 +171,7 @@ namespace {
     }
 
   private:
-    WNLogging::WNLog* m_log;
+    logging::log* m_log;
   };
 }
 
@@ -185,7 +184,7 @@ CompiledModule::CompiledModule(CompiledModule&& _other)
 
 jit_engine::jit_engine(type_validator* _validator,
     memory::allocator* _allocator, file_system::mapping* _mapping,
-    WNLogging::WNLog* _log)
+    logging::log* _log)
   : engine(_validator, _allocator),
     m_file_mapping(_mapping),
     m_compilation_log(_log),

@@ -65,33 +65,33 @@ using vulkan_adapter_constructable = adapter;
   context->symbol = reinterpret_cast<PFN_##symbol>(                            \
       context->vkGetInstanceProcAddr(instance, #symbol));                      \
   if (!context->vkGetInstanceProcAddr) {                                       \
-    _log->Log(WNLogging::eInfo, 0, "Could not find " #symbol ".");             \
-    _log->Log(WNLogging::eInfo, 0, "Vulkan will not be available.");           \
+    _log->log_info("Could not find " #symbol ".");                             \
+    _log->log_info("Vulkan will not be available.");                           \
     return nullptr;                                                            \
   }                                                                            \
-  _log->Log(WNLogging::eDebug, 0, #symbol " is at ", context->symbol);
+  _log->log_debug(#symbol " is at ", context->symbol);
 
 memory::intrusive_ptr<vulkan_context> get_vulkan_context(
-    memory::allocator* _allocator, WNLogging::WNLog* _log) {
+    memory::allocator* _allocator, logging::log* _log) {
   vulkan_context_ptr context =
       wn::memory::make_intrusive<vulkan_context>(_allocator, _allocator);
   context->library = open_function(vulkan_library_name);
   if (!context->library) {
-    _log->Log(WNLogging::eInfo, 0, "Could not find vulkan loader library.");
-    _log->Log(WNLogging::eInfo, 0, "Vulkan will not be available.");
+    _log->log_info("Could not find vulkan loader library.");
+    _log->log_info("Vulkan will not be available.");
     return nullptr;
   }
-  _log->Log(WNLogging::eInfo, 0, "Found vulkan loader library.");
+  _log->log_info("Found vulkan loader library.");
 
   context->vkGetInstanceProcAddr = reinterpret_cast<PFN_vkGetInstanceProcAddr>(
       load_symbol(context->library, "vkGetInstanceProcAddr"));
   if (!context->vkGetInstanceProcAddr) {
-    _log->Log(WNLogging::eInfo, 0, "Could not find vkGetInstanceProcAddr.");
-    _log->Log(WNLogging::eInfo, 0, "Vulkan will not be available.");
+    _log->log_info("Could not find vkGetInstanceProcAddr.");
+    _log->log_info("Vulkan will not be available.");
     return nullptr;
   }
-  _log->Log(WNLogging::eDebug, 0, "vkGetInstanceProcAddr is at ",
-      context->vkGetInstanceProcAddr);
+  _log->log_debug(
+      "vkGetInstanceProcAddr is at ", context->vkGetInstanceProcAddr);
 
   LOAD_VK_SYMBOL(nullptr, vkCreateInstance);
   VkApplicationInfo app_info{
@@ -118,12 +118,12 @@ memory::intrusive_ptr<vulkan_context> get_vulkan_context(
   if (context->vkCreateInstance(&create_info, nullptr, &context->instance) !=
           VK_SUCCESS ||
       context->instance == VK_NULL_HANDLE) {
-    _log->Log(WNLogging::eInfo, 0, "Could not create Vulkan Instance.");
-    _log->Log(WNLogging::eInfo, 0, "Vulkan will not be available.");
+    _log->log_info("Could not create Vulkan Instance.");
+    _log->log_info("Vulkan will not be available.");
     return nullptr;
   }
 
-  _log->Log(WNLogging::eDebug, 0, "Created vkInstance ");
+  _log->log_debug("Created vkInstance ");
   LOAD_VK_SYMBOL(context->instance, vkDestroyInstance);
   LOAD_VK_SYMBOL(context->instance, vkEnumeratePhysicalDevices);
   LOAD_VK_SYMBOL(context->instance, vkGetPhysicalDeviceProperties);
@@ -136,7 +136,7 @@ memory::intrusive_ptr<vulkan_context> get_vulkan_context(
   return wn::core::move(context);
 }
 
-void enumerate_adapters(memory::allocator* _allocator, WNLogging::WNLog* _log,
+void enumerate_adapters(memory::allocator* _allocator, logging::log* _log,
     containers::dynamic_array<adapter_ptr>& _arr) {
   vulkan_context_ptr context = get_vulkan_context(_allocator, _log);
   if (!context) {
@@ -146,36 +146,35 @@ void enumerate_adapters(memory::allocator* _allocator, WNLogging::WNLog* _log,
   if (VK_SUCCESS !=
       context->vkEnumeratePhysicalDevices(
           context->instance, &num_physical_devices, nullptr)) {
-    _log->Log(WNLogging::eError, 0, "vkEnumeratePhysicalDevices failed");
+    _log->log_error("vkEnumeratePhysicalDevices failed");
     return;
   }
-  _log->Log(WNLogging::eInfo, 0, "Found: ", num_physical_devices, " devices.");
+  _log->log_info("Found: ", num_physical_devices, " devices.");
   containers::dynamic_array<VkPhysicalDevice> devices(
       num_physical_devices, _allocator);
 
   if (VK_SUCCESS !=
       context->vkEnumeratePhysicalDevices(
           context->instance, &num_physical_devices, devices.data())) {
-    _log->Log(WNLogging::eError, 0, "Expected ", num_physical_devices,
-        " but result was failure");
+    _log->log_error(
+        "Expected ", num_physical_devices, " but result was failure");
     return;
   }
 
   for (size_t i = 0; i < num_physical_devices; ++i) {
     VkPhysicalDeviceProperties properties;
     context->vkGetPhysicalDeviceProperties(devices[i], &properties);
-    _log->Log(WNLogging::eInfo, 0, "Vulkan Device: ", i + 1);
-    _log->Log(WNLogging::eInfo, 0, "--------------------------------");
-    _log->Log(WNLogging::eInfo, 0, "Name: ", properties.deviceName);
-    _log->Log(WNLogging::eInfo, 0, "Vendor: ", properties.vendorID);
-    _log->Log(WNLogging::eInfo, 0, "Device: ", properties.deviceID);
+    _log->log_info("Vulkan Device: ", i + 1);
+    _log->log_info("--------------------------------");
+    _log->log_info("Name: ", properties.deviceName);
+    _log->log_info("Vendor: ", properties.vendorID);
+    _log->log_info("Device: ", properties.deviceID);
 
     uint32_t num_queue_families;
 
     context->vkGetPhysicalDeviceQueueFamilyProperties(
         devices[i], &num_queue_families, nullptr);
-    _log->Log(WNLogging::eInfo, 0, "Device supports ", num_queue_families,
-        " queue types.");
+    _log->log_info("Device supports ", num_queue_families, " queue types.");
 
     containers::dynamic_array<VkQueueFamilyProperties> queue_properties(
         num_queue_families, _allocator);
@@ -186,13 +185,11 @@ void enumerate_adapters(memory::allocator* _allocator, WNLogging::WNLog* _log,
     uint32_t graphics_and_compute_queue = static_cast<uint32_t>(-1);
 
     for (uint32_t j = 0; j < num_queue_families; ++j) {
-      _log->Log(WNLogging::eInfo, 0, "Queue type ", j + 1);
-      _log->Log(WNLogging::eInfo, 0, "--------------------------------");
-      _log->Log(
-          WNLogging::eInfo, 0, "Num Queues: ", queue_properties[j].queueCount);
-      _log->Log(
-          WNLogging::eInfo, 0, "Bits:       ", queue_properties[j].queueFlags);
-      _log->Log(WNLogging::eInfo, 0, "--------------------------------");
+      _log->log_info("Queue type ", j + 1);
+      _log->log_info("--------------------------------");
+      _log->log_info("Num Queues: ", queue_properties[j].queueCount);
+      _log->log_info("Bits:       ", queue_properties[j].queueFlags);
+      _log->log_info("--------------------------------");
       // We only care about graphics && compute devices.
       if (graphics_and_compute_queue == static_cast<uint32_t>(-1) &&
           ((queue_properties[j].queueFlags &
@@ -202,10 +199,9 @@ void enumerate_adapters(memory::allocator* _allocator, WNLogging::WNLog* _log,
       }
     }
     if (graphics_and_compute_queue == static_cast<uint32_t>(-1)) {
-      _log->Log(WNLogging::eInfo, 0,
-          "Does not support graphics and compute, ignoring");
+      _log->log_info("Does not support graphics and compute, ignoring");
     }
-    _log->Log(WNLogging::eInfo, 0, "--------------------------------");
+    _log->log_info("--------------------------------");
 
     memory::unique_ptr<vulkan_adapter_constructable> ptr(
         memory::make_unique_delegated<vulkan_adapter_constructable>(

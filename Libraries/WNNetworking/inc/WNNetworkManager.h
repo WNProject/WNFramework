@@ -96,7 +96,7 @@ protected:
 class WNConcreteNetworkManager : public WNNetworkManager {
 public:
   WNConcreteNetworkManager(memory::allocator* _allocator,
-      multi_tasking::job_pool* _job_pool, WNLogging::WNLog* _log)
+      multi_tasking::job_pool* _job_pool, logging::log* _log)
     : WNNetworkManager(_allocator, _job_pool),
       m_log(_log),
       m_buffer_manager(_allocator) {
@@ -163,7 +163,7 @@ protected:
 
 private:
   void initialize();
-  WNLogging::WNLog* m_log;
+  logging::log* m_log;
 };
 
 }  // namespace networking

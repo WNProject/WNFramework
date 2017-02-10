@@ -12,7 +12,7 @@ namespace {
 
 class pass {
 public:
-  pass(type_validator* _validator, WNLogging::WNLog* _log,
+  pass(type_validator* _validator, logging::log* _log,
       memory::allocator* _allocator)
     : m_log(_log),
       m_allocator(_allocator),
@@ -29,7 +29,7 @@ public:
   }
 
 protected:
-  WNLogging::WNLog* m_log;
+  logging::log* m_log;
   memory::allocator* m_allocator;
   type_validator* m_validator;
   uint32_t m_last_temporary;
@@ -39,7 +39,7 @@ protected:
 
 class dead_code_elimination_pass : public pass {
 public:
-  dead_code_elimination_pass(type_validator* _validator, WNLogging::WNLog* _log,
+  dead_code_elimination_pass(type_validator* _validator, logging::log* _log,
       memory::allocator* _allocator)
     : pass(_validator, _log, _allocator) {}
   void enter_scope_block(const node*) {}
@@ -55,8 +55,8 @@ public:
     for (auto& inst : _inst->get_instructions()) {
       if (returns | is_non_linear) {
         inst->set_is_dead();
-        m_log->Log(WNLogging::eWarning, 0, "Unreachable code detected");
-        inst->log_line(*m_log, WNLogging::eWarning);
+        m_log->log_warning("Unreachable code detected");
+        inst->log_line(m_log, logging::log_level::warning);
         ++m_num_warnings;
       }
       returns |= inst->returns();
@@ -195,7 +195,7 @@ memory::unique_ptr<assignment_instruction> make_constant_assignment(
 
 class array_determination_pass : public pass {
 public:
-  array_determination_pass(type_validator* _validator, WNLogging::WNLog* _log,
+  array_determination_pass(type_validator* _validator, logging::log* _log,
       memory::allocator* _allocator)
     : pass(_validator, _log, _allocator) {}
   void enter_scope_block(const node*) {}
@@ -232,15 +232,14 @@ public:
       }
       const long long val = atoll(expr->get_type_text().c_str());
       if (val < 0) {
-        m_log->Log(
-            WNLogging::eError, 0, "Array initializer cannot be negative");
-        _expr->log_line(*m_log, WNLogging::eError);
+        m_log->log_error("Array initializer cannot be negative");
+        _expr->log_line(m_log, logging::log_level::error);
         ++m_num_errors;
         return nullptr;
       }
       if (val > 0xFFFFFFFF) {
-        m_log->Log(WNLogging::eError, 0, "Array size too large");
-        _expr->log_line(*m_log, WNLogging::eError);
+        m_log->log_error("Array size too large");
+        _expr->log_line(m_log, logging::log_level::error);
         ++m_num_errors;
         return nullptr;
       }
@@ -282,8 +281,8 @@ public:
             arr = cast_to<array_type>(arr->get_subtype());
           } else {
             if (*expr_type->get_subtype() != *arr->get_subtype()) {
-              m_log->Log(WNLogging::eError, 0, "Array bases do not match.");
-              _decl->log_line(*m_log, WNLogging::eError);
+              m_log->log_error("Array bases do not match.");
+              _decl->log_line(m_log, logging::log_level::error);
               ++m_num_errors;
               return nullptr;
             }
@@ -292,16 +291,16 @@ public:
           }
         }
         if (num_vals != expr_type->get_sizes().size()) {
-          m_log->Log(WNLogging::eError, 0, "Array sizes to not match");
-          _decl->log_line(*m_log, WNLogging::eError);
+          m_log->log_error("Array sizes to not match");
+          _decl->log_line(m_log, logging::log_level::error);
           ++m_num_errors;
           return nullptr;
         }
         _decl->set_type(clone_node(expr_type));
       }
       if (*_decl->get_expression()->get_type() != *_decl->get_type()) {
-        m_log->Log(WNLogging::eError, 0, "Incompatible types");
-        _decl->log_line(*m_log, WNLogging::eError);
+        m_log->log_error("Incompatible types");
+        _decl->log_line(m_log, logging::log_level::error);
         ++m_num_errors;
         return nullptr;
       }
@@ -351,7 +350,7 @@ public:
 
 class if_reassociation_pass : public pass {
 public:
-  if_reassociation_pass(type_validator* _validator, WNLogging::WNLog* _log,
+  if_reassociation_pass(type_validator* _validator, logging::log* _log,
       memory::allocator* _allocator)
     : pass(_validator, _log, _allocator),
       m_break_instructions(_allocator),
@@ -621,7 +620,7 @@ public:
 
 class id_association_pass : public pass {
 public:
-  id_association_pass(type_validator* _validator, WNLogging::WNLog* _log,
+  id_association_pass(type_validator* _validator, logging::log* _log,
       memory::allocator* _allocator)
     : pass(_validator, _log, _allocator), id_map(_allocator) {}
 
@@ -647,9 +646,8 @@ public:
 
   void walk_parameter(parameter* _param) {
     if (find_param(_param->get_name())) {
-      m_log->Log(WNLogging::eError, 0, "Id ", _param->get_name(),
-          "hides id of the same name");
-      _param->log_line(*m_log, WNLogging::eError);
+      m_log->log_error("Id ", _param->get_name(), "hides id of the same name");
+      _param->log_line(m_log, logging::log_level::error);
       ++m_num_errors;
       return;
     }
@@ -658,9 +656,9 @@ public:
 
   memory::unique_ptr<instruction> walk_instruction(declaration* _decl) {
     if (find_param(_decl->get_name())) {
-      m_log->Log(WNLogging::eError, 0, "Declaration of ", _decl->get_name(),
-          "hides id of the same name");
-      _decl->log_line(*m_log, WNLogging::eError);
+      m_log->log_error(
+          "Declaration of ", _decl->get_name(), "hides id of the same name");
+      _decl->log_line(m_log, logging::log_level::error);
       ++m_num_errors;
       return nullptr;
       ;
@@ -672,9 +670,8 @@ public:
   memory::unique_ptr<expression> walk_expression(id_expression* _expr) {
     auto param = find_param(_expr->get_name());
     if (!param) {
-      m_log->Log(
-          WNLogging::eError, 0, "Could not find id: ", _expr->get_name());
-      _expr->log_line(*m_log, WNLogging::eError);
+      m_log->log_error("Could not find id: ", _expr->get_name());
+      _expr->log_line(m_log, logging::log_level::error);
       ++m_num_errors;
       return nullptr;
     }
@@ -706,7 +703,7 @@ private:
 
 class type_association_pass : public pass {
 public:
-  type_association_pass(type_validator* _validator, WNLogging::WNLog* _log,
+  type_association_pass(type_validator* _validator, logging::log* _log,
       memory::allocator* _allocator)
     : pass(_validator, _log, _allocator),
       m_returns(_allocator),
@@ -759,7 +756,7 @@ public:
           }
         }
         if (error) {
-          m_log->Log(WNLogging::eError, 0, "Invalid integer constant ", text);
+          m_log->log_error("Invalid integer constant ", text);
           m_num_errors += 1;
         }
         break;
@@ -777,8 +774,7 @@ public:
           errno = 0;
         }
         if (error) {
-          m_log->Log(
-              WNLogging::eError, 0, "Invalid floating point constant", text);
+          m_log->log_error("Invalid floating point constant", text);
           m_num_errors += 1;
         }
         break;
@@ -794,8 +790,8 @@ public:
       expression* _root_expression, const type* lhs_type, const type* rhs_type,
       T _expression_type) {
     if (lhs_type->get_index() != rhs_type->get_index()) {
-      m_log->Log(WNLogging::eError, 0, "Expected LHS and RHS to match");
-      _root_expression->log_line(*m_log, WNLogging::eError);
+      m_log->log_error("Expected LHS and RHS to match");
+      _root_expression->log_line(m_log, logging::log_level::error);
       ++m_num_errors;
       return nullptr;
     }
@@ -806,14 +802,14 @@ public:
 
     if (return_type ==
         static_cast<uint32_t>(type_classification::invalid_type)) {
-      m_log->Log(WNLogging::eError, 0, "Invalid operation for types");
-      _root_expression->log_line(*m_log, WNLogging::eError);
+      m_log->log_error("Invalid operation for types");
+      _root_expression->log_line(m_log, logging::log_level::error);
       ++m_num_errors;
       return nullptr;
     } else if (return_type ==
                static_cast<uint32_t>(type_classification::void_type)) {
-      m_log->Log(WNLogging::eError, 0, "Void return is invalid for arithmetic");
-      _root_expression->log_line(*m_log, WNLogging::eError);
+      m_log->log_error("Void return is invalid for arithmetic");
+      _root_expression->log_line(m_log, logging::log_level::error);
       ++m_num_errors;
       return nullptr;
     }
@@ -857,9 +853,8 @@ public:
     const type_definition& member_def =
         m_validator->get_operations(member_type);
     if (member_type == 0) {
-      m_log->Log(WNLogging::eError, 0, "Type does not have member: ",
-          _expr->get_name());
-      _expr->log_line(*m_log, WNLogging::eError);
+      m_log->log_error("Type does not have member: ", _expr->get_name());
+      _expr->log_line(m_log, logging::log_level::error);
       ++m_num_errors;
       return nullptr;
     }
@@ -896,8 +891,8 @@ public:
             node_type::array_type &&
         _expr->get_base_expression()->get_type()->get_node_type() !=
             node_type::concretized_array_type) {
-      m_log->Log(WNLogging::eError, 0, "You can only index array types");
-      _expr->log_line(*m_log, WNLogging::eError);
+      m_log->log_error("You can only index array types");
+      _expr->log_line(m_log, logging::log_level::error);
       ++m_num_errors;
       return nullptr;
     }
@@ -912,9 +907,8 @@ public:
     function* callee = nullptr;
     auto possible_function = m_functions.find(_expr->get_name());
     if (possible_function == m_functions.end()) {
-      m_log->Log(
-          WNLogging::eError, 0, "Cannot find function: ", _expr->get_name());
-      _expr->log_line(*m_log, WNLogging::eError);
+      m_log->log_error("Cannot find function: ", _expr->get_name());
+      _expr->log_line(m_log, logging::log_level::error);
       ++m_num_errors;
       return nullptr;
     }
@@ -945,9 +939,8 @@ public:
       }
 
       if (callee) {
-        m_log->Log(WNLogging::eError, 0, "Ambiguous Function call: ",
-            _expr->get_name());
-        _expr->log_line(*m_log, WNLogging::eError);
+        m_log->log_error("Ambiguous Function call: ", _expr->get_name());
+        _expr->log_line(m_log, logging::log_level::error);
         ++m_num_errors;
         return nullptr;
       }
@@ -968,8 +961,8 @@ public:
     // TODO(awoloszyn): handle the other cases that give you functions (are
     // there any?)
     if (base_expr->get_node_type() != node_type::id_expression) {
-      m_log->Log(WNLogging::eError, 0, "Cannot call function on non-id: ");
-      _expr->log_line(*m_log, WNLogging::eError);
+      m_log->log_error("Cannot call function on non-id: ");
+      _expr->log_line(m_log, logging::log_level::error);
       ++m_num_errors;
       return nullptr;
     }
@@ -977,9 +970,8 @@ public:
     const id_expression* id = static_cast<const id_expression*>(base_expr);
     auto possible_function = m_functions.find(id->get_name());
     if (possible_function == m_functions.end()) {
-      m_log->Log(
-          WNLogging::eError, 0, "Cannot find function: ", id->get_name());
-      _expr->log_line(*m_log, WNLogging::eError);
+      m_log->log_error("Cannot find function: ", id->get_name());
+      _expr->log_line(m_log, logging::log_level::error);
       ++m_num_errors;
       return nullptr;
     }
@@ -1013,9 +1005,8 @@ public:
         continue;
       }
       if (callee) {
-        m_log->Log(
-            WNLogging::eError, 0, "Ambiguous Function call: ", id->get_name());
-        _expr->log_line(*m_log, WNLogging::eError);
+        m_log->log_error("Ambiguous Function call: ", id->get_name());
+        _expr->log_line(m_log, logging::log_level::error);
         ++m_num_errors;
         return nullptr;
       }
@@ -1023,9 +1014,8 @@ public:
     }
 
     if (!callee) {
-      m_log->Log(
-          WNLogging::eError, 0, "Cannot find function: ", id->get_name());
-      _expr->log_line(*m_log, WNLogging::eError);
+      m_log->log_error("Cannot find function: ", id->get_name());
+      _expr->log_line(m_log, logging::log_level::error);
       ++m_num_errors;
       return nullptr;
     }
@@ -1167,9 +1157,8 @@ public:
   void walk_struct_definition(struct_definition*) {}
   void pre_register_struct_definition(struct_definition* _definition) {
     if (m_validator->get_type(_definition->get_name())) {
-      m_log->Log(WNLogging::eError, 0, "Duplicate struct defined: ",
-          _definition->get_name());
-      _definition->log_line(*m_log, WNLogging::eError);
+      m_log->log_error("Duplicate struct defined: ", _definition->get_name());
+      _definition->log_line(m_log, logging::log_level::error);
       ++m_num_errors;
       return;
     }
@@ -1191,9 +1180,8 @@ public:
           m_validator->get_operations(type + static_cast<uint32_t>(ref_type));
       for (const auto& a : _definition->get_struct_members()) {
         if (!def.register_sub_type(a->get_name(), a->get_type()->get_index())) {
-          m_log->Log(WNLogging::eError, 0, "Duplicate struct element defined: ",
-              a->get_name());
-          a->log_line(*m_log, WNLogging::eError);
+          m_log->log_error("Duplicate struct element defined: ", a->get_name());
+          a->log_line(m_log, logging::log_level::error);
           ++m_num_errors;
           return;
         }
@@ -1225,16 +1213,16 @@ public:
       case node_type::cond_expression:
       case node_type::binary_expression:
       case node_type::array_allocation_expression:
-        m_log->Log(WNLogging::eError, 0, "Cannot assign to expression.");
-        _assign->log_line(*m_log, WNLogging::eError);
+        m_log->log_error("Cannot assign to expression.");
+        _assign->log_line(m_log, logging::log_level::error);
         ++m_num_errors;
         return nullptr;
     }
 
     if (*_assign->get_lvalue()->get_expression()->get_type() !=
         *_assign->get_expression()->get_type()) {
-      m_log->Log(WNLogging::eError, 0, "Cannot assign incompatible types.");
-      _assign->log_line(*m_log, WNLogging::eError);
+      m_log->log_error("Cannot assign incompatible types.");
+      _assign->log_line(m_log, logging::log_level::error);
       ++m_num_errors;
     }
 
@@ -1516,9 +1504,9 @@ public:
     // TODO(awoloszyn): Handle types other than non_nullable.
     if (m_validator->get_cast(_decl->get_expression()->get_type()->get_index(),
             _decl->get_type()->get_index()) != cast_type::transparent) {
-      m_log->Log(WNLogging::eError, 0,
+      m_log->log_error(
           "Cannot initialize variable with expression of a different type.");
-      _decl->log_line(*m_log, WNLogging::eError);
+      _decl->log_line(m_log, logging::log_level::error);
       ++m_num_errors;
     }
 
@@ -1577,9 +1565,8 @@ public:
       else_if_instruction* _else_if) {
     if (_else_if->get_condition()->get_type()->get_index() !=
         static_cast<uint32_t>(type_classification::bool_type)) {
-      m_log->Log(WNLogging::eError, 0,
-          "Else If conditional must be a boolean expression");
-      _else_if->get_condition()->log_line(*m_log, WNLogging::eError);
+      m_log->log_error("Else If conditional must be a boolean expression");
+      _else_if->get_condition()->log_line(m_log, logging::log_level::error);
       ++m_num_errors;
     }
     return nullptr;
@@ -1588,9 +1575,8 @@ public:
   memory::unique_ptr<instruction> walk_instruction(if_instruction* _if) {
     if (_if->get_condition()->get_type()->get_index() !=
         static_cast<uint32_t>(type_classification::bool_type)) {
-      m_log->Log(
-          WNLogging::eError, 0, "If conditional must be a boolean expression");
-      _if->get_condition()->log_line(*m_log, WNLogging::eError);
+      m_log->log_error("If conditional must be a boolean expression");
+      _if->get_condition()->log_line(m_log, logging::log_level::error);
       ++m_num_errors;
     }
     return nullptr;
@@ -1604,8 +1590,8 @@ public:
       if (!return_inst->get_expression()) {
         if (function_return_type->get_index() !=
             static_cast<uint32_t>(type_classification::void_type)) {
-          m_log->Log(WNLogging::eError, 0, "Expected non-void return");
-          return_inst->log_line(*m_log, WNLogging::eError);
+          m_log->log_error("Expected non-void return");
+          return_inst->log_line(m_log, logging::log_level::error);
           m_num_errors += 1;
         }
       } else {
@@ -1614,9 +1600,8 @@ public:
         // set up.
         if (return_type) {
           if (*return_type != *function_return_type) {
-            m_log->Log(
-                WNLogging::eError, 0, "Return type does not match function");
-            return_inst->log_line(*m_log, WNLogging::eError);
+            m_log->log_error("Return type does not match function");
+            return_inst->log_line(m_log, logging::log_level::error);
             m_num_errors += 1;
           }
         }
@@ -1655,9 +1640,9 @@ public:
             [&mangled_name](function* _f) {
               return (_f->get_mangled_name() == mangled_name);
             }) != function_it->second.end()) {
-      m_log->Log(WNLogging::eError, 0, "Conflicting function found: ",
+      m_log->log_error("Conflicting function found: ",
           containers::string_view(_func->get_mangled_name()));
-      _func->log_line(*m_log, WNLogging::eError);
+      _func->log_line(m_log, logging::log_level::error);
       m_num_errors += 1;
     } else {
       function_it->second.push_back(_func);
@@ -1687,8 +1672,8 @@ public:
     walk_type(_at->get_subtype());
     uint32_t sub_type_index = _at->get_subtype()->get_index();
     if (!sub_type_index) {
-      m_log->Log(WNLogging::eError, 0, "Unknown array subtype");
-      _at->log_line(*m_log, WNLogging::eError);
+      m_log->log_error("Unknown array subtype");
+      _at->log_line(m_log, logging::log_level::error);
       return;
     }
     _at->set_type_index(m_validator->get_array_of(sub_type_index));
@@ -1714,9 +1699,8 @@ public:
       if (type_index) {
         _type->set_type_index(type_index);
       } else {
-        m_log->Log(
-            WNLogging::eError, 0, "Unknown Type: ", _type->custom_type_name());
-        _type->log_line(*m_log, WNLogging::eError);
+        m_log->log_error("Unknown Type: ", _type->custom_type_name());
+        _type->log_line(m_log, logging::log_level::error);
         m_num_errors += 1;
       }
     }
@@ -1742,7 +1726,7 @@ private:
 
 class temporary_reification_pass : public pass {
 public:
-  temporary_reification_pass(type_validator* _validator, WNLogging::WNLog* _log,
+  temporary_reification_pass(type_validator* _validator, logging::log* _log,
       memory::allocator* _allocator)
     : pass(_validator, _log, _allocator),
       m_temporary_declarations(_allocator) {}
@@ -1850,7 +1834,7 @@ private:
 
 class member_reassociation_pass : public pass {
 public:
-  member_reassociation_pass(type_validator* _validator, WNLogging::WNLog* _log,
+  member_reassociation_pass(type_validator* _validator, logging::log* _log,
       memory::allocator* _allocator)
     : pass(_validator, _log, _allocator), m_additional_functions(_allocator) {}
 
@@ -1872,8 +1856,8 @@ public:
 
     if (_decl->get_expression()->get_node_type() !=
         node_type::function_call_expression) {
-      m_log->Log(WNLogging::eError, 0, "Expected constructor call");
-      _decl->log_line(*m_log, WNLogging::eError);
+      m_log->log_error("Expected constructor call");
+      _decl->log_line(m_log, logging::log_level::error);
       ++m_num_errors;
       return nullptr;
     }
@@ -2482,9 +2466,8 @@ public:
 
             if (member->get_expression()->get_node_type() !=
                 node_type::array_allocation_expression) {
-              m_log->Log(WNLogging::eError, 0,
-                  "Arrays in structs must be constant sized");
-              member->log_line(*m_log, WNLogging::eError);
+              m_log->log_error("Arrays in structs must be constant sized");
+              member->log_line(m_log, logging::log_level::error);
               ++m_num_errors;
               return;
             }
@@ -2506,9 +2489,8 @@ public:
             for (auto& array_expr : expr->get_array_initializers()) {
               if (array_expr->get_node_type() !=
                   node_type::constant_expression) {
-                m_log->Log(WNLogging::eError, 0,
-                    "The array initializer must be a constant");
-                array_expr->log_line(*m_log, WNLogging::eError);
+                m_log->log_error("The array initializer must be a constant");
+                array_expr->log_line(m_log, logging::log_level::error);
                 ++m_num_errors;
                 return;
               }
@@ -2517,9 +2499,8 @@ public:
                             ->get_type_text()
                             .c_str());
               if (val < 0) {
-                m_log->Log(WNLogging::eError, 0,
-                    "The array initializer must be positive");
-                array_expr->log_line(*m_log, WNLogging::eError);
+                m_log->log_error("The array initializer must be positive");
+                array_expr->log_line(m_log, logging::log_level::error);
                 ++m_num_errors;
                 return;
               }
@@ -2982,7 +2963,7 @@ private:
 }  // anonymous namespace
 
 template <typename T>
-bool run_pass(script_file* _file, WNLogging::WNLog* _log,
+bool run_pass(script_file* _file, logging::log* _log,
     type_validator* _validator, size_t* _num_warnings, size_t* _num_errors) {
   if (!_file)
     return false;
@@ -2997,43 +2978,43 @@ bool run_pass(script_file* _file, WNLogging::WNLog* _log,
   return pass.errors() == 0;
 }
 
-bool run_type_association_pass(script_file* _file, WNLogging::WNLog* _log,
+bool run_type_association_pass(script_file* _file, logging::log* _log,
     type_validator* _validator, size_t* _num_warnings, size_t* _num_errors) {
   return run_pass<type_association_pass>(
       _file, _log, _validator, _num_warnings, _num_errors);
 }
 
-bool run_id_association_pass(script_file* _file, WNLogging::WNLog* _log,
+bool run_id_association_pass(script_file* _file, logging::log* _log,
     type_validator* _validator, size_t* _num_warnings, size_t* _num_errors) {
   return run_pass<id_association_pass>(
       _file, _log, _validator, _num_warnings, _num_errors);
 }
 
-bool run_dce_pass(script_file* _file, WNLogging::WNLog* _log,
+bool run_dce_pass(script_file* _file, logging::log* _log,
     type_validator* _validator, size_t* _num_warnings, size_t* _num_errors) {
   return run_pass<dead_code_elimination_pass>(
       _file, _log, _validator, _num_warnings, _num_errors);
 }
 
-bool run_member_reassociation_pass(script_file* _file, WNLogging::WNLog* _log,
+bool run_member_reassociation_pass(script_file* _file, logging::log* _log,
     type_validator* _validator, size_t* _num_warnings, size_t* _num_errors) {
   return run_pass<member_reassociation_pass>(
       _file, _log, _validator, _num_warnings, _num_errors);
 }
 
-bool run_temporary_reification_pass(script_file* _file, WNLogging::WNLog* _log,
+bool run_temporary_reification_pass(script_file* _file, logging::log* _log,
     type_validator* _validator, size_t* _num_warnings, size_t* _num_errors) {
   return run_pass<temporary_reification_pass>(
       _file, _log, _validator, _num_warnings, _num_errors);
 }
 
-bool run_if_reassociation_pass(script_file* _file, WNLogging::WNLog* _log,
+bool run_if_reassociation_pass(script_file* _file, logging::log* _log,
     type_validator* _validator, size_t* _num_warnings, size_t* _num_errors) {
   return run_pass<if_reassociation_pass>(
       _file, _log, _validator, _num_warnings, _num_errors);
 }
 
-bool run_array_determination_pass(script_file* _file, WNLogging::WNLog* _log,
+bool run_array_determination_pass(script_file* _file, logging::log* _log,
     type_validator* _validator, size_t* _num_warnings, size_t* _num_errors) {
   return run_pass<array_determination_pass>(
       _file, _log, _validator, _num_warnings, _num_errors);

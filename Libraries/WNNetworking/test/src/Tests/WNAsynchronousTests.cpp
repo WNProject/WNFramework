@@ -10,26 +10,27 @@
 #include "WNTesting/inc/WNTestHarness.h"
 
 void flush_buffer(void* v, const char* bytes, size_t length,
-    const std::vector<WNLogging::WNLogColorElement>&) {
+    const wn::logging::color_element*, size_t) {
   wn::containers::string* s = static_cast<wn::containers::string*>(v);
   s->append(bytes, length);
 }
 
-using buffer_logger = WNLogging::WNBufferLogger<flush_buffer>;
+using buffer_logger = wn::logging::buffer_logger<flush_buffer>;
 using log_buff = wn::containers::string;
 
 TEST(raw_connection, send_async_data_from_server) {
   wn::testing::allocator allocator;
   log_buff buffer(&allocator);
   buffer_logger logger(&buffer);
-  WNLogging::WNLog log(&logger);
+  wn::logging::static_log<> slog(&logger);
+  wn::logging::log* log = slog.log();
   {
     wn::multi_tasking::thread_job_pool pool(&allocator, 1);
     {
       wn::multi_tasking::job_signal listen_started(&pool, 0);
       wn::multi_tasking::semaphore wait_for_done;
 
-      wn::networking::WNConcreteNetworkManager manager(&allocator, &pool, &log);
+      wn::networking::WNConcreteNetworkManager manager(&allocator, &pool, log);
 
       pool.add_unsynchronized_job(nullptr, [&]() {
         {
@@ -94,14 +95,15 @@ TEST(raw_connection, async_accept) {
   wn::testing::allocator allocator;
   log_buff buffer(&allocator);
   buffer_logger logger(&buffer);
-  WNLogging::WNLog log(&logger);
+  wn::logging::static_log<> slog(&logger);
+  wn::logging::log* log = slog.log();
 
   wn::multi_tasking::thread_job_pool pool(&allocator, 1);
   {
     wn::multi_tasking::job_signal listen_started(&pool, 0);
     wn::multi_tasking::semaphore wait_for_done;
 
-    wn::networking::WNConcreteNetworkManager manager(&allocator, &pool, &log);
+    wn::networking::WNConcreteNetworkManager manager(&allocator, &pool, log);
 
     pool.add_unsynchronized_job(nullptr, [&]() {
       {
@@ -175,14 +177,15 @@ TEST(raw_connection, async_accept_no_callback) {
   wn::testing::allocator allocator;
   log_buff buffer(&allocator);
   buffer_logger logger(&buffer);
-  WNLogging::WNLog log(&logger);
+  wn::logging::static_log<> slog(&logger);
+  wn::logging::log* log = slog.log();
 
   wn::multi_tasking::thread_job_pool pool(&allocator, 1);
   {
     wn::multi_tasking::job_signal listen_started(&pool, 0);
     wn::multi_tasking::semaphore wait_for_done;
 
-    wn::networking::WNConcreteNetworkManager manager(&allocator, &pool, &log);
+    wn::networking::WNConcreteNetworkManager manager(&allocator, &pool, log);
 
     pool.add_unsynchronized_job(nullptr, [&]() {
       {
@@ -252,13 +255,14 @@ TEST(raw_connection, async_listen_connect) {
   wn::testing::allocator allocator;
   log_buff buffer(&allocator);
   buffer_logger logger(&buffer);
-  WNLogging::WNLog log(&logger);
+  wn::logging::static_log<> slog(&logger);
+  wn::logging::log* log = slog.log();
 
   wn::multi_tasking::thread_job_pool pool(&allocator, 1);
   {
     wn::multi_tasking::semaphore wait_for_done;
 
-    wn::networking::WNConcreteNetworkManager manager(&allocator, &pool, &log);
+    wn::networking::WNConcreteNetworkManager manager(&allocator, &pool, log);
 
     pool.add_unsynchronized_job(nullptr, [&]() {
       {
@@ -351,13 +355,14 @@ TEST(raw_connection, async_recv) {
   wn::testing::allocator allocator;
   log_buff buffer(&allocator);
   buffer_logger logger(&buffer);
-  WNLogging::WNLog log(&logger);
+  wn::logging::static_log<> slog(&logger);
+  wn::logging::log* log = slog.log();
 
   wn::multi_tasking::thread_job_pool pool(&allocator, 1);
   {
     wn::multi_tasking::semaphore wait_for_done;
 
-    wn::networking::WNConcreteNetworkManager manager(&allocator, &pool, &log);
+    wn::networking::WNConcreteNetworkManager manager(&allocator, &pool, log);
 
     pool.add_unsynchronized_job(nullptr, [&]() {
       {

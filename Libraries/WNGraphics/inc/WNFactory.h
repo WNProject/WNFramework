@@ -20,7 +20,7 @@ namespace graphics {
 // devices
 class factory {
 public:
-  WN_FORCE_INLINE factory(memory::allocator* _allocator, WNLogging::WNLog* _log)
+  WN_FORCE_INLINE factory(memory::allocator* _allocator, logging::log* _log)
     : m_adapters(_allocator), m_allocator(_allocator), m_log(_log) {}
 
   virtual ~factory() = default;
@@ -34,7 +34,7 @@ private:
   mutable containers::dynamic_array<adapter_ptr> m_adapters;
   mutable multi_tasking::once_flag m_query_adapter_once_flag;
   memory::allocator* m_allocator;
-  WNLogging::WNLog* m_log;
+  logging::log* m_log;
 };
 
 }  // namespace graphics

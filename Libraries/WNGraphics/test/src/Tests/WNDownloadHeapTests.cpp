@@ -13,18 +13,18 @@ using download_heap_creation_test =
 using download_heap_synchronization_test = wn::graphics::testing::test;
 
 TEST_P(download_heap_creation_test, many_sizes) {
-  wn::graphics::factory device_factory(&m_allocator, &m_log);
+  wn::graphics::factory device_factory(&m_allocator, m_log);
 
   for (auto& physical_device : device_factory.query_adapters()) {
     wn::graphics::device_ptr device =
-        physical_device->make_device(&m_allocator, &m_log);
+        physical_device->make_device(&m_allocator, m_log);
     ASSERT_NE(nullptr, device);
 
     wn::graphics::download_heap download =
         device->create_download_heap(GetParam());
     EXPECT_TRUE(download.is_valid());
   }
-  m_log.Flush();
+  m_log->flush();
   // On normal operation the log buffer should be empty.
   EXPECT_EQ("", m_buffer);
 }
@@ -40,11 +40,11 @@ using download_heap_writing_test =
     wn::graphics::testing::parameterized_test<std::tuple<size_t, size_t>>;
 
 TEST_P(download_heap_writing_test, read_values) {
-  wn::graphics::factory device_factory(&m_allocator, &m_log);
+  wn::graphics::factory device_factory(&m_allocator, m_log);
 
   for (auto& physical_device : device_factory.query_adapters()) {
     wn::graphics::device_ptr device =
-        physical_device->make_device(&m_allocator, &m_log);
+        physical_device->make_device(&m_allocator, m_log);
     ASSERT_NE(nullptr, device);
 
     wn::graphics::download_heap download =
@@ -58,7 +58,7 @@ TEST_P(download_heap_writing_test, read_values) {
       (void)x;
     }
   }
-  m_log.Flush();
+  m_log->flush();
   // On normal operation the log buffer should be empty.
   EXPECT_EQ("", m_buffer);
 }
@@ -74,11 +74,10 @@ INSTANTIATE_TEST_CASE_P(large_values, download_heap_writing_test,
             std::make_tuple(1024 * 1024 - 1, 119)})));
 
 TEST_F(download_heap_synchronization_test, synchronize_writes) {
-  wn::graphics::factory device_factory(&m_allocator, &m_log);
+  wn::graphics::factory device_factory(&m_allocator, m_log);
 
   for (auto& adapter : device_factory.query_adapters()) {
-    wn::graphics::device_ptr device =
-        adapter->make_device(&m_allocator, &m_log);
+    wn::graphics::device_ptr device = adapter->make_device(&m_allocator, m_log);
     ASSERT_NE(nullptr, device);
 
     wn::graphics::download_heap download =
@@ -92,6 +91,9 @@ TEST_F(download_heap_synchronization_test, synchronize_writes) {
       (void)j;
     }
   }
+  m_log->flush();
+  // On normal operation the log buffer should be empty.
+  EXPECT_EQ("", m_buffer);
 }
 
 // TODO(awoloszyn): Create a null device, and hook it up.

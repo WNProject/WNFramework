@@ -12,6 +12,7 @@
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanQueueContext.h"
 #include "WNGraphics/inc/Internal/WNConfig.h"
 #include "WNGraphics/inc/WNHeapTraits.h"
+#include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/WNUniquePtr.h"
 
 #ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
@@ -25,12 +26,6 @@
 #define VK_NO_PROTOTYPES
 
 #include <vulkan.h>
-
-namespace WNLogging {
-
-class WNLog;
-
-}  // namespace WNLogging
 
 namespace wn {
 namespace memory {
@@ -90,7 +85,7 @@ protected:
       m_upload_heap_is_coherent(false),
       m_download_heap_is_coherent(false) {}
 
-  bool initialize(memory::allocator* _allocator, WNLogging::WNLog* _log,
+  bool initialize(memory::allocator* _allocator, logging::log* _log,
       VkDevice _device, PFN_vkDestroyDevice _destroy_device,
       const VkPhysicalDeviceMemoryProperties* _memory_properties,
       vulkan_context* _context, uint32_t _graphics_and_device_queue);
@@ -193,7 +188,7 @@ protected:
   VkDevice m_device;
   const VkPhysicalDeviceMemoryProperties* m_physical_device_memory_properties;
   memory::allocator* m_allocator;
-  WNLogging::WNLog* m_log;
+  logging::log* m_log;
   uint32_t m_upload_memory_type_index;
   uint32_t m_download_memory_type_index;
   uint32_t m_image_memory_type_index;

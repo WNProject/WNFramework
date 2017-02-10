@@ -107,7 +107,7 @@ void d3d12_device::initialize_heap(HeapType* _heap, size_t _num_bytes,
           &heap_desc, _states, nullptr, __uuidof(ID3D12Resource), &resource);
 
   if (FAILED(hr)) {
-    m_log->Log(WNLogging::eError, 0,
+    m_log->log_error(
         "Could not successfully create upload heap of size ", _num_bytes, ".");
   }
 }
@@ -380,9 +380,8 @@ void d3d12_device::initialize_image(
       __uuidof(ID3D12Resource), &resource);
 
   if (FAILED(hr)) {
-    m_log->Log(WNLogging::eError, 0,
-        "Could not successfully create texture of size (", _info.m_width, "x",
-        _info.m_height, ").");
+    m_log->log_error("Could not successfully create texture of size (",
+        _info.m_width, "x", _info.m_height, ").");
   }
 
   uint64_t required_size = 0;

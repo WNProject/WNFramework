@@ -61,7 +61,7 @@ memory::unique_ptr<function> create_external_function(
 memory::unique_ptr<script_file> parse_script(memory::allocator* _allocator,
     scripting::type_validator* _validator, const char* file_name,
     const containers::contiguous_range<external_function>& _external_functions,
-    containers::string_view view, WNLogging::WNLog* _log, size_t* _num_warnings,
+    containers::string_view view, logging::log* _log, size_t* _num_warnings,
     size_t* _num_errors) {
   memory::unique_ptr<script_file> ptr;
   {

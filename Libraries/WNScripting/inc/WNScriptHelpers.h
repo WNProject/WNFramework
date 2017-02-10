@@ -6,12 +6,9 @@
 #define __WN_SCRIPTING_SCRIPT_HELPERS_H__
 
 #include "WNContainers/inc/WNStringView.h"
+#include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNMemory/inc/WNUniquePtr.h"
-
-namespace WNLogging {
-class WNLog;
-}
 
 namespace wn {
 namespace scripting {
@@ -30,7 +27,7 @@ struct external_function {
 memory::unique_ptr<script_file> parse_script(memory::allocator* _allocator,
     scripting::type_validator* _validator, const char* file_name,
     const containers::contiguous_range<external_function>& _external_functions,
-    containers::string_view view, WNLogging::WNLog* _log, size_t* _num_warnings,
+    containers::string_view view, logging::log* _log, size_t* _num_warnings,
     size_t* _num_errors);
 }  // namespace scripting
 }  // namespace wn

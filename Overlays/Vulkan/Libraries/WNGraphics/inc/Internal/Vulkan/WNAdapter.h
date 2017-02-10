@@ -13,6 +13,7 @@
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanContext.h"
 
 #include "WNGraphics/inc/Internal/WNConfig.h"
+#include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/WNIntrusivePtr.h"
 #include "WNMemory/inc/WNUniquePtr.h"
 
@@ -25,12 +26,6 @@
 #define VK_NO_PROTOTYPES
 
 #include <vulkan.h>
-
-namespace WNLogging {
-
-class WNLog;
-
-}  // namespace WNLogging
 
 namespace wn {
 namespace memory {
@@ -66,7 +61,7 @@ public:
   ~vulkan_adapter() WN_GRAPHICS_OVERRIDE_FINAL = default;
 
   device_ptr make_device(memory::allocator* _allocator,
-      WNLogging::WNLog* _log) const WN_GRAPHICS_OVERRIDE_FINAL;
+      logging::log* _log) const WN_GRAPHICS_OVERRIDE_FINAL;
 
   WN_FORCE_INLINE containers::string_view name() const
       WN_GRAPHICS_OVERRIDE_FINAL {
@@ -86,7 +81,7 @@ public:
   }
 
 protected:
-  friend void enumerate_adapters(memory::allocator*, WNLogging::WNLog*,
+  friend void enumerate_adapters(memory::allocator*, logging::log*,
       containers::dynamic_array<adapter_ptr>&);
 
   WN_FORCE_INLINE vulkan_adapter()

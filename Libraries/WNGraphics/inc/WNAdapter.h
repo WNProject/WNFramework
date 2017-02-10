@@ -8,6 +8,7 @@
 #define _WN_GRAPHICS_PHYSICAL_DEVICE_H__
 
 #include "WNGraphics/inc/Internal/WNConfig.h"
+#include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/WNUniquePtr.h"
 
 #ifdef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
@@ -18,19 +19,13 @@
 #include "WNCore/inc/WNUtility.h"
 #endif
 
-namespace WNLogging {
-
-class WNLog;
-
-}  // namespace WNLogging
-
 namespace wn {
 namespace graphics {
 namespace internal {
 
 #ifdef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
-using adapter_base =
-    _WN_GRAPHICS_DEVICE_TYPE::WN_GRAPHICS_PREFIXED_TYPE(adapter);
+using adapter_base = _WN_GRAPHICS_DEVICE_TYPE::WN_GRAPHICS_PREFIXED_TYPE(
+    adapter);
 #else
 using adapter_base = core::non_copyable;
 #endif
@@ -49,7 +44,7 @@ public:
   virtual ~adapter() = default;
 
   virtual device_ptr make_device(
-      memory::allocator* _allocator, WNLogging::WNLog* _log) const = 0;
+      memory::allocator* _allocator, logging::log* _log) const = 0;
 
   virtual containers::string_view name() const = 0;
 

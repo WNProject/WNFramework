@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#ifndef __WN_DEFAULT_LOG_TYPES_H__
-#define __WN_DEFAULT_LOG_TYPES_H__
+#ifndef __WN_LOGGING_DEFAULT_LOG_TYPES_INL__
+#define __WN_LOGGING_DEFAULT_LOG_TYPES_INL__
 
 #include "WNContainers/inc/WNStringView.h"
 #include "WNCore/inc/WNTypes.h"
@@ -11,26 +11,28 @@
 
 #include <cinttypes>
 
-namespace WNLogging {
+namespace wn {
+namespace logging {
+
 #define DEFINE_DEFAULT_LOG(type, encoding)                                     \
   template <typename T>                                                        \
-  struct _Enc##type {                                                          \
-    static const char* GetVal() {                                              \
+  struct _enc##type {                                                          \
+    static const char* get_val() {                                             \
       return encoding;                                                         \
     }                                                                          \
   };                                                                           \
   template <>                                                                  \
-  struct _Enc##type<wchar_t> {                                                 \
-    static const wchar_t* GetVal() {                                           \
+  struct _enc##type<wchar_t> {                                                 \
+    static const wchar_t* get_val() {                                          \
       return L##encoding;                                                      \
     }                                                                          \
   };                                                                           \
   template <typename BuffType>                                                 \
-  struct LogTypeHelper<type, BuffType> {                                       \
-    WN_FORCE_INLINE static bool DoLog(                                         \
+  struct log_type_helper<type, BuffType> {                                     \
+    WN_FORCE_INLINE static bool do_log(                                        \
         const type& _0, BuffType* _buffer, size_t& _bufferLeft) {              \
       int printed = wn::memory::snprintf(                                      \
-          _buffer, _bufferLeft, _Enc##type<BuffType>::GetVal(), _0);           \
+          _buffer, _bufferLeft, _enc##type<BuffType>::get_val(), _0);          \
       if (printed < 0 || static_cast<size_t>(printed) >= _bufferLeft) {        \
         return (false);                                                        \
       }                                                                        \
@@ -41,73 +43,87 @@ namespace WNLogging {
 
 #ifdef _WN_WINDOWS
 template <typename T>
-struct _EncWNChar {};
+struct _enc_wn_char{};
 template <>
-struct _EncWNChar<char> {
-  static const char* GetVal() {
+struct _enc_wn_char<char> {
+  static const char* get_val() {
     return "%s";
   }
 };
 template <>
-struct _EncWNChar<wchar_t> {
-  static const wchar_t* GetVal() {
+struct _enc_wn_char<wchar_t> {
+  static const wchar_t* get_val() {
     return L"%S";
   }
 };
 #else
 template <typename T>
-struct _EncWNChar {};
+struct _enc_wn_char {};
 template <>
-struct _EncWNChar<char> {
-  static const char* GetVal() {
+struct _enc_wn_char<char> {
+  static const char* get_val() {
     return "%s";
   }
 };
 template <>
-struct _EncWNChar<wchar_t> {
-  static const wchar_t* GetVal() {
+struct _enc_wn_char<wchar_t> {
+  static const wchar_t* get_val() {
     return L"%ls";
   }
 };
 #endif
 template <typename BuffType>
-struct LogTypeHelper<char*, BuffType> {
-  WN_FORCE_INLINE static bool DoLog(
-      char* const& _0, BuffType* _buffer, size_t& _bufferLeft) {
+struct log_type_helper<char*, BuffType> {
+  WN_FORCE_INLINE static bool do_log(
+      char* const& _0, BuffType* _buffer, size_t& _buffer_left) {
     int printed = wn::memory::snprintf(
-        _buffer, _bufferLeft, _EncWNChar<BuffType>::GetVal(), _0);
-    if (printed < 0 || static_cast<size_t>(printed) >= _bufferLeft) {
+        _buffer, _buffer_left, _enc_wn_char<BuffType>::get_val(), _0);
+    if (printed < 0 || static_cast<size_t>(printed) >= _buffer_left) {
       return (false);
     }
-    _bufferLeft -= printed;
+    _buffer_left -= printed;
     return (true);
   }
 };
 
 template <typename BuffType>
-struct LogTypeHelper<const char*, BuffType> {
-  WN_FORCE_INLINE static bool DoLog(
-      const char* const& _0, BuffType* _buffer, size_t& _bufferLeft) {
+struct log_type_helper<const char*, BuffType> {
+  WN_FORCE_INLINE static bool do_log(
+      const char* const& _0, BuffType* _buffer, size_t& _buffer_left) {
     int printed = wn::memory::snprintf(
-        _buffer, _bufferLeft, _EncWNChar<BuffType>::GetVal(), _0);
-    if (printed < 0 || static_cast<size_t>(printed) >= _bufferLeft) {
+        _buffer, _buffer_left, _enc_wn_char<BuffType>::get_val(), _0);
+    if (printed < 0 || static_cast<size_t>(printed) >= _buffer_left) {
       return (false);
     }
-    _bufferLeft -= printed;
+    _buffer_left -= printed;
+    return (true);
+  }
+};
+
+template <size_t N, typename BuffType>
+struct log_type_helper<char[N], BuffType> {
+  WN_FORCE_INLINE static bool do_log(
+      const char(&_0)[N], BuffType* _buffer, size_t& _buffer_left) {
+    int printed = wn::memory::snprintf(
+        _buffer, _buffer_left, _enc_wn_char<BuffType>::get_val(), _0);
+    if (printed < 0 || static_cast<size_t>(printed) >= _buffer_left) {
+      return (false);
+    }
+    _buffer_left -= printed;
     return (true);
   }
 };
 
 template <typename BuffType>
-struct LogTypeHelper<wn::containers::string_view, BuffType> {
-  WN_FORCE_INLINE static bool DoLog(const wn::containers::string_view& _0,
-      BuffType* _buffer, size_t& _bufferLeft) {
+struct log_type_helper<wn::containers::string_view, BuffType> {
+  WN_FORCE_INLINE static bool do_log(const wn::containers::string_view& _0,
+      BuffType* _buffer, size_t& _buffer_left) {
     int printed = wn::memory::snprintf(
-        _buffer, _bufferLeft, "%.*s", (uint32_t)_0.size(), (void*)_0.data());
-    if (printed < 0 || static_cast<size_t>(printed) >= _bufferLeft) {
+        _buffer, _buffer_left, "%.*s", (uint32_t)_0.size(), (void*)_0.data());
+    if (printed < 0 || static_cast<size_t>(printed) >= _buffer_left) {
       return (false);
     }
-    _bufferLeft -= printed;
+    _buffer_left -= printed;
     return (true);
   }
 };
@@ -121,6 +137,8 @@ DEFINE_DEFAULT_LOG(uint64_t, "%I64u");
 DEFINE_DEFAULT_LOG(int64_t, "%lld");
 DEFINE_DEFAULT_LOG(uint64_t, "%llu");
 #endif
-}
 
-#endif  //__WN_DEFAULT_LOG_TYPES_H__
+} // namespace logging
+} // namespace wn
+
+#endif  // __WN_LOGGING_DEFAULT_LOG_TYPES_INL__

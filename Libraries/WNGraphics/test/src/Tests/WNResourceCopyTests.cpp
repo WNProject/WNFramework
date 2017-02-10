@@ -14,11 +14,10 @@
 using heap_copy_test = wn::graphics::testing::parameterized_test<size_t>;
 
 TEST_P(heap_copy_test, many_sizes) {
-  wn::graphics::factory device_factory(&m_allocator, &m_log);
+  wn::graphics::factory device_factory(&m_allocator, m_log);
 
   for (auto& adapter : device_factory.query_adapters()) {
-    wn::graphics::device_ptr device =
-        adapter->make_device(&m_allocator, &m_log);
+    wn::graphics::device_ptr device = adapter->make_device(&m_allocator, m_log);
     ASSERT_NE(nullptr, device);
 
     wn::graphics::upload_heap upload = device->create_upload_heap(GetParam());
@@ -59,7 +58,7 @@ TEST_P(heap_copy_test, many_sizes) {
     }
   }
 
-  m_log.Flush();
+  m_log->flush();
   // On normal operation the log buffer should be empty.
   EXPECT_EQ("", m_buffer);
 }

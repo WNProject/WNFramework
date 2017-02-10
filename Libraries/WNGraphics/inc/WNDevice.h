@@ -9,6 +9,7 @@
 
 #include "WNGraphics/inc/Internal/WNConfig.h"
 #include "WNGraphics/inc/WNHeapTraits.h"
+#include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/WNUniquePtr.h"
 
 #ifdef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
@@ -16,13 +17,6 @@
 #else
 #include "WNCore/inc/WNUtility.h"
 #endif
-
-namespace WNLogging {
-
-class WNLog;
-
-}  // namespace WNLogging
-
 
 WN_GRAPHICS_FORWARD(device);
 WN_GRAPHICS_FORWARD(queue);

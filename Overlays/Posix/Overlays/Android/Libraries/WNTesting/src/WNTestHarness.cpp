@@ -102,7 +102,8 @@ static std::string PrintTestPartResultToString(
 class AndroidUnitTestPrinter : public ::testing::TestEventListener {
 public:
   AndroidUnitTestPrinter()
-    : m_test_log(&mConsoleLogger, WNLogging::eLogMax, 1024, false) {}
+    : m_test_static_log(&m_console_logger, logging::log_level::max, false),
+      m_test_log(m_test_static_log.log()) {}
 
   virtual void OnTestProgramStart(const ::testing::UnitTest&) {}
   virtual void OnEnvironmentsSetUpEnd(const ::testing::UnitTest&) {}
@@ -126,8 +127,9 @@ private:
   void PrintFullTestCommentIfPresent(const ::testing::TestInfo& info);
   void PrintFailedTests(const ::testing::UnitTest& unit_test);
 
-  WNLogging::WNConsoleLogger<> mConsoleLogger;
-  WNLogging::WNLog m_test_log;
+  wn::logging::console_logger<> m_console_logger;
+  wn::logging::static_log<logging::log_level::max> m_test_static_log;
+  wn::logging::log_impl<logging::log_level::max>* m_test_log;
 };
 
 static const char sTypeParamLabel[] = "TypeParam";
@@ -139,21 +141,27 @@ void AndroidUnitTestPrinter::PrintFullTestCommentIfPresent(
   const char* const value_param = test_info.value_param();
 
   if (type_param != NULL || value_param != NULL) {
-    m_test_log.Log(WNLogging::eInfo,
-        WNLogging::eWNNoHeader | WNLogging::eWNNoNewLine, ", where ");
+    m_test_log->log_info_flags(
+        static_cast<size_t>(logging::log_flags::no_header) |
+            static_cast<size_t>(logging::log_flags::no_newline),
+        ", where ");
     if (type_param != NULL) {
-      m_test_log.Log(WNLogging::eInfo,
-          WNLogging::eWNNoHeader | WNLogging::eWNNoNewLine, sTypeParamLabel,
-          " = ", type_param);
+      m_test_log->log_info_flags(
+          static_cast<size_t>(logging::log_flags::no_header) |
+              static_cast<size_t>(logging::log_flags::no_newline),
+          sTypeParamLabel, " = ", type_param);
       if (value_param != NULL) {
-        m_test_log.Log(WNLogging::eInfo,
-            WNLogging::eWNNoHeader | WNLogging::eWNNoNewLine, " and ");
+        m_test_log->log_info_flags(
+            static_cast<size_t>(logging::log_flags::no_header) |
+                static_cast<size_t>(logging::log_flags::no_newline),
+            " and ");
       }
     }
     if (value_param != NULL) {
-      m_test_log.Log(WNLogging::eInfo,
-          WNLogging::eWNNoHeader | WNLogging::eWNNoNewLine, sValueParamLabel,
-          " = ", value_param);
+      m_test_log->log_info_flags(
+          static_cast<size_t>(logging::log_flags::no_header) |
+              static_cast<size_t>(logging::log_flags::no_newline),
+          sValueParamLabel, " = ", value_param);
     }
   }
 }
@@ -167,58 +175,69 @@ static const char sTestTotalShards[] = "GTEST_TOTAL_SHARDS";
 void AndroidUnitTestPrinter::OnTestIterationStart(
     const ::testing::UnitTest& unit_test, int iteration) {
   if (::testing::GTEST_FLAG(repeat) != 1) {
-    m_test_log.Log(WNLogging::eDebug, 0, "Repeating all tests (iteration ",
-        iteration + 1, ") . . . ");
+    m_test_log->log_debug(
+        "Repeating all tests (iteration ", iteration + 1, ") . . . ");
   }
 
-  m_test_log.Log(WNLogging::eDebug, WNLogging::eWNNoHeader, "");
+  m_test_log->log_debug_flags(
+      static_cast<size_t>(logging::log_flags::no_header), "");
 
   if (::testing::GTEST_FLAG(filter) != sUniversalFilter) {
-    m_test_log.Log(WNLogging::eDebug, 0, "Note: " GTEST_NAME_ " filter = ",
+    m_test_log->log_debug("Note: " GTEST_NAME_ " filter = ",
         ::testing::GTEST_FLAG(filter).c_str());
   }
 
   if (::testing::GTEST_FLAG(shuffle)) {
-    m_test_log.Log(WNLogging::eDebug, 0,
-        "Note: Randomizing tests' orders with a seed of ",
+    m_test_log->log_debug("Note: Randomizing tests' orders with a seed of ",
         unit_test.random_seed(), " .");
   }
 
-  m_test_log.Log(WNLogging::eInfo, WNLogging::eWNNoNewLine, "[==========] ");
-  m_test_log.Log(WNLogging::eInfo, WNLogging::eWNNoHeader, "Running ",
-      FormatTestCount(unit_test.test_to_run_count()).c_str(), " from ",
+  m_test_log->log_info_flags(
+      static_cast<size_t>(logging::log_flags::no_header) |
+          static_cast<size_t>(logging::log_flags::no_newline),
+      "[==========] ");
+  m_test_log->log_info_flags(
+      static_cast<size_t>(logging::log_flags::no_header) |
+          static_cast<size_t>(logging::log_flags::no_newline),
+      "Running ", FormatTestCount(unit_test.test_to_run_count()).c_str(),
+      " from ",
       FormatTestCaseCount(unit_test.test_case_to_run_count()).c_str());
-  m_test_log.Flush();
+  m_test_log->flush();
 }
 
 void AndroidUnitTestPrinter::OnEnvironmentsSetUpStart(
     const ::testing::UnitTest&) {
-  m_test_log.Log(WNLogging::eInfo, WNLogging::eWNNoNewLine,
+  m_test_log->log_info_flags(
+      static_cast<size_t>(logging::log_flags::no_newline),
       "[----------] Global test environment set-up.");
-  m_test_log.Flush();
+  m_test_log->flush();
 }
 
 void AndroidUnitTestPrinter::OnTestCaseStart(
     const ::testing::TestCase& test_case) {
   const std::string counts =
       FormatCountableNoun(test_case.test_to_run_count(), "test", "tests");
-  m_test_log.Log(WNLogging::eInfo, WNLogging::eWNNoNewLine, "[----------] ");
+  m_test_log->log_info_flags(
+      static_cast<size_t>(logging::log_flags::no_newline), "[----------] ");
   if (test_case.type_param() == NULL) {
-    m_test_log.Log(WNLogging::eInfo, WNLogging::eWNNoHeader, counts.c_str(),
+    m_test_log->log_info_flags(
+        static_cast<size_t>(logging::log_flags::no_header), counts.c_str(),
         " from ", test_case.name());
   } else {
-    m_test_log.Log(WNLogging::eInfo, WNLogging::eWNNoHeader, counts.c_str(),
+    m_test_log->log_info_flags(
+        static_cast<size_t>(logging::log_flags::no_header), counts.c_str(),
         " from ", test_case.name(), ", where ", sTypeParamLabel, " = ",
         test_case.type_param());
   }
-  m_test_log.Flush();
+  m_test_log->flush();
 }
 
 void AndroidUnitTestPrinter::OnTestStart(const ::testing::TestInfo& test_info) {
-  m_test_log.Log(WNLogging::eInfo, WNLogging::eWNNoNewLine, "[ RUN      ] ");
-  m_test_log.Log(WNLogging::eInfo, WNLogging::eWNNoHeader,
+  m_test_log->log_info_flags(
+      static_cast<size_t>(logging::log_flags::no_newline), "[ RUN      ] ");
+  m_test_log->log_info_flags(static_cast<size_t>(logging::log_flags::no_header),
       test_info.test_case_name(), ".", test_info.name());
-  m_test_log.Flush();
+  m_test_log->flush();
 }
 
 void AndroidUnitTestPrinter::OnTestPartResult(
@@ -226,35 +245,39 @@ void AndroidUnitTestPrinter::OnTestPartResult(
   if (result.type() == ::testing::TestPartResult::kSuccess)
     return;
 
-  m_test_log.Log(
-      WNLogging::eInfo, 0, PrintTestPartResultToString(result).c_str());
-  m_test_log.Flush();
+  m_test_log->log_info(PrintTestPartResultToString(result).c_str());
+  m_test_log->flush();
 }
 
 void AndroidUnitTestPrinter::OnTestEnd(const ::testing::TestInfo& test_info) {
   if (test_info.result()->Passed()) {
-    m_test_log.Log(WNLogging::eInfo, WNLogging::eWNNoNewLine, "[       OK ] ");
+    m_test_log->log_info_flags(
+        static_cast<size_t>(logging::log_flags::no_newline), "[       OK ] ");
   } else {
-    m_test_log.Log(WNLogging::eError, WNLogging::eWNNoNewLine, "[  FAILED  ] ");
+    m_test_log->log_error_flags(
+        static_cast<size_t>(logging::log_flags::no_newline), "[  FAILED  ] ");
   }
 
-  m_test_log.Log(WNLogging::eInfo,
-      WNLogging::eWNNoHeader | WNLogging::eWNNoNewLine,
+  m_test_log->log_info_flags(
+      static_cast<size_t>(logging::log_flags::no_header) |
+          static_cast<size_t>(logging::log_flags::no_newline),
       test_info.test_case_name(), ".", test_info.name());
 
   if (test_info.result()->Failed())
     PrintFullTestCommentIfPresent(test_info);
 
   if (::testing::GTEST_FLAG(print_time)) {
-    m_test_log.Log(WNLogging::eInfo, WNLogging::eWNNoHeader, " (",
+    m_test_log->log_info_flags(
+        static_cast<size_t>(logging::log_flags::no_header), " (",
         ::testing::internal::StreamableToString(
             test_info.result()->elapsed_time())
             .c_str(),
         " ms)");
   } else {
-    m_test_log.Log(WNLogging::eInfo, WNLogging::eWNNoHeader, "");
+    m_test_log->log_info_flags(
+        static_cast<size_t>(logging::log_flags::no_header), "");
   }
-  m_test_log.Flush();
+  m_test_log->flush();
 }
 
 void AndroidUnitTestPrinter::OnTestCaseEnd(
@@ -265,18 +288,17 @@ void AndroidUnitTestPrinter::OnTestCaseEnd(
   const std::string counts =
       FormatCountableNoun(test_case.test_to_run_count(), "test", "tests");
 
-  m_test_log.Log(WNLogging::eInfo, 0, "[----------] ", counts.c_str(), " from ",
+  m_test_log->log_info("[----------] ", counts.c_str(), " from ",
       test_case.name(), " (",
       ::testing::internal::StreamableToString(test_case.elapsed_time()).c_str(),
       "ms total)");
-  m_test_log.Flush();
+  m_test_log->flush();
 }
 
 void AndroidUnitTestPrinter::OnEnvironmentsTearDownStart(
     const ::testing::UnitTest&) {
-  m_test_log.Log(
-      WNLogging::eInfo, 0, "[----------] Global test environment tear-down\n");
-  m_test_log.Flush();
+  m_test_log->log_info("[----------] Global test environment tear-down\n");
+  m_test_log->flush();
 }
 
 void AndroidUnitTestPrinter::PrintFailedTests(
@@ -296,51 +318,56 @@ void AndroidUnitTestPrinter::PrintFailedTests(
       if (!test_info.should_run() || test_info.result()->Passed()) {
         continue;
       }
-      m_test_log.Log(WNLogging::eError, WNLogging::eWNNoNewLine,
-          "[  FAILED  ] ", test_case.name(), ".", test_info.name());
+      m_test_log->log_error_flags(
+          static_cast<size_t>(logging::log_flags::no_newline), "[  FAILED  ] ",
+          test_case.name(), ".", test_info.name());
       PrintFullTestCommentIfPresent(test_info);
-      m_test_log.Log(WNLogging::eError, WNLogging::eWNNoHeader, "");
+      m_test_log->log_error_flags(
+          static_cast<size_t>(logging::log_flags::no_header), "");
     }
   }
 }
 
 void AndroidUnitTestPrinter::OnTestIterationEnd(
     const ::testing::UnitTest& unit_test, int) {
-  m_test_log.Log(WNLogging::eInfo, WNLogging::eWNNoNewLine, "[==========] ",
+  m_test_log->log_info_flags(
+      static_cast<size_t>(logging::log_flags::no_newline), "[==========] ",
       FormatTestCount(unit_test.test_to_run_count()).c_str(), " from ",
       FormatTestCaseCount(unit_test.test_case_to_run_count()).c_str(), " ran.");
 
   if (::testing::GTEST_FLAG(print_time)) {
-    m_test_log.Log(WNLogging::eInfo,
-        WNLogging::eWNNoHeader | WNLogging::eWNNoNewLine, " (",
-        ::testing::internal::StreamableToString(unit_test.elapsed_time())
-            .c_str(),
+    m_test_log->log_info_flags(
+        static_cast<size_t>(logging::log_flags::no_header) |
+            static_cast<size_t>(logging::log_flags::no_newline),
+        " (", ::testing::internal::StreamableToString(unit_test.elapsed_time())
+                  .c_str(),
         " ms total)");
   }
-  m_test_log.Log(WNLogging::eInfo, WNLogging::eWNNoHeader, "");
-  m_test_log.Log(WNLogging::eInfo, 0, "[  PASSED  ] ",
+  m_test_log->log_info_flags(
+      static_cast<size_t>(logging::log_flags::no_header), "");
+  m_test_log->log_info("[  PASSED  ] ",
       FormatTestCount(unit_test.successful_test_count()).c_str(), ".");
 
   int num_failures = unit_test.failed_test_count();
   if (!unit_test.Passed()) {
     const int failed_test_count = unit_test.failed_test_count();
-    m_test_log.Log(WNLogging::eError, 0, "[  FAILED  ] ",
+    m_test_log->log_error("[  FAILED  ] ",
         FormatTestCount(failed_test_count).c_str(), ", listed below");
     PrintFailedTests(unit_test);
-    m_test_log.Log(WNLogging::eError, 0, "");
-    m_test_log.Log(WNLogging::eError, 0, num_failures, "FAILED ",
-        num_failures == 1 ? "TEST" : "TESTS");
+    m_test_log->log_error("");
+    m_test_log->log_error(
+        num_failures, "FAILED ", num_failures == 1 ? "TEST" : "TESTS");
   }
 
   int num_disabled = unit_test.reportable_disabled_test_count();
   if (num_disabled && !::testing::GTEST_FLAG(also_run_disabled_tests)) {
     if (!num_failures) {
-      m_test_log.Log(WNLogging::eInfo, 0, "");
+      m_test_log->log_info(0, "");
     }
-    m_test_log.Log(WNLogging::eWarning, 0, " YOU HAVE ", num_disabled,
-        " DISABLED ", num_disabled == 1 ? "TEST." : "TESTS.");
+    m_test_log->log_warning("YOU HAVE ", num_disabled, " DISABLED ",
+        num_disabled == 1 ? "TEST." : "TESTS.");
   }
-  m_test_log.Flush();
+  m_test_log->flush();
 }
 
 void init_test_framework() {

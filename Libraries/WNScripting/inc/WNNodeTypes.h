@@ -159,7 +159,7 @@ public:
   }
 
   // Writes the first line of this expression to the given log.
-  void log_line(WNLogging::WNLog& _log, WNLogging::WNLogLevel _level) const {
+  void log_line(logging::log* _log, logging::log_level _level) const {
     size_t line_length = 1023;
     const char* c = memory::strnchr(
         reinterpret_cast<const char*>(m_source_location.m_line_start), '\n',
@@ -176,7 +176,7 @@ public:
     char* data_buffer = static_cast<char*>(WN_STACK_ALLOC(line_length + 1));
     memcpy(data_buffer, m_source_location.m_line_start, line_length);
     data_buffer[line_length] = '\0';
-    _log.Log(_level, 0, "Line: ", m_source_location.m_line_number, "\n",
+    _log->log_params(_level, 0, "Line: ", m_source_location.m_line_number, "\n",
         data_buffer);
   }
 

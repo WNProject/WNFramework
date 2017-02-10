@@ -9,12 +9,7 @@
 
 #include "WNContainers/inc/WNDynamicArray.h"
 #include "WNGraphics/inc/WNAdapter.h"
-
-namespace WNLogging {
-
-class WNLog;
-
-}  // namespace WNLogging
+#include "WNLogging/inc/WNLog.h"
 
 namespace wn {
 namespace memory {
@@ -27,7 +22,7 @@ namespace graphics {
 namespace internal {
 namespace vulkan {
 
-void enumerate_adapters(memory::allocator* _allocator, WNLogging::WNLog* _log,
+void enumerate_adapters(memory::allocator* _allocator, logging::log* _log,
     containers::dynamic_array<adapter_ptr>& _arr);
 
 }  // namespace vulkan

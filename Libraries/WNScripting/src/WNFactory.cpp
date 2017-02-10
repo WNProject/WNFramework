@@ -11,7 +11,7 @@ namespace scripting {
 
 memory::unique_ptr<engine> factory::get_engine(scripting_engine_type _type,
     type_validator* _validator, file_system::mapping* _file_mapping,
-    WNLogging::WNLog* _log, memory::allocator* _allocator) {
+    logging::log* _log, memory::allocator* _allocator) {
   switch (_type) {
     case scripting_engine_type::jit_engine:
       return memory::make_unique<jit_engine>(
@@ -23,7 +23,7 @@ memory::unique_ptr<engine> factory::get_engine(scripting_engine_type _type,
 
 memory::unique_ptr<translator> factory::get_translator(translator_type _type,
     type_validator* _validator, file_system::mapping* _file_mapping,
-    WNLogging::WNLog* _log, memory::allocator* _allocator) {
+    logging::log* _log, memory::allocator* _allocator) {
   switch (_type) {
     case translator_type::c_translator:
       return memory::make_unique<c_translator>(

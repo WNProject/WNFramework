@@ -85,25 +85,24 @@ vulkan_device::~vulkan_device() {
   symbol =                                                                     \
       reinterpret_cast<PFN_##symbol>(vkGetDeviceProcAddr(device, #symbol));    \
   if (!symbol) {                                                               \
-    m_log->Log(WNLogging::eError, 0, "Could not find " #symbol ".");           \
-    m_log->Log(WNLogging::eError, 0, "Error configuring device");              \
+    m_log->log_error("Could not find " #symbol ".");                           \
+    m_log->log_error("Error configuring device");                              \
     return false;                                                              \
   }                                                                            \
-  m_log->Log(WNLogging::eDebug, 0, #symbol " is at ", symbol);
+  m_log->log_debug(#symbol " is at ", symbol);
 
 #define LOAD_VK_SUB_DEVICE_SYMBOL(device, sub_struct, symbol)                  \
   sub_struct.symbol =                                                          \
       reinterpret_cast<PFN_##symbol>(vkGetDeviceProcAddr(device, #symbol));    \
   if (!sub_struct.symbol) {                                                    \
-    m_log->Log(WNLogging::eError, 0, "Could not find " #symbol ".");           \
-    m_log->Log(WNLogging::eError, 0, "Error configuring device");              \
+    m_log->log_error("Could not find " #symbol ".");                           \
+    m_log->log_error("Error configuring device");                              \
     return false;                                                              \
   }                                                                            \
-  m_log->Log(WNLogging::eDebug, 0, #symbol " is at ", sub_struct.symbol);
+  m_log->log_debug(#symbol " is at ", sub_struct.symbol);
 
 bool vulkan_device::initialize(memory::allocator* _allocator,
-    WNLogging::WNLog* _log, VkDevice _device,
-    PFN_vkDestroyDevice _destroy_device,
+    logging::log* _log, VkDevice _device, PFN_vkDestroyDevice _destroy_device,
     const VkPhysicalDeviceMemoryProperties* _memory_properties,
     vulkan_context* _context, uint32_t _graphics_and_device_queue) {
   static_assert(sizeof(buffer_data) == sizeof(upload_heap::opaque_data),
@@ -124,12 +123,11 @@ bool vulkan_device::initialize(memory::allocator* _allocator,
       reinterpret_cast<PFN_vkGetDeviceProcAddr>(_context->vkGetInstanceProcAddr(
           _context->instance, "vkGetDeviceProcAddr"));
   if (!vkGetDeviceProcAddr) {
-    m_log->Log(WNLogging::eError, 0, "Could not find vkGetDeviceProcAddr.");
-    m_log->Log(WNLogging::eError, 0, "Device initialization failed");
+    m_log->log_error("Could not find vkGetDeviceProcAddr.");
+    m_log->log_error("Device initialization failed");
     return false;
   }
-  m_log->Log(
-      WNLogging::eDebug, 0, "vkGetDeviceProcAddr is at ", vkGetDeviceProcAddr);
+  m_log->log_debug("vkGetDeviceProcAddr is at ", vkGetDeviceProcAddr);
 
   LOAD_VK_DEVICE_SYMBOL(m_device, vkGetDeviceQueue);
 
@@ -194,7 +192,7 @@ bool vulkan_device::initialize(memory::allocator* _allocator,
     create_info.size = 1;  // 1 byte buffer
     if (VK_SUCCESS !=
         vkCreateBuffer(m_device, &create_info, nullptr, &test_buffer)) {
-      m_log->Log(WNLogging::eError, 0,
+      m_log->log_error(
           "Could not determine the memory type for an upload heap.");
       return false;
     }
@@ -206,14 +204,13 @@ bool vulkan_device::initialize(memory::allocator* _allocator,
 
     vkDestroyBuffer(m_device, test_buffer, nullptr);
     if (m_upload_memory_type_index == uint32_t(-1)) {
-      m_log->Log(WNLogging::eCritical, 0, "Error in vulkan driver.");
-      m_log->Log(WNLogging::eCritical, 0,
-          "Must have at least one buffer type that supports",
+      m_log->log_critical("Error in vulkan driver.");
+      m_log->log_critical("Must have at least one buffer type that supports",
           "VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT");
       return false;
     }
-    m_log->Log(WNLogging::eDebug, 0, "Upload heap using memory_type ",
-        m_upload_memory_type_index);
+    m_log->log_debug(
+        "Upload heap using memory_type ", m_upload_memory_type_index);
     m_upload_heap_is_coherent =
         (m_physical_device_memory_properties
                 ->memoryTypes[m_upload_memory_type_index]
@@ -228,7 +225,7 @@ bool vulkan_device::initialize(memory::allocator* _allocator,
     create_info.size = 1;  // 1 byte buffer
     if (VK_SUCCESS !=
         vkCreateBuffer(m_device, &create_info, nullptr, &test_buffer)) {
-      m_log->Log(WNLogging::eError, 0,
+      m_log->log_error(
           "Could not determine the memory type for a download heap.");
       return false;
     }
@@ -240,14 +237,13 @@ bool vulkan_device::initialize(memory::allocator* _allocator,
 
     vkDestroyBuffer(m_device, test_buffer, nullptr);
     if (m_download_memory_type_index == uint32_t(-1)) {
-      m_log->Log(WNLogging::eCritical, 0, "Error in vulkan driver.");
-      m_log->Log(WNLogging::eCritical, 0,
-          "Must have at least one buffer type that supports",
+      m_log->log_critical("Error in vulkan driver.");
+      m_log->log_critical("Must have at least one buffer type that supports",
           "VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT");
       return false;
     }
-    m_log->Log(WNLogging::eDebug, 0, "Download heap using memory_type ",
-        m_download_memory_type_index);
+    m_log->log_debug(
+        "Download heap using memory_type ", m_download_memory_type_index);
     m_download_heap_is_coherent =
         (m_physical_device_memory_properties
                 ->memoryTypes[m_download_memory_type_index]
@@ -281,7 +277,7 @@ bool vulkan_device::initialize(memory::allocator* _allocator,
       };
 
       if (VK_SUCCESS != vkCreateImage(m_device, &create_info, nullptr, &test_image)) {
-          m_log->Log(WNLogging::eError, 0,
+        m_log->log_error(
             "Could not determine the memory type for a download heap.");
         return false;
       }
@@ -294,10 +290,10 @@ bool vulkan_device::initialize(memory::allocator* _allocator,
       vkDestroyImage(m_device, test_image, nullptr);
 
   }
-  m_log->Log(WNLogging::eDebug, 0, "Upload heap is using ",
+  m_log->log_debug("Upload heap is using ",
       m_upload_heap_is_coherent ? "coherent" : "non-coherent", "memory");
 
-  m_log->Log(WNLogging::eDebug, 0, "Download heap is using ",
+  m_log->log_debug("Download heap is using ",
       m_download_heap_is_coherent ? "coherent" : "non-coherent", "memory");
   return true;
 }
@@ -311,9 +307,8 @@ void vulkan_device::initialize_heap(HeapType* _heap,
   create_info.size = _size_in_bytes;
   if (VK_SUCCESS !=
       vkCreateBuffer(m_device, &create_info, nullptr, &res.buffer)) {
-    m_log->Log(WNLogging::eError, 0,
-        "Could not successfully create upload heap of size ", _size_in_bytes,
-        ".");
+    m_log->log_error("Could not successfully create upload heap of size ",
+        _size_in_bytes, ".");
 
     return;
   }
@@ -334,23 +329,20 @@ void vulkan_device::initialize_heap(HeapType* _heap,
 
   if (VK_SUCCESS !=
       vkAllocateMemory(m_device, &allocate_info, nullptr, &res.device_memory)) {
-    m_log->Log(WNLogging::eError, 0,
-        "Could not successfully allocate device memory of size ",
+    m_log->log_error("Could not successfully allocate device memory of size ",
         _size_in_bytes, ".");
     return;
   }
 
   if (VK_SUCCESS !=
       vkBindBufferMemory(m_device, res.buffer, res.device_memory, 0)) {
-    m_log->Log(WNLogging::eError, 0, "Could not bind buffer memory ",
-        _size_in_bytes, ".");
+    m_log->log_error("Could not bind buffer memory ", _size_in_bytes, ".");
     return;
   }
 
   if (VK_SUCCESS != vkMapMemory(m_device, res.device_memory, 0,
                         requirements.size, 0, (void**)&_heap->m_root_address)) {
-    m_log->Log(WNLogging::eError, 0, "Could not map buffer memory ",
-        _size_in_bytes, ".");
+    m_log->log_error("Could not map buffer memory ", _size_in_bytes, ".");
   }
 }
 
@@ -605,7 +597,7 @@ void vulkan_device::initialize_image(
   };
 
   if (VK_SUCCESS != vkCreateImage(m_device, &create_info, nullptr, &img.image)) {
-    m_log->Log(WNLogging::eError, 0, "Could not create image.");
+    m_log->log_error("Could not create image.");
   }
 
   VkMemoryRequirements requirements;
@@ -624,9 +616,8 @@ void vulkan_device::initialize_image(
 
   if (VK_SUCCESS !=
     vkAllocateMemory(m_device, &allocate_info, nullptr, &img.device_memory)) {
-    m_log->Log(WNLogging::eError, 0,
-      "Could not successfully allocate device memory of size ",
-      requirements.size, ".");
+    m_log->log_error("Could not successfully allocate device memory of size ",
+        requirements.size, ".");
     return;
   }
 

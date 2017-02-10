@@ -16,7 +16,7 @@ namespace wn {
 namespace networking {
 
 network_error WNReliableConnectListenSocket::initialize(
-    WNLogging::WNLog* _log, int _protocol, uint16_t _port) {
+    logging::log* _log, int _protocol, uint16_t _port) {
   m_sock_fd = socket(_protocol, SOCK_STREAM, IPPROTO_TCP);
   if (m_sock_fd == -1) {
     return network_error::invalid_parameters;
@@ -34,8 +34,7 @@ network_error WNReliableConnectListenSocket::initialize(
   addrinfo* ptr;
 
   if (0 != getaddrinfo(NULL, port_array, nullptr, &result)) {
-    _log->Log(
-        WNLogging::eError, 0, "Could not resolve local port ", port_array);
+    _log->log_error("Could not resolve local port ", port_array);
     return network_error::could_not_resolve;
   }
 
@@ -47,8 +46,7 @@ network_error WNReliableConnectListenSocket::initialize(
   }
 
   if (ptr == nullptr) {
-    _log->Log(
-        WNLogging::eError, 0, "Could not resolve local port ", port_array);
+    _log->log_error("Could not resolve local port ", port_array);
     freeaddrinfo(result);
     return network_error::could_not_resolve;
   }
@@ -56,12 +54,12 @@ network_error WNReliableConnectListenSocket::initialize(
   int error = bind(m_sock_fd, ptr->ai_addr, ptr->ai_addrlen);
   freeaddrinfo(result);
   if (0 != error) {
-    _log->Log(WNLogging::eError, 0, "Could not bind to port ", port_array);
+    _log->log_error("Could not bind to port ", port_array);
     return network_error::could_not_bind;
   }
 
   if (0 != listen(m_sock_fd, kIncommingConnectionBacklog)) {
-    _log->Log(WNLogging::eError, 0, "Could not listen on port ", port_array);
+    _log->log_error("Could not listen on port ", port_array);
     return network_error::could_not_bind;
   }
 

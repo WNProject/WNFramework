@@ -15,20 +15,24 @@ template <typename T>
 class test_internal : public T {
 public:
   test_internal()
-    : T(), m_log(&m_logger), m_logger(&m_buffer), m_buffer(&m_allocator) {
-  }
+    : T(),
+      m_static_log(&m_logger),
+      m_log(m_static_log.log()),
+      m_logger(&m_buffer),
+      m_buffer(&m_allocator) {}
 
   static void flush_buffer(void* v, const char* bytes, size_t length,
-      const std::vector<WNLogging::WNLogColorElement>&) {
+      const wn::logging::color_element*, size_t) {
     wn::containers::string* s = static_cast<wn::containers::string*>(v);
     s->append(bytes, length);
   }
 
-  using buffer_logger = WNLogging::WNBufferLogger<flush_buffer>;
+  using buffer_logger = logging::buffer_logger<flush_buffer>;
   using log_buff = wn::containers::string;
 
   wn::testing::allocator m_allocator;
-  WNLogging::WNLog m_log;
+  logging::static_log<> m_static_log;
+  logging::log* m_log;
   buffer_logger m_logger;
   log_buff m_buffer;
 };

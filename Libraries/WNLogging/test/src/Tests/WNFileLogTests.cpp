@@ -39,33 +39,34 @@ const char* GetTempFile() {
   return (sFileName);
 }
 
-using namespace WNLogging;
+using namespace wn::logging;
 TEST(WNFileLogTest, Basiclogging) {
   {
-    WNFileLogger<GetTempFile> mFileLogger;
-    WNLog mDefaultLog = WNLog(&mFileLogger);
-    mDefaultLog.Log(eError, 0, "asdf");
+    file_logger<GetTempFile> file_logger;
+    static_log<log_level::max> default_log =
+        static_log<log_level::max>(&file_logger);
+    default_log.log()->log_error("asdf");
   }
   ASSERT_GE(NumWritten(), 1u);
 }
 
 TEST(WNFileLogTest, NoExessiveLogging) {
   {
-    WNFileLogger<GetTempFile> mFileLogger;
-    WNLog mDefaultLog(&mFileLogger);
-    mDefaultLog.Log(eInfo, 0, "asdf");
+    file_logger<GetTempFile> file_logger;
+    static_log<log_level::max> default_log(&file_logger);
+    default_log.log()->log_error("asdf");
+    ASSERT_EQ(NumWritten(), 0);
   }
-  ASSERT_EQ(NumWritten(), 0);
 }
 
 TEST(WNFileLogTest, FilledLog) {
   {
-    WNFileLogger<GetTempFile> mFileLogger;
-    WNLog mDefaultLog(&mFileLogger);
+    file_logger<GetTempFile> file_logger;
+    static_log<log_level::max> default_log(&file_logger);
     for (int i = 0; i < 100;
          ++i) {  // this should be at least asdf 100 times, but in reality
       // Error: asdf
-      mDefaultLog.Log(eError, 0, "asdf");
+      default_log.log()->log_error("asdf");
     }
   }
   ASSERT_GE(NumWritten(), 400u);
@@ -73,20 +74,20 @@ TEST(WNFileLogTest, FilledLog) {
 
 TEST(WNFileLogTest, ChangeLogLevel) {
   {
-    WNFileLogger<GetTempFile> mFileLogger;
-    WNLog mDefaultLog(&mFileLogger);
-    mDefaultLog.Log(eInfo, 0, "asdf");
-    mDefaultLog.Flush();
+    file_logger<GetTempFile> file_logger;
+    static_log<log_level::max> default_log(&file_logger);
+    default_log.log()->log_info("asdf");
+    default_log.log()->flush();
   }
   ASSERT_EQ(NumWritten(), 0);
   {
-    WNFileLogger<GetTempFile> mFileLogger;
-    WNLog mDefaultLog(&mFileLogger);
-    mDefaultLog.Log(eInfo, 0, "asdf");
-    mDefaultLog.Flush();
-    mDefaultLog.SetLogLevel(eInfo);
-    mDefaultLog.Log(eInfo, 0, "asdf");
-    mDefaultLog.Flush();
+    file_logger<GetTempFile> file_logger;
+    static_log<log_level::max> default_log(&file_logger);
+    default_log.log()->log_info("asdf");
+    default_log.log()->flush();
+    default_log.log()->set_log_level(log_level::info);
+    default_log.log()->log_info("asdf");
+    default_log.log()->flush();
   }
   ASSERT_GE(NumWritten(), 1u);
 }

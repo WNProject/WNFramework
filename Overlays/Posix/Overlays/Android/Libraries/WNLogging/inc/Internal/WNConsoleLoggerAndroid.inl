@@ -6,43 +6,51 @@
 #define __WN_CONSOLE_LOGGER_LINUX_INL__
 
 #include <android/log.h>
-#include <android/log.h>
 
 #include "WNLogging/inc/WNConsoleLogger.h"
 #include "WNUtilities/inc/WNLoggingData.h"
 
-const int32_t logLevels[] = {ANDROID_LOG_SILENT, ANDROID_LOG_FATAL,
+
+namespace wn {
+namespace logging {
+
+const int32_t s_log_levels[] = {ANDROID_LOG_SILENT, ANDROID_LOG_FATAL,
     ANDROID_LOG_ERROR, ANDROID_LOG_WARN, ANDROID_LOG_WARN, ANDROID_LOG_INFO,
     ANDROID_LOG_DEBUG, ANDROID_LOG_DEFAULT};
 
-template <WNLogging::WNConsoleLocation T_Level>
-WNLogging::WNConsoleLogger<T_Level>::WNConsoleLogger()
-  : mLogPriority(ANDROID_LOG_INFO) {}
+template <console_location T_Location>
+console_logger<T_Location>::WNConsoleLogger()
+  : m_log_priority(ANDROID_LOG_INFO) {}
 
-template <WNLogging::WNConsoleLocation T_Level>
-WNLogging::WNConsoleLogger<T_Level>::~WNConsoleLogger() {}
+template <console_location T_Location>
+console_logger<T_Location>::~WNConsoleLogger() {}
 
-template <WNLogging::WNConsoleLocation T_Level>
-void WNLogging::WNConsoleLogger<T_Level>::FlushBuffer(const char* _buffer,
-    size_t _bufferSize,
-    const std::vector<WNLogging::WNLogColorElement>& _colors) {
-  if (_colors.size() > 0) {
-    for (size_t i = 0; i < _colors.size(); ++i) {
-      if (_colors[i].mLevel > 0) {
-        mLogPriority = _colors[i].mLevel;
+template <console_location T_Location>
+void console_logger<T_Location>::flush_buffer(const char* _buffer,
+    size_t _buffer_size,
+    const color_element* _colors, size_t _num_colors) {
+  if (_num_colors) {
+    for (size_t i = 0; i < _num_colors; ++i) {
+      if (_colors[i].m_level > 0) {
+        m_log_priority = _colors[i].m_level;
       } else {
-        const char* endColor = ((_colors).size() == i + 1)
-                                   ? _buffer + _bufferSize
-                                   : (_colors)[i + 1].mPosition;
-        size_t len = endColor - (_colors)[i].mPosition;
-        __android_log_print(mLogPriority, wn::utilities::gAndroidLogTag, "%.*s",
-            static_cast<int32_t>(len), (_colors)[i].mPosition);
+        const char* end_color = (_num_colors == i + 1)
+                                   ? _buffer + _buffer_size
+                                   : _colors[i + 1].m_position;
+        size_t len = end_color - _colors[i].m_position;
+        __android_log_print(s_log_levels[static_cast<uint32_t>(m_log_priority)], wn::utilities::gAndroidLogTag, "%.*s",
+            static_cast<int32_t>(len), _colors[i].m_position);
       }
     }
   } else {
     __android_log_print(
-        mLogPriority, wn::utilities::gAndroidLogTag, "%.*s", (_bufferSize), _buffer);
+        s_log_levels[static_cast<uint32_t>(m_log_priority)], wn::utilities::gAndroidLogTag, "%.*s", (_buffer_size), _buffer);
   }
 }
+
+
+} // namespace logging
+} // namespace wn
+
 
 #endif  //__WN_CONSOLE_LOGGER_LINUX_INL__

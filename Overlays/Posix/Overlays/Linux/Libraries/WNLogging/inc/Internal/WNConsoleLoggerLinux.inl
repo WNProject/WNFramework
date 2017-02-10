@@ -6,42 +6,51 @@
 #define __WN_CONSOLE_LOGGER_LINUX_INL__
 #include "WNLogging/inc/WNConsoleLogger.h"
 
-static const char* LogColors[WNLogging::eLogMax] = {
+namespace wn {
+namespace logging {
+
+static const char* log_colors[static_cast<size_t>(log_level::max)] = {
     "\e[0m", "\e[1;4;31m", "\e[31m", "\e[33m", "\e[36m", "\e[34m", "\e[32m"};
 
-static FILE* mFiles[] = {stdout, stderr};
+static FILE* s_files[] = {stdout, stderr};
 
-template <WNLogging::WNConsoleLocation T_Level>
-WNLogging::WNConsoleLogger<T_Level>::WNConsoleLogger() {}
+template <console_location T_Location>
+console_logger<T_Location>::console_logger() {}
 
-template <WNLogging::WNConsoleLocation T_Level>
-WNLogging::WNConsoleLogger<T_Level>::~WNConsoleLogger() {
-  fprintf(mFiles[T_Level], "%s", LogColors[0]);
+template <console_location T_Location>
+console_logger<T_Location>::~console_logger() {
+  fprintf(s_files[static_cast<uint32_t>(T_Location)], "%s", log_colors[0]);
 }
 
-template <WNLogging::WNConsoleLocation T_Level>
-void WNLogging::WNConsoleLogger<T_Level>::FlushBuffer(const char* _buffer,
-    size_t _bufferSize,
-    const std::vector<WNLogging::WNLogColorElement>& _colors) {
-  if (_colors.size() > 0) {
+template <console_location T_Location>
+void console_logger<T_Location>::flush_buffer(const char* _buffer,
+    size_t _buffer_size,
+    const color_element* _colors, size_t _num_colors) {
+  if (_num_colors > 0) {
     {
-      size_t len = _colors.front().mPosition - _buffer;
-      fprintf(mFiles[T_Level], "%.*s", static_cast<int32_t>(len), _buffer);
+      size_t len = _colors[0].m_position - _buffer;
+      fprintf(s_files[static_cast<uint32_t>(T_Location)], "%.*s",
+        static_cast<int32_t>(len), _buffer);
     }
 
-    for (size_t i = 0; i < _colors.size(); ++i) {
-      fprintf(mFiles[T_Level], "%s", LogColors[(_colors)[i].mLevel]);
-      const char* endColor = ((_colors).size() == i + 1)
-                                 ? _buffer + _bufferSize
-                                 : (_colors)[i + 1].mPosition;
-      size_t len = endColor - (_colors)[i].mPosition;
-      fprintf(mFiles[T_Level], "%.*s", static_cast<int32_t>(len),
-          (_colors)[i].mPosition);
+    for (size_t i = 0; i < _num_colors ; ++i) {
+      fprintf(s_files[static_cast<uint32_t>(T_Location)], "%s",
+        log_colors[static_cast<size_t>(_colors[i].m_level)]);
+      const char* end_color = (_num_colors == i + 1)
+                                 ? _buffer + _buffer_size
+                                 : _colors[i + 1].m_position;
+      size_t len = end_color - _colors[i].m_position;
+      fprintf(s_files[static_cast<uint32_t>(T_Location)], "%.*s",
+        static_cast<int32_t>(len), _colors[i].m_position);
     }
   } else {
     fprintf(
-        mFiles[T_Level], "%.*s", static_cast<int32_t>(_bufferSize), _buffer);
+        s_files[static_cast<uint32_t>(T_Location)], "%.*s",
+          static_cast<int32_t>(_buffer_size), _buffer);
   }
 }
+
+} // namespace logging
+} // namespace wn
 
 #endif  //__WN_CONSOLE_LOGGER_LINUX_INL__

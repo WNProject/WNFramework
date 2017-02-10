@@ -27,7 +27,7 @@ public:
     : WNReliableConnection(_allocator, _job_pool, _manager),
       m_socket(_socket) {}
 
-  network_error connect_to(WNLogging::WNLog* _log,
+  network_error connect_to(logging::log* _log,
       const containers::string_view& target, uint32_t connection_type,
       uint16_t _port);
 

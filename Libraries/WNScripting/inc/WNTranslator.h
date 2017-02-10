@@ -10,10 +10,6 @@
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNScripting/inc/WNEngine.h"
 
-namespace WNLogging {
-class WNLogger;
-}
-
 namespace wn {
 namespace scripting {
 class type_validator;

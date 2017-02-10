@@ -9,9 +9,9 @@
 namespace wn {
 namespace networking {
 
-network_error WNReliableNetworkTransportSocket::connect_to(
-    WNLogging::WNLog* _log, const containers::string_view& target,
-    uint32_t _connection_type, uint16_t _port) {
+network_error WNReliableNetworkTransportSocket::connect_to(logging::log* _log,
+    const containers::string_view& target, uint32_t _connection_type,
+    uint16_t _port) {
   char port_array[11] = {0};
   memory::writeuint32(port_array, _port, 10);
 
@@ -20,8 +20,7 @@ network_error WNReliableNetworkTransportSocket::connect_to(
 
   if (0 != GetAddrInfoA(target.to_string(m_allocator).c_str(), port_array,
                nullptr, &result)) {
-    _log->Log(
-        WNLogging::eError, 0, "Could not resolve local port ", port_array);
+    _log->log_error("Could not resolve local port ", port_array);
     return network_error::could_not_resolve;
   }
 
@@ -46,8 +45,7 @@ network_error WNReliableNetworkTransportSocket::connect_to(
   }
   FreeAddrInfoA(result);
   if (ptr == nullptr) {
-    _log->Log(WNLogging::eError, 0, "Could not resolve target ", target, ":",
-        port_array);
+    _log->log_error("Could not resolve target ", target, ":", port_array);
     return network_error::could_not_resolve;
   }
   return network_error::ok;

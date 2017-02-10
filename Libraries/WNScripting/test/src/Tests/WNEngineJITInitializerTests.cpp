@@ -20,7 +20,7 @@ TEST(jit_engine, creation) {
           wn::file_system::mapping_type::memory_backed, &allocator);
 
   wn::scripting::jit_engine jit_engine(
-      &validator, &allocator, mapping.get(), WNLogging::get_null_logger());
+      &validator, &allocator, mapping.get(), wn::logging::get_null_logger());
 }
 
 TEST(jit_engine, basic_parsing) {
@@ -36,7 +36,7 @@ TEST(jit_engine, basic_parsing) {
                                                     "Void foo() { return; } \n"
                                                     "Void bar() { return; }"}});
   wn::scripting::jit_engine jit_engine(
-      &validator, &allocator, mapping.get(), WNLogging::get_null_logger());
+      &validator, &allocator, mapping.get(), wn::logging::get_null_logger());
   EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file.wns"));
   EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file2.wns"));
 
@@ -64,7 +64,7 @@ TEST(jit_engine, multiple_returns) {
 
   mapping->initialize_files({{"file.wns", "Void main() { return; return; }"}});
   wn::scripting::jit_engine jit_engine(
-      &validator, &allocator, mapping.get(), WNLogging::get_null_logger());
+      &validator, &allocator, mapping.get(), wn::logging::get_null_logger());
   EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file.wns"));
 
   wn::scripting::engine::void_func main;
@@ -84,7 +84,7 @@ TEST(jit_engine, parse_error) {
 
   mapping->initialize_files({{"file.wns", "Int main"}});
   wn::scripting::jit_engine jit_engine(
-      &validator, &allocator, mapping.get(), WNLogging::get_null_logger());
+      &validator, &allocator, mapping.get(), wn::logging::get_null_logger());
   EXPECT_EQ(wn::scripting::parse_error::parse_failed,
       jit_engine.parse_file("file.wns"));
 }
@@ -112,7 +112,7 @@ TEST_P(jit_int_params, int_return) {
   mapping->initialize_files({{"file.wns", str}});
 
   wn::scripting::jit_engine jit_engine(
-      &validator, &allocator, mapping.get(), WNLogging::get_null_logger());
+      &validator, &allocator, mapping.get(), wn::logging::get_null_logger());
   EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file.wns"));
 
   wn::scripting::script_function<int32_t> new_func;
@@ -134,7 +134,7 @@ TEST_P(jit_int_params, int_passthrough) {
   mapping->initialize_files({{"file.wns", str}});
 
   wn::scripting::jit_engine jit_engine(
-      &validator, &allocator, mapping.get(), WNLogging::get_null_logger());
+      &validator, &allocator, mapping.get(), wn::logging::get_null_logger());
   EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file.wns"));
 
   wn::scripting::script_function<int32_t, int32_t> new_func;
@@ -172,7 +172,7 @@ TEST_P(jit_binary_arithmetic, simple_operations) {
   mapping->initialize_files({{"file.wns", str}});
 
   wn::scripting::jit_engine jit_engine(
-      &validator, &allocator, mapping.get(), WNLogging::get_null_logger());
+      &validator, &allocator, mapping.get(), wn::logging::get_null_logger());
   EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file.wns"));
 
   wn::scripting::script_function<int32_t> new_func;
@@ -209,7 +209,7 @@ TEST_P(bool_arithmetic_tests, boolean_arithmetic) {
   mapping->initialize_files({{"file.wns", str}});
 
   wn::scripting::jit_engine jit_engine(
-      &validator, &allocator, mapping.get(), WNLogging::get_null_logger());
+      &validator, &allocator, mapping.get(), wn::logging::get_null_logger());
   EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file.wns"));
 
 
@@ -250,7 +250,7 @@ TEST_P(two_params_tests, int_in_out_tests) {
   mapping->initialize_files({{"file.wns", str}});
 
   wn::scripting::jit_engine jit_engine(
-      &validator, &allocator, mapping.get(), WNLogging::get_null_logger());
+      &validator, &allocator, mapping.get(), wn::logging::get_null_logger());
   EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file.wns"));
 
   wn::scripting::script_function<int32_t, int32_t, int32_t> new_func;
@@ -278,12 +278,12 @@ struct integer_test {
 using integer_tests = ::testing::TestWithParam<integer_test>;
 
 void flush_buffer(void* v, const char* bytes, size_t length,
-    const std::vector<WNLogging::WNLogColorElement>&) {
+    const wn::logging::color_element*, size_t) {
   wn::containers::string* s = static_cast<wn::containers::string*>(v);
   s->append(bytes, length);
 }
 
-using buffer_logger = WNLogging::WNBufferLogger<flush_buffer>;
+using buffer_logger = wn::logging::buffer_logger<flush_buffer>;
 using log_buff = wn::containers::string;
 
 TEST_P(integer_tests, int_in_out_tests) {
@@ -298,12 +298,12 @@ TEST_P(integer_tests, int_in_out_tests) {
 
   log_buff buff(&allocator);
   buffer_logger logger(&buff);
-  WNLogging::WNLog log(&logger);
+  wn::logging::static_log<> log(&logger);
 
   wn::scripting::jit_engine jit_engine(
-      &validator, &allocator, mapping.get(), &log);
+      &validator, &allocator, mapping.get(), log.log());
   EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file.wns"));
-  log.Flush();
+  log.log()->flush();
 
   wn::scripting::script_function<int32_t, int32_t> new_func;
   ASSERT_TRUE(jit_engine.get_function("main", new_func)) << buff.c_str();

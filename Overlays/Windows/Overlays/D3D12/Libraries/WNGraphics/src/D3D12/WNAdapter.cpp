@@ -30,7 +30,7 @@ using d3d12_device_constructable = device;
 }  // anonymous namespace
 
 device_ptr d3d12_adapter::make_device(
-    memory::allocator* _allocator, WNLogging::WNLog* _log) const {
+    memory::allocator* _allocator, logging::log* _log) const {
   Microsoft::WRL::ComPtr<ID3D12Device> device;
 
   Microsoft::WRL::ComPtr<ID3D12Debug> debug_controller;
@@ -45,7 +45,7 @@ device_ptr d3d12_adapter::make_device(
       m_adapter.Get(), D3D_FEATURE_LEVEL_11_0, __uuidof(ID3D12Device), &device);
 
   if (FAILED(hr)) {
-    _log->Log(WNLogging::eError, 0, "Could not create D3D12 device, hr: ", hr);
+    _log->log_error("Could not create D3D12 device, hr: ", hr);
 
     return nullptr;
   }

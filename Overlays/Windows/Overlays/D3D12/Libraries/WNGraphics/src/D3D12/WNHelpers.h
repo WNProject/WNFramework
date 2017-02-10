@@ -10,12 +10,6 @@
 #include "WNContainers/inc/WNDynamicArray.h"
 #include "WNGraphics/inc/WNAdapter.h"
 
-namespace WNLogging {
-
-class WNLog;
-
-}  // namespace WNLogging
-
 namespace wn {
 namespace memory {
 
@@ -27,8 +21,7 @@ namespace graphics {
 namespace internal {
 namespace d3d12 {
 
-void enumerate_adapters(memory::allocator* _allocator,
-    WNLogging::WNLog* _log,
+void enumerate_adapters(memory::allocator* _allocator, logging::log* _log,
     containers::dynamic_array<adapter_ptr>& _physical_devices);
 
 }  // namespace d3d12

@@ -27,7 +27,7 @@ using vulkan_device_constructable = device;
 }  // anonymous namespace
 
 device_ptr vulkan_adapter::make_device(
-    memory::allocator* _allocator, WNLogging::WNLog* _log) const {
+    memory::allocator* _allocator, logging::log* _log) const {
   const float queue_priority = 1.0f;
   VkDeviceQueueCreateInfo queue_create_info{
       VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,  // sType;
@@ -58,7 +58,7 @@ device_ptr vulkan_adapter::make_device(
   // TODO(awoloszyn): Add alloactors.
   if (m_context->vkCreateDevice(
           m_physical_device, &create_info, nullptr, &vk_device) != VK_SUCCESS) {
-    _log->Log(WNLogging::eError, 0, "Could not create device");
+    _log->log_error("Could not create device");
 
     return nullptr;
   }

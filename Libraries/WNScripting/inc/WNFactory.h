@@ -7,12 +7,9 @@
 #ifndef __WN_SCRIPTING_ENGINE_FACTORY_H__
 #define __WN_SCRIPTING_ENGINE_FACTORY_H__
 
+#include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNScripting/inc/WNTranslator.h"
-
-namespace WNLogging {
-class WNLog;
-}
 
 namespace wn {
 namespace file_system {
@@ -38,7 +35,7 @@ public:
   // with the given allocator.
   virtual memory::unique_ptr<engine> get_engine(scripting_engine_type _type,
       type_validator* _validator, file_system::mapping* _file_mapping,
-      WNLogging::WNLog* _log, memory::allocator* _allocator);
+      logging::log* _log, memory::allocator* _allocator);
 
   // Returns a wn::scripting::translator of the given type.
   // The translator will be constructed with the given allocator,
@@ -46,7 +43,7 @@ public:
   // with the given allocator.
   virtual memory::unique_ptr<translator> get_translator(translator_type _type,
       type_validator* _validator, file_system::mapping* _file_mapping,
-      WNLogging::WNLog* _log, memory::allocator* _allocator);
+      logging::log* _log, memory::allocator* _allocator);
 };
 }  // namespace scripting
 }  // namespace wn

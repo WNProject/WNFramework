@@ -18,7 +18,7 @@ namespace scripting {
 
 c_translator::c_translator(type_validator* _validator,
     memory::allocator* _allocator, file_system::mapping* _mapping,
-    WNLogging::WNLog* _log)
+    logging::log* _log)
   : translator(_validator),
     m_allocator(_allocator),
     m_file_mapping(_mapping),

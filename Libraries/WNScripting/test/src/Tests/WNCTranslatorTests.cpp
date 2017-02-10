@@ -6,17 +6,18 @@
 #include "WNFileSystem/inc/WNFactory.h"
 #include "WNFileSystem/inc/WNMapping.h"
 #include "WNLogging/inc/WNBufferLogger.h"
+#include "WNLogging/inc/WNLog.h"
 #include "WNScripting/test/inc/Common.h"
 #include "WNScripting/test/inc/Common.h"
 #include "WNTesting/inc/WNTestHarness.h"
 
 void flush_buffer(void* v, const char* bytes, size_t length,
-    const std::vector<WNLogging::WNLogColorElement>&) {
+    const wn::logging::color_element*, size_t) {
   wn::containers::string* s = static_cast<wn::containers::string*>(v);
   s->append(bytes, length);
 }
 
-using buffer_logger = WNLogging::WNBufferLogger<flush_buffer>;
+using buffer_logger = wn::logging::buffer_logger<flush_buffer>;
 using log_buff = wn::containers::string;
 
 std::string get_file_data(wn::file_system::mapping_ptr& mapping,
@@ -40,7 +41,7 @@ TEST(c_translator, simple_c_translation) {
   mapping->initialize_files({{"file.wns", "Void main() { return; }"}});
 
   wn::scripting::c_translator translator(
-      &validator, &allocator, mapping.get(), WNLogging::get_null_logger());
+      &validator, &allocator, mapping.get(), wn::logging::get_null_logger());
   EXPECT_EQ(
       wn::scripting::parse_error::ok, translator.translate_file("file.wns"));
 
@@ -90,7 +91,7 @@ TEST_P(c_translator_direct_translation_test, translations) {
   }
   log_buff buff(&allocator);
   buffer_logger logger(&buff);
-  WNLogging::WNLog log(&logger);
+  wn::logging::static_log<> log(&logger);
 
   wn::file_system::mapping_ptr mapping =
       wn::file_system::factory().make_mapping(
@@ -98,10 +99,10 @@ TEST_P(c_translator_direct_translation_test, translations) {
 
   mapping->initialize_files({{"file.wns", input_str}});
   wn::scripting::c_translator translator(
-      &validator, &allocator, mapping.get(), &log);
+      &validator, &allocator, mapping.get(), log.log());
   EXPECT_EQ(
       wn::scripting::parse_error::ok, translator.translate_file("file.wns"))
-      << (log.Flush(), buff.c_str());
+      << (log.log()->flush(), buff.c_str());
   EXPECT_EQ(std::string(expected_output.c_str()),
       get_file_data(mapping, "file.wns.c"));
 }
@@ -1461,7 +1462,7 @@ TEST_P(c_translator_function_params, single_parameter) {
   mapping->initialize_files({{"file.wns", str}});
 
   wn::scripting::c_translator translator(
-      &validator, &allocator, mapping.get(), WNLogging::get_null_logger());
+      &validator, &allocator, mapping.get(), wn::logging::get_null_logger());
   EXPECT_EQ(
       wn::scripting::parse_error::ok, translator.translate_file("file.wns"));
   EXPECT_EQ(
@@ -1489,7 +1490,7 @@ TEST(c_translator, multiple_c_functions) {
       "Void foo() { return; }\n"}});
 
   wn::scripting::c_translator translator(
-      &validator, &allocator, mapping.get(), WNLogging::get_null_logger());
+      &validator, &allocator, mapping.get(), wn::logging::get_null_logger());
   EXPECT_EQ(
       wn::scripting::parse_error::ok, translator.translate_file("file.wns"));
   EXPECT_EQ(
@@ -1515,7 +1516,7 @@ TEST(c_translator, multiple_returns) {
   mapping->initialize_files({{"file.wns", "Void main() { return; return; }"}});
 
   wn::scripting::c_translator translator(
-      &validator, &allocator, mapping.get(), WNLogging::get_null_logger());
+      &validator, &allocator, mapping.get(), wn::logging::get_null_logger());
   EXPECT_EQ(
       wn::scripting::parse_error::ok, translator.translate_file("file.wns"));
   EXPECT_EQ(
@@ -1548,7 +1549,7 @@ TEST_P(c_int_params, int_return) {
   mapping->initialize_files({{"file.wns", str}});
 
   wn::scripting::c_translator translator(
-      &validator, &allocator, mapping.get(), WNLogging::get_null_logger());
+      &validator, &allocator, mapping.get(), wn::logging::get_null_logger());
   EXPECT_EQ(
       wn::scripting::parse_error::ok, translator.translate_file("file.wns"));
   EXPECT_EQ(
@@ -1586,7 +1587,7 @@ TEST_P(c_arith_params, binary_arithmetic) {
   mapping->initialize_files({{"file.wns", str}});
 
   wn::scripting::c_translator translator(
-      &validator, &allocator, mapping.get(), WNLogging::get_null_logger());
+      &validator, &allocator, mapping.get(), wn::logging::get_null_logger());
   EXPECT_EQ(
       wn::scripting::parse_error::ok, translator.translate_file("file.wns"));
   EXPECT_EQ(
@@ -1623,7 +1624,7 @@ TEST_P(c_bool_params, boolean_arithmetic) {
   mapping->initialize_files({{"file.wns", str}});
 
   wn::scripting::c_translator translator(
-      &validator, &allocator, mapping.get(), WNLogging::get_null_logger());
+      &validator, &allocator, mapping.get(), wn::logging::get_null_logger());
   EXPECT_EQ(
       wn::scripting::parse_error::ok, translator.translate_file("file.wns"));
   EXPECT_EQ(

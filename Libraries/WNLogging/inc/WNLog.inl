@@ -2,192 +2,105 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#ifndef __WN_LOG_INL__
-#define __WN_LOG_INL__
+#ifndef __WN_LOGGING_LOG_INL__
+#define __WN_LOGGING_LOG_INL__
 #include "WNCore/inc/WNAssert.h"
 #include "WNCore/inc/WNTypes.h"
 #include "WNLogging/inc/WNLog.h"
 
-#define CHECK_LOG()                                                            \
-  if (static_cast<size_t>(_level) == 0 ||                                      \
-      static_cast<size_t>(_level) > mCurrentLogLevel) {                        \
-    return;                                                                    \
-  }                                                                            \
-  if ((_flags & eWNNoHeader) == 0) {                                           \
-    LogHeader(_level);                                                         \
-  }
-#define LOG_END()                                                              \
-  if ((_flags & eWNNoNewLine) == 0) {                                          \
-    LogNewline();                                                              \
-  }                                                                            \
-  if (mFlushAfterMessage) {                                                    \
-    Flush();                                                                   \
-  }
+namespace wn {
+namespace logging {
 
-WN_FORCE_INLINE void WNLogging::WNLog::Flush() {
-  if (mBufferSize != mBufferLeft) {
-    mLogger->FlushBuffer(mLogBuffer, mBufferSize - mBufferLeft, mColorElements);
-    mColorElements.clear();
-    mBufferLeft = mBufferSize;
+template<log_level MAX_LOG_LEVEL>
+WN_FORCE_INLINE void log_impl<MAX_LOG_LEVEL>::flush() {
+  if (m_buffer_size != m_buffer_left) {
+    m_logger->flush_buffer(m_log_buffer, m_buffer_size - m_buffer_left, m_color_elements, m_num_color_elements);
+    m_num_color_elements = 0;
+    m_buffer_left = m_buffer_size;
   }
 }
 
-WN_FORCE_INLINE void WNLogging::WNLog::FlushExternal(const char* _buffer,
-    size_t _bufferSize, const std::vector<WNLogColorElement>& _colors) {
-  mLogger->FlushBuffer(_buffer, _bufferSize, _colors);
+template<log_level MAX_LOG_LEVEL>
+WN_FORCE_INLINE void log_impl<MAX_LOG_LEVEL>::flush_external(const char* _buffer,
+    size_t _bufferSize, const color_element* _colors, size_t _num_colors) {
+  m_logger->flush_buffer(_buffer, _bufferSize, _colors, _num_colors);
 }
 
-template <LTM(0)>
-WN_FORCE_INLINE void WNLogging::WNLog::Log(
-    WNLogging::WNLogLevel _level, size_t _flags, LVM(0)) {
-  CHECK_LOG();
-  LogParam(v0);
-  LOG_END();
+template<log_level MAX_LOG_LEVEL>
+template <typename Arg1, typename ...Args>
+void log_impl<MAX_LOG_LEVEL>::do_log_log(const Arg1& _0, const Args&... args) {
+  log_param(_0);
+  do_log_log<Args...>(args...);
 }
 
-template <LTM(0), LTM(1)>
-WN_FORCE_INLINE void WNLogging::WNLog::Log(
-    WNLogging::WNLogLevel _level, size_t _flags, LVM(0), LVM(1)) {
-  CHECK_LOG();
-  LogParam(v0);
-  LogParam(v1);
-  LOG_END();
+template<log_level MAX_LOG_LEVEL>
+template<typename Arg>
+void log_impl<MAX_LOG_LEVEL>::do_log_log(const Arg& _0) {
+    log_param(_0);
 }
 
-template <LTM(0), LTM(1), LTM(2)>
-WN_FORCE_INLINE void WNLogging::WNLog::Log(
-    WNLogging::WNLogLevel _level, size_t _flags, LVM(0), LVM(1), LVM(2)) {
-  CHECK_LOG();
-  LogParam(v0);
-  LogParam(v1);
-  LogParam(v2);
-  LOG_END();
+template<log_level MAX_LOG_LEVEL>
+template <typename ...Args>
+WN_FORCE_INLINE void log_impl<MAX_LOG_LEVEL>::log_params(
+    log_level _level, size_t _flags, const Args&... args) {
+  if (static_cast<size_t>(_level) > static_cast<size_t>(MAX_LOG_LEVEL)) {
+    return;
+  }
+  if (static_cast<size_t>(_level) == 0 ||
+      static_cast<size_t>(_level) > static_cast<size_t>(m_current_log_level)) {
+    return;
+  }
+  if ((_flags & static_cast<size_t>(log_flags::no_header)) == 0) {
+    log_header(_level);
+  }
+  do_log_log<Args...>(args...);
+
+  if ((_flags & static_cast<size_t>(log_flags::no_newline)) == 0) {
+    log_newline();
+  }
+  if (m_flush_after_message) {
+    flush();
+  }
 }
 
-template <LTM(0), LTM(1), LTM(2), LTM(3)>
-WN_FORCE_INLINE void WNLogging::WNLog::Log(WNLogging::WNLogLevel _level,
-    size_t _flags, LVM(0), LVM(1), LVM(2), LVM(3)) {
-  CHECK_LOG();
-  LogParam(v0);
-  LogParam(v1);
-  LogParam(v2);
-  LogParam(v3);
-  LOG_END();
-}
-
-template <LTM(0), LTM(1), LTM(2), LTM(3), LTM(4)>
-WN_FORCE_INLINE void WNLogging::WNLog::Log(WNLogging::WNLogLevel _level,
-    size_t _flags, LVM(0), LVM(1), LVM(2), LVM(3), LVM(4)) {
-  CHECK_LOG();
-  LogParam(v0);
-  LogParam(v1);
-  LogParam(v2);
-  LogParam(v3);
-  LogParam(v4);
-  LOG_END();
-}
-
-template <LTM(0), LTM(1), LTM(2), LTM(3), LTM(4), LTM(5)>
-WN_FORCE_INLINE void WNLogging::WNLog::Log(WNLogging::WNLogLevel _level,
-    size_t _flags, LVM(0), LVM(1), LVM(2), LVM(3), LVM(4), LVM(5)) {
-  CHECK_LOG();
-  LogParam(v0);
-  LogParam(v1);
-  LogParam(v2);
-  LogParam(v3);
-  LogParam(v4);
-  LogParam(v5);
-  LOG_END();
-}
-
-template <LTM(0), LTM(1), LTM(2), LTM(3), LTM(4), LTM(5), LTM(6)>
-WN_FORCE_INLINE void WNLogging::WNLog::Log(WNLogging::WNLogLevel _level,
-    size_t _flags, LVM(0), LVM(1), LVM(2), LVM(3), LVM(4), LVM(5), LVM(6)) {
-  CHECK_LOG();
-  LogParam(v0);
-  LogParam(v1);
-  LogParam(v2);
-  LogParam(v3);
-  LogParam(v4);
-  LogParam(v5);
-  LogParam(v6);
-  LOG_END();
-}
-
-template <LTM(0), LTM(1), LTM(2), LTM(3), LTM(4), LTM(5), LTM(6), LTM(7)>
-WN_FORCE_INLINE void WNLogging::WNLog::Log(WNLogging::WNLogLevel _level,
-    size_t _flags, LVM(0), LVM(1), LVM(2), LVM(3), LVM(4), LVM(5), LVM(6),
-    LVM(7)) {
-  CHECK_LOG();
-  LogParam(v0);
-  LogParam(v1);
-  LogParam(v2);
-  LogParam(v3);
-  LogParam(v4);
-  LogParam(v5);
-  LogParam(v6);
-  LogParam(v7);
-  LOG_END();
-}
-
-template <LTM(0), LTM(1), LTM(2), LTM(3), LTM(4), LTM(5), LTM(6), LTM(7),
-    LTM(8)>
-WN_FORCE_INLINE void WNLogging::WNLog::Log(WNLogging::WNLogLevel _level,
-    size_t _flags, LVM(0), LVM(1), LVM(2), LVM(3), LVM(4), LVM(5), LVM(6),
-    LVM(7), LVM(8)) {
-  CHECK_LOG();
-  LogParam(v0);
-  LogParam(v1);
-  LogParam(v2);
-  LogParam(v3);
-  LogParam(v4);
-  LogParam(v5);
-  LogParam(v6);
-  LogParam(v7);
-  LogParam(v8);
-  LOG_END();
-}
-
-template <LTM(0), LTM(1), LTM(2), LTM(3), LTM(4), LTM(5), LTM(6), LTM(7),
-    LTM(8), LTM(9)>
-WN_FORCE_INLINE void WNLogging::WNLog::Log(WNLogging::WNLogLevel _level,
-    size_t _flags, LVM(0), LVM(1), LVM(2), LVM(3), LVM(4), LVM(5), LVM(6),
-    LVM(7), LVM(8), LVM(9)) {
-  CHECK_LOG();
-  LogParam(v0);
-  LogParam(v1);
-  LogParam(v2);
-  LogParam(v3);
-  LogParam(v4);
-  LogParam(v5);
-  LogParam(v6);
-  LogParam(v7);
-  LogParam(v8);
-  LogParam(v9);
-  LOG_END();
-}
-
+template<log_level MAX_LOG_LEVEL>
 template <typename T0>
-void WNLogging::WNLog::LogParam(const T0& _val) {
-  if (!LogType(_val, mLogBuffer + (mBufferSize - mBufferLeft), mBufferLeft)) {
-    Flush();
-    LogType(_val, mLogBuffer + (mBufferSize - mBufferLeft), mBufferLeft);
+WN_FORCE_INLINE void log_impl<MAX_LOG_LEVEL>::log_param(const T0& _val) {
+  if (!log_type(_val, m_log_buffer + (m_buffer_size- m_buffer_left), m_buffer_left)) {
+    flush();
+    log_type(_val, m_log_buffer+ (m_buffer_size - m_buffer_left), m_buffer_left);
   }
 }
 
-WN_FORCE_INLINE void WNLogging::WNLog::LogHeader(WNLogLevel _level) {
-  mColorElements.push_back(WNLogColorElement());
-  mColorElements.back().mLevel = _level;
-  mColorElements.back().mPosition = mLogBuffer + (mBufferSize - mBufferLeft);
-  LogParam(LogMessages[_level]);
-  mColorElements.push_back(WNLogColorElement());
-  mColorElements.back().mLevel = WNLogging::eNone;
-  mColorElements.back().mPosition = mLogBuffer + (mBufferSize - mBufferLeft);
+template<log_level MAX_LOG_LEVEL>
+WN_FORCE_INLINE void log_impl<MAX_LOG_LEVEL>::log_header(log_level _level) {
+  append_color(_level, m_log_buffer + (m_buffer_size - m_buffer_left));
+  log_param(klog_messages[static_cast<size_t>(_level)]);
+  append_color(log_level::none,
+      m_log_buffer + (m_buffer_size - m_buffer_left));
 }
 
-WN_FORCE_INLINE void WNLogging::WNLog::LogNewline() {
-  static const char* newLine = "\n";
-  LogParam(newLine);
+template<log_level MAX_LOG_LEVEL>
+WN_FORCE_INLINE void log_impl<MAX_LOG_LEVEL>::append_color(log_level _level, char* _position) {
+  if (m_num_color_elements > 0 &&
+      m_color_elements[m_num_color_elements - 1].m_position == _position) {
+    m_color_elements[m_num_color_elements - 1].m_level = _level;
+    return;
+  }
+  WN_DEBUG_ASSERT_DESC(m_num_color_elements < m_buffer_size,
+    "It should not be possible to have more color transition than elements");
+  m_num_color_elements += 1;
+  m_color_elements[m_num_color_elements - 1].m_position = _position;
+  m_color_elements[m_num_color_elements - 1].m_level = _level;
 }
 
-#endif  //__WN_LOG_INL__
+template<log_level MAX_LOG_LEVEL>
+WN_FORCE_INLINE void log_impl<MAX_LOG_LEVEL>::log_newline() {
+  static const char* new_line = "\n";
+  log_param(new_line);
+}
+
+} // namespace logging
+} // namespace wn
+
+#endif  // __WN_LOGGING_LOG_INL__

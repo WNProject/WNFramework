@@ -6,80 +6,87 @@
 #define __WN_CONSOLE_LOGGER_WINDOWS_INL__
 #include "WNLogging/inc/WNConsoleLogger.h"
 
+
+namespace wn {
+namespace logging {
+
 #define __WN_FOREGROUND_WHITE                                                  \
   FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_GREEN
-const static uint16_t LogColors[WNLogging::eLogMax] = {__WN_FOREGROUND_WHITE,
+const static uint16_t log_colors[static_cast<size_t>(log_level::max)] = {__WN_FOREGROUND_WHITE,
     FOREGROUND_RED | FOREGROUND_INTENSITY, FOREGROUND_RED,
     FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY,
     FOREGROUND_RED | FOREGROUND_GREEN, FOREGROUND_BLUE | FOREGROUND_INTENSITY,
     FOREGROUND_GREEN | FOREGROUND_INTENSITY};
 
-static DWORD s_StandardHandles[] = {STD_OUTPUT_HANDLE, STD_ERROR_HANDLE};
+static DWORD s_standard_handles[] = {STD_OUTPUT_HANDLE, STD_ERROR_HANDLE};
 
-template <WNLogging::WNConsoleLocation T_Level>
-WNLogging::WNConsoleLogger<T_Level>::WNConsoleLogger()
-  : mConsoleCreated(false),
-    mConsoleHandle(INVALID_HANDLE_VALUE),
-    mInitialized(false) {}
+template <console_location T_Location>
+console_logger<T_Location>::console_logger()
+  : m_console_created(false),
+    m_console_handle(INVALID_HANDLE_VALUE),
+    m_initialized(false) {}
 
-template <WNLogging::WNConsoleLocation T_Level>
-WNLogging::WNConsoleLogger<T_Level>::~WNConsoleLogger() {
-  if (mConsoleCreated) {
+template <console_location T_Location>
+console_logger<T_Location>::~console_logger() {
+  if (m_console_created) {
     FreeConsole();
   }
-  if (mConsoleHandle != INVALID_HANDLE_VALUE) {
-    SetConsoleTextAttribute(mConsoleHandle, __WN_FOREGROUND_WHITE);
+  if (m_console_handle != INVALID_HANDLE_VALUE) {
+    SetConsoleTextAttribute(m_console_handle, __WN_FOREGROUND_WHITE);
   }
 }
 
-WN_INLINE void WriteSectionToConsole(
-    HANDLE handle, const char* buffer, size_t amount) {
-  if (amount == 0) {
+WN_INLINE void write_section_to_console(
+    HANDLE _handle, const char* _buffer, size_t _amount) {
+  if (_amount == 0) {
     return;
   }
   DWORD written = 0;
-  DWORD toWrite = static_cast<DWORD>(amount);
+  DWORD to_write = static_cast<DWORD>(_amount);
   do {
     if (!WriteConsoleA(
-            handle, buffer, static_cast<DWORD>(amount), &written, 0)) {
+            _handle, _buffer, static_cast<DWORD>(_amount), &written, 0)) {
       return;
     } else {
-      toWrite -= written;
+      to_write -= written;
     }
-  } while (toWrite > 0);
+  } while (to_write > 0);
 }
 
-template <WNLogging::WNConsoleLocation T_Level>
-void WNLogging::WNConsoleLogger<T_Level>::FlushBuffer(const char* _buffer,
-    size_t _bufferSize,
-    const std::vector<WNLogging::WNLogColorElement>& _colors) {
-  if (mConsoleHandle == INVALID_HANDLE_VALUE && !mInitialized) {
-    mConsoleCreated = AllocConsole();  // If we cannot create a new console, we
+template <console_location T_Location>
+void console_logger<T_Location>::flush_buffer(const char* _buffer,
+    size_t _buffer_size,
+    const color_element* _colors, size_t _num_colors) {
+  if (m_console_handle == INVALID_HANDLE_VALUE && !m_initialized) {
+    m_console_created = AllocConsole();  // If we cannot create a new console, we
                                        // must already have one.. hopefully
-    mConsoleHandle = GetStdHandle(s_StandardHandles[T_Level]);
-    mInitialized = true;
+    m_console_handle = GetStdHandle(s_standard_handles[T_Location]);
+    m_initialized = true;
   }
-  if (mConsoleHandle != INVALID_HANDLE_VALUE) {
-    if (_colors.size() > 0) {
+  if (m_console_handle != INVALID_HANDLE_VALUE) {
+    if (_num_colors > 0) {
       {
-        size_t len = _colors.front().mPosition - _buffer;
-        WriteSectionToConsole(mConsoleHandle, _buffer, len);
+        size_t len = _colors[0].m_position - _buffer;
+        write_section_to_console(m_console_handle, _buffer, len);
       }
 
-      for (size_t i = 0; i < _colors.size(); ++i) {
-        SetConsoleTextAttribute(mConsoleHandle, LogColors[(_colors)[i].mLevel]);
-        const char* endColor = ((_colors).size() == i + 1)
-                                   ? _buffer + _bufferSize
-                                   : (_colors)[i + 1].mPosition;
+      for (size_t i = 0; i < _num_colors; ++i) {
+        SetConsoleTextAttribute(m_console_handle, log_colors[static_cast<uint32_t>(_colors[i].m_level)]);
+        const char* end_color = (_num_colors == i + 1)
+                                   ? _buffer + _buffer_size
+                                   : _colors[i + 1].m_position;
 
-        size_t len = endColor - (_colors)[i].mPosition;
-        WriteSectionToConsole(mConsoleHandle, (_colors)[i].mPosition, len);
+        size_t len = end_color - _colors[i].m_position;
+        write_section_to_console(m_console_handle, _colors[i].m_position, len);
       }
     } else {
-      size_t len = _bufferSize;
-      WriteSectionToConsole(mConsoleHandle, _buffer, len);
+      size_t len = _buffer_size;
+      write_section_to_console(m_console_handle, _buffer, len);
     }
   }
 }
+
+} // namespace logging
+} // namespace wn
 
 #endif  //__WN_CONSOLE_LOGGER_WINDOWS_INL__

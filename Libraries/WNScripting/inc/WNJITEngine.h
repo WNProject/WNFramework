@@ -12,10 +12,6 @@
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNScripting/inc/WNEngine.h"
 
-namespace WNLogging {
-class WNLogger;
-}
-
 namespace llvm {
 class LLVMContext;
 class EngineBuilder;
@@ -45,7 +41,7 @@ public:
 class jit_engine : public engine {
 public:
   jit_engine(type_validator* _validator, memory::allocator* _allocator,
-      file_system::mapping* _mapping, WNLogging::WNLog* _log);
+      file_system::mapping* _mapping, logging::log* _log);
   ~jit_engine();
   parse_error parse_file(const char* file) override;
 
@@ -59,7 +55,7 @@ protected:
 private:
   CompiledModule& add_module(containers::string_view _file);
   file_system::mapping* m_file_mapping;
-  WNLogging::WNLog* m_compilation_log;
+  logging::log* m_compilation_log;
   std::unique_ptr<llvm::LLVMContext> m_context;
   containers::deque<CompiledModule> m_modules;
   containers::hash_map<containers::string_view, void (*)()> m_pointers;
