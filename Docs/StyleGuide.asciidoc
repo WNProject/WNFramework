@@ -91,6 +91,11 @@ Public static member variables can omit the `s_`.
 Static variables of any type are generally discouraged, and should only be used
 with careful thought.
 
+=== Global Constants
+
+Global constants should be used in place of Macros wherever possible.
+They should named as other variables, but prefixed with `k_`.
+
 === Template Parameters
 
 Template parameters should be in sentence case. One exception is if the usage is
@@ -135,6 +140,21 @@ comment should be included describing the section that was closed.
 #define MY_FOO(bar)
 #ifdef FOO
 #endif  // FOO
+----
+
+=== Numeric Types
+As a rule, the numeric types specified in `<cstdint>` should be used
+instead of the more traditional `int` `long int` types. This ensures
+clarity of width, and more control over data types than otherwise.
+
+=== System Specific Code
+When writing system-specific code, Win32 for example, any variables, functions
+that interact with system-specific APIs should use the types expected
+by the API documentation, rather than their equivalent types from this document.
+[source, cpp]
+----
+GetModuleHandle(NULL); // << This is ok
+GetModuleHandle(nullptr); // << This is discouraged
 ----
 
 == Formatting
