@@ -126,15 +126,13 @@ public:
 
   core::pair<iterator, bool> insert(const value_type& element) {
     auto internal_pair = m_map.insert(element, empty_element());
-    return core::make_pair(
-        iterator(internal_pair.first), internal_pair.second);
+    return core::make_pair(iterator(internal_pair.first), internal_pair.second);
   }
 
   core::pair<iterator, bool> insert(value_type&& element) {
-    auto internal_pair = m_map.insert(std::move(
-        core::make_pair(std::move(element), std::move(empty_element()))));
-    return core::make_pair(
-        iterator(internal_pair.first), internal_pair.second);
+    auto internal_pair = m_map.insert(core::move(
+        core::make_pair(core::move(element), core::move(empty_element()))));
+    return core::make_pair(iterator(internal_pair.first), internal_pair.second);
   }
 
   iterator find(const key_type& key) {

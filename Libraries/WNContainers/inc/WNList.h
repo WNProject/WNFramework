@@ -164,36 +164,62 @@ public:
     _other.transfer_to(_other.begin(), _other.end(), end(), *this);
   }
 
+  WN_FORCE_INLINE memory::allocator* get_allocator() const {
+    return m_allocator;
+  }
+
   iterator convert_iterator(const_iterator& it) {
     return iterator(it.m_ptr);
   }
 
-  iterator begin() {
+  // iterators
+
+  WN_FORCE_INLINE iterator begin() {
     return iterator(m_begin);
   }
-  const_iterator cbegin() const {
+
+  WN_FORCE_INLINE const_iterator begin() const {
+    return cbegin();
+  }
+
+  WN_FORCE_INLINE const_iterator cbegin() const {
     return const_iterator(m_begin);
   }
 
-  iterator end() {
+  WN_FORCE_INLINE iterator end() {
     return iterator(reinterpret_cast<list_node*>(&m_dummy_end_node));
   }
-  const_iterator cend() const {
+
+  WN_FORCE_INLINE const_iterator end() const {
+    return cend();
+  }
+
+  WN_FORCE_INLINE const_iterator cend() const {
     return const_iterator(const_cast<list_node*>(
         reinterpret_cast<const list_node*>(&m_dummy_end_node)));
   }
 
-  reverse_iterator rbegin() {
+  WN_FORCE_INLINE reverse_iterator rbegin() {
     return reverse_iterator(end());
   }
-  reverse_iterator rend() {
+
+  WN_FORCE_INLINE const_reverse_iterator rbegin() const {
+    return crbegin();
+  }
+
+  WN_FORCE_INLINE const_reverse_iterator crbegin() const {
+    return const_reverse_iterator(cend());
+  }
+
+  WN_FORCE_INLINE reverse_iterator rend() {
     return reverse_iterator(begin());
   }
 
-  const_reverse_iterator crbegin() {
-    return const_reverse_iterator(cend());
+  WN_FORCE_INLINE const_reverse_iterator rend() const {
+    return crend();
   }
-  const_reverse_iterator crend() {
+
+  WN_FORCE_INLINE const_reverse_iterator crend() const {
     return const_reverse_iterator(cbegin());
   }
 
@@ -226,7 +252,7 @@ public:
       return it;
     } else {
       list_node* node = source_it.m_ptr;
-      _other.insert(dest_it, std::move(node->m_element));
+      _other.insert(dest_it, core::move(node->m_element));
       return erase(source_it);
     }
   }
@@ -253,7 +279,7 @@ public:
     } else {
       for (auto it = source_it; it != source_it_end; ++it) {
         list_node* node = it.m_ptr;
-        dest_it = _other.insert(dest_it, std::move(node->m_element)) + 1;
+        dest_it = _other.insert(dest_it, core::move(node->m_element)) + 1;
       }
       auto it = source_it;
       for (; it != source_it_end;) {
@@ -279,7 +305,7 @@ public:
 
   iterator insert(const_iterator _it, _Type&& _element) {
     list_node* new_node =
-        m_allocator->construct<list_node>(std::move(_element));
+        m_allocator->construct<list_node>(core::move(_element));
     return (link(_it, new_node));
   }
 
@@ -290,7 +316,7 @@ public:
   }
 
   void push_back(_Type&& _element) {
-    insert(end(), std::move(_element));
+    insert(end(), core::move(_element));
   }
 
   iterator erase(const_iterator _it) {
@@ -307,13 +333,24 @@ public:
     }
   }
 
-  bool empty() const {
+  WN_FORCE_INLINE bool empty() const {
     return m_size == 0;
   }
 
-  size_t size() const {
+  WN_FORCE_INLINE size_t size() const {
     return m_size;
   }
+
+  WN_FORCE_INLINE void swap(list& _other) {
+    if (this != &_other) {
+      core::swap(m_allocator, _other.m_allocator);
+      core::swap(m_dummy_end_node, _other.m_dummy_end_node);
+      core::swap(m_size, _other.m_size);
+      core::swap(m_begin, _other.m_begin);
+    }
+  }
+
+  WN_FORCE_INLINE void shrink_to_fit() {}
 
 private:
   iterator unlink(iterator _start, iterator _end, size_t count) {

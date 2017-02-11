@@ -15,10 +15,8 @@
 namespace wn {
 namespace containers {
 
-template <typename _Type, const size_t _ExpandPercentage = 50>
+template <typename T, const size_t _ExpandPercentage = 50>
 class dynamic_array;
-
-}  // namespace containers
 
 namespace internal {
 
@@ -40,11 +38,13 @@ public:
 
   dynamic_array_iterator& operator+=(size_t i) {
     m_ptr += i;
+
     return *this;
   }
 
   dynamic_array_iterator& operator-=(size_t i) {
     m_ptr -= i;
+
     return *this;
   }
 
@@ -52,10 +52,11 @@ public:
     return (m_ptr - other.m_ptr);
   }
 
-  pointer operator->() {
+  pointer operator->() const {
     return (m_ptr);
   }
-  reference operator*() {
+
+  reference operator*() const {
     return (*m_ptr);
   }
 
@@ -129,160 +130,163 @@ private:
   explicit dynamic_array_iterator(T* _ptr) : m_ptr(_ptr) {}
   T* m_ptr;
 
-  template <typename _Type, const size_t _ExpandPercentage>
+  template <typename T2, const size_t _ExpandPercentage>
   friend class ::wn::containers::dynamic_array;
 
-  template <typename _Type>
+  template <typename T2>
   friend class dynamic_array_iterator;
 };
 
 }  // namespace internal
 
-namespace containers {
-
-template <typename _Type, const size_t _ExpandPercentage>
-class dynamic_array final {
+template <typename T, const size_t _ExpandPercentage>
+class dynamic_array WN_FINAL {
 public:
-  typedef _Type value_type;
-  typedef size_t size_type;
-  typedef signed_t difference_type;
-  typedef value_type& reference;
-  typedef const value_type& const_reference;
+  using value_type = T;
+  using size_type = size_t;
+  using difference_type = signed_t;
+  using reference = value_type&;
+  using const_reference = const value_type&;
+  using pointer = value_type*;
+  using const_pointer = const value_type*;
+  using iterator = internal::dynamic_array_iterator<value_type>;
+  using const_iterator = internal::dynamic_array_iterator<const value_type>;
+  using reverse_iterator = std::reverse_iterator<iterator>;
+  using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
-  typedef wn::internal::dynamic_array_iterator<value_type> iterator;
-  typedef wn::internal::dynamic_array_iterator<const value_type> const_iterator;
-  typedef std::reverse_iterator<iterator> reverse_iterator;
-  typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
+  WN_FORCE_INLINE dynamic_array()
+    : m_allocator(nullptr), m_data(nullptr), m_size(0), m_capacity(0) {}
 
-  dynamic_array() : dynamic_array(nullptr) {}
+  WN_FORCE_INLINE dynamic_array(const nullptr_t) : dynamic_array() {}
 
-  explicit dynamic_array(memory::allocator* _allocator)
+  WN_FORCE_INLINE explicit dynamic_array(memory::allocator* _allocator)
     : m_allocator(_allocator), m_data(nullptr), m_size(0), m_capacity(0) {}
 
-  explicit dynamic_array(
-      const size_type _count, memory::allocator* _allocator = nullptr)
+  WN_FORCE_INLINE explicit dynamic_array(
+      memory::allocator* _allocator, const size_type _count)
     : dynamic_array(_allocator) {
-    // We do it this way so we can handle non-copy-constructible types.
     for (size_t i = 0; i < _count; ++i) {
-      insert(end(), _Type());
+      insert(end(), T());
     }
   }
 
-  dynamic_array(const size_type _count, const _Type& _value,
-      memory::allocator* _allocator = nullptr)
+  WN_FORCE_INLINE dynamic_array(
+      memory::allocator* _allocator, const size_type _count, const T& _value)
     : dynamic_array(_allocator) {
     insert(iterator(m_data), _count, _value);
   }
 
   template <const size_t _ExpandPercentageOther>
-  dynamic_array(const dynamic_array<_Type, _ExpandPercentageOther>& _other,
+  dynamic_array(const dynamic_array<T, _ExpandPercentageOther>& _other,
       memory::allocator* _allocator = nullptr)
     : dynamic_array(_allocator) {
     (*this) = _other;
   }
 
-  template <typename U,
-      typename = core::enable_if_t<core::conjunction<
-          core::is_same<core::remove_cv<U>, core::remove_cv<_Type>>,
-          core::is_copy_constructible<_Type>>::value>>
-  dynamic_array(const dynamic_array<U>& _other)
+  dynamic_array(dynamic_array&& _other) : dynamic_array() {
+    (*this) = core::move(_other);
+  }
+
+  dynamic_array(const dynamic_array& _other)
     : dynamic_array(_other.m_allocator) {
     (*this) = _other;
   }
 
-  template <typename = core::enable_if_t<true>>
-  dynamic_array(dynamic_array&& _other) : dynamic_array() {
-    (*this) = std::move(_other);
-  }
-
   template <const size_t _ExpandPercentageOther>
-  dynamic_array(dynamic_array<_Type, _ExpandPercentageOther>&& _other)
+  dynamic_array(dynamic_array<T, _ExpandPercentageOther>&& _other)
     : dynamic_array() {
-    (*this) = std::move(_other);
+    (*this) = core::move(_other);
   }
 
-  dynamic_array(std::initializer_list<_Type> l) : dynamic_array() {
+  dynamic_array(std::initializer_list<T> l) : dynamic_array() {
     insert(begin(), l.begin(), l.end());
   }
 
-  dynamic_array(memory::allocator* _allocator, std::initializer_list<_Type> l)
+  dynamic_array(memory::allocator* _allocator, std::initializer_list<T> l)
     : dynamic_array(_allocator) {
     insert(begin(), l.begin(), l.end());
   }
 
-  template <typename TOther>
-  dynamic_array(TOther begin, TOther end, memory::allocator* _alloc = nullptr)
-    : dynamic_array(_alloc) {
-    reserve(end - begin);
-    while (begin != end) {
-      push_back(*begin);
-      ++begin;
+  template <typename InputIt>
+  dynamic_array(memory::allocator* _allocator, InputIt _first, InputIt _last)
+    : dynamic_array(_allocator) {
+    reserve(_last - _first);
+    while (_first != _last) {
+      push_back(*_first);
+      ++_first;
     }
   }
 
-  operator contiguous_range<value_type>() {
+  WN_FORCE_INLINE ~dynamic_array() {
+    clear();
+    deallocate(m_data);
+  }
+
+  WN_FORCE_INLINE operator contiguous_range<value_type>() {
+    return to_contiguous_range();
+  }
+
+  WN_FORCE_INLINE operator contiguous_range<value_type>() const {
+    return to_contiguous_range();
+  }
+
+  WN_FORCE_INLINE contiguous_range<value_type> to_contiguous_range() {
     return contiguous_range<value_type>(data(), size());
   }
 
-  ~dynamic_array() {
-    clear();
-
-    deallocate(m_data);
+  WN_FORCE_INLINE contiguous_range<const value_type> to_contiguous_range()
+      const {
+    return contiguous_range<const value_type>(data(), size());
   }
 
   template <const size_t _ExpandPercentageOther, typename U,
       typename = core::enable_if_t<core::conjunction<
-          core::is_same<core::remove_cv<U>, core::remove_cv<_Type>>,
-          core::is_copy_constructible<_Type>>::value>>
+          core::is_same<core::remove_cv<U>, core::remove_cv<T>>,
+          core::is_copy_constructible<T>>::value>>
   dynamic_array& operator=(
-      const dynamic_array<_Type, _ExpandPercentageOther>& _other) {
+      const dynamic_array<T, _ExpandPercentageOther>& _other) {
     if (&_other == this) {
       return *this;
     }
     if (m_data) {
       for (size_t i = 0; i < m_size; ++i) {
-        m_data[i].~_Type();
+        m_data[i].~T();
       }
     }
     m_size = 0;
     reserve(_other.m_size);
     for (size_t i = 0; i < _other.m_size; ++i) {
-      new (reinterpret_cast<void*>(&m_data[i])) _Type(_other.m_data[i]);
+      new (reinterpret_cast<void*>(&m_data[i])) T(_other.m_data[i]);
     }
     m_size = _other.m_size;
     return *this;
   }
 
-  template <typename U,
-      typename = core::enable_if_t<core::conjunction<
-          core::is_same<core::remove_cv<U>, core::remove_cv<_Type>>,
-          core::is_copy_constructible<_Type>>::value>>
-  dynamic_array& operator=(const dynamic_array<U>& _other) {
+  dynamic_array& operator=(const dynamic_array& _other) {
     if (&_other == this) {
       return *this;
     }
     if (m_data) {
       for (size_t i = 0; i < m_size; ++i) {
-        m_data[i].~_Type();
+        m_data[i].~T();
       }
     }
     m_size = 0;
     reserve(_other.m_size);
     for (size_t i = 0; i < _other.m_size; ++i) {
-      new (reinterpret_cast<void*>(&m_data[i])) _Type(_other.m_data[i]);
+      new (reinterpret_cast<void*>(&m_data[i])) T(_other.m_data[i]);
     }
     m_size = _other.m_size;
     return *this;
   }
 
-  template <typename = core::enable_if_t<true>>
   dynamic_array& operator=(dynamic_array&& _other) {
     if (&_other == this) {
       return *this;
     }
     if (m_data) {
       for (size_t i = 0; i < m_size; ++i) {
-        m_data[i].~_Type();
+        m_data[i].~T();
       }
       deallocate(m_data);
     }
@@ -298,14 +302,13 @@ public:
   }
 
   template <const size_t _ExpandPercentageOther>
-  dynamic_array& operator=(
-      dynamic_array<_Type, _ExpandPercentageOther>&& _other) {
+  dynamic_array& operator=(dynamic_array<T, _ExpandPercentageOther>&& _other) {
     if (&_other == this) {
       return *this;
     }
     if (m_data) {
       for (size_t i = 0; i < m_size; ++i) {
-        m_data[i].~_Type();
+        m_data[i].~T();
       }
       deallocate(m_data);
     }
@@ -317,180 +320,187 @@ public:
     _other.m_data = 0;
     m_size = _other.m_size;
     _other.m_size = 0;
+
     return *this;
+  }
+
+  WN_FORCE_INLINE memory::allocator* get_allocator() const {
+    return m_allocator;
   }
 
   // element access
 
-  reference operator[](const size_type _pos) {
-    return (at(_pos));
+  WN_FORCE_INLINE reference operator[](const size_type _pos) {
+    return at(_pos);
   }
 
-  const_reference operator[](const size_type _pos) const {
-    return (at(_pos));
+  WN_FORCE_INLINE const_reference operator[](const size_type _pos) const {
+    return at(_pos);
   }
 
-  reference front() {
-    return (*begin());
+  WN_FORCE_INLINE reference front() {
+    return *begin();
   }
 
-  const_reference front() const {
-    return (*cbegin());
+  WN_FORCE_INLINE const_reference front() const {
+    return *cbegin();
   }
 
-  reference back() {
-    iterator i = end();
-
-    --i;
-
-    return (*i);
+  WN_FORCE_INLINE reference back() {
+    return *(--end());
   }
 
-  const_reference back() const {
-    const_iterator i = cend();
-
-    --i;
-
-    return (*i);
+  WN_FORCE_INLINE const_reference back() const {
+    return *(--end());
   }
 
-  reference at(const size_type _pos) {
-    return (m_data[_pos]);
+  WN_FORCE_INLINE reference at(const size_type _pos) {
+    return m_data[_pos];
   }
 
-  const_reference at(const size_type _pos) const {
-    return (m_data[_pos]);
+  WN_FORCE_INLINE const_reference at(const size_type _pos) const {
+    return m_data[_pos];
   }
 
-  _Type* data() {
-    return (m_data);
+  WN_FORCE_INLINE T* data() {
+    return m_data;
   }
 
-  const _Type* data() const {
-    return (m_data);
+  WN_FORCE_INLINE const T* data() const {
+    return m_data;
   }
 
   // iterators
 
-  iterator begin() {
-    return (iterator(m_data));
+  WN_FORCE_INLINE iterator begin() {
+    return iterator(m_data);
   }
 
-  const_iterator begin() const {
-    return (cbegin());
+  WN_FORCE_INLINE const_iterator begin() const {
+    return cbegin();
   }
 
-  const_iterator cbegin() const {
-    return (const_iterator(m_data));
+  WN_FORCE_INLINE const_iterator cbegin() const {
+    return const_iterator(m_data);
   }
 
-  iterator end() {
-    return (iterator(m_data + m_size));
+  WN_FORCE_INLINE iterator end() {
+    return iterator(m_data + m_size);
   }
 
-  const_iterator end() const {
-    return (cend());
+  WN_FORCE_INLINE const_iterator end() const {
+    return cend();
   }
 
-  const_iterator cend() const {
-    return (const_iterator(m_data + m_size));
+  WN_FORCE_INLINE const_iterator cend() const {
+    return const_iterator(m_data + m_size);
   }
 
-  reverse_iterator rbegin() {
-    return (reverse_iterator(end()));
+  WN_FORCE_INLINE reverse_iterator rbegin() {
+    return reverse_iterator(end());
   }
 
-  const_reverse_iterator rbegin() const {
-    return (crbegin());
+  WN_FORCE_INLINE const_reverse_iterator rbegin() const {
+    return crbegin();
   }
 
-  const_reverse_iterator crbegin() const {
-    return (const_reverse_iterator(cend()));
+  WN_FORCE_INLINE const_reverse_iterator crbegin() const {
+    return const_reverse_iterator(cend());
   }
 
-  reverse_iterator rend() {
-    return (reverse_iterator(begin()));
+  WN_FORCE_INLINE reverse_iterator rend() {
+    return reverse_iterator(begin());
   }
 
-  const_reverse_iterator rend() const {
-    return (crend());
+  WN_FORCE_INLINE const_reverse_iterator rend() const {
+    return crend();
   }
 
-  const_reverse_iterator crend() const {
-    return (const_reverse_iterator(cbegin()));
+  WN_FORCE_INLINE const_reverse_iterator crend() const {
+    return const_reverse_iterator(cbegin());
   }
 
   // capacity
 
-  size_type empty() const {
+  WN_FORCE_INLINE bool empty() const {
     return (size() == 0);
   }
 
-  size_type size() const {
-    return (m_size);
+  WN_FORCE_INLINE size_type size() const {
+    return m_size;
   }
 
-  size_type capacity() const {
-    return (m_capacity);
+  WN_FORCE_INLINE size_type max_size() const {
+    return sizeof(size_type);
   }
 
-  void reserve(const size_type _new_cap) {
+  WN_INLINE void reserve(const size_type _new_cap = 0) {
     if (_new_cap > m_capacity) {
       if (!m_data) {
-        void* p = allocate(sizeof(_Type), _new_cap);
+        void* p = allocate(sizeof(T), _new_cap);
+
         m_capacity = _new_cap;
-        m_data = reinterpret_cast<_Type*>(p);
+        m_data = reinterpret_cast<T*>(p);
       } else {
-        // TODO optimize this based on _Type traits
-        void* p = allocate(sizeof(_Type), _new_cap);
+        // TODO optimize this based on T traits
+        void* p = allocate(sizeof(T), _new_cap);
+
         m_capacity = _new_cap;
-        _Type* newData = reinterpret_cast<_Type*>(p);
-        for (size_t i = 0; i < m_size; ++i) {
-          new (reinterpret_cast<void*>(&newData[i]))
-              _Type(std::move(m_data[i]));
-          m_data[i].~_Type();
+
+        T* new_data = reinterpret_cast<T*>(p);
+
+        for (size_type i = 0; i < m_size; ++i) {
+          new (reinterpret_cast<void*>(&new_data[i])) T(core::move(m_data[i]));
+
+          m_data[i].~T();
         }
+
         deallocate(m_data);
-        m_data = newData;
+
+        m_data = new_data;
       }
     }
   }
 
-  // modifiers
+  WN_FORCE_INLINE size_type capacity() const {
+    return m_capacity;
+  }
 
-  void clear() {
-    if (m_data != nullptr) {
-      for (size_type i = 0; i < m_size; ++i) {
-        m_data[i].~_Type();
+  // operations
+
+  WN_FORCE_INLINE void clear() {
+    if (m_data) {
+      for (size_type i = 0; i < size(); ++i) {
+        m_data[i].~T();
       }
 
       m_size = 0;
     }
   }
 
-  iterator insert(const_iterator _pos, _Type&& _value) {
+  iterator insert(const_iterator _pos, T&& _value) {
     iterator position = shift(_pos, 1);
     iterator new_position = position;
 
-    memory::construct_at<_Type>(position.m_ptr, std::move(_value));
+    memory::construct_at<T>(position.m_ptr, core::move(_value));
 
     return (new_position);
   }
 
-  iterator insert(const_iterator _pos, const _Type& _value) {
-    _Type value(_value);
+  iterator insert(const_iterator _pos, const T& _value) {
+    T value(_value);
 
-    return (insert(_pos, std::move(value)));
+    return (insert(_pos, core::move(value)));
   }
 
   iterator insert(
-      const_iterator _pos, const size_type _count, const _Type& _value) {
+      const_iterator _pos, const size_type _count, const T& _value) {
     size_type count = _count;
     iterator position = shift(_pos, count);
     iterator new_position = position;
 
     while (count--) {
-      memory::construct_at<_Type>((position++).m_ptr, _value);
+      memory::construct_at<T>((position++).m_ptr, _value);
     }
 
     return (new_position);
@@ -504,27 +514,27 @@ public:
     iterator new_position = position;
 
     for (; _first != _last; ++_first) {
-      memory::construct_at<_Type>((position++).m_ptr, *_first);
+      memory::construct_at<T>((position++).m_ptr, *_first);
     }
 
     return (new_position);
   }
 
   iterator insert(
-      const_iterator _pos, std::initializer_list<_Type> _initializer_list) {
+      const_iterator _pos, std::initializer_list<T> _initializer_list) {
     return (insert(_pos, _initializer_list.begin(), _initializer_list.end()));
   }
 
-  template <typename _Function, typename = core::enable_if_t<core::is_callable<
-                                    _Function, _Type(size_type)>::value>>
+  template <typename _Function,
+      typename =
+          core::enable_if_t<core::is_callable<_Function, T(size_type)>::value>>
   iterator insert(
       const_iterator _pos, const size_type _count, _Function&& _generator) {
     iterator position = shift(_pos, _count);
     iterator new_position = position;
 
     for (size_type i = 0; i < _count; ++i) {
-      memory::construct_at<_Type>(
-          (position++).m_ptr, std::move(_generator(i++)));
+      memory::construct_at<T>((position++).m_ptr, core::move(_generator(i++)));
     }
 
     return (new_position);
@@ -532,9 +542,9 @@ public:
 
   template <typename... _Arguments>
   iterator emplace(const_iterator _pos, _Arguments&&... _arguments) {
-    _Type value(std::forward<_Arguments>(_arguments)...);
+    T value(std::forward<_Arguments>(_arguments)...);
 
-    return (insert(_pos, std::move(value)));
+    return (insert(_pos, core::move(value)));
   }
 
   iterator erase(const_iterator _pos) {
@@ -564,32 +574,31 @@ public:
     return iterator(m_data + (_first.m_ptr - m_data));
   }
 
-  void push_back(_Type&& _value) {
-    insert(cend(), std::move(_value));
+  WN_FORCE_INLINE void push_back(T&& _value) {
+    insert(cend(), core::move(_value));
   }
 
-  void push_back(const _Type& _value) {
-    _Type value(_value);
+  WN_FORCE_INLINE void push_back(const T& _value) {
+    T value(_value);
 
-    push_back(std::move(value));
+    push_back(core::move(value));
   }
 
   template <typename... _Arguments>
-  void emplace_back(_Arguments&&... _arguments) {
-    _Type value(std::forward<_Arguments>(_arguments)...);
-
-    push_back(std::move(value));
+  WN_FORCE_INLINE void emplace_back(_Arguments&&... _arguments) {
+    push_back(T(std::forward<_Arguments>(_arguments)...));
   }
 
-  void pop_back() {
+  WN_FORCE_INLINE void pop_back() {
     erase(cend() - 1);
   }
 
-  void resize(const size_type _count) {
+  WN_FORCE_INLINE void resize(const size_type _count) {
     resize(_count, value_type());
   }
 
-  void resize(const size_type _count, const value_type& _value) {
+  WN_FORCE_INLINE void resize(
+      const size_type _count, const value_type& _value) {
     if (_count > m_size) {
       insert(const_iterator(m_data + m_size), (_count - m_size), _value);
     } else {
@@ -597,17 +606,50 @@ public:
     }
   }
 
-  void swap(dynamic_array& _other) {
+  WN_FORCE_INLINE void swap(dynamic_array& _other) {
     if (&_other != this) {
-      std::swap(m_allocator, _other.m_allocator);
-      std::swap(m_capacity, _other.m_capacity);
-      std::swap(m_data, _other.m_data);
-      std::swap(m_size, _other.m_size);
+      core::swap(m_allocator, _other.m_allocator);
+      core::swap(m_capacity, _other.m_capacity);
+      core::swap(m_data, _other.m_data);
+      core::swap(m_size, _other.m_size);
+    }
+  }
+
+  WN_FORCE_INLINE void shrink_to_fit() {
+    const size_type current_size = size();
+
+    if (capacity() != current_size) {
+      T* allocated = reinterpret_cast<T*>(allocate(sizeof(T), current_size));
+      T* current = allocated;
+
+      for (T* i = m_data; i < (m_data + current_size); ++i) {
+        new (reinterpret_cast<void*>(current++)) T(core::move(*i));
+
+        i->~T();
+      }
+
+      deallocate(m_data);
+
+      m_data = allocated;
+      m_capacity = current_size;
     }
   }
 
 private:
-  iterator shift(const_iterator _pos, const size_type _count) {
+  WN_FORCE_INLINE void* allocate(const size_t _size, const size_t _count) {
+    return m_allocator->allocate(_size * _count);
+  }
+
+  WN_FORCE_INLINE void deallocate(void* _ptr) {
+    if (m_allocator) {
+      m_allocator->deallocate(_ptr);
+    } else {
+      WN_DEBUG_ASSERT_DESC(
+          _ptr == nullptr, "m_allocator is nullptr, where did ptr come from");
+    }
+  }
+
+  WN_INLINE iterator shift(const_iterator _pos, const size_type _count) {
     WN_DEBUG_ASSERT(_pos <= const_iterator(m_data + m_size) &&
                     (_pos >= const_iterator(m_data)));
 
@@ -615,64 +657,66 @@ private:
 
     if (m_capacity < (m_size + _count)) {
       iterator startPt = iterator(m_data + (_pos - begin()));
-      void* alloc = allocate(sizeof(_Type),
+      void* alloc = allocate(sizeof(T),
           static_cast<size_type>((m_size + _count) *
-                                 (1 + (_ExpandPercentage / 100.0f))));
+                                            (1 + (_ExpandPercentage / 100.0f))));
+
       m_capacity = m_size + _count;
-      _Type* newData = reinterpret_cast<_Type*>(alloc);
-      _Type* allocated = newData;
-      for (_Type* i = m_data; i < startPt.m_ptr; ++i) {
-        new (reinterpret_cast<void*>(newData++)) _Type(std::move(*i));
-        i->~_Type();
+
+      T* new_data = reinterpret_cast<T*>(alloc);
+      T* allocated = new_data;
+
+      for (T* i = m_data; i < startPt.m_ptr; ++i) {
+        new (reinterpret_cast<void*>(new_data++)) T(core::move(*i));
+
+        i->~T();
       }
-      newData += _count;
-      for (_Type* i = startPt.m_ptr; i < m_data + m_size; ++i) {
-        new (reinterpret_cast<void*>(newData++)) _Type(std::move(*i));
-        i->~_Type();
+
+      new_data += _count;
+
+      for (T* i = startPt.m_ptr; i < m_data + m_size; ++i) {
+        new (reinterpret_cast<void*>(new_data++)) T(core::move(*i));
+
+        i->~T();
       }
+
       deallocate(m_data);
+
       m_data = allocated;
     } else {
-      for (_Type* i = m_data + m_size + _count - 1;
-           i > (_pos.m_ptr + _count - 1); --i) {
-        new (reinterpret_cast<void*>(i)) _Type(std::move(*(i - _count - 1)));
-        (i - _count - 1)->~_Type();
+      for (T* i = m_data + m_size + _count - 1; i > (_pos.m_ptr + _count - 1);
+           --i) {
+        new (reinterpret_cast<void*>(i)) T(core::move(*(i - _count)));
+
+        (i - _count)->~T();
       }
     }
-    m_size = m_size + _count;
-    return (iterator(m_data + originalPosition));
+
+    m_size += _count;
+
+    return iterator(m_data + originalPosition);
   }
 
-  void* allocate(const size_t _size, const size_t _count) {
-    return m_allocator->allocate(_size * _count);
-  }
-
-  void deallocate(void* ptr) {
-    if (m_allocator) {
-      m_allocator->deallocate(ptr);
-    } else {
-      WN_DEBUG_ASSERT_DESC(
-          ptr == nullptr, "m_allocator is nullptr, where did ptr come from");
-    }
-  }
-
-  iterator unshift(const_iterator _pos, const size_type _count) {
+  WN_INLINE iterator unshift(const_iterator _pos, const size_type _count) {
     WN_DEBUG_ASSERT(_pos <= const_iterator(m_data + m_size) &&
                     (_pos >= const_iterator(m_data)));
     WN_DEBUG_ASSERT(_pos + _count <= const_iterator(m_data + m_size));
 
-    iterator startPt = iterator(m_data + (_pos.m_ptr - m_data));
+    iterator itr(m_data + (_pos.m_ptr - m_data));
 
-    for (_Type* i = startPt.m_ptr; i < startPt.m_ptr + _count; ++i) {
-      i->~_Type();
+    for (T* i = itr.m_ptr; i < itr.m_ptr + _count; ++i) {
+      i->~T();
     }
 
-    for (_Type* i = startPt.m_ptr + _count; i < m_data + m_size; ++i) {
-      new (reinterpret_cast<void*>(i - _count)) _Type(std::move(*i));
-      i->~_Type();
+    for (T* i = itr.m_ptr + _count; i < m_data + m_size; ++i) {
+      new (reinterpret_cast<void*>(i - _count)) T(core::move(*i));
+
+      i->~T();
     }
-    m_size = m_size - _count;
-    return (startPt);
+
+    m_size -= _count;
+
+    return itr;
   }
 
   memory::allocator* m_allocator;

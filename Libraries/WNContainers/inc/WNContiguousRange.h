@@ -258,7 +258,6 @@ public:
 private:
   template <typename T>
   friend class wn::containers::contiguous_range;
-
   friend class contiguous_range_iterator<const Container, Container,
       const Element>;
 
@@ -343,7 +342,7 @@ template <typename T>
 using remove_write_only_t = typename remove_write_only<T>::type;
 
 template <typename T>
-class contiguous_range {
+class contiguous_range WN_FINAL {
 private:
   static_assert(sizeof(remove_write_only_t<T>[2]) == sizeof(T[2]),
       "write only value of type not compatible with raw pointer of same type");
@@ -610,7 +609,7 @@ public:
   }
 
   WN_FORCE_INLINE const_reverse_iterator crend() const {
-    return const_reverse_iterator(begin());
+    return const_reverse_iterator(cbegin());
   }
 
   // capacity

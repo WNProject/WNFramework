@@ -20,7 +20,7 @@ TYPED_TEST(dynamic_array, range_construct) {
 
   {
     wn::containers::dynamic_array<TypeParam> arr(
-        buffer, buffer + 5, &allocator);
+        &allocator, buffer, buffer + 5);
 
     for (size_t i = 0; i < 5; ++i) {
       EXPECT_EQ(TypeParam(i), arr[i]);
@@ -36,7 +36,7 @@ TYPED_TEST(dynamic_array, resize) {
 
   {
     wn::containers::dynamic_array<TypeParam> arr(
-        buffer, buffer + 5, &allocator);
+        &allocator, buffer, buffer + 5);
 
     for (size_t i = 0; i < 5; ++i) {
       EXPECT_EQ(TypeParam(i), arr[i]);

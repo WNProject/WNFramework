@@ -236,6 +236,17 @@ TYPED_TEST(contiguous_range, iteration) {
 
   count = 1;
 
+  // check constness
+  for (typename wn::containers::contiguous_range<TypeParam>::const_iterator i =
+           range1.begin();
+       i != range1.end(); ++i) {
+    EXPECT_EQ(*i, TypeParam(count));
+
+    count++;
+  }
+
+  count = 1;
+
   for (auto i = range1.cbegin(); i != range1.cend(); ++i) {
     EXPECT_EQ(*i, TypeParam(count));
 
@@ -255,6 +266,17 @@ TYPED_TEST(contiguous_range, iteration) {
   count = 5;
 
   for (auto i = range1.rbegin(); i != range1.rend(); ++i) {
+    EXPECT_EQ(*i, TypeParam(count));
+
+    count--;
+  }
+
+  count = 5;
+
+  // check constness
+  for (typename wn::containers::contiguous_range<
+           TypeParam>::const_reverse_iterator i = range1.rbegin();
+       i != range1.rend(); ++i) {
     EXPECT_EQ(*i, TypeParam(count));
 
     count--;

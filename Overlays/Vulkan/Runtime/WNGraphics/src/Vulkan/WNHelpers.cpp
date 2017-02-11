@@ -151,7 +151,7 @@ void enumerate_adapters(memory::allocator* _allocator, logging::log* _log,
   }
   _log->log_info("Found: ", num_physical_devices, " devices.");
   containers::dynamic_array<VkPhysicalDevice> devices(
-      num_physical_devices, _allocator);
+      _allocator, num_physical_devices);
 
   if (VK_SUCCESS !=
       context->vkEnumeratePhysicalDevices(
@@ -177,7 +177,7 @@ void enumerate_adapters(memory::allocator* _allocator, logging::log* _log,
     _log->log_info("Device supports ", num_queue_families, " queue types.");
 
     containers::dynamic_array<VkQueueFamilyProperties> queue_properties(
-        num_queue_families, _allocator);
+        _allocator, num_queue_families);
 
     context->vkGetPhysicalDeviceQueueFamilyProperties(
         devices[i], &num_queue_families, queue_properties.data());

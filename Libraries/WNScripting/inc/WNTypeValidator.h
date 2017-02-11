@@ -555,9 +555,10 @@ public:
                 [this](uint32_t type) { return type >= m_types.size(); }),
         "One of the return types is out of bounds");
 
-    m_types[_type].m_functions.push_back({_name.to_string(m_allocator),
-        _return_type, containers::dynamic_array<uint32_t>(_types.begin(),
-                                              _types.end(), m_allocator)});
+    m_types[_type].m_functions.push_back(
+        {_name.to_string(m_allocator), _return_type,
+            containers::dynamic_array<uint32_t>(
+                m_allocator, _types.begin(), _types.end())});
   }
 
   containers::string get_mangled_name(const containers::string_view& name,
