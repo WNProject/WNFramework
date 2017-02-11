@@ -371,4 +371,22 @@ function (add_wn_header_library name)
   endif()
 endfunction()
 
+function (add_wn_application name)
+  cmake_parse_arguments(
+      PARSED_ARGS
+      ""
+      ""
+      "SOURCES;LIBS"
+      ${ARGN})
+
+  add_wn_executable(${name}
+    SOURCES
+      ${PARSED_ARGS_SOURCES}
+    LIBS
+      WNEntryPoint
+      WNApplication
+      ${PARSED_ARGS_LIBS}
+  )
+endfunction()
+
 enable_overlay_file()

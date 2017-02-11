@@ -3,17 +3,19 @@
 // found in the LICENSE.txt file.
 
 #include "WNCore/inc/WNTypes.h"
+#include "WNEntryPoint/inc/WNEntryData.h"
 #include "WNUtilities/inc/WNAndroidEventPump.h"
 #include "WNUtilities/inc/WNAppData.h"
-#include "WNUtilities/inc/WNLoggingData.h"
 #include "WNUtilities/inc/WNCrashHandler.h"
+#include "WNUtilities/inc/WNLoggingData.h"
 
 #include <android/log.h>
 #include <android_native_app_glue.h>
 #include <sys/prctl.h>
 #include <unistd.h>
 
-extern int32_t wn_main(int32_t _argc, char* _argv[]);
+extern int32_t wn_main(
+    const wn::entry::system_data* data, int32_t _argc, char* _argv[]);
 
 void wn_dummy() {}
 
@@ -52,20 +54,65 @@ void* main_proxy_thread(void* _package_name) {
   wn::utilities::initialize_crash_handler();
 
   char* package_name = static_cast<char*>(_package_name);
-  int32_t retVal = wn_main(1, &package_name);
+  char* executable = nullptr;
+  size_t path_length = strlen(full_path);
+  for (size_t i = path_length; i != 0; --i) {
+    if (full_path[i - 1] == '.') {
+      executable = full_path[i - 1] + 1;
+      break;
+    }
+  }
+  if (executable == nullptr) {
+    executable = package_name;
+  }
 
-  __android_log_print(ANDROID_LOG_INFO, wn::utilities::gAndroidLogTag, "--FINISHED");
+  wn::entry::host_specific_data host_data{
+      wn::utilities::gAndroidApp, _package_name};
+  wn::entry::system_data system_data{&host_data, executable};
+
+  int32_t retVal = wn_main(&system_data, 1, &package_name);
+
+  __android_log_print(
+      ANDROID_LOG_INFO, wn::utilities::gAndroidLogTag, "--FINISHED");
   __android_log_print(
       ANDROID_LOG_INFO, wn::utilities::gAndroidLogTag, "RETURN %d", retVal);
 
   wn::utilities::WNAndroidEventPump::GetInstance().KillMessagePump();
 
-  return (NULL);
+  return (nullptr);
 }
 
 int main(int _argc, char* _argv[]) {
+  const char* full_path;
+
+  if (_argc > 0) {
+    full_path = _argv[0];
+  } else {
+    full_path = "";
+  }
+
+  const char* executable = nullptr;
+  size_t path_length = strlen(full_path);
+  for (size_t i = path_length; i != 0; --i) {
+    if (full_path[i - 1] == '/') {
+      executable = full_path[i - 1] + 1;
+      break;
+    }
+  }
+  if (!executable) {
+    executable = full_path;
+  }
+
+  wn::entry::host_specific_data host_data{
+      nullptr, executable,
+  };
+
+  wn::entry::system_data system_data {
+    &host_data, full_path
+  }
+
   wn::utilities::gAndroidLogTag = _argv[0];
-  return wn_main(_argc, _argv);
+  return wn_main(&system_data, _argc, _argv);
 }
 
 void android_main(struct android_app* state) {
@@ -81,7 +128,7 @@ void android_main(struct android_app* state) {
 
 #if defined _WN_DEBUG
   if (access("/proc/sys/kernel/yama/ptrace_scope", F_OK) != -1) {
-     prctl(PR_SET_PTRACER, PR_SET_PTRACER_ANY, 0, 0, 0);
+    prctl(PR_SET_PTRACER, PR_SET_PTRACER_ANY, 0, 0, 0);
   }
 
   FILE* debugFile = fopen("/sdcard/wait-for-debugger.txt", "r");
@@ -101,11 +148,11 @@ void android_main(struct android_app* state) {
 
   pthread_t mThread;
 
-  pthread_create(&mThread, NULL, main_proxy_thread, packageName);
+  pthread_create(&mThread, nullptr, main_proxy_thread, packageName);
 
   wn::utilities::WNAndroidEventPump::GetInstance().PumpMessages(state);
 
-  pthread_join(mThread, NULL);
+  pthread_join(mThread, nullptr);
 
   free(packageName);
   fclose(stdout);

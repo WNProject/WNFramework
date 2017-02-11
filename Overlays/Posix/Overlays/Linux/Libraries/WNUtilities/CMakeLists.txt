@@ -1,3 +1,5 @@
 overlay_library_sources(WNUtilities
   SOURCES
-    src/WNCrashHandler.cpp)
+    src/WNCrashHandler.cpp
+  LIBS
+    pthread)

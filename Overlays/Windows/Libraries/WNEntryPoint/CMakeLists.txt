@@ -1,1 +1,4 @@
-overlay_library_sources(WNEntryPoint SOURCES src/WNEntry.cpp)
+overlay_library_sources(WNEntryPoint
+  SOURCES
+    inc/WNEntryData.h
+    src/WNEntry.cpp)

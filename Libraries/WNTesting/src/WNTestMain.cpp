@@ -12,11 +12,11 @@ namespace testing {
 
 void test_dummy() {}
 
-}  // testing
-}  // wn
+}  // namespace testing
+}  // namespace wn
 #endif  //_WN_ANDROID || _WN_LINUX
 
-int32_t wn_main(int32_t _argc, char* _argv[]) {
+int32_t wn_main(const wn::entry::system_data*, int32_t _argc, char* _argv[]) {
   wn_dummy();
 
   ::testing::InitGoogleTest(&_argc, _argv);
