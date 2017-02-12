@@ -1,7 +1,8 @@
 set(ENABLED OFF)
-include (CheckIncludeFileCXX)
+include(CheckIncludeFileCXX)
 
 check_include_file_cxx(d3d12.h HAS_D3D12_H)
+
 if (HAS_D3D12_H)
   if(NOT WN_GRAPHICS_DEVICE_TYPES)
     set(ENABLED ON)
