@@ -5,11 +5,12 @@
 #include "WNGraphics/src/D3D12/WNHelpers.h"
 #include "WNCore/inc/WNUtility.h"
 #include "WNGraphics/inc/Internal/D3D12/WNAdapter.h"
+#include "WNGraphics/inc/Internal/WNConfig.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/WNAllocator.h"
 
-#include <D3D12.h>
-#include <DXGI.h>
+#include <d3d12.h>
+#include <dxgi1_4.h>
 
 namespace wn {
 namespace graphics {
@@ -48,14 +49,71 @@ WN_INLINE bool convert_to_utf8(
   return false;
 }
 
+bool determine_support(memory::allocator* _allocator, logging::log* _log,
+    const size_t _device_number, const bool _allow_software_devices,
+    IDXGIAdapter1* _dxgi_adapter, DXGI_ADAPTER_DESC1* _dxgi_adapter_desc,
+    containers::string* _name) {
+  // This is set to D3D_FEATURE_LEVEL_11_0 because this is the lowest posible
+  // d3d version d3d12 supports.  This allows us to scale up on device
+  // capabilities and work on older hardware
+  HRESULT hr = ::D3D12CreateDevice(
+      _dxgi_adapter, D3D_FEATURE_LEVEL_11_0, __uuidof(ID3D12Device), nullptr);
+
+  if (FAILED(hr)) {
+    _log->log_warning("Adapter does not have D3D12 hardware support, hr: ", hr);
+
+    return false;
+  }
+
+  DXGI_ADAPTER_DESC1 dxgi_adapter_desc;
+
+  hr = _dxgi_adapter->GetDesc1(&dxgi_adapter_desc);
+
+  if (FAILED(hr)) {
+    _log->log_error("Could not get DXGI adapter description, hr: ", hr);
+
+    return false;
+  }
+
+  containers::string name(_allocator);
+
+  if (!convert_to_utf8(dxgi_adapter_desc.Description,
+          static_cast<DWORD>(::wcslen(dxgi_adapter_desc.Description)), name)) {
+    _log->log_error("Could not convert adapter name to utf-8");
+
+    return false;
+  }
+
+  if (!_allow_software_devices) {
+    if (dxgi_adapter_desc.DeviceId == BASIC_RENDER_DEVICE &&
+        dxgi_adapter_desc.VendorId == MICROSOFT_VENDOR) {
+      // If this is the "Basic Renderer Driver" then ignore it
+      // we do not want to present that to the user.
+      return false;
+    }
+  }
+
+  _log->log_info("D3D12 Device: ", _device_number + 1);
+  _log->log_info("------------------------------");
+  _log->log_info("Name: ", name.c_str());
+  _log->log_info("Vendor: ", dxgi_adapter_desc.DeviceId);
+  _log->log_info("Device: ", dxgi_adapter_desc.VendorId);
+  _log->log_info("------------------------------");
+
+  (*_name) = core::move(name);
+  (*_dxgi_adapter_desc) = core::move(dxgi_adapter_desc);
+
+  return true;
+}
+
 }  // anonymous namespace
 
 void enumerate_adapters(memory::allocator* _allocator, logging::log* _log,
     containers::dynamic_array<adapter_ptr>& _physical_devices) {
   _log->log_info("Enumerating D3D12 Dvices");
 
-  Microsoft::WRL::ComPtr<IDXGIFactory1> dxgi_factory;
-  HRESULT hr = ::CreateDXGIFactory1(__uuidof(IDXGIFactory1), &dxgi_factory);
+  Microsoft::WRL::ComPtr<IDXGIFactory4> dxgi_factory;
+  HRESULT hr = ::CreateDXGIFactory1(__uuidof(IDXGIFactory4), &dxgi_factory);
 
   if (FAILED(hr)) {
     _log->log_error("Could not to create DXGI Factory, hr: ", hr);
@@ -63,7 +121,9 @@ void enumerate_adapters(memory::allocator* _allocator, logging::log* _log,
     return;
   }
 
-  for (UINT i = 0;; ++i) {
+  UINT i = 0;
+
+  for (;; ++i) {
     Microsoft::WRL::ComPtr<IDXGIAdapter1> dxgi_adapter;
 
     hr = dxgi_factory->EnumAdapters1(i, &dxgi_adapter);
@@ -78,66 +138,66 @@ void enumerate_adapters(memory::allocator* _allocator, logging::log* _log,
       continue;
     }
 
-    // This is set to D3D_FEATURE_LEVEL_11_0 because this is the lowest posible
-    // d3d version d3d12 supports.  This allows us to scale up on device
-    // capabilities and work on older hardware
-    hr = ::D3D12CreateDevice(dxgi_adapter.Get(), D3D_FEATURE_LEVEL_11_0,
-        __uuidof(ID3D12Device), nullptr);
+    DXGI_ADAPTER_DESC1 dxgi_adapter_desc;
+    containers::string name(_allocator);
 
-    if (FAILED(hr)) {
-      _log->log_error("Could not determine D3D12 support, hr: ", hr);
+    if (determine_support(_allocator, _log, i, false, dxgi_adapter.Get(),
+            &dxgi_adapter_desc, &name)) {
+      memory::unique_ptr<d3d12_adapter_constructable> ptr(
+          memory::make_unique_delegated<d3d12_adapter_constructable>(
+              _allocator, [](void* _memory) {
+                return new (_memory) d3d12_adapter_constructable();
+              }));
 
-      continue;
+      if (ptr) {
+        ptr->initialize(core::move(dxgi_adapter), core::move(name),
+            static_cast<uint32_t>(dxgi_adapter_desc.DeviceId),
+            static_cast<uint32_t>(dxgi_adapter_desc.VendorId));
+      }
+
+      _physical_devices.push_back(core::move(ptr));
+    }
+  }
+
+#ifdef _WN_GRAPHICS_ALLOW_REFERENCE_DEVICES
+  if (_physical_devices.empty()) {
+    // create warp device
+    Microsoft::WRL::ComPtr<IDXGIAdapter1> dxgi_warp_adapter;
+
+    hr = dxgi_factory->EnumWarpAdapter(
+        __uuidof(IDXGIAdapter1), &dxgi_warp_adapter);
+
+    if (hr == DXGI_ERROR_NOT_FOUND) {
+      _log->log_info("Finished Enumerating D3D12 Dvices");
+
+      return;
+    } else if (FAILED(hr)) {
+      _log->log_error("Could not query for warp adapter, hr: ", hr);
+
+      return;
     }
 
     DXGI_ADAPTER_DESC1 dxgi_adapter_desc;
-
-    hr = dxgi_adapter->GetDesc1(&dxgi_adapter_desc);
-
-    if (FAILED(hr)) {
-      _log->log_error("Could not get DXGI adapter description, hr: ", hr);
-
-      continue;
-    }
-
     containers::string name(_allocator);
 
-    if (!convert_to_utf8(dxgi_adapter_desc.Description,
-            static_cast<DWORD>(::wcslen(dxgi_adapter_desc.Description)),
-            name)) {
-      _log->log_error("Could not convert adapter name to utf-8");
+    if (determine_support(_allocator, _log, i, true, dxgi_warp_adapter.Get(),
+            &dxgi_adapter_desc, &name)) {
+      memory::unique_ptr<d3d12_adapter_constructable> ptr(
+          memory::make_unique_delegated<d3d12_adapter_constructable>(
+              _allocator, [](void* _memory) {
+                return new (_memory) d3d12_adapter_constructable();
+              }));
 
-      continue;
+      if (ptr) {
+        ptr->initialize(core::move(dxgi_warp_adapter), core::move(name),
+            static_cast<uint32_t>(dxgi_adapter_desc.DeviceId),
+            static_cast<uint32_t>(dxgi_adapter_desc.VendorId));
+      }
+
+      _physical_devices.push_back(core::move(ptr));
     }
-
-    if (dxgi_adapter_desc.DeviceId == BASIC_RENDER_DEVICE &&
-        dxgi_adapter_desc.VendorId == MICROSOFT_VENDOR) {
-      // If this is the "Basic Renderer Driver" then ignore it
-      // we do not want to present that to the user.
-      continue;
-    }
-
-    _log->log_info("D3D12 Device: ", i + 1);
-    _log->log_info("------------------------------");
-    _log->log_info("Name: ", name.c_str());
-    _log->log_info("Vendor: ", dxgi_adapter_desc.DeviceId);
-    _log->log_info("Device: ", dxgi_adapter_desc.VendorId);
-    _log->log_info("------------------------------");
-
-    memory::unique_ptr<d3d12_adapter_constructable> ptr(
-        memory::make_unique_delegated<d3d12_adapter_constructable>(
-            _allocator, [](void* _memory) {
-              return new (_memory) d3d12_adapter_constructable();
-            }));
-
-    if (ptr) {
-      ptr->initialize(core::move(dxgi_adapter), core::move(name),
-          static_cast<uint32_t>(dxgi_adapter_desc.DeviceId),
-          static_cast<uint32_t>(dxgi_adapter_desc.VendorId));
-    }
-
-    _physical_devices.push_back(core::move(ptr));
   }
+#endif
 }
 
 }  // namespace d3d12

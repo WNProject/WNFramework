@@ -16,6 +16,9 @@
 // will be defined if only a single device type is available
 #cmakedefine _WN_GRAPHICS_SINGLE_DEVICE_TYPE
 
+// will be defined if we want to allow reference devices
+#cmakedefine _WN_GRAPHICS_ALLOW_REFERENCE_DEVICES
+
 #ifdef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
 #define _WN_GRAPHICS_DEVICE_TYPE ${_WN_GRAPHICS_DEVICE_TYPE}
 #define WN_GRAPHICS_PREFIXED_TYPE(element) \

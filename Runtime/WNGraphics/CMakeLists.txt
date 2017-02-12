@@ -7,8 +7,12 @@ set(WN_GRAPHICS_DEVICE_TYPES
   CACHE STRING "List of device types to include in build"
 )
 
-string(REPLACE "," ";" WN_GRAPHICS_DEVICE_TYPES "${WN_GRAPHICS_DEVICE_TYPES}")
+option(WN_GRAPHICS_ALLOW_REFERENCE_DEVICES
+  "Whether or not reference devices are allowed"
+  ${WN_GRAPHICS_ALLOW_REFERENCE_DEVICES}
+)
 
+string(REPLACE "," ";" WN_GRAPHICS_DEVICE_TYPES "${WN_GRAPHICS_DEVICE_TYPES}")
 
 list(LENGTH WN_GRAPHICS_DEVICE_TYPES_ENABLED
   WN_GRAPHICS_DEVICE_TYPES_AVAILABLE_COUNT
@@ -45,6 +49,13 @@ expand_list(WN_HELPER_INCLUDES "#include \"WNGraphics/src/"
 expand_list(WN_QUEUE_INCLUDES "#include \"WNGraphics/inc/Internal/"
   "/WNQueue.h\"" "\n" ${WN_GRAPHICS_DEVICE_TYPES_ENABLED})
 
+if (${WN_GRAPHICS_ALLOW_REFERENCE_DEVICES})
+  message(STATUS "Graphics Reference Devices: Allowed")
+  set(_WN_GRAPHICS_ALLOW_REFERENCE_DEVICES true)
+else()
+  message(STATUS "Graphics Reference Devices: Not Allowed")
+endif()
+
 configure_file(inc/Internal/WNConfig.h.in
   inc/Internal/WNConfig.h)
 configure_file(inc/Internal/WNHelperIncludes.h.in
@@ -57,7 +68,6 @@ configure_file(inc/Internal/WNDeviceIncludes.h.in
   inc/Internal/WNDeviceIncludes.h)
 configure_file(inc/Internal/WNQueueIncludes.h.in
   inc/Internal/WNQueueIncludes.h)
-
 
 add_wn_library(WNGraphics
   SOURCES

@@ -146,7 +146,7 @@ void enumerate_adapters(memory::allocator* _allocator, logging::log* _log,
   if (VK_SUCCESS !=
       context->vkEnumeratePhysicalDevices(
           context->instance, &num_physical_devices, nullptr)) {
-    _log->log_error("vkEnumeratePhysicalDevices failed");
+    _log->log_warning("vkEnumeratePhysicalDevices found no devices");
     return;
   }
   _log->log_info("Found: ", num_physical_devices, " devices.");
