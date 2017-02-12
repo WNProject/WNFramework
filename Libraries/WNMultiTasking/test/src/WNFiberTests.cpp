@@ -4,7 +4,7 @@
 
 #include "WNMultiTasking/inc/WNFiber.h"
 #include "WNContainers/inc/WNDynamicArray.h"
-#include "WNTesting/inc/WNTestHarness.h"
+#include "WNExecutableTest/inc/WNTestHarness.h"
 
 using ::testing::ElementsAreArray;
 

@@ -3,8 +3,8 @@
 // found in the LICENSE.txt file.
 
 #include "WNMultiTasking/inc/WNThreadPool.h"
+#include "WNExecutableTest/inc/WNTestHarness.h"
 #include "WNMultiTasking/inc/WNCallbackTask.h"
-#include "WNTesting/inc/WNTestHarness.h"
 
 #ifdef _WN_MSVC
 #pragma warning(push)
@@ -57,29 +57,29 @@ TEST(WNThreadPoolValidation, CreationMore) {
   {
     wn::multi_tasking::thread_pool thread_pool(&allocator);
 
-    ASSERT_EQ(thread_pool.initialize(10),
-        wn::multi_tasking::thread_pool::result::ok);
+    ASSERT_EQ(
+        thread_pool.initialize(10), wn::multi_tasking::thread_pool::result::ok);
   }
 
   {
     wn::multi_tasking::thread_pool thread_pool(&allocator);
 
-    ASSERT_EQ(thread_pool.initialize(10),
-        wn::multi_tasking::thread_pool::result::ok);
+    ASSERT_EQ(
+        thread_pool.initialize(10), wn::multi_tasking::thread_pool::result::ok);
   }
 
   {
     wn::multi_tasking::thread_pool thread_pool(&allocator);
 
-    ASSERT_EQ(thread_pool.initialize(10),
-        wn::multi_tasking::thread_pool::result::ok);
+    ASSERT_EQ(
+        thread_pool.initialize(10), wn::multi_tasking::thread_pool::result::ok);
   }
 
   {
     wn::multi_tasking::thread_pool thread_pool(&allocator);
 
-    ASSERT_EQ(thread_pool.initialize(10),
-        wn::multi_tasking::thread_pool::result::ok);
+    ASSERT_EQ(
+        thread_pool.initialize(10), wn::multi_tasking::thread_pool::result::ok);
   }
 }
 

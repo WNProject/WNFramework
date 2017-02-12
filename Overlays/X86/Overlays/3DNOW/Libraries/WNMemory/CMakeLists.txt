@@ -1,6 +1,6 @@
-overlay_library_sources(WNEntryPoint
+overlay_library_sources(WNMemory
   SOURCES
-  inc/Internal/Extension/x86/3DNOW/WNBasicTraits.h)
+    inc/Internal/Extension/x86/3DNOW/WNBasicTraits.h)
 
 overlay_set_variable(WN_MEMORY_EXTENSION_FILE
   "WNMemory/inc/Internal/Extension/x86/3DNOW/WNBasicTraits.h")

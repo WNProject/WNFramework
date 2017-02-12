@@ -2,17 +2,17 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
+#include "WNScripting/inc/WNASTWalker.h"
 #include "WNContainers/inc/WNHashMap.h"
-#include "WNCore/inc/WNPair.h"
 #include "WNContainers/inc/WNString.h"
 #include "WNContainers/inc/WNStringView.h"
+#include "WNCore/inc/WNPair.h"
+#include "WNExecutableTest/inc/WNTestHarness.h"
 #include "WNFileSystem/inc/WNFactory.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNScripting/inc/WNASTPasses.h"
-#include "WNScripting/inc/WNASTWalker.h"
 #include "WNScripting/test/inc/Common.h"
 #include "WNScripting/test/inc/Common.h"
-#include "WNTesting/inc/WNTestHarness.h"
 
 using ::testing::_;
 using ::testing::Eq;

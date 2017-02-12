@@ -1,4 +1,1 @@
-overlay_library_sources(WNGraphics
-  LIBS
-    dl
-)
+overlay_library_sources(WNGraphics LIBS dl)

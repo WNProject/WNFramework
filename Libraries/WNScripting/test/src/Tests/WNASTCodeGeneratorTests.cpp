@@ -4,11 +4,12 @@
 
 #include "WNScripting/inc/WNASTCodeGenerator.h"
 #include "WNContainers/inc/WNString.h"
+#include "WNExecutableTest/inc/WNTestHarness.h"
 #include "WNFileSystem/inc/WNFactory.h"
 #include "WNFileSystem/inc/WNMapping.h"
 #include "WNLogging/inc/WNBufferLogger.h"
 #include "WNScripting/test/inc/Common.h"
-#include "WNTesting/inc/WNTestHarness.h"
+
 using ::testing::Eq;
 using ::testing::Ge;
 

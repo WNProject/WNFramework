@@ -3,7 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "WNLogging/inc/WNLog.h"
-#include "WNTesting/inc/WNTestHarness.h"
+#include "WNExecutableTest/inc/WNTestHarness.h"
 
 TEST(WNLogValueTest, LogValueInt) {
   for (int i = 0; i < 10; ++i) {

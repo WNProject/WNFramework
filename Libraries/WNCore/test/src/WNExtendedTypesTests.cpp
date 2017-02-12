@@ -4,7 +4,7 @@
 
 #include "WNCore/inc/WNExtendedTypes.h"
 #include "WNCore/inc/WNTypes.h"
-#include "WNTesting/inc/WNTestHarness.h"
+#include "WNExecutableTest/inc/WNTestHarness.h"
 
 TEST(extended_types, wn_fixed8_addition_standard) {
   wn_fixed8 fixed = 0.25f;

@@ -1,9 +1,10 @@
 enable_overlay_directory()
 
-add_wn_application(
-  TestWindowApplication
+wn_create_application_tests_from_list(
+  TEST_PREFIX WNWindow
+  SOURCE_DIR src
   SOURCES
-    src/TestApplication.cpp
+    WNWindow
   LIBS
     WNWindow
 )

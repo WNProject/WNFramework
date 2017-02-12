@@ -4,7 +4,7 @@
 
 #include "WNCore/inc/WNAlgorithm.h"
 #include <array>
-#include "WNTesting/inc/WNTestHarness.h"
+#include "WNExecutableTest/inc/WNTestHarness.h"
 
 TEST(algorithm, equal) {
   const uint32_t array1[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 0};

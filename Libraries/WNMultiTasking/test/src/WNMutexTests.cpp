@@ -3,4 +3,4 @@
 // found in the LICENSE.txt file.
 
 #include "WNMultiTasking/inc/WNMutex.h"
-#include "WNTesting/inc/WNTestHarness.h"
+#include "WNExecutableTest/inc/WNTestHarness.h"

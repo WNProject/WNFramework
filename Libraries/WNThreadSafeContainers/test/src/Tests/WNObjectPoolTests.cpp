@@ -3,7 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "WNThreadSafeContainers/inc/WNObjectPool.h"
-#include "WNTesting/inc/WNTestHarness.h"
+#include "WNExecutableTest/inc/WNTestHarness.h"
 
 struct counted_object {
   counted_object(const counted_object&) {
@@ -16,7 +16,9 @@ struct counted_object {
     num_calls = 99;
     return *this;
   }
-  counted_object(int32_t val) { num_calls = val; }
+  counted_object(int32_t val) {
+    num_calls = val;
+  }
   int32_t num_calls;
 };
 

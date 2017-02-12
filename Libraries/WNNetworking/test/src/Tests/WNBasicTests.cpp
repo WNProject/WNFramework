@@ -2,12 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
+#include "WNExecutableTest/inc/WNTestHarness.h"
 #include "WNLogging/inc/WNBufferLogger.h"
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNMultiTasking/inc/WNJobPool.h"
 #include "WNMultiTasking/inc/WNSemaphore.h"
 #include "WNNetworking/inc/WNNetworkManager.h"
-#include "WNTesting/inc/WNTestHarness.h"
 
 void flush_buffer(void* v, const char* bytes, size_t length,
     const wn::logging::color_element*, size_t) {
@@ -258,5 +258,5 @@ TEST(raw_connection, multi_send) {
 }
 
 INSTANTIATE_TEST_CASE_P(all_ip_types, connection_tests,
-    ::testing::Values(
-        wn::networking::ip_protocol::ipv4, wn::networking::ip_protocol::ipv6));
+    ::testing::Values(wn::networking::ip_protocol::ipv4,
+                            wn::networking::ip_protocol::ipv6));

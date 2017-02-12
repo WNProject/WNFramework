@@ -3,10 +3,10 @@
 // found in the LICENSE.txt file.
 
 #include "WNFileSystem/inc/WNFactory.h"
+#include "WNExecutableTest/inc/WNTestHarness.h"
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNScripting/inc/WNFactory.h"
 #include "WNScripting/test/inc/Common.h"
-#include "WNTesting/inc/WNTestHarness.h"
 
 TEST(scripting_engine_factory, creation) {
   wn::scripting::factory factory;

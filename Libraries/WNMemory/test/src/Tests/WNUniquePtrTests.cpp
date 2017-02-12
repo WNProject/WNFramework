@@ -3,7 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "WNMemory/inc/WNUniquePtr.h"
-#include "WNTesting/inc/WNTestHarness.h"
+#include "WNExecutableTest/inc/WNTestHarness.h"
 
 template <typename T>
 struct unique_ptr : testing::Test {};

@@ -13,6 +13,6 @@ namespace utilities {
 extern void initialize_crash_handler();
 
 }  // namespace utilities
-}  // wn
+}  // namespace wn
 
 #endif  //__WN_CRASH_HANDLER_H__

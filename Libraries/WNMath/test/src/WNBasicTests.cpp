@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNCore/inc/WNExtendedTypes.h"
 #include "WNMath/inc/WNBasic.h"
-#include "WNTesting/inc/WNTestHarness.h"
+#include "WNCore/inc/WNExtendedTypes.h"
+#include "WNExecutableTest/inc/WNTestHarness.h"
 
 TEST(basic, abs) {
   ASSERT_EQ(wn::math::abs(int8_t(-1)), int8_t(1));

@@ -12,6 +12,7 @@
 #include "WNContainers/inc/WNHashMap.h"
 #include "WNContainers/inc/WNString.h"
 #include "WNCore/inc/WNBase.h"
+#include "WNExecutableTest/inc/WNTestHarness.h"
 #include "WNFileSystem/inc/WNMapping.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/WNAllocator.h"
@@ -19,7 +20,6 @@
 #include "WNScripting/inc/WNNodeTypes.h"
 #include "WNScripting/inc/WNScriptHelpers.h"
 #include "WNScripting/inc/WNTypeValidator.h"
-#include "WNTesting/inc/WNTestHarness.h"
 
 namespace wn {
 namespace scripting {

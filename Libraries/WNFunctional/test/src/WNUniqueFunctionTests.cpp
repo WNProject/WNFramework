@@ -3,8 +3,8 @@
 // found in the LICENSE.txt file.
 
 #include "WNFunctional/inc/WNUniqueFunction.h"
+#include "WNExecutableTest/inc/WNTestHarness.h"
 #include "WNMemory/inc/WNUniquePtr.h"
-#include "WNTesting/inc/WNTestHarness.h"
 
 void test_function1() {}
 

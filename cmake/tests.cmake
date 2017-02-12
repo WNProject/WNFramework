@@ -1,5 +1,6 @@
 enable_testing()
 include(CMakeParseArguments)
+
 # Arguments
 #     SOURCE_DIR: Directory that contains each individual test.
 #     COMMON_SOURCES: Sourcs to include into each test.
@@ -8,19 +9,22 @@ include(CMakeParseArguments)
 #     RUN_WRAPPER: Wrappe script to run the test.
 #     TEST_PREFIX: The prefix to use for the name of the test.
 #     LIBS: Any additional libraries to include.
-function(wn_create_tests_from_list)
+function(wn_create_tests_from_list_internal)
   if(WN_OVERLAY_IS_ENABLED)
     cmake_parse_arguments(
       PARSED_ARGS
       "SYSTEMS_TEST"
-      "RUN_WRAPPER;TEST_PREFIX;SOURCE_DIR"
+      "RUN_WRAPPER;TEST_PREFIX;SOURCE_DIR;TEST_WRAPPER"
       "SOURCES;COMMON_SOURCES;ADDITIONAL_INCLUDES;LIBS"
-      ${ARGN})
+      ${ARGN}
+    )
 
     if(NOT PARSED_ARGS_SOURCES)
       message(FATAL_ERROR "You must provide at least one source file")
     endif()
+
     set(ST)
+
     if (PARSED_ARGS_SYSTEMS_TEST)
       set(ST "SYSTEMS_TEST")
     endif()
@@ -33,12 +37,13 @@ function(wn_create_tests_from_list)
       get_filename_component(source ${source} NAME)
       overload_create_test_wrapper(TEST_NAME ${PARSED_ARGS_TEST_PREFIX}_${source}
         ${ST}
+        TEST_WRAPPER ${PARSED_ARGS_TEST_WRAPPER}
         TEST_PREFIX ${PARSED_ARGS_TEST_PREFIX}
         SOURCES ${PARSED_ARGS_SOURCE_DIR}/${source}Tests.cpp
           ${PARSED_ARGS_COMMON_SOURCES}
-          RUN_WRAPPER ${PARSED_ARGS_RUN_WRAPPER}
-          ADDITIONAL_INCLUDES ${PARSED_ARGS_ADDITIONAL_INCLUDES}
-          LIBS ${PARSED_ARGS_LIBS})
+        RUN_WRAPPER ${PARSED_ARGS_RUN_WRAPPER}
+        ADDITIONAL_INCLUDES ${PARSED_ARGS_ADDITIONAL_INCLUDES}
+        LIBS ${PARSED_ARGS_LIBS})
     endforeach()
   endif()
 endfunction()
@@ -67,17 +72,28 @@ function(wn_create_test)
   cmake_parse_arguments(
     PARSED_ARGS
     "SYSTEMS_TEST"
-    "TEST_NAME;RUN_WRAPPER;TEST_PREFIX"
+    "TEST_NAME;RUN_WRAPPER;TEST_PREFIX;TEST_WRAPPER"
     "SOURCES;ADDITIONAL_INCLUDES;LIBS"
     ${ARGN})
   if(NOT PARSED_ARGS_TEST_NAME)
     message(FATAL_ERROR "You must provide a test name")
   endif()
+
   if(NOT PARSED_ARGS_SOURCES)
     message(FATAL_ERROR "You must provide at least one source file")
   endif()
-  add_wn_executable(${PARSED_ARGS_TEST_NAME}_test SOURCES ${PARSED_ARGS_SOURCES}
-    LIBS WNTesting WNUtilities ${PARSED_ARGS_LIBS})
+
+  if(NOT PARSED_ARGS_TEST_WRAPPER)
+    message(ERROR "No test wrapper path given and no default available")
+  else()
+    include(${PARSED_ARGS_TEST_WRAPPER})
+  endif()
+
+  wn_add_test_wrapper(
+    TEST_NAME ${PARSED_ARGS_TEST_NAME}_test
+    SOURCES ${PARSED_ARGS_SOURCES}
+    LIBS ${PARSED_ARGS_LIBS}
+  )
 
   add_test(${PARSED_ARGS_TEST_NAME}
     ${PARSED_ARGS_RUN_WRAPPER} ${PARSED_ARGS_TEST_NAME}_test)

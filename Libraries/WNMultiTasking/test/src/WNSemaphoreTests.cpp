@@ -3,8 +3,8 @@
 // found in the LICENSE.txt file.
 
 #include "WNMultiTasking/inc/WNSemaphore.h"
+#include "WNExecutableTest/inc/WNTestHarness.h"
 #include "WNMultiTasking/inc/WNThread.h"
-#include "WNTesting/inc/WNTestHarness.h"
 
 #include <memory>
 #include <sstream>

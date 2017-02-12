@@ -3,13 +3,13 @@
 // found in the LICENSE.txt file.
 
 #include "WNScripting/inc/WNCTranslator.h"
+#include "WNExecutableTest/inc/WNTestHarness.h"
 #include "WNFileSystem/inc/WNFactory.h"
 #include "WNFileSystem/inc/WNMapping.h"
 #include "WNLogging/inc/WNBufferLogger.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNScripting/test/inc/Common.h"
 #include "WNScripting/test/inc/Common.h"
-#include "WNTesting/inc/WNTestHarness.h"
 
 void flush_buffer(void* v, const char* bytes, size_t length,
     const wn::logging::color_element*, size_t) {

@@ -3,7 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "WNContainers/inc/WNStringView.h"
-#include "WNTesting/inc/WNTestHarness.h"
+#include "WNExecutableTest/inc/WNTestHarness.h"
 
 TEST(string_view, construction) {
   const char* raw = "string1";

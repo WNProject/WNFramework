@@ -3,7 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "WNMath/inc/WNVector.h"
-#include "WNTesting/inc/WNTestHarness.h"
+#include "WNExecutableTest/inc/WNTestHarness.h"
 
 WN_ENABLE_TYPED_TEST(vector);
 WN_ENABLE_TYPED_TEST(vector_real);

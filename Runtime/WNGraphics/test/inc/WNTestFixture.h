@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
+#include "WNExecutableTest/inc/WNTestHarness.h"
 #include "WNGraphics/inc/Internal/WNConfig.h"
 #include "WNLogging/inc/WNBufferLogger.h"
 #include "WNMemory/inc/WNAllocator.h"
-#include "WNTesting/inc/WNTestHarness.h"
 
 namespace wn {
 namespace graphics {

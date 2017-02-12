@@ -3,7 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "WNMultiTasking/inc/WNThread.h"
-#include "WNTesting/inc/WNTestHarness.h"
+#include "WNExecutableTest/inc/WNTestHarness.h"
 
 static void test_function1() {}
 

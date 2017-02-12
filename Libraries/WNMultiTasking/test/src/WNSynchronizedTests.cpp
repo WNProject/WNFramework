@@ -3,7 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "WNMultiTasking/inc/WNSynchronized.h"
-#include "WNTesting/inc/WNTestHarness.h"
+#include "WNExecutableTest/inc/WNTestHarness.h"
 
 struct s : public wn::multi_tasking::synchronized<> {
   void func() {}

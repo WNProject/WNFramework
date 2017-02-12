@@ -4,7 +4,7 @@
 
 #include "WNWindow/inc/WNWindowsWindow.h"
 #include "WNApplication/inc/WNApplicationData.h"
-#include "WNEntryPoint/inc/WNEntryData.h"
+#include "WNExecutable/inc/WNEntryData.h"
 #include "WNMultiTasking/inc/WNJobPool.h"
 
 #include <tchar.h>
@@ -110,19 +110,24 @@ LRESULT CALLBACK windows_window::wnd_proc(
     HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
   windows_window* window =
       reinterpret_cast<windows_window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
-  window->process_callback(uMsg, lParam, wParam);
+  if (window) {
+    window->process_callback(uMsg, lParam, wParam);
+  }
 
   switch (uMsg) {
     case WM_USER:
       if (wParam == static_cast<WPARAM>(lParam) && wParam == 0) {
         window->m_exit = true;
-        return (-1);
+
+        PostQuitMessage(0);
+
+        return -1;
       }
     case WM_DESTROY:
       window->m_exit = true;
-      return (DefWindowProc(hwnd, uMsg, wParam, lParam));
+      return DefWindowProc(hwnd, uMsg, wParam, lParam);
     default:
-      return (DefWindowProc(hwnd, uMsg, wParam, lParam));
+      return DefWindowProc(hwnd, uMsg, wParam, lParam);
   }
 }
 

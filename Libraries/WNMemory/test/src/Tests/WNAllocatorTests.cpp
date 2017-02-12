@@ -3,7 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "WNMemory/inc/WNAllocator.h"
-#include "WNTesting/inc/WNTestHarness.h"
+#include "WNExecutableTest/inc/WNTestHarness.h"
 
 TEST(allocator, basic_usage) {
   wn::memory::basic_allocator allocator;

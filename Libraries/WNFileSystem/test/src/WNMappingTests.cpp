@@ -3,8 +3,8 @@
 // found in the LICENSE.txt file.
 
 #include "WNFileSystem/inc/WNMapping.h"
+#include "WNExecutableTest/inc/WNTestHarness.h"
 #include "WNFileSystem/inc/WNFactory.h"
-#include "WNTesting/inc/WNTestHarness.h"
 
 using mapping_test = ::testing::TestWithParam<wn::file_system::mapping_type>;
 

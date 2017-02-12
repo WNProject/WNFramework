@@ -3,9 +3,9 @@
 // found in the LICENSE.txt file.
 
 #include "WNLogging/inc/WNLog.h"
+#include "WNExecutableTest/inc/WNTestHarness.h"
 #include "WNLogging/inc/WNConsoleLogger.h"
 #include "WNLogging/inc/WNFileLogger.h"
-#include "WNTesting/inc/WNTestHarness.h"
 
 #ifndef __WN_USE_PRECOMPILED_HEADER
 #include "WNMultiTasking/inc/WNThread.h"

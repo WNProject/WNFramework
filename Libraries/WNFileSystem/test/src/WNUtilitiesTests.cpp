@@ -3,7 +3,8 @@
 // found in the LICENSE.txt file.
 
 #include "WNFileSystem/src/WNUtilities.h"
-#include "WNTesting/inc/WNTestHarness.h"
+#include "WNExecutableTest/inc/WNTestHarness.h"
+
 using ::testing::ElementsAre;
 
 TEST(utilities, sanitize_path) {

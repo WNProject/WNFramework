@@ -383,7 +383,7 @@ function (add_wn_application name)
     SOURCES
       ${PARSED_ARGS_SOURCES}
     LIBS
-      WNEntryPoint
+      WNExecutable
       WNApplication
       ${PARSED_ARGS_LIBS}
   )

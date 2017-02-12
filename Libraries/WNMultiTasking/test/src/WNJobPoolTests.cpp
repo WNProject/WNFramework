@@ -3,8 +3,8 @@
 // found in the LICENSE.txt file.
 
 #include "WNMultiTasking/inc/WNJobPool.h"
+#include "WNExecutableTest/inc/WNTestHarness.h"
 #include "WNMemory/inc/WNUniquePtr.h"
-#include "WNTesting/inc/WNTestHarness.h"
 
 void job(int32_t* _val) {
   *_val += 1;

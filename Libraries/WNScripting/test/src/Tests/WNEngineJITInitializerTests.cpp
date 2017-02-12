@@ -3,6 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "WNContainers/inc/WNDynamicArray.h"
+#include "WNExecutableTest/inc/WNTestHarness.h"
 #include "WNFileSystem/inc/WNFactory.h"
 #include "WNFileSystem/inc/WNMapping.h"
 #include "WNLogging/inc/WNBufferLogger.h"
@@ -10,7 +11,6 @@
 #include "WNScripting/inc/WNFactory.h"
 #include "WNScripting/inc/WNJITEngine.h"
 #include "WNScripting/test/inc/Common.h"
-#include "WNTesting/inc/WNTestHarness.h"
 
 TEST(jit_engine, creation) {
   wn::testing::allocator allocator;
@@ -212,11 +212,11 @@ TEST_P(bool_arithmetic_tests, boolean_arithmetic) {
       &validator, &allocator, mapping.get(), wn::logging::get_null_logger());
   EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file.wns"));
 
-
   wn::scripting::script_function<bool, bool> new_func;
   ASSERT_TRUE(jit_engine.get_function("main", new_func));
 
-  EXPECT_EQ(GetParam().expected_return, jit_engine.invoke(new_func, GetParam().input));
+  EXPECT_EQ(GetParam().expected_return,
+      jit_engine.invoke(new_func, GetParam().input));
 }
 
 INSTANTIATE_TEST_CASE_P(bool_tests, bool_arithmetic_tests,
@@ -256,8 +256,9 @@ TEST_P(two_params_tests, int_in_out_tests) {
   wn::scripting::script_function<int32_t, int32_t, int32_t> new_func;
   ASSERT_TRUE(jit_engine.get_function("main", new_func));
   for (auto& test_case : GetParam().cases) {
-    EXPECT_EQ(test_case.second,
-        jit_engine.invoke(new_func, test_case.first.first, test_case.first.second));
+    EXPECT_EQ(
+        test_case.second, jit_engine.invoke(new_func, test_case.first.first,
+                              test_case.first.second));
   }
 }
 
