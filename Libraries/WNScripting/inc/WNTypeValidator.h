@@ -555,10 +555,9 @@ public:
                 [this](uint32_t type) { return type >= m_types.size(); }),
         "One of the return types is out of bounds");
 
-    m_types[_type].m_functions.push_back(
-        {_name.to_string(m_allocator), _return_type,
-            containers::dynamic_array<uint32_t>(
-                m_allocator, _types.begin(), _types.end())});
+    m_types[_type].m_functions.push_back({_name.to_string(m_allocator),
+        _return_type, containers::dynamic_array<uint32_t>(m_allocator,
+                                              _types.begin(), _types.end())});
   }
 
   containers::string get_mangled_name(const containers::string_view& name,
@@ -593,6 +592,7 @@ private:
   memory::allocator* m_allocator;
   uint32_t m_max_types;
 };
+
 }  // namespace scripting
 }  // namesapce wn
 

@@ -659,7 +659,7 @@ private:
       iterator startPt = iterator(m_data + (_pos - begin()));
       void* alloc = allocate(sizeof(T),
           static_cast<size_type>((m_size + _count) *
-                                            (1 + (_ExpandPercentage / 100.0f))));
+                                 (1 + (_ExpandPercentage / 100.0f))));
 
       m_capacity = m_size + _count;
 
