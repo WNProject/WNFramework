@@ -3,7 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "WNWindow/inc/WNWindow.h"
-#include "WNApplication/inc/WNApplicationData.h"
+#include "WNApplicationData/inc/WNApplicationData.h"
 #include "WNApplicationTest/inc/WNTestHarness.h"
 #include "WNMultiTasking/inc/WNJobPool.h"
 #include "WNMultiTasking/inc/WNJobSignal.h"

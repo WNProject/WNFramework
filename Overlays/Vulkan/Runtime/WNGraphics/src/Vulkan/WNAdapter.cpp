@@ -40,6 +40,10 @@ device_ptr vulkan_adapter::make_device(
 
   VkPhysicalDeviceFeatures physical_features{0};
 
+  const uint32_t num_device_extensions = 1;
+  const char* device_extensions[num_device_extensions] = {
+      VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+
   VkDeviceCreateInfo create_info{
       VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,  // sType;
       nullptr,                               // pNext;
@@ -48,8 +52,8 @@ device_ptr vulkan_adapter::make_device(
       &queue_create_info,                    // pQueueCreateInfos;
       0,                                     // enabledLayerCount;
       nullptr,                               // ppEnabledLayerNames;
-      0,                                     // enabledExtensionCount;
-      nullptr,                               // ppEnabledExtensionNames;
+      num_device_extensions,                 // enabledExtensionCount;
+      device_extensions,                     // ppEnabledExtensionNames;
       &physical_features                     // pEnabledFeatures;
   };
 

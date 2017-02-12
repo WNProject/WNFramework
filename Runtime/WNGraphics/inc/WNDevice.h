@@ -9,6 +9,7 @@
 
 #include "WNGraphics/inc/Internal/WNConfig.h"
 #include "WNGraphics/inc/WNHeapTraits.h"
+#include "WNGraphics/inc/WNImageFormats.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/WNUniquePtr.h"
 
@@ -22,8 +23,15 @@ WN_GRAPHICS_FORWARD(device);
 WN_GRAPHICS_FORWARD(queue);
 WN_GRAPHICS_FORWARD(adapter);
 WN_GRAPHICS_FORWARD(image);
+WN_GRAPHICS_FORWARD(swapchain);
 
 namespace wn {
+namespace runtime {
+namespace window {
+class window;
+}  // namespace window
+}  // namespace runtime
+
 namespace graphics {
 namespace internal {
 #ifdef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
@@ -38,14 +46,17 @@ class command_allocator;
 class command_list;
 class fence;
 struct image_create_info;
+struct swapchain_create_info;
 
 template <typename HeapTraits>
 class heap;
 
 class queue;
+class swapchain;
 
 using command_list_ptr = memory::unique_ptr<command_list>;
 using queue_ptr = memory::unique_ptr<queue>;
+using swapchain_ptr = memory::unique_ptr<swapchain>;
 
 class device : public internal::device_base {
 public:
@@ -57,8 +68,11 @@ public:
   // It is only valid to have a single queue active at a time.
   virtual queue_ptr create_queue() = 0;
 
+  virtual swapchain_ptr create_swapchain(const swapchain_create_info& _info,
+      queue* queue, runtime::window::window* window) = 0;
   virtual size_t get_image_upload_buffer_alignment() = 0;
   virtual size_t get_buffer_upload_buffer_alignment() = 0;
+
 #endif
 
   upload_heap create_upload_heap(const size_t _num_bytes);
@@ -77,9 +91,10 @@ protected:
   friend class heap;
 
   friend class queue;
-  WN_GRAPHICS_ADD_FRIENDS(queue)
-  WN_GRAPHICS_ADD_FRIENDS(adapter)
-  WN_GRAPHICS_ADD_FRIENDS(image)
+  WN_GRAPHICS_ADD_FRIENDS(queue);
+  WN_GRAPHICS_ADD_FRIENDS(adapter);
+  WN_GRAPHICS_ADD_FRIENDS(image);
+  WN_GRAPHICS_ADD_FRIENDS(swapchain);
 
 #ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
   // Upload heap methods
@@ -127,7 +142,6 @@ protected:
   virtual void initialize_image(
       const image_create_info& _info, image* _image) = 0;
   virtual void destroy_image(image* _image) = 0;
-
 #endif
 };
 

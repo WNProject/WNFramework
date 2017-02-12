@@ -65,7 +65,7 @@ device_ptr d3d12_adapter::make_device(
           }));
 
   if (ptr) {
-    ptr->initialize(_allocator, _log, core::move(device));
+    ptr->initialize(_allocator, _log, m_factory, core::move(device));
   }
 
   return core::move(ptr);

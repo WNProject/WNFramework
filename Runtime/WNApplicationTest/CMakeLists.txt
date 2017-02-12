@@ -8,6 +8,6 @@ add_wn_library(WNApplicationTest
     ${gmock_SOURCE_DIR}/include
     ${gtest_SOURCE_DIR}/include
   LIBS
-    WNApplication
+    WNApplicationData
     WNTestUtilities
 )

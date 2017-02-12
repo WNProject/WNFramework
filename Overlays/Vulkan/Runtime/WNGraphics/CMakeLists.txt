@@ -13,12 +13,14 @@ overlay_library_sources(WNGraphics
     inc/Internal/Vulkan/WNVulkanContext.h
     inc/Internal/Vulkan/WNVulkanQueueContext.h
     inc/Internal/Vulkan/WNVulkanImage.h
+    inc/Internal/Vulkan/WNSwapchain.h
     src/Vulkan/WNAdapter.cpp
     src/Vulkan/WNCommandList.cpp
     src/Vulkan/WNDevice.cpp
     src/Vulkan/WNHelpers.h
     src/Vulkan/WNHelpers.cpp
     src/Vulkan/WNQueue.cpp
+    src/Vulkan/WNSwapchain.cpp
   INCLUDES
     ${WNFramework_SOURCE_DIR}/Externals/vulkan
 )

@@ -8,6 +8,7 @@
 #define __WN_RUNTIME_WINDOW_WINDOW_H__
 
 #include "WNLogging/inc/WNLog.h"
+#include "WNWindow/inc/WNWindowEnums.h"
 #include "WNWindow/inc/WNWindowErrors.h"
 
 namespace wn {
@@ -26,7 +27,12 @@ class window {
 public:
   virtual window_error initialize() = 0;
   virtual ~window() {}
-  virtual bool is_valid() = 0;
+  virtual bool is_valid() const = 0;
+  virtual window_type type() const = 0;
+  virtual const void* get_native_handle() const = 0;
+
+  virtual uint32_t get_width() const = 0;
+  virtual uint32_t get_height() const = 0;
 
 protected:
   window() {}

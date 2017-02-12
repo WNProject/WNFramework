@@ -8,6 +8,7 @@
 #define __WN_GRAPHICS_INTERNAL_VULKAN_COMMAND_LIST_H__
 
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanCommandListContext.h"
+#include "WNGraphics/inc/Internal/Vulkan/WNVulkanInclude.h"
 #include "WNGraphics/inc/Internal/WNConfig.h"
 #include "WNGraphics/inc/WNHeapTraits.h"
 #include "WNGraphics/inc/WNResourceStates.h"
@@ -17,10 +18,6 @@
 #else
 #include "WNCore/inc/WNUtility.h"
 #endif
-
-#define VK_NO_PROTOTYPES
-
-#include <vulkan.h>
 
 WN_GRAPHICS_FORWARD(image)
 

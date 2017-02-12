@@ -7,10 +7,7 @@
 #ifndef __WN_GRAPHICS_INTERNAL_VULKAN_BUFFER_DATA_H__
 #define __WN_GRAPHICS_INTERNAL_VULKAN_BUFFER_DATA_H__
 
-#define VK_NO_PROTOTYPES
-
-#include <vulkan.h>
-
+#include "WNGraphics/inc/Internal/Vulkan/WNVulkanInclude.h"
 namespace wn {
 namespace graphics {
 namespace internal {

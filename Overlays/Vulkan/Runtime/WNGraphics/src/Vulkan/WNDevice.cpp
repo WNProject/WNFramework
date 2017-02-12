@@ -6,12 +6,14 @@
 #include "WNGraphics/inc/Internal/Vulkan/WNBufferData.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNImageFormats.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNResourceStates.h"
+#include "WNGraphics/inc/Internal/Vulkan/WNSwapchain.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanImage.h"
 #include "WNGraphics/inc/WNCommandAllocator.h"
 #include "WNGraphics/inc/WNCommandList.h"
 #include "WNGraphics/inc/WNFence.h"
 #include "WNGraphics/inc/WNHeap.h"
 #include "WNGraphics/inc/WNQueue.h"
+#include "WNGraphics/inc/WNSwapchain.h"
 #include "WNLogging/inc/WNLog.h"
 
 #ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
@@ -61,9 +63,11 @@ static const VkCommandPoolCreateInfo s_command_pool_create{
 #ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
 using vulkan_command_list_constructable = vulkan_command_list;
 using vulkan_queue_constructable = vulkan_queue;
+using vulkan_swapchain_constructable = vulkan_swapchain;
 #else
 using vulkan_command_list_constructable = command_list;
 using vulkan_queue_constructable = queue;
+using vulkan_swapchain_constructable = swapchain;
 #endif
 
 }  // anonymous namespace
@@ -162,7 +166,13 @@ bool vulkan_device::initialize(memory::allocator* _allocator,
   LOAD_VK_DEVICE_SYMBOL(m_device, vkGetImageMemoryRequirements);
   LOAD_VK_DEVICE_SYMBOL(m_device, vkBindImageMemory);
 
+  LOAD_VK_DEVICE_SYMBOL(m_device, vkCreateSwapchainKHR);
+  LOAD_VK_DEVICE_SYMBOL(m_device, vkGetSwapchainImagesKHR);
+  LOAD_VK_DEVICE_SYMBOL(m_device, vkAcquireNextImageKHR);
+  LOAD_VK_DEVICE_SYMBOL(m_device, vkDestroySwapchainKHR);
+
   LOAD_VK_SUB_DEVICE_SYMBOL(m_device, m_queue_context, vkQueueSubmit);
+  LOAD_VK_SUB_DEVICE_SYMBOL(m_device, m_queue_context, vkQueuePresentKHR);
 
   m_queue_context.m_device = this;
 
@@ -183,6 +193,9 @@ bool vulkan_device::initialize(memory::allocator* _allocator,
   VkQueue queue;
   vkGetDeviceQueue(m_device, _graphics_and_device_queue, 0, &queue);
   m_queue.exchange(queue);
+
+  m_surface_helper.initialize(
+      _context->instance, _context->vkGetInstanceProcAddr);
 
   {
     // Create 1-byte upload buffer. This seems to be the only way to
@@ -651,6 +664,76 @@ void vulkan_device::destroy_image(image* _image) {
   VulkanImage& img = _image->data_as<VulkanImage>();
   vkFreeMemory(m_device, img.device_memory, nullptr);
   vkDestroyImage(m_device, img.image, nullptr);
+}
+
+swapchain_ptr vulkan_device::create_swapchain(
+    const swapchain_create_info& _info, queue*,
+    runtime::window::window* _window) {
+  VkSurfaceKHR surface;
+  if (VK_SUCCESS != m_surface_helper.create_surface(_window, &surface)) {
+    m_log->log_error("Could not create surface on window");
+    return nullptr;
+  }
+
+  VkPresentModeKHR mode;
+  switch (_info.mode) {
+    case swap_mode::immediate:
+      mode = VK_PRESENT_MODE_IMMEDIATE_KHR;
+      break;
+    case swap_mode::mailbox:
+      mode = VK_PRESENT_MODE_MAILBOX_KHR;
+      break;
+    case swap_mode::fifo:
+      mode = VK_PRESENT_MODE_FIFO_KHR;
+      break;
+    case swap_mode::fifo_relaxed:
+      mode = VK_PRESENT_MODE_FIFO_RELAXED_KHR;
+      break;
+    default:
+      WN_DEBUG_ASSERT_DESC(false, "Should never get here");
+      mode = VK_PRESENT_MODE_FIFO_RELAXED_KHR;
+  }
+
+  VkSwapchainCreateInfoKHR create_info = {
+      VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,  // sType
+      nullptr,                                      // pNext
+      0,                                            // flags
+      surface,                                      // surface
+      _info.num_buffers,                            // minImageCount
+      image_format_to_vulkan_format(_info.format),  // format
+      VK_COLORSPACE_SRGB_NONLINEAR_KHR,             // colorspace
+      {
+          _window->get_width(), _window->get_height(),
+      },                                    // extent
+      1,                                    // layers
+      VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,  // usage
+      VK_SHARING_MODE_EXCLUSIVE,
+      0, nullptr, VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR,
+      VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR, mode, VK_FALSE, VK_NULL_HANDLE};
+
+  VkSwapchainKHR swapchain;
+  if (VK_SUCCESS !=
+      vkCreateSwapchainKHR(m_device, &create_info, nullptr, &swapchain)) {
+    m_surface_helper.destroy_surface(surface);
+    m_log->log_error("Could not create swapchain");
+    return nullptr;
+  }
+
+  uint32_t num_images;
+  vkGetSwapchainImagesKHR(m_device, swapchain, &num_images, nullptr);
+
+  swapchain_create_info info = _info;
+  info.num_buffers = num_images;
+
+  memory::unique_ptr<vulkan_swapchain_constructable> swp =
+      memory::make_unique_delegated<vulkan_swapchain_constructable>(
+          m_allocator, [](void* _memory) {
+            return new (_memory) vulkan_swapchain_constructable();
+          });
+  swp->set_create_info(info);
+  swp->initialize(m_allocator, this, _window->get_width(),
+      _window->get_height(), info, swapchain, surface);
+  return core::move(swp);
 }
 
 }  // namespace vulkan

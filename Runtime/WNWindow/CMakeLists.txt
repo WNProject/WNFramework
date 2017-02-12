@@ -15,9 +15,11 @@ add_wn_library(WNWindow
     inc/Internal/WNConfig.h.in
     src/WNWindow.cpp
     inc/WNWindow.h
+    inc/WNWindowEnums.h
+    inc/WNNullWindow.h
   LIBS
     WNMultiTasking
-    WNApplication
+    WNApplicationData
 )
 
 option(WN_ALLOW_DEFAULT_NULL_WINDOW

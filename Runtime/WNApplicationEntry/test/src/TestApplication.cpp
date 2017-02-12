@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNApplication/inc/WNApplicationData.h"
+#include "WNApplicationData/inc/WNApplicationData.h"
 
 int32_t wn_application_main(
     const wn::runtime::application::application_data* _data) {

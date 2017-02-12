@@ -17,7 +17,8 @@ namespace vulkan {
 static WN_FORCE_INLINE VkFlags resource_state_to_vulkan_access_flags(
     resource_state _state) {
   static const VkFlags states[] = {0, VK_ACCESS_TRANSFER_READ_BIT,
-      VK_ACCESS_TRANSFER_WRITE_BIT, VK_ACCESS_COLOR_ATTACHMENT_READ_BIT};
+      VK_ACCESS_TRANSFER_WRITE_BIT, VK_ACCESS_COLOR_ATTACHMENT_READ_BIT,
+      VK_ACCESS_MEMORY_READ_BIT};
 
   static_assert(sizeof(states) / sizeof(states[0]) ==
                     static_cast<uint32_t>(resource_state::max),
@@ -33,7 +34,8 @@ static WN_FORCE_INLINE VkImageLayout resource_state_to_vulkan_layout(
   static const VkImageLayout layouts[] = {VK_IMAGE_LAYOUT_UNDEFINED,
       VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
       VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-      VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL};
+      VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+      VK_IMAGE_LAYOUT_PRESENT_SRC_KHR};
 
   static_assert(sizeof(layouts) / sizeof(layouts[0]) ==
                     static_cast<uint32_t>(resource_state::max),
@@ -48,7 +50,8 @@ static WN_FORCE_INLINE VkFlags resource_state_to_vulkan_pipeline_stage(
     resource_state _state) {
   static const VkFlags states[] = {VK_PIPELINE_STAGE_HOST_BIT,
       VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT,
-      VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT};
+      VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+      VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
 
   static_assert(sizeof(states) / sizeof(states[0]) ==
                     static_cast<uint32_t>(resource_state::max),

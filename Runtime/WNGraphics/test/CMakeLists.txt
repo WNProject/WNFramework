@@ -13,3 +13,13 @@ wn_create_executable_tests_from_list(TEST_PREFIX WNGraphics
   LIBS
     WNGraphics
 )
+
+wn_create_application_tests_from_list(
+  TEST_PREFIX WNGraphics
+  SOURCE_DIR src/Tests
+  SOURCES
+    WNSwapchain
+  LIBS
+    WNGraphics
+    WNWindow
+)

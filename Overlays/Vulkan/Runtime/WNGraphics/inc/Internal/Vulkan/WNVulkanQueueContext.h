@@ -7,12 +7,10 @@
 #ifndef __WN_GRAPHICS_INTERNAL_VULKAN_VULKAN_QUEUE_CONTEXT_H__
 #define __WN_GRAPHICS_INTERNAL_VULKAN_VULKAN_QUEUE_CONTEXT_H__
 
+#include "WNGraphics/inc/Internal/Vulkan/WNVulkanInclude.h"
+
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNMemory/inc/WNIntrusivePtr.h"
-
-#define VK_NO_PROTOTYPES
-
-#include <vulkan.h>
 
 namespace wn {
 namespace graphics {
@@ -25,6 +23,7 @@ struct queue_context WN_FINAL {
   queue_context() : m_device(nullptr) {}
   vulkan_device* m_device;
   PFN_vkQueueSubmit vkQueueSubmit;
+  PFN_vkQueuePresentKHR vkQueuePresentKHR;
 };
 
 }  // namespace vulkan

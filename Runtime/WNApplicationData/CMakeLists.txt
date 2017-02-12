@@ -1,11 +1,9 @@
 enable_overlay_directory()
 
-add_wn_library(WNApplication
+add_wn_library(WNApplicationData
   SOURCES
     inc/WNApplicationData.h
-    src/WNApplicationEntry.cpp
+    src/WNApplicationData.cpp
   LIBS
     WNMultiTasking
 )
-
-add_subdirectory(test)

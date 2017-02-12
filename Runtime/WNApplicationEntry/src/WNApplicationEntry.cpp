@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNApplication/inc/WNApplicationData.h"
+#include "WNApplicationData/inc/WNApplicationData.h"
 #include "WNExecutable/inc/WNEntry.h"
 #include "WNLogging/inc/WNConsoleLogger.h"
 #include "WNMemory/inc/WNAllocator.h"

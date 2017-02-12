@@ -3,12 +3,12 @@
 // found in the LICENSE.txt file.
 
 #include "WNWindow/inc/WNWindowsWindow.h"
-#include "WNApplication/inc/WNApplicationData.h"
+#include "WNApplicationData/inc/WNApplicationData.h"
+#include "WNCore/inc/WNBase.h"
 #include "WNExecutable/inc/WNEntryData.h"
 #include "WNMultiTasking/inc/WNJobPool.h"
 
 #include <tchar.h>
-#include <windows.h>
 
 #define WN_WINDOW_CLASS_NAME _T("WNWindowClass")
 
@@ -61,17 +61,17 @@ window_error windows_window::initialize() {
 
 void windows_window::dispatch_loop(RECT rect) {
   m_job_pool->call_blocking_function([&]() {
-    m_window = CreateWindowEx(0, WN_WINDOW_CLASS_NAME, "", WS_OVERLAPPEDWINDOW,
-        rect.left, rect.right, rect.right - rect.left, rect.bottom - rect.top,
-        0, 0, GetModuleHandle(NULL), NULL);
+    m_window.handle = CreateWindowEx(0, WN_WINDOW_CLASS_NAME, "",
+        WS_OVERLAPPEDWINDOW, rect.left, rect.right, rect.right - rect.left,
+        rect.bottom - rect.top, 0, 0, GetModuleHandle(NULL), NULL);
 
     m_signal.increment(1);
-    if (!m_window) {
+    if (!m_window.handle) {
       DWORD err = GetLastError();
       LPTSTR buff;
       FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER, nullptr, err, 0,
           (LPTSTR)&buff, 1024, nullptr);
-      m_log->log_error("Failed to create Windows window: ", m_window);
+      m_log->log_error("Failed to create Windows window: ", m_window.handle);
       m_log->flush();
       LocalFree(buff);
       if (m_creation_signal) {
@@ -79,16 +79,19 @@ void windows_window::dispatch_loop(RECT rect) {
       }
       return;
     }
+    m_window.instance = reinterpret_cast<HINSTANCE>(
+        GetWindowLongPtr(m_window.handle, GWLP_HINSTANCE));
 
-    m_log->log_info("Created windows window ", m_window);
-    SetWindowLongPtr(m_window, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
-    ShowWindow(m_window, SW_SHOW);
+    m_log->log_info("Created windows window ", m_window.handle);
+    SetWindowLongPtr(
+        m_window.handle, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
+    ShowWindow(m_window.handle, SW_SHOW);
     if (m_creation_signal) {
       m_creation_signal->increment(1);
     }
 
     MSG msg;
-    while (GetMessage(&msg, m_window, 0, 0)) {
+    while (GetMessage(&msg, m_window.handle, 0, 0)) {
       m_log->log_info("Receieved Windows Message: ", msg.hwnd, ", ",
           msg.message, ", ", msg.wParam, ", ", msg.lParam);
       TranslateMessage(&msg);
@@ -118,9 +121,7 @@ LRESULT CALLBACK windows_window::wnd_proc(
     case WM_USER:
       if (wParam == static_cast<WPARAM>(lParam) && wParam == 0) {
         window->m_exit = true;
-
         PostQuitMessage(0);
-
         return -1;
       }
     case WM_DESTROY:

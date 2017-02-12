@@ -27,8 +27,16 @@ public:
   window_error initialize() override {
     return window_error::ok;
   }
-  bool is_valid() override {
+  bool is_valid() const override {
     return true;
+  }
+
+  virtual window_type type() const {
+    return window_type::null;
+  }
+
+  const void* get_native_handle() const override {
+    return nullptr;
   }
 };
 

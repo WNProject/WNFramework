@@ -10,6 +10,7 @@
 #include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/WNUniquePtr.h"
 #include "WNMultiTasking/inc/WNJobPool.h"
+#include "WNWindow/inc/WNWindowEnums.h"
 
 namespace wn {
 namespace memory {
@@ -28,8 +29,6 @@ struct application_data;
 namespace window {
 
 class window;
-
-enum class window_type { null, system };
 
 class window_factory {
 public:

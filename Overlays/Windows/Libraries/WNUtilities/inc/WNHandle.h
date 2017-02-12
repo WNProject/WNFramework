@@ -10,8 +10,6 @@
 #include "WNCore/inc/WNAssert.h"
 #include "WNCore/inc/WNUtility.h"
 
-#include <Windows.h>
-
 namespace wn {
 namespace utilities {
 namespace windows {

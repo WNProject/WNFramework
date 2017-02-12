@@ -7,7 +7,8 @@
 #ifndef __WN_LIBRARY_TEST_TEST_HARNESS_H__
 #define __WN_LIBRARY_TEST_TEST_HARNESS_H__
 
-#include "WNApplication/inc/WNApplicationData.h"
+#include "WNApplicationData/inc/WNApplicationData.h"
+#include "WNApplicationEntry/inc/WNApplicationEntry.h"
 #include "WNTestUtilities/inc/WNTestHarness.h"
 
 namespace wn {

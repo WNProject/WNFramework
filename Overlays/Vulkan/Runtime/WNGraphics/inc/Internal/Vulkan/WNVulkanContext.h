@@ -7,12 +7,9 @@
 #ifndef __WN_GRAPHICS_INTERNAL_VULKAN_VULKAN_CONTEXT_H__
 #define __WN_GRAPHICS_INTERNAL_VULKAN_VULKAN_CONTEXT_H__
 
+#include "WNGraphics/inc/Internal/Vulkan/WNVulkanInclude.h"
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNMemory/inc/WNIntrusivePtr.h"
-
-#define VK_NO_PROTOTYPES
-
-#include <vulkan.h>
 
 namespace wn {
 namespace graphics {

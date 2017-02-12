@@ -7,11 +7,13 @@
 #include "WNGraphics/inc/Internal/D3D12/WNFenceData.h"
 #include "WNGraphics/inc/Internal/D3D12/WNImageFormats.h"
 #include "WNGraphics/inc/Internal/D3D12/WNResourceStates.h"
+#include "WNGraphics/inc/Internal/D3D12/WNSwapchain.h"
 #include "WNGraphics/inc/WNCommandAllocator.h"
 #include "WNGraphics/inc/WNFence.h"
 #include "WNGraphics/inc/WNHeap.h"
 #include "WNGraphics/inc/WNHeapTraits.h"
 #include "WNGraphics/inc/WNImage.h"
+#include "WNGraphics/inc/WNSwapchain.h"
 #include "WNLogging/inc/WNLog.h"
 
 #ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
@@ -21,6 +23,11 @@
 #include "WNGraphics/inc/WNCommandList.h"
 #include "WNGraphics/inc/WNQueue.h"
 #endif
+
+#include "WNWindow/inc/WNWindow.h"
+#include "WNWindow/inc/WNWindowsWindow.h"
+
+#include <DXGI1_4.h>
 
 namespace wn {
 namespace graphics {
@@ -68,9 +75,11 @@ const D3D12_COMMAND_QUEUE_DESC s_command_queue_props = {
 #ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
 using d3d12_command_list_constructable = d3d12_command_list;
 using d3d12_queue_constructable = d3d12_queue;
+using d3d12_swapchain_constructable = d3d12_swapchain;
 #else
 using d3d12_command_list_constructable = command_list;
 using d3d12_queue_constructable = queue;
+using d3d12_swapchain_constructable = swapchain;
 #endif
 
 }  // anonymous namespace
@@ -419,6 +428,58 @@ void d3d12_device::destroy_image(image* _image) {
   Microsoft::WRL::ComPtr<ID3D12Resource>& resource =
       _image->data_as<Microsoft::WRL::ComPtr<ID3D12Resource>>();
   resource.Reset();
+}
+
+swapchain_ptr d3d12_device::create_swapchain(const swapchain_create_info& _info,
+    queue* _queue, runtime::window::window* _window) {
+  memory::unique_ptr<d3d12_swapchain_constructable> swapchain =
+      memory::make_unique_delegated<d3d12_swapchain_constructable>(
+          m_allocator, [](void* _memory) {
+            return new (_memory) d3d12_swapchain_constructable();
+          });
+  WN_DEBUG_ASSERT_DESC(
+      _info.mode != swap_mode::fifo_relaxed, "Not Implemented: fifo_relaxed");
+
+  DXGI_SWAP_EFFECT swap_effect;
+  bool discard = _info.discard == discard_policy::discard;
+  swap_effect = discard ? DXGI_SWAP_EFFECT_FLIP_DISCARD
+                        : DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
+
+  WN_RELEASE_ASSERT_DESC(
+      _window->type() == runtime::window::window_type::system,
+      "Unsupported: Null-windows");
+  const runtime::window::native_handle* handle =
+      reinterpret_cast<const runtime::window::native_handle*>(
+          _window->get_native_handle());
+
+  DXGI_SWAP_CHAIN_DESC1 swapchain_desc = {_window->get_width(),
+      _window->get_height(), image_format_to_dxgi_format(_info.format), false,
+      {1, 0},                           // SampleDesc
+      DXGI_USAGE_RENDER_TARGET_OUTPUT,  // Usage
+      _info.num_buffers, DXGI_SCALING_STRETCH, swap_effect,
+      DXGI_ALPHA_MODE_IGNORE};
+  swapchain->set_create_info(_info);
+
+  d3d12_queue* q = reinterpret_cast<d3d12_queue*>(_queue);
+
+  Microsoft::WRL::ComPtr<IDXGISwapChain1> swap;
+
+  const HRESULT hr = m_factory->CreateSwapChainForHwnd(q->m_queue.Get(),
+      handle->handle, &swapchain_desc, nullptr, nullptr, &swap);
+
+  if (FAILED(hr)) {
+    m_log->log_error("Could not successfully create swapchain.");
+    return nullptr;
+  }
+
+  Microsoft::WRL::ComPtr<IDXGISwapChain3> swp3;
+  if (0 != swap.As(&swp3)) {
+    m_log->log_error("Could not successfully create swapchain.");
+    return nullptr;
+  }
+  swapchain->initialize(m_allocator, this, _window->get_width(),
+      _window->get_height(), _info, core::move(swp3));
+  return core::move(swapchain);
 }
 
 }  // namespace d3d12

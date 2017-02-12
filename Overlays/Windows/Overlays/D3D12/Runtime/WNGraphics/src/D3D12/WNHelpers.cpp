@@ -150,8 +150,8 @@ void enumerate_adapters(memory::allocator* _allocator, logging::log* _log,
               }));
 
       if (ptr) {
-        ptr->initialize(core::move(dxgi_adapter), core::move(name),
-            static_cast<uint32_t>(dxgi_adapter_desc.DeviceId),
+        ptr->initialize(core::move(dxgi_adapter), dxgi_factory,
+            core::move(name), static_cast<uint32_t>(dxgi_adapter_desc.DeviceId),
             static_cast<uint32_t>(dxgi_adapter_desc.VendorId));
       }
 

@@ -7,7 +7,7 @@
 #ifndef __WN_GRAPHICS_INTERNAL_VULKAN_IMAGE_H__
 #define __WN_GRAPHICS_INTERNAL_VULKAN_IMAGE_H__
 
-#include <vulkan.h>
+#include "WNGraphics/inc/Internal/Vulkan/WNVulkanInclude.h"
 
 namespace wn {
 namespace graphics {

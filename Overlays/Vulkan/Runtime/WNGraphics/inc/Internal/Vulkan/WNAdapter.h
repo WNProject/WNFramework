@@ -11,6 +11,7 @@
 #include "WNContainers/inc/WNString.h"
 #include "WNContainers/inc/WNStringView.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanContext.h"
+#include "WNGraphics/inc/Internal/Vulkan/WNVulkanInclude.h"
 
 #include "WNGraphics/inc/Internal/WNConfig.h"
 #include "WNLogging/inc/WNLog.h"
@@ -23,9 +24,6 @@
 #include "WNCore/inc/WNUtility.h"
 #endif
 
-#define VK_NO_PROTOTYPES
-
-#include <vulkan.h>
 
 namespace wn {
 namespace memory {

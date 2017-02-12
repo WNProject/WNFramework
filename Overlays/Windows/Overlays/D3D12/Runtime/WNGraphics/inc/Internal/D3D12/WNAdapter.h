@@ -20,7 +20,7 @@
 #include "WNCore/inc/WNUtility.h"
 #endif
 
-#include <DXGI.h>
+#include <DXGI1_4.h>
 #include <wrl.h>
 
 namespace wn {
@@ -88,16 +88,19 @@ protected:
 
   WN_FORCE_INLINE void initialize(
       Microsoft::WRL::ComPtr<IDXGIAdapter1>&& _dxgi_adapter,
+      Microsoft::WRL::ComPtr<IDXGIFactory4> _dxgi_factory,
       containers::string&& _name, const uint32_t _vendor_id,
       const uint32_t _device_id) {
     m_adapter = core::move(_dxgi_adapter);
     m_name = std::move(_name);
     m_vendor_id = _vendor_id;
     m_device_id = _device_id;
+    m_factory = _dxgi_factory;
     m_api = api_type::d3d12;
   }
 
   Microsoft::WRL::ComPtr<IDXGIAdapter1> m_adapter;
+  Microsoft::WRL::ComPtr<IDXGIFactory4> m_factory;
   containers::string m_name;
   api_type m_api;
   uint32_t m_vendor_id;

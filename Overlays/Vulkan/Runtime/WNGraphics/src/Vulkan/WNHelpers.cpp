@@ -104,6 +104,10 @@ memory::intrusive_ptr<vulkan_context> get_vulkan_context(
       VK_MAKE_VERSION(1, 0, 0)             // apiVersion;
   };
 
+  const size_t num_extensions = 2;
+  const char* instance_extensions[num_extensions] = {
+      VK_KHR_SURFACE_EXTENSION_NAME, VK_SURFACE_EXTENSION};
+
   VkInstanceCreateInfo create_info{
       VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,  // sType
       nullptr,                                 // pNext;
@@ -111,8 +115,8 @@ memory::intrusive_ptr<vulkan_context> get_vulkan_context(
       &app_info,                               // pApplicationInfo;
       0,                                       // enabledLayerCount;
       nullptr,                                 // ppEnabledLayerNames;
-      0,                                       // enabledExtensionCount;
-      nullptr,                                 // ppEnabledExtensionNames;
+      num_extensions,                          // enabledExtensionCount;
+      instance_extensions,                     // ppEnabledExtensionNames;
   };
 
   if (context->vkCreateInstance(&create_info, nullptr, &context->instance) !=

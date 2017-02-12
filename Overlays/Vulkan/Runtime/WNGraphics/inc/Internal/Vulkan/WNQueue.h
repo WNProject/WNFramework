@@ -7,6 +7,7 @@
 #ifndef __WN_GRAPHICS_INC_INTERNAL_VULKAN_QUEUE_H__
 #define __WN_GRAPHICS_INC_INTERNAL_VULKAN_QUEUE_H__
 
+#include "WNGraphics/inc/Internal/Vulkan/WNVulkanInclude.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanQueueContext.h"
 #include "WNGraphics/inc/Internal/WNConfig.h"
 
@@ -15,10 +16,6 @@
 #else
 #include "WNCore/inc/WNUtility.h"
 #endif
-
-#define VK_NO_PROTOTYPES
-
-#include <vulkan.h>
 
 namespace wn {
 namespace graphics {
@@ -56,6 +53,21 @@ public:
 
 protected:
   friend class vulkan_device;
+  friend class vulkan_swapchain;
+
+  VkResult present(VkSwapchainKHR swapchain, uint32_t index) {
+    VkPresentInfoKHR info{
+        VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,  // sType
+        nullptr,                             // pNext
+        0,                                   // waitSempahoreCount
+        nullptr,                             // pWaitSemaphores
+        1,                                   // swapchainCount
+        &swapchain,                          // pSwapchains
+        &index,                              // pImageIndices
+        nullptr                              // pResults
+    };
+    return m_queue_context->vkQueuePresentKHR(m_queue, &info);
+  }
 
   WN_FORCE_INLINE vulkan_queue()
     : vulkan_queue_base(),

@@ -53,6 +53,9 @@ expand_list(WN_HELPER_INCLUDES "#include \"WNGraphics/src/"
   "/WNHelpers.h\"" "\n" ${WN_GRAPHICS_DEVICE_TYPES_ENABLED})
 expand_list(WN_QUEUE_INCLUDES "#include \"WNGraphics/inc/Internal/"
   "/WNQueue.h\"" "\n" ${WN_GRAPHICS_DEVICE_TYPES_ENABLED})
+  expand_list(WN_SWAPCHAIN_INCLUDES "#include \"WNGraphics/inc/Internal/"
+  "/WNSwapchain.h\"" "\n" ${WN_GRAPHICS_DEVICE_TYPES_ENABLED})
+
 
 if (${WN_GRAPHICS_ALLOW_REFERENCE_DEVICES})
   message(STATUS "Graphics Reference Devices: Allowed")
@@ -80,6 +83,8 @@ configure_file(inc/Internal/WNDeviceIncludes.h.in
   inc/Internal/WNDeviceIncludes.h)
 configure_file(inc/Internal/WNQueueIncludes.h.in
   inc/Internal/WNQueueIncludes.h)
+configure_file(inc/Internal/WNSwapchainIncludes.h.in
+  inc/Internal/WNSwapchainIncludes.h)
 
 add_wn_library(WNGraphics
   SOURCES
@@ -95,6 +100,8 @@ add_wn_library(WNGraphics
     ${CMAKE_CURRENT_BINARY_DIR}/inc/Internal/WNHelperIncludes.h
     inc/Internal/WNQueueIncludes.h.in
     ${CMAKE_CURRENT_BINARY_DIR}/inc/Internal/WNQueueIncludes.h
+    inc/Internal/WNSwapchainIncludes.h.in
+    ${CMAKE_CURRENT_BINARY_DIR}/inc/Internal/WNSwapchainIncludes.h
     inc/WNAdapter.h
     inc/WNCommandAllocator.h
     inc/WNCommandList.h
@@ -104,11 +111,15 @@ add_wn_library(WNGraphics
     inc/WNHeap.h
     inc/WNHeapTraits.h
     inc/WNImage.h
+    inc/WNImageFormats.h
     inc/WNQueue.h
+    inc/WNSwapchain.h
     inc/WNResourceStates.h
     src/WNDevice.cpp
     src/WNFactory.cpp
     src/WNQueue.cpp
+  LIBS
+    WNWindow
 )
 
 string(REPLACE ";" "," WN_GRAPHICS_DEVICE_TYPES_ENABLED_LIST

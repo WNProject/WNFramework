@@ -11,7 +11,8 @@ foreach(overlay ${WN_ENABLED_OVERLAYS})
   include_directories(${overlay}/Runtime)
 endforeach()
 
-add_subdirectory(WNApplication)
+add_subdirectory(WNApplicationData)
+add_subdirectory(WNApplicationEntry)
 add_subdirectory(WNApplicationTest)
 
 function(wn_create_application_tests_from_list)

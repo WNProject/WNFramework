@@ -9,16 +9,15 @@
 
 #include "WNGraphics/inc/Internal/WNConfig.h"
 #include "WNGraphics/inc/WNDevice.h"
+#include "WNGraphics/inc/WNImageFormats.h"
 #include "WNGraphics/inc/WNResourceStates.h"
 #include "WNMemory/inc/WNBasic.h"
 
-WN_GRAPHICS_FORWARD(device)
-WN_GRAPHICS_FORWARD(command_list)
+WN_GRAPHICS_FORWARD(device);
+WN_GRAPHICS_FORWARD(command_list);
 
 namespace wn {
 namespace graphics {
-
-enum class image_format { r8g8b8a8_unorm, max };
 
 struct image_create_info {
   static image_create_info default_texture(size_t _width, size_t _height) {
@@ -63,13 +62,17 @@ public:
   }
 
   WN_FORCE_INLINE ~image() {
-    if (is_valid()) {
+    if (is_valid() && !m_is_swapchain_image) {
       m_device->destroy_image(this);
     }
   }
 
   WN_FORCE_INLINE bool is_valid() const {
     return (m_device != nullptr);
+  }
+
+  WN_FORCE_INLINE bool is_swapchain_image() const {
+    return m_is_swapchain_image;
   }
 
   const image_buffer_resource_info& get_resource_info() const {
@@ -85,11 +88,12 @@ public:
   }
 
 private:
-public:
-  WN_GRAPHICS_ADD_FRIENDS(device)
-  WN_GRAPHICS_ADD_FRIENDS(command_list)
+  WN_GRAPHICS_ADD_FRIENDS(device);
+  WN_GRAPHICS_ADD_FRIENDS(command_list);
+  WN_GRAPHICS_ADD_FRIENDS(swapchain);
 
-  WN_FORCE_INLINE image(device* _device) : m_device(_device), m_data({0}) {}
+  WN_FORCE_INLINE image(device* _device)
+    : m_device(_device), m_data({0}), m_is_swapchain_image(false) {}
 
   template <typename T>
   WN_FORCE_INLINE T& data_as() {
@@ -115,6 +119,7 @@ public:
   } m_data;
 
   image_buffer_resource_info m_resource_info;
+  bool m_is_swapchain_image;
   device* m_device;
 };
 

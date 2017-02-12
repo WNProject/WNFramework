@@ -24,6 +24,7 @@ enum class resource_state {
   copy_source,
   copy_dest,
   render_target,
+  present,
   max
 };
 

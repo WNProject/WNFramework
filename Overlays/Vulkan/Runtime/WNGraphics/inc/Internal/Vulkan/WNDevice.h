@@ -9,11 +9,14 @@
 
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanCommandListContext.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanContext.h"
+#include "WNGraphics/inc/Internal/Vulkan/WNVulkanInclude.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanQueueContext.h"
+#include "WNGraphics/inc/Internal/Vulkan/WNVulkanSurfaceHelper.h"
 #include "WNGraphics/inc/Internal/WNConfig.h"
 #include "WNGraphics/inc/WNHeapTraits.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/WNUniquePtr.h"
+#include "WNWindow/inc/WNWindow.h"
 
 #ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
 #include "WNGraphics/inc/WNDevice.h"
@@ -22,10 +25,6 @@
 #endif
 
 #include <atomic>
-
-#define VK_NO_PROTOTYPES
-
-#include <vulkan.h>
 
 namespace wn {
 namespace memory {
@@ -42,9 +41,12 @@ class fence;
 class queue;
 struct image_create_info;
 class image;
+class swapchain;
+struct swapchain_create_info;
 
 using queue_ptr = memory::unique_ptr<queue>;
 using command_list_ptr = memory::unique_ptr<command_list>;
+using swapchain_ptr = memory::unique_ptr<swapchain>;
 
 namespace internal {
 namespace vulkan {
@@ -67,10 +69,14 @@ public:
   size_t get_image_upload_buffer_alignment() WN_GRAPHICS_OVERRIDE_FINAL;
   size_t get_buffer_upload_buffer_alignment() WN_GRAPHICS_OVERRIDE_FINAL;
 
+  swapchain_ptr create_swapchain(const swapchain_create_info& _info,
+      queue* queue, runtime::window::window* window) WN_GRAPHICS_OVERRIDE_FINAL;
+
 protected:
   friend class graphics::fence;
   friend class graphics::queue;
   friend class vulkan_queue;
+  friend class vulkan_swapchain;
   friend class vulkan_adapter;
   friend class vulkan_command_list;
 
@@ -143,6 +149,8 @@ protected:
 
   uint32_t get_memory_type_index(uint32_t _types, VkFlags _properties) const;
 
+  surface_helper m_surface_helper;
+
   PFN_vkGetDeviceProcAddr vkGetDeviceProcAddr;
   PFN_vkGetDeviceQueue vkGetDeviceQueue;
   PFN_vkDestroyDevice vkDestroyDevice;
@@ -181,10 +189,17 @@ protected:
   PFN_vkGetBufferMemoryRequirements vkGetBufferMemoryRequirements;
   PFN_vkBeginCommandBuffer vkBeginCommandBuffer;
 
+  // Swapchain
+  PFN_vkCreateSwapchainKHR vkCreateSwapchainKHR;
+  PFN_vkGetSwapchainImagesKHR vkGetSwapchainImagesKHR;
+  PFN_vkAcquireNextImageKHR vkAcquireNextImageKHR;
+  PFN_vkDestroySwapchainKHR vkDestroySwapchainKHR;
+
   queue_context m_queue_context;
   command_list_context m_command_list_context;
   std::atomic<VkQueue> m_queue;
   VkDevice m_device;
+
   const VkPhysicalDeviceMemoryProperties* m_physical_device_memory_properties;
   memory::allocator* m_allocator;
   logging::log* m_log;

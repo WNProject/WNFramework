@@ -9,6 +9,7 @@
 #include "WNGraphics/inc/WNHeap.h"
 #include "WNGraphics/inc/WNHeapTraits.h"
 #include "WNGraphics/inc/WNImage.h"
+#include "WNGraphics/inc/WNSwapchain.h"
 
 namespace wn {
 namespace graphics {

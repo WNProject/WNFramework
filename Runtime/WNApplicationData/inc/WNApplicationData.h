@@ -7,11 +7,13 @@
 #ifndef __WN_RUNTIME_APPLICATION_APPLICATION_DATA_H__
 #define __WN_RUNTIME_APPLICATION_APPLICATION_DATA_H__
 
-#include "WNApplication/inc/WNApplicationHelper.h"
 #include "WNExecutable/inc/WNEntry.h"
 #include "WNLogging/inc/WNLog.h"
 
 namespace wn {
+namespace entry {
+struct system_data;
+}  // namespace entry
 namespace memory {
 
 class allocator;

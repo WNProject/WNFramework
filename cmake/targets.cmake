@@ -384,7 +384,7 @@ function (add_wn_application name)
       ${PARSED_ARGS_SOURCES}
     LIBS
       WNExecutable
-      WNApplication
+      WNApplicationEntry
       ${PARSED_ARGS_LIBS}
   )
 endfunction()

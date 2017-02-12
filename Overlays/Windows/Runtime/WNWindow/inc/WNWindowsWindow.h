@@ -26,6 +26,11 @@ struct application_data;
 }  // namespace application
 namespace window {
 
+struct native_handle {
+  HWND handle;
+  HINSTANCE instance;
+};
+
 class windows_window : public window {
 public:
   windows_window(logging::log* _log, multi_tasking::job_pool* _job_pool,
@@ -40,19 +45,35 @@ public:
       m_width(_width),
       m_height(_height),
       m_exit(false),
-      m_window(0),
+      m_window({0}),
       m_signal(_job_pool, 0),
       m_creation_signal(_creation_signal) {}
   ~windows_window() {
     m_signal.wait_until(1);
-    if (m_window) {
-      SendNotifyMessage(m_window, WM_USER, 0, 0);
+    if (m_window.handle) {
+      SendNotifyMessage(m_window.handle, WM_USER, 0, 0);
       m_signal.wait_until(2);
     }
   }
   window_error initialize() override;
-  bool is_valid() override {
-    return m_window != 0;
+  bool is_valid() const override {
+    return m_window.handle != 0;
+  }
+
+  virtual window_type type() const {
+    return window_type::system;
+  }
+
+  const void* get_native_handle() const override {
+    return reinterpret_cast<const void*>(&m_window);
+  }
+
+  uint32_t get_width() const override {
+    return m_width;
+  }
+
+  uint32_t get_height() const override {
+    return m_height;
   }
 
 private:
@@ -70,7 +91,7 @@ private:
   uint32_t m_width;
   uint32_t m_height;
   bool m_exit;
-  HWND m_window;
+  native_handle m_window;
   multi_tasking::job_signal m_signal;
   multi_tasking::job_signal* m_creation_signal;
 };
