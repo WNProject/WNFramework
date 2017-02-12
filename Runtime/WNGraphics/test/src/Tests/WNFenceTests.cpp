@@ -23,7 +23,7 @@ TEST_F(fence_test, many_sizes) {
 
     ASSERT_TRUE(my_fence.is_valid());
 
-    queue->enqueue_signal(my_fence);
+    queue->enqueue_fence(my_fence);
     my_fence.wait();
   }
   m_log->flush();

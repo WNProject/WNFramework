@@ -21,7 +21,7 @@
 WN_GRAPHICS_FORWARD(device);
 WN_GRAPHICS_FORWARD(queue);
 WN_GRAPHICS_FORWARD(adapter);
-WN_GRAPHICS_FORWARD(image)
+WN_GRAPHICS_FORWARD(image);
 
 namespace wn {
 namespace graphics {

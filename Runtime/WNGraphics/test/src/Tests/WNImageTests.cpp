@@ -77,7 +77,7 @@ TEST_P(image_transfer_tests, many_sizes) {
     }
 
     queue->enqueue_command_list(list.get());
-    queue->enqueue_signal(completion_fence);
+    queue->enqueue_fence(completion_fence);
 
     completion_fence.wait();
 
@@ -184,7 +184,7 @@ TEST_P(image_transfer_with_offset_tests, several_offsets) {
     }
 
     queue->enqueue_command_list(list.get());
-    queue->enqueue_signal(completion_fence);
+    queue->enqueue_fence(completion_fence);
 
     completion_fence.wait();
 

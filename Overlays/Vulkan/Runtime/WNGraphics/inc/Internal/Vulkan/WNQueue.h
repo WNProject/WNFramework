@@ -45,7 +45,7 @@ public:
   ~vulkan_queue() WN_GRAPHICS_OVERRIDE_FINAL = default;
 #endif
 
-  void enqueue_signal(fence& _fence) WN_GRAPHICS_OVERRIDE_FINAL;
+  void enqueue_fence(fence& _fence) WN_GRAPHICS_OVERRIDE_FINAL;
 
   void enqueue_command_list(
       command_list* _command_list) WN_GRAPHICS_OVERRIDE_FINAL;

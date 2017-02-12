@@ -26,7 +26,7 @@ d3d12_queue::~d3d12_queue() {
 }
 #endif
 
-void d3d12_queue::enqueue_signal(fence& _fence) {
+void d3d12_queue::enqueue_fence(fence& _fence) {
   fence_data& data = _fence.data_as<fence_data>();
 
   m_queue->Signal(data.fence.Get(), 1);

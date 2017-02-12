@@ -23,7 +23,7 @@ vulkan_queue::~vulkan_queue() {
 }
 #endif
 
-void vulkan_queue::enqueue_signal(fence& _fence) {
+void vulkan_queue::enqueue_fence(fence& _fence) {
   m_queue_context->vkQueueSubmit(m_queue, 0, 0, _fence.data_as<VkFence>());
 }
 

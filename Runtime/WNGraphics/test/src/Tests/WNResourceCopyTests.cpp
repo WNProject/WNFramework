@@ -48,7 +48,7 @@ TEST_P(heap_copy_test, many_sizes) {
     }
 
     queue->enqueue_command_list(list.get());
-    queue->enqueue_signal(completion_fence);
+    queue->enqueue_fence(completion_fence);
 
     completion_fence.wait();
 

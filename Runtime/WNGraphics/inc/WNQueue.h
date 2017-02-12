@@ -41,7 +41,7 @@ public:
 #ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
   virtual bool is_valid() const = 0;
 
-  virtual void enqueue_signal(fence& _fence) = 0;
+  virtual void enqueue_fence(fence& _fence) = 0;
   virtual void enqueue_command_list(command_list* _command_list) = 0;
 
   // Note; You must call device->destroy_queue in your
