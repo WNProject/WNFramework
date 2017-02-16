@@ -12,6 +12,11 @@ option(WN_GRAPHICS_ALLOW_REFERENCE_DEVICES
   ${WN_GRAPHICS_ALLOW_REFERENCE_DEVICES}
 )
 
+option(WN_GRAPHICS_ALLOW_DEBUG_MODE
+  "Whether or not debug mode is allowed"
+  ${WN_GRAPHICS_ALLOW_DEBUG_MODE}
+)
+
 string(REPLACE "," ";" WN_GRAPHICS_DEVICE_TYPES "${WN_GRAPHICS_DEVICE_TYPES}")
 
 list(LENGTH WN_GRAPHICS_DEVICE_TYPES_ENABLED
@@ -54,6 +59,13 @@ if (${WN_GRAPHICS_ALLOW_REFERENCE_DEVICES})
   set(_WN_GRAPHICS_ALLOW_REFERENCE_DEVICES true)
 else()
   message(STATUS "Graphics Reference Devices: Not Allowed")
+endif()
+
+if (${WN_GRAPHICS_ALLOW_DEBUG_MODE})
+  message(STATUS "Graphics Debug Mode: Allowed")
+  set(_WN_GRAPHICS_ALLOW_DEBUG_MODE true)
+else()
+  message(STATUS "Graphics Debug Mode: Not Allowed")
 endif()
 
 configure_file(inc/Internal/WNConfig.h.in
