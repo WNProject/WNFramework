@@ -6,6 +6,17 @@
 if (WN_OVERLAY_IS_ENABLED)
   string(TOLOWER ${ANDROID_NDK_HOST_SYSTEM_NAME} ANDROID_SYSTEM_LOWER)
   set_overlay_var(WN_LLVM_TRIPLE ${ANDROID_LLVM_TRIPLE})
+  if(${ANDROID_SYSROOT_ABI} STREQUAL "arm")
+    set_overlay_var(WN_LLVM_TARGET "ARM")
+  elseif (${ANDROID_SYSROOT_ABI} STREQUAL "arm64")
+    set_overlay_var(WN_LLVM_TARGET "AARCH64")
+  elseif(${ANDROID_SYSROOT_ABI} STREQUAL "x86")
+    set_overlay_var(WN_LLVM_TARGET "X86")
+  elseif(${ANDROID_SYSROOT_ABI} STREQUAL "x86_64")
+    set_overlay_var(WN_LLVM_TARGET "X86")
+  endif()
+
+
   if (${ANDROID_SYSTEM_LOWER} STREQUAL "windows" OR
     ${ANDROID_SYSTEM_LOWER} STREQUAL "windows-x86_64")
     set_overlay_var(WN_LLVM_CXX_COMPILER "cl.exe")

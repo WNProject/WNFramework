@@ -16,6 +16,9 @@
 #pragma warning(disable : 4267)
 #pragma warning(disable : 4512)
 #pragma warning(disable : 4310)
+#pragma warning(disable : 4146)
+#pragma warning(disable : 4141)
+#pragma warning(disable : 4324)
 #endif
 
 #include <llvm/IR/BasicBlock.h>
@@ -43,8 +46,8 @@
 #pragma warning(pop)
 #endif
 
-#include "WNContainers/inc/WNContiguousRange.h"
 #include "WNContainers/inc/WNArray.h"
+#include "WNContainers/inc/WNContiguousRange.h"
 #include "WNContainers/inc/WNDynamicArray.h"
 #include "WNContainers/inc/WNList.h"
 #include "WNFileSystem/inc/WNMapping.h"
@@ -92,7 +95,7 @@ struct object {
 // allocator for this.
 
 // Temp this is going to have to change.
-void* allocate_shared(size_t i, void(*_destructor)(void*)) {
+void* allocate_shared(size_t i, void (*_destructor)(void*)) {
   object* obj = static_cast<object*>(memory::malloc(sizeof(object) + i));
   obj->ref_count = 0;
   obj->destructor = _destructor;
@@ -101,7 +104,8 @@ void* allocate_shared(size_t i, void(*_destructor)(void*)) {
 
 // Temp this is going to have to change.
 void deref_shared(uint8_t* val) {
-  if (val == nullptr) return;
+  if (val == nullptr)
+    return;
   object* obj = (object*)(val - sizeof(object));
   if (obj->ref_count.fetch_sub(1) == 1) {
     obj->destructor(val);
@@ -125,60 +129,55 @@ void* return_shared(uint8_t* a) {
 }
 
 namespace {
-  class CustomMemoryManager : public llvm::SectionMemoryManager {
-  public:
-    CustomMemoryManager(logging::log* _log) : m_log(_log) {}
+class CustomMemoryManager : public llvm::SectionMemoryManager {
+public:
+  CustomMemoryManager(logging::log* _log) : m_log(_log) {}
 
-    llvm::RuntimeDyld::SymbolInfo findSymbol(const std::string &Name) override {
-      m_log->log_info("Resolving ", Name.c_str(), ".");
-      if (Name == "_Z3wns16_allocate_sharedEvpsfp") {
-        return llvm::RuntimeDyld::SymbolInfo(
-            reinterpret_cast<uint64_t>(&allocate_shared),
-            llvm::JITSymbolFlags::Exported);
-      } else if (Name == "_Z3wns13_deref_sharedEvvp") {
-        return llvm::RuntimeDyld::SymbolInfo(
-            reinterpret_cast<uint64_t>(&deref_shared),
-            llvm::JITSymbolFlags::Exported);
-      } else if (Name == "_Z3wns14_assign_sharedEvpvpvp") {
-        return llvm::RuntimeDyld::SymbolInfo(
-            reinterpret_cast<uint64_t>(&assign_shared),
-            llvm::JITSymbolFlags::Exported);
-      } else if (Name == "_Z3wns14_return_sharedEvpvp") {
-        return llvm::RuntimeDyld::SymbolInfo(
-            reinterpret_cast<uint64_t>(&return_shared),
-            llvm::JITSymbolFlags::Exported);
-      }
+  llvm::JITSymbol findSymbol(const std::string& Name) override {
+    m_log->log_info("Resolving ", Name.c_str(), ".");
+    if (Name == "_Z3wns16_allocate_sharedEvpsfp") {
+      return llvm::JITSymbol(reinterpret_cast<uint64_t>(&allocate_shared),
+          llvm::JITSymbolFlags::Exported);
+    } else if (Name == "_Z3wns13_deref_sharedEvvp") {
+      return llvm::JITSymbol(reinterpret_cast<uint64_t>(&deref_shared),
+          llvm::JITSymbolFlags::Exported);
+    } else if (Name == "_Z3wns14_assign_sharedEvpvpvp") {
+      return llvm::JITSymbol(reinterpret_cast<uint64_t>(&assign_shared),
+          llvm::JITSymbolFlags::Exported);
+    } else if (Name == "_Z3wns14_return_sharedEvpvp") {
+      return llvm::JITSymbol(reinterpret_cast<uint64_t>(&return_shared),
+          llvm::JITSymbolFlags::Exported);
+    }
 #if defined(_WN_WINDOWS)
 #if defined(_WN_64_BIT)
-      // On windows64, enable _chkstk. LLVM generates calls
-      // to this.
-      if (Name == "__chkstk") {
-        return llvm::RuntimeDyld::SymbolInfo(
-            reinterpret_cast<uint64_t>(&__chkstk),
-            llvm::JITSymbolFlags::Exported);
-      }
-#else
-      // On windows32, enable _chkstk. LLVM generates calls
-      // to this.
-      if (Name == "_chkstk") {
-        return llvm::RuntimeDyld::SymbolInfo(
-            reinterpret_cast<uint64_t>(&_chkstk),
-            llvm::JITSymbolFlags::Exported);
-      }
-#endif
-#endif
-      return llvm::RuntimeDyld::SymbolInfo(0, llvm::JITSymbolFlags::Exported);
+    // On windows64, enable _chkstk. LLVM generates calls
+    // to this.
+    if (Name == "__chkstk") {
+      return llvm::JITSymbol(reinterpret_cast<uint64_t>(&__chkstk),
+          llvm::JITSymbolFlags::Exported);
     }
+#else
+    // On windows32, enable _chkstk. LLVM generates calls
+    // to this.
+    if (Name == "_chkstk") {
+      return llvm::JITSymbol(
+          reinterpret_cast<uint64_t>(&_chkstk), llvm::JITSymbolFlags::Exported);
+    }
+#endif
+#endif
+    return llvm::JITSymbol(0, llvm::JITSymbolFlags::Exported);
+  }
 
-  private:
-    logging::log* m_log;
-  };
+private:
+  logging::log* m_log;
+};
 }
 
 CompiledModule::CompiledModule() : m_module(nullptr) {}
 
 CompiledModule::CompiledModule(CompiledModule&& _other)
-  : m_engine(core::move(_other.m_engine)), m_module(core::move(_other.m_module)) {
+  : m_engine(core::move(_other.m_engine)),
+    m_module(core::move(_other.m_module)) {
   _other.m_module = nullptr;
 }
 
@@ -207,10 +206,10 @@ CompiledModule& jit_engine::add_module(containers::string_view _file) {
   CompiledModule& code_module = m_modules.back();
   code_module.m_module = module.get();
 
-  #ifdef WN_LLVM_OVERRIDDEN_TRIPLE
-    code_module.m_module->setTargetTriple(
+#ifdef WN_LLVM_OVERRIDDEN_TRIPLE
+  code_module.m_module->setTargetTriple(
       llvm::Triple::normalize(internal::llvm_triple));
-  #endif
+#endif
 
   llvm::EngineBuilder builder(core::move(module));
   builder.setEngineKind(llvm::EngineKind::JIT);
@@ -231,17 +230,14 @@ parse_error jit_engine::parse_file(const char* _file) {
   }
 
   containers::array<uint32_t, 2> allocate_shared_params = {
-    static_cast<uint32_t>(type_classification::size_type),
-    static_cast<uint32_t>(type_classification::function_ptr_type)
-  };
+      static_cast<uint32_t>(type_classification::size_type),
+      static_cast<uint32_t>(type_classification::function_ptr_type)};
 
   containers::array<uint32_t, 1> deref_shared_params = {
-    static_cast<uint32_t>(type_classification::void_ptr_type)
-  };
+      static_cast<uint32_t>(type_classification::void_ptr_type)};
   containers::array<uint32_t, 2> assign_params = {
-    static_cast<uint32_t>(type_classification::void_ptr_type),
-    static_cast<uint32_t>(type_classification::void_ptr_type)
-  };
+      static_cast<uint32_t>(type_classification::void_ptr_type),
+      static_cast<uint32_t>(type_classification::void_ptr_type)};
 
   // We have a set of functions that we MUST expose to the scripting
   // engine.
@@ -253,8 +249,7 @@ parse_error jit_engine::parse_file(const char* _file) {
       static_cast<uint32_t>(type_classification::void_type),
       deref_shared_params};
   required_functions[2] = {"_assign_shared",
-      static_cast<uint32_t>(type_classification::void_ptr_type),
-      assign_params};
+      static_cast<uint32_t>(type_classification::void_ptr_type), assign_params};
   // _return_shared is a little bit special.
   // It dereferences a value, but does not delete the object if it
   // ends up being 0. This will get injected at return sites,

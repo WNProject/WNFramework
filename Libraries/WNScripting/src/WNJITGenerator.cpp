@@ -16,6 +16,9 @@
 #pragma warning(disable : 4267)
 #pragma warning(disable : 4512)
 #pragma warning(disable : 4310)
+#pragma warning(disable : 4146)
+#pragma warning(disable : 4141)
+#pragma warning(disable : 4324)
 #endif
 
 #include <llvm/IR/BasicBlock.h>
@@ -263,10 +266,10 @@ static const llvm::BinaryOperator::BinaryOps integer_ops[] = {
     llvm::BinaryOperator::BinaryOps::Mul, llvm::BinaryOperator::BinaryOps::SDiv,
     llvm::BinaryOperator::BinaryOps::SRem};
 
-static const int16_t integer_compares[] = {llvm::CmpInst::Predicate::ICMP_EQ,
-    llvm::CmpInst::Predicate::ICMP_NE, llvm::CmpInst::Predicate::ICMP_SLE,
-    llvm::CmpInst::Predicate::ICMP_SGE, llvm::CmpInst::Predicate::ICMP_SLT,
-    llvm::CmpInst::Predicate::ICMP_SGT};
+static const llvm::CmpInst::Predicate integer_compares[] = {
+    llvm::CmpInst::Predicate::ICMP_EQ, llvm::CmpInst::Predicate::ICMP_NE,
+    llvm::CmpInst::Predicate::ICMP_SLE, llvm::CmpInst::Predicate::ICMP_SGE,
+    llvm::CmpInst::Predicate::ICMP_SLT, llvm::CmpInst::Predicate::ICMP_SGT};
 
 static_assert(sizeof(integer_ops) / sizeof(integer_ops[0]) +
                       sizeof(integer_compares) / sizeof(integer_compares[0]) ==
@@ -352,8 +355,9 @@ void ast_jit_engine::walk_expression(
       dat.instructions.end());
 
   uint32_t member_offset =
-      m_validator->get_operations(
-                     _alloc->get_base_expression()->get_type()->get_index())
+      m_validator
+          ->get_operations(
+              _alloc->get_base_expression()->get_type()->get_index())
           .get_member_index(_alloc->get_name());
   llvm::Type* int32_type = llvm::IntegerType::getInt32Ty(*m_context);
 
@@ -503,7 +507,7 @@ void ast_jit_engine::walk_instruction(
         llvm::BranchInst::Create(_val->blocks.front()));
     _val->blocks.push_back(bb);
   } else {
-      WN_DEBUG_ASSERT_DESC(m_break_instructions.empty(),
+    WN_DEBUG_ASSERT_DESC(m_break_instructions.empty(),
         "Is it not possible to have a break instruction"
         " and be guaranteed to return");
   }

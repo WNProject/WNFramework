@@ -6,9 +6,9 @@ endif()
 
 set_overlay_var(WN_LLVM_TARGET "X86")
 if (WN_ARCHITECTURE STREQUAL "x86")
-  set_overlay_var(WN_LLVM_TRIPLE "i686-pc-win32-elf")
+  set_overlay_var(WN_LLVM_TRIPLE "i686-unknown-linux-gnu")
 elseif(WN_ARCHITECTURE STREQUAL "x86-64")
-  set_overlay_var(WN_LLVM_TRIPLE "x86_64-pc-win32-elf")
+  set_overlay_var(WN_LLVM_TRIPLE "x86_64-unknown-linux-gnu")
 endif()
 
 foreach(configuration ${BUILD_TYPES})

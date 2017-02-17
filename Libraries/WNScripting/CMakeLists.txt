@@ -4,6 +4,8 @@ set(WN_LLVM_TOOLCHAIN)
 set(WN_LLVM_CXX_COMPILER)
 set(WN_LLVM_C_COMPILER)
 set(WN_LLVM_TRIPLE)
+set(WN_LLVM_TARGET)
+set(WN_LLVM_ADDITIONAL_BUILD_FLAGS)
 set(WN_LLVM_ADDITIONAL_BUILD_FLAGS)
 set(WN_LLVM_OVERRIDDEN_TRIPLE "WN_LLVM_NON_OVERRIDDEN_TRIPLE")
 enable_overlay_directory()
@@ -45,9 +47,19 @@ if (NOT LLVM_CONFIGURED)
   execute_process(
     COMMAND ${WN_LLVM_WRAPPER} ${CMAKE_COMMAND}
     -DLLVM_BUILD_TOOLS=OFF
+    -DLLVM_INCLUDE_TOOLS=OFF
+    -DLLVM_BUILD_TOOLS=OFF
+    -DLLVM_BUILD_EXAMPLES=OFF
     -DLLVM_INCLUDE_EXAMPLES=OFF
+    -DLLVM_BUILD_TESTS=OFF
     -DLLVM_INCLUDE_TESTS=OFF
+    -DLLVM_BUILD_UTILS=OFF
+    -DLLVM_INCLUDE_UTILS=OFF
+    -DLLVM_ENABLE_PLUGINS=OFF
     -DLLVM_ENABLE_ZLIB=OFF
+    -DLLVM_HOST_TRIPLE=${WN_LLVM_TRIPLE}
+    -DLLVM_DEFAULT_TARGET_TRIPLE=${WN_LLVM_TRIPLE}
+    -DLLVM_TARGETS_TO_BUILD=${WN_LLVM_TARGET}
     ${WN_LLVM_EXTRA_FLAGS}
     -G ${CMAKE_GENERATOR} ${WN_LLVM_SOURCE_DIR}
     WORKING_DIRECTORY ${WNFramework_BINARY_DIR}/Externals/llvm
@@ -59,10 +71,9 @@ add_custom_target(llvm_target
     COMMAND ${CMAKE_COMMAND} --build . ${WN_LLVM_ADDITIONAL_BUILD_FLAGS}
     WORKING_DIRECTORY ${WNFramework_BINARY_DIR}/Externals/llvm)
 
-include(${WNFramework_BINARY_DIR}/Externals/llvm/share/llvm/cmake/LLVMConfig.cmake)
+include(${WNFramework_BINARY_DIR}/Externals/llvm/lib/cmake/llvm/LLVMConfig.cmake)
 
-set(WNScriptingLLVMComponents codegen instrumentation objcarcopts support mcjit
-  ipo native)
+set(WNScriptingLLVMComponents codegen mcjit native)
 llvm_map_components_to_libnames(WNScriptingLLVMLibs ${WNScriptingLLVMComponents})
 
 option(WN_BUILD_LLVM_MANUALLY
