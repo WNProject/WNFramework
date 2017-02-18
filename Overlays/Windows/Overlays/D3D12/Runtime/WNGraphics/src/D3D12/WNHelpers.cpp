@@ -51,8 +51,8 @@ WN_INLINE bool convert_to_utf8(
 
 bool determine_support(memory::allocator* _allocator, logging::log* _log,
     const size_t _device_number, const bool _allow_software_devices,
-    IDXGIAdapter1* _dxgi_adapter, DXGI_ADAPTER_DESC1* _dxgi_adapter_desc,
-    containers::string* _name) {
+    IDXGIAdapter1* _dxgi_adapter, containers::string* _name,
+    uint32_t* _device_id, uint32_t* _vendor_id) {
   // This is set to D3D_FEATURE_LEVEL_11_0 because this is the lowest posible
   // d3d version d3d12 supports.  This allows us to scale up on device
   // capabilities and work on older hardware
@@ -87,8 +87,9 @@ bool determine_support(memory::allocator* _allocator, logging::log* _log,
   if (!_allow_software_devices) {
     if (dxgi_adapter_desc.DeviceId == BASIC_RENDER_DEVICE &&
         dxgi_adapter_desc.VendorId == MICROSOFT_VENDOR) {
-      // If this is the "Basic Renderer Driver" then ignore it
-      // we do not want to present that to the user.
+      // If this is the "Basic Renderer Driver" and we are not allowing
+      // reference devices then ignore it. We do not want to present that to the
+      // user.
       return false;
     }
   }
@@ -101,7 +102,8 @@ bool determine_support(memory::allocator* _allocator, logging::log* _log,
   _log->log_info("------------------------------");
 
   (*_name) = core::move(name);
-  (*_dxgi_adapter_desc) = core::move(dxgi_adapter_desc);
+  (*_device_id) = static_cast<uint32_t>(dxgi_adapter_desc.DeviceId);
+  (*_vendor_id) = static_cast<uint32_t>(dxgi_adapter_desc.VendorId);
 
   return true;
 }
@@ -138,11 +140,12 @@ void enumerate_adapters(memory::allocator* _allocator, logging::log* _log,
       continue;
     }
 
-    DXGI_ADAPTER_DESC1 dxgi_adapter_desc;
+    uint32_t device_id;
+    uint32_t vendor_id;
     containers::string name(_allocator);
 
-    if (determine_support(_allocator, _log, i, false, dxgi_adapter.Get(),
-            &dxgi_adapter_desc, &name)) {
+    if (determine_support(_allocator, _log, i, false, dxgi_adapter.Get(), &name,
+            &device_id, &vendor_id)) {
       memory::unique_ptr<d3d12_adapter_constructable> ptr(
           memory::make_unique_delegated<d3d12_adapter_constructable>(
               _allocator, [](void* _memory) {
@@ -151,8 +154,7 @@ void enumerate_adapters(memory::allocator* _allocator, logging::log* _log,
 
       if (ptr) {
         ptr->initialize(core::move(dxgi_adapter), dxgi_factory,
-            core::move(name), static_cast<uint32_t>(dxgi_adapter_desc.DeviceId),
-            static_cast<uint32_t>(dxgi_adapter_desc.VendorId));
+            core::move(name), device_id, vendor_id);
       }
 
       _physical_devices.push_back(core::move(ptr));
@@ -177,11 +179,12 @@ void enumerate_adapters(memory::allocator* _allocator, logging::log* _log,
       return;
     }
 
-    DXGI_ADAPTER_DESC1 dxgi_adapter_desc;
+    uint32_t device_id;
+    uint32_t vendor_id;
     containers::string name(_allocator);
 
     if (determine_support(_allocator, _log, i, true, dxgi_warp_adapter.Get(),
-            &dxgi_adapter_desc, &name)) {
+            &name, &device_id, &vendor_id)) {
       memory::unique_ptr<d3d12_adapter_constructable> ptr(
           memory::make_unique_delegated<d3d12_adapter_constructable>(
               _allocator, [](void* _memory) {
@@ -189,9 +192,8 @@ void enumerate_adapters(memory::allocator* _allocator, logging::log* _log,
               }));
 
       if (ptr) {
-        ptr->initialize(core::move(dxgi_warp_adapter), core::move(name),
-            static_cast<uint32_t>(dxgi_adapter_desc.DeviceId),
-            static_cast<uint32_t>(dxgi_adapter_desc.VendorId));
+        ptr->initialize(core::move(dxgi_warp_adapter), dxgi_factory,
+            core::move(name), device_id, vendor_id);
       }
 
       _physical_devices.push_back(core::move(ptr));
