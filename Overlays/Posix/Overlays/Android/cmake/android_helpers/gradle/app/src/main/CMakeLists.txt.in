@@ -1,0 +1,10 @@
+cmake_minimum_required(VERSION 3.4.1)
+
+add_library(@APPLICATION_NAME@
+             SHARED
+             IMPORTED)
+			 
+set_target_properties(
+		@APPLICATION_NAME@
+		PROPERTIES IMPORTED_LOCATION
+		@WN_BUILD_ROOT@/${ANDROID_ABI}/lib/stripped/lib@APPLICATION_NAME@.so)

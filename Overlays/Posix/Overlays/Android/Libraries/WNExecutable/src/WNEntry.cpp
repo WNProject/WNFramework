@@ -2,8 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
+#include "WNExecutable/inc/WNEntry.h"
 #include "WNCore/inc/WNTypes.h"
-#include "WNEntryPoint/inc/WNEntryData.h"
+#include "WNExecutable/inc/WNEntryData.h"
 #include "WNUtilities/inc/WNAndroidEventPump.h"
 #include "WNUtilities/inc/WNAppData.h"
 #include "WNUtilities/inc/WNCrashHandler.h"
@@ -17,7 +18,13 @@
 extern int32_t wn_main(
     const wn::entry::system_data* data, int32_t _argc, char* _argv[]);
 
+namespace wn {
+namespace entry {
+
 void wn_dummy() {}
+
+}  // namespace entry
+}  // namespace wn
 
 char* GetPackageName(struct android_app* state) {
   ANativeActivity* activity = state->activity;
@@ -55,10 +62,10 @@ void* main_proxy_thread(void* _package_name) {
 
   char* package_name = static_cast<char*>(_package_name);
   char* executable = nullptr;
-  size_t path_length = strlen(full_path);
+  size_t path_length = strlen(package_name);
   for (size_t i = path_length; i != 0; --i) {
-    if (full_path[i - 1] == '.') {
-      executable = full_path[i - 1] + 1;
+    if (package_name[i - 1] == '.') {
+      executable = package_name + i;
       break;
     }
   }
@@ -67,7 +74,7 @@ void* main_proxy_thread(void* _package_name) {
   }
 
   wn::entry::host_specific_data host_data{
-      wn::utilities::gAndroidApp, _package_name};
+      wn::utilities::gAndroidApp, package_name};
   wn::entry::system_data system_data{&host_data, executable};
 
   int32_t retVal = wn_main(&system_data, 1, &package_name);
@@ -95,7 +102,7 @@ int main(int _argc, char* _argv[]) {
   size_t path_length = strlen(full_path);
   for (size_t i = path_length; i != 0; --i) {
     if (full_path[i - 1] == '/') {
-      executable = full_path[i - 1] + 1;
+      executable = full_path + i;
       break;
     }
   }
@@ -107,9 +114,7 @@ int main(int _argc, char* _argv[]) {
       nullptr, executable,
   };
 
-  wn::entry::system_data system_data {
-    &host_data, full_path
-  }
+  wn::entry::system_data system_data{&host_data, full_path};
 
   wn::utilities::gAndroidLogTag = _argv[0];
   return wn_main(&system_data, _argc, _argv);
@@ -127,9 +132,6 @@ void android_main(struct android_app* state) {
   __android_log_print(ANDROID_LOG_INFO, packageName, "--STARTED");
 
 #if defined _WN_DEBUG
-  if (access("/proc/sys/kernel/yama/ptrace_scope", F_OK) != -1) {
-    prctl(PR_SET_PTRACER, PR_SET_PTRACER_ANY, 0, 0, 0);
-  }
 
   FILE* debugFile = fopen("/sdcard/wait-for-debugger.txt", "r");
 

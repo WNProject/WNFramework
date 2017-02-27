@@ -7,4 +7,6 @@ add_wn_header_library(WNFunctional
     inc/WNUniqueFunction.h
 )
 
-add_subdirectory(test)
+wn_add_subdirectory(test)
+
+post_enable_overlay_directory()

@@ -1,6 +1,9 @@
 set(ENABLED OFF)
-if (WN_ARCHITECTURE STREQUAL "arm" OR
-    WN_ARCHITECTURE STREQUAL "arm64")
+
+wn_has_architecture(ARM HAS)
+wn_has_architecture(ARM64 HAS64)
+
+if (HAS OR HAS64)
   set(ENABLED ON)
 endif()
 

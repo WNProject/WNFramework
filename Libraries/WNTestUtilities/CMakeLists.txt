@@ -20,3 +20,5 @@ add_wn_library(WNTestUtilities
   LIBS
     gmock
 )
+
+post_enable_overlay_directory()

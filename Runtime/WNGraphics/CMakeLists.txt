@@ -130,4 +130,6 @@ message(STATUS
   "Graphics Device Types: ${WN_GRAPHICS_DEVICE_TYPES_ENABLED_LIST}"
 )
 
-add_subdirectory(test)
+wn_add_subdirectory(test)
+
+post_enable_overlay_directory()

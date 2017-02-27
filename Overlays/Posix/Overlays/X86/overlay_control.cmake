@@ -1,7 +1,10 @@
 set(ENABLED OFF)
-if (WN_ARCHITECTURE STREQUAL "x86" OR
-    WN_ARCHITECTURE STREQUAL "x86-64")
+
+wn_has_architecture(x86 HAS)
+wn_has_architecture(x86-64 HAS64)
+
+if (HAS OR HAS64)
   set(ENABLED ON)
 endif()
 
-register_overlay(${ENABLED} X86)
+register_overlay(${ENABLED} x86)

@@ -6,11 +6,11 @@ foreach(overlay ${WN_ENABLED_OVERLAYS})
 endforeach()
 
 # These must be before all the below in order for it to work
-add_subdirectory(WNExecutable)
-add_subdirectory(WNTestUtilities)
-add_subdirectory(WNExecutableTest)
+wn_add_subdirectory(WNExecutable)
+wn_add_subdirectory(WNTestUtilities)
+wn_add_subdirectory(WNExecutableTest)
 
-function(wn_create_executable_tests_from_list)
+macro(wn_create_executable_tests_from_list)
   cmake_parse_arguments(
     PARSED_ARGS
     "SYSTEMS_TEST"
@@ -34,17 +34,17 @@ function(wn_create_executable_tests_from_list)
     ADDITIONAL_INCLUDES ${PARSED_ARGS_ADDITIONAL_INCLUDES}
     LIBS WNExecutableTest ${PARSED_ARGS_LIBS}
   )
-endfunction()
+endmacro()
 
-add_subdirectory(WNContainers)
-add_subdirectory(WNCore)
-add_subdirectory(WNFileSystem)
-add_subdirectory(WNFunctional)
-add_subdirectory(WNLogging)
-add_subdirectory(WNMath)
-add_subdirectory(WNMemory)
-add_subdirectory(WNMultiTasking)
-add_subdirectory(WNNetworking)
-add_subdirectory(WNScripting)
-add_subdirectory(WNThreadSafeContainers)
-add_subdirectory(WNUtilities)
+wn_add_subdirectory(WNContainers)
+wn_add_subdirectory(WNCore)
+wn_add_subdirectory(WNFileSystem)
+wn_add_subdirectory(WNFunctional)
+wn_add_subdirectory(WNLogging)
+wn_add_subdirectory(WNMath)
+wn_add_subdirectory(WNMemory)
+wn_add_subdirectory(WNMultiTasking)
+wn_add_subdirectory(WNNetworking)
+wn_add_subdirectory(WNScripting)
+wn_add_subdirectory(WNThreadSafeContainers)
+wn_add_subdirectory(WNUtilities)

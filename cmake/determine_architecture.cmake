@@ -77,28 +77,52 @@ set(ARM_SYMBOLS
   _M_ARMT
 )
 
-# check for architectures using preprocessor symbols. Symbol list names must
-# match the format [architecture, all caps, alphanumeric and _ only]_SYMBOLS.
-foreach(ARCHITECTURE ${ARCHITECTURE_LIST})
-  wn_make_preprocessor_symbol(${ARCHITECTURE} SANITIZE_ARCHITECTURE)
+if (NOT WN_FORCED_ARCHITECTURES)
+  # check for architectures using preprocessor symbols. Symbol list names must
+  # match the format [architecture, all caps, alphanumeric and _ only]_SYMBOLS.
+  foreach(ARCHITECTURE ${ARCHITECTURE_LIST})
+    wn_make_preprocessor_symbol(${ARCHITECTURE} SANITIZE_ARCHITECTURE)
 
-  set(ARCHITECTURE_SYMBOL_LIST_NAME ${SANITIZE_ARCHITECTURE}_SYMBOLS)
-  set(ARCHITECTURE_HAS_VARIABLE_NAME HAS_${SANITIZE_ARCHITECTURE}_SYMBOL)
+    set(ARCHITECTURE_SYMBOL_LIST_NAME ${SANITIZE_ARCHITECTURE}_SYMBOLS)
+    set(ARCHITECTURE_HAS_VARIABLE_NAME HAS_${SANITIZE_ARCHITECTURE}_SYMBOL)
 
-  wn_check_any_symbol_exists(
-    ${ARCHITECTURE_SYMBOL_LIST_NAME}
-    ${ARCHITECTURE_HAS_VARIABLE_NAME}
-  )
+    wn_check_any_symbol_exists(
+      ${ARCHITECTURE_SYMBOL_LIST_NAME}
+      ${ARCHITECTURE_HAS_VARIABLE_NAME}
+    )
 
-  if (${ARCHITECTURE_HAS_VARIABLE_NAME})
-    set(WN_ARCHITECTURE ${ARCHITECTURE})
+    if (${ARCHITECTURE_HAS_VARIABLE_NAME})
+      set(WN_ARCHITECTURE ${ARCHITECTURE})
 
-    break()
-  endif()
-endforeach()
+      break()
+    endif()
+  endforeach()
+else()
+  set(WN_ARCHITECTURE ${WN_FORCED_ARCHITECTURES})
+endif()
 
 if (NOT DEFINED WN_ARCHITECTURE)
   message(FATAL_ERROR "Failed to determine architecture")
 endif()
 
 message(STATUS "Architecture is ${WN_ARCHITECTURE}")
+
+macro(wn_has_architecture arch ret_val)
+  set(${ret_val} OFF)
+  if (WN_FORCED_ARCHITECTURES)
+    list(FIND WN_FORCED_ARCHITECTURES ${arch} has_abi)
+
+    if (${has_abi} GREATER -1)
+      set(${ret_val} ON)
+    endif()
+  else()
+    if (${arch} STREQUAL ${WN_ARCHITECTURE})
+      set(${ret_val} ON)
+    endif()
+  endif()
+endmacro()
+
+set(WN_SYSTEM_NAME ${CMAKE_SYSTEM_NAME})
+if (WN_FORCE_SYSTEM)
+  set(WN_SYSTEM_NAME ${WN_FORCE_SYSTEM})
+endif()

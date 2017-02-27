@@ -6,3 +6,5 @@ add_wn_library(WNExecutable
   LIBS
     WNUtilities
 )
+
+post_enable_overlay_directory()

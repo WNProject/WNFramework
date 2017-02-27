@@ -19,11 +19,11 @@ const int32_t s_log_levels[] = {ANDROID_LOG_SILENT, ANDROID_LOG_FATAL,
     ANDROID_LOG_DEBUG, ANDROID_LOG_DEFAULT};
 
 template <console_location T_Location>
-console_logger<T_Location>::WNConsoleLogger()
+console_logger<T_Location>::console_logger()
   : m_log_priority(ANDROID_LOG_INFO) {}
 
 template <console_location T_Location>
-console_logger<T_Location>::~WNConsoleLogger() {}
+console_logger<T_Location>::~console_logger() {}
 
 template <console_location T_Location>
 void console_logger<T_Location>::flush_buffer(const char* _buffer,
@@ -31,8 +31,8 @@ void console_logger<T_Location>::flush_buffer(const char* _buffer,
     const color_element* _colors, size_t _num_colors) {
   if (_num_colors) {
     for (size_t i = 0; i < _num_colors; ++i) {
-      if (_colors[i].m_level > 0) {
-        m_log_priority = _colors[i].m_level;
+      if (static_cast<uint32_t>(_colors[i].m_level) > 0) {
+        m_log_priority = static_cast<uint32_t>(_colors[i].m_level);
       } else {
         const char* end_color = (_num_colors == i + 1)
                                    ? _buffer + _buffer_size

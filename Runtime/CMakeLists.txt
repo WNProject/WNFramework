@@ -11,11 +11,11 @@ foreach(overlay ${WN_ENABLED_OVERLAYS})
   include_directories(${overlay}/Runtime)
 endforeach()
 
-add_subdirectory(WNApplicationData)
-add_subdirectory(WNApplicationEntry)
-add_subdirectory(WNApplicationTest)
+wn_add_subdirectory(WNApplicationData)
+wn_add_subdirectory(WNApplicationEntry)
+wn_add_subdirectory(WNApplicationTest)
 
-function(wn_create_application_tests_from_list)
+macro(wn_create_application_tests_from_list)
   cmake_parse_arguments(
     PARSED_ARGS
     "SYSTEMS_TEST"
@@ -39,7 +39,7 @@ function(wn_create_application_tests_from_list)
     ADDITIONAL_INCLUDES ${PARSED_ARGS_ADDITIONAL_INCLUDES}
     LIBS WNApplicationTest ${PARSED_ARGS_LIBS}
   )
-endfunction()
+endmacro()
 
-add_subdirectory(WNGraphics)
-add_subdirectory(WNWindow)
+wn_add_subdirectory(WNGraphics)
+wn_add_subdirectory(WNWindow)

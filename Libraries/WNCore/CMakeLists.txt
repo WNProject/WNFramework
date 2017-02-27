@@ -5,7 +5,7 @@ enable_overlay_directory()
 
 # run specifier tests
 
-check_cxx_source_compiles(
+wn_check_cxx_source_compiles(
   "
     inline void temp() {}
     int main() {
@@ -16,7 +16,7 @@ check_cxx_source_compiles(
   HAS_INLINE
 )
 
-check_cxx_source_compiles(
+wn_check_cxx_source_compiles(
   "
     _inline void temp() {}
     int main() {
@@ -27,7 +27,7 @@ check_cxx_source_compiles(
   HAS__INLINE
 )
 
-check_cxx_source_compiles(
+wn_check_cxx_source_compiles(
   "
     __inline void temp() {}
     int main() {
@@ -38,7 +38,7 @@ check_cxx_source_compiles(
   HAS___INLINE
 )
 
-check_cxx_source_compiles(
+wn_check_cxx_source_compiles(
   "
     __inline__ void temp() {}
     int main() {
@@ -57,11 +57,11 @@ elseif (HAS___INLINE)
   set(WN_INLINE __inline)
 elseif (HAS__INLINE)
   set(WN_INLINE _inline)
-else()
+elseif(NOT WN_DISABLE_CXX)
   message(FATAL_ERROR "No inline style keyword was found")
 endif()
 
-check_cxx_source_compiles(
+wn_check_cxx_source_compiles(
   "
     __forceinline void temp() {}
     int main() {
@@ -72,7 +72,7 @@ check_cxx_source_compiles(
   HAS___FORCE_INLINE
 )
 
-check_cxx_source_compiles(
+wn_check_cxx_source_compiles(
   "
     ${WN_INLINE} __attribute__((always_inline)) void temp() {}
     int main() {
@@ -83,7 +83,7 @@ check_cxx_source_compiles(
   HAS___ATTRIBUTE__ALWAYS_INLINE
 )
 
-check_cxx_source_compiles(
+wn_check_cxx_source_compiles(
   "
     __declspec(noinline) void temp() {}
     int main() {
@@ -94,7 +94,7 @@ check_cxx_source_compiles(
   HAS___DECLSPEC_NOINLINE
 )
 
-check_cxx_source_compiles(
+wn_check_cxx_source_compiles(
   "
     __attribute__((noinline)) void temp() {}
     int main() {
@@ -105,7 +105,7 @@ check_cxx_source_compiles(
   HAS___ATTRIBUTE__NOINLINE
 )
 
-check_cxx_source_compiles(
+wn_check_cxx_source_compiles(
   "
     __thread int temp = 0;
     int main() {
@@ -115,7 +115,7 @@ check_cxx_source_compiles(
   HAS___THREAD
 )
 
-check_cxx_source_compiles(
+wn_check_cxx_source_compiles(
   "
     __declspec(thread) int temp = 0;
     int main() {
@@ -125,7 +125,7 @@ check_cxx_source_compiles(
   HAS___DECLSPEC_THREAD
 )
 
-check_cxx_source_compiles(
+wn_check_cxx_source_compiles(
   "
     thread_local int temp = 0;
     int main() {
@@ -135,7 +135,7 @@ check_cxx_source_compiles(
   HAS_THREAD_LOCAL
 )
 
-check_cxx_source_compiles(
+wn_check_cxx_source_compiles(
   "
     __declspec(selectany) int temp = 0;
     int main() {
@@ -145,7 +145,7 @@ check_cxx_source_compiles(
   HAS___DECLSPEC_SELECTANY
 )
 
-check_cxx_source_compiles(
+wn_check_cxx_source_compiles(
   "
     __attribute__((weak)) int temp = 0;
     int main() {
@@ -155,7 +155,7 @@ check_cxx_source_compiles(
   HAS___ATTRIBUTE__WEAK
 )
 
-check_cxx_source_compiles(
+wn_check_cxx_source_compiles(
   "
     int temp(int* __restrict a, int* __restrict b) {
       return (*a) + (*b);
@@ -169,7 +169,7 @@ check_cxx_source_compiles(
   HAS___RESTRICT
 )
 
-check_cxx_source_compiles(
+wn_check_cxx_source_compiles(
   "
     int temp(int* __restrict__ a, int* __restrict__ b) {
       return (*a) + (*b);
@@ -183,7 +183,7 @@ check_cxx_source_compiles(
   HAS___RESTRICT__
 )
 
-check_cxx_source_compiles(
+wn_check_cxx_source_compiles(
   "
     struct temp final {};
     int main() {
@@ -194,7 +194,7 @@ check_cxx_source_compiles(
   HAS_FINAL
 )
 
-check_cxx_source_compiles(
+wn_check_cxx_source_compiles(
   "
     struct temp {
       virtual int test() = 0;
@@ -212,7 +212,7 @@ check_cxx_source_compiles(
   HAS_OVERRIDE
 )
 
-check_cxx_source_compiles(
+wn_check_cxx_source_compiles(
   "
     int main() {
       alignas(16) int i = 0;
@@ -222,7 +222,7 @@ check_cxx_source_compiles(
   HAS_ALIGNAS
 )
 
-check_cxx_source_compiles(
+wn_check_cxx_source_compiles(
   "
     int main() {
       __declspec(align(16)) int i = 0;
@@ -232,7 +232,7 @@ check_cxx_source_compiles(
   HAS___DECLSPEC_ALIGN
 )
 
-check_cxx_source_compiles(
+wn_check_cxx_source_compiles(
   "
     int main() {
       __attribute__((aligned(16))) int i = 0;
@@ -242,7 +242,7 @@ check_cxx_source_compiles(
   HAS___ATTRIBUTE__ALIGNED
 )
 
-check_cxx_source_compiles(
+wn_check_cxx_source_compiles(
   "
     int main() {
       return alignof(int);
@@ -251,7 +251,7 @@ check_cxx_source_compiles(
   HAS_ALIGNOF
 )
 
-check_cxx_source_compiles(
+wn_check_cxx_source_compiles(
   "
     int main() {
       return __alignof(int);
@@ -260,7 +260,7 @@ check_cxx_source_compiles(
   HAS___ALIGNOF
 )
 
-check_cxx_source_compiles(
+wn_check_cxx_source_compiles(
   "
     int main() {
       return __alignof__(int);
@@ -269,7 +269,7 @@ check_cxx_source_compiles(
   HAS___ALIGNOF__
 )
 
-check_cxx_source_compiles(
+wn_check_cxx_source_compiles(
   "
     int main() {
       return __alignof__(int);
@@ -310,7 +310,7 @@ elseif (HAS___DECLSPEC_THREAD)
   set(WN_THREAD_LOCAL "__declspec(thread)")
 elseif (HAS___THREAD)
   set(WN_THREAD_LOCAL __thread)
-else()
+elseif(NOT WN_DISABLE_CXX)
   message(FATAL_ERROR "No thread local style keyword was found")
 endif()
 
@@ -318,7 +318,7 @@ if (HAS___ATTRIBUTE__WEAK)
   set(WN_WEAK_LINK "__attribute__((weak))")
 elseif (HAS___DECLSPEC_SELECTANY)
   set(WN_WEAK_LINK "__declspec(selectany)")
-else()
+elseif(NOT WN_DISABLE_CXX)
   message(FATAL_ERROR "No weak link style keyword was found")
 endif()
 
@@ -345,7 +345,7 @@ elseif (HAS___DECLSPEC_ALIGN)
   set(WN_ALIGN "__declspec(align(${WN_ALIGN_MACRO_VARIABLE_NAME}))")
 elseif (HAS___ATTRIBUTE__ALIGNED)
   set(WN_ALIGN "__attribute__((aligned(${WN_ALIGN_MACRO_VARIABLE_NAME})))")
-else()
+elseif(NOT WN_DISABLE_CXX)
   message(FATAL_ERROR "No alignas style keyword was found")
 endif()
 
@@ -355,13 +355,13 @@ elseif (HAS___ALIGNOF)
   set(WN_ALIGN_OF "__alignof(${WN_ALIGN_OF_MACRO_VARIABLE_NAME})")
 elseif (HAS___ALIGNOF__)
   set(WN_ALIGN_OF "__alignof__(${WN_ALIGN_OF_MACRO_VARIABLE_NAME})")
-else()
+elseif(NOT WN_DISABLE_CXX)
   message(FATAL_ERROR "No alignof style keyword was found")
 endif()
 
 # run calling convention tests
 
-check_cxx_source_compiles(
+wn_check_cxx_source_compiles(
   "
     void __cdecl temp() {}
     int main() {
@@ -372,7 +372,7 @@ check_cxx_source_compiles(
   HAS___CDECL
 )
 
-check_cxx_source_compiles(
+wn_check_cxx_source_compiles(
   "
     void temp() __attribute__((cdecl)) {}
     int main() {
@@ -383,7 +383,7 @@ check_cxx_source_compiles(
   HAS___ATTRIBUTE__CDECL
 )
 
-check_cxx_source_compiles(
+wn_check_cxx_source_compiles(
   "
     void __stdcall temp() {}
     int main() {
@@ -394,7 +394,7 @@ check_cxx_source_compiles(
   HAS___STDCALL
 )
 
-check_cxx_source_compiles(
+wn_check_cxx_source_compiles(
   "
     void temp() __attribute__((stdcall)) {}
     int main() {
@@ -405,7 +405,7 @@ check_cxx_source_compiles(
   HAS___ATTRIBUTE__STDCALL
 )
 
-check_cxx_source_compiles(
+wn_check_cxx_source_compiles(
   "
     void __fastcall temp() {}
     int main() {
@@ -416,7 +416,7 @@ check_cxx_source_compiles(
   HAS___FASTCALL
 )
 
-check_cxx_source_compiles(
+wn_check_cxx_source_compiles(
   "
     void temp() __attribute__((fastcall)) {}
     int main() {
@@ -427,7 +427,7 @@ check_cxx_source_compiles(
   HAS___ATTRIBUTE__FASTCALL
 )
 
-check_cxx_source_compiles(
+wn_check_cxx_source_compiles(
   "
     void __vectorcall temp() {}
     int main() {
@@ -438,7 +438,7 @@ check_cxx_source_compiles(
   HAS___VECTORCALL
 )
 
-check_cxx_source_compiles(
+wn_check_cxx_source_compiles(
   "
     void temp() __attribute__((vectorcall)) {}
     int main() {
@@ -569,15 +569,15 @@ endif()
 
 # run include tests
 
-check_include_file_cxx(cstdint HAS_CSTDINT)
+wn_check_include_file_cxx(cstdint HAS_CSTDINT)
 
-if (NOT HAS_CSTDINT)
+if (NOT HAS_CSTDINT AND NOT WN_DISABLE_CXX)
   message(FATAL_ERROR "Unable to locate required integer types header")
 endif()
 
 # run literal/type tests
 
-check_cxx_source_compiles(
+wn_check_cxx_source_compiles(
   "
     int main() {
 	  int* i = nullptr;
@@ -589,7 +589,7 @@ check_cxx_source_compiles(
   HAS_CPP11_NULLPTR
 )
 
-check_cxx_source_compiles(
+wn_check_cxx_source_compiles(
   "
     #include <cstddef>
     #include <type_traits>
@@ -605,7 +605,7 @@ set(_WN_HAS_CPP11_NULLPTR_T ${HAS_CPP11_NULLPTR_T})
 
 # run stl feature tests
 
-check_cxx_source_compiles(
+wn_check_cxx_source_compiles(
   "
     #include <type_traits>
     int main() {
@@ -616,7 +616,7 @@ check_cxx_source_compiles(
   HAS_CPP11_STD_IS_TRIVIALLY_COPYABLE
 )
 
-check_cxx_source_compiles(
+wn_check_cxx_source_compiles(
   "
     #include <type_traits>
     int main() {
@@ -627,7 +627,7 @@ check_cxx_source_compiles(
   HAS_CPP11_STD_IS_TRIVIALLY_CONSTRUCTIBLE
 )
 
-check_cxx_source_compiles(
+wn_check_cxx_source_compiles(
   "
     #include <type_traits>
     int main() {
@@ -638,7 +638,7 @@ check_cxx_source_compiles(
   HAS_CPP11_STD_IS_TRIVIALLY_DEFAULT_CONSTRUCTIBLE
 )
 
-check_cxx_source_compiles(
+wn_check_cxx_source_compiles(
   "
     #include <type_traits>
     int main() {
@@ -649,7 +649,7 @@ check_cxx_source_compiles(
   HAS_CPP11_STD_IS_TRIVIALLY_COPY_CONSTRUCTIBLE
 )
 
-check_cxx_source_compiles(
+wn_check_cxx_source_compiles(
   "
     #include <type_traits>
     int main() {
@@ -660,7 +660,7 @@ check_cxx_source_compiles(
   HAS_CPP11_STD_IS_TRIVIALLY_MOVE_CONSTRUCTIBLE
 )
 
-check_cxx_source_compiles(
+wn_check_cxx_source_compiles(
   "
     #include <type_traits>
     int main() {
@@ -671,7 +671,7 @@ check_cxx_source_compiles(
   HAS_CPP11_STD_IS_TRIVIALLY_ASSIGNABLE
 )
 
-check_cxx_source_compiles(
+wn_check_cxx_source_compiles(
   "
     #include <type_traits>
     int main() {
@@ -682,7 +682,7 @@ check_cxx_source_compiles(
   HAS_CPP11_STD_IS_TRIVIALLY_COPY_ASSIGNABLE
 )
 
-check_cxx_source_compiles(
+wn_check_cxx_source_compiles(
   "
     #include <type_traits>
     int main() {
@@ -693,7 +693,7 @@ check_cxx_source_compiles(
   HAS_CPP11_STD_IS_TRIVIALLY_MOVE_ASSIGNABLE
 )
 
-check_cxx_source_compiles(
+wn_check_cxx_source_compiles(
   "
     #include <type_traits>
     int main() {
@@ -704,7 +704,7 @@ check_cxx_source_compiles(
   HAS_CPP11_STD_IS_TRIVIALLY_DESTRUCTIBLE
 )
 
-check_cxx_source_compiles(
+wn_check_cxx_source_compiles(
   "
     #include <type_traits>
     int main() {
@@ -715,7 +715,7 @@ check_cxx_source_compiles(
   HAS_CPP11_STD_ALIGNED_UNION
 )
 
-check_cxx_source_compiles(
+wn_check_cxx_source_compiles(
   "
     #include <type_traits>
     int main() {
@@ -726,7 +726,7 @@ check_cxx_source_compiles(
   HAS_CPP14_STD_DECAY_T
 )
 
-check_cxx_source_compiles(
+wn_check_cxx_source_compiles(
   "
     #include <type_traits>
     struct tester {
@@ -749,7 +749,7 @@ check_cxx_source_compiles(
   HAS_CPP14_STD_ENABLE_IF_T
 )
 
-check_cxx_source_compiles(
+wn_check_cxx_source_compiles(
   "
     #include <type_traits>
     int main() {
@@ -760,7 +760,7 @@ check_cxx_source_compiles(
   HAS_CPP14_STD_CONDITIONAL_T
 )
 
-check_cxx_source_compiles(
+wn_check_cxx_source_compiles(
   "
     #include <type_traits>
     int main() {
@@ -771,7 +771,7 @@ check_cxx_source_compiles(
   HAS_CPP14_STD_COMMON_TYPE_T
 )
 
-check_cxx_source_compiles(
+wn_check_cxx_source_compiles(
   "
     #include <type_traits>
     int test() {
@@ -785,7 +785,7 @@ check_cxx_source_compiles(
   HAS_CPP14_STD_RESULT_OF_T
 )
 
-check_cxx_source_compiles(
+wn_check_cxx_source_compiles(
   "
     #include <type_traits>
     int main() {
@@ -795,7 +795,7 @@ check_cxx_source_compiles(
   HAS_CPP14_STD_INTEGER_SEQUENCE
 )
 
-check_cxx_source_compiles(
+wn_check_cxx_source_compiles(
   "
     #include <type_traits>
     int main() {
@@ -805,7 +805,7 @@ check_cxx_source_compiles(
   HAS_CPP14_STD_IS_NULL_POINTER
 )
 
-check_cxx_source_compiles(
+wn_check_cxx_source_compiles(
   "
     #include <algorithm>
     int main() {
@@ -817,7 +817,7 @@ check_cxx_source_compiles(
   HAS_CPP14_STD_EQUAL
 )
 
-check_cxx_source_compiles(
+wn_check_cxx_source_compiles(
   "
     #include <algorithm>
     int main() {
@@ -916,4 +916,6 @@ add_wn_header_library(WNCore
     inc/WNUtility.h
 )
 
-add_subdirectory(test)
+wn_add_subdirectory(test)
+
+post_enable_overlay_directory()

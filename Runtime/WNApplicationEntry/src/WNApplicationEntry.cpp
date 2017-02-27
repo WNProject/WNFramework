@@ -8,6 +8,18 @@
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNMultiTasking/inc/WNJobPool.h"
 
+namespace wn {
+namespace runtime {
+namespace application {
+namespace internal {
+
+void test_dummy() {}
+
+}  // namespace wn
+}  // namespace runtime
+}  // namespace application
+}  // namespace internal
+
 extern int32_t wn_application_main(
     const wn::runtime::application::application_data* _application_data);
 
@@ -24,7 +36,7 @@ struct main_application {
 
 int32_t wn_main(
     const wn::entry::system_data* _data, int32_t _argc, char* _argv[]) {
-  wn_dummy();
+  wn::entry::wn_dummy();
   wn::memory::basic_allocator root_allocator;
   wn::logging::console_logger<wn::logging::console_location::std_out>
       default_logger;

@@ -11,3 +11,5 @@ add_wn_library(WNApplicationTest
     WNApplicationData
     WNTestUtilities
 )
+
+post_enable_overlay_directory()

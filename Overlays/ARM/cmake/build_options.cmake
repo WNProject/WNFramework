@@ -1,4 +1,5 @@
 add_definitions(-D_WN_ARM)
-if (WN_ARCHITECTURE STREQUAL "ARM64")
+wn_has_architecture(ARM64 HAS)
+if (HAS)
     add_definitions(-D_WN_64_BIT)
 endif()

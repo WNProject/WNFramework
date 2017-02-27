@@ -1,6 +1,8 @@
 set(ENABLED OFF)
 
-if (WN_ARCHITECTURE STREQUAL "ARM")
+wn_has_architecture(ARM HAS)
+
+if (HAS)
   set(ENABLED ON)
 endif()
 

@@ -34,7 +34,7 @@ endfunction()
 
 if (${ANDROID_SYSTEM_LOWER} STREQUAL "windows" OR
   ${ANDROID_SYSTEM_LOWER} STREQUAL "windows-x86_64")
-  find_host_program(PYTHON python REQUIRED)
+  find_program(PYTHON python REQUIRED)
   set(DEBUG_KEYSTORE_PATH "$ENV{USERPROFILE}\\.android\\debug.keystore")
   fix_path(${DEBUG_KEYSTORE_PATH} DEBUG_KEYSTORE_PATH)
 else()
@@ -191,7 +191,7 @@ function(build_apk)
     set(ANDROID_TOOL_PATH ${ANDROID_SDK}/tools/android)
     if (${ANDROID_SYSTEM_LOWER} STREQUAL "windows" OR
       ${ANDROID_SYSTEM_LOWER} STREQUAL "windows-x86_64")
-      find_host_program(PYTHON python REQUIRED)
+      find_program(PYTHON python REQUIRED)
       set(ANDROID_TOOL_PATH ${PYTHON} ${configure_source_dir}/single_process_windows.py
         "WNFramework/AndroidUpdateProject"
         "${ANDROID_SDK}/tools/android.bat")
@@ -204,7 +204,7 @@ function(build_apk)
         android-${ANDROID_NATIVE_API_LEVEL}
         --name ${WN_TARGET_NAME} --path "${WN_TARGET_DIR}" > ${WN_NULL_LOCATION}
         COMMENT "Creating android project for ${WN_TARGET_NAME}")
-    find_host_program(ANT ant)
+    find_program(ANT ant)
 
     if (NOT ANT)
       message(WARNING "Cannot find ant, ANDROID APK will not get built")

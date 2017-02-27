@@ -67,7 +67,7 @@ fldenv  (%ecx)
 
 /* Restore register values */
 // Restore fs
-mov  MCONTEXT_FS_OFFSET(%eax), %ecx
+movl  MCONTEXT_FS_OFFSET(%eax), %ecx
 movw %cx, %fs
 
 movl MCONTEXT_EBP_OFFSET(%eax), %ebp
@@ -78,9 +78,9 @@ movl MCONTEXT_EDX_OFFSET(%eax), %edx
 movl MCONTEXT_ECX_OFFSET(%eax), %ecx
 
 // Restore eip and esp
-mov  MCONTEXT_ESP_OFFSET(%eax), %esp
-mov  MCONTEXT_EIP_OFFSET(%eax), %eax
-jmp %eax
+movl  MCONTEXT_ESP_OFFSET(%eax), %esp
+movl  MCONTEXT_EIP_OFFSET(%eax), %eax
+jmp *%eax
 movl $0, %eax
 ret
 .size wn_setcontext, . - wn_setcontext

@@ -572,7 +572,7 @@ public:
 
   // Constructs a new expression from this expression but transfers out
   // all of the internals.
-  virtual memory::unique_ptr<expression> transfer_to_new() {
+  memory::unique_ptr<expression> transfer_to_new() override {
     memory::unique_ptr<array_allocation_expression> alloc =
         memory::make_unique<array_allocation_expression>(
             m_allocator, m_allocator);
@@ -648,7 +648,7 @@ public:
 
   // Constructs a new expression from this expression but transfers out
   // all of the internals.
-  virtual memory::unique_ptr<expression> transfer_to_new() {
+  memory::unique_ptr<expression> transfer_to_new() override {
     memory::unique_ptr<binary_expression> expr =
         memory::make_unique<binary_expression>(m_allocator, m_allocator);
     expr->copy_location_from(this);
@@ -712,7 +712,7 @@ public:
   explicit cond_expression(memory::allocator* _allocator)
     : expression(_allocator, node_type::cond_expression) {}
 
-  virtual memory::unique_ptr<expression> transfer_to_new() {
+  memory::unique_ptr<expression> transfer_to_new() override {
     memory::unique_ptr<cond_expression> expr =
         memory::make_unique<cond_expression>(m_allocator, m_allocator);
     expr->copy_location_from(this);
@@ -775,7 +775,7 @@ public:
     _type(m_type.get());
   }
 
-  virtual memory::unique_ptr<expression> transfer_to_new() {
+  memory::unique_ptr<expression> transfer_to_new() override {
     memory::unique_ptr<constant_expression> expr =
         memory::make_unique<constant_expression>(m_allocator, m_allocator);
     expr->copy_location_from(this);
@@ -855,7 +855,7 @@ public:
     return m_source;
   }
 
-  virtual memory::unique_ptr<expression> transfer_to_new() {
+  memory::unique_ptr<expression> transfer_to_new() override {
     memory::unique_ptr<function_pointer_expression> expr =
         memory::make_unique<function_pointer_expression>(
             m_allocator, m_allocator);
@@ -940,7 +940,7 @@ public:
     return m_source;
   }
 
-  virtual memory::unique_ptr<expression> transfer_to_new() {
+  memory::unique_ptr<expression> transfer_to_new() override {
     memory::unique_ptr<id_expression> expr =
         memory::make_unique<id_expression>(m_allocator, m_allocator);
     expr->copy_location_from(this);
@@ -989,7 +989,7 @@ class null_allocation_expression : public expression {
 public:
   null_allocation_expression(memory::allocator* _allocator)
     : expression(_allocator, node_type::null_allocation_expression) {}
-  virtual memory::unique_ptr<expression> transfer_to_new() {
+  memory::unique_ptr<expression> transfer_to_new() override {
     memory::unique_ptr<null_allocation_expression> expr =
         memory::make_unique<null_allocation_expression>(
             m_allocator, m_allocator);
@@ -1062,7 +1062,7 @@ public:
   explicit array_access_expression(memory::allocator* _allocator)
     : post_expression(_allocator, node_type::array_access_expression) {}
 
-  virtual memory::unique_ptr<expression> transfer_to_new() {
+  memory::unique_ptr<expression> transfer_to_new() override {
     memory::unique_ptr<array_access_expression> expr =
         memory::make_unique<array_access_expression>(m_allocator, m_allocator);
     expr->copy_location_from(this);
@@ -1156,7 +1156,7 @@ public:
     return m_ss_type;
   }
 
-  virtual memory::unique_ptr<expression> transfer_to_new() {
+  memory::unique_ptr<expression> transfer_to_new() override {
     memory::unique_ptr<short_circuit_expression> expr =
         memory::make_unique<short_circuit_expression>(m_allocator, m_allocator);
     expr->copy_location_from(this);
@@ -1202,7 +1202,7 @@ public:
   const containers::string_view get_name() const {
     return m_member;
   }
-  virtual memory::unique_ptr<expression> transfer_to_new() {
+  memory::unique_ptr<expression> transfer_to_new() override {
     memory::unique_ptr<member_access_expression> expr =
         memory::make_unique<member_access_expression>(m_allocator, m_allocator);
     expr->copy_location_from(this);
@@ -1234,7 +1234,7 @@ public:
   explicit post_unary_expression(memory::allocator* _allocator)
     : post_expression(_allocator, node_type::post_unary_expression) {}
 
-  virtual memory::unique_ptr<expression> transfer_to_new() {
+  memory::unique_ptr<expression> transfer_to_new() override {
     memory::unique_ptr<post_unary_expression> expr =
         memory::make_unique<post_unary_expression>(m_allocator, m_allocator);
     expr->copy_location_from(this);
@@ -1293,7 +1293,7 @@ public:
     _type(m_type.get());
   }
 
-  virtual memory::unique_ptr<expression> transfer_to_new() {
+  memory::unique_ptr<expression> transfer_to_new() override {
     memory::unique_ptr<cast_expression> expr =
         memory::make_unique<cast_expression>(m_allocator, m_allocator);
     expr->copy_location_from(this);
@@ -1345,7 +1345,7 @@ public:
     _type(m_sized_type.get());
   }
 
-  virtual memory::unique_ptr<expression> transfer_to_new() {
+  memory::unique_ptr<expression> transfer_to_new() override {
     memory::unique_ptr<sizeof_expression> expr =
         memory::make_unique<sizeof_expression>(m_allocator, m_allocator);
     expr->copy_location_from(this);
@@ -1416,7 +1416,7 @@ public:
     _type(m_type.get());
   }
 
-  virtual memory::unique_ptr<expression> transfer_to_new() {
+  memory::unique_ptr<expression> transfer_to_new() override {
     memory::unique_ptr<struct_allocation_expression> expr =
         memory::make_unique<struct_allocation_expression>(
             m_allocator, m_allocator);
@@ -1458,7 +1458,7 @@ public:
   explicit unary_expression(memory::allocator* _allocator)
     : expression(_allocator, node_type::unary_expression) {}
 
-  virtual memory::unique_ptr<expression> transfer_to_new() {
+  memory::unique_ptr<expression> transfer_to_new() override {
     memory::unique_ptr<unary_expression> expr =
         memory::make_unique<unary_expression>(m_allocator, m_allocator);
     expr->copy_location_from(this);
@@ -1847,7 +1847,7 @@ public:
     return m_args.get();
   }
 
-  virtual memory::unique_ptr<expression> transfer_to_new() {
+  memory::unique_ptr<expression> transfer_to_new() override {
     memory::unique_ptr<function_call_expression> alloc =
         memory::make_unique<function_call_expression>(m_allocator, m_allocator);
     alloc->copy_location_from(this);

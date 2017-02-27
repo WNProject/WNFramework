@@ -5,9 +5,14 @@ set(BUILD_TYPES ${CMAKE_BUILD_TYPE})
 endif()
 
 set_overlay_var(WN_LLVM_TARGET "X86")
-if (WN_ARCHITECTURE STREQUAL "x86")
+
+wn_has_architecture(x86 HAS)
+if (HAS)
   set_overlay_var(WN_LLVM_TRIPLE "i686-unknown-linux-gnu")
-elseif(WN_ARCHITECTURE STREQUAL "x86-64")
+endif()
+
+wn_has_architecture(x86-64 HAS)
+if (HAS)
   set_overlay_var(WN_LLVM_TRIPLE "x86_64-unknown-linux-gnu")
 endif()
 

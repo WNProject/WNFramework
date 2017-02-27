@@ -8,7 +8,6 @@ add_wn_library(WNWindow
     inc/WNWindowErrors.h
     src/WNWindowFactory.cpp
     inc/WNWindowFactory.h
-    inc/Internal/WNConfig.h
     ${CMAKE_CURRENT_BINARY_DIR}/inc/Internal/WNConfig.h
     inc/Internal/WNWindowInclude.h.in
     ${CMAKE_CURRENT_BINARY_DIR}/inc/Internal/WNWindowInclude.h
@@ -40,4 +39,6 @@ configure_file(inc/Internal/WNConfig.h.in
 configure_file(inc/Internal/WNWindowInclude.h.in
   inc/Internal/WNWindowInclude.h)
 
-add_subdirectory(test)
+wn_add_subdirectory(test)
+
+post_enable_overlay_directory()

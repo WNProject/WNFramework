@@ -31,8 +31,16 @@ public:
     return true;
   }
 
-  virtual window_type type() const {
+  window_type type() const override {
     return window_type::null;
+  }
+
+  uint32_t get_width() const override {
+    return 0;
+  }
+
+  uint32_t get_height() const override {
+    return 0;
   }
 
   const void* get_native_handle() const override {

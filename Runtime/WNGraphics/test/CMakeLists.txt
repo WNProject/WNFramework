@@ -1,3 +1,5 @@
+enable_overlay_directory()
+
 wn_create_executable_tests_from_list(TEST_PREFIX WNGraphics
   SOURCE_DIR src/Tests
   SYSTEMS_TEST
@@ -23,3 +25,5 @@ wn_create_application_tests_from_list(
     WNGraphics
     WNWindow
 )
+
+post_enable_overlay_directory()

@@ -5,3 +5,5 @@ add_wn_application(
   SOURCES
     src/TestApplication.cpp
 )
+
+post_enable_overlay_directory()

@@ -11,6 +11,10 @@ include(CMakeParseArguments)
 #     LIBS: Any additional libraries to include.
 function(wn_create_tests_from_list_internal)
   if(WN_OVERLAY_IS_ENABLED)
+    propagate_from_parent(WN_ALL_EXECUTABLES)
+    propagate_from_parent(WN_ALL_SHARED_LIBS)
+    propagate_from_parent(WN_ALL_STATIC_LIBS)
+    propagate_from_parent(WN_ALL_APPLICATIONS)
     cmake_parse_arguments(
       PARSED_ARGS
       "SYSTEMS_TEST"
@@ -45,20 +49,32 @@ function(wn_create_tests_from_list_internal)
         ADDITIONAL_INCLUDES ${PARSED_ARGS_ADDITIONAL_INCLUDES}
         LIBS ${PARSED_ARGS_LIBS})
     endforeach()
+  propagate_to_parent(WN_ALL_EXECUTABLES)
+  propagate_to_parent(WN_ALL_SHARED_LIBS)
+  propagate_to_parent(WN_ALL_STATIC_LIBS)
+  propagate_to_parent(WN_ALL_APPLICATIONS)
   endif()
 endfunction()
 
 function(overload_create_test_wrapper)
+  propagate_from_parent(WN_ALL_EXECUTABLES)
+  propagate_from_parent(WN_ALL_SHARED_LIBS)
+  propagate_from_parent(WN_ALL_STATIC_LIBS)
+  propagate_from_parent(WN_ALL_APPLICATIONS)
   if(WN_OVERLAY_IS_ENABLED)
     overlay_named_file(cmake/target_functions/pre_add_test.cmake)
     overload_create_test(${ARGN})
     overlay_named_file(cmake/target_functions/post_add_test.cmake)
   endif()
+  propagate_to_parent(WN_ALL_EXECUTABLES)
+  propagate_to_parent(WN_ALL_SHARED_LIBS)
+  propagate_to_parent(WN_ALL_STATIC_LIBS)
+  propagate_to_parent(WN_ALL_APPLICATIONS)
 endfunction()
 
-function(overload_create_test)
-wn_create_test(${ARGN})
-endfunction()
+macro(overload_create_test)
+  wn_create_test(${ARGN})
+endmacro()
 
 # Arguments
 #     TEST_NAME: Name of the test to create.
@@ -68,7 +84,7 @@ endfunction()
 #     ADDITIONAL_INCLUDES: Any additional include directories.
 #     SYSTEMS_TEST: Defined if this is a system test
 #     LIBS: Any additional libraries to include.
-function(wn_create_test)
+macro(wn_create_test)
   cmake_parse_arguments(
     PARSED_ARGS
     "SYSTEMS_TEST"
@@ -97,6 +113,6 @@ function(wn_create_test)
 
   add_test(${PARSED_ARGS_TEST_NAME}
     ${PARSED_ARGS_RUN_WRAPPER} ${PARSED_ARGS_TEST_NAME}_test)
-endfunction()
+endmacro()
 
 enable_overlay_file()

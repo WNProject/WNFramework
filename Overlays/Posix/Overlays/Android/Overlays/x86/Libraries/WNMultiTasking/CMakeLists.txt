@@ -1,4 +1,4 @@
-overlay_header_library_sources(WNMultiTasking
+overlay_library_sources(WNMultiTasking
   SOURCES
       asm/Android/WNGetContext_x86.S
       asm/Android/WNSetContext_x86.S

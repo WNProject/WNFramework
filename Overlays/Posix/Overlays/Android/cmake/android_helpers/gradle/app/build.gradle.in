@@ -1,0 +1,29 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion = @WN_ANDROID_NATIVE_API_LEVEL@
+    buildToolsVersion = '23.0.2'
+
+    defaultConfig {
+        applicationId = '@WN_PACKAGE_NAME@.@APPLICATION_NAME@'
+        minSdkVersion   @WN_ANDROID_NATIVE_API_LEVEL@
+        targetSdkVersion  @WN_ANDROID_NATIVE_API_LEVEL@
+        ndk {
+            abiFilters @WN_ABI_LIST@
+        }
+    }
+    sourceSets.main.jniLibs {
+        srcDirs = ['src/main/jniLibs']
+    } 
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'),
+                    'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+}

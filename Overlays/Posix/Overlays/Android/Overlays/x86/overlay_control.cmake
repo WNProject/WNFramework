@@ -1,6 +1,8 @@
 set(ENABLED OFF)
 
-if (WN_ARCHITECTURE STREQUAL "x86")
+wn_has_architecture(x86 HAS)
+
+if (HAS)
   set(ENABLED ON)
 endif()
 

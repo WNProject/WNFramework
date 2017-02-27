@@ -8,3 +8,5 @@ wn_create_application_tests_from_list(
   LIBS
     WNWindow
 )
+
+post_enable_overlay_directory()

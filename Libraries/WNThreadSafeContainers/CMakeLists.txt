@@ -5,4 +5,6 @@ add_wn_header_library(WNThreadSafeContainers
     inc/WNObjectPool.h
 )
 
-add_subdirectory(test)
+wn_add_subdirectory(test)
+
+post_enable_overlay_directory()

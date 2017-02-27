@@ -9,12 +9,16 @@
 
 extern int32_t wn_main(
     const wn::entry::system_data* _data, int32_t _argc, char* _argv[]);
+namespace wn {
+namespace entry {
 
 void wn_dummy() {}
+}  // namespace entry
+}  // namespace wn
 
 int main(int _argc, char** _argv) {
-  wn::utilities::initialize_crash_handler();
   const char* full_path;
+  wn::utilities::initialize_crash_handler();
 
   if (_argc > 0) {
     full_path = _argv[0];

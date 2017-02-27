@@ -315,6 +315,9 @@ function(add_wn_library name)
     set(IS_SHARED)
     if (PARSED_ARGS_SHARED)
       set(IS_SHARED SHARED)
+      append_to_overlay_var(WN_ALL_SHARED_LIBS ${name})
+    else()
+      append_to_overlay_var(WN_ALL_STATIC_LIBS ${name})
     endif()
 
     overlay_named_file(cmake/target_functions/pre_add_library.cmake)
@@ -328,6 +331,7 @@ endfunction()
 
 function(add_wn_executable name)
   if (WN_OVERLAY_IS_ENABLED)
+    append_to_overlay_var(WN_ALL_EXECUTABLES ${name})
     cmake_parse_arguments(
       PARSED_ARGS
       ""
@@ -371,22 +375,29 @@ function (add_wn_header_library name)
   endif()
 endfunction()
 
-function (add_wn_application name)
-  cmake_parse_arguments(
-      PARSED_ARGS
-      ""
-      ""
-      "SOURCES;LIBS"
-      ${ARGN})
+function(overload_add_application name)
+  add_wn_executable(${name} ${ARGN})
+endfunction()
 
-  add_wn_executable(${name}
-    SOURCES
-      ${PARSED_ARGS_SOURCES}
-    LIBS
-      WNExecutable
-      WNApplicationEntry
-      ${PARSED_ARGS_LIBS}
-  )
+function(add_wn_application name)
+  if (WN_OVERLAY_IS_ENABLED)
+    append_to_overlay_var(WN_ALL_APPLICATIONS ${name})
+    cmake_parse_arguments(
+        PARSED_ARGS
+        ""
+        ""
+        "SOURCES;LIBS"
+        ${ARGN})
+
+    overload_add_application(${name}
+      SOURCES
+        ${PARSED_ARGS_SOURCES}
+      LIBS
+        WNExecutable
+        WNApplicationEntry
+        ${PARSED_ARGS_LIBS}
+    )
+  endif()
 endfunction()
 
 enable_overlay_file()

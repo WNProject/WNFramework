@@ -6,5 +6,8 @@ if (ANDROID)
       "Android api level must be >= 19 \"-DANDROID_NATIVE_API_LEVEL=19\"")
   endif()
 endif()
+if (WN_ANDROID_WRAPPER)
+  set(ENABLED ON)
+endif()
 
 register_overlay(${ENABLED} Android)

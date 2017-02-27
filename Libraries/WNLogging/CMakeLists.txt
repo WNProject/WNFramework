@@ -28,7 +28,9 @@ add_wn_header_library(WNLogging
   LIBS
 )
 
-add_subdirectory(test)
+wn_add_subdirectory(test)
 
 configure_file(inc/Internal/WNConfig.h.in
   inc/Internal/WNConfig.h)
+
+post_enable_overlay_directory()

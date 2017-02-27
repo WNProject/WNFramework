@@ -1,9 +1,6 @@
-add_wn_library(AndroidNativeAppGlue
-  SOURCES
-    ${ANDROID_NDK}/sources/android/native_app_glue/android_native_app_glue.c
-  INCLUDES
-    ${ANDROID_NDK}/sources/android/native_app_glue)
-
+if(ANDROID_NDK)
+  file(TO_CMAKE_PATH ${ANDROID_NDK} NDK_PATH)
+endif()
 
 overlay_library_sources(WNUtilities
   SOURCES
@@ -15,6 +12,5 @@ overlay_library_sources(WNUtilities
     src/WNCrashHandler.cpp
     src/WNLoggingData.cpp
   INCLUDES
-    ${ANDROID_NDK}/sources/android/native_app_glue
-  LIBS
-    AndroidNativeAppGlue)
+    ${NDK_PATH}/sources/android/native_app_glue
+)

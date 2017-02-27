@@ -1,4 +1,7 @@
 add_definitions(-D_WN_X86)
-if (WN_ARCHITECTURE STREQUAL "x86-64")
+
+wn_has_architecture(x86-64 HAS)
+
+if (HAS)
     add_definitions(-D_WN_64_BIT)
 endif()

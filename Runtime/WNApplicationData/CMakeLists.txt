@@ -7,3 +7,5 @@ add_wn_library(WNApplicationData
   LIBS
     WNMultiTasking
 )
+
+post_enable_overlay_directory()
