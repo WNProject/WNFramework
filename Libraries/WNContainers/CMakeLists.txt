@@ -9,6 +9,7 @@ add_wn_header_library(WNContainers
     inc/WNDynamicArray.h
     inc/WNHashMap.h
     inc/WNHashSet.h
+    inc/WNRangePartition.h
     inc/WNList.h
     inc/WNSerializer.h
     inc/WNSerializerBase.h

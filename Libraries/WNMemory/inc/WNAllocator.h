@@ -93,7 +93,8 @@ public:
     m_allocator->deallocate(_ptr);
   }
 
-  WN_INLINE virtual void* aligned_allocate(const size_t _size, const size_t _alignment) override {
+  WN_INLINE virtual void* aligned_allocate(
+      const size_t _size, const size_t _alignment) override {
     void* ptr = m_allocator->aligned_allocate(_size, _alignment);
 
     notify_allocated(ptr, _size);
@@ -193,7 +194,8 @@ public:
     free(_ptr);
   }
 
-  WN_FORCE_INLINE virtual void* aligned_allocate(const size_t _size, const size_t _alignment) override {
+  WN_FORCE_INLINE virtual void* aligned_allocate(
+      const size_t _size, const size_t _alignment) override {
     return aligned_malloc(_size, _alignment);
   }
 

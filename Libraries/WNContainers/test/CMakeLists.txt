@@ -6,6 +6,7 @@ wn_create_executable_tests_from_list(TEST_PREFIX WNContainers
     WNDynamicArray
     WNHashMap
     WNHashSet
+    WNRangePartition
     WNList
     WNString
     WNStringView
