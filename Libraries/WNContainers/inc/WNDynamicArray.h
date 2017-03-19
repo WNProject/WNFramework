@@ -664,17 +664,17 @@ private:
     WN_DEBUG_ASSERT(_pos <= const_iterator(m_data + m_size) &&
                     (_pos >= const_iterator(m_data)));
 
-    size_t originalPosition = _pos.m_ptr - m_data;
+    const size_type originalPosition = _pos.m_ptr - m_data;
 
     if (m_capacity < (m_size + _count)) {
       iterator startPt = iterator(m_data + (_pos - begin()));
-      void* alloc = allocate(sizeof(T),
-          static_cast<size_type>((m_size + _count) *
-                                 (1 + (_ExpandPercentage / 100.0f))));
+      const size_type new_capacity = static_cast<size_type>(
+          (m_size + _count) * (1 + (_ExpandPercentage / 100.0f)));
+      void* memory = allocate(sizeof(T), new_capacity);
 
-      m_capacity = m_size + _count;
+      m_capacity = new_capacity;
 
-      T* new_data = reinterpret_cast<T*>(alloc);
+      T* new_data = reinterpret_cast<T*>(memory);
       T* allocated = new_data;
 
       for (T* i = m_data; i < startPt.m_ptr; ++i) {
