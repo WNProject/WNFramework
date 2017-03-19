@@ -13,6 +13,7 @@
 #include "WNGraphics/inc/WNDescriptorData.h"
 #include "WNGraphics/inc/WNGraphicsEnums.h"
 #include "WNGraphics/inc/WNHeapTraits.h"
+#include "WNGraphics/inc/WNRenderPassTypes.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/WNUniquePtr.h"
 
@@ -27,12 +28,6 @@ WN_GRAPHICS_FORWARD(queue);
 WN_GRAPHICS_FORWARD(adapter);
 WN_GRAPHICS_FORWARD(image);
 WN_GRAPHICS_FORWARD(swapchain);
-WN_GRAPHICS_FORWARD(shader_module);
-WN_GRAPHICS_FORWARD(descriptor_set_layout);
-WN_GRAPHICS_FORWARD(descriptor_pool);
-WN_GRAPHICS_FORWARD(descriptor_set);
-WN_GRAPHICS_FORWARD(pipeline_layout);
-
 namespace wn {
 namespace runtime {
 namespace window {
@@ -54,6 +49,12 @@ class command_allocator;
 class command_list;
 class fence;
 class shader_module;
+class descriptor_set_layout;
+class descriptor_pool;
+class descriptor_set;
+class pipeline_layout;
+class render_pass;
+
 struct image_create_info;
 struct swapchain_create_info;
 
@@ -109,6 +110,12 @@ public:
       const containers::contiguous_range<const descriptor_set_layout*>&
           _descriptor_sets);
 
+  render_pass create_render_pass(
+      const containers::contiguous_range<const render_pass_attachment>&
+          _attachments,
+      const containers::contiguous_range<const subpass_description>& _subpasses,
+      const containers::contiguous_range<const subpass_dependency>& _deps);
+
 protected:
   friend class command_allocator;
   friend class fence;
@@ -121,11 +128,13 @@ protected:
   WN_GRAPHICS_ADD_FRIENDS(adapter);
   WN_GRAPHICS_ADD_FRIENDS(image);
   WN_GRAPHICS_ADD_FRIENDS(swapchain);
-  WN_GRAPHICS_ADD_FRIENDS(shader_module);
-  WN_GRAPHICS_ADD_FRIENDS(descriptor_pool);
-  WN_GRAPHICS_ADD_FRIENDS(descriptor_set);
-  WN_GRAPHICS_ADD_FRIENDS(descriptor_set_layout);
-  WN_GRAPHICS_ADD_FRIENDS(pipeline_layout);
+
+  friend class shader_module;
+  friend class descriptor_set_layout;
+  friend class descriptor_pool;
+  friend class descriptor_set;
+  friend class pipeline_layout;
+  friend class render_pass;
 
 #ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
   // Upload heap methods
@@ -202,6 +211,14 @@ protected:
       const containers::contiguous_range<const descriptor_set_layout*>&
           _descriptor_sets) = 0;
   virtual void destroy_pipeline_layout(pipeline_layout* _layout) = 0;
+
+  // Render pass
+  virtual void initialize_render_pass(render_pass* _pass,
+      const containers::contiguous_range<const render_pass_attachment>&
+          _attachments,
+      const containers::contiguous_range<const subpass_description>& _subpasses,
+      const containers::contiguous_range<const subpass_dependency>& _deps) = 0;
+  virtual void destroy_render_pass(render_pass* _pass) = 0;
 #endif
 };
 

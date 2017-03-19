@@ -115,6 +115,8 @@ add_wn_library(WNGraphics
     inc/WNImage.h
     inc/WNGraphicsEnums.h
     inc/WNQueue.h
+    inc/WNRenderPass.h
+    inc/WNRenderPassTypes.h
     inc/WNShaderModule.h
     inc/WNSwapchain.h
     src/WNDevice.cpp

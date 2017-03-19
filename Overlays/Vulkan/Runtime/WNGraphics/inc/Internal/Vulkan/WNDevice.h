@@ -14,6 +14,7 @@
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanSurfaceHelper.h"
 #include "WNGraphics/inc/Internal/WNConfig.h"
 #include "WNGraphics/inc/WNHeapTraits.h"
+#include "WNGraphics/inc/WNRenderPassTypes.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/WNUniquePtr.h"
 #include "WNWindow/inc/WNWindow.h"
@@ -47,6 +48,7 @@ struct image_create_info;
 class image;
 class swapchain;
 class shader_module;
+class render_pass;
 struct swapchain_create_info;
 struct descriptor_binding_info;
 struct descriptor_pool_create_info;
@@ -184,6 +186,14 @@ protected:
   void destroy_pipeline_layout(
       pipeline_layout* _layout) WN_GRAPHICS_OVERRIDE_FINAL;
 
+  void initialize_render_pass(render_pass* _pass,
+      const containers::contiguous_range<const render_pass_attachment>&
+          _attachments,
+      const containers::contiguous_range<const subpass_description>& _subpasses,
+      const containers::contiguous_range<const subpass_dependency>& _deps)
+      WN_GRAPHICS_OVERRIDE_FINAL;
+  void destroy_render_pass(render_pass* _pass) WN_GRAPHICS_OVERRIDE_FINAL;
+
   uint32_t get_memory_type_index(uint32_t _types, VkFlags _properties) const;
 
   surface_helper m_surface_helper;
@@ -251,6 +261,10 @@ protected:
   // Pipeline Layout
   PFN_vkCreatePipelineLayout vkCreatePipelineLayout;
   PFN_vkDestroyPipelineLayout vkDestroyPipelineLayout;
+
+  // Render Pass
+  PFN_vkCreateRenderPass vkCreateRenderPass;
+  PFN_vkDestroyRenderPass vkDestroyRenderPass;
 
   queue_context m_queue_context;
   command_list_context m_command_list_context;

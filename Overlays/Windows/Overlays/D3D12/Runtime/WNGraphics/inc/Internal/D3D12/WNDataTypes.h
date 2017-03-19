@@ -10,6 +10,7 @@
 #include "WNContainers/inc/WNDynamicArray.h"
 #include "WNContainers/inc/WNRangePartition.h"
 #include "WNGraphics/inc/WNDescriptorData.h"
+#include "WNGraphics/inc/WNRenderPassTypes.h"
 #include "WNGraphics/inc/WNShaderModule.h"
 
 #include <DXGI1_4.h>
@@ -63,6 +64,11 @@ struct descriptor_set_data {
   descriptor_pool_data* pool_data;
 };
 
+struct render_pass_data {
+  render_pass_data(memory::allocator* _allocator) : attachments(_allocator) {}
+  containers::dynamic_array<render_pass_attachment> attachments;
+};
+
 template <>
 struct data_type<shader_module> {
   using value = memory::unique_ptr<internal::d3d12::shader_module_data>;
@@ -111,6 +117,16 @@ struct data_type<pipeline_layout> {
 template <>
 struct data_type<const pipeline_layout> {
   using value = const Microsoft::WRL::ComPtr<ID3D12RootSignature>;
+};
+
+template <>
+struct data_type<render_pass> {
+  using value = memory::unique_ptr<render_pass_data>;
+};
+
+template <>
+struct data_type<const render_pass> {
+  using value = memory::unique_ptr<const render_pass_data>;
 };
 
 }  // namespace d3d12

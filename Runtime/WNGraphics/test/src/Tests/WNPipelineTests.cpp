@@ -5,6 +5,7 @@
 #include "WNGraphics/inc/WNDescriptors.h"
 #include "WNGraphics/inc/WNDevice.h"
 #include "WNGraphics/inc/WNFactory.h"
+#include "WNGraphics/inc/WNRenderPass.h"
 #include "WNGraphics/inc/WNShaderModule.h"
 #include "WNGraphics/test/inc/WNTestFixture.h"
 
@@ -82,6 +83,13 @@ TEST_F(pipeline_test, basic_pipeline) {
 
     wn::graphics::pipeline_layout layout =
         device->create_pipeline_layout(layouts);
+
+    const wn::graphics::render_pass_attachment attachment[] = {{}};
+    const wn::graphics::attachment_reference color_attachments[] = {{}};
+    wn::graphics::subpass_description subpasses[] = {{}};
+    subpasses[0].color_attachments = color_attachments;
+    wn::graphics::render_pass p =
+        device->create_render_pass(attachment, subpasses, nullptr);
   }
 
   m_log->flush();

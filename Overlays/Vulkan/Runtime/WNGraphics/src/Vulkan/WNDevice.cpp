@@ -3,6 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "WNGraphics/inc/Internal/Vulkan/WNDevice.h"
+#include "WNContainers/inc/WNDeque.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNBufferData.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNDataTypes.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNImageFormats.h"
@@ -15,6 +16,7 @@
 #include "WNGraphics/inc/WNFence.h"
 #include "WNGraphics/inc/WNHeap.h"
 #include "WNGraphics/inc/WNQueue.h"
+#include "WNGraphics/inc/WNRenderPass.h"
 #include "WNGraphics/inc/WNShaderModule.h"
 #include "WNGraphics/inc/WNSwapchain.h"
 #include "WNLogging/inc/WNLog.h"
@@ -191,6 +193,9 @@ bool vulkan_device::initialize(memory::allocator* _allocator,
 
   LOAD_VK_DEVICE_SYMBOL(m_device, vkCreatePipelineLayout);
   LOAD_VK_DEVICE_SYMBOL(m_device, vkDestroyPipelineLayout);
+
+  LOAD_VK_DEVICE_SYMBOL(m_device, vkCreateRenderPass);
+  LOAD_VK_DEVICE_SYMBOL(m_device, vkDestroyRenderPass);
 
   LOAD_VK_SUB_DEVICE_SYMBOL(m_device, m_queue_context, vkQueueSubmit);
   LOAD_VK_SUB_DEVICE_SYMBOL(m_device, m_queue_context, vkQueuePresentKHR);
@@ -976,6 +981,120 @@ void vulkan_device::initialize_pipeline_layout(pipeline_layout* _layout,
 void vulkan_device::destroy_pipeline_layout(pipeline_layout* _layout) {
   ::VkPipelineLayout& layout = get_data(_layout);
   vkDestroyPipelineLayout(m_device, layout, nullptr);
+}
+
+void vulkan_device::initialize_render_pass(render_pass* _pass,
+    const containers::contiguous_range<const render_pass_attachment>&
+        _attachments,
+    const containers::contiguous_range<const subpass_description>& _subpasses,
+    const containers::contiguous_range<const subpass_dependency>& _deps) {
+  ::VkRenderPass& pass_data = get_data(_pass);
+
+  containers::dynamic_array<VkAttachmentDescription> attachments(
+      m_allocator, _attachments.size());
+  containers::dynamic_array<VkSubpassDescription> subpasses(
+      m_allocator, _subpasses.size());
+  containers::dynamic_array<VkSubpassDependency> dependencies(
+      m_allocator, _deps.size());
+
+  VkRenderPassCreateInfo create_info = {
+      VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,   // sType
+      nullptr,                                     // pNext
+      0,                                           // flags
+      static_cast<uint32_t>(attachments.size()),   // attachmentCount
+      attachments.data(),                          // pAttachments
+      static_cast<uint32_t>(subpasses.size()),     // subpassCount
+      subpasses.data(),                            // pSubpasses
+      static_cast<uint32_t>(dependencies.size()),  // dependencyCount
+      dependencies.data()                          // pDependencies
+  };
+
+  for (size_t i = 0; i < attachments.size(); ++i) {
+    // TODO: Figure out how to handle the MayAlias bit.
+    const render_pass_attachment& att = _attachments[i];
+    attachments[i] = {0,                                     // Flags
+        image_format_to_vulkan_format(att.format),           // format
+        multi_sampled_to_vulkan(att.num_samples),            // samples
+        load_op_to_vulkan(att.attachment_load_op),           // loadOp
+        store_op_to_vulkan(att.attachment_store_op),         // storeOp
+        load_op_to_vulkan(att.stencil_load_op),              // stencilLoadOp
+        store_op_to_vulkan(att.stencil_store_op),            // stencilStore
+        resource_state_to_vulkan_layout(att.initial_state),  // initialLayout
+        resource_state_to_vulkan_layout(att.final_state)};
+  }
+
+  containers::deque<containers::dynamic_array<VkAttachmentReference>>
+      attachment_references(m_allocator);
+  containers::deque<containers::dynamic_array<uint32_t>> preserve_references(
+      m_allocator);
+  for (size_t i = 0; i < subpasses.size(); ++i) {
+    const subpass_description& desc = _subpasses[i];
+    attachment_references.emplace_back(
+        m_allocator, desc.input_attachments.size());
+    containers::dynamic_array<VkAttachmentReference>& inputs =
+        attachment_references.back();
+    attachment_references.emplace_back(
+        m_allocator, desc.color_attachments.size());
+    containers::dynamic_array<VkAttachmentReference>& colors =
+        attachment_references.back();
+    attachment_references.emplace_back(
+        m_allocator, desc.resolve_attachments.size());
+    containers::dynamic_array<VkAttachmentReference>& resolves =
+        attachment_references.back();
+    preserve_references.emplace_back(
+        m_allocator, desc.preserve_attachments.size());
+    containers::dynamic_array<uint32_t>& preserve = preserve_references.back();
+
+    for (size_t j = 0; j < desc.input_attachments.size(); ++j) {
+      inputs[j] = {desc.input_attachments[j].attachment,
+          resource_state_to_vulkan_layout(desc.input_attachments[j].state)};
+    }
+
+    for (size_t j = 0; j < desc.color_attachments.size(); ++j) {
+      colors[j] = {desc.color_attachments[j].attachment,
+          resource_state_to_vulkan_layout(desc.color_attachments[j].state)};
+    }
+
+    for (size_t j = 0; j < desc.resolve_attachments.size(); ++j) {
+      resolves[j] = {desc.resolve_attachments[j].attachment,
+          resource_state_to_vulkan_layout(desc.resolve_attachments[j].state)};
+    }
+
+    for (size_t j = 0; j < desc.preserve_attachments.size(); ++j) {
+      preserve[j] = desc.preserve_attachments[j].attachment;
+    }
+
+    VkAttachmentReference ref;
+    VkAttachmentReference* depth_ref = nullptr;
+    if (desc.depth_stencil) {
+      ref = {desc.depth_stencil->attachment,
+          resource_state_to_vulkan_layout(desc.depth_stencil->state)};
+      depth_ref = &ref;
+    }
+
+    subpasses[i] = {
+        0,                                       // flags
+        VK_PIPELINE_BIND_POINT_GRAPHICS,         // pipelineBindPoint
+        static_cast<uint32_t>(inputs.size()),    // inputAttachmentCount
+        inputs.data(),                           // pInputAttachmentCount
+        static_cast<uint32_t>(colors.size()),    // colorAttachmentCount
+        colors.data(),                           // pColorAttachments
+        resolves.data(),                         // pResolveAttachments
+        depth_ref,                               // pDepthStencilAttachments
+        static_cast<uint32_t>(preserve.size()),  // preserveAttachmentCount
+        preserve.data()                          // pPreserveAttachments
+    };
+  }
+
+  if (VK_SUCCESS !=
+      vkCreateRenderPass(m_device, &create_info, nullptr, &pass_data)) {
+    m_log->log_error("Could not create render pass");
+  }
+}
+
+void vulkan_device::destroy_render_pass(render_pass* _pass) {
+  ::VkRenderPass& pass_data = get_data(_pass);
+  vkDestroyRenderPass(m_device, pass_data, nullptr);
 }
 
 #undef get_data

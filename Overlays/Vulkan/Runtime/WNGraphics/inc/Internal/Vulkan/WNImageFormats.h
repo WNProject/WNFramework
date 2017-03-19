@@ -26,9 +26,51 @@ static WN_FORCE_INLINE VkFormat image_format_to_vulkan_format(
   return formats[static_cast<uint32_t>(_format)];
 }
 
+static WN_FORCE_INLINE VkSampleCountFlagBits multi_sampled_to_vulkan(
+    multisample_count _count) {
+  switch (_count) {
+    case multisample_count::samples_1:
+      return VK_SAMPLE_COUNT_1_BIT;
+    case multisample_count::samples_2:
+      return VK_SAMPLE_COUNT_2_BIT;
+    case multisample_count::samples_4:
+      return VK_SAMPLE_COUNT_4_BIT;
+    case multisample_count::samples_8:
+      return VK_SAMPLE_COUNT_8_BIT;
+    case multisample_count::samples_16:
+      return VK_SAMPLE_COUNT_16_BIT;
+    case multisample_count::samples_32:
+      return VK_SAMPLE_COUNT_32_BIT;
+    case multisample_count::samples_64:
+      return VK_SAMPLE_COUNT_64_BIT;
+  }
+  return VK_SAMPLE_COUNT_1_BIT;
+}
+
+static WN_FORCE_INLINE VkAttachmentLoadOp load_op_to_vulkan(load_op _load) {
+  switch (_load) {
+    case load_op::load:
+      return VK_ATTACHMENT_LOAD_OP_LOAD;
+    case load_op::clear:
+      return VK_ATTACHMENT_LOAD_OP_CLEAR;
+    case load_op::dont_care:
+      return VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+  }
+  return VkAttachmentLoadOp(0);
+}
+
+static WN_FORCE_INLINE VkAttachmentStoreOp store_op_to_vulkan(store_op _store) {
+  switch (_store) {
+    case store_op::store:
+      return VK_ATTACHMENT_STORE_OP_STORE;
+    case store_op::dont_care:
+      return VK_ATTACHMENT_STORE_OP_DONT_CARE;
+  }
+  return VkAttachmentStoreOp(0);
+}
+
 }  // namespace vulkan
 }  // namespace internal
 }  // namespace graphics
 }  // namespace wn
-
 #endif  // __WN_GRAPHICS_INTERNAL_D3D12_IMAGE_FORMATS_H__

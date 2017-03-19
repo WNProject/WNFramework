@@ -11,6 +11,7 @@
 #include "WNGraphics/inc/Internal/WNConfig.h"
 #include "WNGraphics/inc/WNDescriptorData.h"
 #include "WNGraphics/inc/WNHeapTraits.h"
+#include "WNGraphics/inc/WNRenderPassTypes.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/WNUniquePtr.h"
 #include "WNMultiTasking/inc/WNSpinLock.h"
@@ -46,6 +47,7 @@ class fence;
 class queue;
 class shader_module;
 class swapchain;
+class render_pass;
 struct image_create_info;
 struct swapchain_create_info;
 class image;
@@ -198,6 +200,14 @@ protected:
           _descriptor_sets) WN_GRAPHICS_OVERRIDE_FINAL;
   void destroy_pipeline_layout(
       pipeline_layout* _layout) WN_GRAPHICS_OVERRIDE_FINAL;
+
+  void initialize_render_pass(render_pass* _pass,
+      const containers::contiguous_range<const render_pass_attachment>&
+          _attachments,
+      const containers::contiguous_range<const subpass_description>& _subpasses,
+      const containers::contiguous_range<const subpass_dependency>& _deps)
+      WN_GRAPHICS_OVERRIDE_FINAL;
+  void destroy_render_pass(render_pass* _pass) WN_GRAPHICS_OVERRIDE_FINAL;
 
 public:
   Microsoft::WRL::ComPtr<ID3D12Device> m_device;

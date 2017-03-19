@@ -10,6 +10,7 @@
 #include "WNGraphics/inc/WNHeap.h"
 #include "WNGraphics/inc/WNHeapTraits.h"
 #include "WNGraphics/inc/WNImage.h"
+#include "WNGraphics/inc/WNRenderPass.h"
 #include "WNGraphics/inc/WNShaderModule.h"
 #include "WNGraphics/inc/WNSwapchain.h"
 
@@ -97,6 +98,16 @@ pipeline_layout device::create_pipeline_layout(
   pipeline_layout layout(this);
   initialize_pipeline_layout(&layout, _layouts);
   return core::move(layout);
+}
+
+render_pass device::create_render_pass(
+    const containers::contiguous_range<const render_pass_attachment>&
+        _attachments,
+    const containers::contiguous_range<const subpass_description>& _subpasses,
+    const containers::contiguous_range<const subpass_dependency>& _deps) {
+  render_pass pass(this);
+  initialize_render_pass(&pass, _attachments, _subpasses, _deps);
+  return core::move(pass);
 }
 
 }  // namespace graphics

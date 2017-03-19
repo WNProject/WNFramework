@@ -75,6 +75,16 @@ struct data_type<const pipeline_layout> {
   using value = const ::VkPipelineLayout;
 };
 
+template <>
+struct data_type<render_pass> {
+  using value = ::VkRenderPass;
+};
+
+template <>
+struct data_type<const render_pass> {
+  using value = const ::VkRenderPass;
+};
+
 }  // namespace vulkan
 }  // namespace internal
 }  // namespace graphics

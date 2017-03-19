@@ -16,6 +16,7 @@
 #include "WNGraphics/inc/WNHeap.h"
 #include "WNGraphics/inc/WNHeapTraits.h"
 #include "WNGraphics/inc/WNImage.h"
+#include "WNGraphics/inc/WNRenderPass.h"
 #include "WNGraphics/inc/WNSwapchain.h"
 #include "WNLogging/inc/WNLog.h"
 
@@ -738,6 +739,22 @@ void d3d12_device::initialize_pipeline_layout(pipeline_layout* _layout,
 void d3d12_device::destroy_pipeline_layout(pipeline_layout* _layout) {
   auto& layout = get_data(_layout);
   layout.Reset();
+}
+
+void d3d12_device::initialize_render_pass(render_pass* _pass,
+    const containers::contiguous_range<const render_pass_attachment>&
+        _attachments,
+    const containers::contiguous_range<const subpass_description>&,
+    const containers::contiguous_range<const subpass_dependency>&) {
+  memory::unique_ptr<render_pass_data>& pass_data = get_data(_pass);
+  pass_data = memory::make_unique<render_pass_data>(m_allocator, m_allocator);
+  pass_data->attachments.insert(
+      pass_data->attachments.begin(), _attachments.begin(), _attachments.end());
+}
+
+void d3d12_device::destroy_render_pass(render_pass* _pass) {
+  memory::unique_ptr<render_pass_data>& pass_data = get_data(_pass);
+  pass_data.reset();
 }
 
 template <typename T>
