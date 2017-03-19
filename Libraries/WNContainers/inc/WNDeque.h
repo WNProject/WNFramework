@@ -757,7 +757,7 @@ private:
         const size_type neededBlocks = additional_blocks - haveBlocks;
         size_type allocated_blocks = neededBlocks;
         if (m_block_list.size() - m_allocated_blocks < neededBlocks) {
-          allocated_blocks = add_block_space(
+          add_block_space(
               m_allocated_blocks + neededBlocks - m_block_list.size());
         }
 
@@ -818,7 +818,7 @@ private:
           (_count - totalElements + _BlockSize - 1) / _BlockSize;
 
       if (m_allocated_blocks + neededExtraBlocks > m_block_list.size()) {
-        neededExtraBlocks = add_block_space(
+        add_block_space(
             m_allocated_blocks + neededExtraBlocks - m_block_list.size());
       }
 
@@ -891,11 +891,9 @@ private:
     return (_pos - cbegin() < cend() - _pos);
   }
 
-  size_t add_block_space(const size_type _count) {
+  void add_block_space(const size_type _count) {
     const size_type old_count = m_block_list.size();
     m_block_list.insert(m_block_list.end(), _count, nullptr);
-    m_block_list.insert(m_block_list.end(),
-        m_block_list.capacity() - m_block_list.size(), nullptr);
 
     if (m_start_block != 0) {
       const size_type added_count = m_block_list.size() - old_count;
@@ -910,7 +908,6 @@ private:
 
       m_start_block += added_count;
     }
-    return m_block_list.size() - old_count;
   }
 
   size_type total_unused_blocks() const {

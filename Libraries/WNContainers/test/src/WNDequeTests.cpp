@@ -4,6 +4,7 @@
 
 #include "WNContainers/inc/WNDeque.h"
 #include "WNExecutableTest/inc/WNTestHarness.h"
+#include "WNMemory/inc/WNUniquePtr.h"
 
 template <typename _Type>
 struct deque : ::testing::Test {};
@@ -232,4 +233,44 @@ TYPED_TEST(deque, clear_and_add) {
       EXPECT_EQ(element, static_cast<TypeParam>(3));
     }
   }
+}
+
+struct MyStruct {
+  MyStruct(wn::memory::allocator* _allocator)
+    : m_data(wn::memory::make_unique<uint32_t>(_allocator, 3)) {}
+
+  wn::memory::unique_ptr<uint32_t> m_data;
+};
+
+TEST(deque, random_ops) {
+  wn::testing::allocator allocator;
+  uint32_t seed = 0;
+  srand(seed);
+  wn::containers::deque<MyStruct> deque(&allocator);
+  for (size_t i = 0; i < 1000; ++i) {
+    deque.emplace_back(&allocator);
+  }
+  size_t expected_size = 1000;
+  for (size_t i = 0; i < 1000; ++i) {
+    switch (rand() % 4) {
+      case 0:
+        deque.emplace_front(&allocator);
+        expected_size++;
+        break;
+      case 1:
+        deque.emplace_back(&allocator);
+        expected_size++;
+        break;
+      case 2:
+        deque.pop_front();
+        expected_size--;
+        break;
+      case 3:
+        deque.pop_back();
+        expected_size--;
+        break;
+    }
+  }
+
+  EXPECT_EQ(expected_size, deque.size()) << "Seed: " << seed;
 }
