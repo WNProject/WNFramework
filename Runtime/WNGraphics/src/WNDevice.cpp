@@ -3,6 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "WNGraphics/inc/WNDevice.h"
+#include "WNGraphics/inc/WNArena.h"
 #include "WNGraphics/inc/WNCommandAllocator.h"
 #include "WNGraphics/inc/WNCommandList.h"
 #include "WNGraphics/inc/WNDescriptors.h"
@@ -115,6 +116,21 @@ image_view device::create_image_view(const image* _image) {
   image_view view(this);
   initialize_image_view(&view, _image);
   return core::move(view);
+}
+
+arena device::create_arena(const size_t _index, const size_t _size) {
+  return create_arena(_index, _size, false);
+}
+
+arena device::create_arena(
+    const size_t _index, const size_t _size, const bool _multisampled) {
+  arena new_arena;
+
+  if (initialize_arena(&new_arena, _index, _size, _multisampled)) {
+    new_arena.m_device = this;
+  }
+
+  return core::move(new_arena);
 }
 
 }  // namespace graphics

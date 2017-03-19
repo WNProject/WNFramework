@@ -65,7 +65,11 @@ device_ptr d3d12_adapter::make_device(
           }));
 
   if (ptr) {
-    ptr->initialize(_allocator, _log, m_factory, core::move(device));
+    // if we fail to setup the device we clear the pointer (effectivly return
+    // nullptr) due to failure
+    if (!ptr->initialize(_allocator, _log, m_factory, core::move(device))) {
+      ptr.reset();
+    }
   }
 
   return core::move(ptr);

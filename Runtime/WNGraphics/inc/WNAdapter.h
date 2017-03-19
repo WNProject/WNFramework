@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef _WN_GRAPHICS_PHYSICAL_DEVICE_H__
-#define _WN_GRAPHICS_PHYSICAL_DEVICE_H__
+#ifndef __WN_RUNTIME_GRAPHICS_ADAPTER_H__
+#define __WN_RUNTIME_GRAPHICS_ADAPTER_H__
 
 #include "WNGraphics/inc/Internal/WNConfig.h"
 #include "WNLogging/inc/WNLog.h"
@@ -82,4 +82,4 @@ using adapter_ptr = memory::unique_ptr<adapter>;
 }  // namespace graphics
 }  // namespace wn
 
-#endif  // _WN_GRAPHICS_PHYSICAL_DEVICE_H__
+#endif  // __WN_RUNTIME_GRAPHICS_ADAPTER_H__

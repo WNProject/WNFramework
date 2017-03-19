@@ -53,7 +53,7 @@ expand_list(WN_HELPER_INCLUDES "#include \"WNGraphics/src/"
   "/WNHelpers.h\"" "\n" ${WN_GRAPHICS_DEVICE_TYPES_ENABLED})
 expand_list(WN_QUEUE_INCLUDES "#include \"WNGraphics/inc/Internal/"
   "/WNQueue.h\"" "\n" ${WN_GRAPHICS_DEVICE_TYPES_ENABLED})
-  expand_list(WN_SWAPCHAIN_INCLUDES "#include \"WNGraphics/inc/Internal/"
+expand_list(WN_SWAPCHAIN_INCLUDES "#include \"WNGraphics/inc/Internal/"
   "/WNSwapchain.h\"" "\n" ${WN_GRAPHICS_DEVICE_TYPES_ENABLED})
 
 if (${WN_GRAPHICS_ALLOW_REFERENCE_DEVICES})
@@ -70,8 +70,8 @@ string(TOLOWER ${WN_GRAPHICS_DEBUG_MODE}
 if (${WN_GRAPHICS_DEBUG_MODE_LOWER} STREQUAL default)
   message(STATUS "Graphics Debug Mode: Default")
   set(_WN_GRAPHICS_DEBUG_MODE 0)
-elseif (${WN_GRAPHICS_DEBUG_MODE_LOWER} STREQUAL forced)
-  message(STATUS "Graphics Debug Mode: Forced")
+elseif (${WN_GRAPHICS_DEBUG_MODE_LOWER} STREQUAL enabled)
+  message(STATUS "Graphics Debug Mode: Enabled")
   set(_WN_GRAPHICS_DEBUG_MODE 1)
 elseif (${WN_GRAPHICS_DEBUG_MODE_LOWER} STREQUAL disabled)
   message(STATUS "Graphics Debug Mode: Disabled")
@@ -114,6 +114,8 @@ add_wn_library(WNGraphics
     inc/Internal/WNSwapchainIncludes.h.in
     ${CMAKE_CURRENT_BINARY_DIR}/inc/Internal/WNSwapchainIncludes.h
     inc/WNAdapter.h
+    inc/WNArena.h
+    inc/WNArenaProperties.h
     inc/WNCommandAllocator.h
     inc/WNCommandList.h
     inc/WNDescriptors.h

@@ -4,17 +4,18 @@
 
 #pragma once
 
-#ifndef __WN_GRAPHICS_INTERNAL_D3D12_DATA_TYPES_H__
-#define __WN_GRAPHICS_INTERNAL_D3D12_DATA_TYPES_H__
+#ifndef __WN_RUNTIME_GRAPHICS_INTERNAL_D3D12_DATA_TYPES_H__
+#define __WN_RUNTIME_GRAPHICS_INTERNAL_D3D12_DATA_TYPES_H__
 
 #include "WNContainers/inc/WNDynamicArray.h"
 #include "WNContainers/inc/WNRangePartition.h"
+#include "WNGraphics/inc/WNArena.h"
 #include "WNGraphics/inc/WNDescriptorData.h"
 #include "WNGraphics/inc/WNImageView.h"
 #include "WNGraphics/inc/WNRenderPassTypes.h"
 #include "WNGraphics/inc/WNShaderModule.h"
 
-#include <DXGI1_4.h>
+#include <dxgi1_4.h>
 #include <wrl.h>
 
 namespace wn {
@@ -145,9 +146,14 @@ struct data_type<const image_view> {
   using value = memory::unique_ptr<const image_view_info>;
 };
 
+template <>
+struct data_type<arena> {
+  using value = Microsoft::WRL::ComPtr<ID3D12Heap>;
+};
+
 }  // namespace d3d12
 }  // namespace internal
 }  // namespace graphics
 }  // namespace wn
 
-#endif  // __WN_GRAPHICS_INTERNAL_D3D12_DATA_TYPES_H__
+#endif  // __WN_RUNTIME_GRAPHICS_INTERNAL_D3D12_DATA_TYPES_H__

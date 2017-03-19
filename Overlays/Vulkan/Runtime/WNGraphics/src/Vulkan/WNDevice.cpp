@@ -10,12 +10,12 @@
 #include "WNGraphics/inc/Internal/Vulkan/WNResourceStates.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNSwapchain.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanImage.h"
+#include "WNGraphics/inc/WNArena.h"
 #include "WNGraphics/inc/WNCommandAllocator.h"
 #include "WNGraphics/inc/WNCommandList.h"
 #include "WNGraphics/inc/WNDescriptors.h"
 #include "WNGraphics/inc/WNFence.h"
 #include "WNGraphics/inc/WNHeap.h"
-#include "WNGraphics/inc/WNImageView.h"
 #include "WNGraphics/inc/WNImageView.h"
 #include "WNGraphics/inc/WNQueue.h"
 #include "WNGraphics/inc/WNRenderPass.h"
@@ -132,6 +132,8 @@ bool vulkan_device::initialize(memory::allocator* _allocator,
   m_download_memory_type_index = uint32_t(-1);
   m_download_heap_is_coherent = false;
   m_physical_device_memory_properties = _memory_properties;
+  m_heap_indexes = containers::dynamic_array<uint32_t>(m_allocator);
+  m_arena_properties = containers::dynamic_array<arena_properties>(m_allocator);
 
   vkGetDeviceProcAddr =
       reinterpret_cast<PFN_vkGetDeviceProcAddr>(_context->vkGetInstanceProcAddr(
@@ -141,6 +143,7 @@ bool vulkan_device::initialize(memory::allocator* _allocator,
     m_log->log_error("Device initialization failed");
     return false;
   }
+
   m_log->log_debug("vkGetDeviceProcAddr is at ", vkGetDeviceProcAddr);
 
   LOAD_VK_DEVICE_SYMBOL(m_device, vkGetDeviceQueue);
@@ -247,12 +250,14 @@ bool vulkan_device::initialize(memory::allocator* _allocator,
         requirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
 
     vkDestroyBuffer(m_device, test_buffer, nullptr);
+
     if (m_upload_memory_type_index == uint32_t(-1)) {
       m_log->log_critical("Error in vulkan driver.");
       m_log->log_critical("Must have at least one buffer type that supports",
           "VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT");
       return false;
     }
+
     m_log->log_debug(
         "Upload heap using memory_type ", m_upload_memory_type_index);
     m_upload_heap_is_coherent =
@@ -261,6 +266,7 @@ bool vulkan_device::initialize(memory::allocator* _allocator,
                 .propertyFlags &
             VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) != 0;
   }
+
   {
     // Create 1-byte download buffer. This seems to be the only way to
     // figure out what memory types will be required.
@@ -338,7 +344,8 @@ bool vulkan_device::initialize(memory::allocator* _allocator,
 
   m_log->log_debug("Download heap is using ",
       m_download_heap_is_coherent ? "coherent" : "non-coherent", "memory");
-  return true;
+
+  return setup_arena_properties();
 }
 
 template <typename HeapType>
@@ -449,14 +456,16 @@ uint32_t vulkan_device::get_memory_type_index(
   uint32_t i = 0;
   do {
     if (0 != (_types & 0x1)) {
-      if ((_properties &
-              m_physical_device_memory_properties->memoryTypes[i]
-                  .propertyFlags) == _properties) {
+      const VkMemoryType& current_memory_types =
+          m_physical_device_memory_properties->memoryTypes[i];
+
+      if ((_properties & current_memory_types.propertyFlags) == _properties) {
         return i;
       }
     }
     ++i;
   } while (_types >>= 1);
+
   return uint32_t(-1);
 }
 
@@ -730,16 +739,24 @@ swapchain_ptr vulkan_device::create_swapchain(
       0,                                            // flags
       surface,                                      // surface
       _info.num_buffers,                            // minImageCount
-      image_format_to_vulkan_format(_info.format),  // format
-      VK_COLORSPACE_SRGB_NONLINEAR_KHR,             // colorspace
+      image_format_to_vulkan_format(_info.format),  // imageFormat
+      VK_COLORSPACE_SRGB_NONLINEAR_KHR,             // imageColorSpace
       {
-          _window->get_width(), _window->get_height(),
-      },                                    // extent
-      1,                                    // layers
-      VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,  // usage
-      VK_SHARING_MODE_EXCLUSIVE,
-      0, nullptr, VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR,
-      VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR, mode, VK_FALSE, VK_NULL_HANDLE};
+          // imageExtent
+          _window->get_width(),  // width
+          _window->get_height()  // height
+      },
+      1,                                      // imageArrayLayers
+      VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,    // imageUsage
+      VK_SHARING_MODE_EXCLUSIVE,              // imageSharingMode
+      0,                                      // queueFamilyIndexCount
+      nullptr,                                // pQueueFamilyIndices
+      VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR,  // preTransform
+      VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,      // compositeAlpha
+      mode,                                   // presentMode
+      VK_FALSE,                               // clipped
+      VK_NULL_HANDLE                          // oldSwapchain
+  };
 
   VkSwapchainKHR swapchain;
   if (VK_SUCCESS !=
@@ -1133,7 +1150,132 @@ void vulkan_device::destroy_image_view(image_view* _view) {
   vkDestroyImageView(m_device, view, nullptr);
 }
 
+containers::contiguous_range<const arena_properties>
+vulkan_device::get_arena_properties() const {
+  return containers::contiguous_range<const arena_properties>(
+      m_arena_properties.data(), m_arena_properties.size());
+}
+
+bool vulkan_device::setup_arena_properties() {
+  // get buffer heaps
+  const VkBufferUsageFlags usage =
+      VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT |
+      VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT |
+      VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT |
+      VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT |
+      VK_BUFFER_USAGE_UNIFORM_TEXEL_BUFFER_BIT |
+      VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT;
+  const VkBufferCreateInfo buffer_create_info = {
+      VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,  // sType
+      nullptr,                               // pNext
+      0,                                     // flags
+      0,                                     // size
+      usage,                                 // usage
+      VK_SHARING_MODE_EXCLUSIVE,             // sharingMode
+      0,                                     // queueFamilyIndexCount
+      0                                      // pQueueFamilyIndices
+  };
+  VkBuffer test_buffer;
+
+  if (vkCreateBuffer(m_device, &buffer_create_info, nullptr, &test_buffer) !=
+      VK_SUCCESS) {
+    return false;
+  }
+
+  VkMemoryRequirements requirements;
+
+  vkGetBufferMemoryRequirements(m_device, test_buffer, &requirements);
+
+  const uint32_t buffer_heaps = requirements.memoryTypeBits;
+
+  vkDestroyBuffer(m_device, test_buffer, nullptr);
+
+  // get image heaps
+  const VkImageCreateInfo image_create_info = {
+      VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,  // sType
+      nullptr,                              // pNext
+      0,                                    // flags
+      VK_IMAGE_TYPE_1D,                     // imageType
+      VK_FORMAT_R8G8B8A8_UNORM,             // format
+      VkExtent3D{1, 1, 1},                  // extent
+      1,                                    // mipLevels
+      1,                                    // arrayLayers
+      VK_SAMPLE_COUNT_1_BIT,                // samples
+      VK_IMAGE_TILING_OPTIMAL,              // tiling
+      0,                                    // usage
+      VK_SHARING_MODE_EXCLUSIVE,            // sharingMode
+      0,                                    // queueFamilyIndexCount
+      nullptr,                              // pQueueFamilyIndices
+      VK_IMAGE_LAYOUT_UNDEFINED             // initialLayout
+  };
+  VkImage test_image;
+
+  if (vkCreateImage(m_device, &image_create_info, nullptr, &test_image) !=
+      VK_SUCCESS) {
+    return false;
+  }
+
+  VkMemoryRequirements image_requirements;
+
+  vkGetImageMemoryRequirements(m_device, test_image, &image_requirements);
+
+  const uint32_t image_heaps = image_requirements.memoryTypeBits;
+
+  vkDestroyImage(m_device, test_image, nullptr);
+
+  // create arena properties
+  const size_t memory_type_count =
+      m_physical_device_memory_properties->memoryTypeCount;
+
+  m_heap_indexes.reserve(memory_type_count);
+  m_arena_properties.reserve(memory_type_count);
+
+  for (size_t i = 0; i < memory_type_count; ++i) {
+    const VkMemoryType& current_memory_heap =
+        m_physical_device_memory_properties->memoryTypes[i];
+    const uint32_t heap_index = current_memory_heap.heapIndex;
+    const VkMemoryPropertyFlags& property_flags =
+        current_memory_heap.propertyFlags;
+    const bool allows_image_and_render_targets =
+        (((1 << heap_index) & image_heaps) != 0);
+    const arena_properties new_arena_properties = {
+        ((property_flags & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT) != 0),
+        ((property_flags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) != 0),
+        ((property_flags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) != 0),
+        ((property_flags & VK_MEMORY_PROPERTY_HOST_CACHED_BIT) != 0),
+        (((1 << heap_index) & buffer_heaps) != 0),
+        allows_image_and_render_targets, allows_image_and_render_targets,
+        false};
+
+    m_heap_indexes.push_back(heap_index);
+    m_arena_properties.push_back(new_arena_properties);
+  }
+
+  return true;
+}
+
+bool vulkan_device::initialize_arena(arena* _arena, const size_t _index,
+    const size_t _size, const bool /*_multisampled*/) {
+  WN_DEBUG_ASSERT_DESC(
+      m_heap_indexes.size() > _index, "arena property index out of range");
+  WN_DEBUG_ASSERT_DESC(_size > 0, "arena should be non-zero size");
+
+  uint32_t& heap_index = get_data(_arena);
+
+  heap_index = m_heap_indexes[_index];
+  _arena->m_size = _size;
+
+  return true;
+}
+
+void vulkan_device::destroy_arena(arena* _arena) {
+  uint32_t& heap_index = get_data(_arena);
+
+  heap_index = 0;
+}
+
 #undef get_data
+
 }  // namespace vulkan
 }  // namespace internal
 }  // namespace graphics

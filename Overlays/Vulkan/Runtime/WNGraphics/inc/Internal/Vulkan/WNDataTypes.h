@@ -9,6 +9,7 @@
 
 #include "WNGraphics/inc/Internal/Vulkan/WNDevice.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanInclude.h"
+#include "WNGraphics/inc/WNArena.h"
 #include "WNGraphics/inc/WNDescriptorData.h"
 #include "WNGraphics/inc/WNShaderModule.h"
 
@@ -93,6 +94,11 @@ struct data_type<image_view> {
 template <>
 struct data_type<const image_view> {
   using value = const ::VkImageView;
+};
+
+template <>
+struct data_type<arena> {
+  using value = uint32_t;
 };
 
 }  // namespace vulkan

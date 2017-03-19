@@ -10,6 +10,7 @@
 #include "WNGraphics/inc/Internal/D3D12/WNImageFormats.h"
 #include "WNGraphics/inc/Internal/D3D12/WNResourceStates.h"
 #include "WNGraphics/inc/Internal/D3D12/WNSwapchain.h"
+#include "WNGraphics/inc/WNArena.h"
 #include "WNGraphics/inc/WNCommandAllocator.h"
 #include "WNGraphics/inc/WNDescriptors.h"
 #include "WNGraphics/inc/WNFence.h"
@@ -19,6 +20,10 @@
 #include "WNGraphics/inc/WNRenderPass.h"
 #include "WNGraphics/inc/WNSwapchain.h"
 #include "WNLogging/inc/WNLog.h"
+#include "WNMath/inc/WNBasic.h"
+#include "WNMemory/inc/WNUniquePtr.h"
+#include "WNWindow/inc/WNWindow.h"
+#include "WNWindow/inc/WNWindowsWindow.h"
 
 #ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
 #include "WNGraphics/inc/Internal/D3D12/WNCommandList.h"
@@ -28,13 +33,8 @@
 #include "WNGraphics/inc/WNQueue.h"
 #endif
 
-#include "WNMath/inc/WNBasic.h"
-#include "WNMemory/inc/WNUniquePtr.h"
-
-#include "WNWindow/inc/WNWindow.h"
-#include "WNWindow/inc/WNWindowsWindow.h"
-
-#include <DXGI1_4.h>
+#include <d3d12.h>
+#include <dxgi1_4.h>
 
 namespace wn {
 namespace graphics {
@@ -72,7 +72,7 @@ const D3D12_HEAP_PROPERTIES s_default_heap_props = {
     0                                 // VisibleNodeMask
 };
 
-const D3D12_COMMAND_QUEUE_DESC s_command_queue_props = {
+static const D3D12_COMMAND_QUEUE_DESC k_command_queue_props = {
     D3D12_COMMAND_LIST_TYPE_DIRECT,     // Type
     D3D12_COMMAND_QUEUE_PRIORITY_HIGH,  // Priority
     D3D12_COMMAND_QUEUE_FLAG_NONE,      // Flags
@@ -235,7 +235,7 @@ queue_ptr d3d12_device::create_queue() {
 
   Microsoft::WRL::ComPtr<ID3D12CommandQueue> command_queue;
   const HRESULT hr = m_device->CreateCommandQueue(
-      &s_command_queue_props, __uuidof(ID3D12CommandQueue), &command_queue);
+      &k_command_queue_props, __uuidof(ID3D12CommandQueue), &command_queue);
 
   WN_DEBUG_ASSERT_DESC(SUCCEEDED(hr), "Cannot create command queue");
 
@@ -733,7 +733,7 @@ void d3d12_device::initialize_pipeline_layout(pipeline_layout* _layout,
       serialized_sig->GetBufferSize(), __uuidof(ID3D12RootSignature), &layout);
 
   if (FAILED(hr)) {
-    m_log->log_error("Error constructing the root signature.");
+    m_log->log_error("Error constructing the root signature, hr: ", hr);
   }
 }
 
@@ -779,6 +779,178 @@ typename data_type<T>::value& d3d12_device::get_data(T* t) {
 template <typename T>
 typename data_type<const T>::value& d3d12_device::get_data(const T* const t) {
   return t->data_as<typename data_type<const T>::value>();
+}
+
+bool d3d12_device::initialize(memory::allocator* _allocator, logging::log* _log,
+    const Microsoft::WRL::ComPtr<IDXGIFactory4>& _d3d12_factory,
+    Microsoft::WRL::ComPtr<ID3D12Device>&& _d3d12_device) {
+  m_allocator = _allocator;
+  m_log = _log;
+  m_device = core::move(_d3d12_device);
+  m_factory = _d3d12_factory;
+  m_csv_partition = containers::default_range_partition(
+      m_allocator, k_reserved_resource_size);
+  m_heap_info = containers::dynamic_array<heap_info>(m_allocator);
+  m_arena_properties = containers::dynamic_array<arena_properties>(m_allocator);
+
+  D3D12_DESCRIPTOR_HEAP_DESC desc = {
+      D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,  // Type
+      // The maximum we are able to put in a heap. (TODO: figure out if this
+      // is too big)
+      k_reserved_resource_size,
+      D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,  // flags
+      0,                                          // nodemask
+  };
+  HRESULT hr = m_device->CreateDescriptorHeap(
+      &desc, __uuidof(ID3D12DescriptorHeap), &m_root_csv_heap);
+
+  if (FAILED(hr)) {
+    m_log->log_error("Could not create root descriptors: ", hr);
+
+    return false;
+  }
+
+  hr = m_device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS, &m_options,
+      sizeof(D3D12_FEATURE_DATA_D3D12_OPTIONS));
+
+  if (FAILED(hr)) {
+    m_log->log_error("failed to check for supported features, hr: ", hr);
+
+    return false;
+  }
+
+  static const D3D12_HEAP_TYPE heap_types[] = {D3D12_HEAP_TYPE_DEFAULT,
+      D3D12_HEAP_TYPE_UPLOAD, D3D12_HEAP_TYPE_READBACK};
+  containers::dynamic_array<D3D12_HEAP_FLAGS> heap_flags(m_allocator);
+
+  heap_flags.reserve(4);
+  heap_flags.push_back(D3D12_HEAP_FLAG_ALLOW_ONLY_BUFFERS);
+  heap_flags.push_back(D3D12_HEAP_FLAG_ALLOW_ONLY_NON_RT_DS_TEXTURES);
+  heap_flags.push_back(D3D12_HEAP_FLAG_ALLOW_ONLY_RT_DS_TEXTURES);
+
+  if (m_options.ResourceHeapTier == D3D12_RESOURCE_HEAP_TIER_2) {
+    heap_flags.push_back(D3D12_HEAP_FLAG_ALLOW_ALL_BUFFERS_AND_TEXTURES);
+  }
+
+  const size_t heap_info_count = 3 * heap_flags.size();
+
+  m_heap_info.reserve(heap_info_count);
+  m_arena_properties.reserve(heap_info_count);
+
+  for (const D3D12_HEAP_TYPE& current_heap_type : heap_types) {
+    const D3D12_HEAP_PROPERTIES heap_properties =
+        m_device->GetCustomHeapProperties(0, current_heap_type);
+
+    for (const D3D12_HEAP_FLAGS& current_heap_flags : heap_flags) {
+      m_heap_info.push_back({
+          {
+              D3D12_HEAP_TYPE_CUSTOM,                // Type
+              heap_properties.CPUPageProperty,       // CPUPageProperty;
+              heap_properties.MemoryPoolPreference,  // MemoryPoolPreference;
+              0,                                     // CreationNodeMask;
+              0                                      // VisibleNodeMask;
+          },
+          current_heap_flags  // Flags
+      });
+
+      bool device_local = false;
+      bool host_visible = false;
+      bool host_cached = false;
+
+      switch (heap_properties.CPUPageProperty) {
+        case D3D12_CPU_PAGE_PROPERTY_NOT_AVAILABLE:
+          device_local = true;
+
+          break;
+        case D3D12_CPU_PAGE_PROPERTY_WRITE_BACK:
+          host_cached = true;
+        case D3D12_CPU_PAGE_PROPERTY_WRITE_COMBINE:
+          host_visible = true;
+
+          break;
+        default:
+          return false;
+      }
+
+      const bool allow_buffers =
+          (current_heap_flags & D3D12_HEAP_FLAG_DENY_BUFFERS) == 0;
+      const bool allow_images =
+          (current_heap_flags & D3D12_HEAP_FLAG_DENY_NON_RT_DS_TEXTURES) == 0;
+      const bool allow_rt_ds =
+          (current_heap_flags & D3D12_HEAP_FLAG_DENY_RT_DS_TEXTURES) == 0;
+
+      m_log->log_info("D3D12 Arena: ", m_arena_properties.size());
+      m_log->log_info(" - Device Local:", device_local);
+      m_log->log_info(" - Host Visible:", host_visible);
+      m_log->log_info(" - Host Coherent: false");
+      m_log->log_info(" - Host Cached:", host_cached);
+      m_log->log_info(" - Allow Buffers:", allow_buffers);
+      m_log->log_info(" - Allow Images:", allow_images);
+      m_log->log_info(" - Allow Render Targets:", allow_rt_ds);
+      m_log->log_info(" - Allow Depth Stencils:", allow_rt_ds);
+
+      m_arena_properties.push_back({
+          device_local,   // device local
+          host_visible,   // host visible
+          false,          // host coherent, never true in d3d12
+          host_cached,    // host cached
+          allow_buffers,  // allow buffers
+          allow_images,   // allow images
+          allow_rt_ds,    // allow render target views
+          allow_rt_ds     // allow depth stencil
+      });
+    }
+  }
+
+  return true;
+}
+
+containers::contiguous_range<const arena_properties>
+d3d12_device::get_arena_properties() const {
+  return containers::contiguous_range<const arena_properties>(
+      m_arena_properties.data(), m_arena_properties.size());
+}
+
+bool d3d12_device::initialize_arena(arena* _arena, const size_t _index,
+    const size_t _size, const bool _multisampled) {
+  WN_DEBUG_ASSERT_DESC(
+      m_heap_info.size() > _index, "arena property index out of range");
+  WN_DEBUG_ASSERT_DESC(_size > 0, "arena should be non-zero size");
+
+  const D3D12_HEAP_FLAGS flags = m_heap_info[_index].heap_flags;
+  const bool allow_buffers_only =
+      (flags & D3D12_HEAP_FLAG_ALLOW_ONLY_BUFFERS) ==
+      D3D12_HEAP_FLAG_ALLOW_ONLY_BUFFERS;
+  const UINT64 alignment = _multisampled && !allow_buffers_only
+                               ? D3D12_DEFAULT_MSAA_RESOURCE_PLACEMENT_ALIGNMENT
+                               : D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
+  const D3D12_HEAP_DESC heap_desc = {
+      static_cast<UINT64>(_size),           // SizeInBytes
+      m_heap_info[_index].heap_properties,  // Properties
+      alignment,                            // Alignment
+      flags                                 // Flags
+  };
+  Microsoft::WRL::ComPtr<ID3D12Heap> new_heap;
+  const HRESULT hr =
+      m_device->CreateHeap(&heap_desc, __uuidof(ID3D12Heap), &new_heap);
+
+  if (FAILED(hr)) {
+    return false;
+  }
+
+  Microsoft::WRL::ComPtr<ID3D12Heap>& heap = get_data(_arena);
+
+  _arena->m_size = _size;
+
+  heap = core::move(new_heap);
+
+  return true;
+}
+
+void d3d12_device::destroy_arena(arena* _arena) {
+  Microsoft::WRL::ComPtr<ID3D12Heap>& heap = get_data(_arena);
+
+  heap.Reset();
 }
 
 }  // namespace d3d12

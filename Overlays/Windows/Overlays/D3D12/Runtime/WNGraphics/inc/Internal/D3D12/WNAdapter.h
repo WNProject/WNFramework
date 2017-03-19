@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef __WN_GRAPHICS_INTERNAL_D3D12_PHYSICAL_DEVICE_H__
-#define __WN_GRAPHICS_INTERNAL_D3D12_PHYSICAL_DEVICE_H__
+#ifndef __WN_RUNTIME_GRAPHICS_INTERNAL_D3D12_ADAPTER_H__
+#define __WN_RUNTIME_GRAPHICS_INTERNAL_D3D12_ADAPTER_H__
 
 #include "WNContainers/inc/WNDynamicArray.h"
 #include "WNContainers/inc/WNString.h"
@@ -112,4 +112,4 @@ protected:
 }  // namespace graphics
 }  // namespace wn
 
-#endif  // __WN_GRAPHICS_INTERNAL_D3D12_PHYSICAL_DEVICE_H__
+#endif  // __WN_RUNTIME_GRAPHICS_INTERNAL_D3D12_ADAPTER_H__

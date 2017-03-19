@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
+#pragma once
+
 #ifndef __WN_GRAPHICS_INTERNAL_VULKAN_VULKAN_DEFINES_H__
 #define __WN_GRAPHICS_INTERNAL_VULKAN_VULKAN_DEFINES_H__
 

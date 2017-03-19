@@ -1,9 +1,10 @@
 enable_overlay_directory()
 
 wn_create_executable_tests_from_list(TEST_PREFIX WNGraphics
-  SOURCE_DIR src/Tests
+  SOURCE_DIR src
   SYSTEMS_TEST
   SOURCES
+    WNArena
     WNDownloadHeap
     WNImage
     WNQueryAdapters
@@ -23,7 +24,7 @@ wn_create_executable_tests_from_list(TEST_PREFIX WNGraphics
 
 wn_create_application_tests_from_list(
   TEST_PREFIX WNGraphics
-  SOURCE_DIR src/Tests
+  SOURCE_DIR src
   SOURCES
     WNSwapchain
   LIBS

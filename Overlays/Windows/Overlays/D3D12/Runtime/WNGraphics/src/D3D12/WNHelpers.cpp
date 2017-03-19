@@ -95,11 +95,9 @@ bool determine_support(memory::allocator* _allocator, logging::log* _log,
   }
 
   _log->log_info("D3D12 Device: ", _device_number + 1);
-  _log->log_info("------------------------------");
-  _log->log_info("Name: ", name.c_str());
-  _log->log_info("Vendor: ", dxgi_adapter_desc.DeviceId);
-  _log->log_info("Device: ", dxgi_adapter_desc.VendorId);
-  _log->log_info("------------------------------");
+  _log->log_info(" - Name: ", name.c_str());
+  _log->log_info(" - Vendor: ", dxgi_adapter_desc.DeviceId);
+  _log->log_info(" - Device: ", dxgi_adapter_desc.VendorId);
 
   (*_name) = core::move(name);
   (*_device_id) = static_cast<uint32_t>(dxgi_adapter_desc.DeviceId);

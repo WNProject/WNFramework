@@ -19,7 +19,7 @@
 // will be defined if we want to allow reference devices
 #cmakedefine _WN_GRAPHICS_ALLOW_REFERENCE_DEVICES
 
-// debug mode (0 = Default, 1 = On, 2 = Off)
+// debug mode (0 = Default, 1 = Enabled, 2 = Disabled)
 #define _WN_GRAPHICS_DEBUG_MODE ${_WN_GRAPHICS_DEBUG_MODE}
 
 // will be defined if we want to allow debug mode
@@ -30,7 +30,7 @@
 #elif _WN_GRAPHICS_DEBUG_MODE == 1
 #define _WN_GRAPHICS_ALLOW_DEBUG_MODE // always on
 #elif _WN_GRAPHICS_DEBUG_MODE == 2
-// never on
+// always off
 #endif
 
 #ifdef _WN_GRAPHICS_SINGLE_DEVICE_TYPE

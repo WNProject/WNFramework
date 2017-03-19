@@ -4,12 +4,13 @@
 
 #pragma once
 
-#ifndef __WN_GRAPHICS_DEVICE_H__
-#define __WN_GRAPHICS_DEVICE_H__
+#ifndef __WN_RUNTIME_GRAPHICS_DEVICE_H__
+#define __WN_RUNTIME_GRAPHICS_DEVICE_H__
 
 #include "WNContainers/inc/WNContiguousRange.h"
 #include "WNContainers/inc/WNStringView.h"
 #include "WNGraphics/inc/Internal/WNConfig.h"
+#include "WNGraphics/inc/WNArenaProperties.h"
 #include "WNGraphics/inc/WNDescriptorData.h"
 #include "WNGraphics/inc/WNGraphicsEnums.h"
 #include "WNGraphics/inc/WNHeapTraits.h"
@@ -31,12 +32,15 @@ WN_GRAPHICS_FORWARD(swapchain);
 namespace wn {
 namespace runtime {
 namespace window {
+
 class window;
+
 }  // namespace window
 }  // namespace runtime
 
 namespace graphics {
 namespace internal {
+
 #ifdef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
 using device_base = _WN_GRAPHICS_DEVICE_TYPE::WN_GRAPHICS_PREFIXED_TYPE(device);
 #else
@@ -45,6 +49,8 @@ using device_base = core::non_copyable;
 
 }  // namespace internal
 
+class arena;
+class image;
 class command_allocator;
 class command_list;
 class fence;
@@ -76,14 +82,17 @@ public:
 #ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
   virtual ~device() = default;
 
+  virtual containers::contiguous_range<const arena_properties>
+  get_arena_properties() const = 0;
+
   // It is only valid to have a single queue active at a time.
   virtual queue_ptr create_queue() = 0;
 
   virtual swapchain_ptr create_swapchain(const swapchain_create_info& _info,
       queue* queue, runtime::window::window* window) = 0;
+
   virtual size_t get_image_upload_buffer_alignment() = 0;
   virtual size_t get_buffer_upload_buffer_alignment() = 0;
-
 #endif
 
   upload_heap create_upload_heap(const size_t _num_bytes);
@@ -91,6 +100,10 @@ public:
 
   command_allocator create_command_allocator();
   fence create_fence();
+
+  arena create_arena(const size_t _index, const size_t _size);
+  arena create_arena(
+      const size_t _index, const size_t _size, const bool _multisampled);
 
   // The contiguous range must be 32-bit aligned for
   // compatibility.
@@ -122,14 +135,14 @@ public:
 protected:
   friend class command_allocator;
   friend class fence;
+  friend class image;
+  friend class arena;
 
   template <typename HeapTraits>
   friend class heap;
 
-  friend class queue;
   WN_GRAPHICS_ADD_FRIENDS(queue);
   WN_GRAPHICS_ADD_FRIENDS(adapter);
-  WN_GRAPHICS_ADD_FRIENDS(image);
   WN_GRAPHICS_ADD_FRIENDS(swapchain);
 
   friend class shader_module;
@@ -227,10 +240,15 @@ protected:
   // Image View
   virtual void initialize_image_view(image_view* _view, const image* image) = 0;
   virtual void destroy_image_view(image_view* _view) = 0;
+
+  // arena methods
+  virtual bool initialize_arena(arena* _arena, const size_t _index,
+      const size_t _size, const bool _multisampled) = 0;
+  virtual void destroy_arena(arena* _arena) = 0;
 #endif
 };
 
 }  // namespace graphics
 }  // namespace wn
 
-#endif  // __WN_GRAPHICS_DEVICE_H__
+#endif  // __WN_RUNTIME_GRAPHICS_DEVICE_H__

@@ -4,11 +4,13 @@
 
 #pragma once
 
-#ifndef __WN_GRAPHICS_INTERNAL_D3D12_DEVICE_H__
-#define __WN_GRAPHICS_INTERNAL_D3D12_DEVICE_H__
+#ifndef __WN_RUNTIME_GRAPHICS_INTERNAL_D3D12_DEVICE_H__
+#define __WN_RUNTIME_GRAPHICS_INTERNAL_D3D12_DEVICE_H__
 
+#include "WNContainers/inc/WNDynamicArray.h"
 #include "WNContainers/inc/WNRangePartition.h"
 #include "WNGraphics/inc/Internal/WNConfig.h"
+#include "WNGraphics/inc/WNArenaProperties.h"
 #include "WNGraphics/inc/WNDescriptorData.h"
 #include "WNGraphics/inc/WNHeapTraits.h"
 #include "WNGraphics/inc/WNRenderPassTypes.h"
@@ -23,8 +25,8 @@
 #include "WNCore/inc/WNUtility.h"
 #endif
 
-#include <D3D12.h>
-#include <DXGI1_4.h>
+#include <d3d12.h>
+#include <dxgi1_4.h>
 #include <wrl.h>
 #include <atomic>
 
@@ -37,6 +39,7 @@ class allocator;
 
 namespace graphics {
 
+class arena;
 class command_allocator;
 class command_list;
 class descriptor_set;
@@ -74,6 +77,9 @@ class d3d12_device WN_GRAPHICS_FINAL : public d3d12_device_base {
 public:
   ~d3d12_device() WN_GRAPHICS_OVERRIDE_FINAL = default;
 
+  containers::contiguous_range<const arena_properties> get_arena_properties()
+      const WN_GRAPHICS_OVERRIDE_FINAL;
+
   queue_ptr create_queue() WN_GRAPHICS_OVERRIDE_FINAL;
 
   size_t get_image_upload_buffer_alignment() WN_GRAPHICS_OVERRIDE_FINAL;
@@ -88,6 +94,11 @@ protected:
   friend class d3d12_queue;
   friend class d3d12_adapter;
 
+  struct heap_info WN_FINAL {
+    const D3D12_HEAP_PROPERTIES heap_properties;
+    const D3D12_HEAP_FLAGS heap_flags;
+  };
+
   const static size_t k_reserved_resource_size = 1000000;
 
   WN_FORCE_INLINE d3d12_device()
@@ -96,32 +107,9 @@ protected:
       m_log(nullptr),
       m_num_queues(0) {}
 
-  WN_FORCE_INLINE void initialize(memory::allocator* _allocator,
-      logging::log* _log, Microsoft::WRL::ComPtr<IDXGIFactory4> _d3d12_factory,
-      Microsoft::WRL::ComPtr<ID3D12Device>&& _d3d12_device) {
-    m_allocator = _allocator;
-    m_csv_partition = containers::default_range_partition(
-        m_allocator, k_reserved_resource_size);
-    m_log = _log;
-    m_device = core::move(_d3d12_device);
-    m_factory = _d3d12_factory;
-
-    D3D12_DESCRIPTOR_HEAP_DESC desc = {
-        D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,  // Type
-        // The maximum we are able to put in a heap. (TODO: figure out if this
-        // is too big)
-        k_reserved_resource_size,
-        D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,  // flags
-        0,                                          // nodemask
-    };
-
-    HRESULT hr = m_device->CreateDescriptorHeap(
-        &desc, __uuidof(ID3D12DescriptorHeap), &m_root_csv_heap);
-
-    if (FAILED(hr)) {
-      m_log->log_error("Could not create root descriptors: ", hr);
-    }
-  }
+  bool initialize(memory::allocator* _allocator, logging::log* _log,
+      const Microsoft::WRL::ComPtr<IDXGIFactory4>& _d3d12_factory,
+      Microsoft::WRL::ComPtr<ID3D12Device>&& _d3d12_device);
 
   void initialize_upload_heap(upload_heap* _upload_heap,
       const size_t _num_bytes) WN_GRAPHICS_OVERRIDE_FINAL;
@@ -214,25 +202,31 @@ protected:
       image_view* _view, const image* image) WN_GRAPHICS_OVERRIDE_FINAL;
   void destroy_image_view(image_view* _view) WN_GRAPHICS_OVERRIDE_FINAL;
 
-public:
+  // arena methods
+  bool initialize_arena(arena* _arena, const size_t _index, const size_t _size,
+      const bool _multisampled) WN_GRAPHICS_OVERRIDE_FINAL;
+  void destroy_arena(arena* _arena) WN_GRAPHICS_OVERRIDE_FINAL;
+
+private:
+  template <typename T>
+  typename data_type<T>::value& get_data(T* t);
+
+  template <typename T>
+  typename data_type<const T>::value& get_data(const T* const t);
+
+  D3D12_FEATURE_DATA_D3D12_OPTIONS m_options;
+  containers::dynamic_array<heap_info> m_heap_info;
+  containers::dynamic_array<arena_properties> m_arena_properties;
   Microsoft::WRL::ComPtr<ID3D12Device> m_device;
   Microsoft::WRL::ComPtr<IDXGIFactory4> m_factory;
   // We create a single largest (1M entries) root heap.
   // When we create a descriptor-pool we suballocate from this heap.
   Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_root_csv_heap;
   containers::default_range_partition m_csv_partition;
-
   memory::allocator* m_allocator;
   logging::log* m_log;
   std::atomic<uint32_t> m_num_queues;
-
   multi_tasking::spin_lock m_csv_heap_lock;
-
-private:
-  template <typename T>
-  typename data_type<T>::value& get_data(T* t);
-  template <typename T>
-  typename data_type<const T>::value& get_data(const T* const t);
 };
 
 }  // namespace d3d12
@@ -240,4 +234,4 @@ private:
 }  // namespace graphics
 }  // namespace wn
 
-#endif  // __WN_GRAPHICS_INTERNAL_D3D12_DEVICE_H__
+#endif  // __WN_RUNTIME_GRAPHICS_INTERNAL_D3D12_DEVICE_H__

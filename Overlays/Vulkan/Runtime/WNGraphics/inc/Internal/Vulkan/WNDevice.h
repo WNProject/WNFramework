@@ -7,12 +7,14 @@
 #ifndef __WN_GRAPHICS_INTERNAL_VULKAN_DEVICE_H__
 #define __WN_GRAPHICS_INTERNAL_VULKAN_DEVICE_H__
 
+#include "WNContainers/inc/WNDynamicArray.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanCommandListContext.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanContext.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanInclude.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanQueueContext.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanSurfaceHelper.h"
 #include "WNGraphics/inc/Internal/WNConfig.h"
+#include "WNGraphics/inc/WNArenaProperties.h"
 #include "WNGraphics/inc/WNHeapTraits.h"
 #include "WNGraphics/inc/WNRenderPassTypes.h"
 #include "WNLogging/inc/WNLog.h"
@@ -36,6 +38,7 @@ class allocator;
 
 namespace graphics {
 
+class arena;
 class command_allocator;
 class command_list;
 class descriptor_set;
@@ -75,6 +78,9 @@ struct data_type;
 class vulkan_device WN_GRAPHICS_FINAL : public vulkan_device_base {
 public:
   ~vulkan_device() WN_GRAPHICS_OVERRIDE_FINAL;
+
+  containers::contiguous_range<const arena_properties> get_arena_properties()
+      const WN_GRAPHICS_OVERRIDE_FINAL;
 
   queue_ptr create_queue() WN_GRAPHICS_OVERRIDE_FINAL;
 
@@ -199,6 +205,11 @@ protected:
       image_view* _view, const image* image) WN_GRAPHICS_OVERRIDE_FINAL;
   void destroy_image_view(image_view* _view) WN_GRAPHICS_OVERRIDE_FINAL;
 
+  // arena methods
+  bool initialize_arena(arena* _arena, const size_t _index, const size_t _size,
+      const bool _multisampled) WN_GRAPHICS_OVERRIDE_FINAL;
+  void destroy_arena(arena* _arena) WN_GRAPHICS_OVERRIDE_FINAL;
+
   uint32_t get_memory_type_index(uint32_t _types, VkFlags _properties) const;
 
   surface_helper m_surface_helper;
@@ -271,6 +282,12 @@ protected:
   PFN_vkCreateRenderPass vkCreateRenderPass;
   PFN_vkDestroyRenderPass vkDestroyRenderPass;
 
+private:
+  bool setup_arena_properties();
+
+  containers::dynamic_array<uint32_t> m_heap_indexes;
+  containers::dynamic_array<arena_properties> m_arena_properties;
+
   // Image Views
   PFN_vkCreateImageView vkCreateImageView;
   PFN_vkDestroyImageView vkDestroyImageView;
@@ -279,7 +296,6 @@ protected:
   command_list_context m_command_list_context;
   std::atomic<VkQueue> m_queue;
   VkDevice m_device;
-
   const VkPhysicalDeviceMemoryProperties* m_physical_device_memory_properties;
   memory::allocator* m_allocator;
   logging::log* m_log;
@@ -288,8 +304,6 @@ protected:
   uint32_t m_image_memory_type_index;
   bool m_upload_heap_is_coherent;
   bool m_download_heap_is_coherent;
-
-private:
 };
 
 }  // namespace vulkan
