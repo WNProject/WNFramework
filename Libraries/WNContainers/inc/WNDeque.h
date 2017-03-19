@@ -326,8 +326,7 @@ public:
     } else {
       clear();
       clean_blocks();
-      for(deque::iterator it = _other.begin();
-        it != _other.end(); ++it) {
+      for (deque::iterator it = _other.begin(); it != _other.end(); ++it) {
         emplace_back(core::move(*it));
       }
       _other.clear();
@@ -534,7 +533,8 @@ public:
     iterator new_position = position;
 
     for (size_type i = 0; i < _count; ++i) {
-      memory::construct_at<_Type>(&(*(position++)), core::move(_generator(i++)));
+      memory::construct_at<_Type>(
+          &(*(position++)), core::move(_generator(i++)));
     }
 
     return (new_position);
@@ -578,7 +578,8 @@ public:
       const size_type location = (pos - begin());
       // m_element_count - location gives us the number of elements between
       // pos and the end, (it is the same as end() - pos), we have to subtract
-      // _count to determine how many elements need copying. This correctly handles
+      // _count to determine how many elements need copying. This correctly
+      // handles
       // for example, when end() - 1 is the element being removed.
       const size_type copy_count = m_element_count - location - _count;
 
@@ -754,13 +755,13 @@ private:
 
       if (haveBlocks < additional_blocks) {
         const size_type neededBlocks = additional_blocks - haveBlocks;
-
+        size_type allocated_blocks = neededBlocks;
         if (m_block_list.size() - m_allocated_blocks < neededBlocks) {
-          add_block_space(
+          allocated_blocks = add_block_space(
               m_allocated_blocks + neededBlocks - m_block_list.size());
         }
 
-        for (size_type i = 0; i < neededBlocks; ++i) {
+        for (size_type i = 0; i < allocated_blocks; ++i) {
           void* p = allocate(sizeof(value_type), _BlockSize);
           m_block_list[(m_start_block + m_allocated_blocks) %
                        m_block_list.size()] = static_cast<value_type*>(p);
@@ -817,7 +818,7 @@ private:
           (_count - totalElements + _BlockSize - 1) / _BlockSize;
 
       if (m_allocated_blocks + neededExtraBlocks > m_block_list.size()) {
-        add_block_space(
+        neededExtraBlocks = add_block_space(
             m_allocated_blocks + neededExtraBlocks - m_block_list.size());
       }
 
@@ -890,7 +891,7 @@ private:
     return (_pos - cbegin() < cend() - _pos);
   }
 
-  void add_block_space(const size_type _count) {
+  size_t add_block_space(const size_type _count) {
     const size_type old_count = m_block_list.size();
     m_block_list.insert(m_block_list.end(), _count, nullptr);
     m_block_list.insert(m_block_list.end(),
@@ -909,6 +910,7 @@ private:
 
       m_start_block += added_count;
     }
+    return m_block_list.size() - old_count;
   }
 
   size_type total_unused_blocks() const {
