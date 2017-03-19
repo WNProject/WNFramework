@@ -37,12 +37,19 @@ namespace graphics {
 
 class command_allocator;
 class command_list;
+class descriptor_set;
+class descriptor_set_layout;
+class descriptor_pool;
+class pipeline_layout;
 class fence;
 class queue;
 struct image_create_info;
 class image;
 class swapchain;
+class shader_module;
 struct swapchain_create_info;
+struct descriptor_binding_info;
+struct descriptor_pool_create_info;
 
 using queue_ptr = memory::unique_ptr<queue>;
 using command_list_ptr = memory::unique_ptr<command_list>;
@@ -60,6 +67,8 @@ using vulkan_device_base = device;
 using vulkan_device_base = core::non_copyable;
 #endif
 
+template <typename T>
+struct data_type;
 class vulkan_device WN_GRAPHICS_FINAL : public vulkan_device_base {
 public:
   ~vulkan_device() WN_GRAPHICS_OVERRIDE_FINAL;
@@ -147,6 +156,34 @@ protected:
   command_list_ptr create_command_list(
       command_allocator*) WN_GRAPHICS_OVERRIDE_FINAL;
 
+  void initialize_shader_module(shader_module* s,
+      const containers::contiguous_range<const uint8_t>& bytes)
+      WN_GRAPHICS_OVERRIDE_FINAL;
+  void destroy_shader_module(
+      shader_module* shader_module) WN_GRAPHICS_OVERRIDE_FINAL;
+
+  void initialize_descriptor_set_layout(descriptor_set_layout* _layout,
+      const containers::contiguous_range<const descriptor_binding_info>&
+          _binding_infos) WN_GRAPHICS_OVERRIDE_FINAL;
+  void destroy_descriptor_set_layout(
+      descriptor_set_layout* _layout) WN_GRAPHICS_OVERRIDE_FINAL;
+
+  void initialize_descriptor_pool(descriptor_pool* _pool,
+      const containers::contiguous_range<const descriptor_pool_create_info>&
+          _pool_data) WN_GRAPHICS_OVERRIDE_FINAL;
+  void destroy_descriptor_pool(
+      descriptor_pool* _pool) WN_GRAPHICS_OVERRIDE_FINAL;
+
+  void initialize_descriptor_set(descriptor_set* _set, descriptor_pool* _pool,
+      const descriptor_set_layout* _pool_data) WN_GRAPHICS_OVERRIDE_FINAL;
+  void destroy_descriptor_set(descriptor_set* _set) WN_GRAPHICS_OVERRIDE_FINAL;
+
+  void initialize_pipeline_layout(pipeline_layout* _layout,
+      const containers::contiguous_range<const descriptor_set_layout*>&
+          _descriptor_sets) WN_GRAPHICS_OVERRIDE_FINAL;
+  void destroy_pipeline_layout(
+      pipeline_layout* _layout) WN_GRAPHICS_OVERRIDE_FINAL;
+
   uint32_t get_memory_type_index(uint32_t _types, VkFlags _properties) const;
 
   surface_helper m_surface_helper;
@@ -195,6 +232,26 @@ protected:
   PFN_vkAcquireNextImageKHR vkAcquireNextImageKHR;
   PFN_vkDestroySwapchainKHR vkDestroySwapchainKHR;
 
+  // Shaders
+  PFN_vkCreateShaderModule vkCreateShaderModule;
+  PFN_vkDestroyShaderModule vkDestroyShaderModule;
+
+  // Descriptor Pool
+  PFN_vkCreateDescriptorPool vkCreateDescriptorPool;
+  PFN_vkDestroyDescriptorPool vkDestroyDescriptorPool;
+
+  // Descriptor Set
+  PFN_vkAllocateDescriptorSets vkAllocateDescriptorSets;
+  PFN_vkFreeDescriptorSets vkFreeDescriptorSets;
+
+  // Descriptor Set Layout
+  PFN_vkCreateDescriptorSetLayout vkCreateDescriptorSetLayout;
+  PFN_vkDestroyDescriptorSetLayout vkDestroyDescriptorSetLayout;
+
+  // Pipeline Layout
+  PFN_vkCreatePipelineLayout vkCreatePipelineLayout;
+  PFN_vkDestroyPipelineLayout vkDestroyPipelineLayout;
+
   queue_context m_queue_context;
   command_list_context m_command_list_context;
   std::atomic<VkQueue> m_queue;
@@ -208,6 +265,8 @@ protected:
   uint32_t m_image_memory_type_index;
   bool m_upload_heap_is_coherent;
   bool m_download_heap_is_coherent;
+
+private:
 };
 
 }  // namespace vulkan

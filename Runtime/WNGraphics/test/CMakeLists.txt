@@ -10,8 +10,13 @@ wn_create_executable_tests_from_list(TEST_PREFIX WNGraphics
     WNResourceCopy
     WNUploadHeap
     WNFence
+    WNPipeline
   COMMON_SOURCES
     inc/WNTestFixture.h
+    shaders/pipeline.ps.glsl.h
+    shaders/pipeline.ps.hlsl.h
+    shaders/pipeline.vs.glsl.h
+    shaders/pipeline.vs.hlsl.h
   LIBS
     WNGraphics
 )

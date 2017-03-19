@@ -11,6 +11,7 @@ struct partition_node;
 
 class default_node_allocator {
 public:
+  default_node_allocator() : m_allocator(nullptr) {}
   default_node_allocator(memory::allocator* _allocator)
     : m_allocator(_allocator) {}
   partition_node* allocate_node_for(size_t, size_t);
@@ -70,6 +71,7 @@ public:
       }
       list = nullptr;
     }
+    token() : list(nullptr) {}
 
   private:
     template <typename T>
@@ -78,7 +80,7 @@ public:
       : list(_list), node(_node) {}
     token(range_partition<NodeAllocator>* _list, size_t _bits)
       : list(_list), bits(_bits) {}
-    token() : list(nullptr) {}
+
     range_partition<NodeAllocator>* list;
 
     union {
@@ -88,6 +90,9 @@ public:
   };
 
   range_partition(const NodeAllocator& _node_allocator, size_t num_elements);
+
+  range_partition() : m_num_elements(0) {}
+
   // This will free any and all nodes that have been allocated.
   // It is legal to call this while there are still some nodes that
   // are unaccounted for, but the contents of those nodes should be
@@ -101,15 +106,17 @@ public:
   void release_interval(token token);
 
   token get_interval(size_t size);
+  range_partition& operator=(range_partition&& _other);
 
 private:
+  void reset();
   // Returns a node that contains _size elements.
   // Splits the given node if it is larger than _size elements,
   // returns the entire node if it is exactly _size elements.
   // It is an error to call this on a node with fewer than _size elements.
   partition_node* split_at(partition_node* node, size_t _size);
 
-  const size_t m_num_elements;
+  size_t m_num_elements;
   size_t m_used_space;
   union {
     partition_node* m_node;
@@ -215,23 +222,24 @@ private:
   }
 };
 
-partition_node* default_node_allocator::allocate_node_for(size_t, size_t) {
+WN_INLINE partition_node* default_node_allocator::allocate_node_for(
+    size_t, size_t) {
   return m_allocator->construct<partition_node>();
 }
-void default_node_allocator::free_node(partition_node* node) {
+WN_INLINE void default_node_allocator::free_node(partition_node* node) {
   m_allocator->destroy(node);
 }
 
 template <typename NodeAllocator>
-size_t range_partition<NodeAllocator>::token::size() const {
+WN_INLINE size_t range_partition<NodeAllocator>::token::size() const {
   return list->small_size() ? math::popcount_sparse(bits) : node->size();
 }
 template <typename NodeAllocator>
-size_t range_partition<NodeAllocator>::token::offset() const {
+WN_INLINE size_t range_partition<NodeAllocator>::token::offset() const {
   return list->small_size() ? math::trailing_zeros(bits) : node->offset();
 }
 template <typename NodeAllocator>
-bool range_partition<NodeAllocator>::token::is_valid() const {
+WN_INLINE bool range_partition<NodeAllocator>::token::is_valid() const {
   return list && (node || bits);
 }
 
@@ -256,13 +264,10 @@ range_partition<NodeAllocator>::range_partition(
     m_free_list = m_node;
   }
 }
-// This will free any and all nodes that have been allocated.
-// It is legal to call this while there are still some nodes that
-// are unaccounted for, but the contents of those nodes should be
-// considered no longer valid.
+
 template <typename NodeAllocator>
-range_partition<NodeAllocator>::~range_partition() {
-  if (!small_size()) {
+void range_partition<NodeAllocator>::reset() {
+  if (!small_size() && m_num_elements > 0) {
     while (!m_node->is_last_node()) {
       partition_node* next = m_node->m_next;
       m_node_allocator.free_node(m_node);
@@ -272,18 +277,44 @@ range_partition<NodeAllocator>::~range_partition() {
   }
 }
 
+// This will free any and all nodes that have been allocated.
+// It is legal to call this while there are still some nodes that
+// are unaccounted for, but the contents of those nodes should be
+// considered no longer valid.
 template <typename NodeAllocator>
-size_t range_partition<NodeAllocator>::size() const {
+range_partition<NodeAllocator>::~range_partition() {
+  reset();
+}
+
+template <typename NodeAllocator>
+range_partition<NodeAllocator>& range_partition<NodeAllocator>::operator=(
+    range_partition<NodeAllocator>&& _other) {
+  reset();
+  m_num_elements = _other.m_num_elements;
+  _other.m_num_elements = 0;
+  m_used_space = _other.m_used_space;
+  m_node_allocator = _other.m_node_allocator;
+  m_free_list = _other.m_free_list;
+  if (!small_size()) {
+    m_node = _other.m_node;
+  } else {
+    m_used_bucket = _other.m_used_bucket;
+  }
+  return *this;
+}
+
+template <typename NodeAllocator>
+WN_INLINE size_t range_partition<NodeAllocator>::size() const {
   return m_num_elements;
 }
 
 template <typename NodeAllocator>
-size_t range_partition<NodeAllocator>::used() const {
+WN_INLINE size_t range_partition<NodeAllocator>::used() const {
   return m_used_space;
 }
 
 template <typename NodeAllocator>
-void range_partition<NodeAllocator>::release_interval(token token) {
+WN_INLINE void range_partition<NodeAllocator>::release_interval(token token) {
   if (small_size()) {
     m_used_bucket = m_used_bucket & ~token.bits;
     m_used_space -= token.size();
@@ -306,7 +337,7 @@ void range_partition<NodeAllocator>::release_interval(token token) {
 }
 
 template <typename NodeAllocator>
-typename range_partition<NodeAllocator>::token
+WN_INLINE typename range_partition<NodeAllocator>::token
 range_partition<NodeAllocator>::get_interval(size_t _size) {
   if (small_size()) {
     size_t bit_mask = _size == k_no_allocation_size
@@ -358,7 +389,7 @@ range_partition<NodeAllocator>::get_interval(size_t _size) {
   }
 }
 template <typename NodeAllocator>
-partition_node* range_partition<NodeAllocator>::split_at(
+WN_INLINE partition_node* range_partition<NodeAllocator>::split_at(
     partition_node* node, size_t _size) {
   WN_DEBUG_ASSERT_DESC(
       node->m_next_free != nullptr, "Can only split free nodes");
@@ -385,6 +416,8 @@ partition_node* range_partition<NodeAllocator>::split_at(
   }
   return new_node;
 }
+
+using default_range_partition = range_partition<>;
 
 }  // namespace containers
 }  // namespace wn

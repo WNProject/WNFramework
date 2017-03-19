@@ -105,16 +105,18 @@ add_wn_library(WNGraphics
     inc/WNAdapter.h
     inc/WNCommandAllocator.h
     inc/WNCommandList.h
+    inc/WNDescriptors.h
     inc/WNDevice.h
     inc/WNFactory.h
     inc/WNFence.h
+    inc/WNGraphicsObjectBase.h
     inc/WNHeap.h
     inc/WNHeapTraits.h
     inc/WNImage.h
-    inc/WNImageFormats.h
+    inc/WNGraphicsEnums.h
     inc/WNQueue.h
+    inc/WNShaderModule.h
     inc/WNSwapchain.h
-    inc/WNResourceStates.h
     src/WNDevice.cpp
     src/WNFactory.cpp
     src/WNQueue.cpp

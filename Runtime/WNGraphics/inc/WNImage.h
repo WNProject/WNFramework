@@ -9,8 +9,7 @@
 
 #include "WNGraphics/inc/Internal/WNConfig.h"
 #include "WNGraphics/inc/WNDevice.h"
-#include "WNGraphics/inc/WNImageFormats.h"
-#include "WNGraphics/inc/WNResourceStates.h"
+#include "WNGraphics/inc/WNGraphicsEnums.h"
 #include "WNMemory/inc/WNBasic.h"
 
 WN_GRAPHICS_FORWARD(device);

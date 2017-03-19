@@ -4,15 +4,18 @@
 
 #include "WNGraphics/inc/Internal/Vulkan/WNDevice.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNBufferData.h"
+#include "WNGraphics/inc/Internal/Vulkan/WNDataTypes.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNImageFormats.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNResourceStates.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNSwapchain.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanImage.h"
 #include "WNGraphics/inc/WNCommandAllocator.h"
 #include "WNGraphics/inc/WNCommandList.h"
+#include "WNGraphics/inc/WNDescriptors.h"
 #include "WNGraphics/inc/WNFence.h"
 #include "WNGraphics/inc/WNHeap.h"
 #include "WNGraphics/inc/WNQueue.h"
+#include "WNGraphics/inc/WNShaderModule.h"
 #include "WNGraphics/inc/WNSwapchain.h"
 #include "WNLogging/inc/WNLog.h"
 
@@ -28,6 +31,9 @@ namespace wn {
 namespace graphics {
 namespace internal {
 namespace vulkan {
+#define get_data(f)                                                            \
+  f->data_as<                                                                  \
+      typename data_type<core::remove_pointer<decltype(f)>::type>::value>()
 
 namespace {
 
@@ -170,6 +176,21 @@ bool vulkan_device::initialize(memory::allocator* _allocator,
   LOAD_VK_DEVICE_SYMBOL(m_device, vkGetSwapchainImagesKHR);
   LOAD_VK_DEVICE_SYMBOL(m_device, vkAcquireNextImageKHR);
   LOAD_VK_DEVICE_SYMBOL(m_device, vkDestroySwapchainKHR);
+
+  LOAD_VK_DEVICE_SYMBOL(m_device, vkCreateShaderModule);
+  LOAD_VK_DEVICE_SYMBOL(m_device, vkDestroyShaderModule);
+
+  LOAD_VK_DEVICE_SYMBOL(m_device, vkCreateDescriptorPool);
+  LOAD_VK_DEVICE_SYMBOL(m_device, vkDestroyDescriptorPool);
+
+  LOAD_VK_DEVICE_SYMBOL(m_device, vkAllocateDescriptorSets);
+  LOAD_VK_DEVICE_SYMBOL(m_device, vkFreeDescriptorSets);
+
+  LOAD_VK_DEVICE_SYMBOL(m_device, vkCreateDescriptorSetLayout);
+  LOAD_VK_DEVICE_SYMBOL(m_device, vkDestroyDescriptorSetLayout);
+
+  LOAD_VK_DEVICE_SYMBOL(m_device, vkCreatePipelineLayout);
+  LOAD_VK_DEVICE_SYMBOL(m_device, vkDestroyPipelineLayout);
 
   LOAD_VK_SUB_DEVICE_SYMBOL(m_device, m_queue_context, vkQueueSubmit);
   LOAD_VK_SUB_DEVICE_SYMBOL(m_device, m_queue_context, vkQueuePresentKHR);
@@ -736,6 +757,228 @@ swapchain_ptr vulkan_device::create_swapchain(
   return core::move(swp);
 }
 
+void vulkan_device::initialize_shader_module(shader_module* s,
+    const containers::contiguous_range<const uint8_t>& bytes) {
+  ::VkShaderModule& m = get_data(s);
+  VkShaderModuleCreateInfo create_info = {
+      VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,  // sType
+      nullptr,                                      // pNext
+      0,                                            // flags
+      bytes.size(),                                 // codeSize
+      reinterpret_cast<const uint32_t*>(bytes.data())};
+
+  if (VK_SUCCESS != vkCreateShaderModule(m_device, &create_info, nullptr, &m)) {
+    m_log->log_error("Error creating shader module.");
+  }
+}
+
+void vulkan_device::destroy_shader_module(shader_module* s) {
+  ::VkShaderModule& m = get_data(s);
+  vkDestroyShaderModule(m_device, m, nullptr);
+}
+
+void vulkan_device::initialize_descriptor_set_layout(
+    descriptor_set_layout* _layout,
+    const containers::contiguous_range<const descriptor_binding_info>&
+        _binding_infos) {
+  ::VkDescriptorSetLayout& set_layout = get_data(_layout);
+
+  containers::dynamic_array<VkDescriptorSetLayoutBinding> bindings(
+      m_allocator, _binding_infos.size());
+  VkDescriptorSetLayoutCreateInfo create_info = {
+      VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,  // sType
+      nullptr,                                              // pNext
+      // TODO(awoloszyn): Handle push_constants here.
+      0,                                             // flags
+      static_cast<uint32_t>(_binding_infos.size()),  // bindingCount
+      bindings.data()                                // pBindings
+  };
+
+  for (size_t i = 0; i < _binding_infos.size(); ++i) {
+    const descriptor_binding_info& info = _binding_infos[i];
+    VkDescriptorSetLayoutBinding& binding = bindings[i];
+    binding.binding = static_cast<uint32_t>(info.binding);
+    binding.descriptorCount = static_cast<uint32_t>(info.array_size);
+    switch (info.type) {
+      case descriptor_type::sampler:
+        binding.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLER;
+        break;
+      case descriptor_type::read_only_buffer:
+        binding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        break;
+      case descriptor_type::read_only_image_buffer:
+        binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+        break;
+      case descriptor_type::read_only_sampled_buffer:
+        binding.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLER;
+        break;
+      case descriptor_type::read_write_buffer:
+        binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+        break;
+      case descriptor_type::read_write_image_buffer:
+        binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+        break;
+      case descriptor_type::read_write_sampled_buffer:
+        binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER;
+        break;
+      case descriptor_type::sampled_image:
+        binding.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+        break;
+    }
+
+    if (info.shader_stages & static_cast<uint32_t>(shader_stage::vertex)) {
+      binding.stageFlags |= VK_SHADER_STAGE_VERTEX_BIT;
+    }
+    if (info.shader_stages & static_cast<uint32_t>(shader_stage::pixel)) {
+      binding.stageFlags |= VK_SHADER_STAGE_FRAGMENT_BIT;
+    }
+    if (info.shader_stages &
+        static_cast<uint32_t>(shader_stage::tessellation_control)) {
+      binding.stageFlags |= VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;
+    }
+    if (info.shader_stages &
+        static_cast<uint32_t>(shader_stage::tessellation_evaluation)) {
+      binding.stageFlags |= VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
+    }
+    if (info.shader_stages & static_cast<uint32_t>(shader_stage::geometry)) {
+      binding.stageFlags |= VK_SHADER_STAGE_GEOMETRY_BIT;
+    }
+    if (info.shader_stages & static_cast<uint32_t>(shader_stage::compute)) {
+      binding.stageFlags |= VK_SHADER_STAGE_COMPUTE_BIT;
+    }
+  }
+
+  if (VK_SUCCESS != vkCreateDescriptorSetLayout(
+                        m_device, &create_info, nullptr, &set_layout)) {
+    m_log->log_error("Could not create descriptor set layout");
+  }
+}
+
+void vulkan_device::destroy_descriptor_set_layout(
+    descriptor_set_layout* _layout) {
+  ::VkDescriptorSetLayout& set = get_data(_layout);
+  vkDestroyDescriptorSetLayout(m_device, set, nullptr);
+}
+
+void vulkan_device::initialize_descriptor_pool(descriptor_pool* _pool,
+    const containers::contiguous_range<const descriptor_pool_create_info>&
+        _pool_data) {
+  ::VkDescriptorPool& pool = get_data(_pool);
+
+  containers::dynamic_array<VkDescriptorPoolSize> sizes(
+      m_allocator, _pool_data.size());
+  VkDescriptorPoolCreateInfo create_info = {
+      VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,      // sType
+      nullptr,                                            // pNext
+      VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT,  // flags
+      0,                                                  // maxSets
+      static_cast<uint32_t>(_pool_data.size()),           // poolSizeCount
+      sizes.data()};
+  size_t max_sets = 0;
+  for (size_t i = 0; i < _pool_data.size(); ++i) {
+    VkDescriptorPoolSize& size = sizes[i];
+    const descriptor_pool_create_info& create = _pool_data[i];
+    switch (create.type) {
+      case descriptor_type::sampler:
+        size.type = VK_DESCRIPTOR_TYPE_SAMPLER;
+        break;
+      case descriptor_type::read_only_buffer:
+        size.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        break;
+      case descriptor_type::read_only_image_buffer:
+        size.type = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+        break;
+      case descriptor_type::read_only_sampled_buffer:
+        size.type = VK_DESCRIPTOR_TYPE_SAMPLER;
+        break;
+      case descriptor_type::read_write_buffer:
+        size.type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+        break;
+      case descriptor_type::read_write_image_buffer:
+        size.type = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+        break;
+      case descriptor_type::read_write_sampled_buffer:
+        size.type = VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER;
+        break;
+      case descriptor_type::sampled_image:
+        size.type = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+        break;
+    }
+    size.descriptorCount = static_cast<uint32_t>(create.max_descriptors);
+    max_sets += create.max_descriptors;
+  }
+  create_info.maxSets = static_cast<uint32_t>(max_sets);
+  if (VK_SUCCESS !=
+      vkCreateDescriptorPool(m_device, &create_info, nullptr, &pool)) {
+    m_log->log_error("Could not create descriptor pool");
+  }
+}
+void vulkan_device::destroy_descriptor_pool(descriptor_pool* _pool) {
+  ::VkDescriptorPool& pool = get_data(_pool);
+
+  vkDestroyDescriptorPool(m_device, pool, nullptr);
+}
+
+void vulkan_device::initialize_descriptor_set(descriptor_set* _set,
+    descriptor_pool* _pool, const descriptor_set_layout* _pool_data) {
+  descriptor_set_data& set = get_data(_set);
+  ::VkDescriptorPool& pool = get_data(_pool);
+  const ::VkDescriptorSetLayout& layout = get_data(_pool_data);
+
+  VkDescriptorSetAllocateInfo allocate_info = {
+      VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,  // sType
+      nullptr,                                         // pNext
+      pool,                                            // descriptorPool
+      1,                                               // descriptorSetCount
+      &layout,                                         // pSetLayouts
+  };
+
+  if (VK_SUCCESS !=
+      vkAllocateDescriptorSets(m_device, &allocate_info, &set.set)) {
+    m_log->log_error("Could not allocate descriptor sets");
+  }
+  set.pool = pool;
+}
+
+void vulkan_device::destroy_descriptor_set(descriptor_set* _set) {
+  descriptor_set_data& set = get_data(_set);
+  vkFreeDescriptorSets(m_device, set.pool, 1, &set.set);
+}
+
+void vulkan_device::initialize_pipeline_layout(pipeline_layout* _layout,
+    const containers::contiguous_range<const descriptor_set_layout*>&
+        _descriptor_sets) {
+  ::VkPipelineLayout& layout = get_data(_layout);
+  containers::dynamic_array<::VkDescriptorSetLayout> descriptor_set_layouts(
+      m_allocator, _descriptor_sets.size());
+  VkPipelineLayoutCreateInfo create_info = {
+      VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,   // sType
+      nullptr,                                         // pNext
+      0,                                               // flags
+      static_cast<uint32_t>(_descriptor_sets.size()),  // sets
+      descriptor_set_layouts.data(),                   // pSetLayouts
+      0,                                               // pushConstantRangeCount
+      nullptr,                                         // pPushConstantRanges
+  };
+
+  for (size_t i = 0; i < _descriptor_sets.size(); ++i) {
+    const descriptor_set_layout* set_layout = _descriptor_sets[i];
+    const ::VkDescriptorSetLayout& l = get_data(set_layout);
+    descriptor_set_layouts[i] = l;
+  }
+
+  if (VK_SUCCESS !=
+      vkCreatePipelineLayout(m_device, &create_info, nullptr, &layout)) {
+    m_log->log_error("Could not create pipeline layout");
+  }
+}
+
+void vulkan_device::destroy_pipeline_layout(pipeline_layout* _layout) {
+  ::VkPipelineLayout& layout = get_data(_layout);
+  vkDestroyPipelineLayout(m_device, layout, nullptr);
+}
+
+#undef get_data
 }  // namespace vulkan
 }  // namespace internal
 }  // namespace graphics

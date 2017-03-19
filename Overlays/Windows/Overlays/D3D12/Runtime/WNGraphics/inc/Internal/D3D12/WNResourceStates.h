@@ -7,7 +7,7 @@
 #ifndef __WN_GRAPHICS_INTERNAL_D3D12_RESOURCE_STATES_H__
 #define __WN_GRAPHICS_INTERNAL_D3D12_RESOURCE_STATES_H__
 
-#include "WNGraphics/inc/WNResourceStates.h"
+#include "WNGraphics/inc/WNGraphicsEnums.h"
 
 namespace wn {
 namespace graphics {

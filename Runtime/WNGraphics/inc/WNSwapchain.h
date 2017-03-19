@@ -8,7 +8,7 @@
 #define __WN_GRAPHICS_SWAPCHAIN_H__
 
 #include "WNGraphics/inc/Internal/WNConfig.h"
-#include "WNGraphics/inc/WNImageFormats.h"
+#include "WNGraphics/inc/WNGraphicsEnums.h"
 #include "WNMemory/inc/WNUniquePtr.h"
 
 #ifdef _WN_GRAPHICS_SINGLE_DEVICE_TYPE

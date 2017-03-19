@@ -21,6 +21,27 @@
 
 namespace wn {
 namespace graphics {
+
+struct adapter_features {
+  bool non_solid_fill = false;
+  bool tessellation = false;
+  bool geometry = false;
+  bool depth_clamp = false;
+  bool depth_bias_clamp = false;
+  bool dual_src_blending = false;
+  bool sample_rate_shading = false;
+  bool input_attachments = false;
+
+  bool etc2_textures = false;
+  bool astc_ldr_textures = false;
+  bool bc_textures = false;
+
+  bool clip_distance = false;
+  bool cull_distance = false;
+  uint32_t num_viewports = 1;
+  uint32_t num_scissors = 1;
+};
+
 namespace internal {
 
 #ifdef _WN_GRAPHICS_SINGLE_DEVICE_TYPE

@@ -217,6 +217,17 @@ public:
     }
   }
 
+  template <typename InputIt>
+  dynamic_array(memory::allocator* _allocator, InputIt _first, size_t _size)
+    : dynamic_array(_allocator) {
+    reserve(_size);
+    while (_size) {
+      push_back(*_first);
+      ++_first;
+      --_size;
+    }
+  }
+
   WN_FORCE_INLINE ~dynamic_array() {
     clear();
     deallocate(m_data);

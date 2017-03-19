@@ -5,10 +5,12 @@
 #include "WNGraphics/inc/WNDevice.h"
 #include "WNGraphics/inc/WNCommandAllocator.h"
 #include "WNGraphics/inc/WNCommandList.h"
+#include "WNGraphics/inc/WNDescriptors.h"
 #include "WNGraphics/inc/WNFence.h"
 #include "WNGraphics/inc/WNHeap.h"
 #include "WNGraphics/inc/WNHeapTraits.h"
 #include "WNGraphics/inc/WNImage.h"
+#include "WNGraphics/inc/WNShaderModule.h"
 #include "WNGraphics/inc/WNSwapchain.h"
 
 namespace wn {
@@ -50,6 +52,51 @@ image device::create_image(const image_create_info& _info) {
   image new_image(this);
   initialize_image(_info, &new_image);
   return core::move(new_image);
+}
+
+shader_module device::create_shader_module(
+    const containers::contiguous_range<const uint8_t>& _bytes) {
+  shader_module s(this);
+  initialize_shader_module(&s, _bytes);
+  return core::move(s);
+}
+
+descriptor_set_layout device::create_descriptor_set_layout(
+    const containers::contiguous_range<const descriptor_binding_info>&
+        _layout) {
+  descriptor_set_layout layout(this);
+  initialize_descriptor_set_layout(&layout, _layout);
+  return core::move(layout);
+}
+
+descriptor_pool device::create_descriptor_pool(
+    const containers::contiguous_range<const descriptor_pool_create_info>&
+        _pool_data) {
+  static_assert(
+      static_cast<uint32_t>(descriptor_type::descriptor_type_max) < 16,
+      "This code needs to be updated if you increase the number of descriptor "
+      "types");
+#ifdef _WN_DEBUG
+  uint8_t used_descriptors = 0;
+  for (const auto& data : _pool_data) {
+    WN_DEBUG_ASSERT_DESC(
+        0 == (used_descriptors & (1 << static_cast<uint8_t>(data.type))),
+        "Cannot define the same descriptor type more than once for a given "
+        "pool");
+    used_descriptors |= 1 << static_cast<uint8_t>(data.type);
+  }
+#endif
+  descriptor_pool pool(this);
+  initialize_descriptor_pool(&pool, _pool_data);
+  return core::move(pool);
+}
+
+pipeline_layout device::create_pipeline_layout(
+    const containers::contiguous_range<const descriptor_set_layout*>&
+        _layouts) {
+  pipeline_layout layout(this);
+  initialize_pipeline_layout(&layout, _layouts);
+  return core::move(layout);
 }
 
 }  // namespace graphics

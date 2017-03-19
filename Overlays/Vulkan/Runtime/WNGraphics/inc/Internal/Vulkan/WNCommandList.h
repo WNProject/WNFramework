@@ -10,8 +10,8 @@
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanCommandListContext.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanInclude.h"
 #include "WNGraphics/inc/Internal/WNConfig.h"
+#include "WNGraphics/inc/WNGraphicsEnums.h"
 #include "WNGraphics/inc/WNHeapTraits.h"
-#include "WNGraphics/inc/WNResourceStates.h"
 
 #ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
 #include "WNGraphics/inc/WNCommandList.h"

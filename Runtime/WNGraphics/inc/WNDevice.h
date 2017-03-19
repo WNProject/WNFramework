@@ -7,9 +7,12 @@
 #ifndef __WN_GRAPHICS_DEVICE_H__
 #define __WN_GRAPHICS_DEVICE_H__
 
+#include "WNContainers/inc/WNContiguousRange.h"
+#include "WNContainers/inc/WNStringView.h"
 #include "WNGraphics/inc/Internal/WNConfig.h"
+#include "WNGraphics/inc/WNDescriptorData.h"
+#include "WNGraphics/inc/WNGraphicsEnums.h"
 #include "WNGraphics/inc/WNHeapTraits.h"
-#include "WNGraphics/inc/WNImageFormats.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/WNUniquePtr.h"
 
@@ -24,6 +27,11 @@ WN_GRAPHICS_FORWARD(queue);
 WN_GRAPHICS_FORWARD(adapter);
 WN_GRAPHICS_FORWARD(image);
 WN_GRAPHICS_FORWARD(swapchain);
+WN_GRAPHICS_FORWARD(shader_module);
+WN_GRAPHICS_FORWARD(descriptor_set_layout);
+WN_GRAPHICS_FORWARD(descriptor_pool);
+WN_GRAPHICS_FORWARD(descriptor_set);
+WN_GRAPHICS_FORWARD(pipeline_layout);
 
 namespace wn {
 namespace runtime {
@@ -45,6 +53,7 @@ using device_base = core::non_copyable;
 class command_allocator;
 class command_list;
 class fence;
+class shader_module;
 struct image_create_info;
 struct swapchain_create_info;
 
@@ -81,7 +90,24 @@ public:
   command_allocator create_command_allocator();
   fence create_fence();
 
+  // The contiguous range must be 32-bit aligned for
+  // compatibility.
+  shader_module create_shader_module(
+      const containers::contiguous_range<const uint8_t>& bytes);
+
   image create_image(const image_create_info& _info);
+
+  descriptor_set_layout create_descriptor_set_layout(
+      const containers::contiguous_range<const descriptor_binding_info>&
+          _layout);
+
+  descriptor_pool create_descriptor_pool(
+      const containers::contiguous_range<const descriptor_pool_create_info>&
+          _pool_data);
+
+  pipeline_layout create_pipeline_layout(
+      const containers::contiguous_range<const descriptor_set_layout*>&
+          _descriptor_sets);
 
 protected:
   friend class command_allocator;
@@ -95,6 +121,11 @@ protected:
   WN_GRAPHICS_ADD_FRIENDS(adapter);
   WN_GRAPHICS_ADD_FRIENDS(image);
   WN_GRAPHICS_ADD_FRIENDS(swapchain);
+  WN_GRAPHICS_ADD_FRIENDS(shader_module);
+  WN_GRAPHICS_ADD_FRIENDS(descriptor_pool);
+  WN_GRAPHICS_ADD_FRIENDS(descriptor_set);
+  WN_GRAPHICS_ADD_FRIENDS(descriptor_set_layout);
+  WN_GRAPHICS_ADD_FRIENDS(pipeline_layout);
 
 #ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
   // Upload heap methods
@@ -142,6 +173,35 @@ protected:
   virtual void initialize_image(
       const image_create_info& _info, image* _image) = 0;
   virtual void destroy_image(image* _image) = 0;
+
+  // Shader methods
+  virtual void initialize_shader_module(shader_module* s,
+      const containers::contiguous_range<const uint8_t>& bytes) = 0;
+  virtual void destroy_shader_module(shader_module* shader_module) = 0;
+
+  // Descriptor set layout
+  virtual void initialize_descriptor_set_layout(descriptor_set_layout* _layout,
+      const containers::contiguous_range<const descriptor_binding_info>&
+          _binding_infos) = 0;
+  virtual void destroy_descriptor_set_layout(
+      descriptor_set_layout* _layout) = 0;
+
+  // Descriptor pool
+  virtual void initialize_descriptor_pool(descriptor_pool* _pool,
+      const containers::contiguous_range<const descriptor_pool_create_info>&
+          _pool_data) = 0;
+  virtual void destroy_descriptor_pool(descriptor_pool* _pool) = 0;
+
+  // Descriptor set
+  virtual void initialize_descriptor_set(descriptor_set* _set,
+      descriptor_pool* _pool, const descriptor_set_layout* _pool_data) = 0;
+  virtual void destroy_descriptor_set(descriptor_set* _set) = 0;
+
+  // Pipeline layout
+  virtual void initialize_pipeline_layout(pipeline_layout* _layout,
+      const containers::contiguous_range<const descriptor_set_layout*>&
+          _descriptor_sets) = 0;
+  virtual void destroy_pipeline_layout(pipeline_layout* _layout) = 0;
 #endif
 };
 

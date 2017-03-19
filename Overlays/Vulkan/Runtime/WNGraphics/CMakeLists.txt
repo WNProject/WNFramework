@@ -5,6 +5,7 @@ overlay_library_sources(WNGraphics
     inc/Internal/Vulkan/WNAdapter.h
     inc/Internal/Vulkan/WNBufferData.h
     inc/Internal/Vulkan/WNCommandList.h
+    inc/Internal/Vulkan/WNDataTypes.h
     inc/Internal/Vulkan/WNDevice.h
     inc/Internal/Vulkan/WNImageFormats.h
     inc/Internal/Vulkan/WNResourceStates.h

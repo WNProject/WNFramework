@@ -3,12 +3,15 @@
 // found in the LICENSE.txt file.
 
 #include "WNGraphics/inc/Internal/D3D12/WNDevice.h"
+#include "WNContainers/inc/WNDeque.h"
 #include "WNGraphics/inc/Internal/D3D12/WNCommandList.h"
+#include "WNGraphics/inc/Internal/D3D12/WNDataTypes.h"
 #include "WNGraphics/inc/Internal/D3D12/WNFenceData.h"
 #include "WNGraphics/inc/Internal/D3D12/WNImageFormats.h"
 #include "WNGraphics/inc/Internal/D3D12/WNResourceStates.h"
 #include "WNGraphics/inc/Internal/D3D12/WNSwapchain.h"
 #include "WNGraphics/inc/WNCommandAllocator.h"
+#include "WNGraphics/inc/WNDescriptors.h"
 #include "WNGraphics/inc/WNFence.h"
 #include "WNGraphics/inc/WNHeap.h"
 #include "WNGraphics/inc/WNHeapTraits.h"
@@ -23,6 +26,9 @@
 #include "WNGraphics/inc/WNCommandList.h"
 #include "WNGraphics/inc/WNQueue.h"
 #endif
+
+#include "WNMath/inc/WNBasic.h"
+#include "WNMemory/inc/WNUniquePtr.h"
 
 #include "WNWindow/inc/WNWindow.h"
 #include "WNWindow/inc/WNWindowsWindow.h"
@@ -480,6 +486,268 @@ swapchain_ptr d3d12_device::create_swapchain(const swapchain_create_info& _info,
   swapchain->initialize(m_allocator, this, _window->get_width(),
       _window->get_height(), _info, core::move(swp3));
   return core::move(swapchain);
+}
+
+void d3d12_device::initialize_shader_module(shader_module* _module,
+    const containers::contiguous_range<const uint8_t>& bytes) {
+  auto& data = get_data(_module);
+  data = core::move(memory::make_unique<shader_module_data>(m_allocator));
+  data->m_shader = containers::dynamic_array<uint8_t>(
+      m_allocator, bytes.data(), bytes.data() + bytes.size());
+}
+
+void d3d12_device::destroy_shader_module(shader_module* _module) {
+  auto& data = get_data(_module);
+  data.reset();
+}
+
+void d3d12_device::initialize_descriptor_set_layout(
+    descriptor_set_layout* _layout,
+    const containers::contiguous_range<const descriptor_binding_info>&
+        _binding_infos) {
+  auto& data = get_data(_layout);
+  data =
+      memory::make_unique<containers::dynamic_array<descriptor_binding_info>>(
+          m_allocator, m_allocator, _binding_infos.data(),
+          _binding_infos.size());
+}
+
+void d3d12_device::destroy_descriptor_set_layout(
+    descriptor_set_layout* _layout) {
+  auto& data = get_data(_layout);
+  data.reset();
+}
+
+void d3d12_device::initialize_descriptor_pool(descriptor_pool* _pool,
+    const containers::contiguous_range<const descriptor_pool_create_info>&
+        _pool_data) {
+  size_t num_csv_types = 0;
+  size_t num_sampler_types = 0;
+  Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> sampler_heap;
+  containers::default_range_partition::token csv_heap_token;
+
+  for (const descriptor_pool_create_info& data : _pool_data) {
+    switch (data.type) {
+      case descriptor_type::sampler: {
+        D3D12_DESCRIPTOR_HEAP_DESC desc = {
+            D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER,         // type
+            static_cast<UINT>(data.max_descriptors),    // count
+            D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,  // flags
+            0,                                          // nodemask
+        };
+        num_sampler_types += data.max_descriptors;
+        HRESULT hr = m_device->CreateDescriptorHeap(
+            &desc, __uuidof(ID3D12DescriptorHeap), &sampler_heap);
+        (void)hr;
+        WN_DEBUG_ASSERT_DESC(
+            !FAILED(hr), "Failed initializing the descriptor pool");
+      } break;
+      case descriptor_type::sampled_image: {
+        num_csv_types += data.max_descriptors;
+      } break;
+      case descriptor_type::read_only_buffer: {
+        num_csv_types += data.max_descriptors;
+      } break;
+      case descriptor_type::read_only_image_buffer: {
+        num_csv_types += data.max_descriptors;
+      } break;
+      case descriptor_type::read_only_sampled_buffer: {
+        num_csv_types += data.max_descriptors;
+      } break;
+      case descriptor_type::read_write_buffer: {
+        num_csv_types += data.max_descriptors;
+      } break;
+      case descriptor_type::read_write_image_buffer: {
+        num_csv_types += data.max_descriptors;
+      } break;
+      case descriptor_type::read_write_sampled_buffer: {
+        num_csv_types += data.max_descriptors;
+      } break;
+    }
+  }
+
+  if (num_csv_types > 0) {
+    // We try not to lock ever inside the graphics devices, but
+    // we make an exception here, as the optimization for Nvidia hardware
+    // requires only a single heap. We only have to lock around the creation
+    // of the pool, not the creation of individual descriptors, since the
+    // pools are externally synchronized.
+    {
+      multi_tasking::spin_lock_guard guard(m_csv_heap_lock);
+      csv_heap_token = m_csv_partition.get_interval(num_csv_types);
+    }
+    WN_DEBUG_ASSERT_DESC(
+        csv_heap_token.is_valid(), "Could not find enough space for csv heap");
+  }
+
+  memory::unique_ptr<descriptor_pool_data>& dat = get_data(_pool);
+  dat = memory::make_unique<descriptor_pool_data>(m_allocator, m_allocator,
+      num_csv_types, num_sampler_types, core::move(csv_heap_token),
+      m_root_csv_heap.Get(), core::move(sampler_heap));
+}
+
+void d3d12_device::destroy_descriptor_pool(descriptor_pool* _pool) {
+  memory::unique_ptr<descriptor_pool_data> dat = core::move(get_data(_pool));
+  if (dat->csv_heap_partition.size() > 0) {
+    multi_tasking::spin_lock_guard guard(m_csv_heap_lock);
+    dat->csv_heap_token = containers::default_range_partition::token();
+  }
+}
+
+void d3d12_device::initialize_descriptor_set(descriptor_set* _set,
+    descriptor_pool* _pool, const descriptor_set_layout* _layout) {
+  auto& pool = get_data(_pool);
+  const auto& layout = get_data(_layout);
+  memory::unique_ptr<descriptor_set_data>& set = get_data(_set);
+  set = memory::make_unique<descriptor_set_data>(
+      m_allocator, m_allocator, pool.get());
+  containers::default_range_partition::token tok;
+  for (auto& l : (*layout)) {
+    switch (l.type) {
+      case descriptor_type::sampler:
+        tok = pool->sampler_heap_partition.get_interval(l.array_size);
+        break;
+      case descriptor_type::sampled_image:
+      case descriptor_type::read_only_buffer:
+      case descriptor_type::read_only_image_buffer:
+      case descriptor_type::read_only_sampled_buffer:
+      case descriptor_type::read_write_buffer:
+      case descriptor_type::read_write_image_buffer:
+      case descriptor_type::read_write_sampled_buffer:
+        tok = pool->csv_heap_partition.get_interval(l.array_size);
+        break;
+      default:
+        WN_DEBUG_ASSERT_DESC(false, "Should not end up here");
+    }
+    descriptor_data dat = {l.type, core::move(tok)};
+    set->descriptors.push_back(core::move(dat));
+  }
+}
+
+void d3d12_device::destroy_descriptor_set(descriptor_set* _set) {
+  auto& set = get_data(_set);
+  set.reset();
+}
+
+void d3d12_device::initialize_pipeline_layout(pipeline_layout* _layout,
+    const containers::contiguous_range<const descriptor_set_layout*>&
+        _descriptor_set_layouts) {
+  auto& layout = get_data(_layout);
+  containers::dynamic_array<D3D12_ROOT_PARAMETER> parameters(m_allocator);
+
+  D3D12_ROOT_SIGNATURE_DESC desc = {
+      0,
+      nullptr,                         // parameters go here
+      0,                               // NumStaticSamplers
+      nullptr,                         // pStaticSamplers
+      D3D12_ROOT_SIGNATURE_FLAG_NONE,  // flags
+      // TODO(awoloszyn): Set up the DENY flags as well as
+      // stream output (if we want?)
+  };
+
+  containers::deque<D3D12_DESCRIPTOR_RANGE> ranges(m_allocator);
+
+  for (size_t i = 0; i < _descriptor_set_layouts.size(); ++i) {
+    const auto& set = (_descriptor_set_layouts)[i];
+    const auto& set_layout = get_data(set);
+    for (size_t j = 0; j < set_layout->size(); ++j) {
+      parameters.push_back({});
+      auto& parameter = parameters.back();
+      parameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+      parameter.DescriptorTable.NumDescriptorRanges = 1;
+      ranges.push_back({});
+      parameter.DescriptorTable.pDescriptorRanges = &ranges.back();
+
+      auto& range = ranges.back();
+      const auto& descriptor = (*set_layout)[j];
+
+      if (math::popcount(descriptor.shader_stages) > 1) {
+        parameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+      }
+
+      switch (descriptor.shader_stages) {
+        case static_cast<uint32_t>(shader_stage::vertex):
+          parameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+          break;
+        case static_cast<uint32_t>(shader_stage::pixel):
+          parameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+          break;
+        case static_cast<uint32_t>(shader_stage::tessellation_control):
+          parameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_HULL;
+          break;
+        case static_cast<uint32_t>(shader_stage::tessellation_evaluation):
+          parameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_DOMAIN;
+          break;
+        case static_cast<uint32_t>(shader_stage::geometry):
+          parameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_GEOMETRY;
+          break;
+        case static_cast<uint32_t>(shader_stage::compute):
+        default:
+          parameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+      }
+
+      range.NumDescriptors = static_cast<UINT>(descriptor.array_size);
+      range.BaseShaderRegister = static_cast<UINT>(descriptor.register_base);
+      range.RegisterSpace = 0;  // TODO(awoloszyn) Expose this?
+      range.OffsetInDescriptorsFromTableStart = static_cast<UINT>(j);
+
+      switch (descriptor.type) {
+        case descriptor_type::sampler:
+          range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
+          break;
+        case descriptor_type::read_only_buffer:
+          range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
+          break;
+        case descriptor_type::sampled_image:
+        case descriptor_type::read_only_image_buffer:
+        case descriptor_type::read_only_sampled_buffer:
+          range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+          break;
+        case descriptor_type::read_write_buffer:
+        case descriptor_type::read_write_image_buffer:
+        case descriptor_type::read_write_sampled_buffer:
+          range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
+          break;
+        default:
+          m_log->log_error("Invalid descriptor type");
+          break;
+      }
+    }
+  }
+  desc.pParameters = parameters.data();
+  desc.NumParameters = static_cast<UINT>(parameters.size());
+
+  Microsoft::WRL::ComPtr<ID3DBlob> serialized_sig;
+  Microsoft::WRL::ComPtr<ID3DBlob> error;
+  HRESULT hr = D3D12SerializeRootSignature(
+      &desc, D3D_ROOT_SIGNATURE_VERSION_1, &serialized_sig, &error);
+  if (FAILED(hr)) {
+    m_log->log_error("Could not serialize root signature:",
+        static_cast<char*>(error->GetBufferPointer()));
+    return;
+  }
+
+  hr = m_device->CreateRootSignature(0, serialized_sig->GetBufferPointer(),
+      serialized_sig->GetBufferSize(), __uuidof(ID3D12RootSignature), &layout);
+
+  if (FAILED(hr)) {
+    m_log->log_error("Error constructing the root signature.");
+  }
+}
+
+void d3d12_device::destroy_pipeline_layout(pipeline_layout* _layout) {
+  auto& layout = get_data(_layout);
+  layout.Reset();
+}
+
+template <typename T>
+typename data_type<T>::value& d3d12_device::get_data(T* t) {
+  return t->data_as<typename data_type<T>::value>();
+}
+
+template <typename T>
+typename data_type<const T>::value& d3d12_device::get_data(const T* const t) {
+  return t->data_as<typename data_type<const T>::value>();
 }
 
 }  // namespace d3d12

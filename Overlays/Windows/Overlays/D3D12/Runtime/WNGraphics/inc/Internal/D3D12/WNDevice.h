@@ -7,10 +7,13 @@
 #ifndef __WN_GRAPHICS_INTERNAL_D3D12_DEVICE_H__
 #define __WN_GRAPHICS_INTERNAL_D3D12_DEVICE_H__
 
+#include "WNContainers/inc/WNRangePartition.h"
 #include "WNGraphics/inc/Internal/WNConfig.h"
+#include "WNGraphics/inc/WNDescriptorData.h"
 #include "WNGraphics/inc/WNHeapTraits.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/WNUniquePtr.h"
+#include "WNMultiTasking/inc/WNSpinLock.h"
 #include "WNWindow/inc/WNWindow.h"
 
 #ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
@@ -35,8 +38,13 @@ namespace graphics {
 
 class command_allocator;
 class command_list;
+class descriptor_set;
+class descriptor_set_layout;
+class descriptor_pool;
+class pipeline_layout;
 class fence;
 class queue;
+class shader_module;
 class swapchain;
 struct image_create_info;
 struct swapchain_create_info;
@@ -49,6 +57,8 @@ using command_list_ptr = memory::unique_ptr<command_list>;
 namespace internal {
 namespace d3d12 {
 
+template <typename T>
+struct data_type;
 class d3d12_adapter;
 
 #ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
@@ -75,6 +85,8 @@ protected:
   friend class d3d12_queue;
   friend class d3d12_adapter;
 
+  const static size_t k_reserved_resource_size = 1000000;
+
   WN_FORCE_INLINE d3d12_device()
     : d3d12_device_base(),
       m_allocator(nullptr),
@@ -85,9 +97,27 @@ protected:
       logging::log* _log, Microsoft::WRL::ComPtr<IDXGIFactory4> _d3d12_factory,
       Microsoft::WRL::ComPtr<ID3D12Device>&& _d3d12_device) {
     m_allocator = _allocator;
+    m_csv_partition = containers::default_range_partition(
+        m_allocator, k_reserved_resource_size);
     m_log = _log;
     m_device = core::move(_d3d12_device);
     m_factory = _d3d12_factory;
+
+    D3D12_DESCRIPTOR_HEAP_DESC desc = {
+        D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,  // Type
+        // The maximum we are able to put in a heap. (TODO: figure out if this
+        // is too big)
+        k_reserved_resource_size,
+        D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,  // flags
+        0,                                          // nodemask
+    };
+
+    HRESULT hr = m_device->CreateDescriptorHeap(
+        &desc, __uuidof(ID3D12DescriptorHeap), &m_root_csv_heap);
+
+    if (FAILED(hr)) {
+      m_log->log_error("Could not create root descriptors: ", hr);
+    }
   }
 
   void initialize_upload_heap(upload_heap* _upload_heap,
@@ -141,12 +171,53 @@ protected:
   command_list_ptr create_command_list(
       command_allocator*) WN_GRAPHICS_OVERRIDE_FINAL;
 
+  void initialize_shader_module(shader_module* s,
+      const containers::contiguous_range<const uint8_t>& bytes)
+      WN_GRAPHICS_OVERRIDE_FINAL;
+  void destroy_shader_module(
+      shader_module* shader_module) WN_GRAPHICS_OVERRIDE_FINAL;
+
+  void initialize_descriptor_set_layout(descriptor_set_layout* _layout,
+      const containers::contiguous_range<const descriptor_binding_info>&
+          _binding_infos) WN_GRAPHICS_OVERRIDE_FINAL;
+  void destroy_descriptor_set_layout(
+      descriptor_set_layout* _layout) WN_GRAPHICS_OVERRIDE_FINAL;
+
+  void initialize_descriptor_pool(descriptor_pool* _pool,
+      const containers::contiguous_range<const descriptor_pool_create_info>&
+          _pool_data) WN_GRAPHICS_OVERRIDE_FINAL;
+  void destroy_descriptor_pool(
+      descriptor_pool* _pool) WN_GRAPHICS_OVERRIDE_FINAL;
+
+  void initialize_descriptor_set(descriptor_set* _set, descriptor_pool* _pool,
+      const descriptor_set_layout* _pool_data) WN_GRAPHICS_OVERRIDE_FINAL;
+  void destroy_descriptor_set(descriptor_set* _set) WN_GRAPHICS_OVERRIDE_FINAL;
+
+  void initialize_pipeline_layout(pipeline_layout* _layout,
+      const containers::contiguous_range<const descriptor_set_layout*>&
+          _descriptor_sets) WN_GRAPHICS_OVERRIDE_FINAL;
+  void destroy_pipeline_layout(
+      pipeline_layout* _layout) WN_GRAPHICS_OVERRIDE_FINAL;
+
 public:
   Microsoft::WRL::ComPtr<ID3D12Device> m_device;
   Microsoft::WRL::ComPtr<IDXGIFactory4> m_factory;
+  // We create a single largest (1M entries) root heap.
+  // When we create a descriptor-pool we suballocate from this heap.
+  Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_root_csv_heap;
+  containers::default_range_partition m_csv_partition;
+
   memory::allocator* m_allocator;
   logging::log* m_log;
   std::atomic<uint32_t> m_num_queues;
+
+  multi_tasking::spin_lock m_csv_heap_lock;
+
+private:
+  template <typename T>
+  typename data_type<T>::value& get_data(T* t);
+  template <typename T>
+  typename data_type<const T>::value& get_data(const T* const t);
 };
 
 }  // namespace d3d12
