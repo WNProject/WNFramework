@@ -21,12 +21,12 @@ namespace graphics {
 struct image_create_info {
   static image_create_info default_texture(size_t _width, size_t _height) {
     return image_create_info{
-        _width, _height, image_format::r8g8b8a8_unorm, k_all_resource_states};
+        _width, _height, data_format::r8g8b8a8_unorm, k_all_resource_states};
   }
 
   size_t m_width;
   size_t m_height;
-  image_format m_format;
+  data_format m_format;
   resource_states m_valid_resource_states;  // Bit-flags of the image type.
   // TODO(awoloszyn): Add mip-levels
   // TODO(awoloszyn): Add Depth/Array Size
@@ -40,7 +40,7 @@ public:
   // write is m_device->get_image_upload_buffer_alignment
   // aligned.
   struct image_buffer_resource_info {
-    image_format format;        // The format of the image
+    data_format format;         // The format of the image
     size_t width;               // The width of the image
     size_t height;              // The height of the image
     size_t depth;               // The depth of the image

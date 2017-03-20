@@ -9,6 +9,7 @@
 #include "WNGraphics/inc/WNDescriptors.h"
 #include "WNGraphics/inc/WNFence.h"
 #include "WNGraphics/inc/WNFramebuffer.h"
+#include "WNGraphics/inc/WNGraphicsPipeline.h"
 #include "WNGraphics/inc/WNHeap.h"
 #include "WNGraphics/inc/WNHeapTraits.h"
 #include "WNGraphics/inc/WNImage.h"
@@ -140,6 +141,16 @@ framebuffer device::create_framebuffer(
   framebuffer fb(this);
   initialize_framebuffer(&fb, _create_info);
   return core::move(fb);
+}
+
+graphics_pipeline device::create_graphics_pipeline(
+    const graphics_pipeline_description& _create_info,
+    const pipeline_layout* _layout, const render_pass* _renderpass,
+    uint32_t _subpass) {
+  graphics_pipeline pipeline(this);
+  initialize_graphics_pipeline(
+      &pipeline, _create_info, _layout, _renderpass, _subpass);
+  return core::move(pipeline);
 }
 
 }  // namespace graphics

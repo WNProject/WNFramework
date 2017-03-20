@@ -3,6 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "WNGraphics/inc/Internal/Vulkan/WNDevice.h"
+#include "WNContainers/inc/WNArray.h"
 #include "WNContainers/inc/WNDeque.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNBufferData.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNDataTypes.h"
@@ -16,6 +17,8 @@
 #include "WNGraphics/inc/WNDescriptors.h"
 #include "WNGraphics/inc/WNFence.h"
 #include "WNGraphics/inc/WNFramebuffer.h"
+#include "WNGraphics/inc/WNGraphicsPipeline.h"
+#include "WNGraphics/inc/WNGraphicsPipelineDescription.h"
 #include "WNGraphics/inc/WNHeap.h"
 #include "WNGraphics/inc/WNImageView.h"
 #include "WNGraphics/inc/WNQueue.h"
@@ -207,6 +210,9 @@ bool vulkan_device::initialize(memory::allocator* _allocator,
 
   LOAD_VK_DEVICE_SYMBOL(m_device, vkCreateFramebuffer);
   LOAD_VK_DEVICE_SYMBOL(m_device, vkDestroyFramebuffer);
+
+  LOAD_VK_DEVICE_SYMBOL(m_device, vkCreateGraphicsPipelines);
+  LOAD_VK_DEVICE_SYMBOL(m_device, vkDestroyPipeline);
 
   LOAD_VK_SUB_DEVICE_SYMBOL(m_device, m_queue_context, vkQueueSubmit);
   LOAD_VK_SUB_DEVICE_SYMBOL(m_device, m_queue_context, vkQueuePresentKHR);
@@ -1321,6 +1327,310 @@ void vulkan_device::initialize_framebuffer(
 void vulkan_device::destroy_framebuffer(framebuffer* _framebuffer) {
   ::VkFramebuffer& fb = get_data(_framebuffer);
   vkDestroyFramebuffer(m_device, fb, nullptr);
+}
+
+void vulkan_device::initialize_graphics_pipeline(graphics_pipeline* _pipeline,
+    const graphics_pipeline_description& _create_info,
+    const pipeline_layout* _layout, const render_pass* _renderpass,
+    uint32_t _subpass) {
+  uint32_t num_used_shader_stages = 0;
+  containers::array<VkPipelineShaderStageCreateInfo, 5> shader_stages;
+  bool has_rasterization = false;
+  for (size_t i = 0; i < 5; ++i) {
+    if (!_create_info.m_shader_stages[i].entry_point.empty()) {
+      const auto& stage = _create_info.m_shader_stages[i];
+      const shader_module* mod = stage.module;
+      ::VkShaderModule module = get_data(mod);
+      shader_stages[num_used_shader_stages++] = {
+          VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,        // sType
+          nullptr,                                                    // pNext
+          0,                                                          // flags
+          shader_stage_to_vulkan(static_cast<shader_stage>(1 << i)),  // stage
+          module,
+          stage.entry_point.c_str(),  // pName
+          nullptr,                    // pSpecializationInfo
+      };
+      if (static_cast<shader_stage>(1 << i) == shader_stage::pixel) {
+        has_rasterization = true;
+      }
+    }
+  }
+
+  containers::dynamic_array<VkVertexInputBindingDescription> vertex_bindings(
+      m_allocator, _create_info.m_vertex_streams.size());
+  for (size_t i = 0; i < vertex_bindings.size(); ++i) {
+    const auto& binding = _create_info.m_vertex_streams[i];
+    VkVertexInputRate rate = binding.frequency == stream_frequency::per_instance
+                                 ? VK_VERTEX_INPUT_RATE_INSTANCE
+                                 : VK_VERTEX_INPUT_RATE_VERTEX;
+    vertex_bindings[i] = {binding.index, binding.stride, rate};
+  }
+
+  containers::dynamic_array<VkVertexInputAttributeDescription>
+      vertex_attributes(m_allocator, _create_info.m_vertex_attributes.size());
+  for (size_t i = 0; i < vertex_attributes.size(); ++i) {
+    const auto& attribute = _create_info.m_vertex_attributes[i];
+    vertex_attributes[i] = {attribute.attribute_index, attribute.stream_index,
+        image_format_to_vulkan_format(attribute.format), attribute.offset};
+  }
+
+  VkPipelineVertexInputStateCreateInfo vertex_input_state_info = {
+      VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,  // sType
+      nullptr,                                                    // pNext
+      0,                                                          // flags
+      static_cast<uint32_t>(
+          vertex_bindings.size()),  // vertexBindingDescriptionCount
+      vertex_bindings.data(),       // pVertexBindingDescriptions
+      static_cast<uint32_t>(
+          vertex_attributes.size()),  // vertexAttributeDescriptionCount
+      vertex_attributes.data()        // pVertexAttributeDescriptions
+  };
+
+  VkPipelineInputAssemblyStateCreateInfo input_assembly_create_info = {
+      VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,  // sType
+      nullptr,                                                      // pNext
+      0,                                                            // flags
+      primitive_topology_to_vulkan(_create_info.m_topology),        // topology
+      _create_info.m_index_restart  // primitiveRestartEnabled
+  };
+
+  VkPipelineTessellationStateCreateInfo* tessellation_create_info = nullptr;
+  VkPipelineTessellationStateCreateInfo tess_info;
+  if (_create_info.m_topology == topology::patch_list) {
+    tess_info = {
+        VK_STRUCTURE_TYPE_PIPELINE_TESSELLATION_STATE_CREATE_INFO,  // sType
+        nullptr,                                                    // pNext
+        0,                                                          // flags
+        _create_info.m_num_patch_control_points,  // patchControlPoints
+    };
+    tessellation_create_info = &tess_info;
+  }
+
+  VkPipelineViewportStateCreateInfo* viewport_create_info = nullptr;
+  VkPipelineViewportStateCreateInfo viewport_info;
+  containers::dynamic_array<VkViewport> viewports(
+      m_allocator, _create_info.m_static_viewports.size());
+  containers::dynamic_array<VkRect2D> scissors(
+      m_allocator, _create_info.m_static_scissors.size());
+  bool has_dynamic_viewport = true;
+  bool has_dynamic_scissor = true;
+  if (has_rasterization) {
+    viewport_create_info = &viewport_info;
+    for (size_t i = 0; i < viewports.size(); ++i) {
+      has_dynamic_viewport = false;
+      const auto& viewport = _create_info.m_static_viewports[i];
+
+      viewports[i] = VkViewport{viewport.x, viewport.y, viewport.width,
+          viewport.height, viewport.min_depth, viewport.max_depth};
+    }
+
+    for (size_t i = 0; i < scissors.size(); ++i) {
+      has_dynamic_scissor = false;
+      const auto& scissor = _create_info.m_static_scissors[i];
+      scissors[i] =
+          VkRect2D{{scissor.x, scissor.y}, {scissor.width, scissor.height}};
+    }
+
+    viewport_info = VkPipelineViewportStateCreateInfo{
+        VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO,  // sType
+        nullptr,                                                // pNext
+        0,                                                      // flags
+        _create_info.m_num_viewports,                           // viewportCount
+        has_dynamic_viewport ? nullptr : viewports.data(),      // pViewports
+        _create_info.m_num_scissors,                            // scissorCount
+        has_dynamic_scissor ? nullptr : scissors.data(),        // pScissors
+    };
+  }
+
+  VkPipelineRasterizationStateCreateInfo rasterization_create_info = {
+      VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO,  // sType
+      nullptr,                                                     // pNext
+      0,                                                           // flags
+      false,  // TODO(awoloszyn): set up depth clamp
+      false,  // TODO(awoloszyn): Set up rasterizer Discard
+      fill_mode_to_vulkan(_create_info.m_fill_mode),  // polygonMode
+      cull_mode_to_vulkan(_create_info.m_cull_mode),  // cullMode
+      winding_to_vulkan(_create_info.m_winding),      // frontFace
+      _create_info.m_depth_bias != 0.f,               // depthBiasEnable
+      _create_info.m_depth_bias,                      // depthBiasConstantFactor
+      0,     // depthBiasClamp TODO(awolosyn): Expose this
+      0,     // depthBiasSlope TODO(awoloszyn): Expose this
+      1.0f,  // lineWidth TODO(awoloszyn): Expose this
+  };
+
+  VkPipelineMultisampleStateCreateInfo* multisample_create_info = nullptr;
+  VkPipelineMultisampleStateCreateInfo ms_info;
+
+  VkSampleMask sample_masks[2] = {
+      uint32_t(_create_info.m_sample_mask & static_cast<uint64_t>(0xFFFFFFFF)),
+      uint32_t((_create_info.m_sample_mask >> 32) &
+               static_cast<uint64_t>(0xFFFFFFFF))};
+  if (has_rasterization) {
+    multisample_create_info = &ms_info;
+
+    ms_info = VkPipelineMultisampleStateCreateInfo{
+        VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,  // sType
+        nullptr,                                                   // pNext
+        0,                                                         // flags
+        samples_to_vulkan(_create_info.m_num_samples),             // samples
+        false,                             // sampleShadingEnable
+        0,                                 // minSampleShading
+        sample_masks,                      // pSampleMask,
+        _create_info.m_alpha_to_coverage,  // alphaToCoverageEnable
+        false,                             // alphaToOneEnable
+    };
+  }
+
+  VkPipelineDepthStencilStateCreateInfo* depth_create_info = nullptr;
+  VkPipelineDepthStencilStateCreateInfo depth_info;
+  bool has_stencil_reference = false;
+  if (has_rasterization && _create_info.m_depth_enabled) {
+    depth_create_info = &depth_info;
+
+    depth_info = VkPipelineDepthStencilStateCreateInfo{
+        VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO,  // sType
+        nullptr,                                                     // pNext
+        0,                                                           // flags
+        _create_info.m_depth_test_enabled,                   // depthTestEnable
+        _create_info.m_depth_write_enabled,                  // depthWriteEnable
+        compare_to_vulkan(_create_info.m_depth_comparison),  // depthCompareOp
+        false,                           // depthBoundsTestEnable
+        _create_info.m_stencil_enabled,  // stencilTestEnable
+        // In D3D, read/write/stencil must be the same for both front and back
+        VkStencilOpState{
+            stencil_op_to_vulkan(
+                _create_info.m_stencil_front_face.fail),  // failOp
+            stencil_op_to_vulkan(
+                _create_info.m_stencil_front_face.pass),  // passOp
+            stencil_op_to_vulkan(
+                _create_info.m_stencil_front_face.depth_fail),  // depthFail
+            compare_to_vulkan(
+                _create_info.m_stencil_front_face.compare),  // compareOp
+            _create_info.m_stencil_read_mask,                // compareMask
+            _create_info.m_stencil_write_mask,               // writeMask
+            _create_info.m_static_stencil_reference,         // reference
+        },
+        VkStencilOpState{
+            stencil_op_to_vulkan(
+                _create_info.m_stencil_back_face.fail),  // failOp
+            stencil_op_to_vulkan(
+                _create_info.m_stencil_back_face.pass),  // passOp
+            stencil_op_to_vulkan(
+                _create_info.m_stencil_back_face.depth_fail),  // depthFail
+            compare_to_vulkan(
+                _create_info.m_stencil_back_face.compare),  // compareOp
+            _create_info.m_stencil_read_mask,               // compareMask
+            _create_info.m_stencil_write_mask,              // writeMask
+            _create_info.m_static_stencil_reference,        // reference
+        },
+        0.0f,  // minDepthBounds
+        1.0f,  // maxDepthBounds
+    };
+    if (_create_info.m_stencil_enabled) {
+      has_stencil_reference = true;
+    }
+  }
+  VkPipelineColorBlendStateCreateInfo* color_blend_info = nullptr;
+  VkPipelineColorBlendStateCreateInfo color_info;
+  containers::dynamic_array<VkPipelineColorBlendAttachmentState> attachments(
+      m_allocator, _create_info.m_color_attachments.size());
+  bool has_blend_constants = false;
+  if (has_rasterization && !_create_info.m_color_attachments.empty()) {
+    color_blend_info = &color_info;
+
+    for (size_t i = 0; i < _create_info.m_color_attachments.size(); ++i) {
+      const auto& attachment = _create_info.m_color_attachments[i];
+
+      attachments[i] = VkPipelineColorBlendAttachmentState{
+          attachment.blend_enabled,                       // blendEnable
+          blend_factor_to_vulkan(attachment.src_blend),   // srcColorBlendFactor
+          blend_factor_to_vulkan(attachment.dst_blend),   // dstColorBlendFactor
+          blend_op_to_vulkan(attachment.color_blend_op),  // colorBlendOp
+          blend_factor_to_vulkan(
+              attachment.src_blend_alpha),  // srcAlphaBlendFactor
+          blend_factor_to_vulkan(
+              attachment.dst_blend_alpha),                // dstAlphaBlendFactor
+          blend_op_to_vulkan(attachment.alpha_blend_op),  // alphaBlendop
+          write_components_to_vulkan(attachment.write_mask),  // colorWriteMask
+      };
+      if (attachment.src_blend == blend_factor::constant_color ||
+          attachment.dst_blend == blend_factor::constant_color) {
+        has_blend_constants = true;
+      }
+    }
+
+    color_info = VkPipelineColorBlendStateCreateInfo{
+        VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO,  // sType
+        nullptr,                                                   // pNext
+        0,                                                         // flags
+        _create_info.m_logic_op != logic_op::disabled,  // logicOpEnable
+        logic_op_to_vulkan(_create_info.m_logic_op),    // logicOp
+        static_cast<uint32_t>(attachments.size()),      // attachmentCount
+        attachments.data(),                             // pAttachments
+    };
+    memory::memory_copy(&color_info.blendConstants[0],
+        &_create_info.m_static_blend_constants[0], 4);
+  }
+
+  containers::dynamic_array<VkDynamicState> dynamic_states(m_allocator);
+  dynamic_states.reserve(8);
+  if (_create_info.m_static_viewports.empty() &&
+      _create_info.m_num_viewports > 0) {
+    dynamic_states.push_back(VK_DYNAMIC_STATE_VIEWPORT);
+  }
+  if (_create_info.m_static_scissors.empty() &&
+      _create_info.m_num_scissors > 0) {
+    dynamic_states.push_back(VK_DYNAMIC_STATE_SCISSOR);
+  }
+  if (!_create_info.m_has_static_blend_constants && has_blend_constants) {
+    dynamic_states.push_back(VK_DYNAMIC_STATE_BLEND_CONSTANTS);
+  }
+  if (has_stencil_reference && !_create_info.m_has_static_stencil_reference) {
+    dynamic_states.push_back(VK_DYNAMIC_STATE_STENCIL_REFERENCE);
+  }
+
+  VkPipelineDynamicStateCreateInfo dynamic_state_info = {
+      VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO,  // sType
+      nullptr,                                               // pNext
+      0,                                                     // flags
+      static_cast<uint32_t>(dynamic_states.size()), dynamic_states.data()};
+
+  ::VkPipelineLayout layout = get_data(_layout);
+  ::VkRenderPass renderpass = get_data(_renderpass);
+
+  VkGraphicsPipelineCreateInfo pipeline_create_info = {
+      VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,  // sType
+      nullptr,                                          // pNext
+      0,                            // flags TODO(awoloszyn): Maybe expose this?
+      num_used_shader_stages,       // stageCount
+      shader_stages.data(),         // pStages
+      &vertex_input_state_info,     // pVertexInputState
+      &input_assembly_create_info,  // pInputAssemblyState
+      tessellation_create_info,     // pTessellationState
+      viewport_create_info,         // pViewportState
+      &rasterization_create_info,   // pRasterizationState
+      multisample_create_info,      // pMultisampleState
+      depth_create_info,            // pDepthStencilState
+      color_blend_info,             // pColorBlendState
+      &dynamic_state_info,          // pDynamicState
+      layout,                       // layout
+      renderpass,                   // renderPass
+      _subpass,                     // subpass
+      VK_NULL_HANDLE,               // basePipelineHandle
+      -1,                           // basePipelineIndex
+  };
+
+  graphics_pipeline_data& pipeline = get_data(_pipeline);
+  if (VK_SUCCESS != vkCreateGraphicsPipelines(m_device, VK_NULL_HANDLE, 1,
+                        &pipeline_create_info, nullptr, &pipeline.pipeline)) {
+    m_log->log_error("Could not create graphics pipeline");
+  }
+  pipeline.index_format = _create_info.m_index_type;
+}
+
+void vulkan_device::destroy_graphics_pipeline(graphics_pipeline* _pipeline) {
+  graphics_pipeline_data& pipeline = get_data(_pipeline);
+  vkDestroyPipeline(m_device, pipeline.pipeline, nullptr);
 }
 
 #undef get_data

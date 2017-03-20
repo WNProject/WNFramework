@@ -81,6 +81,281 @@ static WN_FORCE_INLINE VkImageUsageFlags resources_states_to_usage_bits(
   return VkImageUsageFlags(usage);
 }
 
+static WN_FORCE_INLINE VkShaderStageFlagBits shader_stage_to_vulkan(
+    shader_stage stage) {
+  switch (stage) {
+    case shader_stage::vertex:
+      return VK_SHADER_STAGE_VERTEX_BIT;
+    case shader_stage::pixel:
+      return VK_SHADER_STAGE_FRAGMENT_BIT;
+    case shader_stage::tessellation_control:
+      return VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;
+    case shader_stage::tessellation_evaluation:
+      return VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
+    case shader_stage::geometry:
+      return VK_SHADER_STAGE_GEOMETRY_BIT;
+    case shader_stage::compute:
+      return VK_SHADER_STAGE_COMPUTE_BIT;
+  }
+  WN_DEBUG_ASSERT_DESC(false, "We should never end up here");
+  return VkShaderStageFlagBits(0);
+}
+
+static WN_FORCE_INLINE VkPrimitiveTopology primitive_topology_to_vulkan(
+    topology t) {
+  switch (t) {
+    case topology::undefined:
+      return VkPrimitiveTopology(0);
+    case topology::point_list:
+      return VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
+    case topology::line_list:
+      return VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
+    case topology::line_strip:
+      return VK_PRIMITIVE_TOPOLOGY_LINE_STRIP;
+    case topology::triangle_list:
+      return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+    case topology::triangle_strip:
+      return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
+    case topology::line_list_with_adjacency:
+      return VK_PRIMITIVE_TOPOLOGY_LINE_LIST_WITH_ADJACENCY;
+    case topology::line_strip_with_adjacency:
+      return VK_PRIMITIVE_TOPOLOGY_LINE_STRIP_WITH_ADJACENCY;
+    case topology::triangle_list_with_adjacency:
+      return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST_WITH_ADJACENCY;
+    case topology::triangle_strip_with_adjacency:
+      return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP_WITH_ADJACENCY;
+    case topology::patch_list:
+      return VK_PRIMITIVE_TOPOLOGY_PATCH_LIST;
+  }
+  WN_DEBUG_ASSERT_DESC(false, "We should never end up here");
+  return VkPrimitiveTopology(0);
+}
+
+static WN_FORCE_INLINE VkPolygonMode fill_mode_to_vulkan(fill_mode _mode) {
+  switch (_mode) {
+    case fill_mode::fill:
+      return VK_POLYGON_MODE_FILL;
+    case fill_mode::line:
+      return VK_POLYGON_MODE_LINE;
+    case fill_mode::point:
+      return VK_POLYGON_MODE_POINT;
+  }
+  WN_DEBUG_ASSERT_DESC(false, "We should never get here");
+  return VkPolygonMode(0);
+}
+
+static WN_FORCE_INLINE VkCullModeFlags cull_mode_to_vulkan(cull_mode _mode) {
+  switch (_mode) {
+    case cull_mode::back:
+      return VK_CULL_MODE_BACK_BIT;
+    case cull_mode::front:
+      return VK_CULL_MODE_FRONT_BIT;
+    case cull_mode::none:
+      return VK_CULL_MODE_NONE;
+  }
+  WN_DEBUG_ASSERT_DESC(false, "We should never get here");
+  return VkCullModeFlags(0);
+}
+
+static WN_FORCE_INLINE VkFrontFace winding_to_vulkan(winding _mode) {
+  switch (_mode) {
+    case winding::clockwise:
+      return VK_FRONT_FACE_CLOCKWISE;
+    case winding::counter_clockwise:
+      return VK_FRONT_FACE_COUNTER_CLOCKWISE;
+  }
+  WN_DEBUG_ASSERT_DESC(false, "We should never get here");
+  return VkFrontFace(0);
+}
+
+static WN_FORCE_INLINE VkSampleCountFlagBits samples_to_vulkan(
+    multisample_count _count) {
+  switch (_count) {
+    case multisample_count::disabled:
+      return VkSampleCountFlagBits(0);
+    case multisample_count::samples_1:
+      return VK_SAMPLE_COUNT_1_BIT;
+    case multisample_count::samples_2:
+      return VK_SAMPLE_COUNT_2_BIT;
+    case multisample_count::samples_4:
+      return VK_SAMPLE_COUNT_4_BIT;
+    case multisample_count::samples_8:
+      return VK_SAMPLE_COUNT_8_BIT;
+    case multisample_count::samples_16:
+      return VK_SAMPLE_COUNT_16_BIT;
+    case multisample_count::samples_32:
+      return VK_SAMPLE_COUNT_32_BIT;
+    case multisample_count::samples_64:
+      return VK_SAMPLE_COUNT_64_BIT;
+  }
+  WN_DEBUG_ASSERT_DESC(false, "We should never get here");
+  return VkSampleCountFlagBits(0);
+}
+
+static WN_FORCE_INLINE VkCompareOp compare_to_vulkan(comparison_op _compare) {
+  switch (_compare) {
+    case comparison_op::always:
+      return VK_COMPARE_OP_ALWAYS;
+    case comparison_op::equal:
+      return VK_COMPARE_OP_EQUAL;
+    case comparison_op::greater:
+      return VK_COMPARE_OP_GREATER;
+    case comparison_op::greater_than_or_equal:
+      return VK_COMPARE_OP_GREATER_OR_EQUAL;
+    case comparison_op::less:
+      return VK_COMPARE_OP_LESS;
+    case comparison_op::less_than_or_equal:
+      return VK_COMPARE_OP_LESS_OR_EQUAL;
+    case comparison_op::never:
+      return VK_COMPARE_OP_NEVER;
+    case comparison_op::not_equal:
+      return VK_COMPARE_OP_NOT_EQUAL;
+  }
+  WN_DEBUG_ASSERT_DESC(false, "We should never get here");
+  return VkCompareOp(0);
+}
+
+static WN_FORCE_INLINE VkStencilOp stencil_op_to_vulkan(stencil_op _stencil) {
+  switch (_stencil) {
+    case stencil_op::keep:
+      return VK_STENCIL_OP_KEEP;
+    case stencil_op::zero:
+      return VK_STENCIL_OP_ZERO;
+    case stencil_op::replace:
+      return VK_STENCIL_OP_REPLACE;
+    case stencil_op::invert:
+      return VK_STENCIL_OP_INVERT;
+    case stencil_op::increment_wrap:
+      return VK_STENCIL_OP_INCREMENT_AND_WRAP;
+    case stencil_op::decrement_wrap:
+      return VK_STENCIL_OP_DECREMENT_AND_WRAP;
+    case stencil_op::increment_saturate:
+      return VK_STENCIL_OP_INCREMENT_AND_CLAMP;
+    case stencil_op::decrement_saturate:
+      return VK_STENCIL_OP_DECREMENT_AND_CLAMP;
+  }
+  WN_DEBUG_ASSERT_DESC(false, "We should never get here");
+  return VkStencilOp(0);
+}
+
+static WN_FORCE_INLINE VkBlendFactor blend_factor_to_vulkan(
+    blend_factor _factor) {
+  switch (_factor) {
+    case blend_factor::zero:
+      return VK_BLEND_FACTOR_ZERO;
+    case blend_factor::one:
+      return VK_BLEND_FACTOR_ONE;
+    case blend_factor::src_color:
+      return VK_BLEND_FACTOR_SRC_COLOR;
+    case blend_factor::inv_src_color:
+      return VK_BLEND_FACTOR_ONE_MINUS_SRC_COLOR;
+    case blend_factor::dst_color:
+      return VK_BLEND_FACTOR_DST_COLOR;
+    case blend_factor::inv_dst_color:
+      return VK_BLEND_FACTOR_ONE_MINUS_DST_COLOR;
+    case blend_factor::src_alpha:
+      return VK_BLEND_FACTOR_SRC_ALPHA;
+    case blend_factor::inv_src_alpha:
+      return VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+    case blend_factor::dst_alpha:
+      return VK_BLEND_FACTOR_DST_ALPHA;
+    case blend_factor::inv_dst_alpha:
+      return VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA;
+    case blend_factor::constant_color:
+      return VK_BLEND_FACTOR_CONSTANT_COLOR;
+    case blend_factor::inv_constant_color:
+      return VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_COLOR;
+    case blend_factor::src_alpha_saturate:
+      return VK_BLEND_FACTOR_SRC_ALPHA_SATURATE;
+    case blend_factor::src1_color:
+      return VK_BLEND_FACTOR_SRC1_COLOR;
+    case blend_factor::inv_src1_color:
+      return VK_BLEND_FACTOR_ONE_MINUS_SRC1_COLOR;
+    case blend_factor::src1_alpha:
+      return VK_BLEND_FACTOR_SRC1_ALPHA;
+    case blend_factor::inv_src1_alpha:
+      return VK_BLEND_FACTOR_ONE_MINUS_SRC1_ALPHA;
+  }
+  WN_DEBUG_ASSERT_DESC(false, "We should never get here");
+  return VkBlendFactor(0);
+}
+
+static WN_FORCE_INLINE VkBlendOp blend_op_to_vulkan(blend_op _op) {
+  switch (_op) {
+    case blend_op::add:
+      return VK_BLEND_OP_ADD;
+    case blend_op::sub:
+      return VK_BLEND_OP_SUBTRACT;
+    case blend_op::inv_sub:
+      return VK_BLEND_OP_REVERSE_SUBTRACT;
+    case blend_op::min:
+      return VK_BLEND_OP_MIN;
+    case blend_op::max:
+      return VK_BLEND_OP_MAX;
+  }
+  WN_DEBUG_ASSERT_DESC(false, "We should never get here");
+  return VkBlendOp(0);
+}
+
+static WN_FORCE_INLINE VkLogicOp logic_op_to_vulkan(logic_op _op) {
+  switch (_op) {
+    case logic_op::disabled:
+      return VkLogicOp(0);
+    case logic_op::op_clear:
+      return VK_LOGIC_OP_CLEAR;
+    case logic_op::op_set:
+      return VK_LOGIC_OP_SET;
+    case logic_op::op_nop:
+      return VK_LOGIC_OP_NO_OP;
+    case logic_op::op_copy:
+      return VK_LOGIC_OP_COPY;
+    case logic_op::op_copy_reverse:
+      return VK_LOGIC_OP_COPY_INVERTED;
+    case logic_op::op_invert:
+      return VK_LOGIC_OP_INVERT;
+    case logic_op::op_and:
+      return VK_LOGIC_OP_AND;
+    case logic_op::op_and_reverse:
+      return VK_LOGIC_OP_AND_REVERSE;
+    case logic_op::op_and_invert:
+      return VK_LOGIC_OP_AND_INVERTED;
+    case logic_op::op_nand:
+      return VK_LOGIC_OP_NAND;
+    case logic_op::op_or:
+      return VK_LOGIC_OP_OR;
+    case logic_op::op_or_reverse:
+      return VK_LOGIC_OP_OR_REVERSE;
+    case logic_op::op_or_invert:
+      return VK_LOGIC_OP_OR_INVERTED;
+    case logic_op::op_xor:
+      return VK_LOGIC_OP_XOR;
+    case logic_op::op_nor:
+      return VK_LOGIC_OP_NOR;
+    case logic_op::op_nxor:
+      return VK_LOGIC_OP_EQUIVALENT;
+  }
+  WN_DEBUG_ASSERT_DESC(false, "We should never get here");
+  return VkLogicOp(0);
+}
+
+static WN_FORCE_INLINE VkColorComponentFlags write_components_to_vulkan(
+    write_components _components) {
+  VkColorComponentFlags flags = 0;
+  if (_components & static_cast<uint8_t>(write_component::r)) {
+    flags |= VK_COLOR_COMPONENT_R_BIT;
+  }
+  if (_components & static_cast<uint8_t>(write_component::g)) {
+    flags |= VK_COLOR_COMPONENT_G_BIT;
+  }
+  if (_components & static_cast<uint8_t>(write_component::b)) {
+    flags |= VK_COLOR_COMPONENT_B_BIT;
+  }
+  if (_components & static_cast<uint8_t>(write_component::a)) {
+    flags |= VK_COLOR_COMPONENT_A_BIT;
+  }
+  return VkBlendOp(0);
+}
+
 }  // namespace vulkan
 }  // namespace internal
 }  // namespace graphics

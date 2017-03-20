@@ -14,6 +14,7 @@
 #include "WNGraphics/inc/WNDescriptorData.h"
 #include "WNGraphics/inc/WNFramebufferData.h"
 #include "WNGraphics/inc/WNGraphicsEnums.h"
+#include "WNGraphics/inc/WNGraphicsPipelineDescription.h"
 #include "WNGraphics/inc/WNHeapTraits.h"
 #include "WNGraphics/inc/WNRenderPassTypes.h"
 #include "WNLogging/inc/WNLog.h"
@@ -63,6 +64,7 @@ class descriptor_pool;
 class descriptor_set;
 class pipeline_layout;
 class render_pass;
+class graphics_pipeline;
 
 struct image_create_info;
 struct swapchain_create_info;
@@ -137,6 +139,12 @@ public:
 
   framebuffer create_framebuffer(const framebuffer_create_info& create_info);
 
+  // TODO(awoloszyn): Plumb the pipeline cache through here
+  graphics_pipeline create_graphics_pipeline(
+      const graphics_pipeline_description& create_info,
+      const pipeline_layout* _layout, const render_pass* _renderpass,
+      uint32_t _subpass);
+
 protected:
   friend class command_allocator;
   friend class fence;
@@ -158,6 +166,7 @@ protected:
   friend class render_pass;
   friend class image_view;
   friend class framebuffer;
+  friend class graphics_pipeline;
 
 #ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
   // Upload heap methods
@@ -256,6 +265,14 @@ protected:
   virtual void initialize_framebuffer(
       framebuffer* _framebuffer, const framebuffer_create_info& _info) = 0;
   virtual void destroy_framebuffer(framebuffer* _framebuffer) = 0;
+
+  // Graphics pipeline
+  // TODO(awoloszyn): Plumb the pipeline cache through here
+  virtual void initialize_graphics_pipeline(graphics_pipeline* _pipeline,
+      const graphics_pipeline_description& _create_info,
+      const pipeline_layout* _layout, const render_pass* _renderpass,
+      uint32_t _subpass) = 0;
+  virtual void destroy_graphics_pipeline(graphics_pipeline* _pipeline) = 0;
 #endif
 };
 

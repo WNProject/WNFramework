@@ -13,7 +13,7 @@ namespace wn {
 namespace graphics {
 
 struct render_pass_attachment {
-  image_format format = image_format::r8g8b8a8_unorm;
+  data_format format = data_format::r8g8b8a8_unorm;
   multisample_count num_samples = multisample_count::samples_1;
   load_op attachment_load_op = load_op::load;
   store_op attachment_store_op = store_op::store;
@@ -43,7 +43,6 @@ struct subpass_description {
   containers::contiguous_range<const attachment_reference> input_attachments;
   containers::contiguous_range<const attachment_reference> color_attachments;
   containers::contiguous_range<const attachment_reference> resolve_attachments;
-  bool depth_stencil_enabled = false;
   attachment_reference* depth_stencil = nullptr;
   // resource_state is unused for preserve attachments.
   containers::contiguous_range<const attachment_reference> preserve_attachments;

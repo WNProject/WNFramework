@@ -15,6 +15,8 @@
 #include "WNGraphics/inc/WNDescriptors.h"
 #include "WNGraphics/inc/WNFence.h"
 #include "WNGraphics/inc/WNFramebuffer.h"
+#include "WNGraphics/inc/WNGraphicsPipeline.h"
+#include "WNGraphics/inc/WNGraphicsPipelineDescription.h"
 #include "WNGraphics/inc/WNHeap.h"
 #include "WNGraphics/inc/WNHeapTraits.h"
 #include "WNGraphics/inc/WNImage.h"
@@ -635,10 +637,10 @@ void d3d12_device::initialize_pipeline_layout(pipeline_layout* _layout,
 
   D3D12_ROOT_SIGNATURE_DESC desc = {
       0,
-      nullptr,                         // parameters go here
-      0,                               // NumStaticSamplers
-      nullptr,                         // pStaticSamplers
-      D3D12_ROOT_SIGNATURE_FLAG_NONE,  // flags
+      nullptr,  // parameters go here
+      0,        // NumStaticSamplers
+      nullptr,  // pStaticSamplers
+      D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT,  // flags
       // TODO(awoloszyn): Set up the DENY flags as well as
       // stream output (if we want?)
   };
@@ -741,12 +743,29 @@ void d3d12_device::destroy_pipeline_layout(pipeline_layout* _layout) {
 void d3d12_device::initialize_render_pass(render_pass* _pass,
     const containers::contiguous_range<const render_pass_attachment>&
         _attachments,
-    const containers::contiguous_range<const subpass_description>&,
+    const containers::contiguous_range<const subpass_description>& subpasses,
     const containers::contiguous_range<const subpass_dependency>&) {
   memory::unique_ptr<render_pass_data>& pass_data = get_data(_pass);
   pass_data = memory::make_unique<render_pass_data>(m_allocator, m_allocator);
   pass_data->attachments.insert(
       pass_data->attachments.begin(), _attachments.begin(), _attachments.end());
+  for (size_t i = 0; i < subpasses.size(); ++i) {
+    pass_data->subpasses.emplace_back(m_allocator);
+    auto& subpass = pass_data->subpasses.back();
+    auto& color_attachments = subpasses[i].color_attachments;
+    auto& resolve_attachments = subpasses[i].resolve_attachments;
+    for (size_t j = 0; j < color_attachments.size(); ++j) {
+      subpass.color_attachments.push_back(color_attachments[j].attachment);
+    }
+    for (size_t j = 0; j < resolve_attachments.size(); ++j) {
+      subpass.resolve_attachments.push_back(resolve_attachments[j].attachment);
+    }
+    if (subpasses[i].depth_stencil) {
+      subpass.depth_attachment = subpasses[i].depth_stencil->attachment;
+    } else {
+      subpass.depth_attachment = -1;
+    }
+  }
 }
 
 void d3d12_device::destroy_render_pass(render_pass* _pass) {
@@ -832,6 +851,213 @@ void d3d12_device::destroy_framebuffer(framebuffer* _framebuffer) {
       m_dsv_heap.release_partition(core::move(data->image_view_handles[i]));
     }
   }
+  data.reset();
+}
+
+void d3d12_device::initialize_graphics_pipeline(graphics_pipeline* _pipeline,
+    const graphics_pipeline_description& _create_info,
+    const pipeline_layout* _layout, const render_pass* _renderpass,
+    uint32_t _subpass) {
+  memory::unique_ptr<graphics_pipeline_data>& data = get_data(_pipeline);
+  data = memory::make_unique<graphics_pipeline_data>(m_allocator, m_allocator);
+
+  auto& rootSignature = get_data(_layout);
+  D3D12_GRAPHICS_PIPELINE_STATE_DESC pipeline_desc = {};
+  pipeline_desc.pRootSignature = rootSignature.Get();
+
+  const auto& rp = get_data(_renderpass);
+
+  if (!_create_info.m_shader_stages[0].entry_point.empty()) {
+    auto& vertex_shader = get_data(_create_info.m_shader_stages[0].module);
+
+    pipeline_desc.VS = {
+        vertex_shader->m_shader.data(), vertex_shader->m_shader.size()};
+  }
+  if (!_create_info.m_shader_stages[1].entry_point.empty()) {
+    auto& tc_shader = get_data(_create_info.m_shader_stages[1].module);
+
+    pipeline_desc.HS = {tc_shader->m_shader.data(), tc_shader->m_shader.size()};
+  }
+  if (!_create_info.m_shader_stages[2].entry_point.empty()) {
+    auto& te_shader = get_data(_create_info.m_shader_stages[2].module);
+
+    pipeline_desc.DS = {te_shader->m_shader.data(), te_shader->m_shader.size()};
+  }
+  if (!_create_info.m_shader_stages[3].entry_point.empty()) {
+    auto& g_shader = get_data(_create_info.m_shader_stages[3].module);
+
+    pipeline_desc.GS = {g_shader->m_shader.data(), g_shader->m_shader.size()};
+  }
+  if (!_create_info.m_shader_stages[4].entry_point.empty()) {
+    auto& p_shader = get_data(_create_info.m_shader_stages[4].module);
+
+    pipeline_desc.PS = {p_shader->m_shader.data(), p_shader->m_shader.size()};
+  }
+
+  // No Stream Output right now
+
+  // TODO(awoloszyn): Expose independent blending
+  pipeline_desc.BlendState = {
+      _create_info.m_alpha_to_coverage,  // AlphaToCoverageEnable
+      FALSE,                             // IndependentBlendEnable
+  };
+
+  for (size_t i = 0; i < _create_info.m_color_attachments.size(); ++i) {
+    const auto& attachment = _create_info.m_color_attachments[i];
+
+    pipeline_desc.BlendState.RenderTarget[i] = {
+        attachment.blend_enabled,                       // Blend Enable
+        _create_info.m_logic_op != logic_op::disabled,  // LogicOp Enable
+        blend_to_d3d12(attachment.src_blend),           // SrcBlend
+        blend_to_d3d12(attachment.dst_blend),           // DstBlend
+        blend_op_to_d3d12(attachment.color_blend_op),   // BlendOp
+        blend_to_d3d12(attachment.src_blend_alpha),     // DstBlend
+        blend_to_d3d12(attachment.dst_blend_alpha),     // DstBlend
+        blend_op_to_d3d12(attachment.alpha_blend_op),   // AlphaBlendOp
+        logic_op_to_d3d12(_create_info.m_logic_op),     // LogicOp
+        write_components_to_d3d12(
+            attachment.write_mask),  // RenderTargetWriteMask
+    };
+    if (_create_info.m_has_static_blend_constants) {
+      data->static_datums |=
+          1 << static_cast<uint32_t>(
+              static_graphics_pipeline_type::blend_constants);
+      memory::memory_copy(&data->static_blend_constants[0],
+          &_create_info.m_static_blend_constants[0], 4);
+    }
+  }
+
+  pipeline_desc.SampleMask =
+      static_cast<uint32_t>(_create_info.m_sample_mask & 0xFFFFFFFF);
+
+  pipeline_desc.RasterizerState = {
+      fill_to_d3d12(_create_info.m_fill_mode),       // FillMode
+      cull_mode_to_d3d12(_create_info.m_cull_mode),  // CullMode
+      _create_info.m_winding ==
+          winding::counter_clockwise,                   // FrontCountClockwise
+      static_cast<int32_t>(_create_info.m_depth_bias),  // DepthBias
+      0.f,                                              // DepthBiasClamp
+      0.f,                                              // SlopeScaledDepthBias
+      FALSE,                                            // DepthClipEnabled
+      _create_info.m_num_samples !=
+          multisample_count::samples_1,              // MultisampleEnable
+      FALSE,                                         // AntialiasedLineEnable
+      uint32_t(_create_info.m_min_shading_samples),  // minShadingSamples
+      D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF};
+
+  pipeline_desc.DepthStencilState = {
+      _create_info.m_depth_enabled,  // DepthEnable
+      _create_info.m_depth_write_enabled
+          ? D3D12_DEPTH_WRITE_MASK_ALL
+          : D3D12_DEPTH_WRITE_MASK_ZERO,  // DepthWriteMask
+      comparison_op_to_d3d12(_create_info.m_depth_comparison),  // DepthFunc
+      _create_info.m_stencil_enabled,                           // StencilEnable
+      static_cast<uint8_t>(_create_info.m_stencil_read_mask),   // stencil_read
+      static_cast<uint8_t>(_create_info.m_stencil_write_mask),  // stencil_write
+      D3D12_DEPTH_STENCILOP_DESC{
+          stencil_op_to_d3d12(
+              _create_info.m_stencil_front_face.fail),  // StencilFailOp
+          stencil_op_to_d3d12(_create_info.m_stencil_front_face
+                                  .depth_fail),  // StencilDepthFailOp
+          stencil_op_to_d3d12(
+              _create_info.m_stencil_front_face.pass),  // StencilPassOp
+          comparison_op_to_d3d12(
+              _create_info.m_stencil_front_face.compare),  // StencilFunc
+      },                                                   // FrontFace
+      D3D12_DEPTH_STENCILOP_DESC{
+          stencil_op_to_d3d12(
+              _create_info.m_stencil_back_face.fail),  // StencilFailOp
+          stencil_op_to_d3d12(_create_info.m_stencil_back_face
+                                  .depth_fail),  // StencilDepthFailOp
+          stencil_op_to_d3d12(
+              _create_info.m_stencil_back_face.pass),  // StencilPassOp
+          comparison_op_to_d3d12(
+              _create_info.m_stencil_back_face.compare),  // StencilFunc
+      },                                                  // BackFace
+  };
+  if (_create_info.m_has_static_stencil_reference) {
+    data->static_datums |=
+        static_cast<uint32_t>(static_graphics_pipeline_type::stencil_ref);
+    data->static_stencil_ref =
+        static_cast<uint8_t>(_create_info.m_static_stencil_reference);
+  }
+  if (!_create_info.m_static_scissors.empty()) {
+    data->static_datums |=
+        static_cast<uint32_t>(static_graphics_pipeline_type::scissors);
+    data->static_scissors.insert(data->static_scissors.begin(),
+        _create_info.m_static_scissors.begin(),
+        _create_info.m_static_scissors.end());
+  }
+  if (!_create_info.m_static_viewports.empty()) {
+    data->static_datums |=
+        static_cast<uint32_t>(static_graphics_pipeline_type::viewports);
+    data->static_viewports.insert(data->static_viewports.begin(),
+        _create_info.m_static_viewports.begin(),
+        _create_info.m_static_viewports.end());
+  }
+
+  containers::dynamic_array<D3D12_INPUT_ELEMENT_DESC> inputs(
+      m_allocator, _create_info.m_vertex_attributes.size());
+  for (size_t i = 0; i < _create_info.m_vertex_attributes.size(); ++i) {
+    const auto& attribute = _create_info.m_vertex_attributes[i];
+    const auto& stream = _create_info.m_vertex_streams[attribute.stream_index];
+    auto& input = inputs[i];
+    input.InputSlot = stream.index;
+    input.InstanceDataStepRate =
+        stream.frequency == stream_frequency::per_vertex ? 0 : 1;
+    input.InputSlotClass = stream.frequency == stream_frequency::per_vertex
+                               ? D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA
+                               : D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA;
+    input.AlignedByteOffset = attribute.offset;
+    input.Format = image_format_to_dxgi_format(attribute.format);
+    input.SemanticName = attribute.semantic.c_str();
+    input.SemanticIndex = 0;
+  }
+  for (size_t i = 0; i < _create_info.m_vertex_streams.size(); ++i) {
+    data->vertex_stream_strides[_create_info.m_vertex_streams[i].index] =
+        _create_info.m_vertex_streams[i].stride;
+  }
+  pipeline_desc.InputLayout = {
+      inputs.data(), static_cast<uint32_t>(inputs.size())};
+
+  if (_create_info.m_index_restart) {
+    pipeline_desc.IBStripCutValue =
+        _create_info.m_index_type == index_type::u16
+            ? D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_0xFFFF
+            : D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_0xFFFFFFFF;
+  }
+
+  pipeline_desc.PrimitiveTopologyType =
+      topology_to_d3d12_topology_type(_create_info.m_topology);
+  data->topology = topology_to_d3d12_topology(_create_info.m_topology);
+
+  pipeline_desc.NumRenderTargets =
+      static_cast<UINT>(rp->subpasses[_subpass].color_attachments.size());
+  for (size_t i = 0; i < pipeline_desc.NumRenderTargets; ++i) {
+    pipeline_desc.RTVFormats[i] = image_format_to_dxgi_format(
+        rp->attachments[rp->subpasses[_subpass].color_attachments[i]].format);
+  }
+
+  if (rp->subpasses[_subpass].depth_attachment >= 0) {
+    pipeline_desc.DSVFormat = image_format_to_dxgi_format(
+        rp->attachments[rp->subpasses[_subpass].depth_attachment].format);
+  }
+
+  pipeline_desc.SampleDesc.Count =
+      static_cast<uint32_t>(_create_info.m_num_samples);
+  pipeline_desc.SampleDesc.Quality = pipeline_desc.SampleDesc.Count > 1
+                                         ? 1
+                                         : 0;  // TODO(awoloszyn): Expose this
+
+  HRESULT hr = m_device->CreateGraphicsPipelineState(
+      &pipeline_desc, __uuidof(ID3D12PipelineState), &data->pipeline);
+  if (FAILED(hr)) {
+    m_log->log_error("Could not create pipeline");
+  }
+}
+
+void d3d12_device::destroy_graphics_pipeline(graphics_pipeline* _pipeline) {
+  memory::unique_ptr<graphics_pipeline_data>& data = get_data(_pipeline);
   data.reset();
 }
 

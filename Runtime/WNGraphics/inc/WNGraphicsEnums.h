@@ -13,10 +13,10 @@
 namespace wn {
 namespace graphics {
 
-enum class image_format { r8g8b8a8_unorm, max };
+enum class data_format { r8g8b8a8_unorm, r32g32b32a32_sfloat, max };
 
 enum class stream_frequency { per_vertex, per_instance };
-enum class tolopolgy {
+enum class topology {
   undefined,
   point_list,
   line_list,
@@ -41,13 +41,15 @@ enum class winding { clockwise, counter_clockwise };
 
 enum class cull_mode { back, front, none };
 
+// If you re-order these make sure the logic in create_graphics_pipeline remains
+// correct
 enum class shader_stage : uint32_t {
   vertex = 1 << 0,
-  pixel = 1 << 1,
-  tessellation_control = 1 << 2,     // Can only be used if the device supports
+  tessellation_control = 1 << 1,     // Can only be used if the device supports
                                      // tessellation
-  tessellation_evaluation = 1 << 3,  // Only if tessellation is supported.
-  geometry = 1 << 4,  // Can only be used if the devive supports geometry
+  tessellation_evaluation = 1 << 2,  // Only if tessellation is supported.
+  geometry = 1 << 3,  // Can only be used if the devive supports geometry
+  pixel = 1 << 4,
   compute = 1 << 5
 };
 
@@ -79,14 +81,22 @@ enum class blend_op {  // s == source, d == dst, _c = component _f = factor
   max,                 // max(s_c, d_c)
 };
 
-enum class write_compoents : uint8_t {
+enum class write_component : uint8_t {
   r = 1 << 0,
   g = 1 << 1,
   b = 1 << 2,
   a = 1 << 3
 };
 
+static const uint8_t k_all_write_components =
+    static_cast<uint8_t>(write_component::r) |
+    static_cast<uint8_t>(write_component::g) |
+    static_cast<uint8_t>(write_component::b) |
+    static_cast<uint8_t>(write_component::a);
+using write_components = uint8_t;
+
 enum class logic_op {  // s == source, d == dest
+  disabled,            // ~
   op_clear,            // 0
   op_set,              // ~0
   op_nop,              // d
@@ -128,6 +138,7 @@ enum class stencil_op {
 };
 
 enum class multisample_count {
+  disabled = 0,
   samples_1 = 1,
   samples_2 = 2,
   samples_4 = 4,

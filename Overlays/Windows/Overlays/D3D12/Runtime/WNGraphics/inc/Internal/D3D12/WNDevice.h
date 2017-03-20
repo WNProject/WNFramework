@@ -54,9 +54,11 @@ class swapchain;
 class render_pass;
 struct image_create_info;
 struct swapchain_create_info;
+class graphics_pipeline_description;
 class image;
 class image_view;
 class framebuffer;
+class graphics_pipeline;
 
 using queue_ptr = memory::unique_ptr<queue>;
 using swapchain_ptr = memory::unique_ptr<swapchain>;
@@ -216,6 +218,13 @@ protected:
   void destroy_framebuffer(
       framebuffer* _framebuffer) WN_GRAPHICS_OVERRIDE_FINAL;
 
+  void initialize_graphics_pipeline(graphics_pipeline* _pipeline,
+      const graphics_pipeline_description& _create_info,
+      const pipeline_layout* _layout, const render_pass* _renderpass,
+      uint32_t _subpass) WN_GRAPHICS_OVERRIDE_FINAL;
+  void destroy_graphics_pipeline(
+      graphics_pipeline* _pipeline) WN_GRAPHICS_OVERRIDE_FINAL;
+
 private:
   template <typename T>
   typename data_type<T>::value& get_data(T* t);
@@ -286,6 +295,8 @@ public:
     multi_tasking::spin_lock m_lock;
     uint32_t m_descriptor_size;
   };
+
+private:
   locked_heap m_csv_heap;
   locked_heap m_sampler_heap;
   locked_heap m_rtv_heap;

@@ -55,6 +55,8 @@ class swapchain;
 class shader_module;
 class render_pass;
 class framebuffer;
+class graphics_pipeline;
+class graphics_pipeline_description;
 struct swapchain_create_info;
 struct descriptor_binding_info;
 struct descriptor_pool_create_info;
@@ -217,6 +219,13 @@ protected:
   void destroy_framebuffer(
       framebuffer* _framebuffer) WN_GRAPHICS_OVERRIDE_FINAL;
 
+  void initialize_graphics_pipeline(graphics_pipeline* _pipeline,
+      const graphics_pipeline_description& _create_info,
+      const pipeline_layout* _layout, const render_pass* _renderpass,
+      uint32_t _subpass) WN_GRAPHICS_OVERRIDE_FINAL;
+  void destroy_graphics_pipeline(
+      graphics_pipeline* _pipeline) WN_GRAPHICS_OVERRIDE_FINAL;
+
   uint32_t get_memory_type_index(uint32_t _types, VkFlags _properties) const;
 
   surface_helper m_surface_helper;
@@ -301,6 +310,10 @@ private:
   // Framebuffers
   PFN_vkCreateFramebuffer vkCreateFramebuffer;
   PFN_vkDestroyFramebuffer vkDestroyFramebuffer;
+
+  // Graphics Pipeline
+  PFN_vkCreateGraphicsPipelines vkCreateGraphicsPipelines;
+  PFN_vkDestroyPipeline vkDestroyPipeline;
 
   queue_context m_queue_context;
   command_list_context m_command_list_context;

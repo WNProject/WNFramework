@@ -63,9 +63,19 @@ struct descriptor_set_data {
   descriptor_pool_data* pool_data;
 };
 
+struct subpass_data {
+  subpass_data(memory::allocator* _allocator)
+    : color_attachments(_allocator), resolve_attachments(_allocator) {}
+  containers::dynamic_array<int32_t> color_attachments;
+  containers::dynamic_array<int32_t> resolve_attachments;
+  int32_t depth_attachment;
+};
+
 struct render_pass_data {
-  render_pass_data(memory::allocator* _allocator) : attachments(_allocator) {}
+  render_pass_data(memory::allocator* _allocator)
+    : attachments(_allocator), subpasses(_allocator) {}
   containers::dynamic_array<render_pass_attachment> attachments;
+  containers::dynamic_array<subpass_data> subpasses;
 };
 
 struct framebuffer_data {
@@ -78,6 +88,28 @@ struct framebuffer_data {
   containers::dynamic_array<const image_view*> image_views;
   containers::dynamic_array<containers::default_range_partition::token>
       image_view_handles;
+};
+
+enum class static_graphics_pipeline_type {
+  blend_constants = 0,
+  viewports = 1,
+  scissors = 2,
+  stencil_ref = 3
+};
+
+using static_graphics_pipeline_types = uint32_t;
+
+struct graphics_pipeline_data {
+  graphics_pipeline_data(memory::allocator* _allocator)
+    : static_viewports(_allocator), static_scissors(_allocator) {}
+  static_graphics_pipeline_types static_datums = 0;
+  float static_blend_constants[4];
+  uint8_t static_stencil_ref;
+  uint32_t vertex_stream_strides[16];
+  D3D_PRIMITIVE_TOPOLOGY topology;
+  Microsoft::WRL::ComPtr<ID3D12PipelineState> pipeline;
+  containers::dynamic_array<viewport> static_viewports;
+  containers::dynamic_array<scissor> static_scissors;
 };
 
 template <>
@@ -137,7 +169,7 @@ struct data_type<render_pass> {
 
 template <>
 struct data_type<const render_pass> {
-  using value = memory::unique_ptr<const render_pass_data>;
+  using value = const memory::unique_ptr<const render_pass_data>;
 };
 
 struct image_view_info {
@@ -168,6 +200,16 @@ struct data_type<const framebuffer> {
 template <>
 struct data_type<arena> {
   using value = Microsoft::WRL::ComPtr<ID3D12Heap>;
+};
+
+template <>
+struct data_type<graphics_pipeline> {
+  using value = memory::unique_ptr<graphics_pipeline_data>;
+};
+
+template <>
+struct data_type<const graphics_pipeline> {
+  using value = memory::unique_ptr<const graphics_pipeline_data>;
 };
 
 }  // namespace d3d12

@@ -111,6 +111,21 @@ struct data_type<const framebuffer> {
   using value = const ::VkFramebuffer;
 };
 
+struct graphics_pipeline_data {
+  ::VkPipeline pipeline;
+  index_type index_format;
+};
+
+template <>
+struct data_type<graphics_pipeline> {
+  using value = graphics_pipeline_data;
+};
+
+template <>
+struct data_type<const graphics_pipeline> {
+  using value = const graphics_pipeline_data;
+};
+
 }  // namespace vulkan
 }  // namespace internal
 }  // namespace graphics

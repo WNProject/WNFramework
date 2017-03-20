@@ -29,7 +29,7 @@ enum class swap_mode { immediate, mailbox, fifo, fifo_relaxed };
 enum class discard_policy { keep, discard };
 
 struct swapchain_create_info {
-  image_format format;
+  data_format format;
   uint32_t num_buffers;
   swap_mode mode;
   discard_policy discard;

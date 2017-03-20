@@ -38,7 +38,7 @@ TEST(swapchain, basic) {
 
   // Create a swapchain for the window.
   const wn::graphics::swapchain_create_info create_info = {
-      wn::graphics::image_format::r8g8b8a8_unorm, 2,
+      wn::graphics::data_format::r8g8b8a8_unorm, 2,
       wn::graphics::swap_mode::fifo, wn::graphics::discard_policy::discard};
   auto swapchain =
       device->create_swapchain(create_info, queue.get(), wind.get());
