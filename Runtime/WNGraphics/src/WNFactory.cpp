@@ -19,6 +19,12 @@ containers::contiguous_range<const adapter_ptr> factory::query_adapters()
       m_adapters.data(), m_adapters.size());
 }
 
+#define WN_GRAPHICS_CLEAN(unused, engine) internal::engine::cleanup(m_log);
+
+factory::~factory() {
+  FOR_EACH(WN_GRAPHICS_CLEAN, unused, _WN_GRAPHICS_TYPE_LIST)
+}
+
 #define WN_GRAPHICS_ENUMERATE(unused, engine)                                  \
   internal::engine::enumerate_adapters(m_allocator, m_log, m_adapters);
 

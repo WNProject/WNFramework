@@ -24,6 +24,8 @@ namespace d3d12 {
 void enumerate_adapters(memory::allocator* _allocator, logging::log* _log,
     containers::dynamic_array<adapter_ptr>& _physical_devices);
 
+void cleanup(logging::log* _log);
+
 }  // namespace d3d12
 }  // namespace internal
 }  // namespace graphics

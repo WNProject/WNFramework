@@ -25,6 +25,8 @@ namespace vulkan {
 void enumerate_adapters(memory::allocator* _allocator, logging::log* _log,
     containers::dynamic_array<adapter_ptr>& _arr);
 
+WN_FORCE_INLINE void cleanup(logging::log*) {}
+
 }  // namespace vulkan
 }  // namespace internal
 }  // namespace graphics

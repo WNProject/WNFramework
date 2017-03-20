@@ -11,6 +11,12 @@
 
 #include <d3d12.h>
 #include <dxgi1_4.h>
+#ifdef _WN_GRAPHICS_ALLOW_DEBUG_MODE
+// We cannot reorder these. dxgidebug will not work without initguid.
+#include <initguid.h>
+
+#include <dxgidebug.h>
+#endif
 
 namespace wn {
 namespace graphics {
@@ -196,6 +202,21 @@ void enumerate_adapters(memory::allocator* _allocator, logging::log* _log,
 
       _physical_devices.push_back(core::move(ptr));
     }
+  }
+#endif
+}
+
+void cleanup(logging::log* _log) {
+  WN_UNUSED_ARGUMENT(_log);
+#ifdef _WN_GRAPHICS_ALLOW_DEBUG_MODE
+  Microsoft::WRL::ComPtr<IDXGIDebug1> debug_controller;
+  const HRESULT hr =
+      ::DXGIGetDebugInterface1(0, __uuidof(IDXGIDebug1), &debug_controller);
+
+  if (FAILED(hr)) {
+    _log->log_warning("Could not enable D3D12 debug layer, hr: ", hr);
+  } else {
+    debug_controller->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_SUMMARY);
   }
 #endif
 }

@@ -734,8 +734,8 @@ void d3d12_device::initialize_pipeline_layout(pipeline_layout* _layout,
 }
 
 void d3d12_device::destroy_pipeline_layout(pipeline_layout* _layout) {
-  auto& layout = get_data(_layout);
-  layout.Reset();
+  auto layout = core::move(get_data(_layout));
+  // releases here
 }
 
 void d3d12_device::initialize_render_pass(render_pass* _pass,

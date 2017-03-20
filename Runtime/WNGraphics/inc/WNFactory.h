@@ -23,7 +23,7 @@ public:
   WN_FORCE_INLINE factory(memory::allocator* _allocator, logging::log* _log)
     : m_adapters(_allocator), m_allocator(_allocator), m_log(_log) {}
 
-  virtual ~factory() = default;
+  virtual ~factory();
 
   virtual containers::read_only_contiguous_range<adapter_ptr> query_adapters()
       const;

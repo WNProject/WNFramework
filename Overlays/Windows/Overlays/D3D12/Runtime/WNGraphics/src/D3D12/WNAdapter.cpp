@@ -35,8 +35,8 @@ device_ptr d3d12_adapter::make_device(
 
 #ifdef _WN_GRAPHICS_ALLOW_DEBUG_MODE
   // Enable debug layer
-  Microsoft::WRL::ComPtr<ID3D12Debug> debug_controller;
 
+  Microsoft::WRL::ComPtr<ID3D12Debug> debug_controller;
   hr = ::D3D12GetDebugInterface(__uuidof(ID3D12Debug), &debug_controller);
 
   if (FAILED(hr)) {
