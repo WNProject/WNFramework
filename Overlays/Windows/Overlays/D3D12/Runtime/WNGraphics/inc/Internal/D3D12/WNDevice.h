@@ -12,6 +12,7 @@
 #include "WNGraphics/inc/Internal/WNConfig.h"
 #include "WNGraphics/inc/WNArenaProperties.h"
 #include "WNGraphics/inc/WNDescriptorData.h"
+#include "WNGraphics/inc/WNFramebufferData.h"
 #include "WNGraphics/inc/WNHeapTraits.h"
 #include "WNGraphics/inc/WNRenderPassTypes.h"
 #include "WNLogging/inc/WNLog.h"
@@ -55,6 +56,7 @@ struct image_create_info;
 struct swapchain_create_info;
 class image;
 class image_view;
+class framebuffer;
 
 using queue_ptr = memory::unique_ptr<queue>;
 using swapchain_ptr = memory::unique_ptr<swapchain>;
@@ -100,6 +102,8 @@ protected:
   };
 
   const static size_t k_reserved_resource_size = 1000000;
+  const static size_t k_reserved_samplers_size = 2048;
+  const static size_t k_reserved_view_size = 10000;
 
   WN_FORCE_INLINE d3d12_device()
     : d3d12_device_base(),
@@ -207,6 +211,11 @@ protected:
       const bool _multisampled) WN_GRAPHICS_OVERRIDE_FINAL;
   void destroy_arena(arena* _arena) WN_GRAPHICS_OVERRIDE_FINAL;
 
+  void initialize_framebuffer(framebuffer* _framebuffer,
+      const framebuffer_create_info& _info) WN_GRAPHICS_OVERRIDE_FINAL;
+  void destroy_framebuffer(
+      framebuffer* _framebuffer) WN_GRAPHICS_OVERRIDE_FINAL;
+
 private:
   template <typename T>
   typename data_type<T>::value& get_data(T* t);
@@ -217,16 +226,79 @@ private:
   D3D12_FEATURE_DATA_D3D12_OPTIONS m_options;
   containers::dynamic_array<heap_info> m_heap_info;
   containers::dynamic_array<arena_properties> m_arena_properties;
+
+public:
+  struct locked_heap {
+  public:
+    void initialize(memory::allocator* _allocator, logging::log* _log,
+        ID3D12Device* _device, size_t _size, D3D12_DESCRIPTOR_HEAP_TYPE _type) {
+      m_descriptor_size = _device->GetDescriptorHandleIncrementSize(_type);
+      _log->log_info(
+          "Descriptor Size for ", _type, " heap is ", m_descriptor_size);
+
+      m_parition = containers::default_range_partition(_allocator, _size);
+
+      D3D12_DESCRIPTOR_HEAP_DESC desc = {
+          _type,  // Type
+          // The maximum we are able to put in a heap. (TODO: figure out if this
+          // is too big)
+          static_cast<UINT>(_size),
+          ((_type == D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) ||
+              (_type == D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER))
+              ? D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE
+              : D3D12_DESCRIPTOR_HEAP_FLAG_NONE,  // flags
+          0,                                      // nodemask
+      };
+
+      HRESULT hr = _device->CreateDescriptorHeap(
+          &desc, __uuidof(ID3D12DescriptorHeap), &m_heap);
+
+      if (FAILED(hr)) {
+        _log->log_error("Could not create root descriptors: ", hr);
+      }
+
+      m_root_cpu_handle = m_heap->GetCPUDescriptorHandleForHeapStart();
+    }
+
+    containers::default_range_partition::token get_partition(
+        size_t num_elements) {
+      multi_tasking::spin_lock_guard guard(m_lock);
+      return m_parition.get_interval(num_elements);
+    }
+
+    void release_partition(containers::default_range_partition::token t) {
+      multi_tasking::spin_lock_guard guard(m_lock);
+      t.free();
+    }
+    const ID3D12DescriptorHeap* heap() const {
+      return m_heap.Get();
+    }
+
+    D3D12_CPU_DESCRIPTOR_HANDLE get_handle_at(size_t offset) {
+      return D3D12_CPU_DESCRIPTOR_HANDLE{
+          m_root_cpu_handle.ptr + (offset * m_descriptor_size)};
+    }
+
+  private:
+    Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_heap;
+    D3D12_CPU_DESCRIPTOR_HANDLE m_root_cpu_handle;
+    containers::default_range_partition m_parition;
+    multi_tasking::spin_lock m_lock;
+    uint32_t m_descriptor_size;
+  };
+  locked_heap m_csv_heap;
+  locked_heap m_sampler_heap;
+  locked_heap m_rtv_heap;
+  locked_heap m_dsv_heap;
+
   Microsoft::WRL::ComPtr<ID3D12Device> m_device;
   Microsoft::WRL::ComPtr<IDXGIFactory4> m_factory;
   // We create a single largest (1M entries) root heap.
   // When we create a descriptor-pool we suballocate from this heap.
-  Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_root_csv_heap;
-  containers::default_range_partition m_csv_partition;
+
   memory::allocator* m_allocator;
   logging::log* m_log;
   std::atomic<uint32_t> m_num_queues;
-  multi_tasking::spin_lock m_csv_heap_lock;
 };
 
 }  // namespace d3d12

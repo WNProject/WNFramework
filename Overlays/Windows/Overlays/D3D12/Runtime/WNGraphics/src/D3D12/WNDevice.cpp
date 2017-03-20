@@ -14,6 +14,7 @@
 #include "WNGraphics/inc/WNCommandAllocator.h"
 #include "WNGraphics/inc/WNDescriptors.h"
 #include "WNGraphics/inc/WNFence.h"
+#include "WNGraphics/inc/WNFramebuffer.h"
 #include "WNGraphics/inc/WNHeap.h"
 #include "WNGraphics/inc/WNHeapTraits.h"
 #include "WNGraphics/inc/WNImage.h"
@@ -525,24 +526,13 @@ void d3d12_device::initialize_descriptor_pool(descriptor_pool* _pool,
         _pool_data) {
   size_t num_csv_types = 0;
   size_t num_sampler_types = 0;
-  Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> sampler_heap;
   containers::default_range_partition::token csv_heap_token;
+  containers::default_range_partition::token sampler_heap_token;
 
   for (const descriptor_pool_create_info& data : _pool_data) {
     switch (data.type) {
       case descriptor_type::sampler: {
-        D3D12_DESCRIPTOR_HEAP_DESC desc = {
-            D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER,         // type
-            static_cast<UINT>(data.max_descriptors),    // count
-            D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,  // flags
-            0,                                          // nodemask
-        };
         num_sampler_types += data.max_descriptors;
-        HRESULT hr = m_device->CreateDescriptorHeap(
-            &desc, __uuidof(ID3D12DescriptorHeap), &sampler_heap);
-        (void)hr;
-        WN_DEBUG_ASSERT_DESC(
-            !FAILED(hr), "Failed initializing the descriptor pool");
       } break;
       case descriptor_type::sampled_image: {
         num_csv_types += data.max_descriptors;
@@ -574,25 +564,31 @@ void d3d12_device::initialize_descriptor_pool(descriptor_pool* _pool,
     // requires only a single heap. We only have to lock around the creation
     // of the pool, not the creation of individual descriptors, since the
     // pools are externally synchronized.
-    {
-      multi_tasking::spin_lock_guard guard(m_csv_heap_lock);
-      csv_heap_token = m_csv_partition.get_interval(num_csv_types);
-    }
+
+    csv_heap_token = m_csv_heap.get_partition(num_csv_types);
     WN_DEBUG_ASSERT_DESC(
         csv_heap_token.is_valid(), "Could not find enough space for csv heap");
+  }
+
+  if (num_sampler_types > 0) {
+    sampler_heap_token = m_sampler_heap.get_partition(num_sampler_types);
+    WN_DEBUG_ASSERT_DESC(sampler_heap_token.is_valid(),
+        "Could not find enough space for csv heap");
   }
 
   memory::unique_ptr<descriptor_pool_data>& dat = get_data(_pool);
   dat = memory::make_unique<descriptor_pool_data>(m_allocator, m_allocator,
       num_csv_types, num_sampler_types, core::move(csv_heap_token),
-      m_root_csv_heap.Get(), core::move(sampler_heap));
+      core::move(sampler_heap_token));
 }
 
 void d3d12_device::destroy_descriptor_pool(descriptor_pool* _pool) {
   memory::unique_ptr<descriptor_pool_data> dat = core::move(get_data(_pool));
   if (dat->csv_heap_partition.size() > 0) {
-    multi_tasking::spin_lock_guard guard(m_csv_heap_lock);
-    dat->csv_heap_token = containers::default_range_partition::token();
+    m_csv_heap.release_partition(core::move(dat->csv_heap_token));
+  }
+  if (dat->sampler_heap_partition.size() > 0) {
+    m_sampler_heap.release_partition(core::move(dat->sampler_heap_token));
   }
 }
 
@@ -771,6 +767,74 @@ void d3d12_device::destroy_image_view(image_view* _view) {
   info.reset();
 }
 
+void d3d12_device::initialize_framebuffer(
+    framebuffer* _framebuffer, const framebuffer_create_info& _info) {
+  memory::unique_ptr<framebuffer_data>& data = get_data(_framebuffer);
+  data = memory::make_unique<framebuffer_data>(
+      m_allocator, m_allocator, _info.image_views);
+
+  D3D12_RENDER_TARGET_VIEW_DESC rtv = {
+      DXGI_FORMAT_UNKNOWN,            // format to be filled in
+      D3D12_RTV_DIMENSION_TEXTURE2D,  // Expand when we support bigger textures
+  };
+  rtv.Texture2D = {0, 0};
+
+  D3D12_DEPTH_STENCIL_VIEW_DESC dsv = {
+      DXGI_FORMAT_UNKNOWN,            // format to be filled in
+      D3D12_DSV_DIMENSION_TEXTURE2D,  // Expand when we support bigger textures
+  };
+  dsv.Texture2D = {0};
+
+  for (size_t i = 0; i < _info.image_views.size(); ++i) {
+    image_components components = _info.image_views[i]->get_components();
+    const memory::unique_ptr<const image_view_info>& info =
+        get_data(_info.image_views[i]);
+
+    if (components & static_cast<uint8_t>(image_component::color)) {
+      data->image_view_handles.push_back(m_rtv_heap.get_partition(1));
+      WN_DEBUG_ASSERT_DESC(data->image_view_handles.back().is_valid(),
+          "Could not allocate space for rtv");
+      const Microsoft::WRL::ComPtr<ID3D12Resource>& resource =
+          info->image->data_as<Microsoft::WRL::ComPtr<ID3D12Resource>>();
+
+      rtv.Format =
+          image_format_to_dxgi_format(info->image->get_resource_info().format);
+
+      m_device->CreateRenderTargetView(resource.Get(), &rtv,
+          m_rtv_heap.get_handle_at(data->image_view_handles.back().offset()));
+    } else if (components &
+               (static_cast<uint8_t>(image_component::depth) |
+                   static_cast<uint8_t>(image_component::stencil))) {
+      data->image_view_handles.push_back(m_dsv_heap.get_partition(1));
+      WN_DEBUG_ASSERT_DESC(data->image_view_handles.back().is_valid(),
+          "Could not allocate space for dsv");
+
+      const Microsoft::WRL::ComPtr<ID3D12Resource>& resource =
+          info->image->data_as<Microsoft::WRL::ComPtr<ID3D12Resource>>();
+      dsv.Format =
+          image_format_to_dxgi_format(info->image->get_resource_info().format);
+
+      m_device->CreateDepthStencilView(resource.Get(), &dsv,
+          m_dsv_heap.get_handle_at(data->image_view_handles.back().offset()));
+    }
+  }
+}
+
+void d3d12_device::destroy_framebuffer(framebuffer* _framebuffer) {
+  memory::unique_ptr<framebuffer_data>& data = get_data(_framebuffer);
+  for (size_t i = 0; i < data->image_views.size(); ++i) {
+    image_components components = data->image_views[i]->get_components();
+    if (components & static_cast<uint8_t>(image_component::color)) {
+      m_rtv_heap.release_partition(core::move(data->image_view_handles[i]));
+    } else if (components &
+               (static_cast<uint8_t>(image_component::depth) |
+                   static_cast<uint8_t>(image_component::stencil))) {
+      m_dsv_heap.release_partition(core::move(data->image_view_handles[i]));
+    }
+  }
+  data.reset();
+}
+
 template <typename T>
 typename data_type<T>::value& d3d12_device::get_data(T* t) {
   return t->data_as<typename data_type<T>::value>();
@@ -788,30 +852,20 @@ bool d3d12_device::initialize(memory::allocator* _allocator, logging::log* _log,
   m_log = _log;
   m_device = core::move(_d3d12_device);
   m_factory = _d3d12_factory;
-  m_csv_partition = containers::default_range_partition(
-      m_allocator, k_reserved_resource_size);
   m_heap_info = containers::dynamic_array<heap_info>(m_allocator);
   m_arena_properties = containers::dynamic_array<arena_properties>(m_allocator);
 
-  D3D12_DESCRIPTOR_HEAP_DESC desc = {
-      D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,  // Type
-      // The maximum we are able to put in a heap. (TODO: figure out if this
-      // is too big)
-      k_reserved_resource_size,
-      D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,  // flags
-      0,                                          // nodemask
-  };
-  HRESULT hr = m_device->CreateDescriptorHeap(
-      &desc, __uuidof(ID3D12DescriptorHeap), &m_root_csv_heap);
+  m_csv_heap.initialize(m_allocator, m_log, m_device.Get(),
+      k_reserved_resource_size, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+  m_sampler_heap.initialize(m_allocator, m_log, m_device.Get(),
+      k_reserved_samplers_size, D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
+  m_dsv_heap.initialize(m_allocator, m_log, m_device.Get(),
+      k_reserved_view_size, D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
+  m_rtv_heap.initialize(m_allocator, m_log, m_device.Get(),
+      k_reserved_view_size, D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 
-  if (FAILED(hr)) {
-    m_log->log_error("Could not create root descriptors: ", hr);
-
-    return false;
-  }
-
-  hr = m_device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS, &m_options,
-      sizeof(D3D12_FEATURE_DATA_D3D12_OPTIONS));
+  HRESULT hr = m_device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS,
+      &m_options, sizeof(D3D12_FEATURE_DATA_D3D12_OPTIONS));
 
   if (FAILED(hr)) {
     m_log->log_error("failed to check for supported features, hr: ", hr);

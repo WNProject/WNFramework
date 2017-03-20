@@ -122,6 +122,8 @@ add_wn_library(WNGraphics
     inc/WNDevice.h
     inc/WNFactory.h
     inc/WNFence.h
+    inc/WNFramebuffer.h
+    inc/WNFramebufferData.h
     inc/WNGraphicsObjectBase.h
     inc/WNHeap.h
     inc/WNHeapTraits.h

@@ -170,6 +170,14 @@ enum class descriptor_type : uint16_t {
   // Combined image/sampler? maybe
 };
 
+enum class image_component : uint8_t {
+  color = 1 << 0,
+  depth = 1 << 1,
+  stencil = 1 << 2
+};
+
+using image_components = uint8_t;
+
 }  // namespace graphics
 }  // namespace wn
 

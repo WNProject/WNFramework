@@ -36,21 +36,18 @@ struct descriptor_pool_data {
   descriptor_pool_data(memory::allocator* _allocator, size_t _num_csv_nodes,
       size_t _num_sampler_nodes,
       containers::default_range_partition::token _csv_heap_token,
-      ID3D12DescriptorHeap* _csv_heap,
-      Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _sampler_heap)
+      containers::default_range_partition::token _sampler_heap_token)
     : csv_heap_partition(_allocator, _num_csv_nodes),
       sampler_heap_partition(_allocator, _num_sampler_nodes),
       csv_heap_token(core::move(_csv_heap_token)),
-      csv_heap(_csv_heap),
-      sampler_heap(core::move(_sampler_heap)) {}
+      sampler_heap_token(core::move(_sampler_heap_token)) {}
   containers::default_range_partition csv_heap_partition;
   containers::default_range_partition sampler_heap_partition;
   containers::default_range_partition::token csv_heap_token;
+  containers::default_range_partition::token sampler_heap_token;
   // We do not create our own csv heap. We suballocate from the global
   // csv heap (1M entries). Then we suballocate from there. This is
   // supposedly much more efficient on NVIDIA hardware.
-  ID3D12DescriptorHeap* csv_heap;
-  Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> sampler_heap;
 };
 
 struct descriptor_data {
@@ -69,6 +66,18 @@ struct descriptor_set_data {
 struct render_pass_data {
   render_pass_data(memory::allocator* _allocator) : attachments(_allocator) {}
   containers::dynamic_array<render_pass_attachment> attachments;
+};
+
+struct framebuffer_data {
+  framebuffer_data(memory::allocator* _allocator,
+      containers::contiguous_range<const image_view*> _views)
+    : image_views(_allocator), image_view_handles(_allocator) {
+    image_views.insert(image_views.begin(), _views.begin(), _views.end());
+    image_view_handles.reserve(_views.size());
+  }
+  containers::dynamic_array<const image_view*> image_views;
+  containers::dynamic_array<containers::default_range_partition::token>
+      image_view_handles;
 };
 
 template <>
@@ -143,7 +152,17 @@ struct data_type<image_view> {
 
 template <>
 struct data_type<const image_view> {
-  using value = memory::unique_ptr<const image_view_info>;
+  using value = const memory::unique_ptr<const image_view_info>;
+};
+
+template <>
+struct data_type<framebuffer> {
+  using value = memory::unique_ptr<framebuffer_data>;
+};
+
+template <>
+struct data_type<const framebuffer> {
+  using value = memory::unique_ptr<const framebuffer_data>;
 };
 
 template <>

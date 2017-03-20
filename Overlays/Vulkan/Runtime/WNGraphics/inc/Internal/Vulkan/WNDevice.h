@@ -15,6 +15,7 @@
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanSurfaceHelper.h"
 #include "WNGraphics/inc/Internal/WNConfig.h"
 #include "WNGraphics/inc/WNArenaProperties.h"
+#include "WNGraphics/inc/WNFramebufferData.h"
 #include "WNGraphics/inc/WNHeapTraits.h"
 #include "WNGraphics/inc/WNRenderPassTypes.h"
 #include "WNLogging/inc/WNLog.h"
@@ -53,6 +54,7 @@ class image_view;
 class swapchain;
 class shader_module;
 class render_pass;
+class framebuffer;
 struct swapchain_create_info;
 struct descriptor_binding_info;
 struct descriptor_pool_create_info;
@@ -210,6 +212,11 @@ protected:
       const bool _multisampled) WN_GRAPHICS_OVERRIDE_FINAL;
   void destroy_arena(arena* _arena) WN_GRAPHICS_OVERRIDE_FINAL;
 
+  void initialize_framebuffer(framebuffer* _framebuffer,
+      const framebuffer_create_info& _info) WN_GRAPHICS_OVERRIDE_FINAL;
+  void destroy_framebuffer(
+      framebuffer* _framebuffer) WN_GRAPHICS_OVERRIDE_FINAL;
+
   uint32_t get_memory_type_index(uint32_t _types, VkFlags _properties) const;
 
   surface_helper m_surface_helper;
@@ -290,6 +297,10 @@ private:
   // Image Views
   PFN_vkCreateImageView vkCreateImageView;
   PFN_vkDestroyImageView vkDestroyImageView;
+
+  // Framebuffers
+  PFN_vkCreateFramebuffer vkCreateFramebuffer;
+  PFN_vkDestroyFramebuffer vkDestroyFramebuffer;
 
   queue_context m_queue_context;
   command_list_context m_command_list_context;

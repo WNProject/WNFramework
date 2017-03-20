@@ -101,6 +101,16 @@ struct data_type<arena> {
   using value = ::VkDeviceMemory;
 };
 
+template <>
+struct data_type<framebuffer> {
+  using value = ::VkFramebuffer;
+};
+
+template <>
+struct data_type<const framebuffer> {
+  using value = const ::VkFramebuffer;
+};
+
 }  // namespace vulkan
 }  // namespace internal
 }  // namespace graphics

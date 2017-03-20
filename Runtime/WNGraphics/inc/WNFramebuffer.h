@@ -4,43 +4,37 @@
 
 #pragma once
 
-#ifndef __WN_GRAPHICS_IMAGE_VIEW_H__
-#define __WN_GRAPHICS_IMAGE_VIEW_H__
+#ifndef __WN_GRAPHICS_FRAMEBUFFER_H__
+#define __WN_GRAPHICS_FRAMEBUFFER_H__
 
-#include "WNGraphics/inc/WNGraphicsEnums.h"
 #include "WNGraphics/inc/WNGraphicsObjectBase.h"
-#include "WNGraphics/inc/WNImage.h"
+#include "WNGraphics/inc/WNImageView.h"
 
 namespace wn {
 namespace graphics {
 
-class image_view : public base_object<2> {
+class framebuffer : public base_object<2> {
 public:
-  WN_FORCE_INLINE image_view(image_view&& _other)
-    : m_device(_other.m_device), m_components(_other.m_components) {
+  WN_FORCE_INLINE framebuffer(framebuffer&& _other)
+    : m_device(_other.m_device) {
     _other.m_device = nullptr;
 
     memory::memcpy(&m_data, &_other.m_data, sizeof(opaque_data));
     memory::memzero(&_other.m_data, sizeof(opaque_data));
   }
 
-  ~image_view() {
+  ~framebuffer() {
     if (m_device) {
-      m_device->destroy_image_view(this);
+      m_device->destroy_framebuffer(this);
     }
-  }
-
-  image_components get_components() const {
-    return m_components;
   }
 
 private:
   WN_GRAPHICS_ADD_FRIENDS(device);
   WN_GRAPHICS_ADD_FRIENDS(command_list);
 
-  WN_FORCE_INLINE image_view(device* _device, image_components _components)
-    : m_device(_device), m_components(_components) {}
-  image_components m_components;
+  WN_FORCE_INLINE framebuffer(device* _device) : m_device(_device) {}
+
   device* m_device;
 };
 

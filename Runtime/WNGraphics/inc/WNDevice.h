@@ -12,6 +12,7 @@
 #include "WNGraphics/inc/Internal/WNConfig.h"
 #include "WNGraphics/inc/WNArenaProperties.h"
 #include "WNGraphics/inc/WNDescriptorData.h"
+#include "WNGraphics/inc/WNFramebufferData.h"
 #include "WNGraphics/inc/WNGraphicsEnums.h"
 #include "WNGraphics/inc/WNHeapTraits.h"
 #include "WNGraphics/inc/WNRenderPassTypes.h"
@@ -54,6 +55,7 @@ class image;
 class command_allocator;
 class command_list;
 class fence;
+class framebuffer;
 class image_view;
 class shader_module;
 class descriptor_set_layout;
@@ -130,7 +132,10 @@ public:
       const containers::contiguous_range<const subpass_description>& _subpasses,
       const containers::contiguous_range<const subpass_dependency>& _deps);
 
-  image_view create_image_view(const image* _image);
+  image_view create_image_view(
+      const image* _image, image_components _components);
+
+  framebuffer create_framebuffer(const framebuffer_create_info& create_info);
 
 protected:
   friend class command_allocator;
@@ -152,6 +157,7 @@ protected:
   friend class pipeline_layout;
   friend class render_pass;
   friend class image_view;
+  friend class framebuffer;
 
 #ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
   // Upload heap methods
@@ -245,6 +251,11 @@ protected:
   virtual bool initialize_arena(arena* _arena, const size_t _index,
       const size_t _size, const bool _multisampled) = 0;
   virtual void destroy_arena(arena* _arena) = 0;
+
+  // Framebuffer
+  virtual void initialize_framebuffer(
+      framebuffer* _framebuffer, const framebuffer_create_info& _info) = 0;
+  virtual void destroy_framebuffer(framebuffer* _framebuffer) = 0;
 #endif
 };
 

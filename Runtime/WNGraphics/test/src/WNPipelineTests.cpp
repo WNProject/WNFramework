@@ -5,6 +5,7 @@
 #include "WNGraphics/inc/WNDescriptors.h"
 #include "WNGraphics/inc/WNDevice.h"
 #include "WNGraphics/inc/WNFactory.h"
+#include "WNGraphics/inc/WNFramebuffer.h"
 #include "WNGraphics/inc/WNImage.h"
 #include "WNGraphics/inc/WNImageView.h"
 #include "WNGraphics/inc/WNRenderPass.h"
@@ -90,14 +91,25 @@ TEST_F(pipeline_test, basic_pipeline) {
     const wn::graphics::attachment_reference color_attachments[] = {{}};
     wn::graphics::subpass_description subpasses[] = {{}};
     subpasses[0].color_attachments = color_attachments;
-    wn::graphics::render_pass p =
+    wn::graphics::render_pass render_pass =
         device->create_render_pass(attachment, subpasses, nullptr);
 
     wn::graphics::image_create_info create_info = {1024, 1024,
         wn::graphics::image_format::r8g8b8a8_unorm,
         static_cast<uint32_t>(wn::graphics::resource_state::render_target)};
     wn::graphics::image image = device->create_image(create_info);
-    wn::graphics::image_view view = device->create_image_view(&image);
+    wn::graphics::image_view view = device->create_image_view(
+        &image, static_cast<wn::graphics::image_components>(
+                    wn::graphics::image_component::color));
+    const wn::graphics::image_view* views[] = {&view};
+    wn::graphics::framebuffer_create_info framebuffer_create = {&render_pass,
+        wn::containers::contiguous_range<const wn::graphics::image_view*>(
+            views),
+        1024, 1024, 1};
+
+    wn::graphics::framebuffer framebuffer =
+        device->create_framebuffer(framebuffer_create);
+
     m_log->flush();
     // On normal operation the log buffer should be empty.
     EXPECT_EQ("", m_buffer);

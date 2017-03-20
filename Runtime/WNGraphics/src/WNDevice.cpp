@@ -8,6 +8,7 @@
 #include "WNGraphics/inc/WNCommandList.h"
 #include "WNGraphics/inc/WNDescriptors.h"
 #include "WNGraphics/inc/WNFence.h"
+#include "WNGraphics/inc/WNFramebuffer.h"
 #include "WNGraphics/inc/WNHeap.h"
 #include "WNGraphics/inc/WNHeapTraits.h"
 #include "WNGraphics/inc/WNImage.h"
@@ -112,8 +113,9 @@ render_pass device::create_render_pass(
   return core::move(pass);
 }
 
-image_view device::create_image_view(const image* _image) {
-  image_view view(this);
+image_view device::create_image_view(
+    const image* _image, image_components _components) {
+  image_view view(this, _components);
   initialize_image_view(&view, _image);
   return core::move(view);
 }
@@ -131,6 +133,13 @@ arena device::create_arena(
   }
 
   return core::move(new_arena);
+}
+
+framebuffer device::create_framebuffer(
+    const framebuffer_create_info& _create_info) {
+  framebuffer fb(this);
+  initialize_framebuffer(&fb, _create_info);
+  return core::move(fb);
 }
 
 }  // namespace graphics

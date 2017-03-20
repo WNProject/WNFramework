@@ -15,6 +15,7 @@
 #include "WNGraphics/inc/WNCommandList.h"
 #include "WNGraphics/inc/WNDescriptors.h"
 #include "WNGraphics/inc/WNFence.h"
+#include "WNGraphics/inc/WNFramebuffer.h"
 #include "WNGraphics/inc/WNHeap.h"
 #include "WNGraphics/inc/WNImageView.h"
 #include "WNGraphics/inc/WNQueue.h"
@@ -203,6 +204,9 @@ bool vulkan_device::initialize(memory::allocator* _allocator,
 
   LOAD_VK_DEVICE_SYMBOL(m_device, vkCreateImageView);
   LOAD_VK_DEVICE_SYMBOL(m_device, vkDestroyImageView);
+
+  LOAD_VK_DEVICE_SYMBOL(m_device, vkCreateFramebuffer);
+  LOAD_VK_DEVICE_SYMBOL(m_device, vkDestroyFramebuffer);
 
   LOAD_VK_SUB_DEVICE_SYMBOL(m_device, m_queue_context, vkQueueSubmit);
   LOAD_VK_SUB_DEVICE_SYMBOL(m_device, m_queue_context, vkQueuePresentKHR);
@@ -1135,7 +1139,7 @@ void vulkan_device::initialize_image_view(
       {VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY,
           VK_COMPONENT_SWIZZLE_IDENTITY,
           VK_COMPONENT_SWIZZLE_IDENTITY},  // components
-      {image_format_to_aspect(_image->get_resource_info().format), 0, 1, 0,
+      {image_components_to_aspect(_view->get_components()), 0, 1, 0,
           1},  // subresourceRange
   };
 
@@ -1283,6 +1287,40 @@ void vulkan_device::destroy_arena(arena* _arena) {
   VkDeviceMemory& memory = get_data(_arena);
 
   vkFreeMemory(m_device, memory, nullptr);
+}
+
+void vulkan_device::initialize_framebuffer(
+    framebuffer* _framebuffer, const framebuffer_create_info& _info) {
+  ::VkRenderPass pass = get_data(_info.pass);
+  ::VkFramebuffer& framebuffer = get_data(_framebuffer);
+  containers::dynamic_array<::VkImageView> image_views(
+      m_allocator, _info.image_views.size());
+  for (size_t i = 0; i < _info.image_views.size(); ++i) {
+    const image_view* view = _info.image_views[i];
+    image_views[i] = get_data(view);
+  }
+
+  VkFramebufferCreateInfo create_info = {
+      VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,        // sType
+      nullptr,                                          // pNExt
+      0,                                                // flags
+      pass,                                             // renderPass
+      static_cast<uint32_t>(_info.image_views.size()),  // attachmentCount
+      image_views.data(),                               // pAttachments
+      _info.width,                                      // width
+      _info.height,                                     // height
+      _info.depth,                                      // depth
+  };
+
+  if (VK_SUCCESS !=
+      vkCreateFramebuffer(m_device, &create_info, nullptr, &framebuffer)) {
+    m_log->log_error("Could not create framebuffer, something went wrong");
+  }
+}
+
+void vulkan_device::destroy_framebuffer(framebuffer* _framebuffer) {
+  ::VkFramebuffer& fb = get_data(_framebuffer);
+  vkDestroyFramebuffer(m_device, fb, nullptr);
 }
 
 #undef get_data
