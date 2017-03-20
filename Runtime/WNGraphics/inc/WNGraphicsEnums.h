@@ -141,14 +141,19 @@ enum class load_op { load, clear, dont_care };
 
 enum class store_op { store, dont_care };
 
-enum class resource_state {
-  initial,
-  copy_source,
-  copy_dest,
-  render_target,
-  present,
-  max
+enum class resource_state : uint32_t {
+  initial = 0,
+  copy_source = 1 << 0,
+  copy_dest = 1 << 1,
+  render_target = 1 << 2,
+  texture = 1 << 3,
+  present = 1 << 4,
+  max,
 };
+
+const static uint32_t k_all_resource_states =
+    ((static_cast<uint32_t>(resource_state::max) - 1) << 1) - 1;
+using resource_states = uint32_t;
 
 enum class descriptor_type : uint16_t {
   sampler,

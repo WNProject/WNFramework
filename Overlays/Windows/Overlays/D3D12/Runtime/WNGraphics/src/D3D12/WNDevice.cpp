@@ -387,7 +387,8 @@ void d3d12_device::initialize_image(
           0,                         // Quality
       },                             // SampleDesc
       D3D12_TEXTURE_LAYOUT_UNKNOWN,  // Layout
-      D3D12_RESOURCE_FLAG_NONE       // Flags
+      resources_states_to_resource_flags(
+          _info.m_valid_resource_states)  // Flags
   };
 
   const HRESULT hr = m_device->CreateCommittedResource(&s_default_heap_props,
@@ -755,6 +756,19 @@ void d3d12_device::initialize_render_pass(render_pass* _pass,
 void d3d12_device::destroy_render_pass(render_pass* _pass) {
   memory::unique_ptr<render_pass_data>& pass_data = get_data(_pass);
   pass_data.reset();
+}
+
+void d3d12_device::initialize_image_view(
+    image_view* _view, const image* image) {
+  memory::unique_ptr<image_view_info>& info = get_data(_view);
+  info = memory::make_unique<image_view_info>(m_allocator);
+  info->image = image;
+  info->info = image->m_resource_info;
+}
+
+void d3d12_device::destroy_image_view(image_view* _view) {
+  memory::unique_ptr<image_view_info>& info = get_data(_view);
+  info.reset();
 }
 
 template <typename T>

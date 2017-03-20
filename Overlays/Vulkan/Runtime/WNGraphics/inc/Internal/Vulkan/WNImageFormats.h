@@ -26,6 +26,18 @@ static WN_FORCE_INLINE VkFormat image_format_to_vulkan_format(
   return formats[static_cast<uint32_t>(_format)];
 }
 
+static WN_FORCE_INLINE VkImageAspectFlags image_format_to_aspect(
+    image_format _format) {
+  static const VkImageAspectFlags aspects[] = {VK_IMAGE_ASPECT_COLOR_BIT};
+  static_assert(sizeof(aspects) / sizeof(aspects[0]) ==
+                    static_cast<uint32_t>(image_format::max),
+      "Expected the number of vulkan formats and image formats to match");
+  WN_DEBUG_ASSERT_DESC(
+      _format < image_format::max, "Image format out of bounds");
+
+  return aspects[static_cast<uint32_t>(_format)];
+}
+
 static WN_FORCE_INLINE VkSampleCountFlagBits multi_sampled_to_vulkan(
     multisample_count _count) {
   switch (_count) {

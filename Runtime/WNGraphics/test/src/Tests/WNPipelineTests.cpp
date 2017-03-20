@@ -5,6 +5,8 @@
 #include "WNGraphics/inc/WNDescriptors.h"
 #include "WNGraphics/inc/WNDevice.h"
 #include "WNGraphics/inc/WNFactory.h"
+#include "WNGraphics/inc/WNImage.h"
+#include "WNGraphics/inc/WNImageView.h"
 #include "WNGraphics/inc/WNRenderPass.h"
 #include "WNGraphics/inc/WNShaderModule.h"
 #include "WNGraphics/test/inc/WNTestFixture.h"
@@ -90,9 +92,15 @@ TEST_F(pipeline_test, basic_pipeline) {
     subpasses[0].color_attachments = color_attachments;
     wn::graphics::render_pass p =
         device->create_render_pass(attachment, subpasses, nullptr);
-  }
 
-  m_log->flush();
-  // On normal operation the log buffer should be empty.
-  EXPECT_EQ("", m_buffer);
+    wn::graphics::image_create_info create_info = {1024, 1024,
+        wn::graphics::image_format::r8g8b8a8_unorm,
+        static_cast<uint32_t>(wn::graphics::resource_state::render_target)};
+    wn::graphics::image image = device->create_image(create_info);
+    wn::graphics::image_view view = device->create_image_view(&image);
+    m_log->flush();
+    // On normal operation the log buffer should be empty.
+    EXPECT_EQ("", m_buffer);
+    m_buffer.clear();
+  }
 }

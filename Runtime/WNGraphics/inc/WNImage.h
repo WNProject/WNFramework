@@ -20,12 +20,14 @@ namespace graphics {
 
 struct image_create_info {
   static image_create_info default_texture(size_t _width, size_t _height) {
-    return image_create_info{_width, _height, image_format::r8g8b8a8_unorm};
+    return image_create_info{
+        _width, _height, image_format::r8g8b8a8_unorm, k_all_resource_states};
   }
 
   size_t m_width;
   size_t m_height;
   image_format m_format;
+  resource_states m_valid_resource_states;  // Bit-flags of the image type.
   // TODO(awoloszyn): Add mip-levels
   // TODO(awoloszyn): Add Depth/Array Size
   // TODO(awoloszyn): Add Multisample information

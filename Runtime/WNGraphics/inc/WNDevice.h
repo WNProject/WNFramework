@@ -48,6 +48,7 @@ using device_base = core::non_copyable;
 class command_allocator;
 class command_list;
 class fence;
+class image_view;
 class shader_module;
 class descriptor_set_layout;
 class descriptor_pool;
@@ -116,6 +117,8 @@ public:
       const containers::contiguous_range<const subpass_description>& _subpasses,
       const containers::contiguous_range<const subpass_dependency>& _deps);
 
+  image_view create_image_view(const image* _image);
+
 protected:
   friend class command_allocator;
   friend class fence;
@@ -135,6 +138,7 @@ protected:
   friend class descriptor_set;
   friend class pipeline_layout;
   friend class render_pass;
+  friend class image_view;
 
 #ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
   // Upload heap methods
@@ -219,6 +223,10 @@ protected:
       const containers::contiguous_range<const subpass_description>& _subpasses,
       const containers::contiguous_range<const subpass_dependency>& _deps) = 0;
   virtual void destroy_render_pass(render_pass* _pass) = 0;
+
+  // Image View
+  virtual void initialize_image_view(image_view* _view, const image* image) = 0;
+  virtual void destroy_image_view(image_view* _view) = 0;
 #endif
 };
 

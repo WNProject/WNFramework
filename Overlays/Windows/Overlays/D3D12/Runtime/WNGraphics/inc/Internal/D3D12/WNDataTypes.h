@@ -10,6 +10,7 @@
 #include "WNContainers/inc/WNDynamicArray.h"
 #include "WNContainers/inc/WNRangePartition.h"
 #include "WNGraphics/inc/WNDescriptorData.h"
+#include "WNGraphics/inc/WNImageView.h"
 #include "WNGraphics/inc/WNRenderPassTypes.h"
 #include "WNGraphics/inc/WNShaderModule.h"
 
@@ -127,6 +128,21 @@ struct data_type<render_pass> {
 template <>
 struct data_type<const render_pass> {
   using value = memory::unique_ptr<const render_pass_data>;
+};
+
+struct image_view_info {
+  image::image_buffer_resource_info info;
+  const image* image;
+};
+
+template <>
+struct data_type<image_view> {
+  using value = memory::unique_ptr<image_view_info>;
+};
+
+template <>
+struct data_type<const image_view> {
+  using value = memory::unique_ptr<const image_view_info>;
 };
 
 }  // namespace d3d12

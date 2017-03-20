@@ -51,6 +51,7 @@ class render_pass;
 struct image_create_info;
 struct swapchain_create_info;
 class image;
+class image_view;
 
 using queue_ptr = memory::unique_ptr<queue>;
 using swapchain_ptr = memory::unique_ptr<swapchain>;
@@ -208,6 +209,10 @@ protected:
       const containers::contiguous_range<const subpass_dependency>& _deps)
       WN_GRAPHICS_OVERRIDE_FINAL;
   void destroy_render_pass(render_pass* _pass) WN_GRAPHICS_OVERRIDE_FINAL;
+
+  void initialize_image_view(
+      image_view* _view, const image* image) WN_GRAPHICS_OVERRIDE_FINAL;
+  void destroy_image_view(image_view* _view) WN_GRAPHICS_OVERRIDE_FINAL;
 
 public:
   Microsoft::WRL::ComPtr<ID3D12Device> m_device;

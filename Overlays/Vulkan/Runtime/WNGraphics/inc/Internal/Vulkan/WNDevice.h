@@ -46,6 +46,7 @@ class fence;
 class queue;
 struct image_create_info;
 class image;
+class image_view;
 class swapchain;
 class shader_module;
 class render_pass;
@@ -194,6 +195,10 @@ protected:
       WN_GRAPHICS_OVERRIDE_FINAL;
   void destroy_render_pass(render_pass* _pass) WN_GRAPHICS_OVERRIDE_FINAL;
 
+  void initialize_image_view(
+      image_view* _view, const image* image) WN_GRAPHICS_OVERRIDE_FINAL;
+  void destroy_image_view(image_view* _view) WN_GRAPHICS_OVERRIDE_FINAL;
+
   uint32_t get_memory_type_index(uint32_t _types, VkFlags _properties) const;
 
   surface_helper m_surface_helper;
@@ -265,6 +270,10 @@ protected:
   // Render Pass
   PFN_vkCreateRenderPass vkCreateRenderPass;
   PFN_vkDestroyRenderPass vkDestroyRenderPass;
+
+  // Image Views
+  PFN_vkCreateImageView vkCreateImageView;
+  PFN_vkDestroyImageView vkDestroyImageView;
 
   queue_context m_queue_context;
   command_list_context m_command_list_context;

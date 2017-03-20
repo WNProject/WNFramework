@@ -15,6 +15,8 @@
 #include "WNGraphics/inc/WNDescriptors.h"
 #include "WNGraphics/inc/WNFence.h"
 #include "WNGraphics/inc/WNHeap.h"
+#include "WNGraphics/inc/WNImageView.h"
+#include "WNGraphics/inc/WNImageView.h"
 #include "WNGraphics/inc/WNQueue.h"
 #include "WNGraphics/inc/WNRenderPass.h"
 #include "WNGraphics/inc/WNShaderModule.h"
@@ -196,6 +198,9 @@ bool vulkan_device::initialize(memory::allocator* _allocator,
 
   LOAD_VK_DEVICE_SYMBOL(m_device, vkCreateRenderPass);
   LOAD_VK_DEVICE_SYMBOL(m_device, vkDestroyRenderPass);
+
+  LOAD_VK_DEVICE_SYMBOL(m_device, vkCreateImageView);
+  LOAD_VK_DEVICE_SYMBOL(m_device, vkDestroyImageView);
 
   LOAD_VK_SUB_DEVICE_SYMBOL(m_device, m_queue_context, vkQueueSubmit);
   LOAD_VK_SUB_DEVICE_SYMBOL(m_device, m_queue_context, vkQueuePresentKHR);
@@ -626,12 +631,11 @@ void vulkan_device::initialize_image(
       1,                                              // arrayLayers
       VK_SAMPLE_COUNT_1_BIT,                          // samples
       VK_IMAGE_TILING_OPTIMAL,                        // tiling
-      VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
-          VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,  // usage
-      VK_SHARING_MODE_EXCLUSIVE,                // sharingMode
-      0,                                        // queueFamilyIndexCount
-      nullptr,                                  // pQueueFamilyIndices
-      VK_IMAGE_LAYOUT_UNDEFINED                 // initialLayout
+      resources_states_to_usage_bits(_info.m_valid_resource_states),  // usage
+      VK_SHARING_MODE_EXCLUSIVE,  // sharingMode
+      0,                          // queueFamilyIndexCount
+      nullptr,                    // pQueueFamilyIndices
+      VK_IMAGE_LAYOUT_UNDEFINED   // initialLayout
   };
 
   if (VK_SUCCESS !=
@@ -1095,6 +1099,38 @@ void vulkan_device::initialize_render_pass(render_pass* _pass,
 void vulkan_device::destroy_render_pass(render_pass* _pass) {
   ::VkRenderPass& pass_data = get_data(_pass);
   vkDestroyRenderPass(m_device, pass_data, nullptr);
+}
+
+// TODO: figure out how to deal with stencil here
+void vulkan_device::initialize_image_view(
+    image_view* _view, const image* _image) {
+  ::VkImageView& view = get_data(_view);
+  const VulkanImage& img = _image->data_as<VulkanImage>();
+  // TODO(awoloszyn): Update this for multi-dimensional views
+  // and mip-maps.
+  VkImageViewCreateInfo create_info = {
+      VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,  // sType
+      nullptr,                                   // pNext
+      0,                                         // flags
+      img.image,                                 // image
+      VK_IMAGE_VIEW_TYPE_2D,                     // viewType
+      image_format_to_vulkan_format(
+          _image->get_resource_info().format),  // format
+      {VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY,
+          VK_COMPONENT_SWIZZLE_IDENTITY,
+          VK_COMPONENT_SWIZZLE_IDENTITY},  // components
+      {image_format_to_aspect(_image->get_resource_info().format), 0, 1, 0,
+          1},  // subresourceRange
+  };
+
+  if (VK_SUCCESS != vkCreateImageView(m_device, &create_info, nullptr, &view)) {
+    m_log->log_error("Could not create image view");
+  }
+}
+
+void vulkan_device::destroy_image_view(image_view* _view) {
+  ::VkImageView& view = get_data(_view);
+  vkDestroyImageView(m_device, view, nullptr);
 }
 
 #undef get_data

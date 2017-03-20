@@ -85,6 +85,16 @@ struct data_type<const render_pass> {
   using value = const ::VkRenderPass;
 };
 
+template <>
+struct data_type<image_view> {
+  using value = ::VkImageView;
+};
+
+template <>
+struct data_type<const image_view> {
+  using value = const ::VkImageView;
+};
+
 }  // namespace vulkan
 }  // namespace internal
 }  // namespace graphics

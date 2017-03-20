@@ -10,6 +10,7 @@
 #include "WNGraphics/inc/WNHeap.h"
 #include "WNGraphics/inc/WNHeapTraits.h"
 #include "WNGraphics/inc/WNImage.h"
+#include "WNGraphics/inc/WNImageView.h"
 #include "WNGraphics/inc/WNRenderPass.h"
 #include "WNGraphics/inc/WNShaderModule.h"
 #include "WNGraphics/inc/WNSwapchain.h"
@@ -108,6 +109,12 @@ render_pass device::create_render_pass(
   render_pass pass(this);
   initialize_render_pass(&pass, _attachments, _subpasses, _deps);
   return core::move(pass);
+}
+
+image_view device::create_image_view(const image* _image) {
+  image_view view(this);
+  initialize_image_view(&view, _image);
+  return core::move(view);
 }
 
 }  // namespace graphics
