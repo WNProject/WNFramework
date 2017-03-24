@@ -12,10 +12,14 @@ option(WN_GRAPHICS_ALLOW_REFERENCE_DEVICES
   ${WN_GRAPHICS_ALLOW_REFERENCE_DEVICES}
 )
 
-option(WN_GRAPHICS_ALLOW_DEBUG_MODE
-  "Whether or not debug mode is allowed"
-  ${WN_GRAPHICS_ALLOW_DEBUG_MODE}
+set(WN_GRAPHICS_DEBUG_MODE
+  ${WN_GRAPHICS_DEBUG_MODE}
+  CACHE STRING "Specifies which mode to use to enable debug devices"
 )
+
+if (NOT DEFINED WN_GRAPHICS_DEBUG_MODE OR "${WN_GRAPHICS_DEBUG_MODE}" STREQUAL "")
+  set(WN_GRAPHICS_DEBUG_MODE Default)
+endif()
 
 string(REPLACE "," ";" WN_GRAPHICS_DEVICE_TYPES "${WN_GRAPHICS_DEVICE_TYPES}")
 
@@ -56,7 +60,6 @@ expand_list(WN_QUEUE_INCLUDES "#include \"WNGraphics/inc/Internal/"
   expand_list(WN_SWAPCHAIN_INCLUDES "#include \"WNGraphics/inc/Internal/"
   "/WNSwapchain.h\"" "\n" ${WN_GRAPHICS_DEVICE_TYPES_ENABLED})
 
-
 if (${WN_GRAPHICS_ALLOW_REFERENCE_DEVICES})
   message(STATUS "Graphics Reference Devices: Allowed")
   set(_WN_GRAPHICS_ALLOW_REFERENCE_DEVICES true)
@@ -64,11 +67,23 @@ else()
   message(STATUS "Graphics Reference Devices: Not Allowed")
 endif()
 
-if (${WN_GRAPHICS_ALLOW_DEBUG_MODE})
-  message(STATUS "Graphics Debug Mode: Allowed")
-  set(_WN_GRAPHICS_ALLOW_DEBUG_MODE true)
+string(TOLOWER ${WN_GRAPHICS_DEBUG_MODE}
+  WN_GRAPHICS_DEBUG_MODE_LOWER
+)
+
+if (${WN_GRAPHICS_DEBUG_MODE_LOWER} STREQUAL default)
+  message(STATUS "Graphics Debug Mode: Default")
+  set(_WN_GRAPHICS_DEBUG_MODE 0)
+elseif (${WN_GRAPHICS_DEBUG_MODE_LOWER} STREQUAL forced)
+  message(STATUS "Graphics Debug Mode: Forced")
+  set(_WN_GRAPHICS_DEBUG_MODE 1)
+elseif (${WN_GRAPHICS_DEBUG_MODE_LOWER} STREQUAL disabled)
+  message(STATUS "Graphics Debug Mode: Disabled")
+  set(_WN_GRAPHICS_DEBUG_MODE 2)
 else()
-  message(STATUS "Graphics Debug Mode: Not Allowed")
+  message(FATAL_ERROR
+    "Invalid graphics debug device option specified: ${WN_GRAPHICS_DEBUG_MODE}"
+  )
 endif()
 
 configure_file(inc/Internal/WNConfig.h.in
