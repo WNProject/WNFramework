@@ -5,4 +5,4 @@ if (num_elements GREATER 1)
   set(ENABLED ON)
 endif()
 
-register_overlay(${ENABLED} MulitConfig)
+register_overlay(${ENABLED} MultiConfig)
