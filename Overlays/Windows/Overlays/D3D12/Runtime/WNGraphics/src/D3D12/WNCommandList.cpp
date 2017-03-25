@@ -115,6 +115,12 @@ void d3d12_command_list::enqueue_texture_download(const image& _image,
   m_command_list->CopyTextureRegion(&dest, 0, 0, 0, &source, nullptr);
 }
 
+void d3d12_command_list::draw(uint32_t _vertex_count, uint32_t _instance_count,
+    uint32_t _vertex_offset, uint32_t _instance_offset) {
+  m_command_list->DrawInstanced(
+      _vertex_count, _instance_count, _vertex_offset, _instance_offset);
+}
+
 }  // namespace d3d12
 }  // namesapce internal
 }  // namespace graphics

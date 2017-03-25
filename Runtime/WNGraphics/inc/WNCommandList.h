@@ -42,6 +42,9 @@ public:
 
   virtual void enqueue_resource_transition(
       const image& _image, resource_state _from, resource_state _to) = 0;
+
+  virtual void draw(uint32_t _vertex_count, uint32_t _instance_count,
+      uint32_t _vertex_offset, uint32_t _instance_offset) = 0;
 #endif
 
   // Ensures that all CPU writes to this upload_heap have finished,

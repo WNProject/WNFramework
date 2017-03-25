@@ -159,6 +159,12 @@ void vulkan_command_list::enqueue_texture_download(const image& _image,
       VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, data.buffer, 1, &copy);
 }
 
+void vulkan_command_list::draw(uint32_t _vertex_count, uint32_t _instance_count,
+    uint32_t _vertex_offset, uint32_t _instance_offset) {
+  m_context->vkCmdDraw(m_command_buffer, _vertex_count, _instance_count,
+      _vertex_offset, _instance_offset);
+}
+
 }  // namespace vulkan
 }  // namesapce internal
 }  // namespace graphics

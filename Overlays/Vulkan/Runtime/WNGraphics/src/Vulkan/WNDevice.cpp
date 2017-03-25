@@ -230,6 +230,7 @@ bool vulkan_device::initialize(memory::allocator* _allocator,
       m_device, m_command_list_context, vkCmdCopyImageToBuffer);
   LOAD_VK_SUB_DEVICE_SYMBOL(
       m_device, m_command_list_context, vkCmdCopyBufferToImage);
+  LOAD_VK_SUB_DEVICE_SYMBOL(m_device, m_command_list_context, vkCmdDraw);
 
   m_command_list_context.m_device = this;
 

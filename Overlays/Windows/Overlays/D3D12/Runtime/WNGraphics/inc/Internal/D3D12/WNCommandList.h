@@ -47,6 +47,10 @@ public:
   void enqueue_resource_transition(const image& _image, resource_state _from,
       resource_state _to) WN_GRAPHICS_OVERRIDE_FINAL;
 
+  void draw(uint32_t _vertex_count, uint32_t _instance_count,
+      uint32_t _vertex_offset,
+      uint32_t _instance_offset) WN_GRAPHICS_OVERRIDE_FINAL;
+
 protected:
   friend class d3d12_device;
   friend class d3d12_queue;
