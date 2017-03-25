@@ -17,8 +17,8 @@ struct render_pass_attachment {
   multisample_count num_samples = multisample_count::samples_1;
   load_op attachment_load_op = load_op::load;
   store_op attachment_store_op = store_op::store;
-  load_op stencil_load_op = load_op::dont_care;
-  store_op stencil_store_op = store_op::dont_care;
+  load_op stencil_load_op = load_op::load;
+  store_op stencil_store_op = store_op::store;
   resource_state initial_state = resource_state::render_target;
   resource_state final_state = resource_state::render_target;
 };

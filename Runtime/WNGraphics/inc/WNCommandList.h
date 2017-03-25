@@ -8,8 +8,10 @@
 #define __WN_GRAPHICS_COMMAND_LIST_H__
 
 #include "WNGraphics/inc/Internal/WNConfig.h"
+#include "WNGraphics/inc/WNFramebuffer.h"
 #include "WNGraphics/inc/WNHeapTraits.h"
 #include "WNGraphics/inc/WNImage.h"
+#include "WNGraphics/inc/WNRenderPass.h"
 #include "WNMemory/inc/WNUniquePtr.h"
 
 #ifdef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
@@ -31,6 +33,29 @@ using command_list_base = core::non_copyable;
 
 }  // namespace internal
 
+union clear_color {
+  float float_vals[4];
+  int32_t int_vals[4];
+  uint32_t uint_vals[4];
+};
+
+struct clear_depth {
+  float depth;
+  uint32_t stencil;
+};
+
+union clear_value {
+  clear_color color;
+  clear_depth depth;
+};
+
+struct render_area {
+  int32_t x;
+  int32_t y;
+  uint32_t width;
+  uint32_t height;
+};
+
 class command_list : public internal::command_list_base {
 public:
   WN_FORCE_INLINE command_list() : internal::command_list_base() {}
@@ -45,6 +70,21 @@ public:
 
   virtual void draw(uint32_t _vertex_count, uint32_t _instance_count,
       uint32_t _vertex_offset, uint32_t _instance_offset) = 0;
+
+  // TODO(awoloszyn): Expose another function (or a parameter)
+  // to specify if this is allowed to execute sub-command-lists.
+  // If this is the case, it can ONLY execute sub-command-lists.
+  // You must specify one clear per attachment in the framebuffer,
+  // even if it is not going to be used.
+  // _area is to enable optimizations. It is a promise
+  // to the graphics driver that you will not render outside
+  // of this area. IT DOES NOT ENFORCE THIS. You must make sure that
+  // this is in fact true.
+  virtual void begin_render_pass(render_pass* _pass, framebuffer* _framebuffer,
+      const render_area& _area,
+      const containers::contiguous_range<clear_value>& _clears) = 0;
+
+  virtual void end_render_pass() = 0;
 #endif
 
   // Ensures that all CPU writes to this upload_heap have finished,

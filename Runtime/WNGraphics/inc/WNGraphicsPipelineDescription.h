@@ -15,6 +15,8 @@
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNMemory/inc/WNBasic.h"
 
+WN_GRAPHICS_FORWARD(device);
+
 namespace wn {
 namespace graphics {
 class shader_module;

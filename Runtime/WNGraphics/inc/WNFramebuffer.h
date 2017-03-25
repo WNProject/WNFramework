@@ -7,8 +7,11 @@
 #ifndef __WN_GRAPHICS_FRAMEBUFFER_H__
 #define __WN_GRAPHICS_FRAMEBUFFER_H__
 
+#include "WNGraphics/inc/WNCommandList.h"
 #include "WNGraphics/inc/WNGraphicsObjectBase.h"
 #include "WNGraphics/inc/WNImageView.h"
+
+WN_GRAPHICS_FORWARD(command_list)
 
 namespace wn {
 namespace graphics {

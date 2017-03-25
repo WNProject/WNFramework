@@ -11,6 +11,7 @@ overlay_library_sources(WNGraphics
     inc/Internal/D3D12/WNQueue.h
     inc/Internal/D3D12/WNResourceStates.h
     inc/Internal/D3D12/WNSwapchain.h
+    inc/Internal/D3D12/WNLockedHeap.h
     src/D3D12/WNAdapter.cpp
     src/D3D12/WNCommandList.cpp
     src/D3D12/WNDevice.cpp

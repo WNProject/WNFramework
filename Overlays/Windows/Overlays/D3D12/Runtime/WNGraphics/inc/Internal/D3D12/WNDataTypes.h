@@ -9,6 +9,7 @@
 
 #include "WNContainers/inc/WNDynamicArray.h"
 #include "WNContainers/inc/WNRangePartition.h"
+#include "WNGraphics/inc/Internal/D3D12/WNLockedHeap.h"
 #include "WNGraphics/inc/WNArena.h"
 #include "WNGraphics/inc/WNDescriptorData.h"
 #include "WNGraphics/inc/WNImageView.h"
@@ -78,6 +79,11 @@ struct render_pass_data {
   containers::dynamic_array<subpass_data> subpasses;
 };
 
+struct image_view_handle {
+  containers::default_range_partition::token token;
+  locked_heap* heap;
+};
+
 struct framebuffer_data {
   framebuffer_data(memory::allocator* _allocator,
       containers::contiguous_range<const image_view*> _views)
@@ -86,8 +92,7 @@ struct framebuffer_data {
     image_view_handles.reserve(_views.size());
   }
   containers::dynamic_array<const image_view*> image_views;
-  containers::dynamic_array<containers::default_range_partition::token>
-      image_view_handles;
+  containers::dynamic_array<image_view_handle> image_view_handles;
 };
 
 enum class static_graphics_pipeline_type {
@@ -194,7 +199,7 @@ struct data_type<framebuffer> {
 
 template <>
 struct data_type<const framebuffer> {
-  using value = memory::unique_ptr<const framebuffer_data>;
+  using value = const memory::unique_ptr<const framebuffer_data>;
 };
 
 template <>

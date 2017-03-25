@@ -7,6 +7,7 @@
 #ifndef __WN_GRAPHICS_GRAPHICS_ENUMS_H__
 #define __WN_GRAPHICS_GRAPHICS_ENUMS_H__
 
+#include "WNCore/inc/WNAssert.h"
 #include "WNCore/inc/WNBase.h"
 #include "WNCore/inc/WNTypes.h"
 
@@ -14,6 +15,54 @@ namespace wn {
 namespace graphics {
 
 enum class data_format { r8g8b8a8_unorm, r32g32b32a32_sfloat, max };
+
+WN_FORCE_INLINE bool is_format_normalized(data_format _format) {
+  switch (_format) {
+    case data_format::r8g8b8a8_unorm:
+    case data_format::r32g32b32a32_sfloat:
+      return true;
+    case data_format::max:
+      return false;
+  }
+  WN_DEBUG_ASSERT_DESC(false, "You should not end up here, update this enum");
+  return false;
+}
+
+WN_FORCE_INLINE bool is_format_depth_stencil(data_format _format) {
+  switch (_format) {
+    case data_format::r8g8b8a8_unorm:
+    case data_format::r32g32b32a32_sfloat:
+      return false;
+    case data_format::max:
+      return false;
+  }
+  WN_DEBUG_ASSERT_DESC(false, "You should not end up here, update this enum");
+  return false;
+}
+
+WN_FORCE_INLINE bool is_format_uint(data_format _format) {
+  switch (_format) {
+    case data_format::r8g8b8a8_unorm:
+    case data_format::r32g32b32a32_sfloat:
+      return false;
+    case data_format::max:
+      return false;
+  }
+  WN_DEBUG_ASSERT_DESC(false, "You should not end up here, update this enum");
+  return false;
+}
+
+WN_FORCE_INLINE bool is_format_int(data_format _format) {
+  switch (_format) {
+    case data_format::r8g8b8a8_unorm:
+    case data_format::r32g32b32a32_sfloat:
+      return false;
+    case data_format::max:
+      return false;
+  }
+  WN_DEBUG_ASSERT_DESC(false, "You should not end up here, update this enum");
+  return false;
+}
 
 enum class stream_frequency { per_vertex, per_instance };
 enum class topology {

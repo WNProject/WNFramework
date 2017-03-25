@@ -232,6 +232,11 @@ bool vulkan_device::initialize(memory::allocator* _allocator,
       m_device, m_command_list_context, vkCmdCopyBufferToImage);
   LOAD_VK_SUB_DEVICE_SYMBOL(m_device, m_command_list_context, vkCmdDraw);
 
+  LOAD_VK_SUB_DEVICE_SYMBOL(
+      m_device, m_command_list_context, vkCmdBeginRenderPass);
+  LOAD_VK_SUB_DEVICE_SYMBOL(
+      m_device, m_command_list_context, vkCmdEndRenderPass);
+
   m_command_list_context.m_device = this;
 
   VkQueue queue;

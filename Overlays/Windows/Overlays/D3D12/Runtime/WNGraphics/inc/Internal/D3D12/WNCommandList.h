@@ -11,6 +11,8 @@
 #include "WNGraphics/inc/WNGraphicsEnums.h"
 #include "WNGraphics/inc/WNHeapTraits.h"
 
+#include "WNGraphics/inc/Internal/D3D12/WNDataTypes.h"
+
 #ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
 #include "WNGraphics/inc/WNCommandList.h"
 #else
@@ -51,6 +53,13 @@ public:
       uint32_t _vertex_offset,
       uint32_t _instance_offset) WN_GRAPHICS_OVERRIDE_FINAL;
 
+  void begin_render_pass(render_pass* _pass, framebuffer* _framebuffer,
+      const render_area& _area,
+      const containers::contiguous_range<clear_value>& _clears)
+      WN_GRAPHICS_OVERRIDE_FINAL;
+
+  void end_render_pass() WN_GRAPHICS_OVERRIDE_FINAL;
+
 protected:
   friend class d3d12_device;
   friend class d3d12_queue;
@@ -61,9 +70,16 @@ protected:
     return m_command_list.Get();
   }
 
-  WN_FORCE_INLINE void initialize(
+  WN_FORCE_INLINE void initialize(memory::allocator* _allocator,
       Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>&& _command_list) {
+    m_allocator = _allocator;
     m_command_list = core::move(_command_list);
+    m_current_render_pass = nullptr;
+    m_current_framebuffer = nullptr;
+    m_current_subpass = 0;
+    m_clear_values = containers::dynamic_array<clear_value>(m_allocator);
+    m_active_framebuffer_resource_states =
+        containers::dynamic_array<resource_state>(m_allocator);
   }
 
   void enqueue_upload_barrier(const upload_heap& upload_heap,
@@ -82,7 +98,28 @@ protected:
       const download_heap& _download_heap,
       size_t _download_offset_in_bytes) WN_GRAPHICS_OVERRIDE_FINAL;
 
+private:
+  // Inserts all of the commands needed to set up the current subpass.
+  // It also discards previous subpass elements if possible.
+  // If this is AFTER the last subpass, it discards previous
+  // subpass data if possible.
+  void set_up_subpass();
+
+  template <typename T>
+  typename data_type<T>::value& get_data(T* t);
+
+  template <typename T>
+  typename data_type<const T>::value& get_data(const T* const t);
+
   Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> m_command_list;
+  const render_pass* m_current_render_pass;
+  const framebuffer* m_current_framebuffer;
+  containers::dynamic_array<resource_state>
+      m_active_framebuffer_resource_states;
+  uint32_t m_current_subpass;
+  render_area m_render_area;
+  containers::dynamic_array<clear_value> m_clear_values;
+  memory::allocator* m_allocator;
 };
 
 }  // namespace d3d12

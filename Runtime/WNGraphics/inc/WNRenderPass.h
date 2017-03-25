@@ -8,6 +8,7 @@
 #define __WN_GRAPHICS_RENDER_PASS_H__
 
 #include "WNGraphics/inc/Internal/WNConfig.h"
+#include "WNGraphics/inc/WNCommandList.h"
 #include "WNGraphics/inc/WNDevice.h"
 #include "WNGraphics/inc/WNGraphicsEnums.h"
 #include "WNGraphics/inc/WNRenderPassTypes.h"
@@ -15,6 +16,7 @@
 
 WN_GRAPHICS_FORWARD(queue)
 WN_GRAPHICS_FORWARD(device)
+WN_GRAPHICS_FORWARD(command_list)
 
 namespace wn {
 namespace graphics {
@@ -44,6 +46,7 @@ public:
 private:
   WN_GRAPHICS_ADD_FRIENDS(queue)
   WN_GRAPHICS_ADD_FRIENDS(device)
+  WN_GRAPHICS_ADD_FRIENDS(command_list)
 
   WN_FORCE_INLINE render_pass(device* _device) : m_device(_device) {}
 

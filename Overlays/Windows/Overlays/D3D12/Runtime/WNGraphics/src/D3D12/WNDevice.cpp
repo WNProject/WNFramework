@@ -314,7 +314,7 @@ command_list_ptr d3d12_device::create_command_list(command_allocator* _alloc) {
           }));
 
   if (ptr) {
-    ptr->initialize(core::move(command_list));
+    ptr->initialize(m_allocator, core::move(command_list));
   }
 
   return core::move(ptr);
@@ -810,8 +810,9 @@ void d3d12_device::initialize_framebuffer(
         get_data(_info.image_views[i]);
 
     if (components & static_cast<uint8_t>(image_component::color)) {
-      data->image_view_handles.push_back(m_rtv_heap.get_partition(1));
-      WN_DEBUG_ASSERT_DESC(data->image_view_handles.back().is_valid(),
+      data->image_view_handles.push_back(
+          {m_rtv_heap.get_partition(1), &m_rtv_heap});
+      WN_DEBUG_ASSERT_DESC(data->image_view_handles.back().token.is_valid(),
           "Could not allocate space for rtv");
       const Microsoft::WRL::ComPtr<ID3D12Resource>& resource =
           info->image->data_as<Microsoft::WRL::ComPtr<ID3D12Resource>>();
@@ -820,12 +821,14 @@ void d3d12_device::initialize_framebuffer(
           image_format_to_dxgi_format(info->image->get_resource_info().format);
 
       m_device->CreateRenderTargetView(resource.Get(), &rtv,
-          m_rtv_heap.get_handle_at(data->image_view_handles.back().offset()));
+          m_rtv_heap.get_handle_at(
+              data->image_view_handles.back().token.offset()));
     } else if (components &
                (static_cast<uint8_t>(image_component::depth) |
                    static_cast<uint8_t>(image_component::stencil))) {
-      data->image_view_handles.push_back(m_dsv_heap.get_partition(1));
-      WN_DEBUG_ASSERT_DESC(data->image_view_handles.back().is_valid(),
+      data->image_view_handles.push_back(
+          {m_dsv_heap.get_partition(1), &m_dsv_heap});
+      WN_DEBUG_ASSERT_DESC(data->image_view_handles.back().token.is_valid(),
           "Could not allocate space for dsv");
 
       const Microsoft::WRL::ComPtr<ID3D12Resource>& resource =
@@ -834,7 +837,8 @@ void d3d12_device::initialize_framebuffer(
           image_format_to_dxgi_format(info->image->get_resource_info().format);
 
       m_device->CreateDepthStencilView(resource.Get(), &dsv,
-          m_dsv_heap.get_handle_at(data->image_view_handles.back().offset()));
+          m_dsv_heap.get_handle_at(
+              data->image_view_handles.back().token.offset()));
     }
   }
 }
@@ -844,11 +848,13 @@ void d3d12_device::destroy_framebuffer(framebuffer* _framebuffer) {
   for (size_t i = 0; i < data->image_views.size(); ++i) {
     image_components components = data->image_views[i]->get_components();
     if (components & static_cast<uint8_t>(image_component::color)) {
-      m_rtv_heap.release_partition(core::move(data->image_view_handles[i]));
+      m_rtv_heap.release_partition(
+          core::move(data->image_view_handles[i].token));
     } else if (components &
                (static_cast<uint8_t>(image_component::depth) |
                    static_cast<uint8_t>(image_component::stencil))) {
-      m_dsv_heap.release_partition(core::move(data->image_view_handles[i]));
+      m_dsv_heap.release_partition(
+          core::move(data->image_view_handles[i].token));
     }
   }
   data.reset();

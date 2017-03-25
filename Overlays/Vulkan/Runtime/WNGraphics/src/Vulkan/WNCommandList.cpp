@@ -4,16 +4,23 @@
 
 #include "WNGraphics/inc/Internal/Vulkan/WNCommandList.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNBufferData.h"
+#include "WNGraphics/inc/Internal/Vulkan/WNDataTypes.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNDevice.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNResourceStates.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanCommandListContext.h"
+#include "WNGraphics/inc/WNFramebuffer.h"
 #include "WNGraphics/inc/WNHeap.h"
 #include "WNGraphics/inc/WNImage.h"
+#include "WNGraphics/inc/WNRenderPass.h"
 
 namespace wn {
 namespace graphics {
 namespace internal {
 namespace vulkan {
+
+#define get_data(f)                                                            \
+  f->data_as<                                                                  \
+      typename data_type<core::remove_pointer<decltype(f)>::type>::value>()
 
 vulkan_command_list::~vulkan_command_list() {
   m_context->vkFreeCommandBuffers(
@@ -164,6 +171,33 @@ void vulkan_command_list::draw(uint32_t _vertex_count, uint32_t _instance_count,
   m_context->vkCmdDraw(m_command_buffer, _vertex_count, _instance_count,
       _vertex_offset, _instance_offset);
 }
+
+void vulkan_command_list::begin_render_pass(render_pass* _pass,
+    framebuffer* _framebuffer, const render_area& _area,
+    const containers::contiguous_range<clear_value>& _clears) {
+  static_assert(sizeof(clear_value) == sizeof(VkClearValue),
+      "You have to translate clear_value to VkClearValue");
+  ::VkRenderPass render_pass = get_data(_pass);
+  ::VkFramebuffer framebuffer = get_data(_framebuffer);
+  VkRect2D render_area = {_area.x, _area.y, _area.width, _area.height};
+  VkRenderPassBeginInfo begin_info = {
+      VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,              // sType
+      nullptr,                                               // pNext
+      render_pass,                                           // renderPass
+      framebuffer,                                           // framebuffer
+      render_area,                                           // renderArea
+      static_cast<uint32_t>(_clears.size()),                 // numClears
+      reinterpret_cast<const VkClearValue*>(_clears.data())  // clears
+  };
+  m_context->vkCmdBeginRenderPass(
+      m_command_buffer, &begin_info, VK_SUBPASS_CONTENTS_INLINE);
+}
+
+void vulkan_command_list::end_render_pass() {
+  m_context->vkCmdEndRenderPass(m_command_buffer);
+}
+
+#undef get_data
 
 }  // namespace vulkan
 }  // namesapce internal

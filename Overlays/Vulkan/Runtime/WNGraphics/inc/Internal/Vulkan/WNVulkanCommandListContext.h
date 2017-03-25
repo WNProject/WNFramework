@@ -29,6 +29,9 @@ struct command_list_context WN_FINAL {
 
   PFN_vkCmdDraw vkCmdDraw;
 
+  PFN_vkCmdBeginRenderPass vkCmdBeginRenderPass;
+  PFN_vkCmdEndRenderPass vkCmdEndRenderPass;
+
   PFN_vkCmdCopyImageToBuffer vkCmdCopyImageToBuffer;
   PFN_vkCmdCopyBufferToImage vkCmdCopyBufferToImage;
 };

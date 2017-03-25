@@ -23,9 +23,12 @@ WN_GRAPHICS_FORWARD(image)
 
 namespace wn {
 namespace graphics {
+class render_pass;
+class framebuffer;
+struct render_area;
+union clear_value;
 namespace internal {
 namespace vulkan {
-
 class vulkan_device;
 class vulkan_queue;
 
@@ -46,6 +49,13 @@ public:
   void draw(uint32_t _vertex_count, uint32_t _instance_count,
       uint32_t _vertex_offset,
       uint32_t _instance_offset) WN_GRAPHICS_OVERRIDE_FINAL;
+
+  void begin_render_pass(render_pass* _pass, framebuffer* _framebuffer,
+      const render_area& _area,
+      const containers::contiguous_range<clear_value>& _clears)
+      WN_GRAPHICS_OVERRIDE_FINAL;
+
+  void end_render_pass() WN_GRAPHICS_OVERRIDE_FINAL;
 
 protected:
   friend class vulkan_device;
