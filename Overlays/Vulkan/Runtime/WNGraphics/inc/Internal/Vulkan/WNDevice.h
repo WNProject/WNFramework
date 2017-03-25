@@ -285,7 +285,6 @@ protected:
 private:
   bool setup_arena_properties();
 
-  containers::dynamic_array<uint32_t> m_heap_indexes;
   containers::dynamic_array<arena_properties> m_arena_properties;
 
   // Image Views

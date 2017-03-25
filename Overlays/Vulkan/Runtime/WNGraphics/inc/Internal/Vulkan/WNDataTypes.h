@@ -98,7 +98,7 @@ struct data_type<const image_view> {
 
 template <>
 struct data_type<arena> {
-  using value = uint32_t;
+  using value = ::VkDeviceMemory;
 };
 
 }  // namespace vulkan

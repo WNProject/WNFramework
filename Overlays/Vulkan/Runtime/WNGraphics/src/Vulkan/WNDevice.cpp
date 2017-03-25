@@ -132,7 +132,6 @@ bool vulkan_device::initialize(memory::allocator* _allocator,
   m_download_memory_type_index = uint32_t(-1);
   m_download_heap_is_coherent = false;
   m_physical_device_memory_properties = _memory_properties;
-  m_heap_indexes = containers::dynamic_array<uint32_t>(m_allocator);
   m_arena_properties = containers::dynamic_array<arena_properties>(m_allocator);
 
   vkGetDeviceProcAddr =
@@ -1227,27 +1226,23 @@ bool vulkan_device::setup_arena_properties() {
   const size_t memory_type_count =
       m_physical_device_memory_properties->memoryTypeCount;
 
-  m_heap_indexes.reserve(memory_type_count);
   m_arena_properties.reserve(memory_type_count);
 
   for (size_t i = 0; i < memory_type_count; ++i) {
-    const VkMemoryType& current_memory_heap =
+    const VkMemoryType& current_memory_types =
         m_physical_device_memory_properties->memoryTypes[i];
-    const uint32_t heap_index = current_memory_heap.heapIndex;
     const VkMemoryPropertyFlags& property_flags =
-        current_memory_heap.propertyFlags;
+        current_memory_types.propertyFlags;
     const bool allows_image_and_render_targets =
-        (((1 << heap_index) & image_heaps) != 0);
+        (((1 << i) & image_heaps) != 0);
     const arena_properties new_arena_properties = {
         ((property_flags & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT) != 0),
         ((property_flags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) != 0),
         ((property_flags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) != 0),
         ((property_flags & VK_MEMORY_PROPERTY_HOST_CACHED_BIT) != 0),
-        (((1 << heap_index) & buffer_heaps) != 0),
-        allows_image_and_render_targets, allows_image_and_render_targets,
-        false};
+        (((1 << i) & buffer_heaps) != 0), allows_image_and_render_targets,
+        allows_image_and_render_targets, false};
 
-    m_heap_indexes.push_back(heap_index);
     m_arena_properties.push_back(new_arena_properties);
   }
 
@@ -1257,21 +1252,37 @@ bool vulkan_device::setup_arena_properties() {
 bool vulkan_device::initialize_arena(arena* _arena, const size_t _index,
     const size_t _size, const bool /*_multisampled*/) {
   WN_DEBUG_ASSERT_DESC(
-      m_heap_indexes.size() > _index, "arena property index out of range");
+      m_arena_properties.size() > _index, "arena property index out of range");
   WN_DEBUG_ASSERT_DESC(_size > 0, "arena should be non-zero size");
 
-  uint32_t& heap_index = get_data(_arena);
+  VkDeviceMemory new_memory;
+  const VkMemoryAllocateInfo allocate_info = {
+      VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,  // sType
+      nullptr,                                 // pNext
+      _size,                                   // allocationSize
+      static_cast<uint32_t>(_index)            // memoryTypeIndex
+  };
 
-  heap_index = m_heap_indexes[_index];
+  if (vkAllocateMemory(m_device, &allocate_info, nullptr, &new_memory) !=
+      VK_SUCCESS) {
+    m_log->log_error("Could not successfully allocate device memory of size ",
+        _size, " bytes");
+
+    return false;
+  }
+
+  VkDeviceMemory& memory = get_data(_arena);
+
+  memory = core::move(new_memory);
   _arena->m_size = _size;
 
   return true;
 }
 
 void vulkan_device::destroy_arena(arena* _arena) {
-  uint32_t& heap_index = get_data(_arena);
+  VkDeviceMemory& memory = get_data(_arena);
 
-  heap_index = 0;
+  vkFreeMemory(m_device, memory, nullptr);
 }
 
 #undef get_data
