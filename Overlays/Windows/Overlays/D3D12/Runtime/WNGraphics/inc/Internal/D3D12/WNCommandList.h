@@ -26,6 +26,13 @@ WN_GRAPHICS_FORWARD(image)
 
 namespace wn {
 namespace graphics {
+class pipeline_layout;
+class descriptor_set;
+class render_pass;
+class framebuffer;
+union clear_value;
+struct render_area;
+
 namespace internal {
 namespace d3d12 {
 
@@ -60,6 +67,13 @@ public:
 
   void end_render_pass() WN_GRAPHICS_OVERRIDE_FINAL;
 
+  void bind_graphics_descriptor_sets(
+      const containers::contiguous_range<const descriptor_set*> _sets,
+      uint32_t base_index) WN_GRAPHICS_OVERRIDE_FINAL;
+
+  void bind_graphics_pipeline_layout(
+      pipeline_layout* _layout) WN_GRAPHICS_OVERRIDE_FINAL;
+
 protected:
   friend class d3d12_device;
   friend class d3d12_queue;
@@ -77,6 +91,7 @@ protected:
     m_current_render_pass = nullptr;
     m_current_framebuffer = nullptr;
     m_current_subpass = 0;
+    m_current_graphics_pipeline_layout = nullptr;
     m_clear_values = containers::dynamic_array<clear_value>(m_allocator);
     m_active_framebuffer_resource_states =
         containers::dynamic_array<resource_state>(m_allocator);
@@ -120,6 +135,7 @@ private:
   render_area m_render_area;
   containers::dynamic_array<clear_value> m_clear_values;
   memory::allocator* m_allocator;
+  pipeline_layout* m_current_graphics_pipeline_layout;
 };
 
 }  // namespace d3d12

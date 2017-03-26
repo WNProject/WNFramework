@@ -32,6 +32,8 @@ struct command_list_context WN_FINAL {
   PFN_vkCmdBeginRenderPass vkCmdBeginRenderPass;
   PFN_vkCmdEndRenderPass vkCmdEndRenderPass;
 
+  PFN_vkCmdBindDescriptorSets vkCmdBindDescriptorSets;
+
   PFN_vkCmdCopyImageToBuffer vkCmdCopyImageToBuffer;
   PFN_vkCmdCopyBufferToImage vkCmdCopyBufferToImage;
 };

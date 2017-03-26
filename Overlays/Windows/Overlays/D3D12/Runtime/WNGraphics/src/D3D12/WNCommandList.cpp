@@ -315,6 +315,34 @@ void d3d12_command_list::end_render_pass() {
   m_current_render_pass = nullptr;
 }
 
+void d3d12_command_list::bind_graphics_pipeline_layout(
+    pipeline_layout* _layout) {
+  m_current_graphics_pipeline_layout = _layout;
+  memory::unique_ptr<pipeline_layout_object>& layout = get_data(_layout);
+  m_command_list->SetGraphicsRootSignature(layout->signature.Get());
+}
+
+void d3d12_command_list::bind_graphics_descriptor_sets(
+    const containers::contiguous_range<const descriptor_set*> _sets,
+    uint32_t base_index) {
+  containers::dynamic_array<D3D12_GPU_DESCRIPTOR_HANDLE> handles(
+      m_allocator, _sets.size());
+  containers::dynamic_array<uint32_t> offsets(m_allocator, _sets.size());
+  memory::unique_ptr<pipeline_layout_object>& layout =
+      get_data(m_current_graphics_pipeline_layout);
+  for (size_t i = 0; i < _sets.size(); ++i) {
+    uint32_t slot = layout->descriptor_set_binding_base[i + base_index];
+    const descriptor_set* set_object = _sets[i];
+    const memory::unique_ptr<const descriptor_set_data>& data =
+        get_data(set_object);
+    for (size_t j = 0; j < data->descriptors.size(); ++j) {
+      m_command_list->SetGraphicsRootDescriptorTable(
+          slot, data->descriptors[j].heap->get_gpu_handle_at(
+                    data->descriptors[j].offset.offset()));
+    }
+  }
+}
+
 template <typename T>
 typename data_type<T>::value& d3d12_command_list::get_data(T* t) {
   return t->data_as<typename data_type<T>::value>();

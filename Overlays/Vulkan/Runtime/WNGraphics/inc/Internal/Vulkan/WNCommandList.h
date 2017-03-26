@@ -25,6 +25,8 @@ namespace wn {
 namespace graphics {
 class render_pass;
 class framebuffer;
+class descriptor_set;
+class pipeline_layout;
 struct render_area;
 union clear_value;
 namespace internal {
@@ -57,6 +59,15 @@ public:
 
   void end_render_pass() WN_GRAPHICS_OVERRIDE_FINAL;
 
+  void bind_graphics_descriptor_sets(
+      const containers::contiguous_range<const descriptor_set*> _sets,
+      uint32_t base_index) WN_GRAPHICS_OVERRIDE_FINAL;
+
+  void bind_graphics_pipeline_layout(
+      pipeline_layout* _pipeline) WN_GRAPHICS_OVERRIDE_FINAL {
+    m_current_graphics_pipeline_layout = _pipeline;
+  }
+
 protected:
   friend class vulkan_device;
   friend class vulkan_queue;
@@ -67,11 +78,14 @@ protected:
       m_command_pool(VK_NULL_HANDLE),
       m_context(nullptr) {}
 
-  WN_FORCE_INLINE void initialize(VkCommandBuffer _command_buffer,
-      VkCommandPool _command_pool, command_list_context* _context) {
+  WN_FORCE_INLINE void initialize(memory::allocator* _allocator,
+      VkCommandBuffer _command_buffer, VkCommandPool _command_pool,
+      command_list_context* _context) {
     m_command_buffer = _command_buffer;
     m_command_pool = _command_pool;
     m_context = _context;
+    m_allocator = _allocator;
+    m_current_graphics_pipeline_layout = nullptr;
   }
 
   VkCommandBuffer get_command_buffer() const {
@@ -97,6 +111,8 @@ protected:
   VkCommandBuffer m_command_buffer;
   VkCommandPool m_command_pool;
   command_list_context* m_context;
+  memory::allocator* m_allocator;
+  pipeline_layout* m_current_graphics_pipeline_layout;
 };
 
 }  // namespace vulkan

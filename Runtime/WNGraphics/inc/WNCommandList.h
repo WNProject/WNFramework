@@ -8,6 +8,7 @@
 #define __WN_GRAPHICS_COMMAND_LIST_H__
 
 #include "WNGraphics/inc/Internal/WNConfig.h"
+#include "WNGraphics/inc/WNDescriptors.h"
 #include "WNGraphics/inc/WNFramebuffer.h"
 #include "WNGraphics/inc/WNHeapTraits.h"
 #include "WNGraphics/inc/WNImage.h"
@@ -85,6 +86,14 @@ public:
       const containers::contiguous_range<clear_value>& _clears) = 0;
 
   virtual void end_render_pass() = 0;
+
+  // Every time a DIFFERENT pipeline_layout is bound,
+  // all existing bound descriptor sets are invalidated.
+  virtual void bind_graphics_pipeline_layout(pipeline_layout* _layout) = 0;
+
+  virtual void bind_graphics_descriptor_sets(
+      const containers::contiguous_range<const descriptor_set*> _sets,
+      uint32_t base_index) = 0;
 #endif
 
   // Ensures that all CPU writes to this upload_heap have finished,

@@ -313,6 +313,8 @@ command_list_ptr d3d12_device::create_command_list(command_allocator* _alloc) {
             return new (_memory) d3d12_command_list_constructable();
           }));
 
+  ID3D12DescriptorHeap* heaps[2] = {m_csv_heap.heap(), m_sampler_heap.heap()};
+  command_list->SetDescriptorHeaps(2, heaps);
   if (ptr) {
     ptr->initialize(m_allocator, core::move(command_list));
   }
@@ -602,10 +604,12 @@ void d3d12_device::initialize_descriptor_set(descriptor_set* _set,
   set = memory::make_unique<descriptor_set_data>(
       m_allocator, m_allocator, pool.get());
   containers::default_range_partition::token tok;
+  const locked_heap* descriptor_heap = nullptr;
   for (auto& l : (*layout)) {
     switch (l.type) {
       case descriptor_type::sampler:
         tok = pool->sampler_heap_partition.get_interval(l.array_size);
+        descriptor_heap = &m_sampler_heap;
         break;
       case descriptor_type::sampled_image:
       case descriptor_type::read_only_buffer:
@@ -615,11 +619,12 @@ void d3d12_device::initialize_descriptor_set(descriptor_set* _set,
       case descriptor_type::read_write_image_buffer:
       case descriptor_type::read_write_sampled_buffer:
         tok = pool->csv_heap_partition.get_interval(l.array_size);
+        descriptor_heap = &m_csv_heap;
         break;
       default:
         WN_DEBUG_ASSERT_DESC(false, "Should not end up here");
     }
-    descriptor_data dat = {l.type, core::move(tok)};
+    descriptor_data dat = {l.type, core::move(tok), descriptor_heap};
     set->descriptors.push_back(core::move(dat));
   }
 }
@@ -633,6 +638,11 @@ void d3d12_device::initialize_pipeline_layout(pipeline_layout* _layout,
     const containers::contiguous_range<const descriptor_set_layout*>&
         _descriptor_set_layouts) {
   auto& layout = get_data(_layout);
+  layout = memory::make_unique<pipeline_layout_object>(m_allocator);
+  Microsoft::WRL::ComPtr<ID3D12RootSignature>& layout_pointer =
+      layout->signature;
+  layout->descriptor_set_binding_base = containers::dynamic_array<uint32_t>(
+      m_allocator, _descriptor_set_layouts.size());
   containers::dynamic_array<D3D12_ROOT_PARAMETER> parameters(m_allocator);
 
   D3D12_ROOT_SIGNATURE_DESC desc = {
@@ -646,11 +656,13 @@ void d3d12_device::initialize_pipeline_layout(pipeline_layout* _layout,
   };
 
   containers::deque<D3D12_DESCRIPTOR_RANGE> ranges(m_allocator);
-
+  uint32_t descriptor_set_base = 0;
   for (size_t i = 0; i < _descriptor_set_layouts.size(); ++i) {
+    layout->descriptor_set_binding_base[i] = descriptor_set_base;
     const auto& set = (_descriptor_set_layouts)[i];
     const auto& set_layout = get_data(set);
     for (size_t j = 0; j < set_layout->size(); ++j) {
+      descriptor_set_base += 1;
       parameters.push_back({});
       auto& parameter = parameters.back();
       parameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
@@ -660,10 +672,6 @@ void d3d12_device::initialize_pipeline_layout(pipeline_layout* _layout,
 
       auto& range = ranges.back();
       const auto& descriptor = (*set_layout)[j];
-
-      if (math::popcount(descriptor.shader_stages) > 1) {
-        parameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-      }
 
       switch (descriptor.shader_stages) {
         case static_cast<uint32_t>(shader_stage::vertex):
@@ -689,7 +697,7 @@ void d3d12_device::initialize_pipeline_layout(pipeline_layout* _layout,
       range.NumDescriptors = static_cast<UINT>(descriptor.array_size);
       range.BaseShaderRegister = static_cast<UINT>(descriptor.register_base);
       range.RegisterSpace = 0;  // TODO(awoloszyn) Expose this?
-      range.OffsetInDescriptorsFromTableStart = static_cast<UINT>(j);
+      range.OffsetInDescriptorsFromTableStart = 0;
 
       switch (descriptor.type) {
         case descriptor_type::sampler:
@@ -728,7 +736,8 @@ void d3d12_device::initialize_pipeline_layout(pipeline_layout* _layout,
   }
 
   hr = m_device->CreateRootSignature(0, serialized_sig->GetBufferPointer(),
-      serialized_sig->GetBufferSize(), __uuidof(ID3D12RootSignature), &layout);
+      serialized_sig->GetBufferSize(), __uuidof(ID3D12RootSignature),
+      &layout_pointer);
 
   if (FAILED(hr)) {
     m_log->log_error("Error constructing the root signature, hr: ", hr);
@@ -869,7 +878,7 @@ void d3d12_device::initialize_graphics_pipeline(graphics_pipeline* _pipeline,
 
   auto& rootSignature = get_data(_layout);
   D3D12_GRAPHICS_PIPELINE_STATE_DESC pipeline_desc = {};
-  pipeline_desc.pRootSignature = rootSignature.Get();
+  pipeline_desc.pRootSignature = rootSignature->signature.Get();
 
   const auto& rp = get_data(_renderpass);
 

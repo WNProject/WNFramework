@@ -9,11 +9,13 @@
 
 #include "WNContainers/inc/WNStringView.h"
 #include "WNGraphics/inc/Internal/WNConfig.h"
+#include "WNGraphics/inc/WNCommandList.h"
 #include "WNGraphics/inc/WNDevice.h"
 #include "WNGraphics/inc/WNGraphicsObjectBase.h"
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNMemory/inc/WNBasic.h"
 
+WN_GRAPHICS_FORWARD(command_list);
 namespace wn {
 namespace graphics {
 
@@ -35,6 +37,7 @@ public:
 
 private:
   WN_GRAPHICS_ADD_FRIENDS(device);
+  WN_GRAPHICS_ADD_FRIENDS(command_list);
   WN_FORCE_INLINE descriptor_set_layout(device* _device) : m_device(_device) {}
   device* m_device;
 };
@@ -56,6 +59,7 @@ public:
   }
 
 private:
+  WN_GRAPHICS_ADD_FRIENDS(command_list);
   WN_FORCE_INLINE descriptor_set(device* _device) : m_device(_device) {}
   device* m_device;
   friend class descriptor_pool;
@@ -114,6 +118,7 @@ public:
 
 private:
   WN_GRAPHICS_ADD_FRIENDS(device);
+  WN_GRAPHICS_ADD_FRIENDS(command_list);
   WN_FORCE_INLINE pipeline_layout(device* _device) : m_device(_device) {}
   device* m_device;
 };

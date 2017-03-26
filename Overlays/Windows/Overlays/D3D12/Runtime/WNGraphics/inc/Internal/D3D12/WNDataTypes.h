@@ -54,6 +54,7 @@ struct descriptor_pool_data {
 struct descriptor_data {
   descriptor_type type;
   containers::default_range_partition::token offset;
+  const locked_heap* heap;
 };
 
 struct descriptor_set_data {
@@ -117,6 +118,11 @@ struct graphics_pipeline_data {
   containers::dynamic_array<scissor> static_scissors;
 };
 
+struct pipeline_layout_object {
+  Microsoft::WRL::ComPtr<ID3D12RootSignature> signature;
+  containers::dynamic_array<uint32_t> descriptor_set_binding_base;
+};
+
 template <>
 struct data_type<shader_module> {
   using value = memory::unique_ptr<internal::d3d12::shader_module_data>;
@@ -154,17 +160,18 @@ struct data_type<descriptor_set> {
 
 template <>
 struct data_type<const descriptor_set> {
-  using value = const memory::unique_ptr<internal::d3d12::descriptor_set_data>;
+  using value =
+      const memory::unique_ptr<const internal::d3d12::descriptor_set_data>;
 };
 
 template <>
 struct data_type<pipeline_layout> {
-  using value = Microsoft::WRL::ComPtr<ID3D12RootSignature>;
+  using value = memory::unique_ptr<pipeline_layout_object>;
 };
 
 template <>
 struct data_type<const pipeline_layout> {
-  using value = const Microsoft::WRL::ComPtr<ID3D12RootSignature>;
+  using value = const memory::unique_ptr<const pipeline_layout_object>;
 };
 
 template <>

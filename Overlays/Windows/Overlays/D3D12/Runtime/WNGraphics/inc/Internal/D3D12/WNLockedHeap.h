@@ -50,6 +50,7 @@ public:
     }
 
     m_root_cpu_handle = m_heap->GetCPUDescriptorHandleForHeapStart();
+    m_root_gpu_handle = m_heap->GetGPUDescriptorHandleForHeapStart();
   }
 
   containers::default_range_partition::token get_partition(
@@ -62,18 +63,24 @@ public:
     multi_tasking::spin_lock_guard guard(m_lock);
     t.free();
   }
-  const ID3D12DescriptorHeap* heap() const {
+  ID3D12DescriptorHeap* heap() const {
     return m_heap.Get();
   }
 
-  D3D12_CPU_DESCRIPTOR_HANDLE get_handle_at(size_t offset) {
+  D3D12_CPU_DESCRIPTOR_HANDLE get_handle_at(size_t offset) const {
     return D3D12_CPU_DESCRIPTOR_HANDLE{
         m_root_cpu_handle.ptr + (offset * m_descriptor_size)};
+  }
+
+  D3D12_GPU_DESCRIPTOR_HANDLE get_gpu_handle_at(size_t offset) const {
+    return D3D12_GPU_DESCRIPTOR_HANDLE{
+        m_root_gpu_handle.ptr + (offset * m_descriptor_size)};
   }
 
 private:
   Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_heap;
   D3D12_CPU_DESCRIPTOR_HANDLE m_root_cpu_handle;
+  D3D12_GPU_DESCRIPTOR_HANDLE m_root_gpu_handle;
   containers::default_range_partition m_parition;
   multi_tasking::spin_lock m_lock;
   uint32_t m_descriptor_size;

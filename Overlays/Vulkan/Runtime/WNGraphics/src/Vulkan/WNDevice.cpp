@@ -236,6 +236,8 @@ bool vulkan_device::initialize(memory::allocator* _allocator,
       m_device, m_command_list_context, vkCmdBeginRenderPass);
   LOAD_VK_SUB_DEVICE_SYMBOL(
       m_device, m_command_list_context, vkCmdEndRenderPass);
+  LOAD_VK_SUB_DEVICE_SYMBOL(
+      m_device, m_command_list_context, vkCmdBindDescriptorSets);
 
   m_command_list_context.m_device = this;
 
@@ -633,7 +635,7 @@ command_list_ptr vulkan_device::create_command_list(command_allocator* _alloc) {
           }));
 
   if (ptr) {
-    ptr->initialize(buffer, pool, &m_command_list_context);
+    ptr->initialize(m_allocator, buffer, pool, &m_command_list_context);
   }
 
   return core::move(ptr);
