@@ -10,6 +10,7 @@
 #include "WNGraphics/inc/Internal/WNConfig.h"
 #include "WNGraphics/inc/WNDescriptors.h"
 #include "WNGraphics/inc/WNFramebuffer.h"
+#include "WNGraphics/inc/WNGraphicsPipeline.h"
 #include "WNGraphics/inc/WNHeapTraits.h"
 #include "WNGraphics/inc/WNImage.h"
 #include "WNGraphics/inc/WNRenderPass.h"
@@ -94,6 +95,8 @@ public:
   virtual void bind_graphics_descriptor_sets(
       const containers::contiguous_range<const descriptor_set*> _sets,
       uint32_t base_index) = 0;
+
+  virtual void bind_graphics_pipeline(graphics_pipeline* _pipeline) = 0;
 #endif
 
   // Ensures that all CPU writes to this upload_heap have finished,

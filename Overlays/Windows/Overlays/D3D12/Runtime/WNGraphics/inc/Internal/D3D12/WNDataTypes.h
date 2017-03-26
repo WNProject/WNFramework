@@ -114,8 +114,8 @@ struct graphics_pipeline_data {
   uint32_t vertex_stream_strides[16];
   D3D_PRIMITIVE_TOPOLOGY topology;
   Microsoft::WRL::ComPtr<ID3D12PipelineState> pipeline;
-  containers::dynamic_array<viewport> static_viewports;
-  containers::dynamic_array<scissor> static_scissors;
+  containers::dynamic_array<D3D12_VIEWPORT> static_viewports;
+  containers::dynamic_array<D3D12_RECT> static_scissors;
 };
 
 struct pipeline_layout_object {
@@ -221,7 +221,7 @@ struct data_type<graphics_pipeline> {
 
 template <>
 struct data_type<const graphics_pipeline> {
-  using value = memory::unique_ptr<const graphics_pipeline_data>;
+  using value = const memory::unique_ptr<const graphics_pipeline_data>;
 };
 
 }  // namespace d3d12

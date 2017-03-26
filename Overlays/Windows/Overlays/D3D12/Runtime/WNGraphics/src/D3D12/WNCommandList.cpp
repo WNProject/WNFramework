@@ -343,6 +343,41 @@ void d3d12_command_list::bind_graphics_descriptor_sets(
   }
 }
 
+void d3d12_command_list::bind_graphics_pipeline(graphics_pipeline* _pipeline) {
+  memory::unique_ptr<graphics_pipeline_data>& pipeline = get_data(_pipeline);
+
+  m_command_list->SetPipelineState(pipeline->pipeline.Get());
+  static_graphics_pipeline_types static_datums = pipeline->static_datums;
+
+  uint32_t next_datum = 1;
+  while (static_datums) {
+    uint8_t trailing_zeros = math::trailing_zeros(static_datums);
+    next_datum <<= trailing_zeros;
+    static_datums >>= trailing_zeros + 1;
+    switch (static_cast<static_graphics_pipeline_type>(next_datum)) {
+      case static_graphics_pipeline_type::blend_constants:
+        m_command_list->OMSetBlendFactor(pipeline->static_blend_constants);
+        break;
+      case static_graphics_pipeline_type::scissors: {
+        m_command_list->RSSetScissorRects(
+            static_cast<UINT>(pipeline->static_scissors.size()),
+            pipeline->static_scissors.data());
+      } break;
+      case static_graphics_pipeline_type::stencil_ref:
+        m_command_list->OMSetStencilRef(pipeline->static_stencil_ref);
+        break;
+      case static_graphics_pipeline_type::viewports:
+        m_command_list->RSSetViewports(
+            static_cast<UINT>(pipeline->static_viewports.size()),
+            pipeline->static_viewports.data());
+        break;
+      default:
+        WN_DEBUG_ASSERT_DESC(false, "We should not end up here");
+    }
+    next_datum <<= 1;
+  }
+}
+
 template <typename T>
 typename data_type<T>::value& d3d12_command_list::get_data(T* t) {
   return t->data_as<typename data_type<T>::value>();

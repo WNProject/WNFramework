@@ -14,6 +14,7 @@
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNMemory/inc/WNBasic.h"
 
+WN_GRAPHICS_FORWARD(command_list);
 namespace wn {
 namespace graphics {
 class graphics_pipeline WN_FINAL : public base_object<2> {
@@ -34,6 +35,8 @@ public:
 
 private:
   WN_GRAPHICS_ADD_FRIENDS(device)
+  WN_GRAPHICS_ADD_FRIENDS(command_list);
+
   WN_FORCE_INLINE graphics_pipeline(device* _device) : m_device(_device) {}
   device* m_device;
   friend class descriptor_pool;

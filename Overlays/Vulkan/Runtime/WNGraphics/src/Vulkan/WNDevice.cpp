@@ -238,6 +238,8 @@ bool vulkan_device::initialize(memory::allocator* _allocator,
       m_device, m_command_list_context, vkCmdEndRenderPass);
   LOAD_VK_SUB_DEVICE_SYMBOL(
       m_device, m_command_list_context, vkCmdBindDescriptorSets);
+  LOAD_VK_SUB_DEVICE_SYMBOL(
+      m_device, m_command_list_context, vkCmdBindPipeline);
 
   m_command_list_context.m_device = this;
 

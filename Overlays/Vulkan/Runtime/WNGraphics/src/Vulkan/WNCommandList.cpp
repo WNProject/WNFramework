@@ -212,6 +212,12 @@ void vulkan_command_list::bind_graphics_descriptor_sets(
       static_cast<uint32_t>(sets.size()), sets.data(), 0, nullptr);
 }
 
+void vulkan_command_list::bind_graphics_pipeline(graphics_pipeline* _pipeline) {
+  graphics_pipeline_data& pipeline = get_data(_pipeline);
+  m_context->vkCmdBindPipeline(
+      m_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.pipeline);
+}
+
 #undef get_data
 
 }  // namespace vulkan

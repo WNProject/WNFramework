@@ -30,6 +30,7 @@ class pipeline_layout;
 class descriptor_set;
 class render_pass;
 class framebuffer;
+class graphics_pipeline;
 union clear_value;
 struct render_area;
 
@@ -73,6 +74,9 @@ public:
 
   void bind_graphics_pipeline_layout(
       pipeline_layout* _layout) WN_GRAPHICS_OVERRIDE_FINAL;
+
+  void bind_graphics_pipeline(
+      graphics_pipeline* _pipeline) WN_GRAPHICS_OVERRIDE_FINAL;
 
 protected:
   friend class d3d12_device;

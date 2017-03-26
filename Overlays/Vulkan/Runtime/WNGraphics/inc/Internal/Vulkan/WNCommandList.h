@@ -25,6 +25,7 @@ namespace wn {
 namespace graphics {
 class render_pass;
 class framebuffer;
+class graphics_pipeline;
 class descriptor_set;
 class pipeline_layout;
 struct render_area;
@@ -67,6 +68,9 @@ public:
       pipeline_layout* _pipeline) WN_GRAPHICS_OVERRIDE_FINAL {
     m_current_graphics_pipeline_layout = _pipeline;
   }
+
+  void bind_graphics_pipeline(
+      graphics_pipeline* _pipeline) WN_GRAPHICS_OVERRIDE_FINAL;
 
 protected:
   friend class vulkan_device;

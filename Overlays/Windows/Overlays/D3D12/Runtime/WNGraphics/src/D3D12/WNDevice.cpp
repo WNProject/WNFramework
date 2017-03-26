@@ -999,16 +999,32 @@ void d3d12_device::initialize_graphics_pipeline(graphics_pipeline* _pipeline,
   if (!_create_info.m_static_scissors.empty()) {
     data->static_datums |=
         static_cast<uint32_t>(static_graphics_pipeline_type::scissors);
-    data->static_scissors.insert(data->static_scissors.begin(),
-        _create_info.m_static_scissors.begin(),
-        _create_info.m_static_scissors.end());
+    data->static_scissors.resize(_create_info.m_static_scissors.size());
+    for (size_t i = 0; i < _create_info.m_static_scissors.size(); ++i) {
+      data->static_scissors[i] = D3D12_RECT{
+          static_cast<LONG>(_create_info.m_static_scissors[i].x),
+          static_cast<LONG>(_create_info.m_static_scissors[i].y),
+          static_cast<LONG>(_create_info.m_static_scissors[i].x +
+                            _create_info.m_static_scissors[i].width),
+          static_cast<LONG>(_create_info.m_static_scissors[i].y +
+                            _create_info.m_static_scissors[i].height),
+      };
+    }
   }
   if (!_create_info.m_static_viewports.empty()) {
     data->static_datums |=
         static_cast<uint32_t>(static_graphics_pipeline_type::viewports);
-    data->static_viewports.insert(data->static_viewports.begin(),
-        _create_info.m_static_viewports.begin(),
-        _create_info.m_static_viewports.end());
+    data->static_viewports.resize(_create_info.m_static_viewports.size());
+    for (size_t i = 0; i < _create_info.m_static_viewports.size(); ++i) {
+      data->static_viewports[i] = D3D12_VIEWPORT{
+          _create_info.m_static_viewports[i].x,
+          _create_info.m_static_viewports[i].y,
+          _create_info.m_static_viewports[i].width,
+          _create_info.m_static_viewports[i].height,
+          _create_info.m_static_viewports[i].min_depth,
+          _create_info.m_static_viewports[i].max_depth,
+      };
+    }
   }
 
   containers::dynamic_array<D3D12_INPUT_ELEMENT_DESC> inputs(
