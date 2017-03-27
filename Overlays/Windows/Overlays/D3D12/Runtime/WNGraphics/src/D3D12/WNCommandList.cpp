@@ -9,6 +9,7 @@
 #include "WNGraphics/inc/Internal/D3D12/WNResourceStates.h"
 #include "WNGraphics/inc/WNHeap.h"
 #include "WNGraphics/inc/WNImage.h"
+#include "WNGraphics/inc/WNRenderPass.h"
 
 namespace wn {
 namespace graphics {
@@ -152,7 +153,11 @@ void d3d12_command_list::begin_render_pass(render_pass* _pass,
   m_current_subpass = 0;
   m_clear_values.clear();
   m_clear_values.insert(m_clear_values.begin(), _clears.begin(), _clears.end());
-  m_render_area = _render_area;
+  m_render_area = {static_cast<LONG>(_render_area.x),
+      static_cast<LONG>(_render_area.y),
+      static_cast<LONG>(_render_area.x) + static_cast<LONG>(_render_area.width),
+      static_cast<LONG>(_render_area.y) +
+          static_cast<LONG>(_render_area.width)};
   m_active_framebuffer_resource_states.clear();
   m_active_framebuffer_resource_states.resize(rp->attachments.size());
   for (size_t i = 0; i < m_active_framebuffer_resource_states.size(); ++i) {
@@ -166,12 +171,6 @@ void d3d12_command_list::set_up_subpass() {
       get_data(m_current_render_pass);
   const memory::unique_ptr<const framebuffer_data>& fb =
       get_data(m_current_framebuffer);
-  D3D12_RECT rect = {static_cast<LONG>(m_render_area.x),
-      static_cast<LONG>(m_render_area.y),
-      static_cast<LONG>(m_render_area.x) +
-          static_cast<LONG>(m_render_area.width),
-      static_cast<LONG>(m_render_area.y) +
-          static_cast<LONG>(m_render_area.width)};
 
   if (m_current_subpass != 0 && m_current_subpass <= rp->subpasses.size()) {
     uint32_t last_subpass = m_current_subpass - 1;
@@ -240,7 +239,7 @@ void d3d12_command_list::set_up_subpass() {
         D3D12_CPU_DESCRIPTOR_HANDLE handle =
             image_view_handle.heap->get_handle_at(
                 image_view_handle.token.offset());
-        m_command_list->ClearRenderTargetView(handle, color, 1, &rect);
+        m_command_list->ClearRenderTargetView(handle, color, 1, &m_render_area);
       }
     }
     if (rp->subpasses[m_current_subpass].depth_attachment >= 0) {
@@ -274,7 +273,7 @@ void d3d12_command_list::set_up_subpass() {
             image_view_handle.heap->get_handle_at(
                 image_view_handle.token.offset());
         m_command_list->ClearDepthStencilView(
-            handle, flags, depth, stencil, 1, &rect);
+            handle, flags, depth, stencil, 1, &m_render_area);
       }
     }
   }

@@ -132,6 +132,7 @@ add_wn_library(WNGraphics
     inc/WNGraphicsEnums.h
     inc/WNGraphicsPipelineDescription.h
     inc/WNGraphicsPipeline.h
+    inc/WNGraphicsTypes.h
     inc/WNQueue.h
     inc/WNRenderPass.h
     inc/WNRenderPassTypes.h

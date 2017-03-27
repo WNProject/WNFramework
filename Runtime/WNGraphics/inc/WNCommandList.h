@@ -11,6 +11,7 @@
 #include "WNGraphics/inc/WNDescriptors.h"
 #include "WNGraphics/inc/WNFramebuffer.h"
 #include "WNGraphics/inc/WNGraphicsPipeline.h"
+#include "WNGraphics/inc/WNGraphicsTypes.h"
 #include "WNGraphics/inc/WNHeapTraits.h"
 #include "WNGraphics/inc/WNImage.h"
 #include "WNGraphics/inc/WNRenderPass.h"
@@ -34,29 +35,6 @@ using command_list_base = core::non_copyable;
 #endif
 
 }  // namespace internal
-
-union clear_color {
-  float float_vals[4];
-  int32_t int_vals[4];
-  uint32_t uint_vals[4];
-};
-
-struct clear_depth {
-  float depth;
-  uint32_t stencil;
-};
-
-union clear_value {
-  clear_color color;
-  clear_depth depth;
-};
-
-struct render_area {
-  int32_t x;
-  int32_t y;
-  uint32_t width;
-  uint32_t height;
-};
 
 class command_list : public internal::command_list_base {
 public:

@@ -7,11 +7,11 @@
 #ifndef __WN_GRAPHICS_INTERNAL_D3D12_COMMAND_LIST_H__
 #define __WN_GRAPHICS_INTERNAL_D3D12_COMMAND_LIST_H__
 
+#include "WNGraphics/inc/Internal/D3D12/WNDataTypes.h"
 #include "WNGraphics/inc/Internal/WNConfig.h"
 #include "WNGraphics/inc/WNGraphicsEnums.h"
+#include "WNGraphics/inc/WNGraphicsTypes.h"
 #include "WNGraphics/inc/WNHeapTraits.h"
-
-#include "WNGraphics/inc/Internal/D3D12/WNDataTypes.h"
 
 #ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
 #include "WNGraphics/inc/WNCommandList.h"
@@ -136,7 +136,7 @@ private:
   containers::dynamic_array<resource_state>
       m_active_framebuffer_resource_states;
   uint32_t m_current_subpass;
-  render_area m_render_area;
+  D3D12_RECT m_render_area;
   containers::dynamic_array<clear_value> m_clear_values;
   memory::allocator* m_allocator;
   pipeline_layout* m_current_graphics_pipeline_layout;
