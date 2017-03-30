@@ -31,6 +31,7 @@ WN_GRAPHICS_FORWARD(queue);
 WN_GRAPHICS_FORWARD(adapter);
 WN_GRAPHICS_FORWARD(image);
 WN_GRAPHICS_FORWARD(swapchain);
+
 namespace wn {
 namespace runtime {
 namespace window {
@@ -52,6 +53,7 @@ using device_base = core::non_copyable;
 }  // namespace internal
 
 class arena;
+class buffer;
 class image;
 class command_allocator;
 class command_list;
@@ -145,11 +147,14 @@ public:
       const pipeline_layout* _layout, const render_pass* _renderpass,
       uint32_t _subpass);
 
+  buffer create_buffer(const size_t _size, const resource_states _usage);
+
 protected:
   friend class command_allocator;
   friend class fence;
   friend class image;
   friend class arena;
+  friend class buffer;
 
   template <typename HeapTraits>
   friend class heap;
@@ -273,6 +278,15 @@ protected:
       const pipeline_layout* _layout, const render_pass* _renderpass,
       uint32_t _subpass) = 0;
   virtual void destroy_graphics_pipeline(graphics_pipeline* _pipeline) = 0;
+
+  // buffer methods
+  virtual bool initialize_buffer(
+      buffer* _buffer, const size_t _size, const resource_states _usage) = 0;
+  virtual bool bind_buffer(
+      buffer* _buffer, arena* _arena, const size_t _offset) = 0;
+  virtual void* map_buffer(buffer* _buffer) = 0;
+  virtual void unmap_buffer(buffer* _buffer) = 0;
+  virtual void destroy_buffer(buffer* _buffer) = 0;
 #endif
 };
 

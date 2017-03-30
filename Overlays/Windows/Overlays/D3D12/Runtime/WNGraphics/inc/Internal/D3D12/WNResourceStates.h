@@ -15,13 +15,20 @@ namespace internal {
 namespace d3d12 {
 
 static WN_FORCE_INLINE D3D12_RESOURCE_STATES
-resource_state_to_d3d12_resource_states(resource_state _state) {
-  static const D3D12_RESOURCE_STATES states[] = {D3D12_RESOURCE_STATE_COMMON,
-      D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_COPY_DEST,
-      D3D12_RESOURCE_STATE_RENDER_TARGET,
+resource_state_to_d3d12_resource_states(const resource_state _state) {
+  static const D3D12_RESOURCE_STATES states[] = {
+      D3D12_RESOURCE_STATE_COMMON,                      // initial
+      D3D12_RESOURCE_STATE_COPY_SOURCE,                 // copy_source
+      D3D12_RESOURCE_STATE_COPY_DEST,                   // copy_dest
+      D3D12_RESOURCE_STATE_INDEX_BUFFER,                // index_buffer
+      D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER,  // vertex_buffer
+      D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER,  // read_only_buffer
+      D3D12_RESOURCE_STATE_UNORDERED_ACCESS,            // read_write_buffer
+      D3D12_RESOURCE_STATE_RENDER_TARGET,               // render_target
       D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE |
-          D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
-      D3D12_RESOURCE_STATE_PRESENT};
+          D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,  // texture
+      D3D12_RESOURCE_STATE_PRESENT                     // present
+  };
 
   static_assert((1 << (sizeof(states) / sizeof(states[0]) - 2)) + 1 ==
                     static_cast<uint32_t>(resource_state::max),

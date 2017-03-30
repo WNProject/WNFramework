@@ -11,6 +11,7 @@
 #include "WNGraphics/inc/Internal/D3D12/WNResourceStates.h"
 #include "WNGraphics/inc/Internal/D3D12/WNSwapchain.h"
 #include "WNGraphics/inc/WNArena.h"
+#include "WNGraphics/inc/WNBuffer.h"
 #include "WNGraphics/inc/WNCommandAllocator.h"
 #include "WNGraphics/inc/WNDescriptors.h"
 #include "WNGraphics/inc/WNFence.h"
@@ -1262,6 +1263,100 @@ void d3d12_device::destroy_arena(arena* _arena) {
   Microsoft::WRL::ComPtr<ID3D12Heap>& heap = get_data(_arena);
 
   heap.Reset();
+}
+
+// buffer methods
+bool d3d12_device::initialize_buffer(
+    buffer* _buffer, const size_t _size, const resource_states _usage) {
+  D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_NONE;
+
+  if ((_usage &
+          static_cast<resource_states>(resource_state::read_write_buffer))) {
+    flags |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
+  }
+
+  if ((_usage & static_cast<resource_states>(resource_state::render_target)) !=
+      0) {
+    flags |= D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
+  }
+
+  if ((_usage &
+          ~(static_cast<resource_states>(resource_state::index_buffer) |
+              static_cast<resource_states>(resource_state::vertex_buffer) |
+              static_cast<resource_states>(resource_state::render_target))) ==
+      0) {
+    flags |= D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE;
+  }
+
+  memory::unique_ptr<buffer_info>& buffer_data = get_data(_buffer);
+
+  buffer_data = memory::make_unique<buffer_info>(m_allocator);
+  buffer_data->resource_description = {
+      D3D12_RESOURCE_DIMENSION_BUFFER,  // Dimension
+      0,                                // Alignment
+      _size,                            // Width
+      1,                                // Height
+      1,                                // DepthOrArraySize
+      1,                                // MipLevels
+      DXGI_FORMAT_UNKNOWN,              // Format
+      {
+          // SampleDesc
+          1,  // Count
+          0   // Quality
+      },
+      D3D12_TEXTURE_LAYOUT_ROW_MAJOR,  // Layout
+      flags                            // Flags
+  };
+
+  _buffer->m_size = _size;
+
+  return true;
+}
+
+bool d3d12_device::bind_buffer(
+    buffer* _buffer, arena* _arena, const size_t _offset) {
+  memory::unique_ptr<buffer_info>& buffer_data = get_data(_buffer);
+  Microsoft::WRL::ComPtr<ID3D12Heap>& heap = get_data(_arena);
+  Microsoft::WRL::ComPtr<ID3D12Resource> new_resource;
+  const HRESULT hr = m_device->CreatePlacedResource(heap.Get(), _offset,
+      &buffer_data->resource_description, D3D12_RESOURCE_STATE_COMMON, nullptr,
+      __uuidof(ID3D12Resource), &new_resource);
+
+  if (FAILED(hr)) {
+    return false;
+  }
+
+  buffer_data->resource = core::move(new_resource);
+
+  return true;
+}
+
+void* d3d12_device::map_buffer(buffer* _buffer) {
+  memory::unique_ptr<buffer_info>& info = get_data(_buffer);
+  const D3D12_RANGE range = {
+      0,               // Begin
+      _buffer->size()  // End
+  };
+  void* pointer;
+  const HRESULT hr = info->resource->Map(0, &range, &pointer);
+
+  if (FAILED(hr)) {
+    return nullptr;
+  }
+
+  return pointer;
+}
+
+void d3d12_device::unmap_buffer(buffer* _buffer) {
+  memory::unique_ptr<buffer_info>& info = get_data(_buffer);
+
+  info->resource->Unmap(0, nullptr);
+}
+
+void d3d12_device::destroy_buffer(buffer* _buffer) {
+  memory::unique_ptr<buffer_info>& info = get_data(_buffer);
+
+  info.reset();
 }
 
 }  // namespace d3d12

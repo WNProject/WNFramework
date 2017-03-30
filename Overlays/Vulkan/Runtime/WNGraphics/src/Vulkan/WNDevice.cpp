@@ -12,6 +12,7 @@
 #include "WNGraphics/inc/Internal/Vulkan/WNSwapchain.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanImage.h"
 #include "WNGraphics/inc/WNArena.h"
+#include "WNGraphics/inc/WNBuffer.h"
 #include "WNGraphics/inc/WNCommandAllocator.h"
 #include "WNGraphics/inc/WNCommandList.h"
 #include "WNGraphics/inc/WNDescriptors.h"
@@ -1291,18 +1292,28 @@ bool vulkan_device::initialize_arena(arena* _arena, const size_t _index,
     return false;
   }
 
-  VkDeviceMemory& memory = get_data(_arena);
+  void* pointer = nullptr;
 
-  memory = core::move(new_memory);
+  if (m_arena_properties[_index].host_visible) {
+    if (vkMapMemory(m_device, new_memory, 0, _size, 0, &pointer) !=
+        VK_SUCCESS) {
+      return false;
+    }
+  }
+
+  arena_data& adata = get_data(_arena);
+
+  adata.memory = core::move(new_memory);
+  adata.root = pointer;
   _arena->m_size = _size;
 
   return true;
 }
 
 void vulkan_device::destroy_arena(arena* _arena) {
-  VkDeviceMemory& memory = get_data(_arena);
+  arena_data& adata = get_data(_arena);
 
-  vkFreeMemory(m_device, memory, nullptr);
+  vkFreeMemory(m_device, adata.memory, nullptr);
 }
 
 void vulkan_device::initialize_framebuffer(
@@ -1641,6 +1652,122 @@ void vulkan_device::initialize_graphics_pipeline(graphics_pipeline* _pipeline,
 void vulkan_device::destroy_graphics_pipeline(graphics_pipeline* _pipeline) {
   graphics_pipeline_data& pipeline = get_data(_pipeline);
   vkDestroyPipeline(m_device, pipeline.pipeline, nullptr);
+}
+
+// buffer methods
+bool vulkan_device::initialize_buffer(
+    buffer* _buffer, const size_t _size, const resource_states _usage) {
+  VkBufferUsageFlags usage = 0;
+
+  if ((_usage & static_cast<resource_states>(resource_state::index_buffer))) {
+    usage |= VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+  }
+
+  if ((_usage & static_cast<resource_states>(resource_state::vertex_buffer)) !=
+      0) {
+    usage |= VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+  }
+
+  if ((_usage & static_cast<resource_states>(
+                    resource_state::read_only_buffer)) != 0) {
+    usage |= VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+  }
+
+  if ((_usage & static_cast<resource_states>(
+                    resource_state::read_write_buffer)) != 0) {
+    usage |= VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+  }
+
+  const VkBufferCreateInfo create_info = {
+      VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,  // sType
+      nullptr,                               // pNext
+      0,                                     // flags
+      _size,                                 // size
+      usage,                                 // usage
+      VK_SHARING_MODE_EXCLUSIVE,             // sharingMode
+      0,                                     // queueFamilyIndexCount
+      0                                      // pQueueFamilyIndices
+  };
+  VkBuffer new_buffer;
+
+  if (vkCreateBuffer(m_device, &create_info, nullptr, &new_buffer) !=
+      VK_SUCCESS) {
+    return false;
+  }
+
+  memory::unique_ptr<buffer_info>& bdata = get_data(_buffer);
+
+  bdata = memory::make_unique<buffer_info>(m_allocator);
+  bdata->buffer = core::move(new_buffer);
+
+  return true;
+}
+
+bool vulkan_device::bind_buffer(
+    buffer* _buffer, arena* _arena, const size_t _offset) {
+  memory::unique_ptr<buffer_info>& bdata = get_data(_buffer);
+  const arena_data& adata = get_data(_arena);
+
+  if (vkBindBufferMemory(m_device, bdata->buffer, adata.memory, _offset) !=
+      VK_SUCCESS) {
+    return false;
+  }
+
+  bdata->arena = _arena;
+  bdata->offset = _offset;
+
+  return true;
+}
+
+void* vulkan_device::map_buffer(buffer* _buffer) {
+  memory::unique_ptr<buffer_info>& bdata = get_data(_buffer);
+  arena_data& adata = get_data(bdata->arena);
+  const VkMappedMemoryRange memory_range = {
+      VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE,  // sType
+      nullptr,                                // pNext
+      adata.memory,                           // memory
+      bdata->offset,                          // offset
+      _buffer->size()                         // size
+  };
+
+  if (vkInvalidateMappedMemoryRanges(m_device, 1, &memory_range) !=
+      VK_SUCCESS) {
+    m_log->log_warning("failed to invalidate device memory");
+
+    return nullptr;
+  }
+
+  void* pointer = nullptr;
+
+  if (adata.root) {
+    pointer = static_cast<uint8_t*>(adata.root) + bdata->offset;
+  }
+
+  return pointer;
+}
+
+void vulkan_device::unmap_buffer(buffer* _buffer) {
+  const memory::unique_ptr<buffer_info>& bdata = get_data(_buffer);
+  const arena_data& adata = get_data(bdata->arena);
+  const VkMappedMemoryRange memory_range = {
+      VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE,  // sType
+      nullptr,                                // pNext
+      adata.memory,                           // memory
+      bdata->offset,                          // offset
+      _buffer->size()                         // size
+  };
+
+  if (vkFlushMappedMemoryRanges(m_device, 1, &memory_range) != VK_SUCCESS) {
+    m_log->log_warning("failed to flush device memory");
+  }
+}
+
+void vulkan_device::destroy_buffer(buffer* _buffer) {
+  memory::unique_ptr<buffer_info>& bdata = get_data(_buffer);
+
+  vkDestroyBuffer(m_device, bdata->buffer, nullptr);
+
+  bdata.reset();
 }
 
 #undef get_data

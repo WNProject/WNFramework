@@ -116,6 +116,7 @@ add_wn_library(WNGraphics
     inc/WNAdapter.h
     inc/WNArena.h
     inc/WNArenaProperties.h
+    inc/WNBuffer.h
     inc/WNCommandAllocator.h
     inc/WNCommandList.h
     inc/WNDescriptors.h

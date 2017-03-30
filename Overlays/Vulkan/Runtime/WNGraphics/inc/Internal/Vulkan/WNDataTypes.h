@@ -96,9 +96,14 @@ struct data_type<const image_view> {
   using value = const ::VkImageView;
 };
 
+struct arena_data {
+  VkDeviceMemory memory;
+  void* root;
+};
+
 template <>
 struct data_type<arena> {
-  using value = ::VkDeviceMemory;
+  using value = arena_data;
 };
 
 template <>
@@ -124,6 +129,17 @@ struct data_type<graphics_pipeline> {
 template <>
 struct data_type<const graphics_pipeline> {
   using value = const graphics_pipeline_data;
+};
+
+struct buffer_info {
+  VkBuffer buffer;
+  VkDeviceSize offset;
+  arena* arena;
+};
+
+template <>
+struct data_type<buffer> {
+  using value = memory::unique_ptr<buffer_info>;
 };
 
 }  // namespace vulkan

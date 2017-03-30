@@ -40,6 +40,7 @@ class allocator;
 namespace graphics {
 
 class arena;
+class buffer;
 class command_allocator;
 class command_list;
 class descriptor_set;
@@ -79,6 +80,7 @@ using vulkan_device_base = core::non_copyable;
 
 template <typename T>
 struct data_type;
+
 class vulkan_device WN_GRAPHICS_FINAL : public vulkan_device_base {
 public:
   ~vulkan_device() WN_GRAPHICS_OVERRIDE_FINAL;
@@ -95,6 +97,8 @@ public:
       queue* queue, runtime::window::window* window) WN_GRAPHICS_OVERRIDE_FINAL;
 
 protected:
+  friend class graphics::arena;
+  friend class graphics::buffer;
   friend class graphics::fence;
   friend class graphics::queue;
   friend class vulkan_queue;
@@ -225,6 +229,15 @@ protected:
       uint32_t _subpass) WN_GRAPHICS_OVERRIDE_FINAL;
   void destroy_graphics_pipeline(
       graphics_pipeline* _pipeline) WN_GRAPHICS_OVERRIDE_FINAL;
+
+  // buffer methods
+  bool initialize_buffer(buffer* _buffer, const size_t _size,
+      const resource_states _usage) WN_GRAPHICS_OVERRIDE_FINAL;
+  bool bind_buffer(buffer* _buffer, arena* _arena,
+      const size_t _offset) WN_GRAPHICS_OVERRIDE_FINAL;
+  void* map_buffer(buffer* _buffer) WN_GRAPHICS_OVERRIDE_FINAL;
+  void unmap_buffer(buffer* _buffer) WN_GRAPHICS_OVERRIDE_FINAL;
+  void destroy_buffer(buffer* _buffer) WN_GRAPHICS_OVERRIDE_FINAL;
 
   uint32_t get_memory_type_index(uint32_t _types, VkFlags _properties) const;
 

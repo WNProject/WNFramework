@@ -205,9 +205,13 @@ enum class resource_state : uint32_t {
   initial = 0,
   copy_source = 1 << 0,
   copy_dest = 1 << 1,
-  render_target = 1 << 2,
-  texture = 1 << 3,
-  present = 1 << 4,
+  index_buffer = 1 << 2,
+  vertex_buffer = 1 << 3,
+  read_only_buffer = 1 << 4,
+  read_write_buffer = 1 << 5,
+  render_target = 1 << 6,
+  texture = 1 << 7,
+  present = 1 << 8,
   max,
 };
 

@@ -4,6 +4,7 @@
 
 #include "WNGraphics/inc/WNDevice.h"
 #include "WNGraphics/inc/WNArena.h"
+#include "WNGraphics/inc/WNBuffer.h"
 #include "WNGraphics/inc/WNCommandAllocator.h"
 #include "WNGraphics/inc/WNCommandList.h"
 #include "WNGraphics/inc/WNDescriptors.h"
@@ -151,6 +152,16 @@ graphics_pipeline device::create_graphics_pipeline(
   initialize_graphics_pipeline(
       &pipeline, _create_info, _layout, _renderpass, _subpass);
   return core::move(pipeline);
+}
+
+buffer device::create_buffer(const size_t _size, const resource_states _usage) {
+  buffer new_buffer;
+
+  if (initialize_buffer(&new_buffer, _size, _usage)) {
+    new_buffer.m_device = this;
+  }
+
+  return core::move(new_buffer);
 }
 
 }  // namespace graphics

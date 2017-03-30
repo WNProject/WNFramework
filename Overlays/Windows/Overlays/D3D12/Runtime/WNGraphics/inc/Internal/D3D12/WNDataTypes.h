@@ -11,6 +11,7 @@
 #include "WNContainers/inc/WNRangePartition.h"
 #include "WNGraphics/inc/Internal/D3D12/WNLockedHeap.h"
 #include "WNGraphics/inc/WNArena.h"
+#include "WNGraphics/inc/WNBuffer.h"
 #include "WNGraphics/inc/WNDescriptorData.h"
 #include "WNGraphics/inc/WNImageView.h"
 #include "WNGraphics/inc/WNRenderPassTypes.h"
@@ -222,6 +223,16 @@ struct data_type<graphics_pipeline> {
 template <>
 struct data_type<const graphics_pipeline> {
   using value = const memory::unique_ptr<const graphics_pipeline_data>;
+};
+
+struct buffer_info {
+  D3D12_RESOURCE_DESC resource_description;
+  Microsoft::WRL::ComPtr<ID3D12Resource> resource;
+};
+
+template <>
+struct data_type<buffer> {
+  using value = memory::unique_ptr<buffer_info>;
 };
 
 }  // namespace d3d12

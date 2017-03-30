@@ -5,6 +5,7 @@ wn_create_executable_tests_from_list(TEST_PREFIX WNGraphics
   SYSTEMS_TEST
   SOURCES
     WNArena
+    WNBuffer
     WNDownloadHeap
     WNImage
     WNQueryAdapters

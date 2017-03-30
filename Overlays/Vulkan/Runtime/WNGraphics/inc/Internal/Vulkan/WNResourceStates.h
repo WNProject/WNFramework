@@ -16,9 +16,19 @@ namespace vulkan {
 
 static WN_FORCE_INLINE VkFlags resource_state_to_vulkan_access_flags(
     resource_state _state) {
-  static const VkFlags states[] = {0, VK_ACCESS_TRANSFER_READ_BIT,
-      VK_ACCESS_TRANSFER_WRITE_BIT, VK_ACCESS_COLOR_ATTACHMENT_READ_BIT,
-      VK_ACCESS_SHADER_READ_BIT, VK_ACCESS_MEMORY_READ_BIT};
+  static const VkFlags states[] = {
+      0,                                    // initial
+      VK_ACCESS_TRANSFER_READ_BIT,          // copy_source
+      VK_ACCESS_TRANSFER_WRITE_BIT,         // copy_dest
+      VK_ACCESS_INDEX_READ_BIT,             // index_buffer
+      VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT,  // vertex_buffer
+      VK_ACCESS_UNIFORM_READ_BIT,           // read_only_buffer
+      VK_ACCESS_SHADER_READ_BIT |
+          VK_ACCESS_SHADER_WRITE_BIT,        // read_write_buffer
+      VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,  // render_target
+      VK_ACCESS_SHADER_READ_BIT,             // texture
+      VK_ACCESS_MEMORY_READ_BIT              // present
+  };
 
   static_assert((1 << (sizeof(states) / sizeof(states[0]) - 2)) + 1 ==
                     static_cast<uint32_t>(resource_state::max),
@@ -31,12 +41,18 @@ static WN_FORCE_INLINE VkFlags resource_state_to_vulkan_access_flags(
 
 static WN_FORCE_INLINE VkImageLayout resource_state_to_vulkan_layout(
     resource_state _state) {
-  static const VkImageLayout layouts[] = {VK_IMAGE_LAYOUT_UNDEFINED,
-      VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-      VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-      VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-      VK_IMAGE_LAYOUT_PRESENT_SRC_KHR};
+  static const VkImageLayout layouts[] = {
+      VK_IMAGE_LAYOUT_UNDEFINED,                 // initial
+      VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,      // copy_source
+      VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,      // copy_dest
+      VK_IMAGE_LAYOUT_UNDEFINED,                 // index_buffer
+      VK_IMAGE_LAYOUT_UNDEFINED,                 // vertex_buffer
+      VK_IMAGE_LAYOUT_UNDEFINED,                 // read_only_buffer
+      VK_IMAGE_LAYOUT_UNDEFINED,                 // read_write_buffer
+      VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,  // render_target
+      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,  // texture
+      VK_IMAGE_LAYOUT_PRESENT_SRC_KHR            // present
+  };
 
   static_assert((1 << (sizeof(layouts) / sizeof(layouts[0]) - 2)) + 1 ==
                     static_cast<uint32_t>(resource_state::max),
@@ -49,10 +65,18 @@ static WN_FORCE_INLINE VkImageLayout resource_state_to_vulkan_layout(
 
 static WN_FORCE_INLINE VkFlags resource_state_to_vulkan_pipeline_stage(
     resource_state _state) {
-  static const VkFlags states[] = {VK_PIPELINE_STAGE_HOST_BIT,
-      VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT,
-      VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
-      VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+  static const VkFlags states[] = {
+      VK_PIPELINE_STAGE_HOST_BIT,                    // initial
+      VK_PIPELINE_STAGE_TRANSFER_BIT,                // copy_source
+      VK_PIPELINE_STAGE_TRANSFER_BIT,                // copy_dest
+      VK_PIPELINE_STAGE_VERTEX_INPUT_BIT,            // index_buffer
+      VK_PIPELINE_STAGE_VERTEX_INPUT_BIT,            // vertex_buffer
+      VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,            // read_only_buffer
+      VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,            // read_write_buffer
+      VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,         // render_target
+      VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,            // texture
+      VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT  // present
+  };
 
   static_assert((1 << (sizeof(states) / sizeof(states[0]) - 2)) + 1 ==
                     static_cast<uint32_t>(resource_state::max),

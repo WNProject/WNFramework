@@ -42,6 +42,7 @@ class allocator;
 namespace graphics {
 
 class arena;
+class buffer;
 class command_allocator;
 class command_list;
 class descriptor_set;
@@ -226,6 +227,15 @@ protected:
   void destroy_graphics_pipeline(
       graphics_pipeline* _pipeline) WN_GRAPHICS_OVERRIDE_FINAL;
 
+  // buffer methods
+  bool initialize_buffer(buffer* _buffer, const size_t _size,
+      const resource_states _usage) WN_GRAPHICS_OVERRIDE_FINAL;
+  bool bind_buffer(buffer* _buffer, arena* _arena,
+      const size_t _offset) WN_GRAPHICS_OVERRIDE_FINAL;
+  void* map_buffer(buffer* _buffer) WN_GRAPHICS_OVERRIDE_FINAL;
+  void unmap_buffer(buffer* _buffer) WN_GRAPHICS_OVERRIDE_FINAL;
+  void destroy_buffer(buffer* _buffer) WN_GRAPHICS_OVERRIDE_FINAL;
+
 private:
   template <typename T>
   typename data_type<T>::value& get_data(T* t);
@@ -237,8 +247,6 @@ private:
   containers::dynamic_array<heap_info> m_heap_info;
   containers::dynamic_array<arena_properties> m_arena_properties;
 
-public:
-private:
   locked_heap m_csv_heap;
   locked_heap m_sampler_heap;
   locked_heap m_rtv_heap;
