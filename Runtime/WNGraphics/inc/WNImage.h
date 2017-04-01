@@ -10,6 +10,7 @@
 #include "WNGraphics/inc/Internal/WNConfig.h"
 #include "WNGraphics/inc/WNDevice.h"
 #include "WNGraphics/inc/WNGraphicsEnums.h"
+#include "WNGraphics/inc/WNGraphicsTypes.h"
 #include "WNMemory/inc/WNBasic.h"
 
 WN_GRAPHICS_FORWARD(device);
@@ -17,20 +18,11 @@ WN_GRAPHICS_FORWARD(command_list);
 
 namespace wn {
 namespace graphics {
+class arena;
 
-struct image_create_info {
-  static image_create_info default_texture(size_t _width, size_t _height) {
-    return image_create_info{
-        _width, _height, data_format::r8g8b8a8_unorm, k_all_resource_states};
-  }
-
-  size_t m_width;
-  size_t m_height;
-  data_format m_format;
-  resource_states m_valid_resource_states;  // Bit-flags of the image type.
-  // TODO(awoloszyn): Add mip-levels
-  // TODO(awoloszyn): Add Depth/Array Size
-  // TODO(awoloszyn): Add Multisample information
+struct image_memory_requirements {
+  size_t size;
+  size_t alignment;
 };
 
 class image WN_FINAL : public core::non_copyable {
@@ -57,7 +49,10 @@ public:
   WN_FORCE_INLINE image(image&& _other)
     : m_device(_other.m_device), m_resource_info(_other.m_resource_info) {
     _other.m_device = nullptr;
+    memory::memcpy(
+        &m_resource_info, &_other.m_resource_info, sizeof(_other.m_resource_info));
     memory::memory_zero(&_other.m_resource_info);
+    m_is_swapchain_image = _other.m_is_swapchain_image;
     memory::memcpy(&m_data, &_other.m_data, sizeof(opaque_data));
     memory::memzero(&_other.m_data, sizeof(opaque_data));
   }
@@ -76,7 +71,7 @@ public:
     return m_is_swapchain_image;
   }
 
-  const image_buffer_resource_info& get_resource_info() const {
+  const image_buffer_resource_info& get_buffer_requirements() const {
     return m_resource_info;
   }
 
@@ -86,6 +81,14 @@ public:
 
   size_t get_height() const {
     return m_resource_info.height;
+  }
+
+  image_memory_requirements get_memory_requirements() const {
+    return m_device->get_image_memory_requirements(this);
+  }
+
+  void bind_memory(arena* _arena, size_t _offset) {
+    m_device->bind_image_memory(this, _arena, _offset);
   }
 
 private:

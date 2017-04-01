@@ -43,8 +43,8 @@ void d3d12_command_list::enqueue_buffer_copy(const upload_heap& _upload_heap,
 
 void d3d12_command_list::enqueue_resource_transition(
     const image& _image, resource_state _from, resource_state _to) {
-  const Microsoft::WRL::ComPtr<ID3D12Resource>& image_res =
-      _image.data_as<Microsoft::WRL::ComPtr<ID3D12Resource>>();
+  const image* img = &_image;
+  const auto& image_res = get_data(img);
 
   if (m_current_render_pass) {
     const memory::unique_ptr<const render_pass_data>& rp =
@@ -56,9 +56,9 @@ void d3d12_command_list::enqueue_resource_transition(
       const image_view* view = fb->image_views[i];
       const memory::unique_ptr<const image_view_info>& view_data =
           get_data(view);
-      const Microsoft::WRL::ComPtr<ID3D12Resource>& image_resource =
-          view_data->image->data_as<Microsoft::WRL::ComPtr<ID3D12Resource>>();
-      if (image_resource == image_res) {
+
+      const auto& im = get_data((const image*)view_data->image);
+      if (image_res->image == im->image) {
         m_active_framebuffer_resource_states[i] = _to;
         break;
       }
@@ -69,7 +69,7 @@ void d3d12_command_list::enqueue_resource_transition(
       D3D12_RESOURCE_BARRIER_TYPE_TRANSITION,  // Type
       D3D12_RESOURCE_BARRIER_FLAG_NONE,        // Flags
       D3D12_RESOURCE_TRANSITION_BARRIER{
-          image_res.Get(),                                 // pResource
+          image_res->image.Get(),                          // pResource
           D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES,         // subresource
           resource_state_to_d3d12_resource_states(_from),  // StateBefore
           resource_state_to_d3d12_resource_states(_to),    // StateAfter
@@ -81,10 +81,10 @@ void d3d12_command_list::enqueue_texture_upload(const upload_heap& _upload_heap,
     size_t _upload_offset_in_bytes, const image& _image) {
   const Microsoft::WRL::ComPtr<ID3D12Resource>& upload_res =
       _upload_heap.data_as<Microsoft::WRL::ComPtr<ID3D12Resource>>();
-  const Microsoft::WRL::ComPtr<ID3D12Resource>& image_res =
-      _image.data_as<Microsoft::WRL::ComPtr<ID3D12Resource>>();
+  const auto& image_res = get_data((const image*)&_image);
 
-  const image::image_buffer_resource_info& info = _image.get_resource_info();
+  const image::image_buffer_resource_info& info =
+      _image.get_buffer_requirements();
 
   D3D12_TEXTURE_COPY_LOCATION source = {upload_res.Get(),  // pResource
       D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT,            // Type
@@ -100,7 +100,7 @@ void d3d12_command_list::enqueue_texture_upload(const upload_heap& _upload_heap,
       }};
 
   D3D12_TEXTURE_COPY_LOCATION dest = {
-      image_res.Get(),                            // pResource
+      image_res->image.Get(),                     // pResource
       D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX,  // Type
       UINT{0}                                     // SubresourceIndex
   };
@@ -111,13 +111,12 @@ void d3d12_command_list::enqueue_texture_download(const image& _image,
     const download_heap& _download_heap, size_t _download_offset_in_bytes) {
   const Microsoft::WRL::ComPtr<ID3D12Resource>& download_res =
       _download_heap.data_as<Microsoft::WRL::ComPtr<ID3D12Resource>>();
-  const Microsoft::WRL::ComPtr<ID3D12Resource>& image_res =
-      _image.data_as<Microsoft::WRL::ComPtr<ID3D12Resource>>();
-
-  const image::image_buffer_resource_info& info = _image.get_resource_info();
+  const auto& image_res = get_data((const image*)&_image);
+  const image::image_buffer_resource_info& info =
+      _image.get_buffer_requirements();
 
   D3D12_TEXTURE_COPY_LOCATION source = {
-      image_res.Get(),                            // pResource
+      image_res->image.Get(),                     // pResource
       D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX,  // Type
       UINT{0}                                     // SubresourceIndex
   };
@@ -181,10 +180,9 @@ void d3d12_command_list::set_up_subpass() {
         const image_view* view = fb->image_views[color_attachment];
         const memory::unique_ptr<const image_view_info>& view_data =
             get_data(view);
-        const Microsoft::WRL::ComPtr<ID3D12Resource>& image_resource =
-            view_data->image->data_as<Microsoft::WRL::ComPtr<ID3D12Resource>>();
+        const auto& image_res = get_data((const image*)view_data->image);
 
-        m_command_list->DiscardResource(image_resource.Get(), nullptr);
+        m_command_list->DiscardResource(image_res->image.Get(), nullptr);
       }
     }
     if (rp->subpasses[last_subpass].depth_attachment >= 0) {
@@ -196,10 +194,9 @@ void d3d12_command_list::set_up_subpass() {
             fb->image_views[rp->subpasses[last_subpass].depth_attachment];
         const memory::unique_ptr<const image_view_info>& view_data =
             get_data(view);
-        const Microsoft::WRL::ComPtr<ID3D12Resource>& image_resource =
-            view_data->image->data_as<Microsoft::WRL::ComPtr<ID3D12Resource>>();
+        const auto& image_res = get_data((const image*)view_data->image);
 
-        m_command_list->DiscardResource(image_resource.Get(), nullptr);
+        m_command_list->DiscardResource(image_res->image.Get(), nullptr);
       }
     }
   }
@@ -213,10 +210,10 @@ void d3d12_command_list::set_up_subpass() {
       const image_view* view = fb->image_views[color_attachment];
       const memory::unique_ptr<const image_view_info>& view_data =
           get_data(view);
-      const Microsoft::WRL::ComPtr<ID3D12Resource>& image_resource =
-          view_data->image->data_as<Microsoft::WRL::ComPtr<ID3D12Resource>>();
+      const auto& image_res = get_data((const image*)view_data->image);
+
       if (attachment_desc.attachment_load_op == load_op::dont_care) {
-        m_command_list->DiscardResource(image_resource.Get(), nullptr);
+        m_command_list->DiscardResource(image_res->image.Get(), nullptr);
       }
       // TODO(awoloszyn): Maybe use the render_area from
       if (attachment_desc.attachment_load_op == load_op::clear) {
@@ -249,11 +246,10 @@ void d3d12_command_list::set_up_subpass() {
       const image_view* view = fb->image_views[depth_attachment];
       const memory::unique_ptr<const image_view_info>& view_data =
           get_data(view);
-      const Microsoft::WRL::ComPtr<ID3D12Resource>& image_resource =
-          view_data->image->data_as<Microsoft::WRL::ComPtr<ID3D12Resource>>();
+      const auto& image_res = get_data((const image*)view_data->image);
       if (attachment_desc.attachment_load_op == load_op::dont_care &&
           attachment_desc.stencil_load_op == load_op::dont_care) {
-        m_command_list->DiscardResource(image_resource.Get(), nullptr);
+        m_command_list->DiscardResource(image_res->image.Get(), nullptr);
       }
       // TODO(awoloszyn): Maybe use the render_area from
       if (attachment_desc.attachment_load_op == load_op::clear ||
@@ -293,14 +289,13 @@ void d3d12_command_list::end_render_pass() {
       const image_view* view = fb->image_views[i];
       const memory::unique_ptr<const image_view_info>& view_data =
           get_data(view);
-      const Microsoft::WRL::ComPtr<ID3D12Resource>& image_resource =
-          view_data->image->data_as<Microsoft::WRL::ComPtr<ID3D12Resource>>();
+      const auto& image_res = get_data((const image*)view_data->image);
 
       D3D12_RESOURCE_BARRIER barrier = {
           D3D12_RESOURCE_BARRIER_TYPE_TRANSITION,  // Type
           D3D12_RESOURCE_BARRIER_FLAG_NONE,        // Flags
           D3D12_RESOURCE_TRANSITION_BARRIER{
-              image_resource.Get(),                     // pResource
+              image_res->image.Get(),                   // pResource
               D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES,  // subresource
               resource_state_to_d3d12_resource_states(
                   m_active_framebuffer_resource_states[i]),  // StateBefore

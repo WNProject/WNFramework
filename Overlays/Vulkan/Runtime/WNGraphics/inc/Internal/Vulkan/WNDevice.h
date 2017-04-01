@@ -16,6 +16,7 @@
 #include "WNGraphics/inc/Internal/WNConfig.h"
 #include "WNGraphics/inc/WNArenaProperties.h"
 #include "WNGraphics/inc/WNFramebufferData.h"
+#include "WNGraphics/inc/WNGraphicsTypes.h"
 #include "WNGraphics/inc/WNHeapTraits.h"
 #include "WNGraphics/inc/WNRenderPassTypes.h"
 #include "WNLogging/inc/WNLog.h"
@@ -61,6 +62,7 @@ class graphics_pipeline_description;
 struct swapchain_create_info;
 struct descriptor_binding_info;
 struct descriptor_pool_create_info;
+struct image_memory_requirements;
 
 using queue_ptr = memory::unique_ptr<queue>;
 using command_list_ptr = memory::unique_ptr<command_list>;
@@ -152,9 +154,13 @@ protected:
   void destroy_typed_heap(HeapType* type);
 
   // image methods
-  void initialize_image(
-      const image_create_info& _info, image* _image) WN_GRAPHICS_OVERRIDE_FINAL;
+  void initialize_image(const image_create_info& _info,
+      clear_value& _optimized_clear, image* _image) WN_GRAPHICS_OVERRIDE_FINAL;
   void destroy_image(image* _image) WN_GRAPHICS_OVERRIDE_FINAL;
+  void bind_image_memory(
+      image* _image, arena* _arena, size_t _offset) WN_GRAPHICS_OVERRIDE_FINAL;
+  image_memory_requirements get_image_memory_requirements(
+      const image* _image) WN_GRAPHICS_OVERRIDE_FINAL;
 
   // command allocator methods
   void initialize_command_allocator(

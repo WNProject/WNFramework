@@ -14,6 +14,7 @@
 #include "WNGraphics/inc/WNArenaProperties.h"
 #include "WNGraphics/inc/WNDescriptorData.h"
 #include "WNGraphics/inc/WNFramebufferData.h"
+#include "WNGraphics/inc/WNGraphicsTypes.h"
 #include "WNGraphics/inc/WNHeapTraits.h"
 #include "WNGraphics/inc/WNRenderPassTypes.h"
 #include "WNLogging/inc/WNLog.h"
@@ -56,6 +57,7 @@ class swapchain;
 class render_pass;
 struct image_create_info;
 struct swapchain_create_info;
+struct image_memory_requirements;
 class graphics_pipeline_description;
 class image;
 class image_view;
@@ -154,9 +156,13 @@ protected:
   void reset_fence(fence* _fence) WN_GRAPHICS_OVERRIDE_FINAL;
 
   // image methods
-  void initialize_image(
-      const image_create_info& _info, image* _image) WN_GRAPHICS_OVERRIDE_FINAL;
+  void initialize_image(const image_create_info& _info,
+      clear_value& _optimized_clear, image* _image) WN_GRAPHICS_OVERRIDE_FINAL;
   void destroy_image(image* _image) WN_GRAPHICS_OVERRIDE_FINAL;
+  void bind_image_memory(
+      image* _image, arena* _arena, size_t _offset) WN_GRAPHICS_OVERRIDE_FINAL;
+  image_memory_requirements get_image_memory_requirements(
+      const image* _image) WN_GRAPHICS_OVERRIDE_FINAL;
 
   // Templated heap helpers
   template <typename HeapType>

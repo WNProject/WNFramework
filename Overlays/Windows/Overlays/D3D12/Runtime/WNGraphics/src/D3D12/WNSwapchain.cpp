@@ -3,6 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "WNGraphics/inc/Internal/D3D12/WNSwapchain.h"
+#include "WNGraphics/inc/Internal/D3D12/WNDataTypes.h"
 #include "WNGraphics/inc/WNImage.h"
 #include "WNGraphics/inc/WNSwapchain.h"
 
@@ -22,13 +23,12 @@ void d3d12_swapchain::initialize(memory::allocator* _allocator,
   m_images.reserve(_create_info.num_buffers);
   for (size_t i = 0; i < _create_info.num_buffers; ++i) {
     m_images.push_back(image(reinterpret_cast<device*>(m_device)));
-    image& im = m_images[i];
-    Microsoft::WRL::ComPtr<ID3D12Resource>& resource =
-        im.data_as<Microsoft::WRL::ComPtr<ID3D12Resource>>();
-    im.m_resource_info = {_create_info.format, _width, _height, 1, 0, 0, 0};
-    im.m_is_swapchain_image = true;
+    image* im = &m_images[i];
+    auto& img = get_data(im);
+    im->m_resource_info = {_create_info.format, _width, _height, 1, 0, 0, 0};
+    im->m_is_swapchain_image = true;
     m_swapchain->GetBuffer(
-        static_cast<UINT>(i), __uuidof(ID3D12Resource), &resource);
+        static_cast<UINT>(i), __uuidof(ID3D12Resource), &img->image);
   }
 }
 
@@ -48,6 +48,17 @@ void d3d12_swapchain::present_internal(
                                                                           : 0;
   HRESULT hr = m_swapchain->Present(interval, 0);
   (void)hr;
+}
+
+template <typename T>
+typename data_type<T>::value& d3d12_swapchain::get_data(T* t) {
+  return t->data_as<typename data_type<T>::value>();
+}
+
+template <typename T>
+typename data_type<const T>::value& d3d12_swapchain::get_data(
+    const T* const t) {
+  return t->data_as<typename data_type<const T>::value>();
 }
 
 }  // namespace d3d12

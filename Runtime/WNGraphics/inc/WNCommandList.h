@@ -114,8 +114,9 @@ public:
   template <typename T>
   WN_FORCE_INLINE void enqueue_copy(
       const upload_heap_buffer<T>& _upload_buffer, const image& _image) {
-    WN_DEBUG_ASSERT_DESC(_image.get_resource_info().total_memory_required <=
-                             sizeof(T) * _upload_buffer.range().size(),
+    WN_DEBUG_ASSERT_DESC(
+        _image.get_buffer_requirements().total_memory_required <=
+            sizeof(T) * _upload_buffer.range().size(),
         "The image and the upload buffer do not match");
     enqueue_texture_upload(
         *(_upload_buffer.m_heap), _upload_buffer.m_offset, _image);
@@ -124,8 +125,9 @@ public:
   template <typename T>
   WN_FORCE_INLINE void enqueue_copy(
       const image& _image, const download_heap_buffer<T>& _download_buffer) {
-    WN_DEBUG_ASSERT_DESC(_image.get_resource_info().total_memory_required <=
-                             sizeof(T) * _download_buffer.range().size(),
+    WN_DEBUG_ASSERT_DESC(
+        _image.get_buffer_requirements().total_memory_required <=
+            sizeof(T) * _download_buffer.range().size(),
         "The image and the download buffer do not match");
     enqueue_texture_download(
         _image, *(_download_buffer.m_heap), _download_buffer.m_offset);

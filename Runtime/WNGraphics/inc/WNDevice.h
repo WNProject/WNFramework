@@ -15,6 +15,7 @@
 #include "WNGraphics/inc/WNFramebufferData.h"
 #include "WNGraphics/inc/WNGraphicsEnums.h"
 #include "WNGraphics/inc/WNGraphicsPipelineDescription.h"
+#include "WNGraphics/inc/WNGraphicsTypes.h"
 #include "WNGraphics/inc/WNHeapTraits.h"
 #include "WNGraphics/inc/WNRenderPassTypes.h"
 #include "WNLogging/inc/WNLog.h"
@@ -68,6 +69,7 @@ class pipeline_layout;
 class render_pass;
 class graphics_pipeline;
 
+struct image_memory_requirements;
 struct image_create_info;
 struct swapchain_create_info;
 
@@ -116,7 +118,8 @@ public:
   shader_module create_shader_module(
       const containers::contiguous_range<const uint8_t>& bytes);
 
-  image create_image(const image_create_info& _info);
+  image create_image(
+      const image_create_info& _info, clear_value& _optimized_clear);
 
   descriptor_set_layout create_descriptor_set_layout(
       const containers::contiguous_range<const descriptor_binding_info>&
@@ -216,9 +219,14 @@ protected:
   virtual void reset_fence(fence* _fence) = 0;
 
   // Image methods
-  virtual void initialize_image(
-      const image_create_info& _info, image* _image) = 0;
+  virtual void initialize_image(const image_create_info& _info,
+      clear_value& _optimized_clear, image* _image) = 0;
   virtual void destroy_image(image* _image) = 0;
+  virtual image_memory_requirements get_image_memory_requirements(
+      const image* _image) = 0;
+
+  virtual void bind_image_memory(
+      image* _image, arena* _arena, size_t _offset) = 0;
 
   // Shader methods
   virtual void initialize_shader_module(shader_module* s,

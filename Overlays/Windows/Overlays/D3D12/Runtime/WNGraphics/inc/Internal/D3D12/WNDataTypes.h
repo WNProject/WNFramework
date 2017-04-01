@@ -13,6 +13,7 @@
 #include "WNGraphics/inc/WNArena.h"
 #include "WNGraphics/inc/WNBuffer.h"
 #include "WNGraphics/inc/WNDescriptorData.h"
+#include "WNGraphics/inc/WNGraphicsTypes.h"
 #include "WNGraphics/inc/WNImageView.h"
 #include "WNGraphics/inc/WNRenderPassTypes.h"
 #include "WNGraphics/inc/WNShaderModule.h"
@@ -233,6 +234,22 @@ struct buffer_info {
 template <>
 struct data_type<buffer> {
   using value = memory::unique_ptr<buffer_info>;
+};
+
+struct image_data {
+  D3D12_RESOURCE_DESC create_info;
+  D3D12_CLEAR_VALUE optimal_clear;
+  Microsoft::WRL::ComPtr<ID3D12Resource> image;
+};
+
+template <>
+struct data_type<image> {
+  using value = memory::unique_ptr<image_data>;
+};
+
+template <>
+struct data_type<const image> {
+  using value = const memory::unique_ptr<const image_data>;
 };
 
 }  // namespace d3d12

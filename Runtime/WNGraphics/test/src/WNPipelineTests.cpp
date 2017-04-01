@@ -107,7 +107,8 @@ TEST_F(pipeline_test, basic_pipeline) {
     wn::graphics::image_create_info create_info = {1024, 1024,
         wn::graphics::data_format::r8g8b8a8_unorm,
         static_cast<uint32_t>(wn::graphics::resource_state::render_target)};
-    wn::graphics::image image = device->create_image(create_info);
+    wn::graphics::clear_value value = {};
+    wn::graphics::image image = device->create_image(create_info, value);
     wn::graphics::image_view view = device->create_image_view(
         &image, static_cast<wn::graphics::image_components>(
                     wn::graphics::image_component::color));

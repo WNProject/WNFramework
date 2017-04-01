@@ -10,7 +10,6 @@
 #include "WNGraphics/inc/Internal/Vulkan/WNImageFormats.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNResourceStates.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNSwapchain.h"
-#include "WNGraphics/inc/Internal/Vulkan/WNVulkanImage.h"
 #include "WNGraphics/inc/WNArena.h"
 #include "WNGraphics/inc/WNBuffer.h"
 #include "WNGraphics/inc/WNCommandAllocator.h"
@@ -645,8 +644,8 @@ command_list_ptr vulkan_device::create_command_list(command_allocator* _alloc) {
 }
 
 void vulkan_device::initialize_image(
-    const image_create_info& _info, image* _image) {
-  VulkanImage& img = _image->data_as<VulkanImage>();
+    const image_create_info& _info, clear_value&, image* _image) {
+  ::VkImage& img = get_data(_image);
 
   VkImageCreateInfo create_info{
       VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,            // sType
@@ -667,33 +666,9 @@ void vulkan_device::initialize_image(
       VK_IMAGE_LAYOUT_UNDEFINED   // initialLayout
   };
 
-  if (VK_SUCCESS !=
-      vkCreateImage(m_device, &create_info, nullptr, &img.image)) {
+  if (VK_SUCCESS != vkCreateImage(m_device, &create_info, nullptr, &img)) {
     m_log->log_error("Could not create image.");
   }
-
-  VkMemoryRequirements requirements;
-  vkGetImageMemoryRequirements(m_device, img.image, &requirements);
-
-  WN_DEBUG_ASSERT_DESC(
-      (requirements.memoryTypeBits & (1 << (m_image_memory_type_index))) != 0,
-      "Unexpected memory type");
-
-  VkMemoryAllocateInfo allocate_info{
-      VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,  // sType
-      nullptr,                                 // pNext
-      requirements.size,                       // allocationSize
-      m_image_memory_type_index,               // memoryTypeIndex
-  };
-
-  if (VK_SUCCESS !=
-      vkAllocateMemory(m_device, &allocate_info, nullptr, &img.device_memory)) {
-    m_log->log_error("Could not successfully allocate device memory of size ",
-        requirements.size, ".");
-    return;
-  }
-
-  vkBindImageMemory(m_device, img.image, img.device_memory, 0);
 
   _image->m_resource_info.depth = 1;
   _image->m_resource_info.height = _info.m_height;
@@ -708,6 +683,25 @@ void vulkan_device::initialize_image(
   _image->m_resource_info.format = _info.m_format;
 }
 
+void vulkan_device::bind_image_memory(
+    image* _image, arena* _arena, size_t _offset) {
+  ::VkImage image = get_data(_image);
+  ::VkDeviceMemory memory = get_data(_arena);
+
+  if (VK_SUCCESS != vkBindImageMemory(m_device, image, memory, _offset)) {
+    m_log->log_error("Can not bind image memory");
+  }
+}
+
+image_memory_requirements vulkan_device::get_image_memory_requirements(
+    const image* _image) {
+  ::VkImage image = get_data(_image);
+  VkMemoryRequirements requirements;
+  vkGetImageMemoryRequirements(m_device, image, &requirements);
+  return image_memory_requirements{static_cast<uint32_t>(requirements.size),
+      static_cast<uint32_t>(requirements.alignment)};
+}
+
 // TODO(awoloszyn): As far as I can tell, Vulkan
 // has no alignment requirements for buffers. Should probably
 // double check this to make sure
@@ -720,9 +714,8 @@ size_t vulkan_device::get_buffer_upload_buffer_alignment() {
 }
 
 void vulkan_device::destroy_image(image* _image) {
-  VulkanImage& img = _image->data_as<VulkanImage>();
-  vkFreeMemory(m_device, img.device_memory, nullptr);
-  vkDestroyImage(m_device, img.image, nullptr);
+  ::VkImage& img = get_data(_image);
+  vkDestroyImage(m_device, img, nullptr);
 }
 
 swapchain_ptr vulkan_device::create_swapchain(
@@ -1142,17 +1135,17 @@ void vulkan_device::destroy_render_pass(render_pass* _pass) {
 void vulkan_device::initialize_image_view(
     image_view* _view, const image* _image) {
   ::VkImageView& view = get_data(_view);
-  const VulkanImage& img = _image->data_as<VulkanImage>();
+  const ::VkImage& img = get_data(_image);
   // TODO(awoloszyn): Update this for multi-dimensional views
   // and mip-maps.
   VkImageViewCreateInfo create_info = {
       VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,  // sType
       nullptr,                                   // pNext
       0,                                         // flags
-      img.image,                                 // image
+      img,                                       // image
       VK_IMAGE_VIEW_TYPE_2D,                     // viewType
       image_format_to_vulkan_format(
-          _image->get_resource_info().format),  // format
+          _image->get_buffer_requirements().format),  // format
       {VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY,
           VK_COMPONENT_SWIZZLE_IDENTITY,
           VK_COMPONENT_SWIZZLE_IDENTITY},  // components

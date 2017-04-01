@@ -2,13 +2,15 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNGraphics/inc/WNImage.h"
+#include "WNGraphics/inc/WNArena.h"
+#include "WNGraphics/inc/WNArenaProperties.h"
 #include "WNGraphics/inc/WNCommandAllocator.h"
 #include "WNGraphics/inc/WNCommandList.h"
 #include "WNGraphics/inc/WNDevice.h"
 #include "WNGraphics/inc/WNFactory.h"
 #include "WNGraphics/inc/WNFence.h"
 #include "WNGraphics/inc/WNHeap.h"
+#include "WNGraphics/inc/WNImage.h"
 #include "WNGraphics/inc/WNQueue.h"
 #include "WNGraphics/test/inc/WNTestFixture.h"
 
@@ -32,16 +34,32 @@ TEST_P(image_transfer_tests, many_sizes) {
     wn::graphics::command_allocator alloc = device->create_command_allocator();
     wn::graphics::command_list_ptr list = alloc.create_command_list();
     wn::graphics::fence completion_fence = device->create_fence();
+    wn::graphics::clear_value value{};
 
     wn::graphics::image image = device->create_image(
-        wn::graphics::image_create_info{GetParam(), GetParam()});
+        wn::graphics::image_create_info{GetParam(), GetParam()}, value);
+    wn::graphics::image_memory_requirements reqs =
+        image.get_memory_requirements();
+
+    // Time to find an image arena
+    wn::containers::contiguous_range<const wn::graphics::arena_properties>
+        properties = device->get_arena_properties();
+    size_t idx = 0;
+    for (idx = 0; idx < properties.size(); ++idx) {
+      if (properties[idx].allow_images && properties[idx].device_local) {
+        break;
+      }
+    }
+    ASSERT_NE(properties.size(), idx);
+    wn::graphics::arena image_arena = device->create_arena(idx, reqs.size);
+    image.bind_memory(&image_arena, 0);
 
     list->enqueue_resource_transition(image,
         wn::graphics::resource_state::initial,
         wn::graphics::resource_state::copy_dest);
 
     const wn::graphics::image::image_buffer_resource_info& resource_info =
-        image.get_resource_info();
+        image.get_buffer_requirements();
 
     wn::graphics::download_heap_buffer<uint8_t> download_buffer =
         download.get_range(0, resource_info.total_memory_required);
@@ -135,16 +153,34 @@ TEST_P(image_transfer_with_offset_tests, several_offsets) {
     wn::graphics::command_list_ptr list = alloc.create_command_list();
     wn::graphics::fence completion_fence = device->create_fence();
 
-    wn::graphics::image image =
-        device->create_image(wn::graphics::image_create_info{
-            std::get<1>(GetParam()), std::get<1>(GetParam())});
+    wn::graphics::clear_value clear = {};
+    wn::graphics::image image = device->create_image(
+        wn::graphics::image_create_info{
+            std::get<1>(GetParam()), std::get<1>(GetParam())},
+        clear);
+
+    wn::graphics::image_memory_requirements reqs =
+        image.get_memory_requirements();
+
+    // Time to find an image arena
+    wn::containers::contiguous_range<const wn::graphics::arena_properties>
+        properties = device->get_arena_properties();
+    size_t idx = 0;
+    for (idx = 0; idx < properties.size(); ++idx) {
+      if (properties[idx].allow_images && properties[idx].device_local) {
+        break;
+      }
+    }
+    ASSERT_NE(properties.size(), idx);
+    wn::graphics::arena image_arena = device->create_arena(idx, reqs.size);
+    image.bind_memory(&image_arena, 0);
 
     list->enqueue_resource_transition(image,
         wn::graphics::resource_state::initial,
         wn::graphics::resource_state::copy_dest);
 
     const wn::graphics::image::image_buffer_resource_info& resource_info =
-        image.get_resource_info();
+        image.get_buffer_requirements();
 
     const size_t buffer_offset =
         device->get_image_upload_buffer_alignment() * std::get<0>(GetParam());
@@ -214,5 +250,5 @@ TEST_P(image_transfer_with_offset_tests, several_offsets) {
 }
 
 INSTANTIATE_TEST_CASE_P(large_values, image_transfer_with_offset_tests,
-    ::testing::Combine(::testing::Values(1, 7, 10),
-                            ::testing::Values(10, 37, 128)));
+    ::testing::Combine(
+        ::testing::Values(1, 7, 10), ::testing::Values(10, 37, 128)));

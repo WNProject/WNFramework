@@ -3,9 +3,9 @@
 // found in the LICENSE.txt file.
 
 #include "WNGraphics/inc/Internal/Vulkan/WNSwapchain.h"
+#include "WNGraphics/inc/Internal/Vulkan/WNDataTypes.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNDevice.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNQueue.h"
-#include "WNGraphics/inc/Internal/Vulkan/WNVulkanImage.h"
 #include "WNGraphics/inc/WNImage.h"
 #include "WNGraphics/inc/WNSwapchain.h"
 
@@ -13,6 +13,9 @@ namespace wn {
 namespace graphics {
 namespace internal {
 namespace vulkan {
+#define get_data(f)                                                            \
+  f->data_as<                                                                  \
+      typename data_type<core::remove_pointer<decltype(f)>::type>::value>()
 
 void vulkan_swapchain::initialize(memory::allocator* _allocator,
     vulkan_device* _device, uint32_t _width, uint32_t _height,
@@ -31,17 +34,17 @@ void vulkan_swapchain::initialize(memory::allocator* _allocator,
       m_device->m_device, m_swapchain, &num_buffers, images.data());
   for (size_t i = 0; i < num_buffers; ++i) {
     m_images.push_back(image(reinterpret_cast<device*>(m_device)));
-    image& image = m_images.back();
-    image.m_resource_info.depth = 1;
-    image.m_resource_info.height = _height;
-    image.m_resource_info.width = _width;
-    image.m_resource_info.offset_in_bytes = 0;
-    image.m_resource_info.row_pitch_in_bytes = 0;
-    image.m_resource_info.total_memory_required = 0;
-    image.m_resource_info.format = _create_info.format;
-    image.m_is_swapchain_image = true;
-    VulkanImage& img = image.data_as<VulkanImage>();
-    img.image = images[i];
+    image* image = &m_images.back();
+    image->m_resource_info.depth = 1;
+    image->m_resource_info.height = _height;
+    image->m_resource_info.width = _width;
+    image->m_resource_info.offset_in_bytes = 0;
+    image->m_resource_info.row_pitch_in_bytes = 0;
+    image->m_resource_info.total_memory_required = 0;
+    image->m_resource_info.format = _create_info.format;
+    image->m_is_swapchain_image = true;
+    ::VkImage& img = get_data(image);
+    img = images[i];
   }
 }
 
@@ -69,6 +72,8 @@ void vulkan_swapchain::present_internal(
   vulkan_queue* queue = reinterpret_cast<vulkan_queue*>(q);
   queue->present(m_swapchain, index);
 }
+
+#undef get_data
 
 }  // namespace vulkan
 }  // namespace internal

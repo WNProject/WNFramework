@@ -142,6 +142,16 @@ struct data_type<buffer> {
   using value = memory::unique_ptr<buffer_info>;
 };
 
+template <>
+struct data_type<image> {
+  using value = ::VkImage;
+};
+
+template <>
+struct data_type<const image> {
+  using value = const ::VkImage;
+};
+
 }  // namespace vulkan
 }  // namespace internal
 }  // namespace graphics

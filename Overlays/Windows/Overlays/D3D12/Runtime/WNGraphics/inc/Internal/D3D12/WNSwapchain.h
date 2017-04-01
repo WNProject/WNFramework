@@ -16,6 +16,7 @@
 #endif
 
 #include "WNContainers/inc/WNDynamicArray.h"
+#include "WNGraphics/inc/Internal/D3D12/WNDataTypes.h"
 #include "WNGraphics/inc/WNImage.h"
 
 #include <d3d12.h>
@@ -49,6 +50,12 @@ public:
 
 protected:
   friend class d3d12_device;
+
+  template <typename T>
+  typename data_type<T>::value& get_data(T* t);
+
+  template <typename T>
+  typename data_type<const T>::value& get_data(const T* const t);
 
   WN_FORCE_INLINE d3d12_swapchain()
     : d3d12_swapchain_base(), m_device(nullptr) {}

@@ -35,6 +35,21 @@ struct render_area {
   uint32_t height;
 };
 
+struct image_create_info {
+  static image_create_info default_texture(size_t _width, size_t _height) {
+    return image_create_info{_width, _height, data_format::r8g8b8a8_unorm,
+        static_cast<resource_states>(resource_state::texture)};
+  }
+
+  size_t m_width;
+  size_t m_height;
+  data_format m_format;
+  resource_states m_valid_resource_states;  // Bit-flags of the image type.
+  // TODO(awoloszyn): Add mip-levels
+  // TODO(awoloszyn): Add Depth/Array Size
+  // TODO(awoloszyn): Add Multisample information
+};
+
 }  // namespace graphics
 }  // namespace wn
 

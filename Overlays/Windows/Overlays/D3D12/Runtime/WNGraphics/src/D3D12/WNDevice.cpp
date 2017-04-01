@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNGraphics/inc/Internal/D3D12/WNDevice.h"
 #include "WNContainers/inc/WNDeque.h"
 #include "WNGraphics/inc/Internal/D3D12/WNCommandList.h"
 #include "WNGraphics/inc/Internal/D3D12/WNDataTypes.h"
+#include "WNGraphics/inc/Internal/D3D12/WNDevice.h"
 #include "WNGraphics/inc/Internal/D3D12/WNFenceData.h"
 #include "WNGraphics/inc/Internal/D3D12/WNImageFormats.h"
 #include "WNGraphics/inc/Internal/D3D12/WNResourceStates.h"
@@ -375,12 +375,11 @@ void d3d12_device::reset_fence(fence* _fence) {
 #endif
 }
 
-void d3d12_device::initialize_image(
-    const image_create_info& _info, image* _image) {
-  Microsoft::WRL::ComPtr<ID3D12Resource>& resource =
-      _image->data_as<Microsoft::WRL::ComPtr<ID3D12Resource>>();
-
-  D3D12_RESOURCE_DESC texture_desc = {
+void d3d12_device::initialize_image(const image_create_info& _info,
+    clear_value& _optimized_clear, image* _image) {
+  memory::unique_ptr<image_data>& data = get_data(_image);
+  data = memory::make_unique<image_data>(m_allocator);
+  data->create_info = {
       D3D12_RESOURCE_DIMENSION_TEXTURE2D,           // Dimension
       0,                                            // Alignment
       static_cast<UINT>(_info.m_width),             // Width
@@ -397,22 +396,13 @@ void d3d12_device::initialize_image(
           _info.m_valid_resource_states)  // Flags
   };
 
-  const HRESULT hr = m_device->CreateCommittedResource(&s_default_heap_props,
-      D3D12_HEAP_FLAG_NONE, &texture_desc, D3D12_RESOURCE_STATE_COMMON, nullptr,
-      __uuidof(ID3D12Resource), &resource);
-
-  if (FAILED(hr)) {
-    m_log->log_error("Could not successfully create texture of size (",
-        _info.m_width, "x", _info.m_height, ").");
-  }
-
   uint64_t required_size = 0;
   D3D12_PLACED_SUBRESOURCE_FOOTPRINT layout;
   uint32_t num_rows;
   uint64_t row_sizes_in_bytes;
 
-  m_device->GetCopyableFootprints(&texture_desc, 0, 1, 0, &layout, &num_rows,
-      &row_sizes_in_bytes, &required_size);
+  m_device->GetCopyableFootprints(&data->create_info, 0, 1, 0, &layout,
+      &num_rows, &row_sizes_in_bytes, &required_size);
 
   _image->m_resource_info.depth = 1;
   _image->m_resource_info.height = _info.m_height;
@@ -423,6 +413,62 @@ void d3d12_device::initialize_image(
   _image->m_resource_info.total_memory_required =
       static_cast<size_t>(required_size);
   _image->m_resource_info.format = _info.m_format;
+  data->optimal_clear.Format = image_format_to_dxgi_format(_info.m_format);
+
+  if (is_format_normalized(_info.m_format)) {
+    memory::memory_copy(&data->optimal_clear.Color[0],
+        &_optimized_clear.color.float_vals[0], 4);
+  } else if (is_format_int(_info.m_format)) {
+    data->optimal_clear.Color[0] =
+        static_cast<float>(_optimized_clear.color.int_vals[0]);
+    data->optimal_clear.Color[1] =
+        static_cast<float>(_optimized_clear.color.int_vals[1]);
+    data->optimal_clear.Color[2] =
+        static_cast<float>(_optimized_clear.color.int_vals[2]);
+    data->optimal_clear.Color[3] =
+        static_cast<float>(_optimized_clear.color.int_vals[3]);
+  } else if (is_format_uint(_info.m_format)) {
+    data->optimal_clear.Color[0] =
+        static_cast<float>(_optimized_clear.color.uint_vals[0]);
+    data->optimal_clear.Color[1] =
+        static_cast<float>(_optimized_clear.color.uint_vals[1]);
+    data->optimal_clear.Color[2] =
+        static_cast<float>(_optimized_clear.color.uint_vals[2]);
+    data->optimal_clear.Color[3] =
+        static_cast<float>(_optimized_clear.color.uint_vals[3]);
+  } else if (is_format_depth_stencil(_info.m_format)) {
+    data->optimal_clear.DepthStencil.Depth = _optimized_clear.depth.depth;
+    data->optimal_clear.DepthStencil.Stencil =
+        static_cast<uint8_t>(_optimized_clear.depth.stencil);
+  }
+}
+
+void d3d12_device::bind_image_memory(
+    image* _image, arena* _arena, size_t _offset) {
+  memory::unique_ptr<image_data>& data = get_data(_image);
+  Microsoft::WRL::ComPtr<ID3D12Heap>& heap = get_data(_arena);
+
+  const bool use_clear = (data->create_info.Flags &
+                             (D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET |
+                                 D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL)) != 0;
+
+  const HRESULT hr = m_device->CreatePlacedResource(heap.Get(), _offset,
+      &data->create_info, D3D12_RESOURCE_STATE_COMMON,
+      use_clear ? &data->optimal_clear : nullptr, __uuidof(ID3D12Resource),
+      &data->image);
+
+  if (FAILED(hr)) {
+    m_log->log_error("Could not successfully bind memory");
+  }
+}
+
+image_memory_requirements d3d12_device::get_image_memory_requirements(
+    const image* _image) {
+  const memory::unique_ptr<const image_data>& data = get_data(_image);
+  D3D12_RESOURCE_ALLOCATION_INFO info =
+      m_device->GetResourceAllocationInfo(0, 1, &data->create_info);
+  return image_memory_requirements{static_cast<size_t>(info.SizeInBytes),
+      static_cast<size_t>(info.Alignment)};
 }
 
 // TODO(awoloszyn): D3D12 guarantees that 64k will work
@@ -439,9 +485,7 @@ size_t d3d12_device::get_buffer_upload_buffer_alignment() {
 }
 
 void d3d12_device::destroy_image(image* _image) {
-  Microsoft::WRL::ComPtr<ID3D12Resource>& resource =
-      _image->data_as<Microsoft::WRL::ComPtr<ID3D12Resource>>();
-  resource.Reset();
+  memory::unique_ptr<image_data> data = core::move(get_data(_image));
 }
 
 swapchain_ptr d3d12_device::create_swapchain(const swapchain_create_info& _info,
@@ -827,8 +871,8 @@ void d3d12_device::initialize_framebuffer(
       const Microsoft::WRL::ComPtr<ID3D12Resource>& resource =
           info->image->data_as<Microsoft::WRL::ComPtr<ID3D12Resource>>();
 
-      rtv.Format =
-          image_format_to_dxgi_format(info->image->get_resource_info().format);
+      rtv.Format = image_format_to_dxgi_format(
+          info->image->get_buffer_requirements().format);
 
       m_device->CreateRenderTargetView(resource.Get(), &rtv,
           m_rtv_heap.get_handle_at(
@@ -843,8 +887,8 @@ void d3d12_device::initialize_framebuffer(
 
       const Microsoft::WRL::ComPtr<ID3D12Resource>& resource =
           info->image->data_as<Microsoft::WRL::ComPtr<ID3D12Resource>>();
-      dsv.Format =
-          image_format_to_dxgi_format(info->image->get_resource_info().format);
+      dsv.Format = image_format_to_dxgi_format(
+          info->image->get_buffer_requirements().format);
 
       m_device->CreateDepthStencilView(resource.Get(), &dsv,
           m_dsv_heap.get_handle_at(
@@ -1172,13 +1216,12 @@ bool d3d12_device::initialize(memory::allocator* _allocator, logging::log* _log,
       switch (heap_properties.CPUPageProperty) {
         case D3D12_CPU_PAGE_PROPERTY_NOT_AVAILABLE:
           device_local = true;
-
           break;
         case D3D12_CPU_PAGE_PROPERTY_WRITE_BACK:
           host_cached = true;
+        // Fallthrough
         case D3D12_CPU_PAGE_PROPERTY_WRITE_COMBINE:
           host_visible = true;
-
           break;
         default:
           return false;

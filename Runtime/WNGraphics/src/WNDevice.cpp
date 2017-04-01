@@ -11,6 +11,7 @@
 #include "WNGraphics/inc/WNFence.h"
 #include "WNGraphics/inc/WNFramebuffer.h"
 #include "WNGraphics/inc/WNGraphicsPipeline.h"
+#include "WNGraphics/inc/WNGraphicsTypes.h"
 #include "WNGraphics/inc/WNHeap.h"
 #include "WNGraphics/inc/WNHeapTraits.h"
 #include "WNGraphics/inc/WNImage.h"
@@ -54,9 +55,10 @@ fence device::create_fence() {
   return core::move(new_fence);
 }
 
-image device::create_image(const image_create_info& _info) {
+image device::create_image(
+    const image_create_info& _info, clear_value& _optimized_clear) {
   image new_image(this);
-  initialize_image(_info, &new_image);
+  initialize_image(_info, _optimized_clear, &new_image);
   return core::move(new_image);
 }
 
