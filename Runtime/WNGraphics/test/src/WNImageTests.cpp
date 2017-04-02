@@ -4,12 +4,12 @@
 
 #include "WNGraphics/inc/WNArena.h"
 #include "WNGraphics/inc/WNArenaProperties.h"
+#include "WNGraphics/inc/WNBuffer.h"
 #include "WNGraphics/inc/WNCommandAllocator.h"
 #include "WNGraphics/inc/WNCommandList.h"
 #include "WNGraphics/inc/WNDevice.h"
 #include "WNGraphics/inc/WNFactory.h"
 #include "WNGraphics/inc/WNFence.h"
-#include "WNGraphics/inc/WNHeap.h"
 #include "WNGraphics/inc/WNImage.h"
 #include "WNGraphics/inc/WNQueue.h"
 #include "WNGraphics/test/inc/WNTestFixture.h"
@@ -24,11 +24,40 @@ TEST_P(image_transfer_tests, many_sizes) {
     ASSERT_NE(nullptr, device);
     // Everything should fit into a 16MB buffer.
     const size_t buffer_size = 16 * 1024 * 1024;
-    wn::graphics::upload_heap upload = device->create_upload_heap(buffer_size);
-    wn::graphics::download_heap download =
-        device->create_download_heap(buffer_size);
-    ASSERT_TRUE(upload.is_valid());
-    ASSERT_TRUE(download.is_valid());
+
+    // Time to find an image arena
+    wn::containers::contiguous_range<const wn::graphics::arena_properties>
+        properties = device->get_arena_properties();
+
+    size_t idx = 0;
+    for (idx = 0; idx < properties.size(); ++idx) {
+      if (properties[idx].allow_buffers && properties[idx].host_visible) {
+        break;
+      }
+    }
+
+    wn::graphics::buffer src_buffer = device->create_buffer(buffer_size,
+        static_cast<wn::graphics::resource_states>(
+            static_cast<uint32_t>(wn::graphics::resource_state::host_read) |
+            static_cast<uint32_t>(wn::graphics::resource_state::host_write) |
+            static_cast<uint32_t>(wn::graphics::resource_state::copy_source)));
+
+    wn::graphics::buffer dst_buffer = device->create_buffer(buffer_size,
+        static_cast<wn::graphics::resource_states>(
+            static_cast<uint32_t>(wn::graphics::resource_state::host_read) |
+            static_cast<uint32_t>(wn::graphics::resource_state::host_write) |
+            static_cast<uint32_t>(wn::graphics::resource_state::copy_dest)));
+
+    wn::graphics::buffer_memory_requirements src_reqs =
+        src_buffer.get_memory_requirements();
+    wn::graphics::buffer_memory_requirements dst_reqs =
+        dst_buffer.get_memory_requirements();
+
+    wn::graphics::arena src_arena = device->create_arena(idx, src_reqs.size);
+    src_buffer.bind_memory(&src_arena, 0);
+
+    wn::graphics::arena dst_arena = device->create_arena(idx, dst_reqs.size);
+    dst_buffer.bind_memory(&dst_arena, 0);
 
     wn::graphics::queue_ptr queue = device->create_queue();
     wn::graphics::command_allocator alloc = device->create_command_allocator();
@@ -37,14 +66,17 @@ TEST_P(image_transfer_tests, many_sizes) {
     wn::graphics::clear_value value{};
 
     wn::graphics::image image = device->create_image(
-        wn::graphics::image_create_info{GetParam(), GetParam()}, value);
+        wn::graphics::image_create_info{GetParam(), GetParam(),
+            wn::graphics::data_format::r8g8b8a8_unorm,
+            static_cast<wn::graphics::resource_states>(
+                static_cast<uint32_t>(
+                    wn::graphics::resource_state::copy_source) |
+                static_cast<uint32_t>(
+                    wn::graphics::resource_state::copy_dest))},
+        value);
     wn::graphics::image_memory_requirements reqs =
         image.get_memory_requirements();
 
-    // Time to find an image arena
-    wn::containers::contiguous_range<const wn::graphics::arena_properties>
-        properties = device->get_arena_properties();
-    size_t idx = 0;
     for (idx = 0; idx < properties.size(); ++idx) {
       if (properties[idx].allow_images && properties[idx].device_local) {
         break;
@@ -54,70 +86,62 @@ TEST_P(image_transfer_tests, many_sizes) {
     wn::graphics::arena image_arena = device->create_arena(idx, reqs.size);
     image.bind_memory(&image_arena, 0);
 
-    list->enqueue_resource_transition(image,
-        wn::graphics::resource_state::initial,
-        wn::graphics::resource_state::copy_dest);
-
     const wn::graphics::image::image_buffer_resource_info& resource_info =
         image.get_buffer_requirements();
 
-    wn::graphics::download_heap_buffer<uint8_t> download_buffer =
-        download.get_range(0, resource_info.total_memory_required);
-    {
-      wn::graphics::upload_heap_buffer<uint8_t> upload_buffer =
-          upload.get_range<uint8_t>(resource_info.offset_in_bytes,
-              resource_info.total_memory_required);
+    void* src_data = src_buffer.map();
+    ASSERT_NE(src_data, nullptr);
 
-      for (size_t y = 0; y < GetParam(); ++y) {
-        for (size_t x = 0; x < GetParam(); ++x) {
-          upload_buffer.range()[y * resource_info.row_pitch_in_bytes + 4 * x] =
-              (x + y) % 0xFF;
-          upload_buffer
-              .range()[y * resource_info.row_pitch_in_bytes + 4 * x + 1] =
-              y & 0xFF;
-          upload_buffer
-              .range()[y * resource_info.row_pitch_in_bytes + 4 * x + 2] = 0x00;
-          upload_buffer
-              .range()[y * resource_info.row_pitch_in_bytes + 4 * x + 3] = 0xFF;
-        }
+    uint8_t* src_memory = static_cast<uint8_t*>(src_data);
+
+    for (size_t y = 0; y < GetParam(); ++y) {
+      for (size_t x = 0; x < GetParam(); ++x) {
+        src_memory[y * resource_info.row_pitch_in_bytes + 4 * x] =
+            (x + y) % 0xFF;
+        src_memory[y * resource_info.row_pitch_in_bytes + 4 * x + 1] = y & 0xFF;
+        src_memory[y * resource_info.row_pitch_in_bytes + 4 * x + 2] = 0x00;
+        src_memory[y * resource_info.row_pitch_in_bytes + 4 * x + 3] = 0xFF;
       }
-
-      list->enqueue_barrier(upload_buffer);
-      list->enqueue_copy(upload_buffer, image);
-      list->enqueue_resource_transition(image,
-          wn::graphics::resource_state::copy_dest,
-          wn::graphics::resource_state::copy_source);
-      list->enqueue_copy(image, download_buffer);
-      list->enqueue_barrier(download_buffer);
-      list->finalize();
-
-      upload_buffer.synchronize();
     }
+    src_buffer.unmap();
+
+    list->transition_resource(src_buffer,
+        wn::graphics::resource_state::host_write,
+        wn::graphics::resource_state::copy_source);
+    list->transition_resource(dst_buffer, wn::graphics::resource_state::initial,
+        wn::graphics::resource_state::copy_dest);
+    list->transition_resource(image, wn::graphics::resource_state::initial,
+        wn::graphics::resource_state::copy_dest);
+    list->copy_buffer_to_image(src_buffer, 0, image);
+    list->transition_resource(image, wn::graphics::resource_state::copy_dest,
+        wn::graphics::resource_state::copy_source);
+    list->copy_image_to_buffer(image, dst_buffer, 0);
+    list->transition_resource(dst_buffer,
+        wn::graphics::resource_state::copy_dest,
+        wn::graphics::resource_state::host_read);
+
+    list->finalize();
 
     queue->enqueue_command_list(list.get());
     queue->enqueue_fence(completion_fence);
 
     completion_fence.wait();
 
-    download_buffer.synchronize();
+    void* dst_data = dst_buffer.map();
+    ASSERT_NE(dst_data, nullptr);
+
+    uint8_t* dst_memory = static_cast<uint8_t*>(dst_data);
 
     for (size_t y = 0; y < GetParam(); ++y) {
       for (size_t x = 0; x < GetParam(); ++x) {
-        EXPECT_EQ(download_buffer
-                      .range()[y * resource_info.row_pitch_in_bytes + 4 * x],
+        ASSERT_EQ(dst_memory[y * resource_info.row_pitch_in_bytes + 4 * x],
             (x + y) % 0xFF);
-        EXPECT_EQ(
-            download_buffer
-                .range()[y * resource_info.row_pitch_in_bytes + 4 * x + 1],
+        ASSERT_EQ(dst_memory[y * resource_info.row_pitch_in_bytes + 4 * x + 1],
             y & 0xFF);
-        EXPECT_EQ(
-            download_buffer
-                .range()[y * resource_info.row_pitch_in_bytes + 4 * x + 2],
-            0x00);
-        EXPECT_EQ(
-            download_buffer
-                .range()[y * resource_info.row_pitch_in_bytes + 4 * x + 3],
-            0xFF);
+        ASSERT_EQ(
+            dst_memory[y * resource_info.row_pitch_in_bytes + 4 * x + 2], 0x00);
+        ASSERT_EQ(
+            dst_memory[y * resource_info.row_pitch_in_bytes + 4 * x + 3], 0xFF);
       }
     }
   }
@@ -139,33 +163,61 @@ TEST_P(image_transfer_with_offset_tests, several_offsets) {
   for (auto& adapter : device_factory.query_adapters()) {
     wn::graphics::device_ptr device = adapter->make_device(&m_allocator, m_log);
     ASSERT_NE(nullptr, device);
-
     // Everything should fit into a 16MB buffer.
     const size_t buffer_size = 16 * 1024 * 1024;
-    wn::graphics::upload_heap upload = device->create_upload_heap(buffer_size);
-    wn::graphics::download_heap download =
-        device->create_download_heap(buffer_size);
-    ASSERT_TRUE(upload.is_valid());
-    ASSERT_TRUE(download.is_valid());
+
+    // Time to find an image arena
+    wn::containers::contiguous_range<const wn::graphics::arena_properties>
+        properties = device->get_arena_properties();
+
+    size_t idx = 0;
+    for (idx = 0; idx < properties.size(); ++idx) {
+      if (properties[idx].allow_buffers && properties[idx].host_visible) {
+        break;
+      }
+    }
+
+    wn::graphics::buffer src_buffer = device->create_buffer(buffer_size,
+        static_cast<wn::graphics::resource_states>(
+            static_cast<uint32_t>(wn::graphics::resource_state::host_read) |
+            static_cast<uint32_t>(wn::graphics::resource_state::host_write) |
+            static_cast<uint32_t>(wn::graphics::resource_state::copy_source)));
+
+    wn::graphics::buffer dst_buffer = device->create_buffer(buffer_size,
+        static_cast<wn::graphics::resource_states>(
+            static_cast<uint32_t>(wn::graphics::resource_state::host_read) |
+            static_cast<uint32_t>(wn::graphics::resource_state::host_write) |
+            static_cast<uint32_t>(wn::graphics::resource_state::copy_dest)));
+
+    wn::graphics::buffer_memory_requirements src_reqs =
+        src_buffer.get_memory_requirements();
+    wn::graphics::buffer_memory_requirements dst_reqs =
+        dst_buffer.get_memory_requirements();
+
+    wn::graphics::arena src_arena = device->create_arena(idx, src_reqs.size);
+    src_buffer.bind_memory(&src_arena, 0);
+
+    wn::graphics::arena dst_arena = device->create_arena(idx, dst_reqs.size);
+    dst_buffer.bind_memory(&dst_arena, 0);
 
     wn::graphics::queue_ptr queue = device->create_queue();
     wn::graphics::command_allocator alloc = device->create_command_allocator();
     wn::graphics::command_list_ptr list = alloc.create_command_list();
     wn::graphics::fence completion_fence = device->create_fence();
+    wn::graphics::clear_value value{};
 
-    wn::graphics::clear_value clear = {};
     wn::graphics::image image = device->create_image(
-        wn::graphics::image_create_info{
-            std::get<1>(GetParam()), std::get<1>(GetParam())},
-        clear);
-
+        wn::graphics::image_create_info{std::get<1>(GetParam()),
+            std::get<1>(GetParam()), wn::graphics::data_format::r8g8b8a8_unorm,
+            static_cast<wn::graphics::resource_states>(
+                static_cast<uint32_t>(
+                    wn::graphics::resource_state::copy_source) |
+                static_cast<uint32_t>(
+                    wn::graphics::resource_state::copy_dest))},
+        value);
     wn::graphics::image_memory_requirements reqs =
         image.get_memory_requirements();
 
-    // Time to find an image arena
-    wn::containers::contiguous_range<const wn::graphics::arena_properties>
-        properties = device->get_arena_properties();
-    size_t idx = 0;
     for (idx = 0; idx < properties.size(); ++idx) {
       if (properties[idx].allow_images && properties[idx].device_local) {
         break;
@@ -175,75 +227,71 @@ TEST_P(image_transfer_with_offset_tests, several_offsets) {
     wn::graphics::arena image_arena = device->create_arena(idx, reqs.size);
     image.bind_memory(&image_arena, 0);
 
-    list->enqueue_resource_transition(image,
-        wn::graphics::resource_state::initial,
+    list->transition_resource(image, wn::graphics::resource_state::initial,
         wn::graphics::resource_state::copy_dest);
 
     const wn::graphics::image::image_buffer_resource_info& resource_info =
         image.get_buffer_requirements();
 
+    void* src_data = src_buffer.map();
+    ASSERT_NE(src_data, nullptr);
+
     const size_t buffer_offset =
         device->get_image_upload_buffer_alignment() * std::get<0>(GetParam());
 
-    wn::graphics::download_heap_buffer<uint8_t> download_buffer =
-        download.get_range(buffer_offset + resource_info.offset_in_bytes,
-            resource_info.total_memory_required);
-    {
-      wn::graphics::upload_heap_buffer<uint8_t> upload_buffer =
-          upload.get_range<uint8_t>(
-              buffer_offset + resource_info.offset_in_bytes,
-              resource_info.total_memory_required);
-      for (size_t y = 0; y < std::get<1>(GetParam()); ++y) {
-        for (size_t x = 0; x < std::get<1>(GetParam()); ++x) {
-          upload_buffer.range()[y * resource_info.row_pitch_in_bytes + 4 * x] =
-              (x + y) & 0xFF;
-          upload_buffer
-              .range()[y * resource_info.row_pitch_in_bytes + 4 * x + 1] =
-              (y & 0xFF);
-          upload_buffer
-              .range()[y * resource_info.row_pitch_in_bytes + 4 * x + 2] = 0x00;
-          upload_buffer
-              .range()[y * resource_info.row_pitch_in_bytes + 4 * x + 3] = 0xFF;
-        }
+    uint8_t* src_memory = static_cast<uint8_t*>(src_data) + buffer_offset;
+
+    for (size_t y = 0; y < std::get<1>(GetParam()); ++y) {
+      for (size_t x = 0; x < std::get<1>(GetParam()); ++x) {
+        src_memory[y * resource_info.row_pitch_in_bytes + 4 * x] =
+            (x + y) % 0xFF;
+        src_memory[y * resource_info.row_pitch_in_bytes + 4 * x + 1] = y & 0xFF;
+        src_memory[y * resource_info.row_pitch_in_bytes + 4 * x + 2] = 0x00;
+        src_memory[y * resource_info.row_pitch_in_bytes + 4 * x + 3] = 0xFF;
       }
-
-      list->enqueue_barrier(upload_buffer);
-      list->enqueue_copy(upload_buffer, image);
-      list->enqueue_resource_transition(image,
-          wn::graphics::resource_state::copy_dest,
-          wn::graphics::resource_state::copy_source);
-      list->enqueue_copy(image, download_buffer);
-      list->enqueue_barrier(download_buffer);
-      list->finalize();
-
-      upload_buffer.synchronize();
     }
+    src_buffer.unmap();
+
+    list->transition_resource(src_buffer,
+        wn::graphics::resource_state::host_write,
+        wn::graphics::resource_state::copy_source);
+    list->transition_resource(dst_buffer, wn::graphics::resource_state::initial,
+        wn::graphics::resource_state::copy_dest);
+    list->transition_resource(image, wn::graphics::resource_state::initial,
+        wn::graphics::resource_state::copy_dest);
+    list->copy_buffer_to_image(src_buffer, buffer_offset, image);
+    list->transition_resource(image, wn::graphics::resource_state::copy_dest,
+        wn::graphics::resource_state::copy_source);
+    list->copy_image_to_buffer(image, dst_buffer, buffer_offset);
+    list->transition_resource(dst_buffer,
+        wn::graphics::resource_state::copy_dest,
+        wn::graphics::resource_state::host_read);
+
+    list->finalize();
 
     queue->enqueue_command_list(list.get());
     queue->enqueue_fence(completion_fence);
 
     completion_fence.wait();
 
-    download_buffer.synchronize();
+    void* dst_data = dst_buffer.map();
+    ASSERT_NE(dst_data, nullptr);
+
+    uint8_t* dst_memory = static_cast<uint8_t*>(dst_data) + buffer_offset;
 
     for (size_t y = 0; y < std::get<1>(GetParam()); ++y) {
       for (size_t x = 0; x < std::get<1>(GetParam()); ++x) {
-        EXPECT_EQ((x + y) & 0xFF,
-            download_buffer
-                .range()[y * resource_info.row_pitch_in_bytes + 4 * x]);
-        EXPECT_EQ(y & 0xFF,
-            download_buffer
-                .range()[y * resource_info.row_pitch_in_bytes + 4 * x + 1]);
-        EXPECT_EQ(0x00,
-            download_buffer
-                .range()[y * resource_info.row_pitch_in_bytes + 4 * x + 2]);
-        EXPECT_EQ(0xFF,
-            download_buffer
-                .range()[y * resource_info.row_pitch_in_bytes + 4 * x + 3]);
+        ASSERT_EQ(dst_memory[y * resource_info.row_pitch_in_bytes + 4 * x],
+            (x + y) % 0xFF);
+        ASSERT_EQ(dst_memory[y * resource_info.row_pitch_in_bytes + 4 * x + 1],
+            y & 0xFF);
+        ASSERT_EQ(
+            dst_memory[y * resource_info.row_pitch_in_bytes + 4 * x + 2], 0x00);
+        ASSERT_EQ(
+            dst_memory[y * resource_info.row_pitch_in_bytes + 4 * x + 3], 0xFF);
       }
     }
   }
-
   m_log->flush();
   // On normal operation the log buffer should be empty.
   EXPECT_EQ("", m_buffer);

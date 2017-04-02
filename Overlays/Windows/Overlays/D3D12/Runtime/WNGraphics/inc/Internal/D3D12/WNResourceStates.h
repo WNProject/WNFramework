@@ -8,6 +8,7 @@
 #define __WN_GRAPHICS_INTERNAL_D3D12_RESOURCE_STATES_H__
 
 #include "WNGraphics/inc/WNGraphicsEnums.h"
+#include "WNMath/inc/WNBasic.h"
 
 namespace wn {
 namespace graphics {
@@ -18,6 +19,8 @@ static WN_FORCE_INLINE D3D12_RESOURCE_STATES
 resource_state_to_d3d12_resource_states(const resource_state _state) {
   static const D3D12_RESOURCE_STATES states[] = {
       D3D12_RESOURCE_STATE_COMMON,                      // initial
+      D3D12_RESOURCE_STATE_COMMON,                      // host_write
+      D3D12_RESOURCE_STATE_COMMON,                      // host_read
       D3D12_RESOURCE_STATE_COPY_SOURCE,                 // copy_source
       D3D12_RESOURCE_STATE_COPY_DEST,                   // copy_dest
       D3D12_RESOURCE_STATE_INDEX_BUFFER,                // index_buffer
@@ -37,7 +40,11 @@ resource_state_to_d3d12_resource_states(const resource_state _state) {
   WN_DEBUG_ASSERT_DESC(
       _state < resource_state::max, "Resource state out of bounds");
 
-  return states[static_cast<uint32_t>(_state)];
+  if (_state == resource_state::initial) {
+    return states[0];
+  }
+
+  return states[math::trailing_zeros(static_cast<uint32_t>(_state)) + 1];
 }
 
 static WN_FORCE_INLINE D3D12_RESOURCE_FLAGS resources_states_to_resource_flags(

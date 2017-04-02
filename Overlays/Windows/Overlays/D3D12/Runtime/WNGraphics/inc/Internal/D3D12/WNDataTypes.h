@@ -236,6 +236,11 @@ struct data_type<buffer> {
   using value = memory::unique_ptr<buffer_info>;
 };
 
+template <>
+struct data_type<const buffer> {
+  using value = const memory::unique_ptr<const buffer_info>;
+};
+
 struct image_data {
   D3D12_RESOURCE_DESC create_info;
   D3D12_CLEAR_VALUE optimal_clear;

@@ -12,7 +12,6 @@
 #include "WNGraphics/inc/WNFramebuffer.h"
 #include "WNGraphics/inc/WNGraphicsPipeline.h"
 #include "WNGraphics/inc/WNGraphicsTypes.h"
-#include "WNGraphics/inc/WNHeapTraits.h"
 #include "WNGraphics/inc/WNImage.h"
 #include "WNGraphics/inc/WNRenderPass.h"
 #include "WNMemory/inc/WNUniquePtr.h"
@@ -45,8 +44,18 @@ public:
 
   virtual void finalize() = 0;
 
-  virtual void enqueue_resource_transition(
+  virtual void transition_resource(
       const image& _image, resource_state _from, resource_state _to) = 0;
+  virtual void transition_resource(
+      const buffer& _buffer, resource_state _from, resource_state _to) = 0;
+
+  virtual void copy_buffer(const buffer& _src_buffer, size_t _src_offset,
+      const buffer& _dst_buffer, size_t _dst_offset, size_t _size) = 0;
+
+  virtual void copy_buffer_to_image(const buffer& _src_buffer,
+      size_t _src_offset_in_bytes, const image& _dst_image) = 0;
+  virtual void copy_image_to_buffer(const image& _image,
+      const buffer& _dst_buffer, size_t _buffer_offset_in_bytes) = 0;
 
   virtual void draw(uint32_t _vertex_count, uint32_t _instance_count,
       uint32_t _vertex_offset, uint32_t _instance_offset) = 0;
@@ -77,81 +86,7 @@ public:
   virtual void bind_graphics_pipeline(graphics_pipeline* _pipeline) = 0;
 #endif
 
-  // Ensures that all CPU writes to this upload_heap have finished,
-  // before the next command in the queue.
-  template <typename T>
-  WN_FORCE_INLINE void enqueue_barrier(
-      const upload_heap_buffer<T>& _upload_buffer) {
-    enqueue_upload_barrier(*(_upload_buffer.m_heap), _upload_buffer.m_offset,
-        sizeof(T) * _upload_buffer.range().size());
-  }
-
-  // Ensures that all GPU writes to this download_heap have finished,
-  // before the next command in the queue.
-  template <typename T>
-  WN_FORCE_INLINE void enqueue_barrier(
-      const download_heap_buffer<T>& _download_buffer) {
-    enqueue_download_barrier(*(_download_buffer.m_heap),
-        _download_buffer.m_offset, sizeof(T) * _download_buffer.range().size());
-  }
-
-  // Copies bytes from the _upload_buffer to the _download_buffer.
-  // Note: The size must be at least 1 byte.
-  template <typename T>
-  WN_FORCE_INLINE void enqueue_copy(const upload_heap_buffer<T>& _upload_buffer,
-      const download_heap_buffer<T>& _download_buffer) {
-    WN_DEBUG_ASSERT_DESC(
-        _download_buffer.range().size() >= _upload_buffer.range().size(),
-        "The destination is smaller than the source");
-    WN_DEBUG_ASSERT_DESC(_upload_buffer.range().size() >= 1,
-        "The copy must be at least one byte");
-
-    enqueue_buffer_copy(*(_upload_buffer.m_heap), _upload_buffer.m_offset,
-        *(_download_buffer.m_heap), _download_buffer.m_offset,
-        sizeof(T) * _upload_buffer.range().size());
-  }
-
-  template <typename T>
-  WN_FORCE_INLINE void enqueue_copy(
-      const upload_heap_buffer<T>& _upload_buffer, const image& _image) {
-    WN_DEBUG_ASSERT_DESC(
-        _image.get_buffer_requirements().total_memory_required <=
-            sizeof(T) * _upload_buffer.range().size(),
-        "The image and the upload buffer do not match");
-    enqueue_texture_upload(
-        *(_upload_buffer.m_heap), _upload_buffer.m_offset, _image);
-  }
-
-  template <typename T>
-  WN_FORCE_INLINE void enqueue_copy(
-      const image& _image, const download_heap_buffer<T>& _download_buffer) {
-    WN_DEBUG_ASSERT_DESC(
-        _image.get_buffer_requirements().total_memory_required <=
-            sizeof(T) * _download_buffer.range().size(),
-        "The image and the download buffer do not match");
-    enqueue_texture_download(
-        _image, *(_download_buffer.m_heap), _download_buffer.m_offset);
-  }
-
 protected:
-#ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
-  virtual void enqueue_upload_barrier(const upload_heap& upload_heap,
-      size_t _offset_in_bytes, size_t _size) = 0;
-
-  virtual void enqueue_download_barrier(const download_heap& download_heap,
-      size_t _offset_in_bytes, size_t _size) = 0;
-
-  virtual void enqueue_buffer_copy(const upload_heap& _upload_heap,
-      size_t _upload_offset_in_bytes, const download_heap& _download_heap,
-      size_t _download_offset_in_bytes, size_t _upload_size) = 0;
-
-  virtual void enqueue_texture_upload(const upload_heap& upload_heap,
-      size_t _upload_offset_in_bytes, const image& _image) = 0;
-  virtual void enqueue_texture_download(const image& _image,
-      const download_heap& _download_heap,
-      size_t _download_offset_in_bytes) = 0;
-
-#endif
 };
 
 using command_list_ptr = memory::unique_ptr<command_list>;

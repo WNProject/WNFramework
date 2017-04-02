@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
+#include "WNGraphics/inc/Internal/D3D12/WNDevice.h"
 #include "WNContainers/inc/WNDeque.h"
 #include "WNGraphics/inc/Internal/D3D12/WNCommandList.h"
 #include "WNGraphics/inc/Internal/D3D12/WNDataTypes.h"
-#include "WNGraphics/inc/Internal/D3D12/WNDevice.h"
 #include "WNGraphics/inc/Internal/D3D12/WNFenceData.h"
 #include "WNGraphics/inc/Internal/D3D12/WNImageFormats.h"
 #include "WNGraphics/inc/Internal/D3D12/WNResourceStates.h"
@@ -18,8 +18,6 @@
 #include "WNGraphics/inc/WNFramebuffer.h"
 #include "WNGraphics/inc/WNGraphicsPipeline.h"
 #include "WNGraphics/inc/WNGraphicsPipelineDescription.h"
-#include "WNGraphics/inc/WNHeap.h"
-#include "WNGraphics/inc/WNHeapTraits.h"
 #include "WNGraphics/inc/WNImage.h"
 #include "WNGraphics/inc/WNRenderPass.h"
 #include "WNGraphics/inc/WNSwapchain.h"
@@ -45,36 +43,7 @@ namespace graphics {
 namespace internal {
 namespace d3d12 {
 
-static_assert(
-    sizeof(upload_heap) >= (sizeof(Microsoft::WRL::ComPtr<ID3D12Resource>) +
-                               sizeof(void*) + sizeof(void*)),
-    "the data is an unexpected size");
-
 namespace {
-
-const D3D12_HEAP_PROPERTIES s_upload_heap_props = {
-    D3D12_HEAP_TYPE_UPLOAD,           // Type
-    D3D12_CPU_PAGE_PROPERTY_UNKNOWN,  // CPUPageProperty
-    D3D12_MEMORY_POOL_UNKNOWN,        // MemoryPoolPreference
-    0,                                // CreationNodeMask
-    0                                 // VisibleNodeMask
-};
-
-const D3D12_HEAP_PROPERTIES s_download_heap_props = {
-    D3D12_HEAP_TYPE_READBACK,         // Type
-    D3D12_CPU_PAGE_PROPERTY_UNKNOWN,  // CPUPageProperty
-    D3D12_MEMORY_POOL_UNKNOWN,        // MemoryPoolPreference
-    0,                                // CreationNodeMask
-    0                                 // VisibleNodeMask
-};
-
-const D3D12_HEAP_PROPERTIES s_default_heap_props = {
-    D3D12_HEAP_TYPE_DEFAULT,          // Type
-    D3D12_CPU_PAGE_PROPERTY_UNKNOWN,  // CPUPageProperty
-    D3D12_MEMORY_POOL_UNKNOWN,        // MemoryPoolPreference
-    0,                                // CreationNodeMask
-    0                                 // VisibleNodeMask
-};
 
 static const D3D12_COMMAND_QUEUE_DESC k_command_queue_props = {
     D3D12_COMMAND_LIST_TYPE_DIRECT,     // Type
@@ -94,139 +63,6 @@ using d3d12_swapchain_constructable = swapchain;
 #endif
 
 }  // anonymous namespace
-
-template <typename HeapType>
-void d3d12_device::initialize_heap(HeapType* _heap, size_t _num_bytes,
-    const D3D12_HEAP_PROPERTIES& _params,
-    const D3D12_RESOURCE_STATES& _states) {
-  WN_DEBUG_ASSERT_DESC(
-      _num_bytes >= 1, "Upload heaps must be at least one byte");
-
-  Microsoft::WRL::ComPtr<ID3D12Resource>& resource =
-      _heap->data_as<Microsoft::WRL::ComPtr<ID3D12Resource>>();
-
-  D3D12_RESOURCE_DESC heap_desc{
-      D3D12_RESOURCE_DIMENSION_BUFFER,  // Dimension
-      0,                                // Alignment
-      _num_bytes,                       // Width
-      1,                                // Height
-      1,                                // DepthOrArraySize
-      1,                                // MipLevels
-      DXGI_FORMAT_UNKNOWN,              // Format
-      {
-          // SampleDesc
-          1,  // SampleCount
-          0,  // SampleQuality
-      },
-      D3D12_TEXTURE_LAYOUT_ROW_MAJOR,  // Layout
-      D3D12_RESOURCE_FLAG_NONE,        // Flags
-  };
-
-  const HRESULT hr =
-      m_device->CreateCommittedResource(&_params, D3D12_HEAP_FLAG_NONE,
-          &heap_desc, _states, nullptr, __uuidof(ID3D12Resource), &resource);
-
-  if (FAILED(hr)) {
-    m_log->log_error(
-        "Could not successfully create upload heap of size ", _num_bytes, ".");
-  }
-}
-
-template <typename heap_type>
-void d3d12_device::destroy_typed_heap(heap_type* _heap) {
-  Microsoft::WRL::ComPtr<ID3D12Resource>& resource =
-      _heap->data_as<Microsoft::WRL::ComPtr<ID3D12Resource>>();
-
-  resource.Reset();
-}
-
-void d3d12_device::initialize_upload_heap(
-    upload_heap* _upload_heap, const size_t _num_bytes) {
-  initialize_heap(_upload_heap, _num_bytes, s_upload_heap_props,
-      D3D12_RESOURCE_STATE_GENERIC_READ);
-}
-
-void d3d12_device::initialize_download_heap(
-    download_heap* _download_heap, const size_t _num_bytes) {
-  initialize_heap(_download_heap, _num_bytes, s_download_heap_props,
-      D3D12_RESOURCE_STATE_COPY_DEST);
-}
-
-void d3d12_device::destroy_heap(upload_heap* _heap) {
-  return destroy_typed_heap(_heap);
-}
-
-void d3d12_device::destroy_heap(download_heap* _heap) {
-  return destroy_typed_heap(_heap);
-}
-
-uint8_t* d3d12_device::acquire_range(
-    upload_heap* _heap, size_t _offset, size_t _size_in_bytes) {
-  Microsoft::WRL::ComPtr<ID3D12Resource>& resource =
-      _heap->data_as<Microsoft::WRL::ComPtr<ID3D12Resource>>();
-  uint8_t* addr = 0;
-  D3D12_RANGE range{_offset, _offset + _size_in_bytes};
-  HRESULT hr = resource->Map(0, &range, (void**)&addr);
-  (void)hr;
-  WN_DEBUG_ASSERT_DESC(!FAILED(hr), "Mapping failed");
-  return addr + _offset;
-}
-
-uint8_t* d3d12_device::synchronize(
-    upload_heap* _heap, size_t _offset, size_t _size_in_bytes) {
-  Microsoft::WRL::ComPtr<ID3D12Resource>& resource =
-      _heap->data_as<Microsoft::WRL::ComPtr<ID3D12Resource>>();
-  uint8_t* addr = 0;
-  D3D12_RANGE range{_offset, _offset + _size_in_bytes};
-  resource->Unmap(0, &range);
-  HRESULT hr = resource->Map(0, &range, (void**)&addr);
-  (void)hr;
-  WN_DEBUG_ASSERT_DESC(!FAILED(hr), "Synchronizing Failed");
-  return addr;
-}
-
-uint8_t* d3d12_device::acquire_range(
-    download_heap* _heap, size_t _offset, size_t _size_in_bytes) {
-  Microsoft::WRL::ComPtr<ID3D12Resource>& resource =
-      _heap->data_as<Microsoft::WRL::ComPtr<ID3D12Resource>>();
-  uint8_t* addr = 0;
-  D3D12_RANGE range{_offset, _offset + _size_in_bytes};
-  const HRESULT hr = resource->Map(0, &range, (void**)&addr);
-  (void)hr;
-  WN_DEBUG_ASSERT_DESC(!FAILED(hr), "Mapping failed");
-  return addr + _offset;
-}
-
-uint8_t* d3d12_device::synchronize(
-    download_heap* _heap, size_t _offset, size_t _size_in_bytes) {
-  Microsoft::WRL::ComPtr<ID3D12Resource>& resource =
-      _heap->data_as<Microsoft::WRL::ComPtr<ID3D12Resource>>();
-  uint8_t* addr = 0;
-  D3D12_RANGE range{_offset, _offset + _size_in_bytes};
-  resource->Unmap(0, nullptr);  // We simply want to reduce the number of maps.
-  // We can't actually synchronize in the unmap direction
-  // for our download heap.
-  const HRESULT hr = resource->Map(0, &range, (void**)&addr);
-  (void)hr;
-  WN_DEBUG_ASSERT_DESC(!FAILED(hr), "Synchronizing Failed");
-  return addr + _offset;
-}
-
-void d3d12_device::release_range(
-    upload_heap* _heap, size_t _offset, size_t _size_in_bytes) {
-  Microsoft::WRL::ComPtr<ID3D12Resource>& resource =
-      _heap->data_as<Microsoft::WRL::ComPtr<ID3D12Resource>>();
-  D3D12_RANGE range{_offset, _offset + _size_in_bytes};
-
-  resource->Unmap(0, &range);
-}
-
-void d3d12_device::release_range(download_heap* _heap, size_t, size_t) {
-  Microsoft::WRL::ComPtr<ID3D12Resource>& resource =
-      _heap->data_as<Microsoft::WRL::ComPtr<ID3D12Resource>>();
-
-  resource->Unmap(0, nullptr);
-}
 
 // queue methods
 
@@ -468,6 +304,15 @@ image_memory_requirements d3d12_device::get_image_memory_requirements(
   D3D12_RESOURCE_ALLOCATION_INFO info =
       m_device->GetResourceAllocationInfo(0, 1, &data->create_info);
   return image_memory_requirements{static_cast<size_t>(info.SizeInBytes),
+      static_cast<size_t>(info.Alignment)};
+}
+
+buffer_memory_requirements d3d12_device::get_buffer_memory_requirements(
+    const buffer* _buffer) {
+  const memory::unique_ptr<const buffer_info>& data = get_data(_buffer);
+  D3D12_RESOURCE_ALLOCATION_INFO info =
+      m_device->GetResourceAllocationInfo(0, 1, &data->resource_description);
+  return buffer_memory_requirements{static_cast<size_t>(info.SizeInBytes),
       static_cast<size_t>(info.Alignment)};
 }
 

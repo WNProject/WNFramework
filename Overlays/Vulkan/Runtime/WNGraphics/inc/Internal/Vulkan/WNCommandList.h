@@ -7,11 +7,11 @@
 #ifndef __WN_GRAPHICS_INTERNAL_VULKAN_COMMAND_LIST_H__
 #define __WN_GRAPHICS_INTERNAL_VULKAN_COMMAND_LIST_H__
 
+#include "WNContainers/inc/WNContiguousRange.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanCommandListContext.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanInclude.h"
 #include "WNGraphics/inc/Internal/WNConfig.h"
 #include "WNGraphics/inc/WNGraphicsEnums.h"
-#include "WNGraphics/inc/WNHeapTraits.h"
 
 #ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
 #include "WNGraphics/inc/WNCommandList.h"
@@ -19,13 +19,13 @@
 #include "WNCore/inc/WNUtility.h"
 #endif
 
-WN_GRAPHICS_FORWARD(image)
-
 namespace wn {
 namespace graphics {
+class buffer;
 class render_pass;
 class framebuffer;
 class graphics_pipeline;
+class image;
 class descriptor_set;
 class pipeline_layout;
 struct render_area;
@@ -46,8 +46,20 @@ public:
   ~vulkan_command_list() WN_GRAPHICS_OVERRIDE_FINAL;
 
   void finalize() WN_GRAPHICS_OVERRIDE_FINAL;
-  void enqueue_resource_transition(const image& _image, resource_state _from,
+  void transition_resource(const image& _image, resource_state _from,
       resource_state _to) WN_GRAPHICS_OVERRIDE_FINAL;
+  void transition_resource(const buffer& _buffer, resource_state _from,
+      resource_state _to) WN_GRAPHICS_OVERRIDE_FINAL;
+
+  void copy_buffer(const buffer& _src_buffer, size_t _src_offset,
+      const buffer& _dst_buffer, size_t _dst_offset,
+      size_t _size) WN_GRAPHICS_OVERRIDE_FINAL;
+
+  void copy_buffer_to_image(const buffer& _src_buffer,
+      size_t _src_offset_in_bytes,
+      const image& _dst_image) WN_GRAPHICS_OVERRIDE_FINAL;
+  void copy_image_to_buffer(const image& _image, const buffer& _dst_buffer,
+      size_t _buffer_offset_in_bytes) WN_GRAPHICS_OVERRIDE_FINAL;
 
   void draw(uint32_t _vertex_count, uint32_t _instance_count,
       uint32_t _vertex_offset,
@@ -95,22 +107,6 @@ protected:
   VkCommandBuffer get_command_buffer() const {
     return m_command_buffer;
   }
-
-  void enqueue_upload_barrier(const upload_heap& upload_heap,
-      size_t _offset_in_bytes, size_t _size) WN_GRAPHICS_OVERRIDE_FINAL;
-  void enqueue_download_barrier(const download_heap& download_heap,
-      size_t _offset_in_bytes, size_t _size) WN_GRAPHICS_OVERRIDE_FINAL;
-  void enqueue_buffer_copy(const upload_heap& upload_heap,
-      size_t _upload_offset_in_bytes, const download_heap& download_heap,
-      size_t _download_offset_in_bytes,
-      size_t _upload_size) WN_GRAPHICS_OVERRIDE_FINAL;
-
-  void enqueue_texture_upload(const upload_heap& upload_heap,
-      size_t _upload_offset_in_bytes,
-      const image& _image) WN_GRAPHICS_OVERRIDE_FINAL;
-  void enqueue_texture_download(const image& _image,
-      const download_heap& _download_heap,
-      size_t _download_offset_in_bytes) WN_GRAPHICS_OVERRIDE_FINAL;
 
   VkCommandBuffer m_command_buffer;
   VkCommandPool m_command_pool;

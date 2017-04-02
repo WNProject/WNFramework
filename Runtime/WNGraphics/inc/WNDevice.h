@@ -16,7 +16,6 @@
 #include "WNGraphics/inc/WNGraphicsEnums.h"
 #include "WNGraphics/inc/WNGraphicsPipelineDescription.h"
 #include "WNGraphics/inc/WNGraphicsTypes.h"
-#include "WNGraphics/inc/WNHeapTraits.h"
 #include "WNGraphics/inc/WNRenderPassTypes.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/WNUniquePtr.h"
@@ -69,6 +68,7 @@ class pipeline_layout;
 class render_pass;
 class graphics_pipeline;
 
+struct buffer_memory_requirements;
 struct image_memory_requirements;
 struct image_create_info;
 struct swapchain_create_info;
@@ -102,9 +102,6 @@ public:
   virtual size_t get_image_upload_buffer_alignment() = 0;
   virtual size_t get_buffer_upload_buffer_alignment() = 0;
 #endif
-
-  upload_heap create_upload_heap(const size_t _num_bytes);
-  download_heap create_download_heap(const size_t _num_bytes);
 
   command_allocator create_command_allocator();
   fence create_fence();
@@ -177,27 +174,6 @@ protected:
   friend class graphics_pipeline;
 
 #ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
-  // Upload heap methods
-  virtual void initialize_upload_heap(
-      upload_heap* _upload_heap, const size_t _num_bytes) = 0;
-  virtual uint8_t* acquire_range(
-      upload_heap* _buffer, size_t _offset, size_t _num_bytes) = 0;
-  virtual uint8_t* synchronize(
-      upload_heap* _buffer, size_t _offset, size_t _num_bytes) = 0;
-  virtual void release_range(
-      upload_heap* _buffer, size_t _offset, size_t _num_bytes) = 0;
-  virtual void destroy_heap(upload_heap* _heap) = 0;
-
-  // Download heap methods
-  virtual void initialize_download_heap(
-      download_heap* _download_heap, const size_t _num_bytes) = 0;
-  virtual uint8_t* acquire_range(
-      download_heap* _buffer, size_t _offset, size_t _num_bytes) = 0;
-  virtual uint8_t* synchronize(
-      download_heap* _buffer, size_t _offset, size_t _num_bytes) = 0;
-  virtual void release_range(
-      download_heap* _buffer, size_t _offset, size_t _num_bytes) = 0;
-  virtual void destroy_heap(download_heap* _heap) = 0;
 
   // Destruction methods
   virtual void destroy_queue(queue* _queue) = 0;
@@ -295,6 +271,8 @@ protected:
   virtual void* map_buffer(buffer* _buffer) = 0;
   virtual void unmap_buffer(buffer* _buffer) = 0;
   virtual void destroy_buffer(buffer* _buffer) = 0;
+  virtual buffer_memory_requirements get_buffer_memory_requirements(
+      const buffer* _buffer) = 0;
 #endif
 };
 

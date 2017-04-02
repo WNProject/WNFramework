@@ -7,7 +7,6 @@
 #include "WNGraphics/inc/Internal/D3D12/WNDevice.h"
 #include "WNGraphics/inc/Internal/D3D12/WNImageFormats.h"
 #include "WNGraphics/inc/Internal/D3D12/WNResourceStates.h"
-#include "WNGraphics/inc/WNHeap.h"
 #include "WNGraphics/inc/WNImage.h"
 #include "WNGraphics/inc/WNRenderPass.h"
 
@@ -16,32 +15,7 @@ namespace graphics {
 namespace internal {
 namespace d3d12 {
 
-void d3d12_command_list::enqueue_upload_barrier(
-    const upload_heap&, size_t, size_t) {
-  // No-op for now. We do not need a barrier between data upload and copy
-  // operations.
-}
-
-void d3d12_command_list::enqueue_download_barrier(
-    const download_heap&, size_t, size_t) {
-  // No-op for now. We do not need a barrier between copy and data download
-  // operations.
-}
-
-void d3d12_command_list::enqueue_buffer_copy(const upload_heap& _upload_heap,
-    size_t _upload_offset_in_bytes, const download_heap& _download_heap,
-    size_t _download_offset_in_bytes, size_t _upload_size) {
-  const Microsoft::WRL::ComPtr<ID3D12Resource>& upload_res =
-      _upload_heap.data_as<Microsoft::WRL::ComPtr<ID3D12Resource>>();
-  const Microsoft::WRL::ComPtr<ID3D12Resource>& download_res =
-      _download_heap.data_as<Microsoft::WRL::ComPtr<ID3D12Resource>>();
-
-  m_command_list->CopyBufferRegion(download_res.Get(),
-      _download_offset_in_bytes, upload_res.Get(), _upload_offset_in_bytes,
-      _upload_size);
-}
-
-void d3d12_command_list::enqueue_resource_transition(
+void d3d12_command_list::transition_resource(
     const image& _image, resource_state _from, resource_state _to) {
   const image* img = &_image;
   const auto& image_res = get_data(img);
@@ -77,19 +51,47 @@ void d3d12_command_list::enqueue_resource_transition(
   m_command_list->ResourceBarrier(1, &barrier);
 }
 
-void d3d12_command_list::enqueue_texture_upload(const upload_heap& _upload_heap,
-    size_t _upload_offset_in_bytes, const image& _image) {
-  const Microsoft::WRL::ComPtr<ID3D12Resource>& upload_res =
-      _upload_heap.data_as<Microsoft::WRL::ComPtr<ID3D12Resource>>();
-  const auto& image_res = get_data((const image*)&_image);
+void d3d12_command_list::transition_resource(
+    const buffer& _buffer, resource_state _from, resource_state _to) {
+  const buffer* buff = &_buffer;
+  const memory::unique_ptr<const buffer_info>& data = get_data(buff);
+  D3D12_RESOURCE_BARRIER barrier = {
+      D3D12_RESOURCE_BARRIER_TYPE_TRANSITION,  // Type
+      D3D12_RESOURCE_BARRIER_FLAG_NONE,        // Flags
+      D3D12_RESOURCE_TRANSITION_BARRIER{
+          data->resource.Get(),                            // pResource
+          D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES,         // subresource
+          resource_state_to_d3d12_resource_states(_from),  // StateBefore
+          resource_state_to_d3d12_resource_states(_to),    // StateAfter
+      }};
+  m_command_list->ResourceBarrier(1, &barrier);
+}
+
+void d3d12_command_list::copy_buffer(const buffer& _src_buffer,
+    size_t _src_offset, const buffer& _dst_buffer, size_t _dst_offset,
+    size_t _size) {
+  const buffer* srcbuff = &_src_buffer;
+  const memory::unique_ptr<const buffer_info>& src_data = get_data(srcbuff);
+  const buffer* dstbuff = &_dst_buffer;
+  const memory::unique_ptr<const buffer_info>& dst_data = get_data(dstbuff);
+
+  m_command_list->CopyBufferRegion(dst_data->resource.Get(), _dst_offset,
+      src_data->resource.Get(), _src_offset, _size);
+}
+
+void d3d12_command_list::copy_buffer_to_image(const buffer& _src_buffer,
+    size_t _src_offset_in_bytes, const image& _dst_image) {
+  const buffer* srcbuff = &_src_buffer;
+  const memory::unique_ptr<const buffer_info>& src_data = get_data(srcbuff);
+  const auto& image_res = get_data((const image*)&_dst_image);
 
   const image::image_buffer_resource_info& info =
-      _image.get_buffer_requirements();
+      _dst_image.get_buffer_requirements();
 
-  D3D12_TEXTURE_COPY_LOCATION source = {upload_res.Get(),  // pResource
-      D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT,            // Type
+  D3D12_TEXTURE_COPY_LOCATION source = {src_data->resource.Get(),  // pResource
+      D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT,                    // Type
       D3D12_PLACED_SUBRESOURCE_FOOTPRINT{
-          _upload_offset_in_bytes,  // Offset
+          _src_offset_in_bytes,  // Offset
           D3D12_SUBRESOURCE_FOOTPRINT{
               image_format_to_dxgi_format(info.format),    // Format
               static_cast<UINT>(info.width),               // Width
@@ -104,16 +106,17 @@ void d3d12_command_list::enqueue_texture_upload(const upload_heap& _upload_heap,
       D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX,  // Type
       UINT{0}                                     // SubresourceIndex
   };
-
   m_command_list->CopyTextureRegion(&dest, 0, 0, 0, &source, nullptr);
 }
-void d3d12_command_list::enqueue_texture_download(const image& _image,
-    const download_heap& _download_heap, size_t _download_offset_in_bytes) {
-  const Microsoft::WRL::ComPtr<ID3D12Resource>& download_res =
-      _download_heap.data_as<Microsoft::WRL::ComPtr<ID3D12Resource>>();
-  const auto& image_res = get_data((const image*)&_image);
+
+void d3d12_command_list::copy_image_to_buffer(const image& _src_image,
+    const buffer& _dst_buffer, size_t _dst_offset_in_bytes) {
+  const buffer* dstbuff = &_dst_buffer;
+  const memory::unique_ptr<const buffer_info>& dst_data = get_data(dstbuff);
+  const auto& image_res = get_data((const image*)&_src_image);
+
   const image::image_buffer_resource_info& info =
-      _image.get_buffer_requirements();
+      _src_image.get_buffer_requirements();
 
   D3D12_TEXTURE_COPY_LOCATION source = {
       image_res->image.Get(),                     // pResource
@@ -121,10 +124,10 @@ void d3d12_command_list::enqueue_texture_download(const image& _image,
       UINT{0}                                     // SubresourceIndex
   };
 
-  D3D12_TEXTURE_COPY_LOCATION dest = {download_res.Get(),  // pResource
-      D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT,            // Type
+  D3D12_TEXTURE_COPY_LOCATION dest = {dst_data->resource.Get(),  // pResource
+      D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT,                  // Type
       D3D12_PLACED_SUBRESOURCE_FOOTPRINT{
-          _download_offset_in_bytes,  // Offset
+          _dst_offset_in_bytes,  // Offset
           D3D12_SUBRESOURCE_FOOTPRINT{
               image_format_to_dxgi_format(info.format),    // Format
               static_cast<UINT>(info.width),               // Width
@@ -133,6 +136,7 @@ void d3d12_command_list::enqueue_texture_download(const image& _image,
               static_cast<UINT>(info.row_pitch_in_bytes),  // RowPitch
           },
       }};
+
   m_command_list->CopyTextureRegion(&dest, 0, 0, 0, &source, nullptr);
 }
 

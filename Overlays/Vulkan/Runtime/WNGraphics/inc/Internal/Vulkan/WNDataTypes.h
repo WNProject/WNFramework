@@ -134,12 +134,17 @@ struct data_type<const graphics_pipeline> {
 struct buffer_info {
   VkBuffer buffer;
   VkDeviceSize offset;
-  arena* arena;
+  arena* bound_arena;
 };
 
 template <>
 struct data_type<buffer> {
   using value = memory::unique_ptr<buffer_info>;
+};
+
+template <>
+struct data_type<const buffer> {
+  using value = const memory::unique_ptr<const buffer_info>;
 };
 
 template <>

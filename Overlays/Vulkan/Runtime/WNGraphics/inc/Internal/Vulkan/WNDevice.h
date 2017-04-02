@@ -17,7 +17,6 @@
 #include "WNGraphics/inc/WNArenaProperties.h"
 #include "WNGraphics/inc/WNFramebufferData.h"
 #include "WNGraphics/inc/WNGraphicsTypes.h"
-#include "WNGraphics/inc/WNHeapTraits.h"
 #include "WNGraphics/inc/WNRenderPassTypes.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/WNUniquePtr.h"
@@ -63,6 +62,7 @@ struct swapchain_create_info;
 struct descriptor_binding_info;
 struct descriptor_pool_create_info;
 struct image_memory_requirements;
+struct buffer_memory_requirements;
 
 using queue_ptr = memory::unique_ptr<queue>;
 using command_list_ptr = memory::unique_ptr<command_list>;
@@ -113,45 +113,12 @@ protected:
       m_device(VK_NULL_HANDLE),
       m_queue(VK_NULL_HANDLE),
       m_allocator(nullptr),
-      m_log(nullptr),
-      m_upload_memory_type_index(uint32_t(-1)),
-      m_download_memory_type_index(uint32_t(-1)),
-      m_upload_heap_is_coherent(false),
-      m_download_heap_is_coherent(false) {}
+      m_log(nullptr) {}
 
   bool initialize(memory::allocator* _allocator, logging::log* _log,
       VkDevice _device, PFN_vkDestroyDevice _destroy_device,
       const VkPhysicalDeviceMemoryProperties* _memory_properties,
       vulkan_context* _context, uint32_t _graphics_and_device_queue);
-
-  uint8_t* acquire_range(upload_heap* _buffer, size_t _offset,
-      size_t _num_bytes) WN_GRAPHICS_OVERRIDE_FINAL;
-  uint8_t* synchronize(upload_heap* _buffer, size_t _offset,
-      size_t _num_bytes) WN_GRAPHICS_OVERRIDE_FINAL;
-  void release_range(upload_heap* _buffer, size_t _offset,
-      size_t _num_bytes) WN_GRAPHICS_OVERRIDE_FINAL;
-  void destroy_heap(upload_heap* _heap) WN_GRAPHICS_OVERRIDE_FINAL;
-
-  uint8_t* acquire_range(download_heap* _buffer, size_t _offset,
-      size_t _num_bytes) WN_GRAPHICS_OVERRIDE_FINAL;
-  uint8_t* synchronize(download_heap* _buffer, size_t _offset,
-      size_t _num_bytes) WN_GRAPHICS_OVERRIDE_FINAL;
-  void release_range(download_heap* _buffer, size_t _offset,
-      size_t _num_bytes) WN_GRAPHICS_OVERRIDE_FINAL;
-  void destroy_heap(download_heap* _heap) WN_GRAPHICS_OVERRIDE_FINAL;
-
-  template <typename HeapType>
-  void initialize_heap(HeapType* _heap, const size_t _num_bytes,
-      const VkBufferCreateInfo& _info, uint32_t memory_type_index);
-
-  void initialize_upload_heap(
-      upload_heap* _upload_heap, const size_t _size_in_bytes);
-
-  void initialize_download_heap(
-      download_heap* _download_heap, const size_t _size_in_bytes);
-
-  template <typename HeapType>
-  void destroy_typed_heap(HeapType* type);
 
   // image methods
   void initialize_image(const image_create_info& _info,
@@ -244,6 +211,8 @@ protected:
   void* map_buffer(buffer* _buffer) WN_GRAPHICS_OVERRIDE_FINAL;
   void unmap_buffer(buffer* _buffer) WN_GRAPHICS_OVERRIDE_FINAL;
   void destroy_buffer(buffer* _buffer) WN_GRAPHICS_OVERRIDE_FINAL;
+  buffer_memory_requirements get_buffer_memory_requirements(
+      const buffer* _buffer) WN_GRAPHICS_OVERRIDE_FINAL;
 
   uint32_t get_memory_type_index(uint32_t _types, VkFlags _properties) const;
 
@@ -341,11 +310,6 @@ private:
   const VkPhysicalDeviceMemoryProperties* m_physical_device_memory_properties;
   memory::allocator* m_allocator;
   logging::log* m_log;
-  uint32_t m_upload_memory_type_index;
-  uint32_t m_download_memory_type_index;
-  uint32_t m_image_memory_type_index;
-  bool m_upload_heap_is_coherent;
-  bool m_download_heap_is_coherent;
 };
 
 }  // namespace vulkan

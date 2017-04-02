@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
+#include "WNGraphics/inc/WNArena.h"
 #include "WNGraphics/inc/WNDescriptors.h"
 #include "WNGraphics/inc/WNDevice.h"
 #include "WNGraphics/inc/WNFactory.h"
@@ -47,6 +48,17 @@ TEST_F(pipeline_test, basic_pipeline) {
   for (auto& adapter : device_factory.query_adapters()) {
     wn::graphics::device_ptr device = adapter->make_device(&m_allocator, m_log);
     ASSERT_NE(nullptr, device);
+
+    // Time to find an image arena
+    wn::containers::contiguous_range<const wn::graphics::arena_properties>
+        properties = device->get_arena_properties();
+
+    size_t idx = 0;
+    for (idx = 0; idx < properties.size(); ++idx) {
+      if (properties[idx].allow_images && properties[idx].device_local) {
+        break;
+      }
+    }
 
     wn::graphics::shader_module vs = device->create_shader_module(
         adapter->api() == wn::graphics::adapter::api_type::vulkan
@@ -108,7 +120,14 @@ TEST_F(pipeline_test, basic_pipeline) {
         wn::graphics::data_format::r8g8b8a8_unorm,
         static_cast<uint32_t>(wn::graphics::resource_state::render_target)};
     wn::graphics::clear_value value = {};
+
     wn::graphics::image image = device->create_image(create_info, value);
+    wn::graphics::image_memory_requirements reqs =
+        image.get_memory_requirements();
+
+    wn::graphics::arena image_arena = device->create_arena(idx, reqs.size);
+    image.bind_memory(&image_arena, 0);
+
     wn::graphics::image_view view = device->create_image_view(
         &image, static_cast<wn::graphics::image_components>(
                     wn::graphics::image_component::color));

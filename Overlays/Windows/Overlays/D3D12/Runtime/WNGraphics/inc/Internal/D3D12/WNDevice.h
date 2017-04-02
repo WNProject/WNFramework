@@ -15,7 +15,6 @@
 #include "WNGraphics/inc/WNDescriptorData.h"
 #include "WNGraphics/inc/WNFramebufferData.h"
 #include "WNGraphics/inc/WNGraphicsTypes.h"
-#include "WNGraphics/inc/WNHeapTraits.h"
 #include "WNGraphics/inc/WNRenderPassTypes.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/WNUniquePtr.h"
@@ -55,6 +54,7 @@ class queue;
 class shader_module;
 class swapchain;
 class render_pass;
+struct buffer_memory_requirements;
 struct image_create_info;
 struct swapchain_create_info;
 struct image_memory_requirements;
@@ -121,26 +121,6 @@ protected:
       const Microsoft::WRL::ComPtr<IDXGIFactory4>& _d3d12_factory,
       Microsoft::WRL::ComPtr<ID3D12Device>&& _d3d12_device);
 
-  void initialize_upload_heap(upload_heap* _upload_heap,
-      const size_t _num_bytes) WN_GRAPHICS_OVERRIDE_FINAL;
-  uint8_t* acquire_range(upload_heap* _buffer, size_t _offset,
-      size_t _num_bytes) WN_GRAPHICS_OVERRIDE_FINAL;
-  uint8_t* synchronize(upload_heap* _buffer, size_t _offset,
-      size_t _num_bytes) WN_GRAPHICS_OVERRIDE_FINAL;
-  void release_range(upload_heap* _buffer, size_t _offset,
-      size_t _num_bytes) WN_GRAPHICS_OVERRIDE_FINAL;
-  void destroy_heap(upload_heap* _heap) WN_GRAPHICS_OVERRIDE_FINAL;
-
-  void initialize_download_heap(download_heap* _download_heap,
-      const size_t _num_bytes) WN_GRAPHICS_OVERRIDE_FINAL;
-  uint8_t* acquire_range(download_heap* _buffer, size_t _offset,
-      size_t _num_bytes) WN_GRAPHICS_OVERRIDE_FINAL;
-  uint8_t* synchronize(download_heap* _buffer, size_t _offset,
-      size_t _num_bytes) WN_GRAPHICS_OVERRIDE_FINAL;
-  void release_range(download_heap* _buffer, size_t _offset,
-      size_t _num_bytes) WN_GRAPHICS_OVERRIDE_FINAL;
-  void destroy_heap(download_heap* _heap) WN_GRAPHICS_OVERRIDE_FINAL;
-
   // Destroy methods
   void destroy_queue(queue* _queue) WN_GRAPHICS_OVERRIDE_FINAL;
 
@@ -163,15 +143,6 @@ protected:
       image* _image, arena* _arena, size_t _offset) WN_GRAPHICS_OVERRIDE_FINAL;
   image_memory_requirements get_image_memory_requirements(
       const image* _image) WN_GRAPHICS_OVERRIDE_FINAL;
-
-  // Templated heap helpers
-  template <typename HeapType>
-  void initialize_heap(HeapType* _heap, const size_t _num_bytes,
-      const D3D12_HEAP_PROPERTIES& _params,
-      const D3D12_RESOURCE_STATES& _states);
-
-  template <typename HeapType>
-  void destroy_typed_heap(HeapType* type);
 
   command_list_ptr create_command_list(
       command_allocator*) WN_GRAPHICS_OVERRIDE_FINAL;
@@ -241,6 +212,8 @@ protected:
   void* map_buffer(buffer* _buffer) WN_GRAPHICS_OVERRIDE_FINAL;
   void unmap_buffer(buffer* _buffer) WN_GRAPHICS_OVERRIDE_FINAL;
   void destroy_buffer(buffer* _buffer) WN_GRAPHICS_OVERRIDE_FINAL;
+  buffer_memory_requirements get_buffer_memory_requirements(
+      const buffer* _buffer) WN_GRAPHICS_OVERRIDE_FINAL;
 
 private:
   template <typename T>

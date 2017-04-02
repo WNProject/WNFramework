@@ -6,11 +6,9 @@ wn_create_executable_tests_from_list(TEST_PREFIX WNGraphics
   SOURCES
     WNArena
     WNBuffer
-    WNDownloadHeap
     WNImage
     WNQueryAdapters
     WNResourceCopy
-    WNUploadHeap
     WNFence
     WNPipeline
   COMMON_SOURCES

@@ -2,11 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNGraphics/inc/Internal/Vulkan/WNDevice.h"
 #include "WNContainers/inc/WNArray.h"
 #include "WNContainers/inc/WNDeque.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNBufferData.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNDataTypes.h"
+#include "WNGraphics/inc/Internal/Vulkan/WNDevice.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNImageFormats.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNResourceStates.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNSwapchain.h"
@@ -19,7 +19,6 @@
 #include "WNGraphics/inc/WNFramebuffer.h"
 #include "WNGraphics/inc/WNGraphicsPipeline.h"
 #include "WNGraphics/inc/WNGraphicsPipelineDescription.h"
-#include "WNGraphics/inc/WNHeap.h"
 #include "WNGraphics/inc/WNImageView.h"
 #include "WNGraphics/inc/WNQueue.h"
 #include "WNGraphics/inc/WNRenderPass.h"
@@ -88,13 +87,6 @@ using vulkan_swapchain_constructable = swapchain;
 
 // TODO LIST for when we support multiple queues
 
-// create_upload_heap needs to refer to which queues the uploads will be for
-// this may mean switching create_upload_heap to a per-queue heap, or
-// we could do something else if we want.
-
-// TODO LIST: When we want to optimize heap types:
-//  Only determine the heap type once we know what we are allocating.
-
 vulkan_device::~vulkan_device() {
   vkDestroyDevice(m_device, nullptr);
 }
@@ -123,18 +115,11 @@ bool vulkan_device::initialize(memory::allocator* _allocator,
     logging::log* _log, VkDevice _device, PFN_vkDestroyDevice _destroy_device,
     const VkPhysicalDeviceMemoryProperties* _memory_properties,
     vulkan_context* _context, uint32_t _graphics_and_device_queue) {
-  static_assert(sizeof(buffer_data) == sizeof(upload_heap::opaque_data),
-      "the data is an unexpected size");
-
   m_allocator = _allocator;
   m_log = _log;
   vkDestroyDevice = _destroy_device;
   m_device = _device;
   m_queue = VK_NULL_HANDLE;
-  m_upload_memory_type_index = uint32_t(-1);
-  m_upload_heap_is_coherent = false;
-  m_download_memory_type_index = uint32_t(-1);
-  m_download_heap_is_coherent = false;
   m_physical_device_memory_properties = _memory_properties;
   m_arena_properties = containers::dynamic_array<arena_properties>(m_allocator);
 
@@ -250,225 +235,8 @@ bool vulkan_device::initialize(memory::allocator* _allocator,
   m_surface_helper.initialize(
       _context->instance, _context->vkGetInstanceProcAddr);
 
-  {
-    // Create 1-byte upload buffer. This seems to be the only way to
-    // figure out what memory types will be required.
-    VkBufferCreateInfo create_info = s_upload_buffer;
-    VkBuffer test_buffer;
-    create_info.size = 1;  // 1 byte buffer
-    if (VK_SUCCESS !=
-        vkCreateBuffer(m_device, &create_info, nullptr, &test_buffer)) {
-      m_log->log_error(
-          "Could not determine the memory type for an upload heap.");
-      return false;
-    }
-
-    VkMemoryRequirements requirements;
-    vkGetBufferMemoryRequirements(m_device, test_buffer, &requirements);
-    m_upload_memory_type_index = get_memory_type_index(
-        requirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
-
-    vkDestroyBuffer(m_device, test_buffer, nullptr);
-
-    if (m_upload_memory_type_index == uint32_t(-1)) {
-      m_log->log_critical("Error in vulkan driver.");
-      m_log->log_critical("Must have at least one buffer type that supports",
-          "VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT");
-      return false;
-    }
-
-    m_log->log_debug(
-        "Upload heap using memory_type ", m_upload_memory_type_index);
-    m_upload_heap_is_coherent =
-        (m_physical_device_memory_properties
-                ->memoryTypes[m_upload_memory_type_index]
-                .propertyFlags &
-            VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) != 0;
-  }
-
-  {
-    // Create 1-byte download buffer. This seems to be the only way to
-    // figure out what memory types will be required.
-    VkBufferCreateInfo create_info = s_download_buffer;
-    VkBuffer test_buffer;
-    create_info.size = 1;  // 1 byte buffer
-    if (VK_SUCCESS !=
-        vkCreateBuffer(m_device, &create_info, nullptr, &test_buffer)) {
-      m_log->log_error(
-          "Could not determine the memory type for a download heap.");
-      return false;
-    }
-
-    VkMemoryRequirements requirements;
-    vkGetBufferMemoryRequirements(m_device, test_buffer, &requirements);
-    m_download_memory_type_index = get_memory_type_index(
-        requirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
-
-    vkDestroyBuffer(m_device, test_buffer, nullptr);
-    if (m_download_memory_type_index == uint32_t(-1)) {
-      m_log->log_critical("Error in vulkan driver.");
-      m_log->log_critical("Must have at least one buffer type that supports",
-          "VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT");
-      return false;
-    }
-    m_log->log_debug(
-        "Download heap using memory_type ", m_download_memory_type_index);
-    m_download_heap_is_coherent =
-        (m_physical_device_memory_properties
-                ->memoryTypes[m_download_memory_type_index]
-                .propertyFlags &
-            VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) != 0;
-  }
-  // TODO(awoloszyn): If we plan on supporting sparse binding
-  // then we need test that here as well.
-  // TODO(awoloszyn): Same thing with Linear Tiling.
-  // Create a 1x1 image so we can figure out the memory type
-  {
-    VkImage test_image;
-    VkImageCreateInfo create_info{
-        VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,  // sType
-        nullptr,                              // pNext
-        0,                                    // flags
-        VK_IMAGE_TYPE_2D,                     // imageType
-        VK_FORMAT_R8G8B8A8_UNORM,             // format
-        VkExtent3D{1, 1, 1},                  // extent
-        1,                                    // mipLevels
-        1,                                    // arrayLayers
-        VK_SAMPLE_COUNT_1_BIT,                // samples
-        VK_IMAGE_TILING_OPTIMAL,              // tiling
-        VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
-            VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,  // usage
-        VK_SHARING_MODE_EXCLUSIVE,                // sharingMode
-        0,                                        // queueFamilyIndexCount
-        nullptr,                                  // pQueueFamilyIndices
-        VK_IMAGE_LAYOUT_UNDEFINED                 // initialLayout
-    };
-
-    if (VK_SUCCESS !=
-        vkCreateImage(m_device, &create_info, nullptr, &test_image)) {
-      m_log->log_error(
-          "Could not determine the memory type for a download heap.");
-      return false;
-    }
-
-    VkMemoryRequirements requirements;
-    vkGetImageMemoryRequirements(m_device, test_image, &requirements);
-    m_image_memory_type_index = get_memory_type_index(
-        requirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-
-    vkDestroyImage(m_device, test_image, nullptr);
-  }
-  m_log->log_debug("Upload heap is using ",
-      m_upload_heap_is_coherent ? "coherent" : "non-coherent", "memory");
-
-  m_log->log_debug("Download heap is using ",
-      m_download_heap_is_coherent ? "coherent" : "non-coherent", "memory");
-
   return setup_arena_properties();
 }
-
-template <typename HeapType>
-void vulkan_device::initialize_heap(HeapType* _heap,
-    const size_t _size_in_bytes, const VkBufferCreateInfo& _info,
-    uint32_t _memory_type_index) {
-  buffer_data& res = _heap->template data_as<buffer_data>();
-  VkBufferCreateInfo create_info = _info;
-  create_info.size = _size_in_bytes;
-  if (VK_SUCCESS !=
-      vkCreateBuffer(m_device, &create_info, nullptr, &res.buffer)) {
-    m_log->log_error("Could not successfully create upload heap of size ",
-        _size_in_bytes, ".");
-
-    return;
-  }
-
-  VkMemoryRequirements requirements;
-  vkGetBufferMemoryRequirements(m_device, res.buffer, &requirements);
-
-  WN_DEBUG_ASSERT_DESC(
-      (requirements.memoryTypeBits & (1 << (_memory_type_index))) != 0,
-      "Unexpected memory type");
-
-  VkMemoryAllocateInfo allocate_info{
-      VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,  // sType
-      nullptr,                                 // pNext
-      requirements.size,                       // allocationSize
-      _memory_type_index,                      // memoryTypeIndex
-  };
-
-  if (VK_SUCCESS !=
-      vkAllocateMemory(m_device, &allocate_info, nullptr, &res.device_memory)) {
-    m_log->log_error("Could not successfully allocate device memory of size ",
-        _size_in_bytes, ".");
-    return;
-  }
-
-  if (VK_SUCCESS !=
-      vkBindBufferMemory(m_device, res.buffer, res.device_memory, 0)) {
-    m_log->log_error("Could not bind buffer memory ", _size_in_bytes, ".");
-    return;
-  }
-
-  if (VK_SUCCESS != vkMapMemory(m_device, res.device_memory, 0,
-                        requirements.size, 0, (void**)&_heap->m_root_address)) {
-    m_log->log_error("Could not map buffer memory ", _size_in_bytes, ".");
-  }
-}
-
-void vulkan_device::initialize_upload_heap(
-    upload_heap* _upload_heap, const size_t _size_in_bytes) {
-  initialize_heap(_upload_heap, _size_in_bytes, s_upload_buffer,
-      m_upload_memory_type_index);
-}
-
-void vulkan_device::initialize_download_heap(
-    download_heap* _download_heap, const size_t _size_in_bytes) {
-  initialize_heap(_download_heap, _size_in_bytes, s_download_buffer,
-      m_download_memory_type_index);
-}
-
-template <typename HeapType>
-void WN_FORCE_INLINE vulkan_device::destroy_typed_heap(HeapType* _heap) {
-  buffer_data& res = _heap->template data_as<buffer_data>();
-  if (res.device_memory != VK_NULL_HANDLE) {
-    vkFreeMemory(m_device, res.device_memory, nullptr);
-  }
-
-  if (res.buffer != VK_NULL_HANDLE) {
-    vkDestroyBuffer(m_device, res.buffer, nullptr);
-  }
-}
-
-void vulkan_device::destroy_heap(upload_heap* _heap) {
-  return destroy_typed_heap(_heap);
-}
-
-void vulkan_device::destroy_heap(download_heap* _heap) {
-  return destroy_typed_heap(_heap);
-}
-
-void vulkan_device::release_range(
-    upload_heap* _heap, size_t _offset_in_bytes, size_t _num_bytes) {
-  // If our upload heap was coherent, then we do not have to ever
-  // call flush on it.
-  if (m_upload_heap_is_coherent) {
-    return;
-  }
-
-  buffer_data& res = _heap->data_as<buffer_data>();
-
-  VkMappedMemoryRange range{
-      VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE,  // sType
-      nullptr,                                // pNext
-      res.device_memory,                      // memory
-      _offset_in_bytes,                       // offset
-      _num_bytes                              // size
-  };
-
-  vkFlushMappedMemoryRanges(m_device, 1, &range);
-}
-
-void vulkan_device::release_range(download_heap*, size_t, size_t) {}
 
 uint32_t vulkan_device::get_memory_type_index(
     uint32_t _types, VkFlags _properties) const {
@@ -486,54 +254,6 @@ uint32_t vulkan_device::get_memory_type_index(
   } while (_types >>= 1);
 
   return uint32_t(-1);
-}
-
-uint8_t* vulkan_device::acquire_range(
-    upload_heap* _heap, size_t _offset, size_t) {
-  return _heap->m_root_address + _offset;
-}
-
-uint8_t* vulkan_device::synchronize(
-    upload_heap* _heap, size_t _offset, size_t _num_bytes) {
-  if (!m_upload_heap_is_coherent) {
-    buffer_data& res = _heap->data_as<buffer_data>();
-
-    VkMappedMemoryRange range{
-        VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE,  // sType
-        nullptr,                                // pNext
-        res.device_memory,                      // memory
-        _offset,                                // offset
-        _num_bytes                              // size
-    };
-
-    vkFlushMappedMemoryRanges(m_device, 1, &range);
-  }
-  return _heap->m_root_address + _offset;
-}
-
-uint8_t* vulkan_device::acquire_range(
-    download_heap* _heap, size_t _offset, size_t _num_bytes) {
-  // If our upload heap was coherent, then we do not have to ever
-  // call flush on it.
-  if (!m_download_heap_is_coherent) {
-    buffer_data& res = _heap->data_as<buffer_data>();
-
-    VkMappedMemoryRange range{
-        VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE,  // sType
-        nullptr,                                // pNext
-        res.device_memory,                      // memory
-        _offset,                                // offset
-        _num_bytes                              // size
-    };
-
-    vkInvalidateMappedMemoryRanges(m_device, 1, &range);
-  }
-  return _heap->m_root_address + _offset;
-}
-
-uint8_t* vulkan_device::synchronize(
-    download_heap* _heap, size_t _offset, size_t _num_bytes) {
-  return acquire_range(_heap, _offset, _num_bytes);
 }
 
 queue_ptr vulkan_device::create_queue() {
@@ -686,9 +406,9 @@ void vulkan_device::initialize_image(
 void vulkan_device::bind_image_memory(
     image* _image, arena* _arena, size_t _offset) {
   ::VkImage image = get_data(_image);
-  ::VkDeviceMemory memory = get_data(_arena);
+  arena_data& arena = get_data(_arena);
 
-  if (VK_SUCCESS != vkBindImageMemory(m_device, image, memory, _offset)) {
+  if (VK_SUCCESS != vkBindImageMemory(m_device, image, arena.memory, _offset)) {
     m_log->log_error("Can not bind image memory");
   }
 }
@@ -699,6 +419,15 @@ image_memory_requirements vulkan_device::get_image_memory_requirements(
   VkMemoryRequirements requirements;
   vkGetImageMemoryRequirements(m_device, image, &requirements);
   return image_memory_requirements{static_cast<uint32_t>(requirements.size),
+      static_cast<uint32_t>(requirements.alignment)};
+}
+
+buffer_memory_requirements vulkan_device::get_buffer_memory_requirements(
+    const buffer* _buffer) {
+  const memory::unique_ptr<const buffer_info>& buffer = get_data(_buffer);
+  VkMemoryRequirements requirements;
+  vkGetBufferMemoryRequirements(m_device, buffer->buffer, &requirements);
+  return buffer_memory_requirements{static_cast<uint32_t>(requirements.size),
       static_cast<uint32_t>(requirements.alignment)};
 }
 
@@ -1182,7 +911,7 @@ bool vulkan_device::setup_arena_properties() {
       VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,  // sType
       nullptr,                               // pNext
       0,                                     // flags
-      0,                                     // size
+      1,                                     // size
       usage,                                 // usage
       VK_SHARING_MODE_EXCLUSIVE,             // sharingMode
       0,                                     // queueFamilyIndexCount
@@ -1208,18 +937,21 @@ bool vulkan_device::setup_arena_properties() {
       VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,  // sType
       nullptr,                              // pNext
       0,                                    // flags
-      VK_IMAGE_TYPE_1D,                     // imageType
+      VK_IMAGE_TYPE_2D,                     // imageType
       VK_FORMAT_R8G8B8A8_UNORM,             // format
       VkExtent3D{1, 1, 1},                  // extent
       1,                                    // mipLevels
       1,                                    // arrayLayers
       VK_SAMPLE_COUNT_1_BIT,                // samples
       VK_IMAGE_TILING_OPTIMAL,              // tiling
-      0,                                    // usage
-      VK_SHARING_MODE_EXCLUSIVE,            // sharingMode
-      0,                                    // queueFamilyIndexCount
-      nullptr,                              // pQueueFamilyIndices
-      VK_IMAGE_LAYOUT_UNDEFINED             // initialLayout
+      VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT |
+          VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_STORAGE_BIT |
+          VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
+          VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT,  // usage
+      VK_SHARING_MODE_EXCLUSIVE,                // sharingMode
+      0,                                        // queueFamilyIndexCount
+      nullptr,                                  // pQueueFamilyIndices
+      VK_IMAGE_LAYOUT_UNDEFINED                 // initialLayout
   };
   VkImage test_image;
 
@@ -1671,6 +1403,14 @@ bool vulkan_device::initialize_buffer(
     usage |= VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
   }
 
+  if ((_usage & static_cast<resource_states>(resource_state::copy_source)) !=
+      0) {
+    usage |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+  }
+
+  if ((_usage & static_cast<resource_states>(resource_state::copy_dest)) != 0) {
+    usage |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+  }
   const VkBufferCreateInfo create_info = {
       VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,  // sType
       nullptr,                               // pNext
@@ -1706,7 +1446,7 @@ bool vulkan_device::bind_buffer(
     return false;
   }
 
-  bdata->arena = _arena;
+  bdata->bound_arena = _arena;
   bdata->offset = _offset;
 
   return true;
@@ -1714,7 +1454,7 @@ bool vulkan_device::bind_buffer(
 
 void* vulkan_device::map_buffer(buffer* _buffer) {
   memory::unique_ptr<buffer_info>& bdata = get_data(_buffer);
-  arena_data& adata = get_data(bdata->arena);
+  arena_data& adata = get_data(bdata->bound_arena);
   const VkMappedMemoryRange memory_range = {
       VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE,  // sType
       nullptr,                                // pNext
@@ -1741,7 +1481,7 @@ void* vulkan_device::map_buffer(buffer* _buffer) {
 
 void vulkan_device::unmap_buffer(buffer* _buffer) {
   const memory::unique_ptr<buffer_info>& bdata = get_data(_buffer);
-  const arena_data& adata = get_data(bdata->arena);
+  const arena_data& adata = get_data(bdata->bound_arena);
   const VkMappedMemoryRange memory_range = {
       VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE,  // sType
       nullptr,                                // pNext

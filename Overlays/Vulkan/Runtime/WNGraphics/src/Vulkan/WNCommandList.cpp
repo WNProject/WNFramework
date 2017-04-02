@@ -8,8 +8,8 @@
 #include "WNGraphics/inc/Internal/Vulkan/WNDevice.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNResourceStates.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanCommandListContext.h"
+#include "WNGraphics/inc/WNBuffer.h"
 #include "WNGraphics/inc/WNFramebuffer.h"
-#include "WNGraphics/inc/WNHeap.h"
 #include "WNGraphics/inc/WNImage.h"
 #include "WNGraphics/inc/WNRenderPass.h"
 
@@ -19,7 +19,7 @@ namespace internal {
 namespace vulkan {
 
 #define get_data(f)                                                            \
-  f->data_as<                                                                  \
+  (f)->data_as<                                                                \
       typename data_type<core::remove_pointer<decltype(f)>::type>::value>()
 
 vulkan_command_list::~vulkan_command_list() {
@@ -27,71 +27,13 @@ vulkan_command_list::~vulkan_command_list() {
       m_context->m_device->m_device, m_command_pool, 1, &m_command_buffer);
 }
 
-void vulkan_command_list::enqueue_upload_barrier(
-    const upload_heap& _upload_heap, size_t _offset_in_bytes, size_t _size) {
-  const buffer_data& data = _upload_heap.data_as<buffer_data>();
-
-  const VkBufferMemoryBarrier buffer_barrier{
-      VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,  // sType
-      nullptr,                                  // pNext
-      VK_ACCESS_HOST_WRITE_BIT,                 // srcAccessMask
-      VK_ACCESS_TRANSFER_READ_BIT,              // dstAccessMask
-      0,                                        // srcQueueFamilyIndex
-      0,                                        // dstQueueFamilyIndex
-      data.buffer,                              // buffer
-      _offset_in_bytes,                         // offset
-      _size                                     // size
-  };
-
-  m_context->vkCmdPipelineBarrier(m_command_buffer, VK_PIPELINE_STAGE_HOST_BIT,
-      VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, 0, 1, &buffer_barrier, 0, 0);
-}
-
-void vulkan_command_list::enqueue_download_barrier(
-    const download_heap& _download_heap, size_t _offset_in_bytes,
-    size_t _size) {
-  const buffer_data& data = _download_heap.data_as<buffer_data>();
-
-  const VkBufferMemoryBarrier buffer_barrier{
-      VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,  // sType
-      nullptr,                                  // pNext
-      VK_ACCESS_TRANSFER_WRITE_BIT,             // srcAccessMask
-      VK_ACCESS_HOST_READ_BIT,                  // dstAccessMask
-      0,                                        // srcQueueFamilyIndex
-      0,                                        // dstQueueFamilyIndex
-      data.buffer,                              // buffer
-      _offset_in_bytes,                         // offset
-      _size                                     // size
-  };
-
-  m_context->vkCmdPipelineBarrier(m_command_buffer,
-      VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_HOST_BIT, 0, 0, 0, 1,
-      &buffer_barrier, 0, 0);
-}
-
-void vulkan_command_list::enqueue_buffer_copy(const upload_heap& _upload_heap,
-    size_t _upload_offset_in_bytes, const download_heap& _download_heap,
-    size_t _download_offset_in_bytes, size_t _upload_size) {
-  const VkBufferCopy copy{
-      _upload_offset_in_bytes,    // srcOffset
-      _download_offset_in_bytes,  // dstOffset
-      _upload_size,               // size
-  };
-
-  const buffer_data& upload_data = _upload_heap.data_as<buffer_data>();
-  const buffer_data& download_data = _download_heap.data_as<buffer_data>();
-
-  m_context->vkCmdCopyBuffer(
-      m_command_buffer, upload_data.buffer, download_data.buffer, 1, &copy);
-}
-
 void vulkan_command_list::finalize() {
   m_context->vkEndCommandBuffer(m_command_buffer);
 }
 
-void vulkan_command_list::enqueue_resource_transition(
+void vulkan_command_list::transition_resource(
     const image& _image, resource_state _from, resource_state _to) {
-  const VkImage& image_res = _image.data_as<VkImage>();
+  const VkImage& image_res = get_data((&_image));
 
   VkImageMemoryBarrier barrier{
       VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,        // sType
@@ -114,19 +56,78 @@ void vulkan_command_list::enqueue_resource_transition(
 
   m_context->vkCmdPipelineBarrier(m_command_buffer,
       resource_state_to_vulkan_pipeline_stage(_from),
-      resource_state_to_vulkan_pipeline_stage(_to), 0, 0, 0, 0, 0, 1, &barrier);
+      resource_state_to_vulkan_pipeline_stage(_to), 0, 0, nullptr, 0, nullptr,
+      1, &barrier);
 }
 
-void vulkan_command_list::enqueue_texture_upload(
-    const upload_heap& _upload_heap, size_t _upload_offset_in_bytes,
-    const image& _image) {
-  const buffer_data& data = _upload_heap.data_as<buffer_data>();
-  const VkImage& image_res = _image.data_as<VkImage>();
+void vulkan_command_list::transition_resource(
+    const buffer& _buffer, resource_state _from, resource_state _to) {
+  const memory::unique_ptr<const buffer_info>& buffer = get_data(&_buffer);
+  VkBufferMemoryBarrier barrier{
+      VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,       // sType
+      nullptr,                                       // pNext
+      resource_state_to_vulkan_access_flags(_from),  // srcAccessMask
+      resource_state_to_vulkan_access_flags(_to),    // dstAccessMask
+      VK_QUEUE_FAMILY_IGNORED,                       // srcQueueFamilyIndex
+      VK_QUEUE_FAMILY_IGNORED,                       // dstQueueFamilyIndex
+      buffer->buffer,                                // buffer
+      0,                                             // offset
+      _buffer.size()                                 // size
+  };
+  m_context->vkCmdPipelineBarrier(m_command_buffer,
+      resource_state_to_vulkan_pipeline_stage(_from),
+      resource_state_to_vulkan_pipeline_stage(_to), 0, 0, nullptr, 1, &barrier,
+      0, nullptr);
+}
+
+void vulkan_command_list::copy_buffer(const buffer& _src_buffer,
+    size_t _src_offset, const buffer& _dst_buffer, size_t _dst_offset,
+    size_t _size) {
+  VkBufferCopy copy = {_src_offset, _dst_offset, _size};
+
+  const memory::unique_ptr<const buffer_info>& srcbuffer =
+      get_data(&_src_buffer);
+  const memory::unique_ptr<const buffer_info>& dstbuffer =
+      get_data(&_dst_buffer);
+  m_context->vkCmdCopyBuffer(
+      m_command_buffer, srcbuffer->buffer, dstbuffer->buffer, 1, &copy);
+}
+
+void vulkan_command_list::copy_buffer_to_image(const buffer& _src_buffer,
+    size_t _src_offset_in_bytes, const image& _dst_image) {
+  const VkImage& dst_image = get_data(&_dst_image);
+  const memory::unique_ptr<const buffer_info>& srcbuffer =
+      get_data(&_src_buffer);
 
   VkBufferImageCopy copy{
-      _upload_offset_in_bytes,  // bufferOffset
-      0,                        // bufferRowLength
-      0,                        // bufferImageHeight
+      _src_offset_in_bytes,                            // bufferOffset
+      static_cast<uint32_t>(_dst_image.get_width()),   // bufferRowLength
+      static_cast<uint32_t>(_dst_image.get_height()),  // bufferImageHeight
+      VkImageSubresourceLayers{
+          VK_IMAGE_ASPECT_COLOR_BIT,  // aspectMask
+          0,                          // mipLevel
+          0,                          // baseArrayLayer
+          1,                          // layerCount
+      },                              // imageSubresource
+      VkOffset3D{0, 0, 0},            // imageOffset
+      VkExtent3D{static_cast<uint32_t>(_dst_image.get_width()),
+          static_cast<uint32_t>(_dst_image.get_height()), 1},  // imageExtent
+  };
+
+  m_context->vkCmdCopyBufferToImage(m_command_buffer, srcbuffer->buffer,
+      dst_image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy);
+}
+
+void vulkan_command_list::copy_image_to_buffer(const image& _image,
+    const buffer& _dst_buffer, size_t _buffer_offset_in_bytes) {
+  const VkImage& image = get_data(&_image);
+  const memory::unique_ptr<const buffer_info>& dstbuffer =
+      get_data(&_dst_buffer);
+
+  VkBufferImageCopy copy{
+      _buffer_offset_in_bytes,                     // bufferOffset
+      static_cast<uint32_t>(_image.get_width()),   // bufferRowLength
+      static_cast<uint32_t>(_image.get_height()),  // bufferImageHeight
       VkImageSubresourceLayers{
           VK_IMAGE_ASPECT_COLOR_BIT,  // aspectMask
           0,                          // mipLevel
@@ -135,35 +136,11 @@ void vulkan_command_list::enqueue_texture_upload(
       },                              // imageSubresource
       VkOffset3D{0, 0, 0},            // imageOffset
       VkExtent3D{static_cast<uint32_t>(_image.get_width()),
-          static_cast<uint32_t>(_image.get_height()), 0},  // imageExtent
+          static_cast<uint32_t>(_image.get_height()), 1},  // imageExtent
   };
 
-  m_context->vkCmdCopyBufferToImage(m_command_buffer, data.buffer, image_res,
-      VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy);
-}
-
-void vulkan_command_list::enqueue_texture_download(const image& _image,
-    const download_heap& _download_heap, size_t _download_offset_in_bytes) {
-  const buffer_data& data = _download_heap.data_as<buffer_data>();
-  const VkImage& image_res = _image.data_as<VkImage>();
-
-  VkBufferImageCopy copy{
-      _download_offset_in_bytes,  // bufferOffset
-      0,                          // bufferRowLength
-      0,                          // bufferImageHeight
-      VkImageSubresourceLayers{
-          VK_IMAGE_ASPECT_COLOR_BIT,  // aspectMask
-          0,                          // mipLevel
-          0,                          // baseArrayLayer
-          1,                          // layerCount
-      },                              // imageSubresource
-      VkOffset3D{0, 0, 0},            // imageOffset
-      VkExtent3D{static_cast<uint32_t>(_image.get_width()),
-          static_cast<uint32_t>(_image.get_height()), 0},  // imageExtent
-  };
-
-  m_context->vkCmdCopyImageToBuffer(m_command_buffer, image_res,
-      VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, data.buffer, 1, &copy);
+  m_context->vkCmdCopyImageToBuffer(m_command_buffer, image,
+      VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, dstbuffer->buffer, 1, &copy);
 }
 
 void vulkan_command_list::draw(uint32_t _vertex_count, uint32_t _instance_count,

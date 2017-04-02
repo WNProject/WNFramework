@@ -203,15 +203,17 @@ enum class store_op { store, dont_care };
 
 enum class resource_state : uint32_t {
   initial = 0,
-  copy_source = 1 << 0,
-  copy_dest = 1 << 1,
-  index_buffer = 1 << 2,
-  vertex_buffer = 1 << 3,
-  read_only_buffer = 1 << 4,
-  read_write_buffer = 1 << 5,
-  render_target = 1 << 6,
-  texture = 1 << 7,
-  present = 1 << 8,
+  host_write = 1 << 0,
+  host_read = 1 << 1,
+  copy_source = 1 << 2,
+  copy_dest = 1 << 3,
+  index_buffer = 1 << 4,
+  vertex_buffer = 1 << 5,
+  read_only_buffer = 1 << 6,
+  read_write_buffer = 1 << 7,
+  render_target = 1 << 8,
+  texture = 1 << 9,
+  present = 1 << 10,
   max,
 };
 

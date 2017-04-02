@@ -8,7 +8,6 @@
 #include "WNGraphics/inc/Internal/Vulkan/WNDevice.h"
 #include "WNGraphics/inc/WNCommandList.h"
 #include "WNGraphics/inc/WNFence.h"
-#include "WNGraphics/inc/WNHeap.h"
 
 namespace wn {
 namespace graphics {

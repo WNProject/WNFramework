@@ -12,8 +12,6 @@
 #include "WNGraphics/inc/WNFramebuffer.h"
 #include "WNGraphics/inc/WNGraphicsPipeline.h"
 #include "WNGraphics/inc/WNGraphicsTypes.h"
-#include "WNGraphics/inc/WNHeap.h"
-#include "WNGraphics/inc/WNHeapTraits.h"
 #include "WNGraphics/inc/WNImage.h"
 #include "WNGraphics/inc/WNImageView.h"
 #include "WNGraphics/inc/WNRenderPass.h"
@@ -22,22 +20,6 @@
 
 namespace wn {
 namespace graphics {
-
-upload_heap device::create_upload_heap(const size_t _num_bytes) {
-  upload_heap new_upload_heap(this);
-
-  initialize_upload_heap(&new_upload_heap, _num_bytes);
-
-  return core::move(new_upload_heap);
-}
-
-download_heap device::create_download_heap(const size_t _num_bytes) {
-  download_heap new_download_heap(this);
-
-  initialize_download_heap(&new_download_heap, _num_bytes);
-
-  return core::move(new_download_heap);
-}
 
 command_allocator device::create_command_allocator() {
   command_allocator new_command_allocator(this);
@@ -160,6 +142,7 @@ buffer device::create_buffer(const size_t _size, const resource_states _usage) {
   buffer new_buffer;
 
   if (initialize_buffer(&new_buffer, _size, _usage)) {
+    new_buffer.m_size = _size;
     new_buffer.m_device = this;
   }
 

@@ -4,10 +4,11 @@
 
 #pragma once
 
-#ifndef __WN_GRAPHICS_INTERNAL_D3D12_RESOURCE_STATES_H__
-#define __WN_GRAPHICS_INTERNAL_D3D12_RESOURCE_STATES_H__
+#ifndef __WN_GRAPHICS_INTERNAL_VULKAN_RESOURCE_STATES_H__
+#define __WN_GRAPHICS_INTERNAL_VULKAN_RESOURCE_STATES_H__
 
 #include "WNGraphics/inc/WNGraphicsEnums.h"
+#include "WNMath/inc/WNBasic.h"
 
 namespace wn {
 namespace graphics {
@@ -18,6 +19,8 @@ static WN_FORCE_INLINE VkFlags resource_state_to_vulkan_access_flags(
     resource_state _state) {
   static const VkFlags states[] = {
       0,                                    // initial
+      VK_ACCESS_HOST_WRITE_BIT,             // host_write
+      VK_ACCESS_HOST_READ_BIT,              // host_read
       VK_ACCESS_TRANSFER_READ_BIT,          // copy_source
       VK_ACCESS_TRANSFER_WRITE_BIT,         // copy_dest
       VK_ACCESS_INDEX_READ_BIT,             // index_buffer
@@ -35,14 +38,19 @@ static WN_FORCE_INLINE VkFlags resource_state_to_vulkan_access_flags(
       "Expected the number of VKImageUsage and resources_states to match");
   WN_DEBUG_ASSERT_DESC(
       _state < resource_state::max, "Resource state out of bounds");
+  if (_state == resource_state::initial) {
+    return states[0];
+  }
 
-  return states[static_cast<uint32_t>(_state)];
+  return states[math::trailing_zeros(static_cast<uint32_t>(_state)) + 1];
 }
 
 static WN_FORCE_INLINE VkImageLayout resource_state_to_vulkan_layout(
     resource_state _state) {
   static const VkImageLayout layouts[] = {
       VK_IMAGE_LAYOUT_UNDEFINED,                 // initial
+      VK_IMAGE_LAYOUT_GENERAL,                   // host_write
+      VK_IMAGE_LAYOUT_GENERAL,                   // host_read
       VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,      // copy_source
       VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,      // copy_dest
       VK_IMAGE_LAYOUT_UNDEFINED,                 // index_buffer
@@ -59,14 +67,19 @@ static WN_FORCE_INLINE VkImageLayout resource_state_to_vulkan_layout(
       "Expected the number of VkImageLayouts and resources_states to match");
   WN_DEBUG_ASSERT_DESC(
       _state < resource_state::max, "Resource state out of bounds");
+  if (_state == resource_state::initial) {
+    return layouts[0];
+  }
 
-  return layouts[static_cast<uint32_t>(_state)];
+  return layouts[math::trailing_zeros(static_cast<uint32_t>(_state)) + 1];
 }
 
 static WN_FORCE_INLINE VkFlags resource_state_to_vulkan_pipeline_stage(
     resource_state _state) {
   static const VkFlags states[] = {
       VK_PIPELINE_STAGE_HOST_BIT,                    // initial
+      VK_PIPELINE_STAGE_HOST_BIT,                    // host_write
+      VK_PIPELINE_STAGE_HOST_BIT,                    // host_read
       VK_PIPELINE_STAGE_TRANSFER_BIT,                // copy_source
       VK_PIPELINE_STAGE_TRANSFER_BIT,                // copy_dest
       VK_PIPELINE_STAGE_VERTEX_INPUT_BIT,            // index_buffer
@@ -83,8 +96,11 @@ static WN_FORCE_INLINE VkFlags resource_state_to_vulkan_pipeline_stage(
       "Expected the number of VkFlags and resources_states to match");
   WN_DEBUG_ASSERT_DESC(
       _state < resource_state::max, "Resource state out of bounds");
+  if (_state == resource_state::initial) {
+    return states[0];
+  }
 
-  return states[static_cast<uint32_t>(_state)];
+  return states[math::trailing_zeros(static_cast<uint32_t>(_state)) + 1];
 }
 
 static WN_FORCE_INLINE VkImageUsageFlags resources_states_to_usage_bits(
@@ -385,4 +401,4 @@ static WN_FORCE_INLINE VkColorComponentFlags write_components_to_vulkan(
 }  // namespace graphics
 }  // namespace wn
 
-#endif  // __WN_GRAPHICS_INTERNAL_D3D12_RESOURCE_STATES_H__
+#endif  // __WN_GRAPHICS_INTERNAL_VULKAN_RESOURCE_STATES_H__

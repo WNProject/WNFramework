@@ -8,13 +8,20 @@
 #define __WN_RUNTIME_GRAPHICS_BUFFER_H__
 
 #include "WNCore/inc/WNTypes.h"
+#include "WNGraphics/inc/WNArena.h"
 #include "WNGraphics/inc/WNGraphicsObjectBase.h"
 #include "WNMemory/inc/WNStringUtility.h"
 
 WN_GRAPHICS_FORWARD(device);
+WN_GRAPHICS_FORWARD(command_list);
 
 namespace wn {
 namespace graphics {
+class arena;
+struct buffer_memory_requirements {
+  size_t size;
+  size_t alignment;
+};
 
 class buffer WN_FINAL : base_object<2> {
 private:
@@ -36,7 +43,7 @@ public:
     }
   }
 
-  WN_FORCE_INLINE bool bind(arena* _arena, const size_t _offset) {
+  WN_FORCE_INLINE bool bind_memory(arena* _arena, const size_t _offset) {
     WN_DEBUG_ASSERT_DESC(_offset + size() <= _arena->size(),
         "binding is out of bounds of arena");
 
@@ -45,8 +52,8 @@ public:
     return m_bound;
   }
 
-  WN_FORCE_INLINE bool bind(arena* _arena) {
-    return bind(_arena, 0);
+  WN_FORCE_INLINE bool bind_memory(arena* _arena) {
+    return bind_memory(_arena, 0);
   }
 
   WN_FORCE_INLINE void* map() {
@@ -69,8 +76,13 @@ public:
     return m_size;
   }
 
+  buffer_memory_requirements get_memory_requirements() const {
+    return m_device->get_buffer_memory_requirements(this);
+  }
+
 private:
   WN_GRAPHICS_ADD_FRIENDS(device);
+  WN_GRAPHICS_ADD_FRIENDS(command_list);
 
   WN_FORCE_INLINE buffer()
     : base(), m_device(nullptr), m_size(0), m_bound(false) {}
