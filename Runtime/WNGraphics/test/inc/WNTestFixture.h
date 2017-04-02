@@ -2,6 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
+#ifndef _WN_GRAPHICS_TEST_TEST_FIXTURE_H__
+#define _WN_GRAPHICS_TEST_TEST_FIXTURE_H__
+
 #include "WNExecutableTest/inc/WNTestHarness.h"
 #include "WNGraphics/inc/Internal/WNConfig.h"
 #include "WNLogging/inc/WNBufferLogger.h"
@@ -48,3 +51,5 @@ using parameterized_test = test_internal<::testing::TestWithParam<T>>;
 }  // namespace testing
 }  // namespace graphics
 }  // namespace wn
+
+#endif  //  _WN_GRAPHICS_TEST_TEST_FIXTURE_H__

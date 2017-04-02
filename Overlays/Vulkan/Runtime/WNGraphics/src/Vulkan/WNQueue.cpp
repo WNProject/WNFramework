@@ -5,6 +5,7 @@
 #include "WNGraphics/inc/Internal/Vulkan/WNQueue.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNBufferData.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNCommandList.h"
+#include "WNGraphics/inc/Internal/Vulkan/WNDataTypes.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNDevice.h"
 #include "WNGraphics/inc/WNCommandList.h"
 #include "WNGraphics/inc/WNFence.h"
@@ -22,8 +23,13 @@ vulkan_queue::~vulkan_queue() {
 }
 #endif
 
+#define get_data(f)                                                            \
+  (f)->data_as<                                                                \
+      typename data_type<core::remove_pointer<decltype(f)>::type>::value>()
+
 void vulkan_queue::enqueue_fence(fence& _fence) {
-  m_queue_context->vkQueueSubmit(m_queue, 0, 0, _fence.data_as<VkFence>());
+  ::VkFence& fence = get_data(&_fence);
+  m_queue_context->vkQueueSubmit(m_queue, 0, 0, fence);
 }
 
 void vulkan_queue::enqueue_command_list(command_list* _command) {
@@ -44,6 +50,8 @@ void vulkan_queue::enqueue_command_list(command_list* _command) {
 
   m_queue_context->vkQueueSubmit(m_queue, 1, &info, VK_NULL_HANDLE);
 }
+
+#undef get_data
 
 }  // namespace vulkan
 }  // namespace internal

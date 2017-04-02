@@ -149,9 +149,9 @@ void d3d12_command_list::draw(uint32_t _vertex_count, uint32_t _instance_count,
 void d3d12_command_list::begin_render_pass(render_pass* _pass,
     framebuffer* _framebuffer, const render_area& _render_area,
     const containers::contiguous_range<clear_value>& _clears) {
+  m_current_render_pass = _pass;
   const memory::unique_ptr<const render_pass_data>& rp =
       get_data(m_current_render_pass);
-  m_current_render_pass = _pass;
   m_current_framebuffer = _framebuffer;
   m_current_subpass = 0;
   m_clear_values.clear();
@@ -206,6 +206,13 @@ void d3d12_command_list::set_up_subpass() {
   }
 
   if (m_current_subpass < rp->subpasses.size()) {
+    containers::dynamic_array<D3D12_CPU_DESCRIPTOR_HANDLE>
+        render_target_handles(m_allocator);
+    render_target_handles.reserve(
+        rp->subpasses[m_current_subpass].color_attachments.size());
+    bool has_depth_stencil = false;
+    D3D12_CPU_DESCRIPTOR_HANDLE depth_stencil_handle;
+
     // Now that we have discarded everything from the last pass, lets start
     // clearing/discarding everything from this pass.
     for (int32_t color_attachment :
@@ -219,6 +226,13 @@ void d3d12_command_list::set_up_subpass() {
       if (attachment_desc.attachment_load_op == load_op::dont_care) {
         m_command_list->DiscardResource(image_res->image.Get(), nullptr);
       }
+
+      auto& image_view_handle = fb->image_view_handles[color_attachment];
+      D3D12_CPU_DESCRIPTOR_HANDLE handle =
+          image_view_handle.heap->get_handle_at(
+              image_view_handle.token.offset());
+      render_target_handles.push_back(handle);
+
       // TODO(awoloszyn): Maybe use the render_area from
       if (attachment_desc.attachment_load_op == load_op::clear) {
         float color[4] = {0};
@@ -236,10 +250,6 @@ void d3d12_command_list::set_up_subpass() {
           color[2] = static_cast<float>(c.uint_vals[2]);
           color[3] = static_cast<float>(c.uint_vals[3]);
         }
-        auto& image_view_handle = fb->image_view_handles[color_attachment];
-        D3D12_CPU_DESCRIPTOR_HANDLE handle =
-            image_view_handle.heap->get_handle_at(
-                image_view_handle.token.offset());
         m_command_list->ClearRenderTargetView(handle, color, 1, &m_render_area);
       }
     }
@@ -255,6 +265,13 @@ void d3d12_command_list::set_up_subpass() {
           attachment_desc.stencil_load_op == load_op::dont_care) {
         m_command_list->DiscardResource(image_res->image.Get(), nullptr);
       }
+
+      auto& image_view_handle = fb->image_view_handles[depth_attachment];
+      D3D12_CPU_DESCRIPTOR_HANDLE handle =
+          image_view_handle.heap->get_handle_at(
+              image_view_handle.token.offset());
+      has_depth_stencil = true;
+      depth_stencil_handle = handle;
       // TODO(awoloszyn): Maybe use the render_area from
       if (attachment_desc.attachment_load_op == load_op::clear ||
           attachment_desc.stencil_load_op == load_op::clear) {
@@ -268,14 +285,14 @@ void d3d12_command_list::set_up_subpass() {
             (attachment_desc.stencil_load_op == load_op::clear
                     ? D3D12_CLEAR_FLAG_STENCIL
                     : 0));
-        auto& image_view_handle = fb->image_view_handles[depth_attachment];
-        D3D12_CPU_DESCRIPTOR_HANDLE handle =
-            image_view_handle.heap->get_handle_at(
-                image_view_handle.token.offset());
         m_command_list->ClearDepthStencilView(
             handle, flags, depth, stencil, 1, &m_render_area);
       }
     }
+    m_command_list->OMSetRenderTargets(
+        static_cast<UINT>(render_target_handles.size()),
+        render_target_handles.data(), false,
+        has_depth_stencil ? &depth_stencil_handle : nullptr);
   }
 }
 
@@ -344,7 +361,6 @@ void d3d12_command_list::bind_graphics_descriptor_sets(
 void d3d12_command_list::bind_graphics_pipeline(graphics_pipeline* _pipeline) {
   memory::unique_ptr<graphics_pipeline_data>& pipeline = get_data(_pipeline);
 
-  m_command_list->SetPipelineState(pipeline->pipeline.Get());
   static_graphics_pipeline_types static_datums = pipeline->static_datums;
 
   uint32_t next_datum = 1;
@@ -374,6 +390,23 @@ void d3d12_command_list::bind_graphics_pipeline(graphics_pipeline* _pipeline) {
     }
     next_datum <<= 1;
   }
+
+  m_command_list->SetPipelineState(pipeline->pipeline.Get());
+  m_command_list->IASetPrimitiveTopology(pipeline->topology);
+  m_current_graphics_pipeline = pipeline.get();
+}
+
+void d3d12_command_list::bind_vertex_buffer(
+    uint32_t stream, const buffer* _buffer) {
+  const memory::unique_ptr<const buffer_info>& buffer = get_data(_buffer);
+
+  D3D12_VERTEX_BUFFER_VIEW view = {
+      buffer->resource->GetGPUVirtualAddress(),  // BufferLocation
+      static_cast<UINT>(_buffer->size()),        // SizeInBytes
+      static_cast<UINT>(m_current_graphics_pipeline
+                            ->vertex_stream_strides[stream])  // StrideInBytes
+  };
+  m_command_list->IASetVertexBuffers(stream, 1, &view);
 }
 
 template <typename T>

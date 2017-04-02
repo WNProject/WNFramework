@@ -13,6 +13,7 @@
 
 WN_GRAPHICS_FORWARD(queue)
 WN_GRAPHICS_FORWARD(device)
+WN_GRAPHICS_FORWARD(swapchain)
 
 namespace wn {
 namespace graphics {
@@ -49,6 +50,7 @@ public:
 private:
   WN_GRAPHICS_ADD_FRIENDS(queue)
   WN_GRAPHICS_ADD_FRIENDS(device)
+  WN_GRAPHICS_ADD_FRIENDS(swapchain)
 
   WN_FORCE_INLINE fence(device* _device) : m_device(_device), m_data({0}) {}
 

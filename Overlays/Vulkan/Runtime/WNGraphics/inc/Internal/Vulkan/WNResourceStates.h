@@ -393,7 +393,7 @@ static WN_FORCE_INLINE VkColorComponentFlags write_components_to_vulkan(
   if (_components & static_cast<uint8_t>(write_component::a)) {
     flags |= VK_COLOR_COMPONENT_A_BIT;
   }
-  return VkBlendOp(0);
+  return VkColorComponentFlags(flags);
 }
 
 }  // namespace vulkan

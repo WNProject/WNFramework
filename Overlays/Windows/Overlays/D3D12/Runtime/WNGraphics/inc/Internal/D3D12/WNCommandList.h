@@ -89,6 +89,9 @@ public:
   void bind_graphics_pipeline(
       graphics_pipeline* _pipeline) WN_GRAPHICS_OVERRIDE_FINAL;
 
+  void bind_vertex_buffer(
+      uint32_t stream, const buffer* _buffer) WN_GRAPHICS_OVERRIDE_FINAL;
+
 protected:
   friend class d3d12_device;
   friend class d3d12_queue;
@@ -135,6 +138,7 @@ private:
   containers::dynamic_array<clear_value> m_clear_values;
   memory::allocator* m_allocator;
   pipeline_layout* m_current_graphics_pipeline_layout;
+  graphics_pipeline_data* m_current_graphics_pipeline;
 };
 
 }  // namespace d3d12

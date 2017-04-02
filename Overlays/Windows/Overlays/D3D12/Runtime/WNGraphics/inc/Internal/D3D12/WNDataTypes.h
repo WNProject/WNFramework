@@ -13,10 +13,13 @@
 #include "WNGraphics/inc/WNArena.h"
 #include "WNGraphics/inc/WNBuffer.h"
 #include "WNGraphics/inc/WNDescriptorData.h"
+#include "WNGraphics/inc/WNFence.h"
 #include "WNGraphics/inc/WNGraphicsTypes.h"
 #include "WNGraphics/inc/WNImageView.h"
 #include "WNGraphics/inc/WNRenderPassTypes.h"
 #include "WNGraphics/inc/WNShaderModule.h"
+
+#include "WNUtilities/inc/WNHandle.h"
 
 #include <dxgi1_4.h>
 #include <wrl.h>
@@ -123,6 +126,21 @@ struct graphics_pipeline_data {
 struct pipeline_layout_object {
   Microsoft::WRL::ComPtr<ID3D12RootSignature> signature;
   containers::dynamic_array<uint32_t> descriptor_set_binding_base;
+};
+
+struct fence_data {
+  Microsoft::WRL::ComPtr<ID3D12Fence> fence;
+  utilities::windows::handle event;
+};
+
+template <>
+struct data_type<fence> {
+  using value = fence_data;
+};
+
+template <>
+struct data_type<const fence> {
+  using value = const fence_data;
 };
 
 template <>

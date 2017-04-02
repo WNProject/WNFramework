@@ -23,6 +23,7 @@ namespace wn {
 namespace graphics {
 class image;
 class queue;
+class fence;
 
 enum class swap_mode { immediate, mailbox, fifo, fifo_relaxed };
 
@@ -56,7 +57,7 @@ public:
   // is not done here.
   virtual ~swapchain() = default;
   virtual image* get_image_for_index(uint32_t index) = 0;
-  virtual uint32_t get_backbuffer_index() const = 0;
+  virtual uint32_t get_backbuffer_index(fence* fence) const = 0;
 
 #else
   ~swapchain() {}

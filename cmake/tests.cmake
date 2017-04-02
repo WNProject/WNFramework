@@ -108,6 +108,7 @@ macro(wn_create_test)
   wn_add_test_wrapper(
     TEST_NAME ${PARSED_ARGS_TEST_NAME}_test
     SOURCES ${PARSED_ARGS_SOURCES}
+    ADDITIONAL_INCLUDES ${PARSED_ARGS_ADDITIONAL_INCLUDES}
     LIBS ${PARSED_ARGS_LIBS}
   )
 

@@ -42,15 +42,18 @@ TEST(swapchain, basic) {
       wn::graphics::swap_mode::fifo, wn::graphics::discard_policy::discard};
   auto swapchain =
       device->create_swapchain(create_info, queue.get(), wind.get());
+  wn::graphics::fence ready_fence = device->create_fence();
 
   // Let's make sure we can render 10 frames successfully on the swapchain
   for (size_t i = 0; i < 10; ++i) {
-    uint32_t idx = swapchain->get_backbuffer_index();
+    ready_fence.reset();
+    uint32_t idx = swapchain->get_backbuffer_index(&ready_fence);
     data->default_log->log_info("Got backbuffer: ", idx);
 
     // This will be our normal flow: transition the image from
     //  present to render_target, do something, transition back.
 
+    ready_fence.wait();
     // In fact, this interface should change slightly, the first
     // transition should implicitly be enqueued on one of the queues.
     wn::graphics::command_list_ptr list = alloc.create_command_list();
@@ -68,6 +71,7 @@ TEST(swapchain, basic) {
     queue->enqueue_fence(completion_fence);
 
     completion_fence.wait();
+    completion_fence.reset();
 
     swapchain->present(queue.get(), idx);
   }

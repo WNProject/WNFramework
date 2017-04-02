@@ -8,6 +8,7 @@
 #define __WN_GRAPHICS_COMMAND_LIST_H__
 
 #include "WNGraphics/inc/Internal/WNConfig.h"
+#include "WNGraphics/inc/WNBuffer.h"
 #include "WNGraphics/inc/WNDescriptors.h"
 #include "WNGraphics/inc/WNFramebuffer.h"
 #include "WNGraphics/inc/WNGraphicsPipeline.h"
@@ -84,6 +85,9 @@ public:
       uint32_t base_index) = 0;
 
   virtual void bind_graphics_pipeline(graphics_pipeline* _pipeline) = 0;
+
+  // TODO(awoloszyn): Add bind_vertex_buffers to bind multiple at once.
+  virtual void bind_vertex_buffer(uint32_t stream, const buffer* _buffer) = 0;
 #endif
 
 protected:

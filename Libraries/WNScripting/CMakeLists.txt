@@ -9,17 +9,17 @@ set(WN_LLVM_ADDITIONAL_BUILD_FLAGS)
 set(WN_LLVM_OVERRIDDEN_TRIPLE "WN_LLVM_NON_OVERRIDDEN_TRIPLE")
 enable_overlay_directory()
 if (NOT WN_DISABLE_CXX)
-  if(WN_LLVM_TRIPLE) 
+  if(WN_LLVM_TRIPLE)
     set(WN_LLVM_OVERRIDDEN_TRIPLE "WN_LLVM_OVERRIDDEN_TRIPLE")
   endif()
-  
+
   set(WN_LLVM_SOURCE_DIR
       ${WNFramework_SOURCE_DIR}/Externals/llvm
       CACHE STRING "Location of the llvm source checkout"
   )
-  
+
   file(TO_CMAKE_PATH ${WN_LLVM_SOURCE_DIR} LLVM_SOURCE_DIR_CMAKE_PATH)
-  
+
   if (NOT LLVM_CONFIGURED)
     if(WN_LLVM_CXX_COMPILER)
       list(APPEND WN_LLVM_EXTRA_FLAGS
@@ -34,16 +34,16 @@ if (NOT WN_DISABLE_CXX)
     if (WN_LLVM_TOOLCHAIN)
       list(APPEND WN_LLVM_EXTRA_FLAGS "-DCMAKE_TOOLCHAIN_FILE=${WN_LLVM_TOOLCHAIN}")
     endif()
-  
+
     list(APPEND WN_LLVM_EXTRA_FLAGS "-DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}")
-  
+
     execute_process(
      COMMAND ${CMAKE_COMMAND} -E make_directory
       ${WNFramework_BINARY_DIR}/Externals
       COMMAND ${CMAKE_COMMAND} -E make_directory
       ${WNFramework_BINARY_DIR}/Externals/llvm
     )
-  
+
     execute_process(
       COMMAND ${WN_LLVM_WRAPPER} ${CMAKE_COMMAND}
       -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
@@ -67,20 +67,20 @@ if (NOT WN_DISABLE_CXX)
     )
     set(LLVM_CONFIGURED TRUE CACHE INTERNAL "llvm has been configured" FORCE)
   endif()
-  
+
   add_custom_target(llvm_target
       COMMAND ${CMAKE_COMMAND} --build . ${WN_LLVM_ADDITIONAL_BUILD_FLAGS}
       WORKING_DIRECTORY ${WNFramework_BINARY_DIR}/Externals/llvm)
-  
+
   include(${WNFramework_BINARY_DIR}/Externals/llvm/lib/cmake/llvm/LLVMConfig.cmake)
-  
+
   set(WNScriptingLLVMComponents codegen mcjit native)
   llvm_map_components_to_libnames(WNScriptingLLVMLibs ${WNScriptingLLVMComponents})
-  
+
   option(WN_BUILD_LLVM_MANUALLY
     "Do not automatically build llvm when a dependency is built"
     ${WN_BUILD_LLVM_MANUALLY})
-  
+
   if (NOT ${WN_BUILD_LLVM_MANUALLY})
     llvm_expand_dependencies(l ${WNScriptingLLVMLibs})
     foreach (llvm_lib ${l})

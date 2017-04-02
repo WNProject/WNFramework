@@ -35,9 +35,13 @@ struct command_list_context WN_FINAL {
   PFN_vkCmdBindDescriptorSets vkCmdBindDescriptorSets;
 
   PFN_vkCmdBindPipeline vkCmdBindPipeline;
+  PFN_vkCmdBindVertexBuffers vkCmdBindVertexBuffers;
 
   PFN_vkCmdCopyImageToBuffer vkCmdCopyImageToBuffer;
   PFN_vkCmdCopyBufferToImage vkCmdCopyBufferToImage;
+
+  PFN_vkCmdSetViewport vkCmdSetViewport;
+  PFN_vkCmdSetScissor  vkCmdSetScissor;
 };
 
 }  // namespace vulkan

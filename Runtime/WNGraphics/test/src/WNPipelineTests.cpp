@@ -55,7 +55,7 @@ TEST_F(pipeline_test, basic_pipeline) {
 
     size_t idx = 0;
     for (idx = 0; idx < properties.size(); ++idx) {
-      if (properties[idx].allow_images && properties[idx].device_local) {
+      if (properties[idx].allow_render_targets && properties[idx].device_local) {
         break;
       }
     }
@@ -142,9 +142,11 @@ TEST_F(pipeline_test, basic_pipeline) {
 
     wn::graphics::graphics_pipeline pipeline = device->create_graphics_pipeline(
         wn::graphics::graphics_pipeline_description(&m_allocator)
-            .add_vertex_stream(0, 4 * sizeof(float),
+            .add_vertex_stream(0, 8 * sizeof(float),
                 wn::graphics::stream_frequency::per_vertex)
             .add_vertex_attribute(0, 0, "POSITION", 0,
+                wn::graphics::data_format::r32g32b32a32_sfloat)
+            .add_vertex_attribute(0, 1, "TEXCOORD", 16,
                 wn::graphics::data_format::r32g32b32a32_sfloat)
             .add_color_output(0)
             .set_shader(wn::graphics::shader_stage::vertex, &vs, "main")

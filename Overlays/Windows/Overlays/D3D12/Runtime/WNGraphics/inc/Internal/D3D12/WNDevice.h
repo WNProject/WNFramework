@@ -217,10 +217,10 @@ protected:
 
 private:
   template <typename T>
-  typename data_type<T>::value& get_data(T* t);
+  typename data_type<T>::value& get_data(T* t) const;
 
   template <typename T>
-  typename data_type<const T>::value& get_data(const T* const t);
+  typename data_type<const T>::value& get_data(const T* const t) const;
 
   D3D12_FEATURE_DATA_D3D12_OPTIONS m_options;
   containers::dynamic_array<heap_info> m_heap_info;

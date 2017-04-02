@@ -32,6 +32,9 @@ static foo __attribute__((used)) my_foo;
 
 void init_test_framework();
 
+extern int32_t k_arg_c;
+extern char** k_arg_v;
+
 }  // namespace testing
 }  // namespace wn
 

@@ -2,11 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
+#include "WNGraphics/inc/Internal/Vulkan/WNDevice.h"
 #include "WNContainers/inc/WNArray.h"
 #include "WNContainers/inc/WNDeque.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNBufferData.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNDataTypes.h"
-#include "WNGraphics/inc/Internal/Vulkan/WNDevice.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNImageFormats.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNResourceStates.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNSwapchain.h"
@@ -225,6 +225,8 @@ bool vulkan_device::initialize(memory::allocator* _allocator,
       m_device, m_command_list_context, vkCmdBindDescriptorSets);
   LOAD_VK_SUB_DEVICE_SYMBOL(
       m_device, m_command_list_context, vkCmdBindPipeline);
+  LOAD_VK_SUB_DEVICE_SYMBOL(
+      m_device, m_command_list_context, vkCmdBindVertexBuffers);
 
   m_command_list_context.m_device = this;
 
@@ -292,7 +294,7 @@ const static VkFenceCreateInfo s_create_fence{
 };
 
 void vulkan_device::initialize_fence(fence* _fence) {
-  VkFence& data = _fence->data_as<VkFence>();
+  VkFence& data = get_data(_fence);
 
   VkResult hr = vkCreateFence(m_device, &s_create_fence, nullptr, &data);
   (void)hr;
@@ -300,19 +302,19 @@ void vulkan_device::initialize_fence(fence* _fence) {
 }
 
 void vulkan_device::destroy_fence(fence* _fence) {
-  VkFence& data = _fence->data_as<VkFence>();
+  VkFence& data = get_data(_fence);
   vkDestroyFence(m_device, data, nullptr);
 }
 
 void vulkan_device::wait_fence(const fence* _fence) const {
-  const VkFence& data = _fence->data_as<VkFence>();
+  const VkFence& data = get_data(_fence);
   while (VK_TIMEOUT ==
          vkWaitForFences(m_device, 1, &data, false, static_cast<uint32_t>(-1)))
     ;
 }
 
 void vulkan_device::reset_fence(fence* _fence) {
-  VkFence& data = _fence->data_as<VkFence>();
+  VkFence& data = get_data(_fence);
   vkResetFences(m_device, 1, &data);
 }
 
@@ -1335,11 +1337,15 @@ void vulkan_device::initialize_graphics_pipeline(graphics_pipeline* _pipeline,
     dynamic_states.push_back(VK_DYNAMIC_STATE_STENCIL_REFERENCE);
   }
 
-  VkPipelineDynamicStateCreateInfo dynamic_state_info = {
+  VkPipelineDynamicStateCreateInfo* dynamic_state_info = nullptr;
+  VkPipelineDynamicStateCreateInfo dynamic_state = {
       VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO,  // sType
       nullptr,                                               // pNext
       0,                                                     // flags
       static_cast<uint32_t>(dynamic_states.size()), dynamic_states.data()};
+  if (!dynamic_states.empty()) {
+    dynamic_state_info = &dynamic_state;
+  }
 
   ::VkPipelineLayout layout = get_data(_layout);
   ::VkRenderPass renderpass = get_data(_renderpass);
@@ -1358,7 +1364,7 @@ void vulkan_device::initialize_graphics_pipeline(graphics_pipeline* _pipeline,
       multisample_create_info,      // pMultisampleState
       depth_create_info,            // pDepthStencilState
       color_blend_info,             // pColorBlendState
-      &dynamic_state_info,          // pDynamicState
+      dynamic_state_info,           // pDynamicState
       layout,                       // layout
       renderpass,                   // renderPass
       _subpass,                     // subpass

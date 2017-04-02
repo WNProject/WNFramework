@@ -195,6 +195,14 @@ void vulkan_command_list::bind_graphics_pipeline(graphics_pipeline* _pipeline) {
       m_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.pipeline);
 }
 
+void vulkan_command_list::bind_vertex_buffer(
+  uint32_t stream, const buffer* _buffer) {
+  const memory::unique_ptr<const buffer_info>& buffer = get_data(_buffer);
+  const VkDeviceSize offset = 0;
+  m_context->vkCmdBindVertexBuffers(m_command_buffer,
+      stream, 1, &buffer->buffer, &offset);
+}
+
 #undef get_data
 
 }  // namespace vulkan

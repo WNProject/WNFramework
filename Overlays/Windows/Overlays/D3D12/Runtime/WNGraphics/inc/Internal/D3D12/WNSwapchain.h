@@ -46,16 +46,16 @@ public:
 #endif
 
   image* get_image_for_index(uint32_t index) WN_GRAPHICS_OVERRIDE_FINAL;
-  uint32_t get_backbuffer_index() const WN_GRAPHICS_OVERRIDE_FINAL;
+  uint32_t get_backbuffer_index(fence* fence) const WN_GRAPHICS_OVERRIDE_FINAL;
 
 protected:
   friend class d3d12_device;
 
   template <typename T>
-  typename data_type<T>::value& get_data(T* t);
+  typename data_type<T>::value& get_data(T* t) const;
 
   template <typename T>
-  typename data_type<const T>::value& get_data(const T* const t);
+  typename data_type<const T>::value& get_data(const T* const t) const;
 
   WN_FORCE_INLINE d3d12_swapchain()
     : d3d12_swapchain_base(), m_device(nullptr) {}

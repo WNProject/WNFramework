@@ -157,6 +157,16 @@ struct data_type<const image> {
   using value = const ::VkImage;
 };
 
+template <>
+struct data_type<const fence> {
+  using value = const ::VkFence;
+};
+
+template <>
+struct data_type<fence> {
+  using value = ::VkFence;
+};
+
 }  // namespace vulkan
 }  // namespace internal
 }  // namespace graphics

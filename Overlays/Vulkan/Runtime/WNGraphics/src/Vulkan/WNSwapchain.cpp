@@ -6,6 +6,7 @@
 #include "WNGraphics/inc/Internal/Vulkan/WNDataTypes.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNDevice.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNQueue.h"
+#include "WNGraphics/inc/WNFence.h"
 #include "WNGraphics/inc/WNImage.h"
 #include "WNGraphics/inc/WNSwapchain.h"
 
@@ -55,10 +56,11 @@ vulkan_swapchain::~vulkan_swapchain() {
   }
 }
 
-uint32_t vulkan_swapchain::get_backbuffer_index() const {
+uint32_t vulkan_swapchain::get_backbuffer_index(fence* fence) const {
   uint32_t idx;
+  ::VkFence f = get_data(fence);
   m_device->vkAcquireNextImageKHR(m_device->m_device, m_swapchain,
-      0xFFFFFFFFFFFFFFFF, VK_NULL_HANDLE, VK_NULL_HANDLE, &idx);
+      0xFFFFFFFFFFFFFFFF, VK_NULL_HANDLE, f, &idx);
   return idx;
 }
 

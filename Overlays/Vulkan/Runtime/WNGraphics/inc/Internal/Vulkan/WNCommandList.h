@@ -84,6 +84,8 @@ public:
   void bind_graphics_pipeline(
       graphics_pipeline* _pipeline) WN_GRAPHICS_OVERRIDE_FINAL;
 
+  void bind_vertex_buffer(
+      uint32_t stream, const buffer* _buffer) WN_GRAPHICS_OVERRIDE_FINAL;
 protected:
   friend class vulkan_device;
   friend class vulkan_queue;

@@ -63,11 +63,14 @@ function(overload_add_executable name)
       PARSED_ARGS
       ""
       ""
-      "SOURCES;LIBS"
+      "SOURCES;LIBS;INCLUDES"
       ${ARGN})
     add_executable(${name} ${PARSED_ARGS_SOURCES})
     if (PARSED_ARGS_LIBS)
       target_link_libraries(${name} ${PARSED_ARGS_LIBS})
+    endif()
+    if (PARSED_ARGS_INCLUDES)
+      target_include_directories(${name} ${PARSED_ARGS_INCLUDES})
     endif()
     add_custom_command(TARGET ${name}
       COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/stripped
@@ -108,7 +111,7 @@ function(overload_add_application name)
         PARSED_ARGS
         ""
         ""
-        "SOURCES;LIBS"
+        "SOURCES;LIBS;INCLUDES"
         ${ARGN})
   if (NOT WN_ANDROID_WRAPPER)
     overload_add_library(${name} SHARED ${ARGN})

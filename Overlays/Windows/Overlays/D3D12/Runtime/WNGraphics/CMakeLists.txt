@@ -6,7 +6,6 @@ overlay_library_sources(WNGraphics
     inc/Internal/D3D12/WNCommandList.h
     inc/Internal/D3D12/WNDevice.h
     inc/Internal/D3D12/WNDataTypes.h
-    inc/Internal/D3D12/WNFenceData.h
     inc/Internal/D3D12/WNImageFormats.h
     inc/Internal/D3D12/WNQueue.h
     inc/Internal/D3D12/WNResourceStates.h

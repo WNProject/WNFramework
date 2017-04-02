@@ -4,6 +4,7 @@
 
 #include "WNGraphics/inc/Internal/D3D12/WNSwapchain.h"
 #include "WNGraphics/inc/Internal/D3D12/WNDataTypes.h"
+#include "WNGraphics/inc/WNFence.h"
 #include "WNGraphics/inc/WNImage.h"
 #include "WNGraphics/inc/WNSwapchain.h"
 
@@ -25,6 +26,7 @@ void d3d12_swapchain::initialize(memory::allocator* _allocator,
     m_images.push_back(image(reinterpret_cast<device*>(m_device)));
     image* im = &m_images[i];
     auto& img = get_data(im);
+    img = memory::make_unique<image_data>(m_allocator);
     im->m_resource_info = {_create_info.format, _width, _height, 1, 0, 0, 0};
     im->m_is_swapchain_image = true;
     m_swapchain->GetBuffer(
@@ -32,7 +34,9 @@ void d3d12_swapchain::initialize(memory::allocator* _allocator,
   }
 }
 
-uint32_t d3d12_swapchain::get_backbuffer_index() const {
+uint32_t d3d12_swapchain::get_backbuffer_index(fence* fence) const {
+  fence_data& dat = get_data(fence);
+  dat.fence->Signal(1);
   return m_swapchain->GetCurrentBackBufferIndex();
 }
 
@@ -51,13 +55,13 @@ void d3d12_swapchain::present_internal(
 }
 
 template <typename T>
-typename data_type<T>::value& d3d12_swapchain::get_data(T* t) {
+typename data_type<T>::value& d3d12_swapchain::get_data(T* t) const {
   return t->data_as<typename data_type<T>::value>();
 }
 
 template <typename T>
 typename data_type<const T>::value& d3d12_swapchain::get_data(
-    const T* const t) {
+    const T* const t) const {
   return t->data_as<typename data_type<const T>::value>();
 }
 

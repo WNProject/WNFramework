@@ -285,11 +285,14 @@ function(overload_add_executable name)
     PARSED_ARGS
     ""
     ""
-    "SOURCES;LIBS"
+    "SOURCES;LIBS;INCLUDES"
     ${ARGN})
   add_executable(${name} ${PARSED_ARGS_SOURCES})
   if (PARSED_ARGS_LIBS)
     target_link_libraries(${name} ${PARSED_ARGS_LIBS})
+  endif()
+  if (PARSED_ARGS_INCLUDES)
+    target_include_directories(${name} PUBLIC ${PARSED_ARGS_INCLUDES})
   endif()
 endfunction()
 
@@ -336,7 +339,7 @@ function(add_wn_executable name)
       PARSED_ARGS
       ""
       ""
-      "SOURCES;LIBS"
+      "SOURCES;LIBS;INCLUDES"
       ${ARGN})
 
     _add_sources_to_target(${name} SOURCES ${PARSED_ARGS_SOURCES} LIBS
@@ -349,7 +352,7 @@ function(add_wn_executable name)
     endif()
 
     overload_add_executable(${name} SOURCES ${${name}_OVERLAY_SOURCES} LIBS
-      ${${name}_OVERLAY_LIBS})
+      ${${name}_OVERLAY_LIBS} INCLUDES ${PARSED_ARGS_INCLUDES})
     overlay_named_file(cmake/target_functions/post_add_executable.cmake)
   endif()
 endfunction()
@@ -386,7 +389,7 @@ function(add_wn_application name)
         PARSED_ARGS
         ""
         ""
-        "SOURCES;LIBS"
+        "SOURCES;LIBS;INCLUDES"
         ${ARGN})
 
     overload_add_application(${name}
@@ -396,6 +399,8 @@ function(add_wn_application name)
         WNExecutable
         WNApplicationEntry
         ${PARSED_ARGS_LIBS}
+      INCLUDES
+        ${PARSED_ARGS_INCLUDES}
     )
   endif()
 endfunction()

@@ -42,7 +42,7 @@ public:
 #endif
 
   image* get_image_for_index(uint32_t index) WN_GRAPHICS_OVERRIDE_FINAL;
-  uint32_t get_backbuffer_index() const WN_GRAPHICS_OVERRIDE_FINAL;
+  uint32_t get_backbuffer_index(fence* fence) const WN_GRAPHICS_OVERRIDE_FINAL;
 
 protected:
   friend class vulkan_device;

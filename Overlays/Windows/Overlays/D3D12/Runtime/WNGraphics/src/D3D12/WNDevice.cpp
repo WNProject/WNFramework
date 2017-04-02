@@ -2,11 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNGraphics/inc/Internal/D3D12/WNDevice.h"
 #include "WNContainers/inc/WNDeque.h"
 #include "WNGraphics/inc/Internal/D3D12/WNCommandList.h"
 #include "WNGraphics/inc/Internal/D3D12/WNDataTypes.h"
-#include "WNGraphics/inc/Internal/D3D12/WNFenceData.h"
+#include "WNGraphics/inc/Internal/D3D12/WNDevice.h"
 #include "WNGraphics/inc/Internal/D3D12/WNImageFormats.h"
 #include "WNGraphics/inc/Internal/D3D12/WNResourceStates.h"
 #include "WNGraphics/inc/Internal/D3D12/WNSwapchain.h"
@@ -162,7 +161,7 @@ command_list_ptr d3d12_device::create_command_list(command_allocator* _alloc) {
 // fence methods
 
 void d3d12_device::initialize_fence(fence* _fence) {
-  fence_data& data = _fence->data_as<fence_data>();
+  fence_data& data = get_data(_fence);
   const HRESULT hr = m_device->CreateFence(
       0, D3D12_FENCE_FLAG_NONE, __uuidof(ID3D12Fence), &data.fence);
 
@@ -180,20 +179,20 @@ void d3d12_device::initialize_fence(fence* _fence) {
 }
 
 void d3d12_device::destroy_fence(fence* _fence) {
-  fence_data& data = _fence->data_as<fence_data>();
+  fence_data& data = get_data(_fence);
 
   data.fence.Reset();
   data.event.dispose();
 }
 
 void d3d12_device::wait_fence(const fence* _fence) const {
-  const fence_data& data = _fence->data_as<fence_data>();
+  const fence_data& data = get_data(_fence);
 
   ::WaitForSingleObject(data.event.value(), INFINITE);
 }
 
 void d3d12_device::reset_fence(fence* _fence) {
-  fence_data& data = _fence->data_as<fence_data>();
+  fence_data& data = get_data(_fence);
   const BOOL result = ::ResetEvent(data.event.value());
 
   WN_DEBUG_ASSERT_DESC(result, "Failed to reset fence");
@@ -203,7 +202,7 @@ void d3d12_device::reset_fence(fence* _fence) {
 #endif
 
   const HRESULT hr = data.fence->Signal(0);
-
+  data.fence->SetEventOnCompletion(1, data.event.value());
   WN_DEBUG_ASSERT_DESC(SUCCEEDED(hr), "Failed to reset fence");
 
 #ifndef _WN_DEBUG
@@ -713,9 +712,10 @@ void d3d12_device::initialize_framebuffer(
           {m_rtv_heap.get_partition(1), &m_rtv_heap});
       WN_DEBUG_ASSERT_DESC(data->image_view_handles.back().token.is_valid(),
           "Could not allocate space for rtv");
+      const memory::unique_ptr<const image_data>& image_data =
+          get_data(info->image);
       const Microsoft::WRL::ComPtr<ID3D12Resource>& resource =
-          info->image->data_as<Microsoft::WRL::ComPtr<ID3D12Resource>>();
-
+          image_data->image;
       rtv.Format = image_format_to_dxgi_format(
           info->image->get_buffer_requirements().format);
 
@@ -730,8 +730,10 @@ void d3d12_device::initialize_framebuffer(
       WN_DEBUG_ASSERT_DESC(data->image_view_handles.back().token.is_valid(),
           "Could not allocate space for dsv");
 
+      const memory::unique_ptr<const image_data>& image_data =
+          get_data(info->image);
       const Microsoft::WRL::ComPtr<ID3D12Resource>& resource =
-          info->image->data_as<Microsoft::WRL::ComPtr<ID3D12Resource>>();
+          image_data->image;
       dsv.Format = image_format_to_dxgi_format(
           info->image->get_buffer_requirements().format);
 
@@ -843,7 +845,7 @@ void d3d12_device::initialize_graphics_pipeline(graphics_pipeline* _pipeline,
       static_cast<int32_t>(_create_info.m_depth_bias),  // DepthBias
       0.f,                                              // DepthBiasClamp
       0.f,                                              // SlopeScaledDepthBias
-      FALSE,                                            // DepthClipEnabled
+      TRUE,                                             // DepthClipEnabled
       _create_info.m_num_samples !=
           multisample_count::samples_1,              // MultisampleEnable
       FALSE,                                         // AntialiasedLineEnable
@@ -983,12 +985,13 @@ void d3d12_device::destroy_graphics_pipeline(graphics_pipeline* _pipeline) {
 }
 
 template <typename T>
-typename data_type<T>::value& d3d12_device::get_data(T* t) {
+typename data_type<T>::value& d3d12_device::get_data(T* t) const {
   return t->data_as<typename data_type<T>::value>();
 }
 
 template <typename T>
-typename data_type<const T>::value& d3d12_device::get_data(const T* const t) {
+typename data_type<const T>::value& d3d12_device::get_data(
+    const T* const t) const {
   return t->data_as<typename data_type<const T>::value>();
 }
 

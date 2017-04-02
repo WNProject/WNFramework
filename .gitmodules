@@ -7,7 +7,3 @@
 	branch = release_40
 	url = https://github.com/llvm-mirror/llvm.git
 	ignore = dirty
-[submodule "Externals/android-cmake"]
-	path = Externals/android-cmake
-	url = https://github.com/taka-no-me/android-cmake.git
-	ignore = dirty

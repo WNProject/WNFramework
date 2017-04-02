@@ -27,6 +27,8 @@ class command_list;
 namespace internal {
 namespace d3d12 {
 
+template <typename T>
+struct data_type;
 class d3d12_device;
 
 #ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
@@ -54,6 +56,11 @@ public:
 
 protected:
   friend class d3d12_device;
+  template <typename T>
+  typename data_type<T>::value& get_data(T* t);
+
+  template <typename T>
+  typename data_type<const T>::value& get_data(const T* const t);
 
   WN_FORCE_INLINE d3d12_queue() : d3d12_queue_base(), m_device(nullptr) {}
 
