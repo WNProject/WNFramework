@@ -17,8 +17,8 @@ bool convert_to_utf8(
       CP_UTF8, 0, _buffer, buffer_size, NULL, 0, NULL, NULL);
 
   if (converted_temp_path_size != 0) {
-    containers::string path(static_cast<size_t>(converted_temp_path_size), 0);
-
+    containers::string path(_path.get_allocator(),
+        static_cast<size_t>(converted_temp_path_size), 0);
     converted_temp_path_size = ::WideCharToMultiByte(CP_UTF8, 0, _buffer,
         buffer_size, &path[0], static_cast<const int>(path.size()), NULL, NULL);
 
@@ -74,7 +74,7 @@ bool get_scratch_path(containers::string& _path) {
               static_cast<WCHAR*>(path_unique_buffer.data());
 
           if (::CreateDirectoryW(path_unique, NULL) == TRUE) {
-            containers::string path;
+            containers::string path(_path.get_allocator());
 
             if (convert_to_utf8(path_unique, path_size, path)) {
               _path = std::move(path);

@@ -173,12 +173,14 @@ WN_FORCE_INLINE const char* strstr(const char* lhs, const char* rhs) {
 
 WN_FORCE_INLINE size_t strnhash(const char* _str, size_t _length) {
   WN_DEBUG_ASSERT_DESC(_str, "string must not be nullptr");
+
   size_t hash = 0;
+
   for (size_t i = 0; i < _length && _str[i] != '\0'; ++i) {
     hash = _str[i] + (hash << 6) + (hash << 16) - hash;
   }
 
-  return (hash);
+  return hash;
 }
 
 WN_FORCE_INLINE size_t strhash(const char* str) {

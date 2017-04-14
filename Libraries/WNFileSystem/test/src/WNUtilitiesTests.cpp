@@ -2,140 +2,161 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNFileSystem/src/WNUtilities.h"
 #include "WNExecutableTest/inc/WNTestHarness.h"
+#include "WNFileSystem/src/WNUtilities.h"
 
 using ::testing::ElementsAre;
 
 TEST(utilities, sanitize_path) {
-  wn::containers::string path1;
-  wn::containers::string path2(".");
-  wn::containers::string path3("..");
-  wn::containers::string path4("..\\");
-  wn::containers::string path5("../");
-  wn::containers::string path6("..\\..");
-  wn::containers::string path7("../..");
-  wn::containers::string path8("..\\..//");
-  wn::containers::string path9("../..\\");
-  wn::containers::string path10("\\//\\/\\/\\///\\\\/\\/\\/\\/\\\\\\///");
-  wn::containers::string path11(
-      "..\\//.\\/\\../\\.///..\\.\\/\\/\\/\\/\\..\\..\\///");
-  wn::containers::string path12("\\//\\/\\/\\///\\\\/\\/\\/\\/\\\\\\///.");
-  wn::containers::string path13("\\//\\/\\/\\///\\\\/\\/\\/\\/\\\\\\///..");
-  wn::containers::string path14("../temp//..\\temp/./temp\\.\\temp.txt");
-  wn::containers::string path15("../temp//..\\temp/./temp\\.\\temp.txt.");
-  wn::containers::string path16("../temp//..\\temp/./temp\\.\\temp.txt..");
+  wn::testing::allocator test_allocator;
 
-  wn::file_system::internal::sanitize_path(path1);
-  wn::file_system::internal::sanitize_path(path2);
-  wn::file_system::internal::sanitize_path(path3);
-  wn::file_system::internal::sanitize_path(path4);
-  wn::file_system::internal::sanitize_path(path5);
-  wn::file_system::internal::sanitize_path(path6);
-  wn::file_system::internal::sanitize_path(path7);
-  wn::file_system::internal::sanitize_path(path8);
-  wn::file_system::internal::sanitize_path(path9);
-  wn::file_system::internal::sanitize_path(path10);
-  wn::file_system::internal::sanitize_path(path11);
-  wn::file_system::internal::sanitize_path(path12);
-  wn::file_system::internal::sanitize_path(path13);
-  wn::file_system::internal::sanitize_path(path14);
-  wn::file_system::internal::sanitize_path(path15);
-  wn::file_system::internal::sanitize_path(path16);
+  {
+    wn::containers::string path1(&test_allocator);
+    wn::containers::string path2(&test_allocator, ".");
+    wn::containers::string path3(&test_allocator, "..");
+    wn::containers::string path4(&test_allocator, "..\\");
+    wn::containers::string path5(&test_allocator, "../");
+    wn::containers::string path6(&test_allocator, "..\\..");
+    wn::containers::string path7(&test_allocator, "../..");
+    wn::containers::string path8(&test_allocator, "..\\..//");
+    wn::containers::string path9(&test_allocator, "../..\\");
+    wn::containers::string path10(
+        &test_allocator, "\\//\\/\\/\\///\\\\/\\/\\/\\/\\\\\\///");
+    wn::containers::string path11(
+        &test_allocator, "..\\//.\\/\\../\\.///..\\.\\/\\/\\/\\/\\..\\..\\///");
+    wn::containers::string path12(
+        &test_allocator, "\\//\\/\\/\\///\\\\/\\/\\/\\/\\\\\\///.");
+    wn::containers::string path13(
+        &test_allocator, "\\//\\/\\/\\///\\\\/\\/\\/\\/\\\\\\///..");
+    wn::containers::string path14(
+        &test_allocator, "../temp//..\\temp/./temp\\.\\temp.txt");
+    wn::containers::string path15(
+        &test_allocator, "../temp//..\\temp/./temp\\.\\temp.txt.");
+    wn::containers::string path16(
+        &test_allocator, "../temp//..\\temp/./temp\\.\\temp.txt..");
 
-  EXPECT_EQ(path1, "");
-  EXPECT_EQ(path2, "");
+    wn::file_system::internal::sanitize_path(path1);
+    wn::file_system::internal::sanitize_path(path2);
+    wn::file_system::internal::sanitize_path(path3);
+    wn::file_system::internal::sanitize_path(path4);
+    wn::file_system::internal::sanitize_path(path5);
+    wn::file_system::internal::sanitize_path(path6);
+    wn::file_system::internal::sanitize_path(path7);
+    wn::file_system::internal::sanitize_path(path8);
+    wn::file_system::internal::sanitize_path(path9);
+    wn::file_system::internal::sanitize_path(path10);
+    wn::file_system::internal::sanitize_path(path11);
+    wn::file_system::internal::sanitize_path(path12);
+    wn::file_system::internal::sanitize_path(path13);
+    wn::file_system::internal::sanitize_path(path14);
+    wn::file_system::internal::sanitize_path(path15);
+    wn::file_system::internal::sanitize_path(path16);
+
+    EXPECT_EQ(path1, "");
+    EXPECT_EQ(path2, "");
 
 #ifdef _WN_WINDOWS
-  EXPECT_EQ(path3, "..\\");
-  EXPECT_EQ(path4, "..\\");
-  EXPECT_EQ(path5, "..\\");
-  EXPECT_EQ(path6, "..\\..\\");
-  EXPECT_EQ(path7, "..\\..\\");
-  EXPECT_EQ(path8, "..\\..\\");
-  EXPECT_EQ(path9, "..\\..\\");
-  EXPECT_EQ(path10, "\\");
-  EXPECT_EQ(path11, "..\\..\\..\\..\\..\\");
-  EXPECT_EQ(path12, "\\");
-  EXPECT_EQ(path13, "\\..\\");
-  EXPECT_EQ(path14, "..\\temp\\temp\\temp.txt");
-  EXPECT_EQ(path15, "..\\temp\\temp\\temp.txt.");
-  EXPECT_EQ(path16, "..\\temp\\temp\\temp.txt..");
+    EXPECT_EQ(path3, "..\\");
+    EXPECT_EQ(path4, "..\\");
+    EXPECT_EQ(path5, "..\\");
+    EXPECT_EQ(path6, "..\\..\\");
+    EXPECT_EQ(path7, "..\\..\\");
+    EXPECT_EQ(path8, "..\\..\\");
+    EXPECT_EQ(path9, "..\\..\\");
+    EXPECT_EQ(path10, "\\");
+    EXPECT_EQ(path11, "..\\..\\..\\..\\..\\");
+    EXPECT_EQ(path12, "\\");
+    EXPECT_EQ(path13, "\\..\\");
+    EXPECT_EQ(path14, "..\\temp\\temp\\temp.txt");
+    EXPECT_EQ(path15, "..\\temp\\temp\\temp.txt.");
+    EXPECT_EQ(path16, "..\\temp\\temp\\temp.txt..");
 #elif defined _WN_POSIX
-  EXPECT_EQ(path3, "../");
-  EXPECT_EQ(path4, "../");
-  EXPECT_EQ(path5, "../");
-  EXPECT_EQ(path6, "../../");
-  EXPECT_EQ(path7, "../../");
-  EXPECT_EQ(path8, "../../");
-  EXPECT_EQ(path9, "../../");
-  EXPECT_EQ(path10, "/");
-  EXPECT_EQ(path11, "../../../../../");
-  EXPECT_EQ(path12, "/");
-  EXPECT_EQ(path13, "/../");
-  EXPECT_EQ(path14, "../temp/temp/temp.txt");
-  EXPECT_EQ(path15, "../temp/temp/temp.txt.");
-  EXPECT_EQ(path16, "../temp/temp/temp.txt..");
+    EXPECT_EQ(path3, "../");
+    EXPECT_EQ(path4, "../");
+    EXPECT_EQ(path5, "../");
+    EXPECT_EQ(path6, "../../");
+    EXPECT_EQ(path7, "../../");
+    EXPECT_EQ(path8, "../../");
+    EXPECT_EQ(path9, "../../");
+    EXPECT_EQ(path10, "/");
+    EXPECT_EQ(path11, "../../../../../");
+    EXPECT_EQ(path12, "/");
+    EXPECT_EQ(path13, "/../");
+    EXPECT_EQ(path14, "../temp/temp/temp.txt");
+    EXPECT_EQ(path15, "../temp/temp/temp.txt.");
+    EXPECT_EQ(path16, "../temp/temp/temp.txt..");
 #endif
+  }
 }
 
 TEST(utilities, validate_relative_path) {
-  const wn::containers::string path1("");
-  const wn::containers::string path2("temp.txt");
+  wn::testing::allocator test_allocator;
+
+  {
+    const wn::containers::string path1(&test_allocator);
+    const wn::containers::string path2(&test_allocator, "temp.txt");
 
 #ifdef _WN_WINDOWS
-  const wn::containers::string path3("..\\");
-  const wn::containers::string path4("temp\\temp.txt");
-  const wn::containers::string path5("..\\temp\\temp.txt");
-  const wn::containers::string path6("\\");
-  const wn::containers::string path7("\\temp.txt");
-  const wn::containers::string path8("\\..\\");
-  const wn::containers::string path9("\\temp\\temp.txt");
-  const wn::containers::string path10("\\..\\temp\\temp.txt");
+    const wn::containers::string path3(&test_allocator, "..\\");
+    const wn::containers::string path4(&test_allocator, "temp\\temp.txt");
+    const wn::containers::string path5(&test_allocator, "..\\temp\\temp.txt");
+    const wn::containers::string path6(&test_allocator, "\\");
+    const wn::containers::string path7(&test_allocator, "\\temp.txt");
+    const wn::containers::string path8(&test_allocator, "\\..\\");
+    const wn::containers::string path9(&test_allocator, "\\temp\\temp.txt");
+    const wn::containers::string path10(
+        &test_allocator, "\\..\\temp\\temp.txt");
 #elif defined _WN_POSIX
-  const wn::containers::string path3("../");
-  const wn::containers::string path4("temp/temp.txt");
-  const wn::containers::string path5("../temp/temp.txt");
-  const wn::containers::string path6("/");
-  const wn::containers::string path7("/temp.txt");
-  const wn::containers::string path8("/../");
-  const wn::containers::string path9("/temp/temp.txt");
-  const wn::containers::string path10("/../temp/temp.txt");
+    const wn::containers::string path3(&test_allocator, "../");
+    const wn::containers::string path4(&test_allocator, "temp/temp.txt");
+    const wn::containers::string path5(&test_allocator, "../temp/temp.txt");
+    const wn::containers::string path6(&test_allocator, "/");
+    const wn::containers::string path7(&test_allocator, "/temp.txt");
+    const wn::containers::string path8(&test_allocator, "/../");
+    const wn::containers::string path9(&test_allocator, "/temp/temp.txt");
+    const wn::containers::string path10(&test_allocator, "/../temp/temp.txt");
 #endif
 
-  EXPECT_FALSE(wn::file_system::internal::validate_relative_path(path1));
-  EXPECT_TRUE(wn::file_system::internal::validate_relative_path(path2));
-  EXPECT_FALSE(wn::file_system::internal::validate_relative_path(path3));
-  EXPECT_TRUE(wn::file_system::internal::validate_relative_path(path4));
-  EXPECT_FALSE(wn::file_system::internal::validate_relative_path(path5));
-  EXPECT_FALSE(wn::file_system::internal::validate_relative_path(path6));
-  EXPECT_FALSE(wn::file_system::internal::validate_relative_path(path7));
-  EXPECT_FALSE(wn::file_system::internal::validate_relative_path(path8));
-  EXPECT_FALSE(wn::file_system::internal::validate_relative_path(path9));
-  EXPECT_FALSE(wn::file_system::internal::validate_relative_path(path10));
+    EXPECT_FALSE(wn::file_system::internal::validate_relative_path(path1));
+    EXPECT_TRUE(wn::file_system::internal::validate_relative_path(path2));
+    EXPECT_FALSE(wn::file_system::internal::validate_relative_path(path3));
+    EXPECT_TRUE(wn::file_system::internal::validate_relative_path(path4));
+    EXPECT_FALSE(wn::file_system::internal::validate_relative_path(path5));
+    EXPECT_FALSE(wn::file_system::internal::validate_relative_path(path6));
+    EXPECT_FALSE(wn::file_system::internal::validate_relative_path(path7));
+    EXPECT_FALSE(wn::file_system::internal::validate_relative_path(path8));
+    EXPECT_FALSE(wn::file_system::internal::validate_relative_path(path9));
+    EXPECT_FALSE(wn::file_system::internal::validate_relative_path(path10));
+  }
 }
 
 TEST(path_tests, split_sanitized_path) {
-  wn::testing::allocator allocator;
+  wn::testing::allocator test_allocator;
 
   {
-    wn::containers::string path1;
-    wn::containers::string path2(".");
-    wn::containers::string path3("..");
-    wn::containers::string path4("..\\");
-    wn::containers::string path5("../");
-    wn::containers::string path6("..\\..");
-    wn::containers::string path7("../..");
-    wn::containers::string path8("..\\..//");
-    wn::containers::string path9("../..\\");
-    wn::containers::string path10("\\//\\/\\/\\///\\\\/\\/\\/\\/\\\\\\///");
+    wn::containers::string path1(&test_allocator);
+    wn::containers::string path2(&test_allocator, ".");
+    wn::containers::string path3(&test_allocator, "..");
+    wn::containers::string path4(&test_allocator, "..\\");
+    wn::containers::string path5(&test_allocator, "../");
+    wn::containers::string path6(&test_allocator, "..\\..");
+    wn::containers::string path7(&test_allocator, "../..");
+    wn::containers::string path8(&test_allocator, "..\\..//");
+    wn::containers::string path9(&test_allocator, "../..\\");
+    wn::containers::string path10(
+        &test_allocator, "\\//\\/\\/\\///\\\\/\\/\\/\\/\\\\\\///");
     wn::containers::string path11(
-        "..\\//.\\/\\../\\.///..\\.\\/\\/\\/\\/\\..\\..\\///");
-    wn::containers::string path12("\\//\\/\\/\\///\\\\/\\/\\/\\/\\\\\\///.");
-    wn::containers::string path13("\\//\\/\\/\\///\\\\/\\/\\/\\/\\\\\\///..");
-    wn::containers::string path14("../temp//..\\temp/./temp\\.\\temp.txt");
-    wn::containers::string path15("../temp//..\\temp/./temp\\.\\temp.txt.");
-    wn::containers::string path16("../temp//..\\temp/./temp\\.\\temp.txt..");
+        &test_allocator, "..\\//.\\/\\../\\.///..\\.\\/\\/\\/\\/\\..\\..\\///");
+    wn::containers::string path12(
+        &test_allocator, "\\//\\/\\/\\///\\\\/\\/\\/\\/\\\\\\///.");
+    wn::containers::string path13(
+        &test_allocator, "\\//\\/\\/\\///\\\\/\\/\\/\\/\\\\\\///..");
+    wn::containers::string path14(
+        &test_allocator, "../temp//..\\temp/./temp\\.\\temp.txt");
+    wn::containers::string path15(
+        &test_allocator, "../temp//..\\temp/./temp\\.\\temp.txt.");
+    wn::containers::string path16(
+        &test_allocator, "../temp//..\\temp/./temp\\.\\temp.txt..");
 
     wn::file_system::internal::sanitize_path(path1);
     wn::file_system::internal::sanitize_path(path2);
@@ -155,37 +176,37 @@ TEST(path_tests, split_sanitized_path) {
     wn::file_system::internal::sanitize_path(path16);
 
     wn::containers::dynamic_array<wn::containers::string_view> split_path_1(
-        &allocator);
+        &test_allocator);
     wn::containers::dynamic_array<wn::containers::string_view> split_path_2(
-        &allocator);
+        &test_allocator);
     wn::containers::dynamic_array<wn::containers::string_view> split_path_3(
-        &allocator);
+        &test_allocator);
     wn::containers::dynamic_array<wn::containers::string_view> split_path_4(
-        &allocator);
+        &test_allocator);
     wn::containers::dynamic_array<wn::containers::string_view> split_path_5(
-        &allocator);
+        &test_allocator);
     wn::containers::dynamic_array<wn::containers::string_view> split_path_6(
-        &allocator);
+        &test_allocator);
     wn::containers::dynamic_array<wn::containers::string_view> split_path_7(
-        &allocator);
+        &test_allocator);
     wn::containers::dynamic_array<wn::containers::string_view> split_path_8(
-        &allocator);
+        &test_allocator);
     wn::containers::dynamic_array<wn::containers::string_view> split_path_9(
-        &allocator);
+        &test_allocator);
     wn::containers::dynamic_array<wn::containers::string_view> split_path_10(
-        &allocator);
+        &test_allocator);
     wn::containers::dynamic_array<wn::containers::string_view> split_path_11(
-        &allocator);
+        &test_allocator);
     wn::containers::dynamic_array<wn::containers::string_view> split_path_12(
-        &allocator);
+        &test_allocator);
     wn::containers::dynamic_array<wn::containers::string_view> split_path_13(
-        &allocator);
+        &test_allocator);
     wn::containers::dynamic_array<wn::containers::string_view> split_path_14(
-        &allocator);
+        &test_allocator);
     wn::containers::dynamic_array<wn::containers::string_view> split_path_15(
-        &allocator);
+        &test_allocator);
     wn::containers::dynamic_array<wn::containers::string_view> split_path_16(
-        &allocator);
+        &test_allocator);
 
     EXPECT_TRUE(
         wn::file_system::internal::split_sanitized_path(path1, split_path_1));
@@ -240,66 +261,70 @@ TEST(path_tests, split_sanitized_path) {
 }
 
 TEST(path_tests, get_pieces_from_sanitized_path) {
-  wn::containers::string path1;
-  wn::containers::string path2("../");
-  wn::containers::string path3("a/b.txt");
-  wn::containers::string path4("a/b/c.txt");
-  wn::containers::string path5("a.txt");
+  wn::testing::allocator test_allocator;
 
-  wn::file_system::internal::sanitize_path(path1);
-  wn::file_system::internal::sanitize_path(path2);
-  wn::file_system::internal::sanitize_path(path3);
-  wn::file_system::internal::sanitize_path(path4);
-  wn::file_system::internal::sanitize_path(path5);
+  {
+    wn::containers::string path1(&test_allocator);
+    wn::containers::string path2(&test_allocator, "../");
+    wn::containers::string path3(&test_allocator, "a/b.txt");
+    wn::containers::string path4(&test_allocator, "a/b/c.txt");
+    wn::containers::string path5(&test_allocator, "a.txt");
 
-  wn::containers::string_view directory_piece_1;
-  wn::containers::string_view directory_piece_2;
-  wn::containers::string_view directory_piece_3;
-  wn::containers::string_view directory_piece_4;
-  wn::containers::string_view directory_piece_5;
+    wn::file_system::internal::sanitize_path(path1);
+    wn::file_system::internal::sanitize_path(path2);
+    wn::file_system::internal::sanitize_path(path3);
+    wn::file_system::internal::sanitize_path(path4);
+    wn::file_system::internal::sanitize_path(path5);
 
-  wn::containers::string_view file_piece_1;
-  wn::containers::string_view file_piece_2;
-  wn::containers::string_view file_piece_3;
-  wn::containers::string_view file_piece_4;
-  wn::containers::string_view file_piece_5;
+    wn::containers::string_view directory_piece_1;
+    wn::containers::string_view directory_piece_2;
+    wn::containers::string_view directory_piece_3;
+    wn::containers::string_view directory_piece_4;
+    wn::containers::string_view directory_piece_5;
 
-  wn::file_system::internal::get_directory_from_sanitized_path(
-      path1, directory_piece_1);
-  wn::file_system::internal::get_directory_from_sanitized_path(
-      path2, directory_piece_2);
-  wn::file_system::internal::get_directory_from_sanitized_path(
-      path3, directory_piece_3);
-  wn::file_system::internal::get_directory_from_sanitized_path(
-      path4, directory_piece_4);
-  wn::file_system::internal::get_directory_from_sanitized_path(
-      path5, directory_piece_5);
+    wn::containers::string_view file_piece_1;
+    wn::containers::string_view file_piece_2;
+    wn::containers::string_view file_piece_3;
+    wn::containers::string_view file_piece_4;
+    wn::containers::string_view file_piece_5;
 
-  wn::file_system::internal::get_filename_from_sanitized_path(
-      path1, file_piece_1);
-  wn::file_system::internal::get_filename_from_sanitized_path(
-      path2, file_piece_2);
-  wn::file_system::internal::get_filename_from_sanitized_path(
-      path3, file_piece_3);
-  wn::file_system::internal::get_filename_from_sanitized_path(
-      path4, file_piece_4);
-  wn::file_system::internal::get_filename_from_sanitized_path(
-      path5, file_piece_5);
+    wn::file_system::internal::get_directory_from_sanitized_path(
+        path1, directory_piece_1);
+    wn::file_system::internal::get_directory_from_sanitized_path(
+        path2, directory_piece_2);
+    wn::file_system::internal::get_directory_from_sanitized_path(
+        path3, directory_piece_3);
+    wn::file_system::internal::get_directory_from_sanitized_path(
+        path4, directory_piece_4);
+    wn::file_system::internal::get_directory_from_sanitized_path(
+        path5, directory_piece_5);
 
-  EXPECT_EQ("", directory_piece_1);
-  EXPECT_EQ("", file_piece_1);
-  EXPECT_EQ("..", directory_piece_2);
-  EXPECT_EQ("", file_piece_2);
-  EXPECT_EQ("a", directory_piece_3);
-  EXPECT_EQ("b.txt", file_piece_3);
+    wn::file_system::internal::get_filename_from_sanitized_path(
+        path1, file_piece_1);
+    wn::file_system::internal::get_filename_from_sanitized_path(
+        path2, file_piece_2);
+    wn::file_system::internal::get_filename_from_sanitized_path(
+        path3, file_piece_3);
+    wn::file_system::internal::get_filename_from_sanitized_path(
+        path4, file_piece_4);
+    wn::file_system::internal::get_filename_from_sanitized_path(
+        path5, file_piece_5);
+
+    EXPECT_EQ("", directory_piece_1);
+    EXPECT_EQ("", file_piece_1);
+    EXPECT_EQ("..", directory_piece_2);
+    EXPECT_EQ("", file_piece_2);
+    EXPECT_EQ("a", directory_piece_3);
+    EXPECT_EQ("b.txt", file_piece_3);
 
 #ifdef _WN_WINDOWS
-  EXPECT_EQ("a\\b", directory_piece_4);
+    EXPECT_EQ("a\\b", directory_piece_4);
 #else
-  EXPECT_EQ("a/b", directory_piece_4);
+    EXPECT_EQ("a/b", directory_piece_4);
 #endif
 
-  EXPECT_EQ("c.txt", file_piece_4);
-  EXPECT_EQ("", directory_piece_5);
-  EXPECT_EQ("a.txt", file_piece_5);
+    EXPECT_EQ("c.txt", file_piece_4);
+    EXPECT_EQ("", directory_piece_5);
+    EXPECT_EQ("a.txt", file_piece_5);
+  }
 }

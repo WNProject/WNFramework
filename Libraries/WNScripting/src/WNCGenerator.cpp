@@ -150,7 +150,7 @@ void ast_c_translator::walk_type(const type* _type, containers::string* _str) {
     default: {
       const containers::string_view view =
           m_validator->get_type_name(_type->get_index());
-      *_str = containers::string(view.data(), view.size(), m_allocator);
+      *_str = containers::string(m_allocator, view.data(), view.size());
       switch (_type->get_reference_type()) {
         case reference_type::self:
         case reference_type::unique:
@@ -216,8 +216,8 @@ void ast_c_translator::walk_expression(const short_circuit_expression* _ss,
 void ast_c_translator::walk_expression(const binary_expression* _binary,
     core::pair<containers::string, containers::string>* _str) {
   initialize_data(m_allocator, _str);
-  const char* m_operators[] = {" + ", " - ", " * ", " / ", " % ", " == ",
-      " != ", " <= ", " >= ", " < ", " > "};
+  const char* m_operators[] = {" + ", " - ", " * ", " / ", " % ",
+      " == ", " != ", " <= ", " >= ", " < ", " > "};
   static_assert(sizeof(m_operators) / sizeof(m_operators[0]) ==
                     static_cast<size_t>(arithmetic_type::max),
       "New oeprator type detected");
@@ -251,7 +251,7 @@ void ast_c_translator::walk_expression(const id_expression* _id,
 void ast_c_translator::walk_expression(const function_pointer_expression* _ptr,
     core::pair<containers::string, containers::string>* _str) {
   initialize_data(m_allocator, _str);
-  _str->second = containers::string("&", m_allocator)
+  _str->second = containers::string(m_allocator, "&")
                      .append(_ptr->get_source()->get_mangled_name());
 }
 
@@ -270,7 +270,7 @@ void ast_c_translator::walk_expression(const array_access_expression* _access,
     case reference_type::self:
       if (_access->is_construction()) {
         containers::string s = _str->second;
-        _str->second = containers::string("&", m_allocator);
+        _str->second = containers::string(m_allocator, "&");
         _str->second.append(s);
         _str->second.append("->_c");
       } else {

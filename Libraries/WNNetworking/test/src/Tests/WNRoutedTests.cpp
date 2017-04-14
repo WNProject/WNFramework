@@ -79,9 +79,9 @@ TEST(routed_connection, default_route) {
                 return;
               }
               auto received = wn::containers::string(
-                  message.data.data(), message.data.size(), allocator);
+                  allocator, message.data.data(), message.data.size());
               EXPECT_EQ(
-                  wn::containers::string(sent_message, allocator), received);
+                  wn::containers::string(allocator, sent_message), received);
               signal.increment(1);
             }
             wn::multi_tasking::job_signal& signal;
@@ -164,9 +164,9 @@ TEST(routed_connection, all_are_default) {
                 return;
               }
               auto received = wn::containers::string(
-                  message.data.data(), message.data.size(), allocator);
+                  allocator, message.data.data(), message.data.size());
               EXPECT_EQ(
-                  wn::containers::string(sent_message, allocator), received);
+                  wn::containers::string(allocator, sent_message), received);
               signal.increment(1);
             }
             wn::multi_tasking::job_signal& signal;
@@ -270,23 +270,23 @@ TEST(routed_connection, multiple_routes) {
                 return;
               }
               auto received = wn::containers::string(
-                  message.data.data(), message.data.size(), allocator);
+                  allocator, message.data.data(), message.data.size());
               EXPECT_EQ(
-                  wn::containers::string(sent_message, allocator), received);
+                  wn::containers::string(allocator, sent_message), received);
               signal.increment(1);
             }
             void route32(wn::networking::RoutedMessage&& message) {
               auto received = wn::containers::string(
-                  message.data.data(), message.data.size(), allocator);
+                  allocator, message.data.data(), message.data.size());
               EXPECT_EQ(
-                  wn::containers::string(sent_message32, allocator), received);
+                  wn::containers::string(allocator, sent_message32), received);
               signal.increment(1);
             }
             void route2(wn::networking::RoutedMessage&& message) {
               auto received = wn::containers::string(
-                  message.data.data(), message.data.size(), allocator);
+                  allocator, message.data.data(), message.data.size());
               EXPECT_EQ(
-                  wn::containers::string(sent_message2, allocator), received);
+                  wn::containers::string(allocator, sent_message2), received);
               signal.increment(1);
             }
             wn::multi_tasking::job_signal& signal;
@@ -389,11 +389,11 @@ TEST(routed_connection, multipart_message) {
                 return;
               }
               auto received = wn::containers::string(
-                  message.data.data(), message.data.size(), allocator);
+                  allocator, message.data.data(), message.data.size());
               EXPECT_EQ(
                   message_idx * strlen(sent_message), message.m_message_offset);
               EXPECT_EQ(
-                  wn::containers::string(sent_message, allocator), received);
+                  wn::containers::string(allocator, sent_message), received);
               if (message_idx == 2) {
                 EXPECT_EQ(message.m_message_offset + message.data.size(),
                     message.m_message_size);

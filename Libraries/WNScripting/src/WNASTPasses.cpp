@@ -406,8 +406,8 @@ public:
     memory::unique_ptr<binary_expression> bin_expr =
         memory::make_unique<binary_expression>(m_allocator, m_allocator,
             arithmetic_type::arithmetic_equal, _inst->take_condition(),
-            make_constant(m_allocator, _inst, type_classification::bool_type,
-                                                   "false"));
+            make_constant(
+                m_allocator, _inst, type_classification::bool_type, "false"));
 
     memory::unique_ptr<if_instruction> if_inst =
         memory::make_unique<if_instruction>(m_allocator, m_allocator);
@@ -450,7 +450,7 @@ public:
 
         memory::writeuint32(
             temporary_name, m_last_temporary++, sizeof(temporary_name) - 1);
-        containers::string name("__wns_if_temp", m_allocator);
+        containers::string name(m_allocator, "__wns_if_temp");
         name.append(temporary_name);
 
         memory::unique_ptr<declaration> temp_decl =
@@ -970,7 +970,8 @@ public:
     const id_expression* id = static_cast<const id_expression*>(base_expr);
     auto possible_function = m_functions.find(id->get_name());
     if (possible_function == m_functions.end()) {
-      m_log->log_error("Cannot find function: ", id->get_name());
+      auto name = id->get_name();
+      m_log->log_error("Cannot find function: ", name);
       _expr->log_line(m_log, logging::log_level::error);
       ++m_num_errors;
       return nullptr;
@@ -1037,7 +1038,7 @@ public:
     }
     if (_decl->get_type()->get_reference_type() == reference_type::unique ||
         _decl->get_type()->get_reference_type() == reference_type::raw) {
-      containers::string m_destructor_name("_destruct_", m_allocator);
+      containers::string m_destructor_name(m_allocator, "_destruct_");
       m_destructor_name.append(_decl->get_type()->custom_type_name().data(),
           _decl->get_type()->custom_type_name().length());
 
@@ -1079,7 +1080,7 @@ public:
       return memory::make_unique<expression_instruction>(
           m_allocator, m_allocator, core::move(call));
     } else {
-      containers::string m_destructor_name("_deref_shared", m_allocator);
+      containers::string m_destructor_name(m_allocator, "_deref_shared");
 
       memory::unique_ptr<id_expression> object_id =
           memory::make_unique<id_expression>(
@@ -1382,7 +1383,7 @@ public:
 
     memory::writeuint32(
         temporary_name, m_last_temporary++, sizeof(temporary_name) - 1);
-    containers::string name("__wns_ret_temp", m_allocator);
+    containers::string name(m_allocator, "__wns_ret_temp");
     name.append(temporary_name);
 
     memory::unique_ptr<type> return_type;
@@ -1925,7 +1926,7 @@ public:
     char num_elements[12] = {0};
     memory::writeuint32(
         temporary_name, m_last_temporary++, sizeof(temporary_name) - 1);
-    containers::string name("__wns_if_temp", m_allocator);
+    containers::string name(m_allocator, "__wns_if_temp");
     name.append(temporary_name);
 
     memory::writeuint32(num_elements,
@@ -1950,8 +1951,8 @@ public:
     memory::unique_ptr<binary_expression> bin_expr =
         memory::make_unique<binary_expression>(m_allocator, m_allocator,
             arithmetic_type::arithmetic_equal, core::move(val_id),
-            make_constant(m_allocator, _alloc, type_classification::int_type,
-                                                   "0"));
+            make_constant(
+                m_allocator, _alloc, type_classification::int_type, "0"));
     bin_expr->copy_location_from(_alloc);
 
     memory::unique_ptr<if_instruction> if_inst =
@@ -2015,7 +2016,7 @@ public:
       memory::unique_ptr<type> t = memory::make_unique<type>(
           m_allocator, m_allocator, type_classification::void_type);
 
-      containers::string destructor_name("_destruct_", m_allocator);
+      containers::string destructor_name(m_allocator, "_destruct_");
       destructor_name.append(
           _alloc->get_type()->get_subtype()->custom_type_name().data(),
           _alloc->get_type()->get_subtype()->custom_type_name().size());
@@ -2080,9 +2081,8 @@ public:
     increment_write_id->copy_location_from(new_do.get());
 
     memory::unique_ptr<binary_expression> increment =
-        memory::make_unique<binary_expression>(
-            m_allocator, m_allocator, arithmetic_type::arithmetic_sub,
-            core::move(increment_read_id),
+        memory::make_unique<binary_expression>(m_allocator, m_allocator,
+            arithmetic_type::arithmetic_sub, core::move(increment_read_id),
             make_constant(
                 m_allocator, new_do.get(), type_classification::int_type, "1"));
     increment->copy_location_from(new_do.get());
@@ -2202,7 +2202,7 @@ public:
       constructor->copy_location_from(_alloc);
       m_additional_functions.push_back(core::move(constructor));
 
-      return core::make_pair(construct_name, "");
+      return core::make_pair(construct_name, containers::string(m_allocator));
     }
   }
 
@@ -2266,7 +2266,7 @@ public:
       return nullptr;
     }
 
-    containers::string constructor_name("_construct_", m_allocator);
+    containers::string constructor_name(m_allocator, "_construct_");
     constructor_name.append(_alloc->get_type()->custom_type_name().data(),
         _alloc->get_type()->custom_type_name().size());
 
@@ -2334,7 +2334,7 @@ public:
       size_of->copy_location_from(_alloc);
       size_of->get_sized_type()->set_reference_type(reference_type::raw);
 
-      containers::string destructor_name("_destruct_", m_allocator);
+      containers::string destructor_name(m_allocator, "_destruct_");
       destructor_name.append(_alloc->get_type()->custom_type_name().data(),
           _alloc->get_type()->custom_type_name().size());
 
@@ -2453,7 +2453,7 @@ public:
             // initializer. Furthermore the values in it should be
             // constant. Grab those values out now, since we will need them.
             // Also add a new value to this struct with a name of __#name
-            containers::string name("__", m_allocator);
+            containers::string name(m_allocator, "__");
             name += member->get_name().to_string(m_allocator);
 
             memory::unique_ptr<declaration> decl =
@@ -2597,7 +2597,7 @@ public:
           } else {
             // push back a raw value with a name
             // __#name
-            containers::string name("__", m_allocator);
+            containers::string name(m_allocator, "__");
             name += member->get_name().to_string(m_allocator);
             memory::unique_ptr<declaration> decl =
                 memory::make_unique<declaration>(m_allocator, m_allocator);
@@ -2662,14 +2662,14 @@ public:
         cast1->set_type(clone_node(a->get_type()));
         cast1->get_type()->set_reference_type(reference_type::self);
 
-        containers::string destructor_name("_destruct_", m_allocator);
+        containers::string destructor_name(m_allocator, "_destruct_");
         if (a->get_type()->get_node_type() ==
             node_type::concretized_array_type) {
           containers::string_view nm = a->get_destructor_name();
           if (nm.empty()) {
             continue;
           }
-          destructor_name.assign(nm.begin(), nm.end());
+          destructor_name.assign(nm);
         } else {
           destructor_name.append(a->get_type()->custom_type_name().data(),
               a->get_type()->custom_type_name().size());
@@ -2720,7 +2720,7 @@ public:
         cast1->set_type(memory::make_unique<type>(
             m_allocator, m_allocator, type_classification::void_ptr_type));
 
-        containers::string deref_name("_deref_shared", m_allocator);
+        containers::string deref_name(m_allocator, "_deref_shared");
 
         memory::unique_ptr<arg_list> args =
             memory::make_unique<arg_list>(m_allocator, m_allocator);
@@ -2807,7 +2807,7 @@ public:
             if (a->get_type()->get_subtype()) {
               assignment->add_value(assign_type::equal, core::move(expr));
             } else {
-              constructor_name = containers::string("_construct_", m_allocator);
+              constructor_name = containers::string(m_allocator, "_construct_");
               constructor_name.append(a->get_type()->custom_type_name().data(),
                   a->get_type()->custom_type_name().size());
 
@@ -2818,7 +2818,7 @@ public:
                       m_allocator, m_allocator, "_this");
               this_id->copy_location_from(_definition);
 
-              containers::string val("__", m_allocator);
+              containers::string val(m_allocator, "__");
               val += a->get_name().to_string(m_allocator);
 
               memory::unique_ptr<member_access_expression> real_access =

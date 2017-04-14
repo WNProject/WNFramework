@@ -42,7 +42,7 @@ TEST(raw_connection, send_async_data_from_server) {
               &wn::networking::WNAcceptConnection::accept_sync,
               listen_socket.get(), nullptr);
           ASSERT_NE(nullptr, accepted_socket);
-          wn::containers::string my_str("hello_world", &allocator);
+          wn::containers::string my_str(&allocator, "hello_world");
           wn::multi_tasking::job_signal signal(0);
           for (size_t i = 0; i < 10; ++i) {
             accepted_socket->get_send_pipe()->send_async(&signal, nullptr,
@@ -65,11 +65,10 @@ TEST(raw_connection, send_async_data_from_server) {
                     wn::networking::ip_protocol::ipv4, 8080, nullptr);
               });
           wn::containers::string received(&allocator);
-          wn::containers::string expected(
+          wn::containers::string expected(&allocator,
               "hello_worldhello_worldhello_world"
               "hello_worldhello_worldhello_worldhello_worldhello_world"
-              "hello_worldhello_world",
-              &allocator);
+              "hello_worldhello_world");
           ASSERT_NE(nullptr, connect_socket);
           while (received != expected) {
             auto buff =
@@ -79,7 +78,7 @@ TEST(raw_connection, send_async_data_from_server) {
                     });
             ASSERT_EQ(wn::networking::network_error::ok, buff.get_status());
             received += wn::containers::string(
-                buff.data.data(), buff.data.size(), &allocator);
+                &allocator, buff.data.data(), buff.data.size());
           }
         }
         wait_for_done.notify();
@@ -112,7 +111,7 @@ TEST(raw_connection, async_accept) {
         listen_started.increment(1);
 
         wn::multi_tasking::job_signal signal(0);
-        wn::containers::string my_str("hello_world", &allocator);
+        wn::containers::string my_str(&allocator, "hello_world");
 
         struct cb_st {
           wn::containers::string& str;
@@ -148,11 +147,10 @@ TEST(raw_connection, async_accept) {
                   wn::networking::ip_protocol::ipv4, 8080, nullptr);
             });
         wn::containers::string received(&allocator);
-        wn::containers::string expected(
+        wn::containers::string expected(&allocator,
             "hello_worldhello_worldhello_world"
             "hello_worldhello_worldhello_worldhello_worldhello_world"
-            "hello_worldhello_world",
-            &allocator);
+            "hello_worldhello_world");
         ASSERT_NE(nullptr, connect_socket);
         while (received != expected) {
           auto buff =
@@ -162,7 +160,7 @@ TEST(raw_connection, async_accept) {
                   });
           ASSERT_EQ(wn::networking::network_error::ok, buff.get_status());
           received += wn::containers::string(
-              buff.data.data(), buff.data.size(), &allocator);
+              &allocator, buff.data.data(), buff.data.size());
         }
       }
       wait_for_done.notify();
@@ -194,7 +192,7 @@ TEST(raw_connection, async_accept_no_callback) {
         listen_started.increment(1);
 
         wn::multi_tasking::job_signal signal(0);
-        wn::containers::string my_str("hello_world", &allocator);
+        wn::containers::string my_str(&allocator, "hello_world");
 
         wn::multi_tasking::job_signal accepted(0);
         wn::memory::unique_ptr<wn::networking::WNConnection> connection;
@@ -226,11 +224,10 @@ TEST(raw_connection, async_accept_no_callback) {
                   wn::networking::ip_protocol::ipv4, 8080, nullptr);
             });
         wn::containers::string received(&allocator);
-        wn::containers::string expected(
+        wn::containers::string expected(&allocator,
             "hello_worldhello_worldhello_world"
             "hello_worldhello_worldhello_worldhello_worldhello_world"
-            "hello_worldhello_world",
-            &allocator);
+            "hello_worldhello_world");
         ASSERT_NE(nullptr, connect_socket);
         while (received != expected) {
           auto buff =
@@ -240,7 +237,7 @@ TEST(raw_connection, async_accept_no_callback) {
                   });
           ASSERT_EQ(wn::networking::network_error::ok, buff.get_status());
           received += wn::containers::string(
-              buff.data.data(), buff.data.size(), &allocator);
+              &allocator, buff.data.data(), buff.data.size());
         }
       }
       wait_for_done.notify();
@@ -288,13 +285,12 @@ TEST(raw_connection, async_listen_connect) {
             wn::networking::ip_protocol::ipv4, 8080, &signal, &connect_socket,
             &err);
         wn::containers::string received(&allocator);
-        wn::containers::string expected(
+        wn::containers::string expected(&allocator,
             "hello_worldhello_worldhello_world"
             "hello_worldhello_worldhello_worldhello_worldhello_world"
-            "hello_worldhello_world",
-            &allocator);
+            "hello_worldhello_world");
 
-        wn::containers::string my_str("hello_world", &allocator);
+        wn::containers::string my_str(&allocator, "hello_world");
 
         wn::memory::unique_ptr<wn::networking::WNConnection> connection;
         listen_socket->accept_async(&signal, &connection, &err2);
@@ -322,7 +318,7 @@ TEST(raw_connection, async_listen_connect) {
                   });
           ASSERT_EQ(wn::networking::network_error::ok, buff.get_status());
           received += wn::containers::string(
-              buff.data.data(), buff.data.size(), &allocator);
+              &allocator, buff.data.data(), buff.data.size());
         }
 
         signal.wait_until(13);
@@ -340,7 +336,7 @@ struct receiver : public wn::multi_tasking::synchronized<> {
   void on_recv(wn::networking::WNReceiveBuffer&& buff) {
     if (buff.get_status() == wn::networking::network_error::ok) {
       data +=
-          wn::containers::string(buff.data.data(), buff.data.size(), allocator);
+          wn::containers::string(allocator, buff.data.data(), buff.data.size());
       return;
     }
     { wn::networking::WNReceiveBuffer to_destroy = wn::core::move(buff); }
@@ -387,13 +383,12 @@ TEST(raw_connection, async_recv) {
         manager.connect_remote_async("127.0.0.1",
             wn::networking::ip_protocol::ipv4, 8080, &signal, &connect_socket,
             &err);
-        wn::containers::string expected(
+        wn::containers::string expected(&allocator,
             "hello_worldhello_worldhello_world"
             "hello_worldhello_worldhello_worldhello_worldhello_world"
-            "hello_worldhello_world",
-            &allocator);
+            "hello_worldhello_world");
 
-        wn::containers::string my_str("hello_world", &allocator);
+        wn::containers::string my_str(&allocator, "hello_world");
 
         receiver r = {&allocator};
         {

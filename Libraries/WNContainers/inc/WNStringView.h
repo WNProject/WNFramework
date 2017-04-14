@@ -8,14 +8,19 @@
 #define __WN_CONTAINERS_STRING_VIEW_H__
 
 #include "WNContainers/inc/WNContiguousRange.h"
-#include "WNContainers/inc/WNString.h"
 #include "WNCore/inc/WNAlgorithm.h"
+#include "WNCore/inc/WNTypes.h"
+#include "WNMemory/inc/WNAllocator.h"
 #include "WNMemory/inc/WNStringUtility.h"
+
+#include <limits>
 
 namespace wn {
 namespace containers {
 
-class string_view final {
+class string;
+
+class string_view WN_FINAL {
 private:
   using range_type = contiguous_range<const char>;
 
@@ -38,37 +43,28 @@ public:
 
   WN_FORCE_INLINE string_view(const nullptr_t) : string_view() {}
 
-  WN_FORCE_INLINE explicit string_view(const nullptr_t, const nullptr_t)
+  WN_FORCE_INLINE string_view(const nullptr_t, const nullptr_t)
     : string_view() {}
 
-  WN_FORCE_INLINE explicit string_view(const char* _begin, const char* _end)
+  WN_FORCE_INLINE string_view(const char* _begin, const char* _end)
     : m_range(_begin, _end) {}
 
-  WN_FORCE_INLINE explicit string_view(
-      const char* _s, const size_t _offset, const size_type _size)
-    : m_range(_s, _offset, _size) {}
-
-  WN_FORCE_INLINE explicit string_view(const char* _s, const size_type _size)
-    : string_view(_s, 0, _size) {}
-
-  WN_FORCE_INLINE string_view(const char* _s)
-    : string_view(_s, memory::strlen(_s)) {}
-
-  WN_FORCE_INLINE string_view(const string& _str)
-    : string_view(_str.data(), _str.length()) {}
-
-  WN_FORCE_INLINE string_view(const string& _str, const size_type _size)
-    : string_view(_str.data(), _size) {
-    WN_DEBUG_ASSERT_DESC(_size <= _str.length(),
-        "attempting to access outside of string bounds");
-  }
-
   WN_FORCE_INLINE string_view(
-      const string& _str, const size_type _offset, const size_type _size)
-    : string_view(_str.data(), _offset, _size) {
-    WN_DEBUG_ASSERT_DESC((_offset + _size) <= _str.length(),
-        "attempting to access outside of string bounds");
-  }
+      const char* _ptr, const size_t _offset, const size_type _size)
+    : m_range(_ptr, _offset, _size) {}
+
+  WN_FORCE_INLINE string_view(const char* _ptr, const size_type _size)
+    : string_view(_ptr, 0, _size) {}
+
+  WN_FORCE_INLINE string_view(const char* _ptr)
+    : string_view(_ptr, memory::strlen(_ptr)) {}
+
+  explicit string_view(const string& _string);
+
+  string_view(const string& _string, const size_type _size);
+
+  string_view(
+      const string& _string, const size_type _offset, const size_type _size);
 
   template <typename U,
       typename = core::enable_if_t<std::is_convertible<U*, const char*>::value>>
@@ -80,29 +76,25 @@ public:
   WN_FORCE_INLINE string_view(const contiguous_range<U>& _range)
     : m_range(_range) {}
 
-  WN_FORCE_INLINE string_view(string_view&& view)
-    : string_view(core::move(view.m_range)) {}
+  WN_FORCE_INLINE string_view(string_view&& _view)
+    : string_view(core::move(_view.m_range)) {}
 
-  WN_FORCE_INLINE string_view(const string_view& view)
-    : string_view(view.m_range) {}
+  WN_FORCE_INLINE string_view(const string_view& _view)
+    : string_view(_view.m_range) {}
 
   WN_FORCE_INLINE string_view& operator=(const nullptr_t) {
-    string_view(nullptr).swap(*this);
+    assign(nullptr);
 
     return *this;
   }
 
-  WN_FORCE_INLINE string_view& operator=(const char* _s) {
-    string_view(_s).swap(*this);
+  WN_FORCE_INLINE string_view& operator=(const char* _ptr) {
+    assign(_ptr);
 
     return *this;
   }
 
-  WN_FORCE_INLINE string_view& operator=(const string& _str) {
-    string_view(_str).swap(*this);
-
-    return *this;
-  }
+  string_view& operator=(const string& _string);
 
   template <typename U,
       typename = core::enable_if_t<std::is_convertible<U*, const char*>::value>>
@@ -120,16 +112,40 @@ public:
     return *this;
   }
 
-  WN_FORCE_INLINE string_view& operator=(string_view&& view) {
-    string_view(core::move(view)).swap(*this);
+  WN_FORCE_INLINE string_view& operator=(string_view&& _view) {
+    assign(core::move(_view));
 
     return *this;
   }
 
-  WN_FORCE_INLINE string_view& operator=(const string_view& view) {
-    string_view(view).swap(*this);
+  WN_FORCE_INLINE string_view& operator=(const string_view& _view) {
+    assign(_view);
 
     return *this;
+  }
+
+  WN_FORCE_INLINE void assign(const nullptr_t) {
+    string_view(nullptr).swap(*this);
+  }
+
+  WN_FORCE_INLINE void assign(string_view&& _view) {
+    string_view(core::move(_view)).swap(*this);
+  }
+
+  WN_FORCE_INLINE void assign(const string_view& _view) {
+    string_view(_view).swap(*this);
+  }
+
+  void assign(const string& _string);
+
+  WN_FORCE_INLINE void assign(const value_type* _ptr) {
+    string_view(_ptr).swap(*this);
+  }
+
+  string to_string(memory::allocator* _allocator) const;
+
+  WN_FORCE_INLINE contiguous_range<const char> to_contiguous_range() const {
+    return m_range;
   }
 
   // element access
@@ -190,6 +206,10 @@ public:
 
   // capacity
 
+  WN_FORCE_INLINE bool empty() const {
+    return m_range.empty();
+  }
+
   WN_FORCE_INLINE size_type size() const {
     return m_range.size();
   }
@@ -198,60 +218,27 @@ public:
     return size();
   }
 
-  WN_FORCE_INLINE size_type max_size() const {
+  WN_FORCE_INLINE size_type capacity() const {
     return size();
   }
 
-  WN_FORCE_INLINE bool empty() const {
-    return m_range.empty();
+  WN_FORCE_INLINE size_type max_size() const {
+    return std::numeric_limits<size_type>::max();
   }
 
-  // modifiers
+  // operations
 
   WN_FORCE_INLINE void clear() {
     m_range.clear();
   }
 
-  WN_FORCE_INLINE void remove_prefix(const size_type _count) {
-    m_range.remove_prefix(_count);
-  }
-
-  WN_FORCE_INLINE void remove_suffix(const size_type _count) {
-    m_range.remove_suffix(_count);
-  }
-
-  WN_FORCE_INLINE void swap(string_view& _other) {
-    m_range.swap(_other.m_range);
-  }
-
-  // operators
-
-  WN_FORCE_INLINE string to_string() const {
-    return string(data(), size());
-  }
-
-  WN_FORCE_INLINE string to_string(memory::allocator* _allocator) const {
-    return string(data(), size(), _allocator);
-  }
-
-  WN_FORCE_INLINE contiguous_range<const char> to_contiguous_range() const {
-    return m_range;
-  }
-
-  WN_FORCE_INLINE string_view substr(
-      const size_type _pos = 0, const size_type _count = npos) const {
-    const size_type s = size() - _pos;
-
-    return (string_view(data() + _pos, _count < s ? _count : s));
-  }
-
-  WN_FORCE_INLINE int32_t compare(const string_view& view) const {
+  WN_FORCE_INLINE int32_t compare(const string_view& _view) const {
     const size_type size1 = size();
-    const size_type size2 = view.size();
+    const size_type size2 = _view.size();
 
     if (size1 != 0 && size2 != 0) {
       const size_type min_size = size1 < size2 ? size1 : size2;
-      const int32_t r = memory::strncmp(data(), view.data(), min_size);
+      const int32_t r = memory::strncmp(data(), _view.data(), min_size);
 
       if (r == 0) {
         return (size1 == size2 ? 0 : (size1 < size2 ? -1 : 1));
@@ -264,33 +251,54 @@ public:
   }
 
   WN_FORCE_INLINE int32_t compare(const size_type _pos, const size_type _count,
-      const string_view& view) const {
-    return substr(_pos, _count).compare(view);
+      const string_view& _view) const {
+    return substr(_pos, _count).compare(_view);
   }
 
   WN_FORCE_INLINE int32_t compare(const size_type pos1, const size_type count1,
-      const string_view& view, const size_type pos2,
+      const string_view& _view, const size_type pos2,
       const size_type count2) const {
-    return substr(pos1, count1).compare(view.substr(pos2, count2));
+    return substr(pos1, count1).compare(_view.substr(pos2, count2));
   }
 
-  WN_FORCE_INLINE int32_t compare(const char* _s) const {
-    return compare(string_view(_s));
+  WN_FORCE_INLINE int32_t compare(const char* _ptr) const {
+    return compare(string_view(_ptr));
   }
 
   WN_FORCE_INLINE int32_t compare(
-      const size_type pos1, const size_type count1, const char* _s) const {
-    return substr(pos1, count1).compare(string_view(_s));
+      const size_type pos1, const size_type count1, const char* _ptr) const {
+    return substr(pos1, count1).compare(string_view(_ptr));
   }
 
   WN_FORCE_INLINE int32_t compare(const size_type pos1, const size_type count1,
-      const char* _s, const size_type count2) const {
-    return substr(pos1, count1).compare(string_view(_s, count2));
+      const char* _ptr, const size_type count2) const {
+    return substr(pos1, count1).compare(string_view(_ptr, count2));
   }
 
+  WN_FORCE_INLINE void remove_prefix(const size_type _count) {
+    m_range.remove_prefix(_count);
+  }
+
+  WN_FORCE_INLINE void remove_suffix(const size_type _count) {
+    m_range.remove_suffix(_count);
+  }
+
+  WN_FORCE_INLINE string_view substr(
+      const size_type _pos = 0, const size_type _count = npos) const {
+    const size_type s = size() - _pos;
+
+    return (string_view(data() + _pos, _count < s ? _count : s));
+  }
+
+  WN_FORCE_INLINE void swap(string_view& _other) {
+    m_range.swap(_other.m_range);
+  }
+
+  // searching
+
   WN_FORCE_INLINE size_type find(
-      const string_view& view, const size_type _pos = 0) const {
-    auto i = std::search(cbegin() + _pos, cend(), view.cbegin(), view.cend());
+      const string_view& _view, const size_type _pos = 0) const {
+    auto i = std::search(cbegin() + _pos, cend(), _view.cbegin(), _view.cend());
 
     return (i == cend() ? npos : static_cast<size_type>(i - cbegin()));
   }
@@ -300,21 +308,22 @@ public:
   }
 
   WN_FORCE_INLINE size_type find(
-      const char* _s, const size_type _pos, const size_type _count) const {
-    return find(string_view(_s, _count), _pos);
+      const char* _ptr, const size_type _pos, const size_type _count) const {
+    return find(string_view(_ptr, _count), _pos);
   }
 
-  WN_FORCE_INLINE size_type find(const char* _s, size_type _pos = 0) const {
-    return find(string_view(_s), _pos);
+  WN_FORCE_INLINE size_type find(const char* _ptr, size_type _pos = 0) const {
+    return find(string_view(_ptr), _pos);
   }
 
   WN_FORCE_INLINE size_type rfind(
-      const string_view& view, const size_type _pos = 0) const {
+      const string_view& _view, const size_type _pos = 0) const {
     const auto b = cbegin();
     const auto e = const_reverse_iterator(b + _pos);
-    const auto i = std::search(crbegin(), e, view.crbegin(), view.crend());
+    const auto i = std::search(crbegin(), e, _view.crbegin(), _view.crend());
 
-    return (i == e ? npos : static_cast<size_type>(i.base() - view.size() - b));
+    return (
+        i == e ? npos : static_cast<size_type>(i.base() - _view.size() - b));
   }
 
   WN_FORCE_INLINE size_type rfind(
@@ -323,18 +332,18 @@ public:
   }
 
   WN_FORCE_INLINE size_type rfind(
-      const char* _s, const size_type _pos, const size_type _count) const {
-    return rfind(string_view(_s, _count), _pos);
+      const char* _ptr, const size_type _pos, const size_type _count) const {
+    return rfind(string_view(_ptr, _count), _pos);
   }
 
-  WN_FORCE_INLINE size_type rfind(const char* _s, size_type _pos = 0) const {
-    return rfind(string_view(_s), _pos);
+  WN_FORCE_INLINE size_type rfind(const char* _ptr, size_type _pos = 0) const {
+    return rfind(string_view(_ptr), _pos);
   }
 
   WN_FORCE_INLINE size_type find_first_of(
-      const string_view& view, const size_type _pos = 0) const {
-    const auto i =
-        std::find_first_of(cbegin() + _pos, cend(), view.cbegin(), view.cend());
+      const string_view& _view, const size_type _pos = 0) const {
+    const auto i = std::find_first_of(
+        cbegin() + _pos, cend(), _view.cbegin(), _view.cend());
 
     return (i == cend() ? npos : static_cast<size_type>(i - cbegin()));
   }
@@ -345,20 +354,21 @@ public:
   }
 
   WN_FORCE_INLINE size_type find_first_of(
-      const char* _s, const size_type _pos, const size_type _count) const {
-    return find_first_of(string_view(_s, _count), _pos);
+      const char* _ptr, const size_type _pos, const size_type _count) const {
+    return find_first_of(string_view(_ptr, _count), _pos);
   }
 
   WN_FORCE_INLINE size_type find_first_of(
-      const char* _s, const size_type _pos = 0) const {
-    return find_first_of(string_view(_s), _pos);
+      const char* _ptr, const size_type _pos = 0) const {
+    return find_first_of(string_view(_ptr), _pos);
   }
 
   WN_FORCE_INLINE size_type find_last_of(
-      const string_view& view, const size_type _pos = 0) const {
+      const string_view& _view, const size_type _pos = 0) const {
     const auto b = cbegin();
     const auto e = const_reverse_iterator(b + _pos);
-    const auto i = std::find_first_of(crbegin(), e, view.cbegin(), view.cend());
+    const auto i =
+        std::find_first_of(crbegin(), e, _view.cbegin(), _view.cend());
 
     return (i == e ? npos : static_cast<size_type>(i.base() - b - 1));
   }
@@ -369,20 +379,21 @@ public:
   }
 
   WN_FORCE_INLINE size_type find_last_of(
-      const char* _s, const size_type _pos, const size_type _count) const {
-    return find_last_of(string_view(_s, _count), _pos);
+      const char* _ptr, const size_type _pos, const size_type _count) const {
+    return find_last_of(string_view(_ptr, _count), _pos);
   }
 
   WN_FORCE_INLINE size_type find_last_of(
-      const char* _s, const size_type _pos = 0) const {
-    return find_last_of(string_view(_s), _pos);
+      const char* _ptr, const size_type _pos = 0) const {
+    return find_last_of(string_view(_ptr), _pos);
   }
 
   WN_FORCE_INLINE size_type find_first_not_of(
-      const string_view& view, const size_type _pos = 0) const {
-    const auto p = [&view](const char c) -> bool {
-      return (std::find(view.cbegin(), view.cend(), c) == view.cend());
+      const string_view& _view, const size_type _pos = 0) const {
+    const auto p = [&_view](const char c) -> bool {
+      return (std::find(_view.cbegin(), _view.cend(), c) == _view.cend());
     };
+
     const auto i = std::find_if(cbegin() + _pos, cend(), p);
 
     return (i == cend() ? npos : static_cast<size_type>(i - cbegin()));
@@ -394,20 +405,21 @@ public:
   }
 
   WN_FORCE_INLINE size_type find_first_not_of(
-      const char* _s, const size_type _pos, const size_type _count) const {
-    return find_first_not_of(string_view(_s, _count), _pos);
+      const char* _ptr, const size_type _pos, const size_type _count) const {
+    return find_first_not_of(string_view(_ptr, _count), _pos);
   }
 
   WN_FORCE_INLINE size_type find_first_not_of(
-      const char* _s, const size_type _pos = 0) const {
-    return find_first_not_of(string_view(_s), _pos);
+      const char* _ptr, const size_type _pos = 0) const {
+    return find_first_not_of(string_view(_ptr), _pos);
   }
 
   WN_FORCE_INLINE size_type find_last_not_of(
-      const string_view& view, const size_type _pos = 0) const {
-    const auto p = [&view](const char c) -> bool {
-      return (std::find(view.cbegin(), view.cend(), c) == view.cend());
+      const string_view& _view, const size_type _pos = 0) const {
+    const auto p = [&_view](const char c) -> bool {
+      return (std::find(_view.cbegin(), _view.cend(), c) == _view.cend());
     };
+
     const auto b = cbegin();
     const auto e = const_reverse_iterator(b + _pos);
     const auto i = std::find_if(crbegin(), e, p);
@@ -421,13 +433,13 @@ public:
   }
 
   WN_FORCE_INLINE size_type find_last_not_of(
-      const char* _s, const size_type _pos, const size_type _count) const {
-    return find_last_not_of(string_view(_s, _count), _pos);
+      const char* _ptr, const size_type _pos, const size_type _count) const {
+    return find_last_not_of(string_view(_ptr, _count), _pos);
   }
 
   WN_FORCE_INLINE size_type find_last_not_of(
-      const char* _s, const size_type _pos = 0) const {
-    return find_last_not_of(string_view(_s), _pos);
+      const char* _ptr, const size_type _pos = 0) const {
+    return find_last_not_of(string_view(_ptr), _pos);
   }
 
 private:
@@ -439,9 +451,25 @@ WN_FORCE_INLINE bool operator==(
   return (_lhs.compare(_rhs) == 0);
 }
 
+WN_FORCE_INLINE bool operator==(const string_view& _lhs, const char* _rhs) {
+  return (_lhs.compare(_rhs) == 0);
+}
+
+WN_FORCE_INLINE bool operator==(const char* _lhs, const string_view& _rhs) {
+  return (_rhs.compare(_lhs) == 0);
+}
+
 WN_FORCE_INLINE bool operator!=(
     const string_view& _lhs, const string_view& _rhs) {
   return (_lhs.compare(_rhs) != 0);
+}
+
+WN_FORCE_INLINE bool operator!=(const string_view& _lhs, const char* _rhs) {
+  return (_lhs.compare(_rhs) != 0);
+}
+
+WN_FORCE_INLINE bool operator!=(const char* _lhs, const string_view& _rhs) {
+  return (_rhs.compare(_lhs) != 0);
 }
 
 WN_FORCE_INLINE bool operator<(
@@ -449,9 +477,25 @@ WN_FORCE_INLINE bool operator<(
   return (_lhs.compare(_rhs) < 0);
 }
 
+WN_FORCE_INLINE bool operator<(const string_view& _lhs, const char* _rhs) {
+  return (_lhs.compare(_rhs) < 0);
+}
+
+WN_FORCE_INLINE bool operator<(const char* _lhs, const string_view& _rhs) {
+  return (_rhs.compare(_lhs) > 0);
+}
+
 WN_FORCE_INLINE bool operator<=(
     const string_view& _lhs, const string_view& _rhs) {
   return (_lhs.compare(_rhs) <= 0);
+}
+
+WN_FORCE_INLINE bool operator<=(const string_view& _lhs, const char* _rhs) {
+  return (_lhs.compare(_rhs) <= 0);
+}
+
+WN_FORCE_INLINE bool operator<=(const char* _lhs, const string_view& _rhs) {
+  return (_rhs.compare(_lhs) >= 0);
 }
 
 WN_FORCE_INLINE bool operator>(
@@ -459,9 +503,67 @@ WN_FORCE_INLINE bool operator>(
   return (_lhs.compare(_rhs) > 0);
 }
 
+WN_FORCE_INLINE bool operator>(const string_view& _lhs, const char* _rhs) {
+  return (_lhs.compare(_rhs) > 0);
+}
+
+WN_FORCE_INLINE bool operator>(const char* _lhs, const string_view& _rhs) {
+  return (_rhs.compare(_lhs) < 0);
+}
+
 WN_FORCE_INLINE bool operator>=(
     const string_view& _lhs, const string_view& _rhs) {
   return (_lhs.compare(_rhs) >= 0);
+}
+
+WN_FORCE_INLINE bool operator>=(const string_view& _lhs, const char* _rhs) {
+  return (_lhs.compare(_rhs) >= 0);
+}
+
+WN_FORCE_INLINE bool operator>=(const char* _lhs, const string_view& _rhs) {
+  return (_rhs.compare(_lhs) <= 0);
+}
+
+}  // namespace containers
+}  // namespace wn
+
+// string related defintions
+
+#include "WNContainers/inc/WNString.h"
+
+namespace wn {
+namespace containers {
+
+WN_FORCE_INLINE string_view::string_view(const string& _string)
+  : string_view(_string.data(), _string.size()) {}
+
+WN_FORCE_INLINE string_view& string_view::operator=(const string& _string) {
+  assign(_string);
+
+  return *this;
+}
+
+WN_FORCE_INLINE void string_view::assign(const string& _string) {
+  string_view(_string).swap(*this);
+}
+
+WN_FORCE_INLINE string string_view::to_string(
+    memory::allocator* _allocator) const {
+  return string(_allocator, data(), size());
+}
+
+WN_FORCE_INLINE string_view::string_view(
+    const string& _string, const size_type _size)
+  : string_view(_string.data(), _size) {
+  WN_DEBUG_ASSERT_DESC(
+      _size <= _string.size(), "attempting to access outside of string bounds");
+}
+
+WN_FORCE_INLINE string_view::string_view(
+    const string& _string, const size_type _offset, const size_type _size)
+  : string_view(_string.data(), _offset, _size) {
+  WN_DEBUG_ASSERT_DESC((_offset + _size) <= _string.size(),
+      "attempting to access outside of string bounds");
 }
 
 }  // namespace containers
@@ -471,16 +573,17 @@ namespace std {
 
 template <>
 struct hash<wn::containers::string_view> {
-  size_t operator()(const wn::containers::string_view& _view) const {
+  WN_FORCE_INLINE size_t operator()(
+      const wn::containers::string_view& _view) const {
     return wn::memory::strnhash(_view.data(), _view.size());
   }
 };
 
 template <>
 struct equal_to<wn::containers::string_view> {
-  bool operator()(const wn::containers::string_view& _view1,
-      const wn::containers::string_view& _view2) const {
-    return (_view1 == _view2);
+  WN_FORCE_INLINE size_t operator()(const wn::containers::string_view& _lhs,
+      const wn::containers::string_view& _rhs) const {
+    return (_lhs == _rhs);
   }
 };
 

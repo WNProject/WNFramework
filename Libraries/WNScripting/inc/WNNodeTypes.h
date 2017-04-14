@@ -209,7 +209,7 @@ public:
     : node(_allocator, node_type::type),
       m_type(0),
       m_reference_type(reference_type::raw),
-      m_custom_type(_custom_type, _allocator) {}
+      m_custom_type(_allocator, _custom_type) {}
 
   explicit type(memory::allocator* _allocator)
     : node(_allocator, node_type::type) {}
@@ -304,8 +304,7 @@ protected:
     copy_node(_other);
     m_type = _other->m_type;
     m_reference_type = _other->m_reference_type;
-    m_custom_type =
-        containers::string(_other->m_custom_type.c_str(), m_allocator);
+    m_custom_type = containers::string(m_allocator, _other->m_custom_type);
   }
 
   uint32_t m_type;
@@ -748,13 +747,13 @@ public:
       const char* _text)
     : expression(_allocator, node_type::constant_expression),
       m_type_classification(static_cast<uint32_t>(_type)),
-      m_text(_text, _allocator) {}
+      m_text(_allocator, _text) {}
 
   constant_expression(
       memory::allocator* _allocator, type* _type, const char* _text)
     : expression(_allocator, node_type::constant_expression, _type),
       m_type_classification(_type->get_index()),
-      m_text(_text, _allocator) {}
+      m_text(_allocator, _text) {}
 
   explicit constant_expression(memory::allocator* _allocator)
     : expression(_allocator, node_type::constant_expression) {}
@@ -793,7 +792,7 @@ public:
     t->copy_expression(this);
 
     t->m_type_classification = m_type_classification;
-    t->m_text = containers::string(m_text.c_str(), m_allocator);
+    t->m_text = containers::string(m_allocator, m_text);
 
     return core::move(t);
   }
@@ -808,7 +807,7 @@ public:
   function_pointer_expression(memory::allocator* _allocator, const char* _name)
     : expression(_allocator, node_type::function_pointer_expression),
       m_source(nullptr),
-      m_name(_name, _allocator),
+      m_name(_allocator, _name),
       m_types(_allocator) {}
 
   function_pointer_expression(
@@ -874,7 +873,7 @@ public:
             m_allocator, m_allocator);
     t->copy_expression(this);
     t->set_source(m_source);
-    t->m_name = containers::string(m_name.c_str(), m_allocator);
+    t->m_name = containers::string(m_allocator, m_name);
     for (const auto& ty : m_types) {
       t->m_types.push_back(clone_node(ty));
     }
@@ -901,7 +900,7 @@ public:
   id_expression(memory::allocator* _allocator, const char* _name)
     : expression(_allocator, node_type::id_expression),
       m_source({nullptr, nullptr, containers::deque<function*>(_allocator)}),
-      m_name(_name, _allocator) {}
+      m_name(_allocator, _name) {}
 
   id_expression(memory::allocator* _allocator, containers::string_view _name)
     : expression(_allocator, node_type::id_expression),
@@ -962,7 +961,7 @@ public:
       t->set_id_source(m_source);
     }
 
-    t->m_name = containers::string(m_name.c_str(), m_allocator);
+    t->m_name = containers::string(m_allocator, m_name);
 
     return core::move(t);
   }
@@ -1189,7 +1188,7 @@ class member_access_expression : public post_expression {
 public:
   member_access_expression(memory::allocator* _allocator, const char* _member)
     : post_expression(_allocator, node_type::member_access_expression),
-      m_member(_member, _allocator) {}
+      m_member(_allocator, _member) {}
 
   member_access_expression(
       memory::allocator* _allocator, containers::string_view _member)
@@ -1218,7 +1217,7 @@ public:
     memory::unique_ptr<member_access_expression> t =
         memory::make_unique<member_access_expression>(m_allocator, m_allocator);
     t->copy_post_expression(this);
-    t->m_member = containers::string(m_member.c_str(), m_allocator);
+    t->m_member = containers::string(m_allocator, m_member);
     return core::move(t);
   }
 
@@ -1878,7 +1877,7 @@ public:
   parameter(memory::allocator* _allocator, type* _type, const char* _name)
     : node(_allocator, scripting::node_type::parameter),
       m_type(memory::unique_ptr<type>(_allocator, _type)),
-      m_name(_name, _allocator) {}
+      m_name(_allocator, _name) {}
 
   parameter(memory::allocator* _allocator, memory::unique_ptr<type>&& _type,
       containers::string_view _name)
@@ -1890,7 +1889,7 @@ public:
     : node(_allocator, scripting::node_type::parameter) {}
 
   const containers::string_view get_name() const {
-    return (m_name.c_str());
+    return m_name.to_string_view();
   }
 
   void set_name(const containers::string_view& view) {
@@ -1918,7 +1917,7 @@ public:
     memory::unique_ptr<parameter> t =
         memory::make_unique<parameter>(m_allocator, m_allocator);
     t->copy_node(this);
-    t->m_name = containers::string(m_name.c_str(), m_allocator);
+    t->m_name = containers::string(m_allocator, m_name);
     t->m_type = clone_node(m_type);
     return core::move(t);
   }
@@ -2029,7 +2028,7 @@ public:
   struct_definition(memory::allocator* _allocator, const char* _name,
       bool _is_class = false, const char* _parent_type = nullptr)
     : node(_allocator, node_type::struct_definition),
-      m_name(_name, _allocator),
+      m_name(_allocator, _name),
       m_parent_name(_allocator),
       m_is_class(_is_class),
       m_struct_members(_allocator),
@@ -2087,8 +2086,8 @@ public:
     memory::unique_ptr<struct_definition> t =
         memory::make_unique<struct_definition>(m_allocator, m_allocator);
     t->copy_node(this);
-    t->m_name = containers::string(m_name.c_str(), m_allocator);
-    t->m_parent_name = containers::string(m_parent_name.c_str(), m_allocator);
+    t->m_name = containers::string(m_allocator, m_name);
+    t->m_parent_name = containers::string(m_allocator, m_parent_name);
     t->m_is_class = m_is_class;
     for (auto& member : m_struct_members) {
       t->m_struct_members.push_back(clone_node(member));
@@ -2242,8 +2241,7 @@ public:
   }
 
   void set_mangled_name(const containers::string& _name) {
-    m_mangled_name =
-        containers::string(_name.c_str(), _name.size(), m_allocator);
+    m_mangled_name = containers::string(m_allocator, _name);
   }
 
   // This will not be valid until after the type_association pass.
@@ -2267,7 +2265,7 @@ public:
     t->m_parameters = clone_node(m_parameters);
     t->m_body = clone_node(m_body);
     t->m_this_pointer = m_this_pointer;
-    t->m_mangled_name = containers::string(m_mangled_name.c_str(), m_allocator);
+    t->m_mangled_name = containers::string(m_allocator, m_mangled_name);
     t->m_is_override = m_is_override;
     t->m_is_virtual = m_is_virtual;
     return core::move(t);
@@ -2946,7 +2944,7 @@ public:
   }
 
   void add_include(const char* _node) {
-    m_includes.emplace_back(_node, m_allocator);
+    m_includes.emplace_back(m_allocator, _node);
   }
 
   const containers::deque<memory::unique_ptr<function>>&
@@ -3021,7 +3019,7 @@ public:
       t->m_structs.push_back(clone_node(strt));
     }
     for (const auto& include : m_includes) {
-      t->m_includes.push_back(containers::string(include.c_str(), m_allocator));
+      t->m_includes.push_back(containers::string(m_allocator, include));
     }
     return core::move(t);
   }

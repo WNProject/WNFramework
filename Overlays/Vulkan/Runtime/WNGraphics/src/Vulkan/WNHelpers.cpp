@@ -215,7 +215,7 @@ void enumerate_adapters(memory::allocator* _allocator, logging::log* _log,
 
     if (ptr) {
       ptr->initialize(context, devices[i],
-          containers::string(properties.deviceName, _allocator),
+          containers::string(_allocator, properties.deviceName),
           properties.vendorID, properties.deviceID, graphics_and_compute_queue);
       ptr->initialize_device();
     }

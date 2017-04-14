@@ -2,12 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNScripting/inc/WNASTCodeGenerator.h"
 #include "WNContainers/inc/WNString.h"
 #include "WNExecutableTest/inc/WNTestHarness.h"
 #include "WNFileSystem/inc/WNFactory.h"
 #include "WNFileSystem/inc/WNMapping.h"
 #include "WNLogging/inc/WNBufferLogger.h"
+#include "WNScripting/inc/WNASTCodeGenerator.h"
 #include "WNScripting/test/inc/Common.h"
 
 using ::testing::Eq;
@@ -85,7 +85,7 @@ TEST(ast_code_generator, multiple_returns) {
 }
 
 class ast_code_generator_valid_ints
-    : public ::testing::TestWithParam<const char*> {};
+  : public ::testing::TestWithParam<const char*> {};
 
 TEST_P(ast_code_generator_valid_ints, valid_ints) {
   test_context c;
@@ -101,14 +101,13 @@ TEST_P(ast_code_generator_valid_ints, valid_ints) {
   EXPECT_THAT(c.num_warnings, Eq(0u));
 }
 
-INSTANTIATE_TEST_CASE_P(
-    valid_integers, ast_code_generator_valid_ints,
+INSTANTIATE_TEST_CASE_P(valid_integers, ast_code_generator_valid_ints,
     ::testing::Values("0", "1", "2", "-1", "-32", "2147483647", "-2147483648",
         "1 + 4", "32 * 10", "-255 % 4", "-1025 / 32", "128 * 32", "32 + 4 * 10",
         "122 - 142 + 24", "65 * 65 * 23"));
 
 class ast_code_generator_invalid_ints
-    : public ::testing::TestWithParam<const char*> {};
+  : public ::testing::TestWithParam<const char*> {};
 
 TEST_P(ast_code_generator_invalid_ints, invalid_ints) {
   test_context c;
@@ -138,13 +137,13 @@ TEST_P(ast_code_generator_valid_bools, valid_bools) {
   str += "; }\n";
 
   c.mapping->initialize_files({{"file.wns", str}});
-  EXPECT_TRUE(c.test_parse_file("file.wns")) << c.buffer;
+  EXPECT_TRUE(c.test_parse_file("file.wns"))
+      << std::string(c.buffer.data(), c.buffer.size());
   EXPECT_THAT(c.num_errors, Eq(0u));
   EXPECT_THAT(c.num_warnings, Eq(0u));
 }
 
-INSTANTIATE_TEST_CASE_P(
-    valid_booleans, ast_code_generator_valid_bools,
+INSTANTIATE_TEST_CASE_P(valid_booleans, ast_code_generator_valid_bools,
     ::testing::Values("true", "false", "true != false", "true != true",
         "false != true", "(1 != 2) == true", "1 != 2", "1 == 2", "1 >= 4",
         "1 < 7", "1 <= 32", "(1 + 3) <= 47", "(1 >= 4) != (1 < 32)"));
@@ -167,8 +166,8 @@ TEST_P(ast_code_generator_invalid_bools, invalid_bools) {
 
 INSTANTIATE_TEST_CASE_P(invalid_bools, ast_code_generator_invalid_bools,
     ::testing::Values("true + false", "true - false", "true * true",
-                            "true * false", "true % false",
-                            "(1 != 2) + (1 == 2)", "1 != 2 - 1 == 2"));
+        "true * false", "true % false", "(1 != 2) + (1 == 2)",
+        "1 != 2 - 1 == 2"));
 
 using ast_code_generator_valid_declarations =
     ::testing::TestWithParam<const char*>;
@@ -220,9 +219,10 @@ using ast_code_generator_invalid_code = ::testing::TestWithParam<const char*>;
 TEST_P(ast_code_generator_valid_code, compiles_cleanly) {
   test_context c;
 
-  wn::containers::string str(GetParam(), &c.allocator);
+  wn::containers::string str(&c.allocator, GetParam());
   c.mapping->initialize_files({{"file.wns", str}});
-  EXPECT_TRUE(c.test_parse_file("file.wns")) << c.buffer;
+  EXPECT_TRUE(c.test_parse_file("file.wns"))
+      << std::string(c.buffer.data(), c.buffer.size());
   EXPECT_THAT(c.num_errors, Eq(0u));
   EXPECT_THAT(c.num_warnings, Eq(0u));
 }
@@ -230,23 +230,21 @@ TEST_P(ast_code_generator_valid_code, compiles_cleanly) {
 TEST_P(ast_code_generator_invalid_code, generates_error) {
   test_context c;
 
-  wn::containers::string str(GetParam(), &c.allocator);
+  wn::containers::string str(&c.allocator, GetParam());
   c.mapping->initialize_files({{"file.wns", str}});
   EXPECT_FALSE(c.test_parse_file("file.wns"));
   EXPECT_THAT(c.num_errors, Ge(1u));
   EXPECT_THAT(c.num_warnings, Eq(0u));
 }
 
-INSTANTIATE_TEST_CASE_P(
-    assignment_tests, ast_code_generator_valid_code,
+INSTANTIATE_TEST_CASE_P(assignment_tests, ast_code_generator_valid_code,
     ::testing::Values("Int main(Int x) { Int y = 0; y = x; return y; }",
         "Bool main(Int x) { Bool b = false; b = x == 4; return b; }",
         "Int main(Bool x) { Int y = 0; if (x) { y = 3; } return y; }",
         "Bool main(Int x) { Bool b = false; if (x == 3) { b = true; } return "
         "b; }"));
 
-INSTANTIATE_TEST_CASE_P(
-    assignment_tests, ast_code_generator_invalid_code,
+INSTANTIATE_TEST_CASE_P(assignment_tests, ast_code_generator_invalid_code,
     ::testing::Values("Int main(Int x) { y = x; return y; }",
         "Bool main(Int x) { Bool b = false; b = x; return b; }",
         "Int main(Int x) { Int x = 0; x = false; return x; }"));
@@ -256,37 +254,32 @@ TEST(name_mangling, basic_types) {
   wn::scripting::type_validator validator(&allocator);
 
   EXPECT_EQ("_Z3wns3FooEll",
-      validator.get_mangled_name(
-          "Foo",
+      validator.get_mangled_name("Foo",
           static_cast<uint32_t>(wn::scripting::type_classification::int_type),
           wn::containers::dynamic_array<uint32_t>(
               &allocator, {static_cast<uint32_t>(
                               wn::scripting::type_classification::int_type)})));
   EXPECT_EQ("_Z3wns3BarEvf",
-      validator.get_mangled_name(
-          "Bar",
+      validator.get_mangled_name("Bar",
           static_cast<uint32_t>(wn::scripting::type_classification::void_type),
           wn::containers::dynamic_array<uint32_t>(&allocator,
               {static_cast<uint32_t>(
                   wn::scripting::type_classification::float_type)})));
   EXPECT_EQ("_Z3wns7TestingEbc",
-      validator.get_mangled_name(
-          "Testing",
+      validator.get_mangled_name("Testing",
           static_cast<uint32_t>(wn::scripting::type_classification::bool_type),
           wn::containers::dynamic_array<uint32_t>(&allocator,
               {static_cast<uint32_t>(
                   wn::scripting::type_classification::char_type)})));
   EXPECT_EQ("_Z3wns3FooEcb",
-      validator.get_mangled_name(
-          "Foo",
+      validator.get_mangled_name("Foo",
           static_cast<uint32_t>(wn::scripting::type_classification::char_type),
           wn::containers::dynamic_array<uint32_t>(&allocator,
               {static_cast<uint32_t>(
                   wn::scripting::type_classification::bool_type)})));
 
   EXPECT_EQ("_Z3wns14ReallyLongNameEvlb",
-      validator.get_mangled_name(
-          "ReallyLongName",
+      validator.get_mangled_name("ReallyLongName",
           static_cast<uint32_t>(wn::scripting::type_classification::void_type),
           wn::containers::dynamic_array<uint32_t>(&allocator,
               {static_cast<uint32_t>(
@@ -294,8 +287,7 @@ TEST(name_mangling, basic_types) {
                   static_cast<uint32_t>(
                       wn::scripting::type_classification::bool_type)})));
   EXPECT_EQ("_Z3wns1AEvfl",
-      validator.get_mangled_name(
-          "A",
+      validator.get_mangled_name("A",
           static_cast<uint32_t>(wn::scripting::type_classification::void_type),
           wn::containers::dynamic_array<uint32_t>(&allocator,
               {static_cast<uint32_t>(
@@ -303,8 +295,7 @@ TEST(name_mangling, basic_types) {
                   static_cast<uint32_t>(
                       wn::scripting::type_classification::int_type)})));
   EXPECT_EQ("_Z3wns22MultipleParameterTypesEfcb",
-      validator.get_mangled_name(
-          "MultipleParameterTypes",
+      validator.get_mangled_name("MultipleParameterTypes",
           static_cast<uint32_t>(wn::scripting::type_classification::float_type),
           wn::containers::dynamic_array<uint32_t>(&allocator,
               {static_cast<uint32_t>(
@@ -312,8 +303,7 @@ TEST(name_mangling, basic_types) {
                   static_cast<uint32_t>(
                       wn::scripting::type_classification::bool_type)})));
   EXPECT_EQ("_Z3wns3FooEbbb",
-      validator.get_mangled_name(
-          "Foo",
+      validator.get_mangled_name("Foo",
           static_cast<uint32_t>(wn::scripting::type_classification::bool_type),
           wn::containers::dynamic_array<uint32_t>(&allocator,
               {static_cast<uint32_t>(

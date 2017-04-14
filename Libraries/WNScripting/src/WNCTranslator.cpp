@@ -24,25 +24,22 @@ c_translator::c_translator(type_validator* _validator,
     m_file_mapping(_mapping),
     m_compilation_log(_log) {}
 
-parse_error c_translator::translate_file(const char* file_) {
+parse_error c_translator::translate_file(const char* _file) {
   file_system::result res;
-  file_system::file_ptr file = m_file_mapping->open_file(file_, res);
+  file_system::file_ptr file = m_file_mapping->open_file(_file, res);
 
   if (!file) {
     return parse_error::does_not_exist;
   }
   containers::array<uint32_t, 2> allocate_shared_params = {
-    static_cast<uint32_t>(type_classification::size_type),
-    static_cast<uint32_t>(type_classification::function_ptr_type)
-  };
+      static_cast<uint32_t>(type_classification::size_type),
+      static_cast<uint32_t>(type_classification::function_ptr_type)};
 
   containers::array<uint32_t, 1> deref_shared_params = {
-    static_cast<uint32_t>(type_classification::void_ptr_type)
-  };
+      static_cast<uint32_t>(type_classification::void_ptr_type)};
   containers::array<uint32_t, 2> assign_params = {
-    static_cast<uint32_t>(type_classification::void_ptr_type),
-    static_cast<uint32_t>(type_classification::void_ptr_type)
-  };
+      static_cast<uint32_t>(type_classification::void_ptr_type),
+      static_cast<uint32_t>(type_classification::void_ptr_type)};
   // We have a set of functions that we MUST expose to the scripting
   // engine.
   containers::array<external_function, 4> required_functions;
@@ -53,8 +50,7 @@ parse_error c_translator::translate_file(const char* file_) {
       static_cast<uint32_t>(type_classification::void_type),
       deref_shared_params};
   required_functions[2] = {"_assign_shared",
-      static_cast<uint32_t>(type_classification::void_ptr_type),
-      assign_params};
+      static_cast<uint32_t>(type_classification::void_ptr_type), assign_params};
   // _return_shared is a little bit special.
   // It dereferences a value, but does not delete the object if it
   // ends up being 0. This will get injected at return sites,
@@ -63,7 +59,7 @@ parse_error c_translator::translate_file(const char* file_) {
       static_cast<uint32_t>(type_classification::void_ptr_type),
       deref_shared_params};
   memory::unique_ptr<script_file> parsed_file = parse_script(m_allocator,
-      m_validator, file_, required_functions, file->typed_range<char>(),
+      m_validator, _file, required_functions, file->typed_range<char>(),
       m_compilation_log, &m_num_warnings, &m_num_errors);
 
   if (parsed_file == nullptr) {
@@ -76,7 +72,7 @@ parse_error c_translator::translate_file(const char* file_) {
       &generator, static_cast<const script_file*>(parsed_file.get()));
 
   const containers::string& output_string(translator.get_output());
-  containers::string output_filename(file_, m_allocator);
+  containers::string output_filename(m_allocator, _file);
   output_filename.append(".c");
 
   file_system::file_ptr output_file =

@@ -53,7 +53,7 @@ bool get_temp_path(containers::string& _path) {
 }  // anonymous namespace
 
 bool get_scratch_path(containers::string& _path) {
-  containers::string temp_path;
+  containers::string temp_path(_path.get_allocator());
 
   if (get_temp_path(temp_path)) {
     for (;;) {
@@ -71,7 +71,7 @@ bool get_scratch_path(containers::string& _path) {
       static const mode_t mode = S_IRWXU | S_IRWXG;
 
       if (::mkdir(path.c_str(), mode) == 0) {
-        _path = std::move(path);
+        _path = core::move(path);
 
         return true;
       } else if (errno == EEXIST) {

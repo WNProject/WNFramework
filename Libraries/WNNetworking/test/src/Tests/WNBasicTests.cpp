@@ -130,7 +130,7 @@ TEST(raw_connection, send_data_from_server) {
         listen_started.notify();
         auto accepted_socket = listen_socket->accept_sync();
         ASSERT_NE(nullptr, accepted_socket);
-        wn::containers::string my_str("hello_world", &allocator);
+        wn::containers::string my_str(&allocator, "hello_world");
         accepted_socket->get_send_pipe()->send_sync({wn::networking::send_range(
             reinterpret_cast<const uint8_t*>(my_str.data()), my_str.length())});
       }
@@ -145,8 +145,8 @@ TEST(raw_connection, send_data_from_server) {
         ASSERT_NE(nullptr, connect_socket);
         auto buff = connect_socket->get_recv_pipe()->recv_sync();
         ASSERT_EQ(wn::networking::network_error::ok, buff.get_status());
-        ASSERT_EQ("hello_world",
-            wn::containers::string(buff.data.data(), buff.data.size()));
+        ASSERT_EQ("hello_world", wn::containers::string(&allocator,
+                                     buff.data.data(), buff.data.size()));
       }
       wait_for_done.notify();
     });
@@ -180,8 +180,8 @@ TEST(raw_connection, send_data_from_client) {
         ASSERT_NE(nullptr, accepted_socket);
         auto buff = accepted_socket->get_recv_pipe()->recv_sync();
         ASSERT_EQ(wn::networking::network_error::ok, buff.get_status());
-        ASSERT_EQ("hello_world",
-            wn::containers::string(buff.data.data(), buff.data.size()));
+        ASSERT_EQ("hello_world", wn::containers::string(&allocator,
+                                     buff.data.data(), buff.data.size()));
       }
       wait_for_done.notify();
     });
@@ -192,7 +192,7 @@ TEST(raw_connection, send_data_from_client) {
         auto connect_socket = manager.connect_remote_sync(
             "127.0.0.1", wn::networking::ip_protocol::ipv4, 8080, nullptr);
         ASSERT_NE(nullptr, connect_socket);
-        wn::containers::string my_str("hello_world", &allocator);
+        wn::containers::string my_str(&allocator, "hello_world");
         connect_socket->get_send_pipe()->send_sync({wn::networking::send_range(
             reinterpret_cast<const uint8_t*>(my_str.data()), my_str.length())});
       }
@@ -246,8 +246,8 @@ TEST(raw_connection, multi_send) {
         ASSERT_NE(nullptr, connect_socket);
         auto buff = connect_socket->get_recv_pipe()->recv_sync();
         ASSERT_EQ(wn::networking::network_error::ok, buff.get_status());
-        EXPECT_EQ(wn::containers::string("hello_world"),
-            wn::containers::string(buff.data.data(), buff.data.size()));
+        EXPECT_EQ("hello_world", wn::containers::string(&allocator,
+                                     buff.data.data(), buff.data.size()));
       }
       wait_for_done.notify();
     });

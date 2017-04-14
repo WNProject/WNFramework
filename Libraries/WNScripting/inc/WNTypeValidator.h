@@ -322,18 +322,20 @@ struct type_definition {
 };
 
 WN_INLINE void append_number(size_t number, containers::string& _str) {
-  auto insert_pt = _str.end();
+  auto insert_pt = _str.cend();
 
   if (number == 0) {
     _str.push_back('0');
+
     return;
   }
 
   while (number > 0) {
     _str.insert(insert_pt, '0' + number % 10);
+
     number -= number % 10;
     number /= 10;
-    insert_pt = _str.end() - 1;
+    insert_pt = _str.cend() - 1;
   }
 }
 
@@ -350,37 +352,46 @@ public:
       m_types(_allocator),
       m_allocator(_allocator),
       m_max_types(1) {
-    m_names.emplace_back("", m_allocator);
-    m_mapping.insert(core::make_pair("Void", m_max_types++));
-    m_names.emplace_back("Void", m_allocator);
+    m_names.emplace_back(m_allocator);
+    m_mapping.insert(core::make_pair(
+        containers::string(m_allocator, "Void"), m_max_types++));
+    m_names.emplace_back(m_allocator, "Void");
 
-    m_mapping.insert(core::make_pair("Int", m_max_types++));
-    m_names.emplace_back("Int", m_allocator);
+    m_mapping.insert(
+        core::make_pair(containers::string(m_allocator, "Int"), m_max_types++));
+    m_names.emplace_back(m_allocator, "Int");
 
-    m_mapping.insert(core::make_pair("Float", m_max_types++));
-    m_names.emplace_back("Float", m_allocator);
+    m_mapping.insert(core::make_pair(
+        containers::string(m_allocator, "Float"), m_max_types++));
+    m_names.emplace_back(m_allocator, "Float");
 
-    m_mapping.insert(core::make_pair("Char", m_max_types++));
-    m_names.emplace_back("Char", m_allocator);
+    m_mapping.insert(core::make_pair(
+        containers::string(m_allocator, "Char"), m_max_types++));
+    m_names.emplace_back(m_allocator, "Char");
 
-    m_mapping.insert(core::make_pair("String", m_max_types++));
-    m_names.emplace_back("String", m_allocator);
+    m_mapping.insert(core::make_pair(
+        containers::string(m_allocator, "String"), m_max_types++));
+    m_names.emplace_back(m_allocator, "String");
 
-    m_mapping.insert(core::make_pair("Bool", m_max_types++));
-    m_names.emplace_back("Bool", m_allocator);
+    m_mapping.insert(core::make_pair(
+        containers::string(m_allocator, "Bool"), m_max_types++));
+    m_names.emplace_back(m_allocator, "Bool");
 
-    m_mapping.insert(core::make_pair("_Size", m_max_types++));
-    m_names.emplace_back("_Size", m_allocator);
+    m_mapping.insert(core::make_pair(
+        containers::string(m_allocator, "_Size"), m_max_types++));
+    m_names.emplace_back(m_allocator, "_Size");
 
-    m_mapping.insert(core::make_pair("_VoidPtr", m_max_types++));
-    m_names.emplace_back("_VoidPtr", m_allocator);
+    m_mapping.insert(core::make_pair(
+        containers::string(m_allocator, "_VoidPtr"), m_max_types++));
+    m_names.emplace_back(m_allocator, "_VoidPtr");
 
-    m_mapping.insert(core::make_pair("_FunctionPtr", m_max_types++));
-    m_names.emplace_back("_FunctionPtr", m_allocator);
+    m_mapping.insert(core::make_pair(
+        containers::string(m_allocator, "_FunctionPtr"), m_max_types++));
+    m_names.emplace_back(m_allocator, "_FunctionPtr");
 
     // Need to add extras to m_names
-    m_names.push_back(containers::string());
-    m_names.push_back(containers::string());
+    m_names.emplace_back(m_allocator);
+    m_names.emplace_back(m_allocator);
     // Increment max_types by 2. This is because we keep
     // dummy types around for array and struct.
     m_max_types += 2;
@@ -555,9 +566,10 @@ public:
                 [this](uint32_t type) { return type >= m_types.size(); }),
         "One of the return types is out of bounds");
 
-    m_types[_type].m_functions.push_back({_name.to_string(m_allocator),
-        _return_type, containers::dynamic_array<uint32_t>(m_allocator,
-                                              _types.begin(), _types.end())});
+    m_types[_type].m_functions.push_back(
+        {_name.to_string(m_allocator), _return_type,
+            containers::dynamic_array<uint32_t>(
+                m_allocator, _types.begin(), _types.end())});
   }
 
   containers::string get_mangled_name(const containers::string_view& name,
@@ -575,9 +587,10 @@ public:
       insert_pt = value.end() - 1;
     }
 
-    value.insert(value.end(), name.begin(), name.end());
+    value += name;
     value += "E";
     value += m_types[return_type].m_mangling;
+
     for (size_t i = 0; i < parameters.size(); ++i) {
       value += (m_types[parameters[i]].m_mangling);
     }
@@ -594,6 +607,6 @@ private:
 };
 
 }  // namespace scripting
-}  // namesapce wn
+}  // namespace wn
 
 #endif  //__WN_SCRIPTING_TYPE_VALIDATOR_H__
