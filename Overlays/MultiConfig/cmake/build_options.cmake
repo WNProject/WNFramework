@@ -93,8 +93,10 @@ macro(set_enabled_source_groups)
       set(overlay_group "")
     endif()
 
-    string(REPLACE "/" "\\" dir_name ${dir_name})
-    source_group("${overlay_group}${dir_name}" FILES "${existing_full_source}")
+    if (dir_name)
+      string(REPLACE "/" "\\" dir_name ${dir_name})
+      source_group("${overlay_group}${dir_name}" FILES "${existing_full_source}")
+    endif()
   endforeach()
 endmacro()
 
