@@ -18,6 +18,7 @@ class allocator;
 
 }  // namespace memory
 
+namespace runtime {
 namespace graphics {
 namespace internal {
 namespace vulkan {
@@ -30,6 +31,7 @@ WN_FORCE_INLINE void cleanup(logging::log*) {}
 }  // namespace vulkan
 }  // namespace internal
 }  // namespace graphics
+}  // namespace runtime
 }  // namespace wn
 
 #endif  // __WN_GRAPHICS_INTERNAL_VULKAN_ADAPTER_H__

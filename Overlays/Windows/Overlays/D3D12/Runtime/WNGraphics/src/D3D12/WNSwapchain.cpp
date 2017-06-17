@@ -9,6 +9,7 @@
 #include "WNGraphics/inc/WNSwapchain.h"
 
 namespace wn {
+namespace runtime {
 namespace graphics {
 namespace internal {
 namespace d3d12 {
@@ -68,4 +69,5 @@ typename data_type<const T>::value& d3d12_swapchain::get_data(
 }  // namespace d3d12
 }  // namespace internal
 }  // namespace graphics
+}  // namespace runtime
 }  // namespace wn

@@ -18,6 +18,7 @@
 #endif
 
 namespace wn {
+namespace runtime {
 namespace graphics {
 
 class fence;
@@ -90,6 +91,7 @@ protected:
 }  // namespace vulkan
 }  // namespace internal
 }  // namespace graphics
+}  // namespace runtime
 }  // namespace wn
 
 #endif  // __WN_GRAPHICS_INC_INTERNAL_VULKAN_QUEUE_H__

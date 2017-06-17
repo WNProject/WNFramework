@@ -19,6 +19,7 @@
 #include <wrl.h>
 
 namespace wn {
+namespace runtime {
 namespace graphics {
 
 class fence;
@@ -77,6 +78,7 @@ protected:
 }  // namespace d3d12
 }  // namespace internal
 }  // namespace graphics
+}  // namespace runtime
 }  // namespace wn
 
 #endif  // __WN_GRAPHICS_INC_INTERNAL_D3D12_QUEUE_H__

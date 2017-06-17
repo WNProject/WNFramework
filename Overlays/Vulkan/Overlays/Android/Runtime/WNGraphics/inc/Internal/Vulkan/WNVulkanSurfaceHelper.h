@@ -9,6 +9,7 @@
 #include "WNWindow/inc/WNAndroidWindow.h"
 
 namespace wn {
+namespace runtime {
 namespace graphics {
 namespace internal {
 namespace vulkan {
@@ -38,9 +39,10 @@ struct surface_helper {
   PFN_vkDestroySurfaceKHR vkDestroySurfaceKHR;
 };
 
-}  // namespace wn
-}  // namespace graphics
-}  // namespace internal
 }  // namespace vulkan
+}  // namespace internal
+}  // namespace graphics
+}  // namespace runtime
+}  // namespace wn
 
 #endif  // _WNGRAPHICS_INTERNAL_VULKAN_SURFACE_HELPER_H__

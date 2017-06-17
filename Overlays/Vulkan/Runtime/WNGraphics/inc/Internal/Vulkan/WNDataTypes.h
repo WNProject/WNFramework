@@ -14,6 +14,7 @@
 #include "WNGraphics/inc/WNShaderModule.h"
 
 namespace wn {
+namespace runtime {
 namespace graphics {
 namespace internal {
 namespace vulkan {
@@ -170,6 +171,7 @@ struct data_type<fence> {
 }  // namespace vulkan
 }  // namespace internal
 }  // namespace graphics
+}  // namespace runtime
 }  // namespace wn
 
 #endif  // __WN_GRAPHICS_INTERNAL_VULKAN_DATA_TYPES_H__

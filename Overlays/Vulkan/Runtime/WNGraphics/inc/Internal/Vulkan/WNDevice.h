@@ -37,6 +37,7 @@ class allocator;
 
 }  // namespace memory
 
+namespace runtime {
 namespace graphics {
 
 class arena;
@@ -315,6 +316,7 @@ private:
 }  // namespace vulkan
 }  // namespace internal
 }  // namespace graphics
+}  // namespace runtime
 }  // namespace wn
 
 #endif  // __WN_GRAPHICS_INTERNAL_VULKAN_DEVICE_H__

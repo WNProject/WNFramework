@@ -15,9 +15,10 @@ WN_GRAPHICS_FORWARD(queue);
 WN_GRAPHICS_FORWARD(device);
 
 namespace wn {
+namespace runtime {
 namespace graphics {
 
-template <uint64_t NUM_64_BIT_WORDS>
+template <const uint64_t Num64BitWords>
 class base_object : public core::non_copyable {
 protected:
   WN_GRAPHICS_ADD_FRIENDS(queue)
@@ -44,11 +45,12 @@ protected:
   // It also must be considered uninitialized when
   // memset to 0.
   struct opaque_data WN_FINAL {
-    uint64_t _dummy[NUM_64_BIT_WORDS];
+    uint64_t _dummy[Num64BitWords];
   } m_data = {};
 };
 
 }  // namespace graphics
+}  // namespace runtime
 }  // namespace wn
 
 #endif  // __WN_GRAPHICS_OBJECT_BASE__

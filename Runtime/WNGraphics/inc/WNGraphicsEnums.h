@@ -12,6 +12,7 @@
 #include "WNCore/inc/WNTypes.h"
 
 namespace wn {
+namespace runtime {
 namespace graphics {
 
 enum class data_format { r8g8b8a8_unorm, r32g32b32a32_sfloat, max };
@@ -65,6 +66,7 @@ WN_FORCE_INLINE bool is_format_int(data_format _format) {
 }
 
 enum class stream_frequency { per_vertex, per_instance };
+
 enum class topology {
   undefined,
   point_list,
@@ -94,8 +96,8 @@ enum class cull_mode { back, front, none };
 // correct
 enum class shader_stage : uint32_t {
   vertex = 1 << 0,
-  tessellation_control = 1 << 1,     // Can only be used if the device supports
-                                     // tessellation
+  tessellation_control = 1 << 1,  // Can only be used if the device supports
+  // tessellation
   tessellation_evaluation = 1 << 2,  // Only if tessellation is supported.
   geometry = 1 << 3,  // Can only be used if the devive supports geometry
   pixel = 1 << 4,
@@ -245,6 +247,7 @@ enum class image_component : uint8_t {
 using image_components = uint8_t;
 
 }  // namespace graphics
+}  // namespace runtime
 }  // namespace wn
 
 #endif  // __WN_GRAPHICS_GRAPHICS_ENUMS_H__

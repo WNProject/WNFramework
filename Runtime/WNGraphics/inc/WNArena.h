@@ -15,6 +15,7 @@
 WN_GRAPHICS_FORWARD(device);
 
 namespace wn {
+namespace runtime {
 namespace graphics {
 
 class arena WN_FINAL : public base_object<2> {
@@ -58,6 +59,7 @@ private:
 };
 
 }  // namespace graphics
+}  // namespace runtime
 }  // namespace wn
 
 #endif  // __WN_RUNTIME_GRAPHICS_ARENA_H__

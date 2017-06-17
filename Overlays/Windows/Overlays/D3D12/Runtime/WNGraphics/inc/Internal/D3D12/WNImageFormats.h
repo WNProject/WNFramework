@@ -10,6 +10,7 @@
 #include "WNGraphics/inc/WNImage.h"
 
 namespace wn {
+namespace runtime {
 namespace graphics {
 namespace internal {
 namespace d3d12 {
@@ -30,6 +31,7 @@ static WN_FORCE_INLINE DXGI_FORMAT image_format_to_dxgi_format(
 }  // namespace d3d12
 }  // namespace internal
 }  // namespace graphics
+}  // namespace runtime
 }  // namespace wn
 
 #endif  // __WN_GRAPHICS_INTERNAL_D3D12_IMAGE_FORMATS_H__

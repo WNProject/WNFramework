@@ -20,7 +20,9 @@
 WN_GRAPHICS_FORWARD(device);
 
 namespace wn {
+namespace runtime {
 namespace graphics {
+
 class image;
 class queue;
 class fence;
@@ -85,6 +87,7 @@ private:
 using swapchain_ptr = memory::unique_ptr<swapchain>;
 
 }  // namespace graphics
+}  // namespace runtime
 }  // namespace wn
 
 #endif  // __WN_GRAPHICS_SWAPCHAIN_H__

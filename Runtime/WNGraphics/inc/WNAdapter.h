@@ -20,6 +20,7 @@
 #endif
 
 namespace wn {
+namespace runtime {
 namespace graphics {
 
 struct adapter_features {
@@ -80,6 +81,7 @@ public:
 using adapter_ptr = memory::unique_ptr<adapter>;
 
 }  // namespace graphics
+}  // namespace runtime
 }  // namespace wn
 
 #endif  // __WN_RUNTIME_GRAPHICS_ADAPTER_H__

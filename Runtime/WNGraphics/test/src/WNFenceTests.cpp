@@ -8,24 +8,26 @@
 #include "WNGraphics/inc/WNQueue.h"
 #include "WNGraphics/test/inc/WNTestFixture.h"
 
-using fence_test = wn::graphics::testing::test;
+using fence_test = wn::runtime::graphics::testing::test;
 
 TEST_F(fence_test, many_sizes) {
-  wn::graphics::factory device_factory(&m_allocator, m_log);
+  wn::runtime::graphics::factory device_factory(&m_allocator, m_log);
 
   for (auto& adapter : device_factory.query_adapters()) {
-    wn::graphics::device_ptr device = adapter->make_device(&m_allocator, m_log);
+    wn::runtime::graphics::device_ptr device =
+        adapter->make_device(&m_allocator, m_log);
     ASSERT_NE(nullptr, device);
-    wn::graphics::queue_ptr queue = device->create_queue();
+    wn::runtime::graphics::queue_ptr queue = device->create_queue();
     ASSERT_NE(nullptr, queue);
 
-    wn::graphics::fence my_fence = device->create_fence();
+    wn::runtime::graphics::fence my_fence = device->create_fence();
 
     ASSERT_TRUE(my_fence.is_valid());
 
     queue->enqueue_fence(my_fence);
     my_fence.wait();
   }
+
   m_log->flush();
   // On normal operation the log buffer should be empty.
   EXPECT_EQ("", m_buffer);

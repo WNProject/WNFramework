@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
+#include "WNGraphics/inc/Internal/D3D12/WNDevice.h"
 #include "WNContainers/inc/WNDeque.h"
 #include "WNGraphics/inc/Internal/D3D12/WNCommandList.h"
 #include "WNGraphics/inc/Internal/D3D12/WNDataTypes.h"
-#include "WNGraphics/inc/Internal/D3D12/WNDevice.h"
 #include "WNGraphics/inc/Internal/D3D12/WNImageFormats.h"
 #include "WNGraphics/inc/Internal/D3D12/WNResourceStates.h"
 #include "WNGraphics/inc/Internal/D3D12/WNSwapchain.h"
@@ -38,6 +38,7 @@
 #include <dxgi1_4.h>
 
 namespace wn {
+namespace runtime {
 namespace graphics {
 namespace internal {
 namespace d3d12 {
@@ -1253,4 +1254,5 @@ void d3d12_device::destroy_buffer(buffer* _buffer) {
 }  // namespace d3d12
 }  // namesapce internal
 }  // namespace graphics
+}  // namespace runtime
 }  // namespace wn

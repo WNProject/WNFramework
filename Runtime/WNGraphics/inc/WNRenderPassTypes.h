@@ -10,6 +10,7 @@
 #include "WNGraphics/inc/WNGraphicsEnums.h"
 
 namespace wn {
+namespace runtime {
 namespace graphics {
 
 struct render_pass_attachment {
@@ -49,6 +50,7 @@ struct subpass_description {
 };
 
 }  // namespace graphics
+}  // namespace runtime
 }  // namespace wn
 
 #endif  // __WN_GRAPHICS_RENDER_PASS_TYPES_H__

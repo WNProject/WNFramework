@@ -11,17 +11,20 @@
 #include "WNGraphics/inc/WNQueue.h"
 #include "WNGraphics/test/inc/WNTestFixture.h"
 
-using resource_copy_test = wn::graphics::testing::parameterized_test<size_t>;
+using resource_copy_test =
+    wn::runtime::graphics::testing::parameterized_test<size_t>;
 
 TEST_P(resource_copy_test, many_sizes) {
-  wn::graphics::factory device_factory(&m_allocator, m_log);
+  wn::runtime::graphics::factory device_factory(&m_allocator, m_log);
   const size_t size = GetParam();
   for (auto& adapter : device_factory.query_adapters()) {
-    wn::graphics::device_ptr device = adapter->make_device(&m_allocator, m_log);
+    wn::runtime::graphics::device_ptr device =
+        adapter->make_device(&m_allocator, m_log);
     ASSERT_NE(nullptr, device);
 
     // Time to find an image arena
-    wn::containers::contiguous_range<const wn::graphics::arena_properties>
+    wn::containers::contiguous_range<
+        const wn::runtime::graphics::arena_properties>
         properties = device->get_arena_properties();
     size_t idx = 0;
     for (idx = 0; idx < properties.size(); ++idx) {
@@ -31,33 +34,42 @@ TEST_P(resource_copy_test, many_sizes) {
     }
     ASSERT_NE(properties.size(), idx);
 
-    wn::graphics::buffer src_buffer = device->create_buffer(size,
-        static_cast<wn::graphics::resource_states>(
-            static_cast<uint32_t>(wn::graphics::resource_state::host_read) |
-            static_cast<uint32_t>(wn::graphics::resource_state::host_write) |
-            static_cast<uint32_t>(wn::graphics::resource_state::copy_source)));
+    wn::runtime::graphics::buffer src_buffer = device->create_buffer(
+        size, static_cast<wn::runtime::graphics::resource_states>(
+                  static_cast<uint32_t>(
+                      wn::runtime::graphics::resource_state::host_read) |
+                  static_cast<uint32_t>(
+                      wn::runtime::graphics::resource_state::host_write) |
+                  static_cast<uint32_t>(
+                      wn::runtime::graphics::resource_state::copy_source)));
 
-    wn::graphics::buffer dst_buffer = device->create_buffer(size,
-        static_cast<wn::graphics::resource_states>(
-            static_cast<uint32_t>(wn::graphics::resource_state::host_read) |
-            static_cast<uint32_t>(wn::graphics::resource_state::host_write) |
-            static_cast<uint32_t>(wn::graphics::resource_state::copy_dest)));
+    wn::runtime::graphics::buffer dst_buffer = device->create_buffer(
+        size, static_cast<wn::runtime::graphics::resource_states>(
+                  static_cast<uint32_t>(
+                      wn::runtime::graphics::resource_state::host_read) |
+                  static_cast<uint32_t>(
+                      wn::runtime::graphics::resource_state::host_write) |
+                  static_cast<uint32_t>(
+                      wn::runtime::graphics::resource_state::copy_dest)));
 
-    wn::graphics::buffer_memory_requirements src_reqs =
+    wn::runtime::graphics::buffer_memory_requirements src_reqs =
         src_buffer.get_memory_requirements();
-    wn::graphics::buffer_memory_requirements dst_reqs =
+    wn::runtime::graphics::buffer_memory_requirements dst_reqs =
         dst_buffer.get_memory_requirements();
 
-    wn::graphics::arena src_arena = device->create_arena(idx, src_reqs.size);
+    wn::runtime::graphics::arena src_arena =
+        device->create_arena(idx, src_reqs.size);
     src_buffer.bind_memory(&src_arena, 0);
 
-    wn::graphics::arena dst_arena = device->create_arena(idx, dst_reqs.size);
+    wn::runtime::graphics::arena dst_arena =
+        device->create_arena(idx, dst_reqs.size);
     dst_buffer.bind_memory(&dst_arena, 0);
 
-    wn::graphics::queue_ptr queue = device->create_queue();
-    wn::graphics::command_allocator alloc = device->create_command_allocator();
-    wn::graphics::command_list_ptr list = alloc.create_command_list();
-    wn::graphics::fence completion_fence = device->create_fence();
+    wn::runtime::graphics::queue_ptr queue = device->create_queue();
+    wn::runtime::graphics::command_allocator alloc =
+        device->create_command_allocator();
+    wn::runtime::graphics::command_list_ptr list = alloc.create_command_list();
+    wn::runtime::graphics::fence completion_fence = device->create_fence();
 
     void* raw_memory = src_buffer.map();
 
@@ -71,14 +83,15 @@ TEST_P(resource_copy_test, many_sizes) {
     src_buffer.unmap();
 
     list->transition_resource(src_buffer,
-        wn::graphics::resource_state::host_write,
-        wn::graphics::resource_state::copy_source);
-    list->transition_resource(dst_buffer, wn::graphics::resource_state::initial,
-        wn::graphics::resource_state::copy_dest);
+        wn::runtime::graphics::resource_state::host_write,
+        wn::runtime::graphics::resource_state::copy_source);
+    list->transition_resource(dst_buffer,
+        wn::runtime::graphics::resource_state::initial,
+        wn::runtime::graphics::resource_state::copy_dest);
     list->copy_buffer(src_buffer, 0, dst_buffer, 0, size);
     list->transition_resource(dst_buffer,
-        wn::graphics::resource_state::copy_dest,
-        wn::graphics::resource_state::host_read);
+        wn::runtime::graphics::resource_state::copy_dest,
+        wn::runtime::graphics::resource_state::host_read);
     list->finalize();
     queue->enqueue_command_list(list.get());
     queue->enqueue_fence(completion_fence);

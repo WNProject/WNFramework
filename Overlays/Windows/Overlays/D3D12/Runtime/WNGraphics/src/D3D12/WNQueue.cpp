@@ -14,6 +14,7 @@
 #endif
 
 namespace wn {
+namespace runtime {
 namespace graphics {
 namespace internal {
 namespace d3d12 {
@@ -53,4 +54,5 @@ typename data_type<const T>::value& d3d12_queue::get_data(const T* const t) {
 }  // namespace d3d12
 }  // namespace internal
 }  // namespace graphics
+}  // namespace runtime
 }  // namespace wn

@@ -17,6 +17,7 @@ class allocator;
 
 }  // namespace memory
 
+namespace runtime {
 namespace graphics {
 namespace internal {
 namespace d3d12 {
@@ -29,6 +30,7 @@ void cleanup(logging::log* _log);
 }  // namespace d3d12
 }  // namespace internal
 }  // namespace graphics
+}  // namespace runtime
 }  // namespace wn
 
 #endif  // __WN_GRAPHICS_D3D12_HELPERS_H__

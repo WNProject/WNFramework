@@ -23,7 +23,9 @@
 #include "WNGraphics/test/inc/WNPixelTestConfig.h"
 
 #include <stb_public.h>
+
 namespace wn {
+namespace runtime {
 namespace graphics {
 namespace testing {
 
@@ -152,21 +154,22 @@ protected:
         get_image_filename().c_str(), width, height, 4, &image[0][0][0]);
   }
 
-  void run_test(const std::function<void(wn::graphics::adapter::api_type,
-          wn::graphics::device*, wn::graphics::queue*, wn::graphics::image*)>&
-          func) {
+  void run_test(
+      const std::function<void(wn::runtime::graphics::adapter::api_type,
+          wn::runtime::graphics::device*, wn::runtime::graphics::queue*,
+          wn::runtime::graphics::image*)>& func) {
     containers::dynamic_array<testing::image<width, height>> result_images(
         &m_allocator);
 
-    wn::graphics::factory device_factory(&m_allocator, m_log);
+    wn::runtime::graphics::factory device_factory(&m_allocator, m_log);
     for (auto& adapter : device_factory.query_adapters()) {
-      wn::graphics::device_ptr device =
+      wn::runtime::graphics::device_ptr device =
           adapter->make_device(&m_allocator, m_log);
       ASSERT_NE(nullptr, device);
-      wn::graphics::queue_ptr queue = device->create_queue();
+      wn::runtime::graphics::queue_ptr queue = device->create_queue();
 
       const wn::containers::contiguous_range<
-          const wn::graphics::arena_properties>
+          const wn::runtime::graphics::arena_properties>
           arena_properties = device->get_arena_properties();
       size_t image_arena_index = 0;
       bool found_arena = false;
@@ -190,67 +193,69 @@ protected:
           break;
         }
       }
-      wn::graphics::clear_value value{};
-      wn::graphics::image image = device->create_image(
-          wn::graphics::image_create_info{width, height,
-              wn::graphics::data_format::r8g8b8a8_unorm,
-              static_cast<wn::graphics::resource_states>(
+      wn::runtime::graphics::clear_value value{};
+      wn::runtime::graphics::image image = device->create_image(
+          wn::runtime::graphics::image_create_info{
+              width, height, wn::runtime::graphics::data_format::r8g8b8a8_unorm,
+              static_cast<wn::runtime::graphics::resource_states>(
                   static_cast<uint32_t>(
-                      wn::graphics::resource_state::copy_source) |
+                      wn::runtime::graphics::resource_state::copy_source) |
                   static_cast<uint32_t>(
-                      wn::graphics::resource_state::render_target))},
+                      wn::runtime::graphics::resource_state::render_target))},
           value);
 
-      wn::graphics::image_memory_requirements image_requirements =
+      wn::runtime::graphics::image_memory_requirements image_requirements =
           image.get_memory_requirements();
-      wn::graphics::arena image_arena =
+      wn::runtime::graphics::arena image_arena =
           device->create_arena(image_arena_index, image_requirements.size);
       image.bind_memory(&image_arena, 0);
-      wn::graphics::command_allocator alloc =
+      wn::runtime::graphics::command_allocator alloc =
           device->create_command_allocator();
 
-      wn::graphics::command_list_ptr setup_command_list =
+      wn::runtime::graphics::command_list_ptr setup_command_list =
           alloc.create_command_list();
       setup_command_list->transition_resource(image,
-          wn::graphics::resource_state::initial,
-          wn::graphics::resource_state::render_target);
+          wn::runtime::graphics::resource_state::initial,
+          wn::runtime::graphics::resource_state::render_target);
       setup_command_list->finalize();
       queue->enqueue_command_list(setup_command_list.get());
 
-      wn::graphics::image::image_buffer_resource_info resource_info =
+      wn::runtime::graphics::image::image_buffer_resource_info resource_info =
           image.get_buffer_requirements();
 
-      wn::graphics::buffer buffer =
-          device->create_buffer(resource_info.total_memory_required,
-              static_cast<wn::graphics::resource_states>(
-                  static_cast<uint32_t>(wn::graphics::resource_state::host_read,
-                      wn::graphics::resource_state::copy_dest)));
+      wn::runtime::graphics::buffer buffer = device->create_buffer(
+          resource_info.total_memory_required,
+          static_cast<wn::runtime::graphics::resource_states>(
+              static_cast<uint32_t>(
+                  wn::runtime::graphics::resource_state::host_read,
+                  wn::runtime::graphics::resource_state::copy_dest)));
 
-      wn::graphics::buffer_memory_requirements buffer_requirements =
+      wn::runtime::graphics::buffer_memory_requirements buffer_requirements =
           buffer.get_memory_requirements();
-      wn::graphics::arena buffer_arena =
+      wn::runtime::graphics::arena buffer_arena =
           device->create_arena(buffer_arena_index, buffer_requirements.size);
       buffer.bind_memory(&buffer_arena, 0);
 
       func(adapter->api(), device.get(), queue.get(), &image);
 
-      wn::graphics::fence completion_fence = device->create_fence();
+      wn::runtime::graphics::fence completion_fence = device->create_fence();
       queue->enqueue_fence(completion_fence);
       completion_fence.wait();
       completion_fence.reset();
 
-      wn::graphics::command_list_ptr copy_list = alloc.create_command_list();
+      wn::runtime::graphics::command_list_ptr copy_list =
+          alloc.create_command_list();
       copy_list->transition_resource(buffer,
-          wn::graphics::resource_state::initial,
-          wn::graphics::resource_state::copy_dest);
+          wn::runtime::graphics::resource_state::initial,
+          wn::runtime::graphics::resource_state::copy_dest);
       copy_list->transition_resource(image,
-          wn::graphics::resource_state::render_target,
-          wn::graphics::resource_state::copy_source);
+          wn::runtime::graphics::resource_state::render_target,
+          wn::runtime::graphics::resource_state::copy_source);
 
       copy_list->copy_image_to_buffer(image, buffer, 0);
       copy_list->transition_resource(buffer,
-          wn::graphics::resource_state::copy_dest,
-          wn::graphics::resource_state::host_read);
+          wn::runtime::graphics::resource_state::copy_dest,
+          wn::runtime::graphics::resource_state::host_read);
       copy_list->finalize();
 
       queue->enqueue_command_list(copy_list.get());
@@ -362,6 +367,7 @@ protected:
 
 }  // namespace testing
 }  // namespace graphics
+}  // namespace runtime
 }  // namespace wn
 
 #endif  // _WN_GRAPHICS_TEST_PIXEL_TEST_FIXTURE_H__

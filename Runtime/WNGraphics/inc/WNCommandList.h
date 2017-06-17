@@ -24,6 +24,7 @@
 #endif
 
 namespace wn {
+namespace runtime {
 namespace graphics {
 namespace internal {
 
@@ -96,6 +97,7 @@ protected:
 using command_list_ptr = memory::unique_ptr<command_list>;
 
 }  // namespace graphics
+}  // namespace runtime
 }  // namespace wn
 
 #endif  // __WN_GRAPHICS_COMMAND_LIST_H__

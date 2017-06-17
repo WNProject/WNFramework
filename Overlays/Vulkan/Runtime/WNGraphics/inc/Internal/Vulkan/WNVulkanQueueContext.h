@@ -13,6 +13,7 @@
 #include "WNMemory/inc/WNIntrusivePtr.h"
 
 namespace wn {
+namespace runtime {
 namespace graphics {
 namespace internal {
 namespace vulkan {
@@ -29,6 +30,7 @@ struct queue_context WN_FINAL {
 }  // namespace vulkan
 }  // namespace internal
 }  // namespace graphics
+}  // namespace runtime
 }  // namespace wn
 
 #endif  // __WN_GRAPHICS_INTERNAL_VULKAN_VULKAN_QUEUE_CONTEXT_H__

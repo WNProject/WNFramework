@@ -24,7 +24,6 @@
 #include "WNCore/inc/WNUtility.h"
 #endif
 
-
 namespace wn {
 namespace memory {
 
@@ -32,6 +31,7 @@ class allocator;
 
 }  // namespace memory
 
+namespace runtime {
 namespace graphics {
 
 class factory;
@@ -119,6 +119,7 @@ protected:
 }  // namespace vulkan
 }  // namespace internal
 }  // namespace graphics
+}  // namespace runtime
 }  // namespace wn
 
 #endif  // __WN_GRAPHICS_INTERNAL_VULKAN_ADAPTER_H__

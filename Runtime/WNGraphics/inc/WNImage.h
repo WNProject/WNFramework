@@ -17,7 +17,9 @@ WN_GRAPHICS_FORWARD(device);
 WN_GRAPHICS_FORWARD(command_list);
 
 namespace wn {
+namespace runtime {
 namespace graphics {
+
 class arena;
 
 struct image_memory_requirements {
@@ -49,8 +51,8 @@ public:
   WN_FORCE_INLINE image(image&& _other)
     : m_device(_other.m_device), m_resource_info(_other.m_resource_info) {
     _other.m_device = nullptr;
-    memory::memcpy(
-        &m_resource_info, &_other.m_resource_info, sizeof(_other.m_resource_info));
+    memory::memcpy(&m_resource_info, &_other.m_resource_info,
+        sizeof(_other.m_resource_info));
     memory::memory_zero(&_other.m_resource_info);
     m_is_swapchain_image = _other.m_is_swapchain_image;
     memory::memcpy(&m_data, &_other.m_data, sizeof(opaque_data));
@@ -128,6 +130,7 @@ private:
 };
 
 }  // namespace graphics
+}  // namespace runtime
 }  // namespace wn
 
 #endif  // __WN_GRAPHICS_IMAGE_H__

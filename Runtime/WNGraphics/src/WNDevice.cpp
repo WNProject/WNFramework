@@ -19,6 +19,7 @@
 #include "WNGraphics/inc/WNSwapchain.h"
 
 namespace wn {
+namespace runtime {
 namespace graphics {
 
 command_allocator device::create_command_allocator() {
@@ -150,4 +151,5 @@ buffer device::create_buffer(const size_t _size, const resource_states _usage) {
 }
 
 }  // namespace graphics
+}  // namespace runtime
 }  // namespace wn

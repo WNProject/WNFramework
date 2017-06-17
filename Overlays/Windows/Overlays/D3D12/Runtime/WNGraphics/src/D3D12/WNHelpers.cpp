@@ -19,6 +19,7 @@
 #endif
 
 namespace wn {
+namespace runtime {
 namespace graphics {
 namespace internal {
 namespace d3d12 {
@@ -225,4 +226,5 @@ void cleanup(logging::log* _log) {
 }  // namespace d3d12
 }  // namespace internal
 }  // namespace graphics
+}  // namespace runtime
 }  // namespace wn

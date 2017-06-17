@@ -10,6 +10,7 @@
 #include "WNCore/inc/WNTypes.h"
 
 namespace wn {
+namespace runtime {
 namespace graphics {
 
 union clear_color {
@@ -45,12 +46,14 @@ struct image_create_info {
   size_t m_height;
   data_format m_format;
   resource_states m_valid_resource_states;  // Bit-flags of the image type.
+
   // TODO(awoloszyn): Add mip-levels
   // TODO(awoloszyn): Add Depth/Array Size
   // TODO(awoloszyn): Add Multisample information
 };
 
 }  // namespace graphics
+}  // namespace runtime
 }  // namespace wn
 
 #endif  // __WN_GRAPHICS_GRAPHICS_TYPES_H__

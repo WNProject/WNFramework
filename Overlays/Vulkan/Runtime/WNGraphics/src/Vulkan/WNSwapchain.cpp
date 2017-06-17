@@ -11,9 +11,11 @@
 #include "WNGraphics/inc/WNSwapchain.h"
 
 namespace wn {
+namespace runtime {
 namespace graphics {
 namespace internal {
 namespace vulkan {
+
 #define get_data(f)                                                            \
   f->data_as<                                                                  \
       typename data_type<core::remove_pointer<decltype(f)>::type>::value>()
@@ -80,4 +82,5 @@ void vulkan_swapchain::present_internal(
 }  // namespace vulkan
 }  // namespace internal
 }  // namespace graphics
+}  // namespace runtime
 }  // namespace wn

@@ -19,6 +19,7 @@ WN_GRAPHICS_FORWARD(device)
 WN_GRAPHICS_FORWARD(command_list)
 
 namespace wn {
+namespace runtime {
 namespace graphics {
 
 class render_pass WN_FINAL : public base_object<2> {
@@ -54,6 +55,7 @@ private:
 };
 
 }  // namespace graphics
+}  // namespace runtime
 }  // namespace wn
 
 #endif  // __WN_GRAPHICS_RENDER_PASS_H__

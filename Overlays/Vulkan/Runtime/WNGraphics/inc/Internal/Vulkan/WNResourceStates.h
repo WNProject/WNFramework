@@ -11,6 +11,7 @@
 #include "WNMath/inc/WNBasic.h"
 
 namespace wn {
+namespace runtime {
 namespace graphics {
 namespace internal {
 namespace vulkan {
@@ -399,6 +400,7 @@ static WN_FORCE_INLINE VkColorComponentFlags write_components_to_vulkan(
 }  // namespace vulkan
 }  // namespace internal
 }  // namespace graphics
+}  // namespace runtime
 }  // namespace wn
 
 #endif  // __WN_GRAPHICS_INTERNAL_VULKAN_RESOURCE_STATES_H__

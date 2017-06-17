@@ -18,7 +18,9 @@
 WN_GRAPHICS_FORWARD(device);
 
 namespace wn {
+namespace runtime {
 namespace graphics {
+
 class shader_module;
 
 struct viewport {
@@ -498,6 +500,7 @@ graphics_pipeline_description::clear_static_stencil_ref() {
 }
 
 }  // namespace graphics
+}  // namespace runtime
 }  // namespace wn
 
 #endif  // __WN_GRAPHICS_GRAPHICS_PIPELINE_DESCRIPTION_H__

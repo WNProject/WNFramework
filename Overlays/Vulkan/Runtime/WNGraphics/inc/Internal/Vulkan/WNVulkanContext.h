@@ -12,6 +12,7 @@
 #include "WNMemory/inc/WNIntrusivePtr.h"
 
 namespace wn {
+namespace runtime {
 namespace graphics {
 namespace internal {
 namespace vulkan {
@@ -59,10 +60,13 @@ struct vulkan_context : public memory::intrusive_ptr_base {
   // TODO(awoloszyn): Fill this out as we need more functions.
   // TODO(awoloszyn): Add allocators to vulkan.
 };
+
 using vulkan_context_ptr = memory::intrusive_ptr<vulkan_context>;
+
 }  // namespace vulkan
 }  // namespace internal
 }  // namespace graphics
+}  // namespace runtime
 }  // namespace wn
 
 #endif  // __WN_GRAPHICS_INTERNAL_VULKAN_VULKAN_CONTEXT_H__

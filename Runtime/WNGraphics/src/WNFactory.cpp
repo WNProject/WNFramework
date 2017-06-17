@@ -8,6 +8,7 @@
 #include "WNGraphics/inc/Internal/WNHelperIncludes.h"
 
 namespace wn {
+namespace runtime {
 namespace graphics {
 
 containers::contiguous_range<const adapter_ptr> factory::query_adapters()
@@ -33,5 +34,7 @@ void factory::query_devices() const {
 }
 
 #undef WN_GRAPHICS_ENUMERATE
+
 }  // namespace graphics
+}  // namespace runtime
 }  // namespace wn

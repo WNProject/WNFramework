@@ -14,6 +14,7 @@
 WN_GRAPHICS_FORWARD(device);
 
 namespace wn {
+namespace runtime {
 namespace graphics {
 
 class command_allocator WN_FINAL : public core::non_copyable {
@@ -76,6 +77,7 @@ protected:
 };
 
 }  // namespace graphics
+}  // namespace runtime
 }  // namespace wn
 
 #endif  // __WN_GRAPHICS_COMMAND_ALLOCATOR_LIST_H__

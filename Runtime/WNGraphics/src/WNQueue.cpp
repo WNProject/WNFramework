@@ -7,6 +7,7 @@
 #include "WNGraphics/inc/WNDevice.h"
 
 namespace wn {
+namespace runtime {
 namespace graphics {
 
 #ifdef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
@@ -18,4 +19,5 @@ queue::~queue() {
 #endif
 
 }  // namespace graphics
+}  // namespace runtime
 }  // namespace wn

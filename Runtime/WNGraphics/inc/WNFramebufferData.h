@@ -11,7 +11,9 @@
 #include "WNGraphics/inc/WNGraphicsEnums.h"
 
 namespace wn {
+namespace runtime {
 namespace graphics {
+
 class render_pass;
 class image_view;
 
@@ -29,6 +31,7 @@ struct framebuffer_create_info {
 };
 
 }  // namespace graphics
+}  // namespace runtime
 }  // namespace wn
 
 #endif  // __WN_GRAPHICS_FRAMEBUFFER_CREATE_INFO_H__

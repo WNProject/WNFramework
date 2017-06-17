@@ -11,6 +11,7 @@
 #include "WNGraphics/inc/WNFence.h"
 
 namespace wn {
+namespace runtime {
 namespace graphics {
 namespace internal {
 namespace vulkan {
@@ -56,4 +57,5 @@ void vulkan_queue::enqueue_command_list(command_list* _command) {
 }  // namespace vulkan
 }  // namespace internal
 }  // namespace graphics
+}  // namespace runtime
 }  // namespace wn

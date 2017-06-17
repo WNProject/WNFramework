@@ -20,7 +20,9 @@
 #endif
 
 namespace wn {
+namespace runtime {
 namespace graphics {
+
 class buffer;
 class render_pass;
 class framebuffer;
@@ -30,8 +32,10 @@ class descriptor_set;
 class pipeline_layout;
 struct render_area;
 union clear_value;
+
 namespace internal {
 namespace vulkan {
+
 class vulkan_device;
 class vulkan_queue;
 
@@ -86,6 +90,7 @@ public:
 
   void bind_vertex_buffer(
       uint32_t stream, const buffer* _buffer) WN_GRAPHICS_OVERRIDE_FINAL;
+
 protected:
   friend class vulkan_device;
   friend class vulkan_queue;
@@ -120,6 +125,7 @@ protected:
 }  // namespace vulkan
 }  // namespace internal
 }  // namespace graphics
+}  // namespace runtime
 }  // namespace wn
 
 #endif  // __WN_GRAPHICS_INTERNAL_VULKAN_COMMAND_LIST_H__

@@ -17,6 +17,7 @@ WN_GRAPHICS_FORWARD(queue)
 WN_GRAPHICS_FORWARD(device)
 
 namespace wn {
+namespace runtime {
 namespace graphics {
 
 class shader_module WN_FINAL : public base_object<2> {
@@ -50,6 +51,7 @@ private:
 };
 
 }  // namespace graphics
+}  // namespace runtime
 }  // namespace wn
 
 #endif  // __WN_GRAPHICS_SHADER_MODULE_H__

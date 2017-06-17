@@ -19,6 +19,7 @@
 WN_GRAPHICS_FORWARD(device);
 
 namespace wn {
+namespace runtime {
 namespace graphics {
 namespace internal {
 
@@ -56,6 +57,7 @@ public:
 using queue_ptr = memory::unique_ptr<queue>;
 
 }  // namespace graphics
+}  // namespace runtime
 }  // namespace wn
 
 #endif  // __WN_GRAPHICS_QUEUE_H__

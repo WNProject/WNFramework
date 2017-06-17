@@ -14,6 +14,7 @@
 #include "WNGraphics/inc/WNRenderPass.h"
 
 namespace wn {
+namespace runtime {
 namespace graphics {
 namespace internal {
 namespace vulkan {
@@ -196,11 +197,11 @@ void vulkan_command_list::bind_graphics_pipeline(graphics_pipeline* _pipeline) {
 }
 
 void vulkan_command_list::bind_vertex_buffer(
-  uint32_t stream, const buffer* _buffer) {
+    uint32_t stream, const buffer* _buffer) {
   const memory::unique_ptr<const buffer_info>& buffer = get_data(_buffer);
   const VkDeviceSize offset = 0;
-  m_context->vkCmdBindVertexBuffers(m_command_buffer,
-      stream, 1, &buffer->buffer, &offset);
+  m_context->vkCmdBindVertexBuffers(
+      m_command_buffer, stream, 1, &buffer->buffer, &offset);
 }
 
 #undef get_data
@@ -208,4 +209,5 @@ void vulkan_command_list::bind_vertex_buffer(
 }  // namespace vulkan
 }  // namesapce internal
 }  // namespace graphics
+}  // namespace runtime
 }  // namespace wn

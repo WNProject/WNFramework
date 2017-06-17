@@ -15,8 +15,11 @@
 #include "WNMemory/inc/WNBasic.h"
 
 WN_GRAPHICS_FORWARD(command_list);
+
 namespace wn {
+namespace runtime {
 namespace graphics {
+
 class graphics_pipeline WN_FINAL : public base_object<2> {
 public:
   WN_FORCE_INLINE graphics_pipeline(graphics_pipeline&& _other)
@@ -43,6 +46,7 @@ private:
 };
 
 }  // namespace graphics
+}  // namespace runtime
 }  // namespace wn
 
 #endif  // __WN_GRAPHICS_GRAPHICS_PIPELINE_H__

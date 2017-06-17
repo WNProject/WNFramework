@@ -13,6 +13,7 @@
 #endif
 
 namespace wn {
+namespace runtime {
 namespace graphics {
 namespace internal {
 namespace vulkan {
@@ -92,4 +93,5 @@ void vulkan_adapter::initialize_device() {
 }  // namespace vulkan
 }  // namesapce internal
 }  // namespace graphics
+}  // namespace runtime
 }  // namespace wn

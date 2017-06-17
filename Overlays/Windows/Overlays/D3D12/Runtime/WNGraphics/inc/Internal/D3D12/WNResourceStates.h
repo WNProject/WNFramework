@@ -11,6 +11,7 @@
 #include "WNMath/inc/WNBasic.h"
 
 namespace wn {
+namespace runtime {
 namespace graphics {
 namespace internal {
 namespace d3d12 {
@@ -309,6 +310,7 @@ static WN_FORCE_INLINE D3D_PRIMITIVE_TOPOLOGY topology_to_d3d12_topology(
 }  // namespace d3d12
 }  // namespace internal
 }  // namespace graphics
+}  // namespace runtime
 }  // namespace wn
 
 #endif  // __WN_GRAPHICS_INTERNAL_D3D12_RESOURCE_STATES_H__

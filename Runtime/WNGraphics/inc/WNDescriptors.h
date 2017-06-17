@@ -16,7 +16,9 @@
 #include "WNMemory/inc/WNBasic.h"
 
 WN_GRAPHICS_FORWARD(command_list);
+
 namespace wn {
+namespace runtime {
 namespace graphics {
 
 // This just describes a descriptor set
@@ -124,6 +126,7 @@ private:
 };
 
 }  // namespace graphics
+}  // namespace runtime
 }  // namespace wn
 
 #endif  // __WN_GRAPHICS_DESCRIPTOR_SET_H__

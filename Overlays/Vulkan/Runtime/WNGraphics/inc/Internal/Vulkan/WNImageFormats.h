@@ -10,6 +10,7 @@
 #include "WNGraphics/inc/WNImage.h"
 
 namespace wn {
+namespace runtime {
 namespace graphics {
 namespace internal {
 namespace vulkan {
@@ -89,5 +90,7 @@ static WN_FORCE_INLINE VkAttachmentStoreOp store_op_to_vulkan(store_op _store) {
 }  // namespace vulkan
 }  // namespace internal
 }  // namespace graphics
+}  // namespace runtime
 }  // namespace wn
+
 #endif  // __WN_GRAPHICS_INTERNAL_D3D12_IMAGE_FORMATS_H__

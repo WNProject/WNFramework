@@ -24,7 +24,9 @@
 WN_GRAPHICS_FORWARD(image)
 
 namespace wn {
+namespace runtime {
 namespace graphics {
+
 class pipeline_layout;
 class descriptor_set;
 class render_pass;
@@ -144,6 +146,7 @@ private:
 }  // namespace d3d12
 }  // namespace internal
 }  // namespace graphics
+}  // namespace runtime
 }  // namespace wn
 
 #endif  // __WN_GRAPHICS_INTERNAL_D3D12_DEVICE_H__

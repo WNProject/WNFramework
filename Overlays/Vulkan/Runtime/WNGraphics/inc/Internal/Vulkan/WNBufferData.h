@@ -8,7 +8,9 @@
 #define __WN_GRAPHICS_INTERNAL_VULKAN_BUFFER_DATA_H__
 
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanInclude.h"
+
 namespace wn {
+namespace runtime {
 namespace graphics {
 namespace internal {
 namespace vulkan {
@@ -21,6 +23,7 @@ struct buffer_data {
 }  // namespace vulkan
 }  // namespace internal
 }  // namespace graphics
+}  // namespace runtime
 }  // namespace wn
 
 #endif  // __WN_GRAPHICS_INTERNAL_VULKAN_BUFFER_DATA_H__

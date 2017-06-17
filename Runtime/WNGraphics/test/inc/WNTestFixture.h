@@ -11,6 +11,7 @@
 #include "WNMemory/inc/WNAllocator.h"
 
 namespace wn {
+namespace runtime {
 namespace graphics {
 namespace testing {
 
@@ -50,6 +51,7 @@ using parameterized_test = test_internal<::testing::TestWithParam<T>>;
 
 }  // namespace testing
 }  // namespace graphics
+}  // namespace runtime
 }  // namespace wn
 
 #endif  //  _WN_GRAPHICS_TEST_TEST_FIXTURE_H__

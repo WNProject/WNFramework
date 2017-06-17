@@ -8,24 +8,27 @@
 #include "WNGraphics/inc/WNQueue.h"
 #include "WNGraphics/test/inc/WNTestFixture.h"
 
-using arena = wn::graphics::testing::parameterized_test<size_t>;
+using arena = wn::runtime::graphics::testing::parameterized_test<size_t>;
 
 TEST_P(arena, many_sizes) {
-  wn::graphics::factory device_factory(&m_allocator, m_log);
+  wn::runtime::graphics::factory device_factory(&m_allocator, m_log);
 
   for (auto& adapter : device_factory.query_adapters()) {
-    wn::graphics::device_ptr device = adapter->make_device(&m_allocator, m_log);
+    wn::runtime::graphics::device_ptr device =
+        adapter->make_device(&m_allocator, m_log);
 
     ASSERT_NE(nullptr, device);
 
-    const wn::containers::contiguous_range<const wn::graphics::arena_properties>
+    const wn::containers::contiguous_range<
+        const wn::runtime::graphics::arena_properties>
         arena_properties = device->get_arena_properties();
 
     EXPECT_FALSE(arena_properties.empty());
 
     for (size_t i = 0; i < arena_properties.size(); ++i) {
-      const wn::graphics::arena arena = device->create_arena(i, GetParam());
-      const wn::graphics::arena arena_with_multisampling =
+      const wn::runtime::graphics::arena arena =
+          device->create_arena(i, GetParam());
+      const wn::runtime::graphics::arena arena_with_multisampling =
           device->create_arena(i, GetParam(), true);
 
       ASSERT_TRUE(arena.is_valid());

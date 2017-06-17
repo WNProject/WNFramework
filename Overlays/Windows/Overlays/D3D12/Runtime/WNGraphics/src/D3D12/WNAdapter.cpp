@@ -15,6 +15,7 @@
 #include <d3d12.h>
 
 namespace wn {
+namespace runtime {
 namespace graphics {
 namespace internal {
 namespace d3d12 {
@@ -78,4 +79,5 @@ device_ptr d3d12_adapter::make_device(
 }  // namespace d3d12
 }  // namespace internal
 }  // namespace graphics
+}  // namespace runtime
 }  // namespace wn

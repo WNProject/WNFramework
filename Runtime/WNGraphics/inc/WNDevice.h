@@ -39,7 +39,6 @@ namespace window {
 class window;
 
 }  // namespace window
-}  // namespace runtime
 
 namespace graphics {
 namespace internal {
@@ -277,6 +276,7 @@ protected:
 };
 
 }  // namespace graphics
+}  // namespace runtime
 }  // namespace wn
 
 #endif  // __WN_RUNTIME_GRAPHICS_DEVICE_H__

@@ -16,12 +16,15 @@ WN_GRAPHICS_FORWARD(device);
 WN_GRAPHICS_FORWARD(command_list);
 
 namespace wn {
+namespace runtime {
 namespace graphics {
-class arena;
+
 struct buffer_memory_requirements {
   size_t size;
   size_t alignment;
 };
+
+class arena;
 
 class buffer WN_FINAL : base_object<2> {
 private:
@@ -96,6 +99,7 @@ private:
 };
 
 }  // namespace graphics
+}  // namespace runtime
 }  // namespace wn
 
 #endif  //  __WN_RUNTIME_GRAPHICS_BUFFER_H__

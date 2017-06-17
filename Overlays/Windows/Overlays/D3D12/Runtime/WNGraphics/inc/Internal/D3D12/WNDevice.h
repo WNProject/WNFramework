@@ -39,6 +39,7 @@ class allocator;
 
 }  // namespace memory
 
+namespace runtime {
 namespace graphics {
 
 class arena;
@@ -244,6 +245,7 @@ private:
 }  // namespace d3d12
 }  // namespace internal
 }  // namespace graphics
+}  // namespace runtime
 }  // namespace wn
 
 #endif  // __WN_RUNTIME_GRAPHICS_INTERNAL_D3D12_DEVICE_H__

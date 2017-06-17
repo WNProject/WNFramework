@@ -11,6 +11,7 @@
 #include "WNGraphics/inc/WNRenderPass.h"
 
 namespace wn {
+namespace runtime {
 namespace graphics {
 namespace internal {
 namespace d3d12 {
@@ -423,4 +424,5 @@ typename data_type<const T>::value& d3d12_command_list::get_data(
 }  // namespace d3d12
 }  // namesapce internal
 }  // namespace graphics
-}  // namspace wn
+}  // namespace runtime
+}  // namespace wn

@@ -14,6 +14,7 @@
 WN_GRAPHICS_FORWARD(command_list)
 
 namespace wn {
+namespace runtime {
 namespace graphics {
 
 class framebuffer : public base_object<2> {
@@ -42,6 +43,7 @@ private:
 };
 
 }  // namespace graphics
+}  // namespace runtime
 }  // namespace wn
 
 #endif  // __WN_GRAPHICS_IMAGE_VIEW_H__

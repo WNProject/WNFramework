@@ -14,6 +14,7 @@
 #include "WNMultiTasking/inc/WNCallOnce.h"
 
 namespace wn {
+namespace runtime {
 namespace graphics {
 
 // This factory must outlive any objects created by any of the returned phsycial
@@ -38,6 +39,7 @@ private:
 };
 
 }  // namespace graphics
+}  // namespace runtime
 }  // namespace wn
 
 #endif  // _WN_GRAPHICS_FACTORY_H__

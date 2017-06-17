@@ -13,6 +13,7 @@
 #include "WNMemory/inc/WNIntrusivePtr.h"
 
 namespace wn {
+namespace runtime {
 namespace graphics {
 namespace internal {
 namespace vulkan {
@@ -41,12 +42,13 @@ struct command_list_context WN_FINAL {
   PFN_vkCmdCopyBufferToImage vkCmdCopyBufferToImage;
 
   PFN_vkCmdSetViewport vkCmdSetViewport;
-  PFN_vkCmdSetScissor  vkCmdSetScissor;
+  PFN_vkCmdSetScissor vkCmdSetScissor;
 };
 
 }  // namespace vulkan
 }  // namespace internal
 }  // namespace graphics
+}  // namespace runtime
 }  // namespace wn
 
 #endif  // __WN_GRAPHICS_INTERNAL_VULKAN_COMMAND_LIST_CONTEXT_H__

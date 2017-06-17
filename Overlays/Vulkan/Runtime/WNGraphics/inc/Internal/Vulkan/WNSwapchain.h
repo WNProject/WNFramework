@@ -20,8 +20,11 @@
 #include "WNGraphics/inc/WNImage.h"
 
 namespace wn {
+namespace runtime {
 namespace graphics {
+
 struct swapchain_create_info;
+
 namespace internal {
 namespace vulkan {
 
@@ -68,6 +71,7 @@ protected:
 }  // namespace d3d12
 }  // namespace internal
 }  // namespace graphics
+}  // namespace runtime
 }  // namespace wn
 
 #endif  // __WN_GRAPHICS_INC_INTERNAL_vulkan_QUEUE_H__

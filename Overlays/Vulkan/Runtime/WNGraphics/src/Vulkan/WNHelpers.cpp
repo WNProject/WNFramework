@@ -10,6 +10,7 @@
 #include "WNMemory/inc/WNIntrusivePtr.h"
 
 namespace wn {
+namespace runtime {
 namespace graphics {
 namespace internal {
 namespace vulkan {
@@ -227,4 +228,5 @@ void enumerate_adapters(memory::allocator* _allocator, logging::log* _log,
 }  // namespace vulkan
 }  // namespace internal
 }  // namespace graphics
+}  // namespace runtime
 }  // namespace wn

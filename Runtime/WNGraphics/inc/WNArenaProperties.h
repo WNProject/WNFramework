@@ -10,6 +10,7 @@
 #include "WNCore/inc/WNBase.h"
 
 namespace wn {
+namespace runtime {
 namespace graphics {
 
 struct arena_properties WN_FINAL {
@@ -24,6 +25,7 @@ struct arena_properties WN_FINAL {
 };
 
 }  // namespace graphics
+}  // namespace runtime
 }  // namespace wn
 
 #endif  // __WN_RUNTIME_GRAPHICS_ARENA_PROPERTIES_H__
