@@ -34,19 +34,6 @@ device_ptr d3d12_adapter::make_device(
   Microsoft::WRL::ComPtr<ID3D12Device> device;
   HRESULT hr;
 
-#ifdef _WN_GRAPHICS_ALLOW_DEBUG_MODE
-  // Enable debug layer
-
-  Microsoft::WRL::ComPtr<ID3D12Debug> debug_controller;
-  hr = ::D3D12GetDebugInterface(__uuidof(ID3D12Debug), &debug_controller);
-
-  if (FAILED(hr)) {
-    _log->log_warning("Could not enable D3D12 debug layer, hr: ", hr);
-  } else {
-    debug_controller->EnableDebugLayer();
-  }
-#endif
-
   // This is set to D3D_FEATURE_LEVEL_11_0 because this is the lowest possible
   // d3d version d3d12 supports. This allows us to scale up on device
   // capabilities and work on older hardware

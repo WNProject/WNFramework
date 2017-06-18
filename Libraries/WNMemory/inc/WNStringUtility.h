@@ -196,10 +196,18 @@ WN_FORCE_INLINE size_t strhash(const char* str) {
   return (hash);
 }
 
+WN_FORCE_INLINE char lower(char c) {
+  return static_cast<char>(::tolower(static_cast<int>(c)));
+}
+
+WN_FORCE_INLINE char upper(char c) {
+  return static_cast<char>(::toupper(static_cast<int>(c)));
+}
+
 WN_FORCE_INLINE char* strlwr(char* str) {
   WN_DEBUG_ASSERT_DESC(str, "string must not be nullptr");
 
-  std::transform(str, str + strlen(str), str, ::tolower);
+  std::transform(str, str + strlen(str), str, &lower);
 
   return (str);
 }
@@ -207,7 +215,7 @@ WN_FORCE_INLINE char* strlwr(char* str) {
 WN_FORCE_INLINE char* strnlwr(char* str, const size_t count) {
   WN_DEBUG_ASSERT_DESC(str, "string must not be nullptr");
 
-  std::transform(str, str + strnlen(str, count), str, ::tolower);
+  std::transform(str, str + strnlen(str, count), str, &lower);
 
   return (str);
 }
@@ -215,7 +223,7 @@ WN_FORCE_INLINE char* strnlwr(char* str, const size_t count) {
 WN_FORCE_INLINE char* strupr(char* str) {
   WN_DEBUG_ASSERT_DESC(str, "string must not be nullptr");
 
-  std::transform(str, str + strlen(str), str, ::toupper);
+  std::transform(str, str + strlen(str), str, &upper);
 
   return (str);
 }
@@ -223,7 +231,7 @@ WN_FORCE_INLINE char* strupr(char* str) {
 WN_FORCE_INLINE char* strnupr(char* str, const size_t count) {
   WN_DEBUG_ASSERT_DESC(str, "string must not be nullptr");
 
-  std::transform(str, str + strnlen(str, count), str, ::toupper);
+  std::transform(str, str + strnlen(str, count), str, &upper);
 
   return (str);
 }

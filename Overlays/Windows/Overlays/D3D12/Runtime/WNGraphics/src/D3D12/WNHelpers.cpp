@@ -64,6 +64,10 @@ bool determine_support(memory::allocator* _allocator, logging::log* _log,
   // This is set to D3D_FEATURE_LEVEL_11_0 because this is the lowest posible
   // d3d version d3d12 supports.  This allows us to scale up on device
   // capabilities and work on older hardware
+
+  // If you get a com error here, it's likely because you have a failure
+  // with the debug layers, turn off _WN_GRAPHICS_DEBUG_MODE.
+  // I have noticed this on Optimus devices.
   HRESULT hr = ::D3D12CreateDevice(
       _dxgi_adapter, D3D_FEATURE_LEVEL_11_0, __uuidof(ID3D12Device), nullptr);
 
@@ -118,10 +122,24 @@ bool determine_support(memory::allocator* _allocator, logging::log* _log,
 
 void enumerate_adapters(memory::allocator* _allocator, logging::log* _log,
     containers::dynamic_array<adapter_ptr>& _physical_devices) {
-  _log->log_info("Enumerating D3D12 Dvices");
+  HRESULT hr;
+#ifdef _WN_GRAPHICS_ALLOW_DEBUG_MODE
+  // Enable debug layer
+
+  Microsoft::WRL::ComPtr<ID3D12Debug> debug_controller;
+  hr = ::D3D12GetDebugInterface(__uuidof(ID3D12Debug), &debug_controller);
+
+  if (FAILED(hr)) {
+    _log->log_warning("Could not enable D3D12 debug layer, hr: ", hr);
+  } else {
+    debug_controller->EnableDebugLayer();
+  }
+#endif
+
+  _log->log_info("Enumerating D3D12 Devices");
 
   Microsoft::WRL::ComPtr<IDXGIFactory4> dxgi_factory;
-  HRESULT hr = ::CreateDXGIFactory1(__uuidof(IDXGIFactory4), &dxgi_factory);
+  hr = ::CreateDXGIFactory1(__uuidof(IDXGIFactory4), &dxgi_factory);
 
   if (FAILED(hr)) {
     _log->log_error("Could not to create DXGI Factory, hr: ", hr);
