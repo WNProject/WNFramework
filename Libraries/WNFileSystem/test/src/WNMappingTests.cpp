@@ -14,7 +14,7 @@ TEST_P(mapping_test, creation) {
   {
     wn::file_system::factory f;
     const wn::file_system::mapping_ptr mp =
-        f.make_mapping(GetParam(), &allocator);
+        f.make_mapping(&allocator, GetParam());
 
     ASSERT_NE(mp, nullptr);
   }
@@ -26,7 +26,7 @@ TEST_P(mapping_test, create_file) {
   {
     wn::file_system::factory f;
     const wn::file_system::mapping_ptr mp =
-        f.make_mapping(GetParam(), &allocator);
+        f.make_mapping(&allocator, GetParam());
 
     ASSERT_NE(mp, nullptr);
 
@@ -48,7 +48,7 @@ TEST_P(mapping_test, create_directory) {
   {
     wn::file_system::factory f;
     const wn::file_system::mapping_ptr mp =
-        f.make_mapping(GetParam(), &allocator);
+        f.make_mapping(&allocator, GetParam());
 
     ASSERT_NE(mp, nullptr);
 
@@ -64,7 +64,7 @@ TEST_P(mapping_test, exists_file) {
   {
     wn::file_system::factory f;
     const wn::file_system::mapping_ptr mp =
-        f.make_mapping(GetParam(), &allocator);
+        f.make_mapping(&allocator, GetParam());
 
     ASSERT_NE(mp, nullptr);
 
@@ -88,7 +88,7 @@ TEST_P(mapping_test, exists_directory) {
   {
     wn::file_system::factory f;
     const wn::file_system::mapping_ptr mp =
-        f.make_mapping(GetParam(), &allocator);
+        f.make_mapping(&allocator, GetParam());
 
     ASSERT_NE(mp, nullptr);
 
@@ -106,7 +106,7 @@ TEST_P(mapping_test, recursive_create_directory) {
   {
     wn::file_system::factory f;
     const wn::file_system::mapping_ptr mp =
-        f.make_mapping(GetParam(), &allocator);
+        f.make_mapping(&allocator, GetParam());
 
     ASSERT_NE(mp, nullptr);
     const wn::file_system::result r =
@@ -127,7 +127,7 @@ TEST_P(mapping_test, initialize_files) {
   {
     wn::file_system::factory f;
     const wn::file_system::mapping_ptr mp =
-        f.make_mapping(GetParam(), &allocator);
+        f.make_mapping(&allocator, GetParam());
 
     ASSERT_NE(mp, nullptr);
     wn::file_system::result r = mp->initialize_files({
@@ -157,7 +157,7 @@ TEST_P(mapping_test, open_file) {
   {
     wn::file_system::factory f;
     const wn::file_system::mapping_ptr mp =
-        f.make_mapping(GetParam(), &allocator);
+        f.make_mapping(&allocator, GetParam());
 
     ASSERT_NE(mp, nullptr);
 
@@ -188,7 +188,7 @@ TEST_P(mapping_test, delete_file) {
   {
     wn::file_system::factory f;
     const wn::file_system::mapping_ptr mp =
-        f.make_mapping(GetParam(), &allocator);
+        f.make_mapping(&allocator, GetParam());
 
     ASSERT_NE(mp, nullptr);
 
@@ -215,7 +215,7 @@ TEST_P(mapping_test, delete_directory) {
   {
     wn::file_system::factory f;
     const wn::file_system::mapping_ptr mp =
-        f.make_mapping(GetParam(), &allocator);
+        f.make_mapping(&allocator, GetParam());
 
     ASSERT_NE(mp, nullptr);
 

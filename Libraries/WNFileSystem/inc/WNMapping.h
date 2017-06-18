@@ -8,9 +8,9 @@
 #define __WN_FILE_SYSTEM_MAPPING_H__
 
 #include "WNContainers/inc/WNStringView.h"
+#include "WNCore/inc/WNPair.h"
 #include "WNFileSystem/inc/WNFile.h"
 #include "WNFileSystem/inc/WNResult.h"
-#include "WNCore/inc/WNPair.h"
 #include "WNMemory/inc/WNUniquePtr.h"
 
 namespace wn {
@@ -43,9 +43,9 @@ public:
           _files);
 
 protected:
-  WN_FORCE_INLINE mapping(containers::string&& _path,
-      memory::allocator* _allocator, const bool _cleanup = false)
-    : m_root_path(std::move(_path)),
+  WN_FORCE_INLINE mapping(memory::allocator* _allocator,
+      containers::string&& _path, const bool _cleanup = false)
+    : m_root_path(core::move(_path)),
       m_allocator(_allocator),
       m_cleanup(_cleanup) {}
 

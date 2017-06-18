@@ -132,11 +132,11 @@ public:
   using const_local_iterator = typename list_type::const_iterator;
 
   explicit hash_map(memory::allocator* _allocator)
-    : hash_map(0u, hasher(), key_equal(), _allocator) {}
+    : hash_map(_allocator, 0u, hasher(), key_equal()) {}
 
-  explicit hash_map(size_type _n = 0u, const hasher& _hasher = hasher(),
-      const key_equal& _key_equal = key_equal(),
-      memory::allocator* _allocator = nullptr)
+  explicit hash_map(memory::allocator* _allocator, const size_type _n,
+      const hasher& _hasher = hasher(),
+      const key_equal& _key_equal = key_equal())
     : m_allocator(_allocator),
       m_buckets(_allocator),
       m_total_elements(0),
@@ -152,11 +152,11 @@ public:
     }
   }
 
-  hash_map(std::initializer_list<value_type> initializer, size_type _n = 0u,
+  hash_map(memory::allocator* _allocator,
+      std::initializer_list<value_type> initializer, size_type _n,
       const hasher& _hasher = hasher(),
-      const key_equal& _key_equal = key_equal(),
-      memory::allocator* _allocator = nullptr)
-    : hash_map(0u /* we will resize */, _hasher, _key_equal, _allocator) {
+      const key_equal& _key_equal = key_equal())
+    : hash_map(_allocator, 0u /* we will resize */, _hasher, _key_equal) {
     auto begin = std::begin(initializer);
     auto end = std::end(initializer);
     size_t count = end - begin;
@@ -169,9 +169,9 @@ public:
     }
   }
 
-  hash_map(std::initializer_list<value_type> initializer,
-      memory::allocator* _allocator)
-    : hash_map(initializer, 0u, hasher(), key_equal(), _allocator) {}
+  hash_map(memory::allocator* _allocator,
+      std::initializer_list<value_type> initializer)
+    : hash_map(_allocator, initializer, 0u, hasher(), key_equal()) {}
 
   template <typename = core::enable_if_t<true>>
   hash_map(

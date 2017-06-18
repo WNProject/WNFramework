@@ -12,8 +12,8 @@ namespace {
 
 class pass {
 public:
-  pass(type_validator* _validator, logging::log* _log,
-      memory::allocator* _allocator)
+  pass(memory::allocator* _allocator, type_validator* _validator,
+      logging::log* _log)
     : m_log(_log),
       m_allocator(_allocator),
       m_validator(_validator),
@@ -39,9 +39,9 @@ protected:
 
 class dead_code_elimination_pass : public pass {
 public:
-  dead_code_elimination_pass(type_validator* _validator, logging::log* _log,
-      memory::allocator* _allocator)
-    : pass(_validator, _log, _allocator) {}
+  dead_code_elimination_pass(memory::allocator* _allocator,
+      type_validator* _validator, logging::log* _log)
+    : pass(_allocator, _validator, _log) {}
   void enter_scope_block(const node*) {}
   void leave_scope_block(const node*) {}
   memory::unique_ptr<expression> walk_expression(expression*) {
@@ -195,9 +195,9 @@ memory::unique_ptr<assignment_instruction> make_constant_assignment(
 
 class array_determination_pass : public pass {
 public:
-  array_determination_pass(type_validator* _validator, logging::log* _log,
-      memory::allocator* _allocator)
-    : pass(_validator, _log, _allocator) {}
+  array_determination_pass(memory::allocator* _allocator,
+      type_validator* _validator, logging::log* _log)
+    : pass(_allocator, _validator, _log) {}
   void enter_scope_block(const node*) {}
   void leave_scope_block(const node*) {}
 
@@ -350,9 +350,9 @@ public:
 
 class if_reassociation_pass : public pass {
 public:
-  if_reassociation_pass(type_validator* _validator, logging::log* _log,
-      memory::allocator* _allocator)
-    : pass(_validator, _log, _allocator),
+  if_reassociation_pass(memory::allocator* _allocator,
+      type_validator* _validator, logging::log* _log)
+    : pass(_allocator, _validator, _log),
       m_break_instructions(_allocator),
       m_continue_instructions(_allocator) {}
   void enter_scope_block(const node*) {}
@@ -620,9 +620,9 @@ public:
 
 class id_association_pass : public pass {
 public:
-  id_association_pass(type_validator* _validator, logging::log* _log,
-      memory::allocator* _allocator)
-    : pass(_validator, _log, _allocator), id_map(_allocator) {}
+  id_association_pass(memory::allocator* _allocator, type_validator* _validator,
+      logging::log* _log)
+    : pass(_allocator, _validator, _log), id_map(_allocator) {}
 
   memory::unique_ptr<expression> walk_expression(expression*) {
     return nullptr;
@@ -703,9 +703,9 @@ private:
 
 class type_association_pass : public pass {
 public:
-  type_association_pass(type_validator* _validator, logging::log* _log,
-      memory::allocator* _allocator)
-    : pass(_validator, _log, _allocator),
+  type_association_pass(memory::allocator* _allocator,
+      type_validator* _validator, logging::log* _log)
+    : pass(_allocator, _validator, _log),
       m_returns(_allocator),
       m_functions(_allocator),
       m_local_objects(_allocator) {}
@@ -715,7 +715,7 @@ public:
 
   void walk_parameter(parameter*) {}
   void enter_scope_block(const node* _node) {
-    m_local_objects.push_back(local_scope(_node, m_allocator));
+    m_local_objects.push_back(local_scope(m_allocator, _node));
   }
 
   void leave_scope_block(const node*) {}
@@ -1716,7 +1716,7 @@ private:
     // generate move constructors.
     local_scope(local_scope&& _other)
       : m_header(_other.m_header), objects(core::move(_other.objects)) {}
-    local_scope(const node* _header, memory::allocator* _allocator)
+    local_scope(memory::allocator* _allocator, const node* _header)
       : m_header(_header), objects(_allocator) {}
 
     const node* m_header;
@@ -1727,9 +1727,9 @@ private:
 
 class temporary_reification_pass : public pass {
 public:
-  temporary_reification_pass(type_validator* _validator, logging::log* _log,
-      memory::allocator* _allocator)
-    : pass(_validator, _log, _allocator),
+  temporary_reification_pass(memory::allocator* _allocator,
+      type_validator* _validator, logging::log* _log)
+    : pass(_allocator, _validator, _log),
       m_temporary_declarations(_allocator) {}
 
   memory::unique_ptr<instruction> walk_instruction(instruction* _inst) {
@@ -1835,9 +1835,9 @@ private:
 
 class member_reassociation_pass : public pass {
 public:
-  member_reassociation_pass(type_validator* _validator, logging::log* _log,
-      memory::allocator* _allocator)
-    : pass(_validator, _log, _allocator), m_additional_functions(_allocator) {}
+  member_reassociation_pass(memory::allocator* _allocator,
+      type_validator* _validator, logging::log* _log)
+    : pass(_allocator, _validator, _log), m_additional_functions(_allocator) {}
 
   memory::unique_ptr<instruction> walk_instruction(declaration* _decl) {
     if (_decl->get_type()->get_reference_type() == reference_type::raw) {
@@ -2995,17 +2995,23 @@ private:
 template <typename T>
 bool run_pass(script_file* _file, logging::log* _log,
     type_validator* _validator, size_t* _num_warnings, size_t* _num_errors) {
-  if (!_file)
+  if (!_file) {
     return false;
-  T pass(_validator, _log, _file->get_allocator());
+  }
+
+  T pass(_file->get_allocator(), _validator, _log);
+
   run_ast_pass(&pass, _file);
+
   if (_num_errors) {
     *_num_errors += pass.errors();
   }
+
   if (_num_warnings) {
     *_num_warnings += pass.warnings();
   }
-  return pass.errors() == 0;
+
+  return (pass.errors() == 0);
 }
 
 bool run_type_association_pass(script_file* _file, logging::log* _log,

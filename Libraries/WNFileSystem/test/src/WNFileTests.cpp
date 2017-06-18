@@ -14,7 +14,7 @@ TEST_P(file_tests, creation) {
   {
     wn::file_system::factory f;
     const wn::file_system::mapping_ptr mp =
-        f.make_mapping(GetParam(), &allocator);
+        f.make_mapping(&allocator, GetParam());
 
     ASSERT_NE(mp, nullptr);
 
@@ -36,7 +36,7 @@ TEST_P(file_tests, size) {
   {
     wn::file_system::factory f;
     const wn::file_system::mapping_ptr mp =
-        f.make_mapping(GetParam(), &allocator);
+        f.make_mapping(&allocator, GetParam());
 
     ASSERT_NE(mp, nullptr);
 
@@ -70,7 +70,7 @@ TEST_P(file_tests, resize) {
   {
     wn::file_system::factory f;
     const wn::file_system::mapping_ptr mp =
-        f.make_mapping(GetParam(), &allocator);
+        f.make_mapping(&allocator, GetParam());
 
     ASSERT_NE(mp, nullptr);
 
@@ -137,7 +137,7 @@ TEST_P(file_tests, clear) {
   {
     wn::file_system::factory f;
     const wn::file_system::mapping_ptr mp =
-        f.make_mapping(GetParam(), &allocator);
+        f.make_mapping(&allocator, GetParam());
 
     ASSERT_NE(mp, nullptr);
 
@@ -177,7 +177,7 @@ TEST_P(file_tests, flush) {
   {
     wn::file_system::factory f;
     const wn::file_system::mapping_ptr mp =
-        f.make_mapping(GetParam(), &allocator);
+        f.make_mapping(&allocator, GetParam());
 
     ASSERT_NE(mp, nullptr);
 
@@ -225,7 +225,7 @@ TEST_P(file_tests, close) {
   {
     wn::file_system::factory f;
     const wn::file_system::mapping_ptr mp =
-        f.make_mapping(GetParam(), &allocator);
+        f.make_mapping(&allocator, GetParam());
 
     ASSERT_NE(mp, nullptr);
 

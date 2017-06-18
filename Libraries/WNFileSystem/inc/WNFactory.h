@@ -17,7 +17,7 @@ enum class mapping_type { scratch, memory_backed };
 class factory {
 public:
   virtual mapping_ptr make_mapping(
-      const mapping_type _mapping_type, memory::allocator* _allocator) const;
+      memory::allocator* _allocator, const mapping_type _mapping_type) const;
 };
 
 }  // namespace file_system

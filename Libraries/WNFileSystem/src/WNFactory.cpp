@@ -23,7 +23,7 @@ namespace wn {
 namespace file_system {
 
 mapping_ptr factory::make_mapping(
-    const mapping_type _mapping_type, memory::allocator* _allocator) const {
+    memory::allocator* _allocator, const mapping_type _mapping_type) const {
   containers::string path(_allocator);
   bool cleanup = false;
 
@@ -46,10 +46,10 @@ mapping_ptr factory::make_mapping(
 
 #ifdef _WN_WINDOWS
   return memory::make_unique<internal::mapping_windows>(
-      _allocator, std::move(path), _allocator, cleanup);
+      _allocator, _allocator, core::move(path), cleanup);
 #elif defined _WN_POSIX
   return memory::make_unique<internal::mapping_posix>(
-      _allocator, std::move(path), _allocator, cleanup);
+      _allocator, _allocator, core::move(path), cleanup);
 #endif
 }
 

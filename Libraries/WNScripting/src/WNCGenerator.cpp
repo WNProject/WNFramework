@@ -10,11 +10,13 @@
 namespace wn {
 namespace scripting {
 namespace {
+
 void initialize_data(memory::allocator* _allocator,
     core::pair<containers::string, containers::string>* expr_dat) {
   expr_dat->first = containers::string(_allocator);
   expr_dat->second = containers::string(_allocator);
 }
+
 }  // anonymous namespace
 
 void ast_c_translator::walk_type(

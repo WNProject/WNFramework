@@ -17,10 +17,10 @@ TEST(jit_engine, creation) {
   wn::scripting::type_validator validator(&allocator);
   wn::file_system::mapping_ptr mapping =
       wn::file_system::factory().make_mapping(
-          wn::file_system::mapping_type::memory_backed, &allocator);
+          &allocator, wn::file_system::mapping_type::memory_backed);
 
   wn::scripting::jit_engine jit_engine(
-      &validator, &allocator, mapping.get(), wn::logging::get_null_logger());
+      &allocator, &validator, mapping.get(), wn::logging::get_null_logger());
 }
 
 TEST(jit_engine, basic_parsing) {
@@ -29,14 +29,14 @@ TEST(jit_engine, basic_parsing) {
 
   wn::file_system::mapping_ptr mapping =
       wn::file_system::factory().make_mapping(
-          wn::file_system::mapping_type::memory_backed, &allocator);
+          &allocator, wn::file_system::mapping_type::memory_backed);
 
   mapping->initialize_files(
       {{"file.wns", "Void main() { return; }"}, {"file2.wns",
                                                     "Void foo() { return; } \n"
                                                     "Void bar() { return; }"}});
   wn::scripting::jit_engine jit_engine(
-      &validator, &allocator, mapping.get(), wn::logging::get_null_logger());
+      &allocator, &validator, mapping.get(), wn::logging::get_null_logger());
   EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file.wns"));
   EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file2.wns"));
 
@@ -60,11 +60,11 @@ TEST(jit_engine, multiple_returns) {
 
   wn::file_system::mapping_ptr mapping =
       wn::file_system::factory().make_mapping(
-          wn::file_system::mapping_type::memory_backed, &allocator);
+          &allocator, wn::file_system::mapping_type::memory_backed);
 
   mapping->initialize_files({{"file.wns", "Void main() { return; return; }"}});
   wn::scripting::jit_engine jit_engine(
-      &validator, &allocator, mapping.get(), wn::logging::get_null_logger());
+      &allocator, &validator, mapping.get(), wn::logging::get_null_logger());
   EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file.wns"));
 
   wn::scripting::engine::void_func main;
@@ -80,11 +80,11 @@ TEST(jit_engine, parse_error) {
 
   wn::file_system::mapping_ptr mapping =
       wn::file_system::factory().make_mapping(
-          wn::file_system::mapping_type::memory_backed, &allocator);
+          &allocator, wn::file_system::mapping_type::memory_backed);
 
   mapping->initialize_files({{"file.wns", "Int main"}});
   wn::scripting::jit_engine jit_engine(
-      &validator, &allocator, mapping.get(), wn::logging::get_null_logger());
+      &allocator, &validator, mapping.get(), wn::logging::get_null_logger());
   EXPECT_EQ(wn::scripting::parse_error::parse_failed,
       jit_engine.parse_file("file.wns"));
 }
@@ -107,12 +107,12 @@ TEST_P(jit_int_params, int_return) {
   wn::containers::string expected(&allocator);
   wn::file_system::mapping_ptr mapping =
       wn::file_system::factory().make_mapping(
-          wn::file_system::mapping_type::memory_backed, &allocator);
+          &allocator, wn::file_system::mapping_type::memory_backed);
 
   mapping->initialize_files({{"file.wns", str}});
 
   wn::scripting::jit_engine jit_engine(
-      &validator, &allocator, mapping.get(), wn::logging::get_null_logger());
+      &allocator, &validator, mapping.get(), wn::logging::get_null_logger());
   EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file.wns"));
 
   wn::scripting::script_function<int32_t> new_func;
@@ -129,12 +129,12 @@ TEST_P(jit_int_params, int_passthrough) {
   wn::containers::string expected(&allocator);
   wn::file_system::mapping_ptr mapping =
       wn::file_system::factory().make_mapping(
-          wn::file_system::mapping_type::memory_backed, &allocator);
+          &allocator, wn::file_system::mapping_type::memory_backed);
 
   mapping->initialize_files({{"file.wns", str}});
 
   wn::scripting::jit_engine jit_engine(
-      &validator, &allocator, mapping.get(), wn::logging::get_null_logger());
+      &allocator, &validator, mapping.get(), wn::logging::get_null_logger());
   EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file.wns"));
 
   wn::scripting::script_function<int32_t, int32_t> new_func;
@@ -167,12 +167,12 @@ TEST_P(jit_binary_arithmetic, simple_operations) {
 
   wn::file_system::mapping_ptr mapping =
       wn::file_system::factory().make_mapping(
-          wn::file_system::mapping_type::memory_backed, &allocator);
+          &allocator, wn::file_system::mapping_type::memory_backed);
 
   mapping->initialize_files({{"file.wns", str}});
 
   wn::scripting::jit_engine jit_engine(
-      &validator, &allocator, mapping.get(), wn::logging::get_null_logger());
+      &allocator, &validator, mapping.get(), wn::logging::get_null_logger());
   EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file.wns"));
 
   wn::scripting::script_function<int32_t> new_func;
@@ -204,12 +204,12 @@ TEST_P(bool_arithmetic_tests, boolean_arithmetic) {
   str += "; } ";
   wn::file_system::mapping_ptr mapping =
       wn::file_system::factory().make_mapping(
-          wn::file_system::mapping_type::memory_backed, &allocator);
+          &allocator, wn::file_system::mapping_type::memory_backed);
 
   mapping->initialize_files({{"file.wns", str}});
 
   wn::scripting::jit_engine jit_engine(
-      &validator, &allocator, mapping.get(), wn::logging::get_null_logger());
+      &allocator, &validator, mapping.get(), wn::logging::get_null_logger());
   EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file.wns"));
 
   wn::scripting::script_function<bool, bool> new_func;
@@ -245,12 +245,12 @@ TEST_P(two_params_tests, int_in_out_tests) {
   wn::containers::string str(&allocator, GetParam().code);
   wn::file_system::mapping_ptr mapping =
       wn::file_system::factory().make_mapping(
-          wn::file_system::mapping_type::memory_backed, &allocator);
+          &allocator, wn::file_system::mapping_type::memory_backed);
 
   mapping->initialize_files({{"file.wns", str}});
 
   wn::scripting::jit_engine jit_engine(
-      &validator, &allocator, mapping.get(), wn::logging::get_null_logger());
+      &allocator, &validator, mapping.get(), wn::logging::get_null_logger());
   EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file.wns"));
 
   wn::scripting::script_function<int32_t, int32_t, int32_t> new_func;
@@ -293,7 +293,7 @@ TEST_P(integer_tests, int_in_out_tests) {
   wn::containers::string str(&allocator, GetParam().code);
   wn::file_system::mapping_ptr mapping =
       wn::file_system::factory().make_mapping(
-          wn::file_system::mapping_type::memory_backed, &allocator);
+          &allocator, wn::file_system::mapping_type::memory_backed);
 
   mapping->initialize_files({{"file.wns", str}});
 
@@ -302,7 +302,7 @@ TEST_P(integer_tests, int_in_out_tests) {
   wn::logging::static_log<> log(&logger);
 
   wn::scripting::jit_engine jit_engine(
-      &validator, &allocator, mapping.get(), log.log());
+      &allocator, &validator, mapping.get(), log.log());
   EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file.wns"));
   log.log()->flush();
 

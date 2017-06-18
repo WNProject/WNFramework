@@ -264,7 +264,7 @@ public:
       m_allocated_blocks(_other.m_allocated_blocks),
       m_element_count(_other.m_element_count) {}
 
-  deque(const deque& _other, memory::allocator* _allocator)
+  deque(memory::allocator* _allocator, const deque& _other)
     : m_allocator(_allocator),
       m_block_list(_other.m_block_list, _allocator),
       m_used_blocks(_other.m_used_blocks),
@@ -297,25 +297,25 @@ public:
       m_allocated_blocks(0),
       m_element_count(0) {}
 
-  explicit deque(const size_type _count, memory::allocator* _allocator)
-    : deque(_count, _Type(), _allocator) {}
+  explicit deque(memory::allocator* _allocator, const size_type _count)
+    : deque(_allocator, _count, _Type()) {}
 
-  deque(const size_type _count, const _Type& _value,
-      memory::allocator* _allocator)
+  deque(memory::allocator* _allocator, const size_type _count,
+      const _Type& _value)
     : deque(_allocator) {
     resize(_count, _value);
   }
 
   template <typename _InputIt,
       typename = core::enable_if_t<!std::is_integral<_InputIt>::value>>
-  deque(_InputIt _first, _InputIt _last, memory::allocator* _allocator)
+  deque(memory::allocator* _allocator, _InputIt _first, _InputIt _last)
     : deque(_allocator) {
     insert(cbegin(), _first, _last);
   }
 
-  deque(std::initializer_list<_Type> _initializer_list,
-      memory::allocator* _allocator)
-    : deque(_initializer_list.begin(), _initializer_list.end(), _allocator) {}
+  deque(memory::allocator* _allocator,
+      std::initializer_list<_Type> _initializer_list)
+    : deque(_allocator, _initializer_list.begin(), _initializer_list.end()) {}
 
   // If the allocator is the same, then we just core::move other.
   // If the allocator is different, then we core::move the elements,

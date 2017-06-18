@@ -36,12 +36,12 @@ TEST(c_translator, simple_c_translation) {
   wn::scripting::type_validator validator(&allocator);
   wn::file_system::mapping_ptr mapping =
       wn::file_system::factory().make_mapping(
-          wn::file_system::mapping_type::memory_backed, &allocator);
+          &allocator, wn::file_system::mapping_type::memory_backed);
 
   mapping->initialize_files({{"file.wns", "Void main() { return; }"}});
 
   wn::scripting::c_translator translator(
-      &validator, &allocator, mapping.get(), wn::logging::get_null_logger());
+      &allocator, &validator, mapping.get(), wn::logging::get_null_logger());
   EXPECT_EQ(
       wn::scripting::parse_error::ok, translator.translate_file("file.wns"));
 
@@ -95,11 +95,11 @@ TEST_P(c_translator_direct_translation_test, translations) {
 
   wn::file_system::mapping_ptr mapping =
       wn::file_system::factory().make_mapping(
-          wn::file_system::mapping_type::memory_backed, &allocator);
+          &allocator, wn::file_system::mapping_type::memory_backed);
 
   mapping->initialize_files({{"file.wns", input_str}});
   wn::scripting::c_translator translator(
-      &validator, &allocator, mapping.get(), log.log());
+      &allocator, &validator, mapping.get(), log.log());
   EXPECT_EQ(
       wn::scripting::parse_error::ok, translator.translate_file("file.wns"))
       << (log.log()->flush(), buff.c_str());
@@ -1465,12 +1465,12 @@ TEST_P(c_translator_function_params, single_parameter) {
 
   wn::file_system::mapping_ptr mapping =
       wn::file_system::factory().make_mapping(
-          wn::file_system::mapping_type::memory_backed, &allocator);
+          &allocator, wn::file_system::mapping_type::memory_backed);
 
   mapping->initialize_files({{"file.wns", str}});
 
   wn::scripting::c_translator translator(
-      &validator, &allocator, mapping.get(), wn::logging::get_null_logger());
+      &allocator, &validator, mapping.get(), wn::logging::get_null_logger());
   EXPECT_EQ(
       wn::scripting::parse_error::ok, translator.translate_file("file.wns"));
   EXPECT_EQ(
@@ -1491,14 +1491,14 @@ TEST(c_translator, multiple_c_functions) {
   wn::scripting::type_validator validator(&allocator);
   wn::file_system::mapping_ptr mapping =
       wn::file_system::factory().make_mapping(
-          wn::file_system::mapping_type::memory_backed, &allocator);
+          &allocator, wn::file_system::mapping_type::memory_backed);
 
   mapping->initialize_files({{"file.wns",
       "Void main() { return; }\n"
       "Void foo() { return; }\n"}});
 
   wn::scripting::c_translator translator(
-      &validator, &allocator, mapping.get(), wn::logging::get_null_logger());
+      &allocator, &validator, mapping.get(), wn::logging::get_null_logger());
   EXPECT_EQ(
       wn::scripting::parse_error::ok, translator.translate_file("file.wns"));
   EXPECT_EQ(
@@ -1519,12 +1519,12 @@ TEST(c_translator, multiple_returns) {
 
   wn::file_system::mapping_ptr mapping =
       wn::file_system::factory().make_mapping(
-          wn::file_system::mapping_type::memory_backed, &allocator);
+          &allocator, wn::file_system::mapping_type::memory_backed);
 
   mapping->initialize_files({{"file.wns", "Void main() { return; return; }"}});
 
   wn::scripting::c_translator translator(
-      &validator, &allocator, mapping.get(), wn::logging::get_null_logger());
+      &allocator, &validator, mapping.get(), wn::logging::get_null_logger());
   EXPECT_EQ(
       wn::scripting::parse_error::ok, translator.translate_file("file.wns"));
   EXPECT_EQ(
@@ -1552,12 +1552,12 @@ TEST_P(c_int_params, int_return) {
   expected += ";\n}\n";
   wn::file_system::mapping_ptr mapping =
       wn::file_system::factory().make_mapping(
-          wn::file_system::mapping_type::memory_backed, &allocator);
+          &allocator, wn::file_system::mapping_type::memory_backed);
 
   mapping->initialize_files({{"file.wns", str}});
 
   wn::scripting::c_translator translator(
-      &validator, &allocator, mapping.get(), wn::logging::get_null_logger());
+      &allocator, &validator, mapping.get(), wn::logging::get_null_logger());
   EXPECT_EQ(
       wn::scripting::parse_error::ok, translator.translate_file("file.wns"));
   EXPECT_EQ(
@@ -1590,12 +1590,12 @@ TEST_P(c_arith_params, binary_arithmetic) {
   expected += ";\n}\n";
   wn::file_system::mapping_ptr mapping =
       wn::file_system::factory().make_mapping(
-          wn::file_system::mapping_type::memory_backed, &allocator);
+          &allocator, wn::file_system::mapping_type::memory_backed);
 
   mapping->initialize_files({{"file.wns", str}});
 
   wn::scripting::c_translator translator(
-      &validator, &allocator, mapping.get(), wn::logging::get_null_logger());
+      &allocator, &validator, mapping.get(), wn::logging::get_null_logger());
   EXPECT_EQ(
       wn::scripting::parse_error::ok, translator.translate_file("file.wns"));
   EXPECT_EQ(
@@ -1627,12 +1627,12 @@ TEST_P(c_bool_params, boolean_arithmetic) {
   expected += ";\n}\n";
   wn::file_system::mapping_ptr mapping =
       wn::file_system::factory().make_mapping(
-          wn::file_system::mapping_type::memory_backed, &allocator);
+          &allocator, wn::file_system::mapping_type::memory_backed);
 
   mapping->initialize_files({{"file.wns", str}});
 
   wn::scripting::c_translator translator(
-      &validator, &allocator, mapping.get(), wn::logging::get_null_logger());
+      &allocator, &validator, mapping.get(), wn::logging::get_null_logger());
   EXPECT_EQ(
       wn::scripting::parse_error::ok, translator.translate_file("file.wns"));
   EXPECT_EQ(

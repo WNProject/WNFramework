@@ -23,13 +23,13 @@ TYPED_TEST(deque, construction) {
     ASSERT_TRUE(deque1.empty());
     ASSERT_EQ(deque1.size(), 0);
 
-    wn::containers::deque<TypeParam> deque2(25, &allocator);
+    wn::containers::deque<TypeParam> deque2(&allocator, 25);
 
     ASSERT_FALSE(deque2.empty());
     ASSERT_EQ(deque2.size(), 25);
 
     wn::containers::deque<TypeParam> deque3(
-        25, static_cast<TypeParam>(5), &allocator);
+        &allocator, 25, static_cast<TypeParam>(5));
 
     ASSERT_FALSE(deque3.empty());
     ASSERT_EQ(deque3.size(), 25);
@@ -40,7 +40,7 @@ TYPED_TEST(deque, construction) {
 
     const TypeParam array1[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
 
-    wn::containers::deque<TypeParam> deque4(array1, (array1 + 11), &allocator);
+    wn::containers::deque<TypeParam> deque4(&allocator, array1, (array1 + 11));
 
     ASSERT_FALSE(deque4.empty());
     ASSERT_EQ(deque4.size(), 11);
@@ -50,7 +50,7 @@ TYPED_TEST(deque, construction) {
     }
 
     wn::containers::deque<TypeParam> deque5(
-        {0, 1, 2, 3, 4, 5, 6, 7, 8}, &allocator);
+        &allocator, {0, 1, 2, 3, 4, 5, 6, 7, 8});
 
     ASSERT_FALSE(deque5.empty());
     ASSERT_EQ(deque5.size(), 9);
@@ -157,7 +157,7 @@ TYPED_TEST(deque, clear) {
   wn::testing::allocator allocator;
 
   {
-    wn::containers::deque<TypeParam> deque(23, 3, &allocator);
+    wn::containers::deque<TypeParam> deque(&allocator, 23, 3);
 
     ASSERT_FALSE(deque.empty());
     ASSERT_EQ(deque.size(), 23);
@@ -177,7 +177,7 @@ TYPED_TEST(deque, move) {
   wn::testing::allocator allocator;
 
   {
-    wn::containers::deque<TypeParam> deque(23, 3, &allocator);
+    wn::containers::deque<TypeParam> deque(&allocator, 23, 3);
 
     EXPECT_FALSE(deque.empty());
     EXPECT_EQ(23, deque.size());
@@ -208,7 +208,7 @@ TYPED_TEST(deque, clear_and_add) {
   wn::testing::allocator allocator;
 
   {
-    wn::containers::deque<TypeParam> deque(23, 3, &allocator);
+    wn::containers::deque<TypeParam> deque(&allocator, 23, 3);
 
     EXPECT_FALSE(deque.empty());
     EXPECT_EQ(23, deque.size());

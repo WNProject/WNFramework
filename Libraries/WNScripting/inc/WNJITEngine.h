@@ -40,14 +40,13 @@ public:
 // using LLVM during calls to parse_file.
 class jit_engine : public engine {
 public:
-  jit_engine(type_validator* _validator, memory::allocator* _allocator,
+  jit_engine(memory::allocator* _allocator, type_validator* _validator,
       file_system::mapping* _mapping, logging::log* _log);
   ~jit_engine();
   parse_error parse_file(const char* file) override;
 
 protected:
-
-   void_f get_function_pointer(containers::string_view _name) const override {
+  void_f get_function_pointer(containers::string_view _name) const override {
     auto it = m_pointers.find(_name);
     return it != m_pointers.end() ? it->second : nullptr;
   }

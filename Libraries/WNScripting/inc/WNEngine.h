@@ -29,7 +29,7 @@ class script_function {
 // before the first call to parse_file or get_function_pointer.
 class engine {
 public:
-  engine(type_validator* _validator, memory::allocator* _allocator)
+  engine(memory::allocator* _allocator, type_validator* _validator)
     : m_num_warnings(0),
       m_num_errors(0),
       m_allocator(_allocator),
@@ -73,7 +73,7 @@ protected:
   size_t m_num_errors;
   memory::allocator* m_allocator;
   type_validator* m_validator;
-  using void_f = void(*)();
+  using void_f = void (*)();
   virtual void_f get_function_pointer(containers::string_view _name) const = 0;
 
 private:

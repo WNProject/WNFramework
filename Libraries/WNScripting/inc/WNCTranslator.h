@@ -9,7 +9,6 @@
 #include "WNLogging/inc/WNLog.h"
 #include "WNScripting/inc/WNTranslator.h"
 
-
 namespace wn {
 namespace memory {
 class allocator;
@@ -23,7 +22,7 @@ namespace scripting {
 // Create C files from the given scripting files.
 class c_translator : public translator {
 public:
-  c_translator(type_validator* _validator, memory::allocator* _allocator,
+  c_translator(memory::allocator* _allocator, type_validator* _validator,
       file_system::mapping* _mapping, logging::log* _log);
 
   // Looks in m_file_manager for the path given by the file parameter,

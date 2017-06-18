@@ -52,6 +52,7 @@ private:
   memory::allocator* m_allocator;
   logging::log* m_log;
 };
+
 }  // namespace window
 }  // namespace runtime
 }  // namespace wn

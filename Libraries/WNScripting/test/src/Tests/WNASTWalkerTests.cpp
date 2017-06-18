@@ -48,12 +48,12 @@ void RunMatcherTest(T& _t,
   wn::testing::allocator allocator;
   wn::file_system::mapping_ptr mapping =
       wn::file_system::factory().make_mapping(
-          wn::file_system::mapping_type::memory_backed, &allocator);
+          &allocator, wn::file_system::mapping_type::memory_backed);
 
   mapping->initialize_files(_files);
 
   auto a = wn::scripting::test_parse_file(
-      _file, mapping.get(), &allocator, _num_warnings, _num_errors);
+      &allocator, _file, mapping.get(), _num_warnings, _num_errors);
   wn::scripting::ast_walker<T, true> walker(&_t);
   walker.walk_script_file(
       static_cast<const wn::scripting::script_file*>(a.get()));
@@ -85,13 +85,13 @@ TEST(ast_code_generator, type_association_test) {
 
   wn::file_system::mapping_ptr mapping =
       wn::file_system::factory().make_mapping(
-          wn::file_system::mapping_type::memory_backed, &allocator);
+          &allocator, wn::file_system::mapping_type::memory_backed);
 
   mapping->initialize_files(
       {{"file.wns", "Int main() { return 0 + 4 * 32; }"}});
 
   auto a = wn::scripting::test_parse_file(
-      "file.wns", mapping.get(), &allocator, &num_warnings, &num_errors);
+      &allocator, "file.wns", mapping.get(), &num_warnings, &num_errors);
   EXPECT_TRUE(wn::scripting::run_type_association_pass(a.get(),
       wn::logging::get_null_logger(), &validator, &num_warnings, &num_errors));
 

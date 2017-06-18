@@ -161,10 +161,10 @@ memory_backed_mapping::memory_backed_directory::create_file(
   }
   auto it = child_files.insert(
       core::pair<containers::string, memory_backed_file_location_ptr>(
-          std::move(name),
-          memory::make_intrusive<memory_backed_file_location>(m_allocator,
-              m_allocator, memory::make_intrusive<memory_backed_file_store>(
-                               m_allocator, m_allocator))));
+          std::move(name), memory::make_intrusive<memory_backed_file_location>(
+                               m_allocator, m_allocator,
+                               memory::make_intrusive<memory_backed_file_store>(
+                                   m_allocator, m_allocator))));
 
   return memory::make_intrusive<memory_backed_file>(
       m_allocator, m_allocator, it.first->second);
@@ -319,8 +319,9 @@ result memory_backed_mapping::delete_file(const containers::string_view _path) {
   dir->delete_child_file(pieces.back());
   return result::ok;
 }
+
 memory_backed_mapping::memory_backed_mapping(memory::allocator* _allocator)
-  : mapping(containers::string(_allocator), _allocator, false),
+  : mapping(_allocator, containers::string(_allocator), false),
     m_root_dir(_allocator) {}
 
 memory_backed_mapping::memory_backed_directory*

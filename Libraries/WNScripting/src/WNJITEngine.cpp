@@ -181,10 +181,10 @@ CompiledModule::CompiledModule(CompiledModule&& _other)
   _other.m_module = nullptr;
 }
 
-jit_engine::jit_engine(type_validator* _validator,
-    memory::allocator* _allocator, file_system::mapping* _mapping,
+jit_engine::jit_engine(memory::allocator* _allocator,
+    type_validator* _validator, file_system::mapping* _mapping,
     logging::log* _log)
-  : engine(_validator, _allocator),
+  : engine(_allocator, _validator),
     m_file_mapping(_mapping),
     m_compilation_log(_log),
     m_context(memory::make_std_unique<llvm::LLVMContext>()),

@@ -177,8 +177,8 @@ public:
   }
 
   template <const size_t _ExpandPercentageOther>
-  dynamic_array(const dynamic_array<T, _ExpandPercentageOther>& _other,
-      memory::allocator* _allocator = nullptr)
+  dynamic_array(memory::allocator* _allocator,
+      const dynamic_array<T, _ExpandPercentageOther>& _other)
     : dynamic_array(_allocator) {
     (*this) = _other;
   }

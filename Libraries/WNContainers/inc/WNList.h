@@ -142,13 +142,22 @@ public:
   using reverse_iterator = std::reverse_iterator<iterator>;
   using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
-  list(memory::allocator* _allocator = nullptr)
+  list()
+    : m_allocator(nullptr),
+      m_size(0),
+      m_begin(reinterpret_cast<list_node*>(&m_dummy_end_node)) {
+    m_begin->m_prev = nullptr;
+    m_begin->m_next = m_begin;
+  }
+
+  explicit list(memory::allocator* _allocator)
     : m_allocator(_allocator),
       m_size(0),
       m_begin(reinterpret_cast<list_node*>(&m_dummy_end_node)) {
     m_begin->m_prev = nullptr;
     m_begin->m_next = m_begin;
   }
+
   ~list() {
     clear();
   }

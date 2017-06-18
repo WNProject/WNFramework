@@ -115,6 +115,7 @@ private:
 
 public:
   using unmanaged_object_t = unmanaged_object<T>;
+
   object_pool(memory::allocator* _allocator,
       functional::function<T()> _create_function,
       functional::function<void(T*)> _reset_function)

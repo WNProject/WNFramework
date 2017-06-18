@@ -15,9 +15,9 @@ namespace internal {
 
 class mapping_posix final : public mapping {
 public:
-  WN_FORCE_INLINE mapping_posix(containers::string&& _path,
-      memory::allocator* _allocator, const bool _cleanup = false)
-    : mapping(std::move(_path), _allocator, _cleanup) {}
+  WN_FORCE_INLINE mapping_posix(memory::allocator* _allocator,
+      containers::string&& _path, const bool _cleanup = false)
+    : mapping(_allocator, core::move(_path), _cleanup) {}
 
   virtual ~mapping_posix() override;
 

@@ -83,13 +83,13 @@ public:
     : m_is_top_level_fiber(false), m_allocator(_allocator) {
     create(default_fiber_stack_size,
         functional::function<void()>(
-            std::bind(core::decay_copy(std::forward<F>(_f)),
-                core::decay_copy(std::forward<Args>(_args))...)));
+               std::bind(core::decay_copy(std::forward<F>(_f)),
+                   core::decay_copy(std::forward<Args>(_args))...)));
   }
 
   template <typename F, typename... Args>
-  WN_FORCE_INLINE explicit fiber(const size_t _stack_size,
-      memory::allocator* _allocator, F&& _f, Args&&... _args)
+  WN_FORCE_INLINE explicit fiber(memory::allocator* _allocator,
+      const size_t _stack_size, F&& _f, Args&&... _args)
     : m_is_top_level_fiber(false), m_allocator(_allocator) {
     create(_stack_size, functional::function<void()>(std::bind(
                             core::decay_copy(std::forward<F>(_f)),

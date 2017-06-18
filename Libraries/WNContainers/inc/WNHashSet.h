@@ -99,17 +99,17 @@ public:
       internal::hash_set_iterator<typename map_type::const_iterator,
           const value_type>;
 
-  hash_set(size_type _n = 0u, const hasher& _hasher = hasher(),
-      const key_equal& _key_equal = key_equal(),
-      memory::allocator* _allocator = nullptr)
-    : m_map(_n, _hasher, _key_equal, _allocator) {}
+  hash_set(memory::allocator* _allocator, const size_type _n,
+      const hasher& _hasher = hasher(),
+      const key_equal& _key_equal = key_equal())
+    : m_map(_allocator, _n, _hasher, _key_equal) {}
   hash_set(memory::allocator* _allocator)
-    : hash_set(0u, hasher(), key_equal(), _allocator) {}
+    : hash_set(_allocator, 0u, hasher(), key_equal()) {}
   hash_set(memory::allocator* _allocator,
       std::initializer_list<key_type> initializer, size_type _n = 0u,
       const hasher& _hasher = hasher(),
       const key_equal& _key_equal = key_equal())
-    : hash_set(0u, _hasher, _key_equal, _allocator) {
+    : hash_set(_allocator, 0u, _hasher, _key_equal) {
     auto begin = std::begin(initializer);
     auto end = std::end(initializer);
     size_t count = end - begin;

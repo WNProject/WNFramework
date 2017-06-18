@@ -16,10 +16,7 @@ TYPED_TEST_CASE(hash_set, hash_set_testing_types);
 TYPED_TEST(hash_set, construction) {
   wn::testing::allocator allocator;
 
-  {
-    wn::containers::hash_set<TypeParam> set1;
-    wn::containers::hash_set<TypeParam> set2(&allocator);
-  }
+  { wn::containers::hash_set<TypeParam> set1(&allocator); }
 
   EXPECT_EQ(allocator.allocated(), 0);
 }

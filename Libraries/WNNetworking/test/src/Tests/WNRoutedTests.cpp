@@ -70,8 +70,8 @@ TEST(routed_connection, default_route) {
 
           wn::containers::string receieved(&allocator);
           struct received_message : wn::multi_tasking::synchronized<> {
-            received_message(wn::multi_tasking::job_signal& signal,
-                wn::memory::allocator* _alloc, const char* sent_message)
+            received_message(wn::memory::allocator* _alloc,
+                wn::multi_tasking::job_signal& signal, const char* sent_message)
               : signal(signal), allocator(_alloc), sent_message(sent_message) {}
             void default_route(wn::networking::RoutedMessage&& message) {
               if (message.m_status != wn::networking::network_error::ok) {
@@ -87,7 +87,7 @@ TEST(routed_connection, default_route) {
             wn::multi_tasking::job_signal& signal;
             wn::memory::allocator* allocator;
             const char* sent_message;
-          } recv(signal, &allocator, sent_message);
+          } recv(&allocator, signal, sent_message);
           wn::networking::WNRoutedConnection routed_conn(&allocator,
               wn::multi_tasking::make_callback(
                   &allocator, &recv, &received_message::default_route),
@@ -155,8 +155,8 @@ TEST(routed_connection, all_are_default) {
 
           wn::containers::string receieved(&allocator);
           struct received_message : wn::multi_tasking::synchronized<> {
-            received_message(wn::multi_tasking::job_signal& signal,
-                wn::memory::allocator* _alloc, const char* sent_message)
+            received_message(wn::memory::allocator* _alloc,
+                wn::multi_tasking::job_signal& signal, const char* sent_message)
               : signal(signal), allocator(_alloc), sent_message(sent_message) {}
             void default_route(wn::networking::RoutedMessage&& message) {
               if (message.m_status != wn::networking::network_error::ok) {
@@ -172,7 +172,7 @@ TEST(routed_connection, all_are_default) {
             wn::multi_tasking::job_signal& signal;
             wn::memory::allocator* allocator;
             const char* sent_message;
-          } recv(signal, &allocator, sent_message);
+          } recv(&allocator, signal, sent_message);
           wn::networking::WNRoutedConnection routed_conn(&allocator,
               wn::multi_tasking::make_callback(
                   &allocator, &recv, &received_message::default_route),
@@ -256,8 +256,8 @@ TEST(routed_connection, multiple_routes) {
 
           wn::containers::string receieved(&allocator);
           struct received_message : wn::multi_tasking::synchronized<> {
-            received_message(wn::multi_tasking::job_signal& signal,
-                wn::memory::allocator* _alloc, const char* sent_message,
+            received_message(wn::memory::allocator* _alloc,
+                wn::multi_tasking::job_signal& signal, const char* sent_message,
                 const char* sent_message2, const char* sent_message32)
               : signal(signal),
                 allocator(_alloc),
@@ -295,7 +295,7 @@ TEST(routed_connection, multiple_routes) {
             const char* sent_message2;
             const char* sent_message32;
           } recv(
-              signal, &allocator, sent_message, sent_message2, sent_message32);
+              &allocator, signal, sent_message, sent_message2, sent_message32);
           wn::networking::WNRoutedConnection routed_conn(&allocator,
               wn::multi_tasking::make_callback(
                   &allocator, &recv, &received_message::default_route),
@@ -380,8 +380,8 @@ TEST(routed_connection, multipart_message) {
 
           wn::containers::string receieved(&allocator);
           struct received_message : wn::multi_tasking::synchronized<> {
-            received_message(wn::multi_tasking::job_signal& signal,
-                wn::memory::allocator* _alloc, const char* sent_message)
+            received_message(wn::memory::allocator* _alloc,
+                wn::multi_tasking::job_signal& signal, const char* sent_message)
               : signal(signal), allocator(_alloc), sent_message(sent_message) {}
             void default_route(wn::networking::RoutedMessage&& message) {
               if (message.m_status != wn::networking::network_error::ok) {
@@ -405,7 +405,7 @@ TEST(routed_connection, multipart_message) {
             wn::memory::allocator* allocator;
             const char* sent_message;
             size_t message_idx = 0;
-          } recv(signal, &allocator, sent_message);
+          } recv(&allocator, signal, sent_message);
           wn::networking::WNRoutedConnection routed_conn(&allocator,
               wn::multi_tasking::make_callback(
                   &allocator, &recv, &received_message::default_route),

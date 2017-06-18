@@ -33,18 +33,20 @@ public:
   // The engine will be constructed with the given allocator,
   // and all allocations performed by the engine will be performed
   // with the given allocator.
-  virtual memory::unique_ptr<engine> get_engine(scripting_engine_type _type,
-      type_validator* _validator, file_system::mapping* _file_mapping,
-      logging::log* _log, memory::allocator* _allocator);
+  virtual memory::unique_ptr<engine> get_engine(memory::allocator* _allocator,
+      scripting_engine_type _type, type_validator* _validator,
+      file_system::mapping* _file_mapping, logging::log* _log);
 
   // Returns a wn::scripting::translator of the given type.
   // The translator will be constructed with the given allocator,
   // and all allocations performed by the engine will be performed
   // with the given allocator.
-  virtual memory::unique_ptr<translator> get_translator(translator_type _type,
+  virtual memory::unique_ptr<translator> get_translator(
+      memory::allocator* _allocator, translator_type _type,
       type_validator* _validator, file_system::mapping* _file_mapping,
-      logging::log* _log, memory::allocator* _allocator);
+      logging::log* _log);
 };
+
 }  // namespace scripting
 }  // namespace wn
 

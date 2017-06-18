@@ -13,7 +13,7 @@ TEST_P(factory_tests, make_mapping) {
   {
     wn::file_system::factory f;
     const wn::file_system::mapping_ptr mp =
-        f.make_mapping(GetParam(), &allocator);
+        f.make_mapping(&allocator, GetParam());
 
     ASSERT_NE(mp, nullptr);
   }

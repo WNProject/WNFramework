@@ -224,7 +224,7 @@ struct member_function {
 // and what operations are allowable on this type.
 struct type_definition {
   explicit type_definition(
-      bool destructible_type, memory::allocator* _allocator)
+      memory::allocator* _allocator, bool destructible_type)
     : m_casts(_allocator),
       m_ids(_allocator),
       m_functions(_allocator),
@@ -237,8 +237,8 @@ struct type_definition {
     m_ops = valid_builtin_operations[0];  // default to nothing valid
   }
 
-  type_definition(const allowed_builtin_operations& operation,
-      bool destructible_type, memory::allocator* _allocator)
+  type_definition(memory::allocator* _allocator,
+      const allowed_builtin_operations& operation, bool destructible_type)
     : m_casts(_allocator),
       m_ids(_allocator),
       m_functions(_allocator),
@@ -343,10 +343,8 @@ WN_INLINE void append_number(size_t number, containers::string& _str) {
 // Queryable for operations, methods, custom types,
 // name mangling etc.
 class type_validator {
-  static memory::basic_allocator s_default_allocator;
-
 public:
-  type_validator(memory::allocator* _allocator = &s_default_allocator)
+  type_validator(memory::allocator* _allocator)
     : m_mapping(_allocator),
       m_names(_allocator),
       m_types(_allocator),
@@ -396,10 +394,10 @@ public:
     // dummy types around for array and struct.
     m_max_types += 2;
 
-    m_types.push_back(type_definition(false, m_allocator));
+    m_types.push_back(type_definition(m_allocator, false));
     for (size_t i = 1; i < 12; ++i) {
       m_types.push_back(
-          type_definition(valid_builtin_operations[i], false, m_allocator));
+          type_definition(m_allocator, valid_builtin_operations[i], false));
     }
 
     m_types[1].m_mangling = "v";
@@ -459,7 +457,7 @@ public:
       }
 
       m_types.push_back(type_definition(
-          (i != static_cast<uint32_t>(reference_type::unique)), m_allocator));
+          m_allocator, (i != static_cast<uint32_t>(reference_type::unique))));
       // Sharable types (i.e. heap objects) are castable to/from void*.
       if (i == static_cast<uint32_t>(reference_type::shared)) {
         m_types.back().m_casts.push_back(
@@ -493,7 +491,7 @@ public:
          ++i) {
       m_max_types++;
       array_type = static_cast<uint32_t>(m_types.size());
-      m_types.push_back(type_definition(true, m_allocator));
+      m_types.push_back(type_definition(m_allocator, true));
       m_types.back().m_mode = static_cast<reference_type>(i);
       m_types.back().m_is_array_of = index;
       containers::string name(m_allocator);
@@ -566,10 +564,9 @@ public:
                 [this](uint32_t type) { return type >= m_types.size(); }),
         "One of the return types is out of bounds");
 
-    m_types[_type].m_functions.push_back(
-        {_name.to_string(m_allocator), _return_type,
-            containers::dynamic_array<uint32_t>(
-                m_allocator, _types.begin(), _types.end())});
+    m_types[_type].m_functions.push_back({_name.to_string(m_allocator),
+        _return_type, containers::dynamic_array<uint32_t>(m_allocator,
+                                              _types.begin(), _types.end())});
   }
 
   containers::string get_mangled_name(const containers::string_view& name,
