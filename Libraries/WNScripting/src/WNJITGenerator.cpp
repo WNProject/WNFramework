@@ -82,6 +82,11 @@ namespace scripting {
 
 void ast_jit_engine::walk_type(
     const scripting::type* _type, llvm::Type** _value) {
+  if (_type->get_node_type() == node_type::array_type) {
+    return walk_type(cast_to<array_type>(_type), _value);
+  } else if (_type->get_node_type() == node_type::concretized_array_type) {
+    return walk_type(cast_to<concretized_array_type>(_type), _value);
+  }
   switch (_type->get_index()) {
     case static_cast<uint32_t>(type_classification::invalid_type):
       WN_RELEASE_ASSERT_DESC(false, "Cannot classify invalid types");
@@ -136,6 +141,185 @@ void ast_jit_engine::walk_type(
       }
     }
   }
+}
+
+void ast_jit_engine::walk_type(
+    const array_type* _array_type, llvm::Type** _out_type) {
+  auto stored_type = m_array_type_map.find(_array_type->get_index());
+  if (stored_type != m_array_type_map.end()) {
+    *_out_type = stored_type->second;
+    return;
+  }
+  uint32_t num_bases = 1;
+  const array_type* t = _array_type;
+  const type* basest_type = t->get_subtype();
+
+  while (t->get_subtype()->get_node_type() == node_type::array_type) {
+    basest_type = t->get_subtype();
+    t = cast_to<array_type>(t->get_subtype());
+    num_bases += 1;
+  }
+
+  llvm::Type* ltype = m_generator->get_data(basest_type);
+  if (!ltype) {
+    walk_type(basest_type, &ltype);
+  }
+
+  containers::dynamic_array<llvm::Type*> types(
+      m_allocator, num_bases, llvm::IntegerType::getInt32Ty(*m_context));
+  types.push_back(llvm::ArrayType::get(ltype, 0));
+
+  *_out_type = llvm::StructType::create(make_array_ref(types));
+
+  switch (_array_type->get_reference_type()) {
+    case reference_type::self:
+    case reference_type::unique:
+    case reference_type::shared:
+      *_out_type = (*_out_type)->getPointerTo();
+      break;
+    case reference_type::raw:
+    default:
+      break;
+  }
+  m_array_type_map[_array_type->get_index()] = *_out_type;
+}
+
+void ast_jit_engine::walk_type(
+    const scripting::concretized_array_type* _array_type,
+    llvm::Type** _out_type) {
+  auto stored_type = m_array_type_map.find(_array_type->get_index());
+  if (stored_type != m_array_type_map.end()) {
+    *_out_type = stored_type->second;
+    return;
+  }
+  const concretized_array_type* t = _array_type;
+  const type* basest_type = t->get_subtype();
+  llvm::Type* ltype = m_generator->get_data(basest_type);
+  if (!ltype) {
+    walk_type(basest_type, &ltype);
+  }
+
+  uint32_t total_size = 1;
+
+  for (uint32_t size : _array_type->get_sizes()) {
+    total_size *= size;
+  }
+
+  containers::dynamic_array<llvm::Type*> types(m_allocator,
+      t->get_sizes().size(), llvm::IntegerType::getInt32Ty(*m_context));
+
+  if (_array_type->get_reference_type() == reference_type::raw ||
+      _array_type->get_reference_type() == reference_type::self) {
+    types.push_back(llvm::ArrayType::get(ltype, total_size));
+    if (_array_type->get_subtype()->get_reference_type() ==
+        reference_type::unique) {
+      llvm::Type* bt = ltype;
+
+      types.push_back(llvm::ArrayType::get(bt->subtypes()[0], total_size));
+    }
+  } else {
+    types.push_back(llvm::ArrayType::get(ltype, 0));
+  }
+
+  *_out_type = llvm::StructType::create(make_array_ref(types));
+
+  switch (_array_type->get_reference_type()) {
+    case reference_type::self:
+    case reference_type::unique:
+    case reference_type::shared:
+      *_out_type = (*_out_type)->getPointerTo();
+      break;
+    case reference_type::raw:
+    default:
+      break;
+  }
+  m_array_type_map[_array_type->get_index()] = *_out_type;
+}
+
+void ast_jit_engine::walk_expression(
+    const array_allocation_expression* _alloc, expression_dat* _val) {
+  _val->instructions =
+      containers::dynamic_array<llvm::Instruction*>(m_allocator);
+
+  switch (_alloc->get_type()->get_reference_type()) {
+    case reference_type::raw:
+      // We actually have nothing to do in this case. The
+      // declaration will have turned this into a Alloca(type),
+      // and we have nothing interesting to store in it.
+      _val->value = nullptr;
+      break;
+    default:
+      WN_RELEASE_ASSERT_DESC(false, "Not Implemented");
+  }
+}
+
+void ast_jit_engine::walk_expression(
+    const array_access_expression* _access, expression_dat* _val) {
+  _val->instructions =
+      containers::dynamic_array<llvm::Instruction*>(m_allocator);
+
+  const auto& root_expr = m_generator->get_data(_access->get_base_expression());
+  const auto& index_expr = m_generator->get_data(_access->get_access());
+  llvm::Type* int32_type = llvm::IntegerType::getInt32Ty(*m_context);
+
+  _val->instructions.insert(_val->instructions.end(),
+      root_expr.instructions.begin(), root_expr.instructions.end());
+  _val->instructions.insert(_val->instructions.end(),
+      index_expr.instructions.begin(), index_expr.instructions.end());
+
+  containers::dynamic_array<llvm::Value*> indices(m_allocator);
+
+  switch (_access->get_base_expression()->get_type()->get_reference_type()) {
+    case reference_type::unique:
+    case reference_type::self:
+      indices.push_back(llvm::ConstantInt::get(int32_type, 0));
+      if (_access->is_construction()) {
+        indices.push_back(llvm::ConstantInt::get(int32_type, 2));
+      } else {
+        indices.push_back(llvm::ConstantInt::get(int32_type, 1));
+      }
+      break;
+    case reference_type::raw:
+      indices.push_back(llvm::ConstantInt::get(int32_type, 1));
+      break;
+  }
+  indices.push_back(index_expr.value);
+  llvm::Instruction* inst = llvm::GetElementPtrInst::CreateInBounds(
+      root_expr.value, make_array_ref(indices));
+  llvm::Instruction* l = new llvm::LoadInst(inst, "");
+  _val->instructions.push_back(inst);
+  _val->instructions.push_back(l);
+  _val->value = l;
+}
+
+void ast_jit_engine::walk_instruction(
+    const set_array_length* _inst, instruction_dat* _val) {
+  _val->instructions =
+      containers::dynamic_array<llvm::Instruction*>(m_allocator);
+
+  const auto& lvalue =
+      m_generator->get_data(_inst->get_lvalue()->get_expression());
+  const auto& expr = m_generator->get_data(_inst->get_expression());
+
+  _val->instructions =
+      containers::dynamic_array<llvm::Instruction*>(m_allocator);
+
+  llvm::Type* int32_type = llvm::IntegerType::getInt32Ty(*m_context);
+
+  _val->instructions.insert(_val->instructions.end(),
+      lvalue.instructions.begin(), lvalue.instructions.end());
+  _val->instructions.insert(_val->instructions.end(), expr.instructions.begin(),
+      expr.instructions.end());
+
+  containers::dynamic_array<llvm::Value*> indices(m_allocator);
+  indices.push_back(llvm::ConstantInt::get(int32_type, 0));
+
+  indices.push_back(llvm::ConstantInt::get(int32_type, 0));
+  llvm::Instruction* inst = llvm::GetElementPtrInst::CreateInBounds(
+      lvalue.value, make_array_ref(indices));
+  llvm::Instruction* l = new llvm::StoreInst(expr.value, inst, "");
+  _val->instructions.push_back(inst);
+  _val->instructions.push_back(l);
 }
 
 void ast_jit_engine::walk_expression(
@@ -376,13 +560,20 @@ void ast_jit_engine::walk_expression(
     const function_call_expression* _call, expression_dat* _val) {
   _val->instructions =
       containers::dynamic_array<llvm::Instruction*>(m_allocator);
-
   containers::dynamic_array<llvm::Value*> parameters(m_allocator);
+  auto function = m_function_map[_call->callee()];
+  llvm::FunctionType* ft = llvm::cast<llvm::FunctionType>(
+      llvm::cast<llvm::PointerType>(function->getType())->getElementType());
+  int i = 0;
   for (const auto& expr : _call->get_expressions()) {
     const auto& dat = m_generator->get_data(expr->m_expr.get());
     _val->instructions.insert(_val->instructions.end(),
         dat.instructions.begin(), dat.instructions.end());
-    parameters.push_back(dat.value);
+    llvm::Instruction* castInst =
+        new llvm::BitCastInst(dat.value, ft->getParamType(i));
+    _val->instructions.push_back(castInst);
+    parameters.push_back(castInst);
+    ++i;
   }
 
   llvm::CallInst* call;
@@ -565,8 +756,10 @@ void ast_jit_engine::walk_instruction(
   // TODO(awoloszyn): If this seems too ugly, make the RHS
   // an undef value.
   if (expr.value) {
-    _val->instructions.push_back(
-        new llvm::StoreInst(expr.value, _val->instructions.front()));
+    llvm::Instruction* castInst = new llvm::BitCastInst(
+        _val->instructions.front(), expr.value->getType()->getPointerTo());
+    _val->instructions.push_back(castInst);
+    _val->instructions.push_back(new llvm::StoreInst(expr.value, castInst));
   }
 }
 
@@ -691,6 +884,7 @@ void ast_jit_engine::walk_function(const function* _func, llvm::Function** _f) {
       llvm_args->setName(make_string_ref((*arg_names)->get_name()));
       llvm::Instruction* loc = m_generator->get_data((*arg_names).get());
       bb->getInstList().push_back(loc);
+
       bb->getInstList().push_back(new llvm::StoreInst(&(*llvm_args), loc));
       ++llvm_args;
       ++arg_names;

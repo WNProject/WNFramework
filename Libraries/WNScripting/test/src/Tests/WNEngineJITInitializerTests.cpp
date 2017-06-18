@@ -31,10 +31,10 @@ TEST(jit_engine, basic_parsing) {
       wn::file_system::factory().make_mapping(
           wn::file_system::mapping_type::memory_backed, &allocator);
 
-  mapping->initialize_files(
-      {{"file.wns", "Void main() { return; }"}, {"file2.wns",
-                                                    "Void foo() { return; } \n"
-                                                    "Void bar() { return; }"}});
+  mapping->initialize_files({{"file.wns", "Void main() { return; }"},
+      {"file2.wns",
+          "Void foo() { return; } \n"
+          "Void bar() { return; }"}});
   wn::scripting::jit_engine jit_engine(
       &validator, &allocator, mapping.get(), wn::logging::get_null_logger());
   EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file.wns"));
@@ -256,9 +256,9 @@ TEST_P(two_params_tests, int_in_out_tests) {
   wn::scripting::script_function<int32_t, int32_t, int32_t> new_func;
   ASSERT_TRUE(jit_engine.get_function("main", new_func));
   for (auto& test_case : GetParam().cases) {
-    EXPECT_EQ(
-        test_case.second, jit_engine.invoke(new_func, test_case.first.first,
-                              test_case.first.second));
+    EXPECT_EQ(test_case.second,
+        jit_engine.invoke(
+            new_func, test_case.first.first, test_case.first.second));
   }
 }
 
@@ -547,6 +547,13 @@ INSTANTIATE_TEST_CASE_P(
       "} while( true );"
       "}",
       {{0, -1}, {1, 0}, {3, 2}}},
+})));
+
+INSTANTIATE_TEST_CASE_P(
+    simple_array_test, integer_tests,
+    ::testing::ValuesIn(std::vector<integer_test>({
+      {"Int main(Int x) { Int[] y = Int[10](0); return y[x]; }",
+      {{0, 0}, {3, 0}, {9, 0}}},
 })));
 
 // clang-format on

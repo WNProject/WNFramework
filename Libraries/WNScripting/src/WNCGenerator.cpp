@@ -216,8 +216,8 @@ void ast_c_translator::walk_expression(const short_circuit_expression* _ss,
 void ast_c_translator::walk_expression(const binary_expression* _binary,
     core::pair<containers::string, containers::string>* _str) {
   initialize_data(m_allocator, _str);
-  const char* m_operators[] = {" + ", " - ", " * ", " / ", " % ",
-      " == ", " != ", " <= ", " >= ", " < ", " > "};
+  const char* m_operators[] = {" + ", " - ", " * ", " / ", " % ", " == ",
+      " != ", " <= ", " >= ", " < ", " > "};
   static_assert(sizeof(m_operators) / sizeof(m_operators[0]) ==
                     static_cast<size_t>(arithmetic_type::max),
       "New oeprator type detected");

@@ -5,6 +5,7 @@
 #ifndef __WN_SCRIPTING_JIT_GENERATOR_H__
 #define __WN_SCRIPTING_JIT_GENERATOR_H__
 
+#include <llvm/IR/DataLayout.h>
 #include "WNContainers/inc/WNContiguousRange.h"
 #include "WNContainers/inc/WNDeque.h"
 #include "WNContainers/inc/WNDynamicArray.h"
@@ -13,7 +14,6 @@
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNScripting/inc/WNASTCodeGenerator.h"
 #include "WNScripting/inc/WNNodeTypes.h"
-#include <llvm/IR/DataLayout.h>
 
 namespace llvm {
 class Instruction;
@@ -57,6 +57,7 @@ public:
       m_validator(_validator),
       m_function_map(m_allocator),
       m_struct_map(m_allocator),
+      m_array_type_map(m_allocator),
       m_context(_context),
       m_module(_module),
       m_generator(_generator),
@@ -67,6 +68,11 @@ public:
   void walk_expression(const expression*, expression_dat*) {
     WN_RELEASE_ASSERT_DESC(false, "Unimplemented expression type");
   }
+
+  void walk_expression(
+      const array_access_expression* _access, expression_dat* _val);
+  void walk_expression(
+      const array_allocation_expression* _alloc, expression_dat* _val);
   void walk_expression(const cast_expression* _const, expression_dat* _val);
   void walk_expression(const sizeof_expression* _sizeof, expression_dat* _val);
   void walk_expression(const constant_expression* _const, expression_dat* _str);
@@ -82,6 +88,9 @@ public:
       const function_call_expression* _call, expression_dat* _str);
 
   void walk_type(const type* _type, llvm::Type** _val);
+  void walk_type(const array_type* _type, llvm::Type** _val);
+  void walk_type(const concretized_array_type* _type, llvm::Type** _val);
+
   void walk_instruction(const instruction*, instruction_dat*) {
     WN_RELEASE_ASSERT_DESC(false, "Unimplemented instruction type implemented");
   }
@@ -94,6 +103,7 @@ public:
   void walk_instruction(const do_instruction* _inst, instruction_dat*);
   void walk_instruction(const break_instruction* _inst, instruction_dat*);
   void walk_instruction(const continue_instruction* _inst, instruction_dat*);
+  void walk_instruction(const set_array_length* _inst, instruction_dat*);
 
   void walk_parameter(const parameter* _param, llvm::Instruction**);
   void walk_struct_definition(const struct_definition* _def, llvm::Type**);
@@ -110,6 +120,7 @@ private:
   type_validator* m_validator;
   containers::hash_map<uint32_t, llvm::Type*> m_struct_map;
   containers::hash_map<const function*, llvm::Function*> m_function_map;
+  containers::hash_map<uint32_t, llvm::Type*> m_array_type_map;
   ast_code_generator<ast_jit_traits>* m_generator;
   llvm::Module* m_module;
   llvm::LLVMContext* m_context;

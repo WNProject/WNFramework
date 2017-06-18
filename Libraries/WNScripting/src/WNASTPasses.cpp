@@ -406,8 +406,8 @@ public:
     memory::unique_ptr<binary_expression> bin_expr =
         memory::make_unique<binary_expression>(m_allocator, m_allocator,
             arithmetic_type::arithmetic_equal, _inst->take_condition(),
-            make_constant(
-                m_allocator, _inst, type_classification::bool_type, "false"));
+            make_constant(m_allocator, _inst, type_classification::bool_type,
+                                                   "false"));
 
     memory::unique_ptr<if_instruction> if_inst =
         memory::make_unique<if_instruction>(m_allocator, m_allocator);
@@ -1951,8 +1951,8 @@ public:
     memory::unique_ptr<binary_expression> bin_expr =
         memory::make_unique<binary_expression>(m_allocator, m_allocator,
             arithmetic_type::arithmetic_equal, core::move(val_id),
-            make_constant(
-                m_allocator, _alloc, type_classification::int_type, "0"));
+            make_constant(m_allocator, _alloc, type_classification::int_type,
+                                                   "0"));
     bin_expr->copy_location_from(_alloc);
 
     memory::unique_ptr<if_instruction> if_inst =
@@ -2081,8 +2081,9 @@ public:
     increment_write_id->copy_location_from(new_do.get());
 
     memory::unique_ptr<binary_expression> increment =
-        memory::make_unique<binary_expression>(m_allocator, m_allocator,
-            arithmetic_type::arithmetic_sub, core::move(increment_read_id),
+        memory::make_unique<binary_expression>(
+            m_allocator, m_allocator, arithmetic_type::arithmetic_sub,
+            core::move(increment_read_id),
             make_constant(
                 m_allocator, new_do.get(), type_classification::int_type, "1"));
     increment->copy_location_from(new_do.get());
@@ -2180,6 +2181,15 @@ public:
       copied_do->set_body(core::move(copied_do_body));
       copied_instructions->add_instruction(core::move(copied_do));
 
+      memory::unique_ptr<id_expression> id =
+          memory::make_unique<id_expression>(m_allocator, m_allocator, "_this");
+      id->copy_location_from(_alloc);
+      memory::unique_ptr<return_instruction> ret =
+          memory::make_unique<return_instruction>(
+              m_allocator, m_allocator, core::move(id));
+      copied_instructions->add_instruction(core::move(ret));
+      copied_instructions->set_is_non_linear(true);
+
       memory::unique_ptr<function> constructor = memory::make_unique<function>(
           m_allocator, m_allocator, core::move(name_ret),
           core::move(copied_parameters), core::move(copied_instructions));
@@ -2191,11 +2201,20 @@ public:
       return core::make_pair(construct_name, destruct_name);
     } else {
       if_body->add_instruction(core::move(break_inst));
+      if_body->set_breaks(true);
+      if_body->set_is_non_linear(true);
       if_inst->set_body(core::move(if_body));
       do_body->add_instruction(core::move(if_inst));
       new_do->set_body(core::move(do_body));
       instructions->add_instruction(core::move(new_do));
-
+      memory::unique_ptr<id_expression> id =
+          memory::make_unique<id_expression>(m_allocator, m_allocator, "_this");
+      id->copy_location_from(_alloc);
+      memory::unique_ptr<return_instruction> ret =
+          memory::make_unique<return_instruction>(
+              m_allocator, m_allocator, core::move(id));
+      instructions->add_instruction(core::move(ret));
+      instructions->set_is_non_linear(true);
       memory::unique_ptr<function> constructor = memory::make_unique<function>(
           m_allocator, m_allocator, core::move(name_ret),
           core::move(parameters), core::move(instructions));
