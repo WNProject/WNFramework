@@ -2163,12 +2163,21 @@ public:
           clone_node(parameters);
 
       if_body->add_instruction(core::move(break_inst));
+      if_body->set_breaks(true);
+      if_body->set_is_non_linear(true);
       if_inst->set_body(core::move(if_body));
       do_body->prepend_instruction(core::move(if_inst));
       do_body->pop_back();
       do_body->add_instruction(core::move(destructor_call));
       new_do->set_body(core::move(do_body));
       instructions->add_instruction(core::move(new_do));
+
+      {
+        auto r =
+            memory::make_unique<return_instruction>(m_allocator, m_allocator);
+        r->copy_location_from(_alloc);
+        instructions->add_instruction(core::move(r));
+      }
       memory::unique_ptr<function> destructor = memory::make_unique<function>(
           m_allocator, m_allocator, core::move(destructor_sig),
           core::move(parameters), core::move(instructions));
@@ -2176,6 +2185,8 @@ public:
 
       copied_break_instruction->set_loop(copied_do.get());
       copied_if_body->add_instruction(core::move(copied_break_instruction));
+      copied_if_body->set_breaks(true);
+      copied_if_body->set_is_non_linear(true);
       copied_if_inst->set_body(core::move(copied_if_body));
       copied_do_body->prepend_instruction(core::move(copied_if_inst));
       copied_do->set_body(core::move(copied_do_body));

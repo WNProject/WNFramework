@@ -31,10 +31,10 @@ TEST(jit_engine, basic_parsing) {
       wn::file_system::factory().make_mapping(
           wn::file_system::mapping_type::memory_backed, &allocator);
 
-  mapping->initialize_files({{"file.wns", "Void main() { return; }"},
-      {"file2.wns",
-          "Void foo() { return; } \n"
-          "Void bar() { return; }"}});
+  mapping->initialize_files(
+      {{"file.wns", "Void main() { return; }"}, {"file2.wns",
+                                                    "Void foo() { return; } \n"
+                                                    "Void bar() { return; }"}});
   wn::scripting::jit_engine jit_engine(
       &validator, &allocator, mapping.get(), wn::logging::get_null_logger());
   EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file.wns"));
@@ -144,9 +144,9 @@ TEST_P(jit_int_params, int_passthrough) {
 
 INSTANTIATE_TEST_CASE_P(int_tests, jit_int_params,
     ::testing::Values(int_test({"0", 0}), int_test({"-1", -1}),
-        int_test({"-32", -32}), int_test({"-4096", -4096}),
-        int_test({"2147483647", INT32_MAX}),
-        int_test({"-2147483648", (INT32_MIN)})));
+                            int_test({"-32", -32}), int_test({"-4096", -4096}),
+                            int_test({"2147483647", INT32_MAX}),
+                            int_test({"-2147483648", (INT32_MIN)})));
 
 struct int_binary_test {
   const char* code;
@@ -181,11 +181,11 @@ TEST_P(jit_binary_arithmetic, simple_operations) {
 }
 
 INSTANTIATE_TEST_CASE_P(int_arithmetic_tests, jit_binary_arithmetic,
-    ::testing::ValuesIn(
-        std::vector<int_binary_test>({{"1 + 2", 3}, {"2 * -3", -6},
-            {"10 % 4", 2}, {"-32 + 9", -23}, {"16 / 4", 4}, {"16 / 5", 3},
-            {"16 / 4 + 3", 7}, {"32 * 6 - 7", 185}, {"32 * (6 - 7)", -32},
-            {"191 + 10 * -3", 161}, {"100 + 396 * -1", -296}})));
+    ::testing::ValuesIn(std::vector<int_binary_test>(
+        {{"1 + 2", 3}, {"2 * -3", -6}, {"10 % 4", 2}, {"-32 + 9", -23},
+            {"16 / 4", 4}, {"16 / 5", 3}, {"16 / 4 + 3", 7},
+            {"32 * 6 - 7", 185}, {"32 * (6 - 7)", -32}, {"191 + 10 * -3", 161},
+            {"100 + 396 * -1", -296}})));
 
 struct boolean_test {
   const char* code;
@@ -256,9 +256,9 @@ TEST_P(two_params_tests, int_in_out_tests) {
   wn::scripting::script_function<int32_t, int32_t, int32_t> new_func;
   ASSERT_TRUE(jit_engine.get_function("main", new_func));
   for (auto& test_case : GetParam().cases) {
-    EXPECT_EQ(test_case.second,
-        jit_engine.invoke(
-            new_func, test_case.first.first, test_case.first.second));
+    EXPECT_EQ(
+        test_case.second, jit_engine.invoke(new_func, test_case.first.first,
+                              test_case.first.second));
   }
 }
 
@@ -554,6 +554,15 @@ INSTANTIATE_TEST_CASE_P(
     ::testing::ValuesIn(std::vector<integer_test>({
       {"Int main(Int x) { Int[] y = Int[10](0); return y[x]; }",
       {{0, 0}, {3, 0}, {9, 0}}},
+})));
+
+
+INSTANTIATE_TEST_CASE_P(
+  array_of_structs, integer_tests,
+  ::testing::ValuesIn(std::vector<integer_test>({
+    { "struct Foo { Int x = 4; }"
+      "Int main(Int x) { Foo[] y = Foo[10](Foo()); return y[x].x; }",
+    { { 0, 4 },{ 3, 4 },{ 9, 4 } } },
 })));
 
 // clang-format on

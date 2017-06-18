@@ -5,7 +5,10 @@
 #ifndef __WN_SCRIPTING_JIT_GENERATOR_H__
 #define __WN_SCRIPTING_JIT_GENERATOR_H__
 
+// Include LLVM before anything else, they re-define stuff
+// that is in the windows headers.
 #include <llvm/IR/DataLayout.h>
+
 #include "WNContainers/inc/WNContiguousRange.h"
 #include "WNContainers/inc/WNDeque.h"
 #include "WNContainers/inc/WNDynamicArray.h"

@@ -269,12 +269,14 @@ void ast_jit_engine::walk_expression(
 
   containers::dynamic_array<llvm::Value*> indices(m_allocator);
 
+  bool do_load = true;
   switch (_access->get_base_expression()->get_type()->get_reference_type()) {
     case reference_type::unique:
     case reference_type::self:
       indices.push_back(llvm::ConstantInt::get(int32_type, 0));
       if (_access->is_construction()) {
         indices.push_back(llvm::ConstantInt::get(int32_type, 2));
+        do_load = false;
       } else {
         indices.push_back(llvm::ConstantInt::get(int32_type, 1));
       }
@@ -286,10 +288,15 @@ void ast_jit_engine::walk_expression(
   indices.push_back(index_expr.value);
   llvm::Instruction* inst = llvm::GetElementPtrInst::CreateInBounds(
       root_expr.value, make_array_ref(indices));
-  llvm::Instruction* l = new llvm::LoadInst(inst, "");
-  _val->instructions.push_back(inst);
-  _val->instructions.push_back(l);
-  _val->value = l;
+  if (do_load) {
+    llvm::Instruction* l = new llvm::LoadInst(inst, "");
+    _val->instructions.push_back(inst);
+    _val->instructions.push_back(l);
+    _val->value = l;
+  } else {
+    _val->instructions.push_back(inst);
+    _val->value = inst;
+  }
 }
 
 void ast_jit_engine::walk_instruction(
@@ -779,13 +786,18 @@ void ast_jit_engine::walk_instruction(
       m_generator->get_data(_inst->get_lvalue()->get_expression());
   llvm::LoadInst* inst =
       llvm::dyn_cast<llvm::LoadInst>(location_dat.instructions.back());
+  llvm::GetElementPtrInst* gep =
+      llvm::dyn_cast<llvm::GetElementPtrInst>(location_dat.instructions.back());
   WN_RELEASE_ASSERT_DESC(
-      inst, "Last instruction in lvalue is expected to be a LoadInst");
+      inst || gep, "Last instruction in lvalue is expected to be a LoadInst");
+  llvm::Value* target = location_dat.instructions.back();
+  if (inst) {
+    target = inst->getPointerOperand();
+    location_dat.instructions.pop_back();
 
-  location_dat.instructions.pop_back();
-  llvm::Value* target = inst->getPointerOperand();
-  // We need to store instead of load to this instruction.
-  delete inst;
+    // We need to store instead of load to this instruction.
+    delete inst;
+  }
 
   location_dat.instructions.push_back(
       new llvm::StoreInst(store_dat.value, target));
