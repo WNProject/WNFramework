@@ -131,6 +131,104 @@ WN_INLINE void handle_instruction(const walk_mutable_instruction& function,
   }
 }
 
+struct print_context {
+  print_context(memory::allocator* _allocator, logging::log* _log,
+      logging::log_level _level, const containers::string_view _prefix)
+    : m_prefix(_prefix.to_string(_allocator)),
+      m_allocator(_allocator),
+      m_level(_level),
+      m_log(_log) {}
+  using node_type = const node*;
+  containers::string m_prefix;
+  memory::allocator* m_allocator;
+  logging::log_level m_level;
+  logging::log* m_log;
+  bool ignore_next_prefix = false;
+
+  void enter_log_scope() {
+    ignore_next_prefix = false;
+    m_prefix.insert(0, "|   ");
+  }
+  void leave_log_scope() {
+    m_prefix = m_prefix.substr(0, m_prefix.size() - 4);
+    ignore_next_prefix = false;
+  }
+  void print_prefix() {
+    if (ignore_next_prefix) {
+      ignore_next_prefix = false;
+    } else {
+      m_log->log_params(m_level,
+          static_cast<size_t>(logging::log_flags::no_newline), m_prefix);
+    }
+  }
+  template <typename... Args>
+  void print_line(const Args&... args) {
+    print_prefix();
+    m_log->log_params(
+        m_level, static_cast<size_t>(logging::log_flags::no_header), args...);
+  }
+
+  template <typename... Args>
+  void print_header(const Args&... args) {
+    if (ignore_next_prefix) {
+      m_log->log_params(
+          m_level, static_cast<size_t>(logging::log_flags::no_header), args...);
+    } else {
+      m_log->log_params(m_level, 0, m_prefix, args...);
+    }
+
+    ignore_next_prefix = false;
+  }
+  template <typename... Args, typename V>
+  void print_value(const V& value, const Args&... name) {
+    print_line("|-", name..., " = ", value);
+  }
+  template <typename... Args>
+  void print_value(const containers::string& value, const Args&... name) {
+    if (value.empty()) {
+      print_line("|-", name..., " = \"\"");
+    } else {
+      print_line("|-", name..., " = ", value);
+    }
+  }
+  template <typename... Args>
+  void print_value(const node_type& value, const Args&... name);
+
+  template <typename... Args, typename T>
+  void print_value(const memory::unique_ptr<T>& value, const Args&... name) {
+    return print_value(static_cast<const node*>(value.get()), name...);
+  }
+
+  template <typename... Args, typename T>
+  void print_value(
+      const containers::dynamic_array<T>& value, const Args&... name) {
+    if (value.empty()) {
+      print_line("|-", name..., " = <EMPTY>");
+    } else {
+      print_line("|-", name..., " = ");
+      enter_log_scope();
+      for (size_t i = 0; i < value.size(); ++i) {
+        print_value(value[i], "|-[", i, "]");
+      }
+      leave_log_scope();
+    }
+  }
+
+  template <typename... Args, typename T>
+  void print_value(const containers::deque<T>& value, const Args&... name) {
+    if (value.empty()) {
+      print_line("|-", name..., " = <EMPTY>");
+    } else {
+      print_line("|-", name..., " = ");
+      enter_log_scope();
+      for (size_t i = 0; i < value.size(); ++i) {
+        print_value(value[i], "|-{", i, "}");
+      }
+      leave_log_scope();
+    }
+  }
+};
+
 // Base class for all nodes in AST.
 class node {
 public:
@@ -189,6 +287,13 @@ public:
 
   virtual memory::unique_ptr<node> clone() const = 0;
 
+  void print_node(memory::allocator* _allocator, logging::log* _log,
+      logging::log_level _level, const containers::string_view _prefix) const {
+    print_context c(_allocator, _log, _level, _prefix);
+    return print_node_internal(&c);
+  }
+  virtual void print_node_internal(print_context*) const {}
+
 protected:
   void copy_node(const node* _other) {
     copy_location_from(_other);
@@ -202,6 +307,30 @@ protected:
   node_type m_type;
   bool m_is_dead;
 };
+
+template <typename... Args>
+void print_context::print_value(
+    const print_context::node_type& value, const Args&... name) {
+  if (!ignore_next_prefix) {
+    m_log->log_params(m_level,
+        static_cast<size_t>(logging::log_flags::no_newline), m_prefix, "|-",
+        name..., " = [", value, "]");
+  } else {
+    m_log->log_params(m_level,
+        static_cast<size_t>(logging::log_flags::no_newline) |
+            static_cast<size_t>(logging::log_flags::no_header),
+        "|-", name..., " = [", value, "]");
+  }
+
+  enter_log_scope();
+  ignore_next_prefix = true;
+  if (value) {
+    value->print_node_internal(this);
+  } else {
+    print_line("<NULL>");
+  }
+  leave_log_scope();
+}
 
 class type : public node {
 public:
@@ -257,7 +386,7 @@ public:
   void set_reference_type(reference_type _reference_type) {
     // If we adjust the reference type, then we have to
     // adjust the type id as well.
-    if (m_type) {
+    if (m_type != static_cast<uint32_t>(type_classification::array_type)) {
       m_type += (static_cast<int32_t>(_reference_type) -
                  static_cast<int32_t>(m_reference_type));
     }
@@ -274,6 +403,10 @@ public:
 
   uint32_t get_type_value() const {
     return static_cast<uint32_t>(m_type);
+  }
+
+  uint32_t get_unreferenced_type() const {
+    return m_type - (static_cast<uint32_t>(m_reference_type));
   }
 
   uint32_t get_index() const {
@@ -298,6 +431,13 @@ public:
   virtual void walk_children(const walk_ftype<type*>&) {}
 
   virtual void walk_children(const walk_ftype<const type*>&) const {}
+
+  void print_node_internal(print_context* c) const override {
+    c->print_header("Type");
+    c->print_value(m_custom_type, "Custom Name");
+    c->print_value(m_type, "Numeric Type");
+    c->print_value(m_reference_type, "Reference Type");
+  }
 
 protected:
   void copy_type(const type* _other) {
@@ -367,6 +507,11 @@ public:
     _type(m_subtype.get());
   }
 
+  void print_node_internal(print_context* c) const override {
+    c->print_header("Array");
+    c->print_value(m_subtype, "SubType");
+  }
+
 private:
   memory::unique_ptr<type> m_subtype;
 };
@@ -427,6 +572,12 @@ public:
     m_array_sizes.clear();
     m_array_sizes.insert(m_array_sizes.begin(), _other->m_array_sizes.begin(),
         _other->m_array_sizes.end());
+  }
+
+  void print_node_internal(print_context* c) const override {
+    c->print_header("SizedArray");
+    c->print_value(m_array_sizes, "NumElements");
+    c->print_value(m_subtype, "Subtype");
   }
 
 private:
@@ -616,6 +767,14 @@ public:
     _type(m_type.get());
   }
 
+  void print_node_internal(print_context* c) const override {
+    c->print_header("Array Initializer");
+    c->print_value(m_type, "Type");
+    c->print_value(m_array_initializers, "Initializers");
+    c->print_value(m_static_array_initializers, "Static Initializers");
+    c->print_value(m_copy_initializer, "Copy Initializer");
+  }
+
 private:
   containers::deque<memory::unique_ptr<expression>> m_array_initializers;
   containers::dynamic_array<uint32_t> m_static_array_initializers;
@@ -693,6 +852,14 @@ public:
     _func(m_rhs.get());
   }
 
+  void print_node_internal(print_context* c) const override {
+    c->print_header("Binary Expression");
+    c->print_value(m_type, "Type");
+    c->print_value(m_arith_type, "ArithType");
+    c->print_value(m_lhs, "LHS");
+    c->print_value(m_rhs, "RHS");
+  }
+
 private:
   arithmetic_type m_arith_type;
   memory::unique_ptr<expression> m_lhs;
@@ -734,6 +901,14 @@ public:
     t->m_rhs = clone_node(m_rhs);
 
     return core::move(t);
+  }
+
+  void print_node_internal(print_context* c) const override {
+    c->print_header("Conditional Expression");
+    c->print_value(m_type, "Type");
+    c->print_value(m_condition, "Condition");
+    c->print_value(m_lhs, "LHS");
+    c->print_value(m_rhs, "RHS");
   }
 
 private:
@@ -795,6 +970,13 @@ public:
     t->m_text = containers::string(m_allocator, m_text);
 
     return core::move(t);
+  }
+
+  void print_node_internal(print_context* c) const override {
+    c->print_header("Constant");
+    c->print_value(m_type, "Type");
+    c->print_value(m_type_classification, "Classification");
+    c->print_value(m_text, "Value");
   }
 
 private:
@@ -888,6 +1070,13 @@ public:
     return m_types;
   }
 
+  virtual void print_node_internal(print_context* c) const {
+    c->print_header("Function Pointer");
+    c->print_value(m_name, "Function");
+    c->print_value(m_type, "Type");
+    c->print_value(m_types, "Types");
+  }
+
 private:
   function* m_source;
   containers::deque<memory::unique_ptr<type>> m_types;
@@ -979,6 +1168,12 @@ public:
     }
   }
 
+  void print_node_internal(print_context* c) const override {
+    c->print_header("Id Expression");
+    c->print_value(m_type, "Type");
+    c->print_value(m_name, "Value");
+  }
+
 private:
   id_source m_source;
   containers::string m_name;
@@ -1004,6 +1199,10 @@ public:
             m_allocator, m_allocator);
     t->copy_expression(this);
     return core::move(t);
+  }
+  void print_node_internal(print_context* c) const override {
+    c->print_header("Null Allocation");
+    c->print_value(m_type, "Type");
   }
 
 private:
@@ -1106,6 +1305,13 @@ public:
     m_is_construction = true;
   }
 
+  void print_node_internal(print_context* c) const override {
+    c->print_header("Array Access");
+    c->print_value(m_type, "Type");
+    c->print_value(m_base_expression, "Base Expression");
+    c->print_value(m_array_access, "Expression");
+  }
+
 private:
   memory::unique_ptr<expression> m_array_access;
   bool m_is_construction;
@@ -1177,6 +1383,13 @@ public:
     t->m_rhs = clone_node(m_rhs);
     return core::move(t);
   }
+  void print_node_internal(print_context* c) const override {
+    c->print_header("Short Circuit");
+    c->print_value(m_type, "Type");
+    c->print_value(m_ss_type, "Short-Circuit Type");
+    c->print_value(m_lhs, "LHS");
+    c->print_value(m_rhs, "RHS");
+  }
 
 private:
   short_circuit_type m_ss_type;
@@ -1221,6 +1434,13 @@ public:
     return core::move(t);
   }
 
+  void print_node_internal(print_context* c) const override {
+    c->print_header("Member Access");
+    c->print_value(m_type, "Type");
+    c->print_value(m_member, "Value");
+    c->print_value(m_base_expression, "Base Expression");
+  }
+
 private:
   containers::string m_member;
 };
@@ -1251,6 +1471,13 @@ public:
     t->copy_post_expression(this);
     t->m_unary_type = m_unary_type;
     return core::move(t);
+  }
+
+  void print_node_internal(print_context* c) const override {
+    c->print_header("Post Unary Expression");
+    c->print_value(m_type, "Type");
+    c->print_value(m_unary_type, "Unary Type");
+    c->print_value(m_base_expression, "Base Expression");
   }
 
 private:
@@ -1311,6 +1538,12 @@ public:
     return core::move(t);
   }
 
+  void print_node_internal(print_context* c) const override {
+    c->print_header("Cast");
+    c->print_value(m_type, "Type");
+    c->print_value(m_expression, "Expression");
+  }
+
 private:
   memory::unique_ptr<expression> m_expression;
 };
@@ -1361,6 +1594,12 @@ public:
     t->copy_expression(this);
     t->m_sized_type = clone_node(m_sized_type);
     return core::move(t);
+  }
+
+  void print_node_internal(print_context* c) const override {
+    c->print_header("Size Of");
+    c->print_value(m_type, "Type");
+    c->print_value(m_sized_type, "Sized Type");
   }
 
 private:
@@ -1440,6 +1679,14 @@ public:
     return core::move(t);
   }
 
+  void print_node_internal(print_context* c) const override {
+    c->print_header("Struct Allocation");
+    c->print_value(m_type, "Type");
+    c->print_value(m_init_mode, "Init Mode");
+    c->print_value(m_copy_initializer, "Copy Initializer");
+    c->print_value(m_data_source, "Data Source");
+  }
+
 private:
   memory::unique_ptr<expression> m_copy_initializer;
   memory::unique_ptr<expression> m_data_source;
@@ -1476,6 +1723,13 @@ public:
     t->m_root_expression = clone_node(m_root_expression);
     t->m_unary_type = m_unary_type;
     return core::move(t);
+  }
+
+  void print_node_internal(print_context* c) const override {
+    c->print_header("Unary Expression");
+    c->print_value(m_type, "Type");
+    c->print_value(m_unary_type, "Unary Type");
+    c->print_value(m_root_expression, "Root Expression");
   }
 
 private:
@@ -1625,6 +1879,11 @@ struct expression_instruction : public instruction {
     return core::move(t);
   }
 
+  void print_node_internal(print_context* c) const override {
+    c->print_header("Expression Instruction");
+    c->print_value(m_expression, "Expression");
+  }
+
 private:
   memory::unique_ptr<expression> m_expression;
 };
@@ -1717,6 +1976,11 @@ public:
     return core::move(t);
   }
 
+  void print_node_internal(print_context* c) const override {
+    c->print_header("InstructionList<", m_instructions.size(), ">");
+    c->print_value(m_instructions, "Instructions");
+  }
+
 private:
   containers::deque<memory::unique_ptr<instruction>> m_instructions;
 };
@@ -1767,6 +2031,15 @@ public:
           m_allocator, clone_node(expr->m_expr), expr->m_hand_ownership));
     }
     return core::move(t);
+  }
+
+  void print_node_internal(print_context* c) const override {
+    c->print_header("Args");
+    c->enter_log_scope();
+    for (auto& e : m_expression_list) {
+      e->m_expr->print_node_internal(c);
+    }
+    c->leave_log_scope();
   }
 
 private:
@@ -1867,6 +2140,13 @@ public:
     return core::move(t);
   }
 
+  void print_node_internal(print_context* c) const override {
+    c->print_header("Function Call");
+    c->print_value(m_type, "Type");
+    c->print_value(m_base_expression, "BaseExpression");
+    c->print_value(m_args, "Args");
+  }
+
 private:
   function* m_callee;
   memory::unique_ptr<arg_list> m_args;
@@ -1920,6 +2200,11 @@ public:
     t->m_name = containers::string(m_allocator, m_name);
     t->m_type = clone_node(m_type);
     return core::move(t);
+  }
+
+  void print_node_internal(print_context* c) const override {
+    c->print_header(m_name);
+    c->print_value(m_type, "Type");
   }
 
 private:
@@ -2016,6 +2301,12 @@ public:
     return core::move(t);
   }
 
+  void print_node_internal(print_context* c) const override {
+    c->print_header("Declaration:");
+    c->print_value(m_parameter, "Parameter");
+    c->print_value(m_expression, "Expression");
+  }
+
 private:
   memory::unique_ptr<parameter> m_parameter;
   memory::unique_ptr<expression> m_expression;
@@ -2031,6 +2322,7 @@ public:
       m_name(_allocator, _name),
       m_parent_name(_allocator),
       m_is_class(_is_class),
+      m_type_index(0),
       m_struct_members(_allocator),
       m_struct_functions(_allocator) {
     if (_parent_type) {
@@ -2051,6 +2343,14 @@ public:
   void add_function(function* _func) {
     m_struct_functions.emplace_back(
         memory::unique_ptr<function>(m_allocator, _func));
+  }
+
+  void set_type_index(uint32_t _index) {
+    m_type_index = _index;
+  }
+
+  uint32_t get_type_index() const {
+    return m_type_index;
   }
 
   containers::string_view get_name() const {
@@ -2095,13 +2395,22 @@ public:
     for (auto& function : m_struct_functions) {
       t->m_struct_functions.push_back(clone_node(function));
     }
+    t->m_type_index = m_type_index;
     return core::move(t);
+  }
+
+  void print_node_internal(print_context* c) const override {
+    c->print_header(
+        "Struct [", m_name, "]", "(", m_type_index, ")", ":", m_parent_name);
+    c->print_value(m_struct_members, "Struct Members");
+    c->print_value(m_struct_functions, "Struct functions");
   }
 
 private:
   containers::string m_name;
   containers::string m_parent_name;
   bool m_is_class;
+  uint32_t m_type_index;
   containers::deque<memory::unique_ptr<declaration>> m_struct_members;
   containers::deque<memory::unique_ptr<function>> m_struct_functions;
 };
@@ -2144,6 +2453,11 @@ public:
       t->m_parameters.push_back(clone_node(param));
     }
     return core::move(t);
+  }
+
+  void print_node_internal(print_context* c) const override {
+    c->print_header("Parameter List");
+    c->print_value(m_parameters, "Parameters");
   }
 
 private:
@@ -2271,6 +2585,21 @@ public:
     return core::move(t);
   }
 
+  void print_node_internal(print_context* c) const override {
+    c->print_header("Function");
+    c->print_value(m_mangled_name, "Mangled Name");
+    if (m_this_pointer) {
+      // WE don't use the normal print_value, because this
+      // would result in a circular reference.
+      c->print_value(static_cast<const void*>(m_this_pointer), "This");
+    } else {
+      c->print_value("<NULL>", "This");
+    }
+    c->print_value(m_signature, "Signature");
+    c->print_value(m_parameters, "Parameters");
+    c->print_value(m_body, "Body");
+  }
+
 private:
   memory::unique_ptr<parameter> m_signature;
   memory::unique_ptr<parameter_list> m_parameters;
@@ -2313,6 +2642,10 @@ public:
     t->copy_node(this);
     t->m_expression = clone_node(m_expression);
     return core::move(t);
+  }
+  void print_node_internal(print_context* c) const override {
+    c->print_header("L-Value");
+    c->print_value(m_expression, "Expression");
   }
 
 private:
@@ -2417,6 +2750,13 @@ public:
     return core::move(t);
   }
 
+  void print_node_internal(print_context* c) const override {
+    c->print_header("Assignment");
+    c->print_value(m_assign_type, "Assign Type");
+    c->print_value(m_lvalue, "L-Value");
+    c->print_value(m_assign_expression, "Expression");
+  }
+
 private:
   assign_type m_assign_type;
   memory::unique_ptr<lvalue> m_lvalue;
@@ -2453,6 +2793,11 @@ public:
 
   const do_instruction* get_do_instruction() {
     return m_loop_break;
+  }
+
+  void print_node_internal(print_context* c) const override {
+    c->print_header("Break Instruction");
+    c->print_value(static_cast<const void*>(m_loop_break), "Break Loop");
   }
 
 private:
@@ -2497,6 +2842,12 @@ public:
     e(m_lvalue->get_expression());
   }
 
+  void print_node_internal(print_context* c) const override {
+    c->print_header("Set Array Length");
+    c->print_value(m_expression, "Expression");
+    c->print_value(m_lvalue, "L-Value");
+  }
+
 private:
   memory::unique_ptr<expression> m_expression;
   memory::unique_ptr<lvalue> m_lvalue;
@@ -2530,6 +2881,11 @@ public:
 
   const do_instruction* get_do_instruction() {
     return m_loop_break;
+  }
+
+  void print_node_internal(print_context* c) const override {
+    c->print_header("Continue");
+    c->print_value(static_cast<const void*>(m_loop_break), "Continue Loop");
   }
 
 private:
@@ -2605,6 +2961,12 @@ public:
     return core::move(m_body);
   }
 
+  void print_node_internal(print_context* c) const override {
+    c->print_header("Do Loop");
+    c->print_value(m_condition, "Condition");
+    c->print_value(m_body, "Body");
+  }
+
 private:
   memory::unique_ptr<expression> m_condition;
   memory::unique_ptr<instruction_list> m_body;
@@ -2660,6 +3022,12 @@ public:
     t->m_condition = clone_node(m_condition);
     t->m_body = clone_node(m_body);
     return core::move(t);
+  }
+
+  void print_node_internal(print_context* c) const override {
+    c->print_header("Else If");
+    c->print_value(m_condition, "Condition");
+    c->print_value(m_body, "Body");
   }
 
 private:
@@ -2784,6 +3152,14 @@ public:
     return core::move(t);
   }
 
+  void print_node_internal(print_context* c) const override {
+    c->print_header("If");
+    c->print_value(m_condition, "Condition");
+    c->print_value(m_body, "Body");
+    c->print_value(m_else_if_nodes, "ElseIfs");
+    c->print_value(m_else, "Else");
+  }
+
 private:
   memory::unique_ptr<expression> m_condition;
   memory::unique_ptr<instruction_list> m_else;
@@ -2817,6 +3193,14 @@ public:
     t->m_body = clone_node(m_body);
     t->m_post_op = clone_node(m_post_op);
     return core::move(t);
+  }
+
+  void print_node_internal(print_context* c) const override {
+    c->print_header("For");
+    c->print_value(m_initializer, "Initializer");
+    c->print_value(m_condition, "Condition");
+    c->print_value(m_post_op, "PostOp");
+    c->print_value(m_body, "Body");
   }
 
 private:
@@ -2884,6 +3268,11 @@ public:
     return core::move(t);
   }
 
+  void print_node_internal(print_context* c) const override {
+    c->print_header("Return");
+    c->print_value(m_expression, "Value");
+  }
+
 private:
   memory::unique_ptr<expression> m_expression;
   bool m_change_ownership;
@@ -2907,6 +3296,12 @@ public:
     t->m_condition = clone_node(m_condition);
     t->m_body = clone_node(m_body);
     return core::move(t);
+  }
+
+  void print_node_internal(print_context* c) const override {
+    c->print_header("While");
+    c->print_value(m_condition, "Condition");
+    c->print_value(m_body, "Body");
   }
 
 private:
@@ -2960,6 +3355,16 @@ public:
       const {
     return m_structs;
   }
+
+  containers::deque<memory::unique_ptr<struct_definition>> take_structs() {
+    return core::move(m_structs);
+  }
+
+  void put_structs(
+      containers::deque<memory::unique_ptr<struct_definition>> structs) {
+    m_structs = core::move(structs);
+  }
+
   const containers::deque<containers::string>& get_includes() const {
     return m_includes;
   }
@@ -3022,6 +3427,14 @@ public:
       t->m_includes.push_back(containers::string(m_allocator, include));
     }
     return core::move(t);
+  }
+
+  virtual void print_node_internal(print_context* c) const override {
+    c->print_header("Script File");
+    c->print_value(m_includes, "Includes");
+    c->print_value(m_external_functions, "External Functions");
+    c->print_value(m_functions, "Functions");
+    c->print_value(m_structs, "Structs");
   }
 
 private:
