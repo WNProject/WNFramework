@@ -5,6 +5,7 @@
 #ifndef __WN_LOGGING_DEFAULT_LOG_TYPES_INL__
 #define __WN_LOGGING_DEFAULT_LOG_TYPES_INL__
 
+#include "WNContainers/inc/WNDynamicArray.h"
 #include "WNContainers/inc/WNStringView.h"
 #include "WNCore/inc/WNTypes.h"
 #include "WNMemory/inc/WNStringUtility.h"
@@ -43,7 +44,7 @@ namespace logging {
 
 #ifdef _WN_WINDOWS
 template <typename T>
-struct _enc_wn_char{};
+struct _enc_wn_char {};
 template <>
 struct _enc_wn_char<char> {
   static const char* get_val() {
@@ -103,7 +104,7 @@ struct log_type_helper<const char*, BuffType> {
 template <size_t N, typename BuffType>
 struct log_type_helper<char[N], BuffType> {
   WN_FORCE_INLINE static bool do_log(
-      const char(&_0)[N], BuffType* _buffer, size_t& _buffer_left) {
+      const char (&_0)[N], BuffType* _buffer, size_t& _buffer_left) {
     int printed = wn::memory::snprintf(
         _buffer, _buffer_left, _enc_wn_char<BuffType>::get_val(), _0);
     if (printed < 0 || static_cast<size_t>(printed) >= _buffer_left) {
@@ -128,6 +129,54 @@ struct log_type_helper<wn::containers::string_view, BuffType> {
   }
 };
 
+template <typename BuffType>
+struct log_type_helper<wn::containers::string, BuffType> {
+  WN_FORCE_INLINE static bool do_log(const wn::containers::string& _0,
+      BuffType* _buffer, size_t& _buffer_left) {
+    int printed = wn::memory::snprintf(
+        _buffer, _buffer_left, "%.*s", (uint32_t)_0.size(), (void*)_0.data());
+    if (printed < 0 || static_cast<size_t>(printed) >= _buffer_left) {
+      return (false);
+    }
+    _buffer_left -= printed;
+    return (true);
+  }
+};
+
+template <typename T, size_t N, typename BuffType>
+struct log_type_helper<wn::containers::dynamic_array<T, N>, BuffType> {
+  WN_FORCE_INLINE static bool do_log(
+      const wn::containers::dynamic_array<T, N>& _0, BuffType* _buffer,
+      size_t& _buffer_left) {
+    size_t last_buffer_left = _buffer_left;
+    if (!log_type_helper<char[2], BuffType>::do_log(
+            "[", _buffer, last_buffer_left)) {
+      return false;
+    }
+
+    for (size_t i = 0; i < _0.size(); ++i) {
+      if (i != 0) {
+        if (!log_type_helper<char[3], BuffType>::do_log(
+                ", ", _buffer, last_buffer_left)) {
+          return false;
+        }
+      }
+      if (!log_type_helper<T, BuffType>::do_log(_0[i],
+              _buffer + (_buffer_left - last_buffer_left), last_buffer_left)) {
+        return false;
+      }
+    }
+
+    if (!log_type_helper<char[2], BuffType>::do_log("]",
+            _buffer + (_buffer_left - last_buffer_left), last_buffer_left)) {
+      return false;
+    }
+
+    _buffer_left = last_buffer_left;
+    return (true);
+  }
+};
+
 DEFINE_DEFAULT_LOG(int32_t, "%d");
 DEFINE_DEFAULT_LOG(uint32_t, "%d");
 #ifdef _WN_WINDOWS
@@ -138,7 +187,7 @@ DEFINE_DEFAULT_LOG(int64_t, "%lld");
 DEFINE_DEFAULT_LOG(uint64_t, "%llu");
 #endif
 
-} // namespace logging
-} // namespace wn
+}  // namespace logging
+}  // namespace wn
 
 #endif  // __WN_LOGGING_DEFAULT_LOG_TYPES_INL__

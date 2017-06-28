@@ -193,6 +193,10 @@ private:
   color_element m_color_elements[BUFFER_SIZE];
 };
 
+#ifdef WN_ALLOW_TESTING_LOG
+log* GetTestingLog();
+#endif
+
 }  // namespace logging
 }  // namespace wn
 
