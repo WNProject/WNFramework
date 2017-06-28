@@ -145,6 +145,7 @@ add_wn_library(WNScripting
     lang/WNScriptAST.g
   LIBS
     WNFileSystem
+    WNLogging
     ${WNScriptingLLVMLibs}
   INCLUDES
     ${CMAKE_SOURCE_DIR}/Externals/antlr

@@ -233,7 +233,11 @@ struct print_context {
 class node {
 public:
   node(memory::allocator* _allocator, node_type _type)
-    : m_allocator(_allocator), m_type(_type), m_is_dead(false) {}
+    : m_allocator(_allocator), m_type(_type), m_is_dead(false) {
+#ifdef WN_ALLOW_TESTING_LOG
+    __f = &node::print_node;
+#endif
+  }
   virtual ~node() {}
 
   void copy_location_from(const node* _node) {
@@ -287,9 +291,8 @@ public:
 
   virtual memory::unique_ptr<node> clone() const = 0;
 
-  void print_node(memory::allocator* _allocator, logging::log* _log,
-      logging::log_level _level, const containers::string_view _prefix) const {
-    print_context c(_allocator, _log, _level, _prefix);
+  void print_node(logging::log* _log, logging::log_level _level) const {
+    print_context c(m_allocator, _log, _level, "");
     return print_node_internal(&c);
   }
   virtual void print_node_internal(print_context*) const {}
@@ -306,6 +309,11 @@ protected:
   memory::allocator* m_allocator;
   node_type m_type;
   bool m_is_dead;
+#ifdef WN_ALLOW_TESTING_LOG
+  // Force the print_node functions to not go away if
+  // test logging is turned on.
+  void (wn::scripting::node::*__f)(logging::log*, logging::log_level) const;
+#endif
 };
 
 template <typename... Args>
