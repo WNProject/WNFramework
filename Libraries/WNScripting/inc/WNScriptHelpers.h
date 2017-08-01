@@ -27,8 +27,8 @@ struct external_function {
 memory::unique_ptr<script_file> parse_script(memory::allocator* _allocator,
     scripting::type_validator* _validator, const char* file_name,
     const containers::contiguous_range<external_function>& _external_functions,
-    containers::string_view view, logging::log* _log, size_t* _num_warnings,
-    size_t* _num_errors);
+    containers::string_view view, bool _print_ast_on_failure,
+    logging::log* _log, size_t* _num_warnings, size_t* _num_errors);
 }  // namespace scripting
 }  // namespace wn
 

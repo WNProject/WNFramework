@@ -94,6 +94,9 @@ bool run_if_reassociation_pass(script_file* _file, logging::log* _log,
 bool run_array_determination_pass(script_file* _file, logging::log* _log,
     type_validator* _validator, size_t* _num_warnings, size_t* _num_errors);
 
+bool run_symbol_resolution_pass(script_file* _File, logging::log* _log,
+    type_validator* _validator, size_t* _num_warnings, size_t* _num_errors);
+
 // TODO(awoloszyn): Constant folding pass.
 
 }  // namespace scripting

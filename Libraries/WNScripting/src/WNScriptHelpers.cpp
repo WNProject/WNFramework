@@ -4,6 +4,7 @@
 
 #include "WNScripting/inc/WNScriptHelpers.h"
 #include "WNContainers/inc/WNStringView.h"
+#include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNMemory/inc/WNUniquePtr.h"
 #include "WNScripting/inc/WNASTPasses.h"
@@ -61,8 +62,8 @@ memory::unique_ptr<function> create_external_function(
 memory::unique_ptr<script_file> parse_script(memory::allocator* _allocator,
     scripting::type_validator* _validator, const char* file_name,
     const containers::contiguous_range<external_function>& _external_functions,
-    containers::string_view view, logging::log* _log, size_t* _num_warnings,
-    size_t* _num_errors) {
+    containers::string_view view, bool _dump_ast_on_failure, logging::log* _log,
+    size_t* _num_warnings, size_t* _num_errors) {
   memory::unique_ptr<script_file> ptr;
   {
     WNScriptASTLexer::InputStreamType input(
@@ -82,6 +83,9 @@ memory::unique_ptr<script_file> parse_script(memory::allocator* _allocator,
       if (_num_errors) {
         _num_errors += parser.getNumberOfSyntaxErrors();
       }
+      if (_dump_ast_on_failure) {
+        ptr->print_node(_log, wn::logging::log_level::error);
+      }
       return nullptr;
     }
 
@@ -90,36 +94,66 @@ memory::unique_ptr<script_file> parse_script(memory::allocator* _allocator,
           create_external_function(_allocator, _validator, view, func));
     }
 
+    if (!run_symbol_resolution_pass(
+            ptr.get(), _log, _validator, _num_warnings, _num_errors)) {
+      if (_dump_ast_on_failure) {
+        ptr->print_node(_log, wn::logging::log_level::error);
+      }
+      return nullptr;
+    }
+
     if (!run_dce_pass(
             ptr.get(), _log, _validator, _num_warnings, _num_errors)) {
+      if (_dump_ast_on_failure) {
+        ptr->print_node(_log, wn::logging::log_level::error);
+      }
       return nullptr;
     }
 
     if (!run_array_determination_pass(
             ptr.get(), _log, _validator, _num_warnings, _num_errors)) {
+      if (_dump_ast_on_failure) {
+        ptr->print_node(_log, wn::logging::log_level::error);
+      }
       return nullptr;
     }
 
     if (!run_if_reassociation_pass(
             ptr.get(), _log, _validator, _num_warnings, _num_errors)) {
+      if (_dump_ast_on_failure) {
+        ptr->print_node(_log, wn::logging::log_level::error);
+      }
       return nullptr;
     }
 
     if (!run_member_reassociation_pass(
             ptr.get(), _log, _validator, _num_warnings, _num_errors)) {
+      if (_dump_ast_on_failure) {
+        ptr->print_node(_log, wn::logging::log_level::error);
+      }
       return nullptr;
     }
 
     if (!run_temporary_reification_pass(
             ptr.get(), _log, _validator, _num_warnings, _num_errors)) {
+      if (_dump_ast_on_failure) {
+        ptr->print_node(_log, wn::logging::log_level::error);
+      }
       return nullptr;
     }
     if (!run_id_association_pass(
             ptr.get(), _log, _validator, _num_warnings, _num_errors)) {
+      if (_dump_ast_on_failure) {
+        ptr->print_node(_log, wn::logging::log_level::error);
+      }
       return nullptr;
     }
+
     if (!run_type_association_pass(
             ptr.get(), _log, _validator, _num_warnings, _num_errors)) {
+      if (_dump_ast_on_failure) {
+        ptr->print_node(_log, wn::logging::log_level::error);
+      }
       return nullptr;
     }
   }

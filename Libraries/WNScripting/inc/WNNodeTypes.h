@@ -517,6 +517,7 @@ public:
 
   void print_node_internal(print_context* c) const override {
     c->print_header("Array");
+    c->print_value(m_type, "Type Value");
     c->print_value(m_subtype, "SubType");
   }
 
@@ -534,6 +535,11 @@ public:
   void set_array_sizes(const containers::dynamic_array<uint32_t>& _size) {
     m_array_sizes.clear();
     m_array_sizes.insert(m_array_sizes.begin(), _size.begin(), _size.end());
+  }
+
+  void set_array_sizes(containers::dynamic_array<uint32_t>&& _size) {
+    m_array_sizes.clear();
+    m_array_sizes = core::move(_size);
   }
 
   void add_array_size(uint32_t size) {
@@ -585,6 +591,7 @@ public:
   void print_node_internal(print_context* c) const override {
     c->print_header("SizedArray");
     c->print_value(m_array_sizes, "NumElements");
+    c->print_value(m_type, "Type Value");
     c->print_value(m_subtype, "Subtype");
   }
 
@@ -645,6 +652,14 @@ public:
     m_is_temporary = _temporary;
   }
 
+  void set_destructor_name(const containers::string_view& _destructor_name) {
+    m_destructor_name = containers::string(m_allocator, _destructor_name);
+  }
+
+  virtual const containers::string_view destructor_name() const {
+    return m_destructor_name;
+  }
+
 protected:
   void copy_expression(const expression* _other) {
     copy_node(_other);
@@ -654,6 +669,7 @@ protected:
 
   memory::unique_ptr<type> m_type;
   bool m_is_temporary;
+  containers::string m_destructor_name;
 };
 
 enum class struct_initialization_mode {
@@ -788,6 +804,7 @@ private:
   containers::dynamic_array<uint32_t> m_static_array_initializers;
   memory::unique_ptr<expression> m_copy_initializer;
   containers::string m_constructor_name;
+  containers::string m_destructor_name;
   struct_initialization_mode m_init_mode;
   size_t m_levels;
 };
@@ -1519,6 +1536,10 @@ public:
       const walk_ftype<type*>& _type) override {
     handle_expression(_expr, m_expression);
     _type(m_type.get());
+  }
+
+  virtual const containers::string_view destructor_name() const {
+    return m_expression->destructor_name();
   }
 
   virtual void walk_children(const walk_ftype<const expression*>& _expr,
@@ -2682,6 +2703,10 @@ public:
 
   void add_value(assign_type _type, memory::unique_ptr<expression>&& _value) {
     m_assign_type = _type;
+    m_assign_expression = core::move(_value);
+  }
+
+  void set_value(memory::unique_ptr<expression>&& _value) {
     m_assign_expression = core::move(_value);
   }
 

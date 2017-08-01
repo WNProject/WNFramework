@@ -53,6 +53,7 @@ void ast_c_translator::walk_type(
     case reference_type::self:
     case reference_type::unique:
     case reference_type::shared:
+    case reference_type::construction:
       _str->append("*");
       break;
     case reference_type::raw:
@@ -85,13 +86,15 @@ void ast_c_translator::walk_type(
   memory::writeuint32(scratch, total_size, sizeof(scratch) - 1);
   *_str += sub_type + " _val[";
   if (_array_type->get_reference_type() == reference_type::raw ||
-      _array_type->get_reference_type() == reference_type::self) {
+      _array_type->get_reference_type() == reference_type::self ||
+      _array_type->get_reference_type() == reference_type::construction) {
     *_str += scratch;
   }
   *_str += "];";
 
   if (_array_type->get_reference_type() == reference_type::raw ||
-      _array_type->get_reference_type() == reference_type::self) {
+      _array_type->get_reference_type() == reference_type::self ||
+      _array_type->get_reference_type() == reference_type::construction) {
     if (_array_type->get_subtype()->get_reference_type() ==
         reference_type::unique) {
       *_str += " ";
@@ -107,6 +110,7 @@ void ast_c_translator::walk_type(
     case reference_type::self:
     case reference_type::unique:
     case reference_type::shared:
+    case reference_type::construction:
       _str->append("*");
       break;
     case reference_type::raw:
@@ -157,6 +161,7 @@ void ast_c_translator::walk_type(const type* _type, containers::string* _str) {
         case reference_type::self:
         case reference_type::unique:
         case reference_type::shared:
+        case reference_type::construction:
           _str->append("*");
           break;
         default:
@@ -270,6 +275,7 @@ void ast_c_translator::walk_expression(const array_access_expression* _access,
   switch (_access->get_base_expression()->get_type()->get_reference_type()) {
     case reference_type::unique:
     case reference_type::self:
+    case reference_type::construction:
       if (_access->is_construction()) {
         containers::string s = _str->second;
         _str->second = containers::string(m_allocator, "&");
@@ -330,22 +336,33 @@ void ast_c_translator::walk_expression(const cast_expression* _cast,
   const auto& dat = m_generator->get_data(_cast->get_expression());
   _str->first.append(dat.first);
 
+  bool needs_ref = false;
+
+  if (_cast->get_type()->get_reference_type() == reference_type::unique &&
+      _cast->get_expression()->get_type()->get_reference_type() ==
+          reference_type::raw) {
+    needs_ref = true;
+  }
+  if (_cast->get_type()->get_reference_type() == reference_type::self &&
+      _cast->get_expression()->get_type()->get_reference_type() ==
+          reference_type::raw) {
+    needs_ref = true;
+  }
+
+  if (_cast->get_type()->get_reference_type() == reference_type::construction &&
+      _cast->get_expression()->get_type()->get_reference_type() ==
+          reference_type::raw) {
+    needs_ref = true;
+  }
+
   if (_cast->get_type()->get_type_value() -
           static_cast<uint32_t>(_cast->get_type()->get_reference_type()) ==
       _cast->get_expression()->get_type()->get_type_value() -
           static_cast<uint32_t>(
               _cast->get_expression()->get_type()->get_reference_type())) {
-    if (_cast->get_type()->get_reference_type() == reference_type::unique &&
-        _cast->get_expression()->get_type()->get_reference_type() ==
-            reference_type::raw) {
+    if (needs_ref) {
       _str->second.append("&");
     }
-    if (_cast->get_type()->get_reference_type() == reference_type::self &&
-        _cast->get_expression()->get_type()->get_reference_type() ==
-            reference_type::raw) {
-      _str->second.append("&");
-    }
-
     // If the types are identical, EXCEPT for the reference type, then
     // we don't have to do anything, it's all the same in C, for now.
     _str->second.append(dat.second);
@@ -355,6 +372,14 @@ void ast_c_translator::walk_expression(const cast_expression* _cast,
   if (_cast->get_expression()->get_type()->get_type_value() ==
           static_cast<uint32_t>(type_classification::void_ptr_type) &&
       _cast->get_type()->get_reference_type() == reference_type::self) {
+    const auto& type_dat = m_generator->get_data(_cast->get_type());
+    _str->second.append("(").append(type_dat).append(")").append(dat.second);
+    return;
+  }
+
+  if (_cast->get_expression()->get_type()->get_type_value() ==
+          static_cast<uint32_t>(type_classification::void_ptr_type) &&
+      _cast->get_type()->get_reference_type() == reference_type::construction) {
     const auto& type_dat = m_generator->get_data(_cast->get_type());
     _str->second.append("(").append(type_dat).append(")").append(dat.second);
     return;
@@ -373,6 +398,26 @@ void ast_c_translator::walk_expression(const cast_expression* _cast,
       _cast->get_type()->get_type_value() ==
           static_cast<uint32_t>(type_classification::void_ptr_type)) {
     _str->second.append("(void*)").append(dat.second);
+    return;
+  }
+
+  if (_cast->get_expression()->get_type()->get_subtype() != nullptr &&
+      *_cast->get_type()->get_subtype() ==
+          *_cast->get_expression()->get_type()->get_subtype()) {
+    // This is a cast operation between 2 array types with the same subtype
+    if (_cast->get_expression()->get_type()->get_node_type() ==
+            node_type::concretized_array_type &&
+        _cast->get_type()->get_node_type() ==
+            node_type::concretized_array_type) {
+      _str->second.append(needs_ref ? "&" : "").append(dat.second);
+    } else {
+      const auto& type_dat = m_generator->get_data(_cast->get_type());
+      _str->second.append("(")
+          .append(type_dat)
+          .append(")")
+          .append(needs_ref ? "&" : "")
+          .append(dat.second);
+    }
     return;
   }
 
@@ -433,6 +478,7 @@ void ast_c_translator::walk_instruction(const set_array_length* _arr_len,
               ->get_reference_type()) {
     case reference_type::unique:
     case reference_type::self:
+    case reference_type::construction:
       _str->second.append("->");
       break;
     case reference_type::raw:

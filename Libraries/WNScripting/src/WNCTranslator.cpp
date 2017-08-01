@@ -24,7 +24,8 @@ c_translator::c_translator(memory::allocator* _allocator,
     m_file_mapping(_mapping),
     m_compilation_log(_log) {}
 
-parse_error c_translator::translate_file(const char* _file) {
+parse_error c_translator::translate_file_with_error(
+    const char* _file, bool _dump_ast_on_failure) {
   file_system::result res;
   file_system::file_ptr file = m_file_mapping->open_file(_file, res);
 
@@ -60,7 +61,7 @@ parse_error c_translator::translate_file(const char* _file) {
       deref_shared_params};
   memory::unique_ptr<script_file> parsed_file = parse_script(m_allocator,
       m_validator, _file, required_functions, file->typed_range<char>(),
-      m_compilation_log, &m_num_warnings, &m_num_errors);
+      _dump_ast_on_failure, m_compilation_log, &m_num_warnings, &m_num_errors);
 
   if (parsed_file == nullptr) {
     return scripting::parse_error::parse_failed;

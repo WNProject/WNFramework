@@ -12,6 +12,15 @@
 #include "WNScripting/inc/WNJITEngine.h"
 #include "WNScripting/test/inc/Common.h"
 
+void flush_buffer(void* v, const char* bytes, size_t length,
+    const wn::logging::color_element*, size_t) {
+  wn::containers::string* s = static_cast<wn::containers::string*>(v);
+  s->append(bytes, length);
+}
+
+using buffer_logger = wn::logging::buffer_logger<flush_buffer>;
+using log_buff = wn::containers::string;
+
 TEST(jit_engine, creation) {
   wn::testing::allocator allocator;
   wn::scripting::type_validator validator(&allocator);
@@ -27,6 +36,10 @@ TEST(jit_engine, basic_parsing) {
   wn::testing::allocator allocator;
   wn::scripting::type_validator validator(&allocator);
 
+  log_buff buff(&allocator);
+  buffer_logger logger(&buff);
+  wn::logging::static_log<> log(&logger);
+
   wn::file_system::mapping_ptr mapping =
       wn::file_system::factory().make_mapping(
           &allocator, wn::file_system::mapping_type::memory_backed);
@@ -36,16 +49,18 @@ TEST(jit_engine, basic_parsing) {
                                                     "Void foo() { return; } \n"
                                                     "Void bar() { return; }"}});
   wn::scripting::jit_engine jit_engine(
-      &allocator, &validator, mapping.get(), wn::logging::get_null_logger());
-  EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file.wns"));
-  EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file2.wns"));
+      &allocator, &validator, mapping.get(), log.log());
+  EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file.wns"))
+      << (log.log()->flush(), buff.c_str());
+  EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file2.wns"))
+      << (log.log()->flush(), buff.c_str());
 
   wn::scripting::engine::void_func main;
-  EXPECT_TRUE(jit_engine.get_function("main", main));
+  ASSERT_TRUE(jit_engine.get_function("main", main));
   wn::scripting::engine::void_func foo;
-  EXPECT_TRUE(jit_engine.get_function("foo", foo));
+  ASSERT_TRUE(jit_engine.get_function("foo", foo));
   wn::scripting::engine::void_func bar;
-  EXPECT_TRUE(jit_engine.get_function("bar", bar));
+  ASSERT_TRUE(jit_engine.get_function("bar", bar));
 
   // No returns so lets just see if we crash trying to call.
   jit_engine.invoke(main);
@@ -277,16 +292,6 @@ struct integer_test {
 };
 
 using integer_tests = ::testing::TestWithParam<integer_test>;
-
-void flush_buffer(void* v, const char* bytes, size_t length,
-    const wn::logging::color_element*, size_t) {
-  wn::containers::string* s = static_cast<wn::containers::string*>(v);
-  s->append(bytes, length);
-}
-
-using buffer_logger = wn::logging::buffer_logger<flush_buffer>;
-using log_buff = wn::containers::string;
-
 TEST_P(integer_tests, int_in_out_tests) {
   wn::testing::allocator allocator;
   wn::scripting::type_validator validator(&allocator);

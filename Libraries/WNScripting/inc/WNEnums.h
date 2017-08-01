@@ -8,7 +8,16 @@
 namespace wn {
 namespace scripting {
 
-enum class reference_type { raw, self, unique, weak, shared, nullable, max };
+enum class reference_type {
+  raw,
+  self,
+  construction,
+  unique,
+  weak,
+  shared,
+  nullable,
+  max
+};
 
 // All possible asisgnment operators in WNScript.
 enum class assign_type {

@@ -22,7 +22,13 @@ public:
   translator(type_validator* _validator)
     : m_num_warnings(0), m_num_errors(0), m_validator(_validator) {}
   virtual ~translator() = default;
-  virtual parse_error translate_file(const char* file) = 0;
+
+  parse_error translate_file(const char* _file) {
+    return translate_file_with_error(_file, false);
+  }
+
+  virtual parse_error translate_file_with_error(
+      const char* file, bool _dump_ast_on_failure) = 0;
   size_t errors() const {
     return m_num_errors;
   }

@@ -444,7 +444,7 @@ public:
     }
 
     const char* struct_modes[static_cast<uint32_t>(reference_type::max)] = {
-        "", "R", "P", "RP", "RR", "PP"};
+        "", "R", "UC", "P", "RP", "RR", "PP"};
 
     uint32_t returned_type = 0;
     for (uint32_t i = 0; i < static_cast<uint32_t>(reference_type::max); ++i) {
@@ -510,6 +510,13 @@ public:
       return 0;
     }
     return it->second;
+  }
+
+  // Returns the unadorned type of this object.
+  // I.e. shared Foo, unique Foo, Foo, all return
+  // Foo
+  uint32_t get_base_type(uint32_t _type) const {
+    return _type - static_cast<uint32_t>(m_types[_type].get_reference_type());
   }
 
   const containers::string_view get_type_name(uint32_t _type) const {

@@ -1,5 +1,7 @@
 #include "WNScripting/inc/WNASTPasses.h"
 
+#include "WNContainers/inc/WNDynamicArray.h"
+#include "WNContainers/inc/WNHashMap.h"
 #include "WNCore/inc/WNPair.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNScripting/inc/WNASTWalker.h"
@@ -115,6 +117,185 @@ public:
     _inst->set_returns(returns);
     return nullptr;
   }
+
+private:
+};
+
+// The external symbol resolution pass takes all of the
+// structs in the file and assigns concrete types to them.
+// This expands any array types found in structures as well.
+// It then re-orders all of the structures such that no structure
+// depends on any structure further on in the class.
+class external_symbol_resolution_pass : public pass {
+public:
+  external_symbol_resolution_pass(memory::allocator* _allocator,
+      type_validator* _validator, logging::log* _log)
+    : pass(_allocator, _validator, _log) {}
+  void enter_scope_block(const node*) {}
+  void leave_scope_block(const node*) {}
+  memory::unique_ptr<expression> walk_expression(expression*) {
+    return nullptr;
+  }
+  void walk_instruction_list(instruction_list*) {}
+  void walk_function(function*) {}
+  void walk_parameter(parameter*) {}
+
+  void pre_register_struct_definition(struct_definition* _definition) {
+    if (m_validator->get_type(_definition->get_name())) {
+      m_log->log_error("Duplicate struct defined: ", _definition->get_name());
+      _definition->log_line(m_log, logging::log_level::error);
+      ++m_num_errors;
+      return;
+    }
+    _definition->set_type_index(
+        m_validator->register_struct_type(_definition->get_name()));
+  }
+
+  // We have to split up pre_register and register because
+  // Struct A may contain struct B, so we need to know
+  // of ALL struct names before we register indices.
+  void register_struct_definition(struct_definition* _definition,
+      containers::dynamic_array<uint32_t>* _contained_types) {
+    const uint32_t type = m_validator->get_type(_definition->get_name());
+    for (const auto& a : _definition->get_struct_members()) {
+      walk_type(a->get_type());
+      _contained_types->push_back(a->get_type()->get_type_value());
+    }
+
+    for (auto ref_type : {reference_type::self, reference_type::unique,
+             reference_type::shared, reference_type::construction}) {
+      type_definition& def =
+          m_validator->get_operations(type + static_cast<uint32_t>(ref_type));
+      for (const auto& a : _definition->get_struct_members()) {
+        if (!def.register_sub_type(a->get_name(), a->get_type()->get_index())) {
+          m_log->log_error("Duplicate struct element defined: ", a->get_name());
+          a->log_line(m_log, logging::log_level::error);
+          ++m_num_errors;
+          return;
+        }
+      }
+      if (ref_type == reference_type::construction) {
+        for (auto& a : _definition->get_struct_members()) {
+          walk_type(a->get_type());
+          if (a->get_type()->get_reference_type() == reference_type::unique) {
+            containers::string s(m_allocator);
+            s.append("__");
+            s.append(a->get_name());
+            auto t = clone_node(a->get_type());
+            t->set_reference_type(reference_type::raw);
+            def.register_sub_type(s, t->get_index());
+          }
+        }
+      }
+    }
+  }
+
+  void pre_walk_script_file(script_file* _file) {
+    for (auto& strct : _file->get_structs()) {
+      pre_register_struct_definition(strct.get());
+    }
+
+    containers::hash_map<uint32_t, containers::dynamic_array<uint32_t>>
+        m_type_values(m_allocator);
+
+    for (auto& strct : _file->get_structs()) {
+      auto it = m_type_values.insert(core::make_pair(strct->get_type_index(),
+          containers::dynamic_array<uint32_t>(m_allocator)));
+      register_struct_definition(strct.get(), &(it.first->second));
+    }
+
+    auto structs = _file->take_structs();
+    containers::deque<memory::unique_ptr<struct_definition>> new_structs(
+        m_allocator);
+    uint32_t last_processed = 0;
+    do {
+      last_processed = 0;
+      for (auto it = structs.begin(); it != structs.end();) {
+        struct_definition* d = it->get();
+        (void)d;
+        bool can_insert = true;
+        uint32_t idx = (*it)->get_type_index();
+        auto& types = m_type_values[idx];
+        for (auto a : types) {
+          reference_type t =
+              m_validator->get_operations(a).get_reference_type();
+          if (t == reference_type::raw || t == reference_type::unique) {
+            if (m_type_values.find(m_validator->get_base_type(a)) !=
+                m_type_values.end()) {
+              can_insert = false;
+              break;
+            }
+          }
+        }
+        if (can_insert) {
+          last_processed += 1;
+          new_structs.push_back(core::move(*it));
+          it = structs.erase(it);
+          m_type_values.erase(idx);
+        } else {
+          ++it;
+        }
+      }
+    } while (last_processed != 0);
+    if (structs.size() != 0) {
+      m_log->log_error("Circular structure references");
+      ++m_num_errors;
+      for (auto& s : structs) {
+        s->log_line(m_log, logging::log_level::error);
+      }
+      return;
+    }
+    _file->put_structs(core::move(new_structs));
+  }
+  void post_walk_structs(script_file*) {}
+  void walk_script_file(script_file*) {}
+
+  template <typename T>
+  void walk_array_type(T* _at) {
+    walk_type(_at->get_subtype());
+    uint32_t sub_type_index = _at->get_subtype()->get_index();
+    if (!sub_type_index) {
+      m_log->log_error("Unknown array subtype");
+      ++m_num_errors;
+      _at->log_line(m_log, logging::log_level::error);
+      return;
+    }
+    _at->set_type_index(m_validator->get_array_of(sub_type_index));
+  }
+
+  void walk_type(type* _type) {
+    if (_type->get_index() == 0 ||
+        _type->get_index() ==
+            static_cast<uint32_t>(type_classification::array_type) ||
+        _type->custom_type_name() != "") {
+      if (_type->get_node_type() == node_type::array_type) {
+        walk_array_type(cast_to<array_type>(_type));
+        return;
+      }
+
+      if (_type->get_node_type() == node_type::concretized_array_type) {
+        walk_array_type(cast_to<concretized_array_type>(_type));
+        return;
+      }
+
+      // If this is an array-type we have to correctly
+      // dereference it.
+      uint32_t type_index = m_validator->get_type(_type->custom_type_name());
+      if (type_index) {
+        _type->set_type_index(type_index);
+      } else {
+        m_log->log_error("Unknown Type: ", _type->custom_type_name());
+        _type->log_line(m_log, logging::log_level::error);
+        m_num_errors += 1;
+      }
+    }
+  }
+
+  memory::unique_ptr<instruction> walk_instruction(instruction*) {
+    return nullptr;
+  }
+
+  void walk_struct_definition(struct_definition*) {}
 
 private:
 };
@@ -258,7 +439,21 @@ public:
   void pre_walk_script_file(script_file*) {}
   void post_walk_structs(script_file*) {}
   void walk_script_file(script_file*) {}
-  void walk_type(type*) {}
+  void walk_type(type* _t) {
+    containers::string_view v = _t->custom_type_name();
+    if (!v.empty()) {
+      // If this is an array-type we have to correctly
+      // dereference it.
+      uint32_t type_index = m_validator->get_type(_t->custom_type_name());
+      if (type_index) {
+        _t->set_type_index(type_index);
+      } else {
+        m_log->log_error("Unknown Type: ", _t->custom_type_name());
+        _t->log_line(m_log, logging::log_level::error);
+        m_num_errors += 1;
+      }
+    }
+  }
 
   memory::unique_ptr<instruction> walk_instruction(instruction*) {
     return nullptr;
@@ -312,9 +507,8 @@ public:
     } else {
       return nullptr;
     }
-    const auto& static_array_sizes =
-        cast_to<array_allocation_expression>(_decl->get_expression())
-            ->get_static_array_initializers();
+    const auto& static_array_sizes = cast_to<array_allocation_expression>(
+        _decl->get_expression())->get_static_array_initializers();
     for (auto& unused : static_array_sizes) {
       WN_UNUSED_ARGUMENT(unused);
       base_array_type = m_validator->get_array_of(base_array_type);
@@ -406,8 +600,8 @@ public:
     memory::unique_ptr<binary_expression> bin_expr =
         memory::make_unique<binary_expression>(m_allocator, m_allocator,
             arithmetic_type::arithmetic_equal, _inst->take_condition(),
-            make_constant(m_allocator, _inst, type_classification::bool_type,
-                                                   "false"));
+            make_constant(
+                m_allocator, _inst, type_classification::bool_type, "false"));
 
     memory::unique_ptr<if_instruction> if_inst =
         memory::make_unique<if_instruction>(m_allocator, m_allocator);
@@ -947,6 +1141,13 @@ public:
       callee = func;
     }
 
+    if (callee == nullptr) {
+      m_log->log_error("Cannot find function: ", _expr->get_name());
+      _expr->log_line(m_log, logging::log_level::error);
+      ++m_num_errors;
+      return nullptr;
+    }
+
     // TODO(awoloszyn): Insert explicit cast operations if we need do here.
     _expr->set_source(callee);
     memory::unique_ptr<type> t = memory::make_unique<type>(
@@ -1033,14 +1234,28 @@ public:
       declaration* _decl, node* _location_copy) {
     if (_decl->get_type()->get_subtype() &&
         !m_validator->is_destructible_type(
-            _decl->get_type()->get_subtype()->get_index())) {
+            _decl->get_type()->get_subtype()->get_index() -
+            static_cast<uint32_t>(
+                _decl->get_type()->get_subtype()->get_reference_type()))) {
       return nullptr;
     }
+
     if (_decl->get_type()->get_reference_type() == reference_type::unique ||
-        _decl->get_type()->get_reference_type() == reference_type::raw) {
-      containers::string m_destructor_name(m_allocator, "_destruct_");
-      m_destructor_name.append(_decl->get_type()->custom_type_name().data(),
-          _decl->get_type()->custom_type_name().length());
+        _decl->get_type()->get_reference_type() == reference_type::raw ||
+        _decl->get_type()->get_subtype()) {
+      containers::string m_destructor_name;
+      if (_decl->get_type()->get_subtype()) {
+        auto* expr = _decl->get_expression();
+        m_destructor_name =
+            containers::string(m_allocator, expr->destructor_name());
+        if (m_destructor_name == "") {
+          return nullptr;
+        }
+      } else {
+        m_destructor_name = containers::string(m_allocator, "_destruct_");
+        m_destructor_name.append(_decl->get_type()->custom_type_name().data(),
+            _decl->get_type()->custom_type_name().length());
+      }
 
       memory::unique_ptr<id_expression> object_id =
           memory::make_unique<id_expression>(
@@ -1054,7 +1269,7 @@ public:
               m_allocator, m_allocator, core::move(object_id));
       cast1->copy_location_from(cast1->get_expression());
       cast1->set_type(clone_node(_decl->get_type()));
-      cast1->get_type()->set_reference_type(reference_type::self);
+      cast1->get_type()->set_reference_type(reference_type::construction);
 
       memory::unique_ptr<arg_list> args =
           memory::make_unique<arg_list>(m_allocator, m_allocator);
@@ -1156,39 +1371,6 @@ public:
     m_local_objects.pop_back();
   }
   void walk_struct_definition(struct_definition*) {}
-  void pre_register_struct_definition(struct_definition* _definition) {
-    if (m_validator->get_type(_definition->get_name())) {
-      m_log->log_error("Duplicate struct defined: ", _definition->get_name());
-      _definition->log_line(m_log, logging::log_level::error);
-      ++m_num_errors;
-      return;
-    }
-    m_validator->register_struct_type(_definition->get_name());
-  }
-
-  // We have to split up pre_register and register because
-  // Struct A may contain struct B, so we need to know
-  // of ALL struct names before we register indices.
-  void register_struct_definition(struct_definition* _definition) {
-    const uint32_t type = m_validator->get_type(_definition->get_name());
-    for (const auto& a : _definition->get_struct_members()) {
-      walk_type(a->get_type());
-    }
-
-    for (auto ref_type : {reference_type::self, reference_type::unique,
-             reference_type::shared}) {
-      type_definition& def =
-          m_validator->get_operations(type + static_cast<uint32_t>(ref_type));
-      for (const auto& a : _definition->get_struct_members()) {
-        if (!def.register_sub_type(a->get_name(), a->get_type()->get_index())) {
-          m_log->log_error("Duplicate struct element defined: ", a->get_name());
-          a->log_line(m_log, logging::log_level::error);
-          ++m_num_errors;
-          return;
-        }
-      }
-    }
-  }
 
   memory::unique_ptr<instruction> walk_instruction(
       assignment_instruction* _assign) {
@@ -1218,6 +1400,23 @@ public:
         _assign->log_line(m_log, logging::log_level::error);
         ++m_num_errors;
         return nullptr;
+    }
+
+    // Insert an implicit cast if we are assigning a
+    // concretized_array_type to a non-concretized array type.
+    if (_assign->get_lvalue()->get_expression()->get_type()->get_node_type() ==
+            node_type::array_type &&
+        _assign->get_expression()->get_type()->get_node_type() ==
+            node_type::concretized_array_type &&
+        *_assign->get_lvalue()->get_expression()->get_type()->get_subtype() ==
+            *_assign->get_expression()->get_type()->get_subtype()) {
+      memory::unique_ptr<cast_expression> cast =
+          memory::make_unique<cast_expression>(m_allocator, m_allocator,
+              core::move(_assign->transfer_expression()));
+      cast->set_type(
+          clone_node(_assign->get_lvalue()->get_expression()->get_type()));
+      cast->copy_location_from(_assign);
+      _assign->set_value(core::move(cast));
     }
 
     if (*_assign->get_lvalue()->get_expression()->get_type() !=
@@ -1651,13 +1850,6 @@ public:
   }
 
   void pre_walk_script_file(script_file* _file) {
-    for (auto& strct : _file->get_structs()) {
-      pre_register_struct_definition(strct.get());
-    }
-    for (auto& strct : _file->get_structs()) {
-      register_struct_definition(strct.get());
-    }
-
     for (auto& function : _file->get_external_functions()) {
       register_function(function.get());
     }
@@ -1681,7 +1873,7 @@ public:
   }
 
   void walk_type(type* _type) {
-    if (_type->get_index() == 0 ||
+    if (_type->get_unreferenced_type() == 0 ||
         _type->get_index() ==
             static_cast<uint32_t>(type_classification::array_type)) {
       if (_type->get_node_type() == node_type::array_type) {
@@ -1951,8 +2143,8 @@ public:
     memory::unique_ptr<binary_expression> bin_expr =
         memory::make_unique<binary_expression>(m_allocator, m_allocator,
             arithmetic_type::arithmetic_equal, core::move(val_id),
-            make_constant(m_allocator, _alloc, type_classification::int_type,
-                                                   "0"));
+            make_constant(
+                m_allocator, _alloc, type_classification::int_type, "0"));
     bin_expr->copy_location_from(_alloc);
 
     memory::unique_ptr<if_instruction> if_inst =
@@ -2006,7 +2198,8 @@ public:
               m_allocator, m_allocator, core::move(array_access));
       construct_to_self->set_type(
           clone_node(construct_to_self->get_expression()->get_type()));
-      construct_to_self->get_type()->set_reference_type(reference_type::self);
+      construct_to_self->get_type()->set_reference_type(
+          reference_type::construction);
 
       memory::unique_ptr<arg_list> args =
           memory::make_unique<arg_list>(m_allocator, m_allocator);
@@ -2081,9 +2274,8 @@ public:
     increment_write_id->copy_location_from(new_do.get());
 
     memory::unique_ptr<binary_expression> increment =
-        memory::make_unique<binary_expression>(
-            m_allocator, m_allocator, arithmetic_type::arithmetic_sub,
-            core::move(increment_read_id),
+        memory::make_unique<binary_expression>(m_allocator, m_allocator,
+            arithmetic_type::arithmetic_sub, core::move(increment_read_id),
             make_constant(
                 m_allocator, new_do.get(), type_classification::int_type, "1"));
     increment->copy_location_from(new_do.get());
@@ -2110,7 +2302,7 @@ public:
 
     memory::unique_ptr<type> parameter_type = clone_node(_alloc->get_type());
 
-    parameter_type->set_reference_type(reference_type::self);
+    parameter_type->set_reference_type(reference_type::construction);
 
     memory::unique_ptr<parameter> name_ret = memory::make_unique<parameter>(
         m_allocator, m_allocator, clone_node(parameter_type), construct_name);
@@ -2145,6 +2337,7 @@ public:
       containers::string destruct_name(m_allocator);
       destruct_name += "_destruct_array";
       destruct_name += temporary_name;
+      _alloc->set_destructor_name(destruct_name);
 
       memory::unique_ptr<parameter> destructor_sig =
           memory::make_unique<parameter>(
@@ -2269,7 +2462,7 @@ public:
             m_allocator, m_allocator, core::move(alloc));
     cast1->copy_location_from(cast1->get_expression());
     cast1->set_type(clone_node(alloc_type));
-    cast1->get_type()->set_reference_type(reference_type::self);
+    cast1->get_type()->set_reference_type(reference_type::construction);
 
     memory::unique_ptr<arg_list> args =
         memory::make_unique<arg_list>(m_allocator, m_allocator);
@@ -2284,6 +2477,7 @@ public:
     call->get_type()->set_reference_type(reference_type::self);
 
     call->add_base_expression(core::move(constructor));
+    call->set_destructor_name(nm.second);
     return core::move(call);
   }
 
@@ -2330,7 +2524,7 @@ public:
               m_allocator, m_allocator, core::move(alloc));
       cast1->copy_location_from(cast1->get_expression());
       cast1->set_type(clone_node(alloc_type));
-      cast1->get_type()->set_reference_type(reference_type::self);
+      cast1->get_type()->set_reference_type(reference_type::construction);
 
       memory::unique_ptr<arg_list> args =
           memory::make_unique<arg_list>(m_allocator, m_allocator);
@@ -2372,9 +2566,13 @@ public:
           memory::make_unique<function_pointer_expression>(
               m_allocator, m_allocator, destructor_name);
       memory::unique_ptr<type> set_type = clone_node(_alloc->get_type());
-      set_type->set_reference_type(reference_type::self);
+      set_type->set_reference_type(reference_type::construction);
       fn_ptr->copy_location_from(_alloc);
       fn_ptr->add_param(core::move(set_type));
+      memory::unique_ptr<type> fn_type = memory::make_unique<type>(
+          m_allocator, m_allocator, type_classification::function_ptr_type);
+      fn_type->copy_location_from(_alloc->get_type());
+      fn_ptr->set_type(core::move(fn_type));
 
       memory::unique_ptr<arg_list> args =
           memory::make_unique<arg_list>(m_allocator, m_allocator);
@@ -2396,7 +2594,8 @@ public:
               m_allocator, m_allocator, core::move(allocate));
       cast_to_self->copy_location_from(_alloc);
       cast_to_self->set_type(clone_node(_alloc->get_type()));
-      cast_to_self->get_type()->set_reference_type(reference_type::self);
+      cast_to_self->get_type()->set_reference_type(
+          reference_type::construction);
 
       args = memory::make_unique<arg_list>(m_allocator, m_allocator);
       args->copy_location_from(_alloc);
@@ -2558,7 +2757,6 @@ public:
             replace_type->set_reference_type(reference_type::unique);
 
             expr->set_type(clone_node(replace_type));
-            replace_type->set_array_sizes(core::move(zero_initializers));
 
             memory::unique_ptr<parameter> param =
                 memory::make_unique<parameter>(m_allocator, m_allocator,
@@ -2589,6 +2787,12 @@ public:
                 memory::make_unique<id_expression>(
                     m_allocator, m_allocator, "_this");
             id->copy_location_from(member.get());
+            id->set_type(memory::make_unique<type>(
+                m_allocator, m_allocator, _definition->get_name()));
+            id->get_type()->set_type_index(_definition->get_type_index());
+            id->get_type()->set_reference_type(reference_type::self);
+            id->get_type()->copy_location_from(_definition);
+
             access->add_base_expression(core::move(id));
 
             memory::unique_ptr<arg_list> args =
@@ -2602,7 +2806,8 @@ public:
                     m_allocator, m_allocator, core::move(access));
             to_self->copy_location_from(to_self->get_expression());
             to_self->set_type(clone_node(fType));
-            to_self->get_type()->set_reference_type(reference_type::self);
+            to_self->get_type()->set_reference_type(
+                reference_type::construction);
 
             args->add_expression(core::move(to_self));
 
@@ -2690,7 +2895,7 @@ public:
                 m_allocator, m_allocator, core::move(access));
         cast1->copy_location_from(cast1->get_expression());
         cast1->set_type(clone_node(a->get_type()));
-        cast1->get_type()->set_reference_type(reference_type::self);
+        cast1->get_type()->set_reference_type(reference_type::construction);
 
         containers::string destructor_name(m_allocator, "_destruct_");
         if (a->get_type()->get_node_type() ==
@@ -2814,8 +3019,14 @@ public:
             memory::make_unique<id_expression>(
                 m_allocator, m_allocator, "_this");
         id->copy_location_from(a.get());
+        id->set_type(memory::make_unique<type>(
+            m_allocator, m_allocator, _definition->get_name()));
+        id->get_type()->set_type_index(_definition->get_type_index());
+        id->get_type()->set_reference_type(reference_type::self);
+        id->get_type()->copy_location_from(_definition);
 
         access->add_base_expression(core::move(id));
+        access->set_type(clone_node(expr->get_type()));
 
         memory::unique_ptr<lvalue> lval = memory::make_unique<lvalue>(
             m_allocator, m_allocator, core::move(access));
@@ -2863,7 +3074,8 @@ public:
                       m_allocator, m_allocator, core::move(real_access));
               cast1->copy_location_from(cast1->get_expression());
               cast1->set_type(clone_node(a->get_type()));
-              cast1->get_type()->set_reference_type(reference_type::self);
+              cast1->get_type()->set_reference_type(
+                  reference_type::construction);
 
               // cast1 is now &_this->__x;
               memory::unique_ptr<arg_list> args =
@@ -2919,9 +3131,20 @@ public:
           memory::make_unique<id_expression>(m_allocator, m_allocator, "_this");
       id->copy_location_from(_definition);
 
+      memory::unique_ptr<type> cast_type = memory::make_unique<type>(
+          m_allocator, m_allocator, _definition->get_name());
+      cast_type->set_reference_type(reference_type::self);
+      cast_type->copy_location_from(_definition);
+
+      memory::unique_ptr<cast_expression> ret_cast =
+          memory::make_unique<cast_expression>(
+              m_allocator, m_allocator, core::move(id));
+      ret_cast->copy_location_from(_definition);
+      ret_cast->set_type(core::move(cast_type));
+
       memory::unique_ptr<return_instruction> ret =
           memory::make_unique<return_instruction>(
-              m_allocator, m_allocator, core::move(id));
+              m_allocator, m_allocator, core::move(ret_cast));
       ret->copy_location_from(_definition);
       instructions->add_instruction(core::move(ret));
 
@@ -2957,7 +3180,7 @@ private:
 
     memory::unique_ptr<type> parameter_type = memory::make_unique<type>(
         m_allocator, m_allocator, _definition->get_name());
-    parameter_type->set_reference_type(reference_type::self);
+    parameter_type->set_reference_type(reference_type::construction);
     parameter_type->copy_location_from(_definition);
 
     containers::string m_constructor_name(_name.to_string(m_allocator));
@@ -3053,6 +3276,12 @@ bool run_if_reassociation_pass(script_file* _file, logging::log* _log,
 bool run_array_determination_pass(script_file* _file, logging::log* _log,
     type_validator* _validator, size_t* _num_warnings, size_t* _num_errors) {
   return run_pass<array_determination_pass>(
+      _file, _log, _validator, _num_warnings, _num_errors);
+}
+
+bool run_symbol_resolution_pass(script_file* _file, logging::log* _log,
+    type_validator* _validator, size_t* _num_warnings, size_t* _num_errors) {
+  return run_pass<external_symbol_resolution_pass>(
       _file, _log, _validator, _num_warnings, _num_errors);
 }
 

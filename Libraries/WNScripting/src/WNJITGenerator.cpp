@@ -134,6 +134,7 @@ void ast_jit_engine::walk_type(
         case reference_type::unique:
         case reference_type::self:
         case reference_type::shared:
+        case reference_type::construction:
           *_value = elem->second->getPointerTo();
           break;
         default:
@@ -175,6 +176,7 @@ void ast_jit_engine::walk_type(
     case reference_type::self:
     case reference_type::unique:
     case reference_type::shared:
+    case reference_type::construction:
       *_out_type = (*_out_type)->getPointerTo();
       break;
     case reference_type::raw:
@@ -209,7 +211,8 @@ void ast_jit_engine::walk_type(
       t->get_sizes().size(), llvm::IntegerType::getInt32Ty(*m_context));
 
   if (_array_type->get_reference_type() == reference_type::raw ||
-      _array_type->get_reference_type() == reference_type::self) {
+      _array_type->get_reference_type() == reference_type::self ||
+      _array_type->get_reference_type() == reference_type::construction) {
     types.push_back(llvm::ArrayType::get(ltype, total_size));
     if (_array_type->get_subtype()->get_reference_type() ==
         reference_type::unique) {
@@ -227,6 +230,7 @@ void ast_jit_engine::walk_type(
     case reference_type::self:
     case reference_type::unique:
     case reference_type::shared:
+    case reference_type::construction:
       *_out_type = (*_out_type)->getPointerTo();
       break;
     case reference_type::raw:
@@ -273,6 +277,7 @@ void ast_jit_engine::walk_expression(
   switch (_access->get_base_expression()->get_type()->get_reference_type()) {
     case reference_type::unique:
     case reference_type::self:
+    case reference_type::construction:
       indices.push_back(llvm::ConstantInt::get(int32_type, 0));
       if (_access->is_construction()) {
         indices.push_back(llvm::ConstantInt::get(int32_type, 2));
@@ -350,7 +355,9 @@ void ast_jit_engine::walk_expression(
 
   if (_cast->get_expression()->get_type()->get_type_value() ==
           static_cast<uint32_t>(type_classification::void_ptr_type) &&
-      _cast->get_type()->get_reference_type() == reference_type::self) {
+      (_cast->get_type()->get_reference_type() == reference_type::self ||
+          _cast->get_type()->get_reference_type() ==
+              reference_type::construction)) {
     llvm::Type* type_dat = m_generator->get_data(_cast->get_type());
     _val->instructions.push_back(
         new llvm::BitCastInst(sub_dat.value, type_dat));
@@ -392,7 +399,9 @@ void ast_jit_engine::walk_expression(
   // If we are converting from raw to reference, then we can do away
   // with the load-inst that caused us.
   if ((_cast->get_type()->get_reference_type() == reference_type::self ||
-          _cast->get_type()->get_reference_type() == reference_type::unique) &&
+          _cast->get_type()->get_reference_type() == reference_type::unique ||
+          _cast->get_type()->get_reference_type() ==
+              reference_type::construction) &&
       _cast->get_expression()->get_type()->get_reference_type() ==
           reference_type::raw) {
     // TODO(awoloszyn): Delete the load instruction?
@@ -580,6 +589,7 @@ void ast_jit_engine::walk_expression(
         new llvm::BitCastInst(dat.value, ft->getParamType(i));
     _val->instructions.push_back(castInst);
     parameters.push_back(castInst);
+
     ++i;
   }
 

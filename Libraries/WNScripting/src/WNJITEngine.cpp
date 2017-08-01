@@ -259,7 +259,7 @@ parse_error jit_engine::parse_file(const char* _file) {
       deref_shared_params};
 
   memory::unique_ptr<script_file> parsed_file = parse_script(m_allocator,
-      m_validator, _file, required_functions, file->typed_range<char>(),
+      m_validator, _file, required_functions, file->typed_range<char>(), false,
       m_compilation_log, &m_num_warnings, &m_num_errors);
 
   if (parsed_file == nullptr) {

@@ -28,7 +28,10 @@ public:
   // Looks in m_file_manager for the path given by the file parameter,
   // and translates the file into C. The file is saved in the same location
   // as the c file with an additional .c extension.
-  parse_error translate_file(const char* file) override;
+  // If _dump_ast_on_failure is true, then the AST will be added to the log on
+  // failure
+  parse_error translate_file_with_error(
+      const char* file, bool _dump_ast_on_failure) override;
 
 private:
   memory::allocator* m_allocator;
