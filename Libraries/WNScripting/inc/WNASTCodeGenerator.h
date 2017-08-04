@@ -71,6 +71,7 @@ public:
   void walk_parameter(const parameter* _p);
   void walk_instruction_list(const instruction_list* _l);
   void walk_function(const function* _f);
+  void pre_walk_function(const function* _f);
   template <typename T>
   void walk_type(const T* _type);
   void walk_struct_definition(const struct_definition* _s);

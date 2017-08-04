@@ -608,6 +608,8 @@ void ast_c_translator::walk_instruction_list(const instruction_list* l,
   _str->second += "}";
 }
 
+void ast_c_translator::pre_walk_function(const function*) {}
+
 void ast_c_translator::walk_function(
     const function* _func, containers::string* _str) {
   *_str = containers::string(m_allocator) +

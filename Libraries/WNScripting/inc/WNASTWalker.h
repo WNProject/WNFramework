@@ -104,6 +104,7 @@ private:
 
   void walk_instruction_list(instruction_list_type _inst);
   void walk_function(function_type _func);
+  void pre_walk_function(function_type _func);
   void walk_parameter(parameter_type _param);
   void walk_struct_definition(struct_definition_type _decl);
   void walk_type(type_type _type);

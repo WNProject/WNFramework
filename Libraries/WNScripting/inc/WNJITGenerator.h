@@ -111,6 +111,7 @@ public:
   void walk_parameter(const parameter* _param, llvm::Instruction**);
   void walk_struct_definition(const struct_definition* _def, llvm::Type**);
   void walk_function(const function* _func, llvm::Function**);
+  void pre_walk_function(const function* _func);
   void walk_script_file(const script_file* _file);
   void pre_walk_script_file(const script_file* _file);
   void post_walk_structs(const script_file* _file);

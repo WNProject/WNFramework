@@ -26,6 +26,7 @@ public:
   MOCK_METHOD1(
       walk_instruction, void(const wn::scripting::return_instruction*));
   MOCK_METHOD1(walk_function, void(const wn::scripting::function*));
+  MOCK_METHOD1(pre_walk_function, void(const wn::scripting::function*));
   MOCK_METHOD1(walk_parameter, void(const wn::scripting::parameter*));
   MOCK_METHOD1(walk_script_file, void(const wn::scripting::script_file*));
   MOCK_METHOD1(pre_walk_script_file, void(const wn::scripting::script_file*));

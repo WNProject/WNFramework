@@ -81,6 +81,7 @@ public:
   void walk_parameter(parameter*) {}
 
   void pre_walk_script_file(script_file*) {}
+  void pre_walk_function(function*) {}
   void post_walk_structs(script_file*) {}
   void walk_script_file(script_file*) {}
   void walk_type(type*) {}
@@ -130,7 +131,7 @@ class external_symbol_resolution_pass : public pass {
 public:
   external_symbol_resolution_pass(memory::allocator* _allocator,
       type_validator* _validator, logging::log* _log)
-    : pass(_allocator, _validator, _log) {}
+    : pass(_allocator, _validator, _log), m_additional_functions(_allocator) {}
   void enter_scope_block(const node*) {}
   void leave_scope_block(const node*) {}
   memory::unique_ptr<expression> walk_expression(expression*) {
@@ -149,6 +150,11 @@ public:
     }
     _definition->set_type_index(
         m_validator->register_struct_type(_definition->get_name()));
+    auto functions = _definition->take_functions();
+    for (auto& f : functions) {
+      f->set_this_pointer(_definition);
+      m_additional_functions.emplace_back(core::move(f));
+    }
   }
 
   // We have to split up pre_register and register because
@@ -246,8 +252,32 @@ public:
       return;
     }
     _file->put_structs(core::move(new_structs));
+
+    for (auto& f : m_additional_functions) {
+      memory::unique_ptr<type> t = memory::make_unique<type>(
+          m_allocator, m_allocator, f->get_this_pointer()->get_name());
+      t->copy_location_from(f.get());
+      t->set_reference_type(reference_type::self);
+
+      memory::unique_ptr<parameter> param = memory::make_unique<parameter>(
+          m_allocator, m_allocator, core::move(t), "_this");
+      param->copy_location_from(f.get());
+
+      f->get_initialized_parameters()->prepend_parameter(core::move(param));
+      uint32_t a = f->get_signature()->get_type()->get_index();
+      containers::dynamic_array<uint32_t> types(m_allocator);
+      for (auto& p : f->get_parameters()->get_parameters()) {
+        types.push_back(p->get_type()->get_index());
+      }
+
+      m_validator->add_method(f->get_this_pointer()->get_type_index(),
+          f->get_signature()->get_name(), a, types);
+
+      _file->prepend_function(core::move(f));
+    }
   }
   void post_walk_structs(script_file*) {}
+  void pre_walk_function(function*) {}
   void walk_script_file(script_file*) {}
 
   template <typename T>
@@ -298,6 +328,7 @@ public:
   void walk_struct_definition(struct_definition*) {}
 
 private:
+  containers::deque<memory::unique_ptr<function>> m_additional_functions;
 };
 
 memory::unique_ptr<constant_expression> make_constant(
@@ -438,6 +469,7 @@ public:
   void walk_parameter(parameter*) {}
   void pre_walk_script_file(script_file*) {}
   void post_walk_structs(script_file*) {}
+  void pre_walk_function(function*) {}
   void walk_script_file(script_file*) {}
   void walk_type(type* _t) {
     containers::string_view v = _t->custom_type_name();
@@ -507,8 +539,9 @@ public:
     } else {
       return nullptr;
     }
-    const auto& static_array_sizes = cast_to<array_allocation_expression>(
-        _decl->get_expression())->get_static_array_initializers();
+    const auto& static_array_sizes =
+        cast_to<array_allocation_expression>(_decl->get_expression())
+            ->get_static_array_initializers();
     for (auto& unused : static_array_sizes) {
       WN_UNUSED_ARGUMENT(unused);
       base_array_type = m_validator->get_array_of(base_array_type);
@@ -600,8 +633,8 @@ public:
     memory::unique_ptr<binary_expression> bin_expr =
         memory::make_unique<binary_expression>(m_allocator, m_allocator,
             arithmetic_type::arithmetic_equal, _inst->take_condition(),
-            make_constant(
-                m_allocator, _inst, type_classification::bool_type, "false"));
+            make_constant(m_allocator, _inst, type_classification::bool_type,
+                                                   "false"));
 
     memory::unique_ptr<if_instruction> if_inst =
         memory::make_unique<if_instruction>(m_allocator, m_allocator);
@@ -796,6 +829,7 @@ public:
   void walk_function(function*) {}
   void walk_parameter(parameter*) {}
   void pre_walk_script_file(script_file*) {}
+  void pre_walk_function(function*) {}
   void post_walk_structs(script_file*) {}
   void walk_script_file(script_file*) {}
   void walk_type(type*) {}
@@ -816,7 +850,10 @@ class id_association_pass : public pass {
 public:
   id_association_pass(memory::allocator* _allocator, type_validator* _validator,
       logging::log* _log)
-    : pass(_allocator, _validator, _log), id_map(_allocator) {}
+    : pass(_allocator, _validator, _log),
+      id_map(_allocator),
+      m_current_function(nullptr),
+      m_function_map(_allocator) {}
 
   memory::unique_ptr<expression> walk_expression(expression*) {
     return nullptr;
@@ -825,7 +862,11 @@ public:
   memory::unique_ptr<instruction> walk_instruction(instruction*) {
     return nullptr;
   }
-  void walk_function(function*) {}
+
+  void walk_function(function*) {
+    m_current_function = nullptr;
+  }
+
   void walk_struct_definition(struct_definition*) {}
 
   void enter_scope_block(const node*) {
@@ -863,17 +904,65 @@ public:
 
   memory::unique_ptr<expression> walk_expression(id_expression* _expr) {
     auto param = find_param(_expr->get_name());
-    if (!param) {
+    if (!param && !m_current_function) {
       m_log->log_error("Could not find id: ", _expr->get_name());
       _expr->log_line(m_log, logging::log_level::error);
       ++m_num_errors;
       return nullptr;
     }
+
+    // Try and find a member access if we are in a member function.
+    if (!param) {
+      for (const auto& m : m_current_function->get_struct_members()) {
+        if (m->get_name() == _expr->get_name()) {
+          memory::unique_ptr<id_expression> expr =
+              memory::make_unique<id_expression>(
+                  m_allocator, m_allocator, "_this");
+
+          memory::unique_ptr<member_access_expression> access =
+              memory::make_unique<member_access_expression>(
+                  m_allocator, m_allocator, m->get_name());
+          access->add_base_expression(core::move(expr));
+          return core::move(access);
+        }
+      }
+
+      m_log->log_error("Could not find id: ", _expr->get_name());
+      _expr->log_line(m_log, logging::log_level::error);
+      ++m_num_errors;
+      return nullptr;
+    }
+
     _expr->set_id_source(*param);
+    if (param->declaration_source) {
+      _expr->set_type(clone_node(param->declaration_source->get_type()));
+    } else if (param->param_source) {
+      _expr->set_type(clone_node(param->param_source->get_type()));
+    }
     return nullptr;
   }
 
-  void pre_walk_script_file(script_file*) {}
+  void pre_walk_function(function* _f) {
+    if (_f->get_this_pointer()) {
+      m_current_function = _f->get_this_pointer();
+    }
+  }
+
+  void pre_walk_script_file(script_file* _file) {
+    for (auto& f : _file->get_functions()) {
+      auto it = m_function_map.find(f->get_signature()->get_name());
+      if (it == m_function_map.end()) {
+        containers::deque<function*> deq(m_allocator);
+        core::pair<fmap_type::iterator, bool> ins =
+            m_function_map.insert(fmap_type::value_type(
+                f->get_signature()->get_name(), id_expression::id_source()));
+        it = ins.first;
+        it->second.function_sources = containers::deque<function*>(m_allocator);
+      }
+      it->second.function_sources.push_back(f.get());
+    }
+  }
+
   void post_walk_structs(script_file*) {}
   void walk_script_file(script_file*) {}
   void walk_type(type*) {}
@@ -881,6 +970,11 @@ public:
 private:
   const id_expression::id_source* find_param(
       const containers::string_view& v) const {
+    auto ft = m_function_map.find(v);
+    if (ft != m_function_map.end()) {
+      return &ft->second;
+    }
+
     for (auto it = id_map.cbegin(); it != id_map.cend(); ++it) {
       auto val = it->find(v);
       if (val != it->end()) {
@@ -893,6 +987,10 @@ private:
   containers::deque<
       containers::hash_map<containers::string_view, id_expression::id_source>>
       id_map;
+  using fmap_type =
+      containers::hash_map<containers::string_view, id_expression::id_source>;
+  fmap_type m_function_map;
+  const struct_definition* m_current_function;
 };
 
 class type_association_pass : public pass {
@@ -922,8 +1020,6 @@ public:
                               : source.declaration_source->get_type());
       t->copy_location_from(_expr);
       _expr->set_type(core::move(t));
-    } else {
-      WN_DEBUG_ASSERT_DESC(false, "Source for this ID.");
     }
     return nullptr;
   }
@@ -1047,6 +1143,19 @@ public:
     const type_definition& member_def =
         m_validator->get_operations(member_type);
     if (member_type == 0) {
+      auto d = m_validator->get_operations(
+          type_index - static_cast<uint32_t>(obj->get_reference_type()));
+
+      uint32_t vt = d.get_function_call(_expr->get_name());
+      if (vt != 0) {
+        type* t = m_allocator->construct<type>(
+            m_allocator, member_type, member_def.get_reference_type());
+
+        t->copy_location_from(_expr);
+        _expr->set_type(t);
+        return nullptr;
+      }
+
       m_log->log_error("Type does not have member: ", _expr->get_name());
       _expr->log_line(m_log, logging::log_level::error);
       ++m_num_errors;
@@ -1158,20 +1267,56 @@ public:
 
   memory::unique_ptr<expression> walk_expression(
       function_call_expression* _expr) {
-    const expression* base_expr = _expr->get_base_expression();
+    expression* base_expr = _expr->get_base_expression();
     // TODO(awoloszyn): handle the other cases that give you functions (are
     // there any?)
-    if (base_expr->get_node_type() != node_type::id_expression) {
+
+    if (base_expr->get_node_type() != node_type::id_expression &&
+        base_expr->get_node_type() != node_type::member_access_expression) {
       m_log->log_error("Cannot call function on non-id: ");
       _expr->log_line(m_log, logging::log_level::error);
       ++m_num_errors;
       return nullptr;
     }
 
-    const id_expression* id = static_cast<const id_expression*>(base_expr);
-    auto possible_function = m_functions.find(id->get_name());
-    if (possible_function == m_functions.end()) {
-      auto name = id->get_name();
+    containers::hash_map<containers::string_view,
+        containers::deque<function*>>::iterator possible_functions;
+    containers::hash_map<containers::string_view, containers::deque<function*>>
+        member_expressions(m_allocator);
+
+    containers::string name;
+
+    if (base_expr->get_node_type() == node_type::id_expression) {
+      const id_expression* id = static_cast<const id_expression*>(base_expr);
+      name = id->get_name().to_string(m_allocator);
+    } else if (base_expr->get_node_type() ==
+               node_type::member_access_expression) {
+      member_access_expression* expr =
+          static_cast<member_access_expression*>(base_expr);
+      name = expr->get_name().to_string(m_allocator);
+      memory::unique_ptr<id_expression> id_expr =
+          memory::make_unique<id_expression>(m_allocator, m_allocator, name);
+      id_expr->copy_location_from(_expr);
+      auto e = expr->take_base_expression();
+      auto t = clone_node(e->get_type());
+      _expr->add_base_expression(core::move(id_expr));
+      memory::unique_ptr<cast_expression> cast_expr =
+          memory::make_unique<cast_expression>(
+              m_allocator, m_allocator, core::move(e));
+      t->set_reference_type(reference_type::self);
+      cast_expr->set_type(core::move(t));
+      auto& expressions = _expr->get_expressions();
+      if (expressions.empty()) {
+        expressions =
+            containers::deque<memory::unique_ptr<function_expression>>(
+                m_allocator);
+      }
+      expressions.emplace_front(memory::make_unique<function_expression>(
+          m_allocator, core::move(cast_expr), false));
+    }
+
+    possible_functions = m_functions.find(name);
+    if (possible_functions == m_functions.end()) {
       m_log->log_error("Cannot find function: ", name);
       _expr->log_line(m_log, logging::log_level::error);
       ++m_num_errors;
@@ -1181,7 +1326,7 @@ public:
     function* callee = nullptr;
     const auto& parameters = _expr->get_expressions();
 
-    for (auto func : possible_function->second) {
+    for (auto func : possible_functions->second) {
       if (parameters.size() != 0) {
         if (!func->get_parameters()) {
           continue;
@@ -1207,7 +1352,7 @@ public:
         continue;
       }
       if (callee) {
-        m_log->log_error("Ambiguous Function call: ", id->get_name());
+        m_log->log_error("Ambiguous Function call: ", name);
         _expr->log_line(m_log, logging::log_level::error);
         ++m_num_errors;
         return nullptr;
@@ -1216,7 +1361,7 @@ public:
     }
 
     if (!callee) {
-      m_log->log_error("Cannot find function: ", id->get_name());
+      m_log->log_error("Cannot find function: ", name);
       _expr->log_line(m_log, logging::log_level::error);
       ++m_num_errors;
       return nullptr;
@@ -1857,6 +2002,7 @@ public:
       register_function(function.get());
     }
   }
+  void pre_walk_function(function*) {}
   void post_walk_structs(script_file*) {}
   void walk_script_file(script_file*) {}
 
@@ -2012,6 +2158,7 @@ public:
   }
 
   void pre_walk_script_file(script_file*) {}
+  void pre_walk_function(function*) {}
   void post_walk_structs(script_file*) {}
   void walk_script_file(script_file*) {}
   void walk_type(type*) {}
@@ -2143,8 +2290,8 @@ public:
     memory::unique_ptr<binary_expression> bin_expr =
         memory::make_unique<binary_expression>(m_allocator, m_allocator,
             arithmetic_type::arithmetic_equal, core::move(val_id),
-            make_constant(
-                m_allocator, _alloc, type_classification::int_type, "0"));
+            make_constant(m_allocator, _alloc, type_classification::int_type,
+                                                   "0"));
     bin_expr->copy_location_from(_alloc);
 
     memory::unique_ptr<if_instruction> if_inst =
@@ -2274,8 +2421,9 @@ public:
     increment_write_id->copy_location_from(new_do.get());
 
     memory::unique_ptr<binary_expression> increment =
-        memory::make_unique<binary_expression>(m_allocator, m_allocator,
-            arithmetic_type::arithmetic_sub, core::move(increment_read_id),
+        memory::make_unique<binary_expression>(
+            m_allocator, m_allocator, arithmetic_type::arithmetic_sub,
+            core::move(increment_read_id),
             make_constant(
                 m_allocator, new_do.get(), type_classification::int_type, "1"));
     increment->copy_location_from(new_do.get());
@@ -2626,6 +2774,7 @@ public:
   void walk_instruction_list(instruction_list*) {}
 
   void pre_walk_script_file(script_file*) {}
+  void pre_walk_function(function*) {}
   void post_walk_structs(script_file* _file) {
     for (auto& func : m_additional_functions) {
       // We want to prepend these functions

@@ -561,6 +561,13 @@ INSTANTIATE_TEST_CASE_P(
       {{0, 0}, {3, 0}, {9, 0}}},
 })));
 
+INSTANTIATE_TEST_CASE_P(
+  member_function_test, integer_tests,
+  ::testing::ValuesIn(std::vector<integer_test>({
+    { "class Foo { Int x = 4; Void foo() { x = x + 4; return; } }"
+      "Int main(Int x) { Foo f = Foo(); f.x = f.x + x; f.foo(); return f.x; }",
+    { { 0, 8 },{ 3, 11 },{ 9, 17 } } },
+})));
 
 INSTANTIATE_TEST_CASE_P(
   array_of_structs, integer_tests,

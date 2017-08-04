@@ -1143,7 +1143,7 @@ public:
 
   void set_id_source(const id_source& _source) {
     WN_RELEASE_ASSERT_DESC(
-        ((_source.param_source == 0) + (_source.declaration_source == 0) +
+        ((_source.param_source != 0) + (_source.declaration_source != 0) +
             (!_source.function_sources.empty())) == 1,
         "The source must have come from somewhere.");
     m_source.copy_from(_source);
@@ -1250,6 +1250,10 @@ public:
 
   expression* get_base_expression() {
     return m_base_expression.get();
+  }
+
+  memory::unique_ptr<expression> take_base_expression() {
+    return core::move(m_base_expression);
   }
 
   void walk_children(
@@ -2090,6 +2094,7 @@ public:
 
   virtual void walk_children(
       const walk_mutable_expression& _func, const walk_ftype<type*>&) override {
+    handle_expression(_func, m_base_expression);
     if (!m_args) {
       return;
     }
@@ -2100,6 +2105,7 @@ public:
 
   virtual void walk_children(const walk_ftype<const expression*>& _func,
       const walk_ftype<const type*>&) const override {
+    _func(m_base_expression.get());
     if (!m_args) {
       return;
     }
@@ -2132,12 +2138,10 @@ public:
 
   containers::deque<memory::unique_ptr<function_expression>>&
   get_expressions() {
-    if (m_args) {
-      return m_args->get_expressions();
+    if (!m_args) {
+      m_args = memory::make_unique<arg_list>(m_allocator, m_allocator);
     }
-    static containers::deque<memory::unique_ptr<function_expression>>
-        empty_expressions;
-    return empty_expressions;
+    return m_args->get_expressions();
   }
 
   memory::unique_ptr<arg_list> copy_out_args() {
@@ -2374,6 +2378,10 @@ public:
         memory::unique_ptr<function>(m_allocator, _func));
   }
 
+  containers::deque<memory::unique_ptr<function>> take_functions() {
+    return core::move(m_struct_functions);
+  }
+
   void set_type_index(uint32_t _index) {
     m_type_index = _index;
   }
@@ -2469,6 +2477,10 @@ public:
     m_parameters.emplace_back(core::move(_param));
   }
 
+  void prepend_parameter(memory::unique_ptr<parameter>&& _param) {
+    m_parameters.emplace_front(core::move(_param));
+  }
+
   const containers::deque<memory::unique_ptr<parameter>>& get_parameters()
       const {
     return m_parameters;
@@ -2538,6 +2550,15 @@ public:
   parameter_list* get_parameters() {
     return m_parameters.get();
   }
+
+  parameter_list* get_initialized_parameters() {
+    if (!m_parameters) {
+      m_parameters =
+          memory::make_unique<parameter_list>(m_allocator, m_allocator);
+    }
+    return m_parameters.get();
+  }
+
   const instruction_list* get_body() const {
     return m_body.get();
   }

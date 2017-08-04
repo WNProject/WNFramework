@@ -447,17 +447,21 @@ void ast_jit_engine::walk_expression(
 
 void ast_jit_engine::walk_expression(
     const id_expression* _id_expr, expression_dat* _val) {
-  llvm::Value* v =
-      _id_expr->get_id_source().param_source
-          ? m_generator->get_data(_id_expr->get_id_source().param_source)
-          : *m_generator->get_data(_id_expr->get_id_source().declaration_source)
-                 .instructions.begin();
+  if (_id_expr->get_id_source().param_source ||
+      _id_expr->get_id_source().declaration_source) {
+    llvm::Value* v =
+        _id_expr->get_id_source().param_source
+            ? m_generator->get_data(_id_expr->get_id_source().param_source)
+            : *m_generator
+                   ->get_data(_id_expr->get_id_source().declaration_source)
+                   .instructions.begin();
 
-  _val->instructions =
-      containers::dynamic_array<llvm::Instruction*>(m_allocator);
-  _val->instructions.push_back(
-      new llvm::LoadInst(v, make_string_ref(_id_expr->get_name())));
-  _val->value = _val->instructions.back();
+    _val->instructions =
+        containers::dynamic_array<llvm::Instruction*>(m_allocator);
+    _val->instructions.push_back(
+        new llvm::LoadInst(v, make_string_ref(_id_expr->get_name())));
+    _val->value = _val->instructions.back();
+  }
 }
 
 namespace {
@@ -890,6 +894,8 @@ void ast_jit_engine::pre_walk_function_definition(const function* _func) {
   m_module->getFunctionList().push_back(f);
   m_function_map[_func] = f;
 }
+
+void ast_jit_engine::pre_walk_function(const function*) {}
 
 void ast_jit_engine::walk_function(const function* _func, llvm::Function** _f) {
   // If this was an external function, then do not

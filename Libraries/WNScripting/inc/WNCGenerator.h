@@ -106,6 +106,7 @@ public:
       core::pair<containers::string, containers::string>* _str);
   void walk_parameter(const parameter* _param, containers::string* _str);
   void walk_function(const function* _func, containers::string* _str);
+  void pre_walk_function(const function* _func);
   void walk_struct_definition(
       const struct_definition* _definition, containers::string* _str);
   void walk_script_file(const script_file* _file);

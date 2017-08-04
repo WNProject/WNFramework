@@ -80,6 +80,7 @@ void ast_walker<T, Const>::leave_scope_block(const node* _node) {
 
 template <typename T, bool Const>
 void ast_walker<T, Const>::walk_function(function_type _function) {
+  m_walker->pre_walk_function(_function);
   _function->walk_children(
       walk_scope(&ast_walker<T, Const>::enter_scope_block, this),
       walk_scope(&ast_walker<T, Const>::leave_scope_block, this),

@@ -285,9 +285,9 @@ struct type_definition {
                                : static_cast<uint32_t>(-1);
   }
 
-  uint32_t get_function_call(containers::string_view _function) {
+  uint32_t get_function_call(containers::string_view _function) const {
     auto it = std::find_if(m_functions.begin(), m_functions.end(),
-        [_function](member_function& funct) {
+        [_function](const member_function& funct) {
           return _function == funct.function_name;
         });
     return (it != m_functions.end()) ? it->type_id : 0;
