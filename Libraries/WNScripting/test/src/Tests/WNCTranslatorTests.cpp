@@ -2,13 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNScripting/inc/WNCTranslator.h"
 #include "WNExecutableTest/inc/WNTestHarness.h"
 #include "WNFileSystem/inc/WNFactory.h"
 #include "WNFileSystem/inc/WNMapping.h"
 #include "WNLogging/inc/WNBufferLogger.h"
 #include "WNLogging/inc/WNLog.h"
-#include "WNScripting/test/inc/Common.h"
+#include "WNScripting/inc/WNCTranslator.h"
 #include "WNScripting/test/inc/Common.h"
 
 void flush_buffer(void* v, const char* bytes, size_t length,
@@ -1461,6 +1460,9 @@ INSTANTIATE_TEST_CASE_P(
         { "  Void doF() {",        "" },
         { "    x = x + 4;",        "" },
         { "  }",                   "" },
+        { "  Void doY() { ",       "" },
+        { "     doF();",           "" },
+        { "  }",                   "" },
         { "}",                     "} Foo;" },
         { "",                      "\n" },
         { "",                      "Foo* _Z3wns14_construct_FooENR3FooENUC3FooE(Foo* _this) {" },
@@ -1471,6 +1473,10 @@ INSTANTIATE_TEST_CASE_P(
         { "",                      "void _Z3wns13_destruct_FooEvNUC3FooE(Foo* _this) {" },
         { "",                      "return;" },
         { "",                      "}" },
+        { "",                      "\n"},
+        { "",                      "void _Z3wns3doYEvNR3FooE(Foo* _this) {"},
+        { "",                      "_Z3wns3doFEvNR3FooE(_this);"},
+        { "",                      "}"},
         { "",                      "\n"},
         { "",                      "void _Z3wns3doFEvNR3FooE(Foo* _this) {"},
         { "",                      "_this->x = (_this->x + 4);"},
@@ -1523,8 +1529,7 @@ TEST_P(c_translator_function_params, single_parameter) {
       std::string(expected_str.c_str()), get_file_data(mapping, "file.wns.c"));
 }
 
-INSTANTIATE_TEST_CASE_P(
-    parameter_tests, c_translator_function_params,
+INSTANTIATE_TEST_CASE_P(parameter_tests, c_translator_function_params,
     ::testing::ValuesIn(
         std::vector<std::tuple<const char*, const char*, const char*>>(
             {std::make_tuple("Int", "int32_t", "l"),
@@ -1649,10 +1654,10 @@ TEST_P(c_arith_params, binary_arithmetic) {
 }
 
 INSTANTIATE_TEST_CASE_P(int_int_tests, c_arith_params,
-    ::testing::ValuesIn(std::vector<arithmetic_operations>(
-        {{"1 + 2", "(1 + 2)"}, {"10 - 20", "(10 - 20)"},
-            {"-32 * 0", "(-32 * 0)"}, {"-32 % 22", "(-32 % 22)"},
-            {"-32 + 4 * 10", "(-32 + (4 * 10))"},
+    ::testing::ValuesIn(
+        std::vector<arithmetic_operations>({{"1 + 2", "(1 + 2)"},
+            {"10 - 20", "(10 - 20)"}, {"-32 * 0", "(-32 * 0)"},
+            {"-32 % 22", "(-32 % 22)"}, {"-32 + 4 * 10", "(-32 + (4 * 10))"},
             {"27 / 4 + 8 * 3", "((27 / 4) + (8 * 3))"}})));
 
 using c_bool_params = ::testing::TestWithParam<arithmetic_operations>;

@@ -159,9 +159,9 @@ TEST_P(jit_int_params, int_passthrough) {
 
 INSTANTIATE_TEST_CASE_P(int_tests, jit_int_params,
     ::testing::Values(int_test({"0", 0}), int_test({"-1", -1}),
-                            int_test({"-32", -32}), int_test({"-4096", -4096}),
-                            int_test({"2147483647", INT32_MAX}),
-                            int_test({"-2147483648", (INT32_MIN)})));
+        int_test({"-32", -32}), int_test({"-4096", -4096}),
+        int_test({"2147483647", INT32_MAX}),
+        int_test({"-2147483648", (INT32_MIN)})));
 
 struct int_binary_test {
   const char* code;
@@ -196,11 +196,11 @@ TEST_P(jit_binary_arithmetic, simple_operations) {
 }
 
 INSTANTIATE_TEST_CASE_P(int_arithmetic_tests, jit_binary_arithmetic,
-    ::testing::ValuesIn(std::vector<int_binary_test>(
-        {{"1 + 2", 3}, {"2 * -3", -6}, {"10 % 4", 2}, {"-32 + 9", -23},
-            {"16 / 4", 4}, {"16 / 5", 3}, {"16 / 4 + 3", 7},
-            {"32 * 6 - 7", 185}, {"32 * (6 - 7)", -32}, {"191 + 10 * -3", 161},
-            {"100 + 396 * -1", -296}})));
+    ::testing::ValuesIn(
+        std::vector<int_binary_test>({{"1 + 2", 3}, {"2 * -3", -6},
+            {"10 % 4", 2}, {"-32 + 9", -23}, {"16 / 4", 4}, {"16 / 5", 3},
+            {"16 / 4 + 3", 7}, {"32 * 6 - 7", 185}, {"32 * (6 - 7)", -32},
+            {"191 + 10 * -3", 161}, {"100 + 396 * -1", -296}})));
 
 struct boolean_test {
   const char* code;
@@ -575,6 +575,14 @@ INSTANTIATE_TEST_CASE_P(
     { "struct Foo { Int x = 4; }"
       "Int main(Int x) { Foo[] y = Foo[10](Foo()); return y[x].x; }",
     { { 0, 4 },{ 3, 4 },{ 9, 4 } } },
+})));
+
+INSTANTIATE_TEST_CASE_P(
+  member_function_in_member_function, integer_tests,
+  ::testing::ValuesIn(std::vector<integer_test>({
+    { "class Foo { Int x = 4; Void foo() { x = x + 4; return; } Void bar() { foo(); return; } }"
+    "Int main(Int x) { Foo f = Foo(); f.bar(); return f.x + x; }",
+    { { 0, 8 },{ 3, 11 },{ 9, 17 } } },
 })));
 
 // clang-format on

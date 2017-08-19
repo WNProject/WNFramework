@@ -75,7 +75,7 @@ llvm::StringRef make_string_ref(const wn::containers::string_view& _view) {
 llvm::StringRef make_string_ref(const wn::containers::string& _view) {
   return llvm::StringRef(_view.data(), _view.length());
 }
-}
+}  // anonymous namespace
 
 namespace wn {
 namespace scripting {
@@ -496,10 +496,10 @@ void ast_jit_engine::walk_expression(
             integer_ops[static_cast<size_t>(type)], lhs.value, rhs.value);
       } else {
         inst = llvm::CmpInst::Create(llvm::Instruction::ICmp,
-            integer_compares[static_cast<short>(type) -
-                                         static_cast<short>(
-                                             arithmetic_type::arithmetic_mod) -
-                                         1],
+            integer_compares[static_cast<uint16_t>(type) -
+                             static_cast<uint16_t>(
+                                 arithmetic_type::arithmetic_mod) -
+                             1],
             lhs.value, rhs.value);
       }
       break;

@@ -633,8 +633,8 @@ public:
     memory::unique_ptr<binary_expression> bin_expr =
         memory::make_unique<binary_expression>(m_allocator, m_allocator,
             arithmetic_type::arithmetic_equal, _inst->take_condition(),
-            make_constant(m_allocator, _inst, type_classification::bool_type,
-                                                   "false"));
+            make_constant(
+                m_allocator, _inst, type_classification::bool_type, "false"));
 
     memory::unique_ptr<if_instruction> if_inst =
         memory::make_unique<if_instruction>(m_allocator, m_allocator);
@@ -961,6 +961,18 @@ public:
       }
       it->second.function_sources.push_back(f.get());
     }
+    for (auto& f : _file->get_external_functions()) {
+      auto it = m_function_map.find(f->get_signature()->get_name());
+      if (it == m_function_map.end()) {
+        containers::deque<function*> deq(m_allocator);
+        core::pair<fmap_type::iterator, bool> ins =
+            m_function_map.insert(fmap_type::value_type(
+                f->get_signature()->get_name(), id_expression::id_source()));
+        it = ins.first;
+        it->second.function_sources = containers::deque<function*>(m_allocator);
+      }
+      it->second.function_sources.push_back(f.get());
+    }
   }
 
   void post_walk_structs(script_file*) {}
@@ -998,6 +1010,8 @@ public:
   type_association_pass(memory::allocator* _allocator,
       type_validator* _validator, logging::log* _log)
     : pass(_allocator, _validator, _log),
+      m_current_function(nullptr),
+      m_current_function_object(nullptr),
       m_returns(_allocator),
       m_functions(_allocator),
       m_local_objects(_allocator) {}
@@ -1265,67 +1279,13 @@ public:
     return nullptr;
   }
 
-  memory::unique_ptr<expression> walk_expression(
-      function_call_expression* _expr) {
-    expression* base_expr = _expr->get_base_expression();
-    // TODO(awoloszyn): handle the other cases that give you functions (are
-    // there any?)
-
-    if (base_expr->get_node_type() != node_type::id_expression &&
-        base_expr->get_node_type() != node_type::member_access_expression) {
-      m_log->log_error("Cannot call function on non-id: ");
-      _expr->log_line(m_log, logging::log_level::error);
-      ++m_num_errors;
-      return nullptr;
-    }
-
-    containers::hash_map<containers::string_view,
-        containers::deque<function*>>::iterator possible_functions;
-    containers::hash_map<containers::string_view, containers::deque<function*>>
-        member_expressions(m_allocator);
-
-    containers::string name;
-
-    if (base_expr->get_node_type() == node_type::id_expression) {
-      const id_expression* id = static_cast<const id_expression*>(base_expr);
-      name = id->get_name().to_string(m_allocator);
-    } else if (base_expr->get_node_type() ==
-               node_type::member_access_expression) {
-      member_access_expression* expr =
-          static_cast<member_access_expression*>(base_expr);
-      name = expr->get_name().to_string(m_allocator);
-      memory::unique_ptr<id_expression> id_expr =
-          memory::make_unique<id_expression>(m_allocator, m_allocator, name);
-      id_expr->copy_location_from(_expr);
-      auto e = expr->take_base_expression();
-      auto t = clone_node(e->get_type());
-      _expr->add_base_expression(core::move(id_expr));
-      memory::unique_ptr<cast_expression> cast_expr =
-          memory::make_unique<cast_expression>(
-              m_allocator, m_allocator, core::move(e));
-      t->set_reference_type(reference_type::self);
-      cast_expr->set_type(core::move(t));
-      auto& expressions = _expr->get_expressions();
-      if (expressions.empty()) {
-        expressions =
-            containers::deque<memory::unique_ptr<function_expression>>(
-                m_allocator);
-      }
-      expressions.emplace_front(memory::make_unique<function_expression>(
-          m_allocator, core::move(cast_expr), false));
-    }
-
-    possible_functions = m_functions.find(name);
-    if (possible_functions == m_functions.end()) {
-      m_log->log_error("Cannot find function: ", name);
-      _expr->log_line(m_log, logging::log_level::error);
-      ++m_num_errors;
-      return nullptr;
-    }
-
+  function* get_function(const function_call_expression* _expr,
+      const containers::string& _name,
+      const containers::deque<memory::unique_ptr<function_expression>>&
+          parameters,
+      const containers::hash_map<containers::string_view,
+          containers::deque<function*>>::iterator& possible_functions) {
     function* callee = nullptr;
-    const auto& parameters = _expr->get_expressions();
-
     for (auto func : possible_functions->second) {
       if (parameters.size() != 0) {
         if (!func->get_parameters()) {
@@ -1352,20 +1312,122 @@ public:
         continue;
       }
       if (callee) {
-        m_log->log_error("Ambiguous Function call: ", name);
+        m_log->log_error("Ambiguous Function call: ", _name);
         _expr->log_line(m_log, logging::log_level::error);
         ++m_num_errors;
         return nullptr;
       }
       callee = func;
     }
+    return callee;
+  }
 
-    if (!callee) {
+  memory::unique_ptr<expression> walk_expression(
+      function_call_expression* _expr) {
+    expression* base_expr = _expr->get_base_expression();
+    // TODO(awoloszyn): handle the other cases that give you functions (are
+    // there any?)
+
+    if (base_expr->get_node_type() != node_type::id_expression &&
+        base_expr->get_node_type() != node_type::member_access_expression) {
+      m_log->log_error("Cannot call function on non-id: ");
+      _expr->log_line(m_log, logging::log_level::error);
+      ++m_num_errors;
+      return nullptr;
+    }
+
+    containers::string name;
+    bool may_be_self = true;
+
+    if (base_expr->get_node_type() == node_type::id_expression) {
+      const id_expression* id = static_cast<const id_expression*>(base_expr);
+      name = id->get_name().to_string(m_allocator);
+    } else if (base_expr->get_node_type() ==
+               node_type::member_access_expression) {
+      may_be_self = false;
+      member_access_expression* expr =
+          static_cast<member_access_expression*>(base_expr);
+      name = expr->get_name().to_string(m_allocator);
+      memory::unique_ptr<id_expression> id_expr =
+          memory::make_unique<id_expression>(m_allocator, m_allocator, name);
+      id_expr->copy_location_from(_expr);
+      auto e = expr->take_base_expression();
+      auto t = clone_node(e->get_type());
+      _expr->add_base_expression(core::move(id_expr));
+      memory::unique_ptr<cast_expression> cast_expr =
+          memory::make_unique<cast_expression>(
+              m_allocator, m_allocator, core::move(e));
+      t->set_reference_type(reference_type::self);
+      cast_expr->set_type(core::move(t));
+      auto& expressions = _expr->get_expressions();
+      if (expressions.empty()) {
+        expressions =
+            containers::deque<memory::unique_ptr<function_expression>>(
+                m_allocator);
+      }
+
+      expressions.emplace_front(memory::make_unique<function_expression>(
+          m_allocator, core::move(cast_expr), false));
+    }
+
+    containers::hash_map<containers::string_view,
+        containers::deque<function*>>::iterator possible_functions;
+    possible_functions = m_functions.find(name);
+    if (possible_functions == m_functions.end()) {
       m_log->log_error("Cannot find function: ", name);
       _expr->log_line(m_log, logging::log_level::error);
       ++m_num_errors;
       return nullptr;
     }
+
+    const auto& parameters = _expr->get_expressions();
+    function* callee =
+        get_function(_expr, name, parameters, possible_functions);
+    function* member_call = nullptr;
+    memory::unique_ptr<id_expression> this_expr;
+    if (m_current_function) {
+      containers::deque<memory::unique_ptr<function_expression>> expressions(
+          m_allocator);
+      this_expr =
+          memory::make_unique<id_expression>(m_allocator, m_allocator, "_this");
+
+      this_expr->set_id_source({m_current_function_object->get_parameters()
+                                    ->get_parameters()[0]
+                                    .get(),
+          nullptr});
+      this_expr->copy_location_from(_expr);
+      memory::unique_ptr<type> this_type = memory::make_unique<type>(
+          m_allocator, m_allocator, m_current_function->get_type_index());
+      this_type->set_reference_type(reference_type::self);
+      this_type->copy_location_from(_expr);
+      this_expr->set_type(core::move(this_type));
+
+      expressions.push_back(memory::make_unique<function_expression>(
+          m_allocator, clone_node(this_expr), false));
+      for (size_t i = 0; i < parameters.size(); ++i) {
+        expressions.push_back(memory::make_unique<function_expression>(
+            m_allocator, clone_node(parameters[i]->m_expr.get()), false));
+      }
+      member_call = get_function(_expr, name, expressions, possible_functions);
+    }
+
+    if (!callee && !member_call) {
+      m_log->log_error("Cannot find function: ", name);
+      _expr->log_line(m_log, logging::log_level::error);
+      ++m_num_errors;
+      return nullptr;
+    } else if (callee && member_call) {
+      m_log->log_error("Ambiguous function: ", name);
+      _expr->log_line(m_log, logging::log_level::error);
+      ++m_num_errors;
+      return nullptr;
+    } else if (member_call) {
+      callee = member_call;
+      _expr->get_expressions().push_front(
+          memory::make_unique<function_expression>(
+              m_allocator, core::move(this_expr), false));
+    }
+
     // TODO(awoloszyn): Insert explicit cast operations if we need do here.
     _expr->set_callee(callee);
     memory::unique_ptr<type> t =
@@ -1928,6 +1990,7 @@ public:
   }
 
   void walk_function(function* _func) {
+    m_current_function = nullptr;
     const type* function_return_type = _func->get_signature()->get_type();
 
     for (const auto& return_inst : m_returns) {
@@ -2002,7 +2065,12 @@ public:
       register_function(function.get());
     }
   }
-  void pre_walk_function(function*) {}
+  void pre_walk_function(function* _f) {
+    if (_f->get_this_pointer()) {
+      m_current_function = _f->get_this_pointer();
+      m_current_function_object = _f;
+    }
+  }
   void post_walk_structs(script_file*) {}
   void walk_script_file(script_file*) {}
 
@@ -2049,6 +2117,8 @@ private:
   containers::deque<return_instruction*> m_returns;
   containers::hash_map<containers::string_view, containers::deque<function*>>
       m_functions;
+  const struct_definition* m_current_function;
+  const function* m_current_function_object;
   struct local_scope {
     // We have to add this here as VS2013 does not automatically
     // generate move constructors.
@@ -2290,8 +2360,8 @@ public:
     memory::unique_ptr<binary_expression> bin_expr =
         memory::make_unique<binary_expression>(m_allocator, m_allocator,
             arithmetic_type::arithmetic_equal, core::move(val_id),
-            make_constant(m_allocator, _alloc, type_classification::int_type,
-                                                   "0"));
+            make_constant(
+                m_allocator, _alloc, type_classification::int_type, "0"));
     bin_expr->copy_location_from(_alloc);
 
     memory::unique_ptr<if_instruction> if_inst =
@@ -2421,9 +2491,8 @@ public:
     increment_write_id->copy_location_from(new_do.get());
 
     memory::unique_ptr<binary_expression> increment =
-        memory::make_unique<binary_expression>(
-            m_allocator, m_allocator, arithmetic_type::arithmetic_sub,
-            core::move(increment_read_id),
+        memory::make_unique<binary_expression>(m_allocator, m_allocator,
+            arithmetic_type::arithmetic_sub, core::move(increment_read_id),
             make_constant(
                 m_allocator, new_do.get(), type_classification::int_type, "1"));
     increment->copy_location_from(new_do.get());
