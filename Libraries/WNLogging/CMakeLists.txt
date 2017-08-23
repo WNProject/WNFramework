@@ -24,25 +24,27 @@ set(SOURCES
   inc/WNLog.inl
   inc/WNLogEnums.h
   inc/WNMultiLogger.h
+  src/WNLog.cpp
 )
 
 option(WN_ALLOW_TESTING_LOG "Allow the use of a global testing log"
   ${WN_ALLOW_TESTING_LOG})
 
+set(ADDITIONAL_SOURCES)
+
 if(${WN_ALLOW_TESTING_LOG})
-  add_wn_library(WNLogging
-    SOURCES
-      ${SOURCES}
-      src/WNTestingLog.cpp
-    LIBS
-  )
-else()
-  add_wn_header_library(WNLogging
-    SOURCES
-      ${SOURCES}
-    LIBS
+  set(ADDITIONAL_SOURCES
+    src/WNTestingLog.cpp
   )
 endif()
+
+add_wn_library(WNLogging
+  SOURCES
+    ${ADDITIONAL_SOURCES}
+    ${SOURCES}
+  LIBS
+)
+
 wn_add_subdirectory(test)
 
 configure_file(inc/Internal/WNConfig.h.in
