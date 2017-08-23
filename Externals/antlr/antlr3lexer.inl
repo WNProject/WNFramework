@@ -3,6 +3,7 @@ ANTLR_BEGIN_NAMESPACE()
 template<class ImplTraits>
 Lexer<ImplTraits>::Lexer(ANTLR_UINT32 sizeHint, RecognizerSharedStateType* state)
 	:Lexer<ImplTraits>::RecognizerType(sizeHint, state)
+	,m_input(NULL)
 {
 }
 
@@ -53,11 +54,11 @@ void Lexer<ImplTraits>::displayRecognitionError( ANTLR_UINT8** , ExceptionBaseTy
 		err_stream << ex->get_streamName().c_str();
 		err_stream << "(";
     }
+    err_stream << ex->get_line() << ")";
 
-	err_stream << ex->get_line() << ")";
-    err_stream << ": lexer error " <<  ex->getType() << " :\n\t"
-			   << ex->get_message() << " at offset "
-			   << ex->get_charPositionInLine()+1 << ", ";
+	err_stream << ": lexer error " <<  ex->getName() << '(' << ex->getType() << ')' << " :\n\t"
+		   << ex->get_message() << " at position [" << ex->get_line() << ", "
+		   << ex->get_charPositionInLine()+1 << "], ";
 
 	{
 		ANTLR_UINT32	width;
@@ -69,17 +70,15 @@ void Lexer<ImplTraits>::displayRecognitionError( ANTLR_UINT8** , ExceptionBaseTy
 		{
 			if	(isprint(ex->get_c() ))
 			{
-				err_stream << "near '" << ex->get_c() << "' :\n";
+				err_stream << "near '" << (typename StringType::value_type) ex->get_c() << "' :\n";
 			}
 			else
 			{
-				char tmp[128];
-				sprintf( tmp, "near char(%#02X) :\n", ex->get_c() );
-				err_stream << tmp;
+				err_stream << "near char(" << std::hex << ex->get_c() << std::dec << ") :\n";
 			}
 			err_stream << "\t";
 			err_stream.width( width > 20 ? 20 : width );
-			err_stream << ex->get_index() << "\n";
+			err_stream << (typename StringType::const_pointer)ex->get_index() << "\n";
 		}
 		else
 		{
@@ -96,7 +95,7 @@ void Lexer<ImplTraits>::displayRecognitionError( ANTLR_UINT8** , ExceptionBaseTy
 			{
 				err_stream << "looks like this:\n\t\t";
 				err_stream.width( width > 20 ? 20 : width );
-				err_stream << this->get_state()->get_tokenStartCharIndex() << "\n";
+				err_stream << (typename StringType::const_pointer)this->get_state()->get_tokenStartCharIndex() << "\n";
 			}
 			else
 			{
@@ -180,10 +179,9 @@ void	Lexer<ImplTraits>::popCharStream()
 }
 
 template<class ImplTraits>
-void	Lexer<ImplTraits>::emitNew(const CommonTokenType& token)
+void	Lexer<ImplTraits>::emit(const CommonTokenType* token)
 {
-	CommonTokenType* tok = this->get_rec()->get_state()->get_token();	/* Voila!   */
-	*tok = token;
+	this->get_rec()->get_state()->set_token(token);
 }
 
 template<class ImplTraits>
@@ -234,9 +232,9 @@ Lexer<ImplTraits>::~Lexer()
 template<class ImplTraits>
 bool	Lexer<ImplTraits>::matchs(ANTLR_UCHAR* str )
 {
+	RecognizerSharedStateType* state = this->get_rec()->get_state();
 	while   (*str != ANTLR_STRING_TERMINATOR)
 	{
-		RecognizerSharedStateType* state = this->get_rec()->get_state();
 		if  ( this->get_istream()->_LA(1) != (*str))
 		{
 			if	( state->get_backtracking() > 0)
@@ -259,10 +257,10 @@ bool	Lexer<ImplTraits>::matchs(ANTLR_UCHAR* str )
 		this->get_istream()->consume();
 		str++;
 
-		/* Reset any failed indicator
-		 */
-		state->set_failed( false );
 	}
+	/* Reset any failed indicator
+	 */
+	state->set_failed( false );
 	return  true;
 }
 

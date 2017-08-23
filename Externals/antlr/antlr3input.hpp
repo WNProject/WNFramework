@@ -136,7 +136,7 @@ private:
     /* API */
 public:
 	InputStream(const ANTLR_UINT8* fileName, ANTLR_UINT32 encoding);
-	InputStream(const ANTLR_UINT8* data, ANTLR_UINT32 encoding, ANTLR_UINT32 size, const ANTLR_UINT8* name);
+	InputStream(const ANTLR_UINT8* data, ANTLR_UINT32 encoding, ANTLR_UINT32 size, ANTLR_UINT8* name);
 	~InputStream();
 	const DataType* get_data() const;
 	bool get_isAllocated() const;

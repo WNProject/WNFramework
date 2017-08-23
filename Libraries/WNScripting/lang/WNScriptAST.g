@@ -36,6 +36,7 @@ tokens
     NULLTOK;
     VIRTUAL;
     OVERRIDE;
+    DEFAULT;
 }
 
 
@@ -169,6 +170,7 @@ CHAR_TYPE: 'Char';
 QUESTION: '?';
 WEAK_REF:     'weak';
 SHARED_REF:   'shared';
+DEFAULT: 'default';
 
 BOOL :  'true' | 'false';
 

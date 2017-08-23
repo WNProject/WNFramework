@@ -585,4 +585,11 @@ INSTANTIATE_TEST_CASE_P(
     { { 0, 8 },{ 3, 11 },{ 9, 17 } } },
 })));
 
+INSTANTIATE_TEST_CASE_P(
+  inherited_construction, integer_tests,
+  ::testing::ValuesIn(std::vector<integer_test>({
+    { "struct Foo { Int x = 4; Int y = x + 4; } Int main(Int x) { Foo f = Foo(); return f.y + x; }",
+    { { 0, 8 },{ 3, 11 },{ 9, 17 } } },
+})));
+
 // clang-format on

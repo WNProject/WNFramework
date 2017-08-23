@@ -90,6 +90,9 @@ T* cast_to(node* _node) {
 
 template <typename T>
 memory::unique_ptr<T> clone_node(const T* val) {
+  if (!val) {
+    return nullptr;
+  }
   memory::unique_ptr<node> n = val->clone();
   memory::allocator* alloc = n.get_allocator();
   // FUNCTION CALLS DO NOT GUARANTEE ARGUMENT ORDERING.

@@ -57,7 +57,7 @@ memory::unique_ptr<function> create_external_function(
       _function.name, _function.ret_type, _function.params));
   return core::move(fn);
 }
-}
+}  // anonymous namespace
 
 memory::unique_ptr<script_file> parse_script(memory::allocator* _allocator,
     scripting::type_validator* _validator, const char* file_name,
@@ -67,9 +67,11 @@ memory::unique_ptr<script_file> parse_script(memory::allocator* _allocator,
   memory::unique_ptr<script_file> ptr;
   {
     WNScriptASTLexer::InputStreamType input(
-        reinterpret_cast<const ANTLR_UINT8*>(view.data()), ANTLR_ENC_8BIT,
-        static_cast<ANTLR_UINT32>(view.size()),
-        reinterpret_cast<const ANTLR_UINT8*>(file_name));
+        const_cast<ANTLR_UINT8*>(
+            reinterpret_cast<const ANTLR_UINT8*>(view.data())),
+        ANTLR_ENC_8BIT, static_cast<ANTLR_UINT32>(view.size()),
+        const_cast<ANTLR_UINT8*>(
+            reinterpret_cast<const ANTLR_UINT8*>(file_name)));
 
     WNScriptASTLexer lexer(&input);
     WNScriptASTParser::TokenStreamType tStream(

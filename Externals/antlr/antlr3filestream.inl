@@ -41,11 +41,11 @@ ANTLR_UINT32	FileUtils<ImplTraits>::AntlrRead8Bit(InputStreamType* input, const 
 
 	/* Check that it was there
 	*/
-//	if	(infile == NULL)
-//	{
-//		ParseFileAbsentException ex;
-//		throw ex;
-//	}
+	//if	(infile == NULL)
+	//{
+	//	ParseFileAbsentException ex;
+	//	throw ex;
+	//}
 
 	/* It was there, so we can read the bytes now
 	*/

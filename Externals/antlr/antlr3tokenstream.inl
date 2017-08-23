@@ -1,8 +1,3 @@
-#if defined(_MSC_VER) && _MSC_VER >= 1900
-#pragma warning(push)
-#pragma warning(disable: 4459)
-#endif
-
 ANTLR_BEGIN_NAMESPACE()
 
 template<class ImplTraits>
@@ -37,9 +32,9 @@ ANTLR_INLINE typename TokenSource<ImplTraits>::StringType& TokenSource<ImplTrait
 }
 
 template<class ImplTraits>
-ANTLR_INLINE void TokenSource<ImplTraits>::set_fileName( const StringType& fileName )
+ANTLR_INLINE void TokenSource<ImplTraits>::set_fileName( const StringType& _fileName )
 {
-	m_fileName = fileName;
+	m_fileName = _fileName;
 }
 
 template<class ImplTraits>
@@ -940,7 +935,3 @@ CommonTokenStream<ImplTraits>::~CommonTokenStream()
 }
 
 ANTLR_END_NAMESPACE()
-
-#if defined(_MSC_VER) && _MSC_VER >= 1900
-#pragma warning(pop)
-#endif

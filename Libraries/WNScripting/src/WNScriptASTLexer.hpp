@@ -111,7 +111,6 @@ public:
 	enum Tokens
 	{
 		EOF_TOKEN = WNScriptASTLexerImplTraits::CommonTokenType::TOKEN_EOF
-		, T__52 = 52
 		, T__53 = 53
 		, T__54 = 54
 		, T__55 = 55
@@ -131,6 +130,7 @@ public:
 		, T__69 = 69
 		, T__70 = 70
 		, T__71 = 71
+		, T__72 = 72
 		, BOOL = 4
 		, BOOL_TYPE = 5
 		, BREAK = 6
@@ -141,44 +141,45 @@ public:
 		, COMMA = 11
 		, COMMENT = 12
 		, CONTINUE = 13
-		, DO = 14
-		, DOUBDEC = 15
-		, DOUBINC = 16
-		, ELSE = 17
-		, ESC_SEQ = 18
-		, EXPONENT = 19
-		, FLOAT = 20
-		, FLOAT_TYPE = 21
-		, FOR = 22
-		, HEX_DIGIT = 23
-		, ID = 24
-		, IF = 25
-		, INCLUDE = 26
-		, INT = 27
-		, INT_TYPE = 28
-		, LBRACE = 29
-		, LBRACKET = 30
-		, LSQBRACKET = 31
-		, NULLTOK = 32
-		, OCTAL_ESC = 33
-		, OVERRIDE = 34
-		, QUESTION = 35
-		, RBRACE = 36
-		, RBRACKET = 37
-		, RETURN = 38
-		, RSQBRACKET = 39
-		, SEMICOLON = 40
-		, SHARED_REF = 41
-		, STRING = 42
-		, STRING_TYPE = 43
-		, STRUCT = 44
-		, TYPE = 45
-		, UNICODE_ESC = 46
-		, VIRTUAL = 47
-		, VOID_TYPE = 48
-		, WEAK_REF = 49
-		, WHILE = 50
-		, WS = 51
+		, DEFAULT = 14
+		, DO = 15
+		, DOUBDEC = 16
+		, DOUBINC = 17
+		, ELSE = 18
+		, ESC_SEQ = 19
+		, EXPONENT = 20
+		, FLOAT = 21
+		, FLOAT_TYPE = 22
+		, FOR = 23
+		, HEX_DIGIT = 24
+		, ID = 25
+		, IF = 26
+		, INCLUDE = 27
+		, INT = 28
+		, INT_TYPE = 29
+		, LBRACE = 30
+		, LBRACKET = 31
+		, LSQBRACKET = 32
+		, NULLTOK = 33
+		, OCTAL_ESC = 34
+		, OVERRIDE = 35
+		, QUESTION = 36
+		, RBRACE = 37
+		, RBRACKET = 38
+		, RETURN = 39
+		, RSQBRACKET = 40
+		, SEMICOLON = 41
+		, SHARED_REF = 42
+		, STRING = 43
+		, STRING_TYPE = 44
+		, STRUCT = 45
+		, TYPE = 46
+		, UNICODE_ESC = 47
+		, VIRTUAL = 48
+		, VOID_TYPE = 49
+		, WEAK_REF = 50
+		, WHILE = 51
+		, WS = 52
 	};
 
 };
@@ -206,7 +207,6 @@ public:
 
 
 
-    void  mT__52( );
     void  mT__53( );
     void  mT__54( );
     void  mT__55( );
@@ -226,6 +226,7 @@ public:
     void  mT__69( );
     void  mT__70( );
     void  mT__71( );
+    void  mT__72( );
     void  mLSQBRACKET( );
     void  mRSQBRACKET( );
     void  mLBRACKET( );
@@ -259,6 +260,7 @@ public:
     void  mQUESTION( );
     void  mWEAK_REF( );
     void  mSHARED_REF( );
+    void  mDEFAULT( );
     void  mBOOL( );
     void  mID( );
     void  mTYPE( );

@@ -135,8 +135,7 @@ class TraitsBase
 public:
 	typedef TraitsBase  TraitsType;
 	
-	typedef typename TraitsSelector< typename UserTraits<TraitsType>::AllocPolicyType, 
-									DefaultAllocPolicy >::selected  AllocPolicyType;
+	typedef typename TraitsSelector< typename UserTraits<TraitsType>::AllocPolicyType, DefaultAllocPolicy >::selected  AllocPolicyType;
 
 	typedef typename TraitsSelector< typename UserTraits<TraitsType>::StringType, 
 									std::string >::selected StringType;
