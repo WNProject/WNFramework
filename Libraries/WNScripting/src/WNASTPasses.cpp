@@ -1154,6 +1154,10 @@ public:
     }
     const type_definition& def = m_validator->get_operations(type_index);
     uint32_t member_type = def.get_member_id(_expr->get_name());
+    containers::string s(m_allocator);
+    if (member_type != 0) {
+      s = m_validator->get_type_name(member_type);
+    }
     const type_definition& member_def =
         m_validator->get_operations(member_type);
     if (member_type == 0) {
@@ -1194,8 +1198,8 @@ public:
     } else {
       type* t = m_allocator->construct<type>(
           m_allocator, member_type, member_def.get_reference_type());
-
       t->copy_location_from(_expr);
+      t->set_type_name(s);
       _expr->set_type(t);
     }
 
@@ -3055,7 +3059,9 @@ public:
             memory::unique_ptr<declaration> decl =
                 memory::make_unique<declaration>(m_allocator, m_allocator);
             decl->copy_location_from(member.get());
-            memory::unique_ptr<type> new_type = clone_node(member->get_type());
+            struct_allocation_expression* sa =
+                cast_to<struct_allocation_expression>(member->get_expression());
+            memory::unique_ptr<type> new_type = clone_node(sa->get_type());
             new_type->copy_location_from(member->get_type());
             memory::unique_ptr<parameter> param =
                 memory::make_unique<parameter>(m_allocator, m_allocator,
@@ -3219,7 +3225,8 @@ public:
       // This means: Remove all of the right-hand-sides from the
       // declarations, and create assignment instructions in an instruction
       // list.
-      for (auto& a : _definition->get_struct_members()) {
+      for (uint32_t o : _definition->get_initialization_order()) {
+        auto& a = _definition->get_struct_members()[o];
         memory::unique_ptr<expression> expr(a->take_expression());
         // There is no way to write code that is missing an expression on the
         // RHS.
@@ -3266,9 +3273,12 @@ public:
             if (a->get_type()->get_subtype()) {
               assignment->add_value(assign_type::equal, core::move(expr));
             } else {
+              struct_allocation_expression* sa =
+                  cast_to<struct_allocation_expression>(expr.get());
+
               constructor_name = containers::string(m_allocator, "_construct_");
-              constructor_name.append(a->get_type()->custom_type_name().data(),
-                  a->get_type()->custom_type_name().size());
+              constructor_name.append(sa->get_type()->custom_type_name().data(),
+                  sa->get_type()->custom_type_name().size());
 
               // Create _this->x = construct(&_this->__x);
 
@@ -3291,7 +3301,7 @@ public:
                   memory::make_unique<cast_expression>(
                       m_allocator, m_allocator, core::move(real_access));
               cast1->copy_location_from(cast1->get_expression());
-              cast1->set_type(clone_node(a->get_type()));
+              cast1->set_type(clone_node(sa->get_type()));
               cast1->get_type()->set_reference_type(
                   reference_type::construction);
 
@@ -3305,7 +3315,7 @@ public:
                   memory::make_unique<function_call_expression>(
                       m_allocator, m_allocator, core::move(args));
               call->copy_location_from(call->get_args());
-              call->set_type(clone_node(a->get_type()));
+              call->set_type(clone_node(sa->get_type()));
               call->get_type()->set_reference_type(reference_type::self);
 
               memory::unique_ptr<id_expression> constructor =
@@ -3319,7 +3329,7 @@ public:
                   memory::make_unique<cast_expression>(
                       m_allocator, m_allocator, core::move(call));
               cast2->copy_location_from(cast2->get_expression());
-              cast2->set_type(clone_node(cast2->get_expression()->get_type()));
+              cast2->set_type(clone_node(a->get_type()));
               cast2->get_type()->set_reference_type(reference_type::unique);
 
               assignment->add_value(assign_type::equal, core::move(cast2));
@@ -3453,6 +3463,115 @@ bool run_pass(script_file* _file, logging::log* _log,
   }
 
   return (pass.errors() == 0);
+}
+
+// run_struct_normalization_pass does not conform to the "normal"
+// pass structure. This is simply because struct normalization
+// is quite a bit simpler, all it does is copy nodes.
+bool run_struct_normalization_pass(script_file* _file, logging::log* _log,
+    type_validator*, size_t*, size_t* _num_errors) {
+  memory::allocator* alloc = _file->get_allocator();
+  auto structs = _file->take_structs();
+  using it_type =
+      containers::deque<memory::unique_ptr<struct_definition>>::iterator;
+  containers::deque<memory::unique_ptr<struct_definition>> new_structs(
+      _file->get_allocator());
+  struct struct_info {
+    it_type parent_location;
+  };
+  containers::hash_map<containers::string, struct_info> processed_structs(
+      _file->get_allocator());
+  uint32_t processed_struct_count = 0;
+  auto add_struct = [&](it_type& it) -> bool {
+    containers::string s = (*it)->get_name().to_string(alloc);
+    containers::deque<uint32_t>& init_order = (*it)->get_initialization_order();
+    if (processed_structs.find(s) != processed_structs.end()) {
+      _log->log_error(s, " was defined more than once");
+      (*it)->log_line(_log, wn::logging::log_level::error);
+      ++(*_num_errors);
+      return false;
+    }
+    containers::string p = (*it)->get_parent_name().to_string(alloc);
+    auto parent_type =
+        p == "" ? processed_structs.end() : processed_structs.find(p);
+    size_t num_parent_types = 0;
+    auto& members = (*it)->get_struct_members();
+    if (parent_type != processed_structs.end()) {
+      auto& parent = (*parent_type->second.parent_location);
+      num_parent_types = parent->get_struct_members().size();
+      for (int32_t i =
+               static_cast<uint32_t>(parent->get_struct_members().size() - 1);
+           i >= 0; --i) {
+        auto& parent_member = parent->get_struct_members()[i];
+        members.push_front(clone_node(parent_member));
+      }
+    }
+
+    for (size_t i = num_parent_types; i < members.size();) {
+      if (members[i]->is_inherited()) {
+        auto& n = members[i]->get_name();
+        size_t j = 0;
+        for (; j < num_parent_types; ++j) {
+          if (members[j]->get_name() == n) {
+            init_order.push_back(static_cast<uint32_t>(j));
+            if (!members[i]->is_default_initialized()) {
+              members[j]->set_expression(
+                  core::move(members[i]->take_expression()));
+            }
+            break;
+          }
+        }
+        if (j == num_parent_types) {
+          _log->log_error("Could not find ", n, " defined in parent class");
+          members[i]->log_line(_log, wn::logging::log_level::error);
+          ++(*_num_errors);
+          return false;
+        }
+        members.erase(members.begin() + i);
+        continue;
+      }
+      init_order.push_back(static_cast<uint32_t>(i));
+      ++i;
+    }
+    for (size_t i = 0; i < num_parent_types; ++i) {
+      if (std::find(init_order.begin(), init_order.end(), i) ==
+          init_order.end()) {
+        init_order.push_back(static_cast<uint32_t>(i));
+      }
+    }
+
+    new_structs.push_back(core::move(*it));
+    processed_structs[s] = {new_structs.end() - 1};
+    it = structs.erase(it);
+    return true;
+  };
+
+  do {
+    processed_struct_count = 0;
+    for (it_type it = structs.begin(); it != structs.end();) {
+      containers::string v = (*it)->get_parent_name().to_string(alloc);
+      if (v == "" || processed_structs.find(v) != processed_structs.end()) {
+        ++processed_struct_count;
+        if (!add_struct(it)) {
+          return false;
+        }
+        continue;
+      }
+      ++it;
+    }
+  } while (processed_struct_count > 0);
+
+  if (!structs.empty()) {
+    _log->log_error("Cycle detected in structures: ");
+    for (auto& s : structs) {
+      _log->log_error("Log: ", s->get_name());
+      s->log_line(_log, wn::logging::log_level::error);
+    }
+    (*_num_errors)++;
+    return false;
+  }
+  _file->put_structs(core::move(new_structs));
+  return true;
 }
 
 bool run_type_association_pass(script_file* _file, logging::log* _log,

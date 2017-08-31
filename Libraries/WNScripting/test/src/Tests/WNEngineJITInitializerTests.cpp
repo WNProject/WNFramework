@@ -592,4 +592,27 @@ INSTANTIATE_TEST_CASE_P(
     { { 0, 8 },{ 3, 11 },{ 9, 17 } } },
 })));
 
+INSTANTIATE_TEST_CASE_P(
+  inherited_classes, integer_tests,
+  ::testing::ValuesIn(std::vector<integer_test>({
+    { "class Foo { Int x = 4; } "
+      "class Bar : Foo { } "
+      "Int main(Int x) { Bar f = Bar(); return f.x + x; }",
+    { { 0, 4 },{ 3, 7 },{ 9, 13 } } },
+    { "class Foo { Int x = 4; } "
+      "class Bar : Foo { .x = 9; } "
+      "Int main(Int x) { Bar f = Bar(); return f.x + x; }",
+    { { 0, 9 },{ 3, 12 },{ 9, 18 } } },
+    { "class Foo { Int x = 4; } "
+      "class Bar : Foo { .x = 9; } "
+      "class Baz { Foo f = Foo(); }"
+      "class Boz { Foo f = Bar(); }"
+      "Int main(Int x) { Boz f = Boz(); return f.f.x + x; }",
+    { { 0, 9 },{ 3, 12 },{ 9, 18 } } },
+    { "class Foo { Int x = 4; Int y = x; Int z = y; } "
+    "class Bar : Foo { .x = 9; .y = default; } "
+    "Int main(Int x) { Bar b = Bar(); return b.z + x; }",
+    { { 0, 9 },{ 3, 12 },{ 9, 18 } } },
+})));
+
 // clang-format on

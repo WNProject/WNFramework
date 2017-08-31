@@ -450,6 +450,10 @@ public:
     c->print_value(m_reference_type, "Reference Type");
   }
 
+  void set_type_name(const containers::string_view& v) {
+    m_custom_type = v.to_string(m_allocator);
+  }
+
 protected:
   void copy_type(const type* _other) {
     copy_node(_other);
@@ -2107,8 +2111,9 @@ public:
   }
 
   virtual void walk_children(const walk_ftype<const expression*>& _func,
-      const walk_ftype<const type*>&) const override {
+      const walk_ftype<const type*>& _types) const override {
     _func(m_base_expression.get());
+    _types(m_type.get());
     if (!m_args) {
       return;
     }
@@ -2252,9 +2257,30 @@ private:
 class declaration : public instruction {
 public:
   declaration(memory::allocator* _allocator)
-    : instruction(_allocator, node_type::declaration) {}
+    : instruction(_allocator, node_type::declaration),
+      m_is_default_initialization(false),
+      m_is_inherited(false) {}
   void set_parameter(parameter* _parameter) {
     m_parameter = memory::unique_ptr<parameter>(m_allocator, _parameter);
+  }
+
+  void set_inherited_parameter(const containers::string_view& view) {
+    m_is_inherited = true;
+    m_parameter = memory::make_unique<parameter>(m_allocator, m_allocator);
+    m_parameter->copy_location_from(this);
+    m_parameter->set_name(view);
+  }
+
+  void set_default_initialization() {
+    m_is_default_initialization = true;
+  }
+
+  bool is_default_initialized() const {
+    return m_is_default_initialization;
+  }
+
+  bool is_inherited() const {
+    return m_is_inherited;
   }
 
   void set_parameter(memory::unique_ptr<parameter>&& _parameter) {
@@ -2346,6 +2372,8 @@ public:
 private:
   memory::unique_ptr<parameter> m_parameter;
   memory::unique_ptr<expression> m_expression;
+  bool m_is_default_initialization;
+  bool m_is_inherited;
   containers::string m_destructor_name;
 };
 
@@ -2360,7 +2388,8 @@ public:
       m_is_class(_is_class),
       m_type_index(0),
       m_struct_members(_allocator),
-      m_struct_functions(_allocator) {
+      m_struct_functions(_allocator),
+      m_initialization_order(_allocator) {
     if (_parent_type) {
       m_parent_name = _parent_type;
     }
@@ -2397,6 +2426,10 @@ public:
     return m_name;
   }
 
+  containers::string_view get_parent_name() const {
+    return m_parent_name;
+  }
+
   containers::deque<memory::unique_ptr<declaration>>& get_struct_members() {
     return m_struct_members;
   }
@@ -2404,6 +2437,14 @@ public:
   const containers::deque<memory::unique_ptr<declaration>>& get_struct_members()
       const {
     return m_struct_members;
+  }
+
+  containers::deque<uint32_t>& get_initialization_order() {
+    return m_initialization_order;
+  }
+
+  const containers::deque<uint32_t>& get_initialization_order() const {
+    return m_initialization_order;
   }
 
   virtual void walk_children(const walk_ftype<type*>& type) {
@@ -2436,6 +2477,8 @@ public:
       t->m_struct_functions.push_back(clone_node(function));
     }
     t->m_type_index = m_type_index;
+    t->m_initialization_order.insert(t->m_initialization_order.begin(),
+        m_initialization_order.begin(), m_initialization_order.end());
     return core::move(t);
   }
 
@@ -2444,6 +2487,7 @@ public:
         "Struct [", m_name, "]", "(", m_type_index, ")", ":", m_parent_name);
     c->print_value(m_struct_members, "Struct Members");
     c->print_value(m_struct_functions, "Struct functions");
+    c->print_value(m_initialization_order, "Initialization Order");
   }
 
 private:
@@ -2453,6 +2497,7 @@ private:
   uint32_t m_type_index;
   containers::deque<memory::unique_ptr<declaration>> m_struct_members;
   containers::deque<memory::unique_ptr<function>> m_struct_functions;
+  containers::deque<uint32_t> m_initialization_order;
 };
 
 class parameter_list : public node {

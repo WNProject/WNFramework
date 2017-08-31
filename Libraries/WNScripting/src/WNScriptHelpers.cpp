@@ -96,6 +96,14 @@ memory::unique_ptr<script_file> parse_script(memory::allocator* _allocator,
           create_external_function(_allocator, _validator, view, func));
     }
 
+    if (!run_struct_normalization_pass(
+            ptr.get(), _log, _validator, _num_warnings, _num_errors)) {
+      if (_dump_ast_on_failure) {
+        ptr->print_node(_log, wn::logging::log_level::error);
+      }
+      return nullptr;
+    }
+
     if (!run_symbol_resolution_pass(
             ptr.get(), _log, _validator, _num_warnings, _num_errors)) {
       if (_dump_ast_on_failure) {

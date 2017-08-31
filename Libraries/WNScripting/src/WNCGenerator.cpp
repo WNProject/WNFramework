@@ -223,8 +223,8 @@ void ast_c_translator::walk_expression(const short_circuit_expression* _ss,
 void ast_c_translator::walk_expression(const binary_expression* _binary,
     core::pair<containers::string, containers::string>* _str) {
   initialize_data(m_allocator, _str);
-  const char* m_operators[] = {" + ", " - ", " * ", " / ", " % ", " == ",
-      " != ", " <= ", " >= ", " < ", " > "};
+  const char* m_operators[] = {" + ", " - ", " * ", " / ", " % ",
+      " == ", " != ", " <= ", " >= ", " < ", " > "};
   static_assert(sizeof(m_operators) / sizeof(m_operators[0]) ==
                     static_cast<size_t>(arithmetic_type::max),
       "New oeprator type detected");
@@ -420,8 +420,14 @@ void ast_c_translator::walk_expression(const cast_expression* _cast,
     }
     return;
   }
+  // If we dropped through, then just do a normal c-style cast
+  const auto& type_dat = m_generator->get_data(_cast->get_type());
 
-  WN_RELEASE_ASSERT_DESC(false, "Not implemented: other types of casts");
+  _str->second.append("(").append(type_dat).append(")");
+  if (needs_ref) {
+    _str->second.append("&");
+  }
+  _str->second.append("(").append(dat.second).append(")");
 }
 
 void ast_c_translator::walk_expression(const function_call_expression* _call,

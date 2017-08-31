@@ -387,15 +387,6 @@ void ast_jit_engine::walk_expression(
     return;
   }
 
-  if (_cast->get_type()->get_type_value() -
-          static_cast<uint32_t>(_cast->get_type()->get_reference_type()) !=
-      _cast->get_expression()->get_type()->get_type_value() -
-          static_cast<uint32_t>(
-              _cast->get_expression()->get_type()->get_reference_type())) {
-    WN_RELEASE_ASSERT_DESC(false, "Not implemented: Other types of cast");
-    return;
-  }
-
   // If we are converting from raw to reference, then we can do away
   // with the load-inst that caused us.
   if ((_cast->get_type()->get_reference_type() == reference_type::self ||

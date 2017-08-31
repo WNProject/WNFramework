@@ -266,6 +266,7 @@ public:
      scripting::struct_allocation_expression* structInit ();
      scripting::array_allocation_expression* arrayInit ();
      scripting::declaration* declaration ();
+     scripting::declaration* inherited_declaration ();
      scripting::instruction* instructionScalar ();
      scripting::continue_instruction* continueInst ();
      scripting::break_instruction* breakInst ();

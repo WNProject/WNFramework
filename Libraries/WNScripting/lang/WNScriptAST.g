@@ -562,6 +562,20 @@ declaration returns[scripting::declaration* node]
             )
     ;
 
+
+inherited_declaration returns[scripting::declaration* node]
+@init {
+    node =  m_allocator->construct<scripting::declaration>(m_allocator);
+}
+    :    '.' a=ID { node->set_inherited_parameter($a.text.c_str());  SET_LOCATION(node, $a);}
+        ('='
+            (
+                ( c=expr { node->add_expression_initializer($c.node); SET_END_LOCATION_FROM_NODE(node, $c.node);} )
+              | ( d=DEFAULT { node->set_default_initialization(); SET_END_LOCATION(node, $d);} )
+            )
+        )
+    ;
+
 instructionScalar returns[scripting::instruction* node]
 @init {
     node = nullptr;
@@ -691,6 +705,7 @@ classDecl returns[scripting::struct_definition* node]
             LBRACE
                 (
                     (a=declaration { node->add_struct_elem($a.node);} SEMICOLON)
+                  | (j=inherited_declaration { node->add_struct_elem($j.node);} SEMICOLON)
                   | (b=function    { node->add_function($b.node); })
                   | (VIRTUAL h=function { node->add_function($h.node); $h.node->set_is_virtual(true); })
                   | (OVERRIDE i=function { node->add_function($i.node); $i.node->set_is_override(true); })
