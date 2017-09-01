@@ -150,6 +150,7 @@ public:
     }
     _definition->set_type_index(
         m_validator->register_struct_type(_definition->get_name()));
+
     auto functions = _definition->take_functions();
     for (auto& f : functions) {
       f->set_this_pointer(_definition);
@@ -168,10 +169,27 @@ public:
       _contained_types->push_back(a->get_type()->get_type_value());
     }
 
+    containers::deque<uint32_t> parent_types(m_allocator);
+    if (!_definition->get_parent_name().empty()) {
+      uint32_t parent_type_index =
+          m_validator->get_type(_definition->get_parent_name());
+      type_definition& parent_def =
+          m_validator->get_operations(parent_type_index);
+      for (auto& pt : parent_def.m_parent_types) {
+        parent_types.push_back(pt);
+      }
+      parent_types.push_back(parent_type_index);
+    }
+
     for (auto ref_type : {reference_type::self, reference_type::unique,
              reference_type::shared, reference_type::construction}) {
       type_definition& def =
           m_validator->get_operations(type + static_cast<uint32_t>(ref_type));
+
+      for (const uint32_t p : parent_types) {
+        def.m_parent_types.push_back(p + static_cast<uint32_t>(ref_type));
+      }
+
       for (const auto& a : _definition->get_struct_members()) {
         if (!def.register_sub_type(a->get_name(), a->get_type()->get_index())) {
           m_log->log_error("Duplicate struct element defined: ", a->get_name());
@@ -297,7 +315,7 @@ public:
     if (_type->get_index() == 0 ||
         _type->get_index() ==
             static_cast<uint32_t>(type_classification::array_type) ||
-        _type->custom_type_name() != "") {
+        !_type->custom_type_name().empty()) {
       if (_type->get_node_type() == node_type::array_type) {
         walk_array_type(cast_to<array_type>(_type));
         return;
@@ -1248,7 +1266,13 @@ public:
         size_t i = 0;
         for (; i < _expr->get_types().size(); ++i) {
           if (*_expr->get_types()[i] != *function_parameters[i]->get_type()) {
-            break;
+            const uint32_t from_type = _expr->get_types()[i]->get_type_value();
+            const uint32_t to_type =
+                function_parameters[i]->get_type()->get_type_value();
+            if (m_validator->get_cast(from_type, to_type) !=
+                cast_type::parent_class) {
+              break;
+            }
           }
         }
         if (i != _expr->get_types().size()) {
@@ -1305,7 +1329,14 @@ public:
         for (; i < parameters.size(); ++i) {
           if (*parameters[i]->m_expr->get_type() !=
               *function_parameters[i]->get_type()) {
-            break;
+            const uint32_t from_type =
+                parameters[i]->m_expr->get_type()->get_type_value();
+            const uint32_t to_type =
+                function_parameters[i]->get_type()->get_type_value();
+            if (m_validator->get_cast(from_type, to_type) !=
+                cast_type::parent_class) {
+              break;
+            }
           }
         }
         if (i != parameters.size()) {
@@ -1384,7 +1415,7 @@ public:
       return nullptr;
     }
 
-    const auto& parameters = _expr->get_expressions();
+    auto& parameters = _expr->get_expressions();
     function* callee =
         get_function(_expr, name, parameters, possible_functions);
     function* member_call = nullptr;
@@ -1438,6 +1469,21 @@ public:
         clone_node(callee->get_signature()->get_type());
     t->copy_location_from(_expr);
     _expr->set_type(core::move(t));
+
+    // TODO: Go through all parameters for callee//caller
+    //       If callee != caller, then insert a cast.
+    //       This is to handle implicit casting.
+    const auto& params = callee->get_parameters()->get_parameters();
+    for (uint32_t i = 0; i < parameters.size(); ++i) {
+      if (*parameters[i]->m_expr->get_type() != *params[i]->get_type()) {
+        memory::unique_ptr<cast_expression> to_callee =
+            memory::make_unique<cast_expression>(
+                m_allocator, m_allocator, core::move(parameters[i]->m_expr));
+        to_callee->copy_location_from(to_callee->get_expression());
+        to_callee->set_type(clone_node(params[i]->get_type()));
+        parameters[i]->m_expr = core::move(to_callee);
+      }
+    }
     return nullptr;
   }
 
@@ -3561,9 +3607,9 @@ bool run_struct_normalization_pass(script_file* _file, logging::log* _log,
   } while (processed_struct_count > 0);
 
   if (!structs.empty()) {
-    _log->log_error("Cycle detected in structures: ");
+    _log->log_error("Could not uniquely determine ancestry for structures: ");
     for (auto& s : structs) {
-      _log->log_error("Log: ", s->get_name());
+      _log->log_error("Struct: ", s->get_name());
       s->log_line(_log, wn::logging::log_level::error);
     }
     (*_num_errors)++;

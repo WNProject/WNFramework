@@ -25,6 +25,7 @@ enum cast_type {
   down,
   up,
   transparent,
+  parent_class,
   only_explicit,
   // This can only be explcitly cast.
   max
@@ -228,6 +229,7 @@ struct type_definition {
     : m_casts(_allocator),
       m_ids(_allocator),
       m_functions(_allocator),
+      m_parent_types(_allocator),
       m_allocator(_allocator),
       m_mode(reference_type::raw),
       m_mangling(_allocator),
@@ -242,6 +244,7 @@ struct type_definition {
     : m_casts(_allocator),
       m_ids(_allocator),
       m_functions(_allocator),
+      m_parent_types(_allocator),
       m_allocator(_allocator),
       m_mode(reference_type::raw),
       m_mangling(_allocator),
@@ -258,7 +261,14 @@ struct type_definition {
   cast_type get_cast_type(uint32_t _val) {
     auto it = std::find_if(m_casts.begin(), m_casts.end(),
         [_val](cast_operation& cast) { return _val == cast.cast_to; });
-    return (it == m_casts.end()) ? cast_type::invalid : it->type;
+    if (it != m_casts.end()) {
+      return it->type;
+    }
+    if (std::find(m_parent_types.begin(), m_parent_types.end(), _val) !=
+        m_parent_types.end()) {
+      return cast_type::parent_class;
+    }
+    return cast_type::invalid;
   }
 
   // Registers a subtype with the given name. Returns
@@ -270,6 +280,15 @@ struct type_definition {
     }
     m_ids.push_back(member_id({_member.to_string(m_allocator), sub_type_type}));
     return true;
+  }
+
+  bool register_parent(uint32_t _parent_type) {
+    m_parent_types.push_back(_parent_type);
+  }
+
+  uint32_t is_child_of(uint32_t _parent_type) {
+    return std::find(m_parent_types.begin(), m_parent_types.end(),
+               _parent_type) != m_parent_types.end();
   }
 
   uint32_t get_member_id(containers::string_view _member) const {
@@ -313,6 +332,7 @@ struct type_definition {
   containers::dynamic_array<cast_operation> m_casts;
   containers::dynamic_array<member_id> m_ids;
   containers::dynamic_array<member_function> m_functions;
+  containers::dynamic_array<uint32_t> m_parent_types;
   containers::string m_mangling;
   reference_type m_mode;
   uint32_t m_array_of_type;
@@ -571,9 +591,10 @@ public:
                 [this](uint32_t type) { return type >= m_types.size(); }),
         "One of the return types is out of bounds");
 
-    m_types[_type].m_functions.push_back({_name.to_string(m_allocator),
-        _return_type, containers::dynamic_array<uint32_t>(m_allocator,
-                                              _types.begin(), _types.end())});
+    m_types[_type].m_functions.push_back(
+        {_name.to_string(m_allocator), _return_type,
+            containers::dynamic_array<uint32_t>(
+                m_allocator, _types.begin(), _types.end())});
   }
 
   containers::string get_mangled_name(const containers::string_view& name,
