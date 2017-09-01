@@ -627,6 +627,10 @@ INSTANTIATE_TEST_CASE_P(
     "Int doF(Foo f, Int x) { return f.x + x; }"
     "Int main(Int x) { Bar f = Bar(); return doF(f, x); }",
     { { 0, 5 },{ 3, 8 },{ 9, 14 } } },
+    { "class Foo { Int x = 4; Int fnc(Int f) { return f + x; } } "
+    "class Bar : Foo { .x = 6; } "
+    "Int main(Int x) { Bar f = Bar(); return f.fnc(x); }",
+    { { 0, 6 },{ 3, 9 },{ 9, 15 } } },
 })));
 
 // clang-format on

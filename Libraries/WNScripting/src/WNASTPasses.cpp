@@ -296,7 +296,18 @@ public:
   }
   void post_walk_structs(script_file*) {}
   void pre_walk_function(function*) {}
-  void walk_script_file(script_file*) {}
+  void walk_script_file(script_file* f) {
+    for (auto& s : f->get_structs()) {
+      if (!s->get_parent_name().empty()) {
+        const uint32_t parent_index = m_validator->get_type(s->get_parent_name());
+        auto& operations = m_validator->get_operations(s->get_type_index());
+        const auto& parent_operations = m_validator->get_operations(parent_index);
+        for (auto& fnc : parent_operations.m_functions) {
+          operations.m_functions.push_back(fnc);
+        }
+      }
+    }
+  }
 
   template <typename T>
   void walk_array_type(T* _at) {
