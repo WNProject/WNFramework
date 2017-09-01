@@ -2281,8 +2281,7 @@ public:
         memory::make_unique<cast_expression>(
             m_allocator, m_allocator, core::move(rhs));
     cast->copy_location_from(cast->get_expression());
-    cast->set_type(clone_node(cast->get_expression()->get_type()));
-    cast->get_type()->set_reference_type(reference_type::unique);
+    cast->set_type(clone_node(_decl->get_type()));
 
     _decl->set_expression(core::move(cast));
     return nullptr;
