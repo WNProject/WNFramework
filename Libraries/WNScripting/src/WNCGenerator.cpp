@@ -153,6 +153,13 @@ void ast_c_translator::walk_type(const type* _type, containers::string* _str) {
     case static_cast<uint32_t>(type_classification::function_ptr_type):
       *_str = core::move(containers::string(m_allocator) + "void(*)()");
       break;
+    case static_cast<uint32_t>(type_classification::vtable_type): {
+      auto str = containers::string(m_allocator, "const _vtable_");
+      str += _type->get_custom_type_data();
+      str += "*";
+      *_str = core::move(str);
+      break;
+    }
     default: {
       const containers::string_view view =
           m_validator->get_type_name(_type->get_index());
@@ -433,18 +440,57 @@ void ast_c_translator::walk_expression(const cast_expression* _cast,
 void ast_c_translator::walk_expression(const function_call_expression* _call,
     core::pair<containers::string, containers::string>* _str) {
   initialize_data(m_allocator, _str);
+  containers::string temp_name(m_allocator, "__wns_c_temp");
+  if (_call->callee()->is_override() || _call->callee()->is_virtual()) {
+    const auto& dat =
+        m_generator->get_data(_call->get_expressions()[0]->m_expr.get());
 
-  _str->second.append(_call->callee()->get_mangled_name());
+    _str->first.append(
+        m_generator->get_data(_call->get_expressions()[0]->m_expr->get_type()));
+    memory::writeuint32(
+        m_last_temporary, m_temporaries++, sizeof(m_last_temporary) - 1);
+
+    temp_name.append(m_last_temporary);
+    _str->first.append(" ");
+    _str->first.append(temp_name);
+    _str->first.append(" = ");
+    _str->first.append(dat.second);
+    _str->first.append(";\n");
+
+    _str->second.append("(*");
+    _str->second.append(temp_name);
+    _str->second.append("->_vtable->_");
+    char scratch[12] = {0};
+    memory::writeuint32(
+        scratch, _call->callee()->get_virtual_index(), sizeof(scratch) - 1);
+    _str->second.append(scratch);
+    _str->second.append(")");
+  } else {
+    _str->second.append(_call->callee()->get_mangled_name());
+  }
+
   _str->second.append("(");
   const char* comma = "";
   for (auto& expr : _call->get_expressions()) {
     const auto& dat = m_generator->get_data(expr->m_expr.get());
     _str->first.append(dat.first);
-    _str->second.append(comma);
+    if (_call->callee()->is_override() ||
+        _call->callee()->is_virtual() && comma[0] == '\0') {
+      _str->second.append(temp_name);
+    } else {
+      _str->second.append(comma);
+      _str->second.append(dat.second);
+    }
+
     comma = ", ";
-    _str->second.append(dat.second);
   }
   _str->second.append(")");
+}
+
+void ast_c_translator::walk_expression(const vtable_initializer* _call,
+    core::pair<containers::string, containers::string>* _str) {
+  initialize_data(m_allocator, _str);
+  _str->second.append("&_c_vtable_" + _call->get_name().to_string(m_allocator));
 }
 
 void ast_c_translator::walk_parameter(
@@ -633,15 +679,60 @@ void ast_c_translator::walk_function(
   }
   *_str += ") ";
 
-  const auto& else_data = m_generator->get_data(_func->get_body());
-  *_str += else_data.first;
-  *_str += else_data.second;
-  *_str += "\n";
+  if (_func->get_body()) {
+    const auto& body_data = m_generator->get_data(_func->get_body());
+    *_str += body_data.first;
+    *_str += body_data.second;
+    *_str += "\n";
+  }
 }
 
 void ast_c_translator::walk_struct_definition(
     const struct_definition* _definition, containers::string* _str) {
-  *_str = containers::string(m_allocator) + "typedef struct {\n";
+  *_str = containers::string(m_allocator);
+
+  if (_definition->has_own_vtable()) {
+    containers::string initializer(m_allocator);
+    containers::string vtable_name(m_allocator);
+    char scratch[12] = {0};
+    uint32_t idx = 0;
+    vtable_name.append("_vtable_");
+    vtable_name.append(
+        _definition->get_name().data(), _definition->get_name().size());
+    initializer += "const ";
+    initializer += vtable_name;
+    initializer += " _c_vtable_";
+    initializer.append(
+        _definition->get_name().data(), _definition->get_name().size());
+    initializer += " = {";
+
+    *_str += "typedef struct {\n";
+    for (auto& x : _definition->get_virtual_functions()) {
+      memory::writeuint32(scratch, idx++, sizeof(scratch) - 1);
+      *_str += m_generator->get_data(x->get_signature()->get_type());
+      *_str += "(*_";
+      *_str += scratch;
+      *_str += ")(";
+      auto& params = x->get_parameters()->get_parameters();
+      for (size_t i = 0; i < params.size(); ++i) {
+        if (i != 0) {
+          *_str += ", ";
+        }
+        *_str += m_generator->get_data(params[i]->get_type());
+      }
+      *_str += ");";
+      *_str += "\n";
+      initializer += "\n   &" + x->get_mangled_name();
+    }
+    *_str += "} ";
+    _str->append(vtable_name);
+
+    *_str += ";\n\n";
+    initializer += "\n};\n\n";
+    *_str += initializer;
+  }
+
+  *_str += "typedef struct {\n";
   for (const auto& a : _definition->get_struct_members()) {
     *_str += "  " + m_generator->get_data(a->get_type()) + " ";
     _str->append(a->get_name().data(), a->get_name().size());

@@ -40,7 +40,7 @@ struct allowed_builtin_operations {
   uint32_t m_short_circuit[static_cast<uint32_t>(short_circuit_type::max)];
 };
 
-static_assert(static_cast<size_t>(type_classification::max) == 13,
+static_assert(static_cast<size_t>(type_classification::max) == 14,
     "The number of classifications has changed, please update these tables");
 static const uint32_t INVALID_TYPE =
     static_cast<uint32_t>(type_classification::invalid_type);
@@ -62,7 +62,7 @@ static const uint32_t FUNCTION_PTR_TYPE =
     static_cast<uint32_t>(type_classification::function_ptr_type);
 
 // Tables for all of the internal types.
-const allowed_builtin_operations valid_builtin_operations[12]{
+const allowed_builtin_operations valid_builtin_operations[13]{
     // clang-format off
     // empty
     {//+            -             *             /             %             ==            !=            <=            >=            <             >
@@ -198,7 +198,18 @@ const allowed_builtin_operations valid_builtin_operations[12]{
      // x++         x--
      {INVALID_TYPE, INVALID_TYPE},
      // &&          ||
-     {INVALID_TYPE, INVALID_TYPE}}
+     {INVALID_TYPE, INVALID_TYPE}},
+     // vtable
+    {//+            -             *             /             %             ==         !=         <=            >=            <             >
+    {INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, BOOL_TYPE, BOOL_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE},
+      //=         +=            -=            *=            /=            %=            <==
+    { VOID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE },
+      // ++x         --x           -x
+    { INVALID_TYPE, INVALID_TYPE, INVALID_TYPE },
+      // x++         x--
+    { INVALID_TYPE, INVALID_TYPE },
+      // &&          ||
+    { INVALID_TYPE, INVALID_TYPE }}
     // clang-format on
 };
 
@@ -332,6 +343,7 @@ struct type_definition {
   containers::dynamic_array<cast_operation> m_casts;
   containers::dynamic_array<member_id> m_ids;
   containers::dynamic_array<member_function> m_functions;
+  containers::dynamic_array<member_function> m_virtual_functions;
   containers::dynamic_array<uint32_t> m_parent_types;
   containers::string m_mangling;
   reference_type m_mode;
@@ -410,15 +422,20 @@ public:
     // Need to add extras to m_names
     m_names.emplace_back(m_allocator);
     m_names.emplace_back(m_allocator);
+    m_names.emplace_back(m_allocator);
     // Increment max_types by 2. This is because we keep
     // dummy types around for array and struct.
-    m_max_types += 2;
+    m_max_types += 3;
 
     m_types.push_back(type_definition(m_allocator, false));
-    for (size_t i = 1; i < 12; ++i) {
+    for (size_t i = 1; i < m_max_types; ++i) {
       m_types.push_back(
           type_definition(m_allocator, valid_builtin_operations[i], false));
     }
+    WN_DEBUG_ASSERT(
+        m_max_types == static_cast<uint32_t>(type_classification::max) - 1);
+    WN_DEBUG_ASSERT(
+        m_names.size() == static_cast<uint32_t>(type_classification::max) - 1);
 
     m_types[1].m_mangling = "v";
 
@@ -580,7 +597,8 @@ public:
   }
 
   void add_method(uint32_t _type, containers::string_view _name,
-      uint32_t _return_type, containers::contiguous_range<uint32_t> _types) {
+      uint32_t _return_type, containers::contiguous_range<uint32_t> _types,
+      bool _is_virtual) {
     WN_DEBUG_ASSERT_DESC(
         _type < m_types.size(), "Trying to index non-existent type");
     WN_DEBUG_ASSERT_DESC(_return_type < m_types.size(),
@@ -591,7 +609,14 @@ public:
                 [this](uint32_t type) { return type >= m_types.size(); }),
         "One of the return types is out of bounds");
 
-    m_types[_type].m_functions.push_back(
+    if (!_is_virtual) {
+      m_types[_type].m_functions.push_back(
+          {_name.to_string(m_allocator), _return_type,
+              containers::dynamic_array<uint32_t>(
+                  m_allocator, _types.begin(), _types.end())});
+      return;
+    }
+    m_types[_type].m_virtual_functions.push_back(
         {_name.to_string(m_allocator), _return_type,
             containers::dynamic_array<uint32_t>(
                 m_allocator, _types.begin(), _types.end())});

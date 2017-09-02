@@ -154,6 +154,22 @@ public:
     auto functions = _definition->take_functions();
     for (auto& f : functions) {
       f->set_this_pointer(_definition);
+      if (f->is_virtual() || f->is_override()) {
+        auto vtable_ptr = f->shallow_clone();
+        memory::unique_ptr<type> t = memory::make_unique<type>(
+            m_allocator, m_allocator, f->get_this_pointer()->get_name());
+        t->copy_location_from(f.get());
+        t->set_reference_type(reference_type::self);
+
+        memory::unique_ptr<parameter> param = memory::make_unique<parameter>(
+            m_allocator, m_allocator, core::move(t), "_this");
+        param->copy_location_from(f.get());
+        vtable_ptr->get_initialized_parameters()->prepend_parameter(
+            core::move(param));
+
+        _definition->get_virtual_functions().push_back(core::move(vtable_ptr));
+        _definition->set_has_own_vtable();
+      }
       m_additional_functions.emplace_back(core::move(f));
     }
   }
@@ -180,6 +196,41 @@ public:
       }
       parent_types.push_back(parent_type_index);
     }
+    struct_definition* parent_def = _definition->get_parent_definition();
+    // First copy the parent virtuals
+    containers::deque<memory::unique_ptr<function>> new_virtuals(m_allocator);
+    if (parent_def) {
+      for (auto& parent_virtual : parent_def->get_virtual_functions()) {
+        new_virtuals.push_back(parent_virtual->shallow_clone());
+      }
+    }
+
+    containers::deque<memory::unique_ptr<function>> old_virtuals =
+        _definition->take_virtual_functions();
+    size_t base_virtual_size = new_virtuals.size();
+    for (auto& f : old_virtuals) {
+      if (f->is_virtual()) {
+        f->set_virtual_index(static_cast<uint32_t>(new_virtuals.size()));
+        new_virtuals.push_back(core::move(f));
+      } else {
+        WN_DEBUG_ASSERT_DESC(f->is_override(), "This must be an override");
+        size_t i = 0;
+        for (; i < base_virtual_size; ++i) {
+          if (new_virtuals[i]->signatures_match(*f, true)) {
+            new_virtuals[i] = core::move(f);
+            break;
+          }
+        }
+        if (i == base_virtual_size) {
+          m_log->log_error("Could not find base function to override: ",
+              f->get_signature()->get_name());
+          f->log_line(m_log, logging::log_level::error);
+          ++m_num_errors;
+          return;
+        }
+      }
+    }
+    _definition->get_virtual_functions() = core::move(new_virtuals);
 
     for (auto ref_type : {reference_type::self, reference_type::unique,
              reference_type::shared, reference_type::construction}) {
@@ -289,7 +340,7 @@ public:
       }
 
       m_validator->add_method(f->get_this_pointer()->get_type_index(),
-          f->get_signature()->get_name(), a, types);
+          f->get_signature()->get_name(), a, types, false);
 
       _file->prepend_function(core::move(f));
     }
@@ -1043,6 +1094,7 @@ public:
       m_current_function_object(nullptr),
       m_returns(_allocator),
       m_functions(_allocator),
+      m_struct_definitions(_allocator),
       m_local_objects(_allocator) {}
   memory::unique_ptr<expression> walk_expression(expression*) {
     return nullptr;
@@ -1318,6 +1370,50 @@ public:
     return nullptr;
   }
 
+  function* get_virtual_function(const function_call_expression* _expr,
+      const struct_definition* _definition, const containers::string& _name,
+      const containers::deque<memory::unique_ptr<function_expression>>&
+          parameters) {
+    function* callee = nullptr;
+    for (auto& virtual_function : _definition->get_virtual_functions()) {
+      if (_name != virtual_function->get_signature()->get_name()) {
+        continue;
+      }
+      const auto& function_parameters =
+          virtual_function->get_parameters()->get_parameters();
+      if (function_parameters.size() != parameters.size()) {
+        continue;
+      }
+
+      size_t i = 1;
+      for (; i < parameters.size(); ++i) {
+        if (*parameters[i]->m_expr->get_type() !=
+            *function_parameters[i]->get_type()) {
+          const uint32_t from_type =
+              parameters[i]->m_expr->get_type()->get_type_value();
+          const uint32_t to_type =
+              function_parameters[i]->get_type()->get_type_value();
+          if (m_validator->get_cast(from_type, to_type) !=
+              cast_type::parent_class) {
+            break;
+          }
+        }
+      }
+      if (i != parameters.size()) {
+        continue;
+      }
+
+      if (callee) {
+        m_log->log_error("Ambiguous Function call: ", _name);
+        _expr->log_line(m_log, logging::log_level::error);
+        ++m_num_errors;
+        return nullptr;
+      }
+      callee = virtual_function.get();
+    }
+    return callee;
+  }
+
   function* get_function(const function_call_expression* _expr,
       const containers::string& _name,
       const containers::deque<memory::unique_ptr<function_expression>>&
@@ -1326,6 +1422,9 @@ public:
           containers::deque<function*>>::iterator& possible_functions) {
     function* callee = nullptr;
     for (auto func : possible_functions->second) {
+      if (func->is_virtual() || func->is_override()) {
+        continue;
+      }
       if (parameters.size() != 0) {
         if (!func->get_parameters()) {
           continue;
@@ -1370,6 +1469,9 @@ public:
 
   memory::unique_ptr<expression> walk_expression(
       function_call_expression* _expr) {
+    if (_expr->callee() != nullptr) {
+      return nullptr;
+    }
     expression* base_expr = _expr->get_base_expression();
     // TODO(awoloszyn): handle the other cases that give you functions (are
     // there any?)
@@ -1384,6 +1486,7 @@ public:
 
     containers::string name;
     bool may_be_self = true;
+    bool may_be_virtual = false;
 
     if (base_expr->get_node_type() == node_type::id_expression) {
       const id_expression* id = static_cast<const id_expression*>(base_expr);
@@ -1414,6 +1517,7 @@ public:
 
       expressions.emplace_front(memory::make_unique<function_expression>(
           m_allocator, core::move(cast_expr), false));
+      may_be_virtual = true;
     }
 
     containers::hash_map<containers::string_view,
@@ -1429,9 +1533,25 @@ public:
     auto& parameters = _expr->get_expressions();
     function* callee =
         get_function(_expr, name, parameters, possible_functions);
+    function* virtual_callee = nullptr;
+    if (may_be_virtual) {
+      containers::string_view struct_name = m_validator->get_type_name(
+          parameters[0]->m_expr->get_type()->get_type_value());
+      auto struct_iter = m_struct_definitions.find(struct_name);
+      if (struct_iter == m_struct_definitions.end()) {
+        m_log->log_error("Invalid structure type: ", struct_name);
+        _expr->log_line(m_log, logging::log_level::error);
+        ++m_num_errors;
+        return nullptr;
+      }
+      virtual_callee =
+          get_virtual_function(_expr, struct_iter->second, name, parameters);
+    }
+
+    bool found_self = false;
     function* member_call = nullptr;
     memory::unique_ptr<id_expression> this_expr;
-    if (m_current_function) {
+    if (m_current_function && may_be_self) {
       containers::deque<memory::unique_ptr<function_expression>> expressions(
           m_allocator);
       this_expr =
@@ -1455,24 +1575,30 @@ public:
             m_allocator, clone_node(parameters[i]->m_expr.get()), false));
       }
       member_call = get_function(_expr, name, expressions, possible_functions);
+
+      virtual_callee =
+          get_virtual_function(_expr, m_current_function, name, expressions);
+
+      found_self = member_call || virtual_callee;
     }
 
-    if (!callee && !member_call) {
+    if (!callee && !member_call && !virtual_callee) {
       m_log->log_error("Cannot find function: ", name);
       _expr->log_line(m_log, logging::log_level::error);
       ++m_num_errors;
       return nullptr;
-    } else if (callee && member_call) {
+    } else if (!!callee + !!member_call + !!virtual_callee > 1) {
       m_log->log_error("Ambiguous function: ", name);
       _expr->log_line(m_log, logging::log_level::error);
       ++m_num_errors;
       return nullptr;
-    } else if (member_call) {
-      callee = member_call;
+    } else if (found_self) {
       _expr->get_expressions().push_front(
           memory::make_unique<function_expression>(
               m_allocator, core::move(this_expr), false));
     }
+    callee =
+        member_call ? member_call : virtual_callee ? virtual_callee : callee;
 
     // TODO(awoloszyn): Insert explicit cast operations if we need do here.
     _expr->set_callee(callee);
@@ -1481,9 +1607,6 @@ public:
     t->copy_location_from(_expr);
     _expr->set_type(core::move(t));
 
-    // TODO: Go through all parameters for callee//caller
-    //       If callee != caller, then insert a cast.
-    //       This is to handle implicit casting.
     const auto& params = callee->get_parameters()->get_parameters();
     for (uint32_t i = 0; i < parameters.size(); ++i) {
       if (*parameters[i]->m_expr->get_type() != *params[i]->get_type()) {
@@ -1638,7 +1761,9 @@ public:
     }
     m_local_objects.pop_back();
   }
-  void walk_struct_definition(struct_definition*) {}
+  void walk_struct_definition(struct_definition* sd) {
+    m_struct_definitions[sd->get_name()] = sd;
+  }
 
   memory::unique_ptr<instruction> walk_instruction(
       assignment_instruction* _assign) {
@@ -2080,7 +2205,7 @@ public:
     m_returns.clear();
   }
 
-  void register_function(function* _func) {
+  void register_function(function* _func, bool _only_mangle = false) {
     walk_type(_func->get_signature()->get_type());
 
     containers::dynamic_array<uint32_t> params(m_allocator);
@@ -2098,6 +2223,9 @@ public:
         m_validator->get_mangled_name(name, return_type, params);
     _func->set_mangled_name(mangled_name);
 
+    if (_only_mangle) {
+      return;
+    }
     auto function_it = m_functions.find(name);
     if (function_it == m_functions.end()) {
       auto a = m_functions.insert(
@@ -2124,6 +2252,11 @@ public:
     }
     for (auto& function : _file->get_functions()) {
       register_function(function.get());
+    }
+    for (auto& s : _file->get_structs()) {
+      for (auto& f : s->get_virtual_functions()) {
+        register_function(f.get(), true);
+      }
     }
   }
   void pre_walk_function(function* _f) {
@@ -2178,6 +2311,8 @@ private:
   containers::deque<return_instruction*> m_returns;
   containers::hash_map<containers::string_view, containers::deque<function*>>
       m_functions;
+  containers::hash_map<containers::string_view, struct_definition*>
+      m_struct_definitions;
   const struct_definition* m_current_function;
   const function* m_current_function_object;
   struct local_scope {
@@ -2229,6 +2364,7 @@ public:
       return nullptr;
     }
     memory::unique_ptr<expression> copied_expr = _expr->transfer_to_new();
+    copied_expr->set_temporary(false);
     memory::unique_ptr<declaration> decl =
         memory::make_unique<declaration>(m_allocator, m_allocator);
 
@@ -3552,14 +3688,71 @@ bool run_struct_normalization_pass(script_file* _file, logging::log* _log,
         p == "" ? processed_structs.end() : processed_structs.find(p);
     size_t num_parent_types = 0;
     auto& members = (*it)->get_struct_members();
+
+    bool parent_has_virtual = false;
     if (parent_type != processed_structs.end()) {
+      if ((*parent_type->second.parent_location)->has_virtual()) {
+        parent_has_virtual = true;
+      }
       auto& parent = (*parent_type->second.parent_location);
+      (*it)->set_parent_definition(parent.get());
       num_parent_types = parent->get_struct_members().size();
       for (int32_t i =
                static_cast<uint32_t>(parent->get_struct_members().size() - 1);
            i >= 0; --i) {
         auto& parent_member = parent->get_struct_members()[i];
         members.push_front(clone_node(parent_member));
+      }
+    }
+
+    bool overrides_virtual = false;
+    bool new_virtual = false;
+    for (auto& member : (*it)->get_functions()) {
+      if (member->is_virtual()) {
+        new_virtual = !parent_has_virtual;
+        overrides_virtual = parent_has_virtual;
+        break;
+      }
+    }
+
+    if (new_virtual) {
+      memory::unique_ptr<declaration> vtable_decl =
+          memory::make_unique<declaration>(alloc, alloc);
+      vtable_decl->copy_location_from(it->get());
+      memory::unique_ptr<type> vtable_type = memory::make_unique<type>(
+          alloc, alloc, type_classification::vtable_type);
+      vtable_type->set_custom_type_data((*it)->get_name());
+      vtable_type->copy_location_from(it->get());
+      memory::unique_ptr<parameter> vtable_param =
+          memory::make_unique<parameter>(
+              alloc, alloc, core::move(vtable_type), "_vtable");
+      vtable_param->copy_location_from(it->get());
+
+      memory::unique_ptr<vtable_initializer> vtable_init =
+          memory::make_unique<vtable_initializer>(alloc, alloc);
+      vtable_init->copy_location_from(it->get());
+      vtable_init->set_vtable_name((*it)->get_name());
+      vtable_decl->set_expression(core::move(vtable_init));
+      vtable_decl->set_parameter(core::move(vtable_param));
+
+      members.insert(
+          members.begin() + num_parent_types, core::move(vtable_decl));
+      init_order.push_back(static_cast<uint32_t>(num_parent_types));
+      ++num_parent_types;
+    }
+
+    if (overrides_virtual) {
+      for (size_t j = 0; j < num_parent_types; ++j) {
+        if (members[j]->get_name() == "_vtable") {
+          auto& vm = members[j];
+          vm->get_type()->set_custom_type_data((*it)->get_name());
+          memory::unique_ptr<vtable_initializer> vtable_init =
+              memory::make_unique<vtable_initializer>(alloc, alloc);
+          vtable_init->copy_location_from(it->get());
+          vtable_init->set_vtable_name((*it)->get_name());
+          vm->set_expression(core::move(vtable_init));
+          break;
+        }
       }
     }
 

@@ -56,6 +56,7 @@ enum class type_classification {
   size_type,
   void_ptr_type,
   function_ptr_type,
+  vtable_type,
   array_type,
   struct_type,
   custom_type,
@@ -107,7 +108,7 @@ enum class post_unary_type { post_increment, post_decrement, max };
 // WNScript.
 static const char* post_un_names[static_cast<size_t>(post_unary_type::max)] = {
     "++", "--"};
-}
-}
+}  // namespace scripting
+}  // namespace wn
 
 #endif  //__WN_SCRIPTING_ENUMS_H__

@@ -32,6 +32,7 @@ enum class node_type {
   parameter_list,
   parameter,
   expression,
+    vtable_initializer,
     replaced_expression,
     array_allocation_expression,
     binary_expression,
@@ -450,6 +451,14 @@ public:
     c->print_value(m_reference_type, "Reference Type");
   }
 
+  void set_custom_type_data(const containers::string_view& v) {
+    m_custom_type_data = v.to_string(m_allocator);
+  }
+
+  containers::string_view get_custom_type_data() const {
+    return m_custom_type_data;
+  }
+
   void set_type_name(const containers::string_view& v) {
     m_custom_type = v.to_string(m_allocator);
   }
@@ -465,6 +474,7 @@ protected:
   uint32_t m_type;
   reference_type m_reference_type;
   containers::string m_custom_type;
+  containers::string m_custom_type_data;
 };
 
 class array_type : public type {
@@ -686,6 +696,55 @@ enum class struct_initialization_mode {
   strong,
   max
 };
+
+class vtable_initializer : public expression {
+public:
+  vtable_initializer(memory::allocator* _allocator)
+    : expression(_allocator, node_type::vtable_initializer) {
+    m_type = memory::make_unique<type>(
+        _allocator, _allocator, type_classification::vtable_type);
+  }
+
+  virtual void walk_children(
+      const walk_mutable_expression&, const walk_ftype<type*>& type) {
+    type(m_type.get());
+  }
+  virtual void walk_children(const walk_ftype<const expression*>&,
+      const walk_ftype<const type*>& type) const {
+    type(m_type.get());
+  }
+
+  // Constructs a new expression from this expression but transfers out
+  // all of the internals.
+  virtual memory::unique_ptr<expression> transfer_to_new() {
+    memory::unique_ptr<vtable_initializer> init =
+        memory::make_unique<vtable_initializer>(m_allocator, m_allocator);
+    init->copy_location_from(this);
+    init->set_type(core::move(m_type));
+    init->m_is_dead = m_is_dead;
+    init->m_is_temporary = m_is_temporary;
+    return core::move(init);
+  }
+
+  containers::string_view get_name() const {
+    return m_vtable_name;
+  }
+
+  void set_vtable_name(const containers::string_view v) {
+    m_vtable_name = v.to_string(m_allocator);
+  }
+
+  memory::unique_ptr<node> clone() const override {
+    memory::unique_ptr<vtable_initializer> t =
+        memory::make_unique<vtable_initializer>(m_allocator, m_allocator);
+    t->copy_expression(this);
+    t->m_vtable_name = m_vtable_name;
+    return core::move(t);
+  }
+
+protected:
+  containers::string m_vtable_name;
+};  // namespace scripting
 
 class array_allocation_expression : public expression {
 public:
@@ -2089,15 +2148,18 @@ private:
 class function_call_expression : public post_expression {
 public:
   function_call_expression(memory::allocator* _allocator)
-    : post_expression(_allocator, node_type::function_call_expression) {}
+    : post_expression(_allocator, node_type::function_call_expression),
+      m_callee(nullptr) {}
   function_call_expression(memory::allocator* _allocator, arg_list* _list)
     : post_expression(_allocator, node_type::function_call_expression),
-      m_args(_allocator, _list) {}
+      m_args(_allocator, _list),
+      m_callee(nullptr) {}
 
   function_call_expression(
       memory::allocator* _allocator, memory::unique_ptr<arg_list>&& _list)
     : post_expression(_allocator, node_type::function_call_expression),
-      m_args(core::move(_list)) {}
+      m_args(core::move(_list)),
+      m_callee(nullptr) {}
 
   virtual void walk_children(
       const walk_mutable_expression& _func, const walk_ftype<type*>&) override {
@@ -2386,9 +2448,13 @@ public:
       m_name(_allocator, _name),
       m_parent_name(_allocator),
       m_is_class(_is_class),
+      m_has_virtual(false),
+      m_own_vtable(false),
       m_type_index(0),
+      m_parent_definition(nullptr),
       m_struct_members(_allocator),
       m_struct_functions(_allocator),
+      m_virtual_functions(_allocator),
       m_initialization_order(_allocator) {
     if (_parent_type) {
       m_parent_name = _parent_type;
@@ -2398,7 +2464,8 @@ public:
   struct_definition(memory::allocator* _allocator)
     : node(_allocator, node_type::struct_definition),
       m_struct_members(_allocator),
-      m_struct_functions(_allocator) {}
+      m_struct_functions(_allocator),
+      m_virtual_functions(_allocator) {}
 
   void add_struct_elem(declaration* _decl) {
     m_struct_members.emplace_back(
@@ -2412,6 +2479,23 @@ public:
 
   containers::deque<memory::unique_ptr<function>> take_functions() {
     return core::move(m_struct_functions);
+  }
+
+  const containers::deque<memory::unique_ptr<function>>& get_functions() const {
+    return m_struct_functions;
+  }
+
+  containers::deque<memory::unique_ptr<function>>& get_virtual_functions() {
+    return m_virtual_functions;
+  }
+
+  containers::deque<memory::unique_ptr<function>> take_virtual_functions() {
+    return core::move(m_virtual_functions);
+  }
+
+  const containers::deque<memory::unique_ptr<function>>& get_virtual_functions()
+      const {
+    return m_virtual_functions;
   }
 
   void set_type_index(uint32_t _index) {
@@ -2470,6 +2554,9 @@ public:
     t->m_name = containers::string(m_allocator, m_name);
     t->m_parent_name = containers::string(m_allocator, m_parent_name);
     t->m_is_class = m_is_class;
+    t->m_has_virtual = m_has_virtual;
+    t->m_own_vtable = m_own_vtable;
+    t->m_parent_definition = m_parent_definition;
     for (auto& member : m_struct_members) {
       t->m_struct_members.push_back(clone_node(member));
     }
@@ -2490,13 +2577,41 @@ public:
     c->print_value(m_initialization_order, "Initialization Order");
   }
 
+  bool has_virtual() const {
+    return m_has_virtual;
+  }
+
+  void set_has_virtual() {
+    m_has_virtual = true;
+  }
+
+  bool has_own_vtable() const {
+    return m_own_vtable;
+  }
+
+  void set_has_own_vtable() {
+    m_own_vtable = true;
+  }
+
+  struct_definition* get_parent_definition() {
+    return m_parent_definition;
+  }
+
+  void set_parent_definition(struct_definition* _def) {
+    m_parent_definition = _def;
+  }
+
 private:
   containers::string m_name;
   containers::string m_parent_name;
   bool m_is_class;
+  bool m_has_virtual;
+  bool m_own_vtable;
   uint32_t m_type_index;
+  struct_definition* m_parent_definition;
   containers::deque<memory::unique_ptr<declaration>> m_struct_members;
   containers::deque<memory::unique_ptr<function>> m_struct_functions;
+  containers::deque<memory::unique_ptr<function>> m_virtual_functions;
   containers::deque<uint32_t> m_initialization_order;
 };
 
@@ -2563,7 +2678,8 @@ public:
       m_body(memory::unique_ptr<instruction_list>(m_allocator, _body)),
       m_this_pointer(nullptr),
       m_is_override(false),
-      m_is_virtual(false) {}
+      m_is_virtual(false),
+      m_virtual_index(0) {}
 
   explicit function(memory::allocator* _allocator)
     : node(_allocator, node_type::function) {}
@@ -2583,6 +2699,15 @@ public:
   void set_is_virtual(bool is_virtual) {
     m_is_virtual = is_virtual;
   }
+
+  bool is_virtual() const {
+    return m_is_virtual;
+  }
+
+  bool is_override() const {
+    return m_is_override;
+  }
+
   void set_is_override(bool is_override) {
     m_is_virtual = is_override;
   }
@@ -2617,13 +2742,12 @@ public:
       const walk_ftype<type*>& _type) {
     m_signature->walk_children(_type);
     _enter_scope(this);
-    if (m_body) {
-      if (m_parameters) {
-        for (auto& param : m_parameters->get_parameters()) {
-          _parameter(param.get());
-        }
+    if (m_parameters) {
+      for (auto& param : m_parameters->get_parameters()) {
+        _parameter(param.get());
       }
-
+    }
+    if (m_body) {
       _instructions(m_body.get());
     }
 
@@ -2640,13 +2764,12 @@ public:
     tmp_param->walk_children(_type);
 
     _enter_scope(this);
-    if (m_body) {
-      if (m_parameters) {
-        for (auto& param : m_parameters->get_parameters()) {
-          _parameter(param.get());
-        }
+    if (m_parameters) {
+      for (auto& param : m_parameters->get_parameters()) {
+        _parameter(param.get());
       }
-
+    }
+    if (m_body) {
       _instructions(m_body.get());
     }
     _leave_scope(this);
@@ -2669,6 +2792,14 @@ public:
     return m_this_pointer;
   }
 
+  void set_virtual_index(uint32_t index) {
+    m_virtual_index = index;
+  }
+
+  uint32_t get_virtual_index() const {
+    return m_virtual_index;
+  }
+
   memory::unique_ptr<node> clone() const override {
     memory::unique_ptr<function> t =
         memory::make_unique<function>(m_allocator, m_allocator);
@@ -2681,6 +2812,47 @@ public:
     t->m_is_override = m_is_override;
     t->m_is_virtual = m_is_virtual;
     return core::move(t);
+  }
+
+  // Clones the entire structure except for the function body.
+  memory::unique_ptr<function> shallow_clone() const {
+    memory::unique_ptr<function> t =
+        memory::make_unique<function>(m_allocator, m_allocator);
+    t->copy_node(this);
+    t->m_signature = clone_node(m_signature);
+    t->m_parameters = clone_node(m_parameters);
+    t->m_this_pointer = m_this_pointer;
+    t->m_mangled_name = containers::string(m_allocator, m_mangled_name);
+    t->m_is_override = m_is_override;
+    t->m_is_virtual = m_is_virtual;
+    t->m_virtual_index = m_virtual_index;
+    return core::move(t);
+  }
+
+  bool signatures_match(
+      const function& _other, bool ignore_first_element = false) const {
+    if (*m_signature->get_type() != *_other.m_signature->get_type()) {
+      return false;
+    }
+    if (m_signature->get_name() != _other.m_signature->get_name()) {
+      return false;
+    }
+    if ((m_parameters == nullptr) != (_other.m_parameters == nullptr)) {
+      return false;
+    }
+    if (m_parameters != nullptr &&
+        m_parameters->get_parameters().size() !=
+            _other.m_parameters->get_parameters().size()) {
+      return false;
+    }
+    for (size_t i = ignore_first_element ? 1 : 0;
+         m_parameters && (i < m_parameters->get_parameters().size()); ++i) {
+      if (*m_parameters->get_parameters()[i]->get_type() !=
+          *_other.m_parameters->get_parameters()[i]->get_type()) {
+        return false;
+      }
+    }
+    return true;
   }
 
   void print_node_internal(print_context* c) const override {
@@ -2706,6 +2878,7 @@ private:
   containers::string m_mangled_name;
   bool m_is_override;
   bool m_is_virtual;
+  uint32_t m_virtual_index;
 };
 
 class assignment_instruction;
@@ -3473,17 +3646,24 @@ public:
 
   virtual void walk_structs(const walk_scope&, const walk_scope&,
       const walk_mutable_instruction&, const walk_mutable_expression&,
-      const walk_ftype<function*>&, const walk_ftype<struct_definition*>& s) {
+      const walk_ftype<function*>& f, const walk_ftype<struct_definition*>& s) {
     for (auto& def : m_structs) {
+      for (auto& v : def->get_virtual_functions()) {
+        f(v.get());
+      }
       s(def.get());
     }
   }
 
   virtual void walk_structs(const walk_scope&, const walk_scope&,
       const walk_ftype<const instruction*>&,
-      const walk_ftype<const expression*>&, const walk_ftype<const function*>&,
+      const walk_ftype<const expression*>&,
+      const walk_ftype<const function*>& f,
       const walk_ftype<struct_definition*>& s) const {
     for (auto& def : m_structs) {
+      for (auto& v : def->get_virtual_functions()) {
+        f(v.get());
+      }
       s(def.get());
     }
   }

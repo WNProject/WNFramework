@@ -45,9 +45,9 @@ public:
     return m_output_string;
   }
 
-  void walk_expression(
-      const expression*, core::pair<containers::string, containers::string>*) {
-    WN_RELEASE_ASSERT_DESC(false, "Not implemented expression type");
+  void walk_expression(const expression* _e,
+      core::pair<containers::string, containers::string>*) {
+    WN_RELEASE_ASSERT_DESC(false && _e, "Not implemented expression type");
   }
   void walk_expression(const array_access_expression* _access,
       core::pair<containers::string, containers::string>* _str);
@@ -72,6 +72,8 @@ public:
   void walk_expression(const cast_expression* _cast,
       core::pair<containers::string, containers::string>* _str);
   void walk_expression(const function_call_expression* _call,
+      core::pair<containers::string, containers::string>* _str);
+  void walk_expression(const vtable_initializer* _call,
       core::pair<containers::string, containers::string>* _str);
 
   void walk_instruction_list(const instruction_list* _list,

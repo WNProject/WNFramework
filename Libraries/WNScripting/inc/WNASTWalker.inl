@@ -139,6 +139,8 @@ memory::unique_ptr<expression> ast_walker<T, Const>::walk_mut_expression(
           cast_to<struct_allocation_expression>(_expression));
     case node_type::unary_expression:
       return m_walker->walk_expression(cast_to<unary_expression>(_expression));
+    case node_type::vtable_initializer:
+      return m_walker->walk_expression(cast_to<vtable_initializer>(_expression));
     default:
       WN_RELEASE_ASSERT_DESC(false,
           "You added a new expression"
@@ -201,6 +203,8 @@ void ast_walker<T, Const>::walk_expression(const expression* _expression) {
       break;
     case node_type::unary_expression:
       m_walker->walk_expression(cast_to<unary_expression>(_expression));
+    case node_type::vtable_initializer:
+      m_walker->walk_expression(cast_to<vtable_initializer>(_expression));
       break;
     default:
       WN_DEBUG_ASSERT_DESC(false, "Invalid expression type");
