@@ -639,7 +639,34 @@ INSTANTIATE_TEST_CASE_P(
     { "class Foo { Int x = bar(); } "
       "Int bar() { return 4; }"
     "Int main(Int x) { Foo f = Foo(); return f.x; }",
-    { { 0, 6 },{ 3, 9 },{ 9, 15 } } }
+    { { 0, 4 },{ 3, 4 },{ 9, 4 } } },
+    { "class Foo { virtual Int x() { return 4; } } "
+    "Int main(Int y) { Foo f = Foo(); return f.x(); }",
+    { { 0, 4 },{ 3, 4 },{ 9, 4 } } },
+    { "class Foo { virtual Int x() { return 4; } } "
+    "class Bar : Foo { override Int x() { return 6; } } "
+    "Int main(Int y) { Bar b = Bar(); return b.x(); }",
+    { { 0, 6 },{ 3, 6 },{ 9, 6 } } },
+    { "class Foo { virtual Int x() { return 4; } } "
+    "class Bar : Foo { override Int x() { return 9; } } "
+    "Int doF(Foo f) { return f.x(); }"
+    "Int main(Int y) { Bar b = Bar(); return doF(b); }",
+    { { 0, 9 },{ 3, 9 },{ 9, 9 } } },
+    { "class Foo { virtual Int x() { return 4; } virtual Int xx() { return 5; } } "
+    "class Bar : Foo { override Int x() { return 9; } } "
+    "Int doF(Foo f) { return f.x() + f.xx(); }"
+    "Int main(Int y) { Bar b = Bar(); return doF(b); }",
+    { { 0, 14 },{ 3, 14 },{ 9, 14 } } },
+    { "class Foo { virtual Int x() { return 4; } virtual Int xx() { return 5; } } "
+    "class Bar : Foo { override Int x() { return 9; } } "
+    "Int doF(Foo f) { return f.x() + f.xx(); }"
+    "Int main(Int y) { Foo b = Foo(); return doF(b); }",
+    { { 0, 9 },{ 3, 9 },{ 9, 9 } } },
+    { "class Foo { virtual Int x() { return 4; } virtual Int xx() { return 5; } } "
+    "class Bar : Foo { override Int x() { return 0; } virtual Int q() { return 32; } } "
+    "Int doF(Foo f) { return f.x() + f.xx(); }"
+    "Int main(Int y) { Bar b = Bar(); return doF(b); }",
+    { { 0, 5 },{ 3, 5 },{ 9, 5 } } },
 })));
 
 // clang-format on

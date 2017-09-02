@@ -2464,6 +2464,7 @@ public:
       m_own_vtable(false),
       m_type_index(0),
       m_parent_definition(nullptr),
+      m_vtable_slot(0),
       m_struct_members(_allocator),
       m_struct_functions(_allocator),
       m_virtual_functions(_allocator),
@@ -2593,8 +2594,8 @@ public:
     return m_has_virtual;
   }
 
-  void set_has_virtual() {
-    m_has_virtual = true;
+  void set_has_virtual(bool has_virtual) {
+    m_has_virtual = has_virtual;
   }
 
   bool has_own_vtable() const {
@@ -2613,6 +2614,14 @@ public:
     m_parent_definition = _def;
   }
 
+  void set_vtable_index(uint32_t index) {
+    m_vtable_slot = index;
+  }
+
+  uint32_t vtable_index() const {
+    return m_vtable_slot;
+  }
+
 private:
   containers::string m_name;
   containers::string m_parent_name;
@@ -2621,6 +2630,7 @@ private:
   bool m_own_vtable;
   uint32_t m_type_index;
   struct_definition* m_parent_definition;
+  uint32_t m_vtable_slot;
   containers::deque<memory::unique_ptr<declaration>> m_struct_members;
   containers::deque<memory::unique_ptr<function>> m_struct_functions;
   containers::deque<memory::unique_ptr<function>> m_virtual_functions;
@@ -2721,7 +2731,7 @@ public:
   }
 
   void set_is_override(bool is_override) {
-    m_is_virtual = is_override;
+    m_is_override = is_override;
   }
   const parameter* get_signature() const {
     return m_signature.get();

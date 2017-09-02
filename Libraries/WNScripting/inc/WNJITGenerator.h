@@ -59,7 +59,9 @@ public:
     : m_allocator(_allocator),
       m_validator(_validator),
       m_function_map(m_allocator),
+      m_virtual_function_map(m_allocator),
       m_struct_map(m_allocator),
+      m_vtable_map(m_allocator),
       m_array_type_map(m_allocator),
       m_context(_context),
       m_module(_module),
@@ -89,6 +91,7 @@ public:
       const member_access_expression* _alloc, expression_dat* _str);
   void walk_expression(
       const function_call_expression* _call, expression_dat* _str);
+  void walk_expression(const vtable_initializer* _call, expression_dat* _str);
 
   void walk_type(const type* _type, llvm::Type** _val);
   void walk_type(const array_type* _type, llvm::Type** _val);
@@ -116,6 +119,8 @@ public:
   void walk_script_file(const script_file* _file);
   void pre_walk_script_file(const script_file* _file);
   void post_walk_structs(const script_file* _file);
+  void pre_generate_vtables(const struct_definition* _def);
+  void generate_vtables(const struct_definition* _def);
 
 private:
   void pre_walk_struct_definition(const struct_definition* _def);
@@ -124,7 +129,12 @@ private:
   memory::allocator* m_allocator;
   type_validator* m_validator;
   containers::hash_map<uint32_t, llvm::Type*> m_struct_map;
+  containers::hash_map<containers::string_view,
+      core::pair<llvm::StructType*, llvm::GlobalVariable*>>
+      m_vtable_map;
   containers::hash_map<const function*, llvm::Function*> m_function_map;
+  containers::hash_map<containers::string_view, llvm::Function*>
+      m_virtual_function_map;
   containers::hash_map<uint32_t, llvm::Type*> m_array_type_map;
   ast_code_generator<ast_jit_traits>* m_generator;
   llvm::Module* m_module;

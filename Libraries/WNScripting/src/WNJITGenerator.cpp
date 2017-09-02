@@ -118,6 +118,16 @@ void ast_jit_engine::walk_type(
     case static_cast<uint32_t>(type_classification::function_ptr_type):
       *_value = llvm::IntegerType::get(*m_context, 8)->getPointerTo();
       return;
+    case static_cast<uint32_t>(type_classification::vtable_type): {
+      if (_type->get_custom_type_data().empty()) {
+        return;
+      }
+      auto val = m_vtable_map.find(_type->get_custom_type_data());
+      WN_RELEASE_ASSERT_DESC(
+          val != m_vtable_map.end(), "Cannot find vtable for type");
+      *_value = val->second.first->getPointerTo();
+      return;
+    }
     default: {
       // First we have to normalize the id with the reference type.
       uint32_t index = _type->get_index();
@@ -572,7 +582,38 @@ void ast_jit_engine::walk_expression(
   _val->instructions =
       containers::dynamic_array<llvm::Instruction*>(m_allocator);
   containers::dynamic_array<llvm::Value*> parameters(m_allocator);
-  auto function = m_function_map[_call->callee()];
+  containers::dynamic_array<llvm::Instruction*> temp_instructions(m_allocator);
+
+  llvm::Value* function = nullptr;
+  if (_call->callee()->is_override() || _call->callee()->is_virtual()) {
+    const struct_definition* ds = _call->callee()->get_this_pointer();
+    WN_DEBUG_ASSERT(ds != nullptr);
+    const auto& struct_value =
+        m_generator->get_data(_call->get_expressions()[0]->m_expr.get());
+
+    llvm::Type* int32_type = llvm::IntegerType::getInt32Ty(*m_context);
+    llvm::Instruction* vtable_ptr =
+        llvm::GetElementPtrInst::CreateInBounds(struct_value.value,
+            llvm::makeArrayRef<llvm::Value*, 2>(
+                {llvm::ConstantInt::get(int32_type, 0),
+                    llvm::ConstantInt::get(int32_type, ds->vtable_index())}));
+    temp_instructions.push_back(vtable_ptr);
+    llvm::Instruction* vtable = new llvm::LoadInst(vtable_ptr, "");
+    temp_instructions.push_back(vtable);
+    llvm::Instruction* function_ptr_ptr =
+        llvm::GetElementPtrInst::CreateInBounds(
+            vtable, llvm::makeArrayRef<llvm::Value*, 2>(
+                        {llvm::ConstantInt::get(int32_type, 0),
+                            llvm::ConstantInt::get(int32_type,
+                                _call->callee()->get_virtual_index())}));
+    temp_instructions.push_back(function_ptr_ptr);
+    llvm::Instruction* loadInst = new llvm::LoadInst(function_ptr_ptr, "");
+    function = loadInst;
+    temp_instructions.push_back(loadInst);
+  } else {
+    function = m_function_map[_call->callee()];
+  }
+
   llvm::FunctionType* ft = llvm::cast<llvm::FunctionType>(
       llvm::cast<llvm::PointerType>(function->getType())->getElementType());
   int i = 0;
@@ -588,19 +629,30 @@ void ast_jit_engine::walk_expression(
     ++i;
   }
 
+  for (const auto& inst : temp_instructions) {
+    _val->instructions.push_back(inst);
+  }
+
   llvm::CallInst* call;
   // We are not allowed naming void values.
   if (_call->get_type()->get_index() ==
       static_cast<uint32_t>(type_classification::void_type)) {
-    call = llvm::CallInst::Create(
-        m_function_map[_call->callee()], make_array_ref(parameters));
+    call = llvm::CallInst::Create(function, make_array_ref(parameters));
   } else {
-    call = llvm::CallInst::Create(m_function_map[_call->callee()],
-        make_array_ref(parameters),
+    call = llvm::CallInst::Create(function, make_array_ref(parameters),
         make_string_ref(_call->callee()->get_mangled_name()));
   }
   _val->instructions.push_back(call);
   _val->value = call;
+}
+
+void ast_jit_engine::walk_expression(
+    const vtable_initializer* _call, expression_dat* _val) {
+  _val->instructions =
+      containers::dynamic_array<llvm::Instruction*>(m_allocator);
+  auto vt = m_vtable_map.find(_call->get_name());
+  WN_RELEASE_ASSERT_DESC(vt != m_vtable_map.end(), "Cannot find vtable");
+  _val->value = vt->second.second;
 }
 
 void ast_jit_engine::walk_instruction(
@@ -887,6 +939,9 @@ void ast_jit_engine::pre_walk_function_definition(const function* _func) {
       make_string_ref(_func->get_mangled_name()));
   m_module->getFunctionList().push_back(f);
   m_function_map[_func] = f;
+  if (_func->is_override() || _func->is_virtual()) {
+    m_virtual_function_map[_func->get_mangled_name()] = f;
+  }
 }
 
 void ast_jit_engine::pre_walk_function(const function*) {}
@@ -927,6 +982,12 @@ void ast_jit_engine::walk_function(const function* _func, llvm::Function** _f) {
 void ast_jit_engine::post_walk_structs(const script_file*) {}
 
 void ast_jit_engine::pre_walk_script_file(const script_file* _file) {
+  for (auto& vt : _file->get_structs()) {
+    if (vt->has_own_vtable()) {
+      pre_generate_vtables(vt.get());
+    }
+  }
+
   for (auto& strt : _file->get_structs()) {
     pre_walk_struct_definition(strt.get());
   }
@@ -937,6 +998,38 @@ void ast_jit_engine::pre_walk_script_file(const script_file* _file) {
   for (auto& func : _file->get_functions()) {
     pre_walk_function_definition(func.get());
   }
+
+  for (auto& vt : _file->get_structs()) {
+    if (vt->has_own_vtable()) {
+      generate_vtables(vt.get());
+    }
+  }
+}
+
+void ast_jit_engine::pre_generate_vtables(const struct_definition* _def) {
+  llvm::StructType* vtable_type = llvm::StructType::create(*m_context);
+  m_vtable_map[_def->get_name()] = core::make_pair(vtable_type, nullptr);
+}
+
+void ast_jit_engine::generate_vtables(const struct_definition* _def) {
+  containers::dynamic_array<llvm::Constant*> initializers(m_allocator);
+  containers::dynamic_array<llvm::Type*> function_pointers(m_allocator);
+
+  for (auto& fnc : _def->get_virtual_functions()) {
+    llvm::Function* v_f = m_virtual_function_map[fnc->get_mangled_name()];
+    llvm::Type* t = v_f->getType();
+    initializers.push_back(v_f);
+    function_pointers.push_back(t);
+  }
+  llvm::StructType* old_struct_type = m_vtable_map[_def->get_name()].first;
+  old_struct_type->setBody(make_array_ref(function_pointers));
+  llvm::Constant* c =
+      llvm::ConstantStruct::get(old_struct_type, make_array_ref(initializers));
+  llvm::GlobalVariable* gv =
+      new llvm::GlobalVariable(*m_module, old_struct_type, true,
+          llvm::GlobalValue::LinkageTypes::PrivateLinkage, c, "_vtable");
+
+  m_vtable_map[_def->get_name()] = core::make_pair(old_struct_type, gv);
 }
 
 void ast_jit_engine::walk_script_file(const script_file* _file) {

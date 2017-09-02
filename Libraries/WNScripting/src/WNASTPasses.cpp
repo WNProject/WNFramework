@@ -206,6 +206,7 @@ public:
       parent_types.push_back(parent_type_index);
     }
     struct_definition* parent_def = _definition->get_parent_definition();
+
     // First copy the parent virtuals
     containers::deque<memory::unique_ptr<function>> new_virtuals(m_allocator);
     if (parent_def) {
@@ -3686,27 +3687,31 @@ bool run_struct_normalization_pass(script_file* _file, logging::log* _log,
       _file->get_allocator());
   uint32_t processed_struct_count = 0;
   auto add_struct = [&](it_type& it) -> bool {
-    containers::string s = (*it)->get_name().to_string(alloc);
-    containers::deque<uint32_t>& init_order = (*it)->get_initialization_order();
+    struct_definition* sd = (*it).get();
+    containers::string s = sd->get_name().to_string(alloc);
+    containers::deque<uint32_t>& init_order = sd->get_initialization_order();
     if (processed_structs.find(s) != processed_structs.end()) {
       _log->log_error(s, " was defined more than once");
-      (*it)->log_line(_log, wn::logging::log_level::error);
+      sd->log_line(_log, wn::logging::log_level::error);
       ++(*_num_errors);
       return false;
     }
-    containers::string p = (*it)->get_parent_name().to_string(alloc);
+    containers::string p = sd->get_parent_name().to_string(alloc);
     auto parent_type =
-        p == "" ? processed_structs.end() : processed_structs.find(p);
+        p.empty() ? processed_structs.end() : processed_structs.find(p);
     size_t num_parent_types = 0;
-    auto& members = (*it)->get_struct_members();
+    auto& members = sd->get_struct_members();
 
     bool parent_has_virtual = false;
     if (parent_type != processed_structs.end()) {
       if ((*parent_type->second.parent_location)->has_virtual()) {
         parent_has_virtual = true;
+        sd->set_vtable_index(
+            (*parent_type->second.parent_location)->vtable_index());
       }
       auto& parent = (*parent_type->second.parent_location);
-      (*it)->set_parent_definition(parent.get());
+      sd->set_has_virtual(parent->has_virtual());
+      sd->set_parent_definition(parent.get());
       num_parent_types = parent->get_struct_members().size();
       for (int32_t i =
                static_cast<uint32_t>(parent->get_struct_members().size() - 1);
@@ -3718,8 +3723,8 @@ bool run_struct_normalization_pass(script_file* _file, logging::log* _log,
 
     bool overrides_virtual = false;
     bool new_virtual = false;
-    for (auto& member : (*it)->get_functions()) {
-      if (member->is_virtual()) {
+    for (auto& member : sd->get_functions()) {
+      if (member->is_virtual() || member->is_override()) {
         new_virtual = !parent_has_virtual;
         overrides_virtual = parent_has_virtual;
         break;
@@ -3727,12 +3732,13 @@ bool run_struct_normalization_pass(script_file* _file, logging::log* _log,
     }
 
     if (new_virtual) {
+      sd->set_has_virtual(true);
       memory::unique_ptr<declaration> vtable_decl =
           memory::make_unique<declaration>(alloc, alloc);
       vtable_decl->copy_location_from(it->get());
       memory::unique_ptr<type> vtable_type = memory::make_unique<type>(
           alloc, alloc, type_classification::vtable_type);
-      vtable_type->set_custom_type_data((*it)->get_name());
+      vtable_type->set_custom_type_data(sd->get_name());
       vtable_type->copy_location_from(it->get());
       memory::unique_ptr<parameter> vtable_param =
           memory::make_unique<parameter>(
@@ -3742,13 +3748,14 @@ bool run_struct_normalization_pass(script_file* _file, logging::log* _log,
       memory::unique_ptr<vtable_initializer> vtable_init =
           memory::make_unique<vtable_initializer>(alloc, alloc);
       vtable_init->copy_location_from(it->get());
-      vtable_init->set_vtable_name((*it)->get_name());
+      vtable_init->set_vtable_name(sd->get_name());
       vtable_decl->set_expression(core::move(vtable_init));
       vtable_decl->set_parameter(core::move(vtable_param));
 
       members.insert(
           members.begin() + num_parent_types, core::move(vtable_decl));
       init_order.push_back(static_cast<uint32_t>(num_parent_types));
+      sd->set_vtable_index(static_cast<uint32_t>(num_parent_types));
       ++num_parent_types;
     }
 
@@ -3756,11 +3763,11 @@ bool run_struct_normalization_pass(script_file* _file, logging::log* _log,
       for (size_t j = 0; j < num_parent_types; ++j) {
         if (members[j]->get_name() == "_vtable") {
           auto& vm = members[j];
-          vm->get_type()->set_custom_type_data((*it)->get_name());
+          vm->get_type()->set_custom_type_data(sd->get_name());
           memory::unique_ptr<vtable_initializer> vtable_init =
               memory::make_unique<vtable_initializer>(alloc, alloc);
           vtable_init->copy_location_from(it->get());
-          vtable_init->set_vtable_name((*it)->get_name());
+          vtable_init->set_vtable_name(sd->get_name());
           vm->set_expression(core::move(vtable_init));
           break;
         }
