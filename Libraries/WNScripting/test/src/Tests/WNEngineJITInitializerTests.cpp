@@ -633,4 +633,13 @@ INSTANTIATE_TEST_CASE_P(
     { { 0, 6 },{ 3, 9 },{ 9, 15 } } },
 })));
 
+INSTANTIATE_TEST_CASE_P(
+  call_tests, integer_tests,
+  ::testing::ValuesIn(std::vector<integer_test>({
+    { "class Foo { Int x = bar(); } "
+      "Int bar() { return 4; }"
+    "Int main(Int x) { Foo f = Foo(); return f.x; }",
+    { { 0, 6 },{ 3, 9 },{ 9, 15 } } }
+})));
+
 // clang-format on

@@ -843,6 +843,9 @@ void ast_jit_engine::walk_instruction_list(
 
 void ast_jit_engine::walk_parameter(
     const parameter* _param, llvm::Instruction** _val) {
+  if (_param->is_for_empty_function()) {
+    return;
+  }
   *_val = new llvm::AllocaInst(m_generator->get_data(_param->get_type()),
       make_string_ref(_param->get_name()));
 }

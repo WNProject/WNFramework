@@ -138,7 +138,13 @@ public:
     return nullptr;
   }
   void walk_instruction_list(instruction_list*) {}
-  void walk_function(function*) {}
+  void walk_function(function* f) {
+    if (!f->get_body() && f->get_parameters()) {
+      for (auto& param : f->get_parameters()->get_parameters()) {
+        param->set_is_for_empty_function(true);
+      }
+    }
+  }
   void walk_parameter(parameter*) {}
 
   void pre_register_struct_definition(struct_definition* _definition) {
@@ -166,6 +172,9 @@ public:
         param->copy_location_from(f.get());
         vtable_ptr->get_initialized_parameters()->prepend_parameter(
             core::move(param));
+        for (auto& p : vtable_ptr->get_parameters()->get_parameters()) {
+          p->set_is_for_empty_function(true);
+        }
 
         _definition->get_virtual_functions().push_back(core::move(vtable_ptr));
         _definition->set_has_own_vtable();
@@ -350,9 +359,11 @@ public:
   void walk_script_file(script_file* f) {
     for (auto& s : f->get_structs()) {
       if (!s->get_parent_name().empty()) {
-        const uint32_t parent_index = m_validator->get_type(s->get_parent_name());
+        const uint32_t parent_index =
+            m_validator->get_type(s->get_parent_name());
         auto& operations = m_validator->get_operations(s->get_type_index());
-        const auto& parent_operations = m_validator->get_operations(parent_index);
+        const auto& parent_operations =
+            m_validator->get_operations(parent_index);
         for (auto& fnc : parent_operations.m_functions) {
           operations.m_functions.push_back(fnc);
         }

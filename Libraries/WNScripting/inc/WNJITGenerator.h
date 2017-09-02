@@ -22,7 +22,7 @@ namespace llvm {
 class Instruction;
 class Type;
 class Value;
-}
+}  // namespace llvm
 
 namespace wn {
 namespace scripting {
@@ -94,8 +94,9 @@ public:
   void walk_type(const array_type* _type, llvm::Type** _val);
   void walk_type(const concretized_array_type* _type, llvm::Type** _val);
 
-  void walk_instruction(const instruction*, instruction_dat*) {
-    WN_RELEASE_ASSERT_DESC(false, "Unimplemented instruction type implemented");
+  void walk_instruction(const instruction* i, instruction_dat*) {
+    WN_RELEASE_ASSERT_DESC(
+        false && i, "Unimplemented instruction type implemented");
   }
   void walk_instruction_list(const instruction_list*, instruction_dat*);
   void walk_instruction(const expression_instruction* _inst, instruction_dat*);

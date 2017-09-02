@@ -2260,13 +2260,15 @@ public:
   parameter(memory::allocator* _allocator, type* _type, const char* _name)
     : node(_allocator, scripting::node_type::parameter),
       m_type(memory::unique_ptr<type>(_allocator, _type)),
-      m_name(_allocator, _name) {}
+      m_name(_allocator, _name),
+      m_is_for_empty_function(false) {}
 
   parameter(memory::allocator* _allocator, memory::unique_ptr<type>&& _type,
       containers::string_view _name)
     : node(_allocator, scripting::node_type::parameter),
       m_type(core::move(_type)),
-      m_name(_name.to_string(_allocator)) {}
+      m_name(_name.to_string(_allocator)),
+      m_is_for_empty_function(false) {}
 
   explicit parameter(memory::allocator* _allocator)
     : node(_allocator, scripting::node_type::parameter) {}
@@ -2302,6 +2304,7 @@ public:
     t->copy_node(this);
     t->m_name = containers::string(m_allocator, m_name);
     t->m_type = clone_node(m_type);
+    t->m_is_for_empty_function = m_is_for_empty_function;
     return core::move(t);
   }
 
@@ -2310,10 +2313,19 @@ public:
     c->print_value(m_type, "Type");
   }
 
+  bool is_for_empty_function() const {
+    return m_is_for_empty_function;
+  }
+
+  void set_is_for_empty_function(bool is_for_vtable) {
+    m_is_for_empty_function = is_for_vtable;
+  }
+
 private:
   friend class declaration;
   containers::string m_name;
   memory::unique_ptr<type> m_type;
+  bool m_is_for_empty_function;
 };
 
 class declaration : public instruction {
