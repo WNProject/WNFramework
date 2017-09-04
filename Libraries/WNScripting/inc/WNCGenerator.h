@@ -47,7 +47,7 @@ public:
 
   void walk_expression(const expression* _e,
       core::pair<containers::string, containers::string>*) {
-    WN_RELEASE_ASSERT_DESC(false && _e, "Not implemented expression type");
+    WN_RELEASE_ASSERT_DESC(_e && false, "Not implemented expression type");
   }
   void walk_expression(const array_access_expression* _access,
       core::pair<containers::string, containers::string>* _str);
