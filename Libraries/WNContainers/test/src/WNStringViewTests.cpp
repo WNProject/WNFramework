@@ -206,7 +206,7 @@ TEST(string_view, clear) {
 
   EXPECT_TRUE(s.empty());
   EXPECT_EQ(s.size(), 0);
-  EXPECT_GE(s.capacity(), 0);
+  EXPECT_GE(s.capacity(), 0u);
 }
 
 TEST(string_view, remove_prefix) {
