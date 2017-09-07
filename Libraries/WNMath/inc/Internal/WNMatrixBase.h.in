@@ -1,0 +1,24 @@
+// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE.txt file.
+
+#pragma once
+
+#ifndef __WN_MATH_INTERNAL_MATRIX_BASE_H__
+#define __WN_MATH_INTERNAL_MATRIX_BASE_H__
+
+#include "${WN_MATH_MATRIX_BASE_H}"
+
+namespace wn {
+namespace math {
+namespace internal {
+
+template <template <typename, size_t, size_t, bool> class MatrixType,
+    typename T, size_t Rows, size_t Columns, bool Precise>
+using matrix_base = ${WN_MATH_MATRIX_BASE_TYPE}<MatrixType, T, Rows, Columns, Precise>;
+
+}  // namespace internal
+}  // namespace math
+}  // namespace wn
+
+#endif  // __WN_MATH_INTERNAL_MATRIX_BASE_H__

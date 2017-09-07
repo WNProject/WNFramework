@@ -10,7 +10,6 @@
 #include "WNCore/inc/WNTypeTraits.h"
 #include "WNCore/inc/WNTypes.h"
 #include "WNCore/inc/WNUtility.h"
-#include "WNMath/inc/WNConfig.h"
 
 #include <cmath>
 
@@ -411,8 +410,7 @@ struct basic_traits_generic : core::non_constructable_non_copyable {
 private:
   template <typename type, const size_t exponent>
   struct pow2
-      : core::integral_constant<type, (2 * pow2<type, (exponent - 1)>::value)> {
-  };
+    : core::integral_constant<type, (2 * pow2<type, (exponent - 1)>::value)> {};
 
   template <typename type>
   struct pow2<type, 0> : core::integral_constant<type, 1> {};

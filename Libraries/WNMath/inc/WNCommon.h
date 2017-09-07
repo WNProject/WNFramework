@@ -12,12 +12,6 @@ namespace math {
 
 enum class snap_direction { nearest, down, up, truncate };
 
-namespace WNFieldOfView {
-
-struct WNHorizontal {};
-struct WNVertical {};
-};
-
 }  // namespace math
 }  // namespace wn
 

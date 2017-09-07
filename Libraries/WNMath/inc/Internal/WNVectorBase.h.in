@@ -1,0 +1,24 @@
+// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE.txt file.
+
+#pragma once
+
+#ifndef __WN_MATH_INTERNAL_VECTOR_BASE_H__
+#define __WN_MATH_INTERNAL_VECTOR_BASE_H__
+
+#include "${WN_MATH_VECTOR_BASE_H}"
+
+namespace wn {
+namespace math {
+namespace internal {
+
+template <template <typename, size_t, bool> class VectorType, typename T,
+    size_t Dimension, bool Precise>
+using vector_base = ${WN_MATH_VECTOR_BASE_TYPE}<VectorType, T, Dimension, Precise>;
+
+}  // namespace internal
+}  // namespace math
+}  // namespace wn
+
+#endif  // __WN_MATH_INTERNAL_VECTOR_BASE_H__
