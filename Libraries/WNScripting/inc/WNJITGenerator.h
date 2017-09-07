@@ -99,7 +99,7 @@ public:
 
   void walk_instruction(const instruction* i, instruction_dat*) {
     WN_RELEASE_ASSERT_DESC(
-        false && i, "Unimplemented instruction type implemented");
+        i && false, "Unimplemented instruction type implemented");
   }
   void walk_instruction_list(const instruction_list*, instruction_dat*);
   void walk_instruction(const expression_instruction* _inst, instruction_dat*);

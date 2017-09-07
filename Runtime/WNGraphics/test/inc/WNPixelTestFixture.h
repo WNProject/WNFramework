@@ -87,7 +87,7 @@ struct fuzzy_comparator {
 using default_fuzzy_comparator = fuzzy_comparator<>;
 
 inline bool should_recreate_image() {
-  for (size_t i = 0; i < wn::testing::k_arg_c; ++i) {
+  for (int32_t i = 0; i < wn::testing::k_arg_c; ++i) {
     if (strcmp(wn::testing::k_arg_v[i], "-regenerate-images") == 0) {
       return true;
     }
@@ -100,7 +100,7 @@ inline std::string get_image_filename() {
       ::testing::UnitTest::GetInstance()->current_test_info();
   std::string file_path;
   bool set_path = false;
-  for (size_t i = 0; i < wn::testing::k_arg_c; ++i) {
+  for (int32_t i = 0; i < wn::testing::k_arg_c; ++i) {
     if (strcmp(wn::testing::k_arg_v[i], "-image_path") == 0) {
       set_path = true;
     } else if (set_path == true) {
@@ -195,8 +195,8 @@ protected:
       }
       wn::runtime::graphics::clear_value value{};
       wn::runtime::graphics::image image = device->create_image(
-          wn::runtime::graphics::image_create_info{
-              width, height, wn::runtime::graphics::data_format::r8g8b8a8_unorm,
+          wn::runtime::graphics::image_create_info{width, height,
+              wn::runtime::graphics::data_format::r8g8b8a8_unorm,
               static_cast<wn::runtime::graphics::resource_states>(
                   static_cast<uint32_t>(
                       wn::runtime::graphics::resource_state::copy_source) |
@@ -223,12 +223,12 @@ protected:
       wn::runtime::graphics::image::image_buffer_resource_info resource_info =
           image.get_buffer_requirements();
 
-      wn::runtime::graphics::buffer buffer = device->create_buffer(
-          resource_info.total_memory_required,
-          static_cast<wn::runtime::graphics::resource_states>(
-              static_cast<uint32_t>(
-                  wn::runtime::graphics::resource_state::host_read,
-                  wn::runtime::graphics::resource_state::copy_dest)));
+      wn::runtime::graphics::buffer buffer =
+          device->create_buffer(resource_info.total_memory_required,
+              static_cast<wn::runtime::graphics::resource_states>(
+                  static_cast<uint32_t>(
+                      wn::runtime::graphics::resource_state::host_read,
+                      wn::runtime::graphics::resource_state::copy_dest)));
 
       wn::runtime::graphics::buffer_memory_requirements buffer_requirements =
           buffer.get_memory_requirements();
