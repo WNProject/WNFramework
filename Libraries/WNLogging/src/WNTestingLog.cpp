@@ -10,7 +10,7 @@ namespace logging {
 log* GetTestingLog() {
   static wn::logging::console_logger<wn::logging::console_location::std_out>
       default_logger;
-  static wn::logging::static_log<> log(&default_logger);
+  static wn::logging::static_log<> log(&default_logger, log_level::max, true);
   return log.log();
 }
 
