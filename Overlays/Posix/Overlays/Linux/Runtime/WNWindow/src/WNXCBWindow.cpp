@@ -45,10 +45,6 @@ void xcb_window::dispatch_loop(void*) {
         XCB_WINDOW_CLASS_INPUT_OUTPUT, m_screen->root_visual, XCB_CW_EVENT_MASK,
         values);
 
-    if (m_creation_signal) {
-      m_creation_signal->increment(1);
-    }
-
     const char* protocol = "WM_PROTOCOLS";
     xcb_intern_atom_cookie_t cookie =
         xcb_intern_atom(m_data.connection, true, strlen(protocol), protocol);
@@ -68,6 +64,10 @@ void xcb_window::dispatch_loop(void*) {
     xcb_map_window(m_data.connection, m_data.window);
 
     xcb_flush(m_data.connection);
+
+    if (m_creation_signal) {
+      m_creation_signal->increment(1);
+    }
 
     m_create_signal.increment(1);
 
