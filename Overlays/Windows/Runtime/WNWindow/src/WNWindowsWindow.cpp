@@ -96,7 +96,6 @@ void windows_window::dispatch_loop(RECT rect) {
           msg.message, ", ", msg.wParam, ", ", msg.lParam);
       TranslateMessage(&msg);
       DispatchMessage(&msg);
-
       if (m_exit) {
         break;
       }
@@ -121,7 +120,10 @@ LRESULT CALLBACK windows_window::wnd_proc(
     case WM_USER:
       if (wParam == static_cast<WPARAM>(lParam) && wParam == 0) {
         window->m_exit = true;
-        PostQuitMessage(0);
+        // Note: PostQuitMessage(0) != PostMessage(WM_QUIT);
+        // PostQuitMessage will make the window not close
+        // until a mouse event.
+        PostMessage(window->m_window.handle, WM_QUIT, 0, 0);
         return -1;
       }
     case WM_DESTROY:
