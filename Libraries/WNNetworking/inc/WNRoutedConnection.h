@@ -503,8 +503,8 @@ protected:
           (*route_callback)
               ->enqueue_job(
                   m_pool, RoutedMessage(m_header,
-                              memory::make_intrusive<SharedBuffer>(m_allocator,
-                                            core::move(m_temp_buffer)),
+                              memory::make_intrusive<SharedBuffer>(
+                                  m_allocator, core::move(m_temp_buffer)),
                               dat, network_error::ok));
           m_has_temp_buffer = false;
           continue;

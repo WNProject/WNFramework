@@ -51,6 +51,7 @@ TEST(routed_connection, default_route) {
                         strlen(sent_message))});
               }
               signal.wait_until(10);
+              main_signal->wait_until(10);
             }
             void default_route(wn::networking::RoutedMessage&&) {
               main_signal->increment(1);
@@ -121,7 +122,7 @@ TEST(routed_connection, all_are_default) {
       pool.add_unsynchronized_job(nullptr, [&]() {
         {
           auto listen_socket = manager.listen_remote_sync(
-              wn::networking::ip_protocol::ipv4, 8080);
+              wn::networking::ip_protocol::ipv4, 8081);
 
           const char* sent_message = "HelloWorld";
           struct connection_manager : wn::multi_tasking::synchronized<> {
@@ -135,6 +136,7 @@ TEST(routed_connection, all_are_default) {
                         reinterpret_cast<const uint8_t*>(sent_message),
                         strlen(sent_message))});
               }
+              main_signal->wait_until(10);
               signal.wait_until(10);
             }
             void default_route(wn::networking::RoutedMessage&&) {
@@ -177,7 +179,7 @@ TEST(routed_connection, all_are_default) {
               wn::multi_tasking::make_callback(
                   &allocator, &recv, &received_message::default_route),
               manager.connect_remote_sync("127.0.0.1",
-                  wn::networking::ip_protocol::ipv4, 8080, nullptr),
+                  wn::networking::ip_protocol::ipv4, 8081, nullptr),
               &pool);
 
           signal.wait_until(12);
@@ -206,7 +208,7 @@ TEST(routed_connection, multiple_routes) {
       pool.add_unsynchronized_job(nullptr, [&]() {
         {
           auto listen_socket = manager.listen_remote_sync(
-              wn::networking::ip_protocol::ipv4, 8080);
+              wn::networking::ip_protocol::ipv4, 8082);
 
           const char* sent_message = "HelloWorld";
           const char* sent_message2 = "foo";
@@ -232,6 +234,7 @@ TEST(routed_connection, multiple_routes) {
                         strlen(sent_message32))});
               }
               signal.wait_until(30);
+              main_signal->wait_until(32);
             }
             void default_route(wn::networking::RoutedMessage&&) {
               main_signal->increment(1);
@@ -300,14 +303,14 @@ TEST(routed_connection, multiple_routes) {
               wn::multi_tasking::make_callback(
                   &allocator, &recv, &received_message::default_route),
               manager.connect_remote_sync("127.0.0.1",
-                  wn::networking::ip_protocol::ipv4, 8080, nullptr),
+                  wn::networking::ip_protocol::ipv4, 8082, nullptr),
               &pool);
-          routed_conn.recv_async(
-              2, &signal, wn::multi_tasking::make_callback(
-                              &allocator, &recv, &received_message::route2));
-          routed_conn.recv_async(
-              32, &signal, wn::multi_tasking::make_callback(
-                               &allocator, &recv, &received_message::route32));
+          routed_conn.recv_async(2, &signal,
+              wn::multi_tasking::make_callback(
+                  &allocator, &recv, &received_message::route2));
+          routed_conn.recv_async(32, &signal,
+              wn::multi_tasking::make_callback(
+                  &allocator, &recv, &received_message::route32));
           signal.wait_until(34);
         }
         wait_for_done.notify();
@@ -334,7 +337,7 @@ TEST(routed_connection, multipart_message) {
       pool.add_unsynchronized_job(nullptr, [&]() {
         {
           auto listen_socket = manager.listen_remote_sync(
-              wn::networking::ip_protocol::ipv4, 8080);
+              wn::networking::ip_protocol::ipv4, 8083);
 
           const char* sent_message = "HelloWorld";
           struct connection_manager : wn::multi_tasking::synchronized<> {
@@ -356,11 +359,13 @@ TEST(routed_connection, multipart_message) {
                       strlen(sent_message))});
 
               conn->finish_multipart_message(wn::core::move(token), &signal,
-                  nullptr, {wn::networking::send_range(
-                               reinterpret_cast<const uint8_t*>(sent_message),
-                               strlen(sent_message))});
+                  nullptr,
+                  {wn::networking::send_range(
+                      reinterpret_cast<const uint8_t*>(sent_message),
+                      strlen(sent_message))});
 
               signal.wait_until(3);
+              main_signal->wait_until(3);
             }
             void default_route(wn::networking::RoutedMessage&&) {
               main_signal->increment(1);
@@ -410,7 +415,7 @@ TEST(routed_connection, multipart_message) {
               wn::multi_tasking::make_callback(
                   &allocator, &recv, &received_message::default_route),
               manager.connect_remote_sync("127.0.0.1",
-                  wn::networking::ip_protocol::ipv4, 8080, nullptr),
+                  wn::networking::ip_protocol::ipv4, 8083, nullptr),
               &pool);
 
           signal.wait_until(5);
