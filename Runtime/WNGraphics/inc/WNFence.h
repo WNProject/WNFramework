@@ -53,7 +53,7 @@ private:
   WN_GRAPHICS_ADD_FRIENDS(device)
   WN_GRAPHICS_ADD_FRIENDS(swapchain)
 
-  WN_FORCE_INLINE fence(device* _device) : m_device(_device), m_data({0}) {}
+  WN_FORCE_INLINE fence(device* _device) : m_data({0}), m_device(_device) {}
 
   template <typename T>
   WN_FORCE_INLINE T& data_as() {

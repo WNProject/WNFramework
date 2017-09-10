@@ -24,7 +24,7 @@ struct StackUnwinder {
   StackUnwinder() {
     mInitialized = false;
     pthread_mutex_init(&mCrashMutex, NULL);
-    for (int i = 0; i < COUNT_OF(signalsToCatch); ++i) {
+    for (size_t i = 0; i < COUNT_OF(signalsToCatch); ++i) {
       struct sigaction sigAct;
       sigAct.sa_sigaction = error_func;
       sigAct.sa_flags = SA_RESTART | SA_SIGINFO;  // we want SA_RESTART
@@ -47,7 +47,7 @@ void StackUnwinder::error_func(int sig, siginfo_t* info, void* context) {
   if (reinterpret_cast<size_t>(
           pthread_getspecific(g_CrashHandler->mProcessingKey)) ==
       1) {  // If we crashed in our crash handler, give up, its not worth it
-    for (int i = 0; i < COUNT_OF(signalsToCatch); ++i) {
+    for (size_t i = 0; i < COUNT_OF(signalsToCatch); ++i) {
       if (signalsToCatch[i] == sig) {
         g_CrashHandler->mOldSignals[i].sa_sigaction(sig, info, context);
       }
@@ -89,8 +89,10 @@ void StackUnwinder::error_func(int sig, siginfo_t* info, void* context) {
       }
       ssize_t throwaway =
           write(file, val, 1);  // don't really care if it fails, keep going
+      (void)throwaway;
     }
     ssize_t throwaway = write(file, "\n", 1);
+      (void)throwaway;
   }
   close(file);
 
@@ -98,7 +100,7 @@ void StackUnwinder::error_func(int sig, siginfo_t* info, void* context) {
   pthread_setspecific(
       g_CrashHandler->mProcessingKey, reinterpret_cast<void*>(0));
   pthread_mutex_unlock(&g_CrashHandler->mCrashMutex);
-  for (int i = 0; i < COUNT_OF(signalsToCatch); ++i) {
+  for (size_t i = 0; i < COUNT_OF(signalsToCatch); ++i) {
     if (signalsToCatch[i] == sig) {
       g_CrashHandler->mOldSignals[i].sa_sigaction(sig, info, context);
     }

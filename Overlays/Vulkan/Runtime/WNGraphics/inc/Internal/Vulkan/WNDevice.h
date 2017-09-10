@@ -306,8 +306,8 @@ private:
 
   queue_context m_queue_context;
   command_list_context m_command_list_context;
-  std::atomic<VkQueue> m_queue;
   VkDevice m_device;
+  std::atomic<VkQueue> m_queue;
   const VkPhysicalDeviceMemoryProperties* m_physical_device_memory_properties;
   memory::allocator* m_allocator;
   logging::log* m_log;

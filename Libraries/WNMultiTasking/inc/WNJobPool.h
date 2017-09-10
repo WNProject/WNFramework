@@ -89,8 +89,8 @@ private:
   }
 
   C* m_c;
-  typename core::remove_reference<T>::type m_t;
   void (C::*m_function)(T);
+  typename core::remove_reference<T>::type m_t;
 };
 
 class unsynchronized_job : public job {
@@ -346,13 +346,14 @@ public:
       m_active_threads(_allocator),
       m_dormant_threads(_allocator),
       m_pending_threads(_allocator),
-      m_blocked_threads(_allocator),
+
       // This is the list of threads that are currently
       // running a blocking call, they will be made
       // pending when they wake up.
       m_blocking_threads(_allocator),
-      m_preblocked_jobs(_allocator),
-      m_pending_jobs(0) {
+      m_pending_jobs(0),
+      m_blocked_threads(_allocator),
+      m_preblocked_jobs(_allocator) {
     // We initialize with 0 threads because we handle managing
     // the thread lifetimes ourselves. We just want to use the
     // thread pool for efficiently managing tasks.
@@ -596,11 +597,10 @@ private:
   }
 
   const size_t m_max_active_threads;
-  thread_pool m_thread_pool;
   std::atomic<bool> m_shutdown;
-  spin_lock m_thread_lock;
-  size_t m_total_threads;
+  thread_pool m_thread_pool;
   containers::deque<thread> m_all_threads;
+  spin_lock m_thread_lock;
   containers::list<thread_data> m_active_threads;
   containers::list<thread_data> m_dormant_threads;
   containers::list<thread_data> m_pending_threads;

@@ -58,14 +58,14 @@ public:
       ast_code_generator<ast_jit_traits>* _generator)
     : m_allocator(_allocator),
       m_validator(_validator),
-      m_function_map(m_allocator),
-      m_virtual_function_map(m_allocator),
       m_struct_map(m_allocator),
       m_vtable_map(m_allocator),
+      m_function_map(m_allocator),
+      m_virtual_function_map(m_allocator),
       m_array_type_map(m_allocator),
-      m_context(_context),
-      m_module(_module),
       m_generator(_generator),
+      m_module(_module),
+      m_context(_context),
       m_data_layout(_module),
       m_break_instructions(_allocator),
       m_continue_instructions(_allocator) {}

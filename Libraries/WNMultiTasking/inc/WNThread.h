@@ -189,9 +189,9 @@ private:
         m_function(core::move(_function)),
         m_data(_data) {}
 
+    memory::allocator* m_allocator;
     functional::function<void()> m_function;
     memory::intrusive_ptr<private_data> m_data;
-    memory::allocator* m_allocator;
   };
 
   void create(memory::allocator* _allocator, functional::function<void()>&& _f);

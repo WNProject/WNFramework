@@ -61,6 +61,8 @@ static WN_FORCE_INLINE VkSampleCountFlagBits multi_sampled_to_vulkan(
       return VK_SAMPLE_COUNT_32_BIT;
     case multisample_count::samples_64:
       return VK_SAMPLE_COUNT_64_BIT;
+    case multisample_count::disabled:
+      return VK_SAMPLE_COUNT_1_BIT;
   }
   return VK_SAMPLE_COUNT_1_BIT;
 }

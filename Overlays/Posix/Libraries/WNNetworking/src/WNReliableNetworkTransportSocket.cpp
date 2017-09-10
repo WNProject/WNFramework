@@ -79,7 +79,7 @@ network_error WNReliableNetworkTransportSocket::do_send(
   if (0 > (num_sent = sendmsg(m_sock_fd, &header, 0))) {
     return network_error::could_not_send;
   }
-  if (num_sent != total_bytes) {
+  if (num_sent != static_cast<ssize_t>(total_bytes)) {
     return network_error::could_not_send;
     ::close(m_sock_fd);
 
@@ -98,8 +98,8 @@ WNReceiveBuffer WNReliableNetworkTransportSocket::recv_sync() {
   buffer.data =
       containers::contiguous_range<char>(buffer.data.data(), received);
 
-  return core::move(buffer);
+  return buffer;
 }
 
 }  // namespace networking
-}  // wn
+}  // namespace wn

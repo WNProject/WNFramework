@@ -11,6 +11,8 @@
 #include "WNCore/inc/WNTypeTraits.h"
 #include "WNCore/inc/WNUtility.h"
 
+#include <cstring>
+
 #ifdef __WN_F16C_AVAILABLE
 #include <immintrin.h>
 #endif
@@ -50,8 +52,9 @@ struct arithmetic_type {
           traits_type::template construct<arithmetic_type<other_traits_type>>(
               _in_value.representation)) {}
 
-  template <typename type, typename = enable_if_t<(supported<type>::value &&
-                                                   !convertable<type>::value)>>
+  template <typename type,
+      typename =
+          enable_if_t<(supported<type>::value && !convertable<type>::value)>>
   arithmetic_type(const type& _in_value)
     : representation(traits_type::template construct<type>(_in_value)) {}
 
@@ -807,20 +810,27 @@ struct float16_conversions : float_conversions {
 
     const float fix_subnormals = temp_raw.f32 * in_value_raw.f32;
 
-    temp_raw.si32 = *reinterpret_cast<const int32_t*>(&fix_subnormals);
-    in_value_raw.si32 ^= (temp_raw.si32 ^ in_value_raw.si32) &
-                         -(f16_min_normal_as_f32 > in_value_raw.si32);
-    in_value_raw.si32 ^= (f32_infinity ^ in_value_raw.si32) &
-                         -((f32_infinity > in_value_raw.si32) &
-                             (in_value_raw.si32 > f16_max_normal_as_f32));
-    in_value_raw.si32 ^= (f16_min_nan_as_f32 ^ in_value_raw.si32) &
-                         -((f16_min_nan_as_f32 > in_value_raw.si32) &
-                             (in_value_raw.si32 > f32_infinity));
+    memcpy(&temp_raw.si32, &fix_subnormals, sizeof(float));
+
+    in_value_raw.si32 ^=
+        (temp_raw.si32 ^ in_value_raw.si32) &
+        -(static_cast<int32_t>(f16_min_normal_as_f32) > in_value_raw.si32);
+    in_value_raw.si32 ^=
+        (static_cast<int32_t>(f32_infinity) ^ in_value_raw.si32) &
+        -((static_cast<int32_t>(f32_infinity) > in_value_raw.si32) &
+            (in_value_raw.si32 > static_cast<int32_t>(f16_max_normal_as_f32)));
+    in_value_raw.si32 ^=
+        (f16_min_nan_as_f32 ^ in_value_raw.si32) &
+        -((static_cast<int32_t>(f16_min_nan_as_f32) > in_value_raw.si32) &
+            (in_value_raw.si32 > static_cast<int32_t>(f32_infinity)));
     in_value_raw.ui32 >>= f16_shift;
-    in_value_raw.si32 ^= ((in_value_raw.si32 - maxD) ^ in_value_raw.si32) &
-                         -(in_value_raw.si32 > f16_max_normal);
-    in_value_raw.si32 ^= ((in_value_raw.si32 - minD) ^ in_value_raw.si32) &
-                         -(in_value_raw.si32 > f32_max_subnormal_downshifted);
+    in_value_raw.si32 ^=
+        ((in_value_raw.si32 - maxD) ^ in_value_raw.si32) &
+        -(in_value_raw.si32 > static_cast<int32_t>(f16_max_normal));
+    in_value_raw.si32 ^=
+        ((in_value_raw.si32 - minD) ^ in_value_raw.si32) &
+        -(in_value_raw.si32 >
+            static_cast<int32_t>(f32_max_subnormal_downshifted));
 
     return (static_cast<uint16_t>(in_value_raw.ui32 | sign));
 #endif
@@ -839,17 +849,21 @@ struct float16_conversions : float_conversions {
 
     in_value_raw.si32 ^= sign;
     sign <<= f16_sign_shift;
-    in_value_raw.si32 ^= ((in_value_raw.si32 + minD) ^ in_value_raw.si32) &
-                         -(in_value_raw.si32 > f32_max_subnormal_downshifted);
-    in_value_raw.si32 ^= ((in_value_raw.si32 + maxD) ^ in_value_raw.si32) &
-                         -(in_value_raw.si32 > f16_max_normal);
+    in_value_raw.si32 ^=
+        ((in_value_raw.si32 + minD) ^ in_value_raw.si32) &
+        -(in_value_raw.si32 >
+            static_cast<int32_t>(f32_max_subnormal_downshifted));
+    in_value_raw.si32 ^=
+        ((in_value_raw.si32 + maxD) ^ in_value_raw.si32) &
+        -(in_value_raw.si32 > static_cast<int32_t>(f16_max_normal));
 
     bits temp_raw;
 
     temp_raw.si32 = mulC;
     temp_raw.f32 *= in_value_raw.si32;
 
-    const int32_t mask = -(f32_min_normal_downshifted > in_value_raw.si32);
+    const int32_t mask =
+        -(static_cast<int32_t>(f32_min_normal_downshifted) > in_value_raw.si32);
 
     in_value_raw.si32 <<= f16_shift;
     in_value_raw.si32 ^= (temp_raw.si32 ^ in_value_raw.si32) & mask;

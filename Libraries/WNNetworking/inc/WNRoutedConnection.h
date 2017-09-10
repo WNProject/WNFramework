@@ -73,9 +73,9 @@ struct RoutedMessage {
       m_message_size(_other.m_message_size),
       m_message_offset(_other.m_message_offset),
       m_route(_other.m_route),
+      m_status(_other.m_status),
       data(_other.data),
-      m_buffer(core::move(_other.m_buffer)),
-      m_status(_other.m_status) {}
+      m_buffer(core::move(_other.m_buffer)) {}
 
   // The ID of the message
   uint16_t m_message_id;
@@ -98,7 +98,7 @@ private:
   RoutedMessage(MessageHeader* _header,
       memory::intrusive_ptr<SharedBuffer> _buffer,
       containers::contiguous_range<char> _data, network_error err)
-    : m_buffer(_buffer), data(_data), m_status(err) {
+    : m_status(err), data(_data), m_buffer(_buffer) {
     if (_header) {
       m_message_id = core::from_big_endian(_header->packet_number);
       m_route = core::from_big_endian(_header->target_route);
@@ -123,11 +123,11 @@ public:
       memory::unique_ptr<WNConnection> _underlying_connection,
       multi_tasking::job_pool* _pool)
     : m_sender(_allocator, _underlying_connection.get()),
+      m_allocator(_allocator),
       m_connection(_underlying_connection.get()),
       m_router(_allocator->construct<MessageRouter>(_allocator,
           core::move(_default_route), _pool,
           core::move(_underlying_connection))),
-      m_allocator(_allocator),
       m_pool(_pool),
       m_next_route(1) {
     m_connection->get_recv_pipe()->recv_async(
@@ -261,7 +261,7 @@ public:
 
     m_connection->m_job_pool->add_job(to_signal, &MessageSender::send_async,
         &m_sender, core::move(ranges), metadata, r, _error);
-    return core::move(t);
+    return t;
   }
 
   MessageToken continue_multipart_message(MessageToken t,
@@ -305,7 +305,7 @@ public:
 
     m_connection->m_job_pool->add_job(to_signal, &MessageSender::send_async,
         &m_sender, core::move(ranges), metadata, t->target_route, _error);
-    return core::move(t);
+    return t;
   }
 
   // Marks the end of a multi-part message
@@ -617,8 +617,8 @@ protected:
     m_on_new_connection->enqueue_job(m_pool, core::move(conn));
   }
 
-  multi_tasking::job_pool* m_pool;
   memory::allocator* m_allocator;
+  multi_tasking::job_pool* m_pool;
   WNAcceptConnection* m_connection;
   memory::unique_ptr<WNAcceptConnection> m_underlying_connection;
   multi_tasking::callback_ptr<RoutedMessage&&> m_default_route;

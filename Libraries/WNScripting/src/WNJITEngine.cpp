@@ -77,9 +77,6 @@ llvm::StringRef make_string_ref(const wn::containers::string_view& _view) {
   return llvm::StringRef(_view.data(), _view.length());
 }
 
-llvm::StringRef make_string_ref(const wn::containers::string& _view) {
-  return llvm::StringRef(_view.data(), _view.length());
-}
 }  // anonymous namespace
 
 namespace wn {

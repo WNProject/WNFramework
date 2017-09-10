@@ -47,6 +47,14 @@ tokens
     #pragma warning(disable: 4459)
     #pragma warning(disable: 4703)
 #endif
+#ifdef _WN_CLANG
+    #pragma clang diagnostic ignored "-Wunused-function"
+#endif
+#ifdef _WN_GCC
+    #pragma GCC diagnostic ignored "-Wunused-function"
+    #pragma GCC diagnostic ignored "-Wunused-variable"
+    #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+#endif
     #include "WNMemory/inc/WNAllocator.h"
     #include "WNScripting/src/WNScriptASTLexer.hpp"
     #include "WNScripting/inc/WNNodeTypes.h"
@@ -102,8 +110,13 @@ tokens
 #endif
 #ifdef _WN_CLANG
     #pragma clang diagnostic ignored "-Wparentheses-equality"
+    #pragma clang diagnostic ignored "-Wtautological-undefined-compare"
+    #pragma clang diagnostic ignored "-Wunused-variable"
     #pragma clang diagnostic ignored "-Wtautological-compare"
     #pragma clang diagnostic ignored "-Wc++11-narrowing"
+#endif
+#ifdef _WN_GCC
+    #pragma GCC diagnostic ignored "-Wunused-variable"
 #endif
     //class WNScriptASTLexer;
     //class WNScriptASTParser;

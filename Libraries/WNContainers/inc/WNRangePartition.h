@@ -185,6 +185,7 @@ private:
     }
     m_previous = nullptr;
     m_next = nullptr;
+    return true;
   }
 
   WN_FORCE_INLINE partition_node* merge_left() {
@@ -248,8 +249,8 @@ range_partition<NodeAllocator>::range_partition(
     const NodeAllocator& _node_allocator, size_t num_elements)
   : m_num_elements(num_elements),
     m_used_space(0),
-    m_node_allocator(_node_allocator),
-    m_free_list(dummy_partition_node) {
+    m_free_list(dummy_partition_node),
+    m_node_allocator(_node_allocator) {
   if (small_size()) {
     if (num_elements == k_no_allocation_size) {
       m_used_bucket = 0;

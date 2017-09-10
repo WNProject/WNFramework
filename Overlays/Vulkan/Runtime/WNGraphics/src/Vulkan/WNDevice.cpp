@@ -46,34 +46,13 @@ namespace vulkan {
 
 namespace {
 
-static const VkBufferCreateInfo s_upload_buffer{
-    VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,  // sType
-    nullptr,                               // pNext
-    0,                                     // flags
-    0,                                     // size
-    VK_BUFFER_USAGE_TRANSFER_SRC_BIT,      // usage
-    VK_SHARING_MODE_EXCLUSIVE,             // sharingMode
-    0,                                     // queueFamilyIndexCount
-    0                                      // pQueueFamilyIndices
-};
-
-static const VkBufferCreateInfo s_download_buffer{
-    VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,  // sType
-    nullptr,                               // pNext
-    0,                                     // flags
-    0,                                     // size
-    VK_BUFFER_USAGE_TRANSFER_DST_BIT,      // usage
-    VK_SHARING_MODE_EXCLUSIVE,             // sharingMode
-    0,                                     // queueFamilyIndexCount
-    0                                      // pQueueFamilyIndices
-};
-
 static const VkCommandPoolCreateInfo s_command_pool_create{
-    VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,  // sType
-    nullptr,                                     // pNext
-    0,                                           // flags
-    0                                            // queueFamilyIndex
-};
+  VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,  // sType
+  nullptr,                                     // pNext
+  0,                                           // flags
+  0};                                            // queueFamilyIndex
+
+
 
 #ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
 using vulkan_command_list_constructable = vulkan_command_list;
@@ -596,6 +575,8 @@ void vulkan_device::initialize_descriptor_set_layout(
       case descriptor_type::sampled_image:
         binding.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
         break;
+      default:
+        WN_RELEASE_ASSERT_DESC(false, "You cannot reach here");
     }
 
     if (info.shader_stages & static_cast<uint32_t>(shader_stage::vertex)) {
@@ -675,6 +656,8 @@ void vulkan_device::initialize_descriptor_pool(descriptor_pool* _pool,
       case descriptor_type::sampled_image:
         size.type = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
         break;
+      default:
+        WN_RELEASE_ASSERT_DESC(false, "You should never reach here");
     }
     size.descriptorCount = static_cast<uint32_t>(create.max_descriptors);
     max_sets += create.max_descriptors;

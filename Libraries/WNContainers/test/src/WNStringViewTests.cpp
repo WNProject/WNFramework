@@ -7,10 +7,7 @@
 
 static const char test_string1[] =
     "this is a very long string that will not get optimized away";
-static const char test_string2[] =
-    "another very long string that should not get optimized out";
 static const size_t test_string1_length = sizeof(test_string1) - 1;
-static const size_t test_string2_length = sizeof(test_string2) - 1;
 
 TEST(string_view, construction) {
   const char* raw = "string1";

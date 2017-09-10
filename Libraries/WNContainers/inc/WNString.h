@@ -683,7 +683,7 @@ WN_FORCE_INLINE string operator+(const string& _lhs, const string& _rhs) {
   s.append(_lhs);
   s.append(_rhs);
 
-  return core::move(s);
+  return s;
 }
 
 WN_FORCE_INLINE string operator+(const char* _lhs, const string& _rhs) {
@@ -694,7 +694,7 @@ WN_FORCE_INLINE string operator+(const char* _lhs, const string& _rhs) {
   s.append(_lhs, count);
   s.append(_rhs);
 
-  return core::move(s);
+  return s;
 }
 
 WN_FORCE_INLINE string operator+(const char _lhs, const string& _rhs) {
@@ -704,7 +704,7 @@ WN_FORCE_INLINE string operator+(const char _lhs, const string& _rhs) {
   s.append(_lhs);
   s.append(_rhs);
 
-  return core::move(s);
+  return s;
 }
 
 WN_FORCE_INLINE string operator+(const string& _lhs, const char* _rhs) {
@@ -715,7 +715,7 @@ WN_FORCE_INLINE string operator+(const string& _lhs, const char* _rhs) {
   s.append(_lhs);
   s.append(_rhs, count);
 
-  return core::move(s);
+  return s;
 }
 
 WN_FORCE_INLINE string operator+(const string& _lhs, const char _rhs) {
@@ -725,7 +725,7 @@ WN_FORCE_INLINE string operator+(const string& _lhs, const char _rhs) {
   s.append(_lhs);
   s.append(_rhs);
 
-  return core::move(s);
+  return s;
 }
 
 WN_FORCE_INLINE string operator+(string&& _lhs, const string& _rhs) {

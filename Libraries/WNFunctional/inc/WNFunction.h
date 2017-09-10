@@ -187,9 +187,9 @@ private:
   }
 
   void* m_callable;
+  executor_type m_executor;
   copier_type m_copier;
   deleter_type m_deleter;
-  executor_type m_executor;
 };
 
 template <typename R, typename... Args>

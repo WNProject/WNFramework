@@ -212,10 +212,8 @@ private:
 
 struct a {
   wn::memory::unique_ptr<b> make_b(wn::memory::allocator* _allocator) const {
-    wn::memory::unique_ptr<b> p(wn::memory::make_unique_delegated<b>(
-        _allocator, [](void* _p) { return new (_p) b(); }));
-
-    return wn::core::move(p);
+    return wn::memory::make_unique_delegated<b>(
+        _allocator, [](void* _p) { return new (_p) b(); });
   }
 };
 

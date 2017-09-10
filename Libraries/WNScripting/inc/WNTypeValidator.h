@@ -240,13 +240,14 @@ struct type_definition {
     : m_casts(_allocator),
       m_ids(_allocator),
       m_functions(_allocator),
+      m_virtual_functions(_allocator),
       m_parent_types(_allocator),
-      m_allocator(_allocator),
-      m_mode(reference_type::raw),
       m_mangling(_allocator),
-      m_destructible_type(destructible_type),
+      m_mode(reference_type::raw),
       m_array_of_type(0),
-      m_is_array_of(0) {
+      m_is_array_of(0),
+      m_destructible_type(destructible_type),
+      m_allocator(_allocator) {
     m_ops = valid_builtin_operations[0];  // default to nothing valid
   }
 
@@ -255,13 +256,14 @@ struct type_definition {
     : m_casts(_allocator),
       m_ids(_allocator),
       m_functions(_allocator),
+      m_virtual_functions(_allocator),
       m_parent_types(_allocator),
-      m_allocator(_allocator),
-      m_mode(reference_type::raw),
       m_mangling(_allocator),
-      m_destructible_type(destructible_type),
+      m_mode(reference_type::raw),
       m_array_of_type(0),
-      m_is_array_of(0) {
+      m_is_array_of(0),
+      m_destructible_type(destructible_type),
+      m_allocator(_allocator) {
     m_ops = operation;
   }
 
@@ -295,6 +297,7 @@ struct type_definition {
 
   bool register_parent(uint32_t _parent_type) {
     m_parent_types.push_back(_parent_type);
+    return true;
   }
 
   uint32_t is_child_of(uint32_t _parent_type) {
@@ -485,7 +488,7 @@ public:
 
     uint32_t returned_type = 0;
     for (uint32_t i = 0; i < static_cast<uint32_t>(reference_type::max); ++i) {
-      auto str_it = m_names.insert(m_names.end(), _name.to_string(m_allocator));
+      m_names.insert(m_names.end(), _name.to_string(m_allocator));
       uint32_t type = m_max_types++;
       returned_type = (returned_type == 0) ? type : returned_type;
       containers::string name_string = _name.to_string(m_allocator);

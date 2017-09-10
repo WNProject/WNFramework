@@ -10,6 +10,7 @@
 #include "WNContainers/inc/WNHashMap.h"
 #include "WNContainers/inc/WNStringView.h"
 #include "WNMemory/inc/WNAllocator.h"
+#include "WNScripting/inc/WNEnums.h"
 #include "WNScripting/inc/WNErrors.h"
 
 namespace wn {
@@ -35,6 +36,14 @@ public:
       m_allocator(_allocator),
       m_validator(_validator),
       m_registered_types(_allocator) {
+    // These exists to stop the compiler from assuming these are unused.
+    (void)assign_type_names;
+    (void)short_circuit_type_names;
+    (void)type_classification_names;
+    (void)arithmetic_type_names;
+    (void)type_array_depth;
+    (void)unary_type_names;
+    (void)post_un_names;
     register_builtin_types();
   }
 

@@ -66,6 +66,15 @@
     #pragma warning(disable: 4459)
     #pragma warning(disable: 4703)
 #endif
+#ifdef _WN_CLANG
+    #pragma clang diagnostic ignored "-Wunused-function"
+#endif
+#ifdef _WN_GCC
+    #pragma GCC diagnostic ignored "-Wunused-function"
+    #pragma GCC diagnostic ignored "-Wunused-variable"
+    #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+#endif
+
     #include "WNMemory/inc/WNAllocator.h"
     #include "WNScripting/src/WNScriptASTLexer.hpp"
     #include "WNScripting/inc/WNNodeTypes.h"

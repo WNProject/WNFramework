@@ -41,8 +41,8 @@ private:
 
   WN_FORCE_INLINE image_view(device* _device, image_components _components)
     : m_device(_device), m_components(_components) {}
-  image_components m_components;
   device* m_device;
+  image_components m_components;
 };
 
 }  // namespace graphics

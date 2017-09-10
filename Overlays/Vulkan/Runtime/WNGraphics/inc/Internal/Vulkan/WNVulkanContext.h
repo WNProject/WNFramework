@@ -27,8 +27,8 @@ using library_type = void*;
 struct vulkan_context : public memory::intrusive_ptr_base {
   vulkan_context(memory::allocator* _allocator)
     : memory::intrusive_ptr_base(_allocator),
-      library(0),
-      instance(VK_NULL_HANDLE) {}
+      instance(VK_NULL_HANDLE),
+      library(0) {}
   virtual ~vulkan_context() {
     if (vkDestroyInstance && instance != VK_NULL_HANDLE) {
       vkDestroyInstance(instance, nullptr);

@@ -299,6 +299,8 @@ void ast_jit_engine::walk_expression(
     case reference_type::raw:
       indices.push_back(llvm::ConstantInt::get(int32_type, 1));
       break;
+    default:
+      break;
   }
   indices.push_back(index_expr.value);
   llvm::Instruction* inst = llvm::GetElementPtrInst::CreateInBounds(

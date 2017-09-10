@@ -48,7 +48,7 @@ protected:
   WN_GRAPHICS_ADD_FRIENDS(device)
 
   WN_FORCE_INLINE command_allocator(device* _device)
-    : m_device(_device), m_data({0}) {}
+    : m_data({0}), m_device(_device) {}
 
   template <typename T>
   WN_FORCE_INLINE T& data_as() {

@@ -295,6 +295,8 @@ void ast_c_translator::walk_expression(const array_access_expression* _access,
     case reference_type::raw:
       _str->second.append(".");
       break;
+    default:
+      break;
   }
   _str->second.append("_val[");
   _str->second.append(index_expr.second);
@@ -474,8 +476,8 @@ void ast_c_translator::walk_expression(const function_call_expression* _call,
   for (auto& expr : _call->get_expressions()) {
     const auto& dat = m_generator->get_data(expr->m_expr.get());
     _str->first.append(dat.first);
-    if (_call->callee()->is_override() ||
-        _call->callee()->is_virtual() && comma[0] == '\0') {
+    if ((_call->callee()->is_override() ||
+        _call->callee()->is_virtual()) && comma[0] == '\0') {
       _str->second.append(temp_name);
     } else {
       _str->second.append(comma);
@@ -535,6 +537,8 @@ void ast_c_translator::walk_instruction(const set_array_length* _arr_len,
       break;
     case reference_type::raw:
       _str->second.append(".");
+      break;
+    default:
       break;
   }
   _str->second.append("size0");

@@ -79,7 +79,12 @@
 #ifdef _WN_CLANG
     #pragma clang diagnostic ignored "-Wparentheses-equality"
     #pragma clang diagnostic ignored "-Wtautological-compare"
+    #pragma clang diagnostic ignored "-Wunused-variable"
+    #pragma clang diagnostic ignored "-Wtautological-compare"
     #pragma clang diagnostic ignored "-Wc++11-narrowing"
+#endif
+#ifdef _WN_GCC
+    #pragma GCC diagnostic ignored "-Wunused-variable"
 #endif
 
     template<class ImplTraits>

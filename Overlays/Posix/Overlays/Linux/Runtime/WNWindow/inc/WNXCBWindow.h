@@ -76,7 +76,7 @@ public:
     return m_data.window != 0;
   }
 
-  virtual window_type type() const {
+  window_type type() const override {
     return window_type::system;
   }
 

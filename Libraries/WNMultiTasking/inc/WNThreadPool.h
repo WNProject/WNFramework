@@ -221,6 +221,8 @@ private:
   }
 
 private:
+  memory::allocator* m_allocator;
+  containers::dynamic_array<thread*> m_threads;
 #ifdef _WN_WINDOWS
   utilities::windows::handle m_io_completion_port;
 #else
@@ -228,11 +230,8 @@ private:
   semaphore m_task_available_semaphore;
   spin_lock m_task_lock;
 #endif
-
-  containers::dynamic_array<thread*> m_threads;
   spin_lock m_thread_mutex;
   semaphore m_worker_start_mutex;
-  memory::allocator* m_allocator;
   volatile bool m_shutdown;
 };
 

@@ -36,8 +36,8 @@ public:
   size_t current_value();
 
 private:
-  std::atomic<size_t> value;
   job_pool* pool;
+  std::atomic<size_t> value;
 
   friend class thread_job_pool;
   friend class job_pool;

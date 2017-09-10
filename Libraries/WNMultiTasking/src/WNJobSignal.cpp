@@ -13,7 +13,7 @@ job_signal::job_signal(size_t _value) {
   pool = job_pool::this_job_pool();
 }
 
-job_signal::job_signal() : value(0), pool(nullptr) {}
+job_signal::job_signal() : pool(nullptr), value(0) {}
 
 void job_signal::initialize_signal(job_pool* _pool, size_t _value) {
   WN_DEBUG_ASSERT_DESC(

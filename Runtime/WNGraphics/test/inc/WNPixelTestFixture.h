@@ -227,7 +227,8 @@ protected:
           device->create_buffer(resource_info.total_memory_required,
               static_cast<wn::runtime::graphics::resource_states>(
                   static_cast<uint32_t>(
-                      wn::runtime::graphics::resource_state::host_read,
+                      wn::runtime::graphics::resource_state::host_read) |
+                  static_cast<uint32_t>(
                       wn::runtime::graphics::resource_state::copy_dest)));
 
       wn::runtime::graphics::buffer_memory_requirements buffer_requirements =

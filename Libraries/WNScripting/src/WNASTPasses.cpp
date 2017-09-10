@@ -1093,8 +1093,8 @@ private:
       id_map;
   using fmap_type =
       containers::hash_map<containers::string_view, id_expression::id_source>;
-  fmap_type m_function_map;
   const struct_definition* m_current_function;
+  fmap_type m_function_map;
 };
 
 class type_association_pass : public pass {
@@ -1805,6 +1805,8 @@ public:
         _assign->log_line(m_log, logging::log_level::error);
         ++m_num_errors;
         return nullptr;
+      default:
+        WN_RELEASE_ASSERT_DESC(false, "Cannot end end up here");
     }
 
     // Insert an implicit cast if we are assigning a
@@ -2320,13 +2322,13 @@ public:
   }
 
 private:
+  const struct_definition* m_current_function;
+  const function* m_current_function_object;
   containers::deque<return_instruction*> m_returns;
   containers::hash_map<containers::string_view, containers::deque<function*>>
       m_functions;
   containers::hash_map<containers::string_view, struct_definition*>
       m_struct_definitions;
-  const struct_definition* m_current_function;
-  const function* m_current_function_object;
   struct local_scope {
     // We have to add this here as VS2013 does not automatically
     // generate move constructors.

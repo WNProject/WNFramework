@@ -320,6 +320,17 @@ Karlsson
 #include <stdio.h>
 #endif  // STBI_NO_STDIO
 
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-function"
+#endif
+
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
+#endif
+
+
 #define STBI_VERSION 1
 
 enum {
@@ -7648,6 +7659,13 @@ STBIDEF int stbi_info_from_callbacks(
   stbi__start_callbacks(&s, (stbi_io_callbacks*)c, user);
   return stbi__info_main(&s, x, y, comp);
 }
+
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 
 #endif  // STB_IMAGE_IMPLEMENTATION
 

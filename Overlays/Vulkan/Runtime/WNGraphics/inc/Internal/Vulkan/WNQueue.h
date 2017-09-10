@@ -83,9 +83,9 @@ protected:
     m_queue = queue;
   }
 
+  vulkan_device* m_device;
   VkQueue m_queue;
   queue_context* m_queue_context;
-  vulkan_device* m_device;
 };
 
 }  // namespace vulkan

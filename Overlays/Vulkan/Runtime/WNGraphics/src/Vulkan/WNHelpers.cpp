@@ -37,23 +37,6 @@ void* load_symbol(library_type _lib, const char* _symbol) {
 
 namespace {
 
-void* VKAPI_CALL allocate(void* _user_data, size_t _size, size_t _alignment,
-    VkSystemAllocationScope) {
-  memory::allocator* alloc = reinterpret_cast<memory::allocator*>(_user_data);
-  return alloc->aligned_allocate(_size, _alignment);
-}
-
-void* VKAPI_CALL reallocate(void* _user_data, void* _original, size_t _size,
-    size_t _alignment, VkSystemAllocationScope) {
-  memory::allocator* alloc = reinterpret_cast<memory::allocator*>(_user_data);
-  return alloc->aligned_reallocate(_original, _size, _alignment);
-}
-
-void VKAPI_CALL free(void* _user_data, void* _data) {
-  memory::allocator* alloc = reinterpret_cast<memory::allocator*>(_user_data);
-  return alloc->aligned_deallocate(_data);
-}
-
 #ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
 using vulkan_adapter_constructable = vulkan_adapter;
 #else

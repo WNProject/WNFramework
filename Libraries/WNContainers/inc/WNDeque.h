@@ -259,27 +259,27 @@ public:
     : m_allocator(nullptr),
       m_block_list(_other.m_block_list, nullptr),
       m_used_blocks(_other.m_used_blocks),
+      m_allocated_blocks(_other.m_allocated_blocks),
       m_start_block(_other.m_start_block),
       m_start_location(_other.m_start_location),
-      m_allocated_blocks(_other.m_allocated_blocks),
       m_element_count(_other.m_element_count) {}
 
   deque(memory::allocator* _allocator, const deque& _other)
     : m_allocator(_allocator),
       m_block_list(_other.m_block_list, _allocator),
       m_used_blocks(_other.m_used_blocks),
+      m_allocated_blocks(_other.m_allocated_blocks),
       m_start_block(_other.m_start_block),
       m_start_location(_other.m_start_location),
-      m_allocated_blocks(_other.m_allocated_blocks),
       m_element_count(_other.m_element_count) {}
 
   deque(deque&& _other)
     : m_allocator(core::move(_other.m_allocator)),
       m_block_list(core::move(_other.m_block_list)),
       m_used_blocks(core::move(_other.m_used_blocks)),
+      m_allocated_blocks(core::move(_other.m_allocated_blocks)),
       m_start_block(core::move(_other.m_start_block)),
       m_start_location(core::move(_other.m_start_location)),
-      m_allocated_blocks(core::move(_other.m_allocated_blocks)),
       m_element_count(core::move(_other.m_element_count)) {
     _other.m_used_blocks = 0;
     _other.m_start_block = 0;
@@ -292,9 +292,9 @@ public:
     : m_allocator(_allocator),
       m_block_list(_allocator),
       m_used_blocks(0),
+      m_allocated_blocks(0),
       m_start_block(0),
       m_start_location(0),
-      m_allocated_blocks(0),
       m_element_count(0) {}
 
   explicit deque(memory::allocator* _allocator, const size_type _count)

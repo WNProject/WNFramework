@@ -62,7 +62,7 @@ public:
 
       if (m_mapped_memory) {
         const int unmap_result = ::munmap(m_mapped_memory, m_size);
-
+        (void)unmap_result;
         WN_DEBUG_ASSERT_DESC(
             unmap_result == 0, "failed to unmap memory mapped file");
       }

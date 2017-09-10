@@ -65,6 +65,9 @@ void ast_walker<T, Const>::walk_type(type_type _type) {
       break;
     case node_type::concretized_array_type:
       m_walker->walk_type(cast_to<concretized_array_type>(_type));
+      break;
+    default:
+      WN_RELEASE_ASSERT_DESC(false, "You should not get here");
   }
 }
 

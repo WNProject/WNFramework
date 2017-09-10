@@ -31,8 +31,8 @@ void memory_backed_mapping::memory_backed_file_location::swap_data(
 memory_backed_mapping::memory_backed_file::memory_backed_file(
     memory::allocator* _allocator, memory_backed_file_location_ptr _location)
   : file(_allocator),
-    m_is_open(true),
     m_allocator(_allocator),
+    m_is_open(true),
     m_location(_location),
     m_store(_location->m_data) {}
 

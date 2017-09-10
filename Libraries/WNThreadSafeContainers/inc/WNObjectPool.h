@@ -148,7 +148,6 @@ typename object_pool<T>::unmanaged_object_t object_pool<T>::get_unmanaged() {
   multi_tasking::lock_guard<multi_tasking::mutex> guard(m_lock);
   auto ret_iter = m_free_list.begin();
   if (!m_free_list.empty()) {
-    auto val = m_free_list.begin();
     m_free_list.transfer_to(
         m_free_list.begin(), m_used_list.end(), m_used_list);
     ret_iter = m_used_list.end() - 1;

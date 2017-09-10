@@ -38,7 +38,8 @@ class WNNetworkManager {
 public:
   explicit WNNetworkManager(
       memory::allocator* _allocator, multi_tasking::job_pool* _job_pool)
-    : m_allocator(_allocator), m_job_pool(_job_pool) {}
+    : m_allocator(_allocator), m_job_pool(_job_pool) {
+    }
 
   virtual ~WNNetworkManager() {}
 
@@ -98,8 +99,8 @@ public:
   WNConcreteNetworkManager(memory::allocator* _allocator,
       multi_tasking::job_pool* _job_pool, logging::log* _log)
     : WNNetworkManager(_allocator, _job_pool),
-      m_log(_log),
-      m_buffer_manager(_allocator) {
+      m_buffer_manager(_allocator),
+      m_log(_log) {
     initialize();
   }
 

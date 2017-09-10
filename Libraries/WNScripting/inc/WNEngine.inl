@@ -43,8 +43,9 @@ void WN_INLINE engine::register_builtin_types() {
 
 namespace {
 
+template<typename T>
 uint32_t get_registered_index(
-    const containers::hash_map<void*, uint32_t>& _types, bool* _error,
+    const containers::hash_map<void*, uint32_t>& _types, T* _error,
     void* _idx) {
   auto type = _types.find(_idx);
   if (type == _types.end()) {

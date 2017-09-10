@@ -121,7 +121,7 @@ public:
   }
 
   bool empty() const {
-    m_map.empty();
+    return m_map.empty();
   }
 
   core::pair<iterator, bool> insert(const value_type& element) {

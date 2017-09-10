@@ -59,8 +59,8 @@ private:
   template <typename T>
   friend class intrusive_ptr;
 
-  std::atomic_size_t m_reference_count;
   allocator* m_allocator;
+  std::atomic_size_t m_reference_count;
 };
 
 template <typename T>

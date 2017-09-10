@@ -10,7 +10,6 @@ static const char test_string1[] =
 static const char test_string2[] =
     "another very long string that should not get optimized out";
 static const size_t test_string1_length = sizeof(test_string1) - 1;
-static const size_t test_string2_length = sizeof(test_string2) - 1;
 
 TEST(string, construction) {
   wn::testing::allocator test_allocator;

@@ -99,7 +99,7 @@ private:
   WN_GRAPHICS_ADD_FRIENDS(swapchain);
 
   WN_FORCE_INLINE image(device* _device)
-    : m_device(_device), m_data({0}), m_is_swapchain_image(false) {}
+    : m_data({0}), m_device(_device), m_is_swapchain_image(false) {}
 
   template <typename T>
   WN_FORCE_INLINE T& data_as() {
@@ -124,9 +124,9 @@ private:
     uint64_t _dummy[2];
   } m_data;
 
+  device* m_device;
   image_buffer_resource_info m_resource_info;
   bool m_is_swapchain_image;
-  device* m_device;
 };
 
 }  // namespace graphics

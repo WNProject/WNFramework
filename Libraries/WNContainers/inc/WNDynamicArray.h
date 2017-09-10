@@ -732,8 +732,8 @@ private:
 
   memory::allocator* m_allocator;
   value_type* m_data;
-  size_type m_capacity;
   size_type m_size;
+  size_type m_capacity;
 };
 
 }  // namespace containers

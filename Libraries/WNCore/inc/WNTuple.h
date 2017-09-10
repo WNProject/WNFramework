@@ -168,7 +168,7 @@ private:
 };
 
 template <typename T1, typename... T2>
-class tuple_element<0, tuple<T1, T2...>> {
+struct tuple_element<0, tuple<T1, T2...>> {
 public:
   using type = T1;
 
