@@ -89,6 +89,18 @@ TYPED_TEST(matrix, construction) {
       EXPECT_EQ(matrix2[j], value);
     }
   }
+
+  std::vector<value_type> more_values;
+
+  for (size_t i = 0; i < dimension; ++i) {
+    more_values.push_back(value_type(i));
+  }
+
+  const matrix_type matrix(more_values.cbegin(), more_values.cend());
+
+  for (size_t i = 0; i < dimension; ++i) {
+    EXPECT_EQ(matrix[i], value_type(i));
+  }
 }
 
 TEST(matrix, more_construction) {
@@ -118,20 +130,6 @@ TEST(matrix, more_construction) {
     for (size_t row = 0; row < 3; ++row) {
       EXPECT_EQ(matrix2.at(row, column), ++count);
     }
-  }
-
-  const std::vector<int> values({1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12});
-  const wn::math::matrix<int, 3, 4> matrix3(values.cbegin(), values.cend());
-
-  for (int i = 0; i < (3 * 4); ++i) {
-    EXPECT_EQ(matrix3[i], (i + 1));
-  }
-
-  const std::vector<int> values1({1, 2, 3, 4, 5, 6, 7, 8});
-  const wn::math::matrix<int, 2, 4> matrix4(values1.cbegin(), values1.cend());
-
-  for (int i = 0; i < (2 * 4); ++i) {
-    EXPECT_EQ(matrix4[i], (i + 1));
   }
 }
 
@@ -365,4 +363,53 @@ TEST(matrix, multiplication) {
       {334, 392, 450, 422, 496, 570, 510, 600, 690});
 
   EXPECT_EQ(expected, matrix3);
+}
+
+// equality ///////////////////////////////////////////////////////////////////
+
+TYPED_TEST(matrix, equality) {
+  using value_type = typename TypeParam::value_type;
+  using matrix_type =
+      wn::math::matrix<value_type, TypeParam::rows, TypeParam::columns>;
+
+  const matrix_type matrix(value_type(1));
+  const matrix_type matrix1(matrix);
+
+  EXPECT_EQ(matrix, matrix1);
+  EXPECT_TRUE(matrix == matrix1);
+  EXPECT_FALSE(matrix != matrix1);
+}
+
+// inequality /////////////////////////////////////////////////////////////////
+
+TYPED_TEST(matrix, inequality) {
+  using value_type = typename TypeParam::value_type;
+  using matrix_type =
+      wn::math::matrix<value_type, TypeParam::rows, TypeParam::columns>;
+
+  const matrix_type matrix(value_type(1));
+  const matrix_type matrix1(value_type(2));
+
+  EXPECT_NE(matrix, matrix1);
+  EXPECT_FALSE(matrix == matrix1);
+  EXPECT_TRUE(matrix != matrix1);
+}
+
+// swap ///////////////////////////////////////////////////////////////////////
+
+TYPED_TEST(matrix, swap) {
+  using value_type = typename TypeParam::value_type;
+  using matrix_type =
+      wn::math::matrix<value_type, TypeParam::rows, TypeParam::columns>;
+
+  const size_t dimension = (TypeParam::rows * TypeParam::columns);
+  matrix_type matrix(value_type(4));
+  matrix_type matrix1(value_type(3));
+
+  matrix.swap(matrix1);
+
+  for (size_t i = 0; i < dimension; ++i) {
+    EXPECT_EQ(matrix[i], value_type(3));
+    EXPECT_EQ(matrix1[i], value_type(4));
+  }
 }

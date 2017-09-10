@@ -33,26 +33,40 @@ using vector_testing_types =
 TYPED_TEST_CASE(vector, vector_testing_types);
 
 TYPED_TEST(vector, construction) {
-  using test_vector =
-      wn::math::vector<typename TypeParam::type, TypeParam::dimension>;
+  using value_type = typename TypeParam::type;
+  using vector_type = wn::math::vector<value_type, TypeParam::dimension>;
 
-  test_vector vector(typename TypeParam::type(1));
+  const value_type values[] = {1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233};
 
-  for (size_t i = 0; i < TypeParam::dimension; ++i) {
-    EXPECT_EQ(vector[i], typename TypeParam::type(1));
+  for (auto value : values) {
+    vector_type vector(value);
+    const vector_type vector1(vector);
+
+    EXPECT_EQ(vector, vector1);
+
+    for (size_t j = 0; j < TypeParam::dimension; ++j) {
+      EXPECT_EQ(vector1[j], value);
+    }
+
+    const vector_type vector2(wn::core::move(vector));
+
+    EXPECT_EQ(vector1, vector2);
+
+    for (size_t j = 0; j < TypeParam::dimension; ++j) {
+      EXPECT_EQ(vector2[j], value);
+    }
   }
 
-  const test_vector vector1(vector);
+  std::vector<value_type> more_values;
 
   for (size_t i = 0; i < TypeParam::dimension; ++i) {
-    EXPECT_EQ(vector[i], typename TypeParam::type(1));
-    EXPECT_EQ(vector1[i], typename TypeParam::type(1));
+    more_values.push_back(value_type(i));
   }
 
-  const test_vector vector2(wn::core::move(vector));
+  const vector_type vector(more_values.cbegin(), more_values.cend());
 
   for (size_t i = 0; i < TypeParam::dimension; ++i) {
-    EXPECT_EQ(vector2[i], typename TypeParam::type(1));
+    EXPECT_EQ(vector[i], value_type(i));
   }
 }
 
@@ -78,11 +92,11 @@ TEST(vector, more_construction) {
 }
 
 TYPED_TEST(vector, assignment) {
-  using test_vector =
+  using vector_type =
       wn::math::vector<typename TypeParam::type, TypeParam::dimension>;
 
-  const test_vector vector(typename TypeParam::type(1));
-  test_vector vector1;
+  const vector_type vector(typename TypeParam::type(1));
+  vector_type vector1;
 
   vector1 = vector;
 
@@ -91,8 +105,8 @@ TYPED_TEST(vector, assignment) {
     EXPECT_EQ(vector1[i], typename TypeParam::type(1));
   }
 
-  test_vector vector2(typename TypeParam::type(2));
-  test_vector vector3;
+  vector_type vector2(typename TypeParam::type(2));
+  vector_type vector3;
 
   vector3 = wn::core::move(vector2);
 
@@ -128,10 +142,10 @@ TYPED_TEST(vector, assignment) {
 }
 
 TYPED_TEST(vector, element_access) {
-  using test_vector =
+  using vector_type =
       wn::math::vector<typename TypeParam::type, TypeParam::dimension>;
 
-  const test_vector vector(typename TypeParam::type(1));
+  const vector_type vector(typename TypeParam::type(1));
 
   for (size_t i = 0; i < TypeParam::dimension; ++i) {
     EXPECT_EQ(vector[i], typename TypeParam::type(1));
@@ -149,11 +163,11 @@ TEST(vector, more_element_access) {
 }
 
 TYPED_TEST(vector, unary_plus) {
-  using test_vector =
+  using vector_type =
       wn::math::vector<typename TypeParam::type, TypeParam::dimension>;
 
-  const test_vector vector(typename TypeParam::type(1));
-  const test_vector vector1(+vector);
+  const vector_type vector(typename TypeParam::type(1));
+  const vector_type vector1(+vector);
 
   for (size_t i = 0; i < TypeParam::dimension; ++i) {
     EXPECT_EQ(vector[i], typename TypeParam::type(1));
@@ -162,11 +176,11 @@ TYPED_TEST(vector, unary_plus) {
 }
 
 TYPED_TEST(vector, unary_minus) {
-  using test_vector =
+  using vector_type =
       wn::math::vector<typename TypeParam::type, TypeParam::dimension>;
 
-  const test_vector vector(typename TypeParam::type(2));
-  const test_vector vector1(-vector);
+  const vector_type vector(typename TypeParam::type(2));
+  const vector_type vector1(-vector);
 
   for (size_t i = 0; i < TypeParam::dimension; ++i) {
     EXPECT_EQ(vector[i], typename TypeParam::type(2));
@@ -175,10 +189,10 @@ TYPED_TEST(vector, unary_minus) {
 }
 
 TYPED_TEST(vector, multiply) {
-  using test_vector =
+  using vector_type =
       wn::math::vector<typename TypeParam::type, TypeParam::dimension>;
 
-  test_vector vector3(typename TypeParam::type(1));
+  vector_type vector3(typename TypeParam::type(1));
 
   vector3 *= typename TypeParam::type(2);
 
@@ -186,14 +200,14 @@ TYPED_TEST(vector, multiply) {
     EXPECT_EQ(vector3[i], typename TypeParam::type(2));
   }
 
-  const test_vector vector4(vector3 * typename TypeParam::type(2));
+  const vector_type vector4(vector3 * typename TypeParam::type(2));
 
   for (size_t i = 0; i < TypeParam::dimension; ++i) {
     EXPECT_EQ(vector3[i], typename TypeParam::type(2));
     EXPECT_EQ(vector4[i], typename TypeParam::type(4));
   }
 
-  const test_vector vector5(typename TypeParam::type(2) * vector4);
+  const vector_type vector5(typename TypeParam::type(2) * vector4);
 
   for (size_t i = 0; i < TypeParam::dimension; ++i) {
     EXPECT_EQ(vector4[i], typename TypeParam::type(4));
@@ -202,10 +216,10 @@ TYPED_TEST(vector, multiply) {
 }
 
 TYPED_TEST(vector, divide) {
-  using test_vector =
+  using vector_type =
       wn::math::vector<typename TypeParam::type, TypeParam::dimension>;
 
-  test_vector vector3(typename TypeParam::type(12));
+  vector_type vector3(typename TypeParam::type(12));
 
   vector3 /= typename TypeParam::type(2);
 
@@ -213,7 +227,7 @@ TYPED_TEST(vector, divide) {
     EXPECT_EQ(vector3[i], typename TypeParam::type(6));
   }
 
-  const test_vector vector4(vector3 / typename TypeParam::type(2));
+  const vector_type vector4(vector3 / typename TypeParam::type(2));
 
   for (size_t i = 0; i < TypeParam::dimension; ++i) {
     EXPECT_EQ(vector3[i], typename TypeParam::type(6));
@@ -222,11 +236,11 @@ TYPED_TEST(vector, divide) {
 }
 
 TYPED_TEST(vector, equality) {
-  using test_vector =
+  using vector_type =
       wn::math::vector<typename TypeParam::type, TypeParam::dimension>;
 
-  const test_vector vector(typename TypeParam::type(1));
-  const test_vector vector1(vector);
+  const vector_type vector(typename TypeParam::type(1));
+  const vector_type vector1(vector);
 
   EXPECT_EQ(vector, vector1);
   EXPECT_TRUE(vector == vector1);
@@ -234,11 +248,11 @@ TYPED_TEST(vector, equality) {
 }
 
 TYPED_TEST(vector, inequality) {
-  using test_vector =
+  using vector_type =
       wn::math::vector<typename TypeParam::type, TypeParam::dimension>;
 
-  const test_vector vector(typename TypeParam::type(1));
-  const test_vector vector1(typename TypeParam::type(2));
+  const vector_type vector(typename TypeParam::type(1));
+  const vector_type vector1(typename TypeParam::type(2));
 
   EXPECT_NE(vector, vector1);
   EXPECT_FALSE(vector == vector1);
@@ -246,10 +260,10 @@ TYPED_TEST(vector, inequality) {
 }
 
 TYPED_TEST(vector, scale) {
-  using test_vector =
+  using vector_type =
       wn::math::vector<typename TypeParam::type, TypeParam::dimension>;
 
-  test_vector vector2(typename TypeParam::type(1));
+  vector_type vector2(typename TypeParam::type(1));
 
   vector2.scale(typename TypeParam::type(2));
 
@@ -259,10 +273,10 @@ TYPED_TEST(vector, scale) {
 }
 
 TYPED_TEST(vector, reverse) {
-  using test_vector =
+  using vector_type =
       wn::math::vector<typename TypeParam::type, TypeParam::dimension>;
 
-  test_vector vector;
+  vector_type vector;
 
   for (size_t i = 0; i < TypeParam::dimension; ++i) {
     vector[i] = typename TypeParam::type(i);
@@ -283,11 +297,11 @@ TYPED_TEST(vector, reverse) {
 }
 
 TYPED_TEST(vector, swap) {
-  using test_vector =
+  using vector_type =
       wn::math::vector<typename TypeParam::type, TypeParam::dimension>;
 
-  test_vector vector(typename TypeParam::type(4));
-  test_vector vector1(typename TypeParam::type(3));
+  vector_type vector(typename TypeParam::type(4));
+  vector_type vector1(typename TypeParam::type(3));
 
   vector.swap(vector1);
 

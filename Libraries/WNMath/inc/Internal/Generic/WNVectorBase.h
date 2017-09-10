@@ -45,6 +45,10 @@ public:
       const T (&_values)[Dimension])
     : base(_values) {}
 
+  template <typename Itr>
+  WN_FORCE_INLINE vector_base_generic_common(Itr _begin, Itr _end)
+    : base(_begin, _end) {}
+
   WN_FORCE_INLINE T dot(const vector_base_generic_common& _vector) const {
     T result(0);
 
@@ -148,6 +152,10 @@ public:
       const T (&_values)[Dimension])
     : base(_values) {}
 
+  template <typename Itr>
+  WN_FORCE_INLINE vector_base_generic_signed_only(Itr _begin, Itr _end)
+    : base(_begin, _end) {}
+
   WN_FORCE_INLINE VectorType<T, Dimension, Precise> operator-() const {
     VectorType<T, Dimension, Precise> new_vector;
 
@@ -191,6 +199,10 @@ public:
       const T (&_values)[Dimension])
     : base(_values) {}
 
+  template <typename Itr>
+  WN_FORCE_INLINE vector_base_generic_real_only(Itr _begin, Itr _end)
+    : base(_begin, _end) {}
+
   WN_FORCE_INLINE T inverse_length() const {
     return invsqrt(base::length_squared());
   }
@@ -224,6 +236,10 @@ public:
   WN_FORCE_INLINE explicit vector_base_generic_real_only(
       const T (&_values)[Dimension])
     : base(_values) {}
+
+  template <typename Itr>
+  WN_FORCE_INLINE vector_base_generic_real_only(Itr _begin, Itr _end)
+    : base(_begin, _end) {}
 
   WN_FORCE_INLINE void normalize() {
     base::divide_assign(base::length());

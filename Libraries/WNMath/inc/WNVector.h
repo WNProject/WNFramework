@@ -27,8 +27,6 @@ private:
   using base = internal::vector_base<wn::math::vector, T, Dimension, Precise>;
 
 public:
-  using base::assign;
-
   WN_FORCE_INLINE vector() : base() {}
 
   WN_FORCE_INLINE vector(vector&& _vector) : base(core::move(_vector)) {}
@@ -39,6 +37,12 @@ public:
 
   WN_FORCE_INLINE explicit vector(const T (&_values)[Dimension])
     : base(_values) {}
+
+  template <typename Itr>
+  WN_FORCE_INLINE vector(Itr _begin, Itr _end) : base(_begin, _end) {}
+
+  WN_FORCE_INLINE vector(std::initializer_list<T> _initializer_list)
+    : vector(_initializer_list.begin(), _initializer_list.end()) {}
 
   WN_FORCE_INLINE vector& operator=(vector&& _vector) {
     assign(core::move(_vector));
@@ -64,6 +68,15 @@ public:
     return *this;
   }
 
+  WN_FORCE_INLINE vector& operator=(
+      std::initializer_list<T> _initializer_list) {
+    vector(_initializer_list).swap(*this);
+
+    return *this;
+  }
+
+  using base::assign;
+
   WN_FORCE_INLINE void assign(vector&& _vector) {
     vector(core::move(_vector)).swap(*this);
   }
@@ -73,9 +86,7 @@ public:
   }
 
   WN_FORCE_INLINE vector operator+() const {
-    vector copy(*this);
-
-    return copy;
+    return *this;
   }
 
   WN_FORCE_INLINE vector& operator*=(const T& _value) {
@@ -84,14 +95,14 @@ public:
     return *this;
   }
 
+  WN_FORCE_INLINE vector operator*(const T& _value) const {
+    return base::multiply(_value);
+  }
+
   WN_FORCE_INLINE vector& operator/=(const T& _value) {
     base::divide_assign(_value);
 
     return *this;
-  }
-
-  WN_FORCE_INLINE vector operator*(const T& _value) const {
-    return base::multiply(_value);
   }
 
   WN_FORCE_INLINE vector operator/(const T& _value) const {
