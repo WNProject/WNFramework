@@ -19,6 +19,7 @@
 #include "WNGraphics/inc/WNGraphicsPipelineDescription.h"
 #include "WNGraphics/inc/WNImage.h"
 #include "WNGraphics/inc/WNRenderPass.h"
+#include "WNGraphics/inc/WNSurface.h"
 #include "WNGraphics/inc/WNSwapchain.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNMath/inc/WNBasic.h"
@@ -333,8 +334,11 @@ void d3d12_device::destroy_image(image* _image) {
   memory::unique_ptr<image_data> data = core::move(get_data(_image));
 }
 
-swapchain_ptr d3d12_device::create_swapchain(const swapchain_create_info& _info,
-    queue* _queue, runtime::window::window* _window) {
+swapchain_ptr d3d12_device::create_swapchain(const surface& _surface,
+    const swapchain_create_info& _info, queue* _queue) {
+  const runtime::window::native_handle* handle =
+      &_surface.data_as<runtime::window::native_handle>();
+
   memory::unique_ptr<d3d12_swapchain_constructable> swapchain =
       memory::make_unique_delegated<d3d12_swapchain_constructable>(
           m_allocator, [](void* _memory) {
@@ -348,15 +352,8 @@ swapchain_ptr d3d12_device::create_swapchain(const swapchain_create_info& _info,
   swap_effect = discard ? DXGI_SWAP_EFFECT_FLIP_DISCARD
                         : DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
 
-  WN_RELEASE_ASSERT_DESC(
-      _window->type() == runtime::window::window_type::system,
-      "Unsupported: Null-windows");
-  const runtime::window::native_handle* handle =
-      reinterpret_cast<const runtime::window::native_handle*>(
-          _window->get_native_handle());
-
-  DXGI_SWAP_CHAIN_DESC1 swapchain_desc = {_window->get_width(),
-      _window->get_height(), image_format_to_dxgi_format(_info.format), false,
+  DXGI_SWAP_CHAIN_DESC1 swapchain_desc = {_surface.get_width(),
+      _surface.get_height(), image_format_to_dxgi_format(_info.format), false,
       {1, 0},                           // SampleDesc
       DXGI_USAGE_RENDER_TARGET_OUTPUT,  // Usage
       _info.num_buffers, DXGI_SCALING_STRETCH, swap_effect,
@@ -380,8 +377,8 @@ swapchain_ptr d3d12_device::create_swapchain(const swapchain_create_info& _info,
     m_log->log_error("Could not successfully create swapchain.");
     return nullptr;
   }
-  swapchain->initialize(m_allocator, this, _window->get_width(),
-      _window->get_height(), _info, core::move(swp3));
+  swapchain->initialize(m_allocator, this, _surface.get_width(),
+      _surface.get_height(), _info, core::move(swp3));
   return core::move(swapchain);
 }
 
@@ -1252,7 +1249,7 @@ void d3d12_device::destroy_buffer(buffer* _buffer) {
 }
 
 }  // namespace d3d12
-}  // namesapce internal
+}  // namespace internal
 }  // namespace graphics
 }  // namespace runtime
 }  // namespace wn

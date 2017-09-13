@@ -52,7 +52,7 @@ public:
     m_signal.wait_until(1);
     if (m_window.handle) {
       SendNotifyMessage(m_window.handle, WM_USER, 0, 0);
-      m_signal.wait_until(2);
+      m_signal.wait_until(3);
     }
   }
   window_error initialize() override;

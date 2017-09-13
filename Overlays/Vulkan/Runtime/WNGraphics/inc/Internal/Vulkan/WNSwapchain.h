@@ -55,20 +55,18 @@ protected:
 
   void initialize(memory::allocator* _allocator, vulkan_device* _device,
       uint32_t _width, uint32_t _height,
-      const swapchain_create_info& create_info, VkSwapchainKHR swapchain,
-      VkSurfaceKHR surface);
+      const swapchain_create_info& create_info, VkSwapchainKHR swapchain);
 
   void present_internal(queue* q, const swapchain_create_info& info,
       uint32_t image_index) const WN_GRAPHICS_OVERRIDE_FINAL;
 
-  VkSurfaceKHR m_surface;
   VkSwapchainKHR m_swapchain;
   vulkan_device* m_device;
   memory::allocator* m_allocator;
   containers::dynamic_array<image> m_images;
 };
 
-}  // namespace d3d12
+}  // namespace vulkan
 }  // namespace internal
 }  // namespace graphics
 }  // namespace runtime

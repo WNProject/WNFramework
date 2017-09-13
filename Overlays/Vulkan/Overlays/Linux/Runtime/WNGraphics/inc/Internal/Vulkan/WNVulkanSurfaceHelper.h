@@ -25,7 +25,7 @@ struct surface_helper {
   }
 
   VkResult create_surface(
-      runtime::window::window* window, VkSurfaceKHR* surface) {
+      const runtime::window::window* window, VkSurfaceKHR* surface) const {
     const runtime::window::xcb_native_data* data =
         reinterpret_cast<const runtime::window::xcb_native_data*>(
             window->get_native_handle());

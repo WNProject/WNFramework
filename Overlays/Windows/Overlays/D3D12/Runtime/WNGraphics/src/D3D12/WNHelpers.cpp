@@ -178,7 +178,7 @@ void enumerate_adapters(memory::allocator* _allocator, logging::log* _log,
 
       if (ptr) {
         ptr->initialize(core::move(dxgi_adapter), dxgi_factory,
-            core::move(name), device_id, vendor_id);
+            core::move(name), _log, device_id, vendor_id);
       }
 
       _physical_devices.push_back(core::move(ptr));

@@ -121,6 +121,8 @@ memory::intrusive_ptr<vulkan_context> get_vulkan_context(
   LOAD_VK_SYMBOL(context->instance, vkDestroyDevice);
 
   LOAD_VK_SYMBOL(context->instance, vkGetPhysicalDeviceMemoryProperties);
+  LOAD_VK_SYMBOL(context->instance, vkGetPhysicalDeviceSurfaceSupportKHR);
+
   return wn::core::move(context);
 }
 
@@ -131,9 +133,8 @@ void enumerate_adapters(memory::allocator* _allocator, logging::log* _log,
     return;
   }
   uint32_t num_physical_devices;
-  if (VK_SUCCESS !=
-      context->vkEnumeratePhysicalDevices(
-          context->instance, &num_physical_devices, nullptr)) {
+  if (VK_SUCCESS != context->vkEnumeratePhysicalDevices(
+                        context->instance, &num_physical_devices, nullptr)) {
     _log->log_warning("vkEnumeratePhysicalDevices found no devices");
     return;
   }
@@ -141,9 +142,8 @@ void enumerate_adapters(memory::allocator* _allocator, logging::log* _log,
   containers::dynamic_array<VkPhysicalDevice> devices(
       _allocator, num_physical_devices);
 
-  if (VK_SUCCESS !=
-      context->vkEnumeratePhysicalDevices(
-          context->instance, &num_physical_devices, devices.data())) {
+  if (VK_SUCCESS != context->vkEnumeratePhysicalDevices(context->instance,
+                        &num_physical_devices, devices.data())) {
     _log->log_error(
         "Expected ", num_physical_devices, " but result was failure");
     return;
@@ -199,7 +199,7 @@ void enumerate_adapters(memory::allocator* _allocator, logging::log* _log,
 
     if (ptr) {
       ptr->initialize(context, devices[i],
-          containers::string(_allocator, properties.deviceName),
+          containers::string(_allocator, properties.deviceName), _log,
           properties.vendorID, properties.deviceID, graphics_and_compute_queue);
       ptr->initialize_device();
     }

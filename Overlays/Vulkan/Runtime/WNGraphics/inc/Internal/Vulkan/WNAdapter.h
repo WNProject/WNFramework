@@ -10,13 +10,17 @@
 #include "WNContainers/inc/WNDynamicArray.h"
 #include "WNContainers/inc/WNString.h"
 #include "WNContainers/inc/WNStringView.h"
+#include "WNCore/inc/WNPair.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanContext.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanInclude.h"
+#include "WNGraphics/inc/Internal/Vulkan/WNVulkanSurfaceHelper.h"
+#include "WNGraphics/inc/WNErrors.h"
 
 #include "WNGraphics/inc/Internal/WNConfig.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/WNIntrusivePtr.h"
 #include "WNMemory/inc/WNUniquePtr.h"
+#include "WNWindow/inc/WNWindow.h"
 
 #ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
 #include "WNGraphics/inc/WNAdapter.h"
@@ -37,6 +41,7 @@ namespace graphics {
 class factory;
 class adapter;
 class device;
+class surface;
 
 using adapter_ptr = memory::unique_ptr<adapter>;
 using device_ptr = memory::unique_ptr<device>;
@@ -60,6 +65,11 @@ public:
 
   device_ptr make_device(memory::allocator* _allocator,
       logging::log* _log) const WN_GRAPHICS_OVERRIDE_FINAL;
+
+  graphics_error initialize_surface(surface* _surface,
+      runtime::window::window* _window) WN_GRAPHICS_OVERRIDE_FINAL;
+
+  void destroy_surface(surface* _surface) WN_GRAPHICS_OVERRIDE_FINAL;
 
   WN_FORCE_INLINE containers::string_view name() const
       WN_GRAPHICS_OVERRIDE_FINAL {
@@ -92,16 +102,19 @@ protected:
 
   WN_FORCE_INLINE void initialize(
       const memory::intrusive_ptr<vulkan_context>& _context,
-      VkPhysicalDevice _device, containers::string&& _name,
+      VkPhysicalDevice _device, containers::string&& _name, logging::log* _log,
       const uint32_t _vendor_id, const uint32_t _device_id,
       const uint32_t _compute_and_graphics_queue) {
     m_context = _context;
     m_physical_device = _device;
     m_name = core::move(_name);
+    m_log = _log;
     m_vendor_id = _vendor_id;
     m_device_id = _device_id;
     m_compute_and_graphics_queue = _compute_and_graphics_queue;
     m_api = api_type::vulkan;
+    m_surface_helper.initialize(
+        _context->instance, _context->vkGetInstanceProcAddr);
   }
 
   void initialize_device();
@@ -110,6 +123,8 @@ protected:
   VkPhysicalDeviceMemoryProperties m_memory_properties;
   VkPhysicalDevice m_physical_device;
   containers::string m_name;
+  logging::log* m_log;
+  surface_helper m_surface_helper;
   api_type m_api;
   uint32_t m_vendor_id;
   uint32_t m_device_id;

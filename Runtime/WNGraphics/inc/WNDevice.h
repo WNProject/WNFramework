@@ -30,6 +30,7 @@ WN_GRAPHICS_FORWARD(device);
 WN_GRAPHICS_FORWARD(queue);
 WN_GRAPHICS_FORWARD(adapter);
 WN_GRAPHICS_FORWARD(image);
+WN_GRAPHICS_FORWARD(surface);
 WN_GRAPHICS_FORWARD(swapchain);
 
 namespace wn {
@@ -95,8 +96,8 @@ public:
   // It is only valid to have a single queue active at a time.
   virtual queue_ptr create_queue() = 0;
 
-  virtual swapchain_ptr create_swapchain(const swapchain_create_info& _info,
-      queue* queue, runtime::window::window* window) = 0;
+  virtual swapchain_ptr create_swapchain(const surface& _surface,
+      const swapchain_create_info& _info, queue* queue) = 0;
 
   virtual size_t get_image_upload_buffer_alignment() = 0;
   virtual size_t get_buffer_upload_buffer_alignment() = 0;

@@ -53,6 +53,7 @@ class pipeline_layout;
 class fence;
 class queue;
 class shader_module;
+class surface;
 class swapchain;
 class render_pass;
 struct buffer_memory_requirements;
@@ -94,8 +95,9 @@ public:
   size_t get_image_upload_buffer_alignment() WN_GRAPHICS_OVERRIDE_FINAL;
   size_t get_buffer_upload_buffer_alignment() WN_GRAPHICS_OVERRIDE_FINAL;
 
-  swapchain_ptr create_swapchain(const swapchain_create_info& _info,
-      queue* queue, runtime::window::window* window) WN_GRAPHICS_OVERRIDE_FINAL;
+  swapchain_ptr create_swapchain(const surface& _surface,
+      const swapchain_create_info& _info,
+      queue* queue) WN_GRAPHICS_OVERRIDE_FINAL;
 
 protected:
   friend class fence;

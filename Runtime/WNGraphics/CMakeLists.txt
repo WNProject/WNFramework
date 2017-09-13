@@ -122,6 +122,7 @@ add_wn_library(WNGraphics
     inc/WNDescriptorData.h
     inc/WNDescriptors.h
     inc/WNDevice.h
+    inc/WNErrors.h
     inc/WNFactory.h
     inc/WNFence.h
     inc/WNFramebuffer.h
@@ -138,9 +139,12 @@ add_wn_library(WNGraphics
     inc/WNRenderPassTypes.h
     inc/WNShaderModule.h
     inc/WNSwapchain.h
+    inc/WNSurface.h
+    src/WNAdapter.cpp
     src/WNDevice.cpp
     src/WNFactory.cpp
     src/WNQueue.cpp
+    src/WNSurface.cpp
   LIBS
     WNWindow
 )

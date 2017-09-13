@@ -22,12 +22,10 @@ namespace vulkan {
 
 void vulkan_swapchain::initialize(memory::allocator* _allocator,
     vulkan_device* _device, uint32_t _width, uint32_t _height,
-    const swapchain_create_info& _create_info, VkSwapchainKHR swapchain,
-    VkSurfaceKHR surface) {
+    const swapchain_create_info& _create_info, VkSwapchainKHR swapchain) {
   m_allocator = _allocator;
   m_device = _device;
   m_swapchain = swapchain;
-  m_surface = surface;
   m_images = containers::dynamic_array<image>(m_allocator);
   uint32_t num_buffers = _create_info.num_buffers;
   m_images.reserve(_create_info.num_buffers);
@@ -54,7 +52,6 @@ void vulkan_swapchain::initialize(memory::allocator* _allocator,
 vulkan_swapchain::~vulkan_swapchain() {
   if (m_device) {
     m_device->vkDestroySwapchainKHR(m_device->m_device, m_swapchain, nullptr);
-    m_device->m_surface_helper.destroy_surface(m_surface);
   }
 }
 

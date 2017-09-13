@@ -120,10 +120,10 @@ LRESULT CALLBACK windows_window::wnd_proc(
     case WM_USER:
       if (wParam == static_cast<WPARAM>(lParam) && wParam == 0) {
         window->m_exit = true;
-        // Note: PostQuitMessage(0) != PostMessage(WM_QUIT);
-        // PostQuitMessage will make the window not close
-        // until a mouse event.
-        PostMessage(window->m_window.handle, WM_QUIT, 0, 0);
+        // We can't use a PostQuitMessage. It won't close the
+        // window. Instead use WM_CLOSE which will close the current
+        // window.
+        PostMessage(window->m_window.handle, WM_CLOSE, 0, 0);
         return -1;
       }
     case WM_DESTROY:

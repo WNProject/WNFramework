@@ -4,7 +4,9 @@
 
 #include "WNGraphics/inc/Internal/D3D12/WNAdapter.h"
 #include "WNCore/inc/WNUtility.h"
+#include "WNGraphics/inc/WNSurface.h"
 #include "WNLogging/inc/WNLog.h"
+#include "WNWindow/inc/WNWindowsWindow.h"
 
 #ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
 #include "WNGraphics/inc/Internal/D3D12/WNDevice.h"
@@ -61,6 +63,19 @@ device_ptr d3d12_adapter::make_device(
   }
 
   return core::move(ptr);
+}
+
+graphics_error d3d12_adapter::initialize_surface(
+    surface* _surface, runtime::window::window* _window) {
+  WN_RELEASE_ASSERT_DESC(
+      _window->type() == runtime::window::window_type::system,
+      "Unsupported: Null-windows");
+  const runtime::window::native_handle* handle =
+      reinterpret_cast<const runtime::window::native_handle*>(
+          _window->get_native_handle());
+
+  _surface->data_as<runtime::window::native_handle>() = *handle;
+  return graphics_error::ok;
 }
 
 }  // namespace d3d12

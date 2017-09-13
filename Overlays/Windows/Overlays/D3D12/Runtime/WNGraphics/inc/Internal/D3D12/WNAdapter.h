@@ -11,8 +11,10 @@
 #include "WNContainers/inc/WNString.h"
 #include "WNContainers/inc/WNStringView.h"
 #include "WNGraphics/inc/Internal/WNConfig.h"
+#include "WNGraphics/inc/WNErrors.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/WNUniquePtr.h"
+#include "WNWindow/inc/WNWindow.h"
 
 #ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
 #include "WNGraphics/inc/WNAdapter.h"
@@ -36,6 +38,7 @@ namespace graphics {
 class factory;
 class adapter;
 class device;
+class surface;
 
 using adapter_ptr = memory::unique_ptr<adapter>;
 using device_ptr = memory::unique_ptr<device>;
@@ -59,6 +62,11 @@ public:
 
   device_ptr make_device(memory::allocator* _allocator,
       logging::log* _log) const WN_GRAPHICS_OVERRIDE_FINAL;
+
+  graphics_error initialize_surface(surface* _surface,
+      runtime::window::window* window) WN_GRAPHICS_OVERRIDE_FINAL;
+
+  void destroy_surface(surface*) WN_GRAPHICS_OVERRIDE_FINAL {}
 
   WN_FORCE_INLINE containers::string_view name() const
       WN_GRAPHICS_OVERRIDE_FINAL {
@@ -90,19 +98,21 @@ protected:
   WN_FORCE_INLINE void initialize(
       Microsoft::WRL::ComPtr<IDXGIAdapter1>&& _dxgi_adapter,
       Microsoft::WRL::ComPtr<IDXGIFactory4> _dxgi_factory,
-      containers::string&& _name, const uint32_t _vendor_id,
+      containers::string&& _name, logging::log* _log, const uint32_t _vendor_id,
       const uint32_t _device_id) {
     m_adapter = core::move(_dxgi_adapter);
     m_name = std::move(_name);
     m_vendor_id = _vendor_id;
     m_device_id = _device_id;
     m_factory = _dxgi_factory;
+    m_log = _log;
     m_api = api_type::d3d12;
   }
 
   Microsoft::WRL::ComPtr<IDXGIAdapter1> m_adapter;
   Microsoft::WRL::ComPtr<IDXGIFactory4> m_factory;
   containers::string m_name;
+  logging::log* m_log;
   api_type m_api;
   uint32_t m_vendor_id;
   uint32_t m_device_id;

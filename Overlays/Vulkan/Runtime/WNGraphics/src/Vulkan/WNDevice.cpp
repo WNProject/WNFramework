@@ -47,12 +47,10 @@ namespace vulkan {
 namespace {
 
 static const VkCommandPoolCreateInfo s_command_pool_create{
-  VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,  // sType
-  nullptr,                                     // pNext
-  0,                                           // flags
-  0};                                            // queueFamilyIndex
-
-
+    VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,  // sType
+    nullptr,                                     // pNext
+    0,                                           // flags
+    0};                                          // queueFamilyIndex
 
 #ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
 using vulkan_command_list_constructable = vulkan_command_list;
@@ -214,9 +212,6 @@ bool vulkan_device::initialize(memory::allocator* _allocator,
   VkQueue queue;
   vkGetDeviceQueue(m_device, _graphics_and_device_queue, 0, &queue);
   m_queue.exchange(queue);
-
-  m_surface_helper.initialize(
-      _context->instance, _context->vkGetInstanceProcAddr);
 
   return setup_arena_properties();
 }
@@ -431,14 +426,8 @@ void vulkan_device::destroy_image(image* _image) {
 }
 
 swapchain_ptr vulkan_device::create_swapchain(
-    const swapchain_create_info& _info, queue*,
-    runtime::window::window* _window) {
-  VkSurfaceKHR surface;
-  if (VK_SUCCESS != m_surface_helper.create_surface(_window, &surface)) {
-    m_log->log_error("Could not create surface on window");
-    return nullptr;
-  }
-
+    const surface& _surface, const swapchain_create_info& _info, queue*) {
+  VkSurfaceKHR surface = _surface.data_as<VkSurfaceKHR>();
   VkPresentModeKHR mode;
   switch (_info.mode) {
     case swap_mode::immediate:
@@ -468,8 +457,8 @@ swapchain_ptr vulkan_device::create_swapchain(
       VK_COLORSPACE_SRGB_NONLINEAR_KHR,             // imageColorSpace
       {
           // imageExtent
-          _window->get_width(),  // width
-          _window->get_height()  // height
+          _surface.get_width(),  // width
+          _surface.get_height()  // height
       },
       1,                                      // imageArrayLayers
       VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,    // imageUsage
@@ -486,7 +475,6 @@ swapchain_ptr vulkan_device::create_swapchain(
   VkSwapchainKHR swapchain;
   if (VK_SUCCESS !=
       vkCreateSwapchainKHR(m_device, &create_info, nullptr, &swapchain)) {
-    m_surface_helper.destroy_surface(surface);
     m_log->log_error("Could not create swapchain");
     return nullptr;
   }
@@ -503,8 +491,8 @@ swapchain_ptr vulkan_device::create_swapchain(
             return new (_memory) vulkan_swapchain_constructable();
           });
   swp->set_create_info(info);
-  swp->initialize(m_allocator, this, _window->get_width(),
-      _window->get_height(), info, swapchain, surface);
+  swp->initialize(m_allocator, this, _surface.get_width(),
+      _surface.get_height(), info, swapchain);
   return core::move(swp);
 }
 

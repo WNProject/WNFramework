@@ -25,7 +25,7 @@ struct surface_helper {
   }
 
   VkResult create_surface(
-      runtime::window::window* window, VkSurfaceKHR* surface) {
+      const runtime::window::window* window, VkSurfaceKHR* surface) const {
     const runtime::window::native_handle* data =
         reinterpret_cast<const runtime::window::native_handle*>(
             window->get_native_handle());
@@ -39,7 +39,7 @@ struct surface_helper {
     return vkCreateWin32SurfaceKHR(m_instance, &create_info, nullptr, surface);
   }
 
-  void destroy_surface(VkSurfaceKHR surface) {
+  void destroy_surface(VkSurfaceKHR surface) const {
     vkDestroySurfaceKHR(m_instance, surface, nullptr);
   }
 

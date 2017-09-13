@@ -20,7 +20,6 @@
 #include "WNGraphics/inc/WNRenderPassTypes.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/WNUniquePtr.h"
-#include "WNWindow/inc/WNWindow.h"
 
 #ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
 #include "WNGraphics/inc/WNDevice.h"
@@ -55,6 +54,7 @@ class image;
 class image_view;
 class swapchain;
 class shader_module;
+class surface;
 class render_pass;
 class framebuffer;
 class graphics_pipeline;
@@ -96,8 +96,9 @@ public:
   size_t get_image_upload_buffer_alignment() WN_GRAPHICS_OVERRIDE_FINAL;
   size_t get_buffer_upload_buffer_alignment() WN_GRAPHICS_OVERRIDE_FINAL;
 
-  swapchain_ptr create_swapchain(const swapchain_create_info& _info,
-      queue* queue, runtime::window::window* window) WN_GRAPHICS_OVERRIDE_FINAL;
+  swapchain_ptr create_swapchain(const surface& _surface,
+      const swapchain_create_info& _info,
+      queue* queue) WN_GRAPHICS_OVERRIDE_FINAL;
 
 protected:
   friend class graphics::arena;
@@ -216,8 +217,6 @@ protected:
       const buffer* _buffer) WN_GRAPHICS_OVERRIDE_FINAL;
 
   uint32_t get_memory_type_index(uint32_t _types, VkFlags _properties) const;
-
-  surface_helper m_surface_helper;
 
   PFN_vkGetDeviceProcAddr vkGetDeviceProcAddr;
   PFN_vkGetDeviceQueue vkGetDeviceQueue;

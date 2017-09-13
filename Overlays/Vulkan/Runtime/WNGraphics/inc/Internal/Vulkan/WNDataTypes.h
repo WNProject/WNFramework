@@ -12,6 +12,7 @@
 #include "WNGraphics/inc/WNArena.h"
 #include "WNGraphics/inc/WNDescriptorData.h"
 #include "WNGraphics/inc/WNShaderModule.h"
+#include "WNGraphics/inc/WNSurface.h"
 
 namespace wn {
 namespace runtime {
@@ -166,6 +167,11 @@ struct data_type<const fence> {
 template <>
 struct data_type<fence> {
   using value = ::VkFence;
+};
+
+template <>
+struct data_type<surface> {
+  using value = ::VkSurfaceKHR;
 };
 
 }  // namespace vulkan

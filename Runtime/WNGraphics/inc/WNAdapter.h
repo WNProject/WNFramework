@@ -19,6 +19,10 @@
 #include "WNCore/inc/WNUtility.h"
 #endif
 
+#include "WNCore/inc/WNPair.h"
+#include "WNGraphics/inc/WNErrors.h"
+#include "WNGraphics/inc/WNSurface.h"
+
 namespace wn {
 namespace runtime {
 namespace graphics {
@@ -55,11 +59,15 @@ using adapter_base = core::non_copyable;
 }  // namespace internal
 
 class device;
+class surface;
 
 using device_ptr = memory::unique_ptr<device>;
 
 class adapter : public internal::adapter_base {
 public:
+  core::pair<surface, graphics_error> make_surface(
+      runtime::window::window* window);
+
 #ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
   enum class api_type{invalid, vulkan, d3d12, max};
 
@@ -75,6 +83,13 @@ public:
   virtual uint32_t device_id() const = 0;
 
   virtual api_type api() const = 0;
+
+private:
+  friend class surface;
+  virtual void destroy_surface(surface* _surface) = 0;
+  virtual graphics_error initialize_surface(
+      surface* _surface, runtime::window::window* _window) = 0;
+
 #endif
 };
 

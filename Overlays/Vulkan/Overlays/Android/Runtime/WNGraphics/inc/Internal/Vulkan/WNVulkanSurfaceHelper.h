@@ -25,7 +25,7 @@ struct surface_helper {
   }
 
   VkResult create_surface(
-      runtime::window::window* window, VkSurfaceKHR* surface) {
+      const runtime::window::window* window, VkSurfaceKHR* surface) const {
     // TODO(awoloszyn): Implement this for Android.
     return VK_SUCCESS;
   }

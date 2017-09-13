@@ -20,60 +20,74 @@ TEST(swapchain, basic) {
   auto& data = wn::runtime::testing::k_application_data;
   wn::runtime::graphics::factory device_factory(
       data->system_allocator, data->default_log);
-  auto& adapter = device_factory.query_adapters()[0];
-  auto device = adapter->make_device(data->system_allocator, data->default_log);
-  wn::runtime::graphics::queue_ptr queue = device->create_queue();
-  wn::runtime::graphics::command_allocator alloc =
-      device->create_command_allocator();
 
-  wn::multi_tasking::job_signal signal(0);
   wn::runtime::window::window_factory factory(
       data->system_allocator, data->default_log);
-  wn::memory::unique_ptr<wn::runtime::window::window> wind =
-      factory.create_window(wn::runtime::window::window_type::system,
-          data->default_job_pool, &signal, data, 100, 100, 100, 100);
 
-  // Wait until the window has successfully been created.
-  signal.wait_until(1);
+  for (auto& adapter : device_factory.query_adapters()) {
+    wn::multi_tasking::job_signal signal(0);
+    wn::memory::unique_ptr<wn::runtime::window::window> wind =
+        factory.create_window(wn::runtime::window::window_type::system,
+            data->default_job_pool, &signal, data, 100, 100, 100, 100);
 
-  // Create a swapchain for the window.
-  const wn::runtime::graphics::swapchain_create_info create_info = {
-      wn::runtime::graphics::data_format::r8g8b8a8_unorm, 2,
-      wn::runtime::graphics::swap_mode::fifo,
-      wn::runtime::graphics::discard_policy::discard};
-  auto swapchain =
-      device->create_swapchain(create_info, queue.get(), wind.get());
-  wn::runtime::graphics::fence ready_fence = device->create_fence();
+    // Wait until the window has successfully been created.
+    signal.wait_until(1);
 
-  // Let's make sure we can render 10 frames successfully on the swapchain
-  for (size_t i = 0; i < 10; ++i) {
-    ready_fence.reset();
-    uint32_t idx = swapchain->get_backbuffer_index(&ready_fence);
-    data->default_log->log_info("Got backbuffer: ", idx);
+    auto device =
+        adapter->make_device(data->system_allocator, data->default_log);
+    wn::runtime::graphics::queue_ptr queue = device->create_queue();
+    wn::runtime::graphics::command_allocator alloc =
+        device->create_command_allocator();
 
-    // This will be our normal flow: transition the image from
-    //  present to render_target, do something, transition back.
+    wn::core::pair<wn::runtime::graphics::surface,
+        wn::runtime::graphics::graphics_error>
+        surface = adapter->make_surface(wind.get());
+    ASSERT_EQ(wn::runtime::graphics::graphics_error::ok, surface.second);
+    wn::runtime::graphics::fence done_present_fence = device->create_fence();
 
-    ready_fence.wait();
-    // In fact, this interface should change slightly, the first
-    // transition should implicitly be enqueued on one of the queues.
-    wn::runtime::graphics::command_list_ptr list = alloc.create_command_list();
-    wn::runtime::graphics::fence completion_fence = device->create_fence();
-    list->transition_resource(*swapchain->get_image_for_index(idx),
-        wn::runtime::graphics::resource_state::present,
-        wn::runtime::graphics::resource_state::render_target);
+    // Create a swapchain for the window.
+    const wn::runtime::graphics::swapchain_create_info create_info = {
+        wn::runtime::graphics::data_format::r8g8b8a8_unorm, 2,
+        wn::runtime::graphics::swap_mode::fifo,
+        wn::runtime::graphics::discard_policy::discard};
 
-    list->transition_resource(*swapchain->get_image_for_index(idx),
-        wn::runtime::graphics::resource_state::render_target,
-        wn::runtime::graphics::resource_state::present);
+    auto swapchain =
+        device->create_swapchain(surface.first, create_info, queue.get());
+    wn::runtime::graphics::fence ready_fence = device->create_fence();
 
-    list->finalize();
-    queue->enqueue_command_list(list.get());
-    queue->enqueue_fence(completion_fence);
+    // Let's make sure we can render 10 frames successfully on the swapchain
+    for (size_t i = 0; i < 10; ++i) {
+      ready_fence.reset();
+      uint32_t idx = swapchain->get_backbuffer_index(&ready_fence);
+      data->default_log->log_info("Got backbuffer: ", idx);
 
-    completion_fence.wait();
-    completion_fence.reset();
+      // This will be our normal flow: transition the image from
+      //  present to render_target, do something, transition back.
 
-    swapchain->present(queue.get(), idx);
+      ready_fence.wait();
+      // In fact, this interface should change slightly, the first
+      // transition should implicitly be enqueued on one of the queues.
+      wn::runtime::graphics::command_list_ptr list =
+          alloc.create_command_list();
+      wn::runtime::graphics::fence completion_fence = device->create_fence();
+      list->transition_resource(*swapchain->get_image_for_index(idx),
+          wn::runtime::graphics::resource_state::present,
+          wn::runtime::graphics::resource_state::render_target);
+
+      list->transition_resource(*swapchain->get_image_for_index(idx),
+          wn::runtime::graphics::resource_state::render_target,
+          wn::runtime::graphics::resource_state::present);
+
+      list->finalize();
+      queue->enqueue_command_list(list.get());
+      queue->enqueue_fence(completion_fence);
+
+      completion_fence.wait();
+      completion_fence.reset();
+
+      swapchain->present(queue.get(), idx);
+    }
+    queue->enqueue_fence(done_present_fence);
+    done_present_fence.wait();
   }
 }
