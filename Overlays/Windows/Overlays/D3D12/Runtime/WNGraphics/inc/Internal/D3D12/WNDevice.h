@@ -10,6 +10,7 @@
 #include "WNContainers/inc/WNDynamicArray.h"
 #include "WNContainers/inc/WNHashMap.h"
 #include "WNContainers/inc/WNRangePartition.h"
+#include "WNContainers/inc/WNStringView.h"
 #include "WNCore/inc/pair.h"
 #include "WNGraphics/inc/Internal/D3D12/WNLockedHeap.h"
 #include "WNGraphics/inc/Internal/WNConfig.h"
@@ -19,6 +20,8 @@
 #include "WNGraphics/inc/WNGraphicsTypes.h"
 #include "WNGraphics/inc/WNRenderPassTypes.h"
 #include "WNLogging/inc/WNLog.h"
+#include "WNMath/inc/WNMatrix.h"
+#include "WNMath/inc/WNVector.h"
 #include "WNMemory/inc/unique_ptr.h"
 #include "WNMultiTasking/inc/spin_lock.h"
 #include "WNWindow/inc/WNWindow.h"
@@ -111,6 +114,14 @@ public:
         0.0f, 1.0f, 0.0f, 0.0f,  //
         0.0f, 0.0f, 1.0f, 0.0f,  //
         0.0, 0.0f, 0.0f, 1.0f});
+  }
+
+  containers::string_view get_shader_suffix() WN_GRAPHICS_OVERRIDE_FINAL {
+    return containers::string_view(".dxbc");
+  };
+
+  math::vec2f get_2d_transform_scale() WN_GRAPHICS_OVERRIDE_FINAL {
+    return math::vec2f({1.0f, 1.0f});
   }
 
 protected:

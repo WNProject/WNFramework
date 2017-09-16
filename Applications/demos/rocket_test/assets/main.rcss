@@ -1,0 +1,27 @@
+
+.foo {
+  background-decorator: image;
+  background-image: textures/gradient.png;
+}
+.bar {
+  border-color: #000000;
+  border-width: 1px;
+  position: absolute;
+  float: left;
+  width: 20%;
+  top: 0px;
+  bottom: 80%;
+  background-color: green;
+}
+div {
+  display: block;
+  font-size: 12px;
+}
+
+body {
+  font-family: Lacuna;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 20px;
+  color: black;
+}

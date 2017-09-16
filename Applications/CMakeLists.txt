@@ -16,5 +16,5 @@ include_directories(${WNFramework_SOURCE_DIR}/Libraries)
 include_directories(${WNFramework_SOURCE_DIR}/Wrappers)
 include_directories(${WNFramework_SOURCE_DIR}/Runtime)
 
-wn_add_subdirectory(script_test_runner)
 wn_add_subdirectory(demos)
+wn_add_subdirectory(script_test_runner)

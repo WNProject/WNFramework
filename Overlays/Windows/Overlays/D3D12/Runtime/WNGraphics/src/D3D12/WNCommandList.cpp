@@ -26,12 +26,8 @@ void d3d12_command_list::transition_resource(const image& _image,
 
   if (m_current_render_pass) {
     for (size_t i = 0; i < m_current_render_pass->attachments.size(); ++i) {
-      const image_view* view = m_current_framebuffer->image_views[i];
-      const memory::unique_ptr<const image_view_info>& view_data =
-          get_data(view);
-
-      const auto& im = get_data((const image*)view_data->image);
-      if (image_res->image == im->image) {
+      const image_view_info* view = m_current_framebuffer->image_views[i];
+      if (image_res->image == view->image->image) {
         m_active_framebuffer_resource_states[i] = _to;
         break;
       }
@@ -231,13 +227,9 @@ void d3d12_command_list::set_up_subpass() {
       auto& attachment_desc =
           m_current_render_pass->attachments[color_attachment];
       if (attachment_desc.attachment_store_op == store_op::dont_care) {
-        const image_view* view =
+        const image_view_info* view =
             m_current_framebuffer->image_views[color_attachment];
-        const memory::unique_ptr<const image_view_info>& view_data =
-            get_data(view);
-        const auto& image_res = get_data((const image*)view_data->image);
-
-        m_command_list->DiscardResource(image_res->image.Get(), nullptr);
+        m_command_list->DiscardResource(view->image->image.Get(), nullptr);
       }
     }
     if (m_current_render_pass->subpasses[last_subpass].depth_attachment >= 0) {
@@ -246,15 +238,11 @@ void d3d12_command_list::set_up_subpass() {
               [m_current_render_pass->subpasses[last_subpass].depth_attachment];
       if (attachment_desc.attachment_store_op == store_op::dont_care &&
           attachment_desc.stencil_store_op == store_op::dont_care) {
-        const image_view* view =
+        const image_view_info* view =
             m_current_framebuffer
                 ->image_views[m_current_render_pass->subpasses[last_subpass]
                                   .depth_attachment];
-        const memory::unique_ptr<const image_view_info>& view_data =
-            get_data(view);
-        const auto& image_res = get_data((const image*)view_data->image);
-
-        m_command_list->DiscardResource(image_res->image.Get(), nullptr);
+        m_command_list->DiscardResource(view->image->image.Get(), nullptr);
       }
     }
   }
@@ -274,14 +262,11 @@ void d3d12_command_list::set_up_subpass() {
         m_current_render_pass->subpasses[m_current_subpass].color_attachments) {
       auto& attachment_desc =
           m_current_render_pass->attachments[color_attachment];
-      const image_view* view =
+      const image_view_info* view =
           m_current_framebuffer->image_views[color_attachment];
-      const memory::unique_ptr<const image_view_info>& view_data =
-          get_data(view);
-      const auto& image_res = get_data((const image*)view_data->image);
 
       if (attachment_desc.attachment_load_op == load_op::dont_care) {
-        m_command_list->DiscardResource(image_res->image.Get(), nullptr);
+        m_command_list->DiscardResource(view->image->image.Get(), nullptr);
       }
 
       auto& image_view_handle =
@@ -317,14 +302,11 @@ void d3d12_command_list::set_up_subpass() {
           m_current_render_pass->subpasses[m_current_subpass].depth_attachment;
       auto& attachment_desc =
           m_current_render_pass->attachments[depth_attachment];
-      const image_view* view =
+      const image_view_info* view =
           m_current_framebuffer->image_views[depth_attachment];
-      const memory::unique_ptr<const image_view_info>& view_data =
-          get_data(view);
-      const auto& image_res = get_data((const image*)view_data->image);
       if (attachment_desc.attachment_load_op == load_op::dont_care &&
           attachment_desc.stencil_load_op == load_op::dont_care) {
-        m_command_list->DiscardResource(image_res->image.Get(), nullptr);
+        m_command_list->DiscardResource(view->image->image.Get(), nullptr);
       }
 
       auto& image_view_handle =
@@ -365,16 +347,13 @@ void d3d12_command_list::end_render_pass() {
     auto& attachment = m_current_render_pass->attachments[i];
     if (m_active_framebuffer_resource_states[i] != attachment.initial_state) {
       // Resource transition time.
-      const image_view* view = m_current_framebuffer->image_views[i];
-      const memory::unique_ptr<const image_view_info>& view_data =
-          get_data(view);
-      const auto& image_res = get_data((const image*)view_data->image);
+      const image_view_info* view = m_current_framebuffer->image_views[i];
 
       D3D12_RESOURCE_BARRIER barrier = {
           D3D12_RESOURCE_BARRIER_TYPE_TRANSITION,  // Type
           D3D12_RESOURCE_BARRIER_FLAG_NONE,        // Flags
           D3D12_RESOURCE_TRANSITION_BARRIER{
-              image_res->image.Get(),                   // pResource
+              view->image->image.Get(),                 // pResource
               D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES,  // subresource
               resource_state_to_d3d12_resource_states(
                   m_active_framebuffer_resource_states[i]),  // StateBefore
@@ -417,12 +396,13 @@ void d3d12_command_list::bind_graphics_descriptor_sets(
       m_command_list->SetGraphicsRootDescriptorTable(
           static_cast<UINT>(slot + data->descriptors[j].index),
           data->descriptors[j].heap->get_gpu_handle_at(
+              data->descriptors[j].base_offset +
               data->descriptors[j].offset.offset()));
     }
     for (size_t j = 0; j < data->samplers.size(); ++j) {
       m_command_list->SetGraphicsRootDescriptorTable(
-        static_cast<UINT>(slot + data->samplers[j].index),
-        data->samplers[j].handle);
+          static_cast<UINT>(slot + data->samplers[j].index),
+          data->samplers[j].handle);
     }
   }
 }

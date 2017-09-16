@@ -48,7 +48,6 @@ struct image_create_info {
   resource_states m_valid_resource_states;  // Bit-flags of the image type.
   uint32_t m_mip_levels;
 
-  // TODO(awoloszyn): Add mip-levels
   // TODO(awoloszyn): Add Depth/Array Size
   // TODO(awoloszyn): Add Multisample information
 };
@@ -140,6 +139,14 @@ struct sampler_create_info_hasher {
            std::hash<uint32_t>{}(static_cast<uint8_t>(i.border) << 28);
   }
 };
+
+WN_FORCE_INLINE bool operator==(const scissor& a, const scissor& b) {
+  return a.x == b.x && a.y == b.y && a.width == b.width && a.height == b.height;
+}
+
+WN_FORCE_INLINE bool operator!=(const scissor& a, const scissor& b) {
+  return !(a == b);
+}
 
 }  // namespace graphics
 }  // namespace runtime

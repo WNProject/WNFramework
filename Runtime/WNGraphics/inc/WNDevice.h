@@ -18,8 +18,9 @@
 #include "WNGraphics/inc/WNGraphicsTypes.h"
 #include "WNGraphics/inc/WNRenderPassTypes.h"
 #include "WNLogging/inc/WNLog.h"
-#include "WNMemory/inc/unique_ptr.h"
 #include "WNMath/inc/WNMatrix.h"
+#include "WNMath/inc/WNVector.h"
+#include "WNMemory/inc/unique_ptr.h"
 
 #ifdef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
 #include "WNGraphics/inc/Internal/WNDeviceIncludes.h"
@@ -189,6 +190,9 @@ protected:
 #ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
 public:
   virtual math::mat44f get_perspective_fixup_matrix() = 0;
+  virtual containers::string_view get_shader_suffix() = 0;
+  virtual math::vec2f get_2d_transform_scale() = 0;
+
 private:
   // Destruction methods
   virtual void destroy_queue(queue* _queue) = 0;

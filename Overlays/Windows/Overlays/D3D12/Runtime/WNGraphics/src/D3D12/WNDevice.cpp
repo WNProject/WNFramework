@@ -131,10 +131,11 @@ void d3d12_device::destroy_command_allocator(
   data.Reset();
 }
 
-void d3d12_device::reset_command_allocator(command_allocator* _command_allocator) {
+void d3d12_device::reset_command_allocator(
+    command_allocator* _command_allocator) {
   Microsoft::WRL::ComPtr<ID3D12CommandAllocator>& data =
-    _command_allocator
-    ->data_as<Microsoft::WRL::ComPtr<ID3D12CommandAllocator>>();
+      _command_allocator
+          ->data_as<Microsoft::WRL::ComPtr<ID3D12CommandAllocator>>();
   data->Reset();
 }
 
@@ -285,7 +286,8 @@ void d3d12_device::initialize_image(const image_create_info& _info,
     _image->m_resource_info[i].total_memory_required =
         static_cast<size_t>(required_size);
     _image->m_resource_info[i].format = _info.m_format;
-    _image->m_resource_info[i].block_height = format_block_height(_info.m_format);
+    _image->m_resource_info[i].block_height =
+        format_block_height(_info.m_format);
     _image->m_resource_info[i].block_width = format_block_width(_info.m_format);
     _image->m_resource_info[i].block_size = format_block_size(_info.m_format);
   }
@@ -467,7 +469,8 @@ void d3d12_device::update_descriptors(descriptor_set* _set,
       }
       memory::unique_ptr<buffer_info>& data = get_data(binding.resource);
       D3D12_CPU_DESCRIPTOR_HANDLE handle = m_csv_heap.get_handle_at(
-          descriptor.offset.offset() + binding.array_offset);
+          descriptor.base_offset + descriptor.offset.offset() +
+          binding.array_offset);
 
       switch (binding.type) {
         case descriptor_type::read_only_buffer: {
@@ -491,7 +494,8 @@ void d3d12_device::update_descriptors(descriptor_set* _set,
               0,                           // CounterOffsetInBytes
               D3D12_BUFFER_UAV_FLAG_NONE,  // Flags
           };
-          m_device->CreateUnorderedAccessView(data->resource.Get(), nullptr, &desc, handle);
+          m_device->CreateUnorderedAccessView(
+              data->resource.Get(), nullptr, &desc, handle);
         } break;
         case descriptor_type::read_write_sampled_buffer:
         case descriptor_type::read_only_sampled_buffer:
@@ -516,11 +520,9 @@ void d3d12_device::update_descriptors(descriptor_set* _set,
       }
 
       memory::unique_ptr<image_view_info>& info = get_data(binding.resource);
-      const memory::unique_ptr<const image_data>& img_data =
-          get_data(info->image);
 
       D3D12_CPU_DESCRIPTOR_HANDLE handle = m_csv_heap.get_handle_at(
-          descriptor.offset.offset() + binding.array_offset);
+        descriptor.base_offset + descriptor.offset.offset() + binding.array_offset);
 
       D3D12_SHADER_RESOURCE_VIEW_DESC desc{
           image_format_to_dxgi_format(info->infos[0].format),
@@ -533,7 +535,8 @@ void d3d12_device::update_descriptors(descriptor_set* _set,
           0,                         // PlaneSlice
           0.0f,                      // ResourceMinLODClamp
       };
-      m_device->CreateShaderResourceView(img_data->image.Get(), &desc, handle);
+      m_device->CreateShaderResourceView(
+          info->image->image.Get(), &desc, handle);
     }
   }
 }
@@ -725,12 +728,13 @@ void d3d12_device::initialize_descriptor_set(descriptor_set* _set,
   containers::default_range_partition::token tok;
   const locked_heap* descriptor_heap = nullptr;
   size_t idx = 0;
+  size_t heap_offset = 0;
   for (auto& l : (*layout)) {
     size_t this_idx = idx++;
     switch (l.type) {
       case descriptor_type::sampler:
         set->samplers.push_back(sampler_descriptor_data{
-          l.binding, this_idx, D3D12_GPU_DESCRIPTOR_HANDLE{0}});
+            l.binding, this_idx, D3D12_GPU_DESCRIPTOR_HANDLE{0}});
         continue;
       case descriptor_type::sampled_image:
       case descriptor_type::read_only_buffer:
@@ -740,12 +744,14 @@ void d3d12_device::initialize_descriptor_set(descriptor_set* _set,
       case descriptor_type::read_write_image_buffer:
       case descriptor_type::read_write_sampled_buffer:
         tok = pool->csv_heap_partition.get_interval(l.array_size);
+        heap_offset = pool->csv_heap_token.offset();
         descriptor_heap = &m_csv_heap;
         break;
       default:
         WN_DEBUG_ASSERT(false, "Should not end up here");
     }
-    descriptor_data dat = {l.type, core::move(tok), l.binding, this_idx, descriptor_heap};
+    descriptor_data dat = {l.type, core::move(tok), heap_offset, l.binding,
+        this_idx, descriptor_heap};
     set->descriptors.push_back(core::move(dat));
   }
 }
@@ -919,9 +925,10 @@ void d3d12_device::initialize_image_view(image_view* _view, const image* image,
     uint32_t _base_mip_level, uint32_t _num_mip_levels) {
   memory::unique_ptr<image_view_info>& info = get_data(_view);
   info = memory::make_unique<image_view_info>(m_allocator);
-  info->image = image;
+  info->image = get_data(image).get();
   info->infos =
       containers::dynamic_array<image::image_buffer_resource_info>(m_allocator);
+  info->m_components = _view->get_components();
   info->m_base_mip_level = _base_mip_level;
   for (size_t i = _base_mip_level; i < _num_mip_levels; ++i) {
     info->infos.push_back(image->m_resource_info[i]);
@@ -936,8 +943,14 @@ void d3d12_device::destroy_image_view(image_view* _view) {
 void d3d12_device::initialize_framebuffer(
     framebuffer* _framebuffer, const framebuffer_create_info& _info) {
   memory::unique_ptr<framebuffer_data>& data = get_data(_framebuffer);
-  data = memory::make_unique<framebuffer_data>(
-      m_allocator, m_allocator, _info.image_views);
+
+  containers::dynamic_array<const image_view_info*> infos(m_allocator);
+  infos.reserve(_info.image_views.size());
+  for (auto& view : _info.image_views) {
+    infos.push_back(get_data(view).get());
+  }
+
+  data = memory::make_unique<framebuffer_data>(m_allocator, m_allocator, infos);
 
   D3D12_RENDER_TARGET_VIEW_DESC rtv = {
       DXGI_FORMAT_UNKNOWN,            // format to be filled in
@@ -963,12 +976,9 @@ void d3d12_device::initialize_framebuffer(
           {m_rtv_heap.get_partition(1), &m_rtv_heap});
       WN_DEBUG_ASSERT(data->image_view_handles.back().token.is_valid(),
           "Could not allocate space for rtv");
-      const memory::unique_ptr<const image_data>& image_data =
-          get_data(info->image);
       const Microsoft::WRL::ComPtr<ID3D12Resource>& resource =
-          image_data->image;
-      rtv.Format = image_format_to_dxgi_format(
-          info->image->get_buffer_requirements(0).format);
+          info->image->image;
+      rtv.Format = info->image->create_info.Format;
 
       m_device->CreateRenderTargetView(resource.Get(), &rtv,
           m_rtv_heap.get_handle_at(
@@ -981,13 +991,9 @@ void d3d12_device::initialize_framebuffer(
       WN_DEBUG_ASSERT(data->image_view_handles.back().token.is_valid(),
           "Could not allocate space for dsv");
 
-      const memory::unique_ptr<const image_data>& image_data =
-          get_data(info->image);
       const Microsoft::WRL::ComPtr<ID3D12Resource>& resource =
-          image_data->image;
-      dsv.Format = image_format_to_dxgi_format(
-          info->image->get_buffer_requirements(static_cast<uint32_t>(0))
-              .format);
+          info->image->image;
+      dsv.Format = info->image->create_info.Format;
 
       m_device->CreateDepthStencilView(resource.Get(), &dsv,
           m_dsv_heap.get_handle_at(
@@ -999,7 +1005,7 @@ void d3d12_device::initialize_framebuffer(
 void d3d12_device::destroy_framebuffer(framebuffer* _framebuffer) {
   memory::unique_ptr<framebuffer_data>& data = get_data(_framebuffer);
   for (size_t i = 0; i < data->image_views.size(); ++i) {
-    image_components components = data->image_views[i]->get_components();
+    image_components components = data->image_views[i]->m_components;
     if (components & static_cast<uint8_t>(image_component::color)) {
       m_rtv_heap.release_partition(
           core::move(data->image_view_handles[i].token));

@@ -61,6 +61,7 @@ struct descriptor_pool_data {
 struct descriptor_data {
   descriptor_type type;
   containers::default_range_partition::token offset;
+  size_t base_offset;
   size_t binding;
   size_t index;
   const locked_heap* heap;
@@ -101,14 +102,17 @@ struct image_view_handle {
   locked_heap* heap;
 };
 
+struct image_view_info;
+
 struct framebuffer_data {
   framebuffer_data(memory::allocator* _allocator,
-      containers::contiguous_range<const image_view*> _views)
+      containers::contiguous_range<const image_view_info*> _views)
     : image_views(_allocator), image_view_handles(_allocator) {
+
     image_views.insert(image_views.begin(), _views.begin(), _views.end());
     image_view_handles.reserve(_views.size());
   }
-  containers::dynamic_array<const image_view*> image_views;
+  containers::dynamic_array<const image_view_info*> image_views;
   containers::dynamic_array<image_view_handle> image_view_handles;
 };
 
@@ -230,10 +234,12 @@ struct data_type<const render_pass> {
   using value = const memory::unique_ptr<const render_pass_data>;
 };
 
+struct image_data;
 struct image_view_info {
   containers::dynamic_array<image::image_buffer_resource_info> infos;
   uint32_t m_base_mip_level;
-  const image* image;
+  image_components m_components;
+  const image_data* image;
 };
 
 template <>

@@ -8,6 +8,7 @@
 #define __WN_GRAPHICS_INTERNAL_VULKAN_DEVICE_H__
 
 #include "WNContainers/inc/WNDynamicArray.h"
+#include "WNContainers/inc/WNStringView.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanCommandListContext.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanContext.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanInclude.h"
@@ -22,6 +23,7 @@
 #include "WNGraphics/inc/WNRenderPassTypes.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNMath/inc/WNMatrix.h"
+#include "WNMath/inc/WNVector.h"
 #include "WNMemory/inc/unique_ptr.h"
 
 #ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
@@ -108,10 +110,18 @@ public:
 
   math::mat44f get_perspective_fixup_matrix() WN_GRAPHICS_OVERRIDE_FINAL {
     return math::mat44f({         //
-      1.0f, 0.0f, 0.0f, 0.0f,   //
-      0.0f, -1.0f, 0.0f, 0.0f,  //
-      0.0f, 0.0f, 1.0f, 0.0f,   //
-      0.0, 0.0f, 0.0f, 1.0f });
+        1.0f, 0.0f, 0.0f, 0.0f,   //
+        0.0f, -1.0f, 0.0f, 0.0f,  //
+        0.0f, 0.0f, 1.0f, 0.0f,   //
+        0.0, 0.0f, 0.0f, 1.0f});
+  }
+
+  containers::string_view get_shader_suffix() WN_GRAPHICS_OVERRIDE_FINAL {
+    return containers::string_view(".spv");
+  };
+
+  math::vec2f get_2d_transform_scale() WN_GRAPHICS_OVERRIDE_FINAL {
+    return math::vec2f({ 1.0f, -1.0f });
   }
 
 protected:

@@ -28,7 +28,7 @@
 #ifndef __WN_CORE_BASE_H__
 #define __WN_CORE_BASE_H__
 
-#include "WNCore/inc/Internal/WNConfig.h"
+#include "WNCore/inc/internal/config.h"
 
 #ifdef _HAS_EXCEPTIONS
 #undef _HAS_EXCEPTIONS
