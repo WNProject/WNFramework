@@ -6,6 +6,7 @@
 #include "WNFileSystem/src/WNMemoryBackedMapping.h"
 #include "WNFileSystem/src/WNSystemMapping.h"
 #include "WNFileSystem/src/WNSystemPaths.h"
+#include "WNFileSystem/src/WNSystemUtilities.h"
 #include "WNFileSystem/src/WNUtilities.h"
 
 namespace wn {
@@ -31,6 +32,19 @@ mapping_ptr factory::make_mapping(
   }
 
   return nullptr;
+}
+
+mapping_ptr factory::make_mapping(
+    memory::allocator* _allocator, containers::string&& _path) const {
+  if (_path.empty()) {
+    return nullptr;
+  }
+
+  internal::sanitize_path(_path);
+  internal::exists_directory(_path);
+
+  return memory::make_unique<internal::system_mapping>(
+      _allocator, _allocator, core::move(_path), false);
 }
 
 }  // namespace file_system

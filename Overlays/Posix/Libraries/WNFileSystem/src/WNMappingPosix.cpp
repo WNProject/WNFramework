@@ -2,9 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
+#include "WNFileSystem/src/WNMappingPosix.h"
 #include "WNCore/inc/WNAssert.h"
 #include "WNFileSystem/src/WNFilePosix.h"
-#include "WNFileSystem/src/WNMappingPosix.h"
+#include "WNFileSystem/src/WNSystemUtilities.h"
 
 #include <fcntl.h>
 #include <stdio.h>
@@ -34,34 +35,22 @@ mapping_posix::~mapping_posix() {
 bool mapping_posix::exists_file(const containers::string_view _path) const {
   containers::string path(m_allocator);
 
-  if (sanitize_and_validate_path(_path, path)) {
-    struct stat fstates;
-
-    if (::stat(path.c_str(), &fstates) == 0) {
-      if (S_ISREG(fstates.st_mode)) {
-        return true;
-      }
-    }
+  if (!sanitize_and_validate_path(_path, path)) {
+    return false;
   }
 
-  return false;
+  return internal::exists_file(path);
 }
 
 bool mapping_posix::exists_directory(
     const containers::string_view _path) const {
   containers::string path(m_allocator);
 
-  if (sanitize_and_validate_path(_path, path)) {
-    struct stat dstates;
-
-    if (::stat(path.c_str(), &dstates) == 0) {
-      if (S_ISDIR(dstates.st_mode)) {
-        return true;
-      }
-    }
+  if (!sanitize_and_validate_path(_path, path)) {
+    return false;
   }
 
-  return false;
+  return internal::exists_directory(path);
 }
 
 file_ptr mapping_posix::create_file(
@@ -77,7 +66,7 @@ file_ptr mapping_posix::create_file(
       _result = result::ok;
 
       return memory::make_intrusive<file_posix>(
-          m_allocator, m_allocator, std::move(fdescriptor));
+          m_allocator, m_allocator, core::move(fdescriptor));
     }
   }
 
@@ -147,12 +136,12 @@ file_ptr mapping_posix::open_file(
     _result = result::ok;
 
     return memory::make_intrusive<file_posix>(m_allocator, m_allocator,
-        std::move(fdescriptor), mapped_memory, file_size);
+        core::move(fdescriptor), mapped_memory, file_size);
   } else {
     _result = result::ok;
 
     return memory::make_intrusive<file_posix>(
-        m_allocator, m_allocator, std::move(fdescriptor));
+        m_allocator, m_allocator, core::move(fdescriptor));
   }
 }
 
@@ -184,7 +173,7 @@ bool mapping_posix::recursive_remove_directory(
     const containers::string& _path) {
 #ifdef _WN_HAS_NFTW
   static auto predicate = [](const char* _path, const struct stat* _s,
-      const int _flag, struct FTW* _f) -> int {
+                              const int _flag, struct FTW* _f) -> int {
     WN_UNUSED_ARGUMENT(_s);
     WN_UNUSED_ARGUMENT(_f);
 

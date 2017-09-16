@@ -68,7 +68,7 @@ bool file_windows::resize(const size_type _size) {
 
         unmap();
 
-        m_file_mapping_handle = std::move(file_mapping_handle);
+        m_file_mapping_handle = core::move(file_mapping_handle);
         m_mapped_memory = memory_mapped;
       } else {
         unmap();
@@ -117,7 +117,7 @@ bool file_windows::remap() {
       return false;
     }
 
-    m_file_mapping_handle = std::move(file_mapping_handle);
+    m_file_mapping_handle = core::move(file_mapping_handle);
     m_mapped_memory = memory_mapped;
   }
 

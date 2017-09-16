@@ -39,27 +39,6 @@ public:
   virtual result delete_directory(const containers::string_view _path) override;
 
 private:
-  WN_FORCE_INLINE DWORD get_attributes(
-      const containers::string_view _path) const {
-    containers::string path(m_allocator);
-
-    if (!sanitize_and_validate_path(_path, path)) {
-      return INVALID_FILE_ATTRIBUTES;
-    }
-
-    containers::array<WCHAR, MAX_PATH> unicode_buffer = {0};
-    DWORD unicode_buffer_size = MAX_PATH;
-
-    if (!convert_to_unicode(path, unicode_buffer.data(), unicode_buffer_size)) {
-      return INVALID_FILE_ATTRIBUTES;
-    }
-
-    return ::GetFileAttributesW(unicode_buffer.data());
-  }
-
-  static bool convert_to_unicode(
-      const containers::string& _path, WCHAR* _buffer, DWORD& _buffer_size);
-
   static bool recursive_remove_directory(
       const WCHAR* _path, const size_t _size);
 };

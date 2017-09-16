@@ -26,8 +26,8 @@ WN_INLINE bool get_class_and_method(JNIEnv* _env,
         _env->GetMethodID(c, _method_name.c_str(), _method_format.c_str());
 
     if (m) {
-      _jclass = std::move(c);
-      _jmethodid = std::move(m);
+      _jclass = core::move(c);
+      _jmethodid = core::move(m);
 
       return true;
     }
@@ -111,7 +111,7 @@ bool get_scratch_path(containers::string& _path) {
         static const mode_t mode = S_IRWXU | S_IRWXG;
 
         if (::mkdir(path.c_str(), mode) == 0) {
-          _path = std::move(path);
+          _path = core::move(path);
 
           return true;
         } else if (errno == EEXIST) {

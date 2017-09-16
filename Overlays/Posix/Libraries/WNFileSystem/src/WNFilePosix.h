@@ -21,14 +21,14 @@ public:
   WN_FORCE_INLINE file_posix(
       memory::allocator* _allocator, file_descriptor&& _file_descriptor)
     : file(_allocator),
-      m_file_descriptor(std::move(_file_descriptor)),
+      m_file_descriptor(core::move(_file_descriptor)),
       m_mapped_memory(NULL),
       m_size(0) {}
 
   WN_FORCE_INLINE file_posix(memory::allocator* _allocator,
       file_descriptor&& _file_descriptor, void* _mapped_memory, size_t _size)
     : file(_allocator),
-      m_file_descriptor(std::move(_file_descriptor)),
+      m_file_descriptor(core::move(_file_descriptor)),
       m_mapped_memory(_mapped_memory),
       m_size(_size) {}
 

@@ -2,9 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
+#include "WNFileSystem/src/WNMappingWindows.h"
 #include "WNCore/inc/WNAssert.h"
 #include "WNFileSystem/src/WNFileWindows.h"
-#include "WNFileSystem/src/WNMappingWindows.h"
+#include "WNFileSystem/src/WNHelpers.h"
+#include "WNFileSystem/src/WNSystemUtilities.h"
 
 namespace wn {
 namespace file_system {
@@ -27,18 +29,24 @@ mapping_windows::~mapping_windows() {
 }
 
 bool mapping_windows::exists_file(const containers::string_view _path) const {
-  const DWORD attributes = get_attributes(_path);
+  containers::string path(m_allocator);
 
-  return (attributes != INVALID_FILE_ATTRIBUTES &&
-          !(attributes & FILE_ATTRIBUTE_DIRECTORY));
+  if (!sanitize_and_validate_path(_path, path)) {
+    return false;
+  }
+
+  return internal::exists_file(path);
 }
 
 bool mapping_windows::exists_directory(
     const containers::string_view _path) const {
-  const DWORD attributes = get_attributes(_path);
+  containers::string path(m_allocator);
 
-  return (attributes != INVALID_FILE_ATTRIBUTES &&
-          (attributes & FILE_ATTRIBUTE_DIRECTORY));
+  if (!sanitize_and_validate_path(_path, path)) {
+    return false;
+  }
+
+  return internal::exists_directory(path);
 }
 
 file_ptr mapping_windows::create_file(
@@ -72,7 +80,7 @@ file_ptr mapping_windows::create_file(
   _result = result::ok;
 
   return memory::make_intrusive<file_windows>(
-      m_allocator, m_allocator, std::move(file_handle));
+      m_allocator, m_allocator, core::move(file_handle));
 }
 
 result mapping_windows::create_directory(const containers::string_view _path) {
@@ -162,13 +170,13 @@ file_ptr mapping_windows::open_file(
     _result = result::ok;
 
     return memory::make_intrusive<file_windows>(m_allocator, m_allocator,
-        std::move(file_handle), std::move(file_mapping_handle), memory_mapped,
+        core::move(file_handle), core::move(file_mapping_handle), memory_mapped,
         file_size);
   } else {
     _result = result::ok;
 
     return memory::make_intrusive<file_windows>(
-        m_allocator, m_allocator, std::move(file_handle));
+        m_allocator, m_allocator, core::move(file_handle));
   }
 }
 
@@ -212,21 +220,6 @@ result mapping_windows::delete_directory(const containers::string_view _path) {
   }
 
   return result::ok;
-}
-
-bool mapping_windows::convert_to_unicode(
-    const containers::string& _path, WCHAR* _buffer, DWORD& _buffer_size) {
-  const int path_size = static_cast<int>(_buffer_size);
-  const int converted_path_size = ::MultiByteToWideChar(CP_UTF8, 0,
-      _path.data(), static_cast<int>(_path.size()), _buffer, path_size);
-
-  if (converted_path_size > 0 && converted_path_size < path_size) {
-    _buffer_size = converted_path_size;
-
-    return true;
-  }
-
-  return false;
 }
 
 bool mapping_windows::recursive_remove_directory(

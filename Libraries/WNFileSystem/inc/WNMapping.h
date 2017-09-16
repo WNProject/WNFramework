@@ -9,6 +9,7 @@
 
 #include "WNContainers/inc/WNStringView.h"
 #include "WNCore/inc/WNPair.h"
+#include "WNCore/inc/WNUtility.h"
 #include "WNFileSystem/inc/WNFile.h"
 #include "WNFileSystem/inc/WNResult.h"
 #include "WNMemory/inc/WNUniquePtr.h"

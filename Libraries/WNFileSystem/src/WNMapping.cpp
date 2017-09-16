@@ -10,7 +10,7 @@ namespace file_system {
 
 bool mapping::sanitize_and_validate_path(
     const containers::string_view _path, containers::string& _full_path) const {
-  containers::string path(m_allocator, _path.data(), _path.size());
+  containers::string path(m_allocator, _path);
 
   internal::sanitize_path(path);
 
@@ -24,8 +24,7 @@ bool mapping::sanitize_and_validate_path(
 }
 
 result mapping::recursive_create_directory(containers::string_view _directory) {
-  containers::string sanitized_path(
-      m_allocator, _directory.data(), _directory.size());
+  containers::string sanitized_path(m_allocator, _directory);
 
   internal::sanitize_path(sanitized_path);
 
@@ -60,8 +59,7 @@ result mapping::initialize_files(std::initializer_list<
     core::pair<containers::string_view, containers::string_view>>
         _files) {
   for (auto& file : _files) {
-    containers::string sanitized_path(
-        m_allocator, file.first.data(), file.first.size());
+    containers::string sanitized_path(m_allocator, file.first);
 
     internal::sanitize_path(sanitized_path);
 

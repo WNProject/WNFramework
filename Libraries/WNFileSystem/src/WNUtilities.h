@@ -127,7 +127,7 @@ WN_INLINE void sanitize_path(containers::string& _path) {
           last_view.clear();
         }
       } else {
-        last_view = std::move(view);
+        last_view = core::move(view);
         last_pos = pos;
       }
     }

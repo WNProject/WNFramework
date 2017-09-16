@@ -8,6 +8,7 @@
 #define __WN_FILE_SYSTEM_FILE_H__
 
 #include "WNContainers/inc/WNContiguousRange.h"
+#include "WNCore/inc/WNTypeTraits.h"
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNMemory/inc/WNIntrusivePtr.h"
 
@@ -18,8 +19,8 @@ class file : public memory::intrusive_ptr_base {
 public:
   typedef uint8_t value_type;
   typedef size_t size_type;
-  typedef std::add_pointer<value_type>::type pointer;
-  typedef std::add_const<pointer>::type const_pointer;
+  typedef core::add_pointer<value_type>::type pointer;
+  typedef core::add_const<pointer>::type const_pointer;
 
   virtual ~file() = default;
 

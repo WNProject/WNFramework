@@ -19,7 +19,7 @@ public:
   WN_FORCE_INLINE file_windows(
       memory::allocator* _allocator, utilities::windows::handle&& _file_handle)
     : file(_allocator),
-      m_file_handle(std::move(_file_handle)),
+      m_file_handle(core::move(_file_handle)),
       m_mapped_memory(NULL),
       m_size({0}) {}
 
@@ -28,8 +28,8 @@ public:
       utilities::windows::handle&& _file_mapping_handle, LPVOID _mapped_memory,
       LARGE_INTEGER _size)
     : file(_allocator),
-      m_file_handle(std::move(_file_handle)),
-      m_file_mapping_handle(std::move(_file_mapping_handle)),
+      m_file_handle(core::move(_file_handle)),
+      m_file_mapping_handle(core::move(_file_mapping_handle)),
       m_mapped_memory(_mapped_memory),
       m_size(_size) {}
 

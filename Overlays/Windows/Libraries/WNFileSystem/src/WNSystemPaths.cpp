@@ -10,7 +10,7 @@ namespace file_system {
 namespace internal {
 namespace {
 
-bool convert_to_utf8(
+WN_INLINE bool convert_to_utf8(
     LPCWSTR _buffer, const DWORD _buffer_size, containers::string& _path) {
   const int buffer_size = static_cast<const int>(_buffer_size);
   int converted_temp_path_size = ::WideCharToMultiByte(
@@ -23,7 +23,7 @@ bool convert_to_utf8(
         buffer_size, &path[0], static_cast<const int>(path.size()), NULL, NULL);
 
     if (converted_temp_path_size != 0) {
-      _path = std::move(path);
+      _path = core::move(path);
 
       return true;
     }
@@ -33,7 +33,7 @@ bool convert_to_utf8(
 }
 
 WN_INLINE DWORD get_temp_path_unicode(
-    containers::array<WCHAR, MAX_PATH>& _buffer) {
+    containers::array<WCHAR, (MAX_PATH + 1)>& _buffer) {
   const DWORD path_size =
       ::GetTempPathW(static_cast<DWORD>(_buffer.size()), _buffer.data());
 
@@ -51,7 +51,7 @@ WN_INLINE DWORD get_temp_path_unicode(
 }  // anonymous namespace
 
 bool get_scratch_path(containers::string& _path) {
-  containers::array<WCHAR, MAX_PATH> path_buffer = {0};
+  containers::array<WCHAR, (MAX_PATH + 1)> path_buffer = {0};
   DWORD path_size = get_temp_path_unicode(path_buffer);
 
   if (path_size != 0) {
@@ -61,7 +61,7 @@ bool get_scratch_path(containers::string& _path) {
       ::wcsncpy(name_template, L"XXXXXX", 6);
 
       if (::_wmktemp(name_template)) {
-        containers::array<wchar_t, MAX_PATH> path_unique_buffer = {0};
+        containers::array<wchar_t, (MAX_PATH + 1)> path_unique_buffer = {0};
 
         const int result =
             ::_snwprintf(path_unique_buffer.data(), path_unique_buffer.size(),
@@ -77,7 +77,7 @@ bool get_scratch_path(containers::string& _path) {
             containers::string path(_path.get_allocator());
 
             if (convert_to_utf8(path_unique, path_size, path)) {
-              _path = std::move(path);
+              _path = core::move(path);
 
               return true;
             }
