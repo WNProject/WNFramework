@@ -9,3 +9,9 @@ overlay_library_sources(WNFileSystem
   LIBS
     Rpcrt4.lib
 )
+
+overlay_set_variable(WN_FILE_SYSTEM_MAPPING_H
+  "WNFileSystem/src/WNMappingWindows.h")
+
+overlay_set_variable(WN_FILE_SYSTEM_SYSTEM_MAPPING_TYPE
+  "mapping_windows")

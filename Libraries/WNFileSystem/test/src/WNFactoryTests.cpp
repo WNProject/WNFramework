@@ -2,12 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNFileSystem/inc/WNFactory.h"
 #include "WNExecutableTest/inc/WNTestHarness.h"
+#include "WNFileSystem/inc/WNFactory.h"
 
-using factory_tests = ::testing::TestWithParam<wn::file_system::mapping_type>;
+using factory = ::testing::TestWithParam<wn::file_system::mapping_type>;
 
-TEST_P(factory_tests, make_mapping) {
+TEST_P(factory, make_mapping) {
   wn::testing::allocator allocator;
 
   {
@@ -19,6 +19,6 @@ TEST_P(factory_tests, make_mapping) {
   }
 }
 
-INSTANTIATE_TEST_CASE_P(all_mappings, factory_tests,
+INSTANTIATE_TEST_CASE_P(all_mappings, factory,
     ::testing::Values(wn::file_system::mapping_type::scratch,
-                            wn::file_system::mapping_type::memory_backed));
+        wn::file_system::mapping_type::memory_backed));

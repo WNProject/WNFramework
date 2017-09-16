@@ -2,13 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNFileSystem/inc/WNMapping.h"
 #include "WNExecutableTest/inc/WNTestHarness.h"
 #include "WNFileSystem/inc/WNFactory.h"
+#include "WNFileSystem/inc/WNMapping.h"
 
-using mapping_test = ::testing::TestWithParam<wn::file_system::mapping_type>;
+using mapping = ::testing::TestWithParam<wn::file_system::mapping_type>;
 
-TEST_P(mapping_test, creation) {
+TEST_P(mapping, creation) {
   wn::testing::allocator allocator;
 
   {
@@ -20,7 +20,7 @@ TEST_P(mapping_test, creation) {
   }
 }
 
-TEST_P(mapping_test, create_file) {
+TEST_P(mapping, create_file) {
   wn::testing::allocator allocator;
 
   {
@@ -42,7 +42,7 @@ TEST_P(mapping_test, create_file) {
   }
 }
 
-TEST_P(mapping_test, create_directory) {
+TEST_P(mapping, create_directory) {
   wn::testing::allocator allocator;
 
   {
@@ -58,7 +58,7 @@ TEST_P(mapping_test, create_directory) {
   }
 }
 
-TEST_P(mapping_test, exists_file) {
+TEST_P(mapping, exists_file) {
   wn::testing::allocator allocator;
 
   {
@@ -82,7 +82,7 @@ TEST_P(mapping_test, exists_file) {
   }
 }
 
-TEST_P(mapping_test, exists_directory) {
+TEST_P(mapping, exists_directory) {
   wn::testing::allocator allocator;
 
   {
@@ -100,7 +100,7 @@ TEST_P(mapping_test, exists_directory) {
   }
 }
 
-TEST_P(mapping_test, recursive_create_directory) {
+TEST_P(mapping, recursive_create_directory) {
   wn::testing::allocator allocator;
 
   {
@@ -121,7 +121,7 @@ TEST_P(mapping_test, recursive_create_directory) {
   }
 }
 
-TEST_P(mapping_test, initialize_files) {
+TEST_P(mapping, initialize_files) {
   wn::testing::allocator allocator;
 
   {
@@ -131,8 +131,11 @@ TEST_P(mapping_test, initialize_files) {
 
     ASSERT_NE(mp, nullptr);
     wn::file_system::result r = mp->initialize_files({
-        {"a.txt", "a"}, {"a/b.txt", "a slash b"}, {"a/c.txt", "a slash c"},
-        {"b/c/d.txt", "b slash c slash d"}, {"q.txt", "q"},
+        {"a.txt", "a"},
+        {"a/b.txt", "a slash b"},
+        {"a/c.txt", "a slash c"},
+        {"b/c/d.txt", "b slash c slash d"},
+        {"q.txt", "q"},
     });
     EXPECT_EQ(r, wn::file_system::result::ok);
 
@@ -151,7 +154,7 @@ TEST_P(mapping_test, initialize_files) {
   }
 }
 
-TEST_P(mapping_test, open_file) {
+TEST_P(mapping, open_file) {
   wn::testing::allocator allocator;
 
   {
@@ -182,7 +185,7 @@ TEST_P(mapping_test, open_file) {
   }
 }
 
-TEST_P(mapping_test, delete_file) {
+TEST_P(mapping, delete_file) {
   wn::testing::allocator allocator;
 
   {
@@ -209,7 +212,7 @@ TEST_P(mapping_test, delete_file) {
   }
 }
 
-TEST_P(mapping_test, delete_directory) {
+TEST_P(mapping, delete_directory) {
   wn::testing::allocator allocator;
 
   {
@@ -246,6 +249,6 @@ TEST_P(mapping_test, delete_directory) {
   }
 }
 
-INSTANTIATE_TEST_CASE_P(all_mappings, mapping_test,
+INSTANTIATE_TEST_CASE_P(all_mappings, mapping,
     ::testing::Values(wn::file_system::mapping_type::scratch,
-                            wn::file_system::mapping_type::memory_backed));
+        wn::file_system::mapping_type::memory_backed));

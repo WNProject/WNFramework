@@ -121,3 +121,9 @@ overlay_library_sources(WNFileSystem
   COMPILE_OPTIONS
     ${compile_opts}
 )
+
+overlay_set_variable(WN_FILE_SYSTEM_MAPPING_H
+  "WNFileSystem/src/WNMappingPosix.h")
+
+overlay_set_variable(WN_FILE_SYSTEM_SYSTEM_MAPPING_TYPE
+  "mapping_posix")

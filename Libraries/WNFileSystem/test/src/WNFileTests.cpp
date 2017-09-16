@@ -2,13 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNFileSystem/inc/WNFile.h"
 #include "WNExecutableTest/inc/WNTestHarness.h"
 #include "WNFileSystem/inc/WNFactory.h"
+#include "WNFileSystem/inc/WNFile.h"
 
-using file_tests = ::testing::TestWithParam<wn::file_system::mapping_type>;
+using file = ::testing::TestWithParam<wn::file_system::mapping_type>;
 
-TEST_P(file_tests, creation) {
+TEST_P(file, creation) {
   wn::testing::allocator allocator;
 
   {
@@ -30,7 +30,7 @@ TEST_P(file_tests, creation) {
   }
 }
 
-TEST_P(file_tests, size) {
+TEST_P(file, size) {
   wn::testing::allocator allocator;
 
   {
@@ -64,7 +64,7 @@ TEST_P(file_tests, size) {
   }
 }
 
-TEST_P(file_tests, resize) {
+TEST_P(file, resize) {
   wn::testing::allocator allocator;
 
   {
@@ -131,7 +131,7 @@ TEST_P(file_tests, resize) {
   }
 }
 
-TEST_P(file_tests, clear) {
+TEST_P(file, clear) {
   wn::testing::allocator allocator;
 
   {
@@ -171,7 +171,7 @@ TEST_P(file_tests, clear) {
   }
 }
 
-TEST_P(file_tests, flush) {
+TEST_P(file, flush) {
   wn::testing::allocator allocator;
 
   {
@@ -219,7 +219,7 @@ TEST_P(file_tests, flush) {
   }
 }
 
-TEST_P(file_tests, close) {
+TEST_P(file, close) {
   wn::testing::allocator allocator;
 
   {
@@ -241,6 +241,6 @@ TEST_P(file_tests, close) {
   }
 }
 
-INSTANTIATE_TEST_CASE_P(all_mappings, file_tests,
+INSTANTIATE_TEST_CASE_P(all_mappings, file,
     ::testing::Values(wn::file_system::mapping_type::scratch,
-                            wn::file_system::mapping_type::memory_backed));
+        wn::file_system::mapping_type::memory_backed));
