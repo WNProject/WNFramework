@@ -12,8 +12,7 @@
 namespace wn {
 namespace containers {
 
-template <typename T, const size_t Dimension>
-using array = std::array<T, Dimension>;
+using std::array;
 
 }  // namespace containers
 }  // namespace wn

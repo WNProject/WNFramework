@@ -12,6 +12,7 @@
 
 namespace wn {
 namespace containers {
+
 struct empty_element {};
 
 template <typename _Key, typename _HashOperator = std::hash<_Key>,
@@ -24,7 +25,7 @@ namespace internal {
 // was too large and would be truncated.
 template <typename _IteratorType, typename _ContainedType>
 class hash_set_iterator
-    : public std::iterator<std::forward_iterator_tag, _ContainedType> {
+  : public std::iterator<std::forward_iterator_tag, _ContainedType> {
 public:
   hash_set_iterator() {}
   template <typename _IT, typename _CT>

@@ -7,10 +7,11 @@
 #ifndef __WN_CONTAINERS_LIST_H__
 #define __WN_CONTAINERS_LIST_H__
 
-#include <iterator>
-#include <utility>
 #include "WNCore/inc/WNTypes.h"
 #include "WNMemory/inc/WNAllocator.h"
+
+#include <iterator>
+#include <utility>
 
 namespace wn {
 namespace containers {
@@ -20,7 +21,7 @@ class list;
 
 template <typename _NodeType, typename _ValueType>
 struct list_iterator final
-    : public std::iterator<std::bidirectional_iterator_tag, _ValueType> {
+  : public std::iterator<std::bidirectional_iterator_tag, _ValueType> {
   using reference = _ValueType&;
   using pointer = _ValueType*;
   list_iterator& operator+=(const size_t _amount) {
@@ -449,7 +450,7 @@ private:
   size_t m_size;
   list_node* m_begin;
 };
-}
-}
+}  // namespace containers
+}  // namespace wn
 
 #endif  //_WN_CONTAINERS_LIST_H_
