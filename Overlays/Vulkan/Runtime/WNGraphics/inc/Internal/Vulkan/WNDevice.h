@@ -15,6 +15,7 @@
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanSurfaceHelper.h"
 #include "WNGraphics/inc/Internal/WNConfig.h"
 #include "WNGraphics/inc/WNArenaProperties.h"
+#include "WNGraphics/inc/WNDescriptorData.h"
 #include "WNGraphics/inc/WNFramebufferData.h"
 #include "WNGraphics/inc/WNGraphicsTypes.h"
 #include "WNGraphics/inc/WNRenderPassTypes.h"
@@ -52,6 +53,8 @@ class queue;
 struct image_create_info;
 class image;
 class image_view;
+class sampler;
+struct sampler_create_info;
 class swapchain;
 class shader_module;
 class surface;
@@ -124,7 +127,8 @@ protected:
 
   // image methods
   void initialize_image(const image_create_info& _info,
-      clear_value& _optimized_clear, image* _image) WN_GRAPHICS_OVERRIDE_FINAL;
+      const clear_value& _optimized_clear,
+      image* _image) WN_GRAPHICS_OVERRIDE_FINAL;
   void destroy_image(image* _image) WN_GRAPHICS_OVERRIDE_FINAL;
   void bind_image_memory(
       image* _image, arena* _arena, size_t _offset) WN_GRAPHICS_OVERRIDE_FINAL;
@@ -170,6 +174,12 @@ protected:
       const descriptor_set_layout* _pool_data) WN_GRAPHICS_OVERRIDE_FINAL;
   void destroy_descriptor_set(descriptor_set* _set) WN_GRAPHICS_OVERRIDE_FINAL;
 
+  void update_descriptors(descriptor_set* _set,
+      const containers::contiguous_range<buffer_descriptor>& _buffer_updates,
+      const containers::contiguous_range<image_descriptor>& _image_updates,
+      const containers::contiguous_range<sampler_descriptor>& _sampler_updates)
+      WN_GRAPHICS_OVERRIDE_FINAL;
+
   void initialize_pipeline_layout(pipeline_layout* _layout,
       const containers::contiguous_range<const descriptor_set_layout*>&
           _descriptor_sets) WN_GRAPHICS_OVERRIDE_FINAL;
@@ -187,6 +197,10 @@ protected:
   void initialize_image_view(
       image_view* _view, const image* image) WN_GRAPHICS_OVERRIDE_FINAL;
   void destroy_image_view(image_view* _view) WN_GRAPHICS_OVERRIDE_FINAL;
+
+  void initialize_sampler(const sampler_create_info& _info,
+      sampler* _sampler) WN_GRAPHICS_OVERRIDE_FINAL;
+  void destroy_sampler(sampler* _sampler) WN_GRAPHICS_OVERRIDE_FINAL;
 
   // arena methods
   bool initialize_arena(arena* _arena, const size_t _index, const size_t _size,
@@ -231,6 +245,10 @@ protected:
   PFN_vkGetImageMemoryRequirements vkGetImageMemoryRequirements;
   PFN_vkBindImageMemory vkBindImageMemory;
 
+  // Samplers
+  PFN_vkCreateSampler vkCreateSampler;
+  PFN_vkDestroySampler vkDestroySampler;
+
   // Buffers
   PFN_vkCreateBuffer vkCreateBuffer;
   PFN_vkDestroyBuffer vkDestroyBuffer;
@@ -273,6 +291,7 @@ protected:
   // Descriptor Set
   PFN_vkAllocateDescriptorSets vkAllocateDescriptorSets;
   PFN_vkFreeDescriptorSets vkFreeDescriptorSets;
+  PFN_vkUpdateDescriptorSets vkUpdateDescriptorSets;
 
   // Descriptor Set Layout
   PFN_vkCreateDescriptorSetLayout vkCreateDescriptorSetLayout;

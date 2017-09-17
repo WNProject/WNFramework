@@ -146,6 +146,9 @@ bool vulkan_device::initialize(memory::allocator* _allocator,
   LOAD_VK_DEVICE_SYMBOL(m_device, vkGetImageMemoryRequirements);
   LOAD_VK_DEVICE_SYMBOL(m_device, vkBindImageMemory);
 
+  LOAD_VK_DEVICE_SYMBOL(m_device, vkCreateSampler);
+  LOAD_VK_DEVICE_SYMBOL(m_device, vkDestroySampler);
+
   LOAD_VK_DEVICE_SYMBOL(m_device, vkCreateSwapchainKHR);
   LOAD_VK_DEVICE_SYMBOL(m_device, vkGetSwapchainImagesKHR);
   LOAD_VK_DEVICE_SYMBOL(m_device, vkAcquireNextImageKHR);
@@ -159,6 +162,7 @@ bool vulkan_device::initialize(memory::allocator* _allocator,
 
   LOAD_VK_DEVICE_SYMBOL(m_device, vkAllocateDescriptorSets);
   LOAD_VK_DEVICE_SYMBOL(m_device, vkFreeDescriptorSets);
+  LOAD_VK_DEVICE_SYMBOL(m_device, vkUpdateDescriptorSets);
 
   LOAD_VK_DEVICE_SYMBOL(m_device, vkCreateDescriptorSetLayout);
   LOAD_VK_DEVICE_SYMBOL(m_device, vkDestroyDescriptorSetLayout);
@@ -342,7 +346,7 @@ command_list_ptr vulkan_device::create_command_list(command_allocator* _alloc) {
 }
 
 void vulkan_device::initialize_image(
-    const image_create_info& _info, clear_value&, image* _image) {
+    const image_create_info& _info, const clear_value&, image* _image) {
   ::VkImage& img = get_data(_image);
 
   VkImageCreateInfo create_info{
@@ -389,6 +393,95 @@ void vulkan_device::bind_image_memory(
   if (VK_SUCCESS != vkBindImageMemory(m_device, image, arena.memory, _offset)) {
     m_log->log_error("Can not bind image memory");
   }
+}
+
+VkFilter sampler_filter_to_vulkan(sampler_filter _filter) {
+  switch (_filter) {
+    case sampler_filter::nearest:
+      return VK_FILTER_NEAREST;
+    case sampler_filter::linear:
+      return VK_FILTER_LINEAR;
+  }
+  return VK_FILTER_NEAREST;
+}
+
+VkSamplerMipmapMode sampler_filter_to_vulkan_mip(sampler_filter _filter) {
+  switch (_filter) {
+    case sampler_filter::nearest:
+      return VK_SAMPLER_MIPMAP_MODE_NEAREST;
+    case sampler_filter::linear:
+      return VK_SAMPLER_MIPMAP_MODE_LINEAR;
+  }
+  return VK_SAMPLER_MIPMAP_MODE_LINEAR;
+}
+
+VkSamplerAddressMode sampler_addressing_to_vulkan(sampler_addressing _address) {
+  switch (_address) {
+    case sampler_addressing::repeat:
+      return VK_SAMPLER_ADDRESS_MODE_REPEAT;
+    case sampler_addressing::mirrored_repeat:
+      return VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT;
+    case sampler_addressing::clamp:
+      return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+    case sampler_addressing::border:
+      return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
+    case sampler_addressing::mirror_clamp:
+      return VK_SAMPLER_ADDRESS_MODE_MIRROR_CLAMP_TO_EDGE;
+  }
+  return VK_SAMPLER_ADDRESS_MODE_MIRROR_CLAMP_TO_EDGE;
+}
+
+VkBorderColor border_color_to_vulkan(border_color _color) {
+  switch (_color) {
+    case border_color::black_transparent_f32:
+      return VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK;
+    case border_color::black_transparent_uint:
+      return VK_BORDER_COLOR_INT_TRANSPARENT_BLACK;
+    case border_color::black_opaque_f32:
+      return VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK;
+    case border_color::black_opaque_uint:
+      return VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+    case border_color::white_opaque_f32:
+      return VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
+    case border_color::white_opaque_uint:
+      return VK_BORDER_COLOR_INT_OPAQUE_WHITE;
+  }
+  return VK_BORDER_COLOR_INT_OPAQUE_WHITE;
+}
+
+void vulkan_device::initialize_sampler(
+    const sampler_create_info& _info, sampler* _sampler) {
+  VkSamplerCreateInfo create_info = {
+      VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,    // sType
+      nullptr,                                  // pNext
+      0,                                        // flags
+      sampler_filter_to_vulkan(_info.mag),      // magFilter
+      sampler_filter_to_vulkan(_info.min),      // minFilter
+      sampler_filter_to_vulkan_mip(_info.mip),  // mipFilter
+      sampler_addressing_to_vulkan(_info.u),    // addressModeU
+      sampler_addressing_to_vulkan(_info.v),    // addressModeV
+      sampler_addressing_to_vulkan(_info.w),    // addressMoveW
+      _info.lod_bias,                           // mipLodBias
+      _info.enable_anisotropy,                  // anisotropyEnable
+      _info.max_anisotropy,                     // maxAnisotropy
+      _info.enable_comparison,                  // compareEnable
+      compare_to_vulkan(_info.comparison),      // compareOp
+      _info.min_lod,                            // minLod
+      _info.max_lod,                            // maxLod
+      border_color_to_vulkan(_info.border),     // borderColor
+      VK_FALSE,                                 // unnormalizedCoordinates
+  };
+
+  auto& sampler = get_data(_sampler);
+  if (VK_SUCCESS !=
+      vkCreateSampler(m_device, &create_info, nullptr, &sampler)) {
+    m_log->log_error("Could not create sampler");
+  }
+}
+
+void vulkan_device::destroy_sampler(sampler* _sampler) {
+  auto& sampler = get_data(_sampler);
+  vkDestroySampler(m_device, sampler, nullptr);
 }
 
 image_memory_requirements vulkan_device::get_image_memory_requirements(
@@ -601,6 +694,38 @@ void vulkan_device::destroy_descriptor_set_layout(
   vkDestroyDescriptorSetLayout(m_device, set, nullptr);
 }
 
+VkDescriptorType descriptor_type_to_vulkan(descriptor_type _type) {
+  switch (_type) {
+    case descriptor_type::sampler:
+      return VK_DESCRIPTOR_TYPE_SAMPLER;
+      break;
+    case descriptor_type::read_only_buffer:
+      return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+      break;
+    case descriptor_type::read_only_image_buffer:
+      return VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+      break;
+    case descriptor_type::read_only_sampled_buffer:
+      return VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER;
+      break;
+    case descriptor_type::read_write_buffer:
+      return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+      break;
+    case descriptor_type::read_write_image_buffer:
+      return VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+      break;
+    case descriptor_type::read_write_sampled_buffer:
+      return VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER;
+      break;
+    case descriptor_type::sampled_image:
+      return VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+      break;
+    default:
+      WN_RELEASE_ASSERT_DESC(false, "You should never reach here");
+      return VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+  }
+}
+
 void vulkan_device::initialize_descriptor_pool(descriptor_pool* _pool,
     const containers::contiguous_range<const descriptor_pool_create_info>&
         _pool_data) {
@@ -619,34 +744,7 @@ void vulkan_device::initialize_descriptor_pool(descriptor_pool* _pool,
   for (size_t i = 0; i < _pool_data.size(); ++i) {
     VkDescriptorPoolSize& size = sizes[i];
     const descriptor_pool_create_info& create = _pool_data[i];
-    switch (create.type) {
-      case descriptor_type::sampler:
-        size.type = VK_DESCRIPTOR_TYPE_SAMPLER;
-        break;
-      case descriptor_type::read_only_buffer:
-        size.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        break;
-      case descriptor_type::read_only_image_buffer:
-        size.type = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
-        break;
-      case descriptor_type::read_only_sampled_buffer:
-        size.type = VK_DESCRIPTOR_TYPE_SAMPLER;
-        break;
-      case descriptor_type::read_write_buffer:
-        size.type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-        break;
-      case descriptor_type::read_write_image_buffer:
-        size.type = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
-        break;
-      case descriptor_type::read_write_sampled_buffer:
-        size.type = VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER;
-        break;
-      case descriptor_type::sampled_image:
-        size.type = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
-        break;
-      default:
-        WN_RELEASE_ASSERT_DESC(false, "You should never reach here");
-    }
+    size.type = descriptor_type_to_vulkan(create.type);
     size.descriptorCount = static_cast<uint32_t>(create.max_descriptors);
     max_sets += create.max_descriptors;
   }
@@ -686,6 +784,88 @@ void vulkan_device::initialize_descriptor_set(descriptor_set* _set,
 void vulkan_device::destroy_descriptor_set(descriptor_set* _set) {
   descriptor_set_data& set = get_data(_set);
   vkFreeDescriptorSets(m_device, set.pool, 1, &set.set);
+}
+
+void vulkan_device::update_descriptors(descriptor_set* _set,
+    const containers::contiguous_range<buffer_descriptor>& _buffer_updates,
+    const containers::contiguous_range<image_descriptor>& _image_updates,
+    const containers::contiguous_range<sampler_descriptor>& _sampler_updates) {
+  descriptor_set_data& set = get_data(_set);
+  containers::deque<VkDescriptorImageInfo> images(m_allocator);
+  containers::deque<VkDescriptorBufferInfo> buffers(m_allocator);
+  containers::dynamic_array<VkWriteDescriptorSet> descriptor_set_writes(
+      m_allocator);
+  descriptor_set_writes.reserve(images.size() + buffers.size());
+
+  for (auto& b : _buffer_updates) {
+    memory::unique_ptr<buffer_info>& bdata = get_data(b.resource);
+    buffers.push_back(VkDescriptorBufferInfo{
+        bdata->buffer,                          // buffer
+        b.offset_in_elements * b.element_size,  // offset
+        b.element_size * b.num_elements         // range
+    });
+
+    descriptor_set_writes.push_back(VkWriteDescriptorSet{
+        VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,  // sType
+        nullptr,                                 // pNext
+        set.set,                                 // dstSet
+        b.binding,                               // dstBinding
+        b.array_offset,                          // dstArrayElement
+        1,                                       // descriptorCount
+        descriptor_type_to_vulkan(b.type),       // descriptorType
+        nullptr,                                 // pImageInfo
+        &buffers.back(),                         // pBufferInfo
+        nullptr,                                 // pTexelBufferView
+    });
+  }
+
+  for (auto& i : _image_updates) {
+    ::VkImageView& view = get_data(i.resource);
+    images.push_back({
+        VkSampler(VK_NULL_HANDLE),                // sampler
+        view,                                     // imageView
+        resource_state_to_vulkan_layout(i.state)  // imageLayout // range
+    });
+
+    descriptor_set_writes.push_back(VkWriteDescriptorSet{
+        VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,  // sType
+        nullptr,                                 // pNext
+        set.set,                                 // dstSet
+        i.binding,                               // dstBinding
+        i.array_offset,                          // dstArrayElement
+        1,                                       // descriptorCount
+        descriptor_type_to_vulkan(i.type),       // descriptorType
+        &images.back(),                          // pImageInfo
+        nullptr,                                 // pBufferInfo
+        nullptr,                                 // pTexelBufferView
+    });
+  }
+
+  for (auto& s : _sampler_updates) {
+    ::VkSampler& sampler = get_data(s.resource);
+    images.push_back({
+        sampler,                      // sampler
+        VkImageView(VK_NULL_HANDLE),  // imageView
+        VK_IMAGE_LAYOUT_GENERAL       // imageLayout unused
+    });
+
+    descriptor_set_writes.push_back(VkWriteDescriptorSet{
+        VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,  // sType
+        nullptr,                                 // pNext
+        set.set,                                 // dstSet
+        s.binding,                               // dstBinding
+        s.array_offset,                          // dstArrayElement
+        1,                                       // descriptorCount
+        VK_DESCRIPTOR_TYPE_SAMPLER,              // descriptorType
+        &images.back(),                          // pImageInfo
+        nullptr,                                 // pBufferInfo
+        nullptr,                                 // pTexelBufferView
+    });
+  }
+
+  vkUpdateDescriptorSets(m_device,
+      static_cast<uint32_t>(descriptor_set_writes.size()),
+      descriptor_set_writes.data(), 0, nullptr);
 }
 
 void vulkan_device::initialize_pipeline_layout(pipeline_layout* _layout,
@@ -1425,19 +1605,19 @@ bool vulkan_device::bind_buffer(
     return false;
   }
 
-  bdata->bound_arena = _arena;
+  bdata->bound_arena = adata.memory;
   bdata->offset = _offset;
+  bdata->arena_root = adata.root;
 
   return true;
 }
 
 void* vulkan_device::map_buffer(buffer* _buffer) {
   memory::unique_ptr<buffer_info>& bdata = get_data(_buffer);
-  arena_data& adata = get_data(bdata->bound_arena);
   const VkMappedMemoryRange memory_range = {
       VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE,  // sType
       nullptr,                                // pNext
-      adata.memory,                           // memory
+      bdata->bound_arena,                     // memory
       bdata->offset,                          // offset
       _buffer->size()                         // size
   };
@@ -1451,8 +1631,8 @@ void* vulkan_device::map_buffer(buffer* _buffer) {
 
   void* pointer = nullptr;
 
-  if (adata.root) {
-    pointer = static_cast<uint8_t*>(adata.root) + bdata->offset;
+  if (bdata->arena_root) {
+    pointer = static_cast<uint8_t*>(bdata->arena_root) + bdata->offset;
   }
 
   return pointer;
@@ -1460,11 +1640,11 @@ void* vulkan_device::map_buffer(buffer* _buffer) {
 
 void vulkan_device::unmap_buffer(buffer* _buffer) {
   const memory::unique_ptr<buffer_info>& bdata = get_data(_buffer);
-  const arena_data& adata = get_data(bdata->bound_arena);
+
   const VkMappedMemoryRange memory_range = {
       VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE,  // sType
       nullptr,                                // pNext
-      adata.memory,                           // memory
+      bdata->bound_arena,                     // memory
       bdata->offset,                          // offset
       _buffer->size()                         // size
   };

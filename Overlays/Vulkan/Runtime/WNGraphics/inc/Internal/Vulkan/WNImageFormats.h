@@ -17,8 +17,8 @@ namespace vulkan {
 
 static WN_FORCE_INLINE VkFormat image_format_to_vulkan_format(
     data_format _format) {
-  static const VkFormat formats[] = {
-      VK_FORMAT_R8G8B8A8_UNORM, VK_FORMAT_R32G32B32A32_SFLOAT};
+  static const VkFormat formats[] = {VK_FORMAT_R8G8B8A8_UNORM,
+      VK_FORMAT_R32G32B32A32_SFLOAT, VK_FORMAT_R32G32_SFLOAT};
   static_assert(sizeof(formats) / sizeof(formats[0]) ==
                     static_cast<uint32_t>(data_format::max),
       "Expected the number of vulkan formats and image formats to match");

@@ -58,6 +58,7 @@ public:
   // deconstructor. There is a good reason why this
   // is not done here.
   virtual ~swapchain() = default;
+
   virtual image* get_image_for_index(uint32_t index) = 0;
   virtual uint32_t get_backbuffer_index(fence* fence) const = 0;
 

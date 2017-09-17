@@ -30,6 +30,7 @@ WN_GRAPHICS_FORWARD(device);
 WN_GRAPHICS_FORWARD(queue);
 WN_GRAPHICS_FORWARD(adapter);
 WN_GRAPHICS_FORWARD(image);
+WN_GRAPHICS_FORWARD(sampler);
 WN_GRAPHICS_FORWARD(surface);
 WN_GRAPHICS_FORWARD(swapchain);
 
@@ -66,12 +67,14 @@ class descriptor_pool;
 class descriptor_set;
 class pipeline_layout;
 class render_pass;
+class sampler;
 class graphics_pipeline;
 
 struct buffer_memory_requirements;
 struct image_memory_requirements;
 struct image_create_info;
 struct swapchain_create_info;
+struct sampler_create_info;
 
 template <typename HeapTraits>
 class heap;
@@ -116,7 +119,9 @@ public:
       const containers::contiguous_range<const uint8_t>& bytes);
 
   image create_image(
-      const image_create_info& _info, clear_value& _optimized_clear);
+      const image_create_info& _info, const clear_value& _optimized_clear);
+
+  sampler create_sampler(const sampler_create_info& _info);
 
   descriptor_set_layout create_descriptor_set_layout(
       const containers::contiguous_range<const descriptor_binding_info>&
@@ -155,6 +160,7 @@ protected:
   friend class image;
   friend class arena;
   friend class buffer;
+  friend class sampler;
 
   template <typename HeapTraits>
   friend class heap;
@@ -196,13 +202,17 @@ protected:
 
   // Image methods
   virtual void initialize_image(const image_create_info& _info,
-      clear_value& _optimized_clear, image* _image) = 0;
+      const clear_value& _optimized_clear, image* _image) = 0;
   virtual void destroy_image(image* _image) = 0;
   virtual image_memory_requirements get_image_memory_requirements(
       const image* _image) = 0;
 
   virtual void bind_image_memory(
       image* _image, arena* _arena, size_t _offset) = 0;
+
+  virtual void initialize_sampler(
+      const sampler_create_info& _info, sampler* _sampler) = 0;
+  virtual void destroy_sampler(sampler* _sampler) = 0;
 
   // Shader methods
   virtual void initialize_shader_module(shader_module* s,
@@ -226,6 +236,12 @@ protected:
   virtual void initialize_descriptor_set(descriptor_set* _set,
       descriptor_pool* _pool, const descriptor_set_layout* _pool_data) = 0;
   virtual void destroy_descriptor_set(descriptor_set* _set) = 0;
+
+  virtual void update_descriptors(descriptor_set* _set,
+      const containers::contiguous_range<buffer_descriptor>& _buffer_updates,
+      const containers::contiguous_range<image_descriptor>& _image_updates,
+      const containers::contiguous_range<sampler_descriptor>&
+          _sampler_updates) = 0;
 
   // Pipeline layout
   virtual void initialize_pipeline_layout(pipeline_layout* _layout,

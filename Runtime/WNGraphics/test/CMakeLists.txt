@@ -21,6 +21,10 @@ wn_create_executable_tests_from_list(TEST_PREFIX WNGraphics
     shaders/pipeline.ps.hlsl.h
     shaders/pipeline.vs.glsl.h
     shaders/pipeline.vs.hlsl.h
+    shaders/textured_pipeline.ps.glsl.h
+    shaders/textured_pipeline.ps.hlsl.h
+    shaders/textured_pipeline.vs.glsl.h
+    shaders/textured_pipeline.vs.hlsl.h
   LIBS
     WNGraphics
 )
@@ -32,6 +36,7 @@ wn_create_executable_tests_from_list(TEST_PREFIX WNGraphicsPixel
     ${WNFramework_SOURCE_DIR}/Externals/stb_image
   SOURCES
     WNTriangle
+    WNTexturedTriangle
   COMMON_SOURCES
     inc/WNPixelTestFixture.h
     inc/WNPixelTestConfig.h.in

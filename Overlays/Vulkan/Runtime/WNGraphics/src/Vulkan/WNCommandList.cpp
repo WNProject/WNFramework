@@ -150,6 +150,11 @@ void vulkan_command_list::draw(uint32_t _vertex_count, uint32_t _instance_count,
       _vertex_offset, _instance_offset);
 }
 
+void vulkan_command_list::set_scissor(const scissor& _scissor) {
+  VkRect2D scissor{{_scissor.x, _scissor.y}, {_scissor.width, _scissor.height}};
+  m_context->vkCmdSetScissor(m_command_buffer, 0, 1, &scissor);
+}
+
 void vulkan_command_list::begin_render_pass(render_pass* _pass,
     framebuffer* _framebuffer, const render_area& _area,
     const containers::contiguous_range<clear_value>& _clears) {
@@ -207,7 +212,7 @@ void vulkan_command_list::bind_vertex_buffer(
 #undef get_data
 
 }  // namespace vulkan
-}  // namesapce internal
+}  // namespace internal
 }  // namespace graphics
 }  // namespace runtime
 }  // namespace wn

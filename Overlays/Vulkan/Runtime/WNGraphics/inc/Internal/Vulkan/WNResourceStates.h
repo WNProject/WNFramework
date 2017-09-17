@@ -78,18 +78,18 @@ static WN_FORCE_INLINE VkImageLayout resource_state_to_vulkan_layout(
 static WN_FORCE_INLINE VkFlags resource_state_to_vulkan_pipeline_stage(
     resource_state _state) {
   static const VkFlags states[] = {
-      VK_PIPELINE_STAGE_HOST_BIT,                    // initial
-      VK_PIPELINE_STAGE_HOST_BIT,                    // host_write
-      VK_PIPELINE_STAGE_HOST_BIT,                    // host_read
-      VK_PIPELINE_STAGE_TRANSFER_BIT,                // copy_source
-      VK_PIPELINE_STAGE_TRANSFER_BIT,                // copy_dest
-      VK_PIPELINE_STAGE_VERTEX_INPUT_BIT,            // index_buffer
-      VK_PIPELINE_STAGE_VERTEX_INPUT_BIT,            // vertex_buffer
-      VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,            // read_only_buffer
-      VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,            // read_write_buffer
-      VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,         // render_target
-      VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,            // texture
-      VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT  // present
+      VK_PIPELINE_STAGE_HOST_BIT,                     // initial
+      VK_PIPELINE_STAGE_HOST_BIT,                     // host_write
+      VK_PIPELINE_STAGE_HOST_BIT,                     // host_read
+      VK_PIPELINE_STAGE_TRANSFER_BIT,                 // copy_source
+      VK_PIPELINE_STAGE_TRANSFER_BIT,                 // copy_dest
+      VK_PIPELINE_STAGE_VERTEX_INPUT_BIT,             // index_buffer
+      VK_PIPELINE_STAGE_VERTEX_INPUT_BIT,             // vertex_buffer
+      VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,             // read_only_buffer
+      VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,             // read_write_buffer
+      VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,  // render_target
+      VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,             // texture
+      VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT   // present
   };
 
   static_assert((1 << (sizeof(states) / sizeof(states[0]) - 2)) + 1 ==

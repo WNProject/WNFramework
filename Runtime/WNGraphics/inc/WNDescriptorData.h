@@ -8,10 +8,13 @@
 #define __WN_GRAPHICS_DATA_TYPES_H__
 
 #include "WNGraphics/inc/WNGraphicsEnums.h"
-
 namespace wn {
 namespace runtime {
 namespace graphics {
+
+class buffer;
+class sampler;
+class image_view;
 
 struct descriptor_binding_info {
   size_t binding;
@@ -24,6 +27,30 @@ struct descriptor_binding_info {
 struct descriptor_pool_create_info {
   size_t max_descriptors;
   descriptor_type type;
+};
+
+struct buffer_descriptor {
+  uint32_t binding;
+  uint32_t array_offset;
+  descriptor_type type;
+  buffer* resource;
+  uint32_t offset_in_elements;
+  uint32_t element_size;
+  uint32_t num_elements;
+};
+
+struct image_descriptor {
+  uint32_t binding;
+  uint32_t array_offset;
+  descriptor_type type;
+  image_view* resource;
+  resource_state state;
+};
+
+struct sampler_descriptor {
+  uint32_t binding;
+  uint32_t array_offset;
+  sampler* resource;
 };
 
 }  // namespace graphics

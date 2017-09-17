@@ -15,12 +15,18 @@ namespace wn {
 namespace runtime {
 namespace graphics {
 
-enum class data_format { r8g8b8a8_unorm, r32g32b32a32_sfloat, max };
+enum class data_format {
+  r8g8b8a8_unorm,
+  r32g32b32a32_sfloat,
+  r32g32_sfloat,
+  max
+};
 
 WN_FORCE_INLINE bool is_format_normalized(data_format _format) {
   switch (_format) {
     case data_format::r8g8b8a8_unorm:
     case data_format::r32g32b32a32_sfloat:
+    case data_format::r32g32_sfloat:
       return true;
     case data_format::max:
       return false;
@@ -33,6 +39,7 @@ WN_FORCE_INLINE bool is_format_depth_stencil(data_format _format) {
   switch (_format) {
     case data_format::r8g8b8a8_unorm:
     case data_format::r32g32b32a32_sfloat:
+    case data_format::r32g32_sfloat:
       return false;
     case data_format::max:
       return false;
@@ -45,6 +52,7 @@ WN_FORCE_INLINE bool is_format_uint(data_format _format) {
   switch (_format) {
     case data_format::r8g8b8a8_unorm:
     case data_format::r32g32b32a32_sfloat:
+    case data_format::r32g32_sfloat:
       return false;
     case data_format::max:
       return false;
@@ -57,6 +65,7 @@ WN_FORCE_INLINE bool is_format_int(data_format _format) {
   switch (_format) {
     case data_format::r8g8b8a8_unorm:
     case data_format::r32g32b32a32_sfloat:
+    case data_format::r32g32_sfloat:
       return false;
     case data_format::max:
       return false;

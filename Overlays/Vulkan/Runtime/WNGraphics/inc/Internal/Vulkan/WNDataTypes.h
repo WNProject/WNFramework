@@ -11,6 +11,7 @@
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanInclude.h"
 #include "WNGraphics/inc/WNArena.h"
 #include "WNGraphics/inc/WNDescriptorData.h"
+#include "WNGraphics/inc/WNSampler.h"
 #include "WNGraphics/inc/WNShaderModule.h"
 #include "WNGraphics/inc/WNSurface.h"
 
@@ -136,7 +137,8 @@ struct data_type<const graphics_pipeline> {
 struct buffer_info {
   VkBuffer buffer;
   VkDeviceSize offset;
-  arena* bound_arena;
+  VkDeviceMemory bound_arena;
+  void* arena_root;
 };
 
 template <>
@@ -172,6 +174,11 @@ struct data_type<fence> {
 template <>
 struct data_type<surface> {
   using value = ::VkSurfaceKHR;
+};
+
+template <>
+struct data_type<sampler> {
+  using value = ::VkSampler;
 };
 
 }  // namespace vulkan

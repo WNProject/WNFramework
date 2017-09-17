@@ -19,6 +19,7 @@
 #include "WNGraphics/inc/WNGraphicsPipelineDescription.h"
 #include "WNGraphics/inc/WNImage.h"
 #include "WNGraphics/inc/WNRenderPass.h"
+#include "WNGraphics/inc/WNSampler.h"
 #include "WNGraphics/inc/WNSurface.h"
 #include "WNGraphics/inc/WNSwapchain.h"
 #include "WNLogging/inc/WNLog.h"
@@ -213,7 +214,7 @@ void d3d12_device::reset_fence(fence* _fence) {
 }
 
 void d3d12_device::initialize_image(const image_create_info& _info,
-    clear_value& _optimized_clear, image* _image) {
+    const clear_value& _optimized_clear, image* _image) {
   memory::unique_ptr<image_data>& data = get_data(_image);
   data = memory::make_unique<image_data>(m_allocator);
   data->create_info = {
@@ -296,6 +297,185 @@ void d3d12_device::bind_image_memory(
 
   if (FAILED(hr)) {
     m_log->log_error("Could not successfully bind memory");
+  }
+}
+
+void d3d12_device::initialize_sampler(
+    const sampler_create_info& _info, sampler* _sampler) {
+  auto& sampler_data = get_data(_sampler);
+  sampler_data = memory::make_unique<sampler_create_info>(m_allocator, _info);
+}
+
+void d3d12_device::destroy_sampler(sampler* _sampler) {
+  auto& sampler_data = get_data(_sampler);
+  sampler_data.reset();
+}
+
+bool filter_to_bool(sampler_filter filter) {
+  return static_cast<bool>(sampler_filter::linear == filter);
+}
+
+D3D12_TEXTURE_ADDRESS_MODE address_to_d3d12(sampler_addressing addr) {
+  switch (addr) {
+    case sampler_addressing::repeat:
+      return D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+    case sampler_addressing::mirrored_repeat:
+      return D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
+    case sampler_addressing::clamp:
+      return D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+    case sampler_addressing::border:
+      return D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+    case sampler_addressing::mirror_clamp:
+      return D3D12_TEXTURE_ADDRESS_MODE_MIRROR_ONCE;
+  }
+  return D3D12_TEXTURE_ADDRESS_MODE_MIRROR_ONCE;
+}
+
+void fill_border_color(border_color c, D3D12_SAMPLER_DESC* _d) {
+  switch (c) {
+    case border_color::black_transparent_f32:
+    case border_color::black_transparent_uint:
+    case border_color::black_opaque_f32:
+    case border_color::black_opaque_uint:
+      _d->BorderColor[0] = 0.0f;
+      _d->BorderColor[1] = 0.0f;
+      _d->BorderColor[2] = 0.0f;
+      break;
+    case border_color::white_opaque_f32:
+    case border_color::white_opaque_uint:
+      _d->BorderColor[0] = 1.0f;
+      _d->BorderColor[1] = 1.0f;
+      _d->BorderColor[2] = 1.0f;
+      break;
+  }
+  switch (c) {
+    case border_color::black_transparent_f32:
+    case border_color::black_transparent_uint:
+      _d->BorderColor[3] = 0.0f;
+      break;
+    case border_color::black_opaque_f32:
+    case border_color::black_opaque_uint:
+    case border_color::white_opaque_f32:
+    case border_color::white_opaque_uint:
+      _d->BorderColor[3] = 1.0f;
+      break;
+  }
+}
+
+void d3d12_device::update_descriptors(descriptor_set* _set,
+    const containers::contiguous_range<buffer_descriptor>& _buffer_updates,
+    const containers::contiguous_range<image_descriptor>& _image_updates,
+    const containers::contiguous_range<sampler_descriptor>& _sampler_updates) {
+  memory::unique_ptr<descriptor_set_data>& set = get_data(_set);
+  for (auto binding : _buffer_updates) {
+    // TODO(awoloszyn): Optimize this, we don't want to have to find the
+    // right binding every time
+    size_t offset_in_bytes = binding.offset_in_elements * binding.element_size;
+    size_t size_in_bytes = binding.element_size * binding.num_elements;
+
+    for (auto& descriptor : set->descriptors) {
+      if (binding.binding != descriptor.binding) {
+        continue;
+      }
+      memory::unique_ptr<buffer_info>& data = get_data(binding.resource);
+      D3D12_CPU_DESCRIPTOR_HANDLE handle = m_csv_heap.get_handle_at(
+          descriptor.offset.offset() + binding.array_offset);
+
+      switch (binding.type) {
+        case descriptor_type::read_only_buffer: {
+          D3D12_CONSTANT_BUFFER_VIEW_DESC desc{
+              data->resource->GetGPUVirtualAddress() +
+                  offset_in_bytes,          // gpuAddress
+              (size_in_bytes + 255) & ~255  // size
+          };
+          m_device->CreateConstantBufferView(&desc, handle);
+          break;
+        }
+        case descriptor_type::read_write_buffer: {
+          D3D12_UNORDERED_ACCESS_VIEW_DESC desc{
+              DXGI_FORMAT_UNKNOWN,         // Format
+              D3D12_UAV_DIMENSION_BUFFER,  // ViewDimension
+          };
+          desc.Buffer = {
+              binding.offset_in_elements,  // FirstElement
+              binding.num_elements,        // NumElements
+              binding.element_size,        // StructureByteStride
+              0,                           // CounterOffsetInBytes
+              D3D12_BUFFER_UAV_FLAG_NONE,  // Flags
+          };
+        } break;
+        case descriptor_type::read_write_sampled_buffer:
+        case descriptor_type::read_only_sampled_buffer:
+          WN_RELEASE_ASSERT_DESC(false, "Todo: Implement this?");
+      }
+    }
+  }
+
+  for (auto binding : _sampler_updates) {
+    for (auto& descriptor : set->descriptors) {
+      if (binding.binding != descriptor.binding) {
+        continue;
+      }
+      memory::unique_ptr<sampler_create_info>& data =
+          get_data(binding.resource);
+      D3D12_CPU_DESCRIPTOR_HANDLE handle = m_sampler_heap.get_handle_at(
+          descriptor.offset.offset() + binding.array_offset);
+      DWORD filter = filter_to_bool(data->mip) * 1 +
+                     filter_to_bool(data->mag) * 4 +
+                     filter_to_bool(data->min) * 0x10;
+
+      if (data->enable_anisotropy) {
+        filter = 0x55;
+      }
+
+      if (data->comparison != comparison_op::always) {
+        filter += 0x80;
+      }
+      D3D12_SAMPLER_DESC sampler_desc = {
+          D3D12_FILTER(filter),                     // filter
+          address_to_d3d12(data->u),                // AddressU
+          address_to_d3d12(data->v),                // AddressV
+          address_to_d3d12(data->w),                // AddressW
+          data->lod_bias,                           // MipLODBias
+          static_cast<UINT>(data->max_anisotropy),  // MaxAninsotropy
+          data->enable_comparison
+              ? comparison_op_to_d3d12(data->comparison)
+              : D3D12_COMPARISON_FUNC_NEVER,  // ComparisonFunc
+          {},                                 // BorderColor
+          data->min_lod,                      // MinLOD
+          data->max_lod                       // MaxLOD
+      };
+      fill_border_color(data->border, &sampler_desc);
+      m_device->CreateSampler(&sampler_desc, handle);
+    }
+  }
+
+  for (auto binding : _image_updates) {
+    for (auto& descriptor : set->descriptors) {
+      if (binding.binding != descriptor.binding) {
+        continue;
+      }
+
+      memory::unique_ptr<image_view_info>& info = get_data(binding.resource);
+      const memory::unique_ptr<const image_data>& img_data =
+          get_data(info->image);
+
+      D3D12_CPU_DESCRIPTOR_HANDLE handle = m_csv_heap.get_handle_at(
+          descriptor.offset.offset() + binding.array_offset);
+
+      D3D12_SHADER_RESOURCE_VIEW_DESC desc{
+          image_format_to_dxgi_format(info->info.format),
+          D3D12_SRV_DIMENSION_TEXTURE2D,
+          D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,  // rgba
+      };
+      desc.Texture2D = {
+          0,     // MostDetailedMip
+          1,     // MipLevels
+          0,     // PlaneSlice
+          0.0f,  // ResourceMinLODClamp
+      };
+      m_device->CreateShaderResourceView(img_data->image.Get(), &desc, handle);
+    }
   }
 }
 
@@ -511,7 +691,7 @@ void d3d12_device::initialize_descriptor_set(descriptor_set* _set,
       default:
         WN_DEBUG_ASSERT_DESC(false, "Should not end up here");
     }
-    descriptor_data dat = {l.type, core::move(tok), descriptor_heap};
+    descriptor_data dat = {l.type, core::move(tok), l.binding, descriptor_heap};
     set->descriptors.push_back(core::move(dat));
   }
 }
@@ -690,13 +870,15 @@ void d3d12_device::initialize_framebuffer(
 
   D3D12_RENDER_TARGET_VIEW_DESC rtv = {
       DXGI_FORMAT_UNKNOWN,            // format to be filled in
-      D3D12_RTV_DIMENSION_TEXTURE2D,  // Expand when we support bigger textures
+      D3D12_RTV_DIMENSION_TEXTURE2D,  // Expand when we support bigger
+                                      // textures
   };
   rtv.Texture2D = {0, 0};
 
   D3D12_DEPTH_STENCIL_VIEW_DESC dsv = {
       DXGI_FORMAT_UNKNOWN,            // format to be filled in
-      D3D12_DSV_DIMENSION_TEXTURE2D,  // Expand when we support bigger textures
+      D3D12_DSV_DIMENSION_TEXTURE2D,  // Expand when we support bigger
+                                      // textures
   };
   dsv.Texture2D = {0};
 

@@ -74,6 +74,8 @@ public:
       uint32_t _vertex_offset,
       uint32_t _instance_offset) WN_GRAPHICS_OVERRIDE_FINAL;
 
+  void set_scissor(const scissor& _scissor) WN_GRAPHICS_OVERRIDE_FINAL;
+
   void begin_render_pass(render_pass* _pass, framebuffer* _framebuffer,
       const render_area& _area,
       const containers::contiguous_range<clear_value>& _clears)

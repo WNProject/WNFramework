@@ -147,6 +147,14 @@ void d3d12_command_list::draw(uint32_t _vertex_count, uint32_t _instance_count,
       _vertex_count, _instance_count, _vertex_offset, _instance_offset);
 }
 
+void d3d12_command_list::set_scissor(const scissor& _scissor) {
+  D3D12_RECT scissor{static_cast<LONG>(_scissor.x),
+      static_cast<LONG>(_scissor.y),
+      static_cast<LONG>(_scissor.x + _scissor.width),
+      static_cast<LONG>(_scissor.y + _scissor.height)};
+  m_command_list->RSSetScissorRects(1, &scissor);
+}
+
 void d3d12_command_list::begin_render_pass(render_pass* _pass,
     framebuffer* _framebuffer, const render_area& _render_area,
     const containers::contiguous_range<clear_value>& _clears) {
@@ -353,8 +361,9 @@ void d3d12_command_list::bind_graphics_descriptor_sets(
         get_data(set_object);
     for (size_t j = 0; j < data->descriptors.size(); ++j) {
       m_command_list->SetGraphicsRootDescriptorTable(
-          slot, data->descriptors[j].heap->get_gpu_handle_at(
-                    data->descriptors[j].offset.offset()));
+          static_cast<UINT>(slot + j),
+          data->descriptors[j].heap->get_gpu_handle_at(
+              data->descriptors[j].offset.offset()));
     }
   }
 }
@@ -422,7 +431,7 @@ typename data_type<const T>::value& d3d12_command_list::get_data(
 }
 
 }  // namespace d3d12
-}  // namesapce internal
+}  // namespace internal
 }  // namespace graphics
 }  // namespace runtime
 }  // namespace wn

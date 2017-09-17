@@ -102,7 +102,7 @@ TEST_F(pipeline_test, basic_pipeline) {
     const wn::runtime::graphics::descriptor_pool_create_info pool_infos[] = {
         {5, wn::runtime::graphics::descriptor_type::read_only_buffer},
         {5, wn::runtime::graphics::descriptor_type::sampler}};
-    wn::runtime::graphics::descriptor_pool pool =
+     wn::runtime::graphics::descriptor_pool pool =
         device->create_descriptor_pool(pool_infos);
     wn::runtime::graphics::descriptor_set set =
         pool.create_descriptor_set(&descriptor_layout);

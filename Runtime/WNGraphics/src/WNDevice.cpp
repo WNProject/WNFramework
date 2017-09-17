@@ -15,6 +15,7 @@
 #include "WNGraphics/inc/WNImage.h"
 #include "WNGraphics/inc/WNImageView.h"
 #include "WNGraphics/inc/WNRenderPass.h"
+#include "WNGraphics/inc/WNSampler.h"
 #include "WNGraphics/inc/WNShaderModule.h"
 #include "WNGraphics/inc/WNSwapchain.h"
 
@@ -39,10 +40,16 @@ fence device::create_fence() {
 }
 
 image device::create_image(
-    const image_create_info& _info, clear_value& _optimized_clear) {
+    const image_create_info& _info, const clear_value& _optimized_clear) {
   image new_image(this);
   initialize_image(_info, _optimized_clear, &new_image);
   return core::move(new_image);
+}
+
+sampler device::create_sampler(const sampler_create_info& _info) {
+  sampler new_sampler(this);
+  initialize_sampler(_info, &new_sampler);
+  return core::move(new_sampler);
 }
 
 shader_module device::create_shader_module(

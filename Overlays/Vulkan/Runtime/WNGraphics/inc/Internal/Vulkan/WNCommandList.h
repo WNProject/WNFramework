@@ -12,6 +12,7 @@
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanInclude.h"
 #include "WNGraphics/inc/Internal/WNConfig.h"
 #include "WNGraphics/inc/WNGraphicsEnums.h"
+#include "WNGraphics/inc/WNGraphicsTypes.h"
 
 #ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
 #include "WNGraphics/inc/WNCommandList.h"
@@ -68,6 +69,8 @@ public:
   void draw(uint32_t _vertex_count, uint32_t _instance_count,
       uint32_t _vertex_offset,
       uint32_t _instance_offset) WN_GRAPHICS_OVERRIDE_FINAL;
+
+  void set_scissor(const scissor& _scissor) WN_GRAPHICS_OVERRIDE_FINAL;
 
   void begin_render_pass(render_pass* _pass, framebuffer* _framebuffer,
       const render_area& _area,

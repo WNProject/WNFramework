@@ -60,6 +60,15 @@ public:
     }
   }
 
+  void update_descriptors(
+      const containers::contiguous_range<buffer_descriptor>& _buffer_updates,
+      const containers::contiguous_range<image_descriptor>& _image_updates,
+      const containers::contiguous_range<sampler_descriptor>&
+          _sampler_updates) {
+    m_device->update_descriptors(
+        this, _buffer_updates, _image_updates, _sampler_updates);
+  }
+
 private:
   WN_GRAPHICS_ADD_FRIENDS(command_list);
   WN_FORCE_INLINE descriptor_set(device* _device) : m_device(_device) {}

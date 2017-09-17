@@ -53,7 +53,10 @@ class pipeline_layout;
 class fence;
 class queue;
 class shader_module;
+class sampler;
+struct sampler_create_info;
 class surface;
+struct surface_create_info;
 class swapchain;
 class render_pass;
 struct buffer_memory_requirements;
@@ -140,12 +143,23 @@ protected:
 
   // image methods
   void initialize_image(const image_create_info& _info,
-      clear_value& _optimized_clear, image* _image) WN_GRAPHICS_OVERRIDE_FINAL;
+      const clear_value& _optimized_clear,
+      image* _image) WN_GRAPHICS_OVERRIDE_FINAL;
   void destroy_image(image* _image) WN_GRAPHICS_OVERRIDE_FINAL;
   void bind_image_memory(
       image* _image, arena* _arena, size_t _offset) WN_GRAPHICS_OVERRIDE_FINAL;
   image_memory_requirements get_image_memory_requirements(
       const image* _image) WN_GRAPHICS_OVERRIDE_FINAL;
+
+  void initialize_sampler(const sampler_create_info& _info,
+      sampler* _sampler) WN_GRAPHICS_OVERRIDE_FINAL;
+  void destroy_sampler(sampler* _sampler) WN_GRAPHICS_OVERRIDE_FINAL;
+
+  void update_descriptors(descriptor_set* _set,
+      const containers::contiguous_range<buffer_descriptor>& _buffer_updates,
+      const containers::contiguous_range<image_descriptor>& _image_updates,
+      const containers::contiguous_range<sampler_descriptor>& _sampler_updates)
+      WN_GRAPHICS_OVERRIDE_FINAL;
 
   command_list_ptr create_command_list(
       command_allocator*) WN_GRAPHICS_OVERRIDE_FINAL;

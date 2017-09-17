@@ -60,6 +60,7 @@ struct descriptor_pool_data {
 struct descriptor_data {
   descriptor_type type;
   containers::default_range_partition::token offset;
+  size_t binding;
   const locked_heap* heap;
 };
 
@@ -274,6 +275,11 @@ struct data_type<image> {
 template <>
 struct data_type<const image> {
   using value = const memory::unique_ptr<const image_data>;
+};
+
+template <>
+struct data_type<sampler> {
+  using value = memory::unique_ptr<sampler_create_info>;
 };
 
 }  // namespace d3d12

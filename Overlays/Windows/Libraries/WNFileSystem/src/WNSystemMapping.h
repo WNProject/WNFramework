@@ -7,7 +7,7 @@
 #ifndef __WN_FILE_SYSTEM_WINDOWS_SYSTEM_MAPPING_H__
 #define __WN_FILE_SYSTEM_WINDOWS_SYSTEM_MAPPING_H__
 
-#include "WNFileSystem/src/WNMappingWindows.h
+#include "WNFileSystem/src/WNMappingWindows.h"
 
 namespace wn {
 namespace file_system {

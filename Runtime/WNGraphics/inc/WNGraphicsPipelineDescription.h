@@ -11,6 +11,7 @@
 #include "WNContainers/inc/WNStringView.h"
 #include "WNGraphics/inc/Internal/WNConfig.h"
 #include "WNGraphics/inc/WNGraphicsObjectBase.h"
+#include "WNGraphics/inc/WNGraphicsTypes.h"
 #include "WNMath/inc/WNBasic.h"
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNMemory/inc/WNBasic.h"
@@ -30,13 +31,6 @@ struct viewport {
   float height;
   float min_depth;
   float max_depth;
-};
-
-struct scissor {
-  int32_t x;
-  int32_t y;
-  uint32_t width;
-  uint32_t height;
 };
 
 struct stencil_desc {

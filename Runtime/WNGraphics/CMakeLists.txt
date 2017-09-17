@@ -137,6 +137,7 @@ add_wn_library(WNGraphics
     inc/WNQueue.h
     inc/WNRenderPass.h
     inc/WNRenderPassTypes.h
+    inc/WNSampler.h
     inc/WNShaderModule.h
     inc/WNSwapchain.h
     inc/WNSurface.h
