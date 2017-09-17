@@ -5,6 +5,7 @@ overlay_library_sources(WNFileSystem
     src/WNHelpers.h
     src/WNMappingWindows.cpp
     src/WNMappingWindows.h
+    src/WNSystemMapping.h
     src/WNSystemPaths.cpp
     src/WNSystemPaths.h
     src/WNSystemUtilities.h
@@ -12,8 +13,4 @@ overlay_library_sources(WNFileSystem
     Rpcrt4.lib
 )
 
-overlay_set_variable(WN_FILE_SYSTEM_MAPPING_H
-  "WNFileSystem/src/WNMappingWindows.h")
-
-overlay_set_variable(WN_FILE_SYSTEM_SYSTEM_MAPPING_TYPE
-  "mapping_windows")
+overlay_message(STATUS "File System Mapping Type: mapping_windows")

@@ -4,19 +4,19 @@
 
 #pragma once
 
-#ifndef __WN_FILE_SYSTEM_SYSTEM_MAPPING_H__
-#define __WN_FILE_SYSTEM_SYSTEM_MAPPING_H__
+#ifndef __WN_FILE_SYSTEM_WINDOWS_SYSTEM_MAPPING_H__
+#define __WN_FILE_SYSTEM_WINDOWS_SYSTEM_MAPPING_H__
 
-#include "${WN_FILE_SYSTEM_MAPPING_H}"
+#include "WNFileSystem/src/WNMappingWindows.h
 
 namespace wn {
 namespace file_system {
 namespace internal {
 
-using system_mapping = ${WN_FILE_SYSTEM_SYSTEM_MAPPING_TYPE};
+using system_mapping = mapping_windows;
 
 }  // namespace internal
 }  // namespace file_system
 }  // namespace wn
 
-#endif  // __WN_FILE_SYSTEM_SYSTEM_MAPPING_H__
+#endif  // __WN_FILE_SYSTEM_WINDOWS_SYSTEM_MAPPING_H__

@@ -32,6 +32,12 @@ macro(set_overlay_var)
   endif()
 endmacro()
 
+macro(overlay_message MODE)
+  if (WN_OVERLAY_IS_ENABLED)
+    message(${MODE} ${ARGN})
+  endif()
+endmacro()
+
 macro(register_all_overlays)
   set(WN_FORCE_DISABLED_OVERLAY OFF)
   set(OVERLAY_NAME_STACK)

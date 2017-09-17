@@ -118,13 +118,10 @@ overlay_library_sources(WNFileSystem
     src/WNFilePosix.h
     src/WNMappingPosix.cpp
     src/WNMappingPosix.h
+    src/WNSystemMapping.h
     src/WNSystemUtilities.h
   COMPILE_OPTIONS
     ${compile_opts}
 )
 
-overlay_set_variable(WN_FILE_SYSTEM_MAPPING_H
-  "WNFileSystem/src/WNMappingPosix.h")
-
-overlay_set_variable(WN_FILE_SYSTEM_SYSTEM_MAPPING_TYPE
-  "mapping_posix")
+overlay_message(STATUS "File System Mapping Type: mapping_posix")
