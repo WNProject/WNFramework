@@ -3,6 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "WNFileSystem/src/WNSystemPaths.h"
+#include "WNMemory/inc/WNAllocator.h"
 #include "WNUtilities/inc/WNAppData.h"
 
 #include <jni.h>
@@ -36,7 +37,7 @@ WN_INLINE bool get_class_and_method(JNIEnv* _env,
   return false;
 }
 
-bool get_temp_path(containers::string& _path) {
+containers::string get_temp_path(memory::allocator* _allocator) {
   android_app* app = utilities::gAndroidApp;
 
   if (!app) {
@@ -55,6 +56,7 @@ bool get_temp_path(containers::string& _path) {
     return false;
   }
 
+  containers::string path(_allocator);
   JNIEnv* env;
 
   if (vm->AttachCurrentThread(&env, nullptr) == JNI_OK) {
@@ -80,7 +82,7 @@ bool get_temp_path(containers::string& _path) {
                 env->GetStringUTFChars(path_string, nullptr);
 
             if (path_chars) {
-              _path = containers::string(path_chars);
+              path = path_chars;
 
               env->ReleaseStringUTFChars(path_string, path_chars);
             }
@@ -92,15 +94,15 @@ bool get_temp_path(containers::string& _path) {
     vm->DetachCurrentThread();
   }
 
-  return !_path.empty();
+  return core::move(path);
 }
 
 }  // anonymous namespace
 
-bool get_scratch_path(containers::string& _path) {
-  containers::string temp_path;
+containers::string get_scratch_path(memory::allocator* _allocator) {
+  containers::string temp_path(get_temp_path(_allocator));
 
-  if (get_temp_path(temp_path)) {
+  if (!temp_path.empty()) {
     char name_template[7] = {0};
 
     for (;;) {
@@ -110,10 +112,8 @@ bool get_scratch_path(containers::string& _path) {
         containers::string path(temp_path + "scratch." + name_template + "/");
         static const mode_t mode = S_IRWXU | S_IRWXG;
 
-        if (::mkdir(path.c_str(), mode) == 0) {
-          _path = core::move(path);
-
-          return true;
+        if (::mkdir(path.data(), mode) == 0) {
+          return path;
         } else if (errno == EEXIST) {
           continue;
         }
@@ -123,7 +123,7 @@ bool get_scratch_path(containers::string& _path) {
     }
   }
 
-  return false;
+  return nullptr;
 }
 
 }  // namespace internal

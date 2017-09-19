@@ -34,8 +34,9 @@ TEST(c_translator, simple_c_translation) {
   wn::testing::allocator allocator;
   wn::scripting::type_validator validator(&allocator);
   wn::file_system::mapping_ptr mapping =
-      wn::file_system::factory().make_mapping(
-          &allocator, wn::file_system::mapping_type::memory_backed);
+      wn::file_system::factory(&allocator)
+          .make_mapping(
+              &allocator, wn::file_system::mapping_type::memory_backed);
 
   mapping->initialize_files({{"file.wns", "Void main() { return; }"}});
 
@@ -93,8 +94,9 @@ TEST_P(c_translator_direct_translation_test, translations) {
   wn::logging::static_log<> log(&logger);
 
   wn::file_system::mapping_ptr mapping =
-      wn::file_system::factory().make_mapping(
-          &allocator, wn::file_system::mapping_type::memory_backed);
+      wn::file_system::factory(&allocator)
+          .make_mapping(
+              &allocator, wn::file_system::mapping_type::memory_backed);
 
   mapping->initialize_files({{"file.wns", input_str}});
   wn::scripting::c_translator translator(
@@ -1961,8 +1963,9 @@ TEST_P(c_translator_function_params, single_parameter) {
                  " x) {\nreturn x;\n}\n";
 
   wn::file_system::mapping_ptr mapping =
-      wn::file_system::factory().make_mapping(
-          &allocator, wn::file_system::mapping_type::memory_backed);
+      wn::file_system::factory(&allocator)
+          .make_mapping(
+              &allocator, wn::file_system::mapping_type::memory_backed);
 
   mapping->initialize_files({{"file.wns", str}});
 
@@ -1986,8 +1989,9 @@ TEST(c_translator, multiple_c_functions) {
   wn::testing::allocator allocator;
   wn::scripting::type_validator validator(&allocator);
   wn::file_system::mapping_ptr mapping =
-      wn::file_system::factory().make_mapping(
-          &allocator, wn::file_system::mapping_type::memory_backed);
+      wn::file_system::factory(&allocator)
+          .make_mapping(
+              &allocator, wn::file_system::mapping_type::memory_backed);
 
   mapping->initialize_files({{"file.wns",
       "Void main() { return; }\n"
@@ -2014,8 +2018,9 @@ TEST(c_translator, multiple_returns) {
   wn::scripting::type_validator validator(&allocator);
 
   wn::file_system::mapping_ptr mapping =
-      wn::file_system::factory().make_mapping(
-          &allocator, wn::file_system::mapping_type::memory_backed);
+      wn::file_system::factory(&allocator)
+          .make_mapping(
+              &allocator, wn::file_system::mapping_type::memory_backed);
 
   mapping->initialize_files({{"file.wns", "Void main() { return; return; }"}});
 
@@ -2047,8 +2052,9 @@ TEST_P(c_int_params, int_return) {
   expected += GetParam();
   expected += ";\n}\n";
   wn::file_system::mapping_ptr mapping =
-      wn::file_system::factory().make_mapping(
-          &allocator, wn::file_system::mapping_type::memory_backed);
+      wn::file_system::factory(&allocator)
+          .make_mapping(
+              &allocator, wn::file_system::mapping_type::memory_backed);
 
   mapping->initialize_files({{"file.wns", str}});
 
@@ -2085,8 +2091,9 @@ TEST_P(c_arith_params, binary_arithmetic) {
   expected += GetParam().dest;
   expected += ";\n}\n";
   wn::file_system::mapping_ptr mapping =
-      wn::file_system::factory().make_mapping(
-          &allocator, wn::file_system::mapping_type::memory_backed);
+      wn::file_system::factory(&allocator)
+          .make_mapping(
+              &allocator, wn::file_system::mapping_type::memory_backed);
 
   mapping->initialize_files({{"file.wns", str}});
 
@@ -2122,8 +2129,9 @@ TEST_P(c_bool_params, boolean_arithmetic) {
   expected += GetParam().dest;
   expected += ";\n}\n";
   wn::file_system::mapping_ptr mapping =
-      wn::file_system::factory().make_mapping(
-          &allocator, wn::file_system::mapping_type::memory_backed);
+      wn::file_system::factory(&allocator)
+          .make_mapping(
+              &allocator, wn::file_system::mapping_type::memory_backed);
 
   mapping->initialize_files({{"file.wns", str}});
 

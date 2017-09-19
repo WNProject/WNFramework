@@ -12,7 +12,7 @@ TEST_P(file, creation) {
   wn::testing::allocator allocator;
 
   {
-    wn::file_system::factory f;
+    wn::file_system::factory f(&allocator);
     const wn::file_system::mapping_ptr mp =
         f.make_mapping(&allocator, GetParam());
 
@@ -34,7 +34,7 @@ TEST_P(file, size) {
   wn::testing::allocator allocator;
 
   {
-    wn::file_system::factory f;
+    wn::file_system::factory f(&allocator);
     const wn::file_system::mapping_ptr mp =
         f.make_mapping(&allocator, GetParam());
 
@@ -68,7 +68,7 @@ TEST_P(file, resize) {
   wn::testing::allocator allocator;
 
   {
-    wn::file_system::factory f;
+    wn::file_system::factory f(&allocator);
     const wn::file_system::mapping_ptr mp =
         f.make_mapping(&allocator, GetParam());
 
@@ -135,7 +135,7 @@ TEST_P(file, clear) {
   wn::testing::allocator allocator;
 
   {
-    wn::file_system::factory f;
+    wn::file_system::factory f(&allocator);
     const wn::file_system::mapping_ptr mp =
         f.make_mapping(&allocator, GetParam());
 
@@ -175,7 +175,7 @@ TEST_P(file, flush) {
   wn::testing::allocator allocator;
 
   {
-    wn::file_system::factory f;
+    wn::file_system::factory f(&allocator);
     const wn::file_system::mapping_ptr mp =
         f.make_mapping(&allocator, GetParam());
 
@@ -223,7 +223,7 @@ TEST_P(file, close) {
   wn::testing::allocator allocator;
 
   {
-    wn::file_system::factory f;
+    wn::file_system::factory f(&allocator);
     const wn::file_system::mapping_ptr mp =
         f.make_mapping(&allocator, GetParam());
 
@@ -242,5 +242,5 @@ TEST_P(file, close) {
 }
 
 INSTANTIATE_TEST_CASE_P(all_mappings, file,
-    ::testing::Values(wn::file_system::mapping_type::scratch,
+    ::testing::Values(wn::file_system::mapping_type::scratch_directory,
         wn::file_system::mapping_type::memory_backed));

@@ -2,7 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNScripting/inc/WNASTWalker.h"
 #include "WNContainers/inc/WNHashMap.h"
 #include "WNContainers/inc/WNString.h"
 #include "WNContainers/inc/WNStringView.h"
@@ -11,13 +10,13 @@
 #include "WNFileSystem/inc/WNFactory.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNScripting/inc/WNASTPasses.h"
-#include "WNScripting/test/inc/Common.h"
+#include "WNScripting/inc/WNASTWalker.h"
 #include "WNScripting/test/inc/Common.h"
 
-using ::testing::_;
 using ::testing::Eq;
 using ::testing::Matcher;
 using ::testing::TypedEq;
+using ::testing::_;
 
 class mock_walk {
 public:
@@ -48,8 +47,9 @@ void RunMatcherTest(T& _t,
     const char* _file, size_t* _num_warnings, size_t* _num_errors) {
   wn::testing::allocator allocator;
   wn::file_system::mapping_ptr mapping =
-      wn::file_system::factory().make_mapping(
-          &allocator, wn::file_system::mapping_type::memory_backed);
+      wn::file_system::factory(&allocator)
+          .make_mapping(
+              &allocator, wn::file_system::mapping_type::memory_backed);
 
   mapping->initialize_files(_files);
 
@@ -85,8 +85,9 @@ TEST(ast_code_generator, type_association_test) {
   num_warnings = num_errors = 0;
 
   wn::file_system::mapping_ptr mapping =
-      wn::file_system::factory().make_mapping(
-          &allocator, wn::file_system::mapping_type::memory_backed);
+      wn::file_system::factory(&allocator)
+          .make_mapping(
+              &allocator, wn::file_system::mapping_type::memory_backed);
 
   mapping->initialize_files(
       {{"file.wns", "Int main() { return 0 + 4 * 32; }"}});

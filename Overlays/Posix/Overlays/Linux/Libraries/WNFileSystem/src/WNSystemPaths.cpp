@@ -3,34 +3,40 @@
 // found in the LICENSE.txt file.
 
 #include "WNFileSystem/src/WNSystemPaths.h"
+#include "WNFileSystem/src/WNUtilities.h"
+#include "WNMemory/inc/WNAllocator.h"
 
+#include <limits.h>
 #include <sys/stat.h>
 #include <time.h>
+#include <unistd.h>
 
 namespace wn {
 namespace file_system {
 namespace internal {
 namespace {
 
-bool get_temp_path(containers::string& _path) {
+containers::string get_temp_path(memory::allocator* _allocator) {
   static const char* vars[4] = {"TMPDIR", "TMP", "TEMP", "TEMPDIR"};
 
   for (const char* var : vars) {
-    const char* path = ::getenv(var);
+    const char* current_path = ::getenv(var);
 
-    if (path) {
+    if (current_path) {
       struct stat dstat;
 
-      if (::stat(path, &dstat) == 0) {
+      if (::stat(current_path, &dstat) == 0) {
         if (S_ISDIR(dstat.st_mode)) {
-          _path = path;
+          containers::string path(_allocator, current_path);
 
-          if (_path.size() > 0) {
-            if (_path.back() != '/') {
-              _path += '/';
+          internal::sanitize_path(path);
+
+          if (!path.empty()) {
+            if (path.back() != '/') {
+              path += '/';
             }
 
-            return true;
+            return core::move(path);
           }
         }
       }
@@ -41,21 +47,19 @@ bool get_temp_path(containers::string& _path) {
 
   if (::stat("/tmp", &dstat) == 0) {
     if (S_ISDIR(dstat.st_mode)) {
-      _path = "/tmp/";
-
-      return true;
+      return containers::string(_allocator, "/tmp/");
     }
   }
 
-  return false;
+  return nullptr;
 }
 
 }  // anonymous namespace
 
-bool get_scratch_path(containers::string& _path) {
-  containers::string temp_path(_path.get_allocator());
+containers::string get_scratch_path(memory::allocator* _allocator) {
+  containers::string temp_path(get_temp_path(_allocator));
 
-  if (get_temp_path(temp_path)) {
+  if (!temp_path.empty()) {
     for (;;) {
       char name_template[9] = {0};
       uint32_t t = ::rand() % 100000000;
@@ -70,10 +74,8 @@ bool get_scratch_path(containers::string& _path) {
       containers::string path(temp_path + "scratch." + name_template + "/");
       static const mode_t mode = S_IRWXU | S_IRWXG;
 
-      if (::mkdir(path.c_str(), mode) == 0) {
-        _path = core::move(path);
-
-        return true;
+      if (::mkdir(path.data(), mode) == 0) {
+        return core::move(path);
       } else if (errno == EEXIST) {
         continue;
       }
@@ -82,7 +84,27 @@ bool get_scratch_path(containers::string& _path) {
     }
   }
 
-  return false;
+  return nullptr;
+}
+
+containers::string get_executable_path(memory::allocator* _allocator) {
+  char raw_path[PATH_MAX] = {0};
+
+  const ssize_t result =
+      ::readlink("/proc/self/exe", raw_path, sizeof(raw_path));
+
+  if (result != -1) {
+    containers::string_view view(raw_path, result);
+    const size_t pos = view.find_last_of('/');
+
+    if (pos != containers::string_view::npos) {
+      view.remove_suffix(view.size() - pos);
+
+      return view.to_string(_allocator);
+    }
+  }
+
+  return nullptr;
 }
 
 }  // namespace internal

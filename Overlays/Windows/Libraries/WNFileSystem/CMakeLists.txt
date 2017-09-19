@@ -7,7 +7,6 @@ overlay_library_sources(WNFileSystem
     src/WNMappingWindows.h
     src/WNSystemMapping.h
     src/WNSystemPaths.cpp
-    src/WNSystemPaths.h
     src/WNSystemUtilities.h
   LIBS
     Rpcrt4.lib

@@ -7,24 +7,39 @@
 #include "WNFileSystem/src/WNSystemMapping.h"
 #include "WNFileSystem/src/WNSystemPaths.h"
 #include "WNFileSystem/src/WNSystemUtilities.h"
-#include "WNFileSystem/src/WNUtilities.h"
 
 namespace wn {
 namespace file_system {
 
+containers::string factory::get_executable_path() const {
+  return internal::get_executable_path(m_allocator);
+}
+
 mapping_ptr factory::make_mapping(
     memory::allocator* _allocator, const mapping_type _mapping_type) const {
+  if (!_allocator) {
+    return nullptr;
+  }
+
   switch (_mapping_type) {
     case mapping_type::memory_backed:
       return memory::make_unique<memory_backed_mapping>(_allocator, _allocator);
-    case mapping_type::scratch: {
-      containers::string path(_allocator);
+    case mapping_type::scratch_directory: {
+      containers::string path(internal::get_scratch_path(_allocator));
 
-      if (internal::get_scratch_path(path)) {
-        internal::sanitize_path(path);
-
+      if (!path.empty()) {
         return memory::make_unique<internal::system_mapping>(
             _allocator, _allocator, core::move(path), true);
+      }
+
+      break;
+    }
+    case mapping_type::executable_directory: {
+      containers::string path(_allocator, get_executable_path());
+
+      if (!path.empty()) {
+        return memory::make_unique<internal::system_mapping>(
+            _allocator, _allocator, core::move(path), false);
       }
     }
     default:
@@ -36,15 +51,14 @@ mapping_ptr factory::make_mapping(
 
 mapping_ptr factory::make_mapping(
     memory::allocator* _allocator, containers::string&& _path) const {
-  if (_path.empty()) {
-    return nullptr;
+  internal::sanitize_path(_path);
+
+  if (!_path.empty() && internal::exists_directory(_path)) {
+    return memory::make_unique<internal::system_mapping>(
+        _allocator, _allocator, core::move(_path), false);
   }
 
-  internal::sanitize_path(_path);
-  internal::exists_directory(_path);
-
-  return memory::make_unique<internal::system_mapping>(
-      _allocator, _allocator, core::move(_path), false);
+  return nullptr;
 }
 
 }  // namespace file_system

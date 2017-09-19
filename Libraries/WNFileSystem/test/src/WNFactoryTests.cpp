@@ -15,7 +15,7 @@ TEST_P(factory, make_mapping) {
   wn::testing::allocator allocator;
 
   {
-    wn::file_system::factory f;
+    wn::file_system::factory f(&allocator);
     const wn::file_system::mapping_ptr mp =
         f.make_mapping(&allocator, GetParam());
 
@@ -24,8 +24,9 @@ TEST_P(factory, make_mapping) {
 }
 
 INSTANTIATE_TEST_CASE_P(all_mappings, factory,
-    ::testing::Values(wn::file_system::mapping_type::scratch,
-        wn::file_system::mapping_type::memory_backed));
+    ::testing::Values(wn::file_system::mapping_type::scratch_directory,
+        wn::file_system::mapping_type::memory_backed,
+        wn::file_system::mapping_type::executable_directory));
 
 TEST(factory, make_mapping_from_path) {
   wn::testing::allocator allocator;
@@ -79,7 +80,7 @@ TEST(factory, make_mapping_from_path) {
 
     ASSERT_FALSE(path.empty());
 
-    wn::file_system::factory f;
+    wn::file_system::factory f(&allocator);
     const wn::file_system::mapping_ptr mp = f.make_mapping(&allocator, path);
 
     ASSERT_NE(mp, nullptr);

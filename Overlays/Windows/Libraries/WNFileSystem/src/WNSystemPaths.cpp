@@ -4,32 +4,31 @@
 
 #include "WNFileSystem/src/WNSystemPaths.h"
 #include "WNContainers/inc/WNArray.h"
+#include "WNFileSystem/src/WNUtilities.h"
 
 namespace wn {
 namespace file_system {
 namespace internal {
 namespace {
 
-WN_INLINE bool convert_to_utf8(
-    LPCWSTR _buffer, const DWORD _buffer_size, containers::string& _path) {
+WN_INLINE containers::string convert_to_utf8(
+    memory::allocator* _allocator, LPCWSTR _buffer, const DWORD _buffer_size) {
   const int buffer_size = static_cast<const int>(_buffer_size);
   int converted_temp_path_size = ::WideCharToMultiByte(
       CP_UTF8, 0, _buffer, buffer_size, NULL, 0, NULL, NULL);
 
   if (converted_temp_path_size != 0) {
-    containers::string path(_path.get_allocator(),
-        static_cast<size_t>(converted_temp_path_size), 0);
+    containers::string path(
+        _allocator, static_cast<size_t>(converted_temp_path_size), 0);
     converted_temp_path_size = ::WideCharToMultiByte(CP_UTF8, 0, _buffer,
         buffer_size, &path[0], static_cast<const int>(path.size()), NULL, NULL);
 
     if (converted_temp_path_size != 0) {
-      _path = core::move(path);
-
-      return true;
+      return core::move(path);
     }
   }
 
-  return false;
+  return nullptr;
 }
 
 WN_INLINE DWORD get_temp_path_unicode(
@@ -50,7 +49,7 @@ WN_INLINE DWORD get_temp_path_unicode(
 
 }  // anonymous namespace
 
-bool get_scratch_path(containers::string& _path) {
+containers::string get_scratch_path(memory::allocator* _allocator) {
   containers::array<WCHAR, (MAX_PATH + 1)> path_buffer = {0};
   DWORD path_size = get_temp_path_unicode(path_buffer);
 
@@ -74,12 +73,13 @@ bool get_scratch_path(containers::string& _path) {
               static_cast<WCHAR*>(path_unique_buffer.data());
 
           if (::CreateDirectoryW(path_unique, NULL) == TRUE) {
-            containers::string path(_path.get_allocator());
+            containers::string path(
+                convert_to_utf8(_allocator, path_unique, path_size));
 
-            if (convert_to_utf8(path_unique, path_size, path)) {
-              _path = core::move(path);
+            if (!path.empty()) {
+              internal::sanitize_path(path);
 
-              return true;
+              return core::move(path);
             }
           } else {
             const DWORD error = ::GetLastError();
@@ -95,7 +95,43 @@ bool get_scratch_path(containers::string& _path) {
     }
   }
 
-  return false;
+  return nullptr;
+}
+
+containers::string get_executable_path(memory::allocator* _allocator) {
+  containers::dynamic_array<WCHAR> buffer(_allocator);
+  size_t size = static_cast<size_t>(MAX_PATH * 0.75f);
+  DWORD result = 0;
+
+  for (;;) {
+    buffer.resize(size, L'\0');
+
+    result = GetModuleFileNameW(
+        NULL, buffer.data(), static_cast<DWORD>(buffer.size()));
+
+    if (result == 0) {
+      return false;
+    } else if (::GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
+      size *= 2;
+
+      continue;
+    }
+
+    break;
+  }
+
+  containers::string path(convert_to_utf8(_allocator, buffer.data(), result));
+
+  if (path.empty()) {
+    return false;
+  }
+
+  const size_t position = path.find_last_of('\\');
+
+  path.erase(position + 1);
+  internal::sanitize_path(path);
+
+  return core::move(path);
 }
 
 }  // namespace internal
