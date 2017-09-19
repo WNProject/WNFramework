@@ -324,9 +324,17 @@ TEST(string_view, find_first_of) {
 
   EXPECT_EQ(pos, 3);
 
+  pos = v.find_first_of('s', pos + 1);
+
+  EXPECT_EQ(pos, 6);
+
   pos = v.find_first_of("tr");
 
   EXPECT_EQ(pos, 0);
+
+  pos = v.find_first_of("tr", pos + 1);
+
+  EXPECT_EQ(pos, 12);
 
   pos = v.find_first_of("g");
 
@@ -338,7 +346,7 @@ TEST(string_view, find_first_of) {
 }
 
 TEST(string_view, find_last_of) {
-  const char* string1 = "      strings";
+  const char* string1 = "      strings all over";
   const wn::containers::string_view v1(string1);
 
   EXPECT_FALSE(v1.empty());
@@ -347,9 +355,17 @@ TEST(string_view, find_last_of) {
 
   EXPECT_EQ(pos, 12);
 
+  pos = v1.find_last_of('s', pos - 1);
+
+  EXPECT_EQ(pos, 6);
+
+  pos = v1.find_last_of('s', pos - 1);
+
+  EXPECT_EQ(pos, wn::containers::string_view::npos);
+
   pos = v1.find_last_of("tr");
 
-  EXPECT_EQ(pos, 8);
+  EXPECT_EQ(pos, 21);
 
   pos = v1.find_last_of("g");
 

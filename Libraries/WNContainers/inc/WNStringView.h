@@ -10,6 +10,7 @@
 #include "WNContainers/inc/WNContiguousRange.h"
 #include "WNCore/inc/WNAlgorithm.h"
 #include "WNCore/inc/WNTypes.h"
+#include "WNMath/inc/WNBasic.h"
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNMemory/inc/WNStringUtility.h"
 
@@ -298,9 +299,10 @@ public:
 
   WN_FORCE_INLINE size_type find(
       const string_view& _view, const size_type _pos = 0) const {
-    auto i = std::search(cbegin() + _pos, cend(), _view.cbegin(), _view.cend());
+    const size_type pos = math::min(_pos, size());
+    auto i = std::search(cbegin() + pos, cend(), _view.cbegin(), _view.cend());
 
-    return (i == cend() ? npos : static_cast<size_type>(i - cbegin()));
+    return (i == cend() ? npos : (i - cbegin()));
   }
 
   WN_FORCE_INLINE size_type find(const char c, const size_type _pos = 0) const {
@@ -317,17 +319,16 @@ public:
   }
 
   WN_FORCE_INLINE size_type rfind(
-      const string_view& _view, const size_type _pos = 0) const {
-    const auto b = cbegin();
-    const auto e = const_reverse_iterator(b + _pos);
-    const auto i = std::search(crbegin(), e, _view.crbegin(), _view.crend());
+      const string_view& _view, const size_type _pos = npos) const {
+    const size_type pos = math::min(_pos, size());
+    const auto i =
+        std::search(crend() - pos, crend(), _view.crbegin(), _view.crend());
 
-    return (
-        i == e ? npos : static_cast<size_type>(i.base() - _view.size() - b));
+    return (i == crend() ? npos : (i.base() - cbegin() - 1));
   }
 
   WN_FORCE_INLINE size_type rfind(
-      const char c, const size_type _pos = 0) const {
+      const char c, const size_type _pos = npos) const {
     return rfind(string_view(&c, 1), _pos);
   }
 
@@ -336,16 +337,18 @@ public:
     return rfind(string_view(_ptr, _count), _pos);
   }
 
-  WN_FORCE_INLINE size_type rfind(const char* _ptr, size_type _pos = 0) const {
+  WN_FORCE_INLINE size_type rfind(
+      const char* _ptr, size_type _pos = npos) const {
     return rfind(string_view(_ptr), _pos);
   }
 
   WN_FORCE_INLINE size_type find_first_of(
       const string_view& _view, const size_type _pos = 0) const {
+    const size_type pos = math::min(_pos, size());
     const auto i = std::find_first_of(
-        cbegin() + _pos, cend(), _view.cbegin(), _view.cend());
+        cbegin() + pos, cend(), _view.cbegin(), _view.cend());
 
-    return (i == cend() ? npos : static_cast<size_type>(i - cbegin()));
+    return (i == cend() ? npos : (i - cbegin()));
   }
 
   WN_FORCE_INLINE size_type find_first_of(
@@ -364,17 +367,16 @@ public:
   }
 
   WN_FORCE_INLINE size_type find_last_of(
-      const string_view& _view, const size_type _pos = 0) const {
-    const auto b = cbegin();
-    const auto e = const_reverse_iterator(b + _pos);
-    const auto i =
-        std::find_first_of(crbegin(), e, _view.cbegin(), _view.cend());
+      const string_view& _view, const size_type _pos = npos) const {
+    const size_type pos = math::min(_pos, size());
+    const auto i = std::find_first_of(
+        crend() - pos, crend(), _view.cbegin(), _view.cend());
 
-    return (i == e ? npos : static_cast<size_type>(i.base() - b - 1));
+    return (i == crend() ? npos : (i.base() - cbegin() - 1));
   }
 
   WN_FORCE_INLINE size_type find_last_of(
-      const char c, const size_type _pos = 0) const {
+      const char c, const size_type _pos = npos) const {
     return find_last_of(string_view(&c, 1), _pos);
   }
 
@@ -384,7 +386,7 @@ public:
   }
 
   WN_FORCE_INLINE size_type find_last_of(
-      const char* _ptr, const size_type _pos = 0) const {
+      const char* _ptr, const size_type _pos = npos) const {
     return find_last_of(string_view(_ptr), _pos);
   }
 
@@ -396,7 +398,7 @@ public:
 
     const auto i = std::find_if(cbegin() + _pos, cend(), p);
 
-    return (i == cend() ? npos : static_cast<size_type>(i - cbegin()));
+    return (i == cend() ? npos : (i - cbegin()));
   }
 
   WN_FORCE_INLINE size_type find_first_not_of(

@@ -670,6 +670,17 @@ public:
   size_type find_first_of(
       const string_view _view, const size_type _pos = 0) const;
 
+  size_type find_last_of(
+      const string& _string, const size_type _pos = npos) const;
+  size_type find_last_of(const value_type* _ptr, const size_type _pos,
+      const size_type _count) const;
+  size_type find_last_of(
+      const value_type* _ptr, const size_type _pos = npos) const;
+  size_type find_last_of(
+      const value_type _value, const size_type _pos = npos) const;
+  size_type find_last_of(
+      const string_view _view, const size_type _pos = npos) const;
+
 private:
   dynamic_array<char> m_data;
 };
@@ -921,6 +932,31 @@ WN_FORCE_INLINE string::size_type string::find_first_of(
 WN_FORCE_INLINE string::size_type string::find_first_of(
     const string_view _view, const size_type _pos) const {
   return to_string_view().find_first_of(_view, _pos);
+}
+
+WN_FORCE_INLINE string::size_type string::find_last_of(
+    const string& _string, const size_type _pos) const {
+  return find_last_of(_string.to_string_view(), _pos);
+}
+
+WN_FORCE_INLINE string::size_type string::find_last_of(const value_type* _ptr,
+    const size_type _pos, const size_type _count) const {
+  return find_last_of(string_view(_ptr, _count), _pos);
+}
+
+WN_FORCE_INLINE string::size_type string::find_last_of(
+    const value_type* _ptr, const size_type _pos) const {
+  return find_last_of(string_view(_ptr), _pos);
+}
+
+WN_FORCE_INLINE string::size_type string::find_last_of(
+    const value_type _value, const size_type _pos) const {
+  return find_last_of(string_view(&_value, 1), _pos);
+}
+
+WN_FORCE_INLINE string::size_type string::find_last_of(
+    const string_view _view, const size_type _pos) const {
+  return to_string_view().find_last_of(_view, _pos);
 }
 
 }  // namespace containers

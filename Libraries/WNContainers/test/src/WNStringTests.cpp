@@ -12,13 +12,13 @@ static const char test_string2[] =
 static const size_t test_string1_length = sizeof(test_string1) - 1;
 
 TEST(string, construction) {
-  wn::testing::allocator test_allocator;
+  wn::testing::allocator allocator;
 
   {
     wn::containers::string s1(nullptr);
-    wn::containers::string s2(&test_allocator, test_string1);
+    wn::containers::string s2(&allocator, test_string1);
     wn::containers::string s3(s2);
-    wn::containers::string s4(&test_allocator, s2);
+    wn::containers::string s4(&allocator, s2);
 
     EXPECT_TRUE(s1.empty());
     EXPECT_FALSE(s2.empty());
@@ -30,10 +30,10 @@ TEST(string, construction) {
 }
 
 TEST(string, element_access) {
-  wn::testing::allocator test_allocator;
+  wn::testing::allocator allocator;
 
   {
-    const wn::containers::string string1(&test_allocator, test_string1);
+    const wn::containers::string string1(&allocator, test_string1);
 
     ASSERT_FALSE(string1.empty());
     EXPECT_EQ(string1.front(), 't');
@@ -41,7 +41,7 @@ TEST(string, element_access) {
     EXPECT_EQ(string1.at(2), 'i');
     EXPECT_EQ(string1[2], 'i');
 
-    const wn::containers::string string2(&test_allocator, test_string1 + 1, 3);
+    const wn::containers::string string2(&allocator, test_string1 + 1, 3);
 
     ASSERT_FALSE(string2.empty());
     EXPECT_EQ(string2.front(), 'h');
@@ -49,14 +49,14 @@ TEST(string, element_access) {
     EXPECT_EQ(string2.at(1), 'i');
     EXPECT_EQ(string2[1], 'i');
 
-    wn::containers::string string3(&test_allocator, test_string1);
+    wn::containers::string string3(&allocator, test_string1);
 
     EXPECT_EQ(string3.front(), 't');
     EXPECT_EQ(string3.back(), 'y');
     EXPECT_EQ(string3.at(2), 'i');
     EXPECT_EQ(string3[2], 'i');
 
-    wn::containers::string string4(&test_allocator, test_string1 + 1, 3);
+    wn::containers::string string4(&allocator, test_string1 + 1, 3);
 
     EXPECT_EQ(string4.front(), 'h');
     EXPECT_EQ(string4.back(), 's');
@@ -66,10 +66,10 @@ TEST(string, element_access) {
 }
 
 TEST(string, iteration) {
-  wn::testing::allocator test_allocator;
+  wn::testing::allocator allocator;
 
   {
-    wn::containers::string s1(&test_allocator, test_string1);
+    wn::containers::string s1(&allocator, test_string1);
 
     size_t count = 0;
 
@@ -160,14 +160,14 @@ TEST(string, iteration) {
 // capacity
 
 TEST(string, empty) {
-  wn::testing::allocator test_allocator;
+  wn::testing::allocator allocator;
 
   {
-    const wn::containers::string s1(&test_allocator);
+    const wn::containers::string s1(&allocator);
 
     EXPECT_TRUE(s1.empty());
 
-    wn::containers::string s2(&test_allocator, test_string1);
+    wn::containers::string s2(&allocator, test_string1);
 
     EXPECT_FALSE(s2.empty());
 
@@ -178,15 +178,15 @@ TEST(string, empty) {
 }
 
 TEST(string, size) {
-  wn::testing::allocator test_allocator;
+  wn::testing::allocator allocator;
 
   {
-    const wn::containers::string s1(&test_allocator, test_string1);
+    const wn::containers::string s1(&allocator, test_string1);
 
     EXPECT_EQ(s1.size(), test_string1_length);
     EXPECT_EQ(s1.length(), test_string1_length);
 
-    const wn::containers::string s2(&test_allocator, test_string1 + 1, 3);
+    const wn::containers::string s2(&allocator, test_string1 + 1, 3);
 
     EXPECT_EQ(s2.size(), 3);
     EXPECT_EQ(s2.length(), 3);
@@ -194,15 +194,15 @@ TEST(string, size) {
 }
 
 TEST(string, max_size) {
-  wn::testing::allocator test_allocator;
+  wn::testing::allocator allocator;
 
   {
-    const wn::containers::string s1(&test_allocator, test_string1);
+    const wn::containers::string s1(&allocator, test_string1);
 
     EXPECT_EQ(s1.max_size(),
         std::numeric_limits<wn::containers::string::size_type>::max() - 1);
 
-    const wn::containers::string s2(&test_allocator, test_string1 + 1, 3);
+    const wn::containers::string s2(&allocator, test_string1 + 1, 3);
 
     EXPECT_EQ(s2.max_size(),
         std::numeric_limits<wn::containers::string::size_type>::max() - 1);
@@ -210,10 +210,10 @@ TEST(string, max_size) {
 }
 
 TEST(string, shrink_to_fit) {
-  wn::testing::allocator test_allocator;
+  wn::testing::allocator allocator;
 
   {
-    wn::containers::string s(&test_allocator);
+    wn::containers::string s(&allocator);
 
     s.reserve(100);
 
@@ -235,10 +235,10 @@ TEST(string, shrink_to_fit) {
 // operations
 
 TEST(string, clear) {
-  wn::testing::allocator test_allocator;
+  wn::testing::allocator allocator;
 
   {
-    wn::containers::string s(&test_allocator, test_string1);
+    wn::containers::string s(&allocator, test_string1);
 
     EXPECT_EQ(s.size(), test_string1_length);
     EXPECT_GE(s.capacity(), test_string1_length);
@@ -253,10 +253,10 @@ TEST(string, clear) {
 }
 
 TEST(string, erase) {
-  wn::testing::allocator test_allocator;
+  wn::testing::allocator allocator;
 
   {
-    wn::containers::string s(&test_allocator, test_string1);
+    wn::containers::string s(&allocator, test_string1);
 
     EXPECT_EQ(s.size(), 59);
     EXPECT_GE(s.capacity(), 59u);
@@ -304,10 +304,10 @@ TEST(string, erase) {
 }
 
 TEST(string, push_pack) {
-  wn::testing::allocator test_allocator;
+  wn::testing::allocator allocator;
 
   {
-    wn::containers::string s(&test_allocator, test_string1);
+    wn::containers::string s(&allocator, test_string1);
 
     EXPECT_EQ(s.size(), 59);
     EXPECT_GE(s.capacity(), 59u);
@@ -322,10 +322,10 @@ TEST(string, push_pack) {
 }
 
 TEST(string, pop_pack) {
-  wn::testing::allocator test_allocator;
+  wn::testing::allocator allocator;
 
   {
-    wn::containers::string s(&test_allocator, test_string1);
+    wn::containers::string s(&allocator, test_string1);
 
     EXPECT_EQ(s.size(), 59);
     EXPECT_GE(s.capacity(), 59u);
@@ -340,10 +340,10 @@ TEST(string, pop_pack) {
 }
 
 TEST(string, append) {
-  wn::testing::allocator test_allocator;
+  wn::testing::allocator allocator;
 
   {
-    wn::containers::string s(&test_allocator, test_string1);
+    wn::containers::string s(&allocator, test_string1);
 
     EXPECT_EQ(s.size(), 59);
     EXPECT_GE(s.capacity(), 59u);
@@ -358,10 +358,10 @@ TEST(string, append) {
 }
 
 TEST(string, resize) {
-  wn::testing::allocator test_allocator;
+  wn::testing::allocator allocator;
 
   {
-    wn::containers::string s(&test_allocator);
+    wn::containers::string s(&allocator);
 
     EXPECT_EQ(s.size(), 0);
     EXPECT_TRUE(s.empty());
@@ -405,11 +405,11 @@ TEST(string, resize) {
 }
 
 TEST(string, swap) {
-  wn::testing::allocator test_allocator;
+  wn::testing::allocator allocator;
 
   {
-    wn::containers::string s1(&test_allocator, test_string1);
-    wn::containers::string s2(&test_allocator, test_string2);
+    wn::containers::string s1(&allocator, test_string1);
+    wn::containers::string s2(&allocator, test_string2);
 
     EXPECT_FALSE(s1.empty());
     EXPECT_FALSE(s2.empty());
@@ -428,10 +428,10 @@ TEST(string, swap) {
 // searching
 
 TEST(string, rfind) {
-  wn::testing::allocator test_allocator;
+  wn::testing::allocator allocator;
 
   {
-    const wn::containers::string s(&test_allocator, test_string1);
+    const wn::containers::string s(&allocator, test_string1);
 
     EXPECT_FALSE(s.empty());
 
@@ -449,11 +449,11 @@ TEST(string, rfind) {
   }
 }
 
-TEST(string, find_first_of) {
-  wn::testing::allocator test_allocator;
+TEST(string_view, find_first_of) {
+  wn::testing::allocator allocator;
 
   {
-    const wn::containers::string s(&test_allocator, test_string1);
+    const wn::containers::string s(&allocator, test_string1);
 
     EXPECT_FALSE(s.empty());
 
@@ -461,15 +461,54 @@ TEST(string, find_first_of) {
 
     EXPECT_EQ(pos, 3);
 
+    pos = s.find_first_of('s', pos + 1);
+
+    EXPECT_EQ(pos, 6);
+
     pos = s.find_first_of("tr");
 
     EXPECT_EQ(pos, 0);
+
+    pos = s.find_first_of("tr", pos + 1);
+
+    EXPECT_EQ(pos, 12);
 
     pos = s.find_first_of("g");
 
     EXPECT_EQ(pos, 18);
 
     pos = s.find_first_of("x");
+
+    EXPECT_EQ(pos, wn::containers::string::npos);
+  }
+}
+
+TEST(string_view, find_last_of) {
+  wn::testing::allocator allocator;
+
+  {
+    const char* string1 = "      strings all over";
+    const wn::containers::string s(&allocator, string1);
+
+    EXPECT_FALSE(s.empty());
+
+    size_t pos = s.find_last_of('s');
+
+    EXPECT_EQ(pos, 12);
+
+    pos = s.find_last_of('s', pos - 1);
+
+    EXPECT_EQ(pos, 6);
+
+    pos = s.find_last_of("tr");
+
+    EXPECT_EQ(pos, 21);
+
+    pos = s.find_last_of("g");
+
+    EXPECT_EQ(pos, 11);
+
+    pos = s.find_last_of("xyz");
 
     EXPECT_EQ(pos, wn::containers::string::npos);
   }
