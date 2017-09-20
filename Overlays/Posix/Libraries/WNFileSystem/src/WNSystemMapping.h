@@ -7,7 +7,7 @@
 #ifndef __WN_FILE_SYSTEM_POSIX_SYSTEM_MAPPING_H__
 #define __WN_FILE_SYSTEM_POSIX_SYSTEM_MAPPING_H__
 
-#include "WNFileSystem/src/WNMappingPosix.h
+#include "WNFileSystem/src/WNMappingPosix.h"
 
 namespace wn {
 namespace file_system {
