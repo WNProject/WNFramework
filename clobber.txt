@@ -1,1 +1,1 @@
-2017-02-16(awoloszyn): Update LLVM to 4.0.
+2017-09-19(devpow112): Cleanup cmake overriding header file
