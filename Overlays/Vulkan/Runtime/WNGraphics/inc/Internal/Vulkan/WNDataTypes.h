@@ -121,7 +121,6 @@ struct data_type<const framebuffer> {
 
 struct graphics_pipeline_data {
   ::VkPipeline pipeline;
-  index_type index_format;
 };
 
 template <>

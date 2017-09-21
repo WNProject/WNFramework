@@ -29,6 +29,7 @@ struct command_list_context WN_FINAL {
   PFN_vkEndCommandBuffer vkEndCommandBuffer;
 
   PFN_vkCmdDraw vkCmdDraw;
+  PFN_vkCmdDrawIndexed vkCmdDrawIndexed;
 
   PFN_vkCmdBeginRenderPass vkCmdBeginRenderPass;
   PFN_vkCmdEndRenderPass vkCmdEndRenderPass;
@@ -37,6 +38,7 @@ struct command_list_context WN_FINAL {
 
   PFN_vkCmdBindPipeline vkCmdBindPipeline;
   PFN_vkCmdBindVertexBuffers vkCmdBindVertexBuffers;
+  PFN_vkCmdBindIndexBuffer vkCmdBindIndexBuffer;
 
   PFN_vkCmdCopyImageToBuffer vkCmdCopyImageToBuffer;
   PFN_vkCmdCopyBufferToImage vkCmdCopyBufferToImage;

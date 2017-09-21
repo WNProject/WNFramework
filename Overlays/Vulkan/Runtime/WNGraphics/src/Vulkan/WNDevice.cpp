@@ -199,6 +199,7 @@ bool vulkan_device::initialize(memory::allocator* _allocator,
   LOAD_VK_SUB_DEVICE_SYMBOL(
       m_device, m_command_list_context, vkCmdCopyBufferToImage);
   LOAD_VK_SUB_DEVICE_SYMBOL(m_device, m_command_list_context, vkCmdDraw);
+  LOAD_VK_SUB_DEVICE_SYMBOL(m_device, m_command_list_context, vkCmdDrawIndexed);
 
   LOAD_VK_SUB_DEVICE_SYMBOL(
       m_device, m_command_list_context, vkCmdBeginRenderPass);
@@ -210,6 +211,11 @@ bool vulkan_device::initialize(memory::allocator* _allocator,
       m_device, m_command_list_context, vkCmdBindPipeline);
   LOAD_VK_SUB_DEVICE_SYMBOL(
       m_device, m_command_list_context, vkCmdBindVertexBuffers);
+  LOAD_VK_SUB_DEVICE_SYMBOL(
+      m_device, m_command_list_context, vkCmdBindIndexBuffer);
+
+  LOAD_VK_SUB_DEVICE_SYMBOL(m_device, m_command_list_context, vkCmdSetViewport);
+  LOAD_VK_SUB_DEVICE_SYMBOL(m_device, m_command_list_context, vkCmdSetScissor);
 
   m_command_list_context.m_device = this;
 
@@ -1292,7 +1298,9 @@ void vulkan_device::initialize_graphics_pipeline(graphics_pipeline* _pipeline,
       nullptr,                                                      // pNext
       0,                                                            // flags
       primitive_topology_to_vulkan(_create_info.m_topology),        // topology
-      _create_info.m_index_restart  // primitiveRestartEnabled
+      _create_info.m_index_restart
+          ? VkBool32(VK_TRUE)
+          : VkBool32(VK_FALSE)  // primitiveRestartEnabled
   };
 
   VkPipelineTessellationStateCreateInfo* tessellation_create_info = nullptr;
@@ -1530,7 +1538,6 @@ void vulkan_device::initialize_graphics_pipeline(graphics_pipeline* _pipeline,
                         &pipeline_create_info, nullptr, &pipeline.pipeline)) {
     m_log->log_error("Could not create graphics pipeline");
   }
-  pipeline.index_format = _create_info.m_index_type;
 }
 
 void vulkan_device::destroy_graphics_pipeline(graphics_pipeline* _pipeline) {

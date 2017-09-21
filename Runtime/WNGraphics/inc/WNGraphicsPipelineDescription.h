@@ -69,10 +69,12 @@ public:
   WN_FORCE_INLINE graphics_pipeline_description& set_index_type(
       index_type _type);
 
-  // If index_type is u16 or u32, this can be set to enable primitive restart
+  // This can be set to enable primitive restart
   // when index 0xFFFF or 0xFFFFFFFF are hit respectively.
+  // Note this MUST be 0x00 to turn off, 0xFFFF for u16 indices
+  // and 0xFFFFFFFF for u32 indices
   WN_FORCE_INLINE graphics_pipeline_description& set_index_restart(
-      bool _restart);
+      uint32_t _restart);
 
   // Topology defaults to triangle_list
   WN_FORCE_INLINE graphics_pipeline_description& set_topology(
@@ -215,7 +217,7 @@ private:
   containers::dynamic_array<vertex_attribute> m_vertex_attributes;
 
   index_type m_index_type = index_type::none;
-  bool m_index_restart = false;
+  uint32_t m_index_restart = 0x00;
   topology m_topology = topology::triangle_list;
   uint32_t m_num_patch_control_points = 0;
   winding m_winding = winding::clockwise;
@@ -298,7 +300,7 @@ graphics_pipeline_description& graphics_pipeline_description::set_index_type(
 }
 
 graphics_pipeline_description& graphics_pipeline_description::set_index_restart(
-    bool _restart) {
+    uint32_t _restart) {
   m_index_restart = _restart;
   return *this;
 }

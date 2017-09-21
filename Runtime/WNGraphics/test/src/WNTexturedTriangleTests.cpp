@@ -199,6 +199,13 @@ TEST_F(textured_triangle_test, basic) {
         0.0f,
         0.0f,
 
+        // Vertex 3 <pos>
+        -0.5f,
+        -0.5f,
+        // Vertex 3 <texcoord>
+        1.0f,
+        0.0f,
+
         // Vertex 2 <pos>
         0.5f,
         -0.5f,
@@ -206,18 +213,15 @@ TEST_F(textured_triangle_test, basic) {
         0.0f,
         1.0f,
 
-        // Vertex 3 <pos>
-        -0.5f,
-        -0.5f,
-        // Vertex 3 <texcoord>
-        1.0f,
-        0.0f,
     };
     auto vertex_buffer = create_and_fill_buffer(_device, arena_index,
         wn::runtime::graphics::resource_state::vertex_buffer, triangle);
-    float constants[] = {0.0f, 0.0f};
+    float constants[] = {0.25f, -0.25f};
     auto constant_buffer = create_and_fill_buffer(_device, arena_index,
         wn::runtime::graphics::resource_state::read_only_buffer, constants);
+    uint32_t indices[] = {0, 2, 1};
+    auto index_buffer = create_and_fill_buffer(_device, arena_index,
+        wn::runtime::graphics::resource_state::index_buffer, indices);
 
     wn::runtime::graphics::image_create_info info = {16, 16,
         wn::runtime::graphics::data_format::r8g8b8a8_unorm,
@@ -301,8 +305,6 @@ TEST_F(textured_triangle_test, basic) {
                     wn::runtime::graphics::shader_stage::vertex, &vs, "main")
                 .set_shader(
                     wn::runtime::graphics::shader_stage::pixel, &ps, "main")
-                .set_static_scissor(0, wn::runtime::graphics::scissor{0, 0,
-                                           get_width(), get_height()})
                 .set_static_viewport(
                     0, wn::runtime::graphics::viewport{0, 0,
                            static_cast<float>(get_width()),
@@ -340,7 +342,12 @@ TEST_F(textured_triangle_test, basic) {
     const wn::runtime::graphics::descriptor_set* sets[]{&set};
     list->bind_graphics_descriptor_sets(sets, 0);
     list->bind_vertex_buffer(0, &vertex_buffer.buffer);
-    list->draw(3, 1, 0, 0);
+    list->bind_index_buffer(
+        wn::runtime::graphics::index_type::u32, &index_buffer.buffer);
+    list->set_scissor(
+        wn::runtime::graphics::scissor{static_cast<int32_t>(get_width() / 2), 0,
+            get_width() / 2, get_height()});
+    list->draw_indexed(3, 1, 0, 0, 0);
     list->end_render_pass();
     list->finalize();
     _queue->enqueue_command_list(list.get());

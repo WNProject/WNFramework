@@ -147,6 +147,13 @@ void d3d12_command_list::draw(uint32_t _vertex_count, uint32_t _instance_count,
       _vertex_count, _instance_count, _vertex_offset, _instance_offset);
 }
 
+void d3d12_command_list::draw_indexed(uint32_t _index_count,
+    uint32_t _instance_count, uint32_t _first_index, uint32_t _vertex_offset,
+    uint32_t _instance_offset) {
+  m_command_list->DrawIndexedInstanced(_index_count, _instance_count,
+      _first_index, _vertex_offset, _instance_offset);
+}
+
 void d3d12_command_list::set_scissor(const scissor& _scissor) {
   D3D12_RECT scissor{static_cast<LONG>(_scissor.x),
       static_cast<LONG>(_scissor.y),
@@ -417,6 +424,19 @@ void d3d12_command_list::bind_vertex_buffer(
                             ->vertex_stream_strides[stream])  // StrideInBytes
   };
   m_command_list->IASetVertexBuffers(stream, 1, &view);
+}
+
+void d3d12_command_list::bind_index_buffer(
+    index_type type, const buffer* _buffer) {
+  const memory::unique_ptr<const buffer_info>& buffer = get_data(_buffer);
+
+  const D3D12_INDEX_BUFFER_VIEW view = {
+      buffer->resource->GetGPUVirtualAddress(),  // BufferLocation
+      static_cast<UINT>(_buffer->size()),        // SizeInBytes
+      type == index_type::u16 ? DXGI_FORMAT_R16_UINT
+                              : DXGI_FORMAT_R32_UINT  // StrideInBytes
+  };
+  m_command_list->IASetIndexBuffer(&view);
 }
 
 template <typename T>

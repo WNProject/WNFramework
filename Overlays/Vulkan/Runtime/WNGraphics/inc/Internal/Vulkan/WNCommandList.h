@@ -70,6 +70,10 @@ public:
       uint32_t _vertex_offset,
       uint32_t _instance_offset) WN_GRAPHICS_OVERRIDE_FINAL;
 
+  void draw_indexed(uint32_t _index_count, uint32_t _instance_count,
+      uint32_t _first_index, uint32_t _vertex_offset,
+      uint32_t _instance_offset) WN_GRAPHICS_OVERRIDE_FINAL;
+
   void set_scissor(const scissor& _scissor) WN_GRAPHICS_OVERRIDE_FINAL;
 
   void begin_render_pass(render_pass* _pass, framebuffer* _framebuffer,
@@ -93,6 +97,9 @@ public:
 
   void bind_vertex_buffer(
       uint32_t stream, const buffer* _buffer) WN_GRAPHICS_OVERRIDE_FINAL;
+
+  void bind_index_buffer(
+      index_type type, const buffer* _buffer) WN_GRAPHICS_OVERRIDE_FINAL;
 
 protected:
   friend class vulkan_device;
@@ -123,6 +130,7 @@ protected:
   command_list_context* m_context;
   memory::allocator* m_allocator;
   pipeline_layout* m_current_graphics_pipeline_layout;
+  index_type m_current_index_type;
 };
 
 }  // namespace vulkan

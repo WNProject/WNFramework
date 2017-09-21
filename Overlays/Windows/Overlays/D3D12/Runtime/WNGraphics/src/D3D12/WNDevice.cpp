@@ -1125,7 +1125,7 @@ void d3d12_device::initialize_graphics_pipeline(graphics_pipeline* _pipeline,
 
   if (_create_info.m_index_restart) {
     pipeline_desc.IBStripCutValue =
-        _create_info.m_index_type == index_type::u16
+        _create_info.m_index_restart == 0xFFFF
             ? D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_0xFFFF
             : D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_0xFFFFFFFF;
   }

@@ -150,6 +150,13 @@ void vulkan_command_list::draw(uint32_t _vertex_count, uint32_t _instance_count,
       _vertex_offset, _instance_offset);
 }
 
+void vulkan_command_list::draw_indexed(uint32_t _index_count,
+    uint32_t _instance_count, uint32_t _first_index, uint32_t _vertex_offset,
+    uint32_t _instance_offset) {
+  m_context->vkCmdDrawIndexed(m_command_buffer, _index_count, _instance_count,
+      _first_index, _vertex_offset, _instance_offset);
+}
+
 void vulkan_command_list::set_scissor(const scissor& _scissor) {
   VkRect2D scissor{{_scissor.x, _scissor.y}, {_scissor.width, _scissor.height}};
   m_context->vkCmdSetScissor(m_command_buffer, 0, 1, &scissor);
@@ -207,6 +214,13 @@ void vulkan_command_list::bind_vertex_buffer(
   const VkDeviceSize offset = 0;
   m_context->vkCmdBindVertexBuffers(
       m_command_buffer, stream, 1, &buffer->buffer, &offset);
+}
+
+void vulkan_command_list::bind_index_buffer(
+    index_type type, const buffer* _buffer) {
+  const memory::unique_ptr<const buffer_info>& buffer = get_data(_buffer);
+  m_context->vkCmdBindIndexBuffer(m_command_buffer, buffer->buffer, 0,
+      type == index_type::u16 ? VK_INDEX_TYPE_UINT16 : VK_INDEX_TYPE_UINT32);
 }
 
 #undef get_data

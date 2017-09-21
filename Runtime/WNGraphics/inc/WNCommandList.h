@@ -62,6 +62,10 @@ public:
   virtual void draw(uint32_t _vertex_count, uint32_t _instance_count,
       uint32_t _vertex_offset, uint32_t _instance_offset) = 0;
 
+  virtual void draw_indexed(uint32_t _index_count, uint32_t _instance_count,
+      uint32_t _first_index, uint32_t _vertex_offset,
+      uint32_t _instance_offset) = 0;
+
   virtual void set_scissor(const scissor& _scissor) = 0;
 
   // TODO(awoloszyn): Expose another function (or a parameter)
@@ -91,6 +95,8 @@ public:
 
   // TODO(awoloszyn): Add bind_vertex_buffers to bind multiple at once.
   virtual void bind_vertex_buffer(uint32_t stream, const buffer* _buffer) = 0;
+
+  virtual void bind_index_buffer(index_type type, const buffer* _buffer) = 0;
 #endif
 
 protected:
