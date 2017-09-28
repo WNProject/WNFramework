@@ -6,6 +6,7 @@
 #include "WNFileSystem/src/WNUtilities.h"
 #include "WNMemory/inc/WNAllocator.h"
 
+#include <errno.h>
 #include <limits.h>
 #include <sys/stat.h>
 #include <time.h>
@@ -105,6 +106,29 @@ containers::string get_executable_path(memory::allocator* _allocator) {
   }
 
   return nullptr;
+}
+
+containers::string get_current_working_path(memory::allocator* _allocator) {
+  containers::dynamic_array<char> buffer(_allocator);
+  size_t size = static_cast<size_t>(PATH_MAX);
+
+  for (;;) {
+    buffer.resize(size);
+
+    const char* result = ::getcwd(buffer.data(), buffer.size());
+
+    if (result == NULL) {
+      if (errno == ERANGE) {
+        size *= 2;
+      } else {
+        return nullptr;
+      }
+    } else if (*result == '(' || *result != '/') {
+      return nullptr;
+    } else {
+      return containers::string(_allocator, buffer.data());
+    }
+  }
 }
 
 }  // namespace internal

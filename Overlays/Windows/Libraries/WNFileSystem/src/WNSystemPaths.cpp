@@ -100,11 +100,11 @@ containers::string get_scratch_path(memory::allocator* _allocator) {
 
 containers::string get_executable_path(memory::allocator* _allocator) {
   containers::dynamic_array<WCHAR> buffer(_allocator);
-  size_t size = static_cast<size_t>(MAX_PATH * 0.75f);
+  size_t size = static_cast<size_t>(MAX_PATH);
   DWORD result = 0;
 
   for (;;) {
-    buffer.resize(size, L'\0');
+    buffer.resize(size);
 
     result = GetModuleFileNameW(
         NULL, buffer.data(), static_cast<DWORD>(buffer.size()));
@@ -113,11 +113,9 @@ containers::string get_executable_path(memory::allocator* _allocator) {
       return false;
     } else if (::GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
       size *= 2;
-
-      continue;
+    } else {
+      break;
     }
-
-    break;
   }
 
   containers::string path(convert_to_utf8(_allocator, buffer.data(), result));
@@ -132,6 +130,24 @@ containers::string get_executable_path(memory::allocator* _allocator) {
   internal::sanitize_path(path);
 
   return core::move(path);
+}
+
+containers::string get_current_working_path(memory::allocator* _allocator) {
+  DWORD result = ::GetCurrentDirectoryW(0, NULL);
+
+  if (result != 0) {
+    containers::dynamic_array<WCHAR> buffer(_allocator, result);
+
+    result = ::GetCurrentDirectoryW(
+        static_cast<DWORD>(buffer.size()), buffer.data());
+
+    if (result != 0) {
+      return containers::string(
+          convert_to_utf8(_allocator, buffer.data(), result));
+    }
+  }
+
+  return nullptr;
 }
 
 }  // namespace internal

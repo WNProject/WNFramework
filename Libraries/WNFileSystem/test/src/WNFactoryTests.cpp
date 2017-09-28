@@ -26,7 +26,8 @@ TEST_P(factory, make_mapping) {
 INSTANTIATE_TEST_CASE_P(all_mappings, factory,
     ::testing::Values(wn::file_system::mapping_type::scratch_directory,
         wn::file_system::mapping_type::memory_backed,
-        wn::file_system::mapping_type::executable_directory));
+        wn::file_system::mapping_type::executable_directory,
+        wn::file_system::mapping_type::current_working_directory));
 
 TEST(factory, make_mapping_from_path) {
   wn::testing::allocator allocator;

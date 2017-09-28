@@ -18,7 +18,8 @@ namespace file_system {
 enum class mapping_type {
   memory_backed,
   scratch_directory,
-  executable_directory
+  executable_directory,
+  current_working_directory
 };
 
 class factory {
@@ -27,6 +28,7 @@ public:
     : m_allocator(_allocator) {}
 
   virtual containers::string get_executable_path() const;
+  virtual containers::string get_current_working_path() const;
 
   virtual mapping_ptr make_mapping(
       memory::allocator* _allocator, const mapping_type _mapping_type) const;

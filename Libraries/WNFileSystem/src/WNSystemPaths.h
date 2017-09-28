@@ -16,6 +16,7 @@ namespace internal {
 
 containers::string get_scratch_path(memory::allocator* _allocator);
 containers::string get_executable_path(memory::allocator* _allocator);
+containers::string get_current_working_path(memory::allocator* _allocator);
 
 }  // namespace internal
 }  // namespace file_system
