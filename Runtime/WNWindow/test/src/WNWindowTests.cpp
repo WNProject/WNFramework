@@ -2,11 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNWindow/inc/WNWindow.h"
 #include "WNApplicationData/inc/WNApplicationData.h"
 #include "WNApplicationTest/inc/WNTestHarness.h"
 #include "WNMultiTasking/inc/WNJobPool.h"
 #include "WNMultiTasking/inc/WNJobSignal.h"
+#include "WNWindow/inc/WNWindow.h"
 #include "WNWindow/inc/WNWindowFactory.h"
 
 TEST(window, basic) {

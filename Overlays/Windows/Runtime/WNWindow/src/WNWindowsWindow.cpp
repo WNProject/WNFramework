@@ -46,7 +46,7 @@ window_error windows_window::initialize() {
   }
   m_log->log_info("Found/Registered Windows window class");
 
-  RECT rect = {LONG(m_x), LONG(m_y), LONG(m_x + m_width), LONG(m_y + m_height)};
+  RECT rect = {LONG(0), LONG(0), LONG(m_width), LONG(m_height)};
 
   AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, FALSE);
 
@@ -62,7 +62,7 @@ window_error windows_window::initialize() {
 void windows_window::dispatch_loop(RECT rect) {
   m_job_pool->call_blocking_function([&]() {
     m_window.handle = CreateWindowEx(0, WN_WINDOW_CLASS_NAME, "",
-        WS_OVERLAPPEDWINDOW, rect.left, rect.right, rect.right - rect.left,
+        WS_OVERLAPPEDWINDOW, rect.left, rect.top, rect.right - rect.left,
         rect.bottom - rect.top, 0, 0, GetModuleHandle(NULL), NULL);
 
     m_signal.increment(1);
