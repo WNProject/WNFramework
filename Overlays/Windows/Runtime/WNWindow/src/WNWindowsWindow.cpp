@@ -46,14 +46,16 @@ window_error windows_window::initialize() {
   }
   m_log->log_info("Found/Registered Windows window class");
 
-  RECT rect = {LONG(0), LONG(0), LONG(m_width), LONG(m_height)};
+  RECT rect = {LONG(m_x), LONG(m_y), LONG(m_width + m_x), LONG(m_height + m_y)};
 
   AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, FALSE);
+  const LONG left_diff = rect.left - m_x;
+  const LONG top_diff = rect.top - m_y;
 
-  rect.left += m_x;
-  rect.right += m_x;
-  rect.top += m_y;
-  rect.bottom += m_y;
+  rect.right -= left_diff;
+  rect.bottom -= top_diff;
+  rect.left = m_x;
+  rect.top = m_y;
 
   m_job_pool->add_job(&m_signal, &windows_window::dispatch_loop, this, rect);
   return window_error::ok;
