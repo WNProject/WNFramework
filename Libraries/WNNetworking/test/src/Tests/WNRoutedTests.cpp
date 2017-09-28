@@ -19,6 +19,8 @@ void flush_buffer(void* v, const char* bytes, size_t length,
 using buffer_logger = wn::logging::buffer_logger<flush_buffer>;
 using log_buff = wn::containers::string;
 
+static const uint16_t k_starting_port = 8080;
+
 TEST(routed_connection, default_route) {
   wn::testing::allocator allocator;
   log_buff buffer(&allocator);
@@ -36,7 +38,7 @@ TEST(routed_connection, default_route) {
       pool.add_unsynchronized_job(nullptr, [&]() {
         {
           auto listen_socket = manager.listen_remote_sync(
-              wn::networking::ip_protocol::ipv4, 8080);
+              wn::networking::ip_protocol::ipv4, k_starting_port);
 
           const char* sent_message = "HelloWorld";
           struct connection_manager : wn::multi_tasking::synchronized<> {
@@ -93,7 +95,7 @@ TEST(routed_connection, default_route) {
               wn::multi_tasking::make_callback(
                   &allocator, &recv, &received_message::default_route),
               manager.connect_remote_sync("127.0.0.1",
-                  wn::networking::ip_protocol::ipv4, 8080, nullptr),
+                  wn::networking::ip_protocol::ipv4, k_starting_port, nullptr),
               &pool);
 
           signal.wait_until(12);
@@ -122,7 +124,7 @@ TEST(routed_connection, all_are_default) {
       pool.add_unsynchronized_job(nullptr, [&]() {
         {
           auto listen_socket = manager.listen_remote_sync(
-              wn::networking::ip_protocol::ipv4, 8081);
+              wn::networking::ip_protocol::ipv4, k_starting_port + 1);
 
           const char* sent_message = "HelloWorld";
           struct connection_manager : wn::multi_tasking::synchronized<> {
@@ -179,7 +181,8 @@ TEST(routed_connection, all_are_default) {
               wn::multi_tasking::make_callback(
                   &allocator, &recv, &received_message::default_route),
               manager.connect_remote_sync("127.0.0.1",
-                  wn::networking::ip_protocol::ipv4, 8081, nullptr),
+                  wn::networking::ip_protocol::ipv4, k_starting_port + 1,
+                  nullptr),
               &pool);
 
           signal.wait_until(12);
@@ -208,7 +211,7 @@ TEST(routed_connection, multiple_routes) {
       pool.add_unsynchronized_job(nullptr, [&]() {
         {
           auto listen_socket = manager.listen_remote_sync(
-              wn::networking::ip_protocol::ipv4, 8082);
+              wn::networking::ip_protocol::ipv4, k_starting_port + 2);
 
           const char* sent_message = "HelloWorld";
           const char* sent_message2 = "foo";
@@ -303,7 +306,8 @@ TEST(routed_connection, multiple_routes) {
               wn::multi_tasking::make_callback(
                   &allocator, &recv, &received_message::default_route),
               manager.connect_remote_sync("127.0.0.1",
-                  wn::networking::ip_protocol::ipv4, 8082, nullptr),
+                  wn::networking::ip_protocol::ipv4, k_starting_port + 2,
+                  nullptr),
               &pool);
           routed_conn.recv_async(2, &signal,
               wn::multi_tasking::make_callback(
@@ -337,7 +341,7 @@ TEST(routed_connection, multipart_message) {
       pool.add_unsynchronized_job(nullptr, [&]() {
         {
           auto listen_socket = manager.listen_remote_sync(
-              wn::networking::ip_protocol::ipv4, 8083);
+              wn::networking::ip_protocol::ipv4, k_starting_port + 3);
 
           const char* sent_message = "HelloWorld";
           struct connection_manager : wn::multi_tasking::synchronized<> {
@@ -415,7 +419,8 @@ TEST(routed_connection, multipart_message) {
               wn::multi_tasking::make_callback(
                   &allocator, &recv, &received_message::default_route),
               manager.connect_remote_sync("127.0.0.1",
-                  wn::networking::ip_protocol::ipv4, 8083, nullptr),
+                  wn::networking::ip_protocol::ipv4, k_starting_port + 3,
+                  nullptr),
               &pool);
 
           signal.wait_until(5);

@@ -18,6 +18,8 @@ void flush_buffer(void* v, const char* bytes, size_t length,
 using buffer_logger = wn::logging::buffer_logger<flush_buffer>;
 using log_buff = wn::containers::string;
 
+static const uint16_t k_starting_port = 8090;
+
 TEST(raw_connection, send_async_data_from_server) {
   wn::testing::allocator allocator;
   log_buff buffer(&allocator);
@@ -35,7 +37,7 @@ TEST(raw_connection, send_async_data_from_server) {
       pool.add_unsynchronized_job(nullptr, [&]() {
         {
           auto listen_socket = manager.listen_remote_sync(
-              wn::networking::ip_protocol::ipv4, 8080);
+              wn::networking::ip_protocol::ipv4, k_starting_port);
           listen_started.increment(1);
           auto accepted_socket = pool.call_blocking_function<
               wn::memory::unique_ptr<wn::networking::WNConnection>>(
@@ -62,7 +64,8 @@ TEST(raw_connection, send_async_data_from_server) {
               wn::memory::unique_ptr<wn::networking::WNReliableConnection>>(
               [&]() {
                 return manager.connect_remote_sync("127.0.0.1",
-                    wn::networking::ip_protocol::ipv4, 8080, nullptr);
+                    wn::networking::ip_protocol::ipv4, k_starting_port,
+                    nullptr);
               });
           wn::containers::string received(&allocator);
           wn::containers::string expected(&allocator,
@@ -106,8 +109,8 @@ TEST(raw_connection, async_accept) {
 
     pool.add_unsynchronized_job(nullptr, [&]() {
       {
-        auto listen_socket =
-            manager.listen_remote_sync(wn::networking::ip_protocol::ipv4, 8080);
+        auto listen_socket = manager.listen_remote_sync(
+            wn::networking::ip_protocol::ipv4, k_starting_port + 1);
         listen_started.increment(1);
 
         wn::multi_tasking::job_signal signal(0);
@@ -144,7 +147,8 @@ TEST(raw_connection, async_accept) {
             wn::memory::unique_ptr<wn::networking::WNReliableConnection>>(
             [&]() {
               return manager.connect_remote_sync("127.0.0.1",
-                  wn::networking::ip_protocol::ipv4, 8080, nullptr);
+                  wn::networking::ip_protocol::ipv4, k_starting_port + 1,
+                  nullptr);
             });
         wn::containers::string received(&allocator);
         wn::containers::string expected(&allocator,
@@ -187,8 +191,8 @@ TEST(raw_connection, async_accept_no_callback) {
 
     pool.add_unsynchronized_job(nullptr, [&]() {
       {
-        auto listen_socket =
-            manager.listen_remote_sync(wn::networking::ip_protocol::ipv4, 8080);
+        auto listen_socket = manager.listen_remote_sync(
+            wn::networking::ip_protocol::ipv4, k_starting_port + 2);
         listen_started.increment(1);
 
         wn::multi_tasking::job_signal signal(0);
@@ -221,7 +225,8 @@ TEST(raw_connection, async_accept_no_callback) {
             wn::memory::unique_ptr<wn::networking::WNReliableConnection>>(
             [&]() {
               return manager.connect_remote_sync("127.0.0.1",
-                  wn::networking::ip_protocol::ipv4, 8080, nullptr);
+                  wn::networking::ip_protocol::ipv4, k_starting_port + 2,
+                  nullptr);
             });
         wn::containers::string received(&allocator);
         wn::containers::string expected(&allocator,
@@ -272,8 +277,8 @@ TEST(raw_connection, async_listen_connect) {
         wn::networking::network_error err2;
         wn::multi_tasking::job_signal signal(0);
 
-        manager.listen_remote_async(wn::networking::ip_protocol::ipv4, 8080,
-            &signal, &listen_socket, &err);
+        manager.listen_remote_async(wn::networking::ip_protocol::ipv4,
+            k_starting_port + 3, &signal, &listen_socket, &err);
 
         signal.wait_until(1);
         ASSERT_EQ(wn::networking::network_error::ok, err);
@@ -282,8 +287,8 @@ TEST(raw_connection, async_listen_connect) {
         // Once we have created the listen socket, we can now create the send
         // socket
         manager.connect_remote_async("127.0.0.1",
-            wn::networking::ip_protocol::ipv4, 8080, &signal, &connect_socket,
-            &err);
+            wn::networking::ip_protocol::ipv4, k_starting_port + 3, &signal,
+            &connect_socket, &err);
         wn::containers::string received(&allocator);
         wn::containers::string expected(&allocator,
             "hello_worldhello_worldhello_world"
@@ -371,8 +376,8 @@ TEST(raw_connection, async_recv) {
         wn::networking::network_error err2;
         wn::multi_tasking::job_signal signal(0);
 
-        manager.listen_remote_async(wn::networking::ip_protocol::ipv4, 8080,
-            &signal, &listen_socket, &err);
+        manager.listen_remote_async(wn::networking::ip_protocol::ipv4,
+            k_starting_port + 4, &signal, &listen_socket, &err);
 
         signal.wait_until(1);
         ASSERT_EQ(wn::networking::network_error::ok, err);
@@ -381,8 +386,8 @@ TEST(raw_connection, async_recv) {
         // Once we have created the listen socket, we can now create the send
         // socket
         manager.connect_remote_async("127.0.0.1",
-            wn::networking::ip_protocol::ipv4, 8080, &signal, &connect_socket,
-            &err);
+            wn::networking::ip_protocol::ipv4, k_starting_port + 4, &signal,
+            &connect_socket, &err);
         wn::containers::string expected(&allocator,
             "hello_worldhello_worldhello_world"
             "hello_worldhello_worldhello_worldhello_worldhello_world"

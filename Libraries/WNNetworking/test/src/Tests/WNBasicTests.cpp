@@ -22,6 +22,8 @@ using connection_tests = ::testing::TestWithParam<wn::networking::ip_protocol>;
 
 const char* localhost_addresses[2] = {"127.0.0.1", "::1"};
 
+static const uint16_t k_starting_port = 8100;
+
 TEST_P(connection_tests, connection) {
   wn::testing::allocator allocator;
   log_buff buffer(&allocator);
@@ -39,7 +41,8 @@ TEST_P(connection_tests, connection) {
 
     pool.add_unsynchronized_job(nullptr, [&]() {
       {
-        auto listen_socket = manager.listen_remote_sync(GetParam(), 8080);
+        auto listen_socket =
+            manager.listen_remote_sync(GetParam(), k_starting_port);
         listen_started.notify();
         auto accepted_socket = listen_socket->accept_sync();
         ASSERT_NE(nullptr, accepted_socket);
@@ -53,7 +56,7 @@ TEST_P(connection_tests, connection) {
         listen_started.wait();
         auto connect_socket = manager.connect_remote_sync(
             localhost_addresses[static_cast<uint32_t>(GetParam())], GetParam(),
-            8080, nullptr);
+            k_starting_port, nullptr);
         ASSERT_NE(nullptr, connect_socket);
         final_semaphore.notify();
       }
@@ -82,7 +85,8 @@ TEST_P(connection_tests, connect_to_any) {
 
     pool.add_unsynchronized_job(nullptr, [&]() {
       {
-        auto listen_socket = manager.listen_remote_sync(GetParam(), 8080);
+        auto listen_socket =
+            manager.listen_remote_sync(GetParam(), k_starting_port + 1);
         listen_started.notify();
         auto accepted_socket = listen_socket->accept_sync();
         ASSERT_NE(nullptr, accepted_socket);
@@ -96,7 +100,7 @@ TEST_P(connection_tests, connect_to_any) {
         listen_started.wait();
         auto connect_socket = manager.connect_remote_sync(
             localhost_addresses[static_cast<uint32_t>(GetParam())],
-            wn::networking::ip_protocol::ip_any, 8080, nullptr);
+            wn::networking::ip_protocol::ip_any, k_starting_port + 1, nullptr);
         ASSERT_NE(nullptr, connect_socket);
         final_semaphore.notify();
       }
@@ -125,8 +129,8 @@ TEST(raw_connection, send_data_from_server) {
 
     pool.add_unsynchronized_job(nullptr, [&]() {
       {
-        auto listen_socket =
-            manager.listen_remote_sync(wn::networking::ip_protocol::ipv4, 8080);
+        auto listen_socket = manager.listen_remote_sync(
+            wn::networking::ip_protocol::ipv4, k_starting_port + 2);
         listen_started.notify();
         auto accepted_socket = listen_socket->accept_sync();
         ASSERT_NE(nullptr, accepted_socket);
@@ -140,8 +144,8 @@ TEST(raw_connection, send_data_from_server) {
     pool.add_unsynchronized_job(nullptr, [&]() {
       {
         listen_started.wait();
-        auto connect_socket = manager.connect_remote_sync(
-            "127.0.0.1", wn::networking::ip_protocol::ipv4, 8080, nullptr);
+        auto connect_socket = manager.connect_remote_sync("127.0.0.1",
+            wn::networking::ip_protocol::ipv4, k_starting_port + 2, nullptr);
         ASSERT_NE(nullptr, connect_socket);
         auto buff = connect_socket->get_recv_pipe()->recv_sync();
         ASSERT_EQ(wn::networking::network_error::ok, buff.get_status());
@@ -173,8 +177,8 @@ TEST(raw_connection, send_data_from_client) {
 
     pool.add_unsynchronized_job(nullptr, [&]() {
       {
-        auto listen_socket =
-            manager.listen_remote_sync(wn::networking::ip_protocol::ipv4, 8080);
+        auto listen_socket = manager.listen_remote_sync(
+            wn::networking::ip_protocol::ipv4, k_starting_port + 3);
         listen_started.notify();
         auto accepted_socket = listen_socket->accept_sync();
         ASSERT_NE(nullptr, accepted_socket);
@@ -189,8 +193,8 @@ TEST(raw_connection, send_data_from_client) {
     pool.add_unsynchronized_job(nullptr, [&]() {
       {
         listen_started.wait();
-        auto connect_socket = manager.connect_remote_sync(
-            "127.0.0.1", wn::networking::ip_protocol::ipv4, 8080, nullptr);
+        auto connect_socket = manager.connect_remote_sync("127.0.0.1",
+            wn::networking::ip_protocol::ipv4, k_starting_port + 3, nullptr);
         ASSERT_NE(nullptr, connect_socket);
         wn::containers::string my_str(&allocator, "hello_world");
         connect_socket->get_send_pipe()->send_sync({wn::networking::send_range(
@@ -221,8 +225,8 @@ TEST(raw_connection, multi_send) {
 
     pool.add_unsynchronized_job(nullptr, [&]() {
       {
-        auto listen_socket =
-            manager.listen_remote_sync(wn::networking::ip_protocol::ipv4, 8080);
+        auto listen_socket = manager.listen_remote_sync(
+            wn::networking::ip_protocol::ipv4, k_starting_port + 4);
         listen_started.notify();
         auto accepted_socket = listen_socket->accept_sync();
         ASSERT_NE(nullptr, accepted_socket);
@@ -241,8 +245,8 @@ TEST(raw_connection, multi_send) {
     pool.add_unsynchronized_job(nullptr, [&]() {
       {
         listen_started.wait();
-        auto connect_socket = manager.connect_remote_sync(
-            "127.0.0.1", wn::networking::ip_protocol::ipv4, 8080, nullptr);
+        auto connect_socket = manager.connect_remote_sync("127.0.0.1",
+            wn::networking::ip_protocol::ipv4, k_starting_port + 4, nullptr);
         ASSERT_NE(nullptr, connect_socket);
         auto buff = connect_socket->get_recv_pipe()->recv_sync();
         ASSERT_EQ(wn::networking::network_error::ok, buff.get_status());
@@ -258,5 +262,5 @@ TEST(raw_connection, multi_send) {
 }
 
 INSTANTIATE_TEST_CASE_P(all_ip_types, connection_tests,
-    ::testing::Values(wn::networking::ip_protocol::ipv4,
-                            wn::networking::ip_protocol::ipv6));
+    ::testing::Values(
+        wn::networking::ip_protocol::ipv4, wn::networking::ip_protocol::ipv6));
