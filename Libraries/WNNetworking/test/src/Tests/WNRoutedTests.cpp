@@ -31,7 +31,6 @@ TEST(routed_connection, default_route) {
     wn::multi_tasking::thread_job_pool pool(&allocator, 3);
     {
       wn::multi_tasking::job_signal signal(&pool, 0);
-      wn::multi_tasking::semaphore wait_for_done;
 
       wn::networking::WNConcreteNetworkManager manager(&allocator, &pool, log);
 
@@ -100,9 +99,8 @@ TEST(routed_connection, default_route) {
 
           signal.wait_until(12);
         }
-        wait_for_done.notify();
       });
-      wait_for_done.wait();
+      pool.join();
     }
   }
 }
@@ -117,7 +115,6 @@ TEST(routed_connection, all_are_default) {
     wn::multi_tasking::thread_job_pool pool(&allocator, 3);
     {
       wn::multi_tasking::job_signal signal(&pool, 0);
-      wn::multi_tasking::semaphore wait_for_done;
 
       wn::networking::WNConcreteNetworkManager manager(&allocator, &pool, log);
 
@@ -187,9 +184,8 @@ TEST(routed_connection, all_are_default) {
 
           signal.wait_until(12);
         }
-        wait_for_done.notify();
       });
-      wait_for_done.wait();
+      pool.join();
     }
   }
 }
@@ -204,7 +200,6 @@ TEST(routed_connection, multiple_routes) {
     wn::multi_tasking::thread_job_pool pool(&allocator, 3);
     {
       wn::multi_tasking::job_signal signal(&pool, 0);
-      wn::multi_tasking::semaphore wait_for_done;
 
       wn::networking::WNConcreteNetworkManager manager(&allocator, &pool, log);
 
@@ -309,17 +304,16 @@ TEST(routed_connection, multiple_routes) {
                   wn::networking::ip_protocol::ipv4, k_starting_port + 2,
                   nullptr),
               &pool);
-          routed_conn.recv_async(2, &signal,
-              wn::multi_tasking::make_callback(
-                  &allocator, &recv, &received_message::route2));
-          routed_conn.recv_async(32, &signal,
-              wn::multi_tasking::make_callback(
-                  &allocator, &recv, &received_message::route32));
+          routed_conn.recv_async(
+              2, &signal, wn::multi_tasking::make_callback(
+                              &allocator, &recv, &received_message::route2));
+          routed_conn.recv_async(
+              32, &signal, wn::multi_tasking::make_callback(
+                               &allocator, &recv, &received_message::route32));
           signal.wait_until(34);
         }
-        wait_for_done.notify();
       });
-      wait_for_done.wait();
+      pool.join();
     }
   }
 }
@@ -334,7 +328,6 @@ TEST(routed_connection, multipart_message) {
     wn::multi_tasking::thread_job_pool pool(&allocator, 3);
     {
       wn::multi_tasking::job_signal signal(&pool, 0);
-      wn::multi_tasking::semaphore wait_for_done;
 
       wn::networking::WNConcreteNetworkManager manager(&allocator, &pool, log);
 
@@ -425,9 +418,8 @@ TEST(routed_connection, multipart_message) {
 
           signal.wait_until(5);
         }
-        wait_for_done.notify();
       });
-      wait_for_done.wait();
+      pool.join();
     }
   }
 }

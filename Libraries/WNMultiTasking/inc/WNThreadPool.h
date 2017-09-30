@@ -177,6 +177,9 @@ public:
 
 private:
   WN_INLINE void cleanup() {
+    if (m_shutdown) {
+      return;
+    }
     m_shutdown = true;
 
     {
@@ -236,6 +239,6 @@ private:
 };
 
 }  // namespace multi_tasking
-}  // namespase wn
+}  // namespace wn
 
 #endif  // __WN_MULTI_TASKING_THREAD_POOL_H__

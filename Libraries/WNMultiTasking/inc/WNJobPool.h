@@ -16,8 +16,8 @@
 #include "WNFunctional/inc/WNUniqueFunction.h"
 #include "WNMemory/inc/WNIntrusivePtr.h"
 #include "WNMemory/inc/WNUniquePtr.h"
-#include "WNMultiTasking/inc/WNThread.h"
 #include "WNMultiTasking/inc/WNSynchronized.h"
+#include "WNMultiTasking/inc/WNThread.h"
 #include "WNMultiTasking/inc/WNThreadPool.h"
 
 namespace wn {
@@ -269,6 +269,11 @@ public:
 
   static job_pool* this_job_pool();
 
+  // join blocks until there are no jobs left in the pool.
+  // It is invalid to insert new jobs once all jobs have
+  // been cleared out.
+  virtual void join() = 0;
+
 protected:
   template <typename T>
   void destroy_synchronized_internal(memory::unique_ptr<T>&) {}
@@ -372,7 +377,7 @@ public:
     join();
   }
 
-  void join() {
+  void join() override {
     {
       spin_lock_guard guard(m_thread_lock);
       if (m_shutdown) {
