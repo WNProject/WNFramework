@@ -40,7 +40,11 @@ public:
   virtual result delete_file(const containers::string_view _path) = 0;
 
   result initialize_files(std::initializer_list<
-      core::pair<containers::string_view, containers::string_view>>
+      const core::pair<containers::string_view, containers::string_view>>
+          _files);
+
+  result initialize_files(containers::contiguous_range<
+      const core::pair<containers::string_view, containers::string_view>>
           _files);
 
 protected:
@@ -56,6 +60,10 @@ protected:
   const containers::string m_root_path;
   memory::allocator* m_allocator;
   const bool m_cleanup;
+
+private:
+  template <typename T>
+  result initialize_files_internal(const T& t);
 };
 
 using mapping_ptr = memory::unique_ptr<mapping>;

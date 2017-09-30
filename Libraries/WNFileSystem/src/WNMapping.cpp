@@ -55,9 +55,8 @@ result mapping::recursive_create_directory(containers::string_view _directory) {
   return result::ok;
 }
 
-result mapping::initialize_files(std::initializer_list<
-    core::pair<containers::string_view, containers::string_view>>
-        _files) {
+template <typename T>
+result mapping::initialize_files_internal(const T& _files) {
   for (auto& file : _files) {
     containers::string sanitized_path(m_allocator, file.first);
 
@@ -95,6 +94,18 @@ result mapping::initialize_files(std::initializer_list<
   }
 
   return result::ok;
+}
+
+result mapping::initialize_files(std::initializer_list<
+    const core::pair<containers::string_view, containers::string_view>>
+        _files) {
+  return initialize_files_internal(_files);
+}
+
+result mapping::initialize_files(containers::contiguous_range<
+    const core::pair<containers::string_view, containers::string_view>>
+        _files) {
+  return initialize_files_internal(_files);
 }
 
 }  // namespace file_system

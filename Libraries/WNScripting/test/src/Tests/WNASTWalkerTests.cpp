@@ -41,7 +41,7 @@ public:
 
 template <typename T>
 void RunMatcherTest(T& _t,
-    std::initializer_list<wn::core::pair<wn::containers::string_view,
+    std::initializer_list<const wn::core::pair<wn::containers::string_view,
         wn::containers::string_view>>
         _files,
     const char* _file, size_t* _num_warnings, size_t* _num_errors) {

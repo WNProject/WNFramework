@@ -5,6 +5,7 @@
 #include "WNExecutableTest/inc/WNTestHarness.h"
 #include "WNFileSystem/inc/WNFactory.h"
 #include "WNFileSystem/inc/WNMapping.h"
+#include "WNFileSystem/test/src/TestFiles.h"
 
 using mapping = ::testing::TestWithParam<wn::file_system::mapping_type>;
 
@@ -246,6 +247,40 @@ TEST_P(mapping, delete_directory) {
 
     EXPECT_EQ(r, wn::file_system::result::ok);
     EXPECT_FALSE(mp->exists_directory("temp"));
+  }
+}
+
+TEST_P(mapping, initialized_from_filesystem) {
+  wn::testing::allocator allocator;
+
+  {
+    wn::file_system::factory f(&allocator);
+    const wn::file_system::mapping_ptr mp =
+        f.make_mapping(&allocator, GetParam());
+
+    ASSERT_NE(mp, nullptr);
+    wn::file_system::result r = mp->initialize_files(TestFiles::get_files());
+
+    EXPECT_EQ(r, wn::file_system::result::ok);
+
+    EXPECT_TRUE(mp->exists_directory("b"));
+    EXPECT_TRUE(mp->exists_file("a.txt"));
+    EXPECT_TRUE(mp->exists_file("b/b.txt"));
+
+    {
+      wn::file_system::file_ptr file = mp->open_file("a.txt", r);
+      EXPECT_EQ(r, wn::file_system::result::ok);
+      ASSERT_NE(file, nullptr);
+      EXPECT_EQ(file->typed_range<char>(),
+          wn::containers::string_view("Hello World"));
+    }
+    {
+      wn::file_system::file_ptr file = mp->open_file("b/b.txt", r);
+      EXPECT_EQ(r, wn::file_system::result::ok);
+      ASSERT_NE(file, nullptr);
+      EXPECT_EQ(file->typed_range<char>(),
+          wn::containers::string_view("Hello World 2"));
+    }
   }
 }
 
