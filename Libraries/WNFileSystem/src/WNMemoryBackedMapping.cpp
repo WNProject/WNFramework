@@ -264,6 +264,7 @@ file_ptr memory_backed_mapping::open_file(
   memory_backed_directory* dir = get_directory(true, path);
   if (!dir) {
     _result = result::invalid_path;
+    return nullptr;
   }
 
   internal::get_filename_from_sanitized_path(path, filename);

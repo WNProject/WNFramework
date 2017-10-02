@@ -55,13 +55,61 @@ const wn::containers::contiguous_range<
 """
 
 
+class HandleDirectory(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        if self.ca.num_files_in_dir == 0 and self.ca.last_directory != "":
+            self.ca.full_dirs.append(values)
+        else:
+            self.ca.last_directory = values
+            self.ca.num_files_in_dir = 0
+
+
+class HandleFile(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        for v in values:
+            self.ca.files_dirs[v] = self.ca.last_directory
+            self.ca.num_files_in_dir += 1
+
+
+class CustomAction:
+    files_dirs = {}
+    last_directory = ""
+    num_files_in_dir = 0
+    full_dirs = []
+
+    def __init__(self):
+        self.HandleDirectory = HandleDirectory
+        self.HandleDirectory.ca = self
+        self.HandleFile = HandleFile
+        self.HandleFile.ca = self
+
+
+def handle_file(filename):
+    """handle_file takes a given filename and parses it
+    it returns formatted the contents and the number
+    of bytes that were in the file"""
+    with open(filename, 'rb') as o:
+        fc = "        "
+        linect = 0
+        lc = 0
+        for x in o.read():
+            if linect == 12:
+                linect = 0
+                fc += "\n        "
+            linect += 1
+            fc += "0x%02X," % ord(x)
+            lc += 1
+        return (lc, fc[:-1])
+
+
 def main():
+    ca = CustomAction()
     parser = argparse.ArgumentParser(
         description="Takes a directory and outputs a "
         "header and .cpp file that contain all of the "
         "contents of that directory")
-    parser.add_argument("--directory", type=str,
-                        required=True,
+    parser.add_argument("--directory",
+                        action=ca.HandleDirectory,
                         help="directory root to compile")
     parser.add_argument("--prefix", type=str,
                         default="output",
@@ -70,6 +118,11 @@ def main():
     parser.add_argument("--output-directory",
                         default=".",
                         help="output directory for the files")
+    parser.add_argument("--files",
+                        nargs="+",
+                        action=ca.HandleFile,
+                        help="Specific list of files to gather")
+
     args = parser.parse_args(sys.argv[1:])
 
     with open(os.path.join(args.output_directory, args.prefix + ".h"), "w") as f:
@@ -81,36 +134,32 @@ def main():
         filenames = []
         file_contents = []
         contents_length = []
-        for root, _, files in os.walk(args.directory, topdown=False):
-            for name in files:
-                if root == args.directory:
-                    filenames.append(name)
-                else:
-                    filenames.append(os.path.join(os.path.relpath(
-                        root, args.directory), name))
-                with open(os.path.join(root, name), 'rb') as o:
-                    fc = "        "
-                    linect = 0
-                    lc = 0
-                    for x in o.read():
-                        if linect == 12:
-                            linect = 0
-                            fc += "\n        "
-                        linect += 1
-                        fc += "0x%02X," % ord(x)
-                        lc += 1
+        for d in ca.full_dirs:
+            for root, _, files in os.walk(d, topdown=False):
+                for name in files:
+                    if root == d:
+                        filenames.append(name)
+                    else:
+                        filenames.append(os.path.join(os.path.relpath(
+                            root, d), name))
+                    lc, fc = handle_file(os.path.join(root, name))
+                    file_contents.append(fc)
                     contents_length.append(lc)
-                    file_contents.append(fc[:-1])
+        for fl, d in ca.files_dirs.items():
+            lc, fc = handle_file(os.path.join(d, fl))
+            file_contents.append(fc)
+            contents_length.append(lc)
+            filenames.append(fl)
         file_data = ""
         contents_data = ""
         view_data = ""
         x = 0
         for a, b, c in zip(filenames, file_contents, contents_length):
-            file_data += 'const char _{n}[] = "{name}";\n'.format(
+            file_data += 'const unsigned char _{n}[] = "{name}";\n'.format(
                 n=x, name=str.replace(a, "\\", "/"))
-            contents_data += 'const char _{n}_data[] = {{\n{data}\n}};\n'.format(
+            contents_data += 'const unsigned char _{n}_data[] = {{\n{data}\n}};\n'.format(
                 n=x, data=b)
-            view_data += '        {{ wn::containers::string_view(_{n}, {nl}), wn::containers::string_view(_{n}_data, {ndl}) }},\n'.format(
+            view_data += '        {{ wn::containers::string_view(reinterpret_cast<const char*>(_{n}), {nl}), wn::containers::string_view(reinterpret_cast<const char*>(_{n}_data), {ndl}) }},\n'.format(
                 n=x, nl=str(len(a)), ndl=str(c))
             x += 1
         view_data = view_data[:-2]

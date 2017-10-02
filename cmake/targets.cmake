@@ -405,4 +405,45 @@ function(add_wn_application name)
   endif()
 endfunction()
 
+macro(overlay_filesystem_files name)
+  _overlay_add_sources(${name} ${ARGN})
+endmacro()
+
+# TODO(awoloszyn): Add this to the overlay system
+function(wn_filesystem_files name)
+  if (WN_OVERLAY_IS_ENABLED)
+    cmake_parse_arguments(
+        PARSED_ARGS
+        ""
+        "OUTPUT_DIR"
+        "SOURCES"
+        ${ARGN})
+
+    _add_sources_to_target(${name} SOURCES ${PARSED_ARGS_SOURCES} LIBS
+        ${PARSED_ARGS_LIBS})
+    set(PYTHON_ARGS)
+
+    LIST(LENGTH ${name}_OVERLAY_LOGICAL_SOURCES num_local_existing_sources)
+    math(EXPR num_local_existing_sources "${num_local_existing_sources} - 1")
+    foreach(index RANGE 0 ${num_local_existing_sources})
+      list(GET ${name}_OVERLAY_LOGICAL_SOURCES ${index} logical_source)
+      list(GET ${name}_OVERLAY_SOURCES ${index} full_source)
+      string(LENGTH ${logical_source} logical_length)
+      string(LENGTH ${full_source} full_length)
+      math(EXPR start_of_logical "${full_length} - ${logical_length}")
+      string(SUBSTRING ${full_source} 0 ${start_of_logical} root_dir)
+      list(APPEND PYTHON_ARGS "--directory" ${root_dir} "--files" ${logical_source})
+    endforeach()
+    add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${PARSED_ARGS_OUTPUT_DIR}/${name}.h
+                              ${CMAKE_CURRENT_BINARY_DIR}/${PARSED_ARGS_OUTPUT_DIR}/${name}.cpp
+      COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/${PARSED_ARGS_OUTPUT_DIR}
+      COMMAND python ${WNFramework_SOURCE_DIR}/Utilities/compile_file_directory.py
+        --output-directory ${CMAKE_CURRENT_BINARY_DIR}/${PARSED_ARGS_OUTPUT_DIR} ${PYTHON_ARGS}
+        --prefix ${name}
+      DEPENDS ${WNFramework_SOURCE_DIR}/Utilities/compile_file_directory.py
+        ${${name}_OVERLAY_SOURCES}
+      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+  endif()
+endfunction()
+
 enable_overlay_file()
