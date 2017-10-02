@@ -330,7 +330,6 @@ Karlsson
 #pragma GCC diagnostic ignored "-Wunused-function"
 #endif
 
-
 #define STBI_VERSION 1
 
 enum {
@@ -776,7 +775,9 @@ static int stbi__stdio_eof(void* user) {
 }
 
 static stbi_io_callbacks stbi__stdio_callbacks = {
-    stbi__stdio_read, stbi__stdio_skip, stbi__stdio_eof,
+    stbi__stdio_read,
+    stbi__stdio_skip,
+    stbi__stdio_eof,
 };
 
 static void stbi__start_file(stbi__context* s, FILE* f) {
@@ -3060,7 +3061,7 @@ static int stbi__process_marker(stbi__jpeg* z, int m) {
 
         for (i = 0; i < 64; ++i)
           z->dequant[t][stbi__jpeg_dezigzag[i]] =
-              sixteen ? stbi__get16be(z->s) : stbi__get8(z->s);
+              sixteen ? (stbi__uint16)(stbi__get16be(z->s)) : stbi__get8(z->s);
         L -= (sixteen ? 129 : 65);
       }
       return L == 0;
@@ -3962,10 +3963,10 @@ static stbi_uc* load_jpeg_image(
         } else if (z->s->img_n == 4) {
           if (z->app14_color_transform == 0) {  // CMYK
             for (i = 0; i < z->s->img_x; ++i) {
-              stbi_uc k = coutput[3][i];
-              out[0] = stbi__blinn_8x8(coutput[0][i], k);
-              out[1] = stbi__blinn_8x8(coutput[1][i], k);
-              out[2] = stbi__blinn_8x8(coutput[2][i], k);
+              stbi_uc l = coutput[3][i];
+              out[0] = stbi__blinn_8x8(coutput[0][i], l);
+              out[1] = stbi__blinn_8x8(coutput[1][i], l);
+              out[2] = stbi__blinn_8x8(coutput[2][i], l);
               out[3] = 255;
               out += n;
             }
@@ -3973,10 +3974,10 @@ static stbi_uc* load_jpeg_image(
             z->YCbCr_to_RGB_kernel(
                 out, y, coutput[1], coutput[2], z->s->img_x, n);
             for (i = 0; i < z->s->img_x; ++i) {
-              stbi_uc k = coutput[3][i];
-              out[0] = stbi__blinn_8x8(255 - out[0], k);
-              out[1] = stbi__blinn_8x8(255 - out[1], k);
-              out[2] = stbi__blinn_8x8(255 - out[2], k);
+              stbi_uc l = coutput[3][i];
+              out[0] = stbi__blinn_8x8(255 - out[0], l);
+              out[1] = stbi__blinn_8x8(255 - out[1], l);
+              out[2] = stbi__blinn_8x8(255 - out[2], l);
               out += n;
             }
           } else {  // YCbCr + alpha?  Ignore the fourth channel for now
@@ -4004,10 +4005,10 @@ static stbi_uc* load_jpeg_image(
           }
         } else if (z->s->img_n == 4 && z->app14_color_transform == 0) {
           for (i = 0; i < z->s->img_x; ++i) {
-            stbi_uc k = coutput[3][i];
-            stbi_uc r = stbi__blinn_8x8(coutput[0][i], k);
-            stbi_uc g = stbi__blinn_8x8(coutput[1][i], k);
-            stbi_uc b = stbi__blinn_8x8(coutput[2][i], k);
+            stbi_uc l = coutput[3][i];
+            stbi_uc r = stbi__blinn_8x8(coutput[0][i], l);
+            stbi_uc g = stbi__blinn_8x8(coutput[1][i], l);
+            stbi_uc b = stbi__blinn_8x8(coutput[2][i], l);
             out[0] = stbi__compute_y(r, g, b);
             out[1] = 255;
             out += n;
@@ -6469,7 +6470,9 @@ static int stbi__pic_test_core(stbi__context* s) {
   return 1;
 }
 
-typedef struct { stbi_uc size, type, channel; } stbi__pic_packet;
+typedef struct {
+  stbi_uc size, type, channel;
+} stbi__pic_packet;
 
 static stbi_uc* stbi__readval(stbi__context* s, int channel, stbi_uc* dest) {
   int mask = 0x80, i;

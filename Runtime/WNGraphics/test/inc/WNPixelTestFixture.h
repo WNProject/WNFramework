@@ -113,7 +113,7 @@ inline std::string get_image_filename() {
   file_path += "/";
   file_path +=
       test_info->test_case_name() + std::string(".") + test_info->name();
-  file_path += ".tga";
+  file_path += ".png";
   return core::move(file_path);
 }
 
@@ -150,8 +150,8 @@ protected:
   }
 
   void write_image(image<width, height>& image) {
-    stbi_write_tga(
-        get_image_filename().c_str(), width, height, 4, &image[0][0][0]);
+    stbi_write_png(get_image_filename().c_str(), width, height, 4,
+        &image[0][0][0], width * 4);
   }
 
   void run_test(
