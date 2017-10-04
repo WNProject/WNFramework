@@ -97,6 +97,10 @@ public:
   virtual void bind_vertex_buffer(uint32_t stream, const buffer* _buffer) = 0;
 
   virtual void bind_index_buffer(index_type type, const buffer* _buffer) = 0;
+
+  virtual void push_graphics_contants(uint32_t index,
+      uint32_t offset_in_uint32s, const uint32_t* data,
+      uint32_t num_values) = 0;
 #endif
 
 protected:

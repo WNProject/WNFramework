@@ -353,6 +353,12 @@ void d3d12_command_list::bind_graphics_pipeline_layout(
   m_command_list->SetGraphicsRootSignature(layout->signature.Get());
 }
 
+void d3d12_command_list::push_graphics_contants(uint32_t index,
+    uint32_t offset_in_uint32s, const uint32_t* data, uint32_t num_values) {
+  m_command_list->SetGraphicsRoot32BitConstants(
+      index, num_values, data, offset_in_uint32s);
+}
+
 void d3d12_command_list::bind_graphics_descriptor_sets(
     const containers::contiguous_range<const descriptor_set*> _sets,
     uint32_t base_index) {

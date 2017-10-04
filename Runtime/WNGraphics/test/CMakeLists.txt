@@ -65,4 +65,32 @@ wn_create_application_tests_from_list(
     WNWindow
 )
 
+wn_filesystem_files(push_constants_test
+  OUTPUT_DIR inc
+  SOURCES
+    push_constants/built_shaders/pipeline.ps.dxbc
+    push_constants/built_shaders/pipeline.vs.dxbc
+    push_constants/built_shaders/pipeline.ps.spv
+    push_constants/built_shaders/pipeline.vs.spv
+)
+
+wn_create_executable_tests_from_list(TEST_PREFIX WNGraphicsPixel
+  SOURCE_DIR src
+  SYSTEMS_TEST
+  ADDITIONAL_INCLUDES
+    ${WNFramework_SOURCE_DIR}/Externals/stb_image
+  SOURCES
+    WNPushConstants
+  COMMON_SOURCES
+    inc/WNPixelTestFixture.h
+    inc/WNPixelTestConfig.h.in
+    ${CMAKE_CURRENT_BINARY_DIR}/inc/WNPixelTestConfig.h
+    ${CMAKE_CURRENT_BINARY_DIR}/inc/push_constants_test.h
+    ${CMAKE_CURRENT_BINARY_DIR}/inc/push_constants_test.cpp
+  LIBS
+    WNGraphics
+    WNFileSystem
+    stb
+)
+
 post_enable_overlay_directory()

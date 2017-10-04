@@ -27,7 +27,7 @@ const size_t size_vulkan = sizeof(vulkan);
 #include "WNGraphics/test/shaders/pipeline.vs.hlsl.h"
 const BYTE* d3d12 = g_main;
 const size_t size_d3d12 = sizeof(g_main);
-};
+};  // namespace vertex_shader
 
 namespace pixel_shader {
 const uint32_t vulkan[] =
@@ -38,7 +38,7 @@ const size_t size_vulkan = sizeof(vulkan);
 #include "WNGraphics/test/shaders/pipeline.ps.hlsl.h"
 const BYTE* d3d12 = g_main;
 const size_t size_d3d12 = sizeof(g_main);
-};
+};  // namespace pixel_shader
 
 using pipeline_test = wn::runtime::graphics::testing::test;
 
@@ -102,7 +102,7 @@ TEST_F(pipeline_test, basic_pipeline) {
     const wn::runtime::graphics::descriptor_pool_create_info pool_infos[] = {
         {5, wn::runtime::graphics::descriptor_type::read_only_buffer},
         {5, wn::runtime::graphics::descriptor_type::sampler}};
-     wn::runtime::graphics::descriptor_pool pool =
+    wn::runtime::graphics::descriptor_pool pool =
         device->create_descriptor_pool(pool_infos);
     wn::runtime::graphics::descriptor_set set =
         pool.create_descriptor_set(&descriptor_layout);
@@ -111,7 +111,7 @@ TEST_F(pipeline_test, basic_pipeline) {
         &descriptor_layout};
 
     wn::runtime::graphics::pipeline_layout layout =
-        device->create_pipeline_layout(layouts);
+        device->create_pipeline_layout(layouts, {});
 
     const wn::runtime::graphics::render_pass_attachment attachment[] = {{}};
     const wn::runtime::graphics::attachment_reference color_attachments[] = {
@@ -121,8 +121,8 @@ TEST_F(pipeline_test, basic_pipeline) {
     wn::runtime::graphics::render_pass render_pass =
         device->create_render_pass(attachment, subpasses, nullptr);
 
-    wn::runtime::graphics::image_create_info create_info = {
-        1024, 1024, wn::runtime::graphics::data_format::r8g8b8a8_unorm,
+    wn::runtime::graphics::image_create_info create_info = {1024, 1024,
+        wn::runtime::graphics::data_format::r8g8b8a8_unorm,
         static_cast<uint32_t>(
             wn::runtime::graphics::resource_state::render_target)};
     wn::runtime::graphics::clear_value value = {};
@@ -141,8 +141,9 @@ TEST_F(pipeline_test, basic_pipeline) {
                     wn::runtime::graphics::image_component::color));
     const wn::runtime::graphics::image_view* views[] = {&view};
     wn::runtime::graphics::framebuffer_create_info framebuffer_create = {
-        &render_pass, wn::containers::contiguous_range<
-                          const wn::runtime::graphics::image_view*>(views),
+        &render_pass,
+        wn::containers::contiguous_range<
+            const wn::runtime::graphics::image_view*>(views),
         1024, 1024, 1};
 
     wn::runtime::graphics::framebuffer framebuffer =

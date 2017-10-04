@@ -133,7 +133,9 @@ public:
 
   pipeline_layout create_pipeline_layout(
       const containers::contiguous_range<const descriptor_set_layout*>&
-          _descriptor_sets);
+          _descriptor_sets,
+      const containers::contiguous_range<const push_constant_range>&
+          _push_constants);
 
   render_pass create_render_pass(
       const containers::contiguous_range<const render_pass_attachment>&
@@ -246,7 +248,9 @@ protected:
   // Pipeline layout
   virtual void initialize_pipeline_layout(pipeline_layout* _layout,
       const containers::contiguous_range<const descriptor_set_layout*>&
-          _descriptor_sets) = 0;
+          _descriptor_sets,
+      const containers::contiguous_range<const push_constant_range>&
+          _push_constants) = 0;
   virtual void destroy_pipeline_layout(pipeline_layout* _layout) = 0;
 
   // Render pass

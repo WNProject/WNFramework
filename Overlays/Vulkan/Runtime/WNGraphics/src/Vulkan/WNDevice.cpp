@@ -208,6 +208,9 @@ bool vulkan_device::initialize(memory::allocator* _allocator,
   LOAD_VK_SUB_DEVICE_SYMBOL(
       m_device, m_command_list_context, vkCmdBindDescriptorSets);
   LOAD_VK_SUB_DEVICE_SYMBOL(
+      m_device, m_command_list_context, vkCmdPushConstants);
+
+  LOAD_VK_SUB_DEVICE_SYMBOL(
       m_device, m_command_list_context, vkCmdBindPipeline);
   LOAD_VK_SUB_DEVICE_SYMBOL(
       m_device, m_command_list_context, vkCmdBindVertexBuffers);
@@ -876,8 +879,25 @@ void vulkan_device::update_descriptors(descriptor_set* _set,
 
 void vulkan_device::initialize_pipeline_layout(pipeline_layout* _layout,
     const containers::contiguous_range<const descriptor_set_layout*>&
-        _descriptor_sets) {
-  ::VkPipelineLayout& layout = get_data(_layout);
+        _descriptor_sets,
+    const containers::contiguous_range<const push_constant_range>& ranges) {
+  memory::unique_ptr<pipeline_layout_data>& layout = get_data(_layout);
+  layout = memory::make_unique<pipeline_layout_data>(m_allocator);
+  layout->push_constants =
+      containers::dynamic_array<pipeline_layout_data::push_constant>(
+          m_allocator);
+
+  containers::dynamic_array<VkPushConstantRange> push_constant_ranges(
+      m_allocator);
+  push_constant_ranges.reserve(ranges.size());
+
+  for (auto& p : ranges) {
+    layout->push_constants.push_back({p.offset_in_uint32s * 4, p.valid_stages});
+    push_constant_ranges.push_back(
+        VkPushConstantRange{shader_stages_to_vulkan(p.valid_stages),
+            p.offset_in_uint32s * 4, p.num_uint32_values * 4});
+  }
+
   containers::dynamic_array<::VkDescriptorSetLayout> descriptor_set_layouts(
       m_allocator, _descriptor_sets.size());
   VkPipelineLayoutCreateInfo create_info = {
@@ -886,8 +906,9 @@ void vulkan_device::initialize_pipeline_layout(pipeline_layout* _layout,
       0,                                               // flags
       static_cast<uint32_t>(_descriptor_sets.size()),  // sets
       descriptor_set_layouts.data(),                   // pSetLayouts
-      0,                                               // pushConstantRangeCount
-      nullptr,                                         // pPushConstantRanges
+      static_cast<uint32_t>(
+          push_constant_ranges.size()),  // pushConstantRangeCount
+      push_constant_ranges.data(),       // pPushConstantRanges
   };
 
   for (size_t i = 0; i < _descriptor_sets.size(); ++i) {
@@ -896,15 +917,16 @@ void vulkan_device::initialize_pipeline_layout(pipeline_layout* _layout,
     descriptor_set_layouts[i] = l;
   }
 
-  if (VK_SUCCESS !=
-      vkCreatePipelineLayout(m_device, &create_info, nullptr, &layout)) {
+  if (VK_SUCCESS != vkCreatePipelineLayout(
+                        m_device, &create_info, nullptr, &layout->layout)) {
     m_log->log_error("Could not create pipeline layout");
   }
 }
 
 void vulkan_device::destroy_pipeline_layout(pipeline_layout* _layout) {
-  ::VkPipelineLayout& layout = get_data(_layout);
-  vkDestroyPipelineLayout(m_device, layout, nullptr);
+  memory::unique_ptr<pipeline_layout_data> layout =
+      wn::core::move(get_data(_layout));
+  vkDestroyPipelineLayout(m_device, layout->layout, nullptr);
 }
 
 void vulkan_device::initialize_render_pass(render_pass* _pass,
@@ -1508,7 +1530,7 @@ void vulkan_device::initialize_graphics_pipeline(graphics_pipeline* _pipeline,
     dynamic_state_info = &dynamic_state;
   }
 
-  ::VkPipelineLayout layout = get_data(_layout);
+  const memory::unique_ptr<pipeline_layout_data>& layout = get_data(_layout);
   ::VkRenderPass renderpass = get_data(_renderpass);
 
   VkGraphicsPipelineCreateInfo pipeline_create_info = {
@@ -1526,7 +1548,7 @@ void vulkan_device::initialize_graphics_pipeline(graphics_pipeline* _pipeline,
       depth_create_info,            // pDepthStencilState
       color_blend_info,             // pColorBlendState
       dynamic_state_info,           // pDynamicState
-      layout,                       // layout
+      layout->layout,               // layout
       renderpass,                   // renderPass
       _subpass,                     // subpass
       VK_NULL_HANDLE,               // basePipelineHandle

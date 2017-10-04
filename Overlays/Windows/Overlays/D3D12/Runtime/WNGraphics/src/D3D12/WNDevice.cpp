@@ -703,7 +703,9 @@ void d3d12_device::destroy_descriptor_set(descriptor_set* _set) {
 
 void d3d12_device::initialize_pipeline_layout(pipeline_layout* _layout,
     const containers::contiguous_range<const descriptor_set_layout*>&
-        _descriptor_set_layouts) {
+        _descriptor_set_layouts,
+    const containers::contiguous_range<const push_constant_range>&
+        _push_constants) {
   auto& layout = get_data(_layout);
   layout = memory::make_unique<pipeline_layout_object>(m_allocator);
   Microsoft::WRL::ComPtr<ID3D12RootSignature>& layout_pointer =
@@ -722,8 +724,18 @@ void d3d12_device::initialize_pipeline_layout(pipeline_layout* _layout,
       // stream output (if we want?)
   };
 
-  containers::deque<D3D12_DESCRIPTOR_RANGE> ranges(m_allocator);
   uint32_t descriptor_set_base = 0;
+  containers::deque<D3D12_DESCRIPTOR_RANGE> ranges(m_allocator);
+  for (auto p : _push_constants) {
+    parameters.push_back({});
+    auto& param = parameters.back();
+    param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
+    param.Constants.Num32BitValues = p.num_uint32_values;
+    param.Constants.ShaderRegister = p.register_base;
+    param.Constants.RegisterSpace = 0;
+    descriptor_set_base += 1;
+  }
+
   for (size_t i = 0; i < _descriptor_set_layouts.size(); ++i) {
     layout->descriptor_set_binding_base[i] = descriptor_set_base;
     const auto& set = (_descriptor_set_layouts)[i];

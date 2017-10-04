@@ -182,7 +182,9 @@ protected:
 
   void initialize_pipeline_layout(pipeline_layout* _layout,
       const containers::contiguous_range<const descriptor_set_layout*>&
-          _descriptor_sets) WN_GRAPHICS_OVERRIDE_FINAL;
+          _descriptor_sets,
+      const containers::contiguous_range<const push_constant_range>&
+          _push_constants) WN_GRAPHICS_OVERRIDE_FINAL;
   void destroy_pipeline_layout(
       pipeline_layout* _layout) WN_GRAPHICS_OVERRIDE_FINAL;
 

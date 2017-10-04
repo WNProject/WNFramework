@@ -69,14 +69,23 @@ struct data_type<const descriptor_set> {
   using value = const descriptor_set_data;
 };
 
+struct pipeline_layout_data {
+  ::VkPipelineLayout layout;
+  struct push_constant {
+    uint32_t offset_in_bytes;
+    uint32_t shader_stages;
+  };
+  containers::dynamic_array<push_constant> push_constants;
+};
+
 template <>
 struct data_type<pipeline_layout> {
-  using value = ::VkPipelineLayout;
+  using value = memory::unique_ptr<pipeline_layout_data>;
 };
 
 template <>
 struct data_type<const pipeline_layout> {
-  using value = const ::VkPipelineLayout;
+  using value = const memory::unique_ptr<pipeline_layout_data>;
 };
 
 template <>

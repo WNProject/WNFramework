@@ -142,6 +142,31 @@ static WN_FORCE_INLINE VkShaderStageFlagBits shader_stage_to_vulkan(
   return VkShaderStageFlagBits(0);
 }
 
+static WN_FORCE_INLINE uint32_t shader_stages_to_vulkan(uint32_t stages) {
+  uint32_t output = 0;
+
+  if (stages & static_cast<uint32_t>(shader_stage::vertex)) {
+    output |= VK_SHADER_STAGE_VERTEX_BIT;
+  }
+  if (stages & static_cast<uint32_t>(shader_stage::pixel)) {
+    output |= VK_SHADER_STAGE_FRAGMENT_BIT;
+  }
+  if (stages & static_cast<uint32_t>(shader_stage::tessellation_control)) {
+    output |= VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;
+  }
+  if (stages & static_cast<uint32_t>(shader_stage::tessellation_evaluation)) {
+    output |= VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
+  }
+  if (stages & static_cast<uint32_t>(shader_stage::geometry)) {
+    output |= VK_SHADER_STAGE_GEOMETRY_BIT;
+  }
+  if (stages & static_cast<uint32_t>(shader_stage::compute)) {
+    output |= VK_SHADER_STAGE_COMPUTE_BIT;
+  }
+
+  return output;
+}
+
 static WN_FORCE_INLINE VkPrimitiveTopology primitive_topology_to_vulkan(
     topology t) {
   switch (t) {

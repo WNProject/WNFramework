@@ -5,67 +5,53 @@
 #include "WNApplicationData/inc/WNApplicationData.h"
 #include "WNGraphics/test/inc/WNPixelTestFixture.h"
 
+#include "WNFileSystem/inc/WNFactory.h"
+#include "WNGraphics/test/inc/push_constants_test.h"
 #include "WNMultiTasking/inc/WNJobPool.h"
 #include "WNMultiTasking/inc/WNJobSignal.h"
 #include "WNWindow/inc/WNWindow.h"
 #include "WNWindow/inc/WNWindowFactory.h"
 
-namespace vertex_shader {
-const uint32_t vulkan[] =
-#include "WNGraphics/test/shaders/pipeline.vs.glsl.h"
-    ;
-const size_t size_vulkan = sizeof(vulkan);
+using push_constant_test = wn::runtime::graphics::testing::pixel_test<>;
 
-#ifndef BYTE
-#define BYTE uint8_t
-#endif
+TEST_F(push_constant_test, basic) {
+  wn::file_system::factory fs_factory(&m_allocator);
+  auto files = fs_factory.make_mapping(
+      &m_allocator, wn::file_system::mapping_type::memory_backed);
+  files->initialize_files(push_constants_test::get_files());
 
-#include "WNGraphics/test/shaders/pipeline.vs.hlsl.h"
-const BYTE* d3d12 = g_main;
-const size_t size_d3d12 = sizeof(g_main);
-};  // namespace vertex_shader
-
-namespace pixel_shader {
-const uint32_t vulkan[] =
-#include "WNGraphics/test/shaders/pipeline.ps.glsl.h"
-    ;
-const size_t size_vulkan = sizeof(vulkan);
-
-#include "WNGraphics/test/shaders/pipeline.ps.hlsl.h"
-const BYTE* d3d12 = g_main;
-const size_t size_d3d12 = sizeof(g_main);
-};  // namespace pixel_shader
-
-using triangle_test = wn::runtime::graphics::testing::pixel_test<>;
-
-TEST_F(triangle_test, basic) {
-  run_test([this](wn::runtime::graphics::adapter::api_type _api,
+  run_test([this, &files](wn::runtime::graphics::adapter::api_type _api,
                wn::runtime::graphics::device* _device,
                wn::runtime::graphics::queue* _queue,
                wn::runtime::graphics::image* _image) {
     wn::runtime::graphics::command_allocator alloc =
         _device->create_command_allocator();
+    wn::file_system::result res;
 
-    wn::runtime::graphics::shader_module vs = _device->create_shader_module(
+    wn::file_system::file_ptr vertex_shader = files->open_file(
         _api == wn::runtime::graphics::adapter::api_type::vulkan
-            ? wn::containers::contiguous_range<const uint8_t>(
-                  reinterpret_cast<const uint8_t*>(vertex_shader::vulkan),
-                  vertex_shader::size_vulkan)
-            : wn::containers::contiguous_range<const uint8_t>(
-                  reinterpret_cast<const uint8_t*>(vertex_shader::d3d12),
-                  vertex_shader::size_d3d12));
+            ? "push_constants/built_shaders/pipeline.vs.spv"
+            : "push_constants/built_shaders/pipeline.vs.dxbc",
+        res);
+    ASSERT_EQ(wn::file_system::result::ok, res);
+    wn::file_system::file_ptr pixel_shader = files->open_file(
+        _api == wn::runtime::graphics::adapter::api_type::vulkan
+            ? "push_constants/built_shaders/pipeline.ps.spv"
+            : "push_constants/built_shaders/pipeline.ps.dxbc",
+        res);
+    ASSERT_EQ(wn::file_system::result::ok, res);
 
-    wn::runtime::graphics::shader_module ps = _device->create_shader_module(
-        _api == wn::runtime::graphics::adapter::api_type::vulkan
-            ? wn::containers::contiguous_range<const uint8_t>(
-                  reinterpret_cast<const uint8_t*>(pixel_shader::vulkan),
-                  pixel_shader::size_vulkan)
-            : wn::containers::contiguous_range<const uint8_t>(
-                  reinterpret_cast<const uint8_t*>(pixel_shader::d3d12),
-                  pixel_shader::size_d3d12));
+    wn::runtime::graphics::shader_module vs =
+        _device->create_shader_module(vertex_shader->typed_range<uint8_t>());
+
+    wn::runtime::graphics::shader_module ps =
+        _device->create_shader_module(pixel_shader->typed_range<uint8_t>());
+    wn::runtime::graphics::push_constant_range constants[] = {
+        {static_cast<uint32_t>(wn::runtime::graphics::shader_stage::vertex), 0,
+            2, 0}};
 
     wn::runtime::graphics::pipeline_layout layout =
-        _device->create_pipeline_layout({}, {});
+        _device->create_pipeline_layout({}, constants);
 
     wn::runtime::graphics::render_pass_attachment attachment[] = {{}};
     attachment[0].attachment_load_op = wn::runtime::graphics::load_op::clear;
@@ -206,8 +192,13 @@ TEST_F(triangle_test, basic) {
             &clear, 1));
     list->bind_graphics_pipeline_layout(&layout);
     list->bind_graphics_pipeline(&pipeline);
-
     list->bind_vertex_buffer(0, &buffer);
+    float c[2] = {-0.25f, 0.25f};
+    list->push_graphics_contants(0, 0, reinterpret_cast<uint32_t*>(&c[0]), 2);
+    list->draw(3, 1, 0, 0);
+    c[0] = 0.25f;
+    c[1] = -0.25f;
+    list->push_graphics_contants(0, 0, reinterpret_cast<uint32_t*>(&c[0]), 2);
     list->draw(3, 1, 0, 0);
     list->end_render_pass();
     list->finalize();

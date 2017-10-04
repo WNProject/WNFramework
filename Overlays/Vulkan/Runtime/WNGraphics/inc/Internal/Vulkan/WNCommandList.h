@@ -101,6 +101,9 @@ public:
   void bind_index_buffer(
       index_type type, const buffer* _buffer) WN_GRAPHICS_OVERRIDE_FINAL;
 
+  void push_graphics_contants(uint32_t index, uint32_t offset_in_uint32s,
+      const uint32_t* data, uint32_t num_values) WN_GRAPHICS_OVERRIDE_FINAL;
+
 protected:
   friend class vulkan_device;
   friend class vulkan_queue;

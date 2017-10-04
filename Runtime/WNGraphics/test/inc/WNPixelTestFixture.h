@@ -366,6 +366,54 @@ protected:
   log_buff m_buffer;
 };
 
+struct created_buffer {
+  created_buffer(created_buffer&& other)
+    : size(other.size),
+      buffer(wn::core::move(other.buffer)),
+      arena(wn::core::move(other.arena)) {}
+  created_buffer(uint32_t size, wn::runtime::graphics::buffer buffer,
+      wn::runtime::graphics::arena arena)
+    : size(size),
+      buffer(wn::core::move(buffer)),
+      arena(wn::core::move(arena)) {}
+  uint32_t size;
+  wn::runtime::graphics::buffer buffer;
+  wn::runtime::graphics::arena arena;
+};
+
+created_buffer create_buffer(wn::runtime::graphics::device* _device,
+    size_t arena_index, wn::runtime::graphics::resource_state _resource_state,
+    uint32_t size) {
+  wn::runtime::graphics::buffer buffer = _device->create_buffer(
+      size, static_cast<wn::runtime::graphics::resource_states>(
+                static_cast<uint32_t>(
+                    wn::runtime::graphics::resource_state::host_write) |
+                static_cast<uint32_t>(_resource_state)));
+
+  wn::runtime::graphics::buffer_memory_requirements buffer_reqs =
+      buffer.get_memory_requirements();
+
+  wn::runtime::graphics::arena arena =
+      _device->create_arena(arena_index, buffer_reqs.size);
+
+  buffer.bind_memory(&arena);
+
+  return created_buffer(size, wn::core::move(buffer), wn::core::move(arena));
+}
+
+template <typename T, uint32_t N>
+created_buffer create_and_fill_buffer(wn::runtime::graphics::device* _device,
+    size_t arena_index, wn::runtime::graphics::resource_state _resource_state,
+    T (&values)[N]) {
+  created_buffer c =
+      create_buffer(_device, arena_index, _resource_state, sizeof(T) * N);
+
+  void* raw_memory = c.buffer.map();
+  wn::memory::memcpy(raw_memory, values, sizeof(T) * N);
+  c.buffer.unmap();
+  return wn::core::move(c);
+}
+
 }  // namespace testing
 }  // namespace graphics
 }  // namespace runtime

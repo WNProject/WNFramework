@@ -59,6 +59,13 @@ struct scissor {
   uint32_t height;
 };
 
+struct push_constant_range {
+  uint32_t valid_stages;
+  uint32_t register_base;
+  uint32_t num_uint32_values;
+  uint32_t offset_in_uint32s;
+};
+
 }  // namespace graphics
 }  // namespace runtime
 }  // namespace wn

@@ -91,9 +91,11 @@ descriptor_pool device::create_descriptor_pool(
 
 pipeline_layout device::create_pipeline_layout(
     const containers::contiguous_range<const descriptor_set_layout*>&
-        _layouts) {
+        _descriptor_sets,
+    const containers::contiguous_range<const push_constant_range>&
+        _push_constants) {
   pipeline_layout layout(this);
-  initialize_pipeline_layout(&layout, _layouts);
+  initialize_pipeline_layout(&layout, _descriptor_sets, _push_constants);
   return core::move(layout);
 }
 

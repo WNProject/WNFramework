@@ -35,6 +35,7 @@ struct command_list_context WN_FINAL {
   PFN_vkCmdEndRenderPass vkCmdEndRenderPass;
 
   PFN_vkCmdBindDescriptorSets vkCmdBindDescriptorSets;
+  PFN_vkCmdPushConstants vkCmdPushConstants;
 
   PFN_vkCmdBindPipeline vkCmdBindPipeline;
   PFN_vkCmdBindVertexBuffers vkCmdBindVertexBuffers;
