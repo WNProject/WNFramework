@@ -8,6 +8,7 @@
 #define __WN_MEMORY_INTRUSIVE_PTR_H__
 
 #include "WNMemory/inc/WNAllocator.h"
+#include "WNCore/inc/WNUtility.h"
 
 #include <atomic>
 
@@ -17,7 +18,7 @@ namespace memory {
 template <typename T>
 class intrusive_ptr;
 
-class intrusive_ptr_base {
+class intrusive_ptr_base : core::non_copyable {
 public:
   WN_FORCE_INLINE void add_reference() {
     for (;;) {
