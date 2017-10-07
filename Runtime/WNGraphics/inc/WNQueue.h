@@ -7,8 +7,13 @@
 #ifndef __WN_GRAPHICS_QUEUE_H__
 #define __WN_GRAPHICS_QUEUE_H__
 
+#include "WNContainers/inc/WNContiguousRange.h"
+#include "WNCore/inc/WNPair.h"
 #include "WNGraphics/inc/Internal/WNConfig.h"
+#include "WNGraphics/inc/WNGraphicsEnums.h"
 #include "WNMemory/inc/WNUniquePtr.h"
+
+#include <initializer_list>
 
 #ifdef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
 #include "WNGraphics/inc/Internal/WNQueueIncludes.h"
@@ -34,6 +39,7 @@ using queue_base = core::non_copyable;
 class command_list;
 class device;
 class fence;
+class signal;
 
 class queue : public internal::queue_base {
 public:
@@ -44,6 +50,18 @@ public:
 
   virtual void enqueue_fence(fence& _fence) = 0;
   virtual void enqueue_command_list(command_list* _command_list) = 0;
+
+  virtual void enqueue_commands(
+      containers::contiguous_range<command_list*> _command_lists,
+      containers::contiguous_range<core::pair<pipeline_stages, signal*>>
+          _wait_signals,
+      fence* _signal_fence,
+      containers::contiguous_range<signal*> _signal_signals) = 0;
+
+  virtual void enqueue_command_lists(
+      std::initializer_list<command_list*> _command_lists,
+      std::initializer_list<core::pair<pipeline_stages, signal*>> _wait_signals,
+      fence* _signal_fence, std::initializer_list<signal*> _signal_signals) = 0;
 
   // Note; You must call device->destroy_queue in your
   // deconstructor. There is a good reason why this

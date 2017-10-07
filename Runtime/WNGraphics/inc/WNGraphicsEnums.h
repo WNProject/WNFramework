@@ -113,6 +113,28 @@ enum class shader_stage : uint32_t {
   compute = 1 << 5
 };
 
+enum class pipeline_stage : uint32_t {
+  top_of_pipe = 1 << 0,
+  draw_indirect = 1 << 1,
+  vertex_input = 1 << 2,
+  vertex_shader = 1 << 3,
+  hull_shader = 1 << 4,
+  domain_shader = 1 << 5,
+  geometry_shader = 1 << 6,
+  fragment_shader = 1 << 7,
+  early_fragment_tests = 1 << 8,
+  late_fragment_tests = 1 << 9,
+  color_attachment_output = 1 << 10,
+  compute_shader = 1 << 11,
+  transfer = 1 << 12,
+  bottom_of_pipe = 1 << 13,
+  host = 1 << 14,
+  all_graphics = 1 << 15,
+  all_commands = 1 << 16,
+};
+
+using pipeline_stages = uint32_t;
+
 enum class blend_factor {
   zero,
   one,

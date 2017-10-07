@@ -75,6 +75,64 @@ static WN_FORCE_INLINE VkImageLayout resource_state_to_vulkan_layout(
   return layouts[math::trailing_zeros(static_cast<uint32_t>(_state)) + 1];
 }
 
+static WN_FORCE_INLINE VkPipelineStageFlags flags_to_vulkan_stage(
+    pipeline_stages _state) {
+  VkPipelineStageFlags flags = 0;
+
+  if (_state & static_cast<uint32_t>(pipeline_stage::top_of_pipe)) {
+    flags |= VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+  }
+  if (_state & static_cast<uint32_t>(pipeline_stage::draw_indirect)) {
+    flags |= VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT;
+  }
+  if (_state & static_cast<uint32_t>(pipeline_stage::vertex_input)) {
+    flags |= VK_PIPELINE_STAGE_VERTEX_INPUT_BIT;
+  }
+  if (_state & static_cast<uint32_t>(pipeline_stage::vertex_shader)) {
+    flags |= VK_PIPELINE_STAGE_VERTEX_SHADER_BIT;
+  }
+  if (_state & static_cast<uint32_t>(pipeline_stage::hull_shader)) {
+    flags |= VK_PIPELINE_STAGE_TESSELLATION_CONTROL_SHADER_BIT;
+  }
+  if (_state & static_cast<uint32_t>(pipeline_stage::domain_shader)) {
+    flags |= VK_PIPELINE_STAGE_TESSELLATION_EVALUATION_SHADER_BIT;
+  }
+  if (_state & static_cast<uint32_t>(pipeline_stage::geometry_shader)) {
+    flags |= VK_PIPELINE_STAGE_GEOMETRY_SHADER_BIT;
+  }
+  if (_state & static_cast<uint32_t>(pipeline_stage::fragment_shader)) {
+    flags |= VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+  }
+  if (_state & static_cast<uint32_t>(pipeline_stage::early_fragment_tests)) {
+    flags |= VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+  }
+  if (_state & static_cast<uint32_t>(pipeline_stage::late_fragment_tests)) {
+    flags |= VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+  }
+  if (_state & static_cast<uint32_t>(pipeline_stage::color_attachment_output)) {
+    flags |= VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+  }
+  if (_state & static_cast<uint32_t>(pipeline_stage::compute_shader)) {
+    flags |= VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+  }
+  if (_state & static_cast<uint32_t>(pipeline_stage::transfer)) {
+    flags |= VK_PIPELINE_STAGE_TRANSFER_BIT;
+  }
+  if (_state & static_cast<uint32_t>(pipeline_stage::bottom_of_pipe)) {
+    flags |= VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+  }
+  if (_state & static_cast<uint32_t>(pipeline_stage::host)) {
+    flags |= VK_PIPELINE_STAGE_HOST_BIT;
+  }
+  if (_state & static_cast<uint32_t>(pipeline_stage::all_graphics)) {
+    flags |= VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT;
+  }
+  if (_state & static_cast<uint32_t>(pipeline_stage::all_commands)) {
+    flags |= VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+  }
+  return flags;
+}
+
 static WN_FORCE_INLINE VkFlags resource_state_to_vulkan_pipeline_stage(
     resource_state _state) {
   static const VkFlags states[] = {

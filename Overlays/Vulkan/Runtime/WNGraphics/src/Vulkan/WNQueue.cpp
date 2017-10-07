@@ -7,8 +7,10 @@
 #include "WNGraphics/inc/Internal/Vulkan/WNCommandList.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNDataTypes.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNDevice.h"
+#include "WNGraphics/inc/Internal/Vulkan/WNResourceStates.h"
 #include "WNGraphics/inc/WNCommandList.h"
 #include "WNGraphics/inc/WNFence.h"
+#include "WNGraphics/inc/WNSignal.h"
 
 namespace wn {
 namespace runtime {
@@ -50,6 +52,76 @@ void vulkan_queue::enqueue_command_list(command_list* _command) {
   };
 
   m_queue_context->vkQueueSubmit(m_queue, 1, &info, VK_NULL_HANDLE);
+}
+
+void vulkan_queue::enqueue_commands(
+    containers::contiguous_range<command_list*> _command_lists,
+    containers::contiguous_range<core::pair<pipeline_stages, signal*>>
+        _wait_signals,
+    fence* _signal_fence,
+    containers::contiguous_range<signal*> _signal_signals) {
+  enqueue_command_lists_internal(
+      _command_lists, _wait_signals, _signal_fence, _signal_signals);
+}
+
+void vulkan_queue::enqueue_command_lists(
+    std::initializer_list<command_list*> _command_lists,
+    std::initializer_list<core::pair<pipeline_stages, signal*>> _wait_signals,
+    fence* _signal_fence, std::initializer_list<signal*> _signal_signals) {
+  enqueue_command_lists_internal(
+      _command_lists, _wait_signals, _signal_fence, _signal_signals);
+}
+
+template <typename command_lists, typename wait_signals,
+    typename signal_signals>
+void vulkan_queue::enqueue_command_lists_internal(command_lists& _command_lists,
+    wait_signals& _wait_signals, fence* _signal_fence,
+    signal_signals& _signal_signals) {
+  ::VkFence f = _signal_fence ? get_data(_signal_fence) : VK_NULL_HANDLE;
+  wn::containers::dynamic_array<VkCommandBuffer> buffers(m_allocator);
+  buffers.reserve(_command_lists.size());
+
+  wn::containers::dynamic_array<VkSemaphore> wait_semaphores(m_allocator);
+  wn::containers::dynamic_array<VkPipelineStageFlags> wait_flags(m_allocator);
+  wait_semaphores.reserve(_wait_signals.size());
+  wait_flags.reserve(_wait_signals.size());
+
+  wn::containers::dynamic_array<VkSemaphore> signal_semaphores(m_allocator);
+  signal_semaphores.reserve(_signal_signals.size());
+
+  for (auto& cmd_list : _command_lists) {
+    vulkan_command_list* command_list =
+        reinterpret_cast<vulkan_command_list*>(cmd_list);
+    VkCommandBuffer buffer = command_list->get_command_buffer();
+    buffers.push_back(buffer);
+  }
+
+  for (auto& sig : _wait_signals) {
+    signal* s = sig.second;
+    ::VkSemaphore& semaphore = get_data(s);
+    wait_semaphores.push_back(semaphore);
+    wait_flags.push_back(flags_to_vulkan_stage(sig.first));
+  }
+
+  for (auto sig : _signal_signals) {
+    signal* s = sig;
+    ::VkSemaphore& semaphore = get_data(s);
+    signal_semaphores.push_back(semaphore);
+  }
+
+  const VkSubmitInfo info{
+      VK_STRUCTURE_TYPE_SUBMIT_INFO,                    // sType
+      nullptr,                                          // pNext
+      static_cast<uint32_t>(_wait_signals.size()),      // waitSemaphoreCount
+      wait_semaphores.data(),                           // waitSemaphores
+      wait_flags.data(),                                // waitDstStageMask
+      static_cast<uint32_t>(buffers.size()),            // commandBufferCount
+      buffers.data(),                                   // pCommandBuffers
+      static_cast<uint32_t>(signal_semaphores.size()),  // signalSemaphoreCount
+      signal_semaphores.data()                          // pSignalSemaphores
+  };
+
+  m_queue_context->vkQueueSubmit(m_queue, 1, &info, f);
 }
 
 #undef get_data

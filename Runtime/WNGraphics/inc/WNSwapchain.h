@@ -26,6 +26,7 @@ namespace graphics {
 class image;
 class queue;
 class fence;
+class signal;
 
 enum class swap_mode { immediate, mailbox, fifo, fifo_relaxed };
 
@@ -60,7 +61,8 @@ public:
   virtual ~swapchain() = default;
 
   virtual image* get_image_for_index(uint32_t index) = 0;
-  virtual uint32_t get_backbuffer_index(fence* fence) const = 0;
+  virtual uint32_t get_next_backbuffer_index(
+      fence* fence, signal* _signal) const = 0;
 
 #else
   ~swapchain() {}
@@ -70,14 +72,14 @@ public:
     return m_create_info;
   }
 
-  void present(queue* q, uint32_t image_index) const {
-    return present_internal(q, m_create_info, image_index);
+  void present(queue* q, signal* _signal, uint32_t image_index) const {
+    return present_internal(q, m_create_info, _signal, image_index);
   }
 
 private:
 #ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
   virtual void present_internal(queue* q, const swapchain_create_info& _info,
-      uint32_t image_index) const = 0;
+      signal* _signal, uint32_t image_index) const = 0;
 #endif
   void set_create_info(const swapchain_create_info& _info) {
     m_create_info = _info;

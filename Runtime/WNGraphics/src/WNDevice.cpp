@@ -17,6 +17,7 @@
 #include "WNGraphics/inc/WNRenderPass.h"
 #include "WNGraphics/inc/WNSampler.h"
 #include "WNGraphics/inc/WNShaderModule.h"
+#include "WNGraphics/inc/WNSignal.h"
 #include "WNGraphics/inc/WNSwapchain.h"
 
 namespace wn {
@@ -37,6 +38,12 @@ fence device::create_fence() {
   initialize_fence(&new_fence);
 
   return core::move(new_fence);
+}
+
+signal device::create_signal() {
+  signal new_signal(this);
+  initialize_signal(&new_signal);
+  return core::move(new_signal);
 }
 
 image device::create_image(

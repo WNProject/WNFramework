@@ -10,6 +10,7 @@
 #include "WNGraphics/inc/WNFactory.h"
 #include "WNGraphics/inc/WNFence.h"
 #include "WNGraphics/inc/WNQueue.h"
+#include "WNGraphics/inc/WNSignal.h"
 #include "WNGraphics/inc/WNSwapchain.h"
 #include "WNMultiTasking/inc/WNJobPool.h"
 #include "WNMultiTasking/inc/WNJobSignal.h"
@@ -20,6 +21,7 @@ TEST(swapchain, basic) {
   auto& data = wn::runtime::testing::k_application_data;
   wn::runtime::graphics::factory device_factory(
       data->system_allocator, data->default_log);
+  wn::memory::allocator* allocator = data->system_allocator;
 
   wn::runtime::window::window_factory factory(
       data->system_allocator, data->default_log);
@@ -53,23 +55,44 @@ TEST(swapchain, basic) {
 
     auto swapchain =
         device->create_swapchain(surface.first, create_info, queue.get());
-    wn::runtime::graphics::fence ready_fence = device->create_fence();
+
+    struct per_swapchain_image_data {
+      per_swapchain_image_data(wn::runtime::graphics::device* _device)
+        : m_present_signal(_device->create_signal()) {}
+      wn::runtime::graphics::command_list_ptr commmand_lists;
+      wn::memory::unique_ptr<wn::runtime::graphics::fence> m_ready_fence;
+      wn::memory::unique_ptr<wn::runtime::graphics::signal> m_ready_signal;
+      wn::runtime::graphics::signal m_present_signal;
+    };
+
+    wn::containers::dynamic_array<per_swapchain_image_data> swapchain_data(
+        allocator);
+    swapchain_data.reserve(swapchain->info().num_buffers);
+    for (size_t i = 0; i < swapchain->info().num_buffers; ++i) {
+      swapchain_data.emplace_back(device.get());
+    }
 
     // Let's make sure we can render 10 frames successfully on the swapchain
     for (size_t i = 0; i < 10; ++i) {
-      ready_fence.reset();
-      uint32_t idx = swapchain->get_backbuffer_index(&ready_fence);
+      wn::memory::unique_ptr<wn::runtime::graphics::signal> sig =
+          wn::memory::make_unique<wn::runtime::graphics::signal>(
+              allocator, device->create_signal());
+
+      uint32_t idx = swapchain->get_next_backbuffer_index(nullptr, sig.get());
       data->default_log->log_info("Got backbuffer: ", idx);
+      auto& frame_data = swapchain_data[idx];
+      if (frame_data.m_ready_fence) {
+        frame_data.m_ready_fence->wait();
+        frame_data.m_ready_fence->reset();
+      } else {
+        frame_data.m_ready_fence =
+            wn::memory::make_unique<wn::runtime::graphics::fence>(
+                allocator, device->create_fence());
+      }
+      frame_data.m_ready_signal = wn::core::move(sig);
 
-      // This will be our normal flow: transition the image from
-      //  present to render_target, do something, transition back.
-
-      ready_fence.wait();
-      // In fact, this interface should change slightly, the first
-      // transition should implicitly be enqueued on one of the queues.
       wn::runtime::graphics::command_list_ptr list =
           alloc.create_command_list();
-      wn::runtime::graphics::fence completion_fence = device->create_fence();
       list->transition_resource(*swapchain->get_image_for_index(idx),
           wn::runtime::graphics::resource_state::present,
           wn::runtime::graphics::resource_state::render_target);
@@ -79,13 +102,16 @@ TEST(swapchain, basic) {
           wn::runtime::graphics::resource_state::present);
 
       list->finalize();
-      queue->enqueue_command_list(list.get());
-      queue->enqueue_fence(completion_fence);
 
-      completion_fence.wait();
-      completion_fence.reset();
+      queue->enqueue_command_lists({list.get()},
+          {wn::core::make_pair(
+              static_cast<wn::runtime::graphics::pipeline_stages>(wn::runtime::
+                      graphics::pipeline_stage::color_attachment_output),
+              frame_data.m_ready_signal.get())},
+          frame_data.m_ready_fence.get(), {&frame_data.m_present_signal});
 
-      swapchain->present(queue.get(), idx);
+      frame_data.commmand_lists = wn::core::move(list);
+      swapchain->present(queue.get(), &frame_data.m_present_signal, idx);
     }
     queue->enqueue_fence(done_present_fence);
     done_present_fence.wait();

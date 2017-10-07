@@ -20,6 +20,7 @@
 #include "WNGraphics/inc/WNImage.h"
 #include "WNGraphics/inc/WNRenderPass.h"
 #include "WNGraphics/inc/WNSampler.h"
+#include "WNGraphics/inc/WNSignal.h"
 #include "WNGraphics/inc/WNSurface.h"
 #include "WNGraphics/inc/WNSwapchain.h"
 #include "WNLogging/inc/WNLog.h"
@@ -92,7 +93,7 @@ queue_ptr d3d12_device::create_queue() {
           }));
 
   if (ptr) {
-    ptr->initialize(this, core::move(command_queue));
+    ptr->initialize(this, m_allocator, core::move(command_queue));
   }
 
   return core::move(ptr);
@@ -186,6 +187,25 @@ void d3d12_device::destroy_fence(fence* _fence) {
 
   data.fence.Reset();
   data.event.dispose();
+}
+
+// signal methods
+void d3d12_device::initialize_signal(signal* _signal) {
+  signal_data& data = get_data(_signal);
+  const HRESULT hr = m_device->CreateFence(
+      0, D3D12_FENCE_FLAG_NONE, __uuidof(ID3D12Fence), &data.fence);
+
+  WN_DEBUG_ASSERT_DESC(SUCCEEDED(hr), "Cannot create fence");
+
+#ifndef _WN_DEBUG
+  WN_UNUSED_ARGUMENT(hr);
+#endif
+}
+
+void d3d12_device::destroy_signal(signal* _signal) {
+  signal_data& data = get_data(_signal);
+
+  data.fence.Reset();
 }
 
 void d3d12_device::wait_fence(const fence* _fence) const {

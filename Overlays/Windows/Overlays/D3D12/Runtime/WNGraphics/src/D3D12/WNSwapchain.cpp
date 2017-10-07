@@ -4,8 +4,10 @@
 
 #include "WNGraphics/inc/Internal/D3D12/WNSwapchain.h"
 #include "WNGraphics/inc/Internal/D3D12/WNDataTypes.h"
+#include "WNGraphics/inc/Internal/D3D12/WNQueue.h"
 #include "WNGraphics/inc/WNFence.h"
 #include "WNGraphics/inc/WNImage.h"
+#include "WNGraphics/inc/WNSignal.h"
 #include "WNGraphics/inc/WNSwapchain.h"
 
 namespace wn {
@@ -35,9 +37,16 @@ void d3d12_swapchain::initialize(memory::allocator* _allocator,
   }
 }
 
-uint32_t d3d12_swapchain::get_backbuffer_index(fence* fence) const {
-  fence_data& dat = get_data(fence);
-  dat.fence->Signal(1);
+uint32_t d3d12_swapchain::get_next_backbuffer_index(
+    fence* fence, signal* _signal) const {
+  if (fence) {
+    fence_data& dat = get_data(fence);
+    dat.fence->Signal(1);
+  }
+  if (_signal) {
+    signal_data& dat = get_data(_signal);
+    dat.fence->Signal(1);
+  }
   return m_swapchain->GetCurrentBackBufferIndex();
 }
 
@@ -46,8 +55,14 @@ image* d3d12_swapchain::get_image_for_index(uint32_t index) {
   return &m_images[index];
 }
 
-void d3d12_swapchain::present_internal(
-    queue*, const swapchain_create_info& _info, uint32_t) const {
+void d3d12_swapchain::present_internal(queue* _queue,
+    const swapchain_create_info& _info, signal* _signal, uint32_t) const {
+  d3d12_queue* queue = reinterpret_cast<d3d12_queue*>(_queue);
+  if (_signal) {
+    signal_data& dat = get_data(_signal);
+    queue->m_queue->Wait(dat.fence.Get(), 1);
+    queue->m_queue->Signal(dat.fence.Get(), 0);
+  }
   uint32_t interval =
       (_info.mode == swap_mode::fifo || _info.mode == swap_mode::mailbox) ? 1
                                                                           : 0;

@@ -145,10 +145,25 @@ struct data_type<const fence> {
   using value = const fence_data;
 };
 
+struct signal_data {
+  Microsoft::WRL::ComPtr<ID3D12Fence> fence;
+};
+
+template <>
+struct data_type<signal> {
+  using value = signal_data;
+};
+
+template <>
+struct data_type<const signal> {
+  using value = const signal_data;
+};
+
 template <>
 struct data_type<shader_module> {
   using value = memory::unique_ptr<internal::d3d12::shader_module_data>;
 };
+
 template <>
 struct data_type<const shader_module> {
   using value = const memory::unique_ptr<internal::d3d12::shader_module_data>;

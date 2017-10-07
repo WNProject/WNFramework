@@ -55,6 +55,7 @@ class image;
 class image_view;
 class sampler;
 struct sampler_create_info;
+class signal;
 class swapchain;
 class shader_module;
 class surface;
@@ -145,6 +146,10 @@ protected:
   void destroy_fence(fence* _fence) WN_GRAPHICS_OVERRIDE_FINAL;
   void wait_fence(const fence* _fence) const WN_GRAPHICS_OVERRIDE_FINAL;
   void reset_fence(fence* _fence) WN_GRAPHICS_OVERRIDE_FINAL;
+
+  // signal methods
+  void initialize_signal(signal* _signal) WN_GRAPHICS_OVERRIDE_FINAL;
+  void destroy_signal(signal* _signal) WN_GRAPHICS_OVERRIDE_FINAL;
 
   // queue methods
   void destroy_queue(queue* _queue) WN_GRAPHICS_OVERRIDE_FINAL;
@@ -263,6 +268,10 @@ protected:
   PFN_vkDestroyFence vkDestroyFence;
   PFN_vkWaitForFences vkWaitForFences;
   PFN_vkResetFences vkResetFences;
+
+  // Semaphores
+  PFN_vkCreateSemaphore vkCreateSemaphore;
+  PFN_vkDestroySemaphore vkDestroySemaphore;
 
   PFN_vkCreateCommandPool vkCreateCommandPool;
   PFN_vkDestroyCommandPool vkDestroyCommandPool;

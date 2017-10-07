@@ -68,6 +68,7 @@ class descriptor_set;
 class pipeline_layout;
 class render_pass;
 class sampler;
+class signal;
 class graphics_pipeline;
 
 struct buffer_memory_requirements;
@@ -108,6 +109,8 @@ public:
 
   command_allocator create_command_allocator();
   fence create_fence();
+
+  signal create_signal();
 
   arena create_arena(const size_t _index, const size_t _size);
   arena create_arena(
@@ -163,6 +166,7 @@ protected:
   friend class arena;
   friend class buffer;
   friend class sampler;
+  friend class signal;
 
   template <typename HeapTraits>
   friend class heap;
@@ -201,6 +205,10 @@ protected:
   virtual void destroy_fence(fence* _fence) = 0;
   virtual void wait_fence(const fence* _fence) const = 0;
   virtual void reset_fence(fence* _fence) = 0;
+
+  // signal methods
+  virtual void initialize_signal(signal* _signal) = 0;
+  virtual void destroy_signal(signal* _signal) = 0;
 
   // Image methods
   virtual void initialize_image(const image_create_info& _info,

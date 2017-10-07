@@ -55,11 +55,13 @@ vulkan_swapchain::~vulkan_swapchain() {
   }
 }
 
-uint32_t vulkan_swapchain::get_backbuffer_index(fence* fence) const {
+uint32_t vulkan_swapchain::get_next_backbuffer_index(
+    fence* fence, signal* _signal) const {
   uint32_t idx;
-  ::VkFence f = get_data(fence);
-  m_device->vkAcquireNextImageKHR(m_device->m_device, m_swapchain,
-      0xFFFFFFFFFFFFFFFF, VK_NULL_HANDLE, f, &idx);
+  ::VkFence f = fence ? get_data(fence) : VK_NULL_HANDLE;
+  ::VkSemaphore s = _signal ? get_data(_signal) : VK_NULL_HANDLE;
+  m_device->vkAcquireNextImageKHR(
+      m_device->m_device, m_swapchain, 0xFFFFFFFFFFFFFFFF, s, f, &idx);
   return idx;
 }
 
@@ -68,10 +70,11 @@ image* vulkan_swapchain::get_image_for_index(uint32_t index) {
   return &m_images[index];
 }
 
-void vulkan_swapchain::present_internal(
-    queue* q, const swapchain_create_info&, uint32_t index) const {
+void vulkan_swapchain::present_internal(queue* q, const swapchain_create_info&,
+    signal* _signal, uint32_t index) const {
+  ::VkSemaphore s = _signal ? get_data(_signal) : VK_NULL_HANDLE;
   vulkan_queue* queue = reinterpret_cast<vulkan_queue*>(q);
-  queue->present(m_swapchain, index);
+  queue->present(m_swapchain, index, s);
 }
 
 #undef get_data

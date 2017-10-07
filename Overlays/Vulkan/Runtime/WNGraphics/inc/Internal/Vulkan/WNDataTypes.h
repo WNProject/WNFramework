@@ -13,6 +13,7 @@
 #include "WNGraphics/inc/WNDescriptorData.h"
 #include "WNGraphics/inc/WNSampler.h"
 #include "WNGraphics/inc/WNShaderModule.h"
+#include "WNGraphics/inc/WNSignal.h"
 #include "WNGraphics/inc/WNSurface.h"
 
 namespace wn {
@@ -187,6 +188,16 @@ struct data_type<surface> {
 template <>
 struct data_type<sampler> {
   using value = ::VkSampler;
+};
+
+template <>
+struct data_type<signal> {
+  using value = ::VkSemaphore;
+};
+
+template <>
+struct data_type<const signal> {
+  using value = const ::VkSemaphore;
 };
 
 }  // namespace vulkan

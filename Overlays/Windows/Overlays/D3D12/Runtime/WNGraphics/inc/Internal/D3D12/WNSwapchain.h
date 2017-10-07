@@ -49,7 +49,8 @@ public:
 #endif
 
   image* get_image_for_index(uint32_t index) WN_GRAPHICS_OVERRIDE_FINAL;
-  uint32_t get_backbuffer_index(fence* fence) const WN_GRAPHICS_OVERRIDE_FINAL;
+  uint32_t get_next_backbuffer_index(
+      fence* fence, signal* _signal) const WN_GRAPHICS_OVERRIDE_FINAL;
 
 protected:
   friend class d3d12_device;
@@ -69,7 +70,7 @@ protected:
       Microsoft::WRL::ComPtr<IDXGISwapChain3>&& _swapchain);
 
   void present_internal(queue* q, const swapchain_create_info& info,
-      uint32_t image_index) const WN_GRAPHICS_OVERRIDE_FINAL;
+      signal* _signal, uint32_t image_index) const WN_GRAPHICS_OVERRIDE_FINAL;
 
   Microsoft::WRL::ComPtr<IDXGISwapChain3> m_swapchain;
   d3d12_device* m_device;

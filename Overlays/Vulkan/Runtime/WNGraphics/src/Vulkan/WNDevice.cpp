@@ -134,6 +134,9 @@ bool vulkan_device::initialize(memory::allocator* _allocator,
   LOAD_VK_DEVICE_SYMBOL(m_device, vkWaitForFences);
   LOAD_VK_DEVICE_SYMBOL(m_device, vkResetFences);
 
+  LOAD_VK_DEVICE_SYMBOL(m_device, vkCreateSemaphore);
+  LOAD_VK_DEVICE_SYMBOL(m_device, vkDestroySemaphore);
+
   LOAD_VK_DEVICE_SYMBOL(m_device, vkCreateCommandPool);
   LOAD_VK_DEVICE_SYMBOL(m_device, vkDestroyCommandPool);
 
@@ -263,7 +266,7 @@ queue_ptr vulkan_device::create_queue() {
           }));
 
   if (ptr) {
-    ptr->initialize(this, &m_queue_context, q);
+    ptr->initialize(this, m_allocator, &m_queue_context, q);
   }
 
   return core::move(ptr);
@@ -303,8 +306,23 @@ void vulkan_device::wait_fence(const fence* _fence) const {
 }
 
 void vulkan_device::reset_fence(fence* _fence) {
-  VkFence& data = get_data(_fence);
+  ::VkFence& data = get_data(_fence);
   vkResetFences(m_device, 1, &data);
+}
+
+void vulkan_device::initialize_signal(signal* _signal) {
+  VkSemaphoreCreateInfo create_info = {
+      VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,  // sType
+      nullptr,                                  // nullptr
+      0,                                        // flags
+  };
+  ::VkSemaphore& data = get_data(_signal);
+  vkCreateSemaphore(m_device, &create_info, nullptr, &data);
+}
+
+void vulkan_device::destroy_signal(signal* _signal) {
+  ::VkSemaphore& data = get_data(_signal);
+  vkDestroySemaphore(m_device, data, nullptr);
 }
 
 void vulkan_device::initialize_command_allocator(

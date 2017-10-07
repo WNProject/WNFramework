@@ -45,7 +45,8 @@ public:
 #endif
 
   image* get_image_for_index(uint32_t index) WN_GRAPHICS_OVERRIDE_FINAL;
-  uint32_t get_backbuffer_index(fence* fence) const WN_GRAPHICS_OVERRIDE_FINAL;
+  uint32_t get_next_backbuffer_index(
+      fence* fence, signal* _signal) const WN_GRAPHICS_OVERRIDE_FINAL;
 
 protected:
   friend class vulkan_device;
@@ -58,7 +59,7 @@ protected:
       const swapchain_create_info& create_info, VkSwapchainKHR swapchain);
 
   void present_internal(queue* q, const swapchain_create_info& info,
-      uint32_t image_index) const WN_GRAPHICS_OVERRIDE_FINAL;
+      signal* _signal, uint32_t image_index) const WN_GRAPHICS_OVERRIDE_FINAL;
 
   VkSwapchainKHR m_swapchain;
   vulkan_device* m_device;
