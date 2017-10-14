@@ -14,7 +14,7 @@ def file_with_extension(_file):
   return _file
 
 def run():
-    sdk_dir='${ANDROID_SDK}'
+    sdk_dir='${WN_ANDROID_SDK}'
 
     parser = argparse.ArgumentParser(
                 prog='${target}.py',

@@ -187,14 +187,14 @@ function(build_apk)
       DEPENDS $<TARGET_FILE:${PARSED_ARGS_TARGET}>)
   endif()
 
-  if (ANDROID_SDK)
-    set(ANDROID_TOOL_PATH ${ANDROID_SDK}/tools/android)
+  if (WN_ANDROID_SDK)
+    set(ANDROID_TOOL_PATH ${WN_ANDROID_SDK}/tools/android)
     if (${ANDROID_SYSTEM_LOWER} STREQUAL "windows" OR
       ${ANDROID_SYSTEM_LOWER} STREQUAL "windows-x86_64")
       find_program(PYTHON python REQUIRED)
       set(ANDROID_TOOL_PATH ${PYTHON} ${configure_source_dir}/single_process_windows.py
         "WNFramework/AndroidUpdateProject"
-        "${ANDROID_SDK}/tools/android.bat")
+        "${WN_ANDROID_SDK}/tools/android.bat")
     endif()
 
 # On windows we fail if we run more than once instance of android update at the same time.

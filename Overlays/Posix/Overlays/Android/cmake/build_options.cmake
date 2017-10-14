@@ -8,11 +8,9 @@ string(REPLACE "-DDEBUG" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
 add_compile_options(-D_WN_ANDROID)
 add_compile_options(-D_XOPEN_SOURCE=600)
 
-if (NOT ANDROID_SDK)
-  message(STATUS "Warning ANDROID_SDK not defined, applications will not"
+if (NOT WN_ANDROID_SDK)
+  message(STATUS "Warning WN_ANDROID_SDK not defined, applications will not"
     " be built")
-else()
-  string(REPLACE "\\" "/" ANDROID_SDK ${ANDROID_SDK})
 endif()
 
 find_program(WN_PYTHON Python)

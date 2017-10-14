@@ -8,28 +8,29 @@ import subprocess
 import sys
 import time
 
+
 def run():
-    ndk_dir="${ANDROID_NDK}"
-    sdk_dir="${ANDROID_SDK}"
-    runner="${ANDROID_RUNNER}"
+    ndk_dir = "${ANDROID_NDK}"
+    sdk_dir = "${WN_ANDROID_SDK}"
+    runner = "${ANDROID_RUNNER}"
     parser = argparse.ArgumentParser(
-                prog="${WN_ACTIVITY_NAME}.py",
-                description="Run android program")
+        prog="${WN_ACTIVITY_NAME}.py",
+        description="Run android program")
     parser.add_argument("--run", action="store_true",
-        help="Default: Run the program")
+                        help="Default: Run the program")
     parser.add_argument("--install", action="store_true",
-            help="Install .apk")
+                        help="Install .apk")
     parser.add_argument("--debug", action="store_true",
-            help="Run the debugger")
+                        help="Run the debugger")
     parser.add_argument("--gdb_command",
-       help=("Arguments use for gdb. You can reference the original" +
-             " gdb executable with $gdb, and the original arguments with" +
-             " $args. \n Defaults to '$gdb $args'"),
-       required=False, default="$gdb $args")
+                        help=("Arguments use for gdb. You can reference the original" +
+                              " gdb executable with $gdb, and the original arguments with" +
+                              " $args. \n Defaults to '$gdb $args'"),
+                        required=False, default="$gdb $args")
     parser.add_argument("--delay", type=int,
-            help="Delay before run and between install and run")
+                        help="Delay before run and between install and run")
     parser.add_argument("--remove", action="store_true",
-            help="Remove the package on completion")
+                        help="Remove the package on completion")
 
     args = parser.parse_args(sys.argv[1:])
 
@@ -38,19 +39,21 @@ def run():
     if args.install:
         if args.delay:
             time.sleep(args.delay)
-        run_args=[sys.executable, runner, 'uninstall', "${WN_PACKAGE_NAME}", '--sdk', sdk_dir]
+        run_args = [sys.executable, runner, 'uninstall',
+                    "${WN_PACKAGE_NAME}", '--sdk', sdk_dir]
         subprocess.call(run_args)
-        run_args=[sys.executable, runner, 'install', "${WN_APK_LOCATION}", '--sdk', sdk_dir]
+        run_args = [sys.executable, runner, 'install',
+                    "${WN_APK_LOCATION}", '--sdk', sdk_dir]
         if subprocess.call(run_args) != 0:
-          return(-1)
+            return(-1)
         run = False
 
     if args.run or run:
         if args.delay:
             time.sleep(args.delay)
-        run_args=[sys.executable, runner, 'run', "${WN_PACKAGE_NAME}", "${WN_ACTIVITY_NAME}",
-                '--ndk_dir', ndk_dir, '--sdk', sdk_dir, '--apk_build_dir',
-                "\"${WN_TARGET_DIR}\"", '--target_arch=${ANDROID_ABI}']
+        run_args = [sys.executable, runner, 'run', "${WN_PACKAGE_NAME}", "${WN_ACTIVITY_NAME}",
+                    '--ndk_dir', ndk_dir, '--sdk', sdk_dir, '--apk_build_dir',
+                    "\"${WN_TARGET_DIR}\"", '--target_arch=${ANDROID_ABI}']
         if args.debug:
             run_args.append('--debug')
             run_args.append('--gdb=${WN_ANDROID_GDB}')
@@ -63,8 +66,10 @@ def run():
     if args.remove:
         if args.delay:
             time.sleep(args.delay)
-        run_args=[sys.executable, runner, 'uninstall', "${WN_PACKAGE_NAME}", '--sdk', sdk_dir]
+        run_args = [sys.executable, runner, 'uninstall',
+                    "${WN_PACKAGE_NAME}", '--sdk', sdk_dir]
         return(subprocess.call(run_args))
+
 
 if __name__ == "__main__":
     sys.exit(run())

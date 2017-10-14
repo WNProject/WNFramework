@@ -6,8 +6,9 @@ if (WN_ANDROID_SDK)
     string(REPLACE "\\" "\\\\" WN_ANDROID_SDK ${WN_ANDROID_SDK})
 endif()
 
-set(WN_ANDROID_NDK "${ANDROID_SDK_DIR}/ndk-bundle"
+set(WN_ANDROID_NDK "${WN_ANDROID_SDK}/ndk-bundle"
     CACHE STRING "Location of the Android NDK")
+string(REPLACE "\\\\" "\\" WN_ANDROID_NDK ${WN_ANDROID_NDK})
 string(REPLACE "\\" "\\\\" WN_ANDROID_NDK ${WN_ANDROID_NDK})
 
 set(WN_ANDROID_TOOLCHAIN_FILE 

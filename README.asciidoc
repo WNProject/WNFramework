@@ -8,3 +8,11 @@ link:LICENSE.txt[License] for more details
 
 == Style
 See link:Docs/StyleGuide.asciidoc[StyleGuide]
+
+
+== Building
+=== Android
+Command line example
+----
+cmake -GNinja ..\ -DCMAKE_TOOLCHAIN_FILE=<PathToWNFramework>\Overlays\Posix\Overlays\Android\android.toolchain.cmake -DWN_ANDROID_ABIS=ARM -DWN_ANDROID_SDK=<PathToAndroidSDK>
+----
