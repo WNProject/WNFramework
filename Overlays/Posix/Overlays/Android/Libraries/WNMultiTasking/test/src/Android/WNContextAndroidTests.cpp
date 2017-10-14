@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNMultiTasking/src/Android/WNContext.h"
 #include "WNExecutableTest/inc/WNTestHarness.h"
+#include "WNMultiTasking/src/Android/WNContext.h"
 
 int foo(volatile int* x, volatile int* y, ucontext_t* _ucontext) {
   EXPECT_LE(*x, 100);
@@ -37,6 +37,9 @@ void new_func(void* f) {
   volatile int foo = *y + 1;
   volatile int bar = *y * 20;
   volatile int baz = *y * 33;
+  (void)foo;
+  (void)bar;
+  (void)baz;
 }
 
 TEST(context_android, make_context) {

@@ -1,6 +1,9 @@
 include(CheckIncludeFileCXX)
 include(CheckCXXSourceCompiles)
 
+set(WN_CDECL_BEGIN)
+set(WN_CDECL_END)
+
 enable_overlay_directory()
 
 # run specifier tests
@@ -361,128 +364,7 @@ endif()
 
 # run calling convention tests
 
-wn_check_cxx_source_compiles(
-  "
-    void __cdecl temp() {}
-    int main() {
-      temp();
-      return 0;
-    }
-  "
-  HAS___CDECL
-)
-
-wn_check_cxx_source_compiles(
-  "
-    void temp() __attribute__((cdecl)) {}
-    int main() {
-      temp();
-      return 0;
-    }
-  "
-  HAS___ATTRIBUTE__CDECL
-)
-
-wn_check_cxx_source_compiles(
-  "
-    void __stdcall temp() {}
-    int main() {
-      temp();
-      return 0;
-    }
-  "
-  HAS___STDCALL
-)
-
-wn_check_cxx_source_compiles(
-  "
-    void temp() __attribute__((stdcall)) {}
-    int main() {
-      temp();
-      return 0;
-    }
-  "
-  HAS___ATTRIBUTE__STDCALL
-)
-
-wn_check_cxx_source_compiles(
-  "
-    void __fastcall temp() {}
-    int main() {
-      temp();
-      return 0;
-    }
-  "
-  HAS___FASTCALL
-)
-
-wn_check_cxx_source_compiles(
-  "
-    void temp() __attribute__((fastcall)) {}
-    int main() {
-      temp();
-      return 0;
-    }
-  "
-  HAS___ATTRIBUTE__FASTCALL
-)
-
-wn_check_cxx_source_compiles(
-  "
-    void __vectorcall temp() {}
-    int main() {
-      temp();
-      return 0;
-    }
-  "
-  HAS___VECTORCALL
-)
-
-wn_check_cxx_source_compiles(
-  "
-    void temp() __attribute__((vectorcall)) {}
-    int main() {
-      temp();
-      return 0;
-    }
-  "
-  HAS___ATTRIBUTE__VECTORCALL
-)
-
 # make calling convention selections
-
-set(WN_CDECL_BEGIN)
-set(WN_CDECL_END)
-set(WN_STDCALL_BEGIN)
-set(WN_STDCALL_END)
-set(WN_FASTCALL_BEGIN)
-set(WN_FASTCALL_END)
-set(WN_VECTORCALL_BEGIN)
-set(WN_VECTORCALL_END)
-
-if (HAS___ATTRIBUTE__CDECL)
-  set(WN_CDECL_END "__attribute__((cdecl))")
-elseif (HAS___CDECL)
-  set(WN_CDECL_BEGIN __cdecl)
-endif()
-
-if (HAS___ATTRIBUTE__STDCALL)
-  set(WN_STDCALL_END "__attribute__((stdcall))")
-elseif (HAS___STDCALL)
-  set(WN_STDCALL_BEGIN __stdcall)
-endif()
-
-if (HAS___ATTRIBUTE__FASTCALL)
-  set(WN_FASTCALL_END "__attribute__((fastcall))")
-elseif (HAS___FASTCALL)
-  set(WN_FASTCALL_BEGIN __fastcall)
-endif()
-
-if (HAS___ATTRIBUTE__VECTORCALL)
-  set(WN_VECTORCALL_END "__attribute__((vectorcall))")
-elseif (HAS___VECTORCALL)
-  set(WN_VECTORCALL_BEGIN __vectorcall)
-endif()
 
 # print selections
 

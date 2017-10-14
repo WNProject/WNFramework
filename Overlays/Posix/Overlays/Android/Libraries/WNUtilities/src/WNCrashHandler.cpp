@@ -6,6 +6,7 @@
 #include <fcntl.h>
 #include <pthread.h>
 #include <sys/stat.h>
+#include <unistd.h>
 
 #define COUNT_OF(x) (sizeof(x) / sizeof(x[0]))
 
@@ -138,8 +139,10 @@ void StackUnwinder::error_func(int sig, siginfo_t* info, void* context) {
         }
         ssize_t throwaway =
             write(file, val, 1);  // don't really care if it fails, keep going
+        (void)throwaway;
       }
-      ssize_t throwaway = write(file, "\n", 1);
+      ssize_t throwaway = write(file, "\\n", 1);
+      (void)throwaway;
     }
     close(file);
     g_CrashHandler->free_backtrace_symbols(symbols, numFrames);
@@ -149,8 +152,7 @@ void StackUnwinder::error_func(int sig, siginfo_t* info, void* context) {
   pthread_setspecific(
       g_CrashHandler->mProcessingKey, reinterpret_cast<void*>(0));
   if (gAndroidLogTag != NULL) {
-    __android_log_print(
-        ANDROID_LOG_FATAL, gAndroidLogTag, "--CRASHED--");
+    __android_log_print(ANDROID_LOG_FATAL, gAndroidLogTag, "--CRASHED--");
   } else {
     __android_log_print(ANDROID_LOG_FATAL, "APP", "--CRASHED--");
   }

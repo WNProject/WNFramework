@@ -6,25 +6,25 @@
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNUtilities/inc/WNAppData.h"
 
+#include <errno.h>
 #include <jni.h>
+#include <limits.h>
 #include <sys/stat.h>
 #include <time.h>
+#include <unistd.h>
 
 namespace wn {
 namespace file_system {
 namespace internal {
 namespace {
 
-WN_INLINE bool get_class_and_method(JNIEnv* _env,
-    const containers::string& _class_name,
-    const containers::string& _method_name,
-    const containers::string& _method_format, jclass& _jclass,
+WN_INLINE bool get_class_and_method(JNIEnv* _env, const char* _class_name,
+    const char* _method_name, const char* _method_format, jclass& _jclass,
     jmethodID& _jmethodid) {
-  jclass c = _env->FindClass(_class_name.c_str());
+  jclass c = _env->FindClass(_class_name);
 
   if (c) {
-    jmethodID m =
-        _env->GetMethodID(c, _method_name.c_str(), _method_format.c_str());
+    jmethodID m = _env->GetMethodID(c, _method_name, _method_format);
 
     if (m) {
       _jclass = core::move(c);
@@ -41,19 +41,19 @@ containers::string get_temp_path(memory::allocator* _allocator) {
   android_app* app = utilities::gAndroidApp;
 
   if (!app) {
-    return false;
+    return nullptr;
   }
 
   const ANativeActivity* activity = app->activity;
 
   if (!activity) {
-    return false;
+    return nullptr;
   }
 
   JavaVM* vm = activity->vm;
 
   if (!vm) {
-    return false;
+    return nullptr;
   }
 
   containers::string path(_allocator);
@@ -103,20 +103,24 @@ containers::string get_scratch_path(memory::allocator* _allocator) {
   containers::string temp_path(get_temp_path(_allocator));
 
   if (!temp_path.empty()) {
-    char name_template[7] = {0};
-
     for (;;) {
-      memory::strncpy(name_template, "XXXXXX", 6);
+      char name_template[9] = {0};
+      uint32_t t = ::rand() % 100000000;
+      int pos = 0;
 
-      if (::mktemp(name_template)) {
-        containers::string path(temp_path + "scratch." + name_template + "/");
-        static const mode_t mode = S_IRWXU | S_IRWXG;
+      while (t) {
+        name_template[++pos] = (t % 10 + '0');
+        t -= t % 10;
+        t /= 10;
+      }
 
-        if (::mkdir(path.data(), mode) == 0) {
-          return path;
-        } else if (errno == EEXIST) {
-          continue;
-        }
+      containers::string path(temp_path + "scratch." + name_template + "/");
+      static const mode_t mode = S_IRWXU | S_IRWXG;
+
+      if (::mkdir(path.data(), mode) == 0) {
+        return core::move(path);
+      } else if (errno == EEXIST) {
+        continue;
       }
 
       break;
@@ -124,6 +128,33 @@ containers::string get_scratch_path(memory::allocator* _allocator) {
   }
 
   return nullptr;
+}
+
+containers::string get_executable_path(memory::allocator* _allocator) {
+  return get_current_working_path(_allocator);
+}
+
+containers::string get_current_working_path(memory::allocator* _allocator) {
+  containers::dynamic_array<char> buffer(_allocator);
+  size_t size = static_cast<size_t>(PATH_MAX);
+
+  for (;;) {
+    buffer.resize(size);
+
+    const char* result = ::getcwd(buffer.data(), buffer.size());
+
+    if (result == NULL) {
+      if (errno == ERANGE) {
+        size *= 2;
+      } else {
+        return nullptr;
+      }
+    } else if (*result == '(' || *result != '/') {
+      return nullptr;
+    } else {
+      return containers::string(_allocator, buffer.data());
+    }
+  }
 }
 
 }  // namespace internal

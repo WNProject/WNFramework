@@ -89,11 +89,10 @@ static const char* TestPartResultTypeToString(
 static std::string PrintTestPartResultToString(
     const ::testing::TestPartResult& test_part_result) {
   return (::testing::Message()
-             << ::testing::internal::FormatFileLocation(
-                    test_part_result.file_name(),
-                    test_part_result.line_number())
-             << " " << TestPartResultTypeToString(test_part_result.type())
-             << test_part_result.message())
+          << ::testing::internal::FormatFileLocation(
+                 test_part_result.file_name(), test_part_result.line_number())
+          << " " << TestPartResultTypeToString(test_part_result.type())
+          << test_part_result.message())
       .GetString();
 }
 }  // anonymous namespace
@@ -167,10 +166,6 @@ void AndroidUnitTestPrinter::PrintFullTestCommentIfPresent(
 }
 
 static const char sUniversalFilter[] = "*";
-// The environment variable name for the test shard index.
-static const char sTestShardIndex[] = "GTEST_SHARD_INDEX";
-// The environment variable name for the total number of test shards.
-static const char sTestTotalShards[] = "GTEST_TOTAL_SHARDS";
 
 void AndroidUnitTestPrinter::OnTestIterationStart(
     const ::testing::UnitTest& unit_test, int iteration) {
@@ -339,8 +334,9 @@ void AndroidUnitTestPrinter::OnTestIterationEnd(
     m_test_log->log_info_flags(
         static_cast<size_t>(logging::log_flags::no_header) |
             static_cast<size_t>(logging::log_flags::no_newline),
-        " (", ::testing::internal::StreamableToString(unit_test.elapsed_time())
-                  .c_str(),
+        " (",
+        ::testing::internal::StreamableToString(unit_test.elapsed_time())
+            .c_str(),
         " ms total)");
   }
   m_test_log->log_info_flags(

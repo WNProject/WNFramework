@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNMemory/inc/WNStringUtility.h"
 #include "WNExecutableTest/inc/WNTestHarness.h"
+#include "WNMemory/inc/WNStringUtility.h"
 
 TEST(string_utility, strlen) {
   const char* test1 = "string";
@@ -232,7 +232,7 @@ TEST(string_utility, strchr) {
   EXPECT_EQ(wn::memory::strchr(test, 'n'), test + 4);
   EXPECT_EQ(wn::memory::strchr(test, 'g'), test + 5);
 
-#ifdef _WN_DEBUG
+#if defined(_WN_DEBUG) && defined(HAS_DEATH_TEST)
   const char* temp = nullptr;
   WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED(wn::memory::strchr(temp, '\0'),
       "assertion failed!\n\nfile: .*\nline: .*\nmessage: string must not be "
@@ -260,7 +260,7 @@ TEST(string_utility, strnchr) {
   EXPECT_EQ(wn::memory::strnchr(test, 'n', 1), nullptr);
   EXPECT_EQ(wn::memory::strnchr(test, 'g', 1), nullptr);
 
-#ifdef _WN_DEBUG
+#if defined(_WN_DEBUG) && defined(HAS_DEATH_TEST)
 
   const char* temp = nullptr;
   WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED(wn::memory::strnchr(temp, '\0', 6),
@@ -294,7 +294,7 @@ TEST(string_utility, strlwr) {
   EXPECT_EQ(test[5], 'g');
   EXPECT_EQ(test[6], '\0');
 
-#ifdef _WN_DEBUG
+#if defined(_WN_DEBUG) && defined(HAS_DEATH_TEST)
   WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED(wn::memory::strlwr(nullptr),
       "assertion failed!\n\nfile: .*\nline: .*\nmessage: string must not be "
       "nullptr");
@@ -323,7 +323,7 @@ TEST(string_utility, strnlwr) {
   EXPECT_EQ(test2[5], 'G');
   EXPECT_EQ(test2[6], '\0');
 
-#ifdef _WN_DEBUG
+#if defined(_WN_DEBUG) && defined(HAS_DEATH_TEST)
   WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED(wn::memory::strnlwr(nullptr, 5),
       "assertion failed!\n\nfile: .*\nline: .*\nmessage: string must not be "
       "nullptr");
@@ -342,7 +342,7 @@ TEST(string_utility, strupr) {
   EXPECT_EQ(test[5], 'G');
   EXPECT_EQ(test[6], '\0');
 
-#ifdef _WN_DEBUG
+#if defined(_WN_DEBUG) && defined(HAS_DEATH_TEST)
   WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED(wn::memory::strupr(nullptr),
       "assertion failed!\n\nfile: .*\nline: .*\nmessage: string must not be "
       "nullptr");
@@ -371,7 +371,7 @@ TEST(string_utility, strnupr) {
   EXPECT_EQ(test2[5], 'G');
   EXPECT_EQ(test2[6], '\0');
 
-#ifdef _WN_DEBUG
+#if defined(_WN_DEBUG) && defined(HAS_DEATH_TEST)
   WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED(wn::memory::strnupr(nullptr, 5),
       "assertion failed!\n\nfile: .*\nline: .*\nmessage: string must not be "
       "nullptr");

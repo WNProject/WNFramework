@@ -10,6 +10,7 @@
 #include "WNUtilities/inc/WNCrashHandler.h"
 #include "WNUtilities/inc/WNLoggingData.h"
 
+#include <android/api-level.h>
 #include <android/log.h>
 #include <android_native_app_glue.h>
 #include <sys/prctl.h>
@@ -127,7 +128,9 @@ void android_main(struct android_app* state) {
   wn::utilities::gAndroidApp = state;
   wn::utilities::gMainLooper = ALooper_forThread();
 
+#ifndef __ANDROID_API_O__
   app_dummy();
+#endif
 
   __android_log_print(ANDROID_LOG_INFO, packageName, "--STARTED");
 

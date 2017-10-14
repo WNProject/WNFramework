@@ -30,6 +30,7 @@
 #ifdef _WN_ANDROID
 #define WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED(expression, regexp)
 #else
+#define HAS_DEATH_TEST
 #ifdef _WN_DEBUG
 #define WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED(expression, regexp)                 \
   EXPECT_DEATH(expression, regexp)
