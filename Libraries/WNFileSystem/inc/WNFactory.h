@@ -13,6 +13,12 @@
 #include "WNMemory/inc/WNAllocator.h"
 
 namespace wn {
+namespace entry {
+
+struct system_data;
+
+}  // namespace entry
+
 namespace file_system {
 
 enum class mapping_type {
@@ -24,8 +30,9 @@ enum class mapping_type {
 
 class factory {
 public:
-  WN_FORCE_INLINE factory(memory::allocator* _allocator)
-    : m_allocator(_allocator) {}
+  WN_FORCE_INLINE factory(
+      memory::allocator* _allocator, const entry::system_data* _system_data)
+    : m_system_data(_system_data), m_allocator(_allocator) {}
 
   virtual containers::string get_executable_path() const;
   virtual containers::string get_current_working_path() const;
@@ -47,6 +54,7 @@ public:
   }
 
 private:
+  const entry::system_data* m_system_data;
   memory::allocator* m_allocator;
 };
 

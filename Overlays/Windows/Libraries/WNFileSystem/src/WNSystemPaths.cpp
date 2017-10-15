@@ -47,9 +47,10 @@ WN_INLINE DWORD get_temp_path_unicode(
   return 0;
 }
 
-}  // anonymous namespace
+}  // namespace
 
-containers::string get_scratch_path(memory::allocator* _allocator) {
+containers::string get_scratch_path(
+    memory::allocator* _allocator, const entry::system_data*) {
   containers::array<WCHAR, (MAX_PATH + 1)> path_buffer = {0};
   DWORD path_size = get_temp_path_unicode(path_buffer);
 
@@ -98,7 +99,8 @@ containers::string get_scratch_path(memory::allocator* _allocator) {
   return nullptr;
 }
 
-containers::string get_executable_path(memory::allocator* _allocator) {
+containers::string get_executable_path(
+    memory::allocator* _allocator, const entry::system_data*) {
   containers::dynamic_array<WCHAR> buffer(_allocator);
   size_t size = static_cast<size_t>(MAX_PATH);
   DWORD result = 0;
@@ -132,7 +134,8 @@ containers::string get_executable_path(memory::allocator* _allocator) {
   return core::move(path);
 }
 
-containers::string get_current_working_path(memory::allocator* _allocator) {
+containers::string get_current_working_path(
+    memory::allocator* _allocator, const entry::system_data*) {
   DWORD result = ::GetCurrentDirectoryW(0, NULL);
 
   if (result != 0) {

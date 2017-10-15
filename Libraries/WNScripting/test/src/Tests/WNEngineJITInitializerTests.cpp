@@ -25,7 +25,7 @@ TEST(jit_engine, creation) {
   wn::testing::allocator allocator;
   wn::scripting::type_validator validator(&allocator);
   wn::file_system::mapping_ptr mapping =
-      wn::file_system::factory(&allocator)
+      wn::file_system::factory(&allocator, wn::testing::k_system_data)
           .make_mapping(
               &allocator, wn::file_system::mapping_type::memory_backed);
 
@@ -42,14 +42,14 @@ TEST(jit_engine, basic_parsing) {
   wn::logging::static_log<> log(&logger);
 
   wn::file_system::mapping_ptr mapping =
-      wn::file_system::factory(&allocator)
+      wn::file_system::factory(&allocator, wn::testing::k_system_data)
           .make_mapping(
               &allocator, wn::file_system::mapping_type::memory_backed);
 
-  mapping->initialize_files({{"file.wns", "Void main() { return; }"},
-      {"file2.wns",
-          "Void foo() { return; } \n"
-          "Void bar() { return; }"}});
+  mapping->initialize_files(
+      {{"file.wns", "Void main() { return; }"}, {"file2.wns",
+                                                    "Void foo() { return; } \n"
+                                                    "Void bar() { return; }"}});
   wn::scripting::jit_engine jit_engine(
       &allocator, &validator, mapping.get(), log.log());
   EXPECT_EQ(wn::scripting::parse_error::ok, jit_engine.parse_file("file.wns"))
@@ -76,7 +76,7 @@ TEST(jit_engine, multiple_returns) {
   wn::scripting::type_validator validator(&allocator);
 
   wn::file_system::mapping_ptr mapping =
-      wn::file_system::factory(&allocator)
+      wn::file_system::factory(&allocator, wn::testing::k_system_data)
           .make_mapping(
               &allocator, wn::file_system::mapping_type::memory_backed);
 
@@ -97,7 +97,7 @@ TEST(jit_engine, parse_error) {
   wn::scripting::type_validator validator(&allocator);
 
   wn::file_system::mapping_ptr mapping =
-      wn::file_system::factory(&allocator)
+      wn::file_system::factory(&allocator, wn::testing::k_system_data)
           .make_mapping(
               &allocator, wn::file_system::mapping_type::memory_backed);
 
@@ -125,7 +125,7 @@ TEST_P(jit_int_params, int_return) {
 
   wn::containers::string expected(&allocator);
   wn::file_system::mapping_ptr mapping =
-      wn::file_system::factory(&allocator)
+      wn::file_system::factory(&allocator, wn::testing::k_system_data)
           .make_mapping(
               &allocator, wn::file_system::mapping_type::memory_backed);
 
@@ -148,7 +148,7 @@ TEST_P(jit_int_params, int_passthrough) {
 
   wn::containers::string expected(&allocator);
   wn::file_system::mapping_ptr mapping =
-      wn::file_system::factory(&allocator)
+      wn::file_system::factory(&allocator, wn::testing::k_system_data)
           .make_mapping(
               &allocator, wn::file_system::mapping_type::memory_backed);
 
@@ -187,7 +187,7 @@ TEST_P(jit_binary_arithmetic, simple_operations) {
   wn::containers::string expected(&allocator);
 
   wn::file_system::mapping_ptr mapping =
-      wn::file_system::factory(&allocator)
+      wn::file_system::factory(&allocator, wn::testing::k_system_data)
           .make_mapping(
               &allocator, wn::file_system::mapping_type::memory_backed);
 
@@ -225,7 +225,7 @@ TEST_P(bool_arithmetic_tests, boolean_arithmetic) {
   str += GetParam().code;
   str += "; } ";
   wn::file_system::mapping_ptr mapping =
-      wn::file_system::factory(&allocator)
+      wn::file_system::factory(&allocator, wn::testing::k_system_data)
           .make_mapping(
               &allocator, wn::file_system::mapping_type::memory_backed);
 
@@ -267,7 +267,7 @@ TEST_P(two_params_tests, int_in_out_tests) {
   wn::scripting::type_validator validator(&allocator);
   wn::containers::string str(&allocator, GetParam().code);
   wn::file_system::mapping_ptr mapping =
-      wn::file_system::factory(&allocator)
+      wn::file_system::factory(&allocator, wn::testing::k_system_data)
           .make_mapping(
               &allocator, wn::file_system::mapping_type::memory_backed);
 
@@ -280,9 +280,9 @@ TEST_P(two_params_tests, int_in_out_tests) {
   wn::scripting::script_function<int32_t, int32_t, int32_t> new_func;
   ASSERT_TRUE(jit_engine.get_function("main", new_func));
   for (auto& test_case : GetParam().cases) {
-    EXPECT_EQ(test_case.second,
-        jit_engine.invoke(
-            new_func, test_case.first.first, test_case.first.second));
+    EXPECT_EQ(
+        test_case.second, jit_engine.invoke(new_func, test_case.first.first,
+                              test_case.first.second));
   }
 }
 

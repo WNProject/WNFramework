@@ -7,16 +7,17 @@
 #include "WNFileSystem/src/WNSystemMapping.h"
 #include "WNFileSystem/src/WNSystemPaths.h"
 #include "WNFileSystem/src/WNSystemUtilities.h"
+#include "WNFileSystem/src/WNUtilities.h"
 
 namespace wn {
 namespace file_system {
 
 containers::string factory::get_executable_path() const {
-  return internal::get_executable_path(m_allocator);
+  return internal::get_executable_path(m_allocator, m_system_data);
 }
 
 containers::string factory::get_current_working_path() const {
-  return internal::get_current_working_path(m_allocator);
+  return internal::get_current_working_path(m_allocator, m_system_data);
 }
 
 mapping_ptr factory::make_mapping(
@@ -29,7 +30,8 @@ mapping_ptr factory::make_mapping(
     case mapping_type::memory_backed:
       return memory::make_unique<memory_backed_mapping>(_allocator, _allocator);
     case mapping_type::scratch_directory: {
-      containers::string path(internal::get_scratch_path(_allocator));
+      containers::string path(
+          internal::get_scratch_path(_allocator, m_system_data));
 
       if (!path.empty()) {
         return memory::make_unique<internal::system_mapping>(
@@ -39,7 +41,8 @@ mapping_ptr factory::make_mapping(
       break;
     }
     case mapping_type::executable_directory: {
-      containers::string path(internal::get_executable_path(_allocator));
+      containers::string path(
+          internal::get_executable_path(_allocator, m_system_data));
 
       if (!path.empty()) {
         return memory::make_unique<internal::system_mapping>(
@@ -49,7 +52,8 @@ mapping_ptr factory::make_mapping(
       break;
     }
     case mapping_type::current_working_directory: {
-      containers::string path(internal::get_current_working_path(_allocator));
+      containers::string path(
+          internal::get_current_working_path(_allocator, m_system_data));
 
       if (!path.empty()) {
         return memory::make_unique<internal::system_mapping>(

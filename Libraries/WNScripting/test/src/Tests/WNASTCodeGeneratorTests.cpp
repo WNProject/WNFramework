@@ -24,7 +24,7 @@ using log_buff = wn::containers::string;
 
 struct test_context {
   test_context()
-    : mapping(wn::file_system::factory(&allocator)
+    : mapping(wn::file_system::factory(&allocator, wn::testing::k_system_data)
                   .make_mapping(&allocator,
                       wn::file_system::mapping_type::memory_backed)),
       buffer(&allocator),

@@ -15,7 +15,7 @@ TEST_P(factory, make_mapping) {
   wn::testing::allocator allocator;
 
   {
-    wn::file_system::factory f(&allocator);
+    wn::file_system::factory f(&allocator, wn::testing::k_system_data);
     const wn::file_system::mapping_ptr mp =
         f.make_mapping(&allocator, GetParam());
 
@@ -41,6 +41,8 @@ TEST(factory, make_mapping_from_path) {
         ::GetTempPathA(static_cast<DWORD>(buffer.size()), buffer.data());
 
     path.assign(buffer.data(), result);
+#elif defined _WN_ANDROID
+    path = "/data/local/tmp/";
 #elif defined _WN_POSIX  // get the temp path in linux
     static const char* vars[4] = {"TMPDIR", "TMP", "TEMP", "TEMPDIR"};
 
@@ -81,7 +83,7 @@ TEST(factory, make_mapping_from_path) {
 
     ASSERT_FALSE(path.empty());
 
-    wn::file_system::factory f(&allocator);
+    wn::file_system::factory f(&allocator, wn::testing::k_system_data);
     const wn::file_system::mapping_ptr mp = f.make_mapping(&allocator, path);
 
     ASSERT_NE(mp, nullptr);

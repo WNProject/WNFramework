@@ -2,10 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNApplicationData/inc/WNApplicationData.h"
-#include "WNGraphics/test/inc/WNPixelTestFixture.h"
-
 #include "WNFileSystem/inc/WNFactory.h"
+#include "WNGraphics/test/inc/WNPixelTestFixture.h"
 #include "WNGraphics/test/inc/push_constants_test.h"
 #include "WNMultiTasking/inc/WNJobPool.h"
 #include "WNMultiTasking/inc/WNJobSignal.h"
@@ -15,7 +13,7 @@
 using push_constant_test = wn::runtime::graphics::testing::pixel_test<>;
 
 TEST_F(push_constant_test, basic) {
-  wn::file_system::factory fs_factory(&m_allocator);
+  wn::file_system::factory fs_factory(&m_allocator, wn::testing::k_system_data);
   auto files = fs_factory.make_mapping(
       &m_allocator, wn::file_system::mapping_type::memory_backed);
   files->initialize_files(push_constants_test::get_files());

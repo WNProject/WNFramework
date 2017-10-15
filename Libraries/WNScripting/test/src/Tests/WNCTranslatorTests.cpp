@@ -34,7 +34,7 @@ TEST(c_translator, simple_c_translation) {
   wn::testing::allocator allocator;
   wn::scripting::type_validator validator(&allocator);
   wn::file_system::mapping_ptr mapping =
-      wn::file_system::factory(&allocator)
+      wn::file_system::factory(&allocator, wn::testing::k_system_data)
           .make_mapping(
               &allocator, wn::file_system::mapping_type::memory_backed);
 
@@ -94,7 +94,7 @@ TEST_P(c_translator_direct_translation_test, translations) {
   wn::logging::static_log<> log(&logger);
 
   wn::file_system::mapping_ptr mapping =
-      wn::file_system::factory(&allocator)
+      wn::file_system::factory(&allocator, wn::testing::k_system_data)
           .make_mapping(
               &allocator, wn::file_system::mapping_type::memory_backed);
 
@@ -125,7 +125,7 @@ TEST_P(c_translator_function_params, single_parameter) {
                  " x) {\nreturn x;\n}\n";
 
   wn::file_system::mapping_ptr mapping =
-      wn::file_system::factory(&allocator)
+      wn::file_system::factory(&allocator, wn::testing::k_system_data)
           .make_mapping(
               &allocator, wn::file_system::mapping_type::memory_backed);
 
@@ -151,7 +151,7 @@ TEST(c_translator, multiple_c_functions) {
   wn::testing::allocator allocator;
   wn::scripting::type_validator validator(&allocator);
   wn::file_system::mapping_ptr mapping =
-      wn::file_system::factory(&allocator)
+      wn::file_system::factory(&allocator, wn::testing::k_system_data)
           .make_mapping(
               &allocator, wn::file_system::mapping_type::memory_backed);
 
@@ -180,7 +180,7 @@ TEST(c_translator, multiple_returns) {
   wn::scripting::type_validator validator(&allocator);
 
   wn::file_system::mapping_ptr mapping =
-      wn::file_system::factory(&allocator)
+      wn::file_system::factory(&allocator, wn::testing::k_system_data)
           .make_mapping(
               &allocator, wn::file_system::mapping_type::memory_backed);
 
@@ -214,7 +214,7 @@ TEST_P(c_int_params, int_return) {
   expected += GetParam();
   expected += ";\n}\n";
   wn::file_system::mapping_ptr mapping =
-      wn::file_system::factory(&allocator)
+      wn::file_system::factory(&allocator, wn::testing::k_system_data)
           .make_mapping(
               &allocator, wn::file_system::mapping_type::memory_backed);
 
@@ -253,7 +253,7 @@ TEST_P(c_arith_params, binary_arithmetic) {
   expected += GetParam().dest;
   expected += ";\n}\n";
   wn::file_system::mapping_ptr mapping =
-      wn::file_system::factory(&allocator)
+      wn::file_system::factory(&allocator, wn::testing::k_system_data)
           .make_mapping(
               &allocator, wn::file_system::mapping_type::memory_backed);
 
@@ -291,7 +291,7 @@ TEST_P(c_bool_params, boolean_arithmetic) {
   expected += GetParam().dest;
   expected += ";\n}\n";
   wn::file_system::mapping_ptr mapping =
-      wn::file_system::factory(&allocator)
+      wn::file_system::factory(&allocator, wn::testing::k_system_data)
           .make_mapping(
               &allocator, wn::file_system::mapping_type::memory_backed);
 

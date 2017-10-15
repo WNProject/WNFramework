@@ -190,12 +190,12 @@ int32_t wn_main(const ::wn::entry::system_data* _system_data) {
   static logging::static_log<logging::log_level::max, 1024 * 1024> log(
       &logger, verbose ? logging::log_level::max : logging::log_level::error);
 
-  wn::file_system::factory fs_factory(&allocator);
+  wn::file_system::factory fs_factory(&allocator, _system_data);
 
   file_system::mapping_ptr files = fs_factory.make_mapping(&allocator,
       has_data_dir ? data_dir : fs_factory.get_current_working_path());
   wn::file_system::mapping_ptr output_mapping =
-      wn::file_system::factory(&allocator)
+      wn::file_system::factory(&allocator, _system_data)
           .make_mapping(
               &allocator, wn::file_system::mapping_type::memory_backed);
   output_mapping->create_directory("/");

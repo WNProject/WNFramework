@@ -13,7 +13,7 @@ TEST(scripting_engine_factory, creation) {
   wn::testing::allocator allocator;
   wn::scripting::type_validator validator(&allocator);
   wn::file_system::mapping_ptr mapping =
-      wn::file_system::factory(&allocator)
+      wn::file_system::factory(&allocator, wn::testing::k_system_data)
           .make_mapping(
               &allocator, wn::file_system::mapping_type::memory_backed);
   wn::memory::unique_ptr<wn::scripting::engine> engine = factory.get_engine(

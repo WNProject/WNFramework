@@ -41,5 +41,6 @@ macro(wn_create_application_tests_from_list)
   )
 endmacro()
 
+wn_add_subdirectory(WNFileSystem)
 wn_add_subdirectory(WNGraphics)
 wn_add_subdirectory(WNWindow)
