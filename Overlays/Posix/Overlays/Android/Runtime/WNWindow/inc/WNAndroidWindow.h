@@ -8,7 +8,9 @@
 #define __WN_RUNTIME_WINDOW_XCB_WINDOW_H__
 
 #include "WNLogging/inc/WNLog.h"
+#include "WNMultiTasking/inc/WNJobPool.h"
 #include "WNMultiTasking/inc/WNJobSignal.h"
+#include "WNMultiTasking/inc/WNThread.h"
 #include "WNWindow/inc/WNWindow.h"
 
 #include <android/native_window.h>
@@ -29,7 +31,7 @@ struct application_data;
 namespace window {
 
 struct android_native_data {
-  ANativeWindow* window;
+  ANativeWindow* window = nullptr;
 };
 
 class android_window : public window {
@@ -41,11 +43,21 @@ public:
     : m_log(_log),
       m_job_pool(_job_pool),
       m_app_data(_data),
+      m_destroy(false),
+      m_valid(false),
       m_x(_x),
       m_y(_y),
       m_width(_width),
-      m_height(_height) {}
-  ~android_window() {}
+      m_height(_height),
+      m_creation_signal(_creation_signal),
+      m_destroy_signal(_job_pool, 0) {
+    m_job_pool->add_job(&m_destroy_signal,
+        &android_window::wait_for_window_loop, this, nullptr);
+  }
+  ~android_window() {
+    m_destroy.store(true);
+    m_destroy_signal.wait_until(1);
+  }
 
   const void* get_native_handle() const override {
     return reinterpret_cast<const void*>(&m_data);
@@ -53,7 +65,7 @@ public:
 
   window_error initialize() override;
   bool is_valid() const override {
-    return m_data.window != 0;
+    return m_data.window != nullptr;
   }
 
   window_type type() const override {
@@ -68,16 +80,21 @@ public:
     return m_height;
   }
 
+  void wait_for_window_loop(void* _unused);
+
 private:
   logging::log* m_log;
   multi_tasking::job_pool* m_job_pool;
   const application::application_data* m_app_data;
+  std::atomic<bool> m_destroy;
+  bool m_valid;
   uint32_t m_x;
   uint32_t m_y;
   uint32_t m_width;
   uint32_t m_height;
 
   multi_tasking::job_signal* m_creation_signal;
+  multi_tasking::job_signal m_destroy_signal;
 
   android_native_data m_data;
 };

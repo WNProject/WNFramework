@@ -8,13 +8,14 @@
 #include "WNCore/inc/WNTypes.h"
 
 #include <android_native_app_glue.h>
+#include <atomic>
 
 namespace wn {
 namespace utilities {
 
 extern android_app* gAndroidApp;
 extern ALooper* gMainLooper;
-
+extern std::atomic<bool> gWindowInitialized;
 }  // namespace utilities
 }  // namespace wn
 

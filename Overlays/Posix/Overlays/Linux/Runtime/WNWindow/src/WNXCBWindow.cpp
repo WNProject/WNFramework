@@ -31,7 +31,10 @@ void xcb_window::dispatch_loop(void*) {
     if (m_screen == nullptr) {
       xcb_disconnect(m_data.connection);
       m_data.connection = nullptr;
-      m_creation_signal->increment(1);
+      if (m_creation_signal) {
+        m_creation_signal->increment(1);
+      }
+
       m_create_signal.increment(1);
       return;
     }

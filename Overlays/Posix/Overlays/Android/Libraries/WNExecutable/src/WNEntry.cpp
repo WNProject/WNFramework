@@ -79,8 +79,8 @@ void* main_proxy_thread(void* _package_name) {
     executable = package_name;
   }
 
-  wn::entry::host_specific_data host_data{
-      wn::utilities::gAndroidApp, package_name};
+  wn::entry::host_specific_data host_data{wn::utilities::gAndroidApp,
+      package_name, &wn::utilities::gWindowInitialized};
   wn::entry::system_data system_data{&host_data, executable, 1, &package_name};
 
   const int32_t retVal = wn_main(&system_data);
@@ -116,10 +116,7 @@ int main(int _argc, char* _argv[]) {
     executable = full_path;
   }
 
-  wn::entry::host_specific_data host_data{
-      nullptr,
-      executable,
-  };
+  wn::entry::host_specific_data host_data{nullptr, executable, nullptr};
 
   wn::entry::system_data system_data{&host_data, full_path, _argc, _argv};
   wn::utilities::gAndroidLogTag = _argv[0];

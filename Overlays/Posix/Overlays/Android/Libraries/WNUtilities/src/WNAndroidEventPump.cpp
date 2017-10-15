@@ -1,4 +1,5 @@
 #include "WNUtilities/inc/WNAndroidEventPump.h"
+#include "WNUtilities/inc/WNAppData.h"
 
 namespace wn {
 namespace utilities {
@@ -65,6 +66,7 @@ void WNAndroidEventPump::HandleWindowCommand(android_app* app, int32_t cmd) {
   switch (cmd) {
     case APP_CMD_INIT_WINDOW:
       pump->mDisplayActive = true;
+      wn::utilities::gWindowInitialized = true;
       pump->FireCallback(eDisplayCreated, 0, app);
       break;
     case APP_CMD_TERM_WINDOW:

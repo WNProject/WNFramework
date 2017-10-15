@@ -26,8 +26,17 @@ struct surface_helper {
 
   VkResult create_surface(
       const runtime::window::window* window, VkSurfaceKHR* surface) const {
-    // TODO(awoloszyn): Implement this for Android.
-    return VK_SUCCESS;
+    const runtime::window::android_native_data* data =
+        reinterpret_cast<const runtime::window::android_native_data*>(
+            window->get_native_handle());
+    VkAndroidSurfaceCreateInfoKHR create_info = {
+        VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR,  // sType
+        nullptr,                                            // pNext
+        0,                                                  // flags
+        data->window,                                       // window
+    };
+    return vkCreateAndroidSurfaceKHR(
+        m_instance, &create_info, nullptr, surface);
   }
 
   void destroy_surface(VkSurfaceKHR surface) {

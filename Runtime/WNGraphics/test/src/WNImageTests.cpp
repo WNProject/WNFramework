@@ -2,7 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNGraphics/inc/WNImage.h"
 #include "WNGraphics/inc/WNArena.h"
 #include "WNGraphics/inc/WNArenaProperties.h"
 #include "WNGraphics/inc/WNBuffer.h"
@@ -11,6 +10,7 @@
 #include "WNGraphics/inc/WNDevice.h"
 #include "WNGraphics/inc/WNFactory.h"
 #include "WNGraphics/inc/WNFence.h"
+#include "WNGraphics/inc/WNImage.h"
 #include "WNGraphics/inc/WNQueue.h"
 #include "WNGraphics/test/inc/WNTestFixture.h"
 
@@ -39,25 +39,25 @@ TEST_P(image_transfer_tests, many_sizes) {
       }
     }
 
-    wn::runtime::graphics::buffer src_buffer = device->create_buffer(
-        buffer_size,
-        static_cast<wn::runtime::graphics::resource_states>(
-            static_cast<uint32_t>(
-                wn::runtime::graphics::resource_state::host_read) |
-            static_cast<uint32_t>(
-                wn::runtime::graphics::resource_state::host_write) |
-            static_cast<uint32_t>(
-                wn::runtime::graphics::resource_state::copy_source)));
+    wn::runtime::graphics::buffer src_buffer =
+        device->create_buffer(buffer_size,
+            static_cast<wn::runtime::graphics::resource_states>(
+                static_cast<uint32_t>(
+                    wn::runtime::graphics::resource_state::host_read) |
+                static_cast<uint32_t>(
+                    wn::runtime::graphics::resource_state::host_write) |
+                static_cast<uint32_t>(
+                    wn::runtime::graphics::resource_state::copy_source)));
 
-    wn::runtime::graphics::buffer dst_buffer = device->create_buffer(
-        buffer_size,
-        static_cast<wn::runtime::graphics::resource_states>(
-            static_cast<uint32_t>(
-                wn::runtime::graphics::resource_state::host_read) |
-            static_cast<uint32_t>(
-                wn::runtime::graphics::resource_state::host_write) |
-            static_cast<uint32_t>(
-                wn::runtime::graphics::resource_state::copy_dest)));
+    wn::runtime::graphics::buffer dst_buffer =
+        device->create_buffer(buffer_size,
+            static_cast<wn::runtime::graphics::resource_states>(
+                static_cast<uint32_t>(
+                    wn::runtime::graphics::resource_state::host_read) |
+                static_cast<uint32_t>(
+                    wn::runtime::graphics::resource_state::host_write) |
+                static_cast<uint32_t>(
+                    wn::runtime::graphics::resource_state::copy_dest)));
 
     wn::runtime::graphics::buffer_memory_requirements src_reqs =
         src_buffer.get_memory_requirements();
@@ -80,8 +80,7 @@ TEST_P(image_transfer_tests, many_sizes) {
     wn::runtime::graphics::clear_value value{};
 
     wn::runtime::graphics::image image = device->create_image(
-        wn::runtime::graphics::image_create_info{
-            GetParam(), GetParam(),
+        wn::runtime::graphics::image_create_info{GetParam(), GetParam(),
             wn::runtime::graphics::data_format::r8g8b8a8_unorm,
             static_cast<wn::runtime::graphics::resource_states>(
                 static_cast<uint32_t>(
@@ -151,18 +150,28 @@ TEST_P(image_transfer_tests, many_sizes) {
 
     uint8_t* dst_memory = static_cast<uint8_t*>(dst_data);
 
+    uint32_t num_failed_channels = 0;
     for (size_t y = 0; y < GetParam(); ++y) {
       for (size_t x = 0; x < GetParam(); ++x) {
-        ASSERT_EQ(dst_memory[y * resource_info.row_pitch_in_bytes + 4 * x],
-            (x + y) % 0xFF);
-        ASSERT_EQ(dst_memory[y * resource_info.row_pitch_in_bytes + 4 * x + 1],
-            y & 0xFF);
-        ASSERT_EQ(
-            dst_memory[y * resource_info.row_pitch_in_bytes + 4 * x + 2], 0x00);
-        ASSERT_EQ(
-            dst_memory[y * resource_info.row_pitch_in_bytes + 4 * x + 3], 0xFF);
+        if (dst_memory[y * resource_info.row_pitch_in_bytes + 4 * x] !=
+            (x + y) % 0xFF) {
+          num_failed_channels += 1;
+        }
+        if (dst_memory[y * resource_info.row_pitch_in_bytes + 4 * x + 1] !=
+            (y & 0xFF)) {
+          num_failed_channels += 1;
+        }
+        if (dst_memory[y * resource_info.row_pitch_in_bytes + 4 * x + 2] !=
+            0x00) {
+          num_failed_channels += 1;
+        }
+        if (dst_memory[y * resource_info.row_pitch_in_bytes + 4 * x + 3] !=
+            0xFF) {
+          num_failed_channels += 1;
+        }
       }
     }
+    ASSERT_EQ(0, num_failed_channels);
   }
 
   m_log->flush();
@@ -199,25 +208,25 @@ TEST_P(image_transfer_with_offset_tests, several_offsets) {
       }
     }
 
-    wn::runtime::graphics::buffer src_buffer = device->create_buffer(
-        buffer_size,
-        static_cast<wn::runtime::graphics::resource_states>(
-            static_cast<uint32_t>(
-                wn::runtime::graphics::resource_state::host_read) |
-            static_cast<uint32_t>(
-                wn::runtime::graphics::resource_state::host_write) |
-            static_cast<uint32_t>(
-                wn::runtime::graphics::resource_state::copy_source)));
+    wn::runtime::graphics::buffer src_buffer =
+        device->create_buffer(buffer_size,
+            static_cast<wn::runtime::graphics::resource_states>(
+                static_cast<uint32_t>(
+                    wn::runtime::graphics::resource_state::host_read) |
+                static_cast<uint32_t>(
+                    wn::runtime::graphics::resource_state::host_write) |
+                static_cast<uint32_t>(
+                    wn::runtime::graphics::resource_state::copy_source)));
 
-    wn::runtime::graphics::buffer dst_buffer = device->create_buffer(
-        buffer_size,
-        static_cast<wn::runtime::graphics::resource_states>(
-            static_cast<uint32_t>(
-                wn::runtime::graphics::resource_state::host_read) |
-            static_cast<uint32_t>(
-                wn::runtime::graphics::resource_state::host_write) |
-            static_cast<uint32_t>(
-                wn::runtime::graphics::resource_state::copy_dest)));
+    wn::runtime::graphics::buffer dst_buffer =
+        device->create_buffer(buffer_size,
+            static_cast<wn::runtime::graphics::resource_states>(
+                static_cast<uint32_t>(
+                    wn::runtime::graphics::resource_state::host_read) |
+                static_cast<uint32_t>(
+                    wn::runtime::graphics::resource_state::host_write) |
+                static_cast<uint32_t>(
+                    wn::runtime::graphics::resource_state::copy_dest)));
 
     wn::runtime::graphics::buffer_memory_requirements src_reqs =
         src_buffer.get_memory_requirements();
@@ -240,8 +249,8 @@ TEST_P(image_transfer_with_offset_tests, several_offsets) {
     wn::runtime::graphics::clear_value value{};
 
     wn::runtime::graphics::image image = device->create_image(
-        wn::runtime::graphics::image_create_info{
-            std::get<1>(GetParam()), std::get<1>(GetParam()),
+        wn::runtime::graphics::image_create_info{std::get<1>(GetParam()),
+            std::get<1>(GetParam()),
             wn::runtime::graphics::data_format::r8g8b8a8_unorm,
             static_cast<wn::runtime::graphics::resource_states>(
                 static_cast<uint32_t>(
@@ -337,5 +346,5 @@ TEST_P(image_transfer_with_offset_tests, several_offsets) {
 }
 
 INSTANTIATE_TEST_CASE_P(large_values, image_transfer_with_offset_tests,
-    ::testing::Combine(::testing::Values(1, 7, 10),
-                            ::testing::Values(10, 37, 128)));
+    ::testing::Combine(
+        ::testing::Values(1, 7, 10), ::testing::Values(10, 37, 128)));

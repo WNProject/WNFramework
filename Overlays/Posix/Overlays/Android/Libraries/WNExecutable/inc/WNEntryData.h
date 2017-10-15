@@ -3,6 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include <android_native_app_glue.h>
+#include <atomic>
 
 #pragma once
 #ifndef __WN_ENTRYPOINT_WN_ENTRY_DATA_H__
@@ -14,6 +15,7 @@ namespace entry {
 struct host_specific_data {
   struct android_app* android_app;
   const char* package_name;
+  std::atomic<bool>* window_initialized;
 };
 
 }  // namespace entry
