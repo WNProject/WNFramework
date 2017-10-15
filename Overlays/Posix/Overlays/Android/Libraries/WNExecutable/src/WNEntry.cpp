@@ -12,14 +12,14 @@
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
 #include <android/api-level.h>
 #include <android/log.h>
 #include <android_native_app_glue.h>
 #include <sys/prctl.h>
 #include <unistd.h>
 
-extern int32_t wn_main(
-    const wn::entry::system_data* data, int32_t _argc, char* _argv[]);
+extern int32_t wn_main(const wn::entry::system_data* data);
 
 namespace wn {
 namespace entry {
@@ -57,7 +57,7 @@ char* GetPackageName(struct android_app* state) {
   env->ReleaseStringUTFChars((jstring)result, str);
   activity->vm->DetachCurrentThread();
 
-  return (tempstr);
+  return tempstr;
 }
 
 void* main_proxy_thread(void* _package_name) {
@@ -66,21 +66,24 @@ void* main_proxy_thread(void* _package_name) {
   char* package_name = static_cast<char*>(_package_name);
   char* executable = nullptr;
   size_t path_length = strlen(package_name);
+
   for (size_t i = path_length; i != 0; --i) {
     if (package_name[i - 1] == '.') {
       executable = package_name + i;
+
       break;
     }
   }
+
   if (executable == nullptr) {
     executable = package_name;
   }
 
   wn::entry::host_specific_data host_data{
       wn::utilities::gAndroidApp, package_name};
-  wn::entry::system_data system_data{&host_data, executable};
+  wn::entry::system_data system_data{&host_data, executable, 1, &package_name};
 
-  int32_t retVal = wn_main(&system_data, 1, &package_name);
+  const int32_t retVal = wn_main(&system_data);
 
   __android_log_print(
       ANDROID_LOG_INFO, wn::utilities::gAndroidLogTag, "--FINISHED");
@@ -89,7 +92,7 @@ void* main_proxy_thread(void* _package_name) {
 
   wn::utilities::WNAndroidEventPump::GetInstance().KillMessagePump();
 
-  return (nullptr);
+  return nullptr;
 }
 
 int main(int _argc, char* _argv[]) {
@@ -114,13 +117,14 @@ int main(int _argc, char* _argv[]) {
   }
 
   wn::entry::host_specific_data host_data{
-      nullptr, executable,
+      nullptr,
+      executable,
   };
 
-  wn::entry::system_data system_data{&host_data, full_path};
-
+  wn::entry::system_data system_data{&host_data, full_path, _argc, _argv};
   wn::utilities::gAndroidLogTag = _argv[0];
-  return wn_main(&system_data, _argc, _argv);
+
+  return wn_main(&system_data);
 }
 
 void android_main(struct android_app* state) {
@@ -135,7 +139,6 @@ void android_main(struct android_app* state) {
   __android_log_print(ANDROID_LOG_INFO, packageName, "--STARTED");
 
 #if defined _WN_DEBUG
-
   FILE* debugFile = fopen("/sdcard/wait-for-debugger.txt", "r");
 
   if (debugFile) {

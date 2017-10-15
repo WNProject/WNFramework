@@ -5,7 +5,7 @@
 #ifndef __WN_ENTRYPOINT_ENTRY_H__
 #define __WN_ENTRYPOINT_ENTRY_H__
 
-#include "WNCore/inc/WNBase.h"
+#include "WNCore/inc/WNTypes.h"
 
 namespace wn {
 namespace entry {
@@ -34,6 +34,8 @@ struct host_specific_data;
 struct system_data WN_FINAL {
   host_specific_data* host_data;
   const char* program_name;
+  int32_t argc;
+  char** argv;
 };
 
 }  // namespace entry

@@ -28,9 +28,9 @@ struct foo {
 // an executable rather than a shared object library.
 static foo __attribute__((used)) my_foo;
 
-}  // namespace wn
-}  // namespace runtime
-}  // namespace application
 }  // namespace internal
+}  // namespace application
+}  // namespace runtime
+}  // namespace wn
 
 #endif  // __WN_RUNTIME_APPLICATION_APPLICATION_HELPER_H__

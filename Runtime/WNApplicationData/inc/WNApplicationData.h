@@ -12,8 +12,11 @@
 
 namespace wn {
 namespace entry {
+
 struct system_data;
+
 }  // namespace entry
+
 namespace memory {
 
 class allocator;
@@ -34,8 +37,6 @@ struct application_data WN_FINAL {
   memory::allocator* system_allocator;
   logging::log* default_log;
   multi_tasking::job_pool* default_job_pool;
-  int32_t argc;
-  char** argv;
   // TODO: Add parsed arguments here
 };
 

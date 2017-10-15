@@ -25,9 +25,9 @@ const application::application_data* k_application_data = nullptr;
 int32_t wn_application_main(
     const wn::runtime::application::application_data* _data) {
   wn::runtime::testing::k_application_data = _data;
-  int32_t argc = _data->argc;
 
-  ::testing::InitGoogleTest(&argc, _data->argv);
+  ::testing::InitGoogleTest(const_cast<int32_t*>(&_data->system_data->argc),
+      _data->system_data->argv);
   wn::runtime::testing::init_test_framework();
 
   return RUN_ALL_TESTS();

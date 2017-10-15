@@ -15,10 +15,10 @@ namespace internal {
 
 void test_dummy() {}
 
-}  // namespace wn
-}  // namespace runtime
-}  // namespace application
 }  // namespace internal
+}  // namespace application
+}  // namespace runtime
+}  // namespace wn
 
 extern int32_t wn_application_main(
     const wn::runtime::application::application_data* _application_data);
@@ -34,8 +34,7 @@ struct main_application {
   }
 };
 
-int32_t wn_main(
-    const wn::entry::system_data* _data, int32_t _argc, char* _argv[]) {
+int32_t wn_main(const wn::entry::system_data* _data) {
   wn::entry::wn_dummy();
   wn::memory::basic_allocator root_allocator;
   wn::logging::console_logger<wn::logging::console_location::std_out>
@@ -47,9 +46,7 @@ int32_t wn_main(
           _data,            // system_data
           &root_allocator,  // system_allocator
           log.log(),        // system_logger
-          nullptr,          // default job pool (set below)
-          _argc,            // argument count
-          _argv             // arguments
+          nullptr           // default job pool (set below)
       }};
 
   {

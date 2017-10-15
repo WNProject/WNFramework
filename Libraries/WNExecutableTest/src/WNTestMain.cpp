@@ -10,19 +10,23 @@ namespace wn {
 namespace testing {
 
 #if defined _WN_ANDROID || defined _WN_LINUX
+
 void test_dummy() {}
+
 #endif  //_WN_ANDROID || _WN_LINUX
-int32_t k_arg_c = 0;
-char** k_arg_v = nullptr;
+
+const entry::system_data* k_system_data = nullptr;
+
 }  // namespace testing
 }  // namespace wn
 
-int32_t wn_main(const wn::entry::system_data*, int32_t _argc, char* _argv[]) {
+int32_t wn_main(const wn::entry::system_data* _system_data) {
   wn::entry::wn_dummy();
-  ::testing::InitGoogleTest(&_argc, _argv);
-  wn::testing::k_arg_c = _argc;
-  wn::testing::k_arg_v = _argv;
 
+  wn::testing::k_system_data = _system_data;
+
+  ::testing::InitGoogleTest(
+      const_cast<int32_t*>(&_system_data->argc), _system_data->argv);
   wn::testing::init_test_framework();
 
   return RUN_ALL_TESTS();

@@ -87,8 +87,9 @@ struct fuzzy_comparator {
 using default_fuzzy_comparator = fuzzy_comparator<>;
 
 inline bool should_recreate_image() {
-  for (int32_t i = 0; i < wn::testing::k_arg_c; ++i) {
-    if (strcmp(wn::testing::k_arg_v[i], "-regenerate-images") == 0) {
+  for (int32_t i = 0; i < wn::testing::k_system_data->argc; ++i) {
+    if (strcmp(wn::testing::k_system_data->argv[i], "-regenerate-images") ==
+        0) {
       return true;
     }
   }
@@ -100,11 +101,11 @@ inline std::string get_image_filename() {
       ::testing::UnitTest::GetInstance()->current_test_info();
   std::string file_path;
   bool set_path = false;
-  for (int32_t i = 0; i < wn::testing::k_arg_c; ++i) {
-    if (strcmp(wn::testing::k_arg_v[i], "-image_path") == 0) {
+  for (int32_t i = 0; i < wn::testing::k_system_data->argc; ++i) {
+    if (strcmp(wn::testing::k_system_data->argv[i], "-image_path") == 0) {
       set_path = true;
     } else if (set_path == true) {
-      file_path += wn::testing::k_arg_v[i];
+      file_path += wn::testing::k_system_data->argv[i];
     }
   }
   if (file_path.empty()) {

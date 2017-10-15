@@ -7,6 +7,7 @@
 #ifndef __WN_LIBRARY_TEST_TEST_HARNESS_H__
 #define __WN_LIBRARY_TEST_TEST_HARNESS_H__
 
+#include "WNExecutable/inc/WNEntry.h"
 #include "WNTestUtilities/inc/WNTestHarness.h"
 
 namespace wn {
@@ -30,10 +31,9 @@ struct foo {
 static foo __attribute__((used)) my_foo;
 #endif  //_WN_ANDROID || _WN_LINUX
 
-void init_test_framework();
+extern const entry::system_data* k_system_data;
 
-extern int32_t k_arg_c;
-extern char** k_arg_v;
+void init_test_framework();
 
 }  // namespace testing
 }  // namespace wn
