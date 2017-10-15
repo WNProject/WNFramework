@@ -300,9 +300,8 @@ void vulkan_device::destroy_fence(fence* _fence) {
 
 void vulkan_device::wait_fence(const fence* _fence) const {
   const VkFence& data = get_data(_fence);
-  while (VK_TIMEOUT ==
-         vkWaitForFences(m_device, 1, &data, false, static_cast<uint32_t>(-1)))
-    ;
+  vkWaitForFences(
+      m_device, 1, &data, false, static_cast<uint64_t>(0xFFFFFFFFFFFFFFFF));
 }
 
 void vulkan_device::reset_fence(fence* _fence) {

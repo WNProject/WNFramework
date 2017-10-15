@@ -32,7 +32,22 @@ vulkan_queue::~vulkan_queue() {
 
 void vulkan_queue::enqueue_fence(fence& _fence) {
   ::VkFence& fence = get_data(&_fence);
-  m_queue_context->vkQueueSubmit(m_queue, 0, 0, fence);
+  // This is here because there is a horrible bug in the
+  // the Samsung driver. (This was found on the S6).
+  // If we do not have a SubmitInfo, the fence is immediately
+  // signaled, and waiting does not occur.
+  const VkSubmitInfo submit_info = {
+      VK_STRUCTURE_TYPE_SUBMIT_INFO,  // sType
+      nullptr,                        // pNext
+      0,                              // waitSemaphoreCount
+      nullptr,                        // pWaitSemaphores
+      nullptr,                        // pWaitDstTageMask
+      0,                              // commandBufferCount
+      nullptr,                        // pCoommandBuffers
+      0,                              // signalSemaphoreCount
+      nullptr,                        // pSignalSemaphores
+  };
+  m_queue_context->vkQueueSubmit(m_queue, 1, &submit_info, fence);
 }
 
 void vulkan_queue::enqueue_command_list(command_list* _command) {
