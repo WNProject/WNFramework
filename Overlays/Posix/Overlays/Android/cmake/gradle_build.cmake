@@ -59,7 +59,10 @@ function(add_application name)
     gradle/wrapper/gradle-wrapper.jar
     gradle/wrapper/gradle-wrapper.properties
   )
-
+  set(ANDROID_RUNNER ${WNFramework_SOURCE_DIR}/Overlays/Posix/Overlays/Android/cmake/android_helpers/android_runner.py)
+  set(WN_ACTIVITY_NAME ${APPLICATION_NAME})
+  set(WN_APK_LOCATION ${WNFramework_BINARY_DIR}/apps/${name}-debug.apk)
+  set(WN_PACKAGE ${WN_PACKAGE_NAME}.${WN_ACTIVITY_NAME})
   foreach(config ${FILES_TO_CONFIGURE})
     configure_file(
       ${WNFramework_SOURCE_DIR}/Overlays/Posix/Overlays/Android/cmake/android_helpers/gradle/${config}.in
@@ -73,6 +76,8 @@ function(add_application name)
       COPYONLY)
   endforeach()
 
+  configure_file(${WNFramework_SOURCE_DIR}/Overlays/Posix/Overlays/Android/cmake/android_helpers/quick_run.py.in
+                 ${WNFramework_BINARY_DIR}/apps/${name}.py)
   set(LIBS)
   foreach(ABI ${WN_SANITIZED_ABIS})
     if(NOT EXISTS ${WNFramework_BINARY_DIR}/${ABI}/lib/stripped/lib${name}.so)

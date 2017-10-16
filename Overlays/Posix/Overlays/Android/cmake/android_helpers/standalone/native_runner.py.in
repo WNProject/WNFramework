@@ -8,62 +8,76 @@ import subprocess
 import sys
 import time
 
+
 def file_with_extension(_file):
-  if(sys.platform.startswith('win32')):
-    return _file + '.exe'
-  return _file
+    if(sys.platform.startswith('win32')):
+        return _file + '.exe'
+    return _file
+
 
 def run():
-    sdk_dir='${WN_ANDROID_SDK}'
+    sdk_dir = '${WN_ANDROID_SDK}'
 
     parser = argparse.ArgumentParser(
-                prog='${target}.py',
-                description='Run android program')
+        prog='${name}.py',
+        description='Run android program')
     parser.add_argument('--run', action='store_true',
-        help='Default: Run the program')
+                        help='Default: Run the program')
     parser.add_argument('--remove', action='store_true',
-        help='Remove the program once run')
+                        help='Remove the program once run')
     parser.add_argument('--install', action='store_true',
-            help='Install .apk')
+                        help='Install .apk')
+    parser.add_argument('--stripped', action='store_true',
+                        help='Use stripped executables')
+    parser.add_argument('--binary-dir',
+                        help='Location of the binaries')
 
     args = parser.parse_args(sys.argv[1:])
+    if not args.binary_dir:
+        args.binary_dir = ""
+    else:
+        args.binary_dir = args.binary_dir + '/'
 
     adb_command = os.path.join(sdk_dir, 'platform-tools',
                                file_with_extension('adb'))
     local_path = os.path.join(os.path.realpath(__file__),
-                              '${target}')
+                              '${name}')
 
     output_path = '/data/local/tmp/output.' + str(os.getpid())
     retval = 0
 
     run = not args.install or args.run
     if args.install:
-      run_args=[adb_command, 'push',
-                '${target}', '/data/local/tmp']
-      if subprocess.call(run_args) != 0:
-        return -1
+        app_name = args.binary_dir + '${name}'
+        if args.stripped:
+            app_name = args.binary_dir + "stripped/${name}"
+        run_args = [adb_command, 'push',
+                    app_name, '/data/local/tmp']
+        if subprocess.call(run_args) != 0:
+            return -1
 
-      run_args=[adb_command, 'shell', 'chmod', '+x',
-                '/data/local/tmp/${target}']
-      if subprocess.call(run_args) != 0:
-        return -1
+        run_args = [adb_command, 'shell', 'chmod', '+x',
+                    '/data/local/tmp/${name}']
+        if subprocess.call(run_args) != 0:
+            return -1
 
     if args.run or run:
-        run_args=[adb_command, 'shell', '/data/local/tmp/${target}; ' +
-                  'echo $? > %s' % output_path]
+        run_args = [adb_command, 'shell', '/data/local/tmp/${name}; ' +
+                    'echo $? > %s' % output_path]
         subprocess.call(run_args)
-        run_args=[adb_command, 'shell', 'cat', output_path]
+        run_args = [adb_command, 'shell', 'cat', output_path]
         err = subprocess.check_output(run_args)
         retval = int(err.strip())
-        run_args=[adb_command, 'shell', 'rm', output_path]
+        run_args = [adb_command, 'shell', 'rm', output_path]
         subprocess.call(run_args)
 
     if args.remove:
-      run_args=[adb_command, 'shell', 'rm', '/data/local/tmp/${target}']
-      if subprocess.call(run_args) != 0:
-        return -1
+        run_args = [adb_command, 'shell', 'rm', '/data/local/tmp/${name}']
+        if subprocess.call(run_args) != 0:
+            return -1
 
     return retval
+
 
 if __name__ == '__main__':
     sys.exit(run())

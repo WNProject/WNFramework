@@ -1,4 +1,10 @@
 
 macro(overload_create_test)
+if (NOT WN_ANDROID_WRAPPER)
   wn_create_test(${ARGN})
+else()
+  foreach(BUILD_ABI ${WN_SANITIZED_ABIS})
+    wn_create_test(${ARGN} ABI ${BUILD_ABI})
+  endforeach()
+endif()
 endmacro()

@@ -46,4 +46,4 @@ set(WN_FORCE_SYSTEM "Android")
 
 set(WN_DISABLE_CXX ON)
 
-set(WN_PACKAGE_NAME "wn.project")
+set(WN_PACKAGE_NAME "org.wnproject")

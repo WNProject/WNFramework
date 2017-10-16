@@ -69,7 +69,11 @@ function(overload_add_executable name)
     if (PARSED_ARGS_LIBS)
       target_link_libraries(${name} ${PARSED_ARGS_LIBS})
     endif()
-    
+
+    configure_file(
+      ${WNFramework_SOURCE_DIR}/Overlays/Posix/Overlays/Android/cmake/android_helpers/standalone/native_runner.py.in
+                 ${WNFramework_BINARY_DIR}/bin/${name}.py)
+
     if (PARSED_ARGS_INCLUDES)
       target_include_directories(${name} PUBLIC ${PARSED_ARGS_INCLUDES})
     endif()

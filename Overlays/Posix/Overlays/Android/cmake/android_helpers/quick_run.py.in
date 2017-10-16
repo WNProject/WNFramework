@@ -40,7 +40,7 @@ def run():
         if args.delay:
             time.sleep(args.delay)
         run_args = [sys.executable, runner, 'uninstall',
-                    "${WN_PACKAGE_NAME}", '--sdk', sdk_dir]
+                    "${WN_PACKAGE}", '--sdk', sdk_dir]
         subprocess.call(run_args)
         run_args = [sys.executable, runner, 'install',
                     "${WN_APK_LOCATION}", '--sdk', sdk_dir]
@@ -51,7 +51,7 @@ def run():
     if args.run or run:
         if args.delay:
             time.sleep(args.delay)
-        run_args = [sys.executable, runner, 'run', "${WN_PACKAGE_NAME}", "${WN_ACTIVITY_NAME}",
+        run_args = [sys.executable, runner, 'run', "${WN_PACKAGE}", "android.app.NativeActivity",
                     '--ndk_dir', ndk_dir, '--sdk', sdk_dir, '--apk_build_dir',
                     "\"${WN_TARGET_DIR}\"", '--target_arch=${ANDROID_ABI}']
         if args.debug:
@@ -67,7 +67,7 @@ def run():
         if args.delay:
             time.sleep(args.delay)
         run_args = [sys.executable, runner, 'uninstall',
-                    "${WN_PACKAGE_NAME}", '--sdk', sdk_dir]
+                    "${WN_PACKAGE}", '--sdk', sdk_dir]
         return(subprocess.call(run_args))
 
 

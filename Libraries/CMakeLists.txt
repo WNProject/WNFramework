@@ -1,3 +1,4 @@
+include(test_helper.cmake)
 include_directories(${WNFramework_SOURCE_DIR}/Libraries)
 include_directories(${WNFramework_BINARY_DIR}/Libraries)
 
@@ -25,7 +26,7 @@ macro(wn_create_executable_tests_from_list)
   wn_create_tests_from_list_internal(
     ${ST}
     TEST_WRAPPER
-      ${WNFramework_SOURCE_DIR}/Libraries/cmake/executable_test_wrapper.cmake
+      ${WNExecutableTestWrapper}
     TEST_PREFIX ${PARSED_ARGS_TEST_PREFIX}
     SOURCE_DIR ${PARSED_ARGS_SOURCE_DIR}
     SOURCES ${PARSED_ARGS_SOURCES}

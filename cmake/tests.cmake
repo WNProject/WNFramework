@@ -100,20 +100,23 @@ macro(wn_create_test)
   endif()
 
   if(NOT PARSED_ARGS_TEST_WRAPPER)
-    message(ERROR "No test wrapper path given and no default available")
+    message(ERROR "No test wrapper path given and no default available ${PARSED_ARGS_TEST_NAME}")
   else()
     include(${PARSED_ARGS_TEST_WRAPPER})
   endif()
 
   wn_add_test_wrapper(
+    OUTPUT_TEST_COMAND
+    OUTPUT_TEST_NAME
     TEST_NAME ${PARSED_ARGS_TEST_NAME}_test
     SOURCES ${PARSED_ARGS_SOURCES}
     ADDITIONAL_INCLUDES ${PARSED_ARGS_ADDITIONAL_INCLUDES}
     LIBS ${PARSED_ARGS_LIBS} WNLogging
   )
 
-  add_test(${PARSED_ARGS_TEST_NAME}
-    ${PARSED_ARGS_RUN_WRAPPER} ${PARSED_ARGS_TEST_NAME}_test)
+  add_test(NAME ${OUTPUT_TEST_NAME} COMMAND ${OUTPUT_TEST_COMAND})
+
+  wn_post_add_test_wrapper(${OUTPUT_TEST_NAME})
 endmacro()
 
 enable_overlay_file()
