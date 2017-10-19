@@ -11,7 +11,9 @@ static const size_t test_string1_length = sizeof(test_string1) - 1;
 
 TEST(string_view, construction) {
   const char* raw = "string1";
-  wn::containers::string_view v1;
+  // Use {} to construct, there is a bug in clang3.6 that will throw an
+  // error otherwise.
+  wn::containers::string_view v1{};
   const wn::containers::string_view v2(nullptr);
   const wn::containers::string_view v3(nullptr, nullptr);
   const wn::containers::string_view v4(raw, raw + 7);
@@ -153,7 +155,9 @@ TEST(string_view, conversion) {
 // capacity
 
 TEST(string_view, empty) {
-  const wn::containers::string_view v1;
+  // Use {} to construct, there is a bug in clang3.6 that will throw an
+  // error otherwise.
+  const wn::containers::string_view v1{};
 
   EXPECT_TRUE(v1.empty());
 
