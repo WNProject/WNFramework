@@ -7,7 +7,7 @@ include(cmake/all.cmake)
 
 include(cmake/pre_add.cmake)
 
-add_subdirectory(Externals/stb_image)
+add_subdirectory(Externals)
 
 # Include all of our source
 add_subdirectory(Libraries)

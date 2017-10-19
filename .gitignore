@@ -5,6 +5,8 @@
 *.suo
 *.user
 .vscode/*
+.ycm_extra_conf.py
+.ycm_extra_conf.pyc
 /build*/
 /Externals/android-cmake/*
 /Externals/gtest/*

@@ -7,3 +7,9 @@
 	branch = release_40
 	url = https://github.com/llvm-mirror/llvm.git
 	ignore = dirty
+[submodule "Externals/re2"]
+	path = Externals/re2
+	url = https://github.com/google/re2
+[submodule "Externals/effcee"]
+	path = Externals/effcee
+	url = https://github.com/google/effcee
