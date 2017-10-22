@@ -8,6 +8,7 @@
 #define __WN_CONTAINERS_STRING_VIEW_H__
 
 #include "WNContainers/inc/WNContiguousRange.h"
+#include "WNContainers/inc/WNDynamicArray.h"
 #include "WNCore/inc/WNAlgorithm.h"
 #include "WNCore/inc/WNTypes.h"
 #include "WNMath/inc/WNBasic.h"
@@ -442,6 +443,41 @@ public:
   WN_FORCE_INLINE size_type find_last_not_of(
       const char* _ptr, const size_type _pos = 0) const {
     return find_last_not_of(string_view(_ptr), _pos);
+  }
+
+  WN_FORCE_INLINE containers::dynamic_array<containers::string_view> split(
+      memory::allocator* _allocator, const char _splitter,
+      const bool _leave_empty = false) const {
+    containers::dynamic_array<containers::string_view> return_split(_allocator);
+    if (empty()) {
+      return core::move(return_split);
+    }
+    size_t b = 0;
+    while (b != size()) {
+      size_t n = find(_splitter, b);
+      if (n == npos) {
+        size_t s = size() - b;
+        if (s == 1 && at(b) == _splitter) {
+          if (_leave_empty) {
+            return_split.push_back("");
+          }
+          return core::move(return_split);
+        }
+        return_split.push_back(substr(b, s));
+        return core::move(return_split);
+      }
+      if (n - b == 0 && at(b) == _splitter) {
+        if (_leave_empty) {
+          return_split.push_back("");
+          b = n;
+        }
+        b = n + 1;
+        continue;
+      }
+      return_split.push_back(substr(b, n - b));
+      b = n + 1;
+    }
+    return core::move(return_split);
   }
 
 private:

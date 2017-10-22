@@ -425,3 +425,43 @@ TEST(string_view, find_last_not_of) {
 
   EXPECT_EQ(pos, wn::containers::string_view::npos);
 }
+
+using ::testing::ElementsAre;
+
+TEST(string_view, split) {
+  wn::testing::allocator allocator;
+  EXPECT_THAT(wn::containers::string_view("word1 word2 word3")
+                  .split(&allocator, ' ', false),
+      ElementsAre("word1", "word2", "word3"));
+  EXPECT_THAT(wn::containers::string_view("word1  word2  word3")
+                  .split(&allocator, ' ', false),
+      ElementsAre("word1", "word2", "word3"));
+
+  EXPECT_THAT(wn::containers::string_view("word1  word2  word3")
+                  .split(&allocator, ' ', true),
+      ElementsAre("word1", "", "word2", "", "word3"));
+
+  EXPECT_THAT(wn::containers::string_view("word1 word2 word3")
+                  .split(&allocator, ' ', true),
+      ElementsAre("word1", "word2", "word3"));
+
+  EXPECT_THAT(wn::containers::string_view("word1     word3")
+                  .split(&allocator, ' ', true),
+      ElementsAre("word1", "", "", "", "", "word3"));
+
+  EXPECT_THAT(
+      wn::containers::string_view("     word3").split(&allocator, ' ', true),
+      ElementsAre("", "", "", "", "", "word3"));
+
+  EXPECT_THAT(
+      wn::containers::string_view("     word3").split(&allocator, ' ', false),
+      ElementsAre("word3"));
+
+  EXPECT_THAT(
+      wn::containers::string_view("     word3").split(&allocator, ' ', false),
+      ElementsAre("word3"));
+
+  EXPECT_THAT(
+      wn::containers::string_view("word3    ").split(&allocator, ' ', false),
+      ElementsAre("word3"));
+}
