@@ -44,7 +44,7 @@ public:
   virtual memory::unique_ptr<translator> get_translator(
       memory::allocator* _allocator, translator_type _type,
       type_validator* _validator, file_system::mapping* _file_mapping,
-      logging::log* _log);
+      file_system::mapping* _output_mapping, logging::log* _log);
 };
 
 }  // namespace scripting

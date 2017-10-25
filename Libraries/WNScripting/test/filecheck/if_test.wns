@@ -1,0 +1,18 @@
+// RUN: basic 10 -> 9
+// RUN: basic 3 -> 7
+Int basic(Int x) {
+// CHECK: {{5basicE}}
+// CHECK-NEXT: bool __wns_if_temp0 = false;
+// CHECK-NEXT: {
+// CHECK-NEXT: __wns_if_temp0 = (x == 3);
+// CHECK-NEXT: }
+if (x == 3) {
+// CHECK-NEXT: if (__wns_if_temp0) {
+return 7;
+// CHECK-NEXT: return 7;
+}
+// CHECK-NEXT: }
+return 9;
+// CHECK-NEXT: return 9;
+}
+

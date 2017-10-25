@@ -119,4 +119,44 @@ macro(wn_create_test)
   wn_post_add_test_wrapper(${OUTPUT_TEST_NAME})
 endmacro()
 
+# Arguments
+#     SOURCE_DIR: Directory that contains each individual test.
+#     COMMON_SOURCES: Sourcs to include into each test.
+#     SOURCES: List of source files in SOURCE_DIR of the form ${SOURCE}Tests.cpp.
+#     ADDITIONAL_INCLUDES: Any additional include directories.
+#     RUN_WRAPPER: Wrappe script to run the test.
+#     TEST_PREFIX: The prefix to use for the name of the test.
+#     LIBS: Any additional libraries to include.
+function(wn_create_call_test prefix)
+  if(WN_OVERLAY_IS_ENABLED)
+    cmake_parse_arguments(
+      PARSED_ARGS
+      ""
+      "WORKING_DIRECTORY"
+      "COMMAND;UNIQUE_ARGS"
+      ${ARGN}
+    )
+
+    if(NOT PARSED_ARGS_UNIQUE_ARGS)
+      message(FATAL_ERROR "You must provide at least one iterable argument")
+    endif()
+
+    _add_sources_to_target(${prefix}_test
+      SOURCES
+        ${PARSED_ARGS_UNIQUE_ARGS})
+
+    foreach(source ${${prefix}_test_OVERLAY_SOURCES})
+      #TODO(awoloszyn): Android Support for this
+      get_filename_component(source ${source} NAME)
+      add_test(NAME ${prefix}_${source}_test
+         COMMAND ${PARSED_ARGS_COMMAND} ${source}
+         WORKING_DIRECTORY ${PARSED_ARGS_WORKING_DIRECTORY})
+    endforeach()
+  propagate_to_parent(WN_ALL_EXECUTABLES)
+  propagate_to_parent(WN_ALL_SHARED_LIBS)
+  propagate_to_parent(WN_ALL_STATIC_LIBS)
+  propagate_to_parent(WN_ALL_APPLICATIONS)
+  endif()
+endfunction()
+
 enable_overlay_file()

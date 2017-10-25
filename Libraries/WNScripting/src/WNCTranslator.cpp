@@ -17,17 +17,18 @@ namespace wn {
 namespace scripting {
 
 c_translator::c_translator(memory::allocator* _allocator,
-    type_validator* _validator, file_system::mapping* _mapping,
-    logging::log* _log)
+    type_validator* _validator, file_system::mapping* _source_mapping,
+    file_system::mapping* _dest_mapping, logging::log* _log)
   : translator(_validator),
     m_allocator(_allocator),
-    m_file_mapping(_mapping),
+    m_source_mapping(_source_mapping),
+    m_dest_mapping(_dest_mapping),
     m_compilation_log(_log) {}
 
 parse_error c_translator::translate_file_with_error(
     const char* _file, bool _dump_ast_on_failure) {
   file_system::result res;
-  file_system::file_ptr file = m_file_mapping->open_file(_file, res);
+  file_system::file_ptr file = m_source_mapping->open_file(_file, res);
 
   if (!file) {
     return parse_error::does_not_exist;
@@ -77,7 +78,7 @@ parse_error c_translator::translate_file_with_error(
   output_filename.append(".c");
 
   file_system::file_ptr output_file =
-      m_file_mapping->create_file(output_filename, res);
+      m_dest_mapping->create_file(output_filename, res);
   if (!output_file) {
     return parse_error::cannot_open_file;
   }

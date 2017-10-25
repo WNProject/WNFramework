@@ -23,7 +23,8 @@ namespace scripting {
 class c_translator : public translator {
 public:
   c_translator(memory::allocator* _allocator, type_validator* _validator,
-      file_system::mapping* _mapping, logging::log* _log);
+      file_system::mapping* _source_mapping,
+      file_system::mapping* _dest_mapping, logging::log* _log);
 
   // Looks in m_file_manager for the path given by the file parameter,
   // and translates the file into C. The file is saved in the same location
@@ -35,7 +36,8 @@ public:
 
 private:
   memory::allocator* m_allocator;
-  file_system::mapping* m_file_mapping;
+  file_system::mapping* m_source_mapping;
+  file_system::mapping* m_dest_mapping;
   logging::log* m_compilation_log;
 };
 }  // namespace scripting

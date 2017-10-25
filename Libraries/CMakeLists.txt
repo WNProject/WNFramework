@@ -4,6 +4,7 @@ include_directories(${WNFramework_BINARY_DIR}/Libraries)
 
 foreach(overlay ${WN_ENABLED_OVERLAYS})
   include_directories(${overlay}/Libraries)
+  include_directories(${overlay}/Wrappers)
 endforeach()
 
 # These must be before all the below in order for it to work

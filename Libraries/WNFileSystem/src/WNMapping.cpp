@@ -15,8 +15,10 @@ bool mapping::sanitize_and_validate_path(
   internal::sanitize_path(path);
 
   if (internal::validate_relative_path(path)) {
-    _full_path.append(m_root_path).append(path);
-
+    if (!m_root_path.empty()) {
+      _full_path.append(m_root_path);
+    }
+    internal::append_path(_full_path, path);
     return true;
   }
 
