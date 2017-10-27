@@ -445,8 +445,43 @@ public:
     return find_last_not_of(string_view(_ptr), _pos);
   }
 
+  // Trims all of the characters in the given string_view from the left
+  // hand side.
+  WN_FORCE_INLINE containers::string_view trim_left(
+      const containers::string_view& _vals) const {
+    containers::string_view other = *this;
+    size_type x = other.find_first_not_of(_vals);
+    if (x != npos) {
+      other.remove_prefix(x);
+    } else {
+      other = "";
+    }
+    return other;
+  }
+
+  // Trims all of the characters in the given string_view from the right
+  // hand side.
+  WN_FORCE_INLINE containers::string_view trim_right(
+      const containers::string_view& _vals) const {
+    containers::string_view other = *this;
+    size_type x = other.find_last_not_of(_vals);
+    if (x != npos) {
+      other.remove_suffix(size() - x - 1);
+    } else {
+      return "";
+    }
+    return other;
+  }
+
   WN_FORCE_INLINE containers::dynamic_array<containers::string_view> split(
       memory::allocator* _allocator, const char _splitter,
+      const bool _leave_empty = false) const {
+    return split(
+        _allocator, containers::string_view(&_splitter, 1), _leave_empty);
+  }
+
+  WN_FORCE_INLINE containers::dynamic_array<containers::string_view> split(
+      memory::allocator* _allocator, const string_view& _splitters,
       const bool _leave_empty = false) const {
     containers::dynamic_array<containers::string_view> return_split(_allocator);
     if (empty()) {
@@ -454,10 +489,10 @@ public:
     }
     size_t b = 0;
     while (b != size()) {
-      size_t n = find(_splitter, b);
+      size_t n = find_first_of(_splitters, b);
       if (n == npos) {
         size_t s = size() - b;
-        if (s == 1 && at(b) == _splitter) {
+        if (s == 1 && _splitters.find(at(b)) != npos) {
           if (_leave_empty) {
             return_split.push_back("");
           }
@@ -466,7 +501,7 @@ public:
         return_split.push_back(substr(b, s));
         return core::move(return_split);
       }
-      if (n - b == 0 && at(b) == _splitter) {
+      if (n - b == 0 && _splitters.find(at(b)) != npos) {
         if (_leave_empty) {
           return_split.push_back("");
           b = n;

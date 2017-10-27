@@ -465,3 +465,48 @@ TEST(string_view, split) {
       wn::containers::string_view("word3    ").split(&allocator, ' ', false),
       ElementsAre("word3"));
 }
+
+TEST(string_view, split_string_view) {
+  wn::testing::allocator allocator;
+  EXPECT_THAT(
+      wn::containers::string_view("word1\t  word2 xx word3")
+          .split(&allocator, wn::containers::string_view("\t x"), false),
+      ElementsAre("word1", "word2", "word3"));
+  EXPECT_THAT(wn::containers::string_view("word1 \t word2 xx word3")
+                  .split(&allocator, "\t x", true),
+      ElementsAre("word1", "", "", "word2", "", "", "", "word3"));
+}
+
+TEST(string_view, trim_left) {
+  EXPECT_EQ(wn::containers::string_view("word"),
+      wn::containers::string_view("\tword").trim_left(" \t"));
+
+  EXPECT_EQ(wn::containers::string_view("word"),
+      wn::containers::string_view("word").trim_left(" \t"));
+
+  EXPECT_EQ(wn::containers::string_view("word\t"),
+      wn::containers::string_view("word\t").trim_left(" \t"));
+
+  EXPECT_EQ(wn::containers::string_view("word  "),
+      wn::containers::string_view("word  ").trim_left(" \t"));
+
+  EXPECT_EQ(wn::containers::string_view(""),
+      wn::containers::string_view(" \t").trim_left(" \t"));
+}
+
+TEST(string_view, trim_right) {
+  EXPECT_EQ(wn::containers::string_view("word"),
+      wn::containers::string_view("word\t").trim_right(" \t"));
+
+  EXPECT_EQ(wn::containers::string_view("word"),
+      wn::containers::string_view("word").trim_right(" \t"));
+
+  EXPECT_EQ(wn::containers::string_view("\tword"),
+      wn::containers::string_view("\tword").trim_right(" \t"));
+
+  EXPECT_EQ(wn::containers::string_view("  word"),
+      wn::containers::string_view("  word").trim_right(" \t"));
+
+  EXPECT_EQ(wn::containers::string_view(""),
+      wn::containers::string_view(" \t").trim_right(" \t"));
+}
