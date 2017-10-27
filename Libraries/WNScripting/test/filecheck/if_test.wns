@@ -16,3 +16,47 @@ return 9;
 // CHECK-NEXT: return 9;
 }
 
+// RUN: ifelse 3 -> 7
+// RUN: ifelse 4 -> 10
+// RUN: ifelse 10 -> 10
+Int ifelse(Int x) {
+// CHECK: {{6ifelseE}}
+// CHECK: if (__wns_if_temp1) {
+  if (x == 3) {
+// CHECK-NEXT: return 7;
+      return 7;
+// CHECK-NEXT: } else {
+  } else {
+// CHECK-NEXT: return 10;
+      return 10;
+// CHECK-NEXT: }
+  }
+// CHECK-NEXT: }
+  return 9;
+}
+
+// RUN: nested 4 8 -> 9
+// RUN: nested 4 3 -> 7
+// RUN: nested 4 2 -> 7
+// RUN: nested 8 9 -> 10
+Int nested(Int x, Int y) {
+// CHECK: {{6nestedE}}
+    if (x == 4) {
+// CHECK: __wns_if_temp3 = (x == 4);
+// CHECK: if (__wns_if_temp3) {
+        if (y > 3) {
+// CHECK: __wns_if_temp2 = (y > 3);
+// CHECK: if (__wns_if_temp2) {
+// CHECK-NEXT: return 9;
+            return 9;
+        }
+// CHECK-NEXT: }
+// CHECK-NEXT: return 7;
+        return 7;
+// CHECK-NEXT: } else {
+    } else {
+// CHECK-NEXT: return 10;
+        return 10;
+    }
+    return 9;
+}
