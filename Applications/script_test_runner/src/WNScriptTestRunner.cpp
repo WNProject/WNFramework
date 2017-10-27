@@ -149,6 +149,7 @@ bool call(logging::log* _log, scripting::engine* e,
 
 int32_t wn_main(const ::wn::entry::system_data* _system_data) {
   entry::wn_dummy();
+
   script_test_allocator allocator;
 
   logging::console_logger<> logger;
@@ -250,6 +251,7 @@ int32_t wn_main(const ::wn::entry::system_data* _system_data) {
   if (effceeResult.status() != effcee::Result::Status::Ok) {
     log.log()->log_critical(
         "Error, filecheck failed: ", effceeResult.message().c_str());
+    log.log()->log_critical("File contents: ", output_file);
     return -1;
   }
   log.log()->log_info("Filecheck results for C translation successful");
@@ -257,8 +259,8 @@ int32_t wn_main(const ::wn::entry::system_data* _system_data) {
   re2::RE2::Options options;
   re2::RE2 function_call_re(
       "[[:space:]]*//"
-      "[[:space:]]*RUN:[[:space:]]*([a-z][a-zA-Z0-9_]*)(?:[[:space:]]+([0-9]+))"
-      "*[[:space:]]*->[[:space:]]*([0-9]+)[[:space:]]*",
+      "[[:space:]]*RUN:[[:space:]]*([a-z][a-zA-Z0-9_]*)((?:[[:space:]]+[0-9]+)"
+      "*)[[:space:]]*->[[:space:]]*([0-9]+)[[:space:]]*",
       options);
   auto lines = input_file.split(&allocator, '\n', false);
   re2::StringPiece matches[10];  // For now 10 matches is probably enough
@@ -270,17 +272,13 @@ int32_t wn_main(const ::wn::entry::system_data* _system_data) {
       // 1 is the function name
       // n-1 is the return value
       containers::dynamic_array<int32_t> parameters(&allocator);
+      containers::dynamic_array<containers::string_view> params =
+          to_view(matches[2]).split(&allocator, "\t\n ");
 
-      uint32_t return_val = 0;
-      for (size_t i = 2; i < num_matches; ++i) {
-        if (matches[i].data() == nullptr) {
-          return_val = parameters.back();
-          parameters.pop_back();
-          break;
-        }
-
-        int32_t val = atol(to_view(matches[i]).to_string(&allocator).c_str());
-        parameters.push_back(val);
+      uint32_t return_val =
+          atol(to_view(matches[3]).to_string(&allocator).c_str());
+      for (auto& v : params) {
+        parameters.push_back(atol(v.to_string(&allocator).c_str()));
       }
 
       log.log()->log_info("Calling JIT function ", to_view(matches[1]));
