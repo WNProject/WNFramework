@@ -152,14 +152,12 @@ int32_t wn_main(const ::wn::entry::system_data* _system_data) {
 
   script_test_allocator allocator;
 
-  logging::console_logger<> logger;
-  logging::static_log<> log(&logger);
-
   containers::string_view test_file;
   containers::string_view data_dir;
   bool parse_data_dir = false;
   bool parse_test_file = false;
   bool has_data_dir = false;
+  bool verbose = false;
   for (size_t i = 0; i < static_cast<size_t>(_system_data->argc); ++i) {
     if (containers::string_view("--test_file") ==
         containers::string_view(_system_data->argv[i])) {
@@ -173,6 +171,10 @@ int32_t wn_main(const ::wn::entry::system_data* _system_data) {
       parse_test_file = false;
       continue;
     }
+    if (containers::string_view("--verbose") ==
+        containers::string_view(_system_data->argv[i])) {
+      verbose = true;
+    }
     if (parse_test_file) {
       test_file = _system_data->argv[i];
       parse_test_file = false;
@@ -182,6 +184,11 @@ int32_t wn_main(const ::wn::entry::system_data* _system_data) {
       parse_data_dir = false;
     }
   }
+
+  logging::console_logger<> logger;
+  logging::static_log<logging::log_level::max> log(
+      &logger, verbose ? logging::log_level::max : logging::log_level::error);
+
   wn::file_system::factory fs_factory(&allocator);
 
   file_system::mapping_ptr files = fs_factory.make_mapping(&allocator,
