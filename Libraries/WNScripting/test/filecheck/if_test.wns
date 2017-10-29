@@ -60,3 +60,28 @@ Int nested(Int x, Int y) {
     }
     return 9;
 }
+
+// RUN: if_else 4 3 -> 13
+// RUN: if_else 4 4 -> 9
+// RUN: if_else 5 2 -> 12
+// RUN: if_else 5 5 -> 12
+Int if_else(Int x, Int y) {
+// CHECK: {{7if_elseE}}
+// CHECK: bool __wns_if_temp4 = false;
+// CHECK-NEXT: bool __wns_if_temp5 = true;
+    if (x > 4) {
+// CHECK: __wns_if_temp4 = (x > 4);
+// CHRECK-NEXT: __wns_if_temp5 = false;
+      return 12;
+    } else if (y < 4) {
+// CHECK: __wns_if_temp4 = __wns_if_temp5;
+// CHECK-NEXT: if (__wns_if_temp4) {
+// CHECK-NEXT: __wns_if_temp4 = (y < 4);
+// CHECK: if (__wns_if_temp4) {
+// CHECK-NEXT: __wns_if_temp5 = false;
+// CHECK-NEXT: return 13;
+            return 13;
+    }
+// CHECK: return 9;
+    return 9;
+}

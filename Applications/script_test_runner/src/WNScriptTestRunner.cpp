@@ -272,6 +272,7 @@ int32_t wn_main(const ::wn::entry::system_data* _system_data) {
   auto lines = input_file.split(&allocator, '\n', false);
   re2::StringPiece matches[10];  // For now 10 matches is probably enough
   uint32_t num_matches = 10;
+  bool success = true;
   for (auto l : lines) {
     if (function_call_re.Match(re2::StringPiece(l.data(), l.size()), 0,
             l.size(), re2::RE2::ANCHOR_START, matches, num_matches)) {
@@ -289,7 +290,7 @@ int32_t wn_main(const ::wn::entry::system_data* _system_data) {
       }
 
       log.log()->log_info("Calling JIT function ", to_view(matches[1]));
-      bool success = call(
+      success &= call(
           log.log(), jit.get(), to_view(matches[1]), parameters, return_val);
       log.log()->log_info("JIT function ", to_view(matches[1]), ": ",
           success ? "SUCCESS" : "FAILURE");
