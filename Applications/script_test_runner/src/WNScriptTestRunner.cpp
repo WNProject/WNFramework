@@ -185,8 +185,9 @@ int32_t wn_main(const ::wn::entry::system_data* _system_data) {
     }
   }
 
-  logging::console_logger<> logger;
-  logging::static_log<logging::log_level::max> log(
+  // These are static so that their 1MB of space does not end up on the stack.
+  static logging::console_logger<> logger;
+  static logging::static_log<logging::log_level::max, 1024 * 1024> log(
       &logger, verbose ? logging::log_level::max : logging::log_level::error);
 
   wn::file_system::factory fs_factory(&allocator);
