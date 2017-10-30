@@ -1,0 +1,69 @@
+struct S1 {
+    Int x = 4;
+}
+
+struct S2 {
+    Int x = 4;
+    Float z = 0.0;
+    Int y = 1;
+}
+
+
+// CHECK: typedef struct {
+// CHECK-NEXT: int32_t x;
+// CHECK-NEXT: } S1;
+
+// CHECK: typedef struct {
+// CHECK-NEXT: int32_t x;
+// CHECK-NEXT: float z;
+// CHECK-NEXT: int32_t y;
+// CHECK-NEXT: } S2;
+
+
+// CHECK: {{_construct_S2}}
+// CHECK-NEXT: _this->x = 4;
+// CHECK-NEXT: _this->z = 0.0f;
+// CHECK-NEXT: _this->y = 1;
+
+// CHECK: S1* _Z3wns13_construct_S1ENR2S1ENUC2S1E(S1* _this) {
+// CHECK-NEXT: _this->x = 4;
+// CHECK-NEXT: return _this;
+// CHECK-NEXT: }
+
+// CHECK: void _Z3wns12_destruct_S1EvNUC2S1E(S1* _this) {
+// CHECK-NEXT: return;
+// CHECK-NEXT: }
+
+
+// RUN: struct1 -> 4
+// CHECK: {{7struct1E}}
+// CHECK-NEXT: S1 __wns_temp_expression0;
+// CHECK-NEXT: S1* s = _Z3wns13_construct_S1ENR2S1ENUC2S1E(&__wns_temp_expression0);
+// CHECK-NEXT: {
+// CHECK-NEXT: int32_t __wns_ret_temp0 = s->x;
+// CHECK-NEXT: _Z3wns12_destruct_S1EvNUC2S1E(&__wns_temp_expression0);
+// CHECK-NEXT: return __wns_ret_temp0;
+
+Int struct1() {
+    S1 s = S1();
+    return s.x;
+}
+
+// RUN: struct2 4 -> 7
+// RUN: struct2 12 -> 15
+Int struct2(Int x) {
+    S2 s = S2();
+    return s.x - s.y + x;
+}
+
+// RUN: struct3 4 -> 13
+// RUN: struct3 12 -> 21
+// CHECK: {{7struct3E}}
+// CHECK: s->x = 10;
+// CHECK: __wns_ret_temp2 = ((s->x - s->y) + x);
+Int struct3(Int x) {
+    S2 s = S2();
+    s.x = 10;
+    return s.x - s.y + x;
+}
+

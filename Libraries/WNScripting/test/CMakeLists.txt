@@ -24,4 +24,5 @@ wn_create_call_test(
       --test_file
     UNIQUE_ARGS
       if_test.wns
+      simple_struct_test.wns
 )
