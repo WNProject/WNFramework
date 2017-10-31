@@ -23,6 +23,7 @@ wn_create_call_test(
     --data_dir ${CMAKE_CURRENT_SOURCE_DIR}/filecheck
       --test_file
     UNIQUE_ARGS
+      empty_expression.wns
       if_test.wns
       simple_struct_test.wns
 )
