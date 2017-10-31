@@ -1,0 +1,55 @@
+// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE.txt file.
+
+// RUN: scope1 5 -> 4
+// CHECK: {{6scope1E}}
+Int scope1(Int x) {
+    Int y = x;
+// CHECK-NEXT: int32_t y = x;
+  {
+    // CHECK-NEXT: {
+    y = 4;
+    // CHECK-NEXT: y = 4;
+    // CHECK-NEXT: }
+  }
+  // CHECK-NEXT: return 4;
+  return 4;
+  // CHECK-NEXT: }
+}
+
+// RUN: scope2 5 -> 3
+// CHECK: {{6scope2E}}
+Int scope2(Int x) {
+// CHECK-NEXT: int32_t y = x;
+  Int y = x;
+// CHECK-NEXT: {
+  {
+// CHECK-NEXT: {
+    {
+// CHECK-NEXT: y = 4;
+      y = 4;
+    }
+// CHECK-NEXT: }
+// CHECK-NEXT: return 3;
+    return 3;
+  }
+// CHECK-NEXT: }
+return 4;
+}
+
+// RUN: scope3 5 -> 3
+// CHECK: {{6scope3E}}
+Int scope3(Int x) {
+// CHECK-NEXT: int32_t y = x;
+  Int y = x;
+// CHECK-NEXT: {
+  {
+// CHECK-NEXT: return 3;
+     return 3;
+// CHECK-NEXT: }
+  }
+// Drop the unused return;
+// CHECK-NEXT: }
+return 4;
+}
