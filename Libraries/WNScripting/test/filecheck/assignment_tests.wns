@@ -1,0 +1,44 @@
+// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE.txt file.
+
+// RUN: a1 5 -> 0
+// CHECK: {{2a1E}}
+Int a1(Int x) {
+// CHECK-NEXT: int32_t y = 0;
+    Int y = 0;
+// CHECK-NEXT: x = y;
+    x = y;
+// CHECK-NEXT: return x;
+    return x;
+}
+
+// RUN: a2 4 -> 0
+// RUN: a2 3 -> 3;
+// CHECK: {{2a2E}}
+Int a2(Int x) {
+// CHECK-NEXT: bool b = false;
+  Bool b = false;
+// CHECK-NEXT: b = (x == 4);
+  b = x == 4;
+  if (b) {
+    return 0;
+  } else {
+    return x;
+  }
+}
+
+// RUN: a3 0 -> 4
+// RUN: a3 9 -> 10
+// CHECK: {{2a3E}}
+Int a3(Int x) {
+  Int y = 4;
+  if (x != 0) {
+  // CHECK: y = 10;
+    y = 10;
+  } else {
+  // CHECK: y = 4;
+    y = 4;
+  }
+  return y;
+}

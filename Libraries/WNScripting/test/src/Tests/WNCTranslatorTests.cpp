@@ -354,43 +354,6 @@ INSTANTIATE_TEST_CASE_P(
 
 // clang-format off
 INSTANTIATE_TEST_CASE_P(
-    assignment_tests, c_translator_direct_translation_test,
-    ::testing::ValuesIn(
-        std::vector<std::vector<source_pair>>({
-          {
-            {"Int main(Int x) {",     "int32_t _Z3wns4mainEll(int32_t x) {"  },
-            {"  Int y = 0;",          "int32_t y = 0;"              },
-            {"  x = y;",              "x = y;"                       },
-            {"  return x;",           "return x;"                    },
-            {"}",                     "}"                            },
-          },
-          {
-            {"Bool main(Int x) {",    "bool _Z3wns4mainEbl(int32_t x) {"   },
-            {"  Bool b = false;",     "bool b = false;"           },
-            {"  b = x == 4;",         "b = (x == 4);"                },
-            {"  return b;",           "return b;"                    },
-            {"}",                     "}"                            },
-          },
-          {
-            {"Int main(Bool x) {",    "int32_t _Z3wns4mainElb(bool x) {"   },
-            {"  Int y = 4;",          "int32_t y = 4;"               },
-            {"",                      "bool __wns_if_temp0 = false;" },
-            {"",                      "{"                            },
-            {"",                      "__wns_if_temp0 = x;"          },
-            {"",                      "}"                            },
-            {"  if (x) {",            "if (__wns_if_temp0) {"        },
-            {"    y = 10;",           "y = 10;"                      },
-            {"  } else {",            "} else {"                     },
-            {"    y = 4;",            "y = 4;"                       },
-            {"  }",                   "}"                            },
-            {"  return y;",           "return y;"                    },
-            {"}",                     "}"                            },
-          },
-})));
-// clang-format on
-
-// clang-format off
-INSTANTIATE_TEST_CASE_P(
     struct_with_array_test, c_translator_direct_translation_test,
     ::testing::ValuesIn(
         std::vector<std::vector<source_pair>>({
