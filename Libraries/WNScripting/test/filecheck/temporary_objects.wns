@@ -1,0 +1,20 @@
+// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE.txt file.
+
+struct Foo {
+  Int x = 4;
+}
+
+// CHECK: {{4mainEll}}
+// RUN: main 3 -> 7
+// RUN: main -3 -> 1
+Int main(Int x) {
+  // CHECK-NEXT: Foo __wns_temp_expression0;
+  // CHECK-NEXT: {
+  // CHECK-NEXT: int32_t __wns_ret_temp0 = (_Z3wns14_construct_FooENR3FooENUC3FooE(&__wns_temp_expression0)->x + x);
+  // CHECK-NEXT: _Z3wns13_destruct_FooEvNUC3FooE(&__wns_temp_expression0);
+  // CHECK-NEXT: return __wns_ret_temp0;
+  // CHECK-NEXT: }
+  return Foo().x + x;
+}
