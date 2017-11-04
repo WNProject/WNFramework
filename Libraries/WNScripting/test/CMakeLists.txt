@@ -23,6 +23,7 @@ wn_create_call_test(
     --data_dir ${CMAKE_CURRENT_SOURCE_DIR}/filecheck
       --test_file
     UNIQUE_ARGS
+      array_tests.wns
       assignment_tests.wns
       empty_expression.wns
       function_call_tests.wns
