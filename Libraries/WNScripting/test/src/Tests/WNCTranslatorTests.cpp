@@ -109,33 +109,6 @@ TEST_P(c_translator_direct_translation_test, translations) {
       << get_file_data(mapping, "file.wns.c");
 }
 
-// clang-format off
-INSTANTIATE_TEST_CASE_P(
-    continue_tests, c_translator_direct_translation_test,
-    ::testing::ValuesIn(
-        std::vector<std::vector<source_pair>>({
-          {
-            {"Int main(Int x) {",     "int32_t _Z3wns4mainEll(int32_t x) {"  },
-            {"  Int y = x;",          "int32_t y = x;"                },
-            {"  do {",                "do "                           },
-            {"",                      "{"                             },
-            {"y = y - 1;",            "y = (y - 1);"                  },
-            {"",                      "bool __wns_if_temp0 = false;"  },
-            {"",                      "{"                             },
-            {"",                      "__wns_if_temp0 = (y > 2);"     },
-            {"",                      "}",                            },
-            {"if (y > 2) { ",         "if (__wns_if_temp0) {"         },
-            {"",                      "{"                             },
-            {"continue;",                "continue;"                  },
-            {"}",                     "}"                             },
-            {"",                      "}"                             },
-            {"return y;",             "return y;"                     },
-            {"} while(true);",        "} while(true);"                },
-            {"}",                     "}"                             }
-          }
-})));
-// clang-format on
-
 INSTANTIATE_TEST_CASE_P(
     struct_with_array_test, c_translator_direct_translation_test,
     ::testing::ValuesIn(

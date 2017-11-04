@@ -26,6 +26,7 @@ wn_create_call_test(
       array_tests.wns
       assignment_tests.wns
       break_tests.wns
+      continue_tests.wns
       do_loop_tests.wns
       empty_expression.wns
       function_call_tests.wns
