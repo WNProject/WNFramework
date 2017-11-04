@@ -1,0 +1,44 @@
+// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE.txt file.
+
+// CHECK: {{7callee1E}}
+// CHECK-NEXT: return 4;
+Int callee1() {
+  return 4;
+}
+
+// CHECK: {{9function1E}}
+// RUN: function1 32 -> 36
+// RUN: function1 12 -> 16
+Int function1(Int x) {
+  // CHECK-NEXT: return (_Z3wns7callee1El() + x);
+  return callee1() + x;
+}
+
+// CHECK: {{7callee2E}}
+Int callee2(Int x) {
+// CHECK-NEXT: return (x + 4);
+  return x + 4;
+}
+
+// CHECK: {{9function2E}}
+// RUN: function2 32 -> 36
+// RUN: function2 16 -> 20
+Int function2(Int x) {
+// CHECK-NEXT: return _Z3wns7callee2Ell(x);
+  return callee2(x);
+}
+
+// CHECK: {{7callee3E}}
+Int callee3(Int x, Int y) {
+  return x + y;
+}
+
+// CHECK: {{9function3E}}
+// RUN: function3 2 -> 4
+// RUN: function3 32 -> 64
+Int function3(Int x) {
+// CHECK-NEXT: return _Z3wns7callee3Elll(x, x);
+  return callee3(x, x);
+}

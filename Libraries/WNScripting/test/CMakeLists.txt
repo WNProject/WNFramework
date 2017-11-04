@@ -25,6 +25,7 @@ wn_create_call_test(
     UNIQUE_ARGS
       assignment_tests.wns
       empty_expression.wns
+      function_call_tests.wns
       if_test.wns
       simple_struct_test.wns
       scope_tests.wns
