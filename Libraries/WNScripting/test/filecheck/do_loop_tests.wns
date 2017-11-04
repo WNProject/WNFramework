@@ -1,0 +1,76 @@
+// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE.txt file.
+
+struct Foo {
+  Int x = 4;
+}
+
+// CHECK: {{3do1E}}
+// RUN: do1 4 -> 8
+// RUN: do1 8 -> 16
+Int do1(Int x) {
+  Int y = x;
+// CHECK: do
+// CHECK-NEXT: {
+  do {
+// CHECK-NEXT: y = (y + y);
+    y = y + y;
+// CHECK-NEXT: bool __wns_if_temp0 = false;
+// CHECK-NEXT: {
+// CHECK-NEXT: Foo __wns_temp_expression0;
+// CHECK-NEXT: __wns_if_temp0 = ((_Z3wns14_construct_FooENR3FooENUC3FooE(&__wns_temp_expression0)->x == 0) == false);
+// CHECK-NEXT: _Z3wns13_destruct_FooEvNUC3FooE(&__wns_temp_expression0);
+// CHECK-NEXT: }
+// CHECK-NEXT: if (__wns_if_temp0) {
+// CHECK-NEXT: {
+// CHECK-NEXT: break;
+// CHECK-NEXT: }
+// CHECK-NEXT: }
+// CHECK-NEXT: } while(true);
+// CHECK-NEXT: return y;
+  } while(Foo().x == 0);
+  return y;
+}
+
+// CHECK: {{3do2E}}
+// RUN: do2 4 -> 12
+// RUN: do2 12 -> 36
+Int do2(Int x) {
+  Int y = x;
+  // CHECK: do
+  do {
+    y = y + y + y;
+    // CHECK: Foo* f = _Z3wns14_construct_FooENR3FooENUC3FooE(&__wns_temp_expression1);
+    Foo f = Foo();
+    // CHECK: _Z3wns13_destruct_FooEvNUC3FooE(&__wns_temp_expression1);
+    // CHECK-NEXT: break
+    // CHECK-NEXT: }
+    // CHECK-NEXT: }
+    // CHECK-NEXT: _Z3wns13_destruct_FooEvNUC3FooE(&__wns_temp_expression1);
+    // CHECK-NEXT: } while(true);
+  } while(f.x == 0);
+  // CHECK-NEXT: return y;
+  return y;
+}
+
+// CHECK: {{3do3E}}
+// RUN: do3 12 -> 13
+// RUN: do3 0 ->1
+Int do3(Int x) {
+  Int y = x;
+  // CHECK: do
+  do {
+    y = y + 1;
+    // CHECK: Foo* f = (Foo*)_Z3wns14_assign_sharedEvpvpvp((void*)_Z3wns14_construct_FooENR3FooENUC3FooE((Foo*)_Z3wns16_allocate_sharedEvpsfp(sizeof(Foo), &_Z3wns13_destruct_FooEvNUC3FooE)), NULL);
+    shared Foo f = shared Foo();
+    // CHECK: _Z3wns13_deref_sharedEvvp((void*)f);
+    // CHECK-NEXT: break
+    // CHECK-NEXT: }
+    // CHECK-NEXT: }
+    // CHECK-NEXT: _Z3wns13_deref_sharedEvvp((void*)f);
+    // CHECK-NEXT: } while(true);
+  } while(f.x == 0);
+  // CHECK-NEXT: return y;
+  return y;
+}
