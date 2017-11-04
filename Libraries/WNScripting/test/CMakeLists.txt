@@ -28,4 +28,5 @@ wn_create_call_test(
       if_test.wns
       simple_struct_test.wns
       scope_tests.wns
+      shared_objects.wns
 )

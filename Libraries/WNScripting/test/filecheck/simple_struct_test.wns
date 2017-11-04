@@ -47,7 +47,6 @@ struct S2 {
 // CHECK-NEXT: int32_t __wns_ret_temp0 = s->x;
 // CHECK-NEXT: _Z3wns12_destruct_S1EvNUC2S1E(&__wns_temp_expression0);
 // CHECK-NEXT: return __wns_ret_temp0;
-
 Int struct1() {
     S1 s = S1();
     return s.x;
@@ -70,4 +69,3 @@ Int struct3(Int x) {
     s.x = 10;
     return s.x - s.y + x;
 }
-
