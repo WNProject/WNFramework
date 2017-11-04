@@ -27,6 +27,7 @@ wn_create_call_test(
       empty_expression.wns
       function_call_tests.wns
       if_test.wns
+      member_function_tests.wns
       relative_construction_test.wns
       simple_struct_test.wns
       scope_tests.wns

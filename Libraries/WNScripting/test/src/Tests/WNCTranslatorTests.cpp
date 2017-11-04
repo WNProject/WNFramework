@@ -1212,56 +1212,6 @@ INSTANTIATE_TEST_CASE_P(
 })));
 // clang-format on
 
-// clang-format off
-INSTANTIATE_TEST_CASE_P(
-  member_function_test, c_translator_direct_translation_test,
-  ::testing::ValuesIn(
-    std::vector<std::vector<source_pair>>({
-      {
-        { "class Foo {",          "typedef struct {" },
-        { "  Int x = 4;",          "  int32_t x;" },
-        { "  Void doF() {",        "" },
-        { "    x = x + 4;",        "" },
-        { "  }",                   "" },
-        { "  Void doY() { ",       "" },
-        { "     doF();",           "" },
-        { "  }",                   "" },
-        { "}",                     "} Foo;" },
-        { "",                      "\n" },
-        { "",                      "Foo* _Z3wns14_construct_FooENR3FooENUC3FooE(Foo* _this) {" },
-        { "",                      "_this->x = 4;" },
-        { "",                      "return _this;" },
-        { "",                      "}" },
-        { "",                      "\n" },
-        { "",                      "void _Z3wns13_destruct_FooEvNUC3FooE(Foo* _this) {" },
-        { "",                      "return;" },
-        { "",                      "}" },
-        { "",                      "\n"},
-        { "",                      "void _Z3wns3doYEvNR3FooE(Foo* _this) {"},
-        { "",                      "_Z3wns3doFEvNR3FooE(_this);"},
-        { "",                      "}"},
-        { "",                      "\n"},
-        { "",                      "void _Z3wns3doFEvNR3FooE(Foo* _this) {"},
-        { "",                      "_this->x = (_this->x + 4);"},
-        { "",                      "}"},
-        { "",                      "\n" },
-        { "Int blah(Foo x) {",     "int32_t _Z3wns4blahElNP3FooE(Foo* x) {" },
-        { " return x.x;",          "return x->x;" },
-        { "}",                     "}" },
-        { "",                      "\n" },
-        { "Int main(Int x) {",     "int32_t _Z3wns4mainEll(int32_t x) {" },
-        { " Foo f = Foo();",       "Foo __wns_temp_expression0;" },
-        { "",                      "Foo* f = _Z3wns14_construct_FooENR3FooENUC3FooE(&__wns_temp_expression0);" },
-        { " f.doF();",             "_Z3wns3doFEvNR3FooE(f);" },
-        { "",                      "{" },
-        { "",                      "int32_t __wns_ret_temp0 = _Z3wns4blahElNP3FooE(f);" },
-        { "",                      "_Z3wns13_destruct_FooEvNUC3FooE(&__wns_temp_expression0);" },
-        { " return blah(f);",      "return __wns_ret_temp0;" },
-        { "",                      "}" },
-        { "}",                     "}" }
-      }
-})));
-// clang-format on
 
 using c_translator_function_params =
     ::testing::TestWithParam<std::tuple<const char*, const char*, const char*>>;

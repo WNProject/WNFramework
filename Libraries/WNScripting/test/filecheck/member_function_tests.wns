@@ -1,0 +1,42 @@
+// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE.txt file.
+
+// CHECK: typedef struct {
+class Foo {
+// CHECK-NEXT: int32_t x;
+  Int x = 4;
+  Void doF() {
+    x = x + 4;
+    return;
+  }
+
+  Void doY() {
+    doF();
+    return;
+  }
+}
+// CHECK-NEXT: } Foo;
+
+// CHECK: void _Z3wns3doYEvNR3FooE(Foo* _this) {
+// CHECK-NEXT: _Z3wns3doFEvNR3FooE(_this);
+
+// CHECK: void _Z3wns3doFEvNR3FooE(Foo* _this) {
+// CHECK-NEXT: _this->x = (_this->x + 4);
+
+// CHECK: int32_t _Z3wns4blahElNP3FooE(Foo* f) {
+// CHECK-NEXT: return f->x;
+Int blah(Foo f) {
+  return f.x;
+}
+
+// CHECK: 4mainEll
+// RUN: main 4 -> 8
+// RUN: main 8 -> 8
+Int main(Int x) {
+  Foo f = Foo();
+// CHECK: _Z3wns3doYEvNR3FooE(f);
+  f.doY();
+// CHECK: int32_t __wns_ret_temp0 = _Z3wns4blahElNP3FooE(f);
+  return blah(f);
+}
