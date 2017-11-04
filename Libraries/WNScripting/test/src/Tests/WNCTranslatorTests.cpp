@@ -1263,41 +1263,6 @@ INSTANTIATE_TEST_CASE_P(
 })));
 // clang-format on
 
-// clang-format off
-INSTANTIATE_TEST_CASE_P(
-  relative_construction, c_translator_direct_translation_test,
-  ::testing::ValuesIn(
-    std::vector<std::vector<source_pair>>({
-      {
-        { "struct Foo {",         "typedef struct {" },
-        { "  Int x = 4;",         "  int32_t x;"  },
-        { "  Int y = x + 4;",     "  int32_t y;"  },
-        { "}",                    "} Foo;" },
-        { "",                     "\n" },
-        { "",                     "Foo* _Z3wns14_construct_FooENR3FooENUC3FooE(Foo* _this) {" },
-        { "",                     "_this->x = 4;" },
-        { "",                     "_this->y = (_this->x + 4);" },
-        { "",                     "return _this;" },
-        { "",                     "}" },
-        { "",                     "\n" },
-        { "",                     "void _Z3wns13_destruct_FooEvNUC3FooE(Foo* _this) {" },
-        { "",                     "return;" },
-        { "",                     "}" },
-        { "",                     "\n" },
-        { "",                     "" },
-        { "Int main(Int x) {",    "int32_t _Z3wns4mainEll(int32_t x) {" },
-        { "Foo f = Foo();",       "Foo __wns_temp_expression0;" },
-        { "",                     "Foo* f = _Z3wns14_construct_FooENR3FooENUC3FooE(&__wns_temp_expression0);" },
-        { "",                     "{" },
-        { "",                     "int32_t __wns_ret_temp0 = (f->y + x);" },
-        { "",                     "_Z3wns13_destruct_FooEvNUC3FooE(&__wns_temp_expression0);" },
-        { "return f.y + x;",      "return __wns_ret_temp0;" },
-        { "",                     "}" },
-        { "}",                    "}"}
-      }
-})));
-// clang-format on
-
 using c_translator_function_params =
     ::testing::TestWithParam<std::tuple<const char*, const char*, const char*>>;
 TEST_P(c_translator_function_params, single_parameter) {
