@@ -26,14 +26,13 @@ set(RE2_SOURCES
     re2/util/rune.cc
     re2/util/strutil.cc
 )
-add_wn_library(re2 
+
+add_wn_library(re2
   SOURCES ${RE2_SOURCES}
   INCLUDES
+    ${CMAKE_CURRENT_SOURCE_DIR}/re2_helper
     re2
 )
-
-target_include_directories(re2
-  PUBLIC re2)
 
 add_subdirectory(stb_image)
 
