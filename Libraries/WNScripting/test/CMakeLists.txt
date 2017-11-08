@@ -31,6 +31,8 @@ wn_create_call_test(
       empty_expression.wns
       function_call_tests.wns
       if_test.wns
+      # TODO(awoloszyn): This test breaks JIT. Fix JIT for this test
+      # inherited_struct_tests.wns
       member_function_tests.wns
       relative_construction_test.wns
       simple_struct_test.wns

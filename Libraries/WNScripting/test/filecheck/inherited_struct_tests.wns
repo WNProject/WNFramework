@@ -1,0 +1,133 @@
+// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE.txt file.
+
+// Note: The generated C code for the functions is
+// uninteresting, so only really check the declarations.
+// We have the functions to test the JIT
+
+class A1 { Int a = 32; }
+class A2 : A1 { Int b = 4; }
+
+// CHECK: typedef struct {
+// CHECK-NEXT: int32_t a;
+// CHECK-NEXT: } A1;
+
+// CHECK: typedef struct {
+// CHECK-NEXT: int32_t a;
+// CHECK-NEXT: int32_t b;
+// CHECK-NEXT: } A2;
+
+// RUN: f1 -> 68
+Int f1() {
+    A1 a = A1();
+    A1 b = A2();
+    A2 c = A2();
+    return a.a + b.a + c.b;
+}
+
+class C1 {
+    A1 a = A2();
+}
+
+// CHECK: typedef struct {
+// CHECK-NEXT: A1* a;
+// CHECK-NEXT: A2 __a;
+// CHECK-NEXT: } C1;
+
+// RUN: f2 -> 32
+Int f2() {
+    return A2().a;
+}
+
+class B1 {
+    A1 a = A1();
+}
+
+// CHECK: typedef struct {
+// CHECK-NEXT: A1* a;
+// CHECK-NEXT: A1 __a;
+// CHECK-NEXT: } B1;
+
+// RUN f3 -> 32
+Int f3() {
+    return B1().a.a;
+}
+
+class B2 : B1{
+    .a = A2();
+}
+
+// CHECK: typedef struct {
+// CHECK-NEXT: A1* a;
+// CHECK-NEXT: A2 __a;
+// CHECK-NEXT: } B2;
+
+// RUN f4 -> 32
+Int f4() {
+    return B2().a.a;
+}
+
+class D1 {
+    Int x = 4;
+}
+
+class D2 : D1 {
+    .x = 7;
+}
+
+// RUN f5 -> 11
+Int f5() {
+    return D2().x + D1().x;
+}
+
+class E1 {
+    Int x = 4;
+    Int y = x;
+}
+
+class E2 : E1 {
+    .x = 9;
+}
+
+// RUN: f6 -> 9
+Int f6() {
+    return E2().y;
+}
+
+class F1 {
+    Int x = 16;
+    Int y = x;
+    Int z = y;
+}
+
+class F2 : F1 {
+    .z = 4;
+    .x = default;
+    Int f = x;
+}
+
+// RUN: f7 -> 32
+Int f7() {
+    F2 f = F2();
+    return f.f + f.z;
+}
+
+
+// CHECK: {{construct_F2}}
+// CHECK-NEXT: _this->z = 4;
+// CHECK-NEXT: _this->x = 16;
+// CHECK-NEXT: _this->f = _this->x;
+// CHECK-NEXT: _this->y = _this->x;
+
+
+// CHECK: {{construct_E2}}
+// CHECK-NEXT: _this->x = 9;
+// CHECK-NEXT: _this->y = _this.x;
+
+// CHECK: {{construct_B2}}
+// CHECK-NEXT: _this->a = (A1*)(_Z3wns13_construct_A2ENR2A2ENUC2A2E((A2*)&(_this->__a)));
+
+// CHECK: {{construct_A2}}
+// CHECK-NEXT: _this->b = 4;
+// CHECK-NEXT: _this->a = 32;
