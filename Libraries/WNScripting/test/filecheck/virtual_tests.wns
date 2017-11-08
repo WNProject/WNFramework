@@ -1,0 +1,72 @@
+// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE.txt file.
+
+// CHECK: typedef struct {
+// CHECK-NEXT: int32_t(*_0)(Foo*);
+// CHECK-NEXT: } _vtable_Foo;
+
+// CHECK: const _vtable_Foo _c_vtable_Foo = {
+// CHECK-NEXT: &_Z3wns1yElNR3FooE
+// CHECK-NEXT: };
+
+// CHECK: typedef struct {
+// CHECK-NEXT: const _vtable_Foo* _vtable;
+// CHECK-NEXT: } Foo;
+class Foo {
+    virtual Int y() {
+        return 4;
+    }
+}
+
+
+// CHECK: typedef struct {
+// CHECK-NEXT: int32_t(*_0)(Bar*);
+// CHECK-NEXT: } _vtable_Bar;
+
+// CHECK: const _vtable_Bar _c_vtable_Bar = {
+// CHECK-NEXT: &_Z3wns1yElNR3BarE
+// CHECK-NEXT: };
+
+// CHECK: typedef struct {
+// CHECK-NEXT: const _vtable_Bar* _vtable;
+// CHECK-NEXT: } Bar;
+class Bar : Foo {
+    override Int y() {
+        return 32;
+    }
+}
+
+// CHECK: {{construct_Bar}}
+// CHECK-NEXT: _this->_vtable = &_c_vtable_Bar
+
+// CHECK: {{construct_Foo}}
+// CHECK-NEXT: _this->_vtable = &_c_vtable_Foo
+
+// CHECK: {{4getyE}}
+// CHECK-NEXT: Foo* __wns_c_temp0 = f;
+// CHECK-NEXT: return (*__wns_c_temp0->_vtable->_0)(__wns_c_temp0);
+Int gety(Foo f) {
+    return f.y();
+}
+
+// RUN: t1 -> 8
+// CHECK: {{2t1E}}
+Int t1() {
+    Foo f = Foo();
+    Int q = gety(f);
+// CHECK: int32_t z = (*__wns_c_temp1->_vtable->_0)(__wns_c_temp1);
+    Int z = f.y();
+    return z + q;
+}
+
+// RUN: t2 -> 64
+// CHECK: {{2t2E}}
+Int t2() {
+    Foo f = Bar();
+    Int q = gety(f);
+// CHECK: int32_t z = (*__wns_c_temp2->_vtable->_0)(__wns_c_temp2);
+    Int z = f.y();
+    return z + q;
+}
+
