@@ -37,5 +37,7 @@ wn_create_call_test(
       scope_tests.wns
       shared_objects.wns
       struct_in_struct_tests.wns
+      # TODO(awoloszyn): This test breaks JIT. Fix JIT for this test.
+      #struct_with_array_tests.wns
       temporary_objects.wns
 )

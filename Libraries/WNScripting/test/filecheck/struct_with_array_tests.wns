@@ -1,0 +1,48 @@
+// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE.txt file.
+
+// CHECK: typedef struct {
+struct Foo {
+// CHECK-NEXT: struct { uint32_t size0; int32_t _val[];}* x;
+// CHECK-NEXT: struct { uint32_t size0; int32_t _val[10];} __x;
+    Int[] x = Int[10](3);
+// CHECK-NEXT: } Foo;
+}
+
+// CHECK: typedef struct {
+struct Bar {
+// CHECK-NEXT: struct { uint32_t size0; Foo* _val[];}* x;
+// CHECK-NEXT: struct { uint32_t size0; Foo* _val[10];, Foo _c_val[10];} __x;
+    Foo[] x = Foo[10](Foo());
+// CHECK-NEXT: } Bar;
+}
+
+// CHECK: {{construct_Bar}}
+// CHECK-NEXT: _this->x = (struct { uint32_t size0; Foo* _val[]; }*)_Z3wns17_construct_array1E((struct { uint32_t size0; Foo* _val[10]; Foo _c_val[10];}*)&_this->__x);
+// CHECK-NEXT: return _this;
+
+// CHECK: {{destruct_Bar}}
+// CHECK-NEXT: _Z3wns16_destruct_array1Ev((struct { uint32_t size0; Foo* _val[10]; Foo _c_val[10];}*)_this->x);
+// CHECK-NEXT: return;
+
+// CHECK: {{construct_Foo}}
+// CHECK-NEXT: _this->x = _Z3wns17_construct_array1E(&_this->__x);
+// CHECK-NEXT: return _this;
+
+// CHECK: {{destruct_Foo}}
+// CHECK-NEXT: return;
+
+// CHECK: {{3sa1E}}
+Int sa1(Int x) {
+    Foo f = Foo();
+// CHECK: int32_t __wns_ret_temp0 = f->x->_val[x];
+    return f.x[x];
+}
+
+// CHECK: {{3sa2E}}
+int sa2(Int x) {
+    Bar b = Bar();
+// CHECK: int32_t __wns_ret_temp1 = b->x->_val[x]->x->_val[x];
+    return b.x[x].x[x];
+}
