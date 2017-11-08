@@ -36,5 +36,6 @@ wn_create_call_test(
       simple_struct_test.wns
       scope_tests.wns
       shared_objects.wns
+      struct_in_struct_tests.wns
       temporary_objects.wns
 )
