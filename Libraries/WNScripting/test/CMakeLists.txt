@@ -31,16 +31,14 @@ wn_create_call_test(
       empty_expression.wns
       function_call_tests.wns
       if_test.wns
-      # TODO(awoloszyn): This test breaks JIT. Fix JIT for this test
-      # inherited_struct_tests.wns
+      inherited_struct_tests.wns
       member_function_tests.wns
       relative_construction_test.wns
       simple_struct_test.wns
       scope_tests.wns
       shared_objects.wns
       struct_in_struct_tests.wns
-      # TODO(awoloszyn): This test breaks JIT. Fix JIT for this test.
-      #struct_with_array_tests.wns
+      struct_with_array_tests.wns
       temporary_objects.wns
       virtual_tests.wns
 )

@@ -107,7 +107,7 @@ class F2 : F1 {
     Int f = x;
 }
 
-// RUN: f7 -> 32
+// RUN: f7 -> 20
 Int f7() {
     F2 f = F2();
     return f.f + f.z;
@@ -123,11 +123,11 @@ Int f7() {
 
 // CHECK: {{construct_E2}}
 // CHECK-NEXT: _this->x = 9;
-// CHECK-NEXT: _this->y = _this.x;
+// CHECK-NEXT: _this->y = _this->x;
 
 // CHECK: {{construct_B2}}
 // CHECK-NEXT: _this->a = (A1*)(_Z3wns13_construct_A2ENR2A2ENUC2A2E((A2*)&(_this->__a)));
 
-// CHECK: {{construct_A2}}
+// CHECK: A2* _Z3wns13_construct_A2ENR2A2ENUC2A2E(A2* _this) {
 // CHECK-NEXT: _this->b = 4;
 // CHECK-NEXT: _this->a = 32;

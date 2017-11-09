@@ -858,8 +858,11 @@ void ast_jit_engine::walk_instruction(
     delete inst;
   }
 
-  location_dat.instructions.push_back(
-      new llvm::StoreInst(store_dat.value, target));
+  llvm::Instruction* cast = new llvm::BitCastInst(
+      store_dat.value, target->getType()->getPointerElementType());
+  location_dat.instructions.push_back(cast);
+
+  location_dat.instructions.push_back(new llvm::StoreInst(cast, target));
   _val->instructions.insert(_val->instructions.end(),
       location_dat.instructions.data(),
       location_dat.instructions.data() + location_dat.instructions.size());
