@@ -16,16 +16,13 @@ namespace networking {
 
 class WNReliableNetworkTransportSocket : public WNReliableConnection {
 public:
-  WNReliableNetworkTransportSocket(memory::allocator* _allocator,
-      multi_tasking::job_pool* _job_pool, WNBufferManager* _manager)
-    : WNReliableConnection(_allocator, _job_pool, _manager),
-      m_socket(INVALID_SOCKET) {}
+  WNReliableNetworkTransportSocket(
+      memory::allocator* _allocator, WNBufferManager* _manager)
+    : WNReliableConnection(_allocator, _manager), m_socket(INVALID_SOCKET) {}
 
-  WNReliableNetworkTransportSocket(memory::allocator* _allocator,
-      multi_tasking::job_pool* _job_pool, SOCKET _socket,
-      WNBufferManager* _manager)
-    : WNReliableConnection(_allocator, _job_pool, _manager),
-      m_socket(_socket) {}
+  WNReliableNetworkTransportSocket(
+      memory::allocator* _allocator, SOCKET _socket, WNBufferManager* _manager)
+    : WNReliableConnection(_allocator, _manager), m_socket(_socket) {}
 
   network_error connect_to(logging::log* _log,
       const containers::string_view& target, uint32_t connection_type,

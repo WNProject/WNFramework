@@ -19,9 +19,8 @@ namespace networking {
 
 class WNReliableConnection : public WNConnection {
 public:
-  WNReliableConnection(memory::allocator* _allocator,
-      multi_tasking::job_pool* job_pool, WNBufferManager* _manager)
-    : WNConnection(_allocator, job_pool, _manager) {}
+  WNReliableConnection(memory::allocator* _allocator, WNBufferManager* _manager)
+    : WNConnection(_allocator, _manager) {}
 
   virtual ~WNReliableConnection() {}
 
@@ -30,9 +29,9 @@ protected:
 
 class WNReliableAcceptConnection : public WNAcceptConnection {
 public:
-  WNReliableAcceptConnection(memory::allocator* _allocator,
-      multi_tasking::job_pool* _pool, WNBufferManager* _manager)
-    : WNAcceptConnection(_pool, _manager), m_allocator(_allocator) {}
+  WNReliableAcceptConnection(
+      memory::allocator* _allocator, WNBufferManager* _manager)
+    : WNAcceptConnection(_manager), m_allocator(_allocator) {}
 
   virtual ~WNReliableAcceptConnection() {}
 

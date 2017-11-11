@@ -8,8 +8,6 @@
 #define __WN_NETWORKING_CONNECTION_H__
 
 #include "WNContainers/inc/WNContiguousRange.h"
-#include "WNMultiTasking/inc/WNJobPool.h"
-#include "WNMultiTasking/inc/WNSynchronized.h"
 #include "WNNetworking/inc/WNNetworkingErrors.h"
 #include "WNNetworking/inc/WNReceiveBuffer.h"
 
@@ -23,7 +21,7 @@ class WNConnection : public core::non_copyable {
 public:
   // We want to synchronize both the sending and receiving of data
   // but we want them to be synchronized independently of each other.
-  class send_pipe : public multi_tasking::synchronized<> {
+  class send_pipe {
   public:
     send_pipe(WNConnection* _connection) : m_connection(_connection) {}
 
@@ -49,46 +47,7 @@ public:
       return send_sync(_list.begin(), _list.size());
     }
 
-    void send_async(multi_tasking::job_signal* _signal, network_error* _error,
-        containers::dynamic_array<send_range> _ranges) {
-      m_connection->m_job_pool->add_job(_signal,
-          &send_pipe::internal_send_async, this, core::move(_ranges), _error);
-    }
-
-    template <typename It>
-    void send_async(multi_tasking::job_signal* _signal, network_error* _error,
-        const It& _begin, size_t _size) {
-      containers::dynamic_array<send_range> ranges(m_connection->m_allocator);
-      ranges.reserve(_size);
-      auto it = _begin;
-      for (size_t i = 0; i < _size; ++i, ++it) {
-        ranges.push_back(*it);
-      }
-      return send_async(_signal, _error, core::move(ranges));
-    }
-
-    void send_async(multi_tasking::job_signal* _signal, network_error* _error,
-        const std::initializer_list<const send_range>& _list) {
-      return send_async(_signal, _error, _list.begin(), _list.size());
-    }
-
   private:
-    struct send_sync_params {
-      containers::dynamic_array<send_range> _params;
-      network_error* _err;
-    };
-    void internal_send_async(send_sync_params& s) {
-      if (s._err) {
-        *s._err =
-            m_connection->m_job_pool->call_blocking_function<network_error>(
-                &WNConnection::do_send, m_connection,
-                send_ranges(s._params.data(), s._params.size()));
-      } else {
-        m_connection->m_job_pool->call_blocking_function(&WNConnection::do_send,
-            m_connection, send_ranges(s._params.data(), s._params.size()));
-      }
-    }
-
     void internal_send_sync(const send_ranges& _ranges, network_error* _err) {
       if (_err) {
         *_err = m_connection->do_send(_ranges);
@@ -100,7 +59,7 @@ public:
     WNConnection* m_connection;
   };
 
-  class recv_pipe : public multi_tasking::synchronized<> {
+  class recv_pipe {
   public:
     recv_pipe(WNConnection* _connection) : m_connection(_connection) {}
 
@@ -108,40 +67,14 @@ public:
       return m_connection->recv_sync();
     }
 
-    void recv_async(multi_tasking::callback_ptr<WNReceiveBuffer&&> callback,
-        multi_tasking::job_pool* _pool = nullptr) {
-      m_connection->m_job_pool->add_job(nullptr, &recv_pipe::recv_internal,
-          this, core::move(callback), _pool);
-    }
-
   private:
-    struct recv_internal_params {
-      multi_tasking::callback_ptr<WNReceiveBuffer&&> callback;
-      multi_tasking::job_pool* _pool;
-    };
-
-    void recv_internal(recv_internal_params& _r) {
-      multi_tasking::job_pool* pool =
-          _r._pool ? _r._pool : m_connection->m_job_pool;
-      network_error err = network_error::ok;
-      do {
-        auto val =
-            m_connection->m_job_pool->call_blocking_function<WNReceiveBuffer>(
-                &recv_pipe::recv_sync, this);
-        err = val.get_status();
-        _r.callback->enqueue_job(pool, core::move(val));
-      } while (err == network_error::ok);
-    }
-
     WNConnection* m_connection;
   };
 
-  WNConnection(memory::allocator* _allocator, multi_tasking::job_pool* job_pool,
-      WNBufferManager* _manager)
+  WNConnection(memory::allocator* _allocator, WNBufferManager* _manager)
     : m_send_pipe(this),
       m_recv_pipe(this),
       m_allocator(_allocator),
-      m_job_pool(job_pool),
       m_manager(_manager) {}
 
   virtual ~WNConnection() {}
@@ -158,7 +91,6 @@ protected:
   send_pipe m_send_pipe;
   recv_pipe m_recv_pipe;
   memory::allocator* m_allocator;
-  multi_tasking::job_pool* m_job_pool;
   WNBufferManager* m_manager;
 
   friend class WNRoutedConnection;
@@ -168,78 +100,20 @@ protected:
 
 const uint32_t infinite = 0xFFFFFFFF;
 
-class WNAcceptConnection : public multi_tasking::synchronized<> {
+class WNAcceptConnection {
 public:
-  explicit WNAcceptConnection(
-      multi_tasking::job_pool* _pool, WNBufferManager* _manager)
-    : m_pool(_pool), m_manager(_manager) {}
+  explicit WNAcceptConnection(WNBufferManager* _manager)
+    : m_manager(_manager) {}
   virtual ~WNAcceptConnection() {}
 
   virtual memory::unique_ptr<WNConnection> accept_sync(
       network_error* _error = nullptr) = 0;
 
-  // Sets up a callback to wait for connections.
-  // if num_connections == infininte, then it will create a job for the
-  // the callback for every connection, otherwise it will only call it for the
-  // first num_connections, connections.
-  // If pool is nullptr, then the jobs will be run on the same job pool
-  // as the connection, otherwise they will be created on the given pool.
-  // If the connection was closed, accepted_socket returns nullptr,
-  // and no more callbacks will be created.
-  void accept_async(
-      multi_tasking::callback_ptr<memory::unique_ptr<networking::WNConnection>>
-          callback,
-      multi_tasking::job_pool* _pool = nullptr,
-      uint32_t num_connections = infinite) {
-    m_pool->add_job(nullptr, &WNAcceptConnection::accept_async_internal_job,
-        this, core::move(callback), _pool, num_connections);
-  }
-
-  void accept_async(multi_tasking::job_signal* _signal,
-      memory::unique_ptr<networking::WNConnection>* _output_connection,
-      network_error* _error) {
-    m_pool->add_job(_signal, &WNAcceptConnection::accept_async_internal, this,
-        _output_connection, _error);
-  }
-
-protected:
-  struct accept_async_internal_params {
-    memory::unique_ptr<networking::WNConnection>* _output_connection;
-    network_error* _err;
-  };
-
-  void accept_async_internal(accept_async_internal_params& _a) {
-    *_a._output_connection = m_pool->call_blocking_function<
-        memory::unique_ptr<networking::WNConnection>>(
-        &WNAcceptConnection::accept_sync, this, (network_error*)_a._err);
-  }
-
-  struct accept_async_internal_job_params {
-    multi_tasking::callback_ptr<memory::unique_ptr<networking::WNConnection>>
-        _callback;
-    multi_tasking::job_pool* _pool;
-    uint32_t _num_connections;
-  };
-
-  void accept_async_internal_job(accept_async_internal_job_params& _c) {
-    multi_tasking::job_pool* pool = _c._pool ? _c._pool : m_pool;
-    for (uint32_t i = 0; i < _c._num_connections; ++i) {
-      auto accepted_socket =
-          m_pool->call_blocking_function<memory::unique_ptr<WNConnection>>(
-              &WNAcceptConnection::accept_sync, this, nullptr);
-      _c._callback->enqueue_job(pool, core::move(accepted_socket));
-
-      if (accepted_socket == nullptr) {
-        return;
-      }
-    }
-  }
-  multi_tasking::job_pool* m_pool;
   WNBufferManager* m_manager;
   friend class WNRoutedAcceptConnection;
 };
 
 }  // namespace networking
-}  // namesapce wn
+}  // namespace wn
 
 #endif  // __WN_NETWORKING_CONNECTION_H__

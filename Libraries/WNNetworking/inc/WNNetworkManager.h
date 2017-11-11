@@ -36,10 +36,8 @@ enum class ip_protocol { ipv4, ipv6, ip_any };
 // other jobs as necessary.
 class WNNetworkManager {
 public:
-  explicit WNNetworkManager(
-      memory::allocator* _allocator, multi_tasking::job_pool* _job_pool)
-    : m_allocator(_allocator), m_job_pool(_job_pool) {
-    }
+  explicit WNNetworkManager(memory::allocator* _allocator)
+    : m_allocator(_allocator) {}
 
   virtual ~WNNetworkManager() {}
 
@@ -53,36 +51,11 @@ public:
       const containers::string_view& target, ip_protocol protocol,
       uint16_t port, network_error* _error = nullptr) = 0;
 
-  void listen_remote_async(ip_protocol protocol, uint16_t port,
-      multi_tasking::job_signal* _signal,
-      memory::unique_ptr<WNReliableAcceptConnection>* _connection,
-      network_error* _error) {
-    m_job_pool->add_unsynchronized_job(_signal, [=] {
-      *_connection = m_job_pool->call_blocking_function<
-          memory::unique_ptr<WNReliableAcceptConnection>>(
-          &WNNetworkManager::listen_remote_sync, this, protocol, port, _error);
-    });
-  }
-
-  void connect_remote_async(const containers::string_view& target,
-      ip_protocol protocol, uint16_t port, multi_tasking::job_signal* _signal,
-      memory::unique_ptr<WNReliableConnection>* _connection,
-      network_error* _error) {
-    containers::string s = target.to_string(m_allocator);
-    m_job_pool->add_unsynchronized_job(_signal, [=] {
-      *_connection = m_job_pool->call_blocking_function<
-          memory::unique_ptr<WNReliableConnection>>(
-          &WNNetworkManager::connect_remote_sync, this, s, protocol, port,
-          _error);
-    });
-  }
-
 protected:
   friend class WNReliableConnection;
   friend class WNReliableAcceptConnection;
 
   memory::allocator* m_allocator;
-  multi_tasking::job_pool* m_job_pool;
 };
 
 // The _job_pool here may be different than the job_pool used
@@ -96,11 +69,8 @@ protected:
 // non-blocking jobs.
 class WNConcreteNetworkManager : public WNNetworkManager {
 public:
-  WNConcreteNetworkManager(memory::allocator* _allocator,
-      multi_tasking::job_pool* _job_pool, logging::log* _log)
-    : WNNetworkManager(_allocator, _job_pool),
-      m_buffer_manager(_allocator),
-      m_log(_log) {
+  WNConcreteNetworkManager(memory::allocator* _allocator, logging::log* _log)
+    : WNNetworkManager(_allocator), m_buffer_manager(_allocator), m_log(_log) {
     initialize();
   }
 

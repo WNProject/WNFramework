@@ -5,7 +5,6 @@
 #include "WNNetworking/inc/WNReliableNetworkListenSocket.h"
 #include "WNNetworking/inc/WNReliableNetworkTransportSocket.h"
 
-
 static const uint32_t kIncommingConnectionBacklog = 10;
 
 namespace wn {
@@ -13,8 +12,8 @@ namespace networking {
 
 network_error WNReliableConnectListenSocket::initialize(
     logging::log* _log, int _protocol, uint16_t _port) {
-  m_socket = WSASocketW(_protocol, SOCK_STREAM, IPPROTO_TCP, nullptr, 0,
-                        WSA_FLAG_OVERLAPPED);
+  m_socket = WSASocketW(
+      _protocol, SOCK_STREAM, IPPROTO_TCP, nullptr, 0, WSA_FLAG_OVERLAPPED);
   if (m_socket == INVALID_SOCKET) {
     return network_error::invalid_parameters;
   }
@@ -22,8 +21,8 @@ network_error WNReliableConnectListenSocket::initialize(
   char port_array[11] = {0};
   memory::writeuint32(port_array, _port, 10);
 
-  addrinfo *result;
-  addrinfo *ptr;
+  addrinfo* result;
+  addrinfo* ptr;
 
   if (0 != GetAddrInfoA(NULL, port_array, nullptr, &result)) {
     _log->log_error("Could not resolve local port ", port_array);
@@ -59,8 +58,8 @@ network_error WNReliableConnectListenSocket::initialize(
   return network_error::ok;
 }
 
-memory::unique_ptr<WNConnection>
-WNReliableConnectListenSocket::accept_sync(network_error *_error) {
+memory::unique_ptr<WNConnection> WNReliableConnectListenSocket::accept_sync(
+    network_error* _error) {
   network_error tmp;
   _error = _error ? _error : &tmp;
   *_error = network_error::ok;
@@ -73,8 +72,8 @@ WNReliableConnectListenSocket::accept_sync(network_error *_error) {
     return nullptr;
   }
   return memory::make_unique<WNReliableNetworkTransportSocket>(
-      m_allocator, m_allocator, m_pool, accepted, m_manager);
+      m_allocator, m_allocator, accepted, m_manager);
 }
 
-} // namespace networking
-} // wn
+}  // namespace networking
+}  // namespace wn

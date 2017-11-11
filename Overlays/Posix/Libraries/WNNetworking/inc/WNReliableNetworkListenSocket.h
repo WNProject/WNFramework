@@ -19,9 +19,9 @@ namespace networking {
 class WNReliableConnectListenSocket : public WNReliableAcceptConnection {
 public:
   network_error initialize(logging::log* _log, int _protocol, uint16_t _port);
-  WNReliableConnectListenSocket(memory::allocator* _allocator,
-      multi_tasking::job_pool* _pool, WNBufferManager* _manager)
-    : WNReliableAcceptConnection(_allocator, _pool, _manager), m_sock_fd(-1) {}
+  WNReliableConnectListenSocket(
+      memory::allocator* _allocator, WNBufferManager* _manager)
+    : WNReliableAcceptConnection(_allocator, _manager), m_sock_fd(-1) {}
   ~WNReliableConnectListenSocket() {
     if (m_sock_fd != -1) {
       close(m_sock_fd);

@@ -6,7 +6,6 @@ add_wn_library(WNNetworking
     inc/WNNetworkingErrors.h
     inc/WNNetworkManager.h
     inc/WNReliableConnection.h
-    inc/WNRoutedConnection.h
     inc/WNReceiveBuffer.h
     src/WNReceiveBuffer.cpp
   LIBS

@@ -80,8 +80,8 @@ memory::unique_ptr<WNConnection> WNReliableConnectListenSocket::accept_sync(
     return nullptr;
   }
   return memory::make_unique<WNReliableNetworkTransportSocket>(
-      m_allocator, m_allocator, m_pool, accepted, m_manager);
+      m_allocator, m_allocator, accepted, m_manager);
 }
 
 }  // namespace networking
-}  // wn
+}  // namespace wn

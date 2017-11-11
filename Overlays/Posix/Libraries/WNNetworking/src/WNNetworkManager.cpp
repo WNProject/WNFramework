@@ -27,7 +27,7 @@ WNConcreteNetworkManager::listen_remote_sync(
   network_error tmp;
   _error = _error ? _error : &tmp;
   auto socket = memory::make_unique<WNReliableConnectListenSocket>(
-      m_allocator, m_allocator, m_job_pool, &m_buffer_manager);
+      m_allocator, m_allocator, &m_buffer_manager);
   if (network_error::ok !=
       (*_error = socket->initialize(
            m_log, PROTOCOL_MAPPING[static_cast<uint32_t>(protocol)], _port))) {
@@ -43,7 +43,7 @@ WNConcreteNetworkManager::connect_remote_sync(
   network_error tmp;
   _error = _error ? _error : &tmp;
   auto socket = memory::make_unique<WNReliableNetworkTransportSocket>(
-      m_allocator, m_allocator, m_job_pool, &m_buffer_manager);
+      m_allocator, m_allocator, &m_buffer_manager);
   if (network_error::ok !=
       (*_error = socket->connect_to(m_log, _target,
            PROTOCOL_MAPPING[static_cast<uint32_t>(protocol)], _port))) {
