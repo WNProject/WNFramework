@@ -31,19 +31,6 @@ struct basic_traits_generic : core::non_constructable_non_copyable {
 
   template <typename type>
   static WN_FORCE_INLINE
-      typename core::enable_if<(core::is_fixed_point<type>::value &&
-                                   core::is_signed<type>::value),
-          type>::type
-      abs(const type& _value) {
-    type value;
-
-    value.representation = abs(_value.representation);
-
-    return (value);
-  }
-
-  template <typename type>
-  static WN_FORCE_INLINE
       typename core::enable_if<(core::is_floating_point<type>::value &&
                                    std::is_fundamental<type>::value),
           type>::type
@@ -64,7 +51,6 @@ struct basic_traits_generic : core::non_constructable_non_copyable {
   static WN_FORCE_INLINE
       typename core::enable_if<(!std::is_integral<type>::value &&
                                    !core::is_floating_point<type>::value &&
-                                   !core::is_fixed_point<type>::value &&
                                    core::is_signed<type>::value),
           type>::type
       abs(const type& _value) {
@@ -76,18 +62,6 @@ struct basic_traits_generic : core::non_constructable_non_copyable {
       typename core::enable_if<std::is_integral<type>::value, type>::type
       mod(const type& _dividend, const type& _divisor) {
     return (_dividend % _divisor);
-  }
-
-  template <typename type>
-  static WN_FORCE_INLINE
-      typename core::enable_if<core::is_fixed_point<type>::value, type>::type
-      mod(const type& _dividend, const type& _divisor) {
-    type value;
-
-    value.representation =
-        mod(_dividend.representation, _divisor.representation);
-
-    return (value);
   }
 
   template <typename type>
@@ -262,17 +236,6 @@ struct basic_traits_generic : core::non_constructable_non_copyable {
 
   template <typename type>
   static WN_FORCE_INLINE
-      typename core::enable_if<core::is_fixed_point<type>::value, type>::type
-      pow(const type& _base, const type& _exponent) {
-    type value;
-
-    value.representation = pow(_base.representation, _exponent.representation);
-
-    return (value);
-  }
-
-  template <typename type>
-  static WN_FORCE_INLINE
       typename core::enable_if<(core::is_floating_point<type>::value &&
                                    !std::is_floating_point<type>::value),
           type>::type
@@ -286,22 +249,6 @@ struct basic_traits_generic : core::non_constructable_non_copyable {
       typename core::enable_if<std::is_floating_point<type>::value, type>::type
       pow(const type& _base, const type& _exponent) {
     return (::pow(_base, _exponent));
-  }
-
-  template <typename type>
-  static WN_FORCE_INLINE
-      typename core::enable_if<core::is_fixed_point<type>::value, type>::type
-      ceil(const type& _value) {
-    typedef typename type::value_type value_type;
-
-    const value_type mask =
-        pow2<value_type, type::traits_type::precision>::value - 1;
-    type value;
-
-    value.representation = _value.representation & ~mask;
-    value += static_cast<type>((_value.representation & mask) ? 1 : 0);
-
-    return (value);
   }
 
   template <typename type>
@@ -322,21 +269,6 @@ struct basic_traits_generic : core::non_constructable_non_copyable {
 
   template <typename type>
   static WN_FORCE_INLINE
-      typename core::enable_if<core::is_fixed_point<type>::value, type>::type
-      floor(const type& _value) {
-    typedef typename type::value_type value_type;
-
-    const value_type mask =
-        pow2<value_type, type::traits_type::precision>::value - 1;
-    type value;
-
-    value.representation = _value.representation & ~mask;
-
-    return (value);
-  }
-
-  template <typename type>
-  static WN_FORCE_INLINE
       typename core::enable_if<(core::is_floating_point<type>::value &&
                                    !std::is_floating_point<type>::value),
           type>::type
@@ -349,13 +281,6 @@ struct basic_traits_generic : core::non_constructable_non_copyable {
       typename core::enable_if<std::is_floating_point<type>::value, type>::type
       floor(const type& _value) {
     return (::floor(_value));
-  }
-
-  template <typename type>
-  static WN_FORCE_INLINE
-      typename core::enable_if<core::is_fixed_point<type>::value, type>::type
-      round(const type& _value) {
-    return (floor(_value + static_cast<type>(0.5)));
   }
 
   template <typename type>
@@ -376,19 +301,6 @@ struct basic_traits_generic : core::non_constructable_non_copyable {
 #else
     return (floor(_value + static_cast<type>(0.5)));
 #endif
-  }
-
-  template <typename type>
-  static WN_FORCE_INLINE
-      typename core::enable_if<core::is_fixed_point<type>::value, type>::type
-      trunc(const type& _value) {
-    if (_value > 0) {
-      return (floor(_value + static_cast<type>(0.5)));
-    } else if (_value < 0) {
-      return (ceil(_value - static_cast<type>(0.5)));
-    }
-
-    return (_value);
   }
 
   template <typename type>

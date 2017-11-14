@@ -175,32 +175,33 @@ public:
 
 template <template <typename, size_t, bool> class VectorType, typename T,
     size_t Dimension, bool Precise>
-class vector_base_generic_real_only
+class vector_base_generic_floating_point_only
   : public vector_base_generic_signed_only<VectorType, T, Dimension, Precise> {
 private:
   using base =
       vector_base_generic_signed_only<VectorType, T, Dimension, Precise>;
 
 public:
-  WN_FORCE_INLINE vector_base_generic_real_only() : base() {}
+  WN_FORCE_INLINE vector_base_generic_floating_point_only() : base() {}
 
-  WN_FORCE_INLINE vector_base_generic_real_only(
-      vector_base_generic_real_only&& _vector)
+  WN_FORCE_INLINE vector_base_generic_floating_point_only(
+      vector_base_generic_floating_point_only&& _vector)
     : base(core::move(_vector)) {}
 
-  WN_FORCE_INLINE vector_base_generic_real_only(
-      const vector_base_generic_real_only& _vector)
+  WN_FORCE_INLINE vector_base_generic_floating_point_only(
+      const vector_base_generic_floating_point_only& _vector)
     : base(_vector) {}
 
-  WN_FORCE_INLINE explicit vector_base_generic_real_only(const T& _value)
+  WN_FORCE_INLINE explicit vector_base_generic_floating_point_only(
+      const T& _value)
     : base(_value) {}
 
-  WN_FORCE_INLINE explicit vector_base_generic_real_only(
+  WN_FORCE_INLINE explicit vector_base_generic_floating_point_only(
       const T (&_values)[Dimension])
     : base(_values) {}
 
   template <typename Itr>
-  WN_FORCE_INLINE vector_base_generic_real_only(Itr _begin, Itr _end)
+  WN_FORCE_INLINE vector_base_generic_floating_point_only(Itr _begin, Itr _end)
     : base(_begin, _end) {}
 
   WN_FORCE_INLINE T inverse_length() const {
@@ -214,31 +215,34 @@ public:
 
 template <template <typename, size_t, bool> class VectorType, typename T,
     size_t Dimension>
-class vector_base_generic_real_only<VectorType, T, Dimension, true>
-  : public vector_base_generic_real_only<VectorType, T, Dimension, false> {
+class vector_base_generic_floating_point_only<VectorType, T, Dimension, true>
+  : public vector_base_generic_floating_point_only<VectorType, T, Dimension,
+        false> {
 private:
-  using base = vector_base_generic_real_only<VectorType, T, Dimension, false>;
+  using base =
+      vector_base_generic_floating_point_only<VectorType, T, Dimension, false>;
 
 public:
-  WN_FORCE_INLINE vector_base_generic_real_only() : base() {}
+  WN_FORCE_INLINE vector_base_generic_floating_point_only() : base() {}
 
-  WN_FORCE_INLINE vector_base_generic_real_only(
-      vector_base_generic_real_only&& _vector)
+  WN_FORCE_INLINE vector_base_generic_floating_point_only(
+      vector_base_generic_floating_point_only&& _vector)
     : base(core::move(_vector)) {}
 
-  WN_FORCE_INLINE vector_base_generic_real_only(
-      const vector_base_generic_real_only& _vector)
+  WN_FORCE_INLINE vector_base_generic_floating_point_only(
+      const vector_base_generic_floating_point_only& _vector)
     : base(_vector) {}
 
-  WN_FORCE_INLINE explicit vector_base_generic_real_only(const T& _value)
+  WN_FORCE_INLINE explicit vector_base_generic_floating_point_only(
+      const T& _value)
     : base(_value) {}
 
-  WN_FORCE_INLINE explicit vector_base_generic_real_only(
+  WN_FORCE_INLINE explicit vector_base_generic_floating_point_only(
       const T (&_values)[Dimension])
     : base(_values) {}
 
   template <typename Itr>
-  WN_FORCE_INLINE vector_base_generic_real_only(Itr _begin, Itr _end)
+  WN_FORCE_INLINE vector_base_generic_floating_point_only(Itr _begin, Itr _end)
     : base(_begin, _end) {}
 
   WN_FORCE_INLINE void normalize() {
@@ -248,8 +252,9 @@ public:
 
 template <template <typename, size_t, bool> class VectorType, typename T,
     size_t Dimension, bool Precise>
-using vector_base_generic = core::conditional_t<core::is_real<T>::value,
-    vector_base_generic_real_only<VectorType, T, Dimension, Precise>,
+using vector_base_generic = core::conditional_t<
+    core::is_floating_point<T>::value,
+    vector_base_generic_floating_point_only<VectorType, T, Dimension, Precise>,
     core::conditional_t<core::is_signed<T>::value,
         vector_base_generic_signed_only<VectorType, T, Dimension, Precise>,
         vector_base_generic_common<VectorType, T, Dimension, Precise>>>;

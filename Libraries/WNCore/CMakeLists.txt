@@ -362,10 +362,6 @@ elseif(NOT WN_DISABLE_CXX)
   message(FATAL_ERROR "No alignof style keyword was found")
 endif()
 
-# run calling convention tests
-
-# make calling convention selections
-
 # print selections
 
 message(STATUS "WN_INLINE Selection: ${WN_INLINE}")
@@ -782,14 +778,12 @@ add_wn_header_library(WNCore
   SOURCES
     inc/Internal/WNConfig.h.in
     inc/Internal/WNErrors.inc
-    inc/Internal/WNExtendedTypes.h
     ${CONFIG_FILE_INPUT_PATH}
     ${CONFIG_FILE_OUTPUT_PATH}
     inc/WNAlgorithm.h
     inc/WNAssert.h
     inc/WNBase.h
     inc/WNEndian.h
-    inc/WNExtendedTypes.h
     inc/WNMacros.h
     inc/WNPair.h
     inc/WNTuple.h

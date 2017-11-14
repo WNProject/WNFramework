@@ -24,51 +24,53 @@ WN_FORCE_INLINE
 
 template <typename _Type>
 WN_FORCE_INLINE
-    typename core::enable_if<core::is_real<_Type>::value, _Type>::type
+    typename core::enable_if<core::is_floating_point<_Type>::value, _Type>::type
     ceil(const _Type& _value) {
   return (math::internal::basic_traits::ceil(_value));
 }
 
 template <typename _Type>
 WN_FORCE_INLINE
-    typename core::enable_if<core::is_real<_Type>::value, _Type>::type
+    typename core::enable_if<core::is_floating_point<_Type>::value, _Type>::type
     floor(const _Type& _value) {
   return (math::internal::basic_traits::floor(_value));
 }
 
 template <typename _Type>
 WN_FORCE_INLINE
-    typename core::enable_if<core::is_real<_Type>::value, _Type>::type
+    typename core::enable_if<core::is_floating_point<_Type>::value, _Type>::type
     round(const _Type& _value) {
   return (math::internal::basic_traits::round(_value));
 }
 
 template <typename _Type>
 WN_FORCE_INLINE
-    typename core::enable_if<core::is_real<_Type>::value, _Type>::type
+    typename core::enable_if<core::is_floating_point<_Type>::value, _Type>::type
     trunc(const _Type& _value) {
   return (math::internal::basic_traits::trunc(_value));
 }
 
 template <typename _Type>
-WN_FORCE_INLINE typename core::enable_if<(core::is_real<_Type>::value ||
-                                             std::is_integral<_Type>::value),
-    _Type>::type
-mod(const _Type& _dividend, const _Type& _divisor) {
+WN_FORCE_INLINE
+    typename core::enable_if<(core::is_floating_point<_Type>::value ||
+                                 std::is_integral<_Type>::value),
+        _Type>::type
+    mod(const _Type& _dividend, const _Type& _divisor) {
   return (math::internal::basic_traits::mod(_dividend, _divisor));
 }
 
 template <typename _Type>
-WN_FORCE_INLINE typename core::enable_if<(core::is_real<_Type>::value ||
-                                             std::is_integral<_Type>::value),
-    _Type>::type
-sqrt(const _Type& _value) {
+WN_FORCE_INLINE
+    typename core::enable_if<(core::is_floating_point<_Type>::value ||
+                                 std::is_integral<_Type>::value),
+        _Type>::type
+    sqrt(const _Type& _value) {
   return (math::internal::basic_traits::sqrt(_value));
 }
 
 template <typename _Type>
 WN_FORCE_INLINE
-    typename core::enable_if<core::is_real<_Type>::value, _Type>::type
+    typename core::enable_if<core::is_floating_point<_Type>::value, _Type>::type
     invsqrt(const _Type& _value) {
   return (math::internal::basic_traits::invsqrt(_value));
 }
@@ -152,10 +154,70 @@ WN_FORCE_INLINE uint8_t trailing_zeros(uint64_t value) {
   // table from
   // http://chessprogramming.wikispaces.com/De+Bruijn+Sequence+Generator
   const uint8_t debruijn_values[64] = {
-      0, 1, 2, 53, 3, 7, 54, 27, 4, 38, 41, 8, 34, 55, 48, 28, 62, 5, 39, 46,
-      44, 42, 22, 9, 24, 35, 59, 56, 49, 18, 29, 11, 63, 52, 6, 26, 37, 40, 33,
-      47, 61, 45, 43, 21, 23, 58, 17, 10, 51, 25, 36, 32, 60, 20, 57, 16, 50,
-      31, 19, 15, 30, 14, 13, 12,
+      0,
+      1,
+      2,
+      53,
+      3,
+      7,
+      54,
+      27,
+      4,
+      38,
+      41,
+      8,
+      34,
+      55,
+      48,
+      28,
+      62,
+      5,
+      39,
+      46,
+      44,
+      42,
+      22,
+      9,
+      24,
+      35,
+      59,
+      56,
+      49,
+      18,
+      29,
+      11,
+      63,
+      52,
+      6,
+      26,
+      37,
+      40,
+      33,
+      47,
+      61,
+      45,
+      43,
+      21,
+      23,
+      58,
+      17,
+      10,
+      51,
+      25,
+      36,
+      32,
+      60,
+      20,
+      57,
+      16,
+      50,
+      31,
+      19,
+      15,
+      30,
+      14,
+      13,
+      12,
   };
   return debruijn_values[(uint64_t)(((int64_t)value & -(int64_t)value) *
                                     0x022fdd63cc95386d) >>

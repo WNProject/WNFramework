@@ -20,7 +20,7 @@ wn_create_call_test(
       ${WNFramework_BINARY_DIR}/Applications/script_test_runner/
     COMMAND
       script_test_runner${CMAKE_EXECUTABLE_SUFFIX}
-    --data_dir ${CMAKE_CURRENT_SOURCE_DIR}/filecheck
+      --data_dir ${CMAKE_CURRENT_SOURCE_DIR}/filecheck
       --test_file
     UNIQUE_ARGS
       array_tests.wns

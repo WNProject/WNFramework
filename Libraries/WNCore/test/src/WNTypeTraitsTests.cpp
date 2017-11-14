@@ -3,7 +3,6 @@
 // found in the LICENSE.txt file.
 
 #include "WNCore/inc/WNTypeTraits.h"
-#include "WNCore/inc/WNExtendedTypes.h"
 #include "WNCore/inc/WNTypes.h"
 #include "WNExecutableTest/inc/WNTestHarness.h"
 
@@ -70,14 +69,8 @@ TEST(type_traits, is_same_decayed) {
 }
 
 TEST(type_traits, is_arithmetic) {
-  EXPECT_TRUE(wn::core::is_arithmetic<wn_float8>::value);
-  EXPECT_TRUE(wn::core::is_arithmetic<const wn_float16>::value);
   EXPECT_TRUE(wn::core::is_arithmetic<volatile float>::value);
   EXPECT_TRUE(wn::core::is_arithmetic<const volatile double>::value);
-  EXPECT_TRUE(wn::core::is_arithmetic<wn_fixed8>::value);
-  EXPECT_TRUE(wn::core::is_arithmetic<const wn_fixed16>::value);
-  EXPECT_TRUE(wn::core::is_arithmetic<volatile wn_fixed32>::value);
-  EXPECT_TRUE(wn::core::is_arithmetic<const volatile wn_fixed64>::value);
   EXPECT_FALSE(wn::core::is_arithmetic<void>::value);
   EXPECT_FALSE(wn::core::is_arithmetic<const void*>::value);
   EXPECT_FALSE(wn::core::is_arithmetic<volatile void*>::value);
@@ -85,39 +78,9 @@ TEST(type_traits, is_arithmetic) {
 }
 
 TEST(type_traits, is_floating_point) {
-  EXPECT_TRUE(wn::core::is_floating_point<wn_float8>::value);
-  EXPECT_TRUE(wn::core::is_floating_point<const wn_float16>::value);
   EXPECT_TRUE(wn::core::is_floating_point<volatile float>::value);
   EXPECT_TRUE(wn::core::is_floating_point<const volatile double>::value);
   EXPECT_FALSE(wn::core::is_floating_point<bool>::value);
   EXPECT_FALSE(wn::core::is_floating_point<const int32_t>::value);
   EXPECT_FALSE(wn::core::is_floating_point<volatile uint32_t>::value);
-  EXPECT_FALSE(wn::core::is_floating_point<const volatile wn_fixed32>::value);
-}
-
-TEST(type_traits, is_fixed_point) {
-  EXPECT_TRUE(wn::core::is_fixed_point<wn_fixed8>::value);
-  EXPECT_TRUE(wn::core::is_fixed_point<const wn_fixed16>::value);
-  EXPECT_TRUE(wn::core::is_fixed_point<volatile wn_fixed32>::value);
-  EXPECT_TRUE(wn::core::is_fixed_point<const volatile wn_fixed64>::value);
-  EXPECT_TRUE((wn::core::is_fixed_point<wn_fixed<uint32_t, 25>>::value));
-  EXPECT_FALSE(wn::core::is_fixed_point<bool>::value);
-  EXPECT_FALSE(wn::core::is_fixed_point<const int32_t>::value);
-  EXPECT_FALSE(wn::core::is_fixed_point<volatile uint32_t>::value);
-  EXPECT_FALSE(wn::core::is_fixed_point<const volatile float>::value);
-}
-
-TEST(type_traits, is_real) {
-  EXPECT_TRUE(wn::core::is_real<wn_fixed8>::value);
-  EXPECT_TRUE(wn::core::is_real<const wn_fixed16>::value);
-  EXPECT_TRUE(wn::core::is_real<volatile wn_fixed32>::value);
-  EXPECT_TRUE(wn::core::is_real<const volatile wn_fixed64>::value);
-  EXPECT_TRUE((wn::core::is_real<wn_fixed<uint32_t, 25>>::value));
-  EXPECT_TRUE(wn::core::is_real<wn_float8>::value);
-  EXPECT_TRUE(wn::core::is_real<const wn_float16>::value);
-  EXPECT_TRUE(wn::core::is_real<volatile float>::value);
-  EXPECT_TRUE(wn::core::is_real<const volatile double>::value);
-  EXPECT_FALSE(wn::core::is_real<bool>::value);
-  EXPECT_FALSE(wn::core::is_real<const int32_t>::value);
-  EXPECT_FALSE(wn::core::is_real<volatile uint32_t>::value);
 }
