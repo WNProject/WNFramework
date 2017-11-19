@@ -42,5 +42,16 @@ size_t job_signal::current_value() {
   return value;
 }
 
+void synchronized_destroy_base::wait_for_destruction(synchronized<>* _sync) {
+  wn::multi_tasking::job_signal s(0);
+  synchronization_data* data = _sync->get_synchronization_data();
+  wn::multi_tasking::job_pool::this_job_pool()->add_job_internal(
+      memory::make_unique<synchronized_job<synchronized<>, void*>>(
+          wn::multi_tasking::job_pool::this_job_pool()->m_allocator,
+          &data->signal, data->increment_job(), &s, _sync,
+          &synchronized<>::schedule_for_destruction, nullptr));
+  s.wait_until(1);
+}
+
 }  // namespace multi_tasking
 }  // namespace wn

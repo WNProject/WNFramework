@@ -219,33 +219,24 @@ public:
                   // Remove and switch to void return once that is done
   }
 
-  template <typename T, typename V, typename... Args>
+  template <typename B, typename T, typename V, typename... Args>
   WN_FORCE_INLINE
       typename core::enable_if<multi_tasking::is_synchronized<T>::type::value,
           void>::type
-      add_job(job_signal* _signal, void (T::*_fn)(V), T* _c, Args&&... _args) {
+      add_job(job_signal* _signal, void (B::*_fn)(V), T* _c, Args&&... _args) {
     synchronization_data* data = _c->get_synchronization_data();
     add_job_internal(memory::make_unique<synchronized_job<T, V>>(m_allocator,
         &data->signal, data->increment_job(), _signal, _c, _fn,
         core::forward<Args>(_args)...));
   }
 
-  template <typename T, typename V, typename... Args>
+  template <typename B, typename T, typename V, typename... Args>
   WN_FORCE_INLINE
       typename core::enable_if<!multi_tasking::is_synchronized<T>::type::value,
           void>::type
-      add_job(job_signal* _signal, void (T::*_fn)(V), T* _c, Args&&... _args) {
+      add_job(job_signal* _signal, void (B::*_fn)(V), T* _c, Args&&... _args) {
     add_job_internal(memory::make_unique<synchronized_job<T, V>>(m_allocator,
         nullptr, 0, _signal, _c, _fn, core::forward<Args>(_args)...));
-  }
-
-  template <typename T>
-  WN_FORCE_INLINE void destroy_synchronized(memory::unique_ptr<T> object) {
-    synchronization_data* data = object->get_synchronization_data();
-    add_job_internal(
-        memory::make_unique<synchronized_job<job_pool, memory::unique_ptr<T>&>>(
-            m_allocator, &data->signal, data->increment_job(), nullptr, this,
-            &job_pool::destroy_synchronized_internal<T>, core::move(object)));
   }
 
   void update_signal(job_signal* _signal, size_t _num) {
@@ -275,9 +266,6 @@ public:
   virtual void join() = 0;
 
 protected:
-  template <typename T>
-  void destroy_synchronized_internal(memory::unique_ptr<T>&) {}
-
   static void set_this_job_pool(job_pool* _pool);
   memory::allocator* m_allocator;
 
@@ -290,6 +278,7 @@ private:
   virtual void notify_blocking() = 0;
   virtual void move_to_ready() = 0;
   friend class job_signal;
+  friend class synchronized_destroy_base;
 };
 
 template <typename T, typename C>
@@ -403,9 +392,8 @@ public:
 protected:
   void add_job_internal(job_ptr _ptr) override {
     spin_lock_guard guard(m_thread_lock);
-    if (!_ptr->is_ready() &&
-        _ptr->get_wait_signal()->current_value() !=
-            _ptr->get_wait_condition()) {
+    if (!_ptr->is_ready() && _ptr->get_wait_signal()->current_value() !=
+                                 _ptr->get_wait_condition()) {
       WN_DEBUG_ASSERT_DESC(_ptr->get_wait_signal(),
           "Cannot have an unready job without a wait signal");
       job_signal* signal = _ptr->get_wait_signal();
