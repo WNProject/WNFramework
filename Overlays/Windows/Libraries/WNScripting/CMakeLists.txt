@@ -1,7 +1,7 @@
 if(CMAKE_CONFIGURATION_TYPES)
-set(BUILD_TYPES ${CMAKE_CONFIGURATION_TYPES})
+  set(BUILD_TYPES ${CMAKE_CONFIGURATION_TYPES})
 else()
-set(BUILD_TYPES ${CMAKE_BUILD_TYPE})
+  set(BUILD_TYPES ${CMAKE_BUILD_TYPE})
 endif()
 
 set_overlay_var(WN_LLVM_TARGET "X86")
@@ -13,6 +13,7 @@ if (HAS)
 endif()
 
 wn_has_architecture("x86-64" HAS)
+
 if (HAS)
   set_overlay_var(WN_LLVM_TRIPLE "x86_64-pc-win32-elf")
 endif()
