@@ -55,39 +55,45 @@ containers::string get_scratch_path(
   DWORD path_size = get_temp_path_unicode(path_buffer);
 
   if (path_size != 0) {
-    wchar_t name_template[7] = {0};
+    static const wchar_t alphanum[] =
+        L"0123456789"
+        L"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        L"abcdefghijklmnopqrstuvwxyz";
+    static const size_t length = 16;
+    wchar_t name_template[length + 1];
+
+    name_template[length] = 0;
 
     for (;;) {
-      ::wcsncpy(name_template, L"XXXXXX", 6);
+      for (size_t i = 0; i < length; ++i) {
+        name_template[i] =
+            alphanum[rand() % ((sizeof(alphanum) / sizeof(wchar_t)) - 1)];
+      }
 
-      if (::_wmktemp(name_template)) {
-        containers::array<wchar_t, (MAX_PATH + 1)> path_unique_buffer = {0};
+      containers::array<wchar_t, (MAX_PATH + 1)> path_unique_buffer = {0};
+      const int result =
+          ::_snwprintf(path_unique_buffer.data(), path_unique_buffer.size(),
+              L"%sscratch.%s\\", path_buffer.data(), name_template);
 
-        const int result =
-            ::_snwprintf(path_unique_buffer.data(), path_unique_buffer.size(),
-                L"%sscratch.%s\\", path_buffer.data(), name_template);
+      if (result > 0 && result < static_cast<int>(path_unique_buffer.size())) {
+        path_size = static_cast<DWORD>(result);
+        const WCHAR* path_unique =
+            static_cast<WCHAR*>(path_unique_buffer.data());
 
-        if (result > 0 &&
-            result < static_cast<int>(path_unique_buffer.size())) {
-          path_size = static_cast<DWORD>(result);
-          const WCHAR* path_unique =
-              static_cast<WCHAR*>(path_unique_buffer.data());
+        if (::CreateDirectoryW(path_unique, NULL) == TRUE) {
+          containers::string path(
+              convert_to_utf8(_allocator, path_unique, path_size));
 
-          if (::CreateDirectoryW(path_unique, NULL) == TRUE) {
-            containers::string path(
-                convert_to_utf8(_allocator, path_unique, path_size));
+          if (!path.empty()) {
+            internal::sanitize_path(path);
 
-            if (!path.empty()) {
-              internal::sanitize_path(path);
+            return core::move(path);
+          }
+        } else {
+          const DWORD error = ::GetLastError();
 
-              return core::move(path);
-            }
-          } else {
-            const DWORD error = ::GetLastError();
-
-            if (error == ERROR_ALREADY_EXISTS) {
-              continue;
-            }
+          if (error == ERROR_ALREADY_EXISTS) {
+            continue;
           }
         }
       }

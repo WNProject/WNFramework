@@ -24,15 +24,18 @@ containers::string get_scratch_path(
   const containers::string temp_path(get_temp_path(_allocator, _system_data));
 
   if (!temp_path.empty()) {
-    for (;;) {
-      char name_template[9] = {0};
-      uint32_t t = ::rand() % 100000000;
-      int pos = 0;
+    static const char alphanum[] =
+        "0123456789"
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        "abcdefghijklmnopqrstuvwxyz";
+    static const size_t length = 16;
+    char name_template[length + 1];
 
-      while (t) {
-        name_template[++pos] = (t % 10 + '0');
-        t -= t % 10;
-        t /= 10;
+    name_template[length] = 0;
+
+    for (;;) {
+      for (size_t i = 0; i < length; ++i) {
+        name_template[i] = alphanum[rand() % (sizeof(alphanum) - 1)];
       }
 
       containers::string path(temp_path + "scratch." + name_template + "/");
