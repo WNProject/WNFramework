@@ -18,6 +18,10 @@
 #include <android_native_app_glue.h>
 #include <sys/prctl.h>
 #include <unistd.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <ctime>
 
 extern int32_t wn_main(const wn::entry::system_data* data);
 
@@ -83,6 +87,8 @@ void* main_proxy_thread(void* _package_name) {
       package_name, &wn::utilities::gWindowInitialized};
   wn::entry::system_data system_data{&host_data, executable, 1, &package_name};
 
+  ::srand(static_cast<unsigned int>(::time(NULL)));
+
   const int32_t retVal = wn_main(&system_data);
 
   __android_log_print(
@@ -120,6 +126,8 @@ int main(int _argc, char* _argv[]) {
 
   wn::entry::system_data system_data{&host_data, full_path, _argc, _argv};
   wn::utilities::gAndroidLogTag = _argv[0];
+
+  ::srand(static_cast<unsigned int>(::time(NULL)));
 
   return wn_main(&system_data);
 }

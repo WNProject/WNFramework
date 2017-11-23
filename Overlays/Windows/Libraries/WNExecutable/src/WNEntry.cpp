@@ -7,7 +7,10 @@
 #include "WNExecutable/inc/WNEntryData.h"
 #include "WNUtilities/inc/WNCrashHandler.h"
 
+#include <cstdio>
+#include <cstdlib>
 #include <cstring>
+#include <ctime>
 
 extern int32_t wn_main(const wn::entry::system_data* _data);
 
@@ -47,6 +50,8 @@ int main(int _argc, char** _argv) {
 
   wn::entry::host_specific_data host_data{executable, ::GetModuleHandleW(NULL)};
   wn::entry::system_data system_data{&host_data, full_path, _argc, _argv};
+
+  ::srand(static_cast<unsigned int>(::time(NULL)));
 
   return wn_main(&system_data);
 }
