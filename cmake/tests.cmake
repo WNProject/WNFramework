@@ -120,16 +120,26 @@ macro(wn_create_test)
 endmacro()
 
 macro(overload_create_call_test)
-  foreach(source ${${prefix}_test_OVERLAY_SOURCES})
-      get_filename_component(source ${source} NAME)
-      add_test(NAME ${prefix}_${source}_test
-         COMMAND
-            ${PARSED_ARGS_APPLICATION}${CMAKE_EXECUTABLE_SUFFIX}
-            ${PARSED_ARGS_COMMAND_PRE_DIR}
-            ${PARSED_ARGS_COMMAND_DIR}
-            ${PARSED_ARGS_COMMAND_POST_DIR} ${source}
-         WORKING_DIRECTORY ${PARSED_ARGS_WORKING_DIRECTORY})
+  if (${prefix}_test_OVERLAY_SOURCES)
+    foreach(source ${${prefix}_test_OVERLAY_SOURCES})
+        get_filename_component(source ${source} NAME)
+        add_test(NAME ${prefix}_${source}_test
+          COMMAND
+              ${PARSED_ARGS_APPLICATION}
+              ${PARSED_ARGS_COMMAND_PRE_DIR}
+              ${PARSED_ARGS_COMMAND_DIR}
+              ${PARSED_ARGS_COMMAND_POST_DIR} ${source}
+          WORKING_DIRECTORY ${PARSED_ARGS_WORKING_DIRECTORY})
     endforeach()
+  else()
+    add_test(NAME ${prefix}_test_run
+          COMMAND
+              ${PARSED_ARGS_APPLICATION}
+              ${PARSED_ARGS_COMMAND_PRE_DIR}
+              ${PARSED_ARGS_COMMAND_DIR}
+              ${PARSED_ARGS_COMMAND_POST_DIR}
+          WORKING_DIRECTORY ${PARSED_ARGS_WORKING_DIRECTORY})
+  endif()
 endmacro()
 
 # Arguments
@@ -150,13 +160,21 @@ function(wn_create_call_test prefix)
       ${ARGN}
     )
 
-    if(NOT PARSED_ARGS_UNIQUE_ARGS)
-      message(FATAL_ERROR "You must provide at least one iterable argument")
+    if(NOT PARSED_ARGS_COMMAND_PRE_DIR)
+      set(PARSED_ARGS_COMMAND_PRE_DIR "")
+    endif()
+    if (NOT PARSED_ARGS_COMMAND_DIR)
+      set(PARSED_ARGS_COMMAND_DIR "")
+    endif()
+    if (NOT PARSED_ARGS_COMMAND_POST_DIR)
+      set(PARSED_ARGS_COMMAND_POST_DIR "")
     endif()
 
-    _add_sources_to_target(${prefix}_test
+    if(PARSED_ARGS_UNIQUE_ARGS)
+      _add_sources_to_target(${prefix}_test
       SOURCES
         ${PARSED_ARGS_UNIQUE_ARGS})
+    endif()
 
     overload_create_call_test()
 
