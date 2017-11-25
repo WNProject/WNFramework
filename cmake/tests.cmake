@@ -119,6 +119,19 @@ macro(wn_create_test)
   wn_post_add_test_wrapper(${OUTPUT_TEST_NAME})
 endmacro()
 
+macro(overload_create_call_test)
+  foreach(source ${${prefix}_test_OVERLAY_SOURCES})
+      get_filename_component(source ${source} NAME)
+      add_test(NAME ${prefix}_${source}_test
+         COMMAND
+            ${PARSED_ARGS_APPLICATION}${CMAKE_EXECUTABLE_SUFFIX}
+            ${PARSED_ARGS_COMMAND_PRE_DIR}
+            ${PARSED_ARGS_COMMAND_DIR}
+            ${PARSED_ARGS_COMMAND_POST_DIR} ${source}
+         WORKING_DIRECTORY ${PARSED_ARGS_WORKING_DIRECTORY})
+    endforeach()
+endmacro()
+
 # Arguments
 #     SOURCE_DIR: Directory that contains each individual test.
 #     COMMON_SOURCES: Sourcs to include into each test.
@@ -132,8 +145,8 @@ function(wn_create_call_test prefix)
     cmake_parse_arguments(
       PARSED_ARGS
       ""
-      "WORKING_DIRECTORY"
-      "COMMAND;UNIQUE_ARGS"
+      "WORKING_DIRECTORY;COMMAND_DIR;COMMAND_POST_DIR;APPLICATION"
+      "COMMAND_PRE_DIR;UNIQUE_ARGS"
       ${ARGN}
     )
 
@@ -145,13 +158,8 @@ function(wn_create_call_test prefix)
       SOURCES
         ${PARSED_ARGS_UNIQUE_ARGS})
 
-    foreach(source ${${prefix}_test_OVERLAY_SOURCES})
-      #TODO(awoloszyn): Android Support for this
-      get_filename_component(source ${source} NAME)
-      add_test(NAME ${prefix}_${source}_test
-         COMMAND ${PARSED_ARGS_COMMAND} ${source}
-         WORKING_DIRECTORY ${PARSED_ARGS_WORKING_DIRECTORY})
-    endforeach()
+    overload_create_call_test()
+
   propagate_to_parent(WN_ALL_EXECUTABLES)
   propagate_to_parent(WN_ALL_SHARED_LIBS)
   propagate_to_parent(WN_ALL_STATIC_LIBS)

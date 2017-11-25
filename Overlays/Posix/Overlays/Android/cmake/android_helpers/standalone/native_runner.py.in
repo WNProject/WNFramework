@@ -31,12 +31,20 @@ def run():
                         help='Use stripped executables')
     parser.add_argument('--binary-dir',
                         help='Location of the binaries')
+    parser.add_argument('--args',
+                        help='Additional arguments to pass')
+    parser.add_argument('--copy-dir',
+                        help='Directory to copy to /data/local/tmp')
+    parser.add_argument('--tmp-dir',
+                        help="The temporary directory to use, default /data/local/tmp")
 
     args = parser.parse_args(sys.argv[1:])
     if not args.binary_dir:
         args.binary_dir = ""
     else:
         args.binary_dir = args.binary_dir + '/'
+    if not args.tmp_dir:
+        args.tmp_dir = "/data/local/tmp"
 
     adb_command = os.path.join(sdk_dir, 'platform-tools',
                                file_with_extension('adb'))
@@ -45,25 +53,43 @@ def run():
 
     output_path = '/data/local/tmp/output.' + str(os.getpid())
     retval = 0
-
     run = not args.install or args.run
+
+    if args.copy_dir:
+        run_args = [adb_command, 'shell', 'rm', '-rf',
+                    '{}'.format(args.tmp_dir)]
+        subprocess.call(run_args)
+
+        run_args = [adb_command, 'push', args.copy_dir + "/",
+                    '{}'.format(args.tmp_dir)]
+
+        subprocess.call(run_args)
+        print("Copying %s" % args.copy_dir)
+
     if args.install:
         app_name = args.binary_dir + '${name}'
         if args.stripped:
             app_name = args.binary_dir + "stripped/${name}"
+
+        run_args = [adb_command, 'shell',
+                    'mkdir', '-p', args.tmp_dir]
+        if subprocess.call(run_args) != 0:
+            return -1
+
         run_args = [adb_command, 'push',
-                    app_name, '/data/local/tmp']
+                    app_name, args.tmp_dir]
         if subprocess.call(run_args) != 0:
             return -1
 
         run_args = [adb_command, 'shell', 'chmod', '+x',
-                    '/data/local/tmp/${name}']
+                    '{}/${name}'.format(args.tmp_dir)]
         if subprocess.call(run_args) != 0:
             return -1
 
     if args.run or run:
-        run_args = [adb_command, 'shell', '/data/local/tmp/${name}; ' +
+        run_args = [adb_command, 'shell', '{}/${name} {};'.format(args.tmp_dir, args.args) +
                     'echo $? > %s' % output_path]
+        print("Running %s" % run_args)
         subprocess.call(run_args)
         run_args = [adb_command, 'shell', 'cat', output_path]
         err = subprocess.check_output(run_args)
@@ -72,9 +98,12 @@ def run():
         subprocess.call(run_args)
 
     if args.remove:
-        run_args = [adb_command, 'shell', 'rm', '/data/local/tmp/${name}']
-        if subprocess.call(run_args) != 0:
-            return -1
+        if args.copy_dir:
+            run_args = [adb_command, 'shell', 'rm', '-rf',
+                        '{}'.format(args.tmp_dir)]
+            subprocess.call(run_args)
+        run_args = [adb_command, 'shell',
+                    'rm', '%s/${name}' % args.tmp_dir]
 
     return retval
 
