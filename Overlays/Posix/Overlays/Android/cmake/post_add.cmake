@@ -6,7 +6,9 @@ if (WN_ANDROID_WRAPPER)
             COMMAND ${CMAKE_COMMAND} -E make_directory
                 ${WNFramework_BINARY_DIR}/${BUILD_ABI}
         )
-        message(STATUS "-- Confguring compilation for ${BUILD_ABI}")
+
+        message(STATUS "Configuring: ${BUILD_ABI}")
+
         execute_process(
             COMMAND ${CMAKE_COMMAND}
                 -DCMAKE_TOOLCHAIN_FILE=${WN_ANDROID_TOOLCHAIN_FILE}
@@ -20,7 +22,8 @@ if (WN_ANDROID_WRAPPER)
                 -DWN_ANDROID_LLVM_TBLGEN=${WNFramework_BINARY_DIR}/host/Externals/llvm/bin/llvm-tblgen${CMAKE_EXECUTABLE_SUFFIX}
             WORKING_DIRECTORY ${WNFramework_BINARY_DIR}/${BUILD_ABI}
         )
-        message(STATUS "-- Confguring ${BUILD_ABI} done")
+
+        message(STATUS "Configuring: ${BUILD_ABI} - done")
     endforeach()
     set(WN_ANDROID_BUILD_CONFIGURED TRUE CACHE INTERNAL
         "Android sub-builds have been configured" FORCE)
