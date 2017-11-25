@@ -942,6 +942,7 @@ void ast_jit_engine::pre_walk_function_definition(const function* _func) {
   llvm::Function* f = llvm::Function::Create(func_t,
       llvm::GlobalValue::LinkageTypes::ExternalLinkage,
       make_string_ref(_func->get_mangled_name()));
+  f->addFnAttr(llvm::Attribute::NoUnwind);
   m_module->getFunctionList().push_back(f);
   m_function_map[_func] = f;
   if (_func->is_override() || _func->is_virtual()) {

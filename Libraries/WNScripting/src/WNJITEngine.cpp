@@ -168,7 +168,7 @@ public:
 private:
   logging::log* m_log;
 };
-}
+}  // namespace
 
 CompiledModule::CompiledModule() : m_module(nullptr) {}
 
