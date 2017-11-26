@@ -7,6 +7,11 @@ string(REPLACE "-DDEBUG" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
 
 add_compile_options(-D_WN_ANDROID)
 add_compile_options(-D_XOPEN_SOURCE=600)
+if (CMAKE_BUILD_TYPE STREQUAL "Release")
+  # Clang on android compiles with -Oz, this breaks the build in
+  # subtle ways.
+  add_compile_options("-Os")
+endif()
 
 if (NOT WN_ANDROID_SDK)
   message(STATUS "Warning WN_ANDROID_SDK not defined, applications will not"

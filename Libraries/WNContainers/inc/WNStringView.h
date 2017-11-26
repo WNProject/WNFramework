@@ -504,7 +504,6 @@ public:
       if (n - b == 0 && _splitters.find(at(b)) != npos) {
         if (_leave_empty) {
           return_split.push_back("");
-          b = n;
         }
         b = n + 1;
         continue;
