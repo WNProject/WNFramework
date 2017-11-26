@@ -55,8 +55,6 @@ function(add_application name)
   )
   set(FILES_TO_COPY
     gradlew.bat
-    gradlew
-    gradle/wrapper/gradle-wrapper.jar
     gradle/wrapper/gradle-wrapper.properties
   )
   set(ANDROID_RUNNER ${WNFramework_SOURCE_DIR}/Overlays/Posix/Overlays/Android/cmake/android_helpers/android_runner.py)
@@ -75,6 +73,33 @@ function(add_application name)
       ${WNFramework_BINARY_DIR}/apps/${name}/${copy}
       COPYONLY)
   endforeach()
+  file(COPY
+    ${WNFramework_SOURCE_DIR}/Overlays/Posix/Overlays/Android/cmake/android_helpers/gradle/gradlew.in
+    DESTINATION
+    ${WNFramework_BINARY_DIR}/apps/${name}/
+    FILE_PERMISSIONS
+        OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ
+        GROUP_EXECUTE
+  )
+  file(RENAME
+    ${WNFramework_BINARY_DIR}/apps/${name}/gradlew.in
+    ${WNFramework_BINARY_DIR}/apps/${name}/gradlew
+  )
+  file(MAKE_DIRECTORY
+    ${WNFramework_BINARY_DIR}/apps/${name}/gradle/wrapper/
+  )
+  file(COPY
+    ${WNFramework_SOURCE_DIR}/Overlays/Posix/Overlays/Android/cmake/android_helpers/gradle/gradle/wrapper/gradle-wrapper.jar.in
+    DESTINATION
+    ${WNFramework_BINARY_DIR}/apps/${name}/gradle/wrapper/
+    FILE_PERMISSIONS
+        OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ
+        GROUP_EXECUTE
+  )
+  file(RENAME
+    ${WNFramework_BINARY_DIR}/apps/${name}/gradle/wrapper/gradle-wrapper.jar.in
+    ${WNFramework_BINARY_DIR}/apps/${name}/gradle/wrapper/gradle-wrapper.jar
+  )
 
   configure_file(${WNFramework_SOURCE_DIR}/Overlays/Posix/Overlays/Android/cmake/android_helpers/quick_run.py.in
                  ${WNFramework_BINARY_DIR}/apps/${name}.py)
@@ -103,12 +128,19 @@ function(add_application name)
           ${WNFramework_BINARY_DIR}/apps/${name}/app/src/main/jniLibs/${ABI}/lib${name}.so)
   endforeach()
 
+  set(GRADLE_COMMAND_PREFIX "./")
+  set(GRADLE_COMAND_POSTFIX "")
+  if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    set(GRADLE_COMMAND_PREFIX "")
+    set(GRADLE_COMMAND_POSTFIX ".bat")
+  endif()
+
   add_custom_command(
     OUTPUT ${WNFramework_BINARY_DIR}/apps/${name}-debug.apk
              ${WNFramework_BINARY_DIR}/apps/${name}-unsigned.apk
       ${ALL_LIBS}
     COMMAND
-      gradlew -g ${WNFramework_BINARY_DIR}/apps/${name}/.gradle_home build
+      ${GRADLE_COMMAND_PREFIX}gradlew${GRADLE_COMMAND_POSTFIX} -g ${WNFramework_BINARY_DIR}/apps/${name}/.gradle_home build
     COMMAND
       ${CMAKE_COMMAND} -E copy
         ${WNFramework_BINARY_DIR}/apps/${name}/app/build/outputs/apk/app-debug.apk
