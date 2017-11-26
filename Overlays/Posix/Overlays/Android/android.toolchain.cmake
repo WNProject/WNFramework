@@ -21,28 +21,32 @@ set(WN_ANDROID_TOOLCHAIN_FILE
 set(ANDROID_NDK ${WN_ANDROID_NDK})
 set(WN_ANDROID_NATIVE_API_LEVEL 22
     CACHE STRING "Native API level to build")
-set(WN_ANDROID_ABIS "ARM;x86;ARM64" CACHE STRING
+set(WN_ANDROID_ABIS "arm;x86;arm64" CACHE STRING
     "Which Android ABIs to build")
-set(WN_FORCED_ARCHITECTURES ${WN_ANDROID_ABIS})
 set(WN_SANITIZED_ABIS)
 
-message(STATUS "Using Android SDK: ${WN_ANDROID_SDK}")
-message(STATUS "Using Android NDK: ${WN_ANDROID_NDK}")
-message(STATUS "Using Android SDK version: ${WN_ANDROID_NATIVE_API_LEVEL}")
-message(STATUS "Using Android NDK version: ${WN_ANDROID_NATIVE_API_LEVEL}")
-message(STATUS "Using Android toolchain ${WN_ANDROID_TOOLCHAIN_FILE}")
-
 foreach(ABI ${WN_ANDROID_ABIS})
-    if (${ABI} STREQUAL ARM)
+    string(TOLOWER ${ABI} ABI)
+
+    if (${ABI} MATCHES "^(android-arm|arm)(|32|eabi-v7a|-v7a|-v7)$")
         list(APPEND WN_SANITIZED_ABIS "armeabi-v7a")
-    elseif(${ABI} STREQUAL ARM64)
+    elseif(${ABI} MATCHES "^(android-arm|arm)64(|-v8a|-v8)$")
         list(APPEND WN_SANITIZED_ABIS "arm64-v8a")
-    elseif(${ABI} STREQUAL x86)
+    elseif(${ABI} MATCHES "^(android-|)x86$")
         list(APPEND WN_SANITIZED_ABIS "x86")
     else()
-        list(APPEND WN_SANITIZED_ABIS ${ABI})
+        message(FATAL_ERROR "Unrecognized Android ABI: ${ABI}")
     endif()
 endforeach()
+
+set(WN_FORCED_ARCHITECTURES ${WN_SANITIZED_ABIS})
+
+message(STATUS "Using Android ABI: ${WN_SANITIZED_ABIS}")
+message(STATUS "Using Android SDK: ${WN_ANDROID_SDK}")
+message(STATUS "Using Android SDK version: ${WN_ANDROID_NATIVE_API_LEVEL}")
+message(STATUS "Using Android NDK: ${WN_ANDROID_NDK}")
+message(STATUS "Using Android NDK version: ${WN_ANDROID_NATIVE_API_LEVEL}")
+message(STATUS "Using Android toolchain ${WN_ANDROID_TOOLCHAIN_FILE}")
 
 set(WN_ANDROID_WRAPPER ON)
 set(WN_FORCE_SYSTEM "Android")
