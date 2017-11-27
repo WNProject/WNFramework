@@ -1,8 +1,11 @@
-include($ENV{ANDROID_TOOLCHAIN_FILE})
+set(BASE_TOOLCHAIN_FILE $ENV{ANDROID_TOOLCHAIN_FILE} CACHE STRING "The toolchain file to use")
+
+include(${BASE_TOOLCHAIN_FILE})
 
 foreach(flag_var CMAKE_CXX_FLAGS_DEBUG  CMAKE_C_FLAGS_DEBUG)
   string(REGEX REPLACE "-DDEBUG" "-DDEB" ${flag_var} "${${flag_var}}")
 endforeach()
+add_compile_options("-fvisibility=hidden")
 
 set( CMAKE_CXX_FLAGS_DEBUG     "${CMAKE_CXX_FLAGS_DEBUG}" CACHE STRING "c++ Debug flags" FORCE)
 set( CMAKE_C_FLAGS_DEBUG       "${CMAKE_C_FLAGS_DEBUG}" CACHE STRING "c Debug flags" FORCE)
