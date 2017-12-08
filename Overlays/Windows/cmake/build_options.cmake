@@ -44,7 +44,7 @@ add_compile_options(/GR-) # Disable run-time type information
 add_compile_options(/MP) # Enable multi-processor compilation
 
 # Adjust CRT usage to static for all configs
-add_compile_options($<$<CONFIG:Debug>:/MTd> 
+add_compile_options($<$<CONFIG:Debug>:/MTd>
                     $<$<NOT:$<CONFIG:Debug>>:/MT>)
 # Adjust optimization to full optimization
 add_compile_options($<$<CONFIG:Release>:/Ox>)
@@ -56,8 +56,11 @@ add_compile_options($<$<CONFIG:Release>:/Oy>) # Adjust to remove frame pointers
 add_compile_options($<$<CONFIG:Release>:/Oi>) # Enable intrinsic functions
 add_compile_options($<$<CONFIG:Release>:/GT>) # Enable fiber-safe optimizations
 # Enable whole program optimization
-add_compile_options($<$<CONFIG:Release>:/GL>) 
+add_compile_options($<$<CONFIG:Release>:/GL>)
 add_compile_options($<$<CONFIG:Release>:/Gm->) # Disable minimal rebuild
+
+# HACK remove once googletest stops using tr1 namespace
+add_compile_options(/D_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING)
 
 add_compile_options(/D_WN_WINDOWS)
 
