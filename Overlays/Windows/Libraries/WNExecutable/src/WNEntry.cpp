@@ -7,6 +7,7 @@
 #include "WNExecutable/inc/WNEntryData.h"
 #include "WNUtilities/inc/WNCrashHandler.h"
 
+#include <crtdbg.h>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -24,6 +25,9 @@ void wn_dummy() {}
 
 int main(int _argc, char** _argv) {
   wn::utilities::initialize_crash_handler();
+
+  _CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_FILE | _CRTDBG_MODE_DEBUG);
+  _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);
 
   const char* full_path;
 
