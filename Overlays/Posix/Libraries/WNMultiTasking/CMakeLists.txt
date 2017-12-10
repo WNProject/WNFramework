@@ -1,3 +1,5 @@
+set(CMAKE_REQUIRED_LIBRARIES pthread)
+
 overlay_library_sources(
   WNMultiTasking
   SOURCES

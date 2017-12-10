@@ -3,6 +3,7 @@ enable_overlay_directory()
 add_wn_library(WNMultiTasking
   SOURCES
     inc/internal/mutex_base.h
+    inc/internal/spin_lock_base.h
     inc/WNCallbackTask.h
     inc/WNCallOnce.h
     inc/WNFiber.h
