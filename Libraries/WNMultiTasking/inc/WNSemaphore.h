@@ -8,127 +8,52 @@
 #define __WN_MULTI_TASKING_SEMAPHORE_H__
 
 #include "WNCore/inc/WNAssert.h"
-#include "WNCore/inc/WNUtility.h"
-
-#ifdef _WN_WINDOWS
-#include "WNUtilities/inc/WNHandle.h"
-
-#elif defined _WN_POSIX
-#include <errno.h>
-#include <semaphore.h>
-#endif
+#include "WNMultiTasking/inc/internal/semaphore_base.h"
 
 namespace wn {
 namespace multi_tasking {
 
-class semaphore final : public core::non_copyable {
+class semaphore final : internal::semaphore_base {
 public:
-  WN_FORCE_INLINE semaphore() : semaphore(0) {}
-  WN_FORCE_INLINE semaphore(semaphore&& _other)
-  {
-#ifdef _WN_WINDOWS
-    m_handle = _other.m_handle;
-    _other.m_handle = nullptr;
-#elif defined _WN_POSIX
-    m_semaphore = _other.m_semaphore;
-    m_is_valid = _other.m_is_valid;
-    _other.m_is_valid = false;
-#endif
-  }
-  WN_FORCE_INLINE semaphore(const uint16_t count) {
-#ifdef _WN_WINDOWS
-    m_handle = ::CreateSemaphoreW(
-        nullptr, static_cast<LONG>(count), LONG_MAX, nullptr);
+  semaphore() : semaphore(0u) {}
 
-    WN_RELEASE_ASSERT_DESC(
-        m_handle != nullptr, "failed to create semaphore object");
-#elif defined _WN_POSIX
-    const int result =
-        ::sem_init(&m_semaphore, 0, static_cast<unsigned int>(count));
+  semaphore(const uint16_t _count) : base(_count) {}
 
-    WN_RELEASE_ASSERT_DESC(result == 0, "failed to create semaphore object");
-    m_is_valid = true;
-#endif
+  semaphore(semaphore&& _other) : base(core::move(_other)) {}
+
+  ~semaphore() = default;
+
+  semaphore& operator=(semaphore&& _other) {
+    semaphore(core::move(_other)).swap(*this);
+
+    return *this;
   }
 
-  WN_FORCE_INLINE ~semaphore() {
-#if defined _WN_POSIX
-    if (m_is_valid) {
-      const int result = ::sem_destroy(&m_semaphore);
-
-      WN_DEBUG_ASSERT_DESC(result == 0, "failed to destroy semaphore object");
-
-#ifndef _WN_DEBUG
-      WN_UNUSED_ARGUMENT(result);
-#endif
-    }
-#endif
+  void wait() {
+    base::wait();
   }
 
-  WN_FORCE_INLINE void wait() {
-#ifdef _WN_WINDOWS
-    const DWORD result = ::WaitForSingleObject(m_handle.value(), INFINITE);
-
-    WN_RELEASE_ASSERT_DESC(
-        result == WAIT_OBJECT_0, "failed to wait on semaphore object");
-#elif defined _WN_POSIX
-    int result;
-
-    while ((result = ::sem_wait(&m_semaphore)) == -1) {
-      WN_RELEASE_ASSERT_DESC(
-          errno == EINTR, "failed to wait on semaphore object");
-    }
-#endif
+  bool try_wait() {
+    return base::try_wait();
   }
 
-  WN_FORCE_INLINE bool try_wait() {
-#ifdef _WN_WINDOWS
-    return (::WaitForSingleObject(m_handle.value(), 0) != WAIT_TIMEOUT);
-#elif defined _WN_POSIX
-    int result;
-
-    while ((result = ::sem_trywait(&m_semaphore)) == -1 && errno != EAGAIN) {
-      WN_RELEASE_ASSERT_DESC(
-          errno == EINTR, "failed to try to wait on semaphore object");
-    }
-
-    return (result == 0);
-#endif
-  }
-
-  WN_FORCE_INLINE void notify() {
+  void notify() {
     notify(1);
   }
 
-  WN_FORCE_INLINE void notify(const uint16_t count) {
+  void notify(const uint16_t _count) {
     WN_DEBUG_ASSERT_DESC(
-        count != 0, "posted a semaphore object with a count of 0");
+        _count != 0u, "posted a semaphore object with a count of 0");
 
-#ifdef _WN_WINDOWS
-    if (count > 0) {
-      const BOOL result =
-          ::ReleaseSemaphore(m_handle.value(), static_cast<LONG>(count), NULL);
+    base::notify(_count);
+  }
 
-      WN_RELEASE_ASSERT_DESC(
-          result != FALSE, "failed to post desired count to semaphore object");
-    }
-#elif defined _WN_POSIX
-    for (uint16_t i = 0; i < count; ++i) {
-      const int result = ::sem_post(&m_semaphore);
-
-      WN_RELEASE_ASSERT_DESC(
-          result == 0, "failed to post desired count to semaphore object");
-    }
-#endif
+  void swap(semaphore& _other) {
+    base::swap(_other);
   }
 
 private:
-#ifdef _WN_WINDOWS
-  utilities::windows::handle m_handle;
-#elif defined _WN_POSIX
-  sem_t m_semaphore;
-  bool m_is_valid;
-#endif
+  using base = internal::semaphore_base;
 };
 
 }  // namespace multi_tasking

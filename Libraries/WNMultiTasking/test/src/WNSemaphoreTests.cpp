@@ -2,107 +2,157 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
+#include "WNContainers/inc/WNArray.h"
 #include "WNExecutableTest/inc/WNTestHarness.h"
 #include "WNMultiTasking/inc/WNSemaphore.h"
 #include "WNMultiTasking/inc/WNThread.h"
 
-#include <memory>
-#include <sstream>
+namespace {
+
+const uint16_t k_expected_count = 1000u;
+
+}  // namespace
+
+TEST(semaphore, construction) {
+  wn::multi_tasking::semaphore semaphore1;
+  wn::multi_tasking::semaphore semaphore2(5u);
+  wn::multi_tasking::semaphore semaphore3(wn::core::move(semaphore1));
+}
+
+TEST(semaphore, assignment) {
+  wn::multi_tasking::semaphore semaphore1;
+  wn::multi_tasking::semaphore semaphore2;
+
+  semaphore2 = wn::core::move(semaphore1);
+}
+
+TEST(semaphore, swap) {
+  wn::multi_tasking::semaphore semaphore1;
+  wn::multi_tasking::semaphore semaphore2;
+
+  semaphore1.swap(semaphore2);
+}
 
 TEST(semaphore, wait_notify) {
   wn::testing::allocator allocator;
 
   {
-    std::stringstream numbers;
-    uint32_t count = 0;
+    uint16_t count = 0u;
     wn::multi_tasking::semaphore semaphore;
+    wn::containers::array<uint32_t, k_expected_count> numbers;
+    wn::containers::array<wn::multi_tasking::thread, k_expected_count> threads;
 
-    const auto thread_function = [&numbers, &count, &semaphore]() -> void {
-      semaphore.wait();
+    for (uint16_t i = 0u; i < k_expected_count; ++i) {
+      threads[i] = wn::multi_tasking::thread(
+          &allocator, [&numbers, &count, &semaphore]() {
+            semaphore.wait();
 
-      numbers << count;
+            const uint32_t current_count = count;
 
-      count++;
+            numbers[current_count] = current_count;
+            count++;
 
-      semaphore.notify();
-    };
-
-    std::vector<std::shared_ptr<wn::multi_tasking::thread>> threads;
-
-    for (auto i = 0; i < 10; ++i) {
-      threads.push_back(std::make_shared<wn::multi_tasking::thread>(
-          &allocator, thread_function));
+            semaphore.notify();
+          });
     }
 
     ASSERT_EQ(count, 0u);
 
     semaphore.notify();
 
-    for (auto i = 0; i < 10; ++i) {
-      threads[i]->join();
+    for (uint16_t i = 0u; i < k_expected_count; ++i) {
+      threads[i].join();
     }
 
-    ASSERT_EQ(count, 10u);
-    ASSERT_EQ(numbers.str(), "0123456789");
-  }
+    EXPECT_EQ(count, k_expected_count);
 
-  EXPECT_TRUE(allocator.empty());
+    for (uint32_t i = 0u; i < k_expected_count; ++i) {
+      EXPECT_EQ(numbers[i], i);
+    }
+  }
+}
+
+TEST(semaphore, notify_count) {
+  wn::testing::allocator allocator;
+
+  {
+    std::atomic<uint16_t> count = {0u};
+    wn::multi_tasking::semaphore semaphore;
+    wn::containers::array<wn::multi_tasking::thread, k_expected_count> threads;
+
+    for (uint16_t i = 0u; i < k_expected_count; ++i) {
+      threads[i] =
+          wn::multi_tasking::thread(&allocator, [&count, &semaphore]() {
+            semaphore.wait();
+
+            count++;
+          });
+    }
+
+    ASSERT_EQ(count, 0u);
+
+    semaphore.notify(k_expected_count);
+
+    for (uint16_t i = 0u; i < k_expected_count; ++i) {
+      threads[i].join();
+    }
+
+    EXPECT_EQ(count, k_expected_count);
+  }
 }
 
 TEST(semaphore, try_wait) {
   wn::testing::allocator allocator;
 
   {
+    bool got_lock = true;
     wn::multi_tasking::semaphore semaphore;
-
-    ASSERT_FALSE(semaphore.try_wait());
-
-    semaphore.notify();
-
-    bool result = false;
-
-    const auto thread_function = [&semaphore, &result]() -> void {
-      result = semaphore.try_wait();
-    };
-
-    wn::multi_tasking::thread thread(&allocator, thread_function);
+    wn::multi_tasking::thread thread(&allocator,
+        [&got_lock, &semaphore]() { got_lock = semaphore.try_wait(); });
 
     thread.join();
 
-    ASSERT_TRUE(result);
-  }
+    EXPECT_FALSE(got_lock);
 
-  EXPECT_TRUE(allocator.empty());
+    semaphore.notify();
+
+    thread = wn::multi_tasking::thread(&allocator, [&got_lock, &semaphore]() {
+      got_lock = semaphore.try_wait();
+
+      if (got_lock) {
+        semaphore.notify();
+      }
+    });
+
+    thread.join();
+
+    EXPECT_TRUE(got_lock);
+  }
 }
 
 TEST(semaphore, initial_count) {
   wn::testing::allocator allocator;
 
   {
-    std::atomic_int count = {0};
-    wn::multi_tasking::semaphore semaphore(10);
+    std::atomic<uint16_t> count = {0u};
+    wn::multi_tasking::semaphore semaphore(k_expected_count / 2u);
+    wn::containers::array<wn::multi_tasking::thread, k_expected_count> threads;
 
-    const auto thread_function = [&count, &semaphore]() -> void {
-      semaphore.wait();
+    for (uint16_t i = 0u; i < k_expected_count; ++i) {
+      threads[i] =
+          wn::multi_tasking::thread(&allocator, [&count, &semaphore]() {
+            semaphore.wait();
 
-      count++;
-    };
-
-    std::vector<std::shared_ptr<wn::multi_tasking::thread>> threads;
-
-    for (auto i = 0; i < 15; ++i) {
-      threads.push_back(std::make_shared<wn::multi_tasking::thread>(
-          &allocator, thread_function));
+            count++;
+          });
     }
 
-    semaphore.notify(5);
+    semaphore.notify(k_expected_count / 2u);
 
-    for (auto i = 0; i < 15; ++i) {
-      threads[i]->join();
+    for (uint16_t i = 0u; i < k_expected_count; ++i) {
+      threads[i].join();
     }
 
-    ASSERT_EQ(count, 15);
+    EXPECT_EQ(count, k_expected_count);
   }
-
-  EXPECT_TRUE(allocator.empty());
 }
