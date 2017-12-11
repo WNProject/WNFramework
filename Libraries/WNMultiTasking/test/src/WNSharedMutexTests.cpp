@@ -4,8 +4,8 @@
 
 #include "WNContainers/inc/WNArray.h"
 #include "WNExecutableTest/inc/WNTestHarness.h"
-#include "WNMultiTasking/inc/WNSharedMutex.h"
 #include "WNMultiTasking/inc/WNThread.h"
+#include "WNMultiTasking/inc/shared_mutex.h"
 
 namespace {
 

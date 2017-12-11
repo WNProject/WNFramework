@@ -8,6 +8,7 @@ add_wn_library(WNMultiTasking
     inc/lock_guard.h
     inc/mutex.h
     inc/semaphore.h
+    inc/shared_mutex.h
     inc/spin_lock.h
     inc/WNCallbackTask.h
     inc/WNFiber.h
@@ -16,7 +17,6 @@ add_wn_library(WNMultiTasking
     src/WNJobPool.cpp
     inc/WNJobSignal.h
     src/WNJobSignal.cpp
-    inc/WNSharedMutex.h
     inc/WNSynchronized.h
     inc/WNThread.h
     src/WNThread.cpp
