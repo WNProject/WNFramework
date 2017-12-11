@@ -11,7 +11,7 @@
 #include "WNContainers/inc/WNDynamicArray.h"
 #include "WNGraphics/inc/WNAdapter.h"
 #include "WNLogging/inc/WNLog.h"
-#include "WNMultiTasking/inc/WNCallOnce.h"
+#include "WNMultiTasking/inc/call_once.h"
 
 namespace wn {
 namespace runtime {
