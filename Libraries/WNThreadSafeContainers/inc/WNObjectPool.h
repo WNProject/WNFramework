@@ -11,7 +11,7 @@
 #include "WNFunctional/inc/WNFunction.h"
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNMemory/inc/WNIntrusivePtr.h"
-#include "WNMultiTasking/inc/WNLockGuard.h"
+#include "WNMultiTasking/inc/lock_guard.h"
 #include "WNMultiTasking/inc/mutex.h"
 
 namespace wn {

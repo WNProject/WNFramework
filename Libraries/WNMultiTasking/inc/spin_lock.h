@@ -7,8 +7,8 @@
 #ifndef __WN_MULTI_TASKING_SPIN_LOCK_H__
 #define __WN_MULTI_TASKING_SPIN_LOCK_H__
 
-#include "WNMultiTasking/inc/WNLockGuard.h"
 #include "WNMultiTasking/inc/internal/spin_lock_base.h"
+#include "WNMultiTasking/inc/lock_guard.h"
 
 namespace wn {
 namespace multi_tasking {

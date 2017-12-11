@@ -9,7 +9,7 @@
 
 #include "WNCore/inc/WNUtility.h"
 #include "WNMultiTasking/inc/internal/shared_mutex_base.h"
-#include "WNMultiTasking/inc/WNLockGuard.h"
+#include "WNMultiTasking/inc/lock_guard.h"
 
 namespace wn {
 namespace multi_tasking {
