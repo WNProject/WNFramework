@@ -11,8 +11,10 @@
 #include "WNContainers/inc/WNHashMap.h"
 #include "WNContainers/inc/WNList.h"
 #include "WNCore/inc/WNPair.h"
+#include "WNCore/inc/WNTuple.h"
 #include "WNCore/inc/WNUtility.h"
 #include "WNFunctional/inc/WNFunction.h"
+#include "WNFunctional/inc/WNInvoke.h"
 #include "WNFunctional/inc/WNUniqueFunction.h"
 #include "WNMemory/inc/WNIntrusivePtr.h"
 #include "WNMemory/inc/WNUniquePtr.h"
@@ -71,26 +73,32 @@ private:
   friend class job_pool;
 };
 
-template <typename C, typename T>
+template <typename C, typename R, typename... Args>
+std::tuple<Args...> function_args(R (C::*f)(Args...)) {
+  return declval(std::tuple<Args...>());
+}
+
+template <typename C, typename A>
 class synchronized_job : public job {
 public:
-  template <typename... Args>
+  template <typename... FArgs>
   WN_FORCE_INLINE synchronized_job(job_signal* _wait_signal, size_t _wait_count,
-      job_signal* _done_signal, C* _class, void (C::*_function)(T),
-      Args&&... _args)
+      job_signal* _done_signal, C* _class, A _function, FArgs&&... _args)
     : job(_wait_signal, _wait_count, _done_signal, _wait_signal == nullptr),
-      m_c(_class),
       m_function(_function),
-      m_t{core::forward<Args>(_args)...} {}
+      m_t(std::tuple_cat<std::tuple<C*>, args_type>(std::tuple<C*>(_class),
+          std::forward<args_type>(args_type(std::forward<FArgs>(_args)...)))) {}
 
 private:
   void run_internal() override {
-    (m_c->*m_function)(core::forward<T>(m_t));
+    functional::apply(m_function, std::move(m_t));
   }
 
-  C* m_c;
-  void (C::*m_function)(T);
-  typename core::remove_reference<T>::type m_t;
+  A m_function;
+  using args_type = decltype(function_args(std::declval<A>()));
+  using tuple_type = decltype(std::tuple_cat(
+      std::declval<std::tuple<C*>>(), function_args(std::declval<A>())));
+  tuple_type m_t;
 };
 
 class unsynchronized_job : public job {
@@ -173,6 +181,23 @@ move_if_movable(T& t) {
   return t;
 }
 
+// This is the first parameter to any asynchronous function.
+// This forces these functions to only ever be called through the job pool.
+struct async_function {
+private:
+  async_function() {}
+  friend class job_pool;
+};
+
+// Same as sync function up there. The only difference is that this notifies
+// the job pool that this function call a blocking function.
+// This means the job pool can be smart about WHERE to put the function.
+struct async_blocking_function {
+private:
+  async_blocking_function() {}
+  friend class job_pool;
+};
+
 // Jobs are a bit different than tasks (in WNThreadPool.h).
 // Jobs should never use normal threading constructs, they
 // should instead use those provided by the job pool.
@@ -219,23 +244,40 @@ public:
                   // Remove and switch to void return once that is done
   }
 
-  template <typename B, typename T, typename V, typename... Args>
-  WN_FORCE_INLINE
-      typename core::enable_if<multi_tasking::is_synchronized<T>::type::value,
-          void>::type
-      add_job(job_signal* _signal, void (B::*_fn)(V), T* _c, Args&&... _args) {
+  template <typename B, typename T, typename... Args>
+  WN_FORCE_INLINE typename core::enable_if<
+      core::conjunction<typename multi_tasking::is_synchronized<T>::type,
+          core::is_callable_method<B,
+              void (T::*)(async_function, Args...)>>::value,
+      void>::type
+  add_job(job_signal* _signal, B _fn, T* _c, Args&&... _args) {
     synchronization_data* data = _c->get_synchronization_data();
-    add_job_internal(memory::make_unique<synchronized_job<T, V>>(m_allocator,
+    add_job_internal(memory::make_unique<synchronized_job<T, B>>(m_allocator,
         &data->signal, data->increment_job(), _signal, _c, _fn,
-        core::forward<Args>(_args)...));
+        async_function(), core::forward<Args>(_args)...));
   }
 
-  template <typename B, typename T, typename V, typename... Args>
-  WN_FORCE_INLINE
-      typename core::enable_if<!multi_tasking::is_synchronized<T>::type::value,
-          void>::type
-      add_job(job_signal* _signal, void (B::*_fn)(V), T* _c, Args&&... _args) {
-    add_job_internal(memory::make_unique<synchronized_job<T, V>>(m_allocator,
+  template <typename B, typename T, typename... Args>
+  WN_FORCE_INLINE typename core::enable_if<
+      core::conjunction<typename multi_tasking::is_synchronized<T>::type,
+          core::is_callable_method<B,
+              void (T::*)(async_blocking_function, Args...)>>::value,
+      void>::type
+  add_job(job_signal* _signal, B _fn, T* _c, Args&&... _args) {
+    synchronization_data* data = _c->get_synchronization_data();
+    add_job_internal(memory::make_unique<synchronized_job<T, B>>(m_allocator,
+        &data->signal, data->increment_job(), _signal, _c, _fn,
+        async_blocking_function(), core::forward<Args>(_args)...));
+  }
+
+  template <typename B, typename T, typename... Args>
+  WN_FORCE_INLINE typename core::enable_if<
+      core::conjunction<
+          core::negation<typename multi_tasking::is_synchronized<T>::type>,
+          core::is_callable_method<B, void (T::*)(Args...)>>::value,
+      void>::type
+  add_job(job_signal* _signal, B _fn, T* _c, Args&&... _args) {
+    add_job_internal(memory::make_unique<synchronized_job<T, B>>(m_allocator,
         nullptr, 0, _signal, _c, _fn, core::forward<Args>(_args)...));
   }
 

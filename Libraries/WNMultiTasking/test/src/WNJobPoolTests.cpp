@@ -183,7 +183,8 @@ TEST(job_pool, blocking_call) {
 }
 
 struct synchronized_object : public wn::multi_tasking::synchronized<> {
-  void increment_number(wn::multi_tasking::semaphore* sem) {
+  void increment_number(
+      wn::multi_tasking::async_function, wn::multi_tasking::semaphore* sem) {
     volatile uint32_t n = number;
     // wn::multi_tasking::this_thread::sleep_for(std::chrono::milliseconds(1));
     number = n + 1;

@@ -10,6 +10,7 @@
 #include "WNCore/inc/WNTypes.h"
 
 #include <type_traits>
+#include <utility>
 
 #ifndef _WN_HAS_CPP11_STD_ALIGNED_UNION
 #include <algorithm>
@@ -341,7 +342,7 @@ struct make_sequence<false, false, integral_constant<T, Index>,
 
 template <typename T, const T N>
 using make_integral_sequence = typename internal::make_sequence<(N < 0), N == 0,
-    integral_constant<T, N>, integral_sequence<T>>::type;
+    integral_constant<T, N>, integral_sequence<T>>::value_type;
 
 template <const size_t N>
 using make_index_sequence = make_integral_sequence<size_t, N>;
@@ -560,6 +561,39 @@ public:
   enum { value = same_return<F, callable<F>::value, R, Args...>::value };
 };
 
+template <typename F, typename C, typename R, typename... Args>
+class is_callable_method {
+private:
+  template <typename T, const bool Test, typename CC, typename U, typename... A>
+  struct same_return : false_type {};
+
+  template <typename T, typename CC, typename U, typename... A>
+  struct same_return<T, true, CC, U, A...>
+    : is_same<decltype((std::declval<C*>()->*(std::declval<T>()))(
+                  std::declval<Args>()...)),
+          U> {};
+
+  using invalid = char (&)[1];
+  using valid = char (&)[2];
+
+  template <typename T>
+  struct helper;
+
+  template <typename T>
+  static valid checker(
+      helper<decltype((std::declval<C*>()->*(std::declval<T>()))(
+          std::declval<Args>()...))>*);
+
+  template <typename T>
+  static invalid checker(...);
+
+  template <typename T>
+  struct callable : bool_constant<sizeof(checker<T>(0)) == sizeof(valid)> {};
+
+public:
+  enum { value = same_return<F, callable<F>::value, C, R, Args...>::value };
+};
+
 }  // namespace internal
 
 template <typename F, typename T>
@@ -567,6 +601,13 @@ struct is_callable : false_type {};
 
 template <typename F, typename R, typename... Args>
 struct is_callable<F, R(Args...)> : internal::is_callable<F, R, Args...> {};
+
+template <typename F, typename T>
+struct is_callable_method : false_type {};
+
+template <typename F, typename C, typename R, typename... Args>
+struct is_callable_method<F, R (C::*)(Args...)>
+  : internal::is_callable_method<F, C, R, Args...> {};
 
 template <typename T>
 struct remove_lvalue_reference {

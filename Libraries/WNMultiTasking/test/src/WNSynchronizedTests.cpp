@@ -6,17 +6,37 @@
 #include "WNMultiTasking/inc/WNJobPool.h"
 #include "WNMultiTasking/inc/WNSynchronized.h"
 
+using wn::multi_tasking::async_blocking_function;
+using wn::multi_tasking::async_function;
+
 struct sync_struct : public wn::multi_tasking::synchronized<> {
-  void func(void*) {
+  void func(async_function) {
     volatile int y = x;
     y += 1;
     x = y;
   }
-  void func2(void*) {
+  void func2(async_function, int z) {
     volatile int y = x;
-    y -= 1;
+    y -= z;
     x = y;
   }
+
+  void bfunc(async_blocking_function, int z) {
+    x = wn::multi_tasking::job_pool::this_job_pool()
+            ->call_blocking_function<int>(
+                &sync_struct::blocking_function, this, z);
+  }
+
+  int blocking_function(int z) {
+    volatile int y = x;
+    y -= z;
+    return y;
+  }
+
+  void move_func(async_function, wn::memory::unique_ptr<int> _x) {
+    x = *_x;
+  }
+
   int32_t x = 0;
 };
 
@@ -50,15 +70,15 @@ TEST(synchronized, multi_test) {
     wn::multi_tasking::job_signal sig(0);
     sync_struct s;
     for (size_t i = 0; i < 12; ++i) {
-      pool.add_job(&sig, &sync_struct::func, &s, nullptr);
-      pool.add_job(&sig, &sync_struct::func2, &s, nullptr);
+      pool.add_job(&sig, &sync_struct::func, &s);
+      pool.add_job(&sig, &sync_struct::func2, &s, 1);
     }
     sig.wait_until(24);
     ASSERT_EQ(0, s.x);
   });
 }
 
-TEST(synchronized, sync_test) {
+TEST(synchronized, destroy_test) {
   wn::testing::allocator m_allocator;
   int32_t y = 42;
   {
@@ -67,10 +87,42 @@ TEST(synchronized, sync_test) {
       wn::multi_tasking::job_signal sig(0);
       wn::multi_tasking::synchronized_destroy<sync_struct2> s(y);
       for (size_t i = 0; i < 12; ++i) {
-        pool.add_job(&sig, &sync_struct::func, s.get(), nullptr);
-        pool.add_job(&sig, &sync_struct::func2, s.get(), nullptr);
+        pool.add_job(&sig, &sync_struct::func, s.get());
+        pool.add_job(&sig, &sync_struct::func2, s.get(), 1);
       }
     });
   }
   ASSERT_EQ(0, y);
+}
+
+TEST(synchronized, blocking_test) {
+  wn::testing::allocator m_allocator;
+  int32_t y = 42;
+  {
+    wn::multi_tasking::thread_job_pool pool(&m_allocator, 2);
+    pool.add_unsynchronized_job(nullptr, [&]() {
+      wn::multi_tasking::job_signal sig(0);
+      wn::multi_tasking::synchronized_destroy<sync_struct2> s(y);
+      for (size_t i = 0; i < 12; ++i) {
+        pool.add_job(&sig, &sync_struct::func, s.get());
+        pool.add_job(&sig, &sync_struct::bfunc, s.get(), 1);
+      }
+    });
+  }
+  ASSERT_EQ(0, y);
+}
+
+TEST(synchronized, move_test) {
+  wn::testing::allocator m_allocator;
+  wn::memory::unique_ptr<int> m_int =
+      wn::memory::make_unique<int>(&m_allocator, 32);
+  wn::multi_tasking::thread_job_pool pool(&m_allocator, 2);
+
+  pool.add_unsynchronized_job(nullptr, [&]() {
+    wn::multi_tasking::job_signal sig(0);
+    sync_struct s;
+    pool.add_job(&sig, &sync_struct::move_func, &s, wn::core::move(m_int));
+    sig.wait_until(1);
+    ASSERT_EQ(32, s.x);
+  });
 }

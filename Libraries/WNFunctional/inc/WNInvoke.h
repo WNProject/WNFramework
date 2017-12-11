@@ -101,6 +101,24 @@ WN_FORCE_INLINE auto invoke(F&& _f, Args&&... _args) -> decltype(
   return internal::invoke(core::forward<F>(_f), core::forward<Args>(_args)...);
 }
 
+namespace internal {
+
+template <class F, class Tuple, size_t... I>
+constexpr decltype(auto) apply_impl(
+    F&& f, Tuple&& t, std::index_sequence<I...>) {
+  return functional::invoke(
+      std::forward<F>(f), std::get<I>(std::forward<Tuple>(t))...);
+}
+
+}  // namespace internal
+
+template <class F, class Tuple>
+constexpr decltype(auto) apply(F&& f, Tuple&& t) {
+  return internal::apply_impl(std::forward<F>(f), std::forward<Tuple>(t),
+      std::make_index_sequence<std::tuple_size<
+          typename std::remove_reference<Tuple>::type>::value>{});
+}
+
 }  // namespace functional
 }  // namespace wn
 
