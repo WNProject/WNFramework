@@ -12,7 +12,7 @@
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNMemory/inc/WNIntrusivePtr.h"
 #include "WNMultiTasking/inc/WNLockGuard.h"
-#include "WNMultiTasking/inc/WNMutex.h"
+#include "WNMultiTasking/inc/mutex.h"
 
 namespace wn {
 namespace threadsafe_containers {

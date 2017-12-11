@@ -4,6 +4,7 @@ add_wn_library(WNMultiTasking
   SOURCES
     inc/internal/mutex_base.h
     inc/internal/spin_lock_base.h
+    inc/mutex.h
     inc/WNCallbackTask.h
     inc/WNCallOnce.h
     inc/WNFiber.h
@@ -13,7 +14,6 @@ add_wn_library(WNMultiTasking
     inc/WNJobSignal.h
     src/WNJobSignal.cpp
     inc/WNLockGuard.h
-    inc/WNMutex.h
     inc/WNSemaphore.h
     inc/WNSharedMutex.h
     inc/WNSpinLock.h
