@@ -6,6 +6,7 @@ wn_create_executable_tests_from_list(
     WNJobPool
     WNMutex
     WNSemaphore
+    WNSharedMutex
     WNSpinLock
     WNSynchronized
     WNThreadPool

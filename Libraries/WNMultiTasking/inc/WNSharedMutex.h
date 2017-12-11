@@ -8,111 +8,49 @@
 #define __WN_MULTI_TASKING_SHARED_MUTEX_H__
 
 #include "WNCore/inc/WNUtility.h"
+#include "WNMultiTasking/inc/internal/shared_mutex_base.h"
 #include "WNMultiTasking/inc/WNLockGuard.h"
-
-#ifdef _WN_WINDOWS
-#elif defined _WN_POSIX
-#include "WNCore/inc/WNAssert.h"
-
-#include <pthread.h>
-#endif
 
 namespace wn {
 namespace multi_tasking {
 
-class shared_mutex final : public core::non_copyable {
+class shared_mutex final : internal::shared_mutex_base {
 public:
-  WN_FORCE_INLINE shared_mutex() {
-#ifdef _WN_WINDOWS
-    ::InitializeSRWLock(&m_slim_read_write_lock);
-#elif defined _WN_POSIX
-    const int result = ::pthread_rwlock_init(&m_read_write_lock, NULL);
+  shared_mutex() : base() {}
 
-    WN_RELEASE_ASSERT_DESC(
-        result == 0, "failed to create read write lock object");
-#endif
+  ~shared_mutex() = default;
+
+  void lock() {
+    base::lock();
   }
 
-  WN_FORCE_INLINE ~shared_mutex() {
-#ifdef _WN_POSIX
-    const int result = ::pthread_rwlock_destroy(&m_read_write_lock);
-
-    WN_DEBUG_ASSERT_DESC(
-        result == 0, "failed to destroy read write lock object");
-#endif
+  bool try_lock() {
+    return base::try_lock();
   }
 
-  WN_FORCE_INLINE void lock() {
-#ifdef _WN_WINDOWS
-    ::AcquireSRWLockExclusive(&m_slim_read_write_lock);
-#elif defined _WN_POSIX
-    const int result = ::pthread_rwlock_wrlock(&m_read_write_lock);
-
-    WN_RELEASE_ASSERT_DESC(
-        result == 0, "failed to lock read write lock object for writer");
-#endif
+  void unlock() {
+    base::unlock();
   }
 
-  WN_FORCE_INLINE bool try_lock() {
-#ifdef _WN_WINDOWS
-    return (::TryAcquireSRWLockExclusive(&m_slim_read_write_lock) != FALSE);
-#elif defined _WN_POSIX
-    return (::pthread_rwlock_trywrlock(&m_read_write_lock) == 0);
-#endif
+  void lock_shared() {
+    base::lock_shared();
   }
 
-  WN_FORCE_INLINE void unlock() {
-#ifdef _WN_WINDOWS
-    ::ReleaseSRWLockExclusive(&m_slim_read_write_lock);
-#elif defined _WN_POSIX
-    const int result = ::pthread_rwlock_unlock(&m_read_write_lock);
-
-    WN_RELEASE_ASSERT_DESC(
-        result == 0, "failed to unlock read write lock object for writer");
-#endif
+  bool try_lock_shared() {
+    return base::try_lock_shared();
   }
 
-  WN_FORCE_INLINE void lock_shared() {
-#ifdef _WN_WINDOWS
-    ::AcquireSRWLockShared(&m_slim_read_write_lock);
-#elif defined _WN_POSIX
-    const int result = ::pthread_rwlock_rdlock(&m_read_write_lock);
-
-    WN_RELEASE_ASSERT_DESC(
-        result == 0, "failed to lock read write lock object for reader");
-#endif
-  }
-
-  WN_FORCE_INLINE bool try_lock_shared() {
-#ifdef _WN_WINDOWS
-    return (::TryAcquireSRWLockShared(&m_slim_read_write_lock) != FALSE);
-#elif defined _WN_POSIX
-    return (::pthread_rwlock_tryrdlock(&m_read_write_lock) == 0);
-#endif
-  }
-
-  WN_FORCE_INLINE void unlock_shared() {
-#ifdef _WN_WINDOWS
-    ::ReleaseSRWLockShared(&m_slim_read_write_lock);
-#elif defined _WN_POSIX
-    const int result = ::pthread_rwlock_unlock(&m_read_write_lock);
-
-    WN_RELEASE_ASSERT_DESC(
-        result == 0, "failed to unlock read write lock object for reader");
-#endif
+  void unlock_shared() {
+    base::unlock_shared();
   }
 
 private:
-#ifdef _WN_WINDOWS
-  SRWLOCK m_slim_read_write_lock;
-#elif defined _WN_POSIX
-  pthread_rwlock_t m_read_write_lock;
-#endif
+  using base = internal::shared_mutex_base;
 };
 
 using shared_mutex_guard = lock_guard<shared_mutex>;
 
 }  // namespace multi_tasking
-}  // namesapce wn
+}  // namespace wn
 
 #endif  // __WN_MULTI_TASKING_SHARED_MUTEX_H__

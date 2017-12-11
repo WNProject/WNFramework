@@ -5,4 +5,5 @@ overlay_library_sources(
   SOURCES
     inc/internal/mutex_base.h
     inc/internal/semaphore_base.h
+    inc/internal/shared_mutex_base.h
 )
