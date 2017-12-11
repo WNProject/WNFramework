@@ -1,11 +1,15 @@
 include(test_helper.cmake)
-include_directories(${WNFramework_SOURCE_DIR}/Libraries)
+
 include_directories(${WNFramework_BINARY_DIR}/Libraries)
+include_directories(${WNFramework_BINARY_DIR}/Wrappers)
 
 foreach(overlay ${WN_ENABLED_OVERLAYS})
   include_directories(${overlay}/Libraries)
   include_directories(${overlay}/Wrappers)
 endforeach()
+
+include_directories(${WNFramework_SOURCE_DIR}/Libraries)
+include_directories(${WNFramework_SOURCE_DIR}/Wrappers)
 
 # These must be before all the below in order for it to work
 wn_add_subdirectory(WNExecutable)
