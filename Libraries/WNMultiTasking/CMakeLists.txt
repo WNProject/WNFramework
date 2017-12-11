@@ -5,6 +5,7 @@ add_wn_library(WNMultiTasking
     inc/internal/mutex_base.h
     inc/internal/spin_lock_base.h
     inc/mutex.h
+    inc/spin_lock.h
     inc/WNCallbackTask.h
     inc/WNCallOnce.h
     inc/WNFiber.h
@@ -16,7 +17,6 @@ add_wn_library(WNMultiTasking
     inc/WNLockGuard.h
     inc/WNSemaphore.h
     inc/WNSharedMutex.h
-    inc/WNSpinLock.h
     inc/WNSynchronized.h
     inc/WNThread.h
     src/WNThread.cpp

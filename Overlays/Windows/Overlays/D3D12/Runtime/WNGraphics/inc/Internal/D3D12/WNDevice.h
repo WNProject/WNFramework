@@ -18,7 +18,7 @@
 #include "WNGraphics/inc/WNRenderPassTypes.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/WNUniquePtr.h"
-#include "WNMultiTasking/inc/WNSpinLock.h"
+#include "WNMultiTasking/inc/spin_lock.h"
 #include "WNWindow/inc/WNWindow.h"
 
 #ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE

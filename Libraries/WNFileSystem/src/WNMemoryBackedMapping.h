@@ -7,8 +7,8 @@
 #include "WNFileSystem/inc/WNFile.h"
 #include "WNFileSystem/inc/WNMapping.h"
 #include "WNFileSystem/src/WNUtilities.h"
-#include "WNMultiTasking/inc/WNSpinLock.h"
 #include "WNMultiTasking/inc/mutex.h"
+#include "WNMultiTasking/inc/spin_lock.h"
 
 #ifndef __WN_MEMORY_BACKED_MAPPING_H__
 #define __WN_MEMORY_BACKED_MAPPING_H__

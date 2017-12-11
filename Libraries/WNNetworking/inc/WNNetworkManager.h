@@ -12,7 +12,7 @@
 #include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNMemory/inc/WNUniquePtr.h"
-#include "WNMultiTasking/inc/WNSpinLock.h"
+#include "WNMultiTasking/inc/spin_lock.h"
 #include "WNNetworking/inc/WNNetworkingErrors.h"
 #include "WNNetworking/inc/WNReceiveBuffer.h"
 #include "WNNetworking/inc/WNReliableConnection.h"

@@ -5,11 +5,12 @@
 #ifndef __WN_UTILS_ANDROID_EVENT_PUMP_H__
 #define __WN_UTILS_ANDROID_EVENT_PUMP_H__
 
-#include <android_native_app_glue.h>
-#include <deque>
 #include "WNCore/inc/WNTypes.h"
 #include "WNMultiTasking/inc/WNSemaphore.h"
-#include "WNMultiTasking/inc/WNSpinLock.h"
+#include "WNMultiTasking/inc/spin_lock.h"
+
+#include <android_native_app_glue.h>
+#include <deque>
 
 namespace wn {
 namespace utilities {
