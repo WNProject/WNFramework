@@ -6,7 +6,7 @@
 #define __WN_UTILS_ANDROID_EVENT_PUMP_H__
 
 #include "WNCore/inc/WNTypes.h"
-#include "WNMultiTasking/inc/WNSemaphore.h"
+#include "WNMultiTasking/inc/semaphore.h"
 #include "WNMultiTasking/inc/spin_lock.h"
 
 #include <android_native_app_glue.h>

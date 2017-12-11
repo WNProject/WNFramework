@@ -6,7 +6,7 @@
 #include "WNLogging/inc/WNBufferLogger.h"
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNMultiTasking/inc/WNJobPool.h"
-#include "WNMultiTasking/inc/WNSemaphore.h"
+#include "WNMultiTasking/inc/semaphore.h"
 #include "WNNetworking/inc/WNNetworkManager.h"
 
 void flush_buffer(void* v, const char* bytes, size_t length,

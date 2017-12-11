@@ -11,7 +11,7 @@
 #include "WNCore/inc/WNUtility.h"
 #include "WNFunctional/inc/WNFunction.h"
 #include "WNMemory/inc/WNIntrusivePtr.h"
-#include "WNMultiTasking/inc/WNSemaphore.h"
+#include "WNMultiTasking/inc/semaphore.h"
 
 #if defined _WN_WINDOWS
 #include "WNUtilities/inc/WNHandle.h"

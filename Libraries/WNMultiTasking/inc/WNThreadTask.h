@@ -8,7 +8,7 @@
 #define __WN_MULTI_TASKING_THREAD_TASK_H__
 
 #include "WNMemory/inc/WNIntrusivePtr.h"
-#include "WNMultiTasking/inc/WNSemaphore.h"
+#include "WNMultiTasking/inc/semaphore.h"
 
 #include <atomic>
 
