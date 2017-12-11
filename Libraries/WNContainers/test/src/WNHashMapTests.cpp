@@ -18,7 +18,7 @@ TYPED_TEST(hash_map, construction) {
 
   { const wn::containers::hash_map<TypeParam, TypeParam> map1(&allocator); }
 
-  EXPECT_EQ(allocator.allocated(), 0);
+  EXPECT_EQ(allocator.allocated(), 0u);
 }
 
 TYPED_TEST(hash_map, insert) {
@@ -29,12 +29,12 @@ TYPED_TEST(hash_map, insert) {
     auto it = map.insert(wn::core::make_pair(TypeParam(23), TypeParam(32)));
 
     EXPECT_TRUE(it.second);
-    EXPECT_EQ(32, it.first->second);
+    EXPECT_EQ(32u, it.first->second);
 
     it = map.insert(wn::core::make_pair(TypeParam(23), TypeParam(44)));
 
     EXPECT_FALSE(it.second);
-    EXPECT_EQ(32, it.first->second);
+    EXPECT_EQ(32u, it.first->second);
   }
 }
 
@@ -47,7 +47,7 @@ TYPED_TEST(hash_map, iterate) {
     }
     int found[] = {0, 11, 22, 33, 44, 55, 66, 77, 88, 99};
     for (auto it = map.begin(); it != map.end(); ++it) {
-      EXPECT_EQ(it->second, found[it->first]);
+      EXPECT_EQ(it->second, static_cast<TypeParam>(found[it->first]));
       found[it->first] = -1;
     }
     for (size_t i = 0; i < 10; ++i) {
@@ -56,7 +56,7 @@ TYPED_TEST(hash_map, iterate) {
     }
 
     for (auto it = map.cbegin(); it != map.cend(); ++it) {
-      EXPECT_EQ(it->second, found[it->first]);
+      EXPECT_EQ(it->second, static_cast<TypeParam>(found[it->first]));
       found[it->first] = -1;
     }
   }
@@ -73,8 +73,8 @@ TYPED_TEST(hash_map, find) {
       typename wn::containers::hash_map<TypeParam, TypeParam>::iterator it =
           map.find(static_cast<TypeParam>(i));
       EXPECT_FALSE(map.end() == it);
-      EXPECT_EQ(i, it->first);
-      EXPECT_EQ(i * 11, it->second);
+      EXPECT_EQ(TypeParam(i), it->first);
+      EXPECT_EQ(TypeParam(i * 11), it->second);
     }
 
     EXPECT_EQ(map.end(), map.find(static_cast<TypeParam>(32)));
@@ -111,8 +111,8 @@ TYPED_TEST(hash_map, erase) {
         EXPECT_EQ(map.end(), it);
       } else {
         EXPECT_FALSE(map.end() == it);
-        EXPECT_EQ(i, it->first);
-        EXPECT_EQ(i * 11, it->second);
+        EXPECT_EQ(TypeParam(i), it->first);
+        EXPECT_EQ(TypeParam(i * 11), it->second);
       }
     }
 
@@ -143,7 +143,7 @@ TYPED_TEST(hash_map, erase_all) {
     while (it != map.end()) {
       it = map.erase(it);
     }
-    EXPECT_EQ(0, map.size());
+    EXPECT_EQ(TypeParam(0), map.size());
     EXPECT_EQ(map.end(), map.begin());
   }
 }
@@ -155,7 +155,7 @@ TEST(hash_map, initializers) {
         &allocator, {{"a", "1"}});
     EXPECT_EQ(my_map.end(), my_map.find("b"));
     EXPECT_NE(my_map.end(), my_map.find("a"));
-    EXPECT_EQ(1, my_map.size());
+    EXPECT_EQ(1u, my_map.size());
   }
   {
     wn::containers::hash_map<std::string, std::string> my_map(
@@ -164,7 +164,7 @@ TEST(hash_map, initializers) {
     EXPECT_NE(my_map.end(), my_map.find("a"));
     EXPECT_NE(my_map.end(), my_map.find("b"));
     EXPECT_NE(my_map.end(), my_map.find("b"));
-    EXPECT_EQ(3, my_map.size());
+    EXPECT_EQ(3u, my_map.size());
   }
 }
 
@@ -176,7 +176,7 @@ TEST(hash_map, square_brackets) {
         std::equal_to<std::string>());
     EXPECT_EQ("1", my_map["a"]);
     my_map["b"] = "2";
-    EXPECT_EQ(2, my_map.size());
+    EXPECT_EQ(2u, my_map.size());
     EXPECT_EQ("2", my_map.find("b")->second);
   }
 }
@@ -190,17 +190,17 @@ TYPED_TEST(hash_map, move_test) {
             {TypeParam(213), TypeParam(3)}});
     size_t allocated = allocator.allocated();
 
-    EXPECT_EQ(3, my_map.size());
+    EXPECT_EQ(3u, my_map.size());
 
     wn::containers::hash_map<TypeParam, TypeParam> new_map(
         wn::core::move(my_map));
 
-    EXPECT_EQ(0, my_map.size());
-    EXPECT_EQ(3, new_map.size());
+    EXPECT_EQ(0u, my_map.size());
+    EXPECT_EQ(3u, new_map.size());
     EXPECT_EQ(allocated, allocator.allocated());
-    EXPECT_EQ(1, new_map[221]);
-    EXPECT_EQ(2, new_map[201]);
-    EXPECT_EQ(3, new_map[213]);
+    EXPECT_EQ(TypeParam(1), new_map[221]);
+    EXPECT_EQ(TypeParam(2), new_map[201]);
+    EXPECT_EQ(TypeParam(3), new_map[213]);
   }
 }
 
@@ -212,10 +212,10 @@ TYPED_TEST(hash_map, copy_test) {
         {{TypeParam(221), TypeParam(1)}, {TypeParam(201), TypeParam(2)},
             {TypeParam(213), TypeParam(3)}});
     size_t allocated = allocator.allocated();
-    EXPECT_EQ(3, my_map.size());
+    EXPECT_EQ(3u, my_map.size());
     wn::containers::hash_map<TypeParam, TypeParam> new_map(my_map);
-    EXPECT_EQ(3, my_map.size());
-    EXPECT_EQ(3, new_map.size());
+    EXPECT_EQ(3u, my_map.size());
+    EXPECT_EQ(3u, new_map.size());
     EXPECT_GT(allocator.allocated(), allocated);
     EXPECT_EQ(my_map[221], new_map[221]);
     EXPECT_EQ(my_map[201], new_map[201]);
@@ -230,7 +230,7 @@ TYPED_TEST(hash_map, cbegin) {
     const wn::containers::hash_map<TypeParam, TypeParam> my_map(
         &allocator, {{TypeParam(1), TypeParam(1)}, {TypeParam(2), TypeParam(2)},
                         {TypeParam(3), TypeParam(3)}});
-    EXPECT_EQ(3, my_map.size());
+    EXPECT_EQ(3u, my_map.size());
     typename wn::containers::hash_map<TypeParam, TypeParam>::const_iterator it =
         my_map.cbegin();
     for (; it != my_map.cend(); ++it) {

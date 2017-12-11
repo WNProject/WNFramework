@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNMemory/inc/WNUniquePtr.h"
 #include "WNExecutableTest/inc/WNTestHarness.h"
+#include "WNMemory/inc/WNUniquePtr.h"
 
 template <typename T>
 struct unique_ptr : testing::Test {};
@@ -57,7 +57,7 @@ TYPED_TEST(unique_ptr, construction) {
 
     EXPECT_NE(pointer3, nullptr);
     ASSERT_NE(pointer3.get(), nullptr);
-    EXPECT_EQ(*pointer3, 2);
+    EXPECT_EQ(*pointer3, static_cast<TypeParam>(2));
   }
 }
 
@@ -174,7 +174,7 @@ TYPED_TEST(unique_ptr, reset) {
     pointer3.reset(&allocator, value);
 
     ASSERT_NE(pointer3, nullptr);
-    EXPECT_EQ(*pointer3, 5);
+    EXPECT_EQ(*pointer3, static_cast<TypeParam>(5));
   }
 }
 

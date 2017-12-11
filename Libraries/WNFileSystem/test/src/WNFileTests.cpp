@@ -45,10 +45,10 @@ TEST_P(file, size) {
 
     ASSERT_NE(fp, nullptr);
     EXPECT_EQ(r, wn::file_system::result::ok);
-    EXPECT_EQ(fp->size(), 0);
+    EXPECT_EQ(fp->size(), 0u);
     EXPECT_TRUE(fp->empty());
     EXPECT_TRUE(fp->resize(5));
-    EXPECT_EQ(fp->size(), 5);
+    EXPECT_EQ(fp->size(), 5u);
     EXPECT_FALSE(fp->empty());
 
     fp->close();
@@ -57,7 +57,7 @@ TEST_P(file, size) {
 
     ASSERT_NE(fp, nullptr);
     EXPECT_EQ(r, wn::file_system::result::ok);
-    EXPECT_EQ(fp->size(), 5);
+    EXPECT_EQ(fp->size(), 5u);
     EXPECT_FALSE(fp->empty());
 
     fp->close();
@@ -79,16 +79,16 @@ TEST_P(file, resize) {
 
     ASSERT_NE(fp, nullptr);
     EXPECT_EQ(r, wn::file_system::result::ok);
-    EXPECT_EQ(fp->size(), 0);
+    EXPECT_EQ(fp->size(), 0u);
     EXPECT_EQ(fp->data(), nullptr);
     EXPECT_TRUE(fp->resize(10));
-    EXPECT_EQ(fp->size(), 10);
+    EXPECT_EQ(fp->size(), 10u);
     EXPECT_NE(fp->data(), nullptr);
 
     {
       auto range = fp->range();
 
-      EXPECT_EQ(range.size(), 10);
+      EXPECT_EQ(range.size(), 10u);
 
       for (size_t i = 0; i < range.size(); ++i) {
         range[i] = static_cast<uint8_t>(i);
@@ -96,13 +96,13 @@ TEST_P(file, resize) {
     }
 
     EXPECT_TRUE(fp->resize(5));
-    EXPECT_EQ(fp->size(), 5);
+    EXPECT_EQ(fp->size(), 5u);
     EXPECT_NE(fp->data(), nullptr);
 
     {
       auto range = fp->range();
 
-      EXPECT_EQ(range.size(), 5);
+      EXPECT_EQ(range.size(), 5u);
 
       for (size_t i = 0; i < range.size(); ++i) {
         EXPECT_EQ(range[i], static_cast<uint8_t>(i));
@@ -110,7 +110,7 @@ TEST_P(file, resize) {
     }
 
     EXPECT_TRUE(fp->resize(0));
-    EXPECT_EQ(fp->size(), 0);
+    EXPECT_EQ(fp->size(), 0u);
     EXPECT_EQ(fp->data(), nullptr);
 
     fp->close();
@@ -121,9 +121,9 @@ TEST_P(file, resize) {
 
     ASSERT_NE(fp, nullptr);
     EXPECT_EQ(r, wn::file_system::result::ok);
-    EXPECT_EQ(fp->size(), 0);
+    EXPECT_EQ(fp->size(), 0u);
     EXPECT_EQ(fp->data(), nullptr);
-    EXPECT_EQ(fp->range().size(), 0);
+    EXPECT_EQ(fp->range().size(), 0u);
 
     fp->close();
 
@@ -146,12 +146,12 @@ TEST_P(file, clear) {
 
     ASSERT_NE(fp, nullptr);
     EXPECT_EQ(r, wn::file_system::result::ok);
-    EXPECT_EQ(fp->size(), 0);
+    EXPECT_EQ(fp->size(), 0u);
     EXPECT_TRUE(fp->resize(10));
-    EXPECT_EQ(fp->size(), 10);
+    EXPECT_EQ(fp->size(), 10u);
     EXPECT_NE(fp->data(), nullptr);
     EXPECT_TRUE(fp->clear());
-    EXPECT_EQ(fp->size(), 0);
+    EXPECT_EQ(fp->size(), 0u);
     EXPECT_EQ(fp->data(), nullptr);
 
     fp->close();
@@ -162,7 +162,7 @@ TEST_P(file, clear) {
 
     ASSERT_NE(fp, nullptr);
     EXPECT_EQ(r, wn::file_system::result::ok);
-    EXPECT_EQ(fp->size(), 0);
+    EXPECT_EQ(fp->size(), 0u);
     EXPECT_EQ(fp->data(), nullptr);
 
     fp->close();
@@ -187,7 +187,7 @@ TEST_P(file, flush) {
     ASSERT_NE(fp, nullptr);
     EXPECT_EQ(r, wn::file_system::result::ok);
     EXPECT_TRUE(fp->resize(10));
-    EXPECT_EQ(fp->size(), 10);
+    EXPECT_EQ(fp->size(), 10u);
 
     auto range = fp->range();
 
@@ -205,7 +205,7 @@ TEST_P(file, flush) {
 
     ASSERT_NE(fp, nullptr);
     EXPECT_EQ(r, wn::file_system::result::ok);
-    EXPECT_EQ(fp->size(), 10);
+    EXPECT_EQ(fp->size(), 10u);
 
     range = fp->range();
 

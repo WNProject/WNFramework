@@ -136,8 +136,8 @@ protected:
     int channels_in_file = 4;
     stbi_uc* file =
         stbi_load(get_image_filename().c_str(), &w, &h, &channels_in_file, 4);
-    ASSERT_EQ(width, w);
-    ASSERT_EQ(height, h);
+    ASSERT_EQ(width, static_cast<size_t>(w));
+    ASSERT_EQ(height, static_cast<size_t>(h));
     ASSERT_EQ(4, channels_in_file);
     ASSERT_NE(nullptr, file);
     for (size_t x = 0; x < width; ++x) {

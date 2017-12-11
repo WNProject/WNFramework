@@ -8,12 +8,12 @@
 
 TEST(type_traits, integral_constant) {
   EXPECT_TRUE((wn::core::integral_constant<bool, true>::value));
-  EXPECT_EQ((wn::core::integral_constant<uint32_t, (10 % 10)>::value), 0);
+  EXPECT_EQ((wn::core::integral_constant<uint32_t, (10 % 10)>::value), 0u);
 }
 
 TEST(type_traits, index_constant) {
-  EXPECT_EQ((wn::core::index_constant<0>::value), 0);
-  EXPECT_EQ((wn::core::index_constant<(10 - 5)>::value), 5);
+  EXPECT_EQ((wn::core::index_constant<0>::value), 0u);
+  EXPECT_EQ((wn::core::index_constant<(10 - 5)>::value), 5u);
 }
 
 TEST(type_traits, bool_constant) {

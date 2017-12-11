@@ -171,7 +171,7 @@ TEST_P(image_transfer_tests, many_sizes) {
         }
       }
     }
-    ASSERT_EQ(0, num_failed_channels);
+    ASSERT_EQ(0u, num_failed_channels);
   }
 
   m_log->flush();

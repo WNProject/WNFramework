@@ -156,7 +156,7 @@ TYPED_TEST(vector, element_access) {
 TEST(vector, more_element_access) {
   const wn::math::vector<int, 6> vector({0, 1, 2, 3, 4, 5});
 
-  for (size_t i = 0; i < 6; ++i) {
+  for (int i = 0; i < 6; ++i) {
     EXPECT_EQ(vector[i], i);
     EXPECT_EQ(vector.at(i), i);
   }

@@ -54,6 +54,7 @@ tokens
     #pragma GCC diagnostic ignored "-Wunused-function"
     #pragma GCC diagnostic ignored "-Wunused-variable"
     #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+    #pragma GCC diagnostic ignored "-Wsign-compare"
 #endif
     #include "WNMemory/inc/WNAllocator.h"
     #include "WNScripting/src/WNScriptASTLexer.hpp"
@@ -117,6 +118,7 @@ tokens
 #endif
 #ifdef _WN_GCC
     #pragma GCC diagnostic ignored "-Wunused-variable"
+    #pragma GCC diagnostic ignored "-Wsign-compare"
 #endif
     //class WNScriptASTLexer;
     //class WNScriptASTParser;

@@ -10,9 +10,9 @@ TEST(string_utility, strlen) {
   const char* test2 = "string_longer";
   const char* test3 = "string_longest";
 
-  EXPECT_EQ(wn::memory::strlen(test1), 6);
-  EXPECT_EQ(wn::memory::strlen(test2), 13);
-  EXPECT_EQ(wn::memory::strlen(test3), 14);
+  EXPECT_EQ(wn::memory::strlen(test1), 6u);
+  EXPECT_EQ(wn::memory::strlen(test2), 13u);
+  EXPECT_EQ(wn::memory::strlen(test3), 14u);
 
 #ifdef _WN_DEBUG
   WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED(wn::memory::strlen(nullptr),
@@ -26,10 +26,10 @@ TEST(string_utility, strnlen) {
   const char* test2 = "string_longer";
   const char* test3 = "string_longest";
 
-  EXPECT_EQ(wn::memory::strnlen(test1, 12), 6);
-  EXPECT_EQ(wn::memory::strnlen(test2, 13), 13);
-  EXPECT_EQ(wn::memory::strnlen(test3, 6), 6);
-  EXPECT_EQ(wn::memory::strnlen(test3, 0), 0);
+  EXPECT_EQ(wn::memory::strnlen(test1, 12), 6u);
+  EXPECT_EQ(wn::memory::strnlen(test2, 13), 13u);
+  EXPECT_EQ(wn::memory::strnlen(test3, 6), 6u);
+  EXPECT_EQ(wn::memory::strnlen(test3, 0), 0u);
 
 #ifdef _WN_DEBUG
   WN_EXPECT_DEBUG_DEATH_IF_SUPPORTED(wn::memory::strnlen(nullptr, 5),
@@ -213,7 +213,7 @@ TEST(string_utility, strndup) {
   }
 
   EXPECT_EQ(test2[3], '\0');
-  EXPECT_EQ(wn::memory::strlen(test2), 3);
+  EXPECT_EQ(wn::memory::strlen(test2), 3u);
 
   wn::memory::heap_free(test2);
 

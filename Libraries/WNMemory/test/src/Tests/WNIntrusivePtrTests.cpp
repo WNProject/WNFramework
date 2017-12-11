@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNMemory/inc/WNIntrusivePtr.h"
 #include "WNExecutableTest/inc/WNTestHarness.h"
+#include "WNMemory/inc/WNIntrusivePtr.h"
 
 template <typename T>
 struct intrusive_ptr : testing::Test {};
@@ -49,7 +49,7 @@ TYPED_TEST(intrusive_ptr, construction) {
 
     EXPECT_NE(pointer3, nullptr);
     ASSERT_NE(pointer3.get(), nullptr);
-    EXPECT_EQ(pointer3->test(), 0);
+    EXPECT_EQ(pointer3->test(), static_cast<TypeParam>(0));
 
     dummy_intrusive<TypeParam>* dummy =
         allocator.construct<dummy_intrusive<TypeParam>>(
@@ -68,7 +68,7 @@ TYPED_TEST(intrusive_ptr, construction) {
 
     EXPECT_NE(pointer5, nullptr);
     ASSERT_NE(pointer5.get(), nullptr);
-    EXPECT_EQ(pointer5->test(), 0);
+    EXPECT_EQ(pointer5->test(), static_cast<TypeParam>(0));
   }
 }
 
@@ -80,7 +80,7 @@ TYPED_TEST(intrusive_ptr, use_count) {
         wn::memory::make_intrusive<dummy_intrusive<TypeParam>>(&allocator));
 
     EXPECT_NE(pointer1, nullptr);
-    EXPECT_EQ(pointer1.use_count(), 1);
+    EXPECT_EQ(pointer1.use_count(), 1u);
     EXPECT_NE(pointer1.get(), nullptr);
 
     {
@@ -88,14 +88,14 @@ TYPED_TEST(intrusive_ptr, use_count) {
 
       EXPECT_NE(pointer1, nullptr);
       EXPECT_NE(pointer2, nullptr);
-      EXPECT_EQ(pointer1.use_count(), 2);
-      EXPECT_EQ(pointer2.use_count(), 2);
+      EXPECT_EQ(pointer1.use_count(), 2u);
+      EXPECT_EQ(pointer2.use_count(), 2u);
       EXPECT_NE(pointer1.get(), nullptr);
       EXPECT_NE(pointer2.get(), nullptr);
     }
 
     EXPECT_NE(pointer1, nullptr);
-    EXPECT_EQ(pointer1.use_count(), 1);
+    EXPECT_EQ(pointer1.use_count(), 1u);
     EXPECT_NE(pointer1.get(), nullptr);
   }
 }
@@ -141,8 +141,8 @@ TYPED_TEST(intrusive_ptr, copying) {
 
     EXPECT_NE(pointer1, nullptr);
     EXPECT_NE(pointer2, nullptr);
-    EXPECT_EQ(pointer1.use_count(), 2);
-    EXPECT_EQ(pointer2.use_count(), 2);
+    EXPECT_EQ(pointer1.use_count(), 2u);
+    EXPECT_EQ(pointer2.use_count(), 2u);
     EXPECT_FALSE(pointer1.unique());
     EXPECT_FALSE(pointer2.unique());
     EXPECT_EQ(pointer1, pointer2);
@@ -157,9 +157,9 @@ TYPED_TEST(intrusive_ptr, copying) {
       EXPECT_NE(pointer1, nullptr);
       EXPECT_NE(pointer2, nullptr);
       EXPECT_NE(pointer3, nullptr);
-      EXPECT_EQ(pointer1.use_count(), 3);
-      EXPECT_EQ(pointer2.use_count(), 3);
-      EXPECT_EQ(pointer3.use_count(), 3);
+      EXPECT_EQ(pointer1.use_count(), 3u);
+      EXPECT_EQ(pointer2.use_count(), 3u);
+      EXPECT_EQ(pointer3.use_count(), 3u);
       EXPECT_FALSE(pointer1.unique());
       EXPECT_FALSE(pointer2.unique());
       EXPECT_FALSE(pointer3.unique());
@@ -170,8 +170,8 @@ TYPED_TEST(intrusive_ptr, copying) {
 
     EXPECT_NE(pointer1, nullptr);
     EXPECT_NE(pointer2, nullptr);
-    EXPECT_EQ(pointer1.use_count(), 2);
-    EXPECT_EQ(pointer2.use_count(), 2);
+    EXPECT_EQ(pointer1.use_count(), 2u);
+    EXPECT_EQ(pointer2.use_count(), 2u);
     EXPECT_FALSE(pointer1.unique());
     EXPECT_FALSE(pointer2.unique());
     EXPECT_EQ(pointer1, pointer2);
@@ -192,8 +192,8 @@ TYPED_TEST(intrusive_ptr, moving) {
 
     EXPECT_EQ(pointer1, nullptr);
     EXPECT_NE(pointer2, nullptr);
-    EXPECT_EQ(pointer1.use_count(), 0);
-    EXPECT_EQ(pointer2.use_count(), 1);
+    EXPECT_EQ(pointer1.use_count(), 0u);
+    EXPECT_EQ(pointer2.use_count(), 1u);
     EXPECT_FALSE(pointer1.unique());
     EXPECT_TRUE(pointer2.unique());
 
@@ -207,9 +207,9 @@ TYPED_TEST(intrusive_ptr, moving) {
       EXPECT_EQ(pointer1, nullptr);
       EXPECT_EQ(pointer2, nullptr);
       EXPECT_NE(pointer3, nullptr);
-      EXPECT_EQ(pointer1.use_count(), 0);
-      EXPECT_EQ(pointer2.use_count(), 0);
-      EXPECT_EQ(pointer3.use_count(), 1);
+      EXPECT_EQ(pointer1.use_count(), 0u);
+      EXPECT_EQ(pointer2.use_count(), 0u);
+      EXPECT_EQ(pointer3.use_count(), 1u);
       EXPECT_FALSE(pointer1.unique());
       EXPECT_FALSE(pointer2.unique());
       EXPECT_TRUE(pointer3.unique());
@@ -217,8 +217,8 @@ TYPED_TEST(intrusive_ptr, moving) {
 
     EXPECT_EQ(pointer1, nullptr);
     EXPECT_EQ(pointer2, nullptr);
-    EXPECT_EQ(pointer1.use_count(), 0);
-    EXPECT_EQ(pointer2.use_count(), 0);
+    EXPECT_EQ(pointer1.use_count(), 0u);
+    EXPECT_EQ(pointer2.use_count(), 0u);
     EXPECT_FALSE(pointer1.unique());
     EXPECT_FALSE(pointer2.unique());
   }
@@ -287,13 +287,13 @@ TYPED_TEST(intrusive_ptr, reset) {
     pointer4.reset(&allocator, dummy2);
 
     EXPECT_EQ(pointer1, nullptr);
-    EXPECT_EQ(pointer1.use_count(), 0);
+    EXPECT_EQ(pointer1.use_count(), 0u);
     EXPECT_EQ(pointer2, nullptr);
-    EXPECT_EQ(pointer2.use_count(), 0);
+    EXPECT_EQ(pointer2.use_count(), 0u);
     EXPECT_EQ(pointer3, nullptr);
-    EXPECT_EQ(pointer3.use_count(), 0);
+    EXPECT_EQ(pointer3.use_count(), 0u);
     EXPECT_EQ(pointer4, nullptr);
-    EXPECT_EQ(pointer4.use_count(), 0);
+    EXPECT_EQ(pointer4.use_count(), 0u);
   }
 }
 
@@ -306,17 +306,17 @@ TYPED_TEST(intrusive_ptr, release) {
             &allocator, static_cast<TypeParam>(1)));
 
     ASSERT_NE(pointer, nullptr);
-    EXPECT_EQ(pointer->test(), 1);
+    EXPECT_EQ(pointer->test(), static_cast<TypeParam>(1));
 
     const dummy_intrusive<TypeParam>* pointer_raw = pointer.get();
     dummy_intrusive<TypeParam>* value = pointer.release();
 
     ASSERT_NE(value, nullptr);
     EXPECT_EQ(value->test(), static_cast<TypeParam>(1));
-    EXPECT_EQ(value->reference_count(), 1);
+    EXPECT_EQ(value->reference_count(), 1u);
     EXPECT_EQ(value, pointer_raw);
     EXPECT_EQ(pointer, nullptr);
-    EXPECT_EQ(pointer.use_count(), 0);
+    EXPECT_EQ(pointer.use_count(), 0u);
 
     allocator.destroy(value);
   }

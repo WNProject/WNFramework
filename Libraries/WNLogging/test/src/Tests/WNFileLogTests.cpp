@@ -55,7 +55,7 @@ TEST(WNFileLogTest, NoExessiveLogging) {
     file_logger<GetTempFile> file_logger;
     static_log<log_level::max> default_log(&file_logger);
     default_log.log()->log_error("asdf");
-    ASSERT_EQ(NumWritten(), 0);
+    ASSERT_EQ(NumWritten(), 0u);
   }
 }
 
@@ -79,7 +79,7 @@ TEST(WNFileLogTest, ChangeLogLevel) {
     default_log.log()->log_info("asdf");
     default_log.log()->flush();
   }
-  ASSERT_EQ(NumWritten(), 0);
+  ASSERT_EQ(NumWritten(), 0u);
   {
     file_logger<GetTempFile> file_logger;
     static_log<log_level::max> default_log(&file_logger);

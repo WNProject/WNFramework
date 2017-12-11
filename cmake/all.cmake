@@ -7,6 +7,7 @@ include(${WNFramework_SOURCE_DIR}/cmake/add_overlays.cmake)
 
 include(${WNFramework_SOURCE_DIR}/cmake/build_options.cmake)
 include(${WNFramework_SOURCE_DIR}/cmake/externals.cmake)
+include(${WNFramework_SOURCE_DIR}/cmake/post_build_options.cmake)
 include(${WNFramework_SOURCE_DIR}/cmake/make_preprocessor_symbol.cmake)
 include(${WNFramework_SOURCE_DIR}/cmake/targets.cmake)
 include(${WNFramework_SOURCE_DIR}/cmake/tests.cmake)

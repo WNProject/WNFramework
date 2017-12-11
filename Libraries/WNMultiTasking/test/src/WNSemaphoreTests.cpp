@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNMultiTasking/inc/WNSemaphore.h"
 #include "WNExecutableTest/inc/WNTestHarness.h"
+#include "WNMultiTasking/inc/WNSemaphore.h"
 #include "WNMultiTasking/inc/WNThread.h"
 
 #include <memory>
@@ -34,7 +34,7 @@ TEST(semaphore, wait_notify) {
           &allocator, thread_function));
     }
 
-    ASSERT_EQ(count, 0);
+    ASSERT_EQ(count, 0u);
 
     semaphore.notify();
 
@@ -42,7 +42,7 @@ TEST(semaphore, wait_notify) {
       threads[i]->join();
     }
 
-    ASSERT_EQ(count, 10);
+    ASSERT_EQ(count, 10u);
     ASSERT_EQ(numbers.str(), "0123456789");
   }
 

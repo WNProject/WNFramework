@@ -85,6 +85,7 @@
 #endif
 #ifdef _WN_GCC
     #pragma GCC diagnostic ignored "-Wunused-variable"
+    #pragma GCC diagnostic ignored "-Wsign-compare"
 #endif
 
     template<class ImplTraits>

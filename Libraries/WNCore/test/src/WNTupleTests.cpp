@@ -156,8 +156,8 @@ TYPED_TEST(tuple, size) {
       third_type>
       tuple2;
 
-  EXPECT_EQ(wn::core::tuple_size<decltype(tuple1)>::value, 3);
-  EXPECT_EQ(wn::core::tuple_size<decltype(tuple2)>::value, 6);
+  EXPECT_EQ(wn::core::tuple_size<decltype(tuple1)>::value, 3u);
+  EXPECT_EQ(wn::core::tuple_size<decltype(tuple2)>::value, 6u);
 }
 
 TYPED_TEST(tuple, swap) {

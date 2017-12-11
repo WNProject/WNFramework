@@ -134,14 +134,14 @@ TYPED_TEST(contiguous_range, capacity) {
       TypeParam(1), TypeParam(2), TypeParam(3), TypeParam(4), TypeParam(5)};
   const wn::containers::contiguous_range<TypeParam> range1(buffer);
 
-  EXPECT_EQ(range1.size(), 5);
-  EXPECT_EQ(range1.max_size(), 5);
+  EXPECT_EQ(range1.size(), 5u);
+  EXPECT_EQ(range1.max_size(), 5u);
   EXPECT_EQ(range1.max_size(), range1.size());
 
   const wn::containers::contiguous_range<TypeParam> range2(buffer + 1, 3);
 
-  EXPECT_EQ(range2.size(), 3);
-  EXPECT_EQ(range2.max_size(), 3);
+  EXPECT_EQ(range2.size(), 3u);
+  EXPECT_EQ(range2.max_size(), 3u);
   EXPECT_EQ(range2.max_size(), range2.size());
 }
 
@@ -305,12 +305,12 @@ TYPED_TEST(contiguous_range, clear) {
   wn::containers::contiguous_range<TypeParam> range(buffer);
 
   EXPECT_FALSE(range.empty());
-  EXPECT_EQ(range.size(), 5);
+  EXPECT_EQ(range.size(), 5u);
 
   range.clear();
 
   EXPECT_TRUE(range.empty());
-  EXPECT_EQ(range.size(), 0);
+  EXPECT_EQ(range.size(), 0u);
 }
 
 TYPED_TEST(contiguous_range, swap) {
@@ -416,9 +416,9 @@ TYPED_TEST(contiguous_range, multiple_ranges_same_source) {
   wn::containers::contiguous_range<TypeParam> range2(buffer, 3);
   wn::containers::contiguous_range<TypeParam> range3(buffer + 2, 4);
 
-  EXPECT_EQ(range1.size(), 10);
-  EXPECT_EQ(range2.size(), 3);
-  EXPECT_EQ(range3.size(), 4);
+  EXPECT_EQ(range1.size(), 10u);
+  EXPECT_EQ(range2.size(), 3u);
+  EXPECT_EQ(range3.size(), 4u);
 
   uint8_t count = 1;
 

@@ -178,8 +178,8 @@ TEST(string_view, size) {
 
   const wn::containers::string_view v2(test_string1 + 1, 3);
 
-  EXPECT_EQ(v2.size(), 3);
-  EXPECT_EQ(v2.length(), 3);
+  EXPECT_EQ(v2.size(), 3u);
+  EXPECT_EQ(v2.length(), 3u);
 }
 
 TEST(string_view, max_size) {
@@ -206,7 +206,7 @@ TEST(string_view, clear) {
   s.clear();
 
   EXPECT_TRUE(s.empty());
-  EXPECT_EQ(s.size(), 0);
+  EXPECT_EQ(s.size(), 0u);
   EXPECT_GE(s.capacity(), 0u);
 }
 
@@ -243,17 +243,17 @@ TEST(string_view, substr) {
   const wn::containers::string_view v1(string);
   const wn::containers::string_view v2(v1.substr());
 
-  ASSERT_EQ(v2.length(), 6);
+  ASSERT_EQ(v2.length(), 6u);
   EXPECT_EQ(v2, "string");
 
   const wn::containers::string_view v3(v1.substr(4));
 
-  ASSERT_EQ(v3.length(), 2);
+  ASSERT_EQ(v3.length(), 2u);
   EXPECT_EQ(v3, "ng");
 
   const wn::containers::string_view v4(v1.substr(1, 3));
 
-  ASSERT_EQ(v4.length(), 3);
+  ASSERT_EQ(v4.length(), 3u);
   EXPECT_EQ(v4, "tri");
 }
 
@@ -294,11 +294,11 @@ TEST(string_view, find) {
 
   size_t pos = v.find("ing");
 
-  EXPECT_EQ(pos, 9);
+  EXPECT_EQ(pos, 9u);
 
   pos = v.find('t');
 
-  EXPECT_EQ(pos, 7);
+  EXPECT_EQ(pos, 7u);
 }
 
 TEST(string_view, rfind) {
@@ -308,11 +308,11 @@ TEST(string_view, rfind) {
 
   size_t pos = v.rfind("a");
 
-  EXPECT_EQ(pos, 57);
+  EXPECT_EQ(pos, 57u);
 
   pos = v.rfind('o');
 
-  EXPECT_EQ(pos, 45);
+  EXPECT_EQ(pos, 45u);
 
   pos = v.rfind("x");
 
@@ -326,23 +326,23 @@ TEST(string_view, find_first_of) {
 
   size_t pos = v.find_first_of('s');
 
-  EXPECT_EQ(pos, 3);
+  EXPECT_EQ(pos, 3u);
 
   pos = v.find_first_of('s', pos + 1);
 
-  EXPECT_EQ(pos, 6);
+  EXPECT_EQ(pos, 6u);
 
   pos = v.find_first_of("tr");
 
-  EXPECT_EQ(pos, 0);
+  EXPECT_EQ(pos, 0u);
 
   pos = v.find_first_of("tr", pos + 1);
 
-  EXPECT_EQ(pos, 12);
+  EXPECT_EQ(pos, 12u);
 
   pos = v.find_first_of("g");
 
-  EXPECT_EQ(pos, 18);
+  EXPECT_EQ(pos, 18u);
 
   pos = v.find_first_of("x");
 
@@ -357,11 +357,11 @@ TEST(string_view, find_last_of) {
 
   size_t pos = v1.find_last_of('s');
 
-  EXPECT_EQ(pos, 12);
+  EXPECT_EQ(pos, 12u);
 
   pos = v1.find_last_of('s', pos - 1);
 
-  EXPECT_EQ(pos, 6);
+  EXPECT_EQ(pos, 6u);
 
   pos = v1.find_last_of('s', pos - 1);
 
@@ -369,11 +369,11 @@ TEST(string_view, find_last_of) {
 
   pos = v1.find_last_of("tr");
 
-  EXPECT_EQ(pos, 21);
+  EXPECT_EQ(pos, 21u);
 
   pos = v1.find_last_of("g");
 
-  EXPECT_EQ(pos, 11);
+  EXPECT_EQ(pos, 11u);
 
   pos = v1.find_last_of("xyz");
 
@@ -388,15 +388,15 @@ TEST(string_view, find_first_not_of) {
 
   size_t pos = v.find_first_not_of(' ');
 
-  EXPECT_EQ(pos, 6);
+  EXPECT_EQ(pos, 6u);
 
   pos = v.find_first_not_of(" s");
 
-  EXPECT_EQ(pos, 7);
+  EXPECT_EQ(pos, 7u);
 
   pos = v.find_first_not_of(" strin");
 
-  EXPECT_EQ(pos, 11);
+  EXPECT_EQ(pos, 11u);
 
   pos = v.find_first_not_of(" string");
 
@@ -411,15 +411,15 @@ TEST(string_view, find_last_not_of) {
 
   size_t pos = v.find_last_not_of(' ');
 
-  EXPECT_EQ(pos, 12);
+  EXPECT_EQ(pos, 12u);
 
   pos = v.find_last_not_of(" s");
 
-  EXPECT_EQ(pos, 11);
+  EXPECT_EQ(pos, 11u);
 
   pos = v.find_last_not_of(" strin");
 
-  EXPECT_EQ(pos, 11);
+  EXPECT_EQ(pos, 11u);
 
   pos = v.find_last_not_of(" string");
 

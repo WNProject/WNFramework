@@ -24,13 +24,13 @@ TYPED_TEST(list, insert_one) {
     wn::containers::list<TypeParam> l(&alloc);
     l.insert(l.begin(), 1);
     EXPECT_FALSE(l.begin() == l.end());
-    EXPECT_EQ(1, *l.begin());
+    EXPECT_EQ(static_cast<TypeParam>(1), *l.begin());
   }
   {
     wn::containers::list<TypeParam> l(&alloc);
     l.insert(l.cbegin(), 1);
     EXPECT_FALSE(l.cbegin() == l.cend());
-    EXPECT_EQ(1, *l.cbegin());
+    EXPECT_EQ(static_cast<TypeParam>(1), *l.cbegin());
   }
 }
 
@@ -42,8 +42,8 @@ TYPED_TEST(list, insert_two) {
         l.insert(l.begin(), 2);
     l.insert(++it, 9);
     EXPECT_FALSE(l.begin() == l.end());
-    EXPECT_EQ(2, *l.begin());
-    EXPECT_EQ(9, *(++l.begin()));
+    EXPECT_EQ(static_cast<TypeParam>(2), *l.begin());
+    EXPECT_EQ(static_cast<TypeParam>(9), *(++l.begin()));
   }
   {
     wn::containers::list<TypeParam> l(&alloc);
@@ -51,8 +51,8 @@ TYPED_TEST(list, insert_two) {
         l.insert(l.cbegin(), 2);
     l.insert(++it, 9);
     EXPECT_FALSE(l.cbegin() == l.cend());
-    EXPECT_EQ(2, *l.cbegin());
-    EXPECT_EQ(9, *(++l.cbegin()));
+    EXPECT_EQ(static_cast<TypeParam>(2), *l.cbegin());
+    EXPECT_EQ(static_cast<TypeParam>(9), *(++l.cbegin()));
   }
 }
 
@@ -64,16 +64,16 @@ TYPED_TEST(list, erase_first) {
   it = l.insert(++it, 9);
   it = l.insert(++it, 10);
   EXPECT_FALSE(l.begin() == l.end());
-  EXPECT_EQ(8, *l.begin());
-  EXPECT_EQ(9, *(++l.begin()));
-  EXPECT_EQ(10, *(++(++l.begin())));
+  EXPECT_EQ(static_cast<TypeParam>(8), *l.begin());
+  EXPECT_EQ(static_cast<TypeParam>(9), *(++l.begin()));
+  EXPECT_EQ(static_cast<TypeParam>(10), *(++(++l.begin())));
 
-  EXPECT_EQ(9, *l.erase(l.begin()));
-  EXPECT_EQ(9, *l.begin());
-  EXPECT_EQ(10, *(++l.begin()));
+  EXPECT_EQ(static_cast<TypeParam>(9), *l.erase(l.begin()));
+  EXPECT_EQ(static_cast<TypeParam>(9), *l.begin());
+  EXPECT_EQ(static_cast<TypeParam>(10), *(++l.begin()));
 
-  EXPECT_EQ(10, *l.erase(l.cbegin()));
-  EXPECT_EQ(10, *l.cbegin());
+  EXPECT_EQ(static_cast<TypeParam>(10), *l.erase(l.cbegin()));
+  EXPECT_EQ(static_cast<TypeParam>(10), *l.cbegin());
   EXPECT_EQ(l.cend(), ++l.cbegin());
 }
 
@@ -85,18 +85,18 @@ TYPED_TEST(list, erase_middle) {
   it = l.insert(++it, 9);
   it = l.insert(++it, 10);
   EXPECT_FALSE(l.begin() == l.end());
-  EXPECT_EQ(8, *l.begin());
-  EXPECT_EQ(9, *(++l.begin()));
-  EXPECT_EQ(10, *(++(++l.begin())));
+  EXPECT_EQ(static_cast<TypeParam>(8), *l.begin());
+  EXPECT_EQ(static_cast<TypeParam>(9), *(++l.begin()));
+  EXPECT_EQ(static_cast<TypeParam>(10), *(++(++l.begin())));
 
   l.erase(++l.begin());
-  EXPECT_EQ(*l.begin(), 8);
-  EXPECT_EQ(*(++l.begin()), 10);
+  EXPECT_EQ(*l.begin(), static_cast<TypeParam>(8));
+  EXPECT_EQ(*(++l.begin()), static_cast<TypeParam>(10));
 
   l.insert(l.cbegin(), 7);
-  EXPECT_EQ(10, *l.erase(++l.cbegin()));
-  EXPECT_EQ(7, *l.cbegin());
-  EXPECT_EQ(10, *(++l.cbegin()));
+  EXPECT_EQ(static_cast<TypeParam>(10), *l.erase(++l.cbegin()));
+  EXPECT_EQ(static_cast<TypeParam>(7), *l.cbegin());
+  EXPECT_EQ(static_cast<TypeParam>(10), *(++l.cbegin()));
 }
 
 TYPED_TEST(list, erase_last) {
@@ -107,16 +107,16 @@ TYPED_TEST(list, erase_last) {
   it = l.insert(++it, 9);
   it = l.insert(++it, 10);
   EXPECT_FALSE(l.begin() == l.end());
-  EXPECT_EQ(*l.begin(), 8);
-  EXPECT_EQ(*(++l.begin()), 9);
-  EXPECT_EQ(*(++(++l.begin())), 10);
+  EXPECT_EQ(*l.begin(), static_cast<TypeParam>(8));
+  EXPECT_EQ(*(++l.begin()), static_cast<TypeParam>(9));
+  EXPECT_EQ(*(++(++l.begin())), static_cast<TypeParam>(10));
 
   EXPECT_EQ(l.end(), l.erase(++(++l.begin())));
-  EXPECT_EQ(*l.begin(), 8);
-  EXPECT_EQ(*(++l.begin()), 9);
+  EXPECT_EQ(*l.begin(), static_cast<TypeParam>(8));
+  EXPECT_EQ(*(++l.begin()), static_cast<TypeParam>(9));
 
   EXPECT_EQ(l.end(), l.erase(++l.cbegin()));
-  EXPECT_EQ(8, *(l.cbegin()));
+  EXPECT_EQ(static_cast<TypeParam>(8), *(l.cbegin()));
 }
 
 TYPED_TEST(list, remove_from_end) {
@@ -127,13 +127,13 @@ TYPED_TEST(list, remove_from_end) {
   it = l.insert(++it, 9);
   it = l.insert(++it, 10);
   EXPECT_FALSE(l.begin() == l.end());
-  EXPECT_EQ(*l.begin(), 8);
-  EXPECT_EQ(*(++l.begin()), 9);
-  EXPECT_EQ(*(++(++l.begin())), 10);
+  EXPECT_EQ(*l.begin(), static_cast<TypeParam>(8));
+  EXPECT_EQ(*(++l.begin()), static_cast<TypeParam>(9));
+  EXPECT_EQ(*(++(++l.begin())), static_cast<TypeParam>(10));
 
   EXPECT_EQ(l.end(), l.erase(--l.end()));
-  EXPECT_EQ(*l.begin(), 8);
-  EXPECT_EQ(*(++l.begin()), 9);
+  EXPECT_EQ(*l.begin(), static_cast<TypeParam>(8));
+  EXPECT_EQ(*(++l.begin()), static_cast<TypeParam>(9));
 }
 
 TYPED_TEST(list, clear) {
@@ -141,15 +141,15 @@ TYPED_TEST(list, clear) {
   wn::containers::list<TypeParam> l(&alloc);
   l.insert(l.begin(), 1);
   EXPECT_FALSE(l.begin() == l.end());
-  EXPECT_EQ(*l.begin(), 1);
+  EXPECT_EQ(*l.begin(), static_cast<TypeParam>(1));
   l.clear();
   EXPECT_EQ(l.begin(), l.end());
   l.insert(l.begin(), 1);
   l.insert(l.begin(), 2);
   l.insert(l.begin(), 3);
-  EXPECT_EQ(*l.begin(), 3);
-  EXPECT_EQ(*(++l.begin()), 2);
-  EXPECT_EQ(*(++(++l.begin())), 1);
+  EXPECT_EQ(*l.begin(), static_cast<TypeParam>(3));
+  EXPECT_EQ(*(++l.begin()), static_cast<TypeParam>(2));
+  EXPECT_EQ(*(++(++l.begin())), static_cast<TypeParam>(1));
   l.clear();
   EXPECT_EQ(l.begin(), l.end());
 }
@@ -162,21 +162,21 @@ TYPED_TEST(list, erase_and_add) {
   it = l.insert(++it, 9);
   it = l.insert(++it, 10);
   EXPECT_FALSE(l.begin() == l.end());
-  EXPECT_EQ(8, *l.begin());
-  EXPECT_EQ(9, *(++l.begin()));
-  EXPECT_EQ(10, *(++(++l.begin())));
+  EXPECT_EQ(static_cast<TypeParam>(8), *l.begin());
+  EXPECT_EQ(static_cast<TypeParam>(9), *(++l.begin()));
+  EXPECT_EQ(static_cast<TypeParam>(10), *(++(++l.begin())));
 
-  EXPECT_EQ(10, *l.erase(++l.begin()));
-  EXPECT_EQ(8, *l.begin());
-  EXPECT_EQ(10, *(++l.begin()));
+  EXPECT_EQ(static_cast<TypeParam>(10), *l.erase(++l.begin()));
+  EXPECT_EQ(static_cast<TypeParam>(8), *l.begin());
+  EXPECT_EQ(static_cast<TypeParam>(10), *(++l.begin()));
 
-  l.insert(l.begin(), 1);
-  EXPECT_EQ(*l.begin(), 1);
-  EXPECT_EQ(*(++l.begin()), 8);
-  EXPECT_EQ(*(++(++l.begin())), 10);
+  l.insert(l.begin(), static_cast<TypeParam>(1));
+  EXPECT_EQ(*l.begin(), static_cast<TypeParam>(1));
+  EXPECT_EQ(*(++l.begin()), static_cast<TypeParam>(8));
+  EXPECT_EQ(*(++(++l.begin())), static_cast<TypeParam>(10));
 
-  l.insert(++(++(++l.begin())), 42);
-  EXPECT_EQ(*(--l.end()), 42);
+  l.insert(++(++(++l.begin())), static_cast<TypeParam>(42));
+  EXPECT_EQ(*(--l.end()), static_cast<TypeParam>(42));
 }
 
 TYPED_TEST(list, erase_all_and_add) {
@@ -187,41 +187,41 @@ TYPED_TEST(list, erase_all_and_add) {
   it = l.insert(++it, 9);
   it = l.insert(++it, 10);
   EXPECT_FALSE(l.begin() == l.end());
-  EXPECT_EQ(*l.begin(), 8);
-  EXPECT_EQ(*(++l.begin()), 9);
-  EXPECT_EQ(*(++(++l.begin())), 10);
+  EXPECT_EQ(*l.begin(), static_cast<TypeParam>(8));
+  EXPECT_EQ(*(++l.begin()), static_cast<TypeParam>(9));
+  EXPECT_EQ(*(++(++l.begin())), static_cast<TypeParam>(10));
 
   l.erase(l.begin());
   l.erase(l.begin());
   l.erase(l.begin());
   EXPECT_EQ(l.begin(), l.end());
 
-  l.insert(l.begin(), 32);
-  EXPECT_EQ(*l.begin(), 32);
+  l.insert(l.begin(), static_cast<TypeParam>(32));
+  EXPECT_EQ(*l.begin(), static_cast<TypeParam>(32));
 }
 
 TYPED_TEST(list, size) {
   wn::memory::basic_allocator alloc;
   wn::containers::list<TypeParam> l(&alloc);
-  EXPECT_EQ(0, l.size());
+  EXPECT_EQ(0u, l.size());
   l.emplace(l.begin(), static_cast<TypeParam>(0));
-  EXPECT_EQ(1, l.size());
+  EXPECT_EQ(1u, l.size());
   l.emplace(l.begin(), static_cast<TypeParam>(0));
-  EXPECT_EQ(2, l.size());
+  EXPECT_EQ(2u, l.size());
   for (size_t i = 0; i < 1000; ++i) {
     l.emplace(l.begin(), static_cast<TypeParam>(0));
   }
-  EXPECT_EQ(1002, l.size());
+  EXPECT_EQ(1002u, l.size());
   l.erase(l.begin());
-  EXPECT_EQ(1001, l.size());
+  EXPECT_EQ(1001u, l.size());
   for (size_t i = 0; i < 1000; ++i) {
     l.erase(l.begin());
   }
-  EXPECT_EQ(1, l.size());
+  EXPECT_EQ(1u, l.size());
   l.erase(l.begin());
-  EXPECT_EQ(0, l.size());
+  EXPECT_EQ(0u, l.size());
   l.emplace(l.begin(), static_cast<TypeParam>(32));
-  EXPECT_EQ(1, l.size());
+  EXPECT_EQ(1u, l.size());
 }
 
 struct construction_test_struct {
@@ -265,9 +265,9 @@ TEST(list, emplace) {
   EXPECT_EQ(construction_test_struct::construction_type::typed_constructor,
       (l.begin() + 1)->type);
 
-  EXPECT_EQ(4, l.begin()->v1);
+  EXPECT_EQ(4u, l.begin()->v1);
   EXPECT_EQ(12, l.begin()->v2);
-  EXPECT_EQ(32, (l.begin() + 1)->v1);
+  EXPECT_EQ(32u, (l.begin() + 1)->v1);
   EXPECT_EQ(4, (l.begin() + 1)->v2);
 }
 

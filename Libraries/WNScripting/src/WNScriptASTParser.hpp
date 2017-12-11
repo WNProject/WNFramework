@@ -73,6 +73,7 @@
     #pragma GCC diagnostic ignored "-Wunused-function"
     #pragma GCC diagnostic ignored "-Wunused-variable"
     #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+    #pragma GCC diagnostic ignored "-Wsign-compare"
 #endif
 
     #include "WNMemory/inc/WNAllocator.h"

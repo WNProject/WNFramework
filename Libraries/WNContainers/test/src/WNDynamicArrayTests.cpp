@@ -45,7 +45,7 @@ TYPED_TEST(dynamic_array, resize) {
 
     arr.resize(10);
 
-    EXPECT_EQ(arr.size(), 10);
+    EXPECT_EQ(arr.size(), 10u);
 
     for (size_t i = 0; i < 5; ++i) {
       EXPECT_EQ(TypeParam(i), arr[i]);
@@ -54,7 +54,7 @@ TYPED_TEST(dynamic_array, resize) {
 
     arr.resize(5);
 
-    EXPECT_EQ(arr.size(), 5);
+    EXPECT_EQ(arr.size(), 5u);
 
     for (size_t i = 0; i < 5; ++i) {
       EXPECT_EQ(TypeParam(i), arr[i]);
@@ -63,7 +63,7 @@ TYPED_TEST(dynamic_array, resize) {
 
     arr.resize(10, 6);
 
-    EXPECT_EQ(arr.size(), 10);
+    EXPECT_EQ(arr.size(), 10u);
 
     for (size_t i = 0; i < 5; ++i) {
       EXPECT_EQ(TypeParam(i), arr[i]);

@@ -122,7 +122,7 @@ TEST(string, iteration) {
       count--;
     }
 
-    EXPECT_EQ(count, 0);
+    EXPECT_EQ(count, 0u);
 
     count = test_string1_length;
 
@@ -133,7 +133,7 @@ TEST(string, iteration) {
       count--;
     }
 
-    EXPECT_EQ(count, 0);
+    EXPECT_EQ(count, 0u);
 
     count = test_string1_length;
 
@@ -143,7 +143,7 @@ TEST(string, iteration) {
       count--;
     }
 
-    EXPECT_EQ(count, 0);
+    EXPECT_EQ(count, 0u);
 
     count = test_string1_length;
 
@@ -153,7 +153,7 @@ TEST(string, iteration) {
       count--;
     }
 
-    EXPECT_EQ(count, 0);
+    EXPECT_EQ(count, 0u);
   }
 }
 
@@ -188,8 +188,8 @@ TEST(string, size) {
 
     const wn::containers::string s2(&allocator, test_string1 + 1, 3);
 
-    EXPECT_EQ(s2.size(), 3);
-    EXPECT_EQ(s2.length(), 3);
+    EXPECT_EQ(s2.size(), 3u);
+    EXPECT_EQ(s2.length(), 3u);
   }
 }
 
@@ -217,13 +217,13 @@ TEST(string, shrink_to_fit) {
 
     s.reserve(100);
 
-    EXPECT_EQ(s.size(), 0);
-    EXPECT_EQ(s.capacity(), 100);
+    EXPECT_EQ(s.size(), 0u);
+    EXPECT_EQ(s.capacity(), 100u);
 
     s += test_string1;
 
     EXPECT_EQ(s.size(), test_string1_length);
-    EXPECT_EQ(s.capacity(), 100);
+    EXPECT_EQ(s.capacity(), 100u);
 
     s.shrink_to_fit();
 
@@ -247,7 +247,7 @@ TEST(string, clear) {
     s.clear();
 
     EXPECT_TRUE(s.empty());
-    EXPECT_EQ(s.size(), 0);
+    EXPECT_EQ(s.size(), 0u);
     EXPECT_GE(s.capacity(), 0u);
   }
 }
@@ -258,7 +258,7 @@ TEST(string, erase) {
   {
     wn::containers::string s(&allocator, test_string1);
 
-    EXPECT_EQ(s.size(), 59);
+    EXPECT_EQ(s.size(), 59u);
     EXPECT_GE(s.capacity(), 59u);
 
     s.erase(0, 3);
@@ -273,7 +273,7 @@ TEST(string, erase) {
 
     s = test_string1;
 
-    EXPECT_EQ(s.size(), 59);
+    EXPECT_EQ(s.size(), 59u);
     EXPECT_GE(s.capacity(), 59u);
 
     auto itr = s.cbegin() + 4;
@@ -285,7 +285,7 @@ TEST(string, erase) {
 
     s = test_string1;
 
-    EXPECT_EQ(s.size(), 59);
+    EXPECT_EQ(s.size(), 59u);
     EXPECT_GE(s.capacity(), 59u);
 
     auto itr3 = s.cbegin() + 37;
@@ -298,7 +298,7 @@ TEST(string, erase) {
 
     s.erase(0, s.size());
 
-    EXPECT_EQ(s.size(), 0);
+    EXPECT_EQ(s.size(), 0u);
     EXPECT_GE(s.capacity(), 0u);
   }
 }
@@ -309,13 +309,13 @@ TEST(string, push_pack) {
   {
     wn::containers::string s(&allocator, test_string1);
 
-    EXPECT_EQ(s.size(), 59);
+    EXPECT_EQ(s.size(), 59u);
     EXPECT_GE(s.capacity(), 59u);
     EXPECT_EQ(s.back(), *(test_string1 + (test_string1_length - 1)));
 
     s.push_back('T');
 
-    EXPECT_EQ(s.size(), 60);
+    EXPECT_EQ(s.size(), 60u);
     EXPECT_GE(s.capacity(), 60u);
     EXPECT_EQ(s.back(), 'T');
   }
@@ -327,13 +327,13 @@ TEST(string, pop_pack) {
   {
     wn::containers::string s(&allocator, test_string1);
 
-    EXPECT_EQ(s.size(), 59);
+    EXPECT_EQ(s.size(), 59u);
     EXPECT_GE(s.capacity(), 59u);
     EXPECT_EQ(s.back(), *(test_string1 + (test_string1_length - 1)));
 
     s.pop_back();
 
-    EXPECT_EQ(s.size(), 58);
+    EXPECT_EQ(s.size(), 58u);
     EXPECT_GE(s.capacity(), 58u);
     EXPECT_EQ(s.back(), *(test_string1 + (test_string1_length - 2)));
   }
@@ -345,13 +345,13 @@ TEST(string, append) {
   {
     wn::containers::string s(&allocator, test_string1);
 
-    EXPECT_EQ(s.size(), 59);
+    EXPECT_EQ(s.size(), 59u);
     EXPECT_GE(s.capacity(), 59u);
     EXPECT_EQ(s.back(), *(test_string1 + (test_string1_length - 1)));
 
     s.append(" ever");
 
-    EXPECT_EQ(s.size(), 64);
+    EXPECT_EQ(s.size(), 64u);
     EXPECT_GE(s.capacity(), 64u);
     EXPECT_EQ(s.back(), 'r');
   }
@@ -363,30 +363,30 @@ TEST(string, resize) {
   {
     wn::containers::string s(&allocator);
 
-    EXPECT_EQ(s.size(), 0);
+    EXPECT_EQ(s.size(), 0u);
     EXPECT_TRUE(s.empty());
 
     s.resize(10);
 
-    EXPECT_EQ(s.size(), 10);
+    EXPECT_EQ(s.size(), 10u);
     EXPECT_FALSE(s.empty());
     EXPECT_GE(s.capacity(), 10u);
 
     s.resize(5);
 
-    EXPECT_EQ(s.size(), 5);
+    EXPECT_EQ(s.size(), 5u);
     EXPECT_FALSE(s.empty());
     EXPECT_GE(s.capacity(), 5u);
 
     s.clear();
 
-    EXPECT_EQ(s.size(), 0);
+    EXPECT_EQ(s.size(), 0u);
     EXPECT_TRUE(s.empty());
     EXPECT_GE(s.capacity(), 0u);
 
     s.resize(20, 'a');
 
-    EXPECT_EQ(s.size(), 20);
+    EXPECT_EQ(s.size(), 20u);
     EXPECT_FALSE(s.empty());
     EXPECT_GE(s.capacity(), 20u);
 
@@ -437,11 +437,11 @@ TEST(string, rfind) {
 
     size_t pos = s.rfind("a");
 
-    EXPECT_EQ(pos, 57);
+    EXPECT_EQ(pos, 57u);
 
     pos = s.rfind('o');
 
-    EXPECT_EQ(pos, 45);
+    EXPECT_EQ(pos, 45u);
 
     pos = s.rfind("x");
 
@@ -459,23 +459,23 @@ TEST(string_view, find_first_of) {
 
     size_t pos = s.find_first_of('s');
 
-    EXPECT_EQ(pos, 3);
+    EXPECT_EQ(pos, 3u);
 
     pos = s.find_first_of('s', pos + 1);
 
-    EXPECT_EQ(pos, 6);
+    EXPECT_EQ(pos, 6u);
 
     pos = s.find_first_of("tr");
 
-    EXPECT_EQ(pos, 0);
+    EXPECT_EQ(pos, 0u);
 
     pos = s.find_first_of("tr", pos + 1);
 
-    EXPECT_EQ(pos, 12);
+    EXPECT_EQ(pos, 12u);
 
     pos = s.find_first_of("g");
 
-    EXPECT_EQ(pos, 18);
+    EXPECT_EQ(pos, 18u);
 
     pos = s.find_first_of("x");
 
@@ -494,19 +494,19 @@ TEST(string_view, find_last_of) {
 
     size_t pos = s.find_last_of('s');
 
-    EXPECT_EQ(pos, 12);
+    EXPECT_EQ(pos, 12u);
 
     pos = s.find_last_of('s', pos - 1);
 
-    EXPECT_EQ(pos, 6);
+    EXPECT_EQ(pos, 6u);
 
     pos = s.find_last_of("tr");
 
-    EXPECT_EQ(pos, 21);
+    EXPECT_EQ(pos, 21u);
 
     pos = s.find_last_of("g");
 
-    EXPECT_EQ(pos, 11);
+    EXPECT_EQ(pos, 11u);
 
     pos = s.find_last_of("xyz");
 

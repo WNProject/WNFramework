@@ -21,18 +21,18 @@ TYPED_TEST(deque, construction) {
     wn::containers::deque<TypeParam> deque1;
 
     ASSERT_TRUE(deque1.empty());
-    ASSERT_EQ(deque1.size(), 0);
+    ASSERT_EQ(deque1.size(), 0u);
 
     wn::containers::deque<TypeParam> deque2(&allocator, 25);
 
     ASSERT_FALSE(deque2.empty());
-    ASSERT_EQ(deque2.size(), 25);
+    ASSERT_EQ(deque2.size(), 25u);
 
     wn::containers::deque<TypeParam> deque3(
         &allocator, 25, static_cast<TypeParam>(5));
 
     ASSERT_FALSE(deque3.empty());
-    ASSERT_EQ(deque3.size(), 25);
+    ASSERT_EQ(deque3.size(), 25u);
 
     for (const TypeParam& element : deque3) {
       ASSERT_EQ(element, static_cast<TypeParam>(5));
@@ -43,7 +43,7 @@ TYPED_TEST(deque, construction) {
     wn::containers::deque<TypeParam> deque4(&allocator, array1, (array1 + 11));
 
     ASSERT_FALSE(deque4.empty());
-    ASSERT_EQ(deque4.size(), 11);
+    ASSERT_EQ(deque4.size(), 11u);
 
     for (size_t i = 0; i < 11; ++i) {
       ASSERT_EQ(deque4[i], static_cast<TypeParam>(i));
@@ -53,7 +53,7 @@ TYPED_TEST(deque, construction) {
         &allocator, {0, 1, 2, 3, 4, 5, 6, 7, 8});
 
     ASSERT_FALSE(deque5.empty());
-    ASSERT_EQ(deque5.size(), 9);
+    ASSERT_EQ(deque5.size(), 9u);
 
     for (size_t i = 0; i < 9; ++i) {
       ASSERT_EQ(deque5[i], static_cast<TypeParam>(i));
@@ -74,7 +74,7 @@ TYPED_TEST(deque, push_back) {
     deque.push_back(value);
 
     ASSERT_FALSE(deque.empty());
-    ASSERT_EQ(deque.size(), 2);
+    ASSERT_EQ(deque.size(), 2u);
     ASSERT_EQ(deque[0], static_cast<TypeParam>(1));
     ASSERT_EQ(deque[1], static_cast<TypeParam>(2));
   }
@@ -93,7 +93,7 @@ TYPED_TEST(deque, push_front) {
     deque.push_front(value);
 
     ASSERT_FALSE(deque.empty());
-    ASSERT_EQ(deque.size(), 2);
+    ASSERT_EQ(deque.size(), 2u);
     ASSERT_EQ(deque[0], static_cast<TypeParam>(2));
     ASSERT_EQ(deque[1], static_cast<TypeParam>(1));
   }
@@ -112,7 +112,7 @@ TYPED_TEST(deque, pop_back) {
     deque.push_back(value);
 
     ASSERT_FALSE(deque.empty());
-    ASSERT_EQ(deque.size(), 2);
+    ASSERT_EQ(deque.size(), 2u);
     ASSERT_EQ(deque[0], static_cast<TypeParam>(1));
     ASSERT_EQ(deque[1], static_cast<TypeParam>(2));
     ASSERT_EQ(deque.back(), static_cast<TypeParam>(2));
@@ -120,7 +120,7 @@ TYPED_TEST(deque, pop_back) {
     deque.pop_back();
 
     ASSERT_FALSE(deque.empty());
-    ASSERT_EQ(deque.size(), 1);
+    ASSERT_EQ(deque.size(), 1u);
     ASSERT_EQ(deque[0], static_cast<TypeParam>(1));
     ASSERT_EQ(deque.back(), static_cast<TypeParam>(1));
   }
@@ -139,7 +139,7 @@ TYPED_TEST(deque, pop_front) {
     deque.push_front(value);
 
     ASSERT_FALSE(deque.empty());
-    ASSERT_EQ(deque.size(), 2);
+    ASSERT_EQ(deque.size(), 2u);
     ASSERT_EQ(deque[0], static_cast<TypeParam>(2));
     ASSERT_EQ(deque[1], static_cast<TypeParam>(1));
     ASSERT_EQ(deque.front(), static_cast<TypeParam>(2));
@@ -147,7 +147,7 @@ TYPED_TEST(deque, pop_front) {
     deque.pop_front();
 
     ASSERT_FALSE(deque.empty());
-    ASSERT_EQ(deque.size(), 1);
+    ASSERT_EQ(deque.size(), 1u);
     ASSERT_EQ(deque[0], static_cast<TypeParam>(1));
     ASSERT_EQ(deque.front(), static_cast<TypeParam>(1));
   }
@@ -160,7 +160,7 @@ TYPED_TEST(deque, clear) {
     wn::containers::deque<TypeParam> deque(&allocator, 23, 3);
 
     ASSERT_FALSE(deque.empty());
-    ASSERT_EQ(deque.size(), 23);
+    ASSERT_EQ(deque.size(), 23u);
 
     for (const TypeParam& element : deque) {
       ASSERT_EQ(element, static_cast<TypeParam>(3));
@@ -169,7 +169,7 @@ TYPED_TEST(deque, clear) {
     deque.clear();
 
     ASSERT_TRUE(deque.empty());
-    ASSERT_EQ(deque.size(), 0);
+    ASSERT_EQ(deque.size(), 0u);
   }
 }
 
@@ -180,7 +180,7 @@ TYPED_TEST(deque, move) {
     wn::containers::deque<TypeParam> deque(&allocator, 23, 3);
 
     EXPECT_FALSE(deque.empty());
-    EXPECT_EQ(23, deque.size());
+    EXPECT_EQ(23u, deque.size());
 
     for (const TypeParam& element : deque) {
       EXPECT_EQ(element, static_cast<TypeParam>(3));
@@ -192,15 +192,15 @@ TYPED_TEST(deque, move) {
     }
 
     EXPECT_TRUE(deque.empty());
-    EXPECT_EQ(0, deque.size());
+    EXPECT_EQ(0u, deque.size());
 
     EXPECT_FALSE(deque2.empty());
-    EXPECT_EQ(23, deque2.size());
+    EXPECT_EQ(23u, deque2.size());
 
     deque2.clear();
 
     EXPECT_TRUE(deque2.empty());
-    EXPECT_EQ(0, deque2.size());
+    EXPECT_EQ(0u, deque2.size());
   }
 }
 
@@ -211,7 +211,7 @@ TYPED_TEST(deque, clear_and_add) {
     wn::containers::deque<TypeParam> deque(&allocator, 23, 3);
 
     EXPECT_FALSE(deque.empty());
-    EXPECT_EQ(23, deque.size());
+    EXPECT_EQ(23u, deque.size());
 
     for (const TypeParam& element : deque) {
       EXPECT_EQ(element, static_cast<TypeParam>(3));

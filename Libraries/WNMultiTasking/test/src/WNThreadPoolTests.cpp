@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNMultiTasking/inc/WNThreadPool.h"
 #include "WNExecutableTest/inc/WNTestHarness.h"
 #include "WNMultiTasking/inc/WNCallbackTask.h"
+#include "WNMultiTasking/inc/WNThreadPool.h"
 
 #ifdef _WN_MSVC
 #pragma warning(push)
@@ -105,7 +105,7 @@ TEST(WNThreadPoolValidation, SimpleCallback) {
     }
   }
 
-  ASSERT_EQ(SimpleS1, 10000);
+  ASSERT_EQ(SimpleS1, 10000u);
 }
 
 // TODO: remove global state
@@ -203,7 +203,7 @@ TEST(WNThreadPoolValidation, JobsGetCleaned) {
 
       jobCallbacks[i]->join(result);
 
-      ASSERT_EQ(result, i);
+      ASSERT_EQ(result, static_cast<uint32_t>(i));
     }
 
     jobCallbacks.clear();
@@ -222,7 +222,7 @@ TEST(WNThreadPoolValidation, JobsGetCleaned) {
 
       jobCallbacks[i]->join(result);
 
-      ASSERT_EQ(result, i);
+      ASSERT_EQ(result, static_cast<uint32_t>(i));
     }
   }
 }

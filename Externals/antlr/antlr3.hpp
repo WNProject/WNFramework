@@ -31,6 +31,9 @@
 #ifdef __clang__
     #pragma clang diagnostic ignored "-Wtautological-undefined-compare"
 #endif
+#ifdef __GNUC__ 
+    #pragma GCC diagnostic ignored "-Wsign-compare"
+#endif
 
 #ifdef _HAS_EXCEPTIONS
     #undef _HAS_EXCEPTIONS

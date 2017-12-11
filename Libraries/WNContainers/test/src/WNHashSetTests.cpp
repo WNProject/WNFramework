@@ -18,7 +18,7 @@ TYPED_TEST(hash_set, construction) {
 
   { wn::containers::hash_set<TypeParam> set1(&allocator); }
 
-  EXPECT_EQ(allocator.allocated(), 0);
+  EXPECT_EQ(allocator.allocated(), 0u);
 }
 
 TYPED_TEST(hash_set, insert) {
@@ -27,15 +27,15 @@ TYPED_TEST(hash_set, insert) {
   {
     wn::containers::hash_set<TypeParam> set(&allocator);
 
-    auto a = set.insert(23);
+    auto a = set.insert(23u);
 
     EXPECT_TRUE(a.second);
-    EXPECT_EQ(23, *a.first);
+    EXPECT_EQ(TypeParam(23), *a.first);
 
-    a = set.insert(23);
+    a = set.insert(23u);
 
     EXPECT_FALSE(a.second);
-    EXPECT_EQ(23, *a.first);
+    EXPECT_EQ(TypeParam(23), *a.first);
   }
 }
 
@@ -164,7 +164,7 @@ TYPED_TEST(hash_set, erase_all) {
       it = set.erase(it);
     }
 
-    EXPECT_EQ(0, set.size());
+    EXPECT_EQ(0u, set.size());
     EXPECT_EQ(set.end(), set.begin());
   }
 }
@@ -177,7 +177,7 @@ TEST(hash_set, initializers) {
 
     EXPECT_EQ(my_set.end(), my_set.find("b"));
     EXPECT_NE(my_set.end(), my_set.find("a"));
-    EXPECT_EQ(1, my_set.size());
+    EXPECT_EQ(1u, my_set.size());
   }
 
   {
@@ -187,6 +187,6 @@ TEST(hash_set, initializers) {
     EXPECT_NE(my_set.end(), my_set.find("a"));
     EXPECT_NE(my_set.end(), my_set.find("b"));
     EXPECT_NE(my_set.end(), my_set.find("b"));
-    EXPECT_EQ(3, my_set.size());
+    EXPECT_EQ(3u, my_set.size());
   }
 }
