@@ -579,9 +579,11 @@ private:
   template <typename T>
   struct helper;
 
+  using c_star = C*;
+
   template <typename T>
   static valid checker(
-      helper<decltype((std::declval<C*>()->*(std::declval<T>()))(
+      helper<decltype((std::declval<c_star>()->*(std::declval<T>()))(
           std::declval<Args>()...))>*);
 
   template <typename T>
