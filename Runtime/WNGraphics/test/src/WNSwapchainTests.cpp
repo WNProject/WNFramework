@@ -28,9 +28,15 @@ TEST(swapchain, basic) {
 
   for (auto& adapter : device_factory.query_adapters()) {
     wn::multi_tasking::job_signal signal(0);
+    // If we make this window too small, as soon as the swapchain
+    // is used at least once, it immediately goes out of date.
+
+    // To fix this, make the window bigger. We DO have to handle
+    // out of date swapchains, but we don't want to have to do it
+    // in this test.
     wn::memory::unique_ptr<wn::runtime::window::window> wind =
         factory.create_window(wn::runtime::window::window_type::system,
-            data->default_job_pool, &signal, data, 100, 100, 100, 100);
+            data->default_job_pool, &signal, data, 100, 100, 300, 300);
 
     // Wait until the window has successfully been created.
     signal.wait_until(1);
