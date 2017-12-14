@@ -32,21 +32,21 @@
 // A minimalistic implementation of getcontext() to be used by
 // Google Breakpad on Android.
 
-// Copyright (c) 2015, WNProject Authors. All rights reserved.
+// Copyright (c) 2018, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNMultiTasking/src/Android/WNContext_arm64.h"
+#include "WNMultiTasking/src/constants.h"
 
-/* int wn_setcontext(ucontext_t* ucp) */
+/* int wn_set_context(ucontext_t* ucp) */
 
   .text
-  .global wn_setcontext
-  .hidden wn_setcontext
-  .type wn_setcontext, #function
+  .global wn_set_context
+  .hidden wn_set_context
+  .type wn_set_context, #function
   .align 4
   .cfi_startproc
-wn_setcontext:
+wn_set_context:
 //// Save x0, we will need it later
     mov      x18, x0
 //// Restore the signal mask
@@ -89,4 +89,4 @@ wn_setcontext:
     ldp     x0,  x1,  [x0, MCONTEXT_GREGS_OFFSET +  0 * REGISTER_SIZE]
   ret
   .cfi_endproc
-  .size wn_setcontext, . - wn_setcontext
+  .size wn_set_context, . - wn_set_context

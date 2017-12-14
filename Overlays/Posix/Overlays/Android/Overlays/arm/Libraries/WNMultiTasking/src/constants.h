@@ -1,6 +1,5 @@
 // This file is derived from the assembly code found in google breakpad
-// (https://chromium.googlesource.com/breakpad/breakpad/).
-// See licence below
+// (https://chromium.googlesource.com/breakpad/breakpad/). See license below
 
 // Copyright (c) 2012, Google Inc.
 // All rights reserved.
@@ -33,54 +32,19 @@
 // A minimalistic implementation of getcontext() to be used by
 // Google Breakpad on Android.
 
-// Copyright (c) 2015, WNProject Authors. All rights reserved.
+// Copyright (c) 2018, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNMultiTasking/src/Android/WNContext_x86.h"
+#define UCONTEXT_SIGMASK_OFFSET 104
 
-.text
-.global wn_setcontext
-.align 4
-.type wn_setcontext, @function
+#define MCONTEXT_GREGS_OFFSET 32
 
-wn_setcontext:
-movl 4(%esp), %eax   /* eax = uc */
+#define MCONTEXT_GREGS_R0_OFFSET MCONTEXT_GREGS_OFFSET
+#define MCONTEXT_GREGS_R4_OFFSET (MCONTEXT_GREGS_OFFSET + 4 * 4)
+#define MCONTEXT_GREGS_R12_OFFSET (MCONTEXT_GREGS_OFFSET + 12 * 4)
+#define MCONTEXT_GREGS_R13_OFFSET (MCONTEXT_GREGS_OFFSET + 13 * 4)
+#define MCONTEXT_GREGS_R14_OFFSET (MCONTEXT_GREGS_OFFSET + 14 * 4)
+#define MCONTEXT_GREGS_R15_OFFSET (MCONTEXT_GREGS_OFFSET + 15 * 4)
 
-push %eax // save off eax, for the function call will restore afterwards
-/* Restore signal mask: sigprocmask(SIG_SETMASK, &uc->uc_sigmask, NULL) */
-leal UCONTEXT_SIGMASK_OFFSET(%eax), %edx
-xorl %ecx, %ecx
-
-push %ecx   /* NULL */
-push %edx   /* &uc->uc_sigmask */
-movl $0, %ecx /* SIG_SETMASK == 2 on i386 */
-push %ecx
-call sigprocmask@PLT
-addl $12, %esp
-
-pop %eax // Restore EAX we will need it
-
-/* Restore the floating point registers */
-leal UCONTEXT_FPREGS_MEM_OFFSET(%eax), %ecx
-fldenv  (%ecx)
-
-/* Restore register values */
-// Restore fs
-movl  MCONTEXT_FS_OFFSET(%eax), %ecx
-movw %cx, %fs
-
-movl MCONTEXT_EBP_OFFSET(%eax), %ebp
-movl MCONTEXT_ESI_OFFSET(%eax), %esi
-movl MCONTEXT_EDI_OFFSET(%eax), %edi
-movl MCONTEXT_EBX_OFFSET(%eax), %ebx
-movl MCONTEXT_EDX_OFFSET(%eax), %edx
-movl MCONTEXT_ECX_OFFSET(%eax), %ecx
-
-// Restore eip and esp
-movl  MCONTEXT_ESP_OFFSET(%eax), %esp
-movl  MCONTEXT_EIP_OFFSET(%eax), %eax
-jmp *%eax
-movl $0, %eax
-ret
-.size wn_setcontext, . - wn_setcontext
+#define MCONTEXT_GREGS_R15_OFFSET_GREGS (15 * 4)

@@ -1,6 +1,5 @@
 // This file is derived from the assembly code found in google breakpad
-// (https://chromium.googlesource.com/breakpad/breakpad/).
-// See licence below
+// (https://chromium.googlesource.com/breakpad/breakpad/). See license below
 
 // Copyright (c) 2012, Google Inc.
 // All rights reserved.
@@ -33,31 +32,43 @@
 // A minimalistic implementation of getcontext() to be used by
 // Google Breakpad on Android.
 
-// Copyright (c) 2015, WNProject Authors. All rights reserved.
+// Copyright (c) 2018, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#define MCONTEXT_GREGS_OFFSET 20
+#include "WNMultiTasking/src/constants.h"
 
-#define MCONTEXT_GS_OFFSET (MCONTEXT_GREGS_OFFSET + 0 * 4)
-#define MCONTEXT_FS_OFFSET (MCONTEXT_GREGS_OFFSET + 1 * 4)
-#define MCONTEXT_ES_OFFSET (MCONTEXT_GREGS_OFFSET + 2 * 4)
-#define MCONTEXT_DS_OFFSET (MCONTEXT_GREGS_OFFSET + 3 * 4)
-#define MCONTEXT_EDI_OFFSET (MCONTEXT_GREGS_OFFSET + 4 * 4)
-#define MCONTEXT_ESI_OFFSET (MCONTEXT_GREGS_OFFSET + 5 * 4)
-#define MCONTEXT_EBP_OFFSET (MCONTEXT_GREGS_OFFSET + 6 * 4)
-#define MCONTEXT_ESP_OFFSET (MCONTEXT_GREGS_OFFSET + 7 * 4)
-#define MCONTEXT_EBX_OFFSET (MCONTEXT_GREGS_OFFSET + 8 * 4)
-#define MCONTEXT_EDX_OFFSET (MCONTEXT_GREGS_OFFSET + 9 * 4)
-#define MCONTEXT_ECX_OFFSET (MCONTEXT_GREGS_OFFSET + 10 * 4)
-#define MCONTEXT_EAX_OFFSET (MCONTEXT_GREGS_OFFSET + 11 * 4)
-#define MCONTEXT_TRAPNO_OFFSET (MCONTEXT_GREGS_OFFSET + 12 * 4)
-#define MCONTEXT_ERR_OFFSET (MCONTEXT_GREGS_OFFSET + 13 * 4)
-#define MCONTEXT_EIP_OFFSET (MCONTEXT_GREGS_OFFSET + 14 * 4)
-#define MCONTEXT_CS_OFFSET (MCONTEXT_GREGS_OFFSET + 15 * 4)
-#define MCONTEXT_EFL_OFFSET (MCONTEXT_GREGS_OFFSET + 16 * 4)
-#define MCONTEXT_UESP_OFFSET (MCONTEXT_GREGS_OFFSET + 17 * 4)
-#define MCONTEXT_SS_OFFSET (MCONTEXT_GREGS_OFFSET + 18 * 4)
-#define UCONTEXT_SIGMASK_OFFSET 108
-#define UCONTEXT_FPREGS_OFFSET 96
-#define UCONTEXT_FPREGS_MEM_OFFSET 116
+/* int wn_set_context(ucontext_t* ucp) */
+
+  .text
+  .global wn_set_context
+  .hidden wn_set_context
+  .type wn_set_context, #function
+  .align 0
+  .fnstart
+wn_set_context:
+  /* Save ucontext_t* pointer across next call */
+  mov   r4, r0
+
+  /* Call sigprocmask(SIG_SETMASK, &(ucontext->uc_sigmask), NULL) */
+  mov   r0, #2 /* SIG_SETMASK */
+  add   r1, r4, #UCONTEXT_SIGMASK_OFFSET
+  mov   r2, #0 /* NULL */
+  bl    sigprocmask(PLT)
+
+  /* Restore sp and lr registers */
+  /* - sp can't be restored with stmia in Thumb-2 */
+  mov   r12, r4
+  ldr   sp, [r12, #MCONTEXT_GREGS_R13_OFFSET]
+  ldr   lr, [r12, #MCONTEXT_GREGS_R14_OFFSET]
+
+  /* Restore general registers */
+  add   r12, r12, #MCONTEXT_GREGS_R0_OFFSET
+  ldm   r12, {r0-r11}
+
+  /* Restore the caller's address in 'pc'. */
+  /* Note this offset is the offset from the base of the gregs element in the
+     struct not the struct base, hence why this is different */
+  ldr   pc, [r12, #MCONTEXT_GREGS_R15_OFFSET_GREGS]
+  .fnend
+  .size wn_set_context, . - wn_set_context

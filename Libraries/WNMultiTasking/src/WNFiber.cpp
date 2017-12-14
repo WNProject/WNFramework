@@ -11,7 +11,7 @@
 #define WN_FIBER_CALL_BEGIN CALLBACK
 #define WN_FIBER_CALL_END
 #elif defined _WN_ANDROID
-#include "WNMultiTasking/src/Android/WNContext.h"
+#include "WNMultiTasking/src/context.h"
 #define __FIBER_ARGUMENT_TYPE void*
 #define __FIBER_RESULT_TYPE void
 #elif defined _WN_POSIX
@@ -37,7 +37,7 @@ static __FIBER_RESULT_TYPE WN_FIBER_CALL_BEGIN wrapper(
 
   self->execute_function();
 }
-}  // namespace anonymous
+}  // namespace
 
 void fiber::create(
     const size_t _stack_size, functional::function<void()>&& _f) {
@@ -60,12 +60,12 @@ void fiber::create(
 #elif defined _WN_ANDROID
     m_stack_pointer = m_allocator->allocate(_stack_size);
     memset(&m_fiber_context, 0x0, sizeof(ucontext_t));
-    wn_getcontext(&m_fiber_context);
+    wn_get_context(&m_fiber_context);
 
     m_fiber_context.uc_stack.ss_sp = m_stack_pointer;
     m_fiber_context.uc_stack.ss_size = _stack_size;
 
-    wn_makecontext(&m_fiber_context, &wrapper, NULL);
+    wn_make_context(&m_fiber_context, &wrapper, NULL);
     m_data = std::move(data);
 #elif defined _WN_POSIX
     m_stack_pointer = m_allocator->allocate(_stack_size);
@@ -116,7 +116,7 @@ void convert_to_fiber(memory::allocator* _allocator) {
                                                   FIBER_FLAG_FLOAT_SWITCH);
     tl_thread_as_fiber = f->m_fiber_context;
 #elif defined _WN_ANDROID
-    wn_getcontext(&f->m_fiber_context);
+    wn_get_context(&f->m_fiber_context);
 #elif defined _WN_POSIX
     getcontext(&f->m_fiber_context);
 #endif
@@ -154,7 +154,7 @@ void swap_to(fiber* _fiber) {
 #if defined _WN_WINDOWS
   SwitchToFiber(_fiber->m_fiber_context);
 #elif defined _WN_ANDROID
-  wn_swapcontext(&this_fiber->m_fiber_context, &_fiber->m_fiber_context);
+  wn_swap_context(&this_fiber->m_fiber_context, &_fiber->m_fiber_context);
 #elif defined _WN_POSIX
   swapcontext(&this_fiber->m_fiber_context, &_fiber->m_fiber_context);
 #endif

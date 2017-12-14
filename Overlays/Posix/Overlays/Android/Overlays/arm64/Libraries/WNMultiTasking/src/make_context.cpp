@@ -1,13 +1,14 @@
-// Copyright (c) 2015, WNProject Authors. All rights reserved.
+// Copyright (c) 2018, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
 #include "WNCore/inc/WNAssert.h"
-#include "WNMultiTasking/src/Android/WNContext.h"
+#include "WNMultiTasking/src/context.h"
+#include "WNMultiTasking/src/fiber_entry.h"
 
 extern "C" {
 
-void wn_makecontext(ucontext_t* c, void (*func)(void*), void* data) {
+void wn_make_context(ucontext_t* c, void (*func)(void*), void* data) {
   WN_RELEASE_ASSERT_DESC(
       NULL != c->uc_stack.ss_sp, "stack pointer must be non-null");
   WN_RELEASE_ASSERT_DESC(
@@ -28,8 +29,8 @@ void wn_makecontext(ucontext_t* c, void (*func)(void*), void* data) {
   c->uc_mcontext.regs[29] = reinterpret_cast<__u64>(sp + 2);
 
   // program counter
-  c->uc_mcontext.pc = reinterpret_cast<__u64>(&wn_fiber_func);
-  c->uc_mcontext.regs[30] = reinterpret_cast<__u64>(&wn_fiber_func);
+  c->uc_mcontext.pc = reinterpret_cast<__u64>(&wn_fiber_entry);
+  c->uc_mcontext.regs[30] = reinterpret_cast<__u64>(&wn_fiber_entry);
 }
 
 }  // extern "C"

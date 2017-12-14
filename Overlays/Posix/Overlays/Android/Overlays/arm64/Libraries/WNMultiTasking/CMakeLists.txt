@@ -1,7 +1,7 @@
 overlay_library_sources(WNMultiTasking
   SOURCES
-      asm/Android/WNGetContext_arm64.S
-      asm/Android/WNSetContext_arm64.S
-      src/Android/WNContext_arm64.h
-      src/Android/WNMakeContext_arm64.cpp
+    asm/get_context.s
+    asm/set_context.s
+    src/constants.h
+    src/make_context.cpp
 )

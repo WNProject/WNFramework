@@ -1,5 +1,6 @@
 // This file is derived from the assembly code found in google breakpad
-// (https://chromium.googlesource.com/breakpad/breakpad/). See license below
+// (https://chromium.googlesource.com/breakpad/breakpad/).
+// See licence below
 
 // Copyright (c) 2012, Google Inc.
 // All rights reserved.
@@ -32,58 +33,47 @@
 // A minimalistic implementation of getcontext() to be used by
 // Google Breakpad on Android.
 
-// Copyright (c) 2015, WNProject Authors. All rights reserved.
+// Copyright (c) 2018, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNMultiTasking/src/Android/WNContext_arm.h"
+#include "WNMultiTasking/src/constants.h"
 
-/* int wn_getcontext(ucontext_t* ucp) */
-
-  .text
-  .global wn_getcontext
-  .hidden wn_getcontext
-  .type wn_getcontext, #function
-  .align 0
-  .fnstart
-wn_getcontext:
-  /* First, save r4-r11 */
-  add   r1, r0, #MCONTEXT_GREGS_R4_OFFSET
-  stm   r1, {r4-r11}
-
-  /* r12 is a scratch register, don't save it */
-  /* Save sp and lr explicitly. */
-  /* - sp can't be stored with stmia in Thumb-2 */
-  /* - STM instructions that store sp and pc are deprecated in ARM */
-  str   sp, [r0, #MCONTEXT_GREGS_R13_OFFSET]
-  str   lr, [r0, #MCONTEXT_GREGS_R14_OFFSET]
-
-  /* Save the caller's address in 'pc' */
-  str   lr, [r0, #MCONTEXT_GREGS_R15_OFFSET]
-
-  /* Save ucontext_t* pointer across next call */
-  mov   r4, r0
-
-  /* Call sigprocmask(SIG_BLOCK, NULL, &(ucontext->uc_sigmask)) */
-  mov   r0, #0  /* SIG_BLOCK */
-  mov   r1, #0  /* NULL */
-  add   r2, r4, #UCONTEXT_SIGMASK_OFFSET
-  bl    sigprocmask(PLT)
-
-  /* Intentionally do not save the FPU state here. This is because on
-   * Linux/ARM, one should instead use ptrace(PTRACE_GETFPREGS) or
-   * ptrace(PTRACE_GETVFPREGS) to get it.
-   *
-   * Note that a real implementation of getcontext() would need to save
-   * this here to allow setcontext()/swapcontext() to work correctly.
-   */
-  /* Restore the values of r4 and lr */
-  mov   r0, r4
-  ldr   lr, [r0, #MCONTEXT_GREGS_R14_OFFSET]
-  ldr   r4, [r0, #MCONTEXT_GREGS_R4_OFFSET]
-
-  /* Return 0 */
-  mov   r0, #0
-  bx    lr
-  .fnend
-  .size wn_getcontext, . - wn_getcontext
+.text
+.global wn_get_context
+.align 4
+.type wn_get_context, @function
+wn_get_context:
+movl 4(%esp), %eax   /* eax = uc */
+/* Save register values */
+movl %ecx, MCONTEXT_ECX_OFFSET(%eax)
+movl %edx, MCONTEXT_EDX_OFFSET(%eax)
+movl %ebx, MCONTEXT_EBX_OFFSET(%eax)
+movl %edi, MCONTEXT_EDI_OFFSET(%eax)
+movl %esi, MCONTEXT_ESI_OFFSET(%eax)
+movl %ebp, MCONTEXT_EBP_OFFSET(%eax)
+movl (%esp), %edx   /* return address */
+lea  4(%esp), %ecx  /* exclude return address from stack */
+mov  %edx, MCONTEXT_EIP_OFFSET(%eax)
+mov  %ecx, MCONTEXT_ESP_OFFSET(%eax)
+xorl %ecx, %ecx
+movw %fs, %cx
+mov  %ecx, MCONTEXT_FS_OFFSET(%eax)
+movl $0, MCONTEXT_EAX_OFFSET(%eax)
+/* Save floating point state to fpregstate, then update
+  * the fpregs pointer to point to it */
+leal UCONTEXT_FPREGS_MEM_OFFSET(%eax), %ecx
+fnstenv (%ecx)
+fldenv  (%ecx)
+mov %ecx, UCONTEXT_FPREGS_OFFSET(%eax)
+/* Save signal mask: sigprocmask(SIGBLOCK, NULL, &uc->uc_sigmask) */
+leal UCONTEXT_SIGMASK_OFFSET(%eax), %edx
+xorl %ecx, %ecx
+push %edx   /* &uc->uc_sigmask */
+push %ecx   /* NULL */
+push %ecx   /* SIGBLOCK == 0 on i386 */
+call sigprocmask@PLT
+addl $12, %esp
+movl $0, %eax
+ret
+.size wn_get_context, . - wn_get_context

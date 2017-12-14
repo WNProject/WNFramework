@@ -3,13 +3,13 @@
 // found in the LICENSE.txt file.
 
 #include "WNExecutableTest/inc/WNTestHarness.h"
-#include "WNMultiTasking/src/Android/WNContext.h"
+#include "WNMultiTasking/src/context.h"
 
 int foo(volatile int* x, volatile int* y, ucontext_t* _ucontext) {
   EXPECT_LE(*x, 100);
   EXPECT_EQ(*x, *y + 1);
 
-  return wn_setcontext(_ucontext);
+  return wn_set_context(_ucontext);
 }
 
 TEST(context_android, basic) {
@@ -19,7 +19,7 @@ TEST(context_android, basic) {
 
   volatile int x = 0;
   volatile int y = 0;
-  int result = wn_getcontext(&ucontext);
+  int result = wn_get_context(&ucontext);
 
   y = x;
   x += 1;
@@ -56,20 +56,20 @@ TEST(context_android, make_context) {
   int y = 0;
 
   // Set up new context to move to.
-  wn_getcontext(&ucontext);
+  wn_get_context(&ucontext);
   ucontext.uc_stack.ss_sp = stack;
   ucontext.uc_stack.ss_size = 1024;
 
   // When this is done we want to my_context.
   ucontext.uc_link = &my_context;
-  wn_makecontext(&ucontext, new_func, reinterpret_cast<void*>(&y));
+  wn_make_context(&ucontext, new_func, reinterpret_cast<void*>(&y));
 
   // We we are done, return to here.
-  wn_getcontext(&my_context);
+  wn_get_context(&my_context);
   x += 1;
   EXPECT_EQ(y, x - 1);
   if (x <= 100) {
-    wn_setcontext(&ucontext);
+    wn_set_context(&ucontext);
   }
   EXPECT_EQ(101, x);
 }
@@ -83,14 +83,14 @@ struct contexts {
 void new_func1(void* f) {
   contexts* ctx = static_cast<contexts*>(f);
   ctx->data += 102;
-  wn_swapcontext(ctx->mine, ctx->next);
+  wn_swap_context(ctx->mine, ctx->next);
   ctx->data += 40;
 }
 
 void new_func2(void* f) {
   contexts* ctx = static_cast<contexts*>(f);
   ctx->data += 12;
-  wn_swapcontext(ctx->mine, ctx->next);
+  wn_swap_context(ctx->mine, ctx->next);
   ctx->data -= 100;
 }
 
@@ -118,10 +118,10 @@ TEST(context_android, swap_context) {
   contexts f1_ctx = {&new_func1_context, &new_func2_context, 32};
   contexts f2_ctx = {&new_func2_context, &new_func1_context, 41};
 
-  wn_makecontext(&new_func1_context, new_func1, &f1_ctx);
-  wn_makecontext(&new_func2_context, new_func2, &f2_ctx);
+  wn_make_context(&new_func1_context, new_func1, &f1_ctx);
+  wn_make_context(&new_func2_context, new_func2, &f2_ctx);
 
-  wn_swapcontext(&main_context, &new_func2_context);
+  wn_swap_context(&main_context, &new_func2_context);
 
   EXPECT_EQ(32 + 102 + 40, f1_ctx.data);
   EXPECT_EQ(41 + 12 - 100, f2_ctx.data);

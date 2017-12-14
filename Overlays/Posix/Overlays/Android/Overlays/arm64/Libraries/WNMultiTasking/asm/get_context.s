@@ -32,23 +32,23 @@
 // A minimalistic implementation of getcontext() to be used by
 // Google Breakpad on Android.
 
-// Copyright (c) 2015, WNProject Authors. All rights reserved.
+// Copyright (c) 2018, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNMultiTasking/src/Android/WNContext_arm64.h"
+#include "WNMultiTasking/src/constants.h"
 
-/* int wn_getcontext(ucontext_t* ucp) */
+/* int wn_get_context(ucontext_t* ucp) */
 
   .text
-  .global wn_getcontext
-  .hidden wn_getcontext
-  .type wn_getcontext, #function
+  .global wn_get_context
+  .hidden wn_get_context
+  .type wn_get_context, #function
   .align 4
   .cfi_startproc
-wn_getcontext:
+wn_get_context:
 
-  // The saved context will return to the wn_getcontext() call point
+  // The saved context will return to the wn_get_context() call point
   //   with a return value of 0
   stp     x0,  x1,  [x0, MCONTEXT_GREGS_OFFSET +  0 * REGISTER_SIZE]
   stp     x2,  x3,  [x0, MCONTEXT_GREGS_OFFSET +  2 * REGISTER_SIZE]
@@ -61,7 +61,7 @@ wn_getcontext:
   str     x30,      [x0, MCONTEXT_GREGS_OFFSET + 30 * REGISTER_SIZE]
   // Place LR into the saved PC, this will ensure that when
   // switching to this saved context with setcontext() control
-  //  will pass back to the caller of wn_getcontext(), we have
+  //  will pass back to the caller of wn_get_context(), we have
   // already arranged to return the appropriate return value in x0
   // above.
   str     x30, [x0, MCONTEXT_PC_OFFSET]
@@ -106,4 +106,4 @@ wn_getcontext:
   mov     x0, 0
   ret
   .cfi_endproc
-  .size wn_getcontext, . - wn_getcontext
+  .size wn_get_context, . - wn_get_context

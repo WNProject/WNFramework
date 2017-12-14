@@ -32,29 +32,29 @@
 // A minimalistic implementation of getcontext() to be used by
 // Google Breakpad on Android.
 
-// Copyright (c) 2015, WNProject Authors. All rights reserved.
+// Copyright (c) 2018, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#define  UCONTEXT_SIGMASK_OFFSET     40
+#define UCONTEXT_SIGMASK_OFFSET 40
 
-#define  MCONTEXT_GREGS_OFFSET       184
-#define  MCONTEXT_SP_OFFSET          432
-#define  MCONTEXT_PC_OFFSET          440
-#define  MCONTEXT_PSTATE_OFFSET      448
-#define  MCONTEXT_EXTENSION_OFFSET   464
+#define MCONTEXT_GREGS_OFFSET 184
+#define MCONTEXT_SP_OFFSET 432
+#define MCONTEXT_PC_OFFSET 440
+#define MCONTEXT_PSTATE_OFFSET 448
+#define MCONTEXT_EXTENSION_OFFSET 464
 
-#define  FPSIMD_MAGIC                0x46508001
+#define FPSIMD_MAGIC 0x46508001
 
-#define  FPSIMD_CONTEXT_MAGIC_OFFSET 0
-#define  FPSIMD_CONTEXT_SIZE_OFFSET  4
-#define  FPSIMD_CONTEXT_FPSR_OFFSET  8
-#define  FPSIMD_CONTEXT_FPCR_OFFSET  12
-#define  FPSIMD_CONTEXT_VREGS_OFFSET 16
-#define  FPSIMD_CONTEXT_SIZE         528
+#define FPSIMD_CONTEXT_MAGIC_OFFSET 0
+#define FPSIMD_CONTEXT_SIZE_OFFSET 4
+#define FPSIMD_CONTEXT_FPSR_OFFSET 8
+#define FPSIMD_CONTEXT_FPCR_OFFSET 12
+#define FPSIMD_CONTEXT_VREGS_OFFSET 16
+#define FPSIMD_CONTEXT_SIZE 528
 
-#define  REGISTER_SIZE               8
-#define  SIMD_REGISTER_SIZE          16
+#define REGISTER_SIZE 8
+#define SIMD_REGISTER_SIZE 16
 
-#define  NSIG                        64
-#define  NR_rt_sigprocmask           135
+#define NSIG 64
+#define NR_rt_sigprocmask 135
