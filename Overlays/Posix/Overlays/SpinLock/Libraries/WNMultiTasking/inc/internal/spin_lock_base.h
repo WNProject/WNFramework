@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef __WN_MULTI_TASKING_POSIX_INTERNAL_SPIN_LOCK_BASE_H__
-#define __WN_MULTI_TASKING_POSIX_INTERNAL_SPIN_LOCK_BASE_H__
+#ifndef __WN_MULTI_TASKING_POSIX_SPIN_LOCK_INTERNAL_SPIN_LOCK_BASE_H__
+#define __WN_MULTI_TASKING_POSIX_SPIN_LOCK_INTERNAL_SPIN_LOCK_BASE_H__
 
 #include "WNCore/inc/WNAssert.h"
 #include "WNCore/inc/WNUtility.h"
@@ -58,4 +58,4 @@ private:
 }  // namespace multi_tasking
 }  // namespace wn
 
-#endif  // __WN_MULTI_TASKING_POSIX_INTERNAL_SPIN_LOCK_BASE_H__
+#endif  // __WN_MULTI_TASKING_POSIX_SPIN_LOCK_INTERNAL_SPIN_LOCK_BASE_H__
