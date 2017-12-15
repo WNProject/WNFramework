@@ -109,6 +109,7 @@ public:
   virtual memory::unique_ptr<WNConnection> accept_sync(
       network_error* _error = nullptr) = 0;
 
+  virtual void close() = 0;
   WNBufferManager* m_manager;
   friend class WNRoutedAcceptConnection;
 };

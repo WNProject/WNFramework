@@ -7,8 +7,8 @@
 #ifndef __WN_MEMORY_INTRUSIVE_PTR_H__
 #define __WN_MEMORY_INTRUSIVE_PTR_H__
 
-#include "WNMemory/inc/WNAllocator.h"
 #include "WNCore/inc/WNUtility.h"
+#include "WNMemory/inc/WNAllocator.h"
 
 #include <atomic>
 
@@ -67,7 +67,7 @@ private:
 template <typename T>
 class intrusive_ptr final {
 public:
-  static_assert(core::is_base_of<intrusive_ptr_base, T>::value,
+  static_assert(core::is_convertible<T*, intrusive_ptr_base*>::value,
       "type must be child of 'intrusive_ptr_base'");
 
   typedef T* pointer;

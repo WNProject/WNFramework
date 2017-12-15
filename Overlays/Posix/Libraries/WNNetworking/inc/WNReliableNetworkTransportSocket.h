@@ -41,7 +41,6 @@ public:
   void close() override {
     if (m_sock_fd != -1) {
       ::shutdown(m_sock_fd, SHUT_RDWR);
-      m_sock_fd = -1;
     }
   }
 

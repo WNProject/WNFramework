@@ -106,6 +106,7 @@ namespace internal {
 template <class F, class Tuple, size_t... I>
 constexpr decltype(auto) apply_impl(
     F&& f, Tuple&& t, std::index_sequence<I...>) {
+  (void)t;  // Stop the warnings about unused t
   return functional::invoke(
       std::forward<F>(f), std::get<I>(std::forward<Tuple>(t))...);
 }

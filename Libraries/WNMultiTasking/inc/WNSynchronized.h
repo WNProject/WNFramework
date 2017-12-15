@@ -35,12 +35,22 @@ public:
   synchronization_data* get_synchronization_data() {
     return &data;
   }
+  synchronized() : m_scheduled_for_destruction(false) {}
+  virtual ~synchronized() {}
+
+protected:
+  bool scheduled_for_destruction() const {
+    return m_scheduled_for_destruction;
+  }
 
 private:
-  void schedule_for_destruction(void*) {
+  void sync_destruction() {}
+  void schedule_for_destruction() {
     m_scheduled_for_destruction = true;
   }
-  bool m_scheduled_for_destruction = false;
+
+  virtual void on_destroy(){};
+  std::atomic<bool> m_scheduled_for_destruction;
   synchronization_data data;
   friend class synchronized_destroy_base;
 };
@@ -89,6 +99,15 @@ public:
 private:
   T t;
 };
+
+template <typename T>
+using sync_ptr = memory::unique_ptr<synchronized_destroy<T>>;
+
+template <typename T, typename... Args>
+sync_ptr<T> make_sync(memory::allocator* _allocator, Args&&... args) {
+  return memory::make_unique<synchronized_destroy<T>>(
+      _allocator, core::forward<Args>(args)...);
+}
 
 }  // namespace multi_tasking
 }  // namespace wn

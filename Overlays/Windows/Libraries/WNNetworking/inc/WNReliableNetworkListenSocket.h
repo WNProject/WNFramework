@@ -22,13 +22,13 @@ public:
     : WNReliableAcceptConnection(_allocator, _manager),
       m_socket(INVALID_SOCKET) {}
   ~WNReliableConnectListenSocket() {
-    if (m_socket != INVALID_SOCKET) {
-      closesocket(m_socket);
-    }
+    close();
   }
 
   memory::unique_ptr<WNConnection> accept_sync(
       network_error* _error = nullptr) override;
+
+  void close() override;
 
 private:
   SOCKET m_socket;

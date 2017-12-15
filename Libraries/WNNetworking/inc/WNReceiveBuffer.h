@@ -61,8 +61,12 @@ public:
     WN_RELEASE_ASSERT_DESC(_error != network_error::ok,
         "Cannot create a recieve buffer with an ok error without data");
   }
-  network_error get_status() {
+  network_error get_status() const {
     return m_error;
+  }
+
+  void set_status(network_error err) {
+    m_error = err;
   }
 
 private:

@@ -43,14 +43,16 @@ size_t job_signal::current_value() {
 }
 
 void synchronized_destroy_base::wait_for_destruction(synchronized<>* _sync) {
+  _sync->schedule_for_destruction();
+  _sync->on_destroy();
   wn::multi_tasking::job_signal s(0);
   synchronization_data* data = _sync->get_synchronization_data();
   wn::multi_tasking::job_pool::this_job_pool()->add_job_internal(
       memory::make_unique<synchronized_job<synchronized<>,
-          decltype(&synchronized<>::schedule_for_destruction)>>(
+          decltype(&synchronized<>::sync_destruction)>>(
           wn::multi_tasking::job_pool::this_job_pool()->m_allocator,
           &data->signal, data->increment_job(), &s, _sync,
-          &synchronized<>::schedule_for_destruction, nullptr));
+          &synchronized<>::sync_destruction));
   s.wait_until(1);
 }
 

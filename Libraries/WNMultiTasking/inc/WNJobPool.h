@@ -74,6 +74,16 @@ private:
 };
 
 template <typename C, typename R, typename... Args>
+std::tuple<Args...> member_function_args(R (C::*f)(Args...)) {
+  return declval(std::tuple<Args...>());
+}
+
+template <typename T, typename... Args>
+functional::function<Args...> make_function(T my_t) {
+  return functional::function<Args...>(my_t);
+}
+
+template <typename C, typename R, typename... Args>
 std::tuple<Args...> function_args(R (C::*f)(Args...)) {
   return declval(std::tuple<Args...>());
 }
@@ -95,64 +105,62 @@ private:
   }
 
   A m_function;
-  using args_type = decltype(function_args(std::declval<A>()));
+  using args_type = decltype(member_function_args(std::declval<A>()));
   using tuple_type = decltype(std::tuple_cat(
       std::declval<std::tuple<C*>>(), function_args(std::declval<A>())));
   tuple_type m_t;
 };
 
+template <typename F, typename... Args>
 class unsynchronized_job : public job {
 public:
   WN_FORCE_INLINE unsynchronized_job(
-      job_signal* _done_signal, functional::function<void()> _function)
-    : job(nullptr, 0, _done_signal, true), m_function(_function) {}
+      job_signal* _done_signal, F _function, Args&&... _args)
+    : job(nullptr, 0, _done_signal, true),
+      m_function(_function),
+      m_t(std::forward<Args>(_args)...) {}
 
 private:
   void run_internal() override {
-    m_function();
+    functional::apply(m_function, std::move(m_t));
   }
-  functional::function<void()> m_function;
+
+  F m_function;
+  std::tuple<Args...> m_t;
 };
 
-template <typename T>
-class callback {
+template <typename... Args>
+class callback_base : public memory::intrusive_ptr_base {
 public:
-  virtual ~callback() = default;
-  virtual void enqueue_job(job_pool* pool, T&& t) = 0;
-  virtual memory::unique_ptr<callback<T>> clone(memory::allocator*) = 0;
+  virtual ~callback_base() = default;
+  virtual void enqueue_job(job_pool* pool, Args... args) const = 0;
 };
 
-template <typename T, typename C>
-class synchronized_callback : public callback<T> {
+template <typename C, typename... Args>
+class synchronized_callback : public callback_base<Args...> {
 public:
-  synchronized_callback(C* _c, void (C::*_func)(T))
+  synchronized_callback(C* _c, void (C::*_func)(Args...))
     : m_c(_c), m_function(_func) {}
-  virtual void enqueue_job(job_pool* pool, T&& t);
-
-  virtual memory::unique_ptr<callback<T>> clone(memory::allocator* _allocator) {
-    return memory::make_unique<synchronized_callback<T, C>>(
-        _allocator, m_c, m_function);
-  }
+  virtual void enqueue_job(job_pool* pool, Args... args) const;
 
 private:
   C* m_c;
-  void (C::*m_function)(T);
+  void (C::*m_function)(Args...);
 };
 
-template <typename T>
-class unsynchronized_callback : public callback<T> {
+template <typename... Args>
+using callback = memory::intrusive_ptr<callback_base<Args...>>;
+
+template <typename... Args>
+class unsynchronized_callback : public callback_base<Args...> {
 public:
-  unsynchronized_callback(const functional::function<void(T)>& _func)
+  unsynchronized_callback(const functional::function<void(Args...)>& _func)
     : m_function(_func) {}
-  virtual void enqueue_job(job_pool* pool, T&& t);
-  virtual memory::unique_ptr<callback<T>> clone(memory::allocator* _allocator) {
-    return memory::make_unique<unsynchronized_callback<T>>(
-        _allocator, m_function);
-  }
+  virtual void enqueue_job(job_pool* pool, Args... args) const;
 
 private:
-  functional::function<void(T)> m_function;
-};
+  functional::function<void(Args...)> m_function;
+};  // namespace multi_tasking
 
 using job_ptr = memory::unique_ptr<job>;
 template <typename T>
@@ -181,20 +189,25 @@ move_if_movable(T& t) {
   return t;
 }
 
-// This is the first parameter to any asynchronous function.
-// This forces these functions to only ever be called through the job pool.
-struct async_function {
-private:
-  async_function() {}
-  friend class job_pool;
-};
-
 // Same as sync function up there. The only difference is that this notifies
 // the job pool that this function call a blocking function.
 // This means the job pool can be smart about WHERE to put the function.
 struct async_blocking_function {
 private:
   async_blocking_function() {}
+  friend class job_pool;
+};
+
+// This is the first parameter to any asynchronous function.
+// This forces these functions to only ever be called through the job pool.
+struct async_function {
+  // This implies, if you are inside an async_block_function,
+  //   you can call an async function without having to worry about
+  //   more synchronization.
+  explicit async_function(async_blocking_function) {}
+
+private:
+  async_function() {}
   friend class job_pool;
 };
 
@@ -234,14 +247,21 @@ public:
     move_to_ready();
   }
 
-  template <typename T, typename... Args>
+  template <typename Callable, typename... Args>
+  void call_blocking_function_in_job(
+      job_signal* _signal, Callable&& func, Args... args) {
+    functional::function<void()> f = std::bind(func, args...);
+    add_job_internal(
+        memory::make_unique<unsynchronized_job<decltype(f)>>(m_allocator,
+            _signal, [f]() { this_job_pool()->call_blocking_function(f); }));
+  }
+
+  template <typename Callable, typename... Args>
   WN_FORCE_INLINE typename core::enable_if<
-      !core::disjunction<core::is_lvalue_reference<Args>...>::value, bool>::type
-  add_unsynchronized_job(job_signal* _signal, T&& _func, Args... _args) {
-    add_job_internal(memory::make_unique<unsynchronized_job>(m_allocator,
-        _signal, std::bind<void>(_func, move_if_movable<Args>(_args)...)));
-    return true;  // This is because of a bug in VS2013.
-                  // Remove and switch to void return once that is done
+      !core::disjunction<core::is_lvalue_reference<Args>...>::value, void>::type
+  add_unsynchronized_job(job_signal* _signal, Callable&& _func, Args... _args) {
+    add_job_internal(memory::make_unique<unsynchronized_job<Callable, Args...>>(
+        m_allocator, _signal, _func, core::forward<Args>(_args)...));
   }
 
   template <typename B, typename T, typename... Args>
@@ -323,28 +343,33 @@ private:
   friend class synchronized_destroy_base;
 };
 
-template <typename T, typename C>
-void synchronized_callback<T, C>::enqueue_job(job_pool* pool, T&& t) {
-  pool->add_job(nullptr, m_function, m_c, core::forward<T>(t));
+template <typename C, typename... Args>
+void synchronized_callback<C, Args...>::enqueue_job(
+    job_pool* pool, Args... args) const {
+  pool->add_job(nullptr, m_function, m_c, core::forward<Args>(args)...);
 }
 
-template <typename T>
-void unsynchronized_callback<T>::enqueue_job(job_pool* pool, T&& t) {
-  pool->add_unsynchronized_job(nullptr, m_function, core::forward<T>(t));
+template <typename... Args>
+void unsynchronized_callback<Args...>::enqueue_job(
+    job_pool* pool, Args... args) const {
+  pool->add_unsynchronized_job(
+      nullptr, m_function, core::forward<Args>(args)...);
 }
 
-template <typename T, typename C>
-WN_FORCE_INLINE memory::unique_ptr<synchronized_callback<T, C>> make_callback(
-    memory::allocator* _allocator, C* m_c, void (C::*_function)(T)) {
-  return memory::make_unique<synchronized_callback<T, C>>(
+template <typename C, typename... Args>
+WN_FORCE_INLINE const memory::intrusive_ptr<synchronized_callback<C, Args...>>
+make_callback(
+    memory::allocator* _allocator, C* m_c, void (C::*_function)(Args...)) {
+  return memory::make_intrusive<synchronized_callback<C, Args...>>(
       _allocator, m_c, _function);
 }
 
-template <typename T>
-WN_FORCE_INLINE memory::unique_ptr<unsynchronized_callback<T>>
+template <typename... Args>
+WN_FORCE_INLINE memory::intrusive_ptr<unsynchronized_callback<Args...>>
 make_unsynchronized_callback(memory::allocator* _allocator,
-    const functional::function<void(T)>& _function) {
-  return memory::make_unique<unsynchronized_callback<T>>(_allocator, _function);
+    const functional::function<void(Args...)>& _function) {
+  return memory::make_intrusive<unsynchronized_callback<Args...>>(
+      _allocator, _function);
 }
 
 struct thread_data {
@@ -563,6 +588,7 @@ private:
       auto it2 = m_preblocked_jobs.find(core::make_pair(_signal, _value));
       if (it2 != m_preblocked_jobs.end()) {
         start_jobs = core::move(it2->second);
+        m_preblocked_jobs.erase(it2);
       }
     }
 

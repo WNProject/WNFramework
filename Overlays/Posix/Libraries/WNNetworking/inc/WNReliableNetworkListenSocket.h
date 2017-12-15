@@ -11,6 +11,7 @@
 #include "WNNetworking/inc/WNNetworkManager.h"
 #include "WNNetworking/inc/WNReliableConnection.h"
 
+#include <sys/socket.h>
 #include <unistd.h>
 
 namespace wn {
@@ -24,12 +25,19 @@ public:
     : WNReliableAcceptConnection(_allocator, _manager), m_sock_fd(-1) {}
   ~WNReliableConnectListenSocket() {
     if (m_sock_fd != -1) {
-      close(m_sock_fd);
+      ::close(m_sock_fd);
+      m_sock_fd = -1;
     }
   }
 
   memory::unique_ptr<WNConnection> accept_sync(
       network_error* _error = nullptr) override;
+
+  void close() override {
+    if (m_sock_fd != -1) {
+      ::shutdown(m_sock_fd, SHUT_RDWR);
+    }
+  }
 
 private:
   int m_sock_fd;

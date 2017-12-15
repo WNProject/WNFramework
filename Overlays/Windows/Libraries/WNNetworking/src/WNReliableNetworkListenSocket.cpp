@@ -67,12 +67,23 @@ memory::unique_ptr<WNConnection> WNReliableConnectListenSocket::accept_sync(
   int client_size = 64;
   SOCKET accepted =
       WSAAccept(m_socket, (SOCKADDR*)&accept_addr, &client_size, nullptr, NULL);
-  if (INVALID_SOCKET == accepted) {
+  if (INVALID_SOCKET == accepted && m_socket != -1) {
     *_error = network_error::invalid_parameters;
+    return nullptr;
+  }
+  if (m_socket == -1) {
+    *_error = network_error::closed;
     return nullptr;
   }
   return memory::make_unique<WNReliableNetworkTransportSocket>(
       m_allocator, m_allocator, accepted, m_manager);
+}
+
+void WNReliableConnectListenSocket::close() {
+  if (m_socket != INVALID_SOCKET) {
+    closesocket(m_socket);
+    m_socket = INVALID_SOCKET;
+  }
 }
 
 }  // namespace networking
