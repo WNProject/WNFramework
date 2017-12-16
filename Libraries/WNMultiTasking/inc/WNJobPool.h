@@ -30,15 +30,7 @@ class job_pool;
 class job {
 public:
   virtual ~job() = default;
-  void run() {
-    run_internal();
-    if (m_done_signal) {
-      m_done_signal->increment(1);
-    }
-    if (m_wait_signal) {
-      m_wait_signal->increment(1);
-    }
-  }
+  void run();
 
   job_signal* get_wait_signal() const {
     return m_wait_signal;
@@ -320,6 +312,10 @@ public:
     notify_signalled(_signal, new_value);
   }
 
+  virtual void increment_signals(
+      containers::contiguous_range<job_signal*> _signal,
+      containers::contiguous_range<size_t> _num) = 0;
+
   static job_pool* this_job_pool();
 
   // join blocks until there are no jobs left in the pool.
@@ -457,6 +453,29 @@ public:
   }
 
 protected:
+  void increment_signals(containers::contiguous_range<job_signal*> _signals,
+      containers::contiguous_range<size_t> _num) override {
+    WN_DEBUG_ASSERT_DESC(_num.size() == _signals.size(),
+        "The number of signals must match the number of values");
+    containers::dynamic_array<size_t> values(m_allocator);
+    values.resize(_signals.size());
+    {
+      spin_lock_guard guard(m_thread_lock);
+      for (size_t i = 0; i < _signals.size(); ++i) {
+        if (_signals[i]) {
+          values[i] = _signals[i]->value.fetch_add(
+                          _num[i], std::memory_order::memory_order_release) +
+                      _num[i];
+        }
+      }
+    }
+    for (size_t i = 0; i < _signals.size(); ++i) {
+      if (_signals[i]) {
+        notify_signalled(_signals[i], values[i]);
+      }
+    }
+  }
+
   void add_job_internal(job_ptr _ptr) override {
     spin_lock_guard guard(m_thread_lock);
     if (!_ptr->is_ready() && _ptr->get_wait_signal()->current_value() !=
@@ -692,6 +711,30 @@ private:
       containers::deque<job_ptr>, hasher, equal>
       m_preblocked_jobs;
 };
+
+WN_INLINE
+void job::run() {
+  run_internal();
+  job_signal* signals[2];
+  signals[0] = m_wait_signal;
+  signals[1] = m_done_signal;
+  if (signals[0] && signals[1] &&
+      signals[0]->get_pool() != signals[1]->get_pool()) {
+    if (signals[0]) {
+      signals[0]->increment(1);
+    }
+    if (signals[1]) {
+      signals[1]->increment(1);
+    }
+  } else if (signals[0] && !signals[1]) {
+    signals[0]->increment(1);
+  } else if (signals[1] && !signals[0]) {
+    signals[1]->increment(1);
+  } else if (signals[0] && signals[1]) {
+    size_t sizes[] = {1, 1};
+    signals[0]->get_pool()->increment_signals(signals, sizes);
+  }
+}
 
 }  // namespace multi_tasking
 }  // namespace wn

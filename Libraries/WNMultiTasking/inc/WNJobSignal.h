@@ -35,6 +35,10 @@ public:
   void wait_until(size_t _value);
   size_t current_value();
 
+  job_pool* get_pool() {
+    return pool;
+  }
+
 private:
   job_pool* pool;
   std::atomic<size_t> value;
