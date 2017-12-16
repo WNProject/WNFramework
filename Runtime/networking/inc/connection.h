@@ -16,6 +16,9 @@ namespace wn {
 namespace runtime {
 namespace networking {
 
+using wn::networking::send_range;
+using wn::networking::send_ranges;
+
 uint32_t k_infinite = 0xFFFFFFFF;
 
 class connection : public multi_tasking::synchronized<> {
@@ -29,17 +32,19 @@ public:
   // Furthermore the bytes must be contiguous in memory. The object
   // will be destroyed on completion.
   template <typename T>
-  void send_object(multi_tasking::async_blocking_function, T&& t) {
+  void send_object(multi_tasking::async_blocking_function f, T t) {
     WN_DEBUG_ASSERT(static_cast<size_t>(t.end() - t.begin()) == t.size());
-    wn::networking::send_range range(&(*t.begin()), t.size());
-    wn::networking::send_ranges ranges(&range, 1);
-    wn::networking::network_error (
-        wn::networking::WNConnection::send_pipe::*func)(
-        const wn::networking::send_ranges&) =
-        &wn::networking::WNConnection::send_pipe::send_sync;
+    send_range range(&(*t.begin()), t.size());
+    send_ranges ranges(&range, 1);
+    send_multi(f, ranges);
+  }
 
-    multi_tasking::job_pool::this_job_pool()->call_blocking_function(
-        func, m_base_connection->get_send_pipe(), ranges);
+  template <typename T>
+  void send_object_pointer(multi_tasking::async_blocking_function f, T t) {
+    WN_DEBUG_ASSERT(static_cast<size_t>(t->end() - t->begin()) == t->size());
+    send_range range(&(*t->begin()), t->size());
+    send_ranges ranges(&range, 1);
+    send_multi(f, ranges);
   }
 
   // send_async sends the given bytes through this connection.
@@ -55,6 +60,19 @@ public:
     //    on a different object in this way, since it will avoid
     //    the synchronization.
     send_object(f, _bytes);
+  }
+
+  // send_ranges sends the given bytes through this connection.
+  // The given object must support begin(), end() and size().
+  // Furthermore the bytes must be contiguous in memory. The object
+  // will be destroyed on completion.
+  void send_multi(multi_tasking::async_blocking_function, send_ranges _ranges) {
+    wn::networking::network_error (
+        wn::networking::WNConnection::send_pipe::*func)(const send_ranges&) =
+        &wn::networking::WNConnection::send_pipe::send_sync;
+
+    multi_tasking::job_pool::this_job_pool()->call_blocking_function(
+        func, m_base_connection->get_send_pipe(), _ranges);
   }
 
   // recv_with_callback receives a series of num_messages messages from the

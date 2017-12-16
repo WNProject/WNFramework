@@ -161,3 +161,65 @@ TEST(networking_rt, recv_cleans_up) {
   }
   EXPECT_EQ(i, 1u);
 }
+
+TEST(networking_rt, send_dynamic_array) {
+  auto& data = wn::runtime::testing::k_application_data;
+  auto job_pool = wn::multi_tasking::job_pool::this_job_pool();
+  wn::memory::allocator* allocator = data->system_allocator;
+  wn::multi_tasking::synchronized_destroy<manager> mgr(allocator,
+      wn::memory::make_unique<wn::networking::WNConcreteNetworkManager>(
+          allocator, allocator, data->default_log));
+
+  job_signal listening(0);
+  sync_ptr<accept_connection> accept;
+  wn::networking::network_error error;
+  job_pool->add_job(&listening, &manager::listen, mgr.get(),
+      wn::runtime::networking::ip_protocol::ipv4, k_starting_port, &accept,
+      &error);
+
+  listening.wait_until(1);
+  ASSERT_EQ(error, wn::networking::network_error::ok);
+
+  sync_ptr<connection> connect;
+  job_pool->add_job(&listening, &manager::connect, mgr.get(),
+      wn::containers::string(allocator, "127.0.0.1"),
+      wn::runtime::networking::ip_protocol::ipv4, k_starting_port, &connect,
+      &error);
+
+  listening.wait_until(2);
+
+  ASSERT_EQ(error, wn::networking::network_error::ok);
+
+  sync_ptr<connection> accepted;
+  job_pool->add_job(
+      &listening, &accept_connection::accept, accept->get(), &accepted, &error);
+
+  listening.wait_until(3);
+
+  ASSERT_EQ(error, wn::networking::network_error::ok);
+
+  uint8_t send_data[] = {
+      'H', 'e', 'l', 'l', 'o', ' ', 'W', 'o', 'r', 'l', 'd', '\0'};
+
+  wn::containers::dynamic_array<uint8_t> arr(
+      allocator, send_data, send_data + 12);
+
+  job_pool->add_job(&listening,
+      &connection::send_object<wn::containers::dynamic_array<uint8_t>>,
+      connect->get(), wn::core::move(arr));
+
+  listening.wait_until(4);
+  ASSERT_EQ(error, wn::networking::network_error::ok);
+
+  wn::networking::WNReceiveBuffer recv(
+      wn::networking::network_error::uninitialized);
+
+  job_pool->add_job(&listening, &connection::recv, accepted->get(), &recv);
+  listening.wait_until(5);
+
+  ASSERT_EQ(recv.get_status(), wn::networking::network_error::ok);
+  ASSERT_EQ(recv.data.size(), sizeof(send_data));
+  for (size_t i = 0; i < recv.data.size(); ++i) {
+    EXPECT_EQ(static_cast<uint8_t>(recv.data[i]), send_data[i]);
+  }
+}
