@@ -25,26 +25,23 @@ class connection : public multi_tasking::synchronized<> {
 public:
   explicit connection(
       memory::unique_ptr<wn::networking::WNConnection> _connection)
-    : m_base_connection(core::move(_connection)) {}
+    : m_base_connection(core::move(_connection)),
+      m_send_pipe(this),
+      m_recv_pipe(this) {}
 
   // send_object sends the given bytes through this connection.
   // The given object must support begin(), end() and size().
   // Furthermore the bytes must be contiguous in memory. The object
   // will be destroyed on completion.
   template <typename T>
-  void send_object(multi_tasking::async_blocking_function f, T t) {
-    WN_DEBUG_ASSERT(static_cast<size_t>(t.end() - t.begin()) == t.size());
-    send_range range(&(*t.begin()), t.size());
-    send_ranges ranges(&range, 1);
-    send_multi(f, ranges);
+  void send_object(multi_tasking::async_passthrough f, T t) {
+    f->add_job(&send_pipe::send_object<T>, m_send_pipe.get(), core::move(t));
   }
 
   template <typename T>
-  void send_object_pointer(multi_tasking::async_blocking_function f, T t) {
-    WN_DEBUG_ASSERT(static_cast<size_t>(t->end() - t->begin()) == t->size());
-    send_range range(&(*t->begin()), t->size());
-    send_ranges ranges(&range, 1);
-    send_multi(f, ranges);
+  void send_object_pointer(multi_tasking::async_passthrough f, T t) {
+    f->add_job(
+        &send_pipe::send_object_pointer<T>, m_send_pipe.get(), core::move(t));
   }
 
   // send_async sends the given bytes through this connection.
@@ -52,27 +49,22 @@ public:
   //   the send_async job is completed.
   // NB: You can use the signal on the add_job to notify
   //     you once the send has completed.
-  void send(multi_tasking::async_blocking_function f,
+  void send(multi_tasking::async_passthrough f,
       containers::contiguous_range<uint8_t> _bytes) {
     // This is valid: We are calling another async function
     //    but not using the job system. This is fine HOWEVER:
     //    we have to be very careful to never call an async function
     //    on a different object in this way, since it will avoid
     //    the synchronization.
-    send_object(f, _bytes);
+    f->add_job(&send_pipe::send, m_send_pipe.get(), _bytes);
   }
 
   // send_ranges sends the given bytes through this connection.
   // The given object must support begin(), end() and size().
   // Furthermore the bytes must be contiguous in memory. The object
   // will be destroyed on completion.
-  void send_multi(multi_tasking::async_blocking_function, send_ranges _ranges) {
-    wn::networking::network_error (
-        wn::networking::WNConnection::send_pipe::*func)(const send_ranges&) =
-        &wn::networking::WNConnection::send_pipe::send_sync;
-
-    multi_tasking::job_pool::this_job_pool()->call_blocking_function(
-        func, m_base_connection->get_send_pipe(), _ranges);
+  void send_multi(multi_tasking::async_passthrough f, send_ranges _ranges) {
+    f->add_job(&send_pipe::send_multi, m_send_pipe.get(), _ranges);
   }
 
   // recv_with_callback receives a series of num_messages messages from the
@@ -81,43 +73,19 @@ public:
   // If and error occurs, or the connection is closed, then
   //    the callback will be called, and the ReceiveBuffer will
   //    contain the status.
-  void recv_with_callback(multi_tasking::async_blocking_function,
+  void recv_with_callback(multi_tasking::async_passthrough f,
       multi_tasking::callback<wn::networking::WNReceiveBuffer> _callback,
       uint32_t _num_messages = k_infinite) {
-    multi_tasking::job_pool::this_job_pool()->call_blocking_function(
-        [this, _callback, _num_messages]() {
-          for (size_t i = 0; i < _num_messages; ++i) {
-            if (_num_messages == k_infinite) {
-              i = 0;
-            }
-            wn::networking::WNReceiveBuffer buffer =
-                m_base_connection->get_recv_pipe()->recv_sync();
-            wn::networking::network_error err = buffer.get_status();
-            if (err != wn::networking::network_error::ok &&
-                scheduled_for_destruction()) {
-              buffer.set_status(wn::networking::network_error::aborted);
-            }
-
-            _callback->enqueue_job(
-                multi_tasking::job_pool::this_job_pool(), core::move(buffer));
-            if (err != wn::networking::network_error::ok) {
-              break;
-            }
-          }
-        });
+    f->add_job(&recv_pipe::recv_with_callback, m_recv_pipe.get(),
+        core::move(_callback), _num_messages);
   }
 
   // recv receieves a single message from the socket.
   //  This function is less recommended, as it forces more jobs for every packet
   //    that is sent.
-  void recv(multi_tasking::async_blocking_function,
+  void recv(multi_tasking::async_passthrough f,
       wn::networking::WNReceiveBuffer* _buffer) {
-    multi_tasking::job_pool::this_job_pool()->call_blocking_function(
-        [this, _buffer]() {
-          wn::networking::WNReceiveBuffer buffer =
-              m_base_connection->get_recv_pipe()->recv_sync();
-          *_buffer = core::move(buffer);
-        });
+    f->add_job(&recv_pipe::recv, m_recv_pipe.get(), _buffer);
   }
 
 private:
@@ -128,7 +96,92 @@ private:
     signal.wait_until(1);
   }
 
+  struct send_pipe : public multi_tasking::synchronized<> {
+    send_pipe(connection* _connection) : m_connection(_connection) {}
+
+    template <typename T>
+    void send_object(multi_tasking::async_blocking_function f, T t) {
+      WN_DEBUG_ASSERT(static_cast<size_t>(t.end() - t.begin()) == t.size());
+      send_range range(&(*t.begin()), t.size());
+      send_ranges ranges(&range, 1);
+      send_multi(f, ranges);
+    }
+
+    template <typename T>
+    void send_object_pointer(multi_tasking::async_blocking_function f, T t) {
+      WN_DEBUG_ASSERT(static_cast<size_t>(t->end() - t->begin()) == t->size());
+      send_range range(&(*t->begin()), t->size());
+      send_ranges ranges(&range, 1);
+      send_multi(f, ranges);
+    }
+
+    void send(multi_tasking::async_blocking_function f,
+        containers::contiguous_range<uint8_t> _bytes) {
+      send_object(f, _bytes);
+    }
+
+    void send_multi(
+        multi_tasking::async_blocking_function, send_ranges _ranges) {
+      wn::networking::network_error (
+          wn::networking::WNConnection::send_pipe::*func)(const send_ranges&) =
+          &wn::networking::WNConnection::send_pipe::send_sync;
+
+      multi_tasking::job_pool::this_job_pool()->call_blocking_function(
+          func, m_connection->m_base_connection->get_send_pipe(), _ranges);
+    }
+
+    connection* m_connection;
+  };
+  friend struct send_pipe;
+  struct recv_pipe : public synchronized<> {
+    recv_pipe(connection* _connection) : m_connection(_connection) {}
+    void recv_with_callback(multi_tasking::async_function,
+        multi_tasking::callback<wn::networking::WNReceiveBuffer> _callback,
+        uint32_t _num_messages = k_infinite) {
+      multi_tasking::job_pool::this_job_pool()->call_blocking_function(
+          [this, _callback, _num_messages]() {
+            for (size_t i = 0; i < _num_messages; ++i) {
+              if (_num_messages == k_infinite) {
+                i = 0;
+              }
+              wn::networking::WNReceiveBuffer buffer =
+                  m_connection->m_base_connection->get_recv_pipe()->recv_sync();
+              wn::networking::network_error err = buffer.get_status();
+              if (err != wn::networking::network_error::ok &&
+                  m_connection->scheduled_for_destruction()) {
+                buffer.set_status(wn::networking::network_error::aborted);
+              }
+
+              _callback->enqueue_job(
+                  multi_tasking::job_pool::this_job_pool(), core::move(buffer));
+              if (err != wn::networking::network_error::ok) {
+                break;
+              }
+            }
+          });
+    }
+
+    // recv receieves a single message from the socket.
+    //  This function is less recommended, as it forces more jobs for every
+    //  packet
+    //    that is sent.
+    void recv(multi_tasking::async_blocking_function,
+        wn::networking::WNReceiveBuffer* _buffer) {
+      multi_tasking::job_pool::this_job_pool()->call_blocking_function(
+          [this, _buffer]() {
+            wn::networking::WNReceiveBuffer buffer =
+                m_connection->m_base_connection->get_recv_pipe()->recv_sync();
+            *_buffer = core::move(buffer);
+          });
+    }
+
+    connection* m_connection;
+  };
+  friend struct recv_pipe;
+
   memory::unique_ptr<wn::networking::WNConnection> m_base_connection;
+  multi_tasking::synchronized_destroy<send_pipe> m_send_pipe;
+  multi_tasking::synchronized_destroy<recv_pipe> m_recv_pipe;
 };
 
 class accept_connection : public multi_tasking::synchronized<> {

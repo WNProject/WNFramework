@@ -190,6 +190,19 @@ private:
   friend class job_pool;
 };
 
+struct _async_passthrough {
+  template <typename T, typename B, typename... Args>
+  void add_job(B _fn, T* _c, Args&&... _args);
+
+private:
+  friend class job_pool;
+  _async_passthrough(job_pool* _pool, job_signal* _signal)
+    : m_pool(_pool), m_signal(_signal) {}
+  job_pool* m_pool;
+  job_signal* m_signal;
+};
+using async_passthrough = _async_passthrough*;
+
 // This is the first parameter to any asynchronous function.
 // This forces these functions to only ever be called through the job pool.
 struct async_function {
@@ -280,6 +293,17 @@ public:
     add_job_internal(memory::make_unique<synchronized_job<T, B>>(m_allocator,
         &data->signal, data->increment_job(), _signal, _c, _fn,
         async_blocking_function(), core::forward<Args>(_args)...));
+  }
+
+  template <typename B, typename T, typename... Args>
+  WN_FORCE_INLINE typename core::enable_if<
+      core::conjunction<typename multi_tasking::is_synchronized<T>::type,
+          core::is_callable_method<B,
+              void (T::*)(async_passthrough, Args...)>>::value,
+      void>::type
+  add_job(job_signal* _signal, B _fn, T* _c, Args&&... _args) {
+    _async_passthrough ps(this, _signal);
+    (_c->*_fn)(&ps, core::forward<Args>(_args)...);
   }
 
   template <typename B, typename T, typename... Args>
@@ -734,6 +758,11 @@ void job::run() {
     size_t sizes[] = {1, 1};
     signals[0]->get_pool()->increment_signals(signals, sizes);
   }
+}
+
+template <typename T, typename B, typename... Args>
+WN_INLINE void _async_passthrough::add_job(B _fn, T* _c, Args&&... _args) {
+  m_pool->add_job(m_signal, _fn, _c, core::forward<Args>(_args)...);
 }
 
 }  // namespace multi_tasking
