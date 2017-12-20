@@ -67,7 +67,9 @@ protected:
   }
 
   void notify(const uint16_t _count) {
-    for (uint16_t i = 0; i < _count; ++i) {
+    uint16_t count = _count;
+
+    while (count-- != 0) {
       const int result = ::sem_post(&m_semaphore);
 
       WN_RELEASE_ASSERT_DESC(
