@@ -68,7 +68,7 @@ file_ptr mapping_windows::create_file(
     return nullptr;
   }
 
-  utilities::windows::handle file_handle(::CreateFileW(unicode_buffer,
+  utilities::internal::handle file_handle(::CreateFileW(unicode_buffer,
       GENERIC_READ | GENERIC_WRITE, 0, nullptr, CREATE_NEW, 0, nullptr));
 
   if (!file_handle.is_valid()) {
@@ -123,7 +123,7 @@ file_ptr mapping_windows::open_file(
     return nullptr;
   }
 
-  utilities::windows::handle file_handle(::CreateFileW(unicode_buffer,
+  utilities::internal::handle file_handle(::CreateFileW(unicode_buffer,
       GENERIC_READ | GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, 0, nullptr));
 
   if (!file_handle.is_valid()) {
@@ -148,7 +148,7 @@ file_ptr mapping_windows::open_file(
   }
 
   if (file_size.QuadPart > 0) {
-    utilities::windows::handle file_mapping_handle(
+    utilities::internal::handle file_mapping_handle(
         ::CreateFileMappingW(file_handle.value(), nullptr, PAGE_READWRITE,
             file_size.HighPart, file_size.LowPart, nullptr));
 

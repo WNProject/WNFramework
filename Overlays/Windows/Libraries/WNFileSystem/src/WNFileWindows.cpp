@@ -51,7 +51,7 @@ bool file_windows::resize(const size_type _size) {
       }
 
       if (size.QuadPart != 0) {
-        utilities::windows::handle file_mapping_handle(
+        utilities::internal::handle file_mapping_handle(
             ::CreateFileMappingW(m_file_handle.value(), nullptr, PAGE_READWRITE,
                 size.HighPart, size.LowPart, nullptr));
 
@@ -102,7 +102,7 @@ void file_windows::unmap() {
 
 bool file_windows::remap() {
   if (m_size.QuadPart != 0) {
-    utilities::windows::handle file_mapping_handle(
+    utilities::internal::handle file_mapping_handle(
         ::CreateFileMappingW(m_file_handle.value(), nullptr, PAGE_READWRITE,
             m_size.HighPart, m_size.LowPart, nullptr));
 

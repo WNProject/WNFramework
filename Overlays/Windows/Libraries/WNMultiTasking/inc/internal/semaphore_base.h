@@ -9,7 +9,7 @@
 
 #include "WNCore/inc/WNAssert.h"
 #include "WNCore/inc/WNUtility.h"
-#include "WNUtilities/inc/WNHandle.h"
+#include "WNUtilities/inc/handle.h"
 
 namespace wn {
 namespace multi_tasking {
@@ -60,7 +60,7 @@ protected:
   }
 
 private:
-  utilities::windows::handle m_handle;
+  utilities::internal::handle m_handle;
 };
 
 }  // namespace internal

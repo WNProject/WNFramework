@@ -227,7 +227,7 @@ private:
   memory::allocator* m_allocator;
   containers::dynamic_array<thread*> m_threads;
 #ifdef _WN_WINDOWS
-  utilities::windows::handle m_io_completion_port;
+  utilities::internal::handle m_io_completion_port;
 #else
   containers::deque<thread_task_ptr> m_tasks;
   semaphore m_task_available_semaphore;

@@ -19,7 +19,7 @@
 #include "WNGraphics/inc/WNRenderPassTypes.h"
 #include "WNGraphics/inc/WNShaderModule.h"
 
-#include "WNUtilities/inc/WNHandle.h"
+#include "WNUtilities/inc/handle.h"
 
 #include <dxgi1_4.h>
 #include <wrl.h>
@@ -132,7 +132,7 @@ struct pipeline_layout_object {
 
 struct fence_data {
   Microsoft::WRL::ComPtr<ID3D12Fence> fence;
-  utilities::windows::handle event;
+  utilities::internal::handle event;
 };
 
 template <>

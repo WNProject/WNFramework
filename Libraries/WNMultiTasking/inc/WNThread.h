@@ -14,7 +14,7 @@
 #include "WNMultiTasking/inc/semaphore.h"
 
 #if defined _WN_WINDOWS
-#include "WNUtilities/inc/WNHandle.h"
+#include "WNUtilities/inc/handle.h"
 
 #include <mutex>
 #elif defined _WN_POSIX
@@ -170,7 +170,7 @@ private:
     }
 
 #ifdef _WN_WINDOWS
-    utilities::windows::handle m_handle;
+    utilities::internal::handle m_handle;
     DWORD m_id;
 #elif defined _WN_POSIX
     semaphore m_start_lock;

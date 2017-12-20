@@ -9,7 +9,7 @@
 
 #include "WNCore/inc/WNAssert.h"
 #include "WNCore/inc/WNUtility.h"
-#include "WNUtilities/inc/WNHandle.h"
+#include "WNUtilities/inc/handle.h"
 
 #include <atomic>
 
@@ -53,7 +53,7 @@ protected:
   }
 
 private:
-  utilities::windows::handle m_semaphore;
+  utilities::internal::handle m_semaphore;
   std::atomic_size_t m_lock_count;
 };
 
