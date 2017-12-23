@@ -128,16 +128,16 @@ public:
   virtual void enqueue_job(job_pool* pool, Args... args) const = 0;
 };
 
-template <typename C, typename... Args>
+template <typename C, typename CB, typename... Args>
 class synchronized_callback : public callback_base<Args...> {
 public:
-  synchronized_callback(C* _c, void (C::*_func)(Args...))
+  synchronized_callback(C* _c, void (C::*_func)(CB, Args...))
     : m_c(_c), m_function(_func) {}
   virtual void enqueue_job(job_pool* pool, Args... args) const;
 
 private:
   C* m_c;
-  void (C::*m_function)(Args...);
+  void (C::*m_function)(CB, Args...);
 };
 
 template <typename... Args>
@@ -193,6 +193,10 @@ private:
 struct _async_passthrough {
   template <typename T, typename B, typename... Args>
   void add_job(B _fn, T* _c, Args&&... _args);
+
+  job_signal* signal() const {
+    return m_signal;
+  }
 
 private:
   friend class job_pool;
@@ -363,8 +367,8 @@ private:
   friend class synchronized_destroy_base;
 };
 
-template <typename C, typename... Args>
-void synchronized_callback<C, Args...>::enqueue_job(
+template <typename C, typename CB, typename... Args>
+void synchronized_callback<C, CB, Args...>::enqueue_job(
     job_pool* pool, Args... args) const {
   pool->add_job(nullptr, m_function, m_c, core::forward<Args>(args)...);
 }
@@ -376,11 +380,12 @@ void unsynchronized_callback<Args...>::enqueue_job(
       nullptr, m_function, core::forward<Args>(args)...);
 }
 
-template <typename C, typename... Args>
-WN_FORCE_INLINE const memory::intrusive_ptr<synchronized_callback<C, Args...>>
-make_callback(
-    memory::allocator* _allocator, C* m_c, void (C::*_function)(Args...)) {
-  return memory::make_intrusive<synchronized_callback<C, Args...>>(
+template <typename C, typename CB, typename... Args>
+WN_FORCE_INLINE const
+    memory::intrusive_ptr<synchronized_callback<C, CB, Args...>>
+    make_callback(memory::allocator* _allocator, C* m_c,
+        void (C::*_function)(CB, Args...)) {
+  return memory::make_intrusive<synchronized_callback<C, CB, Args...>>(
       _allocator, m_c, _function);
 }
 
@@ -441,7 +446,7 @@ public:
     m_thread_pool.initialize(0);
     spin_lock_guard guard(m_thread_lock);
     for (size_t i = 0; i < _n; ++i) {
-      m_active_threads.push_back(thread_data());
+      m_active_threads.emplace(m_active_threads.end());
       (m_active_threads.end() - 1)->m_current_position =
           (m_active_threads.end() - 1);
       m_all_threads.push_back(thread(_allocator, &thread_job_pool::thread_func,
@@ -560,7 +565,7 @@ private:
             (m_active_threads.end() - 1);
         (m_active_threads.end() - 1)->m_dormant_semaphore.notify();
       } else {
-        m_active_threads.push_back(thread_data());
+        m_active_threads.emplace(m_active_threads.end());
         (m_active_threads.end() - 1)->m_current_position =
             (m_active_threads.end() - 1);
 
@@ -585,7 +590,7 @@ private:
             (m_active_threads.end() - 1);
         (m_active_threads.end() - 1)->m_dormant_semaphore.notify();
       } else {
-        m_active_threads.push_back(thread_data());
+        m_active_threads.emplace(m_active_threads.end());
         (m_active_threads.end() - 1)->m_current_position =
             (m_active_threads.end() - 1);
 

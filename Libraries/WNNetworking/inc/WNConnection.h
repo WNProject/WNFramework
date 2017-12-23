@@ -87,6 +87,10 @@ public:
     return &m_recv_pipe;
   }
 
+  WNBufferManager* get_buffer_manager() {
+    return m_manager;
+  }
+
 protected:
   send_pipe m_send_pipe;
   recv_pipe m_recv_pipe;

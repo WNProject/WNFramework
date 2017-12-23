@@ -4,6 +4,7 @@ add_wn_library(networking_rt
   SOURCES
     inc/manager.h
     inc/connection.h
+    inc/routed_connection.h
     src/dummy.cpp
   LIBS
     WNNetworking

@@ -13,6 +13,7 @@ static const uint16_t k_starting_port = 10100;
 
 using wn::multi_tasking::job_signal;
 using wn::runtime::networking::accept_connection;
+using wn::runtime::networking::async_manager;
 using wn::runtime::networking::connection;
 using wn::runtime::networking::manager;
 
@@ -24,14 +25,14 @@ TEST(networking_rt, basic) {
   auto& data = wn::runtime::testing::k_application_data;
   auto job_pool = wn::multi_tasking::job_pool::this_job_pool();
   wn::memory::allocator* allocator = data->system_allocator;
-  wn::multi_tasking::synchronized_destroy<manager> mgr(allocator,
+  wn::multi_tasking::synchronized_destroy<async_manager> mgr(allocator,
       wn::memory::make_unique<wn::networking::WNConcreteNetworkManager>(
           allocator, allocator, data->default_log));
 
   job_signal listening(0);
   sync_ptr<accept_connection> accept;
   wn::networking::network_error error;
-  job_pool->add_job(&listening, &manager::listen, mgr.get(),
+  job_pool->add_job(&listening, &async_manager::listen, mgr.get(),
       wn::runtime::networking::ip_protocol::ipv4, k_starting_port, &accept,
       &error);
 
@@ -39,7 +40,7 @@ TEST(networking_rt, basic) {
   ASSERT_EQ(error, wn::networking::network_error::ok);
 
   sync_ptr<connection> connect;
-  job_pool->add_job(&listening, &manager::connect, mgr.get(),
+  job_pool->add_job(&listening, &async_manager::connect<>, mgr.get(),
       wn::containers::string(allocator, "127.0.0.1"),
       wn::runtime::networking::ip_protocol::ipv4, k_starting_port, &connect,
       &error);
@@ -82,7 +83,7 @@ TEST(networking_rt, accept_cleans_up) {
   auto& data = wn::runtime::testing::k_application_data;
   auto job_pool = wn::multi_tasking::job_pool::this_job_pool();
   wn::memory::allocator* allocator = data->system_allocator;
-  wn::multi_tasking::synchronized_destroy<manager> mgr(allocator,
+  wn::multi_tasking::synchronized_destroy<async_manager> mgr(allocator,
       wn::memory::make_unique<wn::networking::WNConcreteNetworkManager>(
           allocator, allocator, data->default_log));
   size_t i = 0;
@@ -101,7 +102,7 @@ TEST(networking_rt, accept_cleans_up) {
     job_signal listening(0);
     sync_ptr<accept_connection> accept;
     wn::networking::network_error error;
-    job_pool->add_job(&listening, &manager::listen, mgr.get(),
+    job_pool->add_job(&listening, &async_manager::listen, mgr.get(),
         wn::runtime::networking::ip_protocol::ipv4, k_starting_port, &accept,
         &error);
 
@@ -121,7 +122,7 @@ TEST(networking_rt, recv_cleans_up) {
   auto& data = wn::runtime::testing::k_application_data;
   auto job_pool = wn::multi_tasking::job_pool::this_job_pool();
   wn::memory::allocator* allocator = data->system_allocator;
-  wn::multi_tasking::synchronized_destroy<manager> mgr(allocator,
+  wn::multi_tasking::synchronized_destroy<async_manager> mgr(allocator,
       wn::memory::make_unique<wn::networking::WNConcreteNetworkManager>(
           allocator, allocator, data->default_log));
   size_t i = 0;
@@ -129,7 +130,7 @@ TEST(networking_rt, recv_cleans_up) {
     job_signal listening(0);
     sync_ptr<accept_connection> accept;
     wn::networking::network_error error;
-    job_pool->add_job(&listening, &manager::listen, mgr.get(),
+    job_pool->add_job(&listening, &async_manager::listen, mgr.get(),
         wn::runtime::networking::ip_protocol::ipv4, k_starting_port, &accept,
         &error);
 
@@ -137,7 +138,7 @@ TEST(networking_rt, recv_cleans_up) {
     ASSERT_EQ(error, wn::networking::network_error::ok);
     {
       sync_ptr<connection> connect;
-      job_pool->add_job(&listening, &manager::connect, mgr.get(),
+      job_pool->add_job(&listening, &async_manager::connect<>, mgr.get(),
           wn::containers::string(allocator, "127.0.0.1"),
           wn::runtime::networking::ip_protocol::ipv4, k_starting_port, &connect,
           &error);
@@ -166,14 +167,14 @@ TEST(networking_rt, send_dynamic_array) {
   auto& data = wn::runtime::testing::k_application_data;
   auto job_pool = wn::multi_tasking::job_pool::this_job_pool();
   wn::memory::allocator* allocator = data->system_allocator;
-  wn::multi_tasking::synchronized_destroy<manager> mgr(allocator,
+  wn::multi_tasking::synchronized_destroy<async_manager> mgr(allocator,
       wn::memory::make_unique<wn::networking::WNConcreteNetworkManager>(
           allocator, allocator, data->default_log));
 
   job_signal listening(0);
   sync_ptr<accept_connection> accept;
   wn::networking::network_error error;
-  job_pool->add_job(&listening, &manager::listen, mgr.get(),
+  job_pool->add_job(&listening, &async_manager::listen, mgr.get(),
       wn::runtime::networking::ip_protocol::ipv4, k_starting_port, &accept,
       &error);
 
@@ -181,7 +182,7 @@ TEST(networking_rt, send_dynamic_array) {
   ASSERT_EQ(error, wn::networking::network_error::ok);
 
   sync_ptr<connection> connect;
-  job_pool->add_job(&listening, &manager::connect, mgr.get(),
+  job_pool->add_job(&listening, &async_manager::connect<>, mgr.get(),
       wn::containers::string(allocator, "127.0.0.1"),
       wn::runtime::networking::ip_protocol::ipv4, k_starting_port, &connect,
       &error);

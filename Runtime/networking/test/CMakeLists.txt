@@ -5,6 +5,7 @@ wn_create_commandline_application_tests_from_list(
   SOURCE_DIR src
   SOURCES
     basic
+    routed
   LIBS
     networking_rt
 )

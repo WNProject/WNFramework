@@ -61,8 +61,11 @@ network_error WNReliableNetworkTransportSocket::do_send(
     send_buffers[i].len = static_cast<u_long>(_buffers[i].size());
   }
   DWORD number_of_bytes_sent = 0;
-  if (0 != WSASend(m_socket, send_buffers, static_cast<DWORD>(_buffers.size()),
-               &number_of_bytes_sent, 0, NULL, NULL)) {
+  int err = WSASend(m_socket, send_buffers, static_cast<DWORD>(_buffers.size()),
+      &number_of_bytes_sent, 0, NULL, NULL);
+  if (0 != err) {
+    int wsaerr = WSAGetLastError();
+    (void)wsaerr;
     return network_error::could_not_send;
   }
   return network_error::ok;
@@ -87,4 +90,4 @@ WNReceiveBuffer WNReliableNetworkTransportSocket::recv_sync() {
 }
 
 }  // namespace networking
-}  // wn
+}  // namespace wn

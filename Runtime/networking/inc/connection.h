@@ -23,7 +23,7 @@ uint32_t k_infinite = 0xFFFFFFFF;
 
 class connection : public multi_tasking::synchronized<> {
 public:
-  explicit connection(
+  explicit connection(wn::memory::allocator*,
       memory::unique_ptr<wn::networking::WNConnection> _connection)
     : m_base_connection(core::move(_connection)),
       m_send_pipe(this),
@@ -36,12 +36,6 @@ public:
   template <typename T>
   void send_object(multi_tasking::async_passthrough f, T t) {
     f->add_job(&send_pipe::send_object<T>, m_send_pipe.get(), core::move(t));
-  }
-
-  template <typename T>
-  void send_object_pointer(multi_tasking::async_passthrough f, T t) {
-    f->add_job(
-        &send_pipe::send_object_pointer<T>, m_send_pipe.get(), core::move(t));
   }
 
   // send_async sends the given bytes through this connection.
@@ -101,16 +95,12 @@ private:
 
     template <typename T>
     void send_object(multi_tasking::async_blocking_function f, T t) {
-      WN_DEBUG_ASSERT(static_cast<size_t>(t.end() - t.begin()) == t.size());
+      if (t.size() == 0) {
+        return;
+      }
+      WN_DEBUG_ASSERT_DESC(&(*t.begin()) + t.size() == &(*t.end()),
+          "The sent data must be contiguious");
       send_range range(&(*t.begin()), t.size());
-      send_ranges ranges(&range, 1);
-      send_multi(f, ranges);
-    }
-
-    template <typename T>
-    void send_object_pointer(multi_tasking::async_blocking_function f, T t) {
-      WN_DEBUG_ASSERT(static_cast<size_t>(t->end() - t->begin()) == t->size());
-      send_range range(&(*t->begin()), t->size());
       send_ranges ranges(&range, 1);
       send_multi(f, ranges);
     }
@@ -220,7 +210,7 @@ public:
             } else {
               _callback->enqueue_job(multi_tasking::job_pool::this_job_pool(),
                   multi_tasking::make_sync<connection>(
-                      m_allocator, core::move(base_connection)),
+                      m_allocator, m_allocator, core::move(base_connection)),
                   err);
             }
           }
@@ -239,7 +229,7 @@ public:
             *_error = err;
           }
           *_connection = multi_tasking::make_sync<connection>(
-              m_allocator, core::move(base_connection));
+              m_allocator, m_allocator, core::move(base_connection));
         });
   }
 
@@ -254,6 +244,11 @@ private:
 
   memory::unique_ptr<wn::networking::WNAcceptConnection> m_base_connection;
   memory::allocator* m_allocator;
+};
+
+struct async_network {
+  using connection_type = connection;
+  using accept_type = accept_connection;
 };
 
 }  // namespace networking
