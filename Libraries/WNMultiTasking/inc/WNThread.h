@@ -97,11 +97,13 @@ public:
 
   WN_FORCE_INLINE thread(thread&& _other) : m_data(core::move(_other.m_data)) {}
 
-  template <typename F, typename... Args>
+  template <typename F, typename... Args,
+      typename =
+          core::enable_if_t<!core::is_same<core::decay_t<F>, thread>::value>>
   WN_FORCE_INLINE explicit thread(
       memory::allocator* _allocator, F&& _f, Args&&... _args) {
     static_assert(core::is_void<core::result_of_t<F(Args...)>>::value,
-        "function must not be void return");
+        "function must be void return");
 
     WN_RELEASE_ASSERT_DESC(_allocator, "allocator must not be nullptr");
 
