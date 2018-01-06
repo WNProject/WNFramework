@@ -15,6 +15,7 @@ void wn_make_context(ucontext_t* c, void (*func)(void*), void* data) {
       4 * 16 < c->uc_stack.ss_size, "The stack must be larger than 16 words");
 
   void** sp = static_cast<void**>(c->uc_stack.ss_sp) + c->uc_stack.ss_size / 4;
+  sp -= 16;
 
   // set input parameters
   c->uc_mcontext.arm_r0 = reinterpret_cast<greg_t>(c->uc_link);

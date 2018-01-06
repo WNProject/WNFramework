@@ -14,9 +14,13 @@ void wn_make_context(ucontext_t* c, void (*func)(void*), void* data) {
   WN_RELEASE_ASSERT_DESC(
       NULL != c->uc_stack.ss_sp, "stack pointer must be non-null");
   WN_RELEASE_ASSERT_DESC(
-      4 * 16 < c->uc_stack.ss_size, "The stack must be larger than 16 words");
+      4 * 64 < c->uc_stack.ss_size, "The stack must be larger than 64 words");
 
-  void** sp = static_cast<void**>(c->uc_stack.ss_sp) + c->uc_stack.ss_size / 4;
+  uintptr_t top_of_stack =
+      reinterpret_cast<uintptr_t>(c->uc_stack.ss_sp) + c->uc_stack.ss_size;
+  top_of_stack = (top_of_stack - 1) & ~31;
+
+  void** sp = reinterpret_cast<void**>(top_of_stack);
 
   c->uc_mcontext.gregs[REG_EBP] = reinterpret_cast<greg_t>(sp);
   c->uc_mcontext.gregs[REG_ESP] = reinterpret_cast<greg_t>(sp - 3);
