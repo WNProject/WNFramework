@@ -59,22 +59,29 @@ void fiber::create(
     }
 #elif defined _WN_ANDROID
     m_stack_pointer = m_allocator->allocate(_stack_size);
-    memset(&m_fiber_context, 0x0, sizeof(ucontext_t));
+
+    memory::memory_zero(&m_fiber_context);
+
     wn_get_context(&m_fiber_context);
 
     m_fiber_context.uc_stack.ss_sp = m_stack_pointer;
     m_fiber_context.uc_stack.ss_size = _stack_size;
 
     wn_make_context(&m_fiber_context, &wrapper, NULL);
+
     m_data = std::move(data);
 #elif defined _WN_POSIX
     m_stack_pointer = m_allocator->allocate(_stack_size);
-    memset(&m_fiber_context, 0x0, sizeof(ucontext_t));
+
+    memory::memory_zero(&m_fiber_context);
+
     getcontext(&m_fiber_context);
 
     m_fiber_context.uc_stack.ss_sp = m_stack_pointer;
     m_fiber_context.uc_stack.ss_size = _stack_size;
+
     makecontext(&m_fiber_context, &wrapper, 0);
+
     m_data = std::move(data);
 #endif
   }
