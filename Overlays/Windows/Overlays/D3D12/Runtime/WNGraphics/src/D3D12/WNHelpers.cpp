@@ -1,4 +1,4 @@
-// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Copyright (c) 2018, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
@@ -60,7 +60,7 @@ WN_INLINE bool convert_to_utf8(
 bool determine_support(memory::allocator* _allocator, logging::log* _log,
     const size_t _device_number, const bool _allow_software_devices,
     IDXGIAdapter1* _dxgi_adapter, containers::string* _name,
-    uint32_t* _device_id, uint32_t* _vendor_id) {
+    uint32_t* _vendor_id, uint32_t* _device_id) {
   // This is set to D3D_FEATURE_LEVEL_11_0 because this is the lowest posible
   // d3d version d3d12 supports.  This allows us to scale up on device
   // capabilities and work on older hardware
@@ -97,8 +97,8 @@ bool determine_support(memory::allocator* _allocator, logging::log* _log,
   }
 
   if (!_allow_software_devices) {
-    if (dxgi_adapter_desc.DeviceId == BASIC_RENDER_DEVICE &&
-        dxgi_adapter_desc.VendorId == MICROSOFT_VENDOR) {
+    if (dxgi_adapter_desc.VendorId == MICROSOFT_VENDOR &&
+        dxgi_adapter_desc.DeviceId == BASIC_RENDER_DEVICE) {
       // If this is the "Basic Renderer Driver" and we are not allowing
       // reference devices then ignore it. We do not want to present that to the
       // user.
@@ -108,12 +108,12 @@ bool determine_support(memory::allocator* _allocator, logging::log* _log,
 
   _log->log_info("D3D12 Device: ", _device_number + 1);
   _log->log_info(" - Name: ", name.c_str());
-  _log->log_info(" - Vendor: ", dxgi_adapter_desc.DeviceId);
-  _log->log_info(" - Device: ", dxgi_adapter_desc.VendorId);
+  _log->log_info(" - Vendor: ", dxgi_adapter_desc.VendorId);
+  _log->log_info(" - Device: ", dxgi_adapter_desc.DeviceId);
 
   (*_name) = core::move(name);
-  (*_device_id) = static_cast<uint32_t>(dxgi_adapter_desc.DeviceId);
   (*_vendor_id) = static_cast<uint32_t>(dxgi_adapter_desc.VendorId);
+  (*_device_id) = static_cast<uint32_t>(dxgi_adapter_desc.DeviceId);
 
   return true;
 }
@@ -164,12 +164,12 @@ void enumerate_adapters(memory::allocator* _allocator, logging::log* _log,
       continue;
     }
 
-    uint32_t device_id;
     uint32_t vendor_id;
+    uint32_t device_id;
     containers::string name(_allocator);
 
     if (determine_support(_allocator, _log, i, false, dxgi_adapter.Get(), &name,
-            &device_id, &vendor_id)) {
+            &vendor_id, &device_id)) {
       memory::unique_ptr<d3d12_adapter_constructable> ptr(
           memory::make_unique_delegated<d3d12_adapter_constructable>(
               _allocator, [](void* _memory) {
@@ -178,7 +178,7 @@ void enumerate_adapters(memory::allocator* _allocator, logging::log* _log,
 
       if (ptr) {
         ptr->initialize(core::move(dxgi_adapter), dxgi_factory,
-            core::move(name), _log, device_id, vendor_id);
+            core::move(name), _log, vendor_id, device_id);
       }
 
       _physical_devices.push_back(core::move(ptr));
@@ -194,7 +194,7 @@ void enumerate_adapters(memory::allocator* _allocator, logging::log* _log,
         __uuidof(IDXGIAdapter1), &dxgi_warp_adapter);
 
     if (hr == DXGI_ERROR_NOT_FOUND) {
-      _log->log_info("Finished Enumerating D3D12 Dvices");
+      _log->log_info("Finished Enumerating D3D12 Devices");
 
       return;
     } else if (FAILED(hr)) {
@@ -203,12 +203,12 @@ void enumerate_adapters(memory::allocator* _allocator, logging::log* _log,
       return;
     }
 
-    uint32_t device_id;
     uint32_t vendor_id;
+    uint32_t device_id;
     containers::string name(_allocator);
 
     if (determine_support(_allocator, _log, i, true, dxgi_warp_adapter.Get(),
-            &name, &device_id, &vendor_id)) {
+            &name, &vendor_id, &device_id)) {
       memory::unique_ptr<d3d12_adapter_constructable> ptr(
           memory::make_unique_delegated<d3d12_adapter_constructable>(
               _allocator, [](void* _memory) {
@@ -217,7 +217,7 @@ void enumerate_adapters(memory::allocator* _allocator, logging::log* _log,
 
       if (ptr) {
         ptr->initialize(core::move(dxgi_warp_adapter), dxgi_factory,
-            core::move(name), device_id, vendor_id);
+            core::move(name), vendor_id, device_id);
       }
 
       _physical_devices.push_back(core::move(ptr));
