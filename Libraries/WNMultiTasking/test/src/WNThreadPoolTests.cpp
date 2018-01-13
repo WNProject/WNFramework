@@ -3,7 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "WNExecutableTest/inc/WNTestHarness.h"
-#include "WNMultiTasking/inc/WNCallbackTask.h"
+#include "WNMultiTasking/inc/callback_task.h"
 #include "WNMultiTasking/inc/thread_pool.h"
 
 #ifdef _WN_MSVC

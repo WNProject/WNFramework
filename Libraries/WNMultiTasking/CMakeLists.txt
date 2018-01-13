@@ -5,6 +5,7 @@ add_wn_library(WNMultiTasking
     inc/internal/mutex_base.h
     inc/internal/spin_lock_base.h
     inc/call_once.h
+    inc/callback_task.h
     inc/fiber.h
     src/fiber.cpp
     inc/lock_guard.h
@@ -16,12 +17,11 @@ add_wn_library(WNMultiTasking
     inc/thread.h
     src/thread.cpp
     inc/thread_pool.h
-    inc/WNCallbackTask.h
+    inc/thread_task.h
     inc/WNJobPool.h
     src/WNJobPool.cpp
     inc/WNJobSignal.h
     src/WNJobSignal.cpp
-    inc/WNThreadTask.h
 )
 
 wn_add_subdirectory(test)

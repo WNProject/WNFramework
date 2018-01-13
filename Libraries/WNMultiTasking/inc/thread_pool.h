@@ -11,7 +11,7 @@
 #include "WNCore/inc/WNUtility.h"
 #include "WNMemory/inc/WNIntrusivePtr.h"
 #include "WNMultiTasking/inc/thread.h"
-#include "WNMultiTasking/inc/WNThreadTask.h"
+#include "WNMultiTasking/inc/thread_task.h"
 #include "WNMultiTasking/inc/semaphore.h"
 #include "WNMultiTasking/inc/spin_lock.h"
 
