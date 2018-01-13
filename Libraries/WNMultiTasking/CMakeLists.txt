@@ -12,15 +12,15 @@ add_wn_library(WNMultiTasking
     inc/semaphore.h
     inc/shared_mutex.h
     inc/spin_lock.h
+    inc/synchronized.h
     inc/thread.h
     src/thread.cpp
+    inc/thread_pool.h
     inc/WNCallbackTask.h
     inc/WNJobPool.h
     src/WNJobPool.cpp
     inc/WNJobSignal.h
     src/WNJobSignal.cpp
-    inc/WNSynchronized.h
-    inc/WNThreadPool.h
     inc/WNThreadTask.h
 )
 

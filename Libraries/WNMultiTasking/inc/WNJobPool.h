@@ -18,9 +18,9 @@
 #include "WNFunctional/inc/WNUniqueFunction.h"
 #include "WNMemory/inc/WNIntrusivePtr.h"
 #include "WNMemory/inc/WNUniquePtr.h"
-#include "WNMultiTasking/inc/WNSynchronized.h"
+#include "WNMultiTasking/inc/synchronized.h"
 #include "WNMultiTasking/inc/thread.h"
-#include "WNMultiTasking/inc/WNThreadPool.h"
+#include "WNMultiTasking/inc/thread_pool.h"
 
 namespace wn {
 namespace multi_tasking {
@@ -220,7 +220,7 @@ private:
   friend class job_pool;
 };
 
-// Jobs are a bit different than tasks (in WNThreadPool.h).
+// Jobs are a bit different than tasks (in thread_pool.h).
 // Jobs should never use normal threading constructs, they
 // should instead use those provided by the job pool.
 //
