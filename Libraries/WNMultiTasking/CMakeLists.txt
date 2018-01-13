@@ -1,6 +1,7 @@
 enable_overlay_directory()
 
-add_wn_library(WNMultiTasking
+add_wn_library(
+  WNMultiTasking
   SOURCES
     inc/internal/mutex_base.h
     inc/internal/spin_lock_base.h
@@ -8,6 +9,10 @@ add_wn_library(WNMultiTasking
     inc/callback_task.h
     inc/fiber.h
     src/fiber.cpp
+    inc/job_pool.h
+    src/job_pool.cpp
+    inc/job_signal.h
+    src/job_signal.cpp
     inc/lock_guard.h
     inc/mutex.h
     inc/semaphore.h
@@ -18,10 +23,6 @@ add_wn_library(WNMultiTasking
     src/thread.cpp
     inc/thread_pool.h
     inc/thread_task.h
-    inc/WNJobPool.h
-    src/WNJobPool.cpp
-    inc/WNJobSignal.h
-    src/WNJobSignal.cpp
 )
 
 wn_add_subdirectory(test)

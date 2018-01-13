@@ -1,12 +1,12 @@
-// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Copyright (c) 2018, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
 #include "WNFileSystem/inc/WNFactory.h"
 #include "WNGraphics/test/inc/WNPixelTestFixture.h"
 #include "WNGraphics/test/inc/push_constants_test.h"
-#include "WNMultiTasking/inc/WNJobPool.h"
-#include "WNMultiTasking/inc/WNJobSignal.h"
+#include "WNMultiTasking/inc/job_pool.h"
+#include "WNMultiTasking/inc/job_signal.h"
 #include "WNWindow/inc/WNWindow.h"
 #include "WNWindow/inc/WNWindowFactory.h"
 

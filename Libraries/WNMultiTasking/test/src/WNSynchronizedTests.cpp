@@ -3,7 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "WNExecutableTest/inc/WNTestHarness.h"
-#include "WNMultiTasking/inc/WNJobPool.h"
+#include "WNMultiTasking/inc/job_pool.h"
 #include "WNMultiTasking/inc/synchronized.h"
 
 using wn::multi_tasking::async_blocking_function;

@@ -1,10 +1,10 @@
-// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Copyright (c) 2018, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
 #include "WNExecutableTest/inc/WNTestHarness.h"
 #include "WNMemory/inc/WNUniquePtr.h"
-#include "WNMultiTasking/inc/WNJobPool.h"
+#include "WNMultiTasking/inc/job_pool.h"
 
 void job(int32_t* _val) {
   *_val += 1;

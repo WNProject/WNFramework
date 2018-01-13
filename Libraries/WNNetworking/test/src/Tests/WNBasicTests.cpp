@@ -1,11 +1,11 @@
-// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Copyright (c) 2018, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
 #include "WNExecutableTest/inc/WNTestHarness.h"
 #include "WNLogging/inc/WNBufferLogger.h"
 #include "WNMemory/inc/WNAllocator.h"
-#include "WNMultiTasking/inc/WNJobPool.h"
+#include "WNMultiTasking/inc/job_pool.h"
 #include "WNMultiTasking/inc/semaphore.h"
 #include "WNNetworking/inc/WNNetworkManager.h"
 

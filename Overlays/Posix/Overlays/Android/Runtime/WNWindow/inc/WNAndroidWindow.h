@@ -8,8 +8,8 @@
 #define __WN_RUNTIME_WINDOW_XCB_WINDOW_H__
 
 #include "WNLogging/inc/WNLog.h"
-#include "WNMultiTasking/inc/WNJobPool.h"
-#include "WNMultiTasking/inc/WNJobSignal.h"
+#include "WNMultiTasking/inc/job_pool.h"
+#include "WNMultiTasking/inc/job_signal.h"
 #include "WNMultiTasking/inc/thread.h"
 #include "WNWindow/inc/WNWindow.h"
 

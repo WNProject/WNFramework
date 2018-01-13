@@ -10,7 +10,7 @@
 #include "WNContainers/inc/WNArray.h"
 #include "WNCore/inc/WNTypeTraits.h"
 #include "WNCore/inc/WNUtility.h"
-#include "WNMultiTasking/inc/WNJobSignal.h"
+#include "WNMultiTasking/inc/job_signal.h"
 
 #include <atomic>
 

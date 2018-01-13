@@ -1,4 +1,4 @@
-// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Copyright (c) 2018, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
@@ -8,7 +8,7 @@
 #define __WN_RUNTIME_WINDOW_XCB_WINDOW_H__
 
 #include "WNLogging/inc/WNLog.h"
-#include "WNMultiTasking/inc/WNJobSignal.h"
+#include "WNMultiTasking/inc/job_signal.h"
 #include "WNWindow/inc/WNWindow.h"
 
 #include <xcb/xcb.h>
