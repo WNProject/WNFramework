@@ -1,4 +1,4 @@
-// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Copyright (c) 2018, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
@@ -19,7 +19,7 @@
 #include "WNMemory/inc/WNIntrusivePtr.h"
 #include "WNMemory/inc/WNUniquePtr.h"
 #include "WNMultiTasking/inc/WNSynchronized.h"
-#include "WNMultiTasking/inc/WNThread.h"
+#include "WNMultiTasking/inc/thread.h"
 #include "WNMultiTasking/inc/WNThreadPool.h"
 
 namespace wn {

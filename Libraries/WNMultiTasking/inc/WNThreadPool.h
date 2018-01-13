@@ -1,4 +1,4 @@
-// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Copyright (c) 2018, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
@@ -10,7 +10,7 @@
 #include "WNContainers/inc/WNDynamicArray.h"
 #include "WNCore/inc/WNUtility.h"
 #include "WNMemory/inc/WNIntrusivePtr.h"
-#include "WNMultiTasking/inc/WNThread.h"
+#include "WNMultiTasking/inc/thread.h"
 #include "WNMultiTasking/inc/WNThreadTask.h"
 #include "WNMultiTasking/inc/semaphore.h"
 #include "WNMultiTasking/inc/spin_lock.h"
