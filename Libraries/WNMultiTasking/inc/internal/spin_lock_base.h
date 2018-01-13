@@ -8,7 +8,6 @@
 #define __WN_MULTI_TASKING_INTERNAL_SPIN_LOCK_BASE_H__
 
 #include "WNCore/inc/WNUtility.h"
-#include "WNMultiTasking/inc/thread.h"
 
 #include <atomic>
 
@@ -26,7 +25,7 @@ protected:
 
   void lock() {
     while (!try_lock()) {
-      this_thread::yield();
+      continue;
     }
   }
 

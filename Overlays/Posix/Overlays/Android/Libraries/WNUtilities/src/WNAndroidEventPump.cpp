@@ -1,6 +1,8 @@
 #include "WNUtilities/inc/WNAndroidEventPump.h"
 #include "WNUtilities/inc/WNAppData.h"
 
+#include <cstring>
+
 namespace wn {
 namespace utilities {
 
@@ -57,7 +59,7 @@ bool WNAndroidEventPump::PushMessage(eInternalMessage _message) {
   mMessageQueue.push_back(_message);
   mQueueLock.unlock();
   ALooper_wake(mMainLooper);
-  return (true);
+  return true;
 }
 
 void WNAndroidEventPump::HandleWindowCommand(android_app* app, int32_t cmd) {
