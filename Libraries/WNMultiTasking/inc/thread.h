@@ -11,6 +11,7 @@
 #include "WNCore/inc/WNUtility.h"
 #include "WNFunctional/inc/WNFunction.h"
 #include "WNMemory/inc/WNIntrusivePtr.h"
+#include "WNMultiTasking/inc/internal/thread_functions.h"
 #include "WNMultiTasking/inc/semaphore.h"
 
 #if defined _WN_WINDOWS
@@ -224,55 +225,12 @@ WN_INLINE thread_id get_id() {
 }
 
 WN_INLINE void yield() {
-#ifdef _WN_WINDOWS
-  static std::once_flag once;
-  static bool mutli_threaded = false;
-  static const auto mutli_threaded_test = [](bool& mutli_threaded) {
-    SYSTEM_INFO sysInfo = {0};
-
-    ::GetSystemInfo(&sysInfo);
-
-    mutli_threaded = sysInfo.dwNumberOfProcessors > 1;
-  };
-
-  std::call_once(once, mutli_threaded_test, std::ref(mutli_threaded));
-
-  if (mutli_threaded) {
-    ::YieldProcessor();
-  } else {
-    ::SwitchToThread();
-  }
-#elif defined _WN_ANDROID
-  const int result = ::sched_yield();
-
-  WN_RELEASE_ASSERT(result == 0);
-#elif defined _WN_POSIX
-  const int result = ::pthread_yield();
-
-  WN_RELEASE_ASSERT(result == 0);
-#endif
+  internal::yield();
 }
 
 template <typename Rep, typename Period>
-WN_INLINE void sleep_for(const std::chrono::duration<Rep, Period>& duration) {
-#ifdef _WN_WINDOWS
-  ::Sleep(static_cast<DWORD>(
-      std::chrono::duration_cast<std::chrono::milliseconds>(duration).count()));
-#elif defined _WN_POSIX
-  const std::chrono::seconds sec =
-      std::chrono::duration_cast<std::chrono::seconds>(duration);
-  const std::chrono::nanoseconds nano_sec =
-      std::chrono::duration_cast<std::chrono::nanoseconds>(duration) -
-      std::chrono::duration_cast<std::chrono::nanoseconds>(sec);
-  timespec timeRequested = {0};
-
-  timeRequested.tv_sec = static_cast<int>(sec.count());
-  timeRequested.tv_nsec = static_cast<int>(nano_sec.count());
-
-  while (::nanosleep(&timeRequested, &timeRequested) == -1) {
-    WN_RELEASE_ASSERT_DESC(errno == EINTR, "failed to sleep");
-  }
-#endif
+WN_INLINE void sleep_for(const std::chrono::duration<Rep, Period>& _duration) {
+  internal::sleep_for(_duration);
 }
 
 }  // namespace this_thread
