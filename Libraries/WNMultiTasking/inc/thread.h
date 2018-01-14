@@ -228,9 +228,16 @@ WN_INLINE void yield() {
   internal::yield();
 }
 
-template <typename Rep, typename Period>
-WN_INLINE void sleep_for(const std::chrono::duration<Rep, Period>& _duration) {
+template <typename Representation, typename Period>
+WN_INLINE void sleep_for(
+    const std::chrono::duration<Representation, Period>& _duration) {
   internal::sleep_for(_duration);
+}
+
+template <typename Clock, typename Duration>
+WN_INLINE void sleep_until(
+    const std::chrono::time_point<Clock, Duration>& _sleep_time) {
+  sleep_for(_sleep_time - Clock::now());
 }
 
 }  // namespace this_thread

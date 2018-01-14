@@ -33,8 +33,9 @@ WN_INLINE void yield() {
   multi_threaded ? ::YieldProcessor() : ::SwitchToThread();
 }
 
-template <typename Rep, typename Period>
-WN_INLINE void sleep_for(const std::chrono::duration<Rep, Period>& _duration) {
+template <typename Representation, typename Period>
+WN_INLINE void sleep_for(
+    const std::chrono::duration<Representation, Period>& _duration) {
   ::Sleep(static_cast<DWORD>(
       std::chrono::duration_cast<std::chrono::milliseconds>(_duration)
           .count()));

@@ -39,8 +39,9 @@ WN_INLINE void yield() {
 #endif
 }
 
-template <typename Rep, typename Period>
-WN_INLINE void sleep_for(const std::chrono::duration<Rep, Period>& _duration) {
+template <typename Representation, typename Period>
+WN_INLINE void sleep_for(
+    const std::chrono::duration<Representation, Period>& _duration) {
   const std::chrono::seconds sec =
       std::chrono::duration_cast<std::chrono::seconds>(_duration);
   const std::chrono::nanoseconds nano_sec =
