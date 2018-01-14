@@ -20,7 +20,7 @@ namespace internal {
 
 class mutex_base : core::non_copyable {
 protected:
-  mutex_base() : m_lock_count(0) {
+  mutex_base() {
     pthread_mutexattr_t attributes;
     int result;
 
@@ -50,30 +50,22 @@ protected:
   }
 
   void lock() {
-    if (m_lock_count.fetch_add(1, std::memory_order_acquire) > 0) {
-      const int result = ::pthread_mutex_lock(&m_mutex);
+    const int result = ::pthread_mutex_lock(&m_mutex);
 
-      WN_RELEASE_ASSERT_DESC(result == 0, "failed to lock mutex object");
-    }
+    WN_RELEASE_ASSERT_DESC(result == 0, "failed to lock mutex object");
   }
 
   bool try_lock() {
-    size_t expected = 0;
-
-    return m_lock_count.compare_exchange_strong(
-        expected, 1, std::memory_order_acquire);
+    return (::pthread_mutex_trylock(&m_mutex) == 0);
   }
 
   void unlock() {
-    if (m_lock_count.fetch_sub(1, std::memory_order_release) > 1) {
-      const int result = ::pthread_mutex_unlock(&m_mutex);
+    const int result = ::pthread_mutex_unlock(&m_mutex);
 
-      WN_RELEASE_ASSERT_DESC(result == 0, "failed to unlock mutex object");
-    }
+    WN_RELEASE_ASSERT_DESC(result == 0, "failed to unlock mutex object");
   }
 
 private:
-  std::atomic_size_t m_lock_count;
   pthread_mutex_t m_mutex;
 };
 
