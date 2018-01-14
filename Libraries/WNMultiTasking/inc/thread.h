@@ -35,13 +35,20 @@ namespace wn {
 namespace multi_tasking {
 
 class thread;
+
+namespace internal {
+
 class thread_id;
+
+}  // namespace internal
 
 namespace this_thread {
 
-thread_id get_id();
+multi_tasking::internal::thread_id get_id();
 
 }  // namespace this_thread
+
+namespace internal {
 
 class thread_id final {
 public:
@@ -54,9 +61,9 @@ public:
   }
 
 private:
-  friend class thread;
+  friend class wn::multi_tasking::thread;
 
-  friend thread_id this_thread::get_id();
+  friend thread_id wn::multi_tasking::this_thread::get_id();
 
   friend bool operator==(const thread_id&, const thread_id&);
 
@@ -69,6 +76,16 @@ private:
   WN_FORCE_INLINE thread_id(const native_id_type id) : m_id(id) {
 #ifdef _WN_POSIX
     m_valid = true;
+#endif
+  }
+
+  static thread_id get_id() {
+#ifdef _WN_WINDOWS
+    return thread_id(::GetCurrentThreadId());
+#elif defined _WN_LINUX
+    return thread_id(static_cast<pid_t>(::syscall(SYS_gettid)));
+#elif defined _WN_ANDROID
+    return thread_id(::gettid());
 #endif
   }
 
@@ -89,11 +106,15 @@ WN_FORCE_INLINE bool operator==(const thread_id& lhs, const thread_id& rhs) {
 }
 
 WN_FORCE_INLINE bool operator!=(const thread_id& _lhs, const thread_id& _rhs) {
-  return (!(_lhs == _rhs));
+  return !(_lhs == _rhs);
 }
+
+}  // namespace internal
 
 class thread final : public core::non_copyable {
 public:
+  using id = internal::thread_id;
+
   thread() = default;
 
   WN_FORCE_INLINE thread(thread&& _other) : m_data(core::move(_other.m_data)) {}
@@ -123,12 +144,12 @@ public:
     return (m_data && !m_data->m_joined);
   }
 
-  WN_FORCE_INLINE thread_id get_id() const {
+  WN_FORCE_INLINE id get_id() const {
     if (m_data) {
-      return thread_id(m_data->m_id);
+      return id(m_data->m_id);
     }
 
-    return thread_id();
+    return id();
   }
 
   WN_FORCE_INLINE bool join() const {
@@ -214,28 +235,22 @@ private:
 
 namespace this_thread {
 
-WN_INLINE thread_id get_id() {
-#ifdef _WN_WINDOWS
-  return thread_id(::GetCurrentThreadId());
-#elif defined _WN_LINUX
-  return thread_id(static_cast<pid_t>(::syscall(SYS_gettid)));
-#elif defined _WN_ANDROID
-  return thread_id(::gettid());
-#endif
+inline thread::id get_id() {
+  return thread::id::get_id();
 }
 
-WN_INLINE void yield() {
+inline void yield() {
   internal::yield();
 }
 
 template <typename Representation, typename Period>
-WN_INLINE void sleep_for(
+inline void sleep_for(
     const std::chrono::duration<Representation, Period>& _duration) {
   internal::sleep_for(_duration);
 }
 
 template <typename Clock, typename Duration>
-WN_INLINE void sleep_until(
+inline void sleep_until(
     const std::chrono::time_point<Clock, Duration>& _sleep_time) {
   sleep_for(_sleep_time - Clock::now());
 }
