@@ -1,0 +1,77 @@
+// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE.txt file.
+
+// RUN: for_loop_without_init 10 -> 10
+// RUN: for_loop_without_init 20 -> 20
+// RUN: for_loop_without_init -10 -> 10
+// CHECK: {{.*for_loop_without_init.*{}}
+Int for_loop_without_init(Int x) {
+// CHECK: int32_t i = x;
+    Int i = x;
+// CHECK: while ((i < 10)) {
+    for (; i < 10; i += 1) {
+// CHECK-NEXT: do {
+// CHECK-NEXT: } while (false);
+// CHECK-NEXT: if (__c_temp0) { break; }
+// CHECK-NEXT: {
+// CHECK-NEXT:     i = (i + 1);
+// CHECK-NEXT: }
+    }
+    return i;
+}
+
+// RUN: for_loop_without_condition 10 -> 14
+// RUN: for_loop_without_condition 20 -> 24
+// RUN: for_loop_without_condition -10 -> -6
+// CHECK: {{.*for_loop_without_condition.*{}}
+Int for_loop_without_condition(Int x) {
+    Int f = 0;
+// CHECK:        while (true) {
+// CHECK-NEXT:   do {
+// CHECK-NEXT:    if ((f == 4)) {
+// CHECK-NEXT:      __c_temp1 = true; break
+// CHECK-NEXT:    }
+// CHECK-NEXT:    f = (f + 1);
+// CHECK-NEXT:  } while (false);
+// CHECK-NEXT:  if (__c_temp1) { break; }
+// CHECK-NEXT:  {
+// CHECK-NEXT:     x = (x + 1);
+// CHECK-NEXT:  }
+// CHECK-NEXT: }
+    for (Int i = x;; x += 1) {
+        if (f == 4) {
+            break;
+        }
+        f = f + 1;
+    }
+    return x;
+}
+
+// RUN: for_loop_without_increment 10 -> 22
+// RUN: for_loop_without_increment 20 -> 22
+// RUN: for_loop_without_increment -10 -> 22
+// CHECK: {{.*for_loop_without_increment.*{}}
+Int for_loop_without_increment(Int x) {
+    Int f = 0;
+// CHECK:      while ((x != 22)) {
+// CHECK-NEXT:   x = (x + 1);
+// CHECK-NEXT: }
+    for (Int i = x; x != 22;) {
+        x = x + 1;
+    }
+    return x;
+}
+
+// RUN: for_loop_empty 10 -> 10
+// RUN: for_loop_empty 20 -> 20
+// CHECK: {{.*for_loop_empty.*{}}
+Int for_loop_empty(Int x) {
+    for (;;) {
+        break;
+    }
+// CHECK:      while (true) {
+// CHECK-NEXT:   break;
+// CHECK-NEXT: }
+    return x;
+}

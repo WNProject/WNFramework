@@ -25,8 +25,8 @@ namespace internal {
 template <typename _Container, typename _NonConstContainer = _Container,
     typename _Element = typename _Container::value_type>
 class deque_iterator final
-    : public std::iterator<std::random_access_iterator_tag, _Element,
-          typename _Container::difference_type> {
+  : public std::iterator<std::random_access_iterator_tag, _Element,
+        typename _Container::difference_type> {
 private:
   using base = std::iterator<std::random_access_iterator_tag, _Element,
       typename _Container::difference_type>;
@@ -255,23 +255,12 @@ public:
 
   deque() : deque(nullptr) {}
 
-  deque(const deque& _other)
-    : m_allocator(nullptr),
-      m_block_list(_other.m_block_list, nullptr),
-      m_used_blocks(_other.m_used_blocks),
-      m_allocated_blocks(_other.m_allocated_blocks),
-      m_start_block(_other.m_start_block),
-      m_start_location(_other.m_start_location),
-      m_element_count(_other.m_element_count) {}
-
   deque(memory::allocator* _allocator, const deque& _other)
-    : m_allocator(_allocator),
-      m_block_list(_other.m_block_list, _allocator),
-      m_used_blocks(_other.m_used_blocks),
-      m_allocated_blocks(_other.m_allocated_blocks),
-      m_start_block(_other.m_start_block),
-      m_start_location(_other.m_start_location),
-      m_element_count(_other.m_element_count) {}
+    : deque(_allocator) {
+    for (const auto& it : _other) {
+      push_back(it);
+    }
+  }
 
   deque(deque&& _other)
     : m_allocator(core::move(_other.m_allocator)),
@@ -383,7 +372,7 @@ public:
   }
 
   const_reference back() const {
-    const_reference i = cend();
+    const_iterator i = cend();
 
     --i;
 

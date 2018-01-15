@@ -22,7 +22,7 @@ namespace scripting {
 // Create C files from the given scripting files.
 class c_translator : public translator {
 public:
-  c_translator(memory::allocator* _allocator, type_validator* _validator,
+  c_translator(memory::allocator* _allocator,
       file_system::mapping* _source_mapping,
       file_system::mapping* _dest_mapping, logging::log* _log);
 

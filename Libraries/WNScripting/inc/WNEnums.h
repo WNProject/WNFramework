@@ -55,8 +55,10 @@ enum class type_classification {
   bool_type,
   size_type,
   void_ptr_type,
+  nullptr_type,
   function_ptr_type,
   vtable_type,
+  dynamic_array_type,
   array_type,
   struct_type,
   custom_type,
@@ -70,7 +72,7 @@ static const char*
 
 // How deep each of the types is in in terms of array indexing.
 static const size_t type_array_depth[static_cast<size_t>(
-    type_classification::max)] = {0, 0, 0, 0, 0, 1, 0, 1, 0, 0};
+    type_classification::max)] = {0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0};
 
 // All possible binary arithmetic operations in WNScript.
 enum class arithmetic_type {
@@ -96,6 +98,9 @@ static const char*
 
 // All possible pre-unary operations in WNScript.
 enum class unary_type { pre_increment, pre_decrement, negation, max };
+
+// All builtins that take exactly one parameter.
+enum class builtin_unary_type { length };
 
 // The textual representation of all possible pre-unary operations in WNScript.
 static const char* unary_type_names[static_cast<size_t>(unary_type::max)] = {

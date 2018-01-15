@@ -62,35 +62,39 @@ static ANTLR_UCHAR	lit_8[]  = { 0x3C, 0x3D,  antlr3::ANTLR_STRING_TERMINATOR};
 static ANTLR_UCHAR	lit_9[]  = { 0x3D, 0x3D,  antlr3::ANTLR_STRING_TERMINATOR};
 static ANTLR_UCHAR	lit_10[]  = { 0x3E, 0x3D,  antlr3::ANTLR_STRING_TERMINATOR};
 static ANTLR_UCHAR	lit_11[]  = { 0x7C, 0x7C,  antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR	lit_12[]  = { 0x2B, 0x2B,  antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR	lit_13[]  = { 0x2D, 0x2D,  antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR	lit_14[]  = { 0x72, 0x65, 0x74, 0x75, 0x72, 0x6E,  antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR	lit_15[]  = { 0x62, 0x72, 0x65, 0x61, 0x6B,  antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR	lit_16[]  = { 0x63, 0x6F, 0x6E, 0x74, 0x69, 0x6E, 0x75, 0x65,  antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR	lit_17[]  = { 0x77, 0x68, 0x69, 0x6C, 0x65,  antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR	lit_18[]  = { 0x64, 0x6F,  antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR	lit_19[]  = { 0x69, 0x66,  antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR	lit_20[]  = { 0x65, 0x6C, 0x73, 0x65,  antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR	lit_21[]  = { 0x66, 0x6F, 0x72,  antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR	lit_22[]  = { 0x73, 0x74, 0x72, 0x75, 0x63, 0x74,  antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR	lit_23[]  = { 0x63, 0x6C, 0x61, 0x73, 0x73,  antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR	lit_24[]  = { 0x76, 0x69, 0x72, 0x74, 0x75, 0x61, 0x6C,  antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR	lit_25[]  = { 0x6F, 0x76, 0x65, 0x72, 0x72, 0x69, 0x64, 0x65,  antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR	lit_26[]  = { 0x23, 0x69, 0x6E, 0x63, 0x6C, 0x75, 0x64, 0x65,  antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR	lit_27[]  = { 0x56, 0x6F, 0x69, 0x64,  antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR	lit_28[]  = { 0x49, 0x6E, 0x74,  antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR	lit_29[]  = { 0x46, 0x6C, 0x6F, 0x61, 0x74,  antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR	lit_30[]  = { 0x42, 0x6F, 0x6F, 0x6C,  antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR	lit_31[]  = { 0x53, 0x74, 0x72, 0x69, 0x6E, 0x67,  antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR	lit_32[]  = { 0x43, 0x68, 0x61, 0x72,  antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR	lit_33[]  = { 0x77, 0x65, 0x61, 0x6B,  antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR	lit_34[]  = { 0x73, 0x68, 0x61, 0x72, 0x65, 0x64,  antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR	lit_35[]  = { 0x64, 0x65, 0x66, 0x61, 0x75, 0x6C, 0x74,  antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR	lit_36[]  = { 0x74, 0x72, 0x75, 0x65,  antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR	lit_37[]  = { 0x66, 0x61, 0x6C, 0x73, 0x65,  antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR	lit_38[]  = { 0x2F, 0x2F,  antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR	lit_39[]  = { 0x2F, 0x2A,  antlr3::ANTLR_STRING_TERMINATOR};
-static ANTLR_UCHAR	lit_40[]  = { 0x2A, 0x2F,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_12[]  = { 0x5B, 0x5B,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_13[]  = { 0x5D, 0x5D,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_14[]  = { 0x6C, 0x65, 0x6E, 0x67, 0x74, 0x68,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_15[]  = { 0x2B, 0x2B,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_16[]  = { 0x2D, 0x2D,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_17[]  = { 0x72, 0x65, 0x74, 0x75, 0x72, 0x6E,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_18[]  = { 0x62, 0x72, 0x65, 0x61, 0x6B,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_19[]  = { 0x63, 0x6F, 0x6E, 0x74, 0x69, 0x6E, 0x75, 0x65,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_20[]  = { 0x77, 0x68, 0x69, 0x6C, 0x65,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_21[]  = { 0x64, 0x6F,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_22[]  = { 0x69, 0x66,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_23[]  = { 0x65, 0x6C, 0x73, 0x65,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_24[]  = { 0x66, 0x6F, 0x72,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_25[]  = { 0x73, 0x74, 0x72, 0x75, 0x63, 0x74,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_26[]  = { 0x63, 0x6C, 0x61, 0x73, 0x73,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_27[]  = { 0x76, 0x69, 0x72, 0x74, 0x75, 0x61, 0x6C,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_28[]  = { 0x6F, 0x76, 0x65, 0x72, 0x72, 0x69, 0x64, 0x65,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_29[]  = { 0x23, 0x69, 0x6E, 0x63, 0x6C, 0x75, 0x64, 0x65,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_30[]  = { 0x56, 0x6F, 0x69, 0x64,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_31[]  = { 0x49, 0x6E, 0x74,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_32[]  = { 0x46, 0x6C, 0x6F, 0x61, 0x74,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_33[]  = { 0x42, 0x6F, 0x6F, 0x6C,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_34[]  = { 0x53, 0x74, 0x72, 0x69, 0x6E, 0x67,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_35[]  = { 0x43, 0x68, 0x61, 0x72,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_36[]  = { 0x77, 0x65, 0x61, 0x6B,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_37[]  = { 0x73, 0x68, 0x61, 0x72, 0x65, 0x64,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_38[]  = { 0x64, 0x65, 0x66, 0x61, 0x75, 0x6C, 0x74,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_39[]  = { 0x6E, 0x75, 0x6C, 0x6C,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_40[]  = { 0x74, 0x72, 0x75, 0x65,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_41[]  = { 0x66, 0x61, 0x6C, 0x73, 0x65,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_42[]  = { 0x2F, 0x2F,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_43[]  = { 0x2F, 0x2A,  antlr3::ANTLR_STRING_TERMINATOR};
+static ANTLR_UCHAR	lit_44[]  = { 0x2A, 0x2F,  antlr3::ANTLR_STRING_TERMINATOR};
 
 
 
@@ -261,7 +265,7 @@ public:
 static WNScriptASTLexerCyclicDFA12  cdfa12(
 	    12,
 
-	    (const ANTLR_UCHAR*)"186:1: FLOAT : ( ( '0' .. '9' )+ '.' ( '0' .. '9' )* ( EXPONENT )? | '.' ( '0' .. '9' )+ ( EXPONENT )? | ( '0' .. '9' )+ EXPONENT );",
+	    (const ANTLR_UCHAR*)"208:1: FLOAT : ( ( '0' .. '9' )+ '.' ( '0' .. '9' )* ( EXPONENT )? | '.' ( '0' .. '9' )+ ( EXPONENT )? | ( '0' .. '9' )+ EXPONENT );",
 	    dfa12_eot,
 	    dfa12_eof,
 	    dfa12_min,
@@ -278,21 +282,22 @@ static WNScriptASTLexerCyclicDFA12  cdfa12(
 
 
 
-static const ANTLR_INT32 dfa23_eot[183] =
+static const ANTLR_INT32 dfa23_eot[198] =
     {
-	-1, -1, 50, -1, 52, 55, 58, 60, 64, 66, 68, 70, -1, -1, -1, -1, -1, -1,
-	-1, -1, 42, 42, 42, -1, -1, 42, 42, 42, 42, 42, 42, 42, 42, -1, 43, 43,
-	43, 43, 43, 43, -1, 42, -1, -1, 59, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 42,
-	42, 42, 42, 42, 42, 100, 42, 102, 42, 42, 42, 42, 42, 42, 42, 43, 43, 43,
-	43, 43, 43, 42, 42, 42, 42, 42, 42, 42, -1, 42, -1, 42, 125, 42, 42, 42,
-	42, 42, 43, 132, 43, 43, 43, 43, 42, 42, 42, 42, 42, 42, 143, 42, 145,
-	-1, 42, 42, 42, 42, 42, 151, -1, 43, 153, 43, 155, 156, 42, 158, 42, 160,
-	161, -1, 42, -1, 156, 42, 42, 42, 42, -1, 167, -1, 43, -1, -1, 169, -1,
-	42, -1, -1, 42, 172, 173, 42, 42, -1, 176, -1, 42, 178, -1, -1, 179, 42,
-	-1, 181, -1, -1, 182, -1, -1
+	-1, -1, 51, -1, 53, 56, 59, 61, 65, 67, 69, 71, -1, 73, 75, 44, -1, -1,
+	-1, -1, -1, 44, 44, 44, -1, -1, 44, 44, 44, 44, 44, 44, 44, 44, -1, 45,
+	45, 45, 45, 45, 45, -1, 44, 44, -1, -1, 60, -1, -1, -1, -1, -1, -1, -1,
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+	-1, -1, -1, -1, 44, 44, 44, 44, 44, 44, 44, 108, 44, 110, 44, 44, 44, 44,
+	44, 44, 44, 45, 45, 45, 45, 45, 45, 44, 44, 44, 44, 44, 44, 44, 44, 44,
+	-1, 44, -1, 44, 135, 44, 44, 44, 44, 44, 45, 142, 45, 45, 45, 45, 44, 44,
+	44, 44, 44, 44, 44, 44, 155, 44, 157, -1, 44, 44, 44, 44, 44, 163, -1,
+	45, 165, 45, 167, 168, 169, 44, 44, 172, 44, 174, 175, -1, 44, -1, 169,
+	44, 44, 44, 44, -1, 181, -1, 45, -1, -1, -1, 183, 184, -1, 44, -1, -1,
+	44, 187, 188, 44, 44, -1, 191, -1, -1, 44, 193, -1, -1, 194, 44, -1, 196,
+	-1, -1, 197, -1, -1
     };
-static const ANTLR_INT32 dfa23_eof[183] =
+static const ANTLR_INT32 dfa23_eof[198] =
     {
 	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
 	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
@@ -304,52 +309,55 @@ static const ANTLR_INT32 dfa23_eof[183] =
 	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
 	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
 	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-	-1, -1, -1
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
     };
-static const ANTLR_INT32 dfa23_min[183] =
+static const ANTLR_INT32 dfa23_min[198] =
     {
-	9, -1, 61, -1, 61, 43, 45, 48, 42, 61, 61, 61, -1, -1, -1, -1, -1, -1,
-	-1, -1, 101, 114, 108, -1, -1, 101, 101, 102, 108, 97, 104, 105, 118, -1,
-	111, 110, 108, 111, 116, 104, -1, 114, -1, -1, 46, -1, -1, -1, -1, -1,
+	9, -1, 61, -1, 61, 43, 45, 48, 42, 61, 61, 61, -1, 91, 93, 101, -1, -1,
+	-1, -1, -1, 101, 114, 108, -1, -1, 101, 101, 102, 108, 97, 104, 105, 118,
+	-1, 111, 110, 108, 111, 116, 104, -1, 117, 114, -1, -1, 46, -1, -1, -1,
 	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-	-1, -1, -1, 116, 101, 110, 97, 105, 97, 48, 102, 48, 115, 114, 108, 114,
-	97, 114, 101, 105, 116, 111, 111, 114, 97, 117, 117, 97, 116, 115, 108,
-	107, -1, 97, -1, 101, 48, 115, 117, 114, 116, 114, 100, 48, 97, 108, 105,
-	114, 101, 114, 107, 105, 115, 101, 48, 117, 48, -1, 101, 99, 101, 117,
-	114, 48, -1, 116, 48, 110, 48, 48, 110, 48, 110, 48, 48, -1, 108, -1, 48,
-	116, 100, 97, 105, -1, 48, -1, 103, -1, -1, 48, -1, 117, -1, -1, 116, 48,
-	48, 108, 100, -1, 48, -1, 101, 48, -1, -1, 48, 101, -1, 48, -1, -1, 48,
-	-1, -1
+	-1, -1, -1, -1, -1, -1, -1, -1, 110, 116, 101, 110, 97, 105, 97, 48, 102,
+	48, 115, 114, 108, 114, 97, 114, 101, 105, 116, 111, 111, 114, 97, 108,
+	117, 103, 117, 97, 116, 115, 108, 107, -1, 97, -1, 101, 48, 115, 117, 114,
+	116, 114, 100, 48, 97, 108, 105, 114, 108, 101, 116, 114, 107, 105, 115,
+	101, 48, 117, 48, -1, 101, 99, 101, 117, 114, 48, -1, 116, 48, 110, 48,
+	48, 48, 104, 110, 48, 110, 48, 48, -1, 108, -1, 48, 116, 100, 97, 105,
+	-1, 48, -1, 103, -1, -1, -1, 48, 48, -1, 117, -1, -1, 116, 48, 48, 108,
+	100, -1, 48, -1, -1, 101, 48, -1, -1, 48, 101, -1, 48, -1, -1, 48, -1,
+	-1
     };
-static const ANTLR_INT32 dfa23_max[183] =
+static const ANTLR_INT32 dfa23_max[198] =
     {
-	126, -1, 61, -1, 61, 61, 61, 57, 61, 61, 61, 61, -1, -1, -1, -1, -1, -1,
-	-1, -1, 101, 114, 111, -1, -1, 104, 111, 102, 108, 111, 116, 105, 118,
-	-1, 111, 110, 108, 111, 116, 104, -1, 114, -1, -1, 101, -1, -1, -1, -1,
+	125, -1, 61, -1, 61, 61, 61, 57, 61, 61, 61, 61, -1, 91, 93, 101, -1, -1,
+	-1, -1, -1, 101, 114, 111, -1, -1, 104, 111, 102, 108, 111, 116, 105, 118,
+	-1, 111, 110, 108, 111, 116, 104, -1, 117, 114, -1, -1, 101, -1, -1, -1,
 	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-	-1, -1, -1, -1, 116, 101, 110, 97, 105, 97, 122, 102, 122, 115, 114, 108,
-	114, 97, 114, 101, 105, 116, 111, 111, 114, 97, 117, 117, 97, 116, 115,
-	108, 107, -1, 97, -1, 101, 122, 115, 117, 114, 116, 114, 100, 122, 97,
-	108, 105, 114, 101, 114, 107, 105, 115, 101, 122, 117, 122, -1, 101, 99,
-	101, 117, 114, 122, -1, 116, 122, 110, 122, 122, 110, 122, 110, 122, 122,
-	-1, 108, -1, 122, 116, 100, 97, 105, -1, 122, -1, 103, -1, -1, 122, -1,
-	117, -1, -1, 116, 122, 122, 108, 100, -1, 122, -1, 101, 122, -1, -1, 122,
-	101, -1, 122, -1, -1, 122, -1, -1
+	-1, -1, -1, -1, -1, -1, -1, -1, 110, 116, 101, 110, 97, 105, 97, 122, 102,
+	122, 115, 114, 108, 114, 97, 114, 101, 105, 116, 111, 111, 114, 97, 108,
+	117, 103, 117, 97, 116, 115, 108, 107, -1, 97, -1, 101, 122, 115, 117,
+	114, 116, 114, 100, 122, 97, 108, 105, 114, 108, 101, 116, 114, 107, 105,
+	115, 101, 122, 117, 122, -1, 101, 99, 101, 117, 114, 122, -1, 116, 122,
+	110, 122, 122, 122, 104, 110, 122, 110, 122, 122, -1, 108, -1, 122, 116,
+	100, 97, 105, -1, 122, -1, 103, -1, -1, -1, 122, 122, -1, 117, -1, -1,
+	116, 122, 122, 108, 100, -1, 122, -1, -1, 101, 122, -1, -1, 122, 101, -1,
+	122, -1, -1, 122, -1, -1
     };
-static const ANTLR_INT32 dfa23_accept[183] =
+static const ANTLR_INT32 dfa23_accept[198] =
     {
-	-1, 1, -1, 4, -1, -1, -1, -1, -1, -1, -1, -1, 20, 21, 22, 23, 24, 25, 26,
-	27, -1, -1, -1, 33, 34, -1, -1, -1, -1, -1, -1, -1, -1, 44, -1, -1, -1,
-	-1, -1, -1, 51, -1, 56, 57, -1, 61, 62, 63, 64, 3, 2, 6, 5, 8, 28, 7, 10,
-	29, 9, 58, 11, 59, 13, 60, 12, 15, 14, 17, 16, 19, 18, -1, -1, -1, -1,
+	-1, 1, -1, 4, -1, -1, -1, -1, -1, -1, -1, -1, 20, -1, -1, -1, 26, 27, 28,
+	29, 30, -1, -1, -1, 36, 37, -1, -1, -1, -1, -1, -1, -1, -1, 47, -1, -1,
+	-1, -1, -1, -1, 54, -1, -1, 60, 61, -1, 65, 66, 67, 3, 2, 6, 5, 8, 31,
+	7, 10, 32, 9, 62, 11, 63, 13, 64, 12, 15, 14, 17, 16, 19, 18, 23, 21, 24,
+	22, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 39, -1, 40,
 	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-	-1, -1, -1, -1, -1, -1, -1, 36, -1, 37, -1, -1, -1, -1, -1, -1, -1, -1,
-	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 39, -1, -1, -1,
-	-1, -1, -1, 46, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 52, -1, 38, -1,
-	-1, -1, -1, -1, 45, -1, 48, -1, 50, 55, -1, 31, -1, 41, 35, -1, -1, -1,
-	-1, -1, 47, -1, 30, -1, -1, 40, 53, -1, -1, 49, -1, 54, 42, -1, 32, 43
+	-1, -1, -1, -1, -1, -1, 42, -1, -1, -1, -1, -1, -1, 49, -1, -1, -1, -1,
+	-1, -1, -1, -1, -1, -1, -1, -1, 55, -1, 41, -1, -1, -1, -1, -1, 48, -1,
+	51, -1, 53, 58, 59, -1, -1, 34, -1, 44, 38, -1, -1, -1, -1, -1, 50, -1,
+	25, 33, -1, -1, 43, 56, -1, -1, 52, -1, 57, 45, -1, 35, 46
     };
-static const ANTLR_INT32 dfa23_special[183] =
+static const ANTLR_INT32 dfa23_special[198] =
     {
 	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
 	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
@@ -361,7 +369,7 @@ static const ANTLR_INT32 dfa23_special[183] =
 	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
 	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
 	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-	-1, -1, -1
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
     };
 
 
@@ -369,414 +377,454 @@ static const ANTLR_INT32* dfa23_T_empty	 =   NULL;
 
 static const ANTLR_INT32 dfa23_T0[] =
     {
-	137
+	123
     };
 static const ANTLR_INT32 dfa23_T1[] =
     {
-	114
+	44, 44, 44, 44, 44, 44, 44, 44, 44, 44, -1, -1, -1, -1, -1, -1, -1, 44,
+	44, 44, 44, 44, 44, 44, 44, 44, 44, 44, 44, 44, 44, 44, 44, 44, 44, 44,
+	44, 44, 44, 44, 44, 44, 44, -1, -1, -1, -1, 44, -1, 44, 44, 44, 44, 44,
+	44, 44, 44, 44, 44, 44, 44, 44, 44, 44, 44, 44, 44, 44, 44, 44, 44, 44,
+	44, 44, 44
     };
 static const ANTLR_INT32 dfa23_T2[] =
     {
-	135
+	113
     };
 static const ANTLR_INT32 dfa23_T3[] =
     {
-	154
+	146
     };
 static const ANTLR_INT32 dfa23_T4[] =
     {
-	105
+	96
     };
 static const ANTLR_INT32 dfa23_T5[] =
     {
-	168
+	136
     };
 static const ANTLR_INT32 dfa23_T6[] =
     {
-	126
+	158
     };
 static const ANTLR_INT32 dfa23_T7[] =
     {
-	146
+	97
     };
 static const ANTLR_INT32 dfa23_T8[] =
     {
-	72
+	98
     };
 static const ANTLR_INT32 dfa23_T9[] =
     {
-	115
+	66
     };
 static const ANTLR_INT32 dfa23_T10[] =
     {
-	136
+	68
     };
 static const ANTLR_INT32 dfa23_T11[] =
     {
-	82, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 81
+	70
     };
 static const ANTLR_INT32 dfa23_T12[] =
     {
-	67
+	47, 47, -1, -1, 47, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+	-1, -1, -1, -1, -1, 47, 1, 48, 34, -1, 2, 3, 49, 16, 17, 4, 5, 20, 6, 7,
+	8, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 25, 24, 9, 10, 11, 41, -1, 45,
+	38, 40, 45, 45, 37, 45, 45, 36, 45, 45, 45, 45, 45, 45, 45, 45, 45, 39,
+	45, 45, 35, 45, 45, 45, 45, 13, -1, 14, -1, -1, -1, 44, 22, 23, 27, 29,
+	30, 44, 44, 28, 44, 44, 15, 44, 42, 33, 44, 44, 21, 31, 43, 44, 32, 26,
+	44, 44, 44, 18, 12, 19
     };
 static const ANTLR_INT32 dfa23_T13[] =
     {
-	42, 42, 42, 42, 42, 42, 42, 42, 42, 42, -1, -1, -1, -1, -1, -1, -1, 42,
-	42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42,
-	42, 42, 42, 42, 42, 42, 42, -1, -1, -1, -1, 42, -1, 42, 42, 42, 42, 42,
-	42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42,
-	42, 42, 42
+	80, -1, -1, 79
     };
 static const ANTLR_INT32 dfa23_T14[] =
     {
-	49
+	72
     };
 static const ANTLR_INT32 dfa23_T15[] =
     {
-	79
+	64, -1, -1, -1, -1, 64, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+	-1, 63
     };
 static const ANTLR_INT32 dfa23_T16[] =
     {
-	80
+	74
     };
 static const ANTLR_INT32 dfa23_T17[] =
     {
-	61, 61, 61, 61, 61, 61, 61, 61, 61, 61
+	55, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+	54
     };
 static const ANTLR_INT32 dfa23_T18[] =
     {
-	63, -1, -1, -1, -1, 63, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-	-1, 62
+	76
     };
 static const ANTLR_INT32 dfa23_T19[] =
     {
-	69
+	101
     };
 static const ANTLR_INT32 dfa23_T20[] =
     {
-	94
+	126
     };
 static const ANTLR_INT32 dfa23_T21[] =
     {
-	117
+	149
     };
 static const ANTLR_INT32 dfa23_T22[] =
     {
-	138
+	170
     };
 static const ANTLR_INT32 dfa23_T23[] =
     {
-	43, 43, 43, 43, 43, 43, 43, 43, 43, 43, -1, -1, -1, -1, -1, -1, -1, 43,
-	43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43,
-	43, 43, 43, 43, 43, 43, 43, -1, -1, -1, -1, 43, -1, 43, 43, 43, 43, 43,
-	43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43,
-	43, 43, 43
+	82, -1, -1, 81
     };
 static const ANTLR_INT32 dfa23_T24[] =
     {
-	157
+	77
     };
 static const ANTLR_INT32 dfa23_T25[] =
     {
-	95
+	102
     };
 static const ANTLR_INT32 dfa23_T26[] =
     {
-	118
+	127
     };
 static const ANTLR_INT32 dfa23_T27[] =
     {
-	139
+	150
     };
 static const ANTLR_INT32 dfa23_T28[] =
     {
-	96
+	171
     };
 static const ANTLR_INT32 dfa23_T29[] =
     {
-	85
+	84, -1, -1, -1, -1, -1, -1, -1, -1, -1, 83
     };
 static const ANTLR_INT32 dfa23_T30[] =
     {
-	119
+	78
     };
 static const ANTLR_INT32 dfa23_T31[] =
     {
-	140
+	103
     };
 static const ANTLR_INT32 dfa23_T32[] =
     {
-	159
+	128
     };
 static const ANTLR_INT32 dfa23_T33[] =
     {
-	170
+	151
     };
 static const ANTLR_INT32 dfa23_T34[] =
     {
-	177
+	104
     };
 static const ANTLR_INT32 dfa23_T35[] =
     {
-	86
+	129
     };
 static const ANTLR_INT32 dfa23_T36[] =
     {
-	51
+	152
     };
 static const ANTLR_INT32 dfa23_T37[] =
     {
-	98
+	90, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 89
     };
 static const ANTLR_INT32 dfa23_T38[] =
     {
-	121
+	173
     };
 static const ANTLR_INT32 dfa23_T39[] =
     {
-	142
+	185
     };
 static const ANTLR_INT32 dfa23_T40[] =
     {
-	74, -1, -1, 73
+	192
     };
 static const ANTLR_INT32 dfa23_T41[] =
     {
-	103
+	106
     };
 static const ANTLR_INT32 dfa23_T42[] =
     {
-	124
+	131
     };
 static const ANTLR_INT32 dfa23_T43[] =
     {
-	57, -1, -1, 59, 59, 59, 59, 59, 59, 59, 59, 59, 59, -1, -1, -1, 56
+	154
     };
 static const ANTLR_INT32 dfa23_T44[] =
     {
-	104
+	58, -1, -1, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, -1, -1, -1, 57
     };
 static const ANTLR_INT32 dfa23_T45[] =
     {
-	106
+	88, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 87
     };
 static const ANTLR_INT32 dfa23_T46[] =
     {
-	127
+	85
     };
 static const ANTLR_INT32 dfa23_T47[] =
     {
-	147
+	86
     };
 static const ANTLR_INT32 dfa23_T48[] =
     {
-	163
+	111
     };
 static const ANTLR_INT32 dfa23_T49[] =
     {
-	54, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-	53
+	134
     };
 static const ANTLR_INT32 dfa23_T50[] =
     {
-	97
+	112
     };
 static const ANTLR_INT32 dfa23_T51[] =
     {
-	120
+	50
     };
 static const ANTLR_INT32 dfa23_T52[] =
     {
-	141
+	114
     };
 static const ANTLR_INT32 dfa23_T53[] =
     {
-	108
+	137
     };
 static const ANTLR_INT32 dfa23_T54[] =
     {
-	129
+	159
     };
 static const ANTLR_INT32 dfa23_T55[] =
     {
-	149
+	177
     };
 static const ANTLR_INT32 dfa23_T56[] =
     {
-	165
+	105
     };
 static const ANTLR_INT32 dfa23_T57[] =
     {
-	174
+	130
     };
 static const ANTLR_INT32 dfa23_T58[] =
     {
-	109
+	153
     };
 static const ANTLR_INT32 dfa23_T59[] =
     {
-	130
+	91
     };
 static const ANTLR_INT32 dfa23_T60[] =
     {
-	61, -1, 44, 44, 44, 44, 44, 44, 44, 44, 44, 44, -1, -1, -1, -1, -1, -1,
-	-1, -1, -1, -1, -1, 61, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-	-1, 61
+	116
     };
 static const ANTLR_INT32 dfa23_T61[] =
     {
-	150
+	139
     };
 static const ANTLR_INT32 dfa23_T62[] =
     {
-	166
+	161
     };
 static const ANTLR_INT32 dfa23_T63[] =
     {
-	175
+	179
     };
 static const ANTLR_INT32 dfa23_T64[] =
     {
-	180
+	189
     };
 static const ANTLR_INT32 dfa23_T65[] =
     {
-	45, 45, -1, -1, 45, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-	-1, -1, -1, -1, -1, 45, 1, 46, 33, -1, 2, 3, 47, 15, 16, 4, 5, 19, 6, 7,
-	8, 44, 44, 44, 44, 44, 44, 44, 44, 44, 44, 24, 23, 9, 10, 11, 40, -1, 43,
-	37, 39, 43, 43, 36, 43, 43, 35, 43, 43, 43, 43, 43, 43, 43, 43, 43, 38,
-	43, 43, 34, 43, 43, 43, 43, 13, -1, 14, -1, -1, -1, 42, 21, 22, 26, 28,
-	29, 42, 42, 27, 42, 42, 42, 42, 42, 32, 42, 42, 20, 30, 41, 42, 31, 25,
-	42, 42, 42, 17, 12, 18, 48
+	45, 45, 45, 45, 45, 45, 45, 45, 45, 45, -1, -1, -1, -1, -1, -1, -1, 45,
+	45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45,
+	45, 45, 45, 45, 45, 45, 45, -1, -1, -1, -1, 45, -1, 45, 45, 45, 45, 45,
+	45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45,
+	45, 45, 45
     };
 static const ANTLR_INT32 dfa23_T66[] =
     {
-	87
+	92
     };
 static const ANTLR_INT32 dfa23_T67[] =
     {
-	93
+	117
     };
 static const ANTLR_INT32 dfa23_T68[] =
     {
-	88
+	140
     };
 static const ANTLR_INT32 dfa23_T69[] =
     {
-	89
+	162
     };
 static const ANTLR_INT32 dfa23_T70[] =
     {
-	90
+	180
     };
 static const ANTLR_INT32 dfa23_T71[] =
     {
-	91
+	190
     };
 static const ANTLR_INT32 dfa23_T72[] =
     {
-	76, -1, -1, 75
+	195
     };
 static const ANTLR_INT32 dfa23_T73[] =
     {
-	92
+	52
     };
 static const ANTLR_INT32 dfa23_T74[] =
     {
-	99
+	62, -1, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, -1, -1, -1, -1, -1, -1,
+	-1, -1, -1, -1, -1, 62, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+	-1, 62
     };
 static const ANTLR_INT32 dfa23_T75[] =
     {
-	110
+	62, 62, 62, 62, 62, 62, 62, 62, 62, 62
     };
 static const ANTLR_INT32 dfa23_T76[] =
     {
-	122
+	107
     };
 static const ANTLR_INT32 dfa23_T77[] =
     {
-	131
+	118
     };
 static const ANTLR_INT32 dfa23_T78[] =
     {
-	107
+	132
     };
 static const ANTLR_INT32 dfa23_T79[] =
     {
-	111
+	141
     };
 static const ANTLR_INT32 dfa23_T80[] =
     {
-	128
+	115
     };
 static const ANTLR_INT32 dfa23_T81[] =
     {
-	78, -1, -1, -1, -1, -1, -1, -1, -1, -1, 77
+	119
     };
 static const ANTLR_INT32 dfa23_T82[] =
     {
-	148
+	138
     };
 static const ANTLR_INT32 dfa23_T83[] =
     {
-	164
+	160
     };
 static const ANTLR_INT32 dfa23_T84[] =
     {
-	112
+	178
     };
 static const ANTLR_INT32 dfa23_T85[] =
     {
-	133
+	120
     };
 static const ANTLR_INT32 dfa23_T86[] =
     {
-	152
+	143
     };
 static const ANTLR_INT32 dfa23_T87[] =
     {
-	101
+	164
     };
 static const ANTLR_INT32 dfa23_T88[] =
     {
-	123
+	109
     };
 static const ANTLR_INT32 dfa23_T89[] =
     {
-	144
+	133
     };
 static const ANTLR_INT32 dfa23_T90[] =
     {
-	162
+	93
     };
 static const ANTLR_INT32 dfa23_T91[] =
     {
-	171
+	156
     };
 static const ANTLR_INT32 dfa23_T92[] =
     {
-	113
+	176
     };
 static const ANTLR_INT32 dfa23_T93[] =
     {
-	65
+	186
     };
 static const ANTLR_INT32 dfa23_T94[] =
     {
-	134
+	121
     };
 static const ANTLR_INT32 dfa23_T95[] =
     {
-	84, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 83
+	144
     };
 static const ANTLR_INT32 dfa23_T96[] =
     {
-	71
+	99
     };
 static const ANTLR_INT32 dfa23_T97[] =
     {
-	116
+	94
+    };
+static const ANTLR_INT32 dfa23_T98[] =
+    {
+	124
+    };
+static const ANTLR_INT32 dfa23_T99[] =
+    {
+	147
+    };
+static const ANTLR_INT32 dfa23_T100[] =
+    {
+	122
+    };
+static const ANTLR_INT32 dfa23_T101[] =
+    {
+	145
+    };
+static const ANTLR_INT32 dfa23_T102[] =
+    {
+	166
+    };
+static const ANTLR_INT32 dfa23_T103[] =
+    {
+	95
+    };
+static const ANTLR_INT32 dfa23_T104[] =
+    {
+	100
+    };
+static const ANTLR_INT32 dfa23_T105[] =
+    {
+	182
+    };
+static const ANTLR_INT32 dfa23_T106[] =
+    {
+	125
+    };
+static const ANTLR_INT32 dfa23_T107[] =
+    {
+	148
     };
 
 
@@ -785,29 +833,31 @@ static const ANTLR_INT32 dfa23_T97[] =
 
 static const ANTLR_INT32 * const dfa23_transitions[] =
 {
-    dfa23_T65, NULL, dfa23_T14, NULL, dfa23_T36, dfa23_T49, dfa23_T43, dfa23_T17,
-    dfa23_T18, dfa23_T93, dfa23_T12, dfa23_T19, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, dfa23_T96, dfa23_T8, dfa23_T40, NULL, NULL,
-    dfa23_T72, dfa23_T81, dfa23_T15, dfa23_T16, dfa23_T11, dfa23_T95, dfa23_T29,
-    dfa23_T35, NULL, dfa23_T66, dfa23_T68, dfa23_T69, dfa23_T70, dfa23_T71,
-    dfa23_T73, NULL, dfa23_T67, NULL, NULL, dfa23_T60, NULL, NULL, NULL,
+    dfa23_T12, NULL, dfa23_T51, NULL, dfa23_T73, dfa23_T17, dfa23_T44, dfa23_T75,
+    dfa23_T15, dfa23_T9, dfa23_T10, dfa23_T11, NULL, dfa23_T14, dfa23_T16,
+    dfa23_T18, NULL, NULL, NULL, NULL, NULL, dfa23_T24, dfa23_T30, dfa23_T13,
+    NULL, NULL, dfa23_T23, dfa23_T29, dfa23_T46, dfa23_T47, dfa23_T45, dfa23_T37,
+    dfa23_T59, dfa23_T66, NULL, dfa23_T90, dfa23_T97, dfa23_T103, dfa23_T4,
+    dfa23_T7, dfa23_T8, NULL, dfa23_T96, dfa23_T104, NULL, NULL, dfa23_T74,
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, dfa23_T20,
-    dfa23_T25, dfa23_T28, dfa23_T50, dfa23_T37, dfa23_T74, dfa23_T13, dfa23_T87,
-    dfa23_T13, dfa23_T41, dfa23_T44, dfa23_T4, dfa23_T45, dfa23_T78, dfa23_T53,
-    dfa23_T58, dfa23_T75, dfa23_T79, dfa23_T84, dfa23_T92, dfa23_T1, dfa23_T9,
-    dfa23_T97, dfa23_T21, dfa23_T26, dfa23_T30, dfa23_T51, dfa23_T38, dfa23_T76,
-    NULL, dfa23_T88, NULL, dfa23_T42, dfa23_T13, dfa23_T6, dfa23_T46, dfa23_T80,
-    dfa23_T54, dfa23_T59, dfa23_T77, dfa23_T23, dfa23_T85, dfa23_T94, dfa23_T2,
-    dfa23_T10, dfa23_T0, dfa23_T22, dfa23_T27, dfa23_T31, dfa23_T52, dfa23_T39,
-    dfa23_T13, dfa23_T89, dfa23_T13, NULL, dfa23_T7, dfa23_T47, dfa23_T82,
-    dfa23_T55, dfa23_T61, dfa23_T23, NULL, dfa23_T86, dfa23_T23, dfa23_T3,
-    dfa23_T23, dfa23_T13, dfa23_T24, dfa23_T13, dfa23_T32, dfa23_T13, dfa23_T13,
-    NULL, dfa23_T90, NULL, dfa23_T13, dfa23_T48, dfa23_T83, dfa23_T56, dfa23_T62,
-    NULL, dfa23_T23, NULL, dfa23_T5, NULL, NULL, dfa23_T13, NULL, dfa23_T33,
-    NULL, NULL, dfa23_T91, dfa23_T13, dfa23_T13, dfa23_T57, dfa23_T63, NULL,
-    dfa23_T23, NULL, dfa23_T34, dfa23_T13, NULL, NULL, dfa23_T13, dfa23_T64,
-    NULL, dfa23_T13, NULL, NULL, dfa23_T13, NULL, NULL
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL, NULL, dfa23_T19, dfa23_T25, dfa23_T31, dfa23_T34,
+    dfa23_T56, dfa23_T41, dfa23_T76, dfa23_T1, dfa23_T88, dfa23_T1, dfa23_T48,
+    dfa23_T50, dfa23_T2, dfa23_T52, dfa23_T80, dfa23_T60, dfa23_T67, dfa23_T77,
+    dfa23_T81, dfa23_T85, dfa23_T94, dfa23_T100, dfa23_T0, dfa23_T98, dfa23_T106,
+    dfa23_T20, dfa23_T26, dfa23_T32, dfa23_T35, dfa23_T57, dfa23_T42, dfa23_T78,
+    NULL, dfa23_T89, NULL, dfa23_T49, dfa23_T1, dfa23_T5, dfa23_T53, dfa23_T82,
+    dfa23_T61, dfa23_T68, dfa23_T79, dfa23_T65, dfa23_T86, dfa23_T95, dfa23_T101,
+    dfa23_T3, dfa23_T99, dfa23_T107, dfa23_T21, dfa23_T27, dfa23_T33, dfa23_T36,
+    dfa23_T58, dfa23_T43, dfa23_T1, dfa23_T91, dfa23_T1, NULL, dfa23_T6,
+    dfa23_T54, dfa23_T83, dfa23_T62, dfa23_T69, dfa23_T65, NULL, dfa23_T87,
+    dfa23_T65, dfa23_T102, dfa23_T65, dfa23_T1, dfa23_T1, dfa23_T22, dfa23_T28,
+    dfa23_T1, dfa23_T38, dfa23_T1, dfa23_T1, NULL, dfa23_T92, NULL, dfa23_T1,
+    dfa23_T55, dfa23_T84, dfa23_T63, dfa23_T70, NULL, dfa23_T65, NULL, dfa23_T105,
+    NULL, NULL, NULL, dfa23_T1, dfa23_T1, NULL, dfa23_T39, NULL, NULL, dfa23_T93,
+    dfa23_T1, dfa23_T1, dfa23_T64, dfa23_T71, NULL, dfa23_T65, NULL, NULL,
+    dfa23_T40, dfa23_T1, NULL, NULL, dfa23_T1, dfa23_T72, NULL, dfa23_T1,
+    NULL, NULL, dfa23_T1, NULL, NULL
 };
 
 
@@ -843,7 +893,7 @@ public:
 static WNScriptASTLexerCyclicDFA23  cdfa23(
 	    23,
 
-	    (const ANTLR_UCHAR*)"1:1: Tokens : ( T__53 | T__54 | T__55 | T__56 | T__57 | T__58 | T__59 | T__60 | T__61 | T__62 | T__63 | T__64 | T__65 | T__66 | T__67 | T__68 | T__69 | T__70 | T__71 | T__72 | LSQBRACKET | RSQBRACKET | LBRACKET | RBRACKET | LBRACE | RBRACE | COMMA | DOUBINC | DOUBDEC | RETURN | BREAK | CONTINUE | SEMICOLON | COLON | WHILE | DO | IF | ELSE | FOR | STRUCT | CLASS | VIRTUAL | OVERRIDE | INCLUDE | VOID_TYPE | INT_TYPE | FLOAT_TYPE | BOOL_TYPE | STRING_TYPE | CHAR_TYPE | QUESTION | WEAK_REF | SHARED_REF | DEFAULT | BOOL | ID | TYPE | INT | FLOAT | COMMENT | WS | STRING | CHAR | NULLTOK );",
+	    (const ANTLR_UCHAR*)"1:1: Tokens : ( T__56 | T__57 | T__58 | T__59 | T__60 | T__61 | T__62 | T__63 | T__64 | T__65 | T__66 | T__67 | T__68 | T__69 | T__70 | T__71 | T__72 | T__73 | T__74 | T__75 | LSQBRACKET | RSQBRACKET | DLSQBRACKET | DRSQBRACKET | LENGTH | LBRACKET | RBRACKET | LBRACE | RBRACE | COMMA | DOUBINC | DOUBDEC | RETURN | BREAK | CONTINUE | SEMICOLON | COLON | WHILE | DO | IF | ELSE | FOR | STRUCT | CLASS | VIRTUAL | OVERRIDE | INCLUDE | VOID_TYPE | INT_TYPE | FLOAT_TYPE | BOOL_TYPE | STRING_TYPE | CHAR_TYPE | QUESTION | WEAK_REF | SHARED_REF | DEFAULT | NULLTOK | BOOL | ID | TYPE | INT | FLOAT | COMMENT | WS | STRING | CHAR );",
 	    dfa23_eot,
 	    dfa23_eof,
 	    dfa23_min,
@@ -877,115 +927,6 @@ static WNScriptASTLexerCyclicDFA23  cdfa23(
 
 
 
-void WNScriptASTLexer::mT__53()
-{
-    ANTLR_UINT32	_type;
-
-
-    _type	    = T__53;
-
-
-    {
-        this->matchs(lit_1);
-        if  (this->hasException())
-        {
-            goto ruleT__53Ex;
-        }
-
-
-
-
-    }
-
-	this->get_lexstate()->set_type(_type);
-    goto ruleT__53Ex;
-    ruleT__53Ex: ;
-
-}
-
-
-
-
-
-
-
-
-
-
-
-
-void WNScriptASTLexer::mT__54()
-{
-    ANTLR_UINT32	_type;
-
-
-    _type	    = T__54;
-
-
-    {
-         this->matchc('%');
-        if  (this->hasException())
-        {
-            goto ruleT__54Ex;
-        }
-
-
-    }
-
-	this->get_lexstate()->set_type(_type);
-    goto ruleT__54Ex;
-    ruleT__54Ex: ;
-
-}
-
-
-
-
-
-
-
-
-
-
-
-
-void WNScriptASTLexer::mT__55()
-{
-    ANTLR_UINT32	_type;
-
-
-    _type	    = T__55;
-
-
-    {
-        this->matchs(lit_2);
-        if  (this->hasException())
-        {
-            goto ruleT__55Ex;
-        }
-
-
-
-
-    }
-
-	this->get_lexstate()->set_type(_type);
-    goto ruleT__55Ex;
-    ruleT__55Ex: ;
-
-}
-
-
-
-
-
-
-
-
-
-
-
-
 void WNScriptASTLexer::mT__56()
 {
     ANTLR_UINT32	_type;
@@ -995,7 +936,7 @@ void WNScriptASTLexer::mT__56()
 
 
     {
-        this->matchs(lit_3);
+        this->matchs(lit_1);
         if  (this->hasException())
         {
             goto ruleT__56Ex;
@@ -1032,7 +973,7 @@ void WNScriptASTLexer::mT__57()
 
 
     {
-         this->matchc('*');
+         this->matchc('%');
         if  (this->hasException())
         {
             goto ruleT__57Ex;
@@ -1067,7 +1008,7 @@ void WNScriptASTLexer::mT__58()
 
 
     {
-        this->matchs(lit_4);
+        this->matchs(lit_2);
         if  (this->hasException())
         {
             goto ruleT__58Ex;
@@ -1104,11 +1045,13 @@ void WNScriptASTLexer::mT__59()
 
 
     {
-         this->matchc('+');
+        this->matchs(lit_3);
         if  (this->hasException())
         {
             goto ruleT__59Ex;
         }
+
+
 
 
     }
@@ -1139,13 +1082,11 @@ void WNScriptASTLexer::mT__60()
 
 
     {
-        this->matchs(lit_5);
+         this->matchc('*');
         if  (this->hasException())
         {
             goto ruleT__60Ex;
         }
-
-
 
 
     }
@@ -1176,11 +1117,13 @@ void WNScriptASTLexer::mT__61()
 
 
     {
-         this->matchc('-');
+        this->matchs(lit_4);
         if  (this->hasException())
         {
             goto ruleT__61Ex;
         }
+
+
 
 
     }
@@ -1211,13 +1154,11 @@ void WNScriptASTLexer::mT__62()
 
 
     {
-        this->matchs(lit_6);
+         this->matchc('+');
         if  (this->hasException())
         {
             goto ruleT__62Ex;
         }
-
-
 
 
     }
@@ -1248,11 +1189,13 @@ void WNScriptASTLexer::mT__63()
 
 
     {
-         this->matchc('.');
+        this->matchs(lit_5);
         if  (this->hasException())
         {
             goto ruleT__63Ex;
         }
+
+
 
 
     }
@@ -1283,7 +1226,7 @@ void WNScriptASTLexer::mT__64()
 
 
     {
-         this->matchc('/');
+         this->matchc('-');
         if  (this->hasException())
         {
             goto ruleT__64Ex;
@@ -1318,7 +1261,7 @@ void WNScriptASTLexer::mT__65()
 
 
     {
-        this->matchs(lit_7);
+        this->matchs(lit_6);
         if  (this->hasException())
         {
             goto ruleT__65Ex;
@@ -1355,7 +1298,7 @@ void WNScriptASTLexer::mT__66()
 
 
     {
-         this->matchc('<');
+         this->matchc('.');
         if  (this->hasException())
         {
             goto ruleT__66Ex;
@@ -1390,13 +1333,11 @@ void WNScriptASTLexer::mT__67()
 
 
     {
-        this->matchs(lit_8);
+         this->matchc('/');
         if  (this->hasException())
         {
             goto ruleT__67Ex;
         }
-
-
 
 
     }
@@ -1427,11 +1368,13 @@ void WNScriptASTLexer::mT__68()
 
 
     {
-         this->matchc('=');
+        this->matchs(lit_7);
         if  (this->hasException())
         {
             goto ruleT__68Ex;
         }
+
+
 
 
     }
@@ -1462,13 +1405,11 @@ void WNScriptASTLexer::mT__69()
 
 
     {
-        this->matchs(lit_9);
+         this->matchc('<');
         if  (this->hasException())
         {
             goto ruleT__69Ex;
         }
-
-
 
 
     }
@@ -1499,11 +1440,13 @@ void WNScriptASTLexer::mT__70()
 
 
     {
-         this->matchc('>');
+        this->matchs(lit_8);
         if  (this->hasException())
         {
             goto ruleT__70Ex;
         }
+
+
 
 
     }
@@ -1534,13 +1477,11 @@ void WNScriptASTLexer::mT__71()
 
 
     {
-        this->matchs(lit_10);
+         this->matchc('=');
         if  (this->hasException())
         {
             goto ruleT__71Ex;
         }
-
-
 
 
     }
@@ -1571,7 +1512,7 @@ void WNScriptASTLexer::mT__72()
 
 
     {
-        this->matchs(lit_11);
+        this->matchs(lit_9);
         if  (this->hasException())
         {
             goto ruleT__72Ex;
@@ -1585,6 +1526,115 @@ void WNScriptASTLexer::mT__72()
 	this->get_lexstate()->set_type(_type);
     goto ruleT__72Ex;
     ruleT__72Ex: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mT__73()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = T__73;
+
+
+    {
+         this->matchc('>');
+        if  (this->hasException())
+        {
+            goto ruleT__73Ex;
+        }
+
+
+    }
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleT__73Ex;
+    ruleT__73Ex: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mT__74()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = T__74;
+
+
+    {
+        this->matchs(lit_10);
+        if  (this->hasException())
+        {
+            goto ruleT__74Ex;
+        }
+
+
+
+
+    }
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleT__74Ex;
+    ruleT__74Ex: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mT__75()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = T__75;
+
+
+    {
+        this->matchs(lit_11);
+        if  (this->hasException())
+        {
+            goto ruleT__75Ex;
+        }
+
+
+
+
+    }
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleT__75Ex;
+    ruleT__75Ex: ;
 
 }
 
@@ -1655,6 +1705,117 @@ void WNScriptASTLexer::mRSQBRACKET()
 	this->get_lexstate()->set_type(_type);
     goto ruleRSQBRACKETEx;
     ruleRSQBRACKETEx: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mDLSQBRACKET()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = DLSQBRACKET;
+
+
+    {
+        this->matchs(lit_12);
+        if  (this->hasException())
+        {
+            goto ruleDLSQBRACKETEx;
+        }
+
+
+
+
+    }
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleDLSQBRACKETEx;
+    ruleDLSQBRACKETEx: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mDRSQBRACKET()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = DRSQBRACKET;
+
+
+    {
+        this->matchs(lit_13);
+        if  (this->hasException())
+        {
+            goto ruleDRSQBRACKETEx;
+        }
+
+
+
+
+    }
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleDRSQBRACKETEx;
+    ruleDRSQBRACKETEx: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mLENGTH()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = LENGTH;
+
+
+    {
+        this->matchs(lit_14);
+        if  (this->hasException())
+        {
+            goto ruleLENGTHEx;
+        }
+
+
+
+
+    }
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleLENGTHEx;
+    ruleLENGTHEx: ;
 
 }
 
@@ -1853,7 +2014,7 @@ void WNScriptASTLexer::mDOUBINC()
 
 
     {
-        this->matchs(lit_12);
+        this->matchs(lit_15);
         if  (this->hasException())
         {
             goto ruleDOUBINCEx;
@@ -1890,7 +2051,7 @@ void WNScriptASTLexer::mDOUBDEC()
 
 
     {
-        this->matchs(lit_13);
+        this->matchs(lit_16);
         if  (this->hasException())
         {
             goto ruleDOUBDECEx;
@@ -1927,7 +2088,7 @@ void WNScriptASTLexer::mRETURN()
 
 
     {
-        this->matchs(lit_14);
+        this->matchs(lit_17);
         if  (this->hasException())
         {
             goto ruleRETURNEx;
@@ -1964,7 +2125,7 @@ void WNScriptASTLexer::mBREAK()
 
 
     {
-        this->matchs(lit_15);
+        this->matchs(lit_18);
         if  (this->hasException())
         {
             goto ruleBREAKEx;
@@ -2001,7 +2162,7 @@ void WNScriptASTLexer::mCONTINUE()
 
 
     {
-        this->matchs(lit_16);
+        this->matchs(lit_19);
         if  (this->hasException())
         {
             goto ruleCONTINUEEx;
@@ -2108,7 +2269,7 @@ void WNScriptASTLexer::mWHILE()
 
 
     {
-        this->matchs(lit_17);
+        this->matchs(lit_20);
         if  (this->hasException())
         {
             goto ruleWHILEEx;
@@ -2145,7 +2306,7 @@ void WNScriptASTLexer::mDO()
 
 
     {
-        this->matchs(lit_18);
+        this->matchs(lit_21);
         if  (this->hasException())
         {
             goto ruleDOEx;
@@ -2182,7 +2343,7 @@ void WNScriptASTLexer::mIF()
 
 
     {
-        this->matchs(lit_19);
+        this->matchs(lit_22);
         if  (this->hasException())
         {
             goto ruleIFEx;
@@ -2219,7 +2380,7 @@ void WNScriptASTLexer::mELSE()
 
 
     {
-        this->matchs(lit_20);
+        this->matchs(lit_23);
         if  (this->hasException())
         {
             goto ruleELSEEx;
@@ -2256,7 +2417,7 @@ void WNScriptASTLexer::mFOR()
 
 
     {
-        this->matchs(lit_21);
+        this->matchs(lit_24);
         if  (this->hasException())
         {
             goto ruleFOREx;
@@ -2293,7 +2454,7 @@ void WNScriptASTLexer::mSTRUCT()
 
 
     {
-        this->matchs(lit_22);
+        this->matchs(lit_25);
         if  (this->hasException())
         {
             goto ruleSTRUCTEx;
@@ -2330,7 +2491,7 @@ void WNScriptASTLexer::mCLASS()
 
 
     {
-        this->matchs(lit_23);
+        this->matchs(lit_26);
         if  (this->hasException())
         {
             goto ruleCLASSEx;
@@ -2367,7 +2528,7 @@ void WNScriptASTLexer::mVIRTUAL()
 
 
     {
-        this->matchs(lit_24);
+        this->matchs(lit_27);
         if  (this->hasException())
         {
             goto ruleVIRTUALEx;
@@ -2404,7 +2565,7 @@ void WNScriptASTLexer::mOVERRIDE()
 
 
     {
-        this->matchs(lit_25);
+        this->matchs(lit_28);
         if  (this->hasException())
         {
             goto ruleOVERRIDEEx;
@@ -2441,7 +2602,7 @@ void WNScriptASTLexer::mINCLUDE()
 
 
     {
-        this->matchs(lit_26);
+        this->matchs(lit_29);
         if  (this->hasException())
         {
             goto ruleINCLUDEEx;
@@ -2478,7 +2639,7 @@ void WNScriptASTLexer::mVOID_TYPE()
 
 
     {
-        this->matchs(lit_27);
+        this->matchs(lit_30);
         if  (this->hasException())
         {
             goto ruleVOID_TYPEEx;
@@ -2515,7 +2676,7 @@ void WNScriptASTLexer::mINT_TYPE()
 
 
     {
-        this->matchs(lit_28);
+        this->matchs(lit_31);
         if  (this->hasException())
         {
             goto ruleINT_TYPEEx;
@@ -2552,7 +2713,7 @@ void WNScriptASTLexer::mFLOAT_TYPE()
 
 
     {
-        this->matchs(lit_29);
+        this->matchs(lit_32);
         if  (this->hasException())
         {
             goto ruleFLOAT_TYPEEx;
@@ -2589,7 +2750,7 @@ void WNScriptASTLexer::mBOOL_TYPE()
 
 
     {
-        this->matchs(lit_30);
+        this->matchs(lit_33);
         if  (this->hasException())
         {
             goto ruleBOOL_TYPEEx;
@@ -2626,7 +2787,7 @@ void WNScriptASTLexer::mSTRING_TYPE()
 
 
     {
-        this->matchs(lit_31);
+        this->matchs(lit_34);
         if  (this->hasException())
         {
             goto ruleSTRING_TYPEEx;
@@ -2663,7 +2824,7 @@ void WNScriptASTLexer::mCHAR_TYPE()
 
 
     {
-        this->matchs(lit_32);
+        this->matchs(lit_35);
         if  (this->hasException())
         {
             goto ruleCHAR_TYPEEx;
@@ -2735,7 +2896,7 @@ void WNScriptASTLexer::mWEAK_REF()
 
 
     {
-        this->matchs(lit_33);
+        this->matchs(lit_36);
         if  (this->hasException())
         {
             goto ruleWEAK_REFEx;
@@ -2772,7 +2933,7 @@ void WNScriptASTLexer::mSHARED_REF()
 
 
     {
-        this->matchs(lit_34);
+        this->matchs(lit_37);
         if  (this->hasException())
         {
             goto ruleSHARED_REFEx;
@@ -2809,7 +2970,7 @@ void WNScriptASTLexer::mDEFAULT()
 
 
     {
-        this->matchs(lit_35);
+        this->matchs(lit_38);
         if  (this->hasException())
         {
             goto ruleDEFAULTEx;
@@ -2823,6 +2984,43 @@ void WNScriptASTLexer::mDEFAULT()
 	this->get_lexstate()->set_type(_type);
     goto ruleDEFAULTEx;
     ruleDEFAULTEx: ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void WNScriptASTLexer::mNULLTOK()
+{
+    ANTLR_UINT32	_type;
+
+
+    _type	    = NULLTOK;
+
+
+    {
+        this->matchs(lit_39);
+        if  (this->hasException())
+        {
+            goto ruleNULLTOKEx;
+        }
+
+
+
+
+    }
+
+	this->get_lexstate()->set_type(_type);
+    goto ruleNULLTOKEx;
+    ruleNULLTOKEx: ;
 
 }
 
@@ -2878,7 +3076,7 @@ void WNScriptASTLexer::mBOOL()
         {
     	case 1:
     	    {
-    	        this->matchs(lit_36);
+    	        this->matchs(lit_40);
     	        if  (this->hasException())
     	        {
     	            goto ruleBOOLEx;
@@ -2891,7 +3089,7 @@ void WNScriptASTLexer::mBOOL()
     	    break;
     	case 2:
     	    {
-    	        this->matchs(lit_37);
+    	        this->matchs(lit_41);
     	        if  (this->hasException())
     	        {
     	            goto ruleBOOLEx;
@@ -3768,7 +3966,7 @@ void WNScriptASTLexer::mCOMMENT()
         {
     	case 1:
     	    {
-    	        this->matchs(lit_38);
+    	        this->matchs(lit_42);
     	        if  (this->hasException())
     	        {
     	            goto ruleCOMMENTEx;
@@ -3863,7 +4061,7 @@ void WNScriptASTLexer::mCOMMENT()
     	    break;
     	case 2:
     	    {
-    	        this->matchs(lit_39);
+    	        this->matchs(lit_43);
     	        if  (this->hasException())
     	        {
     	            goto ruleCOMMENTEx;
@@ -3925,7 +4123,7 @@ void WNScriptASTLexer::mCOMMENT()
     	        loop15: ;
 
 
-    	        this->matchs(lit_40);
+    	        this->matchs(lit_44);
     	        if  (this->hasException())
     	        {
     	            goto ruleCOMMENTEx;
@@ -4196,41 +4394,6 @@ void WNScriptASTLexer::mCHAR()
 	this->get_lexstate()->set_type(_type);
     goto ruleCHAREx;
     ruleCHAREx: ;
-
-}
-
-
-
-
-
-
-
-
-
-
-
-
-void WNScriptASTLexer::mNULLTOK()
-{
-    ANTLR_UINT32	_type;
-
-
-    _type	    = NULLTOK;
-
-
-    {
-         this->matchc('~');
-        if  (this->hasException())
-        {
-            goto ruleNULLTOKEx;
-        }
-
-
-    }
-
-	this->get_lexstate()->set_type(_type);
-    goto ruleNULLTOKEx;
-    ruleNULLTOKEx: ;
 
 }
 
@@ -4884,7 +5047,7 @@ WNScriptASTLexer::mTokens()
 
         ANTLR_UINT32 alt23;
 
-        alt23=64;
+        alt23=67;
 
         alt23 = cdfa23.predict(this, this->get_rec(), this->get_istream(), cdfa23 );
         if  (this->hasException())
@@ -4897,7 +5060,7 @@ WNScriptASTLexer::mTokens()
     	case 1:
     	    {
 
-    	        mT__53();
+    	        mT__56();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;
@@ -4910,7 +5073,7 @@ WNScriptASTLexer::mTokens()
     	case 2:
     	    {
 
-    	        mT__54();
+    	        mT__57();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;
@@ -4923,7 +5086,7 @@ WNScriptASTLexer::mTokens()
     	case 3:
     	    {
 
-    	        mT__55();
+    	        mT__58();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;
@@ -4936,7 +5099,7 @@ WNScriptASTLexer::mTokens()
     	case 4:
     	    {
 
-    	        mT__56();
+    	        mT__59();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;
@@ -4949,7 +5112,7 @@ WNScriptASTLexer::mTokens()
     	case 5:
     	    {
 
-    	        mT__57();
+    	        mT__60();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;
@@ -4962,7 +5125,7 @@ WNScriptASTLexer::mTokens()
     	case 6:
     	    {
 
-    	        mT__58();
+    	        mT__61();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;
@@ -4975,7 +5138,7 @@ WNScriptASTLexer::mTokens()
     	case 7:
     	    {
 
-    	        mT__59();
+    	        mT__62();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;
@@ -4988,7 +5151,7 @@ WNScriptASTLexer::mTokens()
     	case 8:
     	    {
 
-    	        mT__60();
+    	        mT__63();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;
@@ -5001,7 +5164,7 @@ WNScriptASTLexer::mTokens()
     	case 9:
     	    {
 
-    	        mT__61();
+    	        mT__64();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;
@@ -5014,7 +5177,7 @@ WNScriptASTLexer::mTokens()
     	case 10:
     	    {
 
-    	        mT__62();
+    	        mT__65();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;
@@ -5027,7 +5190,7 @@ WNScriptASTLexer::mTokens()
     	case 11:
     	    {
 
-    	        mT__63();
+    	        mT__66();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;
@@ -5040,7 +5203,7 @@ WNScriptASTLexer::mTokens()
     	case 12:
     	    {
 
-    	        mT__64();
+    	        mT__67();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;
@@ -5053,7 +5216,7 @@ WNScriptASTLexer::mTokens()
     	case 13:
     	    {
 
-    	        mT__65();
+    	        mT__68();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;
@@ -5066,7 +5229,7 @@ WNScriptASTLexer::mTokens()
     	case 14:
     	    {
 
-    	        mT__66();
+    	        mT__69();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;
@@ -5079,7 +5242,7 @@ WNScriptASTLexer::mTokens()
     	case 15:
     	    {
 
-    	        mT__67();
+    	        mT__70();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;
@@ -5092,7 +5255,7 @@ WNScriptASTLexer::mTokens()
     	case 16:
     	    {
 
-    	        mT__68();
+    	        mT__71();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;
@@ -5105,7 +5268,7 @@ WNScriptASTLexer::mTokens()
     	case 17:
     	    {
 
-    	        mT__69();
+    	        mT__72();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;
@@ -5118,7 +5281,7 @@ WNScriptASTLexer::mTokens()
     	case 18:
     	    {
 
-    	        mT__70();
+    	        mT__73();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;
@@ -5131,7 +5294,7 @@ WNScriptASTLexer::mTokens()
     	case 19:
     	    {
 
-    	        mT__71();
+    	        mT__74();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;
@@ -5144,7 +5307,7 @@ WNScriptASTLexer::mTokens()
     	case 20:
     	    {
 
-    	        mT__72();
+    	        mT__75();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;
@@ -5183,7 +5346,7 @@ WNScriptASTLexer::mTokens()
     	case 23:
     	    {
 
-    	        mLBRACKET();
+    	        mDLSQBRACKET();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;
@@ -5196,7 +5359,7 @@ WNScriptASTLexer::mTokens()
     	case 24:
     	    {
 
-    	        mRBRACKET();
+    	        mDRSQBRACKET();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;
@@ -5209,7 +5372,7 @@ WNScriptASTLexer::mTokens()
     	case 25:
     	    {
 
-    	        mLBRACE();
+    	        mLENGTH();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;
@@ -5222,7 +5385,7 @@ WNScriptASTLexer::mTokens()
     	case 26:
     	    {
 
-    	        mRBRACE();
+    	        mLBRACKET();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;
@@ -5235,7 +5398,7 @@ WNScriptASTLexer::mTokens()
     	case 27:
     	    {
 
-    	        mCOMMA();
+    	        mRBRACKET();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;
@@ -5248,7 +5411,7 @@ WNScriptASTLexer::mTokens()
     	case 28:
     	    {
 
-    	        mDOUBINC();
+    	        mLBRACE();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;
@@ -5261,7 +5424,7 @@ WNScriptASTLexer::mTokens()
     	case 29:
     	    {
 
-    	        mDOUBDEC();
+    	        mRBRACE();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;
@@ -5274,7 +5437,7 @@ WNScriptASTLexer::mTokens()
     	case 30:
     	    {
 
-    	        mRETURN();
+    	        mCOMMA();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;
@@ -5287,7 +5450,7 @@ WNScriptASTLexer::mTokens()
     	case 31:
     	    {
 
-    	        mBREAK();
+    	        mDOUBINC();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;
@@ -5300,7 +5463,7 @@ WNScriptASTLexer::mTokens()
     	case 32:
     	    {
 
-    	        mCONTINUE();
+    	        mDOUBDEC();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;
@@ -5313,7 +5476,7 @@ WNScriptASTLexer::mTokens()
     	case 33:
     	    {
 
-    	        mSEMICOLON();
+    	        mRETURN();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;
@@ -5326,7 +5489,7 @@ WNScriptASTLexer::mTokens()
     	case 34:
     	    {
 
-    	        mCOLON();
+    	        mBREAK();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;
@@ -5339,7 +5502,7 @@ WNScriptASTLexer::mTokens()
     	case 35:
     	    {
 
-    	        mWHILE();
+    	        mCONTINUE();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;
@@ -5352,7 +5515,7 @@ WNScriptASTLexer::mTokens()
     	case 36:
     	    {
 
-    	        mDO();
+    	        mSEMICOLON();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;
@@ -5365,7 +5528,7 @@ WNScriptASTLexer::mTokens()
     	case 37:
     	    {
 
-    	        mIF();
+    	        mCOLON();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;
@@ -5378,7 +5541,7 @@ WNScriptASTLexer::mTokens()
     	case 38:
     	    {
 
-    	        mELSE();
+    	        mWHILE();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;
@@ -5391,7 +5554,7 @@ WNScriptASTLexer::mTokens()
     	case 39:
     	    {
 
-    	        mFOR();
+    	        mDO();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;
@@ -5404,7 +5567,7 @@ WNScriptASTLexer::mTokens()
     	case 40:
     	    {
 
-    	        mSTRUCT();
+    	        mIF();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;
@@ -5417,7 +5580,7 @@ WNScriptASTLexer::mTokens()
     	case 41:
     	    {
 
-    	        mCLASS();
+    	        mELSE();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;
@@ -5430,7 +5593,7 @@ WNScriptASTLexer::mTokens()
     	case 42:
     	    {
 
-    	        mVIRTUAL();
+    	        mFOR();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;
@@ -5443,7 +5606,7 @@ WNScriptASTLexer::mTokens()
     	case 43:
     	    {
 
-    	        mOVERRIDE();
+    	        mSTRUCT();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;
@@ -5456,7 +5619,7 @@ WNScriptASTLexer::mTokens()
     	case 44:
     	    {
 
-    	        mINCLUDE();
+    	        mCLASS();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;
@@ -5469,7 +5632,7 @@ WNScriptASTLexer::mTokens()
     	case 45:
     	    {
 
-    	        mVOID_TYPE();
+    	        mVIRTUAL();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;
@@ -5482,7 +5645,7 @@ WNScriptASTLexer::mTokens()
     	case 46:
     	    {
 
-    	        mINT_TYPE();
+    	        mOVERRIDE();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;
@@ -5495,7 +5658,7 @@ WNScriptASTLexer::mTokens()
     	case 47:
     	    {
 
-    	        mFLOAT_TYPE();
+    	        mINCLUDE();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;
@@ -5508,7 +5671,7 @@ WNScriptASTLexer::mTokens()
     	case 48:
     	    {
 
-    	        mBOOL_TYPE();
+    	        mVOID_TYPE();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;
@@ -5521,7 +5684,7 @@ WNScriptASTLexer::mTokens()
     	case 49:
     	    {
 
-    	        mSTRING_TYPE();
+    	        mINT_TYPE();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;
@@ -5534,7 +5697,7 @@ WNScriptASTLexer::mTokens()
     	case 50:
     	    {
 
-    	        mCHAR_TYPE();
+    	        mFLOAT_TYPE();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;
@@ -5547,7 +5710,7 @@ WNScriptASTLexer::mTokens()
     	case 51:
     	    {
 
-    	        mQUESTION();
+    	        mBOOL_TYPE();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;
@@ -5560,7 +5723,7 @@ WNScriptASTLexer::mTokens()
     	case 52:
     	    {
 
-    	        mWEAK_REF();
+    	        mSTRING_TYPE();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;
@@ -5573,7 +5736,7 @@ WNScriptASTLexer::mTokens()
     	case 53:
     	    {
 
-    	        mSHARED_REF();
+    	        mCHAR_TYPE();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;
@@ -5586,7 +5749,7 @@ WNScriptASTLexer::mTokens()
     	case 54:
     	    {
 
-    	        mDEFAULT();
+    	        mQUESTION();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;
@@ -5599,7 +5762,7 @@ WNScriptASTLexer::mTokens()
     	case 55:
     	    {
 
-    	        mBOOL();
+    	        mWEAK_REF();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;
@@ -5612,7 +5775,7 @@ WNScriptASTLexer::mTokens()
     	case 56:
     	    {
 
-    	        mID();
+    	        mSHARED_REF();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;
@@ -5625,7 +5788,7 @@ WNScriptASTLexer::mTokens()
     	case 57:
     	    {
 
-    	        mTYPE();
+    	        mDEFAULT();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;
@@ -5638,7 +5801,7 @@ WNScriptASTLexer::mTokens()
     	case 58:
     	    {
 
-    	        mINT();
+    	        mNULLTOK();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;
@@ -5651,7 +5814,7 @@ WNScriptASTLexer::mTokens()
     	case 59:
     	    {
 
-    	        mFLOAT();
+    	        mBOOL();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;
@@ -5664,7 +5827,7 @@ WNScriptASTLexer::mTokens()
     	case 60:
     	    {
 
-    	        mCOMMENT();
+    	        mID();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;
@@ -5677,7 +5840,7 @@ WNScriptASTLexer::mTokens()
     	case 61:
     	    {
 
-    	        mWS();
+    	        mTYPE();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;
@@ -5690,7 +5853,7 @@ WNScriptASTLexer::mTokens()
     	case 62:
     	    {
 
-    	        mSTRING();
+    	        mINT();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;
@@ -5703,7 +5866,7 @@ WNScriptASTLexer::mTokens()
     	case 63:
     	    {
 
-    	        mCHAR();
+    	        mFLOAT();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;
@@ -5716,7 +5879,46 @@ WNScriptASTLexer::mTokens()
     	case 64:
     	    {
 
-    	        mNULLTOK();
+    	        mCOMMENT();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 65:
+    	    {
+
+    	        mWS();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 66:
+    	    {
+
+    	        mSTRING();
+    	        if  (this->hasException())
+    	        {
+    	            goto ruleTokensEx;
+    	        }
+
+
+
+    	    }
+    	    break;
+    	case 67:
+    	    {
+
+    	        mCHAR();
     	        if  (this->hasException())
     	        {
     	            goto ruleTokensEx;

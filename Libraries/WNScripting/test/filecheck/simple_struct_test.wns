@@ -13,40 +13,33 @@ struct S2 {
 }
 
 
-// CHECK: typedef struct {
+// CHECK: typedef struct __S1 {
 // CHECK-NEXT: int32_t x;
 // CHECK-NEXT: } S1;
 
-// CHECK: typedef struct {
+// CHECK: typedef struct __S2 {
 // CHECK-NEXT: int32_t x;
 // CHECK-NEXT: float z;
 // CHECK-NEXT: int32_t y;
 // CHECK-NEXT: } S2;
 
-
-// CHECK: {{_construct_S2}}
-// CHECK-NEXT: _this->x = 4;
-// CHECK-NEXT: _this->z = 0.0f;
-// CHECK-NEXT: _this->y = 1;
-
-// CHECK: S1* _Z3wns13_construct_S1ENR2S1ENUC2S1E(S1* _this) {
-// CHECK-NEXT: _this->x = 4;
+// CHECK: S1* _ZN3wns13_construct_S1EP2S1P2S1(S1* _this) {
+// CHECK-NEXT: (_this->x) = 4;
 // CHECK-NEXT: return _this;
 // CHECK-NEXT: }
 
-// CHECK: void _Z3wns12_destruct_S1EvNUC2S1E(S1* _this) {
-// CHECK-NEXT: return;
-// CHECK-NEXT: }
-
+// CHECK: {{_ZN3wns13_construct_S2EP2S2P2S2.*{}}
+// CHECK-NEXT: (_this->x) = 4;
+// CHECK-NEXT: (_this->z) = 0.0f;
+// CHECK-NEXT: (_this->y) = 1;
 
 // RUN: struct1 -> 4
 // CHECK: {{7struct1E}}
-// CHECK-NEXT: S1 __wns_temp_expression0;
-// CHECK-NEXT: S1* s = _Z3wns13_construct_S1ENR2S1ENUC2S1E(&__wns_temp_expression0);
-// CHECK-NEXT: {
-// CHECK-NEXT: int32_t __wns_ret_temp0 = s->x;
-// CHECK-NEXT: _Z3wns12_destruct_S1EvNUC2S1E(&__wns_temp_expression0);
-// CHECK-NEXT: return __wns_ret_temp0;
+// CHECK-NEXT: int32_t _return;
+// CHECK-NEXT: S1 s;
+// CHECK-NEXT: _ZN3wns13_construct_S1EP2S1P2S1((&s));
+// CHECK-NEXT: _return = (s.x);
+// CHECK-NEXT: return _return;
 Int struct1() {
     S1 s = S1();
     return s.x;
@@ -62,8 +55,8 @@ Int struct2(Int x) {
 // RUN: struct3 4 -> 13
 // RUN: struct3 12 -> 21
 // CHECK: {{7struct3E}}
-// CHECK: s->x = 10;
-// CHECK: __wns_ret_temp2 = ((s->x - s->y) + x);
+// CHECK: (s.x) = 10;
+// CHECK: _return = (((s.x) - (s.y)) + x);
 Int struct3(Int x) {
     S2 s = S2();
     s.x = 10;

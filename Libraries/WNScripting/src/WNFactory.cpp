@@ -10,12 +10,12 @@ namespace wn {
 namespace scripting {
 
 memory::unique_ptr<engine> factory::get_engine(memory::allocator* _allocator,
-    scripting_engine_type _type, type_validator* _validator,
-    file_system::mapping* _file_mapping, logging::log* _log) {
+    scripting_engine_type _type, file_system::mapping* _file_mapping,
+    logging::log* _log) {
   switch (_type) {
     case scripting_engine_type::jit_engine:
       return memory::make_unique<jit_engine>(
-          _allocator, _allocator, _validator, _file_mapping, _log);
+          _allocator, _allocator, _file_mapping, _log);
     default:
       return nullptr;
   }
@@ -23,12 +23,12 @@ memory::unique_ptr<engine> factory::get_engine(memory::allocator* _allocator,
 
 memory::unique_ptr<translator> factory::get_translator(
     memory::allocator* _allocator, translator_type _type,
-    type_validator* _validator, file_system::mapping* _file_mapping,
-    file_system::mapping* _output_mapping, logging::log* _log) {
+    file_system::mapping* _file_mapping, file_system::mapping* _output_mapping,
+    logging::log* _log) {
   switch (_type) {
     case translator_type::c_translator:
-      return memory::make_unique<c_translator>(_allocator, _allocator,
-          _validator, _file_mapping, _output_mapping, _log);
+      return memory::make_unique<c_translator>(
+          _allocator, _allocator, _file_mapping, _output_mapping, _log);
     default:
       return nullptr;
   }

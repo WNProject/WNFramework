@@ -78,7 +78,7 @@
 #endif
 #ifdef _WN_CLANG
     #pragma clang diagnostic ignored "-Wparentheses-equality"
-    #pragma clang diagnostic ignored "-Wtautological-compare"
+    #pragma clang diagnostic ignored "-Wtautological-undefined-compare"
     #pragma clang diagnostic ignored "-Wunused-variable"
     #pragma clang diagnostic ignored "-Wtautological-compare"
     #pragma clang diagnostic ignored "-Wc++11-narrowing"
@@ -117,9 +117,6 @@ public:
 	enum Tokens
 	{
 		EOF_TOKEN = WNScriptASTLexerImplTraits::CommonTokenType::TOKEN_EOF
-		, T__53 = 53
-		, T__54 = 54
-		, T__55 = 55
 		, T__56 = 56
 		, T__57 = 57
 		, T__58 = 58
@@ -137,6 +134,9 @@ public:
 		, T__70 = 70
 		, T__71 = 71
 		, T__72 = 72
+		, T__73 = 73
+		, T__74 = 74
+		, T__75 = 75
 		, BOOL = 4
 		, BOOL_TYPE = 5
 		, BREAK = 6
@@ -148,44 +148,47 @@ public:
 		, COMMENT = 12
 		, CONTINUE = 13
 		, DEFAULT = 14
-		, DO = 15
-		, DOUBDEC = 16
-		, DOUBINC = 17
-		, ELSE = 18
-		, ESC_SEQ = 19
-		, EXPONENT = 20
-		, FLOAT = 21
-		, FLOAT_TYPE = 22
-		, FOR = 23
-		, HEX_DIGIT = 24
-		, ID = 25
-		, IF = 26
-		, INCLUDE = 27
-		, INT = 28
-		, INT_TYPE = 29
-		, LBRACE = 30
-		, LBRACKET = 31
-		, LSQBRACKET = 32
-		, NULLTOK = 33
-		, OCTAL_ESC = 34
-		, OVERRIDE = 35
-		, QUESTION = 36
-		, RBRACE = 37
-		, RBRACKET = 38
-		, RETURN = 39
-		, RSQBRACKET = 40
-		, SEMICOLON = 41
-		, SHARED_REF = 42
-		, STRING = 43
-		, STRING_TYPE = 44
-		, STRUCT = 45
-		, TYPE = 46
-		, UNICODE_ESC = 47
-		, VIRTUAL = 48
-		, VOID_TYPE = 49
-		, WEAK_REF = 50
-		, WHILE = 51
-		, WS = 52
+		, DLSQBRACKET = 15
+		, DO = 16
+		, DOUBDEC = 17
+		, DOUBINC = 18
+		, DRSQBRACKET = 19
+		, ELSE = 20
+		, ESC_SEQ = 21
+		, EXPONENT = 22
+		, FLOAT = 23
+		, FLOAT_TYPE = 24
+		, FOR = 25
+		, HEX_DIGIT = 26
+		, ID = 27
+		, IF = 28
+		, INCLUDE = 29
+		, INT = 30
+		, INT_TYPE = 31
+		, LBRACE = 32
+		, LBRACKET = 33
+		, LENGTH = 34
+		, LSQBRACKET = 35
+		, NULLTOK = 36
+		, OCTAL_ESC = 37
+		, OVERRIDE = 38
+		, QUESTION = 39
+		, RBRACE = 40
+		, RBRACKET = 41
+		, RETURN = 42
+		, RSQBRACKET = 43
+		, SEMICOLON = 44
+		, SHARED_REF = 45
+		, STRING = 46
+		, STRING_TYPE = 47
+		, STRUCT = 48
+		, TYPE = 49
+		, UNICODE_ESC = 50
+		, VIRTUAL = 51
+		, VOID_TYPE = 52
+		, WEAK_REF = 53
+		, WHILE = 54
+		, WS = 55
 	};
 
 };
@@ -213,9 +216,6 @@ public:
 
 
 
-    void  mT__53( );
-    void  mT__54( );
-    void  mT__55( );
     void  mT__56( );
     void  mT__57( );
     void  mT__58( );
@@ -233,8 +233,14 @@ public:
     void  mT__70( );
     void  mT__71( );
     void  mT__72( );
+    void  mT__73( );
+    void  mT__74( );
+    void  mT__75( );
     void  mLSQBRACKET( );
     void  mRSQBRACKET( );
+    void  mDLSQBRACKET( );
+    void  mDRSQBRACKET( );
+    void  mLENGTH( );
     void  mLBRACKET( );
     void  mRBRACKET( );
     void  mLBRACE( );
@@ -267,6 +273,7 @@ public:
     void  mWEAK_REF( );
     void  mSHARED_REF( );
     void  mDEFAULT( );
+    void  mNULLTOK( );
     void  mBOOL( );
     void  mID( );
     void  mTYPE( );
@@ -276,7 +283,6 @@ public:
     void  mWS( );
     void  mSTRING( );
     void  mCHAR( );
-    void  mNULLTOK( );
     void  mEXPONENT( );
     void  mHEX_DIGIT( );
     void  mESC_SEQ( );

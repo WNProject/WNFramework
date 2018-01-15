@@ -111,38 +111,44 @@ configure_file(
 
 add_wn_library(WNScripting
   SOURCES
-    inc/WNASTWalker.h
-    inc/WNASTWalker.inl
-    inc/WNASTCodeGenerator.h
-    inc/WNASTCodeGenerator.inl
-    inc/WNASTPasses.h
-    inc/WNCGenerator.h
+    ${CMAKE_CURRENT_BINARY_DIR}/inc/WNJITConfiguration.h
+    inc/ast_node_types.h
+    inc/c_compiler.h
+    inc/internal/ast_convertor_context.h
+    inc/internal/c_preamble.h
+    inc/jit_compiler.h
+    inc/parse_ast_convertor.h
+    inc/source_location.h
     inc/WNCTranslator.h
     inc/WNEngine.h
     inc/WNEngine.inl
-    inc/WNFactory.h
     inc/WNEnums.h
     inc/WNErrors.h
+    inc/WNFactory.h
     inc/WNJITConfiguration.h.in
-    ${CMAKE_CURRENT_BINARY_DIR}/inc/WNJITConfiguration.h
     inc/WNJITEngine.h
-    inc/WNJITGenerator.h
     inc/WNNodeTypes.h
     inc/WNScriptHelpers.h
-    inc/WNTranslator.h
-    inc/WNTypeValidator.h
-    src/WNASTPasses.cpp
-    src/WNCGenerator.cpp
+    lang/WNScriptAST.g
+    src/add_builtins.cpp
+    src/c_compiler.cpp
+    src/conversion_helpers.cpp
+    src/convert_expression_to_ast.cpp
+    src/convert_function_to_ast.cpp
+    src/convert_parse_to_ast.cpp
+    src/convert_statement_to_ast.cpp
+    src/convert_struct_to_ast.cpp
+    src/convert_types_to_ast.cpp
+    src/handle_scopes.cpp
+    src/jit_compiler.cpp
     src/WNCTranslator.cpp
     src/WNFactory.cpp
     src/WNJITEngine.cpp
-    src/WNJITGenerator.cpp
-    src/WNScriptASTLexer.hpp
-    src/WNScriptASTParser.hpp
     src/WNScriptASTLexer.cpp
+    src/WNScriptASTLexer.hpp
     src/WNScriptASTParser.cpp
+    src/WNScriptASTParser.hpp
     src/WNScriptHelpers.cpp
-    lang/WNScriptAST.g
   LIBS
     WNFileSystem
     WNLogging

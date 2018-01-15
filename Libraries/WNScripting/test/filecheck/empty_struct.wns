@@ -1,0 +1,18 @@
+// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE.txt file.
+
+class A {}
+
+// CHECK: typedef struct __A {
+// CHECK-NEXT: int8_t __dummy;
+// CHECK-NEXT: } A;
+
+// CHECK: {{test1.*{}}
+// RUN: test1 32 -> 32
+Int test1(Int x) {
+    A a = A();
+// CHECK: A _wns_temp0;
+// CHECK-NEXT: A* a = (&_wns_temp0);
+    return x;
+}

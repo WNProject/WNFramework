@@ -1,0 +1,20 @@
+// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE.txt file.
+
+// RUN: while_with_return 3 -> 4
+// RUN: while_with_return 12 -> 4
+// CHECK: {{.*while_with_return.*{}}
+Int while_with_return(Int x) {
+    while(true) {
+// CHECK: if ((x == 4)) {
+// CHECK-NEXT: _return = x;
+// CHECK-NEXT: return _return;
+// CHECK-NEXT: }
+        if (x == 4) {
+            return x;
+        }
+        x = 4;
+    }
+    return x;
+}

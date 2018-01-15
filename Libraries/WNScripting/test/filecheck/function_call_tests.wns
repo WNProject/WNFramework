@@ -2,43 +2,57 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-// CHECK: {{7callee1E}}
-// CHECK-NEXT: return 4;
+// CHECK: {{7callee1E.*{}}
 Int callee1() {
   return 4;
 }
 
-// CHECK: {{9function1E}}
+// CHECK: {{9function1E.*{}}
 // RUN: function1 32 -> 36
 // RUN: function1 12 -> 16
 Int function1(Int x) {
-  // CHECK-NEXT: return (_Z3wns7callee1El() + x);
+  // CHECK: _return = (_ZN3wns7callee1Ei() + x);
   return callee1() + x;
 }
 
-// CHECK: {{7callee2E}}
+// CHECK: {{7callee2E.*{}}
 Int callee2(Int x) {
-// CHECK-NEXT: return (x + 4);
   return x + 4;
 }
 
-// CHECK: {{9function2E}}
+// CHECK: {{9function2E.*{}}
 // RUN: function2 32 -> 36
 // RUN: function2 16 -> 20
 Int function2(Int x) {
-// CHECK-NEXT: return _Z3wns7callee2Ell(x);
+// CHECK: _return = _ZN3wns7callee2Eii(x);
   return callee2(x);
 }
 
-// CHECK: {{7callee3E}}
+// CHECK: {{7callee3E.*{}}
 Int callee3(Int x, Int y) {
   return x + y;
 }
 
-// CHECK: {{9function3E}}
+// CHECK: {{9function3E.*{}}
 // RUN: function3 2 -> 4
 // RUN: function3 32 -> 64
 Int function3(Int x) {
-// CHECK-NEXT: return _Z3wns7callee3Elll(x, x);
+// CHECK: _return = _ZN3wns7callee3Eiii(x, x);
   return callee3(x, x);
+}
+
+// CHECK: {{9function4E.*{}}
+// RUN: function4 2 -> 6
+// RUN: function4 32 -> 96
+Int function4(Int x) {
+// CHECK: _return = (_ZN3wns7callee3Eifi(4.0f, x) + _ZN3wns7callee3Eiii(x, x));
+  return callee3(4.0, x) + callee3(x, x);
+}
+
+// Potentially ambiguous
+Int callee3(Float x, Int y) {
+  if (x > 3.0) {
+    return y;
+  }
+  return 3;
 }

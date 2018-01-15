@@ -13,7 +13,7 @@
 namespace wn {
 namespace scripting {
 class script_file;
-class type_validator;
+struct ast_script_file;
 
 struct external_function {
   containers::string_view name;
@@ -24,11 +24,11 @@ struct external_function {
 // Simple helper that parses a script and runs any
 // passes that are required to make the AST valid.
 
-memory::unique_ptr<script_file> parse_script(memory::allocator* _allocator,
-    scripting::type_validator* _validator, const char* file_name,
-    const containers::contiguous_range<external_function>& _external_functions,
-    containers::string_view view, bool _print_ast_on_failure,
-    logging::log* _log, size_t* _num_warnings, size_t* _num_errors);
+memory::unique_ptr<ast_script_file> parse_script(memory::allocator* _allocator,
+    const char* file_name, containers::string_view view,
+    const containers::contiguous_range<external_function>& externals,
+    bool _print_ast_on_failure, logging::log* _log, size_t* _num_warnings,
+    size_t* _num_errors);
 }  // namespace scripting
 }  // namespace wn
 

@@ -54,12 +54,11 @@
 #include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNMemory/inc/WNBasic.h"
-#include "WNScripting/inc/WNASTCodeGenerator.h"
-#include "WNScripting/inc/WNASTWalker.h"
 #include "WNScripting/inc/WNJITConfiguration.h"
 #include "WNScripting/inc/WNJITEngine.h"
-#include "WNScripting/inc/WNJITGenerator.h"
 #include "WNScripting/inc/WNScriptHelpers.h"
+#include "WNScripting/inc/ast_node_types.h"
+#include "WNScripting/inc/jit_compiler.h"
 
 #include <algorithm>
 extern "C" {
@@ -92,37 +91,17 @@ struct object {
 // allocator for this.
 
 // Temp this is going to have to change.
-void* allocate_shared(size_t i, void (*_destructor)(void*)) {
-  object* obj = static_cast<object*>(memory::malloc(sizeof(object) + i));
-  obj->ref_count = 0;
-  obj->destructor = _destructor;
-  return (uint8_t*)(obj) + sizeof(object);
+void* do_allocate(size_t i) {
+  void* t = memory::malloc(i);
+  return t;
 }
 
 // Temp this is going to have to change.
-void deref_shared(uint8_t* val) {
-  if (val == nullptr)
+void do_free(void* val) {
+  if (val == nullptr) {
     return;
-  object* obj = (object*)(val - sizeof(object));
-  if (obj->ref_count.fetch_sub(1) == 1) {
-    obj->destructor(val);
-    memory::free(obj);
   }
-}
-
-// Temp this is going to have to change.
-void* assign_shared(uint8_t* a, uint8_t* b) {
-  deref_shared(b);
-  object* obj = (object*)(a - sizeof(object));
-  obj->ref_count.fetch_add(1);
-  return a;
-}
-
-// Temp this is going to have to change.
-void* return_shared(uint8_t* a) {
-  object* obj = (object*)(a - sizeof(object));
-  obj->ref_count.fetch_sub(1);
-  return a;
+  memory::free(val);
 }
 
 namespace {
@@ -132,18 +111,12 @@ public:
 
   llvm::JITSymbol findSymbol(const std::string& Name) override {
     m_log->log_info("Resolving ", Name.c_str(), ".");
-    if (Name == "_Z3wns16_allocate_sharedEvpsfp") {
-      return llvm::JITSymbol(reinterpret_cast<uint64_t>(&allocate_shared),
+    if (Name == "_ZN3wns9_allocateEPvN3wns4sizeE") {
+      return llvm::JITSymbol(reinterpret_cast<uint64_t>(&do_allocate),
           llvm::JITSymbolFlags::Exported);
-    } else if (Name == "_Z3wns13_deref_sharedEvvp") {
-      return llvm::JITSymbol(reinterpret_cast<uint64_t>(&deref_shared),
-          llvm::JITSymbolFlags::Exported);
-    } else if (Name == "_Z3wns14_assign_sharedEvpvpvp") {
-      return llvm::JITSymbol(reinterpret_cast<uint64_t>(&assign_shared),
-          llvm::JITSymbolFlags::Exported);
-    } else if (Name == "_Z3wns14_return_sharedEvpvp") {
-      return llvm::JITSymbol(reinterpret_cast<uint64_t>(&return_shared),
-          llvm::JITSymbolFlags::Exported);
+    } else if (Name == "_ZN3wns5_freeEvPv") {
+      return llvm::JITSymbol(
+          reinterpret_cast<uint64_t>(&do_free), llvm::JITSymbolFlags::Exported);
     }
 #if defined(_WN_WINDOWS)
 #if defined(_WN_64_BIT)
@@ -179,9 +152,8 @@ CompiledModule::CompiledModule(CompiledModule&& _other)
 }
 
 jit_engine::jit_engine(memory::allocator* _allocator,
-    type_validator* _validator, file_system::mapping* _mapping,
-    logging::log* _log)
-  : engine(_allocator, _validator),
+    file_system::mapping* _mapping, logging::log* _log)
+  : engine(_allocator),
     m_file_mapping(_mapping),
     m_compilation_log(_log),
     m_context(memory::make_std_unique<llvm::LLVMContext>()),
@@ -226,37 +198,22 @@ parse_error jit_engine::parse_file(const char* _file) {
     return parse_error::does_not_exist;
   }
 
-  containers::array<uint32_t, 2> allocate_shared_params = {
-      static_cast<uint32_t>(type_classification::size_type),
-      static_cast<uint32_t>(type_classification::function_ptr_type)};
-
-  containers::array<uint32_t, 1> deref_shared_params = {
-      static_cast<uint32_t>(type_classification::void_ptr_type)};
-  containers::array<uint32_t, 2> assign_params = {
-      static_cast<uint32_t>(type_classification::void_ptr_type),
+  containers::array<uint32_t, 1> allocate_params = {
+      static_cast<uint32_t>(type_classification::size_type)};
+  containers::array<uint32_t, 1> free_params = {
       static_cast<uint32_t>(type_classification::void_ptr_type)};
 
   // We have a set of functions that we MUST expose to the scripting
   // engine.
-  containers::array<external_function, 4> required_functions;
-  required_functions[0] = {"_allocate_shared",
+  containers::array<external_function, 2> required_functions;
+  required_functions[0] = {"_allocate",
       static_cast<uint32_t>(type_classification::void_ptr_type),
-      allocate_shared_params};
-  required_functions[1] = {"_deref_shared",
-      static_cast<uint32_t>(type_classification::void_type),
-      deref_shared_params};
-  required_functions[2] = {"_assign_shared",
-      static_cast<uint32_t>(type_classification::void_ptr_type), assign_params};
-  // _return_shared is a little bit special.
-  // It dereferences a value, but does not delete the object if it
-  // ends up being 0. This will get injected at return sites,
-  // since we know that the results will always be incremented.
-  required_functions[3] = {"_return_shared",
-      static_cast<uint32_t>(type_classification::void_ptr_type),
-      deref_shared_params};
+      allocate_params};
+  required_functions[1] = {"_free",
+      static_cast<uint32_t>(type_classification::void_type), free_params};
 
-  memory::unique_ptr<script_file> parsed_file = parse_script(m_allocator,
-      m_validator, _file, required_functions, file->typed_range<char>(), false,
+  memory::unique_ptr<ast_script_file> parsed_file = parse_script(m_allocator,
+      _file, file->typed_range<char>(), required_functions, false,
       m_compilation_log, &m_num_warnings, &m_num_errors);
 
   if (parsed_file == nullptr) {
@@ -264,14 +221,12 @@ parse_error jit_engine::parse_file(const char* _file) {
   }
   CompiledModule& module = add_module(_file);
 
-  ast_code_generator<ast_jit_traits> generator(m_allocator);
-  ast_jit_engine engine(
-      m_allocator, m_validator, m_context.get(), module.m_module, &generator);
-  generator.set_generator(&engine);
+  jit_compiler compiler(m_allocator, module.m_module);
+  compiler.compile(parsed_file.get());
 
-  run_ast_pass<ast_code_generator<ast_jit_traits>>(
-      &generator, static_cast<const script_file*>(parsed_file.get()));
-
+  // Uncomment to get debug information about the module out.
+  // It is not really needed, but a good place to debug.
+  // module.m_module->dump();
   module.m_engine->finalizeObject();
 
   for (auto& function : module.m_module->getFunctionList()) {

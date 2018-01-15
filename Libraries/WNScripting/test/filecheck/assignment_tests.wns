@@ -3,21 +3,22 @@
 // found in the LICENSE.txt file.
 
 // RUN: a1 5 -> 0
-// CHECK: {{2a1E}}
+// CHECK: {{2a1E.*{}}
 Int a1(Int x) {
-// CHECK-NEXT: int32_t y = 0;
+// CHECK: int32_t y = 0;
     Int y = 0;
 // CHECK-NEXT: x = y;
+// CHECK-NEXT: _return = x;
     x = y;
-// CHECK-NEXT: return x;
+// CHECK-NEXT: return _return;
     return x;
 }
 
 // RUN: a2 4 -> 0
 // RUN: a2 3 -> 3;
-// CHECK: {{2a2E}}
+// CHECK: {{2a2E.*{}}
 Int a2(Int x) {
-// CHECK-NEXT: bool b = false;
+// CHECK: bool b = false;
   Bool b = false;
 // CHECK-NEXT: b = (x == 4);
   b = x == 4;
@@ -30,14 +31,15 @@ Int a2(Int x) {
 
 // RUN: a3 0 -> 4
 // RUN: a3 9 -> 10
-// CHECK: {{2a3E}}
+// CHECK: {{2a3E.*{}}
 Int a3(Int x) {
+// CHECK: int32_t y = 4;
   Int y = 4;
   if (x != 0) {
-  // CHECK: y = 10;
+// CHECK: y = 10;
     y = 10;
   } else {
-  // CHECK: y = 4;
+// CHECK: y = 4;
     y = 4;
   }
   return y;

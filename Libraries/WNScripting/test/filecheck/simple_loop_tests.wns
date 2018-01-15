@@ -1,0 +1,149 @@
+// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE.txt file.
+
+struct Foo {
+    Bool b = false;
+    Int x = 4;
+}
+
+// RUN:while_test_simple 5 -> -5
+// RUN: while_test_simple -5 -> -5
+// CHECK: {{.*while_test_simple.*{}}
+Int while_test_simple(Int x) {
+// CHECK-NEXT: int32_t _return;
+// CHECK-NEXT: while ((x > 0)) {
+    while(x > 0) {
+// CHECK-NEXT: x = (x - 10);
+        x = x - 10;
+// CHECK-NEXT: }
+    }
+    return x;
+}
+
+// RUN: while_test_temp_condition 5 -> 5
+// RUN: while_test_temp_condition 10 -> 10
+// CHECK: {{.*while_test_temp_condition.*{}}
+Int while_test_temp_condition(Int x) {
+// CHECK-NEXT: int32_t _return;
+// CHECK-NEXT: while (true) {
+// CHECK-NEXT:  {
+// CHECK-NEXT:    Foo _wns_temp0;
+// CHECK-NEXT:    bool __c_temp0 = (_ZN3wns14_construct_FooEP3FooP3Foo((&_wns_temp0))->b);
+// CHECK-NEXT:    if (!__c_temp0) { break; }
+// CHECK-NEXT:  }
+    while(Foo().b) {
+// CHECK-NEXT: {
+// CHECK-NEXT: x = (x - 10);
+        x = x - 10;
+// CHECK-NEXT: }
+// CHECK-NEXT: }
+    }
+    return x;
+}
+
+// RUN: do_test 15 -> -5
+// RUN: do_test -5 -> -15
+// CHECK: {{.*do_test.*{}}
+Int do_test(Int x) {
+// CHECK-NEXT: int32_t _return;
+// CHECK-NEXT: do {
+    do {
+// CHECK-NEXT: x = (x - 10);
+        x = x - 10;
+// CHECK-NEXT: } while ((x > 0));
+    } while(x > 0);
+    return x;
+}
+
+// RUN: do_test_temp_condition 5 -> -5
+// RUN: do_test_temp_condition -5 -> -15
+// RUN: do_test_temp_condition 25 -> 15
+// CHECK: {{.*do_test_temp_condition.*{}}
+Int do_test_temp_condition(Int x) {
+// CHECK-NEXT: int32_t _return;
+// CHECK-NEXT: do {
+    do {
+// CHECK-NEXT:  {
+// CHECK-NEXT:     x = (x - 10);
+// CHECK-NEXT:  }
+        x = x - 10;
+// CHECK-NEXT:  {
+// CHECK-NEXT:    Foo _wns_temp1;
+// CHECK-NEXT:    bool __c_temp1 = (_ZN3wns14_construct_FooEP3FooP3Foo((&_wns_temp1))->b);
+// CHECK-NEXT:    if (!__c_temp1) { break; }
+// CHECK-NEXT:  }
+// CHECK-NEXT:} while (true);
+    } while(Foo().b);
+    return x;
+}
+
+// RUN: simple_for_loop 10 -> -90
+// RUN: simple_for_loop 0 -> -100
+// CHECK: {{.*simple_for_loop.*{}}
+Int simple_for_loop(Int x) {
+    // CHECK: int32_t i = 0;
+    // CHECK-NEXT: bool __c_temp2 = false; // Should we break from this loop
+    // CHECK-NEXT: while ((i < 10)) {
+    // CHECK-NEXT: do {
+    // CHECK-NEXT:   x = (x - 10);
+    // CHECK-NEXT: }
+    // CHECK-NEXT: if (__c_temp2) { break; }
+    // CHECK-NEXT: {
+    // CHECK-NEXT: i = (i + 1);
+    // CHECK-NEXT: }
+    for (Int i = 0; i < 10; i += 1) {
+        x = x - 10;
+    }
+    return x;
+}
+ 
+// RUN: for_loop_with_temp 10 -> -20
+// RUN: for_loop_with_temp 0 -> -30
+// CHECK: {{.*for_loop_with_temp.*{}}
+Int for_loop_with_temp(Int x) {
+    // CHECK: int32_t i = 0;
+    // CHECK-NEXT: bool __c_temp3 = false; // Should we break from this loop
+    // CHECK-NEXT: while ((i < 10)) {
+    // CHECK-NEXT: do {
+    // CHECK-NEXT: x = (x - 10);
+    // CHECK-NEXT: } while (false);
+    // CHECK-NEXT: if (__c_temp3) { break; }
+    // CHECK-NEXT: {
+    // CHECK-NEXT: Foo _wns_temp2;
+    // CHECK-NEXT: i = (i + (_ZN3wns14_construct_FooEP3FooP3Foo((&_wns_temp2))->x));
+    // CHECK-NEXT: }
+    for (Int i = 0; i < 10; i += Foo().x) {
+        x = x - 10;
+    }
+    return x;
+}
+
+// RUN: for_loop_with_cond_temp 10 -> -30
+// RUN: for_loop_with_cond_temp 0 -> -40
+// CHECK: {{.*for_loop_with_cond_temp.*{}}
+Int for_loop_with_cond_temp(Int x) {
+    // CHECK: int32_t i = 0;
+    // CHECK-NEXT: bool __c_temp4 = false; // Should we break from this loop
+    // CHECK-NEXT: while (true) {
+    // CHECK-NEXT: do {
+    // CHECK-NEXT: {
+    // CHECK-NEXT: Foo _wns_temp3;
+    // CHECK-NEXT: bool __c_temp5 = (i < (_ZN3wns14_construct_FooEP3FooP3Foo((&_wns_temp3))->x));
+    // CHECK-NEXT: if (!__c_temp5) { __c_temp4 = true; break; }
+    // CHECK-NEXT: }
+    // CHECK-NEXT: {
+    // CHECK-NEXT: x = (x - 10);
+    // CHECK-NEXT: }
+    // CHECK-NEXT: } while (false);
+    // CHECK-NEXT: if (__c_temp4) { break; }
+    // CHECK-NEXT: {
+    // CHECK-NEXT: i = (i + 1);
+    // CHECK-NEXT: }
+
+    for (Int i = 0; i < Foo().x; i += 1) {
+        x = x - 10;
+    }
+    return x;
+}
+

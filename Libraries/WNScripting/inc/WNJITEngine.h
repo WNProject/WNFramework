@@ -40,7 +40,7 @@ public:
 // using LLVM during calls to parse_file.
 class jit_engine : public engine {
 public:
-  jit_engine(memory::allocator* _allocator, type_validator* _validator,
+  jit_engine(memory::allocator* _allocator,
       file_system::mapping* _mapping, logging::log* _log);
   ~jit_engine();
   parse_error parse_file(const char* file) override;

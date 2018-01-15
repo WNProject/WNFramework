@@ -746,4 +746,39 @@ private:
 }  // namespace containers
 }  // namespace wn
 
+namespace std {
+template <typename T, const size_t _ExpandPercentage>
+struct hash<wn::containers::dynamic_array<T, _ExpandPercentage>> {
+  std::hash<T> _underlying_hash;
+  size_t operator()(
+      const wn::containers::dynamic_array<T, _ExpandPercentage>& _arr) const {
+    size_t bits = sizeof(size_t) * 8;
+    size_t hash = 0;
+    for (size_t i = 0; i < _arr.size(); ++i) {
+      hash ^= _underlying_hash(_arr[i]);
+      hash = (hash >> 11) | (hash << (bits - 11));
+    }
+    return hash;
+  }
+};
+
+template <typename T, const size_t _ExpandPercentage>
+struct equal_to<wn::containers::dynamic_array<T, _ExpandPercentage>> {
+  std::equal_to<T> _underlying_equality;
+  bool operator()(const wn::containers::dynamic_array<T, _ExpandPercentage>& _0,
+      const wn::containers::dynamic_array<T, _ExpandPercentage>& _1) const {
+    if (_0.size() != _1.size()) {
+      return false;
+    }
+    for (size_t i = 0; i < _0.size(); ++i) {
+      if (!_underlying_equality(_0[i], _1[i])) {
+        return false;
+      }
+    }
+    return true;
+  }
+};
+
+}  // namespace std
+
 #endif

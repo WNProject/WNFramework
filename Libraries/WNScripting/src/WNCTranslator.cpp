@@ -7,19 +7,17 @@
 #include "WNContainers/inc/WNString.h"
 #include "WNFileSystem/inc/WNMapping.h"
 #include "WNLogging/inc/WNLog.h"
-#include "WNScripting/inc/WNASTCodeGenerator.h"
-#include "WNScripting/inc/WNASTWalker.h"
-#include "WNScripting/inc/WNCGenerator.h"
 #include "WNScripting/inc/WNScriptHelpers.h"
-#include "WNScripting/inc/WNTypeValidator.h"
+#include "WNScripting/inc/ast_node_types.h"
+#include "WNScripting/inc/c_compiler.h"
 
 namespace wn {
 namespace scripting {
 
 c_translator::c_translator(memory::allocator* _allocator,
-    type_validator* _validator, file_system::mapping* _source_mapping,
-    file_system::mapping* _dest_mapping, logging::log* _log)
-  : translator(_validator),
+    file_system::mapping* _source_mapping, file_system::mapping* _dest_mapping,
+    logging::log* _log)
+  : translator(),
     m_allocator(_allocator),
     m_source_mapping(_source_mapping),
     m_dest_mapping(_dest_mapping),
@@ -33,47 +31,32 @@ parse_error c_translator::translate_file_with_error(
   if (!file) {
     return parse_error::does_not_exist;
   }
-  containers::array<uint32_t, 2> allocate_shared_params = {
-      static_cast<uint32_t>(type_classification::size_type),
-      static_cast<uint32_t>(type_classification::function_ptr_type)};
+  containers::array<uint32_t, 1> allocate_params = {
+      static_cast<uint32_t>(type_classification::size_type)};
+  containers::array<uint32_t, 1> free_params = {
+      static_cast<uint32_t>(type_classification::void_ptr_type)};
 
-  containers::array<uint32_t, 1> deref_shared_params = {
-      static_cast<uint32_t>(type_classification::void_ptr_type)};
-  containers::array<uint32_t, 2> assign_params = {
-      static_cast<uint32_t>(type_classification::void_ptr_type),
-      static_cast<uint32_t>(type_classification::void_ptr_type)};
   // We have a set of functions that we MUST expose to the scripting
   // engine.
-  containers::array<external_function, 4> required_functions;
-  required_functions[0] = {"_allocate_shared",
+  containers::array<external_function, 2> required_functions;
+  required_functions[0] = {"_allocate",
       static_cast<uint32_t>(type_classification::void_ptr_type),
-      allocate_shared_params};
-  required_functions[1] = {"_deref_shared",
-      static_cast<uint32_t>(type_classification::void_type),
-      deref_shared_params};
-  required_functions[2] = {"_assign_shared",
-      static_cast<uint32_t>(type_classification::void_ptr_type), assign_params};
-  // _return_shared is a little bit special.
-  // It dereferences a value, but does not delete the object if it
-  // ends up being 0. This will get injected at return sites,
-  // since we know that the results will always be incremented.
-  required_functions[3] = {"_return_shared",
-      static_cast<uint32_t>(type_classification::void_ptr_type),
-      deref_shared_params};
-  memory::unique_ptr<script_file> parsed_file = parse_script(m_allocator,
-      m_validator, _file, required_functions, file->typed_range<char>(),
+      allocate_params};
+  required_functions[1] = {"_free",
+      static_cast<uint32_t>(type_classification::void_type), free_params};
+
+  memory::unique_ptr<ast_script_file> parsed_file = parse_script(m_allocator,
+      _file, file->typed_range<char>(), required_functions,
       _dump_ast_on_failure, m_compilation_log, &m_num_warnings, &m_num_errors);
 
   if (parsed_file == nullptr) {
     return scripting::parse_error::parse_failed;
   }
-  ast_code_generator<ast_c_traits> generator(m_allocator);
-  ast_c_translator translator(m_allocator, &generator, m_validator);
-  generator.set_generator(&translator);
-  run_ast_pass<ast_code_generator<ast_c_traits>>(
-      &generator, static_cast<const script_file*>(parsed_file.get()));
 
-  const containers::string& output_string(translator.get_output());
+  c_compiler compiler(m_allocator);
+  compiler.compile(parsed_file.get());
+
+  const containers::string& output_string = compiler.get_output();
   containers::string output_filename(m_allocator, _file);
   output_filename.append(".c");
 

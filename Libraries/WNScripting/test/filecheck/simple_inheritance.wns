@@ -1,0 +1,63 @@
+// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE.txt file.
+
+class A1 { Int a = 32; }
+class A2 : A1 { Int b = 4; Int foo() { return a; } }
+class A3 : A2 { A1 c = A2(); }
+
+// CHECK: typedef struct __A1 {
+// CHECK-NEXT: int32_t a;
+// CHECK-NEXT: } A1;
+
+// CHECK: typedef struct __A2 {
+// CHECK-NEXT: int32_t a;
+// CHECK-NEXT: int32_t b;
+// CHECK-NEXT: } A2;
+
+// CHECK: typedef struct __A3 {
+// CHECK-NEXT: int32_t a;
+// CHECK-NEXT: int32_t b;
+// CHECK-NEXT: A1* c;
+// CHECK-NEXT: } A3;
+
+// CHECK: typedef struct ___A3 {
+// CHECK-NEXT: int32_t a;
+// CHECK-NEXT: int32_t b;
+// CHECK-NEXT: A1* c;
+// CHECK-NEXT: A2 _c;
+// CHECK-NEXT: } _A3;
+
+
+Int foo(A1 a) {
+    return a.a;
+}
+
+// CHECK: {{test1.*{}}
+// RUN: test1 32 -> 64
+Int test1(Int x) {
+// CHECK-NEXT: int32_t _return;
+// CHECK-NEXT: A2* a2 = ((A2*)(_ZN3wns13_construct_A3EP2A3P3_A3((&_wns_temp1))));
+    A2 a2 = A3();
+// CHECK-NEXT:   _return = (_ZN3wns3fooEiP2A1(((A1*)(a2))) + x);
+    return foo(a2) + x;
+}
+
+// CHECK: {{test2.*{}}
+// RUN: test2 32 -> 64
+Int test2(Int x) {
+// CHECK-NEXT: int32_t _return;
+// CHECK-NEXT:  _shared_A2 a2 = ((_shared_A2)(_ZN3wns18_wns_assign_sharedEPvPvPv(((void*)(NULL)), ((void*)(((_shared_A2)(_ZN3wns13_construct_A3EP2A3P3_A3(((_A3*)(_ZN3wns20_wns_allocate_sharedEPvN3wns4sizeEFvPvE(sizeof(_A3), ((_wns_fn_ptr_0)(NULL)))))))))))));
+    shared A2 a2 = shared A3();
+// CHECK-NEXT: _return = (_ZN3wns3fooEiP2A1(((A1*)(a2))) + x);
+    return foo(a2) + x;
+}
+
+// CHECK: {{test3.*{}}
+// RUN: test3 32 -> 64
+Int test3(Int x) {
+// CHECK-NEXT: int32_t _return;
+// CHECK-NEXT: _A3 _wns_temp2;
+// CHECK-NEXT: _return = (_ZN3wns2A23fooEiP2A2(((A2*)(_ZN3wns13_construct_A3EP2A3P3_A3((&_wns_temp2))))) + x);
+    return A3().foo() + x;
+}

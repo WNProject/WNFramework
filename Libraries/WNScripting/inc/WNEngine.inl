@@ -10,81 +10,35 @@
 #include <array>
 #include "WNContainers/inc/WNDynamicArray.h"
 #include "WNScripting/inc/WNEnums.h"
-#include "WNScripting/inc/WNTypeValidator.h"
+#include "WNScripting/inc/type_mangler.h"
 
 namespace wn {
 namespace scripting {
 
-template <typename T>
-struct type_registry {
-  // Note: change this implementation if we
-  // ever plan on shared-library functionality
-  // for scripting. The registered type indices
-  // will probably not be consistent across modules.
-  static void* get_registered_index() {
-    static size_t i = 0;
-    ++i;
-    return &(i);
-  }
-};
-
-void inline engine::register_builtin_types() {
-  m_registered_types[type_registry<int32_t>::get_registered_index()] =
-      static_cast<uint32_t>(scripting::type_classification::int_type);
-  m_registered_types[type_registry<bool>::get_registered_index()] =
-      static_cast<uint32_t>(scripting::type_classification::bool_type);
-  m_registered_types[type_registry<char>::get_registered_index()] =
-      static_cast<uint32_t>(scripting::type_classification::char_type);
-  m_registered_types[type_registry<void>::get_registered_index()] =
-      static_cast<uint32_t>(scripting::type_classification::void_type);
-  m_registered_types[type_registry<float>::get_registered_index()] =
-      static_cast<uint32_t>(scripting::type_classification::float_type);
-}
-
 namespace {
-
-template<typename T>
-uint32_t get_registered_index(
-    const containers::hash_map<void*, uint32_t>& _types, T* _error,
-    void* _idx) {
-  auto type = _types.find(_idx);
-  if (type == _types.end()) {
-    *_error = true;
-    return 0u;
-  }
-  return type->second;
-}
 
 template <size_t size>
 struct expand_parameters {
   template <typename T, typename... Args>
-  static bool run(containers::dynamic_array<uint32_t>* _params,
-      const containers::hash_map<void*, uint32_t>& _registered_types) {
-    bool error = false;
-    _params->insert(
-        _params->end(), {get_registered_index(_registered_types, &error,
-                            type_registry<Args>::get_registered_index())...});
-    return error;
+  static bool run(containers::dynamic_array<containers::string_view>* _params) {
+    _params->insert(_params->end(), {mangled_name<Args>::get()...});
+    return false;
   }
 };
 
 template <>
 struct expand_parameters<1> {
   template <typename T, typename P>
-  static bool run(containers::dynamic_array<uint32_t>* _params,
-      const containers::hash_map<void*, uint32_t>& _registered_types) {
-    bool error = false;
-    _params->push_back(get_registered_index(
-        _registered_types, &error, type_registry<T>::get_registered_index()));
-    return error;
+  static bool run(containers::dynamic_array<containers::string_view>* _params) {
+    _params->push_back(mangled_name<T>::get());
+    return false;
   }
 };
 
 template <>
 struct expand_parameters<0> {
   template <typename T>
-  static bool run(containers::dynamic_array<uint32_t>*,
-      const containers::hash_map<void*, uint32_t>&) {
+  static bool run(containers::dynamic_array<containers::string_view>*) {
     return false;
   }
 };
@@ -92,25 +46,31 @@ struct expand_parameters<0> {
 }  // anonymous namespace
 
 template <typename T, typename... Args>
+
 bool inline engine::get_function(containers::string_view _name,
     script_function<T, Args...>& _function) const {
-  containers::dynamic_array<uint32_t> parameters(m_allocator);
+  containers::dynamic_array<containers::string_view> parameters(m_allocator);
   bool error = false;
 
-  uint32_t return_type = get_registered_index(
-      m_registered_types, &error, type_registry<T>::get_registered_index());
+  containers::string_view return_type = mangled_name<T>::get();
   if (error) {
     return false;
   }
 
-  error = expand_parameters<sizeof...(Args)>::template run<T, Args...>(
-      &parameters, m_registered_types);
+  error =
+      expand_parameters<sizeof...(Args)>::template run<T, Args...>(&parameters);
   if (error) {
     return false;
   }
-  _function.m_function = reinterpret_cast<T (*)(Args...)>(
-      get_function_pointer(m_validator->get_mangled_name(_name, return_type,
-          containers::contiguous_range<uint32_t>(parameters))));
+
+  containers::string s = get_mangled_name(m_allocator, _name);
+  s += return_type;
+  for (auto& param : parameters) {
+    s += param;
+  }
+
+  _function.m_function =
+      reinterpret_cast<T (*)(Args...)>(get_function_pointer(s));
   return _function.m_function != nullptr;
 }
 

@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-// RUN main 4 -> 4
+// RUN: main 4 -> 4
 Int main(Int x) {
-// CHECK: {{4mainE}}
+// CHECK: {{4mainE.*{}}
+// CHECK: (x + 3);
     x + 3;
-// CHECK-NEXT: (x + 3);
     return x;
 }

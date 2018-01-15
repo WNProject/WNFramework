@@ -1,0 +1,72 @@
+// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE.txt file.
+
+struct A { Int x = 4; }
+
+struct B { shared A f = shared A(); }
+
+struct C { A a = A(); }
+
+struct D { B b = B(); }
+
+// CHECK: {{test1.*{}}
+// RUN: test1 -> 32
+Int test1() {
+    A a = A();
+    a.x = 32;
+    A b = A();
+// CHECK: b = a
+    b = a;
+    return b.x;
+}
+
+// CHECK: {{test2.*{}}
+// RUN: test2 -> 32
+Int test2() {
+    B a = B();
+    B b = B();
+    a.f.x = 32;
+// CHECK:  _ZN3wns9_assign_BEvP1B1B((&b), (&a));
+    b = a;
+    return b.f.x;
+}
+
+// CHECK: {{test3.*{}}
+// RUN: test3 -> 32
+Int test3() {
+    C a = C();
+    a.a.x = 32;
+    C b = C();
+// CHECK: b = a
+    b = a;
+    return b.a.x;
+}
+
+// CHECK: {{test4.*{}}
+// RUN: test4 -> 32
+Int test4() {
+    D a = D();
+    D b = D();
+// CHECK: _ZN3wns9_assign_DEvP1D1D((&b), (&a));
+    b = a;
+    a.b.f.x = 32;
+    return b.b.f.x;
+}
+
+// CHECK: {{reset_a.*{}}
+Void reset_a(A a) {
+    A b = A();
+// CHECK: (*a) = (*(&b));
+    a = b;
+}
+
+// CHECK: {{test5.*{}}
+// RUN: test5 -> 4
+Int test5() {
+    A a = A();
+    a.x = 32;
+    reset_a(a);
+// CHECK: _ZN3wns7reset_aEvP1A((&a));
+    return a.x;
+}

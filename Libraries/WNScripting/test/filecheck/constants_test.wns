@@ -1,0 +1,32 @@
+// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE.txt file.
+
+// CHECK: {{.*void_func.*\{}}
+// RUN: void_func -> 3
+Int void_func() {
+// CHECK-NEXT: int32_t _return;
+    return 3;
+// CHECK-NEXT: _return = 3;
+// CHECK-NEXT: return _return;
+}
+
+// CHECK: {{.*b_func.*\{}}
+// RUN: b_func -> 3
+Int b_func() {
+// CHECK: if (true) {
+    if (true) {
+        return 3;
+    }
+    return 4;
+}
+
+// CHECK: {{.*ff.*\{}}
+// RUN: ff -> 3
+Int ff() {
+// CHECK: if ((3.0f < 4.0f)) {
+    if (3.0 < 4.0) {
+        return 3;
+    }
+    return 4;
+}

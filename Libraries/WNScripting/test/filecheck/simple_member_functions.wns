@@ -1,0 +1,34 @@
+// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE.txt file.
+
+
+// CHECK: typedef struct __S1 {
+// CHECK-NEXT: int32_t x;
+// CHECK-NEXT: } S1;
+
+class S1 {
+    Int x = 4;
+// CHECK: int32_t _ZN3wns2S13fooEiP2S1(S1* _this) {
+    Int foo() {
+// CHECK:  _return = (_this->x);
+        return x;
+    }
+// CHECK: int32_t _ZN3wns2S13barEiP2S1(S1* _this) {
+    Int bar() {
+// CHECK:  _return = _ZN3wns2S13fooEiP2S1(_this);
+        return foo();
+    }
+}
+
+// RUN: memberFunction 4 -> 12
+Int memberFunction(Int x) {
+    S1 s = S1();
+    return s.foo() + s.x + x;
+}
+
+// RUN: memberFunctionCallingMemberFunction 4 -> 8
+Int memberFunctionCallingMemberFunction(Int x) {
+    S1 s = S1();
+    return s.bar() + x;
+}

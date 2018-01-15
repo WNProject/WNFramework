@@ -1,0 +1,87 @@
+// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE.txt file.
+
+struct Foo {
+  Int x = 3;
+}
+
+struct Foo2 {
+  shared Foo f = shared Foo();
+}
+
+// CHECK: {{_ZN3wns14_destruct_Foo2EvP4Foo2.*{}}
+// CHECK-NEXT: _ZN3wns12_wns_releaseEvPv(((void*)((_this->f))));
+// CHECK-NEXT: return;
+
+// RUN: shared1 3 -> 3
+// RUN: shared1 4 -> 3
+// CHECK: {{7shared1E.*{}}
+Int shared1(Int x) {
+// CHECK-NEXT: int32_t _return;
+// CHECK-NEXT: _shared_Foo f = ((_shared_Foo)(_ZN3wns18_wns_assign_sharedEPvPvPv(((void*)(NULL)), ((void*)(_ZN3wns14_construct_FooEP3FooP3Foo(((Foo*)(_ZN3wns20_wns_allocate_sharedEPvN3wns4sizeEFvPvE(sizeof(Foo), ((_wns_fn_ptr_0)(NULL)))))))))));
+  shared Foo f = shared Foo();
+// CHECK-NEXT: _return = (f->x);
+// CHECK-NEXT: _ZN3wns12_wns_releaseEvPv(((void*)(f)));
+// CHECK-NEXT: return _return;
+  return f.x;
+}
+
+// RUN: shared2 3 -> 3
+// RUN: shared2 4 -> 3
+// CHECK: {{7shared2E.*{}}
+Int shared2(Int x) {
+// CHECK-NEXT: int32_t _return;
+// CHECK-NEXT: _shared_Foo2 f = ((_shared_Foo2)(_ZN3wns18_wns_assign_sharedEPvPvPv(((void*)(NULL)), ((void*)(_ZN3wns15_construct_Foo2EP4Foo2P4Foo2(((Foo2*)(_ZN3wns20_wns_allocate_sharedEPvN3wns4sizeEFvPvE(sizeof(Foo2), ((_wns_fn_ptr_0)(&_ZN3wns14_destruct_Foo2EvP4Foo2)))))))))));
+  shared Foo2 f = shared Foo2();
+  return f.f.x;
+}
+
+// CHECK: {{4getF.*{}}
+shared Foo getF(Bool b) {
+  shared Foo f = shared Foo();
+  if (b == false) {
+    return null;
+  }
+  f.x = 32;
+// CHECK: _return = ((_shared_Foo)(_ZN3wns18_wns_assign_sharedEPvPvPv(((void*)(NULL)), ((void*)(f)))));
+// CHECK-NEXT: _ZN3wns12_wns_releaseEvPv(((void*)(f)));
+// CHECK-NEXT: return ((_shared_Foo)(_ZN3wns18_wns_return_sharedEPvPv(((void*)(_return)))));
+  return f;
+}
+
+// RUN: shared3 3 -> 3
+// RUN: shared3 4 -> 4
+// RUN: shared3 5 -> 32
+// CHECK: {{7shared3E.*{}}
+Int shared3(Int x) {
+// CHECK: _shared_Foo f = ((_shared_Foo)(_ZN3wns18_wns_assign_sharedEPvPvPv(((void*)(NULL)), ((void*)(_ZN3wns14_construct_FooEP3FooP3Foo(((Foo*)(_ZN3wns20_wns_allocate_sharedEPvN3wns4sizeEFvPvE(sizeof(Foo), ((_wns_fn_ptr_0)(NULL)))))))))));
+  shared Foo f = shared Foo();
+  f.x = 32;
+  if (x == 3) {
+// CHECK:  ((_shared_Foo)(_ZN3wns18_wns_assign_sharedEPvPvPv(((void*)(f)), ((void*)(_ZN3wns14_construct_FooEP3FooP3Foo(((Foo*)(_ZN3wns20_wns_allocate_sharedEPvN3wns4sizeEFvPvE(sizeof(Foo), ((_wns_fn_ptr_0)(NULL)))))))))));
+    f = shared Foo();
+  } else if (x == 4) {
+// CHECK:  ((_shared_Foo)(_ZN3wns18_wns_assign_sharedEPvPvPv(((void*)(f)), ((void*)(_ZN3wns14_construct_FooEP3FooP3Foo(((Foo*)(_ZN3wns20_wns_allocate_sharedEPvN3wns4sizeEFvPvE(sizeof(Foo), ((_wns_fn_ptr_0)(NULL)))))))))));
+    f = shared Foo();
+    f.x = 4;
+  } else if (x == 5) {
+    f = getF(true);
+  } else {
+// CHECK: f = ((_shared_Foo)(_ZN3wns18_wns_assign_sharedEPvPvPv(((void*)(f)), ((void*)(((_shared_Foo)(NULL)))))));
+    f = null;
+  }
+  return f.x;
+}
+
+// RUN: shared4 4 -> 32
+// RUN: shared4 5 -> 4
+// CHECK: {{7shared4E.*{}}
+Int shared4(Int x) {
+  shared Foo f = getF(x == 4);
+// CHECK: if ((f != ((_shared_Foo)(NULL)))) {
+  if (f != null) {
+    return f.x;
+  }
+  return 4;
+}

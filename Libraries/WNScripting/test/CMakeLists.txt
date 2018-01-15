@@ -1,15 +1,10 @@
 wn_create_executable_tests_from_list(TEST_PREFIX WNScripting
   TEST_NAME WNScripting
   COMMON_SOURCES
-    inc/Common.h
   SOURCE_DIR
     src/Tests
   SOURCES
-    WNASTCodeGenerator
-    WNASTWalker
-    WNCTranslator
     WNFactory
-    WNEngineJITInitializer
   LIBS
     WNScripting
 )
@@ -26,22 +21,21 @@ wn_create_call_test(
     COMMAND_POST_DIR
       --test_file
     UNIQUE_ARGS
-      array_tests.wns
       assignment_tests.wns
-      break_tests.wns
-      continue_tests.wns
-      do_loop_tests.wns
+      constants_test.wns
       empty_expression.wns
+      empty_struct.wns
       function_call_tests.wns
-      if_test.wns
-      inherited_struct_tests.wns
-      member_function_tests.wns
-      relative_construction_test.wns
+      loop_with_break.wns
+      loop_with_continue.wns
+      loop_with_return.wns
+      partial_for_loops.wns
+      simple_functions.wns
+      simple_inheritance.wns
+      simple_loop_tests.wns
+      simple_member_functions.wns
+      simple_shared.wns
       simple_struct_test.wns
-      scope_tests.wns
-      shared_objects.wns
-      struct_in_struct_tests.wns
-      struct_with_array_tests.wns
-      temporary_objects.wns
-      virtual_tests.wns
+      simple_virtual.wns
+      struct_assign.wns
 )

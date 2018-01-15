@@ -15,7 +15,6 @@
 
 namespace wn {
 namespace scripting {
-class type_validator;
 
 template <typename T, typename... Args>
 class script_function {
@@ -26,16 +25,10 @@ class script_function {
 // Implementors of this class are expected to take
 // in files, and give access to function pointer callable from
 // C++.
-// The type_validator is expected to be set up and unchangable
-// before the first call to parse_file or get_function_pointer.
 class engine {
 public:
-  engine(memory::allocator* _allocator, type_validator* _validator)
-    : m_num_warnings(0),
-      m_num_errors(0),
-      m_allocator(_allocator),
-      m_validator(_validator),
-      m_registered_types(_allocator) {
+  engine(memory::allocator* _allocator)
+    : m_num_warnings(0), m_num_errors(0), m_allocator(_allocator) {
     // These exists to stop the compiler from assuming these are unused.
     (void)assign_type_names;
     (void)short_circuit_type_names;
@@ -44,7 +37,6 @@ public:
     (void)type_array_depth;
     (void)unary_type_names;
     (void)post_un_names;
-    register_builtin_types();
   }
 
   virtual ~engine() {}
@@ -81,13 +73,10 @@ protected:
   size_t m_num_warnings;
   size_t m_num_errors;
   memory::allocator* m_allocator;
-  type_validator* m_validator;
   using void_f = void (*)();
   virtual void_f get_function_pointer(containers::string_view _name) const = 0;
 
 private:
-  void register_builtin_types();
-  containers::hash_map<void*, uint32_t> m_registered_types;
 };
 
 }  // namespace scripting

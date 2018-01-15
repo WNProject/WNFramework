@@ -1,0 +1,22 @@
+// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE.txt file.
+
+// CHECK: {{_ZN3wns9void_funcEv}}
+// CHECK: {{_ZN3wns3fooEii}}
+
+// CHECK: void _ZN3wns9void_funcEv() {
+Void void_func() {
+// CHECK-NEXT: return;
+}
+// CHECK-NEXT: }
+
+// RUN: foo 4 -> 4
+// CHECK: int32_t _ZN3wns3fooEii(int32_t x) {
+Int foo(Int x) {
+// CHECK-NEXT: int32_t _return;
+// CHECK-NEXT: _return = x;
+// CHECK-NEXT: return _return;
+    return x;
+// CHECK-NEXT: }
+}

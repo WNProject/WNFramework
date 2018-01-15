@@ -12,15 +12,14 @@
 
 namespace wn {
 namespace scripting {
-class type_validator;
 
 // Base interface for file translation.
 // Any implementor is responsible for overloading
 // translate_file to perform the actual work.
 class translator {
 public:
-  translator(type_validator* _validator)
-    : m_num_warnings(0), m_num_errors(0), m_validator(_validator) {}
+  translator()
+    : m_num_warnings(0), m_num_errors(0) {}
   virtual ~translator() = default;
 
   parse_error translate_file(const char* _file) {
@@ -39,7 +38,6 @@ public:
 protected:
   size_t m_num_warnings;
   size_t m_num_errors;
-  type_validator* m_validator;
 };
 }  // namespace scripting
 }  // namespace wn

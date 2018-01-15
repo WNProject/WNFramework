@@ -272,6 +272,9 @@ WN_FORCE_INLINE size_t writeuint32(
       break;
     }
   }
+  if (counter < _maxSize) {
+    _buffer[counter] = '\0';
+  }
 
   // Right now the integer is in swapped order, fix that
   for (size_t i = 0; i < counter / 2; ++i) {

@@ -1,0 +1,77 @@
+// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE.txt file.
+
+class Foo {
+    Int x = 4;
+    virtual Int getX() { return x; }
+    virtual Int getX(Int y) { return x + y; }
+    virtual Int getX(Float z) { return x * 2; }
+}
+
+class Bar : Foo {
+    override Int getX() { return x + 1; }
+    override Int getX(Float z) { return x * 3; }
+}
+
+// CHECK: const _vtable_function __vtable__Foo{
+// CHECK-NEXT: (_vtable_function)&_ZN3wns3Foo4getXEiP3Foo
+// CHECK-NEXT: (_vtable_function)&_ZN3wns3Foo4getXEiP3Fooi
+// CHECK-NEXT: (_vtable_function)&_ZN3wns3Foo4getXEiP3Foof
+// };
+
+// CHECK:      __wns_inline__
+// CHECK-NEXT: int32_t _call_Foo_v0_getX(Foo* _this) {
+// CHECK-NEXT:   return ((int32_t(*)(Foo*)_this->__vtable[0])(_this);
+// CHECK-NEXT: }
+
+// CHECK:      __wns_inline__
+// CHECK-NEXT: int32_t _call_Foo_v1_getX(Foo* _this, int32_t y) {
+// CHECK-NEXT:   return ((int32_t(*)(Foo*, int32_t)_this->__vtable[1])(_this, y);
+// CHECK-NEXT: }
+
+// CHECK:      __wns_inline__
+// CHECK-NEXT: int32_t _call_Foo_v2_getX(Foo* _this, float z) {
+// CHECK-NEXT:   return ((int32_t(*)(Foo*, float)_this->__vtable[2])(_this, z);
+// CHECK-NEXT: }
+
+// CHECK: const _vtable_function __vtable__Bar{
+// CHECK-NEXT:  (_vtable_function)&_ZN3wns3Bar4getXEiP3Bar
+// CHECK-NEXT:  (_vtable_function)&_ZN3wns3Foo4getXEiP3Fooi
+// CHECK-NEXT:  (_vtable_function)&_ZN3wns3Bar4getXEiP3Barf
+// CHECK-NEXT: };
+
+// RUN: test 4 -> 9
+Int test(Int x) {
+    Foo b = Bar();
+// CHECK:   _return = (_call_Foo_v0_getX(b) + x);
+    return b.getX() + x;
+}
+
+// RUN: test2 4 -> 8
+Int test2(Int x) {
+    Foo b = Bar();
+// CHECK:  _return = _call_Foo_v1_getX(b, x);
+    return b.getX(x);
+}
+
+// RUN: test3 4 -> 12
+Int test3(Int x) {
+    Foo b = Bar();
+// CHECK: _return = _call_Foo_v2_getX(b, 1.0f);
+    return b.getX(1.0);
+}
+
+// RUN: test4 4 -> 8
+Int test4(Int x) {
+    Foo b = Foo();
+// CHECK: _return = _call_Foo_v2_getX(b, 1.0f);
+    return b.getX(1.0);
+}
+
+// RUN: test5 4 -> 12
+Int test5(Int x) {
+    Bar b = Bar();
+// CHECK: _return = _call_Bar_v2_getX(b, 1.0f);
+    return b.getX(1.0);
+}

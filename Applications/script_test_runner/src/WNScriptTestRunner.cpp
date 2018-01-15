@@ -78,7 +78,7 @@ bool call_function<1>(logging::log* _log, scripting::engine* e,
   scripting::script_function<int32_t, int32_t> func;
   if (!e->get_function(name, func)) {
     _log->log_error(
-        "Could not find function ", name, " with ", 0, " parameters");
+        "Could not find function ", name, " with ", 1, " parameter");
     return false;
   }
   int32_t ret = e->invoke(func, a[0]);
@@ -97,7 +97,7 @@ bool call_function<2>(logging::log* _log, scripting::engine* e,
   scripting::script_function<int32_t, int32_t, int32_t> func;
   if (!e->get_function(name, func)) {
     _log->log_error(
-        "Could not find function ", name, " with ", 0, " parameters");
+        "Could not find function ", name, " with ", 2, " parameters");
     return false;
   }
   int32_t ret = e->invoke(func, a[0], a[1]);
@@ -116,7 +116,7 @@ bool call_function<3>(logging::log* _log, scripting::engine* e,
   scripting::script_function<int32_t, int32_t, int32_t, int32_t> func;
   if (!e->get_function(name, func)) {
     _log->log_error(
-        "Could not find function ", name, " with ", 0, " parameters");
+        "Could not find function ", name, " with ", 3, " parameters");
     return false;
   }
   int32_t ret = e->invoke(func, a[0], a[1], a[2]);
@@ -225,16 +225,14 @@ int32_t wn_main(const ::wn::entry::system_data* _system_data) {
               &allocator, wn::file_system::mapping_type::memory_backed);
   output_mapping->create_directory("/");
 
-  scripting::type_validator jit_validator(&allocator);
   scripting::factory script_factory;
-  scripting::type_validator c_validator(&allocator);
 
-  memory::unique_ptr<scripting::engine> jit = script_factory.get_engine(
-      &allocator, scripting::scripting_engine_type::jit_engine, &jit_validator,
-      files.get(), log.log());
+  memory::unique_ptr<scripting::engine> jit =
+      script_factory.get_engine(&allocator,
+          scripting::scripting_engine_type::jit_engine, files.get(), log.log());
   memory::unique_ptr<scripting::translator> translator =
       script_factory.get_translator(&allocator,
-          scripting::translator_type::c_translator, &c_validator, files.get(),
+          scripting::translator_type::c_translator, files.get(),
           output_mapping.get(), log.log());
 
   auto test_file_string = test_file.to_string(&allocator);
@@ -298,7 +296,7 @@ int32_t wn_main(const ::wn::entry::system_data* _system_data) {
     if (effceeResult.status() != effcee::Result::Status::Ok) {
       log.log()->log_critical(
           "Error, filecheck failed: ", effceeResult.message().c_str());
-      log.log()->log_critical("File contents: ", output_file);
+      log.log()->log_critical("File contents:\n\n", output_file);
       return -1;
     }
     log.log()->log_info("Filecheck results for C translation successful");
@@ -307,9 +305,9 @@ int32_t wn_main(const ::wn::entry::system_data* _system_data) {
     re2::RE2::Options options;
     re2::RE2 function_call_re(
         "[[:space:]]*//"
-        "[[:space:]]*RUN:[[:space:]]*([a-z][a-zA-Z0-9_]*)((?:[[:space:]]+[0-9]+"
-        ")"
-        "*)[[:space:]]*->[[:space:]]*([0-9]+)[[:space:]]*",
+        "[[:space:]]*RUN:[[:space:]]*([a-z][a-zA-Z0-9_]*)((?:[[:space:]]+-?[0-"
+        "9]+"
+        ")*)[[:space:]]*->[[:space:]]*(-?[0-9]+)[[:space:]]*",
         options);
     auto lines =
         containers::string_view(input_file).split(&allocator, '\n', false);

@@ -1,0 +1,41 @@
+// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE.txt file.
+
+// RUN: do_with_continue 4 -> 5
+// RUN: do_with_continue 12 -> 12
+// CHECK: {{.*do_with_continue.*{}}
+Int do_with_continue(Int x) {
+    do {
+
+// CHECK:      do {
+// CHECK-NEXT:   if ((x == 4)) {
+// CHECK-NEXT:     x = 5;
+// CHECK-NEXT:     continue;
+// CHECK-NEXT:   }
+        if (x == 4) {
+            x = 5;
+            continue;
+        }
+        break;
+    } while(true);
+    return x;
+}
+
+// RUN: for_loop_with_continue 4 -> 9;
+// RUN: for_loop_with_continue 10 -> 10
+// CHECK: {{.*for_loop_with_continue.*{}}
+Int for_loop_with_continue(Int x) {
+    Int f = 0;
+    for (Int i = 0; i < 10; i += 1) {
+// CHECK:      if ((i == x)) {
+// CHECK-NEXT:   __c_temp0 = false; break;
+// CHECK-NEXT: }
+        if (i == x) {
+            continue;
+        }
+        f += 1;
+    }
+    return f;
+}
+

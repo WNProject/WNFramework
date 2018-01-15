@@ -10,6 +10,7 @@
 #include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNScripting/inc/WNTranslator.h"
+#include "WNMemory/inc/WNUniquePtr.h"
 
 namespace wn {
 namespace file_system {
@@ -19,7 +20,6 @@ class mapping;
 namespace scripting {
 
 class engine;
-class type_validator;
 
 enum class scripting_engine_type {
   jit_engine,
@@ -34,7 +34,7 @@ public:
   // and all allocations performed by the engine will be performed
   // with the given allocator.
   virtual memory::unique_ptr<engine> get_engine(memory::allocator* _allocator,
-      scripting_engine_type _type, type_validator* _validator,
+      scripting_engine_type _type,
       file_system::mapping* _file_mapping, logging::log* _log);
 
   // Returns a wn::scripting::translator of the given type.
@@ -43,7 +43,7 @@ public:
   // with the given allocator.
   virtual memory::unique_ptr<translator> get_translator(
       memory::allocator* _allocator, translator_type _type,
-      type_validator* _validator, file_system::mapping* _file_mapping,
+      file_system::mapping* _file_mapping,
       file_system::mapping* _output_mapping, logging::log* _log);
 };
 
