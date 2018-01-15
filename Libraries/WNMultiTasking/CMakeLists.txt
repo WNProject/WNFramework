@@ -20,7 +20,6 @@ add_wn_library(
     inc/spin_lock.h
     inc/synchronized.h
     inc/thread.h
-    src/thread.cpp
     inc/thread_pool.h
     inc/thread_task.h
 )
