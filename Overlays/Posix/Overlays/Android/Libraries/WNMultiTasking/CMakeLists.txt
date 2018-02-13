@@ -1,5 +1,8 @@
-overlay_library_sources(WNMultiTasking
+overlay_library_sources(
+  WNMultiTasking
   SOURCES
+    inc/internal/system_thread_id.h
+    inc/internal/system_thread_yield.h
     src/context.h
     src/fiber_entry.h
     src/fiber_entry.cpp

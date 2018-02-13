@@ -36,6 +36,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
+#pragma once
+
+#ifndef __WN_MULTI_TASKING_ANDROID_ARM_CONSTANTS_H__
+#define __WN_MULTI_TASKING_ANDROID_ARM_CONSTANTS_H__
+
 #define UCONTEXT_SIGMASK_OFFSET 104
 
 #define MCONTEXT_GREGS_OFFSET 32
@@ -48,3 +53,5 @@
 #define MCONTEXT_GREGS_R15_OFFSET (MCONTEXT_GREGS_OFFSET + 15 * 4)
 
 #define MCONTEXT_GREGS_R15_OFFSET_GREGS (15 * 4)
+
+#endif  // __WN_MULTI_TASKING_ANDROID_ARM_CONSTANTS_H__

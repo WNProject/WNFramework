@@ -36,6 +36,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
+#pragma once
+
+#ifndef __WN_MULTI_TASKING_ANDROID_ARM64_CONSTANTS_H__
+#define __WN_MULTI_TASKING_ANDROID_ARM64_CONSTANTS_H__
+
 #define UCONTEXT_SIGMASK_OFFSET 40
 
 #define MCONTEXT_GREGS_OFFSET 184
@@ -58,3 +63,5 @@
 
 #define NSIG 64
 #define NR_rt_sigprocmask 135
+
+#endif  // __WN_MULTI_TASKING_ANDROID_ARM64_CONSTANTS_H__

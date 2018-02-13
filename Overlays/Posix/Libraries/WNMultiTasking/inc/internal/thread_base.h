@@ -11,6 +11,8 @@
 #include "WNFunctional/inc/WNFunction.h"
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNMemory/inc/WNIntrusivePtr.h"
+#include "WNMultiTasking/inc/internal/system_thread_id.h"
+#include "WNMultiTasking/inc/internal/system_thread_yield.h"
 #include "WNMultiTasking/inc/semaphore.h"
 
 #include <pthread.h>
@@ -96,11 +98,7 @@ private:
 
     WN_RELEASE_ASSERT_DESC(data, "invalid thread data");
 
-#ifdef _WN_LINUX
-    data->m_id = ::syscall(SYS_gettid);
-#elif defined _WN_ANDROID
-    data->m_id = ::gettid();
-#endif
+    data->m_id = system_thread_id();
 
     data->m_start_lock.notify();
 
@@ -152,23 +150,13 @@ inline thread_base::id_base thread_base::get_id() const {
 }
 
 inline thread_base::id_base get_id() {
-#ifdef _WN_LINUX
-  return thread_base::id_base(static_cast<pid_t>(::syscall(SYS_gettid)));
-#elif defined _WN_ANDROID
-  return thread_base::id_base(::gettid());
-#endif
+  return thread_base::id_base(system_thread_id());
 }
 
 inline void yield() {
-#ifdef _WN_ANDROID
-  const int result = ::sched_yield();
+  const int result = system_thread_yield();
 
   WN_RELEASE_ASSERT(result == 0);
-#elif defined _WN_POSIX
-  const int result = ::pthread_yield();
-
-  WN_RELEASE_ASSERT(result == 0);
-#endif
 }
 
 template <typename Representation, typename Period>
