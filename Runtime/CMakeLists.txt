@@ -4,7 +4,11 @@ include_directories(${WNFramework_BINARY_DIR}/Libraries)
 include_directories(${WNFramework_BINARY_DIR}/Wrappers)
 include_directories(${WNFramework_BINARY_DIR}/Runtime)
 
-foreach(overlay ${WN_ENABLED_OVERLAYS})
+set(REVERSE_OVERLAYS ${WN_ENABLED_OVERLAYS})
+
+list(REVERSE REVERSE_OVERLAYS)
+
+foreach(overlay ${REVERSE_OVERLAYS})
   include_directories(${overlay}/Libraries)
   include_directories(${overlay}/Wrappers)
   include_directories(${overlay}/Runtime)

@@ -3,7 +3,11 @@ include(test_helper.cmake)
 include_directories(${WNFramework_BINARY_DIR}/Libraries)
 include_directories(${WNFramework_BINARY_DIR}/Wrappers)
 
-foreach(overlay ${WN_ENABLED_OVERLAYS})
+set(REVERSE_OVERLAYS ${WN_ENABLED_OVERLAYS})
+
+list(REVERSE REVERSE_OVERLAYS)
+
+foreach(overlay ${REVERSE_OVERLAYS})
   include_directories(${overlay}/Libraries)
   include_directories(${overlay}/Wrappers)
 endforeach()
