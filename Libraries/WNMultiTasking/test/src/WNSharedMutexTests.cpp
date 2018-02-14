@@ -4,8 +4,8 @@
 
 #include "WNContainers/inc/WNArray.h"
 #include "WNExecutableTest/inc/WNTestHarness.h"
-#include "WNMultiTasking/inc/thread.h"
 #include "WNMultiTasking/inc/shared_mutex.h"
+#include "WNMultiTasking/inc/thread.h"
 
 namespace {
 
@@ -82,38 +82,5 @@ TEST(shared_mutex, try_lock) {
     thread.join();
 
     EXPECT_TRUE(got_lock);
-  }
-}
-
-TEST(shared_mutex_guard, protect_scope) {
-  wn::testing::allocator allocator;
-
-  {
-    uint32_t count = 0u;
-    wn::multi_tasking::shared_mutex shared_mutex;
-    wn::containers::array<uint32_t, k_expected_count> numbers;
-    wn::containers::array<wn::multi_tasking::thread, k_expected_count> threads;
-
-    for (uint32_t i = 0u; i < k_expected_count; ++i) {
-      threads[i] = wn::multi_tasking::thread(
-          &allocator, [&numbers, &count, &shared_mutex]() {
-            wn::multi_tasking::shared_mutex_guard guard(shared_mutex);
-
-            const uint32_t current_count = count;
-
-            numbers[current_count] = current_count;
-            count++;
-          });
-    }
-
-    for (uint32_t i = 0u; i < k_expected_count; ++i) {
-      threads[i].join();
-    }
-
-    EXPECT_EQ(count, k_expected_count);
-
-    for (uint32_t i = 0u; i < k_expected_count; ++i) {
-      EXPECT_EQ(numbers[i], i);
-    }
   }
 }

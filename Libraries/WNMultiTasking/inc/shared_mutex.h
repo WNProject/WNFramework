@@ -48,8 +48,6 @@ private:
   using base = internal::shared_mutex_base;
 };
 
-using shared_mutex_guard = lock_guard<shared_mutex>;
-
 }  // namespace multi_tasking
 }  // namespace wn
 
