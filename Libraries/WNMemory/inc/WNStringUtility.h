@@ -19,13 +19,13 @@ namespace wn {
 namespace memory {
 
 WN_FORCE_INLINE size_t strlen(const char* str) {
-  WN_DEBUG_ASSERT_DESC(str, "string must not be nullptr");
+  WN_DEBUG_ASSERT(str, "string must not be nullptr");
 
   return (std::strlen(str));
 }
 
 WN_FORCE_INLINE size_t strnlen(const char* str, const size_t count) {
-  WN_DEBUG_ASSERT_DESC(str, "string must not be nullptr");
+  WN_DEBUG_ASSERT(str, "string must not be nullptr");
 
   size_t size = 0;
 
@@ -36,58 +36,58 @@ WN_FORCE_INLINE size_t strnlen(const char* str, const size_t count) {
 }
 
 WN_FORCE_INLINE char* strcpy(char* dest, const char* src) {
-  WN_DEBUG_ASSERT_DESC(dest, "destination string must not be nullptr");
-  WN_DEBUG_ASSERT_DESC(src, "source string must not be nullptr");
-  WN_DEBUG_ASSERT_DESC(
+  WN_DEBUG_ASSERT(dest, "destination string must not be nullptr");
+  WN_DEBUG_ASSERT(src, "source string must not be nullptr");
+  WN_DEBUG_ASSERT(
       dest != src, "destination and source must not be the same");
 
   return (std::strcpy(dest, src));
 }
 
 WN_FORCE_INLINE char* strncpy(char* dest, const char* src, const size_t count) {
-  WN_DEBUG_ASSERT_DESC(dest, "destination string must not be nullptr");
-  WN_DEBUG_ASSERT_DESC(src, "source string must not be nullptr");
-  WN_DEBUG_ASSERT_DESC(
+  WN_DEBUG_ASSERT(dest, "destination string must not be nullptr");
+  WN_DEBUG_ASSERT(src, "source string must not be nullptr");
+  WN_DEBUG_ASSERT(
       dest != src, "destination and source must not be the same");
 
   return (std::strncpy(dest, src, count));
 }
 
 WN_FORCE_INLINE char* strcat(char* dest, const char* src) {
-  WN_DEBUG_ASSERT_DESC(dest, "destination string must not be nullptr");
-  WN_DEBUG_ASSERT_DESC(src, "source string must not be nullptr");
-  WN_DEBUG_ASSERT_DESC(
+  WN_DEBUG_ASSERT(dest, "destination string must not be nullptr");
+  WN_DEBUG_ASSERT(src, "source string must not be nullptr");
+  WN_DEBUG_ASSERT(
       dest != src, "destination and source must not be the same");
 
   return (std::strcat(dest, src));
 }
 
 WN_FORCE_INLINE char* strncat(char* dest, const char* src, const size_t count) {
-  WN_DEBUG_ASSERT_DESC(dest, "destination string must not be nullptr");
-  WN_DEBUG_ASSERT_DESC(src, "source string must not be nullptr");
-  WN_DEBUG_ASSERT_DESC(
+  WN_DEBUG_ASSERT(dest, "destination string must not be nullptr");
+  WN_DEBUG_ASSERT(src, "source string must not be nullptr");
+  WN_DEBUG_ASSERT(
       dest != src, "destination and source must not be the same");
 
   return (std::strncat(dest, src, count));
 }
 
 WN_FORCE_INLINE int32_t strcmp(const char* lhs, const char* rhs) {
-  WN_DEBUG_ASSERT_DESC(lhs, "string must not be nullptr");
-  WN_DEBUG_ASSERT_DESC(rhs, "string must not be nullptr");
+  WN_DEBUG_ASSERT(lhs, "string must not be nullptr");
+  WN_DEBUG_ASSERT(rhs, "string must not be nullptr");
 
   return (std::strcmp(lhs, rhs));
 }
 
 WN_FORCE_INLINE int32_t strncmp(
     const char* lhs, const char* rhs, const size_t count) {
-  WN_DEBUG_ASSERT_DESC(lhs, "string must not be nullptr");
-  WN_DEBUG_ASSERT_DESC(rhs, "string must not be nullptr");
+  WN_DEBUG_ASSERT(lhs, "string must not be nullptr");
+  WN_DEBUG_ASSERT(rhs, "string must not be nullptr");
 
   return (std::strncmp(lhs, rhs, count));
 }
 
 WN_FORCE_INLINE char* strdup(const char* str) {
-  WN_DEBUG_ASSERT_DESC(str, "string must not be nullptr");
+  WN_DEBUG_ASSERT(str, "string must not be nullptr");
 
   const size_t size = strlen(str);
   char* copy = heap_allocate<char>(size + 1);
@@ -104,7 +104,7 @@ WN_FORCE_INLINE char* strdup(const char* str) {
 }
 
 WN_FORCE_INLINE char* strndup(const char* str, const size_t count) {
-  WN_DEBUG_ASSERT_DESC(str, "string must not be nullptr");
+  WN_DEBUG_ASSERT(str, "string must not be nullptr");
 
   const size_t size = strnlen(str, count);
   char* copy = heap_allocate<char>(size + 1);
@@ -121,19 +121,19 @@ WN_FORCE_INLINE char* strndup(const char* str, const size_t count) {
 }
 
 WN_FORCE_INLINE char* strchr(char* str, const char c) {
-  WN_DEBUG_ASSERT_DESC(str, "string must not be nullptr");
+  WN_DEBUG_ASSERT(str, "string must not be nullptr");
 
   return (std::strchr(str, c));
 }
 
 WN_FORCE_INLINE const char* strchr(const char* str, const char c) {
-  WN_DEBUG_ASSERT_DESC(str, "string must not be nullptr");
+  WN_DEBUG_ASSERT(str, "string must not be nullptr");
 
   return (std::strchr(str, c));
 }
 
 WN_FORCE_INLINE char* strnchr(char* str, const char c, const size_t count) {
-  WN_DEBUG_ASSERT_DESC(str, "string must not be nullptr");
+  WN_DEBUG_ASSERT(str, "string must not be nullptr");
   for (size_t i = 0; i < count; ++i) {
     if (str[i] == '\0') {
       return nullptr;
@@ -146,7 +146,7 @@ WN_FORCE_INLINE char* strnchr(char* str, const char c, const size_t count) {
 
 WN_FORCE_INLINE const char* strnchr(
     const char* str, const char c, const size_t count) {
-  WN_DEBUG_ASSERT_DESC(str, "string must not be nullptr");
+  WN_DEBUG_ASSERT(str, "string must not be nullptr");
   for (size_t i = 0; i < count; ++i) {
     if (str[i] == '\0') {
       return nullptr;
@@ -158,21 +158,21 @@ WN_FORCE_INLINE const char* strnchr(
 }
 
 WN_FORCE_INLINE char* strstr(char* lhs, const char* rhs) {
-  WN_DEBUG_ASSERT_DESC(lhs, "string must not be nullptr");
-  WN_DEBUG_ASSERT_DESC(rhs, "string must not be nullptr");
+  WN_DEBUG_ASSERT(lhs, "string must not be nullptr");
+  WN_DEBUG_ASSERT(rhs, "string must not be nullptr");
 
   return (std::strstr(lhs, rhs));
 }
 
 WN_FORCE_INLINE const char* strstr(const char* lhs, const char* rhs) {
-  WN_DEBUG_ASSERT_DESC(lhs, "string must not be nullptr");
-  WN_DEBUG_ASSERT_DESC(rhs, "string must not be nullptr");
+  WN_DEBUG_ASSERT(lhs, "string must not be nullptr");
+  WN_DEBUG_ASSERT(rhs, "string must not be nullptr");
 
   return (std::strstr(lhs, rhs));
 }
 
 WN_FORCE_INLINE size_t strnhash(const char* _str, size_t _length) {
-  WN_DEBUG_ASSERT_DESC(_str, "string must not be nullptr");
+  WN_DEBUG_ASSERT(_str, "string must not be nullptr");
 
   size_t hash = 0;
 
@@ -184,7 +184,7 @@ WN_FORCE_INLINE size_t strnhash(const char* _str, size_t _length) {
 }
 
 WN_FORCE_INLINE size_t strhash(const char* str) {
-  WN_DEBUG_ASSERT_DESC(str, "string must not be nullptr");
+  WN_DEBUG_ASSERT(str, "string must not be nullptr");
 
   size_t hash = 0;
   size_t c;
@@ -205,7 +205,7 @@ WN_FORCE_INLINE char upper(char c) {
 }
 
 WN_FORCE_INLINE char* strlwr(char* str) {
-  WN_DEBUG_ASSERT_DESC(str, "string must not be nullptr");
+  WN_DEBUG_ASSERT(str, "string must not be nullptr");
 
   std::transform(str, str + strlen(str), str, &lower);
 
@@ -213,7 +213,7 @@ WN_FORCE_INLINE char* strlwr(char* str) {
 }
 
 WN_FORCE_INLINE char* strnlwr(char* str, const size_t count) {
-  WN_DEBUG_ASSERT_DESC(str, "string must not be nullptr");
+  WN_DEBUG_ASSERT(str, "string must not be nullptr");
 
   std::transform(str, str + strnlen(str, count), str, &lower);
 
@@ -221,7 +221,7 @@ WN_FORCE_INLINE char* strnlwr(char* str, const size_t count) {
 }
 
 WN_FORCE_INLINE char* strupr(char* str) {
-  WN_DEBUG_ASSERT_DESC(str, "string must not be nullptr");
+  WN_DEBUG_ASSERT(str, "string must not be nullptr");
 
   std::transform(str, str + strlen(str), str, &upper);
 
@@ -229,7 +229,7 @@ WN_FORCE_INLINE char* strupr(char* str) {
 }
 
 WN_FORCE_INLINE char* strnupr(char* str, const size_t count) {
-  WN_DEBUG_ASSERT_DESC(str, "string must not be nullptr");
+  WN_DEBUG_ASSERT(str, "string must not be nullptr");
 
   std::transform(str, str + strnlen(str, count), str, &upper);
 
@@ -252,7 +252,7 @@ WN_INLINE int32_t snprintf(
 
 WN_FORCE_INLINE size_t writeuint32(
     char* _buffer, uint32_t _int, size_t _maxSize) {
-  WN_RELEASE_ASSERT_DESC(_maxSize > 0,
+  WN_RELEASE_ASSERT(_maxSize > 0,
       "Must have at least room for 1 character to write out an integer");
 
   size_t counter = 0;
@@ -285,7 +285,7 @@ WN_FORCE_INLINE size_t writeuint32(
 
 WN_FORCE_INLINE size_t writeint32(
     char* _buffer, int32_t _int, const size_t _maxSize) {
-  WN_RELEASE_ASSERT_DESC(_maxSize > 0,
+  WN_RELEASE_ASSERT(_maxSize > 0,
       "Must have at least 1 characters of space for a signed int");
 
   size_t counter = 0;
@@ -311,13 +311,13 @@ WN_FORCE_INLINE size_t writeint32(
 
 WN_FORCE_INLINE size_t WNWriteSimpleFloat32(
     char* _buffer, float _flt, size_t _maxSize) {
-  WN_RELEASE_ASSERT_DESC(_maxSize > 0, "Can not fill an empty buffer");
+  WN_RELEASE_ASSERT(_maxSize > 0, "Can not fill an empty buffer");
   if (_flt == 0.f) {
     _buffer[0] = '0';
     return (1);
   }
   float absFloat = _flt > 0.f ? _flt : -_flt;
-  WN_RELEASE_ASSERT_DESC(absFloat < 10000000.f && absFloat > 0.0001,
+  WN_RELEASE_ASSERT(absFloat < 10000000.f && absFloat > 0.0001,
       "Floating point writing should be limited");
   size_t numsLeft = 7;
   bool losingprecision = false;
@@ -366,7 +366,7 @@ WN_FORCE_INLINE size_t WNWriteSimpleFloat32(
 
 WN_FORCE_INLINE size_t WNWriteFloat32(
     char* _buffer, float _flt, size_t _maxSize) {
-  WN_RELEASE_ASSERT_DESC(_maxSize > 0, "Can not fill an empty buffer");
+  WN_RELEASE_ASSERT(_maxSize > 0, "Can not fill an empty buffer");
   if (fabs(_flt) < 10000000.f && fabs(_flt) > 0.0001) {
     return (WNWriteSimpleFloat32(_buffer, _flt, _maxSize));
   }
@@ -449,7 +449,7 @@ WN_FORCE_INLINE size_t WNWriteFloat32(
 
 WN_FORCE_INLINE size_t writeuint64(
     char* _buffer, uint64_t _int, size_t _maxSize) {
-  WN_RELEASE_ASSERT_DESC(_maxSize > 0,
+  WN_RELEASE_ASSERT(_maxSize > 0,
       "Must have at least room for 1 character to write out an integer");
 
   size_t counter = 0;
@@ -482,7 +482,7 @@ WN_FORCE_INLINE size_t writeuint64(
 
 WN_FORCE_INLINE size_t writeint64(
     char* _buffer, int64_t _int, size_t _maxSize) {
-  WN_RELEASE_ASSERT_DESC(_maxSize > 0,
+  WN_RELEASE_ASSERT(_maxSize > 0,
       "Must have at least 1 characters of space for a signed int");
 
   size_t counter = 0;
@@ -508,7 +508,7 @@ WN_FORCE_INLINE size_t writeint64(
 
 WN_FORCE_INLINE size_t WNReadUInt32(
     char* _buff, uint32_t& _number, size_t _maxSize) {
-  WN_RELEASE_ASSERT_DESC(
+  WN_RELEASE_ASSERT(
       _maxSize > 0, "You cannot store a number in less than 1 byte");
 
   size_t counter = 0;
@@ -525,7 +525,7 @@ WN_FORCE_INLINE size_t WNReadUInt32(
 
 WN_FORCE_INLINE size_t WNReadInt32(
     char* _buffer, int32_t& _number, size_t _maxSize) {
-  WN_RELEASE_ASSERT_DESC(
+  WN_RELEASE_ASSERT(
       _maxSize > 0, "You cannot store a number in less than 1 byte");
 
   size_t counter = 0;
@@ -551,7 +551,7 @@ WN_FORCE_INLINE size_t WNReadInt32(
 
 WN_FORCE_INLINE size_t WNReadFloat32(
     char* _buff, float& _number, size_t _maxSize) {
-  WN_RELEASE_ASSERT_DESC(
+  WN_RELEASE_ASSERT(
       _maxSize > 0, "You cannot store a number in less than 1 byte");
   const float LOG10_LOG2 = 3.321928095f;
   size_t counter = 0;
@@ -618,7 +618,7 @@ WN_FORCE_INLINE size_t WNReadFloat32(
 
 WN_FORCE_INLINE size_t WNReadUInt64(
     char* _buff, uint64_t& _number, size_t _maxSize) {
-  WN_RELEASE_ASSERT_DESC(
+  WN_RELEASE_ASSERT(
       _maxSize > 0, "You cannot store a number in less than 1 byte");
 
   size_t counter = 0;
@@ -635,7 +635,7 @@ WN_FORCE_INLINE size_t WNReadUInt64(
 
 WN_FORCE_INLINE size_t WNReadInt64(
     char* _buffer, int64_t& _number, size_t _maxSize) {
-  WN_RELEASE_ASSERT_DESC(
+  WN_RELEASE_ASSERT(
       _maxSize > 0, "You cannot store a number in less than 1 byte");
 
   size_t counter = 0;

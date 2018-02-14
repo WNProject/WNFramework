@@ -62,8 +62,9 @@ static const uint32_t FUNCTION_PTR_TYPE =
     static_cast<uint32_t>(type_classification::function_ptr_type);
 
 // Tables for all of the internal types.
-const allowed_builtin_operations valid_builtin_operations[13]{
-    // clang-format off
+const allowed_builtin_operations
+    valid_builtin_operations[13]{
+        // clang-format off
     // empty
     {//+            -             *             /             %             ==            !=            <=            >=            <             >
      {INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE, INVALID_TYPE},
@@ -210,8 +211,8 @@ const allowed_builtin_operations valid_builtin_operations[13]{
     { INVALID_TYPE, INVALID_TYPE },
       // &&          ||
     { INVALID_TYPE, INVALID_TYPE }}
-    // clang-format on
-};
+        // clang-format on
+    };
 
 struct cast_operation {
   uint32_t cast_to;
@@ -436,9 +437,11 @@ public:
           type_definition(m_allocator, valid_builtin_operations[i], false));
     }
     WN_DEBUG_ASSERT(
-        m_max_types == static_cast<uint32_t>(type_classification::max) - 1);
+        m_max_types == static_cast<uint32_t>(type_classification::max) - 1,
+        "too many types");
     WN_DEBUG_ASSERT(
-        m_names.size() == static_cast<uint32_t>(type_classification::max) - 1);
+        m_names.size() == static_cast<uint32_t>(type_classification::max) - 1,
+        "name too long");
 
     m_types[1].m_mangling = "v";
 
@@ -591,9 +594,9 @@ public:
   }
 
   void add_id(uint32_t _type, containers::string_view _id, uint32_t _out_type) {
-    WN_DEBUG_ASSERT_DESC(
+    WN_DEBUG_ASSERT(
         _type < m_types.size(), "Trying to index non-existent type");
-    WN_DEBUG_ASSERT_DESC(
+    WN_DEBUG_ASSERT(
         _out_type < m_types.size(), "Trying to index non-existent out-type");
 
     m_types[_type].m_ids.push_back({_id.to_string(m_allocator), _out_type});
@@ -602,14 +605,14 @@ public:
   void add_method(uint32_t _type, containers::string_view _name,
       uint32_t _return_type, containers::contiguous_range<uint32_t> _types,
       bool _is_virtual) {
-    WN_DEBUG_ASSERT_DESC(
+    WN_DEBUG_ASSERT(
         _type < m_types.size(), "Trying to index non-existent type");
-    WN_DEBUG_ASSERT_DESC(_return_type < m_types.size(),
+    WN_DEBUG_ASSERT(_return_type < m_types.size(),
         "Trying to index non-existent return_type");
-    WN_DEBUG_ASSERT_DESC(
-        _types.end() ==
-            std::find_if(_types.begin(), _types.end(),
-                [this](uint32_t type) { return type >= m_types.size(); }),
+    WN_DEBUG_ASSERT(_types.end() == std::find_if(_types.begin(), _types.end(),
+                                        [this](uint32_t type) {
+                                          return type >= m_types.size();
+                                        }),
         "One of the return types is out of bounds");
 
     if (!_is_virtual) {

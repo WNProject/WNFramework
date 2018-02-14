@@ -52,7 +52,7 @@ public:
 
       m_file_desciptor = -1;
 
-      WN_DEBUG_ASSERT_DESC(
+      WN_DEBUG_ASSERT(
           close_result == 0, "failed to close file descriptor");
 
 #ifndef _WN_DEBUG

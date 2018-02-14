@@ -64,7 +64,7 @@ void ast_c_translator::walk_type(
 
 void ast_c_translator::walk_type(
     const concretized_array_type* _array_type, containers::string* _str) {
-  WN_RELEASE_ASSERT_DESC(_array_type->get_index() != 0, "Invalid type id");
+  WN_RELEASE_ASSERT(_array_type->get_index() != 0, "Invalid type id");
 
   containers::string& sub_type =
       m_generator->get_data(_array_type->get_subtype());
@@ -120,11 +120,11 @@ void ast_c_translator::walk_type(
 }
 
 void ast_c_translator::walk_type(const type* _type, containers::string* _str) {
-  WN_RELEASE_ASSERT_DESC(_type->get_index() != 0, "Invalid type id");
+  WN_RELEASE_ASSERT(_type->get_index() != 0, "Invalid type id");
 
   switch (_type->get_index()) {
     case static_cast<uint32_t>(type_classification::invalid_type):
-      WN_RELEASE_ASSERT_DESC(false, "Cannot classify invalid types");
+      WN_RELEASE_ASSERT(false, "Cannot classify invalid types");
       break;
     case static_cast<uint32_t>(type_classification::void_type):
       *_str = core::move(containers::string(m_allocator) + "void");
@@ -139,7 +139,7 @@ void ast_c_translator::walk_type(const type* _type, containers::string* _str) {
       *_str = core::move(containers::string(m_allocator) + "char");
       return;
     case static_cast<uint32_t>(type_classification::string_type):
-      WN_RELEASE_ASSERT_DESC(false, "Unimplemented string types");
+      WN_RELEASE_ASSERT(false, "Unimplemented string types");
       break;
     case static_cast<uint32_t>(type_classification::bool_type):
       *_str = core::move(containers::string(m_allocator) + "bool");
@@ -197,7 +197,7 @@ void ast_c_translator::walk_expression(const constant_expression* _const,
       _str->second.append("NULL");
       break;
     default:
-      WN_RELEASE_ASSERT_DESC(false, "Non-integer constants not supported yet.");
+      WN_RELEASE_ASSERT(false, "Non-integer constants not supported yet.");
   }
 }
 
@@ -222,7 +222,7 @@ void ast_c_translator::walk_expression(const short_circuit_expression* _ss,
       _str->second.append(")");
       break;
     default:
-      WN_RELEASE_ASSERT_DESC(
+      WN_RELEASE_ASSERT(
           false, "Non-integer short_circuit expressions not supported yet.");
   }
 }
@@ -251,7 +251,7 @@ void ast_c_translator::walk_expression(const binary_expression* _binary,
       _str->second.append(")");
       break;
     default:
-      WN_RELEASE_ASSERT_DESC(
+      WN_RELEASE_ASSERT(
           false, "Non-integer binary expressions not supported yet.");
   }
 }
@@ -602,7 +602,7 @@ void ast_c_translator::walk_instruction(const declaration* _decl,
 void ast_c_translator::walk_instruction(const assignment_instruction* _inst,
     core::pair<containers::string, containers::string>* _str) {
   initialize_data(m_allocator, _str);
-  WN_RELEASE_ASSERT_DESC(_inst->get_assignment_type() == assign_type::equal,
+  WN_RELEASE_ASSERT(_inst->get_assignment_type() == assign_type::equal,
       "Not Implemented: Non equality assignment");
   const auto& expr = m_generator->get_data(_inst->get_expression());
   const auto& lvalue =

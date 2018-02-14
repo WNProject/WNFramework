@@ -69,7 +69,7 @@ public:
     m_stack_pointer = nullptr;
 #endif
     m_data = memory::make_unique<fiber_data>(_allocator);
-    WN_DEBUG_ASSERT_DESC(m_data, "fiber data creation failed");
+    WN_DEBUG_ASSERT(m_data, "fiber data creation failed");
     m_data->m_fiber = this;
   }
 
@@ -83,8 +83,8 @@ public:
     : m_is_top_level_fiber(false), m_allocator(_allocator) {
     create(default_fiber_stack_size,
         functional::function<void()>(
-               std::bind(core::decay_copy(std::forward<F>(_f)),
-                   core::decay_copy(std::forward<Args>(_args))...)));
+            std::bind(core::decay_copy(std::forward<F>(_f)),
+                core::decay_copy(std::forward<Args>(_args))...)));
   }
 
   template <typename F, typename... Args>

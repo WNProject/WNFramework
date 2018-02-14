@@ -37,7 +37,7 @@ static WN_FORCE_INLINE VkFlags resource_state_to_vulkan_access_flags(
   static_assert((1 << (sizeof(states) / sizeof(states[0]) - 2)) + 1 ==
                     static_cast<uint32_t>(resource_state::max),
       "Expected the number of VKImageUsage and resources_states to match");
-  WN_DEBUG_ASSERT_DESC(
+  WN_DEBUG_ASSERT(
       _state < resource_state::max, "Resource state out of bounds");
   if (_state == resource_state::initial) {
     return states[0];
@@ -66,7 +66,7 @@ static WN_FORCE_INLINE VkImageLayout resource_state_to_vulkan_layout(
   static_assert((1 << (sizeof(layouts) / sizeof(layouts[0]) - 2)) + 1 ==
                     static_cast<uint32_t>(resource_state::max),
       "Expected the number of VkImageLayouts and resources_states to match");
-  WN_DEBUG_ASSERT_DESC(
+  WN_DEBUG_ASSERT(
       _state < resource_state::max, "Resource state out of bounds");
   if (_state == resource_state::initial) {
     return layouts[0];
@@ -153,7 +153,7 @@ static WN_FORCE_INLINE VkFlags resource_state_to_vulkan_pipeline_stage(
   static_assert((1 << (sizeof(states) / sizeof(states[0]) - 2)) + 1 ==
                     static_cast<uint32_t>(resource_state::max),
       "Expected the number of VkFlags and resources_states to match");
-  WN_DEBUG_ASSERT_DESC(
+  WN_DEBUG_ASSERT(
       _state < resource_state::max, "Resource state out of bounds");
   if (_state == resource_state::initial) {
     return states[0];
@@ -196,7 +196,7 @@ static WN_FORCE_INLINE VkShaderStageFlagBits shader_stage_to_vulkan(
     case shader_stage::compute:
       return VK_SHADER_STAGE_COMPUTE_BIT;
   }
-  WN_DEBUG_ASSERT_DESC(false, "We should never end up here");
+  WN_DEBUG_ASSERT(false, "We should never end up here");
   return VkShaderStageFlagBits(0);
 }
 
@@ -251,7 +251,7 @@ static WN_FORCE_INLINE VkPrimitiveTopology primitive_topology_to_vulkan(
     case topology::patch_list:
       return VK_PRIMITIVE_TOPOLOGY_PATCH_LIST;
   }
-  WN_DEBUG_ASSERT_DESC(false, "We should never end up here");
+  WN_DEBUG_ASSERT(false, "We should never end up here");
   return VkPrimitiveTopology(0);
 }
 
@@ -264,7 +264,7 @@ static WN_FORCE_INLINE VkPolygonMode fill_mode_to_vulkan(fill_mode _mode) {
     case fill_mode::point:
       return VK_POLYGON_MODE_POINT;
   }
-  WN_DEBUG_ASSERT_DESC(false, "We should never get here");
+  WN_DEBUG_ASSERT(false, "We should never get here");
   return VkPolygonMode(0);
 }
 
@@ -277,7 +277,7 @@ static WN_FORCE_INLINE VkCullModeFlags cull_mode_to_vulkan(cull_mode _mode) {
     case cull_mode::none:
       return VK_CULL_MODE_NONE;
   }
-  WN_DEBUG_ASSERT_DESC(false, "We should never get here");
+  WN_DEBUG_ASSERT(false, "We should never get here");
   return VkCullModeFlags(0);
 }
 
@@ -288,7 +288,7 @@ static WN_FORCE_INLINE VkFrontFace winding_to_vulkan(winding _mode) {
     case winding::counter_clockwise:
       return VK_FRONT_FACE_COUNTER_CLOCKWISE;
   }
-  WN_DEBUG_ASSERT_DESC(false, "We should never get here");
+  WN_DEBUG_ASSERT(false, "We should never get here");
   return VkFrontFace(0);
 }
 
@@ -312,7 +312,7 @@ static WN_FORCE_INLINE VkSampleCountFlagBits samples_to_vulkan(
     case multisample_count::samples_64:
       return VK_SAMPLE_COUNT_64_BIT;
   }
-  WN_DEBUG_ASSERT_DESC(false, "We should never get here");
+  WN_DEBUG_ASSERT(false, "We should never get here");
   return VkSampleCountFlagBits(0);
 }
 
@@ -335,7 +335,7 @@ static WN_FORCE_INLINE VkCompareOp compare_to_vulkan(comparison_op _compare) {
     case comparison_op::not_equal:
       return VK_COMPARE_OP_NOT_EQUAL;
   }
-  WN_DEBUG_ASSERT_DESC(false, "We should never get here");
+  WN_DEBUG_ASSERT(false, "We should never get here");
   return VkCompareOp(0);
 }
 
@@ -358,7 +358,7 @@ static WN_FORCE_INLINE VkStencilOp stencil_op_to_vulkan(stencil_op _stencil) {
     case stencil_op::decrement_saturate:
       return VK_STENCIL_OP_DECREMENT_AND_CLAMP;
   }
-  WN_DEBUG_ASSERT_DESC(false, "We should never get here");
+  WN_DEBUG_ASSERT(false, "We should never get here");
   return VkStencilOp(0);
 }
 
@@ -400,7 +400,7 @@ static WN_FORCE_INLINE VkBlendFactor blend_factor_to_vulkan(
     case blend_factor::inv_src1_alpha:
       return VK_BLEND_FACTOR_ONE_MINUS_SRC1_ALPHA;
   }
-  WN_DEBUG_ASSERT_DESC(false, "We should never get here");
+  WN_DEBUG_ASSERT(false, "We should never get here");
   return VkBlendFactor(0);
 }
 
@@ -417,7 +417,7 @@ static WN_FORCE_INLINE VkBlendOp blend_op_to_vulkan(blend_op _op) {
     case blend_op::max:
       return VK_BLEND_OP_MAX;
   }
-  WN_DEBUG_ASSERT_DESC(false, "We should never get here");
+  WN_DEBUG_ASSERT(false, "We should never get here");
   return VkBlendOp(0);
 }
 
@@ -458,7 +458,7 @@ static WN_FORCE_INLINE VkLogicOp logic_op_to_vulkan(logic_op _op) {
     case logic_op::op_nxor:
       return VK_LOGIC_OP_EQUIVALENT;
   }
-  WN_DEBUG_ASSERT_DESC(false, "We should never get here");
+  WN_DEBUG_ASSERT(false, "We should never get here");
   return VkLogicOp(0);
 }
 

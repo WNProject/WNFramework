@@ -290,7 +290,7 @@ void vulkan_device::initialize_fence(fence* _fence) {
 
   VkResult hr = vkCreateFence(m_device, &s_create_fence, nullptr, &data);
   (void)hr;
-  WN_DEBUG_ASSERT_DESC(hr == VK_SUCCESS, "Cannot create fence");
+  WN_DEBUG_ASSERT(hr == VK_SUCCESS, "Cannot create fence");
 }
 
 void vulkan_device::destroy_fence(fence* _fence) {
@@ -562,7 +562,7 @@ swapchain_ptr vulkan_device::create_swapchain(
       mode = VK_PRESENT_MODE_FIFO_RELAXED_KHR;
       break;
     default:
-      WN_DEBUG_ASSERT_DESC(false, "Should never get here");
+      WN_DEBUG_ASSERT(false, "Should never get here");
       mode = VK_PRESENT_MODE_FIFO_RELAXED_KHR;
   }
 
@@ -683,7 +683,7 @@ void vulkan_device::initialize_descriptor_set_layout(
         binding.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
         break;
       default:
-        WN_RELEASE_ASSERT_DESC(false, "You cannot reach here");
+        WN_RELEASE_ASSERT(false, "You cannot reach here");
     }
 
     if (info.shader_stages & static_cast<uint32_t>(shader_stage::vertex)) {
@@ -747,7 +747,7 @@ VkDescriptorType descriptor_type_to_vulkan(descriptor_type _type) {
       return VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
       break;
     default:
-      WN_RELEASE_ASSERT_DESC(false, "You should never reach here");
+      WN_RELEASE_ASSERT(false, "You should never reach here");
       return VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
   }
 }
@@ -1197,9 +1197,9 @@ bool vulkan_device::setup_arena_properties() {
 
 bool vulkan_device::initialize_arena(arena* _arena, const size_t _index,
     const size_t _size, const bool /*_multisampled*/) {
-  WN_DEBUG_ASSERT_DESC(
+  WN_DEBUG_ASSERT(
       m_arena_properties.size() > _index, "arena property index out of range");
-  WN_DEBUG_ASSERT_DESC(_size > 0, "arena should be non-zero size");
+  WN_DEBUG_ASSERT(_size > 0, "arena should be non-zero size");
 
   VkDeviceMemory new_memory;
   const VkMemoryAllocateInfo allocate_info = {

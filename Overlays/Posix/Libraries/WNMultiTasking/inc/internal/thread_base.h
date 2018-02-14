@@ -92,11 +92,11 @@ private:
     private_execution_data* execution_data =
         static_cast<private_execution_data*>(_arguments);
 
-    WN_RELEASE_ASSERT_DESC(execution_data, "invalid thread execution data");
+    WN_RELEASE_ASSERT(execution_data, "invalid thread execution data");
 
     private_data* data = execution_data->m_data.get();
 
-    WN_RELEASE_ASSERT_DESC(data, "invalid thread data");
+    WN_RELEASE_ASSERT(data, "invalid thread data");
 
     data->m_id = system_thread_id();
 
@@ -161,7 +161,7 @@ inline thread_base::id_base get_id() {
 inline void yield() {
   const int result = system_thread_yield();
 
-  WN_RELEASE_ASSERT(result == 0);
+  WN_RELEASE_ASSERT(result == 0, "failed to yield");
 }
 
 template <typename Representation, typename Period>
@@ -178,7 +178,7 @@ inline void sleep_for(
   time_requested.tv_nsec = static_cast<int>(nano_sec.count());
 
   while (::nanosleep(&time_requested, &time_requested) == -1) {
-    WN_RELEASE_ASSERT_DESC(errno == EINTR, "failed to sleep");
+    WN_RELEASE_ASSERT(errno == EINTR, "failed to sleep");
   }
 }
 

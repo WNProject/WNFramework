@@ -32,7 +32,7 @@ public:
         ::DuplicateHandle(process_handle, _other.m_handle, process_handle,
             &m_handle, 0, FALSE, DUPLICATE_SAME_ACCESS);
 
-    WN_DEBUG_ASSERT_DESC(
+    WN_DEBUG_ASSERT(
         duplicate_result == TRUE, "failed to duplicate handle");
 
     (void)duplicate_result;
@@ -84,7 +84,7 @@ public:
 
       m_handle = NULL;
 
-      WN_DEBUG_ASSERT_DESC(close_result == TRUE, "failed to close handle");
+      WN_DEBUG_ASSERT(close_result == TRUE, "failed to close handle");
 
       (void)close_result;
     }

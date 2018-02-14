@@ -56,7 +56,7 @@ public:
   }
 
   WN_FORCE_INLINE reference operator*() const {
-    WN_RELEASE_ASSERT_DESC(get() != nullptr, "cannot dereference nullptr");
+    WN_RELEASE_ASSERT(get() != nullptr, "cannot dereference nullptr");
 
     return *get();
   }
@@ -252,7 +252,7 @@ WN_FORCE_INLINE unique_ptr<T> make_unique_delegated(
   void* raw_ptr = _allocator->allocate(sizeof(T));
   T* ptr = _delegator(raw_ptr);
 
-  WN_DEBUG_ASSERT_DESC(
+  WN_DEBUG_ASSERT(
       ptr == raw_ptr, "delegator did not construct into given memory");
 
   if (ptr) {

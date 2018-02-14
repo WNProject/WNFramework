@@ -25,14 +25,14 @@ void thread::create(
       } else {
         _allocator->destroy(execution_data);
 
-        WN_RELEASE_ASSERT_DESC(creation_success, "failed to create thread");
+        WN_RELEASE_ASSERT(creation_success, "failed to create thread");
       }
     } else {
-      WN_RELEASE_ASSERT_DESC(execution_data,
+      WN_RELEASE_ASSERT(execution_data,
           "failed to allocate needed execution data for thread");
     }
   } else {
-    WN_RELEASE_ASSERT_DESC(data, "failed to allocate needed data for thread");
+    WN_RELEASE_ASSERT(data, "failed to allocate needed data for thread");
   }
 }
 

@@ -22,7 +22,7 @@ protected:
   mutex_base() : m_lock_count(0) {
     m_semaphore = ::CreateSemaphoreW(NULL, 0, 1, NULL);
 
-    WN_RELEASE_ASSERT_DESC(
+    WN_RELEASE_ASSERT(
         m_semaphore != NULL, "failed to create mutex object");
   }
 
@@ -32,7 +32,7 @@ protected:
     if (m_lock_count.fetch_add(1, std::memory_order_acquire) > 0) {
       const DWORD result = ::WaitForSingleObject(m_semaphore.value(), INFINITE);
 
-      WN_RELEASE_ASSERT_DESC(
+      WN_RELEASE_ASSERT(
           result == WAIT_OBJECT_0, "failed to lock mutex object");
     }
   }
@@ -48,7 +48,7 @@ protected:
     if (m_lock_count.fetch_sub(1, std::memory_order_release) > 1) {
       const BOOL result = ::ReleaseSemaphore(m_semaphore.value(), 1, NULL);
 
-      WN_RELEASE_ASSERT_DESC(result != FALSE, "failed to unlock mutex object");
+      WN_RELEASE_ASSERT(result != FALSE, "failed to unlock mutex object");
     }
   }
 

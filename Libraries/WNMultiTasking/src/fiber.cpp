@@ -33,7 +33,7 @@ static __FIBER_RESULT_TYPE WN_FIBER_CALL_BEGIN wrapper(
     __FIBER_ARGUMENT_TYPE) WN_FIBER_CALL_END {
   wn::multi_tasking::fiber* self = this_fiber::get_self();
 
-  WN_RELEASE_ASSERT_DESC(self, "invalid fiber");
+  WN_RELEASE_ASSERT(self, "invalid fiber");
 
   self->execute_function();
 }
@@ -88,7 +88,7 @@ void fiber::create(
 }
 
 void fiber::execute_function() {
-  WN_RELEASE_ASSERT_DESC(m_data, "invalid fiber data");
+  WN_RELEASE_ASSERT(m_data, "invalid fiber data");
   m_data->m_function();
 }
 
@@ -110,7 +110,7 @@ void set_local_storage(void* _dat) {
 }
 
 void convert_to_fiber(memory::allocator* _allocator) {
-  WN_DEBUG_ASSERT_DESC(_allocator, "Invalid allocator, can't be nullptrs");
+  WN_DEBUG_ASSERT(_allocator, "Invalid allocator, can't be nullptrs");
 
   if (tl_this_fiber == 0) {
     fiber* f = _allocator->construct<fiber>(_allocator);
@@ -131,7 +131,7 @@ void convert_to_fiber(memory::allocator* _allocator) {
 }
 
 void revert_from_fiber() {
-  WN_DEBUG_ASSERT_DESC(tl_this_fiber->m_fiber->m_is_top_level_fiber,
+  WN_DEBUG_ASSERT(tl_this_fiber->m_fiber->m_is_top_level_fiber,
       "You cannot revert a non-top-level fiber");
   memory::allocator* alloc = tl_this_fiber->m_fiber->m_allocator;
   fiber* f = tl_this_fiber->m_fiber;
@@ -141,10 +141,10 @@ void revert_from_fiber() {
 }
 
 fiber* get_self() {
-  WN_DEBUG_ASSERT_DESC(
+  WN_DEBUG_ASSERT(
       tl_this_fiber != 0, "Call convert_to_fiber before calling get_self");
   fiber* fiber = tl_this_fiber->m_fiber;
-  WN_DEBUG_ASSERT_DESC(fiber, "Inconsistent state detected.");
+  WN_DEBUG_ASSERT(fiber, "Inconsistent state detected.");
   // We do this instead of just setting tl_this_fiber to a
   // fiber* so that non-running fibers can safely be
   // moved around in containers.
@@ -152,7 +152,7 @@ fiber* get_self() {
 }
 
 void swap_to(fiber* _fiber) {
-  WN_DEBUG_ASSERT_DESC(get_self(), "Error cannot  swap from a non-fiber");
+  WN_DEBUG_ASSERT(get_self(), "Error cannot  swap from a non-fiber");
 #ifndef _WN_WINDOWS
   fiber* this_fiber = get_self();
 #endif

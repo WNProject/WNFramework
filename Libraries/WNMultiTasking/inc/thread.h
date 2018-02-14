@@ -36,7 +36,7 @@ public:
     static_assert(core::is_void<core::result_of_t<F(Args...)>>::value,
         "function must be void return");
 
-    WN_RELEASE_ASSERT_DESC(_allocator, "allocator must not be nullptr");
+    WN_RELEASE_ASSERT(_allocator, "allocator must not be nullptr");
 
     create(_allocator, functional::function<void()>(std::bind(
                            core::decay_copy(core::forward<F>(_f)),

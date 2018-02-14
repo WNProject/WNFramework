@@ -66,7 +66,7 @@ public:
       m_total_deallocated(0) {}
 
   WN_FORCE_INLINE virtual ~allocation_tracker() override {
-    WN_DEBUG_ASSERT_DESC(
+    WN_DEBUG_ASSERT(
         empty(), "memory leak detected, did not deallocate all allocations");
   }
 
@@ -147,7 +147,7 @@ private:
     const std::lock_guard<std::mutex> guard(m_lock);
 
     if (_old_ptr) {
-      WN_RELEASE_ASSERT_DESC(m_elements.find(_old_ptr) != m_elements.end(),
+      WN_RELEASE_ASSERT(m_elements.find(_old_ptr) != m_elements.end(),
           "you are trying to free a pointer from an incorrect allocator");
 
       m_total_deallocated += m_elements[_old_ptr];
@@ -162,7 +162,7 @@ private:
     if (_ptr) {
       const std::lock_guard<std::mutex> guard(m_lock);
 
-      WN_RELEASE_ASSERT_DESC(m_elements.find(_ptr) != m_elements.end(),
+      WN_RELEASE_ASSERT(m_elements.find(_ptr) != m_elements.end(),
           "you are trying to free a pointer from an incorrect allocator");
 
       m_total_deallocated += m_elements[_ptr];

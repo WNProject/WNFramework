@@ -22,7 +22,7 @@ static WN_FORCE_INLINE DXGI_FORMAT image_format_to_dxgi_format(
   static_assert(sizeof(formats) / sizeof(formats[0]) ==
                     static_cast<uint32_t>(data_format::max),
       "Expected the number of dxgi formats and image formats to match");
-  WN_DEBUG_ASSERT_DESC(
+  WN_DEBUG_ASSERT(
       _format < data_format::max, "Image format out of bounds");
 
   return formats[static_cast<uint32_t>(_format)];

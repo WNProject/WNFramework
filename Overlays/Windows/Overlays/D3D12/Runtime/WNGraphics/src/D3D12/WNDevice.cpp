@@ -80,7 +80,7 @@ queue_ptr d3d12_device::create_queue() {
   const HRESULT hr = m_device->CreateCommandQueue(
       &k_command_queue_props, __uuidof(ID3D12CommandQueue), &command_queue);
 
-  WN_DEBUG_ASSERT_DESC(SUCCEEDED(hr), "Cannot create command queue");
+  WN_DEBUG_ASSERT(SUCCEEDED(hr), "Cannot create command queue");
 
 #ifndef _WN_DEBUG
   WN_UNUSED_ARGUMENT(hr);
@@ -115,7 +115,7 @@ void d3d12_device::initialize_command_allocator(
   const HRESULT hr = m_device->CreateCommandAllocator(
       D3D12_COMMAND_LIST_TYPE_DIRECT, __uuidof(ID3D12CommandAllocator), &data);
 
-  WN_DEBUG_ASSERT_DESC(SUCCEEDED(hr), "Cannot create command allocator");
+  WN_DEBUG_ASSERT(SUCCEEDED(hr), "Cannot create command allocator");
 
 #ifndef _WN_DEBUG
   WN_UNUSED_ARGUMENT(hr);
@@ -141,7 +141,7 @@ command_list_ptr d3d12_device::create_command_list(command_allocator* _alloc) {
       m_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, pool.Get(),
           nullptr, __uuidof(ID3D12GraphicsCommandList), &command_list);
 
-  WN_DEBUG_ASSERT_DESC(SUCCEEDED(hr), "Cannot create command list");
+  WN_DEBUG_ASSERT(SUCCEEDED(hr), "Cannot create command list");
 
 #ifndef _WN_DEBUG
   WN_UNUSED_ARGUMENT(hr);
@@ -169,7 +169,7 @@ void d3d12_device::initialize_fence(fence* _fence) {
   const HRESULT hr = m_device->CreateFence(
       0, D3D12_FENCE_FLAG_NONE, __uuidof(ID3D12Fence), &data.fence);
 
-  WN_DEBUG_ASSERT_DESC(SUCCEEDED(hr), "Cannot create fence");
+  WN_DEBUG_ASSERT(SUCCEEDED(hr), "Cannot create fence");
 
 #ifndef _WN_DEBUG
   WN_UNUSED_ARGUMENT(hr);
@@ -177,7 +177,7 @@ void d3d12_device::initialize_fence(fence* _fence) {
 
   data.event = ::CreateEventW(NULL, TRUE, FALSE, NULL);
 
-  WN_DEBUG_ASSERT_DESC(data.event != nullptr, "Cannot create event for fence");
+  WN_DEBUG_ASSERT(data.event != nullptr, "Cannot create event for fence");
 
   data.fence->SetEventOnCompletion(1, data.event.value());
 }
@@ -195,7 +195,7 @@ void d3d12_device::initialize_signal(signal* _signal) {
   const HRESULT hr = m_device->CreateFence(
       0, D3D12_FENCE_FLAG_NONE, __uuidof(ID3D12Fence), &data.fence);
 
-  WN_DEBUG_ASSERT_DESC(SUCCEEDED(hr), "Cannot create fence");
+  WN_DEBUG_ASSERT(SUCCEEDED(hr), "Cannot create fence");
 
 #ifndef _WN_DEBUG
   WN_UNUSED_ARGUMENT(hr);
@@ -218,7 +218,7 @@ void d3d12_device::reset_fence(fence* _fence) {
   fence_data& data = get_data(_fence);
   const BOOL result = ::ResetEvent(data.event.value());
 
-  WN_DEBUG_ASSERT_DESC(result, "Failed to reset fence");
+  WN_DEBUG_ASSERT(result, "Failed to reset fence");
 
 #ifndef _WN_DEBUG
   WN_UNUSED_ARGUMENT(result);
@@ -226,7 +226,7 @@ void d3d12_device::reset_fence(fence* _fence) {
 
   const HRESULT hr = data.fence->Signal(0);
   data.fence->SetEventOnCompletion(1, data.event.value());
-  WN_DEBUG_ASSERT_DESC(SUCCEEDED(hr), "Failed to reset fence");
+  WN_DEBUG_ASSERT(SUCCEEDED(hr), "Failed to reset fence");
 
 #ifndef _WN_DEBUG
   WN_UNUSED_ARGUMENT(hr);
@@ -426,7 +426,7 @@ void d3d12_device::update_descriptors(descriptor_set* _set,
         } break;
         case descriptor_type::read_write_sampled_buffer:
         case descriptor_type::read_only_sampled_buffer:
-          WN_RELEASE_ASSERT_DESC(false, "Todo: Implement this?");
+          WN_RELEASE_ASSERT(false, "Todo: Implement this?");
       }
     }
   }
@@ -544,7 +544,7 @@ swapchain_ptr d3d12_device::create_swapchain(const surface& _surface,
           m_allocator, [](void* _memory) {
             return new (_memory) d3d12_swapchain_constructable();
           });
-  WN_DEBUG_ASSERT_DESC(
+  WN_DEBUG_ASSERT(
       _info.mode != swap_mode::fifo_relaxed, "Not Implemented: fifo_relaxed");
 
   DXGI_SWAP_EFFECT swap_effect;
@@ -657,13 +657,13 @@ void d3d12_device::initialize_descriptor_pool(descriptor_pool* _pool,
     // pools are externally synchronized.
 
     csv_heap_token = m_csv_heap.get_partition(num_csv_types);
-    WN_DEBUG_ASSERT_DESC(
+    WN_DEBUG_ASSERT(
         csv_heap_token.is_valid(), "Could not find enough space for csv heap");
   }
 
   if (num_sampler_types > 0) {
     sampler_heap_token = m_sampler_heap.get_partition(num_sampler_types);
-    WN_DEBUG_ASSERT_DESC(sampler_heap_token.is_valid(),
+    WN_DEBUG_ASSERT(sampler_heap_token.is_valid(),
         "Could not find enough space for csv heap");
   }
 
@@ -709,7 +709,7 @@ void d3d12_device::initialize_descriptor_set(descriptor_set* _set,
         descriptor_heap = &m_csv_heap;
         break;
       default:
-        WN_DEBUG_ASSERT_DESC(false, "Should not end up here");
+        WN_DEBUG_ASSERT(false, "Should not end up here");
     }
     descriptor_data dat = {l.type, core::move(tok), l.binding, descriptor_heap};
     set->descriptors.push_back(core::move(dat));
@@ -922,7 +922,7 @@ void d3d12_device::initialize_framebuffer(
     if (components & static_cast<uint8_t>(image_component::color)) {
       data->image_view_handles.push_back(
           {m_rtv_heap.get_partition(1), &m_rtv_heap});
-      WN_DEBUG_ASSERT_DESC(data->image_view_handles.back().token.is_valid(),
+      WN_DEBUG_ASSERT(data->image_view_handles.back().token.is_valid(),
           "Could not allocate space for rtv");
       const memory::unique_ptr<const image_data>& image_data =
           get_data(info->image);
@@ -939,7 +939,7 @@ void d3d12_device::initialize_framebuffer(
                    static_cast<uint8_t>(image_component::stencil))) {
       data->image_view_handles.push_back(
           {m_dsv_heap.get_partition(1), &m_dsv_heap});
-      WN_DEBUG_ASSERT_DESC(data->image_view_handles.back().token.is_valid(),
+      WN_DEBUG_ASSERT(data->image_view_handles.back().token.is_valid(),
           "Could not allocate space for dsv");
 
       const memory::unique_ptr<const image_data>& image_data =
@@ -1328,9 +1328,9 @@ d3d12_device::get_arena_properties() const {
 
 bool d3d12_device::initialize_arena(arena* _arena, const size_t _index,
     const size_t _size, const bool _multisampled) {
-  WN_DEBUG_ASSERT_DESC(
+  WN_DEBUG_ASSERT(
       m_heap_info.size() > _index, "arena property index out of range");
-  WN_DEBUG_ASSERT_DESC(_size > 0, "arena should be non-zero size");
+  WN_DEBUG_ASSERT(_size > 0, "arena should be non-zero size");
 
   const D3D12_HEAP_FLAGS flags = m_heap_info[_index].heap_flags;
   const bool allow_buffers_only =

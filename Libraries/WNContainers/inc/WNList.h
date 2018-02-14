@@ -364,7 +364,7 @@ public:
 
 private:
   iterator unlink(iterator _start, iterator _end, size_t count) {
-    WN_DEBUG_ASSERT_DESC(static_cast<void*>(_start.m_ptr) !=
+    WN_DEBUG_ASSERT(static_cast<void*>(_start.m_ptr) !=
                              static_cast<void*>(&m_dummy_end_node),
         "You are trying to delete end()");
     list_node* ptr = _start.m_ptr;
@@ -383,7 +383,7 @@ private:
   }
 
   iterator unlink(iterator _it) {
-    WN_DEBUG_ASSERT_DESC(
+    WN_DEBUG_ASSERT(
         static_cast<void*>(_it.m_ptr) != static_cast<void*>(&m_dummy_end_node),
         "You are trying to delete end()");
     list_node* ptr = _it.m_ptr;
@@ -440,7 +440,7 @@ private:
     if (m_allocator) {
       m_allocator->deallocate(ptr);
     } else {
-      WN_DEBUG_ASSERT_DESC(
+      WN_DEBUG_ASSERT(
           ptr == nullptr, "m_allocator is nullptr, where did ptr come from");
     }
   }

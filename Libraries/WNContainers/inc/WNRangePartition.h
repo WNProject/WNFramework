@@ -189,7 +189,7 @@ private:
   }
 
   WN_FORCE_INLINE partition_node* merge_left() {
-    WN_DEBUG_ASSERT_DESC(
+    WN_DEBUG_ASSERT(
         m_next_free, "Cannot merge wiht previous non-free block");
     if (m_previous && m_previous->m_next_free) {
       partition_node* p = m_previous;
@@ -205,7 +205,7 @@ private:
   }
 
   partition_node* merge_right() {
-    WN_DEBUG_ASSERT_DESC(
+    WN_DEBUG_ASSERT(
         m_next_free, "Cannot merge wiht previous non-free block");
     if (m_next && m_next->m_next_free) {
       partition_node* n = m_next;
@@ -392,9 +392,9 @@ range_partition<NodeAllocator>::get_interval(size_t _size) {
 template <typename NodeAllocator>
 WN_INLINE partition_node* range_partition<NodeAllocator>::split_at(
     partition_node* node, size_t _size) {
-  WN_DEBUG_ASSERT_DESC(
+  WN_DEBUG_ASSERT(
       node->m_next_free != nullptr, "Can only split free nodes");
-  WN_DEBUG_ASSERT_DESC(
+  WN_DEBUG_ASSERT(
       node->m_size >= _size, "Can only split nodes that are large enough");
 
   if (node->m_size == _size) {

@@ -135,7 +135,7 @@ public:
         ::GetQueuedCompletionStatus(m_io_completion_port.value(),
             &bytes_transferred, &completion_key, &overlapped, INFINITE);
 
-    WN_RELEASE_ASSERT_DESC(completion_status_result,
+    WN_RELEASE_ASSERT(completion_status_result,
         "failed to get completion status from the queue");
 
     if (completion_key == 0) {
@@ -143,7 +143,7 @@ public:
         case 0:
           return false;
         default:
-          WN_RELEASE_ASSERT_DESC(false, "invalid message received");
+          WN_RELEASE_ASSERT(false, "invalid message received");
           return false;
       }
     } else {

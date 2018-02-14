@@ -49,7 +49,7 @@ public:
       at(count) = T(0);
     }
 
-    WN_DEBUG_ASSERT_DESC(_begin == _end, "not all values consumed");
+    WN_DEBUG_ASSERT(_begin == _end, "not all values consumed");
   }
 
   WN_FORCE_INLINE T& operator[](const size_t _index) {

@@ -24,7 +24,7 @@ public:
   WN_FORCE_INLINE script_test_allocator() : base(&m_allocator) {}
 
   WN_FORCE_INLINE virtual ~script_test_allocator() override {
-    WN_RELEASE_ASSERT(empty());
+    WN_RELEASE_ASSERT(empty(), "memory leak detected");
   }
 
   WN_FORCE_INLINE virtual void* allocate(const size_t _size) override {
@@ -48,7 +48,7 @@ template <uint32_t N>
 bool call_function(logging::log* _log, wn::scripting::engine* e,
     const containers::string_view name,
     const containers::dynamic_array<int32_t>&, int32_t expected_return) {
-  WN_RELEASE_ASSERT_DESC("Not implemented", N);
+  WN_RELEASE_ASSERT("Not implemented", N);
   return false;
 }
 
@@ -144,7 +144,7 @@ bool call(logging::log* _log, scripting::engine* e,
     case 3:
       return call_function<3>(_log, e, _name, _values, expected_return);
     default:
-      WN_RELEASE_ASSERT_DESC(false, "Error: unimplemented number of values");
+      WN_RELEASE_ASSERT(false, "Error: unimplemented number of values");
   }
   return false;
 }

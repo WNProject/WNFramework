@@ -38,7 +38,7 @@ resource_state_to_d3d12_resource_states(const resource_state _state) {
                     static_cast<uint32_t>(resource_state::max),
       "Expected the number of resource states and D3D12_RESOURCE_STATES to "
       "match");
-  WN_DEBUG_ASSERT_DESC(
+  WN_DEBUG_ASSERT(
       _state < resource_state::max, "Resource state out of bounds");
 
   if (_state == resource_state::initial) {
@@ -96,7 +96,7 @@ static WN_FORCE_INLINE D3D12_BLEND blend_to_d3d12(blend_factor _blend) {
       return D3D12_BLEND_INV_SRC1_ALPHA;
   }
 
-  WN_DEBUG_ASSERT_DESC(false, "You should never end up here");
+  WN_DEBUG_ASSERT(false, "You should never end up here");
   return D3D12_BLEND(0);
 }
 
@@ -114,7 +114,7 @@ static WN_FORCE_INLINE D3D12_BLEND_OP blend_op_to_d3d12(blend_op _blend) {
       return D3D12_BLEND_OP_MAX;
   }
 
-  WN_DEBUG_ASSERT_DESC(false, "You should never end up here");
+  WN_DEBUG_ASSERT(false, "You should never end up here");
   return D3D12_BLEND_OP(0);
 }
 
@@ -156,7 +156,7 @@ static WN_FORCE_INLINE D3D12_LOGIC_OP logic_op_to_d3d12(logic_op _logic) {
       return D3D12_LOGIC_OP_EQUIV;
   }
 
-  WN_DEBUG_ASSERT_DESC(false, "You should never end up here");
+  WN_DEBUG_ASSERT(false, "You should never end up here");
   return D3D12_LOGIC_OP(0);
 }
 
@@ -185,9 +185,9 @@ static WN_FORCE_INLINE D3D12_FILL_MODE fill_to_d3d12(fill_mode _fill) {
     case fill_mode::line:
       return D3D12_FILL_MODE_WIREFRAME;
     case fill_mode::point:
-      WN_DEBUG_ASSERT_DESC(false, "D3D12 does not support line fill");
+      WN_DEBUG_ASSERT(false, "D3D12 does not support line fill");
   }
-  WN_DEBUG_ASSERT_DESC(false, "You should never end up here");
+  WN_DEBUG_ASSERT(false, "You should never end up here");
   return D3D12_FILL_MODE(0);
 }
 
@@ -200,7 +200,7 @@ static WN_FORCE_INLINE D3D12_CULL_MODE cull_mode_to_d3d12(cull_mode _cull) {
     case cull_mode::none:
       return D3D12_CULL_MODE_NONE;
   }
-  WN_DEBUG_ASSERT_DESC(false, "You should never end up here");
+  WN_DEBUG_ASSERT(false, "You should never end up here");
   return D3D12_CULL_MODE(0);
 }
 
@@ -224,7 +224,7 @@ static WN_FORCE_INLINE D3D12_COMPARISON_FUNC comparison_op_to_d3d12(
     case comparison_op::greater_than_or_equal:
       return D3D12_COMPARISON_FUNC_GREATER_EQUAL;
   }
-  WN_DEBUG_ASSERT_DESC(false, "You should never end up here");
+  WN_DEBUG_ASSERT(false, "You should never end up here");
   return D3D12_COMPARISON_FUNC(0);
 }
 
@@ -248,7 +248,7 @@ static WN_FORCE_INLINE D3D12_STENCIL_OP stencil_op_to_d3d12(
     case stencil_op::decrement_saturate:
       return D3D12_STENCIL_OP_DECR_SAT;
   }
-  WN_DEBUG_ASSERT_DESC(false, "You should never end up here");
+  WN_DEBUG_ASSERT(false, "You should never end up here");
   return D3D12_STENCIL_OP(0);
 }
 
@@ -272,7 +272,7 @@ topology_to_d3d12_topology_type(topology _topology) {
     case topology::patch_list:
       return D3D12_PRIMITIVE_TOPOLOGY_TYPE_PATCH;
   }
-  WN_DEBUG_ASSERT_DESC(false, "You should never end up here");
+  WN_DEBUG_ASSERT(false, "You should never end up here");
   return D3D12_PRIMITIVE_TOPOLOGY_TYPE(0);
 }
 
@@ -303,7 +303,7 @@ static WN_FORCE_INLINE D3D_PRIMITIVE_TOPOLOGY topology_to_d3d12_topology(
       return D3D_PRIMITIVE_TOPOLOGY(
           D3D_PRIMITIVE_TOPOLOGY_1_CONTROL_POINT_PATCHLIST - 1);
   }
-  WN_DEBUG_ASSERT_DESC(false, "You should never end up here");
+  WN_DEBUG_ASSERT(false, "You should never end up here");
   return D3D_PRIMITIVE_TOPOLOGY(0);
 }
 

@@ -11,9 +11,9 @@
 extern "C" {
 
 void wn_make_context(ucontext_t* c, void (*func)(void*), void* data) {
-  WN_RELEASE_ASSERT_DESC(
+  WN_RELEASE_ASSERT(
       NULL != c->uc_stack.ss_sp, "stack pointer must be non-null");
-  WN_RELEASE_ASSERT_DESC(
+  WN_RELEASE_ASSERT(
       4 * 64 < c->uc_stack.ss_size, "The stack must be larger than 64 words");
 
   uintptr_t top_of_stack =

@@ -51,7 +51,7 @@ uint32_t d3d12_swapchain::get_next_backbuffer_index(
 }
 
 image* d3d12_swapchain::get_image_for_index(uint32_t index) {
-  WN_DEBUG_ASSERT_DESC(index < m_images.size(), "Invalid image index");
+  WN_DEBUG_ASSERT(index < m_images.size(), "Invalid image index");
   return &m_images[index];
 }
 

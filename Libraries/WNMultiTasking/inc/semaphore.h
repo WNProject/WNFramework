@@ -42,7 +42,7 @@ public:
   }
 
   void notify(const uint16_t _count) {
-    WN_DEBUG_ASSERT_DESC(
+    WN_DEBUG_ASSERT(
         _count != 0u, "notified a semaphore object with a count of 0");
 
     base::notify(_count);

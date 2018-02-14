@@ -98,7 +98,7 @@ private:
       if (t.size() == 0) {
         return;
       }
-      WN_DEBUG_ASSERT_DESC(&(*t.begin()) + t.size() == &(*t.end()),
+      WN_DEBUG_ASSERT(&(*t.begin()) + t.size() == &(*t.end()),
           "The sent data must be contiguious");
       send_range range(&(*t.begin()), t.size());
       send_ranges ranges(&range, 1);

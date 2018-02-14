@@ -409,7 +409,7 @@ void d3d12_command_list::bind_graphics_pipeline(graphics_pipeline* _pipeline) {
             pipeline->static_viewports.data());
         break;
       default:
-        WN_DEBUG_ASSERT_DESC(false, "We should not end up here");
+        WN_DEBUG_ASSERT(false, "We should not end up here");
     }
     next_datum <<= 1;
   }

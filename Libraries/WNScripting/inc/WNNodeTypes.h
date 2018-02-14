@@ -646,11 +646,11 @@ public:
 
   virtual void walk_children(
       const walk_mutable_expression&, const walk_ftype<type*>&) {
-    WN_RELEASE_ASSERT_DESC(false, "Not implemented yet");
+    WN_RELEASE_ASSERT(false, "Not implemented yet");
   }
   virtual void walk_children(const walk_ftype<const expression*>&,
       const walk_ftype<const type*>&) const {
-    WN_RELEASE_ASSERT_DESC(false, "Not implemented yet");
+    WN_RELEASE_ASSERT(false, "Not implemented yet");
   }
 
   memory::unique_ptr<type> transfer_out_type() {
@@ -839,8 +839,7 @@ public:
     return core::move(t);
   }
 
-  void walk_children(
-      const walk_mutable_expression& _expr,
+  void walk_children(const walk_mutable_expression& _expr,
       const walk_ftype<type*>& _type) override {
     for (auto& expr : m_array_initializers) {
       handle_expression(_expr, expr);
@@ -1209,7 +1208,7 @@ public:
   };
 
   void set_id_source(const id_source& _source) {
-    WN_RELEASE_ASSERT_DESC(
+    WN_RELEASE_ASSERT(
         ((_source.param_source != 0) + (_source.declaration_source != 0) +
             (!_source.function_sources.empty())) == 1,
         "The source must have come from somewhere.");
@@ -1875,14 +1874,14 @@ public:
       const walk_mutable_expression&, const walk_ftype<type*>&,
       const walk_ftype<instruction_list*>&, const walk_scope&,
       const walk_scope&) {
-    WN_RELEASE_ASSERT_DESC(false, "Not Implemented");
+    WN_RELEASE_ASSERT(false, "Not Implemented");
   }
 
   virtual void walk_children(const walk_ftype<const instruction*>&,
       const walk_ftype<const expression*>&, const walk_ftype<const type*>&,
       const walk_ftype<const instruction_list*>&, const walk_scope&,
       const walk_scope&) const {
-    WN_RELEASE_ASSERT_DESC(false, "Not Implemented");
+    WN_RELEASE_ASSERT(false, "Not Implemented");
   }
 
   void set_is_dead() {
@@ -2296,8 +2295,7 @@ public:
   virtual void walk_children(const walk_ftype<type*>& _type_func) {
     _type_func(m_type.get());
   }
-  virtual void walk_children(
-      const walk_ftype<const type*>& _type_func) const {
+  virtual void walk_children(const walk_ftype<const type*>& _type_func) const {
     _type_func(m_type.get());
   }
 

@@ -31,7 +31,7 @@ namespace wn {
 namespace memory {
 
 WN_FORCE_INLINE void* malloc(const size_t size) {
-  WN_RELEASE_ASSERT_DESC(size != 0, "attempting to allocate 0 bytes");
+  WN_RELEASE_ASSERT(size != 0, "attempting to allocate 0 bytes");
 
   return (std::malloc(size));
 }
@@ -46,8 +46,8 @@ WN_FORCE_INLINE void free(void* ptr) {
 
 WN_FORCE_INLINE void* aligned_malloc(
     const size_t size, const size_t alignment) {
-  WN_RELEASE_ASSERT_DESC(size != 0, "attempting to allocate 0 bytes");
-  WN_RELEASE_ASSERT_DESC(alignment > 0 && !(alignment & (alignment - 1)),
+  WN_RELEASE_ASSERT(size != 0, "attempting to allocate 0 bytes");
+  WN_RELEASE_ASSERT(alignment > 0 && !(alignment & (alignment - 1)),
       "alignment is not a positive power of 2");
 
 #ifdef _WN_WINDOWS
@@ -77,8 +77,8 @@ void* memcpy(void*, const void*, const size_t);
 
 WN_FORCE_INLINE void* aligned_realloc(
     void* ptr, const size_t new_size, const size_t alignment) {
-  WN_RELEASE_ASSERT_DESC(new_size != 0, "attempting to allocate 0 bytes");
-  WN_RELEASE_ASSERT_DESC(alignment > 0 && !(alignment & (alignment - 1)),
+  WN_RELEASE_ASSERT(new_size != 0, "attempting to allocate 0 bytes");
+  WN_RELEASE_ASSERT(alignment > 0 && !(alignment & (alignment - 1)),
       "alignment is not a positive power of 2");
 
 #ifdef _WN_WINDOWS
@@ -135,7 +135,7 @@ WN_FORCE_INLINE T* heap_reallocate(T* ptr, const size_t new_size) {
 
 template <>
 WN_FORCE_INLINE void* heap_reallocate(void* ptr, const size_t new_size) {
-  WN_RELEASE_ASSERT_DESC(new_size != 0, "attempting to allocate 0 bytes");
+  WN_RELEASE_ASSERT(new_size != 0, "attempting to allocate 0 bytes");
 
   return (realloc(ptr, new_size));
 }

@@ -223,7 +223,7 @@ public:
         f->set_virtual_index(static_cast<uint32_t>(new_virtuals.size()));
         new_virtuals.push_back(core::move(f));
       } else {
-        WN_DEBUG_ASSERT_DESC(f->is_override(), "This must be an override");
+        WN_DEBUG_ASSERT(f->is_override(), "This must be an override");
         size_t i = 0;
         for (; i < base_virtual_size; ++i) {
           if (new_virtuals[i]->signatures_match(*f, true)) {
@@ -827,7 +827,7 @@ public:
           }
 
           for (auto& elif : else_if_insts) {
-            WN_DEBUG_ASSERT_DESC(
+            WN_DEBUG_ASSERT(
                 elif->get_node_type() == node_type::else_if_instruction,
                 "This should ALWAYS be an else-if instruction");
             else_if_instruction* else_if =
@@ -1177,7 +1177,7 @@ public:
         break;
       }
       default:
-        WN_RELEASE_ASSERT_DESC(false, "No Implemented: constant type");
+        WN_RELEASE_ASSERT(false, "No Implemented: constant type");
     }
     return nullptr;
   }
@@ -1211,7 +1211,7 @@ public:
       return nullptr;
     }
 
-    WN_RELEASE_ASSERT_DESC(
+    WN_RELEASE_ASSERT(
         return_type < static_cast<uint32_t>(type_classification::custom_type),
         "Not Implemented: Custom types");
     memory::unique_ptr<type> t =
@@ -1780,7 +1780,7 @@ public:
   memory::unique_ptr<instruction> walk_instruction(
       assignment_instruction* _assign) {
     if (_assign->get_assignment_type() != assign_type::equal) {
-      WN_RELEASE_ASSERT_DESC(
+      WN_RELEASE_ASSERT(
           false, "Not Implemented: Non-equality assignment instructions.");
     }
 
@@ -1806,7 +1806,7 @@ public:
         ++m_num_errors;
         return nullptr;
       default:
-        WN_RELEASE_ASSERT_DESC(false, "Cannot end end up here");
+        WN_RELEASE_ASSERT(false, "Cannot end end up here");
     }
 
     // Insert an implicit cast if we are assigning a
@@ -2471,7 +2471,7 @@ public:
       // TODO(awoloszyn): Increment reference count here.
       return nullptr;
     }
-    WN_RELEASE_ASSERT_DESC(
+    WN_RELEASE_ASSERT(
         _decl->get_type()->get_reference_type() == reference_type::unique,
         "Not Implemented: Other types of reference declarations");
 
@@ -2507,7 +2507,7 @@ public:
   }
 
   memory::unique_ptr<instruction> walk_instruction(else_if_instruction*) {
-    WN_DEBUG_ASSERT_DESC(false,
+    WN_DEBUG_ASSERT(false,
         "We should not end up here"
         "all else_if blocks should have been removed in the if_reassociation "
         "pass");
@@ -3285,7 +3285,7 @@ public:
           shared_ids.push_back(member.get());
           break;
         default:
-          WN_RELEASE_ASSERT_DESC(
+          WN_RELEASE_ASSERT(
               false, "Not implemented: complex reference_types");
       }
     }
@@ -3302,7 +3302,7 @@ public:
       for (auto& a : decls) {
         // Unique objects are in practice backed by raw objects.
         // It is those raw objects that we want to destroy.
-        WN_RELEASE_ASSERT_DESC(
+        WN_RELEASE_ASSERT(
             a->get_type()->get_node_type() ==
                     node_type::concretized_array_type ||
                 a->get_type()->get_reference_type() == reference_type::raw,
@@ -3555,7 +3555,7 @@ public:
             assignment->add_value(assign_type::equal, core::move(expr));
           } break;
           default:
-            WN_RELEASE_ASSERT_DESC(
+            WN_RELEASE_ASSERT(
                 false, "Not Implemented other types in structs");
         }
         instructions->add_instruction(core::move(assignment));

@@ -30,12 +30,12 @@ namespace internal {
 // was too large and would be truncated.
 template <typename _ContainedType>
 class hash_map_iterator
-    : std::iterator<std::forward_iterator_tag, _ContainedType> {
+  : std::iterator<std::forward_iterator_tag, _ContainedType> {
 public:
   using T = _ContainedType;
   using ait = typename std::conditional<core::is_const<T>::value,
-      typename dynamic_array<list<typename std::remove_const<T>::type>>::
-          const_iterator,
+      typename dynamic_array<
+          list<typename std::remove_const<T>::type>>::const_iterator,
       typename dynamic_array<list<T>>::iterator>::type;
 
   using lit = typename std::conditional<core::is_const<T>::value,
@@ -376,14 +376,16 @@ public:
       }
     }
     m_buckets.swap(new_buckets);
-    // new_buckets should have only empty elements;
+
+    // new_buckets should have only empty elements
     WN_DEBUG_ASSERT(std::find_if(new_buckets.begin(), new_buckets.end(),
                         [](list_type& bucket) {
                           if (!bucket.empty()) {
                             return true;
                           }
                           return false;
-                        }) == new_buckets.end());
+                        }) == new_buckets.end(),
+        "buckets not empty");
   }
 
   size_t size() const {

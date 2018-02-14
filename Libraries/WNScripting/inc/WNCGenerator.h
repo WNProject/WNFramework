@@ -47,7 +47,7 @@ public:
 
   void walk_expression(const expression* _e,
       core::pair<containers::string, containers::string>*) {
-    WN_RELEASE_ASSERT_DESC(_e && false, "Not implemented expression type");
+    WN_RELEASE_ASSERT(_e && false, "Not implemented expression type");
   }
   void walk_expression(const array_access_expression* _access,
       core::pair<containers::string, containers::string>* _str);
@@ -84,7 +84,7 @@ public:
       const concretized_array_type* _array_type, containers::string* _str);
   void walk_instruction(
       const instruction*, core::pair<containers::string, containers::string>*) {
-    WN_RELEASE_ASSERT_DESC(false, "Unimplemented instruction:");
+    WN_RELEASE_ASSERT(false, "Unimplemented instruction:");
   }
   void walk_instruction(const expression_instruction*,
       core::pair<containers::string, containers::string>*);

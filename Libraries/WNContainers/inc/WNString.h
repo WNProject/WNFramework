@@ -103,7 +103,7 @@ public:
 
   WN_FORCE_INLINE difference_type operator-(
       const string_iterator& _other) const {
-    WN_DEBUG_ASSERT_DESC(
+    WN_DEBUG_ASSERT(
         m_owner == _other.m_owner, "iterators are incompatible");
 
     return (m_position - _other.m_position);
@@ -166,42 +166,42 @@ public:
   }
 
   WN_FORCE_INLINE bool operator==(const string_iterator& _other) const {
-    WN_DEBUG_ASSERT_DESC(
+    WN_DEBUG_ASSERT(
         m_owner == _other.m_owner, "iterators are incompatible");
 
     return (m_position == _other.m_position);
   }
 
   WN_FORCE_INLINE bool operator!=(const string_iterator& _other) const {
-    WN_DEBUG_ASSERT_DESC(
+    WN_DEBUG_ASSERT(
         m_owner == _other.m_owner, "iterators are incompatible");
 
     return (m_position != _other.m_position);
   }
 
   WN_FORCE_INLINE bool operator>(const string_iterator& _other) const {
-    WN_DEBUG_ASSERT_DESC(
+    WN_DEBUG_ASSERT(
         m_owner == _other.m_owner, "iterators are incompatible");
 
     return (m_position > _other.m_position);
   }
 
   WN_FORCE_INLINE bool operator>=(const string_iterator& _other) const {
-    WN_DEBUG_ASSERT_DESC(
+    WN_DEBUG_ASSERT(
         m_owner == _other.m_owner, "iterators are incompatible");
 
     return (m_position >= _other.m_position);
   }
 
   WN_FORCE_INLINE bool operator<(const string_iterator& _other) const {
-    WN_DEBUG_ASSERT_DESC(
+    WN_DEBUG_ASSERT(
         m_owner == _other.m_owner, "iterators are incompatible");
 
     return (m_position < _other.m_position);
   }
 
   WN_FORCE_INLINE bool operator<=(const string_iterator& _other) const {
-    WN_DEBUG_ASSERT_DESC(
+    WN_DEBUG_ASSERT(
         m_owner == _other.m_owner, "iterators are incompatible");
 
     return (m_position <= _other.m_position);
@@ -509,7 +509,7 @@ public:
 
   WN_FORCE_INLINE string& erase(
       const size_type _index = 0, const size_type _count = npos) {
-    WN_DEBUG_ASSERT_DESC((_index < size()), "index is out of bounds");
+    WN_DEBUG_ASSERT((_index < size()), "index is out of bounds");
 
     m_data.erase(
         (m_data.cbegin() + _index), math::min(_count, size() - _index));
@@ -535,7 +535,7 @@ public:
 
   WN_FORCE_INLINE string& insert(
       const size_type _index, const size_type _count, const value_type _value) {
-    WN_DEBUG_ASSERT_DESC((_index <= size()), "index is out of bounds");
+    WN_DEBUG_ASSERT((_index <= size()), "index is out of bounds");
 
     m_data.reserve(size() + _count + 1);
 
@@ -555,7 +555,7 @@ public:
 
   WN_FORCE_INLINE string& insert(
       const size_type _index, const value_type* _ptr, const size_type _count) {
-    WN_DEBUG_ASSERT_DESC((_index <= size()), "index is out of bounds");
+    WN_DEBUG_ASSERT((_index <= size()), "index is out of bounds");
 
     m_data.reserve(size() + _count + 1);
 
@@ -625,7 +625,7 @@ public:
 
   WN_FORCE_INLINE string substr(
       const size_type _pos = 0, const size_type _count = npos) const {
-    WN_DEBUG_ASSERT_DESC(_pos < size(), "string position is out of bounds");
+    WN_DEBUG_ASSERT(_pos < size(), "string position is out of bounds");
 
     const size_type count =
         (_count == npos || (_pos + _count) > size()) ? size() - _pos : _count;

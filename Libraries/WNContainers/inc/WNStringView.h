@@ -627,14 +627,14 @@ WN_FORCE_INLINE string string_view::to_string(
 WN_FORCE_INLINE string_view::string_view(
     const string& _string, const size_type _size)
   : string_view(_string.data(), _size) {
-  WN_DEBUG_ASSERT_DESC(
+  WN_DEBUG_ASSERT(
       _size <= _string.size(), "attempting to access outside of string bounds");
 }
 
 WN_FORCE_INLINE string_view::string_view(
     const string& _string, const size_type _offset, const size_type _size)
   : string_view(_string.data(), _offset, _size) {
-  WN_DEBUG_ASSERT_DESC((_offset + _size) <= _string.size(),
+  WN_DEBUG_ASSERT((_offset + _size) <= _string.size(),
       "attempting to access outside of string bounds");
 }
 

@@ -30,7 +30,7 @@ bool file_windows::resize(const size_type _size) {
           WN_UNUSED_ARGUMENT(result);
 #endif
 
-          WN_DEBUG_ASSERT_DESC(
+          WN_DEBUG_ASSERT(
               result, "failed to restore previous memory map for file");
 
           return false;
@@ -43,7 +43,7 @@ bool file_windows::resize(const size_type _size) {
           WN_UNUSED_ARGUMENT(result);
 #endif
 
-          WN_DEBUG_ASSERT_DESC(
+          WN_DEBUG_ASSERT(
               result, "failed to restore previous memory map for file");
 
           return false;
@@ -93,7 +93,7 @@ void file_windows::unmap() {
     WN_UNUSED_ARGUMENT(result);
 #endif
 
-    WN_DEBUG_ASSERT_DESC(
+    WN_DEBUG_ASSERT(
         result == TRUE, "failed to unmap memory mapped file view");
 
     m_file_mapping_handle.dispose();

@@ -484,7 +484,7 @@ public:
 protected:
   void increment_signals(containers::contiguous_range<job_signal*> _signals,
       containers::contiguous_range<size_t> _num) override {
-    WN_DEBUG_ASSERT_DESC(_num.size() == _signals.size(),
+    WN_DEBUG_ASSERT(_num.size() == _signals.size(),
         "The number of signals must match the number of values");
     containers::dynamic_array<size_t> values(m_allocator);
     values.resize(_signals.size());
@@ -509,7 +509,7 @@ protected:
     spin_lock_guard guard(m_thread_lock);
     if (!_ptr->is_ready() && _ptr->get_wait_signal()->current_value() !=
                                  _ptr->get_wait_condition()) {
-      WN_DEBUG_ASSERT_DESC(_ptr->get_wait_signal(),
+      WN_DEBUG_ASSERT(_ptr->get_wait_signal(),
           "Cannot have an unready job without a wait signal");
       job_signal* signal = _ptr->get_wait_signal();
       size_t wait_condition = _ptr->get_wait_condition();

@@ -71,7 +71,7 @@ public:
       m_continue_instructions(_allocator) {}
 
   void walk_expression(const expression*, expression_dat*) {
-    WN_RELEASE_ASSERT_DESC(false, "Unimplemented expression type");
+    WN_RELEASE_ASSERT(false, "Unimplemented expression type");
   }
 
   void walk_expression(
@@ -98,7 +98,7 @@ public:
   void walk_type(const concretized_array_type* _type, llvm::Type** _val);
 
   void walk_instruction(const instruction* i, instruction_dat*) {
-    WN_RELEASE_ASSERT_DESC(
+    WN_RELEASE_ASSERT(
         i && false, "Unimplemented instruction type implemented");
   }
   void walk_instruction_list(const instruction_list*, instruction_dat*);

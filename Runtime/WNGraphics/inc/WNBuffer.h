@@ -47,7 +47,7 @@ public:
   }
 
   WN_FORCE_INLINE bool bind_memory(arena* _arena, const size_t _offset) {
-    WN_DEBUG_ASSERT_DESC(_offset + size() <= _arena->size(),
+    WN_DEBUG_ASSERT(_offset + size() <= _arena->size(),
         "binding is out of bounds of arena");
 
     m_bound = m_device->bind_buffer(this, _arena, _offset);

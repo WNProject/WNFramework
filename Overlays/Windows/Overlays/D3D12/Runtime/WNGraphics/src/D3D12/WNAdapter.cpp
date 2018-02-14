@@ -67,7 +67,7 @@ device_ptr d3d12_adapter::make_device(
 
 graphics_error d3d12_adapter::initialize_surface(
     surface* _surface, runtime::window::window* _window) {
-  WN_RELEASE_ASSERT_DESC(
+  WN_RELEASE_ASSERT(
       _window->type() == runtime::window::window_type::system,
       "Unsupported: Null-windows");
   const runtime::window::native_handle* handle =

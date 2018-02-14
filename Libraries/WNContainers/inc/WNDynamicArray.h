@@ -564,17 +564,21 @@ public:
 
   iterator erase(const_iterator _pos, const size_type _count) {
     WN_DEBUG_ASSERT(_pos >= const_iterator(m_data) &&
-                    _pos <= const_iterator(m_data + m_size));
-    WN_DEBUG_ASSERT((_pos + _count) <= const_iterator(m_data + m_size));
+                        _pos <= const_iterator(m_data + m_size),
+        "iterator out of bounds");
+    WN_DEBUG_ASSERT((_pos + _count) <= const_iterator(m_data + m_size),
+        "range out of bounds");
 
     return unshift(_pos, _count);
   }
 
   iterator erase(const_iterator _first, const_iterator _last) {
     WN_DEBUG_ASSERT(_first >= const_iterator(m_data) &&
-                    _first <= const_iterator(m_data + m_size));
+                        _first <= const_iterator(m_data + m_size),
+        "iterator out of bounds");
     WN_DEBUG_ASSERT(_last >= const_iterator(m_data) &&
-                    _last <= const_iterator(m_data + m_size));
+                        _last <= const_iterator(m_data + m_size),
+        "iterator out of bounds");
 
     const difference_type count = _last - _first;
 
@@ -655,14 +659,15 @@ private:
     if (m_allocator) {
       m_allocator->deallocate(_ptr);
     } else {
-      WN_DEBUG_ASSERT_DESC(
+      WN_DEBUG_ASSERT(
           _ptr == nullptr, "m_allocator is nullptr, where did ptr come from");
     }
   }
 
   WN_INLINE iterator shift(const_iterator _pos, const size_type _count) {
     WN_DEBUG_ASSERT(_pos <= const_iterator(m_data + m_size) &&
-                    (_pos >= const_iterator(m_data)));
+                        (_pos >= const_iterator(m_data)),
+        "iterator out of bounds");
 
     const size_type originalPosition = _pos.m_ptr - m_data;
 
@@ -710,8 +715,10 @@ private:
 
   WN_INLINE iterator unshift(const_iterator _pos, const size_type _count) {
     WN_DEBUG_ASSERT(_pos <= const_iterator(m_data + m_size) &&
-                    (_pos >= const_iterator(m_data)));
-    WN_DEBUG_ASSERT(_pos + _count <= const_iterator(m_data + m_size));
+                        (_pos >= const_iterator(m_data)),
+        "iterator out of bounds");
+    WN_DEBUG_ASSERT(_pos + _count <= const_iterator(m_data + m_size),
+        "range out of bounds");
 
     iterator itr(m_data + (_pos.m_ptr - m_data));
 

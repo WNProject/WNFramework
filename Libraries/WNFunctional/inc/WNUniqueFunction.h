@@ -44,13 +44,13 @@ public:
   WN_FORCE_INLINE unique_function(R (T::*_f)(Args...), T* _obj)
     : unique_function(
           [_obj, _f](Args... _args) -> R { return ((_obj->*_f)(_args...)); }) {
-    WN_RELEASE_ASSERT_DESC(_f, "member function is invalid");
-    WN_RELEASE_ASSERT_DESC(_obj, "object instance is invalid");
+    WN_RELEASE_ASSERT(_f, "member function is invalid");
+    WN_RELEASE_ASSERT(_obj, "object instance is invalid");
   }
 
   WN_FORCE_INLINE ~unique_function() {
     if (m_callable) {
-      WN_DEBUG_ASSERT_DESC(m_deleter, "not in valid state to be cleaned up");
+      WN_DEBUG_ASSERT(m_deleter, "not in valid state to be cleaned up");
 
       if (m_deleter) {
         m_deleter(&m_callable);
@@ -85,7 +85,7 @@ public:
   }
 
   WN_FORCE_INLINE R operator()(Args... _args) const {
-    WN_RELEASE_ASSERT_DESC(
+    WN_RELEASE_ASSERT(
         m_callable && m_executor, "must be valid in order to be executed");
 
     return m_executor(&m_callable, core::forward<Args>(_args)...);
@@ -127,7 +127,7 @@ private:
   construct(F&& _f) {
     m_callable = memory::construct<F>(core::forward<F>(_f));
 
-    WN_RELEASE_ASSERT_DESC(
+    WN_RELEASE_ASSERT(
         m_callable, "failed to construct lambda/function object");
 
     m_executor = [](void* const* _f, Args... _args) -> R {

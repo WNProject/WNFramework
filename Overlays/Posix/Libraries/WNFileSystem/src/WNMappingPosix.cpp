@@ -28,7 +28,7 @@ mapping_posix::~mapping_posix() {
   if (m_cleanup) {
     const bool result = recursive_remove_directory(m_root_path);
 
-    WN_RELEASE_ASSERT_DESC(result, "unable to cleanup mapping root directory");
+    WN_RELEASE_ASSERT(result, "unable to cleanup mapping root directory");
   }
 }
 
@@ -202,7 +202,7 @@ bool mapping_posix::recursive_remove_directory(
 
   if (!(entry = ::readdir(dir))) {
     if (::closedir(dir) != 0) {
-      WN_DEBUG_ASSERT_DESC(false, "failed to close handle to directory");
+      WN_DEBUG_ASSERT(false, "failed to close handle to directory");
     }
 
     return false;
@@ -228,7 +228,7 @@ bool mapping_posix::recursive_remove_directory(
   } while (entry = ::readdir(dir));
 
   if (::closedir(dir) != 0) {
-    WN_DEBUG_ASSERT_DESC(false, "failed to close handle to directory");
+    WN_DEBUG_ASSERT(false, "failed to close handle to directory");
 
     return false;
   }

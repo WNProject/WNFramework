@@ -116,7 +116,7 @@ public:
   }
 
   WN_FORCE_INLINE reference operator*() const {
-    WN_RELEASE_ASSERT_DESC(get() != nullptr, "cannot dereference nullptr");
+    WN_RELEASE_ASSERT(get() != nullptr, "cannot dereference nullptr");
 
     return *get();
   }
@@ -216,7 +216,7 @@ private:
       allocator* a = m_pointer->get_allocator();
 
       if (a) {
-        WN_RELEASE_ASSERT_DESC(_allocator == a, "incorrect allocator given");
+        WN_RELEASE_ASSERT(_allocator == a, "incorrect allocator given");
       } else {
         intrusive_ptr_base* p = static_cast<intrusive_ptr_base*>(_ptr);
 

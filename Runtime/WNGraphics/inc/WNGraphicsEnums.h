@@ -31,7 +31,7 @@ WN_FORCE_INLINE bool is_format_normalized(data_format _format) {
     case data_format::max:
       return false;
   }
-  WN_DEBUG_ASSERT_DESC(false, "You should not end up here, update this enum");
+  WN_DEBUG_ASSERT(false, "You should not end up here, update this enum");
   return false;
 }
 
@@ -44,7 +44,7 @@ WN_FORCE_INLINE bool is_format_depth_stencil(data_format _format) {
     case data_format::max:
       return false;
   }
-  WN_DEBUG_ASSERT_DESC(false, "You should not end up here, update this enum");
+  WN_DEBUG_ASSERT(false, "You should not end up here, update this enum");
   return false;
 }
 
@@ -57,7 +57,7 @@ WN_FORCE_INLINE bool is_format_uint(data_format _format) {
     case data_format::max:
       return false;
   }
-  WN_DEBUG_ASSERT_DESC(false, "You should not end up here, update this enum");
+  WN_DEBUG_ASSERT(false, "You should not end up here, update this enum");
   return false;
 }
 
@@ -70,7 +70,7 @@ WN_FORCE_INLINE bool is_format_int(data_format _format) {
     case data_format::max:
       return false;
   }
-  WN_DEBUG_ASSERT_DESC(false, "You should not end up here, update this enum");
+  WN_DEBUG_ASSERT(false, "You should not end up here, update this enum");
   return false;
 }
 

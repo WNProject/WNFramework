@@ -82,7 +82,7 @@ private:
     private_execution_data* execution_data =
         static_cast<private_execution_data*>(_arguments);
 
-    WN_RELEASE_ASSERT_DESC(execution_data, "invalid thread execution data");
+    WN_RELEASE_ASSERT(execution_data, "invalid thread execution data");
 
     execution_data->m_function();
 

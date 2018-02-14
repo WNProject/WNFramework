@@ -89,7 +89,7 @@ void ast_jit_engine::walk_type(
   }
   switch (_type->get_index()) {
     case static_cast<uint32_t>(type_classification::invalid_type):
-      WN_RELEASE_ASSERT_DESC(false, "Cannot classify invalid types");
+      WN_RELEASE_ASSERT(false, "Cannot classify invalid types");
       break;
     case static_cast<uint32_t>(type_classification::void_type):
       *_value = llvm::Type::getVoidTy(*m_context);
@@ -104,7 +104,7 @@ void ast_jit_engine::walk_type(
       *_value = llvm::IntegerType::get(*m_context, 8);
       return;
     case static_cast<uint32_t>(type_classification::string_type):
-      WN_RELEASE_ASSERT_DESC(false, "Not implemented: string type");
+      WN_RELEASE_ASSERT(false, "Not implemented: string type");
       break;
     case static_cast<uint32_t>(type_classification::bool_type):
       *_value = llvm::IntegerType::get(*m_context, 1);
@@ -123,7 +123,7 @@ void ast_jit_engine::walk_type(
         return;
       }
       auto val = m_vtable_map.find(_type->get_custom_type_data());
-      WN_RELEASE_ASSERT_DESC(
+      WN_RELEASE_ASSERT(
           val != m_vtable_map.end(), "Cannot find vtable for type");
       *_value = val->second.first->getPointerTo();
       return;
@@ -134,8 +134,7 @@ void ast_jit_engine::walk_type(
       uint32_t normalized_index =
           index - static_cast<uint32_t>(_type->get_reference_type());
       auto elem = m_struct_map.find(normalized_index);
-      WN_RELEASE_ASSERT_DESC(
-          elem != m_struct_map.end(), "Cannot determine type");
+      WN_RELEASE_ASSERT(elem != m_struct_map.end(), "Cannot determine type");
 
       switch (_type->get_reference_type()) {
         case reference_type::raw:
@@ -148,7 +147,7 @@ void ast_jit_engine::walk_type(
           *_value = elem->second->getPointerTo();
           break;
         default:
-          WN_RELEASE_ASSERT_DESC(false, "Not Implemented");
+          WN_RELEASE_ASSERT(false, "Not Implemented");
       }
     }
   }
@@ -263,7 +262,7 @@ void ast_jit_engine::walk_expression(
       _val->value = nullptr;
       break;
     default:
-      WN_RELEASE_ASSERT_DESC(false, "Not Implemented");
+      WN_RELEASE_ASSERT(false, "Not Implemented");
   }
 }
 
@@ -444,7 +443,7 @@ void ast_jit_engine::walk_expression(
       return;
     }
     default:
-      WN_RELEASE_ASSERT_DESC(false, "Not Implemented");
+      WN_RELEASE_ASSERT(false, "Not Implemented");
   }
 }
 
@@ -507,7 +506,7 @@ void ast_jit_engine::walk_expression(
       }
       break;
     default:
-      WN_RELEASE_ASSERT_DESC(false, "Not implemnted, non-integer arithmetic");
+      WN_RELEASE_ASSERT(false, "Not implemnted, non-integer arithmetic");
   }
   _val->instructions =
       containers::dynamic_array<llvm::Instruction*>(m_allocator);
@@ -532,7 +531,7 @@ void ast_jit_engine::walk_expression(
       _val->value = nullptr;
       break;
     default:
-      WN_RELEASE_ASSERT_DESC(false, "Not Implemented");
+      WN_RELEASE_ASSERT(false, "Not Implemented");
   }
 }
 
@@ -556,7 +555,7 @@ void ast_jit_engine::walk_expression(
   const expression_dat& dat =
       m_generator->get_data(_alloc->get_base_expression());
 
-  WN_RELEASE_ASSERT_DESC(dat.instructions.back() == dat.value,
+  WN_RELEASE_ASSERT(dat.instructions.back() == dat.value,
       "The last value is not the one returned, something is wrong");
   _val->instructions.insert(_val->instructions.end(), dat.instructions.begin(),
       dat.instructions.end());
@@ -589,7 +588,7 @@ void ast_jit_engine::walk_expression(
   llvm::Value* function = nullptr;
   if (_call->callee()->is_override() || _call->callee()->is_virtual()) {
     const struct_definition* ds = _call->callee()->get_this_pointer();
-    WN_DEBUG_ASSERT(ds != nullptr);
+    WN_DEBUG_ASSERT(ds != nullptr, "struct definition invalid");
     const auto& struct_value =
         m_generator->get_data(_call->get_expressions()[0]->m_expr.get());
 
@@ -653,7 +652,7 @@ void ast_jit_engine::walk_expression(
   _val->instructions =
       containers::dynamic_array<llvm::Instruction*>(m_allocator);
   auto vt = m_vtable_map.find(_call->get_name());
-  WN_RELEASE_ASSERT_DESC(vt != m_vtable_map.end(), "Cannot find vtable");
+  WN_RELEASE_ASSERT(vt != m_vtable_map.end(), "Cannot find vtable");
   _val->value = vt->second.second;
 }
 
@@ -764,7 +763,7 @@ void ast_jit_engine::walk_instruction(
         llvm::BranchInst::Create(_val->blocks.front()));
     _val->blocks.push_back(bb);
   } else {
-    WN_DEBUG_ASSERT_DESC(m_break_instructions.empty(),
+    WN_DEBUG_ASSERT(m_break_instructions.empty(),
         "Is it not possible to have a break instruction"
         " and be guaranteed to return");
   }
@@ -831,7 +830,7 @@ void ast_jit_engine::walk_instruction(
 
 void ast_jit_engine::walk_instruction(
     const assignment_instruction* _inst, instruction_dat* _val) {
-  WN_RELEASE_ASSERT_DESC(_inst->get_assignment_type() == assign_type::equal,
+  WN_RELEASE_ASSERT(_inst->get_assignment_type() == assign_type::equal,
       "Not Supported: non-equality assignments");
   _val->instructions =
       containers::dynamic_array<llvm::Instruction*>(m_allocator);
@@ -847,7 +846,7 @@ void ast_jit_engine::walk_instruction(
       llvm::dyn_cast<llvm::LoadInst>(location_dat.instructions.back());
   llvm::GetElementPtrInst* gep =
       llvm::dyn_cast<llvm::GetElementPtrInst>(location_dat.instructions.back());
-  WN_RELEASE_ASSERT_DESC(
+  WN_RELEASE_ASSERT(
       inst || gep, "Last instruction in lvalue is expected to be a LoadInst");
   llvm::Value* target = location_dat.instructions.back();
   if (inst) {

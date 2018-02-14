@@ -19,12 +19,12 @@ mapping_windows::~mapping_windows() {
     bool result =
         convert_to_unicode(m_root_path, unicode_buffer, unicode_buffer_size);
 
-    WN_RELEASE_ASSERT_DESC(
+    WN_RELEASE_ASSERT(
         result, "failed to convert to root path to native format");
 
     result = recursive_remove_directory(unicode_buffer, unicode_buffer_size);
 
-    WN_RELEASE_ASSERT_DESC(result, "unable to cleanup mapping root directory");
+    WN_RELEASE_ASSERT(result, "unable to cleanup mapping root directory");
   }
 }
 
@@ -267,7 +267,7 @@ bool mapping_windows::recursive_remove_directory(
     } while (::FindNextFileW(find_handle, &find_file_data) == TRUE);
 
     if (::FindClose(find_handle) != TRUE) {
-      WN_DEBUG_ASSERT_DESC(false, "failed to close file find resource");
+      WN_DEBUG_ASSERT(false, "failed to close file find resource");
     }
 
     return (::RemoveDirectoryW(_path) == TRUE);

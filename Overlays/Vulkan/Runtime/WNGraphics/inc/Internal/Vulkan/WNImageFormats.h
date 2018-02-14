@@ -22,7 +22,7 @@ static WN_FORCE_INLINE VkFormat image_format_to_vulkan_format(
   static_assert(sizeof(formats) / sizeof(formats[0]) ==
                     static_cast<uint32_t>(data_format::max),
       "Expected the number of vulkan formats and image formats to match");
-  WN_DEBUG_ASSERT_DESC(
+  WN_DEBUG_ASSERT(
       _format < data_format::max, "Image format out of bounds");
 
   return formats[static_cast<uint32_t>(_format)];

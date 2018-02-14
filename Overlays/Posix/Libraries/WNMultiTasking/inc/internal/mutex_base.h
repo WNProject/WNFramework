@@ -30,21 +30,20 @@ protected:
         if ((result = ::pthread_mutex_init(&m_mutex, &attributes)) == 0) {
           const int destroy_result = ::pthread_mutexattr_destroy(&attributes);
 
-          WN_DEBUG_ASSERT_DESC(
-              destroy_result == 0, "failed to create mutex object");
+          WN_DEBUG_ASSERT(destroy_result == 0, "failed to create mutex object");
 
           (void)destroy_result;
         }
       }
     }
 
-    WN_RELEASE_ASSERT_DESC(result == 0, "failed to create mutex object");
+    WN_RELEASE_ASSERT(result == 0, "failed to create mutex object");
   }
 
   ~mutex_base() {
     const int destroy_result = ::pthread_mutex_destroy(&m_mutex);
 
-    WN_DEBUG_ASSERT_DESC(destroy_result == 0, "failed to destroy mutex object");
+    WN_DEBUG_ASSERT(destroy_result == 0, "failed to destroy mutex object");
 
     (void)destroy_result;
   }
@@ -52,7 +51,7 @@ protected:
   void lock() {
     const int result = ::pthread_mutex_lock(&m_mutex);
 
-    WN_RELEASE_ASSERT_DESC(result == 0, "failed to lock mutex object");
+    WN_RELEASE_ASSERT(result == 0, "failed to lock mutex object");
   }
 
   bool try_lock() {
@@ -62,7 +61,7 @@ protected:
   void unlock() {
     const int result = ::pthread_mutex_unlock(&m_mutex);
 
-    WN_RELEASE_ASSERT_DESC(result == 0, "failed to unlock mutex object");
+    WN_RELEASE_ASSERT(result == 0, "failed to unlock mutex object");
   }
 
 private:

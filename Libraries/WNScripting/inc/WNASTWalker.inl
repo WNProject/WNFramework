@@ -67,7 +67,7 @@ void ast_walker<T, Const>::walk_type(type_type _type) {
       m_walker->walk_type(cast_to<concretized_array_type>(_type));
       break;
     default:
-      WN_RELEASE_ASSERT_DESC(false, "You should not get here");
+      WN_RELEASE_ASSERT(false, "You should not get here");
   }
 }
 
@@ -145,7 +145,7 @@ memory::unique_ptr<expression> ast_walker<T, Const>::walk_mut_expression(
     case node_type::vtable_initializer:
       return m_walker->walk_expression(cast_to<vtable_initializer>(_expression));
     default:
-      WN_RELEASE_ASSERT_DESC(false,
+      WN_RELEASE_ASSERT(false,
           "You added a new expression"
           " type but did not handle it here");
       return nullptr;
@@ -210,7 +210,7 @@ void ast_walker<T, Const>::walk_expression(const expression* _expression) {
       m_walker->walk_expression(cast_to<vtable_initializer>(_expression));
       break;
     default:
-      WN_DEBUG_ASSERT_DESC(false, "Invalid expression type");
+      WN_DEBUG_ASSERT(false, "Invalid expression type");
       break;
   }
 }
@@ -274,7 +274,7 @@ void ast_walker<T, Const>::walk_instruction(const instruction* _instruction) {
     case node_type::instruction_list:
       return walk_instruction_list(cast_to<instruction_list>(_instruction));
     default:
-      WN_DEBUG_ASSERT_DESC(false, "Invalid instruction type");
+      WN_DEBUG_ASSERT(false, "Invalid instruction type");
   }
 }
 
@@ -328,7 +328,7 @@ memory::unique_ptr<instruction> ast_walker<T, Const>::walk_mutable_instruction(
       walk_instruction_list(cast_to<instruction_list>(_instruction));
       return nullptr;
     default:
-      WN_DEBUG_ASSERT_DESC(false, "Invalid instruction type");
+      WN_DEBUG_ASSERT(false, "Invalid instruction type");
       return nullptr;
   }
 }

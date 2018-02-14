@@ -141,7 +141,7 @@ public:
 
   WN_FORCE_INLINE difference_type operator-(
       const contiguous_range_iterator& _other) const {
-    WN_DEBUG_ASSERT_DESC(
+    WN_DEBUG_ASSERT(
         m_owner == _other.m_owner, "iterators are incompatible");
 
     return (m_pointer - _other.m_pointer);
@@ -209,7 +209,7 @@ public:
 
   WN_FORCE_INLINE bool operator==(
       const contiguous_range_iterator& _other) const {
-    WN_DEBUG_ASSERT_DESC(
+    WN_DEBUG_ASSERT(
         m_owner == _other.m_owner, "iterators are incompatible");
 
     return (m_pointer == _other.m_pointer);
@@ -217,7 +217,7 @@ public:
 
   WN_FORCE_INLINE bool operator!=(
       const contiguous_range_iterator& _other) const {
-    WN_DEBUG_ASSERT_DESC(
+    WN_DEBUG_ASSERT(
         m_owner == _other.m_owner, "iterators are incompatible");
 
     return (m_pointer != _other.m_pointer);
@@ -225,7 +225,7 @@ public:
 
   WN_FORCE_INLINE bool operator>(
       const contiguous_range_iterator& _other) const {
-    WN_DEBUG_ASSERT_DESC(
+    WN_DEBUG_ASSERT(
         m_owner == _other.m_owner, "iterators are incompatible");
 
     return (m_pointer > _other.m_pointer);
@@ -233,7 +233,7 @@ public:
 
   WN_FORCE_INLINE bool operator>=(
       const contiguous_range_iterator& _other) const {
-    WN_DEBUG_ASSERT_DESC(
+    WN_DEBUG_ASSERT(
         m_owner == _other.m_owner, "iterators are incompatible");
 
     return (m_pointer >= _other.m_pointer);
@@ -241,7 +241,7 @@ public:
 
   WN_FORCE_INLINE bool operator<(
       const contiguous_range_iterator& _other) const {
-    WN_DEBUG_ASSERT_DESC(
+    WN_DEBUG_ASSERT(
         m_owner == _other.m_owner, "iterators are incompatible");
 
     return (m_pointer < _other.m_pointer);
@@ -249,7 +249,7 @@ public:
 
   WN_FORCE_INLINE bool operator<=(
       const contiguous_range_iterator& _other) const {
-    WN_DEBUG_ASSERT_DESC(
+    WN_DEBUG_ASSERT(
         m_owner == _other.m_owner, "iterators are incompatible");
 
     return (m_pointer <= _other.m_pointer);
@@ -381,7 +381,7 @@ public:
           core::is_same<U, core::remove_const_t<T>>>::value>>
   WN_FORCE_INLINE explicit contiguous_range(U* _begin, U* _end)
     : m_begin(reinterpret_cast<T*>(_begin)), m_end(reinterpret_cast<T*>(_end)) {
-    WN_DEBUG_ASSERT_DESC((m_begin && m_end) || (!m_begin && !m_end),
+    WN_DEBUG_ASSERT((m_begin && m_end) || (!m_begin && !m_end),
         "invalid input parameters, both must be null or non-null");
   }
 
@@ -509,15 +509,15 @@ public:
   }
 
   WN_FORCE_INLINE reference at(const size_type _pos) {
-    WN_DEBUG_ASSERT_DESC(m_begin, "invalid contiguous range");
-    WN_DEBUG_ASSERT_DESC((m_begin + _pos) < m_end, "index out of bounds");
+    WN_DEBUG_ASSERT(m_begin, "invalid contiguous range");
+    WN_DEBUG_ASSERT((m_begin + _pos) < m_end, "index out of bounds");
 
     return (*(m_begin + _pos));
   }
 
   WN_FORCE_INLINE const_reference at(const size_type _pos) const {
-    WN_DEBUG_ASSERT_DESC(m_begin, "invalid contiguous range");
-    WN_DEBUG_ASSERT_DESC((m_begin + _pos) < m_end, "index out of bounds");
+    WN_DEBUG_ASSERT(m_begin, "invalid contiguous range");
+    WN_DEBUG_ASSERT((m_begin + _pos) < m_end, "index out of bounds");
 
     return (*(m_begin + _pos));
   }
@@ -633,15 +633,15 @@ public:
   }
 
   WN_FORCE_INLINE void remove_prefix(const size_type _count) {
-    WN_DEBUG_ASSERT_DESC(m_begin, "invalid contiguous range");
-    WN_DEBUG_ASSERT_DESC((m_begin + _count) <= m_end, "count too large");
+    WN_DEBUG_ASSERT(m_begin, "invalid contiguous range");
+    WN_DEBUG_ASSERT((m_begin + _count) <= m_end, "count too large");
 
     m_begin += _count;
   }
 
   WN_FORCE_INLINE void remove_suffix(const size_type _count) {
-    WN_DEBUG_ASSERT_DESC(m_begin, "invalid contiguous range");
-    WN_DEBUG_ASSERT_DESC((m_end - _count) >= m_begin, "count too large");
+    WN_DEBUG_ASSERT(m_begin, "invalid contiguous range");
+    WN_DEBUG_ASSERT((m_end - _count) >= m_begin, "count too large");
 
     m_end -= _count;
   }
@@ -725,7 +725,7 @@ copy_to(contiguous_range<T>* _dest, const U* _src, const size_t _offset,
     const size_t _count) {
   static_assert(!core::is_const<remove_write_only_t<T>>::value,
       "cannot copy to a contiguous range containing const values");
-  WN_DEBUG_ASSERT_DESC(
+  WN_DEBUG_ASSERT(
       (_dest->data() + _offset + _count) <= (_dest->data() + _dest->size()),
       "attempting to copy outside of bounds of contiguous range");
 
@@ -741,7 +741,7 @@ copy_to(contiguous_range<T>* _dest, const U* _src, const size_t _offset,
     const size_t _count) {
   static_assert(!core::is_const<remove_write_only_t<T>>::value,
       "cannot copy to a contiguous range containing const values");
-  WN_DEBUG_ASSERT_DESC(
+  WN_DEBUG_ASSERT(
       (_dest->data() + _offset + _count) <= (_dest->data() + _dest->size()),
       "attempting to copy outside the bounds of given contiguous range");
 
@@ -764,7 +764,7 @@ WN_FORCE_INLINE typename core::enable_if<
     core::is_convertible<typename core::remove_const<U>::type*,
         remove_write_only_t<T>*>::value>::type
 copy_to(contiguous_range<T>* _dest, const contiguous_range<U>& _src) {
-  WN_DEBUG_ASSERT_DESC(_dest->size() <= _src.size(),
+  WN_DEBUG_ASSERT(_dest->size() <= _src.size(),
       "attempting to copy outside the bounds of given contiguous range");
 
   copy_to(_dest, _src.data(), _src.size());

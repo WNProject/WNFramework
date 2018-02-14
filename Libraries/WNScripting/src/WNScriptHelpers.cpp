@@ -31,7 +31,7 @@ memory::unique_ptr<function> create_external_function(
   params->copy_location_from(ret_type.get());
 
   char name[5] = {'_', '\0', '\0', '\0', '\0'};
-  WN_RELEASE_ASSERT_DESC(_function.params.size() < 32,
+  WN_RELEASE_ASSERT(_function.params.size() < 32,
       "Invalid to have a function with more than 31 parameters");
   for (uint32_t i = 0; i < _function.params.size(); ++i) {
     memory::writeuint32(name + 1, i, sizeof(name) - 2);

@@ -84,7 +84,7 @@ descriptor_pool device::create_descriptor_pool(
 #ifdef _WN_DEBUG
   uint8_t used_descriptors = 0;
   for (const auto& data : _pool_data) {
-    WN_DEBUG_ASSERT_DESC(
+    WN_DEBUG_ASSERT(
         0 == (used_descriptors & (1 << static_cast<uint8_t>(data.type))),
         "Cannot define the same descriptor type more than once for a given "
         "pool");

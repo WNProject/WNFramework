@@ -23,7 +23,7 @@ protected:
     m_handle =
         ::CreateSemaphoreW(NULL, static_cast<LONG>(_count), LONG_MAX, NULL);
 
-    WN_RELEASE_ASSERT_DESC(
+    WN_RELEASE_ASSERT(
         m_handle != NULL, "failed to create semaphore object");
   }
 
@@ -37,7 +37,7 @@ protected:
   void wait() {
     const DWORD result = ::WaitForSingleObject(m_handle.value(), INFINITE);
 
-    WN_RELEASE_ASSERT_DESC(
+    WN_RELEASE_ASSERT(
         result == WAIT_OBJECT_0, "failed to wait on semaphore object");
   }
 
@@ -50,7 +50,7 @@ protected:
       const BOOL result =
           ::ReleaseSemaphore(m_handle.value(), static_cast<LONG>(_count), NULL);
 
-      WN_RELEASE_ASSERT_DESC(
+      WN_RELEASE_ASSERT(
           result != FALSE, "failed to post desired count to semaphore object");
     }
   }

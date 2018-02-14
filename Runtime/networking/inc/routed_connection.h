@@ -220,7 +220,7 @@ public:
     if (_t.size() == 0) {
       return;
     }
-    WN_DEBUG_ASSERT_DESC(&(*_t.begin()) + _t.size() == &(*_t.end()),
+    WN_DEBUG_ASSERT(&(*_t.begin()) + _t.size() == &(*_t.end()),
         "The sent data must be contiguious");
     send_range range(&(*_t.begin()), _t.size());
     send_ranges ranges(&range, 1);
@@ -315,7 +315,7 @@ private:
     if (_t.size() == 0) {
       return;
     }
-    WN_DEBUG_ASSERT_DESC(&(*_t.begin()) + _t.size() == &(*_t.end()),
+    WN_DEBUG_ASSERT(&(*_t.begin()) + _t.size() == &(*_t.end()),
         "The sent data must be contiguious");
 
     send_range range(&(*_t.begin()), _t.size());
@@ -352,7 +352,7 @@ private:
       for (auto& range : _ranges) {
         length += static_cast<uint16_t>(range.size());
       }
-      WN_DEBUG_ASSERT_DESC(length < wn::networking::MAX_NETWORK_MESSAGE_SIZE,
+      WN_DEBUG_ASSERT(length < wn::networking::MAX_NETWORK_MESSAGE_SIZE,
           "The message length is too long");
       // This is a temporary list, we just take a message out of the pool
       // and put it in this list for now. We then move this to another

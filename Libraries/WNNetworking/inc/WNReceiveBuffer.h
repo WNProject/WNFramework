@@ -58,7 +58,7 @@ public:
 
   explicit WNReceiveBuffer(network_error _error)
     : m_owner(nullptr), m_error(_error) {
-    WN_RELEASE_ASSERT_DESC(_error != network_error::ok,
+    WN_RELEASE_ASSERT(_error != network_error::ok,
         "Cannot create a recieve buffer with an ok error without data");
   }
   network_error get_status() const {

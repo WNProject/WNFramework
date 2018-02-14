@@ -23,13 +23,13 @@ protected:
     const int result =
         ::pthread_spin_init(&m_spin_lock, PTHREAD_PROCESS_PRIVATE);
 
-    WN_RELEASE_ASSERT_DESC(result == 0, "failed to create spin lock object.");
+    WN_RELEASE_ASSERT(result == 0, "failed to create spin lock object.");
   }
 
   ~spin_lock_base() {
     const int result = ::pthread_spin_destroy(&m_spin_lock);
 
-    WN_DEBUG_ASSERT_DESC(result == 0, "failed to destroy spin lock object.");
+    WN_DEBUG_ASSERT(result == 0, "failed to destroy spin lock object.");
 
     (void)result;
   }
@@ -37,7 +37,7 @@ protected:
   void lock() {
     const int result = ::pthread_spin_lock(&m_spin_lock);
 
-    WN_RELEASE_ASSERT_DESC(result == 0, "failed to lock spin lock object.");
+    WN_RELEASE_ASSERT(result == 0, "failed to lock spin lock object.");
   }
 
   bool try_lock() {
@@ -47,7 +47,7 @@ protected:
   void unlock() {
     const int result = ::pthread_spin_unlock(&m_spin_lock);
 
-    WN_RELEASE_ASSERT_DESC(result == 0, "failed to unlock spin lock object.");
+    WN_RELEASE_ASSERT(result == 0, "failed to unlock spin lock object.");
   }
 
 private:

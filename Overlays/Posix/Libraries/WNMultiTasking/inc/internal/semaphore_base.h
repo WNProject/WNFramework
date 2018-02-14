@@ -25,7 +25,7 @@ protected:
     const int result =
         ::sem_init(&m_semaphore, 0, static_cast<unsigned int>(_count));
 
-    WN_RELEASE_ASSERT_DESC(result == 0, "failed to create semaphore object");
+    WN_RELEASE_ASSERT(result == 0, "failed to create semaphore object");
 
     m_valid = true;
   }
@@ -40,7 +40,7 @@ protected:
     if (m_valid) {
       const int result = ::sem_destroy(&m_semaphore);
 
-      WN_DEBUG_ASSERT_DESC(result == 0, "failed to destroy semaphore object");
+      WN_DEBUG_ASSERT(result == 0, "failed to destroy semaphore object");
 
       (void)result;
     }
@@ -50,8 +50,7 @@ protected:
     int result;
 
     while ((result = ::sem_wait(&m_semaphore)) == -1) {
-      WN_RELEASE_ASSERT_DESC(
-          errno == EINTR, "failed to wait on semaphore object");
+      WN_RELEASE_ASSERT(errno == EINTR, "failed to wait on semaphore object");
     }
   }
 
@@ -59,7 +58,7 @@ protected:
     int result;
 
     while ((result = ::sem_trywait(&m_semaphore)) == -1 && errno != EAGAIN) {
-      WN_RELEASE_ASSERT_DESC(
+      WN_RELEASE_ASSERT(
           errno == EINTR, "failed to try to wait on semaphore object");
     }
 
@@ -72,7 +71,7 @@ protected:
     while (count-- != 0) {
       const int result = ::sem_post(&m_semaphore);
 
-      WN_RELEASE_ASSERT_DESC(
+      WN_RELEASE_ASSERT(
           result == 0, "failed to post desired count to semaphore object");
     }
   }

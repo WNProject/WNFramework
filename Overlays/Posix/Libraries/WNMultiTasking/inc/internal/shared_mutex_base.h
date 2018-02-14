@@ -21,15 +21,13 @@ protected:
   shared_mutex_base() {
     const int result = ::pthread_rwlock_init(&m_read_write_lock, NULL);
 
-    WN_RELEASE_ASSERT_DESC(
-        result == 0, "failed to create read write lock object");
+    WN_RELEASE_ASSERT(result == 0, "failed to create read write lock object");
   }
 
   ~shared_mutex_base() {
     const int result = ::pthread_rwlock_destroy(&m_read_write_lock);
 
-    WN_DEBUG_ASSERT_DESC(
-        result == 0, "failed to destroy read write lock object");
+    WN_DEBUG_ASSERT(result == 0, "failed to destroy read write lock object");
 
     (void)result;
   }
@@ -37,7 +35,7 @@ protected:
   void lock() {
     const int result = ::pthread_rwlock_wrlock(&m_read_write_lock);
 
-    WN_RELEASE_ASSERT_DESC(
+    WN_RELEASE_ASSERT(
         result == 0, "failed to lock read write lock object for writer");
   }
 
@@ -48,14 +46,14 @@ protected:
   void unlock() {
     const int result = ::pthread_rwlock_unlock(&m_read_write_lock);
 
-    WN_RELEASE_ASSERT_DESC(
+    WN_RELEASE_ASSERT(
         result == 0, "failed to unlock read write lock object for writer");
   }
 
   void lock_shared() {
     const int result = ::pthread_rwlock_rdlock(&m_read_write_lock);
 
-    WN_RELEASE_ASSERT_DESC(
+    WN_RELEASE_ASSERT(
         result == 0, "failed to lock read write lock object for reader");
   }
 
@@ -66,7 +64,7 @@ protected:
   void unlock_shared() {
     const int result = ::pthread_rwlock_unlock(&m_read_write_lock);
 
-    WN_RELEASE_ASSERT_DESC(
+    WN_RELEASE_ASSERT(
         result == 0, "failed to unlock read write lock object for reader");
   }
 

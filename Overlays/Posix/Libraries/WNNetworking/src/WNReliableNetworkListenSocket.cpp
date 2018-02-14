@@ -25,7 +25,7 @@ network_error WNReliableConnectListenSocket::initialize(
   int set_reuse = 1;
   if (setsockopt(m_sock_fd, SOL_SOCKET, SO_REUSEADDR, &set_reuse, sizeof(int)) <
       0) {
-    WN_DEBUG_ASSERT_DESC(false, "setsockopt(SO_REUSEADDR) failed");
+    WN_DEBUG_ASSERT(false, "setsockopt(SO_REUSEADDR) failed");
   }
   char port_array[11] = {0};
   memory::writeuint32(port_array, _port, 10);

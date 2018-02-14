@@ -64,7 +64,7 @@ bool file_posix::resize(const size_type _size) {
 
 #ifndef _WN_HAS_MREMAP
         if (::munmap(m_mapped_memory, current_size) != 0) {
-          WN_RELEASE_ASSERT_DESC(::munmap(mapped_memory, _size) == 0,
+          WN_RELEASE_ASSERT(::munmap(mapped_memory, _size) == 0,
               "failed to cleanup temporrary memory map");
 
           return false;

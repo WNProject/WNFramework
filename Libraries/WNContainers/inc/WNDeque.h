@@ -108,7 +108,7 @@ public:
   }
 
   difference_type operator-(const deque_iterator& _other) const {
-    WN_RELEASE_ASSERT_DESC(
+    WN_RELEASE_ASSERT(
         m_deque == _other.m_deque, "iterators are incompatible");
 
     return (m_element - _other.m_element);
@@ -171,42 +171,42 @@ public:
   }
 
   bool operator==(const deque_iterator& _other) const {
-    WN_RELEASE_ASSERT_DESC(
+    WN_RELEASE_ASSERT(
         m_deque == _other.m_deque, "iterators are incompatible");
 
     return (m_element == _other.m_element);
   }
 
   bool operator!=(const deque_iterator& _other) const {
-    WN_RELEASE_ASSERT_DESC(
+    WN_RELEASE_ASSERT(
         m_deque == _other.m_deque, "iterators are incompatible");
 
     return (m_element != _other.m_element);
   }
 
   bool operator>(const deque_iterator& _other) const {
-    WN_RELEASE_ASSERT_DESC(
+    WN_RELEASE_ASSERT(
         m_deque == _other.m_deque, "iterators are incompatible");
 
     return (m_element > _other.m_element);
   }
 
   bool operator>=(const deque_iterator& _other) const {
-    WN_RELEASE_ASSERT_DESC(
+    WN_RELEASE_ASSERT(
         m_deque == _other.m_deque, "iterators are incompatible");
 
     return (m_element >= _other.m_element);
   }
 
   bool operator<(const deque_iterator& _other) const {
-    WN_RELEASE_ASSERT_DESC(
+    WN_RELEASE_ASSERT(
         m_deque == _other.m_deque, "iterators are incompatible");
 
     return (m_element < _other.m_element);
   }
 
   bool operator<=(const deque_iterator& _other) const {
-    WN_RELEASE_ASSERT_DESC(
+    WN_RELEASE_ASSERT(
         m_deque == _other.m_deque, "iterators are incompatible");
 
     return (m_element <= _other.m_element);
@@ -692,7 +692,7 @@ private:
     if (m_allocator) {
       m_allocator->deallocate(ptr);
     } else {
-      WN_DEBUG_ASSERT_DESC(
+      WN_DEBUG_ASSERT(
           ptr == nullptr, "m_allocator is nullptr, where did ptr come from");
     }
   }

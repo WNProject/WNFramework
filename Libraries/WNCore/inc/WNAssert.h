@@ -22,7 +22,7 @@ namespace wn {
 namespace core {
 namespace internal {
 
-WN_INLINE void assert_helper(const bool expression, const char* file,
+inline void assert_helper(const bool expression, const char* file,
     const uint32_t line, const char* message) {
   if (!expression) {
     std::cerr << "assertion failed!" << std::endl
@@ -42,24 +42,19 @@ WN_INLINE void assert_helper(const bool expression, const char* file,
 }  // namespace wn
 
 #ifndef _WN_RETAIL
-#define WN_RELEASE_ASSERT_DESC(expression, description)                        \
+#define WN_RELEASE_ASSERT(expression, description)                             \
   wn::core::internal::assert_helper(                                           \
       !!(expression), __FILE__, __LINE__, description)
 #else
-#define WN_RELEASE_ASSERT_DESC(expression, description)
+#define WN_RELEASE_ASSERT(expression, description)
 #endif
 
 #ifdef _WN_DEBUG
-#define WN_DEBUG_ASSERT_DESC(expression, description)                          \
+#define WN_DEBUG_ASSERT(expression, description)                               \
   wn::core::internal::assert_helper(                                           \
       !!(expression), __FILE__, __LINE__, description)
 #else
-#define WN_DEBUG_ASSERT_DESC(expression, description)
+#define WN_DEBUG_ASSERT(expression, description)
 #endif
-
-#define WN_RELEASE_ASSERT(expression)                                          \
-  WN_RELEASE_ASSERT_DESC(expression, WN_STRINGERIZE(expression))
-#define WN_DEBUG_ASSERT(expression)                                            \
-  WN_DEBUG_ASSERT_DESC(expression, WN_STRINGERIZE(expression))
 
 #endif  // __WN_CORE_ASSERT_H__

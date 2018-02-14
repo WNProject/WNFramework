@@ -87,7 +87,7 @@ WN_FORCE_INLINE void log_impl<MAX_LOG_LEVEL>::append_color(log_level _level, cha
     m_color_elements[m_num_color_elements - 1].m_level = _level;
     return;
   }
-  WN_DEBUG_ASSERT_DESC(m_num_color_elements < m_buffer_size,
+  WN_DEBUG_ASSERT(m_num_color_elements < m_buffer_size,
     "It should not be possible to have more color transition than elements");
   m_num_color_elements += 1;
   m_color_elements[m_num_color_elements - 1].m_position = _position;
