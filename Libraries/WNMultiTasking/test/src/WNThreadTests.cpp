@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNMultiTasking/inc/thread.h"
 #include "WNExecutableTest/inc/WNTestHarness.h"
+#include "WNMultiTasking/inc/thread.h"
 
 static void test_function1() {}
 
@@ -71,4 +71,29 @@ TEST(thread, detach) {
     ASSERT_FALSE(thread.joinable());
     ASSERT_FALSE(thread.join());
   }
+}
+
+TEST(thread_id, equality) {
+  wn::multi_tasking::thread::id id1;
+  wn::multi_tasking::thread::id id2;
+
+  EXPECT_EQ(id1, id2);
+  EXPECT_FALSE(id1 != id2);
+  EXPECT_FALSE(id1 < id2);
+  EXPECT_FALSE(id1 > id2);
+  EXPECT_LE(id1, id2);
+  EXPECT_GE(id1, id2);
+
+  const wn::multi_tasking::thread::id id3 =
+      wn::multi_tasking::this_thread::get_id();
+  const wn::multi_tasking::thread::id id4 =
+      wn::multi_tasking::this_thread::get_id();
+
+  EXPECT_EQ(id3, id4);
+  EXPECT_FALSE(id3 != id4);
+  EXPECT_FALSE(id3 < id4);
+  EXPECT_FALSE(id3 > id4);
+  EXPECT_LE(id3, id4);
+  EXPECT_GE(id3, id4);
+  EXPECT_NE(id1, id3);
 }

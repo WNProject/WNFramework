@@ -127,15 +127,20 @@ protected:
   }
 
   bool equal(const id_base& _other) const {
-    return (static_cast<uint64_t>(m_id) == static_cast<uint64_t>(_other.m_id));
+    return ((!m_valid && !_other.m_valid) ||
+            (m_valid && _other.m_valid &&
+                (static_cast<uint64_t>(m_id) ==
+                    static_cast<uint64_t>(_other.m_id))));
   }
 
   bool less_than(const id_base& _other) const {
-    return (static_cast<uint64_t>(m_id) < static_cast<uint64_t>(_other.m_id));
+    return (m_valid && _other.m_valid &&
+            (static_cast<uint64_t>(m_id) < static_cast<uint64_t>(_other.m_id)));
   }
 
   bool greater_than(const id_base& _other) const {
-    return (static_cast<uint64_t>(m_id) > static_cast<uint64_t>(_other.m_id));
+    return (m_valid && _other.m_valid &&
+            (static_cast<uint64_t>(m_id) > static_cast<uint64_t>(_other.m_id)));
   }
 
 private:
