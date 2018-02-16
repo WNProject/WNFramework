@@ -7,13 +7,14 @@
 #ifndef __WN_MULTI_TASKING_THREAD_H__
 #define __WN_MULTI_TASKING_THREAD_H__
 
+#include "WNCore/inc/WNAssert.h"
 #include "WNCore/inc/WNTypeTraits.h"
 #include "WNCore/inc/WNUtility.h"
 #include "WNFunctional/inc/WNFunction.h"
-#include "WNMemory/inc/WNIntrusivePtr.h"
 #include "WNMultiTasking/inc/internal/thread_base.h"
 
 #include <chrono>
+#include <functional>
 
 namespace wn {
 namespace multi_tasking {
@@ -52,7 +53,7 @@ public:
   id get_id() const;
 
   bool joinable() const {
-    return base::joinable();
+    return (m_data && base::joinable());
   }
 
   bool join() const {

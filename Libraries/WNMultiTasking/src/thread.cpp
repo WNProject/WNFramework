@@ -3,6 +3,11 @@
 // found in the LICENSE.txt file.
 
 #include "WNMultiTasking/inc/thread.h"
+#include "WNCore/inc/WNAssert.h"
+#include "WNCore/inc/WNUtility.h"
+#include "WNMemory/inc/WNAllocator.h"
+#include "WNMemory/inc/WNIntrusivePtr.h"
+#include "WNMultiTasking/inc/semaphore.h"
 
 namespace wn {
 namespace multi_tasking {
@@ -13,15 +18,18 @@ void thread::create(
       memory::make_intrusive<private_data>(_allocator, _allocator));
 
   if (data) {
-    private_execution_data* execution_data =
-        _allocator->construct<private_execution_data>(
-            _allocator, core::move(_f), data);
+    semaphore start_lock;
+    private_execution_data<private_data>* execution_data =
+        _allocator->construct<private_execution_data<private_data>>(
+            _allocator, &start_lock, core::move(_f), data);
 
     if (execution_data) {
       const bool creation_success = base::create(data.get(), execution_data);
 
       if (creation_success) {
         m_data = core::move(data);
+
+        start_lock.wait();
       } else {
         _allocator->destroy(execution_data);
 

@@ -8,17 +8,24 @@
 #define __WN_MULTI_TASKING_WINDOWS_INTERNAL_THREAD_BASE_H__
 
 #include "WNCore/inc/WNUtility.h"
-#include "WNFunctional/inc/WNFunction.h"
-#include "WNMemory/inc/WNAllocator.h"
 #include "WNMemory/inc/WNIntrusivePtr.h"
 #include "WNMultiTasking/inc/call_once.h"
+#include "WNMultiTasking/inc/internal/thread_base_common.h"
 #include "WNUtilities/inc/handle.h"
 
+#include <chrono>
+
 namespace wn {
+namespace memory {
+
+class allocator;
+
+}  // namespace memory
+
 namespace multi_tasking {
 namespace internal {
 
-class thread_base : core::non_copyable {
+class thread_base : protected thread_base_common {
 public:
   class id_base;
 
@@ -30,19 +37,6 @@ protected:
     utilities::internal::handle m_handle;
   };
 
-  struct private_execution_data final {
-    private_execution_data(memory::allocator* _allocator,
-        functional::function<void()>&& _function,
-        const memory::intrusive_ptr<private_data>& _data)
-      : m_allocator(_allocator),
-        m_function(core::move(_function)),
-        m_data(_data) {}
-
-    memory::allocator* m_allocator;
-    functional::function<void()> m_function;
-    memory::intrusive_ptr<private_data> m_data;
-  };
-
   thread_base() = default;
 
   thread_base(thread_base&& _other) : m_data(core::move(_other.m_data)) {}
@@ -50,7 +44,7 @@ protected:
   id_base get_id() const;
 
   bool joinable() const {
-    return (m_data && m_data->m_handle.is_valid());
+    return m_data->m_handle.is_valid();
   }
 
   bool join() const {
@@ -62,7 +56,8 @@ protected:
     return (result == WAIT_OBJECT_0);
   }
 
-  bool create(private_data* _data, private_execution_data* _execution_data) {
+  bool create(private_data* _data,
+      private_execution_data<private_data>* _execution_data) {
     const HANDLE handle =
         ::CreateThread(NULL, 0, static_cast<LPTHREAD_START_ROUTINE>(&wrapper),
             static_cast<LPVOID>(_execution_data), 0, NULL);
@@ -79,16 +74,7 @@ protected:
 
 private:
   static DWORD WINAPI wrapper(LPVOID _arguments) {
-    private_execution_data* execution_data =
-        static_cast<private_execution_data*>(_arguments);
-
-    WN_RELEASE_ASSERT(execution_data, "invalid thread execution data");
-
-    execution_data->m_function();
-
-    memory::allocator* allocator = execution_data->m_allocator;
-
-    allocator->destroy(execution_data);
+    execute(convert<private_data>(static_cast<void*>(_arguments)));
 
     return 0;
   }

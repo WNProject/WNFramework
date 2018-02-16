@@ -8,23 +8,29 @@
 #define __WN_MULTI_TASKING_POSIX_INTERNAL_THREAD_BASE_H__
 
 #include "WNCore/inc/WNUtility.h"
-#include "WNFunctional/inc/WNFunction.h"
-#include "WNMemory/inc/WNAllocator.h"
 #include "WNMemory/inc/WNIntrusivePtr.h"
 #include "WNMultiTasking/inc/internal/system_thread_id.h"
 #include "WNMultiTasking/inc/internal/system_thread_yield.h"
-#include "WNMultiTasking/inc/semaphore.h"
+#include "WNMultiTasking/inc/internal/thread_base_common.h"
 
 #include <pthread.h>
-#include <sys/syscall.h>
 #include <sys/types.h>
+#include <time.h>
 #include <unistd.h>
 
+#include <chrono>
+
 namespace wn {
+namespace memory {
+
+class allocator;
+
+}  // namespace memory
+
 namespace multi_tasking {
 namespace internal {
 
-class thread_base : core::non_copyable {
+class thread_base : protected thread_base_common {
 public:
   class id_base;
 
@@ -33,23 +39,9 @@ protected:
     private_data(memory::allocator* _allocator)
       : memory::intrusive_ptr_base(_allocator), m_joined(false) {}
 
-    semaphore m_start_lock;
     pthread_t m_pthread;
     pid_t m_id;
     bool m_joined;
-  };
-
-  struct private_execution_data final {
-    private_execution_data(memory::allocator* _allocator,
-        functional::function<void()>&& _function,
-        const memory::intrusive_ptr<private_data>& _data)
-      : m_allocator(_allocator),
-        m_function(core::move(_function)),
-        m_data(_data) {}
-
-    memory::allocator* m_allocator;
-    functional::function<void()> m_function;
-    memory::intrusive_ptr<private_data> m_data;
   };
 
   thread_base() = default;
@@ -59,7 +51,7 @@ protected:
   id_base get_id() const;
 
   bool joinable() const {
-    return (m_data && !m_data->m_joined);
+    return (!m_data->m_joined);
   }
 
   bool join() const {
@@ -68,7 +60,8 @@ protected:
     return (::pthread_join(m_data->m_pthread, NULL) == 0);
   }
 
-  bool create(private_data* _data, private_execution_data* _execution_data) {
+  bool create(private_data* _data,
+      private_execution_data<private_data>* _execution_data) {
     typedef void* (*start_routine_t)(void*);
 
     pthread_t pthread;
@@ -77,8 +70,6 @@ protected:
             static_cast<void*>(_execution_data)) == 0;
 
     if (creation_success) {
-      _data->m_start_lock.wait();
-
       _data->m_pthread = pthread;
     }
 
@@ -89,24 +80,15 @@ protected:
 
 private:
   static void* wrapper(void* _arguments) {
-    private_execution_data* execution_data =
-        static_cast<private_execution_data*>(_arguments);
-
-    WN_RELEASE_ASSERT(execution_data, "invalid thread execution data");
-
+    private_execution_data<private_data>* execution_data =
+        convert<private_data>(_arguments);
     private_data* data = execution_data->m_data.get();
 
     WN_RELEASE_ASSERT(data, "invalid thread data");
 
     data->m_id = system_thread_id();
 
-    data->m_start_lock.notify();
-
-    execution_data->m_function();
-
-    memory::allocator* allocator = execution_data->m_allocator;
-
-    allocator->destroy(execution_data);
+    execute(execution_data);
 
     return NULL;
   }

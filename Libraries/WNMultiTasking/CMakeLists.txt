@@ -5,6 +5,7 @@ add_wn_library(
   SOURCES
     inc/internal/mutex_base.h
     inc/internal/spin_lock_base.h
+    inc/internal/thread_base_common.h
     inc/call_once.h
     inc/callback_task.h
     inc/fiber.h
