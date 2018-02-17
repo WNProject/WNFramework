@@ -43,17 +43,12 @@ protected:
 
   id_base get_id() const;
 
-  bool joinable() const {
-    return m_data->m_handle.is_valid();
-  }
-
-  bool join() const {
+  void join() {
     const DWORD result =
         ::WaitForSingleObject(m_data->m_handle.value(), INFINITE);
 
-    m_data->m_handle.dispose();
-
-    return (result == WAIT_OBJECT_0);
+    WN_RELEASE_ASSERT(
+        (result == WAIT_OBJECT_0), "failed to wait on thread handle");
   }
 
   bool create(private_data* _data,

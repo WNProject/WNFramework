@@ -53,14 +53,20 @@ public:
   id get_id() const;
 
   bool joinable() const {
-    return (m_data && base::joinable());
+    return m_data;
   }
 
-  bool join() const {
-    return (joinable() ? base::join() : false);
+  void join() {
+    WN_DEBUG_ASSERT(joinable(), "thread is not joinable");
+
+    base::join();
+
+    detach();
   }
 
   void detach() {
+    WN_DEBUG_ASSERT(m_data, "thread is already detached");
+
     m_data.reset();
   }
 

@@ -126,4 +126,4 @@ overlay_library_sources(WNFileSystem
     ${compile_opts}
 )
 
-overlay_message(STATUS "File System Mapping Type: mapping_posix")
+overlay_message(STATUS "File System Mapping Type: Posix")

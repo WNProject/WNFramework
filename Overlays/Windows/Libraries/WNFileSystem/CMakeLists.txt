@@ -12,4 +12,4 @@ overlay_library_sources(WNFileSystem
     Rpcrt4.lib
 )
 
-overlay_message(STATUS "File System Mapping Type: mapping_windows")
+overlay_message(STATUS "File System Mapping Type: Windows")

@@ -37,11 +37,10 @@ public:
 protected:
   struct private_data : memory::intrusive_ptr_base {
     private_data(memory::allocator* _allocator)
-      : memory::intrusive_ptr_base(_allocator), m_joined(false) {}
+      : memory::intrusive_ptr_base(_allocator) {}
 
     pthread_t m_pthread;
     pid_t m_id;
-    bool m_joined;
   };
 
   thread_base() = default;
@@ -50,14 +49,10 @@ protected:
 
   id_base get_id() const;
 
-  bool joinable() const {
-    return (!m_data->m_joined);
-  }
+  void join() {
+    const int result = ::pthread_join(m_data->m_pthread, NULL);
 
-  bool join() const {
-    m_data->m_joined = true;
-
-    return (::pthread_join(m_data->m_pthread, NULL) == 0);
+    WN_RELEASE_ASSERT((result == 0), "failed to join thread");
   }
 
   bool create(private_data* _data,
