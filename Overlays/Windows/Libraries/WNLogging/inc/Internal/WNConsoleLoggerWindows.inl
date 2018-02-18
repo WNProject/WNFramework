@@ -1,4 +1,4 @@
-// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Copyright (c) 2018, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
@@ -36,7 +36,7 @@ console_logger<T_Location>::~console_logger() {
   }
 }
 
-WN_INLINE void write_section_to_console(
+inline void write_section_to_console(
     HANDLE _handle, const char* _buffer, size_t _amount) {
   if (_amount == 0) {
     return;

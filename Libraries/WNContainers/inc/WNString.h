@@ -1,4 +1,4 @@
-// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Copyright (c) 2018, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
@@ -8,12 +8,12 @@
 #define __WN_CONTAINERS_STRING_H__
 
 #include "WNContainers/inc/WNDynamicArray.h"
-#include "WNCore/inc/WNAlgorithm.h"
 #include "WNCore/inc/WNTypes.h"
 #include "WNMath/inc/WNBasic.h"
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNMemory/inc/WNStringUtility.h"
 
+#include <algorithm>
 #include <limits>
 
 namespace wn {
@@ -25,7 +25,7 @@ namespace internal {
 
 template <typename Container, typename NonConstContainer = Container,
     typename Element = typename Container::value_type>
-class string_iterator WN_FINAL
+class string_iterator final
   : public std::iterator<std::random_access_iterator_tag, Element,
         typename Container::difference_type> {
 private:
@@ -103,8 +103,7 @@ public:
 
   WN_FORCE_INLINE difference_type operator-(
       const string_iterator& _other) const {
-    WN_DEBUG_ASSERT(
-        m_owner == _other.m_owner, "iterators are incompatible");
+    WN_DEBUG_ASSERT(m_owner == _other.m_owner, "iterators are incompatible");
 
     return (m_position - _other.m_position);
   }
@@ -166,43 +165,37 @@ public:
   }
 
   WN_FORCE_INLINE bool operator==(const string_iterator& _other) const {
-    WN_DEBUG_ASSERT(
-        m_owner == _other.m_owner, "iterators are incompatible");
+    WN_DEBUG_ASSERT(m_owner == _other.m_owner, "iterators are incompatible");
 
     return (m_position == _other.m_position);
   }
 
   WN_FORCE_INLINE bool operator!=(const string_iterator& _other) const {
-    WN_DEBUG_ASSERT(
-        m_owner == _other.m_owner, "iterators are incompatible");
+    WN_DEBUG_ASSERT(m_owner == _other.m_owner, "iterators are incompatible");
 
     return (m_position != _other.m_position);
   }
 
   WN_FORCE_INLINE bool operator>(const string_iterator& _other) const {
-    WN_DEBUG_ASSERT(
-        m_owner == _other.m_owner, "iterators are incompatible");
+    WN_DEBUG_ASSERT(m_owner == _other.m_owner, "iterators are incompatible");
 
     return (m_position > _other.m_position);
   }
 
   WN_FORCE_INLINE bool operator>=(const string_iterator& _other) const {
-    WN_DEBUG_ASSERT(
-        m_owner == _other.m_owner, "iterators are incompatible");
+    WN_DEBUG_ASSERT(m_owner == _other.m_owner, "iterators are incompatible");
 
     return (m_position >= _other.m_position);
   }
 
   WN_FORCE_INLINE bool operator<(const string_iterator& _other) const {
-    WN_DEBUG_ASSERT(
-        m_owner == _other.m_owner, "iterators are incompatible");
+    WN_DEBUG_ASSERT(m_owner == _other.m_owner, "iterators are incompatible");
 
     return (m_position < _other.m_position);
   }
 
   WN_FORCE_INLINE bool operator<=(const string_iterator& _other) const {
-    WN_DEBUG_ASSERT(
-        m_owner == _other.m_owner, "iterators are incompatible");
+    WN_DEBUG_ASSERT(m_owner == _other.m_owner, "iterators are incompatible");
 
     return (m_position <= _other.m_position);
   }
@@ -233,7 +226,7 @@ private:
 
 class string_view;
 
-class string WN_FINAL {
+class string final {
 public:
   using value_type = char;
   using size_type = dynamic_array<value_type>::size_type;

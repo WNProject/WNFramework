@@ -13,8 +13,8 @@ namespace graphics {
 
 containers::contiguous_range<const adapter_ptr> factory::query_adapters()
     const {
-  multi_tasking::call_once(m_query_adapter_once_flag,
-      functional::function<void()>(std::bind(&factory::query_devices, this)));
+  multi_tasking::call_once(
+      m_query_adapter_once_flag, [this]() { query_devices(); });
 
   return containers::contiguous_range<const adapter_ptr>(
       m_adapters.data(), m_adapters.size());

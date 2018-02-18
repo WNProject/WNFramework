@@ -235,7 +235,7 @@ public:
   // number of threads.
   explicit job_pool(memory::allocator* _allocator, size_t /*_n*/)
     : m_allocator(_allocator) {}
-  WN_INLINE void block_job_until(job_signal* _signal, size_t _value) {
+  inline void block_job_until(job_signal* _signal, size_t _value) {
     block_job(_signal, _value);
   }
 
@@ -741,8 +741,7 @@ private:
       m_preblocked_jobs;
 };
 
-WN_INLINE
-void job::run() {
+inline void job::run() {
   run_internal();
   job_signal* signals[2];
   signals[0] = m_wait_signal;
@@ -766,7 +765,7 @@ void job::run() {
 }
 
 template <typename T, typename B, typename... Args>
-WN_INLINE void _async_passthrough::add_job(B _fn, T* _c, Args&&... _args) {
+inline void _async_passthrough::add_job(B _fn, T* _c, Args&&... _args) {
   m_pool->add_job(m_signal, _fn, _c, core::forward<Args>(_args)...);
 }
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Copyright (c) 2018, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
@@ -17,7 +17,7 @@ class console_logger : public logger {
 public:
   console_logger();
   ~console_logger();
-  virtual WN_INLINE void flush_buffer(
+  virtual void flush_buffer(
       const char* _buffer, size_t bufferSize, const color_element*, size_t);
 
 private:

@@ -1,4 +1,4 @@
-// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Copyright (c) 2018, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
@@ -70,7 +70,7 @@ public:
         empty(), "memory leak detected, did not deallocate all allocations");
   }
 
-  WN_INLINE virtual void* allocate(const size_t _size) override {
+  virtual void* allocate(const size_t _size) override {
     void* ptr = m_allocator->allocate(_size);
 
     notify_allocated(ptr, _size);
@@ -78,8 +78,7 @@ public:
     return ptr;
   }
 
-  WN_INLINE virtual void* reallocate(
-      void* _ptr, const size_t _new_size) override {
+  virtual void* reallocate(void* _ptr, const size_t _new_size) override {
     void* ptr = m_allocator->reallocate(_ptr, _new_size);
 
     notify_reallocated(_ptr, ptr, _new_size);
@@ -87,13 +86,13 @@ public:
     return ptr;
   }
 
-  WN_INLINE virtual void deallocate(void* _ptr) override {
+  virtual void deallocate(void* _ptr) override {
     notify_deallocated(_ptr);
 
     m_allocator->deallocate(_ptr);
   }
 
-  WN_INLINE virtual void* aligned_allocate(
+  virtual void* aligned_allocate(
       const size_t _size, const size_t _alignment) override {
     void* ptr = m_allocator->aligned_allocate(_size, _alignment);
 
@@ -102,7 +101,7 @@ public:
     return ptr;
   }
 
-  WN_INLINE virtual void* aligned_reallocate(
+  virtual void* aligned_reallocate(
       void* _ptr, const size_t _new_size, const size_t _alignment) override {
     void* ptr = m_allocator->aligned_reallocate(_ptr, _new_size, _alignment);
 
@@ -111,7 +110,7 @@ public:
     return ptr;
   }
 
-  WN_INLINE virtual void aligned_deallocate(void* _ptr) override {
+  virtual void aligned_deallocate(void* _ptr) override {
     notify_deallocated(_ptr);
 
     m_allocator->aligned_deallocate(_ptr);

@@ -1,4 +1,4 @@
-// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Copyright (c) 2018, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
@@ -28,7 +28,7 @@ struct type_registry {
   }
 };
 
-void WN_INLINE engine::register_builtin_types() {
+void inline engine::register_builtin_types() {
   m_registered_types[type_registry<int32_t>::get_registered_index()] =
       static_cast<uint32_t>(scripting::type_classification::int_type);
   m_registered_types[type_registry<bool>::get_registered_index()] =
@@ -92,8 +92,8 @@ struct expand_parameters<0> {
 }  // anonymous namespace
 
 template <typename T, typename... Args>
-bool WN_INLINE engine::get_function(
-    containers::string_view _name, script_function<T, Args...>& _function) const {
+bool inline engine::get_function(containers::string_view _name,
+    script_function<T, Args...>& _function) const {
   containers::dynamic_array<uint32_t> parameters(m_allocator);
   bool error = false;
 
@@ -115,7 +115,7 @@ bool WN_INLINE engine::get_function(
 }
 
 template <typename T, typename... Args>
-T WN_INLINE engine::invoke(
+T inline engine::invoke(
     const script_function<T, Args...>& _function, const Args&... _args) const {
   return _function.m_function(core::forward<const Args>(_args)...);
 }

@@ -43,7 +43,7 @@ public:
     cleanup();
   }
 
-  WN_INLINE result_type initialize(const uint32_t _worker_count) {
+  inline result_type initialize(const uint32_t _worker_count) {
     if (m_shutdown == false) {
       return result::already_initialized;
     }
@@ -176,7 +176,7 @@ public:
 #endif
 
 private:
-  WN_INLINE void cleanup() {
+  inline void cleanup() {
     if (m_shutdown) {
       return;
     }

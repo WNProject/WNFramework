@@ -1,4 +1,4 @@
-// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Copyright (c) 2018, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
@@ -18,24 +18,17 @@
 #define _WN_PLATFORM_NAME "${WN_PLATFORM}"
 
 // specifiers
-#define WN_INLINE ${WN_INLINE}
 #define WN_FORCE_INLINE ${WN_FORCE_INLINE}
 #define WN_NO_INLINE ${WN_NO_INLINE}
 #define WN_THREAD_LOCAL ${WN_THREAD_LOCAL}
 #define WN_WEAK_LINK ${WN_WEAK_LINK}
 #define WN_RESTRICT ${WN_RESTRICT}
-#define WN_OVERRIDE ${WN_OVERRIDE}
-#define WN_FINAL ${WN_FINAL}
 #define WN_ALIGN(${WN_ALIGN_MACRO_VARIABLE_NAME}) ${WN_ALIGN}
 #define WN_ALIGN_OF(${WN_ALIGN_OF_MACRO_VARIABLE_NAME}) ${WN_ALIGN_OF}
 
 // calling conventions
 #define WN_CDECL_BEGIN ${WN_CDECL_BEGIN}
 #define WN_CDECL_END ${WN_CDECL_END}
-
-// literals/types
-#cmakedefine _WN_HAS_CPP11_NULLPTR
-#cmakedefine _WN_HAS_CPP11_NULLPTR_T
 
 // stl features
 #cmakedefine _WN_HAS_CPP11_STD_IS_TRIVIALLY_COPYABLE

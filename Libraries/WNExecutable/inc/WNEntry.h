@@ -1,4 +1,4 @@
-// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Copyright (c) 2018, WNProject Authors. All rights reserved.
 // found in the LICENSE.txt file.
 
 #pragma once
@@ -31,7 +31,7 @@ static foo __attribute__((used)) my_foo;
 
 struct host_specific_data;
 
-struct system_data WN_FINAL {
+struct system_data final {
   host_specific_data* host_data;
   const char* program_name;
   int32_t argc;

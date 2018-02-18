@@ -1,4 +1,4 @@
-// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Copyright (c) 2018, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
@@ -22,7 +22,7 @@ namespace wn {
 namespace runtime {
 namespace graphics {
 
-class render_pass WN_FINAL : public base_object<2> {
+class render_pass final : public base_object<2> {
 public:
   render_pass() = delete;
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Copyright (c) 2018, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
@@ -22,7 +22,7 @@ namespace runtime {
 namespace graphics {
 
 // This just describes a descriptor set
-class descriptor_set_layout WN_FINAL : public base_object<2> {
+class descriptor_set_layout final : public base_object<2> {
 public:
   WN_FORCE_INLINE descriptor_set_layout(descriptor_set_layout&& _other)
     : m_device(_other.m_device) {
@@ -44,7 +44,7 @@ private:
   device* m_device;
 };
 
-class descriptor_set WN_FINAL : public base_object<2> {
+class descriptor_set final : public base_object<2> {
 public:
   WN_FORCE_INLINE descriptor_set(descriptor_set&& _other)
     : m_device(_other.m_device) {
@@ -83,7 +83,7 @@ private:
 //    1 descriptor pool of RO_buffer/RW_buffer/texture all come from the same
 //    pool, these are all the same "type"
 
-class descriptor_pool WN_FINAL : public base_object<2> {
+class descriptor_pool final : public base_object<2> {
 public:
   descriptor_set create_descriptor_set(descriptor_set_layout* _layout) {
     descriptor_set set(m_device);
@@ -111,7 +111,7 @@ private:
   device* m_device;
 };
 
-class pipeline_layout WN_FINAL : public base_object<2> {
+class pipeline_layout final : public base_object<2> {
 public:
   WN_FORCE_INLINE pipeline_layout(pipeline_layout&& _other)
     : m_device(_other.m_device) {

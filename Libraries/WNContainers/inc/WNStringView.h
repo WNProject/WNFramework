@@ -1,4 +1,4 @@
-// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Copyright (c) 2018, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
@@ -9,12 +9,12 @@
 
 #include "WNContainers/inc/WNContiguousRange.h"
 #include "WNContainers/inc/WNDynamicArray.h"
-#include "WNCore/inc/WNAlgorithm.h"
 #include "WNCore/inc/WNTypes.h"
 #include "WNMath/inc/WNBasic.h"
 #include "WNMemory/inc/WNAllocator.h"
 #include "WNMemory/inc/WNStringUtility.h"
 
+#include <algorithm>
 #include <limits>
 
 namespace wn {
@@ -22,7 +22,7 @@ namespace containers {
 
 class string;
 
-class string_view WN_FINAL {
+class string_view final {
 private:
   using range_type = contiguous_range<const char>;
 

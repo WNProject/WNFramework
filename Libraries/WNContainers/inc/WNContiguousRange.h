@@ -1,4 +1,4 @@
-// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Copyright (c) 2018, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
@@ -25,9 +25,9 @@ namespace internal {
 
 template <typename Container, typename NonConstContainer = Container,
     typename Element = typename Container::value_type>
-class contiguous_range_iterator WN_FINAL
-    : public std::iterator<std::random_access_iterator_tag, Element,
-          typename Container::difference_type> {
+class contiguous_range_iterator final
+  : public std::iterator<std::random_access_iterator_tag, Element,
+        typename Container::difference_type> {
 private:
   using base = std::iterator<std::random_access_iterator_tag, Element,
       typename Container::difference_type>;
@@ -141,8 +141,7 @@ public:
 
   WN_FORCE_INLINE difference_type operator-(
       const contiguous_range_iterator& _other) const {
-    WN_DEBUG_ASSERT(
-        m_owner == _other.m_owner, "iterators are incompatible");
+    WN_DEBUG_ASSERT(m_owner == _other.m_owner, "iterators are incompatible");
 
     return (m_pointer - _other.m_pointer);
   }
@@ -209,48 +208,42 @@ public:
 
   WN_FORCE_INLINE bool operator==(
       const contiguous_range_iterator& _other) const {
-    WN_DEBUG_ASSERT(
-        m_owner == _other.m_owner, "iterators are incompatible");
+    WN_DEBUG_ASSERT(m_owner == _other.m_owner, "iterators are incompatible");
 
     return (m_pointer == _other.m_pointer);
   }
 
   WN_FORCE_INLINE bool operator!=(
       const contiguous_range_iterator& _other) const {
-    WN_DEBUG_ASSERT(
-        m_owner == _other.m_owner, "iterators are incompatible");
+    WN_DEBUG_ASSERT(m_owner == _other.m_owner, "iterators are incompatible");
 
     return (m_pointer != _other.m_pointer);
   }
 
   WN_FORCE_INLINE bool operator>(
       const contiguous_range_iterator& _other) const {
-    WN_DEBUG_ASSERT(
-        m_owner == _other.m_owner, "iterators are incompatible");
+    WN_DEBUG_ASSERT(m_owner == _other.m_owner, "iterators are incompatible");
 
     return (m_pointer > _other.m_pointer);
   }
 
   WN_FORCE_INLINE bool operator>=(
       const contiguous_range_iterator& _other) const {
-    WN_DEBUG_ASSERT(
-        m_owner == _other.m_owner, "iterators are incompatible");
+    WN_DEBUG_ASSERT(m_owner == _other.m_owner, "iterators are incompatible");
 
     return (m_pointer >= _other.m_pointer);
   }
 
   WN_FORCE_INLINE bool operator<(
       const contiguous_range_iterator& _other) const {
-    WN_DEBUG_ASSERT(
-        m_owner == _other.m_owner, "iterators are incompatible");
+    WN_DEBUG_ASSERT(m_owner == _other.m_owner, "iterators are incompatible");
 
     return (m_pointer < _other.m_pointer);
   }
 
   WN_FORCE_INLINE bool operator<=(
       const contiguous_range_iterator& _other) const {
-    WN_DEBUG_ASSERT(
-        m_owner == _other.m_owner, "iterators are incompatible");
+    WN_DEBUG_ASSERT(m_owner == _other.m_owner, "iterators are incompatible");
 
     return (m_pointer <= _other.m_pointer);
   }
@@ -296,7 +289,7 @@ private:
 }  // namespace internal
 
 template <typename T>
-class write_only WN_FINAL {
+class write_only final {
 public:
   WN_FORCE_INLINE write_only& operator=(const T& _value) {
     m_value = _value;
@@ -342,7 +335,7 @@ template <typename T>
 using remove_write_only_t = typename remove_write_only<T>::type;
 
 template <typename T>
-class contiguous_range WN_FINAL {
+class contiguous_range final {
 private:
   static_assert(sizeof(remove_write_only_t<T>[2]) == sizeof(T[2]),
       "write only value of type not compatible with raw pointer of same type");

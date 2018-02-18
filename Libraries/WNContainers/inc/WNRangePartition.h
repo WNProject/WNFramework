@@ -1,5 +1,11 @@
-#ifndef __WN_CONTAINERS__RANGE_PARTITION_H__
-#define __WN_CONTAINERS__RANGE_PARTITION_H__
+// Copyright (c) 2018, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE.txt file.
+
+#pragma once
+
+#ifndef __WN_CONTAINERS_RANGE_PARTITION_H__
+#define __WN_CONTAINERS_RANGE_PARTITION_H__
 
 #include "WNMath/inc/WNBasic.h"
 #include "WNMemory/inc/WNAllocator.h"
@@ -189,8 +195,7 @@ private:
   }
 
   WN_FORCE_INLINE partition_node* merge_left() {
-    WN_DEBUG_ASSERT(
-        m_next_free, "Cannot merge wiht previous non-free block");
+    WN_DEBUG_ASSERT(m_next_free, "Cannot merge wiht previous non-free block");
     if (m_previous && m_previous->m_next_free) {
       partition_node* p = m_previous;
       m_next_free = m_previous->m_next_free;
@@ -205,8 +210,7 @@ private:
   }
 
   partition_node* merge_right() {
-    WN_DEBUG_ASSERT(
-        m_next_free, "Cannot merge wiht previous non-free block");
+    WN_DEBUG_ASSERT(m_next_free, "Cannot merge wiht previous non-free block");
     if (m_next && m_next->m_next_free) {
       partition_node* n = m_next;
       m_next_free = m_next->m_next_free;
@@ -223,24 +227,24 @@ private:
   }
 };
 
-WN_INLINE partition_node* default_node_allocator::allocate_node_for(
+inline partition_node* default_node_allocator::allocate_node_for(
     size_t, size_t) {
   return m_allocator->construct<partition_node>();
 }
-WN_INLINE void default_node_allocator::free_node(partition_node* node) {
+inline void default_node_allocator::free_node(partition_node* node) {
   m_allocator->destroy(node);
 }
 
 template <typename NodeAllocator>
-WN_INLINE size_t range_partition<NodeAllocator>::token::size() const {
+inline size_t range_partition<NodeAllocator>::token::size() const {
   return list->small_size() ? math::popcount_sparse(bits) : node->size();
 }
 template <typename NodeAllocator>
-WN_INLINE size_t range_partition<NodeAllocator>::token::offset() const {
+inline size_t range_partition<NodeAllocator>::token::offset() const {
   return list->small_size() ? math::trailing_zeros(bits) : node->offset();
 }
 template <typename NodeAllocator>
-WN_INLINE bool range_partition<NodeAllocator>::token::is_valid() const {
+inline bool range_partition<NodeAllocator>::token::is_valid() const {
   return list && (node || bits);
 }
 
@@ -305,17 +309,17 @@ range_partition<NodeAllocator>& range_partition<NodeAllocator>::operator=(
 }
 
 template <typename NodeAllocator>
-WN_INLINE size_t range_partition<NodeAllocator>::size() const {
+inline size_t range_partition<NodeAllocator>::size() const {
   return m_num_elements;
 }
 
 template <typename NodeAllocator>
-WN_INLINE size_t range_partition<NodeAllocator>::used() const {
+inline size_t range_partition<NodeAllocator>::used() const {
   return m_used_space;
 }
 
 template <typename NodeAllocator>
-WN_INLINE void range_partition<NodeAllocator>::release_interval(token token) {
+inline void range_partition<NodeAllocator>::release_interval(token token) {
   if (small_size()) {
     m_used_bucket = m_used_bucket & ~token.bits;
     m_used_space -= token.size();
@@ -338,7 +342,7 @@ WN_INLINE void range_partition<NodeAllocator>::release_interval(token token) {
 }
 
 template <typename NodeAllocator>
-WN_INLINE typename range_partition<NodeAllocator>::token
+inline typename range_partition<NodeAllocator>::token
 range_partition<NodeAllocator>::get_interval(size_t _size) {
   if (small_size()) {
     size_t bit_mask = _size == k_no_allocation_size
@@ -390,10 +394,9 @@ range_partition<NodeAllocator>::get_interval(size_t _size) {
   }
 }
 template <typename NodeAllocator>
-WN_INLINE partition_node* range_partition<NodeAllocator>::split_at(
+inline partition_node* range_partition<NodeAllocator>::split_at(
     partition_node* node, size_t _size) {
-  WN_DEBUG_ASSERT(
-      node->m_next_free != nullptr, "Can only split free nodes");
+  WN_DEBUG_ASSERT(node->m_next_free != nullptr, "Can only split free nodes");
   WN_DEBUG_ASSERT(
       node->m_size >= _size, "Can only split nodes that are large enough");
 

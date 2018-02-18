@@ -1,9 +1,12 @@
-// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Copyright (c) 2018, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
+#pragma once
+
 #ifndef __WN_LOGGING_LOG_H__
 #define __WN_LOGGING_LOG_H__
+
 #include "WNCore/inc/WNAssert.h"
 #include "WNCore/inc/WNTypes.h"
 #include "WNLogging/inc/Internal/WNConfig.h"
@@ -202,4 +205,5 @@ log* GetTestingLog();
 
 #include "WNLogging/inc/WNDefaultLogTypes.inl"
 #include "WNLogging/inc/WNLog.inl"
+
 #endif  // __WN_LOGGING_LOG_H__

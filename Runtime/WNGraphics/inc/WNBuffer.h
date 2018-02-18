@@ -1,4 +1,4 @@
-// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Copyright (c) 2018, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
@@ -26,7 +26,7 @@ struct buffer_memory_requirements {
 
 class arena;
 
-class buffer WN_FINAL : base_object<2> {
+class buffer final : base_object<2> {
 private:
   using base = base_object<2>;
 

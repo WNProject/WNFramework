@@ -1,4 +1,4 @@
-// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Copyright (c) 2018, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
@@ -19,7 +19,7 @@ namespace wn {
 namespace runtime {
 namespace graphics {
 
-class signal WN_FINAL : public core::non_copyable {
+class signal final : public core::non_copyable {
 public:
   signal() = delete;
 
@@ -66,7 +66,7 @@ private:
   // The opaque_data must be trivially copyable.
   // It also must be considered uninitialized when
   // memset to 0.
-  struct opaque_data WN_FINAL {
+  struct opaque_data final {
     uint64_t _dummy[1];
   } m_data;
 

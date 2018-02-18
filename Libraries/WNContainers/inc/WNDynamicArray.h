@@ -1,4 +1,4 @@
-// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Copyright (c) 2018, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
@@ -140,7 +140,7 @@ private:
 }  // namespace internal
 
 template <typename T, const size_t _ExpandPercentage>
-class dynamic_array WN_FINAL {
+class dynamic_array final {
 public:
   using value_type = T;
   using size_type = size_t;
@@ -445,7 +445,7 @@ public:
     return sizeof(size_type);
   }
 
-  WN_INLINE void reserve(const size_type _new_cap = 0) {
+  inline void reserve(const size_type _new_cap = 0) {
     if (_new_cap > m_capacity) {
       if (!m_data) {
         void* p = allocate(sizeof(T), _new_cap);
@@ -664,7 +664,7 @@ private:
     }
   }
 
-  WN_INLINE iterator shift(const_iterator _pos, const size_type _count) {
+  inline iterator shift(const_iterator _pos, const size_type _count) {
     WN_DEBUG_ASSERT(_pos <= const_iterator(m_data + m_size) &&
                         (_pos >= const_iterator(m_data)),
         "iterator out of bounds");
@@ -713,7 +713,7 @@ private:
     return iterator(m_data + originalPosition);
   }
 
-  WN_INLINE iterator unshift(const_iterator _pos, const size_type _count) {
+  inline iterator unshift(const_iterator _pos, const size_type _count) {
     WN_DEBUG_ASSERT(_pos <= const_iterator(m_data + m_size) &&
                         (_pos >= const_iterator(m_data)),
         "iterator out of bounds");

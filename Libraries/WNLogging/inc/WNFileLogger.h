@@ -1,4 +1,4 @@
-// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Copyright (c) 2018, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
@@ -10,7 +10,7 @@
 namespace wn {
 namespace logging {
 
-WN_INLINE const char* default_function_name() {
+inline const char* default_function_name() {
   return (nullptr);
 }
 

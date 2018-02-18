@@ -1,4 +1,4 @@
-// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Copyright (c) 2018, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
@@ -236,7 +236,7 @@ WN_FORCE_INLINE char* strnupr(char* str, const size_t count) {
   return (str);
 }
 
-WN_INLINE int32_t snprintf(
+inline int32_t snprintf(
     char* buffer, const size_t count, const char* format, ...) {
   va_list argptr;
   va_start(argptr, format);

@@ -1,4 +1,4 @@
-// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Copyright (c) 2018, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
@@ -56,7 +56,7 @@ public:
 
   virtual bool resize(const size_type _size) override;
 
-  WN_INLINE virtual void close() override {
+  virtual void close() override {
     if (is_open()) {
       flush();
 

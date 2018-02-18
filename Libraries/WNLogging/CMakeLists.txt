@@ -12,7 +12,6 @@ set_property(CACHE WN_MAX_LOG_LEVEL PROPERTY STRINGS none critical error warning
 message(STATUS "Default Maximum Log Level: ${WN_MAX_LOG_LEVEL}")
 
 set(SOURCES
-  inc/Internal/WNBufferLogger.inl
   inc/Internal/WNConfig.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/inc/Internal/WNConfig.h
   inc/Internal/WNMultiLogger.inl

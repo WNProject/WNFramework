@@ -1,4 +1,4 @@
-// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Copyright (c) 2018, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
@@ -39,7 +39,7 @@
   ${_WN_GRAPHICS_DEVICE_TYPE}_##element
 #endif
 
-// will be defined as WN_FINAL or WN_OVERRIDE if multiple device types are
+// will be defined as 'final' or 'override' if multiple device types are
 // available
 #define WN_GRAPHICS_FINAL ${WN_GRAPHICS_FINAL}
 #define WN_GRAPHICS_OVERRIDE ${WN_GRAPHICS_OVERRIDE}

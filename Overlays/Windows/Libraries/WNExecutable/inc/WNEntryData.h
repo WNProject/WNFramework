@@ -1,4 +1,4 @@
-// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Copyright (c) 2018, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
@@ -11,7 +11,7 @@
 namespace wn {
 namespace entry {
 
-struct host_specific_data WN_FINAL {
+struct host_specific_data final {
   const char* full_executable_path;
   HMODULE module;
 };

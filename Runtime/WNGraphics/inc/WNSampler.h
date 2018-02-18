@@ -1,4 +1,4 @@
-// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Copyright (c) 2018, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
@@ -54,7 +54,7 @@ struct sampler_create_info {
   border_color border = border_color::black_opaque_f32;
 };
 
-class sampler WN_FINAL : public core::non_copyable {
+class sampler final : public core::non_copyable {
 public:
   WN_FORCE_INLINE sampler(sampler&& _other) : m_device(_other.m_device) {
     _other.m_device = nullptr;
@@ -96,7 +96,7 @@ private:
   // The opaque_data must be trivially copyable.
   // It also must be considered uninitialized when
   // memset to 0.
-  struct opaque_data WN_FINAL {
+  struct opaque_data final {
     uint64_t _dummy[2];
   } m_data;
 

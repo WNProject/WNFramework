@@ -1,4 +1,4 @@
-// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Copyright (c) 2018, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
@@ -20,7 +20,7 @@ namespace vulkan {
 
 class vulkan_device;
 
-struct queue_context WN_FINAL {
+struct queue_context final {
   queue_context() : m_device(nullptr) {}
   vulkan_device* m_device;
   PFN_vkQueueSubmit vkQueueSubmit;

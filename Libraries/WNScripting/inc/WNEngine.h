@@ -1,4 +1,4 @@
-// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Copyright (c) 2018, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
@@ -69,12 +69,12 @@ public:
   // signature. The return types and all parameter types must
   // match exactly.
   template <typename T, typename... Args>
-  bool WN_INLINE get_function(containers::string_view _name,
+  bool inline get_function(containers::string_view _name,
       script_function<T, Args...>& _function) const;
   using void_func = script_function<void>;
 
   template <typename T, typename... Args>
-  T WN_INLINE invoke(
+  T inline invoke(
       const script_function<T, Args...>& _function, const Args&... _args) const;
 
 protected:

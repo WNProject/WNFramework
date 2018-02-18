@@ -1,4 +1,4 @@
-// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Copyright (c) 2018, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
@@ -21,7 +21,7 @@ static const containers::string_view good_slash(tokens, 2, 1);
 static const containers::string_view dot_dot(tokens, 2);
 static const containers::string_view dot_dot_slash(tokens, 3);
 
-WN_INLINE void append_path(
+inline void append_path(
     containers::string& _path, containers::string_view _appendee) {
   if (!_path.empty() && _path.back() != good_slash.data()[0]) {
     _path.append(good_slash.data(), good_slash.size());
@@ -30,7 +30,7 @@ WN_INLINE void append_path(
   _path.append(_appendee.data(), _appendee.size());
 }
 
-WN_INLINE void sanitize_path(containers::string& _path) {
+inline void sanitize_path(containers::string& _path) {
   if (_path.empty()) {
     return;
   }
@@ -139,7 +139,7 @@ WN_INLINE void sanitize_path(containers::string& _path) {
 // that comes after the last path separator is considered
 // to be the file name, and is ignored. Therefore if there
 // is no path separator, then an empty string_view is returend.
-WN_INLINE bool get_directory_from_sanitized_path(
+inline bool get_directory_from_sanitized_path(
     const containers::string_view _path, containers::string_view& _directory) {
   if (_path.empty()) {
     _directory = containers::string_view();
@@ -163,7 +163,7 @@ WN_INLINE bool get_directory_from_sanitized_path(
 // Gets the filename portion of a path. This is the
 // last piece after the trailing path separator.
 // If there is no separator, then it is the entire path.
-WN_INLINE bool get_filename_from_sanitized_path(
+inline bool get_filename_from_sanitized_path(
     const containers::string_view _path, containers::string_view& _file) {
   if (_path.empty()) {
     _file = containers::string_view();
@@ -188,7 +188,7 @@ WN_INLINE bool get_filename_from_sanitized_path(
 // Spits a sanitized path into its components. Each path component
 // is appended to the _path_pieces dynamic_array. Empty components
 // are removed.
-WN_INLINE bool split_sanitized_path(const containers::string_view _path,
+inline bool split_sanitized_path(const containers::string_view _path,
     containers::dynamic_array<containers::string_view>& _path_pieces) {
   if (_path.empty()) {
     return true;
@@ -214,7 +214,7 @@ WN_INLINE bool split_sanitized_path(const containers::string_view _path,
   return true;
 }
 
-WN_INLINE bool validate_relative_path(containers::string_view _view) {
+inline bool validate_relative_path(containers::string_view _view) {
   if (_view.empty() || _view == good_slash) {
     return false;
   } else if (_view.size() >= 2) {

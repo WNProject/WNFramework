@@ -1,4 +1,4 @@
-// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Copyright (c) 2018, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
@@ -13,7 +13,7 @@ namespace wn {
 namespace runtime {
 namespace graphics {
 
-struct arena_properties WN_FINAL {
+struct arena_properties final {
   const bool device_local : 1;
   const bool host_visible : 1;
   const bool host_coherent : 1;

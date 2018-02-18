@@ -1,4 +1,4 @@
-// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Copyright (c) 2018, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
@@ -109,7 +109,7 @@ protected:
   friend class d3d12_queue;
   friend class d3d12_adapter;
 
-  struct heap_info WN_FINAL {
+  struct heap_info final {
     const D3D12_HEAP_PROPERTIES heap_properties;
     const D3D12_HEAP_FLAGS heap_flags;
   };

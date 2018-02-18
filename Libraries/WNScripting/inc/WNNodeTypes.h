@@ -1,4 +1,4 @@
-// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Copyright (c) 2018, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
@@ -119,7 +119,7 @@ template <typename T>
 using walk_ftype = functional::function<void(T)>;
 using walk_scope = functional::function<void(const node*)>;
 
-WN_INLINE void handle_expression(const walk_mutable_expression& function,
+inline void handle_expression(const walk_mutable_expression& function,
     memory::unique_ptr<expression>& expr) {
   while (auto a = function(expr.get())) {
     expr = core::move(a);
@@ -128,7 +128,7 @@ WN_INLINE void handle_expression(const walk_mutable_expression& function,
 
 using walk_mutable_instruction =
     functional::function<memory::unique_ptr<instruction>(instruction*)>;
-WN_INLINE void handle_instruction(const walk_mutable_instruction& function,
+inline void handle_instruction(const walk_mutable_instruction& function,
     memory::unique_ptr<instruction>& inst) {
   while (auto a = function(inst.get())) {
     inst = core::move(a);

@@ -1,4 +1,4 @@
-// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Copyright (c) 2018, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
@@ -32,7 +32,7 @@ class job_pool;
 namespace runtime {
 namespace application {
 
-struct application_data WN_FINAL {
+struct application_data final {
   const entry::system_data* system_data;
   memory::allocator* system_allocator;
   logging::log* default_log;

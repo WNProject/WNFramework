@@ -1,4 +1,4 @@
-// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Copyright (c) 2018, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
@@ -357,7 +357,7 @@ struct type_definition {
   memory::allocator* m_allocator;
 };
 
-WN_INLINE void append_number(size_t number, containers::string& _str) {
+inline void append_number(size_t number, containers::string& _str) {
   auto insert_pt = _str.cend();
 
   if (number == 0) {

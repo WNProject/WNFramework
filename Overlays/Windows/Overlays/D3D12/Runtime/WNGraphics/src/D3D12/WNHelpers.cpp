@@ -34,7 +34,7 @@ using d3d12_adapter_constructable = d3d12_adapter;
 using d3d12_adapter_constructable = adapter;
 #endif
 
-WN_INLINE bool convert_to_utf8(
+inline bool convert_to_utf8(
     LPCWSTR _buffer, const DWORD _buffer_size, containers::string& _path) {
   const int buffer_size = static_cast<const int>(_buffer_size);
   int converted_temp_path_size = ::WideCharToMultiByte(

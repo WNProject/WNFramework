@@ -10,62 +10,6 @@ enable_overlay_directory()
 
 wn_check_cxx_source_compiles(
   "
-    inline void temp() {}
-    int main() {
-      temp();
-      return 0;
-    }
-  "
-  HAS_INLINE
-)
-
-wn_check_cxx_source_compiles(
-  "
-    _inline void temp() {}
-    int main() {
-      temp();
-      return 0;
-    }
-  "
-  HAS__INLINE
-)
-
-wn_check_cxx_source_compiles(
-  "
-    __inline void temp() {}
-    int main() {
-      temp();
-      return 0;
-    }
-  "
-  HAS___INLINE
-)
-
-wn_check_cxx_source_compiles(
-  "
-    __inline__ void temp() {}
-    int main() {
-      temp();
-      return 0;
-    }
-  "
-  HAS___INLINE__
-)
-
-if (HAS_INLINE)
-  set(WN_INLINE inline)
-elseif (HAS___INLINE__)
-  set(WN_INLINE __inline__)
-elseif (HAS___INLINE)
-  set(WN_INLINE __inline)
-elseif (HAS__INLINE)
-  set(WN_INLINE _inline)
-elseif(NOT WN_DISABLE_CXX)
-  message(FATAL_ERROR "No inline style keyword was found")
-endif()
-
-wn_check_cxx_source_compiles(
-  "
     __forceinline void temp() {}
     int main() {
       temp();
@@ -77,7 +21,7 @@ wn_check_cxx_source_compiles(
 
 wn_check_cxx_source_compiles(
   "
-    ${WN_INLINE} __attribute__((always_inline)) void temp() {}
+    inline __attribute__((always_inline)) void temp() {}
     int main() {
       temp();
       return 0;
@@ -188,35 +132,6 @@ wn_check_cxx_source_compiles(
 
 wn_check_cxx_source_compiles(
   "
-    struct temp final {};
-    int main() {
-      temp tmp;
-      return 0;
-    }
-  "
-  HAS_FINAL
-)
-
-wn_check_cxx_source_compiles(
-  "
-    struct temp {
-      virtual int test() = 0;
-    };
-    struct temp2 : temp {
-      virtual int test() override {
-        return 0;
-      }
-    };
-    int main() {
-      temp2* tmp = new temp2();
-      return tmp->test();
-    }
-  "
-  HAS_OVERRIDE
-)
-
-wn_check_cxx_source_compiles(
-  "
     int main() {
       alignas(16) int i = 0;
       return i;
@@ -288,17 +203,15 @@ set(WN_NO_INLINE)
 set(WN_THREAD_LOCAL)
 set(WN_WEAK_LINK)
 set(WN_RESTRICT)
-set(WN_FINAL)
-set(WN_OVERRIDE)
 set(WN_ALIGN)
 set(WN_ALIGN_OF)
 
 if (HAS___ATTRIBUTE__ALWAYS_INLINE)
-  set(WN_FORCE_INLINE "${WN_INLINE} __attribute__((always_inline))")
+  set(WN_FORCE_INLINE "inline __attribute__((always_inline))")
 elseif (HAS___FORCE_INLINE)
   set(WN_FORCE_INLINE __forceinline)
 else()
-  set(WN_FORCE_INLINE ${WN_INLINE})
+  set(WN_FORCE_INLINE inline)
 endif()
 
 if (HAS___ATTRIBUTE__NOINLINE)
@@ -331,14 +244,6 @@ elseif (HAS___RESTRICT__)
   set(WN_RESTRICT __restrict__)
 endif()
 
-if (HAS_FINAL)
-  set(WN_FINAL final)
-endif()
-
-if (HAS_OVERRIDE)
-  set(WN_OVERRIDE override)
-endif()
-
 set(WN_ALIGN_MACRO_VARIABLE_NAME _alignment)
 set(WN_ALIGN_OF_MACRO_VARIABLE_NAME _type)
 
@@ -364,7 +269,6 @@ endif()
 
 # print selections
 
-message(STATUS "WN_INLINE Selection: ${WN_INLINE}")
 message(STATUS "WN_FORCE_INLINE Selection: ${WN_FORCE_INLINE}")
 
 if (WN_NO_INLINE)
@@ -380,18 +284,6 @@ if (WN_RESTRICT)
   message(STATUS "WN_RESTRICT Selection: ${WN_RESTRICT}")
 else()
   message(STATUS "WN_RESTRICT Selection: [none]")
-endif()
-
-if (WN_FINAL)
-  message(STATUS "WN_FINAL Selection: ${WN_FINAL}")
-else()
-  message(STATUS "WN_FINAL Selection: [none]")
-endif()
-
-if (WN_OVERRIDE)
-  message(STATUS "WN_OVERRIDE Selection: ${WN_OVERRIDE}")
-else()
-  message(STATUS "WN_OVERRIDE Selection: [none]")
 endif()
 
 message(STATUS "WN_ALIGN Selection: ${WN_ALIGN}")
@@ -683,33 +575,6 @@ wn_check_cxx_source_compiles(
   HAS_CPP14_STD_IS_NULL_POINTER
 )
 
-wn_check_cxx_source_compiles(
-  "
-    #include <algorithm>
-    int main() {
-      static const char* temp1 = \"test\";
-      static const char* temp2 = \"test\";
-      return std::equal(temp1, temp1 + 4, temp2, temp2 + 4) ? 1 : 0;
-    }
-  "
-  HAS_CPP14_STD_EQUAL
-)
-
-wn_check_cxx_source_compiles(
-  "
-    #include <algorithm>
-    int main() {
-      static const char* temp1 = \"test\";
-      static const char* temp2 = \"test\";
-      const auto p = [](const char& _first, const char& _second) {
-        return _first == _second;
-      };
-      return std::equal(temp1, temp1 + 4, temp2, temp2 + 4, p) ? 1 : 0;
-    }
-  "
-  HAS_CPP14_STD_EQUAL_VARIANT
-)
-
 set(_WN_HAS_CPP11_STD_IS_TRIVIALLY_COPYABLE
   ${HAS_CPP11_STD_IS_TRIVIALLY_COPYABLE})
 set(_WN_HAS_CPP11_STD_IS_TRIVIALLY_CONSTRUCTIBLE
@@ -736,8 +601,6 @@ set(_WN_HAS_CPP14_STD_COMMON_TYPE_T ${HAS_CPP14_STD_COMMON_TYPE_T})
 set(_WN_HAS_CPP14_STD_RESULT_OF_T ${HAS_CPP14_STD_RESULT_OF_T})
 set(_WN_HAS_CPP14_STD_INTEGER_SEQUENCE ${HAS_CPP14_STD_INTEGER_SEQUENCE})
 set(_WN_HAS_CPP14_STD_IS_NULL_POINTER ${HAS_CPP14_STD_IS_NULL_POINTER})
-set(_WN_HAS_CPP14_STD_EQUAL ${HAS_CPP14_STD_EQUAL})
-set(_WN_HAS_CPP14_STD_EQUAL_VARIANT ${HAS_CPP14_STD_EQUAL_VARIANT})
 
 wn_make_preprocessor_symbol(
   _WN_${WN_ARCHITECTURE_GROUP}
@@ -780,7 +643,6 @@ add_wn_header_library(WNCore
     inc/Internal/WNErrors.inc
     ${CONFIG_FILE_INPUT_PATH}
     ${CONFIG_FILE_OUTPUT_PATH}
-    inc/WNAlgorithm.h
     inc/WNAssert.h
     inc/WNBase.h
     inc/WNEndian.h

@@ -1,4 +1,4 @@
-// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Copyright (c) 2018, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
@@ -11,7 +11,7 @@ namespace file_system {
 namespace internal {
 namespace {
 
-WN_INLINE containers::string convert_to_utf8(
+inline containers::string convert_to_utf8(
     memory::allocator* _allocator, LPCWSTR _buffer, const DWORD _buffer_size) {
   const int buffer_size = static_cast<const int>(_buffer_size);
   int converted_temp_path_size = ::WideCharToMultiByte(
@@ -31,7 +31,7 @@ WN_INLINE containers::string convert_to_utf8(
   return nullptr;
 }
 
-WN_INLINE DWORD get_temp_path_unicode(
+inline DWORD get_temp_path_unicode(
     containers::array<WCHAR, (MAX_PATH + 1)>& _buffer) {
   const DWORD path_size =
       ::GetTempPathW(static_cast<DWORD>(_buffer.size()), _buffer.data());
