@@ -26,6 +26,10 @@ private:
 public:
   class id;
 
+  using attributes = base::attributes;
+
+  static const attributes default_attributes;
+
   thread() : base() {}
 
   thread(thread&& _other) : base(core::move(_other)) {}
@@ -33,16 +37,25 @@ public:
   template <typename F, typename... Args,
       typename =
           core::enable_if_t<!core::is_same<core::decay_t<F>, thread>::value>>
-  explicit thread(memory::allocator* _allocator, F&& _f, Args&&... _args) {
+  explicit thread(memory::allocator* _allocator, const attributes& _attributes,
+      F&& _f, Args&&... _args) {
     static_assert(core::is_void<core::result_of_t<F(Args...)>>::value,
         "function must be void return");
 
     WN_RELEASE_ASSERT(_allocator, "allocator must not be nullptr");
 
-    create(_allocator, functional::function<void()>(std::bind(
-                           core::decay_copy(core::forward<F>(_f)),
-                           core::decay_copy(core::forward<Args>(_args))...)));
+    create(_allocator, _attributes,
+        functional::function<void()>(
+            std::bind(core::decay_copy(core::forward<F>(_f)),
+                core::decay_copy(core::forward<Args>(_args))...)));
   }
+
+  template <typename F, typename... Args,
+      typename =
+          core::enable_if_t<!core::is_same<core::decay_t<F>, thread>::value>>
+  explicit thread(memory::allocator* _allocator, F&& _f, Args&&... _args)
+    : thread(_allocator, default_attributes, core::forward<F>(_f),
+          core::forward<Args>(_args)...) {}
 
   thread& operator=(thread&& _other) {
     thread(core::move(_other)).swap(*this);
@@ -75,7 +88,8 @@ public:
   }
 
 private:
-  void create(memory::allocator* _allocator, functional::function<void()>&& _f);
+  void create(memory::allocator* _allocator, const attributes& _attributes,
+      functional::function<void()>&& _f);
 };
 
 namespace this_thread {

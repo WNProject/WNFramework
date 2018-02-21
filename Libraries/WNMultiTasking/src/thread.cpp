@@ -12,19 +12,25 @@
 namespace wn {
 namespace multi_tasking {
 
-void thread::create(
-    memory::allocator* _allocator, functional::function<void()>&& _f) {
+const thread::attributes thread::default_attributes = {
+    0,     // stack size
+    false  // low priority
+};
+
+void thread::create(memory::allocator* _allocator,
+    const attributes& _attributes, functional::function<void()>&& _f) {
   memory::intrusive_ptr<private_data> data(
       memory::make_intrusive<private_data>(_allocator, _allocator));
 
   if (data) {
     semaphore start_lock;
-    private_execution_data<private_data>* execution_data =
-        _allocator->construct<private_execution_data<private_data>>(
+    private_execution_data* execution_data =
+        _allocator->construct<private_execution_data>(
             _allocator, &start_lock, core::move(_f), data);
 
     if (execution_data) {
-      const bool creation_success = base::create(data.get(), execution_data);
+      const bool creation_success =
+          base::create(_attributes, data.get(), execution_data);
 
       if (creation_success) {
         m_data = core::move(data);

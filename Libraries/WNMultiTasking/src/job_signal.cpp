@@ -16,8 +16,8 @@ job_signal::job_signal(size_t _value) {
 job_signal::job_signal() : pool(nullptr), value(0) {}
 
 void job_signal::initialize_signal(job_pool* _pool, size_t _value) {
-  WN_DEBUG_ASSERT(
-      pool == nullptr, "You cannot initialize a job_signal twice");
+  WN_DEBUG_ASSERT(!pool, "You cannot initialize a job_signal twice");
+
   pool = _pool;
   value.exchange(_value);
 }

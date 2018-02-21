@@ -9,19 +9,29 @@
 
 #include "WNCore/inc/WNAssert.h"
 #include "WNFunctional/inc/WNFunction.h"
-#include "WNMemory/inc/WNAllocator.h"
 #include "WNMemory/inc/WNIntrusivePtr.h"
 #include "WNMultiTasking/inc/semaphore.h"
 
 namespace wn {
+namespace memory {
+
+class allocator;
+
+}  // namespace memory
+
 namespace multi_tasking {
 namespace internal {
 
 class thread_base_common : core::non_copyable {
 protected:
+  struct attributes final {
+    size_t stack_size;
+    bool low_priority;
+  };
+
   template <typename T>
-  struct private_execution_data final {
-    private_execution_data(memory::allocator* _allocator,
+  struct private_execution_data_base {
+    private_execution_data_base(memory::allocator* _allocator,
         semaphore* _start_lock, functional::function<void()>&& _function,
         const memory::intrusive_ptr<T>& _data)
       : m_allocator(_allocator),
@@ -36,23 +46,9 @@ protected:
   };
 
   template <typename T>
-  static private_execution_data<T>* convert(void* _arguments) {
-    private_execution_data<T>* execution_data =
-        static_cast<private_execution_data<T>*>(_arguments);
-
-    WN_RELEASE_ASSERT(execution_data, "invalid thread execution data");
-
-    return execution_data;
-  }
-
-  template <typename T>
-  static void execute(private_execution_data<T>* _execution_data) {
+  static void execute(private_execution_data_base<T>* _execution_data) {
     _execution_data->m_start_lock->notify();
     _execution_data->m_function();
-
-    memory::allocator* allocator = _execution_data->m_allocator;
-
-    allocator->destroy(_execution_data);
   }
 };
 

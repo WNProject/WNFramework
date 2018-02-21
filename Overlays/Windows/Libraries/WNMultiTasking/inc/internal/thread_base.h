@@ -8,6 +8,7 @@
 #define __WN_MULTI_TASKING_WINDOWS_INTERNAL_THREAD_BASE_H__
 
 #include "WNCore/inc/WNUtility.h"
+#include "WNMemory/inc/WNAllocator.h"
 #include "WNMemory/inc/WNIntrusivePtr.h"
 #include "WNMultiTasking/inc/call_once.h"
 #include "WNMultiTasking/inc/internal/thread_base_common.h"
@@ -16,12 +17,6 @@
 #include <chrono>
 
 namespace wn {
-namespace memory {
-
-class allocator;
-
-}  // namespace memory
-
 namespace multi_tasking {
 namespace internal {
 
@@ -30,16 +25,22 @@ public:
   class id_base;
 
 protected:
+  using base = thread_base_common;
+
   struct private_data : memory::intrusive_ptr_base {
     private_data(memory::allocator* _allocator)
       : memory::intrusive_ptr_base(_allocator) {}
 
     utilities::internal::handle m_handle;
+    DWORD m_id;
   };
 
-  thread_base() = default;
+  using private_execution_data = private_execution_data_base<private_data>;
 
-  thread_base(thread_base&& _other) : m_data(core::move(_other.m_data)) {}
+  thread_base() : base() {}
+
+  thread_base(thread_base&& _other)
+    : base(), m_data(core::move(_other.m_data)) {}
 
   id_base get_id() const;
 
@@ -48,28 +49,68 @@ protected:
         ::WaitForSingleObject(m_data->m_handle.value(), INFINITE);
 
     WN_RELEASE_ASSERT(
-        (result == WAIT_OBJECT_0), "failed to wait on thread handle");
+        result == WAIT_OBJECT_0, "failed to wait on thread handle");
   }
 
-  bool create(private_data* _data,
-      private_execution_data<private_data>* _execution_data) {
-    const HANDLE handle =
-        ::CreateThread(NULL, 0, static_cast<LPTHREAD_START_ROUTINE>(&wrapper),
-            static_cast<LPVOID>(_execution_data), 0, NULL);
-    const bool creation_success = handle != NULL;
+  bool create(const attributes& _attributes, private_data* _data,
+      private_execution_data* _execution_data) {
+    size_t stack_size = _attributes.stack_size;
 
-    if (creation_success) {
-      _data->m_handle = handle;
+    if (stack_size != 0) {
+      SYSTEM_INFO system_info;
+
+      ::GetSystemInfo(&system_info);
+
+      const size_t page_size = static_cast<size_t>(system_info.dwPageSize);
+      const size_t remainder = stack_size % page_size;
+
+      if (remainder != 0) {
+        stack_size += page_size - remainder;
+      }
     }
 
-    return creation_success;
+    DWORD id = 0;
+    const DWORD flags = _attributes.low_priority ? CREATE_SUSPENDED : 0;
+    const HANDLE handle = ::CreateThread(NULL, static_cast<SIZE_T>(stack_size),
+        static_cast<LPTHREAD_START_ROUTINE>(&wrapper),
+        static_cast<LPVOID>(_execution_data), flags, &id);
+
+    if (handle == NULL) {
+      return false;
+    }
+
+    if (_attributes.low_priority) {
+      if (::SetThreadPriority(handle, THREAD_PRIORITY_LOWEST) != TRUE) {
+        return false;
+      }
+
+      const int result = ::ResumeThread(handle);
+
+      if (result == static_cast<DWORD>(-1) || result > 1) {
+        return false;
+      }
+    }
+
+    _data->m_handle = handle;
+    _data->m_id = id;
+
+    return true;
   }
 
   memory::intrusive_ptr<private_data> m_data;
 
 private:
   static DWORD WINAPI wrapper(LPVOID _arguments) {
-    execute(convert<private_data>(static_cast<void*>(_arguments)));
+    private_execution_data* execution_data =
+        static_cast<private_execution_data*>(_arguments);
+
+    WN_RELEASE_ASSERT(execution_data, "invalid thread execution data");
+
+    execute(execution_data);
+
+    memory::allocator* allocator = execution_data->m_allocator;
+
+    allocator->destroy(execution_data);
 
     return 0;
   }
@@ -107,11 +148,7 @@ private:
 };
 
 inline thread_base::id_base thread_base::get_id() const {
-  if (m_data && m_data->m_handle.is_valid()) {
-    return id_base(::GetThreadId(m_data->m_handle.value()));
-  }
-
-  return id_base();
+  return (m_data ? id_base(m_data->m_id) : id_base());
 }
 
 inline thread_base::id_base get_id() {

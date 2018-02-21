@@ -8,11 +8,12 @@
 #define __WN_MULTI_TASKING_POSIX_INTERNAL_THREAD_BASE_H__
 
 #include "WNCore/inc/WNUtility.h"
+#include "WNMemory/inc/WNAllocator.h"
 #include "WNMemory/inc/WNIntrusivePtr.h"
-#include "WNMultiTasking/inc/internal/system_thread_id.h"
-#include "WNMultiTasking/inc/internal/system_thread_yield.h"
+#include "WNMultiTasking/inc/internal/system_thread_functions.h"
 #include "WNMultiTasking/inc/internal/thread_base_common.h"
 
+#include <limits.h>
 #include <pthread.h>
 #include <sys/types.h>
 #include <time.h>
@@ -21,12 +22,6 @@
 #include <chrono>
 
 namespace wn {
-namespace memory {
-
-class allocator;
-
-}  // namespace memory
-
 namespace multi_tasking {
 namespace internal {
 
@@ -35,6 +30,8 @@ public:
   class id_base;
 
 protected:
+  using base = thread_base_common;
+
   struct private_data : memory::intrusive_ptr_base {
     private_data(memory::allocator* _allocator)
       : memory::intrusive_ptr_base(_allocator) {}
@@ -43,47 +40,107 @@ protected:
     pid_t m_id;
   };
 
-  thread_base() = default;
+  struct private_execution_data final
+    : private_execution_data_base<private_data> {
+    private_execution_data(memory::allocator* _allocator,
+        semaphore* _start_lock, functional::function<void()>&& _function,
+        const memory::intrusive_ptr<private_data>& _data)
+      : private_execution_data_base<private_data>(
+            _allocator, _start_lock, core::move(_function), _data),
+        m_low_priority(false) {}
 
-  thread_base(thread_base&& _other) : m_data(core::move(_other.m_data)) {}
+    bool m_low_priority;
+  };
+
+  thread_base() : base() {}
+
+  thread_base(thread_base&& _other)
+    : base(), m_data(core::move(_other.m_data)) {}
 
   id_base get_id() const;
 
   void join() {
     const int result = ::pthread_join(m_data->m_pthread, NULL);
 
-    WN_RELEASE_ASSERT((result == 0), "failed to join thread");
+    WN_RELEASE_ASSERT(result == 0, "failed to join thread");
   }
 
-  bool create(private_data* _data,
-      private_execution_data<private_data>* _execution_data) {
-    typedef void* (*start_routine_t)(void*);
+  bool create(const attributes& _attributes, private_data* _data,
+      private_execution_data* _execution_data) {
+    pthread_attr_t attributes;
 
-    pthread_t pthread;
-    const bool creation_success =
-        ::pthread_create(&pthread, NULL, static_cast<start_routine_t>(&wrapper),
-            static_cast<void*>(_execution_data)) == 0;
-
-    if (creation_success) {
-      _data->m_pthread = pthread;
+    if (::pthread_attr_init(&attributes) != 0) {
+      return false;
     }
 
-    return creation_success;
+    if (_attributes.stack_size != 0) {
+      const long raw_page_size = ::sysconf(_SC_PAGESIZE);
+
+      if (raw_page_size == -1) {
+        return false;
+      }
+
+      size_t stack_size = _attributes.stack_size;
+      const size_t page_size = static_cast<size_t>(raw_page_size);
+      const size_t remainder = stack_size % page_size;
+
+      if (remainder != 0) {
+        stack_size += page_size - remainder;
+
+        if (stack_size < PTHREAD_STACK_MIN ||
+            ::pthread_attr_setstacksize(&attributes, stack_size) != 0) {
+          return false;
+        }
+      }
+    }
+
+    _execution_data->m_low_priority = _attributes.low_priority;
+
+    pthread_t pthread;
+    const int creation_result = ::pthread_create(&pthread, &attributes,
+        static_cast<void* (*)(void*)>(&wrapper),
+        static_cast<void*>(_execution_data));
+
+    if (creation_result != 0) {
+      return false;
+    }
+
+    const int attribute_destroy_result = ::pthread_attr_destroy(&attributes);
+
+    (void)attribute_destroy_result;
+
+    WN_DEBUG_ASSERT(
+        attribute_destroy_result != 0, "failed to cleanup thread attributes");
+
+    _data->m_pthread = pthread;
+
+    return true;
   }
 
   memory::intrusive_ptr<private_data> m_data;
 
 private:
   static void* wrapper(void* _arguments) {
-    private_execution_data<private_data>* execution_data =
-        convert<private_data>(_arguments);
+    private_execution_data* execution_data =
+        static_cast<private_execution_data*>(_arguments);
+
+    WN_RELEASE_ASSERT(execution_data, "invalid thread execution data");
+
     private_data* data = execution_data->m_data.get();
 
     WN_RELEASE_ASSERT(data, "invalid thread data");
 
-    data->m_id = system_thread_id();
+    data->m_id = get_thread_id();
+
+    if (execution_data->m_low_priority) {
+      thread_adjust_priority(data->m_id);
+    }
 
     execute(execution_data);
+
+    memory::allocator* allocator = execution_data->m_allocator;
+
+    allocator->destroy(execution_data);
 
     return NULL;
   }
@@ -132,11 +189,11 @@ inline thread_base::id_base thread_base::get_id() const {
 }
 
 inline thread_base::id_base get_id() {
-  return thread_base::id_base(system_thread_id());
+  return thread_base::id_base(get_thread_id());
 }
 
 inline void yield() {
-  const int result = system_thread_yield();
+  const int result = thread_yield();
 
   WN_RELEASE_ASSERT(result == 0, "failed to yield");
 }

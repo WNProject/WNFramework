@@ -80,6 +80,23 @@ TEST(thread, joinable) {
   }
 }
 
+TEST(thread, priority) {
+  wn::testing::allocator allocator;
+
+  {
+    const wn::multi_tasking::thread::attributes normal_priority = {0, false};
+    const wn::multi_tasking::thread::attributes low_priority = {0, true};
+    wn::multi_tasking::thread thread1(&allocator, normal_priority, []() {});
+    wn::multi_tasking::thread thread2(&allocator, low_priority, []() {});
+    wn::multi_tasking::thread thread3(
+        &allocator, wn::multi_tasking::thread::default_attributes, []() {});
+
+    thread1.join();
+    thread2.join();
+    thread3.join();
+  }
+}
+
 TEST(thread_id, equality) {
   wn::multi_tasking::thread::id id1;
   wn::multi_tasking::thread::id id2;

@@ -13,7 +13,7 @@ namespace wn {
 namespace multi_tasking {
 namespace internal {
 
-inline int system_thread_yield() {
+inline int thread_yield() {
   return ::sched_yield();
 }
 
