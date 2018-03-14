@@ -174,8 +174,8 @@ bool mapping_posix::recursive_remove_directory(
 #ifdef _WN_HAS_NFTW
   static auto predicate = [](const char* _path, const struct stat* _s,
                               const int _flag, struct FTW* _f) -> int {
-    WN_UNUSED_ARGUMENT(_s);
-    WN_UNUSED_ARGUMENT(_f);
+    (void)_s;
+    (void)_f;
 
     int status;
 

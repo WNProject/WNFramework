@@ -27,7 +27,7 @@ public:
 
   virtual size_t serialize(
       data_buffer& _dataBuffer, const uint32_t _flags) const override {
-    WN_UNUSED_ARGUMENT(_flags);
+    (void)_flags;
 
     switch (_dataBuffer.type()) {
       case data_buffer_type::read_binary: {
@@ -117,7 +117,7 @@ public:
 
   virtual size_t serialize(
       data_buffer& _dataBuffer, const uint32_t _flags) const override {
-    WN_UNUSED_ARGUMENT(_flags);
+    (void)_flags;
 
     switch (_dataBuffer.type()) {
       case data_buffer_type::read_binary: {
@@ -206,7 +206,7 @@ public:
 
   virtual size_t serialize(
       data_buffer& _dataBuffer, const uint32_t _flags) const override {
-    WN_UNUSED_ARGUMENT(_flags);
+    (void)_flags;
 
     switch (_dataBuffer.type()) {
       case data_buffer_type::read_binary: {
@@ -300,7 +300,7 @@ public:
 
   virtual size_t serialize(
       data_buffer& _dataBuffer, const uint32_t _flags) const override {
-    WN_UNUSED_ARGUMENT(_flags);
+    (void)_flags;
 
     switch (_dataBuffer.type()) {
       case data_buffer_type::read_binary: {
@@ -389,7 +389,7 @@ public:
 
   virtual size_t serialize(
       data_buffer& _dataBuffer, const uint32_t _flags) const override {
-    WN_UNUSED_ARGUMENT(_flags);
+    (void)_flags;
 
     switch (_dataBuffer.type()) {
       case data_buffer_type::read_binary: {
@@ -478,7 +478,7 @@ public:
 
   virtual size_t serialize(
       data_buffer& _dataBuffer, const uint32_t _flags) const override {
-    WN_UNUSED_ARGUMENT(_flags);
+    (void)_flags;
 
     switch (_dataBuffer.type()) {
       case data_buffer_type::read_binary: {
@@ -568,7 +568,7 @@ public:
 
   virtual size_t serialize(
       data_buffer& _data_buffer, const uint32_t _flags) const override {
-    WN_UNUSED_ARGUMENT(_flags);
+    (void)_flags;
 
     switch (_data_buffer.type()) {
       case data_buffer_type::read_binary:
@@ -618,7 +618,7 @@ private:
   char* m_value;
   size_t m_length;
 };
-}
-}
+}  // namespace containers
+}  // namespace wn
 
 #endif  // __WN_CONTAINERS_SERIALIZER_H__

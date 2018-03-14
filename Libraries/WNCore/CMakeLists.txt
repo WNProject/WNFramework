@@ -54,36 +54,6 @@ wn_check_cxx_source_compiles(
 
 wn_check_cxx_source_compiles(
   "
-    __thread int temp = 0;
-    int main() {
-      return temp;
-    }
-  "
-  HAS___THREAD
-)
-
-wn_check_cxx_source_compiles(
-  "
-    __declspec(thread) int temp = 0;
-    int main() {
-      return temp;
-    }
-  "
-  HAS___DECLSPEC_THREAD
-)
-
-wn_check_cxx_source_compiles(
-  "
-    thread_local int temp = 0;
-    int main() {
-      return temp;
-    }
-  "
-  HAS_THREAD_LOCAL
-)
-
-wn_check_cxx_source_compiles(
-  "
     __declspec(selectany) int temp = 0;
     int main() {
       return temp;
@@ -102,109 +72,12 @@ wn_check_cxx_source_compiles(
   HAS___ATTRIBUTE__WEAK
 )
 
-wn_check_cxx_source_compiles(
-  "
-    int temp(int* __restrict a, int* __restrict b) {
-      return (*a) + (*b);
-    }
-    int main() {
-      int a = 0;
-      int b = 1;
-      return temp(&a, &b);
-    }
-  "
-  HAS___RESTRICT
-)
-
-wn_check_cxx_source_compiles(
-  "
-    int temp(int* __restrict__ a, int* __restrict__ b) {
-      return (*a) + (*b);
-    }
-    int main() {
-      int a = 0;
-      int b = 1;
-      return temp(&a, &b);
-    }
-  "
-  HAS___RESTRICT__
-)
-
-wn_check_cxx_source_compiles(
-  "
-    int main() {
-      alignas(16) int i = 0;
-      return i;
-    }
-  "
-  HAS_ALIGNAS
-)
-
-wn_check_cxx_source_compiles(
-  "
-    int main() {
-      __declspec(align(16)) int i = 0;
-      return i;
-    }
-  "
-  HAS___DECLSPEC_ALIGN
-)
-
-wn_check_cxx_source_compiles(
-  "
-    int main() {
-      __attribute__((aligned(16))) int i = 0;
-      return i;
-    }
-  "
-  HAS___ATTRIBUTE__ALIGNED
-)
-
-wn_check_cxx_source_compiles(
-  "
-    int main() {
-      return alignof(int);
-    }
-  "
-  HAS_ALIGNOF
-)
-
-wn_check_cxx_source_compiles(
-  "
-    int main() {
-      return __alignof(int);
-    }
-  "
-  HAS___ALIGNOF
-)
-
-wn_check_cxx_source_compiles(
-  "
-    int main() {
-      return __alignof__(int);
-    }
-  "
-  HAS___ALIGNOF__
-)
-
-wn_check_cxx_source_compiles(
-  "
-    int main() {
-      return __alignof__(int);
-    }
-  "
-  HAS___ALIGNOF__
-)
 
 # make specifier selections
 
 set(WN_FORCE_INLINE)
 set(WN_NO_INLINE)
-set(WN_THREAD_LOCAL)
 set(WN_WEAK_LINK)
-set(WN_RESTRICT)
-set(WN_ALIGN)
-set(WN_ALIGN_OF)
 
 if (HAS___ATTRIBUTE__ALWAYS_INLINE)
   set(WN_FORCE_INLINE "inline __attribute__((always_inline))")
@@ -220,51 +93,12 @@ elseif (HAS___DECLSPEC_NOINLINE)
   set(WN_NO_INLINE "__declspec(noinline)")
 endif()
 
-if(HAS_THREAD_LOCAL)
-  set(WN_THREAD_LOCAL thread_local)
-elseif (HAS___DECLSPEC_THREAD)
-  set(WN_THREAD_LOCAL "__declspec(thread)")
-elseif (HAS___THREAD)
-  set(WN_THREAD_LOCAL __thread)
-elseif(NOT WN_DISABLE_CXX)
-  message(FATAL_ERROR "No thread local style keyword was found")
-endif()
-
 if (HAS___ATTRIBUTE__WEAK)
   set(WN_WEAK_LINK "__attribute__((weak))")
 elseif (HAS___DECLSPEC_SELECTANY)
   set(WN_WEAK_LINK "__declspec(selectany)")
 elseif(NOT WN_DISABLE_CXX)
   message(FATAL_ERROR "No weak link style keyword was found")
-endif()
-
-if (HAS___RESTRICT)
-  set(WN_RESTRICT __restrict)
-elseif (HAS___RESTRICT__)
-  set(WN_RESTRICT __restrict__)
-endif()
-
-set(WN_ALIGN_MACRO_VARIABLE_NAME _alignment)
-set(WN_ALIGN_OF_MACRO_VARIABLE_NAME _type)
-
-if (HAS_ALIGNAS)
-  set(WN_ALIGN "alignas(${WN_ALIGN_MACRO_VARIABLE_NAME})")
-elseif (HAS___DECLSPEC_ALIGN)
-  set(WN_ALIGN "__declspec(align(${WN_ALIGN_MACRO_VARIABLE_NAME}))")
-elseif (HAS___ATTRIBUTE__ALIGNED)
-  set(WN_ALIGN "__attribute__((aligned(${WN_ALIGN_MACRO_VARIABLE_NAME})))")
-elseif(NOT WN_DISABLE_CXX)
-  message(FATAL_ERROR "No alignas style keyword was found")
-endif()
-
-if (HAS_ALIGNOF)
-  set(WN_ALIGN_OF "alignof(${WN_ALIGN_OF_MACRO_VARIABLE_NAME})")
-elseif (HAS___ALIGNOF)
-  set(WN_ALIGN_OF "__alignof(${WN_ALIGN_OF_MACRO_VARIABLE_NAME})")
-elseif (HAS___ALIGNOF__)
-  set(WN_ALIGN_OF "__alignof__(${WN_ALIGN_OF_MACRO_VARIABLE_NAME})")
-elseif(NOT WN_DISABLE_CXX)
-  message(FATAL_ERROR "No alignof style keyword was found")
 endif()
 
 # print selections
@@ -277,17 +111,7 @@ else()
   message(STATUS "WN_NO_INLINE Selection: [none]")
 endif()
 
-message(STATUS "WN_THREAD_LOCAL Selection: ${WN_THREAD_LOCAL}")
 message(STATUS "WN_WEAK_LINK Selection: ${WN_WEAK_LINK}")
-
-if (WN_RESTRICT)
-  message(STATUS "WN_RESTRICT Selection: ${WN_RESTRICT}")
-else()
-  message(STATUS "WN_RESTRICT Selection: [none]")
-endif()
-
-message(STATUS "WN_ALIGN Selection: ${WN_ALIGN}")
-message(STATUS "WN_ALIGN_OF Selection: ${WN_ALIGN_OF}")
 
 if (WN_CDECL_BEGIN)
   message(STATUS "WN_CDECL_BEGIN Selection: ${WN_CDECL_BEGIN}")
@@ -344,34 +168,6 @@ wn_check_include_file_cxx(cstdint HAS_CSTDINT)
 if (NOT HAS_CSTDINT AND NOT WN_DISABLE_CXX)
   message(FATAL_ERROR "Unable to locate required integer types header")
 endif()
-
-# run literal/type tests
-
-wn_check_cxx_source_compiles(
-  "
-    int main() {
-	  int* i = nullptr;
-	  int x = 2;
-	  i = &x;
-      return *i;
-    }
-  "
-  HAS_CPP11_NULLPTR
-)
-
-wn_check_cxx_source_compiles(
-  "
-    #include <cstddef>
-    #include <type_traits>
-    int main() {
-      return std::is_same<decltype(nullptr), nullptr_t>::value ? 1 : 0;
-    }
-  "
-  HAS_CPP11_NULLPTR_T
-)
-
-set(_WN_HAS_CPP11_NULLPTR ${HAS_CPP11_NULLPTR})
-set(_WN_HAS_CPP11_NULLPTR_T ${HAS_CPP11_NULLPTR_T})
 
 # run stl feature tests
 

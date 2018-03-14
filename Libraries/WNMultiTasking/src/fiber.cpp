@@ -96,9 +96,9 @@ namespace this_fiber {
 
 namespace {
 #ifdef _WN_WINDOWS
-WN_THREAD_LOCAL LPVOID tl_thread_as_fiber = 0;
+thread_local LPVOID tl_thread_as_fiber = 0;
 #endif
-WN_THREAD_LOCAL fiber::fiber_data* tl_this_fiber = 0;
+thread_local fiber::fiber_data* tl_this_fiber = 0;
 }  // anonymous namespace
 
 void* get_local_storage() {

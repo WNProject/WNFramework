@@ -18,9 +18,6 @@
 #endif
 #endif
 
-#define WN_UNUSED_ARGUMENT(_argument)                                          \
-  (static_cast<void>(sizeof((_argument))))
-
 #if defined _WN_LINUX
 #include <signal.h>
 

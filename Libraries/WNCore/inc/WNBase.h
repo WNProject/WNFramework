@@ -1,4 +1,4 @@
-// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Copyright (c) 2018, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
@@ -15,11 +15,6 @@
 //      _WN_GCC     - GNU C++ compiler
 //      _WN_CLANG   - Clang compiler
 
-// Character Set (Only 1 of the following)
-// -------------------------------------------------------------------------------------
-//      _WN_UNICODE
-//      _WN_ANSI
-
 // Configuration (Only 1 of the following)
 // -------------------------------------------------------------------------------------
 //      _WN_DEBUG
@@ -34,12 +29,6 @@
 #define __WN_CORE_BASE_H__
 
 #include "WNCore/inc/Internal/WNConfig.h"
-
-#ifndef __cplusplus
-#error "C++ required. Please use with a C++ compiler and/or compile for C++."
-#else
-#define __WN_CPP __cplusplus
-#endif
 
 #ifdef _HAS_EXCEPTIONS
 #undef _HAS_EXCEPTIONS
@@ -64,12 +53,6 @@
 #define _WN_RELEASE
 #define _WN_CONFIG_NAME "Release"
 #endif
-#endif
-
-#if defined UNICODE || defined _UNICODE
-#define _WN_UNICODE
-#else
-#define _WN_ANSI
 #endif
 
 #ifdef _MSC_VER  // Microsoft Visual C++
@@ -98,12 +81,6 @@
 
 #ifndef _WN_CONFIG_NAME
 #define _WN_CONFIG_NAME "Unknown Configuration"
-#endif
-
-#define WN_STRINGERIZE(_value) #_value
-
-#ifndef WN_UNUSED_ARGUMENT
-#define WN_UNUSED_ARGUMENT(_argument) (_argument)
 #endif
 
 #ifndef WN_DEBUG_BREAK

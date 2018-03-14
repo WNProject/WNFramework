@@ -83,7 +83,7 @@ queue_ptr d3d12_device::create_queue() {
   WN_DEBUG_ASSERT(SUCCEEDED(hr), "Cannot create command queue");
 
 #ifndef _WN_DEBUG
-  WN_UNUSED_ARGUMENT(hr);
+  (void)hr;
 #endif
 
   memory::unique_ptr<d3d12_queue_constructable> ptr(
@@ -118,7 +118,7 @@ void d3d12_device::initialize_command_allocator(
   WN_DEBUG_ASSERT(SUCCEEDED(hr), "Cannot create command allocator");
 
 #ifndef _WN_DEBUG
-  WN_UNUSED_ARGUMENT(hr);
+  (void)hr;
 #endif
 }
 
@@ -144,7 +144,7 @@ command_list_ptr d3d12_device::create_command_list(command_allocator* _alloc) {
   WN_DEBUG_ASSERT(SUCCEEDED(hr), "Cannot create command list");
 
 #ifndef _WN_DEBUG
-  WN_UNUSED_ARGUMENT(hr);
+  (void)hr;
 #endif
 
   memory::unique_ptr<d3d12_command_list_constructable> ptr(
@@ -172,7 +172,7 @@ void d3d12_device::initialize_fence(fence* _fence) {
   WN_DEBUG_ASSERT(SUCCEEDED(hr), "Cannot create fence");
 
 #ifndef _WN_DEBUG
-  WN_UNUSED_ARGUMENT(hr);
+  (void)hr;
 #endif
 
   data.event = ::CreateEventW(NULL, TRUE, FALSE, NULL);
@@ -198,7 +198,7 @@ void d3d12_device::initialize_signal(signal* _signal) {
   WN_DEBUG_ASSERT(SUCCEEDED(hr), "Cannot create fence");
 
 #ifndef _WN_DEBUG
-  WN_UNUSED_ARGUMENT(hr);
+  (void)hr;
 #endif
 }
 
@@ -221,15 +221,17 @@ void d3d12_device::reset_fence(fence* _fence) {
   WN_DEBUG_ASSERT(result, "Failed to reset fence");
 
 #ifndef _WN_DEBUG
-  WN_UNUSED_ARGUMENT(result);
+  (void)result;
 #endif
 
   const HRESULT hr = data.fence->Signal(0);
-  data.fence->SetEventOnCompletion(1, data.event.value());
+
   WN_DEBUG_ASSERT(SUCCEEDED(hr), "Failed to reset fence");
 
+  data.fence->SetEventOnCompletion(1, data.event.value());
+
 #ifndef _WN_DEBUG
-  WN_UNUSED_ARGUMENT(hr);
+  (void)hr;
 #endif
 }
 

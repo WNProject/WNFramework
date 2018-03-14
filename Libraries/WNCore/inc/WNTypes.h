@@ -9,8 +9,6 @@
 
 #include "WNCore/inc/WNBase.h"
 
-#include <cfloat>
-#include <cstddef>
 #include <cstdint>
 
 #ifdef _WN_64_BIT
@@ -19,6 +17,6 @@ using signed_t = int64_t;
 using signed_t = int32_t;
 #endif
 
-using nullptr_t = std::nullptr_t;
+using nullptr_t = decltype(nullptr);
 
 #endif  // __WN_CORE_TYPES_H__

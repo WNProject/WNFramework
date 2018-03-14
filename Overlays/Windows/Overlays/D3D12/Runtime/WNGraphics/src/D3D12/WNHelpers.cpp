@@ -227,7 +227,6 @@ void enumerate_adapters(memory::allocator* _allocator, logging::log* _log,
 }
 
 void cleanup(logging::log* _log) {
-  WN_UNUSED_ARGUMENT(_log);
 #ifdef _WN_GRAPHICS_ALLOW_DEBUG_MODE
   Microsoft::WRL::ComPtr<IDXGIDebug1> debug_controller;
   const HRESULT hr =
@@ -238,6 +237,8 @@ void cleanup(logging::log* _log) {
   } else {
     debug_controller->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_SUMMARY);
   }
+#else
+  (void)_log;
 #endif
 }
 

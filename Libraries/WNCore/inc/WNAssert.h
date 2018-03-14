@@ -1,4 +1,4 @@
-// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Copyright (c) 2018, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
@@ -7,29 +7,31 @@
 #ifndef __WN_CORE_ASSERT_H__
 #define __WN_CORE_ASSERT_H__
 
-#include "WNCore/inc/WNTypes.h"
+#include "WNCore/inc/WNBase.h"
 
+#include <cstdint>
 #include <iostream>
+
 #ifdef NDEBUG
 #undef NDEBUG
-#include <cassert>
-#define NDEBUG
-#else
-#include <cassert>
 #endif
+
+#include <cassert>
+
+#define NDEBUG
 
 namespace wn {
 namespace core {
 namespace internal {
 
-inline void assert_helper(const bool expression, const char* file,
-    const uint32_t line, const char* message) {
-  if (!expression) {
+inline void assert_helper(const bool _expression, const char* _file,
+    const uint32_t _line, const char* _message) {
+  if (!_expression) {
     std::cerr << "assertion failed!" << std::endl
               << std::endl
-              << "file: " << file << std::endl
-              << "line: " << line << std::endl
-              << "message: " << message << std::endl;
+              << "file: " << _file << std::endl
+              << "line: " << _line << std::endl
+              << "message: " << _message << std::endl;
 
     WN_DEBUG_BREAK();
 

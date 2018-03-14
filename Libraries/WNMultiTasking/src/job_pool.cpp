@@ -8,10 +8,10 @@ namespace wn {
 namespace multi_tasking {
 namespace {
 
-static WN_THREAD_LOCAL job_pool* tl_this_job_pool = nullptr;
-static WN_THREAD_LOCAL thread_data* tl_this_thread = nullptr;
+static thread_local job_pool* tl_this_job_pool = nullptr;
+static thread_local thread_data* tl_this_thread = nullptr;
 
-}  // anonymous namespace
+}  // namespace
 
 job_pool* job_pool::this_job_pool() {
   return tl_this_job_pool;

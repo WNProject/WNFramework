@@ -27,7 +27,7 @@ bool file_windows::resize(const size_type _size) {
           const bool result = remap();
 
 #ifndef _WN_DEBUG
-          WN_UNUSED_ARGUMENT(result);
+          (void)result;
 #endif
 
           WN_DEBUG_ASSERT(
@@ -40,7 +40,7 @@ bool file_windows::resize(const size_type _size) {
           const bool result = remap();
 
 #ifndef _WN_DEBUG
-          WN_UNUSED_ARGUMENT(result);
+          (void)result;
 #endif
 
           WN_DEBUG_ASSERT(
@@ -90,11 +90,10 @@ void file_windows::unmap() {
     m_mapped_memory = nullptr;
 
 #ifndef _WN_DEBUG
-    WN_UNUSED_ARGUMENT(result);
+    (void)result;
 #endif
 
-    WN_DEBUG_ASSERT(
-        result == TRUE, "failed to unmap memory mapped file view");
+    WN_DEBUG_ASSERT(result == TRUE, "failed to unmap memory mapped file view");
 
     m_file_mapping_handle.dispose();
   }
