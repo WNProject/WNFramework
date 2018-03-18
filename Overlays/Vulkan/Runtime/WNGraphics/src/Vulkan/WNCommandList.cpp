@@ -187,10 +187,14 @@ void vulkan_command_list::end_render_pass() {
   m_context->vkCmdEndRenderPass(m_command_buffer);
 }
 
+void vulkan_command_list::bind_graphics_pipeline_layout(
+    pipeline_layout* _layout) {
+  m_current_graphics_pipeline_layout = get_data(_layout).get();
+}
+
 void vulkan_command_list::push_graphics_contants(uint32_t index,
     uint32_t offset_in_uint32s, const uint32_t* data, uint32_t num_values) {
-  memory::unique_ptr<pipeline_layout_data>& layout =
-      get_data(m_current_graphics_pipeline_layout);
+  pipeline_layout_data* layout = m_current_graphics_pipeline_layout;
   auto& pc = layout->push_constants[index];
   m_context->vkCmdPushConstants(m_command_buffer, layout->layout,
       pc.shader_stages, pc.offset_in_bytes + offset_in_uint32s * 4,
@@ -201,8 +205,7 @@ void vulkan_command_list::bind_graphics_descriptor_sets(
     const containers::contiguous_range<const descriptor_set*> _sets,
     uint32_t _base_index) {
   containers::dynamic_array<::VkDescriptorSet> sets(m_allocator, _sets.size());
-  memory::unique_ptr<pipeline_layout_data>& layout =
-      get_data(m_current_graphics_pipeline_layout);
+  pipeline_layout_data* layout = m_current_graphics_pipeline_layout;
   uint32_t i = 0;
   for (const descriptor_set* set : _sets) {
     sets[i++] = get_data(set).set;

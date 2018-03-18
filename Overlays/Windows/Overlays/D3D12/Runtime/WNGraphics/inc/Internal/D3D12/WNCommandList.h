@@ -34,6 +34,8 @@ class framebuffer;
 class graphics_pipeline;
 union clear_value;
 struct render_area;
+struct render_pass_data;
+struct framebuffer_data;
 
 namespace internal {
 namespace d3d12 {
@@ -143,15 +145,15 @@ private:
   typename data_type<const T>::value& get_data(const T* const t);
 
   Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> m_command_list;
-  const render_pass* m_current_render_pass;
-  const framebuffer* m_current_framebuffer;
+  const render_pass_data* m_current_render_pass;
+  const framebuffer_data* m_current_framebuffer;
   containers::dynamic_array<resource_state>
       m_active_framebuffer_resource_states;
   uint32_t m_current_subpass;
   D3D12_RECT m_render_area;
   containers::dynamic_array<clear_value> m_clear_values;
   memory::allocator* m_allocator;
-  pipeline_layout* m_current_graphics_pipeline_layout;
+  pipeline_layout_object* m_current_graphics_pipeline_layout;
   graphics_pipeline_data* m_current_graphics_pipeline;
 };
 

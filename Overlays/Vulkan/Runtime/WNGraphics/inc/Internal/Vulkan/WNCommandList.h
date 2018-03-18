@@ -37,6 +37,7 @@ union clear_value;
 namespace internal {
 namespace vulkan {
 
+struct pipeline_layout_data;
 class vulkan_device;
 class vulkan_queue;
 
@@ -88,9 +89,7 @@ public:
       uint32_t base_index) WN_GRAPHICS_OVERRIDE_FINAL;
 
   void bind_graphics_pipeline_layout(
-      pipeline_layout* _pipeline) WN_GRAPHICS_OVERRIDE_FINAL {
-    m_current_graphics_pipeline_layout = _pipeline;
-  }
+      pipeline_layout* _pipeline) WN_GRAPHICS_OVERRIDE_FINAL;
 
   void bind_graphics_pipeline(
       graphics_pipeline* _pipeline) WN_GRAPHICS_OVERRIDE_FINAL;
@@ -132,7 +131,7 @@ protected:
   VkCommandPool m_command_pool;
   command_list_context* m_context;
   memory::allocator* m_allocator;
-  pipeline_layout* m_current_graphics_pipeline_layout;
+  pipeline_layout_data* m_current_graphics_pipeline_layout;
   index_type m_current_index_type;
 };
 

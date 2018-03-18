@@ -61,7 +61,7 @@ device_ptr vulkan_adapter::make_device(
 
   VkDevice vk_device;
 
-  // TODO(awoloszyn): Add alloactors.
+  // TODO(awoloszyn): Add allocators.
   if (m_context->vkCreateDevice(
           m_physical_device, &create_info, nullptr, &vk_device) != VK_SUCCESS) {
     _log->log_error("Could not create device");
