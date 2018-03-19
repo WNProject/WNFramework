@@ -18,8 +18,8 @@ TEST_P(resource_copy_test, many_sizes) {
   wn::runtime::graphics::factory device_factory(&m_allocator, m_log);
   const size_t size = GetParam();
   for (auto& adapter : device_factory.query_adapters()) {
-    wn::runtime::graphics::device_ptr device =
-        adapter->make_device(&m_allocator, m_log);
+    wn::runtime::graphics::device_ptr device = adapter->make_device(
+        &m_allocator, m_log, wn::runtime::graphics::k_empty_adapter_features);
     ASSERT_NE(nullptr, device);
 
     // Time to find an image arena

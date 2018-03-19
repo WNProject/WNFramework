@@ -11,6 +11,7 @@
 #include "WNContainers/inc/WNString.h"
 #include "WNContainers/inc/WNStringView.h"
 #include "WNGraphics/inc/Internal/WNConfig.h"
+#include "WNGraphics/inc/WNAdapterFeatures.h"
 #include "WNGraphics/inc/WNErrors.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/unique_ptr.h"
@@ -60,13 +61,17 @@ public:
 
   ~d3d12_adapter() WN_GRAPHICS_OVERRIDE_FINAL = default;
 
-  device_ptr make_device(memory::allocator* _allocator,
-      logging::log* _log) const WN_GRAPHICS_OVERRIDE_FINAL;
+  device_ptr make_device(memory::allocator* _allocator, logging::log* _log,
+      const adapter_features&) const WN_GRAPHICS_OVERRIDE_FINAL;
 
   graphics_error initialize_surface(surface* _surface,
       runtime::window::window* window) WN_GRAPHICS_OVERRIDE_FINAL;
 
   void destroy_surface(surface*) WN_GRAPHICS_OVERRIDE_FINAL {}
+
+  const adapter_features& get_features() const WN_GRAPHICS_OVERRIDE_FINAL {
+    return m_adapter_features;
+  }
 
   WN_FORCE_INLINE containers::string_view name() const
       WN_GRAPHICS_OVERRIDE_FINAL {
@@ -107,10 +112,14 @@ protected:
     m_factory = _dxgi_factory;
     m_log = _log;
     m_api = api_type::d3d12;
+    m_adapter_features.bc_textures = true;
+    m_adapter_features.geometry = true;
+    m_adapter_features.tessellation = true;
   }
 
   Microsoft::WRL::ComPtr<IDXGIAdapter1> m_adapter;
   Microsoft::WRL::ComPtr<IDXGIFactory4> m_factory;
+  adapter_features m_adapter_features;
   containers::string m_name;
   logging::log* m_log;
   api_type m_api;

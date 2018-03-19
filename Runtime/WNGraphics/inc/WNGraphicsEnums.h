@@ -19,6 +19,28 @@ enum class data_format {
   r8g8b8a8_unorm,
   r32g32b32a32_sfloat,
   r32g32_sfloat,
+
+  // Block compressed formats
+  // ASTC
+  astc_4x4,
+  astc_5x4,
+  astc_5x5,
+  astc_6x5,
+  astc_6x6,
+  astc_8x5,
+  astc_8x6,
+  astc_8x8,
+  astc_10x5,
+  astc_10x6,
+  astc_10x8,
+  astc_10x10,
+  astc_12x10,
+  astc_12x12,
+  // BC
+  bc1_rgb,
+  bc1_rgba,
+  bc2,
+  bc3,
   max
 };
 
@@ -27,6 +49,24 @@ WN_FORCE_INLINE bool is_format_normalized(data_format _format) {
     case data_format::r8g8b8a8_unorm:
     case data_format::r32g32b32a32_sfloat:
     case data_format::r32g32_sfloat:
+    case data_format::astc_4x4:
+    case data_format::astc_5x4:
+    case data_format::astc_5x5:
+    case data_format::astc_6x5:
+    case data_format::astc_6x6:
+    case data_format::astc_8x5:
+    case data_format::astc_8x6:
+    case data_format::astc_8x8:
+    case data_format::astc_10x5:
+    case data_format::astc_10x6:
+    case data_format::astc_10x8:
+    case data_format::astc_10x10:
+    case data_format::astc_12x10:
+    case data_format::astc_12x12:
+    case data_format::bc1_rgb:
+    case data_format::bc1_rgba:
+    case data_format::bc2:
+    case data_format::bc3:
       return true;
     case data_format::max:
       return false;
@@ -43,9 +83,10 @@ WN_FORCE_INLINE bool is_format_depth_stencil(data_format _format) {
       return false;
     case data_format::max:
       return false;
+    default:
+      WN_DEBUG_ASSERT(false, "You should not end up here, update this enum");
+      return false;
   }
-  WN_DEBUG_ASSERT(false, "You should not end up here, update this enum");
-  return false;
 }
 
 WN_FORCE_INLINE bool is_format_uint(data_format _format) {
@@ -53,6 +94,24 @@ WN_FORCE_INLINE bool is_format_uint(data_format _format) {
     case data_format::r8g8b8a8_unorm:
     case data_format::r32g32b32a32_sfloat:
     case data_format::r32g32_sfloat:
+    case data_format::astc_4x4:
+    case data_format::astc_5x4:
+    case data_format::astc_5x5:
+    case data_format::astc_6x5:
+    case data_format::astc_6x6:
+    case data_format::astc_8x5:
+    case data_format::astc_8x6:
+    case data_format::astc_8x8:
+    case data_format::astc_10x5:
+    case data_format::astc_10x6:
+    case data_format::astc_10x8:
+    case data_format::astc_10x10:
+    case data_format::astc_12x10:
+    case data_format::astc_12x12:
+    case data_format::bc1_rgb:
+    case data_format::bc1_rgba:
+    case data_format::bc2:
+    case data_format::bc3:
       return false;
     case data_format::max:
       return false;
@@ -66,6 +125,24 @@ WN_FORCE_INLINE bool is_format_int(data_format _format) {
     case data_format::r8g8b8a8_unorm:
     case data_format::r32g32b32a32_sfloat:
     case data_format::r32g32_sfloat:
+    case data_format::astc_4x4:
+    case data_format::astc_5x4:
+    case data_format::astc_5x5:
+    case data_format::astc_6x5:
+    case data_format::astc_6x6:
+    case data_format::astc_8x5:
+    case data_format::astc_8x6:
+    case data_format::astc_8x8:
+    case data_format::astc_10x5:
+    case data_format::astc_10x6:
+    case data_format::astc_10x8:
+    case data_format::astc_10x10:
+    case data_format::astc_12x10:
+    case data_format::astc_12x12:
+    case data_format::bc1_rgb:
+    case data_format::bc1_rgba:
+    case data_format::bc2:
+    case data_format::bc3:
       return false;
     case data_format::max:
       return false;

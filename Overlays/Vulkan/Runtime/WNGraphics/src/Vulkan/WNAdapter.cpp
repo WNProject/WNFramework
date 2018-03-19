@@ -28,8 +28,8 @@ using vulkan_device_constructable = device;
 
 }  // anonymous namespace
 
-device_ptr vulkan_adapter::make_device(
-    memory::allocator* _allocator, logging::log* _log) const {
+device_ptr vulkan_adapter::make_device(memory::allocator* _allocator,
+    logging::log* _log, const adapter_features& enabled_features) const {
   const float queue_priority = 1.0f;
   VkDeviceQueueCreateInfo queue_create_info{
       VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,  // sType;
@@ -41,6 +41,42 @@ device_ptr vulkan_adapter::make_device(
   };
 
   VkPhysicalDeviceFeatures physical_features{0};
+  if (enabled_features.non_solid_fill) {
+    physical_features.fillModeNonSolid = VK_TRUE;
+  }
+  if (enabled_features.tessellation) {
+    physical_features.tessellationShader = VK_TRUE;
+  }
+  if (enabled_features.geometry) {
+    physical_features.geometryShader = VK_TRUE;
+  }
+  if (enabled_features.depth_clamp) {
+    physical_features.depthClamp = VK_TRUE;
+  }
+  if (enabled_features.depth_bias_clamp) {
+    physical_features.depthBiasClamp = VK_TRUE;
+  }
+  if (enabled_features.dual_src_blending) {
+    physical_features.dualSrcBlend = VK_TRUE;
+  }
+  if (enabled_features.sample_rate_shading) {
+    physical_features.sampleRateShading = VK_TRUE;
+  }
+  if (enabled_features.etc2_textures) {
+    physical_features.textureCompressionETC2 = VK_TRUE;
+  }
+  if (enabled_features.astc_ldr_textures) {
+    physical_features.textureCompressionASTC_LDR = VK_TRUE;
+  }
+  if (enabled_features.bc_textures) {
+    physical_features.textureCompressionBC = VK_TRUE;
+  }
+  if (enabled_features.clip_distance) {
+    physical_features.shaderClipDistance = VK_TRUE;
+  }
+  if (enabled_features.cull_distance) {
+    physical_features.shaderCullDistance = VK_TRUE;
+  }
 
   const uint32_t num_device_extensions = 1;
   const char* device_extensions[num_device_extensions] = {
@@ -89,6 +125,16 @@ device_ptr vulkan_adapter::make_device(
 void vulkan_adapter::initialize_device() {
   m_context->vkGetPhysicalDeviceMemoryProperties(
       m_physical_device, &m_memory_properties);
+  VkPhysicalDeviceFeatures features;
+
+  m_context->vkGetPhysicalDeviceFeatures(m_physical_device, &features);
+  m_adapter_features.astc_ldr_textures =
+      features.textureCompressionASTC_LDR == VK_TRUE;
+  m_adapter_features.etc2_textures = features.textureCompressionETC2 == VK_TRUE;
+  m_adapter_features.bc_textures = features.textureCompressionBC == VK_TRUE;
+  m_adapter_features.geometry = features.geometryShader == VK_TRUE;
+  m_adapter_features.tessellation = features.tessellationShader == VK_TRUE;
+  m_adapter_features.input_attachments = true;
 }
 
 graphics_error vulkan_adapter::initialize_surface(

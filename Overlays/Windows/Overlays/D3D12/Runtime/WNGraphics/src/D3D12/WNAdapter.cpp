@@ -31,8 +31,9 @@ using d3d12_device_constructable = device;
 
 }  // anonymous namespace
 
-device_ptr d3d12_adapter::make_device(
-    memory::allocator* _allocator, logging::log* _log) const {
+device_ptr d3d12_adapter::make_device(memory::allocator* _allocator,
+    logging::log* _log, const adapter_features&) const {
+  // Enabled features are unused in D3D, all features are turned on
   Microsoft::WRL::ComPtr<ID3D12Device> device;
   HRESULT hr;
 

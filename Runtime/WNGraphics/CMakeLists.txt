@@ -114,6 +114,7 @@ add_wn_library(WNGraphics
     inc/Internal/WNSwapchainIncludes.h.in
     ${CMAKE_CURRENT_BINARY_DIR}/inc/Internal/WNSwapchainIncludes.h
     inc/WNAdapter.h
+    inc/WNAdapterFeatures.h
     inc/WNArena.h
     inc/WNArenaProperties.h
     inc/WNBuffer.h

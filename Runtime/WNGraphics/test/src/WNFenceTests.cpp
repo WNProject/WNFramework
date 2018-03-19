@@ -14,8 +14,8 @@ TEST_F(fence_test, many_sizes) {
   wn::runtime::graphics::factory device_factory(&m_allocator, m_log);
 
   for (auto& adapter : device_factory.query_adapters()) {
-    wn::runtime::graphics::device_ptr device =
-        adapter->make_device(&m_allocator, m_log);
+    wn::runtime::graphics::device_ptr device = adapter->make_device(
+        &m_allocator, m_log, wn::runtime::graphics::k_empty_adapter_features);
     ASSERT_NE(nullptr, device);
     wn::runtime::graphics::queue_ptr queue = device->create_queue();
     ASSERT_NE(nullptr, queue);

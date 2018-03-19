@@ -41,8 +41,8 @@ TEST(swapchain, basic) {
     // Wait until the window has successfully been created.
     signal.wait_until(1);
 
-    auto device =
-        adapter->make_device(data->system_allocator, data->default_log);
+    auto device = adapter->make_device(data->system_allocator,
+        data->default_log, wn::runtime::graphics::k_empty_adapter_features);
     wn::runtime::graphics::queue_ptr queue = device->create_queue();
     wn::runtime::graphics::command_allocator alloc =
         device->create_command_allocator();

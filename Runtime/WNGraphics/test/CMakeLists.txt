@@ -72,10 +72,10 @@ set(PIXEL_TEST_SOURCES
     inc/WNPixelTestFixture.h
     inc/WNPixelTestConfig.h.in
     ${CMAKE_CURRENT_BINARY_DIR}/inc/WNPixelTestConfig.h
-    shaders/pipeline.ps.glsl.h
-    shaders/pipeline.ps.hlsl.h
-    shaders/pipeline.vs.glsl.h
-    shaders/pipeline.vs.hlsl.h
+    shaders/textured_pipeline.ps.glsl.h
+    shaders/textured_pipeline.ps.hlsl.h
+    shaders/textured_pipeline.vs.glsl.h
+    shaders/textured_pipeline.vs.hlsl.h
 )
 
 add_pixel_test(graphics_pixel_textured_triangle_test)
@@ -99,6 +99,46 @@ set(PIXEL_TEST_SOURCES
 )
 
 add_pixel_test(graphics_pixel_push_constants_test)
+
+wn_filesystem_files(astc_test
+    OUTPUT_DIR inc
+    SOURCES
+        assets/gradient_astc.img
+)
+
+set(PIXEL_TEST_SOURCES
+    src/WNASTCTest.cpp
+    inc/WNPixelTestFixture.h
+    inc/WNPixelTestConfig.h.in
+    ${CMAKE_CURRENT_BINARY_DIR}/inc/WNPixelTestConfig.h
+    ${CMAKE_CURRENT_BINARY_DIR}/inc/astc_test.h
+    ${CMAKE_CURRENT_BINARY_DIR}/inc/astc_test.cpp
+    shaders/textured_pipeline.ps.glsl.h
+    shaders/textured_pipeline.ps.hlsl.h
+    shaders/textured_pipeline.vs.glsl.h
+    shaders/textured_pipeline.vs.hlsl.h
+)
+add_pixel_test(graphics_pixel_test_astc_texture)
+
+wn_filesystem_files(bc_test
+    OUTPUT_DIR inc
+    SOURCES
+        assets/gradient_bc.img
+)
+
+set(PIXEL_TEST_SOURCES
+    src/WNBCTest.cpp
+    inc/WNPixelTestFixture.h
+    inc/WNPixelTestConfig.h.in
+    ${CMAKE_CURRENT_BINARY_DIR}/inc/WNPixelTestConfig.h
+    ${CMAKE_CURRENT_BINARY_DIR}/inc/bc_test.h
+    ${CMAKE_CURRENT_BINARY_DIR}/inc/bc_test.cpp
+    shaders/textured_pipeline.ps.glsl.h
+    shaders/textured_pipeline.ps.hlsl.h
+    shaders/textured_pipeline.vs.glsl.h
+    shaders/textured_pipeline.vs.hlsl.h
+)
+add_pixel_test(graphics_pixel_test_bc_texture)
 
 wn_create_application_tests_from_list(
   TEST_PREFIX WNGraphics

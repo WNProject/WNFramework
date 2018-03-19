@@ -17,13 +17,24 @@ namespace vulkan {
 
 static WN_FORCE_INLINE VkFormat image_format_to_vulkan_format(
     data_format _format) {
-  static const VkFormat formats[] = {VK_FORMAT_R8G8B8A8_UNORM,
-      VK_FORMAT_R32G32B32A32_SFLOAT, VK_FORMAT_R32G32_SFLOAT};
+  static const VkFormat formats[] = {
+      VK_FORMAT_R8G8B8A8_UNORM, VK_FORMAT_R32G32B32A32_SFLOAT,
+      VK_FORMAT_R32G32_SFLOAT, VK_FORMAT_ASTC_4x4_UNORM_BLOCK,
+      VK_FORMAT_ASTC_5x4_UNORM_BLOCK, VK_FORMAT_ASTC_5x5_UNORM_BLOCK,
+      VK_FORMAT_ASTC_6x5_UNORM_BLOCK, VK_FORMAT_ASTC_6x6_UNORM_BLOCK,
+      VK_FORMAT_ASTC_8x5_UNORM_BLOCK, VK_FORMAT_ASTC_8x6_UNORM_BLOCK,
+      VK_FORMAT_ASTC_8x8_UNORM_BLOCK, VK_FORMAT_ASTC_10x5_UNORM_BLOCK,
+      VK_FORMAT_ASTC_10x6_UNORM_BLOCK, VK_FORMAT_ASTC_10x8_UNORM_BLOCK,
+      VK_FORMAT_ASTC_10x10_UNORM_BLOCK, VK_FORMAT_ASTC_12x10_UNORM_BLOCK,
+      VK_FORMAT_ASTC_12x12_UNORM_BLOCK, VK_FORMAT_BC1_RGB_UNORM_BLOCK,
+      VK_FORMAT_BC1_RGBA_UNORM_BLOCK, VK_FORMAT_BC2_UNORM_BLOCK,
+      VK_FORMAT_BC3_UNORM_BLOCK,
+  };
+
   static_assert(sizeof(formats) / sizeof(formats[0]) ==
                     static_cast<uint32_t>(data_format::max),
       "Expected the number of vulkan formats and image formats to match");
-  WN_DEBUG_ASSERT(
-      _format < data_format::max, "Image format out of bounds");
+  WN_DEBUG_ASSERT(_format < data_format::max, "Image format out of bounds");
 
   return formats[static_cast<uint32_t>(_format)];
 }

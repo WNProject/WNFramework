@@ -156,6 +156,7 @@ protected:
   }
 
   void run_test(
+      const wn::runtime::graphics::adapter_features& required_features,
       const std::function<void(wn::runtime::graphics::adapter::api_type,
           wn::runtime::graphics::device*, wn::runtime::graphics::queue*,
           wn::runtime::graphics::image*)>& func) {
@@ -164,8 +165,12 @@ protected:
 
     wn::runtime::graphics::factory device_factory(&m_allocator, m_log);
     for (auto& adapter : device_factory.query_adapters()) {
+      if (!adapter->get_features().is_superset_of(required_features)) {
+        continue;
+      }
+
       wn::runtime::graphics::device_ptr device =
-          adapter->make_device(&m_allocator, m_log);
+          adapter->make_device(&m_allocator, m_log, required_features);
       ASSERT_NE(nullptr, device);
       wn::runtime::graphics::queue_ptr queue = device->create_queue();
 

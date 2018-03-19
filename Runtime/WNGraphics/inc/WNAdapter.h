@@ -8,6 +8,7 @@
 #define __WN_RUNTIME_GRAPHICS_ADAPTER_H__
 
 #include "WNGraphics/inc/Internal/WNConfig.h"
+#include "WNGraphics/inc/WNAdapterFeatures.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/unique_ptr.h"
 
@@ -27,26 +28,6 @@ namespace wn {
 namespace runtime {
 namespace graphics {
 
-struct adapter_features {
-  bool non_solid_fill = false;
-  bool tessellation = false;
-  bool geometry = false;
-  bool depth_clamp = false;
-  bool depth_bias_clamp = false;
-  bool dual_src_blending = false;
-  bool sample_rate_shading = false;
-  bool input_attachments = false;
-
-  bool etc2_textures = false;
-  bool astc_ldr_textures = false;
-  bool bc_textures = false;
-
-  bool clip_distance = false;
-  bool cull_distance = false;
-  uint32_t num_viewports = 1;
-  uint32_t num_scissors = 1;
-};
-
 namespace internal {
 
 #ifdef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
@@ -62,6 +43,7 @@ class device;
 class surface;
 
 using device_ptr = memory::unique_ptr<device>;
+static const adapter_features k_empty_adapter_features;
 
 class adapter : public internal::adapter_base {
 public:
@@ -73,8 +55,8 @@ public:
 
   virtual ~adapter() = default;
 
-  virtual device_ptr make_device(
-      memory::allocator* _allocator, logging::log* _log) const = 0;
+  virtual device_ptr make_device(memory::allocator* _allocator,
+      logging::log* _log, const adapter_features& enabled_features) const = 0;
 
   virtual containers::string_view name() const = 0;
 
@@ -83,6 +65,8 @@ public:
   virtual uint32_t device_id() const = 0;
 
   virtual api_type api() const = 0;
+
+  virtual const adapter_features& get_features() const = 0;
 
 private:
   friend class surface;

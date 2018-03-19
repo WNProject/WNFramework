@@ -14,6 +14,7 @@
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanContext.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanInclude.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanSurfaceHelper.h"
+#include "WNGraphics/inc/WNAdapterFeatures.h"
 #include "WNGraphics/inc/WNErrors.h"
 
 #include "WNGraphics/inc/Internal/WNConfig.h"
@@ -63,13 +64,18 @@ public:
 
   ~vulkan_adapter() WN_GRAPHICS_OVERRIDE_FINAL = default;
 
-  device_ptr make_device(memory::allocator* _allocator,
-      logging::log* _log) const WN_GRAPHICS_OVERRIDE_FINAL;
+  device_ptr make_device(memory::allocator* _allocator, logging::log* _log,
+      const adapter_features& enabled_features) const
+      WN_GRAPHICS_OVERRIDE_FINAL;
 
   graphics_error initialize_surface(surface* _surface,
       runtime::window::window* _window) WN_GRAPHICS_OVERRIDE_FINAL;
 
   void destroy_surface(surface* _surface) WN_GRAPHICS_OVERRIDE_FINAL;
+
+  const adapter_features& get_features() const WN_GRAPHICS_OVERRIDE_FINAL {
+    return m_adapter_features;
+  }
 
   WN_FORCE_INLINE containers::string_view name() const
       WN_GRAPHICS_OVERRIDE_FINAL {
@@ -122,6 +128,8 @@ protected:
   memory::intrusive_ptr<vulkan_context> m_context;
   VkPhysicalDeviceMemoryProperties m_memory_properties;
   VkPhysicalDevice m_physical_device;
+
+  adapter_features m_adapter_features;
   containers::string m_name;
   logging::log* m_log;
   surface_helper m_surface_helper;
