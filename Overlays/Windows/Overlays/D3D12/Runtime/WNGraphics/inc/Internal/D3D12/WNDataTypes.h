@@ -9,6 +9,7 @@
 
 #include "WNContainers/inc/WNDynamicArray.h"
 #include "WNContainers/inc/WNRangePartition.h"
+#include "WNCore/inc/pair.h"
 #include "WNGraphics/inc/Internal/D3D12/WNLockedHeap.h"
 #include "WNGraphics/inc/WNArena.h"
 #include "WNGraphics/inc/WNBuffer.h"
@@ -61,14 +62,22 @@ struct descriptor_data {
   descriptor_type type;
   containers::default_range_partition::token offset;
   size_t binding;
+  size_t index;
   const locked_heap* heap;
+};
+
+struct sampler_descriptor_data {
+  size_t binding;
+  size_t index;
+  D3D12_GPU_DESCRIPTOR_HANDLE handle;
 };
 
 struct descriptor_set_data {
   descriptor_set_data(
       memory::allocator* _allocator, descriptor_pool_data* _pool)
-    : descriptors(_allocator), pool_data(_pool) {}
+    : descriptors(_allocator), samplers(_allocator), pool_data(_pool) {}
   containers::dynamic_array<descriptor_data> descriptors;
+  containers::dynamic_array<sampler_descriptor_data> samplers;
   descriptor_pool_data* pool_data;
 };
 
@@ -295,7 +304,8 @@ struct data_type<const image> {
 
 template <>
 struct data_type<sampler> {
-  using value = memory::unique_ptr<sampler_create_info>;
+  using value = core::pair<D3D12_GPU_DESCRIPTOR_HANDLE,
+      memory::unique_ptr<sampler_create_info>>;
 };
 
 }  // namespace d3d12

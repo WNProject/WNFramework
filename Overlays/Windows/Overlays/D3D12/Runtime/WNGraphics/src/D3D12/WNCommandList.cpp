@@ -68,7 +68,7 @@ void d3d12_command_list::transition_resource(const image& _image,
       if (!request_depth && has_depth_stencil) {
         plane_base += image_mip_count;
       }
-      for (uint32_t lvl = 0; lvl < _mip_count; lvl) {
+      for (uint32_t lvl = 0; lvl < _mip_count; ++lvl) {
         mips[lvl] = D3D12_RESOURCE_BARRIER{
             D3D12_RESOURCE_BARRIER_TYPE_TRANSITION,  // Type
             D3D12_RESOURCE_BARRIER_FLAG_NONE,        // Flags
@@ -415,9 +415,14 @@ void d3d12_command_list::bind_graphics_descriptor_sets(
         get_data(set_object);
     for (size_t j = 0; j < data->descriptors.size(); ++j) {
       m_command_list->SetGraphicsRootDescriptorTable(
-          static_cast<UINT>(slot + j),
+          static_cast<UINT>(slot + data->descriptors[j].index),
           data->descriptors[j].heap->get_gpu_handle_at(
               data->descriptors[j].offset.offset()));
+    }
+    for (size_t j = 0; j < data->samplers.size(); ++j) {
+      m_command_list->SetGraphicsRootDescriptorTable(
+        static_cast<UINT>(slot + data->samplers[j].index),
+        data->samplers[j].handle);
     }
   }
 }

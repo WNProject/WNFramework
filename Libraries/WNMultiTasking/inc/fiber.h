@@ -11,6 +11,8 @@
 #include "WNFunctional/inc/WNFunction.h"
 #include "WNMemory/inc/unique_ptr.h"
 
+#include <functional>
+
 #ifdef _WN_POSIX
 #include <ucontext.h>
 #endif

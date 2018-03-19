@@ -12,6 +12,7 @@
 #include "WNWindow/inc/WNWindow.h"
 
 #include <xcb/xcb.h>
+#include <xcb/xcb_keysyms.h>
 
 namespace wn {
 namespace memory {
@@ -50,7 +51,8 @@ public:
       m_data({nullptr, 0}),
       m_create_signal(_job_pool, 0),
       m_destroy_signal(_job_pool, 0),
-      m_creation_signal(_creation_signal) {}
+      m_creation_signal(_creation_signal),
+      m_key_symbols(nullptr) {}
   ~xcb_window() {
     m_create_signal.wait_until(1);
     if (m_data.connection) {
@@ -59,6 +61,7 @@ public:
       event->event = m_data.window;
       event->window = m_data.window;
       event->response_type = XCB_DESTROY_NOTIFY;
+      xcb_key_symbols_free(m_key_symbols);
       xcb_send_event(m_data.connection, false, m_data.window,
           XCB_EVENT_MASK_STRUCTURE_NOTIFY, (char*)event);
       xcb_flush(m_data.connection);
@@ -88,6 +91,22 @@ public:
     return m_height;
   }
 
+  bool get_key_state(key_code _key) const override {
+    return m_key_states[static_cast<uint32_t>(_key)];
+  }
+
+  bool get_mouse_state(mouse_button _button) const override {
+    return m_mouse_states[static_cast<uint32_t>(_button)];
+  }
+
+  uint32_t get_cursor_x() const override {
+    return m_cursor_x;
+  }
+
+  uint32_t get_cursor_y() const override {
+    return m_cursor_y;
+  }
+
 private:
   void dispatch_loop(void* _unused);
 
@@ -106,6 +125,16 @@ private:
   multi_tasking::job_signal m_create_signal;
   multi_tasking::job_signal m_destroy_signal;
   multi_tasking::job_signal* m_creation_signal;
+
+  std::atomic_bool m_key_states[static_cast<uint32_t>(key_code::key_max) + 1] =
+      {};
+  std::atomic_bool
+      m_mouse_states[static_cast<uint32_t>(mouse_button::mouse_max) + 1] = {};
+  std::atomic<uint32_t> m_cursor_x;
+  std::atomic<uint32_t> m_cursor_y;
+
+  xcb_key_symbols_t* m_key_symbols;
+  bool m_has_mouse_focus = false;
 };
 
 }  // namespace window

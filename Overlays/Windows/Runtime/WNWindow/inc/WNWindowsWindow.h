@@ -76,6 +76,22 @@ public:
     return m_height;
   }
 
+  bool get_key_state(key_code _key) const override {
+    return m_key_states[static_cast<uint32_t>(_key)];
+  }
+
+  bool get_mouse_state(mouse_button _button) const override {
+    return m_mouse_states[static_cast<uint32_t>(_button)];
+  }
+
+  uint32_t get_cursor_x() const override {
+    return m_cursor_x;
+  }
+
+  uint32_t get_cursor_y() const override {
+    return m_cursor_y;
+  }
+
 private:
   void dispatch_loop(RECT data);
 
@@ -94,6 +110,12 @@ private:
   native_handle m_window;
   multi_tasking::job_signal m_signal;
   multi_tasking::job_signal* m_creation_signal;
+  std::atomic_bool m_key_states[static_cast<uint32_t>(key_code::key_max) + 1] =
+      {};
+  std::atomic_bool
+      m_mouse_states[static_cast<uint32_t>(mouse_button::mouse_max) + 1] = {};
+  std::atomic<uint32_t> m_cursor_x;
+  std::atomic<uint32_t> m_cursor_y;
 };
 
 }  // namespace window

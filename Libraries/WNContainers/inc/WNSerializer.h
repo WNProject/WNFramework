@@ -10,7 +10,7 @@
 #include "WNContainers/inc/WNDataBuffer.h"
 #include "WNContainers/inc/WNSerializerBase.h"
 #include "WNCore/inc/assert.h"
-#include "WNCore/inc/WNEndian.h"
+#include "WNCore/inc/endian.h"
 #include "WNCore/inc/types.h"
 #include "WNMemory/inc/WNBasic.h"
 #include "WNMemory/inc/string_utility.h"
@@ -77,8 +77,7 @@ public:
           }
         } while (totalBytes < 4);
 
-        size_t outSize =
-            memory::readint32(tempBuffer, m_value, totalBytes - 1);
+        size_t outSize = memory::readint32(tempBuffer, m_value, totalBytes - 1);
         outSize += 1;  // consume the space that is supposed to be there
 
         return (outSize);
@@ -258,8 +257,7 @@ public:
         } while (totalBytes < 4);
 
         uint32_t number;
-        size_t outSize =
-            memory::readuint32(tempBuffer, number, totalBytes - 1);
+        size_t outSize = memory::readuint32(tempBuffer, number, totalBytes - 1);
 
         m_value = number & 0xFF;
         outSize += 1;  // consume the space that is supposed to be there

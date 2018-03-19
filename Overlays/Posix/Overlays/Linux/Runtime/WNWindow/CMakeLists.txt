@@ -8,4 +8,5 @@ overlay_library_sources(
     src/WNXCBWindow.cpp
   LIBS
     xcb
+    xcb-keysyms
 )

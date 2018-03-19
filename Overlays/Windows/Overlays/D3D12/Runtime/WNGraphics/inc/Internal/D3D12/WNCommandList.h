@@ -54,7 +54,8 @@ public:
   ~d3d12_command_list() WN_GRAPHICS_OVERRIDE_FINAL = default;
 
   WN_FORCE_INLINE void finalize() WN_GRAPHICS_OVERRIDE_FINAL {
-    m_command_list->Close();
+    auto retval = m_command_list->Close();
+    WN_RELEASE_ASSERT(S_OK == retval, "Unknown error closing command list.");
   };
 
   void transition_resource(const image& _image,

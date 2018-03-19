@@ -388,6 +388,8 @@ range_partition<NodeAllocator>::get_interval(size_t _size) {
         }
         new_node->m_next_free = nullptr;
         return token(this, new_node);
+      } else {
+        free_node = free_node->m_next_free;
       }
     }
     return token();

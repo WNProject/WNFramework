@@ -32,9 +32,14 @@ private:
 
 public:
   WN_FORCE_INLINE buffer(buffer&& _other)
-    : m_device(core::move(_other.m_device)), m_size(core::move(_other.m_size)) {
+    : m_device(core::move(_other.m_device)),
+      m_size(_other.m_size),
+      m_memory_size(_other.m_memory_size),
+      m_memory_alignment(_other.m_memory_alignment) {
     _other.m_device = nullptr;
     _other.m_size = 0;
+    _other.m_memory_size = 0;
+    _other.m_memory_alignment = 0;
 
     memory::memory_copy(&m_data, &_other.m_data);
     memory::memory_zero(&_other.m_data);
@@ -79,8 +84,12 @@ public:
     return m_size;
   }
 
+  WN_FORCE_INLINE size_t memory_size() const {
+    return m_memory_size;
+  }
+
   buffer_memory_requirements get_memory_requirements() const {
-    return m_device->get_buffer_memory_requirements(this);
+    return buffer_memory_requirements{m_memory_size, m_memory_alignment};
   }
 
 private:
@@ -95,6 +104,8 @@ private:
 
   device* m_device;
   size_t m_size;
+  size_t m_memory_size;
+  size_t m_memory_alignment;
   bool m_bound;
 };
 

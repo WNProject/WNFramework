@@ -44,6 +44,9 @@ public:
                              //  data needed for this image
     size_t total_memory_required;  // This is the total memory needed in the
                                    // upload/download heap
+    size_t block_width;   // The number of texels wide a single block is
+    size_t block_height;  // The number of texels high a single block is
+    size_t block_size;    // The size of a single block (or texel) in bytes
   };
 
   image() = delete;

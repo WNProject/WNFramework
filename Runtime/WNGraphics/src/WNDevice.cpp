@@ -162,6 +162,9 @@ buffer device::create_buffer(const size_t _size, const resource_states _usage) {
   if (initialize_buffer(&new_buffer, _size, _usage)) {
     new_buffer.m_size = _size;
     new_buffer.m_device = this;
+    auto reqs = get_buffer_memory_requirements(&new_buffer);
+    new_buffer.m_memory_alignment = reqs.alignment;
+    new_buffer.m_memory_size = reqs.size;
   }
 
   return core::move(new_buffer);

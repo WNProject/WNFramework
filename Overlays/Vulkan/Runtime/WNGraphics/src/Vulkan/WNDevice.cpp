@@ -141,6 +141,7 @@ bool vulkan_device::initialize(memory::allocator* _allocator,
 
   LOAD_VK_DEVICE_SYMBOL(m_device, vkCreateCommandPool);
   LOAD_VK_DEVICE_SYMBOL(m_device, vkDestroyCommandPool);
+  LOAD_VK_DEVICE_SYMBOL(m_device, vkResetCommandPool);
 
   LOAD_VK_DEVICE_SYMBOL(m_device, vkAllocateCommandBuffers);
   LOAD_VK_DEVICE_SYMBOL(m_device, vkFreeCommandBuffers);
@@ -338,6 +339,11 @@ void vulkan_device::destroy_command_allocator(command_allocator* _alloc) {
   vkDestroyCommandPool(m_device, pool, nullptr);
 }
 
+void vulkan_device::reset_command_allocator(command_allocator* _alloc) {
+  VkCommandPool& pool = _alloc->data_as<VkCommandPool>();
+  vkResetCommandPool(m_device, pool, 0);
+}
+
 command_list_ptr vulkan_device::create_command_list(command_allocator* _alloc) {
   VkCommandPool& pool = _alloc->data_as<VkCommandPool>();
 
@@ -416,16 +422,28 @@ void vulkan_device::initialize_image(
     _image->m_resource_info[i].width =
         _image->m_resource_info[i].width ? _image->m_resource_info[i].width : 1;
 
+    size_t width_in_blocks = (_image->m_resource_info[i].width +
+                                 (format_block_width(_info.m_format) - 1)) /
+                             format_block_width(_info.m_format);
+    size_t height_in_blocks = (_image->m_resource_info[i].height +
+                                  (format_block_height(_info.m_format) - 1)) /
+                              format_block_height(_info.m_format);
+
     _image->m_resource_info[i].offset_in_bytes = 0;
     _image->m_resource_info[i].row_pitch_in_bytes =
-        _image->m_resource_info[i].width *
-        4;  // TODO(awoloszyn): Optimize this, and make it
-            // dependent on image type
+        width_in_blocks *
+        format_block_size(
+            _info.m_format);  // TODO(awoloszyn): Optimize this, and make it
+                              // dependent on image type
+
     _image->m_resource_info[i].total_memory_required =
-        _image->m_resource_info[i].row_pitch_in_bytes *
-        _image->m_resource_info[i]
-            .height;  // TODO(awoloszyn): Make this dependent on image type
+        height_in_blocks * width_in_blocks * format_block_size(_info.m_format);
     _image->m_resource_info[i].format = _info.m_format;
+
+    _image->m_resource_info[i].block_height =
+        format_block_height(_info.m_format);
+    _image->m_resource_info[i].block_width = format_block_width(_info.m_format);
+    _image->m_resource_info[i].block_size = format_block_size(_info.m_format);
   }
 }
 
@@ -1383,6 +1401,7 @@ void vulkan_device::initialize_graphics_pipeline(graphics_pipeline* _pipeline,
       }
     }
   }
+  has_rasterization |= _create_info.m_depth_enabled;
 
   containers::dynamic_array<VkVertexInputBindingDescription> vertex_bindings(
       m_allocator, _create_info.m_vertex_streams.size());
@@ -1642,7 +1661,8 @@ void vulkan_device::initialize_graphics_pipeline(graphics_pipeline* _pipeline,
       &input_assembly_create_info,  // pInputAssemblyState
       tessellation_create_info,     // pTessellationState
       viewport_create_info,         // pViewportState
-      &rasterization_create_info,   // pRasterizationState
+      has_rasterization ? &rasterization_create_info
+                        : nullptr,  // pRasterizationState
       multisample_create_info,      // pMultisampleState
       depth_create_info,            // pDepthStencilState
       color_blend_info,             // pColorBlendState

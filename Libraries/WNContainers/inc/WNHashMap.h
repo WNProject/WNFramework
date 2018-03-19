@@ -197,6 +197,12 @@ public:
         m_buckets.begin(), _other.m_buckets.begin(), _other.m_buckets.end());
   }
 
+  void set_allocator(memory::allocator* _allocator) {
+    WN_RELEASE_ASSERT(!m_allocator, "The allocator must not already exist.");
+    m_allocator = _allocator;
+    m_buckets.set_allocator(_allocator);
+  }
+
   bool empty() const {
     return m_total_elements == 0;
   }

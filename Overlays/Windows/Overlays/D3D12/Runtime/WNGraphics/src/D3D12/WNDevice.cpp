@@ -131,6 +131,13 @@ void d3d12_device::destroy_command_allocator(
   data.Reset();
 }
 
+void d3d12_device::reset_command_allocator(command_allocator* _command_allocator) {
+  Microsoft::WRL::ComPtr<ID3D12CommandAllocator>& data =
+    _command_allocator
+    ->data_as<Microsoft::WRL::ComPtr<ID3D12CommandAllocator>>();
+  data->Reset();
+}
+
 // command list methods
 
 command_list_ptr d3d12_device::create_command_list(command_allocator* _alloc) {
@@ -278,6 +285,9 @@ void d3d12_device::initialize_image(const image_create_info& _info,
     _image->m_resource_info[i].total_memory_required =
         static_cast<size_t>(required_size);
     _image->m_resource_info[i].format = _info.m_format;
+    _image->m_resource_info[i].block_height = format_block_height(_info.m_format);
+    _image->m_resource_info[i].block_width = format_block_width(_info.m_format);
+    _image->m_resource_info[i].block_size = format_block_size(_info.m_format);
   }
   data->optimal_clear.Format = image_format_to_dxgi_format(_info.m_format);
 
@@ -326,17 +336,6 @@ void d3d12_device::bind_image_memory(
   if (FAILED(hr)) {
     m_log->log_error("Could not successfully bind memory");
   }
-}
-
-void d3d12_device::initialize_sampler(
-    const sampler_create_info& _info, sampler* _sampler) {
-  auto& sampler_data = get_data(_sampler);
-  sampler_data = memory::make_unique<sampler_create_info>(m_allocator, _info);
-}
-
-void d3d12_device::destroy_sampler(sampler* _sampler) {
-  auto& sampler_data = get_data(_sampler);
-  sampler_data.reset();
 }
 
 bool filter_to_bool(sampler_filter filter) {
@@ -390,6 +389,67 @@ void fill_border_color(border_color c, D3D12_SAMPLER_DESC* _d) {
   }
 }
 
+void d3d12_device::initialize_sampler(
+    const sampler_create_info& _info, sampler* _sampler) {
+  multi_tasking::spin_lock_guard guard(m_sampler_cache_lock);
+  auto it = m_sampler_cache.find(_info);
+
+  if (it == m_sampler_cache.end()) {
+    m_sampler_cache[_info] = memory::make_unique<sampler_data>(m_allocator);
+    it = m_sampler_cache.find(_info);
+    it->second->m_range_token = m_sampler_heap.get_partition(1);
+    it->second->m_sampler_handle =
+        m_sampler_heap.get_gpu_handle_at(it->second->m_range_token.offset());
+    D3D12_CPU_DESCRIPTOR_HANDLE handle =
+        m_sampler_heap.get_handle_at(it->second->m_range_token.offset());
+
+    DWORD filter = filter_to_bool(_info.mip) * 1 +
+                   filter_to_bool(_info.mag) * 4 +
+                   filter_to_bool(_info.min) * 0x10;
+
+    if (_info.enable_anisotropy) {
+      filter = 0x55;
+    }
+
+    if (_info.comparison != comparison_op::always) {
+      filter += 0x80;
+    }
+
+    D3D12_SAMPLER_DESC sampler_desc = {
+        D3D12_FILTER(filter),                     // filter
+        address_to_d3d12(_info.u),                // AddressU
+        address_to_d3d12(_info.v),                // AddressV
+        address_to_d3d12(_info.w),                // AddressW
+        _info.lod_bias,                           // MipLODBias
+        static_cast<UINT>(_info.max_anisotropy),  // MaxAninsotropy
+        _info.enable_comparison
+            ? comparison_op_to_d3d12(_info.comparison)
+            : D3D12_COMPARISON_FUNC_NEVER,  // ComparisonFunc
+        {},                                 // BorderColor
+        _info.min_lod,                      // MinLOD
+        _info.max_lod                       // MaxLOD
+    };
+    fill_border_color(_info.border, &sampler_desc);
+    m_device->CreateSampler(&sampler_desc, handle);
+  }
+  it->second->m_sampler_data_count++;
+  get_data(_sampler) = core::make_pair(it->second->m_sampler_handle,
+      memory::make_unique<sampler_create_info>(m_allocator, _info));
+}
+
+void d3d12_device::destroy_sampler(sampler* _sampler) {
+  auto& sampler_data = get_data(_sampler);
+  multi_tasking::spin_lock_guard guard(m_sampler_cache_lock);
+  auto it = m_sampler_cache.find(*sampler_data.second);
+
+  WN_DEBUG_ASSERT(
+      it != m_sampler_cache.end(), "Trying to delete a non-existent sampler");
+  if (--it->second->m_sampler_data_count == 0) {
+    m_sampler_cache.erase(it);
+  }
+  sampler_data.second.reset();
+}
+
 void d3d12_device::update_descriptors(descriptor_set* _set,
     const containers::contiguous_range<buffer_descriptor>& _buffer_updates,
     const containers::contiguous_range<image_descriptor>& _image_updates,
@@ -431,6 +491,7 @@ void d3d12_device::update_descriptors(descriptor_set* _set,
               0,                           // CounterOffsetInBytes
               D3D12_BUFFER_UAV_FLAG_NONE,  // Flags
           };
+          m_device->CreateUnorderedAccessView(data->resource.Get(), nullptr, &desc, handle);
         } break;
         case descriptor_type::read_write_sampled_buffer:
         case descriptor_type::read_only_sampled_buffer:
@@ -440,41 +501,11 @@ void d3d12_device::update_descriptors(descriptor_set* _set,
   }
 
   for (auto binding : _sampler_updates) {
-    for (auto& descriptor : set->descriptors) {
+    for (auto& descriptor : set->samplers) {
       if (binding.binding != descriptor.binding) {
         continue;
       }
-      memory::unique_ptr<sampler_create_info>& data =
-          get_data(binding.resource);
-      D3D12_CPU_DESCRIPTOR_HANDLE handle = m_sampler_heap.get_handle_at(
-          descriptor.offset.offset() + binding.array_offset);
-      DWORD filter = filter_to_bool(data->mip) * 1 +
-                     filter_to_bool(data->mag) * 4 +
-                     filter_to_bool(data->min) * 0x10;
-
-      if (data->enable_anisotropy) {
-        filter = 0x55;
-      }
-
-      if (data->comparison != comparison_op::always) {
-        filter += 0x80;
-      }
-      D3D12_SAMPLER_DESC sampler_desc = {
-          D3D12_FILTER(filter),                     // filter
-          address_to_d3d12(data->u),                // AddressU
-          address_to_d3d12(data->v),                // AddressV
-          address_to_d3d12(data->w),                // AddressW
-          data->lod_bias,                           // MipLODBias
-          static_cast<UINT>(data->max_anisotropy),  // MaxAninsotropy
-          data->enable_comparison
-              ? comparison_op_to_d3d12(data->comparison)
-              : D3D12_COMPARISON_FUNC_NEVER,  // ComparisonFunc
-          {},                                 // BorderColor
-          data->min_lod,                      // MinLOD
-          data->max_lod                       // MaxLOD
-      };
-      fill_border_color(data->border, &sampler_desc);
-      m_device->CreateSampler(&sampler_desc, handle);
+      descriptor.handle = get_data(binding.resource).first;
     }
   }
 
@@ -663,16 +694,9 @@ void d3d12_device::initialize_descriptor_pool(descriptor_pool* _pool,
     // requires only a single heap. We only have to lock around the creation
     // of the pool, not the creation of individual descriptors, since the
     // pools are externally synchronized.
-
     csv_heap_token = m_csv_heap.get_partition(num_csv_types);
     WN_DEBUG_ASSERT(
         csv_heap_token.is_valid(), "Could not find enough space for csv heap");
-  }
-
-  if (num_sampler_types > 0) {
-    sampler_heap_token = m_sampler_heap.get_partition(num_sampler_types);
-    WN_DEBUG_ASSERT(sampler_heap_token.is_valid(),
-        "Could not find enough space for csv heap");
   }
 
   memory::unique_ptr<descriptor_pool_data>& dat = get_data(_pool);
@@ -700,12 +724,14 @@ void d3d12_device::initialize_descriptor_set(descriptor_set* _set,
       m_allocator, m_allocator, pool.get());
   containers::default_range_partition::token tok;
   const locked_heap* descriptor_heap = nullptr;
+  size_t idx = 0;
   for (auto& l : (*layout)) {
+    size_t this_idx = idx++;
     switch (l.type) {
       case descriptor_type::sampler:
-        tok = pool->sampler_heap_partition.get_interval(l.array_size);
-        descriptor_heap = &m_sampler_heap;
-        break;
+        set->samplers.push_back(sampler_descriptor_data{
+          l.binding, this_idx, D3D12_GPU_DESCRIPTOR_HANDLE{0}});
+        continue;
       case descriptor_type::sampled_image:
       case descriptor_type::read_only_buffer:
       case descriptor_type::read_only_image_buffer:
@@ -719,7 +745,7 @@ void d3d12_device::initialize_descriptor_set(descriptor_set* _set,
       default:
         WN_DEBUG_ASSERT(false, "Should not end up here");
     }
-    descriptor_data dat = {l.type, core::move(tok), l.binding, descriptor_heap};
+    descriptor_data dat = {l.type, core::move(tok), l.binding, this_idx, descriptor_heap};
     set->descriptors.push_back(core::move(dat));
   }
 }
@@ -960,7 +986,7 @@ void d3d12_device::initialize_framebuffer(
       const Microsoft::WRL::ComPtr<ID3D12Resource>& resource =
           image_data->image;
       dsv.Format = image_format_to_dxgi_format(
-          info->image->get_buffer_requirements(static_cast<uint32_t>(i))
+          info->image->get_buffer_requirements(static_cast<uint32_t>(0))
               .format);
 
       m_device->CreateDepthStencilView(resource.Get(), &dsv,
@@ -1230,6 +1256,7 @@ bool d3d12_device::initialize(memory::allocator* _allocator, logging::log* _log,
   m_factory = _d3d12_factory;
   m_heap_info = containers::dynamic_array<heap_info>(m_allocator);
   m_arena_properties = containers::dynamic_array<arena_properties>(m_allocator);
+  m_sampler_cache.set_allocator(m_allocator);
 
   m_csv_heap.initialize(m_allocator, m_log, m_device.Get(),
       k_reserved_resource_size, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);

@@ -29,8 +29,7 @@ resource_state_to_d3d12_resource_states(const resource_state _state) {
       D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER,  // read_only_buffer
       D3D12_RESOURCE_STATE_UNORDERED_ACCESS,            // read_write_buffer
       D3D12_RESOURCE_STATE_RENDER_TARGET,               // render_target
-      D3D12_RESOURCE_STATE_DEPTH_WRITE |
-          D3D12_RESOURCE_STATE_DEPTH_READ,  // depth_target
+      D3D12_RESOURCE_STATE_DEPTH_WRITE,  // depth_target
       D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE |
           D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,  // texture
       D3D12_RESOURCE_STATE_PRESENT                     // present

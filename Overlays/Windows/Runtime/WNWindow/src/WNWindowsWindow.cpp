@@ -94,7 +94,7 @@ void windows_window::dispatch_loop(RECT rect) {
 
     MSG msg;
     while (GetMessage(&msg, m_window.handle, 0, 0)) {
-      m_log->log_info("Receieved Windows Message: ", msg.hwnd, ", ",
+      m_log->log_debug("Receieved Windows Message: ", msg.hwnd, ", ",
           msg.message, ", ", msg.wParam, ", ", msg.lParam);
       TranslateMessage(&msg);
       DispatchMessage(&msg);
@@ -108,6 +108,53 @@ void windows_window::dispatch_loop(RECT rect) {
 
 void windows_window::process_callback(UINT, LPARAM, WPARAM) {
   // Handle events here: Resize etc.
+}
+
+inline key_code wm_code_to_keycode(WPARAM wparam) {
+  switch (wparam) {
+    case VK_SHIFT:
+      return key_code::key_any_shift;
+    case VK_CONTROL:
+      return key_code::key_any_ctrl;
+    case VK_MENU:
+      return key_code::key_any_alt;
+    case VK_ESCAPE:
+      return key_code::key_esc;
+    case VK_SPACE:
+      return key_code::key_space;
+    case VK_LEFT:
+      return key_code::key_left;
+    case VK_RIGHT:
+      return key_code::key_right;
+    case VK_UP:
+      return key_code::key_up;
+    case VK_DOWN:
+      return key_code::key_down;
+    case VK_LSHIFT:
+      return key_code::key_lshift;
+    case VK_RSHIFT:
+      return key_code::key_rshift;
+    case VK_LCONTROL:
+      return key_code::key_lctrl;
+    case VK_RCONTROL:
+      return key_code::key_rctrl;
+    case VK_LMENU:
+      return key_code::key_lalt;
+    case VK_RMENU:
+      return key_code::key_ralt;
+  }
+  if (wparam >= 0x30 && wparam <= 0x39) {
+    return static_cast<key_code>(
+        static_cast<uint32_t>(key_code::key_0) + wparam - 0x30);
+  } else if (wparam >= 0x60 && wparam <= 0x69) {
+    return static_cast<key_code>(
+        static_cast<uint32_t>(key_code::key_num_0) + wparam - 0x60);
+  } else if (wparam >= 0x41 && wparam <= 0x5A) {
+    return static_cast<key_code>(
+        static_cast<uint32_t>(key_code::key_a) + wparam - 0x41);
+  }
+
+  return key_code::key_max;
 }
 
 LRESULT CALLBACK windows_window::wnd_proc(
@@ -131,6 +178,68 @@ LRESULT CALLBACK windows_window::wnd_proc(
     case WM_DESTROY:
       window->m_exit = true;
       return DefWindowProc(hwnd, uMsg, wParam, lParam);
+    case WM_KEYDOWN: {
+      key_code k = wm_code_to_keycode(wParam);
+      if (k != key_code::key_max) {
+        if (window->m_key_states[static_cast<uint32_t>(k)] == false) {
+          window->m_log->flush();
+        }
+        window->m_key_states[static_cast<uint32_t>(k)] = true;
+      }
+      return DefWindowProc(hwnd, uMsg, wParam, lParam);
+    }
+    case WM_KEYUP: {
+      key_code k = wm_code_to_keycode(wParam);
+      if (k != key_code::key_max) {
+        if (window->m_key_states[static_cast<uint32_t>(k)] == true) {
+          window->m_log->flush();
+        }
+        window->m_key_states[static_cast<uint32_t>(k)] = false;
+      }
+      return DefWindowProc(hwnd, uMsg, wParam, lParam);
+    }
+    case WM_SETFOCUS: {  // We just got focus
+      return DefWindowProc(hwnd, uMsg, wParam, lParam);
+    }
+    case WM_KILLFOCUS: {
+      for (size_t i = 0; i < static_cast<size_t>(key_code::key_max); ++i) {
+        window->m_key_states[i] = false;
+      }
+      for (size_t i = 0; i < static_cast<size_t>(mouse_button::mouse_max);
+           ++i) {
+        window->m_mouse_states[i] = false;
+      }
+
+      return DefWindowProc(hwnd, uMsg, wParam, lParam);
+    }
+    case WM_LBUTTONDOWN:
+      window->m_mouse_states[static_cast<size_t>(mouse_button::mouse_l)] = true;
+      return DefWindowProc(hwnd, uMsg, wParam, lParam);
+    case WM_LBUTTONUP:
+      window->m_mouse_states[static_cast<size_t>(mouse_button::mouse_l)] =
+          false;
+      return DefWindowProc(hwnd, uMsg, wParam, lParam);
+    case WM_MBUTTONDOWN:
+      window->m_mouse_states[static_cast<size_t>(mouse_button::mouse_m)] = true;
+      return DefWindowProc(hwnd, uMsg, wParam, lParam);
+    case WM_MBUTTONUP:
+      window->m_mouse_states[static_cast<size_t>(mouse_button::mouse_m)] =
+          false;
+      return DefWindowProc(hwnd, uMsg, wParam, lParam);
+    case WM_RBUTTONDOWN:
+      window->m_mouse_states[static_cast<size_t>(mouse_button::mouse_r)] = true;
+      return DefWindowProc(hwnd, uMsg, wParam, lParam);
+    case WM_RBUTTONUP:
+      window->m_mouse_states[static_cast<size_t>(mouse_button::mouse_r)] =
+          false;
+      return DefWindowProc(hwnd, uMsg, wParam, lParam);
+    case WM_MOUSEMOVE: {
+      uint16_t x_pos = lParam & 0xFF;
+      uint16_t y_pos = (lParam >> 16) & 0xFF;
+      window->m_cursor_x = x_pos;
+      window->m_cursor_y = y_pos;
+      return DefWindowProc(hwnd, uMsg, wParam, lParam);
+    }
     default:
       return DefWindowProc(hwnd, uMsg, wParam, lParam);
   }

@@ -8,6 +8,8 @@
 #include "WNMultiTasking/inc/job_pool.h"
 #include "WNMultiTasking/inc/job_signal.h"
 
+#include <X11/keysym.h>
+
 namespace wn {
 namespace runtime {
 namespace window {
@@ -18,12 +20,62 @@ window_error xcb_window::initialize() {
   return window_error::ok;
 }
 
+inline key_code x_code_to_keycode(xcb_keysym_t keycode) {
+  if (keycode >= XK_A && keycode <= XK_Z) {
+    return static_cast<key_code>(
+        static_cast<size_t>(key_code::key_a) + keycode - XK_A);
+  }
+  if (keycode >= XK_a && keycode <= XK_z) {
+    return static_cast<key_code>(
+        static_cast<size_t>(key_code::key_a) + keycode - XK_a);
+  }
+  if (keycode >= XK_KP_0 && keycode <= XK_KP_9) {
+    return static_cast<key_code>(
+        static_cast<size_t>(key_code::key_num_0) + keycode - XK_KP_0);
+  }
+  if (keycode >= XK_0 && keycode <= XK_9) {
+    return static_cast<key_code>(
+        static_cast<size_t>(key_code::key_0) + keycode - XK_0);
+  }
+
+  switch (keycode) {
+    case XK_Shift_L:
+      return key_code::key_lshift;
+    case XK_Shift_R:
+      return key_code::key_rshift;
+    case XK_Control_L:
+      return key_code::key_lctrl;
+    case XK_Control_R:
+      return key_code::key_rctrl;
+    case XK_Alt_L:
+      return key_code::key_lalt;
+    case XK_Alt_R:
+      return key_code::key_ralt;
+    case XK_Escape:
+      return key_code::key_esc;
+    case XK_space:
+      return key_code::key_space;
+    case XK_Left:
+      return key_code::key_left;
+    case XK_Up:
+      return key_code::key_up;
+    case XK_Right:
+      return key_code::key_right;
+    case XK_Down:
+      return key_code::key_down;
+  }
+
+  return key_code::key_max;
+}
+
 void xcb_window::dispatch_loop(void*) {
   m_job_pool->call_blocking_function([&]() {
     m_data.connection = xcb_connect(NULL, NULL);
     if (m_data.connection == nullptr) {
       return;
     }
+
+    m_key_symbols = xcb_key_symbols_alloc(m_data.connection);
 
     const xcb_setup_t* setup = xcb_get_setup(m_data.connection);
     m_screen = xcb_setup_roots_iterator(setup).data;
@@ -41,7 +93,11 @@ void xcb_window::dispatch_loop(void*) {
 
     m_data.window = xcb_generate_id(m_data.connection);
 
-    uint32_t values[1] = {XCB_EVENT_MASK_STRUCTURE_NOTIFY};
+    uint32_t values[1] = {
+        XCB_EVENT_MASK_STRUCTURE_NOTIFY | XCB_EVENT_MASK_BUTTON_PRESS |
+        XCB_EVENT_MASK_BUTTON_RELEASE | XCB_EVENT_MASK_POINTER_MOTION |
+        XCB_EVENT_MASK_ENTER_WINDOW | XCB_EVENT_MASK_LEAVE_WINDOW |
+        XCB_EVENT_MASK_KEY_PRESS | XCB_EVENT_MASK_KEY_RELEASE};
 
     xcb_create_window(m_data.connection, XCB_COPY_FROM_PARENT, m_data.window,
         m_screen->root, m_x, m_y, m_width, m_height, 10,
@@ -86,6 +142,75 @@ void xcb_window::dispatch_loop(void*) {
         case XCB_DESTROY_NOTIFY:
           free(event);
           return;
+        case XCB_BUTTON_PRESS: {
+          xcb_button_press_event_t* bp = (xcb_button_press_event_t*)event;
+          switch (bp->detail) {
+            case XCB_BUTTON_INDEX_1:
+              m_mouse_states[static_cast<size_t>(mouse_button::mouse_l)] = true;
+              break;
+            case XCB_BUTTON_INDEX_2:
+              m_mouse_states[static_cast<size_t>(mouse_button::mouse_r)] = true;
+              break;
+            case XCB_BUTTON_INDEX_3:
+              m_mouse_states[static_cast<size_t>(mouse_button::mouse_m)] = true;
+              break;
+          }
+          break;
+        }
+        case XCB_BUTTON_RELEASE: {
+          xcb_button_press_event_t* bp = (xcb_button_press_event_t*)event;
+          switch (bp->detail) {
+            case XCB_BUTTON_INDEX_1:
+              m_mouse_states[static_cast<size_t>(mouse_button::mouse_l)] =
+                  false;
+              break;
+            case XCB_BUTTON_INDEX_2:
+              m_mouse_states[static_cast<size_t>(mouse_button::mouse_r)] =
+                  false;
+              break;
+            case XCB_BUTTON_INDEX_3:
+              m_mouse_states[static_cast<size_t>(mouse_button::mouse_m)] =
+                  false;
+              break;
+          }
+          break;
+        }
+        case XCB_ENTER_NOTIFY:
+          m_has_mouse_focus = true;
+          break;
+        case XCB_LEAVE_NOTIFY:
+          for (size_t i = 0; i < static_cast<size_t>(key_code::key_max); ++i) {
+            m_key_states[i] = false;
+          }
+          for (size_t i = 0; i < static_cast<size_t>(mouse_button::mouse_max);
+               ++i) {
+            m_mouse_states[i] = false;
+          }
+          m_has_mouse_focus = false;
+          break;
+        case XCB_MOTION_NOTIFY: {
+          xcb_motion_notify_event_t* motion = (xcb_motion_notify_event_t*)event;
+          m_cursor_x = motion->event_x;
+          m_cursor_y = motion->event_y;
+          break;
+        }
+        case XCB_KEY_PRESS: {
+          if (!m_has_mouse_focus) {
+            break;
+          }
+          xcb_key_press_event_t* kp = (xcb_key_press_event_t*)event;
+          key_code key = x_code_to_keycode(
+              xcb_key_press_lookup_keysym(m_key_symbols, kp, 0));
+          m_key_states[static_cast<size_t>(key)] = true;
+          break;
+        }
+        case XCB_KEY_RELEASE: {
+          xcb_key_release_event_t* kr = (xcb_key_release_event_t*)event;
+          key_code key = x_code_to_keycode(
+              xcb_key_release_lookup_keysym(m_key_symbols, kr, 0));
+          m_key_states[static_cast<size_t>(key)] = false;
+          break;
+        }
         default:
           break;
       }

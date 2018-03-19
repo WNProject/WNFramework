@@ -8,7 +8,9 @@
 #define __WN_RUNTIME_GRAPHICS_INTERNAL_D3D12_DEVICE_H__
 
 #include "WNContainers/inc/WNDynamicArray.h"
+#include "WNContainers/inc/WNHashMap.h"
 #include "WNContainers/inc/WNRangePartition.h"
+#include "WNCore/inc/pair.h"
 #include "WNGraphics/inc/Internal/D3D12/WNLockedHeap.h"
 #include "WNGraphics/inc/Internal/WNConfig.h"
 #include "WNGraphics/inc/WNArenaProperties.h"
@@ -103,6 +105,14 @@ public:
       const swapchain_create_info& _info,
       queue* queue) WN_GRAPHICS_OVERRIDE_FINAL;
 
+  math::mat44f get_perspective_fixup_matrix() WN_GRAPHICS_OVERRIDE_FINAL {
+    return math::mat44f({        //
+        1.0f, 0.0f, 0.0f, 0.0f,  //
+        0.0f, 1.0f, 0.0f, 0.0f,  //
+        0.0f, 0.0f, 1.0f, 0.0f,  //
+        0.0, 0.0f, 0.0f, 1.0f});
+  }
+
 protected:
   friend class fence;
   friend class queue;
@@ -122,7 +132,8 @@ protected:
     : d3d12_device_base(),
       m_allocator(nullptr),
       m_log(nullptr),
-      m_num_queues(0) {}
+      m_num_queues(0),
+      m_sampler_cache(nullptr) {}
 
   bool initialize(memory::allocator* _allocator, logging::log* _log,
       const Microsoft::WRL::ComPtr<IDXGIFactory4>& _d3d12_factory,
@@ -135,6 +146,8 @@ protected:
   void initialize_command_allocator(
       command_allocator* _command_allocator) WN_GRAPHICS_OVERRIDE_FINAL;
   void destroy_command_allocator(command_allocator*) WN_GRAPHICS_OVERRIDE_FINAL;
+  void reset_command_allocator(
+      command_allocator* _alloc) WN_GRAPHICS_OVERRIDE_FINAL;
 
   // fence methods
   void initialize_fence(fence* _fence) WN_GRAPHICS_OVERRIDE_FINAL;
@@ -264,6 +277,15 @@ private:
   memory::allocator* m_allocator;
   logging::log* m_log;
   std::atomic<uint32_t> m_num_queues;
+  struct sampler_data {
+    uint32_t m_sampler_data_count = 0;
+    containers::default_range_partition::token m_range_token = {};
+    D3D12_GPU_DESCRIPTOR_HANDLE m_sampler_handle = {0};
+  };
+  containers::hash_map<sampler_create_info, memory::unique_ptr<sampler_data>,
+      sampler_create_info_hasher>
+      m_sampler_cache;
+  multi_tasking::spin_lock m_sampler_cache_lock;
 };
 
 }  // namespace d3d12

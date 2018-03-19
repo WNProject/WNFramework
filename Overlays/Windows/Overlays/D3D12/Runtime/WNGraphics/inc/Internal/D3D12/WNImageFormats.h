@@ -57,7 +57,7 @@ static WN_FORCE_INLINE DXGI_FORMAT image_format_to_dxgi_format(
 }
 
 static WN_FORCE_INLINE image_components valid_components(data_format _format) {
-  image_components components;
+  image_components components = 0;
   switch (_format) {
     case data_format::d24_unorm_s8_uint:
     case data_format::d32_float_s8_uint:

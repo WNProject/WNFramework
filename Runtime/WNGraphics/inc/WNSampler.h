@@ -20,40 +20,6 @@ namespace wn {
 namespace runtime {
 namespace graphics {
 
-enum class sampler_filter : uint8_t { nearest, linear };
-enum class sampler_addressing : uint8_t {
-  repeat,
-  mirrored_repeat,
-  clamp,
-  border,
-  mirror_clamp
-};
-enum class border_color : uint8_t {
-  black_transparent_f32,
-  black_transparent_uint,
-  black_opaque_f32,
-  black_opaque_uint,
-  white_opaque_f32,
-  white_opaque_uint
-};
-
-struct sampler_create_info {
-  sampler_filter min = sampler_filter::nearest;
-  sampler_filter mag = sampler_filter::nearest;
-  sampler_filter mip = sampler_filter::nearest;
-  sampler_addressing u = sampler_addressing::repeat;
-  sampler_addressing v = sampler_addressing::repeat;
-  sampler_addressing w = sampler_addressing::repeat;
-  float lod_bias = 0.0f;
-  bool enable_anisotropy = false;
-  float max_anisotropy = 1.0f;
-  bool enable_comparison = false;
-  comparison_op comparison = comparison_op::always;
-  float min_lod = 0.0f;
-  float max_lod = 0.0f;
-  border_color border = border_color::black_opaque_f32;
-};
-
 class sampler final : public core::non_copyable {
 public:
   WN_FORCE_INLINE sampler(sampler&& _other) : m_device(_other.m_device) {
@@ -97,7 +63,7 @@ private:
   // It also must be considered uninitialized when
   // memset to 0.
   struct opaque_data final {
-    uint64_t _dummy[2];
+    uint64_t _dummy[3];
   } m_data;
 
   device* m_device;

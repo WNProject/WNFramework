@@ -212,8 +212,11 @@ public:
     base::multiply_assign(inverse_length());
   }
 
-  WN_FORCE_INLINE VectorType<T, Dimension, Precise> normalized() {
-    VectorType<T, Dimension, Precise> v = *this;
+  WN_FORCE_INLINE VectorType<T, Dimension, Precise> normalized() const {
+    VectorType<T, Dimension, Precise> v;
+    for (size_t i = 0; i < Dimension; ++i) {
+      v.at(i) = base::at(i);
+    }
     v.normalize();
     return v;
   }

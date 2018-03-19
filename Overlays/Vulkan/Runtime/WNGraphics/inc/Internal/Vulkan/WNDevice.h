@@ -21,6 +21,7 @@
 #include "WNGraphics/inc/WNGraphicsTypes.h"
 #include "WNGraphics/inc/WNRenderPassTypes.h"
 #include "WNLogging/inc/WNLog.h"
+#include "WNMath/inc/WNMatrix.h"
 #include "WNMemory/inc/unique_ptr.h"
 
 #ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
@@ -105,6 +106,14 @@ public:
       const swapchain_create_info& _info,
       queue* queue) WN_GRAPHICS_OVERRIDE_FINAL;
 
+  math::mat44f get_perspective_fixup_matrix() WN_GRAPHICS_OVERRIDE_FINAL {
+    return math::mat44f({         //
+      1.0f, 0.0f, 0.0f, 0.0f,   //
+      0.0f, -1.0f, 0.0f, 0.0f,  //
+      0.0f, 0.0f, 1.0f, 0.0f,   //
+      0.0, 0.0f, 0.0f, 1.0f });
+  }
+
 protected:
   friend class graphics::arena;
   friend class graphics::buffer;
@@ -142,6 +151,8 @@ protected:
   void initialize_command_allocator(
       command_allocator* _command_allocator) WN_GRAPHICS_OVERRIDE_FINAL;
   void destroy_command_allocator(command_allocator*) WN_GRAPHICS_OVERRIDE_FINAL;
+  void reset_command_allocator(
+      command_allocator* _alloc) WN_GRAPHICS_OVERRIDE_FINAL;
 
   // fence methods
   void initialize_fence(fence* _fence) WN_GRAPHICS_OVERRIDE_FINAL;
@@ -278,6 +289,7 @@ protected:
 
   PFN_vkCreateCommandPool vkCreateCommandPool;
   PFN_vkDestroyCommandPool vkDestroyCommandPool;
+  PFN_vkResetCommandPool vkResetCommandPool;
 
   PFN_vkFlushMappedMemoryRanges vkFlushMappedMemoryRanges;
   PFN_vkInvalidateMappedMemoryRanges vkInvalidateMappedMemoryRanges;

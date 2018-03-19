@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNContainers/inc/WNRangePartition.h"
 #include "WNContainers/inc/WNDynamicArray.h"
+#include "WNContainers/inc/WNRangePartition.h"
 #include "WNExecutableTest/inc/WNTestHarness.h"
 
 using range_partition_tests = ::testing::TestWithParam<size_t>;

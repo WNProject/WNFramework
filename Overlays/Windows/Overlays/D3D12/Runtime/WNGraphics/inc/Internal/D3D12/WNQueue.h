@@ -11,6 +11,7 @@
 #include "WNCore/inc/pair.h"
 #include "WNGraphics/inc/Internal/WNConfig.h"
 #include "WNGraphics/inc/WNGraphicsEnums.h"
+#include "WNMemory/inc/allocator.h"
 
 #ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
 #include "WNGraphics/inc/WNQueue.h"

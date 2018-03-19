@@ -8,6 +8,7 @@
 #define __WN_CONTAINERS_DYNAMIC_ARRAY_H__
 
 #include "WNContainers/inc/WNContiguousRange.h"
+#include "WNCore/inc/assert.h"
 #include "WNMemory/inc/allocator.h"
 
 #include <iterator>
@@ -232,6 +233,12 @@ public:
   WN_FORCE_INLINE ~dynamic_array() {
     clear();
     deallocate(m_data);
+  }
+
+  void set_allocator(memory::allocator* _allocator) {
+    WN_RELEASE_ASSERT(
+        !m_allocator, "You cannot set an allocator if there already is one");
+    m_allocator = _allocator;
   }
 
   WN_FORCE_INLINE operator contiguous_range<value_type>() {

@@ -44,6 +44,10 @@ public:
     return m_device->create_command_list(this);
   }
 
+  WN_FORCE_INLINE void reset() {
+    return m_device->reset_command_allocator(this);
+  }
+
 protected:
   WN_GRAPHICS_ADD_FRIENDS(device)
 

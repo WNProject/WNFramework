@@ -34,6 +34,12 @@ public:
   virtual uint32_t get_width() const = 0;
   virtual uint32_t get_height() const = 0;
 
+  virtual bool get_key_state(key_code _code) const = 0;
+  virtual bool get_mouse_state(mouse_button _button) const = 0;
+
+  virtual uint32_t get_cursor_x() const = 0;
+  virtual uint32_t get_cursor_y() const = 0;
+
 protected:
   window() {}
 };

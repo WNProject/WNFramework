@@ -19,6 +19,7 @@
 #include "WNGraphics/inc/WNRenderPassTypes.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/unique_ptr.h"
+#include "WNMath/inc/WNMatrix.h"
 
 #ifdef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
 #include "WNGraphics/inc/Internal/WNDeviceIncludes.h"
@@ -186,7 +187,9 @@ protected:
   friend class graphics_pipeline;
 
 #ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
-
+public:
+  virtual math::mat44f get_perspective_fixup_matrix() = 0;
+private:
   // Destruction methods
   virtual void destroy_queue(queue* _queue) = 0;
 
@@ -195,6 +198,7 @@ protected:
       command_allocator* _command_allocator) = 0;
   virtual void destroy_command_allocator(
       command_allocator* _command_allocator) = 0;
+  virtual void reset_command_allocator(command_allocator* _alloc) = 0;
 
   // command list methods
   virtual command_list_ptr create_command_list(
