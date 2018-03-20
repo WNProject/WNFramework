@@ -1,4 +1,4 @@
-// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Copyright (c) 2018, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
@@ -22,8 +22,7 @@ protected:
   mutex_base() : m_lock_count(0) {
     m_semaphore = ::CreateSemaphoreW(NULL, 0, 1, NULL);
 
-    WN_RELEASE_ASSERT(
-        m_semaphore != NULL, "failed to create mutex object");
+    WN_RELEASE_ASSERT(m_semaphore != NULL, "failed to create mutex object");
   }
 
   ~mutex_base() = default;
@@ -32,8 +31,7 @@ protected:
     if (m_lock_count.fetch_add(1, std::memory_order_acquire) > 0) {
       const DWORD result = ::WaitForSingleObject(m_semaphore.value(), INFINITE);
 
-      WN_RELEASE_ASSERT(
-          result == WAIT_OBJECT_0, "failed to lock mutex object");
+      WN_RELEASE_ASSERT(result == WAIT_OBJECT_0, "failed to lock mutex object");
     }
   }
 

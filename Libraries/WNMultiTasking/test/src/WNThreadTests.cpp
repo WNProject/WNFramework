@@ -7,7 +7,7 @@
 
 namespace {
 
-void test_function1(bool* _run) {
+void test_function(bool* _run) {
   *_run = true;
 }
 
@@ -18,7 +18,7 @@ TEST(thread, basic_usage) {
 
   {
     bool run1 = false;
-    wn::multi_tasking::thread thread1(&allocator, &test_function1, &run1);
+    wn::multi_tasking::thread thread1(&allocator, &test_function, &run1);
 
     thread1.join();
 
@@ -28,7 +28,7 @@ TEST(thread, basic_usage) {
     public:
       test_object() : m_run(false) {}
 
-      void test_function1() {
+      void test_function() {
         m_run = true;
       }
 
@@ -42,7 +42,7 @@ TEST(thread, basic_usage) {
 
     test_object object1;
     wn::multi_tasking::thread thread2(
-        &allocator, &test_object::test_function1, &object1);
+        &allocator, &test_object::test_function, &object1);
 
     thread2.join();
 

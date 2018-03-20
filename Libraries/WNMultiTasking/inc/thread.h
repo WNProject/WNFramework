@@ -20,9 +20,6 @@ namespace wn {
 namespace multi_tasking {
 
 class thread final : internal::thread_base {
-private:
-  using base = internal::thread_base;
-
 public:
   class id;
 
@@ -88,6 +85,8 @@ public:
   }
 
 private:
+  using base = internal::thread_base;
+
   void create(memory::allocator* _allocator, const attributes& _attributes,
       functional::function<void()>&& _f);
 };
@@ -108,9 +107,9 @@ public:
 private:
   friend class thread;
   friend thread::id this_thread::get_id();
-  friend bool operator==(const thread::id&, const thread::id&);
-  friend bool operator<(const thread::id&, const thread::id&);
-  friend bool operator>(const thread::id&, const thread::id&);
+  friend bool operator==(const id&, const id&);
+  friend bool operator<(const id&, const id&);
+  friend bool operator>(const id&, const id&);
 
   id(base&& _id) : base(core::move(_id)) {}
 };
