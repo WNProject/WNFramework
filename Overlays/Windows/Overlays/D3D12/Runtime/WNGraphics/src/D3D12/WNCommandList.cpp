@@ -76,13 +76,13 @@ void d3d12_command_list::copy_buffer(const buffer& _src_buffer,
 }
 
 void d3d12_command_list::copy_buffer_to_image(const buffer& _src_buffer,
-    size_t _src_offset_in_bytes, const image& _dst_image) {
+    size_t _src_offset_in_bytes, const image& _dst_image, uint32_t _mip_level) {
   const buffer* srcbuff = &_src_buffer;
   const memory::unique_ptr<const buffer_info>& src_data = get_data(srcbuff);
   const auto& image_res = get_data((const image*)&_dst_image);
 
   const image::image_buffer_resource_info& info =
-      _dst_image.get_buffer_requirements();
+      _dst_image.get_buffer_requirements(_mip_level);
 
   D3D12_TEXTURE_COPY_LOCATION source = {src_data->resource.Get(),  // pResource
       D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT,                    // Type
@@ -100,24 +100,25 @@ void d3d12_command_list::copy_buffer_to_image(const buffer& _src_buffer,
   D3D12_TEXTURE_COPY_LOCATION dest = {
       image_res->image.Get(),                     // pResource
       D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX,  // Type
-      UINT{0}                                     // SubresourceIndex
+      UINT{_mip_level}                            // SubresourceIndex
   };
   m_command_list->CopyTextureRegion(&dest, 0, 0, 0, &source, nullptr);
 }
 
 void d3d12_command_list::copy_image_to_buffer(const image& _src_image,
+	uint32_t _mip_level,
     const buffer& _dst_buffer, size_t _dst_offset_in_bytes) {
   const buffer* dstbuff = &_dst_buffer;
   const memory::unique_ptr<const buffer_info>& dst_data = get_data(dstbuff);
   const auto& image_res = get_data((const image*)&_src_image);
 
   const image::image_buffer_resource_info& info =
-      _src_image.get_buffer_requirements();
+      _src_image.get_buffer_requirements(_mip_level);
 
   D3D12_TEXTURE_COPY_LOCATION source = {
       image_res->image.Get(),                     // pResource
       D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX,  // Type
-      UINT{0}                                     // SubresourceIndex
+      UINT{ _mip_level }                                     // SubresourceIndex
   };
 
   D3D12_TEXTURE_COPY_LOCATION dest = {dst_data->resource.Get(),  // pResource
@@ -171,21 +172,26 @@ void d3d12_command_list::begin_render_pass(render_pass* _pass,
       static_cast<LONG>(_render_area.y) +
           static_cast<LONG>(_render_area.width)};
   m_active_framebuffer_resource_states.clear();
-  m_active_framebuffer_resource_states.resize(m_current_render_pass->attachments.size());
+  m_active_framebuffer_resource_states.resize(
+      m_current_render_pass->attachments.size());
   for (size_t i = 0; i < m_active_framebuffer_resource_states.size(); ++i) {
-    m_active_framebuffer_resource_states[i] = m_current_render_pass->attachments[i].initial_state;
+    m_active_framebuffer_resource_states[i] =
+        m_current_render_pass->attachments[i].initial_state;
   }
   set_up_subpass();
 }
 
 void d3d12_command_list::set_up_subpass() {
-  if (m_current_subpass != 0 && m_current_subpass <= m_current_render_pass->subpasses.size()) {
+  if (m_current_subpass != 0 &&
+      m_current_subpass <= m_current_render_pass->subpasses.size()) {
     uint32_t last_subpass = m_current_subpass - 1;
     for (int32_t color_attachment :
         m_current_render_pass->subpasses[last_subpass].color_attachments) {
-      auto& attachment_desc = m_current_render_pass->attachments[color_attachment];
+      auto& attachment_desc =
+          m_current_render_pass->attachments[color_attachment];
       if (attachment_desc.attachment_store_op == store_op::dont_care) {
-        const image_view* view = m_current_framebuffer->image_views[color_attachment];
+        const image_view* view =
+            m_current_framebuffer->image_views[color_attachment];
         const memory::unique_ptr<const image_view_info>& view_data =
             get_data(view);
         const auto& image_res = get_data((const image*)view_data->image);
@@ -195,11 +201,14 @@ void d3d12_command_list::set_up_subpass() {
     }
     if (m_current_render_pass->subpasses[last_subpass].depth_attachment >= 0) {
       auto& attachment_desc =
-		  m_current_render_pass->attachments[m_current_render_pass->subpasses[last_subpass].depth_attachment];
+          m_current_render_pass->attachments
+              [m_current_render_pass->subpasses[last_subpass].depth_attachment];
       if (attachment_desc.attachment_store_op == store_op::dont_care &&
           attachment_desc.stencil_store_op == store_op::dont_care) {
         const image_view* view =
-            m_current_framebuffer->image_views[m_current_render_pass->subpasses[last_subpass].depth_attachment];
+            m_current_framebuffer
+                ->image_views[m_current_render_pass->subpasses[last_subpass]
+                                  .depth_attachment];
         const memory::unique_ptr<const image_view_info>& view_data =
             get_data(view);
         const auto& image_res = get_data((const image*)view_data->image);
@@ -213,7 +222,8 @@ void d3d12_command_list::set_up_subpass() {
     containers::dynamic_array<D3D12_CPU_DESCRIPTOR_HANDLE>
         render_target_handles(m_allocator);
     render_target_handles.reserve(
-        m_current_render_pass->subpasses[m_current_subpass].color_attachments.size());
+        m_current_render_pass->subpasses[m_current_subpass]
+            .color_attachments.size());
     bool has_depth_stencil = false;
     D3D12_CPU_DESCRIPTOR_HANDLE depth_stencil_handle;
 
@@ -221,8 +231,10 @@ void d3d12_command_list::set_up_subpass() {
     // clearing/discarding everything from this pass.
     for (int32_t color_attachment :
         m_current_render_pass->subpasses[m_current_subpass].color_attachments) {
-      auto& attachment_desc = m_current_render_pass->attachments[color_attachment];
-      const image_view* view = m_current_framebuffer->image_views[color_attachment];
+      auto& attachment_desc =
+          m_current_render_pass->attachments[color_attachment];
+      const image_view* view =
+          m_current_framebuffer->image_views[color_attachment];
       const memory::unique_ptr<const image_view_info>& view_data =
           get_data(view);
       const auto& image_res = get_data((const image*)view_data->image);
@@ -231,7 +243,8 @@ void d3d12_command_list::set_up_subpass() {
         m_command_list->DiscardResource(image_res->image.Get(), nullptr);
       }
 
-      auto& image_view_handle = m_current_framebuffer->image_view_handles[color_attachment];
+      auto& image_view_handle =
+          m_current_framebuffer->image_view_handles[color_attachment];
       D3D12_CPU_DESCRIPTOR_HANDLE handle =
           image_view_handle.heap->get_handle_at(
               image_view_handle.token.offset());
@@ -257,11 +270,14 @@ void d3d12_command_list::set_up_subpass() {
         m_command_list->ClearRenderTargetView(handle, color, 1, &m_render_area);
       }
     }
-    if (m_current_render_pass->subpasses[m_current_subpass].depth_attachment >= 0) {
+    if (m_current_render_pass->subpasses[m_current_subpass].depth_attachment >=
+        0) {
       int32_t depth_attachment =
           m_current_render_pass->subpasses[m_current_subpass].depth_attachment;
-      auto& attachment_desc = m_current_render_pass->attachments[depth_attachment];
-      const image_view* view = m_current_framebuffer->image_views[depth_attachment];
+      auto& attachment_desc =
+          m_current_render_pass->attachments[depth_attachment];
+      const image_view* view =
+          m_current_framebuffer->image_views[depth_attachment];
       const memory::unique_ptr<const image_view_info>& view_data =
           get_data(view);
       const auto& image_res = get_data((const image*)view_data->image);
@@ -270,7 +286,8 @@ void d3d12_command_list::set_up_subpass() {
         m_command_list->DiscardResource(image_res->image.Get(), nullptr);
       }
 
-      auto& image_view_handle = m_current_framebuffer->image_view_handles[depth_attachment];
+      auto& image_view_handle =
+          m_current_framebuffer->image_view_handles[depth_attachment];
       D3D12_CPU_DESCRIPTOR_HANDLE handle =
           image_view_handle.heap->get_handle_at(
               image_view_handle.token.offset());
@@ -350,7 +367,8 @@ void d3d12_command_list::bind_graphics_descriptor_sets(
       m_allocator, _sets.size());
   containers::dynamic_array<uint32_t> offsets(m_allocator, _sets.size());
   for (size_t i = 0; i < _sets.size(); ++i) {
-    uint32_t slot = m_current_graphics_pipeline_layout->descriptor_set_binding_base[i + base_index];
+    uint32_t slot = m_current_graphics_pipeline_layout
+                        ->descriptor_set_binding_base[i + base_index];
     const descriptor_set* set_object = _sets[i];
     const memory::unique_ptr<const descriptor_set_data>& data =
         get_data(set_object);

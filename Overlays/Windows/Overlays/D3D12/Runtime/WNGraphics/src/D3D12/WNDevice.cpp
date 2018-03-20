@@ -245,7 +245,7 @@ void d3d12_device::initialize_image(const image_create_info& _info,
       static_cast<UINT>(_info.m_width),             // Width
       static_cast<UINT>(_info.m_height),            // Height
       1,                                            // DepthOrArraySize
-      1,                                            // MipLevels
+      UINT16(_info.m_mip_levels),                   // MipLevels
       image_format_to_dxgi_format(_info.m_format),  // Format
       {
           1,                         // Count
@@ -256,23 +256,29 @@ void d3d12_device::initialize_image(const image_create_info& _info,
           _info.m_valid_resource_states)  // Flags
   };
 
-  uint64_t required_size = 0;
-  D3D12_PLACED_SUBRESOURCE_FOOTPRINT layout;
-  uint32_t num_rows;
-  uint64_t row_sizes_in_bytes;
+  _image->m_resource_info =
+      containers::dynamic_array<image::image_buffer_resource_info>(
+          m_allocator, _info.m_mip_levels);
+  for (size_t i = 0; i < _info.m_mip_levels; ++i) {
+    uint64_t required_size = 0;
+    D3D12_PLACED_SUBRESOURCE_FOOTPRINT layout;
+    uint32_t num_rows;
+    uint64_t row_sizes_in_bytes;
 
-  m_device->GetCopyableFootprints(&data->create_info, 0, 1, 0, &layout,
-      &num_rows, &row_sizes_in_bytes, &required_size);
+    m_device->GetCopyableFootprints(&data->create_info, UINT(i), 1, 0, &layout,
+        &num_rows, &row_sizes_in_bytes, &required_size);
 
-  _image->m_resource_info.depth = 1;
-  _image->m_resource_info.height = _info.m_height;
-  _image->m_resource_info.width = _info.m_width;
-  _image->m_resource_info.offset_in_bytes = static_cast<size_t>(layout.Offset);
-  _image->m_resource_info.row_pitch_in_bytes =
-      static_cast<size_t>(layout.Footprint.RowPitch);
-  _image->m_resource_info.total_memory_required =
-      static_cast<size_t>(required_size);
-  _image->m_resource_info.format = _info.m_format;
+    _image->m_resource_info[i].depth = layout.Footprint.Depth;
+    _image->m_resource_info[i].height = layout.Footprint.Height;
+    _image->m_resource_info[i].width = layout.Footprint.Width;
+    _image->m_resource_info[i].offset_in_bytes =
+        static_cast<size_t>(layout.Offset);
+    _image->m_resource_info[i].row_pitch_in_bytes =
+        static_cast<size_t>(layout.Footprint.RowPitch);
+    _image->m_resource_info[i].total_memory_required =
+        static_cast<size_t>(required_size);
+    _image->m_resource_info[i].format = _info.m_format;
+  }
   data->optimal_clear.Format = image_format_to_dxgi_format(_info.m_format);
 
   if (is_format_normalized(_info.m_format)) {
@@ -486,15 +492,15 @@ void d3d12_device::update_descriptors(descriptor_set* _set,
           descriptor.offset.offset() + binding.array_offset);
 
       D3D12_SHADER_RESOURCE_VIEW_DESC desc{
-          image_format_to_dxgi_format(info->info.format),
+          image_format_to_dxgi_format(info->infos[0].format),
           D3D12_SRV_DIMENSION_TEXTURE2D,
           D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,  // rgba
       };
       desc.Texture2D = {
-          0,     // MostDetailedMip
-          1,     // MipLevels
-          0,     // PlaneSlice
-          0.0f,  // ResourceMinLODClamp
+          info->m_base_mip_level,    // MostDetailedMip
+          UINT(info->infos.size()),  // MipLevels
+          0,                         // PlaneSlice
+          0.0f,                      // ResourceMinLODClamp
       };
       m_device->CreateShaderResourceView(img_data->image.Get(), &desc, handle);
     }
@@ -883,12 +889,17 @@ void d3d12_device::destroy_render_pass(render_pass* _pass) {
   pass_data.reset();
 }
 
-void d3d12_device::initialize_image_view(
-    image_view* _view, const image* image) {
+void d3d12_device::initialize_image_view(image_view* _view, const image* image,
+    uint32_t _base_mip_level, uint32_t _num_mip_levels) {
   memory::unique_ptr<image_view_info>& info = get_data(_view);
   info = memory::make_unique<image_view_info>(m_allocator);
   info->image = image;
-  info->info = image->m_resource_info;
+  info->infos =
+      containers::dynamic_array<image::image_buffer_resource_info>(m_allocator);
+  info->m_base_mip_level = _base_mip_level;
+  for (size_t i = _base_mip_level; i < _num_mip_levels; ++i) {
+    info->infos.push_back(image->m_resource_info[i]);
+  }
 }
 
 void d3d12_device::destroy_image_view(image_view* _view) {
@@ -931,7 +942,7 @@ void d3d12_device::initialize_framebuffer(
       const Microsoft::WRL::ComPtr<ID3D12Resource>& resource =
           image_data->image;
       rtv.Format = image_format_to_dxgi_format(
-          info->image->get_buffer_requirements().format);
+          info->image->get_buffer_requirements(0).format);
 
       m_device->CreateRenderTargetView(resource.Get(), &rtv,
           m_rtv_heap.get_handle_at(
@@ -949,7 +960,8 @@ void d3d12_device::initialize_framebuffer(
       const Microsoft::WRL::ComPtr<ID3D12Resource>& resource =
           image_data->image;
       dsv.Format = image_format_to_dxgi_format(
-          info->image->get_buffer_requirements().format);
+          info->image->get_buffer_requirements(static_cast<uint32_t>(i))
+              .format);
 
       m_device->CreateDepthStencilView(resource.Get(), &dsv,
           m_dsv_heap.get_handle_at(

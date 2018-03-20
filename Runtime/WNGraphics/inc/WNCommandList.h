@@ -55,8 +55,9 @@ public:
       const buffer& _dst_buffer, size_t _dst_offset, size_t _size) = 0;
 
   virtual void copy_buffer_to_image(const buffer& _src_buffer,
-      size_t _src_offset_in_bytes, const image& _dst_image) = 0;
-  virtual void copy_image_to_buffer(const image& _image,
+      size_t _src_offset_in_bytes, const image& _dst_image,
+      uint32_t _mip_level) = 0;
+  virtual void copy_image_to_buffer(const image& _image, uint32_t _mip_level,
       const buffer& _dst_buffer, size_t _buffer_offset_in_bytes) = 0;
 
   virtual void draw(uint32_t _vertex_count, uint32_t _instance_count,

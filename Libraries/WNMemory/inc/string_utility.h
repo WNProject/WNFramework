@@ -504,7 +504,7 @@ inline size_t writeint64(char* _buffer, int64_t _int, size_t _max_size) {
   return (counter);
 }
 
-inline size_t WNReadUInt32(char* _buff, uint32_t& _number, size_t _max_size) {
+inline size_t readuint32(char* _buff, uint32_t& _number, size_t _max_size) {
   WN_RELEASE_ASSERT(
       _max_size > 0, "You cannot store a number in less than 1 byte");
 
@@ -521,7 +521,7 @@ inline size_t WNReadUInt32(char* _buff, uint32_t& _number, size_t _max_size) {
   return (counter);
 }
 
-inline size_t WNReadInt32(char* _buffer, int32_t& _number, size_t _max_size) {
+inline size_t readint32(char* _buffer, int32_t& _number, size_t _max_size) {
   WN_RELEASE_ASSERT(
       _max_size > 0, "You cannot store a number in less than 1 byte");
 
@@ -534,7 +534,7 @@ inline size_t WNReadInt32(char* _buffer, int32_t& _number, size_t _max_size) {
   }
 
   uint32_t num = 0;
-  const size_t readNum = WNReadUInt32(_buffer + counter, num, _max_size);
+  const size_t readNum = readuint32(_buffer + counter, num, _max_size);
 
   if (readNum == 0) {
     return (0);

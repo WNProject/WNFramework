@@ -62,9 +62,10 @@ public:
       size_t _size) WN_GRAPHICS_OVERRIDE_FINAL;
 
   void copy_buffer_to_image(const buffer& _src_buffer,
-      size_t _src_offset_in_bytes,
-      const image& _dst_image) WN_GRAPHICS_OVERRIDE_FINAL;
-  void copy_image_to_buffer(const image& _image, const buffer& _dst_buffer,
+      size_t _src_offset_in_bytes, const image& _dst_image,
+      uint32_t _mip_level) WN_GRAPHICS_OVERRIDE_FINAL;
+  void copy_image_to_buffer(const image& _image, uint32_t _mip_level,
+      const buffer& _dst_buffer,
       size_t _buffer_offset_in_bytes) WN_GRAPHICS_OVERRIDE_FINAL;
 
   void draw(uint32_t _vertex_count, uint32_t _instance_count,

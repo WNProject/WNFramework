@@ -49,11 +49,9 @@ public:
   image() = delete;
 
   WN_FORCE_INLINE image(image&& _other)
-    : m_device(_other.m_device), m_resource_info(_other.m_resource_info) {
+    : m_device(_other.m_device),
+      m_resource_info(core::move(_other.m_resource_info)) {
     _other.m_device = nullptr;
-    memory::memcpy(&m_resource_info, &_other.m_resource_info,
-        sizeof(_other.m_resource_info));
-    memory::memory_zero(&_other.m_resource_info);
     m_is_swapchain_image = _other.m_is_swapchain_image;
     memory::memcpy(&m_data, &_other.m_data, sizeof(opaque_data));
     memory::memzero(&_other.m_data, sizeof(opaque_data));
@@ -73,16 +71,17 @@ public:
     return m_is_swapchain_image;
   }
 
-  const image_buffer_resource_info& get_buffer_requirements() const {
-    return m_resource_info;
+  const image_buffer_resource_info& get_buffer_requirements(
+      uint32_t mip_level) const {
+    return m_resource_info[mip_level];
   }
 
-  size_t get_width() const {
-    return m_resource_info.width;
+  size_t get_width(uint32_t _mip_level = 0) const {
+    return m_resource_info[_mip_level].width;
   }
 
-  size_t get_height() const {
-    return m_resource_info.height;
+  size_t get_height(uint32_t _mip_level = 0) const {
+    return m_resource_info[_mip_level].height;
   }
 
   image_memory_requirements get_memory_requirements() const {
@@ -125,7 +124,7 @@ private:
   } m_data;
 
   device* m_device;
-  image_buffer_resource_info m_resource_info;
+  containers::dynamic_array<image_buffer_resource_info> m_resource_info;
   bool m_is_swapchain_image;
 };
 

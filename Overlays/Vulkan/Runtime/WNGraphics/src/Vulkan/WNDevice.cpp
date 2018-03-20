@@ -383,7 +383,7 @@ void vulkan_device::initialize_image(
       image_format_to_vulkan_format(_info.m_format),  // format
       VkExtent3D{static_cast<uint32_t>(_info.m_width),
           static_cast<uint32_t>(_info.m_height), 1},  // extent
-      1,                                              // mipLevels
+      _info.m_mip_levels,                             // mipLevels
       1,                                              // arrayLayers
       VK_SAMPLE_COUNT_1_BIT,                          // samples
       VK_IMAGE_TILING_OPTIMAL,                        // tiling
@@ -398,17 +398,33 @@ void vulkan_device::initialize_image(
     m_log->log_error("Could not create image.");
   }
 
-  _image->m_resource_info.depth = 1;
-  _image->m_resource_info.height = _info.m_height;
-  _image->m_resource_info.width = _info.m_width;
-  _image->m_resource_info.offset_in_bytes = 0;
-  _image->m_resource_info.row_pitch_in_bytes =
-      _info.m_width *
-      4;  // TODO(awoloszyn): Optimize this, and make it dependent on image type
-  _image->m_resource_info.total_memory_required =
-      _image->m_resource_info.row_pitch_in_bytes *
-      _info.m_height;  // TODO(awoloszyn): Make this dependent on image type
-  _image->m_resource_info.format = _info.m_format;
+  _image->m_resource_info =
+      containers::dynamic_array<image::image_buffer_resource_info>(
+          m_allocator, _info.m_mip_levels);
+
+  for (size_t i = 0; i < _info.m_mip_levels; ++i) {
+    _image->m_resource_info[i].depth = 1;
+    _image->m_resource_info[i].height =
+        _info.m_height / (static_cast<uint64_t>(1) << static_cast<uint64_t>(i));
+    _image->m_resource_info[i].height = _image->m_resource_info[i].height
+                                            ? _image->m_resource_info[i].height
+                                            : 1;
+    _image->m_resource_info[i].width =
+        _info.m_width / (static_cast<uint64_t>(1) << static_cast<uint64_t>(i));
+    _image->m_resource_info[i].width =
+        _image->m_resource_info[i].width ? _image->m_resource_info[i].width : 1;
+
+    _image->m_resource_info[i].offset_in_bytes = 0;
+    _image->m_resource_info[i].row_pitch_in_bytes =
+        _image->m_resource_info[i].width *
+        4;  // TODO(awoloszyn): Optimize this, and make it
+            // dependent on image type
+    _image->m_resource_info[i].total_memory_required =
+        _image->m_resource_info[i].row_pitch_in_bytes *
+        _image->m_resource_info[i]
+            .height;  // TODO(awoloszyn): Make this dependent on image type
+    _image->m_resource_info[i].format = _info.m_format;
+  }
 }
 
 void vulkan_device::bind_image_memory(
@@ -1061,8 +1077,8 @@ void vulkan_device::destroy_render_pass(render_pass* _pass) {
 }
 
 // TODO: figure out how to deal with stencil here
-void vulkan_device::initialize_image_view(
-    image_view* _view, const image* _image) {
+void vulkan_device::initialize_image_view(image_view* _view,
+    const image* _image, uint32_t _base_mip_level, uint32_t _num_mip_levels) {
   ::VkImageView& view = get_data(_view);
   const ::VkImage& img = get_data(_image);
   // TODO(awoloszyn): Update this for multi-dimensional views
@@ -1074,12 +1090,12 @@ void vulkan_device::initialize_image_view(
       img,                                       // image
       VK_IMAGE_VIEW_TYPE_2D,                     // viewType
       image_format_to_vulkan_format(
-          _image->get_buffer_requirements().format),  // format
+          _image->get_buffer_requirements(_base_mip_level).format),  // format
       {VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY,
           VK_COMPONENT_SWIZZLE_IDENTITY,
           VK_COMPONENT_SWIZZLE_IDENTITY},  // components
-      {image_components_to_aspect(_view->get_components()), 0, 1, 0,
-          1},  // subresourceRange
+      {image_components_to_aspect(_view->get_components()), _base_mip_level,
+          _num_mip_levels, 0, 1},  // subresourceRange
   };
 
   if (VK_SUCCESS != vkCreateImageView(m_device, &create_info, nullptr, &view)) {

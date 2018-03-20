@@ -222,7 +222,8 @@ struct data_type<const render_pass> {
 };
 
 struct image_view_info {
-  image::image_buffer_resource_info info;
+  containers::dynamic_array<image::image_buffer_resource_info> infos;
+  uint32_t m_base_mip_level;
   const image* image;
 };
 

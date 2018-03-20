@@ -182,9 +182,9 @@ TEST_F(triangle_test, basic) {
                 &layout, &render_pass, 0);
 
         wn::runtime::graphics::image_view image_view =
-            _device->create_image_view(
-                _image, static_cast<wn::runtime::graphics::image_components>(
-                            wn::runtime::graphics::image_component::color));
+            _device->create_image_view(_image, 0, 1,
+                static_cast<wn::runtime::graphics::image_components>(
+                    wn::runtime::graphics::image_component::color));
 
         const wn::runtime::graphics::image_view* views[] = {&image_view};
 

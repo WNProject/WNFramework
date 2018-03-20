@@ -124,7 +124,8 @@ TEST_F(pipeline_test, basic_pipeline) {
     wn::runtime::graphics::image_create_info create_info = {1024, 1024,
         wn::runtime::graphics::data_format::r8g8b8a8_unorm,
         static_cast<uint32_t>(
-            wn::runtime::graphics::resource_state::render_target)};
+            wn::runtime::graphics::resource_state::render_target),
+        1};
     wn::runtime::graphics::clear_value value = {};
 
     wn::runtime::graphics::image image =
@@ -137,7 +138,7 @@ TEST_F(pipeline_test, basic_pipeline) {
     image.bind_memory(&image_arena, 0);
 
     wn::runtime::graphics::image_view view = device->create_image_view(
-        &image, static_cast<wn::runtime::graphics::image_components>(
+        &image, 0, 1, static_cast<wn::runtime::graphics::image_components>(
                     wn::runtime::graphics::image_component::color));
     const wn::runtime::graphics::image_view* views[] = {&view};
     wn::runtime::graphics::framebuffer_create_info framebuffer_create = {

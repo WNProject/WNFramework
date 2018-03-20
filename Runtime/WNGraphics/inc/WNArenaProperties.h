@@ -14,14 +14,14 @@ namespace runtime {
 namespace graphics {
 
 struct arena_properties final {
-  const bool device_local : 1;
-  const bool host_visible : 1;
-  const bool host_coherent : 1;
-  const bool host_cached : 1;
-  const bool allow_buffers : 1;
-  const bool allow_images : 1;
-  const bool allow_render_targets : 1;
-  const bool allow_depth_stencils : 1;
+  const bool device_local;
+  const bool host_visible;
+  const bool host_coherent;
+  const bool host_cached;
+  const bool allow_buffers;
+  const bool allow_images;
+  const bool allow_render_targets;
+  const bool allow_depth_stencils;
 };
 
 }  // namespace graphics

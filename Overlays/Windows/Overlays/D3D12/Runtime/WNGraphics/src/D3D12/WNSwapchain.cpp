@@ -30,7 +30,10 @@ void d3d12_swapchain::initialize(memory::allocator* _allocator,
     image* im = &m_images[i];
     auto& img = get_data(im);
     img = memory::make_unique<image_data>(m_allocator);
-    im->m_resource_info = {_create_info.format, _width, _height, 1, 0, 0, 0};
+    im->m_resource_info =
+        containers::dynamic_array<image::image_buffer_resource_info>(
+            m_allocator, 1);
+    im->m_resource_info[0] = {_create_info.format, _width, _height, 1, 0, 0, 0};
     im->m_is_swapchain_image = true;
     m_swapchain->GetBuffer(
         static_cast<UINT>(i), __uuidof(ID3D12Resource), &img->image);

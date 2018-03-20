@@ -167,7 +167,7 @@ TEST_F(push_constant_test, basic) {
 
         wn::runtime::graphics::image_view image_view =
             _device->create_image_view(
-                _image, static_cast<wn::runtime::graphics::image_components>(
+                _image, 0, 1, static_cast<wn::runtime::graphics::image_components>(
                             wn::runtime::graphics::image_component::color));
 
         const wn::runtime::graphics::image_view* views[] = {&image_view};

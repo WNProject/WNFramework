@@ -146,8 +146,8 @@ public:
       const containers::contiguous_range<const subpass_description>& _subpasses,
       const containers::contiguous_range<const subpass_dependency>& _deps);
 
-  image_view create_image_view(
-      const image* _image, image_components _components);
+  image_view create_image_view(const image* _image, uint32_t _base_mip_level,
+      uint32_t _num_mip_levels, image_components _components);
 
   framebuffer create_framebuffer(const framebuffer_create_info& create_info);
 
@@ -270,7 +270,8 @@ protected:
   virtual void destroy_render_pass(render_pass* _pass) = 0;
 
   // Image View
-  virtual void initialize_image_view(image_view* _view, const image* image) = 0;
+  virtual void initialize_image_view(image_view* _view, const image* image,
+      uint32_t _base_mip_level, uint32_t _num_mip_levels) = 0;
   virtual void destroy_image_view(image_view* _view) = 0;
 
   // arena methods

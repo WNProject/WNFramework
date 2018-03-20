@@ -209,7 +209,8 @@ protected:
                   static_cast<uint32_t>(
                       wn::runtime::graphics::resource_state::copy_source) |
                   static_cast<uint32_t>(
-                      wn::runtime::graphics::resource_state::render_target))},
+                      wn::runtime::graphics::resource_state::render_target)),
+              1},
           value);
 
       wn::runtime::graphics::image_memory_requirements image_requirements =
@@ -229,7 +230,7 @@ protected:
       queue->enqueue_command_list(setup_command_list.get());
 
       wn::runtime::graphics::image::image_buffer_resource_info resource_info =
-          image.get_buffer_requirements();
+          image.get_buffer_requirements(0);
 
       wn::runtime::graphics::buffer buffer =
           device->create_buffer(resource_info.total_memory_required,
@@ -261,7 +262,7 @@ protected:
           wn::runtime::graphics::resource_state::render_target,
           wn::runtime::graphics::resource_state::copy_source);
 
-      copy_list->copy_image_to_buffer(image, buffer, 0);
+      copy_list->copy_image_to_buffer(image, 0, buffer, 0);
       copy_list->transition_resource(buffer,
           wn::runtime::graphics::resource_state::copy_dest,
           wn::runtime::graphics::resource_state::host_read);

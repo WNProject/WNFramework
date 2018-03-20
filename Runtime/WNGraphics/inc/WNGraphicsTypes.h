@@ -39,13 +39,14 @@ struct render_area {
 struct image_create_info {
   static image_create_info default_texture(size_t _width, size_t _height) {
     return image_create_info{_width, _height, data_format::r8g8b8a8_unorm,
-        static_cast<resource_states>(resource_state::texture)};
+        static_cast<resource_states>(resource_state::texture), 1};
   }
 
   size_t m_width;
   size_t m_height;
   data_format m_format;
   resource_states m_valid_resource_states;  // Bit-flags of the image type.
+  uint32_t m_mip_levels;
 
   // TODO(awoloszyn): Add mip-levels
   // TODO(awoloszyn): Add Depth/Array Size

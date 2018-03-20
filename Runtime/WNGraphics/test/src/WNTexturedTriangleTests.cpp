@@ -43,9 +43,9 @@ using textured_triangle_test = wn::runtime::graphics::testing::pixel_test<100,
 TEST_F(textured_triangle_test, basic) {
   run_test(wn::runtime::graphics::testing::k_empty_adapter_features,
       [this](wn::runtime::graphics::adapter::api_type _api,
-               wn::runtime::graphics::device* _device,
-               wn::runtime::graphics::queue* _queue,
-               wn::runtime::graphics::image* _image) {
+          wn::runtime::graphics::device* _device,
+          wn::runtime::graphics::queue* _queue,
+          wn::runtime::graphics::image* _image) {
         wn::runtime::graphics::command_allocator alloc =
             _device->create_command_allocator();
 
@@ -152,19 +152,25 @@ TEST_F(textured_triangle_test, basic) {
         ASSERT_TRUE(found_arena);
 
         float triangle[] = {
-            0.0f, 0.5,
+            0.0f,
+            0.5,
             // Vertex 1 <Texcoord>
-            0.0f, 0.0f,
+            0.0f,
+            0.0f,
 
             // Vertex 3 <pos>
-            -0.5f, -0.5f,
+            -0.5f,
+            -0.5f,
             // Vertex 3 <texcoord>
-            1.0f, 0.0f,
+            1.0f,
+            0.0f,
 
             // Vertex 2 <pos>
-            0.5f, -0.5f,
+            0.5f,
+            -0.5f,
             // Vertex 2 <texcoord>
-            0.0f, 1.0f,
+            0.0f,
+            1.0f,
 
         };
         auto vertex_buffer =
@@ -183,13 +189,14 @@ TEST_F(textured_triangle_test, basic) {
                 arena_index,
                 wn::runtime::graphics::resource_state::index_buffer, indices);
 
-        wn::runtime::graphics::image_create_info info = {
-            16, 16, wn::runtime::graphics::data_format::r8g8b8a8_unorm,
+        wn::runtime::graphics::image_create_info info = {16, 16,
+            wn::runtime::graphics::data_format::r8g8b8a8_unorm,
             wn::runtime::graphics::resource_states(
                 static_cast<uint32_t>(
                     wn::runtime::graphics::resource_state::copy_dest) |
                 static_cast<uint32_t>(
-                    wn::runtime::graphics::resource_state::texture))};
+                    wn::runtime::graphics::resource_state::texture)),
+            1};
         wn::runtime::graphics::image texture =
             _device->create_image(info, wn::runtime::graphics::clear_value{});
         auto reqs = texture.get_memory_requirements();
@@ -198,7 +205,7 @@ TEST_F(textured_triangle_test, basic) {
         texture.bind_memory(&mem, 0);
 
         const wn::runtime::graphics::image::image_buffer_resource_info&
-            resource_info = texture.get_buffer_requirements();
+            resource_info = texture.get_buffer_requirements(0);
 
         auto image_upload_buffer =
             wn::runtime::graphics::testing::create_buffer(_device, arena_index,
@@ -217,7 +224,7 @@ TEST_F(textured_triangle_test, basic) {
 
         wn::runtime::graphics::image_view texture_view =
             _device->create_image_view(
-                &texture, static_cast<wn::runtime::graphics::image_components>(
+                &texture, 0, 1, static_cast<wn::runtime::graphics::image_components>(
                               wn::runtime::graphics::image_component::color));
         wn::runtime::graphics::sampler_create_info s;
         s.min = wn::runtime::graphics::sampler_filter::linear;
@@ -245,7 +252,7 @@ TEST_F(textured_triangle_test, basic) {
             wn::runtime::graphics::resource_state::initial,
             wn::runtime::graphics::resource_state::copy_dest);
         setup_command_list->copy_buffer_to_image(
-            image_upload_buffer.buffer, 0, texture);
+            image_upload_buffer.buffer, 0, texture, 0);
         setup_command_list->transition_resource(texture,
             wn::runtime::graphics::resource_state::copy_dest,
             wn::runtime::graphics::resource_state::texture);
@@ -276,14 +283,15 @@ TEST_F(textured_triangle_test, basic) {
 
         wn::runtime::graphics::image_view image_view =
             _device->create_image_view(
-                _image, static_cast<wn::runtime::graphics::image_components>(
+                _image, 0, 1, static_cast<wn::runtime::graphics::image_components>(
                             wn::runtime::graphics::image_component::color));
 
         const wn::runtime::graphics::image_view* views[] = {&image_view};
 
         wn::runtime::graphics::framebuffer_create_info framebuffer_create = {
-            &render_pass, wn::containers::contiguous_range<
-                              const wn::runtime::graphics::image_view*>(views),
+            &render_pass,
+            wn::containers::contiguous_range<
+                const wn::runtime::graphics::image_view*>(views),
             get_width(), get_height(), 1};
 
         wn::runtime::graphics::framebuffer framebuffer =

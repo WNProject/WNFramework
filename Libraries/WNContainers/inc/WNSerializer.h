@@ -78,7 +78,7 @@ public:
         } while (totalBytes < 4);
 
         size_t outSize =
-            memory::WNReadInt32(tempBuffer, m_value, totalBytes - 1);
+            memory::readint32(tempBuffer, m_value, totalBytes - 1);
         outSize += 1;  // consume the space that is supposed to be there
 
         return (outSize);
@@ -259,7 +259,7 @@ public:
 
         uint32_t number;
         size_t outSize =
-            memory::WNReadUInt32(tempBuffer, number, totalBytes - 1);
+            memory::readuint32(tempBuffer, number, totalBytes - 1);
 
         m_value = number & 0xFF;
         outSize += 1;  // consume the space that is supposed to be there
@@ -351,7 +351,7 @@ public:
         } while (totalBytes < 16);
 
         size_t outSize =
-            memory::WNReadUInt32(tempBuffer, m_value, totalBytes - 1);
+            memory::readuint32(tempBuffer, m_value, totalBytes - 1);
         outSize += 1;  // consume the space that is supposed to be there
         return (outSize);
       }

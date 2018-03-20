@@ -50,7 +50,7 @@ image device::create_image(
     const image_create_info& _info, const clear_value& _optimized_clear) {
   image new_image(this);
   initialize_image(_info, _optimized_clear, &new_image);
-  return core::move(new_image);
+  return new_image;
 }
 
 sampler device::create_sampler(const sampler_create_info& _info) {
@@ -116,10 +116,11 @@ render_pass device::create_render_pass(
   return core::move(pass);
 }
 
-image_view device::create_image_view(
-    const image* _image, image_components _components) {
+image_view device::create_image_view(const image* _image,
+    uint32_t _base_mip_level, uint32_t _num_mip_levels,
+    image_components _components) {
   image_view view(this, _components);
-  initialize_image_view(&view, _image);
+  initialize_image_view(&view, _image, _base_mip_level, _num_mip_levels);
   return core::move(view);
 }
 

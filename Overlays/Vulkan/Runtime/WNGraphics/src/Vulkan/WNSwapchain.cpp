@@ -36,13 +36,16 @@ void vulkan_swapchain::initialize(memory::allocator* _allocator,
   for (size_t i = 0; i < num_buffers; ++i) {
     m_images.push_back(image(reinterpret_cast<device*>(m_device)));
     image* image = &m_images.back();
-    image->m_resource_info.depth = 1;
-    image->m_resource_info.height = _height;
-    image->m_resource_info.width = _width;
-    image->m_resource_info.offset_in_bytes = 0;
-    image->m_resource_info.row_pitch_in_bytes = 0;
-    image->m_resource_info.total_memory_required = 0;
-    image->m_resource_info.format = _create_info.format;
+    image->m_resource_info =
+        containers::dynamic_array<image::image_buffer_resource_info>(
+            _allocator, 1);
+    image->m_resource_info[0].depth = 1;
+    image->m_resource_info[0].height = _height;
+    image->m_resource_info[0].width = _width;
+    image->m_resource_info[0].offset_in_bytes = 0;
+    image->m_resource_info[0].row_pitch_in_bytes = 0;
+    image->m_resource_info[0].total_memory_required = 0;
+    image->m_resource_info[0].format = _create_info.format;
     image->m_is_swapchain_image = true;
     ::VkImage& img = get_data(image);
     img = images[i];

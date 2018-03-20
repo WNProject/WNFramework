@@ -95,24 +95,27 @@ void vulkan_command_list::copy_buffer(const buffer& _src_buffer,
 }
 
 void vulkan_command_list::copy_buffer_to_image(const buffer& _src_buffer,
-    size_t _src_offset_in_bytes, const image& _dst_image) {
+    size_t _src_offset_in_bytes, const image& _dst_image, uint32_t _mip_level) {
   const VkImage& dst_image = get_data(&_dst_image);
   const memory::unique_ptr<const buffer_info>& srcbuffer =
       get_data(&_src_buffer);
 
   VkBufferImageCopy copy{
-      _src_offset_in_bytes,                            // bufferOffset
-      static_cast<uint32_t>(_dst_image.get_width()),   // bufferRowLength
-      static_cast<uint32_t>(_dst_image.get_height()),  // bufferImageHeight
+      _src_offset_in_bytes,  // bufferOffset
+      static_cast<uint32_t>(
+          _dst_image.get_width(_mip_level)),  // bufferRowLength
+      static_cast<uint32_t>(
+          _dst_image.get_height(_mip_level)),  // bufferImageHeight
       VkImageSubresourceLayers{
           VK_IMAGE_ASPECT_COLOR_BIT,  // aspectMask
-          0,                          // mipLevel
+          _mip_level,                 // mipLevel
           0,                          // baseArrayLayer
           1,                          // layerCount
       },                              // imageSubresource
       VkOffset3D{0, 0, 0},            // imageOffset
-      VkExtent3D{static_cast<uint32_t>(_dst_image.get_width()),
-          static_cast<uint32_t>(_dst_image.get_height()), 1},  // imageExtent
+      VkExtent3D{static_cast<uint32_t>(_dst_image.get_width(_mip_level)),
+          static_cast<uint32_t>(_dst_image.get_height(_mip_level)),
+          1},  // imageExtent
   };
 
   m_context->vkCmdCopyBufferToImage(m_command_buffer, srcbuffer->buffer,
@@ -120,24 +123,27 @@ void vulkan_command_list::copy_buffer_to_image(const buffer& _src_buffer,
 }
 
 void vulkan_command_list::copy_image_to_buffer(const image& _image,
-    const buffer& _dst_buffer, size_t _buffer_offset_in_bytes) {
+    uint32_t _mip_level, const buffer& _dst_buffer,
+    size_t _buffer_offset_in_bytes) {
   const VkImage& image = get_data(&_image);
   const memory::unique_ptr<const buffer_info>& dstbuffer =
       get_data(&_dst_buffer);
 
   VkBufferImageCopy copy{
-      _buffer_offset_in_bytes,                     // bufferOffset
-      static_cast<uint32_t>(_image.get_width()),   // bufferRowLength
-      static_cast<uint32_t>(_image.get_height()),  // bufferImageHeight
+      _buffer_offset_in_bytes,                              // bufferOffset
+      static_cast<uint32_t>(_image.get_width(_mip_level)),  // bufferRowLength
+      static_cast<uint32_t>(
+          _image.get_height(_mip_level)),  // bufferImageHeight
       VkImageSubresourceLayers{
           VK_IMAGE_ASPECT_COLOR_BIT,  // aspectMask
-          0,                          // mipLevel
+          _mip_level,                 // mipLevel
           0,                          // baseArrayLayer
           1,                          // layerCount
       },                              // imageSubresource
       VkOffset3D{0, 0, 0},            // imageOffset
-      VkExtent3D{static_cast<uint32_t>(_image.get_width()),
-          static_cast<uint32_t>(_image.get_height()), 1},  // imageExtent
+      VkExtent3D{static_cast<uint32_t>(_image.get_width(_mip_level)),
+          static_cast<uint32_t>(_image.get_height(_mip_level)),
+          1},  // imageExtent
   };
 
   m_context->vkCmdCopyImageToBuffer(m_command_buffer, image,

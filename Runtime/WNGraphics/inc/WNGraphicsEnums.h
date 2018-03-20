@@ -44,6 +44,40 @@ enum class data_format {
   max
 };
 
+WN_FORCE_INLINE bool is_format_astc(data_format _format) {
+  switch (_format) {
+    case data_format::astc_4x4:
+    case data_format::astc_5x4:
+    case data_format::astc_5x5:
+    case data_format::astc_6x5:
+    case data_format::astc_6x6:
+    case data_format::astc_8x5:
+    case data_format::astc_8x6:
+    case data_format::astc_8x8:
+    case data_format::astc_10x5:
+    case data_format::astc_10x6:
+    case data_format::astc_10x8:
+    case data_format::astc_10x10:
+    case data_format::astc_12x10:
+    case data_format::astc_12x12:
+      return true;
+    default:
+      return false;
+  }
+}
+
+WN_FORCE_INLINE bool is_format_bc(data_format _format) {
+  switch (_format) {
+    case data_format::bc1_rgb:
+    case data_format::bc1_rgba:
+    case data_format::bc2:
+    case data_format::bc3:
+      return true;
+    default:
+      return false;
+  }
+}
+
 WN_FORCE_INLINE bool is_format_normalized(data_format _format) {
   switch (_format) {
     case data_format::r8g8b8a8_unorm:

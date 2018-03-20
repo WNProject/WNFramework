@@ -207,8 +207,9 @@ protected:
       WN_GRAPHICS_OVERRIDE_FINAL;
   void destroy_render_pass(render_pass* _pass) WN_GRAPHICS_OVERRIDE_FINAL;
 
-  void initialize_image_view(
-      image_view* _view, const image* image) WN_GRAPHICS_OVERRIDE_FINAL;
+  void initialize_image_view(image_view* _view, const image* image,
+      uint32_t _base_mip_level,
+      uint32_t _num_mip_levels) WN_GRAPHICS_OVERRIDE_FINAL;
   void destroy_image_view(image_view* _view) WN_GRAPHICS_OVERRIDE_FINAL;
 
   // arena methods
