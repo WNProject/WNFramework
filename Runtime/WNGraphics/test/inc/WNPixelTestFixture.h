@@ -223,7 +223,7 @@ protected:
 
       wn::runtime::graphics::command_list_ptr setup_command_list =
           alloc.create_command_list();
-      setup_command_list->transition_resource(image,
+      setup_command_list->transition_resource(image, 0, 1,
           wn::runtime::graphics::resource_state::initial,
           wn::runtime::graphics::resource_state::render_target);
       setup_command_list->finalize();
@@ -258,7 +258,7 @@ protected:
       copy_list->transition_resource(buffer,
           wn::runtime::graphics::resource_state::initial,
           wn::runtime::graphics::resource_state::copy_dest);
-      copy_list->transition_resource(image,
+      copy_list->transition_resource(image, 0, 1,
           wn::runtime::graphics::resource_state::render_target,
           wn::runtime::graphics::resource_state::copy_source);
 

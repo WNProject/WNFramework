@@ -32,8 +32,9 @@ void vulkan_command_list::finalize() {
   m_context->vkEndCommandBuffer(m_command_buffer);
 }
 
-void vulkan_command_list::transition_resource(
-    const image& _image, resource_state _from, resource_state _to) {
+void vulkan_command_list::transition_resource(const image& _image,
+    uint32_t _mip_start, uint32_t _mip_count, resource_state _from,
+    resource_state _to) {
   const VkImage& image_res = get_data((&_image));
 
   VkImageMemoryBarrier barrier{
@@ -48,8 +49,8 @@ void vulkan_command_list::transition_resource(
       image_res,                                     // image
       VkImageSubresourceRange{
           VK_IMAGE_ASPECT_COLOR_BIT,  // aspectMask
-          0,                          // baseMipLevel
-          1,                          // levelCount
+          _mip_start,                 // baseMipLevel!
+          _mip_count,                 // levelCount
           0,                          // baseArrayLayer
           1,                          // layerCount
       }                               // subresourceRange
@@ -99,13 +100,20 @@ void vulkan_command_list::copy_buffer_to_image(const buffer& _src_buffer,
   const VkImage& dst_image = get_data(&_dst_image);
   const memory::unique_ptr<const buffer_info>& srcbuffer =
       get_data(&_src_buffer);
+  auto reqs = _dst_image.get_buffer_requirements(_mip_level);
+
+  const uint32_t min_width = get_block_width(reqs.format);
+  const uint32_t min_height = get_block_height(reqs.format);
+
+  size_t width = reqs.width;
+  size_t height = reqs.height;
+  width = width < min_width ? min_width : width;
+  height = height < min_height ? min_height : height;
 
   VkBufferImageCopy copy{
-      _src_offset_in_bytes,  // bufferOffset
-      static_cast<uint32_t>(
-          _dst_image.get_width(_mip_level)),  // bufferRowLength
-      static_cast<uint32_t>(
-          _dst_image.get_height(_mip_level)),  // bufferImageHeight
+      _src_offset_in_bytes,           // bufferOffset
+      static_cast<uint32_t>(width),   // bufferRowLength
+      static_cast<uint32_t>(height),  // bufferImageHeight
       VkImageSubresourceLayers{
           VK_IMAGE_ASPECT_COLOR_BIT,  // aspectMask
           _mip_level,                 // mipLevel
@@ -128,12 +136,20 @@ void vulkan_command_list::copy_image_to_buffer(const image& _image,
   const VkImage& image = get_data(&_image);
   const memory::unique_ptr<const buffer_info>& dstbuffer =
       get_data(&_dst_buffer);
+  auto reqs = _image.get_buffer_requirements(_mip_level);
+
+  const uint32_t min_width = get_block_width(reqs.format);
+  const uint32_t min_height = get_block_height(reqs.format);
+
+  size_t width = reqs.width;
+  size_t height = reqs.height;
+  width = width < min_width ? min_width : width;
+  height = height < min_height ? min_height : height;
 
   VkBufferImageCopy copy{
-      _buffer_offset_in_bytes,                              // bufferOffset
-      static_cast<uint32_t>(_image.get_width(_mip_level)),  // bufferRowLength
-      static_cast<uint32_t>(
-          _image.get_height(_mip_level)),  // bufferImageHeight
+      _buffer_offset_in_bytes,        // bufferOffset
+      static_cast<uint32_t>(width),   // bufferRowLength
+      static_cast<uint32_t>(height),  // bufferImageHeight
       VkImageSubresourceLayers{
           VK_IMAGE_ASPECT_COLOR_BIT,  // aspectMask
           _mip_level,                 // mipLevel

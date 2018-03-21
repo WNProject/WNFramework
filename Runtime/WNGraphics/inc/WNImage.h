@@ -92,6 +92,10 @@ public:
     m_device->bind_image_memory(this, _arena, _offset);
   }
 
+  uint32_t num_mips() const {
+    return static_cast<uint32_t>(m_resource_info.size());
+  }
+
 private:
   WN_GRAPHICS_ADD_FRIENDS(device);
   WN_GRAPHICS_ADD_FRIENDS(command_list);

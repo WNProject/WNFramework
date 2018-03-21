@@ -46,8 +46,8 @@ public:
 
   virtual void finalize() = 0;
 
-  virtual void transition_resource(
-      const image& _image, resource_state _from, resource_state _to) = 0;
+  virtual void transition_resource(const image& _image, uint32_t _base_mip,
+      uint32_t _mip_count, resource_state _from, resource_state _to) = 0;
   virtual void transition_resource(
       const buffer& _buffer, resource_state _from, resource_state _to) = 0;
 

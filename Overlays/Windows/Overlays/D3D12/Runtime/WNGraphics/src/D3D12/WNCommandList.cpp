@@ -16,8 +16,9 @@ namespace graphics {
 namespace internal {
 namespace d3d12 {
 
-void d3d12_command_list::transition_resource(
-    const image& _image, resource_state _from, resource_state _to) {
+void d3d12_command_list::transition_resource(const image& _image,
+    uint32_t _base_mip, uint32_t _mip_count, resource_state _from,
+    resource_state _to) {
   const image* img = &_image;
   const auto& image_res = get_data(img);
 
@@ -35,16 +36,34 @@ void d3d12_command_list::transition_resource(
     }
   }
 
-  D3D12_RESOURCE_BARRIER barrier = {
-      D3D12_RESOURCE_BARRIER_TYPE_TRANSITION,  // Type
-      D3D12_RESOURCE_BARRIER_FLAG_NONE,        // Flags
-      D3D12_RESOURCE_TRANSITION_BARRIER{
-          image_res->image.Get(),                          // pResource
-          D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES,         // subresource
-          resource_state_to_d3d12_resource_states(_from),  // StateBefore
-          resource_state_to_d3d12_resource_states(_to),    // StateAfter
-      }};
-  m_command_list->ResourceBarrier(1, &barrier);
+  if (_base_mip == 0 && _mip_count == _image.num_mips()) {
+    D3D12_RESOURCE_BARRIER barrier = {
+        D3D12_RESOURCE_BARRIER_TYPE_TRANSITION,  // Type
+        D3D12_RESOURCE_BARRIER_FLAG_NONE,        // Flags
+        D3D12_RESOURCE_TRANSITION_BARRIER{
+            image_res->image.Get(),                          // pResource
+            D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES,         // subresource
+            resource_state_to_d3d12_resource_states(_from),  // StateBefore
+            resource_state_to_d3d12_resource_states(_to),    // StateAfter
+        }};
+    m_command_list->ResourceBarrier(1, &barrier);
+  } else {
+    containers::dynamic_array<D3D12_RESOURCE_BARRIER> mips(
+        m_allocator, _mip_count);
+    for (uint32_t lvl = 0; lvl < _mip_count; lvl) {
+      mips[lvl] = D3D12_RESOURCE_BARRIER{
+          D3D12_RESOURCE_BARRIER_TYPE_TRANSITION,  // Type
+          D3D12_RESOURCE_BARRIER_FLAG_NONE,        // Flags
+          D3D12_RESOURCE_TRANSITION_BARRIER{
+              image_res->image.Get(),                          // pResource
+              static_cast<UINT>(lvl + _base_mip),              // subresource
+              resource_state_to_d3d12_resource_states(_from),  // StateBefore
+              resource_state_to_d3d12_resource_states(_to),    // StateAfter
+          }};
+    }
+    m_command_list->ResourceBarrier(
+        static_cast<UINT>(mips.size()), mips.data());
+  }
 }
 
 void d3d12_command_list::transition_resource(
@@ -84,14 +103,17 @@ void d3d12_command_list::copy_buffer_to_image(const buffer& _src_buffer,
   const image::image_buffer_resource_info& info =
       _dst_image.get_buffer_requirements(_mip_level);
 
+  size_t height = info.height;
+  size_t width = info.width;
+
   D3D12_TEXTURE_COPY_LOCATION source = {src_data->resource.Get(),  // pResource
       D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT,                    // Type
       D3D12_PLACED_SUBRESOURCE_FOOTPRINT{
           _src_offset_in_bytes,  // Offset
           D3D12_SUBRESOURCE_FOOTPRINT{
               image_format_to_dxgi_format(info.format),    // Format
-              static_cast<UINT>(info.width),               // Width
-              static_cast<UINT>(info.height),              // Height
+              static_cast<UINT>(width),                    // Width
+              static_cast<UINT>(height),                   // Height
               static_cast<UINT>(info.depth),               // Depth,
               static_cast<UINT>(info.row_pitch_in_bytes),  // RowPitch
           },
@@ -106,8 +128,8 @@ void d3d12_command_list::copy_buffer_to_image(const buffer& _src_buffer,
 }
 
 void d3d12_command_list::copy_image_to_buffer(const image& _src_image,
-	uint32_t _mip_level,
-    const buffer& _dst_buffer, size_t _dst_offset_in_bytes) {
+    uint32_t _mip_level, const buffer& _dst_buffer,
+    size_t _dst_offset_in_bytes) {
   const buffer* dstbuff = &_dst_buffer;
   const memory::unique_ptr<const buffer_info>& dst_data = get_data(dstbuff);
   const auto& image_res = get_data((const image*)&_src_image);
@@ -118,7 +140,7 @@ void d3d12_command_list::copy_image_to_buffer(const image& _src_image,
   D3D12_TEXTURE_COPY_LOCATION source = {
       image_res->image.Get(),                     // pResource
       D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX,  // Type
-      UINT{ _mip_level }                                     // SubresourceIndex
+      UINT{_mip_level}                            // SubresourceIndex
   };
 
   D3D12_TEXTURE_COPY_LOCATION dest = {dst_data->resource.Get(),  // pResource

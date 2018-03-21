@@ -1466,8 +1466,11 @@ void* d3d12_device::map_buffer(buffer* _buffer) {
 
 void d3d12_device::unmap_buffer(buffer* _buffer) {
   memory::unique_ptr<buffer_info>& info = get_data(_buffer);
-
-  info->resource->Unmap(0, nullptr);
+  const D3D12_RANGE range = {
+      0,               // Begin
+      _buffer->size()  // End
+  };
+  info->resource->Unmap(0, &range);
 }
 
 void d3d12_device::destroy_buffer(buffer* _buffer) {

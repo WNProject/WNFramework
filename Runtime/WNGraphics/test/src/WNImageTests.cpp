@@ -128,11 +128,11 @@ TEST_P(image_transfer_tests, many_sizes) {
     list->transition_resource(dst_buffer,
         wn::runtime::graphics::resource_state::initial,
         wn::runtime::graphics::resource_state::copy_dest);
-    list->transition_resource(image,
+    list->transition_resource(image, 0, 1,
         wn::runtime::graphics::resource_state::initial,
         wn::runtime::graphics::resource_state::copy_dest);
     list->copy_buffer_to_image(src_buffer, 0, image, 0);
-    list->transition_resource(image,
+    list->transition_resource(image, 0, 1,
         wn::runtime::graphics::resource_state::copy_dest,
         wn::runtime::graphics::resource_state::copy_source);
     list->copy_image_to_buffer(image, 0, dst_buffer, 0);
@@ -275,7 +275,7 @@ TEST_P(image_transfer_with_offset_tests, several_offsets) {
         device->create_arena(idx, reqs.size);
     image.bind_memory(&image_arena, 0);
 
-    list->transition_resource(image,
+    list->transition_resource(image, 0, 1,
         wn::runtime::graphics::resource_state::initial,
         wn::runtime::graphics::resource_state::copy_dest);
 
@@ -307,11 +307,11 @@ TEST_P(image_transfer_with_offset_tests, several_offsets) {
     list->transition_resource(dst_buffer,
         wn::runtime::graphics::resource_state::initial,
         wn::runtime::graphics::resource_state::copy_dest);
-    list->transition_resource(image,
+    list->transition_resource(image, 0, 1,
         wn::runtime::graphics::resource_state::initial,
         wn::runtime::graphics::resource_state::copy_dest);
     list->copy_buffer_to_image(src_buffer, buffer_offset, image, 0);
-    list->transition_resource(image,
+    list->transition_resource(image, 0, 1,
         wn::runtime::graphics::resource_state::copy_dest,
         wn::runtime::graphics::resource_state::copy_source);
     list->copy_image_to_buffer(image, 0, dst_buffer, buffer_offset);
@@ -476,12 +476,12 @@ TEST_P(image_mip_tests, two_levels) {
       list->transition_resource(dst_buffer,
           wn::runtime::graphics::resource_state::initial,
           wn::runtime::graphics::resource_state::copy_dest);
-      list->transition_resource(image,
+      list->transition_resource(image, 0, 2,
           wn::runtime::graphics::resource_state::initial,
           wn::runtime::graphics::resource_state::copy_dest);
       list->copy_buffer_to_image(
           src_buffer, 0, image, static_cast<uint32_t>(i));
-      list->transition_resource(image,
+      list->transition_resource(image, 0, 2,
           wn::runtime::graphics::resource_state::copy_dest,
           wn::runtime::graphics::resource_state::copy_source);
       list->copy_image_to_buffer(
