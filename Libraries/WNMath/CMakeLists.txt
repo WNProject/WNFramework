@@ -34,6 +34,7 @@ add_wn_header_library(WNMath
     inc/WNCommon.h
     inc/WNConstants.h
     inc/WNMatrix.h
+    inc/WNMatrixHelpers.h
     inc/WNVector.h
     ${CMAKE_CURRENT_BINARY_DIR}/inc/Internal/WNBasicTraits.h
     ${CMAKE_CURRENT_BINARY_DIR}/inc/Internal/WNCommonBase.h
