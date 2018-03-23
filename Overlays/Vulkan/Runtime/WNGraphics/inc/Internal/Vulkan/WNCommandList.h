@@ -52,7 +52,8 @@ public:
   ~vulkan_command_list() WN_GRAPHICS_OVERRIDE_FINAL;
 
   void finalize() WN_GRAPHICS_OVERRIDE_FINAL;
-  void transition_resource(const image& _image, uint32_t _mip_start,
+  void transition_resource(const image& _image,
+      const image_components& _components, uint32_t _mip_start,
       uint32_t _mip_count, resource_state _from,
       resource_state _to) WN_GRAPHICS_OVERRIDE_FINAL;
   void transition_resource(const buffer& _buffer, resource_state _from,

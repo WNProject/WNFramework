@@ -248,13 +248,17 @@ TEST_F(textured_triangle_test, basic) {
         setup_command_list->transition_resource(image_upload_buffer.buffer,
             wn::runtime::graphics::resource_state::host_write,
             wn::runtime::graphics::resource_state::copy_source);
-        setup_command_list->transition_resource(texture, 0, 1,
-            wn::runtime::graphics::resource_state::initial,
+        setup_command_list->transition_resource(texture,
+            static_cast<wn::runtime::graphics::image_components>(
+                wn::runtime::graphics::image_component::color),
+            0, 1, wn::runtime::graphics::resource_state::initial,
             wn::runtime::graphics::resource_state::copy_dest);
         setup_command_list->copy_buffer_to_image(
             image_upload_buffer.buffer, 0, texture, 0);
-        setup_command_list->transition_resource(texture, 0, 1,
-            wn::runtime::graphics::resource_state::copy_dest,
+        setup_command_list->transition_resource(texture,
+            static_cast<wn::runtime::graphics::image_components>(
+                wn::runtime::graphics::image_component::color),
+            0, 1, wn::runtime::graphics::resource_state::copy_dest,
             wn::runtime::graphics::resource_state::texture);
 
         setup_command_list->finalize();

@@ -56,6 +56,22 @@ static WN_FORCE_INLINE DXGI_FORMAT image_format_to_dxgi_format(
   return formats[static_cast<uint32_t>(_format)];
 }
 
+static WN_FORCE_INLINE image_components valid_components(data_format _format) {
+  image_components components;
+  switch (_format) {
+    case data_format::d24_unorm_s8_uint:
+    case data_format::d32_float_s8_uint:
+      components |= static_cast<image_components>(image_component::stencil);
+    case data_format::d16_unorm:
+    case data_format::d32_float:
+      components |= static_cast<image_components>(image_component::depth);
+      break;
+    default:
+      components = static_cast<image_components>(image_component::color);
+  }
+  return components;
+}
+
 }  // namespace d3d12
 }  // namespace internal
 }  // namespace graphics

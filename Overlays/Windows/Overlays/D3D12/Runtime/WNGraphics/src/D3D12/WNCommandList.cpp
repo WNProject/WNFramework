@@ -17,8 +17,10 @@ namespace internal {
 namespace d3d12 {
 
 void d3d12_command_list::transition_resource(const image& _image,
-    uint32_t _base_mip, uint32_t _mip_count, resource_state _from,
-    resource_state _to) {
+    const image_components& _components, uint32_t _base_mip,
+    uint32_t _mip_count, resource_state _from, resource_state _to) {
+  image_components possible =
+      valid_components(_image.m_resource_info[0].format);
   const image* img = &_image;
   const auto& image_res = get_data(img);
 
@@ -36,7 +38,8 @@ void d3d12_command_list::transition_resource(const image& _image,
     }
   }
 
-  if (_base_mip == 0 && _mip_count == _image.num_mips()) {
+  if (_base_mip == 0 && _mip_count == _image.num_mips() &&
+      possible == _components) {
     D3D12_RESOURCE_BARRIER barrier = {
         D3D12_RESOURCE_BARRIER_TYPE_TRANSITION,  // Type
         D3D12_RESOURCE_BARRIER_FLAG_NONE,        // Flags
@@ -48,18 +51,34 @@ void d3d12_command_list::transition_resource(const image& _image,
         }};
     m_command_list->ResourceBarrier(1, &barrier);
   } else {
+    uint32_t image_mip_count = _image.num_mips();
     containers::dynamic_array<D3D12_RESOURCE_BARRIER> mips(
         m_allocator, _mip_count);
-    for (uint32_t lvl = 0; lvl < _mip_count; lvl) {
-      mips[lvl] = D3D12_RESOURCE_BARRIER{
-          D3D12_RESOURCE_BARRIER_TYPE_TRANSITION,  // Type
-          D3D12_RESOURCE_BARRIER_FLAG_NONE,        // Flags
-          D3D12_RESOURCE_TRANSITION_BARRIER{
-              image_res->image.Get(),                          // pResource
-              static_cast<UINT>(lvl + _base_mip),              // subresource
-              resource_state_to_d3d12_resource_states(_from),  // StateBefore
-              resource_state_to_d3d12_resource_states(_to),    // StateAfter
-          }};
+    bool has_depth_stencil = false;
+    if (possible & static_cast<image_components>(image_component::depth) &&
+        possible & static_cast<image_components>(image_component::stencil)) {
+      has_depth_stencil = true;
+    }
+    bool request_depth = (_components & static_cast<image_components>(
+                                            image_component::depth)) != 0;
+
+    for (uint32_t plane = 0; plane <= math::popcount_sparse(_components);
+         ++plane) {
+      uint32_t plane_base = plane * image_mip_count;
+      if (!request_depth && has_depth_stencil) {
+        plane_base += image_mip_count;
+      }
+      for (uint32_t lvl = 0; lvl < _mip_count; lvl) {
+        mips[lvl] = D3D12_RESOURCE_BARRIER{
+            D3D12_RESOURCE_BARRIER_TYPE_TRANSITION,  // Type
+            D3D12_RESOURCE_BARRIER_FLAG_NONE,        // Flags
+            D3D12_RESOURCE_TRANSITION_BARRIER{
+                image_res->image.Get(),                           // pResource
+                static_cast<UINT>(plane_base + lvl + _base_mip),  // subresource
+                resource_state_to_d3d12_resource_states(_from),   // StateBefore
+                resource_state_to_d3d12_resource_states(_to),     // StateAfter
+            }};
+      }
     }
     m_command_list->ResourceBarrier(
         static_cast<UINT>(mips.size()), mips.data());

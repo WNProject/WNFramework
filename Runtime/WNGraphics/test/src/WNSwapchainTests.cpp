@@ -101,12 +101,16 @@ TEST(swapchain, basic) {
 
       wn::runtime::graphics::command_list_ptr list =
           alloc.create_command_list();
-      list->transition_resource(*swapchain->get_image_for_index(idx), 0, 1,
-          wn::runtime::graphics::resource_state::present,
+      list->transition_resource(*swapchain->get_image_for_index(idx),
+          static_cast<wn::runtime::graphics::image_components>(
+              wn::runtime::graphics::image_component::color),
+          0, 1, wn::runtime::graphics::resource_state::present,
           wn::runtime::graphics::resource_state::render_target);
 
-      list->transition_resource(*swapchain->get_image_for_index(idx), 0, 1,
-          wn::runtime::graphics::resource_state::render_target,
+      list->transition_resource(*swapchain->get_image_for_index(idx),
+          static_cast<wn::runtime::graphics::image_components>(
+              wn::runtime::graphics::image_component::color),
+          0, 1, wn::runtime::graphics::resource_state::render_target,
           wn::runtime::graphics::resource_state::present);
 
       list->finalize();

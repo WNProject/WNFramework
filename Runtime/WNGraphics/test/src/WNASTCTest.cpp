@@ -228,9 +228,10 @@ TEST_F(astc_triangle_test, basic) {
     memcpy(v, data, astc_file->size() - 32);
     image_upload_buffer.buffer.unmap();
 
-    wn::runtime::graphics::image_view texture_view = _device->create_image_view(
-        &texture, 0, 1, static_cast<wn::runtime::graphics::image_components>(
-                      wn::runtime::graphics::image_component::color));
+    wn::runtime::graphics::image_view texture_view =
+        _device->create_image_view(&texture, 0, 1,
+            static_cast<wn::runtime::graphics::image_components>(
+                wn::runtime::graphics::image_component::color));
     wn::runtime::graphics::sampler_create_info s;
     s.min = wn::runtime::graphics::sampler_filter::linear;
     s.mag = wn::runtime::graphics::sampler_filter::linear;
@@ -253,13 +254,17 @@ TEST_F(astc_triangle_test, basic) {
     setup_command_list->transition_resource(image_upload_buffer.buffer,
         wn::runtime::graphics::resource_state::host_write,
         wn::runtime::graphics::resource_state::copy_source);
-    setup_command_list->transition_resource(texture, 0, 1,
-        wn::runtime::graphics::resource_state::initial,
+    setup_command_list->transition_resource(texture,
+        static_cast<wn::runtime::graphics::image_components>(
+            wn::runtime::graphics::image_component::color),
+        0, 1, wn::runtime::graphics::resource_state::initial,
         wn::runtime::graphics::resource_state::copy_dest);
     setup_command_list->copy_buffer_to_image(
         image_upload_buffer.buffer, 0, texture, 0);
-    setup_command_list->transition_resource(texture, 0, 1,
-        wn::runtime::graphics::resource_state::copy_dest,
+    setup_command_list->transition_resource(texture,
+        static_cast<wn::runtime::graphics::image_components>(
+            wn::runtime::graphics::image_component::color),
+        0, 1, wn::runtime::graphics::resource_state::copy_dest,
         wn::runtime::graphics::resource_state::texture);
 
     setup_command_list->finalize();
@@ -285,9 +290,10 @@ TEST_F(astc_triangle_test, basic) {
                            static_cast<float>(get_height()), 0, 1}),
             &layout, &render_pass, 0);
 
-    wn::runtime::graphics::image_view image_view = _device->create_image_view(
-        _image, 0, 1, static_cast<wn::runtime::graphics::image_components>(
-                    wn::runtime::graphics::image_component::color));
+    wn::runtime::graphics::image_view image_view =
+        _device->create_image_view(_image, 0, 1,
+            static_cast<wn::runtime::graphics::image_components>(
+                wn::runtime::graphics::image_component::color));
 
     const wn::runtime::graphics::image_view* views[] = {&image_view};
 

@@ -6,6 +6,7 @@
 #include "WNGraphics/inc/Internal/Vulkan/WNBufferData.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNDataTypes.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNDevice.h"
+#include "WNGraphics/inc/Internal/Vulkan/WNImageFormats.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNResourceStates.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanCommandListContext.h"
 #include "WNGraphics/inc/WNBuffer.h"
@@ -33,8 +34,8 @@ void vulkan_command_list::finalize() {
 }
 
 void vulkan_command_list::transition_resource(const image& _image,
-    uint32_t _mip_start, uint32_t _mip_count, resource_state _from,
-    resource_state _to) {
+    const image_components& _components, uint32_t _mip_start,
+    uint32_t _mip_count, resource_state _from, resource_state _to) {
   const VkImage& image_res = get_data((&_image));
 
   VkImageMemoryBarrier barrier{
@@ -48,12 +49,12 @@ void vulkan_command_list::transition_resource(const image& _image,
       VK_QUEUE_FAMILY_IGNORED,                       // dstQueueFamilyIndex
       image_res,                                     // image
       VkImageSubresourceRange{
-          VK_IMAGE_ASPECT_COLOR_BIT,  // aspectMask
-          _mip_start,                 // baseMipLevel!
-          _mip_count,                 // levelCount
-          0,                          // baseArrayLayer
-          1,                          // layerCount
-      }                               // subresourceRange
+          image_components_to_aspect(_components),  // aspectMask
+          _mip_start,                               // baseMipLevel!
+          _mip_count,                               // levelCount
+          0,                                        // baseArrayLayer
+          1,                                        // layerCount
+      }                                             // subresourceRange
   };
 
   m_context->vkCmdPipelineBarrier(m_command_buffer,
