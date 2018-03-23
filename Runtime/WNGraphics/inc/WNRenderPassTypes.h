@@ -44,7 +44,7 @@ struct subpass_description {
   containers::contiguous_range<const attachment_reference> input_attachments;
   containers::contiguous_range<const attachment_reference> color_attachments;
   containers::contiguous_range<const attachment_reference> resolve_attachments;
-  attachment_reference* depth_stencil = nullptr;
+  const attachment_reference* depth_stencil = nullptr;
   // resource_state is unused for preserve attachments.
   containers::contiguous_range<const attachment_reference> preserve_attachments;
 };

@@ -29,6 +29,8 @@ resource_state_to_d3d12_resource_states(const resource_state _state) {
       D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER,  // read_only_buffer
       D3D12_RESOURCE_STATE_UNORDERED_ACCESS,            // read_write_buffer
       D3D12_RESOURCE_STATE_RENDER_TARGET,               // render_target
+      D3D12_RESOURCE_STATE_DEPTH_WRITE |
+          D3D12_RESOURCE_STATE_DEPTH_READ,  // depth_target
       D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE |
           D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,  // texture
       D3D12_RESOURCE_STATE_PRESENT                     // present
@@ -38,8 +40,7 @@ resource_state_to_d3d12_resource_states(const resource_state _state) {
                     static_cast<uint32_t>(resource_state::max),
       "Expected the number of resource states and D3D12_RESOURCE_STATES to "
       "match");
-  WN_DEBUG_ASSERT(
-      _state < resource_state::max, "Resource state out of bounds");
+  WN_DEBUG_ASSERT(_state < resource_state::max, "Resource state out of bounds");
 
   if (_state == resource_state::initial) {
     return states[0];
@@ -54,6 +55,9 @@ static WN_FORCE_INLINE D3D12_RESOURCE_FLAGS resources_states_to_resource_flags(
 
   if (_state & static_cast<uint32_t>(resource_state::render_target)) {
     flags |= D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
+  }
+  if (_state & static_cast<uint32_t>(resource_state::depth_target)) {
+    flags |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
   }
   return flags;
 }

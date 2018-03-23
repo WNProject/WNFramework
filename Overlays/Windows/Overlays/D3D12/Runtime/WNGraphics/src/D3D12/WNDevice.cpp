@@ -1326,7 +1326,13 @@ bool d3d12_device::initialize(memory::allocator* _allocator, logging::log* _log,
           allow_buffers,  // allow buffers
           allow_images,   // allow images
           allow_rt_ds,    // allow render target views
-          allow_rt_ds     // allow depth stencil
+          allow_rt_ds,    // allow_d16_u
+          false,          // allow_d24_u
+          allow_rt_ds,    // allow_d32_f
+          false,          // allow_s8
+          false,          // allow_d16_us8
+          allow_rt_ds,    // allow_d24_us8
+          allow_rt_ds,    // allow_d32_fs8
       });
     }
   }

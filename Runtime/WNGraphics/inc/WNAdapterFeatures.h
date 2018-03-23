@@ -83,6 +83,17 @@ struct adapter_features {
     return true;
   }
 };
+
+struct adapter_formats {
+  bool has_d16_unorm = false;
+  bool has_d24_unorm = false;
+  bool has_d32_float = false;
+  bool has_s8_unorm = false;
+  bool has_d16_unorm_s8_unorm = false;
+  bool has_d24_unorm_s8_unorm = false;
+  bool has_d32_float_s8_unorm = false;
+};
+
 }  // namespace graphics
 }  // namespace runtime
 }  // namespace wn

@@ -73,6 +73,10 @@ public:
     return m_adapter_features;
   }
 
+  const adapter_formats& get_formats() const WN_GRAPHICS_OVERRIDE_FINAL {
+    return m_adapter_formats;
+  }
+
   WN_FORCE_INLINE containers::string_view name() const
       WN_GRAPHICS_OVERRIDE_FINAL {
     return m_name;
@@ -115,11 +119,17 @@ protected:
     m_adapter_features.bc_textures = true;
     m_adapter_features.geometry = true;
     m_adapter_features.tessellation = true;
+
+    m_adapter_formats.has_d16_unorm = true;
+    m_adapter_formats.has_d32_float = true;
+    m_adapter_formats.has_d24_unorm_s8_unorm = true;
+    m_adapter_formats.has_d32_float_s8_unorm = true;
   }
 
   Microsoft::WRL::ComPtr<IDXGIAdapter1> m_adapter;
   Microsoft::WRL::ComPtr<IDXGIFactory4> m_factory;
   adapter_features m_adapter_features;
+  adapter_formats m_adapter_formats;
   containers::string m_name;
   logging::log* m_log;
   api_type m_api;

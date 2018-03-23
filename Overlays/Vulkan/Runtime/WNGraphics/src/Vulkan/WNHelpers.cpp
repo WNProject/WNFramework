@@ -123,6 +123,7 @@ memory::intrusive_ptr<vulkan_context> get_vulkan_context(
   LOAD_VK_SYMBOL(context->instance, vkGetPhysicalDeviceMemoryProperties);
   LOAD_VK_SYMBOL(context->instance, vkGetPhysicalDeviceSurfaceSupportKHR);
   LOAD_VK_SYMBOL(context->instance, vkGetPhysicalDeviceFeatures);
+  LOAD_VK_SYMBOL(context->instance, vkGetPhysicalDeviceFormatProperties);
 
   return wn::core::move(context);
 }

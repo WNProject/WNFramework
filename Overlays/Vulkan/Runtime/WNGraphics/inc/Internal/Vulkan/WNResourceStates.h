@@ -30,15 +30,16 @@ static WN_FORCE_INLINE VkFlags resource_state_to_vulkan_access_flags(
       VK_ACCESS_SHADER_READ_BIT |
           VK_ACCESS_SHADER_WRITE_BIT,        // read_write_buffer
       VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,  // render_target
-      VK_ACCESS_SHADER_READ_BIT,             // texture
-      VK_ACCESS_MEMORY_READ_BIT              // present
+      VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT |
+          VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT,  // depth_target
+      VK_ACCESS_SHADER_READ_BIT,                        // texture
+      VK_ACCESS_MEMORY_READ_BIT                         // present
   };
 
   static_assert((1 << (sizeof(states) / sizeof(states[0]) - 2)) + 1 ==
                     static_cast<uint32_t>(resource_state::max),
       "Expected the number of VKImageUsage and resources_states to match");
-  WN_DEBUG_ASSERT(
-      _state < resource_state::max, "Resource state out of bounds");
+  WN_DEBUG_ASSERT(_state < resource_state::max, "Resource state out of bounds");
   if (_state == resource_state::initial) {
     return states[0];
   }
@@ -49,25 +50,25 @@ static WN_FORCE_INLINE VkFlags resource_state_to_vulkan_access_flags(
 static WN_FORCE_INLINE VkImageLayout resource_state_to_vulkan_layout(
     resource_state _state) {
   static const VkImageLayout layouts[] = {
-      VK_IMAGE_LAYOUT_UNDEFINED,                 // initial
-      VK_IMAGE_LAYOUT_GENERAL,                   // host_write
-      VK_IMAGE_LAYOUT_GENERAL,                   // host_read
-      VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,      // copy_source
-      VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,      // copy_dest
-      VK_IMAGE_LAYOUT_UNDEFINED,                 // index_buffer
-      VK_IMAGE_LAYOUT_UNDEFINED,                 // vertex_buffer
-      VK_IMAGE_LAYOUT_UNDEFINED,                 // read_only_buffer
-      VK_IMAGE_LAYOUT_UNDEFINED,                 // read_write_buffer
-      VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,  // render_target
-      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,  // texture
-      VK_IMAGE_LAYOUT_PRESENT_SRC_KHR            // present
+      VK_IMAGE_LAYOUT_UNDEFINED,                         // initial
+      VK_IMAGE_LAYOUT_GENERAL,                           // host_write
+      VK_IMAGE_LAYOUT_GENERAL,                           // host_read
+      VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,              // copy_source
+      VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,              // copy_dest
+      VK_IMAGE_LAYOUT_UNDEFINED,                         // index_buffer
+      VK_IMAGE_LAYOUT_UNDEFINED,                         // vertex_buffer
+      VK_IMAGE_LAYOUT_UNDEFINED,                         // read_only_buffer
+      VK_IMAGE_LAYOUT_UNDEFINED,                         // read_write_buffer
+      VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,          // render_target
+      VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,  // depth_target
+      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,          // texture
+      VK_IMAGE_LAYOUT_PRESENT_SRC_KHR                    // present
   };
 
   static_assert((1 << (sizeof(layouts) / sizeof(layouts[0]) - 2)) + 1 ==
                     static_cast<uint32_t>(resource_state::max),
       "Expected the number of VkImageLayouts and resources_states to match");
-  WN_DEBUG_ASSERT(
-      _state < resource_state::max, "Resource state out of bounds");
+  WN_DEBUG_ASSERT(_state < resource_state::max, "Resource state out of bounds");
   if (_state == resource_state::initial) {
     return layouts[0];
   }
@@ -146,6 +147,7 @@ static WN_FORCE_INLINE VkFlags resource_state_to_vulkan_pipeline_stage(
       VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,             // read_only_buffer
       VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,             // read_write_buffer
       VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,  // render_target
+      VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,     // depth_target
       VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,             // texture
       VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT   // present
   };
@@ -153,8 +155,7 @@ static WN_FORCE_INLINE VkFlags resource_state_to_vulkan_pipeline_stage(
   static_assert((1 << (sizeof(states) / sizeof(states[0]) - 2)) + 1 ==
                     static_cast<uint32_t>(resource_state::max),
       "Expected the number of VkFlags and resources_states to match");
-  WN_DEBUG_ASSERT(
-      _state < resource_state::max, "Resource state out of bounds");
+  WN_DEBUG_ASSERT(_state < resource_state::max, "Resource state out of bounds");
   if (_state == resource_state::initial) {
     return states[0];
   }
@@ -173,6 +174,9 @@ static WN_FORCE_INLINE VkImageUsageFlags resources_states_to_usage_bits(
   }
   if (_state & static_cast<uint32_t>(resource_state::render_target)) {
     usage |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+  }
+  if (_state & static_cast<uint32_t>(resource_state::depth_target)) {
+    usage |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
   }
   if (_state & static_cast<uint32_t>(resource_state::texture)) {
     usage |= VK_IMAGE_USAGE_SAMPLED_BIT;

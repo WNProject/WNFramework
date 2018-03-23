@@ -58,9 +58,20 @@ struct vulkan_context : public memory::intrusive_ptr_base {
   PFN_vkGetPhysicalDeviceMemoryProperties vkGetPhysicalDeviceMemoryProperties;
   PFN_vkGetPhysicalDeviceSurfaceSupportKHR vkGetPhysicalDeviceSurfaceSupportKHR;
   PFN_vkGetPhysicalDeviceFeatures vkGetPhysicalDeviceFeatures;
+  PFN_vkGetPhysicalDeviceFormatProperties vkGetPhysicalDeviceFormatProperties;
   library_type library;
   // TODO(awoloszyn): Fill this out as we need more functions.
   // TODO(awoloszyn): Add allocators to vulkan.
+};
+
+struct supported_depth_formats {
+  bool allow_d16_u;
+  bool allow_d24_u;
+  bool allow_d32_f;
+  bool allow_s8;
+  bool allow_d16_us8;
+  bool allow_d24_us8;
+  bool allow_d32_fs8;
 };
 
 using vulkan_context_ptr = memory::intrusive_ptr<vulkan_context>;

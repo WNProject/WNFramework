@@ -113,7 +113,8 @@ device_ptr vulkan_adapter::make_device(memory::allocator* _allocator,
 
   if (ptr) {
     if (!ptr->initialize(_allocator, _log, vk_device,
-            m_context->vkDestroyDevice, &m_memory_properties, m_context.get(),
+            m_context->vkDestroyDevice, &m_memory_properties,
+            &m_adapter_formats, m_context.get(),
             m_compute_and_graphics_queue)) {
       return nullptr;
     }
@@ -135,6 +136,26 @@ void vulkan_adapter::initialize_device() {
   m_adapter_features.geometry = features.geometryShader == VK_TRUE;
   m_adapter_features.tessellation = features.tessellationShader == VK_TRUE;
   m_adapter_features.input_attachments = true;
+
+  struct {
+    VkFormat format;
+    bool* format_supported;
+  } format_checks[] = {{VK_FORMAT_D16_UNORM, &m_adapter_formats.has_d16_unorm},
+      {VK_FORMAT_X8_D24_UNORM_PACK32, &m_adapter_formats.has_d24_unorm},
+      {VK_FORMAT_D32_SFLOAT, &m_adapter_formats.has_d32_float},
+      {VK_FORMAT_S8_UINT, &m_adapter_formats.has_s8_unorm},
+      {VK_FORMAT_D16_UNORM_S8_UINT, &m_adapter_formats.has_d16_unorm_s8_unorm},
+      {VK_FORMAT_D24_UNORM_S8_UINT, &m_adapter_formats.has_d24_unorm_s8_unorm },
+      {VK_FORMAT_D32_SFLOAT_S8_UINT, &m_adapter_formats.has_d32_float_s8_unorm }};
+
+  VkFormatProperties properties;
+  for (auto& format : format_checks) {
+    m_context->vkGetPhysicalDeviceFormatProperties(
+        m_physical_device, format.format, &properties);
+    *format.format_supported =
+        (properties.optimalTilingFeatures &
+            (VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT)) != 0;
+  }
 }
 
 graphics_error vulkan_adapter::initialize_surface(

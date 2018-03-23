@@ -14,6 +14,7 @@
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanQueueContext.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanSurfaceHelper.h"
 #include "WNGraphics/inc/Internal/WNConfig.h"
+#include "WNGraphics/inc/WNAdapterFeatures.h"
 #include "WNGraphics/inc/WNArenaProperties.h"
 #include "WNGraphics/inc/WNDescriptorData.h"
 #include "WNGraphics/inc/WNFramebufferData.h"
@@ -124,7 +125,8 @@ protected:
   bool initialize(memory::allocator* _allocator, logging::log* _log,
       VkDevice _device, PFN_vkDestroyDevice _destroy_device,
       const VkPhysicalDeviceMemoryProperties* _memory_properties,
-      vulkan_context* _context, uint32_t _graphics_and_device_queue);
+      const adapter_formats* _depth_formats, vulkan_context* _context,
+      uint32_t _graphics_and_device_queue);
 
   // image methods
   void initialize_image(const image_create_info& _info,
@@ -339,6 +341,7 @@ private:
   VkDevice m_device;
   std::atomic<VkQueue> m_queue;
   const VkPhysicalDeviceMemoryProperties* m_physical_device_memory_properties;
+  const adapter_formats* m_supported_formats;
   memory::allocator* m_allocator;
   logging::log* m_log;
 };

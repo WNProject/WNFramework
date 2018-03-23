@@ -77,6 +77,10 @@ public:
     return m_adapter_features;
   }
 
+  const adapter_formats& get_formats() const WN_GRAPHICS_OVERRIDE_FINAL {
+    return m_adapter_formats;
+  }
+
   WN_FORCE_INLINE containers::string_view name() const
       WN_GRAPHICS_OVERRIDE_FINAL {
     return m_name;
@@ -130,6 +134,7 @@ protected:
   VkPhysicalDevice m_physical_device;
 
   adapter_features m_adapter_features;
+  adapter_formats m_adapter_formats;
   containers::string m_name;
   logging::log* m_log;
   surface_helper m_surface_helper;

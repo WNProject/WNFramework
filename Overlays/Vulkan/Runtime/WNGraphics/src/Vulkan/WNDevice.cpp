@@ -93,7 +93,8 @@ vulkan_device::~vulkan_device() {
 bool vulkan_device::initialize(memory::allocator* _allocator,
     logging::log* _log, VkDevice _device, PFN_vkDestroyDevice _destroy_device,
     const VkPhysicalDeviceMemoryProperties* _memory_properties,
-    vulkan_context* _context, uint32_t _graphics_and_device_queue) {
+    const adapter_formats* _formats, vulkan_context* _context,
+    uint32_t _graphics_and_device_queue) {
   m_allocator = _allocator;
   m_log = _log;
   vkDestroyDevice = _destroy_device;
@@ -101,6 +102,7 @@ bool vulkan_device::initialize(memory::allocator* _allocator,
   m_queue = VK_NULL_HANDLE;
   m_physical_device_memory_properties = _memory_properties;
   m_arena_properties = containers::dynamic_array<arena_properties>(m_allocator);
+  m_supported_formats = _formats;
 
   vkGetDeviceProcAddr =
       reinterpret_cast<PFN_vkGetDeviceProcAddr>(_context->vkGetInstanceProcAddr(
@@ -1190,20 +1192,84 @@ bool vulkan_device::setup_arena_properties() {
 
   m_arena_properties.reserve(memory_type_count);
 
+  struct {
+    VkFormat format;
+    bool supported;
+    uint32_t format_heaps;
+  } format_checks[] = {
+      {VK_FORMAT_D16_UNORM, m_supported_formats->has_d16_unorm, 0},
+      {VK_FORMAT_X8_D24_UNORM_PACK32, m_supported_formats->has_d24_unorm, 0},
+      {VK_FORMAT_D32_SFLOAT, m_supported_formats->has_d32_float, 0},
+      {VK_FORMAT_S8_UINT, m_supported_formats->has_s8_unorm},
+      {VK_FORMAT_D16_UNORM_S8_UINT, m_supported_formats->has_d16_unorm_s8_unorm,
+          0},
+      {VK_FORMAT_D24_UNORM_S8_UINT, m_supported_formats->has_d24_unorm_s8_unorm,
+          0},
+      {VK_FORMAT_D32_SFLOAT_S8_UINT,
+          m_supported_formats->has_d32_float_s8_unorm, 0}};
+
+  for (auto& format : format_checks) {
+    if (!format.supported) {
+      continue;
+    }
+
+    const VkImageCreateInfo depth_image_create_info = {
+        VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,  // sType
+        nullptr,                              // pNext
+        0,                                    // flags
+        VK_IMAGE_TYPE_2D,                     // imageType
+        format.format,                        // format
+        VkExtent3D{1, 1, 1},                  // extent
+        1,                                    // mipLevels
+        1,                                    // arrayLayers
+        VK_SAMPLE_COUNT_1_BIT,                // samples
+        VK_IMAGE_TILING_OPTIMAL,              // tiling
+        VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT |
+            VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT,  // usage
+        VK_SHARING_MODE_EXCLUSIVE,                // sharingMode
+        0,                                        // queueFamilyIndexCount
+        nullptr,                                  // pQueueFamilyIndices
+        VK_IMAGE_LAYOUT_UNDEFINED                 // initialLayout
+    };
+    VkImage depth_test_image;
+
+    if (vkCreateImage(m_device, &depth_image_create_info, nullptr,
+            &depth_test_image) != VK_SUCCESS) {
+      return false;
+    }
+
+    VkMemoryRequirements depth_image_requirements;
+
+    vkGetImageMemoryRequirements(
+        m_device, depth_test_image, &depth_image_requirements);
+
+    vkDestroyImage(m_device, depth_test_image, nullptr);
+
+    format.format_heaps = depth_image_requirements.memoryTypeBits;
+  }
+
   for (size_t i = 0; i < memory_type_count; ++i) {
+    size_t heap_bit = static_cast<size_t>(1) << i;
     const VkMemoryType& current_memory_types =
         m_physical_device_memory_properties->memoryTypes[i];
     const VkMemoryPropertyFlags& property_flags =
         current_memory_types.propertyFlags;
     const bool allows_image_and_render_targets =
-        (((1 << i) & image_heaps) != 0);
+        ((heap_bit & image_heaps) != 0);
     const arena_properties new_arena_properties = {
         ((property_flags & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT) != 0),
         ((property_flags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) != 0),
         ((property_flags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) != 0),
         ((property_flags & VK_MEMORY_PROPERTY_HOST_CACHED_BIT) != 0),
         (((1 << i) & buffer_heaps) != 0), allows_image_and_render_targets,
-        allows_image_and_render_targets, false};
+        allows_image_and_render_targets,
+        ((heap_bit & format_checks[0].format_heaps) != 0),
+        ((heap_bit & format_checks[1].format_heaps) != 0),
+        ((heap_bit & format_checks[2].format_heaps) != 0),
+        ((heap_bit & format_checks[3].format_heaps) != 0),
+        ((heap_bit & format_checks[4].format_heaps) != 0),
+        ((heap_bit & format_checks[5].format_heaps) != 0),
+        ((heap_bit & format_checks[6].format_heaps) != 0)};
 
     m_arena_properties.push_back(new_arena_properties);
   }

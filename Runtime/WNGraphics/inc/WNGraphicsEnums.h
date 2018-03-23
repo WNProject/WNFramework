@@ -21,6 +21,15 @@ enum class data_format {
   r32g32b32_sfloat,
   r32g32_sfloat,
 
+  // Depth/Stencil formats
+  d16_unorm,
+  d24_unorm,
+  d32_float,
+  s8_unorm,
+  d16_unorm_s8_uint,
+  d24_unorm_s8_uint,
+  d32_float_s8_uint,
+
   // Block compressed formats
   // ASTC
   astc_4x4,
@@ -147,6 +156,7 @@ WN_FORCE_INLINE bool is_format_normalized(data_format _format) {
     case data_format::r32g32b32a32_sfloat:
     case data_format::r32g32b32_sfloat:
     case data_format::r32g32_sfloat:
+      return true;
     case data_format::astc_4x4:
     case data_format::astc_5x4:
     case data_format::astc_5x5:
@@ -161,10 +171,19 @@ WN_FORCE_INLINE bool is_format_normalized(data_format _format) {
     case data_format::astc_10x10:
     case data_format::astc_12x10:
     case data_format::astc_12x12:
+      return true;
     case data_format::bc1_rgb:
     case data_format::bc1_rgba:
     case data_format::bc2:
     case data_format::bc3:
+      return true;
+    case data_format::d16_unorm:
+    case data_format::d24_unorm:
+    case data_format::d32_float:
+    case data_format::s8_unorm:
+    case data_format::d16_unorm_s8_uint:
+    case data_format::d24_unorm_s8_uint:
+    case data_format::d32_float_s8_uint:
       return true;
     case data_format::max:
       return false;
@@ -194,6 +213,7 @@ WN_FORCE_INLINE bool is_format_uint(data_format _format) {
     case data_format::r32g32b32a32_sfloat:
     case data_format::r32g32b32_sfloat:
     case data_format::r32g32_sfloat:
+      return false;
     case data_format::astc_4x4:
     case data_format::astc_5x4:
     case data_format::astc_5x5:
@@ -212,6 +232,14 @@ WN_FORCE_INLINE bool is_format_uint(data_format _format) {
     case data_format::bc1_rgba:
     case data_format::bc2:
     case data_format::bc3:
+      return false;
+    case data_format::d16_unorm:
+    case data_format::d24_unorm:
+    case data_format::d32_float:
+    case data_format::s8_unorm:
+    case data_format::d16_unorm_s8_uint:
+    case data_format::d24_unorm_s8_uint:
+    case data_format::d32_float_s8_uint:
       return false;
     case data_format::max:
       return false;
@@ -226,6 +254,7 @@ WN_FORCE_INLINE bool is_format_int(data_format _format) {
     case data_format::r32g32b32a32_sfloat:
     case data_format::r32g32b32_sfloat:
     case data_format::r32g32_sfloat:
+      return false;
     case data_format::astc_4x4:
     case data_format::astc_5x4:
     case data_format::astc_5x5:
@@ -244,6 +273,14 @@ WN_FORCE_INLINE bool is_format_int(data_format _format) {
     case data_format::bc1_rgba:
     case data_format::bc2:
     case data_format::bc3:
+      return false;
+    case data_format::d16_unorm:
+    case data_format::d24_unorm:
+    case data_format::d32_float:
+    case data_format::s8_unorm:
+    case data_format::d16_unorm_s8_uint:
+    case data_format::d24_unorm_s8_uint:
+    case data_format::d32_float_s8_uint:
       return false;
     case data_format::max:
       return false;
@@ -423,8 +460,9 @@ enum class resource_state : uint32_t {
   read_only_buffer = 1 << 6,
   read_write_buffer = 1 << 7,
   render_target = 1 << 8,
-  texture = 1 << 9,
-  present = 1 << 10,
+  depth_target = 1 << 9,
+  texture = 1 << 10,
+  present = 1 << 11,
   max,
 };
 

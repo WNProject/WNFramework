@@ -67,6 +67,7 @@ public:
 
   virtual const adapter_features& get_features() const = 0;
 
+  virtual const adapter_formats& get_formats() const = 0;
 private:
   friend class surface;
   virtual void destroy_surface(surface* _surface) = 0;
