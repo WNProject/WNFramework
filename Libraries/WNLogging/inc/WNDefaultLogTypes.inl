@@ -179,6 +179,8 @@ struct log_type_helper<wn::containers::dynamic_array<T, N>, BuffType> {
 
 DEFINE_DEFAULT_LOG(int32_t, "%d");
 DEFINE_DEFAULT_LOG(uint32_t, "%d");
+DEFINE_DEFAULT_LOG(float, "%f");
+DEFINE_DEFAULT_LOG(double, "%f");
 #ifdef _WN_WINDOWS
 DEFINE_DEFAULT_LOG(int64_t, "%I64d");
 DEFINE_DEFAULT_LOG(uint64_t, "%I64u");
