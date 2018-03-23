@@ -11,10 +11,11 @@
 
 extern "C" {
 
-int wn_get_context(ucontext_t* _ucontext);
-int __noreturn wn_set_context(ucontext_t* _ucontext);
-int wn_swap_context(ucontext_t* from, ucontext_t* to);
-void wn_make_context(ucontext_t* c, void (*func)(void*), void* data);
+int wn_get_context(ucontext_t* _context);
+int __noreturn wn_set_context(ucontext_t* _context);
+int wn_swap_context(ucontext_t* _from, ucontext_t* _to);
+void wn_make_context(
+    ucontext_t* _context, void (*_function)(void*), void* _data);
 
 }  // extern "C"
 

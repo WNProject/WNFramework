@@ -9,14 +9,15 @@
 
 extern "C" {
 
-void wn_fiber_entry(ucontext_t* c, void (*func)(void*), void* data) {
-  func(data);
+void wn_fiber_entry(
+    ucontext_t* _context, void (*_function)(void*), void* _data) {
+  _function(_data);
 
-  if (!c) {
+  if (!_context) {
     ::pthread_exit(0);
   }
 
-  wn_set_context(c);
+  wn_set_context(_context);
 }
 
 }  // extern "C"

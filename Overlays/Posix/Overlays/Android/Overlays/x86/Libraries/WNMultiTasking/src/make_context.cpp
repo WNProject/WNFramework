@@ -10,25 +10,27 @@
 
 extern "C" {
 
-void wn_make_context(ucontext_t* c, void (*func)(void*), void* data) {
-  WN_RELEASE_ASSERT(
-      NULL != c->uc_stack.ss_sp, "stack pointer must be non-null");
-  WN_RELEASE_ASSERT(
-      4 * 64 < c->uc_stack.ss_size, "The stack must be larger than 64 words");
+void wn_make_context(
+    ucontext_t* _context, void (*_function)(void*), void* _data) {
+  WN_RELEASE_ASSERT(_context->uc_stack.ss_sp, "stack pointer must be non-null");
+  WN_RELEASE_ASSERT(4 * 64 < _context->uc_stack.ss_size,
+      "The stack must be larger than 64 words");
 
   uintptr_t top_of_stack =
-      reinterpret_cast<uintptr_t>(c->uc_stack.ss_sp) + c->uc_stack.ss_size;
+      reinterpret_cast<uintptr_t>(_context->uc_stack.ss_sp) +
+      _context->uc_stack.ss_size;
   top_of_stack = (top_of_stack - 1) & ~31;
 
   void** sp = reinterpret_cast<void**>(top_of_stack);
 
-  c->uc_mcontext.gregs[REG_EBP] = reinterpret_cast<greg_t>(sp);
-  c->uc_mcontext.gregs[REG_ESP] = reinterpret_cast<greg_t>(sp - 3);
-  c->uc_mcontext.gregs[REG_EIP] = reinterpret_cast<greg_t>(&wn_fiber_entry);
+  _context->uc_mcontext.gregs[REG_EBP] = reinterpret_cast<greg_t>(sp);
+  _context->uc_mcontext.gregs[REG_ESP] = reinterpret_cast<greg_t>(sp - 3);
+  _context->uc_mcontext.gregs[REG_EIP] =
+      reinterpret_cast<greg_t>(&wn_fiber_entry);
 
-  sp[0] = data;
-  sp[-1] = reinterpret_cast<void*>(func);
-  sp[-2] = c->uc_link;
+  sp[0] = _data;
+  sp[-1] = reinterpret_cast<void*>(_function);
+  sp[-2] = _context->uc_link;
 }
 
 }  // extern "C"

@@ -13,7 +13,8 @@
 
 extern "C" {
 
-void wn_fiber_entry(ucontext_t* c, void (*func)(void*), void* data);
+void wn_fiber_entry(
+    ucontext_t* _context, void (*_function)(void*), void* _data);
 
 }  // extern "C"
 
