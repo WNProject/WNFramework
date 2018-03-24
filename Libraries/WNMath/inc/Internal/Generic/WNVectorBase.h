@@ -211,6 +211,12 @@ public:
   WN_FORCE_INLINE void normalize() {
     base::multiply_assign(inverse_length());
   }
+
+  WN_FORCE_INLINE VectorType<T, Dimension, Precise> normalized() {
+    VectorType<T, Dimension, Precise> v = *this;
+    v.normalize();
+    return v;
+  }
 };
 
 template <template <typename, size_t, bool> class VectorType, typename T,
