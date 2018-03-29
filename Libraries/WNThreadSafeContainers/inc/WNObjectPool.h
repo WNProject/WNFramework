@@ -126,8 +126,11 @@ public:
       m_reset_function(_reset_function) {}
 
   object_pool(memory::allocator* _allocator, const T& object_template)
-    : object_pool(_allocator, copyable_object(object_template),
-          resettable_object(object_template)) {}
+    : object_pool(_allocator,
+          functional::function<T()>(
+              _allocator, copyable_object(object_template)),
+          functional::function<void(T*)>(
+              _allocator, resettable_object(object_template))) {}
 
   unmanaged_object_t get_unmanaged();
   void release_unmanaged(unmanaged_object_t& object);

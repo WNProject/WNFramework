@@ -259,10 +259,12 @@ public:
   template <typename Callable, typename... Args>
   void call_blocking_function_in_job(
       job_signal* _signal, Callable&& func, Args... args) {
-    functional::function<void()> f = std::bind(func, args...);
-    add_job_internal(
-        memory::make_unique<unsynchronized_job<decltype(f)>>(m_allocator,
-            _signal, [f]() { this_job_pool()->call_blocking_function(f); }));
+    functional::function<void()> f(m_allocator, std::bind(func, args...));
+
+    add_job_internal(memory::make_unique<unsynchronized_job<decltype(f)>>(
+        m_allocator, _signal, functional::function<void()>(m_allocator, [f]() {
+          this_job_pool()->call_blocking_function(f);
+        })));
   }
 
   template <typename Callable, typename... Args>

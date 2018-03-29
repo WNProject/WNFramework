@@ -159,22 +159,26 @@ TEST(job_pool, wake_job_from_main_thread) {
 }
 
 TEST(job_pool, blocking_call) {
-  wn::testing::allocator m_allocator;
-  {  // The only way to make sure a job_pool has finished all jobs
+  wn::testing::allocator allocator;
+
+  {
+    // The only way to make sure a job_pool has finished all jobs
     // is to destroy it.
-    wn::multi_tasking::thread_job_pool pool(&m_allocator, 1);
+    wn::multi_tasking::thread_job_pool pool(&allocator, 1);
     {
       wn::multi_tasking::semaphore sem;
       wn::multi_tasking::semaphore sem2;
       wn::multi_tasking::semaphore last_wait;
 
       pool.add_unsynchronized_job(nullptr, [&]() {
-        pool.call_blocking_function(wn::functional::function<void()>([&]() {
-          sem2.notify();
-          sem.wait();
-          last_wait.notify();
-        }));
+        pool.call_blocking_function(
+            wn::functional::function<void()>(&allocator, [&]() {
+              sem2.notify();
+              sem.wait();
+              last_wait.notify();
+            }));
       });
+
       sem2.wait();
       pool.add_unsynchronized_job(nullptr, [&]() { sem.notify(); });
       last_wait.wait();

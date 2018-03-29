@@ -43,8 +43,8 @@ public:
 
     create(_allocator, _attributes,
         functional::function<void()>(
-            std::bind(core::decay_copy(core::forward<F>(_f)),
-                core::decay_copy(core::forward<Args>(_args))...)));
+            _allocator, std::bind(core::decay_copy(core::forward<F>(_f)),
+                            core::decay_copy(core::forward<Args>(_args))...)));
   }
 
   template <typename F, typename... Args,

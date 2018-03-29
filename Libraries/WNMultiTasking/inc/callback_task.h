@@ -26,12 +26,15 @@ public:
   typedef R result_type;
 
   template <typename F, typename... Args>
-  WN_FORCE_INLINE callback_task(F&& f, Args&&... args) : thread_task() {
+  WN_FORCE_INLINE callback_task(
+      memory::allocator* _allocator, F&& f, Args&&... args)
+    : thread_task() {
     static_assert(core::is_same<R, core::result_of_t<F(Args...)>>::value,
         "thread function return type does not match thread return type");
 
-    m_callback = std::bind(core::decay_copy(core::forward<F>(f)),
-        core::decay_copy(core::forward<Args>(args))...);
+    m_callback = functional::function<R()>(
+        _allocator, std::bind(core::decay_copy(core::forward<F>(f)),
+                        core::decay_copy(core::forward<Args>(args))...));
   }
 
   virtual ~callback_task() override = default;
@@ -63,12 +66,15 @@ public:
   typedef void result_type;
 
   template <typename F, typename... Args>
-  WN_FORCE_INLINE callback_task(F&& f, Args&&... args) : thread_task() {
+  WN_FORCE_INLINE callback_task(
+      memory::allocator* _allocator, F&& f, Args&&... args)
+    : thread_task() {
     static_assert(core::is_same<void, core::result_of_t<F(Args...)>>::value,
         "thread function return type does not match thread return type");
 
-    m_callback = std::bind(core::decay_copy(core::forward<F>(f)),
-        core::decay_copy(core::forward<Args>(args))...);
+    m_callback = functional::function<void()>(
+        _allocator, std::bind(core::decay_copy(core::forward<F>(f)),
+                        core::decay_copy(core::forward<Args>(args))...));
   }
 
   virtual ~callback_task() override = default;
@@ -88,7 +94,7 @@ template <typename R, typename... Args>
 WN_FORCE_INLINE callback_task_ptr<R> make_callback_task(
     memory::allocator* _allocator, Args&&... _args) {
   return memory::make_intrusive<callback_task<R>>(
-      _allocator, core::forward<Args>(_args)...);
+      _allocator, _allocator, core::forward<Args>(_args)...);
 }
 
 }  // namespace multi_tasking

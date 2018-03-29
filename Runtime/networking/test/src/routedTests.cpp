@@ -49,7 +49,7 @@ TEST(networking_rt, basic_routed) {
       &error,
       wn::multi_tasking::make_unsynchronized_callback<routed_message>(allocator,
           wn::functional::function<void(routed_message message)>(
-              [&](routed_message message) {
+              allocator, [&](routed_message message) {
                 received.append(message.data().data(), message.data().size());
                 got_message.increment(1);
               })));
@@ -62,11 +62,11 @@ TEST(networking_rt, basic_routed) {
   job_pool->add_job(nullptr, &routed_accept_connection::accept, accept->get(),
       wn::multi_tasking::make_unsynchronized_callback<routed_message>(
           allocator, wn::functional::function<void(routed_message)>(
-                         [](routed_message) {})),
+                         allocator, [](routed_message) {})),
       wn::multi_tasking::make_unsynchronized_callback<
           sync_ptr<routed_connection>, wn::networking::network_error>(
           allocator, wn::functional::function<void(sync_ptr<routed_connection>,
-                         wn::networking::network_error)>(
+                         wn::networking::network_error)>(allocator,
                          [&](sync_ptr<routed_connection> c,
                              wn::networking::network_error err) {
                            if (err == wn::networking::network_error::ok) {
@@ -123,7 +123,7 @@ TEST(networking_rt, non_default_route) {
       &error,
       wn::multi_tasking::make_unsynchronized_callback<routed_message>(
           allocator, wn::functional::function<void(routed_message message)>(
-                         [&](routed_message) {})));
+                         allocator, [&](routed_message) {})));
 
   listening.wait_until(2);
 
@@ -132,7 +132,7 @@ TEST(networking_rt, non_default_route) {
       wn::runtime::networking::route(1u),
       wn::multi_tasking::make_unsynchronized_callback<routed_message>(allocator,
           wn::functional::function<void(routed_message message)>(
-              [&](routed_message message) {
+              allocator, [&](routed_message message) {
                 received.append(message.data().data(), message.data().size());
                 got_message.increment(1);
               })));
@@ -141,11 +141,11 @@ TEST(networking_rt, non_default_route) {
   job_pool->add_job(nullptr, &routed_accept_connection::accept, accept->get(),
       wn::multi_tasking::make_unsynchronized_callback<routed_message>(
           allocator, wn::functional::function<void(routed_message)>(
-                         [](routed_message) {})),
+                         allocator, [](routed_message) {})),
       wn::multi_tasking::make_unsynchronized_callback<
           sync_ptr<routed_connection>, wn::networking::network_error>(
           allocator, wn::functional::function<void(sync_ptr<routed_connection>,
-                         wn::networking::network_error)>(
+                         wn::networking::network_error)>(allocator,
                          [&](sync_ptr<routed_connection> c,
                              wn::networking::network_error err) {
                            if (err == wn::networking::network_error::ok) {
@@ -241,11 +241,11 @@ TEST(networking_rt, multi_message) {
   job_pool->add_job(nullptr, &routed_accept_connection::accept, accept->get(),
       wn::multi_tasking::make_unsynchronized_callback<routed_message>(
           allocator, wn::functional::function<void(routed_message)>(
-                         [](routed_message) {})),
+                         allocator, [](routed_message) {})),
       wn::multi_tasking::make_unsynchronized_callback<
           sync_ptr<routed_connection>, wn::networking::network_error>(
           allocator, wn::functional::function<void(sync_ptr<routed_connection>,
-                         wn::networking::network_error)>(
+                         wn::networking::network_error)>(allocator,
                          [&](sync_ptr<routed_connection> c,
                              wn::networking::network_error err) {
                            if (err == wn::networking::network_error::ok) {

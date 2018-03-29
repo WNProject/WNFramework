@@ -90,14 +90,14 @@ TEST(networking_rt, accept_cleans_up) {
 
   wn::functional::function<void(
       sync_ptr<connection>, wn::networking::network_error)>
-      cb = [&i](sync_ptr<connection> connection,
-               wn::networking::network_error error) {
+      cb(allocator, [&i](sync_ptr<connection> connection,
+                        wn::networking::network_error error) {
         if (error == wn::networking::network_error::aborted) {
           i += 1;
         } else {
           i += 2;
         }
-      };
+      });
   {
     job_signal listening(0);
     sync_ptr<accept_connection> accept;
@@ -149,6 +149,7 @@ TEST(networking_rt, recv_cleans_up) {
           connect->get(),
           wn::multi_tasking::make_unsynchronized_callback(allocator,
               wn::functional::function<void(wn::networking::WNReceiveBuffer)>(
+                  allocator,
                   [&i](wn::networking::WNReceiveBuffer b) {
                     if (b.get_status() ==
                         wn::networking::network_error::aborted) {
