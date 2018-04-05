@@ -1,4 +1,4 @@
-// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Copyright (c) 2018, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
@@ -348,6 +348,14 @@ template <const size_t N>
 using make_index_sequence = make_integral_sequence<size_t, N>;
 
 // type modifications
+
+#ifdef _WN_HAS_CPP14_STD_ADD_POINTER_T
+template <typename T>
+using add_pointer_t = std::add_pointer_t<T>;
+#else
+template <typename T>
+using add_pointer_t = typename add_pointer<T>::type;
+#endif
 
 #ifdef _WN_HAS_CPP14_STD_REMOVE_CONST_T
 template <typename T>
