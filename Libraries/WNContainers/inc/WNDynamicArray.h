@@ -11,6 +11,7 @@
 #include "WNMemory/inc/WNAllocator.h"
 
 #include <iterator>
+#include <limits>
 
 namespace wn {
 namespace containers {
@@ -442,7 +443,7 @@ public:
   }
 
   WN_FORCE_INLINE size_type max_size() const {
-    return sizeof(size_type);
+    return std::numeric_limits<size_type>::max();
   }
 
   inline void reserve(const size_type _new_cap = 0) {

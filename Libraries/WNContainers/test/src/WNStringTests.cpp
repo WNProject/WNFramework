@@ -252,6 +252,58 @@ TEST(string, clear) {
   }
 }
 
+TEST(string, starts_with) {
+  wn::testing::allocator allocator;
+
+  {
+    wn::containers::string s1(&allocator, test_string1);
+    const char* test_term1 = "this";
+
+    EXPECT_TRUE(s1.starts_with(test_term1));
+
+    wn::containers::string s2(&allocator, test_term1);
+
+    EXPECT_TRUE(s1.starts_with(s2));
+    EXPECT_TRUE(s1.starts_with('t'));
+    EXPECT_TRUE(s2.starts_with(test_term1));
+
+    const char* test_term2 = "is";
+
+    EXPECT_FALSE(s1.starts_with(test_term2));
+
+    wn::containers::string s3(&allocator, test_term2);
+
+    EXPECT_FALSE(s1.starts_with(s3));
+    EXPECT_FALSE(s1.starts_with('i'));
+  }
+}
+
+TEST(string, ends_with) {
+  wn::testing::allocator allocator;
+
+  {
+    wn::containers::string s1(&allocator, test_string1);
+    const char* test_term1 = "away";
+
+    EXPECT_TRUE(s1.ends_with(test_term1));
+
+    wn::containers::string s2(&allocator, test_term1);
+
+    EXPECT_TRUE(s1.ends_with(s2));
+    EXPECT_TRUE(s1.ends_with('y'));
+    EXPECT_TRUE(s2.ends_with(test_term1));
+
+    const char* test_term2 = "optimized";
+
+    EXPECT_FALSE(s1.ends_with(test_term2));
+
+    wn::containers::string s3(&allocator, test_term2);
+
+    EXPECT_FALSE(s1.ends_with(s3));
+    EXPECT_FALSE(s1.ends_with('a'));
+  }
+}
+
 TEST(string, erase) {
   wn::testing::allocator allocator;
 
@@ -449,7 +501,7 @@ TEST(string, rfind) {
   }
 }
 
-TEST(string_view, find_first_of) {
+TEST(string, find_first_of) {
   wn::testing::allocator allocator;
 
   {
@@ -483,7 +535,7 @@ TEST(string_view, find_first_of) {
   }
 }
 
-TEST(string_view, find_last_of) {
+TEST(string, find_last_of) {
   wn::testing::allocator allocator;
 
   {

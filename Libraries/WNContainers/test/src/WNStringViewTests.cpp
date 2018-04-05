@@ -5,6 +5,8 @@
 #include "WNContainers/inc/WNStringView.h"
 #include "WNExecutableTest/inc/WNTestHarness.h"
 
+using ::testing::ElementsAre;
+
 static const char test_string1[] =
     "this is a very long string that will not get optimized away";
 static const size_t test_string1_length = sizeof(test_string1) - 1;
@@ -210,6 +212,50 @@ TEST(string_view, clear) {
   EXPECT_GE(s.capacity(), 0u);
 }
 
+TEST(string_view, starts_with) {
+  wn::containers::string_view s1(test_string1);
+  const char* test_term1 = "this";
+
+  EXPECT_TRUE(s1.starts_with(test_term1));
+
+  wn::containers::string_view s2(test_term1);
+
+  EXPECT_TRUE(s1.starts_with(s2));
+  EXPECT_TRUE(s1.starts_with('t'));
+  EXPECT_TRUE(s2.starts_with(test_term1));
+
+  const char* test_term2 = "is";
+
+  EXPECT_FALSE(s1.starts_with(test_term2));
+
+  wn::containers::string_view s3(test_term2);
+
+  EXPECT_FALSE(s1.starts_with(s3));
+  EXPECT_FALSE(s1.starts_with('i'));
+}
+
+TEST(string_view, ends_with) {
+  wn::containers::string_view s1(test_string1);
+  const char* test_term1 = "away";
+
+  EXPECT_TRUE(s1.ends_with(test_term1));
+
+  wn::containers::string_view s2(test_term1);
+
+  EXPECT_TRUE(s1.ends_with(s2));
+  EXPECT_TRUE(s1.ends_with('y'));
+  EXPECT_TRUE(s2.ends_with(test_term1));
+
+  const char* test_term2 = "optimized";
+
+  EXPECT_FALSE(s1.ends_with(test_term2));
+
+  wn::containers::string_view s3(test_term2);
+
+  EXPECT_FALSE(s1.ends_with(s3));
+  EXPECT_FALSE(s1.ends_with('a'));
+}
+
 TEST(string_view, remove_prefix) {
   const char* string = "string";
   wn::containers::string_view v(string);
@@ -236,6 +282,89 @@ TEST(string_view, remove_suffix) {
 
   EXPECT_EQ(v.front(), 's');
   EXPECT_EQ(v.back(), 'i');
+}
+
+TEST(string_view, trim_left) {
+  EXPECT_EQ(wn::containers::string_view("word"),
+      wn::containers::string_view("\tword").trim_left(" \t"));
+
+  EXPECT_EQ(wn::containers::string_view("word"),
+      wn::containers::string_view("word").trim_left(" \t"));
+
+  EXPECT_EQ(wn::containers::string_view("word\t"),
+      wn::containers::string_view("word\t").trim_left(" \t"));
+
+  EXPECT_EQ(wn::containers::string_view("word  "),
+      wn::containers::string_view("word  ").trim_left(" \t"));
+
+  EXPECT_EQ(wn::containers::string_view(""),
+      wn::containers::string_view(" \t").trim_left(" \t"));
+}
+
+TEST(string_view, trim_right) {
+  EXPECT_EQ(wn::containers::string_view("word"),
+      wn::containers::string_view("word\t").trim_right(" \t"));
+
+  EXPECT_EQ(wn::containers::string_view("word"),
+      wn::containers::string_view("word").trim_right(" \t"));
+
+  EXPECT_EQ(wn::containers::string_view("\tword"),
+      wn::containers::string_view("\tword").trim_right(" \t"));
+
+  EXPECT_EQ(wn::containers::string_view("  word"),
+      wn::containers::string_view("  word").trim_right(" \t"));
+
+  EXPECT_EQ(wn::containers::string_view(""),
+      wn::containers::string_view(" \t").trim_right(" \t"));
+}
+
+TEST(string_view, split) {
+  wn::testing::allocator allocator;
+  EXPECT_THAT(wn::containers::string_view("word1 word2 word3")
+                  .split(&allocator, ' ', false),
+      ElementsAre("word1", "word2", "word3"));
+  EXPECT_THAT(wn::containers::string_view("word1  word2  word3")
+                  .split(&allocator, ' ', false),
+      ElementsAre("word1", "word2", "word3"));
+
+  EXPECT_THAT(wn::containers::string_view("word1  word2  word3")
+                  .split(&allocator, ' ', true),
+      ElementsAre("word1", "", "word2", "", "word3"));
+
+  EXPECT_THAT(wn::containers::string_view("word1 word2 word3")
+                  .split(&allocator, ' ', true),
+      ElementsAre("word1", "word2", "word3"));
+
+  EXPECT_THAT(wn::containers::string_view("word1     word3")
+                  .split(&allocator, ' ', true),
+      ElementsAre("word1", "", "", "", "", "word3"));
+
+  EXPECT_THAT(
+      wn::containers::string_view("     word3").split(&allocator, ' ', true),
+      ElementsAre("", "", "", "", "", "word3"));
+
+  EXPECT_THAT(
+      wn::containers::string_view("     word3").split(&allocator, ' ', false),
+      ElementsAre("word3"));
+
+  EXPECT_THAT(
+      wn::containers::string_view("     word3").split(&allocator, ' ', false),
+      ElementsAre("word3"));
+
+  EXPECT_THAT(
+      wn::containers::string_view("word3    ").split(&allocator, ' ', false),
+      ElementsAre("word3"));
+}
+
+TEST(string_view, split_string_view) {
+  wn::testing::allocator allocator;
+  EXPECT_THAT(
+      wn::containers::string_view("word1\t  word2 xx word3")
+          .split(&allocator, wn::containers::string_view("\t x"), false),
+      ElementsAre("word1", "word2", "word3"));
+  EXPECT_THAT(wn::containers::string_view("word1 \t word2 xx word3")
+                  .split(&allocator, "\t x", true),
+      ElementsAre("word1", "", "", "word2", "", "", "", "word3"));
 }
 
 TEST(string_view, substr) {
@@ -424,89 +553,4 @@ TEST(string_view, find_last_not_of) {
   pos = v.find_last_not_of(" string");
 
   EXPECT_EQ(pos, wn::containers::string_view::npos);
-}
-
-using ::testing::ElementsAre;
-
-TEST(string_view, split) {
-  wn::testing::allocator allocator;
-  EXPECT_THAT(wn::containers::string_view("word1 word2 word3")
-                  .split(&allocator, ' ', false),
-      ElementsAre("word1", "word2", "word3"));
-  EXPECT_THAT(wn::containers::string_view("word1  word2  word3")
-                  .split(&allocator, ' ', false),
-      ElementsAre("word1", "word2", "word3"));
-
-  EXPECT_THAT(wn::containers::string_view("word1  word2  word3")
-                  .split(&allocator, ' ', true),
-      ElementsAre("word1", "", "word2", "", "word3"));
-
-  EXPECT_THAT(wn::containers::string_view("word1 word2 word3")
-                  .split(&allocator, ' ', true),
-      ElementsAre("word1", "word2", "word3"));
-
-  EXPECT_THAT(wn::containers::string_view("word1     word3")
-                  .split(&allocator, ' ', true),
-      ElementsAre("word1", "", "", "", "", "word3"));
-
-  EXPECT_THAT(
-      wn::containers::string_view("     word3").split(&allocator, ' ', true),
-      ElementsAre("", "", "", "", "", "word3"));
-
-  EXPECT_THAT(
-      wn::containers::string_view("     word3").split(&allocator, ' ', false),
-      ElementsAre("word3"));
-
-  EXPECT_THAT(
-      wn::containers::string_view("     word3").split(&allocator, ' ', false),
-      ElementsAre("word3"));
-
-  EXPECT_THAT(
-      wn::containers::string_view("word3    ").split(&allocator, ' ', false),
-      ElementsAre("word3"));
-}
-
-TEST(string_view, split_string_view) {
-  wn::testing::allocator allocator;
-  EXPECT_THAT(
-      wn::containers::string_view("word1\t  word2 xx word3")
-          .split(&allocator, wn::containers::string_view("\t x"), false),
-      ElementsAre("word1", "word2", "word3"));
-  EXPECT_THAT(wn::containers::string_view("word1 \t word2 xx word3")
-                  .split(&allocator, "\t x", true),
-      ElementsAre("word1", "", "", "word2", "", "", "", "word3"));
-}
-
-TEST(string_view, trim_left) {
-  EXPECT_EQ(wn::containers::string_view("word"),
-      wn::containers::string_view("\tword").trim_left(" \t"));
-
-  EXPECT_EQ(wn::containers::string_view("word"),
-      wn::containers::string_view("word").trim_left(" \t"));
-
-  EXPECT_EQ(wn::containers::string_view("word\t"),
-      wn::containers::string_view("word\t").trim_left(" \t"));
-
-  EXPECT_EQ(wn::containers::string_view("word  "),
-      wn::containers::string_view("word  ").trim_left(" \t"));
-
-  EXPECT_EQ(wn::containers::string_view(""),
-      wn::containers::string_view(" \t").trim_left(" \t"));
-}
-
-TEST(string_view, trim_right) {
-  EXPECT_EQ(wn::containers::string_view("word"),
-      wn::containers::string_view("word\t").trim_right(" \t"));
-
-  EXPECT_EQ(wn::containers::string_view("word"),
-      wn::containers::string_view("word").trim_right(" \t"));
-
-  EXPECT_EQ(wn::containers::string_view("\tword"),
-      wn::containers::string_view("\tword").trim_right(" \t"));
-
-  EXPECT_EQ(wn::containers::string_view("  word"),
-      wn::containers::string_view("  word").trim_right(" \t"));
-
-  EXPECT_EQ(wn::containers::string_view(""),
-      wn::containers::string_view(" \t").trim_right(" \t"));
 }
