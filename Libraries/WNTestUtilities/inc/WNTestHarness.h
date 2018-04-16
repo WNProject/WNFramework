@@ -47,23 +47,10 @@ private:
   using base = memory::allocation_tracker;
 
 public:
-  WN_FORCE_INLINE allocator() : base(&m_allocator) {}
+  allocator() : base(&m_allocator) {}
 
-  WN_FORCE_INLINE virtual ~allocator() override {
+  virtual ~allocator() override {
     EXPECT_TRUE(empty());
-  }
-
-  WN_FORCE_INLINE virtual void* allocate(const size_t _size) override {
-    return base::allocate(_size);
-  }
-
-  WN_FORCE_INLINE virtual void* reallocate(
-      void* _ptr, const size_t _size) override {
-    return base::reallocate(_ptr, _size);
-  }
-
-  WN_FORCE_INLINE virtual void deallocate(void* _ptr) override {
-    base::deallocate(_ptr);
   }
 
 private:

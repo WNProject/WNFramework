@@ -7,9 +7,8 @@
 #ifndef __WN_CORE_ASSERT_H__
 #define __WN_CORE_ASSERT_H__
 
-#include "WNCore/inc/WNBase.h"
+#include "WNCore/inc/WNTypes.h"
 
-#include <cstdint>
 #include <iostream>
 
 #ifdef NDEBUG
@@ -24,8 +23,8 @@ namespace wn {
 namespace core {
 namespace internal {
 
-inline void assert_helper(const bool _expression, const char* _file,
-    const uint32_t _line, const char* _message) {
+inline void assert_helper(
+    bool _expression, const char* _file, uint32_t _line, const char* _message) {
   if (!_expression) {
     std::cerr << "assertion failed!" << std::endl
               << std::endl

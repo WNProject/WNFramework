@@ -10,7 +10,6 @@
 #include "WNCore/inc/WNAssert.h"
 #include "WNMemory/inc/WNBasic.h"
 
-#include <functional>
 #include <mutex>
 #include <unordered_map>
 
@@ -23,25 +22,24 @@ public:
 
   virtual ~allocator() = default;
 
-  virtual void* allocate(const size_t _size) = 0;
-  virtual void* reallocate(void* _ptr, const size_t _new_size) = 0;
+  virtual void* allocate(size_t _size) = 0;
+  virtual void* reallocate(void* _ptr, size_t _new_size) = 0;
   virtual void deallocate(void* _ptr) = 0;
 
-  virtual void* aligned_allocate(
-      const size_t _size, const size_t _alignment) = 0;
+  virtual void* aligned_allocate(size_t _size, size_t _alignment) = 0;
   virtual void* aligned_reallocate(
-      void* _ptr, const size_t _new_size, const size_t _alignment) = 0;
+      void* _ptr, size_t _new_size, size_t _alignment) = 0;
   virtual void aligned_deallocate(void* _ptr) = 0;
 
   template <typename T, typename... Args>
-  WN_FORCE_INLINE T* construct(Args&&... _args) {
-    void* ptr = allocate(sizeof(T));
+  T* construct(Args&&... _args) {
+    T* ptr = static_cast<T*>(allocate(sizeof(T)));
 
-    return construct(static_cast<T*>(ptr), core::forward<Args>(_args)...);
+    return construct_at(ptr, core::forward<Args>(_args)...);
   }
 
   template <typename T, typename... Args>
-  WN_FORCE_INLINE T* construct(T* _ptr, Args&&... _args) {
+  T* construct_at(T* _ptr, Args&&... _args) {
     if (_ptr) {
       return new (_ptr) T(core::forward<Args>(_args)...);
     }
@@ -50,27 +48,41 @@ public:
   }
 
   template <typename T>
-  WN_FORCE_INLINE void destroy(T* _ptr) {
+  void destroy(T* _ptr) {
     _ptr->~T();
 
     deallocate(_ptr);
+  }
+
+  template <typename T, typename... Args>
+  T* aligned_construct(size_t _alignment, Args&&... _args) {
+    void* ptr = aligned_allocate(sizeof(T), _alignment);
+
+    return construct_at(static_cast<T*>(ptr), core::forward<Args>(_args)...);
+  }
+
+  template <typename T>
+  void aligned_destroy(T* _ptr) {
+    _ptr->~T();
+
+    aligned_deallocate(_ptr);
   }
 };
 
 class allocation_tracker : public allocator {
 public:
-  WN_FORCE_INLINE allocation_tracker(allocator* _allocator)
+  allocation_tracker(allocator* _allocator)
     : allocator(),
       m_allocator(_allocator),
       m_total_allocated(0),
       m_total_deallocated(0) {}
 
-  WN_FORCE_INLINE virtual ~allocation_tracker() override {
+  virtual ~allocation_tracker() override {
     WN_DEBUG_ASSERT(
         empty(), "memory leak detected, did not deallocate all allocations");
   }
 
-  virtual void* allocate(const size_t _size) override {
+  virtual void* allocate(size_t _size) override {
     void* ptr = m_allocator->allocate(_size);
 
     notify_allocated(ptr, _size);
@@ -78,7 +90,7 @@ public:
     return ptr;
   }
 
-  virtual void* reallocate(void* _ptr, const size_t _new_size) override {
+  virtual void* reallocate(void* _ptr, size_t _new_size) override {
     void* ptr = m_allocator->reallocate(_ptr, _new_size);
 
     notify_reallocated(_ptr, ptr, _new_size);
@@ -92,8 +104,7 @@ public:
     m_allocator->deallocate(_ptr);
   }
 
-  virtual void* aligned_allocate(
-      const size_t _size, const size_t _alignment) override {
+  virtual void* aligned_allocate(size_t _size, size_t _alignment) override {
     void* ptr = m_allocator->aligned_allocate(_size, _alignment);
 
     notify_allocated(ptr, _size);
@@ -102,7 +113,7 @@ public:
   }
 
   virtual void* aligned_reallocate(
-      void* _ptr, const size_t _new_size, const size_t _alignment) override {
+      void* _ptr, size_t _new_size, size_t _alignment) override {
     void* ptr = m_allocator->aligned_reallocate(_ptr, _new_size, _alignment);
 
     notify_reallocated(_ptr, ptr, _new_size);
@@ -116,33 +127,31 @@ public:
     m_allocator->aligned_deallocate(_ptr);
   }
 
-  WN_FORCE_INLINE size_t allocated() const {
+  size_t allocated() const {
     return m_total_allocated;
   }
 
-  WN_FORCE_INLINE size_t deallocated() const {
+  size_t deallocated() const {
     return m_total_deallocated;
   }
 
-  WN_FORCE_INLINE bool empty() const {
+  bool empty() const {
     return allocated() == deallocated();
   }
 
-  WN_FORCE_INLINE std::unordered_map<void*, size_t> current_allocations()
-      const {
+  std::unordered_map<void*, size_t> current_allocations() const {
     return m_elements;
   }
 
 private:
-  WN_FORCE_INLINE void notify_allocated(void* _ptr, const size_t _size) {
+  void notify_allocated(void* _ptr, size_t _size) {
     const std::lock_guard<std::mutex> guard(m_lock);
 
     m_elements[_ptr] = _size;
     m_total_allocated += _size;
   }
 
-  WN_FORCE_INLINE void notify_reallocated(
-      void* _old_ptr, void* _new_ptr, const size_t _size) {
+  void notify_reallocated(void* _old_ptr, void* _new_ptr, size_t _size) {
     const std::lock_guard<std::mutex> guard(m_lock);
 
     if (_old_ptr) {
@@ -157,7 +166,7 @@ private:
     m_total_allocated += _size;
   }
 
-  WN_FORCE_INLINE void notify_deallocated(void* _ptr) {
+  void notify_deallocated(void* _ptr) {
     if (_ptr) {
       const std::lock_guard<std::mutex> guard(m_lock);
 
@@ -178,32 +187,30 @@ private:
 
 class basic_allocator : public allocator {
 public:
-  WN_FORCE_INLINE basic_allocator() : allocator() {}
+  basic_allocator() : allocator() {}
 
-  WN_FORCE_INLINE virtual void* allocate(const size_t _size) override {
+  virtual void* allocate(size_t _size) override {
     return malloc(_size);
   }
 
-  WN_FORCE_INLINE virtual void* reallocate(
-      void* _ptr, const size_t _new_size) override {
+  virtual void* reallocate(void* _ptr, size_t _new_size) override {
     return realloc(_ptr, _new_size);
   }
 
-  WN_FORCE_INLINE virtual void deallocate(void* _ptr) override {
+  virtual void deallocate(void* _ptr) override {
     free(_ptr);
   }
 
-  WN_FORCE_INLINE virtual void* aligned_allocate(
-      const size_t _size, const size_t _alignment) override {
+  virtual void* aligned_allocate(size_t _size, size_t _alignment) override {
     return aligned_malloc(_size, _alignment);
   }
 
-  WN_FORCE_INLINE virtual void* aligned_reallocate(
-      void* _ptr, const size_t _new_size, const size_t _alignment) override {
+  virtual void* aligned_reallocate(
+      void* _ptr, size_t _new_size, size_t _alignment) override {
     return aligned_realloc(_ptr, _new_size, _alignment);
   }
 
-  WN_FORCE_INLINE virtual void aligned_deallocate(void* _ptr) override {
+  virtual void aligned_deallocate(void* _ptr) override {
     aligned_free(_ptr);
   }
 };

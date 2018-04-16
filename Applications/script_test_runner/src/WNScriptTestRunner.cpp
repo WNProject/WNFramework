@@ -12,7 +12,7 @@
 
 using namespace wn;
 
-WN_FORCE_INLINE containers::string_view to_view(const re2::StringPiece& sp) {
+inline containers::string_view to_view(const re2::StringPiece& sp) {
   return containers::string_view(sp.data(), sp.size());
 }
 
@@ -21,24 +21,7 @@ private:
   using base = memory::allocation_tracker;
 
 public:
-  WN_FORCE_INLINE script_test_allocator() : base(&m_allocator) {}
-
-  WN_FORCE_INLINE virtual ~script_test_allocator() override {
-    WN_RELEASE_ASSERT(empty(), "memory leak detected");
-  }
-
-  WN_FORCE_INLINE virtual void* allocate(const size_t _size) override {
-    return base::allocate(_size);
-  }
-
-  WN_FORCE_INLINE virtual void* reallocate(
-      void* _ptr, const size_t _size) override {
-    return base::reallocate(_ptr, _size);
-  }
-
-  WN_FORCE_INLINE virtual void deallocate(void* _ptr) override {
-    base::deallocate(_ptr);
-  }
+  script_test_allocator() : base(&m_allocator) {}
 
 private:
   memory::basic_allocator m_allocator;
