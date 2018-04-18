@@ -5,7 +5,8 @@
 #include "WNContainers/inc/WNString.h"
 #include "WNContainers/inc/WNStringView.h"
 #include "WNCore/inc/WNTypes.h"
-#include "WNMemory/inc/WNAllocator.h"
+#include "WNMemory/inc/allocator.h"
+#include "WNMemory/inc/manipulation.h"
 
 namespace wn {
 namespace scripting {
@@ -48,18 +49,19 @@ struct mangled_name<void> {
   }
 };
 
-WN_FORCE_INLINE
-containers::string get_mangled_name(
+inline containers::string get_mangled_name(
     memory::allocator* _allocator, const containers::string_view& view) {
   containers::string str(_allocator);
-  char count[11] = {
-      0,
-  };
+
+  char count[11] = {0};
+
   memory::writeuint32(count, static_cast<uint32_t>(view.size()), 10);
+
   str += "_ZN3wns";
   str += count;
   str += view;
   str += "E";
+
   return str;
 }
 

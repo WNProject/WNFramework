@@ -10,7 +10,7 @@
 #include "WNContainers/inc/WNDynamicArray.h"
 #include "WNCore/inc/WNTypes.h"
 #include "WNMath/inc/WNBasic.h"
-#include "WNMemory/inc/WNAllocator.h"
+#include "WNMemory/inc/allocator.h"
 #include "WNMemory/inc/WNStringUtility.h"
 
 #include <algorithm>

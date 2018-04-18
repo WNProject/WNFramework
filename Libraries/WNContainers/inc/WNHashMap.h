@@ -15,7 +15,7 @@
 #include "WNContainers/inc/WNDynamicArray.h"
 #include "WNContainers/inc/WNList.h"
 #include "WNCore/inc/WNPair.h"
-#include "WNMemory/inc/WNAllocator.h"
+#include "WNMemory/inc/allocator.h"
 
 namespace wn {
 namespace containers {

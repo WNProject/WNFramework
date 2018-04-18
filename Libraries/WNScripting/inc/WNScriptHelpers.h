@@ -7,7 +7,7 @@
 
 #include "WNContainers/inc/WNStringView.h"
 #include "WNLogging/inc/WNLog.h"
-#include "WNMemory/inc/WNAllocator.h"
+#include "WNMemory/inc/allocator.h"
 #include "WNMemory/inc/WNUniquePtr.h"
 
 namespace wn {

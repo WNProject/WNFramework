@@ -8,7 +8,7 @@
 #define __WN_CONTAINERS_HASH_SET_H__
 
 #include "WNContainers/inc/WNHashMap.h"
-#include "WNMemory/inc/WNAllocator.h"
+#include "WNMemory/inc/allocator.h"
 
 namespace wn {
 namespace containers {

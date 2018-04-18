@@ -4,7 +4,7 @@
 
 #include "WNExecutableTest/inc/WNTestHarness.h"
 #include "WNFileSystem/inc/WNFactory.h"
-#include "WNMemory/inc/WNAllocator.h"
+#include "WNMemory/inc/allocator.h"
 #include "WNScripting/inc/WNFactory.h"
 
 TEST(scripting_engine_factory, creation) {

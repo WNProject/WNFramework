@@ -8,7 +8,7 @@
 #define __WN_SCRIPTING_ENGINE_FACTORY_H__
 
 #include "WNLogging/inc/WNLog.h"
-#include "WNMemory/inc/WNAllocator.h"
+#include "WNMemory/inc/allocator.h"
 #include "WNScripting/inc/WNTranslator.h"
 #include "WNMemory/inc/WNUniquePtr.h"
 

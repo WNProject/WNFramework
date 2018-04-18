@@ -9,15 +9,15 @@
 
 #include "WNContainers/inc/WNDynamicArray.h"
 #include "WNCore/inc/WNTypeTraits.h"
-#include "WNMemory/inc/WNAllocator.h"
-#include "WNMemory/inc/WNBasic.h"
+#include "WNMemory/inc/allocator.h"
+#include "WNMemory/inc/manipulation.h"
 
 #include <iterator>
 
 namespace wn {
 namespace containers {
 
-template <typename _Type, typename _Allocator, const size_t _BlockSize>
+template <typename _Type, const size_t _BlockSize>
 class deque;
 
 namespace internal {
@@ -108,8 +108,7 @@ public:
   }
 
   difference_type operator-(const deque_iterator& _other) const {
-    WN_RELEASE_ASSERT(
-        m_deque == _other.m_deque, "iterators are incompatible");
+    WN_RELEASE_ASSERT(m_deque == _other.m_deque, "iterators are incompatible");
 
     return (m_element - _other.m_element);
   }
@@ -171,49 +170,43 @@ public:
   }
 
   bool operator==(const deque_iterator& _other) const {
-    WN_RELEASE_ASSERT(
-        m_deque == _other.m_deque, "iterators are incompatible");
+    WN_RELEASE_ASSERT(m_deque == _other.m_deque, "iterators are incompatible");
 
     return (m_element == _other.m_element);
   }
 
   bool operator!=(const deque_iterator& _other) const {
-    WN_RELEASE_ASSERT(
-        m_deque == _other.m_deque, "iterators are incompatible");
+    WN_RELEASE_ASSERT(m_deque == _other.m_deque, "iterators are incompatible");
 
     return (m_element != _other.m_element);
   }
 
   bool operator>(const deque_iterator& _other) const {
-    WN_RELEASE_ASSERT(
-        m_deque == _other.m_deque, "iterators are incompatible");
+    WN_RELEASE_ASSERT(m_deque == _other.m_deque, "iterators are incompatible");
 
     return (m_element > _other.m_element);
   }
 
   bool operator>=(const deque_iterator& _other) const {
-    WN_RELEASE_ASSERT(
-        m_deque == _other.m_deque, "iterators are incompatible");
+    WN_RELEASE_ASSERT(m_deque == _other.m_deque, "iterators are incompatible");
 
     return (m_element >= _other.m_element);
   }
 
   bool operator<(const deque_iterator& _other) const {
-    WN_RELEASE_ASSERT(
-        m_deque == _other.m_deque, "iterators are incompatible");
+    WN_RELEASE_ASSERT(m_deque == _other.m_deque, "iterators are incompatible");
 
     return (m_element < _other.m_element);
   }
 
   bool operator<=(const deque_iterator& _other) const {
-    WN_RELEASE_ASSERT(
-        m_deque == _other.m_deque, "iterators are incompatible");
+    WN_RELEASE_ASSERT(m_deque == _other.m_deque, "iterators are incompatible");
 
     return (m_element <= _other.m_element);
   }
 
 private:
-  template <typename _Type, typename _Allocator, const size_t _BlockSize>
+  template <typename _Type, const size_t _BlockSize>
   friend class wn::containers::deque;
 
   friend class deque_iterator<const _Container, _Container, const _Element>;
@@ -232,19 +225,17 @@ private:
 
 }  // namespace internal
 
-template <typename _Type, typename _Allocator = memory::basic_allocator,
-    const size_t _BlockSize = 10>
+template <typename _Type, const size_t _BlockSize = 10>
 class deque final {
 public:
   using value_type = _Type;
   using size_type = size_t;
   using difference_type = signed_t;
-  using allocator_type = _Allocator;
   using reference = value_type&;
   using const_reference = const value_type&;
 
 private:
-  using self_type = deque<_Type, _Allocator, _BlockSize>;
+  using self_type = deque<_Type, _BlockSize>;
 
 public:
   using iterator = internal::deque_iterator<self_type>;

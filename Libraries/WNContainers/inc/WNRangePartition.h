@@ -8,7 +8,7 @@
 #define __WN_CONTAINERS_RANGE_PARTITION_H__
 
 #include "WNMath/inc/WNBasic.h"
-#include "WNMemory/inc/WNAllocator.h"
+#include "WNMemory/inc/allocator.h"
 
 namespace wn {
 namespace containers {

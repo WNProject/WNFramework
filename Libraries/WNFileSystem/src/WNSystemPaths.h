@@ -8,7 +8,7 @@
 #define __WN_FILE_SYSTEM_SYSTEM_PATHS_H__
 
 #include "WNContainers/inc/WNString.h"
-#include "WNMemory/inc/WNAllocator.h"
+#include "WNMemory/inc/allocator.h"
 
 namespace wn {
 namespace entry {

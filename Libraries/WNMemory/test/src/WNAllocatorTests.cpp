@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNMemory/inc/WNAllocator.h"
+#include "WNMemory/inc/allocator.h"
 #include "WNExecutableTest/inc/WNTestHarness.h"
 
 TEST(allocator, basic_usage) {

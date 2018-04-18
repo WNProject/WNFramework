@@ -8,7 +8,7 @@
 #include "WNExecutableTest/inc/WNTestHarness.h"
 #include "WNGraphics/inc/Internal/WNConfig.h"
 #include "WNLogging/inc/WNBufferLogger.h"
-#include "WNMemory/inc/WNAllocator.h"
+#include "WNMemory/inc/allocator.h"
 
 namespace wn {
 namespace runtime {

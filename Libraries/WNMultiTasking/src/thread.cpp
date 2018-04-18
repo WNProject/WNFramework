@@ -5,7 +5,7 @@
 #include "WNMultiTasking/inc/thread.h"
 #include "WNCore/inc/WNAssert.h"
 #include "WNCore/inc/WNUtility.h"
-#include "WNMemory/inc/WNAllocator.h"
+#include "WNMemory/inc/allocator.h"
 #include "WNMemory/inc/WNIntrusivePtr.h"
 #include "WNMultiTasking/inc/semaphore.h"
 

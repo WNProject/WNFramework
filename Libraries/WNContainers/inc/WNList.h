@@ -8,7 +8,7 @@
 #define __WN_CONTAINERS_LIST_H__
 
 #include "WNCore/inc/WNTypes.h"
-#include "WNMemory/inc/WNAllocator.h"
+#include "WNMemory/inc/allocator.h"
 
 #include <iterator>
 #include <utility>

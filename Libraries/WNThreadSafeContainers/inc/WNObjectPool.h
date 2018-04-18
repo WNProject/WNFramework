@@ -9,7 +9,7 @@
 
 #include "WNContainers/inc/WNList.h"
 #include "WNFunctional/inc/WNFunction.h"
-#include "WNMemory/inc/WNAllocator.h"
+#include "WNMemory/inc/allocator.h"
 #include "WNMemory/inc/WNIntrusivePtr.h"
 #include "WNMultiTasking/inc/lock_guard.h"
 #include "WNMultiTasking/inc/mutex.h"

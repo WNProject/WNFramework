@@ -8,7 +8,7 @@
 #include "WNExecutable/inc/WNEntry.h"
 #include "WNExecutable/inc/WNEntryData.h"
 #include "WNFileSystem/src/WNUtilities.h"
-#include "WNMemory/inc/WNAllocator.h"
+#include "WNMemory/inc/allocator.h"
 
 #include <stdlib.h>
 #include <sys/stat.h>

@@ -10,7 +10,7 @@
 #include "WNContainers/inc/WNDeque.h"
 #include "WNContainers/inc/WNStringView.h"
 #include "WNLogging/inc/WNLog.h"
-#include "WNMemory/inc/WNAllocator.h"
+#include "WNMemory/inc/allocator.h"
 #include "WNMemory/inc/WNUniquePtr.h"
 #include "WNMultiTasking/inc/spin_lock.h"
 #include "WNNetworking/inc/WNNetworkingErrors.h"

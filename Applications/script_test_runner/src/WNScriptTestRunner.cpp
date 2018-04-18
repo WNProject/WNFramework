@@ -6,6 +6,8 @@
 #include "WNExecutable/inc/WNEntry.h"
 #include "WNFileSystem/inc/WNFactory.h"
 #include "WNLogging/inc/WNConsoleLogger.h"
+#include "WNMemory/inc/allocation_tracker.h"
+#include "WNMemory/inc/basic_allocator.h"
 #include "WNRe2/inc/re2.h"
 #include "WNScripting/inc/WNFactory.h"
 #include "effcee/effcee.h"

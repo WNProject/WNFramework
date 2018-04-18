@@ -9,7 +9,7 @@
 
 #include "WNGraphics/inc/Internal/WNConfig.h"
 #include "WNGraphics/inc/WNDevice.h"
-#include "WNMemory/inc/WNBasic.h"
+#include "WNMemory/inc/manipulation.h"
 
 WN_GRAPHICS_FORWARD(adapter)
 WN_GRAPHICS_FORWARD(device)

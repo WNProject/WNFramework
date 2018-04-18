@@ -9,7 +9,7 @@
 
 #include "WNCore/inc/WNAssert.h"
 #include "WNCore/inc/WNUtility.h"
-#include "WNMemory/inc/WNBasic.h"
+#include "WNMemory/inc/allocation.h"
 
 namespace wn {
 namespace functional {
@@ -127,8 +127,7 @@ private:
   construct(F&& _f) {
     m_callable = memory::construct<F>(core::forward<F>(_f));
 
-    WN_RELEASE_ASSERT(
-        m_callable, "failed to construct lambda/function object");
+    WN_RELEASE_ASSERT(m_callable, "failed to construct lambda/function object");
 
     m_executor = [](void* const* _f, Args... _args) -> R {
       return ((*reinterpret_cast<F* const*>(_f))
@@ -136,8 +135,9 @@ private:
                   operator()(core::forward<Args>(_args)...));
     };
 
-    m_deleter = [](
-        void** _f) -> void { memory::destroy<F>(reinterpret_cast<F*>(*_f)); };
+    m_deleter = [](void** _f) -> void {
+      memory::destroy<F>(reinterpret_cast<F*>(*_f));
+    };
   }
 
   template <typename F>

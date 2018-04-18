@@ -8,7 +8,7 @@
 #define __WN_MEMORY_UNIQUE_PTR_H__
 
 #include "WNCore/inc/WNTypeTraits.h"
-#include "WNMemory/inc/WNAllocator.h"
+#include "WNMemory/inc/allocator.h"
 
 #include <memory>
 

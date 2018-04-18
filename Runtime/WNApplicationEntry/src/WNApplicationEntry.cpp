@@ -5,7 +5,7 @@
 #include "WNApplicationData/inc/WNApplicationData.h"
 #include "WNExecutable/inc/WNEntry.h"
 #include "WNLogging/inc/WNConsoleLogger.h"
-#include "WNMemory/inc/WNAllocator.h"
+#include "WNMemory/inc/basic_allocator.h"
 #include "WNMultiTasking/inc/job_pool.h"
 
 namespace wn {

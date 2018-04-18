@@ -8,7 +8,7 @@
 #define __WN_MEMORY_INTRUSIVE_PTR_H__
 
 #include "WNCore/inc/WNUtility.h"
-#include "WNMemory/inc/WNAllocator.h"
+#include "WNMemory/inc/allocator.h"
 
 #include <atomic>
 

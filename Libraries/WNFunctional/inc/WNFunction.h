@@ -9,8 +9,7 @@
 
 #include "WNCore/inc/WNAssert.h"
 #include "WNCore/inc/WNUtility.h"
-#include "WNMemory/inc/WNAllocator.h"
-#include "WNMemory/inc/WNBasic.h"
+#include "WNMemory/inc/allocator.h"
 
 namespace wn {
 namespace functional {

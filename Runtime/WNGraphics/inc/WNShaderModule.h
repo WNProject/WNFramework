@@ -11,7 +11,7 @@
 #include "WNGraphics/inc/WNDevice.h"
 #include "WNGraphics/inc/WNGraphicsEnums.h"
 #include "WNGraphics/inc/WNGraphicsObjectBase.h"
-#include "WNMemory/inc/WNBasic.h"
+#include "WNMemory/inc/manipulation.h"
 
 WN_GRAPHICS_FORWARD(queue)
 WN_GRAPHICS_FORWARD(device)

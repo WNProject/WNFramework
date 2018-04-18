@@ -4,7 +4,7 @@
 
 #include "WNExecutableTest/inc/WNTestHarness.h"
 #include "WNLogging/inc/WNBufferLogger.h"
-#include "WNMemory/inc/WNAllocator.h"
+#include "WNMemory/inc/allocator.h"
 #include "WNMultiTasking/inc/job_pool.h"
 #include "WNMultiTasking/inc/semaphore.h"
 #include "WNNetworking/inc/WNNetworkManager.h"

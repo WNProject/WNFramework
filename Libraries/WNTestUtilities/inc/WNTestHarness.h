@@ -8,7 +8,8 @@
 #define __WN_TESTING_TEST_HARNESS_H__
 
 #include "WNCore/inc/WNTypes.h"
-#include "WNMemory/inc/WNAllocator.h"
+#include "WNMemory/inc/allocation_tracker.h"
+#include "WNMemory/inc/basic_allocator.h"
 
 #define GTEST_HAS_RTTI 0
 

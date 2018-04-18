@@ -7,7 +7,7 @@
 #include "WNGraphics/inc/Internal/D3D12/WNAdapter.h"
 #include "WNGraphics/inc/Internal/WNConfig.h"
 #include "WNLogging/inc/WNLog.h"
-#include "WNMemory/inc/WNAllocator.h"
+#include "WNMemory/inc/allocator.h"
 
 #include <d3d12.h>
 #include <dxgi1_4.h>

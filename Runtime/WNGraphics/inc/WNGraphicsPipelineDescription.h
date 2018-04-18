@@ -13,8 +13,8 @@
 #include "WNGraphics/inc/WNGraphicsObjectBase.h"
 #include "WNGraphics/inc/WNGraphicsTypes.h"
 #include "WNMath/inc/WNBasic.h"
-#include "WNMemory/inc/WNAllocator.h"
-#include "WNMemory/inc/WNBasic.h"
+#include "WNMemory/inc/allocator.h"
+#include "WNMemory/inc/manipulation.h"
 
 WN_GRAPHICS_FORWARD(device);
 

@@ -3,7 +3,10 @@
 // found in the LICENSE.txt file.
 
 #include "WNMultiTasking/inc/fiber.h"
-#include "WNMemory/inc/WNBasic.h"
+
+#if defined _WN_ANDROID || defined _WN_POSIX
+#include "WNMemory/inc/manipulation.h"
+#endif
 
 #if defined _WN_WINDOWS
 #define __FIBER_ARGUMENT_TYPE PVOID

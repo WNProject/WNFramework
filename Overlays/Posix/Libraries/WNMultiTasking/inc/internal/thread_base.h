@@ -8,7 +8,7 @@
 #define __WN_MULTI_TASKING_POSIX_INTERNAL_THREAD_BASE_H__
 
 #include "WNCore/inc/WNUtility.h"
-#include "WNMemory/inc/WNAllocator.h"
+#include "WNMemory/inc/allocator.h"
 #include "WNMemory/inc/WNIntrusivePtr.h"
 #include "WNMultiTasking/inc/internal/system_thread_functions.h"
 #include "WNMultiTasking/inc/internal/thread_base_common.h"

@@ -9,7 +9,7 @@
 
 #include "WNContainers/inc/WNRangePartition.h"
 #include "WNLogging/inc/WNLog.h"
-#include "WNMemory/inc/WNAllocator.h"
+#include "WNMemory/inc/allocator.h"
 #include "WNMultiTasking/inc/spin_lock.h"
 
 #include <d3d12.h>

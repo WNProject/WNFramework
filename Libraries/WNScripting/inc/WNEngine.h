@@ -9,7 +9,7 @@
 
 #include "WNContainers/inc/WNHashMap.h"
 #include "WNContainers/inc/WNStringView.h"
-#include "WNMemory/inc/WNAllocator.h"
+#include "WNMemory/inc/allocator.h"
 #include "WNScripting/inc/WNEnums.h"
 #include "WNScripting/inc/WNErrors.h"
 

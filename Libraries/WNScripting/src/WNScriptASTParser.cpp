@@ -56,7 +56,7 @@
     #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
     #pragma GCC diagnostic ignored "-Wsign-compare"
 #endif
-    #include "WNMemory/inc/WNAllocator.h"
+    #include "WNMemory/inc/allocator.h"
     #include "WNScripting/src/WNScriptASTLexer.hpp"
     #include "WNScripting/inc/WNNodeTypes.h"
 

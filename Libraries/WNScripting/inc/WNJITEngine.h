@@ -9,7 +9,7 @@
 #include "WNContainers/inc/WNHashMap.h"
 #include "WNCore/inc/WNUtility.h"
 #include "WNLogging/inc/WNLog.h"
-#include "WNMemory/inc/WNAllocator.h"
+#include "WNMemory/inc/allocator.h"
 #include "WNScripting/inc/WNEngine.h"
 
 namespace llvm {

@@ -6,7 +6,7 @@
 #include "WNGraphics/inc/Internal/Vulkan/WNAdapter.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanContext.h"
 #include "WNLogging/inc/WNLog.h"
-#include "WNMemory/inc/WNAllocator.h"
+#include "WNMemory/inc/allocator.h"
 #include "WNMemory/inc/WNIntrusivePtr.h"
 
 namespace wn {

@@ -8,7 +8,7 @@
 #define __WN_CONTAINERS_DYNAMIC_ARRAY_H__
 
 #include "WNContainers/inc/WNContiguousRange.h"
-#include "WNMemory/inc/WNAllocator.h"
+#include "WNMemory/inc/allocator.h"
 
 #include <iterator>
 #include <limits>

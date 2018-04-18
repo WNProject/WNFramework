@@ -11,7 +11,7 @@
 #include "WNCore/inc/WNAssert.h"
 #include "WNCore/inc/WNTypeTraits.h"
 #include "WNCore/inc/WNUtility.h"
-#include "WNMemory/inc/WNBasic.h"
+#include "WNMemory/inc/manipulation.h"
 
 #include <iterator>
 

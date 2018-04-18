@@ -7,7 +7,7 @@
 #ifndef __WN_NETWORKING_RELIABLE_CONNECTION_H__
 #define __WN_NETWORKING_RELIABLE_CONNECTION_H__
 
-#include "WNMemory/inc/WNAllocator.h"
+#include "WNMemory/inc/allocator.h"
 #include "WNMemory/inc/WNUniquePtr.h"
 #include "WNNetworking/inc/WNConnection.h"
 #include "WNNetworking/inc/WNNetworkingErrors.h"
