@@ -7,7 +7,7 @@
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanContext.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/allocator.h"
-#include "WNMemory/inc/WNIntrusivePtr.h"
+#include "WNMemory/inc/intrusive_ptr.h"
 
 namespace wn {
 namespace runtime {

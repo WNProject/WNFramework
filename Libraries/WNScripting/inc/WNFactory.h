@@ -10,7 +10,7 @@
 #include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/allocator.h"
 #include "WNScripting/inc/WNTranslator.h"
-#include "WNMemory/inc/WNUniquePtr.h"
+#include "WNMemory/inc/unique_ptr.h"
 
 namespace wn {
 namespace file_system {

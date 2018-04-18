@@ -9,7 +9,7 @@
 
 #include "WNContainers/inc/WNDynamicArray.h"
 #include "WNCore/inc/WNUtility.h"
-#include "WNMemory/inc/WNIntrusivePtr.h"
+#include "WNMemory/inc/intrusive_ptr.h"
 #include "WNMultiTasking/inc/thread.h"
 #include "WNMultiTasking/inc/thread_task.h"
 #include "WNMultiTasking/inc/semaphore.h"

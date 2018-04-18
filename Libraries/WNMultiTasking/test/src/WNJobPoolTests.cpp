@@ -3,7 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "WNExecutableTest/inc/WNTestHarness.h"
-#include "WNMemory/inc/WNUniquePtr.h"
+#include "WNMemory/inc/unique_ptr.h"
 #include "WNMultiTasking/inc/job_pool.h"
 
 void job(int32_t* _val) {

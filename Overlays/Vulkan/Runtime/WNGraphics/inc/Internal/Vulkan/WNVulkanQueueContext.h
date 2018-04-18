@@ -10,7 +10,7 @@
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanInclude.h"
 
 #include "WNMemory/inc/allocator.h"
-#include "WNMemory/inc/WNIntrusivePtr.h"
+#include "WNMemory/inc/intrusive_ptr.h"
 
 namespace wn {
 namespace runtime {

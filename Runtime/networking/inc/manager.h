@@ -8,7 +8,7 @@
 #define __WN_RUNTIME_NETWORKING_MANAGER_H__
 
 #include "WNContainers/inc/WNContiguousRange.h"
-#include "WNMemory/inc/WNUniquePtr.h"
+#include "WNMemory/inc/unique_ptr.h"
 #include "WNMultiTasking/inc/job_pool.h"
 #include "WNNetworking/inc/WNNetworkManager.h"
 #include "networking/inc/connection.h"

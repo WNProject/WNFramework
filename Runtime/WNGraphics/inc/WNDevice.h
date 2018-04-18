@@ -18,7 +18,7 @@
 #include "WNGraphics/inc/WNGraphicsTypes.h"
 #include "WNGraphics/inc/WNRenderPassTypes.h"
 #include "WNLogging/inc/WNLog.h"
-#include "WNMemory/inc/WNUniquePtr.h"
+#include "WNMemory/inc/unique_ptr.h"
 
 #ifdef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
 #include "WNGraphics/inc/Internal/WNDeviceIncludes.h"

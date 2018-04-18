@@ -18,8 +18,8 @@
 
 #include "WNGraphics/inc/Internal/WNConfig.h"
 #include "WNLogging/inc/WNLog.h"
-#include "WNMemory/inc/WNIntrusivePtr.h"
-#include "WNMemory/inc/WNUniquePtr.h"
+#include "WNMemory/inc/intrusive_ptr.h"
+#include "WNMemory/inc/unique_ptr.h"
 #include "WNWindow/inc/WNWindow.h"
 
 #ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE

@@ -11,7 +11,7 @@
 #include "WNContainers/inc/WNStringView.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/allocator.h"
-#include "WNMemory/inc/WNUniquePtr.h"
+#include "WNMemory/inc/unique_ptr.h"
 #include "WNMultiTasking/inc/spin_lock.h"
 #include "WNNetworking/inc/WNNetworkingErrors.h"
 #include "WNNetworking/inc/WNReceiveBuffer.h"

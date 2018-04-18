@@ -6,11 +6,11 @@ add_wn_header_library(WNMemory
     inc/allocation.h
     inc/allocator.h
     inc/basic_allocator.h
-    inc/WNIntrusivePtr.h
+    inc/intrusive_ptr.h
     inc/manipulation.h
-    inc/WNSTLCompatibleAllocator.h
-    inc/WNStringUtility.h
-    inc/WNUniquePtr.h
+    inc/stl_allocator.h
+    inc/string_utility.h
+    inc/unique_ptr.h
 )
 
 wn_add_subdirectory(test)

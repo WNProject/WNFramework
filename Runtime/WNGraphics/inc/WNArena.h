@@ -10,7 +10,7 @@
 #include "WNCore/inc/WNTypes.h"
 #include "WNGraphics/inc/WNDevice.h"
 #include "WNGraphics/inc/WNGraphicsObjectBase.h"
-#include "WNMemory/inc/WNStringUtility.h"
+#include "WNMemory/inc/string_utility.h"
 
 WN_GRAPHICS_FORWARD(device);
 

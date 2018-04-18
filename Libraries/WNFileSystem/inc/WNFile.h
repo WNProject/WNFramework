@@ -10,7 +10,7 @@
 #include "WNContainers/inc/WNContiguousRange.h"
 #include "WNCore/inc/WNTypeTraits.h"
 #include "WNMemory/inc/allocator.h"
-#include "WNMemory/inc/WNIntrusivePtr.h"
+#include "WNMemory/inc/intrusive_ptr.h"
 
 namespace wn {
 namespace file_system {

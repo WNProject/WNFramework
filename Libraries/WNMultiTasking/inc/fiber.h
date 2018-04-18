@@ -9,7 +9,7 @@
 
 #include "WNCore/inc/WNUtility.h"
 #include "WNFunctional/inc/WNFunction.h"
-#include "WNMemory/inc/WNUniquePtr.h"
+#include "WNMemory/inc/unique_ptr.h"
 
 #ifdef _WN_POSIX
 #include <ucontext.h>

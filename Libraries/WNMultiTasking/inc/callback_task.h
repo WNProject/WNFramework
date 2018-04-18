@@ -10,7 +10,7 @@
 #include "WNCore/inc/WNTypeTraits.h"
 #include "WNCore/inc/WNUtility.h"
 #include "WNFunctional/inc/WNFunction.h"
-#include "WNMemory/inc/WNIntrusivePtr.h"
+#include "WNMemory/inc/intrusive_ptr.h"
 #include "WNMultiTasking/inc/thread_task.h"
 
 namespace wn {

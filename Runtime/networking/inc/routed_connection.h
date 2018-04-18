@@ -9,7 +9,7 @@
 
 #include "WNContainers/inc/WNContiguousRange.h"
 #include "WNCore/inc/WNEndian.h"
-#include "WNMemory/inc/WNUniquePtr.h"
+#include "WNMemory/inc/unique_ptr.h"
 #include "WNMultiTasking/inc/job_pool.h"
 #include "WNNetworking/inc/WNConnection.h"
 #include "WNNetworking/inc/WNNetworkingErrors.h"

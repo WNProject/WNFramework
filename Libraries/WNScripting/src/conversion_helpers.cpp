@@ -3,7 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "WNCore/inc/WNUtility.h"
-#include "WNMemory/inc/WNUniquePtr.h"
+#include "WNMemory/inc/unique_ptr.h"
 #include "WNScripting/inc/WNNodeTypes.h"
 #include "WNScripting/inc/internal/ast_convertor_context.h"
 #include "WNScripting/inc/parse_ast_convertor.h"

@@ -3,7 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "WNExecutableTest/inc/WNTestHarness.h"
-#include "WNMemory/inc/WNIntrusivePtr.h"
+#include "WNMemory/inc/intrusive_ptr.h"
 
 template <typename T>
 struct intrusive_ptr : testing::Test {};

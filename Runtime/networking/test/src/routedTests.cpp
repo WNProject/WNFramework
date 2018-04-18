@@ -4,7 +4,7 @@
 
 #include "WNApplicationData/inc/WNApplicationData.h"
 #include "WNApplicationTest/inc/WNTestHarness.h"
-#include "WNMemory/inc/WNUniquePtr.h"
+#include "WNMemory/inc/unique_ptr.h"
 #include "WNNetworking/inc/WNNetworkManager.h"
 #include "networking/inc/manager.h"
 #include "networking/inc/routed_connection.h"

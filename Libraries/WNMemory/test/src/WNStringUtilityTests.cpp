@@ -3,7 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "WNExecutableTest/inc/WNTestHarness.h"
-#include "WNMemory/inc/WNStringUtility.h"
+#include "WNMemory/inc/string_utility.h"
 
 TEST(string_utility, strlen) {
   const char* test1 = "string";

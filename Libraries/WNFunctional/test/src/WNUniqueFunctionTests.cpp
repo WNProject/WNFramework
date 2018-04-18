@@ -4,7 +4,7 @@
 
 #include "WNExecutableTest/inc/WNTestHarness.h"
 #include "WNFunctional/inc/WNUniqueFunction.h"
-#include "WNMemory/inc/WNUniquePtr.h"
+#include "WNMemory/inc/unique_ptr.h"
 
 void test_function1() {}
 

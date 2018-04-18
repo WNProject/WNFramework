@@ -7,7 +7,7 @@
 
 #include "WNContainers/inc/WNHashMap.h"
 #include "WNContainers/inc/WNHashSet.h"
-#include "WNMemory/inc/WNStringUtility.h"
+#include "WNMemory/inc/string_utility.h"
 #include "WNScripting/inc/WNNodeTypes.h"
 #include "WNScripting/inc/parse_ast_convertor.h"
 

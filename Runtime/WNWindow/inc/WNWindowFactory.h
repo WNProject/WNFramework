@@ -8,7 +8,7 @@
 #define __WN_WINDOW_WINDOW_FACTORY_H__
 
 #include "WNLogging/inc/WNLog.h"
-#include "WNMemory/inc/WNUniquePtr.h"
+#include "WNMemory/inc/unique_ptr.h"
 #include "WNMultiTasking/inc/job_pool.h"
 #include "WNWindow/inc/WNWindowEnums.h"
 

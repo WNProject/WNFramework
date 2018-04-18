@@ -3,7 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "WNWindow/inc/WNWindowFactory.h"
-#include "WNMemory/inc/WNUniquePtr.h"
+#include "WNMemory/inc/unique_ptr.h"
 #include "WNWindow/inc/Internal/WNConfig.h"
 #include "WNWindow/inc/Internal/WNWindowInclude.h"
 

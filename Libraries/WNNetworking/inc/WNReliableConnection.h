@@ -8,7 +8,7 @@
 #define __WN_NETWORKING_RELIABLE_CONNECTION_H__
 
 #include "WNMemory/inc/allocator.h"
-#include "WNMemory/inc/WNUniquePtr.h"
+#include "WNMemory/inc/unique_ptr.h"
 #include "WNNetworking/inc/WNConnection.h"
 #include "WNNetworking/inc/WNNetworkingErrors.h"
 #include "WNNetworking/inc/WNReceiveBuffer.h"

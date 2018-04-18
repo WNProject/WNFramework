@@ -4,7 +4,7 @@
 
 #include "WNContainers/inc/WNDeque.h"
 #include "WNExecutableTest/inc/WNTestHarness.h"
-#include "WNMemory/inc/WNUniquePtr.h"
+#include "WNMemory/inc/unique_ptr.h"
 
 template <typename _Type>
 struct deque : ::testing::Test {};

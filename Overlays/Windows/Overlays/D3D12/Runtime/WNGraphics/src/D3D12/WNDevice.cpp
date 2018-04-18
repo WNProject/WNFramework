@@ -25,7 +25,7 @@
 #include "WNGraphics/inc/WNSwapchain.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNMath/inc/WNBasic.h"
-#include "WNMemory/inc/WNUniquePtr.h"
+#include "WNMemory/inc/unique_ptr.h"
 #include "WNWindow/inc/WNWindow.h"
 #include "WNWindow/inc/WNWindowsWindow.h"
 

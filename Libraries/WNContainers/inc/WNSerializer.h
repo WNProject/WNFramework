@@ -13,7 +13,7 @@
 #include "WNCore/inc/WNEndian.h"
 #include "WNCore/inc/WNTypes.h"
 #include "WNMemory/inc/WNBasic.h"
-#include "WNMemory/inc/WNStringUtility.h"
+#include "WNMemory/inc/string_utility.h"
 
 namespace wn {
 namespace containers {

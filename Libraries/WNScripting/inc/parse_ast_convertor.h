@@ -7,7 +7,7 @@
 #ifndef __WN_SCRIPTING_PARSE_AST_CONVERTOR_H__
 #define __WN_SCRIPTING_PARSE_AST_CONVERTOR_H__
 
-#include "WNMemory/inc/WNIntrusivePtr.h"
+#include "WNMemory/inc/intrusive_ptr.h"
 #include "WNScripting/inc/WNNodeTypes.h"
 #include "WNScripting/inc/WNScriptHelpers.h"
 #include "WNScripting/inc/ast_node_types.h"

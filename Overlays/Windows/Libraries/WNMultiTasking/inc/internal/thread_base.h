@@ -9,7 +9,7 @@
 
 #include "WNCore/inc/WNUtility.h"
 #include "WNMemory/inc/allocator.h"
-#include "WNMemory/inc/WNIntrusivePtr.h"
+#include "WNMemory/inc/intrusive_ptr.h"
 #include "WNMultiTasking/inc/call_once.h"
 #include "WNMultiTasking/inc/internal/thread_base_common.h"
 #include "WNUtilities/inc/handle.h"

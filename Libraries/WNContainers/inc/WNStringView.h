@@ -12,7 +12,7 @@
 #include "WNCore/inc/WNTypes.h"
 #include "WNMath/inc/WNBasic.h"
 #include "WNMemory/inc/allocator.h"
-#include "WNMemory/inc/WNStringUtility.h"
+#include "WNMemory/inc/string_utility.h"
 
 #include <algorithm>
 #include <limits>

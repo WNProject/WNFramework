@@ -12,7 +12,7 @@
 #include "WNCore/inc/WNUtility.h"
 #include "WNFileSystem/inc/WNFile.h"
 #include "WNFileSystem/inc/WNResult.h"
-#include "WNMemory/inc/WNUniquePtr.h"
+#include "WNMemory/inc/unique_ptr.h"
 
 namespace wn {
 namespace file_system {

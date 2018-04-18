@@ -6,7 +6,7 @@
 #include "WNCore/inc/WNAssert.h"
 #include "WNCore/inc/WNUtility.h"
 #include "WNMemory/inc/allocator.h"
-#include "WNMemory/inc/WNIntrusivePtr.h"
+#include "WNMemory/inc/intrusive_ptr.h"
 #include "WNMultiTasking/inc/semaphore.h"
 
 namespace wn {

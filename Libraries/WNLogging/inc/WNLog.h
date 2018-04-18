@@ -11,7 +11,7 @@
 #include "WNCore/inc/WNTypes.h"
 #include "WNLogging/inc/Internal/WNConfig.h"
 #include "WNLogging/inc/WNLogEnums.h"
-#include "WNMemory/inc/WNStringUtility.h"
+#include "WNMemory/inc/string_utility.h"
 
 namespace wn {
 namespace logging {
