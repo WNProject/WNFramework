@@ -1,17 +1,17 @@
 wn_create_executable_tests_from_list(
-  TEST_PREFIX WNMultiTasking
+  TEST_PREFIX multi_tasking
   SOURCE_DIR src
   SOURCES
-    WNCallOnce
-    WNFiber
-    WNJobPool
-    WNMutex
-    WNSemaphore
-    WNSharedMutex
-    WNSpinLock
-    WNSynchronized
-    WNThreadPool
-    WNThread
+    call_once
+    fiber
+    job_pool
+    mutex
+    semaphore
+    shared_mutex
+    spin_lock
+    synchronized
+    thread_pool
+    thread
   LIBS
     WNMultiTasking
 )

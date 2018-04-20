@@ -1,12 +1,12 @@
 wn_create_executable_tests_from_list(
-  TEST_PREFIX WNMemory
+  TEST_PREFIX memory
   SOURCE_DIR src
   SOURCES
-    WNAllocation
+    allocation
     basic_allocator
-    WNManipulation
-    WNIntrusivePtr
+    manipulation
+    intrusive_ptr
     stl_allocator
-    WNStringUtility
-    WNUniquePtr
+    string_utility
+    unique_ptr
 )
