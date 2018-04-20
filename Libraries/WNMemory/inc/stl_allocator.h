@@ -1,158 +1,186 @@
-// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Copyright (c) 2018, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#ifndef __WN_MEMORY_STL_COMPATIBLE_ALLOCATOR_H__
-#define __WN_MEMORY_STL_COMPATIBLE_ALLOCATOR_H__
+#ifndef __WN_MEMORY_STL_ALLOCATOR_H__
+#define __WN_MEMORY_STL_ALLOCATOR_H__
 
-#include "WNAllocator.h"
+#include "WNCore/inc/WNTypeTraits.h"
+#include "WNCore/inc/WNUtility.h"
+#include "WNMemory/inc/allocator.h"
+
+#include <limits>
 
 namespace wn {
 namespace memory {
+namespace internal {
 
-template <typename DefaultAlloc>
-struct passthrough_allocator_base {
-  static DefaultAlloc* get_default_allocator() {
-    static DefaultAlloc* alloc = new DefaultAlloc();
-    return alloc;
+template <typename DefaultAllocator>
+class stl_allocator_base {
+protected:
+  static DefaultAllocator* get_default_allocator() {
+    static DefaultAllocator allocator;
+
+    return &allocator;
   }
 };
 
-template <typename T, typename DefaultAlloc>
-struct passthrough_stl_allocator
-    : public passthrough_allocator_base<DefaultAlloc> {
+}  // namespace internal
+
+template <typename T, typename DefaultAllocator>
+class stl_allocator : public internal::stl_allocator_base<DefaultAllocator> {
 public:
-  static DefaultAlloc* get_default_allocator() {
-    return passthrough_allocator_base<DefaultAlloc>::get_default_allocator();
-  }
-  typedef T value_type;
-  typedef T* pointer;
-  typedef T& reference;
-  typedef const T* const_pointer;
-  typedef const T& const_reference;
-  typedef size_t size_type;
-  typedef signed_t difference_type;
-  typedef std::false_type propagate_on_container_copy_assignment;
-  typedef std::true_type propagate_on_container_move_assignment;
-  typedef std::false_type propagate_on_container_swap;
+  using value_type = T;
+  using pointer = T*;
+  using reference = T&;
+  using const_pointer = const T*;
+  using const_reference = const T&;
+  using size_type = size_t;
+  using difference_type = signed_t;
+  using propagate_on_container_copy_assignment = core::false_type;
+  using propagate_on_container_move_assignment = core::true_type;
+  using propagate_on_container_swap = core::false_type;
 
-  passthrough_stl_allocator select_on_container_copy_construction() {
+  template <typename U>
+  struct rebind {
+    typedef stl_allocator<U, DefaultAllocator> other;
+  };
+
+  stl_allocator() : stl_allocator(base::get_default_allocator()) {}
+
+  stl_allocator(allocator* _allocator) : m_allocator(_allocator) {}
+
+  template <typename U, typename OtherDefaultAllocator>
+  stl_allocator(const stl_allocator<U, OtherDefaultAllocator>& _other)
+    : m_allocator(_other.m_allocator) {}
+
+  template <typename U, typename OtherDefaultAllocator>
+  bool operator==(const stl_allocator<U, OtherDefaultAllocator>& _other) const {
+    return (m_allocator == _other.m_allocator);
+  }
+
+  pointer address(reference _reference) {
+    return &_reference;
+  }
+  const_pointer address(const_reference _reference) {
+    return &_reference;
+  }
+
+  template <typename DA = DefaultAllocator>
+  pointer allocate(
+      size_type _size, typename stl_allocator<void, DA>::const_pointer = 0) {
+    return static_cast<pointer>(
+        m_allocator->allocate(sizeof(value_type) * _size));
+  }
+
+  void deallocate(pointer _ptr, size_type _size) {
+    (void)_size;
+
+    return m_allocator->deallocate(_ptr);
+  }
+
+  template <typename U, typename... Args>
+  void construct(U* _ptr, Args&&... _args) {
+    m_allocator->construct_at(_ptr, core::forward<Args>(_args)...);
+  }
+
+  template <typename U>
+  void destroy(U* _ptr) {
+    (void)_ptr;
+
+    _ptr->~U();
+  }
+
+  size_type max_size() const {
+    return (std::numeric_limits<size_t>::max() / sizeof(value_type));
+  }
+
+  stl_allocator select_on_container_copy_construction() {
     return *this;
   }
 
-  passthrough_stl_allocator()
-    : passthrough_stl_allocator(
-          passthrough_allocator_base<DefaultAlloc>::get_default_allocator()) {}
-  passthrough_stl_allocator(wn::memory::allocator* _allocator)
-    : m_allocator(_allocator) {}
-  template <typename T0, typename T1>
-  passthrough_stl_allocator(const passthrough_stl_allocator<T0, T1>& _other)
-    : m_allocator(_other.m_allocator) {}
+private:
+  template <typename U, typename OtherDefaultAllocator>
+  friend class stl_allocator;
 
-  template <class Type>
-  struct rebind {
-    typedef passthrough_stl_allocator<Type, DefaultAlloc> other;
-  };
+  using base = internal::stl_allocator_base<DefaultAllocator>;
 
-  template <typename T0, typename T1>
-  inline bool operator==(
-      const passthrough_stl_allocator<T0, T1>& _other) const {
-    return m_allocator == _other.m_allocator;
-  }
-
-  pointer address(reference _r) {
-    return &_r;
-  }
-  const_pointer address(const_reference _r) {
-    return &_r;
-  }
-
-  template <typename DA = DefaultAlloc>
-  pointer allocate(size_type _n,
-      typename passthrough_stl_allocator<void, DA>::const_pointer = 0) {
-    return static_cast<pointer>(m_allocator->allocate(sizeof(value_type) * _n));
-  }
-
-  void deallocate(pointer _p, size_type) {
-    return m_allocator->deallocate(_p);
-  }
-  size_type max_size() const {
-    return std::numeric_limits<size_t>::max() / sizeof(value_type);
-  }
-  template <class U, class... Args>
-  void construct(U* _p, Args&&... _args) {
-    ::new ((void*)_p) U(std::forward<Args>(_args)...);
-  }
-  template <class U>
-  void destroy(U* _p) {
-    WN_UNUSED_ARGUMENT(_p);
-    _p->~U();
-  }
-
-  wn::memory::allocator* m_allocator;
+  allocator* m_allocator;
 };
 
-template <typename DefaultAlloc>
-struct passthrough_stl_allocator<void, DefaultAlloc>
-    : public passthrough_allocator_base<DefaultAlloc> {
-  typedef void value_type;
-  typedef void* pointer;
-  typedef const void* const_pointer;
-  typedef size_t size_type;
-  typedef signed_t difference_type;
-  typedef std::false_type propagate_on_container_copy_assignment;
-  typedef std::true_type propagate_on_container_move_assignment;
-  typedef std::false_type propagate_on_container_swap;
+template <typename DefaultAllocator>
+class stl_allocator<void, DefaultAllocator>
+  : public internal::stl_allocator_base<DefaultAllocator> {
+public:
+  using value_type = void;
+  using pointer = void*;
+  using const_pointer = const void*;
+  using size_type = size_t;
+  using difference_type = signed_t;
+  using propagate_on_container_copy_assignment = core::false_type;
+  using propagate_on_container_move_assignment = core::true_type;
+  using propagate_on_container_swap = core::false_type;
 
-  passthrough_stl_allocator select_on_container_copy_construction() {
-    return *this;
-  }
-
-  passthrough_stl_allocator()
-    : passthrough_stl_allocator(
-          passthrough_allocator_base<DefaultAlloc>::get_default_allocator()) {}
-  passthrough_stl_allocator(wn::memory::allocator* _allocator)
-    : m_allocator(_allocator) {}
-  template <typename T0, typename T1>
-  passthrough_stl_allocator(const passthrough_stl_allocator<T0, T1>& _other)
-    : m_allocator(_other.m_allocator) {}
-
-  template <class Type>
+  template <typename U>
   struct rebind {
-    typedef passthrough_stl_allocator<Type, DefaultAlloc> other;
+    typedef stl_allocator<U, DefaultAllocator> other;
   };
 
-  template <typename T0, typename T1>
-  inline bool operator==(
-      const passthrough_stl_allocator<T0, T1>& _other) const {
-    return m_allocator == _other.m_allocator;
+  stl_allocator() : stl_allocator(base::get_default_allocator()) {}
+
+  stl_allocator(allocator* _allocator) : m_allocator(_allocator) {}
+
+  template <typename U, typename OtherDefaultAllocator>
+  stl_allocator(const stl_allocator<U, OtherDefaultAllocator>& _other)
+    : m_allocator(_other.m_allocator) {}
+
+  template <typename U, typename OtherDefaultAllocator>
+  bool operator==(const stl_allocator<U, OtherDefaultAllocator>& _other) const {
+    return (m_allocator == _other.m_allocator);
   }
 
-  template <typename DA = DefaultAlloc>
-  pointer allocate(size_type _n,
-      typename passthrough_stl_allocator<void, DA>::const_pointer = 0) {
-    return nullptr;
+  template <typename DA = DefaultAllocator>
+  pointer allocate(
+      size_type _size, typename stl_allocator<void, DA>::const_pointer = 0) {
+    return m_allocator->allocate(_size);
   }
 
-  void deallocate(pointer _p, size_type) {
-    return m_allocator->deallocate(_p);
+  void deallocate(pointer _ptr, size_type _size) {
+    (void)_size;
+
+    return m_allocator->deallocate(_ptr);
   }
+
+  template <typename U, typename... Args>
+  void construct(U* _ptr, Args&&... _args) {
+    m_allocator->construct_at(_ptr, core::forward<Args>(_args)...);
+  }
+
+  template <typename U>
+  void destroy(U* _ptr) {
+    (void)_ptr;
+
+    _ptr->~U();
+  }
+
   size_type max_size() const {
     return std::numeric_limits<size_t>::max();
   }
-  template <class U, class... Args>
-  void construct(U* _p, Args&&... _args) {
-    ::new ((void*)_p) U(std::forward<Args>(_args)...);
-  }
-  template <class U>
-  void destroy(U* _p) {
-    WN_UNUSED_ARGUMENT(_p);
-    _p->~U();
+
+  stl_allocator select_on_container_copy_construction() {
+    return *this;
   }
 
-  wn::memory::allocator* m_allocator;
+private:
+  template <typename U, typename OtherDefaultAllocator>
+  friend class stl_allocator;
+
+  using base = internal::stl_allocator_base<DefaultAllocator>;
+
+  allocator* m_allocator;
 };
-}
-}
 
-#endif  //__WN_MEMORY_STL_COMPATIBLE_ALLOCATOR_H__
+}  // namespace memory
+}  // namespace wn
+
+#endif  //__WN_MEMORY_STL_ALLOCATOR_H__
