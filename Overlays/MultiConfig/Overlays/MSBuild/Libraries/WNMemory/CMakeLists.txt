@@ -1,4 +1,6 @@
-overlay_header_library_sources(WNMemory
+overlay_header_library_sources(
+  WNMemory
   SOURCES
-    natvis/WNIntrusivePtr.natvis
-    natvis/WNUniquePtr.natvis)
+    natvis/intrusive_ptr.natvis
+    natvis/unique_ptr.natvis
+)

@@ -5,7 +5,7 @@
     <Expand>
       <Item Name="[capacity]" ExcludeView="simple">m_capacity</Item>
       <Item Name="[allocator]" ExcludeView="simple">m_allocator</Item>
-      <ArrayItems>
+      <ArrayItems Condition="m_data != 0">
         <Size>m_size</Size>
         <ValuePointer>m_data</ValuePointer>
       </ArrayItems>
