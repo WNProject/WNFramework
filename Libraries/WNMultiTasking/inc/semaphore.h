@@ -17,11 +17,9 @@ class semaphore final : internal::semaphore_base {
 public:
   semaphore() : semaphore(0u) {}
 
-  semaphore(const uint16_t _count) : base(_count) {}
+  semaphore(uint32_t _count) : base(_count) {}
 
   semaphore(semaphore&& _other) : base(core::move(_other)) {}
-
-  ~semaphore() = default;
 
   semaphore& operator=(semaphore&& _other) {
     semaphore(core::move(_other)).swap(*this);
@@ -41,7 +39,7 @@ public:
     notify(1);
   }
 
-  void notify(const uint16_t _count) {
+  void notify(uint32_t _count) {
     WN_DEBUG_ASSERT(
         _count != 0u, "notified a semaphore object with a count of 0");
 

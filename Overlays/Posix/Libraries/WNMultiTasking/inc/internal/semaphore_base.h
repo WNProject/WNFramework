@@ -21,7 +21,7 @@ class semaphore_base : core::non_copyable {
 protected:
   semaphore_base() = delete;
 
-  semaphore_base(const uint16_t _count) {
+  semaphore_base(uint32_t _count) {
     const int result =
         ::sem_init(&m_semaphore, 0, static_cast<unsigned int>(_count));
 
@@ -65,10 +65,8 @@ protected:
     return (result == 0);
   }
 
-  void notify(const uint16_t _count) {
-    uint16_t count = _count;
-
-    while (count-- != 0) {
+  void notify(uint32_t _count) {
+    while (_count-- != 0) {
       const int result = ::sem_post(&m_semaphore);
 
       WN_RELEASE_ASSERT(

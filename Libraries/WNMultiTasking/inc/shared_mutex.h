@@ -18,8 +18,6 @@ class shared_mutex final : internal::shared_mutex_base {
 public:
   shared_mutex() : base() {}
 
-  ~shared_mutex() = default;
-
   void lock() {
     base::lock();
   }

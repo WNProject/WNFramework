@@ -17,8 +17,6 @@ class shared_mutex_base : core::non_copyable {
 protected:
   shared_mutex_base() : m_slim_read_write_lock(SRWLOCK_INIT) {}
 
-  ~shared_mutex_base() = default;
-
   void lock() {
     ::AcquireSRWLockExclusive(&m_slim_read_write_lock);
   }

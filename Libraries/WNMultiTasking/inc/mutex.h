@@ -21,9 +21,7 @@ public:
 
   mutex() : mutex(default_spin_count) {}
 
-  mutex(const uint32_t _spin_count) : base(), m_spin_count(_spin_count) {}
-
-  ~mutex() = default;
+  mutex(uint32_t _spin_count) : base(), m_spin_count(_spin_count) {}
 
   void lock() {
     for (uint32_t i = 0u; i < m_spin_count; ++i) {
@@ -47,7 +45,7 @@ public:
     return m_spin_count;
   }
 
-  void set_spin_count(const uint32_t _spin_count) {
+  void set_spin_count(uint32_t _spin_count) {
     m_spin_count.store(_spin_count, std::memory_order_acquire);
   }
 

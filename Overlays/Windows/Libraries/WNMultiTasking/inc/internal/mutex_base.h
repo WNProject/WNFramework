@@ -8,6 +8,7 @@
 #define __WN_MULTI_TASKING_WINDOWS_INTERNAL_MUTEX_BASE_H__
 
 #include "WNCore/inc/WNAssert.h"
+#include "WNCore/inc/WNTypes.h"
 #include "WNCore/inc/WNUtility.h"
 #include "WNUtilities/inc/handle.h"
 
@@ -24,8 +25,6 @@ protected:
 
     WN_RELEASE_ASSERT(m_semaphore != NULL, "failed to create mutex object");
   }
-
-  ~mutex_base() = default;
 
   void lock() {
     if (m_lock_count.fetch_add(1, std::memory_order_acquire) > 0) {

@@ -4,8 +4,8 @@
 
 #include "WNContainers/inc/WNArray.h"
 #include "WNExecutableTest/inc/WNTestHarness.h"
-#include "WNMultiTasking/inc/thread.h"
 #include "WNMultiTasking/inc/semaphore.h"
+#include "WNMultiTasking/inc/thread.h"
 
 namespace {
 

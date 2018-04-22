@@ -17,8 +17,6 @@ class spin_lock final : internal::spin_lock_base {
 public:
   spin_lock() : base() {}
 
-  ~spin_lock() = default;
-
   void lock() {
     base::lock();
   }

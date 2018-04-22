@@ -8,6 +8,7 @@
 #define __WN_MULTI_TASKING_INTERNAL_THREAD_BASE_COMMON_H__
 
 #include "WNCore/inc/WNAssert.h"
+#include "WNCore/inc/WNTypes.h"
 #include "WNFunctional/inc/WNFunction.h"
 #include "WNMemory/inc/intrusive_ptr.h"
 #include "WNMultiTasking/inc/semaphore.h"

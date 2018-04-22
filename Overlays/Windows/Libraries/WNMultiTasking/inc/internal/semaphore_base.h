@@ -8,6 +8,7 @@
 #define __WN_MULTI_TASKING_WINDOWS_INTERNAL_SEMAPHORE_BASE_H__
 
 #include "WNCore/inc/WNAssert.h"
+#include "WNCore/inc/WNTypes.h"
 #include "WNCore/inc/WNUtility.h"
 #include "WNUtilities/inc/handle.h"
 
@@ -19,20 +20,17 @@ class semaphore_base : core::non_copyable {
 protected:
   semaphore_base() = delete;
 
-  semaphore_base(const uint16_t _count) {
+  semaphore_base(uint32_t _count) {
     m_handle =
         ::CreateSemaphoreW(NULL, static_cast<LONG>(_count), LONG_MAX, NULL);
 
-    WN_RELEASE_ASSERT(
-        m_handle != NULL, "failed to create semaphore object");
+    WN_RELEASE_ASSERT(m_handle != NULL, "failed to create semaphore object");
   }
 
   semaphore_base(semaphore_base&& _other) {
     m_handle = _other.m_handle;
     _other.m_handle = nullptr;
   }
-
-  ~semaphore_base() = default;
 
   void wait() {
     const DWORD result = ::WaitForSingleObject(m_handle.value(), INFINITE);
@@ -45,7 +43,7 @@ protected:
     return (::WaitForSingleObject(m_handle.value(), 0) != WAIT_TIMEOUT);
   }
 
-  void notify(const uint16_t _count) {
+  void notify(uint32_t _count) {
     if (_count > 0) {
       const BOOL result =
           ::ReleaseSemaphore(m_handle.value(), static_cast<LONG>(_count), NULL);
