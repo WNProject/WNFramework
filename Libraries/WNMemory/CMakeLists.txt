@@ -2,6 +2,7 @@ enable_overlay_directory()
 
 add_wn_header_library(WNMemory
   SOURCES
+    inc/internal/allocation.h
     inc/allocation_tracker.h
     inc/allocation.h
     inc/allocator.h

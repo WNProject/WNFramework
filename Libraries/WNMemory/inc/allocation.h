@@ -11,23 +11,12 @@
 #include "WNCore/inc/WNTypeTraits.h"
 #include "WNCore/inc/WNTypes.h"
 #include "WNCore/inc/WNUtility.h"
-
-#ifndef _WN_WINDOWS
-#include "WNMemory/inc/manipulation.h"
-#endif
+#include "WNMemory/inc/internal/allocation.h"
 
 #include <cstdlib>
 #include <new>
 
-#ifdef _WN_WINDOWS
-#include <malloc.h>
-
-#define WN_STACK_ALLOC(_size) ::_alloca(_size)
-#elif defined _WN_LINUX || defined _WN_ANDROID
-#include <alloca.h>
-
-#define WN_STACK_ALLOC(_size) ::alloca(_size)
-#endif
+#define WN_STACK_ALLOC(_size) __WN_INTERNAL_STACK_ALLOC(_size)
 
 namespace wn {
 namespace memory {
@@ -51,61 +40,19 @@ inline void* aligned_malloc(size_t _size, size_t _alignment) {
   WN_RELEASE_ASSERT(_alignment > 0 && !(_alignment & (_alignment - 1)),
       "alignment is not a positive power of 2");
 
-#ifdef _WN_WINDOWS
-  return ::_aligned_malloc(_size, _alignment);
-#else
-  void* real_ptr = malloc((_size + _alignment - 1) + 2 * sizeof(void*));
-
-  if (real_ptr) {
-    void* adjusted_ptr = reinterpret_cast<void*>(
-        ((reinterpret_cast<size_t>(real_ptr) + sizeof(void*) + _alignment - 1) &
-            ~(_alignment - 1)));
-
-    *(reinterpret_cast<void**>(adjusted_ptr) - 1) = real_ptr;
-    *(reinterpret_cast<size_t*>(adjusted_ptr) - 2) = _size;
-
-    return adjusted_ptr;
-  }
-
-  return nullptr;
-#endif
+  return internal::aligned_malloc(_size, _alignment);
 }
-
-#ifndef _WN_WINDOWS
-void aligned_free(void*);
-#endif
 
 inline void* aligned_realloc(void* _ptr, size_t _new_size, size_t _alignment) {
   WN_RELEASE_ASSERT(_new_size != 0, "attempting to allocate 0 bytes");
   WN_RELEASE_ASSERT(_alignment > 0 && !(_alignment & (_alignment - 1)),
       "alignment is not a positive power of 2");
 
-#ifdef _WN_WINDOWS
-  return ::_aligned_realloc(_ptr, _new_size, _alignment);
-#else
-  void* temp_ptr = aligned_malloc(_new_size, _alignment);
-
-  if (_ptr) {
-    const size_t old_size = *(reinterpret_cast<size_t*>(_ptr) - 2);
-    const size_t copy_size = old_size < _new_size ? old_size : _new_size;
-
-    temp_ptr = memcpy(temp_ptr, _ptr, copy_size);
-  }
-
-  aligned_free(_ptr);
-
-  return temp_ptr;
-#endif
+  return internal::aligned_realloc(_ptr, _new_size, _alignment);
 }
 
 inline void aligned_free(void* _ptr) {
-#ifdef _WN_WINDOWS
-  ::_aligned_free(_ptr);
-#else
-  if (_ptr) {
-    free(*(reinterpret_cast<void**>(_ptr) - 1));
-  }
-#endif
+  internal::aligned_free(_ptr);
 }
 
 template <typename T>
