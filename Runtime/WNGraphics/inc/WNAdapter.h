@@ -43,7 +43,6 @@ class device;
 class surface;
 
 using device_ptr = memory::unique_ptr<device>;
-static const adapter_features k_empty_adapter_features;
 
 class adapter : public internal::adapter_base {
 public:

@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNGraphics/inc/WNBuffer.h"
 #include "WNGraphics/inc/WNArena.h"
+#include "WNGraphics/inc/WNBuffer.h"
 #include "WNGraphics/inc/WNDevice.h"
 #include "WNGraphics/inc/WNFactory.h"
 #include "WNGraphics/inc/WNQueue.h"
@@ -15,8 +15,9 @@ TEST_P(buffer, many_sizes) {
   wn::runtime::graphics::factory device_factory(&m_allocator, m_log);
 
   for (auto& adapter : device_factory.query_adapters()) {
-    wn::runtime::graphics::device_ptr device = adapter->make_device(
-        &m_allocator, m_log, wn::runtime::graphics::k_empty_adapter_features);
+    wn::runtime::graphics::device_ptr device =
+        adapter->make_device(&m_allocator, m_log,
+            wn::runtime::graphics::testing::k_empty_adapter_features);
 
     ASSERT_NE(nullptr, device);
 

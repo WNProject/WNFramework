@@ -35,6 +35,8 @@ template <size_t width, size_t height>
 using image =
     wn::containers::array<wn::containers::array<pixel, width>, height>;
 
+static const adapter_features k_empty_adapter_features = {};
+
 struct comparison_result {
   // The absolute_error is simply a measure of how "incorrect"
   // a given image is. It is only valid to be compared against

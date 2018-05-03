@@ -18,11 +18,11 @@ TEST_F(push_constant_test, basic) {
       &m_allocator, wn::file_system::mapping_type::memory_backed);
   files->initialize_files(push_constants_test::get_files());
 
-  run_test(wn::runtime::graphics::k_empty_adapter_features,
+  run_test(wn::runtime::graphics::testing::k_empty_adapter_features,
       [this, &files](wn::runtime::graphics::adapter::api_type _api,
-               wn::runtime::graphics::device* _device,
-               wn::runtime::graphics::queue* _queue,
-               wn::runtime::graphics::image* _image) {
+          wn::runtime::graphics::device* _device,
+          wn::runtime::graphics::queue* _queue,
+          wn::runtime::graphics::image* _image) {
         wn::runtime::graphics::command_allocator alloc =
             _device->create_command_allocator();
         wn::file_system::result res;
@@ -84,8 +84,7 @@ TEST_F(push_constant_test, basic) {
 
         const size_t size = vertex_size * num_verts;
 
-        wn::runtime::graphics::buffer buffer = _device->create_buffer(
-            size,
+        wn::runtime::graphics::buffer buffer = _device->create_buffer(size,
             static_cast<wn::runtime::graphics::resource_states>(
                 static_cast<uint32_t>(
                     wn::runtime::graphics::resource_state::host_write) |
@@ -174,8 +173,9 @@ TEST_F(push_constant_test, basic) {
         const wn::runtime::graphics::image_view* views[] = {&image_view};
 
         wn::runtime::graphics::framebuffer_create_info framebuffer_create = {
-            &render_pass, wn::containers::contiguous_range<
-                              const wn::runtime::graphics::image_view*>(views),
+            &render_pass,
+            wn::containers::contiguous_range<
+                const wn::runtime::graphics::image_view*>(views),
             get_width(), get_height(), 1};
 
         wn::runtime::graphics::framebuffer framebuffer =

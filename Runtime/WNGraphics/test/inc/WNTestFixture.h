@@ -15,6 +15,8 @@ namespace runtime {
 namespace graphics {
 namespace testing {
 
+static const adapter_features k_empty_adapter_features = {};
+
 template <typename T>
 class test_internal : public T {
 public:
