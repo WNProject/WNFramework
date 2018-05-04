@@ -8,7 +8,7 @@
 #define __WN_FILE_SYSTEM_FILE_H__
 
 #include "WNContainers/inc/WNContiguousRange.h"
-#include "WNCore/inc/WNTypeTraits.h"
+#include "WNCore/inc/type_traits.h"
 #include "WNMemory/inc/allocator.h"
 #include "WNMemory/inc/intrusive_ptr.h"
 

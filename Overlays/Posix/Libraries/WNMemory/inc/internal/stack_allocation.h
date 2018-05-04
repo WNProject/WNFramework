@@ -7,7 +7,7 @@
 #ifndef __WN_MEMORY_POSIX_INTERNAL_STACK_ALLOCATION_H__
 #define __WN_MEMORY_POSIX_INTERNAL_STACK_ALLOCATION_H__
 
-#include "WNCore/inc/WNTypes.h"
+#include "WNCore/inc/types.h"
 
 #include <alloca.h>
 

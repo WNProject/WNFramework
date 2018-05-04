@@ -7,7 +7,7 @@
 #ifndef __WN_MULTI_TASKING_CONDITION_VARIABLE_H__
 #define __WN_MULTI_TASKING_CONDITION_VARIABLE_H__
 
-#include "WNCore/inc/WNTypes.h"
+#include "WNCore/inc/types.h"
 
 #include <condition_variable>
 

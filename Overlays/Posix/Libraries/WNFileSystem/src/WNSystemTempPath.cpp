@@ -4,7 +4,7 @@
 
 #include "WNFileSystem/src/WNSystemTempPath.h"
 #include "WNContainers/inc/WNString.h"
-#include "WNCore/inc/WNTypes.h"
+#include "WNCore/inc/types.h"
 #include "WNExecutable/inc/WNEntry.h"
 #include "WNExecutable/inc/WNEntryData.h"
 #include "WNFileSystem/src/WNUtilities.h"

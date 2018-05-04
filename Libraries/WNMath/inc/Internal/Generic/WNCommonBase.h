@@ -7,9 +7,9 @@
 #ifndef __WN_MATH_INTERNAL_COMMON_BASE_GENERIC_H__
 #define __WN_MATH_INTERNAL_COMMON_BASE_GENERIC_H__
 
-#include "WNCore/inc/WNAssert.h"
-#include "WNCore/inc/WNTypes.h"
-#include "WNCore/inc/WNUtility.h"
+#include "WNCore/inc/assert.h"
+#include "WNCore/inc/types.h"
+#include "WNCore/inc/utilities.h"
 #include "WNMath/inc/Internal/WNStorageBase.h"
 
 namespace wn {

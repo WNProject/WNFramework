@@ -7,7 +7,7 @@
 #ifndef __WN_MATH_INTERNAL_GENERIC_MATRIX_BASE_H__
 #define __WN_MATH_INTERNAL_GENERIC_MATRIX_BASE_H__
 
-#include "WNCore/inc/WNTypeTraits.h"
+#include "WNCore/inc/type_traits.h"
 #include "WNMath/inc/Internal/WNCommonBase.h"
 
 namespace wn {

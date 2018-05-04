@@ -418,8 +418,8 @@ wn_make_preprocessor_symbol(
 )
 
 # generate config file
-set(CONFIG_FILE_INPUT_PATH_RELATIVE inc/Internal/WNConfig.h.in)
-set(CONFIG_FILE_OUTPUT_PATH_RELATIVE inc/Internal/WNConfig.h)
+set(CONFIG_FILE_INPUT_PATH_RELATIVE inc/internal/config.h.in)
+set(CONFIG_FILE_OUTPUT_PATH_RELATIVE inc/internal/config.h)
 
 configure_file(
   ${CONFIG_FILE_INPUT_PATH_RELATIVE}
@@ -433,21 +433,22 @@ set(CONFIG_FILE_OUTPUT_PATH
 )
 
 # setup target
-add_wn_header_library(WNCore
+add_wn_header_library(
+  WNCore
   SOURCES
-    inc/Internal/WNConfig.h.in
-    inc/Internal/WNErrors.inc
+    inc/internal/config.h.in
+    inc/internal/errors.inc
     ${CONFIG_FILE_INPUT_PATH}
     ${CONFIG_FILE_OUTPUT_PATH}
-    inc/WNAssert.h
-    inc/WNBase.h
-    inc/WNEndian.h
-    inc/WNMacros.h
-    inc/WNPair.h
-    inc/WNTuple.h
-    inc/WNTypes.h
-    inc/WNTypeTraits.h
-    inc/WNUtility.h
+    inc/assert.h
+    inc/base.h
+    inc/endian.h
+    inc/macros.h
+    inc/pair.h
+    inc/tuple.h
+    inc/types.h
+    inc/type_traits.h
+    inc/utilities.h
 )
 
 wn_add_subdirectory(test)

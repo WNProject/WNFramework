@@ -7,8 +7,8 @@
 #ifndef __WN_MULTI_TASKING_POSIX_SPIN_LOCK_INTERNAL_SPIN_LOCK_BASE_H__
 #define __WN_MULTI_TASKING_POSIX_SPIN_LOCK_INTERNAL_SPIN_LOCK_BASE_H__
 
-#include "WNCore/inc/WNAssert.h"
-#include "WNCore/inc/WNUtility.h"
+#include "WNCore/inc/assert.h"
+#include "WNCore/inc/utilities.h"
 
 #include <errno.h>
 #include <pthread.h>

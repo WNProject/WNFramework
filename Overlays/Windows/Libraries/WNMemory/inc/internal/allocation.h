@@ -7,7 +7,7 @@
 #ifndef __WN_MEMORY_WINDOWS_INTERNAL_ALLOCATION_H__
 #define __WN_MEMORY_WINDOWS_INTERNAL_ALLOCATION_H__
 
-#include "WNCore/inc/WNTypes.h"
+#include "WNCore/inc/types.h"
 
 #include <malloc.h>
 

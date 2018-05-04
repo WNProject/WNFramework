@@ -7,9 +7,9 @@
 #ifndef __WN_GRAPHICS_GRAPHICS_ENUMS_H__
 #define __WN_GRAPHICS_GRAPHICS_ENUMS_H__
 
-#include "WNCore/inc/WNAssert.h"
-#include "WNCore/inc/WNBase.h"
-#include "WNCore/inc/WNTypes.h"
+#include "WNCore/inc/assert.h"
+#include "WNCore/inc/base.h"
+#include "WNCore/inc/types.h"
 
 namespace wn {
 namespace runtime {

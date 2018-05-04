@@ -8,7 +8,7 @@
 #define __WN_GRAPHICS_INC_INTERNAL_VULKAN_QUEUE_H__
 
 #include "WNContainers/inc/WNContiguousRange.h"
-#include "WNCore/inc/WNPair.h"
+#include "WNCore/inc/pair.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanInclude.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanQueueContext.h"
 #include "WNGraphics/inc/Internal/WNConfig.h"
@@ -19,7 +19,7 @@
 #ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
 #include "WNGraphics/inc/WNQueue.h"
 #else
-#include "WNCore/inc/WNUtility.h"
+#include "WNCore/inc/utilities.h"
 #endif
 
 namespace wn {

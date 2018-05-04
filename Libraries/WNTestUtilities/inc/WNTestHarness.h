@@ -7,7 +7,7 @@
 #ifndef __WN_TESTING_TEST_HARNESS_H__
 #define __WN_TESTING_TEST_HARNESS_H__
 
-#include "WNCore/inc/WNTypes.h"
+#include "WNCore/inc/types.h"
 #include "WNMemory/inc/allocation_tracker.h"
 #include "WNMemory/inc/basic_allocator.h"
 

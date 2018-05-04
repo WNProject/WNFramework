@@ -8,7 +8,7 @@
 #define __WN_CONTAINERS_DEQUE_H__
 
 #include "WNContainers/inc/WNDynamicArray.h"
-#include "WNCore/inc/WNTypeTraits.h"
+#include "WNCore/inc/type_traits.h"
 #include "WNMemory/inc/allocator.h"
 #include "WNMemory/inc/manipulation.h"
 

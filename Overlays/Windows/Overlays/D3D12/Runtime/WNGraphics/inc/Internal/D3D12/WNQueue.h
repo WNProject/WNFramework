@@ -8,14 +8,14 @@
 #define __WN_GRAPHICS_INC_INTERNAL_D3D12_QUEUE_H__
 
 #include "WNContainers/inc/WNContiguousRange.h"
-#include "WNCore/inc/WNPair.h"
+#include "WNCore/inc/pair.h"
 #include "WNGraphics/inc/Internal/WNConfig.h"
 #include "WNGraphics/inc/WNGraphicsEnums.h"
 
 #ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
 #include "WNGraphics/inc/WNQueue.h"
 #else
-#include "WNCore/inc/WNUtility.h"
+#include "WNCore/inc/utilities.h"
 #endif
 
 #include <d3d12.h>

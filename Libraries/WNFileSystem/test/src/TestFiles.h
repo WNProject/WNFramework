@@ -4,7 +4,7 @@
 // found in the LICENSE.txt file.
 
 # pragma once
-# include "WNCore/inc/WNPair.h"
+# include "WNCore/inc/pair.h"
 # include "WNContainers/inc/WNStringView.h"
 # include "WNContainers/inc/WNContiguousRange.h"
 

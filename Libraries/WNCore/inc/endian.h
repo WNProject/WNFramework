@@ -7,8 +7,8 @@
 #ifndef __WN_CORE_ENDIAN_H__
 #define __WN_CORE_ENDIAN_H__
 
-#include "WNCore/inc/WNTypes.h"
-#include "WNCore/inc/WNUtility.h"
+#include "WNCore/inc/types.h"
+#include "WNCore/inc/utilities.h"
 
 namespace wn {
 namespace core {
@@ -85,7 +85,7 @@ struct swap_bytes<double, 8> {
     return (value);
   }
 };
-}
+}  // namespace internal
 
 template <typename _Type>
 WN_FORCE_INLINE _Type to_big_endian(const _Type _value) {
@@ -122,7 +122,7 @@ WN_FORCE_INLINE _Type from_little_endian(const _Type _value) {
   return (_value);
 #endif
 }
-}
-}
+}  // namespace core
+}  // namespace wn
 
 #endif  // __WN_CORE_ENDIAN_H__

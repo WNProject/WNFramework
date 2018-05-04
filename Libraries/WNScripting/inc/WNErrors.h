@@ -8,15 +8,15 @@
 namespace wn {
 namespace scripting {
 enum class engine_error {
-#include "WNCore/inc/Internal/WNErrors.inc"
+#include "WNCore/inc/internal/errors.inc"
   file_not_found
 };
 enum class parse_error {
-#include "WNCore/inc/Internal/WNErrors.inc"
+#include "WNCore/inc/internal/errors.inc"
   file_not_found,
   parse_failed
 };
-}
-}
+}  // namespace scripting
+}  // namespace wn
 
 #endif  //__WN_SCRIPTING_ERRORS_H__

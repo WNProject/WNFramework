@@ -8,7 +8,7 @@
 #define __WN_GRAPHICS_QUEUE_H__
 
 #include "WNContainers/inc/WNContiguousRange.h"
-#include "WNCore/inc/WNPair.h"
+#include "WNCore/inc/pair.h"
 #include "WNGraphics/inc/Internal/WNConfig.h"
 #include "WNGraphics/inc/WNGraphicsEnums.h"
 #include "WNMemory/inc/unique_ptr.h"
@@ -18,7 +18,7 @@
 #ifdef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
 #include "WNGraphics/inc/Internal/WNQueueIncludes.h"
 #else
-#include "WNCore/inc/WNUtility.h"
+#include "WNCore/inc/utilities.h"
 #endif
 
 WN_GRAPHICS_FORWARD(device);

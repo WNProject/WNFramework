@@ -3,7 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "WNExecutable/inc/WNEntry.h"
-#include "WNCore/inc/WNTypes.h"
+#include "WNCore/inc/types.h"
 #include "WNExecutable/inc/WNEntryData.h"
 #include "WNUtilities/inc/WNAndroidEventPump.h"
 #include "WNUtilities/inc/WNAppData.h"

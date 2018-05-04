@@ -5,8 +5,8 @@
 #ifndef __WN_MEMORY_STL_ALLOCATOR_H__
 #define __WN_MEMORY_STL_ALLOCATOR_H__
 
-#include "WNCore/inc/WNTypeTraits.h"
-#include "WNCore/inc/WNUtility.h"
+#include "WNCore/inc/type_traits.h"
+#include "WNCore/inc/utilities.h"
 #include "WNMemory/inc/allocator.h"
 
 #include <limits>

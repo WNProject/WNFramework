@@ -7,8 +7,8 @@
 #ifndef __WN_FUNCTIONAL_FUNCTION_H__
 #define __WN_FUNCTIONAL_FUNCTION_H__
 
-#include "WNCore/inc/WNAssert.h"
-#include "WNCore/inc/WNUtility.h"
+#include "WNCore/inc/assert.h"
+#include "WNCore/inc/utilities.h"
 #include "WNMemory/inc/allocator.h"
 
 namespace wn {

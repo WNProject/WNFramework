@@ -7,7 +7,7 @@
 #ifndef __WN_MULTI_TASKING_SHARED_MUTEX_H__
 #define __WN_MULTI_TASKING_SHARED_MUTEX_H__
 
-#include "WNCore/inc/WNUtility.h"
+#include "WNCore/inc/utilities.h"
 #include "WNMultiTasking/inc/internal/shared_mutex_base.h"
 #include "WNMultiTasking/inc/lock_guard.h"
 

@@ -7,7 +7,7 @@
 #ifndef __WN_GRAPHICS_OBJECT_BASE__
 #define __WN_GRAPHICS_OBJECT_BASE__
 
-#include "WNCore/inc/WNBase.h"
+#include "WNCore/inc/base.h"
 #include "WNGraphics/inc/Internal/WNConfig.h"
 #include "WNGraphics/inc/WNDevice.h"
 

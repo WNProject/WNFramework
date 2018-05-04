@@ -1,6 +1,6 @@
 #include "WNFileSystem/src/WNSystemPaths.h"
 #include "WNContainers/inc/WNString.h"
-#include "WNCore/inc/WNTypes.h"
+#include "WNCore/inc/types.h"
 #include "WNFileSystem/src/WNSystemTempPath.h"
 
 #include <errno.h>

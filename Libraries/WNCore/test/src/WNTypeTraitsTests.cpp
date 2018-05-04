@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNCore/inc/WNTypeTraits.h"
-#include "WNCore/inc/WNTypes.h"
+#include "WNCore/inc/type_traits.h"
+#include "WNCore/inc/types.h"
 #include "WNExecutableTest/inc/WNTestHarness.h"
 
 TEST(type_traits, integral_constant) {

@@ -3,7 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "WNGraphics/src/D3D12/WNHelpers.h"
-#include "WNCore/inc/WNUtility.h"
+#include "WNCore/inc/utilities.h"
 #include "WNGraphics/inc/Internal/D3D12/WNAdapter.h"
 #include "WNGraphics/inc/Internal/WNConfig.h"
 #include "WNLogging/inc/WNLog.h"

@@ -8,9 +8,9 @@
 #define __WN_CONTAINERS_CONTIGUOUS_RANGE_H__
 
 #include "WNContainers/inc/WNArray.h"
-#include "WNCore/inc/WNAssert.h"
-#include "WNCore/inc/WNTypeTraits.h"
-#include "WNCore/inc/WNUtility.h"
+#include "WNCore/inc/assert.h"
+#include "WNCore/inc/type_traits.h"
+#include "WNCore/inc/utilities.h"
 #include "WNMemory/inc/manipulation.h"
 
 #include <iterator>

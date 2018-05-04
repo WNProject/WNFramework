@@ -4,10 +4,10 @@
 
 #pragma once
 
-#ifndef __WN_CORE_UTILITY_H__
-#define __WN_CORE_UTILITY_H__
+#ifndef __WN_CORE_UTILITIES_H__
+#define __WN_CORE_UTILITIES_H__
 
-#include "WNCore/inc/WNTypeTraits.h"
+#include "WNCore/inc/type_traits.h"
 
 #include <utility>
 
@@ -43,11 +43,11 @@ protected:
 };
 
 template <typename T>
-WN_FORCE_INLINE decay_t<T> decay_copy(T&& value) {
+inline decay_t<T> decay_copy(T&& value) {
   return forward<T>(value);
 }
 
 }  // namespace core
 }  // namespace wn
 
-#endif  // __WN_CORE_UTILITY_H__
+#endif  // __WN_CORE_UTILITIES_H__

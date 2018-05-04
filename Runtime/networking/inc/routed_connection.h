@@ -8,7 +8,7 @@
 #define __WN_RUNTIME_NETWORKING_ROUTED_CONNECTION_H__
 
 #include "WNContainers/inc/WNContiguousRange.h"
-#include "WNCore/inc/WNEndian.h"
+#include "WNCore/inc/endian.h"
 #include "WNMemory/inc/unique_ptr.h"
 #include "WNMultiTasking/inc/job_pool.h"
 #include "WNNetworking/inc/WNConnection.h"
@@ -402,7 +402,6 @@ private:
     void send(multi_tasking::async_blocking_function) {
       multi_tasking::job_pool::this_job_pool()->call_blocking_function(
           [this]() {
-
             containers::list<send_message> currently_sending_messages(
                 m_allocator);
             containers::dynamic_array<wn::networking::send_range> ranges(
@@ -498,7 +497,6 @@ private:
     void recv(multi_tasking::async_blocking_function) {
       multi_tasking::job_pool::this_job_pool()->call_blocking_function(
           [this]() {
-
             wn::networking::WNReceiveBuffer temp_buffer =
                 wn::networking::WNReceiveBuffer(
                     wn::networking::network_error::closed);

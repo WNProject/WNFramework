@@ -7,7 +7,7 @@
 #ifndef __WN_GRAPHICS_INTERNAL_VULKAN_VULKAN_DEFINES_H__
 #define __WN_GRAPHICS_INTERNAL_VULKAN_VULKAN_DEFINES_H__
 
-#include "WNCore/inc/WNBase.h"
+#include "WNCore/inc/base.h"
 
 #define VK_USE_PLATFORM_WIN32_KHR 1
 #define VK_SURFACE_EXTENSION "VK_KHR_win32_surface"

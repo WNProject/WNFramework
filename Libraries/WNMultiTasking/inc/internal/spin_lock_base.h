@@ -7,7 +7,7 @@
 #ifndef __WN_MULTI_TASKING_INTERNAL_SPIN_LOCK_BASE_H__
 #define __WN_MULTI_TASKING_INTERNAL_SPIN_LOCK_BASE_H__
 
-#include "WNCore/inc/WNUtility.h"
+#include "WNCore/inc/utilities.h"
 
 #include <atomic>
 

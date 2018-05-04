@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNCore/inc/WNAssert.h"
+#include "WNCore/inc/assert.h"
 #include "WNMultiTasking/src/context.h"
 #include "WNMultiTasking/src/fiber_entry.h"
 

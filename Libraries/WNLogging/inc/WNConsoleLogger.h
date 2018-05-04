@@ -5,7 +5,7 @@
 #ifndef __WN_LOGGING_CONSOLE_LOGGER_H__
 #define __WN_LOGGING_CONSOLE_LOGGER_H__
 
-#include "WNCore/inc/WNBase.h"
+#include "WNCore/inc/base.h"
 #include "WNLogging/inc/WNLog.h"
 
 namespace wn {

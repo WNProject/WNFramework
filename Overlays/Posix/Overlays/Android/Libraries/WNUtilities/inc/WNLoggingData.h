@@ -5,7 +5,7 @@
 #ifndef __WN_UTILITIES_LOGGING_DATA_H__
 #define __WN_UTILITIES_LOGGING_DATA_H__
 
-#include "WNCore/inc/WNTypes.h"
+#include "WNCore/inc/types.h"
 
 namespace wn {
 namespace utilities {

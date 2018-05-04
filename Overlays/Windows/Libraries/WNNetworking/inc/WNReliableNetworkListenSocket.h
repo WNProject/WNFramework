@@ -7,7 +7,7 @@
 #ifndef __WN_NEWORKING_RELIABLE_CONNECTION_LISTEN_SOCKET_H__
 #define __WN_NEWORKING_RELIABLE_CONNECTION_LISTEN_SOCKET_H__
 
-#include "WNCore/inc/WNBase.h"
+#include "WNCore/inc/base.h"
 #include "WNNetworking/inc/WNNetworkManager.h"
 #include "WNNetworking/inc/WNReliableConnection.h"
 

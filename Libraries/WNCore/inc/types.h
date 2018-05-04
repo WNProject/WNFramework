@@ -7,7 +7,7 @@
 #ifndef __WN_CORE_TYPES_H__
 #define __WN_CORE_TYPES_H__
 
-#include "WNCore/inc/WNBase.h"
+#include "WNCore/inc/base.h"
 
 #include <cstdint>
 

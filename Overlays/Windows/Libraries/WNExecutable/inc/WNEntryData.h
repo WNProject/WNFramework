@@ -6,7 +6,7 @@
 #ifndef __WN_ENTRYPOINT_ENTRY_DATA_H__
 #define __WN_ENTRYPOINT_ENTRY_DATA_H__
 
-#include "WNCore/inc/WNBase.h"
+#include "WNCore/inc/base.h"
 
 namespace wn {
 namespace entry {

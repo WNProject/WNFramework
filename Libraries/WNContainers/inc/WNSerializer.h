@@ -9,9 +9,9 @@
 
 #include "WNContainers/inc/WNDataBuffer.h"
 #include "WNContainers/inc/WNSerializerBase.h"
-#include "WNCore/inc/WNAssert.h"
+#include "WNCore/inc/assert.h"
 #include "WNCore/inc/WNEndian.h"
-#include "WNCore/inc/WNTypes.h"
+#include "WNCore/inc/types.h"
 #include "WNMemory/inc/WNBasic.h"
 #include "WNMemory/inc/string_utility.h"
 

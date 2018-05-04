@@ -7,7 +7,7 @@
 
 #include "WNContainers/inc/WNDeque.h"
 #include "WNContainers/inc/WNHashMap.h"
-#include "WNCore/inc/WNUtility.h"
+#include "WNCore/inc/utilities.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/allocator.h"
 #include "WNScripting/inc/WNEngine.h"

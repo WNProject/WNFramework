@@ -12,7 +12,7 @@ namespace runtime {
 namespace window {
 
 enum class window_error {
-#include "WNCore/inc/Internal/WNErrors.inc"
+#include "WNCore/inc/internal/errors.inc"
 };
 
 }  // namespace window

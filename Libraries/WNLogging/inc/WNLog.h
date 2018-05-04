@@ -7,8 +7,8 @@
 #ifndef __WN_LOGGING_LOG_H__
 #define __WN_LOGGING_LOG_H__
 
-#include "WNCore/inc/WNAssert.h"
-#include "WNCore/inc/WNTypes.h"
+#include "WNCore/inc/assert.h"
+#include "WNCore/inc/types.h"
 #include "WNLogging/inc/Internal/WNConfig.h"
 #include "WNLogging/inc/WNLogEnums.h"
 #include "WNMemory/inc/string_utility.h"

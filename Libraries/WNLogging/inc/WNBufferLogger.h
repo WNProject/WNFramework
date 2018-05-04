@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "WNCore/inc/WNBase.h"
+#include "WNCore/inc/base.h"
 #include "WNLogging/inc/WNLog.h"
 
 namespace wn {

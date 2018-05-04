@@ -20,7 +20,7 @@
 #ifdef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
 #include "WNGraphics/inc/Internal/WNCommandListIncludes.h"
 #else
-#include "WNCore/inc/WNUtility.h"
+#include "WNCore/inc/utilities.h"
 #endif
 
 namespace wn {

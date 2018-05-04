@@ -15,7 +15,7 @@
 #ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
 #include "WNGraphics/inc/WNCommandList.h"
 #else
-#include "WNCore/inc/WNUtility.h"
+#include "WNCore/inc/utilities.h"
 #endif
 
 #include <d3d12.h>

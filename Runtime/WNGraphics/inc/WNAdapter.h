@@ -17,10 +17,10 @@
 #else
 #include "WNContainers/inc/WNString.h"
 #include "WNContainers/inc/WNStringView.h"
-#include "WNCore/inc/WNUtility.h"
+#include "WNCore/inc/utilities.h"
 #endif
 
-#include "WNCore/inc/WNPair.h"
+#include "WNCore/inc/pair.h"
 #include "WNGraphics/inc/WNErrors.h"
 #include "WNGraphics/inc/WNSurface.h"
 

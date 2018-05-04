@@ -7,8 +7,8 @@
 #ifndef __WN_MATH_INTERNAL_STORAGE_BASE_GENERIC_H__
 #define __WN_MATH_INTERNAL_STORAGE_BASE_GENERIC_H__
 
-#include "WNCore/inc/WNTypes.h"
-#include "WNCore/inc/WNUtility.h"
+#include "WNCore/inc/types.h"
+#include "WNCore/inc/utilities.h"
 
 namespace wn {
 namespace math {

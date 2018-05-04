@@ -3,7 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "WNFileSystem/src/WNMappingPosix.h"
-#include "WNCore/inc/WNAssert.h"
+#include "WNCore/inc/assert.h"
 #include "WNFileSystem/src/WNFilePosix.h"
 #include "WNFileSystem/src/WNSystemUtilities.h"
 

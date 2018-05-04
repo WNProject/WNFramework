@@ -7,7 +7,7 @@
 #ifndef __WN_RUNTIME_GRAPHICS_BUFFER_H__
 #define __WN_RUNTIME_GRAPHICS_BUFFER_H__
 
-#include "WNCore/inc/WNTypes.h"
+#include "WNCore/inc/types.h"
 #include "WNGraphics/inc/WNArena.h"
 #include "WNGraphics/inc/WNGraphicsObjectBase.h"
 #include "WNMemory/inc/string_utility.h"

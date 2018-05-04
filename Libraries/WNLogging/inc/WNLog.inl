@@ -4,8 +4,8 @@
 
 #ifndef __WN_LOGGING_LOG_INL__
 #define __WN_LOGGING_LOG_INL__
-#include "WNCore/inc/WNAssert.h"
-#include "WNCore/inc/WNTypes.h"
+#include "WNCore/inc/assert.h"
+#include "WNCore/inc/types.h"
 #include "WNLogging/inc/WNLog.h"
 
 namespace wn {

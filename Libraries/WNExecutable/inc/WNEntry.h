@@ -5,7 +5,7 @@
 #ifndef __WN_ENTRYPOINT_ENTRY_H__
 #define __WN_ENTRYPOINT_ENTRY_H__
 
-#include "WNCore/inc/WNTypes.h"
+#include "WNCore/inc/types.h"
 
 namespace wn {
 namespace entry {

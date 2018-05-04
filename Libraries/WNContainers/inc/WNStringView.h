@@ -9,7 +9,7 @@
 
 #include "WNContainers/inc/WNContiguousRange.h"
 #include "WNContainers/inc/WNDynamicArray.h"
-#include "WNCore/inc/WNTypes.h"
+#include "WNCore/inc/types.h"
 #include "WNMath/inc/WNBasic.h"
 #include "WNMemory/inc/allocator.h"
 #include "WNMemory/inc/string_utility.h"

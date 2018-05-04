@@ -7,8 +7,8 @@
 #ifndef __WN_MEMORY_ALLOCATOR_H__
 #define __WN_MEMORY_ALLOCATOR_H__
 
-#include "WNCore/inc/WNTypes.h"
-#include "WNCore/inc/WNUtility.h"
+#include "WNCore/inc/types.h"
+#include "WNCore/inc/utilities.h"
 #include "WNMemory/inc/allocation.h"
 
 namespace wn {

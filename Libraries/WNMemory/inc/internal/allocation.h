@@ -7,7 +7,7 @@
 #ifndef __WN_MEMORY_INTERNAL_ALLOCATION_H__
 #define __WN_MEMORY_INTERNAL_ALLOCATION_H__
 
-#include "WNCore/inc/WNTypes.h"
+#include "WNCore/inc/types.h"
 #include "WNMemory/inc/internal/stack_allocation.h"
 #include "WNMemory/inc/manipulation.h"
 

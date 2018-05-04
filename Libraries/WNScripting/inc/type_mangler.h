@@ -4,7 +4,7 @@
 
 #include "WNContainers/inc/WNString.h"
 #include "WNContainers/inc/WNStringView.h"
-#include "WNCore/inc/WNTypes.h"
+#include "WNCore/inc/types.h"
 #include "WNMemory/inc/allocator.h"
 #include "WNMemory/inc/manipulation.h"
 

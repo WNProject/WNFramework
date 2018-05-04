@@ -7,10 +7,10 @@
 #ifndef __WN_MEMORY_ALLOCATION_H__
 #define __WN_MEMORY_ALLOCATION_H__
 
-#include "WNCore/inc/WNAssert.h"
-#include "WNCore/inc/WNTypeTraits.h"
-#include "WNCore/inc/WNTypes.h"
-#include "WNCore/inc/WNUtility.h"
+#include "WNCore/inc/assert.h"
+#include "WNCore/inc/type_traits.h"
+#include "WNCore/inc/types.h"
+#include "WNCore/inc/utilities.h"
 #include "WNMemory/inc/internal/allocation.h"
 
 #include <cstdlib>

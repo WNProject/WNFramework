@@ -3,7 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "WNFileSystem/src/WNMappingWindows.h"
-#include "WNCore/inc/WNAssert.h"
+#include "WNCore/inc/assert.h"
 #include "WNFileSystem/src/WNFileWindows.h"
 #include "WNFileSystem/src/WNHelpers.h"
 #include "WNFileSystem/src/WNSystemUtilities.h"

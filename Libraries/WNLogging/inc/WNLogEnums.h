@@ -5,7 +5,7 @@
 #ifndef __WN_LOGGING_LOG_ENUMS_H__
 #define __WN_LOGGING_LOG_ENUMS_H__
 #include <vector>
-#include "WNCore/inc/WNBase.h"
+#include "WNCore/inc/base.h"
 #include "WNLogging/inc/WNLog.h"
 
 namespace wn {
