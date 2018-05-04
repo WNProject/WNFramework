@@ -6,16 +6,15 @@ We have some modifications with respect to naming and a few rules to be outlined
 below.
 
 == Naming
+
 === Namespaces
 
 In general everything should be in the wn namespace. Furthermore every set of
 functionality, generally library, should be in it's own sub-namespace.
-
-Internal-only functionality should be in a further namespace called internal.
-
-At the end of every namespace a comment should be included describing the
+Internal-only functionality should be in a further namespace called internal. At
+the end of every namespace a comment should be included describing the
 namespace that was closed. Anonymous namespaces should be closed with the
-comment `// anonymous namespace`.
+comment `// namespace` to help with identifying start and finish.
 
 [source,cpp]
 ----
@@ -33,7 +32,7 @@ class deque {};
 }  // namespace wn
 
 namespace {
-}  // anonymous namespace
+}  // namespace
 ----
 
 === Classes
@@ -84,17 +83,24 @@ identified.
 === Static Variables
 
 Private static member variables should be prefixed with `s_` in order to
-identify them.
+identify them. Public static member variables can omit the `s_` to conform more
+with public interface styling. Static variables of any type are generally
+discouraged, and should only be used with careful thought. Non-member static
+variables should not be used unless they are constant see <<Global Constants>>.
 
-Public static member variables can omit the `s_`.
+=== Thread Local Variables
 
-Static variables of any type are generally discouraged, and should only be used
-with careful thought.
+Thread local variables should be prefixed with `tl_` in order to identify them.
+Thread local variables of any type are generally discouraged, and should only be
+used with careful thought. There should never be public thread local members or
+globals or any kind. If access to one is needed it should be wrapped in some way
+to disallow direct access.
 
 === Global Constants
 
-Global constants should be used in place of Macros wherever possible.
-They should named as other variables, but prefixed with `k_`.
+Global constants should be used in place of Macros wherever possible. They
+should be named as other variables, but prefixed with `k_` in order to identify
+hem.
 
 === Template Parameters
 
@@ -114,14 +120,18 @@ operator=(const T& _other) {
 }
 ----
 
-=== Header Guards
+=== Include Guards
 
-Header guards follow the same structure as the namespace and class name for the
+Include guards follow the same structure as the namespace and class name for the
 main class in the file. This should also be the file name. The closing of the
-header guard should also contain a comment describing what has been closed.
+include guard should also contain a comment describing what has been closed.
+Also, always use both include guards and `#pragma once` to ensure fastest
+compilation.
 
 [source,cpp]
 ----
+#pragma once
+
 #ifdef __WN_CONTAINERS_DEQUE_H__
 #define __WN_CONTAINERS_DEQUE_H__
 #endif  // __WN_CONTAINERS_DEQUE_H__
@@ -130,7 +140,7 @@ header guard should also contain a comment describing what has been closed.
 === Macros
 
 Macros should be avoided if possible, but sometimes it is required. Other than
-header guards preprocessor directives should be ALL_CAPS separated by "_"
+include guards preprocessor directives should be ALL_CAPS separated by "_"
 characters. In conditional preprocessor sections, at the end of the directive a
 comment should be included describing the section that was closed.
 
@@ -143,21 +153,28 @@ comment should be included describing the section that was closed.
 ----
 
 === Numeric Types
+
 As a rule, the numeric types specified in `<cstdint>` should be used
 instead of the more traditional `int` `long int` types. This ensures
 clarity of width, and more control over data types than otherwise.
 
 === System Specific Code
+
 When writing system-specific code, Win32 for example, any variables, functions
 that interact with system-specific APIs should use the types expected
 by the API documentation, rather than their equivalent types from this document.
+Also, when able, prefix all system-specific code with `::` to help in avoiding
+name collisions.
+
 [source, cpp]
 ----
-GetModuleHandle(NULL); // << This is ok
-GetModuleHandle(nullptr); // << This is discouraged
+::GetModuleHandle(NULL); // << This is OK
+::GetModuleHandle(nullptr); // << This is discouraged
+GetModuleHandle(NULL); // << Add global namespace ::
 ----
 
 == Formatting
+
 Our formatting is based off of the Google C++ style guide with some
 modifications. We use clang-format extensively, and it should handle all
 formatting. See .clang-format for further details.

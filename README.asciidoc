@@ -3,15 +3,18 @@
 A set of cross platform libraries and tools related to game development
 
 == License
+
 This project is licensed under the BSD-2 Clause license. See
-link:LICENSE.txt[License] for more details
+link:LICENSE[License] for more details
 
-== Style
-See link:Docs/StyleGuide.asciidoc[StyleGuide]
+== Coding Conventions
 
+See link:documents/coding-conventions-cpp.asciidoc[C/C++ Coding Conventions]
 
 == Building
+
 === Android
+
 Command line example
 ----
 cmake -GNinja ..\ -DCMAKE_TOOLCHAIN_FILE=<PathToWNFramework>\Overlays\Posix\Overlays\Android\android.toolchain.cmake -DWN_ANDROID_ABIS=ARM -DWN_ANDROID_SDK=<PathToAndroidSDK>
