@@ -6,6 +6,7 @@ foreach(flag_var CMAKE_CXX_FLAGS_DEBUG  CMAKE_C_FLAGS_DEBUG)
   string(REGEX REPLACE "-DDEBUG" "-DDEB" ${flag_var} "${${flag_var}}")
 endforeach()
 add_compile_options("-fvisibility=hidden")
+add_compile_options("-Wno-unused-lambda-capture")
 
 set( CMAKE_CXX_FLAGS_DEBUG     "${CMAKE_CXX_FLAGS_DEBUG}" CACHE STRING "c++ Debug flags" FORCE)
 set( CMAKE_C_FLAGS_DEBUG       "${CMAKE_C_FLAGS_DEBUG}" CACHE STRING "c Debug flags" FORCE)

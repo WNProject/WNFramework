@@ -110,7 +110,7 @@ protected:
     (void)attribute_destroy_result;
 
     WN_DEBUG_ASSERT(
-        attribute_destroy_result != 0, "failed to cleanup thread attributes");
+        attribute_destroy_result == 0, "failed to cleanup thread attributes");
 
     _data->m_pthread = pthread;
 
