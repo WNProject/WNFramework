@@ -86,11 +86,11 @@ protected:
 
       if (remainder != 0) {
         stack_size += page_size - remainder;
+      }
 
-        if (stack_size < PTHREAD_STACK_MIN ||
-            ::pthread_attr_setstacksize(&attributes, stack_size) != 0) {
-          return false;
-        }
+      if (stack_size < PTHREAD_STACK_MIN ||
+          ::pthread_attr_setstacksize(&attributes, stack_size) != 0) {
+        return false;
       }
     }
 
