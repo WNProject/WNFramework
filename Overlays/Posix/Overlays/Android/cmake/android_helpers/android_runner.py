@@ -4,6 +4,7 @@ import argparse
 from threading import Timer
 import os
 import os.path
+import platform
 import re
 import shutil
 import signal
@@ -40,6 +41,10 @@ def run_p(args, working_dir=None):
     subprocess.check_call(args, cwd=working_dir)
 
 
+def shell_p(args, working_dir=None):
+    subprocess.check_call(args, cwd=working_dir, shell=True)
+
+
 def run_p_silent(args):
     with open(os.devnull) as FNULL:
         subprocess.check_call(args, stdout=FNULL,
@@ -48,6 +53,7 @@ def run_p_silent(args):
 
 def run_p_background(args):
     file = open(os.devnull)
+    print args
     return subprocess.Popen(args, stdout=file, stderr=file)
 
 
@@ -100,6 +106,28 @@ def error(message, *additional_args):
 
 
 class Runner:
+    def run_adb_silent(self, args):
+        a = [self.adb]
+        a.extend(args)
+        return run_p_silent(a)
+
+    def run_shell_silent(self, args):
+        a = [self.adb, 'shell']
+        a.extend(args)
+        return run_p_silent(a)
+
+    def run_as_shell_silent(self, args):
+        a = [self.adb, 'shell', 'run-as', self.args.package_name]
+        a.extend(args)
+        return run_p_silent(a)
+
+    def push_file_to(self, source, dest):
+        self.run_adb_silent(["push", source, '/data/local/tmp/tmpfile'])
+        self.run_shell_silent(
+            ["chmod", "777", '/data/local/tmp/tmpfile'])
+        self.run_as_shell_silent(
+            ['cp', '/data/local/tmp/tmpfile', dest])
+
     def run(self):
         parser = argparse.ArgumentParser(
             prog="android_runner.py run",
@@ -111,25 +139,18 @@ class Runner:
         parser.add_argument("--debug", action="store_true",
                             help="Run the debugger first")
         parser.add_argument("--ndk_dir", type=str,
-                            help="Android ndk directory for debugging",
+                            help="Android ndk directory (for debugging)",
                             required=False)
-        parser.add_argument("--apk_build_dir", type=str,
+        parser.add_argument("--build_dir", type=str,
                             help="Directory that the debug apk was built out of",
-                            required=False)
-        parser.add_argument("--gdb", type=str, default='gdb',
-                            help="gdb executable to run. Must be supplied if debugging",
                             required=False)
         parser.add_argument('--target_arch', type=str, default='armeabi-v7a',
                             help="target architecture to debug on. Must be supplied if debugging",
                             required=False)
         parser.add_argument("--sdk",
                             help="Location of the sdk", required=False)
-        parser.add_argument("--gdb_command",
-                            help=("Arguments use for gdb. You can reference the original" +
-                                  " gdb executable wiht $gdb, and the original arguments with" +
-                                  " $args. \n Defaults to \"$gdb $args\""),
-                            required=False, default="$gdb $args")
         args = parser.parse_args(sys.argv[2:])
+
         adb = "adb"
         if args.sdk:
             args.sdk = os.path.expanduser(args.sdk)
@@ -138,12 +159,20 @@ class Runner:
         run_p([adb, "logcat", "-c"])
         run_p([adb, "shell", "am", "force-stop", args.package_name])
 
+        self.args = args
+        self.adb = adb
+
         if args.debug:
             try:
-                run_p_silent(
-                    [adb, "shell", "touch", "/sdcard/wait-for-debugger.txt"])
+                self.run_shell_silent(
+                    ["touch", "/sdcard/wait-for-debugger.txt"])
             except:
                 pass
+
+            _, data_dir = run_p_output([adb, 'shell', 'run-as',
+                                        args.package_name, '/system/bin/sh', '-c', 'pwd'], strip=True)
+
+            info("Package install directory is %s" % data_dir)
 
             # Assume that the build was done with gdbserver getting packaged.
             debug_port = '5039'
@@ -182,49 +211,24 @@ class Runner:
 
             is_64 = '64' in args.target_arch
 
-            # Check if gdbserver is in /data/data/package_name/lib
-            gdb_server_location = '/data/data/%s/lib/gdbserver' % args.package_name
+            arch_to_dir = {
+                'armeabi-v7a': 'armeabi',
+                'armeabi': 'armeabi',
+                'arm64-v8a': 'arm64-v8a',
+                'x86': 'x86'
+            }
 
             try:
-                _, output = run_p_output(
-                    [adb, 'shell', 'ls', gdb_server_location], strip=True)
-                if output != gdb_server_location:
-                    exit("Gdbserver could not be found at %s", gdb_server_location)
+                self.run_as_shell_silent(['killall', '-9', 'lldb-server'])
             except:
-                exit("Gdbserver could not be found at %s", gdb_server_location)
+                pass
 
-            obj_path = os.path.join(args.apk_build_dir.strip('"'),
-                                    'obj', 'local',
-                                    args.target_arch)
-
-            gdb_setup_path = os.path.join(args.apk_build_dir.strip('"'),
-                                          'libs', args.target_arch, 'gdb.setup')
-
-            libdir_name = ''
-            app_process_name = ''
-            if (is_64 == 64):
-                libdir_name = 'lib64'
-                app_process_name = 'app_process64'
-            else:
-                libdir_name = 'lib'
-                try:
-                    _, output = run_p_output(
-                        [adb, 'shell',
-                         'test -e /system/bin/app_process32 && echo Found'],
-                        strip=True)
-                    if output == 'Found':
-                        app_process_name = 'app_process32'
-                    else:
-                        app_process_name = 'app_process'
-                except:
-                    app_process_name = 'app_process'
-
-            run_p_silent([adb, 'pull', '/system/bin/%s' % (app_process_name),
-                          os.path.join(obj_path, app_process_name)])
-            info("Downloading ", '/system/bin/%s' % (app_process_name))
-            run_p_silent([adb, 'pull', '/system/%s/libc.so' % libdir_name,
-                          os.path.join(obj_path, "libc.so")])
-            info("Downloading ", '/system/%s/libc.so' % (libdir_name))
+            self.run_as_shell_silent(['mkdir', '-p', 'lldb/bin'])
+            self.push_file_to(
+                os.path.join(args.sdk, 'lldb', '3.1', 'android',
+                             arch_to_dir[args.target_arch], 'lldb-server'), "lldb/bin/lldb-server")
+            self.push_file_to(
+                os.path.join(args.sdk, 'lldb', '3.1', 'android', 'start_lldb_server.sh'), "lldb/start_lldb_server.sh")
 
             p = subprocess.Popen([
                 adb, "logcat", "-v", "brief", "-s", args.package_name + ":V",
@@ -232,7 +236,7 @@ class Runner:
                 stdout=subprocess.PIPE,
                 bufsize=1)
 
-            run_p_silent([adb, "shell", "am", "start", "%s/.%s" % (args.package_name,
+            self.run_shell_silent(["am", "start", "-S", "%s/%s" % (args.package_name,
                                                                    args.activity_name)])
             info("Starting %s/.%s" % (args.package_name, args.activity_name))
 
@@ -259,38 +263,43 @@ class Runner:
                     break
 
             info("Process started with pid", pid)
-            _, data_dir = run_p_output([adb, 'shell', 'run-as',
-                                        args.package_name, '/system/bin/sh', '-c', 'pwd'], strip=True)
-
-            info("Package install directory is %s" % data_dir)
             server = run_p_background([adb, 'shell', 'run-as', args.package_name,
-                                       gdb_server_location, '+debug-socket',
-                                       '--attach', pid])
+                                       'lldb/start_lldb_server.sh', data_dir + '/lldb',
+                                       'unix-abstract', data_dir, 'lldb',
+                                       '"lldb process:gdb-remote packets"'])
 
-            info("Started gdbserver")
+            info("Started lldb_server")
 
-            run_p([adb, 'forward', 'tcp:%s' % debug_port,
-                   'localfilesystem:%s/debug-socket' % data_dir])
+            arch_to_local_dir = {
+                'armeabi-v7a': 'armeabi-v7a',
+                'armeabi': 'armeabi-v7a',
+                'arm64-v8a': 'arm64-v8a',
+                'x86': 'x86'
+            }
 
-            info("Forwarded socket %s for debugging" % debug_port)
-            default_args = ['-x', gdb_setup_path,
-                            '-e', os.path.join(obj_path, app_process_name),
-                            '-ex', '"target remote:%s"' % debug_port]
+            with open('lldb_args.txt', 'w') as f:
+                f.writelines([
+                    'platform select remote-android\n',
+                    'platform connect unix-abstract-connect://{}/lldb\n'.format(
+                        data_dir),
+                    'settings set target.exec-search-paths {}\n'.format(os.path.join(
+                        args.build_dir, arch_to_local_dir[args.target_arch], 'lib')),
+                    'process attach --pid {}'.format(pid)
+                ])
 
-            info("------------------------\n\n")
-            info("To force the program to pause run the following command")
-            info("%s shell run-as %s kill -5 %s" %
-                 (adb, args.package_name, pid))
-            info("\n\n------------------------")
-
-            gdb_command = Template(args.gdb_command)
-            gdb_command = gdb_command.substitute(
-                gdb=args.gdb, args=' '.join(default_args))
-            gdb_command = re.findall(
-                r'(?:[^\s,"]|"(?:\\.|[^"])*")+', gdb_command)
-            info("Running gdb with args ", ' '.join(gdb_command))
-            run_p(gdb_command, working_dir=obj_path)
+            args = []
+            if platform.system() == 'Windows':
+                args = ['start', '/WAIT']
+            elif platform.system() == 'Linux':
+                args = ['xterm', '-e']
+            elif platform.system() == 'Darwin':
+                args = ['xterm', '-e']
+            args.extend(['lldb', '-s', 'lldb_args.txt'])
+            if platform.system() == 'Windows':
+                args.extend(['-X'])
+            shell_p(args)
             server.kill()
+            self.run_as_shell_silent(['killall', '-9', 'lldb-server'])
         else:
             try:
                 run_p([adb, "shell", "rm", "/sdcard/wait-for-debugger.txt"])
@@ -413,11 +422,11 @@ class Runner:
         parser = argparse.ArgumentParser(
             description="Run and install android .apks",
             usage="""android_runner.py <command> [args]
-   
+
     This program is not meant to be run by itself
     it is meant to be run by scritps derived from
     quick_run.py.in
-    
+
   Commands:
       install:    Install the .apk file on the device.
       run:        Run the given android activity and record the output.

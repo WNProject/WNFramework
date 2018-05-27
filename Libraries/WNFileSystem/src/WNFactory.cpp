@@ -60,6 +60,16 @@ mapping_ptr factory::make_mapping(
             _allocator, _allocator, core::move(path), false);
       }
     }
+    case mapping_type::development_assets: {
+      containers::string path(
+          internal::get_dev_assets_path(_allocator, m_system_data));
+
+      if (!path.empty()) {
+        return memory::make_unique<internal::system_mapping>(
+            _allocator, _allocator, core::move(path), true);
+      }
+      break;
+    }
     default:
       break;
   }

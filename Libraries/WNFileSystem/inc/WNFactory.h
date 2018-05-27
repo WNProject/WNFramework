@@ -25,7 +25,8 @@ enum class mapping_type {
   memory_backed,
   scratch_directory,
   executable_directory,
-  current_working_directory
+  current_working_directory,
+  development_assets
 };
 
 class factory {

@@ -1,3 +1,12 @@
+
+function(afix target prefix postfix)
+  set(tempvar "")
+  foreach(f ${ARGN})
+    list(APPEND tempvar "${prefix}${f}${postfix}")
+  endforeach()
+  set(${target} "${tempvar}" PARENT_SCOPE)
+endfunction()
+
 macro(_accumulate_helper name accum_sources accum_libs)
   set(my_sources ${${accum_sources}})
   set(my_libs ${${accum_libs}})
@@ -42,6 +51,18 @@ function(add_application name)
 
   set(WN_ABI_LIST "'${WN_SANITIZED_ABIS}'")
   string(REPLACE ";" "', '" WN_ABI_LIST "${WN_ABI_LIST}")
+
+  set(PERMISSIONS)
+  if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set(PERMISSIONS "READ_EXTERNAL_STORAGE")
+  endif()
+
+  if (PERMISSIONS)
+    afix(APP_PERMISSIONS
+      "      <uses-permission android:name=\"android.permission."
+      "\" />" ${PERMISSIONS})
+    string(REPLACE ";" "\n" WN_PERMISSIONS "${APP_PERMISSIONS}")
+  endif()
 
   set(FILES_TO_CONFIGURE
     build.gradle

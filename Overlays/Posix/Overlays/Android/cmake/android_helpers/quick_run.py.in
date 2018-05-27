@@ -52,12 +52,10 @@ def run():
         if args.delay:
             time.sleep(args.delay)
         run_args = [sys.executable, runner, 'run', "${WN_PACKAGE}", "android.app.NativeActivity",
-                    '--ndk_dir', ndk_dir, '--sdk', sdk_dir, '--apk_build_dir',
-                    "\"${WN_TARGET_DIR}\"", '--target_arch=${ANDROID_ABI}']
+                    '--ndk_dir', ndk_dir, '--sdk', sdk_dir, '--build_dir',
+                    "\"${WNFramework_BINARY_DIR}\""]
         if args.debug:
             run_args.append('--debug')
-            run_args.append('--gdb=${WN_ANDROID_GDB}')
-            run_args.append('--gdb_command=%s' % args.gdb_command)
 
         ret = subprocess.call(run_args)
         if ret != 0:

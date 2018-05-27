@@ -82,6 +82,20 @@ public:
 
   void wait_for_window_loop(void* _unused);
 
+  bool get_key_state(key_code _code) const override {
+    return false;
+  }
+  bool get_mouse_state(mouse_button _button) const override {
+    return false;
+  }
+
+  uint32_t get_cursor_x() const override {
+    return 0;
+  }
+  uint32_t get_cursor_y() const override {
+    return 0;
+  }
+
 private:
   logging::log* m_log;
   multi_tasking::job_pool* m_job_pool;

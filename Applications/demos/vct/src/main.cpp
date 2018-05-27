@@ -48,8 +48,10 @@ int32_t wn_application_main(
 
   file_system::factory fs_factory(alloc, _data->system_data);
 
-  file_system::mapping_ptr files = fs_factory.make_mapping(
-      alloc, has_data_dir ? data_dir : fs_factory.get_current_working_path());
+  file_system::mapping_ptr files =
+      has_data_dir ? fs_factory.make_mapping(alloc, data_dir)
+                   : fs_factory.make_mapping(
+                         alloc, file_system::mapping_type::development_assets);
 
   file_system::result res;
   file_system::file_ptr ptr = files->open_file("scene.scn", res);
@@ -65,7 +67,7 @@ int32_t wn_application_main(
     auto now_time = std::chrono::high_resolution_clock::now();
     float time_since_last_clock =
         std::chrono::duration<float>(now_time - last_time).count();
-	last_time = now_time;
+    last_time = now_time;
     // If this fails then we should shut down.
     // In order to do that, we need to wait for previous stuff to be done.
     if (!demo.render_scene(false, time_since_last_clock)) {

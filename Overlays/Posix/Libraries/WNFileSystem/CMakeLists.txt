@@ -118,6 +118,7 @@ overlay_library_sources(WNFileSystem
     src/WNFilePosix.h
     src/WNMappingPosix.cpp
     src/WNMappingPosix.h
+    src/WNSystemDevAssetsPath.cpp
     src/WNSystemPaths.cpp
     src/WNSystemTempPath.cpp
     src/WNSystemTempPath.h

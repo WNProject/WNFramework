@@ -159,6 +159,11 @@ containers::string get_current_working_path(
   return nullptr;
 }
 
+containers::string get_dev_assets_path(
+    memory::allocator* _allocator, const entry::system_data* _system_data) {
+  return get_current_working_path(_allocator, _system_data);
+}
+
 }  // namespace internal
 }  // namespace file_system
 }  // namespace wn

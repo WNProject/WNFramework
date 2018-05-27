@@ -22,6 +22,8 @@ namespace internal {
 
 containers::string get_scratch_path(
     memory::allocator* _allocator, const entry::system_data* _system_data);
+containers::string get_dev_assets_path(
+    memory::allocator* _allocator, const entry::system_data* _system_data);
 containers::string get_executable_path(
     memory::allocator* _allocator, const entry::system_data* _system_data);
 containers::string get_current_working_path(

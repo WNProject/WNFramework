@@ -2,13 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNFileSystem/src/WNSystemTempPath.h"
 #include "WNContainers/inc/WNString.h"
 #include "WNCore/inc/types.h"
 #include "WNExecutable/inc/WNEntry.h"
 #include "WNExecutable/inc/WNEntryData.h"
 #include "WNFileSystem/inc/jni_helper.h"
 #include "WNFileSystem/src/WNSystemPaths.h"
+#include "WNFileSystem/src/WNSystemTempPath.h"
 #include "WNFileSystem/src/WNUtilities.h"
 #include "WNMemory/inc/allocator.h"
 
@@ -18,12 +18,12 @@ namespace wn {
 namespace file_system {
 namespace internal {
 
-containers::string get_temp_path(
+containers::string get_dev_assets_path(
     memory::allocator* _allocator, const entry::system_data* _system_data) {
   android_app* app = _system_data->host_data->android_app;
 
   if (!app) {
-    return containers::string(_allocator, "/data/local/tmp/");
+    return get_current_working_path(_allocator, _system_data);
   }
 
   containers::string path(_allocator);
@@ -45,10 +45,11 @@ containers::string get_temp_path(
     jclass activity_class;
     jmethodID get_cache_dir_method;
 
-    if (get_class_and_method(env, "android/app/NativeActivity", "getCacheDir",
-            "()Ljava/io/File;", activity_class, get_cache_dir_method)) {
-      jobject cache_dir =
-          env->CallObjectMethod(activity->clazz, get_cache_dir_method);
+    if (get_class_and_method(env, "android/app/NativeActivity",
+            "getExternalFilesDir", "(Ljava/lang/String;)Ljava/io/File;",
+            activity_class, get_cache_dir_method)) {
+      jobject cache_dir = env->CallObjectMethod(
+          activity->clazz, get_cache_dir_method, jstring(nullptr));
 
       if (cache_dir) {
         jclass file_class;
@@ -57,7 +58,7 @@ containers::string get_temp_path(
         if (get_class_and_method(env, "java/io/File", "getPath",
                 "()Ljava/lang/String;", file_class, get_path_method)) {
           jstring path_string = reinterpret_cast<jstring>(
-              env->CallObjectMethod(cache_dir, get_path_method));
+              env->CallObjectMethod(cache_dir, get_path_method, nullptr));
 
           if (path_string) {
             const char* path_chars =

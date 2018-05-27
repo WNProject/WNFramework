@@ -5,6 +5,7 @@
 #include "WNGraphics/src/Vulkan/WNHelpers.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNAdapter.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanContext.h"
+#include "WNGraphics/inc/Internal/WNConfig.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/allocator.h"
 #include "WNMemory/inc/intrusive_ptr.h"
@@ -55,6 +56,17 @@ using vulkan_adapter_constructable = adapter;
   }                                                                            \
   _log->log_debug(#symbol " is at ", context->symbol);
 
+#ifdef _WN_GRAPHICS_ALLOW_DEBUG_MODE
+VKAPI_ATTR VkBool32 VKAPI_CALL debug_report_cb(VkDebugReportFlagsEXT,
+    VkDebugReportObjectTypeEXT, uint64_t, size_t, int32_t,
+    const char* _layer_prefix, const char* _message, void* _user_data) {
+  wn::logging::log* _log = static_cast<wn::logging::log*>(_user_data);
+  _log->log_error(_layer_prefix, ": ", _message);
+  _log->flush();
+  return VK_FALSE;
+}
+#endif
+
 memory::intrusive_ptr<vulkan_context> get_vulkan_context(
     memory::allocator* _allocator, logging::log* _log) {
   vulkan_context_ptr context =
@@ -88,24 +100,44 @@ memory::intrusive_ptr<vulkan_context> get_vulkan_context(
       VK_MAKE_VERSION(1, 0, 0)             // apiVersion;
   };
 
-  const size_t num_extensions = 2;
-  const char* instance_extensions[num_extensions] = {
-      VK_KHR_SURFACE_EXTENSION_NAME, VK_SURFACE_EXTENSION};
+  uint32_t num_extensions = 2;
+  const char* instance_extensions[] = {VK_KHR_SURFACE_EXTENSION_NAME,
+      VK_SURFACE_EXTENSION, "VK_EXT_debug_report"};
+  uint32_t num_layers = 0;
+  const char* layers[] = {"VK_LAYER_GOOGLE_threading",
+      "VK_LAYER_LUNARG_parameter_validation", "VK_LAYER_LUNARG_object_tracker",
+      "VK_LAYER_LUNARG_core_validation", "VK_LAYER_GOOGLE_unique_objects"};
+
+#ifdef _WN_GRAPHICS_ALLOW_DEBUG_MODE
+  num_extensions = 3;
+  num_layers = 5;
+  bool has_debug_layers = true;
+#endif
 
   VkInstanceCreateInfo create_info{
       VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,  // sType
       nullptr,                                 // pNext;
       0,                                       // flags;
       &app_info,                               // pApplicationInfo;
-      0,                                       // enabledLayerCount;
-      nullptr,                                 // ppEnabledLayerNames;
+      num_layers,                              // enabledLayerCount;
+      layers,                                  // ppEnabledLayerNames;
       num_extensions,                          // enabledExtensionCount;
       instance_extensions,                     // ppEnabledExtensionNames;
   };
 
-  if (context->vkCreateInstance(&create_info, nullptr, &context->instance) !=
-          VK_SUCCESS ||
-      context->instance == VK_NULL_HANDLE) {
+  VkResult ret =
+      context->vkCreateInstance(&create_info, nullptr, &context->instance);
+#ifdef _WN_GRAPHICS_ALLOW_DEBUG_MODE
+  if (ret == VK_ERROR_EXTENSION_NOT_PRESENT ||
+      ret == VK_ERROR_LAYER_NOT_PRESENT) {
+    has_debug_layers = false;
+    create_info.enabledLayerCount = 0;
+    create_info.enabledExtensionCount = 2;
+    ret = context->vkCreateInstance(&create_info, nullptr, &context->instance);
+  }
+#endif
+
+  if (ret != VK_SUCCESS || context->instance == VK_NULL_HANDLE) {
     _log->log_info("Could not create Vulkan Instance.");
     _log->log_info("Vulkan will not be available.");
     return nullptr;
@@ -125,6 +157,28 @@ memory::intrusive_ptr<vulkan_context> get_vulkan_context(
   LOAD_VK_SYMBOL(context->instance, vkGetPhysicalDeviceFeatures);
   LOAD_VK_SYMBOL(context->instance, vkGetPhysicalDeviceFormatProperties);
 
+#ifdef _WN_GRAPHICS_ALLOW_DEBUG_MODE
+  if (has_debug_layers) {
+    PFN_vkCreateDebugReportCallbackEXT vkCreateDebugReportCallbackEXT =
+        reinterpret_cast<PFN_vkCreateDebugReportCallbackEXT>(
+            context->vkGetInstanceProcAddr(
+                context->instance, "vkCreateDebugReportCallbackEXT"));
+
+    VkDebugReportCallbackCreateInfoEXT callbackCreateInfo = {
+        VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT,  // sType
+        nullptr,                                         // pNext
+        VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT |
+            VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT,  // flags
+        &debug_report_cb,                                 // callback
+        _log,                                             // pUserData
+    };
+    VkDebugReportCallbackEXT cb;
+    // We never actually destroy our instance, so we can avoid cleaning up
+    // the callback.
+    vkCreateDebugReportCallbackEXT(
+        context->instance, &callbackCreateInfo, nullptr, &cb);
+  }
+#endif
   return wn::core::move(context);
 }
 

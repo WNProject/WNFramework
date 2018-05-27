@@ -41,14 +41,18 @@ TEST_P(buffer, many_sizes) {
     ASSERT_TRUE(found_arena);
 
     const size_t size = GetParam();
-    wn::runtime::graphics::arena arena =
-        device->create_arena(arena_index, size);
     wn::runtime::graphics::buffer buffer = device->create_buffer(
         size, static_cast<wn::runtime::graphics::resource_states>(
                   static_cast<uint32_t>(
                       wn::runtime::graphics::resource_state::host_read) |
                   static_cast<uint32_t>(
-                      wn::runtime::graphics::resource_state::host_write)));
+                      wn::runtime::graphics::resource_state::host_write) |
+                  static_cast<uint32_t>(
+                      wn::runtime::graphics::resource_state::copy_source)));
+
+    auto reqs = buffer.get_memory_requirements();
+    wn::runtime::graphics::arena arena =
+        device->create_arena(arena_index, reqs.size);
 
     ASSERT_TRUE(buffer.bind_memory(&arena));
 
