@@ -97,6 +97,43 @@ TEST(thread, priority) {
   }
 }
 
+TEST(this_thread, yield) {
+  wn::testing::allocator allocator;
+
+  {
+    wn::multi_tasking::thread thread(&allocator, []() {
+      for (auto i = 0; i < 10000; ++i) {
+        wn::multi_tasking::this_thread::yield();
+      }
+    });
+
+    thread.join();
+  }
+}
+
+TEST(this_thread, sleep_for) {
+  wn::testing::allocator allocator;
+  const auto duration = std::chrono::milliseconds(150);
+
+  {
+    std::chrono::milliseconds difference;
+    wn::multi_tasking::thread thread(&allocator, [duration, &difference]() {
+      const auto start = std::chrono::high_resolution_clock::now();
+
+      wn::multi_tasking::this_thread::sleep_for(duration);
+
+      const auto end = std::chrono::high_resolution_clock::now();
+
+      difference =
+          std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+    });
+
+    thread.join();
+
+    EXPECT_GE(difference, duration);
+  }
+}
+
 TEST(thread_id, equality) {
   wn::multi_tasking::thread::id id1;
   wn::multi_tasking::thread::id id2;

@@ -156,19 +156,7 @@ inline thread_base::id_base get_id() {
 }
 
 inline void yield() {
-  static once_flag once;
-  static bool multi_threaded = false;
-  static const auto multi_threaded_test = [](bool* multi_threaded) {
-    SYSTEM_INFO sysInfo = {0};
-
-    ::GetSystemInfo(&sysInfo);
-
-    *multi_threaded = sysInfo.dwNumberOfProcessors > 1;
-  };
-
-  call_once(once, multi_threaded_test, &multi_threaded);
-
-  multi_threaded ? ::YieldProcessor() : ::SwitchToThread();
+  ::SwitchToThread();
 }
 
 template <typename Representation, typename Period>
