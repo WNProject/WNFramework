@@ -9,7 +9,7 @@
 
 namespace {
 
-const uint32_t k_expected_count = 1000u;
+const uint32_t k_expected_count = 100u;
 
 }  // namespace
 

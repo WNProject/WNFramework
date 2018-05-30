@@ -4,12 +4,12 @@
 
 #include "WNContainers/inc/WNArray.h"
 #include "WNExecutableTest/inc/WNTestHarness.h"
-#include "WNMultiTasking/inc/thread.h"
 #include "WNMultiTasking/inc/call_once.h"
+#include "WNMultiTasking/inc/thread.h"
 
 namespace {
 
-const uint32_t k_count = 1000u;
+const uint32_t k_count = 100u;
 
 }  // namespace
 
