@@ -16,6 +16,10 @@ inline void processor_relax() {
   internal::processor_relax();
 }
 
+inline size_t processor_logical_core_count() {
+  return internal::processor_logical_core_count();
+}
+
 }  // namespace multi_tasking
 }  // namespace wn
 

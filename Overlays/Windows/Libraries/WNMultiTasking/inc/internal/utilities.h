@@ -8,6 +8,7 @@
 #define __WN_MULTI_TASKING_WINDOWS_INTERNAL_UTILITIES_H__
 
 #include "WNCore/inc/base.h"
+#include "WNMultiTasking/inc/call_once.h"
 
 namespace wn {
 namespace multi_tasking {
@@ -15,6 +16,14 @@ namespace internal {
 
 inline void processor_relax() {
   ::YieldProcessor();
+}
+
+inline size_t processor_logical_core_count() {
+  SYSTEM_INFO system_info;
+
+  ::GetSystemInfo(&system_info);
+
+  return system_info.dwNumberOfProcessors;
 }
 
 }  // namespace internal

@@ -4,23 +4,21 @@
 
 #pragma once
 
-#ifndef __WN_MULTI_TASKING_X86_64_INTERNAL_UTILITIES_H__
-#define __WN_MULTI_TASKING_X86_64_INTERNAL_UTILITIES_H__
+#ifndef __WN_MULTI_TASKING_X86_INTERNAL_PROCESSOR_RELAX_H__
+#define __WN_MULTI_TASKING_X86_INTERNAL_PROCESSOR_RELAX_H__
 
 #include "WNCore/inc/base.h"
-
-#include <xmmintrin.h>
 
 namespace wn {
 namespace multi_tasking {
 namespace internal {
 
 inline void processor_relax() {
-  _mm_pause();
+  __asm__ __volatile__("rep; nop" ::: "memory");
 }
 
 }  // namespace internal
 }  // namespace multi_tasking
 }  // namespace wn
 
-#endif  // __WN_MULTI_TASKING_X86_64_INTERNAL_UTILITIES_H__
+#endif  // __WN_MULTI_TASKING_X86_INTERNAL_PROCESSOR_RELAX_H__

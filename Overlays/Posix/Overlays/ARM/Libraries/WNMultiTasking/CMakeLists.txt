@@ -1,5 +1,5 @@
 overlay_library_sources(
   WNMultiTasking
   SOURCES
-    inc/internal/utilities.h
+    inc/internal/processor_relax.h
 )
