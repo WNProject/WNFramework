@@ -7,11 +7,14 @@
 #ifndef __WN_RUNTIME_WINDOW_XCB_WINDOW_H__
 #define __WN_RUNTIME_WINDOW_XCB_WINDOW_H__
 
+#include "WNApplicationData/inc/WNApplicationData.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNMultiTasking/inc/job_pool.h"
 #include "WNMultiTasking/inc/job_signal.h"
 #include "WNMultiTasking/inc/thread.h"
+#include "WNUtilities/inc/WNAndroidEventPump.h"
 #include "WNWindow/inc/WNWindow.h"
+#include "WNExecutable/inc/WNEntryData.h"
 
 #include <android/native_window.h>
 
@@ -53,11 +56,23 @@ public:
       m_destroy_signal(_job_pool, 0) {
     m_job_pool->add_job(&m_destroy_signal,
         &android_window::wait_for_window_loop, this, nullptr);
+    m_callback_tok =
+        _data->system_data->host_data->event_pump->SubscribeToInputEvents(
+            +[](AInputEvent* _event, void* _data) {
+              return static_cast<android_window*>(_data)->handle_input_event(
+                  _event);
+            }, this);
   }
+
   ~android_window() {
     m_destroy.store(true);
     m_destroy_signal.wait_until(1);
+    m_app_data->system_data->host_data->event_pump
+        ->UnsubscribeFromInputEvents(m_callback_tok);
   }
+
+  void handle_touch_event(AInputEvent* _event);
+  void handle_key_event(AInputEvent* _event);
 
   const void* get_native_handle() const override {
     return reinterpret_cast<const void*>(&m_data);
@@ -82,21 +97,25 @@ public:
 
   void wait_for_window_loop(void* _unused);
 
-  bool get_key_state(key_code _code) const override {
-    return false;
+  bool get_key_state(key_code _key) const override {
+    return m_key_states[static_cast<uint32_t>(_key)];
   }
+
   bool get_mouse_state(mouse_button _button) const override {
-    return false;
+    return m_mouse_states[static_cast<uint32_t>(_button)];
   }
 
   uint32_t get_cursor_x() const override {
-    return 0;
+    return m_cursor_x;
   }
+
   uint32_t get_cursor_y() const override {
-    return 0;
+    return m_cursor_y;
   }
 
 private:
+  void handle_input_event(AInputEvent* _event);
+
   logging::log* m_log;
   multi_tasking::job_pool* m_job_pool;
   const application::application_data* m_app_data;
@@ -111,6 +130,15 @@ private:
   multi_tasking::job_signal m_destroy_signal;
 
   android_native_data m_data;
+  std::atomic_bool m_key_states[static_cast<uint32_t>(key_code::key_max) + 1] =
+      {};
+  std::atomic_bool
+      m_mouse_states[static_cast<uint32_t>(mouse_button::mouse_max) + 1] = {};
+  std::atomic<uint32_t> m_cursor_x;
+  std::atomic<uint32_t> m_cursor_y;
+  utilities::WNAndroidEventPump::input_callback_tok m_callback_tok;
+
+  int32_t m_activated_pointer_id = -1;
 };
 
 }  // namespace window

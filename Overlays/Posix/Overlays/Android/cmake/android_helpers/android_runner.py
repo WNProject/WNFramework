@@ -412,10 +412,17 @@ class Runner:
         parser.add_argument("apk", type=str, help="path/to/apk")
         parser.add_argument(
             "--sdk", help="Location of the sdk", required=False)
+        parser.add_argument(
+            "--package_name", help="Name of the package", required=False)
         args = parser.parse_args(sys.argv[2:])
         adb = "adb"
         if args.sdk:
             adb = os.path.join(args.sdk, "platform-tools", "adb")
+        try:
+            run_p_silent([adb, "shell", "cmd", "package",
+                          "uninstall", "-k", args.package_name])
+        except:
+            pass
         sys.exit(run_p([adb, "install", "-r", args.apk]))
 
     def main(self):

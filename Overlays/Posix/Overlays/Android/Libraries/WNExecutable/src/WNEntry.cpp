@@ -84,7 +84,8 @@ void* main_proxy_thread(void* _package_name) {
   }
 
   wn::entry::host_specific_data host_data{wn::utilities::gAndroidApp,
-      package_name, &wn::utilities::gWindowInitialized};
+      package_name, &wn::utilities::gWindowInitialized,
+      &wn::utilities::WNAndroidEventPump::GetInstance()};
   wn::entry::system_data system_data{&host_data, executable, 1, &package_name};
 
   ::srand(static_cast<unsigned int>(::time(NULL)));
@@ -122,7 +123,8 @@ int main(int _argc, char* _argv[]) {
     executable = full_path;
   }
 
-  wn::entry::host_specific_data host_data{nullptr, executable, nullptr};
+  wn::entry::host_specific_data host_data{
+      nullptr, executable, nullptr, nullptr};
 
   wn::entry::system_data system_data{&host_data, full_path, _argc, _argv};
   wn::utilities::gAndroidLogTag = _argv[0];

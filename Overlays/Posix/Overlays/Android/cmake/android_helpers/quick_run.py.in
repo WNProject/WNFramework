@@ -43,7 +43,8 @@ def run():
                     "${WN_PACKAGE}", '--sdk', sdk_dir]
         subprocess.call(run_args)
         run_args = [sys.executable, runner, 'install',
-                    "${WN_APK_LOCATION}", '--sdk', sdk_dir]
+                    "${WN_APK_LOCATION}", '--sdk', sdk_dir,
+                    '--package_name', '${WN_PACKAGE}']
         if subprocess.call(run_args) != 0:
             return(-1)
         run = False

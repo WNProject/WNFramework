@@ -10,12 +10,16 @@
 #define __WN_ENTRYPOINT_WN_ENTRY_DATA_H__
 
 namespace wn {
+namespace utilities {
+class WNAndroidEventPump;
+}
 namespace entry {
 
 struct host_specific_data {
   struct android_app* android_app;
   const char* package_name;
   std::atomic<bool>* window_initialized;
+  utilities::WNAndroidEventPump* event_pump;
 };
 
 }  // namespace entry

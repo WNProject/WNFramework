@@ -27,6 +27,14 @@ void WNAndroidEventPump::FireCallback(
   mCallbackLock.unlock();
 }
 
+void WNAndroidEventPump::FireInputCallback(AInputEvent* _param) {
+  mCallbackLock.lock();
+  for (auto& cb : m_input_callbacks) {
+    cb.callback(_param, cb.user_data);
+  }
+  mCallbackLock.unlock();
+}
+
 void WNAndroidEventPump::SubscribeToEvent(
     eMessageType _message, WNAndroidEventCallback _callback, void* _userData) {
   mCallbackLock.lock();
@@ -35,6 +43,23 @@ void WNAndroidEventPump::SubscribeToEvent(
   if (_callback && _message == eDisplayCreated) {
     PushMessage(eDisplayAdded);
   }
+  mCallbackLock.unlock();
+}
+
+WNAndroidEventPump::input_callback_tok
+WNAndroidEventPump::SubscribeToInputEvents(
+    WNAndroidInputEventCallback _callback, void* _userData) {
+  mCallbackLock.lock();
+  m_input_callbacks.push_back({_userData, _callback});
+  auto ret = m_input_callbacks.end() - 1;
+  mCallbackLock.unlock();
+  return ret;
+}
+
+void WNAndroidEventPump::UnsubscribeFromInputEvents(
+    WNAndroidEventPump::input_callback_tok _token) {
+  mCallbackLock.lock();
+  m_input_callbacks.erase(_token);
   mCallbackLock.unlock();
 }
 
@@ -78,12 +103,21 @@ void WNAndroidEventPump::HandleWindowCommand(android_app* app, int32_t cmd) {
   }
 }
 
+int32_t WNAndroidEventPump::HandleInputEvent(
+    android_app* app, AInputEvent* _event) {
+  WNAndroidEventPump* pump =
+      reinterpret_cast<WNAndroidEventPump*>(app->userData);
+  pump->FireInputCallback(_event);
+  return 0;
+}
+
 void WNAndroidEventPump::PumpMessages(android_app* state) {
   if (!state) {
     return;
   }
   state->userData = this;
   state->onAppCmd = &HandleWindowCommand;
+  state->onInputEvent = &HandleInputEvent;
 
   mMainLooper = ALooper_forThread();
   mStartedSemaphore.notify();

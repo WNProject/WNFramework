@@ -12,6 +12,7 @@ overlay_library_sources(
     src/WNAndroidWindow.cpp
   LIBS
     android
+    WNUtilities
   INCLUDES
     "${NDK_PATH}/sources/android/native_app_glue"
 )
