@@ -16,10 +16,34 @@
 namespace wn {
 namespace scripting {
 
-template <typename T, typename... Args>
-class script_function {
-  T (*m_function)(Args...);
+template <typename R, typename... Args>
+class script_function final {
+public:
+  script_function() : m_function(nullptr) {}
+
+  operator bool() const {
+    return (m_function != nullptr);
+  }
+
+private:
   friend class engine;
+
+  R (*m_function)(Args...);
+};
+
+using script_tag = char[];
+
+template <char const* Type, typename Parent = void>
+struct script_object_type final {};
+
+template <typename ObjectType, script_tag Name, typename R, typename... Args>
+struct script_member_function final {
+  R (*m_function)(Args...);
+};
+
+template <typename ObjectType, script_tag Name, typename R, typename... Args>
+struct script_virtual_member_function final {
+  uint32_t m_vtable_offset;
 };
 
 // Implementors of this class are expected to take
@@ -60,14 +84,13 @@ public:
   // returns a function pointer from a parsed file that matches the
   // signature. The return types and all parameter types must
   // match exactly.
-  template <typename T, typename... Args>
-  bool inline get_function(containers::string_view _name,
-      script_function<T, Args...>* _function) const;
-  using void_func = script_function<void>;
+  template <typename R, typename... Args>
+  bool get_function(containers::string_view _name,
+      script_function<R, Args...>* _function) const;
 
-  template <typename T, typename... Args>
-  T inline invoke(
-      const script_function<T, Args...>& _function, const Args&... _args) const;
+  template <typename R, typename... Args>
+  R invoke(
+      const script_function<R, Args...>& _function, const Args&... _args) const;
 
 protected:
   size_t m_num_warnings;

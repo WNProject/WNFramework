@@ -45,38 +45,33 @@ struct expand_parameters<0> {
 
 }  // anonymous namespace
 
-template <typename T, typename... Args>
+template <typename R, typename... Args>
+bool engine::get_function(containers::string_view _name,
+    script_function<R, Args...>* _function) const {
+  containers::dynamic_array<containers::string_view> params(m_allocator);
+  containers::string_view return_type = mangled_name<R>::get();
 
-bool inline engine::get_function(containers::string_view _name,
-    script_function<T, Args...>* _function) const {
-  containers::dynamic_array<containers::string_view> parameters(m_allocator);
-  bool error = false;
-
-  containers::string_view return_type = mangled_name<T>::get();
-  if (error) {
-    return false;
-  }
-
-  error =
-      expand_parameters<sizeof...(Args)>::template run<T, Args...>(&parameters);
-  if (error) {
+  if (expand_parameters<sizeof...(Args)>::template run<R, Args...>(&params)) {
     return false;
   }
 
   containers::string s = get_mangled_name(m_allocator, _name);
+
   s += return_type;
-  for (auto& param : parameters) {
+
+  for (auto& param : params) {
     s += param;
   }
 
   _function->m_function =
-      reinterpret_cast<T (*)(Args...)>(get_function_pointer(s));
+      reinterpret_cast<R (*)(Args...)>(get_function_pointer(s));
+
   return _function->m_function != nullptr;
 }
 
-template <typename T, typename... Args>
-T inline engine::invoke(
-    const script_function<T, Args...>& _function, const Args&... _args) const {
+template <typename R, typename... Args>
+R inline engine::invoke(
+    const script_function<R, Args...>& _function, const Args&... _args) const {
   return _function.m_function(core::forward<const Args>(_args)...);
 }
 
