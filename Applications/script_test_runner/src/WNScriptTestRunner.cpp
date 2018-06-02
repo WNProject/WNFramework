@@ -42,7 +42,7 @@ bool call_function<0>(logging::log* _log, scripting::engine* e,
     const containers::string_view name,
     const containers::dynamic_array<int32_t>&, int32_t expected_return) {
   scripting::script_function<int32_t> func;
-  if (!e->get_function(name, func)) {
+  if (!e->get_function(name, &func)) {
     _log->log_error(
         "Could not find function ", name, " with ", 0, " parameters");
     return false;
@@ -61,7 +61,7 @@ bool call_function<1>(logging::log* _log, scripting::engine* e,
     const containers::string_view name,
     const containers::dynamic_array<int32_t>& a, int32_t expected_return) {
   scripting::script_function<int32_t, int32_t> func;
-  if (!e->get_function(name, func)) {
+  if (!e->get_function(name, &func)) {
     _log->log_error(
         "Could not find function ", name, " with ", 1, " parameter");
     return false;
@@ -80,7 +80,7 @@ bool call_function<2>(logging::log* _log, scripting::engine* e,
     const containers::string_view name,
     const containers::dynamic_array<int32_t>& a, int32_t expected_return) {
   scripting::script_function<int32_t, int32_t, int32_t> func;
-  if (!e->get_function(name, func)) {
+  if (!e->get_function(name, &func)) {
     _log->log_error(
         "Could not find function ", name, " with ", 2, " parameters");
     return false;
@@ -99,7 +99,7 @@ bool call_function<3>(logging::log* _log, scripting::engine* e,
     const containers::string_view name,
     const containers::dynamic_array<int32_t>& a, int32_t expected_return) {
   scripting::script_function<int32_t, int32_t, int32_t, int32_t> func;
-  if (!e->get_function(name, func)) {
+  if (!e->get_function(name, &func)) {
     _log->log_error(
         "Could not find function ", name, " with ", 3, " parameters");
     return false;

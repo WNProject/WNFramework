@@ -48,7 +48,7 @@ struct expand_parameters<0> {
 template <typename T, typename... Args>
 
 bool inline engine::get_function(containers::string_view _name,
-    script_function<T, Args...>& _function) const {
+    script_function<T, Args...>* _function) const {
   containers::dynamic_array<containers::string_view> parameters(m_allocator);
   bool error = false;
 
@@ -69,9 +69,9 @@ bool inline engine::get_function(containers::string_view _name,
     s += param;
   }
 
-  _function.m_function =
+  _function->m_function =
       reinterpret_cast<T (*)(Args...)>(get_function_pointer(s));
-  return _function.m_function != nullptr;
+  return _function->m_function != nullptr;
 }
 
 template <typename T, typename... Args>

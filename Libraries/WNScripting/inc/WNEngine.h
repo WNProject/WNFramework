@@ -62,7 +62,7 @@ public:
   // match exactly.
   template <typename T, typename... Args>
   bool inline get_function(containers::string_view _name,
-      script_function<T, Args...>& _function) const;
+      script_function<T, Args...>* _function) const;
   using void_func = script_function<void>;
 
   template <typename T, typename... Args>

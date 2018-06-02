@@ -87,9 +87,6 @@ struct object {
   void (*destructor)(void*);
 };
 
-// TODO(awoloszyn): Use our thread (fiber)-local
-// allocator for this.
-
 // Temp this is going to have to change.
 void* do_allocate(size_t i) {
   void* t = memory::malloc(i);
@@ -107,17 +104,23 @@ void do_free(void* val) {
 namespace {
 class CustomMemoryManager : public llvm::SectionMemoryManager {
 public:
-  CustomMemoryManager(logging::log* _log) : m_log(_log) {}
+  CustomMemoryManager(memory::allocator* _allocator, logging::log* _log,
+      containers::hash_map<containers::string, void (*)(void)>*
+          _imported_functions)
+    : m_allocator(_allocator),
+      m_log(_log),
+      m_imported_functions(_imported_functions) {}
 
   llvm::JITSymbol findSymbol(const std::string& Name) override {
     m_log->log_info("Resolving ", Name.c_str(), ".");
-    if (Name == "_ZN3wns9_allocateEPvN3wns4sizeE") {
-      return llvm::JITSymbol(reinterpret_cast<uint64_t>(&do_allocate),
-          llvm::JITSymbolFlags::Exported);
-    } else if (Name == "_ZN3wns5_freeEvPv") {
+    auto it = m_imported_functions->find(
+        containers::string(m_allocator, Name.c_str()));
+    if (it != m_imported_functions->end()) {
       return llvm::JITSymbol(
-          reinterpret_cast<uint64_t>(&do_free), llvm::JITSymbolFlags::Exported);
+          static_cast<uint64_t>(reinterpret_cast<size_t>(it->second)),
+          llvm::JITSymbolFlags::Exported);
     }
+
 #if defined(_WN_WINDOWS)
 #if defined(_WN_64_BIT)
     // On windows64, enable _chkstk. LLVM generates calls
@@ -139,7 +142,10 @@ public:
   }
 
 private:
+  memory::allocator* m_allocator;
   logging::log* m_log;
+  containers::hash_map<containers::string, void (*)(void)>*
+      m_imported_functions;
 };
 }  // namespace
 
@@ -158,10 +164,17 @@ jit_engine::jit_engine(memory::allocator* _allocator,
     m_compilation_log(_log),
     m_context(memory::make_std_unique<llvm::LLVMContext>()),
     m_modules(_allocator),
-    m_pointers(_allocator) {
+    m_pointers(_allocator),
+    m_c_pointers(_allocator) {
   llvm::InitializeNativeTarget();
   llvm::InitializeNativeTargetAsmPrinter();
   llvm::InitializeNativeTargetAsmParser();
+
+  m_c_pointers[containers::string(
+      m_allocator, "_ZN3wns9_allocateEPvN3wns4sizeE")] =
+      reinterpret_cast<void_f>(&do_allocate);
+  m_c_pointers[containers::string(m_allocator, "_ZN3wns5_freeEvPv")] =
+      reinterpret_cast<void_f>(&do_free);
 }
 
 jit_engine::~jit_engine() {}
@@ -182,8 +195,8 @@ CompiledModule& jit_engine::add_module(containers::string_view _file) {
 
   llvm::EngineBuilder builder(core::move(module));
   builder.setEngineKind(llvm::EngineKind::JIT);
-  builder.setMCJITMemoryManager(
-      memory::make_std_unique<CustomMemoryManager>(m_compilation_log));
+  builder.setMCJITMemoryManager(memory::make_std_unique<CustomMemoryManager>(
+      m_allocator, m_compilation_log, &m_c_pointers));
 
   code_module.m_engine =
       std::unique_ptr<llvm::ExecutionEngine>(builder.create());

@@ -57,7 +57,8 @@ private:
   logging::log* m_compilation_log;
   std::unique_ptr<llvm::LLVMContext> m_context;
   containers::deque<CompiledModule> m_modules;
-  containers::hash_map<containers::string_view, void (*)()> m_pointers;
+  containers::hash_map<containers::string_view, void_f> m_pointers;
+  containers::hash_map<containers::string, void_f> m_c_pointers;
 };
 }  // namespace scripting
 }  // namespace wn
