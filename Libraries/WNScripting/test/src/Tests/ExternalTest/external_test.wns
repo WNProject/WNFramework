@@ -1,0 +1,43 @@
+// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE.txt file.
+
+// RUN: test1 3 -> 4
+// RUN: test1 8 -> 9
+// CHECK: {{test1.*\(ExternalStruct\* s\) {}}
+Int test1(ExternalStruct s) {
+// CHECK-NEXT: int32_t _return;
+// CHECK-NEXT: _return = (s->i);
+    return s.i;
+}
+
+// CHECK: {{test2.*\(ExternalStruct\* s\) {}}
+Int test2(ExternalStruct s) {
+// CHECK: (s->i) = ((s->i) * 2);
+    s.i *= 2;
+    return s.i;
+}
+
+// CHECK: {{test3.*\(ExternalStruct\* s\) {}}
+Int test3(ExternalStruct s) {
+// CHECK: _return = ((s->s2).y);
+    return s.s2.y;
+}
+
+// CHECK: {{test4.*\(ExternalStruct\* s\) {}}
+Int test4(ExternalStruct s) {
+// CHECK: _ZN3wns14ExternalStruct11increment_iEvPP14ExternalStruct(s);
+// CHECK: _ZN3wns14ExternalStruct11increment_xEvPP14ExternalStruct(s);
+    s.increment_i();
+    s.increment_x();
+    return s.i;
+}
+
+// CHECK: {{test5.*\(ExternalStructChild\* s\) {}}
+Int test5(ExternalStructChild s) {
+// CHECK: _ZN3wns14ExternalStruct11increment_iEvPP14ExternalStruct(((ExternalStruct*)(s)));
+// CHECK: _ZN3wns14ExternalStruct11increment_xEvPP14ExternalStruct(((ExternalStruct*)(s)));
+    s.increment_i();
+    s.increment_x();
+    return s.i;
+}

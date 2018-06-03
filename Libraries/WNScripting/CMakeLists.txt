@@ -114,11 +114,14 @@ add_wn_library(WNScripting
     ${CMAKE_CURRENT_BINARY_DIR}/inc/WNJITConfiguration.h
     inc/ast_node_types.h
     inc/c_compiler.h
+    inc/externals.h
     inc/internal/ast_convertor_context.h
     inc/internal/c_preamble.h
     inc/jit_compiler.h
     inc/parse_ast_convertor.h
     inc/source_location.h
+    inc/type_manager.h
+    inc/type_manager.inl
     inc/WNCTranslator.h
     inc/WNEngine.h
     inc/WNEngine.inl
@@ -129,6 +132,7 @@ add_wn_library(WNScripting
     inc/WNJITEngine.h
     inc/WNNodeTypes.h
     inc/WNScriptHelpers.h
+    inc/WNTranslator.h
     lang/WNScriptAST.g
     src/add_builtins.cpp
     src/c_compiler.cpp
@@ -141,6 +145,7 @@ add_wn_library(WNScripting
     src/convert_types_to_ast.cpp
     src/handle_scopes.cpp
     src/jit_compiler.cpp
+    src/type_manager.cpp
     src/WNCTranslator.cpp
     src/WNFactory.cpp
     src/WNJITEngine.cpp

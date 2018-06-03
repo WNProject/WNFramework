@@ -10,11 +10,11 @@
 namespace wn {
 namespace scripting {
 struct source_location {
-  int64_t m_start_index;
-  int64_t m_end_index;
-  const uint8_t* m_line_start;
-  size_t m_line_number;
-  size_t m_char_number;
+  int64_t m_start_index = 0;
+  int64_t m_end_index = 0;
+  const uint8_t* m_line_start = nullptr;
+  size_t m_line_number = 0;
+  size_t m_char_number = 0;
 };
 
 }  // namespace scripting

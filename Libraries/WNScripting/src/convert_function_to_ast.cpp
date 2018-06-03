@@ -73,12 +73,12 @@ parse_ast_convertor::convertor_context::resolve_external(
   memory::unique_ptr<ast_function> function =
       memory::make_unique<ast_function>(m_allocator, nullptr);
 
-  function->m_return_type = resolve_builtin_type(_function.ret_type);
+  function->m_return_type = _function.params[0];
   if (!function->m_return_type) {
     return nullptr;
   }
-  function->m_name = _function.name.to_string(m_allocator);
 
+  function->m_name = _function.name.to_string(m_allocator);
   auto it = m_named_functions.find(function->m_name);
   if (it == m_named_functions.end()) {
     it = m_named_functions
@@ -88,8 +88,6 @@ parse_ast_convertor::convertor_context::resolve_external(
   }
   it->second.push_back(function.get());
 
-  containers::string mangled_name(m_allocator);
-
   char count[11] = {
       0,
   };
@@ -97,18 +95,17 @@ parse_ast_convertor::convertor_context::resolve_external(
   containers::deque<ast_function::parameter>& function_params =
       function->initialized_parameters(m_allocator);
   uint32_t c = 0;
+  bool first = true;
   for (auto param : _function.params) {
-    memory::writeuint32(count, c, 10);
-
-    ast_type* param_type = resolve_builtin_type(param);
-    if (!param_type) {
-      return nullptr;
+    if (first) {
+      first = false;
+      continue;
     }
+    memory::writeuint32(count, c, 10);
 
     containers::string nm(m_allocator, "_");
     nm += count;
-    function_params.push_back(
-        ast_function::parameter{core::move(nm), param_type});
+    function_params.push_back(ast_function::parameter{core::move(nm), param});
     c++;
   }
 
@@ -129,7 +126,7 @@ bool parse_ast_convertor::convertor_context::resolve_function(
   push_scope(scope.get());
   m_current_function = function;
 
-  if (function->m_return_type != m_void_t.get()) {
+  if (function->m_return_type != m_type_manager->m_void_t.get()) {
     memory::unique_ptr<ast_declaration> return_decl;
     return_decl = memory::make_unique<ast_declaration>(m_allocator, _function);
     return_decl->m_name = containers::string(m_allocator, "_return");
@@ -148,7 +145,7 @@ bool parse_ast_convertor::convertor_context::resolve_function(
   }
 
   if (!scope->m_returns) {
-    if (function->m_return_type == m_void_t.get()) {
+    if (function->m_return_type == m_type_manager->m_void_t.get()) {
       m_current_statements->push_back(
           memory::make_unique<ast_return_instruction>(m_allocator, _function));
     } else {

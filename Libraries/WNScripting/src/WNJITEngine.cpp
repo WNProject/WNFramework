@@ -88,8 +88,8 @@ struct object {
 };
 
 // Temp this is going to have to change.
-void* do_allocate(size_t i) {
-  void* t = memory::malloc(i);
+void* do_allocate(wn_size_t i) {
+  void* t = memory::malloc(i.val);
   return t;
 }
 
@@ -165,16 +165,13 @@ jit_engine::jit_engine(memory::allocator* _allocator,
     m_context(memory::make_std_unique<llvm::LLVMContext>()),
     m_modules(_allocator),
     m_pointers(_allocator),
-    m_c_pointers(_allocator) {
+    m_c_pointers(_allocator),
+    m_external_types(_allocator) {
   llvm::InitializeNativeTarget();
   llvm::InitializeNativeTargetAsmPrinter();
   llvm::InitializeNativeTargetAsmParser();
-
-  m_c_pointers[containers::string(
-      m_allocator, "_ZN3wns9_allocateEPvN3wns4sizeE")] =
-      reinterpret_cast<void_f>(&do_allocate);
-  m_c_pointers[containers::string(m_allocator, "_ZN3wns5_freeEvPv")] =
-      reinterpret_cast<void_f>(&do_free);
+  register_function("_allocate", &do_allocate);
+  register_function("_free", &do_free);
 }
 
 jit_engine::~jit_engine() {}
@@ -211,22 +208,8 @@ parse_error jit_engine::parse_file(const char* _file) {
     return parse_error::does_not_exist;
   }
 
-  containers::array<uint32_t, 1> allocate_params = {
-      static_cast<uint32_t>(type_classification::size_type)};
-  containers::array<uint32_t, 1> free_params = {
-      static_cast<uint32_t>(type_classification::void_ptr_type)};
-
-  // We have a set of functions that we MUST expose to the scripting
-  // engine.
-  containers::array<external_function, 2> required_functions;
-  required_functions[0] = {"_allocate",
-      static_cast<uint32_t>(type_classification::void_ptr_type),
-      allocate_params};
-  required_functions[1] = {"_free",
-      static_cast<uint32_t>(type_classification::void_type), free_params};
-
   memory::unique_ptr<ast_script_file> parsed_file = parse_script(m_allocator,
-      _file, file->typed_range<char>(), required_functions, false,
+      _file, file->typed_range<char>(), &m_type_manager, false,
       m_compilation_log, &m_num_warnings, &m_num_errors);
 
   if (parsed_file == nullptr) {
@@ -252,6 +235,30 @@ parse_error jit_engine::parse_file(const char* _file) {
   }
 
   return parse_error::ok;
+}
+
+bool jit_engine::register_c_function(containers::string_view _name,
+    containers::contiguous_range<ast_type*> _types, void_f _function) {
+  containers::string s = get_mangled_name(m_allocator, _name);
+  for (auto& param : _types) {
+    s += param->m_mangled_name;
+  }
+#if defined(_WN_WINDOWS) && defined(_WN_X86) && !defined(_WN_64_BIT)
+  s.insert(s.begin(), '_');
+#endif
+
+  m_c_pointers[core::move(s)] = _function;
+  return true;
+}
+
+bool jit_engine::register_mangled_c_function(
+    containers::string_view _name, void_f _function, bool) {
+  auto name = _name.to_string(m_allocator);
+#if defined(_WN_WINDOWS) && defined(_WN_X86) && !defined(_WN_64_BIT)
+   name.insert(name.begin(), '_');
+#endif
+  m_c_pointers[core::move(name)] = _function;
+  return true;
 }
 
 }  // namespace scripting

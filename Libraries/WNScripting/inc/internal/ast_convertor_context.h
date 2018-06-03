@@ -16,10 +16,9 @@ namespace scripting {
 
 struct parse_ast_convertor::convertor_context {
   convertor_context(memory::allocator* _allocator, logging::log* _log,
-      const parse_ast_convertor* _convertor);
+      type_manager* _type_manager, const parse_ast_convertor* _convertor);
 
-  bool walk_script_file(const script_file* _file,
-      const containers::contiguous_range<external_function>& _externals);
+  bool walk_script_file(const script_file* _file);
   ast_type* walk_struct_definition(const struct_definition* _def);
   bool create_constructor(
       const containers::deque<const struct_definition*>& _defs, ast_type* _type,
@@ -34,8 +33,6 @@ struct parse_ast_convertor::convertor_context {
   ast_type* resolve_static_array(const array_type* _type);
   ast_type* resolve_dynamic_array(const dynamic_array_type* _type);
   ast_type* resolve_reference_type(const type* _type);
-  ast_type* get_reference_of(const node* _location, const ast_type* _type,
-      ast_type_classification reference_kind);
   ast_type* resolve_function_ptr_type(
       containers::dynamic_array<const ast_type*> _types);
   ast_type* resolve_function_ptr_type(const ast_function* _function);
@@ -150,8 +147,6 @@ struct parse_ast_convertor::convertor_context {
 
   memory::allocator* m_allocator;
   const parse_ast_convertor* m_convertor;
-  containers::hash_map<uint32_t, memory::unique_ptr<ast_type>> m_integral_types;
-  containers::hash_map<uint32_t, memory::unique_ptr<ast_type>> m_float_types;
   containers::hash_map<containers::string, memory::unique_ptr<ast_type>>
       m_structure_types;
   containers::hash_map<containers::string, const struct_definition*>
@@ -174,14 +169,6 @@ struct parse_ast_convertor::convertor_context {
   // Externals
   containers::hash_map<containers::string, ast_function*> m_external_functions;
 
-  // Reference types
-  containers::hash_map<const ast_type*, memory::unique_ptr<ast_type>>
-      m_reference_types;
-  containers::hash_map<const ast_type*, memory::unique_ptr<ast_type>>
-      m_shared_types;
-  containers::hash_map<const ast_type*, memory::unique_ptr<ast_type>>
-      m_weak_types;
-
   containers::hash_map<containers::dynamic_array<const ast_type*>,
       memory::unique_ptr<ast_type>>
       m_function_pointer_types;
@@ -192,15 +179,8 @@ struct parse_ast_convertor::convertor_context {
 
   memory::unique_ptr<ast_script_file> m_script_file;
 
-  memory::unique_ptr<ast_type> m_void_t;
-  memory::unique_ptr<ast_type> m_void_ptr_t;
-  memory::unique_ptr<ast_type> m_bool_t;
-  memory::unique_ptr<ast_type> m_size_t;
-  memory::unique_ptr<ast_type> m_function_t;
-  memory::unique_ptr<ast_type> m_shared_object_header;
-  memory::unique_ptr<ast_type> m_nullptr_t;
-  memory::unique_ptr<ast_type> m_vtable_t;
   ast_type* m_destructor_fn_ptr_t;
+  memory::unique_ptr<ast_type> m_shared_object_header;
 
   ast_function* m_allocate_shared;
   ast_function* m_release_shared;
@@ -210,6 +190,8 @@ struct parse_ast_convertor::convertor_context {
 
   uint32_t m_temporary_number;
   logging::log* m_log;
+
+  type_manager* m_type_manager;
 };
 }  // namespace scripting
 }  // namespace wn

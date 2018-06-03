@@ -45,28 +45,54 @@ struct expand_parameters<0> {
 
 }  // anonymous namespace
 
-template <typename R, typename... Args>
-bool engine::get_function(containers::string_view _name,
-    script_function<R, Args...>* _function) const {
-  containers::dynamic_array<containers::string_view> params(m_allocator);
-  containers::string_view return_type = mangled_name<R>::get();
-
-  if (expand_parameters<sizeof...(Args)>::template run<R, Args...>(&params)) {
-    return false;
-  }
-
+template <typename T, typename... Args>
+bool inline engine::get_function(containers::string_view _name,
+    script_function<T, Args...>* _function) const {
+  containers::dynamic_array<containers::string_view> signature_types =
+      m_type_manager.get_mangled_names<T, Args...>();
   containers::string s = get_mangled_name(m_allocator, _name);
-
-  s += return_type;
-
-  for (auto& param : params) {
+  for (auto& param : signature_types) {
     s += param;
   }
 
   _function->m_function =
-      reinterpret_cast<R (*)(Args...)>(get_function_pointer(s));
-
+      reinterpret_cast<T (*)(Args...)>(get_function_pointer(s));
   return _function->m_function != nullptr;
+}
+
+template <typename R, typename... Args>
+bool inline engine::register_function(
+    containers::string_view _name, R (*_function)(Args...)) {
+  containers::dynamic_array<ast_type*> params =
+      m_type_manager.get_types<R, Args...>();
+  m_type_manager.m_externals.push_back(
+      external_function{_name, core::move(params)});
+  return register_c_function(_name, m_type_manager.m_externals.back().params,
+      reinterpret_cast<void_f>(_function));
+}
+
+template <typename T>
+void inline engine::register_cpp_type() {
+  m_type_manager.register_cpp_type<T>(
+      functional::function<void(containers::string_view, void*, bool)>(
+          m_allocator,
+          [this](containers::string_view _name, void* _ptr,
+              bool _is_virtual) -> void {
+            register_mangled_c_function(
+                _name, reinterpret_cast<void_f>(_ptr), _is_virtual);
+          }));
+}
+
+template <typename T>
+void inline engine::register_child_cpp_type() {
+  m_type_manager.register_child_cpp_type<T>(
+      functional::function<void(containers::string_view, void*, bool)>(
+          m_allocator,
+          [this](containers::string_view _name, void* _ptr,
+              bool _is_virtual) -> void {
+            register_mangled_c_function(
+                _name, reinterpret_cast<void_f>(_ptr), _is_virtual);
+          }));
 }
 
 template <typename R, typename... Args>

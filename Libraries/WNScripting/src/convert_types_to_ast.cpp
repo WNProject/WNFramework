@@ -31,9 +31,14 @@ ast_type* parse_ast_convertor::convertor_context::resolve_type(
     auto it = m_struct_definitions.find(
         _type->custom_type_name().to_string(m_allocator));
     if (it == m_struct_definitions.end()) {
-      _type->log_line(m_log, logging::log_level::error);
-      m_log->log_error("Could not find type definition");
-      return nullptr;
+      auto extern_it = m_type_manager->m_external_types.find(
+          _type->custom_type_name().to_string(m_allocator));
+      if (extern_it == m_type_manager->m_external_types.end()) {
+        _type->log_line(m_log, logging::log_level::error);
+        m_log->log_error("Could not find type definition");
+        return nullptr;
+      }
+      return extern_it->second.get();
     }
     return walk_struct_definition(it->second);
   }
@@ -47,67 +52,25 @@ ast_type* parse_ast_convertor::convertor_context::resolve_builtin_type(
     const uint32_t _type) {
   switch (_type) {
     case static_cast<uint32_t>(type_classification::void_type):
-      return m_void_t.get();
+      return m_type_manager->m_void_t.get();
     case static_cast<uint32_t>(type_classification::int_type):
-      return m_integral_types[32].get();
+      return m_type_manager->m_integral_types[32].get();
     case static_cast<uint32_t>(type_classification::float_type):
-      return m_float_types[32].get();
+      return m_type_manager->m_float_types[32].get();
     case static_cast<uint32_t>(type_classification::char_type):
-      return m_integral_types[8].get();
+      return m_type_manager->m_integral_types[8].get();
     case static_cast<uint32_t>(type_classification::bool_type):
-      return m_bool_t.get();
+      return m_type_manager->m_bool_t.get();
     case static_cast<uint32_t>(type_classification::size_type):
-      return m_size_t.get();
+      return m_type_manager->m_size_t.get();
     case static_cast<uint32_t>(type_classification::void_ptr_type):
-      return m_void_ptr_t.get();
+      return m_type_manager->m_void_ptr_t.get();
     case static_cast<uint32_t>(type_classification::function_ptr_type):
-      return m_function_t.get();
+      return m_type_manager->m_function_t.get();
     default:
       WN_DEBUG_ASSERT(false, "Unknown type index");
   }
   return nullptr;
-}
-
-ast_type* parse_ast_convertor::convertor_context::get_reference_of(
-    const node* _location, const ast_type* _type,
-    ast_type_classification _reference_type) {
-  containers::hash_map<const ast_type*, memory::unique_ptr<ast_type>>*
-      insertion_map;
-  const char* prefix = "";
-
-  switch (_reference_type) {
-    case ast_type_classification::reference:
-      insertion_map = &m_reference_types;
-      prefix = "_unique_";
-      break;
-    case ast_type_classification::shared_reference:
-      insertion_map = &m_shared_types;
-      prefix = "_shared_";
-      break;
-    case ast_type_classification::weak_reference:
-      insertion_map = &m_weak_types;
-      prefix = "_weak_";
-      break;
-    default:
-      _location->log_line(m_log, logging::log_level::error);
-      m_log->log_error("Unknown reference type");
-      return nullptr;
-  }
-
-  auto it = insertion_map->find(_type);
-  if (it != insertion_map->end()) {
-    return it->second.get();
-  }
-
-  auto ref_type = memory::make_unique<ast_type>(m_allocator);
-  ref_type->m_classification = _reference_type;
-  ref_type->m_name = containers::string(m_allocator, prefix) + _type->m_name;
-  ref_type->m_implicitly_contained_type = _type;
-  ast_type* return_type = ref_type.get();
-  return_type->calculate_mangled_name(m_allocator);
-  (*insertion_map)[_type] = core::move(ref_type);
-  m_ordered_type_definitions.push_back(return_type);
-  return return_type;
 }
 
 ast_type* parse_ast_convertor::convertor_context::resolve_reference_type(
@@ -117,11 +80,17 @@ ast_type* parse_ast_convertor::convertor_context::resolve_reference_type(
     auto it = m_structure_types.find(
         _type->custom_type_name().to_string(m_allocator));
     if (it == m_structure_types.end()) {
-      _type->log_line(m_log, logging::log_level::error);
-      m_log->log_error("Undeclared reference type");
-      return nullptr;
+      auto extern_it = m_type_manager->m_external_types.find(
+          _type->custom_type_name().to_string(m_allocator));
+      if (extern_it == m_type_manager->m_external_types.end()) {
+        _type->log_line(m_log, logging::log_level::error);
+        m_log->log_error("Undeclared reference type");
+        return nullptr;
+      }
+      sub_type = extern_it->second.get();
+    } else {
+      sub_type = it->second.get();
     }
-    sub_type = it->second.get();
   } else {
     sub_type = resolve_type(_type->get_subtype());
     if (!sub_type) {
@@ -133,16 +102,16 @@ ast_type* parse_ast_convertor::convertor_context::resolve_reference_type(
 
   switch (_type->get_reference_type()) {
     case reference_type::unique:
-      return get_reference_of(
-          _type, sub_type, ast_type_classification::reference);
+      return m_type_manager->get_reference_of(
+          sub_type, ast_type_classification::reference);
       break;
     case reference_type::shared:
-      return get_reference_of(
-          _type, sub_type, ast_type_classification::shared_reference);
+      return m_type_manager->get_reference_of(
+          sub_type, ast_type_classification::shared_reference);
       break;
     case reference_type::weak:
-      return get_reference_of(
-          _type, sub_type, ast_type_classification::weak_reference);
+      return m_type_manager->get_reference_of(
+          sub_type, ast_type_classification::weak_reference);
       break;
     default:
       _type->log_line(m_log, logging::log_level::error);

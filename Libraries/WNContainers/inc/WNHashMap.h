@@ -131,6 +131,8 @@ public:
   using local_iterator = typename list_type::iterator;
   using const_local_iterator = typename list_type::const_iterator;
 
+  hash_map() : hash_map(nullptr, 0u, hasher(), key_equal()) {}
+
   explicit hash_map(memory::allocator* _allocator)
     : hash_map(_allocator, 0u, hasher(), key_equal()) {}
 
@@ -195,6 +197,18 @@ public:
       m_key_equal(_other.m_key_equal) {
     m_buckets.insert(
         m_buckets.begin(), _other.m_buckets.begin(), _other.m_buckets.end());
+  }
+
+  hash_map& operator=(hash_map&& _other) {
+    if (&_other == this) {
+      return *this;
+    }
+    m_buckets.clear();
+    m_allocator = _other.m_allocator;
+    m_buckets = core::move(_other.m_buckets);
+    m_total_elements = _other.m_total_elements;
+    _other.m_total_elements = 0;
+    return *this;
   }
 
   void set_allocator(memory::allocator* _allocator) {
@@ -270,11 +284,9 @@ public:
   }
 
   const mapped_type& operator[](const key_type& key) const {
-    iterator it = find(key);
-    if (it != end()) {
-      return it->second;
-    }
-    return insert(key, mapped_type())->first->second;
+    const_iterator it = find(key);
+    WN_DEBUG_ASSERT(it != end(), "Could not find the member");
+    return it->second;
   }
 
   iterator find(const key_type& key) {
@@ -295,6 +307,7 @@ public:
 
   void clear() {
     m_buckets.clear();
+    m_total_elements = 0;
   }
 
   size_t erase(const key_type& key) {

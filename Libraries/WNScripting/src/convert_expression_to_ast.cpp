@@ -65,18 +65,18 @@ parse_ast_convertor::convertor_context::resolve_constant(
   switch (_const->get_index()) {
     case static_cast<uint32_t>(type_classification::int_type): {
       long long val = atoll(_const->get_type_text().c_str());
-      c->m_type = m_integral_types[32].get();
+      c->m_type = m_type_manager->m_integral_types[32].get();
       c->m_node_value.m_integer = static_cast<int32_t>(val);
       return core::move(c);
     }
     case static_cast<uint32_t>(type_classification::nullptr_type): {
-      c->m_type = m_nullptr_t.get();
+      c->m_type = m_type_manager->m_nullptr_t.get();
       c->m_node_value.m_integer = static_cast<int32_t>(0);
       return core::move(c);
     }
     case static_cast<uint32_t>(type_classification::float_type): {
       double val = atof(_const->get_type_text().c_str());
-      c->m_type = m_float_types[32].get();
+      c->m_type = m_type_manager->m_float_types[32].get();
       c->m_node_value.m_float = static_cast<float>(val);
       return core::move(c);
     }
@@ -89,7 +89,7 @@ parse_ast_convertor::convertor_context::resolve_constant(
       return nullptr;
     }
     case static_cast<uint32_t>(type_classification::bool_type): {
-      c->m_type = m_bool_t.get();
+      c->m_type = m_type_manager->m_bool_t.get();
       if (_const->get_type_text() == "true") {
         c->m_node_value.m_bool = true;
       } else if (_const->get_type_text() == "false") {
@@ -136,12 +136,12 @@ parse_ast_convertor::convertor_context::resolve_binary(
 
   if (lhs->m_type->m_classification ==
           ast_type_classification::shared_reference &&
-      rhs->m_type == m_nullptr_t.get()) {
+      rhs->m_type == m_type_manager->m_nullptr_t.get()) {
     rhs = make_cast(core::move(rhs), lhs->m_type);
   }
   if (rhs->m_type->m_classification ==
           ast_type_classification::shared_reference &&
-      lhs->m_type == m_nullptr_t.get()) {
+      lhs->m_type == m_type_manager->m_nullptr_t.get()) {
     lhs = make_cast(core::move(lhs), rhs->m_type);
   }
 
@@ -184,7 +184,7 @@ parse_ast_convertor::convertor_context::resolve_binary(
       }
     case arithmetic_type::arithmetic_equal:
     case arithmetic_type::arithmetic_not_equal:
-      bin->m_type = m_bool_t.get();
+      bin->m_type = m_type_manager->m_bool_t.get();
       break;
     default:
       WN_RELEASE_ASSERT(false, "You should never get here");
@@ -263,7 +263,7 @@ parse_ast_convertor::convertor_context::resolve_function_call(
     case ast_node_type::ast_member_access_expression: {
       auto member_access =
           cast_to<ast_member_access_expression>(base_expr.get());
-      if (member_access->m_type != m_function_t.get()) {
+      if (member_access->m_type != m_type_manager->m_function_t.get()) {
         _call->log_line(m_log, logging::log_level::error);
         m_log->log_error(
             "Cannot find method with name ", member_access->m_member_name);
@@ -275,7 +275,9 @@ parse_ast_convertor::convertor_context::resolve_function_call(
         struct_type = struct_type->m_implicitly_contained_type;
       }
       if (struct_type->m_classification !=
-          ast_type_classification::struct_type) {
+              ast_type_classification::struct_type &&
+          struct_type->m_classification !=
+              ast_type_classification::extern_type) {
         _call->log_line(m_log, logging::log_level::error);
         m_log->log_error("Trying to call a member on non struct type: ",
             struct_type->m_name);
@@ -396,12 +398,12 @@ parse_ast_convertor::convertor_context::resolve_struct_allocation_expression(
     memory::unique_ptr<ast_cast_expression> cast =
         memory::make_unique<ast_cast_expression>(m_allocator, _alloc);
     cast->m_base_expression = core::move(id);
-    cast->m_type = get_reference_of(_alloc, cast->m_base_expression->m_type,
-        ast_type_classification::reference);
+    cast->m_type = m_type_manager->get_reference_of(
+        cast->m_base_expression->m_type, ast_type_classification::reference);
     function_call->initialized_parameters(m_allocator)
         .push_back(core::move(cast));
     function_call->m_type =
-        get_reference_of(_alloc, t, ast_type_classification::reference);
+        m_type_manager->get_reference_of(t, ast_type_classification::reference);
     function_call->initialized_setup_statements(m_allocator)
         .push_back(core::move(dec));
     init = core::move(function_call);
@@ -412,8 +414,9 @@ parse_ast_convertor::convertor_context::resolve_struct_allocation_expression(
     id->m_declaration = dec.get();
     id->m_type = dec->m_type;
 
-    init = make_cast(core::move(id), get_reference_of(_alloc, dec->m_type,
-                                         ast_type_classification::reference));
+    init =
+        make_cast(core::move(id), m_type_manager->get_reference_of(dec->m_type,
+                                      ast_type_classification::reference));
     init->initialized_setup_statements(m_allocator).push_back(core::move(dec));
   }
 
@@ -430,11 +433,11 @@ parse_ast_convertor::convertor_context::resolve_struct_allocation_expression(
     memory::unique_ptr<ast_cast_expression> cast =
         memory::make_unique<ast_cast_expression>(m_allocator, _alloc);
     cast->m_base_expression = core::move(id);
-    cast->m_type = get_reference_of(_alloc, cast->m_base_expression->m_type,
-        ast_type_classification::reference);
+    cast->m_type = m_type_manager->get_reference_of(
+        cast->m_base_expression->m_type, ast_type_classification::reference);
     function_call->initialized_parameters(m_allocator)
         .push_back(core::move(cast));
-    function_call->m_type = m_void_t.get();
+    function_call->m_type = m_type_manager->m_void_t.get();
     init->initialized_destroy_expressions(m_allocator)
         .push_back(core::move(function_call));
   }
@@ -465,7 +468,7 @@ memory::unique_ptr<ast_expression> parse_ast_convertor::convertor_context::
 
   auto num_bytes =
       memory::make_unique<ast_builtin_expression>(m_allocator, _alloc);
-  num_bytes->m_type = m_size_t.get();
+  num_bytes->m_type = m_type_manager->m_size_t.get();
   num_bytes->initialized_extra_types(m_allocator).push_back(alloc_type);
   num_bytes->m_builtin_type = builtin_expression_type::size_of;
 
@@ -480,7 +483,7 @@ memory::unique_ptr<ast_expression> parse_ast_convertor::convertor_context::
   } else {
     auto const_null = memory::make_unique<ast_constant>(m_allocator, _alloc);
     const_null->m_string_value = containers::string(m_allocator, "");
-    const_null->m_type = m_nullptr_t.get();
+    const_null->m_type = m_type_manager->m_nullptr_t.get();
     dest = core::move(const_null);
   }
 
@@ -508,8 +511,8 @@ memory::unique_ptr<ast_expression> parse_ast_convertor::convertor_context::
   cast->m_type = alloc_type->m_constructor->m_parameters[0].m_type;
   function_call->initialized_parameters(m_allocator)
       .push_back(core::move(cast));
-  function_call->m_type =
-      get_reference_of(_alloc, st, ast_type_classification::shared_reference);
+  function_call->m_type = m_type_manager->get_reference_of(
+      st, ast_type_classification::shared_reference);
 
   return core::move(function_call);
 }
@@ -558,7 +561,21 @@ parse_ast_convertor::convertor_context::resolve_member_access_expression(
   for (auto it : struct_type->m_member_functions) {
     if (it->m_name == member->m_member_name) {
       // At least one member function exists
-      member->m_type = m_function_t.get();
+      member->m_type = m_type_manager->m_function_t.get();
+      return core::move(member);
+    }
+  }
+
+  auto extern_it = struct_type->m_contained_external_types.find(member->m_member_name);
+  if (extern_it != struct_type->m_contained_external_types.end()) {
+    member->m_member_offset = extern_it->second.order;
+    member->m_type = extern_it->second.type;
+    return core::move(member);
+  }
+
+  for (auto& it : struct_type->m_external_member_functions) {
+    if (it->m_name == member->m_member_name) {
+      member->m_type = m_type_manager->m_function_t.get();
       return core::move(member);
     }
   }

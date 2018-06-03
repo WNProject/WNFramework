@@ -7,6 +7,7 @@
 
 #include "WNContainers/inc/WNString.h"
 #include "WNScripting/inc/WNEngine.h"
+#include "WNScripting/inc/type_manager.h"
 
 namespace wn {
 namespace scripting {
@@ -16,7 +17,11 @@ namespace scripting {
 // translate_file to perform the actual work.
 class translator {
 public:
-  translator() : m_num_warnings(0), m_num_errors(0) {}
+  translator(memory::allocator* _allocator)
+    : m_num_warnings(0),
+      m_num_errors(0),
+      m_allocator(_allocator),
+      m_type_manager(_allocator) {}
 
   virtual ~translator() = default;
 
@@ -34,10 +39,58 @@ public:
     return m_num_warnings;
   }
 
+  template <typename R, typename... Args>
+  bool inline register_function(containers::string_view _name);
+
+  template <typename R, typename... Args>
+  bool inline register_cpp_function(
+      containers::string_view _name, R (*)(Args...));
+
+  template<typename T>
+  bool register_cpp_type();
+
+  template<typename T>
+  bool register_child_cpp_type();
+
 protected:
+  virtual ast_type* register_external_type(containers::string_view _name) = 0;
   size_t m_num_warnings;
   size_t m_num_errors;
+  memory::allocator* m_allocator;
+  type_manager m_type_manager;
 };
+
+template <typename R, typename... Args>
+bool inline translator::register_function(containers::string_view _name) {
+  containers::dynamic_array<ast_type*> params =
+    m_type_manager.get_types<R, Args...>();
+  m_type_manager.m_externals.push_back(
+    external_function{ _name, core::move(params) });
+  return true;
+}
+
+template <typename R, typename... Args>
+bool inline translator::register_cpp_function(
+    containers::string_view _name, R (*)(Args...)) {
+  containers::dynamic_array<ast_type*> params =
+    m_type_manager.get_types<R, Args...>();
+  m_type_manager.m_externals.push_back(
+    external_function{ _name, core::move(params) });
+  return true;
+}
+
+template<typename T>
+bool inline translator::register_cpp_type() {
+  m_type_manager.register_cpp_type<T>(nullptr);
+  return true;
+}
+
+template<typename T>
+bool inline translator::register_child_cpp_type() {
+  m_type_manager.register_child_cpp_type<T>(nullptr);
+  return true;
+}
+
 }  // namespace scripting
 }  // namespace wn
 

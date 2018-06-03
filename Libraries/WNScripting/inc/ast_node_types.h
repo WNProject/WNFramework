@@ -5,7 +5,9 @@
 #ifndef __WN_SCRIPTING_AST_NODE_TYPES_H__
 #define __WN_SCRIPTING_AST_NODE_TYPES_H__
 
+#include <algorithm>
 #include "WNContainers/inc/WNDeque.h"
+#include "WNContainers/inc/WNHashMap.h"
 #include "WNContainers/inc/WNString.h"
 #include "WNContainers/inc/WNStringView.h"
 #include "WNFunctional/inc/WNFunction.h"
@@ -16,6 +18,7 @@
 #include "WNScripting/inc/WNErrors.h"
 #include "WNScripting/inc/WNNodeTypes.h"
 #include "WNScripting/inc/source_location.h"
+#include "WNScripting/inc/type_manager.h"
 
 namespace wn {
 namespace scripting {
@@ -88,17 +91,6 @@ enum class builtin_type {
   void_ptr_type,
   nullptr_type,
   vtable_type,
-};
-
-enum class ast_type_classification {
-  primitive,
-  reference,
-  shared_reference,
-  weak_reference,
-  struct_type,
-  static_array,
-  dynamic_array,
-  function_pointer,
 };
 
 struct array_initializer_function;
@@ -177,9 +169,10 @@ struct ast_type {
   }
 
   void calculate_mangled_name(memory::allocator* _allocator) {
-    if (m_mangled_name != "") {
+    if (!m_mangled_name.empty()) {
       return;
     }
+    m_mangled_name = containers::string(_allocator);
     switch (m_classification) {
       case ast_type_classification::primitive: {
         switch (m_builtin) {
@@ -243,6 +236,8 @@ struct ast_type {
         m_mangled_name = containers::string(_allocator, "O");
         m_mangled_name += m_implicitly_contained_type->m_mangled_name;
         return;
+      case ast_type_classification::extern_type:
+        m_mangled_name = containers::string(_allocator, "P");
       default:
         break;
     }
@@ -251,7 +246,6 @@ struct ast_type {
         0,
     };
     memory::writeuint32(count, static_cast<uint32_t>(m_name.size()), 10);
-    m_mangled_name = containers::string(_allocator);
     m_mangled_name += count;
     m_mangled_name += m_name;
   }
@@ -285,6 +279,14 @@ struct ast_type {
     return m_member_functions;
   }
 
+  containers::deque<memory::unique_ptr<ast_function>>& initialized_external_member_functions(
+    memory::allocator* _allocator) {
+    if (m_external_member_functions.empty()) {
+      m_external_member_functions = containers::deque<memory::unique_ptr<ast_function>>(_allocator);
+    }
+    return m_external_member_functions;
+  }
+
   // is_arithmetic_type == true iff all normal arithmetic operations
   // are permitted on this type.
   bool m_is_arithmetic_type = false;
@@ -299,6 +301,18 @@ struct ast_type {
   containers::deque<const ast_type*> m_contained_types;
   containers::deque<memory::unique_ptr<ast_declaration>> m_structure_members;
   containers::deque<ast_function*> m_member_functions;
+  containers::deque<memory::unique_ptr<ast_function>> m_external_member_functions;
+
+  struct external_member {
+    containers::string name;
+    uint32_t offset;
+    const ast_type* type;
+    uint32_t order;
+  };
+  containers::hash_map<containers::string_view, external_member>
+      m_contained_external_types;
+  containers::dynamic_array<containers::string_view> m_ordered_external_members;
+  uint32_t m_external_type_size = 0;
   ast_vtable* m_vtable = nullptr;
   uint32_t m_vtable_index = 0;
   bool m_struct_is_class = false;
@@ -320,6 +334,57 @@ struct ast_type {
   const ast_function* m_constructor = nullptr;
   const ast_function* m_destructor = nullptr;
   const ast_function* m_assignment = nullptr;
+
+  containers::hash_map<containers::string_view, external_member>&
+  initialized_contained_externals(memory::allocator* _allocator) {
+    if (m_contained_external_types.empty()) {
+      m_contained_external_types =
+          containers::hash_map<containers::string_view, external_member>(
+              _allocator);
+    }
+    return m_contained_external_types;
+  }
+
+  void setup_external_type(memory::allocator* _allocator) {
+    if (m_contained_external_types.empty()) {
+      m_contained_external_types =
+        containers::hash_map<containers::string_view, external_member>(
+          _allocator);
+    }
+    if (m_member_functions.empty()) {
+      m_member_functions = containers::deque<ast_function*>(_allocator);
+    }
+    if (m_parent_type) {
+      for (auto& et : m_parent_type->m_contained_external_types) {
+        m_contained_external_types[et.first] = et.second;
+      }
+      for (auto& fn : m_parent_type->m_external_member_functions) {
+        m_member_functions.push_back(fn.get());
+      }
+    }
+
+    m_ordered_external_members =
+        containers::dynamic_array<containers::string_view>(_allocator);
+    m_ordered_external_members.reserve(m_contained_external_types.size());
+    for (auto& it : m_contained_external_types) {
+      m_ordered_external_members.push_back(it.second.name);
+    }
+    std::sort(m_ordered_external_members.begin(),
+        m_ordered_external_members.end(),
+        [this](
+            containers::string_view _first, containers::string_view _second) {
+          return m_contained_external_types[_first].offset <
+                 m_contained_external_types[_second].offset;
+        });
+    uint32_t i = 0;
+    for (auto& it : m_ordered_external_members) {
+      m_contained_external_types[it].order = i++;
+    }
+
+    for (auto& fn : m_external_member_functions) {
+      m_member_functions.push_back(fn.get());
+    }
+  }
 
   memory::unique_ptr<ast_type> clone(memory::allocator* _allocator) const {
     memory::unique_ptr<ast_type> other =
@@ -614,6 +679,8 @@ struct ast_function : public ast_node {
   bool m_is_member_function = false;
   bool m_is_virtual = false;
   bool m_is_override = false;
+  bool m_is_external = false;
+  bool m_is_external_pseudo = false;
   uint32_t m_virtual_index = 0xFFFFFFFF;
 
   memory::unique_ptr<ast_node> clone(

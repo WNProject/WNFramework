@@ -74,6 +74,7 @@ struct jit_compiler_context {
       m_declarations(_allocator),
       m_function_parameters(_allocator),
       m_vtables(_allocator),
+      m_external_types(_allocator),
       m_loops(_allocator) {
     m_int32_t = llvm::IntegerType::getInt32Ty(m_context);
     m_float_t = llvm::Type::getFloatTy(m_context);
@@ -94,7 +95,7 @@ struct jit_compiler_context {
   bool prepare_vtable(const ast_vtable* _vtable);
 
   // Functions
-  bool forward_declare_function(const ast_function* _function);
+  bool forward_declare_function(const ast_function* _function, bool _external);
   bool declare_function(const ast_function* _function);
 
   // Expressions
@@ -148,6 +149,11 @@ struct jit_compiler_context {
       m_function_parameters;
   containers::hash_map<const ast_vtable*, llvm::GlobalValue*> m_vtables;
 
+  struct external_struct_data {
+    containers::dynamic_array<uint32_t> m_fixup_offsets;
+  };
+  containers::hash_map<const ast_type*, external_struct_data> m_external_types;
+
   struct loop_data {
     llvm::BasicBlock* continue_target;
     llvm::BasicBlock* break_target;
@@ -179,7 +185,7 @@ bool jit_compiler::compile(ast_script_file* _file) {
 
 bool internal::jit_compiler_context::compile(const ast_script_file* _file) {
   for (auto& function : _file->m_functions) {
-    if (!forward_declare_function(function.get())) {
+    if (!forward_declare_function(function.get(), false)) {
       return false;
     }
   }
@@ -201,7 +207,7 @@ bool internal::jit_compiler_context::compile(const ast_script_file* _file) {
 }
 
 bool internal::jit_compiler_context::forward_declare_function(
-    const ast_function* _function) {
+    const ast_function* _function, bool _extern) {
   containers::dynamic_array<llvm::Type*> types(m_allocator);
 
   llvm::Type* return_type = get_type(_function->m_return_type);
@@ -226,6 +232,15 @@ bool internal::jit_compiler_context::forward_declare_function(
   llvm::Function* f = llvm::cast<llvm::Function>(
       m_module->getOrInsertFunction(_function->m_mangled_name.c_str(), ft));
   f->addFnAttr(llvm::Attribute::NoUnwind);
+  if (_extern) {
+    f->setLinkage(llvm::GlobalValue::LinkageTypes::ExternalLinkage);
+  }
+#if defined(_WN_WINDOWS) && defined(_WN_X86) && !defined(_WN_64_BIT)
+  if (_function->m_is_external && _function->m_is_member_function &&
+      !_function->m_is_external_pseudo) {
+    f->setCallingConv(llvm::CallingConv::X86_ThisCall);
+  }
+#endif
   m_functions[_function] = f;
   return true;
 }
@@ -309,139 +324,176 @@ bool internal::jit_compiler_context::decode_type(const ast_type* _type) {
     return true;
   }
   switch (_type->m_classification) {
-    case ast_type_classification::primitive:
-      switch (_type->m_builtin) {
-        case builtin_type::bool_type:
-          m_types[_type] = m_bool_t;
-          return true;
-        case builtin_type::integral_type:
-          switch (_type->m_bit_width) {
-            case 8:
-              m_types[_type] = m_uint8_t;
-              return true;
-            case 32:
-              m_types[_type] = m_int32_t;
-              return true;
-            default:
-              WN_RELEASE_ASSERT(false, "Unimplemented bit width");
-              return false;
-          }
-        case builtin_type::floating_point_type:
-          switch (_type->m_bit_width) {
-            case 32:
-              m_types[_type] = m_float_t;
-              return true;
-            default:
-              WN_RELEASE_ASSERT(false, "Unimplemented bit width");
-              return false;
-          }
-        case builtin_type::nullptr_type:
-          m_types[_type] = m_size_t;
-          return true;
-        case builtin_type::size_type:
-          m_types[_type] = m_size_t;
-          return true;
-        case builtin_type::void_type:
-          m_types[_type] = m_void_t;
-          return true;
-        case builtin_type::void_ptr_type:
-          m_types[_type] = m_void_ptr_t;
-          return true;
-        case builtin_type::vtable_type:
-          m_types[_type] = m_voidfn_ptr_t->getPointerTo(0);
-          return true;
-        case builtin_type::not_builtin:
-          WN_RELEASE_ASSERT(false, "You shouldn't get here");
-          return false;
-        default:
-          WN_RELEASE_ASSERT(false, "Unhandled builtin type");
-          return false;
-      }
-    case ast_type_classification::static_array: {
-      if (!decode_type(_type->m_implicitly_contained_type)) {
+  case ast_type_classification::primitive:
+    switch (_type->m_builtin) {
+    case builtin_type::bool_type:
+      m_types[_type] = m_bool_t;
+      return true;
+    case builtin_type::integral_type:
+      switch (_type->m_bit_width) {
+      case 8:
+        m_types[_type] = m_uint8_t;
+        return true;
+      case 32:
+        m_types[_type] = m_int32_t;
+        return true;
+      default:
+        WN_RELEASE_ASSERT(false, "Unimplemented bit width");
         return false;
       }
-      auto child_type = m_types[_type->m_implicitly_contained_type];
-      llvm::StructType* s =
-          llvm::StructType::create({llvm::IntegerType::getInt32Ty(m_context),
-              llvm::ArrayType::get(child_type, 0)});
-      s->setName(_type->m_name.c_str());
-      m_types[_type] = s->getPointerTo(0);
-    }
-      return true;
-    case ast_type_classification::dynamic_array: {
-      if (!decode_type(_type->m_implicitly_contained_type)) {
+    case builtin_type::floating_point_type:
+      switch (_type->m_bit_width) {
+      case 32:
+        m_types[_type] = m_float_t;
+        return true;
+      default:
+        WN_RELEASE_ASSERT(false, "Unimplemented bit width");
         return false;
       }
-      auto child_type = m_types[_type->m_implicitly_contained_type];
-      llvm::StructType* s =
-          llvm::StructType::create({llvm::IntegerType::getInt32Ty(m_context),
-              child_type->getPointerTo()});
-      s->setName(_type->m_name.c_str());
-      m_types[_type] = s->getPointerTo(0);
-    }
+    case builtin_type::nullptr_type:
+      m_types[_type] = m_size_t;
       return true;
-    case ast_type_classification::reference: {
-      if (!decode_type(_type->m_implicitly_contained_type)) {
-        return false;
-      }
-      m_types[_type] =
-          m_types[_type->m_implicitly_contained_type]->getPointerTo();
-    }
+    case builtin_type::size_type:
+      m_types[_type] = m_size_t;
       return true;
-    case ast_type_classification::shared_reference: {
-      if (!decode_type(_type->m_implicitly_contained_type)) {
-        return false;
-      }
-      m_types[_type] =
-          m_types[_type->m_implicitly_contained_type]->getPointerTo(0);
-    }
+    case builtin_type::void_type:
+      m_types[_type] = m_void_t;
       return true;
-    case ast_type_classification::weak_reference: {
-      WN_RELEASE_ASSERT(false, "Todo: Handle weak pointers");
+    case builtin_type::void_ptr_type:
+      m_types[_type] = m_void_ptr_t;
+      return true;
+    case builtin_type::vtable_type:
+      m_types[_type] = m_voidfn_ptr_t->getPointerTo(0);
+      return true;
+    case builtin_type::not_builtin:
+      WN_RELEASE_ASSERT(false, "You shouldn't get here");
       return false;
-    }
-    case ast_type_classification::struct_type: {
-      containers::dynamic_array<llvm::Type*> types(m_allocator);
-      for (auto& t : _type->m_structure_members) {
-        if (!decode_type(t->m_type)) {
-          return false;
-        }
-        types.push_back(m_types[t->m_type]);
-      }
-      llvm::StructType* s =
-          llvm::StructType::create(llvm::ArrayRef<llvm::Type*>(
-              types.data(), types.data() + types.size()));
-      s->setName(_type->m_name.c_str());
-      m_types[_type] = s;
-    }
-      return true;
-    case ast_type_classification::function_pointer: {
-      containers::dynamic_array<llvm::Type*> types(m_allocator);
-      bool skip = true;
-      llvm::Type* ret_type = nullptr;
-      for (auto& t : _type->m_contained_types) {
-        if (!decode_type(t)) {
-          return false;
-        }
-        if (skip) {
-          ret_type = m_types[t];
-          skip = false;
-          continue;
-        }
-
-        types.push_back(m_types[t]);
-      }
-      llvm::FunctionType* t = llvm::FunctionType::get(ret_type,
-          llvm::ArrayRef<llvm::Type*>(
-              types.data(), types.data() + types.size()),
-          false);
-      m_types[_type] = t->getPointerTo(0);
-      return true;
-    }
     default:
-      WN_RELEASE_ASSERT(false, "We shouldn't get here");
+      WN_RELEASE_ASSERT(false, "Unhandled builtin type");
       return false;
+    }
+  case ast_type_classification::static_array: {
+    if (!decode_type(_type->m_implicitly_contained_type)) {
+      return false;
+    }
+    auto child_type = m_types[_type->m_implicitly_contained_type];
+    llvm::StructType* s =
+      llvm::StructType::create({ llvm::IntegerType::getInt32Ty(m_context),
+          llvm::ArrayType::get(child_type, 0) });
+    s->setName(_type->m_name.c_str());
+    m_types[_type] = s->getPointerTo(0);
+  }
+                                              return true;
+  case ast_type_classification::dynamic_array: {
+    if (!decode_type(_type->m_implicitly_contained_type)) {
+      return false;
+    }
+    auto child_type = m_types[_type->m_implicitly_contained_type];
+    llvm::StructType* s =
+      llvm::StructType::create({ llvm::IntegerType::getInt32Ty(m_context),
+          child_type->getPointerTo() });
+    s->setName(_type->m_name.c_str());
+    m_types[_type] = s->getPointerTo(0);
+  }
+                                               return true;
+  case ast_type_classification::reference: {
+    if (!decode_type(_type->m_implicitly_contained_type)) {
+      return false;
+    }
+    m_types[_type] =
+      m_types[_type->m_implicitly_contained_type]->getPointerTo();
+  }
+                                           return true;
+  case ast_type_classification::shared_reference: {
+    if (!decode_type(_type->m_implicitly_contained_type)) {
+      return false;
+    }
+    m_types[_type] =
+      m_types[_type->m_implicitly_contained_type]->getPointerTo(0);
+  }
+                                                  return true;
+  case ast_type_classification::weak_reference: {
+    WN_RELEASE_ASSERT(false, "Todo: Handle weak pointers");
+    return false;
+  }
+  case ast_type_classification::struct_type: {
+    containers::dynamic_array<llvm::Type*> types(m_allocator);
+    for (auto& t : _type->m_structure_members) {
+      if (!decode_type(t->m_type)) {
+        return false;
+      }
+      types.push_back(m_types[t->m_type]);
+    }
+    llvm::StructType* s =
+      llvm::StructType::create(llvm::ArrayRef<llvm::Type*>(
+        types.data(), types.data() + types.size()));
+    s->setName(_type->m_name.c_str());
+    m_types[_type] = s;
+  }
+                                             return true;
+  case ast_type_classification::function_pointer: {
+    containers::dynamic_array<llvm::Type*> types(m_allocator);
+    bool skip = true;
+    llvm::Type* ret_type = nullptr;
+    for (auto& t : _type->m_contained_types) {
+      if (!decode_type(t)) {
+        return false;
+      }
+      if (skip) {
+        ret_type = m_types[t];
+        skip = false;
+        continue;
+      }
+
+      types.push_back(m_types[t]);
+    }
+    llvm::FunctionType* t = llvm::FunctionType::get(ret_type,
+      llvm::ArrayRef<llvm::Type*>(
+        types.data(), types.data() + types.size()),
+      false);
+    m_types[_type] = t->getPointerTo(0);
+    return true;
+  }
+  case ast_type_classification::extern_type: {
+    uint64_t calculated_offset = 0;
+    containers::dynamic_array<uint32_t> offset_fixup(m_allocator);
+    containers::dynamic_array<llvm::Type*> types(m_allocator);
+    for (auto& m : _type->m_ordered_external_members) {
+      auto& val = _type->m_contained_external_types[m];
+      if (!decode_type(val.type)) {
+        return false;
+      }
+      llvm::Type* child_type = m_types[val.type];
+      WN_DEBUG_ASSERT(calculated_offset <= val.offset,
+          "The LLVM type is taking up more space than the C type");
+      for (uint64_t i = calculated_offset; i < val.offset; ++i) {
+        types.push_back(m_uint8_t);
+      }
+      calculated_offset = val.offset;
+      calculated_offset += m_data_layout.getTypeStoreSize(child_type);
+      offset_fixup.push_back(static_cast<uint32_t>(types.size()));
+      types.push_back(child_type);
+    }
+    // Pack this to the right size.
+    for (uint64_t i = calculated_offset; i < _type->m_external_type_size; ++i) {
+      types.push_back(m_uint8_t);
+    }
+    calculated_offset = _type->m_external_type_size;
+
+    llvm::StructType* s =
+        llvm::StructType::create(m_context, llvm::ArrayRef<llvm::Type*>(
+          types.data(), types.data() + types.size()), _type->m_name.c_str(), true);
+    WN_DEBUG_ASSERT(calculated_offset == m_data_layout.getTypeStoreSize(s),
+      "We expect the calculated store size to be the same as the type");
+    WN_DEBUG_ASSERT(calculated_offset == m_data_layout.getTypeAllocSize(s),
+        "Something went wrong with packing");
+    m_types[_type] = s;
+    m_external_types[_type] = {core::move(offset_fixup)};
+    return true;
+  }
+  default:
+    WN_RELEASE_ASSERT(false, "We shouldn't get here");
+    return false;
   }
 }
 
@@ -578,6 +630,10 @@ llvm::Value* internal::jit_compiler_context::get_binary_expression(
 
 llvm::Function* internal::jit_compiler_context::get_function(
     const ast_function* _func) {
+  if (m_functions.find(_func) == m_functions.end() && _func->m_is_external) {
+    forward_declare_function(_func, true);
+  }
+
   return m_functions[_func];
 }
 
@@ -624,11 +680,13 @@ llvm::Value* internal::jit_compiler_context::get_function_call(
   }
 
   llvm::Value* fn = nullptr;
+  llvm::CallingConv::ID conv = llvm::CallingConv::C;
   if (_bin->m_function) {
     if (_bin->m_function->m_is_override || _bin->m_function->m_is_virtual) {
       fn = get_virtual_function(_bin, expressions[0]);
     } else {
       fn = get_function(_bin->m_function);
+      conv = llvm::dyn_cast<llvm::Function>(fn)->getCallingConv();
     }
   } else if (_bin->m_function_ptr) {
     fn = get_function_from_ptr(_bin->m_function_ptr.get());
@@ -642,12 +700,16 @@ llvm::Value* internal::jit_compiler_context::get_function_call(
 
   // We cannot name void values, so split this based on return type.
   if (get_type(_bin->m_type) != m_void_t) {
-    return m_function_builder->CreateCall(fn,
-        llvm::ArrayRef<llvm::Value*>(expressions.data(), expressions.size()),
-        _bin->m_function->m_name.c_str());
+    llvm::CallInst* ci = m_function_builder->CreateCall(fn,
+      llvm::ArrayRef<llvm::Value*>(expressions.data(), expressions.size()),
+      _bin->m_function->m_name.c_str());
+    ci->setCallingConv(conv);
+    return ci;
   } else {
-    return m_function_builder->CreateCall(fn,
-        llvm::ArrayRef<llvm::Value*>(expressions.data(), expressions.size()));
+    llvm::CallInst* ci = m_function_builder->CreateCall(fn,
+      llvm::ArrayRef<llvm::Value*>(expressions.data(), expressions.size()));
+    ci->setCallingConv(conv);
+    return ci;
   }
 }
 
@@ -846,6 +908,8 @@ llvm::Value* internal::jit_compiler_context::get_member_access(
     return nullptr;
   }
 
+  const ast_type* struct_type = _access->m_base_expression->m_type;
+  uint32_t offset = _access->m_member_offset;
   if (_access->m_base_expression->m_type->m_classification !=
           ast_type_classification::reference &&
       _access->m_base_expression->m_type->m_classification !=
@@ -858,8 +922,15 @@ llvm::Value* internal::jit_compiler_context::get_member_access(
     load->removeFromParent();
     delete load;
   }
+  else {
+    struct_type = _access->m_base_expression->m_type->m_implicitly_contained_type;
+  }
 
-  llvm::Value* gep[2] = {i32(0), i32(_access->m_member_offset)};
+  if (struct_type->m_classification == ast_type_classification::extern_type) {
+    offset = m_external_types[struct_type].m_fixup_offsets[offset];
+  }
+
+  llvm::Value* gep[2] = {i32(0), i32(offset)};
   v = m_function_builder->CreateLoad(
       m_function_builder->CreateInBoundsGEP(
           v, llvm::ArrayRef<llvm::Value*>(&gep[0], 2)),

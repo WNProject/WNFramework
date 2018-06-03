@@ -11,13 +11,16 @@
 #include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/allocator.h"
 #include "WNScripting/inc/WNEngine.h"
+#include "WNScripting/inc/WNScriptHelpers.h"
+#include "WNScripting/inc/ast_node_types.h"
+#include "WNScripting/inc/type_manager.h"
 
 namespace llvm {
 class LLVMContext;
 class EngineBuilder;
 class ExecutionEngine;
 class Module;
-}
+}  // namespace llvm
 
 namespace wn {
 namespace file_system {
@@ -40,8 +43,8 @@ public:
 // using LLVM during calls to parse_file.
 class jit_engine : public engine {
 public:
-  jit_engine(memory::allocator* _allocator,
-      file_system::mapping* _mapping, logging::log* _log);
+  jit_engine(memory::allocator* _allocator, file_system::mapping* _mapping,
+      logging::log* _log);
   ~jit_engine();
   parse_error parse_file(const char* file) override;
 
@@ -51,6 +54,12 @@ protected:
     return it != m_pointers.end() ? it->second : nullptr;
   }
 
+  bool register_c_function(containers::string_view name,
+      containers::contiguous_range<ast_type*> _types, void_f function) override;
+
+  bool register_mangled_c_function(
+      containers::string_view _name, void_f _function, bool _is_virtual) override;
+
 private:
   CompiledModule& add_module(containers::string_view _file);
   file_system::mapping* m_file_mapping;
@@ -59,6 +68,8 @@ private:
   containers::deque<CompiledModule> m_modules;
   containers::hash_map<containers::string_view, void_f> m_pointers;
   containers::hash_map<containers::string, void_f> m_c_pointers;
+  containers::hash_map<containers::string, memory::unique_ptr<ast_type>>
+      m_external_types;
 };
 }  // namespace scripting
 }  // namespace wn

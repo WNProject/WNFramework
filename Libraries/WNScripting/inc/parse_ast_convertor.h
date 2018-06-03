@@ -11,6 +11,7 @@
 #include "WNScripting/inc/WNNodeTypes.h"
 #include "WNScripting/inc/WNScriptHelpers.h"
 #include "WNScripting/inc/ast_node_types.h"
+#include "WNScripting/inc/type_manager.h"
 
 namespace wn {
 namespace scripting {
@@ -24,8 +25,7 @@ class parse_ast_convertor {
 
 public:
   memory::unique_ptr<ast_script_file> convert_parse_tree_to_ast(
-      memory::allocator* _allocator,
-      const containers::contiguous_range<external_function>& externals,
+      memory::allocator* _allocator, type_manager* _type_manager,
       logging::log* _log, const script_file*) const;
 
 private:

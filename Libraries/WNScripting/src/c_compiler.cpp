@@ -1318,6 +1318,9 @@ bool c_compiler::decode_type(const ast_type* _type) {
     case ast_type_classification::struct_type:
       m_types[_type] = _type->m_name;
       return true;
+    case ast_type_classification::extern_type:
+      m_types[_type] = containers::string(m_allocator, _type->m_name);
+      return true;
     default:
       WN_RELEASE_ASSERT(false, "We shouldn't get here");
       return false;

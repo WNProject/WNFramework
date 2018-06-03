@@ -7,6 +7,7 @@
 #include "WNCore/inc/types.h"
 #include "WNMemory/inc/allocator.h"
 #include "WNMemory/inc/manipulation.h"
+#include "WNScripting/inc/WNEnums.h"
 
 namespace wn {
 namespace scripting {
@@ -46,6 +47,66 @@ template <>
 struct mangled_name<void> {
   static containers::string_view get() {
     return "v";
+  }
+};
+
+inline containers::string_view get_mangling(
+    type_classification _type_classification) {
+  switch (_type_classification) {
+  case type_classification::int_type:
+    return "i";
+  case type_classification::float_type:
+    return "f";
+  case type_classification::char_type:
+    return "h";
+  case type_classification::bool_type:
+    return "b";
+  case type_classification::void_type:
+    return "v";
+  case type_classification::size_type:
+    return "N3wns4sizeE";
+  case type_classification::void_ptr_type:
+    return "Pv";
+  default:
+    return "";
+  }
+}
+
+template <typename T>
+struct script_type {};
+
+template <>
+struct script_type<int32_t> {
+  static type_classification get() {
+    return type_classification::int_type;
+  }
+};
+
+template <>
+struct script_type<float> {
+  static type_classification get() {
+    return type_classification::float_type;
+  }
+};
+
+template <>
+struct script_type<uint8_t> {
+  static type_classification get() {
+    return type_classification::char_type;
+  }
+};
+
+template <>
+struct script_type<bool> {
+  static type_classification get() {
+    return type_classification::bool_type;
+  }
+};
+
+template <>
+struct script_type<void> {
+  static type_classification get() {
+    return type_classification::void_type;
   }
 };
 

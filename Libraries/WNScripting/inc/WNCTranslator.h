@@ -7,7 +7,9 @@
 
 #include "WNContainers/inc/WNString.h"
 #include "WNLogging/inc/WNLog.h"
+#include "WNScripting/inc/WNScriptHelpers.h"
 #include "WNScripting/inc/WNTranslator.h"
+#include "WNScripting/inc/type_manager.h"
 
 namespace wn {
 namespace memory {
@@ -35,7 +37,12 @@ public:
       const char* file, bool _dump_ast_on_failure) override;
 
 private:
-  memory::allocator* m_allocator;
+  ast_type* register_external_type(containers::string_view _name) override;
+  struct external_function_data {
+    containers::dynamic_array<type_classification> types;
+    containers::string name;
+  };
+
   file_system::mapping* m_source_mapping;
   file_system::mapping* m_dest_mapping;
   logging::log* m_compilation_log;

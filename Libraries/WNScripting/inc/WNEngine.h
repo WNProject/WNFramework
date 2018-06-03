@@ -12,9 +12,11 @@
 #include "WNMemory/inc/allocator.h"
 #include "WNScripting/inc/WNEnums.h"
 #include "WNScripting/inc/WNErrors.h"
+#include "WNScripting/inc/type_manager.h"
 
 namespace wn {
 namespace scripting {
+struct ast_type;
 
 template <typename R, typename... Args>
 class script_function final {
@@ -52,7 +54,10 @@ struct script_virtual_member_function final {
 class engine {
 public:
   engine(memory::allocator* _allocator)
-    : m_num_warnings(0), m_num_errors(0), m_allocator(_allocator) {
+    : m_num_warnings(0),
+      m_num_errors(0),
+      m_allocator(_allocator),
+      m_type_manager(_allocator) {
     // These exists to stop the compiler from assuming these are unused.
     (void)assign_type_names;
     (void)short_circuit_type_names;
@@ -92,14 +97,29 @@ public:
   R invoke(
       const script_function<R, Args...>& _function, const Args&... _args) const;
 
+  template <typename R, typename... Args>
+  bool inline register_function(
+      containers::string_view _name, R (*_function)(Args...));
+
+  template <typename T>
+  void register_cpp_type();
+
+  template <typename T>
+  void register_child_cpp_type();
+
+  using void_func = script_function<void>;
+
 protected:
   size_t m_num_warnings;
   size_t m_num_errors;
   memory::allocator* m_allocator;
-  using void_f = void (*)();
   virtual void_f get_function_pointer(containers::string_view _name) const = 0;
+  virtual bool register_c_function(containers::string_view name,
+      containers::contiguous_range<ast_type*> _types, void_f function) = 0;
+  virtual bool register_mangled_c_function(
+      containers::string_view _name, void_f _function, bool _is_virtual) = 0;
 
-private:
+  type_manager m_type_manager;
 };
 
 }  // namespace scripting

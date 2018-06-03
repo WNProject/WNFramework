@@ -24,7 +24,7 @@ bool parse_ast_convertor::convertor_context::resolve_return(
     bool is_shared = false;
     if (m_return_decl->m_type->m_classification ==
         ast_type_classification::shared_reference) {
-      if (expr->m_type == m_nullptr_t.get()) {
+      if (expr->m_type == m_type_manager->m_nullptr_t.get()) {
         expr = make_cast(core::move(expr), m_return_decl->m_type);
       } else {
         auto etype = expr->m_type;
@@ -32,15 +32,15 @@ bool parse_ast_convertor::convertor_context::resolve_return(
         auto const_null =
             memory::make_unique<ast_constant>(m_allocator, _instruction);
         const_null->m_string_value = containers::string(m_allocator, "");
-        const_null->m_type = m_nullptr_t.get();
-        auto null_as_vptr =
-            make_cast(core::move(const_null), m_void_ptr_t.get());
+        const_null->m_type = m_type_manager->m_nullptr_t.get();
+        auto null_as_vptr = make_cast(
+            core::move(const_null), m_type_manager->m_void_ptr_t.get());
 
         containers::dynamic_array<memory::unique_ptr<ast_expression>> params(
             m_allocator);
         params.push_back(core::move(null_as_vptr));
-        params.push_back(
-            core::move(make_cast(core::move(expr), m_void_ptr_t.get())));
+        params.push_back(core::move(
+            make_cast(core::move(expr), m_type_manager->m_void_ptr_t.get())));
         expr = make_cast(
             call_function(_instruction, m_assign_shared, core::move(params)),
             etype);
@@ -62,8 +62,8 @@ bool parse_ast_convertor::convertor_context::resolve_return(
     } else {
       containers::dynamic_array<memory::unique_ptr<ast_expression>> params(
           m_allocator);
-      params.push_back(make_cast(
-          clone_node(m_allocator, id_expr.get()), m_void_ptr_t.get()));
+      params.push_back(make_cast(clone_node(m_allocator, id_expr.get()),
+          m_type_manager->m_void_ptr_t.get()));
       ret_expr->m_return_expr = make_cast(
           call_function(_instruction, m_return_shared, core::move(params)),
           m_return_decl->m_type);
@@ -195,7 +195,7 @@ bool parse_ast_convertor::convertor_context::resolve_declaration(
     if (!(init = resolve_expression(_declaration->get_expression()))) {
       return false;
     }
-    bool is_null_assign = init->m_type == m_nullptr_t.get();
+    bool is_null_assign = init->m_type == m_type_manager->m_nullptr_t.get();
 
     if (expr->get_node_type() == node_type::struct_allocation_expression) {
       has_temporary_declaration =
@@ -219,7 +219,7 @@ bool parse_ast_convertor::convertor_context::resolve_declaration(
             "Constructor must have at least one parameters");
 
         fn->m_parameters[0] =
-            make_cast(core::move(id), get_reference_of(_declaration, type,
+            make_cast(core::move(id), m_type_manager->get_reference_of(type,
                                           ast_type_classification::reference));
         init->m_temporaries.clear();
         auto in = init.get();
@@ -238,7 +238,7 @@ bool parse_ast_convertor::convertor_context::resolve_declaration(
               containers::dynamic_array<memory::unique_ptr<ast_expression>>(
                   m_allocator);
           params.push_back(make_cast(
-              core::move(dest_id), get_reference_of(_declaration, type,
+              core::move(dest_id), m_type_manager->get_reference_of(type,
                                        ast_type_classification::reference)));
 
           auto& scope_expr =
@@ -255,15 +255,15 @@ bool parse_ast_convertor::convertor_context::resolve_declaration(
         auto const_null =
             memory::make_unique<ast_constant>(m_allocator, _declaration);
         const_null->m_string_value = containers::string(m_allocator, "");
-        const_null->m_type = m_nullptr_t.get();
-        auto null_as_vptr =
-            make_cast(core::move(const_null), m_void_ptr_t.get());
+        const_null->m_type = m_type_manager->m_nullptr_t.get();
+        auto null_as_vptr = make_cast(
+            core::move(const_null), m_type_manager->m_void_ptr_t.get());
 
         containers::dynamic_array<memory::unique_ptr<ast_expression>> params(
             m_allocator);
         params.push_back(core::move(null_as_vptr));
-        params.push_back(
-            core::move(make_cast(core::move(init), m_void_ptr_t.get())));
+        params.push_back(core::move(
+            make_cast(core::move(init), m_type_manager->m_void_ptr_t.get())));
         init = make_cast(
             call_function(_declaration, m_assign_shared, core::move(params)),
             type);
@@ -307,11 +307,11 @@ bool parse_ast_convertor::convertor_context::resolve_declaration(
     memory::unique_ptr<ast_cast_expression> cast =
         memory::make_unique<ast_cast_expression>(m_allocator, _declaration);
     cast->m_base_expression = core::move(id);
-    cast->m_type = m_void_ptr_t.get();
+    cast->m_type = m_type_manager->m_void_ptr_t.get();
 
     function_call->initialized_parameters(m_allocator)
         .push_back(core::move(cast));
-    function_call->m_type = m_void_t.get();
+    function_call->m_type = m_type_manager->m_void_t.get();
     auto& scope_expr = m_nested_scopes.back()->initialized_cleanup(m_allocator);
     scope_expr.push_back(core::move(function_call));
   }
@@ -348,7 +348,7 @@ bool parse_ast_convertor::convertor_context::resolve_assignment(
 
   if (lhs->m_type->m_classification ==
           ast_type_classification::shared_reference &&
-      rhs->m_type == m_nullptr_t.get()) {
+      rhs->m_type == m_type_manager->m_nullptr_t.get()) {
     rhs = make_cast(core::move(rhs), lhs->m_type);
   }
 
@@ -360,8 +360,8 @@ bool parse_ast_convertor::convertor_context::resolve_assignment(
 
   if (lhs->m_type->m_classification == ast_type_classification::reference &&
       rhs->m_type->m_classification == ast_type_classification::struct_type) {
-    auto type = get_reference_of(
-        _assign, rhs->m_type, ast_type_classification::reference);
+    auto type = m_type_manager->get_reference_of(
+        rhs->m_type, ast_type_classification::reference);
     rhs = make_cast(core::move(rhs), type);
   }
 
@@ -375,9 +375,10 @@ bool parse_ast_convertor::convertor_context::resolve_assignment(
       ast_type_classification::shared_reference) {
     containers::dynamic_array<memory::unique_ptr<ast_expression>> params(
         m_allocator);
+    params.push_back(make_cast(clone_node(m_allocator, lhs.get()),
+        m_type_manager->m_void_ptr_t.get()));
     params.push_back(
-        make_cast(clone_node(m_allocator, lhs.get()), m_void_ptr_t.get()));
-    params.push_back(make_cast(core::move(rhs), m_void_ptr_t.get()));
+        make_cast(core::move(rhs), m_type_manager->m_void_ptr_t.get()));
     rhs = make_cast(call_function(_assign, m_assign_shared, core::move(params)),
         lhs->m_type);
   }
@@ -404,8 +405,8 @@ bool parse_ast_convertor::convertor_context::resolve_assignment(
           return false;
         }
         if (struct_type->m_assignment) {
-          auto ref_type = get_reference_of(
-              _assign, struct_type, ast_type_classification::reference);
+          auto ref_type = m_type_manager->get_reference_of(
+              struct_type, ast_type_classification::reference);
           containers::dynamic_array<memory::unique_ptr<ast_expression>> params(
               m_allocator);
           params.push_back(make_cast(core::move(assign->m_lhs), ref_type));

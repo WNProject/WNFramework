@@ -11,11 +11,9 @@ namespace scripting {
 
 parse_ast_convertor::convertor_context::convertor_context(
     memory::allocator* _allocator, logging::log* _log,
-    const parse_ast_convertor* _convertor)
+    type_manager* _type_manager, const parse_ast_convertor* _convertor)
   : m_allocator(_allocator),
     m_convertor(_convertor),
-    m_integral_types(_allocator),
-    m_float_types(_allocator),
     m_structure_types(_allocator),
     m_struct_definitions(_allocator),
     m_static_array_types(_allocator),
@@ -25,23 +23,21 @@ parse_ast_convertor::convertor_context::convertor_context(
     m_nested_scopes(_allocator),
     m_constructor_destructors(_allocator),
     m_external_functions(_allocator),
-    m_reference_types(_allocator),
-    m_shared_types(_allocator),
-    m_weak_types(_allocator),
     m_function_pointer_types(_allocator),
     m_named_functions(_allocator),
     m_current_loop(nullptr),
     m_temporary_number(0),
-    m_log(_log) {
+    m_log(_log),
+    m_type_manager(_type_manager) {
   add_builtin_types();
 }
 
 memory::unique_ptr<ast_script_file>
 parse_ast_convertor::convert_parse_tree_to_ast(memory::allocator* _allocator,
-    const containers::contiguous_range<external_function>& _externals,
-    wn::logging::log* _log, const script_file* _file) const {
-  convertor_context context(_allocator, _log, this);
-  if (!context.walk_script_file(_file, _externals)) {
+    type_manager* _type_manager, wn::logging::log* _log,
+    const script_file* _file) const {
+  convertor_context context(_allocator, _log, _type_manager, this);
+  if (!context.walk_script_file(_file)) {
     return nullptr;
   }
 
@@ -140,12 +136,11 @@ bool parse_ast_convertor::convertor_context::resolve_member_functions(
 }  // namespace scripting
 
 bool parse_ast_convertor::convertor_context::walk_script_file(
-    const script_file* _file,
-    const containers::contiguous_range<external_function>& _externals) {
+    const script_file* _file) {
   m_script_file =
       memory::make_unique<ast_script_file>(m_allocator, _file, m_allocator);
 
-  for (auto& ext : _externals) {
+  for (auto& ext : m_type_manager->m_externals) {
     auto fun = resolve_external(ext);
     if (!fun) {
       return false;
@@ -188,8 +183,8 @@ bool parse_ast_convertor::convertor_context::walk_script_file(
       auto st_type =
           m_structure_types[type->get_name().to_string(m_allocator)].get();
       auto fun = pre_resolve_function(
-          f.get(), get_reference_of(type.get(), st_type,
-                       ast_type_classification::reference));
+          f.get(), m_type_manager->get_reference_of(
+                       st_type, ast_type_classification::reference));
       if (!fun) {
         return false;
       }
@@ -227,24 +222,8 @@ bool parse_ast_convertor::convertor_context::walk_script_file(
     }
   }
 
-  m_script_file->m_all_types.push_back(core::move(m_void_t));
-  m_script_file->m_all_types.push_back(core::move(m_void_ptr_t));
-  m_script_file->m_all_types.push_back(core::move(m_bool_t));
-  m_script_file->m_all_types.push_back(core::move(m_size_t));
-  m_script_file->m_all_types.push_back(core::move(m_function_t));
   m_script_file->m_all_types.push_back(core::move(m_shared_object_header));
-  m_script_file->m_all_types.push_back(core::move(m_nullptr_t));
-  m_script_file->m_all_types.push_back(core::move(m_vtable_t));
 
-  for (auto& t : m_reference_types) {
-    m_script_file->m_all_types.push_back(core::move(t.second));
-  }
-  for (auto& t : m_shared_types) {
-    m_script_file->m_all_types.push_back(core::move(t.second));
-  }
-  for (auto& t : m_weak_types) {
-    m_script_file->m_all_types.push_back(core::move(t.second));
-  }
   for (auto& t : m_dynamic_array_types) {
     m_script_file->m_all_types.push_back(core::move(t.second));
   }
@@ -254,12 +233,7 @@ bool parse_ast_convertor::convertor_context::walk_script_file(
   for (auto& t : m_structure_types) {
     m_script_file->m_all_types.push_back(core::move(t.second));
   }
-  for (auto& t : m_integral_types) {
-    m_script_file->m_all_types.push_back(core::move(t.second));
-  }
-  for (auto& t : m_float_types) {
-    m_script_file->m_all_types.push_back(core::move(t.second));
-  }
+
   for (auto& t : m_function_pointer_types) {
     m_script_file->m_all_types.push_back(core::move(t.second));
   }

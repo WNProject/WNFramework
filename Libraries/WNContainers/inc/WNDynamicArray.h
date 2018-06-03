@@ -50,7 +50,7 @@ public:
     return *this;
   }
 
-  size_t operator-(const dynamic_array_iterator& other) {
+  size_t operator-(const dynamic_array_iterator& other) const {
     return (m_ptr - other.m_ptr);
   }
 

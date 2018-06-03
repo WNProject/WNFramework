@@ -17,9 +17,8 @@ namespace scripting {
 
 memory::unique_ptr<ast_script_file> parse_script(memory::allocator* _allocator,
     const char* file_name, containers::string_view view,
-    const containers::contiguous_range<external_function>& externals,
-    bool _dump_ast_on_failure, logging::log* _log, size_t* _num_warnings,
-    size_t* _num_errors) {
+    type_manager* _type_manager, bool _dump_ast_on_failure, logging::log* _log,
+    size_t* _num_warnings, size_t* _num_errors) {
   WNScriptASTLexer::InputStreamType input(
       const_cast<ANTLR_UINT8*>(
           reinterpret_cast<const ANTLR_UINT8*>(view.data())),
@@ -45,7 +44,8 @@ memory::unique_ptr<ast_script_file> parse_script(memory::allocator* _allocator,
   }
 
   parse_ast_convertor p;
-  return p.convert_parse_tree_to_ast(_allocator, externals, _log, ptr.get());
+  return p.convert_parse_tree_to_ast(
+      _allocator, _type_manager, _log, ptr.get());
 }
 
 }  // namespace scripting

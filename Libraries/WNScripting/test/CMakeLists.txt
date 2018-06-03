@@ -1,3 +1,9 @@
+wn_filesystem_files(external_test_assets
+  OUTPUT_DIR
+    inc
+  SOURCES
+    src/Tests/ExternalTest/external_test.wns)
+
 wn_create_executable_tests_from_list(TEST_PREFIX WNScripting
   TEST_NAME WNScripting
   COMMON_SOURCES
@@ -7,6 +13,20 @@ wn_create_executable_tests_from_list(TEST_PREFIX WNScripting
     WNFactory
   LIBS
     WNScripting
+)
+
+wn_create_executable_tests_from_list(TEST_PREFIX WNScripting
+  TEST_NAME WNScripting
+  COMMON_SOURCES
+    ${CMAKE_CURRENT_BINARY_DIR}/inc/external_test_assets.h
+    ${CMAKE_CURRENT_BINARY_DIR}/inc/external_test_assets.cpp
+  SOURCE_DIR
+    src/Tests
+  SOURCES
+    external_cpp_
+  LIBS
+    WNScripting
+    effcee
 )
 
 wn_create_call_test(
@@ -25,6 +45,7 @@ wn_create_call_test(
       constants_test.wns
       empty_expression.wns
       empty_struct.wns
+      external_function_tests.wns
       function_call_tests.wns
       loop_with_break.wns
       loop_with_continue.wns
