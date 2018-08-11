@@ -16,6 +16,8 @@ parse_ast_convertor::convertor_context::resolve_expression(
     case node_type::id_expression:
       return resolve_id(cast_to<id_expression>(_expression));
     case node_type::array_allocation_expression:
+      return resolve_array_allocation_expression(
+          cast_to<array_allocation_expression>(_expression));
     case node_type::dynamic_array_allocation_expression:
       WN_RELEASE_ASSERT(false, "Not Implemented expression type");
     case node_type::binary_expression:
@@ -26,8 +28,10 @@ parse_ast_convertor::convertor_context::resolve_expression(
     case node_type::constant_expression:
       return resolve_constant(cast_to<constant_expression>(_expression));
     case node_type::null_allocation_expression:
-    case node_type::array_access_expression:
       WN_RELEASE_ASSERT(false, "Not Implemented expression type");
+    case node_type::array_access_expression:
+      return resolve_array_access_expression(
+          cast_to<array_access_expression>(_expression));
     case node_type::function_call_expression:
       return resolve_function_call(
           cast_to<function_call_expression>(_expression));
@@ -230,6 +234,63 @@ parse_ast_convertor::convertor_context::resolve_binary(
   return bin;
 }
 
+memory::unique_ptr<ast_expression>
+parse_ast_convertor::convertor_context::resolve_array_allocation_expression(
+    const array_allocation_expression* _alloc) {
+  auto base_expr = resolve_expression(_alloc->get_copy_initializer());
+  if (!base_expr) {
+    return nullptr;
+  }
+
+  containers::string temporary_name = get_next_temporary_name();
+
+  memory::unique_ptr<ast_declaration> dec =
+      memory::make_unique<ast_declaration>(m_allocator, _alloc);
+  dec->m_name = containers::string(m_allocator, temporary_name);
+
+  if (_alloc->get_array_initializers().size() != 1) {
+    _alloc->log_line(m_log, logging::log_level::error);
+    m_log->log_error("You must have one constant size for an array initalizer");
+    return nullptr;
+  }
+
+  auto array_size =
+      resolve_expression(_alloc->get_array_initializers()[0].get());
+
+  if (array_size->m_node_type != ast_node_type::ast_constant) {
+    _alloc->log_line(m_log, logging::log_level::error);
+    m_log->log_error("Array size must be static");
+  }
+
+  auto* array_const = cast_to<ast_constant>(array_size.get());
+  if (array_const->m_type != m_type_manager->m_integral_types[32].get()) {
+    _alloc->log_line(m_log, logging::log_level::error);
+    m_log->log_error("Array size must be an Integer");
+  }
+
+  const ast_type* array_base_type = resolve_type(_alloc->get_type());
+  const ast_type* t =
+      get_array_of(array_base_type, array_const->m_node_value.m_integer);
+  dec->m_type = t;
+
+  auto array_init =
+      memory::make_unique<ast_array_allocation>(m_allocator, _alloc);
+  array_init->m_initializer = core::move(base_expr);
+  array_init->m_type = t;
+
+  memory::unique_ptr<ast_id> id =
+      memory::make_unique<ast_id>(m_allocator, _alloc);
+  id->m_declaration = dec.get();
+  id->m_type = t;
+
+  array_init->m_initializee = clone_node(m_allocator, id.get());
+  id->initialized_setup_statements(m_allocator).push_back(core::move(dec));
+  id->initialized_setup_statements(m_allocator)
+      .push_back(core::move(array_init));
+
+  return id;
+}
+
 memory::unique_ptr<ast_function_call_expression>
 parse_ast_convertor::convertor_context::resolve_function_call(
     const function_call_expression* _call) {
@@ -357,9 +418,44 @@ parse_ast_convertor::convertor_context::resolve_function_call(
 }
 
 memory::unique_ptr<ast_expression>
+parse_ast_convertor::convertor_context::resolve_array_access_expression(
+    const array_access_expression* _access) {
+  memory::unique_ptr<ast_expression> outer_expr =
+      resolve_expression(_access->get_base_expression());
+  memory::unique_ptr<ast_expression> inner_expr =
+      resolve_expression(_access->get_access());
+
+  if (!outer_expr || !inner_expr) {
+    return nullptr;
+  }
+
+  if (inner_expr->m_type != m_type_manager->m_integral_types[32].get()) {
+    _access->log_line(m_log, logging::log_level ::error);
+    m_log->log_error("Array access must be an integer");
+    return nullptr;
+  }
+
+  if (outer_expr->m_type->m_classification !=
+      ast_type_classification::static_array) {
+    _access->log_line(m_log, logging::log_level ::error);
+    m_log->log_error("Cannot index a non-array type");
+    return nullptr;
+  }
+
+  memory::unique_ptr<ast_array_access_expression> array_access =
+      memory::make_unique<ast_array_access_expression>(m_allocator, _access);
+
+  array_access->m_type = outer_expr->m_type->m_implicitly_contained_type;
+  array_access->m_index = core::move(inner_expr);
+  array_access->m_array = core::move(outer_expr);
+
+  return core::move(array_access);
+}
+
+memory::unique_ptr<ast_expression>
 parse_ast_convertor::convertor_context::resolve_struct_allocation_expression(
     const struct_allocation_expression* _alloc) {
-  ast_type* t = resolve_type(_alloc->get_type());
+  const ast_type* t = resolve_type(_alloc->get_type());
   if (!t) {
     return nullptr;
   }
@@ -371,7 +467,7 @@ parse_ast_convertor::convertor_context::resolve_struct_allocation_expression(
     m_log->log_error("You must allocate a struct with a known struct type");
     return nullptr;
   }
-  ast_type* alloc_type = t->m_overloaded_construction_child;
+  const ast_type* alloc_type = t->m_overloaded_construction_child;
   WN_DEBUG_ASSERT(
       alloc_type, "Have a struct type without a proper constructor");
 
@@ -566,7 +662,8 @@ parse_ast_convertor::convertor_context::resolve_member_access_expression(
     }
   }
 
-  auto extern_it = struct_type->m_contained_external_types.find(member->m_member_name);
+  auto extern_it =
+      struct_type->m_contained_external_types.find(member->m_member_name);
   if (extern_it != struct_type->m_contained_external_types.end()) {
     member->m_member_offset = extern_it->second.order;
     member->m_type = extern_it->second.type;

@@ -52,6 +52,7 @@ enum class ast_node_type {
   ast_node,
   ast_vtable,
   ast_statement,
+    ast_array_allocation,
     ast_declaration,
     ast_scope_block,
     ast_evaluate_expression,
@@ -126,6 +127,13 @@ struct ast_type {
 
   bool can_implicitly_cast_to(const ast_type* _other) const {
     if (_other == this) {
+      return true;
+    }
+
+    if (m_classification == ast_type_classification::static_array &&
+        _other->m_classification == ast_type_classification::static_array &&
+        m_implicitly_contained_type == _other->m_implicitly_contained_type &&
+        _other->m_static_array_size == 0) {
       return true;
     }
 
@@ -279,10 +287,11 @@ struct ast_type {
     return m_member_functions;
   }
 
-  containers::deque<memory::unique_ptr<ast_function>>& initialized_external_member_functions(
-    memory::allocator* _allocator) {
+  containers::deque<memory::unique_ptr<ast_function>>&
+  initialized_external_member_functions(memory::allocator* _allocator) {
     if (m_external_member_functions.empty()) {
-      m_external_member_functions = containers::deque<memory::unique_ptr<ast_function>>(_allocator);
+      m_external_member_functions =
+          containers::deque<memory::unique_ptr<ast_function>>(_allocator);
     }
     return m_external_member_functions;
   }
@@ -301,7 +310,8 @@ struct ast_type {
   containers::deque<const ast_type*> m_contained_types;
   containers::deque<memory::unique_ptr<ast_declaration>> m_structure_members;
   containers::deque<ast_function*> m_member_functions;
-  containers::deque<memory::unique_ptr<ast_function>> m_external_member_functions;
+  containers::deque<memory::unique_ptr<ast_function>>
+      m_external_member_functions;
 
   struct external_member {
     containers::string name;
@@ -348,8 +358,8 @@ struct ast_type {
   void setup_external_type(memory::allocator* _allocator) {
     if (m_contained_external_types.empty()) {
       m_contained_external_types =
-        containers::hash_map<containers::string_view, external_member>(
-          _allocator);
+          containers::hash_map<containers::string_view, external_member>(
+              _allocator);
     }
     if (m_member_functions.empty()) {
       m_member_functions = containers::deque<ast_function*>(_allocator);
@@ -506,11 +516,11 @@ public:
 
   const ast_type* m_type;
 
-  containers::deque<memory::unique_ptr<ast_declaration>>&
+  containers::deque<memory::unique_ptr<ast_statement>>&
   initialized_setup_statements(memory::allocator* _allocator) {
     if (m_temporaries.empty()) {
       m_temporaries =
-          containers::deque<memory::unique_ptr<ast_declaration>>(_allocator);
+          containers::deque<memory::unique_ptr<ast_statement>>(_allocator);
     }
     return m_temporaries;
   }
@@ -524,7 +534,7 @@ public:
     return m_destroy_expressions;
   }
 
-  containers::deque<memory::unique_ptr<ast_declaration>> m_temporaries;
+  containers::deque<memory::unique_ptr<ast_statement>> m_temporaries;
   containers::deque<memory::unique_ptr<ast_expression>> m_destroy_expressions;
   void copy_underlying_from(
       memory::allocator* _alloc, const ast_expression* _other) {
@@ -611,6 +621,25 @@ struct ast_constant : public ast_expression {
     memory::memcpy(&d->m_node_value, &m_node_value, sizeof(m_node_value));
     return (core::move(d));
   }
+};
+
+struct ast_array_allocation : public ast_statement {
+  ast_array_allocation(const node* _base_node)
+    : ast_statement(_base_node, ast_node_type::ast_array_allocation) {}
+
+  memory::unique_ptr<ast_node> clone(
+      memory::allocator* _allocator) const override {
+    auto d = memory::make_unique<ast_array_allocation>(_allocator, nullptr);
+    d->copy_underlying_from(_allocator, this);
+    d->m_type = m_type;
+    d->m_initializer = clone_node(_allocator, m_initializer.get());
+    d->m_initializee = clone_node(_allocator, m_initializee.get());
+    return (core::move(d));
+  }
+
+  const ast_type* m_type;
+  memory::unique_ptr<ast_expression> m_initializer;
+  memory::unique_ptr<ast_expression> m_initializee;
 };
 
 struct ast_function : public ast_node {
@@ -731,6 +760,19 @@ struct ast_id : public ast_expression {
 struct ast_array_access_expression : public ast_expression {
   ast_array_access_expression(const node* _base_node)
     : ast_expression(_base_node, ast_node_type::ast_array_access_expression) {}
+
+  memory::unique_ptr<ast_node> clone(
+      memory::allocator* _allocator) const override {
+    auto d =
+        memory::make_unique<ast_array_access_expression>(_allocator, nullptr);
+    d->copy_underlying_from(_allocator, this);
+    d->m_array = clone_node(_allocator, m_array.get());
+    d->m_index = clone_node(_allocator, m_index.get());
+    return core::move(d);
+  }
+
+  memory::unique_ptr<ast_expression> m_array;
+  memory::unique_ptr<ast_expression> m_index;
 };
 
 struct ast_member_access_expression : public ast_expression {
@@ -1088,7 +1130,7 @@ struct ast_script_file : public ast_node {
       m_all_vtables(_allocator),
       m_all_types(_allocator),
       m_functions(_allocator) {}
-  containers::deque<ast_type*> m_initialization_order;
+  containers::deque<const ast_type*> m_initialization_order;
   containers::deque<memory::unique_ptr<ast_vtable>> m_all_vtables;
   containers::deque<memory::unique_ptr<ast_type>> m_all_types;
   containers::deque<memory::unique_ptr<ast_function>> m_functions;

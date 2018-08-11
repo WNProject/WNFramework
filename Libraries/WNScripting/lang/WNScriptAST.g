@@ -279,21 +279,14 @@ arrayType returns[scripting::type* node]
 @init {
     node = nullptr;
 }
-    : scalarType { node = $scalarType.node; SET_LOCATION_FROM_NODE(node, $scalarType.node); }
-           (LSQBRACKET RSQBRACKET {
-                   SET_END_LOCATION(node, $RSQBRACKET);
-                   node = m_allocator->construct<scripting::array_type>(m_allocator, node);
-                   SET_LOCATION(node, $LSQBRACKET);
-                   SET_END_LOCATION(node, $RSQBRACKET);
-           })
+    : (scalarType { node = $scalarType.node; SET_LOCATION_FROM_NODE(node, $scalarType.node);
+            node = m_allocator->construct<scripting::array_type>(m_allocator, node);}
     | objectType { node = $objectType.node; SET_LOCATION_FROM_NODE(node, $objectType.node);
-                    node->set_reference_type(scripting::reference_type::unique); }
-           (LSQBRACKET RSQBRACKET {
-                   SET_END_LOCATION(node, $RSQBRACKET);
-                   node = m_allocator->construct<scripting::array_type>(m_allocator, node);
-                   SET_LOCATION(node, $LSQBRACKET);
-                   SET_END_LOCATION(node, $RSQBRACKET);
-           })
+                    node->set_reference_type(scripting::reference_type::unique);
+                    node = m_allocator->construct<scripting::array_type>(m_allocator, node); })
+        (LSQBRACKET  { SET_LOCATION(node, $LSQBRACKET); })
+        (constant    { scripting::cast_to<scripting::array_type>(node)->set_constant($constant.node); })?
+        (RSQBRACKET  { SET_END_LOCATION(node, $RSQBRACKET); })
     ;
 
 dynamicArrayType returns[scripting::type* node]
@@ -795,4 +788,3 @@ program returns[scripting::script_file* node]
             |   inc        { node->add_include($inc.file); }
         )*
     ;
-

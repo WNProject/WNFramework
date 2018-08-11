@@ -75,6 +75,11 @@ public:
       m_shared_types;
   containers::hash_map<const ast_type*, memory::unique_ptr<ast_type>>
       m_weak_types;
+  containers::hash_map<core::pair<uint32_t, const ast_type*>,
+      memory::unique_ptr<ast_type>,
+      containers::pair_hasher<uint32_t, const ast_type*>,
+      containers::pair_equality<uint32_t, const ast_type*>>
+      m_static_array_types;
 
   template <typename T>
   containers::string_view get_mangled_name() const {
@@ -102,6 +107,8 @@ public:
 
   ast_type* get_reference_of(
       const ast_type* _type, ast_type_classification _reference_type);
+
+  ast_type* get_array_of(const ast_type* _type, uint32_t _size);
 };
 }  // namespace scripting
 }  // namespace wn

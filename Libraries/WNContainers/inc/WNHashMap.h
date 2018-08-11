@@ -482,6 +482,21 @@ private:
   key_equal m_key_equal;
 };
 
+template <typename K, typename V>
+struct pair_hasher {
+  size_t operator()(const core::pair<K, V>& v) const {
+    return std::hash<K>{}(v.first) ^ std::hash<V>{}(v.second);
+  }
+};
+
+template <typename K, typename V>
+struct pair_equality {
+  bool operator()(const core::pair<K, V>& a, const core::pair<K, V>& b) const {
+    return std::equal_to<K>{}(a.first, b.first) &&
+           std::equal_to<V>{}(a.second, b.second);
+  }
+};
+
 }  // namespace containers
 }  // namespace wn
 

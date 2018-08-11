@@ -28,14 +28,16 @@ struct parse_ast_convertor::convertor_context {
       ast_type* _type);
   bool create_struct_assign(const struct_definition* _def, ast_type* _type);
   // Types
-  ast_type* resolve_type(const type* _type);
-  ast_type* resolve_builtin_type(uint32_t _type_index);
-  ast_type* resolve_static_array(const array_type* _type);
-  ast_type* resolve_dynamic_array(const dynamic_array_type* _type);
-  ast_type* resolve_reference_type(const type* _type);
-  ast_type* resolve_function_ptr_type(
+  const ast_type* resolve_type(const type* _type);
+  const ast_type* resolve_builtin_type(uint32_t _type_index);
+  const ast_type* resolve_static_array(const array_type* _type);
+  const ast_type* resolve_dynamic_array(const dynamic_array_type* _type);
+  const ast_type* resolve_reference_type(const type* _type);
+  const ast_type* resolve_function_ptr_type(
       containers::dynamic_array<const ast_type*> _types);
-  ast_type* resolve_function_ptr_type(const ast_function* _function);
+  const ast_type* resolve_function_ptr_type(const ast_function* _function);
+
+  const ast_type* get_array_of(const ast_type* _type, uint32_t _size);
 
   // Functions
   // pre_resolve_function creates the function object, and intiializes
@@ -90,6 +92,10 @@ struct parse_ast_convertor::convertor_context {
       const struct_allocation_expression* _expression);
   memory::unique_ptr<ast_expression> resolve_member_access_expression(
       const member_access_expression* _expression);
+  memory::unique_ptr<ast_expression> resolve_array_allocation_expression(
+      const array_allocation_expression* _expr);
+  memory::unique_ptr<ast_expression> resolve_array_access_expression(
+      const array_access_expression* _access);
 
   // Helpers
   memory::unique_ptr<ast_expression> get_id(const node* _location,
@@ -129,36 +135,16 @@ struct parse_ast_convertor::convertor_context {
   // If _end_scope_block == nullptr, then cleans all scopes.
   void clean_scopes(ast_scope_block* _end_scope_block = nullptr);
 
-  template <typename K, typename V>
-  struct pair_hasher {
-    size_t operator()(const core::pair<K, V>& v) const {
-      return std::hash<K>{}(v.first) ^ std::hash<V>{}(v.second);
-    }
-  };
-
-  template <typename K, typename V>
-  struct pair_equality {
-    bool operator()(
-        const core::pair<K, V>& a, const core::pair<K, V>& b) const {
-      return std::equal_to<K>{}(a.first, b.first) &&
-             std::equal_to<V>{}(a.second, b.second);
-    }
-  };
-
   memory::allocator* m_allocator;
   const parse_ast_convertor* m_convertor;
   containers::hash_map<containers::string, memory::unique_ptr<ast_type>>
       m_structure_types;
   containers::hash_map<containers::string, const struct_definition*>
       m_struct_definitions;
-  containers::hash_map<core::pair<uint32_t, ast_type*>,
-      memory::unique_ptr<ast_type>, pair_hasher<uint32_t, ast_type*>,
-      pair_equality<uint32_t, ast_type*>>
-      m_static_array_types;
-  containers::hash_map<ast_type*, memory::unique_ptr<ast_type>>
+  containers::hash_map<const ast_type*, memory::unique_ptr<ast_type>>
       m_dynamic_array_types;
   containers::hash_set<const struct_definition*> m_handled_definitions;
-  containers::deque<ast_type*> m_ordered_type_definitions;
+  containers::deque<const ast_type*> m_ordered_type_definitions;
 
   containers::deque<ast_scope_block*> m_nested_scopes;
   containers::deque<memory::unique_ptr<ast_statement>>* m_current_statements;
@@ -177,9 +163,11 @@ struct parse_ast_convertor::convertor_context {
   containers::hash_map<containers::string, containers::deque<ast_function*>>
       m_named_functions;
 
+  containers::hash_map<const ast_type*, const ast_type*> m_array_declarations;
+
   memory::unique_ptr<ast_script_file> m_script_file;
 
-  ast_type* m_destructor_fn_ptr_t;
+  const ast_type* m_destructor_fn_ptr_t;
   memory::unique_ptr<ast_type> m_shared_object_header;
 
   ast_function* m_allocate_shared;

@@ -14,7 +14,7 @@ namespace scripting {
 namespace {
 memory::unique_ptr<ast_declaration> make_builtin_declaration(
     memory::allocator* _allocator, containers::string_view _name,
-    ast_type* _type) {
+    const ast_type* _type) {
   auto decl = memory::make_unique<ast_declaration>(_allocator, nullptr);
   decl->m_type = _type;
   decl->m_name = _name.to_string(_allocator);

@@ -15,7 +15,7 @@ parse_ast_convertor::convertor_context::pre_resolve_function(
   memory::unique_ptr<ast_function> function =
       memory::make_unique<ast_function>(m_allocator, _function);
 
-  ast_type* ret_ty = resolve_type(_function->get_signature()->get_type());
+  const ast_type* ret_ty = resolve_type(_function->get_signature()->get_type());
 
   function->m_return_type = ret_ty;
   if (!function->m_return_type) {
@@ -49,7 +49,7 @@ parse_ast_convertor::convertor_context::pre_resolve_function(
   if (_function->get_parameters() &&
       _function->get_parameters()->get_parameters().size()) {
     for (auto& param : _function->get_parameters()->get_parameters()) {
-      ast_type* param_type = resolve_type(param->get_type());
+      const ast_type* param_type = resolve_type(param->get_type());
       if (!param_type) {
         return nullptr;
       }

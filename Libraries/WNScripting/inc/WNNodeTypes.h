@@ -74,6 +74,7 @@ class function;
 class instruction;
 class node;
 class parameter;
+class constant_expression;
 
 template <typename T>
 const T* cast_to(const node* _node) {
@@ -375,6 +376,10 @@ public:
     return m_type;
   }
 
+  virtual const expression* get_size() const {
+    return nullptr;
+  }
+
 protected:
   uint32_t m_type;
   reference_type m_reference_type;
@@ -405,7 +410,16 @@ public:
     c->print_value(m_subtype, "SubType");
   }
 
+  void set_constant(expression* _const) {
+    m_size = memory::unique_ptr<expression>(m_allocator, _const);
+  }
+
+  const expression* get_size() const override {
+    return m_size.get();
+  }
+
 private:
+  memory::unique_ptr<expression> m_size;
   memory::unique_ptr<type> m_subtype;
 };
 

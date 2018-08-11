@@ -16,7 +16,8 @@ type_manager::type_manager(memory::allocator* _allocator)
     m_float_types(_allocator),
     m_reference_types(_allocator),
     m_shared_types(_allocator),
-    m_weak_types(_allocator) {
+    m_weak_types(_allocator),
+    m_static_array_types(_allocator) {
   auto uint32_type = memory::make_unique<ast_type>(m_allocator);
   uint32_type->m_name = containers::string(m_allocator, "Int");
   uint32_type->m_builtin = builtin_type::integral_type;
@@ -196,6 +197,36 @@ ast_type* type_manager::get_reference_of(
   ast_type* return_type = ref_type.get();
   return_type->calculate_mangled_name(m_allocator);
   (*insertion_map)[_type] = core::move(ref_type);
+  return return_type;
+}
+
+ast_type* type_manager::get_array_of(const ast_type* _type, uint32_t _size) {
+  auto it = m_static_array_types.find(core::make_pair(_size, _type));
+  if (it != m_static_array_types.end()) {
+    return it->second.get();
+  }
+
+  auto array_type = memory::make_unique<ast_type>(m_allocator);
+  array_type->m_classification = ast_type_classification::static_array;
+
+  array_type->m_name = containers::string(m_allocator, "_array_");
+  if (_size > 0) {
+    array_type->m_name += "_of_";
+
+    char buff[11] = {
+        0,
+    };
+    memory::writeuint32(
+        buff, static_cast<uint32_t>(_size), 11);
+    array_type->m_name += buff;
+    array_type->m_name += "_";
+  }
+
+  array_type->m_implicitly_contained_type = _type;
+  array_type->m_static_array_size = _size;
+  ast_type* return_type = array_type.get();
+  return_type->calculate_mangled_name(m_allocator);
+  m_static_array_types[core::make_pair(_size, _type)] = core::move(array_type);
   return return_type;
 }
 

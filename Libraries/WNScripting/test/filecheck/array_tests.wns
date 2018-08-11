@@ -1,0 +1,53 @@
+// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE.txt file.
+
+// CHECK:      typedef struct __array0_int32_t {
+// CHECK-NEXT:   size_t _size;
+// CHECK-NEXT:   int32_t _val[];
+// CHECK-NEXT: } _array0_int32_t;
+
+// CHECK:      typedef struct __array4_int32_t {
+// CHECK-NEXT:   size_t _size;
+// CHECK-NEXT:   int32_t _val[4];
+// CHECK-NEXT: } _array4_int32_t;
+
+// CHECK: {{3fooE.*{}}
+Int foo(Int[] x, Int y) {
+// CHECK: _return = x->val[y];
+  return x[y];
+}
+
+// RUN: all_sized 1 -> 3
+// RUN: all_sized 2 -> 1
+// RUN: all_sized 0 -> 3
+// CHECK: {{9all_sizedE.*{}}
+Int all_sized(Int x) {
+// CHECK: _array4_int32_t bar;
+// CHECK-NEXT: for (size_t __c_temp0 = 0; __c_temp0 < 4; ++__c_temp0) {
+// CHECK-NEXT:    bar.val[__c_temp0] = 3;
+// CHECK-NEXT: }
+  Int[4] bar = Int[4](3);
+  bar[2] = 1;
+// CHECK: bar.val[2] = 1;
+// CHECK: _return = _ZN3wns3fooEiA0_ii(((_array0_int32_t*)&bar), x);
+  return foo(bar, x);
+}
+
+// RUN: unsized 1 -> 3
+// RUN: unsized 2 -> 1
+// RUN: unsized 0 -> 3
+// CHECK: {{7unsizedE.*{}}
+Int unsized(Int x) {
+  Int[] bar = Int[4](3);
+// CHECK:  _array4_int32_t _wns_temp1;
+// CHECK-NEXT: for (size_t __c_temp1 = 0; __c_temp1 < 4; ++__c_temp1) {
+// CHECK-NEXT:   _wns_temp1.val[__c_temp1] = 3;
+// CHECK-NEXT: }
+// CHECK-NEXT: _array0_int32_t* bar = ((_array0_int32_t*)&_wns_temp1);
+  bar[2] = 1;
+// CHECK: bar->val[2] = 1;
+// CHECK-NEXT: _return = _ZN3wns3fooEiA0_ii(bar, x);
+  return foo(bar, x);
+}
+

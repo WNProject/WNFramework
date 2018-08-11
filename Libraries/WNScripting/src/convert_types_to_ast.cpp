@@ -9,7 +9,7 @@
 namespace wn {
 namespace scripting {
 
-ast_type* parse_ast_convertor::convertor_context::resolve_type(
+const ast_type* parse_ast_convertor::convertor_context::resolve_type(
     const type* _type) {
   if (_type->get_node_type() == node_type::array_type) {
     return resolve_static_array(cast_to<array_type>(_type));
@@ -48,7 +48,7 @@ ast_type* parse_ast_convertor::convertor_context::resolve_type(
   return resolve_builtin_type(_type->get_classification());
 }
 
-ast_type* parse_ast_convertor::convertor_context::resolve_builtin_type(
+const ast_type* parse_ast_convertor::convertor_context::resolve_builtin_type(
     const uint32_t _type) {
   switch (_type) {
     case static_cast<uint32_t>(type_classification::void_type):
@@ -73,9 +73,9 @@ ast_type* parse_ast_convertor::convertor_context::resolve_builtin_type(
   return nullptr;
 }
 
-ast_type* parse_ast_convertor::convertor_context::resolve_reference_type(
+const ast_type* parse_ast_convertor::convertor_context::resolve_reference_type(
     const type* _type) {
-  ast_type* sub_type;
+  const ast_type* sub_type;
   if (!_type->custom_type_name().empty()) {
     auto it = m_structure_types.find(
         _type->custom_type_name().to_string(m_allocator));
@@ -120,35 +120,51 @@ ast_type* parse_ast_convertor::convertor_context::resolve_reference_type(
   }
 }
 
-ast_type* parse_ast_convertor::convertor_context::resolve_static_array(
+const ast_type* parse_ast_convertor::convertor_context::resolve_static_array(
     const array_type* _type) {
   // Static array types sized, only the initializer is actually sized.
-  ast_type* subtype = resolve_type(_type->get_subtype());
+  const ast_type* subtype = resolve_type(_type->get_subtype());
   if (!subtype) {
     _type->log_line(m_log, logging::log_level::error);
     m_log->log_error("Could not resolve array subtype");
     return nullptr;
   }
-  auto it = m_static_array_types.find(core::make_pair(uint32_t(0), subtype));
-  if (it != m_static_array_types.end()) {
-    return it->second.get();
-  }
+  if (_type->get_size() == nullptr) {
+    return get_array_of(subtype, 0);
+  } else {
+    if (const expression* _expr = _type->get_size()) {
+      if (_expr->get_node_type() == node_type::constant_expression) {
+        const constant_expression* c =
+            cast_to<const constant_expression>(_expr);
+        if (c->get_index() !=
+            static_cast<uint32_t>(type_classification::int_type)) {
+          _type->log_line(m_log, logging::log_level::error);
+          m_log->log_error("Array must be initialized with a constant integer");
+          return nullptr;
+        }
+        if (c->get_type_text() == "0" || c->get_type_text()[0] == '-') {
+          _type->log_line(m_log, logging::log_level::error);
+          m_log->log_error("Array size must be positive integer");
+        }
 
-  auto array_type = memory::make_unique<ast_type>(m_allocator);
-  array_type->m_classification = ast_type_classification::static_array;
-  array_type->m_name =
-      containers::string(m_allocator, "_array_of_0_") + subtype->m_name;
-  array_type->m_implicitly_contained_type = subtype;
-  ast_type* return_type = array_type.get();
-  m_static_array_types[core::make_pair(uint32_t(0), subtype)] =
-      core::move(array_type);
-  m_ordered_type_definitions.push_back(return_type);
-  return return_type;
+        uint32_t num = 0;
+        wn::memory::readuint32(
+            c->get_type_text().c_str(), num, c->get_type_text().size());
+
+        return get_array_of(subtype, num);
+      } else {
+        _type->log_line(m_log, logging::log_level::error);
+        m_log->log_error("Array must be initialized with a constant size");
+        return nullptr;
+      }
+    }
+  }
+  return nullptr;
 }
 
-ast_type* parse_ast_convertor::convertor_context::resolve_dynamic_array(
+const ast_type* parse_ast_convertor::convertor_context::resolve_dynamic_array(
     const dynamic_array_type* _type) {
-  ast_type* subtype = resolve_type(_type->get_subtype());
+  const ast_type* subtype = resolve_type(_type->get_subtype());
   if (!subtype) {
     _type->log_line(m_log, logging::log_level::error);
     m_log->log_error("Could not resolve dynamic array subtype");
@@ -170,7 +186,8 @@ ast_type* parse_ast_convertor::convertor_context::resolve_dynamic_array(
   return return_type;
 }
 
-ast_type* parse_ast_convertor::convertor_context::resolve_function_ptr_type(
+const ast_type*
+parse_ast_convertor::convertor_context::resolve_function_ptr_type(
     const ast_function* _function) {
   containers::dynamic_array<const ast_type*> types(
       m_allocator, _function->m_parameters.size() + 1);
@@ -182,7 +199,8 @@ ast_type* parse_ast_convertor::convertor_context::resolve_function_ptr_type(
   return resolve_function_ptr_type(core::move(types));
 }
 
-ast_type* parse_ast_convertor::convertor_context::resolve_function_ptr_type(
+const ast_type*
+parse_ast_convertor::convertor_context::resolve_function_ptr_type(
     containers::dynamic_array<const ast_type*> _types) {
   auto type = m_function_pointer_types.find(_types);
   if (type != m_function_pointer_types.end()) {

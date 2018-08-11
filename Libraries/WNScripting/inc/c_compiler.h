@@ -45,6 +45,9 @@ private:
   bool write_member_access_expression(
       const ast_member_access_expression* _expression);
   bool write_cast_expression(const ast_cast_expression* _expression);
+  bool write_array_allocation(const ast_array_allocation* _alloc);
+  bool write_array_access_expression(
+      const ast_array_access_expression* _access);
 
   // Statements
   bool write_statement(const ast_statement* _statement);

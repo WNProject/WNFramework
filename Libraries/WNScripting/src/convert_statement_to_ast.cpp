@@ -250,6 +250,55 @@ bool parse_ast_convertor::convertor_context::resolve_declaration(
       }
     }
 
+    if (init &&
+        init->m_type->m_classification ==
+            ast_type_classification::static_array &&
+        type->m_classification == ast_type_classification::static_array) {
+      if (init->m_type->m_static_array_size != 0 &&
+          type->m_static_array_size != 0) {
+        if (type->m_static_array_size != init->m_type->m_static_array_size) {
+          _declaration->log_line(m_log, logging::log_level::error);
+          m_log->log_error(
+              "Cannot initialize array with an array of different size");
+        }
+
+        if (init->m_temporaries.size() == 2 &&
+            init->m_temporaries[0]->m_node_type ==
+                ast_node_type::ast_declaration &&
+            init->m_temporaries[1]->m_node_type ==
+                ast_node_type::ast_array_allocation) {
+          // We could leave this, but it would not be ideal. It would look
+          // something like:
+          // array4_int __wns_temp0;
+          // for (int i = 0; i < 4; ++i;) { __wns_temp0[i] = 4; }
+          // array4_int foo = __wns_temp0;
+          // Instead of this we can transform it to just initialize the
+          // declaration
+          init->m_temporaries.pop_front();
+          ast_array_allocation* alloc =
+              cast_to<ast_array_allocation>(init->m_temporaries[0].get());
+          memory::unique_ptr<ast_id> id =
+              memory::make_unique<ast_id>(m_allocator, _declaration);
+          id->m_declaration = decl.get();
+          id->m_type = type;
+
+          alloc->m_initializee = core::move(id);
+          init_statement = core::move(init->m_temporaries[0]);
+          init.reset();
+        }
+      }
+
+      if (type->m_static_array_size == 0 &&
+          init->m_type->m_static_array_size != 0) {
+        memory::unique_ptr<ast_cast_expression> cast =
+            memory::make_unique<ast_cast_expression>(m_allocator, _declaration);
+        cast->m_base_expression = core::move(init);
+        cast->m_type = get_array_of(type->m_implicitly_contained_type, 0);
+        transfer_temporaries(cast.get(), cast->m_base_expression.get());
+        init = core::move(cast);
+      }
+    }
+
     if (type->m_classification == ast_type_classification::shared_reference) {
       if (!is_null_assign) {
         auto const_null =
@@ -315,8 +364,9 @@ bool parse_ast_convertor::convertor_context::resolve_declaration(
     auto& scope_expr = m_nested_scopes.back()->initialized_cleanup(m_allocator);
     scope_expr.push_back(core::move(function_call));
   }
-
-  m_current_statements->push_back(core::move(decl));
+  if (decl) {
+    m_current_statements->push_back(core::move(decl));
+  }
   if (init_statement) {
     m_current_statements->push_back(core::move(init_statement));
   }

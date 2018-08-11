@@ -5,6 +5,8 @@ set(CMAKE_CXX_FLAGS
 # -DDEBUG conflicts with some libraries, remove it here
 string(REPLACE "-DDEBUG" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
 
+set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--no-keep-memory")
+
 add_compile_options(-D_WN_ANDROID)
 add_compile_options(-D_XOPEN_SOURCE=600)
 add_compile_options(-Wno-unused-lambda-capture)

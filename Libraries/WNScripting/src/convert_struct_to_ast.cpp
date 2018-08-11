@@ -151,7 +151,7 @@ ast_type* parse_ast_convertor::convertor_context::walk_struct_definition(
     st->m_overloaded_construction_child = child_type.get();
     for (auto& ty : type_chain) {
       for (auto& it : ty->get_struct_members()) {
-        ast_type* t = resolve_type(it->get_type());
+        const ast_type* t = resolve_type(it->get_type());
         if (t->m_classification == ast_type_classification::reference) {
           memory::unique_ptr<ast_declaration> decl =
               memory::make_unique<ast_declaration>(m_allocator, it.get());
@@ -294,7 +294,7 @@ bool parse_ast_convertor::convertor_context::create_constructor(
 
       memory::unique_ptr<ast_expression> rhs;
 
-      ast_type* t = resolve_type(it->get_type());
+      const ast_type* t = resolve_type(it->get_type());
       member->m_type = t;
       if (t->m_classification == ast_type_classification::reference &&
           t->m_implicitly_contained_type->m_struct_is_class) {
@@ -475,7 +475,7 @@ bool parse_ast_convertor::convertor_context::create_destructor(
   uint32_t pos = 0;
   for (auto& st : _defs) {
     for (auto& it : st->get_struct_members()) {
-      ast_type* t = resolve_type(it->get_type());
+      const ast_type* t = resolve_type(it->get_type());
       if (t->m_classification == ast_type_classification::reference) {
         if (!t->m_implicitly_contained_type ||
             t->m_implicitly_contained_type->m_classification !=
