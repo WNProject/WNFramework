@@ -149,6 +149,8 @@ class Runner:
                             required=False)
         parser.add_argument("--sdk",
                             help="Location of the sdk", required=False)
+        parser.add_argument("--attach", type=int,
+                            help="Attach to pid instead of start")
         args = parser.parse_args(sys.argv[2:])
 
         adb = "adb"
@@ -157,7 +159,8 @@ class Runner:
             adb = os.path.join(args.sdk, "platform-tools", "adb")
 
         run_p([adb, "logcat", "-c"])
-        run_p([adb, "shell", "am", "force-stop", args.package_name])
+        if args.attach == 0:
+            run_p([adb, "shell", "am", "force-stop", args.package_name])
 
         self.args = args
         self.adb = adb
@@ -236,16 +239,17 @@ class Runner:
                 stdout=subprocess.PIPE,
                 bufsize=1)
 
-            self.run_shell_silent(["am", "start", "-S", "%s/%s" % (args.package_name,
-                                                                   args.activity_name)])
+            if args.attach == 0:
+                self.run_shell_silent(["am", "start", "-S", "%s/%s" % (args.package_name,
+                                                                       args.activity_name)])
             info("Starting %s/.%s" % (args.package_name, args.activity_name))
 
             startre = re.compile("^--STARTED..?$")
             strip_stuff = re.compile("[A-Z]/" +
                                      args.package_name + "\(([ 0-9]*)\): (.*)")
 
-            pid = 0
-            while(True):
+            pid = args.attach
+            while(pid == 0):
                 line = p.stdout.readline()
 
                 original_line = line
@@ -281,9 +285,14 @@ class Runner:
                 f.writelines([
                     'platform select remote-android\n',
                     'platform connect unix-abstract-connect://{}/lldb\n'.format(
-                        data_dir),
-                    'settings set target.exec-search-paths {}\n'.format(os.path.join(
-                        args.build_dir, arch_to_local_dir[args.target_arch], 'lib')),
+                        data_dir)
+                ])
+                if args.build_dir:
+                    f.writelines([
+                        'settings set target.exec-search-paths {}\n'.format(os.path.join(
+                            args.build_dir, arch_to_local_dir[args.target_arch], 'lib'))
+                    ])
+                f.writelines([
                     'process attach --pid {}'.format(pid)
                 ])
 

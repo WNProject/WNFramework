@@ -48,6 +48,7 @@ wn_create_call_test(
       empty_struct.wns
       external_function_tests.wns
       function_call_tests.wns
+      inherited_construction_tests.wns
       loop_with_break.wns
       loop_with_continue.wns
       loop_with_return.wns

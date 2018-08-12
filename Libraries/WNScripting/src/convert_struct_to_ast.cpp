@@ -9,6 +9,35 @@
 namespace wn {
 namespace scripting {
 
+
+struct overriden_type {
+  uint32_t m_member_offset;
+  const declaration* m_decl;
+  const type* m_type;
+};
+
+containers::hash_map<containers::string_view, overriden_type>
+resolve_value_override(memory::allocator* _allocator,
+    const containers::deque<const struct_definition*>& _defs) {
+  containers::hash_map<containers::string_view, overriden_type>
+      m_value_overrides(_allocator);
+
+  for (auto st = _defs.rbegin(); st != _defs.rend(); ++st) {
+    for (auto& it : (*st)->get_struct_members()) {
+      auto valit = m_value_overrides.find(it->get_name());
+      if (valit == m_value_overrides.end()) {
+        if (it->is_inherited()) {
+          m_value_overrides[it->get_name()] =
+              overriden_type{0, it.get(), nullptr};
+        }
+      }
+    }
+  }
+
+  return core::move(m_value_overrides);
+}
+
+
 ast_type* parse_ast_convertor::convertor_context::walk_struct_definition(
     const struct_definition* _def) {
   if (m_handled_definitions.find(_def) != m_handled_definitions.end()) {
@@ -85,16 +114,35 @@ ast_type* parse_ast_convertor::convertor_context::walk_struct_definition(
     }
 
     for (auto& it : t->get_struct_members()) {
-      memory::unique_ptr<ast_declaration> u_decl =
-          memory::make_unique<ast_declaration>(m_allocator, it.get());
-      ast_declaration* decl = u_decl.get();
-      u_decl->m_name = containers::string(m_allocator, it->get_name());
-      u_decl->m_type = resolve_type(it->get_type());
-      decls.push_back(core::move(u_decl));
+      ast_declaration* decl = nullptr;
+      if (!it->is_inherited()) {
+        memory::unique_ptr<ast_declaration> u_decl =
+            memory::make_unique<ast_declaration>(m_allocator, it.get());
+        decl = u_decl.get();
+        u_decl->m_name = containers::string(m_allocator, it->get_name());
+        u_decl->m_type = resolve_type(it->get_type());
+        if (u_decl->m_type == nullptr) {
+          return nullptr;
+        }
+        decls.push_back(core::move(u_decl));
+      } else {
+        for (auto& de : decls) {
+          if (de->m_name == it->get_name()) {
+            decl = de.get();
+            break;
+          }
+        }
+        if (!decl) {
+          it->log_line(m_log, logging::log_level::error);
+          m_log->log_error("Tried to override ", it->get_name(),
+              " which does not", " exist in the parent class");
+        }
+      }
 
       // If a unique value is actually a struct, (as opposed to a class)
       // we can inline the whole thing, no need to deal with indirection.
-      if (it->get_type()->get_reference_type() == reference_type::unique) {
+      if (decl->m_type->m_classification ==
+          ast_type_classification::reference) {
         if (!decl->m_type->m_implicitly_contained_type->m_struct_is_class) {
           decl->m_type = decl->m_type->m_implicitly_contained_type;
         } else {
@@ -102,7 +150,8 @@ ast_type* parse_ast_convertor::convertor_context::walk_struct_definition(
         }
       }
 
-      if (it->get_type()->get_node_type() == node_type::array_type) {
+      if (decl->m_type->m_classification ==
+          ast_type_classification::static_array) {
         if (decl->m_type->m_implicitly_contained_type->m_classification ==
             ast_type_classification::reference) {
           has_overloaded_construction = true;
@@ -116,7 +165,9 @@ ast_type* parse_ast_convertor::convertor_context::walk_struct_definition(
         return nullptr;
       }
 
-      if (!existing_member
+      // Only inherited initializations can hide members.
+      if (!it->is_inherited() &&
+          !existing_member
                .insert(containers::string(m_allocator, it->get_name()))
                .second) {
         it->log_line(m_log, logging::log_level::error);
@@ -140,6 +191,9 @@ ast_type* parse_ast_convertor::convertor_context::walk_struct_definition(
   ast_type* child = nullptr;
 
   if (has_overloaded_construction) {
+    containers::hash_map<containers::string_view, overriden_type>
+        m_value_overrides = resolve_value_override(m_allocator, type_chain);
+
     memory::unique_ptr<ast_type> child_type = st->clone(m_allocator);
     containers::string child_name =
         containers::string(m_allocator, "_") + child_type->m_name;
@@ -151,7 +205,28 @@ ast_type* parse_ast_convertor::convertor_context::walk_struct_definition(
     st->m_overloaded_construction_child = child_type.get();
     for (auto& ty : type_chain) {
       for (auto& it : ty->get_struct_members()) {
-        const ast_type* t = resolve_type(it->get_type());
+        auto vo = m_value_overrides.find(it->get_name());
+        if (vo != m_value_overrides.end() && vo->second.m_decl != it.get()) {
+          continue;
+        }
+
+        const ast_type* t = nullptr;
+        if (!it->is_inherited()) {
+          t = resolve_type(it->get_type());
+        } else {
+          for (auto& de : decls) {
+            if (de->m_name == it->get_name()) {
+              t = de->m_type;
+              break;
+            }
+          }
+          if (!t) {
+            it->log_line(m_log, logging::log_level::error);
+            m_log->log_error("Tried to override ", it->get_name(),
+                " which does not", " exist in the parent class");
+          }
+        }
+
         if (t->m_classification == ast_type_classification::reference) {
           memory::unique_ptr<ast_declaration> decl =
               memory::make_unique<ast_declaration>(m_allocator, it.get());
@@ -249,6 +324,8 @@ bool parse_ast_convertor::convertor_context::create_constructor(
   fn->m_mangled_name = core::move(mangled_name);
   fn->m_scope = memory::make_unique<ast_scope_block>(m_allocator, st_def);
   auto& statements = fn->m_scope->initialized_statements(m_allocator);
+  containers::dynamic_array<memory::unique_ptr<ast_statement>>
+      vtable_statements(m_allocator);
 
   auto this_id = memory::make_unique<ast_id>(m_allocator, st_def);
   this_id->m_type = m_type_manager->get_reference_of(
@@ -276,25 +353,65 @@ bool parse_ast_convertor::convertor_context::create_constructor(
     auto assign = memory::make_unique<ast_assignment>(m_allocator, st_def);
     assign->m_lhs = core::move(member);
     assign->m_rhs = core::move(vt_const);
-    statements.push_back(core::move(assign));
+    vtable_statements.push_back(core::move(assign));
   }
+
+  containers::hash_map<containers::string_view, overriden_type>
+      m_value_overrides = resolve_value_override(m_allocator, _defs);
+  containers::dynamic_array<memory::unique_ptr<ast_statement>>
+      class_level_pre_init_statements(m_allocator);
 
   for (auto& st : _defs) {
     for (auto& it : st->get_struct_members()) {
       if (vtable_offset == pos) {
         ++pos;
       }
+      auto overrider = m_value_overrides.find(it->get_name());
+
+      if (overrider != m_value_overrides.end() &&
+          overrider->second.m_decl != it.get()) {
+        // We are overriden by something down the chain.
+        // Are we the first thing in that chain?
+        if (!it->is_inherited()) {
+          overrider->second.m_member_offset = pos;
+          overrider->second.m_type = it->get_type();
+          ++pos;
+          continue;
+        }
+      }
+
+      bool overrides = (overrider != m_value_overrides.end() &&
+                        overrider->second.m_decl == it.get());
+      auto increment_pos = [&overrides, &pos]() {
+        if (!overrides) {
+          ++pos;
+        }
+      };
+
+      auto add_statement = [&overrides, &class_level_pre_init_statements,
+                               &statements](
+                               memory::unique_ptr<ast_statement> _statement) {
+        if (overrides) {
+          class_level_pre_init_statements.push_back(core::move(_statement));
+        } else {
+          statements.push_back(core::move(_statement));
+        }
+      };
+
+      uint32_t use_pos = overrides ? overrider->second.m_member_offset : pos;
+      const ast_type* t =
+          resolve_type(overrides ? overrider->second.m_type : it->get_type());
+
       auto member = memory::make_unique<ast_member_access_expression>(
           m_allocator, st_def);
       member->m_base_expression = clone_node(m_allocator, this_id.get());
       member->m_base_expression->m_type = m_type_manager->get_reference_of(
           _initialized_type, ast_type_classification::reference);
       member->m_member_name = containers::string(m_allocator, it->get_name());
-      member->m_member_offset = pos;
+      member->m_member_offset = use_pos;
 
       memory::unique_ptr<ast_expression> rhs;
 
-      const ast_type* t = resolve_type(it->get_type());
       member->m_type = t;
       if (t->m_classification == ast_type_classification::reference &&
           t->m_implicitly_contained_type->m_struct_is_class) {
@@ -387,21 +504,45 @@ bool parse_ast_convertor::convertor_context::create_constructor(
             t->m_implicitly_contained_type, ast_type_classification::reference);
         constructor_call->m_function = constructor;
 
-        statements.push_back(evaluate_expression(core::move(constructor_call)));
-        pos++;
+        add_statement(evaluate_expression(core::move(constructor_call)));
+        increment_pos();
         continue;
       } else {
         rhs = resolve_expression(it->get_expression());
+        if (t != rhs->m_type) {
+          if (rhs->m_type->can_implicitly_cast_to(t)) {
+            auto cast =
+                memory::make_unique<ast_cast_expression>(m_allocator, it.get());
+            cast->m_type = t;
+            cast->m_base_expression = core::move(rhs);
+            rhs = core::move(cast);
+          }
+        }
         if (!rhs) {
           return false;
         }
       }
+      if (member->m_type != rhs->m_type) {
+        it->log_line(m_log, logging::log_level::error);
+        m_log->log_error("Trying to initialize an invalid type");
+        return false;
+      }
       auto assign = memory::make_unique<ast_assignment>(m_allocator, st_def);
       assign->m_lhs = core::move(member);
       assign->m_rhs = core::move(rhs);
-      statements.push_back(core::move(assign));
-      pos++;
+      add_statement(core::move(assign));
+      increment_pos();
     }
+    for (auto stit = class_level_pre_init_statements.rbegin();
+         stit != class_level_pre_init_statements.rend(); ++stit) {
+      statements.push_front(core::move(*stit));
+    }
+    class_level_pre_init_statements.clear();
+  }
+
+  for (auto vtit = vtable_statements.rbegin(); vtit != vtable_statements.rend();
+       ++vtit) {
+    statements.push_front(core::move(*vtit));
   }
 
   memory::unique_ptr<ast_expression> expr = core::move(this_id);
@@ -473,9 +614,50 @@ bool parse_ast_convertor::convertor_context::create_destructor(
   bool has_destructible_type = false;
 
   uint32_t pos = 0;
+
+  containers::hash_map<containers::string_view, overriden_type>
+      m_value_overrides = resolve_value_override(m_allocator, _defs);
+  containers::dynamic_array<memory::unique_ptr<ast_statement>>
+      class_level_pre_init_statements(m_allocator);
+
   for (auto& st : _defs) {
     for (auto& it : st->get_struct_members()) {
-      const ast_type* t = resolve_type(it->get_type());
+      auto overrider = m_value_overrides.find(it->get_name());
+
+      if (overrider != m_value_overrides.end() &&
+          overrider->second.m_decl != it.get()) {
+        // We are overriden by something down the chain.
+        // Are we the first thing in that chain?
+        if (!it->is_inherited()) {
+          overrider->second.m_member_offset = pos;
+          overrider->second.m_type = it->get_type();
+          ++pos;
+          continue;
+        }
+      }
+
+      bool overrides = (overrider != m_value_overrides.end() &&
+                        overrider->second.m_decl == it.get());
+      auto increment_pos = [&overrides, &pos]() {
+        if (!overrides) {
+          ++pos;
+        }
+      };
+
+      auto add_statement = [&overrides, &class_level_pre_init_statements,
+                               &statements](
+                               memory::unique_ptr<ast_statement> _statement) {
+        if (overrides) {
+          class_level_pre_init_statements.push_back(core::move(_statement));
+        } else {
+          statements.push_back(core::move(_statement));
+        }
+      };
+
+      uint32_t use_pos = overrides ? overrider->second.m_member_offset : pos;
+      const ast_type* t =
+          resolve_type(overrides ? overrider->second.m_type : it->get_type());
+
       if (t->m_classification == ast_type_classification::reference) {
         if (!t->m_implicitly_contained_type ||
             t->m_implicitly_contained_type->m_classification !=
@@ -501,7 +683,7 @@ bool parse_ast_convertor::convertor_context::create_destructor(
             return false;
           }
         } else {
-          child_pos = pos;
+          child_pos = use_pos;
         }
 
         auto& ct = _initialized_type->m_structure_members[child_pos];
@@ -540,7 +722,7 @@ bool parse_ast_convertor::convertor_context::create_destructor(
         auto expression_statement =
             memory::make_unique<ast_evaluate_expression>(m_allocator, st_def);
         expression_statement->m_expr = core::move(destructor_call);
-        statements.push_back(core::move(expression_statement));
+        add_statement(core::move(expression_statement));
       }
       if (t->m_classification == ast_type_classification::shared_reference) {
         has_destructible_type = true;
@@ -555,7 +737,7 @@ bool parse_ast_convertor::convertor_context::create_destructor(
                 _initialized_type, ast_type_classification::reference);
         destruction_member->m_member_name =
             it->get_name().to_string(m_allocator);
-        destruction_member->m_member_offset = pos;
+        destruction_member->m_member_offset = use_pos;
         destruction_member->m_type = t;
 
         memory::unique_ptr<ast_function_call_expression> function_call =
@@ -574,11 +756,15 @@ bool parse_ast_convertor::convertor_context::create_destructor(
         auto expression_statement =
             memory::make_unique<ast_evaluate_expression>(m_allocator, st_def);
         expression_statement->m_expr = core::move(function_call);
-        statements.push_back(core::move(expression_statement));
+        add_statement(core::move(expression_statement));
       }
-
-      ++pos;
+      increment_pos();
     }
+    for (auto stit = class_level_pre_init_statements.rbegin();
+         stit != class_level_pre_init_statements.rend(); ++stit) {
+      statements.push_front(core::move(*stit));
+    }
+    class_level_pre_init_statements.clear();
   }
 
   auto ret = memory::make_unique<ast_return_instruction>(m_allocator, st_def);

@@ -50,4 +50,3 @@ Int unsized(Int x) {
 // CHECK-NEXT: _return = _ZN3wns3fooEiA0_ii(bar, x);
   return foo(bar, x);
 }
-
