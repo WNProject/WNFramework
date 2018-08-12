@@ -640,6 +640,7 @@ struct ast_array_allocation : public ast_statement {
   const ast_type* m_type;
   memory::unique_ptr<ast_expression> m_initializer;
   memory::unique_ptr<ast_expression> m_initializee;
+  memory::unique_ptr<ast_function_call_expression> m_constructor_initializer;
 };
 
 struct ast_function : public ast_node {

@@ -1,0 +1,36 @@
+// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE.txt file.
+
+struct Foo { Int x = 4; }
+
+struct Bar { shared Foo f = shared Foo(); }
+
+// CHECK: {{14array_destructE.*{}}
+// RUN: array_destruct 4 -> 32
+// RUN: array_destruct 1 -> 4
+Int array_destruct(Int x) {
+// CHECK: _array10_Bar _wns_temp1;
+// CHECK-NEXT: for (size_t __c_temp0 = 0; __c_temp0 < 10; ++__c_temp0) {
+// CHECK-NEXT:   _ZN3wns14_construct_BarEP3BarP3Bar(&(_wns_temp1.val[__c_temp0]));
+// CHECK-NEXT: }
+// CHECK-NEXT: _array0_Bar* b = ((_array0_Bar*)&_wns_temp1);
+// CHECK-NEXT: ((b->val[4].f)->x) = 32;
+// CHECK-NEXT: _return = ((b->val[x].f)->x);
+  Bar[] b = Bar[10](Bar());
+  b[4].f.x = 32;
+  return b[x].f.x;
+}
+
+// CHECK: {{20fixed_array_destructE.*{}}
+// RUN: fixed_array_destruct 4 -> 32
+// RUN: fixed_array_destruct 2 -> 4
+Int fixed_array_destruct(Int x) {
+// CHECK: _array5_Bar b;
+// CHECK-NEXT: for (size_t __c_temp1 = 0; __c_temp1 < 5; ++__c_temp1) {
+// CHECK-NEXT:   _ZN3wns14_construct_BarEP3BarP3Bar(&(b.val[__c_temp1]));
+// CHECK-NEXT: }
+  Bar[5] b = Bar[5](Bar());
+  b[4].f.x = 32;
+  return b[x].f.x;
+}

@@ -42,6 +42,7 @@ wn_create_call_test(
       --test_file
     UNIQUE_ARGS
       array_in_struct_tests.wns
+      array_of_destructible.wns
       array_tests.wns
       assignment_tests.wns
       constants_test.wns

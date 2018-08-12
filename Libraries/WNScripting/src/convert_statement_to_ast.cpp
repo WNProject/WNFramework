@@ -183,6 +183,24 @@ bool parse_ast_convertor::convertor_context::resolve_declaration(
   bool is_raw_struct =
       type->m_classification == ast_type_classification::reference &&
       !type->m_implicitly_contained_type->m_struct_is_class;
+  bool is_array_of_raw_structs = false;
+  if (type->m_classification == ast_type_classification::static_array) {
+    if (type->m_implicitly_contained_type->m_classification ==
+        ast_type_classification::reference) {
+      if (type->m_implicitly_contained_type->m_implicitly_contained_type
+              ->m_struct_is_class) {
+        _declaration->log_line(m_log, logging::log_level::error);
+        m_log->log_error("Error: Cannot create array ",
+            _declaration->get_name(), " of non-struct type.");
+        return false;
+      }
+      is_array_of_raw_structs = true;
+      type = get_array_of(
+          type->m_implicitly_contained_type->m_implicitly_contained_type,
+          type->m_static_array_size);
+    }
+  }
+
   if (is_raw_struct) {
     type = type->m_implicitly_contained_type;
   }
@@ -286,6 +304,33 @@ bool parse_ast_convertor::convertor_context::resolve_declaration(
           init_statement = core::move(init->m_temporaries[0]);
           init.reset();
         }
+      }
+
+      if (is_array_of_raw_structs) {
+        ast_array_allocation* alloc = nullptr;
+
+        if (init_statement) {
+          alloc = cast_to<ast_array_allocation>(init_statement.get());
+        } else {
+          alloc = cast_to<ast_array_allocation>(init->m_temporaries[1].get());
+        }
+        if (alloc->m_initializer->m_node_type !=
+            ast_node_type::ast_function_call_expression) {
+          _declaration->log_line(m_log, logging::log_level::error);
+          m_log->log_error("Expected constructor as array intializer");
+        }
+        ast_function_call_expression* fn =
+            cast_to<ast_function_call_expression>(alloc->m_initializer.get());
+        memory::unique_ptr<ast_id> i =
+            memory::make_unique<ast_id>(m_allocator, _declaration);
+        i->m_declaration = decl.get();
+        i->m_type = type;
+
+        fn->m_parameters[0] = core::move(i);
+        alloc->m_constructor_initializer =
+            memory::unique_ptr<ast_function_call_expression>(
+                alloc->m_initializer.get_allocator(), fn);
+        alloc->m_initializer.release();
       }
 
       if (type->m_static_array_size == 0 &&

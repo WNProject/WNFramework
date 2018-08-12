@@ -30,7 +30,6 @@ class Foo {
 // CHECK-NEXT:   return ((Foo*)(_this));
 // CHECK-NEXT: }
 
-
 class Bar : Foo {
   .x = Int[9](8);
 }

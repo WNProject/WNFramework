@@ -1319,7 +1319,14 @@ bool internal::jit_compiler_context::write_array_allocation(
   llvm::Value* val = m_function_builder->CreateAlloca(m_int32_t);
   m_function_builder->CreateStore(
       i32(_alloc->m_type->m_static_array_size), val);
-  llvm::Value* init = get_expression(_alloc->m_initializer.get());
+  llvm::Value* init = _alloc->m_initializer.get()
+                          ? get_expression(_alloc->m_initializer.get())
+                          : nullptr;
+  const ast_function_call_expression* fn =
+      _alloc->m_constructor_initializer.get()
+          ? _alloc->m_constructor_initializer.get()
+          : nullptr;
+
   llvm::Value* arr = get_expression(_alloc->m_initializee.get());
 
   m_function_builder->CreateBr(init_check);
@@ -1341,10 +1348,17 @@ bool internal::jit_compiler_context::write_array_allocation(
   m_function_builder->CreateStore(v, val);
   // Actually initialize
   llvm::Value* gep[3] = {i32(0), i32(1), v};
-
-  m_function_builder->CreateStore(
-      init, m_function_builder->CreateInBoundsGEP(
-                arr, llvm::ArrayRef<llvm::Value*>(&gep[0], 3)));
+  llvm::Value* g_val = m_function_builder->CreateInBoundsGEP(
+      arr, llvm::ArrayRef<llvm::Value*>(&gep[0], 3));
+  if (init) {
+    m_function_builder->CreateStore(init, g_val);
+  } else {
+    llvm::Function* constructor = get_function(fn->m_function);
+    auto conv = llvm::dyn_cast<llvm::Function>(constructor)->getCallingConv();
+    llvm::CallInst* ci = m_function_builder->CreateCall(
+        constructor, llvm::ArrayRef<llvm::Value*>(g_val));
+    ci->setCallingConv(conv);
+  }
   m_function_builder->CreateBr(init_check);
 
   m_function_builder->SetInsertPoint(init_done);
