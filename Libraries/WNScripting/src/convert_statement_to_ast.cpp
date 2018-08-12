@@ -184,6 +184,7 @@ bool parse_ast_convertor::convertor_context::resolve_declaration(
       type->m_classification == ast_type_classification::reference &&
       !type->m_implicitly_contained_type->m_struct_is_class;
   bool is_array_of_raw_structs = false;
+  bool is_array_of_shared_structs = false;
   if (type->m_classification == ast_type_classification::static_array) {
     if (type->m_implicitly_contained_type->m_classification ==
         ast_type_classification::reference) {
@@ -198,6 +199,9 @@ bool parse_ast_convertor::convertor_context::resolve_declaration(
       type = get_array_of(
           type->m_implicitly_contained_type->m_implicitly_contained_type,
           type->m_static_array_size);
+    } else if (type->m_implicitly_contained_type->m_classification ==
+               ast_type_classification::shared_reference) {
+      is_array_of_shared_structs = true;
     }
   }
 
@@ -351,6 +355,49 @@ bool parse_ast_convertor::convertor_context::resolve_declaration(
         }
       }
 
+      if (is_array_of_shared_structs) {
+        ast_array_allocation* alloc = nullptr;
+
+        if (init_statement) {
+          alloc = cast_to<ast_array_allocation>(init_statement.get());
+        } else {
+          alloc = cast_to<ast_array_allocation>(init->m_temporaries[1].get());
+        }
+        bool is_shared_null_assign =
+            alloc->m_initializer->m_type == m_type_manager->m_nullptr_t.get();
+        if (!is_shared_null_assign) {
+          auto const_null =
+              memory::make_unique<ast_constant>(m_allocator, _declaration);
+          const_null->m_string_value = containers::string(m_allocator, "");
+          const_null->m_type = m_type_manager->m_nullptr_t.get();
+          auto null_as_vptr = make_cast(
+              core::move(const_null), m_type_manager->m_void_ptr_t.get());
+
+          containers::dynamic_array<memory::unique_ptr<ast_expression>> params(
+              m_allocator);
+          params.push_back(core::move(null_as_vptr));
+          params.push_back(
+              core::move(make_cast(core::move(alloc->m_initializer),
+                  m_type_manager->m_void_ptr_t.get())));
+          alloc->m_initializer = make_cast(
+              call_function(_declaration, m_assign_shared, core::move(params)),
+              type->m_implicitly_contained_type);
+        }
+        // Destructor
+        memory::unique_ptr<ast_array_destruction> dest =
+            memory::make_unique<ast_array_destruction>(
+                m_allocator, _declaration);
+        dest->m_destructor = m_release_shared;
+        dest->m_shared = true;
+        memory::unique_ptr<ast_expression> dest_id =
+            clone_node(m_allocator, alloc->m_initializee.get());
+
+        dest->m_target = core::move(dest_id);
+        auto& scope_expr =
+            m_nested_scopes.back()->initialized_cleanup(m_allocator);
+        scope_expr.push_back(core::move(dest));
+      }
+
       if (type->m_static_array_size == 0 &&
           init->m_type->m_static_array_size != 0) {
         memory::unique_ptr<ast_cast_expression> cast =
@@ -435,6 +482,7 @@ bool parse_ast_convertor::convertor_context::resolve_declaration(
 
     scope_expr.push_back(core::move(dest_c));
   }
+
   if (decl) {
     m_current_statements->push_back(core::move(decl));
   }

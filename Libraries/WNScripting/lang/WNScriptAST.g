@@ -279,11 +279,16 @@ arrayType returns[scripting::type* node]
 @init {
     node = nullptr;
 }
-    : (scalarType { node = $scalarType.node; SET_LOCATION_FROM_NODE(node, $scalarType.node);
+    : (
+        scalarType { node = $scalarType.node; SET_LOCATION_FROM_NODE(node, $scalarType.node);
             node = m_allocator->construct<scripting::array_type>(m_allocator, node);}
-    | objectType { node = $objectType.node; SET_LOCATION_FROM_NODE(node, $objectType.node);
-                    node->set_reference_type(scripting::reference_type::unique);
-                    node = m_allocator->construct<scripting::array_type>(m_allocator, node); })
+        | a=objectType { node = $a.node; SET_LOCATION_FROM_NODE(node, $a.node);
+            node->set_reference_type(scripting::reference_type::unique);
+            node = m_allocator->construct<scripting::array_type>(m_allocator, node); }
+        | SHARED_REF b=objectType { node = $b.node; SET_LOCATION_FROM_NODE(node, $b.node);
+            node->set_reference_type(scripting::reference_type::shared);
+            node = m_allocator->construct<scripting::array_type>(m_allocator, node); }
+    )
         (LSQBRACKET  { SET_LOCATION(node, $LSQBRACKET); })
         (constant    { scripting::cast_to<scripting::array_type>(node)->set_constant($constant.node); })?
         (RSQBRACKET  { SET_END_LOCATION(node, $RSQBRACKET); })
@@ -571,9 +576,9 @@ prim_ex returns[scripting::expression * node]
     |   e=objectType h=structInit { $h.node->set_type($e.node); node=$h.node; SET_START_LOCATION_FROM_NODE(node, $e.node); }
     |   SHARED_REF i=objectType j=structInit { $i.node->set_reference_type(scripting::reference_type::shared); $j.node->set_type($i.node); node=$j.node; SET_START_LOCATION_FROM_NODE(node, $i.node); }
     |   k=nonArrayType l=arrayInit { $l.node->set_type($k.node); node=$l.node; SET_START_LOCATION_FROM_NODE(node, $k.node); }
-    |   SHARED_REF m=nonArrayType n=arrayInit { $n.node->set_type($m.node); node=$n.node; SET_START_LOCATION_FROM_NODE(node, $m.node); }
+    |   SHARED_REF m=nonArrayType n=arrayInit { $m.node->set_reference_type(scripting::reference_type::shared); $n.node->set_type($m.node); node=$n.node; SET_START_LOCATION_FROM_NODE(node, $m.node); }
     |   o=nonArrayType p=dynamicArrayInit { $p.node->set_type($o.node); node=$p.node; SET_START_LOCATION_FROM_NODE(node, $o.node); }
-    |   SHARED_REF q=nonArrayType r=dynamicArrayInit { $r.node->set_type($q.node); node=$r.node; SET_START_LOCATION_FROM_NODE(node, $q.node); }
+    |   SHARED_REF q=nonArrayType r=dynamicArrayInit {  $q.node->set_reference_type(scripting::reference_type::shared); $r.node->set_type($q.node); node=$r.node; SET_START_LOCATION_FROM_NODE(node, $q.node); }
     |   u = builtin_unary {node = $u.node; }
     ;
 

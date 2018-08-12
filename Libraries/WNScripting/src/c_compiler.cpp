@@ -227,7 +227,7 @@ bool c_compiler::declare_type(const ast_type* _type) {
       align_line();
       containers::string name;
       containers::string size_str;
-
+      decode_type(_type->m_implicitly_contained_type);
       if (_type->m_static_array_size == 0) {
         name = containers::string(m_allocator, "_array0_") +
                m_types[_type->m_implicitly_contained_type];
@@ -1043,7 +1043,12 @@ bool c_compiler::write_array_destruction(const ast_array_destruction* _call) {
   align_line();
   m_output += "  ";
   m_output += _call->m_destructor->m_mangled_name;
-  m_output += "(&(";
+  m_output += "(";
+  if (_call->m_shared) {
+    m_output += "(void*)(";
+  } else {
+    m_output += "&(";
+  }
   write_expression(_call->m_target.get());
   m_output += ".val[";
   m_output += temp_name;

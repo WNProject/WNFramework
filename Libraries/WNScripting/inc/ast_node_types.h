@@ -648,7 +648,9 @@ struct ast_array_allocation : public ast_statement {
 
 struct ast_array_destruction : public ast_statement {
   ast_array_destruction(const node* _base_node)
-    : ast_statement(_base_node, ast_node_type::ast_array_destruction) {}
+    : ast_statement(_base_node, ast_node_type::ast_array_destruction),
+      m_destructor(nullptr),
+      m_shared(false) {}
 
   memory::unique_ptr<ast_node> clone(
       memory::allocator* _allocator) const override {
@@ -656,10 +658,12 @@ struct ast_array_destruction : public ast_statement {
     d->copy_underlying_from(_allocator, this);
     d->m_destructor = m_destructor;
     d->m_target = clone_node(_allocator, m_target.get());
+    d->m_shared = m_shared;
     return (core::move(d));
   }
 
   const ast_function* m_destructor;
+  bool m_shared;
   memory::unique_ptr<ast_expression> m_target;
 };
 

@@ -19,6 +19,7 @@
 #pragma warning(disable : 4146)
 #pragma warning(disable : 4141)
 #pragma warning(disable : 4324)
+#pragma warning(disable : 4456)
 #endif
 
 #include <llvm/IR/BasicBlock.h>
@@ -27,6 +28,7 @@
 #include <llvm/IR/Instruction.h>
 #include <llvm/IR/Instructions.h>
 #include <llvm/IR/LLVMContext.h>
+#include <llvm/IR/LegacyPassManager.h>
 #include <llvm/IR/Module.h>
 #include <llvm/IR/Value.h>
 #include <llvm/IR/Verifier.h>
@@ -35,6 +37,10 @@
 #include <llvm/ExecutionEngine/MCJIT.h>
 #include <llvm/ExecutionEngine/SectionMemoryManager.h>
 #include <llvm/Support/TargetSelect.h>
+
+#include <llvm/Transforms/InstCombine/InstCombine.h>
+#include <llvm/Transforms/Scalar.h>
+#include <llvm/Transforms/Scalar/GVN.h>
 
 #ifdef _MSC_VER
 #undef PRIi64
@@ -220,11 +226,25 @@ parse_error jit_engine::parse_file(const char* _file) {
   jit_compiler compiler(m_allocator, module.m_module);
   compiler.compile(parsed_file.get());
 
+  // TODO: figure out what optimizations to run eventually
+  // auto FPM =
+  //    llvm::make_unique<llvm::legacy::FunctionPassManager>(module.m_module);
+  //
+  //// Add some optimizations.
+  // FPM->add(llvm::createPromoteMemoryToRegisterPass());
+  // FPM->add(llvm::createInstructionCombiningPass());
+  // FPM->add(llvm::createReassociatePass());
+  // FPM->add(llvm::createGVNPass());
+  // FPM->add(llvm::createPromoteMemoryToRegisterPass());
+  // FPM->add(llvm::createCFGSimplificationPass());
+  // FPM->doInitialization();
+  // for (auto& F : *module.m_module)
+  //  FPM->run(F);
+
   // Uncomment to get debug information about the module out.
   // It is not really needed, but a good place to debug.
   // module.m_module->dump();
   module.m_engine->finalizeObject();
-
   for (auto& function : module.m_module->getFunctionList()) {
     llvm::StringRef name = function.getName();
     if (!function.isIntrinsic()) {
@@ -255,7 +275,7 @@ bool jit_engine::register_mangled_c_function(
     containers::string_view _name, void_f _function, bool) {
   auto name = _name.to_string(m_allocator);
 #if defined(_WN_WINDOWS) && defined(_WN_X86) && !defined(_WN_64_BIT)
-   name.insert(name.begin(), '_');
+  name.insert(name.begin(), '_');
 #endif
   m_c_pointers[core::move(name)] = _function;
   return true;

@@ -1329,9 +1329,7 @@ bool internal::jit_compiler_context::write_array_allocation(
   llvm::Value* val = m_function_builder->CreateAlloca(m_int32_t);
   m_function_builder->CreateStore(
       i32(_alloc->m_type->m_static_array_size), val);
-  llvm::Value* init = _alloc->m_initializer.get()
-                          ? get_expression(_alloc->m_initializer.get())
-                          : nullptr;
+
   const ast_function_call_expression* fn =
       _alloc->m_constructor_initializer.get()
           ? _alloc->m_constructor_initializer.get()
@@ -1366,6 +1364,9 @@ bool internal::jit_compiler_context::write_array_allocation(
   llvm::Value* gep[3] = {i32(0), i32(1), v};
   llvm::Value* g_val = m_function_builder->CreateInBoundsGEP(
       arr, llvm::ArrayRef<llvm::Value*>(&gep[0], 3));
+  llvm::Value* init = _alloc->m_initializer.get()
+                          ? get_expression(_alloc->m_initializer.get())
+                          : nullptr;
   if (init) {
     m_function_builder->CreateStore(init, g_val);
   } else {
@@ -1384,11 +1385,11 @@ bool internal::jit_compiler_context::write_array_allocation(
 bool internal::jit_compiler_context::write_array_destruction(
     const ast_array_destruction* _dest) {
   llvm::BasicBlock* initializer = llvm::BasicBlock::Create(
-      m_context, "array_initializer", m_current_function);
-  llvm::BasicBlock* init_done =
-      llvm::BasicBlock::Create(m_context, "init_done", m_current_function);
-  llvm::BasicBlock* init_check =
-      llvm::BasicBlock::Create(m_context, "init_check", m_current_function);
+      m_context, "array_destruction", m_current_function);
+  llvm::BasicBlock* init_done = llvm::BasicBlock::Create(
+      m_context, "destruction_done", m_current_function);
+  llvm::BasicBlock* init_check = llvm::BasicBlock::Create(
+      m_context, "destruction_check", m_current_function);
 
   // YOU ARE HERE
   llvm::Value* val = m_function_builder->CreateAlloca(m_int32_t);
@@ -1427,9 +1428,16 @@ bool internal::jit_compiler_context::write_array_destruction(
 
   llvm::Function* constructor = get_function(_dest->m_destructor);
   auto conv = llvm::dyn_cast<llvm::Function>(constructor)->getCallingConv();
-  llvm::CallInst* ci = m_function_builder->CreateCall(
-      constructor, llvm::ArrayRef<llvm::Value*>(g_val));
-  ci->setCallingConv(conv);
+  if (_dest->m_shared) {
+    llvm::CallInst* ci = m_function_builder->CreateCall(constructor,
+        llvm::ArrayRef<llvm::Value*>(m_function_builder->CreateBitCast(
+            m_function_builder->CreateLoad(g_val), m_void_ptr_t)));
+    ci->setCallingConv(conv);
+  } else {
+    llvm::CallInst* ci = m_function_builder->CreateCall(
+        constructor, llvm::ArrayRef<llvm::Value*>(g_val));
+    ci->setCallingConv(conv);
+  }
 
   m_function_builder->CreateBr(init_check);
 
