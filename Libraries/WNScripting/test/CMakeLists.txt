@@ -41,6 +41,7 @@ wn_create_call_test(
     COMMAND_POST_DIR
       --test_file
     UNIQUE_ARGS
+      array_in_struct_tests.wns
       array_tests.wns
       assignment_tests.wns
       constants_test.wns

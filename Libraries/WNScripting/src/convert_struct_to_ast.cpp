@@ -9,7 +9,6 @@
 namespace wn {
 namespace scripting {
 
-
 struct overriden_type {
   uint32_t m_member_offset;
   const declaration* m_decl;
@@ -36,7 +35,6 @@ resolve_value_override(memory::allocator* _allocator,
 
   return core::move(m_value_overrides);
 }
-
 
 ast_type* parse_ast_convertor::convertor_context::walk_struct_definition(
     const struct_definition* _def) {
@@ -151,11 +149,9 @@ ast_type* parse_ast_convertor::convertor_context::walk_struct_definition(
       }
 
       if (decl->m_type->m_classification ==
-          ast_type_classification::static_array) {
-        if (decl->m_type->m_implicitly_contained_type->m_classification ==
-            ast_type_classification::reference) {
-          has_overloaded_construction = true;
-        }
+              ast_type_classification::static_array &&
+          decl->m_type->m_static_array_size == 0) {
+        has_overloaded_construction = true;
       }
 
       if (has_overloaded_construction && !st->m_struct_is_class) {
@@ -238,8 +234,22 @@ ast_type* parse_ast_convertor::convertor_context::walk_struct_definition(
             m_log->log_error("Recursively declared member: ", it->get_name());
             return nullptr;
           }
+          // This is incorrect here. This will get overriden in the constructor.
+          // and converted to the "correct" temporary type.
           decl->m_type =
               t->m_implicitly_contained_type->m_overloaded_construction_child;
+          child_decls.push_back(core::move(decl));
+        }
+
+        if (t->m_classification == ast_type_classification::static_array &&
+            t->m_static_array_size == 0) {
+          memory::unique_ptr<ast_declaration> decl =
+              memory::make_unique<ast_declaration>(m_allocator, it.get());
+          decl->m_name = containers::string(m_allocator, "_") +
+                         containers::string(m_allocator, it->get_name());
+          decl->m_type = t;
+          // This is incorrect here. This will get overriden in the constructor.
+          // and converted to the "correct" temporary type.
           child_decls.push_back(core::move(decl));
         }
       }
@@ -507,6 +517,87 @@ bool parse_ast_convertor::convertor_context::create_constructor(
         add_statement(evaluate_expression(core::move(constructor_call)));
         increment_pos();
         continue;
+      } else if (t->m_classification == ast_type_classification::static_array) {
+        // Easiest to resolve this expression, and then delete it;
+        rhs = resolve_expression(it->get_expression());
+        if (t->m_static_array_size == 0) {
+          auto member_child = rhs->m_type;
+          auto construction_member =
+              memory::make_unique<ast_member_access_expression>(
+                  m_allocator, st_def);
+          construction_member->m_base_expression =
+              clone_node(m_allocator, this_id.get());
+          construction_member->m_base_expression->m_type =
+              m_type_manager->get_reference_of(
+                  _initialized_type, ast_type_classification::reference);
+
+          containers::string nm =
+              containers::string(m_allocator, it->get_name());
+          nm.insert(nm.begin(), '_');
+
+          construction_member->m_member_name = nm;
+          uint32_t child_pos = 0;
+          // child_pos cannot be 0, that would not work.
+          for (auto& cp : _initialized_type->m_structure_members) {
+            if (cp->m_name == nm) {
+              cp->m_type = member_child;
+              break;
+            }
+            child_pos++;
+          }
+          if (child_pos == _initialized_type->m_structure_members.size()) {
+            st_def->log_line(m_log, logging::log_level::error);
+            m_log->log_error("Cannot find reference source");
+            return false;
+          }
+          construction_member->m_member_offset = child_pos;
+          construction_member->m_type = member_child;
+
+          if (rhs->m_temporaries.size() != 2 ||
+              (rhs->m_temporaries[0]->m_node_type !=
+                      ast_node_type::ast_declaration &&
+                  rhs->m_temporaries[1]->m_node_type !=
+                      ast_node_type::ast_array_allocation)) {
+            st_def->log_line(m_log, logging::log_level::error);
+            m_log->log_error("Invalid array initializer");
+            return false;
+          }
+
+          auto constructed_id =
+              clone_node(m_allocator, construction_member.get());
+
+          cast_to<ast_array_allocation>(rhs->m_temporaries[1].get())
+              ->m_initializee = core::move(construction_member);
+
+          add_statement(core::move(rhs->m_temporaries[1]));
+
+          auto cast =
+              memory::make_unique<ast_cast_expression>(m_allocator, st_def);
+          cast->m_type = t;
+          cast->m_base_expression = core::move(constructed_id);
+          rhs = core::move(cast);
+        } else {  // t->m_static_array_size != 0
+          if (rhs->m_temporaries.size() != 2 ||
+              (rhs->m_temporaries[0]->m_node_type !=
+                      ast_node_type::ast_declaration &&
+                  rhs->m_temporaries[1]->m_node_type !=
+                      ast_node_type::ast_array_allocation)) {
+            st_def->log_line(m_log, logging::log_level::error);
+            m_log->log_error("Invalid array initializer");
+            return false;
+          }
+          if (member->m_type != rhs->m_type) {
+            it->log_line(m_log, logging::log_level::error);
+            m_log->log_error("Invalid array initializer");
+            return false;
+          }
+          cast_to<ast_array_allocation>(rhs->m_temporaries[1].get())
+              ->m_initializee = core::move(member);
+          add_statement(core::move(rhs->m_temporaries[1]));
+          increment_pos();
+          continue;
+        }
+
       } else {
         rhs = resolve_expression(it->get_expression());
         if (t != rhs->m_type) {

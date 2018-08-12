@@ -1,0 +1,71 @@
+// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE.txt file.
+
+//CHECK: typedef struct ___Foo {
+//CHECK-NEXT:   _array0_int32_t* x;
+//CHECK-NEXT:   _array3_int32_t y;
+//CHECK-NEXT:   _array4_int32_t _x;
+//CHECK-NEXT: } _Foo;
+
+//CHECK: typedef struct ___Bar {
+//CHECK-NEXT:   _array0_int32_t* x;
+//CHECK-NEXT:   _array3_int32_t y;
+//CHECK-NEXT:   _array9_int32_t _x;
+//CHECK-NEXT: } _Bar;
+
+class Foo {
+  Int[] x = Int[4](3);
+  Int[3] y = Int[3](3);
+}
+
+// CHECK: Foo* _ZN3wns14_construct_FooEP3FooP4_Foo(_Foo* _this) {
+// CHECK-NEXT:   for (size_t __c_temp0 = 0; __c_temp0 < 4; ++__c_temp0) {
+// CHECK-NEXT:     (_this->_x).val[__c_temp0] = 3;
+// CHECK-NEXT:   }
+// CHECK-NEXT:   (_this->x) = ((_array0_int32_t*)&(_this->_x));
+// CHECK-NEXT:   for (size_t __c_temp1 = 0; __c_temp1 < 3; ++__c_temp1) {
+// CHECK-NEXT:     (_this->y).val[__c_temp1] = 3;
+// CHECK-NEXT:   }
+// CHECK-NEXT:   return ((Foo*)(_this));
+// CHECK-NEXT: }
+
+
+class Bar : Foo {
+  .x = Int[9](8);
+}
+
+// CHECK: Bar* _ZN3wns14_construct_BarEP3BarP4_Bar(_Bar* _this) {
+// CHECK-NEXT:   for (size_t __c_temp2 = 0; __c_temp2 < 9; ++__c_temp2) {
+// CHECK-NEXT:     (_this->_x).val[__c_temp2] = 8;
+// CHECK-NEXT:   }
+// CHECK-NEXT:   (_this->x) = ((_array0_int32_t*)&(_this->_x));
+// CHECK-NEXT:   for (size_t __c_temp3 = 0; __c_temp3 < 3; ++__c_temp3) {
+// CHECK-NEXT:     (_this->y).val[__c_temp3] = 3;
+// CHECK-NEXT:   }
+// CHECK-NEXT:   return ((Bar*)(_this));
+// CHECK-NEXT: }
+
+// CHECK: {{3doAE.*{}}
+// RUN: doA 4 -> 3
+// RUN: doA 3 -> 3
+Int doA(Int x) {
+// CHECK:  _return = (_ZN3wns14_construct_FooEP3FooP4_Foo((&_wns_temp4))->x)->val[1];
+  return Foo().x[1];
+}
+
+// CHECK: {{3doBE.*{}}
+// RUN: doB 4 -> 3
+// RUN: doB 3 -> 3
+Int doB(Int x) {
+// CHECK: _return = (_ZN3wns14_construct_FooEP3FooP4_Foo((&_wns_temp5))->y).val[2];
+  return Foo().y[2];
+}
+
+// CHECK: {{3doCE.*{}}
+// RUN: doC 4 -> 8
+// RUN: doC 3 -> 8
+Int doC(Int x) {
+  // CHECK:   (_ZN3wns14_construct_BarEP3BarP4_Bar((&_wns_temp6))->x)->val[8];
+  return Bar().x[8];
+}
