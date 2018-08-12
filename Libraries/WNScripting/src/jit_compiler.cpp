@@ -120,6 +120,7 @@ struct jit_compiler_context {
   bool write_assignment(const ast_assignment* _block);
   bool write_declaration(const ast_declaration* _block);
   bool write_array_allocation(const ast_array_allocation* _alloc);
+  bool write_array_destruction(const ast_array_destruction* _destruct);
   bool write_return(const ast_return_instruction* _return);
   bool write_scope_block(const ast_scope_block* _block);
   bool write_if_chain(const ast_if_chain* _if);
@@ -134,6 +135,10 @@ struct jit_compiler_context {
   bool write_temporary_cleanup(const ast_expression* _expression);
   llvm::Constant* i32(int32_t _x) {
     return llvm::ConstantInt::get(m_int32_t, _x);
+  }
+
+  llvm::Constant* size_const(size_t _x) {
+    return llvm::ConstantInt::get(m_size_t, _x);
   }
 
   llvm::IRBuilder<>* m_function_builder;
@@ -379,9 +384,8 @@ bool internal::jit_compiler_context::decode_type(const ast_type* _type) {
         return false;
       }
       auto child_type = m_types[_type->m_implicitly_contained_type];
-      llvm::StructType* s =
-          llvm::StructType::create({llvm::IntegerType::getInt32Ty(m_context),
-              llvm::ArrayType::get(child_type, _type->m_static_array_size)});
+      llvm::StructType* s = llvm::StructType::create({m_size_t,
+          llvm::ArrayType::get(child_type, _type->m_static_array_size)});
       s->setName(_type->m_name.c_str());
       if (_type->m_static_array_size == 0) {
         m_types[_type] = s->getPointerTo(0);
@@ -1103,6 +1107,12 @@ bool internal::jit_compiler_context::write_statement(
         return false;
       }
       break;
+    case ast_node_type::ast_array_destruction:
+      if (!write_array_destruction(
+              cast_to<ast_array_destruction>(_statement))) {
+        return false;
+      }
+      break;
     default:
       WN_RELEASE_ASSERT(false, "Unknown statement type");
   }
@@ -1328,8 +1338,6 @@ bool internal::jit_compiler_context::write_array_allocation(
           : nullptr;
 
   llvm::Value* arr = get_expression(_alloc->m_initializee.get());
-
-  m_function_builder->CreateBr(init_check);
   {
     llvm::LoadInst* load = llvm::dyn_cast<llvm::LoadInst>(arr);
     if (!load) {
@@ -1339,6 +1347,14 @@ bool internal::jit_compiler_context::write_array_allocation(
     load->removeFromParent();
     delete load;
   }
+
+  llvm::Value* size_gep[2] = {i32(0), i32(0)};
+  m_function_builder->CreateStore(
+      size_const(_alloc->m_type->m_static_array_size),
+      m_function_builder->CreateInBoundsGEP(
+          arr, llvm::ArrayRef<llvm::Value*>(&size_gep[0], 2)));
+
+  m_function_builder->CreateBr(init_check);
   m_function_builder->SetInsertPoint(init_check);
   llvm::Value* v = m_function_builder->CreateLoad(val);
   llvm::Value* z = m_function_builder->CreateICmpEQ(i32(0), v);
@@ -1363,7 +1379,63 @@ bool internal::jit_compiler_context::write_array_allocation(
 
   m_function_builder->SetInsertPoint(init_done);
   return true;
-}  // namespace scripting
+}
+
+bool internal::jit_compiler_context::write_array_destruction(
+    const ast_array_destruction* _dest) {
+  llvm::BasicBlock* initializer = llvm::BasicBlock::Create(
+      m_context, "array_initializer", m_current_function);
+  llvm::BasicBlock* init_done =
+      llvm::BasicBlock::Create(m_context, "init_done", m_current_function);
+  llvm::BasicBlock* init_check =
+      llvm::BasicBlock::Create(m_context, "init_check", m_current_function);
+
+  // YOU ARE HERE
+  llvm::Value* val = m_function_builder->CreateAlloca(m_int32_t);
+  llvm::Value* target = get_expression(_dest->m_target.get());
+
+  {
+    llvm::LoadInst* load = llvm::dyn_cast<llvm::LoadInst>(target);
+    if (!load) {
+      return false;
+    }
+    target = load->getOperand(0);
+    load->removeFromParent();
+    delete load;
+  }
+
+  llvm::Value* size_gep[3] = {i32(0), i32(0)};
+  m_function_builder->CreateStore(
+      m_function_builder->CreateIntCast(
+          m_function_builder->CreateLoad(m_function_builder->CreateInBoundsGEP(
+              target, llvm::ArrayRef<llvm::Value*>(&size_gep[0], 2))),
+          m_int32_t, false),
+      val);
+
+  m_function_builder->CreateBr(init_check);
+  m_function_builder->SetInsertPoint(init_check);
+  llvm::Value* v = m_function_builder->CreateLoad(val);
+  llvm::Value* z = m_function_builder->CreateICmpEQ(i32(0), v);
+  m_function_builder->CreateCondBr(z, init_done, initializer);
+  m_function_builder->SetInsertPoint(initializer);
+  v = m_function_builder->CreateSub(v, i32(1));
+  m_function_builder->CreateStore(v, val);
+  // Actually initialize
+  llvm::Value* gep[3] = {i32(0), i32(1), v};
+  llvm::Value* g_val = m_function_builder->CreateInBoundsGEP(
+      target, llvm::ArrayRef<llvm::Value*>(&gep[0], 3));
+
+  llvm::Function* constructor = get_function(_dest->m_destructor);
+  auto conv = llvm::dyn_cast<llvm::Function>(constructor)->getCallingConv();
+  llvm::CallInst* ci = m_function_builder->CreateCall(
+      constructor, llvm::ArrayRef<llvm::Value*>(g_val));
+  ci->setCallingConv(conv);
+
+  m_function_builder->CreateBr(init_check);
+
+  m_function_builder->SetInsertPoint(init_done);
+  return true;
+}
 
 bool internal::jit_compiler_context::write_return(
     const ast_return_instruction* _return) {

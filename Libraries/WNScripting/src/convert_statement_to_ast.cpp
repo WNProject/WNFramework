@@ -261,7 +261,10 @@ bool parse_ast_convertor::convertor_context::resolve_declaration(
 
           auto& scope_expr =
               m_nested_scopes.back()->initialized_cleanup(m_allocator);
-          scope_expr.push_back(call_function(_declaration, destructor, params));
+          auto dest_c = memory::make_unique<ast_evaluate_expression>(
+              m_allocator, _declaration);
+          dest_c->m_expr = call_function(_declaration, destructor, params);
+          scope_expr.push_back(core::move(dest_c));
         }
       } else {
         init = make_implicit_cast(core::move(init), type);
@@ -331,6 +334,21 @@ bool parse_ast_convertor::convertor_context::resolve_declaration(
             memory::unique_ptr<ast_function_call_expression>(
                 alloc->m_initializer.get_allocator(), fn);
         alloc->m_initializer.release();
+
+        fn->m_destroy_expressions.clear();
+        if (type->m_implicitly_contained_type->m_destructor) {
+          memory::unique_ptr<ast_array_destruction> dest =
+              memory::make_unique<ast_array_destruction>(
+                  m_allocator, _declaration);
+          dest->m_destructor = type->m_implicitly_contained_type->m_destructor;
+          memory::unique_ptr<ast_expression> dest_id =
+              clone_node(m_allocator, alloc->m_initializee.get());
+
+          dest->m_target = core::move(dest_id);
+          auto& scope_expr =
+              m_nested_scopes.back()->initialized_cleanup(m_allocator);
+          scope_expr.push_back(core::move(dest));
+        }
       }
 
       if (type->m_static_array_size == 0 &&
@@ -377,7 +395,11 @@ bool parse_ast_convertor::convertor_context::resolve_declaration(
   if (has_temporary_declaration) {
     auto& scope_expr = m_nested_scopes.back()->initialized_cleanup(m_allocator);
     for (auto& temp_decl : init->m_destroy_expressions) {
-      scope_expr.push_back(core::move(temp_decl));
+      auto dest_c = memory::make_unique<ast_evaluate_expression>(
+          m_allocator, _declaration);
+      dest_c->m_expr = core::move(temp_decl);
+
+      scope_expr.push_back(core::move(dest_c));
     }
     init->m_destroy_expressions.clear();
   }
@@ -407,7 +429,11 @@ bool parse_ast_convertor::convertor_context::resolve_declaration(
         .push_back(core::move(cast));
     function_call->m_type = m_type_manager->m_void_t.get();
     auto& scope_expr = m_nested_scopes.back()->initialized_cleanup(m_allocator);
-    scope_expr.push_back(core::move(function_call));
+    auto dest_c =
+        memory::make_unique<ast_evaluate_expression>(m_allocator, _declaration);
+    dest_c->m_expr = core::move(function_call);
+
+    scope_expr.push_back(core::move(dest_c));
   }
   if (decl) {
     m_current_statements->push_back(core::move(decl));

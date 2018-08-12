@@ -507,6 +507,10 @@ bool c_compiler::write_statement(const ast_statement* _statement) {
     case ast_node_type::ast_array_allocation: {
       return write_array_allocation(cast_to<ast_array_allocation>(_statement));
     }
+    case ast_node_type::ast_array_destruction: {
+      return write_array_destruction(
+          cast_to<ast_array_destruction>(_statement));
+    }
     default:
       WN_RELEASE_ASSERT(false, "Unknown statement type");
   }
@@ -1020,6 +1024,32 @@ bool c_compiler::write_array_allocation(
   align_line();
   m_output += "}\n";
   write_temporaries(_array_alloc->m_initializee.get());
+  return true;
+}
+
+bool c_compiler::write_array_destruction(const ast_array_destruction* _call) {
+  align_line();
+  auto temp_name = get_temporary();
+  m_output += "for (size_t ";
+  m_output += temp_name;
+  m_output += " = 0; ";
+  m_output += temp_name;
+  m_output += " < ";
+  write_expression(_call->m_target.get());
+  m_output += "._size; ++";
+  m_output += temp_name;
+  m_output += ") {\n";
+
+  align_line();
+  m_output += "  ";
+  m_output += _call->m_destructor->m_mangled_name;
+  m_output += "(&(";
+  write_expression(_call->m_target.get());
+  m_output += ".val[";
+  m_output += temp_name;
+  m_output += "]));\n";
+  align_line();
+  m_output += "}\n";
   return true;
 }
 

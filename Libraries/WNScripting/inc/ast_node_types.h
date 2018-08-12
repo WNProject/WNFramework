@@ -53,6 +53,7 @@ enum class ast_node_type {
   ast_vtable,
   ast_statement,
     ast_array_allocation,
+    ast_array_destruction,
     ast_declaration,
     ast_scope_block,
     ast_evaluate_expression,
@@ -634,6 +635,8 @@ struct ast_array_allocation : public ast_statement {
     d->m_type = m_type;
     d->m_initializer = clone_node(_allocator, m_initializer.get());
     d->m_initializee = clone_node(_allocator, m_initializee.get());
+    d->m_constructor_initializer =
+        clone_node(_allocator, m_constructor_initializer.get());
     return (core::move(d));
   }
 
@@ -641,6 +644,23 @@ struct ast_array_allocation : public ast_statement {
   memory::unique_ptr<ast_expression> m_initializer;
   memory::unique_ptr<ast_expression> m_initializee;
   memory::unique_ptr<ast_function_call_expression> m_constructor_initializer;
+};
+
+struct ast_array_destruction : public ast_statement {
+  ast_array_destruction(const node* _base_node)
+    : ast_statement(_base_node, ast_node_type::ast_array_destruction) {}
+
+  memory::unique_ptr<ast_node> clone(
+      memory::allocator* _allocator) const override {
+    auto d = memory::make_unique<ast_array_destruction>(_allocator, nullptr);
+    d->copy_underlying_from(_allocator, this);
+    d->m_destructor = m_destructor;
+    d->m_target = clone_node(_allocator, m_target.get());
+    return (core::move(d));
+  }
+
+  const ast_function* m_destructor;
+  memory::unique_ptr<ast_expression> m_target;
 };
 
 struct ast_function : public ast_node {
@@ -924,19 +944,19 @@ struct ast_scope_block : public ast_statement {
     return m_statements;
   }
 
-  containers::deque<memory::unique_ptr<ast_expression>>& initialized_cleanup(
+  containers::deque<memory::unique_ptr<ast_statement>>& initialized_cleanup(
       memory::allocator* m_allocator) {
-    if (m_cleanup_expressions.empty()) {
-      m_cleanup_expressions =
-          containers::deque<memory::unique_ptr<ast_expression>>(m_allocator);
+    if (m_cleanup_statements.empty()) {
+      m_cleanup_statements =
+          containers::deque<memory::unique_ptr<ast_statement>>(m_allocator);
     }
-    return m_cleanup_expressions;
+    return m_cleanup_statements;
   }
 
   bool m_breaks = false;
   bool m_returns = false;
   containers::deque<ast_declaration*> m_declarations;
-  containers::deque<memory::unique_ptr<ast_expression>> m_cleanup_expressions;
+  containers::deque<memory::unique_ptr<ast_statement>> m_cleanup_statements;
   containers::deque<memory::unique_ptr<ast_statement>> m_statements;
   memory::unique_ptr<ast_node> clone(
       memory::allocator* _allocator) const override {
@@ -951,7 +971,7 @@ struct ast_scope_block : public ast_statement {
       d->initialized_statements(_allocator)
           .push_back(clone_node(_allocator, st.get()));
     }
-    for (auto& clean : m_cleanup_expressions) {
+    for (auto& clean : m_cleanup_statements) {
       d->initialized_cleanup(_allocator)
           .push_back(clone_node(_allocator, clean.get()));
     }
@@ -965,6 +985,14 @@ struct ast_scope_block : public ast_statement {
 struct ast_evaluate_expression : public ast_statement {
   ast_evaluate_expression(const node* _base_node)
     : ast_statement(_base_node, ast_node_type::ast_evaluate_expression) {}
+
+  memory::unique_ptr<ast_node> clone(
+      memory::allocator* _allocator) const override {
+    auto d = memory::make_unique<ast_evaluate_expression>(_allocator, nullptr);
+    d->copy_underlying_from(_allocator, this);
+    d->m_expr = clone_node(_allocator, m_expr.get());
+    return core::move(d);
+  }
 
   memory::unique_ptr<ast_expression> m_expr;
 };
