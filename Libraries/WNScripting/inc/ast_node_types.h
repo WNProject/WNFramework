@@ -883,6 +883,7 @@ enum class builtin_expression_type {
   align_of,
   atomic_inc,
   atomic_dec,
+  array_length,
 };
 
 struct ast_builtin_expression : public ast_expression {

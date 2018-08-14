@@ -1040,7 +1040,7 @@ bool parse_ast_convertor::convertor_context::create_struct_assign(
 
   fn->m_mangled_name = core::move(mangled_name);
   fn->m_scope = memory::make_unique<ast_scope_block>(m_allocator, _def);
-  auto& statements = fn->m_scope->initialized_statements(m_allocator);
+  auto* statements = &fn->m_scope->initialized_statements(m_allocator);
 
   auto this_id = memory::make_unique<ast_id>(m_allocator, _def);
   this_id->m_type = m_type_manager->get_reference_of(
@@ -1066,6 +1066,7 @@ bool parse_ast_convertor::convertor_context::create_struct_assign(
     copy_source->m_member_name = containers::string(m_allocator, it->m_name);
     copy_source->m_member_offset = pos;
     copy_source->m_type = t;
+    memory::unique_ptr<ast_expression> source = core::move(copy_source);
 
     auto copy_dest =
         memory::make_unique<ast_member_access_expression>(m_allocator, _def);
@@ -1075,24 +1076,100 @@ bool parse_ast_convertor::convertor_context::create_struct_assign(
     copy_dest->m_member_name = containers::string(m_allocator, it->m_name);
     copy_dest->m_member_offset = pos;
     copy_dest->m_type = t;
+    memory::unique_ptr<ast_expression> dest = core::move(copy_dest);
+    auto* old_statements = statements;
+
+    // If we are a static array, then we should loop over all of our
+    // children and copy that way.
+    if (t->m_classification == ast_type_classification::static_array) {
+      t = t->m_implicitly_contained_type;
+      containers::string temp = get_next_temporary_name();
+      memory::unique_ptr<ast_loop> m_loop =
+          memory::make_unique<ast_loop>(m_allocator, _def);
+
+      memory::unique_ptr<ast_declaration> decl =
+          memory::make_unique<ast_declaration>(m_allocator, nullptr);
+      decl->m_name = temp;
+      decl->m_type = m_type_manager->m_integral_types[32].get();
+      auto initializer = memory::make_unique<ast_constant>(m_allocator, _def);
+      auto arr_size =
+          memory::make_unique<ast_builtin_expression>(m_allocator, _def);
+      arr_size->m_builtin_type = builtin_expression_type::array_length;
+      arr_size->m_type = m_type_manager->m_integral_types[32].get();
+      arr_size->initialized_expressions(m_allocator)
+          .push_back(clone_node(m_allocator, source.get()));
+      decl->m_initializer = core::move(arr_size);
+
+      auto sizer = memory::make_unique<ast_id>(m_allocator, _def);
+      sizer->m_type = m_type_manager->m_integral_types[32].get();
+      sizer->m_declaration = decl.get();
+      statements->push_back(core::move(decl));
+
+      auto zero = memory::make_unique<ast_constant>(m_allocator, _def);
+      zero->m_type = m_type_manager->m_integral_types[32].get();
+      zero->m_node_value.m_integer = 0;
+      zero->m_string_value = containers::string(m_allocator, "0");
+
+      auto comp = memory::make_unique<ast_binary_expression>(m_allocator, _def);
+      comp->m_type = m_type_manager->m_bool_t.get();
+      comp->m_binary_type = ast_binary_type::neq;
+      comp->m_lhs = clone_node(m_allocator, sizer.get());
+      comp->m_rhs = core::move(zero);
+
+      m_loop->m_pre_condition = core::move(comp);
+
+      m_loop->m_body = memory::make_unique<ast_scope_block>(m_allocator, _def);
+      auto body = &m_loop->m_body->initialized_statements(m_allocator);
+      statements->push_back(core::move(m_loop));
+      statements = body;
+
+      auto const_one = memory::make_unique<ast_constant>(m_allocator, _def);
+      const_one->m_type = m_type_manager->m_integral_types[32].get();
+      const_one->m_node_value.m_integer = 1;
+      const_one->m_string_value = containers::string(m_allocator, "1");
+
+      auto sub = memory::make_unique<ast_binary_expression>(m_allocator, _def);
+      sub->m_binary_type = ast_binary_type::sub;
+      sub->m_lhs = clone_node(m_allocator, sizer.get());
+      sub->m_rhs = core::move(const_one);
+      sub->m_type = m_type_manager->m_integral_types[32].get();
+
+      auto assign = memory::make_unique<ast_assignment>(m_allocator, _def);
+      assign->m_lhs = clone_node(m_allocator, sizer.get());
+      assign->m_rhs = core::move(sub);
+      statements->push_back(core::move(assign));
+
+      auto source_access =
+          memory::make_unique<ast_array_access_expression>(m_allocator, _def);
+      source_access->m_array = core::move(source);
+      source_access->m_index = clone_node(m_allocator, sizer.get());
+      source_access->m_type = t;
+      source = core::move(source_access);
+
+      auto dest_access =
+          memory::make_unique<ast_array_access_expression>(m_allocator, _def);
+      dest_access->m_array = core::move(dest);
+      dest_access->m_index = core::move(sizer);
+      dest_access->m_type = t;
+      dest = core::move(dest_access);
+    }
 
     if (t->m_classification == ast_type_classification::shared_reference) {
       has_copyable_type = true;
 
       containers::dynamic_array<memory::unique_ptr<ast_expression>>
           assign_params(m_allocator);
+      assign_params.push_back(make_cast(clone_node(m_allocator, dest.get()),
+          m_type_manager->m_void_ptr_t.get()));
       assign_params.push_back(
-          make_cast(clone_node(m_allocator, copy_dest.get()),
-              m_type_manager->m_void_ptr_t.get()));
-      assign_params.push_back(make_cast(
-          core::move(copy_source), m_type_manager->m_void_ptr_t.get()));
+          make_cast(core::move(source), m_type_manager->m_void_ptr_t.get()));
 
       auto assign = memory::make_unique<ast_assignment>(m_allocator, nullptr);
-      assign->m_lhs = core::move(copy_dest);
+      assign->m_lhs = core::move(dest);
       assign->m_rhs = make_cast(
           call_function(_def, m_assign_shared, core::move(assign_params)),
           assign->m_lhs->m_type);
-      statements.push_back(core::move(assign));
+      statements->push_back(core::move(assign));
     } else {
       if (t->m_assignment) {
         has_copyable_type = true;
@@ -1100,27 +1177,27 @@ bool parse_ast_convertor::convertor_context::create_struct_assign(
             t, ast_type_classification::reference);
         containers::dynamic_array<memory::unique_ptr<ast_expression>>
             assign_params(m_allocator);
-        assign_params.push_back(make_cast(core::move(copy_dest), ref_type));
-        assign_params.push_back(make_cast(core::move(copy_source), ref_type));
+        assign_params.push_back(make_cast(core::move(dest), ref_type));
+        assign_params.push_back(make_cast(core::move(source), ref_type));
 
-        statements.push_back(evaluate_expression(
+        statements->push_back(evaluate_expression(
             call_function(_def, t->m_assignment, core::move(assign_params))));
       } else {
         auto assign = memory::make_unique<ast_assignment>(m_allocator, nullptr);
-        assign->m_lhs = core::move(copy_dest);
-        assign->m_rhs = core::move(copy_source);
-        statements.push_back(core::move(assign));
+        assign->m_lhs = core::move(dest);
+        assign->m_rhs = core::move(source);
+        statements->push_back(core::move(assign));
       }
     }
     ++pos;
+    statements = old_statements;
   }
 
   auto ret = memory::make_unique<ast_return_instruction>(m_allocator, _def);
-  statements.push_back(core::move(ret));
+  statements->push_back(core::move(ret));
 
-  // If none of our types have destructors, we can avoid calling the
-  // destructor. This can save a lot of time, since this
-  // cascades.
+  // If none of our types have explicit assignments, we can avoid calling them,
+  // This can save a lot of time, since this cascades.
   if (has_copyable_type) {
     fn->m_function_pointer_type = resolve_function_ptr_type(fn.get());
 

@@ -12,14 +12,14 @@ struct Foo {
 // RUN: shared_array_destruct 0 -> 4
 Int shared_array_destruct(Int x) {
   shared Foo[] b = shared Foo[5](shared Foo());
-  // CHECK: for (size_t __c_temp0 = 0; __c_temp0 < 5; ++__c_temp0) {
-  // CHECK-NEXT:  _wns_temp0.val[__c_temp0] = ((_shared_Foo)(_ZN3wns18_wns_assign_sharedEPvPvPv(((void*)(NULL)), ((void*)(_ZN3wns14_construct_FooEP3FooP3Foo(((Foo*)(_ZN3wns20_wns_allocate_sharedEPvN3wns4sizeEFvPvE(sizeof(Foo), ((_wns_fn_ptr_0)(NULL)))))))))));
+  // CHECK: for (uint32_t __c_temp0 = 0; __c_temp0 < 5; ++__c_temp0) {
+  // CHECK-NEXT:  _wns_temp0._val[__c_temp0] = ((_shared_Foo)(_ZN3wns18_wns_assign_sharedEPvPvPv(((void*)(NULL)), ((void*)(_ZN3wns14_construct_FooEP3FooP3Foo(((Foo*)(_ZN3wns20_wns_allocate_sharedEPvN3wns4sizeEFvPvE(sizeof(Foo), ((_wns_fn_ptr_0)(NULL)))))))))));
   // CHECK-NEXT: }
   b[4].x = 12;
   b[2].x = 5;
-  //CHECK: _return = (b->val[x]->x);
-  //CHECK-NEXT: for (size_t __c_temp1 = 0; __c_temp1 < _wns_temp0._size; ++__c_temp1) {
-  //CHECK-NEXT:   _ZN3wns12_wns_releaseEvPv((void*)(_wns_temp0.val[__c_temp1]));
+  //CHECK: _return = (b->_val[x]->x);
+  //CHECK-NEXT: for (uint32_t __c_temp1 = 0; __c_temp1 < _wns_temp0._size; ++__c_temp1) {
+  //CHECK-NEXT:   _ZN3wns12_wns_releaseEvPv((void*)(_wns_temp0._val[__c_temp1]));
   //CHECK-NEXT: }
   return b[x].x;
 }

@@ -244,7 +244,7 @@ bool c_compiler::declare_type(const ast_type* _type) {
       m_output += " {\n";
       m_scope_depth += 1;
       align_line();
-      m_output += "size_t _size;\n";
+      m_output += "uint32_t _size;\n";
       align_line();
       write_type(_type->m_implicitly_contained_type);
       m_output += " _val[";
@@ -986,7 +986,7 @@ bool c_compiler::write_array_allocation(
   write_temporaries(_array_alloc->m_initializee.get());
   align_line();
   auto temp_name = get_temporary();
-  m_output += "for (size_t ";
+  m_output += "for (uint32_t ";
   m_output += temp_name;
   m_output += " = 0; ";
   m_output += temp_name;
@@ -1003,7 +1003,7 @@ bool c_compiler::write_array_allocation(
     align_line();
     m_output += "  ";
     write_expression(_array_alloc->m_initializee.get());
-    m_output += ".val[";
+    m_output += "._val[";
     m_output += temp_name;
     m_output += "] = ";
     write_expression(_array_alloc->m_initializer.get());
@@ -1015,7 +1015,7 @@ bool c_compiler::write_array_allocation(
     write_call_function(_array_alloc->m_constructor_initializer.get());
     m_output += "(&(";
     write_expression(_array_alloc->m_initializee.get());
-    m_output += ".val[";
+    m_output += "._val[";
     m_output += temp_name;
     m_output += "]));\n";
   } else {
@@ -1030,7 +1030,7 @@ bool c_compiler::write_array_allocation(
 bool c_compiler::write_array_destruction(const ast_array_destruction* _call) {
   align_line();
   auto temp_name = get_temporary();
-  m_output += "for (size_t ";
+  m_output += "for (uint32_t ";
   m_output += temp_name;
   m_output += " = 0; ";
   m_output += temp_name;
@@ -1051,9 +1051,9 @@ bool c_compiler::write_array_destruction(const ast_array_destruction* _call) {
   }
   write_expression(_call->m_target.get());
   if (_call->m_target->m_type->m_static_array_size == 0) {
-    m_output += "->val[";
+    m_output += "->_val[";
   } else {
-    m_output += ".val[";
+    m_output += "._val[";
   }
 
   m_output += temp_name;
@@ -1142,9 +1142,9 @@ bool c_compiler::write_array_access_expression(
   }
 
   if (_expression->m_array->m_type->m_static_array_size == 0) {
-    m_output += "->val[";
+    m_output += "->_val[";
   } else {
-    m_output += ".val[";
+    m_output += "._val[";
   }
 
   if (!write_expression(_expression->m_index.get())) {
@@ -1321,6 +1321,16 @@ bool c_compiler::write_builtin_expression(
         return false;
       }
       m_output += ")";
+      return true;
+    case builtin_expression_type::array_length:
+      if (!write_expression(_expression->m_expressions[0].get())) {
+        return false;
+      }
+      if (_expression->m_expressions[0]->m_type->m_static_array_size == 0) {
+        m_output += "->_size";
+      } else {
+        m_output += "._size";
+      }
       return true;
     default:
       WN_RELEASE_ASSERT(false, "You should not get here");

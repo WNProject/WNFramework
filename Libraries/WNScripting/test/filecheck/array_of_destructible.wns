@@ -11,14 +11,14 @@ struct Bar { shared Foo f = shared Foo(); }
 // RUN: array_destruct 1 -> 4
 Int array_destruct(Int x) {
 // CHECK: _array10_Bar _wns_temp1;
-// CHECK-NEXT: for (size_t __c_temp0 = 0; __c_temp0 < 10; ++__c_temp0) {
-// CHECK-NEXT:   _ZN3wns14_construct_BarEP3BarP3Bar(&(_wns_temp1.val[__c_temp0]));
+// CHECK-NEXT: for (uint32_t __c_temp0 = 0; __c_temp0 < 10; ++__c_temp0) {
+// CHECK-NEXT:   _ZN3wns14_construct_BarEP3BarP3Bar(&(_wns_temp1._val[__c_temp0]));
 // CHECK-NEXT: }
 // CHECK-NEXT: _array0_Bar* b = ((_array0_Bar*)&_wns_temp1);
-// CHECK-NEXT: ((b->val[4].f)->x) = 32;
-// CHECK-NEXT: _return = ((b->val[x].f)->x);
-// CHECK-NEXT: for (size_t __c_temp1 = 0; __c_temp1 < _wns_temp1._size; ++__c_temp1) {
-// CHECK-NEXT:  _ZN3wns13_destruct_BarEvP3Bar(&(_wns_temp1.val[__c_temp1]));
+// CHECK-NEXT: ((b->_val[4].f)->x) = 32;
+// CHECK-NEXT: _return = ((b->_val[x].f)->x);
+// CHECK-NEXT: for (uint32_t __c_temp1 = 0; __c_temp1 < _wns_temp1._size; ++__c_temp1) {
+// CHECK-NEXT:  _ZN3wns13_destruct_BarEvP3Bar(&(_wns_temp1._val[__c_temp1]));
 // CHECK-NEXT: }
   Bar[] b = Bar[10](Bar());
   b[4].f.x = 32;
@@ -30,13 +30,13 @@ Int array_destruct(Int x) {
 // RUN: fixed_array_destruct 2 -> 4
 Int fixed_array_destruct(Int x) {
 // CHECK: _array5_Bar b;
-// CHECK-NEXT: for (size_t __c_temp2 = 0; __c_temp2 < 5; ++__c_temp2) {
-// CHECK-NEXT:   _ZN3wns14_construct_BarEP3BarP3Bar(&(b.val[__c_temp2]));
+// CHECK-NEXT: for (uint32_t __c_temp2 = 0; __c_temp2 < 5; ++__c_temp2) {
+// CHECK-NEXT:   _ZN3wns14_construct_BarEP3BarP3Bar(&(b._val[__c_temp2]));
 // CHECK-NEXT: }
   Bar[5] b = Bar[5](Bar());
   b[4].f.x = 32;
   return b[x].f.x;
-//CHECK: for (size_t __c_temp3 = 0; __c_temp3 < b._size; ++__c_temp3) {
-//CHECK-NEXT:   _ZN3wns13_destruct_BarEvP3Bar(&(b.val[__c_temp3]));
+//CHECK: for (uint32_t __c_temp3 = 0; __c_temp3 < b._size; ++__c_temp3) {
+//CHECK-NEXT:   _ZN3wns13_destruct_BarEvP3Bar(&(b._val[__c_temp3]));
 //CHECK-NEXT: }
 }

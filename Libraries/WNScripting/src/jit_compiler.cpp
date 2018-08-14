@@ -384,7 +384,7 @@ bool internal::jit_compiler_context::decode_type(const ast_type* _type) {
         return false;
       }
       auto child_type = m_types[_type->m_implicitly_contained_type];
-      llvm::StructType* s = llvm::StructType::create({m_size_t,
+      llvm::StructType* s = llvm::StructType::create({m_int32_t,
           llvm::ArrayType::get(child_type, _type->m_static_array_size)});
       s->setName(_type->m_name.c_str());
       if (_type->m_static_array_size == 0) {
@@ -926,6 +926,27 @@ llvm::Value* internal::jit_compiler_context::get_builtin(
       v = m_function_builder->CreateAdd(v, s);
       return m_function_builder->CreateIntToPtr(v, vp_type);
     }
+    case builtin_expression_type::array_length: {
+      llvm::Value* v = get_expression(_builtin->m_expressions[0].get());
+      if (!v) {
+        return nullptr;
+      }
+      if (_builtin->m_expressions[0]->m_type->m_static_array_size != 0) {
+        llvm::LoadInst* load = llvm::dyn_cast<llvm::LoadInst>(v);
+        if (!load) {
+          return nullptr;
+        }
+        v = load->getOperand(0);
+        load->removeFromParent();
+        delete load;
+      }
+
+      llvm::Value* size_gep[3] = {i32(0), i32(0)};
+
+      return m_function_builder->CreateLoad(
+          m_function_builder->CreateInBoundsGEP(
+              v, llvm::ArrayRef<llvm::Value*>(&size_gep[0], 2)));
+    }
     default:
       WN_RELEASE_ASSERT(false, "Should not reach here");
   }
@@ -1347,8 +1368,7 @@ bool internal::jit_compiler_context::write_array_allocation(
   }
 
   llvm::Value* size_gep[2] = {i32(0), i32(0)};
-  m_function_builder->CreateStore(
-      size_const(_alloc->m_type->m_static_array_size),
+  m_function_builder->CreateStore(i32(_alloc->m_type->m_static_array_size),
       m_function_builder->CreateInBoundsGEP(
           arr, llvm::ArrayRef<llvm::Value*>(&size_gep[0], 2)));
 
@@ -1407,10 +1427,8 @@ bool internal::jit_compiler_context::write_array_destruction(
 
   llvm::Value* size_gep[3] = {i32(0), i32(0)};
   m_function_builder->CreateStore(
-      m_function_builder->CreateIntCast(
-          m_function_builder->CreateLoad(m_function_builder->CreateInBoundsGEP(
-              target, llvm::ArrayRef<llvm::Value*>(&size_gep[0], 2))),
-          m_int32_t, false),
+      m_function_builder->CreateLoad(m_function_builder->CreateInBoundsGEP(
+          target, llvm::ArrayRef<llvm::Value*>(&size_gep[0], 2))),
       val);
 
   m_function_builder->CreateBr(init_check);

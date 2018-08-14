@@ -15,30 +15,39 @@ struct Foo {
 }
 
 // CHECK: Foo* _ZN3wns14_construct_FooEP3FooP3Foo(Foo* _this) {
-// CHECK-NEXT:   for (size_t __c_temp0 = 0; __c_temp0 < 10; ++__c_temp0) {
-// CHECK-NEXT:     _ZN3wns14_construct_BarEP3BarP3Bar(&((_this->b).val[__c_temp0]));
+// CHECK-NEXT:   for (uint32_t __c_temp0 = 0; __c_temp0 < 10; ++__c_temp0) {
+// CHECK-NEXT:     _ZN3wns14_construct_BarEP3BarP3Bar(&((_this->b)._val[__c_temp0]));
 // CHECK-NEXT:   }
 // CHECK-NEXT:   return _this;
 // CHECK-NEXT: }
 
 // CHECK: void _ZN3wns13_destruct_FooEvP3Foo(Foo* _this) {
-// CHECK-NEXT:   for (size_t __c_temp1 = 0; __c_temp1 < (_this->b)._size; ++__c_temp1) {
-// CHECK-NEXT:     _ZN3wns13_destruct_BarEvP3Bar(&((_this->b).val[__c_temp1]));
+// CHECK-NEXT:   for (uint32_t __c_temp1 = 0; __c_temp1 < (_this->b)._size; ++__c_temp1) {
+// CHECK-NEXT:     _ZN3wns13_destruct_BarEvP3Bar(&((_this->b)._val[__c_temp1]));
 // CHECK-NEXT:   }
 // CHECK-NEXT:   return;
 // CHECK-NEXT: }
 
+// CHECK: void _ZN3wns11_assign_FooEvP3Foo3Foo(Foo* _this, Foo* _other) {
+// CHECK-NEXT:   int32_t _wns_temp2 = (_other->b)._size;
+// CHECK-NEXT:   while ((_wns_temp2 != 0)) {
+// CHECK-NEXT:     _wns_temp2 = (_wns_temp2 - 1);
+// CHECK-NEXT:     _ZN3wns11_assign_BarEvP3Bar3Bar((&(_this->b)._val[_wns_temp2]), (&(_other->b)._val[_wns_temp2]));
+// CHECK-NEXT:   }
+// CHECK:   return;
+// CHECK-NEXT: }
+
 //CHECK: Bazz* _ZN3wns15_construct_BazzEP4BazzP5_Bazz(_Bazz* _this) {
-//CHECK-NEXT:   for (size_t __c_temp2 = 0; __c_temp2 < 10; ++__c_temp2) {
-//CHECK-NEXT:     (_this->_b).val[__c_temp2] = ((_shared_Child)(_ZN3wns18_wns_assign_sharedEPvPvPv(((void*)(NULL)), ((void*)(_ZN3wns17_construct_ParentEP6ParentP6Parent(((Parent*)(_ZN3wns20_wns_allocate_sharedEPvN3wns4sizeEFvPvE(sizeof(Parent), ((_wns_fn_ptr_0)(NULL)))))))))));
+//CHECK-NEXT:   for (uint32_t __c_temp2 = 0; __c_temp2 < 10; ++__c_temp2) {
+//CHECK-NEXT:     (_this->_b)._val[__c_temp2] = ((_shared_Child)(_ZN3wns18_wns_assign_sharedEPvPvPv(((void*)(NULL)), ((void*)(_ZN3wns17_construct_ParentEP6ParentP6Parent(((Parent*)(_ZN3wns20_wns_allocate_sharedEPvN3wns4sizeEFvPvE(sizeof(Parent), ((_wns_fn_ptr_0)(NULL)))))))))));
 //CHECK-NEXT:   }
 //CHECK-NEXT:   (_this->b) = ((_array0__shared_Child*)&(_this->_b));
 //CHECK-NEXT:   return ((Bazz*)(_this));
 //CHECK-NEXT: }
 
 //CHECK: void _ZN3wns14_destruct_BazzEvP5_Bazz(_Bazz* _this) {
-//CHECK-NEXT:   for (size_t __c_temp3 = 0; __c_temp3 < (_this->b)._size; ++__c_temp3) {
-//CHECK-NEXT:     _ZN3wns12_wns_releaseEvPv((void*)((_this->b)->val[__c_temp3]));
+//CHECK-NEXT:   for (uint32_t __c_temp3 = 0; __c_temp3 < (_this->b)._size; ++__c_temp3) {
+//CHECK-NEXT:     _ZN3wns12_wns_releaseEvPv((void*)((_this->b)->_val[__c_temp3]));
 //CHECK-NEXT:   }
 //CHECK-NEXT:   return;
 //CHECK-NEXT: }
@@ -50,6 +59,17 @@ Int destruct_in_array_in_struct(Int x) {
   Foo f = Foo();
   f.b[4].baz.x = 12;
   return f.b[x].baz.x;
+}
+
+// CHECK: {{20copy_array_in_structE.*{}}
+// RUN: copy_array_in_struct 4 -> 12
+// RUN: copy_array_in_struct 0 -> 3
+Int copy_array_in_struct(Int x) {
+  Foo f = Foo();
+  Foo f2 = Foo();
+  f2 = f;
+  f.b[4].baz.x = 12;
+  return f2.b[x].baz.x;
 }
 
 class Child {
