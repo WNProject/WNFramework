@@ -186,7 +186,7 @@ VOID_TYPE: 'Void';
 INT_TYPE:  'Int';
 FLOAT_TYPE: 'Float';
 BOOL_TYPE: 'Bool';
-STRING_TYPE: 'String';
+STRING_TYPE: 'CString';
 CHAR_TYPE: 'Char';
 QUESTION: '?';
 WEAK_REF:     'weak';
@@ -239,7 +239,7 @@ HEX_DIGIT : ('0'..'9'|'a'..'f'|'A'..'F') ;
 
 fragment
 ESC_SEQ
-    :       UNICODE_ESC
+    :   UNICODE_ESC
     |   OCTAL_ESC
     |   '\\' ('b'|'t'|'n'|'f'|'r'|'\"'|'\''|'\\')
     ;
@@ -261,7 +261,6 @@ objectType returns[scripting::type* node]
     node = nullptr;
 }
     :   TYPE    { node = m_allocator->construct<scripting::type>(m_allocator, $TYPE.text.c_str()); SET_LOCATION(node, $TYPE); }
-    |   STRING_TYPE { node = m_allocator->construct<scripting::type>(m_allocator, scripting::type_classification::string_type); SET_LOCATION(node, $STRING_TYPE); }
     ;
 
 scalarType returns[scripting::type* node]
@@ -273,6 +272,7 @@ scalarType returns[scripting::type* node]
     |   FLOAT_TYPE { node = m_allocator->construct<scripting::type>(m_allocator, scripting::type_classification::float_type); SET_LOCATION(node, $FLOAT_TYPE); }
     |   CHAR_TYPE { node = m_allocator->construct<scripting::type>(m_allocator, scripting::type_classification::char_type); SET_LOCATION(node, $CHAR_TYPE); }
     |   BOOL_TYPE { node = m_allocator->construct<scripting::type>(m_allocator, scripting::type_classification::bool_type); SET_LOCATION(node, $BOOL_TYPE); }
+    |   STRING_TYPE { node = m_allocator->construct<scripting::type>(m_allocator, scripting::type_classification::string_type); SET_LOCATION(node, $STRING_TYPE); }
     ;
 
 arrayType returns[scripting::type* node]

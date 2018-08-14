@@ -84,6 +84,7 @@ struct jit_compiler_context {
     m_void_t = llvm::Type::getVoidTy(m_context);
     m_void_ptr_t = m_uint8_t->getPointerTo(0);
     m_voidfn_ptr_t = llvm::FunctionType::get(m_void_t, false)->getPointerTo(0);
+    m_c_string_t = m_uint8_t->getPointerTo(0);
   }
 
   bool compile(const ast_script_file* _file);
@@ -174,6 +175,7 @@ struct jit_compiler_context {
   llvm::IntegerType* m_bool_t;
   llvm::IntegerType* m_uint8_t;
   llvm::IntegerType* m_size_t;
+  llvm::Type* m_c_string_t;
   llvm::Type* m_void_t;
   llvm::Type* m_void_ptr_t;
   llvm::Type* m_voidfn_ptr_t;
@@ -371,6 +373,9 @@ bool internal::jit_compiler_context::decode_type(const ast_type* _type) {
           return true;
         case builtin_type::vtable_type:
           m_types[_type] = m_voidfn_ptr_t->getPointerTo(0);
+          return true;
+        case builtin_type::c_string_type:
+          m_types[_type] = m_c_string_t;
           return true;
         case builtin_type::not_builtin:
           WN_RELEASE_ASSERT(false, "You shouldn't get here");
@@ -998,8 +1003,10 @@ llvm::Value* internal::jit_compiler_context::get_array_access(
     return nullptr;
   }
 
+  llvm::Type* t = get_type(_access->m_array->m_type);
+
   containers::dynamic_array<llvm::Value*> gep(m_allocator);
-  if (_access->m_array->m_type->m_static_array_size != 0) {
+  if (_access->m_array->m_type->m_static_array_size != 0 && t != m_c_string_t) {
     llvm::LoadInst* load = llvm::dyn_cast<llvm::LoadInst>(arr);
     if (!load) {
       return nullptr;
@@ -1009,8 +1016,10 @@ llvm::Value* internal::jit_compiler_context::get_array_access(
     delete load;
   }
 
-  gep.push_back(i32(0));
-  gep.push_back(i32(1));
+  if (t != m_c_string_t) {
+    gep.push_back(i32(0));
+    gep.push_back(i32(1));
+  }
   gep.push_back(idx);
 
   return m_function_builder->CreateLoad(m_function_builder->CreateInBoundsGEP(
@@ -1043,6 +1052,11 @@ llvm::Value* internal::jit_compiler_context::get_constant(
   } else if (t == m_size_t) {
     return llvm::ConstantInt::get(t, _const->m_node_value.m_integer);
   }
+  if (t == m_c_string_t) {
+    return m_function_builder->CreateGlobalStringPtr(llvm::StringRef(
+        &_const->m_string_value[1], _const->m_string_value.size() - 2));
+  }
+
   WN_RELEASE_ASSERT(false, "Unimplemented constant type");
   return nullptr;
 }

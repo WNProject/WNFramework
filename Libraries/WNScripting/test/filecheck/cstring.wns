@@ -1,0 +1,35 @@
+// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE.txt file.
+
+// CHECK: {{.*string_func.*\{}}
+Char string_func(CString x, Int y) {
+// CHECK: _return = x[y];
+    return x[y];
+}
+
+// CHECK: {{.*void_func.*\{}}
+// RUN: void_func 1 -> 3
+// RUN: void_func 0 -> 2
+// RUN: void_func 2 -> 2
+Int void_func(Int y) {
+    CString x = "Hello World";
+    if (x[y] == 'e') {
+        return 3;
+    }
+// CHECK: const char* x = "\110\145\154\154\157\040\127\157\162\154\144";
+// CHECK-NEXT: if ((x[y] == (uint8_t)('e'))) {
+    return 2;
+}
+
+// RUN: void_func2 1 -> 3
+// RUN: void_func2 0 -> 2
+// RUN: void_func2 2 -> 2
+Int void_func2(Int y) {
+    CString x = "Hello World";
+    // CHECK: if ((_ZN3wns11string_funcEhFEi(x, y) == (uint8_t)('e'))) {
+    if (string_func(x, y) == 'e') {
+        return 3;
+    }
+    return 2;
+}

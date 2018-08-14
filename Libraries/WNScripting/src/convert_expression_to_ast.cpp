@@ -85,12 +85,13 @@ parse_ast_convertor::convertor_context::resolve_constant(
       return core::move(c);
     }
     case static_cast<uint32_t>(type_classification::char_type): {
-      WN_RELEASE_ASSERT(false, "Not implemented: Character constants");
-      return nullptr;
+      c->m_type = m_type_manager->m_integral_types[8].get();
+      c->m_node_value.m_char = c->m_string_value[1];
+      return core::move(c);
     }
     case static_cast<uint32_t>(type_classification::string_type): {
-      WN_RELEASE_ASSERT(false, "Not implemented: String constants");
-      return nullptr;
+      c->m_type = m_type_manager->m_cstr_t.get();
+      return core::move(c);
     }
     case static_cast<uint32_t>(type_classification::bool_type): {
       c->m_type = m_type_manager->m_bool_t.get();
@@ -436,7 +437,8 @@ parse_ast_convertor::convertor_context::resolve_array_access_expression(
   }
 
   if (outer_expr->m_type->m_classification !=
-      ast_type_classification::static_array) {
+          ast_type_classification::static_array &&
+      outer_expr->m_type->m_builtin != builtin_type::c_string_type) {
     _access->log_line(m_log, logging::log_level ::error);
     m_log->log_error("Cannot index a non-array type");
     return nullptr;
@@ -444,8 +446,11 @@ parse_ast_convertor::convertor_context::resolve_array_access_expression(
 
   memory::unique_ptr<ast_array_access_expression> array_access =
       memory::make_unique<ast_array_access_expression>(m_allocator, _access);
-
-  array_access->m_type = outer_expr->m_type->m_implicitly_contained_type;
+  if (outer_expr->m_type->m_builtin != builtin_type::c_string_type) {
+    array_access->m_type = outer_expr->m_type->m_implicitly_contained_type;
+  } else {
+    array_access->m_type = m_type_manager->m_integral_types[8].get();
+  }
   array_access->m_index = core::move(inner_expr);
   array_access->m_array = core::move(outer_expr);
 

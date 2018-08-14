@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNScripting/inc/type_manager.h"
 #include "WNScripting/inc/ast_node_types.h"
+#include "WNScripting/inc/type_manager.h"
 
 namespace wn {
 namespace scripting {
@@ -99,6 +99,11 @@ type_manager::type_manager(memory::allocator* _allocator)
   m_vtable_t->m_name = containers::string(m_allocator, "__Vtable");
   m_vtable_t->m_builtin = builtin_type::vtable_type;
   m_vtable_t->calculate_mangled_name(m_allocator);
+
+  m_cstr_t = memory::make_unique<ast_type>(m_allocator);
+  m_cstr_t->m_name = containers::string(m_allocator, "CString");
+  m_cstr_t->m_builtin = builtin_type::c_string_type;
+  m_cstr_t->calculate_mangled_name(m_allocator);
 }
 
 type_manager::~type_manager() {}
@@ -216,8 +221,7 @@ ast_type* type_manager::get_array_of(const ast_type* _type, uint32_t _size) {
     char buff[11] = {
         0,
     };
-    memory::writeuint32(
-        buff, static_cast<uint32_t>(_size), 11);
+    memory::writeuint32(buff, static_cast<uint32_t>(_size), 11);
     array_type->m_name += buff;
     array_type->m_name += "_";
   }

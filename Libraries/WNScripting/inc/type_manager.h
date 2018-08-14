@@ -65,6 +65,7 @@ public:
   memory::unique_ptr<ast_type> m_function_t;
   memory::unique_ptr<ast_type> m_nullptr_t;
   memory::unique_ptr<ast_type> m_vtable_t;
+  memory::unique_ptr<ast_type> m_cstr_t;
   containers::hash_map<uint32_t, memory::unique_ptr<ast_type>> m_integral_types;
   containers::hash_map<uint32_t, memory::unique_ptr<ast_type>> m_float_types;
 

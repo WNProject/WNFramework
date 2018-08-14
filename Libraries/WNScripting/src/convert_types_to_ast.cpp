@@ -67,6 +67,8 @@ const ast_type* parse_ast_convertor::convertor_context::resolve_builtin_type(
       return m_type_manager->m_void_ptr_t.get();
     case static_cast<uint32_t>(type_classification::function_ptr_type):
       return m_type_manager->m_function_t.get();
+    case static_cast<uint32_t>(type_classification::string_type):
+      return m_type_manager->m_cstr_t.get();
     default:
       WN_DEBUG_ASSERT(false, "Unknown type index");
   }

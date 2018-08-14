@@ -696,7 +696,27 @@ bool c_compiler::write_constant_expression(const ast_constant* _const) {
     m_output += "NULL";
     return true;
   }
-  m_output += _const->m_string_value;
+  if (_const->m_type->m_builtin == builtin_type::c_string_type) {
+    m_output += '"';
+    // Time to output a bunch of octal.
+    // We do this so we can handle arbitrary unicode / escape sequences etc.
+    const char* octalChars = "01234567\n";
+    for (size_t i = 1; i < _const->m_string_value.size() - 1; ++i) {
+      char c = _const->m_string_value[i];
+      m_output += '\\';
+      m_output += octalChars[(c >> 6) & 0x3];
+      m_output += octalChars[(c >> 3) & 0x7];
+      m_output += octalChars[c & 0x7];
+    }
+    m_output += '"';
+  } else if (_const->m_type->m_builtin == builtin_type::integral_type &&
+             _const->m_type->m_bit_width == 8) {
+    m_output += "(uint8_t)(";
+    m_output += _const->m_string_value;
+    m_output += ")";
+  } else {
+    m_output += _const->m_string_value;
+  }
   if (_const->m_type->m_builtin == builtin_type::floating_point_type &&
       _const->m_type->m_bit_width == 32) {
     m_output += "f";
@@ -1141,10 +1161,14 @@ bool c_compiler::write_array_access_expression(
     return false;
   }
 
-  if (_expression->m_array->m_type->m_static_array_size == 0) {
-    m_output += "->_val[";
+  if (_expression->m_array->m_type->m_builtin == builtin_type::c_string_type) {
+    m_output += "[";
   } else {
-    m_output += "._val[";
+    if (_expression->m_array->m_type->m_static_array_size == 0) {
+      m_output += "->_val[";
+    } else {
+      m_output += "._val[";
+    }
   }
 
   if (!write_expression(_expression->m_index.get())) {
@@ -1436,6 +1460,9 @@ bool c_compiler::decode_type(const ast_type* _type) {
           return true;
         case builtin_type::void_ptr_type:
           m_types[_type] = containers::string(m_allocator, "void*");
+          return true;
+        case builtin_type::c_string_type:
+          m_types[_type] = containers::string(m_allocator, "const char*");
           return true;
         case builtin_type::nullptr_type:
           m_types[_type] = containers::string(m_allocator, "");

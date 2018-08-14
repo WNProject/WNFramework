@@ -93,6 +93,7 @@ enum class builtin_type {
   void_ptr_type,
   nullptr_type,
   vtable_type,
+  c_string_type,
 };
 
 struct array_initializer_function;
@@ -214,6 +215,8 @@ struct ast_type {
           case builtin_type::void_ptr_type:
             m_mangled_name = containers::string(_allocator, "Pv");
             return;
+          case builtin_type::c_string_type:
+            m_mangled_name = containers::string(_allocator, "Ph");
           default:
             break;
         }
