@@ -152,6 +152,24 @@ ast_type* parse_ast_convertor::convertor_context::walk_struct_definition(
               ast_type_classification::static_array &&
           decl->m_type->m_static_array_size == 0) {
         has_overloaded_construction = true;
+        if (!st->m_struct_is_class) {
+          it->log_line(m_log, logging::log_level::error);
+          m_log->log_error("Arrays in structs must be of fixed size");
+          return nullptr;
+        }
+      }
+
+      if (decl->m_type->m_classification ==
+              ast_type_classification::static_array &&
+          decl->m_type->m_implicitly_contained_type->m_classification ==
+              ast_type_classification::reference &&
+          decl->m_type->m_implicitly_contained_type->m_implicitly_contained_type
+                  ->m_classification == ast_type_classification::struct_type &&
+          !decl->m_type->m_implicitly_contained_type
+               ->m_implicitly_contained_type->m_struct_is_class) {
+        decl->m_type = get_array_of(decl->m_type->m_implicitly_contained_type
+                                        ->m_implicitly_contained_type,
+            decl->m_type->m_static_array_size);
       }
 
       if (has_overloaded_construction && !st->m_struct_is_class) {
@@ -412,6 +430,18 @@ bool parse_ast_convertor::convertor_context::create_constructor(
       const ast_type* t =
           resolve_type(overrides ? overrider->second.m_type : it->get_type());
 
+      if (t->m_classification == ast_type_classification::static_array &&
+          t->m_implicitly_contained_type->m_classification ==
+              ast_type_classification::reference &&
+          t->m_implicitly_contained_type->m_implicitly_contained_type
+                  ->m_classification == ast_type_classification::struct_type &&
+          !t->m_implicitly_contained_type->m_implicitly_contained_type
+               ->m_struct_is_class) {
+        t = get_array_of(
+            t->m_implicitly_contained_type->m_implicitly_contained_type,
+            t->m_static_array_size);
+      }
+
       auto member = memory::make_unique<ast_member_access_expression>(
           m_allocator, st_def);
       member->m_base_expression = clone_node(m_allocator, this_id.get());
@@ -520,6 +550,67 @@ bool parse_ast_convertor::convertor_context::create_constructor(
       } else if (t->m_classification == ast_type_classification::static_array) {
         // Easiest to resolve this expression, and then delete it;
         rhs = resolve_expression(it->get_expression());
+
+        if (rhs->m_temporaries.size() != 2 ||
+            (rhs->m_temporaries[0]->m_node_type !=
+                    ast_node_type::ast_declaration &&
+                rhs->m_temporaries[1]->m_node_type !=
+                    ast_node_type::ast_array_allocation)) {
+          st_def->log_line(m_log, logging::log_level::error);
+          m_log->log_error("Invalid array initializer");
+          return false;
+        }
+        ast_array_allocation* array_init =
+            cast_to<ast_array_allocation>(rhs->m_temporaries[1].get());
+        if (t->m_implicitly_contained_type->m_classification ==
+            ast_type_classification::struct_type) {
+          // We need to just construct the final element, not a temporary.
+          if (array_init->m_initializer->m_node_type !=
+              ast_node_type::ast_function_call_expression) {
+            it->log_line(m_log, logging::log_level::error);
+            m_log->log_error("Expected constructor as array intializer");
+            return false;
+          }
+
+          ast_function_call_expression* constructor =
+              cast_to<ast_function_call_expression>(
+                  array_init->m_initializer.get());
+          constructor->m_parameters[0] = clone_node(m_allocator, member.get());
+          array_init->m_constructor_initializer =
+              memory::unique_ptr<ast_function_call_expression>(
+                  array_init->m_initializer.get_allocator(), constructor);
+          array_init->m_initializer.release();
+        } else if (t->m_implicitly_contained_type->m_classification ==
+                   ast_type_classification::shared_reference) {
+          if (!array_init->m_initializer->m_type->can_implicitly_cast_to(
+                  t->m_implicitly_contained_type)) {
+            it->log_line(m_log, logging::log_level::error);
+            m_log->log_error("Invalid shared array initializer");
+            return false;
+          }
+          bool is_shared_null_assign = array_init->m_initializer->m_type ==
+                                       m_type_manager->m_nullptr_t.get();
+          if (!is_shared_null_assign) {
+            auto const_null =
+                memory::make_unique<ast_constant>(m_allocator, it.get());
+            const_null->m_string_value = containers::string(m_allocator, "");
+            const_null->m_type = m_type_manager->m_nullptr_t.get();
+            auto null_as_vptr = make_cast(
+                core::move(const_null), m_type_manager->m_void_ptr_t.get());
+
+            containers::dynamic_array<memory::unique_ptr<ast_expression>>
+                construct_params(m_allocator);
+            construct_params.push_back(core::move(null_as_vptr));
+            construct_params.push_back(
+                core::move(make_cast(core::move(array_init->m_initializer),
+                    m_type_manager->m_void_ptr_t.get())));
+            array_init->m_initializer =
+                make_cast(call_function(it.get(), m_assign_shared,
+                              core::move(construct_params)),
+                    t->m_implicitly_contained_type);
+          }
+        }
+
         if (t->m_static_array_size == 0) {
           auto member_child = rhs->m_type;
           auto construction_member =
@@ -553,16 +644,6 @@ bool parse_ast_convertor::convertor_context::create_constructor(
           construction_member->m_member_offset = child_pos;
           construction_member->m_type = member_child;
 
-          if (rhs->m_temporaries.size() != 2 ||
-              (rhs->m_temporaries[0]->m_node_type !=
-                      ast_node_type::ast_declaration &&
-                  rhs->m_temporaries[1]->m_node_type !=
-                      ast_node_type::ast_array_allocation)) {
-            st_def->log_line(m_log, logging::log_level::error);
-            m_log->log_error("Invalid array initializer");
-            return false;
-          }
-
           auto constructed_id =
               clone_node(m_allocator, construction_member.get());
 
@@ -591,13 +672,11 @@ bool parse_ast_convertor::convertor_context::create_constructor(
             m_log->log_error("Invalid array initializer");
             return false;
           }
-          cast_to<ast_array_allocation>(rhs->m_temporaries[1].get())
-              ->m_initializee = core::move(member);
+          array_init->m_initializee = core::move(member);
           add_statement(core::move(rhs->m_temporaries[1]));
           increment_pos();
           continue;
         }
-
       } else {
         rhs = resolve_expression(it->get_expression());
         if (t != rhs->m_type) {
@@ -849,8 +928,45 @@ bool parse_ast_convertor::convertor_context::create_destructor(
         expression_statement->m_expr = core::move(function_call);
         add_statement(core::move(expression_statement));
       }
+      if (t->m_classification == ast_type_classification::static_array) {
+        if ((t->m_implicitly_contained_type->m_classification ==
+                    ast_type_classification::reference &&
+                t->m_implicitly_contained_type->m_implicitly_contained_type
+                    ->m_destructor) ||
+            t->m_implicitly_contained_type->m_classification ==
+                ast_type_classification::shared_reference) {
+          has_destructible_type = true;
+          memory::unique_ptr<ast_array_destruction> dest =
+              memory::make_unique<ast_array_destruction>(m_allocator, st_def);
+          if (t->m_implicitly_contained_type->m_implicitly_contained_type
+                  ->m_destructor) {
+            dest->m_destructor =
+                t->m_implicitly_contained_type->m_implicitly_contained_type
+                    ->m_destructor;
+          } else {
+            dest->m_destructor = m_release_shared;
+            dest->m_shared = true;
+          }
+          auto destruction_member =
+              memory::make_unique<ast_member_access_expression>(
+                  m_allocator, st_def);
+          destruction_member->m_base_expression =
+              clone_node(m_allocator, this_id.get());
+          destruction_member->m_base_expression->m_type =
+              m_type_manager->get_reference_of(
+                  _initialized_type, ast_type_classification::reference);
+          destruction_member->m_member_name =
+              it->get_name().to_string(m_allocator);
+          destruction_member->m_member_offset = use_pos;
+          destruction_member->m_type = t;
+
+          dest->m_target = core::move(destruction_member);
+          add_statement(core::move(dest));
+        }
+      }
       increment_pos();
     }
+
     for (auto stit = class_level_pre_init_statements.rbegin();
          stit != class_level_pre_init_statements.rend(); ++stit) {
       statements.push_front(core::move(*stit));

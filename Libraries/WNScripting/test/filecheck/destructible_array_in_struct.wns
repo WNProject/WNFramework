@@ -1,0 +1,74 @@
+// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE.txt file.
+
+struct Baz {
+  Int x = 3;
+}
+
+struct Bar {
+  shared Baz baz = shared Baz();
+}
+
+struct Foo {
+  Bar[10] b = Bar[10](Bar());
+}
+
+// CHECK: Foo* _ZN3wns14_construct_FooEP3FooP3Foo(Foo* _this) {
+// CHECK-NEXT:   for (size_t __c_temp0 = 0; __c_temp0 < 10; ++__c_temp0) {
+// CHECK-NEXT:     _ZN3wns14_construct_BarEP3BarP3Bar(&((_this->b).val[__c_temp0]));
+// CHECK-NEXT:   }
+// CHECK-NEXT:   return _this;
+// CHECK-NEXT: }
+
+// CHECK: void _ZN3wns13_destruct_FooEvP3Foo(Foo* _this) {
+// CHECK-NEXT:   for (size_t __c_temp1 = 0; __c_temp1 < (_this->b)._size; ++__c_temp1) {
+// CHECK-NEXT:     _ZN3wns13_destruct_BarEvP3Bar(&((_this->b).val[__c_temp1]));
+// CHECK-NEXT:   }
+// CHECK-NEXT:   return;
+// CHECK-NEXT: }
+
+//CHECK: Bazz* _ZN3wns15_construct_BazzEP4BazzP5_Bazz(_Bazz* _this) {
+//CHECK-NEXT:   for (size_t __c_temp2 = 0; __c_temp2 < 10; ++__c_temp2) {
+//CHECK-NEXT:     (_this->_b).val[__c_temp2] = ((_shared_Child)(_ZN3wns18_wns_assign_sharedEPvPvPv(((void*)(NULL)), ((void*)(_ZN3wns17_construct_ParentEP6ParentP6Parent(((Parent*)(_ZN3wns20_wns_allocate_sharedEPvN3wns4sizeEFvPvE(sizeof(Parent), ((_wns_fn_ptr_0)(NULL)))))))))));
+//CHECK-NEXT:   }
+//CHECK-NEXT:   (_this->b) = ((_array0__shared_Child*)&(_this->_b));
+//CHECK-NEXT:   return ((Bazz*)(_this));
+//CHECK-NEXT: }
+
+//CHECK: void _ZN3wns14_destruct_BazzEvP5_Bazz(_Bazz* _this) {
+//CHECK-NEXT:   for (size_t __c_temp3 = 0; __c_temp3 < (_this->b)._size; ++__c_temp3) {
+//CHECK-NEXT:     _ZN3wns12_wns_releaseEvPv((void*)((_this->b)->val[__c_temp3]));
+//CHECK-NEXT:   }
+//CHECK-NEXT:   return;
+//CHECK-NEXT: }
+
+// CHECK: {{27destruct_in_array_in_structE.*{}}
+// RUN: destruct_in_array_in_struct 4 -> 12
+// RUN: destruct_in_array_in_struct 0 -> 3
+Int destruct_in_array_in_struct(Int x) {
+  Foo f = Foo();
+  f.b[4].baz.x = 12;
+  return f.b[x].baz.x;
+}
+
+class Child {
+  Int x = 4;
+}
+
+class Parent : Child {
+  Int y = 4;
+}
+
+class Bazz  {
+  shared Child[] b = shared Child[10](shared Parent());
+}
+
+// CHECK: {{25shared_in_array_in_structE.*{}}
+// RUN: shared_in_array_in_struct 4 -> 12
+// RUN: shared_in_array_in_struct 0 -> 4
+Int shared_in_array_in_struct(Int x) {
+  Bazz b = Bazz();
+  b.b[4].x = 12;
+  return b.b[x].x;
+}

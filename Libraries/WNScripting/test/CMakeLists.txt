@@ -46,6 +46,7 @@ wn_create_call_test(
       array_tests.wns
       assignment_tests.wns
       constants_test.wns
+      destructible_array_in_struct.wns
       empty_expression.wns
       empty_struct.wns
       external_function_tests.wns
@@ -55,6 +56,7 @@ wn_create_call_test(
       loop_with_continue.wns
       loop_with_return.wns
       partial_for_loops.wns
+      shared_in_array.wns
       simple_functions.wns
       simple_inheritance.wns
       simple_loop_tests.wns

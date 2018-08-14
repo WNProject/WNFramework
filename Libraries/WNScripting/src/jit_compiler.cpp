@@ -1395,7 +1395,7 @@ bool internal::jit_compiler_context::write_array_destruction(
   llvm::Value* val = m_function_builder->CreateAlloca(m_int32_t);
   llvm::Value* target = get_expression(_dest->m_target.get());
 
-  {
+  if (_dest->m_target->m_type->m_static_array_size != 0) {
     llvm::LoadInst* load = llvm::dyn_cast<llvm::LoadInst>(target);
     if (!load) {
       return false;

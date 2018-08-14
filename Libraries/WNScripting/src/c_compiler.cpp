@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
+#include "WNScripting/inc/c_compiler.h"
 #include "WNContainers/inc/WNHashMap.h"
 #include "WNContainers/inc/WNHashSet.h"
 #include "WNScripting/inc/WNNodeTypes.h"
-#include "WNScripting/inc/c_compiler.h"
 #include "WNScripting/inc/internal/c_preamble.h"
 #include "WNScripting/inc/parse_ast_convertor.h"
 
@@ -1050,7 +1050,12 @@ bool c_compiler::write_array_destruction(const ast_array_destruction* _call) {
     m_output += "&(";
   }
   write_expression(_call->m_target.get());
-  m_output += ".val[";
+  if (_call->m_target->m_type->m_static_array_size == 0) {
+    m_output += "->val[";
+  } else {
+    m_output += ".val[";
+  }
+
   m_output += temp_name;
   m_output += "]));\n";
   align_line();

@@ -325,6 +325,7 @@ bool parse_ast_convertor::convertor_context::resolve_declaration(
             ast_node_type::ast_function_call_expression) {
           _declaration->log_line(m_log, logging::log_level::error);
           m_log->log_error("Expected constructor as array intializer");
+          return false;
         }
         ast_function_call_expression* fn =
             cast_to<ast_function_call_expression>(alloc->m_initializer.get());
