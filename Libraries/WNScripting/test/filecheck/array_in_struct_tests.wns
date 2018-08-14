@@ -23,10 +23,12 @@ class Foo {
 // CHECK-NEXT:   for (uint32_t __c_temp0 = 0; __c_temp0 < 4; ++__c_temp0) {
 // CHECK-NEXT:     (_this->_x)._val[__c_temp0] = 3;
 // CHECK-NEXT:   }
+// CHECK-NEXT:   (_this->_x)._size = 4;
 // CHECK-NEXT:   (_this->x) = ((_array0_int32_t*)&(_this->_x));
 // CHECK-NEXT:   for (uint32_t __c_temp1 = 0; __c_temp1 < 3; ++__c_temp1) {
 // CHECK-NEXT:     (_this->y)._val[__c_temp1] = 3;
 // CHECK-NEXT:   }
+// CHECK-NEXT:   (_this->y)._size = 3;
 // CHECK-NEXT:   return ((Foo*)(_this));
 // CHECK-NEXT: }
 
@@ -38,10 +40,12 @@ class Bar : Foo {
 // CHECK-NEXT:   for (uint32_t __c_temp2 = 0; __c_temp2 < 9; ++__c_temp2) {
 // CHECK-NEXT:     (_this->_x)._val[__c_temp2] = 8;
 // CHECK-NEXT:   }
+// CHECK-NEXT:   (_this->_x)._size = 9;
 // CHECK-NEXT:   (_this->x) = ((_array0_int32_t*)&(_this->_x));
 // CHECK-NEXT:   for (uint32_t __c_temp3 = 0; __c_temp3 < 3; ++__c_temp3) {
 // CHECK-NEXT:     (_this->y)._val[__c_temp3] = 3;
 // CHECK-NEXT:   }
+// CHECK-NEXT:   (_this->y)._size = 3;
 // CHECK-NEXT:   return ((Bar*)(_this));
 // CHECK-NEXT: }
 

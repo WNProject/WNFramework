@@ -58,6 +58,7 @@ struct parse_ast_convertor::convertor_context {
   void add_release_shared();
   void add_assign_shared();
   void add_return_shared();
+  void add_strlen();
 
   // Statements
   bool resolve_statement(const instruction* _instruction);
@@ -96,6 +97,8 @@ struct parse_ast_convertor::convertor_context {
       const array_allocation_expression* _expr);
   memory::unique_ptr<ast_expression> resolve_array_access_expression(
       const array_access_expression* _access);
+  memory::unique_ptr<ast_expression> resolve_builtin_unary_expression(
+      const builtin_unary_expression* _unary);
 
   // Helpers
   memory::unique_ptr<ast_expression> get_id(const node* _location,
@@ -174,6 +177,7 @@ struct parse_ast_convertor::convertor_context {
   ast_function* m_release_shared;
   ast_function* m_assign_shared;
   ast_function* m_return_shared;
+  ast_function* m_strlen;
   ast_loop* m_current_loop;
 
   uint32_t m_temporary_number;

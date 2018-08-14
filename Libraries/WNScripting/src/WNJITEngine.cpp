@@ -227,19 +227,19 @@ parse_error jit_engine::parse_file(const char* _file) {
   compiler.compile(parsed_file.get());
 
   // // TODO: figure out what optimizations to run eventually
-  // auto FPM =
-  //     llvm::make_unique<llvm::legacy::FunctionPassManager>(module.m_module);
+  //  auto FPM =
+  //      llvm::make_unique<llvm::legacy::FunctionPassManager>(module.m_module);
   //
-  // // Add some optimizations.
-  // FPM->add(llvm::createPromoteMemoryToRegisterPass());
-  // FPM->add(llvm::createInstructionCombiningPass());
-  // FPM->add(llvm::createReassociatePass());
-  // FPM->add(llvm::createGVNPass());
-  // FPM->add(llvm::createPromoteMemoryToRegisterPass());
-  // FPM->add(llvm::createCFGSimplificationPass());
-  // FPM->doInitialization();
-  // for (auto& F : *module.m_module)
-  //   FPM->run(F);
+  //  // Add some optimizations.
+  //  FPM->add(llvm::createPromoteMemoryToRegisterPass());
+  //  FPM->add(llvm::createInstructionCombiningPass());
+  //  FPM->add(llvm::createReassociatePass());
+  //  FPM->add(llvm::createConstantPropagationPass());
+  //  FPM->add(llvm::createGVNPass());
+  //  FPM->add(llvm::createCFGSimplificationPass());
+  //  FPM->doInitialization();
+  //  for (auto& F : *module.m_module)
+  //    FPM->run(F);
 
   // Uncomment to get debug information about the module out.
   // It is not really needed, but a good place to debug.

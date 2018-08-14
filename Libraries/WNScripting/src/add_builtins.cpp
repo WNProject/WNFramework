@@ -59,6 +59,7 @@ bool parse_ast_convertor::convertor_context::add_builtin_functions() {
   add_release_shared();
   add_assign_shared();
   add_return_shared();
+  add_strlen();
   return true;
 }
 
@@ -473,6 +474,93 @@ void parse_ast_convertor::convertor_context::add_return_shared() {
   body.push_back(core::move(ret));
   fn->calculate_mangled_name(m_allocator);
   m_return_shared = fn.get();
+  m_script_file->m_functions.push_back(core::move(fn));
+}
+
+void parse_ast_convertor::convertor_context::add_strlen() {
+  auto fn = memory::make_unique<ast_function>(m_allocator, nullptr);
+  fn->m_name = containers::string(m_allocator, "_wns_strlen");
+  fn->m_return_type = m_type_manager->m_integral_types[32].get();
+  auto scope = memory::make_unique<ast_scope_block>(m_allocator, nullptr);
+  scope->m_returns = true;
+  auto& body = scope->initialized_statements(m_allocator);
+  fn->m_scope = core::move(scope);
+
+  fn->initialized_parameters(m_allocator)
+      .emplace_back(
+          ast_function::parameter(containers::string(m_allocator, "_val"),
+              m_type_manager->m_cstr_t.get()));
+
+  auto val = memory::make_unique<ast_id>(m_allocator, nullptr);
+  val->m_type = m_type_manager->m_cstr_t.get();
+  val->m_function_parameter = &fn->m_parameters[0];
+
+  containers::string temp(m_allocator, "_size");
+  memory::unique_ptr<ast_loop> m_loop =
+      memory::make_unique<ast_loop>(m_allocator, nullptr);
+  m_loop->m_body = memory::make_unique<ast_scope_block>(m_allocator, nullptr);
+
+  memory::unique_ptr<ast_declaration> decl =
+      memory::make_unique<ast_declaration>(m_allocator, nullptr);
+  decl->m_name = temp;
+  decl->m_type = m_type_manager->m_integral_types[32].get();
+
+  auto zero = memory::make_unique<ast_constant>(m_allocator, nullptr);
+  zero->m_type = m_type_manager->m_integral_types[32].get();
+  zero->m_node_value.m_integer = 0;
+  zero->m_string_value = containers::string(m_allocator, "0");
+
+  decl->m_initializer = core::move(zero);
+
+  auto sizer = memory::make_unique<ast_id>(m_allocator, nullptr);
+  sizer->m_type = m_type_manager->m_integral_types[32].get();
+  sizer->m_declaration = decl.get();
+  body.push_back(core::move(decl));
+
+  auto const_one = memory::make_unique<ast_constant>(m_allocator, nullptr);
+  const_one->m_type = m_type_manager->m_integral_types[32].get();
+  const_one->m_node_value.m_integer = 1;
+  const_one->m_string_value = containers::string(m_allocator, "1");
+
+  auto add = memory::make_unique<ast_binary_expression>(m_allocator, nullptr);
+  add->m_binary_type = ast_binary_type::add;
+  add->m_lhs = clone_node(m_allocator, sizer.get());
+  add->m_rhs = core::move(const_one);
+  add->m_type = m_type_manager->m_integral_types[32].get();
+
+  auto assign = memory::make_unique<ast_assignment>(m_allocator, nullptr);
+  assign->m_lhs = clone_node(m_allocator, sizer.get());
+  assign->m_rhs = core::move(add);
+
+  m_loop->m_body->initialized_statements(m_allocator)
+      .push_back(core::move(assign));
+
+  auto byte =
+      memory::make_unique<ast_array_access_expression>(m_allocator, nullptr);
+  byte->m_type = m_type_manager->m_integral_types[8].get();
+  byte->m_array = core::move(val);
+  byte->m_index = clone_node(m_allocator, sizer.get());
+
+  auto const_zero_char =
+      memory::make_unique<ast_constant>(m_allocator, nullptr);
+  const_zero_char->m_type = m_type_manager->m_integral_types[8].get();
+  const_zero_char->m_node_value.m_char = 0;
+  const_zero_char->m_string_value = containers::string(m_allocator, "0");
+
+  auto exit = memory::make_unique<ast_binary_expression>(m_allocator, nullptr);
+  exit->m_type = m_type_manager->m_bool_t.get();
+  exit->m_lhs = core::move(const_zero_char);
+  exit->m_rhs = core::move(byte);
+  exit->m_binary_type = ast_binary_type::neq;
+  m_loop->m_pre_condition = core::move(exit);
+
+  body.push_back(core::move(m_loop));
+
+  auto ret = memory::make_unique<ast_return_instruction>(m_allocator, nullptr);
+  ret->m_return_expr = core::move(sizer);
+  body.push_back(core::move(ret));
+  fn->calculate_mangled_name(m_allocator);
+  m_strlen = fn.get();
   m_script_file->m_functions.push_back(core::move(fn));
 }
 

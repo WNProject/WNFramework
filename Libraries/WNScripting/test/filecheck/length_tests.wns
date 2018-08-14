@@ -1,0 +1,30 @@
+// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE.txt file.
+
+// CHECK: {{.*fooE.*{}}
+// RUN: foo 3 -> 22
+// RUN: foo 9 -> 22
+Int foo(Int y) {
+  Int[] x = Int[22](4);
+// CHECK: _return = x->_size;
+  return length(x);
+}
+
+// CHECK: {{.*foo2E.*{}}
+// RUN: foo2 3 -> 22
+// RUN: foo2 9 -> 22
+Int foo2(Int y) {
+  Int[22] x = Int[22](4);
+// CHECK: _return = x._size;
+  return length(x);
+}
+
+// CHECK: {{.*barE.*{}}
+// RUN: bar 3 -> 11
+// RUN: bar 22 -> 11
+Int bar(Int y) {
+  CString str = "Hello World";
+// CHECK: _return = _ZN3wns11_wns_strlenEiFE(str);
+  return length(str);
+}

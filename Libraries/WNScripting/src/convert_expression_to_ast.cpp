@@ -45,8 +45,10 @@ parse_ast_convertor::convertor_context::resolve_expression(
       return resolve_struct_allocation_expression(
           cast_to<struct_allocation_expression>(_expression));
     case node_type::unary_expression:
-    case node_type::builtin_unary_expression:
       WN_RELEASE_ASSERT(false, "Not Implemented expression type");
+    case node_type::builtin_unary_expression:
+      return resolve_builtin_unary_expression(
+          cast_to<builtin_unary_expression>(_expression));
     default:
       WN_RELEASE_ASSERT(false, "Could not determine expression type");
   }
@@ -544,6 +546,42 @@ parse_ast_convertor::convertor_context::resolve_struct_allocation_expression(
   }
 
   return core::move(init);
+}
+
+memory::unique_ptr<ast_expression>
+parse_ast_convertor::convertor_context::resolve_builtin_unary_expression(
+    const builtin_unary_expression* _expr) {
+  memory::unique_ptr<ast_expression> c =
+      resolve_expression(_expr->root_expression());
+  switch (_expr->get_unary_type()) {
+    case builtin_unary_type::length: {
+      if (c->m_type->m_builtin == builtin_type::c_string_type) {
+        auto fncall = memory::make_unique<ast_function_call_expression>(
+            m_allocator, _expr);
+        fncall->m_function = m_strlen;
+        fncall->initialized_parameters(m_allocator).push_back(core::move(c));
+        fncall->m_type = m_strlen->m_return_type;
+        return core::move(fncall);
+      } else {
+        if (c->m_type->m_classification !=
+            ast_type_classification::static_array) {
+          _expr->log_line(m_log, logging::log_level ::error);
+          m_log->log_error(
+              "length can only be applied to a string or an array");
+          return nullptr;
+        }
+        auto builtin =
+            memory::make_unique<ast_builtin_expression>(m_allocator, _expr);
+        builtin->m_builtin_type = builtin_expression_type::array_length;
+        builtin->initialized_expressions(m_allocator).push_back(core::move(c));
+        builtin->m_type = m_type_manager->m_integral_types[32].get();
+        return core::move(builtin);
+      }
+    }
+    default:
+      WN_RELEASE_ASSERT(false, "Unknown unary type");
+  }
+  return nullptr;
 }
 
 memory::unique_ptr<ast_expression> parse_ast_convertor::convertor_context::

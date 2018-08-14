@@ -1017,11 +1017,11 @@ bool c_compiler::write_array_allocation(
   m_output += "; ++";
   m_output += temp_name;
   m_output += ") {\n";
+  m_scope_depth++;
 
   if (_array_alloc->m_initializer.get()) {
     write_temporaries(_array_alloc->m_initializer.get());
     align_line();
-    m_output += "  ";
     write_expression(_array_alloc->m_initializee.get());
     m_output += "._val[";
     m_output += temp_name;
@@ -1031,7 +1031,6 @@ bool c_compiler::write_array_allocation(
     write_cleanups(_array_alloc->m_initializer.get());
   } else if (_array_alloc->m_constructor_initializer.get()) {
     align_line();
-    m_output += "  ";
     write_call_function(_array_alloc->m_constructor_initializer.get());
     m_output += "(&(";
     write_expression(_array_alloc->m_initializee.get());
@@ -1041,8 +1040,15 @@ bool c_compiler::write_array_allocation(
   } else {
     WN_RELEASE_ASSERT(false, "Unknown initializer type");
   }
+  m_scope_depth--;
   align_line();
   m_output += "}\n";
+  align_line();
+  write_expression(_array_alloc->m_initializee.get());
+  m_output += "._size = ";
+  m_output += buff;
+  m_output += ";\n";
+
   write_temporaries(_array_alloc->m_initializee.get());
   return true;
 }

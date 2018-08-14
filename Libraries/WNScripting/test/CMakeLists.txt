@@ -52,6 +52,7 @@ wn_create_call_test(
       external_function_tests.wns
       function_call_tests.wns
       inherited_construction_tests.wns
+      length_tests.wns
       loop_with_break.wns
       loop_with_continue.wns
       loop_with_return.wns
