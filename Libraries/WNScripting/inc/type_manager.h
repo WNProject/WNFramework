@@ -26,7 +26,7 @@ enum class ast_type_classification {
   weak_reference,
   struct_type,
   static_array,
-  dynamic_array,
+  runtime_array,
   function_pointer,
   extern_type,
 };
@@ -81,6 +81,8 @@ public:
       containers::pair_hasher<uint32_t, const ast_type*>,
       containers::pair_equality<uint32_t, const ast_type*>>
       m_static_array_types;
+  containers::hash_map<const ast_type*, memory::unique_ptr<ast_type>>
+      m_runtime_array_types;
 
   template <typename T>
   containers::string_view get_mangled_name() const {
@@ -110,6 +112,7 @@ public:
       const ast_type* _type, ast_type_classification _reference_type);
 
   ast_type* get_array_of(const ast_type* _type, uint32_t _size);
+  ast_type* get_runtime_array_of(const ast_type* _type);
 };
 }  // namespace scripting
 }  // namespace wn

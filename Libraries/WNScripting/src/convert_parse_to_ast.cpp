@@ -16,7 +16,7 @@ parse_ast_convertor::convertor_context::convertor_context(
     m_convertor(_convertor),
     m_structure_types(_allocator),
     m_struct_definitions(_allocator),
-    m_dynamic_array_types(_allocator),
+    m_runtime_array_types(_allocator),
     m_handled_definitions(_allocator),
     m_ordered_type_definitions(_allocator),
     m_nested_scopes(_allocator),
@@ -25,6 +25,7 @@ parse_ast_convertor::convertor_context::convertor_context(
     m_function_pointer_types(_allocator),
     m_named_functions(_allocator),
     m_array_declarations(_allocator),
+    m_runtime_array_declarations(_allocator),
     m_current_loop(nullptr),
     m_temporary_number(0),
     m_log(_log),
@@ -224,7 +225,7 @@ bool parse_ast_convertor::convertor_context::walk_script_file(
 
   m_script_file->m_all_types.push_back(core::move(m_shared_object_header));
 
-  for (auto& t : m_dynamic_array_types) {
+  for (auto& t : m_runtime_array_types) {
     m_script_file->m_all_types.push_back(core::move(t.second));
   }
   for (auto& t : m_structure_types) {
@@ -244,6 +245,16 @@ const ast_type* parse_ast_convertor::convertor_context::get_array_of(
     const ast_type* _type, uint32_t _size) {
   ast_type* tp = m_type_manager->get_array_of(_type, _size);
   auto t = m_array_declarations.insert(tp, tp);
+  if (t.second) {
+    m_ordered_type_definitions.push_back(t.first->first);
+  }
+  return t.first->first;
+}
+
+const ast_type* parse_ast_convertor::convertor_context::get_runtime_array_of(
+    const ast_type* _type) {
+  ast_type* tp = m_type_manager->get_runtime_array_of(_type);
+  auto t = m_runtime_array_declarations.insert(tp, tp);
   if (t.second) {
     m_ordered_type_definitions.push_back(t.first->first);
   }

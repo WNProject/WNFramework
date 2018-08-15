@@ -104,6 +104,7 @@ struct jit_compiler_context {
   llvm::Value* get_id(const ast_id* _id);
   llvm::Value* get_constant(const ast_constant* _const);
   llvm::Value* get_binary_expression(const ast_binary_expression* _bin);
+  llvm::Value* get_unary_expression(const ast_unary_expression* _unary);
   llvm::Value* get_function_call(const ast_function_call_expression* _func);
   llvm::Function* get_function(const ast_function* _func);
   llvm::Value* get_function_from_ptr(const ast_expression* _func);
@@ -399,14 +400,14 @@ bool internal::jit_compiler_context::decode_type(const ast_type* _type) {
       }
     }
       return true;
-    case ast_type_classification::dynamic_array: {
+    case ast_type_classification::runtime_array: {
       if (!decode_type(_type->m_implicitly_contained_type)) {
         return false;
       }
       auto child_type = m_types[_type->m_implicitly_contained_type];
       llvm::StructType* s =
           llvm::StructType::create({llvm::IntegerType::getInt32Ty(m_context),
-              child_type->getPointerTo()});
+              llvm::ArrayType::get(child_type, 0)});
       s->setName(_type->m_name.c_str());
       m_types[_type] = s->getPointerTo(0);
     }
@@ -537,7 +538,7 @@ llvm::Value* internal::jit_compiler_context::get_expression(
       v = get_member_access(cast_to<ast_member_access_expression>(_expression));
     } break;
     case ast_node_type::ast_unary_expression: {
-      WN_RELEASE_ASSERT(false, "Unimplemented statement type");
+      v = get_unary_expression(cast_to<ast_unary_expression>(_expression));
     } break;
     case ast_node_type::ast_cast_expression: {
       v = get_cast(cast_to<ast_cast_expression>(_expression));
@@ -641,7 +642,53 @@ llvm::Value* internal::jit_compiler_context::get_binary_expression(
       }
       return m_function_builder->CreateICmpNE(lhs, rhs);
       break;
+    case ast_binary_type::bitwise_and:
+      return m_function_builder->CreateAnd(lhs, rhs);
+    case ast_binary_type::bitwise_or:
+      return m_function_builder->CreateOr(lhs, rhs);
+    case ast_binary_type::bitwise_xor:
+      return m_function_builder->CreateXor(lhs, rhs);
   }
+  return nullptr;
+}
+
+llvm::Value* internal::jit_compiler_context::get_unary_expression(
+    const ast_unary_expression* _unary) {
+  llvm::Value* base = get_expression(_unary->m_base_expression.get());
+  if (!base) {
+    return nullptr;
+  }
+  if (_unary->m_unary_type == ast_unary_type::invert) {
+    return m_function_builder->CreateNot(base);
+  } else if (_unary->m_unary_type == ast_unary_type::negate) {
+    return m_function_builder->CreateNeg(base);
+  }
+
+  llvm::LoadInst* load = llvm::dyn_cast<llvm::LoadInst>(base);
+  WN_RELEASE_ASSERT(load, "Expected unary type to be lvalue");
+  llvm::Value* pos = load->getOperand(0);
+
+  llvm::Constant* one =
+      llvm::ConstantInt::get(get_type(_unary->m_base_expression->m_type), 1);
+
+  if (_unary->m_unary_type == ast_unary_type::pre_decrement) {
+    llvm::Value* val = m_function_builder->CreateSub(load, one);
+    m_function_builder->CreateStore(val, pos);
+    return val;
+  } else if (_unary->m_unary_type == ast_unary_type::pre_increment) {
+    llvm::Value* val = m_function_builder->CreateAdd(load, one);
+    m_function_builder->CreateStore(val, pos);
+    return val;
+  } else if (_unary->m_unary_type == ast_unary_type::post_decrement) {
+    llvm::Value* val = m_function_builder->CreateSub(load, one);
+    m_function_builder->CreateStore(val, pos);
+    return load;
+  } else if (_unary->m_unary_type == ast_unary_type::post_increment) {
+    llvm::Value* val = m_function_builder->CreateAdd(load, one);
+    m_function_builder->CreateStore(val, pos);
+    return load;
+  }
+
   return nullptr;
 }
 
@@ -832,6 +879,14 @@ llvm::Value* internal::jit_compiler_context::get_cast(
                 _expression->m_base_expression->m_type->m_classification ==
                     ast_type_classification::shared_reference;
 
+  is_bitcast |= _expression->m_type->m_builtin == builtin_type::void_ptr_type &&
+                _expression->m_base_expression->m_type->m_classification ==
+                    ast_type_classification::runtime_array;
+  is_bitcast |= _expression->m_base_expression->m_type->m_builtin ==
+                    builtin_type::void_ptr_type &&
+                _expression->m_type->m_classification ==
+                    ast_type_classification::runtime_array;
+
   if (is_bitcast) {
     return m_function_builder->CreateBitCast(
         expr, get_type(_expression->m_type));
@@ -840,6 +895,21 @@ llvm::Value* internal::jit_compiler_context::get_cast(
   if (is_int_to_ptr) {
     return m_function_builder->CreateIntToPtr(
         expr, get_type(_expression->m_type));
+  }
+
+  bool is_int_cast =
+      _expression->m_type->m_builtin == builtin_type::size_type &&
+      _expression->m_base_expression->m_type->m_builtin ==
+          builtin_type::integral_type;
+
+  is_int_cast |=
+      _expression->m_type->m_builtin == builtin_type::integral_type &&
+      _expression->m_base_expression->m_type->m_builtin ==
+          builtin_type::size_type;
+
+  if (is_int_cast) {
+    return m_function_builder->CreateIntCast(
+        expr, get_type(_expression->m_type), false);
   }
 
   WN_RELEASE_ASSERT(false, "Unknown cast");
@@ -1362,8 +1432,6 @@ bool internal::jit_compiler_context::write_array_allocation(
       llvm::BasicBlock::Create(m_context, "init_check", m_current_function);
 
   llvm::Value* val = m_function_builder->CreateAlloca(m_int32_t);
-  m_function_builder->CreateStore(
-      i32(_alloc->m_type->m_static_array_size), val);
 
   const ast_function_call_expression* fn =
       _alloc->m_constructor_initializer.get()
@@ -1371,7 +1439,11 @@ bool internal::jit_compiler_context::write_array_allocation(
           : nullptr;
 
   llvm::Value* arr = get_expression(_alloc->m_initializee.get());
-  {
+
+  if (!_alloc->m_runtime_size) {
+    m_function_builder->CreateStore(
+        i32(_alloc->m_type->m_static_array_size), val);
+
     llvm::LoadInst* load = llvm::dyn_cast<llvm::LoadInst>(arr);
     if (!load) {
       return false;
@@ -1379,12 +1451,18 @@ bool internal::jit_compiler_context::write_array_allocation(
     arr = load->getOperand(0);
     load->removeFromParent();
     delete load;
-  }
 
-  llvm::Value* size_gep[2] = {i32(0), i32(0)};
-  m_function_builder->CreateStore(i32(_alloc->m_type->m_static_array_size),
-      m_function_builder->CreateInBoundsGEP(
-          arr, llvm::ArrayRef<llvm::Value*>(&size_gep[0], 2)));
+    llvm::Value* size_gep[2] = {i32(0), i32(0)};
+    m_function_builder->CreateStore(i32(_alloc->m_type->m_static_array_size),
+        m_function_builder->CreateInBoundsGEP(
+            arr, llvm::ArrayRef<llvm::Value*>(&size_gep[0], 2)));
+  } else {
+    llvm::Value* size_gep[2] = {i32(0), i32(0)};
+    m_function_builder->CreateStore(
+        m_function_builder->CreateLoad(m_function_builder->CreateInBoundsGEP(
+            arr, llvm::ArrayRef<llvm::Value*>(&size_gep[0], 2))),
+        val);
+  }
 
   m_function_builder->CreateBr(init_check);
   m_function_builder->SetInsertPoint(init_check);
@@ -1429,7 +1507,9 @@ bool internal::jit_compiler_context::write_array_destruction(
   llvm::Value* val = m_function_builder->CreateAlloca(m_int32_t);
   llvm::Value* target = get_expression(_dest->m_target.get());
 
-  if (_dest->m_target->m_type->m_static_array_size != 0) {
+  if (_dest->m_target->m_type->m_static_array_size != 0 &&
+      _dest->m_target->m_type->m_classification !=
+          ast_type_classification::runtime_array) {
     llvm::LoadInst* load = llvm::dyn_cast<llvm::LoadInst>(target);
     if (!load) {
       return false;
@@ -1458,16 +1538,16 @@ bool internal::jit_compiler_context::write_array_destruction(
   llvm::Value* g_val = m_function_builder->CreateInBoundsGEP(
       target, llvm::ArrayRef<llvm::Value*>(&gep[0], 3));
 
-  llvm::Function* constructor = get_function(_dest->m_destructor);
-  auto conv = llvm::dyn_cast<llvm::Function>(constructor)->getCallingConv();
+  llvm::Function* destructor = get_function(_dest->m_destructor);
+  auto conv = llvm::dyn_cast<llvm::Function>(destructor)->getCallingConv();
   if (_dest->m_shared) {
-    llvm::CallInst* ci = m_function_builder->CreateCall(constructor,
+    llvm::CallInst* ci = m_function_builder->CreateCall(destructor,
         llvm::ArrayRef<llvm::Value*>(m_function_builder->CreateBitCast(
             m_function_builder->CreateLoad(g_val), m_void_ptr_t)));
     ci->setCallingConv(conv);
   } else {
     llvm::CallInst* ci = m_function_builder->CreateCall(
-        constructor, llvm::ArrayRef<llvm::Value*>(g_val));
+        destructor, llvm::ArrayRef<llvm::Value*>(g_val));
     ci->setCallingConv(conv);
   }
 

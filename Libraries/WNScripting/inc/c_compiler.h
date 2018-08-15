@@ -36,6 +36,7 @@ private:
   bool write_id(const ast_id* _id);
   bool write_constant_expression(const ast_constant* _expression);
   bool write_binary_expression(const ast_binary_expression* _expression);
+  bool write_unary_expression(const ast_unary_expression* _expression);
   bool write_function_call(const ast_function_call_expression* _expression);
   bool write_function_pointer_expression(
       const ast_function_pointer_expression* _expression);

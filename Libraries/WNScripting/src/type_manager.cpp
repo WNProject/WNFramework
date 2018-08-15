@@ -17,7 +17,8 @@ type_manager::type_manager(memory::allocator* _allocator)
     m_reference_types(_allocator),
     m_shared_types(_allocator),
     m_weak_types(_allocator),
-    m_static_array_types(_allocator) {
+    m_static_array_types(_allocator),
+    m_runtime_array_types(_allocator) {
   auto uint32_type = memory::make_unique<ast_type>(m_allocator);
   uint32_type->m_name = containers::string(m_allocator, "Int");
   uint32_type->m_builtin = builtin_type::integral_type;
@@ -233,6 +234,24 @@ ast_type* type_manager::get_array_of(const ast_type* _type, uint32_t _size) {
   m_static_array_types[core::make_pair(_size, _type)] = core::move(array_type);
   return return_type;
 }
+
+ast_type* type_manager::get_runtime_array_of(const ast_type* _type) {
+  auto it = m_runtime_array_types.find(_type);
+  if (it != m_runtime_array_types.end()) {
+    return it->second.get();
+  }
+
+  auto array_type = memory::make_unique<ast_type>(m_allocator);
+  array_type->m_classification = ast_type_classification::runtime_array;
+
+  array_type->m_name = containers::string(m_allocator, "_runtime_array_");
+  array_type->m_implicitly_contained_type = _type;
+  ast_type* return_type = array_type.get();
+  return_type->calculate_mangled_name(m_allocator);
+  m_runtime_array_types[_type] = core::move(array_type);
+  return return_type;
+}
+
 
 }  // namespace scripting
 }  // namespace wn

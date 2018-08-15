@@ -185,7 +185,8 @@ bool parse_ast_convertor::convertor_context::resolve_declaration(
       !type->m_implicitly_contained_type->m_struct_is_class;
   bool is_array_of_raw_structs = false;
   bool is_array_of_shared_structs = false;
-  if (type->m_classification == ast_type_classification::static_array) {
+  if (type->m_classification == ast_type_classification::static_array ||
+      type->m_classification == ast_type_classification::runtime_array) {
     if (type->m_implicitly_contained_type->m_classification ==
         ast_type_classification::reference) {
       if (type->m_implicitly_contained_type->m_implicitly_contained_type
@@ -202,6 +203,9 @@ bool parse_ast_convertor::convertor_context::resolve_declaration(
     } else if (type->m_implicitly_contained_type->m_classification ==
                ast_type_classification::shared_reference) {
       is_array_of_shared_structs = true;
+    } else if (type->m_implicitly_contained_type->m_classification ==
+               ast_type_classification::struct_type) {
+      is_array_of_raw_structs = true;
     }
   }
 
@@ -275,12 +279,23 @@ bool parse_ast_convertor::convertor_context::resolve_declaration(
       }
     }
 
-    if (init &&
+    bool static_array_decl =
+        init &&
         init->m_type->m_classification ==
             ast_type_classification::static_array &&
-        type->m_classification == ast_type_classification::static_array) {
-      if (init->m_type->m_static_array_size != 0 &&
-          type->m_static_array_size != 0) {
+        type->m_classification == ast_type_classification::static_array;
+    bool runtime_array_decl =
+        init &&
+        init->m_type->m_classification ==
+            ast_type_classification::runtime_array &&
+        type->m_classification == ast_type_classification::runtime_array;
+
+    if (init && (static_array_decl || runtime_array_decl)) {
+      bool statically_sized_static_array =
+          static_array_decl && init->m_type->m_static_array_size != 0 &&
+          type->m_static_array_size != 0;
+
+      if (statically_sized_static_array || runtime_array_decl) {
         if (type->m_static_array_size != init->m_type->m_static_array_size) {
           _declaration->log_line(m_log, logging::log_level::error);
           m_log->log_error(
@@ -310,6 +325,30 @@ bool parse_ast_convertor::convertor_context::resolve_declaration(
           alloc->m_initializee = core::move(id);
           init_statement = core::move(init->m_temporaries[0]);
           init.reset();
+
+          if (runtime_array_decl) {
+            auto fn = memory::make_unique<ast_function_call_expression>(
+                m_allocator, _declaration);
+            fn->m_function = m_external_functions[containers::string(
+                m_allocator, "_allocate_runtime_array")];
+
+            auto num_bytes = memory::make_unique<ast_builtin_expression>(
+                m_allocator, _declaration);
+            num_bytes->m_type = m_type_manager->m_size_t.get();
+            num_bytes->initialized_extra_types(m_allocator)
+                .push_back(type->m_implicitly_contained_type);
+            num_bytes->m_builtin_type = builtin_expression_type::size_of;
+
+            auto count =
+                make_cast(clone_node(m_allocator, alloc->m_runtime_size.get()),
+                    m_type_manager->m_size_t.get());
+            fn->initialized_parameters(m_allocator)
+                .push_back(core::move(num_bytes));
+            fn->initialized_parameters(m_allocator)
+                .push_back(core::move(count));
+            fn->m_type = m_type_manager->m_void_ptr_t.get();
+            init = make_cast(core::move(fn), type);
+          }
         }
       }
 
@@ -399,7 +438,28 @@ bool parse_ast_convertor::convertor_context::resolve_declaration(
         scope_expr.push_back(core::move(dest));
       }
 
-      if (type->m_static_array_size == 0 &&
+      if (runtime_array_decl) {
+        auto& scope_expr =
+            m_nested_scopes.back()->initialized_cleanup(m_allocator);
+        auto fn = memory::make_unique<ast_function_call_expression>(
+            m_allocator, _declaration);
+        fn->m_function =
+            m_external_functions[containers::string(m_allocator, "_free")];
+
+        memory::unique_ptr<ast_expression> dest_id = clone_node(
+            m_allocator, cast_to<ast_array_allocation>(init_statement.get())
+                             ->m_initializee.get());
+        fn->initialized_parameters(m_allocator)
+            .push_back(core::move(make_cast(
+                core::move(dest_id), m_type_manager->m_void_ptr_t.get())));
+        fn->m_type = m_type_manager->m_void_t.get();
+        auto dest_c = memory::make_unique<ast_evaluate_expression>(
+            m_allocator, _declaration);
+        dest_c->m_expr = core::move(fn);
+        scope_expr.push_back(core::move(dest_c));
+      }
+
+      if (!runtime_array_decl && type->m_static_array_size == 0 &&
           init->m_type->m_static_array_size != 0) {
         memory::unique_ptr<ast_cast_expression> cast =
             memory::make_unique<ast_cast_expression>(m_allocator, _declaration);
@@ -582,6 +642,14 @@ bool parse_ast_convertor::convertor_context::resolve_assignment(
           params.push_back(make_cast(core::move(assign->m_lhs), ref_type));
           params.push_back(make_cast(core::move(rhs), ref_type));
 
+          auto const_false =
+              memory::make_unique<ast_constant>(m_allocator, _assign);
+          const_false->m_type = m_type_manager->m_bool_t.get();
+          const_false->m_string_value =
+              containers::string(m_allocator, "false");
+          const_false->m_node_value.m_bool = false;
+
+          params.push_back(core::move(const_false));
           m_current_statements->push_back(evaluate_expression(call_function(
               _assign, struct_type->m_assignment, core::move(params))));
           return true;

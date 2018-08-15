@@ -58,7 +58,7 @@ enum class type_classification {
   nullptr_type,
   function_ptr_type,
   vtable_type,
-  dynamic_array_type,
+  runtime_array_type,
   array_type,
   struct_type,
   custom_type,
@@ -87,24 +87,27 @@ enum class arithmetic_type {
   arithmetic_greater_than_or_equal,
   arithmetic_less_than,
   arithmetic_greater_than,
+  arithmetic_and,
+  arithmetic_or,
+  arithmetic_xor,
   max
 };
 
 // The textual representation of all possible binary arithmetic
 // operations in WNScript.
 static const char*
-    arithmetic_type_names[static_cast<size_t>(arithmetic_type::max)] = {
-        "+", "-", "*", "/", "%", "==", "!=", "<=", ">=", "<", ">"};
+    arithmetic_type_names[static_cast<size_t>(arithmetic_type::max)] = {"+",
+        "-", "*", "/", "%", "==", "!=", "<=", ">=", "<", ">", "&", "|", "^"};
 
 // All possible pre-unary operations in WNScript.
-enum class unary_type { pre_increment, pre_decrement, negation, max };
+enum class unary_type { pre_increment, pre_decrement, negation, inversion, max };
 
 // All builtins that take exactly one parameter.
 enum class builtin_unary_type { length };
 
 // The textual representation of all possible pre-unary operations in WNScript.
 static const char* unary_type_names[static_cast<size_t>(unary_type::max)] = {
-    "++", "--", "-"};
+    "++", "--", "-", "!"};
 
 // All possible post-unary operations in WNScript.
 enum class post_unary_type { post_increment, post_decrement, max };

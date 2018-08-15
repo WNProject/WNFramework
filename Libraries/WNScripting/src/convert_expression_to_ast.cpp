@@ -18,8 +18,6 @@ parse_ast_convertor::convertor_context::resolve_expression(
     case node_type::array_allocation_expression:
       return resolve_array_allocation_expression(
           cast_to<array_allocation_expression>(_expression));
-    case node_type::dynamic_array_allocation_expression:
-      WN_RELEASE_ASSERT(false, "Not Implemented expression type");
     case node_type::binary_expression:
       return resolve_binary(cast_to<binary_expression>(_expression));
     case node_type::cast_expression:
@@ -39,13 +37,15 @@ parse_ast_convertor::convertor_context::resolve_expression(
       return resolve_member_access_expression(
           cast_to<member_access_expression>(_expression));
     case node_type::post_unary_expression:
+      return resolve_post_unary_expression(
+          cast_to<post_unary_expression>(_expression));
     case node_type::short_circuit_expression:
       WN_RELEASE_ASSERT(false, "Not Implemented expression type");
     case node_type::struct_allocation_expression:
       return resolve_struct_allocation_expression(
           cast_to<struct_allocation_expression>(_expression));
     case node_type::unary_expression:
-      WN_RELEASE_ASSERT(false, "Not Implemented expression type");
+      return resolve_unary_expression(cast_to<unary_expression>(_expression));
     case node_type::builtin_unary_expression:
       return resolve_builtin_unary_expression(
           cast_to<builtin_unary_expression>(_expression));
@@ -169,6 +169,16 @@ parse_ast_convertor::convertor_context::resolve_binary(
   bin->m_type = bin->m_lhs->m_type;
 
   switch (_bin->get_arithmetic_type()) {
+    case arithmetic_type::arithmetic_and:
+    case arithmetic_type::arithmetic_or:
+    case arithmetic_type::arithmetic_xor:
+      if (bin->m_lhs->m_type->m_builtin != builtin_type::integral_type &&
+          bin->m_lhs->m_type->m_builtin != builtin_type::bool_type &&
+          bin->m_lhs->m_type->m_builtin != builtin_type::size_type) {
+        _bin->log_line(m_log, logging::log_level::error);
+        m_log->log_error("Bitwise operators must be on Int or Bool types.");
+        return nullptr;
+      }
     case arithmetic_type::arithmetic_add:
     case arithmetic_type::arithmetic_sub:
     case arithmetic_type::arithmetic_mult:
@@ -231,10 +241,131 @@ parse_ast_convertor::convertor_context::resolve_binary(
     case arithmetic_type::arithmetic_greater_than:
       bin->m_binary_type = ast_binary_type::gt;
       break;
+    case arithmetic_type::arithmetic_and:
+      bin->m_binary_type = ast_binary_type::bitwise_and;
+      break;
+    case arithmetic_type::arithmetic_or:
+      bin->m_binary_type = ast_binary_type::bitwise_or;
+      break;
+    case arithmetic_type::arithmetic_xor:
+      bin->m_binary_type = ast_binary_type::bitwise_xor;
+      break;
+
     default:
       WN_RELEASE_ASSERT(false, "You should never get here");
   }
   return bin;
+}
+
+memory::unique_ptr<ast_unary_expression>
+parse_ast_convertor::convertor_context::resolve_unary_expression(
+    const unary_expression* _unary) {
+  auto base = resolve_expression(_unary->get_root_expression());
+  if (!base) {
+    return nullptr;
+  }
+
+  memory::unique_ptr<ast_unary_expression> expr =
+      memory::make_unique<ast_unary_expression>(m_allocator, _unary);
+
+  expr->m_base_expression = core::move(base);
+  expr->m_type = expr->m_base_expression->m_type;
+  auto ut = _unary->get_unary_type();
+  switch (ut) {
+    case unary_type::inversion:
+      if (expr->m_type->m_builtin != builtin_type::bool_type &&
+          expr->m_type->m_builtin != builtin_type::integral_type) {
+        _unary->log_line(m_log, logging::log_level::error);
+        m_log->log_error("You can only invert Int and Bool types");
+        return nullptr;
+      }
+      expr->m_unary_type = ast_unary_type::invert;
+      break;
+    case unary_type::negation:
+      if (expr->m_type->m_builtin != builtin_type::integral_type) {
+        _unary->log_line(m_log, logging::log_level::error);
+        m_log->log_error("You can only negate Int");
+        return nullptr;
+      }
+      expr->m_unary_type = ast_unary_type::negate;
+      break;
+    case unary_type::pre_decrement:
+      if (expr->m_type->m_builtin != builtin_type::integral_type) {
+        _unary->log_line(m_log, logging::log_level::error);
+        m_log->log_error("You can only decrement Int");
+        return nullptr;
+      }
+      expr->m_unary_type = ast_unary_type::pre_decrement;
+      break;
+    case unary_type::pre_increment:
+      if (expr->m_type->m_builtin != builtin_type::integral_type) {
+        _unary->log_line(m_log, logging::log_level::error);
+        m_log->log_error("You can only increment Int");
+        return nullptr;
+      }
+      expr->m_unary_type = ast_unary_type::pre_increment;
+      break;
+    default:
+      WN_RELEASE_ASSERT(false, "Unknown expression type");
+  }
+
+  if (ut == unary_type::pre_decrement || ut == unary_type::pre_increment) {
+    if (expr->m_node_type != ast_node_type::ast_member_access_expression &&
+        expr->m_node_type != ast_node_type::ast_id &&
+        expr->m_node_type != ast_node_type::ast_array_access_expression) {
+      _unary->log_line(m_log, logging::log_level::error);
+      m_log->log_error("Operand must be an lvalue");
+      return nullptr;
+    }
+  }
+
+  return core::move(expr);
+}
+
+memory::unique_ptr<ast_unary_expression>
+parse_ast_convertor::convertor_context::resolve_post_unary_expression(
+    const post_unary_expression* _unary) {
+  auto base = resolve_expression(_unary->get_base_expression());
+  if (!base) {
+    return nullptr;
+  }
+
+  memory::unique_ptr<ast_unary_expression> expr =
+      memory::make_unique<ast_unary_expression>(m_allocator, _unary);
+
+  expr->m_base_expression = core::move(base);
+  expr->m_type = expr->m_base_expression->m_type;
+  auto ut = _unary->get_post_unary_type();
+  switch (ut) {
+    case post_unary_type::post_increment:
+      if (expr->m_type->m_builtin != builtin_type::integral_type) {
+        _unary->log_line(m_log, logging::log_level::error);
+        m_log->log_error("You can only increment Int");
+        return nullptr;
+      }
+      expr->m_unary_type = ast_unary_type::post_increment;
+      break;
+    case post_unary_type::post_decrement:
+      if (expr->m_type->m_builtin != builtin_type::integral_type) {
+        _unary->log_line(m_log, logging::log_level::error);
+        m_log->log_error("You can only decrement Int");
+        return nullptr;
+      }
+      expr->m_unary_type = ast_unary_type::post_decrement;
+      break;
+    default:
+      WN_RELEASE_ASSERT(false, "Unknown expression type");
+  }
+
+  if (expr->m_node_type != ast_node_type::ast_member_access_expression &&
+      expr->m_node_type != ast_node_type::ast_id &&
+      expr->m_node_type != ast_node_type::ast_array_access_expression) {
+    _unary->log_line(m_log, logging::log_level::error);
+    m_log->log_error("Operand must be an lvalue");
+    return nullptr;
+  }
+
+  return core::move(expr);
 }
 
 memory::unique_ptr<ast_expression>
@@ -257,29 +388,38 @@ parse_ast_convertor::convertor_context::resolve_array_allocation_expression(
     return nullptr;
   }
 
+  bool is_runtime = _alloc->is_runtime();
+  const ast_type* t = nullptr;
   auto array_size =
       resolve_expression(_alloc->get_array_initializers()[0].get());
+  const ast_type* array_base_type = resolve_type(_alloc->get_type());
 
-  if (array_size->m_node_type != ast_node_type::ast_constant) {
+  if (!is_runtime && array_size->m_node_type != ast_node_type::ast_constant) {
     _alloc->log_line(m_log, logging::log_level::error);
     m_log->log_error("Array size must be static");
   }
 
-  auto* array_const = cast_to<ast_constant>(array_size.get());
-  if (array_const->m_type != m_type_manager->m_integral_types[32].get()) {
-    _alloc->log_line(m_log, logging::log_level::error);
-    m_log->log_error("Array size must be an Integer");
+  if (is_runtime) {
+    t = get_runtime_array_of(array_base_type);
+  } else {
+    auto* array_const = cast_to<ast_constant>(array_size.get());
+    if (array_const->m_type != m_type_manager->m_integral_types[32].get()) {
+      _alloc->log_line(m_log, logging::log_level::error);
+      m_log->log_error("Array size must be an Integer");
+    }
+    t = get_array_of(array_base_type, array_const->m_node_value.m_integer);
   }
 
-  const ast_type* array_base_type = resolve_type(_alloc->get_type());
-  const ast_type* t =
-      get_array_of(array_base_type, array_const->m_node_value.m_integer);
   dec->m_type = t;
 
   auto array_init =
       memory::make_unique<ast_array_allocation>(m_allocator, _alloc);
   array_init->m_initializer = core::move(base_expr);
   array_init->m_type = t;
+
+  if (is_runtime) {
+    array_init->m_runtime_size = core::move(array_size);
+  }
 
   memory::unique_ptr<ast_id> id =
       memory::make_unique<ast_id>(m_allocator, _alloc);
@@ -440,6 +580,8 @@ parse_ast_convertor::convertor_context::resolve_array_access_expression(
 
   if (outer_expr->m_type->m_classification !=
           ast_type_classification::static_array &&
+      outer_expr->m_type->m_classification !=
+          ast_type_classification::runtime_array &&
       outer_expr->m_type->m_builtin != builtin_type::c_string_type) {
     _access->log_line(m_log, logging::log_level ::error);
     m_log->log_error("Cannot index a non-array type");

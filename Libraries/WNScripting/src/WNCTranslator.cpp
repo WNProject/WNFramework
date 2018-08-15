@@ -28,6 +28,11 @@ c_translator::c_translator(memory::allocator* _allocator,
   m_type_manager.m_externals.push_back(external_function{"_free",
       containers::dynamic_array<ast_type*>(m_allocator,
           {m_type_manager.m_void_t.get(), m_type_manager.m_void_ptr_t.get()})});
+
+  m_type_manager.m_externals.push_back(external_function{"_allocate_runtime_array",
+      containers::dynamic_array<ast_type*>(m_allocator,
+          {m_type_manager.m_void_ptr_t.get(), m_type_manager.m_size_t.get(),
+              m_type_manager.m_size_t.get()})});
 }
 
 parse_error c_translator::translate_file_with_error(

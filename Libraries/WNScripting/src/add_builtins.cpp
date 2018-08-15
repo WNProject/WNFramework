@@ -55,6 +55,12 @@ bool parse_ast_convertor::convertor_context::add_builtin_functions() {
     return false;
   }
 
+  if (m_external_functions.find(containers::string(m_allocator,
+          "_allocate_runtime_array")) == m_external_functions.end()) {
+    m_log->log_error("External function _allocate_shared missing");
+    return false;
+  }
+
   add_allocate_shared();
   add_release_shared();
   add_assign_shared();

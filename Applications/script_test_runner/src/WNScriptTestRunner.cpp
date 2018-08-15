@@ -113,6 +113,25 @@ bool call_function<3>(logging::log* _log, scripting::engine* e,
   return true;
 }
 
+template <>
+bool call_function<4>(logging::log* _log, scripting::engine* e,
+    const containers::string_view name,
+    const containers::dynamic_array<int32_t>& a, int32_t expected_return) {
+  scripting::script_function<int32_t, int32_t, int32_t, int32_t, int32_t> func;
+  if (!e->get_function(name, &func)) {
+    _log->log_error(
+        "Could not find function ", name, " with ", 3, " parameters");
+    return false;
+  }
+  int32_t ret = e->invoke(func, a[0], a[1], a[2], a[3]);
+  if (expected_return != ret) {
+    _log->log_error(
+        name, " returned: ", ret, " but we expected: ", expected_return);
+    return false;
+  }
+  return true;
+}
+
 enum class test_types : uint8_t { jit = 1 << 0, c = 1 << 1 };
 
 bool call(logging::log* _log, scripting::engine* e,
@@ -128,6 +147,8 @@ bool call(logging::log* _log, scripting::engine* e,
       return call_function<2>(_log, e, _name, _values, expected_return);
     case 3:
       return call_function<3>(_log, e, _name, _values, expected_return);
+    case 4:
+      return call_function<4>(_log, e, _name, _values, expected_return);
     default:
       WN_RELEASE_ASSERT(false, "Error: unimplemented number of values");
   }

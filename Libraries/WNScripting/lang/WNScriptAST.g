@@ -278,41 +278,22 @@ scalarType returns[scripting::type* node]
 arrayType returns[scripting::type* node]
 @init {
     node = nullptr;
+    scripting::reference_type rt = scripting::reference_type::raw;
 }
     : (
-        scalarType { node = $scalarType.node; SET_LOCATION_FROM_NODE(node, $scalarType.node);
-            node = m_allocator->construct<scripting::array_type>(m_allocator, node);}
+        scalarType { node = $scalarType.node; SET_LOCATION_FROM_NODE(node, $scalarType.node); }
         | a=objectType { node = $a.node; SET_LOCATION_FROM_NODE(node, $a.node);
-            node->set_reference_type(scripting::reference_type::unique);
-            node = m_allocator->construct<scripting::array_type>(m_allocator, node); }
+            rt = scripting::reference_type::raw; }
         | SHARED_REF b=objectType { node = $b.node; SET_LOCATION_FROM_NODE(node, $b.node);
-            node->set_reference_type(scripting::reference_type::shared);
-            node = m_allocator->construct<scripting::array_type>(m_allocator, node); }
+            rt = scripting::reference_type::shared; }
     )
-        (LSQBRACKET  { SET_LOCATION(node, $LSQBRACKET); })
-        (constant    { scripting::cast_to<scripting::array_type>(node)->set_constant($constant.node); })?
-        (RSQBRACKET  { SET_END_LOCATION(node, $RSQBRACKET); })
-    ;
-
-dynamicArrayType returns[scripting::type* node]
-@init {
-    node = nullptr;
-}
-    : scalarType { node = $scalarType.node; SET_LOCATION_FROM_NODE(node, $scalarType.node); }
-           (DLSQBRACKET DRSQBRACKET {
-                   SET_END_LOCATION(node, $DRSQBRACKET);
-                   node = m_allocator->construct<scripting::dynamic_array_type>(m_allocator, node);
-                   SET_LOCATION(node, $DLSQBRACKET);
-                   SET_END_LOCATION(node, $DRSQBRACKET);
-           })
-    | objectType { node = $objectType.node; SET_LOCATION_FROM_NODE(node, $objectType.node);
-                    node->set_reference_type(scripting::reference_type::unique); }
-           (DLSQBRACKET DRSQBRACKET {
-                   SET_END_LOCATION(node, $DRSQBRACKET);
-                   node = m_allocator->construct<scripting::dynamic_array_type>(m_allocator, node);
-                   SET_LOCATION(node, $DLSQBRACKET);
-                   SET_END_LOCATION(node, $DRSQBRACKET);
-           })
+        ((
+            (LSQBRACKET  { node->set_reference_type(rt); node = m_allocator->construct<scripting::array_type>(m_allocator, node); SET_LOCATION(node, $LSQBRACKET); })
+            (constant    { scripting::cast_to<scripting::array_type>(node)->set_constant($constant.node); })?
+            (RSQBRACKET  { SET_END_LOCATION(node, $RSQBRACKET); }))
+      | (
+            DLSQBRACKET DRSQBRACKET { node->set_reference_type(rt); node = m_allocator->construct<scripting::runtime_array_type>(m_allocator, node); SET_LOCATION(node, $DLSQBRACKET); SET_END_LOCATION(node, $DRSQBRACKET); }
+        ))
     ;
 
 compoundType returns[scripting::type* node]
@@ -336,7 +317,6 @@ type    returns[scripting::type* node]
 }
     : compoundType { node = $compoundType.node; }
     | arrayType { node = $arrayType.node; }
-    | dynamicArrayType { node = $dynamicArrayType.node; }
     | scalarType   { node = $scalarType.node; }
     ;
 
@@ -351,9 +331,6 @@ param returns[scripting::parameter* node]
             node = m_allocator->construct<scripting::parameter>(m_allocator, $bb.node, $aa.text.c_str()); SET_LOCATION_FROM_NODE(node, $bb.node); SET_END_LOCATION(node, $aa); }
     |    cc=arrayType dd=ID {
             $cc.node->set_reference_type(scripting::reference_type::unique);
-            node = m_allocator->construct<scripting::parameter>(m_allocator, $cc.node, $dd.text.c_str()); SET_LOCATION_FROM_NODE(node, $cc.node); SET_END_LOCATION(node, $dd); }
-    |    cc=dynamicArrayType dd=ID {
-            $cc.node->set_reference_type(scripting::reference_type::raw);
             node = m_allocator->construct<scripting::parameter>(m_allocator, $cc.node, $dd.text.c_str()); SET_LOCATION_FROM_NODE(node, $cc.node); SET_END_LOCATION(node, $dd); }
     |    SHARED_REF b=compoundType c=ID {
            $b.node->set_reference_type(scripting::reference_type::shared);
@@ -441,8 +418,30 @@ and_ex  returns[scripting::expression* node]
 @init {
     node = nullptr;
 }
+        :    a=bit_or_ex { node = $a.node; }
+            ('&&' b=bit_or_ex {node = m_allocator->construct<scripting::short_circuit_expression>(m_allocator, scripting::short_circuit_type::and_operator, node, $b.node); SET_LOCATION_FROM_NODE(node, $a.node); SET_END_LOCATION_FROM_NODE(node, $b.node); })*;
+
+bit_or_ex  returns[scripting::expression* node]
+@init {
+    node = nullptr;
+}
+        :    a=bit_xor_ex { node = $a.node; }
+            ('|' b=bit_xor_ex {node = m_allocator->construct<scripting::binary_expression>(m_allocator, scripting::arithmetic_type::arithmetic_or, node, $b.node);  SET_LOCATION_FROM_NODE(node, $a.node); SET_END_LOCATION_FROM_NODE(node, $b.node); } )*;
+
+bit_xor_ex  returns[scripting::expression* node]
+@init {
+    node = nullptr;
+}
+        :    a=bit_and_ex { node = $a.node; }
+            ('^' b=bit_and_ex {node = m_allocator->construct<scripting::binary_expression>(m_allocator, scripting::arithmetic_type::arithmetic_xor, node, $b.node);  SET_LOCATION_FROM_NODE(node, $a.node); SET_END_LOCATION_FROM_NODE(node, $b.node); } )*;
+
+bit_and_ex  returns[scripting::expression* node]
+@init {
+    node = nullptr;
+}
         :    a=eq_ex { node = $a.node; }
-            ('&&' b=eq_ex {node = m_allocator->construct<scripting::short_circuit_expression>(m_allocator, scripting::short_circuit_type::and_operator, node, $b.node); SET_LOCATION_FROM_NODE(node, $a.node); SET_END_LOCATION_FROM_NODE(node, $b.node); })*;
+            ('&' b=eq_ex {node = m_allocator->construct<scripting::binary_expression>(m_allocator, scripting::arithmetic_type::arithmetic_and, node, $b.node);  SET_LOCATION_FROM_NODE(node, $a.node); SET_END_LOCATION_FROM_NODE(node, $b.node); } )*;
+
 
 eq_ex    returns[scripting::expression* node]
 @init {
@@ -499,6 +498,7 @@ unary_ex returns[scripting::expression* node]
     |    '++' b=unary_ex { scripting::node* t = node; node = m_allocator->construct<scripting::unary_expression>(m_allocator, scripting::unary_type::pre_increment, $b.node);   SET_LOCATION_FROM_NODE(node, t); SET_END_LOCATION_FROM_NODE(node, $b.node); }
     |    '--' c=unary_ex { scripting::node* t = node; node = m_allocator->construct<scripting::unary_expression>(m_allocator, scripting::unary_type::pre_decrement, $c.node);   SET_LOCATION_FROM_NODE(node, t); SET_END_LOCATION_FROM_NODE(node, $c.node); }
     |    '-' d=unary_ex  { scripting::node* t = node; node = m_allocator->construct<scripting::unary_expression>(m_allocator, scripting::unary_type::negation, $d.node);   SET_LOCATION_FROM_NODE(node, t); SET_END_LOCATION_FROM_NODE(node, $d.node); }
+    |    '!' d=unary_ex  { scripting::node* t = node; node = m_allocator->construct<scripting::unary_expression>(m_allocator, scripting::unary_type::inversion, $d.node);   SET_LOCATION_FROM_NODE(node, t); SET_END_LOCATION_FROM_NODE(node, $d.node); }
         ;
 
 
@@ -565,21 +565,26 @@ builtin_unary returns[scripting::builtin_unary_expression* node]
     :   LENGTH LBRACKET expr RBRACKET { node = m_allocator->construct<scripting::builtin_unary_expression>(m_allocator, scripting::builtin_unary_type::length, $expr.node); SET_LOCATION(node, $LENGTH); SET_END_LOCATION(node, $RBRACKET);}
     ;
 
+non_array_prim_ex returns[scripting::expression* node]
+@init {
+    node = nullptr;
+}
+    :   ID { node = m_allocator->construct<scripting::id_expression>(m_allocator, $ID.text.c_str()); SET_LOCATION(node, $ID);}
+    |   ba=LBRACKET a=expr bb=RBRACKET {node = $a.node; SET_LOCATION(node, $ba); SET_END_LOCATION(node, $bb); }
+    |   b=constant  {node = $b.node; }
+    |   c=scalarType ( f=cast) { $f.node->set_type($c.node); node=$f.node; SET_START_LOCATION_FROM_NODE(node, $c.node); }
+    |   e=objectType h=structInit { $h.node->set_type($e.node); node=$h.node; SET_START_LOCATION_FROM_NODE(node, $e.node); }
+    |   SHARED_REF i=objectType j=structInit { $i.node->set_reference_type(scripting::reference_type::shared); $j.node->set_type($i.node); node=$j.node; SET_START_LOCATION_FROM_NODE(node, $i.node); }
+    |   u=builtin_unary {node = $u.node; }
+    ;
+
 prim_ex returns[scripting::expression * node]
 @init {
     node = nullptr;
 }
-    :    ID { node = m_allocator->construct<scripting::id_expression>(m_allocator, $ID.text.c_str()); SET_LOCATION(node, $ID);}
-    |    ba=LBRACKET a=expr bb=RBRACKET {node = $a.node; SET_LOCATION(node, $ba); SET_END_LOCATION(node, $bb); }
-    |    b=constant  {node = $b.node; }
-    |   c=scalarType ( f=cast) { $f.node->set_type($c.node); node=$f.node; SET_START_LOCATION_FROM_NODE(node, $c.node); }
-    |   e=objectType h=structInit { $h.node->set_type($e.node); node=$h.node; SET_START_LOCATION_FROM_NODE(node, $e.node); }
-    |   SHARED_REF i=objectType j=structInit { $i.node->set_reference_type(scripting::reference_type::shared); $j.node->set_type($i.node); node=$j.node; SET_START_LOCATION_FROM_NODE(node, $i.node); }
+    :   non_array_prim_ex { node = $non_array_prim_ex.node; }
     |   k=nonArrayType l=arrayInit { $l.node->set_type($k.node); node=$l.node; SET_START_LOCATION_FROM_NODE(node, $k.node); }
     |   SHARED_REF m=nonArrayType n=arrayInit { $m.node->set_reference_type(scripting::reference_type::shared); $n.node->set_type($m.node); node=$n.node; SET_START_LOCATION_FROM_NODE(node, $m.node); }
-    |   o=nonArrayType p=dynamicArrayInit { $p.node->set_type($o.node); node=$p.node; SET_START_LOCATION_FROM_NODE(node, $o.node); }
-    |   SHARED_REF q=nonArrayType r=dynamicArrayInit {  $q.node->set_reference_type(scripting::reference_type::shared); $r.node->set_type($q.node); node=$r.node; SET_START_LOCATION_FROM_NODE(node, $q.node); }
-    |   u = builtin_unary {node = $u.node; }
     ;
 
 cast returns[scripting::cast_expression* node]
@@ -601,16 +606,8 @@ arrayInit returns[scripting::array_allocation_expression* node]
     node = m_allocator->construct<scripting::array_allocation_expression>(m_allocator);
 }
     :
-        (LSQBRACKET e=expr RSQBRACKET { node->add_expression($e.node);} )
-        (LBRACKET b=expr c=RBRACKET { node->set_copy_initializer(b); SET_LOCATION(node, $c); } )
-    ;
-
-dynamicArrayInit returns[scripting::dynamic_array_allocation_expression* node]
-@init {
-    node = m_allocator->construct<scripting::dynamic_array_allocation_expression>(m_allocator);
-}
-    :
-        (DLSQBRACKET e=expr DRSQBRACKET { node->add_expression($e.node);} )
+        ((LSQBRACKET e=expr RSQBRACKET { node->add_expression($e.node);} ) |
+        (DLSQBRACKET f=expr DRSQBRACKET { node->add_expression($f.node); node->set_runtime(true); }))
         (LBRACKET b=expr c=RBRACKET { node->set_copy_initializer(b); SET_LOCATION(node, $c); } )
     ;
 

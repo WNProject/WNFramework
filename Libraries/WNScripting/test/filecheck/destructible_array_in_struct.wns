@@ -29,11 +29,11 @@ struct Foo {
 // CHECK-NEXT:   return;
 // CHECK-NEXT: }
 
-// CHECK: void _ZN3wns11_assign_FooEvP3Foo3Foo(Foo* _this, Foo* _other) {
+// CHECK: void _ZN3wns11_assign_FooEvP3Foo3Foo(Foo* _this, Foo* _other, bool _uninitialized_this) {
 // CHECK-NEXT:   int32_t _wns_temp2 = (_other->b)._size;
 // CHECK-NEXT:   while ((_wns_temp2 != 0)) {
 // CHECK-NEXT:     _wns_temp2 = (_wns_temp2 - 1);
-// CHECK-NEXT:     _ZN3wns11_assign_BarEvP3Bar3Bar((&(_this->b)._val[_wns_temp2]), (&(_other->b)._val[_wns_temp2]));
+// CHECK-NEXT:     _ZN3wns11_assign_BarEvP3Bar3Bar((&(_this->b)._val[_wns_temp2]), (&(_other->b)._val[_wns_temp2]), _uninitialized_this);
 // CHECK-NEXT:   }
 // CHECK:   return;
 // CHECK-NEXT: }
@@ -48,7 +48,7 @@ struct Foo {
 //CHECK-NEXT: }
 
 //CHECK: void _ZN3wns14_destruct_BazzEvP5_Bazz(_Bazz* _this) {
-//CHECK-NEXT:   for (uint32_t __c_temp3 = 0; __c_temp3 < (_this->b)._size; ++__c_temp3) {
+//CHECK-NEXT:   for (uint32_t __c_temp3 = 0; __c_temp3 < (_this->b)->_size; ++__c_temp3) {
 //CHECK-NEXT:     _ZN3wns12_wns_releaseEvPv((void*)((_this->b)->_val[__c_temp3]));
 //CHECK-NEXT:   }
 //CHECK-NEXT:   return;

@@ -31,13 +31,14 @@ struct parse_ast_convertor::convertor_context {
   const ast_type* resolve_type(const type* _type);
   const ast_type* resolve_builtin_type(uint32_t _type_index);
   const ast_type* resolve_static_array(const array_type* _type);
-  const ast_type* resolve_dynamic_array(const dynamic_array_type* _type);
+  const ast_type* resolve_runtime_array(const runtime_array_type* _type);
   const ast_type* resolve_reference_type(const type* _type);
   const ast_type* resolve_function_ptr_type(
       containers::dynamic_array<const ast_type*> _types);
   const ast_type* resolve_function_ptr_type(const ast_function* _function);
 
   const ast_type* get_array_of(const ast_type* _type, uint32_t _size);
+  const ast_type* get_runtime_array_of(const ast_type* _type);
 
   // Functions
   // pre_resolve_function creates the function object, and intiializes
@@ -84,6 +85,10 @@ struct parse_ast_convertor::convertor_context {
       const constant_expression* _expression);
   memory::unique_ptr<ast_binary_expression> resolve_binary(
       const binary_expression* _expression);
+  memory::unique_ptr<ast_unary_expression> resolve_unary_expression(
+      const unary_expression* _expression);
+  memory::unique_ptr<ast_unary_expression> resolve_post_unary_expression(
+      const post_unary_expression* _expression);
   memory::unique_ptr<ast_function_call_expression> resolve_function_call(
       const function_call_expression* _expression);
   memory::unique_ptr<ast_expression> resolve_struct_allocation_expression(
@@ -145,7 +150,7 @@ struct parse_ast_convertor::convertor_context {
   containers::hash_map<containers::string, const struct_definition*>
       m_struct_definitions;
   containers::hash_map<const ast_type*, memory::unique_ptr<ast_type>>
-      m_dynamic_array_types;
+      m_runtime_array_types;
   containers::hash_set<const struct_definition*> m_handled_definitions;
   containers::deque<const ast_type*> m_ordered_type_definitions;
 
@@ -167,6 +172,7 @@ struct parse_ast_convertor::convertor_context {
       m_named_functions;
 
   containers::hash_map<const ast_type*, const ast_type*> m_array_declarations;
+  containers::hash_map<const ast_type*, const ast_type*> m_runtime_array_declarations;
 
   memory::unique_ptr<ast_script_file> m_script_file;
 

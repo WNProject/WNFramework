@@ -217,8 +217,30 @@ bool c_compiler::declare_type(const ast_type* _type) {
   switch (_type->m_classification) {
     case ast_type_classification::struct_type:
       return declare_struct(_type);
-    case ast_type_classification::dynamic_array: {
-      WN_RELEASE_ASSERT(false, "Unimplemented type");
+    case ast_type_classification::runtime_array: {
+      align_line();
+      containers::string name;
+      containers::string size_str;
+      decode_type(_type->m_implicitly_contained_type);
+      name = containers::string(m_allocator, "_runtime_array_") +
+             m_types[_type->m_implicitly_contained_type];
+      m_output += "typedef struct __";
+      m_output += name;
+      m_output += " {\n";
+      m_scope_depth += 1;
+      align_line();
+      m_output += "uint32_t _size;\n";
+      align_line();
+      write_type(_type->m_implicitly_contained_type);
+      m_output += " _val[];\n";
+      m_scope_depth -= 1;
+      align_line();
+      m_output += "} _";
+      m_output += name;
+      m_output += ";\n";
+      align_line();
+      m_output += "typedef _" + name + "* " + name + ";\n\n";
+      return true;
     } break;
     case ast_type_classification::weak_reference: {
       WN_RELEASE_ASSERT(false, "Unimplemented type");
@@ -986,11 +1008,68 @@ bool c_compiler::write_binary_expression(const ast_binary_expression* _bin) {
     case ast_binary_type::neq:
       m_output += " != ";
       break;
+    case ast_binary_type::bitwise_and:
+      m_output += " & ";
+      break;
+    case ast_binary_type::bitwise_or:
+      m_output += " | ";
+      break;
+    case ast_binary_type::bitwise_xor:
+      m_output += " ^ ";
+      break;
   }
   if (!write_expression(_bin->m_rhs.get())) {
     return false;
   }
   m_output += ")";
+  return true;
+}
+
+bool c_compiler::write_unary_expression(const ast_unary_expression* _unary) {
+  switch (_unary->m_unary_type) {
+    case ast_unary_type::invert:
+      m_output += "!(";
+      if (!write_expression(_unary->m_base_expression.get())) {
+        return false;
+      }
+      m_output += ")";
+      break;
+    case ast_unary_type::negate:
+      m_output += "-(";
+      if (!write_expression(_unary->m_base_expression.get())) {
+        return false;
+      }
+      m_output += ")";
+      break;
+    case ast_unary_type::post_increment:
+      m_output += "(";
+      if (!write_expression(_unary->m_base_expression.get())) {
+        return false;
+      }
+      m_output += ")++";
+      break;
+    case ast_unary_type::post_decrement:
+      m_output += "(";
+      if (!write_expression(_unary->m_base_expression.get())) {
+        return false;
+      }
+      m_output += ")--";
+      break;
+    case ast_unary_type::pre_increment:
+      m_output += "++(";
+      if (!write_expression(_unary->m_base_expression.get())) {
+        return false;
+      }
+      m_output += ")";
+      break;
+    case ast_unary_type::pre_decrement:
+      m_output += "--(";
+      if (!write_expression(_unary->m_base_expression.get())) {
+        return false;
+      }
+      m_output += ")";
+      break;
+  }
   return true;
 }
 
@@ -1005,25 +1084,36 @@ bool c_compiler::write_array_allocation(
     const ast_array_allocation* _array_alloc) {
   write_temporaries(_array_alloc->m_initializee.get());
   align_line();
+
+  containers::string op(m_allocator, ".");
+  char buff[11];
+  memory::writeuint32(buff, _array_alloc->m_type->m_static_array_size, 11);
+
+  if (_array_alloc->m_runtime_size) {
+    op = containers::string(m_allocator, "->");
+  }
+
   auto temp_name = get_temporary();
   m_output += "for (uint32_t ";
   m_output += temp_name;
   m_output += " = 0; ";
   m_output += temp_name;
   m_output += " < ";
-  char buff[11];
-  memory::writeuint32(buff, _array_alloc->m_type->m_static_array_size, 11);
-  m_output += buff;
+  if (_array_alloc->m_runtime_size) {
+    write_expression(_array_alloc->m_initializee.get());
+    m_output += "->_size";
+  } else {
+    m_output += buff;
+  }
   m_output += "; ++";
   m_output += temp_name;
   m_output += ") {\n";
   m_scope_depth++;
-
   if (_array_alloc->m_initializer.get()) {
     write_temporaries(_array_alloc->m_initializer.get());
     align_line();
     write_expression(_array_alloc->m_initializee.get());
-    m_output += "._val[";
+    m_output += op + "_val[";
     m_output += temp_name;
     m_output += "] = ";
     write_expression(_array_alloc->m_initializer.get());
@@ -1034,7 +1124,7 @@ bool c_compiler::write_array_allocation(
     write_call_function(_array_alloc->m_constructor_initializer.get());
     m_output += "(&(";
     write_expression(_array_alloc->m_initializee.get());
-    m_output += "._val[";
+    m_output += op + "_val[";
     m_output += temp_name;
     m_output += "]));\n";
   } else {
@@ -1043,18 +1133,27 @@ bool c_compiler::write_array_allocation(
   m_scope_depth--;
   align_line();
   m_output += "}\n";
-  align_line();
-  write_expression(_array_alloc->m_initializee.get());
-  m_output += "._size = ";
-  m_output += buff;
-  m_output += ";\n";
+  if (!_array_alloc->m_runtime_size) {
+    align_line();
+    write_expression(_array_alloc->m_initializee.get());
+    m_output += op + "_size = ";
+    m_output += buff;
+    m_output += ";\n";
+  }
 
-  write_temporaries(_array_alloc->m_initializee.get());
+  write_cleanups(_array_alloc->m_initializee.get());
   return true;
 }
 
 bool c_compiler::write_array_destruction(const ast_array_destruction* _call) {
   align_line();
+  containers::string op(m_allocator, ".");
+  if (_call->m_target->m_type->m_classification ==
+      ast_type_classification::runtime_array ||
+      _call->m_target->m_type->m_static_array_size == 0) {
+    op = containers::string(m_allocator, "->");
+  }
+
   auto temp_name = get_temporary();
   m_output += "for (uint32_t ";
   m_output += temp_name;
@@ -1062,7 +1161,7 @@ bool c_compiler::write_array_destruction(const ast_array_destruction* _call) {
   m_output += temp_name;
   m_output += " < ";
   write_expression(_call->m_target.get());
-  m_output += "._size; ++";
+  m_output += op + "_size; ++";
   m_output += temp_name;
   m_output += ") {\n";
 
@@ -1076,11 +1175,7 @@ bool c_compiler::write_array_destruction(const ast_array_destruction* _call) {
     m_output += "&(";
   }
   write_expression(_call->m_target.get());
-  if (_call->m_target->m_type->m_static_array_size == 0) {
-    m_output += "->_val[";
-  } else {
-    m_output += "._val[";
-  }
+  m_output += op + "_val[";
 
   m_output += temp_name;
   m_output += "]));\n";
@@ -1282,6 +1377,16 @@ bool c_compiler::write_cast_expression(const ast_cast_expression* _expression) {
   is_bitcast |= _expression->m_type->m_builtin == builtin_type::void_ptr_type &&
                 _expression->m_base_expression->m_type->m_classification ==
                     ast_type_classification::shared_reference;
+  is_bitcast |= _expression->m_type->m_classification ==
+                    ast_type_classification::runtime_array &&
+                _expression->m_base_expression->m_type->m_builtin ==
+                    builtin_type::void_ptr_type;
+  is_bitcast |= _expression->m_base_expression->m_type->m_classification ==
+                    ast_type_classification::runtime_array &&
+                _expression->m_type->m_builtin == builtin_type::void_ptr_type;
+  is_bitcast |= _expression->m_base_expression->m_type->m_builtin ==
+                    builtin_type::integral_type &&
+                _expression->m_type->m_builtin == builtin_type::size_type;
 
   if (is_bitcast) {
     m_output += "((";
@@ -1389,7 +1494,7 @@ bool c_compiler::write_expression(const ast_expression* _expression) {
           cast_to<ast_member_access_expression>(_expression));
     } break;
     case ast_node_type::ast_unary_expression: {
-      WN_RELEASE_ASSERT(false, "Unimplemented expression type");
+      return write_unary_expression(cast_to<ast_unary_expression>(_expression));
     } break;
     case ast_node_type::ast_cast_expression: {
       return write_cast_expression(cast_to<ast_cast_expression>(_expression));
@@ -1502,11 +1607,11 @@ bool c_compiler::decode_type(const ast_type* _type) {
                          "_" + m_types[_type->m_implicitly_contained_type];
       }
       return true;
-    case ast_type_classification::dynamic_array:
+    case ast_type_classification::runtime_array:
       if (!decode_type(_type->m_implicitly_contained_type)) {
         return false;
       }
-      m_types[_type] = containers::string(m_allocator, "_dyn_array_") +
+      m_types[_type] = containers::string(m_allocator, "_runtime_array_") +
                        m_types[_type->m_implicitly_contained_type];
       return true;
     case ast_type_classification::reference:

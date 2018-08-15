@@ -137,6 +137,10 @@ public:
 		, T__73 = 73
 		, T__74 = 74
 		, T__75 = 75
+		, T__76 = 76
+		, T__77 = 77
+		, T__78 = 78
+		, T__79 = 79
 		, BOOL = 4
 		, BOOL_TYPE = 5
 		, BREAK = 6
@@ -236,6 +240,10 @@ public:
     void  mT__73( );
     void  mT__74( );
     void  mT__75( );
+    void  mT__76( );
+    void  mT__77( );
+    void  mT__78( );
+    void  mT__79( );
     void  mLSQBRACKET( );
     void  mRSQBRACKET( );
     void  mDLSQBRACKET( );

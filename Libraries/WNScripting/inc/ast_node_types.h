@@ -232,8 +232,8 @@ struct ast_type {
         m_mangled_name = containers::string(_allocator, "A0_");
         m_mangled_name += m_implicitly_contained_type->m_mangled_name;
         return;
-      case ast_type_classification::dynamic_array:
-        m_mangled_name = containers::string(_allocator, "A__");
+      case ast_type_classification::runtime_array:
+        m_mangled_name = containers::string(_allocator, "RA__");
         m_mangled_name += m_implicitly_contained_type->m_mangled_name;
         return;
       case ast_type_classification::reference:
@@ -440,6 +440,18 @@ enum class ast_binary_type {
   gte,
   eq,
   neq,
+  bitwise_or,
+  bitwise_and,
+  bitwise_xor,
+};
+
+enum class ast_unary_type {
+  pre_increment,
+  post_increment,
+  pre_decrement,
+  post_decrement,
+  negate,
+  invert,
 };
 
 struct ast_node {
@@ -644,6 +656,7 @@ struct ast_array_allocation : public ast_statement {
   }
 
   const ast_type* m_type;
+  memory::unique_ptr<ast_expression> m_runtime_size;
   memory::unique_ptr<ast_expression> m_initializer;
   memory::unique_ptr<ast_expression> m_initializee;
   memory::unique_ptr<ast_function_call_expression> m_constructor_initializer;
@@ -826,6 +839,18 @@ struct ast_member_access_expression : public ast_expression {
 struct ast_unary_expression : public ast_expression {
   ast_unary_expression(const node* _base_node)
     : ast_expression(_base_node, ast_node_type::ast_unary_expression) {}
+  
+  memory::unique_ptr<ast_node> clone(
+      memory::allocator* _allocator) const override {
+    auto d = memory::make_unique<ast_unary_expression>(_allocator, nullptr);
+    d->copy_underlying_from(_allocator, this);
+    d->m_base_expression = clone_node(_allocator, m_base_expression.get());
+    d->m_unary_type = m_unary_type;
+    return core::move(d);
+  }
+
+  memory::unique_ptr<ast_expression> m_base_expression;
+  ast_unary_type m_unary_type;
 };
 
 struct ast_cast_expression : public ast_expression {
@@ -909,10 +934,10 @@ struct ast_builtin_expression : public ast_expression {
     return core::move(d);
   }
 
-  containers::deque<ast_type*>& initialized_extra_types(
+  containers::deque<const ast_type*>& initialized_extra_types(
       memory::allocator* m_allocator) {
     if (m_extra_types.empty()) {
-      m_extra_types = containers::deque<ast_type*>(m_allocator);
+      m_extra_types = containers::deque<const ast_type*>(m_allocator);
     }
     return m_extra_types;
   }
@@ -926,7 +951,7 @@ struct ast_builtin_expression : public ast_expression {
     return m_expressions;
   }
 
-  containers::deque<ast_type*> m_extra_types;
+  containers::deque<const ast_type*> m_extra_types;
   containers::deque<memory::unique_ptr<ast_expression>> m_expressions;
   builtin_expression_type m_builtin_type = builtin_expression_type::none;
 };

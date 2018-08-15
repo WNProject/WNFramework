@@ -13,8 +13,8 @@ const ast_type* parse_ast_convertor::convertor_context::resolve_type(
     const type* _type) {
   if (_type->get_node_type() == node_type::array_type) {
     return resolve_static_array(cast_to<array_type>(_type));
-  } else if (_type->get_node_type() == node_type::dynamic_array_type) {
-    return resolve_dynamic_array(cast_to<dynamic_array_type>(_type));
+  } else if (_type->get_node_type() == node_type::runtime_array_type) {
+    return resolve_runtime_array(cast_to<runtime_array_type>(_type));
   }
   WN_DEBUG_ASSERT(_type->get_node_type() == node_type::type,
       "Type nodes must be of a known type");
@@ -164,28 +164,15 @@ const ast_type* parse_ast_convertor::convertor_context::resolve_static_array(
   return nullptr;
 }
 
-const ast_type* parse_ast_convertor::convertor_context::resolve_dynamic_array(
-    const dynamic_array_type* _type) {
+const ast_type* parse_ast_convertor::convertor_context::resolve_runtime_array(
+    const runtime_array_type* _type) {
   const ast_type* subtype = resolve_type(_type->get_subtype());
   if (!subtype) {
     _type->log_line(m_log, logging::log_level::error);
     m_log->log_error("Could not resolve dynamic array subtype");
     return nullptr;
   }
-  auto it = m_dynamic_array_types.find(subtype);
-  if (it != m_dynamic_array_types.end()) {
-    return it->second.get();
-  }
-
-  auto dynamic_array_type = memory::make_unique<ast_type>(m_allocator);
-  dynamic_array_type->m_name =
-      containers::string(m_allocator, "_dyn_array_of_") + subtype->m_name;
-  dynamic_array_type->m_classification = ast_type_classification::dynamic_array;
-  dynamic_array_type->m_implicitly_contained_type = subtype;
-  ast_type* return_type = dynamic_array_type.get();
-  m_dynamic_array_types[subtype] = core::move(dynamic_array_type);
-  m_ordered_type_definitions.push_back(return_type);
-  return return_type;
+  return get_runtime_array_of(subtype);
 }
 
 const ast_type*

@@ -23,13 +23,12 @@ enum class node_type {
   arg_list,
   array_type,
   concretized_array_type,
-  dynamic_array_type,
+  runtime_array_type,
   parameter_list,
   parameter,
   expression,
     replaced_expression,
     array_allocation_expression,
-    dynamic_array_allocation_expression,
     binary_expression,
     cast_expression,
     cond_expression,
@@ -330,7 +329,7 @@ public:
     // adjust the type id as well.
     if (m_type != static_cast<uint32_t>(type_classification::array_type) &&
         m_type !=
-            static_cast<uint32_t>(type_classification::dynamic_array_type)) {
+            static_cast<uint32_t>(type_classification::runtime_array_type)) {
       m_type += (static_cast<int32_t>(_reference_type) -
                  static_cast<int32_t>(m_reference_type));
     }
@@ -454,18 +453,18 @@ private:
   memory::unique_ptr<type> m_subtype;
 };
 
-class dynamic_array_type : public type {
+class runtime_array_type : public type {
 public:
-  dynamic_array_type(memory::allocator* _allocator, type* _sub_type)
+  runtime_array_type(memory::allocator* _allocator, type* _sub_type)
     : type(_allocator, type_classification::array_type,
-          node_type::dynamic_array_type),
+          node_type::runtime_array_type),
       m_subtype(memory::unique_ptr<type>(_allocator, _sub_type)) {}
 
-  explicit dynamic_array_type(memory::allocator* _allocator)
+  explicit runtime_array_type(memory::allocator* _allocator)
     : type(_allocator, type_classification::array_type,
-          node_type::dynamic_array_type) {}
+          node_type::runtime_array_type) {}
 
-  dynamic_array_type(memory::allocator* _allocator, node_type _node_type)
+  runtime_array_type(memory::allocator* _allocator, node_type _node_type)
     : type(_allocator, type_classification::array_type, _node_type) {}
 
   const type* get_subtype() const override {
@@ -520,7 +519,8 @@ public:
     : expression(_allocator, node_type::array_allocation_expression),
       m_array_initializers(_allocator),
       m_init_mode(struct_initialization_mode::invalid),
-      m_levels(0) {}
+      m_levels(0),
+      m_is_runtime(false) {}
 
   const containers::deque<memory::unique_ptr<expression>>&
   get_array_initializers() const {
@@ -542,6 +542,14 @@ public:
 
   bool is_static_sized() const {
     return m_static_array_initializers.size() > 0;
+  }
+
+  bool is_runtime() const {
+    return m_is_runtime;
+  }
+
+  void set_runtime(bool _runtime) {
+    m_is_runtime = _runtime;
   }
 
   void add_expression(expression* _expr) {
@@ -577,69 +585,7 @@ private:
   containers::string m_destructor_name;
   struct_initialization_mode m_init_mode;
   size_t m_levels;
-};
-
-class dynamic_array_allocation_expression : public expression {
-public:
-  explicit dynamic_array_allocation_expression(memory::allocator* _allocator)
-    : expression(_allocator, node_type::dynamic_array_allocation_expression),
-      m_array_initializers(_allocator),
-      m_init_mode(struct_initialization_mode::invalid),
-      m_levels(0) {}
-
-  containers::deque<memory::unique_ptr<expression>>& get_array_initializers() {
-    return m_array_initializers;
-  }
-
-  struct_initialization_mode set_initialization_mode() const {
-    return m_init_mode;
-  }
-
-  void set_initialization_mode(struct_initialization_mode _mode) {
-    m_init_mode = _mode;
-  }
-
-  void add_expression(expression* _expr) {
-    m_array_initializers.emplace_back(
-        memory::unique_ptr<expression>(m_allocator, _expr));
-    m_levels++;
-  }
-
-  void add_level() {
-    m_levels++;
-  }
-
-  void set_copy_initializer(expression* _expression) {
-    m_copy_initializer =
-        memory::unique_ptr<expression>(m_allocator, _expression);
-  }
-
-  const expression* get_copy_initializer() const {
-    return m_copy_initializer.get();
-  }
-
-  containers::string constructor_name() {
-    return m_constructor_name;
-  }
-
-  void set_constructor_name(containers::string_view name) {
-    m_constructor_name = name.to_string(m_allocator);
-  }
-
-  void print_node_internal(print_context* c) const override {
-    c->print_header("Dynamic Array Initializer");
-    c->print_value(m_type, "Type");
-    c->print_value(m_array_initializers, "Initializers");
-    c->print_value(m_copy_initializer, "Copy Initializer");
-  }
-
-private:
-  containers::deque<memory::unique_ptr<expression>> m_array_initializers;
-  memory::unique_ptr<expression> m_copy_initializer;
-  containers::string m_constructor_name;
-  containers::string m_destructor_name;
-  struct_initialization_mode m_init_mode;
-  size_t m_levels;
+  bool m_is_runtime;
 };
 
 class binary_expression : public expression {
@@ -908,6 +854,10 @@ public:
     c->print_value(m_base_expression, "Base Expression");
   }
 
+  post_unary_type get_post_unary_type() const {
+    return m_unary_type;
+  }
+
 private:
   post_unary_type m_unary_type;
 };
@@ -993,6 +943,14 @@ public:
     c->print_value(m_type, "Type");
     c->print_value(m_unary_type, "Unary Type");
     c->print_value(m_root_expression, "Root Expression");
+  }
+
+  const expression* get_root_expression() const {
+    return m_root_expression.get();
+  }
+
+  unary_type get_unary_type() const {
+    return m_unary_type;
   }
 
 private:

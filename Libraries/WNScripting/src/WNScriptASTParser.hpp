@@ -163,6 +163,10 @@ public:
 		, T__73 = 73
 		, T__74 = 74
 		, T__75 = 75
+		, T__76 = 76
+		, T__77 = 77
+		, T__78 = 78
+		, T__79 = 79
 		, BOOL = 4
 		, BOOL_TYPE = 5
 		, BREAK = 6
@@ -252,7 +256,6 @@ public:
      scripting::type* objectType ();
      scripting::type* scalarType ();
      scripting::type* arrayType ();
-     scripting::type* dynamicArrayType ();
      scripting::type* compoundType ();
      scripting::type* nonArrayType ();
      scripting::type* type ();
@@ -265,6 +268,9 @@ public:
      scripting::expression* cond_ex ();
      scripting::expression* or_ex ();
      scripting::expression* and_ex ();
+     scripting::expression* bit_or_ex ();
+     scripting::expression* bit_xor_ex ();
+     scripting::expression* bit_and_ex ();
      scripting::expression* eq_ex ();
      scripting::expression* rel_ex ();
      scripting::expression* add_ex ();
@@ -275,11 +281,11 @@ public:
      scripting::instruction* assignment_or_expression ();
      scripting::constant_expression* constant ();
      scripting::builtin_unary_expression* builtin_unary ();
+     scripting::expression* non_array_prim_ex ();
      scripting::expression * prim_ex ();
      scripting::cast_expression* cast ();
      scripting::struct_allocation_expression* structInit ();
      scripting::array_allocation_expression* arrayInit ();
-     scripting::dynamic_array_allocation_expression* dynamicArrayInit ();
      scripting::declaration* declaration ();
      scripting::declaration* inherited_declaration ();
      scripting::instruction* instructionScalar ();

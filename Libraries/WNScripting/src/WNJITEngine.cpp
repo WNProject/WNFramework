@@ -100,6 +100,16 @@ void* do_allocate(wn_size_t i) {
 }
 
 // Temp this is going to have to change.
+void* do_allocate_array(wn_size_t i, wn_size_t _count) {
+  // For now just return any-old malloc. We REALLY need to
+  // start passing in alignment so we can handle this properly.
+
+  void* t = memory::malloc(sizeof(uint32_t) * 2 + (i.val * _count.val));
+  (*(uint32_t*)t) = static_cast<uint32_t>(_count.val);
+  return t;
+}
+
+// Temp this is going to have to change.
 void do_free(void* val) {
   if (val == nullptr) {
     return;
@@ -178,6 +188,7 @@ jit_engine::jit_engine(memory::allocator* _allocator,
   llvm::InitializeNativeTargetAsmParser();
   register_function("_allocate", &do_allocate);
   register_function("_free", &do_free);
+  register_function("_allocate_runtime_array", &do_allocate_array);
 }
 
 jit_engine::~jit_engine() {}
@@ -226,20 +237,20 @@ parse_error jit_engine::parse_file(const char* _file) {
   jit_compiler compiler(m_allocator, module.m_module);
   compiler.compile(parsed_file.get());
 
-  // // TODO: figure out what optimizations to run eventually
-  //  auto FPM =
-  //      llvm::make_unique<llvm::legacy::FunctionPassManager>(module.m_module);
+  // TODO: figure out what optimizations to run eventually
+  // auto FPM =
+  //     llvm::make_unique<llvm::legacy::FunctionPassManager>(module.m_module);
   //
-  //  // Add some optimizations.
-  //  FPM->add(llvm::createPromoteMemoryToRegisterPass());
-  //  FPM->add(llvm::createInstructionCombiningPass());
-  //  FPM->add(llvm::createReassociatePass());
-  //  FPM->add(llvm::createConstantPropagationPass());
-  //  FPM->add(llvm::createGVNPass());
-  //  FPM->add(llvm::createCFGSimplificationPass());
-  //  FPM->doInitialization();
-  //  for (auto& F : *module.m_module)
-  //    FPM->run(F);
+  // // Add some optimizations.
+  // FPM->add(llvm::createPromoteMemoryToRegisterPass());
+  // FPM->add(llvm::createInstructionCombiningPass());
+  // FPM->add(llvm::createReassociatePass());
+  // FPM->add(llvm::createConstantPropagationPass());
+  // FPM->add(llvm::createGVNPass());
+  // FPM->add(llvm::createCFGSimplificationPass());
+  // FPM->doInitialization();
+  // for (auto& F : *module.m_module)
+  //   FPM->run(F);
 
   // Uncomment to get debug information about the module out.
   // It is not really needed, but a good place to debug.

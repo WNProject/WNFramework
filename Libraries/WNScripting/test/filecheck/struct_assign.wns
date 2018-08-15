@@ -27,7 +27,7 @@ Int test2() {
     B a = B();
     B b = B();
     a.f.x = 32;
-// CHECK:  _ZN3wns9_assign_BEvP1B1B((&b), (&a));
+// CHECK:  _ZN3wns9_assign_BEvP1B1B((&b), (&a), false);
     b = a;
     return b.f.x;
 }
@@ -48,7 +48,7 @@ Int test3() {
 Int test4() {
     D a = D();
     D b = D();
-// CHECK: _ZN3wns9_assign_DEvP1D1D((&b), (&a));
+// CHECK: _ZN3wns9_assign_DEvP1D1D((&b), (&a), false);
     b = a;
     a.b.f.x = 32;
     return b.b.f.x;
