@@ -4,10 +4,23 @@
 
 #include "WNExecutableTest/inc/WNTestHarness.h"
 #include "WNFileSystem/inc/WNFactory.h"
+#include "WNLogging/inc/WNBufferLogger.h"
 #include "WNMemory/inc/allocator.h"
 #include "WNScripting/inc/WNFactory.h"
 #include "WNScripting/test/inc/external_test_assets.h"
 #include "effcee/effcee.h"
+
+using wn::scripting::wn_array;
+using wn::scripting::wn_array_ptr;
+
+void flush_buffer(void* v, const char* bytes, size_t length,
+    const wn::logging::color_element*, size_t) {
+  wn::containers::string* s = static_cast<wn::containers::string*>(v);
+  s->append(bytes, length);
+}
+
+using buffer_logger = wn::logging::buffer_logger<flush_buffer>;
+using log_buff = wn::containers::string;
 
 struct external_inner_struct {
   int32_t y;
@@ -28,9 +41,18 @@ struct external_struct {
 };
 
 struct external_struct2 : public external_struct {
+  wn::containers::string str;
   external_struct2() : external_struct({}, 0, 0) {}
   void increment_x() override {
     x += 2;
+  }
+
+  int32_t get_y(wn_array_ptr<int32_t> _arr, int32_t y) {
+    return (*_arr)[y];
+  }
+
+  void printf(const char* c) {
+    str.append(c);
   }
 };
 
@@ -68,8 +90,12 @@ struct exported_script_type<external_struct2> {
   static wn::containers::string_view exported_name() {
     return "ExternalStructChild";
   }
-  template <typename T>
-  static void export_type(T*) {}
+  static void export_type(
+      wn::scripting::exporter<external_struct2>* _exporter) {
+    _exporter->register_nonvirtual_function("get_y", &external_struct2::get_y);
+    _exporter->register_nonvirtual_function(
+        "printf", &external_struct2::printf);
+  }
 };
 
 }  // namespace scripting
@@ -78,20 +104,26 @@ struct exported_script_type<external_struct2> {
 TEST(scripting_engine_factory, external) {
   wn::scripting::factory factory;
   wn::testing::allocator allocator;
+
+  log_buff buffer(&allocator);
+  buffer_logger logger(&buffer);
+  wn::logging::static_log<> slog(&logger);
+  wn::logging::log* log = slog.log();
+
   wn::file_system::mapping_ptr mapping =
       wn::file_system::factory(&allocator, wn::testing::k_system_data)
           .make_mapping(
               &allocator, wn::file_system::mapping_type::memory_backed);
   mapping->initialize_files(external_test_assets::get_files());
 
-  wn::memory::unique_ptr<wn::scripting::engine> jit = factory.get_engine(
-      &allocator, wn::scripting::scripting_engine_type::jit_engine,
-      mapping.get(), wn::logging::get_null_logger());
+  wn::memory::unique_ptr<wn::scripting::engine> jit =
+      factory.get_engine(&allocator,
+          wn::scripting::scripting_engine_type::jit_engine, mapping.get(), log);
 
   wn::memory::unique_ptr<wn::scripting::translator> translator =
       factory.get_translator(&allocator,
           wn::scripting::translator_type::c_translator, mapping.get(),
-          mapping.get(), wn::logging::get_null_logger());
+          mapping.get(), log);
 
   // Register our new type.
   jit->register_cpp_type<external_inner_struct>();
@@ -113,11 +145,13 @@ TEST(scripting_engine_factory, external) {
 
   wn::scripting::parse_error jit_error =
       jit->parse_file("src/Tests/ExternalTest/external_test.wns");
-  ASSERT_EQ(wn::scripting::parse_error::ok, jit_error);
+  ASSERT_EQ(wn::scripting::parse_error::ok, jit_error)
+      << (log->flush(), buffer.c_str());
 
   wn::scripting::parse_error c_error =
       translator->translate_file("src/Tests/ExternalTest/external_test.wns");
-  ASSERT_EQ(wn::scripting::parse_error::ok, c_error);
+  ASSERT_EQ(wn::scripting::parse_error::ok, c_error)
+      << (log->flush(), buffer.c_str());
 
   wn::containers::string output_file_string = wn::containers::string(
       &allocator, "src/Tests/ExternalTest/external_test.wns.c");
@@ -144,12 +178,20 @@ TEST(scripting_engine_factory, external) {
   wn::scripting::script_function<int32_t, external_struct*> extern_struct_func4;
   wn::scripting::script_function<int32_t, external_struct2*>
       extern_struct_func5;
+  wn::scripting::script_function<int32_t, wn_array_ptr<int32_t>, int32_t>
+      extern_func_6;
+  wn::scripting::script_function<int32_t, external_struct2*, int32_t>
+      extern_func_7;
+  wn::scripting::script_function<int32_t, external_struct2*> extern_func_8;
 
   ASSERT_TRUE(jit->get_function("test1", &extern_struct_func));
   ASSERT_TRUE(jit->get_function("test2", &extern_struct_func2));
   ASSERT_TRUE(jit->get_function("test3", &extern_struct_func3));
   ASSERT_TRUE(jit->get_function("test4", &extern_struct_func4));
   ASSERT_TRUE(jit->get_function("test5", &extern_struct_func5));
+  ASSERT_TRUE(jit->get_function("test6", &extern_func_6));
+  ASSERT_TRUE(jit->get_function("test7", &extern_func_7));
+  ASSERT_TRUE(jit->get_function("test8", &extern_func_8));
 
   // test1
   {
@@ -195,5 +237,32 @@ TEST(scripting_engine_factory, external) {
     EXPECT_EQ(1, jit->invoke(extern_struct_func5, &s2));
     EXPECT_EQ(1, s2.i);
     EXPECT_EQ(2, s2.x);
+  }
+
+  // test6
+  {
+    wn_array<int32_t, 42> array;
+    for (int32_t i = 0; i < 42; ++i) {
+      array[i] = i;
+    }
+    EXPECT_EQ(15, jit->invoke(extern_func_6, &array, 15));
+    EXPECT_EQ(17, jit->invoke(extern_func_6, &array, 17));
+    EXPECT_EQ(15, jit->invoke(extern_func_6, &array, 15));
+    EXPECT_NE(12, jit->invoke(extern_func_6, &array, 102));
+  }
+
+  // test7
+  {
+    external_struct2 s2;
+    EXPECT_EQ(15, jit->invoke(extern_func_7, &s2, 15));
+    EXPECT_EQ(22, jit->invoke(extern_func_7, &s2, 22));
+  }
+
+  // test7
+  {
+    external_struct2 s2;
+    s2.str = wn::containers::string(&allocator);
+    jit->invoke(extern_func_8, &s2);
+    EXPECT_EQ("Hello World!", s2.str);
   }
 }

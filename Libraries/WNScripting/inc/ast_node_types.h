@@ -229,7 +229,8 @@ struct ast_type {
         m_mangled_name += containers::string(_allocator, "E");
         return;
       case ast_type_classification::static_array:
-        m_mangled_name = containers::string(_allocator, "A0_");
+        m_mangled_name =
+            containers::string(_allocator, "A0_");
         m_mangled_name += m_implicitly_contained_type->m_mangled_name;
         return;
       case ast_type_classification::runtime_array:
@@ -839,7 +840,7 @@ struct ast_member_access_expression : public ast_expression {
 struct ast_unary_expression : public ast_expression {
   ast_unary_expression(const node* _base_node)
     : ast_expression(_base_node, ast_node_type::ast_unary_expression) {}
-  
+
   memory::unique_ptr<ast_node> clone(
       memory::allocator* _allocator) const override {
     auto d = memory::make_unique<ast_unary_expression>(_allocator, nullptr);

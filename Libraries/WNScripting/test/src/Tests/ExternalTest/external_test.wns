@@ -41,3 +41,20 @@ Int test5(ExternalStructChild s) {
     s.increment_x();
     return s.i;
 }
+
+Int test6(Int[] x, Int y) {
+    return x[y];
+}
+
+Int test7(ExternalStructChild s, Int y) {
+    Int[] x = Int[42](32);
+    for (Int i = 0; i < 42; ++i) {
+        x[i] = i;
+    }
+    return s.get_y(x, y);
+}
+
+Int test8(ExternalStructChild s) {
+    s.printf("Hello World!");
+    return 32;
+}

@@ -28,6 +28,10 @@ type_manager::type_manager(memory::allocator* _allocator)
   uint32_type->calculate_mangled_name(m_allocator);
   m_externally_visible_types[c_type_tag<int32_t>::get_unique_identifier()] =
       uint32_type.get();
+  m_externally_visible_types
+      [c_type_tag<wn_array_ptr<int32_t>>::get_unique_identifier()] =
+          get_array_of(uint32_type.get(), 0);
+
   m_integral_types[32] = core::move(uint32_type);
 
   auto uint8_type = memory::make_unique<ast_type>(m_allocator);
@@ -39,6 +43,9 @@ type_manager::type_manager(memory::allocator* _allocator)
   uint8_type->calculate_mangled_name(m_allocator);
   m_externally_visible_types[c_type_tag<uint8_t>::get_unique_identifier()] =
       uint8_type.get();
+  m_externally_visible_types
+      [c_type_tag<wn_array_ptr<uint8_t>>::get_unique_identifier()] =
+          get_array_of(uint8_type.get(), 0);
 
   m_integral_types[8] = core::move(uint8_type);
 
@@ -51,6 +58,9 @@ type_manager::type_manager(memory::allocator* _allocator)
   float_type->calculate_mangled_name(m_allocator);
   m_externally_visible_types[c_type_tag<float_t>::get_unique_identifier()] =
       float_type.get();
+  m_externally_visible_types
+      [c_type_tag<wn_array_ptr<float>>::get_unique_identifier()] =
+          get_array_of(float_type.get(), 0);
   m_float_types[32] = core::move(float_type);
 
   m_void_t = memory::make_unique<ast_type>(m_allocator);
@@ -75,6 +85,9 @@ type_manager::type_manager(memory::allocator* _allocator)
   m_bool_t->m_is_comparable_type = true;
   m_externally_visible_types[c_type_tag<bool>::get_unique_identifier()] =
       m_bool_t.get();
+  m_externally_visible_types
+      [c_type_tag<wn_array_ptr<bool>>::get_unique_identifier()] =
+          get_array_of(m_bool_t.get(), 0);
 
   m_size_t = memory::make_unique<ast_type>(m_allocator);
   m_size_t->m_name = containers::string(m_allocator, "Size");
@@ -105,6 +118,8 @@ type_manager::type_manager(memory::allocator* _allocator)
   m_cstr_t->m_name = containers::string(m_allocator, "CString");
   m_cstr_t->m_builtin = builtin_type::c_string_type;
   m_cstr_t->calculate_mangled_name(m_allocator);
+  m_externally_visible_types[c_type_tag<const char*>::get_unique_identifier()] =
+      m_cstr_t.get();
 }
 
 type_manager::~type_manager() {}
@@ -251,7 +266,6 @@ ast_type* type_manager::get_runtime_array_of(const ast_type* _type) {
   m_runtime_array_types[_type] = core::move(array_type);
   return return_type;
 }
-
 
 }  // namespace scripting
 }  // namespace wn

@@ -310,9 +310,11 @@ parse_ast_convertor::convertor_context::resolve_unary_expression(
   }
 
   if (ut == unary_type::pre_decrement || ut == unary_type::pre_increment) {
-    if (expr->m_node_type != ast_node_type::ast_member_access_expression &&
-        expr->m_node_type != ast_node_type::ast_id &&
-        expr->m_node_type != ast_node_type::ast_array_access_expression) {
+    if (expr->m_base_expression->m_node_type !=
+            ast_node_type::ast_member_access_expression &&
+        expr->m_base_expression->m_node_type != ast_node_type::ast_id &&
+        expr->m_base_expression->m_node_type !=
+            ast_node_type::ast_array_access_expression) {
       _unary->log_line(m_log, logging::log_level::error);
       m_log->log_error("Operand must be an lvalue");
       return nullptr;
@@ -357,9 +359,11 @@ parse_ast_convertor::convertor_context::resolve_post_unary_expression(
       WN_RELEASE_ASSERT(false, "Unknown expression type");
   }
 
-  if (expr->m_node_type != ast_node_type::ast_member_access_expression &&
-      expr->m_node_type != ast_node_type::ast_id &&
-      expr->m_node_type != ast_node_type::ast_array_access_expression) {
+  if (expr->m_base_expression->m_node_type !=
+          ast_node_type::ast_member_access_expression &&
+      expr->m_base_expression->m_node_type != ast_node_type::ast_id &&
+      expr->m_base_expression->m_node_type !=
+          ast_node_type::ast_array_access_expression) {
     _unary->log_line(m_log, logging::log_level::error);
     m_log->log_error("Operand must be an lvalue");
     return nullptr;
