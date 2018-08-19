@@ -144,7 +144,7 @@ parse_ast_convertor::convertor_context::get_id(
 
         mae->m_base_expression = core::move(id_expr);
         mae->m_member_name = core::move(_name);
-        mae->m_type = m_type_manager->m_function_t.get();
+        mae->m_type = m_type_manager->function_t(&m_used_types);
 
         return core::move(mae);
       }
@@ -153,7 +153,7 @@ parse_ast_convertor::convertor_context::get_id(
 
   if (m_named_functions.find(_name) != m_named_functions.end()) {
     id_expr->m_function_name = core::move(_name);
-    id_expr->m_type = m_type_manager->m_function_t.get();
+    id_expr->m_type = m_type_manager->function_t(&m_used_types);
 
     return core::move(id_expr);
   }

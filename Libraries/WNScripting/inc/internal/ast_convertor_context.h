@@ -33,8 +33,7 @@ struct parse_ast_convertor::convertor_context {
   const ast_type* resolve_static_array(const array_type* _type);
   const ast_type* resolve_runtime_array(const runtime_array_type* _type);
   const ast_type* resolve_reference_type(const type* _type);
-  const ast_type* resolve_function_ptr_type(
-      containers::dynamic_array<const ast_type*> _types);
+
   const ast_type* resolve_function_ptr_type(const ast_function* _function);
 
   const ast_type* get_array_of(const ast_type* _type, uint32_t _size);
@@ -54,7 +53,6 @@ struct parse_ast_convertor::convertor_context {
       const external_function _function);
   // Builtin Functions
   bool add_builtin_functions();
-  void add_builtin_types();
   void add_allocate_shared();
   void add_release_shared();
   void add_assign_shared();
@@ -145,14 +143,10 @@ struct parse_ast_convertor::convertor_context {
 
   memory::allocator* m_allocator;
   const parse_ast_convertor* m_convertor;
-  containers::hash_map<containers::string, memory::unique_ptr<ast_type>>
-      m_structure_types;
   containers::hash_map<containers::string, const struct_definition*>
       m_struct_definitions;
-  containers::hash_map<const ast_type*, memory::unique_ptr<ast_type>>
-      m_runtime_array_types;
   containers::hash_set<const struct_definition*> m_handled_definitions;
-  containers::deque<const ast_type*> m_ordered_type_definitions;
+  containers::hash_set<const ast_type*> m_used_types;
 
   containers::deque<ast_scope_block*> m_nested_scopes;
   containers::deque<memory::unique_ptr<ast_statement>>* m_current_statements;
@@ -163,21 +157,11 @@ struct parse_ast_convertor::convertor_context {
   // Externals
   containers::hash_map<containers::string, ast_function*> m_external_functions;
 
-  containers::hash_map<containers::dynamic_array<const ast_type*>,
-      memory::unique_ptr<ast_type>>
-      m_function_pointer_types;
-
   // Unmangled functions
   containers::hash_map<containers::string, containers::deque<ast_function*>>
       m_named_functions;
 
-  containers::hash_map<const ast_type*, const ast_type*> m_array_declarations;
-  containers::hash_map<const ast_type*, const ast_type*> m_runtime_array_declarations;
-
   memory::unique_ptr<ast_script_file> m_script_file;
-
-  const ast_type* m_destructor_fn_ptr_t;
-  memory::unique_ptr<ast_type> m_shared_object_header;
 
   ast_function* m_allocate_shared;
   ast_function* m_release_shared;

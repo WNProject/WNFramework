@@ -14,23 +14,17 @@ parse_ast_convertor::convertor_context::convertor_context(
     type_manager* _type_manager, const parse_ast_convertor* _convertor)
   : m_allocator(_allocator),
     m_convertor(_convertor),
-    m_structure_types(_allocator),
     m_struct_definitions(_allocator),
-    m_runtime_array_types(_allocator),
     m_handled_definitions(_allocator),
-    m_ordered_type_definitions(_allocator),
+    m_used_types(_allocator),
     m_nested_scopes(_allocator),
     m_constructor_destructors(_allocator),
     m_external_functions(_allocator),
-    m_function_pointer_types(_allocator),
     m_named_functions(_allocator),
-    m_array_declarations(_allocator),
-    m_runtime_array_declarations(_allocator),
     m_current_loop(nullptr),
     m_temporary_number(0),
     m_log(_log),
     m_type_manager(_type_manager) {
-  add_builtin_types();
 }
 
 memory::unique_ptr<ast_script_file>
@@ -141,7 +135,7 @@ bool parse_ast_convertor::convertor_context::walk_script_file(
   m_script_file =
       memory::make_unique<ast_script_file>(m_allocator, _file, m_allocator);
 
-  for (auto& ext : m_type_manager->m_externals) {
+  for (auto& ext : m_type_manager->external_functions()) {
     auto fun = resolve_external(ext);
     if (!fun) {
       return false;
@@ -162,6 +156,7 @@ bool parse_ast_convertor::convertor_context::walk_script_file(
       return false;
     }
     m_struct_definitions[type->get_name().to_string(m_allocator)] = type.get();
+    (void)m_type_manager->get_or_register_struct(type->get_name(), &m_used_types);
   }
 
   for (auto& type : _file->get_structs()) {
@@ -181,11 +176,12 @@ bool parse_ast_convertor::convertor_context::walk_script_file(
 
   for (auto& type : _file->get_structs()) {
     for (auto& f : type->get_functions()) {
-      auto st_type =
-          m_structure_types[type->get_name().to_string(m_allocator)].get();
+      auto st_type = m_type_manager->get_or_register_struct(
+          type->get_name(), &m_used_types);
+
       auto fun = pre_resolve_function(
           f.get(), m_type_manager->get_reference_of(
-                       st_type, ast_type_classification::reference));
+                       st_type, ast_type_classification::reference, &m_used_types));
       if (!fun) {
         return false;
       }
@@ -202,7 +198,7 @@ bool parse_ast_convertor::convertor_context::walk_script_file(
   // functions on all struct types.
   for (auto& type : _file->get_structs()) {
     auto st_type =
-        m_structure_types[type->get_name().to_string(m_allocator)].get();
+        m_type_manager->get_or_register_struct(type->get_name(), &m_used_types);
     if (!resolve_member_functions(&handled_function_overrides, st_type)) {
       return false;
     }
@@ -223,42 +219,21 @@ bool parse_ast_convertor::convertor_context::walk_script_file(
     }
   }
 
-  m_script_file->m_all_types.push_back(core::move(m_shared_object_header));
-
-  for (auto& t : m_runtime_array_types) {
-    m_script_file->m_all_types.push_back(core::move(t.second));
-  }
-  for (auto& t : m_structure_types) {
-    m_script_file->m_all_types.push_back(core::move(t.second));
-  }
-
-  for (auto& t : m_function_pointer_types) {
-    m_script_file->m_all_types.push_back(core::move(t.second));
-  }
-
   m_script_file->m_initialization_order =
-      core::move(m_ordered_type_definitions);
+      m_type_manager->get_initialialization_order(m_allocator, m_used_types);
   return true;
 }
 
 const ast_type* parse_ast_convertor::convertor_context::get_array_of(
     const ast_type* _type, uint32_t _size) {
-  ast_type* tp = m_type_manager->get_array_of(_type, _size);
-  auto t = m_array_declarations.insert(tp, tp);
-  if (t.second) {
-    m_ordered_type_definitions.push_back(t.first->first);
-  }
-  return t.first->first;
+  ast_type* tp = m_type_manager->get_array_of(_type, _size, &m_used_types);
+  return tp;
 }
 
 const ast_type* parse_ast_convertor::convertor_context::get_runtime_array_of(
     const ast_type* _type) {
-  ast_type* tp = m_type_manager->get_runtime_array_of(_type);
-  auto t = m_runtime_array_declarations.insert(tp, tp);
-  if (t.second) {
-    m_ordered_type_definitions.push_back(t.first->first);
-  }
-  return t.first->first;
+  ast_type* tp = m_type_manager->get_runtime_array_of(_type, &m_used_types);
+  return tp;
 }
 
 }  // namespace scripting

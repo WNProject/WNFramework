@@ -25,12 +25,12 @@ public:
 
   virtual ~translator() = default;
 
-  parse_error translate_file(const char* _file) {
+  parse_error translate_file(const containers::string_view _file) {
     return translate_file_with_error(_file, false);
   }
 
   virtual parse_error translate_file_with_error(
-      const char* file, bool _dump_ast_on_failure) = 0;
+      const containers::string_view file, bool _dump_ast_on_failure) = 0;
 
   size_t errors() const {
     return m_num_errors;
@@ -62,9 +62,9 @@ protected:
 
 template <typename R, typename... Args>
 bool inline translator::register_function(containers::string_view _name) {
-  containers::dynamic_array<ast_type*> params =
+  containers::dynamic_array<const ast_type*> params =
     m_type_manager.get_types<R, Args...>();
-  m_type_manager.m_externals.push_back(
+  m_type_manager.add_external(
     external_function{ _name, core::move(params) });
   return true;
 }
@@ -72,9 +72,9 @@ bool inline translator::register_function(containers::string_view _name) {
 template <typename R, typename... Args>
 bool inline translator::register_cpp_function(
     containers::string_view _name, R (*)(Args...)) {
-  containers::dynamic_array<ast_type*> params =
+  containers::dynamic_array<const ast_type*> params =
     m_type_manager.get_types<R, Args...>();
-  m_type_manager.m_externals.push_back(
+  m_type_manager.add_external(
     external_function{ _name, core::move(params) });
   return true;
 }

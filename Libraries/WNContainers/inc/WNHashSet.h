@@ -160,6 +160,13 @@ public:
     return const_iterator(m_map.cend());
   }
 
+  const_iterator begin() const {
+    return const_iterator(m_map.begin());
+  }
+  const_iterator end() const {
+    return const_iterator(m_map.end());
+  }
+
   void rehash(size_t n) {
     m_map.rehash(n);
   }

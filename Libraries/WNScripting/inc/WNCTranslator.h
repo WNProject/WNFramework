@@ -34,7 +34,7 @@ public:
   // If _dump_ast_on_failure is true, then the AST will be added to the log on
   // failure
   parse_error translate_file_with_error(
-      const char* file, bool _dump_ast_on_failure) override;
+      const containers::string_view file, bool _dump_ast_on_failure) override;
 
 private:
   ast_type* register_external_type(containers::string_view _name) override;

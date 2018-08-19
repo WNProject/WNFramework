@@ -230,7 +230,6 @@ STRING
 CHAR:  '\'' ( ESC_SEQ | ~('\''|'\\') ) '\''
     ;
 
-
 fragment
 EXPONENT : ('e'|'E') ('+'|'-')? ('0'..'9')+ ;
 
@@ -783,10 +782,10 @@ program returns[scripting::script_file* node]
 @init{
     node = m_allocator->construct<scripting::script_file>(m_allocator);
 }
-    :   (
+    :   (inc        { node->add_include($inc.file); })*
+        (
                 function   { node->add_function($function.node); }
             |   structDecl { node->add_struct($structDecl.node); }
             |   classDecl  { node->add_struct($classDecl.node); }
-            |   inc        { node->add_include($inc.file); }
         )*
     ;

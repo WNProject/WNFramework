@@ -62,8 +62,8 @@ parse_ast_convertor::convertor_context::pre_resolve_function(
   function->m_is_override = _function->is_override();
   function->m_is_member_function = _implicit_this != nullptr;
   function->calculate_mangled_name(m_allocator);
-  function->m_function_pointer_type =
-      resolve_function_ptr_type(core::move(types));
+  function->m_function_pointer_type = m_type_manager->resolve_function_ptr_type(
+      core::move(types), &m_used_types);
   return function;
 }
 
@@ -126,15 +126,17 @@ bool parse_ast_convertor::convertor_context::resolve_function(
   push_scope(scope.get());
   m_current_function = function;
 
-  if (function->m_return_type != m_type_manager->m_void_t.get()) {
-    memory::unique_ptr<ast_declaration> return_decl;
-    return_decl = memory::make_unique<ast_declaration>(m_allocator, _function);
-    return_decl->m_name = containers::string(m_allocator, "_return");
-    return_decl->m_type = function->m_return_type;
-    m_return_decl = return_decl.get();
-    scope->initialized_declarations(m_allocator).push_back(return_decl.get());
-    m_current_statements->push_back(core::move(return_decl));
-  } else {
+  if (function->m_return_type != m_type_manager->void_t(&m_used_types)) {
+      memory::unique_ptr<ast_declaration> return_decl;
+      return_decl =
+          memory::make_unique<ast_declaration>(m_allocator, _function);
+      return_decl->m_name = containers::string(m_allocator, "_return");
+      return_decl->m_type = function->m_return_type;
+      m_return_decl = return_decl.get();
+      scope->initialized_declarations(m_allocator).push_back(return_decl.get());
+      m_current_statements->push_back(core::move(return_decl));
+    }
+  else {
     m_return_decl = nullptr;
   }
 
@@ -145,10 +147,12 @@ bool parse_ast_convertor::convertor_context::resolve_function(
   }
 
   if (!scope->m_returns) {
-    if (function->m_return_type == m_type_manager->m_void_t.get()) {
-      m_current_statements->push_back(
-          memory::make_unique<ast_return_instruction>(m_allocator, _function));
-    } else {
+    if (function->m_return_type == m_type_manager->void_t(&m_used_types)) {
+        m_current_statements->push_back(
+            memory::make_unique<ast_return_instruction>(
+                m_allocator, _function));
+      }
+    else {
       _function->log_line(m_log, logging::log_level::error);
       m_log->log_error("Error function must return");
       return false;

@@ -46,7 +46,7 @@ public:
   jit_engine(memory::allocator* _allocator, file_system::mapping* _mapping,
       logging::log* _log);
   ~jit_engine();
-  parse_error parse_file(const char* file) override;
+  parse_error parse_file(const containers::string_view file) override;
 
 protected:
   void_f get_function_pointer(containers::string_view _name) const override {
@@ -55,7 +55,7 @@ protected:
   }
 
   bool register_c_function(containers::string_view name,
-      containers::contiguous_range<ast_type*> _types, void_f function) override;
+      containers::contiguous_range<const ast_type*> _types, void_f function) override;
 
   bool register_mangled_c_function(
       containers::string_view _name, void_f _function, bool _is_virtual) override;

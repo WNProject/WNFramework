@@ -6,15 +6,15 @@ namespace scripting {
 
 struct exporter_base {
   void add_contained_type(
-      containers::string_view _name, ast_type* _type, uint32_t offset);
+      containers::string_view _name, const ast_type* _type, uint32_t offset);
   containers::string_view add_contained_function(containers::string_view _name,
-      containers::dynamic_array<ast_type*> _types, bool _is_external_pseudo);
+      containers::dynamic_array<const ast_type*> _types, bool _is_external_pseudo);
 
 protected:
   exporter_base(ast_type* _type, memory::allocator* _allocator,
       type_manager* _manager,
-      functional::function<void(
-          containers::string_view _mangled_name, void* _ptr, bool _is_virtual)>* _cb)
+      functional::function<void(containers::string_view _mangled_name,
+          void* _ptr, bool _is_virtual)>* _cb)
     : m_type(_type),
       m_allocator(_allocator),
       m_type_manager(_manager),
@@ -108,7 +108,7 @@ void type_manager::register_child_cpp_type(functional::function<void(
   ast_type* t = register_external_type(name, sizeof(T), parent_type);
   m_externally_visible_types[c_type_tag<T>::get_unique_identifier()] = t;
   m_externally_visible_types[c_type_tag<T*>::get_unique_identifier()] =
-      get_reference_of(t, ast_type_classification::reference);
+      get_reference_of(t, ast_type_classification::reference, nullptr);
   exporter<T> exporter(t, m_allocator, this, &_fn);
   exported_script_type<T>::export_type(&exporter);
   finalize_external_type(t);
@@ -127,7 +127,7 @@ void type_manager::register_cpp_type(functional::function<void(
   ast_type* t = register_external_type(name, sizeof(T), nullptr);
   m_externally_visible_types[c_type_tag<T>::get_unique_identifier()] = t;
   m_externally_visible_types[c_type_tag<T*>::get_unique_identifier()] =
-      get_reference_of(t, ast_type_classification::reference);
+      get_reference_of(t, ast_type_classification::reference, nullptr);
   exporter<T> exporter(t, m_allocator, this, &_fn);
   exported_script_type<T>::export_type(&exporter);
   finalize_external_type(t);

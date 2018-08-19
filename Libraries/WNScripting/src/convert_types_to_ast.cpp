@@ -31,14 +31,14 @@ const ast_type* parse_ast_convertor::convertor_context::resolve_type(
     auto it = m_struct_definitions.find(
         _type->custom_type_name().to_string(m_allocator));
     if (it == m_struct_definitions.end()) {
-      auto extern_it = m_type_manager->m_external_types.find(
-          _type->custom_type_name().to_string(m_allocator));
-      if (extern_it == m_type_manager->m_external_types.end()) {
+      auto extern_t =
+          m_type_manager->get_external_type(_type->custom_type_name(), &m_used_types);
+      if (!extern_t) {
         _type->log_line(m_log, logging::log_level::error);
         m_log->log_error("Could not find type definition");
         return nullptr;
       }
-      return extern_it->second.get();
+      return extern_t;
     }
     return walk_struct_definition(it->second);
   }
@@ -52,23 +52,23 @@ const ast_type* parse_ast_convertor::convertor_context::resolve_builtin_type(
     const uint32_t _type) {
   switch (_type) {
     case static_cast<uint32_t>(type_classification::void_type):
-      return m_type_manager->m_void_t.get();
+      return m_type_manager->void_t(&m_used_types);
     case static_cast<uint32_t>(type_classification::int_type):
-      return m_type_manager->m_integral_types[32].get();
+      return m_type_manager->integral(32, &m_used_types);
     case static_cast<uint32_t>(type_classification::float_type):
-      return m_type_manager->m_float_types[32].get();
+      return m_type_manager->floating(32, &m_used_types);
     case static_cast<uint32_t>(type_classification::char_type):
-      return m_type_manager->m_integral_types[8].get();
+      return m_type_manager->integral(8, &m_used_types);
     case static_cast<uint32_t>(type_classification::bool_type):
-      return m_type_manager->m_bool_t.get();
+      return m_type_manager->bool_t(&m_used_types);
     case static_cast<uint32_t>(type_classification::size_type):
-      return m_type_manager->m_size_t.get();
+      return m_type_manager->size_t(&m_used_types);
     case static_cast<uint32_t>(type_classification::void_ptr_type):
-      return m_type_manager->m_void_ptr_t.get();
+      return m_type_manager->void_ptr_t(&m_used_types);
     case static_cast<uint32_t>(type_classification::function_ptr_type):
-      return m_type_manager->m_function_t.get();
+      return m_type_manager->function_t(&m_used_types);
     case static_cast<uint32_t>(type_classification::string_type):
-      return m_type_manager->m_cstr_t.get();
+      return m_type_manager->cstr_t(&m_used_types);
     default:
       WN_DEBUG_ASSERT(false, "Unknown type index");
   }
@@ -79,19 +79,19 @@ const ast_type* parse_ast_convertor::convertor_context::resolve_reference_type(
     const type* _type) {
   const ast_type* sub_type;
   if (!_type->custom_type_name().empty()) {
-    auto it = m_structure_types.find(
-        _type->custom_type_name().to_string(m_allocator));
-    if (it == m_structure_types.end()) {
-      auto extern_it = m_type_manager->m_external_types.find(
-          _type->custom_type_name().to_string(m_allocator));
-      if (extern_it == m_type_manager->m_external_types.end()) {
+    auto it = m_type_manager->get_structure_type(
+        _type->custom_type_name(), &m_used_types);
+    if (!it) {
+      auto extern_it = m_type_manager->get_external_type(
+          _type->custom_type_name(), &m_used_types);
+      if (!extern_it) {
         _type->log_line(m_log, logging::log_level::error);
         m_log->log_error("Undeclared reference type");
         return nullptr;
       }
-      sub_type = extern_it->second.get();
+      sub_type = extern_it;
     } else {
-      sub_type = it->second.get();
+      sub_type = it;
     }
   } else {
     sub_type = resolve_type(_type->get_subtype());
@@ -105,15 +105,15 @@ const ast_type* parse_ast_convertor::convertor_context::resolve_reference_type(
   switch (_type->get_reference_type()) {
     case reference_type::unique:
       return m_type_manager->get_reference_of(
-          sub_type, ast_type_classification::reference);
+          sub_type, ast_type_classification::reference, &m_used_types);
       break;
     case reference_type::shared:
       return m_type_manager->get_reference_of(
-          sub_type, ast_type_classification::shared_reference);
+          sub_type, ast_type_classification::shared_reference, &m_used_types);
       break;
     case reference_type::weak:
       return m_type_manager->get_reference_of(
-          sub_type, ast_type_classification::weak_reference);
+          sub_type, ast_type_classification::weak_reference, &m_used_types);
       break;
     default:
       _type->log_line(m_log, logging::log_level::error);
@@ -185,42 +185,8 @@ parse_ast_convertor::convertor_context::resolve_function_ptr_type(
     types[i + 1] = _function->m_parameters[i].m_type;
   }
 
-  return resolve_function_ptr_type(core::move(types));
-}
-
-const ast_type*
-parse_ast_convertor::convertor_context::resolve_function_ptr_type(
-    containers::dynamic_array<const ast_type*> _types) {
-  auto type = m_function_pointer_types.find(_types);
-  if (type != m_function_pointer_types.end()) {
-    return type->second.get();
-  }
-
-  auto fnptr_type = memory::make_unique<ast_type>(m_allocator);
-  fnptr_type->m_builtin = builtin_type::not_builtin;
-  // Figure out names
-  fnptr_type->m_name = containers::string(m_allocator, "_wns_fn_destructor_");
-
-  fnptr_type->m_classification = ast_type_classification::function_pointer;
-  for (auto t : _types) {
-    fnptr_type->initialized_contained_types(m_allocator).push_back(t);
-  }
-
-  char buff[11] = {
-      0,
-  };
-  memory::writeuint32(
-      buff, static_cast<uint32_t>(m_function_pointer_types.size()), 11);
-  containers::string str = containers::string(m_allocator, "_wns_fn_ptr_");
-  str += buff;
-  fnptr_type->m_name = core::move(str);
-  fnptr_type->calculate_mangled_name(m_allocator);
-  m_ordered_type_definitions.push_back(fnptr_type.get());
-
-  auto t = fnptr_type.get();
-  m_function_pointer_types[core::move(_types)] = core::move(fnptr_type);
-
-  return t;
+  return m_type_manager->resolve_function_ptr_type(
+      core::move(types), &m_used_types);
 }
 
 }  // namespace scripting

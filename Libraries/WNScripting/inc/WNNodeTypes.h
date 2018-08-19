@@ -22,7 +22,6 @@ namespace scripting {
 enum class node_type {
   arg_list,
   array_type,
-  concretized_array_type,
   runtime_array_type,
   parameter_list,
   parameter,
@@ -52,7 +51,6 @@ enum class node_type {
     break_instruction,
     continue_instruction,
     declaration,
-    set_array_length,
     do_instruction,
     else_if_instruction,
     expression_instruction,
@@ -83,6 +81,18 @@ const T* cast_to(const node* _node) {
 template <typename T>
 T* cast_to(node* _node) {
   return static_cast<T*>(_node);
+}
+
+template <typename T>
+memory::unique_ptr<T> clone_node(memory::allocator* _allocator, const T* val) {
+  if (!val) {
+    return nullptr;
+  }
+  memory::unique_ptr<node> n = val->clone(_allocator);
+  // FUNCTION CALLS DO NOT GUARANTEE ARGUMENT ORDERING.
+  // the allocator may have already been destroyed if you call
+  // n.get_allocator()         vvvvv    there
+  return memory::unique_ptr<T>(_allocator, static_cast<T*>(n.release()));
 }
 
 struct print_context {
@@ -182,12 +192,11 @@ struct print_context {
     }
   }
 };
-
 // Base class for all nodes in AST.
 class node {
 public:
   node(memory::allocator* _allocator, node_type _type)
-    : m_allocator(_allocator), m_type(_type), m_is_dead(false) {
+    : m_allocator(_allocator), m_type(_type) {
 #ifdef WN_ALLOW_TESTING_LOG
     __f = &node::print_node;
 #endif
@@ -249,13 +258,22 @@ public:
   }
   virtual void print_node_internal(print_context*) const {}
 
+  virtual memory::unique_ptr<node> clone(memory::allocator*) const {
+    WN_RELEASE_ASSERT(false, "Unimplemented clone");
+    return nullptr;
+  }
+
+  void copy_underlying_from(memory::allocator*, const node* _other) {
+    copy_location_from(_other);
+    m_type = _other->m_type;
+  }
+
 protected:
   // Location of the first character of the first token contributing
   // to this node.
   source_location m_source_location;
   memory::allocator* m_allocator;
   node_type m_type;
-  bool m_is_dead;
 #ifdef WN_ALLOW_TESTING_LOG
   // Force the print_node functions to not go away if
   // test logging is turned on.
@@ -379,6 +397,21 @@ public:
     return nullptr;
   }
 
+  memory::unique_ptr<node> clone(memory::allocator* _allocator) const override {
+    auto t = memory::make_unique<type>(_allocator, _allocator);
+    t->copy_underlying_from(_allocator, this);
+    return core::move(t);
+  }
+
+  void copy_underlying_from(memory::allocator* _allocator, const type* _other) {
+    node::copy_location_from(_other);
+    m_type = _other->m_type;
+    m_reference_type = _other->m_reference_type;
+    m_custom_type = containers::string(_allocator, _other->m_custom_type);
+    m_custom_type_data =
+        containers::string(_allocator, _other->m_custom_type_data);
+  }
+
 protected:
   uint32_t m_type;
   reference_type m_reference_type;
@@ -417,39 +450,16 @@ public:
     return m_size.get();
   }
 
+  memory::unique_ptr<node> clone(memory::allocator* _allocator) const override {
+    auto t = memory::make_unique<array_type>(_allocator, _allocator);
+    t->copy_underlying_from(_allocator, this);
+    t->m_size = clone_node(_allocator, m_size.get());
+    t->m_subtype = clone_node(_allocator, m_subtype.get());
+    return core::move(t);
+  }
+
 private:
   memory::unique_ptr<expression> m_size;
-  memory::unique_ptr<type> m_subtype;
-};
-
-class concretized_array_type : public type {
-public:
-  concretized_array_type(memory::allocator* _allocator)
-    : type(_allocator, type_classification::array_type,
-          node_type::concretized_array_type),
-      m_array_sizes(_allocator) {}
-
-  void add_array_size(uint32_t size) {
-    m_array_sizes.push_back(size);
-  }
-
-  const containers::dynamic_array<uint32_t>& get_sizes() const {
-    return m_array_sizes;
-  }
-
-  const type* get_subtype() const override {
-    return m_subtype.get();
-  }
-
-  void print_node_internal(print_context* c) const override {
-    c->print_header("SizedArray");
-    c->print_value(m_array_sizes, "NumElements");
-    c->print_value(m_type, "Type Value");
-    c->print_value(m_subtype, "Subtype");
-  }
-
-private:
-  containers::dynamic_array<uint32_t> m_array_sizes;
   memory::unique_ptr<type> m_subtype;
 };
 
@@ -477,6 +487,13 @@ public:
     c->print_value(m_subtype, "SubType");
   }
 
+  memory::unique_ptr<node> clone(memory::allocator* _allocator) const override {
+    auto t = memory::make_unique<runtime_array_type>(_allocator, _allocator);
+    t->copy_underlying_from(_allocator, this);
+    t->m_subtype = clone_node(_allocator, m_subtype.get());
+    return core::move(t);
+  }
+
 private:
   memory::unique_ptr<type> m_subtype;
 };
@@ -502,6 +519,12 @@ public:
   }
 
 protected:
+  void copy_underlying_from(
+      memory::allocator* _allocator, const expression* _other) {
+    node::copy_location_from(_other);
+    m_type = clone_node(_allocator, _other->m_type.get());
+  }
+
   memory::unique_ptr<type> m_type;
 };
 
@@ -535,15 +558,6 @@ public:
     m_init_mode = _mode;
   }
 
-  const containers::dynamic_array<uint32_t>& get_static_array_initializers()
-      const {
-    return m_static_array_initializers;
-  }
-
-  bool is_static_sized() const {
-    return m_static_array_initializers.size() > 0;
-  }
-
   bool is_runtime() const {
     return m_is_runtime;
   }
@@ -573,13 +587,29 @@ public:
     c->print_header("Array Initializer");
     c->print_value(m_type, "Type");
     c->print_value(m_array_initializers, "Initializers");
-    c->print_value(m_static_array_initializers, "Static Initializers");
     c->print_value(m_copy_initializer, "Copy Initializer");
+  }
+
+  memory::unique_ptr<node> clone(memory::allocator* _allocator) const override {
+    auto t = memory::make_unique<array_allocation_expression>(
+        m_allocator, m_allocator);
+    t->copy_underlying_from(_allocator, this);
+    t->m_array_initializers =
+        containers::deque<memory::unique_ptr<expression>>(_allocator);
+    for (auto& init : m_array_initializers) {
+      t->m_array_initializers.push_back(clone_node(_allocator, init.get()));
+    }
+    t->m_copy_initializer = clone_node(_allocator, m_copy_initializer.get());
+    t->m_constructor_name = containers::string(_allocator, m_constructor_name);
+    t->m_destructor_name = containers::string(_allocator, m_constructor_name);
+    t->m_init_mode = m_init_mode;
+    t->m_levels = m_levels;
+    t->m_is_runtime = m_is_runtime;
+    return core::move(t);
   }
 
 private:
   containers::deque<memory::unique_ptr<expression>> m_array_initializers;
-  containers::dynamic_array<uint32_t> m_static_array_initializers;
   memory::unique_ptr<expression> m_copy_initializer;
   containers::string m_constructor_name;
   containers::string m_destructor_name;
@@ -619,6 +649,15 @@ public:
     c->print_value(m_rhs, "RHS");
   }
 
+  memory::unique_ptr<node> clone(memory::allocator* _allocator) const override {
+    auto t = memory::make_unique<binary_expression>(_allocator, _allocator);
+    t->copy_underlying_from(_allocator, this);
+    t->m_lhs = clone_node(_allocator, m_lhs.get());
+    t->m_rhs = clone_node(_allocator, m_rhs.get());
+    t->m_arith_type = m_arith_type;
+    return core::move(t);
+  }
+
 private:
   arithmetic_type m_arith_type;
   memory::unique_ptr<expression> m_lhs;
@@ -643,6 +682,15 @@ public:
     c->print_value(m_condition, "Condition");
     c->print_value(m_lhs, "LHS");
     c->print_value(m_rhs, "RHS");
+  }
+
+  memory::unique_ptr<node> clone(memory::allocator* _allocator) const override {
+    auto t = memory::make_unique<cond_expression>(_allocator, _allocator);
+    t->copy_underlying_from(_allocator, this);
+    t->m_lhs = clone_node(_allocator, m_lhs.get());
+    t->m_rhs = clone_node(_allocator, m_rhs.get());
+    t->m_condition = clone_node(_allocator, m_condition.get());
+    return core::move(t);
   }
 
 private:
@@ -684,6 +732,14 @@ public:
     c->print_value(m_text, "Value");
   }
 
+  memory::unique_ptr<node> clone(memory::allocator* _allocator) const override {
+    auto t = memory::make_unique<constant_expression>(_allocator, _allocator);
+    t->copy_underlying_from(_allocator, this);
+    t->m_type_classification = m_type_classification;
+    t->m_text = containers::string(_allocator, m_text);
+    return core::move(t);
+  }
+
 private:
   uint32_t m_type_classification;
   containers::string m_text;
@@ -711,6 +767,13 @@ public:
     c->print_value(m_name, "Value");
   }
 
+  memory::unique_ptr<node> clone(memory::allocator* _allocator) const override {
+    auto t = memory::make_unique<id_expression>(_allocator, _allocator);
+    t->copy_underlying_from(_allocator, this);
+    t->m_name = containers::string(_allocator, m_name);
+    return core::move(t);
+  }
+
 private:
   containers::string m_name;
 };
@@ -724,6 +787,13 @@ public:
     c->print_value(m_type, "Type");
   }
 
+  memory::unique_ptr<node> clone(memory::allocator* _allocator) const override {
+    auto t = memory::make_unique<null_allocation_expression>(
+        m_allocator, m_allocator);
+    t->copy_underlying_from(_allocator, this);
+    return core::move(t);
+  }
+
 private:
 };
 
@@ -734,9 +804,14 @@ public:
   void add_base_expression(expression* _expr) {
     m_base_expression = memory::unique_ptr<expression>(m_allocator, _expr);
   }
-
   const expression* get_base_expression() const {
     return m_base_expression.get();
+  }
+
+  void copy_underlying_from(
+      memory::allocator* _allocator, const post_expression* _other) {
+    expression::copy_location_from(_other);
+    m_base_expression = clone_node(_allocator, _other->m_base_expression.get());
   }
 
 protected:
@@ -766,6 +841,15 @@ public:
     c->print_value(m_type, "Type");
     c->print_value(m_base_expression, "Base Expression");
     c->print_value(m_array_access, "Expression");
+  }
+
+  memory::unique_ptr<node> clone(memory::allocator* _allocator) const override {
+    auto t =
+        memory::make_unique<array_access_expression>(_allocator, _allocator);
+    t->copy_underlying_from(_allocator, this);
+    t->m_array_access = clone_node(_allocator, m_array_access.get());
+    t->m_is_construction = m_is_construction;
+    return core::move(t);
   }
 
 private:
@@ -804,6 +888,16 @@ public:
     c->print_value(m_rhs, "RHS");
   }
 
+  memory::unique_ptr<node> clone(memory::allocator* _allocator) const override {
+    auto t =
+        memory::make_unique<short_circuit_expression>(_allocator, _allocator);
+    t->copy_underlying_from(_allocator, this);
+    t->m_lhs = clone_node(_allocator, m_lhs.get());
+    t->m_rhs = clone_node(_allocator, m_rhs.get());
+    t->m_ss_type = m_ss_type;
+    return core::move(t);
+  }
+
 private:
   short_circuit_type m_ss_type;
   memory::unique_ptr<expression> m_lhs;
@@ -835,6 +929,14 @@ public:
     c->print_value(m_base_expression, "Base Expression");
   }
 
+  memory::unique_ptr<node> clone(memory::allocator* _allocator) const override {
+    auto t =
+        memory::make_unique<member_access_expression>(_allocator, _allocator);
+    t->copy_underlying_from(_allocator, this);
+    t->m_member = containers::string(_allocator, m_member);
+    return core::move(t);
+  }
+
 private:
   containers::string m_member;
 };
@@ -856,6 +958,13 @@ public:
 
   post_unary_type get_post_unary_type() const {
     return m_unary_type;
+  }
+
+  memory::unique_ptr<node> clone(memory::allocator* _allocator) const override {
+    auto t = memory::make_unique<post_unary_expression>(_allocator, _allocator);
+    t->copy_underlying_from(_allocator, this);
+    t->m_unary_type = m_unary_type;
+    return core::move(t);
   }
 
 private:
@@ -892,6 +1001,13 @@ public:
     c->print_value(m_expression, "Expression");
   }
 
+  memory::unique_ptr<node> clone(memory::allocator* _allocator) const override {
+    auto t = memory::make_unique<cast_expression>(_allocator, _allocator);
+    t->copy_underlying_from(_allocator, this);
+    t->m_expression = clone_node(_allocator, m_expression.get());
+    return core::move(t);
+  }
+
 private:
   memory::unique_ptr<expression> m_expression;
 };
@@ -920,6 +1036,15 @@ public:
     c->print_value(m_type, "Type");
     c->print_value(m_init_mode, "Init Mode");
     c->print_value(m_copy_initializer, "Copy Initializer");
+  }
+
+  memory::unique_ptr<node> clone(memory::allocator* _allocator) const override {
+    auto t = memory::make_unique<struct_allocation_expression>(
+        _allocator, _allocator);
+    t->copy_underlying_from(_allocator, this);
+    t->m_copy_initializer = clone_node(_allocator, m_copy_initializer.get());
+    t->m_init_mode = m_init_mode;
+    return core::move(t);
   }
 
 private:
@@ -953,6 +1078,14 @@ public:
     return m_unary_type;
   }
 
+  memory::unique_ptr<node> clone(memory::allocator* _allocator) const override {
+    auto t = memory::make_unique<unary_expression>(_allocator, _allocator);
+    t->copy_underlying_from(_allocator, this);
+    t->m_root_expression = clone_node(_allocator, m_root_expression.get());
+    t->m_unary_type = m_unary_type;
+    return core::move(t);
+  }
+
 private:
   unary_type m_unary_type;
   memory::unique_ptr<expression> m_root_expression;
@@ -971,6 +1104,10 @@ public:
     : expression(_allocator, node_type::builtin_unary_expression),
       m_unary_type(_type),
       m_root_expression(core::move(_expr)) {}
+
+  builtin_unary_expression(memory::allocator* _allocator)
+    : expression(_allocator, node_type::builtin_unary_expression) {}
+
   void print_node_internal(print_context* c) const override {
     c->print_header("Builtin Expression");
     c->print_value(m_type, "Type");
@@ -986,6 +1123,15 @@ public:
     return m_unary_type;
   }
 
+  memory::unique_ptr<node> clone(memory::allocator* _allocator) const override {
+    auto t =
+        memory::make_unique<builtin_unary_expression>(_allocator, _allocator);
+    t->copy_underlying_from(_allocator, this);
+    t->m_root_expression = clone_node(_allocator, m_root_expression.get());
+    t->m_unary_type = m_unary_type;
+    return core::move(t);
+  }
+
 private:
   builtin_unary_type m_unary_type;
   memory::unique_ptr<expression> m_root_expression;
@@ -997,7 +1143,6 @@ public:
   instruction(memory::allocator* _allocator, node_type _type)
     : node(_allocator, _type),
       m_breaks(false),
-      m_is_dead(false),
       m_returns(false),
       m_non_linear(false) {}
 
@@ -1009,13 +1154,15 @@ public:
     m_breaks = _breaks;
   }
 
-  bool is_dead() const {
-    return m_is_dead;
+protected:
+  void copy_underlying_from(memory::allocator*, const instruction* _other) {
+    node::copy_location_from(_other);
+    m_breaks = _other->m_breaks;
+    m_returns = _other->m_returns;
+    m_non_linear = _other->m_non_linear;
   }
 
-protected:
   bool m_breaks;
-  bool m_is_dead;
   bool m_returns;
   bool m_non_linear;
 };
@@ -1039,6 +1186,14 @@ struct expression_instruction : public instruction {
   void print_node_internal(print_context* c) const override {
     c->print_header("Expression Instruction");
     c->print_value(m_expression, "Expression");
+  }
+
+  memory::unique_ptr<node> clone(memory::allocator* _allocator) const override {
+    auto t =
+        memory::make_unique<expression_instruction>(_allocator, _allocator);
+    t->copy_underlying_from(_allocator, this);
+    t->m_expression = clone_node(_allocator, m_expression.get());
+    return core::move(t);
   }
 
 private:
@@ -1080,6 +1235,17 @@ public:
     c->print_value(m_instructions, "Instructions");
   }
 
+  memory::unique_ptr<node> clone(memory::allocator* _allocator) const override {
+    auto t = memory::make_unique<instruction_list>(_allocator, _allocator);
+    t->copy_underlying_from(_allocator, this);
+    t->m_instructions =
+        containers::deque<memory::unique_ptr<instruction>>(_allocator);
+    for (auto& i : m_instructions) {
+      t->m_instructions.push_back(clone_node(_allocator, i.get()));
+    }
+    return core::move(t);
+  }
+
 private:
   containers::deque<memory::unique_ptr<instruction>> m_instructions;
 };
@@ -1091,6 +1257,16 @@ struct function_expression {
   function_expression(
       memory::unique_ptr<expression>&& _expr, bool _hand_ownership)
     : m_expr(core::move(_expr)), m_hand_ownership(_hand_ownership) {}
+
+  explicit function_expression(memory::allocator*) {}
+
+  memory::unique_ptr<function_expression> clone(
+      memory::allocator* _allocator) const {
+    auto t = memory::make_unique<function_expression>(_allocator, _allocator);
+    t->m_expr = clone_node(_allocator, m_expr.get());
+    t->m_hand_ownership = m_hand_ownership;
+    return core::move(t);
+  }
 
   memory::unique_ptr<expression> m_expr;
   bool m_hand_ownership;
@@ -1122,6 +1298,17 @@ public:
       e->m_expr->print_node_internal(c);
     }
     c->leave_log_scope();
+  }
+
+  memory::unique_ptr<node> clone(memory::allocator* _allocator) const override {
+    auto t = memory::make_unique<arg_list>(_allocator, _allocator);
+    t->copy_underlying_from(_allocator, this);
+    t->m_expression_list =
+        containers::deque<memory::unique_ptr<function_expression>>(_allocator);
+    for (auto& i : m_expression_list) {
+      t->m_expression_list.push_back(i->clone(_allocator));
+    }
+    return core::move(t);
   }
 
 private:
@@ -1170,6 +1357,14 @@ public:
     c->print_value(m_args, "Args");
   }
 
+  memory::unique_ptr<node> clone(memory::allocator* _allocator) const override {
+    auto t =
+        memory::make_unique<function_call_expression>(_allocator, _allocator);
+    t->copy_underlying_from(_allocator, this);
+    t->m_args = clone_node(_allocator, m_args.get());
+    return core::move(t);
+  }
+
 private:
   memory::unique_ptr<arg_list> m_args;
 };
@@ -1214,6 +1409,15 @@ public:
 
   void set_is_for_empty_function(bool is_for_vtable) {
     m_is_for_empty_function = is_for_vtable;
+  }
+
+  memory::unique_ptr<node> clone(memory::allocator* _allocator) const override {
+    auto t = memory::make_unique<parameter>(_allocator, _allocator);
+    t->copy_underlying_from(_allocator, this);
+    t->m_type = clone_node(_allocator, m_type.get());
+    t->m_name = containers::string(_allocator, m_name);
+    t->m_is_for_empty_function = m_is_for_empty_function;
+    return core::move(t);
   }
 
 private:
@@ -1278,6 +1482,16 @@ public:
     c->print_value(m_expression, "Expression");
   }
 
+  memory::unique_ptr<node> clone(memory::allocator* _allocator) const override {
+    auto t = memory::make_unique<declaration>(_allocator, _allocator);
+    t->copy_underlying_from(_allocator, this);
+    t->m_parameter = clone_node(_allocator, m_parameter.get());
+    t->m_expression = clone_node(_allocator, m_expression.get());
+    t->m_is_default_initialization = m_is_default_initialization;
+    t->m_is_inherited = m_is_inherited;
+    return core::move(t);
+  }
+
 private:
   memory::unique_ptr<parameter> m_parameter;
   memory::unique_ptr<expression> m_expression;
@@ -1294,15 +1508,8 @@ public:
       m_name(_allocator, _name),
       m_parent_name(_allocator),
       m_is_class(_is_class),
-      m_has_virtual(false),
-      m_own_vtable(false),
-      m_type_index(0),
-      m_parent_definition(nullptr),
-      m_vtable_slot(0),
       m_struct_members(_allocator),
-      m_struct_functions(_allocator),
-      m_virtual_functions(_allocator),
-      m_initialization_order(_allocator) {
+      m_struct_functions(_allocator) {
     if (_parent_type) {
       m_parent_name = _parent_type;
     }
@@ -1311,8 +1518,7 @@ public:
   struct_definition(memory::allocator* _allocator)
     : node(_allocator, node_type::struct_definition),
       m_struct_members(_allocator),
-      m_struct_functions(_allocator),
-      m_virtual_functions(_allocator) {}
+      m_struct_functions(_allocator) {}
 
   void add_struct_elem(declaration* _decl) {
     m_struct_members.emplace_back(
@@ -1324,33 +1530,8 @@ public:
         memory::unique_ptr<function>(m_allocator, _func));
   }
 
-  containers::deque<memory::unique_ptr<function>> take_functions() {
-    return core::move(m_struct_functions);
-  }
-
   const containers::deque<memory::unique_ptr<function>>& get_functions() const {
     return m_struct_functions;
-  }
-
-  containers::deque<memory::unique_ptr<function>>& get_virtual_functions() {
-    return m_virtual_functions;
-  }
-
-  containers::deque<memory::unique_ptr<function>> take_virtual_functions() {
-    return core::move(m_virtual_functions);
-  }
-
-  const containers::deque<memory::unique_ptr<function>>& get_virtual_functions()
-      const {
-    return m_virtual_functions;
-  }
-
-  void set_type_index(uint32_t _index) {
-    m_type_index = _index;
-  }
-
-  uint32_t get_type_index() const {
-    return m_type_index;
   }
 
   containers::string_view get_name() const {
@@ -1370,71 +1551,43 @@ public:
     return m_struct_members;
   }
 
-  containers::deque<uint32_t>& get_initialization_order() {
-    return m_initialization_order;
-  }
-
-  const containers::deque<uint32_t>& get_initialization_order() const {
-    return m_initialization_order;
-  }
-
   void print_node_internal(print_context* c) const override {
-    c->print_header(
-        "Struct [", m_name, "]", "(", m_type_index, ")", ":", m_parent_name);
+    c->print_header("Struct [", m_name, "]", ":", m_parent_name);
     c->print_value(m_struct_members, "Struct Members");
     c->print_value(m_struct_functions, "Struct functions");
-    c->print_value(m_initialization_order, "Initialization Order");
-  }
-
-  bool has_virtual() const {
-    return m_has_virtual;
-  }
-
-  void set_has_virtual(bool has_virtual) {
-    m_has_virtual = has_virtual;
-  }
-
-  bool has_own_vtable() const {
-    return m_own_vtable;
-  }
-
-  void set_has_own_vtable() {
-    m_own_vtable = true;
-  }
-
-  struct_definition* get_parent_definition() {
-    return m_parent_definition;
-  }
-
-  void set_parent_definition(struct_definition* _def) {
-    m_parent_definition = _def;
-  }
-
-  void set_vtable_index(uint32_t index) {
-    m_vtable_slot = index;
-  }
-
-  uint32_t vtable_index() const {
-    return m_vtable_slot;
   }
 
   bool is_class() const {
     return m_is_class;
   }
 
+  memory::unique_ptr<node> clone(memory::allocator* _allocator) const override {
+    auto t = memory::make_unique<struct_definition>(_allocator, _allocator);
+    t->copy_underlying_from(_allocator, this);
+    t->m_name = containers::string(_allocator, m_name);
+    t->m_parent_name = containers::string(_allocator, m_parent_name);
+    t->m_is_class = m_is_class;
+    t->m_struct_members =
+        containers::deque<memory::unique_ptr<declaration>>(_allocator);
+    t->m_struct_functions =
+        containers::deque<memory::unique_ptr<function>>(_allocator);
+    for (auto& m : m_struct_members) {
+      t->m_struct_members.push_back(clone_node(_allocator, m.get()));
+    }
+
+    for (auto& m : m_struct_functions) {
+      t->m_struct_functions.push_back(clone_node(_allocator, m.get()));
+    }
+
+    return core::move(t);
+  }
+
 private:
   containers::string m_name;
   containers::string m_parent_name;
   bool m_is_class;
-  bool m_has_virtual;
-  bool m_own_vtable;
-  uint32_t m_type_index;
-  struct_definition* m_parent_definition;
-  uint32_t m_vtable_slot;
   containers::deque<memory::unique_ptr<declaration>> m_struct_members;
   containers::deque<memory::unique_ptr<function>> m_struct_functions;
-  containers::deque<memory::unique_ptr<function>> m_virtual_functions;
-  containers::deque<uint32_t> m_initialization_order;
 };
 
 class parameter_list : public node {
@@ -1466,6 +1619,18 @@ public:
     c->print_value(m_parameters, "Parameters");
   }
 
+  memory::unique_ptr<node> clone(memory::allocator* _allocator) const override {
+    auto t = memory::make_unique<parameter_list>(_allocator, _allocator);
+    t->copy_underlying_from(_allocator, this);
+
+    t->m_parameters =
+        containers::deque<memory::unique_ptr<parameter>>(_allocator);
+    for (auto& m : m_parameters) {
+      t->m_parameters.push_back(clone_node(_allocator, m.get()));
+    }
+    return core::move(t);
+  }
+
 private:
   containers::deque<memory::unique_ptr<parameter>> m_parameters;
 };
@@ -1478,7 +1643,6 @@ public:
       m_signature(memory::unique_ptr<parameter>(m_allocator, _signature)),
       m_parameters(memory::unique_ptr<parameter_list>(m_allocator, _params)),
       m_body(memory::unique_ptr<instruction_list>(m_allocator, _body)),
-      m_this_pointer(nullptr),
       m_is_override(false),
       m_is_virtual(false) {}
 
@@ -1493,7 +1657,6 @@ public:
       m_signature(core::move(_signature)),
       m_parameters(core::move(_params)),
       m_body(core::move(_body)),
-      m_this_pointer(nullptr),
       m_is_override(false),
       m_is_virtual(false) {}
 
@@ -1539,31 +1702,32 @@ public:
 
   void print_node_internal(print_context* c) const override {
     c->print_header("Function");
-    c->print_value(m_mangled_name, "Mangled Name");
-    if (m_this_pointer) {
-      // WE don't use the normal print_value, because this
-      // would result in a circular reference.
-      c->print_value(static_cast<const void*>(m_this_pointer), "This");
-    } else {
-      c->print_value("<NULL>", "This");
-    }
+    c->print_value("<NULL>", "This");
     c->print_value(m_signature, "Signature");
     c->print_value(m_parameters, "Parameters");
     c->print_value(m_body, "Body");
+  }
+
+  memory::unique_ptr<node> clone(memory::allocator* _allocator) const override {
+    auto t = memory::make_unique<function>(_allocator, _allocator);
+    t->copy_underlying_from(_allocator, this);
+    t->m_signature = clone_node(_allocator, m_signature.get());
+    t->m_parameters = clone_node(_allocator, m_parameters.get());
+    t->m_body = clone_node(_allocator, m_body.get());
+    t->m_is_override = m_is_override;
+    t->m_is_virtual = m_is_virtual;
+    return core::move(t);
   }
 
 private:
   memory::unique_ptr<parameter> m_signature;
   memory::unique_ptr<parameter_list> m_parameters;
   memory::unique_ptr<instruction_list> m_body;
-  struct_definition* m_this_pointer;
-  containers::string m_mangled_name;
   bool m_is_override;
   bool m_is_virtual;
 };
 
 class assignment_instruction;
-class set_array_length;
 class lvalue : public node {
 public:
   lvalue(memory::allocator* _allocator, expression* _expr)
@@ -1582,9 +1746,15 @@ public:
     c->print_value(m_expression, "Expression");
   }
 
+  memory::unique_ptr<node> clone(memory::allocator* _allocator) const override {
+    auto t = memory::make_unique<lvalue>(_allocator, _allocator);
+    t->copy_underlying_from(_allocator, this);
+    t->m_expression = clone_node(_allocator, m_expression.get());
+    return core::move(t);
+  }
+
 private:
   friend class assignment_instruction;
-  friend class set_array_length;
   memory::unique_ptr<expression> m_expression;
 };
 
@@ -1664,6 +1834,17 @@ public:
     c->print_value(m_assign_expression, "Expression");
   }
 
+  memory::unique_ptr<node> clone(memory::allocator* _allocator) const override {
+    auto t =
+        memory::make_unique<assignment_instruction>(_allocator, _allocator);
+    t->copy_underlying_from(_allocator, this);
+    t->m_lvalue = clone_node(_allocator, m_lvalue.get());
+    t->m_assign_type = m_assign_type;
+    t->m_assign_expression = clone_node(_allocator, m_assign_expression.get());
+    t->m_in_constructor = m_in_constructor;
+    return core::move(t);
+  }
+
 private:
   memory::unique_ptr<lvalue> m_lvalue;
   assign_type m_assign_type;
@@ -1681,6 +1862,12 @@ public:
     c->print_header("Break Instruction");
   }
 
+  memory::unique_ptr<node> clone(memory::allocator* _allocator) const override {
+    auto t = memory::make_unique<break_instruction>(_allocator, _allocator);
+    t->copy_underlying_from(_allocator, this);
+    return core::move(t);
+  }
+
 private:
 };
 
@@ -1691,6 +1878,12 @@ public:
 
   void print_node_internal(print_context* c) const override {
     c->print_header("Continue");
+  }
+
+  memory::unique_ptr<node> clone(memory::allocator* _allocator) const override {
+    auto t = memory::make_unique<continue_instruction>(_allocator, _allocator);
+    t->copy_underlying_from(_allocator, this);
+    return core::move(t);
   }
 
 private:
@@ -1729,6 +1922,14 @@ public:
     c->print_value(m_body, "Body");
   }
 
+  memory::unique_ptr<node> clone(memory::allocator* _allocator) const override {
+    auto t = memory::make_unique<do_instruction>(_allocator, _allocator);
+    t->copy_underlying_from(_allocator, this);
+    t->m_condition = clone_node(_allocator, m_condition.get());
+    t->m_body = clone_node(_allocator, m_body.get());
+    return core::move(t);
+  }
+
 private:
   memory::unique_ptr<expression> m_condition;
   memory::unique_ptr<instruction_list> m_body;
@@ -1757,6 +1958,14 @@ public:
     c->print_header("Else If");
     c->print_value(m_condition, "Condition");
     c->print_value(m_body, "Body");
+  }
+
+  memory::unique_ptr<node> clone(memory::allocator* _allocator) const override {
+    auto t = memory::make_unique<else_if_instruction>(_allocator, _allocator);
+    t->copy_underlying_from(_allocator, this);
+    t->m_condition = clone_node(_allocator, m_condition.get());
+    t->m_body = clone_node(_allocator, m_body.get());
+    return core::move(t);
   }
 
 private:
@@ -1810,6 +2019,22 @@ public:
     c->print_value(m_else, "Else");
   }
 
+  memory::unique_ptr<node> clone(memory::allocator* _allocator) const override {
+    auto t = memory::make_unique<if_instruction>(_allocator, _allocator);
+    t->copy_underlying_from(_allocator, this);
+    t->m_condition = clone_node(_allocator, m_condition.get());
+    t->m_else = clone_node(_allocator, m_else.get());
+    t->m_body = clone_node(_allocator, m_body.get());
+
+    t->m_else_if_nodes =
+        containers::deque<memory::unique_ptr<else_if_instruction>>(_allocator);
+    for (auto& e : m_else_if_nodes) {
+      t->m_else_if_nodes.push_back(clone_node(_allocator, e.get()));
+    }
+
+    return core::move(t);
+  }
+
 private:
   memory::unique_ptr<expression> m_condition;
   memory::unique_ptr<instruction_list> m_else;
@@ -1855,6 +2080,17 @@ public:
     return m_body.get();
   }
 
+  memory::unique_ptr<node> clone(memory::allocator* _allocator) const override {
+    auto t = memory::make_unique<for_instruction>(_allocator, _allocator);
+    t->copy_underlying_from(_allocator, this);
+    t->m_initializer = clone_node(_allocator, m_initializer.get());
+    t->m_condition = clone_node(_allocator, m_condition.get());
+    t->m_post_op = clone_node(_allocator, m_post_op.get());
+    t->m_body = clone_node(_allocator, m_body.get());
+
+    return core::move(t);
+  }
+
 private:
   memory::unique_ptr<instruction> m_initializer;
   memory::unique_ptr<expression> m_condition;
@@ -1878,6 +2114,14 @@ public:
   void print_node_internal(print_context* c) const override {
     c->print_header("Return");
     c->print_value(m_expression, "Value");
+  }
+
+  memory::unique_ptr<node> clone(memory::allocator* _allocator) const override {
+    auto t = memory::make_unique<return_instruction>(_allocator, _allocator);
+    t->copy_underlying_from(_allocator, this);
+    t->m_expression = clone_node(_allocator, m_expression.get());
+
+    return core::move(t);
   }
 
 private:
@@ -1907,6 +2151,15 @@ public:
 
   const instruction_list* get_body() const {
     return m_body.get();
+  }
+
+  memory::unique_ptr<node> clone(memory::allocator* _allocator) const override {
+    auto t = memory::make_unique<while_instruction>(_allocator, _allocator);
+    t->copy_underlying_from(_allocator, this);
+    t->m_condition = clone_node(_allocator, m_condition.get());
+    t->m_body = clone_node(_allocator, m_body.get());
+
+    return core::move(t);
   }
 
 private:
@@ -1959,6 +2212,32 @@ public:
     c->print_value(m_external_functions, "External Functions");
     c->print_value(m_functions, "Functions");
     c->print_value(m_structs, "Structs");
+  }
+
+  memory::unique_ptr<node> clone(memory::allocator* _allocator) const override {
+    auto t = memory::make_unique<script_file>(_allocator, _allocator);
+    t->copy_underlying_from(_allocator, this);
+    t->m_functions =
+        containers::deque<memory::unique_ptr<function>>(_allocator);
+    for (auto& f : m_functions) {
+      t->m_functions.push_back(clone_node(_allocator, f.get()));
+    }
+    t->m_external_functions =
+        containers::deque<memory::unique_ptr<function>>(_allocator);
+    for (auto& f : m_external_functions) {
+      t->m_external_functions.push_back(clone_node(_allocator, f.get()));
+    }
+    t->m_structs =
+        containers::deque<memory::unique_ptr<struct_definition>>(_allocator);
+    for (auto& f : m_structs) {
+      t->m_structs.push_back(clone_node(_allocator, f.get()));
+    }
+    t->m_includes = containers::deque<containers::string>(_allocator);
+    for (auto& f : m_includes) {
+      t->m_includes.push_back(containers::string(_allocator, f));
+    }
+
+    return core::move(t);
   }
 
 private:

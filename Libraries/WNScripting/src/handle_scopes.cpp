@@ -37,7 +37,7 @@ void parse_ast_convertor::convertor_context::clean_scopes(
   for (signed_t i = m_nested_scopes.size() - 1; i >= 0; --i) {
     auto& scope = m_nested_scopes[i];
     for (auto& expr : scope->m_cleanup_statements) {
-      m_current_statements->push_back(clone_node(m_allocator, expr.get()));
+      m_current_statements->push_back(clone_ast_node(m_allocator, expr.get()));
     }
     if (scope == _end_scope_block) {
       break;

@@ -215,7 +215,11 @@ bool c_compiler::declare_type(const ast_type* _type) {
     return true;
   }
   switch (_type->m_classification) {
-    case ast_type_classification::struct_type:
+    case ast_type_classification::primitive:
+    case ast_type_classification::extern_type:
+      return true;
+    case ast_type_classification::
+        struct_type:
       return declare_struct(_type);
     case ast_type_classification::runtime_array: {
       align_line();
@@ -1149,7 +1153,7 @@ bool c_compiler::write_array_destruction(const ast_array_destruction* _call) {
   align_line();
   containers::string op(m_allocator, ".");
   if (_call->m_target->m_type->m_classification ==
-      ast_type_classification::runtime_array ||
+          ast_type_classification::runtime_array ||
       _call->m_target->m_type->m_static_array_size == 0) {
     op = containers::string(m_allocator, "->");
   }

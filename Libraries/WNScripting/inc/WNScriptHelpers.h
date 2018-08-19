@@ -7,6 +7,7 @@
 
 #include "WNContainers/inc/WNArray.h"
 #include "WNContainers/inc/WNStringView.h"
+#include "WNFunctional/inc/WNFunction.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/allocator.h"
 #include "WNMemory/inc/unique_ptr.h"
@@ -21,7 +22,7 @@ struct ast_type;
 
 struct external_function {
   containers::string_view name;
-  containers::dynamic_array<ast_type*> params;
+  containers::dynamic_array<const ast_type*> params;
 };
 
 // Use this type instead of normal size_t in order for
@@ -80,9 +81,14 @@ wn_array_ptr<T, 0> wn_array<T, S>::operator&() {
 
 // Simple helper that parses a script and runs any
 // passes that are required to make the AST valid.
-
+// _handle_include is a callback that is called when an #include
+// is encountered and needs to be handled. It recieves the string_view name
+// and returns true/false based on the success of the handling.
+// Furthermore, it must fill _type_manager with any necessary type it
+// encounters.
 memory::unique_ptr<ast_script_file> parse_script(memory::allocator* _allocator,
-    const char* file_name, containers::string_view view,
+    const containers::string_view file_name, containers::string_view view,
+    functional::function<bool(containers::string_view)> _handle_include,
     type_manager* _type_manager, bool _print_ast_on_failure, logging::log* _log,
     size_t* _num_warnings, size_t* _num_errors);
 }  // namespace scripting

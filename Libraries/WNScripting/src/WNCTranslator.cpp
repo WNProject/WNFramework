@@ -21,22 +21,23 @@ c_translator::c_translator(memory::allocator* _allocator,
     m_source_mapping(_source_mapping),
     m_dest_mapping(_dest_mapping),
     m_compilation_log(_log) {
-  m_type_manager.m_externals.push_back(external_function{"_allocate",
-      containers::dynamic_array<ast_type*>(m_allocator,
-          {m_type_manager.m_void_ptr_t.get(), m_type_manager.m_size_t.get()})});
+  m_type_manager.add_external(external_function{"_allocate",
+      containers::dynamic_array<const ast_type*>(m_allocator,
+          {m_type_manager.void_ptr_t(nullptr), m_type_manager.size_t(nullptr)})});
 
-  m_type_manager.m_externals.push_back(external_function{"_free",
-      containers::dynamic_array<ast_type*>(m_allocator,
-          {m_type_manager.m_void_t.get(), m_type_manager.m_void_ptr_t.get()})});
+  m_type_manager.add_external(external_function{
+      "_free", containers::dynamic_array<const ast_type*>(
+                   m_allocator, {m_type_manager.void_t(nullptr),
+                                    m_type_manager.void_ptr_t(nullptr)})});
 
-  m_type_manager.m_externals.push_back(external_function{"_allocate_runtime_array",
-      containers::dynamic_array<ast_type*>(m_allocator,
-          {m_type_manager.m_void_ptr_t.get(), m_type_manager.m_size_t.get(),
-              m_type_manager.m_size_t.get()})});
+  m_type_manager.add_external(external_function{"_allocate_runtime_array",
+      containers::dynamic_array<const ast_type*>(m_allocator,
+          {m_type_manager.void_ptr_t(nullptr), m_type_manager.size_t(nullptr),
+              m_type_manager.size_t(nullptr)})});
 }
 
 parse_error c_translator::translate_file_with_error(
-    const char* _file, bool _dump_ast_on_failure) {
+    const containers::string_view _file, bool _dump_ast_on_failure) {
   file_system::result res;
   file_system::file_ptr file = m_source_mapping->open_file(_file, res);
 
@@ -45,8 +46,16 @@ parse_error c_translator::translate_file_with_error(
   }
 
   memory::unique_ptr<ast_script_file> parsed_file = parse_script(m_allocator,
-      _file, file->typed_range<char>(), &m_type_manager, _dump_ast_on_failure,
-      m_compilation_log, &m_num_warnings, &m_num_errors);
+      _file, file->typed_range<char>(),
+      functional::function<bool(containers::string_view)>(m_allocator,
+          [this, _dump_ast_on_failure](containers::string_view include) {
+            return translate_file_with_error(include, _dump_ast_on_failure) ==
+                           scripting::parse_error::ok
+                       ? true
+                       : false;
+          }),
+      &m_type_manager, _dump_ast_on_failure, m_compilation_log, &m_num_warnings,
+      &m_num_errors);
 
   if (parsed_file == nullptr) {
     return scripting::parse_error::parse_failed;
@@ -73,16 +82,7 @@ parse_error c_translator::translate_file_with_error(
 }
 
 ast_type* c_translator::register_external_type(containers::string_view _name) {
-  auto type = memory::make_unique<ast_type>(m_allocator);
-
-  auto ret_type = type.get();
-  type->m_classification = ast_type_classification::extern_type;
-  type->m_name = containers::string(m_allocator, _name);
-  type->calculate_mangled_name(m_allocator);
-  m_type_manager.m_external_types[_name.to_string(m_allocator)] =
-      core::move(type);
-
-  return ret_type;
+  return m_type_manager.register_external_type(_name);
 }
 
 }  // namespace scripting

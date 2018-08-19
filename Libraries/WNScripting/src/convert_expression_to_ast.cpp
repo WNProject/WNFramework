@@ -71,32 +71,32 @@ parse_ast_convertor::convertor_context::resolve_constant(
   switch (_const->get_index()) {
     case static_cast<uint32_t>(type_classification::int_type): {
       long long val = atoll(_const->get_type_text().c_str());
-      c->m_type = m_type_manager->m_integral_types[32].get();
+      c->m_type = m_type_manager->integral(32, &m_used_types);
       c->m_node_value.m_integer = static_cast<int32_t>(val);
       return core::move(c);
     }
     case static_cast<uint32_t>(type_classification::nullptr_type): {
-      c->m_type = m_type_manager->m_nullptr_t.get();
+      c->m_type = m_type_manager->nullptr_t(&m_used_types);
       c->m_node_value.m_integer = static_cast<int32_t>(0);
       return core::move(c);
     }
     case static_cast<uint32_t>(type_classification::float_type): {
       double val = atof(_const->get_type_text().c_str());
-      c->m_type = m_type_manager->m_float_types[32].get();
+      c->m_type = m_type_manager->floating(32, &m_used_types);
       c->m_node_value.m_float = static_cast<float>(val);
       return core::move(c);
     }
     case static_cast<uint32_t>(type_classification::char_type): {
-      c->m_type = m_type_manager->m_integral_types[8].get();
+      c->m_type = m_type_manager->integral(8, &m_used_types);
       c->m_node_value.m_char = c->m_string_value[1];
       return core::move(c);
     }
     case static_cast<uint32_t>(type_classification::string_type): {
-      c->m_type = m_type_manager->m_cstr_t.get();
+      c->m_type = m_type_manager->cstr_t(&m_used_types);
       return core::move(c);
     }
     case static_cast<uint32_t>(type_classification::bool_type): {
-      c->m_type = m_type_manager->m_bool_t.get();
+      c->m_type = m_type_manager->bool_t(&m_used_types);
       if (_const->get_type_text() == "true") {
         c->m_node_value.m_bool = true;
       } else if (_const->get_type_text() == "false") {
@@ -143,12 +143,12 @@ parse_ast_convertor::convertor_context::resolve_binary(
 
   if (lhs->m_type->m_classification ==
           ast_type_classification::shared_reference &&
-      rhs->m_type == m_type_manager->m_nullptr_t.get()) {
+      rhs->m_type == m_type_manager->nullptr_t(&m_used_types)) {
     rhs = make_cast(core::move(rhs), lhs->m_type);
   }
   if (rhs->m_type->m_classification ==
           ast_type_classification::shared_reference &&
-      lhs->m_type == m_type_manager->m_nullptr_t.get()) {
+      lhs->m_type == m_type_manager->nullptr_t(&m_used_types)) {
     lhs = make_cast(core::move(lhs), rhs->m_type);
   }
 
@@ -201,7 +201,7 @@ parse_ast_convertor::convertor_context::resolve_binary(
       }
     case arithmetic_type::arithmetic_equal:
     case arithmetic_type::arithmetic_not_equal:
-      bin->m_type = m_type_manager->m_bool_t.get();
+      bin->m_type = m_type_manager->bool_t(&m_used_types);
       break;
     default:
       WN_RELEASE_ASSERT(false, "You should never get here");
@@ -407,7 +407,7 @@ parse_ast_convertor::convertor_context::resolve_array_allocation_expression(
     t = get_runtime_array_of(array_base_type);
   } else {
     auto* array_const = cast_to<ast_constant>(array_size.get());
-    if (array_const->m_type != m_type_manager->m_integral_types[32].get()) {
+    if (array_const->m_type != m_type_manager->integral(32, &m_used_types)) {
       _alloc->log_line(m_log, logging::log_level::error);
       m_log->log_error("Array size must be an Integer");
     }
@@ -430,7 +430,7 @@ parse_ast_convertor::convertor_context::resolve_array_allocation_expression(
   id->m_declaration = dec.get();
   id->m_type = t;
 
-  array_init->m_initializee = clone_node(m_allocator, id.get());
+  array_init->m_initializee = clone_ast_node(m_allocator, id.get());
   id->initialized_setup_statements(m_allocator).push_back(core::move(dec));
   id->initialized_setup_statements(m_allocator)
       .push_back(core::move(array_init));
@@ -471,7 +471,7 @@ parse_ast_convertor::convertor_context::resolve_function_call(
     case ast_node_type::ast_member_access_expression: {
       auto member_access =
           cast_to<ast_member_access_expression>(base_expr.get());
-      if (member_access->m_type != m_type_manager->m_function_t.get()) {
+      if (member_access->m_type != m_type_manager->function_t(&m_used_types)) {
         _call->log_line(m_log, logging::log_level::error);
         m_log->log_error(
             "Cannot find method with name ", member_access->m_member_name);
@@ -576,7 +576,7 @@ parse_ast_convertor::convertor_context::resolve_array_access_expression(
     return nullptr;
   }
 
-  if (inner_expr->m_type != m_type_manager->m_integral_types[32].get()) {
+  if (inner_expr->m_type != m_type_manager->integral(32, &m_used_types)) {
     _access->log_line(m_log, logging::log_level ::error);
     m_log->log_error("Array access must be an integer");
     return nullptr;
@@ -597,7 +597,7 @@ parse_ast_convertor::convertor_context::resolve_array_access_expression(
   if (outer_expr->m_type->m_builtin != builtin_type::c_string_type) {
     array_access->m_type = outer_expr->m_type->m_implicitly_contained_type;
   } else {
-    array_access->m_type = m_type_manager->m_integral_types[8].get();
+    array_access->m_type = m_type_manager->integral(8, &m_used_types);
   }
   array_access->m_index = core::move(inner_expr);
   array_access->m_array = core::move(outer_expr);
@@ -647,12 +647,13 @@ parse_ast_convertor::convertor_context::resolve_struct_allocation_expression(
     memory::unique_ptr<ast_cast_expression> cast =
         memory::make_unique<ast_cast_expression>(m_allocator, _alloc);
     cast->m_base_expression = core::move(id);
-    cast->m_type = m_type_manager->get_reference_of(
-        cast->m_base_expression->m_type, ast_type_classification::reference);
+    cast->m_type =
+        m_type_manager->get_reference_of(cast->m_base_expression->m_type,
+            ast_type_classification::reference, &m_used_types);
     function_call->initialized_parameters(m_allocator)
         .push_back(core::move(cast));
-    function_call->m_type =
-        m_type_manager->get_reference_of(t, ast_type_classification::reference);
+    function_call->m_type = m_type_manager->get_reference_of(
+        t, ast_type_classification::reference, &m_used_types);
     function_call->initialized_setup_statements(m_allocator)
         .push_back(core::move(dec));
     init = core::move(function_call);
@@ -663,9 +664,9 @@ parse_ast_convertor::convertor_context::resolve_struct_allocation_expression(
     id->m_declaration = dec.get();
     id->m_type = dec->m_type;
 
-    init =
-        make_cast(core::move(id), m_type_manager->get_reference_of(dec->m_type,
-                                      ast_type_classification::reference));
+    init = make_cast(
+        core::move(id), m_type_manager->get_reference_of(dec->m_type,
+                            ast_type_classification::reference, &m_used_types));
     init->initialized_setup_statements(m_allocator).push_back(core::move(dec));
   }
 
@@ -682,11 +683,12 @@ parse_ast_convertor::convertor_context::resolve_struct_allocation_expression(
     memory::unique_ptr<ast_cast_expression> cast =
         memory::make_unique<ast_cast_expression>(m_allocator, _alloc);
     cast->m_base_expression = core::move(id);
-    cast->m_type = m_type_manager->get_reference_of(
-        cast->m_base_expression->m_type, ast_type_classification::reference);
+    cast->m_type =
+        m_type_manager->get_reference_of(cast->m_base_expression->m_type,
+            ast_type_classification::reference, &m_used_types);
     function_call->initialized_parameters(m_allocator)
         .push_back(core::move(cast));
-    function_call->m_type = m_type_manager->m_void_t.get();
+    function_call->m_type = m_type_manager->void_t(&m_used_types);
     init->initialized_destroy_expressions(m_allocator)
         .push_back(core::move(function_call));
   }
@@ -720,7 +722,7 @@ parse_ast_convertor::convertor_context::resolve_builtin_unary_expression(
             memory::make_unique<ast_builtin_expression>(m_allocator, _expr);
         builtin->m_builtin_type = builtin_expression_type::array_length;
         builtin->initialized_expressions(m_allocator).push_back(core::move(c));
-        builtin->m_type = m_type_manager->m_integral_types[32].get();
+        builtin->m_type = m_type_manager->integral(32, &m_used_types);
         return core::move(builtin);
       }
     }
@@ -753,7 +755,7 @@ memory::unique_ptr<ast_expression> parse_ast_convertor::convertor_context::
 
   auto num_bytes =
       memory::make_unique<ast_builtin_expression>(m_allocator, _alloc);
-  num_bytes->m_type = m_type_manager->m_size_t.get();
+  num_bytes->m_type = m_type_manager->size_t(&m_used_types);
   num_bytes->initialized_extra_types(m_allocator).push_back(alloc_type);
   num_bytes->m_builtin_type = builtin_expression_type::size_of;
 
@@ -768,13 +770,13 @@ memory::unique_ptr<ast_expression> parse_ast_convertor::convertor_context::
   } else {
     auto const_null = memory::make_unique<ast_constant>(m_allocator, _alloc);
     const_null->m_string_value = containers::string(m_allocator, "");
-    const_null->m_type = m_type_manager->m_nullptr_t.get();
+    const_null->m_type = m_type_manager->nullptr_t(&m_used_types);
     dest = core::move(const_null);
   }
 
   auto dest_as_void =
       memory::make_unique<ast_cast_expression>(m_allocator, _alloc);
-  dest_as_void->m_type = m_destructor_fn_ptr_t;
+  dest_as_void->m_type = m_type_manager->destructor_fn_ptr(&m_used_types);
   dest_as_void->m_base_expression = core::move(dest);
 
   memory::unique_ptr<ast_function_call_expression> allocate =
@@ -797,7 +799,7 @@ memory::unique_ptr<ast_expression> parse_ast_convertor::convertor_context::
   function_call->initialized_parameters(m_allocator)
       .push_back(core::move(cast));
   function_call->m_type = m_type_manager->get_reference_of(
-      st, ast_type_classification::shared_reference);
+      st, ast_type_classification::shared_reference, &m_used_types);
 
   return core::move(function_call);
 }
@@ -846,7 +848,7 @@ parse_ast_convertor::convertor_context::resolve_member_access_expression(
   for (auto it : struct_type->m_member_functions) {
     if (it->m_name == member->m_member_name) {
       // At least one member function exists
-      member->m_type = m_type_manager->m_function_t.get();
+      member->m_type = m_type_manager->function_t(&m_used_types);
       return core::move(member);
     }
   }
@@ -861,7 +863,7 @@ parse_ast_convertor::convertor_context::resolve_member_access_expression(
 
   for (auto& it : struct_type->m_external_member_functions) {
     if (it->m_name == member->m_member_name) {
-      member->m_type = m_type_manager->m_function_t.get();
+      member->m_type = m_type_manager->function_t(&m_used_types);
       return core::move(member);
     }
   }

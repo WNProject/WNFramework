@@ -217,16 +217,17 @@ CompiledModule& jit_engine::add_module(containers::string_view _file) {
   return code_module;
 }
 
-parse_error jit_engine::parse_file(const char* _file) {
+parse_error jit_engine::parse_file(const containers::string_view _file) {
   file_system::result res;
   file_system::file_ptr file = m_file_mapping->open_file(_file, res);
 
   if (!file) {
+    m_compilation_log->log_error("Could not find file", _file);
     return parse_error::does_not_exist;
   }
 
   memory::unique_ptr<ast_script_file> parsed_file = parse_script(m_allocator,
-      _file, file->typed_range<char>(), &m_type_manager, false,
+      _file, file->typed_range<char>(), nullptr, &m_type_manager, false,
       m_compilation_log, &m_num_warnings, &m_num_errors);
 
   if (parsed_file == nullptr) {
@@ -269,7 +270,7 @@ parse_error jit_engine::parse_file(const char* _file) {
 }
 
 bool jit_engine::register_c_function(containers::string_view _name,
-    containers::contiguous_range<ast_type*> _types, void_f _function) {
+    containers::contiguous_range<const ast_type*> _types, void_f _function) {
   containers::string s = get_mangled_name(m_allocator, _name);
   for (auto& param : _types) {
     s += param->m_mangled_name;

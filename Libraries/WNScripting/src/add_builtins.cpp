@@ -11,38 +11,6 @@
 namespace wn {
 namespace scripting {
 
-namespace {
-memory::unique_ptr<ast_declaration> make_builtin_declaration(
-    memory::allocator* _allocator, containers::string_view _name,
-    const ast_type* _type) {
-  auto decl = memory::make_unique<ast_declaration>(_allocator, nullptr);
-  decl->m_type = _type;
-  decl->m_name = _name.to_string(_allocator);
-  return core::move(decl);
-}
-}  // namespace
-
-void parse_ast_convertor::convertor_context::add_builtin_types() {
-  m_destructor_fn_ptr_t =
-      resolve_function_ptr_type(containers::dynamic_array<const ast_type*>(
-          m_allocator, {m_type_manager->m_void_t.get(),
-                           m_type_manager->m_void_ptr_t.get()}));
-
-  m_shared_object_header = memory::make_unique<ast_type>(m_allocator);
-  m_shared_object_header->m_name =
-      containers::string(m_allocator, "_wns_shared_object");
-  m_shared_object_header->m_builtin = builtin_type::not_builtin;
-  m_shared_object_header->m_classification =
-      ast_type_classification::struct_type;
-  m_shared_object_header->initialized_structure_members(m_allocator)
-      .push_back(make_builtin_declaration(
-          m_allocator, "ref_count", m_type_manager->m_size_t.get()));
-  m_shared_object_header->initialized_structure_members(m_allocator)
-      .push_back(make_builtin_declaration(
-          m_allocator, "destructor", m_destructor_fn_ptr_t));
-  m_ordered_type_definitions.push_back(m_shared_object_header.get());
-}
-
 bool parse_ast_convertor::convertor_context::add_builtin_functions() {
   if (m_external_functions.find(containers::string(m_allocator, "_allocate")) ==
       m_external_functions.end()) {
@@ -75,7 +43,7 @@ void parse_ast_convertor::convertor_context::add_allocate_shared() {
 
   auto fn = memory::make_unique<ast_function>(m_allocator, nullptr);
   fn->m_name = containers::string(m_allocator, "_wns_allocate_shared");
-  fn->m_return_type = m_type_manager->m_void_ptr_t.get();
+  fn->m_return_type = m_type_manager->void_ptr_t(&m_used_types);
   auto scope = memory::make_unique<ast_scope_block>(m_allocator, nullptr);
   scope->m_returns = true;
   auto& body = scope->initialized_statements(m_allocator);
@@ -84,27 +52,27 @@ void parse_ast_convertor::convertor_context::add_allocate_shared() {
   fn->initialized_parameters(m_allocator)
       .emplace_back(
           ast_function::parameter(containers::string(m_allocator, "_size"),
-              m_type_manager->m_size_t.get()));
+              m_type_manager->size_t(&m_used_types)));
   fn->initialized_parameters(m_allocator)
       .emplace_back(ast_function::parameter(
           containers::string(m_allocator, "_destructor"),
-          m_destructor_fn_ptr_t));
+          m_type_manager->destructor_fn_ptr(&m_used_types)));
 
   auto szOf = memory::make_unique<ast_builtin_expression>(m_allocator, nullptr);
-  szOf->m_type = m_type_manager->m_size_t.get();
+  szOf->m_type = m_type_manager->size_t(&m_used_types);
   szOf->initialized_extra_types(m_allocator)
-      .push_back(m_shared_object_header.get());
+      .push_back(m_type_manager->shared_object_header(&m_used_types));
   szOf->m_builtin_type = builtin_expression_type::size_of;
 
   auto in_sz = memory::make_unique<ast_id>(m_allocator, nullptr);
-  in_sz->m_type = m_type_manager->m_size_t.get();
+  in_sz->m_type = m_type_manager->size_t(&m_used_types);
   in_sz->m_function_parameter = &fn->m_parameters[0];
 
   auto size_sum =
       memory::make_unique<ast_binary_expression>(m_allocator, nullptr);
   size_sum->m_lhs = core::move(szOf);
   size_sum->m_rhs = core::move(in_sz);
-  size_sum->m_type = m_type_manager->m_size_t.get();
+  size_sum->m_type = m_type_manager->size_t(&m_used_types);
   size_sum->m_binary_type = ast_binary_type::add;
 
   auto params = containers::dynamic_array<memory::unique_ptr<ast_expression>>(
@@ -115,7 +83,8 @@ void parse_ast_convertor::convertor_context::add_allocate_shared() {
   cast_to_soh->m_base_expression =
       call_function(nullptr, alloc, core::move(params));
   cast_to_soh->m_type = m_type_manager->get_reference_of(
-      m_shared_object_header.get(), ast_type_classification::reference);
+      m_type_manager->shared_object_header(&m_used_types),
+      ast_type_classification::reference, &m_used_types);
 
   auto _decl = memory::make_unique<ast_declaration>(m_allocator, nullptr);
   _decl->m_name = containers::string(m_allocator, "_shared_obj");
@@ -134,13 +103,13 @@ void parse_ast_convertor::convertor_context::add_allocate_shared() {
   _shared_obj_ref_count->m_member_name =
       containers::string(m_allocator, "ref_count");
   _shared_obj_ref_count->m_member_offset = 0;
-  _shared_obj_ref_count->m_type = m_type_manager->m_size_t.get();
+  _shared_obj_ref_count->m_type = m_type_manager->size_t(&m_used_types);
   _shared_obj_ref_count->m_base_expression =
-      clone_node(m_allocator, _shared_obj.get());
+      clone_ast_node(m_allocator, _shared_obj.get());
 
   auto const_1 = memory::make_unique<ast_constant>(m_allocator, nullptr);
   const_1->m_string_value = containers::string(m_allocator, "1");
-  const_1->m_type = m_type_manager->m_size_t.get();
+  const_1->m_type = m_type_manager->size_t(&m_used_types);
   const_1->m_node_value.m_integer = 1;
 
   auto assign = memory::make_unique<ast_assignment>(m_allocator, nullptr);
@@ -150,7 +119,7 @@ void parse_ast_convertor::convertor_context::add_allocate_shared() {
   body.push_back(core::move(assign));
 
   auto in_fn_ptr = memory::make_unique<ast_id>(m_allocator, nullptr);
-  in_fn_ptr->m_type = m_destructor_fn_ptr_t;
+  in_fn_ptr->m_type = m_type_manager->destructor_fn_ptr(&m_used_types);
   in_fn_ptr->m_function_parameter = &fn->m_parameters[1];
 
   auto _shared_obj_destructor =
@@ -158,9 +127,10 @@ void parse_ast_convertor::convertor_context::add_allocate_shared() {
   _shared_obj_destructor->m_member_name =
       containers::string(m_allocator, "destructor");
   _shared_obj_destructor->m_member_offset = 1;
-  _shared_obj_destructor->m_type = m_destructor_fn_ptr_t;
+  _shared_obj_destructor->m_type =
+      m_type_manager->destructor_fn_ptr(&m_used_types);
   _shared_obj_destructor->m_base_expression =
-      clone_node(m_allocator, _shared_obj.get());
+      clone_ast_node(m_allocator, _shared_obj.get());
 
   assign = memory::make_unique<ast_assignment>(m_allocator, nullptr);
   assign->m_lhs = core::move(_shared_obj_destructor);
@@ -169,7 +139,7 @@ void parse_ast_convertor::convertor_context::add_allocate_shared() {
 
   auto retVal =
       memory::make_unique<ast_builtin_expression>(m_allocator, nullptr);
-  retVal->m_type = m_type_manager->m_void_ptr_t.get();
+  retVal->m_type = m_type_manager->void_ptr_t(&m_used_types);
   retVal->initialized_expressions(m_allocator)
       .push_back(core::move(_shared_obj));
   retVal->m_builtin_type = builtin_expression_type::shared_to_pointer;
@@ -188,7 +158,7 @@ void parse_ast_convertor::convertor_context::add_release_shared() {
 
   auto fn = memory::make_unique<ast_function>(m_allocator, nullptr);
   fn->m_name = containers::string(m_allocator, "_wns_release");
-  fn->m_return_type = m_type_manager->m_void_t.get();
+  fn->m_return_type = m_type_manager->void_t(&m_used_types);
 
   auto scope = memory::make_unique<ast_scope_block>(m_allocator, nullptr);
   scope->m_returns = true;
@@ -198,28 +168,28 @@ void parse_ast_convertor::convertor_context::add_release_shared() {
   fn->initialized_parameters(m_allocator)
       .emplace_back(
           ast_function::parameter(containers::string(m_allocator, "_ptr"),
-              m_type_manager->m_void_ptr_t.get()));
+              m_type_manager->void_ptr_t(&m_used_types)));
 
   auto in_param = memory::make_unique<ast_id>(m_allocator, nullptr);
-  in_param->m_type = m_type_manager->m_void_ptr_t.get();
+  in_param->m_type = m_type_manager->void_ptr_t(&m_used_types);
   in_param->m_function_parameter = &fn->m_parameters[0];
 
   auto const_null = memory::make_unique<ast_constant>(m_allocator, nullptr);
   const_null->m_string_value = containers::string(m_allocator, "");
-  const_null->m_type = m_type_manager->m_nullptr_t.get();
+  const_null->m_type = m_type_manager->nullptr_t(&m_used_types);
 
   auto is_null =
       memory::make_unique<ast_binary_expression>(m_allocator, nullptr);
-  is_null->m_lhs = clone_node(m_allocator, in_param.get());
+  is_null->m_lhs = clone_ast_node(m_allocator, in_param.get());
   is_null->m_rhs = core::move(const_null);
-  is_null->m_type = m_type_manager->m_bool_t.get();
+  is_null->m_type = m_type_manager->bool_t(&m_used_types);
   is_null->m_binary_type = ast_binary_type::neq;
 
-  auto i_null = clone_node(m_allocator, is_null.get());
+  auto i_null = clone_ast_node(m_allocator, is_null.get());
 
   auto cast_to_vp =
       memory::make_unique<ast_cast_expression>(m_allocator, nullptr);
-  cast_to_vp->m_type = m_type_manager->m_void_ptr_t.get();
+  cast_to_vp->m_type = m_type_manager->void_ptr_t(&m_used_types);
   cast_to_vp->m_base_expression = core::move(i_null->m_rhs);
   i_null->m_rhs = core::move(cast_to_vp);
 
@@ -234,32 +204,33 @@ void parse_ast_convertor::convertor_context::add_release_shared() {
   auto shr_obj =
       memory::make_unique<ast_builtin_expression>(m_allocator, nullptr);
   shr_obj->m_type = m_type_manager->get_reference_of(
-      m_shared_object_header.get(), ast_type_classification::reference);
+      m_type_manager->shared_object_header(&m_used_types),
+      ast_type_classification::reference, &m_used_types);
   shr_obj->initialized_expressions(m_allocator)
-      .push_back(clone_node(m_allocator, in_param.get()));
+      .push_back(clone_ast_node(m_allocator, in_param.get()));
   shr_obj->m_builtin_type = builtin_expression_type::pointer_to_shared;
 
   auto refCnt =
       memory::make_unique<ast_member_access_expression>(m_allocator, nullptr);
   refCnt->m_member_name = containers::string(m_allocator, "ref_count");
-  refCnt->m_type = m_type_manager->m_size_t.get();
-  refCnt->m_base_expression = clone_node(m_allocator, shr_obj.get());
+  refCnt->m_type = m_type_manager->size_t(&m_used_types);
+  refCnt->m_base_expression = clone_ast_node(m_allocator, shr_obj.get());
   refCnt->m_member_offset = 0;
 
   auto dec = memory::make_unique<ast_builtin_expression>(m_allocator, nullptr);
-  dec->m_type = m_type_manager->m_size_t.get();
+  dec->m_type = m_type_manager->size_t(&m_used_types);
   dec->initialized_expressions(m_allocator).push_back(core::move(refCnt));
   dec->m_builtin_type = builtin_expression_type::atomic_dec;
 
   auto const_1 = memory::make_unique<ast_constant>(m_allocator, nullptr);
   const_1->m_string_value = containers::string(m_allocator, "1");
-  const_1->m_type = m_type_manager->m_size_t.get();
+  const_1->m_type = m_type_manager->size_t(&m_used_types);
   const_1->m_node_value.m_integer = 1;
 
   auto is_1 = memory::make_unique<ast_binary_expression>(m_allocator, nullptr);
   is_1->m_lhs = core::move(dec);
   is_1->m_rhs = core::move(const_1);
-  is_1->m_type = m_type_manager->m_bool_t.get();
+  is_1->m_type = m_type_manager->bool_t(&m_used_types);
   is_1->m_binary_type = ast_binary_type::eq;
 
   auto destroy_block =
@@ -282,17 +253,17 @@ void parse_ast_convertor::convertor_context::add_release_shared() {
   auto destr =
       memory::make_unique<ast_member_access_expression>(m_allocator, nullptr);
   destr->m_member_name = containers::string(m_allocator, "destructor");
-  destr->m_type = m_destructor_fn_ptr_t;
-  destr->m_base_expression = clone_node(m_allocator, shr_obj.get());
+  destr->m_type = m_type_manager->destructor_fn_ptr(&m_used_types);
+  destr->m_base_expression = clone_ast_node(m_allocator, shr_obj.get());
   destr->m_member_offset = 1;
 
   auto cast_to_de =
       memory::make_unique<ast_cast_expression>(m_allocator, nullptr);
-  cast_to_de->m_type = m_destructor_fn_ptr_t;
+  cast_to_de->m_type = m_type_manager->destructor_fn_ptr(&m_used_types);
   cast_to_de->m_base_expression = core::move(is_null->m_rhs);
   is_null->m_rhs = core::move(cast_to_de);
 
-  is_null->m_lhs = clone_node(m_allocator, destr.get());
+  is_null->m_lhs = clone_ast_node(m_allocator, destr.get());
 
   auto has_destr_block =
       memory::make_unique<ast_scope_block>(m_allocator, nullptr);
@@ -306,9 +277,9 @@ void parse_ast_convertor::convertor_context::add_release_shared() {
   auto dest_call =
       memory::make_unique<ast_function_call_expression>(m_allocator, nullptr);
   dest_call->initialized_parameters(m_allocator)
-      .push_back(clone_node(m_allocator, in_param.get()));
+      .push_back(clone_ast_node(m_allocator, in_param.get()));
   dest_call->m_function_ptr = core::move(destr);
-  dest_call->m_type = m_type_manager->m_void_t.get();
+  dest_call->m_type = m_type_manager->void_t(&m_used_types);
 
   auto dest_c =
       memory::make_unique<ast_evaluate_expression>(m_allocator, nullptr);
@@ -317,7 +288,7 @@ void parse_ast_convertor::convertor_context::add_release_shared() {
 
   auto shr_to_voidp =
       memory::make_unique<ast_cast_expression>(m_allocator, nullptr);
-  shr_to_voidp->m_type = m_type_manager->m_void_ptr_t.get();
+  shr_to_voidp->m_type = m_type_manager->void_ptr_t(&m_used_types);
   shr_to_voidp->m_base_expression = core::move(shr_obj);
 
   auto params = containers::dynamic_array<memory::unique_ptr<ast_expression>>(
@@ -339,7 +310,7 @@ void parse_ast_convertor::convertor_context::add_release_shared() {
 void parse_ast_convertor::convertor_context::add_assign_shared() {
   auto fn = memory::make_unique<ast_function>(m_allocator, nullptr);
   fn->m_name = containers::string(m_allocator, "_wns_assign_shared");
-  fn->m_return_type = m_type_manager->m_void_ptr_t.get();
+  fn->m_return_type = m_type_manager->void_ptr_t(&m_used_types);
   auto scope = memory::make_unique<ast_scope_block>(m_allocator, nullptr);
   scope->m_returns = true;
   auto& body = scope->initialized_statements(m_allocator);
@@ -348,23 +319,23 @@ void parse_ast_convertor::convertor_context::add_assign_shared() {
   fn->initialized_parameters(m_allocator)
       .emplace_back(
           ast_function::parameter(containers::string(m_allocator, "_to"),
-              m_type_manager->m_void_ptr_t.get()));
+              m_type_manager->void_ptr_t(&m_used_types)));
   fn->initialized_parameters(m_allocator)
       .emplace_back(
           ast_function::parameter(containers::string(m_allocator, "_from"),
-              m_type_manager->m_void_ptr_t.get()));
+              m_type_manager->void_ptr_t(&m_used_types)));
 
   auto to = memory::make_unique<ast_id>(m_allocator, nullptr);
-  to->m_type = m_type_manager->m_void_ptr_t.get();
+  to->m_type = m_type_manager->void_ptr_t(&m_used_types);
   to->m_function_parameter = &fn->m_parameters[0];
 
   auto from = memory::make_unique<ast_id>(m_allocator, nullptr);
-  from->m_type = m_type_manager->m_void_ptr_t.get();
+  from->m_type = m_type_manager->void_ptr_t(&m_used_types);
   from->m_function_parameter = &fn->m_parameters[1];
 
   auto params = containers::dynamic_array<memory::unique_ptr<ast_expression>>(
       m_allocator);
-  params.push_back(clone_node(m_allocator, to.get()));
+  params.push_back(clone_ast_node(m_allocator, to.get()));
 
   auto deref = call_function(nullptr, m_release_shared, params);
 
@@ -374,18 +345,18 @@ void parse_ast_convertor::convertor_context::add_assign_shared() {
 
   auto const_null = memory::make_unique<ast_constant>(m_allocator, nullptr);
   const_null->m_string_value = containers::string(m_allocator, "");
-  const_null->m_type = m_type_manager->m_nullptr_t.get();
+  const_null->m_type = m_type_manager->nullptr_t(&m_used_types);
 
   auto null_to_vp =
       memory::make_unique<ast_cast_expression>(m_allocator, nullptr);
-  null_to_vp->m_type = m_type_manager->m_void_ptr_t.get();
+  null_to_vp->m_type = m_type_manager->void_ptr_t(&m_used_types);
   null_to_vp->m_base_expression = core::move(const_null);
 
   auto is_null =
       memory::make_unique<ast_binary_expression>(m_allocator, nullptr);
-  is_null->m_lhs = clone_node(m_allocator, from.get());
+  is_null->m_lhs = clone_ast_node(m_allocator, from.get());
   is_null->m_rhs = core::move(null_to_vp);
-  is_null->m_type = m_type_manager->m_bool_t.get();
+  is_null->m_type = m_type_manager->bool_t(&m_used_types);
   is_null->m_binary_type = ast_binary_type::neq;
 
   auto not_null_block =
@@ -400,20 +371,21 @@ void parse_ast_convertor::convertor_context::add_assign_shared() {
   auto shr_obj =
       memory::make_unique<ast_builtin_expression>(m_allocator, nullptr);
   shr_obj->m_type = m_type_manager->get_reference_of(
-      m_shared_object_header.get(), ast_type_classification::reference);
+      m_type_manager->shared_object_header(&m_used_types),
+      ast_type_classification::reference, &m_used_types);
   shr_obj->initialized_expressions(m_allocator)
-      .push_back(clone_node(m_allocator, from.get()));
+      .push_back(clone_ast_node(m_allocator, from.get()));
   shr_obj->m_builtin_type = builtin_expression_type::pointer_to_shared;
 
   auto refCnt =
       memory::make_unique<ast_member_access_expression>(m_allocator, nullptr);
   refCnt->m_member_name = containers::string(m_allocator, "ref_count");
-  refCnt->m_type = m_type_manager->m_size_t.get();
-  refCnt->m_base_expression = clone_node(m_allocator, shr_obj.get());
+  refCnt->m_type = m_type_manager->size_t(&m_used_types);
+  refCnt->m_base_expression = clone_ast_node(m_allocator, shr_obj.get());
   refCnt->m_member_offset = 0;
 
   auto inc = memory::make_unique<ast_builtin_expression>(m_allocator, nullptr);
-  inc->m_type = m_type_manager->m_size_t.get();
+  inc->m_type = m_type_manager->size_t(&m_used_types);
   inc->initialized_expressions(m_allocator).push_back(core::move(refCnt));
   inc->m_builtin_type = builtin_expression_type::atomic_inc;
 
@@ -435,7 +407,7 @@ void parse_ast_convertor::convertor_context::add_assign_shared() {
 void parse_ast_convertor::convertor_context::add_return_shared() {
   auto fn = memory::make_unique<ast_function>(m_allocator, nullptr);
   fn->m_name = containers::string(m_allocator, "_wns_return_shared");
-  fn->m_return_type = m_type_manager->m_void_ptr_t.get();
+  fn->m_return_type = m_type_manager->void_ptr_t(&m_used_types);
   auto scope = memory::make_unique<ast_scope_block>(m_allocator, nullptr);
   scope->m_returns = true;
   auto& body = scope->initialized_statements(m_allocator);
@@ -444,29 +416,30 @@ void parse_ast_convertor::convertor_context::add_return_shared() {
   fn->initialized_parameters(m_allocator)
       .emplace_back(
           ast_function::parameter(containers::string(m_allocator, "_val"),
-              m_type_manager->m_void_ptr_t.get()));
+              m_type_manager->void_ptr_t(&m_used_types)));
 
   auto val = memory::make_unique<ast_id>(m_allocator, nullptr);
-  val->m_type = m_type_manager->m_void_ptr_t.get();
+  val->m_type = m_type_manager->void_ptr_t(&m_used_types);
   val->m_function_parameter = &fn->m_parameters[0];
 
   auto shr_obj =
       memory::make_unique<ast_builtin_expression>(m_allocator, nullptr);
   shr_obj->m_type = m_type_manager->get_reference_of(
-      m_shared_object_header.get(), ast_type_classification::reference);
+      m_type_manager->shared_object_header(&m_used_types),
+      ast_type_classification::reference, &m_used_types);
   shr_obj->initialized_expressions(m_allocator)
-      .push_back(clone_node(m_allocator, val.get()));
+      .push_back(clone_ast_node(m_allocator, val.get()));
   shr_obj->m_builtin_type = builtin_expression_type::pointer_to_shared;
 
   auto refCnt =
       memory::make_unique<ast_member_access_expression>(m_allocator, nullptr);
   refCnt->m_member_name = containers::string(m_allocator, "ref_count");
-  refCnt->m_type = m_type_manager->m_size_t.get();
-  refCnt->m_base_expression = clone_node(m_allocator, shr_obj.get());
+  refCnt->m_type = m_type_manager->size_t(&m_used_types);
+  refCnt->m_base_expression = clone_ast_node(m_allocator, shr_obj.get());
   refCnt->m_member_offset = 0;
 
   auto dec = memory::make_unique<ast_builtin_expression>(m_allocator, nullptr);
-  dec->m_type = m_type_manager->m_size_t.get();
+  dec->m_type = m_type_manager->size_t(&m_used_types);
   dec->initialized_expressions(m_allocator).push_back(core::move(refCnt));
   dec->m_builtin_type = builtin_expression_type::atomic_dec;
 
@@ -486,7 +459,7 @@ void parse_ast_convertor::convertor_context::add_return_shared() {
 void parse_ast_convertor::convertor_context::add_strlen() {
   auto fn = memory::make_unique<ast_function>(m_allocator, nullptr);
   fn->m_name = containers::string(m_allocator, "_wns_strlen");
-  fn->m_return_type = m_type_manager->m_integral_types[32].get();
+  fn->m_return_type = m_type_manager->integral(32, &m_used_types);
   auto scope = memory::make_unique<ast_scope_block>(m_allocator, nullptr);
   scope->m_returns = true;
   auto& body = scope->initialized_statements(m_allocator);
@@ -495,10 +468,10 @@ void parse_ast_convertor::convertor_context::add_strlen() {
   fn->initialized_parameters(m_allocator)
       .emplace_back(
           ast_function::parameter(containers::string(m_allocator, "_val"),
-              m_type_manager->m_cstr_t.get()));
+              m_type_manager->cstr_t(&m_used_types)));
 
   auto val = memory::make_unique<ast_id>(m_allocator, nullptr);
-  val->m_type = m_type_manager->m_cstr_t.get();
+  val->m_type = m_type_manager->cstr_t(&m_used_types);
   val->m_function_parameter = &fn->m_parameters[0];
 
   containers::string temp(m_allocator, "_size");
@@ -509,33 +482,33 @@ void parse_ast_convertor::convertor_context::add_strlen() {
   memory::unique_ptr<ast_declaration> decl =
       memory::make_unique<ast_declaration>(m_allocator, nullptr);
   decl->m_name = temp;
-  decl->m_type = m_type_manager->m_integral_types[32].get();
+  decl->m_type = m_type_manager->integral(32, &m_used_types);
 
   auto zero = memory::make_unique<ast_constant>(m_allocator, nullptr);
-  zero->m_type = m_type_manager->m_integral_types[32].get();
+  zero->m_type = m_type_manager->integral(32, &m_used_types);
   zero->m_node_value.m_integer = 0;
   zero->m_string_value = containers::string(m_allocator, "0");
 
   decl->m_initializer = core::move(zero);
 
   auto sizer = memory::make_unique<ast_id>(m_allocator, nullptr);
-  sizer->m_type = m_type_manager->m_integral_types[32].get();
+  sizer->m_type = m_type_manager->integral(32, &m_used_types);
   sizer->m_declaration = decl.get();
   body.push_back(core::move(decl));
 
   auto const_one = memory::make_unique<ast_constant>(m_allocator, nullptr);
-  const_one->m_type = m_type_manager->m_integral_types[32].get();
+  const_one->m_type = m_type_manager->integral(32, &m_used_types);
   const_one->m_node_value.m_integer = 1;
   const_one->m_string_value = containers::string(m_allocator, "1");
 
   auto add = memory::make_unique<ast_binary_expression>(m_allocator, nullptr);
   add->m_binary_type = ast_binary_type::add;
-  add->m_lhs = clone_node(m_allocator, sizer.get());
+  add->m_lhs = clone_ast_node(m_allocator, sizer.get());
   add->m_rhs = core::move(const_one);
-  add->m_type = m_type_manager->m_integral_types[32].get();
+  add->m_type = m_type_manager->integral(32, &m_used_types);
 
   auto assign = memory::make_unique<ast_assignment>(m_allocator, nullptr);
-  assign->m_lhs = clone_node(m_allocator, sizer.get());
+  assign->m_lhs = clone_ast_node(m_allocator, sizer.get());
   assign->m_rhs = core::move(add);
 
   m_loop->m_body->initialized_statements(m_allocator)
@@ -543,18 +516,18 @@ void parse_ast_convertor::convertor_context::add_strlen() {
 
   auto byte =
       memory::make_unique<ast_array_access_expression>(m_allocator, nullptr);
-  byte->m_type = m_type_manager->m_integral_types[8].get();
+  byte->m_type = m_type_manager->integral(8, &m_used_types);
   byte->m_array = core::move(val);
-  byte->m_index = clone_node(m_allocator, sizer.get());
+  byte->m_index = clone_ast_node(m_allocator, sizer.get());
 
   auto const_zero_char =
       memory::make_unique<ast_constant>(m_allocator, nullptr);
-  const_zero_char->m_type = m_type_manager->m_integral_types[8].get();
+  const_zero_char->m_type = m_type_manager->integral(8, &m_used_types);
   const_zero_char->m_node_value.m_char = 0;
   const_zero_char->m_string_value = containers::string(m_allocator, "0");
 
   auto exit = memory::make_unique<ast_binary_expression>(m_allocator, nullptr);
-  exit->m_type = m_type_manager->m_bool_t.get();
+  exit->m_type = m_type_manager->bool_t(&m_used_types);
   exit->m_lhs = core::move(const_zero_char);
   exit->m_rhs = core::move(byte);
   exit->m_binary_type = ast_binary_type::neq;

@@ -16,15 +16,17 @@ namespace wn {
 namespace scripting {
 
 memory::unique_ptr<ast_script_file> parse_script(memory::allocator* _allocator,
-    const char* file_name, containers::string_view view,
+    const containers::string_view _file_name, containers::string_view view,
+    functional::function<bool(containers::string_view)> _handle_include,
     type_manager* _type_manager, bool _dump_ast_on_failure, logging::log* _log,
     size_t* _num_warnings, size_t* _num_errors) {
+  auto file_name = _file_name.to_string(_allocator);
   WNScriptASTLexer::InputStreamType input(
       const_cast<ANTLR_UINT8*>(
           reinterpret_cast<const ANTLR_UINT8*>(view.data())),
       ANTLR_ENC_8BIT, static_cast<ANTLR_UINT32>(view.size()),
       const_cast<ANTLR_UINT8*>(
-          reinterpret_cast<const ANTLR_UINT8*>(file_name)));
+          reinterpret_cast<const ANTLR_UINT8*>(file_name.c_str())));
 
   WNScriptASTLexer lexer(&input);
   WNScriptASTParser::TokenStreamType tStream(
