@@ -38,8 +38,10 @@ resolve_value_override(memory::allocator* _allocator,
 
 ast_type* parse_ast_convertor::convertor_context::walk_struct_definition(
     const struct_definition* _def) {
-  if (m_handled_definitions.find(_def) != m_handled_definitions.end()) {
-    return m_type_manager->get_or_register_struct(_def->get_name(), &m_used_types);
+  ast_type* resolved_type =
+      m_type_manager->struct_definition_resolved(_def->get_name());
+  if (resolved_type) {
+    return resolved_type;
   }
 
   containers::deque<const struct_definition*> type_chain(m_allocator);
@@ -47,22 +49,22 @@ ast_type* parse_ast_convertor::convertor_context::walk_struct_definition(
 
   const struct_definition* d = _def;
   while (d->get_parent_name() != "") {
-    auto it =
-        m_struct_definitions.find(d->get_parent_name().to_string(m_allocator));
-    if (it == m_struct_definitions.end()) {
+    auto pd = m_type_manager->get_struct_definition(d->get_parent_name());
+    if (pd == nullptr) {
       _def->log_line(m_log, logging::log_level::error);
       m_log->log_error("Could not find parent type:", _def->get_parent_name());
       return nullptr;
     }
-    auto ancestor = walk_struct_definition(it->second);
+
+    auto ancestor = walk_struct_definition(pd);
     if (!ancestor) {
       return nullptr;
     }
     if (!parent_type) {
       parent_type = ancestor;
     }
-    type_chain.push_front(it->second);
-    d = it->second;
+    type_chain.push_front(pd);
+    d = pd;
   }
 
   ast_type* struct_type =
@@ -273,7 +275,7 @@ ast_type* parse_ast_convertor::convertor_context::walk_struct_definition(
     struct_type->m_overloaded_construction_parent = struct_type;
   }
 
-  m_handled_definitions.insert(_def);
+  m_type_manager->set_struct_definition_resolved(_def->get_name(), struct_type);
 
   if (!empty) {
     if (!create_constructor(type_chain,
@@ -1142,9 +1144,8 @@ bool parse_ast_convertor::convertor_context::create_struct_assign(
     auto copy_dest =
         memory::make_unique<ast_member_access_expression>(m_allocator, _def);
     copy_dest->m_base_expression = clone_ast_node(m_allocator, this_id.get());
-    copy_dest->m_base_expression->m_type =
-        m_type_manager->get_reference_of(_initialized_type,
-            ast_type_classification::reference, &m_used_types);
+    copy_dest->m_base_expression->m_type = m_type_manager->get_reference_of(
+        _initialized_type, ast_type_classification::reference, &m_used_types);
     copy_dest->m_member_name = containers::string(m_allocator, it->m_name);
     copy_dest->m_member_offset = pos;
     copy_dest->m_type = t;

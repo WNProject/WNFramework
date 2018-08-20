@@ -17,11 +17,11 @@ namespace scripting {
 // translate_file to perform the actual work.
 class translator {
 public:
-  translator(memory::allocator* _allocator)
+  translator(memory::allocator* _allocator, logging::log* _log)
     : m_num_warnings(0),
       m_num_errors(0),
       m_allocator(_allocator),
-      m_type_manager(_allocator) {}
+      m_type_manager(_allocator, _log) {}
 
   virtual ~translator() = default;
 

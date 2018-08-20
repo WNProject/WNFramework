@@ -175,7 +175,7 @@ CompiledModule::CompiledModule(CompiledModule&& _other)
 
 jit_engine::jit_engine(memory::allocator* _allocator,
     file_system::mapping* _mapping, logging::log* _log)
-  : engine(_allocator),
+  : engine(_allocator, _log),
     m_file_mapping(_mapping),
     m_compilation_log(_log),
     m_context(memory::make_std_unique<llvm::LLVMContext>()),

@@ -11,6 +11,7 @@
 #include "WNContainers/inc/WNHashSet.h"
 #include "WNContainers/inc/WNString.h"
 #include "WNFunctional/inc/WNFunction.h"
+#include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/allocator.h"
 #include "WNMemory/inc/unique_ptr.h"
 #include "WNScripting/inc/WNScriptHelpers.h"
@@ -35,10 +36,11 @@ enum class ast_type_classification {
 };
 
 using used_type_set = containers::hash_set<const ast_type*>;
+class struct_definition;
 
 class type_manager {
 public:
-  type_manager(memory::allocator* _allocator);
+  type_manager(memory::allocator* _allocator, logging::log* _log);
   ~type_manager();
 
   template <typename T>
@@ -206,6 +208,16 @@ public:
     return nullptr;
   }
 
+  bool register_struct_definition(const struct_definition* _def);
+  ast_type* struct_definition_resolved(containers::string_view _name) const;
+  void set_struct_definition_resolved(
+      containers::string_view _name, ast_type* _type);
+  const struct_definition* get_struct_definition(
+      containers::string_view _name) const;
+
+  void set_member_functions_resolved(containers::string_view _name);
+  bool member_functions_resolved(containers::string_view _name) const;
+
 private:
   ast_type* register_external_type(containers::string_view _type,
       uint32_t _size, ast_type* _parent_type = nullptr);
@@ -213,6 +225,7 @@ private:
   void finalize_external_type(ast_type* _type) const;
   containers::string_view internal_get_mangled_name(void* idx) const;
   memory::allocator* m_allocator;
+  logging::log* m_log;
 
   containers::hash_map<containers::string_view, memory::unique_ptr<ast_type>>
       m_external_types;
@@ -253,6 +266,14 @@ private:
       m_function_pointer_types;
 
   containers::deque<ast_type*> m_all_types;
+
+  struct struct_definition_data {
+    memory::unique_ptr<struct_definition> st_def;
+    ast_type* m_resolved;
+    bool member_functions_resolved;
+  };
+  containers::hash_map<containers::string_view, struct_definition_data>
+      m_struct_definitions;
 };
 }  // namespace scripting
 }  // namespace wn

@@ -53,11 +53,11 @@ struct script_virtual_member_function final {
 // C++.
 class engine {
 public:
-  engine(memory::allocator* _allocator)
+  engine(memory::allocator* _allocator, logging::log* _log)
     : m_num_warnings(0),
       m_num_errors(0),
       m_allocator(_allocator),
-      m_type_manager(_allocator) {
+      m_type_manager(_allocator, _log) {
     // These exists to stop the compiler from assuming these are unused.
     (void)assign_type_names;
     (void)short_circuit_type_names;

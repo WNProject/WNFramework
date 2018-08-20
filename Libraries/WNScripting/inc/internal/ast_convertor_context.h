@@ -65,8 +65,7 @@ struct parse_ast_convertor::convertor_context {
   bool resolve_declaration(const declaration* _declaration);
   bool resolve_evaluate_expression(const expression_instruction* _inst);
   bool resolve_if(const if_instruction* _instruction);
-  bool resolve_member_functions(
-      containers::hash_set<const ast_type*>* _handled_types, ast_type* _type);
+  bool resolve_member_functions(ast_type* _type);
   bool resolve_return(const return_instruction* _instruction);
   bool resolve_while_loop(const while_instruction* _inst);
   bool resolve_do_loop(const do_instruction* _inst);
@@ -143,9 +142,6 @@ struct parse_ast_convertor::convertor_context {
 
   memory::allocator* m_allocator;
   const parse_ast_convertor* m_convertor;
-  containers::hash_map<containers::string, const struct_definition*>
-      m_struct_definitions;
-  containers::hash_set<const struct_definition*> m_handled_definitions;
   containers::hash_set<const ast_type*> m_used_types;
 
   containers::deque<ast_scope_block*> m_nested_scopes;

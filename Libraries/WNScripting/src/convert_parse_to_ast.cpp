@@ -14,8 +14,6 @@ parse_ast_convertor::convertor_context::convertor_context(
     type_manager* _type_manager, const parse_ast_convertor* _convertor)
   : m_allocator(_allocator),
     m_convertor(_convertor),
-    m_struct_definitions(_allocator),
-    m_handled_definitions(_allocator),
     m_used_types(_allocator),
     m_nested_scopes(_allocator),
     m_constructor_destructors(_allocator),
@@ -24,8 +22,7 @@ parse_ast_convertor::convertor_context::convertor_context(
     m_current_loop(nullptr),
     m_temporary_number(0),
     m_log(_log),
-    m_type_manager(_type_manager) {
-}
+    m_type_manager(_type_manager) {}
 
 memory::unique_ptr<ast_script_file>
 parse_ast_convertor::convert_parse_tree_to_ast(memory::allocator* _allocator,
@@ -40,13 +37,13 @@ parse_ast_convertor::convert_parse_tree_to_ast(memory::allocator* _allocator,
 }
 
 bool parse_ast_convertor::convertor_context::resolve_member_functions(
-    containers::hash_set<const ast_type*>* _handled_types, ast_type* _type) {
-  if (_handled_types->find(_type) != _handled_types->end()) {
+    ast_type* _type) {
+  if (m_type_manager->member_functions_resolved(_type->m_name)) {
     return true;
   }
 
   if (_type->m_parent_type) {
-    if (!resolve_member_functions(_handled_types, _type->m_parent_type)) {
+    if (!resolve_member_functions(_type->m_parent_type)) {
       return false;
     }
     auto member_functions = core::move(_type->m_member_functions);
@@ -126,7 +123,8 @@ bool parse_ast_convertor::convertor_context::resolve_member_functions(
       ++vtable_index;
     }
   }
-  _handled_types->insert(_type);
+
+  m_type_manager->set_member_functions_resolved(_type->m_name);
   return true;
 }  // namespace scripting
 
@@ -149,14 +147,12 @@ bool parse_ast_convertor::convertor_context::walk_script_file(
   }
 
   for (auto& type : _file->get_structs()) {
-    if (m_struct_definitions.find(type->get_name().to_string(m_allocator)) !=
-        m_struct_definitions.end()) {
-      type->log_line(m_log, logging::log_level::error);
-      m_log->log_error("Doubly defined struct");
+    if (!m_type_manager->register_struct_definition(type.get())) {
+        type->log_line(m_log, logging::log_level::error);
       return false;
     }
-    m_struct_definitions[type->get_name().to_string(m_allocator)] = type.get();
-    (void)m_type_manager->get_or_register_struct(type->get_name(), &m_used_types);
+    (void)m_type_manager->get_or_register_struct(
+        type->get_name(), &m_used_types);
   }
 
   for (auto& type : _file->get_structs()) {
@@ -180,8 +176,8 @@ bool parse_ast_convertor::convertor_context::walk_script_file(
           type->get_name(), &m_used_types);
 
       auto fun = pre_resolve_function(
-          f.get(), m_type_manager->get_reference_of(
-                       st_type, ast_type_classification::reference, &m_used_types));
+          f.get(), m_type_manager->get_reference_of(st_type,
+                       ast_type_classification::reference, &m_used_types));
       if (!fun) {
         return false;
       }
@@ -192,14 +188,12 @@ bool parse_ast_convertor::convertor_context::walk_script_file(
     }
   }
 
-  containers::hash_set<const ast_type*> handled_function_overrides(m_allocator);
-
   // Now that all member functions are initialized, set up all member
   // functions on all struct types.
   for (auto& type : _file->get_structs()) {
     auto st_type =
         m_type_manager->get_or_register_struct(type->get_name(), &m_used_types);
-    if (!resolve_member_functions(&handled_function_overrides, st_type)) {
+    if (!resolve_member_functions(st_type)) {
       return false;
     }
   }

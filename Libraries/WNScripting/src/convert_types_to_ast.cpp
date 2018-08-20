@@ -28,9 +28,8 @@ const ast_type* parse_ast_convertor::convertor_context::resolve_type(
   }
 
   if (!_type->custom_type_name().empty()) {
-    auto it = m_struct_definitions.find(
-        _type->custom_type_name().to_string(m_allocator));
-    if (it == m_struct_definitions.end()) {
+    auto it = m_type_manager->get_struct_definition(_type->custom_type_name());
+    if (!it) {
       auto extern_t =
           m_type_manager->get_external_type(_type->custom_type_name(), &m_used_types);
       if (!extern_t) {
@@ -40,7 +39,7 @@ const ast_type* parse_ast_convertor::convertor_context::resolve_type(
       }
       return extern_t;
     }
-    return walk_struct_definition(it->second);
+    return walk_struct_definition(it);
   }
   WN_DEBUG_ASSERT(_type->get_reference_type() == reference_type::raw,
       "No known struct type can get us here");

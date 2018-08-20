@@ -3,12 +3,14 @@
 // found in the LICENSE.txt file.
 
 #include "WNScripting/inc/type_manager.h"
+#include "WNScripting/inc/WNNodeTypes.h"
 #include "WNScripting/inc/ast_node_types.h"
 
 namespace wn {
 namespace scripting {
-type_manager::type_manager(memory::allocator* _allocator)
+type_manager::type_manager(memory::allocator* _allocator, logging::log* _log)
   : m_allocator(_allocator),
+    m_log(_log),
     m_external_types(_allocator),
     m_externally_visible_types(_allocator),
     m_externals(_allocator),
@@ -21,7 +23,8 @@ type_manager::type_manager(memory::allocator* _allocator)
     m_runtime_array_types(_allocator),
     m_structure_types(_allocator),
     m_function_pointer_types(_allocator),
-    m_all_types(_allocator) {
+    m_all_types(_allocator),
+    m_struct_definitions(_allocator) {
   auto uint32_type = memory::make_unique_delegated<ast_type>(m_allocator,
       [this](void* _memory) { return new (_memory) ast_type(&m_all_types); });
   uint32_type->m_name = containers::string(m_allocator, "Int");
@@ -433,6 +436,61 @@ type_manager::get_initialialization_order(memory::allocator* _allocator,
     }
   }
   return core::move(init);
+}
+
+bool type_manager::register_struct_definition(const struct_definition* _def) {
+  if (m_struct_definitions.find(_def->get_name()) !=
+      m_struct_definitions.end()) {
+    m_log->log_error("Structure ", _def->get_name(), " already defined.");
+    return false;
+  }
+
+  auto st = clone_node(m_allocator, _def);
+  auto nm = st->get_name();
+  m_struct_definitions.insert(
+      core::move(nm), struct_definition_data{core::move(st), nullptr, false});
+  return true;
+}
+
+ast_type* type_manager::struct_definition_resolved(
+    containers::string_view _name) const {
+  WN_DEBUG_ASSERT(
+      m_struct_definitions.find(_name) != m_struct_definitions.end(),
+      "struct_definition was never initialized");
+  return m_struct_definitions[_name].m_resolved;
+}
+
+void type_manager::set_struct_definition_resolved(
+    containers::string_view _name, ast_type* _type) {
+  WN_DEBUG_ASSERT(
+      m_struct_definitions.find(_name) != m_struct_definitions.end(),
+      "struct_definition was never initialized");
+  m_struct_definitions[_name].m_resolved = _type;
+}
+
+void type_manager::set_member_functions_resolved(
+    containers::string_view _name) {
+  WN_DEBUG_ASSERT(
+      m_struct_definitions.find(_name) != m_struct_definitions.end(),
+      "struct_definition was never initialized");
+  m_struct_definitions[_name].member_functions_resolved = true;
+}
+
+bool type_manager::member_functions_resolved(
+    containers::string_view _name) const {
+  WN_DEBUG_ASSERT(
+      m_struct_definitions.find(_name) != m_struct_definitions.end(),
+      "struct_definition was never initialized");
+  return m_struct_definitions[_name].member_functions_resolved;
+}
+
+const struct_definition* type_manager::get_struct_definition(
+    containers::string_view _name) const {
+  auto it = m_struct_definitions.find(_name);
+  if (it == m_struct_definitions.end()) {
+    return nullptr;
+  }
+  return it->second.st_def.get();
 }
 
 }  // namespace scripting

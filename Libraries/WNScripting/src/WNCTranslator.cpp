@@ -17,7 +17,7 @@ namespace scripting {
 c_translator::c_translator(memory::allocator* _allocator,
     file_system::mapping* _source_mapping, file_system::mapping* _dest_mapping,
     logging::log* _log)
-  : translator(_allocator),
+  : translator(_allocator, _log),
     m_source_mapping(_source_mapping),
     m_dest_mapping(_dest_mapping),
     m_compilation_log(_log) {
