@@ -181,7 +181,7 @@ STRUCT:    'struct';
 CLASS:     'class';
 VIRTUAL:   'virtual';
 OVERRIDE:  'override';
-INCLUDE:   '#include';
+INCLUDE:   'include';
 VOID_TYPE: 'Void';
 INT_TYPE:  'Int';
 FLOAT_TYPE: 'Float';
