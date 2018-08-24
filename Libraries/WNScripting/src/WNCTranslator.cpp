@@ -51,7 +51,7 @@ parse_error c_translator::translate_file_with_error(
     if (m_started_files[i] == _file) {
       m_compilation_log->log_error("Recursive include detected");
       m_compilation_log->log_error("        ", _file);
-      for (size_t j = 0; j < m_started_files.size(); ++j) {
+      for (int32_t j = int32_t(m_started_files.size() - 1); j >= 0; --j) {
         m_compilation_log->log_error("        ->", m_started_files[j]);
       }
       return parse_error::invalid_parameters;

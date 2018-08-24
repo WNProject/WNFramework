@@ -485,6 +485,16 @@ void type_manager::finalize_builtin_functions(
   }
 }
 
+void type_manager::finalize_used_externals(
+    const containers::hash_set<const ast_function*>* _used_externals,
+    containers::deque<const ast_function*>* _ordered_used_externals) {
+  for (auto& b : m_externals) {
+    if (_used_externals->find(b.get()) != _used_externals->end()) {
+      _ordered_used_externals->push_back(b.get());
+    }
+  }
+}
+
 void type_manager::finalize_functions(
     const containers::deque<memory::unique_ptr<ast_function>>& functions) {
   // containers::hash_map<containers::string_view, ast_function*>
@@ -502,6 +512,7 @@ void type_manager::finalize_functions(
     }
   }
 
+  // We need to handle these for sure!
   for (auto& t : m_structure_types) {
     if (t.second->m_constructor) {
       if (t.second->m_constructor->m_scope) {

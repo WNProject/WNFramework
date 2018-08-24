@@ -16,6 +16,7 @@ parse_ast_convertor::convertor_context::convertor_context(
     m_convertor(_convertor),
     m_used_types(_allocator),
     m_used_builtins(_allocator),
+    m_used_externals(_allocator),
     m_nested_scopes(_allocator),
     m_constructor_destructors(_allocator),
     m_external_functions(_allocator),
@@ -150,7 +151,6 @@ bool parse_ast_convertor::convertor_context::walk_script_file(
                .first;
     }
     it->second.push_back(ext.get());
-    m_script_file->m_external_functions.push_back(ext.get());
   }
 
   for (auto& type : _file->get_structs()) {
@@ -222,6 +222,10 @@ bool parse_ast_convertor::convertor_context::walk_script_file(
 
   m_script_file->m_initialization_order =
       m_type_manager->get_initialialization_order(m_allocator, m_used_types);
+
+  m_type_manager->finalize_used_externals(
+      &m_used_externals, &m_script_file->m_used_externals);
+
   m_type_manager->finalize_functions(m_script_file->m_functions);
   // We use finalize_builtin_functions so that the builtins in the
   // script file will be strongly ordered. Otherwise the hash_set

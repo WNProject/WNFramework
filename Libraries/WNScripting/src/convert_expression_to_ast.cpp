@@ -572,6 +572,9 @@ parse_ast_convertor::convertor_context::resolve_function_call(
   }
 
   function_call->m_function = possible_functions->get(match_index);
+  if (function_call->m_function->m_is_external) {
+    m_used_externals.insert(function_call->m_function);
+  }
   for (size_t i = 0; i < params.size(); ++i) {
     if (i == 0 && cast_first_param) {
       params[i] = make_cast(core::move(params[i]),

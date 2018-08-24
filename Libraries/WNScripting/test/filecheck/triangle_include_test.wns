@@ -2,12 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-include "includee.wns"
+include "triangle_include1.wns"
+include "triangle_include2.wns"
 
 // CHECK: int32_t _ZN3wns11add_numbersEiii(int32_t _0, int32_t _1);
 
-// RUN: add_two_numbers 2 5 -> 7
-// RUN: add_two_numbers -4 32 -> 28
+// RUN: add_two_numbers 3 12 -> 15
 // CHECK: {{add_two_numbersE.*{}}
 Int add_two_numbers(Int x, Int y) {
     return add_numbers(x, y);

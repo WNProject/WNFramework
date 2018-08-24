@@ -135,6 +135,7 @@ struct parse_ast_convertor::convertor_context {
   const parse_ast_convertor* m_convertor;
   containers::hash_set<const ast_type*> m_used_types;
   containers::hash_set<const ast_function*> m_used_builtins;
+  containers::hash_set<const ast_function*> m_used_externals;
 
   containers::deque<ast_scope_block*> m_nested_scopes;
   containers::deque<memory::unique_ptr<ast_statement>>* m_current_statements;

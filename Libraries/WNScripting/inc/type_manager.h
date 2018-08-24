@@ -103,6 +103,10 @@ public:
       const containers::hash_set<const ast_function*>* _used_builtins,
       containers::deque<const ast_function*>* _ordered_used_builtins);
 
+  void finalize_used_externals(
+      const containers::hash_set<const ast_function*>* _used_externals,
+      containers::deque<const ast_function*>* _ordered_used_externals);
+
   const ast_type* resolve_function_ptr_type(
       containers::dynamic_array<const ast_type*> _types, used_type_set* _used);
 

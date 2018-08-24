@@ -1,0 +1,16 @@
+// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE.txt file.
+
+include "includee.wns"
+include "includee2.wns"
+
+// CHECK: int32_t _ZN3wns11add_numbersEiii(int32_t _0, int32_t _1);
+// CHECK: int32_t _ZN3wns21add_two_numbers_twiceEiii(int32_t _0, int32_t _1);
+
+// RUN: add_two_numbers_again 2 5 -> 21
+// RUN: add_two_numbers_again -4 32 -> 84
+// CHECK: {{add_two_numbers_againE.*{}}
+Int add_two_numbers_again(Int x, Int y) {
+    return add_numbers(x, y) + add_two_numbers_twice(x, y);
+}

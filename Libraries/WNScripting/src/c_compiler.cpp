@@ -69,12 +69,26 @@ bool c_compiler::compile(const ast_script_file* _file) {
   m_output +=
       "////////////////////////////////////////"
       "////////////////////////////////////////\n";
-  for (auto& function : _file->m_used_builtins) {
-    if (!forward_declare_function(function)) {
-      return false;
+  if (_file->m_used_builtins.size() > 0) {
+    m_output += "// BUILTIN FUNCTIONS //\n";
+
+    for (auto& function : _file->m_used_builtins) {
+      if (!forward_declare_function(function)) {
+        return false;
+      }
     }
   }
 
+  if (_file->m_used_externals.size() > 0) {
+    m_output += "// EXTERNAL FUNCTIONS //\n";
+    for (auto& function : _file->m_used_externals) {
+      if (!forward_declare_function(function)) {
+        return false;
+      }
+    }
+  }
+
+  m_output += "// DEFINED FUNCTIONS //\n";
   for (auto& function : _file->m_functions) {
     if (!forward_declare_function(function.get())) {
       return false;
