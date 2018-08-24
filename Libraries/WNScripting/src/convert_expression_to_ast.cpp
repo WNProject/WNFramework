@@ -438,6 +438,22 @@ parse_ast_convertor::convertor_context::resolve_array_allocation_expression(
   return id;
 }
 
+struct p_functions {
+  virtual size_t size() = 0;
+  virtual const ast_function* get(size_t i) = 0;
+};
+
+template <typename T>
+struct p_functions_t : p_functions {
+  const containers::deque<T*>* deq;
+  size_t size() override {
+    return deq->size();
+  }
+  const ast_function* get(size_t i) override {
+    return (*deq)[i];
+  }
+};
+
 memory::unique_ptr<ast_function_call_expression>
 parse_ast_convertor::convertor_context::resolve_function_call(
     const function_call_expression* _call) {
@@ -452,8 +468,10 @@ parse_ast_convertor::convertor_context::resolve_function_call(
   transfer_temporaries(function_call.get(), base_expr.get());
   auto& params = function_call->initialized_parameters(m_allocator);
   containers::string function_name;
+  p_functions_t<ast_function> m_non_const_functions;
+  p_functions_t<const ast_function> m_const_functions;
 
-  const containers::deque<ast_function*>* possible_functions = nullptr;
+  p_functions* possible_functions = nullptr;
   bool cast_first_param = false;
   switch (base_expr->m_node_type) {
     case ast_node_type::ast_id: {
@@ -464,7 +482,8 @@ parse_ast_convertor::convertor_context::resolve_function_call(
         m_log->log_error("Cannot find function with name ", child_id->name());
         return nullptr;
       }
-      possible_functions = &(it->second);
+      m_const_functions.deq = &(it->second);
+      possible_functions = &m_const_functions;
       function_name = containers::string(m_allocator, child_id->name());
       break;
     }
@@ -491,7 +510,8 @@ parse_ast_convertor::convertor_context::resolve_function_call(
             struct_type->m_name);
       }
       cast_first_param = true;
-      possible_functions = &struct_type->m_member_functions;
+      m_non_const_functions.deq = &struct_type->m_member_functions;
+      possible_functions = &m_non_const_functions;
       function_name =
           containers::string(m_allocator, member_access->m_member_name);
       params.push_back(core::move(member_access->m_base_expression));
@@ -514,7 +534,9 @@ parse_ast_convertor::convertor_context::resolve_function_call(
 
   uint32_t total_matches = 0;
   uint32_t match_index = 0;
-  for (const auto& fn : *possible_functions) {
+
+  for (size_t fi = 0; fi < possible_functions->size(); ++fi) {
+    const auto fn = possible_functions->get(fi);
     if (total_matches == 0) {
       ++match_index;
     }
@@ -549,7 +571,7 @@ parse_ast_convertor::convertor_context::resolve_function_call(
     return nullptr;
   }
 
-  function_call->m_function = (*possible_functions)[match_index];
+  function_call->m_function = possible_functions->get(match_index);
   for (size_t i = 0; i < params.size(); ++i) {
     if (i == 0 && cast_first_param) {
       params[i] = make_cast(core::move(params[i]),
@@ -706,9 +728,9 @@ parse_ast_convertor::convertor_context::resolve_builtin_unary_expression(
       if (c->m_type->m_builtin == builtin_type::c_string_type) {
         auto fncall = memory::make_unique<ast_function_call_expression>(
             m_allocator, _expr);
-        fncall->m_function = m_strlen;
+        fncall->m_function = m_type_manager->strlen(&m_used_builtins);
         fncall->initialized_parameters(m_allocator).push_back(core::move(c));
-        fncall->m_type = m_strlen->m_return_type;
+        fncall->m_type = fncall->m_function->m_return_type;
         return core::move(fncall);
       } else {
         if (c->m_type->m_classification !=
@@ -781,8 +803,8 @@ memory::unique_ptr<ast_expression> parse_ast_convertor::convertor_context::
 
   memory::unique_ptr<ast_function_call_expression> allocate =
       memory::make_unique<ast_function_call_expression>(m_allocator, _alloc);
-  allocate->m_function = m_allocate_shared;
-  allocate->m_type = m_allocate_shared->m_return_type;
+  allocate->m_function = m_type_manager->allocate_shared(&m_used_builtins);
+  allocate->m_type = allocate->m_function->m_return_type;
   allocate->initialized_parameters(m_allocator)
       .push_back(core::move(num_bytes));
   allocate->initialized_parameters(m_allocator)

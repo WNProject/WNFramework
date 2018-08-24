@@ -189,6 +189,7 @@ jit_engine::jit_engine(memory::allocator* _allocator,
   register_function("_allocate", &do_allocate);
   register_function("_free", &do_free);
   register_function("_allocate_runtime_array", &do_allocate_array);
+  m_type_manager.finalize_builtins();
 }
 
 jit_engine::~jit_engine() {}

@@ -15,6 +15,7 @@ parse_ast_convertor::convertor_context::convertor_context(
   : m_allocator(_allocator),
     m_convertor(_convertor),
     m_used_types(_allocator),
+    m_used_builtins(_allocator),
     m_nested_scopes(_allocator),
     m_constructor_destructors(_allocator),
     m_external_functions(_allocator),
@@ -134,21 +135,21 @@ bool parse_ast_convertor::convertor_context::walk_script_file(
       memory::make_unique<ast_script_file>(m_allocator, _file, m_allocator);
 
   for (auto& ext : m_type_manager->external_functions()) {
-    auto fun = resolve_external(ext);
-    if (!fun) {
-      return false;
+    m_external_functions[ext->m_name] = ext.get();
+    auto it = m_named_functions.find(ext->m_name);
+    if (it == m_named_functions.end()) {
+      it = m_named_functions
+               .insert(core::make_pair(ext->m_name,
+                   containers::deque<const ast_function*>(m_allocator)))
+               .first;
     }
-    m_external_functions[fun->m_name] = fun.get();
-    m_script_file->m_functions.push_back(core::move(fun));
-  }
-
-  if (!add_builtin_functions()) {
-    return false;
+    it->second.push_back(ext.get());
+    m_script_file->m_external_functions.push_back(ext.get());
   }
 
   for (auto& type : _file->get_structs()) {
     if (!m_type_manager->register_struct_definition(type.get())) {
-        type->log_line(m_log, logging::log_level::error);
+      type->log_line(m_log, logging::log_level::error);
       return false;
     }
     (void)m_type_manager->get_or_register_struct(
@@ -215,6 +216,14 @@ bool parse_ast_convertor::convertor_context::walk_script_file(
 
   m_script_file->m_initialization_order =
       m_type_manager->get_initialialization_order(m_allocator, m_used_types);
+  m_type_manager->finalize_functions(m_script_file->m_functions);
+  // We use finalize_builtin_functions so that the builtins in the
+  // script file will be strongly ordered. Otherwise the hash_set
+  // would be unordered, and we would end up with non-deterministic
+  // outputs.
+  m_type_manager->finalize_builtin_functions(
+      &m_used_builtins, &m_script_file->m_used_builtins);
+
   return true;
 }
 

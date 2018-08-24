@@ -22,6 +22,11 @@ namespace scripting {
 using void_f = void (*)();
 
 struct ast_type;
+class struct_definition;
+struct ast_function;
+struct ast_function_call_expression;
+struct ast_expression;
+class node;
 
 enum class ast_type_classification {
   primitive,
@@ -36,7 +41,6 @@ enum class ast_type_classification {
 };
 
 using used_type_set = containers::hash_set<const ast_type*>;
-class struct_definition;
 
 class type_manager {
 public:
@@ -92,12 +96,21 @@ public:
       memory::allocator* _allocator,
       const containers::hash_set<const ast_type*>& _types);
 
+  void finalize_functions(
+      const containers::deque<memory::unique_ptr<ast_function>>& functions);
+
+  void finalize_builtin_functions(
+      const containers::hash_set<const ast_function*>* _used_builtins,
+      containers::deque<const ast_function*>* _ordered_used_builtins);
+
   const ast_type* resolve_function_ptr_type(
       containers::dynamic_array<const ast_type*> _types, used_type_set* _used);
 
-  external_function* add_external(external_function function) {
-    m_externals.push_back(function);
-    return &m_externals.back();
+  void add_external(const external_function& function);
+  // finalize_builtins must be called after _allocate, _free, and
+  // _allocate_runtime_array have been called
+  void finalize_builtins() {
+    add_builtins();
   }
 
   const ast_type* void_t(used_type_set* _used) {
@@ -184,9 +197,11 @@ public:
     return it->second.get();
   }
 
-  const containers::deque<external_function>& external_functions() const {
+  const containers::deque<memory::unique_ptr<ast_function>>&
+  external_functions() const {
     return m_externals;
   }
+
   ast_type* register_external_type(containers::string_view _type);
   const ast_type* get_external_type(
       containers::string_view _name, used_type_set* _used) const {
@@ -218,9 +233,56 @@ public:
   void set_member_functions_resolved(containers::string_view _name);
   bool member_functions_resolved(containers::string_view _name) const;
 
+  const ast_function* allocate_shared(
+      containers::hash_set<const ast_function*>* _used_functions) {
+    if (_used_functions) {
+      _used_functions->insert(m_allocate_shared);
+    }
+    return m_allocate_shared;
+  }
+  const ast_function* release_shared(
+      containers::hash_set<const ast_function*>* _used_functions) {
+    if (_used_functions) {
+      _used_functions->insert(m_release_shared);
+    }
+    return m_release_shared;
+  }
+  const ast_function* assign_shared(
+      containers::hash_set<const ast_function*>* _used_functions) {
+    if (_used_functions) {
+      _used_functions->insert(m_assign_shared);
+      _used_functions->insert(m_release_shared);
+    }
+    return m_assign_shared;
+  }
+  const ast_function* return_shared(
+      containers::hash_set<const ast_function*>* _used_functions) {
+    if (_used_functions) {
+      _used_functions->insert(m_return_shared);
+    }
+    return m_return_shared;
+  }
+  const ast_function* strlen(
+      containers::hash_set<const ast_function*>* _used_functions) {
+    if (_used_functions) {
+      _used_functions->insert(m_strlen);
+    }
+    return m_strlen;
+  }
+
 private:
   ast_type* register_external_type(containers::string_view _type,
       uint32_t _size, ast_type* _parent_type = nullptr);
+  void add_builtins() {
+    add_builtin_functions();
+  }
+
+  bool add_builtin_functions();
+  void add_allocate_shared();
+  void add_release_shared();
+  void add_assign_shared();
+  void add_return_shared();
+  void add_strlen();
 
   void finalize_external_type(ast_type* _type) const;
   containers::string_view internal_get_mangled_name(void* idx) const;
@@ -230,7 +292,11 @@ private:
   containers::hash_map<containers::string_view, memory::unique_ptr<ast_type>>
       m_external_types;
   containers::hash_map<void*, ast_type*> m_externally_visible_types;
-  containers::deque<external_function> m_externals;
+  containers::deque<memory::unique_ptr<ast_function>> m_externals;
+  containers::hash_map<containers::string_view, ast_function*>
+      m_externals_by_name;
+  containers::deque<memory::unique_ptr<ast_function>> m_builtins;
+
   memory::unique_ptr<ast_type> m_void_t;
   memory::unique_ptr<ast_type> m_void_ptr_t;
   memory::unique_ptr<ast_type> m_bool_t;
@@ -239,6 +305,12 @@ private:
   memory::unique_ptr<ast_type> m_nullptr_t;
   memory::unique_ptr<ast_type> m_vtable_t;
   memory::unique_ptr<ast_type> m_cstr_t;
+  const ast_function* m_allocate_shared;
+  const ast_function* m_release_shared;
+  const ast_function* m_assign_shared;
+  const ast_function* m_return_shared;
+  const ast_function* m_strlen;
+
   containers::hash_map<uint32_t, memory::unique_ptr<ast_type>> m_integral_types;
   containers::hash_map<uint32_t, memory::unique_ptr<ast_type>> m_float_types;
 
@@ -274,6 +346,11 @@ private:
   };
   containers::hash_map<containers::string_view, struct_definition_data>
       m_struct_definitions;
+
+  memory::unique_ptr<ast_function_call_expression> call_function(
+      const node* _base_node, const ast_function* _func,
+      containers::contiguous_range<memory::unique_ptr<ast_expression>>
+          _expressions);
 };
 }  // namespace scripting
 }  // namespace wn

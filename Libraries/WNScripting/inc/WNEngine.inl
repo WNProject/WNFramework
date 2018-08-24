@@ -65,10 +65,10 @@ bool inline engine::register_function(
     containers::string_view _name, R (*_function)(Args...)) {
   containers::dynamic_array<const ast_type*> params =
       m_type_manager.get_types<R, Args...>();
-  auto ext = m_type_manager.add_external(
-      external_function{_name, core::move(params)});
+  external_function f{_name, core::move(params)};
+  m_type_manager.add_external(f);
   return register_c_function(
-      _name, ext->params, reinterpret_cast<void_f>(_function));
+      _name, f.params, reinterpret_cast<void_f>(_function));
 }
 
 template <typename T>

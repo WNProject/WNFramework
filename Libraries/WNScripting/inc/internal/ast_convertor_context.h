@@ -49,15 +49,6 @@ struct parse_ast_convertor::convertor_context {
       const function* _function, const ast_type* _implicit_this = nullptr);
   bool resolve_function(
       const function* _function, ast_function* _resolved_function);
-  memory::unique_ptr<ast_function> resolve_external(
-      const external_function _function);
-  // Builtin Functions
-  bool add_builtin_functions();
-  void add_allocate_shared();
-  void add_release_shared();
-  void add_assign_shared();
-  void add_return_shared();
-  void add_strlen();
 
   // Statements
   bool resolve_statement(const instruction* _instruction);
@@ -143,6 +134,7 @@ struct parse_ast_convertor::convertor_context {
   memory::allocator* m_allocator;
   const parse_ast_convertor* m_convertor;
   containers::hash_set<const ast_type*> m_used_types;
+  containers::hash_set<const ast_function*> m_used_builtins;
 
   containers::deque<ast_scope_block*> m_nested_scopes;
   containers::deque<memory::unique_ptr<ast_statement>>* m_current_statements;
@@ -154,16 +146,12 @@ struct parse_ast_convertor::convertor_context {
   containers::hash_map<containers::string, ast_function*> m_external_functions;
 
   // Unmangled functions
-  containers::hash_map<containers::string, containers::deque<ast_function*>>
+  containers::hash_map<containers::string,
+      containers::deque<const ast_function*>>
       m_named_functions;
 
   memory::unique_ptr<ast_script_file> m_script_file;
 
-  ast_function* m_allocate_shared;
-  ast_function* m_release_shared;
-  ast_function* m_assign_shared;
-  ast_function* m_return_shared;
-  ast_function* m_strlen;
   ast_loop* m_current_loop;
 
   uint32_t m_temporary_number;

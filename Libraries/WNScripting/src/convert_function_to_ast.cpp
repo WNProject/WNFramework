@@ -32,7 +32,7 @@ parse_ast_convertor::convertor_context::pre_resolve_function(
     if (it == m_named_functions.end()) {
       it = m_named_functions
                .insert(core::make_pair(function->m_name,
-                   containers::deque<ast_function*>(m_allocator)))
+                   containers::deque<const ast_function*>(m_allocator)))
                .first;
     }
     it->second.push_back(function.get());
@@ -67,52 +67,6 @@ parse_ast_convertor::convertor_context::pre_resolve_function(
   return function;
 }
 
-memory::unique_ptr<ast_function>
-parse_ast_convertor::convertor_context::resolve_external(
-    const external_function _function) {
-  memory::unique_ptr<ast_function> function =
-      memory::make_unique<ast_function>(m_allocator, nullptr);
-
-  function->m_return_type = _function.params[0];
-  if (!function->m_return_type) {
-    return nullptr;
-  }
-
-  function->m_name = _function.name.to_string(m_allocator);
-  auto it = m_named_functions.find(function->m_name);
-  if (it == m_named_functions.end()) {
-    it = m_named_functions
-             .insert(core::make_pair(function->m_name,
-                 containers::deque<ast_function*>(m_allocator)))
-             .first;
-  }
-  it->second.push_back(function.get());
-
-  char count[11] = {
-      0,
-  };
-
-  containers::deque<ast_function::parameter>& function_params =
-      function->initialized_parameters(m_allocator);
-  uint32_t c = 0;
-  bool first = true;
-  for (auto param : _function.params) {
-    if (first) {
-      first = false;
-      continue;
-    }
-    memory::writeuint32(count, c, 10);
-
-    containers::string nm(m_allocator, "_");
-    nm += count;
-    function_params.push_back(ast_function::parameter{core::move(nm), param});
-    c++;
-  }
-
-  function->calculate_mangled_name(m_allocator);
-  return function;
-}
-
 bool parse_ast_convertor::convertor_context::resolve_function(
     const function* _function, ast_function* _resolved_function) {
   ast_function* function = _resolved_function;
@@ -127,16 +81,14 @@ bool parse_ast_convertor::convertor_context::resolve_function(
   m_current_function = function;
 
   if (function->m_return_type != m_type_manager->void_t(&m_used_types)) {
-      memory::unique_ptr<ast_declaration> return_decl;
-      return_decl =
-          memory::make_unique<ast_declaration>(m_allocator, _function);
-      return_decl->m_name = containers::string(m_allocator, "_return");
-      return_decl->m_type = function->m_return_type;
-      m_return_decl = return_decl.get();
-      scope->initialized_declarations(m_allocator).push_back(return_decl.get());
-      m_current_statements->push_back(core::move(return_decl));
-    }
-  else {
+    memory::unique_ptr<ast_declaration> return_decl;
+    return_decl = memory::make_unique<ast_declaration>(m_allocator, _function);
+    return_decl->m_name = containers::string(m_allocator, "_return");
+    return_decl->m_type = function->m_return_type;
+    m_return_decl = return_decl.get();
+    scope->initialized_declarations(m_allocator).push_back(return_decl.get());
+    m_current_statements->push_back(core::move(return_decl));
+  } else {
     m_return_decl = nullptr;
   }
 
@@ -148,11 +100,9 @@ bool parse_ast_convertor::convertor_context::resolve_function(
 
   if (!scope->m_returns) {
     if (function->m_return_type == m_type_manager->void_t(&m_used_types)) {
-        m_current_statements->push_back(
-            memory::make_unique<ast_return_instruction>(
-                m_allocator, _function));
-      }
-    else {
+      m_current_statements->push_back(
+          memory::make_unique<ast_return_instruction>(m_allocator, _function));
+    } else {
       _function->log_line(m_log, logging::log_level::error);
       m_log->log_error("Error function must return");
       return false;

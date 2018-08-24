@@ -34,6 +34,7 @@ c_translator::c_translator(memory::allocator* _allocator,
       containers::dynamic_array<const ast_type*>(m_allocator,
           {m_type_manager.void_ptr_t(nullptr), m_type_manager.size_t(nullptr),
               m_type_manager.size_t(nullptr)})});
+  m_type_manager.finalize_builtins();
 }
 
 parse_error c_translator::translate_file_with_error(

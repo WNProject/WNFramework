@@ -41,8 +41,9 @@ bool parse_ast_convertor::convertor_context::resolve_return(
         params.push_back(core::move(null_as_vptr));
         params.push_back(core::move(make_cast(
             core::move(expr), m_type_manager->void_ptr_t(&m_used_types))));
-        expr = make_cast(
-            call_function(_instruction, m_assign_shared, core::move(params)),
+        expr = make_cast(call_function(_instruction,
+                             m_type_manager->assign_shared(&m_used_builtins),
+                             core::move(params)),
             etype);
       }
     }
@@ -64,9 +65,11 @@ bool parse_ast_convertor::convertor_context::resolve_return(
           m_allocator);
       params.push_back(make_cast(clone_ast_node(m_allocator, id_expr.get()),
           m_type_manager->void_ptr_t(&m_used_types)));
-      ret_expr->m_return_expr = make_cast(
-          call_function(_instruction, m_return_shared, core::move(params)),
-          m_return_decl->m_type);
+      ret_expr->m_return_expr =
+          make_cast(call_function(_instruction,
+                        m_type_manager->return_shared(&m_used_builtins),
+                        core::move(params)),
+              m_return_decl->m_type);
     }
 
     auto assign =
@@ -420,15 +423,17 @@ bool parse_ast_convertor::convertor_context::resolve_declaration(
           params.push_back(
               core::move(make_cast(core::move(alloc->m_initializer),
                   m_type_manager->void_ptr_t(&m_used_types))));
-          alloc->m_initializer = make_cast(
-              call_function(_declaration, m_assign_shared, core::move(params)),
-              type->m_implicitly_contained_type);
+          alloc->m_initializer =
+              make_cast(call_function(_declaration,
+                            m_type_manager->assign_shared(&m_used_builtins),
+                            core::move(params)),
+                  type->m_implicitly_contained_type);
         }
         // Destructor
         memory::unique_ptr<ast_array_destruction> dest =
             memory::make_unique<ast_array_destruction>(
                 m_allocator, _declaration);
-        dest->m_destructor = m_release_shared;
+        dest->m_destructor = m_type_manager->release_shared(&m_used_builtins);
         dest->m_shared = true;
         memory::unique_ptr<ast_expression> dest_id =
             clone_ast_node(m_allocator, alloc->m_initializee.get());
@@ -485,8 +490,9 @@ bool parse_ast_convertor::convertor_context::resolve_declaration(
         params.push_back(core::move(null_as_vptr));
         params.push_back(core::move(make_cast(
             core::move(init), m_type_manager->void_ptr_t(&m_used_types))));
-        init = make_cast(
-            call_function(_declaration, m_assign_shared, core::move(params)),
+        init = make_cast(call_function(_declaration,
+                             m_type_manager->assign_shared(&m_used_builtins),
+                             core::move(params)),
             type);
       }
 
@@ -525,7 +531,8 @@ bool parse_ast_convertor::convertor_context::resolve_declaration(
     memory::unique_ptr<ast_function_call_expression> function_call =
         memory::make_unique<ast_function_call_expression>(
             m_allocator, _declaration);
-    function_call->m_function = m_release_shared;
+    function_call->m_function =
+        m_type_manager->release_shared(&m_used_builtins);
     auto id = memory::make_unique<ast_id>(m_allocator, _declaration);
     id->m_type = decl->m_type;
     id->m_declaration = decl.get();
@@ -610,7 +617,9 @@ bool parse_ast_convertor::convertor_context::resolve_assignment(
         m_type_manager->void_ptr_t(&m_used_types)));
     params.push_back(
         make_cast(core::move(rhs), m_type_manager->void_ptr_t(&m_used_types)));
-    rhs = make_cast(call_function(_assign, m_assign_shared, core::move(params)),
+    rhs = make_cast(
+        call_function(_assign, m_type_manager->assign_shared(&m_used_builtins),
+            core::move(params)),
         lhs->m_type);
   }
 

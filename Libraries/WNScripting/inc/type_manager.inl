@@ -8,7 +8,8 @@ struct exporter_base {
   void add_contained_type(
       containers::string_view _name, const ast_type* _type, uint32_t offset);
   containers::string_view add_contained_function(containers::string_view _name,
-      containers::dynamic_array<const ast_type*> _types, bool _is_external_pseudo);
+      containers::dynamic_array<const ast_type*> _types,
+      bool _is_external_pseudo);
 
 protected:
   exporter_base(ast_type* _type, memory::allocator* _allocator,

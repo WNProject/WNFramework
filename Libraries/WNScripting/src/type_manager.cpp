@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNScripting/inc/type_manager.h"
 #include "WNScripting/inc/WNNodeTypes.h"
 #include "WNScripting/inc/ast_node_types.h"
+#include "WNScripting/inc/type_manager.h"
 
 namespace wn {
 namespace scripting {
@@ -14,6 +14,8 @@ type_manager::type_manager(memory::allocator* _allocator, logging::log* _log)
     m_external_types(_allocator),
     m_externally_visible_types(_allocator),
     m_externals(_allocator),
+    m_externals_by_name(_allocator),
+    m_builtins(_allocator),
     m_integral_types(_allocator),
     m_float_types(_allocator),
     m_reference_types(_allocator),
@@ -436,6 +438,80 @@ type_manager::get_initialialization_order(memory::allocator* _allocator,
     }
   }
   return core::move(init);
+}
+
+void type_manager::add_external(const external_function& _function) {
+  memory::unique_ptr<ast_function> function =
+      memory::make_unique<ast_function>(m_allocator, nullptr);
+
+  function->m_return_type = _function.params[0];
+  function->m_is_external = true;
+  function->m_name = _function.name.to_string(m_allocator);
+
+  char count[11] = {
+      0,
+  };
+
+  containers::deque<ast_function::parameter>& function_params =
+      function->initialized_parameters(m_allocator);
+  uint32_t c = 0;
+  bool first = true;
+  for (auto param : _function.params) {
+    if (first) {
+      first = false;
+      continue;
+    }
+    memory::writeuint32(count, c, 10);
+
+    containers::string nm(m_allocator, "_");
+    nm += count;
+    function_params.push_back(ast_function::parameter{core::move(nm), param});
+    c++;
+  }
+
+  function->calculate_mangled_name(m_allocator);
+  m_externals_by_name[function->m_mangled_name] = function.get();
+  m_externals.push_back(core::move(function));
+  return;
+}
+
+void type_manager::finalize_builtin_functions(
+    const containers::hash_set<const ast_function*>* _used_builtins,
+    containers::deque<const ast_function*>* _ordered_used_builtins) {
+  for (auto& b : m_builtins) {
+    if (_used_builtins->find(b.get()) != _used_builtins->end()) {
+      _ordered_used_builtins->push_back(b.get());
+    }
+  }
+}
+
+void type_manager::finalize_functions(
+    const containers::deque<memory::unique_ptr<ast_function>>& functions) {
+  // containers::hash_map<containers::string_view, ast_function*>
+  for (auto& fn : functions) {
+    if (!fn->m_is_external && !fn->m_is_builtin) {
+      external_function e;
+      e.params = containers::dynamic_array<const ast_type*>(m_allocator);
+      e.params.reserve(fn->m_parameters.size() + 1);
+      e.params.push_back(fn->m_return_type);
+      for (auto& p : fn->m_parameters) {
+        e.params.push_back(p.m_type);
+      }
+      e.name = fn->m_name;
+      add_external(e);
+    }
+  }
+
+  for (auto& t : m_structure_types) {
+    if (t.second->m_constructor) {
+      if (t.second->m_constructor->m_scope) {
+      }
+    }
+    if (t.second->m_destructor) {
+    }
+    if (t.second->m_assignment) {
+    }
+  }
 }
 
 bool type_manager::register_struct_definition(const struct_definition* _def) {

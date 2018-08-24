@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNScripting/inc/c_compiler.h"
 #include "WNContainers/inc/WNHashMap.h"
 #include "WNContainers/inc/WNHashSet.h"
 #include "WNScripting/inc/WNNodeTypes.h"
+#include "WNScripting/inc/c_compiler.h"
 #include "WNScripting/inc/internal/c_preamble.h"
 #include "WNScripting/inc/parse_ast_convertor.h"
 
@@ -69,6 +69,11 @@ bool c_compiler::compile(const ast_script_file* _file) {
   m_output +=
       "////////////////////////////////////////"
       "////////////////////////////////////////\n";
+  for (auto& function : _file->m_used_builtins) {
+    if (!forward_declare_function(function)) {
+      return false;
+    }
+  }
 
   for (auto& function : _file->m_functions) {
     if (!forward_declare_function(function.get())) {
@@ -96,6 +101,25 @@ bool c_compiler::compile(const ast_script_file* _file) {
     }
   }
   m_output += "\n\n";
+
+  if (_file->m_used_builtins.size() > 0) {
+    m_output +=
+        "////////////////////////////////////////"
+        "////////////////////////////////////////\n";
+
+    m_output += "//                         ";
+    m_output += "    BUILTIN FUNCTIONS     ";
+    m_output += "                         //\n";
+    m_output +=
+        "////////////////////////////////////////"
+        "////////////////////////////////////////\n";
+
+    for (auto& function : _file->m_used_builtins) {
+      if (!write_function(function)) {
+        return false;
+      }
+    }
+  }
 
   m_output +=
       "////////////////////////////////////////"
@@ -218,8 +242,7 @@ bool c_compiler::declare_type(const ast_type* _type) {
     case ast_type_classification::primitive:
     case ast_type_classification::extern_type:
       return true;
-    case ast_type_classification::
-        struct_type:
+    case ast_type_classification::struct_type:
       return declare_struct(_type);
     case ast_type_classification::runtime_array: {
       align_line();
@@ -298,6 +321,10 @@ bool c_compiler::forward_declare_function(const ast_function* _function) {
 }
 
 bool c_compiler::write_function_signature(const ast_function* _function) {
+  if (_function->m_is_builtin) {
+    m_output += "inline ";
+  }
+
   if (!write_type(_function->m_return_type)) {
     return false;
   }

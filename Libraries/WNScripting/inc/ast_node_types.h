@@ -761,6 +761,7 @@ struct ast_function : public ast_node {
   bool m_is_virtual = false;
   bool m_is_override = false;
   bool m_is_external = false;
+  bool m_is_builtin = false;
   bool m_is_external_pseudo = false;
   uint32_t m_virtual_index = 0xFFFFFFFF;
 
@@ -1202,11 +1203,15 @@ struct ast_script_file : public ast_node {
       m_initialization_order(_allocator),
       m_all_vtables(_allocator),
       m_all_types(_allocator),
-      m_functions(_allocator) {}
+      m_functions(_allocator),
+      m_used_builtins(_allocator),
+      m_external_functions(_allocator) {}
   containers::dynamic_array<const ast_type*> m_initialization_order;
   containers::deque<memory::unique_ptr<ast_vtable>> m_all_vtables;
   containers::deque<memory::unique_ptr<ast_type>> m_all_types;
   containers::deque<memory::unique_ptr<ast_function>> m_functions;
+  containers::deque<const ast_function*> m_used_builtins;
+  containers::deque<const ast_function*> m_external_functions;
 };
 
 }  // namespace scripting

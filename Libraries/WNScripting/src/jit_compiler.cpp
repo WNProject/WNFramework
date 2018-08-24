@@ -199,12 +199,23 @@ bool internal::jit_compiler_context::compile(const ast_script_file* _file) {
       return false;
     }
   }
+  for (auto& function : _file->m_used_builtins) {
+    if (!forward_declare_function(function, false)) {
+      return false;
+    }
+  }
 
   for (auto& t : _file->m_initialization_order) {
     if (t->m_vtable) {
       if (!prepare_vtable(t->m_vtable)) {
         return false;
       }
+    }
+  }
+
+  for (auto& function : _file->m_used_builtins) {
+    if (!declare_function(function)) {
+      return false;
     }
   }
 
@@ -244,6 +255,9 @@ bool internal::jit_compiler_context::forward_declare_function(
   f->addFnAttr(llvm::Attribute::NoUnwind);
   if (_extern) {
     f->setLinkage(llvm::GlobalValue::LinkageTypes::ExternalLinkage);
+  }
+  if (_function->m_is_builtin) {
+    f->setLinkage(llvm::GlobalValue::LinkageTypes::LinkOnceAnyLinkage);
   }
 #if defined(_WN_WINDOWS) && defined(_WN_X86) && !defined(_WN_64_BIT)
   if (_function->m_is_external && _function->m_is_member_function &&

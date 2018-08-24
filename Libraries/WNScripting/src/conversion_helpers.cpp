@@ -161,7 +161,7 @@ parse_ast_convertor::convertor_context::get_id(
   if (!_can_fail) {
     _location->log_line(m_log, logging::log_level::error);
 
-    m_log->log_error("Could not find expression with name ", _name);
+    m_log->log_error("Could not find function with name ", _name);
   }
 
   return nullptr;

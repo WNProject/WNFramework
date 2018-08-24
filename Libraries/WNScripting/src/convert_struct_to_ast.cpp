@@ -615,7 +615,8 @@ bool parse_ast_convertor::convertor_context::create_constructor(
                 core::move(make_cast(core::move(array_init->m_initializer),
                     m_type_manager->void_ptr_t(&m_used_types))));
             array_init->m_initializer =
-                make_cast(call_function(it.get(), m_assign_shared,
+                make_cast(call_function(it.get(),
+                              m_type_manager->assign_shared(&m_used_builtins),
                               core::move(construct_params)),
                     t->m_implicitly_contained_type);
           }
@@ -955,7 +956,8 @@ bool parse_ast_convertor::convertor_context::create_destructor(
         memory::unique_ptr<ast_function_call_expression> function_call =
             memory::make_unique<ast_function_call_expression>(
                 m_allocator, st_def);
-        function_call->m_function = m_release_shared;
+        function_call->m_function =
+            m_type_manager->release_shared(&m_used_builtins);
         memory::unique_ptr<ast_cast_expression> cast =
             memory::make_unique<ast_cast_expression>(m_allocator, st_def);
         cast->m_base_expression = core::move(destruction_member);
@@ -982,7 +984,8 @@ bool parse_ast_convertor::convertor_context::create_destructor(
               memory::make_unique<ast_array_destruction>(m_allocator, st_def);
           if (t->m_implicitly_contained_type->m_classification ==
               ast_type_classification::shared_reference) {
-            dest->m_destructor = m_release_shared;
+            dest->m_destructor =
+                m_type_manager->release_shared(&m_used_builtins);
             dest->m_shared = true;
           } else {
             dest->m_destructor = t->m_implicitly_contained_type->m_destructor;
@@ -1207,7 +1210,8 @@ bool parse_ast_convertor::convertor_context::create_struct_assign(
           destruction->m_destructor = internal_type->m_destructor;
         } else if (internal_type->m_classification ==
                    ast_type_classification::shared_reference) {
-          destruction->m_destructor = m_release_shared;
+          destruction->m_destructor =
+              m_type_manager->release_shared(&m_used_builtins);
           destruction->m_shared = true;
         }
         if (destruction->m_destructor) {
@@ -1417,8 +1421,9 @@ bool parse_ast_convertor::convertor_context::create_struct_assign(
         auto assign = memory::make_unique<ast_assignment>(m_allocator, nullptr);
         assign->m_lhs = core::move(dest);
         assign->m_rhs = make_cast(
-            call_function(_def, m_assign_shared, core::move(assign_params)),
-            assign->m_lhs->m_type);
+            call_function(_def, m_type_manager->assign_shared(&m_used_builtins),
+                          core::move(assign_params)),
+                assign->m_lhs->m_type);
         statements->push_back(core::move(assign));
       } else {
         auto is_new = memory::make_unique<ast_id>(m_allocator, _def);
@@ -1451,9 +1456,11 @@ bool parse_ast_convertor::convertor_context::create_struct_assign(
           auto assign =
               memory::make_unique<ast_assignment>(m_allocator, nullptr);
           assign->m_lhs = clone_ast_node(m_allocator, dest.get());
-          assign->m_rhs = make_cast(
-              call_function(_def, m_assign_shared, core::move(assign_params)),
-              assign->m_lhs->m_type);
+          assign->m_rhs =
+              make_cast(call_function(_def,
+                            m_type_manager->assign_shared(&m_used_builtins),
+                            core::move(assign_params)),
+                  assign->m_lhs->m_type);
           if_new->m_conditionals[0]
               .m_scope->initialized_statements(m_allocator)
               .push_back(core::move(assign));
@@ -1470,9 +1477,11 @@ bool parse_ast_convertor::convertor_context::create_struct_assign(
           auto assign =
               memory::make_unique<ast_assignment>(m_allocator, nullptr);
           assign->m_lhs = core::move(dest);
-          assign->m_rhs = make_cast(
-              call_function(_def, m_assign_shared, core::move(assign_params)),
-              assign->m_lhs->m_type);
+          assign->m_rhs =
+              make_cast(call_function(_def,
+                            m_type_manager->assign_shared(&m_used_builtins),
+                            core::move(assign_params)),
+                  assign->m_lhs->m_type);
           if_new->m_else_block->initialized_statements(m_allocator)
               .push_back(core::move(assign));
         }
