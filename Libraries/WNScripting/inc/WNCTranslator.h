@@ -46,6 +46,8 @@ private:
   file_system::mapping* m_source_mapping;
   file_system::mapping* m_dest_mapping;
   logging::log* m_compilation_log;
+  containers::deque<containers::string_view> m_started_files;
+  containers::hash_set<containers::string> m_finished_files;
 };
 }  // namespace scripting
 }  // namespace wn

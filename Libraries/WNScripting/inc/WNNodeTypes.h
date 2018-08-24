@@ -2184,8 +2184,8 @@ public:
         memory::unique_ptr<struct_definition>(m_allocator, _node));
   }
 
-  void add_include(const char* _node) {
-    m_includes.emplace_back(m_allocator, _node);
+  void add_include(containers::string _node) {
+    m_includes.push_back(core::move(_node));
   }
 
   const containers::deque<memory::unique_ptr<function>>&

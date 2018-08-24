@@ -57,6 +57,7 @@
 #include "WNContainers/inc/WNDynamicArray.h"
 #include "WNContainers/inc/WNList.h"
 #include "WNFileSystem/inc/WNMapping.h"
+#include "WNFunctional/inc/WNDefer.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/allocator.h"
 #include "WNMemory/inc/manipulation.h"
@@ -122,21 +123,16 @@ class CustomMemoryManager : public llvm::SectionMemoryManager {
 public:
   CustomMemoryManager(memory::allocator* _allocator, logging::log* _log,
       containers::hash_map<containers::string, void (*)(void)>*
-          _imported_functions)
+          _imported_functions,
+      containers::hash_map<containers::string_view, void_f>*
+          _external_functions)
     : m_allocator(_allocator),
       m_log(_log),
-      m_imported_functions(_imported_functions) {}
+      m_imported_functions(_imported_functions),
+      m_external_functions(_external_functions) {}
 
   llvm::JITSymbol findSymbol(const std::string& Name) override {
     m_log->log_info("Resolving ", Name.c_str(), ".");
-    auto it = m_imported_functions->find(
-        containers::string(m_allocator, Name.c_str()));
-    if (it != m_imported_functions->end()) {
-      return llvm::JITSymbol(
-          static_cast<uint64_t>(reinterpret_cast<size_t>(it->second)),
-          llvm::JITSymbolFlags::Exported);
-    }
-
 #if defined(_WN_WINDOWS)
 #if defined(_WN_64_BIT)
     // On windows64, enable _chkstk. LLVM generates calls
@@ -154,6 +150,34 @@ public:
     }
 #endif
 #endif
+    std::string Nm = Name;
+// LLVM for win32 x86 is surprising as it will automatically
+// prepend _ to some symbols. If we see __, then remove a _
+#if defined(_WN_WINDOWS)
+#if !defined(_WN_64_BIT)
+    if (Nm.size() > 2 && Nm[0] == '_' && Nm[1] == '_') {
+      Nm = Nm.substr(1);
+    }
+#endif
+#endif
+    {
+      auto it = m_imported_functions->find(
+          containers::string(m_allocator, Nm.c_str()));
+      if (it != m_imported_functions->end()) {
+        return llvm::JITSymbol(
+            static_cast<uint64_t>(reinterpret_cast<size_t>(it->second)),
+            llvm::JITSymbolFlags::Exported);
+      }
+    }
+
+    {
+      auto it = m_external_functions->find(containers::string_view(Nm.c_str()));
+      if (it != m_external_functions->end()) {
+        return llvm::JITSymbol(
+            static_cast<uint64_t>(reinterpret_cast<size_t>(it->second)),
+            llvm::JITSymbolFlags::Exported);
+      }
+    }
     return llvm::JITSymbol(0, llvm::JITSymbolFlags::Exported);
   }
 
@@ -162,6 +186,7 @@ private:
   logging::log* m_log;
   containers::hash_map<containers::string, void (*)(void)>*
       m_imported_functions;
+  containers::hash_map<containers::string_view, void_f>* m_external_functions;
 };
 }  // namespace
 
@@ -182,7 +207,9 @@ jit_engine::jit_engine(memory::allocator* _allocator,
     m_modules(_allocator),
     m_pointers(_allocator),
     m_c_pointers(_allocator),
-    m_external_types(_allocator) {
+    m_external_types(_allocator),
+    m_started_files(_allocator),
+    m_finished_files(_allocator) {
   llvm::InitializeNativeTarget();
   llvm::InitializeNativeTargetAsmPrinter();
   llvm::InitializeNativeTargetAsmParser();
@@ -211,7 +238,7 @@ CompiledModule& jit_engine::add_module(containers::string_view _file) {
   llvm::EngineBuilder builder(core::move(module));
   builder.setEngineKind(llvm::EngineKind::JIT);
   builder.setMCJITMemoryManager(memory::make_std_unique<CustomMemoryManager>(
-      m_allocator, m_compilation_log, &m_c_pointers));
+      m_allocator, m_compilation_log, &m_c_pointers, &m_pointers));
 
   code_module.m_engine =
       std::unique_ptr<llvm::ExecutionEngine>(builder.create());
@@ -219,6 +246,24 @@ CompiledModule& jit_engine::add_module(containers::string_view _file) {
 }
 
 parse_error jit_engine::parse_file(const containers::string_view _file) {
+  if (m_finished_files.find(_file.to_string(m_allocator)) !=
+      m_finished_files.end()) {
+    return parse_error::ok;
+  }
+  for (size_t i = 0; i < m_started_files.size(); ++i) {
+    if (m_started_files[i] == _file) {
+      m_compilation_log->log_error("Recursive include detected");
+      m_compilation_log->log_error("        ", _file);
+      for (size_t j = 0; j < m_started_files.size(); ++j) {
+        m_compilation_log->log_error("        ->", m_started_files[j]);
+      }
+      return parse_error::invalid_parameters;
+    }
+  }
+  m_started_files.push_back(_file);
+  functional::defer clean(functional::function<void()>(
+      m_allocator, [this]() { m_started_files.pop_back(); }));
+
   file_system::result res;
   file_system::file_ptr file = m_file_mapping->open_file(_file, res);
 
@@ -228,12 +273,20 @@ parse_error jit_engine::parse_file(const containers::string_view _file) {
   }
 
   memory::unique_ptr<ast_script_file> parsed_file = parse_script(m_allocator,
-      _file, file->typed_range<char>(), nullptr, &m_type_manager, false,
-      m_compilation_log, &m_num_warnings, &m_num_errors);
+      _file, file->typed_range<char>(),
+      functional::function<bool(containers::string_view)>(m_allocator,
+          [this](containers::string_view include) {
+            return parse_file(include) == scripting::parse_error::ok ? true
+                                                                     : false;
+          }),
+      &m_type_manager, false, m_compilation_log, &m_num_warnings,
+      &m_num_errors);
 
   if (parsed_file == nullptr) {
     return parse_error::parse_failed;
   }
+  m_finished_files.insert(_file.to_string(m_allocator));
+
   CompiledModule& module = add_module(_file);
 
   jit_compiler compiler(m_allocator, module.m_module);
@@ -276,10 +329,6 @@ bool jit_engine::register_c_function(containers::string_view _name,
   for (auto& param : _types) {
     s += param->m_mangled_name;
   }
-#if defined(_WN_WINDOWS) && defined(_WN_X86) && !defined(_WN_64_BIT)
-  s.insert(s.begin(), '_');
-#endif
-
   m_c_pointers[core::move(s)] = _function;
   return true;
 }
@@ -287,9 +336,6 @@ bool jit_engine::register_c_function(containers::string_view _name,
 bool jit_engine::register_mangled_c_function(
     containers::string_view _name, void_f _function, bool) {
   auto name = _name.to_string(m_allocator);
-#if defined(_WN_WINDOWS) && defined(_WN_X86) && !defined(_WN_64_BIT)
-  name.insert(name.begin(), '_');
-#endif
   m_c_pointers[core::move(name)] = _function;
   return true;
 }

@@ -70,6 +70,9 @@ private:
   containers::hash_map<containers::string, void_f> m_c_pointers;
   containers::hash_map<containers::string, memory::unique_ptr<ast_type>>
       m_external_types;
+
+  containers::deque<containers::string_view> m_started_files;
+  containers::hash_set<containers::string> m_finished_files;
 };
 }  // namespace scripting
 }  // namespace wn

@@ -6,6 +6,7 @@
 #include "WNContainers/inc/WNArray.h"
 #include "WNContainers/inc/WNString.h"
 #include "WNFileSystem/inc/WNMapping.h"
+#include "WNFunctional/inc/WNDefer.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNScripting/inc/WNScriptHelpers.h"
 #include "WNScripting/inc/ast_node_types.h"
@@ -20,10 +21,13 @@ c_translator::c_translator(memory::allocator* _allocator,
   : translator(_allocator, _log),
     m_source_mapping(_source_mapping),
     m_dest_mapping(_dest_mapping),
-    m_compilation_log(_log) {
-  m_type_manager.add_external(external_function{"_allocate",
-      containers::dynamic_array<const ast_type*>(m_allocator,
-          {m_type_manager.void_ptr_t(nullptr), m_type_manager.size_t(nullptr)})});
+    m_compilation_log(_log),
+    m_started_files(_allocator),
+    m_finished_files(_allocator) {
+  m_type_manager.add_external(external_function{
+      "_allocate", containers::dynamic_array<const ast_type*>(
+                       m_allocator, {m_type_manager.void_ptr_t(nullptr),
+                                        m_type_manager.size_t(nullptr)})});
 
   m_type_manager.add_external(external_function{
       "_free", containers::dynamic_array<const ast_type*>(
@@ -39,6 +43,23 @@ c_translator::c_translator(memory::allocator* _allocator,
 
 parse_error c_translator::translate_file_with_error(
     const containers::string_view _file, bool _dump_ast_on_failure) {
+  if (m_finished_files.find(_file.to_string(m_allocator)) !=
+      m_finished_files.end()) {
+    return parse_error::ok;
+  }
+  for (size_t i = 0; i < m_started_files.size(); ++i) {
+    if (m_started_files[i] == _file) {
+      m_compilation_log->log_error("Recursive include detected");
+      m_compilation_log->log_error("        ", _file);
+      for (size_t j = 0; j < m_started_files.size(); ++j) {
+        m_compilation_log->log_error("        ->", m_started_files[j]);
+      }
+      return parse_error::invalid_parameters;
+    }
+  }
+  m_started_files.push_back(_file);
+  functional::defer clean(functional::function<void()>(
+      m_allocator, [this]() { m_started_files.pop_back(); }));
   file_system::result res;
   file_system::file_ptr file = m_source_mapping->open_file(_file, res);
 
@@ -61,6 +82,7 @@ parse_error c_translator::translate_file_with_error(
   if (parsed_file == nullptr) {
     return scripting::parse_error::parse_failed;
   }
+  m_finished_files.insert(_file.to_string(m_allocator));
 
   c_compiler compiler(m_allocator);
   compiler.compile(parsed_file.get());

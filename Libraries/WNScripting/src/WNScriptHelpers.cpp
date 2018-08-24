@@ -47,7 +47,7 @@ memory::unique_ptr<ast_script_file> parse_script(memory::allocator* _allocator,
 
   parse_ast_convertor p;
   return p.convert_parse_tree_to_ast(
-      _allocator, _type_manager, _log, ptr.get());
+      _allocator, _type_manager, _log, _handle_include, ptr.get());
 }
 
 }  // namespace scripting

@@ -28,8 +28,14 @@ parse_ast_convertor::convertor_context::convertor_context(
 memory::unique_ptr<ast_script_file>
 parse_ast_convertor::convert_parse_tree_to_ast(memory::allocator* _allocator,
     type_manager* _type_manager, wn::logging::log* _log,
+    functional::function<bool(containers::string_view)> _handle_includes,
     const script_file* _file) const {
   convertor_context context(_allocator, _log, _type_manager, this);
+  for (auto& inc : _file->get_includes()) {
+    if (!_handle_includes(inc.to_string_view().substr(1, inc.size() - 2))) {
+      return nullptr;
+    }
+  }
   if (!context.walk_script_file(_file)) {
     return nullptr;
   }

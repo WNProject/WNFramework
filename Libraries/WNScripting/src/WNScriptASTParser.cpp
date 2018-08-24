@@ -25843,12 +25843,12 @@ WNScriptASTParser::classDecl()
 
 
 
-const char*
+containers::string
 WNScriptASTParser::inc()
 {
         WNScriptASTParserImplTraits::RuleReturnValueType _antlr_rule_exit(this);
 
-    const char* file;
+    containers::string file;
 
 
     const ImplTraits::CommonTokenType* STRING72 = NULL;
@@ -25858,7 +25858,6 @@ WNScriptASTParser::inc()
 
 
 
-        file = nullptr;
 
 
 
@@ -25879,7 +25878,7 @@ WNScriptASTParser::inc()
 
 
             {
-                 file = (STRING72->getText()).c_str();
+                 file = containers::string(m_allocator, (STRING72->getText()).c_str());
             }
 
 
@@ -25911,7 +25910,7 @@ WNScriptASTParser::program()
     scripting::script_file* node;
 
 
-    const char* inc73;
+    containers::string inc73;
     scripting::function* function74;
     scripting::struct_definition* structDecl75;
     scripting::struct_definition* classDecl76;

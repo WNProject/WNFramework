@@ -771,18 +771,17 @@ classDecl returns[scripting::struct_definition* node]
             RBRACE  { SET_END_LOCATION(node, $RBRACE); }
     ;
 
-inc returns[const char* file]
+inc returns[containers::string file]
 @init {
-    file = nullptr;
 }
-    :   INCLUDE STRING { file = $STRING.text.c_str(); }
+    :   INCLUDE STRING { file = containers::string(m_allocator, $STRING.text.c_str()); }
     ;
 
 program returns[scripting::script_file* node]
 @init{
     node = m_allocator->construct<scripting::script_file>(m_allocator);
 }
-    :   (inc        { node->add_include($inc.file); })*
+    :   (inc        { node->add_include(core::move($inc.file)); })*
         (
                 function   { node->add_function($function.node); }
             |   structDecl { node->add_struct($structDecl.node); }

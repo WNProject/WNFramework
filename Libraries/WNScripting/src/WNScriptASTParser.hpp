@@ -303,7 +303,7 @@ public:
      scripting::function* function ();
      scripting::struct_definition* structDecl ();
      scripting::struct_definition* classDecl ();
-     const char* inc ();
+     containers::string inc ();
      scripting::script_file* program ();
 
     const char *    getGrammarFileName();

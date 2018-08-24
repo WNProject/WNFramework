@@ -26,7 +26,9 @@ class parse_ast_convertor {
 public:
   memory::unique_ptr<ast_script_file> convert_parse_tree_to_ast(
       memory::allocator* _allocator, type_manager* _type_manager,
-      logging::log* _log, const script_file*) const;
+      logging::log* _log,
+      functional::function<bool(containers::string_view)> _handle_includes,
+      const script_file*) const;
 
 private:
   struct convertor_context;
