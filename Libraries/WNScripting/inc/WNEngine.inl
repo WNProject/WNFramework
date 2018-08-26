@@ -66,7 +66,7 @@ bool inline engine::register_function(
   containers::dynamic_array<const ast_type*> params =
       m_type_manager.get_types<R, Args...>();
   external_function f{_name, core::move(params)};
-  m_type_manager.add_external(f);
+  m_type_manager.add_external(f, true, false);
   return register_c_function(
       _name, f.params, reinterpret_cast<void_f>(_function));
 }

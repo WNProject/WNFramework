@@ -1,0 +1,67 @@
+// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE.txt file.
+
+include "struct_includee.wns"
+
+class Bar : Foo {
+    .x = 32;
+    Int z = 4;
+    override Int get_x_y() { return y + x + y; }
+}
+
+
+// CHECK: // EXTERNAL FUNCTIONS //
+// CHECK-NEXT: Foo* _ZN3wns14_construct_FooEP3FooP3Foo(Foo* _0);
+// CHECK-NEXT: int32_t _ZN3wns3Foo5get_xEiP3Foo(Foo* _0);
+// CHECK-NEXT: int32_t _ZN3wns3Foo5get_yEiP3Foo(Foo* _0);
+// CHECK-NEXT: int32_t _ZN3wns3Foo7get_x_yEiP3Foo(Foo* _0);
+
+
+// CHECK: Bar* _ZN3wns14_construct_BarEP3BarP3Bar(Bar* _this) {
+// CHECK-NEXT:   (_this->__vtable) = __vtable__Bar;
+// CHECK-NEXT:   (_this->x) = 32;
+// CHECK-NEXT:   (_this->y) = 3;
+// CHECK-NEXT:   (_this->z) = 4;
+// CHECK-NEXT:   return _this;
+// CHECK-NEXT: }
+
+// RUN: do_bar -> 39
+Int do_boo() {
+    Bar f = Bar();
+    return f.x + f.y + f.z;
+}
+
+// RUN: do_foo -> 7
+Int do_foo() {
+    Foo f = Foo();
+// CHECK:   Foo* f = _ZN3wns14_construct_FooEP3FooP3Foo((&_wns_temp1));
+    return f.x + f.y;
+}
+
+// RUN: get_x -> 4
+Int get_x() {
+    Foo f = Foo();
+// CHECK:   Foo* f = _ZN3wns14_construct_FooEP3FooP3Foo((&_wns_temp2));
+    return f.get_x();
+}
+
+// RUN: get_y -> 3
+Int get_y() {
+    Foo f = Foo();
+// CHECK: Foo* f = _ZN3wns14_construct_FooEP3FooP3Foo((&_wns_temp3));
+// CHECK: _return = _call_Foo_v0_get_y(f);
+    return f.get_y();
+}
+
+// RUN: get_x_y -> 45
+Int get_x_y() {
+    Foo f = Foo();
+    Bar b = Bar();
+// CHECK: Foo _wns_temp4;
+// CHECK: Foo* f = _ZN3wns14_construct_FooEP3FooP3Foo((&_wns_temp4));
+// CHECK: Bar _wns_temp5;
+// CHECK: Bar* b = _ZN3wns14_construct_BarEP3BarP3Bar((&_wns_temp5));
+// CHECK:  _return = (_call_Foo_v1_get_x_y(f) + _call_Bar_v1_get_x_y(b));
+    return f.get_x_y() + b.get_x_y();
+}

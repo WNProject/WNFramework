@@ -131,6 +131,11 @@ struct parse_ast_convertor::convertor_context {
   // If _end_scope_block == nullptr, then cleans all scopes.
   void clean_scopes(ast_scope_block* _end_scope_block = nullptr);
 
+  void use_function(const ast_function* _function) {
+    if (_function && _function->m_is_external) {
+      m_used_externals.insert(_function);
+    }
+  }
   memory::allocator* m_allocator;
   const parse_ast_convertor* m_convertor;
   containers::hash_set<const ast_type*> m_used_types;

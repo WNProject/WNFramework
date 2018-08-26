@@ -115,7 +115,8 @@ protected:
   memory::allocator* m_allocator;
   virtual void_f get_function_pointer(containers::string_view _name) const = 0;
   virtual bool register_c_function(containers::string_view name,
-      containers::contiguous_range<const ast_type*> _types, void_f function) = 0;
+      containers::contiguous_range<const ast_type*> _types,
+      void_f function) = 0;
   virtual bool register_mangled_c_function(
       containers::string_view _name, void_f _function, bool _is_virtual) = 0;
 

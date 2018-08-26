@@ -23,6 +23,9 @@ struct ast_type;
 struct external_function {
   containers::string_view name;
   containers::dynamic_array<const ast_type*> params;
+  bool is_virtual;
+  bool is_override;
+  uint32_t virtual_index;
 };
 
 // Use this type instead of normal size_t in order for

@@ -159,7 +159,7 @@ bool parse_ast_convertor::convertor_context::walk_script_file(
       return false;
     }
     (void)m_type_manager->get_or_register_struct(
-        type->get_name(), &m_used_types);
+        type->get_name(), &m_used_types, &m_used_externals);
   }
 
   for (auto& type : _file->get_structs()) {
@@ -180,7 +180,7 @@ bool parse_ast_convertor::convertor_context::walk_script_file(
   for (auto& type : _file->get_structs()) {
     for (auto& f : type->get_functions()) {
       auto st_type = m_type_manager->get_or_register_struct(
-          type->get_name(), &m_used_types);
+          type->get_name(), &m_used_types, &m_used_externals);
 
       auto fun = pre_resolve_function(
           f.get(), m_type_manager->get_reference_of(st_type,
@@ -198,8 +198,8 @@ bool parse_ast_convertor::convertor_context::walk_script_file(
   // Now that all member functions are initialized, set up all member
   // functions on all struct types.
   for (auto& type : _file->get_structs()) {
-    auto st_type =
-        m_type_manager->get_or_register_struct(type->get_name(), &m_used_types);
+    auto st_type = m_type_manager->get_or_register_struct(
+        type->get_name(), &m_used_types, &m_used_externals);
     if (!resolve_member_functions(st_type)) {
       return false;
     }

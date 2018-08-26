@@ -65,7 +65,7 @@ bool inline translator::register_function(containers::string_view _name) {
   containers::dynamic_array<const ast_type*> params =
     m_type_manager.get_types<R, Args...>();
   m_type_manager.add_external(
-    external_function{ _name, core::move(params) });
+    external_function{ _name, core::move(params) }, true, false);
   return true;
 }
 
@@ -75,7 +75,7 @@ bool inline translator::register_cpp_function(
   containers::dynamic_array<const ast_type*> params =
     m_type_manager.get_types<R, Args...>();
   m_type_manager.add_external(
-    external_function{ _name, core::move(params) });
+    external_function{ _name, core::move(params) }, true, false);
   return true;
 }
 

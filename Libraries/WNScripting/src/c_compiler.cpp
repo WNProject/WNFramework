@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
+#include "WNScripting/inc/c_compiler.h"
 #include "WNContainers/inc/WNHashMap.h"
 #include "WNContainers/inc/WNHashSet.h"
 #include "WNScripting/inc/WNNodeTypes.h"
-#include "WNScripting/inc/c_compiler.h"
 #include "WNScripting/inc/internal/c_preamble.h"
 #include "WNScripting/inc/parse_ast_convertor.h"
 
@@ -431,7 +431,8 @@ bool c_compiler::write_vtable(const ast_type* _type) {
       write_type(param.m_type);
     }
     m_output += ")";
-    m_output += "_this->__vtable[";
+    m_output += fn->m_parameters[0].m_name;
+    m_output += "->__vtable[";
 
     m_output += buff;
     m_output += "])(";

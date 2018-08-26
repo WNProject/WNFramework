@@ -62,6 +62,7 @@ parse_ast_convertor::convertor_context::call_function(const node* _base_node,
     const ast_function* _func,
     containers::contiguous_range<memory::unique_ptr<ast_expression>>
         _expressions) {
+  use_function(_func);
   memory::unique_ptr<ast_function_call_expression> function_call =
       memory::make_unique<ast_function_call_expression>(
           m_allocator, _base_node);

@@ -67,8 +67,8 @@ ast_type* parse_ast_convertor::convertor_context::walk_struct_definition(
     d = pd;
   }
 
-  ast_type* struct_type =
-      m_type_manager->get_or_register_struct(_def->get_name(), &m_used_types);
+  ast_type* struct_type = m_type_manager->get_or_register_struct(
+      _def->get_name(), &m_used_types, &m_used_externals);
   struct_type->m_parent_type = parent_type ? parent_type : nullptr;
   struct_type->m_struct_is_class = _def->is_class();
   type_chain.push_back(_def);
@@ -90,6 +90,10 @@ ast_type* parse_ast_convertor::convertor_context::walk_struct_definition(
 
   auto& decls = struct_type->initialized_structure_members(m_allocator);
   for (auto& t : type_chain) {
+    // Leave this in. It is needed to register the parent types
+    // usage.
+    m_type_manager->get_or_register_struct(
+        t->get_name(), &m_used_types, &m_used_externals);
     auto& functions = t->get_functions();
     for (size_t i = 0; i < t->get_functions().size(); ++i) {
       if (!vt && functions[i]->is_virtual()) {
@@ -99,12 +103,10 @@ ast_type* parse_ast_convertor::convertor_context::walk_struct_definition(
         decl->m_type = m_type_manager->vtable_t(&m_used_types);
         struct_type->m_vtable_index = static_cast<uint32_t>(decls.size());
         decls.push_back(core::move(decl));
-        auto vtable = memory::make_unique<ast_vtable>(m_allocator);
-        vtable->m_name = containers::string(m_allocator, "__vtable__");
-        vtable->m_name += name;
-        vt = vtable.get();
+        ast_vtable* vtable = m_type_manager->make_vtable(name);
+        vt = vtable;
         struct_type->m_vtable = vt;
-        m_script_file->m_all_vtables.push_back(core::move(vtable));
+        m_script_file->m_all_vtables.push_back(vt);
       }
     }
 
@@ -531,6 +533,7 @@ bool parse_ast_convertor::convertor_context::create_constructor(
         rhs = resolve_expression(it->get_expression());
         auto member_child = rhs->m_type->m_implicitly_contained_type;
         auto constructor = member_child->m_constructor;
+        use_function(constructor);
         if (!constructor) {
           st_def->log_line(m_log, logging::log_level::error);
           m_log->log_error("Cannot find constructor");
@@ -901,6 +904,7 @@ bool parse_ast_convertor::convertor_context::create_destructor(
 
         auto& ct = _initialized_type->m_structure_members[child_pos];
         auto destructor = ct->m_type->m_destructor;
+        use_function(destructor);
         if (!destructor) {
           continue;
         }
@@ -989,6 +993,7 @@ bool parse_ast_convertor::convertor_context::create_destructor(
             dest->m_shared = true;
           } else {
             dest->m_destructor = t->m_implicitly_contained_type->m_destructor;
+            use_function(dest->m_destructor);
           }
           auto destruction_member =
               memory::make_unique<ast_member_access_expression>(
@@ -1215,6 +1220,7 @@ bool parse_ast_convertor::convertor_context::create_struct_assign(
           destruction->m_shared = true;
         }
         if (destruction->m_destructor) {
+          use_function(destruction->m_destructor);
           destruction->m_target = clone_ast_node(m_allocator, dest.get());
           statements->push_back(core::move(destruction));
         }
@@ -1422,8 +1428,8 @@ bool parse_ast_convertor::convertor_context::create_struct_assign(
         assign->m_lhs = core::move(dest);
         assign->m_rhs = make_cast(
             call_function(_def, m_type_manager->assign_shared(&m_used_builtins),
-                          core::move(assign_params)),
-                assign->m_lhs->m_type);
+                core::move(assign_params)),
+            assign->m_lhs->m_type);
         statements->push_back(core::move(assign));
       } else {
         auto is_new = memory::make_unique<ast_id>(m_allocator, _def);
@@ -1490,6 +1496,7 @@ bool parse_ast_convertor::convertor_context::create_struct_assign(
 
     } else {
       if (t->m_assignment) {
+        use_function(t->m_assignment);
         has_copyable_type = true;
         auto ref_type = m_type_manager->get_reference_of(
             t, ast_type_classification::reference, &m_used_types);

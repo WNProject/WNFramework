@@ -260,7 +260,7 @@ bool internal::jit_compiler_context::forward_declare_function(
     f->setLinkage(llvm::GlobalValue::LinkageTypes::LinkOnceAnyLinkage);
   }
 #if defined(_WN_WINDOWS) && defined(_WN_X86) && !defined(_WN_64_BIT)
-  if (_function->m_is_external && _function->m_is_member_function &&
+  if (_function->m_is_non_scripting && _function->m_is_member_function &&
       !_function->m_is_external_pseudo) {
     f->setCallingConv(llvm::CallingConv::X86_ThisCall);
   }
@@ -313,7 +313,7 @@ bool internal::jit_compiler_context::prepare_vtable(const ast_vtable* _vtable) {
   init.reserve(_vtable->m_functions.size());
   for (size_t i = 0; i < _vtable->m_functions.size(); ++i) {
     init.push_back(llvm::ConstantExpr::getCast(llvm::Instruction::BitCast,
-        m_functions[_vtable->m_functions[i]], m_voidfn_ptr_t));
+        get_function(_vtable->m_functions[i]), m_voidfn_ptr_t));
   }
   c->setConstant(true);
   c->setInitializer(llvm::ConstantArray::get(vtable_type, array_ref(init)));

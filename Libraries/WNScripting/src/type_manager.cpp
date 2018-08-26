@@ -26,7 +26,8 @@ type_manager::type_manager(memory::allocator* _allocator, logging::log* _log)
     m_structure_types(_allocator),
     m_function_pointer_types(_allocator),
     m_all_types(_allocator),
-    m_struct_definitions(_allocator) {
+    m_struct_definitions(_allocator),
+    m_vtables(_allocator) {
   auto uint32_type = memory::make_unique_delegated<ast_type>(m_allocator,
       [this](void* _memory) { return new (_memory) ast_type(&m_all_types); });
   uint32_type->m_name = containers::string(m_allocator, "Int");
@@ -235,6 +236,7 @@ containers::string_view exporter_base::add_contained_function(
   func->calculate_mangled_name(m_allocator);
   func->m_is_external = true;
   func->m_is_external_pseudo = _is_pseudo_function;
+  func->m_is_non_scripting = true;
   containers::string_view mangled_name = func->m_mangled_name;
   m_type->initialized_external_member_functions(m_allocator)
       .push_back(core::move(func));
@@ -349,13 +351,24 @@ ast_type* type_manager::get_runtime_array_of(
   return return_type;
 }
 
-ast_type* type_manager::get_or_register_struct(
-    containers::string_view _type, used_type_set* _used) {
+ast_type* type_manager::get_or_register_struct(containers::string_view _type,
+    used_type_set* _used, used_function_set* _used_functions) {
   auto it = m_structure_types.find(_type);
   if (it != m_structure_types.end()) {
     if (_used) {
       _used->insert(it->second.get());
     }
+    if (_used_functions) {
+      if (it->second->m_vtable) {
+        // All virtual functions must be used, due to vtable.
+        for (auto fn : it->second->m_vtable->m_functions) {
+          if (fn->m_is_external) {
+            _used_functions->insert(fn);
+          }
+        }
+      }
+    }
+
     return it->second.get();
   }
 
@@ -440,13 +453,16 @@ type_manager::get_initialialization_order(memory::allocator* _allocator,
   return core::move(init);
 }
 
-void type_manager::add_external(const external_function& _function) {
+ast_function* type_manager::add_external(
+    const external_function& _function, bool _is_system, bool _is_member) {
   memory::unique_ptr<ast_function> function =
       memory::make_unique<ast_function>(m_allocator, nullptr);
 
   function->m_return_type = _function.params[0];
   function->m_is_external = true;
   function->m_name = _function.name.to_string(m_allocator);
+  function->m_is_non_scripting = _is_system;
+  function->m_is_member_function = _is_member;
 
   char count[11] = {
       0,
@@ -470,9 +486,10 @@ void type_manager::add_external(const external_function& _function) {
   }
 
   function->calculate_mangled_name(m_allocator);
+  auto ret = function.get();
   m_externals_by_name[function->m_mangled_name] = function.get();
   m_externals.push_back(core::move(function));
-  return;
+  return ret;
 }
 
 void type_manager::finalize_builtin_functions(
@@ -508,19 +525,85 @@ void type_manager::finalize_functions(
         e.params.push_back(p.m_type);
       }
       e.name = fn->m_name;
-      add_external(e);
+      add_external(e, false, false);
     }
   }
 
-  // We need to handle these for sure!
   for (auto& t : m_structure_types) {
-    if (t.second->m_constructor) {
-      if (t.second->m_constructor->m_scope) {
+    if (t.second->m_constructor && !t.second->m_constructor->m_is_external) {
+      auto& fn = t.second->m_constructor;
+      external_function e;
+      e.params = containers::dynamic_array<const ast_type*>(m_allocator);
+      e.params.reserve(fn->m_parameters.size() + 1);
+      e.params.push_back(fn->m_return_type);
+      for (auto& p : fn->m_parameters) {
+        e.params.push_back(p.m_type);
+      }
+      e.name = fn->m_name;
+      t.second->m_constructor = add_external(e, false, false);
+    }
+    if (t.second->m_destructor && !t.second->m_destructor->m_is_external) {
+      auto& fn = t.second->m_destructor;
+      external_function e;
+      e.params = containers::dynamic_array<const ast_type*>(m_allocator);
+      e.params.reserve(fn->m_parameters.size() + 1);
+      e.params.push_back(fn->m_return_type);
+      for (auto& p : fn->m_parameters) {
+        e.params.push_back(p.m_type);
+      }
+      e.name = fn->m_name;
+      t.second->m_destructor = add_external(e, false, false);
+    }
+    if (t.second->m_assignment && !t.second->m_assignment->m_is_external) {
+      auto& fn = t.second->m_assignment;
+      external_function e;
+      e.params = containers::dynamic_array<const ast_type*>(m_allocator);
+      e.params.reserve(fn->m_parameters.size() + 1);
+      e.params.push_back(fn->m_return_type);
+      for (auto& p : fn->m_parameters) {
+        e.params.push_back(p.m_type);
+      }
+      e.name = fn->m_name;
+      t.second->m_destructor = add_external(e, false, false);
+    }
+    for (auto& fn : t.second->m_member_functions) {
+      if (!fn->m_is_external) {
+        external_function e;
+        e.params = containers::dynamic_array<const ast_type*>(m_allocator);
+        e.params.reserve(fn->m_parameters.size() + 1);
+        e.params.push_back(fn->m_return_type);
+        for (auto& p : fn->m_parameters) {
+          e.params.push_back(p.m_type);
+        }
+        e.name = fn->m_name;
+        auto ext = add_external(e, false, true);
+        ext->m_is_virtual = fn->m_is_virtual;
+        ext->m_is_override = fn->m_is_override;
+        ext->m_is_member_function = fn->m_is_member_function;
+        ext->m_virtual_index = fn->m_virtual_index;
+        fn = ext;
       }
     }
-    if (t.second->m_destructor) {
-    }
-    if (t.second->m_assignment) {
+    // We have a vtable and functions to boot, we should fix the
+    // vtable up here.
+    if (t.second->m_vtable && t.second->m_vtable->m_functions.size() > 0) {
+      auto& vtable = t.second->m_vtable->m_functions;
+      functional::function<void(ast_type*)> walk_vtables;
+      walk_vtables = functional::function<void(ast_type*)>(
+          m_allocator, [&walk_vtables, &vtable](ast_type* t) {
+            if (!t) {
+              return;
+            }
+            walk_vtables(t->m_parent_type);
+            for (auto& f : t->m_member_functions) {
+              if (f->m_is_virtual || f->m_is_override) {
+                WN_DEBUG_ASSERT(vtable.size() >= f->m_virtual_index,
+                    "Invalid virtual index");
+                vtable[f->m_virtual_index] = f;
+              }
+            }
+          });
+      walk_vtables(t.second.get());
     }
   }
 }
@@ -578,6 +661,14 @@ const struct_definition* type_manager::get_struct_definition(
     return nullptr;
   }
   return it->second.st_def.get();
+}
+
+ast_vtable* type_manager::make_vtable(const containers::string_view& _name) {
+  auto vtable = memory::make_unique<ast_vtable>(m_allocator);
+  vtable->m_name = containers::string(m_allocator, "__vtable__");
+  vtable->m_name += _name;
+  m_vtables.push_back(core::move(vtable));
+  return m_vtables.back().get();
 }
 
 }  // namespace scripting

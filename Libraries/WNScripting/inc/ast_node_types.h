@@ -528,7 +528,6 @@ struct ast_vtable : public ast_node {
     return m_functions;
   }
 
-  ast_type* m_vtable_struct;
   containers::string m_name;
   containers::deque<ast_function*> m_functions;
 };
@@ -763,6 +762,8 @@ struct ast_function : public ast_node {
   bool m_is_external = false;
   bool m_is_builtin = false;
   bool m_is_external_pseudo = false;
+  bool m_is_non_scripting = false;
+
   uint32_t m_virtual_index = 0xFFFFFFFF;
 
   memory::unique_ptr<ast_node> clone(
@@ -1207,7 +1208,7 @@ struct ast_script_file : public ast_node {
       m_used_builtins(_allocator),
       m_used_externals(_allocator) {}
   containers::dynamic_array<const ast_type*> m_initialization_order;
-  containers::deque<memory::unique_ptr<ast_vtable>> m_all_vtables;
+  containers::deque<ast_vtable*> m_all_vtables;
   containers::deque<memory::unique_ptr<ast_type>> m_all_types;
   containers::deque<memory::unique_ptr<ast_function>> m_functions;
   containers::deque<const ast_function*> m_used_builtins;

@@ -660,6 +660,7 @@ parse_ast_convertor::convertor_context::resolve_struct_allocation_expression(
 
   memory::unique_ptr<ast_expression> init;
   if (alloc_type->m_constructor) {
+    use_function(alloc_type->m_constructor);
     memory::unique_ptr<ast_function_call_expression> function_call =
         memory::make_unique<ast_function_call_expression>(m_allocator, _alloc);
     function_call->m_function = alloc_type->m_constructor;
@@ -816,6 +817,7 @@ memory::unique_ptr<ast_expression> parse_ast_convertor::convertor_context::
   memory::unique_ptr<ast_function_call_expression> function_call =
       memory::make_unique<ast_function_call_expression>(m_allocator, _alloc);
   function_call->m_function = alloc_type->m_constructor;
+  use_function(alloc_type->m_constructor);
 
   memory::unique_ptr<ast_cast_expression> cast =
       memory::make_unique<ast_cast_expression>(m_allocator, _alloc);

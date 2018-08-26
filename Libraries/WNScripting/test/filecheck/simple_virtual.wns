@@ -21,18 +21,18 @@ class Bar : Foo {
 // };
 
 // CHECK:      __wns_inline__
-// CHECK-NEXT: int32_t _call_Foo_v0_getX(Foo* _this) {
-// CHECK-NEXT:   return ((int32_t(*)(Foo*)_this->__vtable[0])(_this);
+// CHECK-NEXT: int32_t _call_Foo_v0_getX(Foo* _0) {
+// CHECK-NEXT:   return ((int32_t(*)(Foo*)_0->__vtable[0])(_0);
 // CHECK-NEXT: }
 
 // CHECK:      __wns_inline__
-// CHECK-NEXT: int32_t _call_Foo_v1_getX(Foo* _this, int32_t y) {
-// CHECK-NEXT:   return ((int32_t(*)(Foo*, int32_t)_this->__vtable[1])(_this, y);
+// CHECK-NEXT: int32_t _call_Foo_v1_getX(Foo* _0, int32_t _1) {
+// CHECK-NEXT:   return ((int32_t(*)(Foo*, int32_t)_0->__vtable[1])(_0, _1);
 // CHECK-NEXT: }
 
 // CHECK:      __wns_inline__
-// CHECK-NEXT: int32_t _call_Foo_v2_getX(Foo* _this, float z) {
-// CHECK-NEXT:   return ((int32_t(*)(Foo*, float)_this->__vtable[2])(_this, z);
+// CHECK-NEXT: int32_t _call_Foo_v2_getX(Foo* _0, float _1) {
+// CHECK-NEXT:   return ((int32_t(*)(Foo*, float)_0->__vtable[2])(_0, _1);
 // CHECK-NEXT: }
 
 // CHECK: const _vtable_function __vtable__Bar{

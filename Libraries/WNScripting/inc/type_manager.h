@@ -26,6 +26,7 @@ class struct_definition;
 struct ast_function;
 struct ast_function_call_expression;
 struct ast_expression;
+struct ast_vtable;
 class node;
 
 enum class ast_type_classification {
@@ -41,6 +42,7 @@ enum class ast_type_classification {
 };
 
 using used_type_set = containers::hash_set<const ast_type*>;
+using used_function_set = containers::hash_set<const ast_function*>;
 
 class type_manager {
 public:
@@ -89,13 +91,14 @@ public:
   ast_type* get_runtime_array_of(const ast_type* _type, used_type_set* _used);
 
   ast_type* get_or_register_struct(
-      containers::string_view _name, used_type_set* _used);
+      containers::string_view _name, used_type_set* _used,
+      used_function_set* _used_functions);
   ast_type* register_child_struct(containers::string_view _name,
       ast_type* _struct_type, used_type_set* _used);
   containers::dynamic_array<const ast_type*> get_initialialization_order(
       memory::allocator* _allocator,
       const containers::hash_set<const ast_type*>& _types);
-
+  ast_vtable* make_vtable(const containers::string_view& _struct_name);
   void finalize_functions(
       const containers::deque<memory::unique_ptr<ast_function>>& functions);
 
@@ -110,7 +113,8 @@ public:
   const ast_type* resolve_function_ptr_type(
       containers::dynamic_array<const ast_type*> _types, used_type_set* _used);
 
-  void add_external(const external_function& function);
+  ast_function* add_external(
+      const external_function& function, bool _system, bool _is_member);
   // finalize_builtins must be called after _allocate, _free, and
   // _allocate_runtime_array have been called
   void finalize_builtins() {
@@ -350,7 +354,7 @@ private:
   };
   containers::hash_map<containers::string_view, struct_definition_data>
       m_struct_definitions;
-
+  containers::deque<memory::unique_ptr<ast_vtable>> m_vtables;
   memory::unique_ptr<ast_function_call_expression> call_function(
       const node* _base_node, const ast_function* _func,
       containers::contiguous_range<memory::unique_ptr<ast_expression>>

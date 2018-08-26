@@ -1,0 +1,12 @@
+// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE.txt file.
+
+class Foo {
+    Int x = 4;
+    Int y = 3;
+
+    Int get_x() { return x; }
+    virtual Int get_y() { return y; }
+    virtual Int get_x_y() { return y + x; }
+}

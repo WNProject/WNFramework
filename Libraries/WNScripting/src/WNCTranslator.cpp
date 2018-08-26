@@ -24,20 +24,27 @@ c_translator::c_translator(memory::allocator* _allocator,
     m_compilation_log(_log),
     m_started_files(_allocator),
     m_finished_files(_allocator) {
-  m_type_manager.add_external(external_function{
-      "_allocate", containers::dynamic_array<const ast_type*>(
-                       m_allocator, {m_type_manager.void_ptr_t(nullptr),
-                                        m_type_manager.size_t(nullptr)})});
+  m_type_manager.add_external(
+      external_function{
+          "_allocate", containers::dynamic_array<const ast_type*>(
+                           m_allocator, {m_type_manager.void_ptr_t(nullptr),
+                                            m_type_manager.size_t(nullptr)})},
+      true, false);
 
-  m_type_manager.add_external(external_function{
-      "_free", containers::dynamic_array<const ast_type*>(
-                   m_allocator, {m_type_manager.void_t(nullptr),
-                                    m_type_manager.void_ptr_t(nullptr)})});
+  m_type_manager.add_external(
+      external_function{
+          "_free", containers::dynamic_array<const ast_type*>(
+                       m_allocator, {m_type_manager.void_t(nullptr),
+                                        m_type_manager.void_ptr_t(nullptr)})},
+      true, false);
 
-  m_type_manager.add_external(external_function{"_allocate_runtime_array",
-      containers::dynamic_array<const ast_type*>(m_allocator,
-          {m_type_manager.void_ptr_t(nullptr), m_type_manager.size_t(nullptr),
-              m_type_manager.size_t(nullptr)})});
+  m_type_manager.add_external(
+      external_function{"_allocate_runtime_array",
+          containers::dynamic_array<const ast_type*>(
+              m_allocator, {m_type_manager.void_ptr_t(nullptr),
+                               m_type_manager.size_t(nullptr),
+                               m_type_manager.size_t(nullptr)})},
+      true, false);
   m_type_manager.finalize_builtins();
 }
 
