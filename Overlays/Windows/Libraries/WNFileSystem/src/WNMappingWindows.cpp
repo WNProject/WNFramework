@@ -124,7 +124,8 @@ file_ptr mapping_windows::open_file(
   }
 
   utilities::internal::handle file_handle(::CreateFileW(unicode_buffer,
-      GENERIC_READ | GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, 0, nullptr));
+      GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr,
+      OPEN_EXISTING, 0, nullptr));
 
   if (!file_handle.is_valid()) {
     _result = result::fail;
