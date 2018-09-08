@@ -435,7 +435,7 @@ parse_ast_convertor::convertor_context::resolve_array_allocation_expression(
   id->initialized_setup_statements(m_allocator)
       .push_back(core::move(array_init));
 
-  return id;
+  return core::move(id);
 }
 
 struct p_functions {
