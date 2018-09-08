@@ -25,6 +25,7 @@ type_manager::type_manager(memory::allocator* _allocator, logging::log* _log)
     m_runtime_array_types(_allocator),
     m_structure_types(_allocator),
     m_function_pointer_types(_allocator),
+    m_slice_types(_allocator),
     m_all_types(_allocator),
     m_struct_definitions(_allocator),
     m_vtables(_allocator) {
@@ -314,12 +315,48 @@ ast_type* type_manager::get_array_of(
     array_type->m_name += buff;
     array_type->m_name += "_";
   }
-
+  array_type->m_name += _type->m_name;
   array_type->m_implicitly_contained_type = _type;
   array_type->m_static_array_size = _size;
   ast_type* return_type = array_type.get();
   return_type->calculate_mangled_name(m_allocator);
   m_static_array_types[core::make_pair(_size, _type)] = core::move(array_type);
+  if (_used) {
+    _used->insert(return_type);
+  }
+  return return_type;
+}
+
+ast_type* type_manager::get_slice_of(
+    const ast_type* _type, uint32_t _size, used_type_set* _used) {
+  auto it = m_slice_types.find(core::make_pair(_size, _type));
+  if (it != m_slice_types.end()) {
+    if (_used) {
+      _used->insert(it->second.get());
+    }
+    return it->second.get();
+  }
+
+  auto slice_type = memory::make_unique_delegated<ast_type>(m_allocator,
+      [this](void* _memory) { return new (_memory) ast_type(&m_all_types); });
+  slice_type->m_classification = ast_type_classification::slice_type;
+
+  slice_type->m_name = containers::string(m_allocator, "_slice_");
+  if (_size > 0) {
+    char buff[11] = {
+        0,
+    };
+    memory::writeuint32(buff, static_cast<uint32_t>(_size), 11);
+    slice_type->m_name += buff;
+    slice_type->m_name += "d_";
+  }
+  slice_type->m_name += _type->m_name;
+  slice_type->m_implicitly_contained_type = _type;
+  slice_type->m_slice_dimensions = _size;
+  slice_type->m_pass_by_reference = true;
+  ast_type* return_type = slice_type.get();
+  return_type->calculate_mangled_name(m_allocator);
+  m_slice_types[core::make_pair(_size, _type)] = core::move(slice_type);
   if (_used) {
     _used->insert(return_type);
   }

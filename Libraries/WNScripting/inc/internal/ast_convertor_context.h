@@ -33,10 +33,12 @@ struct parse_ast_convertor::convertor_context {
   const ast_type* resolve_static_array(const array_type* _type);
   const ast_type* resolve_runtime_array(const runtime_array_type* _type);
   const ast_type* resolve_reference_type(const type* _type);
+  const ast_type* resolve_slice(const slice_type* _type);
 
   const ast_type* resolve_function_ptr_type(const ast_function* _function);
 
   const ast_type* get_array_of(const ast_type* _type, uint32_t _size);
+  const ast_type* get_slice_of(const ast_type* _type, uint32_t _size);
   const ast_type* get_runtime_array_of(const ast_type* _type);
 
   // Functions
@@ -77,7 +79,7 @@ struct parse_ast_convertor::convertor_context {
       const unary_expression* _expression);
   memory::unique_ptr<ast_unary_expression> resolve_post_unary_expression(
       const post_unary_expression* _expression);
-  memory::unique_ptr<ast_function_call_expression> resolve_function_call(
+  memory::unique_ptr<ast_expression> resolve_function_call(
       const function_call_expression* _expression);
   memory::unique_ptr<ast_expression> resolve_struct_allocation_expression(
       const struct_allocation_expression* _expression);
@@ -90,6 +92,8 @@ struct parse_ast_convertor::convertor_context {
       const array_allocation_expression* _expr);
   memory::unique_ptr<ast_expression> resolve_array_access_expression(
       const array_access_expression* _access);
+  memory::unique_ptr<ast_expression> resolve_slice_expression(
+      const slice_expression* _slice);
   memory::unique_ptr<ast_expression> resolve_builtin_unary_expression(
       const builtin_unary_expression* _unary);
 
@@ -147,6 +151,7 @@ struct parse_ast_convertor::convertor_context {
   containers::deque<memory::unique_ptr<ast_function>> m_constructor_destructors;
   ast_function* m_current_function;
   ast_declaration* m_return_decl;
+  ast_function::parameter* m_return_parameter;
 
   // Externals
   containers::hash_map<containers::string, ast_function*> m_external_functions;

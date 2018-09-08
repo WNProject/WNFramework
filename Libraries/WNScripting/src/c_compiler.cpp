@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNScripting/inc/c_compiler.h"
 #include "WNContainers/inc/WNHashMap.h"
 #include "WNContainers/inc/WNHashSet.h"
 #include "WNScripting/inc/WNNodeTypes.h"
+#include "WNScripting/inc/c_compiler.h"
 #include "WNScripting/inc/internal/c_preamble.h"
 #include "WNScripting/inc/parse_ast_convertor.h"
 
@@ -320,6 +320,36 @@ bool c_compiler::declare_type(const ast_type* _type) {
       m_output += ";\n\n";
       return true;
     } break;
+    case ast_type_classification::slice_type: {
+      align_line();
+      m_output += "typedef struct _";
+      m_output += _type->m_name;
+      m_output += " {\n";
+      m_scope_depth += 1;
+      align_line();
+      write_type(_type->m_implicitly_contained_type);
+      m_output += "* _begin;\n";
+      char buff[11];
+      for (uint32_t i = 0; i < _type->m_slice_dimensions; ++i) {
+        memory::writeuint32(buff, i, 11);
+        align_line();
+        m_output += "size_t _size";
+        m_output += buff;
+        m_output += ";\n";
+        if (i < _type->m_slice_dimensions - 1) {
+          align_line();
+          m_output += "ssize_t _stride";
+          m_output += buff;
+          m_output += ";\n";
+        }
+      }
+      m_scope_depth -= 1;
+      align_line();
+      m_output += "} ";
+      m_output += _type->m_name;
+      m_output += ";\n\n";
+    }
+      return true;
     default:
       WN_RELEASE_ASSERT(false, "Should not get here");
   }
@@ -339,9 +369,14 @@ bool c_compiler::write_function_signature(const ast_function* _function) {
     m_output += "inline ";
   }
 
-  if (!write_type(_function->m_return_type)) {
-    return false;
+  if (_function->m_return_type->m_pass_by_reference) {
+    m_output += "void";
+  } else {
+    if (!write_type(_function->m_return_type)) {
+      return false;
+    }
   }
+
   m_output += " ";
   m_output += _function->m_mangled_name;
   m_output += "(";
@@ -354,6 +389,9 @@ bool c_compiler::write_function_signature(const ast_function* _function) {
     }
     if (!write_type(param.m_type)) {
       return false;
+    }
+    if (param.m_type->m_pass_by_reference) {
+      m_output += "*";
     }
     m_output += " ";
     m_output += param.m_name;
@@ -752,7 +790,13 @@ bool c_compiler::write_id(const ast_id* _expression) {
   if (_expression->m_declaration) {
     m_output += _expression->m_declaration->m_name;
   } else if (_expression->m_function_parameter) {
-    m_output += _expression->m_function_parameter->m_name;
+    if (_expression->m_function_parameter->m_type->m_pass_by_reference) {
+      m_output += "(*";
+      m_output += _expression->m_function_parameter->m_name;
+      m_output += ")";
+    } else {
+      m_output += _expression->m_function_parameter->m_name;
+    }
   } else {
     WN_RELEASE_ASSERT(false, "Unknown id source");
   }
@@ -1273,8 +1317,16 @@ bool c_compiler::write_function_call(
     } else {
       first = false;
     }
-    if (!write_expression(param.get())) {
-      return false;
+    if (param->m_type->m_pass_by_reference) {
+      m_output += "&(";
+      if (!write_expression(param.get())) {
+        return false;
+      }
+      m_output += ")";
+    } else {
+      if (!write_expression(param.get())) {
+        return false;
+      }
     }
   }
   m_output += ")";
@@ -1304,6 +1356,72 @@ bool c_compiler::write_member_access_expression(
 
 bool c_compiler::write_array_access_expression(
     const ast_array_access_expression* _expression) {
+  if (_expression->m_array->m_type->m_classification ==
+      ast_type_classification::slice_type) {
+    if (_expression->m_array->m_type->m_slice_dimensions == 1) {
+      if (!write_expression(_expression->m_array.get())) {
+        return false;
+      }
+      m_output += "._begin[";
+      if (!write_expression(_expression->m_index.get())) {
+        return false;
+      }
+      m_output += "]";
+      return true;
+    } else {
+      m_output += "((";
+      if (!write_type(_expression->m_type)) {
+        return false;
+      }
+      m_output += ")";
+      m_output += "{";
+      m_output += "(";
+      if (!write_type(_expression->m_type->m_implicitly_contained_type)) {
+        return false;
+      }
+      m_output += "*)((uint8_t*)(";
+      if (!write_expression(_expression->m_array.get())) {
+        return false;
+      }
+      m_output += "._begin) + (";
+      if (!write_expression(_expression->m_array.get())) {
+        return false;
+      }
+      m_output += "._stride0 * ";
+      if (!write_expression(_expression->m_index.get())) {
+        return false;
+      }
+      m_output += ")), ";
+
+      if (!write_expression(_expression->m_array.get())) {
+        return false;
+      }
+      m_output += "._size1";
+
+      char buff[11];
+      for (uint32_t i = 1;
+           i < _expression->m_array->m_type->m_slice_dimensions - 1; ++i) {
+        m_output += ", ";
+        memory::writeuint32(buff, i, 11);
+        if (!write_expression(_expression->m_array.get())) {
+          return false;
+        }
+        m_output += "._stride";
+        m_output += buff;
+        memory::writeuint32(buff, i + 1, 11);
+        m_output += ", ";
+        if (!write_expression(_expression->m_array.get())) {
+          return false;
+        }
+        m_output += "._size";
+        m_output += buff;
+      }
+
+      m_output += "})";
+      return true;
+    }
+  }
+
   if (!write_expression(_expression->m_array.get())) {
     return false;
   }
@@ -1322,6 +1440,106 @@ bool c_compiler::write_array_access_expression(
     return false;
   }
   m_output += "]";
+  return true;
+}
+
+bool c_compiler::write_slice_expression(
+    const ast_slice_expression* _expression) {
+  m_output += "((";
+  if (!write_type(_expression->m_type)) {
+    return false;
+  }
+  m_output += ")";
+  m_output += "{";
+  if (_expression->m_array->m_type->m_classification ==
+      ast_type_classification::slice_type) {
+    m_output += "(";
+    if (!write_type(_expression->m_type->m_implicitly_contained_type)) {
+      return false;
+    }
+    m_output += "*)(";
+    if (!write_expression(_expression->m_array.get())) {
+      return false;
+    }
+    m_output += "._begin + (";
+    if (_expression->m_array->m_type->m_slice_dimensions > 1) {
+      if (!write_expression(_expression->m_array.get())) {
+        return false;
+      }
+      m_output += "._stride0 * ";
+    }
+    if (!write_expression(_expression->m_index_0.get())) {
+      return false;
+    }
+    m_output += ")), ";
+    if (!write_expression(_expression->m_index_1.get())) {
+      return false;
+    }
+    m_output += "-";
+    if (!write_expression(_expression->m_index_0.get())) {
+      return false;
+    }
+
+    char buff[11];
+    for (uint32_t i = 0; i < _expression->m_array->m_type->m_slice_dimensions - 1;
+         ++i) {
+      m_output += ", ";
+      memory::writeuint32(buff, i, 11);
+      if (!write_expression(_expression->m_array.get())) {
+        return false;
+      }
+      m_output += "._stride";
+      m_output += buff;
+      memory::writeuint32(buff, i + 1, 11);
+      m_output += ", ";
+      if (!write_expression(_expression->m_array.get())) {
+        return false;
+      }
+      m_output += "._size";
+      m_output += buff;
+    }
+  } else if (_expression->m_array->m_type->m_builtin ==
+             builtin_type::c_string_type) {
+    if (!write_expression(_expression->m_array.get())) {
+      return false;
+    }
+    m_output += " + ";
+    if (!write_expression(_expression->m_index_0.get())) {
+      return false;
+    }
+    m_output += ",";
+    if (!write_expression(_expression->m_index_1.get())) {
+      return false;
+    }
+    m_output += "-";
+    if (!write_expression(_expression->m_index_0.get())) {
+      return false;
+    }
+  } else {
+    // This is an array of some type
+    if (!write_expression(_expression->m_array.get())) {
+      return false;
+    }
+    if (_expression->m_array->m_type->m_static_array_size == 0) {
+      m_output += "->_val";
+    } else {
+      m_output += "._val";
+    }
+
+    m_output += " + ";
+    if (!write_expression(_expression->m_index_0.get())) {
+      return false;
+    }
+    m_output += ",";
+    if (!write_expression(_expression->m_index_1.get())) {
+      return false;
+    }
+    m_output += "-";
+    if (!write_expression(_expression->m_index_0.get())) {
+      return false;
+    }
+  }
+  m_output += "})";
   return true;
 }
 
@@ -1373,6 +1591,23 @@ bool c_compiler::write_cast_expression(const ast_cast_expression* _expression) {
       m_output += ")";
       return true;
     }
+  }
+
+  if (_expression->m_type->m_classification ==
+          ast_type_classification::slice_type &&
+      _expression->m_base_expression->m_type->m_builtin ==
+          builtin_type::nullptr_type) {
+    m_output += "(";
+    if (!write_type(_expression->m_type)) {
+      return false;
+    }
+    m_output += ")";
+    m_output += "{";
+    if (!write_expression(_expression->m_base_expression.get())) {
+      return false;
+    }
+    m_output += "}";
+    return true;
   }
 
   bool is_bitcast = _expression->m_type->m_classification ==
@@ -1433,6 +1668,11 @@ bool c_compiler::write_cast_expression(const ast_cast_expression* _expression) {
   is_bitcast |= _expression->m_base_expression->m_type->m_builtin ==
                     builtin_type::integral_type &&
                 _expression->m_type->m_builtin == builtin_type::size_type;
+  is_bitcast |= _expression->m_type->m_classification ==
+                    ast_type_classification::static_array &&
+                _expression->m_type->m_static_array_size == 0 &&
+                _expression->m_base_expression->m_type->m_classification ==
+                    ast_type_classification::runtime_array;
 
   if (is_bitcast) {
     m_output += "((";
@@ -1507,10 +1747,15 @@ bool c_compiler::write_builtin_expression(
       if (!write_expression(_expression->m_expressions[0].get())) {
         return false;
       }
-      if (_expression->m_expressions[0]->m_type->m_static_array_size == 0) {
-        m_output += "->_size";
+      if (_expression->m_expressions[0]->m_type->m_classification ==
+          ast_type_classification::slice_type) {
+        m_output += "._size0";
       } else {
-        m_output += "._size";
+        if (_expression->m_expressions[0]->m_type->m_static_array_size == 0) {
+          m_output += "->_size";
+        } else {
+          m_output += "._size";
+        }
       }
       return true;
     default:
@@ -1534,6 +1779,9 @@ bool c_compiler::write_expression(const ast_expression* _expression) {
     case ast_node_type::ast_array_access_expression: {
       return write_array_access_expression(
           cast_to<ast_array_access_expression>(_expression));
+    } break;
+    case ast_node_type::ast_slice_expression: {
+      return write_slice_expression(cast_to<ast_slice_expression>(_expression));
     } break;
     case ast_node_type::ast_member_access_expression: {
       return write_member_access_expression(
@@ -1685,6 +1933,9 @@ bool c_compiler::decode_type(const ast_type* _type) {
       return true;
     case ast_type_classification::extern_type:
       m_types[_type] = containers::string(m_allocator, _type->m_name);
+      return true;
+    case ast_type_classification::slice_type:
+      m_types[_type] = _type->m_name;
       return true;
     default:
       WN_RELEASE_ASSERT(false, "We shouldn't get here");

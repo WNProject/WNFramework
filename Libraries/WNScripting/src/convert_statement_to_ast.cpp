@@ -22,10 +22,10 @@ bool parse_ast_convertor::convertor_context::resolve_return(
       return false;
     }
     bool is_shared = false;
-    if (m_return_decl->m_type->m_classification ==
+    if (m_current_function->m_return_type->m_classification ==
         ast_type_classification::shared_reference) {
       if (expr->m_type == m_type_manager->nullptr_t(&m_used_types)) {
-        expr = make_cast(core::move(expr), m_return_decl->m_type);
+        expr = make_cast(core::move(expr), m_current_function->m_return_type);
       } else {
         auto etype = expr->m_type;
         is_shared = true;
@@ -48,7 +48,7 @@ bool parse_ast_convertor::convertor_context::resolve_return(
       }
     }
 
-    if (expr->m_type != m_return_decl->m_type) {
+    if (expr->m_type != m_current_function->m_return_type) {
       _instruction->log_line(m_log, logging::log_level::error);
       m_log->log_error("Returned value must match the function");
       return false;
@@ -56,10 +56,13 @@ bool parse_ast_convertor::convertor_context::resolve_return(
 
     auto id_expr = memory::make_unique<ast_id>(m_allocator, _instruction);
     id_expr->m_declaration = m_return_decl;
-    id_expr->m_type = m_return_decl->m_type;
+    id_expr->m_function_parameter = m_return_parameter;
+    id_expr->m_type = m_current_function->m_return_type;
 
     if (!is_shared) {
-      ret_expr->m_return_expr = clone_ast_node(m_allocator, id_expr.get());
+      if (!id_expr->m_type->m_pass_by_reference) {
+        ret_expr->m_return_expr = clone_ast_node(m_allocator, id_expr.get());
+      }
     } else {
       containers::dynamic_array<memory::unique_ptr<ast_expression>> params(
           m_allocator);
@@ -69,7 +72,7 @@ bool parse_ast_convertor::convertor_context::resolve_return(
           make_cast(call_function(_instruction,
                         m_type_manager->return_shared(&m_used_builtins),
                         core::move(params)),
-              m_return_decl->m_type);
+              m_current_function->m_return_type);
     }
 
     auto assign =
@@ -78,7 +81,7 @@ bool parse_ast_convertor::convertor_context::resolve_return(
     assign->m_rhs = core::move(expr);
 
     m_current_statements->push_back(core::move(assign));
-  } else if (m_return_decl) {
+  } else if (m_return_decl || m_return_parameter) {
     _instruction->log_line(m_log, logging::log_level::error);
     m_log->log_error("Must return a value that matches the function");
   }
@@ -498,6 +501,11 @@ bool parse_ast_convertor::convertor_context::resolve_declaration(
 
       has_temporary_declaration = false;
       is_shared_struct = true;
+    }
+
+    if (type->m_classification == ast_type_classification::slice_type &&
+        is_null_assign) {
+      init = make_implicit_cast(core::move(init), type);
     }
   }
 

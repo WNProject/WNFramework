@@ -15,6 +15,8 @@ const ast_type* parse_ast_convertor::convertor_context::resolve_type(
     return resolve_static_array(cast_to<array_type>(_type));
   } else if (_type->get_node_type() == node_type::runtime_array_type) {
     return resolve_runtime_array(cast_to<runtime_array_type>(_type));
+  } else if (_type->get_node_type() == node_type::slice_type) {
+    return resolve_slice(cast_to<slice_type>(_type));
   }
   WN_DEBUG_ASSERT(_type->get_node_type() == node_type::type,
       "Type nodes must be of a known type");
@@ -172,6 +174,16 @@ const ast_type* parse_ast_convertor::convertor_context::resolve_runtime_array(
     return nullptr;
   }
   return get_runtime_array_of(subtype);
+}
+
+const ast_type* parse_ast_convertor::convertor_context::resolve_slice(
+    const slice_type* _type) {
+  const ast_type* subtype = resolve_type(_type->get_subtype());
+  if (!subtype) {
+    _type->log_line(m_log, logging::log_level::error);
+    m_log->log_error("Could not resolve slice subtype");
+  }
+  return get_slice_of(subtype, _type->dimensions());
 }
 
 const ast_type*

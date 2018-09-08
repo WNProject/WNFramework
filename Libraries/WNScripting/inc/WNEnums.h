@@ -60,6 +60,7 @@ enum class type_classification {
   vtable_type,
   runtime_array_type,
   array_type,
+  slice_type,
   struct_type,
   custom_type,
   max

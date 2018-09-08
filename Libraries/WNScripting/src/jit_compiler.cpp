@@ -116,6 +116,7 @@ struct jit_compiler_context {
   llvm::Value* get_member_access(const ast_member_access_expression* _access);
   llvm::Value* get_builtin(const ast_builtin_expression* _builtin);
   llvm::Value* get_array_access(const ast_array_access_expression* _expr);
+  llvm::Value* get_slice(const ast_slice_expression* _expr);
 
   // Statements
   bool write_statement(const ast_statement* _statement);
@@ -235,13 +236,20 @@ bool internal::jit_compiler_context::forward_declare_function(
   if (!return_type) {
     return false;
   }
+  if (_function->m_return_type->m_pass_by_reference) {
+    return_type = m_void_t;
+  }
 
   for (auto& t : _function->m_parameters) {
     llvm::Type* param_type = get_type(t.m_type);
     if (!param_type) {
       return false;
     }
-    types.push_back(param_type);
+    if (t.m_type->m_pass_by_reference) {
+      types.push_back(param_type->getPointerTo(0));
+    } else {
+      types.push_back(param_type);
+    }
   }
 
   llvm::FunctionType* ft = llvm::FunctionType::get(return_type,
@@ -290,6 +298,13 @@ bool internal::jit_compiler_context::declare_function(
     if (!t) {
       return false;
     }
+    if (arg.m_type->m_pass_by_reference) {
+      llvm::Value* x = &(*arg_it);
+      ++arg_it;
+      m_function_parameters[&arg] = x;
+      continue;
+    }
+
     containers::string param_name = containers::string(m_allocator, "_");
     param_name += arg.m_name;
     arg_it->setName(param_name.c_str());
@@ -414,6 +429,30 @@ bool internal::jit_compiler_context::decode_type(const ast_type* _type) {
       }
     }
       return true;
+    case ast_type_classification::slice_type: {
+      if (!decode_type(_type->m_implicitly_contained_type)) {
+        return false;
+      }
+      auto child_type =
+          m_types[_type->m_implicitly_contained_type]->getPointerTo(0);
+
+      containers::dynamic_array<llvm::Type*> types(m_allocator);
+      types.push_back(child_type);
+      for (uint32_t i = 0; i < _type->m_slice_dimensions; ++i) {
+        types.push_back(m_size_t);
+        if (i < _type->m_slice_dimensions - 1) {
+          types.push_back(m_size_t);
+        }
+      }
+
+      llvm::StructType* s =
+          llvm::StructType::create(llvm::ArrayRef<llvm::Type*>(
+              types.data(), types.data() + types.size()));
+      s->setName(_type->m_name.c_str());
+
+      m_types[_type] = s;
+    }
+      return true;
     case ast_type_classification::runtime_array: {
       if (!decode_type(_type->m_implicitly_contained_type)) {
         return false;
@@ -484,6 +523,7 @@ bool internal::jit_compiler_context::decode_type(const ast_type* _type) {
       m_types[_type] = t->getPointerTo(0);
       return true;
     }
+
     case ast_type_classification::extern_type: {
       uint64_t calculated_offset = 0;
       containers::dynamic_array<uint32_t> offset_fixup(m_allocator);
@@ -547,6 +587,9 @@ llvm::Value* internal::jit_compiler_context::get_expression(
     } break;
     case ast_node_type::ast_array_access_expression: {
       v = get_array_access(cast_to<ast_array_access_expression>(_expression));
+    } break;
+    case ast_node_type::ast_slice_expression: {
+      v = get_slice(cast_to<ast_slice_expression>(_expression));
     } break;
     case ast_node_type::ast_member_access_expression: {
       v = get_member_access(cast_to<ast_member_access_expression>(_expression));
@@ -755,6 +798,15 @@ llvm::Value* internal::jit_compiler_context::get_function_call(
 
   for (size_t i = 0; i < _bin->m_parameters.size(); ++i) {
     expressions[i] = get_expression(_bin->m_parameters[i].get());
+    if (_bin->m_parameters[i]->m_type->m_pass_by_reference) {
+      llvm::LoadInst* load = llvm::dyn_cast<llvm::LoadInst>(expressions[i]);
+      if (!load) {
+        return nullptr;
+      }
+      expressions[i] = load->getOperand(0);
+      load->removeFromParent();
+      delete load;
+    }
   }
 
   llvm::Value* fn = nullptr;
@@ -777,7 +829,8 @@ llvm::Value* internal::jit_compiler_context::get_function_call(
   }
 
   // We cannot name void values, so split this based on return type.
-  if (get_type(_bin->m_type) != m_void_t) {
+  if (get_type(_bin->m_type) != m_void_t &&
+      !_bin->m_type->m_pass_by_reference) {
     llvm::CallInst* ci = m_function_builder->CreateCall(fn,
         llvm::ArrayRef<llvm::Value*>(expressions.data(), expressions.size()),
         _bin->m_function->m_name.c_str());
@@ -793,6 +846,13 @@ llvm::Value* internal::jit_compiler_context::get_function_call(
 
 llvm::Value* internal::jit_compiler_context::get_cast(
     const ast_cast_expression* _expression) {
+  if (!decode_type(_expression->m_base_expression->m_type)) {
+    return nullptr;
+  }
+  if (!decode_type(_expression->m_type)) {
+    return nullptr;
+  }
+
   llvm::Value* expr = get_expression(_expression->m_base_expression.get());
   if (_expression->m_type->m_classification ==
           ast_type_classification::reference &&
@@ -837,6 +897,13 @@ llvm::Value* internal::jit_compiler_context::get_cast(
     } else {
       WN_RELEASE_ASSERT(false, "Invalid cast detected");
     }
+  }
+
+  if (_expression->m_type->m_classification ==
+          ast_type_classification::slice_type &&
+      _expression->m_base_expression->m_type->m_builtin ==
+          builtin_type::nullptr_type) {
+    return llvm::ConstantAggregateZero::get(m_types[_expression->m_type]);
   }
 
   bool is_int_to_ptr = _expression->m_type->m_classification ==
@@ -899,6 +966,11 @@ llvm::Value* internal::jit_compiler_context::get_cast(
   is_bitcast |= _expression->m_base_expression->m_type->m_builtin ==
                     builtin_type::void_ptr_type &&
                 _expression->m_type->m_classification ==
+                    ast_type_classification::runtime_array;
+  is_bitcast |= _expression->m_type->m_classification ==
+                    ast_type_classification::static_array &&
+                _expression->m_type->m_static_array_size == 0 &&
+                _expression->m_base_expression->m_type->m_classification ==
                     ast_type_classification::runtime_array;
 
   if (is_bitcast) {
@@ -1020,7 +1092,14 @@ llvm::Value* internal::jit_compiler_context::get_builtin(
       if (!v) {
         return nullptr;
       }
-      if (_builtin->m_expressions[0]->m_type->m_static_array_size != 0) {
+      if (_builtin->m_expressions[0]->m_type->m_classification ==
+          ast_type_classification::slice_type) {
+        return m_function_builder->CreateExtractValue(v, 1);
+      }
+
+      if (_builtin->m_expressions[0]->m_type->m_static_array_size != 0 &&
+          _builtin->m_expressions[0]->m_type->m_classification !=
+              ast_type_classification::slice_type) {
         llvm::LoadInst* load = llvm::dyn_cast<llvm::LoadInst>(v);
         if (!load) {
           return nullptr;
@@ -1090,14 +1169,54 @@ llvm::Value* internal::jit_compiler_context::get_array_access(
   llvm::Type* t = get_type(_access->m_array->m_type);
 
   containers::dynamic_array<llvm::Value*> gep(m_allocator);
-  if (_access->m_array->m_type->m_static_array_size != 0 && t != m_c_string_t) {
+  if (_access->m_array->m_type->m_classification !=
+          ast_type_classification::slice_type &&
+      (_access->m_array->m_type->m_static_array_size != 0 &&
+          t != m_c_string_t)) {
     llvm::LoadInst* load = llvm::dyn_cast<llvm::LoadInst>(arr);
-    if (!load) {
-      return nullptr;
+    if (load) {
+      arr = load->getOperand(0);
+      load->removeFromParent();
+      delete load;
     }
-    arr = load->getOperand(0);
-    load->removeFromParent();
-    delete load;
+  }
+
+  if (_access->m_array->m_type->m_classification ==
+      ast_type_classification::slice_type) {
+    llvm::Value* ptr = m_function_builder->CreateExtractValue(arr, 0);
+    if (_access->m_array->m_type->m_slice_dimensions == 1) {
+      gep.clear();
+      gep.push_back(idx);
+
+      return m_function_builder->CreateLoad(
+          m_function_builder->CreateInBoundsGEP(
+              ptr, llvm::ArrayRef<llvm::Value*>(&gep[0], gep.size())));
+    }
+    llvm::Value* pos = m_function_builder->CreatePtrToInt(ptr, m_size_t);
+    llvm::Value* stride = m_function_builder->CreateExtractValue(arr, 2);
+    llvm::Value* offset = m_function_builder->CreateMul(stride, idx);
+    llvm::Value* newPos = m_function_builder->CreateAdd(offset, pos);
+    llvm::Value* newPointer = m_function_builder->CreateIntToPtr(
+        newPos, get_type(_access->m_array->m_type->m_implicitly_contained_type)
+                    ->getPointerTo(0));
+
+    llvm::Value* newSlice =
+        llvm::ConstantAggregateZero::get(get_type(_access->m_type));
+    newSlice = m_function_builder->CreateInsertValue(newSlice, newPointer, 0);
+
+    newSlice = m_function_builder->CreateInsertValue(
+        newSlice, m_function_builder->CreateExtractValue(arr, 3, "Size1"), 1);
+    for (uint32_t i = 1; i < _access->m_array->m_type->m_slice_dimensions - 1;
+         ++i) {
+      // Stride[i]
+      newSlice = m_function_builder->CreateInsertValue(newSlice,
+          m_function_builder->CreateExtractValue(arr, 1 + (2 * i)), 1 + i);
+
+      // Size[i+1]
+      newSlice = m_function_builder->CreateInsertValue(newSlice,
+          m_function_builder->CreateExtractValue(arr, 2 + (2 * i)), 2 + i);
+    }
+    return newSlice;
   }
 
   if (t != m_c_string_t) {
@@ -1108,6 +1227,79 @@ llvm::Value* internal::jit_compiler_context::get_array_access(
 
   return m_function_builder->CreateLoad(m_function_builder->CreateInBoundsGEP(
       arr, llvm::ArrayRef<llvm::Value*>(&gep[0], gep.size())));
+}
+
+llvm::Value* internal::jit_compiler_context::get_slice(
+    const ast_slice_expression* _expr) {
+  llvm::Value* v = get_expression(_expr->m_array.get());
+  llvm::Value* i0 = get_expression(_expr->m_index_0.get());
+  llvm::Value* i1 = get_expression(_expr->m_index_1.get());
+
+  if (!v || !i0 || !i1) {
+    return nullptr;
+  }
+  llvm::Value* slice =
+      llvm::ConstantAggregateZero::get(get_type(_expr->m_type));
+
+  if (_expr->m_array->m_type->m_classification ==
+      ast_type_classification::slice_type) {
+    llvm::Value* ptr = m_function_builder->CreateExtractValue(v, 0);
+    if (_expr->m_array->m_type->m_slice_dimensions == 1) {
+      containers::dynamic_array<llvm::Value*> gep(m_allocator);
+      gep.push_back(i0);
+      ptr = m_function_builder->CreateInBoundsGEP(
+          ptr, llvm::ArrayRef<llvm::Value*>(&gep[0], gep.size()));
+    } else {
+      llvm::Value* stride = m_function_builder->CreateExtractValue(v, 2);
+      ptr = m_function_builder->CreatePtrToInt(ptr, m_size_t);
+      ptr = m_function_builder->CreateAdd(
+          ptr, m_function_builder->CreateMul(stride, i0));
+      ptr = m_function_builder->CreateIntToPtr(
+          ptr, get_type(_expr->m_array->m_type->m_implicitly_contained_type)
+                   ->getPointerTo(0));
+    }
+
+    llvm::Value* size = m_function_builder->CreateIntCast(
+        m_function_builder->CreateSub(i1, i0), m_size_t, false);
+    slice = m_function_builder->CreateInsertValue(slice, ptr, 0);
+    slice = m_function_builder->CreateInsertValue(slice, size, 1);
+    for (uint32_t i = 0; i < _expr->m_type->m_slice_dimensions - 1; ++i) {
+      slice = m_function_builder->CreateInsertValue(
+          slice, m_function_builder->CreateExtractValue(v, (2 * i)), 2 * i);
+      slice = m_function_builder->CreateInsertValue(slice,
+          m_function_builder->CreateExtractValue(v, (2 * i) + 1), 2 * i + 1);
+    }
+  } else if (_expr->m_array->m_type->m_builtin == builtin_type::c_string_type) {
+    containers::dynamic_array<llvm::Value*> gep(m_allocator);
+    gep.push_back(i0);
+    v = m_function_builder->CreateInBoundsGEP(
+        v, llvm::ArrayRef<llvm::Value*>(&gep[0], gep.size()));
+    llvm::Value* size = m_function_builder->CreateIntCast(
+        m_function_builder->CreateSub(i1, i0), m_size_t, false);
+    slice = m_function_builder->CreateInsertValue(slice, v, 0);
+    slice = m_function_builder->CreateInsertValue(slice, size, 1);
+  } else {
+    // Array Type
+    if (_expr->m_array->m_type->m_static_array_size != 0) {
+      llvm::LoadInst* load = llvm::dyn_cast<llvm::LoadInst>(v);
+      if (load) {
+        v = load->getOperand(0);
+        load->removeFromParent();
+        delete load;
+      }
+    }
+    containers::dynamic_array<llvm::Value*> gep(m_allocator);
+    gep.push_back(i32(0));
+    gep.push_back(i32(1));
+    gep.push_back(i0);
+    v = m_function_builder->CreateInBoundsGEP(
+        v, llvm::ArrayRef<llvm::Value*>(&gep[0], gep.size()));
+    llvm::Value* size = m_function_builder->CreateIntCast(
+        m_function_builder->CreateSub(i1, i0), m_size_t, false);
+    slice = m_function_builder->CreateInsertValue(slice, v, 0);
+    slice = m_function_builder->CreateInsertValue(slice, size, 1);
+  }
+  return slice;
 }
 
 llvm::Value* internal::jit_compiler_context::get_constant(
@@ -1158,8 +1350,9 @@ llvm::Value* internal::jit_compiler_context::get_id(const ast_id* _id) {
     if (param == m_function_parameters.end()) {
       return nullptr;
     }
-    return m_function_builder->CreateLoad(
+    auto val = m_function_builder->CreateLoad(
         param->second, _id->m_function_parameter->m_name.c_str());
+    return val;
   } else {
     WN_RELEASE_ASSERT(false, "Unknown id source");
   }

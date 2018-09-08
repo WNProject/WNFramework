@@ -30,6 +30,8 @@ parse_ast_convertor::convertor_context::resolve_expression(
     case node_type::array_access_expression:
       return resolve_array_access_expression(
           cast_to<array_access_expression>(_expression));
+    case node_type::slice_expression:
+      return resolve_slice_expression(cast_to<slice_expression>(_expression));
     case node_type::function_call_expression:
       return resolve_function_call(
           cast_to<function_call_expression>(_expression));
@@ -454,7 +456,7 @@ struct p_functions_t : p_functions {
   }
 };
 
-memory::unique_ptr<ast_function_call_expression>
+memory::unique_ptr<ast_expression>
 parse_ast_convertor::convertor_context::resolve_function_call(
     const function_call_expression* _call) {
   auto base_expr = resolve_expression(_call->get_base_expression());
@@ -543,8 +545,12 @@ parse_ast_convertor::convertor_context::resolve_function_call(
     if (fn->m_name != function_name) {
       continue;
     }
+    size_t num_params = fn->m_parameters.size();
+    if (fn->m_return_type->m_pass_by_reference) {
+      num_params -= 1;
+    }
     bool matches = true;
-    if (fn->m_parameters.size() != params.size()) {
+    if (num_params != params.size()) {
       continue;
     }
     for (size_t i = 0; i < params.size(); ++i) {
@@ -580,13 +586,153 @@ parse_ast_convertor::convertor_context::resolve_function_call(
       params[i] = make_cast(core::move(params[i]),
           function_call->m_function->m_parameters[i].m_type);
     } else {
-      params[i] = make_implicit_cast(core::move(params[i]),
-          function_call->m_function->m_parameters[i].m_type);
+      if (function_call->m_function->m_parameters[i]
+              .m_type->m_pass_by_reference) {
+        containers::string temporary_name = get_next_temporary_name();
+
+        memory::unique_ptr<ast_declaration> dec =
+            memory::make_unique<ast_declaration>(m_allocator, _call);
+        dec->m_name = containers::string(m_allocator, temporary_name);
+        dec->m_type = function_call->m_function->m_parameters[i].m_type;
+        ast_declaration* decl = dec.get();
+        decl->m_initializer = core::move(core::move(params[i]));
+
+        memory::unique_ptr<ast_id> id =
+            memory::make_unique<ast_id>(m_allocator, _call);
+        id->m_declaration = dec.get();
+        id->m_type = dec->m_type;
+        params[i] = core::move(id);
+        function_call->initialized_setup_statements(m_allocator)
+            .push_back(core::move(dec));
+      } else {
+        params[i] = make_implicit_cast(core::move(params[i]),
+            function_call->m_function->m_parameters[i].m_type);
+      }
     }
   }
-
   function_call->m_type = function_call->m_function->m_return_type;
+
+  if (function_call->m_function->m_return_type->m_pass_by_reference) {
+    containers::string temporary_name = get_next_temporary_name();
+    memory::unique_ptr<ast_declaration> dec =
+        memory::make_unique<ast_declaration>(m_allocator, _call);
+    dec->m_name = containers::string(m_allocator, temporary_name);
+    dec->m_type = function_call->m_function->m_return_type;
+
+    memory::unique_ptr<ast_id> id =
+        memory::make_unique<ast_id>(m_allocator, _call);
+    id->m_declaration = dec.get();
+    id->m_type = dec->m_type;
+
+    memory::unique_ptr<ast_id> ret_id = clone_ast_node(m_allocator, id.get());
+
+    params.push_back(core::move(id));
+
+    function_call->initialized_setup_statements(m_allocator)
+        .push_back(core::move(dec));
+
+    transfer_temporaries(ret_id.get(), function_call.get());
+
+    auto expr =
+        memory::make_unique<ast_evaluate_expression>(m_allocator, _call);
+
+    expr->m_expr = core::move(function_call);
+    ret_id->initialized_setup_statements(m_allocator)
+        .push_back(core::move(expr));
+    return core::move(ret_id);
+  }
+
   return core::move(function_call);
+}
+
+memory::unique_ptr<ast_expression>
+parse_ast_convertor::convertor_context::resolve_slice_expression(
+    const slice_expression* _slice) {
+  memory::unique_ptr<ast_expression> outer_expr =
+      resolve_expression(_slice->get_base_expression());
+
+  if (outer_expr->m_type->m_classification ==
+      ast_type_classification::slice_type) {
+    containers::string temporary_name = get_next_temporary_name();
+    memory::unique_ptr<ast_declaration> dec =
+        memory::make_unique<ast_declaration>(m_allocator, _slice);
+    dec->m_name = containers::string(m_allocator, temporary_name);
+    dec->m_type = outer_expr->m_type;
+
+    memory::unique_ptr<ast_id> id =
+        memory::make_unique<ast_id>(m_allocator, _slice);
+    id->m_declaration = dec.get();
+    id->m_type = dec->m_type;
+    transfer_temporaries(id.get(), outer_expr.get());
+    dec->m_initializer = core::move(outer_expr);
+    id->initialized_setup_statements(m_allocator).push_back(core::move(dec));
+    outer_expr = core::move(id);
+  }
+
+  memory::unique_ptr<ast_slice_expression> slice =
+      memory::make_unique<ast_slice_expression>(m_allocator, _slice);
+  transfer_temporaries(slice.get(), outer_expr.get());
+  if (_slice->get_index0()) {
+    auto index0 = resolve_expression(_slice->get_index0());
+    if (index0->m_type != m_type_manager->integral(32, &m_used_types)) {
+      _slice->log_line(m_log, logging::log_level ::error);
+      m_log->log_error("Array slice must be an integer");
+      return nullptr;
+    }
+    transfer_temporaries(slice.get(), index0.get());
+
+    containers::string temporary_name = get_next_temporary_name();
+    memory::unique_ptr<ast_declaration> dec =
+        memory::make_unique<ast_declaration>(m_allocator, _slice);
+    dec->m_name = containers::string(m_allocator, temporary_name);
+    dec->m_type = index0->m_type;
+    dec->m_initializer = core::move(index0);
+
+    memory::unique_ptr<ast_id> id =
+        memory::make_unique<ast_id>(m_allocator, _slice);
+    id->m_declaration = dec.get();
+    id->m_type = dec->m_type;
+    slice->initialized_setup_statements(m_allocator).push_back(core::move(dec));
+    slice->m_index_0 = core::move(id);
+  }
+
+  if (_slice->get_index1()) {
+    auto index1 = resolve_expression(_slice->get_index1());
+    if (!index1) {
+      return nullptr;
+    }
+    if (index1->m_type != m_type_manager->integral(32, &m_used_types)) {
+      _slice->log_line(m_log, logging::log_level ::error);
+      m_log->log_error("Array slice must be an integer");
+      return nullptr;
+    }
+    transfer_temporaries(slice.get(), index1.get());
+    slice->m_index_1 = core::move(index1);
+  }
+
+  if (outer_expr->m_type->m_classification !=
+          ast_type_classification::static_array &&
+      outer_expr->m_type->m_classification !=
+          ast_type_classification::runtime_array &&
+      outer_expr->m_type->m_classification !=
+          ast_type_classification::slice_type &&
+      outer_expr->m_type->m_builtin != builtin_type::c_string_type) {
+    _slice->log_line(m_log, logging::log_level ::error);
+    m_log->log_error("Cannot slice into a ", outer_expr->m_type->m_name);
+    return nullptr;
+  }
+
+  if (outer_expr->m_type->m_classification ==
+      ast_type_classification::slice_type) {
+    slice->m_type = outer_expr->m_type;
+  } else if (outer_expr->m_type->m_builtin == builtin_type::c_string_type) {
+    slice->m_type = get_slice_of(m_type_manager->integral(8, &m_used_types), 1);
+  } else {
+    slice->m_type =
+        get_slice_of(outer_expr->m_type->m_implicitly_contained_type, 1);
+  }
+  slice->m_array = core::move(outer_expr);
+  return core::move(slice);
 }
 
 memory::unique_ptr<ast_expression>
@@ -611,19 +757,48 @@ parse_ast_convertor::convertor_context::resolve_array_access_expression(
           ast_type_classification::static_array &&
       outer_expr->m_type->m_classification !=
           ast_type_classification::runtime_array &&
+      outer_expr->m_type->m_classification !=
+          ast_type_classification::slice_type &&
       outer_expr->m_type->m_builtin != builtin_type::c_string_type) {
     _access->log_line(m_log, logging::log_level ::error);
-    m_log->log_error("Cannot index a non-array type");
+    m_log->log_error("Cannot index a ", outer_expr->m_type->m_name);
     return nullptr;
   }
 
   memory::unique_ptr<ast_array_access_expression> array_access =
       memory::make_unique<ast_array_access_expression>(m_allocator, _access);
-  if (outer_expr->m_type->m_builtin != builtin_type::c_string_type) {
+  if (outer_expr->m_type->m_classification ==
+      ast_type_classification::slice_type) {
+    if (outer_expr->m_type->m_slice_dimensions == 1) {
+      array_access->m_type = outer_expr->m_type->m_implicitly_contained_type;
+    } else {
+      memory::unique_ptr<ast_declaration> dec =
+          memory::make_unique<ast_declaration>(m_allocator, _access);
+      containers::string temporary_name = get_next_temporary_name();
+      dec->m_name = containers::string(m_allocator, temporary_name);
+      dec->m_type = outer_expr->m_type;
+
+      memory::unique_ptr<ast_id> id =
+          memory::make_unique<ast_id>(m_allocator, _access);
+      id->m_declaration = dec.get();
+      id->m_type = dec->m_type;
+      transfer_temporaries(id.get(), outer_expr.get());
+      array_access->m_type =
+          get_slice_of(outer_expr->m_type->m_implicitly_contained_type,
+              outer_expr->m_type->m_slice_dimensions - 1);
+
+      dec->m_initializer = core::move(outer_expr);
+      outer_expr = core::move(id);
+      outer_expr->initialized_setup_statements(m_allocator)
+          .push_back(core::move(dec));
+    }
+  } else if (outer_expr->m_type->m_builtin != builtin_type::c_string_type) {
     array_access->m_type = outer_expr->m_type->m_implicitly_contained_type;
   } else {
     array_access->m_type = m_type_manager->integral(8, &m_used_types);
   }
+  transfer_temporaries(array_access.get(), inner_expr.get());
+  transfer_temporaries(array_access.get(), outer_expr.get());
   array_access->m_index = core::move(inner_expr);
   array_access->m_array = core::move(outer_expr);
 
@@ -738,10 +913,13 @@ parse_ast_convertor::convertor_context::resolve_builtin_unary_expression(
         return core::move(fncall);
       } else {
         if (c->m_type->m_classification !=
-            ast_type_classification::static_array) {
+                ast_type_classification::static_array &&
+            c->m_type->m_classification !=
+                ast_type_classification::slice_type &&
+            c->m_type->m_classification !=
+                ast_type_classification::runtime_array) {
           _expr->log_line(m_log, logging::log_level ::error);
-          m_log->log_error(
-              "length can only be applied to a string or an array");
+          m_log->log_error("length can not applied to ", c->m_type->m_name);
           return nullptr;
         }
         auto builtin =

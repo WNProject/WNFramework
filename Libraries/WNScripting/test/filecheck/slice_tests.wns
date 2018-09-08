@@ -1,0 +1,54 @@
+// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE.txt file.
+
+
+// CHECK: typedef struct __slice_1d_Int {
+// CHECK-NEXT:   int32_t* _begin;
+// CHECK-NEXT:   size_t _size0;
+// CHECK-NEXT: } _slice_1d_Int;
+
+// CHECK: void _ZN3wns8getSliceE13_slice_1d_IntA0_i13_slice_1d_Int(_array0_int32_t* x, _slice_1d_Int* _return);
+
+Int extractValue(Int|| x, Int y) {
+    // CHECK:  _return = (*x)._begin[y];
+    return x[y];
+}
+
+Int|| getSlice(Int[] x) {
+    // CHECK: (*_return) = ((_slice_1d_Int){x->_val + _wns_temp0,(x->_size - 1)-_wns_temp0});
+    return x{0:length(x) - 1};
+}
+
+// RUN: getElem 16 4 -> 4
+// RUN: getElem 16 6 -> 6
+// CHECK: {{.*getElem.*{}}
+Int getElem(Int x, Int y) {
+    Int[[]] f = Int[[x]](0);
+    for (Int i = 0; i < x; i++) {
+        f[i] = i;
+    }
+
+    // CHECK:      _slice_1d_Int _wns_temp2;
+    // CHECK-NEXT: _ZN3wns8getSliceE13_slice_1d_IntA0_i13_slice_1d_Int(((_array0_int32_t*)(f)), &(_wns_temp2));
+    Int|| slice = getSlice(f);
+
+    // CHECK-NEXT: _slice_1d_Int slice = _wns_temp2;
+    // CHECK-NEXT: _slice_1d_Int _wns_temp3 = slice;
+    // CHECK-NEXT: _return = _ZN3wns12extractValueEi13_slice_1d_Inti(&(_wns_temp3), y);
+    return extractValue(slice, y);
+
+    // CHECK-NEXT: _ZN3wns5_freeEvPv(((void*)(f)));
+}
+
+// CHECK: {{.*sliceString.*{}}
+// RUN: sliceString 0 -> 4
+// RUN: sliceString 4 -> 3
+Int sliceString(Int x) {
+// CHECK: _slice_1d_Char c = ((_slice_1d_Char){"\110\145\154\154\157\040\127\157\162\154\144" + _wns_temp4,_ZN3wns11_wns_strlenEiFE("\110\145\154\154\157\040\127\157\162\154\144")-_wns_temp4});
+    Char|| c = "Hello World"{1:length("Hello World")};
+    if (c[x] == 'e') {
+        return 4;
+    }
+    return 3;
+}

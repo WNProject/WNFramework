@@ -58,6 +58,12 @@ parse_ast_convertor::convertor_context::pre_resolve_function(
           containers::string(m_allocator, param->get_name()), param_type});
     }
   }
+
+  if (ret_ty->m_pass_by_reference) {
+    function_params.push_back(ast_function::parameter{
+        containers::string(m_allocator, "_return"), ret_ty});
+  }
+
   function->m_is_virtual = _function->is_virtual();
   function->m_is_override = _function->is_override();
   function->m_is_member_function = _implicit_this != nullptr;
@@ -80,7 +86,8 @@ bool parse_ast_convertor::convertor_context::resolve_function(
   push_scope(scope.get());
   m_current_function = function;
 
-  if (function->m_return_type != m_type_manager->void_t(&m_used_types)) {
+  if (function->m_return_type != m_type_manager->void_t(&m_used_types) &&
+      !function->m_return_type->m_pass_by_reference) {
     memory::unique_ptr<ast_declaration> return_decl;
     return_decl = memory::make_unique<ast_declaration>(m_allocator, _function);
     return_decl->m_name = containers::string(m_allocator, "_return");
@@ -88,6 +95,12 @@ bool parse_ast_convertor::convertor_context::resolve_function(
     m_return_decl = return_decl.get();
     scope->initialized_declarations(m_allocator).push_back(return_decl.get());
     m_current_statements->push_back(core::move(return_decl));
+    m_return_parameter = nullptr;
+  } else if (function->m_return_type->m_pass_by_reference) {
+    m_return_parameter =
+        &function->m_parameters[function->m_parameters.size() - 1];
+    m_return_decl = nullptr;
+
   } else {
     m_return_decl = nullptr;
   }

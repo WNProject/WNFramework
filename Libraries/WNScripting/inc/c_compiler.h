@@ -50,6 +50,7 @@ private:
   bool write_array_destruction(const ast_array_destruction* _dest);
   bool write_array_access_expression(
       const ast_array_access_expression* _access);
+  bool write_slice_expression(const ast_slice_expression* _slice);
 
   // Statements
   bool write_statement(const ast_statement* _statement);

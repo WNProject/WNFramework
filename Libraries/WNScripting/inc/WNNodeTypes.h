@@ -23,6 +23,7 @@ enum class node_type {
   arg_list,
   array_type,
   runtime_array_type,
+  slice_type,
   parameter_list,
   parameter,
   expression,
@@ -36,6 +37,7 @@ enum class node_type {
     null_allocation_expression,
     post_expression,
       array_access_expression,
+      slice_expression,
       function_call_expression,
       member_access_expression,
       post_unary_expression,
@@ -463,6 +465,53 @@ private:
   memory::unique_ptr<type> m_subtype;
 };
 
+class slice_type : public type {
+public:
+  slice_type(memory::allocator* _allocator, type* _sub_type)
+    : type(_allocator, type_classification::slice_type, node_type::slice_type),
+      m_subtype(memory::unique_ptr<type>(_allocator, _sub_type)),
+      m_dimensions(1) {}
+
+  explicit slice_type(memory::allocator* _allocator)
+    : type(_allocator, type_classification::slice_type, node_type::slice_type) {
+  }
+
+  slice_type(memory::allocator* _allocator, node_type _node_type)
+    : type(_allocator, type_classification::slice_type, _node_type) {}
+
+  const type* get_subtype() const override {
+    return m_subtype.get();
+  }
+
+  void print_node_internal(print_context* c) const override {
+    c->print_header("Slice");
+    c->print_value(m_type, "Type Value");
+    c->print_value(m_subtype, "SubType");
+    c->print_value(m_dimensions, "Dimensions");
+  }
+
+  void set_dimensions(const containers::string_view& _dim) {
+    long long val = atoll(_dim.to_string(m_allocator).c_str());
+    m_dimensions = static_cast<uint32_t>(val);
+  }
+
+  memory::unique_ptr<node> clone(memory::allocator* _allocator) const override {
+    auto t = memory::make_unique<slice_type>(_allocator, _allocator);
+    t->copy_underlying_from(_allocator, this);
+    t->m_dimensions = m_dimensions;
+    t->m_subtype = clone_node(_allocator, m_subtype.get());
+    return core::move(t);
+  }
+
+  uint32_t dimensions() const {
+    return m_dimensions;
+  }
+
+private:
+  memory::unique_ptr<type> m_subtype;
+  uint32_t m_dimensions;
+};
+
 class runtime_array_type : public type {
 public:
   runtime_array_type(memory::allocator* _allocator, type* _sub_type)
@@ -857,6 +906,53 @@ private:
   bool m_is_construction;
 };
 
+class slice_expression : public post_expression {
+public:
+  slice_expression(
+      memory::allocator* _allocator, expression* _index0, expression* _index1)
+    : post_expression(_allocator, node_type::slice_expression),
+      m_index_0(memory::unique_ptr<expression>(m_allocator, _index0)),
+      m_index_1(memory::unique_ptr<expression>(m_allocator, _index1)){}
+
+  explicit slice_expression(memory::allocator* _allocator)
+    : post_expression(_allocator, node_type::slice_expression) {}
+
+  expression* get_index0() const {
+    return m_index_0.get();
+  }
+
+  expression* get_index1() const {
+    return m_index_1.get();
+  }
+
+  void set_index0(expression* _index) {
+    m_index_0 = memory::unique_ptr<expression>(m_allocator, _index);
+  }
+
+  void set_index1(expression* _index) {
+    m_index_1 = memory::unique_ptr<expression>(m_allocator, _index);
+  }
+
+  void print_node_internal(print_context* c) const override {
+    c->print_header("Slice");
+    c->print_value(m_type, "Type");
+    c->print_value(m_base_expression, "Base Expression");
+    c->print_value(m_index_0, "Index0");
+    c->print_value(m_index_1, "Index1");
+  }
+
+  memory::unique_ptr<node> clone(memory::allocator* _allocator) const override {
+    auto t = memory::make_unique<slice_expression>(_allocator, _allocator);
+    t->copy_underlying_from(_allocator, this);
+    t->m_index_0 = clone_node(_allocator, m_index_0.get());
+    t->m_index_1 = clone_node(_allocator, m_index_1.get());
+    return core::move(t);
+  }
+
+private:
+  memory::unique_ptr<expression> m_index_0;
+  memory::unique_ptr<expression> m_index_1;
+};
 class short_circuit_expression : public expression {
 public:
   short_circuit_expression(memory::allocator* _allocator,

@@ -76,6 +76,7 @@ enum class ast_node_type {
     ast_function_pointer_expression,
     ast_builtin_expression,
     ast_function_call_expression,
+    ast_slice_expression,
   ast_function,
   array_initializer_function,
   dynamic_array_initializer_function,
@@ -99,6 +100,7 @@ enum class builtin_type {
 
 struct array_initializer_function;
 struct ast_array_access_expression;
+struct ast_slice_expression;
 struct ast_assignment;
 struct ast_binary_expression;
 struct ast_break;
@@ -176,6 +178,13 @@ public:
       return true;
     }
 
+    if (m_classification == ast_type_classification::runtime_array &&
+        _other->m_classification == ast_type_classification::static_array &&
+        m_implicitly_contained_type == _other->m_implicitly_contained_type &&
+        _other->m_static_array_size == 0) {
+      return true;
+    }
+
     if (m_classification == ast_type_classification::struct_type &&
         _other->m_classification == ast_type_classification::reference) {
       return (can_implicitly_cast_to(_other->m_implicitly_contained_type));
@@ -188,19 +197,21 @@ public:
       // Cannot cast from a non-ref non-nullptr type
       return false;
     }
-    if (_other->m_classification != ast_type_classification::shared_reference &&
-        _other->m_classification != ast_type_classification::reference) {
-      // You cannot cast to a non-ref type.
-      return false;
-    }
 
     if (m_classification == ast_type_classification::primitive &&
         m_builtin == builtin_type::nullptr_type) {
       if (_other->m_classification !=
-          ast_type_classification::shared_reference) {
+              ast_type_classification::shared_reference &&
+          _other->m_classification != ast_type_classification::slice_type) {
         return false;
       }
       return true;
+    }
+
+    if (_other->m_classification != ast_type_classification::shared_reference &&
+        _other->m_classification != ast_type_classification::reference) {
+      // You cannot cast to a non-ref type.
+      return false;
     }
 
     const ast_type* from_struct = m_implicitly_contained_type;
@@ -342,6 +353,7 @@ public:
   bool m_is_arithmetic_type = false;
   bool m_is_comparable_type = false;
   uint32_t m_static_array_size = 0;
+  uint32_t m_slice_dimensions = 0;
   ast_type_classification m_classification = ast_type_classification::primitive;
   builtin_type m_builtin = builtin_type::not_builtin;
   uint32_t m_bit_width = 0;
@@ -368,6 +380,7 @@ public:
   uint32_t m_vtable_index = 0;
   bool m_struct_is_class = false;
   bool m_struct_is_defined = false;
+  bool m_pass_by_reference = false;
   // m_overloaded_construction_child point to the
   // child/parent if allocated type looks
   // different than the script representation
@@ -827,6 +840,25 @@ struct ast_array_access_expression : public ast_expression {
 
   memory::unique_ptr<ast_expression> m_array;
   memory::unique_ptr<ast_expression> m_index;
+};
+
+struct ast_slice_expression : public ast_expression {
+  ast_slice_expression(const node* _base_node)
+    : ast_expression(_base_node, ast_node_type::ast_slice_expression) {}
+
+  memory::unique_ptr<ast_node> clone(
+      memory::allocator* _allocator) const override {
+    auto d = memory::make_unique<ast_slice_expression>(_allocator, nullptr);
+    d->copy_underlying_from(_allocator, this);
+    d->m_array = clone_ast_node(_allocator, m_array.get());
+    d->m_index_0 = clone_ast_node(_allocator, m_index_0.get());
+    d->m_index_1 = clone_ast_node(_allocator, m_index_1.get());
+    return core::move(d);
+  }
+
+  memory::unique_ptr<ast_expression> m_array;
+  memory::unique_ptr<ast_expression> m_index_0;
+  memory::unique_ptr<ast_expression> m_index_1;
 };
 
 struct ast_member_access_expression : public ast_expression {

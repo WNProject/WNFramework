@@ -159,6 +159,8 @@ LSQBRACKET: '[';
 RSQBRACKET: ']';
 DLSQBRACKET: '[[';
 DRSQBRACKET: ']]';
+SLICETOK: '|';
+SSOR: '||';
 LENGTH: 'length';
 LBRACKET: '(';
 RBRACKET: ')';
@@ -295,6 +297,26 @@ arrayType returns[scripting::type* node]
         ))
     ;
 
+sliceType returns[scripting::type* node]
+@init {
+    node = nullptr;
+}
+    : (
+        a=scalarType {
+            node = $a.node; SET_LOCATION_FROM_NODE(node, $a.node);
+            node = m_allocator->construct<scripting::slice_type>(m_allocator, node);
+            SET_LOCATION_FROM_NODE(node, $a.node);
+        }
+        ((b=SLICETOK INT c=SLICETOK {
+            scripting::cast_to<scripting::slice_type>(node)->set_dimensions($INT.text.c_str());
+            SET_END_LOCATION(node, $c);
+        }) | (
+        d=SSOR {
+            SET_END_LOCATION(node, $d);
+        }))
+    )
+    ;
+
 compoundType returns[scripting::type* node]
 @init {
     node = nullptr;
@@ -316,6 +338,7 @@ type    returns[scripting::type* node]
 }
     : compoundType { node = $compoundType.node; }
     | arrayType { node = $arrayType.node; }
+    | sliceType { node = $sliceType.node; }
     | scalarType   { node = $scalarType.node; }
     ;
 
@@ -331,6 +354,9 @@ param returns[scripting::parameter* node]
     |    cc=arrayType dd=ID {
             $cc.node->set_reference_type(scripting::reference_type::unique);
             node = m_allocator->construct<scripting::parameter>(m_allocator, $cc.node, $dd.text.c_str()); SET_LOCATION_FROM_NODE(node, $cc.node); SET_END_LOCATION(node, $dd); }
+    |    ee=sliceType ff=ID {
+            $ee.node->set_reference_type(scripting::reference_type::raw);
+            node = m_allocator->construct<scripting::parameter>(m_allocator, $ee.node, $ff.text.c_str()); SET_LOCATION_FROM_NODE(node, $ee.node); SET_END_LOCATION(node, $ff); }
     |    SHARED_REF b=compoundType c=ID {
            $b.node->set_reference_type(scripting::reference_type::shared);
            node = m_allocator->construct<scripting::parameter>(m_allocator, $b.node, $c.text.c_str()); SET_LOCATION(node, $SHARED_REF); SET_END_LOCATION(node, $c);
@@ -410,7 +436,7 @@ or_ex    returns[scripting::expression* node]
     node = nullptr;
 }
         :    a=and_ex { node = $a.node; }
-            ('||' b=and_ex { node = m_allocator->construct<scripting::short_circuit_expression>(m_allocator, scripting::short_circuit_type::or_operator, node, $b.node); SET_LOCATION_FROM_NODE(node, $a.node); SET_END_LOCATION_FROM_NODE(node, $b.node); })*
+            (SSOR b=and_ex { node = m_allocator->construct<scripting::short_circuit_expression>(m_allocator, scripting::short_circuit_type::or_operator, node, $b.node); SET_LOCATION_FROM_NODE(node, $a.node); SET_END_LOCATION_FROM_NODE(node, $b.node); })*
         ;
 
 and_ex  returns[scripting::expression* node]
@@ -511,6 +537,13 @@ post_ex_proper returns[scripting::post_expression* node]
     |   '.' c=ID              { node = m_allocator->construct<scripting::member_access_expression>(m_allocator, $c.text.c_str()); SET_LOCATION(node, $c); }
     |     DOUBINC                  { node = m_allocator->construct<scripting::post_unary_expression>(m_allocator, scripting::post_unary_type::post_increment); SET_LOCATION(node, $DOUBINC);}
     |   DOUBDEC                  { node = m_allocator->construct<scripting::post_unary_expression>(m_allocator, scripting::post_unary_type::post_decrement); SET_LOCATION(node, $DOUBDEC);}
+    |   (
+            (aa=LBRACE {node = m_allocator->construct<scripting::slice_expression>(m_allocator, nullptr, nullptr); SET_LOCATION(node, $aa);})
+            (bb=expr { scripting::cast_to<scripting::slice_expression>(node)->set_index0($bb.node); })
+            COLON
+            (cc=expr { scripting::cast_to<scripting::slice_expression>(node)->set_index1($cc.node); })
+            (dd=RBRACE {SET_END_LOCATION(node, $dd);})
+        )
     ;
 
 post_ex    returns[scripting::expression* node]

@@ -37,6 +37,7 @@ enum class ast_type_classification {
   struct_type,
   static_array,
   runtime_array,
+  slice_type,
   function_pointer,
   extern_type,
 };
@@ -89,6 +90,9 @@ public:
   ast_type* get_array_of(
       const ast_type* _type, uint32_t _size, used_type_set* _used);
   ast_type* get_runtime_array_of(const ast_type* _type, used_type_set* _used);
+  ast_type* get_slice_of(
+      const ast_type* _type, uint32_t _size, used_type_set* _used);
+
 
   ast_type* get_or_register_struct(
       containers::string_view _name, used_type_set* _used,
@@ -344,6 +348,11 @@ private:
   containers::hash_map<containers::dynamic_array<const ast_type*>,
       memory::unique_ptr<ast_type>>
       m_function_pointer_types;
+  containers::hash_map<core::pair<uint32_t, const ast_type*>,
+      memory::unique_ptr<ast_type>,
+      containers::pair_hasher<uint32_t, const ast_type*>,
+      containers::pair_equality<uint32_t, const ast_type*>>
+      m_slice_types;
 
   containers::deque<ast_type*> m_all_types;
 

@@ -117,8 +117,6 @@ public:
 	enum Tokens
 	{
 		EOF_TOKEN = WNScriptASTLexerImplTraits::CommonTokenType::TOKEN_EOF
-		, T__56 = 56
-		, T__57 = 57
 		, T__58 = 58
 		, T__59 = 59
 		, T__60 = 60
@@ -183,16 +181,18 @@ public:
 		, RSQBRACKET = 43
 		, SEMICOLON = 44
 		, SHARED_REF = 45
-		, STRING = 46
-		, STRING_TYPE = 47
-		, STRUCT = 48
-		, TYPE = 49
-		, UNICODE_ESC = 50
-		, VIRTUAL = 51
-		, VOID_TYPE = 52
-		, WEAK_REF = 53
-		, WHILE = 54
-		, WS = 55
+		, SLICETOK = 46
+		, SSOR = 47
+		, STRING = 48
+		, STRING_TYPE = 49
+		, STRUCT = 50
+		, TYPE = 51
+		, UNICODE_ESC = 52
+		, VIRTUAL = 53
+		, VOID_TYPE = 54
+		, WEAK_REF = 55
+		, WHILE = 56
+		, WS = 57
 	};
 
 };
@@ -220,8 +220,6 @@ public:
 
 
 
-    void  mT__56( );
-    void  mT__57( );
     void  mT__58( );
     void  mT__59( );
     void  mT__60( );
@@ -248,6 +246,8 @@ public:
     void  mRSQBRACKET( );
     void  mDLSQBRACKET( );
     void  mDRSQBRACKET( );
+    void  mSLICETOK( );
+    void  mSSOR( );
     void  mLENGTH( );
     void  mLBRACKET( );
     void  mRBRACKET( );
