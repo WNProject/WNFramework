@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNExecutableTest/inc/WNTestHarness.h"
+#include "executable_test/inc/WNTestHarness.h"
 #include "WNMultiTasking/inc/callback_task.h"
 #include "WNMultiTasking/inc/thread_pool.h"
 

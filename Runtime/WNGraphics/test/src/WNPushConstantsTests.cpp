@@ -13,12 +13,12 @@
 using push_constant_test = wn::runtime::graphics::testing::pixel_test<>;
 
 TEST_F(push_constant_test, basic) {
-  wn::file_system::factory fs_factory(&m_allocator, wn::testing::k_system_data);
+  wn::file_system::factory fs_factory(&m_allocator, wn::testing::k_executable_data);
   auto files = fs_factory.make_mapping(
       &m_allocator, wn::file_system::mapping_type::memory_backed);
   files->initialize_files(push_constants_test::get_files());
 
-  run_test(wn::runtime::graphics::testing::k_empty_adapter_features,
+  run_test(wn::runtime::graphics::k_empty_adapter_features,
       [this, &files](wn::runtime::graphics::adapter::api_type _api,
           wn::runtime::graphics::device* _device,
           wn::runtime::graphics::queue* _queue,

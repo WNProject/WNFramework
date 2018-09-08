@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNExecutableTest/inc/WNTestHarness.h"
+#include "executable_test/inc/WNTestHarness.h"
 #include "WNFileSystem/inc/WNFactory.h"
 
 #ifdef _WN_POSIX
@@ -15,7 +15,7 @@ TEST_P(factory, make_mapping) {
   wn::testing::allocator allocator;
 
   {
-    wn::file_system::factory f(&allocator, wn::testing::k_system_data);
+    wn::file_system::factory f(&allocator, wn::testing::k_executable_data);
     const wn::file_system::mapping_ptr mp =
         f.make_mapping(&allocator, GetParam());
 
@@ -83,7 +83,7 @@ TEST(factory, make_mapping_from_path) {
 
     ASSERT_FALSE(path.empty());
 
-    wn::file_system::factory f(&allocator, wn::testing::k_system_data);
+    wn::file_system::factory f(&allocator, wn::testing::k_executable_data);
     const wn::file_system::mapping_ptr mp = f.make_mapping(&allocator, path);
 
     ASSERT_NE(mp, nullptr);

@@ -71,7 +71,7 @@ macro(wn_create_commandline_application_tests_from_list)
     COMMON_SOURCES ${PARSED_ARGS_COMMON_SOURCES}
     RUN_WRAPPER ${PARSED_ARGS_RUN_WRAPPER}
     ADDITIONAL_INCLUDES ${PARSED_ARGS_ADDITIONAL_INCLUDES}
-    LIBS WNApplicationTest WNApplicationEntry WNExecutable ${PARSED_ARGS_LIBS}
+    LIBS WNApplicationTest WNApplicationEntry executable_entry ${PARSED_ARGS_LIBS}
   )
 endmacro()
 

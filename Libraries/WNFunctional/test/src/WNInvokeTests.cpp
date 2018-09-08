@@ -3,7 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "WNFunctional/inc/WNInvoke.h"
-#include "WNExecutableTest/inc/WNTestHarness.h"
+#include "executable_test/inc/WNTestHarness.h"
 
 // test helpers
 

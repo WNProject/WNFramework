@@ -1,7 +1,7 @@
 #ifndef _WN_GRAPHICS_TEST_PIXEL_TEST_FIXTURE_H__
 #define _WN_GRAPHICS_TEST_PIXEL_TEST_FIXTURE_H__
 
-#include "WNExecutableTest/inc/WNTestHarness.h"
+#include "executable_test/inc/WNTestHarness.h"
 #include "WNGraphics/inc/WNArena.h"
 #include "WNGraphics/inc/WNCommandAllocator.h"
 #include "WNGraphics/inc/WNCommandList.h"
@@ -89,8 +89,8 @@ struct fuzzy_comparator {
 using default_fuzzy_comparator = fuzzy_comparator<>;
 
 inline bool should_recreate_image() {
-  for (int32_t i = 0; i < wn::testing::k_system_data->argc; ++i) {
-    if (strcmp(wn::testing::k_system_data->argv[i], "-regenerate-images") ==
+  for (int32_t i = 0; i < wn::testing::k_executable_data->argc; ++i) {
+    if (strcmp(wn::testing::k_executable_data->argv[i], "-regenerate-images") ==
         0) {
       return true;
     }
@@ -103,11 +103,11 @@ inline std::string get_image_filename() {
       ::testing::UnitTest::GetInstance()->current_test_info();
   std::string file_path;
   bool set_path = false;
-  for (int32_t i = 0; i < wn::testing::k_system_data->argc; ++i) {
-    if (strcmp(wn::testing::k_system_data->argv[i], "-image_path") == 0) {
+  for (int32_t i = 0; i < wn::testing::k_executable_data->argc; ++i) {
+    if (strcmp(wn::testing::k_executable_data->argv[i], "-image_path") == 0) {
       set_path = true;
     } else if (set_path == true) {
-      file_path += wn::testing::k_system_data->argv[i];
+      file_path += wn::testing::k_executable_data->argv[i];
     }
   }
   if (file_path.empty()) {

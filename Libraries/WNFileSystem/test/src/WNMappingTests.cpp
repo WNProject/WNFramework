@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNExecutableTest/inc/WNTestHarness.h"
+#include "executable_test/inc/WNTestHarness.h"
 #include "WNFileSystem/inc/WNFactory.h"
 #include "WNFileSystem/inc/WNMapping.h"
 #include "WNFileSystem/test/src/TestFiles.h"
@@ -13,7 +13,7 @@ TEST_P(mapping, creation) {
   wn::testing::allocator allocator;
 
   {
-    wn::file_system::factory f(&allocator, wn::testing::k_system_data);
+    wn::file_system::factory f(&allocator, wn::testing::k_executable_data);
     const wn::file_system::mapping_ptr mp =
         f.make_mapping(&allocator, GetParam());
 
@@ -25,7 +25,7 @@ TEST_P(mapping, create_file) {
   wn::testing::allocator allocator;
 
   {
-    wn::file_system::factory f(&allocator, wn::testing::k_system_data);
+    wn::file_system::factory f(&allocator, wn::testing::k_executable_data);
     const wn::file_system::mapping_ptr mp =
         f.make_mapping(&allocator, GetParam());
 
@@ -47,7 +47,7 @@ TEST_P(mapping, create_directory) {
   wn::testing::allocator allocator;
 
   {
-    wn::file_system::factory f(&allocator, wn::testing::k_system_data);
+    wn::file_system::factory f(&allocator, wn::testing::k_executable_data);
     const wn::file_system::mapping_ptr mp =
         f.make_mapping(&allocator, GetParam());
 
@@ -63,7 +63,7 @@ TEST_P(mapping, exists_file) {
   wn::testing::allocator allocator;
 
   {
-    wn::file_system::factory f(&allocator, wn::testing::k_system_data);
+    wn::file_system::factory f(&allocator, wn::testing::k_executable_data);
     const wn::file_system::mapping_ptr mp =
         f.make_mapping(&allocator, GetParam());
 
@@ -87,7 +87,7 @@ TEST_P(mapping, exists_directory) {
   wn::testing::allocator allocator;
 
   {
-    wn::file_system::factory f(&allocator, wn::testing::k_system_data);
+    wn::file_system::factory f(&allocator, wn::testing::k_executable_data);
     const wn::file_system::mapping_ptr mp =
         f.make_mapping(&allocator, GetParam());
 
@@ -105,7 +105,7 @@ TEST_P(mapping, recursive_create_directory) {
   wn::testing::allocator allocator;
 
   {
-    wn::file_system::factory f(&allocator, wn::testing::k_system_data);
+    wn::file_system::factory f(&allocator, wn::testing::k_executable_data);
     const wn::file_system::mapping_ptr mp =
         f.make_mapping(&allocator, GetParam());
 
@@ -126,7 +126,7 @@ TEST_P(mapping, initialize_files) {
   wn::testing::allocator allocator;
 
   {
-    wn::file_system::factory f(&allocator, wn::testing::k_system_data);
+    wn::file_system::factory f(&allocator, wn::testing::k_executable_data);
     const wn::file_system::mapping_ptr mp =
         f.make_mapping(&allocator, GetParam());
 
@@ -159,7 +159,7 @@ TEST_P(mapping, open_file) {
   wn::testing::allocator allocator;
 
   {
-    wn::file_system::factory f(&allocator, wn::testing::k_system_data);
+    wn::file_system::factory f(&allocator, wn::testing::k_executable_data);
     const wn::file_system::mapping_ptr mp =
         f.make_mapping(&allocator, GetParam());
 
@@ -190,7 +190,7 @@ TEST_P(mapping, delete_file) {
   wn::testing::allocator allocator;
 
   {
-    wn::file_system::factory f(&allocator, wn::testing::k_system_data);
+    wn::file_system::factory f(&allocator, wn::testing::k_executable_data);
     const wn::file_system::mapping_ptr mp =
         f.make_mapping(&allocator, GetParam());
 
@@ -217,7 +217,7 @@ TEST_P(mapping, delete_directory) {
   wn::testing::allocator allocator;
 
   {
-    wn::file_system::factory f(&allocator, wn::testing::k_system_data);
+    wn::file_system::factory f(&allocator, wn::testing::k_executable_data);
     const wn::file_system::mapping_ptr mp =
         f.make_mapping(&allocator, GetParam());
 
@@ -254,7 +254,7 @@ TEST_P(mapping, initialized_from_filesystem) {
   wn::testing::allocator allocator;
 
   {
-    wn::file_system::factory f(&allocator, wn::testing::k_system_data);
+    wn::file_system::factory f(&allocator, wn::testing::k_executable_data);
     const wn::file_system::mapping_ptr mp =
         f.make_mapping(&allocator, GetParam());
 

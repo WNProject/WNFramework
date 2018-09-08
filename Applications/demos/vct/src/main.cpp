@@ -4,7 +4,7 @@
 
 #include "WNApplicationData/inc/WNApplicationData.h"
 #include "WNContainers/inc/WNStringView.h"
-#include "WNExecutable/inc/WNEntry.h"
+#include "executable_entry/inc/executable_entry.h"
 #include "WNFileSystem/inc/WNFactory.h"
 #include "WNLogging/inc/WNConsoleLogger.h"
 #include "WNScripting/inc/WNFactory.h"
@@ -24,19 +24,19 @@ int32_t wn_application_main(
   bool has_data_dir = false;
   bool verbose = false;
 
-  for (size_t i = 0; i < static_cast<size_t>(_data->system_data->argc); ++i) {
+  for (size_t i = 0; i < static_cast<size_t>(_data->executable_data->argc); ++i) {
     if (containers::string_view("--data_dir") ==
-        containers::string_view(_data->system_data->argv[i])) {
+        containers::string_view(_data->executable_data->argv[i])) {
       parse_data_dir = true;
       continue;
     }
     if (containers::string_view("--verbose") ==
-        containers::string_view(_data->system_data->argv[i])) {
+        containers::string_view(_data->executable_data->argv[i])) {
       verbose = true;
     }
 
     if (parse_data_dir) {
-      data_dir = _data->system_data->argv[i];
+      data_dir = _data->executable_data->argv[i];
       parse_data_dir = false;
       has_data_dir = true;
     }
@@ -46,7 +46,7 @@ int32_t wn_application_main(
   static logging::static_log<logging::log_level::max, 1024> log(
       &logger, verbose ? logging::log_level::max : logging::log_level::info);
 
-  file_system::factory fs_factory(alloc, _data->system_data);
+  file_system::factory fs_factory(alloc, _data->executable_data);
 
   file_system::mapping_ptr files =
       has_data_dir ? fs_factory.make_mapping(alloc, data_dir)

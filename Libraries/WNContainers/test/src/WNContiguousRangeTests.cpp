@@ -3,7 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "WNContainers/inc/WNContiguousRange.h"
-#include "WNExecutableTest/inc/WNTestHarness.h"
+#include "executable_test/inc/WNTestHarness.h"
 
 template <typename _Type>
 struct contiguous_range : ::testing::Test {};

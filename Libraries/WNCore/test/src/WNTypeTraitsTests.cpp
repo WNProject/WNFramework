@@ -4,7 +4,7 @@
 
 #include "WNCore/inc/type_traits.h"
 #include "WNCore/inc/types.h"
-#include "WNExecutableTest/inc/WNTestHarness.h"
+#include "executable_test/inc/WNTestHarness.h"
 
 TEST(type_traits, integral_constant) {
   EXPECT_TRUE((wn::core::integral_constant<bool, true>::value));

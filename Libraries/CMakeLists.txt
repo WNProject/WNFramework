@@ -16,9 +16,10 @@ include_directories(${WNFramework_SOURCE_DIR}/Libraries)
 include_directories(${WNFramework_SOURCE_DIR}/Wrappers)
 
 # These must be before all the below in order for it to work
-wn_add_subdirectory(WNExecutable)
+wn_add_subdirectory(executable_data)
+wn_add_subdirectory(executable_entry)
 wn_add_subdirectory(WNTestUtilities)
-wn_add_subdirectory(WNExecutableTest)
+wn_add_subdirectory(executable_test)
 
 macro(wn_create_executable_tests_from_list)
   cmake_parse_arguments(
@@ -42,7 +43,7 @@ macro(wn_create_executable_tests_from_list)
     COMMON_SOURCES ${PARSED_ARGS_COMMON_SOURCES}
     RUN_WRAPPER ${PARSED_ARGS_RUN_WRAPPER}
     ADDITIONAL_INCLUDES ${PARSED_ARGS_ADDITIONAL_INCLUDES}
-    LIBS WNExecutableTest ${PARSED_ARGS_LIBS}
+    LIBS executable_test ${PARSED_ARGS_LIBS}
   )
 endmacro()
 

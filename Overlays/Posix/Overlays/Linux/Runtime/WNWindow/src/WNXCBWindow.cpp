@@ -4,7 +4,7 @@
 
 #include "WNWindow/inc/WNXCBWindow.h"
 #include "WNApplicationData/inc/WNApplicationData.h"
-#include "WNExecutable/inc/WNEntryData.h"
+#include "executable_data/inc/executable_data.h"
 #include "WNMultiTasking/inc/job_pool.h"
 #include "WNMultiTasking/inc/job_signal.h"
 

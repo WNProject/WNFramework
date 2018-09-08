@@ -3,7 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "WNContainers/inc/WNString.h"
-#include "WNExecutableTest/inc/WNTestHarness.h"
+#include "executable_test/inc/WNTestHarness.h"
 
 static const char test_string1[] =
     "this is a very long string that will not get optimized away";

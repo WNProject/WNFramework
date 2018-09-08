@@ -3,7 +3,6 @@
 // found in the LICENSE.txt file.
 
 #include "WNContainers/inc/WNStringView.h"
-#include "WNExecutable/inc/WNEntry.h"
 #include "WNFileSystem/inc/WNFactory.h"
 #include "WNLogging/inc/WNConsoleLogger.h"
 #include "WNMemory/inc/allocation_tracker.h"
@@ -11,6 +10,8 @@
 #include "WNRe2/inc/re2.h"
 #include "WNScripting/inc/WNFactory.h"
 #include "effcee/effcee.h"
+#include "executable_data/inc/executable_data.h"
+#include "executable_entry/inc/executable_entry.h"
 
 using namespace wn;
 
@@ -159,8 +160,8 @@ static int32_t increment_number(int32_t i) {
   return i + 1;
 }
 
-int32_t wn_main(const ::wn::entry::system_data* _system_data) {
-  entry::wn_dummy();
+int32_t wn_main(const ::wn::executable::executable_data* _executable_data) {
+  executable::wn_dummy();
   uint8_t tests_to_run = 0xff;
   script_test_allocator allocator;
 
@@ -172,37 +173,37 @@ int32_t wn_main(const ::wn::entry::system_data* _system_data) {
   bool verbose = false;
   bool only_jit = false;
   bool only_c = false;
-  for (size_t i = 0; i < static_cast<size_t>(_system_data->argc); ++i) {
+  for (size_t i = 0; i < static_cast<size_t>(_executable_data->argc); ++i) {
     if (containers::string_view("--test_file") ==
-        containers::string_view(_system_data->argv[i])) {
+        containers::string_view(_executable_data->argv[i])) {
       parse_test_file = true;
       parse_data_dir = false;
       continue;
     }
     if (containers::string_view("--data_dir") ==
-        containers::string_view(_system_data->argv[i])) {
+        containers::string_view(_executable_data->argv[i])) {
       parse_data_dir = true;
       parse_test_file = false;
       continue;
     }
     if (containers::string_view("--verbose") ==
-        containers::string_view(_system_data->argv[i])) {
+        containers::string_view(_executable_data->argv[i])) {
       verbose = true;
     }
     if (containers::string_view("--only_jit") ==
-        containers::string_view(_system_data->argv[i])) {
+        containers::string_view(_executable_data->argv[i])) {
       only_jit = true;
     }
     if (containers::string_view("--only_c") ==
-        containers::string_view(_system_data->argv[i])) {
+        containers::string_view(_executable_data->argv[i])) {
       only_c = true;
     }
 
     if (parse_test_file) {
-      test_file = _system_data->argv[i];
+      test_file = _executable_data->argv[i];
       parse_test_file = false;
     } else if (parse_data_dir) {
-      data_dir = _system_data->argv[i];
+      data_dir = _executable_data->argv[i];
       has_data_dir = true;
       parse_data_dir = false;
     }
@@ -225,12 +226,12 @@ int32_t wn_main(const ::wn::entry::system_data* _system_data) {
     tests_to_run = static_cast<uint8_t>(test_types::c);
   }
 
-  wn::file_system::factory fs_factory(&allocator, _system_data);
+  wn::file_system::factory fs_factory(&allocator, _executable_data);
 
   file_system::mapping_ptr files = fs_factory.make_mapping(&allocator,
       has_data_dir ? data_dir : fs_factory.get_current_working_path());
   wn::file_system::mapping_ptr output_mapping =
-      wn::file_system::factory(&allocator, _system_data)
+      wn::file_system::factory(&allocator, _executable_data)
           .make_mapping(
               &allocator, wn::file_system::mapping_type::memory_backed);
   output_mapping->create_directory("/");

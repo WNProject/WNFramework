@@ -65,25 +65,25 @@ public:
       m_entities(_allocator),
       m_swapchain_data(_allocator) {
     bool choosing_adapter = false;
-    for (size_t i = 0; i < static_cast<size_t>(_data->system_data->argc); ++i) {
+    for (size_t i = 0; i < static_cast<size_t>(_data->executable_data->argc); ++i) {
       if (containers::string_view("--vulkan") ==
-          containers::string_view(_data->system_data->argv[i])) {
+          containers::string_view(_data->executable_data->argv[i])) {
         WN_RELEASE_ASSERT(!m_force_api, "Cannot force 2 apis");
         m_forced_api = graphics::adapter::api_type::vulkan;
         m_force_api = true;
         continue;
       } else if (containers::string_view("--d3d12") ==
-                 containers::string_view(_data->system_data->argv[i])) {
+                 containers::string_view(_data->executable_data->argv[i])) {
         WN_RELEASE_ASSERT(!m_force_api, "Cannot force 2 apis");
         m_force_api = true;
         m_forced_api = graphics::adapter::api_type::d3d12;
       } else if (containers::string_view("--force_adapter") ==
-                 containers::string_view(_data->system_data->argv[i])) {
+                 containers::string_view(_data->executable_data->argv[i])) {
         choosing_adapter = true;
       } else if (choosing_adapter) {
         choosing_adapter = false;
-        memory::readuint32(_data->system_data->argv[i], m_forced_adapter,
-            strnlen(_data->system_data->argv[i], 10));
+        memory::readuint32(_data->executable_data->argv[i], m_forced_adapter,
+            strnlen(_data->executable_data->argv[i], 10));
       }
     }
 

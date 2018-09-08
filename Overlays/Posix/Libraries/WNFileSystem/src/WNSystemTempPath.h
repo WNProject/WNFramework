@@ -10,11 +10,11 @@
 #include "WNContainers/inc/WNString.h"
 
 namespace wn {
-namespace entry {
+namespace executable {
 
-struct system_data;
+struct executable_data;
 
-}  // namespace entry
+}  // namespace executable
 
 namespace memory {
 
@@ -25,8 +25,8 @@ class allocator;
 namespace file_system {
 namespace internal {
 
-containers::string get_temp_path(
-    memory::allocator* _allocator, const entry::system_data* _system_data);
+containers::string get_temp_path(memory::allocator* _allocator,
+    const executable::executable_data* _executable_data);
 
 }  // namespace internal
 }  // namespace file_system

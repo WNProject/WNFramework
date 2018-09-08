@@ -10,18 +10,19 @@
 #include <unistd.h>
 
 namespace wn {
-namespace entry {
+namespace executable {
 
-struct system_data;
+struct executable_data;
 
-}  // namespace entry
+}  // namespace executable
 
 namespace file_system {
 namespace internal {
 
-containers::string get_scratch_path(
-    memory::allocator* _allocator, const entry::system_data* _system_data) {
-  const containers::string temp_path(get_temp_path(_allocator, _system_data));
+containers::string get_scratch_path(memory::allocator* _allocator,
+    const executable::executable_data* _executable_data) {
+  const containers::string temp_path(
+      get_temp_path(_allocator, _executable_data));
 
   if (!temp_path.empty()) {
     static const char alphanum[] =
@@ -53,8 +54,8 @@ containers::string get_scratch_path(
   return nullptr;
 }
 
-containers::string get_current_working_path(
-    memory::allocator* _allocator, const entry::system_data* _system_data) {
+containers::string get_current_working_path(memory::allocator* _allocator,
+    const executable::executable_data* _executable_data) {
   containers::dynamic_array<char> buffer(_allocator);
   size_t size = static_cast<size_t>(PATH_MAX);
 

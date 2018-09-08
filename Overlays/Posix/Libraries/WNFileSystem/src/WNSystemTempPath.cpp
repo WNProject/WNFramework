@@ -5,10 +5,10 @@
 #include "WNFileSystem/src/WNSystemTempPath.h"
 #include "WNContainers/inc/WNString.h"
 #include "WNCore/inc/types.h"
-#include "WNExecutable/inc/WNEntry.h"
-#include "WNExecutable/inc/WNEntryData.h"
 #include "WNFileSystem/src/WNUtilities.h"
 #include "WNMemory/inc/allocator.h"
+#include "executable_data/inc/executable_data.h"
+#include "executable_entry/inc/executable_entry.h"
 
 #include <stdlib.h>
 #include <sys/stat.h>
@@ -20,7 +20,7 @@ namespace file_system {
 namespace internal {
 
 containers::string get_temp_path(
-    memory::allocator* _allocator, const entry::system_data*) {
+    memory::allocator* _allocator, const executable::executable_data*) {
   static const char* vars[4] = {"TMPDIR", "TMP", "TEMP", "TEMPDIR"};
 
   for (const char* var : vars) {

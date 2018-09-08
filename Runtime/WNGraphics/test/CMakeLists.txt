@@ -1,8 +1,7 @@
 enable_overlay_directory()
 
 set(CMAKE_TEST_IMAGE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/golden_images)
-configure_file(inc/WNPixelTestConfig.h.in
-  inc/WNPixelTestConfig.h)
+configure_file(inc/WNPixelTestConfig.h.in inc/WNPixelTestConfig.h)
 
 wn_create_executable_tests_from_list(TEST_PREFIX WNGraphics
   SOURCE_DIR src
@@ -34,7 +33,7 @@ macro(add_pixel_test name)
     SOURCES
       ${PIXEL_TEST_SOURCES}
     LIBS
-      WNExecutableTest
+      executable_test
       WNGraphics
       WNFileSystem
       stb

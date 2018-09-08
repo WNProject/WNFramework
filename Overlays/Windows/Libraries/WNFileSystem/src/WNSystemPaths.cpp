@@ -50,7 +50,7 @@ inline DWORD get_temp_path_unicode(
 }  // namespace
 
 containers::string get_scratch_path(
-    memory::allocator* _allocator, const entry::system_data*) {
+    memory::allocator* _allocator, const executable::executable_data*) {
   containers::array<WCHAR, (MAX_PATH + 1)> path_buffer = {0};
   DWORD path_size = get_temp_path_unicode(path_buffer);
 
@@ -106,7 +106,7 @@ containers::string get_scratch_path(
 }
 
 containers::string get_executable_path(
-    memory::allocator* _allocator, const entry::system_data*) {
+    memory::allocator* _allocator, const executable::executable_data*) {
   containers::dynamic_array<WCHAR> buffer(_allocator);
   size_t size = static_cast<size_t>(MAX_PATH);
   DWORD result = 0;
@@ -141,7 +141,7 @@ containers::string get_executable_path(
 }
 
 containers::string get_current_working_path(
-    memory::allocator* _allocator, const entry::system_data*) {
+    memory::allocator* _allocator, const executable::executable_data*) {
   DWORD result = ::GetCurrentDirectoryW(0, NULL);
 
   if (result != 0) {
@@ -159,9 +159,9 @@ containers::string get_current_working_path(
   return nullptr;
 }
 
-containers::string get_dev_assets_path(
-    memory::allocator* _allocator, const entry::system_data* _system_data) {
-  return get_current_working_path(_allocator, _system_data);
+containers::string get_dev_assets_path(memory::allocator* _allocator,
+    const executable::executable_data* _executable_data) {
+  return get_current_working_path(_allocator, _executable_data);
 }
 
 }  // namespace internal

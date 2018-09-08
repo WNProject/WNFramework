@@ -5,17 +5,15 @@
 #ifndef _WN_GRAPHICS_TEST_TEST_FIXTURE_H__
 #define _WN_GRAPHICS_TEST_TEST_FIXTURE_H__
 
-#include "WNExecutableTest/inc/WNTestHarness.h"
 #include "WNGraphics/inc/Internal/WNConfig.h"
 #include "WNLogging/inc/WNBufferLogger.h"
 #include "WNMemory/inc/allocator.h"
+#include "executable_test/inc/WNTestHarness.h"
 
 namespace wn {
 namespace runtime {
 namespace graphics {
 namespace testing {
-
-static const adapter_features k_empty_adapter_features = {};
 
 template <typename T>
 class test_internal : public T {

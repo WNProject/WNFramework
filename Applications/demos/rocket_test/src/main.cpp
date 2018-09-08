@@ -1093,14 +1093,14 @@ int32_t wn_application_main(
   uint32_t force_adapter = 0;
   bool choosing_adapter = false;
 
-  for (size_t i = 0; i < static_cast<size_t>(_data->system_data->argc); ++i) {
+  for (size_t i = 0; i < static_cast<size_t>(_data->executable_data->argc); ++i) {
     if (wn::containers::string_view("--force_adapter") ==
-        wn::containers::string_view(_data->system_data->argv[i])) {
+        wn::containers::string_view(_data->executable_data->argv[i])) {
       choosing_adapter = true;
     } else if (choosing_adapter) {
       choosing_adapter = false;
-      wn::memory::readuint32(_data->system_data->argv[i], force_adapter,
-          strnlen(_data->system_data->argv[i], 10));
+      wn::memory::readuint32(_data->executable_data->argv[i], force_adapter,
+          strnlen(_data->executable_data->argv[i], 10));
     }
   }
 
@@ -1169,7 +1169,7 @@ int32_t wn_application_main(
 
   // Lets set up Rocket
 
-  wn::file_system::factory fs_factory(allocator, _data->system_data);
+  wn::file_system::factory fs_factory(allocator, _data->executable_data);
   wn::file_system::mapping_ptr file_system = fs_factory.make_mapping(
       allocator, wn::file_system::mapping_type::memory_backed);
   file_system->initialize_files(rocket_assets::get_files());

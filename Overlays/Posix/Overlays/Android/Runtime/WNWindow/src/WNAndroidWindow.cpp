@@ -4,7 +4,7 @@
 
 #include "WNWindow/inc/WNAndroidWindow.h"
 #include "WNApplicationData/inc/WNApplicationData.h"
-#include "WNExecutable/inc/WNEntryData.h"
+#include "executable_data/inc/executable_data.h"
 #include "WNMultiTasking/inc/job_pool.h"
 #include "WNMultiTasking/inc/job_signal.h"
 
@@ -108,8 +108,8 @@ window_error android_window::initialize() {
 
 void android_window::wait_for_window_loop(void*) {
   m_job_pool->call_blocking_function([&]() {
-    if (!m_app_data->system_data->host_data->window_initialized ||
-        !m_app_data->system_data->host_data->android_app) {
+    if (!m_app_data->executable_data->host_data->window_initialized ||
+        !m_app_data->executable_data->host_data->android_app) {
       if (m_creation_signal) {
         m_creation_signal->increment(1);
       }
@@ -121,9 +121,9 @@ void android_window::wait_for_window_loop(void*) {
           m_creation_signal->increment(1);
         }
         return;
-      } else if (m_app_data->system_data->host_data->window_initialized
+      } else if (m_app_data->executable_data->host_data->window_initialized
                      ->load()) {
-        m_data.window = m_app_data->system_data->host_data->android_app->window;
+        m_data.window = m_app_data->executable_data->host_data->android_app->window;
         if (m_creation_signal) {
           m_creation_signal->increment(1);
         }

@@ -3,7 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "WNCore/inc/types.h"
-#include "WNExecutableTest/inc/WNTestHarness.h"
+#include "executable_test/inc/WNTestHarness.h"
 #include "WNMath/inc/WNBasic.h"
 
 TEST(basic, abs) {

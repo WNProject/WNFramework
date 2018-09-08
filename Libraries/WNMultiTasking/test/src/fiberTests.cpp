@@ -3,7 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "WNContainers/inc/WNDynamicArray.h"
-#include "WNExecutableTest/inc/WNTestHarness.h"
+#include "executable_test/inc/WNTestHarness.h"
 #include "WNMultiTasking/inc/fiber.h"
 
 using ::testing::ElementsAreArray;

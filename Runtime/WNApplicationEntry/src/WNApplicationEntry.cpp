@@ -3,10 +3,10 @@
 // found in the LICENSE.txt file.
 
 #include "WNApplicationData/inc/WNApplicationData.h"
-#include "WNExecutable/inc/WNEntry.h"
 #include "WNLogging/inc/WNConsoleLogger.h"
 #include "WNMemory/inc/basic_allocator.h"
 #include "WNMultiTasking/inc/job_pool.h"
+#include "executable_entry/inc/executable_entry.h"
 
 namespace wn {
 namespace runtime {
@@ -34,8 +34,8 @@ struct main_application {
   }
 };
 
-int32_t wn_main(const wn::entry::system_data* _data) {
-  wn::entry::wn_dummy();
+int32_t wn_main(const wn::executable::executable_data* _data) {
+  wn::executable::wn_dummy();
   wn::memory::basic_allocator root_allocator;
   wn::logging::console_logger<wn::logging::console_location::std_out>
       default_logger;
@@ -43,7 +43,7 @@ int32_t wn_main(const wn::entry::system_data* _data) {
 
   app_params params{0,
       {
-          _data,            // system_data
+          _data,            // executable_data
           &root_allocator,  // system_allocator
           log.log(),        // system_logger
           nullptr           // default job pool (set below)

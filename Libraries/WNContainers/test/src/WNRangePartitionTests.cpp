@@ -4,7 +4,7 @@
 
 #include "WNContainers/inc/WNDynamicArray.h"
 #include "WNContainers/inc/WNRangePartition.h"
-#include "WNExecutableTest/inc/WNTestHarness.h"
+#include "executable_test/inc/WNTestHarness.h"
 
 using range_partition_tests = ::testing::TestWithParam<size_t>;
 

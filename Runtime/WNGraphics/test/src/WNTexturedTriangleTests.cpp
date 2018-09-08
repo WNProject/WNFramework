@@ -41,7 +41,7 @@ using textured_triangle_test = wn::runtime::graphics::testing::pixel_test<100,
     100, wn::runtime::graphics::testing::fuzzy_comparator<1, 100, 55>>;
 
 TEST_F(textured_triangle_test, basic) {
-  run_test(wn::runtime::graphics::testing::k_empty_adapter_features,
+  run_test(wn::runtime::graphics::k_empty_adapter_features,
       [this](wn::runtime::graphics::adapter::api_type _api,
           wn::runtime::graphics::device* _device,
           wn::runtime::graphics::queue* _queue,

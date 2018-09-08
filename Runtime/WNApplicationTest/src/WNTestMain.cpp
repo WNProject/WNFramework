@@ -3,7 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "WNApplicationTest/inc/WNTestHarness.h"
-#include "WNExecutable/inc/WNEntry.h"
+#include "executable_entry/inc/executable_entry.h"
 
 namespace wn {
 namespace runtime {
@@ -26,8 +26,8 @@ int32_t wn_application_main(
     const wn::runtime::application::application_data* _data) {
   wn::runtime::testing::k_application_data = _data;
 
-  ::testing::InitGoogleTest(const_cast<int32_t*>(&_data->system_data->argc),
-      _data->system_data->argv);
+  ::testing::InitGoogleTest(const_cast<int32_t*>(&_data->executable_data->argc),
+      _data->executable_data->argv);
   wn::runtime::testing::init_test_framework();
 
   return RUN_ALL_TESTS();

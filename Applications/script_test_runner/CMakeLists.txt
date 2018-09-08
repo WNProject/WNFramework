@@ -8,7 +8,7 @@ add_wn_executable(
     WNScripting
     WNRe2
     effcee
-    WNExecutable
+    executable_entry
   INCLUDES
     ${WNFramework_SOURCE_DIR}/Externals/effcee
 )

@@ -14,7 +14,8 @@
 #include "WNMultiTasking/inc/thread.h"
 #include "WNUtilities/inc/WNAndroidEventPump.h"
 #include "WNWindow/inc/WNWindow.h"
-#include "WNExecutable/inc/WNEntryData.h"
+#include "executable_data/inc/executable_data.h"
+#include "executable_data/inc/host_specific_data.h"
 
 #include <android/native_window.h>
 
@@ -57,17 +58,18 @@ public:
     m_job_pool->add_job(&m_destroy_signal,
         &android_window::wait_for_window_loop, this, nullptr);
     m_callback_tok =
-        _data->system_data->host_data->event_pump->SubscribeToInputEvents(
+        _data->executable_data->host_data->event_pump->SubscribeToInputEvents(
             +[](AInputEvent* _event, void* _data) {
               return static_cast<android_window*>(_data)->handle_input_event(
                   _event);
-            }, this);
+            },
+            this);
   }
 
   ~android_window() {
     m_destroy.store(true);
     m_destroy_signal.wait_until(1);
-    m_app_data->system_data->host_data->event_pump
+    m_app_data->executable_data->host_data->event_pump
         ->UnsubscribeFromInputEvents(m_callback_tok);
   }
 

@@ -16,7 +16,7 @@ TEST_P(arena, many_sizes) {
   for (auto& adapter : device_factory.query_adapters()) {
     wn::runtime::graphics::device_ptr device =
         adapter->make_device(&m_allocator, m_log,
-            wn::runtime::graphics::testing::k_empty_adapter_features);
+            wn::runtime::graphics::k_empty_adapter_features);
 
     ASSERT_NE(nullptr, device);
 

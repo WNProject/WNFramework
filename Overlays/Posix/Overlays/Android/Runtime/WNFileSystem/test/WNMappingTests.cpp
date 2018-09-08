@@ -14,7 +14,7 @@ TEST_P(mapping, creation) {
 
   {
     wn::file_system::factory f(
-        &allocator, wn::runtime::testing::k_application_data->system_data);
+        &allocator, wn::runtime::testing::k_application_data->executable_data);
     const wn::file_system::mapping_ptr mp =
         f.make_mapping(&allocator, GetParam());
 
@@ -27,7 +27,7 @@ TEST_P(mapping, create_file) {
 
   {
     wn::file_system::factory f(
-        &allocator, wn::runtime::testing::k_application_data->system_data);
+        &allocator, wn::runtime::testing::k_application_data->executable_data);
     const wn::file_system::mapping_ptr mp =
         f.make_mapping(&allocator, GetParam());
 
@@ -50,7 +50,7 @@ TEST_P(mapping, create_directory) {
 
   {
     wn::file_system::factory f(
-        &allocator, wn::runtime::testing::k_application_data->system_data);
+        &allocator, wn::runtime::testing::k_application_data->executable_data);
     const wn::file_system::mapping_ptr mp =
         f.make_mapping(&allocator, GetParam());
 
@@ -67,7 +67,7 @@ TEST_P(mapping, exists_file) {
 
   {
     wn::file_system::factory f(
-        &allocator, wn::runtime::testing::k_application_data->system_data);
+        &allocator, wn::runtime::testing::k_application_data->executable_data);
     const wn::file_system::mapping_ptr mp =
         f.make_mapping(&allocator, GetParam());
 
@@ -92,7 +92,7 @@ TEST_P(mapping, exists_directory) {
 
   {
     wn::file_system::factory f(
-        &allocator, wn::runtime::testing::k_application_data->system_data);
+        &allocator, wn::runtime::testing::k_application_data->executable_data);
     const wn::file_system::mapping_ptr mp =
         f.make_mapping(&allocator, GetParam());
 
@@ -111,7 +111,7 @@ TEST_P(mapping, recursive_create_directory) {
 
   {
     wn::file_system::factory f(
-        &allocator, wn::runtime::testing::k_application_data->system_data);
+        &allocator, wn::runtime::testing::k_application_data->executable_data);
     const wn::file_system::mapping_ptr mp =
         f.make_mapping(&allocator, GetParam());
 
@@ -133,7 +133,7 @@ TEST_P(mapping, initialize_files) {
 
   {
     wn::file_system::factory f(
-        &allocator, wn::runtime::testing::k_application_data->system_data);
+        &allocator, wn::runtime::testing::k_application_data->executable_data);
     const wn::file_system::mapping_ptr mp =
         f.make_mapping(&allocator, GetParam());
 
@@ -167,7 +167,7 @@ TEST_P(mapping, open_file) {
 
   {
     wn::file_system::factory f(
-        &allocator, wn::runtime::testing::k_application_data->system_data);
+        &allocator, wn::runtime::testing::k_application_data->executable_data);
     const wn::file_system::mapping_ptr mp =
         f.make_mapping(&allocator, GetParam());
 
@@ -199,7 +199,7 @@ TEST_P(mapping, delete_file) {
 
   {
     wn::file_system::factory f(
-        &allocator, wn::runtime::testing::k_application_data->system_data);
+        &allocator, wn::runtime::testing::k_application_data->executable_data);
     const wn::file_system::mapping_ptr mp =
         f.make_mapping(&allocator, GetParam());
 
@@ -227,7 +227,7 @@ TEST_P(mapping, delete_directory) {
 
   {
     wn::file_system::factory f(
-        &allocator, wn::runtime::testing::k_application_data->system_data);
+        &allocator, wn::runtime::testing::k_application_data->executable_data);
     const wn::file_system::mapping_ptr mp =
         f.make_mapping(&allocator, GetParam());
 
@@ -265,7 +265,7 @@ TEST_P(mapping, initialized_from_filesystem) {
 
   {
     wn::file_system::factory f(
-        &allocator, wn::runtime::testing::k_application_data->system_data);
+        &allocator, wn::runtime::testing::k_application_data->executable_data);
     const wn::file_system::mapping_ptr mp =
         f.make_mapping(&allocator, GetParam());
 

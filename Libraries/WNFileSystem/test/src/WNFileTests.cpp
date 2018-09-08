@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNExecutableTest/inc/WNTestHarness.h"
+#include "executable_test/inc/WNTestHarness.h"
 #include "WNFileSystem/inc/WNFactory.h"
 #include "WNFileSystem/inc/WNFile.h"
 
@@ -12,7 +12,7 @@ TEST_P(file, creation) {
   wn::testing::allocator allocator;
 
   {
-    wn::file_system::factory f(&allocator, wn::testing::k_system_data);
+    wn::file_system::factory f(&allocator, wn::testing::k_executable_data);
     const wn::file_system::mapping_ptr mp =
         f.make_mapping(&allocator, GetParam());
 
@@ -34,7 +34,7 @@ TEST_P(file, size) {
   wn::testing::allocator allocator;
 
   {
-    wn::file_system::factory f(&allocator, wn::testing::k_system_data);
+    wn::file_system::factory f(&allocator, wn::testing::k_executable_data);
     const wn::file_system::mapping_ptr mp =
         f.make_mapping(&allocator, GetParam());
 
@@ -68,7 +68,7 @@ TEST_P(file, resize) {
   wn::testing::allocator allocator;
 
   {
-    wn::file_system::factory f(&allocator, wn::testing::k_system_data);
+    wn::file_system::factory f(&allocator, wn::testing::k_executable_data);
     const wn::file_system::mapping_ptr mp =
         f.make_mapping(&allocator, GetParam());
 
@@ -135,7 +135,7 @@ TEST_P(file, clear) {
   wn::testing::allocator allocator;
 
   {
-    wn::file_system::factory f(&allocator, wn::testing::k_system_data);
+    wn::file_system::factory f(&allocator, wn::testing::k_executable_data);
     const wn::file_system::mapping_ptr mp =
         f.make_mapping(&allocator, GetParam());
 
@@ -175,7 +175,7 @@ TEST_P(file, flush) {
   wn::testing::allocator allocator;
 
   {
-    wn::file_system::factory f(&allocator, wn::testing::k_system_data);
+    wn::file_system::factory f(&allocator, wn::testing::k_executable_data);
     const wn::file_system::mapping_ptr mp =
         f.make_mapping(&allocator, GetParam());
 
@@ -223,7 +223,7 @@ TEST_P(file, close) {
   wn::testing::allocator allocator;
 
   {
-    wn::file_system::factory f(&allocator, wn::testing::k_system_data);
+    wn::file_system::factory f(&allocator, wn::testing::k_executable_data);
     const wn::file_system::mapping_ptr mp =
         f.make_mapping(&allocator, GetParam());
 

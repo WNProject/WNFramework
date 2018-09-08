@@ -396,8 +396,9 @@ function(add_wn_application name)
       SOURCES
         ${PARSED_ARGS_SOURCES}
       LIBS
-        WNExecutable
+        executable_entry
         WNApplicationEntry
+        executable_entry
         ${PARSED_ARGS_LIBS}
       INCLUDES
         ${PARSED_ARGS_INCLUDES}

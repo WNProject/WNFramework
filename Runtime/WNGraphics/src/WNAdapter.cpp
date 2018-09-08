@@ -9,6 +9,8 @@ namespace wn {
 namespace runtime {
 namespace graphics {
 
+const adapter_features k_empty_adapter_features = {};
+
 core::pair<surface, graphics_error> adapter::make_surface(
     runtime::window::window* _window) {
   surface s(this, _window->get_width(), _window->get_height());

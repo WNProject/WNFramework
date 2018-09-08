@@ -11,11 +11,11 @@
 #include <unistd.h>
 
 namespace wn {
-namespace entry {
+namespace executable {
 
-struct system_data;
+struct executable_data;
 
-}  // namespace entry
+}  // namespace executable
 
 namespace memory {
 
@@ -27,7 +27,7 @@ namespace file_system {
 namespace internal {
 
 containers::string get_executable_path(
-    memory::allocator* _allocator, const entry::system_data*) {
+    memory::allocator* _allocator, const executable::executable_data*) {
   char raw_path[PATH_MAX] = {0};
   const ssize_t result =
       ::readlink("/proc/self/exe", raw_path, sizeof(raw_path));

@@ -4,13 +4,13 @@
 
 #include "WNContainers/inc/WNString.h"
 #include "WNCore/inc/types.h"
-#include "WNExecutable/inc/WNEntry.h"
-#include "WNExecutable/inc/WNEntryData.h"
 #include "WNFileSystem/inc/jni_helper.h"
 #include "WNFileSystem/src/WNSystemPaths.h"
 #include "WNFileSystem/src/WNSystemTempPath.h"
 #include "WNFileSystem/src/WNUtilities.h"
 #include "WNMemory/inc/allocator.h"
+#include "executable_data/inc/executable_data.h"
+#include "executable_data/inc/host_specific_data.h"
 
 #include <jni.h>
 
@@ -18,12 +18,12 @@ namespace wn {
 namespace file_system {
 namespace internal {
 
-containers::string get_dev_assets_path(
-    memory::allocator* _allocator, const entry::system_data* _system_data) {
-  android_app* app = _system_data->host_data->android_app;
+containers::string get_dev_assets_path(memory::allocator* _allocator,
+    const executable::executable_data* _executable_data) {
+  android_app* app = _executable_data->host_data->android_app;
 
   if (!app) {
-    return get_current_working_path(_allocator, _system_data);
+    return get_current_working_path(_allocator, _executable_data);
   }
 
   containers::string path(_allocator);

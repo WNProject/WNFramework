@@ -3,7 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "WNLogging/inc/WNLog.h"
-#include "WNExecutableTest/inc/WNTestHarness.h"
+#include "executable_test/inc/WNTestHarness.h"
 #include "WNLogging/inc/WNConsoleLogger.h"
 #include "WNLogging/inc/WNFileLogger.h"
 

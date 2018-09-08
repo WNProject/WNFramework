@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNExecutableTest/inc/WNTestHarness.h"
+#include "executable_test/inc/WNTestHarness.h"
 #include "WNFileSystem/inc/WNFactory.h"
 #include "WNLogging/inc/WNBufferLogger.h"
 #include "WNMemory/inc/allocator.h"
@@ -147,7 +147,7 @@ TEST(scripting_engine_factory, external) {
   wn::logging::log* log = slog.log();
 
   wn::file_system::mapping_ptr mapping =
-      wn::file_system::factory(&allocator, wn::testing::k_system_data)
+      wn::file_system::factory(&allocator, wn::testing::k_executable_data)
           .make_mapping(
               &allocator, wn::file_system::mapping_type::memory_backed);
   mapping->initialize_files(external_test_assets::get_files());

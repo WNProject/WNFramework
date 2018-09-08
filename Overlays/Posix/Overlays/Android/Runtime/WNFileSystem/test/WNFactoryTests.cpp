@@ -16,7 +16,7 @@ TEST_P(factory, make_mapping) {
 
   {
     wn::file_system::factory f(
-        &allocator, wn::runtime::testing::k_application_data->system_data);
+        &allocator, wn::runtime::testing::k_application_data->executable_data);
     const wn::file_system::mapping_ptr mp =
         f.make_mapping(&allocator, GetParam());
 

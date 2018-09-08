@@ -39,7 +39,7 @@ const size_t size_d3d12 = sizeof(g_main);
 using triangle_test = wn::runtime::graphics::testing::pixel_test<>;
 
 TEST_F(triangle_test, basic) {
-  run_test(wn::runtime::graphics::testing::k_empty_adapter_features,
+  run_test(wn::runtime::graphics::k_empty_adapter_features,
       [this](wn::runtime::graphics::adapter::api_type _api,
           wn::runtime::graphics::device* _device,
           wn::runtime::graphics::queue* _queue,
