@@ -18,6 +18,17 @@ namespace wn {
 namespace scripting {
 struct ast_type;
 
+template <typename U, typename enable = void>
+struct get_ref_passed_type {
+  using type = U;
+};
+
+template <typename U>
+struct get_ref_passed_type<U,
+    typename core::enable_if<pass_by_reference<U>::value>::type> {
+  using type = U*;
+};
+
 template <typename R, typename... Args>
 class script_function final {
 public:
@@ -30,7 +41,11 @@ public:
 private:
   friend class engine;
 
-  R (*m_function)(Args...);
+  using fnType = R (*)(typename get_ref_passed_type<Args>::type...);
+  fnType m_function;
+
+  using thunkType = R (*)(fnType, Args...);
+  thunkType m_thunk;
 };
 
 using script_tag = char[];

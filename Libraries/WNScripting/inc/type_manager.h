@@ -282,7 +282,7 @@ public:
     return m_strlen;
   }
 
-  bool is_pass_by_reference(const ast_type* _type);
+  bool is_pass_by_reference(const ast_type* _type) const;
 
 private:
   ast_type* register_external_type(containers::string_view _type,

@@ -43,20 +43,62 @@ struct expand_parameters<0> {
   }
 };
 
-}  // anonymous namespace
+template <typename U>
+static typename core::enable_if<pass_by_reference<U>::value, U*>::type
+pass_by_ref_if_needed(U& val) {
+  return &val;
+}
+
+template <typename U>
+static typename core::enable_if<!pass_by_reference<U>::value, U>::type
+pass_by_ref_if_needed(U& val) {
+  return val;
+}
+
+template <typename T, typename... Args>
+T thunk(T (*func)(typename get_ref_passed_type<Args>::type...), Args... args) {
+  return func(pass_by_ref_if_needed(args)...);
+}
+
+template <typename T, typename... Args>
+T return_thunk(void (*func)(typename get_ref_passed_type<Args>::type..., T*),
+    Args... args) {
+  T t;
+  return func(pass_by_ref_if_needed(args)..., &t);
+}
+
+}  // namespace
 
 template <typename T, typename... Args>
 bool inline engine::get_function(containers::string_view _name,
     script_function<T, Args...>* _function) const {
   containers::dynamic_array<containers::string_view> signature_types =
       m_type_manager.get_mangled_names<T, Args...>();
+
   containers::string s = get_mangled_name(m_allocator, _name);
   for (auto& param : signature_types) {
     s += param;
   }
 
+  // TODO: move this to a compile-time check.
+  bool use_thunk = false;
+  auto types = m_type_manager.get_types<T, Args...>();
+  for (auto& t : types) {
+    if (m_type_manager.is_pass_by_reference(t)) {
+      use_thunk = true;
+    }
+  }
+
   _function->m_function =
-      reinterpret_cast<T (*)(Args...)>(get_function_pointer(s));
+      reinterpret_cast<T (*)(typename get_ref_passed_type<Args>::type...)>(
+          get_function_pointer(s));
+
+  if (use_thunk && _function->m_function) {
+    _function->m_thunk = &thunk<T, Args...>;
+  } else {
+    _function->m_thunk = nullptr;
+  }
+
   return _function->m_function != nullptr;
 }
 
@@ -98,7 +140,18 @@ void inline engine::register_child_cpp_type() {
 template <typename R, typename... Args>
 R inline engine::invoke(
     const script_function<R, Args...>& _function, const Args&... _args) const {
-  return _function.m_function(core::forward<const Args>(_args)...);
+  if (_function.m_thunk) {
+    return _function.m_thunk(
+        _function.m_function, core::forward<const Args>(_args)...);
+  } else {
+    // We should never end up in here, and have the reinterpret_cast do
+    // anything. It is literally just here, because we don't compile-time
+    // specialize this.
+    // TODO: compile-time specialize this.
+    using fntype = R (*)(Args...);
+    auto fn = reinterpret_cast<fntype>(_function.m_function);
+    return fn(core::forward<const Args>(_args)...);
+  }
 }
 
 }  // namespace scripting

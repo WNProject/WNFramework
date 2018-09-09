@@ -704,7 +704,7 @@ bool type_manager::member_functions_resolved(
   return m_struct_definitions[_name].member_functions_resolved;
 }
 
-bool type_manager::is_pass_by_reference(const ast_type* _type) {
+bool type_manager::is_pass_by_reference(const ast_type* _type) const {
   return _type->m_pass_by_reference;
 }
 

@@ -10,6 +10,7 @@
 #include "WNScripting/test/inc/external_test_assets.h"
 #include "effcee/effcee.h"
 
+using wn::scripting::slice;
 using wn::scripting::wn_array;
 using wn::scripting::wn_array_ptr;
 
@@ -207,6 +208,8 @@ TEST(scripting_engine_factory, external) {
       extern_func_7;
   wn::scripting::script_function<int32_t, external_struct2*> extern_func_8;
   wn::scripting::script_function<int32_t, external_slice_struct*> extern_func_9;
+  wn::scripting::script_function<int32_t, slice<int32_t>, int32_t>
+      extern_func_10;
 
   ASSERT_TRUE(jit->get_function("test1", &extern_struct_func));
   ASSERT_TRUE(jit->get_function("test2", &extern_struct_func2));
@@ -217,6 +220,7 @@ TEST(scripting_engine_factory, external) {
   ASSERT_TRUE(jit->get_function("test7", &extern_func_7));
   ASSERT_TRUE(jit->get_function("test8", &extern_func_8));
   ASSERT_TRUE(jit->get_function("test9", &extern_func_9));
+  ASSERT_TRUE(jit->get_function("test10", &extern_func_10));
 
   // test1
   {
@@ -295,5 +299,16 @@ TEST(scripting_engine_factory, external) {
   {
     external_slice_struct s;
     EXPECT_EQ(5, jit->invoke(extern_func_9, &s));
+  }
+
+  {
+    int32_t foo[12];
+    for (uint32_t i = 0; i < 12; ++i) {
+      foo[i] = i;
+    }
+    slice<int32_t> s(&foo[0], {12});
+    EXPECT_EQ(0, jit->invoke(extern_func_10, s, 0));
+    EXPECT_EQ(7, jit->invoke(extern_func_10, s, 7));
+    EXPECT_EQ(11, jit->invoke(extern_func_10, s, 11));
   }
 }

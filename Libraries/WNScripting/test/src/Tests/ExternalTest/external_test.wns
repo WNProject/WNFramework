@@ -67,3 +67,7 @@ Int test9(ExternalSliceStruct s) {
     Int|| y = x{0:4};
     return s.do_x(y);
 }
+
+Int test10(Int|| s, Int y) {
+    return s[y];
+}
