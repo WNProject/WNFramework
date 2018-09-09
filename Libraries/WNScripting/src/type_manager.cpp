@@ -42,6 +42,9 @@ type_manager::type_manager(memory::allocator* _allocator, logging::log* _log)
   m_externally_visible_types
       [c_type_tag<wn_array_ptr<int32_t>>::get_unique_identifier()] =
           get_array_of(uint32_type.get(), 0, nullptr);
+  m_externally_visible_types
+      [c_type_tag<slice<int32_t>>::get_unique_identifier()] =
+          get_slice_of(uint32_type.get(), 1, nullptr);
 
   m_integral_types[32] = core::move(uint32_type);
 
@@ -58,6 +61,9 @@ type_manager::type_manager(memory::allocator* _allocator, logging::log* _log)
   m_externally_visible_types
       [c_type_tag<wn_array_ptr<uint8_t>>::get_unique_identifier()] =
           get_array_of(uint8_type.get(), 0, nullptr);
+  m_externally_visible_types
+      [c_type_tag<slice<uint8_t>>::get_unique_identifier()] =
+          get_slice_of(uint8_type.get(), 1, nullptr);
 
   m_integral_types[8] = core::move(uint8_type);
 
@@ -74,6 +80,9 @@ type_manager::type_manager(memory::allocator* _allocator, logging::log* _log)
   m_externally_visible_types
       [c_type_tag<wn_array_ptr<float>>::get_unique_identifier()] =
           get_array_of(float_type.get(), 0, nullptr);
+  m_externally_visible_types
+      [c_type_tag<slice<float>>::get_unique_identifier()] =
+          get_slice_of(float_type.get(), 1, nullptr);
   m_float_types[32] = core::move(float_type);
 
   m_void_t = memory::make_unique_delegated<ast_type>(m_allocator,
@@ -93,6 +102,7 @@ type_manager::type_manager(memory::allocator* _allocator, logging::log* _log)
   m_externally_visible_types[c_type_tag<void*>::get_unique_identifier()] =
       m_void_ptr_t.get();
 
+
   m_bool_t = memory::make_unique_delegated<ast_type>(m_allocator,
       [this](void* _memory) { return new (_memory) ast_type(&m_all_types); });
   m_bool_t->m_name = containers::string(m_allocator, "Bool");
@@ -104,6 +114,9 @@ type_manager::type_manager(memory::allocator* _allocator, logging::log* _log)
   m_externally_visible_types
       [c_type_tag<wn_array_ptr<bool>>::get_unique_identifier()] =
           get_array_of(m_bool_t.get(), 0, nullptr);
+  m_externally_visible_types
+      [c_type_tag<slice<bool>>::get_unique_identifier()] =
+          get_slice_of(m_bool_t.get(), 1, nullptr);
 
   m_size_t = memory::make_unique_delegated<ast_type>(m_allocator,
       [this](void* _memory) { return new (_memory) ast_type(&m_all_types); });
@@ -689,6 +702,10 @@ bool type_manager::member_functions_resolved(
       m_struct_definitions.find(_name) != m_struct_definitions.end(),
       "struct_definition was never initialized");
   return m_struct_definitions[_name].member_functions_resolved;
+}
+
+bool type_manager::is_pass_by_reference(const ast_type* _type) {
+  return _type->m_pass_by_reference;
 }
 
 const struct_definition* type_manager::get_struct_definition(

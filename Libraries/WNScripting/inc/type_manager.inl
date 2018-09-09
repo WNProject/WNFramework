@@ -44,28 +44,143 @@ struct exporter : public exporter_base {
         _name, m_type_manager->get_type<V>(), static_cast<uint32_t>(offset));
   }
 
+  template <typename U, U>
+  struct fn_args {};
+
+  template <typename U>
+  static typename core::enable_if<pass_by_reference<U>::value, U>::type
+  pass_by_ref_if_needed(U* val) {
+    return *val;
+  }
+
+  template <typename U>
+  static typename core::enable_if<!pass_by_reference<U>::value, U>::type
+  pass_by_ref_if_needed(U& val) {
+    return val;
+  }
+
+  template <typename U, typename enable = void>
+  struct get_ref_passed_type {
+    using type = U;
+  };
+
+  template <typename U>
+  struct get_ref_passed_type<U,
+      typename core::enable_if<pass_by_reference<U>::value>::type> {
+    using type = U*;
+  };
+
   template <typename R, typename... Args>
-  void register_nonvirtual_function(
-      containers::string_view _name, R (T::*_fn)(Args...)) {
+  struct member_maker {
+    template <R (T::*fn)(Args...)>
+    static R
+#if defined(_WN_WINDOWS) && defined(_WN_X86) && !defined(_WN_64_BIT)
+        __thiscall
+#endif
+        member_thunk(T* t, typename get_ref_passed_type<Args>::type... args) {
+      return (t->*fn)(pass_by_ref_if_needed(args)...);
+    }
+  };
+
+  template <typename R, typename... Args>
+  inline member_maker<R, Args...> get_member_maker(R (T::*)(Args...)) {
+    return member_maker<R, Args...>{};
+  };
+
+  template <typename R, typename... Args>
+  struct pseudo_member_maker {
+    template <R (*fn)(T*, Args...)>
+    static R
+#if defined(_WN_WINDOWS) && defined(_WN_X86) && !defined(_WN_64_BIT)
+        __thiscall
+#endif
+        member_thunk(T* t, typename get_ref_passed_type<Args>::type... args) {
+      return (*fn)(t, pass_by_ref_if_needed(args)...);
+    }
+  };
+
+  template <typename R, typename... Args>
+  inline pseudo_member_maker<R, Args...> get_pseudo_member_maker(
+      R (*)(T*, Args...)) {
+    return pseudo_member_maker<R, Args...>{};
+  };
+
+  template <typename F, F fptr>
+  void* get_thunk() {
+    void* v;
+    auto mt = &decltype(get_member_maker(fptr))::template member_thunk<fptr>;
+    memcpy(&v, &mt, sizeof(uintptr_t));
+    return v;
+  }
+
+  template <typename F, F fptr>
+  void* get_pseudo_thunk() {
+    void* v;
+    auto mt =
+        decltype(get_pseudo_member_maker(fptr))::template member_thunk<fptr>;
+    memcpy(&v, &mt, sizeof(uintptr_t));
+    return v;
+  }
+
+  struct _added_function {
+    _added_function(containers::string_view _name,
+        containers::dynamic_array<const ast_type*> _types)
+      : name(_name), types(_types) {}
+    containers::string_view name;
+    containers::dynamic_array<const ast_type*> types;
+  };
+
+  template <typename R, typename... Args>
+  _added_function _add_function(
+      containers::string_view _name, R (T::*)(Args...)) {
     auto types = m_type_manager->get_types<R, T*, Args...>();
     containers::string_view v = add_contained_function(_name, types, false);
-    void* fn;
-    memcpy(&fn, &_fn, sizeof(uintptr_t));
-    if (m_callback && *m_callback) {
-      (*m_callback)(v, fn, false);
-    }
+    return _added_function(v, core::move(types));
   }
 
   template <typename R, typename... Args>
-  void register_pseudo_function(
-      containers::string_view _name, R (*_fn)(T*, Args...)) {
-    static_assert(sizeof(_fn) == sizeof(uintptr_t), "Invalid function pointer");
+  _added_function _add_function(containers::string_view _name, R(T*, Args...)) {
     auto types = m_type_manager->get_types<R, T*, Args...>();
-    containers::string_view v = add_contained_function(_name, types, true);
+    containers::string_view v = add_contained_function(_name, types, false);
+    return _added_function(v, core::move(types));
+  }
+
+  template <typename F, F fptr>
+  void register_nonvirtual_function(containers::string_view _name) {
+    auto af = _add_function(_name, fptr);
+    F f = fptr;
     void* fn;
-    memcpy(&fn, &_fn, sizeof(uintptr_t));
+    memcpy(&fn, &f, sizeof(uintptr_t));
+    for (size_t i = 1; i < af.types.size(); ++i) {
+      if (m_type_manager->is_pass_by_reference(af.types[i])) {
+        auto t = get_thunk<F, fptr>();
+        memcpy(&fn, &t, sizeof(uintptr_t));
+        break;
+      }
+    }
+
     if (m_callback && *m_callback) {
-      (*m_callback)(v, fn, true);
+      (*m_callback)(af.name, fn, false);
+    }
+  }
+
+  template <typename F, F fptr>
+  void register_pseudo_function(containers::string_view _name) {
+    auto af = _add_function(_name, fptr);
+    F f = fptr;
+    static_assert(sizeof(f) == sizeof(uintptr_t), "Invalid function pointer");
+    void* fn;
+    memcpy(&fn, &f, sizeof(uintptr_t));
+    for (size_t i = 1; i < af.types.size(); ++i) {
+      if (m_type_manager->is_pass_by_reference(af.types[i])) {
+        auto t = get_pseudo_thunk<F, fptr>();
+        memcpy(&fn, &t, sizeof(uintptr_t));
+        break;
+      }
+    }
+
+    if (m_callback && *m_callback) {
+      (*m_callback)(af.name, fn, false);
     }
   }
 
@@ -76,11 +191,11 @@ struct exporter : public exporter_base {
 
     template <R (T::*fn)(Args...)>
     void register_virtual(containers::string_view _name) {
-      m_exporter->register_pseudo_function(
-          _name, &virtual_registrar<R, Args...>::dispatch<fn>);
+      m_exporter->register_pseudo_function<
+          decltype(&virtual_registrar<R, Args...>::dispatch<fn>),
+          &virtual_registrar<R, Args...>::dispatch<fn>>(_name);
     }
 
-  private:
     template <R (T::*fn)(Args...)>
     static R dispatch(T* _base, Args... _args) {
       return (_base->*fn)(_args...);

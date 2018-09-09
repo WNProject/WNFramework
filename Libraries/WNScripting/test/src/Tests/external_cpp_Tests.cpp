@@ -56,6 +56,12 @@ struct external_struct2 : public external_struct {
   }
 };
 
+struct external_slice_struct {
+  int32_t do_x(wn::scripting::slice<int32_t> x) {
+    return x[1];
+  }
+};
+
 namespace wn {
 namespace scripting {
 template <>
@@ -77,8 +83,9 @@ struct exported_script_type<external_struct> {
   static void export_type(wn::scripting::exporter<external_struct>* _exporter) {
     _exporter->register_member("i", &external_struct::i);
     _exporter->register_member("s2", &external_struct::s2);
-    _exporter->register_nonvirtual_function(
-        "increment_i", &external_struct::increment_i);
+    _exporter->register_nonvirtual_function<
+        decltype(&external_struct::increment_i), &external_struct::increment_i>(
+        "increment_i");
     _exporter->register_virtual<void>()
         .register_virtual<&external_struct::increment_x>("increment_x");
   }
@@ -92,9 +99,23 @@ struct exported_script_type<external_struct2> {
   }
   static void export_type(
       wn::scripting::exporter<external_struct2>* _exporter) {
-    _exporter->register_nonvirtual_function("get_y", &external_struct2::get_y);
-    _exporter->register_nonvirtual_function(
-        "printf", &external_struct2::printf);
+    _exporter->register_nonvirtual_function<decltype(&external_struct2::get_y),
+        &external_struct2::get_y>("get_y");
+    _exporter->register_nonvirtual_function<decltype(&external_struct2::printf),
+        &external_struct2::printf>("printf");
+  }
+};
+
+template <>
+struct exported_script_type<external_slice_struct> {
+  static wn::containers::string_view exported_name() {
+    return "ExternalSliceStruct";
+  }
+  static void export_type(
+      wn::scripting::exporter<external_slice_struct>* _exporter) {
+    _exporter->register_nonvirtual_function<
+        decltype(&external_slice_struct::do_x), &external_slice_struct::do_x>(
+        "do_x");
   }
 };
 
@@ -128,9 +149,11 @@ TEST(scripting_engine_factory, external) {
   // Register our new type.
   jit->register_cpp_type<external_inner_struct>();
   jit->register_cpp_type<external_struct>();
+  jit->register_cpp_type<external_slice_struct>();
   jit->register_child_cpp_type<external_struct2>();
   translator->register_cpp_type<external_inner_struct>();
   translator->register_cpp_type<external_struct>();
+  translator->register_cpp_type<external_slice_struct>();
   translator->register_child_cpp_type<external_struct2>();
 
   wn::file_system::result res;
@@ -183,6 +206,7 @@ TEST(scripting_engine_factory, external) {
   wn::scripting::script_function<int32_t, external_struct2*, int32_t>
       extern_func_7;
   wn::scripting::script_function<int32_t, external_struct2*> extern_func_8;
+  wn::scripting::script_function<int32_t, external_slice_struct*> extern_func_9;
 
   ASSERT_TRUE(jit->get_function("test1", &extern_struct_func));
   ASSERT_TRUE(jit->get_function("test2", &extern_struct_func2));
@@ -192,6 +216,7 @@ TEST(scripting_engine_factory, external) {
   ASSERT_TRUE(jit->get_function("test6", &extern_func_6));
   ASSERT_TRUE(jit->get_function("test7", &extern_func_7));
   ASSERT_TRUE(jit->get_function("test8", &extern_func_8));
+  ASSERT_TRUE(jit->get_function("test9", &extern_func_9));
 
   // test1
   {
@@ -258,11 +283,17 @@ TEST(scripting_engine_factory, external) {
     EXPECT_EQ(22, jit->invoke(extern_func_7, &s2, 22));
   }
 
-  // test7
+  // test8
   {
     external_struct2 s2;
     s2.str = wn::containers::string(&allocator);
     jit->invoke(extern_func_8, &s2);
     EXPECT_EQ("Hello World!", s2.str);
+  }
+
+  // test9
+  {
+    external_slice_struct s;
+    EXPECT_EQ(5, jit->invoke(extern_func_9, &s));
   }
 }

@@ -28,6 +28,11 @@ struct external_function {
   uint32_t virtual_index;
 };
 
+template <typename T>
+struct pass_by_reference {
+  static const bool value = false;
+};
+
 // Use this type instead of normal size_t in order for
 // size_t to automatically work between scripting and C++.
 // This is because size_t is not a "proper" type in most
@@ -81,6 +86,56 @@ wn_array_ptr<T, 0> wn_array<T, S>::operator&() {
       "Invalid conversion to array_ptr");
   return *reinterpret_cast<wn_array_ptr<T, 0>*>(&t);
 }
+
+// Default slice
+template <typename T, size_t S = 1, typename = void>
+struct slice {
+private:
+  static const size_t N_Vals = 1 + ((S - 1) * 2);
+  T* _value;
+  size_t size_values[N_Vals];
+
+public:
+  inline slice(T* _val, containers::array<size_t, N_Vals> _sizes_strides)
+    : _value(_val) {
+    memory::memory_copy(&size_values[0], &_sizes_strides[0], N_Vals);
+  }
+
+  T& operator[](size_t i) {
+    return _value[i];
+  }
+};
+
+template <typename T, size_t S>
+struct slice<T, S, typename core::enable_if<(S == 0)>::type> {};
+
+template<typename T, size_t S>
+struct slice<T, S, typename core::enable_if<(S > 1)>::type> {
+private:
+  static const size_t N_Vals = 1 + ((S - 1) * 2);
+  T* _value;
+  size_t size_values[N_Vals];
+
+public:
+  inline slice(T* _val, containers::array<size_t, N_Vals> _sizes_strides)
+    : _value(_val) {
+    memory::memory_copy(&size_values[0], &_sizes_strides[0], N_Vals);
+  }
+  
+  slice<T, S-1> operator[](size_t i) {
+    T* nT = _value;
+    size_t new_values[N_Vals - 2];
+    nT = reinterpret_cast<T*>(
+        reinterpret_cast<uint8_t*>(nT) + size_values[1] * i);
+    memory::memory_copy(&new_values[0], &size_values[2], N_Vals - 2);
+    return slice<T, S - 1>(nT, new_values);
+  }
+};
+
+template <typename U, size_t S>
+struct pass_by_reference<slice<U, S>> {
+  static const bool value = true;
+};
 
 // Simple helper that parses a script and runs any
 // passes that are required to make the AST valid.

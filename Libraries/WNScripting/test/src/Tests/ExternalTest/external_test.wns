@@ -58,3 +58,12 @@ Int test8(ExternalStructChild s) {
     s.printf("Hello World!");
     return 32;
 }
+
+Int test9(ExternalSliceStruct s) {
+    Int[4] x = Int[4](3);
+    x[0] = 3;
+    x[1] = 5;
+    x[2] = 32;
+    Int|| y = x{0:4};
+    return s.do_x(y);
+}
