@@ -93,9 +93,11 @@ struct slice {
 private:
   static const size_t N_Vals = 1 + ((S - 1) * 2);
   T* _value;
-  size_t size_values[N_Vals];
+  size_t size_values[N_Vals] = {0};
 
 public:
+  slice() : _value(nullptr) {}
+
   inline slice(T* _val, containers::array<size_t, N_Vals> _sizes_strides)
     : _value(_val) {
     memory::memory_copy(&size_values[0], &_sizes_strides[0], N_Vals);
@@ -104,25 +106,34 @@ public:
   T& operator[](size_t i) {
     return _value[i];
   }
+
+  size_t size() {
+    return size_values[0];
+  }
 };
 
 template <typename T, size_t S>
 struct slice<T, S, typename core::enable_if<(S == 0)>::type> {};
 
-template<typename T, size_t S>
+template <typename T, size_t S>
 struct slice<T, S, typename core::enable_if<(S > 1)>::type> {
 private:
   static const size_t N_Vals = 1 + ((S - 1) * 2);
   T* _value;
-  size_t size_values[N_Vals];
+  size_t size_values[N_Vals] = {0};
 
 public:
+  slice() : _value(nullptr) {}
+
   inline slice(T* _val, containers::array<size_t, N_Vals> _sizes_strides)
     : _value(_val) {
     memory::memory_copy(&size_values[0], &_sizes_strides[0], N_Vals);
   }
-  
-  slice<T, S-1> operator[](size_t i) {
+  size_t size() {
+    return size_values[0];
+  }
+
+  slice<T, S - 1> operator[](size_t i) {
     T* nT = _value;
     size_t new_values[N_Vals - 2];
     nT = reinterpret_cast<T*>(

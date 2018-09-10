@@ -58,8 +58,19 @@ struct external_struct2 : public external_struct {
 };
 
 struct external_slice_struct {
+  int32_t vals[32];
+  external_slice_struct() {
+    for (int32_t i = 0; i < 32; ++i) {
+      vals[i] = i;
+    }
+  }
+
   int32_t do_x(wn::scripting::slice<int32_t> x) {
     return x[1];
+  }
+
+  slice<int32_t> get_vals() {
+    return slice<int32_t>(&vals[0], {32});
   }
 };
 
@@ -117,6 +128,9 @@ struct exported_script_type<external_slice_struct> {
     _exporter->register_nonvirtual_function<
         decltype(&external_slice_struct::do_x), &external_slice_struct::do_x>(
         "do_x");
+    _exporter->register_nonvirtual_function<
+        decltype(&external_slice_struct::get_vals),
+        &external_slice_struct::get_vals>("get_vals");
   }
 };
 
@@ -210,6 +224,8 @@ TEST(scripting_engine_factory, external) {
   wn::scripting::script_function<int32_t, external_slice_struct*> extern_func_9;
   wn::scripting::script_function<int32_t, slice<int32_t>, int32_t>
       extern_func_10;
+  wn::scripting::script_function<int32_t, external_slice_struct*, int32_t>
+      extern_func_11;
 
   ASSERT_TRUE(jit->get_function("test1", &extern_struct_func));
   ASSERT_TRUE(jit->get_function("test2", &extern_struct_func2));
@@ -221,6 +237,7 @@ TEST(scripting_engine_factory, external) {
   ASSERT_TRUE(jit->get_function("test8", &extern_func_8));
   ASSERT_TRUE(jit->get_function("test9", &extern_func_9));
   ASSERT_TRUE(jit->get_function("test10", &extern_func_10));
+  ASSERT_TRUE(jit->get_function("test11", &extern_func_11));
 
   // test1
   {
@@ -301,7 +318,8 @@ TEST(scripting_engine_factory, external) {
     EXPECT_EQ(5, jit->invoke(extern_func_9, &s));
   }
 
-  {
+  // test 10
+  { 
     int32_t foo[12];
     for (uint32_t i = 0; i < 12; ++i) {
       foo[i] = i;
@@ -310,5 +328,13 @@ TEST(scripting_engine_factory, external) {
     EXPECT_EQ(0, jit->invoke(extern_func_10, s, 0));
     EXPECT_EQ(7, jit->invoke(extern_func_10, s, 7));
     EXPECT_EQ(11, jit->invoke(extern_func_10, s, 11));
+  }
+
+  // test9
+  {
+    external_slice_struct s;
+    EXPECT_EQ(0, jit->invoke(extern_func_11, &s, 0));
+    EXPECT_EQ(12, jit->invoke(extern_func_11, &s, 12));
+    EXPECT_EQ(15, jit->invoke(extern_func_11, &s, 15));
   }
 }

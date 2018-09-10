@@ -71,3 +71,7 @@ Int test9(ExternalSliceStruct s) {
 Int test10(Int|| s, Int y) {
     return s[y];
 }
+
+Int test11(ExternalSliceStruct s, Int y) {
+    return s.get_vals()[y];
+}

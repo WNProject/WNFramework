@@ -235,6 +235,10 @@ containers::string_view exporter_base::add_contained_function(
   memory::unique_ptr<ast_function> func =
       memory::make_unique<ast_function>(m_allocator, nullptr);
   auto& params = func->initialized_parameters(m_allocator);
+  if (_types[0]->m_pass_by_reference) {
+    _types.push_back(_types[0]);
+  }
+
   for (uint32_t i = 1; i < _types.size(); ++i) {
     char count[12] = {
         '_',

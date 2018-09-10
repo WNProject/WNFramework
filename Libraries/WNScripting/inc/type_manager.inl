@@ -72,6 +72,7 @@ struct exporter : public exporter_base {
 
   template <typename R, typename... Args>
   struct member_maker {
+    static const bool is_ret_by_ref = pass_by_reference<R>::value;
     template <R (T::*fn)(Args...)>
     static R
 #if defined(_WN_WINDOWS) && defined(_WN_X86) && !defined(_WN_64_BIT)
@@ -79,6 +80,38 @@ struct exporter : public exporter_base {
 #endif
         member_thunk(T* t, typename get_ref_passed_type<Args>::type... args) {
       return (t->*fn)(pass_by_ref_if_needed(args)...);
+    }
+
+    template <R (T::*fn)(Args...)>
+    static void
+#if defined(_WN_WINDOWS) && defined(_WN_X86) && !defined(_WN_64_BIT)
+        __thiscall
+#endif
+        return_member_thunk(T* t, typename get_ref_passed_type<Args>::type... args, R* _ret) {
+      *_ret = (t->*fn)(pass_by_ref_if_needed(args)...);
+    }
+  };
+
+  template <typename... Args>
+  struct member_maker<void, Args...> {
+    static const bool is_ret_by_ref = false;
+    template <void (T::*fn)(Args...)>
+    static void
+#if defined(_WN_WINDOWS) && defined(_WN_X86) && !defined(_WN_64_BIT)
+        __thiscall
+#endif
+        member_thunk(T* t, typename get_ref_passed_type<Args>::type... args) {
+      return (t->*fn)(pass_by_ref_if_needed(args)...);
+    }
+
+    template <void (T::*fn)(Args...)>
+    static void
+#if defined(_WN_WINDOWS) && defined(_WN_X86) && !defined(_WN_64_BIT)
+        __thiscall
+#endif
+        return_member_thunk(
+            T* t, typename get_ref_passed_type<Args>::type... args) {
+      (t->*fn)(pass_by_ref_if_needed(args)...);
     }
   };
 
@@ -89,13 +122,33 @@ struct exporter : public exporter_base {
 
   template <typename R, typename... Args>
   struct pseudo_member_maker {
+    static const bool is_ret_by_ref = pass_by_reference<R>::value;
     template <R (*fn)(T*, Args...)>
     static R
-#if defined(_WN_WINDOWS) && defined(_WN_X86) && !defined(_WN_64_BIT)
-        __thiscall
-#endif
         member_thunk(T* t, typename get_ref_passed_type<Args>::type... args) {
       return (*fn)(t, pass_by_ref_if_needed(args)...);
+    }
+
+    template <R (*fn)(T*, Args...)>
+    static void return_member_thunk(
+        T* t, typename get_ref_passed_type<Args>::type... args, R* _ret) {
+      *_ret = (*fn)(t, pass_by_ref_if_needed(args)...);
+    }
+  };
+
+  template <typename... Args>
+  struct pseudo_member_maker<void, Args...> {
+    static const bool is_ret_by_ref = false;
+    template <void (*fn)(T*, Args...)>
+    static void member_thunk(
+        T* t, typename get_ref_passed_type<Args>::type... args) {
+      return (*fn)(t, pass_by_ref_if_needed(args)...);
+    }
+
+    template <void (*fn)(T*, Args...)>
+    static void return_member_thunk(
+        T* t, typename get_ref_passed_type<Args>::type... args) {
+      (*fn)(t, pass_by_ref_if_needed(args)...);
     }
   };
 
@@ -108,17 +161,29 @@ struct exporter : public exporter_base {
   template <typename F, F fptr>
   void* get_thunk() {
     void* v;
-    auto mt = &decltype(get_member_maker(fptr))::template member_thunk<fptr>;
-    memcpy(&v, &mt, sizeof(uintptr_t));
+    if (decltype(get_member_maker(fptr))::is_ret_by_ref) {
+      auto mt =
+          &decltype(get_member_maker(fptr))::template return_member_thunk<fptr>;
+      memcpy(&v, &mt, sizeof(uintptr_t));
+    } else {
+      auto mt = &decltype(get_member_maker(fptr))::template member_thunk<fptr>;
+      memcpy(&v, &mt, sizeof(uintptr_t));
+    }
     return v;
   }
 
   template <typename F, F fptr>
   void* get_pseudo_thunk() {
     void* v;
-    auto mt =
-        decltype(get_pseudo_member_maker(fptr))::template member_thunk<fptr>;
-    memcpy(&v, &mt, sizeof(uintptr_t));
+    if (decltype(get_pseudo_member_maker(fptr))::is_ret_by_ref) {
+      auto mt = decltype(
+          get_pseudo_member_maker(fptr))::template return_member_thunk<fptr>;
+      memcpy(&v, &mt, sizeof(uintptr_t));
+    } else {
+      auto mt =
+          decltype(get_pseudo_member_maker(fptr))::template member_thunk<fptr>;
+      memcpy(&v, &mt, sizeof(uintptr_t));
+    }
     return v;
   }
 
@@ -151,7 +216,7 @@ struct exporter : public exporter_base {
     F f = fptr;
     void* fn;
     memcpy(&fn, &f, sizeof(uintptr_t));
-    for (size_t i = 1; i < af.types.size(); ++i) {
+    for (size_t i = 0; i < af.types.size(); ++i) {
       if (m_type_manager->is_pass_by_reference(af.types[i])) {
         auto t = get_thunk<F, fptr>();
         memcpy(&fn, &t, sizeof(uintptr_t));
@@ -171,7 +236,7 @@ struct exporter : public exporter_base {
     static_assert(sizeof(f) == sizeof(uintptr_t), "Invalid function pointer");
     void* fn;
     memcpy(&fn, &f, sizeof(uintptr_t));
-    for (size_t i = 1; i < af.types.size(); ++i) {
+    for (size_t i = 0; i < af.types.size(); ++i) {
       if (m_type_manager->is_pass_by_reference(af.types[i])) {
         auto t = get_pseudo_thunk<F, fptr>();
         memcpy(&fn, &t, sizeof(uintptr_t));
