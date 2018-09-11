@@ -42,10 +42,16 @@ private:
   friend class engine;
 
   using fnType = R (*)(typename get_ref_passed_type<Args>::type...);
-  fnType m_function;
+  fnType m_function = nullptr;
+
+  using retFnType = void (*)(typename get_ref_passed_type<Args>::type..., R*);
+  retFnType m_return_func = nullptr;
 
   using thunkType = R (*)(fnType, Args...);
-  thunkType m_thunk;
+  thunkType m_thunk = nullptr;
+
+  using retThunkType = R (*)(retFnType, Args...);
+  retThunkType m_return_thunk = nullptr;
 };
 
 using script_tag = char[];

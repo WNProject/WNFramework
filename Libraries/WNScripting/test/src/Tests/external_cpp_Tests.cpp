@@ -226,6 +226,8 @@ TEST(scripting_engine_factory, external) {
       extern_func_10;
   wn::scripting::script_function<int32_t, external_slice_struct*, int32_t>
       extern_func_11;
+  wn::scripting::script_function<slice<int32_t>, wn_array_ptr<int32_t>, int32_t>
+      extern_func_12;
 
   ASSERT_TRUE(jit->get_function("test1", &extern_struct_func));
   ASSERT_TRUE(jit->get_function("test2", &extern_struct_func2));
@@ -238,6 +240,7 @@ TEST(scripting_engine_factory, external) {
   ASSERT_TRUE(jit->get_function("test9", &extern_func_9));
   ASSERT_TRUE(jit->get_function("test10", &extern_func_10));
   ASSERT_TRUE(jit->get_function("test11", &extern_func_11));
+  ASSERT_TRUE(jit->get_function("test12", &extern_func_12));
 
   // test1
   {
@@ -330,11 +333,23 @@ TEST(scripting_engine_factory, external) {
     EXPECT_EQ(11, jit->invoke(extern_func_10, s, 11));
   }
 
-  // test9
+  // test11
   {
     external_slice_struct s;
     EXPECT_EQ(0, jit->invoke(extern_func_11, &s, 0));
     EXPECT_EQ(12, jit->invoke(extern_func_11, &s, 12));
     EXPECT_EQ(15, jit->invoke(extern_func_11, &s, 15));
+  }
+
+  // test12
+  {
+    wn_array<int32_t, 42> array;
+    for (int32_t i = 0; i < 42; ++i) {
+      array[i] = i;
+    }
+    slice<int> s = jit->invoke(extern_func_12, &array, 5);
+    EXPECT_EQ(5, s[0]);
+    EXPECT_EQ(7, s[2]);
+    EXPECT_EQ(37u, s.size());
   }
 }

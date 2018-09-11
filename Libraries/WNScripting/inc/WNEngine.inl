@@ -60,12 +60,24 @@ T thunk(T (*func)(typename get_ref_passed_type<Args>::type...), Args... args) {
   return func(pass_by_ref_if_needed(args)...);
 }
 
-template <typename T, typename... Args>
-T return_thunk(void (*func)(typename get_ref_passed_type<Args>::type..., T*),
-    Args... args) {
-  T t;
-  return func(pass_by_ref_if_needed(args)..., &t);
-}
+template <bool b, typename T, typename... Args>
+struct thunk_getter {
+  static T return_thunk(void (*func)(typename get_ref_passed_type<Args>::type..., T*),
+      Args... args) {
+    T t;
+    func(pass_by_ref_if_needed(args)..., &t);
+    return t;
+  }
+};
+
+template<typename T, typename ...Args>
+struct thunk_getter<true, T, Args...> {
+  static void return_thunk(
+      void (*func)(typename get_ref_passed_type<Args>::type..., void*),
+      Args... args) {
+    return func(pass_by_ref_if_needed(args)...);
+  }
+};
 
 }  // namespace
 
@@ -79,27 +91,43 @@ bool inline engine::get_function(containers::string_view _name,
   for (auto& param : signature_types) {
     s += param;
   }
-
+  if (m_type_manager.is_pass_by_reference(m_type_manager.get_type<T>())) {
+    s += m_type_manager.get_mangled_name<T>();
+  }
   // TODO: move this to a compile-time check.
   bool use_thunk = false;
+  bool use_return_thunk = false;
   auto types = m_type_manager.get_types<T, Args...>();
+  bool is_return = true;
   for (auto& t : types) {
     if (m_type_manager.is_pass_by_reference(t)) {
       use_thunk = true;
+      if (is_return) {
+        use_return_thunk = true;
+      }
     }
+    is_return = false;
   }
 
-  _function->m_function =
-      reinterpret_cast<T (*)(typename get_ref_passed_type<Args>::type...)>(
-          get_function_pointer(s));
-
-  if (use_thunk && _function->m_function) {
-    _function->m_thunk = &thunk<T, Args...>;
+  if (use_return_thunk) {
+    _function->m_return_func =
+        reinterpret_cast<void (*)(typename get_ref_passed_type<Args>::type...,
+            T*)>(get_function_pointer(s));
   } else {
-    _function->m_thunk = nullptr;
+    _function->m_function =
+        reinterpret_cast<T (*)(typename get_ref_passed_type<Args>::type...)>(
+            get_function_pointer(s));
   }
 
-  return _function->m_function != nullptr;
+  if (use_return_thunk && _function->m_return_func) {
+    _function->m_return_thunk =
+        &thunk_getter<core::is_same<T, void>::value, T, Args...>::return_thunk;
+  } else if (use_thunk && _function->m_function) {
+    _function->m_thunk = &thunk<T, Args...>;
+  }
+
+  return _function->m_function != nullptr ||
+         _function->m_return_func != nullptr;
 }
 
 template <typename R, typename... Args>
@@ -140,7 +168,10 @@ void inline engine::register_child_cpp_type() {
 template <typename R, typename... Args>
 R inline engine::invoke(
     const script_function<R, Args...>& _function, const Args&... _args) const {
-  if (_function.m_thunk) {
+  if (_function.m_return_thunk) {
+    return _function.m_return_thunk(
+        _function.m_return_func, core::forward<const Args>(_args)...);
+  } else if (_function.m_thunk) {
     return _function.m_thunk(
         _function.m_function, core::forward<const Args>(_args)...);
   } else {
