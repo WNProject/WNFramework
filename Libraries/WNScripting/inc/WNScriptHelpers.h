@@ -13,6 +13,7 @@
 #include "WNMemory/inc/unique_ptr.h"
 #include "WNScripting/inc/WNEnums.h"
 
+#include <atomic>
 namespace wn {
 namespace scripting {
 class script_file;
@@ -31,6 +32,11 @@ struct external_function {
 template <typename T>
 struct pass_by_reference {
   static const bool value = false;
+};
+
+template <typename T>
+struct needs_thunk {
+  static const bool value = pass_by_reference<T>::value;
 };
 
 // Use this type instead of normal size_t in order for
@@ -145,6 +151,159 @@ public:
 
 template <typename U, size_t S>
 struct pass_by_reference<slice<U, S>> {
+  static const bool value = true;
+};
+
+template <typename T, typename R, typename... Args>
+class scripting_object_function {
+public:
+  using ret_type = R;
+  R do_(void*, Args...) {
+    return R();
+  }
+
+private:
+};
+
+struct script_object_type {
+  memory::allocator* m_allocator;
+
+  void free(void* val) {
+    //TODO(awoloszyn): Use the allocator here.
+    // For now we allocated with malloc, so free with malloc
+    ::free(val);
+  }
+};
+
+template <typename T>
+class script_pointer {
+public:
+  using value_type = T;
+  template <typename X, typename... Args>
+  typename X::ret_type invoke(X T::*v, Args... args) {
+    return (type->*v).do_(val, args...);
+  }
+
+  script_pointer() : val(nullptr), type(nullptr) {}
+  void* unsafe_ptr() {
+    return val;
+  }
+  void unsafe_set_type(T* _type) {
+    type = _type;
+  }
+
+  script_pointer(void* t) : val(t) {
+    // When this is created (by the engine), then it will
+    // also fix up T* type, but not in the constructor for a variety of reasons
+  }
+
+  private:
+  void* val;
+  T* type;
+  friend class engine;
+
+  template <typename U>
+  friend class shared_script_pointer;
+};
+
+template <typename T>
+struct needs_thunk<script_pointer<T>> {
+  static const bool value = true;
+};
+
+template <typename T>
+class shared_script_pointer {
+public:
+  using value_type = T;
+  template <typename X, typename... Args>
+  typename X::ret_type invoke(X T::*v, Args... args) {
+    return (type->*v).do_(val, args...);
+  }
+  script_pointer<T> get() {
+    return script_pointer<T>{val, type};
+  }
+
+  ~shared_script_pointer() {
+    release();
+  }
+
+  shared_script_pointer(const shared_script_pointer& _other)
+    : val(_other.val), type(_other.type) {
+    acquire();
+  }
+
+  shared_script_pointer(shared_script_pointer&& _other)
+    : val(_other.val), type(_other.type) {
+    _other.val = nullptr;
+    _other.type = nullptr;
+  }
+  shared_script_pointer() : val(nullptr), type(nullptr) {}
+  void* unsafe_ptr() {
+    return val;
+  }
+  void unsafe_set_type(T* _type) {
+    type = _type;
+  }
+
+  shared_script_pointer(void* t) : val(t) {
+    acquire();
+  }
+
+private:
+  struct shared_object_header {
+    std::atomic<size_t> m_ref_count;
+    void (*m_destructor)(void*);
+  };
+
+  shared_object_header* header() {
+    return static_cast<shared_object_header*>(val) - 1;
+  }
+
+  void acquire() {
+    if (val) {
+      // When this is created (by the engine), then it will
+      // also fix up T* type, but not in the constructor for a variety of
+      // reasons
+      header()->m_ref_count++;
+    }
+  }
+
+  void release() {
+    if (val && --header()->m_ref_count == 0) {
+      if (header()->m_destructor) {
+        (*header()->m_destructor)(val);
+      }
+      type->free(val);
+    }
+  }
+
+  void* val;
+  T* type;
+  friend class engine;
+};
+
+template <typename T>
+struct is_script_pointer {
+  static const bool value = false;
+};
+
+template <typename T>
+struct is_script_pointer<script_pointer<T>> {
+  static const bool value = true;
+};
+
+template <typename T>
+struct is_shared_script_pointer {
+  static const bool value = false;
+};
+
+template <typename T>
+struct is_shared_script_pointer<shared_script_pointer<T>> {
+  static const bool value = true;
+};
+
+template <typename T>
+struct needs_thunk<shared_script_pointer<T>> {
   static const bool value = true;
 };
 

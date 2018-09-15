@@ -19,14 +19,48 @@ namespace scripting {
 struct ast_type;
 
 template <typename U, typename enable = void>
-struct get_ref_passed_type {
+struct get_thunk_passed_type {
   using type = U;
+  using ret_type = U;
+
+  static inline U wrap(U& u) {
+    return u;
+  }
+  static inline U unwrap(U u) {
+    return u;
+  }
 };
 
 template <typename U>
-struct get_ref_passed_type<U,
+struct get_thunk_passed_type<U,
     typename core::enable_if<pass_by_reference<U>::value>::type> {
   using type = U*;
+  using ret_type = U;
+  static inline U* wrap(U& u) {
+    return &u;
+  }
+  static inline U unwrap(U* u) {
+    return *u;
+  }
+
+  static inline U unwrap(U u) {
+    return u;
+  }
+};
+
+template <typename U>
+struct get_thunk_passed_type<U,
+    typename core::enable_if<is_script_pointer<U>::value ||
+                             is_shared_script_pointer<U>::value>::type> {
+  using type = typename U::value_type*;
+  using ret_type = typename U::value_type*;
+  static inline typename U::value_type* wrap(U& u) {
+    return &u.unsafe_ptr();
+  }
+
+  static inline U unwrap(typename U::value_type* u) {
+    return U(u);
+  }
 };
 
 template <typename R, typename... Args>
@@ -41,10 +75,12 @@ public:
 private:
   friend class engine;
 
-  using fnType = R (*)(typename get_ref_passed_type<Args>::type...);
+  using fnType = typename get_thunk_passed_type<R>::ret_type (*)(
+      typename get_thunk_passed_type<Args>::type...);
   fnType m_function = nullptr;
 
-  using retFnType = void (*)(typename get_ref_passed_type<Args>::type..., R*);
+  using retFnType = void (*)(typename get_thunk_passed_type<Args>::type...,
+      core::add_pointer_t<typename get_thunk_passed_type<R>::ret_type>);
   retFnType m_return_func = nullptr;
 
   using thunkType = R (*)(fnType, Args...);
@@ -52,21 +88,6 @@ private:
 
   using retThunkType = R (*)(retFnType, Args...);
   retThunkType m_return_thunk = nullptr;
-};
-
-using script_tag = char[];
-
-template <char const* Type, typename Parent = void>
-struct script_object_type final {};
-
-template <typename ObjectType, script_tag Name, typename R, typename... Args>
-struct script_member_function final {
-  R (*m_function)(Args...);
-};
-
-template <typename ObjectType, script_tag Name, typename R, typename... Args>
-struct script_virtual_member_function final {
-  uint32_t m_vtable_offset;
 };
 
 // Implementors of this class are expected to take
@@ -78,7 +99,8 @@ public:
     : m_num_warnings(0),
       m_num_errors(0),
       m_allocator(_allocator),
-      m_type_manager(_allocator, _log) {
+      m_type_manager(_allocator, _log),
+      m_object_types(_allocator) {
     // These exists to stop the compiler from assuming these are unused.
     (void)assign_type_names;
     (void)short_circuit_type_names;
@@ -128,6 +150,9 @@ public:
   template <typename T>
   void register_child_cpp_type();
 
+  template <typename T>
+  void export_script_type();
+
   using void_func = script_function<void>;
 
 protected:
@@ -142,6 +167,8 @@ protected:
       containers::string_view _name, void_f _function, bool _is_virtual) = 0;
 
   type_manager m_type_manager;
+  containers::hash_map<void*, memory::unique_ptr<script_object_type>>
+      m_object_types;
 };
 
 }  // namespace scripting

@@ -52,6 +52,9 @@ public:
   template<typename T>
   bool register_child_cpp_type();
 
+  template <typename T>
+  void inline export_script_type();
+
 protected:
   virtual ast_type* register_external_type(containers::string_view _name) = 0;
   size_t m_num_warnings;
@@ -89,6 +92,11 @@ template<typename T>
 bool inline translator::register_child_cpp_type() {
   m_type_manager.register_child_cpp_type<T>(nullptr);
   return true;
+}
+
+template <typename T>
+void inline translator::export_script_type() {
+  m_type_manager.export_script_type<T>();
 }
 
 }  // namespace scripting

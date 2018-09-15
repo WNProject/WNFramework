@@ -79,3 +79,12 @@ Int test11(ExternalSliceStruct s, Int y) {
 Int|| test12(Int[] x, Int y) {
     return x{y: length(x)};
 }
+
+struct ExportedA {
+  Int x = 3;
+}
+
+shared ExportedA test13() {
+    shared ExportedA ea = shared ExportedA();
+    return ea;
+}

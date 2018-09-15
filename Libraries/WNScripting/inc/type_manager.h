@@ -61,8 +61,36 @@ public:
           _external_function_added);
 
   template <typename T>
+  void export_script_type();
+
+  template <typename T>
   containers::string_view get_mangled_name() const {
-    return internal_get_mangled_name(c_type_tag<T>::get_unique_identifier());
+    return internal_get_mangled_name(get_type<T>());
+  }
+
+  template <typename T>
+  typename core::enable_if<!is_script_pointer<T>::value &&
+                               !is_shared_script_pointer<T>::value,
+      const ast_type*>::type
+  get_type() {
+    return m_externally_visible_types
+        .find(c_type_tag<T>::get_unique_identifier())
+        ->second;
+  }
+
+  template <typename T>
+  typename core::enable_if<is_script_pointer<T>::value, const ast_type*>::type
+  get_type() {
+    return get_reference_of(
+        get_type<T::value_type>(), ast_type_classification::reference, nullptr);
+  }
+
+  template <typename T>
+  typename core::enable_if<is_shared_script_pointer<T>::value,
+      const ast_type*>::type
+  get_type() {
+    return get_reference_of(get_type<T::value_type>(),
+        ast_type_classification::shared_reference, nullptr);
   }
 
   template <typename T>
@@ -76,6 +104,12 @@ public:
   containers::dynamic_array<containers::string_view> get_mangled_names() const {
     return containers::dynamic_array<containers::string_view>(
         m_allocator, {get_mangled_name<Args>()...});
+  }
+
+  template <typename... Args>
+  containers::dynamic_array<const ast_type*> get_types() {
+    return containers::dynamic_array<const ast_type*>(
+        m_allocator, {get_type<Args>()...});
   }
 
   template <typename... Args>
@@ -214,6 +248,8 @@ public:
     return m_externals;
   }
 
+  ast_type* export_script_type(containers::string_view _type);
+
   ast_type* register_external_type(containers::string_view _type);
   const ast_type* get_external_type(
       containers::string_view _name, used_type_set* _used) const {
@@ -299,7 +335,7 @@ private:
   void add_strlen();
 
   void finalize_external_type(ast_type* _type) const;
-  containers::string_view internal_get_mangled_name(void* idx) const;
+  containers::string_view internal_get_mangled_name(const ast_type* _type) const;
   memory::allocator* m_allocator;
   logging::log* m_log;
 

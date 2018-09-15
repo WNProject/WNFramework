@@ -60,12 +60,12 @@ struct exporter : public exporter_base {
   }
 
   template <typename U, typename enable = void>
-  struct get_ref_passed_type {
+  struct get_thunk_passed_type {
     using type = U;
   };
 
   template <typename U>
-  struct get_ref_passed_type<U,
+  struct get_thunk_passed_type<U,
       typename core::enable_if<pass_by_reference<U>::value>::type> {
     using type = U*;
   };
@@ -78,7 +78,7 @@ struct exporter : public exporter_base {
 #if defined(_WN_WINDOWS) && defined(_WN_X86) && !defined(_WN_64_BIT)
         __thiscall
 #endif
-        member_thunk(T* t, typename get_ref_passed_type<Args>::type... args) {
+        member_thunk(T* t, typename get_thunk_passed_type<Args>::type... args) {
       return (t->*fn)(pass_by_ref_if_needed(args)...);
     }
 
@@ -87,7 +87,7 @@ struct exporter : public exporter_base {
 #if defined(_WN_WINDOWS) && defined(_WN_X86) && !defined(_WN_64_BIT)
         __thiscall
 #endif
-        return_member_thunk(T* t, typename get_ref_passed_type<Args>::type... args, R* _ret) {
+        return_member_thunk(T* t, typename get_thunk_passed_type<Args>::type... args, R* _ret) {
       *_ret = (t->*fn)(pass_by_ref_if_needed(args)...);
     }
   };
@@ -100,7 +100,7 @@ struct exporter : public exporter_base {
 #if defined(_WN_WINDOWS) && defined(_WN_X86) && !defined(_WN_64_BIT)
         __thiscall
 #endif
-        member_thunk(T* t, typename get_ref_passed_type<Args>::type... args) {
+        member_thunk(T* t, typename get_thunk_passed_type<Args>::type... args) {
       return (t->*fn)(pass_by_ref_if_needed(args)...);
     }
 
@@ -110,7 +110,7 @@ struct exporter : public exporter_base {
         __thiscall
 #endif
         return_member_thunk(
-            T* t, typename get_ref_passed_type<Args>::type... args) {
+            T* t, typename get_thunk_passed_type<Args>::type... args) {
       (t->*fn)(pass_by_ref_if_needed(args)...);
     }
   };
@@ -125,13 +125,13 @@ struct exporter : public exporter_base {
     static const bool is_ret_by_ref = pass_by_reference<R>::value;
     template <R (*fn)(T*, Args...)>
     static R
-        member_thunk(T* t, typename get_ref_passed_type<Args>::type... args) {
+        member_thunk(T* t, typename get_thunk_passed_type<Args>::type... args) {
       return (*fn)(t, pass_by_ref_if_needed(args)...);
     }
 
     template <R (*fn)(T*, Args...)>
     static void return_member_thunk(
-        T* t, typename get_ref_passed_type<Args>::type... args, R* _ret) {
+        T* t, typename get_thunk_passed_type<Args>::type... args, R* _ret) {
       *_ret = (*fn)(t, pass_by_ref_if_needed(args)...);
     }
   };
@@ -141,13 +141,13 @@ struct exporter : public exporter_base {
     static const bool is_ret_by_ref = false;
     template <void (*fn)(T*, Args...)>
     static void member_thunk(
-        T* t, typename get_ref_passed_type<Args>::type... args) {
+        T* t, typename get_thunk_passed_type<Args>::type... args) {
       return (*fn)(t, pass_by_ref_if_needed(args)...);
     }
 
     template <void (*fn)(T*, Args...)>
     static void return_member_thunk(
-        T* t, typename get_ref_passed_type<Args>::type... args) {
+        T* t, typename get_thunk_passed_type<Args>::type... args) {
       (*fn)(t, pass_by_ref_if_needed(args)...);
     }
   };
@@ -312,6 +312,24 @@ void type_manager::register_cpp_type(functional::function<void(
   exporter<T> exporter(t, m_allocator, this, &_fn);
   exported_script_type<T>::export_type(&exporter);
   finalize_external_type(t);
+}
+
+template <typename T>
+void type_manager::export_script_type() {
+  if (m_externally_visible_types.find(c_type_tag<T>::get_unique_identifier()) !=
+      m_externally_visible_types.end()) {
+    return;
+  }
+  containers::string_view name = T::exported_name();
+  export_script_type(name);
+  ast_type* t = m_structure_types.find(name)->second.get();
+  m_externally_visible_types[c_type_tag<T>::get_unique_identifier()] = t;
+  m_externally_visible_types
+      [c_type_tag<script_pointer<T>>::get_unique_identifier()] =
+          get_reference_of(t, ast_type_classification::reference, nullptr);
+  m_externally_visible_types
+      [c_type_tag<shared_script_pointer<T>>::get_unique_identifier()] =
+          get_reference_of(t, ast_type_classification::shared_reference, nullptr);
 }
 
 }  // namespace scripting

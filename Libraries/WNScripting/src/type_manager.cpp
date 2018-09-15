@@ -184,6 +184,22 @@ type_manager::type_manager(memory::allocator* _allocator, logging::log* _log)
 
 type_manager::~type_manager() {}
 
+ast_type* type_manager::export_script_type(containers::string_view _type) {
+  auto it = m_structure_types.find(_type);
+  if (it != m_structure_types.end()) {
+    return it->second.get();
+  }
+  auto struct_type = memory::make_unique_delegated<ast_type>(m_allocator,
+      [this](void* _memory) { return new (_memory) ast_type(&m_all_types); });
+  struct_type->m_name = _type.to_string(m_allocator);
+  ast_type* return_type = struct_type.get();
+  return_type->m_classification = ast_type_classification::struct_type;
+  return_type->calculate_mangled_name(m_allocator);
+  m_structure_types[return_type->m_name] = core::move(struct_type);
+
+  return return_type;
+}
+
 ast_type* type_manager::register_external_type(
     containers::string_view _name, uint32_t _size, ast_type* _parent_type) {
   auto type = memory::make_unique_delegated<ast_type>(m_allocator,
@@ -212,8 +228,8 @@ ast_type* type_manager::register_external_type(containers::string_view _name) {
 }
 
 containers::string_view type_manager::internal_get_mangled_name(
-    void* idx) const {
-  return m_externally_visible_types.find(idx)->second->m_mangled_name;
+    const ast_type* _type) const {
+  return _type->m_mangled_name;
 }
 
 void type_manager::finalize_external_type(ast_type* _type) const {

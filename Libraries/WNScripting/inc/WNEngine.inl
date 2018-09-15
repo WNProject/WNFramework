@@ -56,16 +56,20 @@ pass_by_ref_if_needed(U& val) {
 }
 
 template <typename T, typename... Args>
-T thunk(T (*func)(typename get_ref_passed_type<Args>::type...), Args... args) {
-  return func(pass_by_ref_if_needed(args)...);
+T thunk(typename get_thunk_passed_type<T>::ret_type (*func)(
+            typename get_thunk_passed_type<Args>::type...),
+    Args... args) {
+  return get_thunk_passed_type<T>::unwrap(func(pass_by_ref_if_needed(args)...));
 }
 
 template <bool b, typename T, typename... Args>
 struct thunk_getter {
-  static T return_thunk(void (*func)(typename get_ref_passed_type<Args>::type..., T*),
+  static T return_thunk(
+      void (*func)(typename get_thunk_passed_type<Args>::type...,
+          core::add_pointer_t<typename get_thunk_passed_type<T>::ret_type>),
       Args... args) {
-    T t;
-    func(pass_by_ref_if_needed(args)..., &t);
+    typename get_thunk_passed_type<T>::ret_type t;
+    func(get_thunk_passed_type<Args>::wrap(args)..., &t);
     return t;
   }
 };
@@ -73,9 +77,9 @@ struct thunk_getter {
 template<typename T, typename ...Args>
 struct thunk_getter<true, T, Args...> {
   static void return_thunk(
-      void (*func)(typename get_ref_passed_type<Args>::type..., void*),
+      void (*func)(typename get_thunk_passed_type<Args>::type..., void*),
       Args... args) {
-    return func(pass_by_ref_if_needed(args)...);
+    return func(get_thunk_passed_type<Args>::wrap(args)...);
   }
 };
 
@@ -111,11 +115,14 @@ bool inline engine::get_function(containers::string_view _name,
 
   if (use_return_thunk) {
     _function->m_return_func =
-        reinterpret_cast<void (*)(typename get_ref_passed_type<Args>::type...,
-            T*)>(get_function_pointer(s));
+        reinterpret_cast<void (*)(typename get_thunk_passed_type<Args>::type...,
+            core::add_pointer_t<
+                typename get_thunk_passed_type<T>::ret_type>)>(
+            get_function_pointer(s));
   } else {
     _function->m_function =
-        reinterpret_cast<T (*)(typename get_ref_passed_type<Args>::type...)>(
+        reinterpret_cast<typename get_thunk_passed_type<T>::ret_type (*)(
+            typename get_thunk_passed_type<Args>::type...)>(
             get_function_pointer(s));
   }
 
@@ -154,6 +161,14 @@ void inline engine::register_cpp_type() {
 }
 
 template <typename T>
+void inline engine::export_script_type() {
+  m_type_manager.export_script_type<T>();
+  memory::unique_ptr<T> t = memory::make_unique<T>(m_allocator);
+  t->m_allocator = m_allocator;
+  m_object_types[c_type_tag<T>::get_unique_identifier()] = core::move(t);
+}
+
+template <typename T>
 void inline engine::register_child_cpp_type() {
   m_type_manager.register_child_cpp_type<T>(
       functional::function<void(containers::string_view, void*, bool)>(
@@ -165,23 +180,53 @@ void inline engine::register_child_cpp_type() {
           }));
 }
 
+template <typename T>
+void inline fixup_return_type(
+    T&, const containers::hash_map<void*,
+            memory::unique_ptr<script_object_type>>&) {}
+
+template <typename T>
+void inline fixup_return_type(script_pointer<T>& t,
+    const containers::hash_map<void*, memory::unique_ptr<script_object_type>>&
+        object_type) {
+  t.unsafe_set_type(reinterpret_cast<T*>(
+      object_type[c_type_tag<T>::get_unique_identifier()].get()));
+}
+
+template <typename T>
+void inline fixup_return_type(shared_script_pointer<T>& t,
+    const containers::hash_map<void*, memory::unique_ptr<script_object_type>>&
+        object_type) {
+  t.unsafe_set_type(reinterpret_cast<T*>(
+      object_type[c_type_tag<T>::get_unique_identifier()].get()));
+}
+
 template <typename R, typename... Args>
 R inline engine::invoke(
     const script_function<R, Args...>& _function, const Args&... _args) const {
   if (_function.m_return_thunk) {
-    return _function.m_return_thunk(
+    R rt = _function.m_return_thunk(
         _function.m_return_func, core::forward<const Args>(_args)...);
+    // TODO(awoloszyn): This should be replaced with a more intelligent thunk.
+    // This (along with most of the rest of this function) can be switched to
+    // be compile time.
+    fixup_return_type(rt, m_object_types);
+    return rt;
   } else if (_function.m_thunk) {
-    return _function.m_thunk(
+    R rt = _function.m_thunk(
         _function.m_function, core::forward<const Args>(_args)...);
+    fixup_return_type(rt, m_object_types);
+    return rt;
   } else {
     // We should never end up in here, and have the reinterpret_cast do
     // anything. It is literally just here, because we don't compile-time
     // specialize this.
     // TODO: compile-time specialize this.
-    using fntype = R (*)(Args...);
+    using fntype = typename get_thunk_passed_type<R>::ret_type (*)(Args...);
     auto fn = reinterpret_cast<fntype>(_function.m_function);
-    return fn(core::forward<const Args>(_args)...);
+    R rt = fn(core::forward<const Args>(_args)...);
+    fixup_return_type(rt, m_object_types);
+    return rt;
   }
 }
 
