@@ -590,9 +590,11 @@ private:
   using c_star = C*;
 
   template <typename T>
-  static valid checker(
-      helper<decltype((std::declval<c_star>()->*(std::declval<T>()))(
-          std::declval<Args>()...))>*);
+  using call_type = decltype((std::declval<c_star>()->*(std::declval<T>()))(
+                    std::declval<Args>()...));
+
+  template <typename T>
+  static valid checker(helper<call_type<T>>*);
 
   template <typename T>
   static invalid checker(...);
