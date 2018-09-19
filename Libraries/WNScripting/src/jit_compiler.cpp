@@ -19,6 +19,7 @@
 #pragma warning(disable : 4146)
 #pragma warning(disable : 4141)
 #pragma warning(disable : 4324)
+#pragma warning(disable : 4245)
 #endif
 
 #include <llvm/IR/BasicBlock.h>
@@ -1028,8 +1029,7 @@ llvm::Value* internal::jit_compiler_context::get_builtin(
 
       return m_function_builder->CreateAtomicRMW(
           llvm::AtomicRMWInst::BinOp::Add, v,
-          llvm::ConstantInt::get(m_size_t, 1), llvm::AtomicOrdering::Monotonic,
-          llvm::SynchronizationScope::CrossThread);
+          llvm::ConstantInt::get(m_size_t, 1), llvm::AtomicOrdering::Monotonic);
       break;
     }
     case builtin_expression_type::atomic_dec: {
@@ -1047,8 +1047,7 @@ llvm::Value* internal::jit_compiler_context::get_builtin(
 
       return m_function_builder->CreateAtomicRMW(
           llvm::AtomicRMWInst::BinOp::Sub, v,
-          llvm::ConstantInt::get(m_size_t, 1), llvm::AtomicOrdering::Release,
-          llvm::SynchronizationScope::CrossThread);
+          llvm::ConstantInt::get(m_size_t, 1), llvm::AtomicOrdering::Release);
     }
     case builtin_expression_type::pointer_to_shared: {
       llvm::Value* v = get_expression(_builtin->m_expressions[0].get());

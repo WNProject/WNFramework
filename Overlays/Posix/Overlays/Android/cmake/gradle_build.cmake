@@ -164,11 +164,11 @@ function(add_application name)
       ${GRADLE_COMMAND_PREFIX}gradlew${GRADLE_COMMAND_POSTFIX} -g ${WNFramework_BINARY_DIR}/apps/${name}/.gradle_home build
     COMMAND
       ${CMAKE_COMMAND} -E copy
-        ${WNFramework_BINARY_DIR}/apps/${name}/app/build/outputs/apk/app-debug.apk
+        ${WNFramework_BINARY_DIR}/apps/${name}/app/build/outputs/apk/debug/app-debug.apk
         ${WNFramework_BINARY_DIR}/apps/${name}-debug.apk
     COMMAND
       ${CMAKE_COMMAND} -E copy
-        ${WNFramework_BINARY_DIR}/apps/${name}/app/build/outputs/apk/app-release-unsigned.apk
+        ${WNFramework_BINARY_DIR}/apps/${name}/app/build/outputs/apk/release/app-release-unsigned.apk
         ${WNFramework_BINARY_DIR}/apps/${name}-unsigned.apk
     WORKING_DIRECTORY ${WNFramework_BINARY_DIR}/apps/${name}
     DEPENDS

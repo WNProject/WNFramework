@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion = @WN_ANDROID_NATIVE_API_LEVEL@
-    buildToolsVersion = '25.0.2'
+    buildToolsVersion = '27.0.3'
 
     defaultConfig {
         applicationId = '@WN_PACKAGE_NAME@.@APPLICATION_NAME@'

@@ -46,7 +46,7 @@ public:
   }
 
   void set_spin_count(uint32_t _spin_count) {
-    m_spin_count.store(_spin_count, std::memory_order_acquire);
+    m_spin_count.store(_spin_count, std::memory_order::memory_order_release);
   }
 
 private:

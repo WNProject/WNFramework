@@ -16,6 +16,7 @@ if (WN_ANDROID_WRAPPER)
                 -G ${CMAKE_GENERATOR} ${WNFramework_SOURCE_DIR}
                 -DWN_ANDROID_SDK=${WN_ANDROID_SDK}
                 -DANDROID_ABI=${BUILD_ABI}
+                -DANDROID_STL=c++_static
                 -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${WNFramework_BINARY_DIR}/${BUILD_ABI}/lib
                 -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${WNFramework_BINARY_DIR}/${BUILD_ABI}/bin
                 -DANDROID_NATIVE_API_LEVEL=${WN_ANDROID_NATIVE_API_LEVEL}

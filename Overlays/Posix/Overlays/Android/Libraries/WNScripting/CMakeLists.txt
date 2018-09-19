@@ -33,9 +33,11 @@ if (WN_OVERLAY_IS_ENABLED AND NOT WN_DISABLE_CXX)
     "-DANDROID_STL=${ANDROID_STL}")
 
   append_to_overlay_var(WN_LLVM_EXTRA_FLAGS
+    "-DLLVM_EXPORT_SYMBOLS_FOR_PLUGINS=OFF")
+  append_to_overlay_var(WN_LLVM_EXTRA_FLAGS
     "-DCMAKE_CXX_FLAGS=-D__ANDROID_NDK__")
   find_program(PYTHON python)
-  
+
   append_to_overlay_var(WN_LLVM_EXTRA_FLAGS
     "-DPYTHON_EXECUTABLE=${PYTHON}")
   set_overlay_var(WN_LLVM_TOOLCHAIN
@@ -58,6 +60,7 @@ elseif(WN_OVERLAY_IS_ENABLED)
     WORKING_DIRECTORY
       ${WNFramework_BINARY_DIR}/host/Externals/llvm/)
 endif()
+
 
 overlay_library_sources(
   LIBS WNScriptingFixes)

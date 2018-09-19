@@ -1,5 +1,5 @@
-#ifndef	_ANTLR3MEMORY_HPP
-#define	_ANTLR3MEMORY_HPP
+#ifndef _ANTLR3MEMORY_HPP
+#define _ANTLR3MEMORY_HPP
 
 // [The "BSD licence"]
 // Copyright (c) 2005-2009 Gokulakannan Somasundaram, ElectronDB
@@ -39,131 +39,126 @@
 
 #if defined(_MSC_VER) && _MSC_VER >= 1900
 #pragma warning(push)
-#pragma warning(disable: 4100)
+#pragma warning(disable : 4100)
 #endif
 
-
-#include   "antlr3defs.hpp"
+#include "antlr3defs.hpp"
 
 ANTLR_BEGIN_NAMESPACE()
 
-class DefaultAllocPolicy
-{
+class DefaultAllocPolicy {
 public:
-	//limitation of c++. unable to write a typedef 
-	template <class TYPE>
-	class AllocatorType : public std::allocator<TYPE>
-	{
-	public:
-		typedef TYPE value_type;
-		typedef value_type* pointer;
-		typedef const value_type* const_pointer;
-		typedef value_type& reference;
-		typedef const value_type& const_reference;
-		typedef size_t size_type;
-		typedef ptrdiff_t difference_type;
-		template<class U> struct rebind {
-			typedef AllocatorType<U> other;
-		};
+  // limitation of c++. unable to write a typedef
+  template <class TYPE>
+  class AllocatorType : public std::allocator<TYPE> {
+  public:
+    typedef TYPE value_type;
+    typedef value_type* pointer;
+    typedef const value_type* const_pointer;
+    typedef value_type& reference;
+    typedef const value_type& const_reference;
+    typedef size_t size_type;
+    typedef ptrdiff_t difference_type;
+    template <class U>
+    struct rebind {
+      typedef AllocatorType<U> other;
+    };
 
-		AllocatorType() throw() {}
-		AllocatorType( const AllocatorType& alloc ) throw() {}
-		template<typename U> AllocatorType(const AllocatorType<U>& alloc) throw(){}
-	};
+    AllocatorType() throw() {}
+    AllocatorType(const AllocatorType& alloc) throw() {}
+    template <typename U>
+    AllocatorType(const AllocatorType<U>& alloc) throw() {}
+  };
 
-	template<class TYPE>
-	class VectorType : public std::vector< TYPE, AllocatorType<TYPE> >
-	{
-	};
-	
-	template<class TYPE>
-	class ListType : public std::deque< TYPE, AllocatorType<TYPE> >
-	{
-	};	
+  template <class TYPE>
+  class VectorType : public std::vector<TYPE, AllocatorType<TYPE>> {};
 
-	template<class TYPE>
-	class StackType : public std::deque< TYPE, AllocatorType<TYPE> >
-	{
-	public:
-		void push( const TYPE& elem ) {  this->push_back(elem); 	}
-		void pop()  { this->pop_back(); }
-		TYPE& peek() { return this->back(); }
-		TYPE& top() { return this->back(); }
-		const TYPE& peek() const { return this->back(); }
-		const TYPE& top() const { return this->back(); }
-	};	
+  template <class TYPE>
+  class ListType : public std::deque<TYPE, AllocatorType<TYPE>> {};
 
+  template <class TYPE>
+  class StackType : public std::deque<TYPE, AllocatorType<TYPE>> {
+  public:
+    void push(const TYPE& elem) {
+      this->push_back(elem);
+    }
+    void pop() {
+      this->pop_back();
+    }
+    TYPE& peek() {
+      return this->back();
+    }
+    TYPE& top() {
+      return this->back();
+    }
+    const TYPE& peek() const {
+      return this->back();
+    }
+    const TYPE& top() const {
+      return this->back();
+    }
+  };
 
-	template<class TYPE>
-	class OrderedSetType : public std::set< TYPE, std::less<TYPE>, AllocatorType<TYPE> >
-	{
-	};
+  template <class TYPE>
+  class OrderedSetType
+    : public std::set<TYPE, std::less<TYPE>, AllocatorType<TYPE>> {};
 
-	template<class TYPE>
-	class UnOrderedSetType : public std::set< TYPE, std::less<TYPE>, AllocatorType<TYPE> >
-	{
-	};
+  template <class TYPE>
+  class UnOrderedSetType
+    : public std::set<TYPE, std::less<TYPE>, AllocatorType<TYPE>> {};
 
-	template<class KeyType, class ValueType>
-	class UnOrderedMapType : public std::map< KeyType, ValueType, std::less<KeyType>, 
-										AllocatorType<std::pair<KeyType, ValueType> > >
-	{
-	};
+  template <class KeyType, class ValueType>
+  class UnOrderedMapType
+    : public std::map<const KeyType, ValueType, std::less<KeyType>,
+          AllocatorType<std::pair<const KeyType, ValueType>>> {};
 
-	template<class KeyType, class ValueType>
-	class OrderedMapType : public std::map< KeyType, ValueType, std::less<KeyType>, 
-										AllocatorType<std::pair<KeyType, ValueType> > >
-	{
-	};
+  template <class KeyType, class ValueType>
+  class OrderedMapType
+    : public std::map<KeyType, ValueType, std::less<KeyType>,
+          AllocatorType<std::pair<const KeyType, ValueType>>> {};
 
-	ANTLR_INLINE static void* operator new (std::size_t bytes)
-	{ 
-		void* p = alloc(bytes);
-		return p;
-	}
-	ANTLR_INLINE static void* operator new (std::size_t , void* p) { return p; }
-	ANTLR_INLINE static void* operator new[]( std::size_t bytes)
-	{
-		void* p = alloc(bytes); 
-		return p;
-	}
-	ANTLR_INLINE static void operator delete(void* p)
-	{
-		DefaultAllocPolicy::free(p);
-	}
-	ANTLR_INLINE static void operator delete(void* , void* ) {} //placement delete
+  ANTLR_INLINE static void* operator new(std::size_t bytes) {
+    void* p = alloc(bytes);
+    return p;
+  }
+  ANTLR_INLINE static void* operator new(std::size_t, void* p) {
+    return p;
+  }
+  ANTLR_INLINE static void* operator new[](std::size_t bytes) {
+    void* p = alloc(bytes);
+    return p;
+  }
+  ANTLR_INLINE static void operator delete(void* p) {
+    DefaultAllocPolicy::free(p);
+  }
+  ANTLR_INLINE static void operator delete(void*, void*) {}  // placement delete
 
-	ANTLR_INLINE static void operator delete[](void* p)
-	{
-		DefaultAllocPolicy::free(p);
-	}
+  ANTLR_INLINE static void operator delete[](void* p) {
+    DefaultAllocPolicy::free(p);
+  }
 
-	ANTLR_INLINE static void* alloc( std::size_t bytes )
-	{
-		void* p = malloc(bytes); 
-		//disabling exception throwing  	
-//		if( p== NULL )
-//			throw std::bad_alloc();
-		return p;
-	}
+  ANTLR_INLINE static void* alloc(std::size_t bytes) {
+    void* p = malloc(bytes);
+    // disabling exception throwing
+    //		if( p== NULL )
+    //			throw std::bad_alloc();
+    return p;
+  }
 
-	ANTLR_INLINE static void* alloc0( std::size_t bytes )
-	{
-		void* p = calloc(1, bytes);
-		//if( p== NULL )
-		//	throw std::bad_alloc();
-		return p;
-	}
+  ANTLR_INLINE static void* alloc0(std::size_t bytes) {
+    void* p = calloc(1, bytes);
+    // if( p== NULL )
+    //	throw std::bad_alloc();
+    return p;
+  }
 
-	ANTLR_INLINE static void  free( void* p )
-	{
-		return ::free(p);
-	}
-	
-	ANTLR_INLINE static void* realloc(void *ptr, size_t size)
-	{
-		return ::realloc( ptr, size );
-	}
+  ANTLR_INLINE static void free(void* p) {
+    return ::free(p);
+  }
+
+  ANTLR_INLINE static void* realloc(void* ptr, size_t size) {
+    return ::realloc(ptr, size);
+  }
 };
 
 ANTLR_END_NAMESPACE()
@@ -172,5 +167,4 @@ ANTLR_END_NAMESPACE()
 #pragma warning(pop)
 #endif
 
-
-#endif	/* _ANTLR3MEMORY_H */
+#endif /* _ANTLR3MEMORY_H */
