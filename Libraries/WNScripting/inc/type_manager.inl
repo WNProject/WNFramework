@@ -87,7 +87,8 @@ struct exporter : public exporter_base {
 #if defined(_WN_WINDOWS) && defined(_WN_X86) && !defined(_WN_64_BIT)
         __thiscall
 #endif
-        return_member_thunk(T* t, typename get_thunk_passed_type<Args>::type... args, R* _ret) {
+        return_member_thunk(
+            T* t, typename get_thunk_passed_type<Args>::type... args, R* _ret) {
       *_ret = (t->*fn)(pass_by_ref_if_needed(args)...);
     }
   };
@@ -124,8 +125,8 @@ struct exporter : public exporter_base {
   struct pseudo_member_maker {
     static const bool is_ret_by_ref = pass_by_reference<R>::value;
     template <R (*fn)(T*, Args...)>
-    static R
-        member_thunk(T* t, typename get_thunk_passed_type<Args>::type... args) {
+    static R member_thunk(
+        T* t, typename get_thunk_passed_type<Args>::type... args) {
       return (*fn)(t, pass_by_ref_if_needed(args)...);
     }
 
@@ -206,7 +207,7 @@ struct exporter : public exporter_base {
   template <typename R, typename... Args>
   _added_function _add_function(containers::string_view _name, R(T*, Args...)) {
     auto types = m_type_manager->get_types<R, T*, Args...>();
-    containers::string_view v = add_contained_function(_name, types, false);
+    containers::string_view v = add_contained_function(_name, types, true);
     return _added_function(v, core::move(types));
   }
 
@@ -329,7 +330,8 @@ void type_manager::export_script_type() {
           get_reference_of(t, ast_type_classification::reference, nullptr);
   m_externally_visible_types
       [c_type_tag<shared_script_pointer<T>>::get_unique_identifier()] =
-          get_reference_of(t, ast_type_classification::shared_reference, nullptr);
+          get_reference_of(
+              t, ast_type_classification::shared_reference, nullptr);
 }
 
 }  // namespace scripting

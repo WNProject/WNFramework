@@ -110,15 +110,22 @@ struct script_type<void> {
   }
 };
 
-inline containers::string get_mangled_name(
-    memory::allocator* _allocator, const containers::string_view& view) {
+inline containers::string get_mangled_name(memory::allocator* _allocator,
+    const containers::string_view& view,
+    const containers::string_view& object_type = "") {
   containers::string str(_allocator);
 
   char count[11] = {0};
 
-  memory::writeuint32(count, static_cast<uint32_t>(view.size()), 10);
 
   str += "_ZN3wns";
+  if (!object_type.empty()) {
+    memory::writeuint32(count, static_cast<uint32_t>(object_type.size()), 10);
+    str += count;
+    str += object_type;
+  }
+  
+  memory::writeuint32(count, static_cast<uint32_t>(view.size()), 10);
   str += count;
   str += view;
   str += "E";

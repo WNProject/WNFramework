@@ -20,6 +20,7 @@ class script_file;
 struct ast_script_file;
 class type_manager;
 struct ast_type;
+class engine;
 
 struct external_function {
   containers::string_view name;
@@ -154,25 +155,16 @@ struct pass_by_reference<slice<U, S>> {
   static const bool value = true;
 };
 
-template <typename T, typename R, typename... Args>
-class scripting_object_function {
-public:
-  using ret_type = R;
-  R do_(void*, Args...) {
-    return R();
-  }
-
-private:
-};
-
 struct script_object_type {
-  memory::allocator* m_allocator;
-
   void free(void* val) {
     //TODO(awoloszyn): Use the allocator here.
     // For now we allocated with malloc, so free with malloc
     ::free(val);
   }
+
+  memory::allocator* m_allocator;
+  engine* m_engine;
+  containers::string_view m_name;
 };
 
 template <typename T>
@@ -181,29 +173,37 @@ public:
   using value_type = T;
   template <typename X, typename... Args>
   typename X::ret_type invoke(X T::*v, Args... args) {
-    return (type->*v).do_(val, args...);
+    return (type->*v).do_(type->m_engine, this, args...);
   }
 
+  ~script_pointer() {}
+
+  script_pointer(const script_pointer& _other)
+    : val(_other.val), type(_other.type) {
+  }
+
+  script_pointer(script_pointer&& _other)
+    : val(_other.val), type(_other.type) {
+  }
   script_pointer() : val(nullptr), type(nullptr) {}
+  
   void* unsafe_ptr() {
     return val;
   }
+  
   void unsafe_set_type(T* _type) {
     type = _type;
   }
 
   script_pointer(void* t) : val(t) {
-    // When this is created (by the engine), then it will
-    // also fix up T* type, but not in the constructor for a variety of reasons
   }
+  script_pointer(void* _v, T* _t) : val(_v), type(_t) {}
 
-  private:
+private:
+
   void* val;
   T* type;
   friend class engine;
-
-  template <typename U>
-  friend class shared_script_pointer;
 };
 
 template <typename T>
@@ -217,10 +217,11 @@ public:
   using value_type = T;
   template <typename X, typename... Args>
   typename X::ret_type invoke(X T::*v, Args... args) {
-    return (type->*v).do_(val, args...);
+    auto sp = get();
+    return (type->*v).do_(type->m_engine, sp, args...);
   }
   script_pointer<T> get() {
-    return script_pointer<T>{val, type};
+    return script_pointer<T>(val, type);
   }
 
   ~shared_script_pointer() {

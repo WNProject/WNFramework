@@ -118,6 +118,8 @@ public:
         m_allocator, {get_type<Args>()...});
   }
 
+  containers::string_view get_base_name(const ast_type* t) const;
+
   ast_type* get_reference_of(const ast_type* _type,
       ast_type_classification _reference_type, used_type_set* _used);
 

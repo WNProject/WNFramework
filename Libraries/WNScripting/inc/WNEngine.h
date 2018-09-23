@@ -55,7 +55,7 @@ struct get_thunk_passed_type<U,
   using type = typename U::value_type*;
   using ret_type = typename U::value_type*;
   static inline typename U::value_type* wrap(U& u) {
-    return &u.unsafe_ptr();
+    return reinterpret_cast<typename U::value_type*>(u.unsafe_ptr());
   }
 
   static inline U unwrap(typename U::value_type* u) {
@@ -90,6 +90,23 @@ private:
   retThunkType m_return_thunk = nullptr;
 };
 
+template <typename T, typename R, typename... Args>
+class scripting_object_function {
+public:
+  using ret_type = R;
+
+private:
+  ret_type do_(engine* _engine, script_pointer<T>& _ptr, Args... args);
+
+  friend class engine;
+  template <typename U>
+  friend class script_pointer;
+  template <typename U>
+  friend class shared_script_pointer;
+  typename wn::scripting::script_function<R, script_pointer<T>, Args...>
+      m_function;
+};
+
 // Implementors of this class are expected to take
 // in files, and give access to function pointer callable from
 // C++.
@@ -99,6 +116,7 @@ public:
     : m_num_warnings(0),
       m_num_errors(0),
       m_allocator(_allocator),
+      m_log(_log),
       m_type_manager(_allocator, _log),
       m_object_types(_allocator) {
     // These exists to stop the compiler from assuming these are unused.
@@ -137,8 +155,7 @@ public:
       script_function<R, Args...>* _function) const;
 
   template <typename R, typename... Args>
-  R invoke(
-      const script_function<R, Args...>& _function, const Args&... _args) const;
+  R invoke(const script_function<R, Args...>& _function, Args... _args) const;
 
   template <typename R, typename... Args>
   bool inline register_function(
@@ -153,12 +170,45 @@ public:
   template <typename T>
   void export_script_type();
 
+  template <typename T>
+  bool resolve_script_type();
+
   using void_func = script_function<void>;
 
+  struct script_importer_base {};
+
+  template <typename T>
+  struct script_type_importer : public script_importer_base {
+    explicit script_type_importer(engine* _engine) : m_engine(_engine) {}
+
+    template <typename R, typename... Args>
+    void register_function(const containers::string_view& _name,
+        scripting_object_function<T, R, Args...>* _ptr) {
+      bool success = m_engine->get_member_function(_name, &_ptr->m_function);
+      if (!success) {
+        m_engine->m_log->log_error(
+            "Could not find member ", _name, " on type ", T::exported_name());
+      }
+      m_success &= success;
+    }
+
+    engine* m_engine;
+    bool m_success = true;
+  };
+
 protected:
+  template <typename R, typename... Args>
+  bool get_member_function(containers::string_view _name,
+      script_function<R, Args...>* _function) const;
+
+  template <typename R, typename... Args>
+  bool get_function_internal(containers::string_view _name,
+      script_function<R, Args...>* _function, bool _is_member) const;
+
   size_t m_num_warnings;
   size_t m_num_errors;
   memory::allocator* m_allocator;
+  logging::log* m_log;
   virtual void_f get_function_pointer(containers::string_view _name) const = 0;
   virtual bool register_c_function(containers::string_view name,
       containers::contiguous_range<const ast_type*> _types,
@@ -170,6 +220,13 @@ protected:
   containers::hash_map<void*, memory::unique_ptr<script_object_type>>
       m_object_types;
 };
+
+template <typename T, typename R, typename... Args>
+typename scripting_object_function<T, R, Args...>::ret_type
+scripting_object_function<T, R, Args...>::do_(
+    engine* _engine, script_pointer<T>& _ptr, Args... args) {
+  return _engine->invoke(m_function, _ptr, args...);
+}
 
 }  // namespace scripting
 }  // namespace wn

@@ -76,46 +76,6 @@ struct external_slice_struct {
   }
 };
 
-/*
-template <typename T, typename R, typename... Args>
-class scripting_object_function {
-public:
-  using ret_type = R;
-  R do_(void*, Args...) {
-    return R();
-  }
-
-private:
-};
-
-struct a_type {
-  static void export_type(wn::scripting::script_type_importer<a_type>*
-_importer) { _importer->register_function(do_a);
-  }
-
-  scripting_object_function<a_type*, void, uint32_t> do_a;
-};
-
-template <typename T>
-class scripting_object_pointer {
-public:
-  template <typename X, typename... Args>
-  typename X::ret_type invoke(X T::*v, Args... args) {
-    return (type->*v).do_(val, args...);
-  }
-
-private:
-  void* val;
-  T* type;
-};
-
-using a_ptr = scripting_object_pointer<a_type>;
-void x() {
-  a_ptr a = <get_scripting_object_pointer_from_somewhere>;
-  a.invoke(&a_type::do_a, 4);
-}
-*/
-
 namespace wn {
 namespace scripting {
 template <>
@@ -180,15 +140,15 @@ struct exported_script_type<external_slice_struct> {
 }  // namespace wn
 
 struct a_type : wn::scripting::script_object_type {
-  // static void export_type(
-  //   wn::scripting::script_type_importer<a_type>* _importer) {
-  //  _importer->register_function(do_a);
-  //}
+  void export_type(
+      wn::scripting::engine::script_type_importer<a_type>* _importer) {
+    _importer->register_function("do_a", &do_a);
+  }
   static wn::containers::string_view exported_name() {
     return "ExportedA";
   }
 
-  wn::scripting::scripting_object_function<a_type*, void, uint32_t> do_a;
+  wn::scripting::scripting_object_function<a_type, int32_t, int32_t> do_a;
 };
 
 TEST(scripting_engine_factory, external) {
@@ -299,6 +259,8 @@ TEST(scripting_engine_factory, external) {
   ASSERT_TRUE(jit->get_function("test11", &extern_func_11));
   ASSERT_TRUE(jit->get_function("test12", &extern_func_12));
   ASSERT_TRUE(jit->get_function("test13", &extern_func_13));
+
+  ASSERT_TRUE(jit->resolve_script_type<a_type>());
 
   // test1
   {
@@ -415,5 +377,8 @@ TEST(scripting_engine_factory, external) {
   {
     shared_script_pointer<a_type> arr_t = jit->invoke(extern_func_13);
     EXPECT_NE(nullptr, arr_t.unsafe_ptr());
+    EXPECT_EQ(7, arr_t.invoke(&a_type::do_a, 4));
+    EXPECT_EQ(19, arr_t.invoke(&a_type::do_a, 12));
   }
+
 }

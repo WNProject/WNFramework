@@ -59,7 +59,8 @@ template <typename T, typename... Args>
 T thunk(typename get_thunk_passed_type<T>::ret_type (*func)(
             typename get_thunk_passed_type<Args>::type...),
     Args... args) {
-  return get_thunk_passed_type<T>::unwrap(func(pass_by_ref_if_needed(args)...));
+  return get_thunk_passed_type<T>::unwrap(
+      func(get_thunk_passed_type<Args>::wrap(args)...));
 }
 
 template <bool b, typename T, typename... Args>
@@ -74,7 +75,7 @@ struct thunk_getter {
   }
 };
 
-template<typename T, typename ...Args>
+template <typename T, typename... Args>
 struct thunk_getter<true, T, Args...> {
   static void return_thunk(
       void (*func)(typename get_thunk_passed_type<Args>::type..., void*),
@@ -88,13 +89,34 @@ struct thunk_getter<true, T, Args...> {
 template <typename T, typename... Args>
 bool inline engine::get_function(containers::string_view _name,
     script_function<T, Args...>* _function) const {
+  return get_function_internal<T, Args...>(_name, _function, false);
+}
+
+template <typename T, typename... Args>
+bool inline engine::get_member_function(containers::string_view _name,
+    script_function<T, Args...>* _function) const {
+  return get_function_internal<T, Args...>(_name, _function, true);
+}
+
+template <typename T, typename... Args>
+bool inline engine::get_function_internal(containers::string_view _name,
+    script_function<T, Args...>* _function, bool _is_member) const {
   containers::dynamic_array<containers::string_view> signature_types =
       m_type_manager.get_mangled_names<T, Args...>();
 
   containers::string s = get_mangled_name(m_allocator, _name);
+  if (_is_member) {
+    auto types = m_type_manager.get_types<Args...>();
+    WN_DEBUG_ASSERT(signature_types.size() > 1,
+        "Cannot get member function with no object type");
+    s = get_mangled_name(
+        m_allocator, _name, m_type_manager.get_base_name(types[0]));
+  }
+
   for (auto& param : signature_types) {
     s += param;
   }
+
   if (m_type_manager.is_pass_by_reference(m_type_manager.get_type<T>())) {
     s += m_type_manager.get_mangled_name<T>();
   }
@@ -116,8 +138,7 @@ bool inline engine::get_function(containers::string_view _name,
   if (use_return_thunk) {
     _function->m_return_func =
         reinterpret_cast<void (*)(typename get_thunk_passed_type<Args>::type...,
-            core::add_pointer_t<
-                typename get_thunk_passed_type<T>::ret_type>)>(
+            core::add_pointer_t<typename get_thunk_passed_type<T>::ret_type>)>(
             get_function_pointer(s));
   } else {
     _function->m_function =
@@ -165,7 +186,21 @@ void inline engine::export_script_type() {
   m_type_manager.export_script_type<T>();
   memory::unique_ptr<T> t = memory::make_unique<T>(m_allocator);
   t->m_allocator = m_allocator;
+  t->m_name = T::exported_name();
+  t->m_engine = this;
   m_object_types[c_type_tag<T>::get_unique_identifier()] = core::move(t);
+}
+
+template <typename T>
+bool inline engine::resolve_script_type() {
+  auto t = m_object_types.find(c_type_tag<T>::get_unique_identifier());
+  WN_DEBUG_ASSERT(
+      t != m_object_types.end(), "Cannot resolve type that as not exported");
+  T* ot = static_cast<T*>(t->second.get());
+
+  script_type_importer<T> eti(this);
+  ot->export_type(&eti);
+  return eti.m_success;
 }
 
 template <typename T>
@@ -203,7 +238,7 @@ void inline fixup_return_type(shared_script_pointer<T>& t,
 
 template <typename R, typename... Args>
 R inline engine::invoke(
-    const script_function<R, Args...>& _function, const Args&... _args) const {
+    const script_function<R, Args...>& _function, Args... _args) const {
   if (_function.m_return_thunk) {
     R rt = _function.m_return_thunk(
         _function.m_return_func, core::forward<const Args>(_args)...);
@@ -222,9 +257,11 @@ R inline engine::invoke(
     // anything. It is literally just here, because we don't compile-time
     // specialize this.
     // TODO: compile-time specialize this.
-    using fntype = typename get_thunk_passed_type<R>::ret_type (*)(Args...);
+    using fntype = typename get_thunk_passed_type<R>::ret_type (*)(
+        typename get_thunk_passed_type<Args>::type...);
+
     auto fn = reinterpret_cast<fntype>(_function.m_function);
-    R rt = fn(core::forward<const Args>(_args)...);
+    R rt = fn(get_thunk_passed_type<Args>::wrap(_args)...);
     fixup_return_type(rt, m_object_types);
     return rt;
   }

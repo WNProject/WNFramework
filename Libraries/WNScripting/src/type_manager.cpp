@@ -232,6 +232,14 @@ containers::string_view type_manager::internal_get_mangled_name(
   return _type->m_mangled_name;
 }
 
+containers::string_view type_manager::get_base_name(
+    const ast_type* _type) const {
+  while (_type->m_implicitly_contained_type) {
+    _type = _type->m_implicitly_contained_type;
+  }
+  return _type->m_name;
+}
+
 void type_manager::finalize_external_type(ast_type* _type) const {
   _type->setup_external_type(m_allocator);
 }

@@ -80,8 +80,13 @@ Int|| test12(Int[] x, Int y) {
     return x{y: length(x)};
 }
 
-struct ExportedA {
+class ExportedA {
   Int x = 3;
+
+  Int do_a(Int f) {
+      x = x + f;
+      return x;
+  }
 }
 
 shared ExportedA test13() {
