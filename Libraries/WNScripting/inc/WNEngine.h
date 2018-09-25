@@ -197,6 +197,12 @@ public:
   };
 
 protected:
+  template <typename T>
+  bool inline resolve_script_type_internal(T* t);
+
+  template <typename T>
+  bool inline fill_parent_type(script_object_type* t);
+
   template <typename R, typename... Args>
   bool get_member_function(containers::string_view _name,
       script_function<R, Args...>* _function) const;

@@ -181,13 +181,23 @@ void inline engine::register_cpp_type() {
           }));
 }
 
+template <>
+void inline engine::export_script_type<void>() {}
+
 template <typename T>
 void inline engine::export_script_type() {
+  export_script_type<typename T::parent_type>();
+  if (m_object_types.find(c_type_tag<T>::get_unique_identifier()) !=
+      m_object_types.end()) {
+    return;
+  }
+
   m_type_manager.export_script_type<T>();
   memory::unique_ptr<T> t = memory::make_unique<T>(m_allocator);
   t->m_allocator = m_allocator;
   t->m_name = T::exported_name();
   t->m_engine = this;
+  fill_parent_type<typename T::parent_type>(t.get());
   m_object_types[c_type_tag<T>::get_unique_identifier()] = core::move(t);
 }
 
@@ -197,10 +207,36 @@ bool inline engine::resolve_script_type() {
   WN_DEBUG_ASSERT(
       t != m_object_types.end(), "Cannot resolve type that as not exported");
   T* ot = static_cast<T*>(t->second.get());
+  return resolve_script_type_internal(ot);
+}
 
+template <typename T>
+bool inline engine::resolve_script_type_internal(T* t) {
+  typename T::parent_type* parent = static_cast<typename T::parent_type*>(t);
+  bool parent_success = resolve_script_type_internal(parent);
   script_type_importer<T> eti(this);
-  ot->export_type(&eti);
-  return eti.m_success;
+  (t->T::export_type)(&eti);
+  return eti.m_success && parent_success;
+}
+
+template <>
+bool inline engine::fill_parent_type<void>(script_object_type* _t) {
+  _t->m_parent = nullptr;
+  return true;
+}
+
+template <typename T>
+bool inline engine::fill_parent_type(script_object_type* _t) {
+  auto t = m_object_types.find(c_type_tag<T>::get_unique_identifier());
+  WN_DEBUG_ASSERT(
+      t != m_object_types.end(), "Cannot resolve type that as not exported");
+  _t->m_parent = t->second.get();
+  return true;
+}
+
+template <>
+bool inline engine::resolve_script_type_internal<void>(void*) {
+  return true;
 }
 
 template <typename T>

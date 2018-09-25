@@ -140,6 +140,8 @@ struct exported_script_type<external_slice_struct> {
 }  // namespace wn
 
 struct a_type : wn::scripting::script_object_type {
+  using parent_type = void;
+
   void export_type(
       wn::scripting::engine::script_type_importer<a_type>* _importer) {
     _importer->register_function("do_a", &do_a);
@@ -149,6 +151,19 @@ struct a_type : wn::scripting::script_object_type {
   }
 
   wn::scripting::scripting_object_function<a_type, int32_t, int32_t> do_a;
+};
+
+struct b_type : a_type {
+  using parent_type = a_type;
+  void export_type(
+      wn::scripting::engine::script_type_importer<b_type>* _importer) {
+    _importer->register_function("do_b", &do_b);
+  }
+  static wn::containers::string_view exported_name() {
+    return "ExportedB";
+  }
+
+  wn::scripting::scripting_object_function<b_type, int32_t, int32_t> do_b;
 };
 
 TEST(scripting_engine_factory, external) {
@@ -181,6 +196,7 @@ TEST(scripting_engine_factory, external) {
   jit->register_cpp_type<external_slice_struct>();
   jit->register_child_cpp_type<external_struct2>();
   jit->export_script_type<a_type>();
+  jit->export_script_type<b_type>();
 
   translator->register_cpp_type<external_inner_struct>();
   translator->register_cpp_type<external_struct>();
@@ -245,6 +261,7 @@ TEST(scripting_engine_factory, external) {
   wn::scripting::script_function<slice<int32_t>, wn_array_ptr<int32_t>, int32_t>
       extern_func_12;
   wn::scripting::script_function<shared_script_pointer<a_type>> extern_func_13;
+  wn::scripting::script_function<shared_script_pointer<b_type>> extern_func_14;
 
   ASSERT_TRUE(jit->get_function("test1", &extern_struct_func));
   ASSERT_TRUE(jit->get_function("test2", &extern_struct_func2));
@@ -259,8 +276,10 @@ TEST(scripting_engine_factory, external) {
   ASSERT_TRUE(jit->get_function("test11", &extern_func_11));
   ASSERT_TRUE(jit->get_function("test12", &extern_func_12));
   ASSERT_TRUE(jit->get_function("test13", &extern_func_13));
+  ASSERT_TRUE(jit->get_function("test14", &extern_func_14));
 
   ASSERT_TRUE(jit->resolve_script_type<a_type>());
+  ASSERT_TRUE(jit->resolve_script_type<b_type>());
 
   // test1
   {
@@ -381,4 +400,11 @@ TEST(scripting_engine_factory, external) {
     EXPECT_EQ(19, arr_t.invoke(&a_type::do_a, 12));
   }
 
+  // test13
+  {
+    shared_script_pointer<b_type> arr_t = jit->invoke(extern_func_14);
+    EXPECT_NE(nullptr, arr_t.unsafe_ptr());
+    EXPECT_EQ(7, arr_t.get().parent().invoke(&a_type::do_a, 4));
+    EXPECT_EQ(15, arr_t.invoke(&b_type::do_b, 4));
+  }
 }

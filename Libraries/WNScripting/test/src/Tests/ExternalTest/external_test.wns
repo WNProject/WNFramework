@@ -89,7 +89,19 @@ class ExportedA {
   }
 }
 
+class ExportedB : ExportedA {
+  Int do_b(Int f) {
+      x = x + f + f;
+      return x;
+  }
+}
+
 shared ExportedA test13() {
     shared ExportedA ea = shared ExportedA();
+    return ea;
+}
+
+shared ExportedB test14() {
+    shared ExportedB ea = shared ExportedB();
     return ea;
 }

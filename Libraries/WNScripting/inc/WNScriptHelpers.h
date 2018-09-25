@@ -157,7 +157,7 @@ struct pass_by_reference<slice<U, S>> {
 
 struct script_object_type {
   void free(void* val) {
-    //TODO(awoloszyn): Use the allocator here.
+    // TODO(awoloszyn): Use the allocator here.
     // For now we allocated with malloc, so free with malloc
     ::free(val);
   }
@@ -165,6 +165,7 @@ struct script_object_type {
   memory::allocator* m_allocator;
   engine* m_engine;
   containers::string_view m_name;
+  script_object_type* m_parent;
 };
 
 template <typename T>
@@ -173,34 +174,38 @@ public:
   using value_type = T;
   template <typename X, typename... Args>
   typename X::ret_type invoke(X T::*v, Args... args) {
-    return (type->*v).do_(type->m_engine, this, args...);
+    return (type->*v).do_(type->m_engine, *this, args...);
   }
 
   ~script_pointer() {}
 
   script_pointer(const script_pointer& _other)
-    : val(_other.val), type(_other.type) {
-  }
+    : val(_other.val), type(_other.type) {}
 
   script_pointer(script_pointer&& _other)
-    : val(_other.val), type(_other.type) {
-  }
+    : val(_other.val), type(_other.type) {}
   script_pointer() : val(nullptr), type(nullptr) {}
-  
+
   void* unsafe_ptr() {
     return val;
   }
-  
+
   void unsafe_set_type(T* _type) {
     type = _type;
   }
 
-  script_pointer(void* t) : val(t) {
-  }
+  script_pointer(void* t) : val(t) {}
   script_pointer(void* _v, T* _t) : val(_v), type(_t) {}
 
-private:
+  template <typename Q = T>
+  typename core::enable_if<!core::is_same<typename Q::parent_type, void>::value,
+      script_pointer<typename Q::parent_type>>::type
+  parent() {
+    return script_pointer<typename T::parent_type>(
+        val, reinterpret_cast<typename T::parent_type*>(type->m_parent));
+  }
 
+private:
   void* val;
   T* type;
   friend class engine;
@@ -238,6 +243,7 @@ public:
     _other.val = nullptr;
     _other.type = nullptr;
   }
+
   shared_script_pointer() : val(nullptr), type(nullptr) {}
   void* unsafe_ptr() {
     return val;
@@ -250,7 +256,19 @@ public:
     acquire();
   }
 
+  template <typename Q = T>
+  typename core::enable_if<!core::is_same<typename Q::parent_type, void>::value,
+      shared_script_pointer<typename Q::parent_type>>::type
+  parent() {
+    return shared_script_pointer<typename T::parent_type>(
+        val, reinterpret_cast<typename T::parent_type*>(type->m_parent));
+  }
+
 private:
+  shared_script_pointer(void* v, T* t) : val(v), type(t) {
+    acquire();
+  }
+
   struct shared_object_header {
     std::atomic<size_t> m_ref_count;
     void (*m_destructor)(void*);
