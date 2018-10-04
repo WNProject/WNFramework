@@ -341,14 +341,14 @@ bool parse_ast_convertor::convertor_context::resolve_declaration(
 
             auto num_bytes = memory::make_unique<ast_builtin_expression>(
                 m_allocator, _declaration);
-            num_bytes->m_type = m_type_manager->size_t(&m_used_types);
+            num_bytes->m_type = m_type_manager->size_t_t(&m_used_types);
             num_bytes->initialized_extra_types(m_allocator)
                 .push_back(type->m_implicitly_contained_type);
             num_bytes->m_builtin_type = builtin_expression_type::size_of;
 
             auto count = make_cast(
                 clone_ast_node(m_allocator, alloc->m_runtime_size.get()),
-                m_type_manager->size_t(&m_used_types));
+                m_type_manager->size_t_t(&m_used_types));
             fn->initialized_parameters(m_allocator)
                 .push_back(core::move(num_bytes));
             fn->initialized_parameters(m_allocator)

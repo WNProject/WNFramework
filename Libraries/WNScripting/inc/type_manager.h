@@ -112,6 +112,10 @@ public:
         m_allocator, {get_type<Args>()...});
   }
 
+  size_t get_virtual_function(
+       const containers::string_view& _name,
+      const containers::dynamic_array<const ast_type*>& _types) const;
+
   template <typename... Args>
   containers::dynamic_array<const ast_type*> get_types() const {
     return containers::dynamic_array<const ast_type*>(
@@ -180,7 +184,7 @@ public:
     }
     return m_bool_t.get();
   }
-  const ast_type* size_t(used_type_set* _used) {
+  const ast_type* size_t_t(used_type_set* _used) {
     if (_used) {
       _used->insert(m_size_t.get());
     }

@@ -74,6 +74,8 @@ public:
 
 private:
   friend class engine;
+  template <typename U, typename UU, typename... UArgs>
+  friend class scripting_virtual_object_function;
 
   using fnType = typename get_thunk_passed_type<R>::ret_type (*)(
       typename get_thunk_passed_type<Args>::type...);
@@ -105,6 +107,25 @@ private:
   friend class shared_script_pointer;
   typename wn::scripting::script_function<R, script_pointer<T>, Args...>
       m_function;
+};
+
+template <typename T, typename R, typename... Args>
+class scripting_virtual_object_function {
+public:
+  using ret_type = R;
+
+private:
+  ret_type do_(engine* _engine, script_pointer<T>& _ptr, Args... args);
+
+  friend class engine;
+  template <typename U>
+  friend class script_pointer;
+  template <typename U>
+  friend class shared_script_pointer;
+  typename wn::scripting::script_function<R, script_pointer<T>, Args...>
+      m_function;
+  size_t m_vtable_offset = 0;
+  size_t m_vtable_idx = 0;
 };
 
 // Implementors of this class are expected to take
@@ -162,6 +183,9 @@ public:
       containers::string_view _name, R (*_function)(Args...));
 
   template <typename T>
+  size_t get_vtable_offset();
+
+  template <typename T>
   void register_cpp_type();
 
   template <typename T>
@@ -192,6 +216,29 @@ public:
       m_success &= success;
     }
 
+    template <typename R, typename... Args>
+    void register_function(const containers::string_view& _name,
+        scripting_virtual_object_function<T, R, Args...>* _ptr) {
+      size_t virtual_index =
+          m_engine->get_virtual_function(_name, &_ptr->m_function);
+      _ptr->m_vtable_idx = virtual_index;
+      _ptr->m_vtable_offset = m_engine->get_vtable_offset<T>();
+      bool success = true;
+      if (_ptr->m_vtable_offset == static_cast<size_t>(-1)) {
+        success = false; 
+        m_engine->m_log->log_error(
+            T::exported_name(), " does not have any virtual functions");
+      }
+
+      if (virtual_index == static_cast<size_t>(-1)) {
+        success = false; 
+        m_engine->m_log->log_error("Could not find virtual function ", _name,
+            " on type ", T::exported_name());
+      }
+
+      m_success &= success;
+    }
+
     engine* m_engine;
     bool m_success = true;
   };
@@ -211,6 +258,10 @@ protected:
   bool get_function_internal(containers::string_view _name,
       script_function<R, Args...>* _function, bool _is_member) const;
 
+  template <typename R, typename... Args>
+  size_t get_virtual_function(containers::string_view _name,
+      script_function<R, Args...>* _function) const;
+
   size_t m_num_warnings;
   size_t m_num_errors;
   memory::allocator* m_allocator;
@@ -221,6 +272,7 @@ protected:
       void_f function) = 0;
   virtual bool register_mangled_c_function(
       containers::string_view _name, void_f _function, bool _is_virtual) = 0;
+  virtual size_t get_vtable_offset(const ast_type* _type) = 0;
 
   type_manager m_type_manager;
   containers::hash_map<void*, memory::unique_ptr<script_object_type>>
@@ -232,6 +284,23 @@ typename scripting_object_function<T, R, Args...>::ret_type
 scripting_object_function<T, R, Args...>::do_(
     engine* _engine, script_pointer<T>& _ptr, Args... args) {
   return _engine->invoke(m_function, _ptr, args...);
+}
+
+template <typename T, typename R, typename... Args>
+typename scripting_virtual_object_function<T, R, Args...>::ret_type
+scripting_virtual_object_function<T, R, Args...>::do_(
+    engine* _engine, script_pointer<T>& _ptr, Args... args) {
+  // This is gross, but for now it will work, when all of the templating
+  // is done this can be cleaned up.
+  auto temp_function = m_function;
+  uint8_t* ptr = static_cast<uint8_t*>(_ptr.unsafe_ptr());
+  ptr += m_vtable_offset;
+  void* val = (*reinterpret_cast<void***>(ptr))[m_vtable_idx];
+  temp_function.m_function =
+      reinterpret_cast<decltype(temp_function.m_function)>(val);
+  temp_function.m_return_func =
+      reinterpret_cast<decltype(temp_function.m_return_func)>(val);
+  return _engine->invoke(temp_function, _ptr, args...);
 }
 
 }  // namespace scripting

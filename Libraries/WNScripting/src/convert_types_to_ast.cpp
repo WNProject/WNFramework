@@ -63,7 +63,7 @@ const ast_type* parse_ast_convertor::convertor_context::resolve_builtin_type(
     case static_cast<uint32_t>(type_classification::bool_type):
       return m_type_manager->bool_t(&m_used_types);
     case static_cast<uint32_t>(type_classification::size_type):
-      return m_type_manager->size_t(&m_used_types);
+      return m_type_manager->size_t_t(&m_used_types);
     case static_cast<uint32_t>(type_classification::void_ptr_type):
       return m_type_manager->void_ptr_t(&m_used_types);
     case static_cast<uint32_t>(type_classification::function_ptr_type):

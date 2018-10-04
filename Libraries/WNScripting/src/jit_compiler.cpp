@@ -64,7 +64,8 @@ llvm::ArrayRef<T> array_ref(containers::dynamic_array<T>& t) {
 
 namespace internal {
 struct jit_compiler_context {
-  jit_compiler_context(memory::allocator* _allocator, llvm::Module* _module)
+  jit_compiler_context(memory::allocator* _allocator, llvm::Module* _module,
+      containers::hash_map<const ast_type*, struct_info>* _struct_infos)
     : m_allocator(_allocator),
       m_module(_module),
       m_data_layout(_module),
@@ -76,7 +77,8 @@ struct jit_compiler_context {
       m_function_parameters(_allocator),
       m_vtables(_allocator),
       m_external_types(_allocator),
-      m_loops(_allocator) {
+      m_loops(_allocator),
+      m_struct_infos(_struct_infos) {
     m_int32_t = llvm::IntegerType::getInt32Ty(m_context);
     m_float_t = llvm::Type::getFloatTy(m_context);
     m_bool_t = llvm::IntegerType::getInt1Ty(m_context);
@@ -171,6 +173,7 @@ struct jit_compiler_context {
   };
 
   containers::hash_map<const ast_loop*, loop_data> m_loops;
+  containers::hash_map<const ast_type*, struct_info>* m_struct_infos;
 
   llvm::Function* m_current_function;
   llvm::IntegerType* m_int32_t;
@@ -185,9 +188,10 @@ struct jit_compiler_context {
 };
 }  // namespace internal
 
-jit_compiler::jit_compiler(memory::allocator* _allocator, llvm::Module* _module)
+jit_compiler::jit_compiler(memory::allocator* _allocator, llvm::Module* _module,
+    containers::hash_map<const ast_type*, struct_info>* _types)
   : m_compiler_context(memory::make_unique<internal::jit_compiler_context>(
-        _allocator, _allocator, _module)) {}
+        _allocator, _allocator, _module, _types)) {}
 
 jit_compiler::~jit_compiler() {}
 
@@ -498,6 +502,17 @@ bool internal::jit_compiler_context::decode_type(const ast_type* _type) {
           llvm::StructType::create(llvm::ArrayRef<llvm::Type*>(
               types.data(), types.data() + types.size()));
       s->setName(_type->m_name.c_str());
+      size_t vtable_index = static_cast<size_t>(-1);
+      if (_type->m_vtable) {
+        vtable_index = static_cast<size_t>(
+            m_data_layout.getStructLayout(s)->getElementOffset(
+                _type->m_vtable_index));
+      }
+      auto it = m_struct_infos->find(_type);
+      if (it == m_struct_infos->end()) {
+        (*m_struct_infos)[_type] = struct_info{vtable_index};
+      }
+
       m_types[_type] = s;
     }
       return true;

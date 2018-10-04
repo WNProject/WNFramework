@@ -28,7 +28,7 @@ c_translator::c_translator(memory::allocator* _allocator,
       external_function{
           "_allocate", containers::dynamic_array<const ast_type*>(
                            m_allocator, {m_type_manager.void_ptr_t(nullptr),
-                                            m_type_manager.size_t(nullptr)})},
+                                            m_type_manager.size_t_t(nullptr)})},
       true, false);
 
   m_type_manager.add_external(
@@ -42,8 +42,8 @@ c_translator::c_translator(memory::allocator* _allocator,
       external_function{"_allocate_runtime_array",
           containers::dynamic_array<const ast_type*>(
               m_allocator, {m_type_manager.void_ptr_t(nullptr),
-                               m_type_manager.size_t(nullptr),
-                               m_type_manager.size_t(nullptr)})},
+                               m_type_manager.size_t_t(nullptr),
+                               m_type_manager.size_t_t(nullptr)})},
       true, false);
   m_type_manager.finalize_builtins();
 }

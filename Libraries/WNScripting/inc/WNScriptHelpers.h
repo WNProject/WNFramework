@@ -22,6 +22,10 @@ class type_manager;
 struct ast_type;
 class engine;
 
+struct struct_info {
+  size_t vtable_offset;
+};
+
 struct external_function {
   containers::string_view name;
   containers::dynamic_array<const ast_type*> params;

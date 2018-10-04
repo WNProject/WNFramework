@@ -94,6 +94,16 @@ class ExportedB : ExportedA {
       x = x + f + f;
       return x;
   }
+
+  virtual Int do_c(Int f) {
+      return f * 2;
+  }
+}
+
+class UnexportedC : ExportedB {
+  override Int do_c(Int f) {
+      return f * 3;
+  }
 }
 
 shared ExportedA test13() {
@@ -104,4 +114,10 @@ shared ExportedA test13() {
 shared ExportedB test14() {
     shared ExportedB ea = shared ExportedB();
     return ea;
+}
+
+shared ExportedB test15() {
+    shared UnexportedC ea = shared UnexportedC();
+    shared ExportedB eb = ea;
+    return eb;
 }

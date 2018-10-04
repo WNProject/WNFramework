@@ -158,6 +158,45 @@ bool inline engine::get_function_internal(containers::string_view _name,
          _function->m_return_func != nullptr;
 }
 
+template<typename T>
+size_t inline engine::get_vtable_offset() {
+  const ast_type* t = m_type_manager.get_type<T>();
+  return get_vtable_offset(t);
+}
+
+template <typename T, typename... Args>
+size_t inline engine::get_virtual_function(
+    containers::string_view _name,
+    script_function<T, Args...>* _function) const {
+  containers::dynamic_array<containers::string_view> signature_types =
+      m_type_manager.get_mangled_names<T, Args...>();
+
+  auto types = m_type_manager.get_types<T, Args...>();
+  
+  size_t virtual_offset = m_type_manager.get_virtual_function(_name, types);
+  // TODO: move this to a compile-time check.
+  bool use_thunk = false;
+  bool use_return_thunk = false;
+  bool is_return = true;
+  for (auto& t : types) {
+    if (m_type_manager.is_pass_by_reference(t)) {
+      use_thunk = true;
+      if (is_return) {
+        use_return_thunk = true;
+      }
+    }
+    is_return = false;
+  }
+  if (use_return_thunk && _function->m_return_func) {
+    _function->m_return_thunk =
+        &thunk_getter<core::is_same<T, void>::value, T, Args...>::return_thunk;
+  } else if (use_thunk && _function->m_function) {
+    _function->m_thunk = &thunk<T, Args...>;
+  }
+
+  return virtual_offset;
+}
+
 template <typename R, typename... Args>
 bool inline engine::register_function(
     containers::string_view _name, R (*_function)(Args...)) {

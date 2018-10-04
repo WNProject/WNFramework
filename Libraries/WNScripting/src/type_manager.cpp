@@ -753,5 +753,33 @@ ast_vtable* type_manager::make_vtable(const containers::string_view& _name) {
   return m_vtables.back().get();
 }
 
+size_t type_manager::get_virtual_function(const containers::string_view& _name,
+    const containers::dynamic_array<const ast_type*>& _types) const {
+  const ast_type* ret_type = _types[0];
+  const ast_type* object_type = _types[1]->m_implicitly_contained_type;
+  size_t offs = 0;
+
+  for (auto& it : object_type->m_vtable->m_functions) {
+    if (it->m_name == _name && it->m_return_type == ret_type &&
+          it->m_parameters.size() == _types.size() - 1) {
+      bool found = true;
+      for (size_t i = 2; i < _types.size(); ++i) {
+        if (_types[i] != it->m_parameters[i-1].m_type) {
+          found = false;
+          break;
+        }
+      }
+      if (found) {
+        break;
+      }
+    }
+    ++offs;
+  }
+  if (offs >= object_type->m_vtable->m_functions.size()) {
+    return static_cast<size_t>(-1);
+  }
+  return offs;
+}
+
 }  // namespace scripting
 }  // namespace wn

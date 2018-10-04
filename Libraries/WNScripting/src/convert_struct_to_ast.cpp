@@ -102,6 +102,7 @@ ast_type* parse_ast_convertor::convertor_context::walk_struct_definition(
         decl->m_name = containers::string(m_allocator, "__vtable");
         decl->m_type = m_type_manager->vtable_t(&m_used_types);
         struct_type->m_vtable_index = static_cast<uint32_t>(decls.size());
+        vtable_idx = struct_type->m_vtable_index; 
         decls.push_back(core::move(decl));
         ast_vtable* vtable = m_type_manager->make_vtable(name);
         vt = vtable;
@@ -696,14 +697,14 @@ bool parse_ast_convertor::convertor_context::create_constructor(
 
             auto num_bytes = memory::make_unique<ast_builtin_expression>(
                 m_allocator, st_def);
-            num_bytes->m_type = m_type_manager->size_t(&m_used_types);
+            num_bytes->m_type = m_type_manager->size_t_t(&m_used_types);
             num_bytes->initialized_extra_types(m_allocator)
                 .push_back(t->m_implicitly_contained_type);
             num_bytes->m_builtin_type = builtin_expression_type::size_of;
 
             auto array_count = make_cast(
                 clone_ast_node(m_allocator, array_init->m_runtime_size.get()),
-                m_type_manager->size_t(&m_used_types));
+                m_type_manager->size_t_t(&m_used_types));
             allocate_runtime->initialized_parameters(m_allocator)
                 .push_back(core::move(num_bytes));
             allocate_runtime->initialized_parameters(m_allocator)
@@ -1304,7 +1305,7 @@ bool parse_ast_convertor::convertor_context::create_struct_assign(
 
       auto num_bytes =
           memory::make_unique<ast_builtin_expression>(m_allocator, _def);
-      num_bytes->m_type = m_type_manager->size_t(&m_used_types);
+      num_bytes->m_type = m_type_manager->size_t_t(&m_used_types);
       num_bytes->initialized_extra_types(m_allocator)
           .push_back(t->m_implicitly_contained_type);
       num_bytes->m_builtin_type = builtin_expression_type::size_of;
@@ -1320,7 +1321,7 @@ bool parse_ast_convertor::convertor_context::create_struct_assign(
           .push_back(core::move(num_bytes));
       allocate_runtime->initialized_parameters(m_allocator)
           .push_back(make_cast(
-              core::move(array_count), m_type_manager->size_t(&m_used_types)));
+              core::move(array_count), m_type_manager->size_t_t(&m_used_types)));
       allocate_runtime->m_type = m_type_manager->void_ptr_t(&m_used_types);
 
       auto assign = memory::make_unique<ast_assignment>(m_allocator, _def);

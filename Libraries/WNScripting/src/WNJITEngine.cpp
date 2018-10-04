@@ -209,6 +209,7 @@ jit_engine::jit_engine(memory::allocator* _allocator,
     m_pointers(_allocator),
     m_c_pointers(_allocator),
     m_external_types(_allocator),
+    m_struct_infos(_allocator),
     m_started_files(_allocator),
     m_finished_files(_allocator) {
   llvm::InitializeNativeTarget();
@@ -290,7 +291,7 @@ parse_error jit_engine::parse_file(const containers::string_view _file) {
 
   CompiledModule& module = add_module(_file);
 
-  jit_compiler compiler(m_allocator, module.m_module);
+  jit_compiler compiler(m_allocator, module.m_module, &m_struct_infos);
   compiler.compile(parsed_file.get());
 
   // TODO: figure out what optimizations to run eventually
@@ -339,6 +340,14 @@ bool jit_engine::register_mangled_c_function(
   auto name = _name.to_string(m_allocator);
   m_c_pointers[core::move(name)] = _function;
   return true;
+}
+
+size_t jit_engine::get_vtable_offset(const ast_type* _type) {
+  auto it = m_struct_infos.find(_type);
+  if (it != m_struct_infos.end()) {
+    return it->second.vtable_offset;
+  }
+  return static_cast<size_t>(-1);
 }
 
 }  // namespace scripting

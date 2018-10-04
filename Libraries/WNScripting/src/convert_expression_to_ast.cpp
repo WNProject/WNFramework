@@ -959,7 +959,7 @@ memory::unique_ptr<ast_expression> parse_ast_convertor::convertor_context::
 
   auto num_bytes =
       memory::make_unique<ast_builtin_expression>(m_allocator, _alloc);
-  num_bytes->m_type = m_type_manager->size_t(&m_used_types);
+  num_bytes->m_type = m_type_manager->size_t_t(&m_used_types);
   num_bytes->initialized_extra_types(m_allocator).push_back(alloc_type);
   num_bytes->m_builtin_type = builtin_expression_type::size_of;
 

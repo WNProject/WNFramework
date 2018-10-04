@@ -55,10 +55,13 @@ protected:
   }
 
   bool register_c_function(containers::string_view name,
-      containers::contiguous_range<const ast_type*> _types, void_f function) override;
+      containers::contiguous_range<const ast_type*> _types,
+      void_f function) override;
 
-  bool register_mangled_c_function(
-      containers::string_view _name, void_f _function, bool _is_virtual) override;
+  bool register_mangled_c_function(containers::string_view _name,
+      void_f _function, bool _is_virtual) override;
+
+  size_t get_vtable_offset(const ast_type* _t) override;
 
 private:
   CompiledModule& add_module(containers::string_view _file);
@@ -70,6 +73,8 @@ private:
   containers::hash_map<containers::string, void_f> m_c_pointers;
   containers::hash_map<containers::string, memory::unique_ptr<ast_type>>
       m_external_types;
+  
+  containers::hash_map<const ast_type*, struct_info> m_struct_infos;
 
   containers::deque<containers::string_view> m_started_files;
   containers::hash_set<containers::string> m_finished_files;
