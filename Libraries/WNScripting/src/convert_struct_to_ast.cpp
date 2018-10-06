@@ -102,7 +102,7 @@ ast_type* parse_ast_convertor::convertor_context::walk_struct_definition(
         decl->m_name = containers::string(m_allocator, "__vtable");
         decl->m_type = m_type_manager->vtable_t(&m_used_types);
         struct_type->m_vtable_index = static_cast<uint32_t>(decls.size());
-        vtable_idx = struct_type->m_vtable_index; 
+        vtable_idx = struct_type->m_vtable_index;
         decls.push_back(core::move(decl));
         ast_vtable* vtable = m_type_manager->make_vtable(name);
         vt = vtable;
@@ -1320,8 +1320,8 @@ bool parse_ast_convertor::convertor_context::create_struct_assign(
       allocate_runtime->initialized_parameters(m_allocator)
           .push_back(core::move(num_bytes));
       allocate_runtime->initialized_parameters(m_allocator)
-          .push_back(make_cast(
-              core::move(array_count), m_type_manager->size_t_t(&m_used_types)));
+          .push_back(make_cast(core::move(array_count),
+              m_type_manager->size_t_t(&m_used_types)));
       allocate_runtime->m_type = m_type_manager->void_ptr_t(&m_used_types);
 
       auto assign = memory::make_unique<ast_assignment>(m_allocator, _def);

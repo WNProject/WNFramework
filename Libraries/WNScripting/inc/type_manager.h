@@ -112,8 +112,7 @@ public:
         m_allocator, {get_type<Args>()...});
   }
 
-  size_t get_virtual_function(
-       const containers::string_view& _name,
+  size_t get_virtual_function(const containers::string_view& _name,
       const containers::dynamic_array<const ast_type*>& _types) const;
 
   template <typename... Args>
@@ -133,10 +132,8 @@ public:
   ast_type* get_slice_of(
       const ast_type* _type, uint32_t _size, used_type_set* _used);
 
-
-  ast_type* get_or_register_struct(
-      containers::string_view _name, used_type_set* _used,
-      used_function_set* _used_functions);
+  ast_type* get_or_register_struct(containers::string_view _name,
+      used_type_set* _used, used_function_set* _used_functions);
   ast_type* register_child_struct(containers::string_view _name,
       ast_type* _struct_type, used_type_set* _used);
   containers::dynamic_array<const ast_type*> get_initialialization_order(
@@ -341,7 +338,8 @@ private:
   void add_strlen();
 
   void finalize_external_type(ast_type* _type) const;
-  containers::string_view internal_get_mangled_name(const ast_type* _type) const;
+  containers::string_view internal_get_mangled_name(
+      const ast_type* _type) const;
   memory::allocator* m_allocator;
   logging::log* m_log;
 

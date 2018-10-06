@@ -158,21 +158,20 @@ bool inline engine::get_function_internal(containers::string_view _name,
          _function->m_return_func != nullptr;
 }
 
-template<typename T>
+template <typename T>
 size_t inline engine::get_vtable_offset() {
   const ast_type* t = m_type_manager.get_type<T>();
   return get_vtable_offset(t);
 }
 
 template <typename T, typename... Args>
-size_t inline engine::get_virtual_function(
-    containers::string_view _name,
+size_t inline engine::get_virtual_function(containers::string_view _name,
     script_function<T, Args...>* _function) const {
   containers::dynamic_array<containers::string_view> signature_types =
       m_type_manager.get_mangled_names<T, Args...>();
 
   auto types = m_type_manager.get_types<T, Args...>();
-  
+
   size_t virtual_offset = m_type_manager.get_virtual_function(_name, types);
   // TODO: move this to a compile-time check.
   bool use_thunk = false;

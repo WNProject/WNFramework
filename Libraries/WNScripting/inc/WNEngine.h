@@ -225,13 +225,13 @@ public:
       _ptr->m_vtable_offset = m_engine->get_vtable_offset<T>();
       bool success = true;
       if (_ptr->m_vtable_offset == static_cast<size_t>(-1)) {
-        success = false; 
+        success = false;
         m_engine->m_log->log_error(
             T::exported_name(), " does not have any virtual functions");
       }
 
       if (virtual_index == static_cast<size_t>(-1)) {
-        success = false; 
+        success = false;
         m_engine->m_log->log_error("Could not find virtual function ", _name,
             " on type ", T::exported_name());
       }
