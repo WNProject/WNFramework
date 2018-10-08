@@ -290,14 +290,15 @@ void inline engine::register_child_cpp_type() {
 }
 
 template <typename T>
-void inline fixup_return_type(
-    T&, const containers::hash_map<void*,
-            memory::unique_ptr<script_object_type>>&) {}
+void inline fixup_return_type(T&,
+    const containers::hash_map<void*, memory::unique_ptr<script_object_type>>&,
+    const engine*) {}
 
 template <typename T>
 void inline fixup_return_type(script_pointer<T>& t,
     const containers::hash_map<void*, memory::unique_ptr<script_object_type>>&
-        object_type) {
+        object_type,
+    const engine*) {
   t.unsafe_set_type(reinterpret_cast<T*>(
       object_type[c_type_tag<T>::get_unique_identifier()].get()));
 }
@@ -305,9 +306,28 @@ void inline fixup_return_type(script_pointer<T>& t,
 template <typename T>
 void inline fixup_return_type(shared_script_pointer<T>& t,
     const containers::hash_map<void*, memory::unique_ptr<script_object_type>>&
-        object_type) {
+        object_type,
+    const engine*) {
   t.unsafe_set_type(reinterpret_cast<T*>(
       object_type[c_type_tag<T>::get_unique_identifier()].get()));
+}
+
+void inline do_engine_free(const engine* _engine, void* v) {
+  _engine->free_shared(v);
+}
+
+template <typename T>
+void inline fixup_return_type(shared_cpp_pointer<T>& t,
+    const containers::hash_map<void*, memory::unique_ptr<script_object_type>>&,
+    const engine* _engine) {
+  t.unsafe_set_engine_free(_engine, &do_engine_free);
+}
+
+template <typename T, typename... Args>
+shared_cpp_pointer<T> inline engine::make_shared_cpp(Args&&... args) {
+  void* v = allocate_shared(sizeof(T));
+  new (v) T(core::forward<Args>(args)...);
+  return shared_cpp_pointer<T>(reinterpret_cast<T*>(v), this, &do_engine_free);
 }
 
 template <typename R, typename... Args>
@@ -319,12 +339,12 @@ R inline engine::invoke(
     // TODO(awoloszyn): This should be replaced with a more intelligent thunk.
     // This (along with most of the rest of this function) can be switched to
     // be compile time.
-    fixup_return_type(rt, m_object_types);
+    fixup_return_type(rt, m_object_types, this);
     return rt;
   } else if (_function.m_thunk) {
     R rt = _function.m_thunk(
         _function.m_function, core::forward<const Args>(_args)...);
-    fixup_return_type(rt, m_object_types);
+    fixup_return_type(rt, m_object_types, this);
     return rt;
   } else {
     // We should never end up in here, and have the reinterpret_cast do
@@ -336,7 +356,7 @@ R inline engine::invoke(
 
     auto fn = reinterpret_cast<fntype>(_function.m_function);
     R rt = fn(get_thunk_passed_type<Args>::wrap(_args)...);
-    fixup_return_type(rt, m_object_types);
+    fixup_return_type(rt, m_object_types, this);
     return rt;
   }
 }

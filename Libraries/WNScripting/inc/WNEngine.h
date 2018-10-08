@@ -7,6 +7,7 @@
 #ifndef __WN_SCRIPTING_ENGINE_H__
 #define __WN_SCRIPTING_ENGINE_H__
 
+#include "WNCore/inc/utilities.h"
 #include "WNContainers/inc/WNHashMap.h"
 #include "WNContainers/inc/WNStringView.h"
 #include "WNMemory/inc/allocator.h"
@@ -51,7 +52,8 @@ struct get_thunk_passed_type<U,
 template <typename U>
 struct get_thunk_passed_type<U,
     typename core::enable_if<is_script_pointer<U>::value ||
-                             is_shared_script_pointer<U>::value>::type> {
+                             is_shared_script_pointer<U>::value ||
+                             is_shared_cpp_pointer<U>::value>::type> {
   using type = typename U::value_type*;
   using ret_type = typename U::value_type*;
   static inline typename U::value_type* wrap(U& u) {
@@ -201,6 +203,9 @@ public:
 
   struct script_importer_base {};
 
+  template <typename T, typename... Args>
+  shared_cpp_pointer<T> make_shared_cpp(Args&&... args);
+
   template <typename T>
   struct script_type_importer : public script_importer_base {
     explicit script_type_importer(engine* _engine) : m_engine(_engine) {}
@@ -242,6 +247,7 @@ public:
     engine* m_engine;
     bool m_success = true;
   };
+  virtual void free_shared(void* v) const = 0;
 
 protected:
   template <typename T>
@@ -273,6 +279,7 @@ protected:
   virtual bool register_mangled_c_function(
       containers::string_view _name, void_f _function, bool _is_virtual) = 0;
   virtual size_t get_vtable_offset(const ast_type* _type) = 0;
+  virtual void* allocate_shared(size_t size) = 0;
 
   type_manager m_type_manager;
   containers::hash_map<void*, memory::unique_ptr<script_object_type>>

@@ -47,6 +47,7 @@ public:
       logging::log* _log);
   ~jit_engine();
   parse_error parse_file(const containers::string_view file) override;
+  void free_shared(void* v) const override;
 
 protected:
   void_f get_function_pointer(containers::string_view _name) const override {
@@ -62,6 +63,7 @@ protected:
       void_f _function, bool _is_virtual) override;
 
   size_t get_vtable_offset(const ast_type* _t) override;
+  void* allocate_shared(size_t size) override;
 
 private:
   CompiledModule& add_module(containers::string_view _file);

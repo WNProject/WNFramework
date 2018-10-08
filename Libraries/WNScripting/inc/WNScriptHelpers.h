@@ -306,6 +306,101 @@ private:
 };
 
 template <typename T>
+class shared_cpp_pointer {
+public:
+  using value_type = T;
+
+  ~shared_cpp_pointer() {
+    release();
+  }
+
+  shared_cpp_pointer(const shared_cpp_pointer& _other)
+    : val(_other.val), m_engine(_other.m_engine) {
+    acquire();
+  }
+
+  shared_cpp_pointer(shared_cpp_pointer&& _other)
+    : val(_other.val), m_engine(_other.m_engine), m_free(_other.m_free) {
+    _other.val = nullptr;
+    _other.m_engine = nullptr;
+    _other.m_free = nullptr;
+  }
+
+  shared_cpp_pointer() : val(nullptr) {}
+  T* get() {
+    return val;
+  }
+  T* operator->() {
+    return val;
+  }
+
+  const T* operator->() const {
+    return val;
+  }
+
+  void* unsafe_ptr() {
+    return val;
+  }
+
+private:
+  static void destroy(T* t) {
+    (t->T::~T)();
+  }
+
+  shared_cpp_pointer(T* v) : val(v) {
+    static_assert(sizeof(&shared_cpp_pointer<T>::destroy) == sizeof(void*),
+        "Unexpected static method pointer size");
+    header()->m_destructor =
+        reinterpret_cast<void (*)(void*)>(&shared_cpp_pointer<T>::destroy);
+    acquire();
+  }
+
+  shared_cpp_pointer(T* v, engine* _engine, void(_free)(const engine*, void*))
+    : shared_cpp_pointer(v) {
+    m_engine = _engine;
+    m_free = _free;
+  }
+
+  struct shared_object_header {
+    std::atomic<size_t> m_ref_count;
+    void (*m_destructor)(void*);
+  };
+
+  shared_object_header* header() {
+    return reinterpret_cast<shared_object_header*>(val) - 1;
+  }
+
+  void acquire() {
+    if (val) {
+      // When this is created (by the engine), then it will
+      // also fix up T* type, but not in the constructor for a variety of
+      // reasons
+      header()->m_ref_count++;
+    }
+  }
+
+  void release() {
+    if (val && --header()->m_ref_count == 0) {
+      if (header()->m_destructor) {
+        (*header()->m_destructor)(val);
+      }
+      m_free(m_engine, val);
+    }
+  }
+
+  void unsafe_set_engine_free(
+      const engine* _engine, void (*_free)(engine*, void*)) {
+    m_engine = _engine;
+    m_free = _free;
+  }
+
+  T* val;
+  const engine* m_engine = nullptr;
+  void (*m_free)(const engine*, void*) = nullptr;
+  friend class engine;
+};
+
+template <typename T>
 struct is_script_pointer {
   static const bool value = false;
 };
@@ -326,7 +421,22 @@ struct is_shared_script_pointer<shared_script_pointer<T>> {
 };
 
 template <typename T>
+struct is_shared_cpp_pointer {
+  static const bool value = false;
+};
+
+template <typename T>
+struct is_shared_cpp_pointer<shared_cpp_pointer<T>> {
+  static const bool value = true;
+};
+
+template <typename T>
 struct needs_thunk<shared_script_pointer<T>> {
+  static const bool value = true;
+};
+
+template <typename T>
+struct needs_thunk<shared_cpp_pointer<T>> {
   static const bool value = true;
 };
 

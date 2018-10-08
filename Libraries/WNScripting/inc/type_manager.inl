@@ -291,6 +291,10 @@ void type_manager::register_child_cpp_type(functional::function<void(
   m_externally_visible_types[c_type_tag<T>::get_unique_identifier()] = t;
   m_externally_visible_types[c_type_tag<T*>::get_unique_identifier()] =
       get_reference_of(t, ast_type_classification::reference, nullptr);
+  m_externally_visible_types
+      [c_type_tag<shared_cpp_pointer<T>>::get_unique_identifier()] =
+          get_reference_of(
+              t, ast_type_classification::shared_reference, nullptr);
   exporter<T> exporter(t, m_allocator, this, &_fn);
   exported_script_type<T>::export_type(&exporter);
   finalize_external_type(t);
@@ -310,6 +314,8 @@ void type_manager::register_cpp_type(functional::function<void(
   m_externally_visible_types[c_type_tag<T>::get_unique_identifier()] = t;
   m_externally_visible_types[c_type_tag<T*>::get_unique_identifier()] =
       get_reference_of(t, ast_type_classification::reference, nullptr);
+  m_externally_visible_types[c_type_tag<shared_cpp_pointer<T>>::get_unique_identifier()] =
+      get_reference_of(t, ast_type_classification::shared_reference, nullptr);
   exporter<T> exporter(t, m_allocator, this, &_fn);
   exported_script_type<T>::export_type(&exporter);
   finalize_external_type(t);

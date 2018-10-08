@@ -247,6 +247,16 @@ CompiledModule& jit_engine::add_module(containers::string_view _file) {
   return code_module;
 }
 
+void* jit_engine::allocate_shared(size_t size) {
+  void* v = do_allocate(wn_size_t{sizeof(object) + size});
+  memset(v, 0x00, sizeof(object));
+  return static_cast<void*>(static_cast<uint8_t*>(v) + sizeof(object));
+}
+
+void jit_engine::free_shared(void* v) const {
+  do_free(static_cast<uint8_t*>(v) - sizeof(object));
+}
+
 parse_error jit_engine::parse_file(const containers::string_view _file) {
   if (m_finished_files.find(_file.to_string(m_allocator)) !=
       m_finished_files.end()) {

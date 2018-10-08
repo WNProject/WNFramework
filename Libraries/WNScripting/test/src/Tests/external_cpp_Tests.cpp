@@ -11,6 +11,7 @@
 #include "executable_test/inc/WNTestHarness.h"
 
 using wn::scripting::script_pointer;
+using wn::scripting::shared_cpp_pointer;
 using wn::scripting::shared_script_pointer;
 using wn::scripting::slice;
 using wn::scripting::wn_array;
@@ -266,6 +267,8 @@ TEST(scripting_engine_factory, external) {
   wn::scripting::script_function<shared_script_pointer<a_type>> extern_func_13;
   wn::scripting::script_function<shared_script_pointer<b_type>> extern_func_14;
   wn::scripting::script_function<shared_script_pointer<b_type>> extern_func_15;
+  wn::scripting::script_function<int32_t, shared_cpp_pointer<external_struct>>
+      extern_func_16;
 
   ASSERT_TRUE(jit->get_function("test1", &extern_struct_func));
   ASSERT_TRUE(jit->get_function("test2", &extern_struct_func2));
@@ -282,6 +285,7 @@ TEST(scripting_engine_factory, external) {
   ASSERT_TRUE(jit->get_function("test13", &extern_func_13));
   ASSERT_TRUE(jit->get_function("test14", &extern_func_14));
   ASSERT_TRUE(jit->get_function("test15", &extern_func_15));
+  ASSERT_TRUE(jit->get_function("test16", &extern_func_16));
 
   ASSERT_TRUE(jit->resolve_script_type<a_type>());
   ASSERT_TRUE(jit->resolve_script_type<b_type>());
@@ -422,8 +426,10 @@ TEST(scripting_engine_factory, external) {
 
   // test15
   {
-    shared_script_pointer<b_type> arr_t = jit->invoke(extern_func_15);
-    EXPECT_NE(nullptr, arr_t.unsafe_ptr());
-    EXPECT_EQ(12, arr_t.invoke(&b_type::do_c, 4));
+    shared_cpp_pointer<external_struct> es =
+        jit->make_shared_cpp<external_struct>(external_inner_struct{}, 32, 4);
+    EXPECT_EQ(32, jit->invoke(extern_func_16, es));
+    es->i = 42;
+    EXPECT_EQ(42, jit->invoke(extern_func_16, es));
   }
 }

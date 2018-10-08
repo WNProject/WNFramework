@@ -121,3 +121,7 @@ shared ExportedB test15() {
     shared ExportedB eb = ea;
     return eb;
 }
+
+Int test16(shared ExternalStruct s) {
+    return s.i;
+}
