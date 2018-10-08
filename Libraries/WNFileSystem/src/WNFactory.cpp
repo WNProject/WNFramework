@@ -66,7 +66,7 @@ mapping_ptr factory::make_mapping(
 
       if (!path.empty()) {
         return memory::make_unique<internal::system_mapping>(
-            _allocator, _allocator, core::move(path), true);
+            _allocator, _allocator, core::move(path), false);
       }
       break;
     }
