@@ -248,7 +248,8 @@ int32_t wn_main(const ::wn::executable::executable_data* _executable_data) {
           output_mapping.get(), log.log());
 
   // Register increment_number
-  jit->register_function("increment_number", &increment_number);
+  jit->register_function<decltype(&increment_number), &increment_number>(
+      "increment_number");
   translator->register_cpp_function("increment_number", &increment_number);
 
   auto test_file_string = test_file.to_string(&allocator);

@@ -133,7 +133,7 @@ public:
       m_external_functions(_external_functions) {}
 
   llvm::JITSymbol findSymbol(const std::string& Name) override {
-    m_log->log_info("Resolving ", Name.c_str(), ".");
+    m_log->log_debug("Resolving ", Name.c_str(), ".");
 #if defined(_WN_WINDOWS)
 #if defined(_WN_64_BIT)
     // On windows64, enable _chkstk. LLVM generates calls
@@ -215,9 +215,10 @@ jit_engine::jit_engine(memory::allocator* _allocator,
   llvm::InitializeNativeTarget();
   llvm::InitializeNativeTargetAsmPrinter();
   llvm::InitializeNativeTargetAsmParser();
-  register_function("_allocate", &do_allocate);
-  register_function("_free", &do_free);
-  register_function("_allocate_runtime_array", &do_allocate_array);
+  register_function<decltype(&do_allocate),&do_allocate>("_allocate");
+  register_function<decltype(&do_free), &do_free>("_free");
+  register_function<decltype(&do_allocate_array), &do_allocate_array>(
+      "_allocate_runtime_array");
   m_type_manager.finalize_builtins();
 }
 

@@ -197,14 +197,74 @@ size_t inline engine::get_virtual_function(containers::string_view _name,
 }
 
 template <typename R, typename... Args>
-bool inline engine::register_function(
-    containers::string_view _name, R (*_function)(Args...)) {
+struct member_maker {
+  static const bool is_ret_by_ref = pass_by_reference<R>::value;
+  template <R (*fn)(Args...)>
+  static typename get_thunk_passed_type<R>::ret_type
+      member_thunk(typename get_thunk_passed_type<Args>::type... args) {
+    return get_thunk_passed_type<R>::wrap(
+        (*fn)(get_thunk_passed_type<Args>::wrap(args)...));
+  }
+
+  template <R (*fn)(Args...)>
+  static void return_member_thunk(
+      typename get_thunk_passed_type<Args>::type... args,
+      typename get_thunk_passed_type<R>::ret_type* _ret) {
+    *_ret = get_thunk_passed_type<R>::wrap(
+        (*fn)(get_thunk_passed_type<Args>::wrap(args)...));
+  }
+};
+
+template <typename... Args>
+struct member_maker<void, Args...> {
+  static const bool is_ret_by_ref = false;
+  template <void (*fn)(Args...)>
+  static void
+      member_thunk(typename get_thunk_passed_type<Args>::type... args) {
+    return (*fn)(get_thunk_passed_type<Args>::wrap(args)...);
+  }
+
+  template <void (*fn)(Args...)>
+  static void return_member_thunk(
+      typename get_thunk_passed_type<Args>::type... args) {
+    (*fn)(get_thunk_passed_type<Args>::wrap(args)...);
+  }
+};
+
+template <typename R, typename... Args>
+inline member_maker<R, Args...> get_member_maker(R (*)(Args...)) {
+  return member_maker<R, Args...>{};
+};
+
+template <typename F, F fptr>
+void* get_thunk() {
+  void* v;
+  if (decltype(get_member_maker(fptr))::is_ret_by_ref) {
+    auto mt =
+        &decltype(get_member_maker(fptr))::template return_member_thunk<fptr>;
+    memcpy(&v, &mt, sizeof(uintptr_t));
+  } else {
+    auto mt = &decltype(get_member_maker(fptr))::template member_thunk<fptr>;
+    memcpy(&v, &mt, sizeof(uintptr_t));
+  }
+  return v;
+}
+
+template <typename R, typename... Args>
+containers::dynamic_array<const ast_type*> get_function_params(
+    R (*)(Args...), type_manager* _manager) {
+  return _manager->get_types<R, Args...>();
+}
+
+template <typename F, F _function>
+bool inline engine::register_function(containers::string_view _name) {
   containers::dynamic_array<const ast_type*> params =
-      m_type_manager.get_types<R, Args...>();
+      get_function_params(_function, &m_type_manager);
+  void* fn = get_thunk<F, _function>();
   external_function f{_name, core::move(params)};
   m_type_manager.add_external(f, true, false);
   return register_c_function(
-      _name, f.params, reinterpret_cast<void_f>(_function));
+      _name, f.params, reinterpret_cast<void_f>(fn));
 }
 
 template <typename T>

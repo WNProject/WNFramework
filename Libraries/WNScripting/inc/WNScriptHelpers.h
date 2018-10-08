@@ -194,6 +194,10 @@ public:
     return val;
   }
 
+  const void* unsafe_ptr() const {
+    return val;
+  }
+
   void unsafe_set_type(T* _type) {
     type = _type;
   }
@@ -252,6 +256,10 @@ public:
   void* unsafe_ptr() {
     return val;
   }
+  const void* unsafe_ptr() const {
+    return val;
+  }
+
   void unsafe_set_type(T* _type) {
     type = _type;
   }
@@ -326,6 +334,15 @@ public:
     _other.m_free = nullptr;
   }
 
+  shared_cpp_pointer operator=(const shared_cpp_pointer& _other) {
+    release();
+    val = _other.val;
+    m_engine = _other.m_engine;
+    m_free = _other.m_free;
+    acquire();
+    return *this;
+  }
+
   shared_cpp_pointer() : val(nullptr) {}
   T* get() {
     return val;
@@ -339,6 +356,10 @@ public:
   }
 
   void* unsafe_ptr() {
+    return val;
+  }
+
+  const void* unsafe_ptr() const {
     return val;
   }
 

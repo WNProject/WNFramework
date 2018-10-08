@@ -24,7 +24,7 @@ struct get_thunk_passed_type {
   using type = U;
   using ret_type = U;
 
-  static inline U wrap(U& u) {
+  static inline U wrap(const U& u) {
     return u;
   }
   static inline U unwrap(U u) {
@@ -56,8 +56,10 @@ struct get_thunk_passed_type<U,
                              is_shared_cpp_pointer<U>::value>::type> {
   using type = typename U::value_type*;
   using ret_type = typename U::value_type*;
-  static inline typename U::value_type* wrap(U& u) {
-    return reinterpret_cast<typename U::value_type*>(u.unsafe_ptr());
+  static inline typename U::value_type* wrap(const U& u) {
+    const void* v = u.unsafe_ptr();
+
+    return reinterpret_cast<typename U::value_type*>(const_cast<void*>(v));
   }
 
   static inline U unwrap(typename U::value_type* u) {
@@ -180,9 +182,8 @@ public:
   template <typename R, typename... Args>
   R invoke(const script_function<R, Args...>& _function, Args... _args) const;
 
-  template <typename R, typename... Args>
-  bool inline register_function(
-      containers::string_view _name, R (*_function)(Args...));
+  template <typename F, F function>
+  bool inline register_function(containers::string_view _name);
 
   template <typename T>
   size_t get_vtable_offset();
