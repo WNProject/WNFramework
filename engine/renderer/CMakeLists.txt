@@ -1,0 +1,10 @@
+add_wn_library(
+  renderer
+  SOURCES
+    inc/renderer.h
+    src/renderer.cpp
+  LIBS
+    engine_base
+    WNGraphics
+    WNScripting
+)

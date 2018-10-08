@@ -1,0 +1,8 @@
+add_wn_library(
+  engine_base
+  SOURCES
+    inc/context.h
+    src/context.cpp
+  LIBS
+    WNScripting
+)

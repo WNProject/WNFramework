@@ -16,4 +16,11 @@ include_directories(${WNFramework_SOURCE_DIR}/Libraries)
 include_directories(${WNFramework_SOURCE_DIR}/Wrappers)
 include_directories(${WNFramework_SOURCE_DIR}/Runtime)
 
-wn_add_subdirectory(bootstrap)
+include_directories(${WNFramework_SOURCE_DIR}/engine)
+
+# Support Libraries
+wn_add_subdirectory(engine_base)
+wn_add_subdirectory(renderer)
+
+# Engine
+wn_add_subdirectory(engine)

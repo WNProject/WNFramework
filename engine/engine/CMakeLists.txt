@@ -1,0 +1,11 @@
+add_wn_application(
+  engine
+  SOURCES
+    inc/script_export.h
+    src/main.cpp
+    src/script_export.cpp
+  LIBS
+    WNScripting
+    engine_base
+    renderer
+)
