@@ -120,42 +120,10 @@ bool inline engine::get_function_internal(containers::string_view _name,
   if (m_type_manager.is_pass_by_reference(m_type_manager.get_type<T>())) {
     s += m_type_manager.get_mangled_name<T>();
   }
-  // TODO: move this to a compile-time check.
-  bool use_thunk = false;
-  bool use_return_thunk = false;
-  auto types = m_type_manager.get_types<T, Args...>();
-  bool is_return = true;
-  for (auto& t : types) {
-    if (m_type_manager.is_pass_by_reference(t)) {
-      use_thunk = true;
-      if (is_return) {
-        use_return_thunk = true;
-      }
-    }
-    is_return = false;
-  }
 
-  if (use_return_thunk) {
-    _function->m_return_func =
-        reinterpret_cast<void (*)(typename get_thunk_passed_type<Args>::type...,
-            core::add_pointer_t<typename get_thunk_passed_type<T>::ret_type>)>(
-            get_function_pointer(s));
-  } else {
-    _function->m_function =
-        reinterpret_cast<typename get_thunk_passed_type<T>::ret_type (*)(
-            typename get_thunk_passed_type<Args>::type...)>(
-            get_function_pointer(s));
-  }
+  _function->m_function = get_function_pointer(s);
 
-  if (use_return_thunk && _function->m_return_func) {
-    _function->m_return_thunk =
-        &thunk_getter<core::is_same<T, void>::value, T, Args...>::return_thunk;
-  } else if (use_thunk && _function->m_function) {
-    _function->m_thunk = &thunk<T, Args...>;
-  }
-
-  return _function->m_function != nullptr ||
-         _function->m_return_func != nullptr;
+  return _function->m_function != nullptr;
 }
 
 template <typename T>
@@ -165,33 +133,13 @@ size_t inline engine::get_vtable_offset() {
 }
 
 template <typename T, typename... Args>
-size_t inline engine::get_virtual_function(containers::string_view _name,
-    script_function<T, Args...>* _function) const {
+size_t inline engine::get_virtual_function(
+    containers::string_view _name) const {
   containers::dynamic_array<containers::string_view> signature_types =
       m_type_manager.get_mangled_names<T, Args...>();
 
   auto types = m_type_manager.get_types<T, Args...>();
-
   size_t virtual_offset = m_type_manager.get_virtual_function(_name, types);
-  // TODO: move this to a compile-time check.
-  bool use_thunk = false;
-  bool use_return_thunk = false;
-  bool is_return = true;
-  for (auto& t : types) {
-    if (m_type_manager.is_pass_by_reference(t)) {
-      use_thunk = true;
-      if (is_return) {
-        use_return_thunk = true;
-      }
-    }
-    is_return = false;
-  }
-  if (use_return_thunk && _function->m_return_func) {
-    _function->m_return_thunk =
-        &thunk_getter<core::is_same<T, void>::value, T, Args...>::return_thunk;
-  } else if (use_thunk && _function->m_function) {
-    _function->m_thunk = &thunk<T, Args...>;
-  }
 
   return virtual_offset;
 }
@@ -200,8 +148,8 @@ template <typename R, typename... Args>
 struct member_maker {
   static const bool is_ret_by_ref = pass_by_reference<R>::value;
   template <R (*fn)(Args...)>
-  static typename get_thunk_passed_type<R>::ret_type
-      member_thunk(typename get_thunk_passed_type<Args>::type... args) {
+  static typename get_thunk_passed_type<R>::ret_type member_thunk(
+      typename get_thunk_passed_type<Args>::type... args) {
     return get_thunk_passed_type<R>::wrap(
         (*fn)(get_thunk_passed_type<Args>::wrap(args)...));
   }
@@ -219,8 +167,7 @@ template <typename... Args>
 struct member_maker<void, Args...> {
   static const bool is_ret_by_ref = false;
   template <void (*fn)(Args...)>
-  static void
-      member_thunk(typename get_thunk_passed_type<Args>::type... args) {
+  static void member_thunk(typename get_thunk_passed_type<Args>::type... args) {
     return (*fn)(get_thunk_passed_type<Args>::wrap(args)...);
   }
 
@@ -263,8 +210,7 @@ bool inline engine::register_function(containers::string_view _name) {
   void* fn = get_thunk<F, _function>();
   external_function f{_name, core::move(params)};
   m_type_manager.add_external(f, true, false);
-  return register_c_function(
-      _name, f.params, reinterpret_cast<void_f>(fn));
+  return register_c_function(_name, f.params, reinterpret_cast<void_f>(fn));
 }
 
 template <typename T>
@@ -349,6 +295,10 @@ void inline engine::register_child_cpp_type() {
           }));
 }
 
+void inline do_engine_free(const engine* _engine, void* v) {
+  _engine->free_shared(v);
+}
+
 template <typename T>
 void inline fixup_return_type(T&,
     const containers::hash_map<void*, memory::unique_ptr<script_object_type>>&,
@@ -372,10 +322,6 @@ void inline fixup_return_type(shared_script_pointer<T>& t,
       object_type[c_type_tag<T>::get_unique_identifier()].get()));
 }
 
-void inline do_engine_free(const engine* _engine, void* v) {
-  _engine->free_shared(v);
-}
-
 template <typename T>
 void inline fixup_return_type(shared_cpp_pointer<T>& t,
     const containers::hash_map<void*, memory::unique_ptr<script_object_type>>&,
@@ -390,37 +336,57 @@ shared_cpp_pointer<T> inline engine::make_shared_cpp(Args&&... args) {
   return shared_cpp_pointer<T>(reinterpret_cast<T*>(v), this, &do_engine_free);
 }
 
+template <typename Enable, typename R, typename... Args>
+struct engine::invoke_wrapper : core::non_constructable {
+  static inline R invoke(
+      const script_function<R, Args...>& _function, Args... _args) {
+    return reinterpret_cast<typename get_thunk_passed_type<R>::ret_type (*)(
+        typename get_thunk_passed_type<Args>::type...)>(_function.m_function)(
+        get_thunk_passed_type<Args>::wrap(_args)...);
+  }
+};
+
+template <typename R, typename... Args>
+struct engine::invoke_wrapper<core::enable_if_t<pass_by_reference<R>::value>, R,
+    Args...> : core::non_constructable {
+  static inline R invoke(
+      const script_function<R, Args...>& _function, Args... _args) {
+    return thunk_getter<core::is_same<R, void>::value, R, Args...>::
+        return_thunk(reinterpret_cast<void (*)(
+                         typename get_thunk_passed_type<Args>::type...,
+                         core::add_pointer_t<
+                             typename get_thunk_passed_type<R>::ret_type>)>(
+                         _function.m_function),
+            core::forward<const Args>(_args)...);
+  }
+};
+
+template <typename R, typename... Args>
+struct engine::invoke_wrapper<
+    core::enable_if_t<core::disjunction<pass_by_reference<Args>...>::value>, R,
+    Args...> : core::non_constructable {
+  static inline R invoke(
+      const script_function<R, Args...>& _function, Args... _args) {
+    return thunk<R, Args...>(
+        reinterpret_cast<typename get_thunk_passed_type<R>::ret_type (*)(
+            typename get_thunk_passed_type<Args>::type...)>(
+            _function.m_function),
+        core::forward<const Args>(_args)...);
+  }
+};
+
 template <typename R, typename... Args>
 R inline engine::invoke(
     const script_function<R, Args...>& _function, Args... _args) const {
-  if (_function.m_return_thunk) {
-    R rt = _function.m_return_thunk(
-        _function.m_return_func, core::forward<const Args>(_args)...);
-    // TODO(awoloszyn): This should be replaced with a more intelligent thunk.
-    // This (along with most of the rest of this function) can be switched to
-    // be compile time.
-    fixup_return_type(rt, m_object_types, this);
-    return rt;
-  } else if (_function.m_thunk) {
-    R rt = _function.m_thunk(
-        _function.m_function, core::forward<const Args>(_args)...);
-    fixup_return_type(rt, m_object_types, this);
-    return rt;
-  } else {
-    // We should never end up in here, and have the reinterpret_cast do
-    // anything. It is literally just here, because we don't compile-time
-    // specialize this.
-    // TODO: compile-time specialize this.
-    using fntype = typename get_thunk_passed_type<R>::ret_type (*)(
-        typename get_thunk_passed_type<Args>::type...);
+  R rt = invoke_wrapper<void, R, Args...>::invoke(
+      _function, core::forward<Args>(_args)...);
 
-    auto fn = reinterpret_cast<fntype>(_function.m_function);
-    R rt = fn(get_thunk_passed_type<Args>::wrap(_args)...);
-    fixup_return_type(rt, m_object_types, this);
-    return rt;
-  }
+  fixup_return_type(rt, m_object_types, this);
+
+  return rt;
 }
 
 }  // namespace scripting
 }  // namespace wn
+
 #endif  // __WN_SCRIPTING_ENGINE_INL__

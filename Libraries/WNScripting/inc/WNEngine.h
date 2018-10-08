@@ -86,17 +86,7 @@ private:
   template <typename U, typename UU, typename... UArgs>
   friend class scripting_virtual_object_function;
 
-  using fnType = typename get_thunk_passed_type<R>::ret_type (*)(
-      typename get_thunk_passed_type<Args>::type...);
-  using retFnType = void (*)(typename get_thunk_passed_type<Args>::type...,
-      core::add_pointer_t<typename get_thunk_passed_type<R>::ret_type>);
-  using thunkType = R (*)(fnType, Args...);
-  using retThunkType = R (*)(retFnType, Args...);
-
-  fnType m_function = nullptr;
-  retFnType m_return_func = nullptr;
-  thunkType m_thunk = nullptr;
-  retThunkType m_return_thunk = nullptr;
+  void_f m_function;
 };
 
 template <typename T, typename R, typename... Args>
@@ -233,7 +223,7 @@ public:
     void register_function(const containers::string_view& _name,
         scripting_virtual_object_function<T, R, Args...>* _ptr) {
       size_t virtual_index =
-          m_engine->get_virtual_function(_name, &_ptr->m_function);
+          m_engine->get_virtual_function<R, script_pointer<T>, Args...>(_name);
       _ptr->m_vtable_idx = virtual_index;
       _ptr->m_vtable_offset = m_engine->get_vtable_offset<T>();
       bool success = true;
@@ -258,6 +248,9 @@ public:
   virtual void free_shared(void* v) const = 0;
 
 protected:
+  template <typename Enable, typename R, typename... Args>
+  struct invoke_wrapper;
+
   template <typename T>
   bool inline resolve_script_type_internal(T* t);
 
@@ -273,8 +266,7 @@ protected:
       script_function<R, Args...>* _function, bool _is_member) const;
 
   template <typename R, typename... Args>
-  size_t get_virtual_function(containers::string_view _name,
-      script_function<R, Args...>* _function) const;
+  size_t get_virtual_function(containers::string_view _name) const;
 
   size_t m_num_warnings;
   size_t m_num_errors;
@@ -305,16 +297,13 @@ template <typename T, typename R, typename... Args>
 typename scripting_virtual_object_function<T, R, Args...>::ret_type
 scripting_virtual_object_function<T, R, Args...>::do_(
     engine* _engine, script_pointer<T>& _ptr, Args... args) {
-  // This is gross, but for now it will work, when all of the templating
-  // is done this can be cleaned up.
-  auto temp_function = m_function;
   uint8_t* ptr = static_cast<uint8_t*>(_ptr.unsafe_ptr());
+  auto temp_function = m_function;
+
   ptr += m_vtable_offset;
-  void* val = (*reinterpret_cast<void***>(ptr))[m_vtable_idx];
   temp_function.m_function =
-      reinterpret_cast<decltype(temp_function.m_function)>(val);
-  temp_function.m_return_func =
-      reinterpret_cast<decltype(temp_function.m_return_func)>(val);
+      reinterpret_cast<void_f>((*reinterpret_cast<void***>(ptr))[m_vtable_idx]);
+
   return _engine->invoke(temp_function, _ptr, args...);
 }
 
