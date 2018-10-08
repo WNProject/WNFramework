@@ -14,19 +14,21 @@
 #include "WNScripting/inc/WNEnums.h"
 
 #include <atomic>
+
 namespace wn {
 namespace scripting {
+
 class script_file;
 struct ast_script_file;
 class type_manager;
 struct ast_type;
 class engine;
 
-struct struct_info {
+struct struct_info final {
   size_t vtable_offset;
 };
 
-struct external_function {
+struct external_function final {
   containers::string_view name;
   containers::dynamic_array<const ast_type*> params;
   bool is_virtual;
@@ -35,20 +37,16 @@ struct external_function {
 };
 
 template <typename T>
-struct pass_by_reference {
-  static const bool value = false;
-};
+struct pass_by_reference : core::false_type {};
 
 template <typename T>
-struct needs_thunk {
-  static const bool value = pass_by_reference<T>::value;
-};
+struct needs_thunk : pass_by_reference<T> {};
 
 // Use this type instead of normal size_t in order for
 // size_t to automatically work between scripting and C++.
 // This is because size_t is not a "proper" type in most
 // compilers.
-struct wn_size_t {
+struct wn_size_t final {
   size_t val;
 };
 
@@ -56,16 +54,18 @@ template <typename T, size_t S = 0>
 struct wn_array_ptr;
 
 template <typename T, size_t S = 0>
-struct wn_array {
+struct wn_array final {
 private:
   uint32_t _size = S;
   T _values[S == 0 ? 1 : S];
 
 public:
   wn_array_ptr<T, 0> operator&();
+
   T& operator[](size_t i) {
     return _values[i];
   }
+
   const T& operator[](size_t i) const {
     return _values[i];
   }
@@ -76,8 +76,9 @@ public:
 };
 
 template <typename T, size_t S>
-struct wn_array_ptr {
+struct wn_array_ptr final {
   wn_array<T, S>* ptr;
+
   wn_array<T, S>& operator*() {
     return *ptr;
   }
@@ -85,6 +86,7 @@ struct wn_array_ptr {
   wn_array<T, S>* operator->() {
     return ptr;
   }
+
   operator wn_array_ptr<T, 0>() {
     return wn_array_ptr<T, 0>{reinterpret_cast<wn_array<T, 0>*>(ptr)};
   }
@@ -92,17 +94,19 @@ struct wn_array_ptr {
 
 template <typename T, size_t S>
 wn_array_ptr<T, 0> wn_array<T, S>::operator&() {
-  auto* t = this;
   static_assert(sizeof(this) == sizeof(wn_array_ptr<T, 0>),
       "Invalid conversion to array_ptr");
+
+  auto* t = this;
   return *reinterpret_cast<wn_array_ptr<T, 0>*>(&t);
 }
 
 // Default slice
-template <typename T, size_t S = 1, typename = void>
+template <typename T, size_t S = 1, typename = core::enable_if_t<true>>
 struct slice {
 private:
   static const size_t N_Vals = 1 + ((S - 1) * 2);
+
   T* _value;
   size_t size_values[N_Vals] = {0};
 
@@ -130,6 +134,7 @@ template <typename T, size_t S>
 struct slice<T, S, typename core::enable_if<(S > 1)>::type> {
 private:
   static const size_t N_Vals = 1 + ((S - 1) * 2);
+
   T* _value;
   size_t size_values[N_Vals] = {0};
 
@@ -155,9 +160,7 @@ public:
 };
 
 template <typename U, size_t S>
-struct pass_by_reference<slice<U, S>> {
-  static const bool value = true;
-};
+struct pass_by_reference<slice<U, S>> : core::true_type {};
 
 struct script_object_type {
   void free(void* val) {
@@ -173,9 +176,10 @@ struct script_object_type {
 };
 
 template <typename T>
-class script_pointer {
+class script_pointer final {
 public:
   using value_type = T;
+
   template <typename X, typename... Args>
   typename X::ret_type invoke(X T::*v, Args... args) {
     return (type->*v).do_(type->m_engine, *this, args...);
@@ -188,6 +192,7 @@ public:
 
   script_pointer(script_pointer&& _other)
     : val(_other.val), type(_other.type) {}
+
   script_pointer() : val(nullptr), type(nullptr) {}
 
   void* unsafe_ptr() {
@@ -203,6 +208,7 @@ public:
   }
 
   script_pointer(void* t) : val(t) {}
+
   script_pointer(void* _v, T* _t) : val(_v), type(_t) {}
 
   template <typename Q = T>
@@ -214,25 +220,26 @@ public:
   }
 
 private:
+  friend class engine;
+
   void* val;
   T* type;
-  friend class engine;
 };
 
 template <typename T>
-struct needs_thunk<script_pointer<T>> {
-  static const bool value = true;
-};
+struct needs_thunk<script_pointer<T>> : core::true_type {};
 
 template <typename T>
-class shared_script_pointer {
+class shared_script_pointer final {
 public:
   using value_type = T;
+
   template <typename X, typename... Args>
   typename X::ret_type invoke(X T::*v, Args... args) {
     auto sp = get();
     return (type->*v).do_(type->m_engine, sp, args...);
   }
+
   script_pointer<T> get() {
     return script_pointer<T>(val, type);
   }
@@ -253,9 +260,11 @@ public:
   }
 
   shared_script_pointer() : val(nullptr), type(nullptr) {}
+
   void* unsafe_ptr() {
     return val;
   }
+
   const void* unsafe_ptr() const {
     return val;
   }
@@ -308,13 +317,14 @@ private:
     }
   }
 
+  friend class engine;
+
   void* val;
   T* type;
-  friend class engine;
 };
 
 template <typename T>
-class shared_cpp_pointer {
+class shared_cpp_pointer final {
 public:
   using value_type = T;
 
@@ -422,44 +432,28 @@ private:
 };
 
 template <typename T>
-struct is_script_pointer {
-  static const bool value = false;
-};
+struct is_script_pointer : core::false_type {};
 
 template <typename T>
-struct is_script_pointer<script_pointer<T>> {
-  static const bool value = true;
-};
+struct is_script_pointer<script_pointer<T>> : core::true_type {};
 
 template <typename T>
-struct is_shared_script_pointer {
-  static const bool value = false;
-};
+struct is_shared_script_pointer : core::false_type {};
 
 template <typename T>
-struct is_shared_script_pointer<shared_script_pointer<T>> {
-  static const bool value = true;
-};
+struct is_shared_script_pointer<shared_script_pointer<T>> : core::true_type {};
 
 template <typename T>
-struct is_shared_cpp_pointer {
-  static const bool value = false;
-};
+struct is_shared_cpp_pointer : core::false_type {};
 
 template <typename T>
-struct is_shared_cpp_pointer<shared_cpp_pointer<T>> {
-  static const bool value = true;
-};
+struct is_shared_cpp_pointer<shared_cpp_pointer<T>> : core::true_type {};
 
 template <typename T>
-struct needs_thunk<shared_script_pointer<T>> {
-  static const bool value = true;
-};
+struct needs_thunk<shared_script_pointer<T>> : core::true_type {};
 
 template <typename T>
-struct needs_thunk<shared_cpp_pointer<T>> {
-  static const bool value = true;
-};
+struct needs_thunk<shared_cpp_pointer<T>> : core::true_type {};
 
 // Simple helper that parses a script and runs any
 // passes that are required to make the AST valid.
@@ -473,6 +467,7 @@ memory::unique_ptr<ast_script_file> parse_script(memory::allocator* _allocator,
     functional::function<bool(containers::string_view)> _handle_include,
     type_manager* _type_manager, bool _print_ast_on_failure, logging::log* _log,
     size_t* _num_warnings, size_t* _num_errors);
+
 }  // namespace scripting
 }  // namespace wn
 

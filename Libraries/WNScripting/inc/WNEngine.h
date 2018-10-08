@@ -7,19 +7,21 @@
 #ifndef __WN_SCRIPTING_ENGINE_H__
 #define __WN_SCRIPTING_ENGINE_H__
 
-#include "WNCore/inc/utilities.h"
 #include "WNContainers/inc/WNHashMap.h"
 #include "WNContainers/inc/WNStringView.h"
+#include "WNCore/inc/utilities.h"
 #include "WNMemory/inc/allocator.h"
 #include "WNScripting/inc/WNEnums.h"
 #include "WNScripting/inc/WNErrors.h"
+#include "WNScripting/inc/WNScriptHelpers.h"
 #include "WNScripting/inc/type_manager.h"
 
 namespace wn {
 namespace scripting {
+
 struct ast_type;
 
-template <typename U, typename enable = void>
+template <typename U, typename enable = core::enable_if_t<true>>
 struct get_thunk_passed_type {
   using type = U;
   using ret_type = U;
@@ -37,9 +39,11 @@ struct get_thunk_passed_type<U,
     typename core::enable_if<pass_by_reference<U>::value>::type> {
   using type = U*;
   using ret_type = U;
+
   static inline U* wrap(U& u) {
     return &u;
   }
+
   static inline U unwrap(U* u) {
     return *u;
   }
@@ -51,11 +55,11 @@ struct get_thunk_passed_type<U,
 
 template <typename U>
 struct get_thunk_passed_type<U,
-    typename core::enable_if<is_script_pointer<U>::value ||
-                             is_shared_script_pointer<U>::value ||
-                             is_shared_cpp_pointer<U>::value>::type> {
+    typename core::enable_if<core::disjunction<is_script_pointer<U>,
+        is_shared_script_pointer<U>, is_shared_cpp_pointer<U>>::value>::type> {
   using type = typename U::value_type*;
   using ret_type = typename U::value_type*;
+
   static inline typename U::value_type* wrap(const U& u) {
     const void* v = u.unsafe_ptr();
 
@@ -78,26 +82,25 @@ public:
 
 private:
   friend class engine;
+
   template <typename U, typename UU, typename... UArgs>
   friend class scripting_virtual_object_function;
 
   using fnType = typename get_thunk_passed_type<R>::ret_type (*)(
       typename get_thunk_passed_type<Args>::type...);
-  fnType m_function = nullptr;
-
   using retFnType = void (*)(typename get_thunk_passed_type<Args>::type...,
       core::add_pointer_t<typename get_thunk_passed_type<R>::ret_type>);
-  retFnType m_return_func = nullptr;
-
   using thunkType = R (*)(fnType, Args...);
-  thunkType m_thunk = nullptr;
-
   using retThunkType = R (*)(retFnType, Args...);
+
+  fnType m_function = nullptr;
+  retFnType m_return_func = nullptr;
+  thunkType m_thunk = nullptr;
   retThunkType m_return_thunk = nullptr;
 };
 
 template <typename T, typename R, typename... Args>
-class scripting_object_function {
+class scripting_object_function final {
 public:
   using ret_type = R;
 
@@ -105,16 +108,18 @@ private:
   ret_type do_(engine* _engine, script_pointer<T>& _ptr, Args... args);
 
   friend class engine;
+
   template <typename U>
   friend class script_pointer;
+
   template <typename U>
   friend class shared_script_pointer;
-  typename wn::scripting::script_function<R, script_pointer<T>, Args...>
-      m_function;
+
+  script_function<R, script_pointer<T>, Args...> m_function;
 };
 
 template <typename T, typename R, typename... Args>
-class scripting_virtual_object_function {
+class scripting_virtual_object_function final {
 public:
   using ret_type = R;
 
@@ -122,12 +127,14 @@ private:
   ret_type do_(engine* _engine, script_pointer<T>& _ptr, Args... args);
 
   friend class engine;
+
   template <typename U>
   friend class script_pointer;
+
   template <typename U>
   friend class shared_script_pointer;
-  typename wn::scripting::script_function<R, script_pointer<T>, Args...>
-      m_function;
+
+  script_function<R, script_pointer<T>, Args...> m_function;
   size_t m_vtable_offset = 0;
   size_t m_vtable_idx = 0;
 };
@@ -315,4 +322,5 @@ scripting_virtual_object_function<T, R, Args...>::do_(
 }  // namespace wn
 
 #include "WNScripting/inc/WNEngine.inl"
-#endif  //__WN_SCRIPTING_ENGINE_H__
+
+#endif  // __WN_SCRIPTING_ENGINE_H__
