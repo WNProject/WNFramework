@@ -22,8 +22,9 @@ void parse_ast_convertor::convertor_context::pop_scope() {
   // Append the correct instructions if this scope block has not been
   // prematurely terminated.
   if (!scope->m_returns && !scope->m_breaks) {
-    for (auto& expr : scope->m_cleanup_statements) {
-      m_current_statements->push_back(core::move(expr));
+    for (auto it = scope->m_cleanup_statements.rbegin();
+         it != scope->m_cleanup_statements.rend(); it++) {
+      m_current_statements->push_back(core::move(*it));
     }
   }
 
@@ -36,8 +37,9 @@ void parse_ast_convertor::convertor_context::clean_scopes(
     ast_scope_block* _end_scope_block) {
   for (signed_t i = m_nested_scopes.size() - 1; i >= 0; --i) {
     auto& scope = m_nested_scopes[i];
-    for (auto& expr : scope->m_cleanup_statements) {
-      m_current_statements->push_back(clone_ast_node(m_allocator, expr.get()));
+    for (auto it = scope->m_cleanup_statements.rbegin();
+         it != scope->m_cleanup_statements.rend(); it++) {
+      m_current_statements->push_back(clone_ast_node(m_allocator, it->get()));
     }
     if (scope == _end_scope_block) {
       break;

@@ -206,6 +206,8 @@ bool parse_ast_convertor::convertor_context::resolve_declaration(
   }
   memory::unique_ptr<ast_declaration> decl =
       memory::make_unique<ast_declaration>(m_allocator, _declaration);
+  containers::deque<memory::unique_ptr<ast_statement>> destroy_statements(
+      m_allocator);
 
   if (_declaration->get_expression()) {
     const expression* expr = _declaration->get_expression();
@@ -260,12 +262,10 @@ bool parse_ast_convertor::convertor_context::resolve_declaration(
               m_type_manager->get_reference_of(
                   type, ast_type_classification::reference, &m_used_types)));
 
-          auto& scope_expr =
-              m_nested_scopes.back()->initialized_cleanup(m_allocator);
           auto dest_c = memory::make_unique<ast_evaluate_expression>(
               m_allocator, _declaration);
           dest_c->m_expr = call_function(_declaration, destructor, params);
-          scope_expr.push_back(core::move(dest_c));
+          destroy_statements.push_front(core::move(dest_c));
         }
       } else {
         init = make_implicit_cast(core::move(init), type);
@@ -382,9 +382,7 @@ bool parse_ast_convertor::convertor_context::resolve_declaration(
               clone_ast_node(m_allocator, alloc->m_initializee.get());
 
           dest->m_target = core::move(dest_id);
-          auto& scope_expr =
-              m_nested_scopes.back()->initialized_cleanup(m_allocator);
-          scope_expr.push_back(core::move(dest));
+          destroy_statements.push_front(core::move(dest));
         }
       }
 
@@ -428,14 +426,10 @@ bool parse_ast_convertor::convertor_context::resolve_declaration(
             clone_ast_node(m_allocator, alloc->m_initializee.get());
 
         dest->m_target = core::move(dest_id);
-        auto& scope_expr =
-            m_nested_scopes.back()->initialized_cleanup(m_allocator);
-        scope_expr.push_back(core::move(dest));
+        destroy_statements.push_front(core::move(dest));
       }
 
       if (runtime_array_decl) {
-        auto& scope_expr =
-            m_nested_scopes.back()->initialized_cleanup(m_allocator);
         auto fn = memory::make_unique<ast_function_call_expression>(
             m_allocator, _declaration);
         fn->m_function =
@@ -451,7 +445,7 @@ bool parse_ast_convertor::convertor_context::resolve_declaration(
         auto dest_c = memory::make_unique<ast_evaluate_expression>(
             m_allocator, _declaration);
         dest_c->m_expr = core::move(fn);
-        scope_expr.push_back(core::move(dest_c));
+        destroy_statements.push_front(core::move(dest_c));
       }
 
       if (!runtime_array_decl && type->m_static_array_size == 0 &&
@@ -501,8 +495,8 @@ bool parse_ast_convertor::convertor_context::resolve_declaration(
     return false;
   }
 
+  auto& scope_expr = m_nested_scopes.back()->initialized_cleanup(m_allocator);
   if (has_temporary_declaration) {
-    auto& scope_expr = m_nested_scopes.back()->initialized_cleanup(m_allocator);
     for (auto& temp_decl : init->m_destroy_expressions) {
       auto dest_c = memory::make_unique<ast_evaluate_expression>(
           m_allocator, _declaration);
@@ -520,7 +514,6 @@ bool parse_ast_convertor::convertor_context::resolve_declaration(
   m_nested_scopes.back()
       ->initialized_declarations(m_allocator)
       .push_back(decl.get());
-
   if (is_shared_struct) {
     memory::unique_ptr<ast_function_call_expression> function_call =
         memory::make_unique<ast_function_call_expression>(
@@ -538,12 +531,15 @@ bool parse_ast_convertor::convertor_context::resolve_declaration(
     function_call->initialized_parameters(m_allocator)
         .push_back(core::move(cast));
     function_call->m_type = m_type_manager->void_t(&m_used_types);
-    auto& scope_expr = m_nested_scopes.back()->initialized_cleanup(m_allocator);
     auto dest_c =
         memory::make_unique<ast_evaluate_expression>(m_allocator, _declaration);
     dest_c->m_expr = core::move(function_call);
 
     scope_expr.push_back(core::move(dest_c));
+  }
+
+  for (auto& st : destroy_statements) {
+   scope_expr.push_back(core::move(st));
   }
 
   if (decl) {
