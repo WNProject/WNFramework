@@ -17,7 +17,13 @@ namespace renderer {
 
 class renderer {
 public:
-  renderer(logging::log* _log) : m_log(_log) {}
+  renderer(logging::log* _log) : m_log(_log) {
+    m_log->log_info("Created Renderer");
+  }
+
+  ~renderer() {
+    m_log->log_info("Destroyed Renderer");
+  }
   static void register_scripting(scripting::engine* _engine);
 
 private:

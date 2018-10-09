@@ -29,7 +29,6 @@ struct exported_script_type<renderer::renderer> {
 namespace {
 shared_cpp_pointer<engine::renderer::renderer> get_renderer(
     engine_base::context* _context) {
-  _context->m_log->log_info("Renderer Created");
   return _context->m_engine->make_shared_cpp<engine::renderer::renderer>(
       _context->m_log);
 }
@@ -39,5 +38,5 @@ void engine::renderer::renderer::register_scripting(
     scripting::engine* _engine) {
   _engine->register_cpp_type<renderer>();
   _engine->register_function<decltype(&get_renderer), &get_renderer>(
-      "getRenderer");
+      "get_renderer");
 }

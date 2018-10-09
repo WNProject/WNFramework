@@ -59,11 +59,11 @@ struct get_thunk_passed_type<U,
         is_shared_script_pointer<U>, is_shared_cpp_pointer<U>>::value>::type> {
   using type = typename U::value_type*;
   using ret_type = typename U::value_type*;
+  static inline typename U::value_type* wrap(const U& _u) {
+    U& u = const_cast<U&>(_u);
+    void* v = u.unsafe_pass();
 
-  static inline typename U::value_type* wrap(const U& u) {
-    const void* v = u.unsafe_ptr();
-
-    return reinterpret_cast<typename U::value_type*>(const_cast<void*>(v));
+    return reinterpret_cast<typename U::value_type*>(v);
   }
 
   static inline U unwrap(typename U::value_type* u) {

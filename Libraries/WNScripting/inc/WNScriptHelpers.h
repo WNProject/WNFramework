@@ -203,6 +203,10 @@ public:
     return val;
   }
 
+  void* unsafe_pass() {
+    return val;
+  }
+
   void unsafe_set_type(T* _type) {
     type = _type;
   }
@@ -266,6 +270,11 @@ public:
   }
 
   const void* unsafe_ptr() const {
+    return val;
+  }
+
+  void* unsafe_pass() {
+    acquire();
     return val;
   }
 
@@ -362,6 +371,11 @@ public:
   }
 
   const T* operator->() const {
+    return val;
+  }
+
+  void* unsafe_pass() {
+    acquire();
     return val;
   }
 
