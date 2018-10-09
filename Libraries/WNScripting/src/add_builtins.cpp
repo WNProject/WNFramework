@@ -107,9 +107,9 @@ void type_manager::add_allocate_shared() {
       clone_ast_node(m_allocator, _shared_obj.get());
 
   auto const_1 = memory::make_unique<ast_constant>(m_allocator, nullptr);
-  const_1->m_string_value = containers::string(m_allocator, "1");
+  const_1->m_string_value = containers::string(m_allocator, "0");
   const_1->m_type = m_size_t.get();
-  const_1->m_node_value.m_integer = 1;
+  const_1->m_node_value.m_integer = 0;
 
   auto assign = memory::make_unique<ast_assignment>(m_allocator, nullptr);
   assign->m_lhs = core::move(_shared_obj_ref_count);
@@ -400,6 +400,7 @@ void type_manager::add_assign_shared() {
 }
 
 void type_manager::add_return_shared() {
+
   auto fn = memory::make_unique<ast_function>(m_allocator, nullptr);
   fn->m_is_builtin = true;
   fn->m_name = containers::string(m_allocator, "_wns_return_shared");
@@ -416,6 +417,34 @@ void type_manager::add_return_shared() {
   auto val = memory::make_unique<ast_id>(m_allocator, nullptr);
   val->m_type = m_void_ptr_t.get();
   val->m_function_parameter = &fn->m_parameters[0];
+
+  
+  auto const_null = memory::make_unique<ast_constant>(m_allocator, nullptr);
+  const_null->m_string_value = containers::string(m_allocator, "");
+  const_null->m_type = m_nullptr_t.get();
+
+  auto null_to_vp =
+      memory::make_unique<ast_cast_expression>(m_allocator, nullptr);
+  null_to_vp->m_type = m_void_ptr_t.get();
+  null_to_vp->m_base_expression = core::move(const_null);
+
+  auto is_null =
+      memory::make_unique<ast_binary_expression>(m_allocator, nullptr);
+  is_null->m_lhs = clone_ast_node(m_allocator, val.get());
+  is_null->m_rhs = core::move(null_to_vp);
+  is_null->m_type = m_bool_t.get();
+  is_null->m_binary_type = ast_binary_type::neq;
+
+  auto not_null_block =
+      memory::make_unique<ast_scope_block>(m_allocator, nullptr);
+  auto& not_null_body = not_null_block->initialized_statements(m_allocator);
+  auto if_is_not_null = memory::make_unique<ast_if_chain>(m_allocator, nullptr);
+  if_is_not_null->initialized_conditionals(m_allocator)
+      .push_back(ast_if_chain::conditional_block(
+          core::move(is_null), core::move(not_null_block)));
+  body.push_back(core::move(if_is_not_null));
+
+
 
   auto shr_obj =
       memory::make_unique<ast_builtin_expression>(m_allocator, nullptr);
@@ -440,7 +469,7 @@ void type_manager::add_return_shared() {
   auto inc_st =
       memory::make_unique<ast_evaluate_expression>(m_allocator, nullptr);
   inc_st->m_expr = core::move(dec);
-  body.push_back(core::move(inc_st));
+  not_null_body.push_back(core::move(inc_st));
 
   auto ret = memory::make_unique<ast_return_instruction>(m_allocator, nullptr);
   ret->m_return_expr = core::move(val);

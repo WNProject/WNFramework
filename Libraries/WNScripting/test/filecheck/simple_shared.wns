@@ -46,7 +46,7 @@ shared Foo getF(Bool b) {
   f.x = 32;
 // CHECK: _return = ((_shared_Foo)(_ZN3wns18_wns_assign_sharedEPvPvPv(((void*)(NULL)), ((void*)(f)))));
 // CHECK-NEXT: _ZN3wns12_wns_releaseEvPv(((void*)(f)));
-// CHECK-NEXT: return ((_shared_Foo)(_ZN3wns18_wns_return_sharedEPvPv(((void*)(_return)))));
+// CHECK-NEXT: return _return;
   return f;
 }
 
@@ -79,6 +79,7 @@ Int shared3(Int x) {
 // CHECK: {{7shared4E.*{}}
 Int shared4(Int x) {
   shared Foo f = getF(x == 4);
+// CHECK: _shared_Foo f = ((_shared_Foo)(_ZN3wns18_wns_assign_sharedEPvPvPv(((void*)(NULL)), ((void*)(((_shared_Foo)(_ZN3wns18_wns_return_sharedEPvPv(((void*)(_ZN3wns4getFER3Foob((x == 4))))))))))));
 // CHECK: if ((f != ((_shared_Foo)(NULL)))) {
   if (f != null) {
     return f.x;

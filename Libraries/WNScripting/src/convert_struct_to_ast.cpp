@@ -729,6 +729,28 @@ bool parse_ast_convertor::convertor_context::create_constructor(
         if (!rhs) {
           return false;
         }
+        if (it->get_expression()->get_node_type() ==
+            node_type::struct_allocation_expression &&
+            rhs->m_type->m_classification == ast_type_classification::shared_reference) {
+          containers::dynamic_array<memory::unique_ptr<ast_expression>>
+              assign_params(m_allocator);
+
+          auto const_null =
+              memory::make_unique<ast_constant>(m_allocator, st_def);
+          const_null->m_string_value = containers::string(m_allocator, "");
+          const_null->m_type = m_type_manager->nullptr_t(&m_used_types);
+          auto null_as_vptr = make_cast(core::move(const_null),
+              m_type_manager->void_ptr_t(&m_used_types));
+          assign_params.push_back(core::move(null_as_vptr));
+
+          assign_params.push_back(make_cast(
+              core::move(rhs), m_type_manager->void_ptr_t(&m_used_types)));
+
+          rhs = make_cast(call_function(st_def,
+                              m_type_manager->assign_shared(&m_used_builtins),
+                              core::move(assign_params)),
+              t);
+        }
         if (t != rhs->m_type) {
           if (rhs->m_type->can_implicitly_cast_to(t)) {
             auto cast =

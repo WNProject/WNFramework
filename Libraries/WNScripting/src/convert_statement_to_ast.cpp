@@ -21,14 +21,12 @@ bool parse_ast_convertor::convertor_context::resolve_return(
     if (!expr) {
       return false;
     }
-    bool is_shared = false;
     if (m_current_function->m_return_type->m_classification ==
         ast_type_classification::shared_reference) {
       if (expr->m_type == m_type_manager->nullptr_t(&m_used_types)) {
         expr = make_cast(core::move(expr), m_current_function->m_return_type);
       } else {
         auto etype = expr->m_type;
-        is_shared = true;
         auto const_null =
             memory::make_unique<ast_constant>(m_allocator, _instruction);
         const_null->m_string_value = containers::string(m_allocator, "");
@@ -59,20 +57,8 @@ bool parse_ast_convertor::convertor_context::resolve_return(
     id_expr->m_function_parameter = m_return_parameter;
     id_expr->m_type = m_current_function->m_return_type;
 
-    if (!is_shared) {
-      if (!id_expr->m_type->m_pass_by_reference) {
-        ret_expr->m_return_expr = clone_ast_node(m_allocator, id_expr.get());
-      }
-    } else {
-      containers::dynamic_array<memory::unique_ptr<ast_expression>> params(
-          m_allocator);
-      params.push_back(make_cast(clone_ast_node(m_allocator, id_expr.get()),
-          m_type_manager->void_ptr_t(&m_used_types)));
-      ret_expr->m_return_expr =
-          make_cast(call_function(_instruction,
-                        m_type_manager->return_shared(&m_used_builtins),
-                        core::move(params)),
-              m_current_function->m_return_type);
+    if (!id_expr->m_type->m_pass_by_reference) {
+      ret_expr->m_return_expr = clone_ast_node(m_allocator, id_expr.get());
     }
 
     auto assign =

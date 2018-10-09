@@ -642,6 +642,20 @@ parse_ast_convertor::convertor_context::resolve_function_call(
     return core::move(ret_id);
   }
 
+  if (function_call->m_function->m_return_type->m_classification ==
+      ast_type_classification::shared_reference) {
+    const ast_type* t = function_call->m_function->m_return_type;
+    containers::dynamic_array<memory::unique_ptr<ast_expression>> ps(
+        m_allocator);
+    ps.push_back(make_cast(
+        core::move(function_call), m_type_manager->void_ptr_t(&m_used_types)));
+
+    return make_cast(
+        call_function(_call, m_type_manager->return_shared(&m_used_builtins),
+            core::move(ps)),
+        t);
+  }
+
   return core::move(function_call);
 }
 
@@ -982,7 +996,6 @@ memory::unique_ptr<ast_expression> parse_ast_convertor::convertor_context::
       memory::make_unique<ast_cast_expression>(m_allocator, _alloc);
   dest_as_void->m_type = m_type_manager->destructor_fn_ptr(&m_used_types);
   dest_as_void->m_base_expression = core::move(dest);
-
   memory::unique_ptr<ast_function_call_expression> allocate =
       memory::make_unique<ast_function_call_expression>(m_allocator, _alloc);
   allocate->m_function = m_type_manager->allocate_shared(&m_used_builtins);
