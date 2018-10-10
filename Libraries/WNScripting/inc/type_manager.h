@@ -73,9 +73,7 @@ public:
                                !is_shared_script_pointer<T>::value,
       const ast_type*>::type
   get_type() {
-    return m_externally_visible_types
-        .find(c_type_tag<T>::get_unique_identifier())
-        ->second;
+    return m_externally_visible_types.find(core::type_id<T>::value())->second;
   }
 
   template <typename T>
@@ -95,9 +93,7 @@ public:
 
   template <typename T>
   const ast_type* get_type() const {
-    return m_externally_visible_types
-        .find(c_type_tag<T>::get_unique_identifier())
-        ->second;
+    return m_externally_visible_types.find(core::type_id<T>::value())->second;
   }
 
   template <typename... Args>
@@ -345,7 +341,7 @@ private:
 
   containers::hash_map<containers::string_view, memory::unique_ptr<ast_type>>
       m_external_types;
-  containers::hash_map<void*, ast_type*> m_externally_visible_types;
+  containers::hash_map<uintptr_t, ast_type*> m_externally_visible_types;
   containers::deque<memory::unique_ptr<ast_function>> m_externals;
   containers::hash_map<containers::string_view, ast_function*>
       m_externals_by_name;

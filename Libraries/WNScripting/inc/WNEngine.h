@@ -282,7 +282,7 @@ protected:
   virtual void* allocate_shared(size_t size) = 0;
 
   type_manager m_type_manager;
-  containers::hash_map<void*, memory::unique_ptr<script_object_type>>
+  containers::hash_map<uintptr_t, memory::unique_ptr<script_object_type>>
       m_object_types;
 };
 

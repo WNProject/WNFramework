@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
+#include "WNScripting/inc/type_manager.h"
 #include "WNScripting/inc/WNNodeTypes.h"
 #include "WNScripting/inc/ast_node_types.h"
-#include "WNScripting/inc/type_manager.h"
 
 namespace wn {
 namespace scripting {
@@ -37,14 +37,12 @@ type_manager::type_manager(memory::allocator* _allocator, logging::log* _log)
   uint32_type->m_is_arithmetic_type = true;
   uint32_type->m_is_comparable_type = true;
   uint32_type->calculate_mangled_name(m_allocator);
-  m_externally_visible_types[c_type_tag<int32_t>::get_unique_identifier()] =
+  m_externally_visible_types[core::type_id<int32_t>::value()] =
       uint32_type.get();
-  m_externally_visible_types
-      [c_type_tag<wn_array_ptr<int32_t>>::get_unique_identifier()] =
-          get_array_of(uint32_type.get(), 0, nullptr);
-  m_externally_visible_types
-      [c_type_tag<slice<int32_t>>::get_unique_identifier()] =
-          get_slice_of(uint32_type.get(), 1, nullptr);
+  m_externally_visible_types[core::type_id<wn_array_ptr<int32_t>>::value()] =
+      get_array_of(uint32_type.get(), 0, nullptr);
+  m_externally_visible_types[core::type_id<slice<int32_t>>::value()] =
+      get_slice_of(uint32_type.get(), 1, nullptr);
 
   m_integral_types[32] = core::move(uint32_type);
 
@@ -56,14 +54,12 @@ type_manager::type_manager(memory::allocator* _allocator, logging::log* _log)
   uint8_type->m_is_arithmetic_type = true;
   uint8_type->m_is_comparable_type = true;
   uint8_type->calculate_mangled_name(m_allocator);
-  m_externally_visible_types[c_type_tag<uint8_t>::get_unique_identifier()] =
+  m_externally_visible_types[core::type_id<uint8_t>::value()] =
       uint8_type.get();
-  m_externally_visible_types
-      [c_type_tag<wn_array_ptr<uint8_t>>::get_unique_identifier()] =
-          get_array_of(uint8_type.get(), 0, nullptr);
-  m_externally_visible_types
-      [c_type_tag<slice<uint8_t>>::get_unique_identifier()] =
-          get_slice_of(uint8_type.get(), 1, nullptr);
+  m_externally_visible_types[core::type_id<wn_array_ptr<uint8_t>>::value()] =
+      get_array_of(uint8_type.get(), 0, nullptr);
+  m_externally_visible_types[core::type_id<slice<uint8_t>>::value()] =
+      get_slice_of(uint8_type.get(), 1, nullptr);
 
   m_integral_types[8] = core::move(uint8_type);
 
@@ -75,14 +71,12 @@ type_manager::type_manager(memory::allocator* _allocator, logging::log* _log)
   float_type->m_is_arithmetic_type = true;
   float_type->m_is_comparable_type = true;
   float_type->calculate_mangled_name(m_allocator);
-  m_externally_visible_types[c_type_tag<float_t>::get_unique_identifier()] =
+  m_externally_visible_types[core::type_id<float_t>::value()] =
       float_type.get();
-  m_externally_visible_types
-      [c_type_tag<wn_array_ptr<float>>::get_unique_identifier()] =
-          get_array_of(float_type.get(), 0, nullptr);
-  m_externally_visible_types
-      [c_type_tag<slice<float>>::get_unique_identifier()] =
-          get_slice_of(float_type.get(), 1, nullptr);
+  m_externally_visible_types[core::type_id<wn_array_ptr<float>>::value()] =
+      get_array_of(float_type.get(), 0, nullptr);
+  m_externally_visible_types[core::type_id<slice<float>>::value()] =
+      get_slice_of(float_type.get(), 1, nullptr);
   m_float_types[32] = core::move(float_type);
 
   m_void_t = memory::make_unique_delegated<ast_type>(m_allocator,
@@ -90,8 +84,7 @@ type_manager::type_manager(memory::allocator* _allocator, logging::log* _log)
   m_void_t->m_name = containers::string(m_allocator, "Void");
   m_void_t->m_builtin = builtin_type::void_type;
   m_void_t->calculate_mangled_name(m_allocator);
-  m_externally_visible_types[c_type_tag<void>::get_unique_identifier()] =
-      m_void_t.get();
+  m_externally_visible_types[core::type_id<void>::value()] = m_void_t.get();
 
   m_void_ptr_t = memory::make_unique_delegated<ast_type>(m_allocator,
       [this](void* _memory) { return new (_memory) ast_type(&m_all_types); });
@@ -99,9 +92,8 @@ type_manager::type_manager(memory::allocator* _allocator, logging::log* _log)
   m_void_ptr_t->m_builtin = builtin_type::void_ptr_type;
   m_void_ptr_t->m_implicitly_contained_type = m_void_t.get();
   m_void_ptr_t->calculate_mangled_name(m_allocator);
-  m_externally_visible_types[c_type_tag<void*>::get_unique_identifier()] =
+  m_externally_visible_types[core::type_id<void*>::value()] =
       m_void_ptr_t.get();
-
 
   m_bool_t = memory::make_unique_delegated<ast_type>(m_allocator,
       [this](void* _memory) { return new (_memory) ast_type(&m_all_types); });
@@ -109,14 +101,11 @@ type_manager::type_manager(memory::allocator* _allocator, logging::log* _log)
   m_bool_t->m_builtin = builtin_type::bool_type;
   m_bool_t->calculate_mangled_name(m_allocator);
   m_bool_t->m_is_comparable_type = true;
-  m_externally_visible_types[c_type_tag<bool>::get_unique_identifier()] =
-      m_bool_t.get();
-  m_externally_visible_types
-      [c_type_tag<wn_array_ptr<bool>>::get_unique_identifier()] =
-          get_array_of(m_bool_t.get(), 0, nullptr);
-  m_externally_visible_types
-      [c_type_tag<slice<bool>>::get_unique_identifier()] =
-          get_slice_of(m_bool_t.get(), 1, nullptr);
+  m_externally_visible_types[core::type_id<bool>::value()] = m_bool_t.get();
+  m_externally_visible_types[core::type_id<wn_array_ptr<bool>>::value()] =
+      get_array_of(m_bool_t.get(), 0, nullptr);
+  m_externally_visible_types[core::type_id<slice<bool>>::value()] =
+      get_slice_of(m_bool_t.get(), 1, nullptr);
 
   m_size_t = memory::make_unique_delegated<ast_type>(m_allocator,
       [this](void* _memory) { return new (_memory) ast_type(&m_all_types); });
@@ -125,7 +114,7 @@ type_manager::type_manager(memory::allocator* _allocator, logging::log* _log)
   m_size_t->calculate_mangled_name(m_allocator);
   m_size_t->m_is_arithmetic_type = true;
   m_size_t->m_is_comparable_type = true;
-  m_externally_visible_types[c_type_tag<wn_size_t>::get_unique_identifier()] =
+  m_externally_visible_types[core::type_id<wn_size_t>::value()] =
       m_size_t.get();
 
   m_nullptr_t = memory::make_unique_delegated<ast_type>(m_allocator,
@@ -152,7 +141,7 @@ type_manager::type_manager(memory::allocator* _allocator, logging::log* _log)
   m_cstr_t->m_name = containers::string(m_allocator, "CString");
   m_cstr_t->m_builtin = builtin_type::c_string_type;
   m_cstr_t->calculate_mangled_name(m_allocator);
-  m_externally_visible_types[c_type_tag<const char*>::get_unique_identifier()] =
+  m_externally_visible_types[core::type_id<const char*>::value()] =
       m_cstr_t.get();
 
   m_destructor_fn_ptr_t = resolve_function_ptr_type(
@@ -761,10 +750,10 @@ size_t type_manager::get_virtual_function(const containers::string_view& _name,
 
   for (auto& it : object_type->m_vtable->m_functions) {
     if (it->m_name == _name && it->m_return_type == ret_type &&
-          it->m_parameters.size() == _types.size() - 1) {
+        it->m_parameters.size() == _types.size() - 1) {
       bool found = true;
       for (size_t i = 2; i < _types.size(); ++i) {
-        if (_types[i] != it->m_parameters[i-1].m_type) {
+        if (_types[i] != it->m_parameters[i - 1].m_type) {
           found = false;
           break;
         }

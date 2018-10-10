@@ -231,8 +231,7 @@ void inline engine::export_script_type<void>() {}
 template <typename T>
 void inline engine::export_script_type() {
   export_script_type<typename T::parent_type>();
-  if (m_object_types.find(c_type_tag<T>::get_unique_identifier()) !=
-      m_object_types.end()) {
+  if (m_object_types.find(core::type_id<T>::value()) != m_object_types.end()) {
     return;
   }
 
@@ -242,12 +241,12 @@ void inline engine::export_script_type() {
   t->m_name = T::exported_name();
   t->m_engine = this;
   fill_parent_type<typename T::parent_type>(t.get());
-  m_object_types[c_type_tag<T>::get_unique_identifier()] = core::move(t);
+  m_object_types[core::type_id<T>::value()] = core::move(t);
 }
 
 template <typename T>
 bool inline engine::resolve_script_type() {
-  auto t = m_object_types.find(c_type_tag<T>::get_unique_identifier());
+  auto t = m_object_types.find(core::type_id<T>::value());
   WN_DEBUG_ASSERT(
       t != m_object_types.end(), "Cannot resolve type that as not exported");
   T* ot = static_cast<T*>(t->second.get());
@@ -271,7 +270,7 @@ bool inline engine::fill_parent_type<void>(script_object_type* _t) {
 
 template <typename T>
 bool inline engine::fill_parent_type(script_object_type* _t) {
-  auto t = m_object_types.find(c_type_tag<T>::get_unique_identifier());
+  auto t = m_object_types.find(core::type_id<T>::value());
   WN_DEBUG_ASSERT(
       t != m_object_types.end(), "Cannot resolve type that as not exported");
   _t->m_parent = t->second.get();
@@ -301,30 +300,32 @@ void inline do_engine_free(const engine* _engine, void* v) {
 
 template <typename T>
 void inline fixup_return_type(T&,
-    const containers::hash_map<void*, memory::unique_ptr<script_object_type>>&,
+    const containers::hash_map<uintptr_t,
+        memory::unique_ptr<script_object_type>>&,
     const engine*) {}
 
 template <typename T>
 void inline fixup_return_type(script_pointer<T>& t,
-    const containers::hash_map<void*, memory::unique_ptr<script_object_type>>&
-        object_type,
+    const containers::hash_map<uintptr_t,
+        memory::unique_ptr<script_object_type>>& object_type,
     const engine*) {
-  t.unsafe_set_type(reinterpret_cast<T*>(
-      object_type[c_type_tag<T>::get_unique_identifier()].get()));
+  t.unsafe_set_type(
+      reinterpret_cast<T*>(object_type[core::type_id<T>::value()].get()));
 }
 
 template <typename T>
 void inline fixup_return_type(shared_script_pointer<T>& t,
-    const containers::hash_map<void*, memory::unique_ptr<script_object_type>>&
-        object_type,
+    const containers::hash_map<uintptr_t,
+        memory::unique_ptr<script_object_type>>& object_type,
     const engine*) {
-  t.unsafe_set_type(reinterpret_cast<T*>(
-      object_type[c_type_tag<T>::get_unique_identifier()].get()));
+  t.unsafe_set_type(
+      reinterpret_cast<T*>(object_type[core::type_id<T>::value()].get()));
 }
 
 template <typename T>
 void inline fixup_return_type(shared_cpp_pointer<T>& t,
-    const containers::hash_map<void*, memory::unique_ptr<script_object_type>>&,
+    const containers::hash_map<uintptr_t,
+        memory::unique_ptr<script_object_type>>&,
     const engine* _engine) {
   t.unsafe_set_engine_free(_engine, &do_engine_free);
 }

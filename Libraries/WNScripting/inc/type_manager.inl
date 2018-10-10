@@ -279,22 +279,19 @@ template <typename T>
 void type_manager::register_child_cpp_type(functional::function<void(
         containers::string_view _mangled_name, void* _ptr, bool _is_virtual)>
         _fn) {
-  WN_DEBUG_ASSERT(
-      m_externally_visible_types.find(c_type_tag<T>::get_unique_identifier()) ==
-          m_externally_visible_types.end(),
+  WN_DEBUG_ASSERT(m_externally_visible_types.find(core::type_id<T>::value()) ==
+                      m_externally_visible_types.end(),
       "You registered the same type c++ type twice in this scripting engine");
   containers::string_view name = exported_script_type<T>::exported_name();
-  ast_type* parent_type = m_externally_visible_types[c_type_tag<
-      typename exported_script_type<T>::parent_type>::get_unique_identifier()];
+  ast_type* parent_type = m_externally_visible_types
+      [core::type_id<typename exported_script_type<T>::parent_type>::value()];
 
   ast_type* t = register_external_type(name, sizeof(T), parent_type);
-  m_externally_visible_types[c_type_tag<T>::get_unique_identifier()] = t;
-  m_externally_visible_types[c_type_tag<T*>::get_unique_identifier()] =
+  m_externally_visible_types[core::type_id<T>::value()] = t;
+  m_externally_visible_types[core::type_id<T*>::value()] =
       get_reference_of(t, ast_type_classification::reference, nullptr);
-  m_externally_visible_types
-      [c_type_tag<shared_cpp_pointer<T>>::get_unique_identifier()] =
-          get_reference_of(
-              t, ast_type_classification::shared_reference, nullptr);
+  m_externally_visible_types[core::type_id<shared_cpp_pointer<T>>::value()] =
+      get_reference_of(t, ast_type_classification::shared_reference, nullptr);
   exporter<T> exporter(t, m_allocator, this, &_fn);
   exported_script_type<T>::export_type(&exporter);
   finalize_external_type(t);
@@ -304,17 +301,16 @@ template <typename T>
 void type_manager::register_cpp_type(functional::function<void(
         containers::string_view _mangled_name, void* _ptr, bool _is_virtual)>
         _fn) {
-  WN_DEBUG_ASSERT(
-      m_externally_visible_types.find(c_type_tag<T>::get_unique_identifier()) ==
-          m_externally_visible_types.end(),
+  WN_DEBUG_ASSERT(m_externally_visible_types.find(core::type_id<T>::value()) ==
+                      m_externally_visible_types.end(),
       "You registered the same type c++ type twice in this scripting engine");
   containers::string_view name = exported_script_type<T>::exported_name();
 
   ast_type* t = register_external_type(name, sizeof(T), nullptr);
-  m_externally_visible_types[c_type_tag<T>::get_unique_identifier()] = t;
-  m_externally_visible_types[c_type_tag<T*>::get_unique_identifier()] =
+  m_externally_visible_types[core::type_id<T>::value()] = t;
+  m_externally_visible_types[core::type_id<T*>::value()] =
       get_reference_of(t, ast_type_classification::reference, nullptr);
-  m_externally_visible_types[c_type_tag<shared_cpp_pointer<T>>::get_unique_identifier()] =
+  m_externally_visible_types[core::type_id<shared_cpp_pointer<T>>::value()] =
       get_reference_of(t, ast_type_classification::shared_reference, nullptr);
   exporter<T> exporter(t, m_allocator, this, &_fn);
   exported_script_type<T>::export_type(&exporter);
@@ -323,21 +319,18 @@ void type_manager::register_cpp_type(functional::function<void(
 
 template <typename T>
 void type_manager::export_script_type() {
-  if (m_externally_visible_types.find(c_type_tag<T>::get_unique_identifier()) !=
+  if (m_externally_visible_types.find(core::type_id<T>::value()) !=
       m_externally_visible_types.end()) {
     return;
   }
   containers::string_view name = T::exported_name();
   export_script_type(name);
   ast_type* t = m_structure_types.find(name)->second.get();
-  m_externally_visible_types[c_type_tag<T>::get_unique_identifier()] = t;
-  m_externally_visible_types
-      [c_type_tag<script_pointer<T>>::get_unique_identifier()] =
-          get_reference_of(t, ast_type_classification::reference, nullptr);
-  m_externally_visible_types
-      [c_type_tag<shared_script_pointer<T>>::get_unique_identifier()] =
-          get_reference_of(
-              t, ast_type_classification::shared_reference, nullptr);
+  m_externally_visible_types[core::type_id<T>::value()] = t;
+  m_externally_visible_types[core::type_id<script_pointer<T>>::value()] =
+      get_reference_of(t, ast_type_classification::reference, nullptr);
+  m_externally_visible_types[core::type_id<shared_script_pointer<T>>::value()] =
+      get_reference_of(t, ast_type_classification::shared_reference, nullptr);
 }
 
 }  // namespace scripting

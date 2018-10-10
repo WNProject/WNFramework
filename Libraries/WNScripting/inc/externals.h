@@ -12,14 +12,6 @@
 namespace wn {
 namespace scripting {
 
-template <typename T>
-struct c_type_tag {
-  static void* get_unique_identifier() {
-    static void* x = nullptr;
-    return &x;
-  }
-};
-
 // Any type that is to be exported must specialize
 // this template, and provide exported_name
 // and exported_members functions.
