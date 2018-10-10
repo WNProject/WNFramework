@@ -19,11 +19,6 @@ using std::forward;
 using std::move;
 using std::swap;
 
-class non_constructable {
-protected:
-  non_constructable() = delete;
-};
-
 class non_copyable {
 protected:
   non_copyable() = default;
@@ -32,14 +27,14 @@ protected:
   non_copyable& operator=(const non_copyable&) = delete;
 };
 
-class non_constructable_non_copyable {
+class non_constructable {
 protected:
-  non_constructable_non_copyable() = delete;
-  non_constructable_non_copyable(
-      const non_constructable_non_copyable&) = delete;
+  non_constructable() = delete;
+  non_constructable(non_constructable&&) = delete;
+  non_constructable(const non_constructable&) = delete;
 
-  non_constructable_non_copyable& operator=(
-      const non_constructable_non_copyable&) = delete;
+  non_constructable& operator=(non_constructable&&) = delete;
+  non_constructable& operator=(const non_constructable&) = delete;
 };
 
 template <typename T>

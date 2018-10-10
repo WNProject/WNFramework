@@ -17,7 +17,7 @@ namespace wn {
 namespace math {
 namespace internal {
 
-struct basic_traits_generic : core::non_constructable_non_copyable {
+struct basic_traits_generic : core::non_constructable {
   template <typename type>
   static WN_FORCE_INLINE
       typename core::enable_if<(std::is_integral<type>::value &&
