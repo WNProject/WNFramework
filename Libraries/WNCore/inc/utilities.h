@@ -8,6 +8,7 @@
 #define __WN_CORE_UTILITIES_H__
 
 #include "WNCore/inc/type_traits.h"
+#include "WNCore/inc/types.h"
 
 #include <utility>
 
@@ -35,6 +36,15 @@ protected:
 
   non_constructable& operator=(non_constructable&&) = delete;
   non_constructable& operator=(const non_constructable&) = delete;
+};
+
+template <typename T>
+struct type_id final : non_constructable {
+  static inline uintptr_t value() {
+    static void* dummy = nullptr;
+
+    return reinterpret_cast<uintptr_t>(&dummy);
+  }
 };
 
 template <typename T>
