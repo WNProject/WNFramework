@@ -300,13 +300,13 @@ struct is_null_pointer : is_same<decltype(nullptr), typename decay<T>::type> {};
 // type sequences
 
 #ifdef _WN_HAS_CPP14_STD_INTEGER_SEQUENCE
-template <typename T, const T... Values>
+template <typename T, T... Values>
 using integral_sequence = std::integer_sequence<T, Values...>;
 
-template <const size_t... Values>
+template <size_t... Values>
 using index_sequence = std::index_sequence<Values...>;
 #else
-template <typename T, const T... Values>
+template <typename T, T... Values>
 struct integral_sequence {
   using value_type = T;
 
@@ -315,24 +315,24 @@ struct integral_sequence {
   }
 };
 
-template <const size_t... Values>
+template <size_t... Values>
 using index_sequence = integral_sequence<size_t, Values...>;
 #endif
 
 namespace internal {
 
-template <const bool Negative, const bool Zero, typename IntegerConstant,
+template <bool Negative, bool Zero, typename IntegerConstant,
     typename IntegerSequence>
 struct make_sequence {
   static_assert(
       !Negative, "make_integer_sequence<T, N> requires N to be non-negative.");
 };
 
-template <typename T, const T... Values>
+template <typename T, T... Values>
 struct make_sequence<false, true, integral_constant<T, 0>,
     integral_sequence<T, Values...>> : integral_sequence<T, Values...> {};
 
-template <typename T, const T Index, const T... Values>
+template <typename T, T Index, T... Values>
 struct make_sequence<false, false, integral_constant<T, Index>,
     integral_sequence<T, Values...>>
   : make_sequence<false, Index == 1, integral_constant<T, Index - 1>,
@@ -340,11 +340,11 @@ struct make_sequence<false, false, integral_constant<T, Index>,
 
 }  // namespace internal
 
-template <typename T, const T N>
+template <typename T, T N>
 using make_integral_sequence = typename internal::make_sequence<(N < 0), N == 0,
     integral_constant<T, N>, integral_sequence<T>>::value_type;
 
-template <const size_t N>
+template <size_t N>
 using make_index_sequence = make_integral_sequence<size_t, N>;
 
 // type modifications
@@ -408,18 +408,18 @@ using decay_t = typename decay<T>::type;
 #endif
 
 #ifdef _WN_HAS_CPP14_STD_ENABLE_IF_T
-template <const bool Test, typename T = void>
+template <bool Test, typename T = void>
 using enable_if_t = std::enable_if_t<Test, T>;
 #else
-template <const bool Test, typename T = void>
+template <bool Test, typename T = void>
 using enable_if_t = typename enable_if<Test, T>::type;
 #endif
 
 #ifdef _WN_HAS_CPP14_STD_CONDITIONAL_T
-template <const bool Test, typename T1, typename T2>
+template <bool Test, typename T1, typename T2>
 using conditional_t = std::conditional_t<Test, T1, T2>;
 #else
-template <const bool Test, typename T1, typename T2>
+template <bool Test, typename T1, typename T2>
 using conditional_t = typename conditional<Test, T1, T2>::type;
 #endif
 
@@ -452,10 +452,10 @@ using result_of_t = typename result_of<T>::type;
 // type constants
 
 #ifdef _WN_HAS_CPP17_STD_BOOL_CONSTANT
-template <const bool Value>
+template <bool Value>
 using bool_constant = std::bool_constant<Value>;
 #else
-template <const bool Value>
+template <bool Value>
 using bool_constant = integral_constant<bool, Value>;
 #endif
 
@@ -496,7 +496,49 @@ template <typename T>
 struct negation : bool_constant<!T::value> {};
 #endif
 
-///////////////////////////////////////////////////////////////////////////////
+// type transformations
+
+namespace internal {
+
+template <typename... Ts>
+struct make_void final {
+  using type = void;
+};
+
+}  // namespace internal
+
+template <typename... Ts>
+using void_t = typename internal::make_void<Ts...>::type;
+
+// c++20 //////////////////////////////////////////////////////////////////////
+
+namespace internal {
+
+template <typename Result, typename R, typename = void>
+struct is_invocable : false_type {};
+
+template <typename Result, typename R>
+struct is_invocable<Result, R, void_t<typename Result::type>>
+  : conditional<is_void<R>::value, is_void<R>,
+        is_convertible<typename Result::type, R>>::type {};
+
+}  // namespace internal
+
+template <typename F, typename... Args>
+using invoke_result = result_of<F(Args...)>;
+
+template <typename F, typename... Args>
+using invoke_result_t = typename invoke_result<F, Args...>::type;
+
+template <typename F, typename... Args>
+struct is_invocable
+  : internal::is_invocable<invoke_result<F, Args...>, void>::type {};
+
+template <typename R, typename F, typename... Args>
+struct is_invocable_r
+  : internal::is_invocable<invoke_result<F, Args...>, R>::type {};
+
+// custom /////////////////////////////////////////////////////////////////////
 
 // type properties
 
@@ -505,21 +547,21 @@ struct are_pod : conjunction<is_pod<Ts>...> {};
 
 // type constants
 
-template <const size_t Value>
+template <size_t Value>
 using index_constant = integral_constant<size_t, Value>;
 
 // type sequences
 
-template <const bool... Values>
+template <bool... Values>
 using bool_sequence = integral_sequence<bool, Values...>;
 
 // meta functions
 
-template <const bool... Values>
+template <bool... Values>
 struct bool_and
   : is_same<bool_sequence<Values...>, bool_sequence<(Values || true)...>> {};
 
-template <const bool... Values>
+template <bool... Values>
 struct bool_or : integral_constant<bool, !bool_and<!Values...>::value> {};
 
 // relationships and property queries
@@ -533,105 +575,19 @@ struct are_same : conjunction<is_same<T, Ts>...> {};
 template <typename T, typename... Ts>
 struct are_same_decayed : are_same<decay_t<T>, decay_t<Ts>...> {};
 
-///////////////////////////////////////////////////////////////////////////////
-
-template <typename T>
-struct exists : true_type {};
-
-namespace internal {
-
-template <typename F, typename R, typename... Args>
-class is_callable {
-private:
-  template <typename T, const bool Test, typename U, typename... A>
-  struct same_return : false_type {};
-
-  template <typename T, typename U, typename... A>
-  struct same_return<T, true, U, A...> : is_same<result_of_t<T(A...)>, U> {};
-
-  using invalid = char (&)[1];
-  using valid = char (&)[2];
-
-  template <typename T>
-  struct helper;
-
-  template <typename T>
-  static valid checker(
-      helper<decltype(std::declval<T>()(std::declval<Args>()...))>*);
-
-  template <typename T>
-  static invalid checker(...);
-
-  template <typename T>
-  struct callable : bool_constant<sizeof(checker<T>(0)) == sizeof(valid)> {};
-
-public:
-  enum { value = same_return<F, callable<F>::value, R, Args...>::value };
-};
-
-template <typename F, typename C, typename R, typename... Args>
-class is_callable_method {
-private:
-  template <typename T, const bool Test, typename CC, typename U, typename... A>
-  struct same_return : false_type {};
-
-  template <typename T, typename CC, typename U, typename... A>
-  struct same_return<T, true, CC, U, A...>
-    : is_same<decltype((std::declval<C*>()->*(std::declval<T>()))(
-                  std::declval<Args>()...)),
-          U> {};
-
-  using invalid = char (&)[1];
-  using valid = char (&)[2];
-
-  template <typename T>
-  struct helper;
-
-  using c_star = C*;
-
-  template <typename T>
-  using call_type = decltype((std::declval<c_star>()->*(std::declval<T>()))(
-                    std::declval<Args>()...));
-
-  template <typename T>
-  static valid checker(helper<call_type<T>>*);
-
-  template <typename T>
-  static invalid checker(...);
-
-  template <typename T>
-  struct callable : bool_constant<sizeof(checker<T>(0)) == sizeof(valid)> {};
-
-public:
-  enum { value = same_return<F, callable<F>::value, C, R, Args...>::value };
-};
-
-}  // namespace internal
-
-template <typename F, typename T>
-struct is_callable : false_type {};
-
-template <typename F, typename R, typename... Args>
-struct is_callable<F, R(Args...)> : internal::is_callable<F, R, Args...> {};
-
-template <typename F, typename T>
-struct is_callable_method : false_type {};
-
-template <typename F, typename C, typename R, typename... Args>
-struct is_callable_method<F, R (C::*)(Args...)>
-  : internal::is_callable_method<F, C, R, Args...> {};
-
 template <typename T>
 struct remove_lvalue_reference {
-  typedef T type;
+  using type = T;
 };
+
 template <typename T>
 struct remove_lvalue_reference<T&> {
-  typedef T type;
+  using type = T;
 };
+
 template <typename T>
 struct remove_lvalue_reference<T&&> {
-  typedef T&& type;
+  using type = T&&;
 };
 
 }  // namespace core

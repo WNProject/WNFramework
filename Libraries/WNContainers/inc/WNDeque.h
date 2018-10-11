@@ -505,8 +505,9 @@ public:
     return (insert(_pos, _initializer_list.begin(), _initializer_list.end()));
   }
 
-  template <typename _Function, typename = core::enable_if_t<core::is_callable<
-                                    _Function, _Type(size_type)>::value>>
+  template <typename _Function,
+      typename = core::enable_if_t<
+          core::is_invocable_r<_Type, _Function, size_type>::value>>
   iterator insert(
       const_iterator _pos, const size_type _count, _Function&& _generator) {
     iterator position = allocate(_pos, _count);

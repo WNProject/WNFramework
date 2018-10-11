@@ -278,8 +278,7 @@ public:
   template <typename B, typename T, typename... Args>
   WN_FORCE_INLINE typename core::enable_if<
       core::conjunction<typename multi_tasking::is_synchronized<T>::type,
-          core::is_callable_method<B,
-              void (T::*)(async_function, Args...)>>::value,
+          core::is_invocable<B, T*, async_function, Args...>>::value,
       void>::type
   add_job(job_signal* _signal, B _fn, T* _c, Args&&... _args) {
     synchronization_data* data = _c->get_synchronization_data();
@@ -291,8 +290,7 @@ public:
   template <typename B, typename T, typename... Args>
   WN_FORCE_INLINE typename core::enable_if<
       core::conjunction<typename multi_tasking::is_synchronized<T>::type,
-          core::is_callable_method<B,
-              void (T::*)(async_blocking_function, Args...)>>::value,
+          core::is_invocable<B, T*, async_blocking_function, Args...>>::value,
       void>::type
   add_job(job_signal* _signal, B _fn, T* _c, Args&&... _args) {
     synchronization_data* data = _c->get_synchronization_data();
@@ -304,8 +302,7 @@ public:
   template <typename B, typename T, typename... Args>
   WN_FORCE_INLINE typename core::enable_if<
       core::conjunction<typename multi_tasking::is_synchronized<T>::type,
-          core::is_callable_method<B,
-              void (T::*)(async_passthrough, Args...)>>::value,
+          core::is_invocable<B, T*, async_passthrough, Args...>>::value,
       void>::type
   add_job(job_signal* _signal, B _fn, T* _c, Args&&... _args) {
     _async_passthrough ps(this, _signal);
@@ -316,7 +313,7 @@ public:
   WN_FORCE_INLINE typename core::enable_if<
       core::conjunction<
           core::negation<typename multi_tasking::is_synchronized<T>::type>,
-          core::is_callable_method<B, void (T::*)(Args...)>>::value,
+          core::is_invocable<B, T*, Args...>>::value,
       void>::type
   add_job(job_signal* _signal, B _fn, T* _c, Args&&... _args) {
     add_job_internal(memory::make_unique<synchronized_job<T, B>>(m_allocator,

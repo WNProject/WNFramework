@@ -34,7 +34,7 @@ public:
 
   template <typename F,
       typename = core::enable_if_t<core::conjunction<
-          core::is_callable<F, R(Args...)>,
+          core::is_invocable_r<R, F, Args...>,
           core::negation<core::is_same_decayed<F, unique_function>>>::value>>
   WN_FORCE_INLINE unique_function(F&& _f) : unique_function() {
     construct(core::forward<F>(_f));
@@ -72,7 +72,7 @@ public:
 
   template <typename F,
       typename = core::enable_if_t<core::conjunction<
-          core::is_callable<F, R(Args...)>,
+          core::is_invocable_r<R, F, Args...>,
           core::negation<core::is_same_decayed<F, unique_function>>>::value>>
   WN_FORCE_INLINE unique_function& operator=(F&& _f) {
     unique_function(core::forward<F>(_f)).swap(*this);
@@ -97,7 +97,7 @@ public:
 
   template <typename F,
       typename = core::enable_if_t<core::conjunction<
-          core::is_callable<F, R(Args...)>,
+          core::is_invocable_r<R, F, Args...>,
           core::negation<core::is_same_decayed<F, unique_function>>>::value>>
   WN_FORCE_INLINE void assign(F&& _f) {
     *this = core::forward<F>(_f);

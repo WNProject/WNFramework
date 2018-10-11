@@ -61,8 +61,8 @@ public:
   }
 
   template <typename F,
-      typename =
-          core::enable_if_t<core::conjunction<core::is_callable<F, R(Args...)>,
+      typename = core::enable_if_t<
+          core::conjunction<core::is_invocable_r<R, F, Args...>,
               core::negation<core::is_same_decayed<F, function>>>::value>>
   function(memory::allocator* _allocator, F&& _f) : function(_allocator) {
     construct(core::forward<F>(_f));
@@ -114,8 +114,8 @@ public:
   }
 
   template <typename F,
-      typename =
-          core::enable_if_t<core::conjunction<core::is_callable<F, R(Args...)>,
+      typename = core::enable_if_t<
+          core::conjunction<core::is_invocable_r<R, F, Args...>,
               core::negation<core::is_same_decayed<F, function>>>::value>>
   function& operator=(F&& _f) {
     function(m_allocator, core::forward<F>(_f)).swap(*this);
@@ -147,16 +147,16 @@ public:
   }
 
   template <typename F,
-      typename =
-          core::enable_if_t<core::conjunction<core::is_callable<F, R(Args...)>,
+      typename = core::enable_if_t<
+          core::conjunction<core::is_invocable_r<R, F, Args...>,
               core::negation<core::is_same_decayed<F, function>>>::value>>
   void reset(F&& _f) {
     reset(m_allocator, core::forward<F>(_f)).swap(*this);
   }
 
   template <typename F,
-      typename =
-          core::enable_if_t<core::conjunction<core::is_callable<F, R(Args...)>,
+      typename = core::enable_if_t<
+          core::conjunction<core::is_invocable_r<R, F, Args...>,
               core::negation<core::is_same_decayed<F, function>>>::value>>
   void reset(memory::allocator* _allocator, F&& _f) {
     function(_allocator, core::forward<F>(_f)).swap(*this);

@@ -545,8 +545,8 @@ public:
   }
 
   template <typename _Function,
-      typename =
-          core::enable_if_t<core::is_callable<_Function, T(size_type)>::value>>
+      typename = core::enable_if_t<
+          core::is_invocable_r<T, _Function, size_type>::value>>
   iterator insert(
       const_iterator _pos, const size_type _count, _Function&& _generator) {
     iterator position = shift(_pos, _count);
