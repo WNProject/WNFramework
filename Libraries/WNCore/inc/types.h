@@ -10,13 +10,9 @@
 #include "WNCore/inc/base.h"
 
 #include <cstdint>
+#include <type_traits>
 
-#ifdef _WN_64_BIT
-using signed_t = int64_t;
-#else
-using signed_t = int32_t;
-#endif
-
+using signed_t = std::make_signed<size_t>::type;
 using nullptr_t = decltype(nullptr);
 
 #endif  // __WN_CORE_TYPES_H__
