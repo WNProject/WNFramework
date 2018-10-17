@@ -8,4 +8,5 @@ add_wn_application(
     WNScripting
     engine_base
     renderer
+    window
 )

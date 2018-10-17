@@ -1,0 +1,10 @@
+add_wn_library(
+  window
+  SOURCES
+    inc/window.h
+    src/window.cpp
+  LIBS
+    engine_base
+    WNWindow
+    WNScripting
+)

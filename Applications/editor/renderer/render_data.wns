@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-Int main(Context ctx) {
-    shared Renderer renderer = get_renderer(ctx);
-    shared Window window = get_window(ctx);
-    sleep(5);
-    return 32;
+class RenderData {
+    virtual Int register_data(Context ctx) { 
+        log_error(ctx, "ERROR");
+        return 0;
+    }
 }

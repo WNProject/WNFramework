@@ -7,6 +7,7 @@
 #ifndef __WN_ENGINE_BASE_CONTEXT_H__
 #define __WN_ENGINE_BASE_CONTEXT_H__
 
+#include "WNApplicationData/inc/WNApplicationData.h"
 #include "WNScripting/inc/WNEngine.h"
 
 namespace wn {
@@ -15,7 +16,9 @@ namespace engine_base {
 class context {
   // TODO(awoloszyn): Make this less public
 public:
+  const runtime::application::application_data* m_application_data;
   scripting::engine* m_engine;
+  memory::allocator* m_allocator;
   logging::log* m_log;
 };
 

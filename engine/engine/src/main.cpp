@@ -8,6 +8,7 @@
 #include "engine/inc/script_export.h"
 #include "engine_base/inc/context.h"
 #include "renderer/inc/renderer.h"
+#include "window/inc/window.h"
 
 using namespace wn;
 
@@ -39,6 +40,7 @@ int32_t wn_application_main(
     engine::register_scripting(scripting_engine.get());
     engine_base::register_context(scripting_engine.get());
     engine::renderer::renderer::register_scripting(scripting_engine.get());
+    engine::window::window::register_scripting(scripting_engine.get());
 
     scripting::parse_error err = scripting_engine->parse_file("main.wns");
     if (err != scripting::parse_error::ok) {
@@ -55,6 +57,8 @@ int32_t wn_application_main(
     }
 
     engine_base::context ctx;
+    ctx.m_allocator = _application_data->system_allocator;
+    ctx.m_application_data = _application_data;
     ctx.m_engine = scripting_engine.get();
     ctx.m_log = _application_data->default_log;
 
