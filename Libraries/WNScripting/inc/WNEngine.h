@@ -14,62 +14,13 @@
 #include "WNScripting/inc/WNEnums.h"
 #include "WNScripting/inc/WNErrors.h"
 #include "WNScripting/inc/WNScriptHelpers.h"
+#include "WNScripting/inc/WNScriptTLS.h"
 #include "WNScripting/inc/type_manager.h"
 
 namespace wn {
 namespace scripting {
 
 struct ast_type;
-
-template <typename U, typename enable = core::enable_if_t<true>>
-struct get_thunk_passed_type {
-  using type = U;
-  using ret_type = U;
-
-  static inline U wrap(const U& u) {
-    return u;
-  }
-  static inline U unwrap(U u) {
-    return u;
-  }
-};
-
-template <typename U>
-struct get_thunk_passed_type<U,
-    typename core::enable_if<pass_by_reference<U>::value>::type> {
-  using type = U*;
-  using ret_type = U;
-
-  static inline U* wrap(U& u) {
-    return &u;
-  }
-
-  static inline U unwrap(U* u) {
-    return *u;
-  }
-
-  static inline U unwrap(U u) {
-    return u;
-  }
-};
-
-template <typename U>
-struct get_thunk_passed_type<U,
-    typename core::enable_if<core::disjunction<is_script_pointer<U>,
-        is_shared_script_pointer<U>, is_shared_cpp_pointer<U>>::value>::type> {
-  using type = typename U::value_type*;
-  using ret_type = typename U::value_type*;
-  static inline typename U::value_type* wrap(const U& _u) {
-    U& u = const_cast<U&>(_u);
-    void* v = u.unsafe_pass();
-
-    return reinterpret_cast<typename U::value_type*>(v);
-  }
-
-  static inline U unwrap(typename U::value_type* u) {
-    return U(u);
-  }
-};
 
 template <typename R, typename... Args>
 class script_function final {
@@ -149,6 +100,8 @@ public:
     (void)type_array_depth;
     (void)unary_type_names;
     (void)post_un_names;
+    m_tls_data._engine = this;
+    m_tls_data._object_types = &m_object_types;
   }
 
   virtual ~engine() {}
@@ -284,6 +237,8 @@ protected:
   type_manager m_type_manager;
   containers::hash_map<uintptr_t, memory::unique_ptr<script_object_type>>
       m_object_types;
+
+  scripting_tls_data m_tls_data;
 };
 
 template <typename T, typename R, typename... Args>

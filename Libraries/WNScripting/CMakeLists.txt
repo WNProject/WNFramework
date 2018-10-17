@@ -116,6 +116,7 @@ add_wn_library(WNScripting
     inc/ast_node_types.h
     inc/c_compiler.h
     inc/externals.h
+    inc/forward.h
     inc/internal/ast_convertor_context.h
     inc/internal/c_preamble.h
     inc/jit_compiler.h
@@ -133,6 +134,7 @@ add_wn_library(WNScripting
     inc/WNJITEngine.h
     inc/WNNodeTypes.h
     inc/WNScriptHelpers.h
+    inc/WNScriptTLS.h
     inc/WNTranslator.h
     lang/WNScriptAST.g
     src/add_builtins.cpp

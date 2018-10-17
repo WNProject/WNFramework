@@ -8,6 +8,7 @@
 #include "WNMemory/inc/allocator.h"
 #include "WNMemory/inc/manipulation.h"
 #include "WNScripting/inc/WNEnums.h"
+#include "WNScripting/inc/WNScriptTLS.h"
 
 namespace wn {
 namespace scripting {

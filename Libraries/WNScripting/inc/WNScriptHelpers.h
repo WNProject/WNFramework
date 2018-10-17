@@ -6,12 +6,17 @@
 #define __WN_SCRIPTING_SCRIPT_HELPERS_H__
 
 #include "WNContainers/inc/WNArray.h"
+#include "WNContainers/inc/WNHashMap.h"
 #include "WNContainers/inc/WNStringView.h"
+#include "WNCore/inc/type_traits.h"
+#include "WNCore/inc/utilities.h"
 #include "WNFunctional/inc/WNFunction.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/allocator.h"
 #include "WNMemory/inc/unique_ptr.h"
 #include "WNScripting/inc/WNEnums.h"
+#include "WNScripting/inc/WNScriptTLS.h"
+#include "WNScripting/inc/forward.h"
 
 #include <atomic>
 
@@ -35,6 +40,8 @@ struct external_function final {
   bool is_override;
   uint32_t virtual_index;
 };
+
+void do_engine_free(const engine* _engine, void* v);
 
 template <typename T>
 struct pass_by_reference : core::false_type {};
@@ -162,288 +169,8 @@ public:
 template <typename U, size_t S>
 struct pass_by_reference<slice<U, S>> : core::true_type {};
 
-struct script_object_type {
-  void free(void* val) {
-    // TODO(awoloszyn): Use the allocator here.
-    // For now we allocated with malloc, so free with malloc
-    ::free(val);
-  }
-
-  memory::allocator* m_allocator;
-  engine* m_engine;
-  containers::string_view m_name;
-  script_object_type* m_parent;
-};
-
-template <typename T>
-class script_pointer final {
-public:
-  using value_type = T;
-
-  template <typename X, typename... Args>
-  typename X::ret_type invoke(X T::*v, Args... args) {
-    return (type->*v).do_(type->m_engine, *this, args...);
-  }
-
-  ~script_pointer() {}
-
-  script_pointer(const script_pointer& _other)
-    : val(_other.val), type(_other.type) {}
-
-  script_pointer(script_pointer&& _other)
-    : val(_other.val), type(_other.type) {}
-
-  script_pointer() : val(nullptr), type(nullptr) {}
-
-  void* unsafe_ptr() {
-    return val;
-  }
-
-  const void* unsafe_ptr() const {
-    return val;
-  }
-
-  void* unsafe_pass() {
-    return val;
-  }
-
-  void unsafe_set_type(T* _type) {
-    type = _type;
-  }
-
-  script_pointer(void* t) : val(t) {}
-
-  script_pointer(void* _v, T* _t) : val(_v), type(_t) {}
-
-  template <typename Q = T>
-  typename core::enable_if<!core::is_same<typename Q::parent_type, void>::value,
-      script_pointer<typename Q::parent_type>>::type
-  parent() {
-    return script_pointer<typename T::parent_type>(
-        val, reinterpret_cast<typename T::parent_type*>(type->m_parent));
-  }
-
-private:
-  friend class engine;
-
-  void* val;
-  T* type;
-};
-
 template <typename T>
 struct needs_thunk<script_pointer<T>> : core::true_type {};
-
-template <typename T>
-class shared_script_pointer final {
-public:
-  using value_type = T;
-
-  template <typename X, typename... Args>
-  typename X::ret_type invoke(X T::*v, Args... args) {
-    auto sp = get();
-    return (type->*v).do_(type->m_engine, sp, args...);
-  }
-
-  script_pointer<T> get() {
-    return script_pointer<T>(val, type);
-  }
-
-  ~shared_script_pointer() {
-    release();
-  }
-
-  shared_script_pointer(const shared_script_pointer& _other)
-    : val(_other.val), type(_other.type) {
-    acquire();
-  }
-
-  shared_script_pointer(shared_script_pointer&& _other)
-    : val(_other.val), type(_other.type) {
-    _other.val = nullptr;
-    _other.type = nullptr;
-  }
-
-  shared_script_pointer() : val(nullptr), type(nullptr) {}
-
-  void* unsafe_ptr() {
-    return val;
-  }
-
-  const void* unsafe_ptr() const {
-    return val;
-  }
-
-  void* unsafe_pass() {
-    acquire();
-    return val;
-  }
-
-  void unsafe_set_type(T* _type) {
-    type = _type;
-  }
-
-  shared_script_pointer(void* t) : val(t) {
-    acquire();
-  }
-
-  template <typename Q = T>
-  typename core::enable_if<!core::is_same<typename Q::parent_type, void>::value,
-      shared_script_pointer<typename Q::parent_type>>::type
-  parent() {
-    return shared_script_pointer<typename T::parent_type>(
-        val, reinterpret_cast<typename T::parent_type*>(type->m_parent));
-  }
-
-private:
-  shared_script_pointer(void* v, T* t) : val(v), type(t) {
-    acquire();
-  }
-
-  struct shared_object_header {
-    std::atomic<size_t> m_ref_count;
-    void (*m_destructor)(void*);
-  };
-
-  shared_object_header* header() {
-    return static_cast<shared_object_header*>(val) - 1;
-  }
-
-  void acquire() {
-    if (val) {
-      // When this is created (by the engine), then it will
-      // also fix up T* type, but not in the constructor for a variety of
-      // reasons
-      header()->m_ref_count++;
-    }
-  }
-
-  void release() {
-    if (val && --header()->m_ref_count == 0) {
-      if (header()->m_destructor) {
-        (*header()->m_destructor)(val);
-      }
-      type->free(val);
-    }
-  }
-
-  friend class engine;
-
-  void* val;
-  T* type;
-};
-
-template <typename T>
-class shared_cpp_pointer final {
-public:
-  using value_type = T;
-
-  ~shared_cpp_pointer() {
-    release();
-  }
-
-  shared_cpp_pointer(const shared_cpp_pointer& _other)
-    : val(_other.val), m_engine(_other.m_engine) {
-    acquire();
-  }
-
-  shared_cpp_pointer(shared_cpp_pointer&& _other)
-    : val(_other.val), m_engine(_other.m_engine), m_free(_other.m_free) {
-    _other.val = nullptr;
-    _other.m_engine = nullptr;
-    _other.m_free = nullptr;
-  }
-
-  shared_cpp_pointer operator=(const shared_cpp_pointer& _other) {
-    release();
-    val = _other.val;
-    m_engine = _other.m_engine;
-    m_free = _other.m_free;
-    acquire();
-    return *this;
-  }
-
-  shared_cpp_pointer() : val(nullptr) {}
-  T* get() {
-    return val;
-  }
-  T* operator->() {
-    return val;
-  }
-
-  const T* operator->() const {
-    return val;
-  }
-
-  void* unsafe_pass() {
-    acquire();
-    return val;
-  }
-
-  void* unsafe_ptr() {
-    return val;
-  }
-
-  const void* unsafe_ptr() const {
-    return val;
-  }
-
-private:
-  static void destroy(T* t) {
-    (t->T::~T)();
-  }
-
-  shared_cpp_pointer(T* v) : val(v) {
-    static_assert(sizeof(&shared_cpp_pointer<T>::destroy) == sizeof(void*),
-        "Unexpected static method pointer size");
-    header()->m_destructor =
-        reinterpret_cast<void (*)(void*)>(&shared_cpp_pointer<T>::destroy);
-    acquire();
-  }
-
-  shared_cpp_pointer(T* v, engine* _engine, void(_free)(const engine*, void*))
-    : shared_cpp_pointer(v) {
-    m_engine = _engine;
-    m_free = _free;
-  }
-
-  struct shared_object_header {
-    std::atomic<size_t> m_ref_count;
-    void (*m_destructor)(void*);
-  };
-
-  shared_object_header* header() {
-    return reinterpret_cast<shared_object_header*>(val) - 1;
-  }
-
-  void acquire() {
-    if (val) {
-      // When this is created (by the engine), then it will
-      // also fix up T* type, but not in the constructor for a variety of
-      // reasons
-      header()->m_ref_count++;
-    }
-  }
-
-  void release() {
-    if (val && --header()->m_ref_count == 0) {
-      if (header()->m_destructor) {
-        (*header()->m_destructor)(val);
-      }
-      m_free(m_engine, val);
-    }
-  }
-
-  void unsafe_set_engine_free(
-      const engine* _engine, void (*_free)(engine*, void*)) {
-    m_engine = _engine;
-    m_free = _free;
-  }
-
-  T* val;
-  const engine* m_engine = nullptr;
-  void (*m_free)(const engine*, void*) = nullptr;
-  friend class engine;
-};
 
 template <typename T>
 struct is_script_pointer : core::false_type {};
@@ -468,6 +195,82 @@ struct needs_thunk<shared_script_pointer<T>> : core::true_type {};
 
 template <typename T>
 struct needs_thunk<shared_cpp_pointer<T>> : core::true_type {};
+
+template <typename U, typename enable = core::enable_if_t<true>>
+struct get_thunk_passed_type {
+  using type = U;
+  using ret_type = U;
+
+  static inline U wrap(const U& u) {
+    return u;
+  }
+  static inline U unwrap(U u) {
+    return u;
+  }
+};
+
+template <typename U>
+struct get_thunk_passed_type<U,
+    typename core::enable_if<pass_by_reference<U>::value>::type> {
+  using type = U*;
+  using ret_type = U;
+
+  static inline U* wrap(U& u) {
+    return &u;
+  }
+
+  static inline U unwrap(U* u) {
+    return *u;
+  }
+
+  static inline U unwrap(U u) {
+    return u;
+  }
+};
+
+template <typename U>
+struct get_thunk_passed_type<U,
+    typename core::enable_if<core::disjunction<is_script_pointer<U>,
+        is_shared_script_pointer<U>, is_shared_cpp_pointer<U>>::value>::type> {
+  using type = typename U::value_type*;
+  using ret_type = typename U::value_type*;
+  static inline typename U::value_type* wrap(const U& _u) {
+    U& u = const_cast<U&>(_u);
+    void* v = u.unsafe_pass();
+
+    return reinterpret_cast<typename U::value_type*>(v);
+  }
+
+  static inline U unwrap(typename U::value_type* u) {
+    return U(u);
+  }
+};
+
+template <typename T>
+inline T& fixup_return_type(T& _i) {
+  return _i;
+}
+
+template <typename T>
+inline script_pointer<T>& fixup_return_type(script_pointer<T>& t) {
+  t.unsafe_set_type(reinterpret_cast<T*>(
+      (*g_scripting_tls->_object_types)[core::type_id<T>::value()].get()));
+  return t;
+}
+
+template <typename T>
+inline shared_script_pointer<T>& fixup_return_type(
+    shared_script_pointer<T>& t) {
+  t.unsafe_set_type(reinterpret_cast<T*>(
+      (*g_scripting_tls->_object_types)[core::type_id<T>::value()].get()));
+  return t;
+}
+
+template <typename T>
+inline shared_cpp_pointer<T>& fixup_return_type(shared_cpp_pointer<T>& t) {
+  t.unsafe_set_engine_free(g_scripting_tls->_engine, &do_engine_free);
+  return t;
+}
 
 // Simple helper that parses a script and runs any
 // passes that are required to make the AST valid.

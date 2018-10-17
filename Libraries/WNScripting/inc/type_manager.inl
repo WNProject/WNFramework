@@ -1,6 +1,10 @@
 // Copyright (c) 2018, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
+
+#include "WNScripting/inc/WNScriptHelpers.h"
+#include "WNScripting/inc/WNScriptTLS.h"
+
 namespace wn {
 namespace scripting {
 
@@ -59,27 +63,18 @@ struct exporter : public exporter_base {
     return val;
   }
 
-  template <typename U, typename enable = void>
-  struct get_thunk_passed_type {
-    using type = U;
-  };
-
-  template <typename U>
-  struct get_thunk_passed_type<U,
-      typename core::enable_if<pass_by_reference<U>::value>::type> {
-    using type = U*;
-  };
-
   template <typename R, typename... Args>
   struct member_maker {
     static const bool is_ret_by_ref = pass_by_reference<R>::value;
     template <R (T::*fn)(Args...)>
-    static R
+    static typename get_thunk_passed_type<R>::ret_type
 #if defined(_WN_WINDOWS) && defined(_WN_X86) && !defined(_WN_64_BIT)
         __thiscall
 #endif
         member_thunk(T* t, typename get_thunk_passed_type<Args>::type... args) {
-      return (t->*fn)(pass_by_ref_if_needed(args)...);
+      tls_resetter reset;
+      return get_thunk_passed_type<R>::unwrap(
+          (t->*fn)(get_thunk_passed_type<Args>::unwrap(args)...));
     }
 
     template <R (T::*fn)(Args...)>
@@ -87,9 +82,12 @@ struct exporter : public exporter_base {
 #if defined(_WN_WINDOWS) && defined(_WN_X86) && !defined(_WN_64_BIT)
         __thiscall
 #endif
-        return_member_thunk(
-            T* t, typename get_thunk_passed_type<Args>::type... args, R* _ret) {
-      *_ret = (t->*fn)(pass_by_ref_if_needed(args)...);
+        return_member_thunk(T* t,
+            typename get_thunk_passed_type<Args>::type... args,
+            typename get_thunk_passed_type<R>::ret_type* _ret) {
+      tls_resetter reset;
+      *_ret = get_thunk_passed_type<R>::unwrap(
+          (t->*fn)(get_thunk_passed_type<Args>::unwrap(args)...));
     }
   };
 
@@ -102,7 +100,8 @@ struct exporter : public exporter_base {
         __thiscall
 #endif
         member_thunk(T* t, typename get_thunk_passed_type<Args>::type... args) {
-      return (t->*fn)(pass_by_ref_if_needed(args)...);
+      tls_resetter reset;
+      return (t->*fn)(get_thunk_passed_type<Args>::unwrap(args)...);
     }
 
     template <void (T::*fn)(Args...)>
@@ -112,7 +111,8 @@ struct exporter : public exporter_base {
 #endif
         return_member_thunk(
             T* t, typename get_thunk_passed_type<Args>::type... args) {
-      (t->*fn)(pass_by_ref_if_needed(args)...);
+      tls_resetter reset;
+      (t->*fn)(get_thunk_passed_type<Args>::unwrap(args)...);
     }
   };
 
@@ -125,31 +125,41 @@ struct exporter : public exporter_base {
   struct pseudo_member_maker {
     static const bool is_ret_by_ref = pass_by_reference<R>::value;
     template <R (*fn)(T*, Args...)>
-    static R member_thunk(
+    static typename get_thunk_passed_type<R>::ret_type member_thunk(
         T* t, typename get_thunk_passed_type<Args>::type... args) {
-      return (*fn)(t, pass_by_ref_if_needed(args)...);
+      tls_resetter reset;
+      return get_thunk_passed_type<R>::unwrap(
+          (*fn)(t, get_thunk_passed_type<Args>::unwrap(args)...));
     }
 
     template <R (*fn)(T*, Args...)>
-    static void return_member_thunk(
-        T* t, typename get_thunk_passed_type<Args>::type... args, R* _ret) {
-      *_ret = (*fn)(t, pass_by_ref_if_needed(args)...);
+    static void return_member_thunk(T* t,
+        typename get_thunk_passed_type<Args>::type... args,
+        typename get_thunk_passed_type<R>::ret_type* _ret) {
+      tls_resetter reset;
+      *_ret = get_thunk_passed_type<R>::unwrap(
+          (*fn)(t, get_thunk_passed_type<Args>::unwrap(args)...));
     }
   };
 
   template <typename... Args>
   struct pseudo_member_maker<void, Args...> {
+    // What you have to do now is add something like (fixup_return_type)
+    // to these functions. It may actually BE fixup_return_type,
+    // but we have to figure out how to plumb the right things through
     static const bool is_ret_by_ref = false;
     template <void (*fn)(T*, Args...)>
     static void member_thunk(
         T* t, typename get_thunk_passed_type<Args>::type... args) {
-      return (*fn)(t, pass_by_ref_if_needed(args)...);
+      tls_resetter reset;
+      return (*fn)(t, get_thunk_passed_type<Args>::unwrap(args)...);
     }
 
     template <void (*fn)(T*, Args...)>
     static void return_member_thunk(
         T* t, typename get_thunk_passed_type<Args>::type... args) {
-      (*fn)(t, pass_by_ref_if_needed(args)...);
+      tls_resetter reset;
+      (*fn)(t, get_thunk_passed_type<Args>::unwrap(args)...);
     }
   };
 
@@ -214,16 +224,7 @@ struct exporter : public exporter_base {
   template <typename F, F fptr>
   void register_nonvirtual_function(containers::string_view _name) {
     auto af = _add_function(_name, fptr);
-    F f = fptr;
-    void* fn;
-    memcpy(&fn, &f, sizeof(uintptr_t));
-    for (size_t i = 0; i < af.types.size(); ++i) {
-      if (m_type_manager->is_pass_by_reference(af.types[i])) {
-        auto t = get_thunk<F, fptr>();
-        memcpy(&fn, &t, sizeof(uintptr_t));
-        break;
-      }
-    }
+    void* fn = get_thunk<F, fptr>();
 
     if (m_callback && *m_callback) {
       (*m_callback)(af.name, fn, false);
@@ -233,17 +234,8 @@ struct exporter : public exporter_base {
   template <typename F, F fptr>
   void register_pseudo_function(containers::string_view _name) {
     auto af = _add_function(_name, fptr);
-    F f = fptr;
-    static_assert(sizeof(f) == sizeof(uintptr_t), "Invalid function pointer");
-    void* fn;
-    memcpy(&fn, &f, sizeof(uintptr_t));
-    for (size_t i = 0; i < af.types.size(); ++i) {
-      if (m_type_manager->is_pass_by_reference(af.types[i])) {
-        auto t = get_pseudo_thunk<F, fptr>();
-        memcpy(&fn, &t, sizeof(uintptr_t));
-        break;
-      }
-    }
+    static_assert(sizeof(F) == sizeof(uintptr_t), "Invalid function pointer");
+    void* fn = get_pseudo_thunk<F, fptr>();
 
     if (m_callback && *m_callback) {
       (*m_callback)(af.name, fn, false);

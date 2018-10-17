@@ -9,8 +9,9 @@
 
 #include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/allocator.h"
-#include "WNScripting/inc/WNTranslator.h"
 #include "WNMemory/inc/unique_ptr.h"
+#include "WNScripting/inc/WNTranslator.h"
+#include "WNScripting/inc/forward.h"
 
 namespace wn {
 namespace file_system {
@@ -34,8 +35,8 @@ public:
   // and all allocations performed by the engine will be performed
   // with the given allocator.
   virtual memory::unique_ptr<engine> get_engine(memory::allocator* _allocator,
-      scripting_engine_type _type,
-      file_system::mapping* _file_mapping, logging::log* _log);
+      scripting_engine_type _type, file_system::mapping* _file_mapping,
+      logging::log* _log);
 
   // Returns a wn::scripting::translator of the given type.
   // The translator will be constructed with the given allocator,
@@ -46,6 +47,8 @@ public:
       file_system::mapping* _file_mapping,
       file_system::mapping* _output_mapping, logging::log* _log);
 };
+
+extern thread_local const scripting_tls_data* g_scripting_tls;
 
 }  // namespace scripting
 }  // namespace wn

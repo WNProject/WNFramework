@@ -294,42 +294,6 @@ void inline engine::register_child_cpp_type() {
           }));
 }
 
-void inline do_engine_free(const engine* _engine, void* v) {
-  _engine->free_shared(v);
-}
-
-template <typename T>
-void inline fixup_return_type(T&,
-    const containers::hash_map<uintptr_t,
-        memory::unique_ptr<script_object_type>>&,
-    const engine*) {}
-
-template <typename T>
-void inline fixup_return_type(script_pointer<T>& t,
-    const containers::hash_map<uintptr_t,
-        memory::unique_ptr<script_object_type>>& object_type,
-    const engine*) {
-  t.unsafe_set_type(
-      reinterpret_cast<T*>(object_type[core::type_id<T>::value()].get()));
-}
-
-template <typename T>
-void inline fixup_return_type(shared_script_pointer<T>& t,
-    const containers::hash_map<uintptr_t,
-        memory::unique_ptr<script_object_type>>& object_type,
-    const engine*) {
-  t.unsafe_set_type(
-      reinterpret_cast<T*>(object_type[core::type_id<T>::value()].get()));
-}
-
-template <typename T>
-void inline fixup_return_type(shared_cpp_pointer<T>& t,
-    const containers::hash_map<uintptr_t,
-        memory::unique_ptr<script_object_type>>&,
-    const engine* _engine) {
-  t.unsafe_set_engine_free(_engine, &do_engine_free);
-}
-
 template <typename T, typename... Args>
 shared_cpp_pointer<T> inline engine::make_shared_cpp(Args&&... args) {
   void* v = allocate_shared(sizeof(T));
@@ -379,10 +343,12 @@ struct engine::invoke_wrapper<
 template <typename R, typename... Args>
 R inline engine::invoke(
     const script_function<R, Args...>& _function, Args... _args) const {
+  tls_resetter reset;
+  g_scripting_tls = &m_tls_data;
   R rt = invoke_wrapper<void, R, Args...>::invoke(
       _function, core::forward<Args>(_args)...);
 
-  fixup_return_type(rt, m_object_types, this);
+  fixup_return_type(rt);
 
   return rt;
 }
