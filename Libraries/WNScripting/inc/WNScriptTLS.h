@@ -17,6 +17,7 @@ struct scripting_tls_data {
   engine* _engine;
   containers::hash_map<uintptr_t, memory::unique_ptr<script_object_type>>*
       _object_types;
+  logging::log* _log;
 };
 
 extern thread_local const scripting_tls_data* g_scripting_tls;

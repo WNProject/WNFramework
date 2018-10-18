@@ -12,3 +12,11 @@ include "includee.wns"
 Int add_two_numbers(Int x, Int y) {
     return add_numbers(x, y);
 }
+
+// CHECK: {{do_thing.*{}}
+// RUN: do_thing -> 3
+Int do_thing() {
+    Foo f = Foo();
+// CHECK:  Foo* f = _ZN3wns14_construct_FooEP3FooP4_Foo((&_wns_temp0));
+    return length(f.y);
+}

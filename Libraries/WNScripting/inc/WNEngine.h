@@ -47,6 +47,7 @@ public:
 
 private:
   ret_type do_(engine* _engine, script_pointer<T>& _ptr, Args... args);
+  void do_v(engine* _engine, script_pointer<T>& _ptr, Args... args);
 
   friend class engine;
 
@@ -66,6 +67,7 @@ public:
 
 private:
   ret_type do_(engine* _engine, script_pointer<T>& _ptr, Args... args);
+  void do_v(engine* _engine, script_pointer<T>& _ptr, Args... args);
 
   friend class engine;
 
@@ -102,6 +104,7 @@ public:
     (void)post_un_names;
     m_tls_data._engine = this;
     m_tls_data._object_types = &m_object_types;
+    m_tls_data._log = m_log;
   }
 
   virtual ~engine() {}
@@ -131,6 +134,9 @@ public:
 
   template <typename R, typename... Args>
   R invoke(const script_function<R, Args...>& _function, Args... _args) const;
+
+  template <typename... Args>
+  void invoke_v(const script_function<void, Args...>& _function, Args... _args) const;
 
   template <typename F, F function>
   bool inline register_function(containers::string_view _name);
@@ -249,6 +255,12 @@ scripting_object_function<T, R, Args...>::do_(
 }
 
 template <typename T, typename R, typename... Args>
+void scripting_object_function<T, R, Args...>::do_v(
+    engine* _engine, script_pointer<T>& _ptr, Args... args) {
+  return _engine->invoke_v(m_function, _ptr, args...);
+}
+
+template <typename T, typename R, typename... Args>
 typename scripting_virtual_object_function<T, R, Args...>::ret_type
 scripting_virtual_object_function<T, R, Args...>::do_(
     engine* _engine, script_pointer<T>& _ptr, Args... args) {
@@ -260,6 +272,19 @@ scripting_virtual_object_function<T, R, Args...>::do_(
       reinterpret_cast<void_f>((*reinterpret_cast<void***>(ptr))[m_vtable_idx]);
 
   return _engine->invoke(temp_function, _ptr, args...);
+}
+
+template <typename T, typename R, typename... Args>
+void scripting_virtual_object_function<T, R, Args...>::do_v(
+    engine* _engine, script_pointer<T>& _ptr, Args... args) {
+  uint8_t* ptr = static_cast<uint8_t*>(_ptr.unsafe_ptr());
+  auto temp_function = m_function;
+
+  ptr += m_vtable_offset;
+  temp_function.m_function =
+      reinterpret_cast<void_f>((*reinterpret_cast<void***>(ptr))[m_vtable_idx]);
+
+  return _engine->invoke_v(temp_function, _ptr, args...);
 }
 
 }  // namespace scripting

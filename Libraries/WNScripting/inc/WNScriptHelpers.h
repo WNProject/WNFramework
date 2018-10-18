@@ -90,7 +90,15 @@ struct wn_array_ptr final {
     return *ptr;
   }
 
+  const wn_array<T, S>& operator*() const {
+    return *ptr;
+  }
+
   wn_array<T, S>* operator->() {
+    return ptr;
+  }
+
+  const wn_array<T, S>* operator->() const {
     return ptr;
   }
 
@@ -211,6 +219,13 @@ struct get_thunk_passed_type {
 
 template <typename U>
 struct get_thunk_passed_type<U,
+    typename core::enable_if<core::is_same<void, U>::value>::type> {
+  using type = U;
+  using ret_type = U;
+};
+
+template <typename U>
+struct get_thunk_passed_type<U,
     typename core::enable_if<pass_by_reference<U>::value>::type> {
   using type = U*;
   using ret_type = U;
@@ -241,8 +256,10 @@ struct get_thunk_passed_type<U,
     return reinterpret_cast<typename U::value_type*>(v);
   }
 
-  static inline U unwrap(typename U::value_type* u) {
-    return U(u);
+  static inline U unwrap(typename U::value_type* _u) {
+    U u(_u);
+    fixup_return_type(u);
+    return core::move(u);
   }
 };
 
@@ -286,6 +303,43 @@ memory::unique_ptr<ast_script_file> parse_script(memory::allocator* _allocator,
     size_t* _num_warnings, size_t* _num_errors);
 
 }  // namespace scripting
+
+namespace logging {
+template <typename T, typename BuffType>
+struct log_type_helper<scripting::wn_array_ptr<T>, BuffType> {
+  WN_FORCE_INLINE static bool do_log(const scripting::wn_array_ptr<T>& _0,
+      BuffType* _buffer, size_t& _buffer_left) {
+    size_t last_buffer_left = _buffer_left;
+    if (!log_type_helper<char[2], BuffType>::do_log(
+            "[", _buffer, last_buffer_left)) {
+      return false;
+    }
+
+    for (size_t i = 0; i < _0->size(); ++i) {
+      if (i != 0) {
+        if (!log_type_helper<char[3], BuffType>::do_log(", ",
+                _buffer + (_buffer_left - last_buffer_left),
+                last_buffer_left)) {
+          return false;
+        }
+      }
+      if (!log_type_helper<T, BuffType>::do_log((*_0)[i],
+              _buffer + (_buffer_left - last_buffer_left), last_buffer_left)) {
+        return false;
+      }
+    }
+
+    if (!log_type_helper<char[2], BuffType>::do_log("]",
+            _buffer + (_buffer_left - last_buffer_left), last_buffer_left)) {
+      return false;
+    }
+
+    _buffer_left = last_buffer_left;
+    return (true);
+  }
+};
+
+}  // namespace logging
 }  // namespace wn
 
 #endif  // __WN_SCRIPTING_SCRIPT_HELPERS_H__

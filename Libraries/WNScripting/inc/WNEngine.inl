@@ -353,6 +353,15 @@ R inline engine::invoke(
   return rt;
 }
 
+template <typename... Args>
+void inline engine::invoke_v(
+    const script_function<void, Args...>& _function, Args... _args) const {
+  tls_resetter reset;
+  g_scripting_tls = &m_tls_data;
+  invoke_wrapper<void, void, Args...>::invoke(
+      _function, core::forward<Args>(_args)...);
+}
+
 }  // namespace scripting
 }  // namespace wn
 

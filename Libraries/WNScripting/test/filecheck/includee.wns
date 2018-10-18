@@ -5,3 +5,8 @@
 Int add_numbers(Int x, Int y) {
     return x + y;
 }
+
+class Foo {
+    Int x = 4;
+    Int[] y = Int[3](10);
+}

@@ -460,6 +460,7 @@ ast_type* type_manager::register_child_struct(containers::string_view _name,
   auto struct_type = _struct_type->clone(m_allocator, &m_all_types);
   struct_type->m_name = _name.to_string(m_allocator);
   ast_type* return_type = struct_type.get();
+  return_type->m_mangled_name = "";
   return_type->calculate_mangled_name(m_allocator);
   m_structure_types[return_type->m_name] = core::move(struct_type);
   if (_used) {
