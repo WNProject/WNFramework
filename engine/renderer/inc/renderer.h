@@ -10,6 +10,7 @@
 #include "WNLogging/inc/WNLog.h"
 #include "WNScripting/inc/WNEngine.h"
 #include "engine_base/inc/context.h"
+#include "renderer/inc/render_data.h"
 
 namespace wn {
 namespace engine {
@@ -25,6 +26,11 @@ public:
     m_log->log_info("Destroyed Renderer");
   }
   static void register_scripting(scripting::engine* _engine);
+  static bool resolve_scripting(scripting::engine* _engine);
+
+  void register_object(
+      scripting::shared_script_pointer<render_data> _render_data);
+  void register_pass(scripting::script_pointer<pass_data> _pass_data);
 
 private:
   logging::log* m_log;

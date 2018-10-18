@@ -30,29 +30,38 @@ struct exported_script_type<window::window> {
 }  // namespace wn
 
 namespace {
-shared_cpp_pointer<engine::window::window> get_window(
+inline shared_cpp_pointer<engine::window::window> get_window(
     engine_base::context* _context) {
   return _context->m_engine->make_shared_cpp<engine::window::window>(_context);
+}
+
+inline shared_cpp_pointer<engine::window::window> get_window_sized(
+    engine_base::context* _context, int32_t _width, int32_t _height) {
+  return _context->m_engine->make_shared_cpp<engine::window::window>(
+      _context, _width, _height);
 }
 }  // anonymous namespace
 
 void engine::window::window::register_scripting(scripting::engine* _engine) {
   _engine->register_cpp_type<window>();
   _engine->register_function<decltype(&get_window), &get_window>("get_window");
+  _engine->register_function<decltype(&get_window_sized), &get_window_sized>(
+      "get_window");
 }
 
 namespace wn {
 namespace engine {
 namespace window {
 
-window::window(engine_base::context* _context) {
+window::window(engine_base::context* _context, int32_t _width, int32_t _height) {
   _context->m_log->log_info("Created Window");
   m_log = _context->m_log;
   wn::multi_tasking::job_signal signal(0);
   m_window =
       runtime::window::window_factory(_context->m_allocator, _context->m_log)
-          .create_window(runtime::window::window_type::system, _context->m_application_data->default_job_pool,
-              &signal, _context->m_application_data, 100, 100, 300, 300);
+          .create_window(runtime::window::window_type::system,
+              _context->m_application_data->default_job_pool, &signal,
+              _context->m_application_data, 100, 100, _width, _height);
 
   signal.wait_until(1);
   if (!m_window->is_valid()) {

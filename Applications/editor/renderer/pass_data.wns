@@ -1,0 +1,21 @@
+// Copyright (c) 2018, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE.txt file.
+
+class PassData {
+    // TODO: figure out enums to make this nicer,
+    // rather than needing to use a CString
+    virtual CString pass_name() {
+        return pass_name;
+    }
+    virtual Int[] color_attachments() {
+        return color_attachments;
+    }
+    virtual Int depth_attachment() {
+        return depth_attachment;
+    }
+    Int[] color_attachments = Int[1](-1);
+    Int depth_attachment = -2;
+    CString pass_name = "";
+
+}

@@ -2,7 +2,9 @@ add_wn_library(
   renderer
   SOURCES
     inc/renderer.h
+    inc/render_data.h
     src/renderer.cpp
+    src/render_data.cpp
   LIBS
     engine_base
     WNGraphics

@@ -48,6 +48,8 @@ int32_t wn_application_main(
       return -1;
     }
 
+    engine::renderer::renderer::resolve_scripting(scripting_engine.get());
+
     wn::scripting::script_function<int32_t, engine_base::context*> main;
     scripting_engine->get_function("main", &main);
     if (!main) {

@@ -28,12 +28,36 @@ struct render_data : scripting::script_object_type {
     return "RenderData";
   }
 
-  scripting::scripting_virtual_object_function<render_data, int32_t,
-      engine_base::context*>
+  scripting::scripting_virtual_object_function<render_data, void>
       register_data;
 
   static void register_scripting(scripting::engine* _engine);
-  static void finalize_scripting(scripting::engine* _engine);
+  static bool resolve_scripting(scripting::engine* _engine);
+};
+
+struct pass_data : scripting::script_object_type {
+  using parent_type = void;
+
+  void export_type(
+      scripting::engine::script_type_importer<pass_data>* _importer) {
+    _importer->register_function("pass_name", &pass_name);
+    _importer->register_function("color_attachments", &color_attachments);
+    _importer->register_function("depth_attachment", &depth_attachment);
+  }
+
+  static wn::containers::string_view exported_name() {
+    return "PassData";
+  }
+
+  scripting::scripting_virtual_object_function<pass_data, const char*> pass_name;
+  scripting::scripting_virtual_object_function<pass_data,
+      scripting::wn_array_ptr<int32_t>>
+      color_attachments;
+  scripting::scripting_virtual_object_function<pass_data, int32_t>
+      depth_attachment;
+
+  static void register_scripting(scripting::engine* _engine);
+  static bool resolve_scripting(scripting::engine* _engine);
 };
 
 }  // namespace renderer

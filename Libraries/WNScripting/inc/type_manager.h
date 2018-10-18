@@ -79,15 +79,15 @@ public:
   template <typename T>
   typename core::enable_if<is_script_pointer<T>::value, const ast_type*>::type
   get_type() {
-    return get_reference_of(
-        get_type<T::value_type>(), ast_type_classification::reference, nullptr);
+    return get_reference_of(get_type<typename T::value_type>(),
+        ast_type_classification::reference, nullptr);
   }
 
   template <typename T>
   typename core::enable_if<is_shared_script_pointer<T>::value,
       const ast_type*>::type
   get_type() {
-    return get_reference_of(get_type<T::value_type>(),
+    return get_reference_of(get_type<typename T::value_type>(),
         ast_type_classification::shared_reference, nullptr);
   }
 

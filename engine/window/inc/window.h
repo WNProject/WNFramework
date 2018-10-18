@@ -26,7 +26,8 @@ namespace window {
 
 class window {
 public:
-  window(engine_base::context* _context);
+  window(engine_base::context* _context, int32_t _width = 300,
+      int32_t _height = 300);
   ~window();
 
   static void register_scripting(scripting::engine* _engine);

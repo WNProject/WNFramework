@@ -15,8 +15,16 @@ void render_data::register_scripting(scripting::engine* _engine) {
   _engine->export_script_type<render_data>();
 }
 
-void render_data::finalize_scripting(scripting::engine* _engine) {
-  _engine->resolve_script_type<render_data>();
+bool render_data::resolve_scripting(scripting::engine* _engine) {
+  return _engine->resolve_script_type<render_data>();
+}
+
+void pass_data::register_scripting(scripting::engine* _engine) {
+  _engine->export_script_type<pass_data>();
+}
+
+bool pass_data::resolve_scripting(scripting::engine* _engine) {
+  return _engine->resolve_script_type<pass_data>();
 }
 
 }  // namespace renderer

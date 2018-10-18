@@ -2,9 +2,24 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
+include "renderer/render_data.wns"
+include "renderer/pass_data.wns"
+
+class MyPass : PassData {
+    .color_attachments = Int[2](2);
+    .depth_attachment = 0;
+    .pass_name = "Initial Pass";
+}
+
 Int main(Context ctx) {
     shared Renderer renderer = get_renderer(ctx);
-    shared Window window = get_window(ctx);
+    shared Window window = get_window(ctx, 1024, 768);
+    shared RenderData rd = shared RenderData();
+
+    renderer.register_pass(MyPass());
+
+    renderer.register_object(rd);
+
     sleep(5);
     return 32;
 }
