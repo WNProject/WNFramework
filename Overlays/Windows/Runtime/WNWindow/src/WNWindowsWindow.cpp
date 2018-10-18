@@ -94,8 +94,6 @@ void windows_window::dispatch_loop(RECT rect) {
 
     MSG msg;
     while (GetMessage(&msg, m_window.handle, 0, 0)) {
-      m_log->log_debug("Receieved Windows Message: ", msg.hwnd, ", ",
-          msg.message, ", ", msg.wParam, ", ", msg.lParam);
       TranslateMessage(&msg);
       DispatchMessage(&msg);
       if (m_exit) {
