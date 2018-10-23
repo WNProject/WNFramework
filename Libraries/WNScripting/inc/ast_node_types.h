@@ -668,49 +668,6 @@ struct ast_constant : public ast_expression {
   }
 };
 
-struct ast_array_allocation : public ast_statement {
-  ast_array_allocation(const node* _base_node)
-    : ast_statement(_base_node, ast_node_type::ast_array_allocation) {}
-
-  memory::unique_ptr<ast_node> clone(
-      memory::allocator* _allocator) const override {
-    auto d = memory::make_unique<ast_array_allocation>(_allocator, nullptr);
-    d->copy_underlying_from(_allocator, this);
-    d->m_type = m_type;
-    d->m_initializer = clone_ast_node(_allocator, m_initializer.get());
-    d->m_initializee = clone_ast_node(_allocator, m_initializee.get());
-    d->m_constructor_initializer =
-        clone_ast_node(_allocator, m_constructor_initializer.get());
-    return (core::move(d));
-  }
-
-  const ast_type* m_type;
-  memory::unique_ptr<ast_expression> m_runtime_size;
-  memory::unique_ptr<ast_expression> m_initializer;
-  memory::unique_ptr<ast_expression> m_initializee;
-  memory::unique_ptr<ast_function_call_expression> m_constructor_initializer;
-};
-
-struct ast_array_destruction : public ast_statement {
-  ast_array_destruction(const node* _base_node)
-    : ast_statement(_base_node, ast_node_type::ast_array_destruction),
-      m_destructor(nullptr),
-      m_shared(false) {}
-
-  memory::unique_ptr<ast_node> clone(
-      memory::allocator* _allocator) const override {
-    auto d = memory::make_unique<ast_array_destruction>(_allocator, nullptr);
-    d->copy_underlying_from(_allocator, this);
-    d->m_destructor = m_destructor;
-    d->m_target = clone_ast_node(_allocator, m_target.get());
-    d->m_shared = m_shared;
-    return (core::move(d));
-  }
-
-  const ast_function* m_destructor;
-  bool m_shared;
-  memory::unique_ptr<ast_expression> m_target;
-};
 
 struct ast_function : public ast_node {
   ast_function(const node* _base_node)
@@ -800,6 +757,64 @@ struct ast_function : public ast_node {
     }
     return core::move(d);
   }
+};
+
+struct ast_array_allocation : public ast_statement {
+  ast_array_allocation(const node* _base_node)
+    : ast_statement(_base_node, ast_node_type::ast_array_allocation) {}
+
+  memory::unique_ptr<ast_node> clone(
+      memory::allocator* _allocator) const override {
+    auto d = memory::make_unique<ast_array_allocation>(_allocator, nullptr);
+    d->copy_underlying_from(_allocator, this);
+    d->m_type = m_type;
+    d->m_initializer = clone_ast_node(_allocator, m_initializer.get());
+    d->m_initializee = clone_ast_node(_allocator, m_initializee.get());
+    d->m_constructor_initializer =
+        clone_ast_node(_allocator, m_constructor_initializer.get());
+    auto& inits = d->initialized_inline_initializers(_allocator);
+    for (auto& i : m_inline_initializers) {
+      inits.emplace_back(clone_ast_node(_allocator, i.get()));
+    }
+    return (core::move(d));
+  }
+
+  containers::deque<memory::unique_ptr<ast_expression>>&
+  initialized_inline_initializers(memory::allocator* _allocator) {
+    if (m_inline_initializers.empty()) {
+      m_inline_initializers =
+          containers::deque<memory::unique_ptr<ast_expression>>(_allocator);
+    }
+    return m_inline_initializers;
+  }
+
+  const ast_type* m_type;
+  memory::unique_ptr<ast_expression> m_runtime_size;
+  memory::unique_ptr<ast_expression> m_initializer;
+  memory::unique_ptr<ast_expression> m_initializee;
+  containers::deque<memory::unique_ptr<ast_expression>> m_inline_initializers;
+  memory::unique_ptr<ast_function_call_expression> m_constructor_initializer;
+};
+
+struct ast_array_destruction : public ast_statement {
+  ast_array_destruction(const node* _base_node)
+    : ast_statement(_base_node, ast_node_type::ast_array_destruction),
+      m_destructor(nullptr),
+      m_shared(false) {}
+
+  memory::unique_ptr<ast_node> clone(
+      memory::allocator* _allocator) const override {
+    auto d = memory::make_unique<ast_array_destruction>(_allocator, nullptr);
+    d->copy_underlying_from(_allocator, this);
+    d->m_destructor = m_destructor;
+    d->m_target = clone_ast_node(_allocator, m_target.get());
+    d->m_shared = m_shared;
+    return (core::move(d));
+  }
+
+  const ast_function* m_destructor;
+  bool m_shared;
+  memory::unique_ptr<ast_expression> m_target;
 };
 
 struct ast_id : public ast_expression {

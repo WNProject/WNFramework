@@ -1,0 +1,50 @@
+// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE.txt file.
+
+class Foo {
+  Int[] xx = Int[](2, 3, 4, 5);
+}
+class Bar: Foo {
+  .xx = Int[](2, 1, 5);
+}
+
+// CHECK: Foo* _ZN3wns4_Foo14_construct_FooEP3FooP4_Foo(_Foo* _this) {
+// CHECK-NEXT:   (_this->_xx)._size = 4;
+// CHECK-NEXT:   (_this->_xx)._val[0] = 2;
+// CHECK-NEXT:   (_this->_xx)._val[1] = 3;
+// CHECK-NEXT:   (_this->_xx)._val[2] = 4;
+// CHECK-NEXT:   (_this->_xx)._val[3] = 5;
+// CHECK-NEXT:   (_this->xx) = ((_array0_int32_t*)&(_this->_xx));
+// CHECK-NEXT:   return ((Foo*)(_this));
+// CHECK-NEXT: }
+
+// CHECK: Bar* _ZN3wns4_Bar14_construct_BarEP3BarP4_Bar(_Bar* _this) {
+// CHECK-NEXT:   (_this->_xx)._size = 3;
+// CHECK-NEXT:   (_this->_xx)._val[0] = 2;
+// CHECK-NEXT:   (_this->_xx)._val[1] = 1;
+// CHECK-NEXT:   (_this->_xx)._val[2] = 5;
+// CHECK-NEXT:   (_this->xx) = ((_array0_int32_t*)&(_this->_xx));
+// CHECK-NEXT:   return ((Bar*)(_this));
+// CHECK-NEXT: }
+
+
+// CHECK: {{3doAE.*{}}
+// RUN: doA 4 12 0 -> 4
+// RUN: doA 12 12 1 -> 4
+// RUN: doA -10 42 2 -> 42
+// RUN: doA -10 42 3 -> 2
+Int doA(Int x, Int y, Int z) {
+  Int[] xx = Int[](x, 4, y, Int[](0, 2)[1]);
+  return xx[z];
+}
+
+// RUN: doB -> 3
+Int doB() {
+  return Foo().xx[1];
+}
+
+// RUN: doC -> 1
+Int doC() {
+  return Bar().xx[1];
+}

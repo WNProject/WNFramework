@@ -639,9 +639,15 @@ arrayInit returns[scripting::array_allocation_expression* node]
     node = m_allocator->construct<scripting::array_allocation_expression>(m_allocator);
 }
     :
-        ((LSQBRACKET e=expr RSQBRACKET { node->add_expression($e.node);} ) |
-        (DLSQBRACKET f=expr DRSQBRACKET { node->add_expression($f.node); node->set_runtime(true); }))
-        (LBRACKET b=expr c=RBRACKET { node->set_copy_initializer(b); SET_LOCATION(node, $c); } )
+        (
+            ((LSQBRACKET e=expr RSQBRACKET { node->add_expression($e.node);} )
+                |   (DLSQBRACKET f=expr DRSQBRACKET { node->add_expression($f.node); node->set_runtime(true); }))
+            (LBRACKET b=expr c=RBRACKET { node->set_copy_initializer(b); SET_LOCATION(node, $c); } )
+        ) |
+        (
+            ((LSQBRACKET RSQBRACKET) | (DLSQBRACKET DRSQBRACKET { node->set_runtime(true); }))
+            (LBRACKET g=arglist h=RBRACKET) { node->set_inline_initializers(g); SET_LOCATION(node, $h); }
+        )
     ;
 
 declaration returns[scripting::declaration* node]

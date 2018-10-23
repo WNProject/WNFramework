@@ -1645,13 +1645,39 @@ bool internal::jit_compiler_context::write_declaration(
 
 bool internal::jit_compiler_context::write_array_allocation(
     const ast_array_allocation* _alloc) {
-  llvm::BasicBlock* initializer = llvm::BasicBlock::Create(
-      m_context, "array_initializer", m_current_function);
-  llvm::BasicBlock* init_done =
-      llvm::BasicBlock::Create(m_context, "init_done", m_current_function);
-  llvm::BasicBlock* init_check =
-      llvm::BasicBlock::Create(m_context, "init_check", m_current_function);
+  llvm::Value* arr = get_expression(_alloc->m_initializee.get());
+  if (_alloc->m_inline_initializers.size() > 0) {
+    if (!_alloc->m_runtime_size) {
+      llvm::LoadInst* load = llvm::dyn_cast<llvm::LoadInst>(arr);
+      if (!load) {
+        return false;
+      }
+      arr = load->getOperand(0);
+      load->removeFromParent();
+      delete load;
 
+      llvm::Value* size_gep[2] = {i32(0), i32(0)};
+      m_function_builder->CreateStore(i32(_alloc->m_type->m_static_array_size),
+          m_function_builder->CreateInBoundsGEP(
+              arr, llvm::ArrayRef<llvm::Value*>(&size_gep[0], 2)));
+    }
+
+    size_t i = 0;
+
+    for (auto& init : _alloc->m_inline_initializers) {
+      llvm::Value* gep[3] = {i32(0), i32(1), i32(static_cast<int32_t>(i))};
+      llvm::Value* g_val = m_function_builder->CreateInBoundsGEP(
+          arr, llvm::ArrayRef<llvm::Value*>(&gep[0], 3));
+
+      llvm::Value* ii = get_expression(init.get());
+      if (ii == nullptr) {
+        return false;
+      }
+      m_function_builder->CreateStore(ii, g_val);
+      i++;
+    }
+    return true;
+  }
   llvm::Value* val = m_function_builder->CreateAlloca(m_int32_t);
 
   const ast_function_call_expression* fn =
@@ -1659,12 +1685,20 @@ bool internal::jit_compiler_context::write_array_allocation(
           ? _alloc->m_constructor_initializer.get()
           : nullptr;
 
-  llvm::Value* arr = get_expression(_alloc->m_initializee.get());
+  llvm::BasicBlock* initializer = llvm::BasicBlock::Create(
+      m_context, "array_initializer", m_current_function);
+  llvm::BasicBlock* init_done =
+      llvm::BasicBlock::Create(m_context, "init_done", m_current_function);
+  llvm::BasicBlock* init_check =
+      llvm::BasicBlock::Create(m_context, "init_check", m_current_function);
+
 
   if (!_alloc->m_runtime_size) {
     m_function_builder->CreateStore(
         i32(_alloc->m_type->m_static_array_size), val);
+  }
 
+  if (!_alloc->m_runtime_size) {
     llvm::LoadInst* load = llvm::dyn_cast<llvm::LoadInst>(arr);
     if (!load) {
       return false;

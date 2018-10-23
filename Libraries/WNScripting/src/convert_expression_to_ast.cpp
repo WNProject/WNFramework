@@ -399,18 +399,14 @@ parse_ast_convertor::convertor_context::resolve_post_unary_expression(
 memory::unique_ptr<ast_expression>
 parse_ast_convertor::convertor_context::resolve_array_allocation_expression(
     const array_allocation_expression* _alloc) {
-  auto base_expr = resolve_expression(_alloc->get_copy_initializer());
-  if (!base_expr) {
-    return nullptr;
-  }
-
   containers::string temporary_name = get_next_temporary_name();
 
   memory::unique_ptr<ast_declaration> dec =
       memory::make_unique<ast_declaration>(m_allocator, _alloc);
   dec->m_name = containers::string(m_allocator, temporary_name);
 
-  if (_alloc->get_array_initializers().size() != 1) {
+  if (_alloc->get_array_initializers().size() != 1 &&
+      !_alloc->get_inline_initializers()) {
     _alloc->log_line(m_log, logging::log_level::error);
     m_log->log_error("You must have one constant size for an array initalizer");
     return nullptr;
@@ -418,8 +414,26 @@ parse_ast_convertor::convertor_context::resolve_array_allocation_expression(
 
   bool is_runtime = _alloc->is_runtime();
   const ast_type* t = nullptr;
-  auto array_size =
-      resolve_expression(_alloc->get_array_initializers()[0].get());
+  memory::unique_ptr<ast_expression> array_size;
+  if (_alloc->get_inline_initializers()) {
+    auto const_size = memory::make_unique<ast_constant>(m_allocator, nullptr);
+    const_size->m_type = m_type_manager->integral(32, &m_used_types);
+    const_size->m_node_value.m_integer = static_cast<int32_t>(
+        _alloc->get_inline_initializers()->get_expressions().size());
+
+    char buff[11] = {
+        0,
+    };
+    memory::writeuint32(buff,
+        static_cast<uint32_t>(
+            _alloc->get_inline_initializers()->get_expressions().size()),
+        11);
+    const_size->m_string_value = containers::string(m_allocator, buff);
+    array_size = core::move(const_size);
+  } else {
+    array_size = resolve_expression(_alloc->get_array_initializers()[0].get());
+  }
+
   const ast_type* array_base_type = resolve_type(_alloc->get_type());
 
   if (!is_runtime && array_size->m_node_type != ast_node_type::ast_constant) {
@@ -442,15 +456,44 @@ parse_ast_convertor::convertor_context::resolve_array_allocation_expression(
 
   auto array_init =
       memory::make_unique<ast_array_allocation>(m_allocator, _alloc);
-  array_init->m_initializer = core::move(base_expr);
+  memory::unique_ptr<ast_id> id =
+      memory::make_unique<ast_id>(m_allocator, _alloc);
+
+  if (_alloc->get_inline_initializers()) {
+    for (auto& expr : _alloc->get_inline_initializers()->get_expressions()) {
+      auto ex = resolve_expression(expr->m_expr.get());
+      if (!ex) {
+        return nullptr;
+      }
+      transfer_temporaries(id.get(), ex.get());
+
+      if (ex->m_type != t->m_implicitly_contained_type) {
+        if (!ex->m_type->can_implicitly_cast_to(
+                t->m_implicitly_contained_type)) {
+          _alloc->log_line(m_log, logging::log_level::error);
+          m_log->log_error("Cannot convert arugment in array initializer");
+          return nullptr;
+        }
+        ex = make_cast(core::move(ex), t->m_implicitly_contained_type);
+      }
+
+      array_init->initialized_inline_initializers(m_allocator)
+          .push_back(core::move(ex));
+    }
+  } else {
+    auto base_expr = resolve_expression(_alloc->get_copy_initializer());
+    if (!base_expr) {
+      return nullptr;
+    }
+    array_init->m_initializer = core::move(base_expr);
+  }
+
   array_init->m_type = t;
 
   if (is_runtime) {
     array_init->m_runtime_size = core::move(array_size);
   }
 
-  memory::unique_ptr<ast_id> id =
-      memory::make_unique<ast_id>(m_allocator, _alloc);
   id->m_declaration = dec.get();
   id->m_type = t;
 
@@ -917,6 +960,7 @@ parse_ast_convertor::convertor_context::resolve_struct_allocation_expression(
                   constructor->m_parameters[i].m_type)) {
             _alloc->log_line(m_log, logging::log_level::error);
             m_log->log_error("Cannot convert arugment in constructor");
+            return nullptr;
           }
           ex = make_cast(core::move(ex), constructor->m_parameters[i].m_type);
         }
@@ -1100,6 +1144,7 @@ memory::unique_ptr<ast_expression> parse_ast_convertor::convertor_context::
                 constructor->m_parameters[i].m_type)) {
           _alloc->log_line(m_log, logging::log_level::error);
           m_log->log_error("Cannot convert arugment in constructor");
+          return nullptr;
         }
         ex = make_cast(core::move(ex), constructor->m_parameters[i].m_type);
       }

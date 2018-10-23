@@ -586,6 +586,7 @@ enum class struct_initialization_mode {
   max
 };
 
+class arg_list;
 class array_allocation_expression : public expression {
 public:
   explicit array_allocation_expression(memory::allocator* _allocator)
@@ -638,6 +639,7 @@ public:
     c->print_value(m_type, "Type");
     c->print_value(m_array_initializers, "Initializers");
     c->print_value(m_copy_initializer, "Copy Initializer");
+    c->print_value(m_inline_initializers, "Inline Initializers");
   }
 
   memory::unique_ptr<node> clone(memory::allocator* _allocator) const override {
@@ -650,6 +652,8 @@ public:
       t->m_array_initializers.push_back(clone_node(_allocator, init.get()));
     }
     t->m_copy_initializer = clone_node(_allocator, m_copy_initializer.get());
+    t->m_inline_initializers =
+        clone_node(_allocator, m_inline_initializers.get());
     t->m_constructor_name = containers::string(_allocator, m_constructor_name);
     t->m_destructor_name = containers::string(_allocator, m_constructor_name);
     t->m_init_mode = m_init_mode;
@@ -658,8 +662,17 @@ public:
     return core::move(t);
   }
 
+  void set_inline_initializers(arg_list* _list) {
+    m_inline_initializers = memory::unique_ptr<arg_list>(m_allocator, _list);
+  }
+
+  const arg_list* get_inline_initializers() const {
+    return m_inline_initializers.get();
+  }
+
 private:
   containers::deque<memory::unique_ptr<expression>> m_array_initializers;
+  memory::unique_ptr<arg_list> m_inline_initializers;
   memory::unique_ptr<expression> m_copy_initializer;
   containers::string m_constructor_name;
   containers::string m_destructor_name;

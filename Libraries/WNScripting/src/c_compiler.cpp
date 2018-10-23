@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
+#include "WNScripting/inc/c_compiler.h"
 #include "WNContainers/inc/WNHashMap.h"
 #include "WNContainers/inc/WNHashSet.h"
 #include "WNScripting/inc/WNNodeTypes.h"
-#include "WNScripting/inc/c_compiler.h"
 #include "WNScripting/inc/internal/c_preamble.h"
 #include "WNScripting/inc/parse_ast_convertor.h"
 
@@ -1172,7 +1172,6 @@ bool c_compiler::write_function_pointer_expression(
 
 bool c_compiler::write_array_allocation(
     const ast_array_allocation* _array_alloc) {
-  write_temporaries(_array_alloc->m_initializee.get());
   align_line();
 
   containers::string op(m_allocator, ".");
@@ -1183,56 +1182,87 @@ bool c_compiler::write_array_allocation(
     op = containers::string(m_allocator, "->");
   }
 
-  auto temp_name = get_temporary();
-  m_output += "for (uint32_t ";
-  m_output += temp_name;
-  m_output += " = 0; ";
-  m_output += temp_name;
-  m_output += " < ";
-  if (_array_alloc->m_runtime_size) {
-    write_expression(_array_alloc->m_initializee.get());
-    m_output += "->_size";
-  } else {
-    m_output += buff;
-  }
-  m_output += "; ++";
-  m_output += temp_name;
-  m_output += ") {\n";
-  m_scope_depth++;
-  if (_array_alloc->m_initializer.get()) {
-    write_temporaries(_array_alloc->m_initializer.get());
-    align_line();
-    write_expression(_array_alloc->m_initializee.get());
-    m_output += op + "_val[";
-    m_output += temp_name;
-    m_output += "] = ";
-    write_expression(_array_alloc->m_initializer.get());
-    m_output += ";\n";
-    write_cleanups(_array_alloc->m_initializer.get());
-  } else if (_array_alloc->m_constructor_initializer.get()) {
-    align_line();
-    write_call_function(_array_alloc->m_constructor_initializer.get());
-    m_output += "(&(";
-    write_expression(_array_alloc->m_initializee.get());
-    m_output += op + "_val[";
-    m_output += temp_name;
-    m_output += "]));\n";
-  } else {
-    WN_RELEASE_ASSERT(false, "Unknown initializer type");
-  }
-  m_scope_depth--;
-  align_line();
-  m_output += "}\n";
-  if (!_array_alloc->m_runtime_size) {
-    align_line();
-    write_expression(_array_alloc->m_initializee.get());
-    m_output += op + "_size = ";
-    m_output += buff;
-    m_output += ";\n";
-  }
+  if (_array_alloc->m_inline_initializers.size() > 0) {
+    bool align = false;
+    if (!_array_alloc->m_runtime_size) {
+      write_expression(_array_alloc->m_initializee.get());
+      m_output += op + "_size = ";
+      m_output += buff;
+      m_output += ";\n";
+      align = true;
+    }
+    size_t i = 0;
 
-  write_cleanups(_array_alloc->m_initializee.get());
-  return true;
+    for (auto& init : _array_alloc->m_inline_initializers) {
+      if (align) {
+        align_line();
+      }
+      align = true;
+      memory::writeuint32(buff, static_cast<uint32_t>(i), 11);
+      write_expression(_array_alloc->m_initializee.get());
+      m_output += op + "_val[";
+      m_output += buff;
+      m_output += "] = ";
+      if (!write_expression(init.get())) {
+        return false;
+      }
+      m_output += ";\n";
+      i++;
+    }
+    write_cleanups(_array_alloc->m_initializee.get());
+    return true;
+  } else {
+    auto temp_name = get_temporary();
+    m_output += "for (uint32_t ";
+    m_output += temp_name;
+    m_output += " = 0; ";
+    m_output += temp_name;
+    m_output += " < ";
+    if (_array_alloc->m_runtime_size) {
+      write_expression(_array_alloc->m_initializee.get());
+      m_output += "->_size";
+    } else {
+      m_output += buff;
+    }
+    m_output += "; ++";
+    m_output += temp_name;
+    m_output += ") {\n";
+    m_scope_depth++;
+    if (_array_alloc->m_initializer.get()) {
+      write_temporaries(_array_alloc->m_initializer.get());
+      align_line();
+      write_expression(_array_alloc->m_initializee.get());
+      m_output += op + "_val[";
+      m_output += temp_name;
+      m_output += "] = ";
+      write_expression(_array_alloc->m_initializer.get());
+      m_output += ";\n";
+      write_cleanups(_array_alloc->m_initializer.get());
+    } else if (_array_alloc->m_constructor_initializer.get()) {
+      align_line();
+      write_call_function(_array_alloc->m_constructor_initializer.get());
+      m_output += "(&(";
+      write_expression(_array_alloc->m_initializee.get());
+      m_output += op + "_val[";
+      m_output += temp_name;
+      m_output += "]));\n";
+    } else {
+      WN_RELEASE_ASSERT(false, "Unknown initializer type");
+    }
+    m_scope_depth--;
+    align_line();
+    m_output += "}\n";
+    if (!_array_alloc->m_runtime_size) {
+      align_line();
+      write_expression(_array_alloc->m_initializee.get());
+      m_output += op + "_size = ";
+      m_output += buff;
+      m_output += ";\n";
+    }
+
+    write_cleanups(_array_alloc->m_initializee.get());
+    return true;
+  }
 }
 
 bool c_compiler::write_array_destruction(const ast_array_destruction* _call) {
@@ -1481,8 +1511,8 @@ bool c_compiler::write_slice_expression(
     }
 
     char buff[11];
-    for (uint32_t i = 0; i < _expression->m_array->m_type->m_slice_dimensions - 1;
-         ++i) {
+    for (uint32_t i = 0;
+         i < _expression->m_array->m_type->m_slice_dimensions - 1; ++i) {
       m_output += ", ";
       memory::writeuint32(buff, i, 11);
       if (!write_expression(_expression->m_array.get())) {
