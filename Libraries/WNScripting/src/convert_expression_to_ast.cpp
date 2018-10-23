@@ -64,56 +64,78 @@ parse_ast_convertor::convertor_context::resolve_id(
 }
 
 memory::unique_ptr<ast_constant>
+parse_ast_convertor::convertor_context::get_constant(
+    const node* _node, const ast_type* _type, const containers::string& value) {
+  memory::unique_ptr<ast_constant> c =
+      memory::make_unique<ast_constant>(m_allocator, _node);
+  c->m_string_value = containers::string(m_allocator, value);
+  c->m_type = _type;
+
+  if (_type == m_type_manager->integral(32, nullptr)) {
+    long long val = atoll(value.c_str());
+    c->m_node_value.m_integer = static_cast<int32_t>(val);
+    return core::move(c);
+  } else if (_type == m_type_manager->nullptr_t(nullptr)) {
+    c->m_node_value.m_integer = static_cast<int32_t>(0);
+    return core::move(c);
+  } else if (_type == m_type_manager->floating(32, nullptr)) {
+    double val = atof(value.c_str());
+    c->m_node_value.m_float = static_cast<float>(val);
+    return core::move(c);
+  } else if (_type == m_type_manager->integral(8, nullptr)) {
+    c->m_node_value.m_char = c->m_string_value[1];
+    return core::move(c);
+  } else if (_type == m_type_manager->cstr_t(nullptr)) {
+    return core::move(c);
+  } else if (_type == m_type_manager->bool_t(nullptr)) {
+    if (value == "true") {
+      c->m_node_value.m_bool = true;
+    } else if (value == "false") {
+      c->m_node_value.m_bool = false;
+    } else {
+      _node->log_line(m_log, logging::log_level::error);
+      m_log->log_error("Unknown boolean constant: ", value);
+      return nullptr;
+    }
+    return core::move(c);
+  }
+  WN_RELEASE_ASSERT(false, "Unhandled: Custom constants");
+  return nullptr;
+}
+
+memory::unique_ptr<ast_constant>
 parse_ast_convertor::convertor_context::resolve_constant(
     const constant_expression* _const) {
-  memory::unique_ptr<ast_constant> c =
-      memory::make_unique<ast_constant>(m_allocator, _const);
-  c->m_string_value = containers::string(m_allocator, _const->get_type_text());
-
+  const ast_type* const_type = nullptr;
   switch (_const->get_index()) {
     case static_cast<uint32_t>(type_classification::int_type): {
-      long long val = atoll(_const->get_type_text().c_str());
-      c->m_type = m_type_manager->integral(32, &m_used_types);
-      c->m_node_value.m_integer = static_cast<int32_t>(val);
-      return core::move(c);
+      const_type = m_type_manager->integral(32, &m_used_types);
+      break;
     }
     case static_cast<uint32_t>(type_classification::nullptr_type): {
-      c->m_type = m_type_manager->nullptr_t(&m_used_types);
-      c->m_node_value.m_integer = static_cast<int32_t>(0);
-      return core::move(c);
+      const_type = m_type_manager->nullptr_t(&m_used_types);
+      break;
     }
     case static_cast<uint32_t>(type_classification::float_type): {
-      double val = atof(_const->get_type_text().c_str());
-      c->m_type = m_type_manager->floating(32, &m_used_types);
-      c->m_node_value.m_float = static_cast<float>(val);
-      return core::move(c);
+      const_type = m_type_manager->floating(32, &m_used_types);
+      break;
     }
     case static_cast<uint32_t>(type_classification::char_type): {
-      c->m_type = m_type_manager->integral(8, &m_used_types);
-      c->m_node_value.m_char = c->m_string_value[1];
-      return core::move(c);
+      const_type = m_type_manager->integral(8, &m_used_types);
+      break;
     }
     case static_cast<uint32_t>(type_classification::string_type): {
-      c->m_type = m_type_manager->cstr_t(&m_used_types);
-      return core::move(c);
+      const_type = m_type_manager->cstr_t(&m_used_types);
+      break;
     }
     case static_cast<uint32_t>(type_classification::bool_type): {
-      c->m_type = m_type_manager->bool_t(&m_used_types);
-      if (_const->get_type_text() == "true") {
-        c->m_node_value.m_bool = true;
-      } else if (_const->get_type_text() == "false") {
-        c->m_node_value.m_bool = false;
-      } else {
-        _const->log_line(m_log, logging::log_level::error);
-        m_log->log_error("Unknown boolean constant");
-        return nullptr;
-      }
-      return core::move(c);
+      const_type = m_type_manager->bool_t(&m_used_types);
+      break;
     }
     default:
       WN_RELEASE_ASSERT(false, "Unhandled: Custom constants");
   }
-  return nullptr;
+  return get_constant(_const, const_type, _const->get_type_text());
 }
 
 void parse_ast_convertor::convertor_context::transfer_temporaries(

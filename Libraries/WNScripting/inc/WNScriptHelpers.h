@@ -204,6 +204,17 @@ struct needs_thunk<shared_script_pointer<T>> : core::true_type {};
 template <typename T>
 struct needs_thunk<shared_cpp_pointer<T>> : core::true_type {};
 
+template <typename U,
+    typename = typename core::enable_if<core::is_same<int32_t, U>::value>::type>
+struct get_script_constant {
+  static containers::string str_const(
+      memory::allocator* _allocator, const U& _constant) {
+    char buff[11];
+    memory::writeint32(buff, _constant, 11);
+    return containers::string(_allocator, buff);
+  }
+};
+
 template <typename U, typename enable = core::enable_if_t<true>>
 struct get_thunk_passed_type {
   using type = U;

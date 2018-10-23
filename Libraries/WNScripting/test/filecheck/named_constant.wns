@@ -1,0 +1,17 @@
+// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE.txt file.
+
+// RUN: named_constant_a -> 42
+// CHECK: {{16named_constant_a.*{}}
+Int named_constant_a() {
+// CHECK: _return = 42;
+    return named_constant_a;
+}
+
+// RUN: named_constant_b -> -10
+// CHECK: {{16named_constant_b.*{}}
+Int named_constant_b() {
+// CHECK: _return = -10;
+    return named_constant_b;
+}

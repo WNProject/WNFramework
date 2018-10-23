@@ -55,6 +55,10 @@ public:
   template <typename T>
   void inline export_script_type();
 
+  template <typename T>
+  bool register_named_constant(
+      const containers::string_view& name, const T& value);
+
 protected:
   virtual ast_type* register_external_type(containers::string_view _name) = 0;
   size_t m_num_warnings;
@@ -97,6 +101,14 @@ bool inline translator::register_child_cpp_type() {
 template <typename T>
 void inline translator::export_script_type() {
   m_type_manager.export_script_type<T>();
+}
+
+template <typename T>
+bool inline translator::register_named_constant(
+    const containers::string_view& _name, const T& value) {
+  const ast_type* type = m_type_manager.get_type<T>();
+  containers::string sc = get_script_constant<T>::str_const(m_allocator, value);
+  return m_type_manager.add_named_constant(type, _name, sc);
 }
 
 }  // namespace scripting

@@ -252,6 +252,14 @@ int32_t wn_main(const ::wn::executable::executable_data* _executable_data) {
       "increment_number");
   translator->register_cpp_function("increment_number", &increment_number);
 
+  // Register a named constant;
+  const int32_t constant_a = 42;
+  const int32_t constant_b = -10;
+  jit->register_named_constant<int32_t>("named_constant_a", constant_a);
+  jit->register_named_constant<int32_t>("named_constant_b", constant_b);
+  translator->register_named_constant<int32_t>("named_constant_a", constant_a);
+  translator->register_named_constant<int32_t>("named_constant_b", constant_b);
+
   auto test_file_string = test_file.to_string(&allocator);
   file_system::result res;
   file_system::file_ptr iptr = files->open_file(test_file_string, res);

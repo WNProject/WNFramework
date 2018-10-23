@@ -73,6 +73,8 @@ struct parse_ast_convertor::convertor_context {
       const id_expression* _expression);
   memory::unique_ptr<ast_constant> resolve_constant(
       const constant_expression* _expression);
+  memory::unique_ptr<ast_constant> get_constant(const node* _node,
+      const ast_type* _type, const containers::string& value);
   memory::unique_ptr<ast_binary_expression> resolve_binary(
       const binary_expression* _expression);
   memory::unique_ptr<ast_unary_expression> resolve_unary_expression(

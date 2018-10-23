@@ -319,6 +319,17 @@ public:
 
   bool is_pass_by_reference(const ast_type* _type) const;
 
+  bool add_named_constant(const ast_type* _type, containers::string_view _name,
+      const containers::string_view& _value);
+
+  struct named_constant {
+    containers::string _value;
+    const ast_type* _type;
+  };
+
+  bool get_named_constant(
+      const containers::string_view& _name, named_constant* _out);
+
 private:
   ast_type* register_external_type(containers::string_view _type,
       uint32_t _size, ast_type* _parent_type = nullptr);
@@ -406,6 +417,8 @@ private:
       const node* _base_node, const ast_function* _func,
       containers::contiguous_range<memory::unique_ptr<ast_expression>>
           _expressions);
+
+  containers::hash_map<containers::string, named_constant> m_named_constants;
 };
 }  // namespace scripting
 }  // namespace wn

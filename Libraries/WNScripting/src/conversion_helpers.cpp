@@ -89,9 +89,13 @@ parse_ast_convertor::convertor_context::call_function(const node* _base_node,
 memory::unique_ptr<ast_expression>
 parse_ast_convertor::convertor_context::get_id(
     const node* _location, const containers::string& _name, bool _can_fail) {
+  type_manager::named_constant _const;
+  if (m_type_manager->get_named_constant(_name, &_const)) {
+    return get_constant(_location, _const._type, _const._value);
+  }
+
   memory::unique_ptr<ast_id> id_expr =
       memory::make_unique<ast_id>(m_allocator, _location);
-
   for (auto& scope : m_nested_scopes) {
     for (auto& decl : scope->m_declarations) {
       if (decl->m_name == _name) {

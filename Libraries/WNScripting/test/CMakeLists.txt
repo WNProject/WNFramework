@@ -59,6 +59,7 @@ wn_create_call_test(
       loop_with_continue.wns
       loop_with_return.wns
       multiple_include_test.wns
+      named_constant.wns
       partial_for_loops.wns
       shared_in_array.wns
       simple_functions.wns

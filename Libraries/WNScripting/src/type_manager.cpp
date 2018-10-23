@@ -28,7 +28,8 @@ type_manager::type_manager(memory::allocator* _allocator, logging::log* _log)
     m_slice_types(_allocator),
     m_all_types(_allocator),
     m_struct_definitions(_allocator),
-    m_vtables(_allocator) {
+    m_vtables(_allocator),
+    m_named_constants(_allocator) {
   auto uint32_type = memory::make_unique_delegated<ast_type>(m_allocator,
       [this](void* _memory) { return new (_memory) ast_type(&m_all_types); });
   uint32_type->m_name = containers::string(m_allocator, "Int");
@@ -769,6 +770,38 @@ size_t type_manager::get_virtual_function(const containers::string_view& _name,
     return static_cast<size_t>(-1);
   }
   return offs;
+}
+
+bool type_manager::add_named_constant(const ast_type* _type,
+    containers::string_view _name, const containers::string_view& _value) {
+  auto it = m_named_constants.find(_name.to_string(m_allocator));
+  if (it != m_named_constants.end()) {
+    if (it->second._type != _type) {
+      m_log->log_error("Constant ", _name, " registered with a different type");
+      return false;
+    }
+    if (it->second._value != _value) {
+      m_log->log_error("Constant ", _name,
+          " first registered as: ", it->second._value,
+          ": ignoring registry as: ", _value);
+      return false;
+    }
+    return true;
+  }
+  m_named_constants[_name.to_string(m_allocator)] =
+      named_constant{_value.to_string(m_allocator), _type};
+  return true;
+}
+
+bool type_manager::get_named_constant(
+    const containers::string_view& _name, type_manager::named_constant* _out) {
+  auto it = m_named_constants.find(_name.to_string(m_allocator));
+  if (it == m_named_constants.end()) {
+    return false;
+  }
+  _out->_type = it->second._type;
+  _out->_value = containers::string(m_allocator, it->second._value);
+  return true;
 }
 
 }  // namespace scripting

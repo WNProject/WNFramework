@@ -227,6 +227,14 @@ bool inline engine::resolve_script_type() {
 }
 
 template <typename T>
+bool inline engine::register_named_constant(
+    const containers::string_view& _name, const T& value) {
+  const ast_type* type = m_type_manager.get_type<T>();
+  containers::string sc = get_script_constant<T>::str_const(m_allocator, value);
+  return m_type_manager.add_named_constant(type, _name, sc);
+}
+
+template <typename T>
 bool inline engine::resolve_script_type_internal(T* t) {
   typename T::parent_type* parent = static_cast<typename T::parent_type*>(t);
   bool parent_success = resolve_script_type_internal(parent);
