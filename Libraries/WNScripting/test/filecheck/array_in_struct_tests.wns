@@ -19,7 +19,7 @@ class Foo {
   Int[3] y = Int[3](3);
 }
 
-// CHECK: Foo* _ZN3wns14_construct_FooEP3FooP4_Foo(_Foo* _this) {
+// CHECK: Foo* _ZN3wns4_Foo14_construct_FooEP3FooP4_Foo(_Foo* _this) {
 // CHECK-NEXT:   for (uint32_t __c_temp0 = 0; __c_temp0 < 4; ++__c_temp0) {
 // CHECK-NEXT:     (_this->_x)._val[__c_temp0] = 3;
 // CHECK-NEXT:   }
@@ -36,7 +36,7 @@ class Bar : Foo {
   .x = Int[9](8);
 }
 
-// CHECK: Bar* _ZN3wns14_construct_BarEP3BarP4_Bar(_Bar* _this) {
+// CHECK: Bar* _ZN3wns4_Bar14_construct_BarEP3BarP4_Bar(_Bar* _this) {
 // CHECK-NEXT:   for (uint32_t __c_temp2 = 0; __c_temp2 < 9; ++__c_temp2) {
 // CHECK-NEXT:     (_this->_x)._val[__c_temp2] = 8;
 // CHECK-NEXT:   }
@@ -53,7 +53,7 @@ class Bar : Foo {
 // RUN: doA 4 -> 3
 // RUN: doA 3 -> 3
 Int doA(Int x) {
-// CHECK:  _return = (_ZN3wns14_construct_FooEP3FooP4_Foo((&_wns_temp4))->x)->_val[1];
+// CHECK:  _return = (_ZN3wns4_Foo14_construct_FooEP3FooP4_Foo((&_wns_temp4))->x)->_val[1];
   return Foo().x[1];
 }
 
@@ -61,7 +61,7 @@ Int doA(Int x) {
 // RUN: doB 4 -> 3
 // RUN: doB 3 -> 3
 Int doB(Int x) {
-// CHECK: _return = (_ZN3wns14_construct_FooEP3FooP4_Foo((&_wns_temp5))->y)._val[2];
+// CHECK: _return = (_ZN3wns4_Foo14_construct_FooEP3FooP4_Foo((&_wns_temp5))->y)._val[2];
   return Foo().y[2];
 }
 
@@ -69,6 +69,6 @@ Int doB(Int x) {
 // RUN: doC 4 -> 8
 // RUN: doC 3 -> 8
 Int doC(Int x) {
-  // CHECK:   (_ZN3wns14_construct_BarEP3BarP4_Bar((&_wns_temp6))->x)->_val[8];
+  // CHECK:   (_ZN3wns4_Bar14_construct_BarEP3BarP4_Bar((&_wns_temp6))->x)->_val[8];
   return Bar().x[8];
 }

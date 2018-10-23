@@ -30,23 +30,23 @@ class Bazz : Baz {
   .f = Bar();
 }
 
-// CHECK: Foo* _ZN3wns14_construct_FooEP3FooP3Foo(Foo* _this) {
+// CHECK: Foo* _ZN3wns3Foo14_construct_FooEP3FooP3Foo(Foo* _this) {
 // CHECK-NEXT:   (_this->x) = 4;
-// CHECK-NEXT:   (_this->e) = ((_shared_Empty)(_ZN3wns18_wns_assign_sharedEPvPvPv(((void*)(NULL)), ((void*)(_ZN3wns16_construct_EmptyEP5EmptyP5Empty(((Empty*)(_ZN3wns20_wns_allocate_sharedEPvN3wns4sizeEFvPvE(sizeof(Empty), ((_wns_fn_ptr_0)(NULL)))))))))));
+// CHECK-NEXT:   (_this->e) = ((_shared_Empty)(_ZN3wns18_wns_assign_sharedEPvPvPv(((void*)(NULL)), ((void*)(_ZN3wns5Empty16_construct_EmptyEP5EmptyP5Empty(((Empty*)(_ZN3wns20_wns_allocate_sharedEPvN3wns4sizeEFvPvE(sizeof(Empty), ((_wns_fn_ptr_0)(NULL)))))))))));
 // CHECK-NEXT:   return _this;
 // CHECK-NEXT: }
 
 
-// CHECK: Bar* _ZN3wns14_construct_BarEP3BarP3Bar(Bar* _this) {
+// CHECK: Bar* _ZN3wns3Bar14_construct_BarEP3BarP3Bar(Bar* _this) {
 // CHECK-NEXT:   (_this->x) = 3;
-// CHECK-NEXT:   (_this->e) = ((_shared_Empty)(_ZN3wns18_wns_assign_sharedEPvPvPv(((void*)(NULL)), ((void*)(_ZN3wns17_construct_Empty2EP6Empty2P6Empty2(((Empty2*)(_ZN3wns20_wns_allocate_sharedEPvN3wns4sizeEFvPvE(sizeof(Empty2), ((_wns_fn_ptr_0)(NULL)))))))))));
+// CHECK-NEXT:   (_this->e) = ((_shared_Empty)(_ZN3wns18_wns_assign_sharedEPvPvPv(((void*)(NULL)), ((void*)(_ZN3wns6Empty217_construct_Empty2EP6Empty2P6Empty2(((Empty2*)(_ZN3wns20_wns_allocate_sharedEPvN3wns4sizeEFvPvE(sizeof(Empty2), ((_wns_fn_ptr_0)(NULL)))))))))));
 // CHECK-NEXT:   (_this->y) = 32;
 // CHECK-NEXT:   return _this;
 // CHECK-NEXT: }
 
-// CHECK: Bazz* _ZN3wns15_construct_BazzEP4BazzP5_Bazz(_Bazz* _this) {
-// CHECK-NEXT:   (_this->f) = ((Foo*)(_ZN3wns14_construct_BarEP3BarP3Bar((&(_this->_f)))));
-// CHECK-NEXT:   (_this->e) = ((_shared_Empty)(_ZN3wns18_wns_assign_sharedEPvPvPv(((void*)(NULL)), ((void*)(_ZN3wns16_construct_EmptyEP5EmptyP5Empty(((Empty*)(_ZN3wns20_wns_allocate_sharedEPvN3wns4sizeEFvPvE(sizeof(Empty), ((_wns_fn_ptr_0)(NULL)))))))))));
+// CHECK: Bazz* _ZN3wns5_Bazz15_construct_BazzEP4BazzP5_Bazz(_Bazz* _this) {
+// CHECK-NEXT:   (_this->f) = ((Foo*)(_ZN3wns3Bar14_construct_BarEP3BarP3Bar((&(_this->_f)))));
+// CHECK-NEXT:   (_this->e) = ((_shared_Empty)(_ZN3wns18_wns_assign_sharedEPvPvPv(((void*)(NULL)), ((void*)(_ZN3wns5Empty16_construct_EmptyEP5EmptyP5Empty(((Empty*)(_ZN3wns20_wns_allocate_sharedEPvN3wns4sizeEFvPvE(sizeof(Empty), ((_wns_fn_ptr_0)(NULL)))))))))));
 // CHECK-NEXT:   return ((Bazz*)(_this));
 // CHECK-NEXT: }
 

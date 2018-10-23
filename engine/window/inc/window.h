@@ -31,6 +31,8 @@ public:
   ~window();
 
   static void register_scripting(scripting::engine* _engine);
+  int32_t width();
+  int32_t height();
 
 private:
   logging::log* m_log;

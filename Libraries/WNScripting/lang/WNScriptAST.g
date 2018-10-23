@@ -630,7 +630,8 @@ structInit returns[scripting::struct_allocation_expression* node]
 @init {
     node = nullptr;
 }
-    : a=LBRACKET b=RBRACKET { node = m_allocator->construct<scripting::struct_allocation_expression>(m_allocator); SET_LOCATION(node, $a); SET_END_LOCATION(node, $b); }
+    : (a=LBRACKET b=RBRACKET { node = m_allocator->construct<scripting::struct_allocation_expression>(m_allocator); SET_LOCATION(node, $a); SET_END_LOCATION(node, $b); })
+    | (c=LBRACKET d=arglist e=RBRACKET { node = m_allocator->construct<scripting::struct_allocation_expression>(m_allocator); node->set_args($d.node); SET_LOCATION(node, $c); SET_END_LOCATION(node, $e); })
     ;
 
 arrayInit returns[scripting::array_allocation_expression* node]
@@ -781,6 +782,7 @@ structDecl returns[scripting::struct_definition* node]
     node = nullptr;
 }
     :    STRUCT TYPE {node= m_allocator->construct<scripting::struct_definition>(m_allocator, $TYPE.text.c_str()); SET_LOCATION(node, $STRUCT); }
+            (parameterList { node->set_constructor_parameters($parameterList.node); })?
             LBRACE (a=declaration { node->add_struct_elem($a.node);} SEMICOLON )* RBRACE  { SET_END_LOCATION(node, $RBRACE); }
     ;
 
@@ -793,6 +795,7 @@ classDecl returns[scripting::struct_definition* node]
             (f=CLASS c=TYPE {node= m_allocator->construct<scripting::struct_definition>(m_allocator, $c.text.c_str(), true); SET_LOCATION(node, $f); })
           | (g=CLASS d=TYPE COLON e=TYPE {node= m_allocator->construct<scripting::struct_definition>(m_allocator, $d.text.c_str(), true, $e.text.c_str()); SET_LOCATION(node, $g); })
         )
+            (parameterList { node->set_constructor_parameters($parameterList.node); })?
             LBRACE
                 (
                     (a=declaration { node->add_struct_elem($a.node);} SEMICOLON)

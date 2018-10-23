@@ -17,5 +17,4 @@ class PassData {
     Int[] color_attachments = Int[1](-1);
     Int depth_attachment = -2;
     CString pass_name = "";
-
 }

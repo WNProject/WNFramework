@@ -19,7 +19,7 @@ struct Foo2 {
 // CHECK: {{7shared1E.*{}}
 Int shared1(Int x) {
 // CHECK-NEXT: int32_t _return;
-// CHECK-NEXT: _shared_Foo f = ((_shared_Foo)(_ZN3wns18_wns_assign_sharedEPvPvPv(((void*)(NULL)), ((void*)(_ZN3wns14_construct_FooEP3FooP3Foo(((Foo*)(_ZN3wns20_wns_allocate_sharedEPvN3wns4sizeEFvPvE(sizeof(Foo), ((_wns_fn_ptr_0)(NULL)))))))))));
+// CHECK-NEXT: _shared_Foo f = ((_shared_Foo)(_ZN3wns18_wns_assign_sharedEPvPvPv(((void*)(NULL)), ((void*)(_ZN3wns3Foo14_construct_FooEP3FooP3Foo(((Foo*)(_ZN3wns20_wns_allocate_sharedEPvN3wns4sizeEFvPvE(sizeof(Foo), ((_wns_fn_ptr_0)(NULL)))))))))));
   shared Foo f = shared Foo();
 // CHECK-NEXT: _return = (f->x);
 // CHECK-NEXT: _ZN3wns12_wns_releaseEvPv(((void*)(f)));
@@ -32,7 +32,7 @@ Int shared1(Int x) {
 // CHECK: {{7shared2E.*{}}
 Int shared2(Int x) {
 // CHECK-NEXT: int32_t _return;
-// CHECK-NEXT: _shared_Foo2 f = ((_shared_Foo2)(_ZN3wns18_wns_assign_sharedEPvPvPv(((void*)(NULL)), ((void*)(_ZN3wns15_construct_Foo2EP4Foo2P4Foo2(((Foo2*)(_ZN3wns20_wns_allocate_sharedEPvN3wns4sizeEFvPvE(sizeof(Foo2), ((_wns_fn_ptr_0)(&_ZN3wns14_destruct_Foo2EvP4Foo2)))))))))));
+// CHECK-NEXT: _shared_Foo2 f = ((_shared_Foo2)(_ZN3wns18_wns_assign_sharedEPvPvPv(((void*)(NULL)), ((void*)(_ZN3wns4Foo215_construct_Foo2EP4Foo2P4Foo2(((Foo2*)(_ZN3wns20_wns_allocate_sharedEPvN3wns4sizeEFvPvE(sizeof(Foo2), ((_wns_fn_ptr_0)(&_ZN3wns14_destruct_Foo2EvP4Foo2)))))))))));
   shared Foo2 f = shared Foo2();
   return f.f.x;
 }
@@ -55,14 +55,14 @@ shared Foo getF(Bool b) {
 // RUN: shared3 5 -> 32
 // CHECK: {{7shared3E.*{}}
 Int shared3(Int x) {
-// CHECK: _shared_Foo f = ((_shared_Foo)(_ZN3wns18_wns_assign_sharedEPvPvPv(((void*)(NULL)), ((void*)(_ZN3wns14_construct_FooEP3FooP3Foo(((Foo*)(_ZN3wns20_wns_allocate_sharedEPvN3wns4sizeEFvPvE(sizeof(Foo), ((_wns_fn_ptr_0)(NULL)))))))))));
+// CHECK: _shared_Foo f = ((_shared_Foo)(_ZN3wns18_wns_assign_sharedEPvPvPv(((void*)(NULL)), ((void*)(_ZN3wns3Foo14_construct_FooEP3FooP3Foo(((Foo*)(_ZN3wns20_wns_allocate_sharedEPvN3wns4sizeEFvPvE(sizeof(Foo), ((_wns_fn_ptr_0)(NULL)))))))))));
   shared Foo f = shared Foo();
   f.x = 32;
   if (x == 3) {
-// CHECK:  ((_shared_Foo)(_ZN3wns18_wns_assign_sharedEPvPvPv(((void*)(f)), ((void*)(_ZN3wns14_construct_FooEP3FooP3Foo(((Foo*)(_ZN3wns20_wns_allocate_sharedEPvN3wns4sizeEFvPvE(sizeof(Foo), ((_wns_fn_ptr_0)(NULL)))))))))));
+// CHECK:  ((_shared_Foo)(_ZN3wns18_wns_assign_sharedEPvPvPv(((void*)(f)), ((void*)(_ZN3wns3Foo14_construct_FooEP3FooP3Foo(((Foo*)(_ZN3wns20_wns_allocate_sharedEPvN3wns4sizeEFvPvE(sizeof(Foo), ((_wns_fn_ptr_0)(NULL)))))))))));
     f = shared Foo();
   } else if (x == 4) {
-// CHECK:  ((_shared_Foo)(_ZN3wns18_wns_assign_sharedEPvPvPv(((void*)(f)), ((void*)(_ZN3wns14_construct_FooEP3FooP3Foo(((Foo*)(_ZN3wns20_wns_allocate_sharedEPvN3wns4sizeEFvPvE(sizeof(Foo), ((_wns_fn_ptr_0)(NULL)))))))))));
+// CHECK:  ((_shared_Foo)(_ZN3wns18_wns_assign_sharedEPvPvPv(((void*)(f)), ((void*)(_ZN3wns3Foo14_construct_FooEP3FooP3Foo(((Foo*)(_ZN3wns20_wns_allocate_sharedEPvN3wns4sizeEFvPvE(sizeof(Foo), ((_wns_fn_ptr_0)(NULL)))))))))));
     f = shared Foo();
     f.x = 4;
   } else if (x == 5) {

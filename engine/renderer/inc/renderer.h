@@ -7,6 +7,7 @@
 #ifndef __WN_ENGINE_RENDERER_RENDERER_H__
 #define __WN_ENGINE_RENDERER_RENDERER_H__
 
+#include "WNGraphics/inc/WNGraphicsEnums.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNScripting/inc/WNEngine.h"
 #include "engine_base/inc/context.h"
@@ -14,12 +15,30 @@
 
 namespace wn {
 namespace engine {
+namespace window {
+class window;
+}
 namespace renderer {
 
 class renderer {
 public:
-  renderer(logging::log* _log) : m_log(_log) {
-    m_log->log_info("Created Renderer");
+  renderer(memory::allocator* _allocator, logging::log* _log,
+      window::window* _window, int32_t _width, int32_t _height)
+    : m_log(_log),
+      m_width(_width),
+      m_height(_height),
+      m_attachments(_allocator) {
+    if (_window) {
+      m_log->log_info("Created Renderer With Window");
+    } else {
+      m_log->log_info("Created Renderer Without Window");
+    }
+
+    m_log->log_info("Renderer Size: ", _width, "x", _height);
+    if (_width > 0 && _height > 0) {
+      m_attachments.push_back(color_attachment{
+          runtime::graphics::data_format::r8g8b8a8_unorm, _width, _height});
+    }
   }
 
   ~renderer() {
@@ -31,10 +50,29 @@ public:
   void register_object(
       scripting::shared_script_pointer<render_data> _render_data);
   void register_pass(scripting::script_pointer<pass_data> _pass_data);
+  int32_t register_attachment(int32_t _format, int32_t _width, int32_t _height);
+  int32_t width() {
+    return m_width;
+  }
+  int32_t height() {
+    return m_height;
+  }
 
 private:
   logging::log* m_log;
-};
+  int32_t m_width;
+  int32_t m_height;
+
+  struct color_attachment {
+    runtime::graphics::data_format _format;
+    int32_t width;
+    int32_t height;
+  };
+
+  containers::dynamic_array<color_attachment>
+      m_attachments;
+
+};  // namespace renderer
 
 }  // namespace renderer
 }  // namespace engine

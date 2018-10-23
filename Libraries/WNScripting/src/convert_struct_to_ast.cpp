@@ -321,32 +321,18 @@ bool parse_ast_convertor::convertor_context::create_constructor(
           _initialized_type, ast_type_classification::reference, &m_used_types),
   });
 
-  containers::string mn(m_allocator, "P");
-  char count[11] = {
-      0,
-  };
-  memory::writeuint32(
-      count, static_cast<uint32_t>(return_type->m_name.size()), 10);
-  mn += count;
-  mn += return_type->m_name;
+  if (st_def->constructor_params()) {
+    for (auto& param : st_def->constructor_params()->get_parameters()) {
+      const ast_type* param_type = resolve_type(param->get_type());
+      if (!param_type) {
+        return false;
+      }
+      params.push_back(ast_function::parameter{
+          containers::string(m_allocator, param->get_name()), param_type});
+    }
+  }
 
-  memory::writeuint32(
-      count, static_cast<uint32_t>(constructor_name.size()), 10);
-
-  containers::string mangled_name(m_allocator);
-  mangled_name = containers::string(m_allocator, "_ZN3wns");
-  mangled_name += count;
-  mangled_name += constructor_name;
-  mangled_name += "E";
-  mangled_name += mn;
-
-  mangled_name += "P";
-  memory::writeuint32(
-      count, static_cast<uint32_t>(_initialized_type->m_name.size()), 10);
-  mangled_name += count;
-  mangled_name += _initialized_type->m_name;
-
-  fn->m_mangled_name = core::move(mangled_name);
+  fn->calculate_mangled_name(m_allocator);
   fn->m_scope = memory::make_unique<ast_scope_block>(m_allocator, st_def);
   auto& statements = fn->m_scope->initialized_statements(m_allocator);
   containers::dynamic_array<memory::unique_ptr<ast_statement>>
@@ -730,8 +716,9 @@ bool parse_ast_convertor::convertor_context::create_constructor(
           return false;
         }
         if (it->get_expression()->get_node_type() ==
-            node_type::struct_allocation_expression &&
-            rhs->m_type->m_classification == ast_type_classification::shared_reference) {
+                node_type::struct_allocation_expression &&
+            rhs->m_type->m_classification ==
+                ast_type_classification::shared_reference) {
           containers::dynamic_array<memory::unique_ptr<ast_expression>>
               assign_params(m_allocator);
 

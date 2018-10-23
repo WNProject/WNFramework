@@ -3,7 +3,5 @@
 // found in the LICENSE.txt file.
 
 class RenderData {
-    virtual Void register_data() {
-        log_error("ERROR");
-    }
+    virtual Void register_data() {}
 }

@@ -15,10 +15,10 @@ struct Foo {
   shared Bar[[]] b = shared Bar[[4]](shared Bar());
 }
 
-// CHECK: Foo* _ZN3wns14_construct_FooEP3FooP3Foo(Foo* _this) {
+// CHECK: Foo* _ZN3wns3Foo14_construct_FooEP3FooP3Foo(Foo* _this) {
 // CHECK-NEXT:   (_this->b) = ((_runtime_array__shared_Bar)(_ZN3wns23_allocate_runtime_arrayEPvN3wns4sizeEN3wns4sizeE(sizeof(_shared_Bar), ((size_t)(4)))));
 // CHECK-NEXT:   for (uint32_t __c_temp0 = 0; __c_temp0 < (_this->b)->_size; ++__c_temp0) {
-// CHECK-NEXT:     (_this->b)->_val[__c_temp0] = ((_shared_Bar)(_ZN3wns18_wns_assign_sharedEPvPvPv(((void*)(NULL)), ((void*)(_ZN3wns14_construct_BarEP3BarP3Bar(((Bar*)(_ZN3wns20_wns_allocate_sharedEPvN3wns4sizeEFvPvE(sizeof(Bar), ((_wns_fn_ptr_0)(&_ZN3wns13_destruct_BarEvP3Bar)))))))))));
+// CHECK-NEXT:     (_this->b)->_val[__c_temp0] = ((_shared_Bar)(_ZN3wns18_wns_assign_sharedEPvPvPv(((void*)(NULL)), ((void*)(_ZN3wns3Bar14_construct_BarEP3BarP3Bar(((Bar*)(_ZN3wns20_wns_allocate_sharedEPvN3wns4sizeEFvPvE(sizeof(Bar), ((_wns_fn_ptr_0)(&_ZN3wns13_destruct_BarEvP3Bar)))))))))));
 // CHECK-NEXT:   }
 // CHECK-NEXT:   return _this;
 // CHECK-NEXT: }
@@ -60,7 +60,7 @@ struct Foo {
 Int foo(Int x, Int y, Int z, Int w) {
 // CHECK: _runtime_array_Foo f = ((_runtime_array_Foo)(_ZN3wns23_allocate_runtime_arrayEPvN3wns4sizeEN3wns4sizeE(sizeof(Foo), ((size_t)(x)))));
 // CHECK-NEXT: for (uint32_t __c_temp3 = 0; __c_temp3 < f->_size; ++__c_temp3) {
-// CHECK-NEXT:   _ZN3wns14_construct_FooEP3FooP3Foo(&(f->_val[__c_temp3]));
+// CHECK-NEXT:   _ZN3wns3Foo14_construct_FooEP3FooP3Foo(&(f->_val[__c_temp3]));
 // CHECK-NEXT: }
   Foo[[]] f = Foo[[x]](Foo());
   f[y].b[z].x = w;

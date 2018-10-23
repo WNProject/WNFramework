@@ -7,6 +7,7 @@ add_wn_library(
     src/render_data.cpp
   LIBS
     engine_base
+    window
     WNGraphics
     WNScripting
 )

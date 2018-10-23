@@ -583,9 +583,8 @@ void type_manager::finalize_used_externals(
 
 void type_manager::finalize_functions(
     const containers::deque<memory::unique_ptr<ast_function>>& functions) {
-  // containers::hash_map<containers::string_view, ast_function*>
   for (auto& fn : functions) {
-    if (!fn->m_is_external && !fn->m_is_builtin) {
+    if (!fn->m_is_external && !fn->m_is_builtin && !fn->m_is_member_function) {
       external_function e;
       e.params = containers::dynamic_array<const ast_type*>(m_allocator);
       e.params.reserve(fn->m_parameters.size() + 1);
@@ -609,7 +608,7 @@ void type_manager::finalize_functions(
         e.params.push_back(p.m_type);
       }
       e.name = fn->m_name;
-      t.second->m_constructor = add_external(e, false, false);
+      t.second->m_constructor = add_external(e, false, true);
     }
     if (t.second->m_destructor && !t.second->m_destructor->m_is_external) {
       auto& fn = t.second->m_destructor;

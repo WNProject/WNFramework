@@ -13,7 +13,7 @@ struct Foo {
 Int shared_array_destruct(Int x) {
   shared Foo[] b = shared Foo[5](shared Foo());
   // CHECK: for (uint32_t __c_temp0 = 0; __c_temp0 < 5; ++__c_temp0) {
-  // CHECK-NEXT:  _wns_temp0._val[__c_temp0] = ((_shared_Foo)(_ZN3wns18_wns_assign_sharedEPvPvPv(((void*)(NULL)), ((void*)(_ZN3wns14_construct_FooEP3FooP3Foo(((Foo*)(_ZN3wns20_wns_allocate_sharedEPvN3wns4sizeEFvPvE(sizeof(Foo), ((_wns_fn_ptr_0)(NULL)))))))))));
+  // CHECK-NEXT:  _wns_temp0._val[__c_temp0] = ((_shared_Foo)(_ZN3wns18_wns_assign_sharedEPvPvPv(((void*)(NULL)), ((void*)(_ZN3wns3Foo14_construct_FooEP3FooP3Foo(((Foo*)(_ZN3wns20_wns_allocate_sharedEPvN3wns4sizeEFvPvE(sizeof(Foo), ((_wns_fn_ptr_0)(NULL)))))))))));
   // CHECK-NEXT: }
   // CHECK-NEXT: _wns_temp0._size = 5;
   b[4].x = 12;

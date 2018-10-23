@@ -73,6 +73,7 @@ class function;
 class instruction;
 class node;
 class parameter;
+class paramter_list;
 class constant_expression;
 
 template <typename T>
@@ -912,7 +913,7 @@ public:
       memory::allocator* _allocator, expression* _index0, expression* _index1)
     : post_expression(_allocator, node_type::slice_expression),
       m_index_0(memory::unique_ptr<expression>(m_allocator, _index0)),
-      m_index_1(memory::unique_ptr<expression>(m_allocator, _index1)){}
+      m_index_1(memory::unique_ptr<expression>(m_allocator, _index1)) {}
 
   explicit slice_expression(memory::allocator* _allocator)
     : post_expression(_allocator, node_type::slice_expression) {}
@@ -1108,6 +1109,71 @@ private:
   memory::unique_ptr<expression> m_expression;
 };
 
+struct function_expression {
+  function_expression(
+      memory::allocator* _allocator, expression* _expr, bool _hand_ownership)
+    : m_expr(_allocator, _expr), m_hand_ownership(_hand_ownership) {}
+  function_expression(
+      memory::unique_ptr<expression>&& _expr, bool _hand_ownership)
+    : m_expr(core::move(_expr)), m_hand_ownership(_hand_ownership) {}
+
+  explicit function_expression(memory::allocator*) {}
+
+  memory::unique_ptr<function_expression> clone(
+      memory::allocator* _allocator) const {
+    auto t = memory::make_unique<function_expression>(_allocator, _allocator);
+    t->m_expr = clone_node(_allocator, m_expr.get());
+    t->m_hand_ownership = m_hand_ownership;
+    return core::move(t);
+  }
+
+  memory::unique_ptr<expression> m_expr;
+  bool m_hand_ownership;
+};
+
+class arg_list : public node {
+public:
+  arg_list(memory::allocator* _allocator)
+    : node(_allocator, node_type::arg_list), m_expression_list(_allocator) {}
+  void add_expression(expression* _expr, bool _hand_ownership = false) {
+    m_expression_list.emplace_back(memory::make_unique<function_expression>(
+        m_allocator, m_allocator, _expr, _hand_ownership));
+  }
+
+  containers::deque<memory::unique_ptr<function_expression>>&
+  get_expressions() {
+    return (m_expression_list);
+  }
+
+  const containers::deque<memory::unique_ptr<function_expression>>&
+  get_expressions() const {
+    return (m_expression_list);
+  }
+
+  void print_node_internal(print_context* c) const override {
+    c->print_header("Args");
+    c->enter_log_scope();
+    for (auto& e : m_expression_list) {
+      e->m_expr->print_node_internal(c);
+    }
+    c->leave_log_scope();
+  }
+
+  memory::unique_ptr<node> clone(memory::allocator* _allocator) const override {
+    auto t = memory::make_unique<arg_list>(_allocator, _allocator);
+    t->copy_underlying_from(_allocator, this);
+    t->m_expression_list =
+        containers::deque<memory::unique_ptr<function_expression>>(_allocator);
+    for (auto& i : m_expression_list) {
+      t->m_expression_list.push_back(i->clone(_allocator));
+    }
+    return core::move(t);
+  }
+
+private:
+  containers::deque<memory::unique_ptr<function_expression>> m_expression_list;
+};
+
 class struct_allocation_expression : public expression {
 public:
   explicit struct_allocation_expression(memory::allocator* _allocator)
@@ -1126,6 +1192,14 @@ public:
   struct_initialization_mode set_initialization_mode() const {
     return m_init_mode;
   }
+
+  void set_args(arg_list* _args) {
+    m_args = memory::unique_ptr<arg_list>(m_allocator, _args);
+  }
+
+  const arg_list* get_args() const {
+    return m_args.get();
+  };
 
   void print_node_internal(print_context* c) const override {
     c->print_header("Struct Allocation");
@@ -1146,6 +1220,7 @@ public:
 private:
   memory::unique_ptr<expression> m_copy_initializer;
   struct_initialization_mode m_init_mode;
+  memory::unique_ptr<arg_list> m_args;
 };
 
 class unary_expression : public expression {
@@ -1346,71 +1421,6 @@ private:
   containers::deque<memory::unique_ptr<instruction>> m_instructions;
 };
 
-struct function_expression {
-  function_expression(
-      memory::allocator* _allocator, expression* _expr, bool _hand_ownership)
-    : m_expr(_allocator, _expr), m_hand_ownership(_hand_ownership) {}
-  function_expression(
-      memory::unique_ptr<expression>&& _expr, bool _hand_ownership)
-    : m_expr(core::move(_expr)), m_hand_ownership(_hand_ownership) {}
-
-  explicit function_expression(memory::allocator*) {}
-
-  memory::unique_ptr<function_expression> clone(
-      memory::allocator* _allocator) const {
-    auto t = memory::make_unique<function_expression>(_allocator, _allocator);
-    t->m_expr = clone_node(_allocator, m_expr.get());
-    t->m_hand_ownership = m_hand_ownership;
-    return core::move(t);
-  }
-
-  memory::unique_ptr<expression> m_expr;
-  bool m_hand_ownership;
-};
-
-class arg_list : public node {
-public:
-  arg_list(memory::allocator* _allocator)
-    : node(_allocator, node_type::arg_list), m_expression_list(_allocator) {}
-  void add_expression(expression* _expr, bool _hand_ownership = false) {
-    m_expression_list.emplace_back(memory::make_unique<function_expression>(
-        m_allocator, m_allocator, _expr, _hand_ownership));
-  }
-
-  containers::deque<memory::unique_ptr<function_expression>>&
-  get_expressions() {
-    return (m_expression_list);
-  }
-
-  const containers::deque<memory::unique_ptr<function_expression>>&
-  get_expressions() const {
-    return (m_expression_list);
-  }
-
-  void print_node_internal(print_context* c) const override {
-    c->print_header("Args");
-    c->enter_log_scope();
-    for (auto& e : m_expression_list) {
-      e->m_expr->print_node_internal(c);
-    }
-    c->leave_log_scope();
-  }
-
-  memory::unique_ptr<node> clone(memory::allocator* _allocator) const override {
-    auto t = memory::make_unique<arg_list>(_allocator, _allocator);
-    t->copy_underlying_from(_allocator, this);
-    t->m_expression_list =
-        containers::deque<memory::unique_ptr<function_expression>>(_allocator);
-    for (auto& i : m_expression_list) {
-      t->m_expression_list.push_back(i->clone(_allocator));
-    }
-    return core::move(t);
-  }
-
-private:
-  containers::deque<memory::unique_ptr<function_expression>> m_expression_list;
-};
-
 class function_call_expression : public post_expression {
 public:
   function_call_expression(memory::allocator* _allocator)
@@ -1596,6 +1606,52 @@ private:
 };
 
 class function;
+
+class parameter_list : public node {
+public:
+  explicit parameter_list(memory::allocator* _allocator)
+    : node(_allocator, node_type::parameter_list), m_parameters(_allocator) {}
+  parameter_list(memory::allocator* _allocator, parameter* _param)
+    : parameter_list(_allocator) {
+    m_parameters.emplace_back(
+        memory::unique_ptr<parameter>(m_allocator, _param));
+  }
+
+  void add_parameter(parameter* _param) {
+    m_parameters.emplace_back(
+        memory::unique_ptr<parameter>(m_allocator, _param));
+  }
+
+  void prepend_parameter(memory::unique_ptr<parameter>&& _param) {
+    m_parameters.emplace_front(core::move(_param));
+  }
+
+  const containers::deque<memory::unique_ptr<parameter>>& get_parameters()
+      const {
+    return m_parameters;
+  }
+
+  void print_node_internal(print_context* c) const override {
+    c->print_header("Parameter List");
+    c->print_value(m_parameters, "Parameters");
+  }
+
+  memory::unique_ptr<node> clone(memory::allocator* _allocator) const override {
+    auto t = memory::make_unique<parameter_list>(_allocator, _allocator);
+    t->copy_underlying_from(_allocator, this);
+
+    t->m_parameters =
+        containers::deque<memory::unique_ptr<parameter>>(_allocator);
+    for (auto& m : m_parameters) {
+      t->m_parameters.push_back(clone_node(_allocator, m.get()));
+    }
+    return core::move(t);
+  }
+
+private:
+  containers::deque<memory::unique_ptr<parameter>> m_parameters;
+};
+
 class struct_definition : public node {
 public:
   struct_definition(memory::allocator* _allocator, const char* _name,
@@ -1642,6 +1698,15 @@ public:
     return m_struct_members;
   }
 
+  void set_constructor_parameters(parameter_list* _params) {
+    m_constructor_parameters =
+        memory::unique_ptr<parameter_list>(m_allocator, _params);
+  }
+
+  const parameter_list* constructor_params() const {
+    return m_constructor_parameters.get();
+  }
+
   const containers::deque<memory::unique_ptr<declaration>>& get_struct_members()
       const {
     return m_struct_members;
@@ -1684,51 +1749,7 @@ private:
   bool m_is_class;
   containers::deque<memory::unique_ptr<declaration>> m_struct_members;
   containers::deque<memory::unique_ptr<function>> m_struct_functions;
-};
-
-class parameter_list : public node {
-public:
-  explicit parameter_list(memory::allocator* _allocator)
-    : node(_allocator, node_type::parameter_list), m_parameters(_allocator) {}
-  parameter_list(memory::allocator* _allocator, parameter* _param)
-    : parameter_list(_allocator) {
-    m_parameters.emplace_back(
-        memory::unique_ptr<parameter>(m_allocator, _param));
-  }
-
-  void add_parameter(parameter* _param) {
-    m_parameters.emplace_back(
-        memory::unique_ptr<parameter>(m_allocator, _param));
-  }
-
-  void prepend_parameter(memory::unique_ptr<parameter>&& _param) {
-    m_parameters.emplace_front(core::move(_param));
-  }
-
-  const containers::deque<memory::unique_ptr<parameter>>& get_parameters()
-      const {
-    return m_parameters;
-  }
-
-  void print_node_internal(print_context* c) const override {
-    c->print_header("Parameter List");
-    c->print_value(m_parameters, "Parameters");
-  }
-
-  memory::unique_ptr<node> clone(memory::allocator* _allocator) const override {
-    auto t = memory::make_unique<parameter_list>(_allocator, _allocator);
-    t->copy_underlying_from(_allocator, this);
-
-    t->m_parameters =
-        containers::deque<memory::unique_ptr<parameter>>(_allocator);
-    for (auto& m : m_parameters) {
-      t->m_parameters.push_back(clone_node(_allocator, m.get()));
-    }
-    return core::move(t);
-  }
-
-private:
-  containers::deque<memory::unique_ptr<parameter>> m_parameters;
+  memory::unique_ptr<parameter_list> m_constructor_parameters;
 };
 
 class function : public node {

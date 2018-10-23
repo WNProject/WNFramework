@@ -73,6 +73,15 @@ window::~window() {
   m_log->log_info("Destroyed Window");
 }
 
+int32_t window::width() {
+  return m_window->get_width();
+}
+
+int32_t window::height() {
+  return m_window->get_height();
+}
+
+
 }  // namespace window
 }  // namespace engine
 }  // namespace wn

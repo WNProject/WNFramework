@@ -217,6 +217,12 @@ public:
     const ast_type* from_struct = m_implicitly_contained_type;
     const ast_type* to_type = _other->m_implicitly_contained_type;
 
+    // If we are casting shared->ref then we will hit this
+    if (from_struct == to_type) {
+      return true;
+    }
+
+    // If we are casting up the inheritance chain, we will hit this.
     while (from_struct->m_parent_type) {
       if (from_struct->m_parent_type == to_type) {
         return true;

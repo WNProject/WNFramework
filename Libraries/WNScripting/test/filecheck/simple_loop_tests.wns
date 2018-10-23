@@ -29,7 +29,7 @@ Int while_test_temp_condition(Int x) {
 // CHECK-NEXT: while (true) {
 // CHECK-NEXT:  {
 // CHECK-NEXT:    Foo _wns_temp0;
-// CHECK-NEXT:    bool __c_temp0 = (_ZN3wns14_construct_FooEP3FooP3Foo((&_wns_temp0))->b);
+// CHECK-NEXT:    bool __c_temp0 = (_ZN3wns3Foo14_construct_FooEP3FooP3Foo((&_wns_temp0))->b);
 // CHECK-NEXT:    if (!__c_temp0) { break; }
 // CHECK-NEXT:  }
     while(Foo().b) {
@@ -70,7 +70,7 @@ Int do_test_temp_condition(Int x) {
         x = x - 10;
 // CHECK-NEXT:  {
 // CHECK-NEXT:    Foo _wns_temp1;
-// CHECK-NEXT:    bool __c_temp1 = (_ZN3wns14_construct_FooEP3FooP3Foo((&_wns_temp1))->b);
+// CHECK-NEXT:    bool __c_temp1 = (_ZN3wns3Foo14_construct_FooEP3FooP3Foo((&_wns_temp1))->b);
 // CHECK-NEXT:    if (!__c_temp1) { break; }
 // CHECK-NEXT:  }
 // CHECK-NEXT:} while (true);
@@ -111,7 +111,7 @@ Int for_loop_with_temp(Int x) {
     // CHECK-NEXT: if (__c_temp3) { break; }
     // CHECK-NEXT: {
     // CHECK-NEXT: Foo _wns_temp2;
-    // CHECK-NEXT: i = (i + (_ZN3wns14_construct_FooEP3FooP3Foo((&_wns_temp2))->x));
+    // CHECK-NEXT: i = (i + (_ZN3wns3Foo14_construct_FooEP3FooP3Foo((&_wns_temp2))->x));
     // CHECK-NEXT: }
     for (Int i = 0; i < 10; i += Foo().x) {
         x = x - 10;
@@ -129,7 +129,7 @@ Int for_loop_with_cond_temp(Int x) {
     // CHECK-NEXT: do {
     // CHECK-NEXT: {
     // CHECK-NEXT: Foo _wns_temp3;
-    // CHECK-NEXT: bool __c_temp5 = (i < (_ZN3wns14_construct_FooEP3FooP3Foo((&_wns_temp3))->x));
+    // CHECK-NEXT: bool __c_temp5 = (i < (_ZN3wns3Foo14_construct_FooEP3FooP3Foo((&_wns_temp3))->x));
     // CHECK-NEXT: if (!__c_temp5) { __c_temp4 = true; break; }
     // CHECK-NEXT: }
     // CHECK-NEXT: {

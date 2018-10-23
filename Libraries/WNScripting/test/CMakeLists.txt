@@ -47,6 +47,7 @@ wn_create_call_test(
       assignment_tests.wns
       basic_include_test.wns
       constants_test.wns
+      constructor_parameters.wns
       destructible_array_in_struct.wns
       dynamic_array_tests.wns
       empty_expression.wns

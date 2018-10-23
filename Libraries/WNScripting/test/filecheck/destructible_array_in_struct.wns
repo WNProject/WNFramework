@@ -14,9 +14,9 @@ struct Foo {
   Bar[10] b = Bar[10](Bar());
 }
 
-// CHECK: Foo* _ZN3wns14_construct_FooEP3FooP3Foo(Foo* _this) {
+// CHECK: Foo* _ZN3wns3Foo14_construct_FooEP3FooP3Foo(Foo* _this) {
 // CHECK-NEXT:   for (uint32_t __c_temp0 = 0; __c_temp0 < 10; ++__c_temp0) {
-// CHECK-NEXT:     _ZN3wns14_construct_BarEP3BarP3Bar(&((_this->b)._val[__c_temp0]));
+// CHECK-NEXT:     _ZN3wns3Bar14_construct_BarEP3BarP3Bar(&((_this->b)._val[__c_temp0]));
 // CHECK-NEXT:   }
 //CHECK-NEXT:   (_this->b)._size = 10;
 // CHECK-NEXT:   return _this;
@@ -38,9 +38,9 @@ struct Foo {
 // CHECK:   return;
 // CHECK-NEXT: }
 
-//CHECK: Bazz* _ZN3wns15_construct_BazzEP4BazzP5_Bazz(_Bazz* _this) {
+//CHECK: Bazz* _ZN3wns5_Bazz15_construct_BazzEP4BazzP5_Bazz(_Bazz* _this) {
 //CHECK-NEXT:   for (uint32_t __c_temp2 = 0; __c_temp2 < 10; ++__c_temp2) {
-//CHECK-NEXT:     (_this->_b)._val[__c_temp2] = ((_shared_Child)(_ZN3wns18_wns_assign_sharedEPvPvPv(((void*)(NULL)), ((void*)(_ZN3wns17_construct_ParentEP6ParentP6Parent(((Parent*)(_ZN3wns20_wns_allocate_sharedEPvN3wns4sizeEFvPvE(sizeof(Parent), ((_wns_fn_ptr_0)(NULL)))))))))));
+//CHECK-NEXT:     (_this->_b)._val[__c_temp2] = ((_shared_Child)(_ZN3wns18_wns_assign_sharedEPvPvPv(((void*)(NULL)), ((void*)(_ZN3wns6Parent17_construct_ParentEP6ParentP6Parent(((Parent*)(_ZN3wns20_wns_allocate_sharedEPvN3wns4sizeEFvPvE(sizeof(Parent), ((_wns_fn_ptr_0)(NULL)))))))))));
 //CHECK-NEXT:   }
 //CHECK-NEXT:   (_this->_b)._size = 10;
 //CHECK-NEXT:   (_this->b) = ((_array0__shared_Child*)&(_this->_b));

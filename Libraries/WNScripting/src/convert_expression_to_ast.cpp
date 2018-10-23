@@ -579,6 +579,9 @@ parse_ast_convertor::convertor_context::resolve_function_call(
       if (cast_first_param && i == 0) {
         continue;
       }
+      if (params[i]->m_type == fn->m_parameters[i].m_type) {
+        continue;
+      }
       if (!params[i]->m_type->can_implicitly_cast_to(
               fn->m_parameters[i].m_type)) {
         matches = false;
@@ -889,6 +892,40 @@ parse_ast_convertor::convertor_context::resolve_struct_allocation_expression(
             ast_type_classification::reference, &m_used_types);
     function_call->initialized_parameters(m_allocator)
         .push_back(core::move(cast));
+
+    if (_alloc->get_args()) {
+      const ast_function* constructor = alloc_type->m_constructor;
+      if (alloc_type->m_constructor->m_parameters.size() !=
+          _alloc->get_args()->get_expressions().size() + 1) {
+        _alloc->log_line(m_log, logging::log_level::error);
+        m_log->log_error("Constructor expects different arguments");
+        return nullptr;
+      }
+      size_t i = 0;
+      for (auto& expr : _alloc->get_args()->get_expressions()) {
+        // Handily this lets us skip the first element.
+        i++;
+
+        auto ex = resolve_expression(expr->m_expr.get());
+        if (!ex) {
+          return nullptr;
+        }
+        transfer_temporaries(function_call.get(), ex.get());
+
+        if (ex->m_type != constructor->m_parameters[i].m_type) {
+          if (!ex->m_type->can_implicitly_cast_to(
+                  constructor->m_parameters[i].m_type)) {
+            _alloc->log_line(m_log, logging::log_level::error);
+            m_log->log_error("Cannot convert arugment in constructor");
+          }
+          ex = make_cast(core::move(ex), constructor->m_parameters[i].m_type);
+        }
+
+        function_call->initialized_parameters(m_allocator)
+            .push_back(core::move(ex));
+      }
+    }
+
     function_call->m_type = m_type_manager->get_reference_of(
         t, ast_type_classification::reference, &m_used_types);
     function_call->initialized_setup_statements(m_allocator)
@@ -1038,6 +1075,40 @@ memory::unique_ptr<ast_expression> parse_ast_convertor::convertor_context::
   cast->m_type = alloc_type->m_constructor->m_parameters[0].m_type;
   function_call->initialized_parameters(m_allocator)
       .push_back(core::move(cast));
+
+  if (_alloc->get_args()) {
+    const ast_function* constructor = alloc_type->m_constructor;
+    if (alloc_type->m_constructor->m_parameters.size() !=
+        _alloc->get_args()->get_expressions().size() + 1) {
+      _alloc->log_line(m_log, logging::log_level::error);
+      m_log->log_error("Constructor expects different arguments");
+      return nullptr;
+    }
+    size_t i = 0;
+    for (auto& expr : _alloc->get_args()->get_expressions()) {
+      // Handily this lets us skip the first element.
+      i++;
+
+      auto ex = resolve_expression(expr->m_expr.get());
+      if (!ex) {
+        return nullptr;
+      }
+      transfer_temporaries(function_call.get(), ex.get());
+
+      if (ex->m_type != constructor->m_parameters[i].m_type) {
+        if (!ex->m_type->can_implicitly_cast_to(
+                constructor->m_parameters[i].m_type)) {
+          _alloc->log_line(m_log, logging::log_level::error);
+          m_log->log_error("Cannot convert arugment in constructor");
+        }
+        ex = make_cast(core::move(ex), constructor->m_parameters[i].m_type);
+      }
+
+      function_call->initialized_parameters(m_allocator)
+          .push_back(core::move(ex));
+    }
+  }
+
   function_call->m_type = m_type_manager->get_reference_of(
       st, ast_type_classification::shared_reference, &m_used_types);
 

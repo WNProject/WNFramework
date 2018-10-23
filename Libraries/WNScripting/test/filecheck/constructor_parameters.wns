@@ -1,0 +1,41 @@
+// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE.txt file.
+
+include "includee_child.wns"
+
+class F(Int x) {
+    Int ee = x;
+}
+// CHECK: F* _ZN3wns1F12_construct_FEP1FP1Fi(F* _this, int32_t x) {
+
+class B: F(Int x, Int y) {
+    .ee = y;
+    Int y = 4;
+}
+// CHECK: B* _ZN3wns1B12_construct_BEP1BP1Bii(B* _this, int32_t x, int32_t y) {
+
+// CHECK: {{.*ff.*\{}}
+// RUN: ff 3 -> 3
+// RUN: ff 32 -> 32
+Int ff(Int x) {
+    F f = F(x);
+// CHECK:  F* f = _ZN3wns1F12_construct_FEP1FP1Fi((&_wns_temp0), x);
+    return f.ee;
+}
+
+// CHECK: {{.*fy.*\{}}
+// RUN: fy 12, 24 -> 28
+Int fy(Int x, Int y) {
+    B b = B(x, y);
+// CHECK: B* b = _ZN3wns1B12_construct_BEP1BP1Bii((&_wns_temp1), x, y);
+    return b.ee + b.y;
+}
+
+// CHECK: {{.*fq.*\{}}
+// RUN: fq 3 -> 3
+Int fq(Int x) {
+    Q q = Q(x);
+// CHECK: Q* q = _ZN3wns1Q12_construct_QEP1QP1Qi((&_wns_temp2), x);
+    return q.ee;
+}
