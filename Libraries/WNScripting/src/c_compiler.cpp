@@ -556,8 +556,12 @@ bool c_compiler::write_scope_block(
 }
 
 bool c_compiler::write_statement(const ast_statement* _statement) {
+  bool skip_newline = false;
   switch (_statement->m_node_type) {
     case ast_node_type::ast_declaration: {
+      if (cast_to<ast_declaration>(_statement)->m_indirected_on_this) {
+        skip_newline = true;
+      }
       if (!write_declaration(cast_to<ast_declaration>(_statement))) {
         return false;
       }
@@ -593,8 +597,8 @@ bool c_compiler::write_statement(const ast_statement* _statement) {
         return false;
       }
     } break;
-    case ast_node_type::ast_if_chain: {
-      if (!write_if_chain(cast_to<ast_if_chain>(_statement))) {
+    case ast_node_type::ast_if_block: {
+      if (!write_if_block(cast_to<ast_if_block>(_statement))) {
         return false;
       }
     } break;
@@ -610,9 +614,6 @@ bool c_compiler::write_statement(const ast_statement* _statement) {
       }
       break;
 
-    case ast_node_type::ast_array_allocation: {
-      return write_array_allocation(cast_to<ast_array_allocation>(_statement));
-    }
     case ast_node_type::ast_array_destruction: {
       return write_array_destruction(
           cast_to<ast_array_destruction>(_statement));
@@ -620,7 +621,9 @@ bool c_compiler::write_statement(const ast_statement* _statement) {
     default:
       WN_RELEASE_ASSERT(false, "Unknown statement type");
   }
-  m_output += "\n";
+  if (!skip_newline) {
+    m_output += "\n";
+  }
   return true;
 }
 
@@ -628,6 +631,10 @@ bool c_compiler::write_declaration(const ast_declaration* _declaration) {
   if (!write_temporaries(_declaration->m_initializer.get())) {
     return false;
   }
+  if (_declaration->m_indirected_on_this) {
+    return true;
+  }
+
   align_line();
   if (!write_type(_declaration->m_type)) {
     return false;
@@ -666,11 +673,9 @@ bool c_compiler::write_cleanups(const ast_expression* _expr) {
     return true;
   }
   for (auto& e : _expr->m_destroy_expressions) {
-    align_line();
-    if (!write_expression(e.get())) {
+    if (!write_statement(e.get())) {
       return false;
     }
-    m_output += ";\n";
   }
   return true;
 }
@@ -691,103 +696,28 @@ bool c_compiler::write_evaluate_expression(
   return true;
 }
 
-bool c_compiler::write_if_chain(const ast_if_chain* _expression) {
+bool c_compiler::write_if_block(const ast_if_block* _expression) {
   // The is is the "normal" if chain state.
   // Translate this directly into "if/elseif/else"
-  if (!_expression->has_temporary()) {
-    align_line();
-    bool first = true;
-    for (auto& cond : _expression->m_conditionals) {
-      if (first) {
-        m_output += "if (";
-        first = false;
-      } else {
-        m_output += " else if (";
-      }
-      if (!write_expression(cond.m_expr.get())) {
-        return false;
-      }
-      m_output += ") ";
-      if (!write_scope_block(cond.m_scope.get())) {
-        return false;
-      }
-    }
 
-    if (_expression->m_else_block) {
-      m_output += " else ";
-      if (!write_scope_block(_expression->m_else_block.get())) {
-        return false;
-      }
-    }
-  } else {
-    // This is the more tricky case.
-    // Because we have to handle destructors, we create an if/elseif/else
-    // set of blocks, that set an index.
-    // We then use that index into a switch table of bodies.
-    align_line();
-    auto temp_name = get_temporary();
-
-    m_output += "uint32_t ";
-    m_output += temp_name;
-    m_output += "\n";
-    align_line();
-
-    m_output += "do {\n";
-    m_scope_depth += 1;
-    for (auto& cond : _expression->m_conditionals) {
-      if (!write_temporaries(cond.m_expr.get())) {
-        return false;
-      }
-      align_line();
-      m_output += "if (";
-      if (!write_expression(cond.m_expr.get())) {
-        return false;
-      }
-      m_output += " {\n";
-      m_scope_depth += 1;
-      if (!write_cleanups(cond.m_expr.get())) {
-        return false;
-      }
-      align_line();
-      m_output += "break;\n";
-      m_scope_depth -= 1;
-      align_line();
-      m_output += "}\n";
-      if (!write_cleanups(cond.m_expr.get())) {
-        return false;
-      }
-      align_line();
-      m_output += temp_name;
-      m_output += "++";
-    }
-    m_scope_depth -= 1;
-
-    uint32_t ct = 0;
-    m_output += "\n switch(";
-    m_output += temp_name;
-    m_output += ") {";
-    m_scope_depth += 1;
-    char sw_count[11] = {
-        0,
-    };
-    for (auto& cond : _expression->m_conditionals) {
-      memory::writeuint32(sw_count, ct++, 10);
-      align_line();
-      m_output += "case: ";
-      m_output += sw_count;
-      if (!write_scope_block(cond.m_scope.get())) {
-        return false;
-      }
-      m_output += "\n";
-      align_line();
-      m_output += "break;\n";
-    }
+  align_line();
+  m_output += "if (";
+  if (!write_expression(_expression->m_condition.get())) {
+    return false;
   }
+  m_output += ") ";
+  if (!write_scope_block(_expression->m_body.get())) {
+    return false;
+  }
+
   return true;
 }
 
 bool c_compiler::write_id(const ast_id* _expression) {
   if (_expression->m_declaration) {
+    if (_expression->m_declaration->m_indirected_on_this) {
+      m_output += "_this->";
+    }
     m_output += _expression->m_declaration->m_name;
   } else if (_expression->m_function_parameter) {
     if (_expression->m_function_parameter->m_type->m_pass_by_reference) {
@@ -837,9 +767,7 @@ bool c_compiler::write_constant_expression(const ast_constant* _const) {
 }
 
 bool c_compiler::write_while_loop(const ast_loop* _loop) {
-  auto precondition = _loop->m_pre_condition.get();
   align_line();
-  bool extra_close = false;
   containers::string m_increment_temp;
   if (_loop->m_increment_statements) {
     m_increment_temp = get_temporary();
@@ -851,77 +779,33 @@ bool c_compiler::write_while_loop(const ast_loop* _loop) {
     align_line();
   }
 
-  if (precondition && !precondition->m_temporaries.empty()) {
-    m_output += "while (true) {\n";
-    m_scope_depth += 1;
-    extra_close = true;
-    if (_loop->m_increment_statements) {
-      align_line();
-      m_output += "do { \n";
-      m_scope_depth += 1;
-    }
-
-    align_line();
-    m_output += "{\n";
-    m_scope_depth += 1;
-    if (!write_temporaries(_loop->m_pre_condition.get())) {
-      return false;
-    }
-    align_line();
-    containers::string temp = get_temporary();
-    m_output += "bool ";
-    m_output += temp;
-    m_output += " = ";
+  m_output += "while (";
+  if (_loop->m_pre_condition) {
     if (!write_expression(_loop->m_pre_condition.get())) {
       return false;
     }
-    m_output += ";\n";
-    if (!write_cleanups(_loop->m_pre_condition.get())) {
-      return false;
-    }
-    align_line();
-    m_output += "if (!";
-    m_output += temp;
-    m_output += ") { ";
-    if (_loop->m_increment_statements) {
-      m_output += m_increment_temp;
-      m_output += " = true; ";
-    }
-    m_output += "break; }\n";
-    m_scope_depth -= 1;
-    align_line();
-    m_output += "}\n";
-    align_line();
   } else {
-    m_output += "while (";
-    if (precondition) {
-      if (!write_expression(_loop->m_pre_condition.get())) {
-        return false;
-      }
-    } else {
-      m_output += "true";
-    }
+    m_output += "true";
+  }
+  m_output += ") {\n";
 
-    m_output += ") ";
-    if (_loop->m_increment_statements) {
-      extra_close = true;
-      m_output += "{\n";
-      m_scope_depth += 1;
-      align_line();
-      m_output += "do ";
-    }
+  m_scope_depth += 1;
+  align_line();
+  auto precondition = _loop->m_condition_scope_block.get();
+  if (precondition) {
+    write_scope_block(precondition);
+  }
+  if (_loop->m_increment_statements) {
+    m_output += "{\n";
+    m_scope_depth += 1;
+    align_line();
+    m_output += "do ";
   }
 
   if (!write_scope_block(_loop->m_body.get())) {
     return false;
   }
   if (_loop->m_increment_statements) {
-    if (precondition && !precondition->m_temporaries.empty()) {
-      m_output += "\n";
-      m_scope_depth -= 1;
-      align_line();
-      m_output += "}";
-    }
     m_output += " while (false);\n";
     align_line();
     m_output += "if (";
@@ -932,11 +816,9 @@ bool c_compiler::write_while_loop(const ast_loop* _loop) {
   }
   m_output += "\n";
 
-  if (extra_close) {
-    m_scope_depth -= 1;
-    align_line();
-    m_output += "}";
-  }
+  m_scope_depth -= 1;
+  align_line();
+  m_output += "}";
 
   if (_loop->m_increment_statements) {
     m_loop_temporaries.erase(_loop);
@@ -949,7 +831,8 @@ bool c_compiler::write_do_loop(const ast_loop* _loop) {
   align_line();
   m_output += "do ";
 
-  if (post_condition->m_temporaries.empty()) {
+  if (post_condition->m_temporaries.empty() &&
+      post_condition->m_destroy_expressions.empty()) {
     write_scope_block(_loop->m_body.get());
     m_output += " while (";
     if (!write_expression(post_condition)) {
@@ -957,11 +840,13 @@ bool c_compiler::write_do_loop(const ast_loop* _loop) {
     }
     m_output += ");\n";
   } else {
-    m_scope_depth += 1;
     m_output += "{\n";
-    align_line();
-    write_scope_block(_loop->m_body.get());
-    m_output += "\n";
+    m_scope_depth += 1;
+    for (auto& statement : _loop->m_body->m_statements) {
+      if (!write_statement(statement.get())) {
+        return false;
+      }
+    }
     align_line();
     m_output += "{\n";
     m_scope_depth += 1;
@@ -984,12 +869,10 @@ bool c_compiler::write_do_loop(const ast_loop* _loop) {
     m_output += "if (!";
     m_output += temp;
     m_output += ") { break; }\n";
-
     m_scope_depth -= 1;
     align_line();
     m_output += "}\n";
     m_scope_depth -= 1;
-
     align_line();
     m_output += "} while (true);\n";
   }
@@ -1168,101 +1051,6 @@ bool c_compiler::write_function_pointer_expression(
   m_output += "&";
   m_output += _expr->m_function->m_mangled_name;
   return true;
-}
-
-bool c_compiler::write_array_allocation(
-    const ast_array_allocation* _array_alloc) {
-  align_line();
-
-  containers::string op(m_allocator, ".");
-  char buff[11];
-  memory::writeuint32(buff, _array_alloc->m_type->m_static_array_size, 11);
-
-  if (_array_alloc->m_runtime_size) {
-    op = containers::string(m_allocator, "->");
-  }
-
-  if (_array_alloc->m_inline_initializers.size() > 0) {
-    bool align = false;
-    if (!_array_alloc->m_runtime_size) {
-      write_expression(_array_alloc->m_initializee.get());
-      m_output += op + "_size = ";
-      m_output += buff;
-      m_output += ";\n";
-      align = true;
-    }
-    size_t i = 0;
-
-    for (auto& init : _array_alloc->m_inline_initializers) {
-      if (align) {
-        align_line();
-      }
-      align = true;
-      memory::writeuint32(buff, static_cast<uint32_t>(i), 11);
-      write_expression(_array_alloc->m_initializee.get());
-      m_output += op + "_val[";
-      m_output += buff;
-      m_output += "] = ";
-      if (!write_expression(init.get())) {
-        return false;
-      }
-      m_output += ";\n";
-      i++;
-    }
-    write_cleanups(_array_alloc->m_initializee.get());
-    return true;
-  } else {
-    auto temp_name = get_temporary();
-    m_output += "for (uint32_t ";
-    m_output += temp_name;
-    m_output += " = 0; ";
-    m_output += temp_name;
-    m_output += " < ";
-    if (_array_alloc->m_runtime_size) {
-      write_expression(_array_alloc->m_initializee.get());
-      m_output += "->_size";
-    } else {
-      m_output += buff;
-    }
-    m_output += "; ++";
-    m_output += temp_name;
-    m_output += ") {\n";
-    m_scope_depth++;
-    if (_array_alloc->m_initializer.get()) {
-      write_temporaries(_array_alloc->m_initializer.get());
-      align_line();
-      write_expression(_array_alloc->m_initializee.get());
-      m_output += op + "_val[";
-      m_output += temp_name;
-      m_output += "] = ";
-      write_expression(_array_alloc->m_initializer.get());
-      m_output += ";\n";
-      write_cleanups(_array_alloc->m_initializer.get());
-    } else if (_array_alloc->m_constructor_initializer.get()) {
-      align_line();
-      write_call_function(_array_alloc->m_constructor_initializer.get());
-      m_output += "(&(";
-      write_expression(_array_alloc->m_initializee.get());
-      m_output += op + "_val[";
-      m_output += temp_name;
-      m_output += "]));\n";
-    } else {
-      WN_RELEASE_ASSERT(false, "Unknown initializer type");
-    }
-    m_scope_depth--;
-    align_line();
-    m_output += "}\n";
-    if (!_array_alloc->m_runtime_size) {
-      align_line();
-      write_expression(_array_alloc->m_initializee.get());
-      m_output += op + "_size = ";
-      m_output += buff;
-      m_output += ";\n";
-    }
-
-    write_cleanups(_array_alloc->m_initializee.get());
-    return true;
-  }
 }
 
 bool c_compiler::write_array_destruction(const ast_array_destruction* _call) {
@@ -1659,6 +1447,10 @@ bool c_compiler::write_cast_expression(const ast_cast_expression* _expression) {
                 _expression->m_base_expression->m_type->m_classification ==
                     ast_type_classification::shared_reference;
   is_bitcast |= _expression->m_type->m_classification ==
+                    ast_type_classification::shared_reference &&
+                _expression->m_base_expression->m_type->m_classification ==
+                    ast_type_classification::reference;
+  is_bitcast |= _expression->m_type->m_classification ==
                     ast_type_classification::reference &&
                 _expression->m_base_expression->m_type->m_builtin ==
                     builtin_type::void_ptr_type;
@@ -1727,6 +1519,28 @@ bool c_compiler::write_builtin_statement(
       m_output += "_wns_fence();";
       return true;
       break;
+    case builtin_statement_type::internal_set_array_length:
+      if (!write_expression(_statement->m_expressions[0].get())) {
+        return false;
+      }
+      if (_statement->m_expressions[0]->m_type->m_static_array_size == 0) {
+        m_output += "->_size";
+      } else {
+        m_output += "._size";
+      }
+      m_output += " = ";
+      if (!write_expression(_statement->m_expressions[1].get())) {
+        return false;
+      }
+      m_output += ";";
+      return true;
+    case builtin_statement_type::break_if_not:
+      m_output += "if (!";
+      if (!write_expression(_statement->m_expressions[0].get())) {
+        return false;
+      }
+      m_output += ") break;";
+      return true;
     default:
       WN_RELEASE_ASSERT(false, "Unknown statement type");
   }

@@ -608,7 +608,7 @@ void type_manager::finalize_functions(
         e.params.push_back(p.m_type);
       }
       e.name = fn->m_name;
-      t.second->m_constructor = add_external(e, false, true);
+      t.second->m_constructor = add_external(e, false, false);
     }
     if (t.second->m_destructor && !t.second->m_destructor->m_is_external) {
       auto& fn = t.second->m_destructor;

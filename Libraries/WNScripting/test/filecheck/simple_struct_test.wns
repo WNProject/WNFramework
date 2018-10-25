@@ -23,21 +23,21 @@ struct S2 {
 // CHECK-NEXT: int32_t y;
 // CHECK-NEXT: } S2;
 
-// CHECK: S1* _ZN3wns2S113_construct_S1EP2S1P2S1(S1* _this) {
-// CHECK-NEXT: (_this->x) = 4;
+// CHECK: S1* _ZN3wns13_construct_S1EP2S1P2S1(S1* _this) {
+// CHECK-NEXT: _this->x = 4;
 // CHECK-NEXT: return _this;
 // CHECK-NEXT: }
 
-// CHECK: {{_ZN3wns2S213_construct_S2EP2S2P2S2.*{}}
-// CHECK-NEXT: (_this->x) = 4;
-// CHECK-NEXT: (_this->z) = 0.0f;
-// CHECK-NEXT: (_this->y) = 1;
+// CHECK: {{_ZN3wns13_construct_S2EP2S2P2S2.*{}}
+// CHECK-NEXT: _this->x = 4;
+// CHECK-NEXT: _this->z = 0.0f;
+// CHECK-NEXT: _this->y = 1;
 
 // RUN: struct1 -> 4
 // CHECK: {{7struct1E}}
 // CHECK-NEXT: int32_t _return;
 // CHECK-NEXT: S1 s;
-// CHECK-NEXT: _ZN3wns2S113_construct_S1EP2S1P2S1((&s));
+// CHECK-NEXT: _ZN3wns13_construct_S1EP2S1P2S1((&s));
 // CHECK-NEXT: _return = (s.x);
 // CHECK-NEXT: return _return;
 Int struct1() {

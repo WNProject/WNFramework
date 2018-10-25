@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
+#include "WNContainers/inc/WNDeque.h"
 #include "WNScripting/inc/WNNodeTypes.h"
 #include "WNScripting/inc/internal/ast_convertor_context.h"
 #include "WNScripting/inc/parse_ast_convertor.h"
@@ -399,20 +400,15 @@ parse_ast_convertor::convertor_context::resolve_post_unary_expression(
 memory::unique_ptr<ast_expression>
 parse_ast_convertor::convertor_context::resolve_array_allocation_expression(
     const array_allocation_expression* _alloc) {
-  containers::string temporary_name = get_next_temporary_name();
-
-  memory::unique_ptr<ast_declaration> dec =
-      memory::make_unique<ast_declaration>(m_allocator, _alloc);
-  dec->m_name = containers::string(m_allocator, temporary_name);
-
   if (_alloc->get_array_initializers().size() != 1 &&
       !_alloc->get_inline_initializers()) {
     _alloc->log_line(m_log, logging::log_level::error);
-    m_log->log_error("You must have one constant size for an array initalizer");
+    m_log->log_error("You must have a size for an array initializer");
     return nullptr;
   }
 
   bool is_runtime = _alloc->is_runtime();
+
   const ast_type* t = nullptr;
   memory::unique_ptr<ast_expression> array_size;
   if (_alloc->get_inline_initializers()) {
@@ -452,57 +448,289 @@ parse_ast_convertor::convertor_context::resolve_array_allocation_expression(
     t = get_array_of(array_base_type, array_const->m_node_value.m_integer);
   }
 
-  dec->m_type = t;
+  memory::unique_ptr<ast_expression> assigned_declaration =
+      core::move(m_assigned_declaration);
+  memory::unique_ptr<ast_expression> assign_back = nullptr;
 
-  auto array_init =
-      memory::make_unique<ast_array_allocation>(m_allocator, _alloc);
-  memory::unique_ptr<ast_id> id =
-      memory::make_unique<ast_id>(m_allocator, _alloc);
+  memory::unique_ptr<ast_declaration> temp_declaration;
 
-  if (_alloc->get_inline_initializers()) {
-    for (auto& expr : _alloc->get_inline_initializers()->get_expressions()) {
-      auto ex = resolve_expression(expr->m_expr.get());
-      if (!ex) {
-        return nullptr;
-      }
-      transfer_temporaries(id.get(), ex.get());
+  bool cleanup_after_statement = assigned_declaration == nullptr;
+  bool make_temporary =
+      !assigned_declaration || assigned_declaration->m_type != t;
 
-      if (ex->m_type != t->m_implicitly_contained_type) {
-        if (!ex->m_type->can_implicitly_cast_to(
-                t->m_implicitly_contained_type)) {
-          _alloc->log_line(m_log, logging::log_level::error);
-          m_log->log_error("Cannot convert arugment in array initializer");
-          return nullptr;
-        }
-        ex = make_cast(core::move(ex), t->m_implicitly_contained_type);
-      }
+  if (make_temporary) {
+    // Make a temporary here and fill it.
+    temp_declaration =
+        make_temp_declaration(_alloc, get_next_temporary_name(), t);
+    memory::make_unique<ast_declaration>(m_allocator, _alloc);
+    temp_declaration->m_is_scope_bound = true;
 
-      array_init->initialized_inline_initializers(m_allocator)
-          .push_back(core::move(ex));
-    }
-  } else {
-    auto base_expr = resolve_expression(_alloc->get_copy_initializer());
-    if (!base_expr) {
-      return nullptr;
-    }
-    array_init->m_initializer = core::move(base_expr);
+    memory::unique_ptr<ast_id> id =
+        memory::make_unique<ast_id>(m_allocator, _alloc);
+    id->m_declaration = temp_declaration.get();
+    id->m_type = t;
+
+    m_current_statements->push_back(core::move(temp_declaration));
+    assign_back = core::move(assigned_declaration);
+    assigned_declaration = core::move(id);
   }
-
-  array_init->m_type = t;
 
   if (is_runtime) {
-    array_init->m_runtime_size = core::move(array_size);
+    auto allocate_runtime =
+        memory::make_unique<ast_function_call_expression>(m_allocator, _alloc);
+    allocate_runtime->m_function = m_external_functions[containers::string(
+        m_allocator, "_allocate_runtime_array")];
+
+    auto num_bytes =
+        memory::make_unique<ast_builtin_expression>(m_allocator, _alloc);
+    num_bytes->m_type = m_type_manager->size_t_t(&m_used_types);
+    num_bytes->initialized_extra_types(m_allocator)
+        .push_back(t->m_implicitly_contained_type);
+    num_bytes->m_builtin_type = builtin_expression_type::size_of;
+
+    allocate_runtime->initialized_parameters(m_allocator)
+        .push_back(core::move(num_bytes));
+    allocate_runtime->initialized_parameters(m_allocator)
+        .push_back(make_cast(clone_ast_node(m_allocator, array_size.get()),
+            m_type_manager->size_t_t(&m_used_types)));
+    allocate_runtime->m_type = m_type_manager->void_ptr_t(&m_used_types);
+
+    auto runtime_assign =
+        memory::make_unique<ast_assignment>(m_allocator, _alloc);
+    runtime_assign->m_lhs =
+        clone_ast_node(m_allocator, assigned_declaration.get());
+    runtime_assign->m_rhs =
+        make_cast(core::move(allocate_runtime), runtime_assign->m_lhs->m_type);
+    m_current_statements->push_back(core::move(runtime_assign));
   }
 
-  id->m_declaration = dec.get();
-  id->m_type = t;
+  // array.length = <size>
+  auto assign_size =
+      memory::make_unique<ast_builtin_statement>(m_allocator, _alloc);
+  assign_size->m_builtin_type =
+      builtin_statement_type::internal_set_array_length;
+  assign_size->initialized_expressions(m_allocator)
+      .push_back(clone_ast_node(m_allocator, assigned_declaration.get()));
+  assign_size->initialized_expressions(m_allocator)
+      .push_back(clone_ast_node(m_allocator, array_size.get()));
+  m_current_statements->push_back(core::move(assign_size));
 
-  array_init->m_initializee = clone_ast_node(m_allocator, id.get());
-  id->initialized_setup_statements(m_allocator).push_back(core::move(dec));
-  id->initialized_setup_statements(m_allocator)
-      .push_back(core::move(array_init));
+  if (!_alloc->get_inline_initializers()) {
+    // array.length
+    auto set_size =
+        memory::make_unique<ast_builtin_expression>(m_allocator, _alloc);
+    set_size->m_builtin_type = builtin_expression_type::array_length;
+    set_size->initialized_expressions(m_allocator)
+        .push_back(clone_ast_node(m_allocator, assigned_declaration.get()));
 
-  return core::move(id);
+    auto zero = memory::make_unique<ast_constant>(m_allocator, _alloc);
+    zero->m_type = m_type_manager->integral(32, &m_used_types);
+    zero->m_node_value.m_integer = 0;
+    zero->m_string_value = containers::string(m_allocator, "0");
+
+    // int i = 0;
+    memory::unique_ptr<ast_declaration> counter = make_temp_declaration(_alloc,
+        get_next_temporary_name(), m_type_manager->integral(32, &m_used_types));
+    memory::make_unique<ast_declaration>(m_allocator, _alloc);
+    counter->m_initializer = clone_ast_node(m_allocator, zero.get());
+
+    auto current_size = memory::make_unique<ast_id>(m_allocator, _alloc);
+    current_size->m_type = m_type_manager->integral(32, &m_used_types);
+    current_size->m_declaration = counter.get();
+    m_current_statements->push_back(core::move(counter));
+
+    // i != array.length
+    auto not_done =
+        memory::make_unique<ast_binary_expression>(m_allocator, _alloc);
+    not_done->m_type = m_type_manager->bool_t(&m_used_types);
+    not_done->m_lhs = clone_ast_node(m_allocator, current_size.get());
+    not_done->m_rhs = clone_ast_node(m_allocator, set_size.get());
+    not_done->m_binary_type = ast_binary_type::lt;
+
+    memory::unique_ptr<ast_loop> m_loop =
+        memory::make_unique<ast_loop>(m_allocator, _alloc);
+    m_loop->m_pre_condition = core::move(not_done);
+
+    m_loop->m_body = memory::make_unique<ast_scope_block>(m_allocator, _alloc);
+    push_scope(m_loop->m_body.get());
+
+    auto target =
+        memory::make_unique<ast_array_access_expression>(m_allocator, nullptr);
+    target->m_type = t->m_implicitly_contained_type;
+    target->m_array = clone_ast_node(m_allocator, assigned_declaration.get());
+    target->m_index = clone_ast_node(m_allocator, current_size.get());
+
+    if (t->m_implicitly_contained_type->m_classification ==
+            ast_type_classification::struct_type ||
+        t->m_implicitly_contained_type->m_classification ==
+            ast_type_classification::shared_reference) {
+      m_assigned_declaration = core::move(target);
+      m_declaration_succeeded = false;
+      resolve_expression(_alloc->get_copy_initializer());
+      if (!m_declaration_succeeded) {
+        return nullptr;
+      }
+    } else {
+      auto set_value = memory::make_unique<ast_assignment>(m_allocator, _alloc);
+      set_value->m_lhs = core::move(target);
+      auto expr = resolve_expression(_alloc->get_copy_initializer());
+      if (!expr) {
+        return nullptr;
+      }
+      set_value->m_rhs = core::move(expr);
+      m_loop->m_body->initialized_statements(m_allocator)
+          .push_back(core::move(set_value));
+      for (auto& clean : m_temporary_cleanup) {
+        m_loop->m_body->initialized_statements(m_allocator)
+            .push_back(core::move(clean));
+      }
+      m_temporary_cleanup.clear();
+    }
+
+    {
+      auto const_one = memory::make_unique<ast_constant>(m_allocator, _alloc);
+      const_one->m_type = m_type_manager->integral(32, &m_used_types);
+      const_one->m_node_value.m_integer = 1;
+      const_one->m_string_value = containers::string(m_allocator, "1");
+
+      // i = i + 1;
+      auto add =
+          memory::make_unique<ast_binary_expression>(m_allocator, _alloc);
+      add->m_binary_type = ast_binary_type::add;
+      add->m_lhs = clone_ast_node(m_allocator, current_size.get());
+      add->m_rhs = core::move(const_one);
+      add->m_type = m_type_manager->integral(32, &m_used_types);
+
+      auto increment_assign =
+          memory::make_unique<ast_assignment>(m_allocator, _alloc);
+      increment_assign->m_lhs = clone_ast_node(m_allocator, current_size.get());
+      increment_assign->m_rhs = core::move(add);
+
+      m_loop->m_body->initialized_statements(m_allocator)
+          .push_back(core::move(increment_assign));
+    }
+    pop_scope();
+    m_current_statements->push_back(core::move(m_loop));
+  } else {
+    const arg_list* initializers = _alloc->get_inline_initializers();
+    size_t i = 0;
+    for (const auto& expr : initializers->get_expressions()) {
+      char buff[11] = {
+          0,
+      };
+      memory::writeuint32(buff, static_cast<uint32_t>(i), 11);
+
+      auto num = memory::make_unique<ast_constant>(m_allocator, _alloc);
+      num->m_type = m_type_manager->integral(32, &m_used_types);
+      num->m_node_value.m_integer = static_cast<int32_t>(i);
+      num->m_string_value = containers::string(m_allocator, buff);
+      ++i;
+
+      auto target = memory::make_unique<ast_array_access_expression>(
+          m_allocator, nullptr);
+      target->m_type = t->m_implicitly_contained_type;
+      target->m_array = clone_ast_node(m_allocator, assigned_declaration.get());
+      target->m_index = core::move(num);
+
+      if (t->m_implicitly_contained_type->m_classification ==
+              ast_type_classification::struct_type ||
+          t->m_implicitly_contained_type->m_classification ==
+              ast_type_classification::shared_reference) {
+        m_assigned_declaration = core::move(target);
+        m_declaration_succeeded = false;
+        resolve_expression(expr->m_expr.get());
+        if (!m_declaration_succeeded) {
+          return nullptr;
+        }
+        for (auto& clean : m_temporary_cleanup) {
+          m_current_statements->push_back(core::move(clean));
+        }
+        m_temporary_cleanup.clear();
+
+      } else {
+        auto set_value =
+            memory::make_unique<ast_assignment>(m_allocator, _alloc);
+        set_value->m_lhs = core::move(target);
+        auto ee = resolve_expression(expr->m_expr.get());
+        if (!ee) {
+          return nullptr;
+        }
+        set_value->m_rhs = core::move(ee);
+        m_current_statements->push_back(core::move(set_value));
+        for (auto& clean : m_temporary_cleanup) {
+          m_current_statements->push_back(core::move(clean));
+        }
+        m_temporary_cleanup.clear();
+      }
+    }
+  }
+
+  if (t->m_implicitly_contained_type->m_destructor) {
+    auto dest = memory::make_unique<ast_array_destruction>(m_allocator, _alloc);
+    dest->m_destructor = t->m_implicitly_contained_type->m_destructor;
+    dest->m_shared = false;
+    dest->m_target = clone_ast_node(m_allocator, assigned_declaration.get());
+
+    if (cleanup_after_statement) {
+      m_temporary_cleanup.push_back(core::move(dest));
+    } else {
+      m_nested_scopes.back()
+          ->initialized_cleanup(m_allocator)
+          .push_front(core::move(dest));
+    }
+  } else if (t->m_implicitly_contained_type->m_classification ==
+             ast_type_classification::shared_reference) {
+    auto dest = memory::make_unique<ast_array_destruction>(m_allocator, _alloc);
+    dest->m_destructor = m_type_manager->release_shared(&m_used_builtins);
+    dest->m_shared = true;
+    dest->m_target = clone_ast_node(m_allocator, assigned_declaration.get());
+
+    if (cleanup_after_statement) {
+      m_temporary_cleanup.push_back(core::move(dest));
+    } else {
+      m_nested_scopes.back()
+          ->initialized_cleanup(m_allocator)
+          .push_front(core::move(dest));
+    }
+  }
+
+  if (is_runtime) {
+    auto free_runtime =
+        memory::make_unique<ast_function_call_expression>(m_allocator, _alloc);
+    free_runtime->m_function =
+        m_external_functions[containers::string(m_allocator, "_free")];
+    free_runtime->initialized_parameters(m_allocator)
+        .push_back(
+            make_cast(clone_ast_node(m_allocator, assigned_declaration.get()),
+                m_type_manager->void_ptr_t(&m_used_types)));
+    free_runtime->m_type = free_runtime->m_function->m_return_type;
+    auto expression_statement =
+        memory::make_unique<ast_evaluate_expression>(m_allocator, _alloc);
+    expression_statement->m_expr = core::move(free_runtime);
+
+    if (cleanup_after_statement) {
+      m_temporary_cleanup.push_back(core::move(expression_statement));
+    } else {
+      m_nested_scopes.back()
+          ->initialized_cleanup(m_allocator)
+          .push_front(core::move(expression_statement));
+    }
+  }
+
+  if (assign_back) {
+    auto back_assign = memory::make_unique<ast_assignment>(m_allocator, _alloc);
+    back_assign->m_lhs = core::move(assign_back);
+    back_assign->m_rhs =
+        make_cast(core::move(assigned_declaration), back_assign->m_lhs->m_type);
+    m_current_statements->push_back(core::move(back_assign));
+  }
+
+  if (!cleanup_after_statement) {
+    m_declaration_succeeded = true;
+    return nullptr;
+  }
+
+  return core::move(assigned_declaration);
 }
 
 struct p_functions {
@@ -659,9 +887,9 @@ parse_ast_convertor::convertor_context::resolve_function_call(
         containers::string temporary_name = get_next_temporary_name();
 
         memory::unique_ptr<ast_declaration> dec =
-            memory::make_unique<ast_declaration>(m_allocator, _call);
-        dec->m_name = containers::string(m_allocator, temporary_name);
-        dec->m_type = function_call->m_function->m_parameters[i].m_type;
+            make_temp_declaration(_call, get_next_temporary_name(),
+                function_call->m_function->m_parameters[i].m_type);
+
         ast_declaration* decl = dec.get();
         decl->m_initializer = core::move(core::move(params[i]));
 
@@ -682,11 +910,8 @@ parse_ast_convertor::convertor_context::resolve_function_call(
 
   if (function_call->m_function->m_return_type->m_pass_by_reference) {
     containers::string temporary_name = get_next_temporary_name();
-    memory::unique_ptr<ast_declaration> dec =
-        memory::make_unique<ast_declaration>(m_allocator, _call);
-    dec->m_name = containers::string(m_allocator, temporary_name);
-    dec->m_type = function_call->m_function->m_return_type;
-
+    memory::unique_ptr<ast_declaration> dec = make_temp_declaration(_call,
+        get_next_temporary_name(), function_call->m_function->m_return_type);
     memory::unique_ptr<ast_id> id =
         memory::make_unique<ast_id>(m_allocator, _call);
     id->m_declaration = dec.get();
@@ -763,11 +988,9 @@ parse_ast_convertor::convertor_context::resolve_slice_expression(
     }
     transfer_temporaries(slice.get(), index0.get());
 
-    containers::string temporary_name = get_next_temporary_name();
-    memory::unique_ptr<ast_declaration> dec =
-        memory::make_unique<ast_declaration>(m_allocator, _slice);
-    dec->m_name = containers::string(m_allocator, temporary_name);
-    dec->m_type = index0->m_type;
+    memory::unique_ptr<ast_declaration> dec = make_temp_declaration(
+        _slice, get_next_temporary_name(), index0->m_type);
+
     dec->m_initializer = core::move(index0);
 
     memory::unique_ptr<ast_id> id =
@@ -854,11 +1077,8 @@ parse_ast_convertor::convertor_context::resolve_array_access_expression(
     if (outer_expr->m_type->m_slice_dimensions == 1) {
       array_access->m_type = outer_expr->m_type->m_implicitly_contained_type;
     } else {
-      memory::unique_ptr<ast_declaration> dec =
-          memory::make_unique<ast_declaration>(m_allocator, _access);
-      containers::string temporary_name = get_next_temporary_name();
-      dec->m_name = containers::string(m_allocator, temporary_name);
-      dec->m_type = outer_expr->m_type;
+      memory::unique_ptr<ast_declaration> dec = make_temp_declaration(
+          _access, get_next_temporary_name(), outer_expr->m_type);
 
       memory::unique_ptr<ast_id> id =
           memory::make_unique<ast_id>(m_allocator, _access);
@@ -906,14 +1126,47 @@ parse_ast_convertor::convertor_context::resolve_struct_allocation_expression(
   WN_DEBUG_ASSERT(
       alloc_type, "Have a struct type without a proper constructor");
 
-  containers::string temporary_name = get_next_temporary_name();
+  memory::unique_ptr<ast_declaration> temp_decl;
+  ast_declaration* decl = nullptr;
+  bool cleanup_after_statement = false;
+  bool insert_function = false;
+  bool is_inserted_into_array = false;
 
-  memory::unique_ptr<ast_declaration> dec =
-      memory::make_unique<ast_declaration>(m_allocator, _alloc);
-  dec->m_name = containers::string(m_allocator, temporary_name);
-  dec->m_type = alloc_type;
+  memory::unique_ptr<ast_expression> declared_target;
+  // We have to get this out of the high-level variable BEFORE we
+  // assign.
+  memory::unique_ptr<ast_expression> assigned_declaration =
+      core::move(m_assigned_declaration);
 
-  ast_declaration* decl = dec.get();
+  if (assigned_declaration) {
+    is_inserted_into_array = assigned_declaration->m_node_type ==
+                             ast_node_type::ast_array_access_expression;
+  }
+
+  // Instead of creating a new temporary struct, we are trying to fill an
+  // existing declaration;
+  if (assigned_declaration && assigned_declaration->m_type->m_classification ==
+                                  ast_type_classification::struct_type) {
+    declared_target = core::move(assigned_declaration);
+    insert_function = true;
+  } else {
+    cleanup_after_statement = true;
+    temp_decl =
+        make_temp_declaration(_alloc, get_next_temporary_name(), alloc_type);
+    if (assigned_declaration) {
+      cleanup_after_statement = false;
+      temp_decl->m_is_scope_bound = true;
+    }
+
+    decl = temp_decl.get();
+
+    memory::unique_ptr<ast_id> id =
+        memory::make_unique<ast_id>(m_allocator, _alloc);
+    id->m_declaration = decl;
+    id->m_type = decl->m_type;
+
+    declared_target = core::move(id);
+  }
 
   memory::unique_ptr<ast_expression> init;
   if (alloc_type->m_constructor) {
@@ -922,14 +1175,10 @@ parse_ast_convertor::convertor_context::resolve_struct_allocation_expression(
         memory::make_unique<ast_function_call_expression>(m_allocator, _alloc);
     function_call->m_function = alloc_type->m_constructor;
 
-    memory::unique_ptr<ast_id> id =
-        memory::make_unique<ast_id>(m_allocator, _alloc);
-    id->m_declaration = dec.get();
-    id->m_type = dec->m_type;
-
     memory::unique_ptr<ast_cast_expression> cast =
         memory::make_unique<ast_cast_expression>(m_allocator, _alloc);
-    cast->m_base_expression = core::move(id);
+    cast->m_base_expression =
+        clone_ast_node(m_allocator, declared_target.get());
     cast->m_type =
         m_type_manager->get_reference_of(cast->m_base_expression->m_type,
             ast_type_classification::reference, &m_used_types);
@@ -968,47 +1217,84 @@ parse_ast_convertor::convertor_context::resolve_struct_allocation_expression(
         function_call->initialized_parameters(m_allocator)
             .push_back(core::move(ex));
       }
+    } else {
+      if (alloc_type->m_constructor->m_parameters.size() > 1) {
+        _alloc->log_line(m_log, logging::log_level::error);
+        m_log->log_error("Expect ",
+            alloc_type->m_constructor->m_parameters.size() - 1,
+            " parameters to the constructor");
+        return nullptr;
+      }
     }
 
     function_call->m_type = m_type_manager->get_reference_of(
         t, ast_type_classification::reference, &m_used_types);
-    function_call->initialized_setup_statements(m_allocator)
-        .push_back(core::move(dec));
+
+    if (temp_decl) {
+      m_current_statements->push_back(core::move(temp_decl));
+    }
     init = core::move(function_call);
-
   } else {
-    memory::unique_ptr<ast_id> id =
-        memory::make_unique<ast_id>(m_allocator, _alloc);
-    id->m_declaration = dec.get();
-    id->m_type = dec->m_type;
-
-    init = make_cast(
-        core::move(id), m_type_manager->get_reference_of(dec->m_type,
-                            ast_type_classification::reference, &m_used_types));
-    init->initialized_setup_statements(m_allocator).push_back(core::move(dec));
-  }
-
-  if (alloc_type->m_destructor) {
-    memory::unique_ptr<ast_function_call_expression> function_call =
-        memory::make_unique<ast_function_call_expression>(m_allocator, _alloc);
-    function_call->m_function = alloc_type->m_destructor;
-
     memory::unique_ptr<ast_id> id =
         memory::make_unique<ast_id>(m_allocator, _alloc);
     id->m_declaration = decl;
     id->m_type = decl->m_type;
 
+    init = make_cast(
+        core::move(id), m_type_manager->get_reference_of(decl->m_type,
+                            ast_type_classification::reference, &m_used_types));
+    if (temp_decl) {
+      m_current_statements->push_back(core::move(temp_decl));
+    }
+  }
+
+  // Array destruction is handled at the array level, not the individual element
+  // level.
+  if (alloc_type->m_destructor && !is_inserted_into_array) {
+    memory::unique_ptr<ast_function_call_expression> function_call =
+        memory::make_unique<ast_function_call_expression>(m_allocator, _alloc);
+    function_call->m_function = alloc_type->m_destructor;
+
     memory::unique_ptr<ast_cast_expression> cast =
         memory::make_unique<ast_cast_expression>(m_allocator, _alloc);
-    cast->m_base_expression = core::move(id);
+    cast->m_base_expression =
+        clone_ast_node(m_allocator, declared_target.get());
     cast->m_type =
         m_type_manager->get_reference_of(cast->m_base_expression->m_type,
             ast_type_classification::reference, &m_used_types);
     function_call->initialized_parameters(m_allocator)
         .push_back(core::move(cast));
     function_call->m_type = m_type_manager->void_t(&m_used_types);
-    init->initialized_destroy_expressions(m_allocator)
-        .push_back(core::move(function_call));
+    auto expression_statement =
+        memory::make_unique<ast_evaluate_expression>(m_allocator, _alloc);
+    expression_statement->m_expr = core::move(function_call);
+
+    if (cleanup_after_statement) {
+      m_temporary_cleanup.push_back(core::move(expression_statement));
+    } else {
+      m_nested_scopes.back()
+          ->initialized_cleanup(m_allocator)
+          .push_front(core::move(expression_statement));
+    }
+  }
+
+  // Instead of returning init, we really want to actually just assign
+  // here
+  if (assigned_declaration) {
+    m_declaration_succeeded = true;
+    auto assign = memory::make_unique<ast_assignment>(m_allocator, _alloc);
+    assign->m_lhs = core::move(assigned_declaration);
+    assign->m_rhs = make_cast(core::move(init), assign->m_lhs->m_type);
+    m_current_statements->push_back(core::move(assign));
+    return nullptr;
+  }
+  if (insert_function) {
+    m_declaration_succeeded = true;
+    auto expression_statement =
+        memory::make_unique<ast_evaluate_expression>(m_allocator, _alloc);
+    expression_statement->m_expr = core::move(init);
+    m_current_statements->push_back(core::move(expression_statement));
+    return nullptr;
   }
 
   return core::move(init);
@@ -1071,6 +1357,33 @@ memory::unique_ptr<ast_expression> parse_ast_convertor::convertor_context::
     return nullptr;
   }
   ast_type* alloc_type = st->m_overloaded_construction_child;
+
+  memory::unique_ptr<ast_declaration> temp_decl;
+  memory::unique_ptr<ast_expression> declared_target;
+  // We have to get this out of the high-level variable BEFORE we
+  // assign.
+  memory::unique_ptr<ast_expression> assigned_declaration =
+      core::move(m_assigned_declaration);
+  bool cleanup_after_statement = false;
+  bool mark_success = false;
+  bool is_inserted_into_array = false;
+  if (!assigned_declaration) {
+    cleanup_after_statement = true;
+    temp_decl = make_temp_declaration(_alloc, get_next_temporary_name(), t);
+
+    memory::unique_ptr<ast_id> id =
+        memory::make_unique<ast_id>(m_allocator, _alloc);
+    id->m_declaration = temp_decl.get();
+    id->m_type = temp_decl->m_type;
+
+    declared_target = core::move(id);
+  } else {
+    is_inserted_into_array = assigned_declaration->m_node_type ==
+                             ast_node_type::ast_array_access_expression;
+    declared_target = core::move(assigned_declaration);
+    mark_success = true;
+  }
+
   WN_DEBUG_ASSERT(alloc_type && alloc_type->m_constructor,
       "Have a struct type without a proper constructor");
 
@@ -1155,9 +1468,51 @@ memory::unique_ptr<ast_expression> parse_ast_convertor::convertor_context::
   }
 
   function_call->m_type = m_type_manager->get_reference_of(
-      st, ast_type_classification::shared_reference, &m_used_types);
+      st, ast_type_classification::reference, &m_used_types);
 
-  return core::move(function_call);
+  if (temp_decl) {
+    m_current_statements->push_back(core::move(temp_decl));
+  }
+
+  const ast_type* to_t = declared_target->m_type;
+  auto assign = memory::make_unique<ast_assignment>(m_allocator, _alloc);
+  assign->m_lhs = clone_ast_node(m_allocator, declared_target.get());
+  assign->m_rhs = make_cast(core::move(function_call), to_t);
+  m_current_statements->push_back(core::move(assign));
+
+  // Handle the cleanup of this ref
+  if (!is_inserted_into_array) {
+    memory::unique_ptr<ast_function_call_expression> destructor_call =
+        memory::make_unique<ast_function_call_expression>(m_allocator, _alloc);
+    destructor_call->m_function =
+        m_type_manager->release_shared(&m_used_builtins);
+    memory::unique_ptr<ast_cast_expression> cat_to_void_ptr =
+        memory::make_unique<ast_cast_expression>(m_allocator, _alloc);
+    cat_to_void_ptr->m_base_expression =
+        clone_ast_node(m_allocator, declared_target.get());
+    cat_to_void_ptr->m_type = m_type_manager->void_ptr_t(&m_used_types);
+
+    destructor_call->initialized_parameters(m_allocator)
+        .push_back(core::move(cat_to_void_ptr));
+    destructor_call->m_type = m_type_manager->void_t(&m_used_types);
+
+    auto expression_statement =
+        memory::make_unique<ast_evaluate_expression>(m_allocator, _alloc);
+    expression_statement->m_expr = core::move(destructor_call);
+
+    if (cleanup_after_statement) {
+      m_temporary_cleanup.push_back(core::move(expression_statement));
+    } else {
+      m_nested_scopes.back()
+          ->initialized_cleanup(m_allocator)
+          .push_front(core::move(expression_statement));
+    }
+  }
+  if (mark_success) {
+    m_declaration_succeeded = true;
+  }
+
+  return core::move(declared_target);
 }
 
 memory::unique_ptr<ast_expression>

@@ -46,7 +46,6 @@ private:
   bool write_member_access_expression(
       const ast_member_access_expression* _expression);
   bool write_cast_expression(const ast_cast_expression* _expression);
-  bool write_array_allocation(const ast_array_allocation* _alloc);
   bool write_array_destruction(const ast_array_destruction* _dest);
   bool write_array_access_expression(
       const ast_array_access_expression* _access);
@@ -59,7 +58,7 @@ private:
       const ast_scope_block* _block, bool begin_line = false);
   bool write_return(const ast_return_instruction* _return);
   bool write_assignment(const ast_assignment* _assignment);
-  bool write_if_chain(const ast_if_chain* _if);
+  bool write_if_block(const ast_if_block* _if);
   bool write_builtin_statement(const ast_builtin_statement* _statement);
   bool write_evaluate_expression(const ast_evaluate_expression* _expr);
   bool write_builtin_expression(const ast_builtin_expression* _expr);

@@ -9,10 +9,16 @@ Int do_with_continue(Int x) {
     do {
 
 // CHECK:      do {
-// CHECK-NEXT:   if ((x == 4)) {
-// CHECK-NEXT:     x = 5;
-// CHECK-NEXT:     continue;
-// CHECK-NEXT:   }
+// CHECK-NEXT:    bool unentered0 = true;
+// CHECK-NEXT:    bool enter1 = false;
+// CHECK-NEXT:    if (unentered0) {
+// CHECK-NEXT:      enter1 = (x == 4);
+// CHECK-NEXT:      if (enter1) {
+// CHECK-NEXT:        unentered0 = false;
+// CHECK-NEXT:        x = 5;
+// CHECK-NEXT:        continue;
+// CHECK-NEXT:      }
+// CHECK-NEXT:    }
         if (x == 4) {
             x = 5;
             continue;
@@ -28,9 +34,13 @@ Int do_with_continue(Int x) {
 Int for_loop_with_continue(Int x) {
     Int f = 0;
     for (Int i = 0; i < 10; i += 1) {
-// CHECK:      if ((i == x)) {
-// CHECK-NEXT:   __c_temp0 = false; break;
-// CHECK-NEXT: }
+// CHECK:      if (unentered3) {
+// CHECK-NEXT:    enter4 = (i == x);
+// CHECK-NEXT:    if (enter4) {
+// CHECK-NEXT:      unentered3 = false;
+// CHECK-NEXT:      __c_temp0 = false; break;
+// CHECK-NEXT:    }
+// CHECK-NEXT:  }
         if (i == x) {
             continue;
         }

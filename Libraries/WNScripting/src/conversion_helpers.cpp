@@ -172,5 +172,25 @@ parse_ast_convertor::convertor_context::get_id(
   return nullptr;
 }
 
+memory::unique_ptr<ast_declaration>
+parse_ast_convertor::convertor_context::make_temp_declaration(
+    const node* _location, const containers::string& _name,
+    const ast_type* _type) {
+  memory::unique_ptr<ast_declaration> decl =
+      memory::make_unique<ast_declaration>(m_allocator, _location);
+  decl->m_name = containers::string(m_allocator, _name);
+  decl->m_type = _type;
+  return core::move(decl);
+}
+
+memory::unique_ptr<ast_id> parse_ast_convertor::convertor_context::id_to(
+    const node* _location, ast_declaration* _decl) {
+  memory::unique_ptr<ast_id> id =
+      memory::make_unique<ast_id>(m_allocator, _location);
+  id->m_declaration = _decl;
+  id->m_type = _decl->m_type;
+  return core::move(id);
+}
+
 }  // namespace scripting
 }  // namespace wn

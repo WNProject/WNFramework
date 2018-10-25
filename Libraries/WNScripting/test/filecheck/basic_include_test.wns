@@ -17,6 +17,6 @@ Int add_two_numbers(Int x, Int y) {
 // RUN: do_thing -> 3
 Int do_thing() {
     Foo f = Foo();
-// CHECK:  Foo* f = _ZN3wns4_Foo14_construct_FooEP3FooP4_Foo((&_wns_temp0));
+// CHECK:  f = _ZN3wns14_construct_FooEP3FooP4_Foo((&_wns_temp0));
     return length(f.y);
 }

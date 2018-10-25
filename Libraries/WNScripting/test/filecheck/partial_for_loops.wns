@@ -9,14 +9,20 @@
 Int for_loop_without_init(Int x) {
 // CHECK: int32_t i = x;
     Int i = x;
-// CHECK: while ((i < 10)) {
     for (; i < 10; i += 1) {
-// CHECK-NEXT: do {
-// CHECK-NEXT: } while (false);
-// CHECK-NEXT: if (__c_temp0) { break; }
-// CHECK-NEXT: {
-// CHECK-NEXT:     i = (i + 1);
-// CHECK-NEXT: }
+// CHECK:  while (true) {
+// CHECK-NEXT:    {
+// CHECK-NEXT:      bool _wns_temp0 = (i < 10);
+// CHECK-NEXT:      if (!_wns_temp0) break;
+// CHECK-NEXT:    }{
+// CHECK-NEXT:      do {
+// CHECK-NEXT:      } while (false);
+// CHECK-NEXT:      if (__c_temp0) { break; }
+// CHECK-NEXT:      {
+// CHECK-NEXT:        i = (i + 1);
+// CHECK-NEXT:      }
+// CHECK-NEXT:    }
+
     }
     return i;
 }
@@ -27,18 +33,26 @@ Int for_loop_without_init(Int x) {
 // CHECK: {{.*for_loop_without_condition.*{}}
 Int for_loop_without_condition(Int x) {
     Int f = 0;
-// CHECK:        while (true) {
-// CHECK-NEXT:   do {
-// CHECK-NEXT:    if ((f == 4)) {
-// CHECK-NEXT:      __c_temp1 = true; break
+// CHECK:         while (true) {
+// CHECK-NEXT:    {
+// CHECK-NEXT:      do {
+// CHECK-NEXT:        bool unentered1 = true;
+// CHECK-NEXT:        bool enter2 = false;
+// CHECK-NEXT:        if (unentered1) {
+// CHECK-NEXT:          enter2 = (f == 4);
+// CHECK-NEXT:          if (enter2) {
+// CHECK-NEXT:            unentered1 = false;
+// CHECK-NEXT:            __c_temp1 = true; break;
+// CHECK-NEXT:          }
+// CHECK-NEXT:        }
+// CHECK-NEXT:        f = (f + 1);
+// CHECK-NEXT:      } while (false);
+// CHECK-NEXT:      if (__c_temp1) { break; }
+// CHECK-NEXT:      {
+// CHECK-NEXT:        x = (x + 1);
+// CHECK-NEXT:      }
 // CHECK-NEXT:    }
-// CHECK-NEXT:    f = (f + 1);
-// CHECK-NEXT:  } while (false);
-// CHECK-NEXT:  if (__c_temp1) { break; }
-// CHECK-NEXT:  {
-// CHECK-NEXT:     x = (x + 1);
 // CHECK-NEXT:  }
-// CHECK-NEXT: }
     for (Int i = x;; x += 1) {
         if (f == 4) {
             break;
@@ -54,9 +68,15 @@ Int for_loop_without_condition(Int x) {
 // CHECK: {{.*for_loop_without_increment.*{}}
 Int for_loop_without_increment(Int x) {
     Int f = 0;
-// CHECK:      while ((x != 22)) {
-// CHECK-NEXT:   x = (x + 1);
-// CHECK-NEXT: }
+    // CHECK:      int32_t i = x;
+    // CHECK-NEXT: while (true) {
+    // CHECK-NEXT:     {
+    // CHECK-NEXT:     bool _wns_temp3 = (x != 22);
+    // CHECK-NEXT:     if (!_wns_temp3) break;
+    // CHECK-NEXT:     }{
+    // CHECK-NEXT:     x = (x + 1);
+    // CHECK-NEXT:     }
+    // CHECK-NEXT: }
     for (Int i = x; x != 22;) {
         x = x + 1;
     }
@@ -71,7 +91,9 @@ Int for_loop_empty(Int x) {
         break;
     }
 // CHECK:      while (true) {
-// CHECK-NEXT:   break;
+// CHECK-NEXT:   {
+// CHECK-NEXT:      break;
+// CHECK-NEXT:   }
 // CHECK-NEXT: }
     return x;
 }

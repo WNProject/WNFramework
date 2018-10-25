@@ -24,10 +24,14 @@ Int foo(Int[] x, Int y) {
 // CHECK: {{9all_sizedE.*{}}
 Int all_sized(Int x) {
 // CHECK: _array4_int32_t bar;
-// CHECK-NEXT: for (uint32_t __c_temp0 = 0; __c_temp0 < 4; ++__c_temp0) {
-// CHECK-NEXT:    bar._val[__c_temp0] = 3;
-// CHECK-NEXT: }
 // CHECK-NEXT: bar._size = 4;
+// CHECK-NEXT:  int32_t _wns_temp0 = 0;
+// CHECK-NEXT:  while ((_wns_temp0 < bar._size)) {
+// CHECK-NEXT:    {
+// CHECK-NEXT:       bar._val[_wns_temp0] = 3;
+// CHECK-NEXT:       _wns_temp0 = (_wns_temp0 + 1);
+// CHECK-NEXT:    }
+// CHECK-NEXT:  }
   Int[4] bar = Int[4](3);
   bar[2] = 1;
 // CHECK: bar._val[2] = 1;
@@ -42,12 +46,17 @@ Int all_sized(Int x) {
 Int unsized(Int x) {
   Int[] bar = Int[4](3);
 // CHECK:  _array4_int32_t _wns_temp1;
-// CHECK-NEXT: for (uint32_t __c_temp1 = 0; __c_temp1 < 4; ++__c_temp1) {
-// CHECK-NEXT:   _wns_temp1._val[__c_temp1] = 3;
-// CHECK-NEXT: }
 // CHECK-NEXT: _wns_temp1._size = 4;
-// CHECK-NEXT: _array0_int32_t* bar = ((_array0_int32_t*)&_wns_temp1);
-  bar[2] = 1;
+// CHECK-NEXT:  int32_t _wns_temp2 = 0;
+// CHECK-NEXT:  while ((_wns_temp2 < _wns_temp1._size)) {
+// CHECK-NEXT:    {
+// CHECK-NEXT:      _wns_temp1._val[_wns_temp2] = 3;
+// CHECK-NEXT:      _wns_temp2 = (_wns_temp2 + 1);
+// CHECK-NEXT:    }
+// CHECK-NEXT:  }
+
+// CHECK:  bar = ((_array0_int32_t*)&_wns_temp1);
+bar[2] = 1;
 // CHECK: bar->_val[2] = 1;
 // CHECK-NEXT: _return = _ZN3wns3fooEiA0_ii(bar, x);
   return foo(bar, x);

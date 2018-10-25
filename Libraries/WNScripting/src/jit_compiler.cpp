@@ -125,11 +125,10 @@ struct jit_compiler_context {
   bool write_statement(const ast_statement* _statement);
   bool write_assignment(const ast_assignment* _block);
   bool write_declaration(const ast_declaration* _block);
-  bool write_array_allocation(const ast_array_allocation* _alloc);
   bool write_array_destruction(const ast_array_destruction* _destruct);
   bool write_return(const ast_return_instruction* _return);
   bool write_scope_block(const ast_scope_block* _block);
-  bool write_if_chain(const ast_if_chain* _if);
+  bool write_if_block(const ast_if_block* _if);
   bool write_evaluate_expression(const ast_evaluate_expression* _expr);
   bool write_builtin_statement(const ast_builtin_statement* _st);
   bool write_loop(const ast_loop* _loop);
@@ -175,6 +174,7 @@ struct jit_compiler_context {
   containers::hash_map<const ast_loop*, loop_data> m_loops;
   containers::hash_map<const ast_type*, struct_info>* m_struct_infos;
 
+  const ast_function* m_current_ast_function;
   llvm::Function* m_current_function;
   llvm::IntegerType* m_int32_t;
   llvm::Type* m_float_t;
@@ -289,6 +289,7 @@ bool internal::jit_compiler_context::declare_function(
   }
 
   llvm::Function* function = m_functions[_function];
+  m_current_ast_function = _function;
   m_current_function = function;
   m_function_parameters.clear();
 
@@ -953,6 +954,10 @@ llvm::Value* internal::jit_compiler_context::get_cast(
                     ast_type_classification::reference &&
                 _expression->m_base_expression->m_type->m_classification ==
                     ast_type_classification::shared_reference;
+  is_bitcast |= _expression->m_type->m_classification ==
+                    ast_type_classification::shared_reference &&
+                _expression->m_base_expression->m_type->m_classification ==
+                    ast_type_classification::reference;
   is_bitcast |= _expression->m_type->m_builtin == builtin_type::void_ptr_type &&
                 _expression->m_base_expression->m_type->m_classification ==
                     ast_type_classification::reference;
@@ -1111,9 +1116,7 @@ llvm::Value* internal::jit_compiler_context::get_builtin(
         return m_function_builder->CreateExtractValue(v, 1);
       }
 
-      if (_builtin->m_expressions[0]->m_type->m_static_array_size != 0 &&
-          _builtin->m_expressions[0]->m_type->m_classification !=
-              ast_type_classification::slice_type) {
+      if (_builtin->m_expressions[0]->m_type->m_static_array_size != 0) {
         llvm::LoadInst* load = llvm::dyn_cast<llvm::LoadInst>(v);
         if (!load) {
           return nullptr;
@@ -1353,6 +1356,22 @@ llvm::Value* internal::jit_compiler_context::get_constant(
 
 llvm::Value* internal::jit_compiler_context::get_id(const ast_id* _id) {
   if (_id->m_declaration) {
+    if (_id->m_declaration->m_indirected_on_this) {
+      auto param =
+          m_function_parameters.find(&m_current_ast_function->m_parameters[0]);
+
+      llvm::Value* gep[2] = {
+          i32(0), i32(_id->m_declaration->m_indirected_offset)};
+
+      llvm::Value* v = m_function_builder->CreateLoad(
+          m_function_builder->CreateInBoundsGEP(
+              m_function_builder->CreateLoad(param->second),
+              llvm::ArrayRef<llvm::Value*>(&gep[0], 2)),
+          "_this");
+
+      return v;
+    }
+
     auto decl = m_declarations.find(_id->m_declaration);
     if (decl == m_declarations.end()) {
       return nullptr;
@@ -1412,8 +1431,8 @@ bool internal::jit_compiler_context::write_statement(
         return false;
       }
     } break;
-    case ast_node_type::ast_if_chain: {
-      if (!write_if_chain(cast_to<ast_if_chain>(_statement))) {
+    case ast_node_type::ast_if_block: {
+      if (!write_if_block(cast_to<ast_if_block>(_statement))) {
         return false;
       }
     } break;
@@ -1425,11 +1444,6 @@ bool internal::jit_compiler_context::write_statement(
     case ast_node_type::ast_builtin_statement:
       if (!write_builtin_statement(
               cast_to<ast_builtin_statement>(_statement))) {
-        return false;
-      }
-      break;
-    case ast_node_type::ast_array_allocation:
-      if (!write_array_allocation(cast_to<ast_array_allocation>(_statement))) {
         return false;
       }
       break;
@@ -1505,6 +1519,11 @@ bool internal::jit_compiler_context::write_loop(const ast_loop* _loop) {
   }
 
   m_function_builder->SetInsertPoint(loop_body);
+  if (_loop->m_condition_scope_block) {
+    if (!write_scope_block(_loop->m_condition_scope_block.get())) {
+      return false;
+    }
+  }
 
   if (!write_scope_block(_loop->m_body.get())) {
     return false;
@@ -1554,6 +1573,39 @@ bool internal::jit_compiler_context::write_builtin_statement(
     case builtin_statement_type::atomic_fence:
       m_function_builder->CreateFence(llvm::AtomicOrdering::Acquire);
       return true;
+    case builtin_statement_type::internal_set_array_length: {
+      llvm::Value* v = get_expression(_st->m_expressions[0].get());
+      if (!v) {
+        return false;
+      }
+
+      if (_st->m_expressions[0]->m_type->m_static_array_size != 0) {
+        llvm::LoadInst* load = llvm::dyn_cast<llvm::LoadInst>(v);
+        if (!load) {
+          return false;
+        }
+        v = load->getOperand(0);
+        load->removeFromParent();
+        delete load;
+      }
+
+      llvm::Value* size_gep[3] = {i32(0), i32(0)};
+
+      return m_function_builder->CreateStore(
+          get_expression(_st->m_expressions[1].get()),
+          m_function_builder->CreateInBoundsGEP(
+              v, llvm::ArrayRef<llvm::Value*>(&size_gep[0], 2)));
+    }
+    case builtin_statement_type::break_if_not: {
+      llvm::BasicBlock* n =
+          llvm::BasicBlock::Create(m_context, "no_break", m_current_function);
+      llvm::BasicBlock* target = m_loops[_st->m_break_loop].break_target;
+
+      llvm::Value* cont = get_expression(_st->m_expressions[0].get());
+      m_function_builder->CreateCondBr(cont, n, target);
+      m_function_builder->SetInsertPoint(n);
+    }
+      return true;
     default:
       WN_RELEASE_ASSERT(false, "Unknown builtin statement type");
   }
@@ -1568,64 +1620,49 @@ bool internal::jit_compiler_context::write_evaluate_expression(
   return true;
 }
 
-bool internal::jit_compiler_context::write_if_chain(
-    const ast_if_chain* _chain) {
+bool internal::jit_compiler_context::write_if_block(
+    const ast_if_block* _chain) {
+  if (_chain->m_returns) {
+    // If this is GUARANTEED to return, then we must
+    // enter if we ever get to this point.
+    // (Basically this is an else block with a return)
+    if (!write_scope_block(_chain->m_body.get())) {
+      return false;
+    }
+    return true;
+  }
+
   llvm::BasicBlock* done =
       llvm::BasicBlock::Create(m_context, "if_done", m_current_function);
+  llvm::BasicBlock* if_body =
+      llvm::BasicBlock::Create(m_context, "if_body", m_current_function);
 
-  uint32_t total_blocks = static_cast<uint32_t>(_chain->m_conditionals.size()) +
-                          (_chain->m_else_block != nullptr);
-
-  llvm::BasicBlock* next =
-      total_blocks == 1
-          ? done
-          : llvm::BasicBlock::Create(m_context, "if_next", m_current_function);
-
-  bool not_everyone_broke = !_chain->m_else_block;
-
-  for (auto& cond : _chain->m_conditionals) {
-    llvm::Value* c = get_expression(cond.m_expr.get());
-    llvm::BasicBlock* this_block =
-        llvm::BasicBlock::Create(m_context, "if_block", m_current_function);
-    m_function_builder->CreateCondBr(c, this_block, next);
-    m_function_builder->SetInsertPoint(this_block);
-    if (!write_scope_block(cond.m_scope.get())) {
-      return false;
-    }
-    if (!cond.m_scope->m_returns && !cond.m_scope->m_breaks) {
-      m_function_builder->CreateBr(done);
-      not_everyone_broke = true;
-    }
-    m_function_builder->SetInsertPoint(next);
-    if (--total_blocks > 1) {
-      next = llvm::BasicBlock::Create(m_context, "if_next", m_current_function);
-    } else if (total_blocks == 1) {
-      next = done;
-    }
+  llvm::Value* expr = get_expression(_chain->m_condition.get());
+  if (!expr) {
+    return false;
   }
 
-  if (_chain->m_else_block) {
-    if (!write_scope_block(_chain->m_else_block.get())) {
-      return false;
-    }
-    if (!_chain->m_else_block->m_returns && !_chain->m_else_block->m_breaks) {
-      m_function_builder->CreateBr(done);
-      not_everyone_broke = true;
-    }
+  m_function_builder->CreateCondBr(expr, if_body, done);
+  m_function_builder->SetInsertPoint(if_body);
+
+  if (!write_scope_block(_chain->m_body.get())) {
+    return false;
   }
 
-  if (not_everyone_broke) {
-    m_function_builder->SetInsertPoint(done);
-  } else {
-    done->removeFromParent();
-    delete done;
+  if (!_chain->m_body->m_breaks && !_chain->m_body->m_returns) {
+    m_function_builder->CreateBr(done);
   }
+  m_function_builder->SetInsertPoint(done);
 
   return true;
 }
 
 bool internal::jit_compiler_context::write_declaration(
     const ast_declaration* _declaration) {
+  if (_declaration->m_indirected_on_this) {
+    return true;
+  }
+
   llvm::Type* t = get_type(_declaration->m_type);
   if (!t) {
     return false;
@@ -1640,112 +1677,6 @@ bool internal::jit_compiler_context::write_declaration(
     }
     m_function_builder->CreateStore(v, decl);
   }
-  return true;
-}
-
-bool internal::jit_compiler_context::write_array_allocation(
-    const ast_array_allocation* _alloc) {
-  llvm::Value* arr = get_expression(_alloc->m_initializee.get());
-  if (_alloc->m_inline_initializers.size() > 0) {
-    if (!_alloc->m_runtime_size) {
-      llvm::LoadInst* load = llvm::dyn_cast<llvm::LoadInst>(arr);
-      if (!load) {
-        return false;
-      }
-      arr = load->getOperand(0);
-      load->removeFromParent();
-      delete load;
-
-      llvm::Value* size_gep[2] = {i32(0), i32(0)};
-      m_function_builder->CreateStore(i32(_alloc->m_type->m_static_array_size),
-          m_function_builder->CreateInBoundsGEP(
-              arr, llvm::ArrayRef<llvm::Value*>(&size_gep[0], 2)));
-    }
-
-    size_t i = 0;
-
-    for (auto& init : _alloc->m_inline_initializers) {
-      llvm::Value* gep[3] = {i32(0), i32(1), i32(static_cast<int32_t>(i))};
-      llvm::Value* g_val = m_function_builder->CreateInBoundsGEP(
-          arr, llvm::ArrayRef<llvm::Value*>(&gep[0], 3));
-
-      llvm::Value* ii = get_expression(init.get());
-      if (ii == nullptr) {
-        return false;
-      }
-      m_function_builder->CreateStore(ii, g_val);
-      i++;
-    }
-    return true;
-  }
-  llvm::Value* val = m_function_builder->CreateAlloca(m_int32_t);
-
-  const ast_function_call_expression* fn =
-      _alloc->m_constructor_initializer.get()
-          ? _alloc->m_constructor_initializer.get()
-          : nullptr;
-
-  llvm::BasicBlock* initializer = llvm::BasicBlock::Create(
-      m_context, "array_initializer", m_current_function);
-  llvm::BasicBlock* init_done =
-      llvm::BasicBlock::Create(m_context, "init_done", m_current_function);
-  llvm::BasicBlock* init_check =
-      llvm::BasicBlock::Create(m_context, "init_check", m_current_function);
-
-
-  if (!_alloc->m_runtime_size) {
-    m_function_builder->CreateStore(
-        i32(_alloc->m_type->m_static_array_size), val);
-  }
-
-  if (!_alloc->m_runtime_size) {
-    llvm::LoadInst* load = llvm::dyn_cast<llvm::LoadInst>(arr);
-    if (!load) {
-      return false;
-    }
-    arr = load->getOperand(0);
-    load->removeFromParent();
-    delete load;
-
-    llvm::Value* size_gep[2] = {i32(0), i32(0)};
-    m_function_builder->CreateStore(i32(_alloc->m_type->m_static_array_size),
-        m_function_builder->CreateInBoundsGEP(
-            arr, llvm::ArrayRef<llvm::Value*>(&size_gep[0], 2)));
-  } else {
-    llvm::Value* size_gep[2] = {i32(0), i32(0)};
-    m_function_builder->CreateStore(
-        m_function_builder->CreateLoad(m_function_builder->CreateInBoundsGEP(
-            arr, llvm::ArrayRef<llvm::Value*>(&size_gep[0], 2))),
-        val);
-  }
-
-  m_function_builder->CreateBr(init_check);
-  m_function_builder->SetInsertPoint(init_check);
-  llvm::Value* v = m_function_builder->CreateLoad(val);
-  llvm::Value* z = m_function_builder->CreateICmpEQ(i32(0), v);
-  m_function_builder->CreateCondBr(z, init_done, initializer);
-  m_function_builder->SetInsertPoint(initializer);
-  v = m_function_builder->CreateSub(v, i32(1));
-  m_function_builder->CreateStore(v, val);
-  // Actually initialize
-  llvm::Value* gep[3] = {i32(0), i32(1), v};
-  llvm::Value* g_val = m_function_builder->CreateInBoundsGEP(
-      arr, llvm::ArrayRef<llvm::Value*>(&gep[0], 3));
-  llvm::Value* init = _alloc->m_initializer.get()
-                          ? get_expression(_alloc->m_initializer.get())
-                          : nullptr;
-  if (init) {
-    m_function_builder->CreateStore(init, g_val);
-  } else {
-    llvm::Function* constructor = get_function(fn->m_function);
-    auto conv = llvm::dyn_cast<llvm::Function>(constructor)->getCallingConv();
-    llvm::CallInst* ci = m_function_builder->CreateCall(
-        constructor, llvm::ArrayRef<llvm::Value*>(g_val));
-    ci->setCallingConv(conv);
-  }
-  m_function_builder->CreateBr(init_check);
-
-  m_function_builder->SetInsertPoint(init_done);
   return true;
 }
 
@@ -1849,7 +1780,7 @@ bool internal::jit_compiler_context::write_temporaries(
 bool internal::jit_compiler_context::write_temporary_cleanup(
     const ast_expression* _expression) {
   for (auto& expr : _expression->m_destroy_expressions) {
-    if (!get_expression(expr.get())) {
+    if (!write_statement(expr.get())) {
       // WE don't actually want to DO anything with the expressions.
       // They don't feed into other expressions, they are
       // just expected to have side-effects.

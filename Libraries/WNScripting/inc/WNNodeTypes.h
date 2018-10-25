@@ -1227,6 +1227,7 @@ public:
     t->copy_underlying_from(_allocator, this);
     t->m_copy_initializer = clone_node(_allocator, m_copy_initializer.get());
     t->m_init_mode = m_init_mode;
+    t->m_args = clone_node(_allocator, m_args.get());
     return core::move(t);
   }
 

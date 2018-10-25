@@ -89,9 +89,9 @@ bool parse_ast_convertor::convertor_context::resolve_function(
   if (function->m_return_type != m_type_manager->void_t(&m_used_types) &&
       !function->m_return_type->m_pass_by_reference) {
     memory::unique_ptr<ast_declaration> return_decl;
-    return_decl = memory::make_unique<ast_declaration>(m_allocator, _function);
-    return_decl->m_name = containers::string(m_allocator, "_return");
-    return_decl->m_type = function->m_return_type;
+
+    return_decl = make_temp_declaration(_function,
+        containers::string(m_allocator, "_return"), function->m_return_type);
     m_return_decl = return_decl.get();
     scope->initialized_declarations(m_allocator).push_back(return_decl.get());
     m_current_statements->push_back(core::move(return_decl));

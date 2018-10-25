@@ -13,6 +13,6 @@ class A {}
 Int test1(Int x) {
     A a = A();
 // CHECK: A _wns_temp0;
-// CHECK-NEXT: A* a = (&_wns_temp0);
+// CHECK-NEXT: a = _ZN3wns12_construct_AEP1AP1A((&_wns_temp0));
     return x;
 }

@@ -7,9 +7,13 @@
 // CHECK: {{.*while_with_return.*{}}
 Int while_with_return(Int x) {
     while(true) {
-// CHECK: if ((x == 4)) {
-// CHECK-NEXT: _return = x;
-// CHECK-NEXT: return _return;
+// CHECK:      if (unentered1) {
+// CHECK-NEXT:   enter2 = (x == 4);
+// CHECK-NEXT:   if (enter2) {
+// CHECK-NEXT:   unentered1 = false;
+// CHECK-NEXT:   _return = x;
+// CHECK-NEXT:   return _return;
+// CHECK-NEXT:   }
 // CHECK-NEXT: }
         if (x == 4) {
             return x;

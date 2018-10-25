@@ -62,7 +62,7 @@ enum class ast_node_type {
     ast_loop,
     ast_break,
     ast_continue_instruction,
-    ast_if_chain,
+    ast_if_block,
     ast_return_instruction,
     ast_builtin_statement,
   ast_expression,
@@ -114,7 +114,7 @@ struct ast_expression;
 struct ast_function_call_expression;
 struct ast_function;
 struct ast_id;
-struct ast_if_chain;
+struct ast_if_block;
 struct ast_loop;
 struct ast_member_access_expression;
 struct ast_node;
@@ -570,17 +570,17 @@ public:
     return m_temporaries;
   }
 
-  containers::deque<memory::unique_ptr<ast_expression>>&
+  containers::deque<memory::unique_ptr<ast_statement>>&
   initialized_destroy_expressions(memory::allocator* _allocator) {
     if (m_destroy_expressions.empty()) {
       m_destroy_expressions =
-          containers::deque<memory::unique_ptr<ast_expression>>(_allocator);
+          containers::deque<memory::unique_ptr<ast_statement>>(_allocator);
     }
     return m_destroy_expressions;
   }
 
   containers::deque<memory::unique_ptr<ast_statement>> m_temporaries;
-  containers::deque<memory::unique_ptr<ast_expression>> m_destroy_expressions;
+  containers::deque<memory::unique_ptr<ast_statement>> m_destroy_expressions;
   void copy_underlying_from(
       memory::allocator* _alloc, const ast_expression* _other) {
     ast_node::copy_underlying_from(_alloc, _other);
@@ -610,8 +610,10 @@ struct ast_declaration : public ast_statement {
     : ast_statement(_base_node, ast_node_type::ast_declaration) {}
   const ast_type* m_type;
   containers::string m_name;
-  bool is_ephemeral = false;
   memory::unique_ptr<ast_expression> m_initializer = nullptr;
+  bool m_indirected_on_this = false;
+  bool m_is_scope_bound = false;
+  uint32_t m_indirected_offset = 0;
 
   memory::unique_ptr<ast_node> clone(
       memory::allocator* _allocator) const override {
@@ -619,8 +621,10 @@ struct ast_declaration : public ast_statement {
     d->copy_underlying_from(_allocator, this);
     d->m_type = m_type;
     d->m_name = containers::string(_allocator, m_name);
-    d->is_ephemeral = is_ephemeral;
     d->m_initializer = clone_ast_node(_allocator, m_initializer.get());
+    d->m_indirected_on_this = m_indirected_on_this;
+    d->m_is_scope_bound = m_is_scope_bound;  
+    d->m_indirected_offset = m_indirected_offset;
     return core::move(d);
   }
 };
@@ -667,7 +671,6 @@ struct ast_constant : public ast_expression {
     return (core::move(d));
   }
 };
-
 
 struct ast_function : public ast_node {
   ast_function(const node* _base_node)
@@ -757,43 +760,6 @@ struct ast_function : public ast_node {
     }
     return core::move(d);
   }
-};
-
-struct ast_array_allocation : public ast_statement {
-  ast_array_allocation(const node* _base_node)
-    : ast_statement(_base_node, ast_node_type::ast_array_allocation) {}
-
-  memory::unique_ptr<ast_node> clone(
-      memory::allocator* _allocator) const override {
-    auto d = memory::make_unique<ast_array_allocation>(_allocator, nullptr);
-    d->copy_underlying_from(_allocator, this);
-    d->m_type = m_type;
-    d->m_initializer = clone_ast_node(_allocator, m_initializer.get());
-    d->m_initializee = clone_ast_node(_allocator, m_initializee.get());
-    d->m_constructor_initializer =
-        clone_ast_node(_allocator, m_constructor_initializer.get());
-    auto& inits = d->initialized_inline_initializers(_allocator);
-    for (auto& i : m_inline_initializers) {
-      inits.emplace_back(clone_ast_node(_allocator, i.get()));
-    }
-    return (core::move(d));
-  }
-
-  containers::deque<memory::unique_ptr<ast_expression>>&
-  initialized_inline_initializers(memory::allocator* _allocator) {
-    if (m_inline_initializers.empty()) {
-      m_inline_initializers =
-          containers::deque<memory::unique_ptr<ast_expression>>(_allocator);
-    }
-    return m_inline_initializers;
-  }
-
-  const ast_type* m_type;
-  memory::unique_ptr<ast_expression> m_runtime_size;
-  memory::unique_ptr<ast_expression> m_initializer;
-  memory::unique_ptr<ast_expression> m_initializee;
-  containers::deque<memory::unique_ptr<ast_expression>> m_inline_initializers;
-  memory::unique_ptr<ast_function_call_expression> m_constructor_initializer;
 };
 
 struct ast_array_destruction : public ast_statement {
@@ -952,6 +918,8 @@ struct ast_function_pointer_expression : public ast_expression {
 enum class builtin_statement_type {
   none,
   atomic_fence,
+  internal_set_array_length,
+  break_if_not,
 };
 
 struct ast_builtin_statement : public ast_statement {
@@ -963,10 +931,26 @@ struct ast_builtin_statement : public ast_statement {
     auto d = memory::make_unique<ast_builtin_statement>(_allocator, nullptr);
     d->copy_underlying_from(_allocator, this);
     d->m_builtin_type = m_builtin_type;
+    for (auto& e : m_expressions) {
+      d->initialized_expressions(_allocator)
+          .push_back(clone_ast_node(_allocator, e.get()));
+    }
+    d->m_break_loop = m_break_loop; 
     return core::move(d);
   }
 
+  containers::deque<memory::unique_ptr<ast_expression>>&
+  initialized_expressions(memory::allocator* m_allocator) {
+    if (m_expressions.empty()) {
+      m_expressions =
+          containers::deque<memory::unique_ptr<ast_expression>>(m_allocator);
+    }
+    return m_expressions;
+  }
+
+  containers::deque<memory::unique_ptr<ast_expression>> m_expressions;
   builtin_statement_type m_builtin_type;
+  ast_loop* m_break_loop = nullptr;
 };
 
 enum class builtin_expression_type {
@@ -1163,11 +1147,18 @@ struct ast_loop : public ast_statement {
       memory::allocator* _allocator) const override {
     auto d = memory::make_unique<ast_loop>(_allocator, nullptr);
     d->copy_underlying_from(_allocator, this);
+    d->m_post_condition = clone_ast_node(_allocator, m_post_condition.get());
+    d->m_condition_scope_block =
+        clone_ast_node(_allocator, m_condition_scope_block.get());
+    d->m_increment_statements = clone_ast_node(_allocator, m_increment_statements.get());
+    d->m_post_condition = clone_ast_node(_allocator, m_post_condition.get());
+    d->m_pre_condition = clone_ast_node(_allocator, m_pre_condition.get());
     return core::move(d);
   }
 
-  memory::unique_ptr<ast_expression> m_pre_condition;
   memory::unique_ptr<ast_expression> m_post_condition;
+  memory::unique_ptr<ast_expression> m_pre_condition;
+  memory::unique_ptr<ast_scope_block> m_condition_scope_block;
   memory::unique_ptr<ast_scope_block> m_increment_statements;
   memory::unique_ptr<ast_scope_block> m_body;
 };
@@ -1185,53 +1176,21 @@ struct ast_continue_instruction : public ast_statement {
   ast_loop* m_continue_loop = nullptr;
 };
 
-struct ast_if_chain : public ast_statement {
-  ast_if_chain(const node* _base_node)
-    : ast_statement(_base_node, ast_node_type::ast_if_chain) {}
+struct ast_if_block : public ast_statement {
+  ast_if_block(const node* _base_node)
+    : ast_statement(_base_node, ast_node_type::ast_if_block) {}
 
-  struct conditional_block {
-    conditional_block(memory::unique_ptr<ast_expression> _expr,
-        memory::unique_ptr<ast_scope_block> _scope)
-      : m_expr(core::move(_expr)), m_scope(core::move(_scope)) {}
-    conditional_block(conditional_block&& _other)
-      : m_expr(core::move(_other.m_expr)),
-        m_scope(core::move(_other.m_scope)) {}
-    memory::unique_ptr<ast_expression> m_expr;
-    memory::unique_ptr<ast_scope_block> m_scope;
-  };
-
-  containers::deque<conditional_block>& initialized_conditionals(
-      memory::allocator* _allocator) {
-    if (m_conditionals.empty()) {
-      m_conditionals = containers::deque<conditional_block>(_allocator);
-    }
-    return m_conditionals;
-  }
-
-  bool has_temporary() const {
-    for (auto& c : m_conditionals) {
-      if (!c.m_expr->m_temporaries.empty()) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  containers::deque<conditional_block> m_conditionals;
-
-  memory::unique_ptr<ast_scope_block> m_else_block;
+  memory::unique_ptr<ast_scope_block> m_body;
+  memory::unique_ptr<ast_expression> m_condition;
+  bool m_returns = false;
 
   memory::unique_ptr<ast_node> clone(
       memory::allocator* _allocator) const override {
-    auto d = memory::make_unique<ast_if_chain>(_allocator, nullptr);
+    auto d = memory::make_unique<ast_if_block>(_allocator, nullptr);
     d->copy_underlying_from(_allocator, this);
-    d->m_else_block = clone_ast_node(_allocator, m_else_block.get());
-    for (auto& a : m_conditionals) {
-      auto s = clone_ast_node(_allocator, a.m_scope.get());
-      auto e = clone_ast_node(_allocator, a.m_expr.get());
-      d->initialized_conditionals(_allocator)
-          .emplace_back(conditional_block{core::move(e), core::move(s)});
-    }
+    d->m_body = clone_ast_node(_allocator, m_body.get());
+    d->m_condition = clone_ast_node(_allocator, m_condition.get());
+    d->m_returns = m_returns;
     return core::move(d);
   }
 };

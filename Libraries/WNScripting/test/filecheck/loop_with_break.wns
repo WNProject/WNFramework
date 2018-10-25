@@ -7,8 +7,10 @@
 // CHECK: {{.*while_with_break.*{}}
 Int while_with_break(Int x) {
     while(true) {
-// CHECK: if ((x == 4)) {
-// CHECK-NEXT: break;
+// CHECK:  enter2 = (x == 4);
+// CHECK-NEXT:  if (enter2) {
+// CHECK-NEXT:   unentered1 = false;
+// CHECK-NEXT:   break;
 // CHECK-NEXT: }
         if (x == 4) {
             break;
@@ -24,11 +26,17 @@ Int while_with_break(Int x) {
 Int for_loop_with_break(Int x) {
     Int i = 0;
     for (; i < 10; i += 1) {
-// CHECK: do {
-// CHECK-NEXT: if ((i == x)) {
-// CHECK-NEXT:  x = 32;
-// CHECK-NEXT:  _c_temp0 = true; break;
-// CHECK-NEXT: }
+// CHECK:  do {
+// CHECK-NEXT:  bool unentered4 = true;
+// CHECK-NEXT:  bool enter5 = false;
+// CHECK-NEXT:  if (unentered4) {
+// CHECK-NEXT:    enter5 = (i == x);
+// CHECK-NEXT:    if (enter5) {
+// CHECK-NEXT:      unentered4 = false;
+// CHECK-NEXT:      x = 32;
+// CHECK-NEXT:      __c_temp0 = true; break;
+// CHECK-NEXT:    }
+// CHECK-NEXT:  }
         if (i == x) {
             x = 32;
             break;

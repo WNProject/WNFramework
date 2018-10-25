@@ -19,6 +19,7 @@ parse_ast_convertor::convertor_context::convertor_context(
     m_used_externals(_allocator),
     m_nested_scopes(_allocator),
     m_constructor_destructors(_allocator),
+    m_temporary_cleanup(_allocator),
     m_external_functions(_allocator),
     m_named_functions(_allocator),
     m_current_loop(nullptr),

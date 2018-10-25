@@ -14,7 +14,7 @@ Int void_func() {
 // CHECK: {{.*b_func.*\{}}
 // RUN: b_func -> 3
 Int b_func() {
-// CHECK: if (true) {
+// CHECK: enter1 = true;
     if (true) {
         return 3;
     }
@@ -24,7 +24,7 @@ Int b_func() {
 // CHECK: {{.*ff.*\{}}
 // RUN: ff -> 3
 Int ff() {
-// CHECK: if ((3.0f < 4.0f)) {
+// CHECK: enter3 = (3.0f < 4.0f);
     if (3.0 < 4.0) {
         return 3;
     }
