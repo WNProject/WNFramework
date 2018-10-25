@@ -7,10 +7,12 @@
 #ifndef __WN_SCRIPTING_ENGINE_INL__
 #define __WN_SCRIPTING_ENGINE_INL__
 
-#include <array>
 #include "WNContainers/inc/WNDynamicArray.h"
+#include "WNMemory/inc/allocation.h"
 #include "WNScripting/inc/WNEnums.h"
 #include "WNScripting/inc/type_mangler.h"
+
+#include <array>
 
 namespace wn {
 namespace scripting {
@@ -268,7 +270,9 @@ void inline engine::register_child_cpp_type() {
 template <typename T, typename... Args>
 shared_cpp_pointer<T> inline engine::make_shared_cpp(Args&&... args) {
   void* v = allocate_shared(sizeof(T));
-  new (v) T(core::forward<Args>(args)...);
+
+  memory::construct_at<T>(v, core::forward<Args>(args)...);
+
   return shared_cpp_pointer<T>(reinterpret_cast<T*>(v), this, &do_engine_free);
 }
 
