@@ -10,10 +10,11 @@
 
 namespace wn {
 namespace scripting {
+
 class engine;
 struct script_object_type;
 
-struct scripting_tls_data {
+struct scripting_tls_data final {
   engine* _engine;
   containers::hash_map<uintptr_t, memory::unique_ptr<script_object_type>>*
       _object_types;
@@ -22,17 +23,23 @@ struct scripting_tls_data {
 
 extern thread_local const scripting_tls_data* g_scripting_tls;
 
-class tls_resetter {
+class tls_resetter final {
 public:
   tls_resetter() {
-    _data = g_scripting_tls;
+    m_data = g_scripting_tls;
   }
+
+  tls_resetter(const scripting_tls_data* _tls_data) {
+    m_data = g_scripting_tls;
+    g_scripting_tls = _tls_data;
+  }
+
   ~tls_resetter() {
-    g_scripting_tls = _data;
+    g_scripting_tls = m_data;
   }
 
 private:
-  const scripting_tls_data* _data;
+  const scripting_tls_data* m_data;
 };
 
 }  // namespace scripting

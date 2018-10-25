@@ -321,8 +321,7 @@ struct engine::invoke_wrapper<Enable, void, Args...> : core::non_constructable {
 template <typename R, typename... Args>
 R inline engine::invoke(
     const script_function<R, Args...>& _function, Args... _args) const {
-  tls_resetter reset;
-  g_scripting_tls = &m_tls_data;
+  tls_resetter reset(&m_tls_data);
 
   return invoke_wrapper<void, R, Args...>::invoke(
       _function, core::forward<Args>(_args)...);
