@@ -90,19 +90,10 @@ class shared_script_pointer {
 public:
   using value_type = T;
   template <typename X, typename... Args>
-  typename core::enable_if<!core::is_same<void, typename X::ret_type>::value,
-      typename X::ret_type>::type
-  invoke(X T::*v, Args... args) {
+  typename X::ret_type invoke(X T::*v, Args... args) {
     auto sp = get();
-    return (type->*v).do_(type->m_engine, sp, args...);
-  }
 
-  template <typename X, typename... Args>
-  typename core::enable_if<core::is_same<void, typename X::ret_type>::value,
-      typename X::ret_type>::type
-  invoke(X T::*v, Args... args) {
-    auto sp = get();
-    return (type->*v).do_v(type->m_engine, sp, args...);
+    return (type->*v).do_(type->m_engine, sp, args...);
   }
 
   script_pointer<T> get() {

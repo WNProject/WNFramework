@@ -55,35 +55,6 @@ pass_by_ref_if_needed(U& val) {
   return val;
 }
 
-template <typename T, typename... Args>
-T thunk(typename get_thunk_passed_type<T>::ret_type (*func)(
-            typename get_thunk_passed_type<Args>::type...),
-    Args... args) {
-  return get_thunk_passed_type<T>::unwrap(
-      func(get_thunk_passed_type<Args>::wrap(args)...));
-}
-
-template <bool b, typename T, typename... Args>
-struct thunk_getter {
-  static T return_thunk(
-      void (*func)(typename get_thunk_passed_type<Args>::type...,
-          core::add_pointer_t<typename get_thunk_passed_type<T>::ret_type>),
-      Args... args) {
-    typename get_thunk_passed_type<T>::ret_type t;
-    func(get_thunk_passed_type<Args>::wrap(args)..., &t);
-    return t;
-  }
-};
-
-template <typename T, typename... Args>
-struct thunk_getter<true, T, Args...> {
-  static void return_thunk(
-      void (*func)(typename get_thunk_passed_type<Args>::type..., void*),
-      Args... args) {
-    return func(get_thunk_passed_type<Args>::wrap(args)...);
-  }
-};
-
 }  // namespace
 
 template <typename T, typename... Args>
@@ -305,9 +276,13 @@ template <typename Enable, typename R, typename... Args>
 struct engine::invoke_wrapper : core::non_constructable {
   static inline R invoke(
       const script_function<R, Args...>& _function, Args... _args) {
-    return reinterpret_cast<typename get_thunk_passed_type<R>::ret_type (*)(
-        typename get_thunk_passed_type<Args>::type...)>(_function.m_function)(
-        get_thunk_passed_type<Args>::wrap(_args)...);
+    auto adjusted_function =
+        reinterpret_cast<typename get_thunk_passed_type<R>::ret_type (*)(
+            typename get_thunk_passed_type<Args>::type...)>(
+            _function.m_function);
+
+    return get_thunk_passed_type<R>::unwrap(
+        adjusted_function(get_thunk_passed_type<Args>::wrap(_args)...));
   }
 };
 
@@ -316,27 +291,26 @@ struct engine::invoke_wrapper<core::enable_if_t<pass_by_reference<R>::value>, R,
     Args...> : core::non_constructable {
   static inline R invoke(
       const script_function<R, Args...>& _function, Args... _args) {
-    return thunk_getter<core::is_same<R, void>::value, R, Args...>::
-        return_thunk(reinterpret_cast<void (*)(
-                         typename get_thunk_passed_type<Args>::type...,
-                         core::add_pointer_t<
-                             typename get_thunk_passed_type<R>::ret_type>)>(
-                         _function.m_function),
-            core::forward<const Args>(_args)...);
+    auto adjusted_function =
+        reinterpret_cast<void (*)(typename get_thunk_passed_type<Args>::type...,
+            core::add_pointer_t<typename get_thunk_passed_type<R>::ret_type>)>(
+            _function.m_function);
+    typename get_thunk_passed_type<R>::ret_type ret;
+
+    adjusted_function(get_thunk_passed_type<Args>::wrap(_args)..., &ret);
+
+    return get_thunk_passed_type<R>::unwrap(ret);
   }
 };
 
-template <typename R, typename... Args>
-struct engine::invoke_wrapper<
-    core::enable_if_t<core::disjunction<pass_by_reference<Args>...>::value>, R,
-    Args...> : core::non_constructable {
-  static inline R invoke(
-      const script_function<R, Args...>& _function, Args... _args) {
-    return thunk<R, Args...>(
-        reinterpret_cast<typename get_thunk_passed_type<R>::ret_type (*)(
-            typename get_thunk_passed_type<Args>::type...)>(
-            _function.m_function),
-        core::forward<const Args>(_args)...);
+template <typename Enable, typename... Args>
+struct engine::invoke_wrapper<Enable, void, Args...> : core::non_constructable {
+  static inline void invoke(
+      const script_function<void, Args...>& _function, Args... _args) {
+    auto adjusted_function = reinterpret_cast<void (*)(
+        typename get_thunk_passed_type<Args>::type...)>(_function.m_function);
+
+    adjusted_function(get_thunk_passed_type<Args>::wrap(_args)...);
   }
 };
 
@@ -345,20 +319,8 @@ R inline engine::invoke(
     const script_function<R, Args...>& _function, Args... _args) const {
   tls_resetter reset;
   g_scripting_tls = &m_tls_data;
-  R rt = invoke_wrapper<void, R, Args...>::invoke(
-      _function, core::forward<Args>(_args)...);
 
-  fixup_return_type(rt);
-
-  return rt;
-}
-
-template <typename... Args>
-void inline engine::invoke_v(
-    const script_function<void, Args...>& _function, Args... _args) const {
-  tls_resetter reset;
-  g_scripting_tls = &m_tls_data;
-  invoke_wrapper<void, void, Args...>::invoke(
+  return invoke_wrapper<void, R, Args...>::invoke(
       _function, core::forward<Args>(_args)...);
 }
 
