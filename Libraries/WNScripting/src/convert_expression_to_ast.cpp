@@ -938,15 +938,34 @@ parse_ast_convertor::convertor_context::resolve_function_call(
   if (function_call->m_function->m_return_type->m_classification ==
       ast_type_classification::shared_reference) {
     const ast_type* t = function_call->m_function->m_return_type;
-    containers::dynamic_array<memory::unique_ptr<ast_expression>> ps(
-        m_allocator);
-    ps.push_back(make_cast(
-        core::move(function_call), m_type_manager->void_ptr_t(&m_used_types)));
+    auto td = make_temp_declaration(_call, get_next_temporary_name(), t);
+    td->m_initializer = core::move(function_call);
+    auto id = id_to(_call, td.get());
+    m_current_statements->push_back(core::move(td));
 
-    return make_cast(
-        call_function(_call, m_type_manager->return_shared(&m_used_builtins),
-            core::move(ps)),
-        t);
+    memory::unique_ptr<ast_function_call_expression> destructor_call =
+        memory::make_unique<ast_function_call_expression>(m_allocator, _call);
+    destructor_call->m_function =
+        m_type_manager->release_shared(&m_used_builtins);
+    memory::unique_ptr<ast_cast_expression> cat_to_void_ptr =
+        memory::make_unique<ast_cast_expression>(m_allocator, _call);
+    cat_to_void_ptr->m_base_expression =
+        clone_ast_node(m_allocator, id.get());
+    cat_to_void_ptr->m_type = m_type_manager->void_ptr_t(&m_used_types);
+
+    destructor_call->initialized_parameters(m_allocator)
+        .push_back(core::move(cat_to_void_ptr));
+    destructor_call->m_type = m_type_manager->void_t(&m_used_types);
+
+    auto expression_statement =
+        memory::make_unique<ast_evaluate_expression>(m_allocator, _call);
+    expression_statement->m_expr = core::move(destructor_call);
+
+    m_nested_scopes.back()
+        ->initialized_cleanup(m_allocator)
+        .push_back(core::move(expression_statement));
+
+    return core::move(id);
   }
 
   return core::move(function_call);

@@ -5,13 +5,13 @@
 class PassData {
     // TODO: figure out enums to make this nicer,
     // rather than needing to use a CString
-    virtual CString pass_name() {
+    virtual CString get_pass_name() {
         return pass_name;
     }
-    virtual Int[] color_attachments() {
+    virtual Int[] get_color_attachments() {
         return color_attachments;
     }
-    virtual Int depth_attachment() {
+    virtual Int get_depth_attachment() {
         return depth_attachment;
     }
     Int[] color_attachments = Int[1](-1);

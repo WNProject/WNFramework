@@ -79,10 +79,12 @@ Int shared3(Int x) {
 // CHECK: {{7shared4E.*{}}
 Int shared4(Int x) {
   shared Foo f = getF(x == 4);
-// CHECK: _shared_Foo f = ((_shared_Foo)(_ZN3wns18_wns_return_sharedEPvPv(((void*)(_ZN3wns4getFER3Foob((x == 4)))))));
-// CHECK: enter7 = (f != ((_shared_Foo)(NULL)));
+// CHECK: _shared_Foo _wns_temp7 = _ZN3wns4getFER3Foob((x == 4));
+// CHECK: _shared_Foo f = _wns_temp7;
+// CHECK: enter9 = (f != ((_shared_Foo)(NULL)));
   if (f != null) {
     return f.x;
   }
+// CHECK: _ZN3wns12_wns_releaseEvPv(((void*)(_wns_temp7)));
   return 4;
 }

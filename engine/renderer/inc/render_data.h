@@ -28,8 +28,7 @@ struct render_data : scripting::script_object_type {
     return "RenderData";
   }
 
-  scripting::scripting_virtual_object_function<render_data, void>
-      register_data;
+  scripting::scripting_virtual_object_function<render_data, void> register_data;
 
   static void register_scripting(scripting::engine* _engine);
   static bool resolve_scripting(scripting::engine* _engine);
@@ -40,16 +39,17 @@ struct pass_data : scripting::script_object_type {
 
   void export_type(
       scripting::engine::script_type_importer<pass_data>* _importer) {
-    _importer->register_function("pass_name", &pass_name);
-    _importer->register_function("color_attachments", &color_attachments);
-    _importer->register_function("depth_attachment", &depth_attachment);
+    _importer->register_function("get_pass_name", &pass_name);
+    _importer->register_function("get_color_attachments", &color_attachments);
+    _importer->register_function("get_depth_attachment", &depth_attachment);
   }
 
   static wn::containers::string_view exported_name() {
     return "PassData";
   }
 
-  scripting::scripting_virtual_object_function<pass_data, const char*> pass_name;
+  scripting::scripting_virtual_object_function<pass_data, const char*>
+      pass_name;
   scripting::scripting_virtual_object_function<pass_data,
       scripting::wn_array_ptr<int32_t>>
       color_attachments;
