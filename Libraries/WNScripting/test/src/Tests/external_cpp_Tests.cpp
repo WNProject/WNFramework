@@ -15,7 +15,6 @@ using wn::scripting::shared_cpp_pointer;
 using wn::scripting::shared_script_pointer;
 using wn::scripting::slice;
 using wn::scripting::wn_array;
-using wn::scripting::wn_array_ptr;
 
 void flush_buffer(void* v, const char* bytes, size_t length,
     const wn::logging::color_element*, size_t) {
@@ -50,9 +49,8 @@ struct external_struct2 : public external_struct {
   void increment_x() override {
     x += 2;
   }
-
-  int32_t get_y(wn_array_ptr<int32_t> _arr, int32_t y) {
-    return (*_arr)[y];
+  int32_t get_y(wn_array<int32_t> _arr, int32_t y) {
+    return _arr[y];
   }
 
   void printf(const char* c) {
@@ -252,7 +250,7 @@ TEST(scripting_engine_factory, external) {
   wn::scripting::script_function<int32_t, external_struct*> extern_struct_func4;
   wn::scripting::script_function<int32_t, external_struct2*>
       extern_struct_func5;
-  wn::scripting::script_function<int32_t, wn_array_ptr<int32_t>, int32_t>
+  wn::scripting::script_function<int32_t, wn_array<int32_t>, int32_t>
       extern_func_6;
   wn::scripting::script_function<int32_t, external_struct2*, int32_t>
       extern_func_7;
@@ -262,7 +260,7 @@ TEST(scripting_engine_factory, external) {
       extern_func_10;
   wn::scripting::script_function<int32_t, external_slice_struct*, int32_t>
       extern_func_11;
-  wn::scripting::script_function<slice<int32_t>, wn_array_ptr<int32_t>, int32_t>
+  wn::scripting::script_function<slice<int32_t>, wn_array<int32_t>, int32_t>
       extern_func_12;
   wn::scripting::script_function<shared_script_pointer<a_type>> extern_func_13;
   wn::scripting::script_function<shared_script_pointer<b_type>> extern_func_14;
@@ -336,18 +334,6 @@ TEST(scripting_engine_factory, external) {
     EXPECT_EQ(2, s2.x);
   }
 
-  // test6
-  {
-    wn_array<int32_t, 42> array;
-    for (int32_t i = 0; i < 42; ++i) {
-      array[i] = i;
-    }
-    EXPECT_EQ(15, jit->invoke(extern_func_6, &array, 15));
-    EXPECT_EQ(17, jit->invoke(extern_func_6, &array, 17));
-    EXPECT_EQ(15, jit->invoke(extern_func_6, &array, 15));
-    EXPECT_NE(12, jit->invoke(extern_func_6, &array, 102));
-  }
-
   // test7
   {
     external_struct2 s2;
@@ -387,18 +373,6 @@ TEST(scripting_engine_factory, external) {
     EXPECT_EQ(0, jit->invoke(extern_func_11, &s, 0));
     EXPECT_EQ(12, jit->invoke(extern_func_11, &s, 12));
     EXPECT_EQ(15, jit->invoke(extern_func_11, &s, 15));
-  }
-
-  // test12
-  {
-    wn_array<int32_t, 42> array;
-    for (int32_t i = 0; i < 42; ++i) {
-      array[i] = i;
-    }
-    slice<int> s = jit->invoke(extern_func_12, &array, 5);
-    EXPECT_EQ(5, s[0]);
-    EXPECT_EQ(7, s[2]);
-    EXPECT_EQ(37u, s.size());
   }
 
   // test13

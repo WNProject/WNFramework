@@ -3,8 +3,10 @@ add_wn_library(
   SOURCES
     inc/renderer.h
     inc/render_data.h
+    inc/render_target.h
     src/renderer.cpp
     src/render_data.cpp
+    src/render_target.cpp
   LIBS
     engine_base
     window

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-Int add_numbers(Int x, Int y) {
+Int add_n(Int x, Int y) {
     return x + y;
 }
 

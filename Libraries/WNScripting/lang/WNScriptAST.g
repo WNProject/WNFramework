@@ -787,10 +787,21 @@ structDecl returns[scripting::struct_definition* node]
 @init {
     node = nullptr;
 }
-    :    STRUCT TYPE {node= m_allocator->construct<scripting::struct_definition>(m_allocator, $TYPE.text.c_str()); SET_LOCATION(node, $STRUCT); }
+    :
+        (
+            (f=STRUCT c=TYPE {node= m_allocator->construct<scripting::struct_definition>(m_allocator, $c.text.c_str(), false); SET_LOCATION(node, $f); })
+          | (g=STRUCT d=TYPE COLON e=TYPE {node= m_allocator->construct<scripting::struct_definition>(m_allocator, $d.text.c_str(), false, $e.text.c_str()); SET_LOCATION(node, $g); })
+        )
             (parameterList { node->set_constructor_parameters($parameterList.node); })?
-            LBRACE (a=declaration { node->add_struct_elem($a.node);} SEMICOLON )* RBRACE  { SET_END_LOCATION(node, $RBRACE); }
+            LBRACE
+                (
+                    (a=declaration { node->add_struct_elem($a.node);} SEMICOLON)
+                  | (j=inherited_declaration { node->add_struct_elem($j.node);} SEMICOLON)
+                  | (b=function    { node->add_function($b.node); })
+                )*
+            RBRACE  { SET_END_LOCATION(node, $RBRACE); }
     ;
+
 
 classDecl returns[scripting::struct_definition* node]
 @init {

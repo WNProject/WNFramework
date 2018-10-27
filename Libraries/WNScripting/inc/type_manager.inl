@@ -304,6 +304,8 @@ void type_manager::register_cpp_type(functional::function<void(
       get_reference_of(t, ast_type_classification::reference, nullptr);
   m_externally_visible_types[core::type_id<shared_cpp_pointer<T>>::value()] =
       get_reference_of(t, ast_type_classification::shared_reference, nullptr);
+  m_externally_visible_types[core::type_id<shared_cpp_pointer<T>>::value()] =
+      get_reference_of(t, ast_type_classification::shared_reference, nullptr);
   exporter<T> exporter(t, m_allocator, this, &_fn);
   exported_script_type<T>::export_type(&exporter);
   finalize_external_type(t);
@@ -323,6 +325,12 @@ void type_manager::export_script_type() {
       get_reference_of(t, ast_type_classification::reference, nullptr);
   m_externally_visible_types[core::type_id<shared_script_pointer<T>>::value()] =
       get_reference_of(t, ast_type_classification::shared_reference, nullptr);
+  m_externally_visible_types[core::type_id<wn_array<T>>::value()] =
+      get_array_of(t, 0, nullptr, false);
+  m_externally_visible_types
+      [core::type_id<wn_array<script_pointer<T>>>::value()] = get_array_of(
+          get_reference_of(t, ast_type_classification::reference, nullptr), 0,
+          nullptr, false);
 }
 
 }  // namespace scripting

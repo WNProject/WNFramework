@@ -3,24 +3,35 @@
 // found in the LICENSE.txt file.
 
 include "renderer/render_data.wns"
-include "renderer/pass_data.wns"
+include "renderer/render_context.wns"
+
 
 class MyPass : PassData {
-  .color_attachments = Int[1](0);
+  .color_attachments = Int[1](42);
   .depth_attachment = 0;
   .pass_name = "Initial Pass";
 }
+
+struct MainTarget: RTDescription(Renderer renderer) {
+  .name = "MainRT";
+  .width = renderer.width();
+  .height = renderer.height();
+  .format = format_r8g8b8a8_unorm;
+}
+
+class MainContext: RenderContext(Renderer renderer) {
+  .render_targets = RTDescription[](MainTarget(renderer));
+  .passes = PassData[](MyPass());
+}
+
 
 Int main(Context ctx) {
   shared Window window = get_window(ctx, 1024, 768);
   shared Renderer renderer = get_renderer(ctx, window);
   shared RenderData rd = shared RenderData();
 
-  Int attachment_num = renderer.register_attachment(
-      format_r8g8b8a8_unorm, renderer.width(), renderer.height());
-
-  renderer.register_pass(MyPass());
-  renderer.register_object(rd);
+  MainContext context = MainContext(renderer);
+  renderer.register_context(context);
 
   sleep(5);
   return 32;

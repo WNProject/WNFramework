@@ -1081,98 +1081,119 @@ static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_parameterList_in_func
 static	ANTLR_BITWORD FOLLOW_instruction_list_in_function5571_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
 static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_instruction_list_in_function5571( FOLLOW_instruction_list_in_function5571_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_STRUCT_in_structDecl5601_bits[]	= { ANTLR_UINT64_LIT(0x0008000000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_STRUCT_in_structDecl5601( FOLLOW_STRUCT_in_structDecl5601_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_STRUCT_in_structDecl5623_bits[]	= { ANTLR_UINT64_LIT(0x0008000000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_STRUCT_in_structDecl5623( FOLLOW_STRUCT_in_structDecl5623_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_TYPE_in_structDecl5603_bits[]	= { ANTLR_UINT64_LIT(0x0000000300000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_TYPE_in_structDecl5603( FOLLOW_TYPE_in_structDecl5603_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_TYPE_in_structDecl5627_bits[]	= { ANTLR_UINT64_LIT(0x0000000300000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_TYPE_in_structDecl5627( FOLLOW_TYPE_in_structDecl5627_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_parameterList_in_structDecl5620_bits[]	= { ANTLR_UINT64_LIT(0x0000000100000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_parameterList_in_structDecl5620( FOLLOW_parameterList_in_structDecl5620_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_STRUCT_in_structDecl5647_bits[]	= { ANTLR_UINT64_LIT(0x0008000000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_STRUCT_in_structDecl5647( FOLLOW_STRUCT_in_structDecl5647_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_LBRACE_in_structDecl5638_bits[]	= { ANTLR_UINT64_LIT(0x00CA210081000120) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACE_in_structDecl5638( FOLLOW_LBRACE_in_structDecl5638_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_TYPE_in_structDecl5651_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000400) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_TYPE_in_structDecl5651( FOLLOW_TYPE_in_structDecl5651_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_declaration_in_structDecl5643_bits[]	= { ANTLR_UINT64_LIT(0x0000100000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_declaration_in_structDecl5643( FOLLOW_declaration_in_structDecl5643_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_COLON_in_structDecl5653_bits[]	= { ANTLR_UINT64_LIT(0x0008000000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_COLON_in_structDecl5653( FOLLOW_COLON_in_structDecl5653_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_SEMICOLON_in_structDecl5647_bits[]	= { ANTLR_UINT64_LIT(0x00CA210081000120) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SEMICOLON_in_structDecl5647( FOLLOW_SEMICOLON_in_structDecl5647_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_TYPE_in_structDecl5657_bits[]	= { ANTLR_UINT64_LIT(0x0000000300000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_TYPE_in_structDecl5657( FOLLOW_TYPE_in_structDecl5657_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_RBRACE_in_structDecl5652_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACE_in_structDecl5652( FOLLOW_RBRACE_in_structDecl5652_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_parameterList_in_structDecl5685_bits[]	= { ANTLR_UINT64_LIT(0x0000000100000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_parameterList_in_structDecl5685( FOLLOW_parameterList_in_structDecl5685_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_CLASS_in_classDecl5705_bits[]	= { ANTLR_UINT64_LIT(0x0008000000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_CLASS_in_classDecl5705( FOLLOW_CLASS_in_classDecl5705_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_LBRACE_in_structDecl5703_bits[]	= { ANTLR_UINT64_LIT(0x00CA210081000120), ANTLR_UINT64_LIT(0x0000000000000040) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACE_in_structDecl5703( FOLLOW_LBRACE_in_structDecl5703_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_TYPE_in_classDecl5709_bits[]	= { ANTLR_UINT64_LIT(0x0000000300000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_TYPE_in_classDecl5709( FOLLOW_TYPE_in_classDecl5709_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_declaration_in_structDecl5746_bits[]	= { ANTLR_UINT64_LIT(0x0000100000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_declaration_in_structDecl5746( FOLLOW_declaration_in_structDecl5746_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_CLASS_in_classDecl5729_bits[]	= { ANTLR_UINT64_LIT(0x0008000000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_CLASS_in_classDecl5729( FOLLOW_CLASS_in_classDecl5729_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_SEMICOLON_in_structDecl5750_bits[]	= { ANTLR_UINT64_LIT(0x00CA210081000120), ANTLR_UINT64_LIT(0x0000000000000040) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SEMICOLON_in_structDecl5750( FOLLOW_SEMICOLON_in_structDecl5750_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_TYPE_in_classDecl5733_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000400) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_TYPE_in_classDecl5733( FOLLOW_TYPE_in_classDecl5733_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_inherited_declaration_in_structDecl5776_bits[]	= { ANTLR_UINT64_LIT(0x0000100000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_inherited_declaration_in_structDecl5776( FOLLOW_inherited_declaration_in_structDecl5776_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_COLON_in_classDecl5735_bits[]	= { ANTLR_UINT64_LIT(0x0008000000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_COLON_in_classDecl5735( FOLLOW_COLON_in_classDecl5735_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_SEMICOLON_in_structDecl5780_bits[]	= { ANTLR_UINT64_LIT(0x00CA210081000120), ANTLR_UINT64_LIT(0x0000000000000040) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SEMICOLON_in_structDecl5780( FOLLOW_SEMICOLON_in_structDecl5780_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_TYPE_in_classDecl5739_bits[]	= { ANTLR_UINT64_LIT(0x0000000300000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_TYPE_in_classDecl5739( FOLLOW_TYPE_in_classDecl5739_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_function_in_structDecl5806_bits[]	= { ANTLR_UINT64_LIT(0x00CA210081000120), ANTLR_UINT64_LIT(0x0000000000000040) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_function_in_structDecl5806( FOLLOW_function_in_structDecl5806_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_parameterList_in_classDecl5767_bits[]	= { ANTLR_UINT64_LIT(0x0000000100000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_parameterList_in_classDecl5767( FOLLOW_parameterList_in_classDecl5767_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_RBRACE_in_structDecl5845_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACE_in_structDecl5845( FOLLOW_RBRACE_in_structDecl5845_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_LBRACE_in_classDecl5785_bits[]	= { ANTLR_UINT64_LIT(0x00EA214081000120), ANTLR_UINT64_LIT(0x0000000000000040) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACE_in_classDecl5785( FOLLOW_LBRACE_in_classDecl5785_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_CLASS_in_classDecl5899_bits[]	= { ANTLR_UINT64_LIT(0x0008000000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_CLASS_in_classDecl5899( FOLLOW_CLASS_in_classDecl5899_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_declaration_in_classDecl5828_bits[]	= { ANTLR_UINT64_LIT(0x0000100000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_declaration_in_classDecl5828( FOLLOW_declaration_in_classDecl5828_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_TYPE_in_classDecl5903_bits[]	= { ANTLR_UINT64_LIT(0x0000000300000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_TYPE_in_classDecl5903( FOLLOW_TYPE_in_classDecl5903_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_SEMICOLON_in_classDecl5832_bits[]	= { ANTLR_UINT64_LIT(0x00EA214081000120), ANTLR_UINT64_LIT(0x0000000000000040) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SEMICOLON_in_classDecl5832( FOLLOW_SEMICOLON_in_classDecl5832_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_CLASS_in_classDecl5923_bits[]	= { ANTLR_UINT64_LIT(0x0008000000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_CLASS_in_classDecl5923( FOLLOW_CLASS_in_classDecl5923_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_inherited_declaration_in_classDecl5858_bits[]	= { ANTLR_UINT64_LIT(0x0000100000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_inherited_declaration_in_classDecl5858( FOLLOW_inherited_declaration_in_classDecl5858_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_TYPE_in_classDecl5927_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000400) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_TYPE_in_classDecl5927( FOLLOW_TYPE_in_classDecl5927_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_SEMICOLON_in_classDecl5862_bits[]	= { ANTLR_UINT64_LIT(0x00EA214081000120), ANTLR_UINT64_LIT(0x0000000000000040) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SEMICOLON_in_classDecl5862( FOLLOW_SEMICOLON_in_classDecl5862_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_COLON_in_classDecl5929_bits[]	= { ANTLR_UINT64_LIT(0x0008000000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_COLON_in_classDecl5929( FOLLOW_COLON_in_classDecl5929_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_function_in_classDecl5888_bits[]	= { ANTLR_UINT64_LIT(0x00EA214081000120), ANTLR_UINT64_LIT(0x0000000000000040) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_function_in_classDecl5888( FOLLOW_function_in_classDecl5888_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_TYPE_in_classDecl5933_bits[]	= { ANTLR_UINT64_LIT(0x0000000300000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_TYPE_in_classDecl5933( FOLLOW_TYPE_in_classDecl5933_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_VIRTUAL_in_classDecl5917_bits[]	= { ANTLR_UINT64_LIT(0x00CA200081000120) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_VIRTUAL_in_classDecl5917( FOLLOW_VIRTUAL_in_classDecl5917_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_parameterList_in_classDecl5961_bits[]	= { ANTLR_UINT64_LIT(0x0000000100000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_parameterList_in_classDecl5961( FOLLOW_parameterList_in_classDecl5961_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_function_in_classDecl5921_bits[]	= { ANTLR_UINT64_LIT(0x00EA214081000120), ANTLR_UINT64_LIT(0x0000000000000040) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_function_in_classDecl5921( FOLLOW_function_in_classDecl5921_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_LBRACE_in_classDecl5979_bits[]	= { ANTLR_UINT64_LIT(0x00EA214081000120), ANTLR_UINT64_LIT(0x0000000000000040) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACE_in_classDecl5979( FOLLOW_LBRACE_in_classDecl5979_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_OVERRIDE_in_classDecl5947_bits[]	= { ANTLR_UINT64_LIT(0x00CA200081000120) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_OVERRIDE_in_classDecl5947( FOLLOW_OVERRIDE_in_classDecl5947_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_declaration_in_classDecl6022_bits[]	= { ANTLR_UINT64_LIT(0x0000100000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_declaration_in_classDecl6022( FOLLOW_declaration_in_classDecl6022_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_function_in_classDecl5951_bits[]	= { ANTLR_UINT64_LIT(0x00EA214081000120), ANTLR_UINT64_LIT(0x0000000000000040) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_function_in_classDecl5951( FOLLOW_function_in_classDecl5951_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_SEMICOLON_in_classDecl6026_bits[]	= { ANTLR_UINT64_LIT(0x00EA214081000120), ANTLR_UINT64_LIT(0x0000000000000040) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SEMICOLON_in_classDecl6026( FOLLOW_SEMICOLON_in_classDecl6026_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_RBRACE_in_classDecl5987_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACE_in_classDecl5987( FOLLOW_RBRACE_in_classDecl5987_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_inherited_declaration_in_classDecl6052_bits[]	= { ANTLR_UINT64_LIT(0x0000100000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_inherited_declaration_in_classDecl6052( FOLLOW_inherited_declaration_in_classDecl6052_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_INCLUDE_in_inc6017_bits[]	= { ANTLR_UINT64_LIT(0x0001000000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_INCLUDE_in_inc6017( FOLLOW_INCLUDE_in_inc6017_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_SEMICOLON_in_classDecl6056_bits[]	= { ANTLR_UINT64_LIT(0x00EA214081000120), ANTLR_UINT64_LIT(0x0000000000000040) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SEMICOLON_in_classDecl6056( FOLLOW_SEMICOLON_in_classDecl6056_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_STRING_in_inc6019_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_STRING_in_inc6019( FOLLOW_STRING_in_inc6019_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_function_in_classDecl6082_bits[]	= { ANTLR_UINT64_LIT(0x00EA214081000120), ANTLR_UINT64_LIT(0x0000000000000040) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_function_in_classDecl6082( FOLLOW_function_in_classDecl6082_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_inc_in_program6048_bits[]	= { ANTLR_UINT64_LIT(0x00CE2000A1000322) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_inc_in_program6048( FOLLOW_inc_in_program6048_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_VIRTUAL_in_classDecl6111_bits[]	= { ANTLR_UINT64_LIT(0x00CA200081000120) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_VIRTUAL_in_classDecl6111( FOLLOW_VIRTUAL_in_classDecl6111_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_function_in_program6087_bits[]	= { ANTLR_UINT64_LIT(0x00CE200081000322) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_function_in_program6087( FOLLOW_function_in_program6087_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_function_in_classDecl6115_bits[]	= { ANTLR_UINT64_LIT(0x00EA214081000120), ANTLR_UINT64_LIT(0x0000000000000040) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_function_in_classDecl6115( FOLLOW_function_in_classDecl6115_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_structDecl_in_program6109_bits[]	= { ANTLR_UINT64_LIT(0x00CE200081000322) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_structDecl_in_program6109( FOLLOW_structDecl_in_program6109_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_OVERRIDE_in_classDecl6141_bits[]	= { ANTLR_UINT64_LIT(0x00CA200081000120) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_OVERRIDE_in_classDecl6141( FOLLOW_OVERRIDE_in_classDecl6141_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_classDecl_in_program6129_bits[]	= { ANTLR_UINT64_LIT(0x00CE200081000322) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_classDecl_in_program6129( FOLLOW_classDecl_in_program6129_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_function_in_classDecl6145_bits[]	= { ANTLR_UINT64_LIT(0x00EA214081000120), ANTLR_UINT64_LIT(0x0000000000000040) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_function_in_classDecl6145( FOLLOW_function_in_classDecl6145_bits, 2 );
+
+static	ANTLR_BITWORD FOLLOW_RBRACE_in_classDecl6181_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACE_in_classDecl6181( FOLLOW_RBRACE_in_classDecl6181_bits, 1 );
+
+static	ANTLR_BITWORD FOLLOW_INCLUDE_in_inc6211_bits[]	= { ANTLR_UINT64_LIT(0x0001000000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_INCLUDE_in_inc6211( FOLLOW_INCLUDE_in_inc6211_bits, 1 );
+
+static	ANTLR_BITWORD FOLLOW_STRING_in_inc6213_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_STRING_in_inc6213( FOLLOW_STRING_in_inc6213_bits, 1 );
+
+static	ANTLR_BITWORD FOLLOW_inc_in_program6242_bits[]	= { ANTLR_UINT64_LIT(0x00CE2000A1000322) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_inc_in_program6242( FOLLOW_inc_in_program6242_bits, 1 );
+
+static	ANTLR_BITWORD FOLLOW_function_in_program6281_bits[]	= { ANTLR_UINT64_LIT(0x00CE200081000322) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_function_in_program6281( FOLLOW_function_in_program6281_bits, 1 );
+
+static	ANTLR_BITWORD FOLLOW_structDecl_in_program6303_bits[]	= { ANTLR_UINT64_LIT(0x00CE200081000322) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_structDecl_in_program6303( FOLLOW_structDecl_in_program6303_bits, 1 );
+
+static	ANTLR_BITWORD FOLLOW_classDecl_in_program6323_bits[]	= { ANTLR_UINT64_LIT(0x00CE200081000322) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_classDecl_in_program6323( FOLLOW_classDecl_in_program6323_bits, 1 );
 
 
 
@@ -20866,197 +20887,16 @@ WNScriptASTParser::structDecl()
     scripting::struct_definition* node;
 
 
-    const ImplTraits::CommonTokenType* TYPE70 = NULL;
-    const ImplTraits::CommonTokenType* STRUCT71 = NULL;
-    const ImplTraits::CommonTokenType* RBRACE73 = NULL;
-    scripting::declaration* a;
-    scripting::parameter_list* parameterList72;
-
-
-
-
-
-        node = nullptr;
-
-
-
-    {
-        {
-            STRUCT71 =  this->matchToken(STRUCT, &FOLLOW_STRUCT_in_structDecl5601);
-            if  (this->hasException())
-            {
-                goto rulestructDeclEx;
-            }
-
-
-            TYPE70 =  this->matchToken(TYPE, &FOLLOW_TYPE_in_structDecl5603);
-            if  (this->hasException())
-            {
-                goto rulestructDeclEx;
-            }
-
-
-            {
-                node= m_allocator->construct<scripting::struct_definition>(m_allocator, (TYPE70->getText()).c_str()); SET_LOCATION(node, STRUCT71);
-            }
-
-
-            {
-                int alt45=2;
-                switch ( this->LA(1) )
-                {
-                    case LBRACKET:
-                    	{
-                    		alt45=1;
-                    	}
-                        break;
-                }
-
-                switch (alt45)
-                {
-            	case 1:
-            	    {
-            	        this->followPush(FOLLOW_parameterList_in_structDecl5620);
-            	        parameterList72=parameterList();
-
-            	        this->followPop();
-            	        if  (this->hasException())
-            	        {
-            	            goto rulestructDeclEx;
-            	        }
-
-
-            	        {
-            	             node->set_constructor_parameters(parameterList72
-            	            );
-            	        }
-
-
-            	    }
-            	    break;
-
-                }
-            }
-
-             this->matchToken(LBRACE, &FOLLOW_LBRACE_in_structDecl5638);
-            if  (this->hasException())
-            {
-                goto rulestructDeclEx;
-            }
-
-
-
-            for (;;)
-            {
-                int alt46=2;
-                switch ( this->LA(1) )
-                {
-                case BOOL_TYPE:
-                case CHAR_TYPE:
-                case FLOAT_TYPE:
-                case INT_TYPE:
-                case SHARED_REF:
-                case STRING_TYPE:
-                case TYPE:
-                case VOID_TYPE:
-                case WEAK_REF:
-                	{
-                		alt46=1;
-                	}
-                    break;
-
-                }
-
-                switch (alt46)
-                {
-            	case 1:
-            	    {
-            	        this->followPush(FOLLOW_declaration_in_structDecl5643);
-            	        a=declaration();
-
-            	        this->followPop();
-            	        if  (this->hasException())
-            	        {
-            	            goto rulestructDeclEx;
-            	        }
-
-
-            	        {
-            	             node->add_struct_elem(a
-            	            );
-            	        }
-
-
-            	         this->matchToken(SEMICOLON, &FOLLOW_SEMICOLON_in_structDecl5647);
-            	        if  (this->hasException())
-            	        {
-            	            goto rulestructDeclEx;
-            	        }
-
-
-            	    }
-            	    break;
-
-            	default:
-            	    goto loop46;
-            	    break;
-                }
-            }
-            loop46: ;
-
-
-            RBRACE73 =  this->matchToken(RBRACE, &FOLLOW_RBRACE_in_structDecl5652);
-            if  (this->hasException())
-            {
-                goto rulestructDeclEx;
-            }
-
-
-            {
-                 SET_END_LOCATION(node, RBRACE73);
-            }
-
-
-        }
-
-    }
-    goto rulestructDeclEx;
-    rulestructDeclEx: ;
-
-
-    	if (this->hasException())
-        {
-            this->preporterror();
-            this->precover();
-        }
-    return node;
-}
-
-
-
-
-
-
-scripting::struct_definition*
-WNScriptASTParser::classDecl()
-{
-        WNScriptASTParserImplTraits::RuleReturnValueType _antlr_rule_exit(this);
-
-    scripting::struct_definition* node;
-
-
     const ImplTraits::CommonTokenType* f = NULL;
     const ImplTraits::CommonTokenType* c = NULL;
     const ImplTraits::CommonTokenType* g = NULL;
     const ImplTraits::CommonTokenType* d = NULL;
     const ImplTraits::CommonTokenType* e = NULL;
-    const ImplTraits::CommonTokenType* RBRACE75 = NULL;
+    const ImplTraits::CommonTokenType* RBRACE71 = NULL;
     scripting::declaration* a;
     scripting::declaration* j;
     scripting::function* b;
-    scripting::function* h;
-    scripting::function* i;
-    scripting::parameter_list* parameterList74;
+    scripting::parameter_list* parameterList70;
 
 
 
@@ -21069,10 +20909,10 @@ WNScriptASTParser::classDecl()
     {
         {
             {
-                int alt47=2;
+                int alt45=2;
                 switch ( this->LA(1) )
                 {
-                case CLASS:
+                case STRUCT:
                 	{
                 		switch ( this->LA(2) )
                 		{
@@ -21082,23 +20922,23 @@ WNScriptASTParser::classDecl()
                 				{
                 				case COLON:
                 					{
-                						alt47=2;
+                						alt45=2;
                 					}
                 				    break;
                 				case LBRACE:
                 				case LBRACKET:
                 					{
-                						alt47=1;
+                						alt45=1;
                 					}
                 				    break;
 
                 				default:
                 				    ExceptionBaseType* ex = new ANTLR_Exception< WNScriptASTParserImplTraits, NO_VIABLE_ALT_EXCEPTION, StreamType>( this->get_rec(), "" );
-                				    ex->set_decisionNum( 47 );
+                				    ex->set_decisionNum( 45 );
                 				    ex->set_state( 2 );
 
 
-                				    goto ruleclassDeclEx;
+                				    goto rulestructDeclEx;
 
                 				}
 
@@ -21107,11 +20947,11 @@ WNScriptASTParser::classDecl()
 
                 		default:
                 		    ExceptionBaseType* ex = new ANTLR_Exception< WNScriptASTParserImplTraits, NO_VIABLE_ALT_EXCEPTION, StreamType>( this->get_rec(), "" );
-                		    ex->set_decisionNum( 47 );
+                		    ex->set_decisionNum( 45 );
                 		    ex->set_state( 1 );
 
 
-                		    goto ruleclassDeclEx;
+                		    goto rulestructDeclEx;
 
                 		}
 
@@ -21120,35 +20960,35 @@ WNScriptASTParser::classDecl()
 
                 default:
                     ExceptionBaseType* ex = new ANTLR_Exception< WNScriptASTParserImplTraits, NO_VIABLE_ALT_EXCEPTION, StreamType>( this->get_rec(), "" );
-                    ex->set_decisionNum( 47 );
+                    ex->set_decisionNum( 45 );
                     ex->set_state( 0 );
 
 
-                    goto ruleclassDeclEx;
+                    goto rulestructDeclEx;
 
                 }
 
-                switch (alt47)
+                switch (alt45)
                 {
             	case 1:
             	    {
             	        {
-            	            f =  this->matchToken(CLASS, &FOLLOW_CLASS_in_classDecl5705);
+            	            f =  this->matchToken(STRUCT, &FOLLOW_STRUCT_in_structDecl5623);
             	            if  (this->hasException())
             	            {
-            	                goto ruleclassDeclEx;
+            	                goto rulestructDeclEx;
             	            }
 
 
-            	            c =  this->matchToken(TYPE, &FOLLOW_TYPE_in_classDecl5709);
+            	            c =  this->matchToken(TYPE, &FOLLOW_TYPE_in_structDecl5627);
             	            if  (this->hasException())
             	            {
-            	                goto ruleclassDeclEx;
+            	                goto rulestructDeclEx;
             	            }
 
 
             	            {
-            	                node= m_allocator->construct<scripting::struct_definition>(m_allocator, (c->getText()).c_str(), true); SET_LOCATION(node, f);
+            	                node= m_allocator->construct<scripting::struct_definition>(m_allocator, (c->getText()).c_str(), false); SET_LOCATION(node, f);
             	            }
 
 
@@ -21160,36 +21000,36 @@ WNScriptASTParser::classDecl()
             	case 2:
             	    {
             	        {
-            	            g =  this->matchToken(CLASS, &FOLLOW_CLASS_in_classDecl5729);
+            	            g =  this->matchToken(STRUCT, &FOLLOW_STRUCT_in_structDecl5647);
             	            if  (this->hasException())
             	            {
-            	                goto ruleclassDeclEx;
+            	                goto rulestructDeclEx;
             	            }
 
 
-            	            d =  this->matchToken(TYPE, &FOLLOW_TYPE_in_classDecl5733);
+            	            d =  this->matchToken(TYPE, &FOLLOW_TYPE_in_structDecl5651);
             	            if  (this->hasException())
             	            {
-            	                goto ruleclassDeclEx;
+            	                goto rulestructDeclEx;
             	            }
 
 
-            	             this->matchToken(COLON, &FOLLOW_COLON_in_classDecl5735);
+            	             this->matchToken(COLON, &FOLLOW_COLON_in_structDecl5653);
             	            if  (this->hasException())
             	            {
-            	                goto ruleclassDeclEx;
+            	                goto rulestructDeclEx;
             	            }
 
 
-            	            e =  this->matchToken(TYPE, &FOLLOW_TYPE_in_classDecl5739);
+            	            e =  this->matchToken(TYPE, &FOLLOW_TYPE_in_structDecl5657);
             	            if  (this->hasException())
             	            {
-            	                goto ruleclassDeclEx;
+            	                goto rulestructDeclEx;
             	            }
 
 
             	            {
-            	                node= m_allocator->construct<scripting::struct_definition>(m_allocator, (d->getText()).c_str(), true, (e->getText()).c_str()); SET_LOCATION(node, g);
+            	                node= m_allocator->construct<scripting::struct_definition>(m_allocator, (d->getText()).c_str(), false, (e->getText()).c_str()); SET_LOCATION(node, g);
             	            }
 
 
@@ -21203,32 +21043,32 @@ WNScriptASTParser::classDecl()
             }
 
             {
-                int alt48=2;
+                int alt46=2;
                 switch ( this->LA(1) )
                 {
                     case LBRACKET:
                     	{
-                    		alt48=1;
+                    		alt46=1;
                     	}
                         break;
                 }
 
-                switch (alt48)
+                switch (alt46)
                 {
             	case 1:
             	    {
-            	        this->followPush(FOLLOW_parameterList_in_classDecl5767);
-            	        parameterList74=parameterList();
+            	        this->followPush(FOLLOW_parameterList_in_structDecl5685);
+            	        parameterList70=parameterList();
 
             	        this->followPop();
             	        if  (this->hasException())
             	        {
-            	            goto ruleclassDeclEx;
+            	            goto rulestructDeclEx;
             	        }
 
 
             	        {
-            	             node->set_constructor_parameters(parameterList74
+            	             node->set_constructor_parameters(parameterList70
             	            );
             	        }
 
@@ -21239,17 +21079,17 @@ WNScriptASTParser::classDecl()
                 }
             }
 
-             this->matchToken(LBRACE, &FOLLOW_LBRACE_in_classDecl5785);
+             this->matchToken(LBRACE, &FOLLOW_LBRACE_in_structDecl5703);
             if  (this->hasException())
             {
-                goto ruleclassDeclEx;
+                goto rulestructDeclEx;
             }
 
 
 
             for (;;)
             {
-                int alt49=6;
+                int alt47=4;
                 switch ( this->LA(1) )
                 {
                 case VOID_TYPE:
@@ -21262,12 +21102,12 @@ WNScriptASTParser::classDecl()
                 				{
                 				case 75:
                 					{
-                						alt49=1;
+                						alt47=1;
                 					}
                 				    break;
                 				case LBRACKET:
                 					{
-                						alt49=3;
+                						alt47=3;
                 					}
                 				    break;
 
@@ -21293,12 +21133,12 @@ WNScriptASTParser::classDecl()
                 										{
                 										case 75:
                 											{
-                												alt49=1;
+                												alt47=1;
                 											}
                 										    break;
                 										case LBRACKET:
                 											{
-                												alt49=3;
+                												alt47=3;
                 											}
                 										    break;
 
@@ -21330,12 +21170,12 @@ WNScriptASTParser::classDecl()
                 										{
                 										case 75:
                 											{
-                												alt49=1;
+                												alt47=1;
                 											}
                 										    break;
                 										case LBRACKET:
                 											{
-                												alt49=3;
+                												alt47=3;
                 											}
                 										    break;
 
@@ -21367,12 +21207,12 @@ WNScriptASTParser::classDecl()
                 										{
                 										case 75:
                 											{
-                												alt49=1;
+                												alt47=1;
                 											}
                 										    break;
                 										case LBRACKET:
                 											{
-                												alt49=3;
+                												alt47=3;
                 											}
                 										    break;
 
@@ -21404,12 +21244,12 @@ WNScriptASTParser::classDecl()
                 										{
                 										case 75:
                 											{
-                												alt49=1;
+                												alt47=1;
                 											}
                 										    break;
                 										case LBRACKET:
                 											{
-                												alt49=3;
+                												alt47=3;
                 											}
                 										    break;
 
@@ -21441,12 +21281,12 @@ WNScriptASTParser::classDecl()
                 										{
                 										case 75:
                 											{
-                												alt49=1;
+                												alt47=1;
                 											}
                 										    break;
                 										case LBRACKET:
                 											{
-                												alt49=3;
+                												alt47=3;
                 											}
                 										    break;
 
@@ -21478,12 +21318,12 @@ WNScriptASTParser::classDecl()
                 										{
                 										case 75:
                 											{
-                												alt49=1;
+                												alt47=1;
                 											}
                 										    break;
                 										case LBRACKET:
                 											{
-                												alt49=3;
+                												alt47=3;
                 											}
                 										    break;
 
@@ -21527,12 +21367,12 @@ WNScriptASTParser::classDecl()
                 																{
                 																case 75:
                 																	{
-                																		alt49=1;
+                																		alt47=1;
                 																	}
                 																    break;
                 																case LBRACKET:
                 																	{
-                																		alt49=3;
+                																		alt47=3;
                 																	}
                 																    break;
 
@@ -21591,12 +21431,12 @@ WNScriptASTParser::classDecl()
                 																{
                 																case 75:
                 																	{
-                																		alt49=1;
+                																		alt47=1;
                 																	}
                 																    break;
                 																case LBRACKET:
                 																	{
-                																		alt49=3;
+                																		alt47=3;
                 																	}
                 																    break;
 
@@ -21655,12 +21495,12 @@ WNScriptASTParser::classDecl()
                 																{
                 																case 75:
                 																	{
-                																		alt49=1;
+                																		alt47=1;
                 																	}
                 																    break;
                 																case LBRACKET:
                 																	{
-                																		alt49=3;
+                																		alt47=3;
                 																	}
                 																    break;
 
@@ -21719,12 +21559,12 @@ WNScriptASTParser::classDecl()
                 																{
                 																case 75:
                 																	{
-                																		alt49=1;
+                																		alt47=1;
                 																	}
                 																    break;
                 																case LBRACKET:
                 																	{
-                																		alt49=3;
+                																		alt47=3;
                 																	}
                 																    break;
 
@@ -21783,12 +21623,12 @@ WNScriptASTParser::classDecl()
                 																{
                 																case 75:
                 																	{
-                																		alt49=1;
+                																		alt47=1;
                 																	}
                 																    break;
                 																case LBRACKET:
                 																	{
-                																		alt49=3;
+                																		alt47=3;
                 																	}
                 																    break;
 
@@ -21847,12 +21687,12 @@ WNScriptASTParser::classDecl()
                 																{
                 																case 75:
                 																	{
-                																		alt49=1;
+                																		alt47=1;
                 																	}
                 																    break;
                 																case LBRACKET:
                 																	{
-                																		alt49=3;
+                																		alt47=3;
                 																	}
                 																    break;
 
@@ -21895,12 +21735,12 @@ WNScriptASTParser::classDecl()
                 								{
                 								case 75:
                 									{
-                										alt49=1;
+                										alt47=1;
                 									}
                 								    break;
                 								case LBRACKET:
                 									{
-                										alt49=3;
+                										alt47=3;
                 									}
                 								    break;
 
@@ -21932,12 +21772,12 @@ WNScriptASTParser::classDecl()
                 								{
                 								case 75:
                 									{
-                										alt49=1;
+                										alt47=1;
                 									}
                 								    break;
                 								case LBRACKET:
                 									{
-                										alt49=3;
+                										alt47=3;
                 									}
                 								    break;
 
@@ -21973,12 +21813,12 @@ WNScriptASTParser::classDecl()
                 										{
                 										case 75:
                 											{
-                												alt49=1;
+                												alt47=1;
                 											}
                 										    break;
                 										case LBRACKET:
                 											{
-                												alt49=3;
+                												alt47=3;
                 											}
                 										    break;
 
@@ -22011,12 +21851,12 @@ WNScriptASTParser::classDecl()
                 						{
                 						case 75:
                 							{
-                								alt49=1;
+                								alt47=1;
                 							}
                 						    break;
                 						case LBRACKET:
                 							{
-                								alt49=3;
+                								alt47=3;
                 							}
                 						    break;
 
@@ -22044,12 +21884,12 @@ WNScriptASTParser::classDecl()
                 				{
                 				case 75:
                 					{
-                						alt49=1;
+                						alt47=1;
                 					}
                 				    break;
                 				case LBRACKET:
                 					{
-                						alt49=3;
+                						alt47=3;
                 					}
                 				    break;
 
@@ -22075,12 +21915,12 @@ WNScriptASTParser::classDecl()
                 										{
                 										case 75:
                 											{
-                												alt49=1;
+                												alt47=1;
                 											}
                 										    break;
                 										case LBRACKET:
                 											{
-                												alt49=3;
+                												alt47=3;
                 											}
                 										    break;
 
@@ -22112,12 +21952,12 @@ WNScriptASTParser::classDecl()
                 										{
                 										case 75:
                 											{
-                												alt49=1;
+                												alt47=1;
                 											}
                 										    break;
                 										case LBRACKET:
                 											{
-                												alt49=3;
+                												alt47=3;
                 											}
                 										    break;
 
@@ -22149,12 +21989,12 @@ WNScriptASTParser::classDecl()
                 										{
                 										case 75:
                 											{
-                												alt49=1;
+                												alt47=1;
                 											}
                 										    break;
                 										case LBRACKET:
                 											{
-                												alt49=3;
+                												alt47=3;
                 											}
                 										    break;
 
@@ -22186,12 +22026,12 @@ WNScriptASTParser::classDecl()
                 										{
                 										case 75:
                 											{
-                												alt49=1;
+                												alt47=1;
                 											}
                 										    break;
                 										case LBRACKET:
                 											{
-                												alt49=3;
+                												alt47=3;
                 											}
                 										    break;
 
@@ -22223,12 +22063,12 @@ WNScriptASTParser::classDecl()
                 										{
                 										case 75:
                 											{
-                												alt49=1;
+                												alt47=1;
                 											}
                 										    break;
                 										case LBRACKET:
                 											{
-                												alt49=3;
+                												alt47=3;
                 											}
                 										    break;
 
@@ -22260,12 +22100,12 @@ WNScriptASTParser::classDecl()
                 										{
                 										case 75:
                 											{
-                												alt49=1;
+                												alt47=1;
                 											}
                 										    break;
                 										case LBRACKET:
                 											{
-                												alt49=3;
+                												alt47=3;
                 											}
                 										    break;
 
@@ -22309,12 +22149,12 @@ WNScriptASTParser::classDecl()
                 																{
                 																case 75:
                 																	{
-                																		alt49=1;
+                																		alt47=1;
                 																	}
                 																    break;
                 																case LBRACKET:
                 																	{
-                																		alt49=3;
+                																		alt47=3;
                 																	}
                 																    break;
 
@@ -22373,12 +22213,12 @@ WNScriptASTParser::classDecl()
                 																{
                 																case 75:
                 																	{
-                																		alt49=1;
+                																		alt47=1;
                 																	}
                 																    break;
                 																case LBRACKET:
                 																	{
-                																		alt49=3;
+                																		alt47=3;
                 																	}
                 																    break;
 
@@ -22437,12 +22277,12 @@ WNScriptASTParser::classDecl()
                 																{
                 																case 75:
                 																	{
-                																		alt49=1;
+                																		alt47=1;
                 																	}
                 																    break;
                 																case LBRACKET:
                 																	{
-                																		alt49=3;
+                																		alt47=3;
                 																	}
                 																    break;
 
@@ -22501,12 +22341,12 @@ WNScriptASTParser::classDecl()
                 																{
                 																case 75:
                 																	{
-                																		alt49=1;
+                																		alt47=1;
                 																	}
                 																    break;
                 																case LBRACKET:
                 																	{
-                																		alt49=3;
+                																		alt47=3;
                 																	}
                 																    break;
 
@@ -22565,12 +22405,12 @@ WNScriptASTParser::classDecl()
                 																{
                 																case 75:
                 																	{
-                																		alt49=1;
+                																		alt47=1;
                 																	}
                 																    break;
                 																case LBRACKET:
                 																	{
-                																		alt49=3;
+                																		alt47=3;
                 																	}
                 																    break;
 
@@ -22629,12 +22469,12 @@ WNScriptASTParser::classDecl()
                 																{
                 																case 75:
                 																	{
-                																		alt49=1;
+                																		alt47=1;
                 																	}
                 																    break;
                 																case LBRACKET:
                 																	{
-                																		alt49=3;
+                																		alt47=3;
                 																	}
                 																    break;
 
@@ -22677,12 +22517,12 @@ WNScriptASTParser::classDecl()
                 								{
                 								case 75:
                 									{
-                										alt49=1;
+                										alt47=1;
                 									}
                 								    break;
                 								case LBRACKET:
                 									{
-                										alt49=3;
+                										alt47=3;
                 									}
                 								    break;
 
@@ -22714,12 +22554,12 @@ WNScriptASTParser::classDecl()
                 								{
                 								case 75:
                 									{
-                										alt49=1;
+                										alt47=1;
                 									}
                 								    break;
                 								case LBRACKET:
                 									{
-                										alt49=3;
+                										alt47=3;
                 									}
                 								    break;
 
@@ -22755,12 +22595,12 @@ WNScriptASTParser::classDecl()
                 										{
                 										case 75:
                 											{
-                												alt49=1;
+                												alt47=1;
                 											}
                 										    break;
                 										case LBRACKET:
                 											{
-                												alt49=3;
+                												alt47=3;
                 											}
                 										    break;
 
@@ -22793,12 +22633,12 @@ WNScriptASTParser::classDecl()
                 						{
                 						case 75:
                 							{
-                								alt49=1;
+                								alt47=1;
                 							}
                 						    break;
                 						case LBRACKET:
                 							{
-                								alt49=3;
+                								alt47=3;
                 							}
                 						    break;
 
@@ -22826,12 +22666,12 @@ WNScriptASTParser::classDecl()
                 				{
                 				case 75:
                 					{
-                						alt49=1;
+                						alt47=1;
                 					}
                 				    break;
                 				case LBRACKET:
                 					{
-                						alt49=3;
+                						alt47=3;
                 					}
                 				    break;
 
@@ -22857,12 +22697,12 @@ WNScriptASTParser::classDecl()
                 										{
                 										case 75:
                 											{
-                												alt49=1;
+                												alt47=1;
                 											}
                 										    break;
                 										case LBRACKET:
                 											{
-                												alt49=3;
+                												alt47=3;
                 											}
                 										    break;
 
@@ -22894,12 +22734,12 @@ WNScriptASTParser::classDecl()
                 										{
                 										case 75:
                 											{
-                												alt49=1;
+                												alt47=1;
                 											}
                 										    break;
                 										case LBRACKET:
                 											{
-                												alt49=3;
+                												alt47=3;
                 											}
                 										    break;
 
@@ -22931,12 +22771,12 @@ WNScriptASTParser::classDecl()
                 										{
                 										case 75:
                 											{
-                												alt49=1;
+                												alt47=1;
                 											}
                 										    break;
                 										case LBRACKET:
                 											{
-                												alt49=3;
+                												alt47=3;
                 											}
                 										    break;
 
@@ -22968,12 +22808,12 @@ WNScriptASTParser::classDecl()
                 										{
                 										case 75:
                 											{
-                												alt49=1;
+                												alt47=1;
                 											}
                 										    break;
                 										case LBRACKET:
                 											{
-                												alt49=3;
+                												alt47=3;
                 											}
                 										    break;
 
@@ -23005,12 +22845,12 @@ WNScriptASTParser::classDecl()
                 										{
                 										case 75:
                 											{
-                												alt49=1;
+                												alt47=1;
                 											}
                 										    break;
                 										case LBRACKET:
                 											{
-                												alt49=3;
+                												alt47=3;
                 											}
                 										    break;
 
@@ -23042,12 +22882,12 @@ WNScriptASTParser::classDecl()
                 										{
                 										case 75:
                 											{
-                												alt49=1;
+                												alt47=1;
                 											}
                 										    break;
                 										case LBRACKET:
                 											{
-                												alt49=3;
+                												alt47=3;
                 											}
                 										    break;
 
@@ -23091,12 +22931,12 @@ WNScriptASTParser::classDecl()
                 																{
                 																case 75:
                 																	{
-                																		alt49=1;
+                																		alt47=1;
                 																	}
                 																    break;
                 																case LBRACKET:
                 																	{
-                																		alt49=3;
+                																		alt47=3;
                 																	}
                 																    break;
 
@@ -23155,12 +22995,12 @@ WNScriptASTParser::classDecl()
                 																{
                 																case 75:
                 																	{
-                																		alt49=1;
+                																		alt47=1;
                 																	}
                 																    break;
                 																case LBRACKET:
                 																	{
-                																		alt49=3;
+                																		alt47=3;
                 																	}
                 																    break;
 
@@ -23219,12 +23059,12 @@ WNScriptASTParser::classDecl()
                 																{
                 																case 75:
                 																	{
-                																		alt49=1;
+                																		alt47=1;
                 																	}
                 																    break;
                 																case LBRACKET:
                 																	{
-                																		alt49=3;
+                																		alt47=3;
                 																	}
                 																    break;
 
@@ -23283,12 +23123,12 @@ WNScriptASTParser::classDecl()
                 																{
                 																case 75:
                 																	{
-                																		alt49=1;
+                																		alt47=1;
                 																	}
                 																    break;
                 																case LBRACKET:
                 																	{
-                																		alt49=3;
+                																		alt47=3;
                 																	}
                 																    break;
 
@@ -23347,12 +23187,12 @@ WNScriptASTParser::classDecl()
                 																{
                 																case 75:
                 																	{
-                																		alt49=1;
+                																		alt47=1;
                 																	}
                 																    break;
                 																case LBRACKET:
                 																	{
-                																		alt49=3;
+                																		alt47=3;
                 																	}
                 																    break;
 
@@ -23411,12 +23251,12 @@ WNScriptASTParser::classDecl()
                 																{
                 																case 75:
                 																	{
-                																		alt49=1;
+                																		alt47=1;
                 																	}
                 																    break;
                 																case LBRACKET:
                 																	{
-                																		alt49=3;
+                																		alt47=3;
                 																	}
                 																    break;
 
@@ -23459,12 +23299,12 @@ WNScriptASTParser::classDecl()
                 								{
                 								case 75:
                 									{
-                										alt49=1;
+                										alt47=1;
                 									}
                 								    break;
                 								case LBRACKET:
                 									{
-                										alt49=3;
+                										alt47=3;
                 									}
                 								    break;
 
@@ -23496,12 +23336,12 @@ WNScriptASTParser::classDecl()
                 								{
                 								case 75:
                 									{
-                										alt49=1;
+                										alt47=1;
                 									}
                 								    break;
                 								case LBRACKET:
                 									{
-                										alt49=3;
+                										alt47=3;
                 									}
                 								    break;
 
@@ -23537,12 +23377,12 @@ WNScriptASTParser::classDecl()
                 										{
                 										case 75:
                 											{
-                												alt49=1;
+                												alt47=1;
                 											}
                 										    break;
                 										case LBRACKET:
                 											{
-                												alt49=3;
+                												alt47=3;
                 											}
                 										    break;
 
@@ -23575,12 +23415,12 @@ WNScriptASTParser::classDecl()
                 						{
                 						case 75:
                 							{
-                								alt49=1;
+                								alt47=1;
                 							}
                 						    break;
                 						case LBRACKET:
                 							{
-                								alt49=3;
+                								alt47=3;
                 							}
                 						    break;
 
@@ -23608,12 +23448,12 @@ WNScriptASTParser::classDecl()
                 				{
                 				case 75:
                 					{
-                						alt49=1;
+                						alt47=1;
                 					}
                 				    break;
                 				case LBRACKET:
                 					{
-                						alt49=3;
+                						alt47=3;
                 					}
                 				    break;
 
@@ -23639,12 +23479,12 @@ WNScriptASTParser::classDecl()
                 										{
                 										case 75:
                 											{
-                												alt49=1;
+                												alt47=1;
                 											}
                 										    break;
                 										case LBRACKET:
                 											{
-                												alt49=3;
+                												alt47=3;
                 											}
                 										    break;
 
@@ -23676,12 +23516,12 @@ WNScriptASTParser::classDecl()
                 										{
                 										case 75:
                 											{
-                												alt49=1;
+                												alt47=1;
                 											}
                 										    break;
                 										case LBRACKET:
                 											{
-                												alt49=3;
+                												alt47=3;
                 											}
                 										    break;
 
@@ -23713,12 +23553,12 @@ WNScriptASTParser::classDecl()
                 										{
                 										case 75:
                 											{
-                												alt49=1;
+                												alt47=1;
                 											}
                 										    break;
                 										case LBRACKET:
                 											{
-                												alt49=3;
+                												alt47=3;
                 											}
                 										    break;
 
@@ -23750,12 +23590,12 @@ WNScriptASTParser::classDecl()
                 										{
                 										case 75:
                 											{
-                												alt49=1;
+                												alt47=1;
                 											}
                 										    break;
                 										case LBRACKET:
                 											{
-                												alt49=3;
+                												alt47=3;
                 											}
                 										    break;
 
@@ -23787,12 +23627,12 @@ WNScriptASTParser::classDecl()
                 										{
                 										case 75:
                 											{
-                												alt49=1;
+                												alt47=1;
                 											}
                 										    break;
                 										case LBRACKET:
                 											{
-                												alt49=3;
+                												alt47=3;
                 											}
                 										    break;
 
@@ -23824,12 +23664,12 @@ WNScriptASTParser::classDecl()
                 										{
                 										case 75:
                 											{
-                												alt49=1;
+                												alt47=1;
                 											}
                 										    break;
                 										case LBRACKET:
                 											{
-                												alt49=3;
+                												alt47=3;
                 											}
                 										    break;
 
@@ -23873,12 +23713,12 @@ WNScriptASTParser::classDecl()
                 																{
                 																case 75:
                 																	{
-                																		alt49=1;
+                																		alt47=1;
                 																	}
                 																    break;
                 																case LBRACKET:
                 																	{
-                																		alt49=3;
+                																		alt47=3;
                 																	}
                 																    break;
 
@@ -23937,12 +23777,12 @@ WNScriptASTParser::classDecl()
                 																{
                 																case 75:
                 																	{
-                																		alt49=1;
+                																		alt47=1;
                 																	}
                 																    break;
                 																case LBRACKET:
                 																	{
-                																		alt49=3;
+                																		alt47=3;
                 																	}
                 																    break;
 
@@ -24001,12 +23841,12 @@ WNScriptASTParser::classDecl()
                 																{
                 																case 75:
                 																	{
-                																		alt49=1;
+                																		alt47=1;
                 																	}
                 																    break;
                 																case LBRACKET:
                 																	{
-                																		alt49=3;
+                																		alt47=3;
                 																	}
                 																    break;
 
@@ -24065,12 +23905,12 @@ WNScriptASTParser::classDecl()
                 																{
                 																case 75:
                 																	{
-                																		alt49=1;
+                																		alt47=1;
                 																	}
                 																    break;
                 																case LBRACKET:
                 																	{
-                																		alt49=3;
+                																		alt47=3;
                 																	}
                 																    break;
 
@@ -24129,12 +23969,12 @@ WNScriptASTParser::classDecl()
                 																{
                 																case 75:
                 																	{
-                																		alt49=1;
+                																		alt47=1;
                 																	}
                 																    break;
                 																case LBRACKET:
                 																	{
-                																		alt49=3;
+                																		alt47=3;
                 																	}
                 																    break;
 
@@ -24193,12 +24033,12 @@ WNScriptASTParser::classDecl()
                 																{
                 																case 75:
                 																	{
-                																		alt49=1;
+                																		alt47=1;
                 																	}
                 																    break;
                 																case LBRACKET:
                 																	{
-                																		alt49=3;
+                																		alt47=3;
                 																	}
                 																    break;
 
@@ -24241,12 +24081,12 @@ WNScriptASTParser::classDecl()
                 								{
                 								case 75:
                 									{
-                										alt49=1;
+                										alt47=1;
                 									}
                 								    break;
                 								case LBRACKET:
                 									{
-                										alt49=3;
+                										alt47=3;
                 									}
                 								    break;
 
@@ -24278,12 +24118,12 @@ WNScriptASTParser::classDecl()
                 								{
                 								case 75:
                 									{
-                										alt49=1;
+                										alt47=1;
                 									}
                 								    break;
                 								case LBRACKET:
                 									{
-                										alt49=3;
+                										alt47=3;
                 									}
                 								    break;
 
@@ -24319,12 +24159,12 @@ WNScriptASTParser::classDecl()
                 										{
                 										case 75:
                 											{
-                												alt49=1;
+                												alt47=1;
                 											}
                 										    break;
                 										case LBRACKET:
                 											{
-                												alt49=3;
+                												alt47=3;
                 											}
                 										    break;
 
@@ -24357,12 +24197,12 @@ WNScriptASTParser::classDecl()
                 						{
                 						case 75:
                 							{
-                								alt49=1;
+                								alt47=1;
                 							}
                 						    break;
                 						case LBRACKET:
                 							{
-                								alt49=3;
+                								alt47=3;
                 							}
                 						    break;
 
@@ -24390,12 +24230,12 @@ WNScriptASTParser::classDecl()
                 				{
                 				case 75:
                 					{
-                						alt49=1;
+                						alt47=1;
                 					}
                 				    break;
                 				case LBRACKET:
                 					{
-                						alt49=3;
+                						alt47=3;
                 					}
                 				    break;
 
@@ -24421,12 +24261,12 @@ WNScriptASTParser::classDecl()
                 										{
                 										case 75:
                 											{
-                												alt49=1;
+                												alt47=1;
                 											}
                 										    break;
                 										case LBRACKET:
                 											{
-                												alt49=3;
+                												alt47=3;
                 											}
                 										    break;
 
@@ -24458,12 +24298,12 @@ WNScriptASTParser::classDecl()
                 										{
                 										case 75:
                 											{
-                												alt49=1;
+                												alt47=1;
                 											}
                 										    break;
                 										case LBRACKET:
                 											{
-                												alt49=3;
+                												alt47=3;
                 											}
                 										    break;
 
@@ -24495,12 +24335,12 @@ WNScriptASTParser::classDecl()
                 										{
                 										case 75:
                 											{
-                												alt49=1;
+                												alt47=1;
                 											}
                 										    break;
                 										case LBRACKET:
                 											{
-                												alt49=3;
+                												alt47=3;
                 											}
                 										    break;
 
@@ -24532,12 +24372,12 @@ WNScriptASTParser::classDecl()
                 										{
                 										case 75:
                 											{
-                												alt49=1;
+                												alt47=1;
                 											}
                 										    break;
                 										case LBRACKET:
                 											{
-                												alt49=3;
+                												alt47=3;
                 											}
                 										    break;
 
@@ -24569,12 +24409,12 @@ WNScriptASTParser::classDecl()
                 										{
                 										case 75:
                 											{
-                												alt49=1;
+                												alt47=1;
                 											}
                 										    break;
                 										case LBRACKET:
                 											{
-                												alt49=3;
+                												alt47=3;
                 											}
                 										    break;
 
@@ -24606,12 +24446,12 @@ WNScriptASTParser::classDecl()
                 										{
                 										case 75:
                 											{
-                												alt49=1;
+                												alt47=1;
                 											}
                 										    break;
                 										case LBRACKET:
                 											{
-                												alt49=3;
+                												alt47=3;
                 											}
                 										    break;
 
@@ -24655,12 +24495,12 @@ WNScriptASTParser::classDecl()
                 																{
                 																case 75:
                 																	{
-                																		alt49=1;
+                																		alt47=1;
                 																	}
                 																    break;
                 																case LBRACKET:
                 																	{
-                																		alt49=3;
+                																		alt47=3;
                 																	}
                 																    break;
 
@@ -24719,12 +24559,12 @@ WNScriptASTParser::classDecl()
                 																{
                 																case 75:
                 																	{
-                																		alt49=1;
+                																		alt47=1;
                 																	}
                 																    break;
                 																case LBRACKET:
                 																	{
-                																		alt49=3;
+                																		alt47=3;
                 																	}
                 																    break;
 
@@ -24783,12 +24623,12 @@ WNScriptASTParser::classDecl()
                 																{
                 																case 75:
                 																	{
-                																		alt49=1;
+                																		alt47=1;
                 																	}
                 																    break;
                 																case LBRACKET:
                 																	{
-                																		alt49=3;
+                																		alt47=3;
                 																	}
                 																    break;
 
@@ -24847,12 +24687,12 @@ WNScriptASTParser::classDecl()
                 																{
                 																case 75:
                 																	{
-                																		alt49=1;
+                																		alt47=1;
                 																	}
                 																    break;
                 																case LBRACKET:
                 																	{
-                																		alt49=3;
+                																		alt47=3;
                 																	}
                 																    break;
 
@@ -24911,12 +24751,12 @@ WNScriptASTParser::classDecl()
                 																{
                 																case 75:
                 																	{
-                																		alt49=1;
+                																		alt47=1;
                 																	}
                 																    break;
                 																case LBRACKET:
                 																	{
-                																		alt49=3;
+                																		alt47=3;
                 																	}
                 																    break;
 
@@ -24975,12 +24815,12 @@ WNScriptASTParser::classDecl()
                 																{
                 																case 75:
                 																	{
-                																		alt49=1;
+                																		alt47=1;
                 																	}
                 																    break;
                 																case LBRACKET:
                 																	{
-                																		alt49=3;
+                																		alt47=3;
                 																	}
                 																    break;
 
@@ -25023,12 +24863,12 @@ WNScriptASTParser::classDecl()
                 								{
                 								case 75:
                 									{
-                										alt49=1;
+                										alt47=1;
                 									}
                 								    break;
                 								case LBRACKET:
                 									{
-                										alt49=3;
+                										alt47=3;
                 									}
                 								    break;
 
@@ -25060,12 +24900,12 @@ WNScriptASTParser::classDecl()
                 								{
                 								case 75:
                 									{
-                										alt49=1;
+                										alt47=1;
                 									}
                 								    break;
                 								case LBRACKET:
                 									{
-                										alt49=3;
+                										alt47=3;
                 									}
                 								    break;
 
@@ -25101,12 +24941,12 @@ WNScriptASTParser::classDecl()
                 										{
                 										case 75:
                 											{
-                												alt49=1;
+                												alt47=1;
                 											}
                 										    break;
                 										case LBRACKET:
                 											{
-                												alt49=3;
+                												alt47=3;
                 											}
                 										    break;
 
@@ -25139,12 +24979,12 @@ WNScriptASTParser::classDecl()
                 						{
                 						case 75:
                 							{
-                								alt49=1;
+                								alt47=1;
                 							}
                 						    break;
                 						case LBRACKET:
                 							{
-                								alt49=3;
+                								alt47=3;
                 							}
                 						    break;
 
@@ -25172,12 +25012,12 @@ WNScriptASTParser::classDecl()
                 				{
                 				case 75:
                 					{
-                						alt49=1;
+                						alt47=1;
                 					}
                 				    break;
                 				case LBRACKET:
                 					{
-                						alt49=3;
+                						alt47=3;
                 					}
                 				    break;
 
@@ -25203,12 +25043,12 @@ WNScriptASTParser::classDecl()
                 										{
                 										case 75:
                 											{
-                												alt49=1;
+                												alt47=1;
                 											}
                 										    break;
                 										case LBRACKET:
                 											{
-                												alt49=3;
+                												alt47=3;
                 											}
                 										    break;
 
@@ -25240,12 +25080,12 @@ WNScriptASTParser::classDecl()
                 										{
                 										case 75:
                 											{
-                												alt49=1;
+                												alt47=1;
                 											}
                 										    break;
                 										case LBRACKET:
                 											{
-                												alt49=3;
+                												alt47=3;
                 											}
                 										    break;
 
@@ -25277,12 +25117,12 @@ WNScriptASTParser::classDecl()
                 										{
                 										case 75:
                 											{
-                												alt49=1;
+                												alt47=1;
                 											}
                 										    break;
                 										case LBRACKET:
                 											{
-                												alt49=3;
+                												alt47=3;
                 											}
                 										    break;
 
@@ -25314,12 +25154,12 @@ WNScriptASTParser::classDecl()
                 										{
                 										case 75:
                 											{
-                												alt49=1;
+                												alt47=1;
                 											}
                 										    break;
                 										case LBRACKET:
                 											{
-                												alt49=3;
+                												alt47=3;
                 											}
                 										    break;
 
@@ -25351,12 +25191,12 @@ WNScriptASTParser::classDecl()
                 										{
                 										case 75:
                 											{
-                												alt49=1;
+                												alt47=1;
                 											}
                 										    break;
                 										case LBRACKET:
                 											{
-                												alt49=3;
+                												alt47=3;
                 											}
                 										    break;
 
@@ -25388,12 +25228,12 @@ WNScriptASTParser::classDecl()
                 										{
                 										case 75:
                 											{
-                												alt49=1;
+                												alt47=1;
                 											}
                 										    break;
                 										case LBRACKET:
                 											{
-                												alt49=3;
+                												alt47=3;
                 											}
                 										    break;
 
@@ -25437,12 +25277,12 @@ WNScriptASTParser::classDecl()
                 																{
                 																case 75:
                 																	{
-                																		alt49=1;
+                																		alt47=1;
                 																	}
                 																    break;
                 																case LBRACKET:
                 																	{
-                																		alt49=3;
+                																		alt47=3;
                 																	}
                 																    break;
 
@@ -25501,12 +25341,12 @@ WNScriptASTParser::classDecl()
                 																{
                 																case 75:
                 																	{
-                																		alt49=1;
+                																		alt47=1;
                 																	}
                 																    break;
                 																case LBRACKET:
                 																	{
-                																		alt49=3;
+                																		alt47=3;
                 																	}
                 																    break;
 
@@ -25565,12 +25405,12 @@ WNScriptASTParser::classDecl()
                 																{
                 																case 75:
                 																	{
-                																		alt49=1;
+                																		alt47=1;
                 																	}
                 																    break;
                 																case LBRACKET:
                 																	{
-                																		alt49=3;
+                																		alt47=3;
                 																	}
                 																    break;
 
@@ -25629,12 +25469,12 @@ WNScriptASTParser::classDecl()
                 																{
                 																case 75:
                 																	{
-                																		alt49=1;
+                																		alt47=1;
                 																	}
                 																    break;
                 																case LBRACKET:
                 																	{
-                																		alt49=3;
+                																		alt47=3;
                 																	}
                 																    break;
 
@@ -25693,12 +25533,12 @@ WNScriptASTParser::classDecl()
                 																{
                 																case 75:
                 																	{
-                																		alt49=1;
+                																		alt47=1;
                 																	}
                 																    break;
                 																case LBRACKET:
                 																	{
-                																		alt49=3;
+                																		alt47=3;
                 																	}
                 																    break;
 
@@ -25757,12 +25597,12 @@ WNScriptASTParser::classDecl()
                 																{
                 																case 75:
                 																	{
-                																		alt49=1;
+                																		alt47=1;
                 																	}
                 																    break;
                 																case LBRACKET:
                 																	{
-                																		alt49=3;
+                																		alt47=3;
                 																	}
                 																    break;
 
@@ -25805,12 +25645,12 @@ WNScriptASTParser::classDecl()
                 								{
                 								case 75:
                 									{
-                										alt49=1;
+                										alt47=1;
                 									}
                 								    break;
                 								case LBRACKET:
                 									{
-                										alt49=3;
+                										alt47=3;
                 									}
                 								    break;
 
@@ -25842,12 +25682,12 @@ WNScriptASTParser::classDecl()
                 								{
                 								case 75:
                 									{
-                										alt49=1;
+                										alt47=1;
                 									}
                 								    break;
                 								case LBRACKET:
                 									{
-                										alt49=3;
+                										alt47=3;
                 									}
                 								    break;
 
@@ -25883,12 +25723,12 @@ WNScriptASTParser::classDecl()
                 										{
                 										case 75:
                 											{
-                												alt49=1;
+                												alt47=1;
                 											}
                 										    break;
                 										case LBRACKET:
                 											{
-                												alt49=3;
+                												alt47=3;
                 											}
                 										    break;
 
@@ -25921,12 +25761,12 @@ WNScriptASTParser::classDecl()
                 						{
                 						case 75:
                 							{
-                								alt49=1;
+                								alt47=1;
                 							}
                 						    break;
                 						case LBRACKET:
                 							{
-                								alt49=3;
+                								alt47=3;
                 							}
                 						    break;
 
@@ -25954,12 +25794,12 @@ WNScriptASTParser::classDecl()
                 				{
                 				case 75:
                 					{
-                						alt49=1;
+                						alt47=1;
                 					}
                 				    break;
                 				case LBRACKET:
                 					{
-                						alt49=3;
+                						alt47=3;
                 					}
                 				    break;
 
@@ -25985,12 +25825,12 @@ WNScriptASTParser::classDecl()
                 										{
                 										case 75:
                 											{
-                												alt49=1;
+                												alt47=1;
                 											}
                 										    break;
                 										case LBRACKET:
                 											{
-                												alt49=3;
+                												alt47=3;
                 											}
                 										    break;
 
@@ -26022,12 +25862,12 @@ WNScriptASTParser::classDecl()
                 										{
                 										case 75:
                 											{
-                												alt49=1;
+                												alt47=1;
                 											}
                 										    break;
                 										case LBRACKET:
                 											{
-                												alt49=3;
+                												alt47=3;
                 											}
                 										    break;
 
@@ -26059,12 +25899,12 @@ WNScriptASTParser::classDecl()
                 										{
                 										case 75:
                 											{
-                												alt49=1;
+                												alt47=1;
                 											}
                 										    break;
                 										case LBRACKET:
                 											{
-                												alt49=3;
+                												alt47=3;
                 											}
                 										    break;
 
@@ -26096,12 +25936,12 @@ WNScriptASTParser::classDecl()
                 										{
                 										case 75:
                 											{
-                												alt49=1;
+                												alt47=1;
                 											}
                 										    break;
                 										case LBRACKET:
                 											{
-                												alt49=3;
+                												alt47=3;
                 											}
                 										    break;
 
@@ -26133,12 +25973,12 @@ WNScriptASTParser::classDecl()
                 										{
                 										case 75:
                 											{
-                												alt49=1;
+                												alt47=1;
                 											}
                 										    break;
                 										case LBRACKET:
                 											{
-                												alt49=3;
+                												alt47=3;
                 											}
                 										    break;
 
@@ -26170,12 +26010,12 @@ WNScriptASTParser::classDecl()
                 										{
                 										case 75:
                 											{
-                												alt49=1;
+                												alt47=1;
                 											}
                 										    break;
                 										case LBRACKET:
                 											{
-                												alt49=3;
+                												alt47=3;
                 											}
                 										    break;
 
@@ -26219,12 +26059,12 @@ WNScriptASTParser::classDecl()
                 																{
                 																case 75:
                 																	{
-                																		alt49=1;
+                																		alt47=1;
                 																	}
                 																    break;
                 																case LBRACKET:
                 																	{
-                																		alt49=3;
+                																		alt47=3;
                 																	}
                 																    break;
 
@@ -26283,12 +26123,12 @@ WNScriptASTParser::classDecl()
                 																{
                 																case 75:
                 																	{
-                																		alt49=1;
+                																		alt47=1;
                 																	}
                 																    break;
                 																case LBRACKET:
                 																	{
-                																		alt49=3;
+                																		alt47=3;
                 																	}
                 																    break;
 
@@ -26347,12 +26187,12 @@ WNScriptASTParser::classDecl()
                 																{
                 																case 75:
                 																	{
-                																		alt49=1;
+                																		alt47=1;
                 																	}
                 																    break;
                 																case LBRACKET:
                 																	{
-                																		alt49=3;
+                																		alt47=3;
                 																	}
                 																    break;
 
@@ -26411,12 +26251,12 @@ WNScriptASTParser::classDecl()
                 																{
                 																case 75:
                 																	{
-                																		alt49=1;
+                																		alt47=1;
                 																	}
                 																    break;
                 																case LBRACKET:
                 																	{
-                																		alt49=3;
+                																		alt47=3;
                 																	}
                 																    break;
 
@@ -26475,12 +26315,12 @@ WNScriptASTParser::classDecl()
                 																{
                 																case 75:
                 																	{
-                																		alt49=1;
+                																		alt47=1;
                 																	}
                 																    break;
                 																case LBRACKET:
                 																	{
-                																		alt49=3;
+                																		alt47=3;
                 																	}
                 																    break;
 
@@ -26539,12 +26379,12 @@ WNScriptASTParser::classDecl()
                 																{
                 																case 75:
                 																	{
-                																		alt49=1;
+                																		alt47=1;
                 																	}
                 																    break;
                 																case LBRACKET:
                 																	{
-                																		alt49=3;
+                																		alt47=3;
                 																	}
                 																    break;
 
@@ -26587,12 +26427,12 @@ WNScriptASTParser::classDecl()
                 								{
                 								case 75:
                 									{
-                										alt49=1;
+                										alt47=1;
                 									}
                 								    break;
                 								case LBRACKET:
                 									{
-                										alt49=3;
+                										alt47=3;
                 									}
                 								    break;
 
@@ -26624,12 +26464,12 @@ WNScriptASTParser::classDecl()
                 								{
                 								case 75:
                 									{
-                										alt49=1;
+                										alt47=1;
                 									}
                 								    break;
                 								case LBRACKET:
                 									{
-                										alt49=3;
+                										alt47=3;
                 									}
                 								    break;
 
@@ -26657,12 +26497,12 @@ WNScriptASTParser::classDecl()
                 						{
                 						case 75:
                 							{
-                								alt49=1;
+                								alt47=1;
                 							}
                 						    break;
                 						case LBRACKET:
                 							{
-                								alt49=3;
+                								alt47=3;
                 							}
                 						    break;
 
@@ -26706,12 +26546,12 @@ WNScriptASTParser::classDecl()
                 												{
                 												case 75:
                 													{
-                														alt49=1;
+                														alt47=1;
                 													}
                 												    break;
                 												case LBRACKET:
                 													{
-                														alt49=3;
+                														alt47=3;
                 													}
                 												    break;
 
@@ -26743,12 +26583,12 @@ WNScriptASTParser::classDecl()
                 												{
                 												case 75:
                 													{
-                														alt49=1;
+                														alt47=1;
                 													}
                 												    break;
                 												case LBRACKET:
                 													{
-                														alt49=3;
+                														alt47=3;
                 													}
                 												    break;
 
@@ -26780,12 +26620,12 @@ WNScriptASTParser::classDecl()
                 												{
                 												case 75:
                 													{
-                														alt49=1;
+                														alt47=1;
                 													}
                 												    break;
                 												case LBRACKET:
                 													{
-                														alt49=3;
+                														alt47=3;
                 													}
                 												    break;
 
@@ -26817,12 +26657,12 @@ WNScriptASTParser::classDecl()
                 												{
                 												case 75:
                 													{
-                														alt49=1;
+                														alt47=1;
                 													}
                 												    break;
                 												case LBRACKET:
                 													{
-                														alt49=3;
+                														alt47=3;
                 													}
                 												    break;
 
@@ -26854,12 +26694,12 @@ WNScriptASTParser::classDecl()
                 												{
                 												case 75:
                 													{
-                														alt49=1;
+                														alt47=1;
                 													}
                 												    break;
                 												case LBRACKET:
                 													{
-                														alt49=3;
+                														alt47=3;
                 													}
                 												    break;
 
@@ -26891,12 +26731,12 @@ WNScriptASTParser::classDecl()
                 												{
                 												case 75:
                 													{
-                														alt49=1;
+                														alt47=1;
                 													}
                 												    break;
                 												case LBRACKET:
                 													{
-                														alt49=3;
+                														alt47=3;
                 													}
                 												    break;
 
@@ -26940,12 +26780,12 @@ WNScriptASTParser::classDecl()
                 																		{
                 																		case 75:
                 																			{
-                																				alt49=1;
+                																				alt47=1;
                 																			}
                 																		    break;
                 																		case LBRACKET:
                 																			{
-                																				alt49=3;
+                																				alt47=3;
                 																			}
                 																		    break;
 
@@ -27004,12 +26844,12 @@ WNScriptASTParser::classDecl()
                 																		{
                 																		case 75:
                 																			{
-                																				alt49=1;
+                																				alt47=1;
                 																			}
                 																		    break;
                 																		case LBRACKET:
                 																			{
-                																				alt49=3;
+                																				alt47=3;
                 																			}
                 																		    break;
 
@@ -27068,12 +26908,12 @@ WNScriptASTParser::classDecl()
                 																		{
                 																		case 75:
                 																			{
-                																				alt49=1;
+                																				alt47=1;
                 																			}
                 																		    break;
                 																		case LBRACKET:
                 																			{
-                																				alt49=3;
+                																				alt47=3;
                 																			}
                 																		    break;
 
@@ -27132,12 +26972,12 @@ WNScriptASTParser::classDecl()
                 																		{
                 																		case 75:
                 																			{
-                																				alt49=1;
+                																				alt47=1;
                 																			}
                 																		    break;
                 																		case LBRACKET:
                 																			{
-                																				alt49=3;
+                																				alt47=3;
                 																			}
                 																		    break;
 
@@ -27196,12 +27036,12 @@ WNScriptASTParser::classDecl()
                 																		{
                 																		case 75:
                 																			{
-                																				alt49=1;
+                																				alt47=1;
                 																			}
                 																		    break;
                 																		case LBRACKET:
                 																			{
-                																				alt49=3;
+                																				alt47=3;
                 																			}
                 																		    break;
 
@@ -27260,12 +27100,12 @@ WNScriptASTParser::classDecl()
                 																		{
                 																		case 75:
                 																			{
-                																				alt49=1;
+                																				alt47=1;
                 																			}
                 																		    break;
                 																		case LBRACKET:
                 																			{
-                																				alt49=3;
+                																				alt47=3;
                 																			}
                 																		    break;
 
@@ -27308,12 +27148,12 @@ WNScriptASTParser::classDecl()
                 										{
                 										case 75:
                 											{
-                												alt49=1;
+                												alt47=1;
                 											}
                 										    break;
                 										case LBRACKET:
                 											{
-                												alt49=3;
+                												alt47=3;
                 											}
                 										    break;
 
@@ -27345,12 +27185,12 @@ WNScriptASTParser::classDecl()
                 										{
                 										case 75:
                 											{
-                												alt49=1;
+                												alt47=1;
                 											}
                 										    break;
                 										case LBRACKET:
                 											{
-                												alt49=3;
+                												alt47=3;
                 											}
                 										    break;
 
@@ -27374,12 +27214,12 @@ WNScriptASTParser::classDecl()
                 						{
                 						case 75:
                 							{
-                								alt49=1;
+                								alt47=1;
                 							}
                 						    break;
                 						case LBRACKET:
                 							{
-                								alt49=3;
+                								alt47=3;
                 							}
                 						    break;
 
@@ -27411,12 +27251,12 @@ WNScriptASTParser::classDecl()
                 						{
                 						case 75:
                 							{
-                								alt49=1;
+                								alt47=1;
                 							}
                 						    break;
                 						case LBRACKET:
                 							{
-                								alt49=3;
+                								alt47=3;
                 							}
                 						    break;
 
@@ -27436,28 +27276,6562 @@ WNScriptASTParser::classDecl()
                     break;
                 case 70:
                 	{
-                		alt49=2;
-                	}
-                    break;
-                case VIRTUAL:
-                	{
-                		alt49=4;
-                	}
-                    break;
-                case OVERRIDE:
-                	{
-                		alt49=5;
+                		alt47=2;
                 	}
                     break;
 
+                }
+
+                switch (alt47)
+                {
+            	case 1:
+            	    {
+            	        {
+            	            this->followPush(FOLLOW_declaration_in_structDecl5746);
+            	            a=declaration();
+
+            	            this->followPop();
+            	            if  (this->hasException())
+            	            {
+            	                goto rulestructDeclEx;
+            	            }
+
+
+            	            {
+            	                 node->add_struct_elem(a
+            	                );
+            	            }
+
+
+            	             this->matchToken(SEMICOLON, &FOLLOW_SEMICOLON_in_structDecl5750);
+            	            if  (this->hasException())
+            	            {
+            	                goto rulestructDeclEx;
+            	            }
+
+
+            	        }
+
+
+            	    }
+            	    break;
+            	case 2:
+            	    {
+            	        {
+            	            this->followPush(FOLLOW_inherited_declaration_in_structDecl5776);
+            	            j=inherited_declaration();
+
+            	            this->followPop();
+            	            if  (this->hasException())
+            	            {
+            	                goto rulestructDeclEx;
+            	            }
+
+
+            	            {
+            	                 node->add_struct_elem(j
+            	                );
+            	            }
+
+
+            	             this->matchToken(SEMICOLON, &FOLLOW_SEMICOLON_in_structDecl5780);
+            	            if  (this->hasException())
+            	            {
+            	                goto rulestructDeclEx;
+            	            }
+
+
+            	        }
+
+
+            	    }
+            	    break;
+            	case 3:
+            	    {
+            	        {
+            	            this->followPush(FOLLOW_function_in_structDecl5806);
+            	            b=function();
+
+            	            this->followPop();
+            	            if  (this->hasException())
+            	            {
+            	                goto rulestructDeclEx;
+            	            }
+
+
+            	            {
+            	                 node->add_function(b
+            	                );
+            	            }
+
+
+            	        }
+
+
+            	    }
+            	    break;
+
+            	default:
+            	    goto loop47;
+            	    break;
+                }
+            }
+            loop47: ;
+
+
+            RBRACE71 =  this->matchToken(RBRACE, &FOLLOW_RBRACE_in_structDecl5845);
+            if  (this->hasException())
+            {
+                goto rulestructDeclEx;
+            }
+
+
+            {
+                 SET_END_LOCATION(node, RBRACE71);
+            }
+
+
+        }
+
+    }
+    goto rulestructDeclEx;
+    rulestructDeclEx: ;
+
+
+    	if (this->hasException())
+        {
+            this->preporterror();
+            this->precover();
+        }
+    return node;
+}
+
+
+
+
+
+
+scripting::struct_definition*
+WNScriptASTParser::classDecl()
+{
+        WNScriptASTParserImplTraits::RuleReturnValueType _antlr_rule_exit(this);
+
+    scripting::struct_definition* node;
+
+
+    const ImplTraits::CommonTokenType* f = NULL;
+    const ImplTraits::CommonTokenType* c = NULL;
+    const ImplTraits::CommonTokenType* g = NULL;
+    const ImplTraits::CommonTokenType* d = NULL;
+    const ImplTraits::CommonTokenType* e = NULL;
+    const ImplTraits::CommonTokenType* RBRACE73 = NULL;
+    scripting::declaration* a;
+    scripting::declaration* j;
+    scripting::function* b;
+    scripting::function* h;
+    scripting::function* i;
+    scripting::parameter_list* parameterList72;
+
+
+
+
+
+        node = nullptr;
+
+
+
+    {
+        {
+            {
+                int alt48=2;
+                switch ( this->LA(1) )
+                {
+                case CLASS:
+                	{
+                		switch ( this->LA(2) )
+                		{
+                		case TYPE:
+                			{
+                				switch ( this->LA(3) )
+                				{
+                				case COLON:
+                					{
+                						alt48=2;
+                					}
+                				    break;
+                				case LBRACE:
+                				case LBRACKET:
+                					{
+                						alt48=1;
+                					}
+                				    break;
+
+                				default:
+                				    ExceptionBaseType* ex = new ANTLR_Exception< WNScriptASTParserImplTraits, NO_VIABLE_ALT_EXCEPTION, StreamType>( this->get_rec(), "" );
+                				    ex->set_decisionNum( 48 );
+                				    ex->set_state( 2 );
+
+
+                				    goto ruleclassDeclEx;
+
+                				}
+
+                			}
+                		    break;
+
+                		default:
+                		    ExceptionBaseType* ex = new ANTLR_Exception< WNScriptASTParserImplTraits, NO_VIABLE_ALT_EXCEPTION, StreamType>( this->get_rec(), "" );
+                		    ex->set_decisionNum( 48 );
+                		    ex->set_state( 1 );
+
+
+                		    goto ruleclassDeclEx;
+
+                		}
+
+                	}
+                    break;
+
+                default:
+                    ExceptionBaseType* ex = new ANTLR_Exception< WNScriptASTParserImplTraits, NO_VIABLE_ALT_EXCEPTION, StreamType>( this->get_rec(), "" );
+                    ex->set_decisionNum( 48 );
+                    ex->set_state( 0 );
+
+
+                    goto ruleclassDeclEx;
+
+                }
+
+                switch (alt48)
+                {
+            	case 1:
+            	    {
+            	        {
+            	            f =  this->matchToken(CLASS, &FOLLOW_CLASS_in_classDecl5899);
+            	            if  (this->hasException())
+            	            {
+            	                goto ruleclassDeclEx;
+            	            }
+
+
+            	            c =  this->matchToken(TYPE, &FOLLOW_TYPE_in_classDecl5903);
+            	            if  (this->hasException())
+            	            {
+            	                goto ruleclassDeclEx;
+            	            }
+
+
+            	            {
+            	                node= m_allocator->construct<scripting::struct_definition>(m_allocator, (c->getText()).c_str(), true); SET_LOCATION(node, f);
+            	            }
+
+
+            	        }
+
+
+            	    }
+            	    break;
+            	case 2:
+            	    {
+            	        {
+            	            g =  this->matchToken(CLASS, &FOLLOW_CLASS_in_classDecl5923);
+            	            if  (this->hasException())
+            	            {
+            	                goto ruleclassDeclEx;
+            	            }
+
+
+            	            d =  this->matchToken(TYPE, &FOLLOW_TYPE_in_classDecl5927);
+            	            if  (this->hasException())
+            	            {
+            	                goto ruleclassDeclEx;
+            	            }
+
+
+            	             this->matchToken(COLON, &FOLLOW_COLON_in_classDecl5929);
+            	            if  (this->hasException())
+            	            {
+            	                goto ruleclassDeclEx;
+            	            }
+
+
+            	            e =  this->matchToken(TYPE, &FOLLOW_TYPE_in_classDecl5933);
+            	            if  (this->hasException())
+            	            {
+            	                goto ruleclassDeclEx;
+            	            }
+
+
+            	            {
+            	                node= m_allocator->construct<scripting::struct_definition>(m_allocator, (d->getText()).c_str(), true, (e->getText()).c_str()); SET_LOCATION(node, g);
+            	            }
+
+
+            	        }
+
+
+            	    }
+            	    break;
+
+                }
+            }
+
+            {
+                int alt49=2;
+                switch ( this->LA(1) )
+                {
+                    case LBRACKET:
+                    	{
+                    		alt49=1;
+                    	}
+                        break;
                 }
 
                 switch (alt49)
                 {
             	case 1:
             	    {
+            	        this->followPush(FOLLOW_parameterList_in_classDecl5961);
+            	        parameterList72=parameterList();
+
+            	        this->followPop();
+            	        if  (this->hasException())
             	        {
-            	            this->followPush(FOLLOW_declaration_in_classDecl5828);
+            	            goto ruleclassDeclEx;
+            	        }
+
+
+            	        {
+            	             node->set_constructor_parameters(parameterList72
+            	            );
+            	        }
+
+
+            	    }
+            	    break;
+
+                }
+            }
+
+             this->matchToken(LBRACE, &FOLLOW_LBRACE_in_classDecl5979);
+            if  (this->hasException())
+            {
+                goto ruleclassDeclEx;
+            }
+
+
+
+            for (;;)
+            {
+                int alt50=6;
+                switch ( this->LA(1) )
+                {
+                case VOID_TYPE:
+                	{
+                		switch ( this->LA(2) )
+                		{
+                		case ID:
+                			{
+                				switch ( this->LA(3) )
+                				{
+                				case 75:
+                					{
+                						alt50=1;
+                					}
+                				    break;
+                				case LBRACKET:
+                					{
+                						alt50=3;
+                					}
+                				    break;
+
+                				}
+
+                			}
+                		    break;
+                		case LSQBRACKET:
+                			{
+                				switch ( this->LA(3) )
+                				{
+                				case INT:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case RSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 75:
+                											{
+                												alt50=1;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=3;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case FLOAT:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case RSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 75:
+                											{
+                												alt50=1;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=3;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case CHAR:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case RSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 75:
+                											{
+                												alt50=1;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=3;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case STRING:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case RSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 75:
+                											{
+                												alt50=1;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=3;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case BOOL:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case RSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 75:
+                											{
+                												alt50=1;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=3;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case NULLTOK:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case RSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 75:
+                											{
+                												alt50=1;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=3;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case VOID_TYPE:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case LBRACE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case STRING:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case RBRACE:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RSQBRACKET:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case ID:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case 75:
+                																	{
+                																		alt50=1;
+                																	}
+                																    break;
+                																case LBRACKET:
+                																	{
+                																		alt50=3;
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case INT_TYPE:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case LBRACE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case STRING:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case RBRACE:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RSQBRACKET:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case ID:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case 75:
+                																	{
+                																		alt50=1;
+                																	}
+                																    break;
+                																case LBRACKET:
+                																	{
+                																		alt50=3;
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case FLOAT_TYPE:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case LBRACE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case STRING:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case RBRACE:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RSQBRACKET:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case ID:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case 75:
+                																	{
+                																		alt50=1;
+                																	}
+                																    break;
+                																case LBRACKET:
+                																	{
+                																		alt50=3;
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case CHAR_TYPE:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case LBRACE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case STRING:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case RBRACE:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RSQBRACKET:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case ID:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case 75:
+                																	{
+                																		alt50=1;
+                																	}
+                																    break;
+                																case LBRACKET:
+                																	{
+                																		alt50=3;
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case BOOL_TYPE:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case LBRACE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case STRING:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case RBRACE:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RSQBRACKET:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case ID:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case 75:
+                																	{
+                																		alt50=1;
+                																	}
+                																    break;
+                																case LBRACKET:
+                																	{
+                																		alt50=3;
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case STRING_TYPE:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case LBRACE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case STRING:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case RBRACE:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RSQBRACKET:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case ID:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case 75:
+                																	{
+                																		alt50=1;
+                																	}
+                																    break;
+                																case LBRACKET:
+                																	{
+                																		alt50=3;
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case RSQBRACKET:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case ID:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case 75:
+                									{
+                										alt50=1;
+                									}
+                								    break;
+                								case LBRACKET:
+                									{
+                										alt50=3;
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+
+                				}
+
+                			}
+                		    break;
+                		case DLSQBRACKET:
+                			{
+                				switch ( this->LA(3) )
+                				{
+                				case DRSQBRACKET:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case ID:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case 75:
+                									{
+                										alt50=1;
+                									}
+                								    break;
+                								case LBRACKET:
+                									{
+                										alt50=3;
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+
+                				}
+
+                			}
+                		    break;
+                		case SLICETOK:
+                			{
+                				switch ( this->LA(3) )
+                				{
+                				case INT:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case SLICETOK:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 75:
+                											{
+                												alt50=1;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=3;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+
+                				}
+
+                			}
+                		    break;
+                		case SSOR:
+                			{
+                				switch ( this->LA(3) )
+                				{
+                				case ID:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case 75:
+                							{
+                								alt50=1;
+                							}
+                						    break;
+                						case LBRACKET:
+                							{
+                								alt50=3;
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+
+                				}
+
+                			}
+                		    break;
+
+                		}
+
+                	}
+                    break;
+                case INT_TYPE:
+                	{
+                		switch ( this->LA(2) )
+                		{
+                		case ID:
+                			{
+                				switch ( this->LA(3) )
+                				{
+                				case 75:
+                					{
+                						alt50=1;
+                					}
+                				    break;
+                				case LBRACKET:
+                					{
+                						alt50=3;
+                					}
+                				    break;
+
+                				}
+
+                			}
+                		    break;
+                		case LSQBRACKET:
+                			{
+                				switch ( this->LA(3) )
+                				{
+                				case INT:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case RSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 75:
+                											{
+                												alt50=1;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=3;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case FLOAT:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case RSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 75:
+                											{
+                												alt50=1;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=3;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case CHAR:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case RSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 75:
+                											{
+                												alt50=1;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=3;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case STRING:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case RSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 75:
+                											{
+                												alt50=1;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=3;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case BOOL:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case RSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 75:
+                											{
+                												alt50=1;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=3;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case NULLTOK:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case RSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 75:
+                											{
+                												alt50=1;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=3;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case VOID_TYPE:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case LBRACE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case STRING:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case RBRACE:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RSQBRACKET:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case ID:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case 75:
+                																	{
+                																		alt50=1;
+                																	}
+                																    break;
+                																case LBRACKET:
+                																	{
+                																		alt50=3;
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case INT_TYPE:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case LBRACE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case STRING:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case RBRACE:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RSQBRACKET:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case ID:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case 75:
+                																	{
+                																		alt50=1;
+                																	}
+                																    break;
+                																case LBRACKET:
+                																	{
+                																		alt50=3;
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case FLOAT_TYPE:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case LBRACE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case STRING:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case RBRACE:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RSQBRACKET:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case ID:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case 75:
+                																	{
+                																		alt50=1;
+                																	}
+                																    break;
+                																case LBRACKET:
+                																	{
+                																		alt50=3;
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case CHAR_TYPE:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case LBRACE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case STRING:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case RBRACE:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RSQBRACKET:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case ID:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case 75:
+                																	{
+                																		alt50=1;
+                																	}
+                																    break;
+                																case LBRACKET:
+                																	{
+                																		alt50=3;
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case BOOL_TYPE:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case LBRACE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case STRING:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case RBRACE:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RSQBRACKET:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case ID:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case 75:
+                																	{
+                																		alt50=1;
+                																	}
+                																    break;
+                																case LBRACKET:
+                																	{
+                																		alt50=3;
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case STRING_TYPE:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case LBRACE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case STRING:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case RBRACE:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RSQBRACKET:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case ID:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case 75:
+                																	{
+                																		alt50=1;
+                																	}
+                																    break;
+                																case LBRACKET:
+                																	{
+                																		alt50=3;
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case RSQBRACKET:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case ID:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case 75:
+                									{
+                										alt50=1;
+                									}
+                								    break;
+                								case LBRACKET:
+                									{
+                										alt50=3;
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+
+                				}
+
+                			}
+                		    break;
+                		case DLSQBRACKET:
+                			{
+                				switch ( this->LA(3) )
+                				{
+                				case DRSQBRACKET:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case ID:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case 75:
+                									{
+                										alt50=1;
+                									}
+                								    break;
+                								case LBRACKET:
+                									{
+                										alt50=3;
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+
+                				}
+
+                			}
+                		    break;
+                		case SLICETOK:
+                			{
+                				switch ( this->LA(3) )
+                				{
+                				case INT:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case SLICETOK:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 75:
+                											{
+                												alt50=1;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=3;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+
+                				}
+
+                			}
+                		    break;
+                		case SSOR:
+                			{
+                				switch ( this->LA(3) )
+                				{
+                				case ID:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case 75:
+                							{
+                								alt50=1;
+                							}
+                						    break;
+                						case LBRACKET:
+                							{
+                								alt50=3;
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+
+                				}
+
+                			}
+                		    break;
+
+                		}
+
+                	}
+                    break;
+                case FLOAT_TYPE:
+                	{
+                		switch ( this->LA(2) )
+                		{
+                		case ID:
+                			{
+                				switch ( this->LA(3) )
+                				{
+                				case 75:
+                					{
+                						alt50=1;
+                					}
+                				    break;
+                				case LBRACKET:
+                					{
+                						alt50=3;
+                					}
+                				    break;
+
+                				}
+
+                			}
+                		    break;
+                		case LSQBRACKET:
+                			{
+                				switch ( this->LA(3) )
+                				{
+                				case INT:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case RSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 75:
+                											{
+                												alt50=1;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=3;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case FLOAT:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case RSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 75:
+                											{
+                												alt50=1;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=3;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case CHAR:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case RSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 75:
+                											{
+                												alt50=1;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=3;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case STRING:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case RSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 75:
+                											{
+                												alt50=1;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=3;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case BOOL:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case RSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 75:
+                											{
+                												alt50=1;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=3;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case NULLTOK:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case RSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 75:
+                											{
+                												alt50=1;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=3;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case VOID_TYPE:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case LBRACE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case STRING:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case RBRACE:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RSQBRACKET:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case ID:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case 75:
+                																	{
+                																		alt50=1;
+                																	}
+                																    break;
+                																case LBRACKET:
+                																	{
+                																		alt50=3;
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case INT_TYPE:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case LBRACE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case STRING:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case RBRACE:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RSQBRACKET:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case ID:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case 75:
+                																	{
+                																		alt50=1;
+                																	}
+                																    break;
+                																case LBRACKET:
+                																	{
+                																		alt50=3;
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case FLOAT_TYPE:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case LBRACE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case STRING:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case RBRACE:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RSQBRACKET:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case ID:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case 75:
+                																	{
+                																		alt50=1;
+                																	}
+                																    break;
+                																case LBRACKET:
+                																	{
+                																		alt50=3;
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case CHAR_TYPE:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case LBRACE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case STRING:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case RBRACE:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RSQBRACKET:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case ID:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case 75:
+                																	{
+                																		alt50=1;
+                																	}
+                																    break;
+                																case LBRACKET:
+                																	{
+                																		alt50=3;
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case BOOL_TYPE:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case LBRACE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case STRING:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case RBRACE:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RSQBRACKET:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case ID:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case 75:
+                																	{
+                																		alt50=1;
+                																	}
+                																    break;
+                																case LBRACKET:
+                																	{
+                																		alt50=3;
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case STRING_TYPE:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case LBRACE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case STRING:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case RBRACE:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RSQBRACKET:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case ID:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case 75:
+                																	{
+                																		alt50=1;
+                																	}
+                																    break;
+                																case LBRACKET:
+                																	{
+                																		alt50=3;
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case RSQBRACKET:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case ID:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case 75:
+                									{
+                										alt50=1;
+                									}
+                								    break;
+                								case LBRACKET:
+                									{
+                										alt50=3;
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+
+                				}
+
+                			}
+                		    break;
+                		case DLSQBRACKET:
+                			{
+                				switch ( this->LA(3) )
+                				{
+                				case DRSQBRACKET:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case ID:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case 75:
+                									{
+                										alt50=1;
+                									}
+                								    break;
+                								case LBRACKET:
+                									{
+                										alt50=3;
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+
+                				}
+
+                			}
+                		    break;
+                		case SLICETOK:
+                			{
+                				switch ( this->LA(3) )
+                				{
+                				case INT:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case SLICETOK:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 75:
+                											{
+                												alt50=1;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=3;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+
+                				}
+
+                			}
+                		    break;
+                		case SSOR:
+                			{
+                				switch ( this->LA(3) )
+                				{
+                				case ID:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case 75:
+                							{
+                								alt50=1;
+                							}
+                						    break;
+                						case LBRACKET:
+                							{
+                								alt50=3;
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+
+                				}
+
+                			}
+                		    break;
+
+                		}
+
+                	}
+                    break;
+                case CHAR_TYPE:
+                	{
+                		switch ( this->LA(2) )
+                		{
+                		case ID:
+                			{
+                				switch ( this->LA(3) )
+                				{
+                				case 75:
+                					{
+                						alt50=1;
+                					}
+                				    break;
+                				case LBRACKET:
+                					{
+                						alt50=3;
+                					}
+                				    break;
+
+                				}
+
+                			}
+                		    break;
+                		case LSQBRACKET:
+                			{
+                				switch ( this->LA(3) )
+                				{
+                				case INT:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case RSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 75:
+                											{
+                												alt50=1;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=3;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case FLOAT:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case RSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 75:
+                											{
+                												alt50=1;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=3;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case CHAR:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case RSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 75:
+                											{
+                												alt50=1;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=3;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case STRING:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case RSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 75:
+                											{
+                												alt50=1;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=3;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case BOOL:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case RSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 75:
+                											{
+                												alt50=1;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=3;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case NULLTOK:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case RSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 75:
+                											{
+                												alt50=1;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=3;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case VOID_TYPE:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case LBRACE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case STRING:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case RBRACE:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RSQBRACKET:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case ID:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case 75:
+                																	{
+                																		alt50=1;
+                																	}
+                																    break;
+                																case LBRACKET:
+                																	{
+                																		alt50=3;
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case INT_TYPE:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case LBRACE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case STRING:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case RBRACE:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RSQBRACKET:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case ID:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case 75:
+                																	{
+                																		alt50=1;
+                																	}
+                																    break;
+                																case LBRACKET:
+                																	{
+                																		alt50=3;
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case FLOAT_TYPE:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case LBRACE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case STRING:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case RBRACE:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RSQBRACKET:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case ID:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case 75:
+                																	{
+                																		alt50=1;
+                																	}
+                																    break;
+                																case LBRACKET:
+                																	{
+                																		alt50=3;
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case CHAR_TYPE:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case LBRACE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case STRING:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case RBRACE:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RSQBRACKET:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case ID:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case 75:
+                																	{
+                																		alt50=1;
+                																	}
+                																    break;
+                																case LBRACKET:
+                																	{
+                																		alt50=3;
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case BOOL_TYPE:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case LBRACE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case STRING:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case RBRACE:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RSQBRACKET:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case ID:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case 75:
+                																	{
+                																		alt50=1;
+                																	}
+                																    break;
+                																case LBRACKET:
+                																	{
+                																		alt50=3;
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case STRING_TYPE:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case LBRACE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case STRING:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case RBRACE:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RSQBRACKET:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case ID:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case 75:
+                																	{
+                																		alt50=1;
+                																	}
+                																    break;
+                																case LBRACKET:
+                																	{
+                																		alt50=3;
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case RSQBRACKET:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case ID:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case 75:
+                									{
+                										alt50=1;
+                									}
+                								    break;
+                								case LBRACKET:
+                									{
+                										alt50=3;
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+
+                				}
+
+                			}
+                		    break;
+                		case DLSQBRACKET:
+                			{
+                				switch ( this->LA(3) )
+                				{
+                				case DRSQBRACKET:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case ID:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case 75:
+                									{
+                										alt50=1;
+                									}
+                								    break;
+                								case LBRACKET:
+                									{
+                										alt50=3;
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+
+                				}
+
+                			}
+                		    break;
+                		case SLICETOK:
+                			{
+                				switch ( this->LA(3) )
+                				{
+                				case INT:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case SLICETOK:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 75:
+                											{
+                												alt50=1;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=3;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+
+                				}
+
+                			}
+                		    break;
+                		case SSOR:
+                			{
+                				switch ( this->LA(3) )
+                				{
+                				case ID:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case 75:
+                							{
+                								alt50=1;
+                							}
+                						    break;
+                						case LBRACKET:
+                							{
+                								alt50=3;
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+
+                				}
+
+                			}
+                		    break;
+
+                		}
+
+                	}
+                    break;
+                case BOOL_TYPE:
+                	{
+                		switch ( this->LA(2) )
+                		{
+                		case ID:
+                			{
+                				switch ( this->LA(3) )
+                				{
+                				case 75:
+                					{
+                						alt50=1;
+                					}
+                				    break;
+                				case LBRACKET:
+                					{
+                						alt50=3;
+                					}
+                				    break;
+
+                				}
+
+                			}
+                		    break;
+                		case LSQBRACKET:
+                			{
+                				switch ( this->LA(3) )
+                				{
+                				case INT:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case RSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 75:
+                											{
+                												alt50=1;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=3;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case FLOAT:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case RSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 75:
+                											{
+                												alt50=1;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=3;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case CHAR:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case RSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 75:
+                											{
+                												alt50=1;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=3;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case STRING:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case RSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 75:
+                											{
+                												alt50=1;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=3;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case BOOL:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case RSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 75:
+                											{
+                												alt50=1;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=3;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case NULLTOK:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case RSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 75:
+                											{
+                												alt50=1;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=3;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case VOID_TYPE:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case LBRACE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case STRING:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case RBRACE:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RSQBRACKET:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case ID:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case 75:
+                																	{
+                																		alt50=1;
+                																	}
+                																    break;
+                																case LBRACKET:
+                																	{
+                																		alt50=3;
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case INT_TYPE:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case LBRACE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case STRING:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case RBRACE:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RSQBRACKET:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case ID:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case 75:
+                																	{
+                																		alt50=1;
+                																	}
+                																    break;
+                																case LBRACKET:
+                																	{
+                																		alt50=3;
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case FLOAT_TYPE:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case LBRACE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case STRING:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case RBRACE:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RSQBRACKET:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case ID:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case 75:
+                																	{
+                																		alt50=1;
+                																	}
+                																    break;
+                																case LBRACKET:
+                																	{
+                																		alt50=3;
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case CHAR_TYPE:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case LBRACE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case STRING:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case RBRACE:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RSQBRACKET:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case ID:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case 75:
+                																	{
+                																		alt50=1;
+                																	}
+                																    break;
+                																case LBRACKET:
+                																	{
+                																		alt50=3;
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case BOOL_TYPE:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case LBRACE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case STRING:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case RBRACE:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RSQBRACKET:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case ID:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case 75:
+                																	{
+                																		alt50=1;
+                																	}
+                																    break;
+                																case LBRACKET:
+                																	{
+                																		alt50=3;
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case STRING_TYPE:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case LBRACE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case STRING:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case RBRACE:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RSQBRACKET:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case ID:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case 75:
+                																	{
+                																		alt50=1;
+                																	}
+                																    break;
+                																case LBRACKET:
+                																	{
+                																		alt50=3;
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case RSQBRACKET:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case ID:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case 75:
+                									{
+                										alt50=1;
+                									}
+                								    break;
+                								case LBRACKET:
+                									{
+                										alt50=3;
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+
+                				}
+
+                			}
+                		    break;
+                		case DLSQBRACKET:
+                			{
+                				switch ( this->LA(3) )
+                				{
+                				case DRSQBRACKET:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case ID:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case 75:
+                									{
+                										alt50=1;
+                									}
+                								    break;
+                								case LBRACKET:
+                									{
+                										alt50=3;
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+
+                				}
+
+                			}
+                		    break;
+                		case SLICETOK:
+                			{
+                				switch ( this->LA(3) )
+                				{
+                				case INT:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case SLICETOK:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 75:
+                											{
+                												alt50=1;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=3;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+
+                				}
+
+                			}
+                		    break;
+                		case SSOR:
+                			{
+                				switch ( this->LA(3) )
+                				{
+                				case ID:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case 75:
+                							{
+                								alt50=1;
+                							}
+                						    break;
+                						case LBRACKET:
+                							{
+                								alt50=3;
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+
+                				}
+
+                			}
+                		    break;
+
+                		}
+
+                	}
+                    break;
+                case STRING_TYPE:
+                	{
+                		switch ( this->LA(2) )
+                		{
+                		case ID:
+                			{
+                				switch ( this->LA(3) )
+                				{
+                				case 75:
+                					{
+                						alt50=1;
+                					}
+                				    break;
+                				case LBRACKET:
+                					{
+                						alt50=3;
+                					}
+                				    break;
+
+                				}
+
+                			}
+                		    break;
+                		case LSQBRACKET:
+                			{
+                				switch ( this->LA(3) )
+                				{
+                				case INT:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case RSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 75:
+                											{
+                												alt50=1;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=3;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case FLOAT:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case RSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 75:
+                											{
+                												alt50=1;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=3;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case CHAR:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case RSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 75:
+                											{
+                												alt50=1;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=3;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case STRING:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case RSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 75:
+                											{
+                												alt50=1;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=3;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case BOOL:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case RSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 75:
+                											{
+                												alt50=1;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=3;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case NULLTOK:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case RSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 75:
+                											{
+                												alt50=1;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=3;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case VOID_TYPE:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case LBRACE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case STRING:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case RBRACE:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RSQBRACKET:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case ID:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case 75:
+                																	{
+                																		alt50=1;
+                																	}
+                																    break;
+                																case LBRACKET:
+                																	{
+                																		alt50=3;
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case INT_TYPE:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case LBRACE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case STRING:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case RBRACE:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RSQBRACKET:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case ID:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case 75:
+                																	{
+                																		alt50=1;
+                																	}
+                																    break;
+                																case LBRACKET:
+                																	{
+                																		alt50=3;
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case FLOAT_TYPE:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case LBRACE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case STRING:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case RBRACE:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RSQBRACKET:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case ID:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case 75:
+                																	{
+                																		alt50=1;
+                																	}
+                																    break;
+                																case LBRACKET:
+                																	{
+                																		alt50=3;
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case CHAR_TYPE:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case LBRACE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case STRING:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case RBRACE:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RSQBRACKET:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case ID:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case 75:
+                																	{
+                																		alt50=1;
+                																	}
+                																    break;
+                																case LBRACKET:
+                																	{
+                																		alt50=3;
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case BOOL_TYPE:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case LBRACE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case STRING:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case RBRACE:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RSQBRACKET:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case ID:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case 75:
+                																	{
+                																		alt50=1;
+                																	}
+                																    break;
+                																case LBRACKET:
+                																	{
+                																		alt50=3;
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case STRING_TYPE:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case LBRACE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case STRING:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case RBRACE:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RSQBRACKET:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case ID:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case 75:
+                																	{
+                																		alt50=1;
+                																	}
+                																    break;
+                																case LBRACKET:
+                																	{
+                																		alt50=3;
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case RSQBRACKET:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case ID:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case 75:
+                									{
+                										alt50=1;
+                									}
+                								    break;
+                								case LBRACKET:
+                									{
+                										alt50=3;
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+
+                				}
+
+                			}
+                		    break;
+                		case DLSQBRACKET:
+                			{
+                				switch ( this->LA(3) )
+                				{
+                				case DRSQBRACKET:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case ID:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case 75:
+                									{
+                										alt50=1;
+                									}
+                								    break;
+                								case LBRACKET:
+                									{
+                										alt50=3;
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+
+                				}
+
+                			}
+                		    break;
+                		case SLICETOK:
+                			{
+                				switch ( this->LA(3) )
+                				{
+                				case INT:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case SLICETOK:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 75:
+                											{
+                												alt50=1;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=3;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+
+                				}
+
+                			}
+                		    break;
+                		case SSOR:
+                			{
+                				switch ( this->LA(3) )
+                				{
+                				case ID:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case 75:
+                							{
+                								alt50=1;
+                							}
+                						    break;
+                						case LBRACKET:
+                							{
+                								alt50=3;
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+
+                				}
+
+                			}
+                		    break;
+
+                		}
+
+                	}
+                    break;
+                case TYPE:
+                	{
+                		switch ( this->LA(2) )
+                		{
+                		case ID:
+                			{
+                				switch ( this->LA(3) )
+                				{
+                				case 75:
+                					{
+                						alt50=1;
+                					}
+                				    break;
+                				case LBRACKET:
+                					{
+                						alt50=3;
+                					}
+                				    break;
+
+                				}
+
+                			}
+                		    break;
+                		case LSQBRACKET:
+                			{
+                				switch ( this->LA(3) )
+                				{
+                				case INT:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case RSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 75:
+                											{
+                												alt50=1;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=3;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case FLOAT:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case RSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 75:
+                											{
+                												alt50=1;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=3;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case CHAR:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case RSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 75:
+                											{
+                												alt50=1;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=3;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case STRING:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case RSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 75:
+                											{
+                												alt50=1;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=3;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case BOOL:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case RSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 75:
+                											{
+                												alt50=1;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=3;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case NULLTOK:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case RSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 75:
+                											{
+                												alt50=1;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=3;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case VOID_TYPE:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case LBRACE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case STRING:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case RBRACE:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RSQBRACKET:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case ID:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case 75:
+                																	{
+                																		alt50=1;
+                																	}
+                																    break;
+                																case LBRACKET:
+                																	{
+                																		alt50=3;
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case INT_TYPE:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case LBRACE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case STRING:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case RBRACE:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RSQBRACKET:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case ID:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case 75:
+                																	{
+                																		alt50=1;
+                																	}
+                																    break;
+                																case LBRACKET:
+                																	{
+                																		alt50=3;
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case FLOAT_TYPE:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case LBRACE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case STRING:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case RBRACE:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RSQBRACKET:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case ID:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case 75:
+                																	{
+                																		alt50=1;
+                																	}
+                																    break;
+                																case LBRACKET:
+                																	{
+                																		alt50=3;
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case CHAR_TYPE:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case LBRACE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case STRING:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case RBRACE:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RSQBRACKET:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case ID:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case 75:
+                																	{
+                																		alt50=1;
+                																	}
+                																    break;
+                																case LBRACKET:
+                																	{
+                																		alt50=3;
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case BOOL_TYPE:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case LBRACE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case STRING:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case RBRACE:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RSQBRACKET:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case ID:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case 75:
+                																	{
+                																		alt50=1;
+                																	}
+                																    break;
+                																case LBRACKET:
+                																	{
+                																		alt50=3;
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case STRING_TYPE:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case LBRACE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case STRING:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case RBRACE:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RSQBRACKET:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case ID:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case 75:
+                																	{
+                																		alt50=1;
+                																	}
+                																    break;
+                																case LBRACKET:
+                																	{
+                																		alt50=3;
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case RSQBRACKET:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case ID:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case 75:
+                									{
+                										alt50=1;
+                									}
+                								    break;
+                								case LBRACKET:
+                									{
+                										alt50=3;
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+
+                				}
+
+                			}
+                		    break;
+                		case DLSQBRACKET:
+                			{
+                				switch ( this->LA(3) )
+                				{
+                				case DRSQBRACKET:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case ID:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case 75:
+                									{
+                										alt50=1;
+                									}
+                								    break;
+                								case LBRACKET:
+                									{
+                										alt50=3;
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+
+                				}
+
+                			}
+                		    break;
+                		case QUESTION:
+                			{
+                				switch ( this->LA(3) )
+                				{
+                				case ID:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case 75:
+                							{
+                								alt50=1;
+                							}
+                						    break;
+                						case LBRACKET:
+                							{
+                								alt50=3;
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+
+                				}
+
+                			}
+                		    break;
+
+                		}
+
+                	}
+                    break;
+                case SHARED_REF:
+                	{
+                		switch ( this->LA(2) )
+                		{
+                		case TYPE:
+                			{
+                				switch ( this->LA(3) )
+                				{
+                				case LSQBRACKET:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case INT:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case RSQBRACKET:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 75:
+                													{
+                														alt50=1;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=3;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case FLOAT:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case RSQBRACKET:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 75:
+                													{
+                														alt50=1;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=3;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case CHAR:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case RSQBRACKET:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 75:
+                													{
+                														alt50=1;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=3;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case STRING:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case RSQBRACKET:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 75:
+                													{
+                														alt50=1;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=3;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case BOOL:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case RSQBRACKET:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 75:
+                													{
+                														alt50=1;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=3;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case NULLTOK:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case RSQBRACKET:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 75:
+                													{
+                														alt50=1;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=3;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case VOID_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 75:
+                																			{
+                																				alt50=1;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=3;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case INT_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 75:
+                																			{
+                																				alt50=1;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=3;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case FLOAT_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 75:
+                																			{
+                																				alt50=1;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=3;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case CHAR_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 75:
+                																			{
+                																				alt50=1;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=3;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case BOOL_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 75:
+                																			{
+                																				alt50=1;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=3;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case STRING_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 75:
+                																			{
+                																				alt50=1;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=3;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case RSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 75:
+                											{
+                												alt50=1;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=3;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case DLSQBRACKET:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case DRSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 75:
+                											{
+                												alt50=1;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=3;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case ID:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case 75:
+                							{
+                								alt50=1;
+                							}
+                						    break;
+                						case LBRACKET:
+                							{
+                								alt50=3;
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+
+                				}
+
+                			}
+                		    break;
+
+                		}
+
+                	}
+                    break;
+                case WEAK_REF:
+                	{
+                		switch ( this->LA(2) )
+                		{
+                		case TYPE:
+                			{
+                				switch ( this->LA(3) )
+                				{
+                				case ID:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case 75:
+                							{
+                								alt50=1;
+                							}
+                						    break;
+                						case LBRACKET:
+                							{
+                								alt50=3;
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+
+                				}
+
+                			}
+                		    break;
+
+                		}
+
+                	}
+                    break;
+                case 70:
+                	{
+                		alt50=2;
+                	}
+                    break;
+                case VIRTUAL:
+                	{
+                		alt50=4;
+                	}
+                    break;
+                case OVERRIDE:
+                	{
+                		alt50=5;
+                	}
+                    break;
+
+                }
+
+                switch (alt50)
+                {
+            	case 1:
+            	    {
+            	        {
+            	            this->followPush(FOLLOW_declaration_in_classDecl6022);
             	            a=declaration();
 
             	            this->followPop();
@@ -27473,7 +33847,7 @@ WNScriptASTParser::classDecl()
             	            }
 
 
-            	             this->matchToken(SEMICOLON, &FOLLOW_SEMICOLON_in_classDecl5832);
+            	             this->matchToken(SEMICOLON, &FOLLOW_SEMICOLON_in_classDecl6026);
             	            if  (this->hasException())
             	            {
             	                goto ruleclassDeclEx;
@@ -27488,7 +33862,7 @@ WNScriptASTParser::classDecl()
             	case 2:
             	    {
             	        {
-            	            this->followPush(FOLLOW_inherited_declaration_in_classDecl5858);
+            	            this->followPush(FOLLOW_inherited_declaration_in_classDecl6052);
             	            j=inherited_declaration();
 
             	            this->followPop();
@@ -27504,7 +33878,7 @@ WNScriptASTParser::classDecl()
             	            }
 
 
-            	             this->matchToken(SEMICOLON, &FOLLOW_SEMICOLON_in_classDecl5862);
+            	             this->matchToken(SEMICOLON, &FOLLOW_SEMICOLON_in_classDecl6056);
             	            if  (this->hasException())
             	            {
             	                goto ruleclassDeclEx;
@@ -27519,7 +33893,7 @@ WNScriptASTParser::classDecl()
             	case 3:
             	    {
             	        {
-            	            this->followPush(FOLLOW_function_in_classDecl5888);
+            	            this->followPush(FOLLOW_function_in_classDecl6082);
             	            b=function();
 
             	            this->followPop();
@@ -27543,14 +33917,14 @@ WNScriptASTParser::classDecl()
             	case 4:
             	    {
             	        {
-            	             this->matchToken(VIRTUAL, &FOLLOW_VIRTUAL_in_classDecl5917);
+            	             this->matchToken(VIRTUAL, &FOLLOW_VIRTUAL_in_classDecl6111);
             	            if  (this->hasException())
             	            {
             	                goto ruleclassDeclEx;
             	            }
 
 
-            	            this->followPush(FOLLOW_function_in_classDecl5921);
+            	            this->followPush(FOLLOW_function_in_classDecl6115);
             	            h=function();
 
             	            this->followPop();
@@ -27575,14 +33949,14 @@ WNScriptASTParser::classDecl()
             	case 5:
             	    {
             	        {
-            	             this->matchToken(OVERRIDE, &FOLLOW_OVERRIDE_in_classDecl5947);
+            	             this->matchToken(OVERRIDE, &FOLLOW_OVERRIDE_in_classDecl6141);
             	            if  (this->hasException())
             	            {
             	                goto ruleclassDeclEx;
             	            }
 
 
-            	            this->followPush(FOLLOW_function_in_classDecl5951);
+            	            this->followPush(FOLLOW_function_in_classDecl6145);
             	            i=function();
 
             	            this->followPop();
@@ -27606,14 +33980,14 @@ WNScriptASTParser::classDecl()
             	    break;
 
             	default:
-            	    goto loop49;
+            	    goto loop50;
             	    break;
                 }
             }
-            loop49: ;
+            loop50: ;
 
 
-            RBRACE75 =  this->matchToken(RBRACE, &FOLLOW_RBRACE_in_classDecl5987);
+            RBRACE73 =  this->matchToken(RBRACE, &FOLLOW_RBRACE_in_classDecl6181);
             if  (this->hasException())
             {
                 goto ruleclassDeclEx;
@@ -27621,7 +33995,7 @@ WNScriptASTParser::classDecl()
 
 
             {
-                 SET_END_LOCATION(node, RBRACE75);
+                 SET_END_LOCATION(node, RBRACE73);
             }
 
 
@@ -27653,7 +34027,7 @@ WNScriptASTParser::inc()
     containers::string file;
 
 
-    const ImplTraits::CommonTokenType* STRING76 = NULL;
+    const ImplTraits::CommonTokenType* STRING74 = NULL;
 
 
 
@@ -27665,14 +34039,14 @@ WNScriptASTParser::inc()
 
     {
         {
-             this->matchToken(INCLUDE, &FOLLOW_INCLUDE_in_inc6017);
+             this->matchToken(INCLUDE, &FOLLOW_INCLUDE_in_inc6211);
             if  (this->hasException())
             {
                 goto ruleincEx;
             }
 
 
-            STRING76 =  this->matchToken(STRING, &FOLLOW_STRING_in_inc6019);
+            STRING74 =  this->matchToken(STRING, &FOLLOW_STRING_in_inc6213);
             if  (this->hasException())
             {
                 goto ruleincEx;
@@ -27680,7 +34054,7 @@ WNScriptASTParser::inc()
 
 
             {
-                 file = containers::string(m_allocator, (STRING76->getText()).c_str());
+                 file = containers::string(m_allocator, (STRING74->getText()).c_str());
             }
 
 
@@ -27712,10 +34086,10 @@ WNScriptASTParser::program()
     scripting::script_file* node;
 
 
-    containers::string inc77;
-    scripting::function* function78;
-    scripting::struct_definition* structDecl79;
-    scripting::struct_definition* classDecl80;
+    containers::string inc75;
+    scripting::function* function76;
+    scripting::struct_definition* structDecl77;
+    scripting::struct_definition* classDecl78;
 
 
 
@@ -27730,75 +34104,12 @@ WNScriptASTParser::program()
 
             for (;;)
             {
-                int alt50=2;
+                int alt51=2;
                 switch ( this->LA(1) )
                 {
                 case INCLUDE:
                 	{
-                		alt50=1;
-                	}
-                    break;
-
-                }
-
-                switch (alt50)
-                {
-            	case 1:
-            	    {
-            	        this->followPush(FOLLOW_inc_in_program6048);
-            	        inc77=inc();
-
-            	        this->followPop();
-            	        if  (this->hasException())
-            	        {
-            	            goto ruleprogramEx;
-            	        }
-
-
-            	        {
-            	             node->add_include(core::move(inc77
-            	            ));
-            	        }
-
-
-            	    }
-            	    break;
-
-            	default:
-            	    goto loop50;
-            	    break;
-                }
-            }
-            loop50: ;
-
-
-
-            for (;;)
-            {
-                int alt51=4;
-                switch ( this->LA(1) )
-                {
-                case BOOL_TYPE:
-                case CHAR_TYPE:
-                case FLOAT_TYPE:
-                case INT_TYPE:
-                case SHARED_REF:
-                case STRING_TYPE:
-                case TYPE:
-                case VOID_TYPE:
-                case WEAK_REF:
-                	{
                 		alt51=1;
-                	}
-                    break;
-                case STRUCT:
-                	{
-                		alt51=2;
-                	}
-                    break;
-                case CLASS:
-                	{
-                		alt51=3;
                 	}
                     break;
 
@@ -27808,8 +34119,8 @@ WNScriptASTParser::program()
                 {
             	case 1:
             	    {
-            	        this->followPush(FOLLOW_function_in_program6087);
-            	        function78=function();
+            	        this->followPush(FOLLOW_inc_in_program6242);
+            	        inc75=inc();
 
             	        this->followPop();
             	        if  (this->hasException())
@@ -27819,48 +34130,8 @@ WNScriptASTParser::program()
 
 
             	        {
-            	             node->add_function(function78
-            	            );
-            	        }
-
-
-            	    }
-            	    break;
-            	case 2:
-            	    {
-            	        this->followPush(FOLLOW_structDecl_in_program6109);
-            	        structDecl79=structDecl();
-
-            	        this->followPop();
-            	        if  (this->hasException())
-            	        {
-            	            goto ruleprogramEx;
-            	        }
-
-
-            	        {
-            	             node->add_struct(structDecl79
-            	            );
-            	        }
-
-
-            	    }
-            	    break;
-            	case 3:
-            	    {
-            	        this->followPush(FOLLOW_classDecl_in_program6129);
-            	        classDecl80=classDecl();
-
-            	        this->followPop();
-            	        if  (this->hasException())
-            	        {
-            	            goto ruleprogramEx;
-            	        }
-
-
-            	        {
-            	             node->add_struct(classDecl80
-            	            );
+            	             node->add_include(core::move(inc75
+            	            ));
             	        }
 
 
@@ -27873,6 +34144,109 @@ WNScriptASTParser::program()
                 }
             }
             loop51: ;
+
+
+
+            for (;;)
+            {
+                int alt52=4;
+                switch ( this->LA(1) )
+                {
+                case BOOL_TYPE:
+                case CHAR_TYPE:
+                case FLOAT_TYPE:
+                case INT_TYPE:
+                case SHARED_REF:
+                case STRING_TYPE:
+                case TYPE:
+                case VOID_TYPE:
+                case WEAK_REF:
+                	{
+                		alt52=1;
+                	}
+                    break;
+                case STRUCT:
+                	{
+                		alt52=2;
+                	}
+                    break;
+                case CLASS:
+                	{
+                		alt52=3;
+                	}
+                    break;
+
+                }
+
+                switch (alt52)
+                {
+            	case 1:
+            	    {
+            	        this->followPush(FOLLOW_function_in_program6281);
+            	        function76=function();
+
+            	        this->followPop();
+            	        if  (this->hasException())
+            	        {
+            	            goto ruleprogramEx;
+            	        }
+
+
+            	        {
+            	             node->add_function(function76
+            	            );
+            	        }
+
+
+            	    }
+            	    break;
+            	case 2:
+            	    {
+            	        this->followPush(FOLLOW_structDecl_in_program6303);
+            	        structDecl77=structDecl();
+
+            	        this->followPop();
+            	        if  (this->hasException())
+            	        {
+            	            goto ruleprogramEx;
+            	        }
+
+
+            	        {
+            	             node->add_struct(structDecl77
+            	            );
+            	        }
+
+
+            	    }
+            	    break;
+            	case 3:
+            	    {
+            	        this->followPush(FOLLOW_classDecl_in_program6323);
+            	        classDecl78=classDecl();
+
+            	        this->followPop();
+            	        if  (this->hasException())
+            	        {
+            	            goto ruleprogramEx;
+            	        }
+
+
+            	        {
+            	             node->add_struct(classDecl78
+            	            );
+            	        }
+
+
+            	    }
+            	    break;
+
+            	default:
+            	    goto loop52;
+            	    break;
+                }
+            }
+            loop52: ;
 
 
         }

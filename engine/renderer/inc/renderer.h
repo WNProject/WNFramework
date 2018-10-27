@@ -12,6 +12,7 @@
 #include "WNScripting/inc/WNEngine.h"
 #include "engine_base/inc/context.h"
 #include "renderer/inc/render_data.h"
+#include "renderer/inc/render_target.h"
 
 namespace wn {
 namespace engine {
@@ -47,10 +48,8 @@ public:
   static void register_scripting(scripting::engine* _engine);
   static bool resolve_scripting(scripting::engine* _engine);
 
-  void register_object(
-      scripting::shared_script_pointer<render_data> _render_data);
-  void register_pass(scripting::script_pointer<pass_data> _pass_data);
-  int32_t register_attachment(int32_t _format, int32_t _width, int32_t _height);
+  void register_context(scripting::script_pointer<render_context> _context);
+
   int32_t width() {
     return m_width;
   }

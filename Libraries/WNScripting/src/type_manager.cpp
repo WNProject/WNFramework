@@ -40,7 +40,7 @@ type_manager::type_manager(memory::allocator* _allocator, logging::log* _log)
   uint32_type->calculate_mangled_name(m_allocator);
   m_externally_visible_types[core::type_id<int32_t>::value()] =
       uint32_type.get();
-  m_externally_visible_types[core::type_id<wn_array_ptr<int32_t>>::value()] =
+  m_externally_visible_types[core::type_id<wn_array<int32_t>>::value()] =
       get_array_of(uint32_type.get(), 0, nullptr);
   m_externally_visible_types[core::type_id<slice<int32_t>>::value()] =
       get_slice_of(uint32_type.get(), 1, nullptr);
@@ -57,7 +57,7 @@ type_manager::type_manager(memory::allocator* _allocator, logging::log* _log)
   uint8_type->calculate_mangled_name(m_allocator);
   m_externally_visible_types[core::type_id<uint8_t>::value()] =
       uint8_type.get();
-  m_externally_visible_types[core::type_id<wn_array_ptr<uint8_t>>::value()] =
+  m_externally_visible_types[core::type_id<wn_array<uint8_t>>::value()] =
       get_array_of(uint8_type.get(), 0, nullptr);
   m_externally_visible_types[core::type_id<slice<uint8_t>>::value()] =
       get_slice_of(uint8_type.get(), 1, nullptr);
@@ -74,7 +74,7 @@ type_manager::type_manager(memory::allocator* _allocator, logging::log* _log)
   float_type->calculate_mangled_name(m_allocator);
   m_externally_visible_types[core::type_id<float_t>::value()] =
       float_type.get();
-  m_externally_visible_types[core::type_id<wn_array_ptr<float>>::value()] =
+  m_externally_visible_types[core::type_id<wn_array<float>>::value()] =
       get_array_of(float_type.get(), 0, nullptr);
   m_externally_visible_types[core::type_id<slice<float>>::value()] =
       get_slice_of(float_type.get(), 1, nullptr);
@@ -103,7 +103,7 @@ type_manager::type_manager(memory::allocator* _allocator, logging::log* _log)
   m_bool_t->calculate_mangled_name(m_allocator);
   m_bool_t->m_is_comparable_type = true;
   m_externally_visible_types[core::type_id<bool>::value()] = m_bool_t.get();
-  m_externally_visible_types[core::type_id<wn_array_ptr<bool>>::value()] =
+  m_externally_visible_types[core::type_id<wn_array<bool>>::value()] =
       get_array_of(m_bool_t.get(), 0, nullptr);
   m_externally_visible_types[core::type_id<slice<bool>>::value()] =
       get_slice_of(m_bool_t.get(), 1, nullptr);
@@ -321,8 +321,12 @@ ast_type* type_manager::get_reference_of(const ast_type* _type,
   return return_type;
 }
 
-ast_type* type_manager::get_array_of(
-    const ast_type* _type, uint32_t _size, used_type_set* _used) {
+ast_type* type_manager::get_array_of(const ast_type* _type, uint32_t _size,
+    used_type_set* _used, bool allow_class) {
+  if (_type->m_struct_is_class && !allow_class) {
+    _type = get_reference_of(_type, ast_type_classification::reference, _used);
+  }
+
   auto it = m_static_array_types.find(core::make_pair(_size, _type));
   if (it != m_static_array_types.end()) {
     if (_used) {

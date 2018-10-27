@@ -127,6 +127,14 @@ ast_type* parse_ast_convertor::convertor_context::walk_struct_definition(
     for (auto& it : t->get_struct_members()) {
       ast_declaration* decl = nullptr;
       if (!it->is_inherited()) {
+        if (!t->is_class() && t->get_parent_name() != "") {
+          it->log_line(m_log, logging::log_level::error);
+          m_log->log_error(
+              "Inherited structs can only modify constructors, not add new "
+              "members");
+          return nullptr;
+        }
+
         memory::unique_ptr<ast_declaration> u_decl = make_temp_declaration(
             it.get(), containers::string(m_allocator, it->get_name()),
             resolve_type(it->get_type()));
@@ -296,9 +304,9 @@ ast_type* parse_ast_convertor::convertor_context::walk_struct_definition(
               return nullptr;
             }
             child_decls.push_back(clone_ast_node(m_allocator, decl));
-            decl->m_indirected_offset = static_cast<uint32_t>(
-                struct_type->m_structure_members.size() + child_decls.size() -
-                1);
+            decl->m_indirected_offset =
+                static_cast<uint32_t>(struct_type->m_structure_members.size() +
+                                      child_decls.size() - 1);
             child_decls.back()->m_initializer = nullptr;
           }
         }
@@ -587,7 +595,8 @@ bool parse_ast_convertor::convertor_context::create_struct_assign(
             memory::make_unique<ast_binary_expression>(m_allocator, _def);
         size_doesnt_match->m_binary_type = ast_binary_type::neq;
         size_doesnt_match->m_type = m_type_manager->bool_t(&m_used_types);
-        size_doesnt_match->m_lhs = clone_ast_node(m_allocator, source_size.get());
+        size_doesnt_match->m_lhs =
+            clone_ast_node(m_allocator, source_size.get());
         size_doesnt_match->m_rhs = clone_ast_node(m_allocator, dest_size.get());
 
         auto if_size_doesnt_match =

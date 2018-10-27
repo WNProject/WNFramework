@@ -5,10 +5,10 @@
 include "triangle_include1.wns"
 include "triangle_include2.wns"
 
-// CHECK: int32_t _ZN3wns11add_numbersEiii(int32_t _0, int32_t _1);
+// CHECK: int32_t _ZN3wns5add_nEiii(int32_t _0, int32_t _1);
 
 // RUN: add_two_numbers 3 12 -> 15
 // CHECK: {{add_two_numbersE.*{}}
 Int add_two_numbers(Int x, Int y) {
-    return add_numbers(x, y);
+    return add_n(x, y);
 }

@@ -57,65 +57,6 @@ struct wn_size_t final {
   size_t val;
 };
 
-template <typename T, size_t S = 0>
-struct wn_array_ptr;
-
-template <typename T, size_t S = 0>
-struct wn_array final {
-private:
-  uint32_t _size = S;
-  T _values[S == 0 ? 1 : S];
-
-public:
-  wn_array_ptr<T, 0> operator&();
-
-  T& operator[](size_t i) {
-    return _values[i];
-  }
-
-  const T& operator[](size_t i) const {
-    return _values[i];
-  }
-
-  size_t size() const {
-    return _size;
-  }
-};
-
-template <typename T, size_t S>
-struct wn_array_ptr final {
-  wn_array<T, S>* ptr;
-
-  wn_array<T, S>& operator*() {
-    return *ptr;
-  }
-
-  const wn_array<T, S>& operator*() const {
-    return *ptr;
-  }
-
-  wn_array<T, S>* operator->() {
-    return ptr;
-  }
-
-  const wn_array<T, S>* operator->() const {
-    return ptr;
-  }
-
-  operator wn_array_ptr<T, 0>() {
-    return wn_array_ptr<T, 0>{reinterpret_cast<wn_array<T, 0>*>(ptr)};
-  }
-};
-
-template <typename T, size_t S>
-wn_array_ptr<T, 0> wn_array<T, S>::operator&() {
-  static_assert(sizeof(this) == sizeof(wn_array_ptr<T, 0>),
-      "Invalid conversion to array_ptr");
-
-  auto* t = this;
-  return *reinterpret_cast<wn_array_ptr<T, 0>*>(&t);
-}
-
 // Default slice
 template <typename T, size_t S = 1, typename = core::enable_if_t<true>>
 struct slice {
@@ -174,6 +115,12 @@ public:
   }
 };
 
+template <typename T>
+struct is_array_pointer : core::false_type {};
+
+template <typename T>
+struct is_array_pointer<wn_array<T>> : core::true_type {};
+
 template <typename U, size_t S>
 struct pass_by_reference<slice<U, S>> : core::true_type {};
 
@@ -203,6 +150,13 @@ struct needs_thunk<shared_script_pointer<T>> : core::true_type {};
 
 template <typename T>
 struct needs_thunk<shared_cpp_pointer<T>> : core::true_type {};
+
+template <typename T>
+struct is_array : core::false_type {};
+
+template <typename T>
+struct is_array<wn_array<T>>
+  : core::true_type {};
 
 template <typename U,
     typename = typename core::enable_if<core::is_same<int32_t, U>::value>::type>
@@ -274,6 +228,23 @@ struct get_thunk_passed_type<U,
   }
 };
 
+template <typename U>
+struct get_thunk_passed_type<U,
+    typename core::enable_if<is_array<U>::value>::type> {
+  using type = void*;
+  using ret_type = void*;
+  static inline void* wrap(const U& _u) {
+    void* v = _u.m_ptr;
+    return v;
+  }
+
+  static inline U unwrap(void* _u) {
+    U u(_u);
+    fixup_return_type(u);
+    return core::move(u);
+  }
+};
+
 template <typename T>
 inline T& fixup_return_type(T& _i) {
   return _i;
@@ -300,6 +271,14 @@ inline shared_cpp_pointer<T>& fixup_return_type(shared_cpp_pointer<T>& t) {
   return t;
 }
 
+template <typename T>
+inline wn_array<script_pointer<T>>& fixup_return_type(
+    wn_array<script_pointer<T>>& t) {
+  t.unsafe_set_type(reinterpret_cast<T*>(
+      (*g_scripting_tls->_object_types)[core::type_id<T>::value()].get()));
+  return t;
+}
+
 // Simple helper that parses a script and runs any
 // passes that are required to make the AST valid.
 // _handle_include is a callback that is called when an #include
@@ -317,8 +296,8 @@ memory::unique_ptr<ast_script_file> parse_script(memory::allocator* _allocator,
 
 namespace logging {
 template <typename T, typename BuffType>
-struct log_type_helper<scripting::wn_array_ptr<T>, BuffType> {
-  WN_FORCE_INLINE static bool do_log(const scripting::wn_array_ptr<T>& _0,
+struct log_type_helper<scripting::wn_array<T>, BuffType> {
+  WN_FORCE_INLINE static bool do_log(const scripting::wn_array<T>& _0,
       BuffType* _buffer, size_t& _buffer_left) {
     size_t last_buffer_left = _buffer_left;
     if (!log_type_helper<char[2], BuffType>::do_log(
@@ -326,7 +305,7 @@ struct log_type_helper<scripting::wn_array_ptr<T>, BuffType> {
       return false;
     }
 
-    for (size_t i = 0; i < _0->size(); ++i) {
+    for (size_t i = 0; i < _0.size(); ++i) {
       if (i != 0) {
         if (!log_type_helper<char[3], BuffType>::do_log(", ",
                 _buffer + (_buffer_left - last_buffer_left),
@@ -334,7 +313,7 @@ struct log_type_helper<scripting::wn_array_ptr<T>, BuffType> {
           return false;
         }
       }
-      if (!log_type_helper<T, BuffType>::do_log((*_0)[i],
+      if (!log_type_helper<T, BuffType>::do_log(_0[i],
               _buffer + (_buffer_left - last_buffer_left), last_buffer_left)) {
         return false;
       }

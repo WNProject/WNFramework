@@ -294,6 +294,107 @@ private:
   friend class engine;
 };
 
+template <typename T, size_t S = 1>
+struct wn_array_data {
+  T& operator[](size_t i) {
+    return _values[i];
+  }
+
+  const T& operator[](size_t i) const {
+    return _values[i];
+  }
+
+  size_t size() const {
+    return _size;
+  }
+
+  T* begin() {
+    return &_values[0];
+  }
+
+  T* end() {
+    return &(_values[S - 1]) + 1;
+  }
+
+private:
+  uint32_t _size = 0;
+  T _values[S];
+};
+
+template <typename T>
+struct wn_array final {
+  wn_array(void* v) : ptr(reinterpret_cast<wn_array_data<T>*>(v)) {}
+  wn_array_data<T>* ptr;
+
+  T& operator[](size_t i) {
+    return (*ptr)[i];
+  }
+
+  const T& operator[](size_t i) const {
+    return (*ptr)[i];
+  }
+
+  size_t size() const {
+    return ptr->size();
+  }
+
+  T* begin() {
+    if (ptr->size() == 0) {
+      return nullptr;
+    }
+    return &(*ptr)[0];
+  }
+
+  T* end() {
+    if (ptr->size() == 0) {
+      return nullptr;
+    }
+    return &((*ptr)[ptr->size() - 1]) + 1;
+  }
+};
+
+template <typename T>
+struct wn_array<script_pointer<T>> final {
+public:
+  wn_array(void* v) : m_ptr(reinterpret_cast<wn_array_data<void*>*>(v)) {}
+  wn_array_data<void*>* m_ptr;
+  T* m_type;
+
+  void unsafe_set_type(T* _type) {
+    m_type = _type;
+  }
+  script_pointer<T> operator[](size_t i) {
+    script_pointer<T> t((*m_ptr)[i]);
+    t.unsafe_set_type(m_type);
+    return core::move(t);
+  }
+
+  const script_pointer<T> operator[](size_t i) const {
+    script_pointer<T> t((*m_ptr)[i]);
+    t.unsafe_set_type(m_type);
+    return core::move(t);
+  }
+
+  size_t size() const {
+    return m_ptr->size();
+  }
+  /*
+  T* begin() {
+    if (ptr->size() == 0) {
+      return nullptr;
+    }
+    return &(*ptr)[0];
+  }
+
+  T* end() {
+    if (ptr->size() == 0) {
+      return nullptr;
+    }
+    return &(ptr->[ptr->size() - 1]) + 1;
+  }*/
+};
+
+
 }  // namespace scripting
 }  // namespace wn
 

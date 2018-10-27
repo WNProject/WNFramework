@@ -4,19 +4,19 @@
 
 include "includee.wns"
 
-// CHECK: int32_t _ZN3wns11add_numbersEiii(int32_t _0, int32_t _1);
+// CHECK: int32_t _ZN3wns5add_nEiii(int32_t _0, int32_t _1);
 
 // RUN: add_two_numbers 2 5 -> 7
 // RUN: add_two_numbers -4 32 -> 28
 // CHECK: {{add_two_numbersE.*{}}
 Int add_two_numbers(Int x, Int y) {
-    return add_numbers(x, y);
+    return add_n(x, y);
 }
 
 // CHECK: {{do_thing.*{}}
 // RUN: do_thing -> 3
 Int do_thing() {
     Foo f = Foo();
-// CHECK:  f = _ZN3wns14_construct_FooEP3FooP4_Foo((&_wns_temp0));
+// CHECK:   f = ((Foo*)(((_Foo*)(_ZN3wns14_construct_FooEP3FooP4_Foo((&_wns_temp0))))));
     return length(f.y);
 }

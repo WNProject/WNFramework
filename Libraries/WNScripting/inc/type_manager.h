@@ -122,8 +122,8 @@ public:
   ast_type* get_reference_of(const ast_type* _type,
       ast_type_classification _reference_type, used_type_set* _used);
 
-  ast_type* get_array_of(
-      const ast_type* _type, uint32_t _size, used_type_set* _used);
+  ast_type* get_array_of(const ast_type* _type, uint32_t _size,
+      used_type_set* _used, bool allow_class = false);
   ast_type* get_runtime_array_of(const ast_type* _type, used_type_set* _used);
   ast_type* get_slice_of(
       const ast_type* _type, uint32_t _size, used_type_set* _used);

@@ -6,10 +6,12 @@
 #include "WNGraphics/inc/WNGraphicsEnums.h"
 #include "engine_base/inc/context.h"
 #include "renderer/inc/render_data.h"
+#include "renderer/inc/render_target.h"
 #include "window/inc/window.h"
 
 using namespace wn::engine;
 using wn::scripting::script_object_type;
+using wn::scripting::script_pointer;
 using wn::scripting::shared_cpp_pointer;
 
 using namespace wn;
@@ -26,20 +28,14 @@ struct exported_script_type<renderer::renderer> {
   template <typename T>
   static void export_type(T* _exporter) {
     _exporter->template register_nonvirtual_function<
-        decltype(&renderer::renderer::register_object),
-        &renderer::renderer::register_object>("register_object");
-    _exporter->template register_nonvirtual_function<
-        decltype(&renderer::renderer::register_pass),
-        &renderer::renderer::register_pass>("register_pass");
-    _exporter->template register_nonvirtual_function<
-        decltype(&renderer::renderer::register_attachment),
-        &renderer::renderer::register_attachment>("register_attachment");
-    _exporter->template register_nonvirtual_function<
         decltype(&renderer::renderer::width), &renderer::renderer::width>(
         "width");
     _exporter->template register_nonvirtual_function<
         decltype(&renderer::renderer::height), &renderer::renderer::height>(
         "height");
+    _exporter->template register_nonvirtual_function<
+        decltype(&renderer::renderer::register_context),
+        &renderer::renderer::register_context>("register_context");
   }
 };
 }  // namespace scripting
@@ -57,7 +53,7 @@ shared_cpp_pointer<engine::renderer::renderer> get_renderer(
     engine_base::context* _context, int32_t _width, int32_t _height) {
   if (_width == 0 || _height == 0) {
     _context->m_log->log_error(
-        "IF you want to create a renderer without a default attachment"
+        "If you want to create a renderer without a default attachment"
         " do not specify a width or height");
   }
   return _context->m_engine->make_shared_cpp<engine::renderer::renderer>(
@@ -154,13 +150,17 @@ void register_graphics_enums(scripting::engine* _engine) {
       "format_bc2", static_cast<int32_t>(runtime::graphics::data_format::bc2));
   _engine->register_named_constant<int32_t>(
       "format_bc3", static_cast<int32_t>(runtime::graphics::data_format::bc3));
+  _engine->register_named_constant<int32_t>(
+      "format_max", static_cast<int32_t>(runtime::graphics::data_format::max));
 }
 }  // namespace
 
 void renderer::register_scripting(scripting::engine* _engine) {
   register_graphics_enums(_engine);
-  render_data::register_scripting(_engine);
+  rt_description::register_scripting(_engine);
   pass_data::register_scripting(_engine);
+  render_data::register_scripting(_engine);
+  _engine->export_script_type<render_context>();
   _engine->register_cpp_type<renderer>();
   _engine->register_function<decltype(&get_attachmentless_renderer),
       &get_attachmentless_renderer>("get_renderer");
@@ -171,35 +171,35 @@ void renderer::register_scripting(scripting::engine* _engine) {
 }
 
 bool renderer::resolve_scripting(scripting::engine* _engine) {
-  return render_data::resolve_scripting(_engine) &&
-         pass_data::resolve_scripting(_engine);
+  return rt_description::resolve_scripting(_engine) &&
+         render_data::resolve_scripting(_engine) &&
+         pass_data::resolve_scripting(_engine) &&
+         _engine->resolve_script_type<render_context>();
 }
 
-void renderer::register_object(
-    scripting::shared_script_pointer<render_data> _render_data) {
-  _render_data.invoke(&render_data::register_data);
-}
+void renderer::register_context(
+    scripting::script_pointer<render_context> _render_context) {
+  auto targets = _render_context.invoke(&render_context::get_render_targets);
+  for (size_t i = 0; i < targets.size(); ++i) {
+    const char* target_name = targets[i].invoke(&rt_description::get_name);
+    int32_t format = targets[i].invoke(&rt_description::get_format);
+    int32_t width = targets[i].invoke(&rt_description::get_width);
+    int32_t height = targets[i].invoke(&rt_description::get_height);
+    scripting::g_scripting_tls->_log->log_error("Register RT: <", target_name,
+        ">, format: ", format, " size: ", width, "x", height);
+  }
 
-void renderer::register_pass(scripting::script_pointer<pass_data> _pass_data) {
-  const char* pass_name = _pass_data.invoke(&pass_data::pass_name);
-  scripting::wn_array_ptr<int32_t> passes =
-      _pass_data.invoke(&pass_data::color_attachments);
-  int32_t depth_attachment = _pass_data.invoke(&pass_data::depth_attachment);
+  auto passes = _render_context.invoke(&render_context::get_passes);
+  for (size_t i = 0; i < passes.size(); ++i) {
+    const char* pass_name = passes[i].invoke(&pass_data::pass_name);
+    scripting::wn_array<int32_t> color_attachments =
+        passes[i].invoke(&pass_data::color_attachments);
+    int32_t depth_attachment = passes[i].invoke(&pass_data::depth_attachment);
 
-  scripting::g_scripting_tls->_log->log_error("Register Pass: <", pass_name,
-      ">, color_attachments: ", passes,
-      ", depth_attachment: ", depth_attachment);
-}
-
-int32_t renderer::register_attachment(
-    int32_t _format, int32_t _width, int32_t _height) {
-  m_attachments.push_back(color_attachment{
-      static_cast<runtime::graphics::data_format>(_format), _width, _height});
-  size_t index = m_attachments.size() - 1;
-
-  scripting::g_scripting_tls->_log->log_error("Register Attachment: <", index,
-      ">, format: ", _format, ", size: ", _width, "x", _height);
-  return static_cast<int32_t>(index);
+    scripting::g_scripting_tls->_log->log_error("Register Pass: <", pass_name,
+        ">, color_attachments: ", color_attachments,
+        ", depth_attachment: ", depth_attachment);
+  }
 }
 
 }  // namespace renderer
