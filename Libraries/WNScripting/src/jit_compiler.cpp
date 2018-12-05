@@ -134,6 +134,8 @@ struct jit_compiler_context {
   bool write_loop(const ast_loop* _loop);
   bool write_break(const ast_break* _break);
   bool write_continue(const ast_continue_instruction* _continue);
+  llvm::Value* get_alloca(
+      llvm::Type* _type, llvm::Value* array_size, const char* name);
 
   // Helpers
   bool write_temporaries(const ast_expression* _expression);
@@ -282,6 +284,13 @@ bool internal::jit_compiler_context::forward_declare_function(
   return true;
 }
 
+llvm::Value* internal::jit_compiler_context::get_alloca(
+    llvm::Type* _type, llvm::Value* array_size, const char* name) {
+  llvm::Value* v = new llvm::AllocaInst(_type, 0, array_size, name ? name : "",
+      &(*m_current_function->getBasicBlockList().begin()->begin()));
+  return v;
+}
+
 bool internal::jit_compiler_context::declare_function(
     const ast_function* _function) {
   if (!_function->m_scope) {
@@ -320,7 +329,10 @@ bool internal::jit_compiler_context::declare_function(
     m_function_builder->CreateStore(x, v);
     m_function_parameters[&arg] = v;
   }
-
+  llvm::BasicBlock* contents =
+      llvm::BasicBlock::Create(m_context, "contents", function);
+  m_function_builder->CreateBr(contents);
+  m_function_builder->SetInsertPoint(contents);
   return write_scope_block(_function->m_scope.get());
 }
 
@@ -1667,8 +1679,7 @@ bool internal::jit_compiler_context::write_declaration(
   if (!t) {
     return false;
   }
-  llvm::Value* decl =
-      m_function_builder->CreateAlloca(t, 0, _declaration->m_name.c_str());
+  llvm::Value* decl = get_alloca(t, 0, _declaration->m_name.c_str());
   m_declarations[_declaration] = decl;
   if (_declaration->m_initializer) {
     llvm::Value* v = get_expression(_declaration->m_initializer.get());
@@ -1690,7 +1701,7 @@ bool internal::jit_compiler_context::write_array_destruction(
       m_context, "destruction_check", m_current_function);
 
   // YOU ARE HERE
-  llvm::Value* val = m_function_builder->CreateAlloca(m_int32_t);
+  llvm::Value* val = get_alloca(m_int32_t, 0, nullptr);
   llvm::Value* target = get_expression(_dest->m_target.get());
 
   if (_dest->m_target->m_type->m_static_array_size != 0 &&

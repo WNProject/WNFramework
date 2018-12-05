@@ -322,7 +322,7 @@ void d3d12_device::initialize_image(const image_create_info& _info,
 }
 
 void d3d12_device::bind_image_memory(
-    image* _image, arena* _arena, size_t _offset) {
+    image* _image, arena* _arena, uint64_t _offset) {
   memory::unique_ptr<image_data>& data = get_data(_image);
   Microsoft::WRL::ComPtr<ID3D12Heap>& heap = get_data(_arena);
 
@@ -1380,11 +1380,10 @@ d3d12_device::get_arena_properties() const {
 }
 
 bool d3d12_device::initialize_arena(arena* _arena, const size_t _index,
-    const size_t _size, const bool _multisampled) {
+    const uint64_t _size, const bool _multisampled) {
   WN_DEBUG_ASSERT(
       m_heap_info.size() > _index, "arena property index out of range");
   WN_DEBUG_ASSERT(_size > 0, "arena should be non-zero size");
-
   const D3D12_HEAP_FLAGS flags = m_heap_info[_index].heap_flags;
   const bool allow_buffers_only =
       (flags & D3D12_HEAP_FLAG_ALLOW_ONLY_BUFFERS) ==
@@ -1392,23 +1391,25 @@ bool d3d12_device::initialize_arena(arena* _arena, const size_t _index,
   const UINT64 alignment = _multisampled && !allow_buffers_only
                                ? D3D12_DEFAULT_MSAA_RESOURCE_PLACEMENT_ALIGNMENT
                                : D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
+  // According to the D3D12 docs, this should not be necessary,
+  //   but the NVidia driver crashes (sometimes) if the _size is too small.
+  uint64_t alloc_size = math::max(_size, alignment);
   const D3D12_HEAP_DESC heap_desc = {
-      static_cast<UINT64>(_size),           // SizeInBytes
+      static_cast<UINT64>(alloc_size),      // SizeInBytes
       m_heap_info[_index].heap_properties,  // Properties
       alignment,                            // Alignment
       flags                                 // Flags
   };
   Microsoft::WRL::ComPtr<ID3D12Heap> new_heap;
-  const HRESULT hr =
+  HRESULT hr =
       m_device->CreateHeap(&heap_desc, __uuidof(ID3D12Heap), &new_heap);
-
   if (FAILED(hr)) {
     return false;
   }
 
   Microsoft::WRL::ComPtr<ID3D12Heap>& heap = get_data(_arena);
 
-  _arena->m_size = _size;
+  _arena->m_size = alloc_size;
 
   heap = core::move(new_heap);
 
@@ -1490,8 +1491,8 @@ bool d3d12_device::bind_buffer(
 void* d3d12_device::map_buffer(buffer* _buffer) {
   memory::unique_ptr<buffer_info>& info = get_data(_buffer);
   const D3D12_RANGE range = {
-      0,               // Begin
-      _buffer->size()  // End
+      0,                                    // Begin
+      static_cast<SIZE_T>(_buffer->size())  // End
   };
   void* pointer;
   const HRESULT hr = info->resource->Map(0, &range, &pointer);
@@ -1506,8 +1507,8 @@ void* d3d12_device::map_buffer(buffer* _buffer) {
 void d3d12_device::unmap_buffer(buffer* _buffer) {
   memory::unique_ptr<buffer_info>& info = get_data(_buffer);
   const D3D12_RANGE range = {
-      0,               // Begin
-      _buffer->size()  // End
+      0,                                    // Begin
+      static_cast<SIZE_T>(_buffer->size())  // End
   };
   info->resource->Unmap(0, &range);
 }

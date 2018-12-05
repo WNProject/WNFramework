@@ -115,6 +115,7 @@ bool parse_ast_convertor::convertor_context::resolve_function(
     if (function->m_return_type == m_type_manager->void_t(&m_used_types)) {
       m_current_statements->push_back(
           memory::make_unique<ast_return_instruction>(m_allocator, _function));
+      scope->m_returns = true;
     } else {
       _function->log_line(m_log, logging::log_level::error);
       m_log->log_error("Error function must return");

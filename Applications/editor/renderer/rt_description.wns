@@ -17,6 +17,9 @@ class RTDescription {
     Int get_format() {
         return format;
     }
+    Bool is_depth() {
+        return depth;
+    }
 
     // TODO(awoloszyn): allow constants or enums so we
     // can switch this for an enum instead of a name.
@@ -24,4 +27,5 @@ class RTDescription {
     Int format = format_max;
     Int width = 1;
     Int height = 1;
+    Bool depth = false;
 }

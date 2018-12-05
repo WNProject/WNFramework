@@ -204,6 +204,7 @@ bool vulkan_device::initialize(memory::allocator* _allocator,
       m_device, m_command_list_context, vkCmdCopyImageToBuffer);
   LOAD_VK_SUB_DEVICE_SYMBOL(
       m_device, m_command_list_context, vkCmdCopyBufferToImage);
+  LOAD_VK_SUB_DEVICE_SYMBOL(m_device, m_command_list_context, vkCmdCopyImage);
   LOAD_VK_SUB_DEVICE_SYMBOL(m_device, m_command_list_context, vkCmdDraw);
   LOAD_VK_SUB_DEVICE_SYMBOL(m_device, m_command_list_context, vkCmdDrawIndexed);
 
@@ -448,7 +449,7 @@ void vulkan_device::initialize_image(
 }
 
 void vulkan_device::bind_image_memory(
-    image* _image, arena* _arena, size_t _offset) {
+    image* _image, arena* _arena, uint64_t _offset) {
   ::VkImage image = get_data(_image);
   arena_data& arena = get_data(_arena);
 
@@ -1296,7 +1297,7 @@ bool vulkan_device::setup_arena_properties() {
 }
 
 bool vulkan_device::initialize_arena(arena* _arena, const size_t _index,
-    const size_t _size, const bool /*_multisampled*/) {
+    const uint64_t _size, const bool /*_multisampled*/) {
   WN_DEBUG_ASSERT(
       m_arena_properties.size() > _index, "arena property index out of range");
   WN_DEBUG_ASSERT(_size > 0, "arena should be non-zero size");

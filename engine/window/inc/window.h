@@ -34,6 +34,7 @@ public:
   int32_t width();
   int32_t height();
 
+  runtime::window::window* underlying() { return m_window.get(); }
 private:
   logging::log* m_log;
   memory::unique_ptr<runtime::window::window> m_window;

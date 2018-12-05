@@ -218,20 +218,20 @@ void inline engine::export_script_type() {
 }
 
 template <typename T>
-bool inline engine::resolve_script_type() {
-  auto t = m_object_types.find(core::type_id<T>::value());
-  WN_DEBUG_ASSERT(
-      t != m_object_types.end(), "Cannot resolve type that as not exported");
-  T* ot = static_cast<T*>(t->second.get());
-  return resolve_script_type_internal(ot);
-}
-
-template <typename T>
 bool inline engine::register_named_constant(
     const containers::string_view& _name, const T& value) {
   const ast_type* type = m_type_manager.get_type<T>();
   containers::string sc = get_script_constant<T>::str_const(m_allocator, value);
   return m_type_manager.add_named_constant(type, _name, sc);
+}
+
+template <typename T>
+bool inline engine::resolve_script_type() {
+  auto t = m_object_types.find(core::type_id<T>::value());
+  WN_DEBUG_ASSERT(
+      t != m_object_types.end(), "Cannot resolve type that is not exported");
+  T* ot = static_cast<T*>(t->second.get());
+  return resolve_script_type_internal(ot);
 }
 
 template <typename T>

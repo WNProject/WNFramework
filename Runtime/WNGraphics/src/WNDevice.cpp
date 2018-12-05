@@ -124,12 +124,12 @@ image_view device::create_image_view(const image* _image,
   return core::move(view);
 }
 
-arena device::create_arena(const size_t _index, const size_t _size) {
+arena device::create_arena(const size_t _index, const uint64_t _size) {
   return create_arena(_index, _size, false);
 }
 
 arena device::create_arena(
-    const size_t _index, const size_t _size, const bool _multisampled) {
+    const size_t _index, const uint64_t _size, const bool _multisampled) {
   arena new_arena;
 
   if (initialize_arena(&new_arena, _index, _size, _multisampled)) {

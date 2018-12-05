@@ -20,8 +20,8 @@ namespace runtime {
 namespace graphics {
 
 struct buffer_memory_requirements {
-  size_t size;
-  size_t alignment;
+  uint64_t size;
+  uint64_t alignment;
 };
 
 class arena;
@@ -80,11 +80,11 @@ public:
     return (is_valid() && m_bound);
   }
 
-  WN_FORCE_INLINE size_t size() const {
+  WN_FORCE_INLINE uint64_t size() const {
     return m_size;
   }
 
-  WN_FORCE_INLINE size_t memory_size() const {
+  WN_FORCE_INLINE uint64_t memory_size() const {
     return m_memory_size;
   }
 
@@ -103,9 +103,9 @@ private:
     : base(), m_device(_device), m_size(_size), m_bound(false) {}
 
   device* m_device;
-  size_t m_size;
-  size_t m_memory_size;
-  size_t m_memory_alignment;
+  uint64_t m_size;
+  uint64_t m_memory_size;
+  uint64_t m_memory_alignment;
   bool m_bound;
 };
 

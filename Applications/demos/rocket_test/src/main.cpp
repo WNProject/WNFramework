@@ -3,6 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "WNApplicationData/inc/WNApplicationData.h"
+#include "WNApplicationEntry/inc/WNApplicationHelper.h"
 #include "WNContainers/inc/WNList.h"
 #include "WNContainers/inc/WNString.h"
 #include "WNFileSystem/inc/WNFactory.h"
@@ -1093,7 +1094,8 @@ int32_t wn_application_main(
   uint32_t force_adapter = 0;
   bool choosing_adapter = false;
 
-  for (size_t i = 0; i < static_cast<size_t>(_data->executable_data->argc); ++i) {
+  for (size_t i = 0; i < static_cast<size_t>(_data->executable_data->argc);
+       ++i) {
     if (wn::containers::string_view("--force_adapter") ==
         wn::containers::string_view(_data->executable_data->argv[i])) {
       choosing_adapter = true;

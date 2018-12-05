@@ -80,7 +80,7 @@ TEST_P(range_partition_tests, aligned) {
 
   for (size_t i = 0; i < 10; ++i) {
     tokens.emplace_back(
-        l.get_aligned_interval(i + 1, (static_cast<size_t>(1) << i)));
+        l.get_aligned_interval(i + 1, static_cast<size_t>(1) << i));
     EXPECT_TRUE(tokens.back().is_valid());
     EXPECT_TRUE((tokens.back().offset() % (static_cast<size_t>(1) << i)) == 0);
   }

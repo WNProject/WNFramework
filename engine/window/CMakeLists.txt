@@ -7,4 +7,5 @@ add_wn_library(
     engine_base
     WNWindow
     WNScripting
+    WNGraphics
 )

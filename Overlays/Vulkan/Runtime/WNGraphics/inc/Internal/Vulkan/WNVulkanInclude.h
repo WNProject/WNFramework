@@ -11,6 +11,6 @@
 
 #define VK_NO_PROTOTYPES
 
-#include <vulkan.h>
+#include <vulkan/vulkan.h>
 
 #endif  // __WN_GRAPHICS_INTERNAL_VULKAN_VULKAN_INCLUDE_H__

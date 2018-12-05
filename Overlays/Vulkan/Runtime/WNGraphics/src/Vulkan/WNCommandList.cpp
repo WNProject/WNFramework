@@ -131,6 +131,35 @@ void vulkan_command_list::copy_buffer_to_image(const buffer& _src_buffer,
       dst_image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy);
 }
 
+void vulkan_command_list::copy_image(const image& _src, uint32_t _src_mip_level,
+    const image& _dst, uint32_t _dst_mip_level) {
+  const VkImage& src = get_data(&_src);
+  const VkImage& dst = get_data(&_dst);
+  size_t width = _src.get_width(_src_mip_level);
+  size_t height = _src.get_height(_src_mip_level);
+  VkImageCopy copy = {VkImageSubresourceLayers{
+                          // srcSubresource
+                          VK_IMAGE_ASPECT_COLOR_BIT,  // aspectMask
+                          _src_mip_level,             // mipLevel
+                          0,                          // baseArrayLayer
+                          1                           // layerCount
+                      },
+      VkOffset3D{0, 0, 0},
+      VkImageSubresourceLayers{
+          // srcSubresource
+          VK_IMAGE_ASPECT_COLOR_BIT,  // aspectMask
+          _dst_mip_level,             // mipLevel
+          0,                          // baseArrayLayer
+          1                           // layerCount
+      },
+      VkOffset3D{0, 0, 0}, VkExtent3D{static_cast<uint32_t>(width),
+                               static_cast<uint32_t>(height), 1}};
+
+  m_context->vkCmdCopyImage(m_command_buffer, src,
+      VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, dst,
+      VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy);
+}
+
 void vulkan_command_list::copy_image_to_buffer(const image& _image,
     uint32_t _mip_level, const buffer& _dst_buffer,
     size_t _buffer_offset_in_bytes) {

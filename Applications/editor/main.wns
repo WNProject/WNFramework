@@ -5,25 +5,37 @@
 include "renderer/render_data.wns"
 include "renderer/render_context.wns"
 
-
 class MyPass : PassData {
-  .color_attachments = Int[1](42);
-  .depth_attachment = 0;
+  .render_targets = RenderTargetUsage[](
+    RenderTargetUsage(0, clear_mode_clear, store_mode_store)
+  );
+  .depth_target = RenderTargetUsage(1, clear_mode_clear, store_mode_dont_care);
   .pass_name = "Initial Pass";
 }
 
-struct MainTarget: RTDescription(Renderer renderer) {
+class MainTarget: RTDescription(Renderer renderer) {
   .name = "MainRT";
   .width = renderer.width();
   .height = renderer.height();
   .format = format_r8g8b8a8_unorm;
 }
 
-class MainContext: RenderContext(Renderer renderer) {
-  .render_targets = RTDescription[](MainTarget(renderer));
-  .passes = PassData[](MyPass());
+class DepthTarget: RTDescription(Renderer renderer) {
+  .name = "DepthRT";
+  .width = renderer.width();
+  .height = renderer.height();
+  .format = format_d32_float;
+  .depth = true;
 }
 
+class MainContext: RenderContext(Renderer renderer) {
+  .render_targets = RTDescription[](
+    MainTarget(renderer),
+    DepthTarget(renderer)
+  );
+  .passes = PassData[](MyPass());
+  .output_target = 0;
+}
 
 Int main(Context ctx) {
   shared Window window = get_window(ctx, 1024, 768);
@@ -33,6 +45,9 @@ Int main(Context ctx) {
   MainContext context = MainContext(renderer);
   renderer.register_context(context);
 
-  sleep(5);
+  while(true) {
+    renderer.render();
+  }
+
   return 32;
 }

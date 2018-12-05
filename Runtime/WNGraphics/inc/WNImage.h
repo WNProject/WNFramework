@@ -23,8 +23,8 @@ namespace graphics {
 class arena;
 
 struct image_memory_requirements {
-  size_t size;
-  size_t alignment;
+  uint64_t size;
+  uint64_t alignment;
 };
 
 class image final : public core::non_copyable {
@@ -91,7 +91,7 @@ public:
     return m_device->get_image_memory_requirements(this);
   }
 
-  void bind_memory(arena* _arena, size_t _offset) {
+  void bind_memory(arena* _arena, uint64_t _offset) {
     m_device->bind_image_memory(this, _arena, _offset);
   }
 

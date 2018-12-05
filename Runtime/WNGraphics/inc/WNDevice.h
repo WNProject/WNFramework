@@ -114,9 +114,9 @@ public:
 
   signal create_signal();
 
-  arena create_arena(const size_t _index, const size_t _size);
+  arena create_arena(const size_t _index, const uint64_t _size);
   arena create_arena(
-      const size_t _index, const size_t _size, const bool _multisampled);
+      const size_t _index, const uint64_t _size, const bool _multisampled);
 
   // The contiguous range must be 32-bit aligned for
   // compatibility.
@@ -226,7 +226,7 @@ private:
       const image* _image) = 0;
 
   virtual void bind_image_memory(
-      image* _image, arena* _arena, size_t _offset) = 0;
+      image* _image, arena* _arena, uint64_t _offset) = 0;
 
   virtual void initialize_sampler(
       const sampler_create_info& _info, sampler* _sampler) = 0;
@@ -284,7 +284,7 @@ private:
 
   // arena methods
   virtual bool initialize_arena(arena* _arena, const size_t _index,
-      const size_t _size, const bool _multisampled) = 0;
+      const uint64_t _size, const bool _multisampled) = 0;
   virtual void destroy_arena(arena* _arena) = 0;
 
   // Framebuffer

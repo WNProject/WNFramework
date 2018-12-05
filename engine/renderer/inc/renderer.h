@@ -7,11 +7,24 @@
 #ifndef __WN_ENGINE_RENDERER_RENDERER_H__
 #define __WN_ENGINE_RENDERER_RENDERER_H__
 
+#include "WNContainers/inc/WNRangePartition.h"
+#include "WNGraphics/inc/WNAdapter.h"
+#include "WNGraphics/inc/WNCommandAllocator.h"
+#include "WNGraphics/inc/WNDevice.h"
+#include "WNGraphics/inc/WNFactory.h"
+#include "WNGraphics/inc/WNFence.h"
+#include "WNGraphics/inc/WNFramebuffer.h"
 #include "WNGraphics/inc/WNGraphicsEnums.h"
+#include "WNGraphics/inc/WNQueue.h"
+#include "WNGraphics/inc/WNRenderPass.h"
+#include "WNGraphics/inc/WNSignal.h"
+#include "WNGraphics/inc/WNSwapchain.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNScripting/inc/WNEngine.h"
 #include "engine_base/inc/context.h"
+#include "renderer/inc/gpu_heap.h"
 #include "renderer/inc/render_data.h"
+#include "renderer/inc/render_pass.h"
 #include "renderer/inc/render_target.h"
 
 namespace wn {
@@ -24,23 +37,7 @@ namespace renderer {
 class renderer {
 public:
   renderer(memory::allocator* _allocator, logging::log* _log,
-      window::window* _window, int32_t _width, int32_t _height)
-    : m_log(_log),
-      m_width(_width),
-      m_height(_height),
-      m_attachments(_allocator) {
-    if (_window) {
-      m_log->log_info("Created Renderer With Window");
-    } else {
-      m_log->log_info("Created Renderer Without Window");
-    }
-
-    m_log->log_info("Renderer Size: ", _width, "x", _height);
-    if (_width > 0 && _height > 0) {
-      m_attachments.push_back(color_attachment{
-          runtime::graphics::data_format::r8g8b8a8_unorm, _width, _height});
-    }
-  }
+      window::window* _window, int32_t _width, int32_t _height);
 
   ~renderer() {
     m_log->log_info("Destroyed Renderer");
@@ -57,21 +54,46 @@ public:
     return m_height;
   }
 
+  bool render();
+
 private:
+  gpu_allocation get_allocation_for_render_target(
+      uint64_t _size, uint64_t _alignment);
+
   logging::log* m_log;
+  window::window* m_window;
+  memory::allocator* m_allocator;
   int32_t m_width;
   int32_t m_height;
+  int32_t m_output_rt;
+  uint64_t m_frame_num = 0;
 
-  struct color_attachment {
-    runtime::graphics::data_format _format;
-    int32_t width;
-    int32_t height;
-  };
+  runtime::graphics::factory m_factory;
+  runtime::graphics::device_ptr m_device;
+  runtime::graphics::queue_ptr m_queue;
+  memory::unique_ptr<runtime::graphics::surface> m_surface;
+  runtime::graphics::swapchain_ptr m_swapchain;
+  wn::containers::contiguous_range<
+      const wn::runtime::graphics::arena_properties>
+      m_arena_properties;
 
-  containers::dynamic_array<color_attachment>
-      m_attachments;
+  containers::dynamic_array<runtime::graphics::command_allocator>
+      m_command_allocators;
+  containers::dynamic_array<runtime::graphics::command_list_ptr>
+      m_command_lists;
+  containers::dynamic_array<runtime::graphics::fence> m_frame_fences;
+  containers::dynamic_array<runtime::graphics::signal> m_swapchain_get_signals;
+  containers::dynamic_array<runtime::graphics::signal>
+      m_swapchain_ready_signals;
 
-};  // namespace renderer
+  memory::unique_ptr<gpu_heap> m_render_target_heap;
+  // Keep the render targets below the render target heap, we need the
+  // targets to be cleaned up before the heap.
+  containers::dynamic_array<render_target> m_render_targets;
+
+  containers::dynamic_array<render_pass> m_render_passes;
+  friend class render_target;
+};
 
 }  // namespace renderer
 }  // namespace engine

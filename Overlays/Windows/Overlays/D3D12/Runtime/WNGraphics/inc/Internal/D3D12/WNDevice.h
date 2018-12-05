@@ -175,8 +175,8 @@ protected:
       const clear_value& _optimized_clear,
       image* _image) WN_GRAPHICS_OVERRIDE_FINAL;
   void destroy_image(image* _image) WN_GRAPHICS_OVERRIDE_FINAL;
-  void bind_image_memory(
-      image* _image, arena* _arena, size_t _offset) WN_GRAPHICS_OVERRIDE_FINAL;
+  void bind_image_memory(image* _image, arena* _arena,
+      uint64_t _offset) WN_GRAPHICS_OVERRIDE_FINAL;
   image_memory_requirements get_image_memory_requirements(
       const image* _image) WN_GRAPHICS_OVERRIDE_FINAL;
 
@@ -237,7 +237,8 @@ protected:
   void destroy_image_view(image_view* _view) WN_GRAPHICS_OVERRIDE_FINAL;
 
   // arena methods
-  bool initialize_arena(arena* _arena, const size_t _index, const size_t _size,
+  bool initialize_arena(arena* _arena, const size_t _index,
+      const uint64_t _size,
       const bool _multisampled) WN_GRAPHICS_OVERRIDE_FINAL;
   void destroy_arena(arena* _arena) WN_GRAPHICS_OVERRIDE_FINAL;
 

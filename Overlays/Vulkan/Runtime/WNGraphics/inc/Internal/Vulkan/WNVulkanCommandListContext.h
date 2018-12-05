@@ -43,6 +43,7 @@ struct command_list_context final {
 
   PFN_vkCmdCopyImageToBuffer vkCmdCopyImageToBuffer;
   PFN_vkCmdCopyBufferToImage vkCmdCopyBufferToImage;
+  PFN_vkCmdCopyImage vkCmdCopyImage;
 
   PFN_vkCmdSetViewport vkCmdSetViewport;
   PFN_vkCmdSetScissor vkCmdSetScissor;

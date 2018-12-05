@@ -150,7 +150,7 @@ class Runner:
         parser.add_argument("--sdk",
                             help="Location of the sdk", required=False)
         parser.add_argument("--attach", type=int,
-                            help="Attach to pid instead of start")
+                            help="Attach to pid instead of start", default=0)
         args = parser.parse_args(sys.argv[2:])
 
         adb = "adb"

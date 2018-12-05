@@ -156,8 +156,9 @@ struct log_type_helper<wn::containers::dynamic_array<T, N>, BuffType> {
 
     for (size_t i = 0; i < _0.size(); ++i) {
       if (i != 0) {
-        if (!log_type_helper<char[3], BuffType>::do_log(
-                ", ", _buffer, last_buffer_left)) {
+        if (!log_type_helper<char[3], BuffType>::do_log(", ",
+                _buffer + (_buffer_left - last_buffer_left),
+                last_buffer_left)) {
           return false;
         }
       }

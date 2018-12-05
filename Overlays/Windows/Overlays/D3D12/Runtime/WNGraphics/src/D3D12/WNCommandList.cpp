@@ -174,6 +174,26 @@ void d3d12_command_list::copy_image_to_buffer(const image& _src_image,
   m_command_list->CopyTextureRegion(&dest, 0, 0, 0, &source, nullptr);
 }
 
+void d3d12_command_list::copy_image(const image& _src, uint32_t _src_mip_level,
+    const image& _dst, uint32_t _dst_mip_level) {
+  const auto& src = get_data((const image*)&_src);
+  const auto& dst = get_data((const image*)&_dst);
+
+  D3D12_TEXTURE_COPY_LOCATION source = {
+      src->image.Get(),                           // pResource
+      D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX,  // Type
+      UINT{_src_mip_level}                        // SubresourceIndex
+  };
+
+  D3D12_TEXTURE_COPY_LOCATION dest = {
+      dst->image.Get(),                           // pResource
+      D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX,  // Type
+      UINT{_dst_mip_level}                        // SubresourceIndex
+  };
+
+  m_command_list->CopyTextureRegion(&dest, 0, 0, 0, &source, nullptr);
+}
+
 void d3d12_command_list::draw(uint32_t _vertex_count, uint32_t _instance_count,
     uint32_t _vertex_offset, uint32_t _instance_offset) {
   m_command_list->DrawInstanced(

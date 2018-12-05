@@ -497,6 +497,35 @@ struct pair_equality {
   }
 };
 
+template <typename K>
+struct dynamic_array_hasher {
+  size_t operator()(const dynamic_array<K>& _v) const {
+    size_t hash = 0;
+    std::hash<K> khash;
+    for (auto& v : _v) {
+      hash ^= khash(v);
+    }
+    return hash;
+  }
+};
+
+template <typename K>
+struct dynamic_array_equality {
+  bool operator()(
+      const dynamic_array<K>& _0, const dynamic_array<K>& _1) const {
+    if (_0.size() != _1.size()) {
+      return false;
+    }
+    std::equal_to<K> eq;
+    for (size_t i = 0; i < _0.size(); ++i) {
+      if (!eq(_0[i], _1[i])) {
+        return false;
+      }
+    }
+    return true;
+  }
+};
+
 }  // namespace containers
 }  // namespace wn
 

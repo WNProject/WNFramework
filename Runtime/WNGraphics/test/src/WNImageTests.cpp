@@ -40,15 +40,10 @@ TEST_P(image_transfer_tests, many_sizes) {
       }
     }
 
-    wn::runtime::graphics::buffer src_buffer =
-        device->create_buffer(buffer_size,
-            static_cast<wn::runtime::graphics::resource_states>(
-                static_cast<uint32_t>(
-                    wn::runtime::graphics::resource_state::host_read) |
-                static_cast<uint32_t>(
-                    wn::runtime::graphics::resource_state::host_write) |
-                static_cast<uint32_t>(
-                    wn::runtime::graphics::resource_state::copy_source)));
+    wn::runtime::graphics::buffer src_buffer = device->create_buffer(
+        buffer_size, wn::runtime::graphics::resource_state::host_read |
+                         wn::runtime::graphics::resource_state::host_write |
+                         wn::runtime::graphics::resource_state::copy_source);
 
     wn::runtime::graphics::buffer dst_buffer =
         device->create_buffer(buffer_size,

@@ -35,27 +35,78 @@ struct render_data : scripting::script_object_type {
   static bool resolve_scripting(scripting::engine* _engine);
 };
 
+struct render_dependency : scripting::script_object_type {
+  using parent_type = void;
+
+  void export_type(
+      scripting::engine::script_type_importer<render_dependency>* _importer) {
+    _importer->register_function("get_render_target", &get_render_target);
+    _importer->register_function("get_frame_offset", &get_frame_offset);
+  }
+
+  static wn::containers::string_view exported_name() {
+    return "RenderDependency";
+  }
+
+  static void register_scripting(scripting::engine* _engine);
+  static bool resolve_scripting(scripting::engine* _engine);
+
+  scripting::scripting_object_function<render_dependency, int32_t>
+      get_render_target;
+  scripting::scripting_object_function<render_dependency, int32_t>
+      get_frame_offset;
+};
+
+struct render_target_usage : scripting::script_object_type {
+  using parent_type = void;
+  void export_type(
+      scripting::engine::script_type_importer<render_target_usage>* _importer) {
+    _importer->register_function("get_render_target", &get_render_target);
+    _importer->register_function("get_clear_mode", &get_clear_mode);
+    _importer->register_function("get_store_mode", &get_store_mode);
+  }
+
+  static wn::containers::string_view exported_name() {
+    return "RenderTargetUsage";
+  }
+
+  static void register_scripting(scripting::engine* _engine);
+  static bool resolve_scripting(scripting::engine* _engine);
+
+  scripting::scripting_object_function<render_target_usage, int32_t>
+      get_render_target;
+  scripting::scripting_object_function<render_target_usage, int32_t>
+      get_clear_mode;
+  scripting::scripting_object_function<render_target_usage, int32_t>
+      get_store_mode;
+};
+
 struct pass_data : scripting::script_object_type {
   using parent_type = void;
 
   void export_type(
       scripting::engine::script_type_importer<pass_data>* _importer) {
-    _importer->register_function("get_pass_name", &pass_name);
-    _importer->register_function("get_color_attachments", &color_attachments);
-    _importer->register_function("get_depth_attachment", &depth_attachment);
+    _importer->register_function("get_pass_name", &get_pass_name);
+    _importer->register_function("get_render_targets", &get_render_targets);
+    _importer->register_function("get_depth_target", &get_depth_target);
+    _importer->register_function(
+        "get_render_dependencies", &get_render_dependencies);
   }
 
   static wn::containers::string_view exported_name() {
     return "PassData";
   }
 
-  scripting::scripting_virtual_object_function<pass_data, const char*>
-      pass_name;
-  scripting::scripting_virtual_object_function<pass_data,
-      scripting::wn_array<int32_t>>
-      color_attachments;
-  scripting::scripting_virtual_object_function<pass_data, int32_t>
-      depth_attachment;
+  scripting::scripting_object_function<pass_data, const char*> get_pass_name;
+  scripting::scripting_object_function<pass_data,
+      scripting::wn_array<scripting::script_pointer<render_target_usage>>>
+      get_render_targets;
+  scripting::scripting_object_function<pass_data,
+      scripting::script_pointer<render_target_usage>>
+      get_depth_target;
+  scripting::scripting_object_function<pass_data,
+      scripting::wn_array<scripting::script_pointer<render_dependency>>>
+      get_render_dependencies;
 
   static void register_scripting(scripting::engine* _engine);
   static bool resolve_scripting(scripting::engine* _engine);
@@ -71,16 +122,17 @@ struct render_context : scripting::script_object_type {
       scripting::engine::script_type_importer<render_context>* _importer) {
     _importer->register_function("get_render_targets", &get_render_targets);
     _importer->register_function("get_passes", &get_passes);
+    _importer->register_function("get_output_target", &get_output_target);
   }
 
   wn::scripting::scripting_object_function<render_context,
-      scripting::wn_array<
-          scripting::script_pointer<wn::engine::renderer::rt_description>>>
+      scripting::wn_array<scripting::script_pointer<rt_description>>>
       get_render_targets;
   wn::scripting::scripting_object_function<render_context,
-      scripting::wn_array<
-          scripting::script_pointer<wn::engine::renderer::pass_data>>>
+      scripting::wn_array<scripting::script_pointer<pass_data>>>
       get_passes;
+  wn::scripting::scripting_object_function<render_context, int32_t>
+      get_output_target;
 };
 
 }  // namespace renderer

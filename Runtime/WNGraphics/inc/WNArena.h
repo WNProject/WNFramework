@@ -42,7 +42,7 @@ public:
     return (m_device != nullptr && size() != 0);
   }
 
-  WN_FORCE_INLINE size_t size() const {
+  WN_FORCE_INLINE uint64_t size() const {
     return m_size;
   }
 
@@ -55,7 +55,7 @@ private:
     : base(), m_device(_device), m_size(0) {}
 
   device* m_device;
-  size_t m_size;
+  uint64_t m_size;
 };
 
 }  // namespace graphics

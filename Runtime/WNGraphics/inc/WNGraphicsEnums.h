@@ -11,6 +11,45 @@
 #include "WNCore/inc/base.h"
 #include "WNCore/inc/types.h"
 
+#define ADD_BITFIELD_OPS(bitfield)                                             \
+  using bitfield##s = uint32_t;                                                \
+  inline bitfield##s operator|(bitfield _1, bitfield _2) {                     \
+    return static_cast<bitfield##s>(                                           \
+        static_cast<uint32_t>(_1) | static_cast<uint32_t>(_2));                \
+  };                                                                           \
+  inline bitfield##s operator&(bitfield _1, bitfield _2) {                     \
+    return static_cast<bitfield##s>(                                           \
+        static_cast<uint32_t>(_1) & static_cast<uint32_t>(_2));                \
+  };                                                                           \
+  inline bitfield##s operator^(bitfield _1, bitfield _2) {                     \
+    return static_cast<bitfield##s>(                                           \
+        static_cast<uint32_t>(_1) & static_cast<uint32_t>(_2));                \
+  };                                                                           \
+  inline bitfield##s operator|(bitfield##s _1, bitfield _2) {                  \
+    return static_cast<bitfield##s>(                                           \
+        static_cast<uint32_t>(_1) | static_cast<uint32_t>(_2));                \
+  };                                                                           \
+  inline bitfield##s operator&(bitfield##s _1, bitfield _2) {                  \
+    return static_cast<bitfield##s>(                                           \
+        static_cast<uint32_t>(_1) & static_cast<uint32_t>(_2));                \
+  };                                                                           \
+  inline bitfield##s operator^(bitfield##s _1, bitfield _2) {                  \
+    return static_cast<bitfield##s>(                                           \
+        static_cast<uint32_t>(_1) & static_cast<uint32_t>(_2));                \
+  };                                                                           \
+  inline bitfield##s operator|(bitfield _1, bitfield##s _2) {                  \
+    return static_cast<bitfield##s>(                                           \
+        static_cast<uint32_t>(_1) | static_cast<uint32_t>(_2));                \
+  };                                                                           \
+  inline bitfield##s operator&(bitfield _1, bitfield##s _2) {                  \
+    return static_cast<bitfield##s>(                                           \
+        static_cast<uint32_t>(_1) & static_cast<uint32_t>(_2));                \
+  };                                                                           \
+  inline bitfield##s operator^(bitfield _1, bitfield##s _2) {                  \
+    return static_cast<bitfield##s>(                                           \
+        static_cast<uint32_t>(_1) & static_cast<uint32_t>(_2));                \
+  };
+
 namespace wn {
 namespace runtime {
 namespace graphics {
@@ -150,49 +189,48 @@ WN_FORCE_INLINE bool is_format_bc(data_format _format) {
   }
 }
 
-
 WN_FORCE_INLINE size_t format_block_width(data_format _format) {
   switch (_format) {
-  case data_format::r8g8b8a8_unorm:
-  case data_format::r32g32b32a32_sfloat:
-  case data_format::r32g32b32_sfloat:
-  case data_format::r32g32_sfloat:
-    return 1;
-  case data_format::astc_4x4:
-    return 4;
-  case data_format::astc_5x4:
-  case data_format::astc_5x5:
-    return 5;
-  case data_format::astc_6x5:
-  case data_format::astc_6x6:
-    return 6;
-  case data_format::astc_8x5:
-  case data_format::astc_8x6:
-  case data_format::astc_8x8:
-    return 8;
-  case data_format::astc_10x5:
-  case data_format::astc_10x6:
-  case data_format::astc_10x8:
-  case data_format::astc_10x10:
-    return 10;
-  case data_format::astc_12x10:
-  case data_format::astc_12x12:
-    return 12;
-  case data_format::bc1_rgb:
-  case data_format::bc1_rgba:
-  case data_format::bc2:
-  case data_format::bc3:
-    return 4;
-  case data_format::d16_unorm:
-  case data_format::d24_unorm:
-  case data_format::d32_float:
-  case data_format::s8_unorm:
-  case data_format::d16_unorm_s8_uint:
-  case data_format::d24_unorm_s8_uint:
-  case data_format::d32_float_s8_uint:
-    return 1;
-  case data_format::max:
-    return 0;
+    case data_format::r8g8b8a8_unorm:
+    case data_format::r32g32b32a32_sfloat:
+    case data_format::r32g32b32_sfloat:
+    case data_format::r32g32_sfloat:
+      return 1;
+    case data_format::astc_4x4:
+      return 4;
+    case data_format::astc_5x4:
+    case data_format::astc_5x5:
+      return 5;
+    case data_format::astc_6x5:
+    case data_format::astc_6x6:
+      return 6;
+    case data_format::astc_8x5:
+    case data_format::astc_8x6:
+    case data_format::astc_8x8:
+      return 8;
+    case data_format::astc_10x5:
+    case data_format::astc_10x6:
+    case data_format::astc_10x8:
+    case data_format::astc_10x10:
+      return 10;
+    case data_format::astc_12x10:
+    case data_format::astc_12x12:
+      return 12;
+    case data_format::bc1_rgb:
+    case data_format::bc1_rgba:
+    case data_format::bc2:
+    case data_format::bc3:
+      return 4;
+    case data_format::d16_unorm:
+    case data_format::d24_unorm:
+    case data_format::d32_float:
+    case data_format::s8_unorm:
+    case data_format::d16_unorm_s8_uint:
+    case data_format::d24_unorm_s8_uint:
+    case data_format::d32_float_s8_uint:
+      return 1;
+    case data_format::max:
+      return 0;
   }
   WN_DEBUG_ASSERT(false, "You should not end up here, update this enum");
   return false;
@@ -200,46 +238,46 @@ WN_FORCE_INLINE size_t format_block_width(data_format _format) {
 
 WN_FORCE_INLINE size_t format_block_height(data_format _format) {
   switch (_format) {
-  case data_format::r8g8b8a8_unorm:
-  case data_format::r32g32b32a32_sfloat:
-  case data_format::r32g32b32_sfloat:
-  case data_format::r32g32_sfloat:
-    return 1;
-  case data_format::astc_4x4:
-  case data_format::astc_5x4:
-    return 4;
-  case data_format::astc_5x5:
-  case data_format::astc_6x5:
-  case data_format::astc_8x5:
-  case data_format::astc_10x5:
-    return 5;
-  case data_format::astc_6x6:
-  case data_format::astc_8x6:
-  case data_format::astc_10x6:
-    return 6;
-  case data_format::astc_8x8:
-  case data_format::astc_10x8:
-    return 8;
-  case data_format::astc_10x10:
-  case data_format::astc_12x10:
-    return 10;
-  case data_format::astc_12x12:
-    return 12;
-  case data_format::bc1_rgb:
-  case data_format::bc1_rgba:
-  case data_format::bc2:
-  case data_format::bc3:
-    return 4;
-  case data_format::d16_unorm:
-  case data_format::d24_unorm:
-  case data_format::d32_float:
-  case data_format::s8_unorm:
-  case data_format::d16_unorm_s8_uint:
-  case data_format::d24_unorm_s8_uint:
-  case data_format::d32_float_s8_uint:
-    return 1;
-  case data_format::max:
-    return 0;
+    case data_format::r8g8b8a8_unorm:
+    case data_format::r32g32b32a32_sfloat:
+    case data_format::r32g32b32_sfloat:
+    case data_format::r32g32_sfloat:
+      return 1;
+    case data_format::astc_4x4:
+    case data_format::astc_5x4:
+      return 4;
+    case data_format::astc_5x5:
+    case data_format::astc_6x5:
+    case data_format::astc_8x5:
+    case data_format::astc_10x5:
+      return 5;
+    case data_format::astc_6x6:
+    case data_format::astc_8x6:
+    case data_format::astc_10x6:
+      return 6;
+    case data_format::astc_8x8:
+    case data_format::astc_10x8:
+      return 8;
+    case data_format::astc_10x10:
+    case data_format::astc_12x10:
+      return 10;
+    case data_format::astc_12x12:
+      return 12;
+    case data_format::bc1_rgb:
+    case data_format::bc1_rgba:
+    case data_format::bc2:
+    case data_format::bc3:
+      return 4;
+    case data_format::d16_unorm:
+    case data_format::d24_unorm:
+    case data_format::d32_float:
+    case data_format::s8_unorm:
+    case data_format::d16_unorm_s8_uint:
+    case data_format::d24_unorm_s8_uint:
+    case data_format::d32_float_s8_uint:
+      return 1;
+    case data_format::max:
+      return 0;
   }
   WN_DEBUG_ASSERT(false, "You should not end up here, update this enum");
   return false;
@@ -247,56 +285,55 @@ WN_FORCE_INLINE size_t format_block_height(data_format _format) {
 
 WN_FORCE_INLINE size_t format_block_size(data_format _format) {
   switch (_format) {
-  case data_format::r8g8b8a8_unorm:
-    return 4;
-  case data_format::r32g32b32a32_sfloat:
-    return 16;
-  case data_format::r32g32b32_sfloat:
-    return 12;
-  case data_format::r32g32_sfloat:
-    return 8;
-  case data_format::astc_4x4:
-  case data_format::astc_5x4:
-  case data_format::astc_5x5:
-  case data_format::astc_6x5:
-  case data_format::astc_8x5:
-  case data_format::astc_10x5:
-  case data_format::astc_6x6:
-  case data_format::astc_8x6:
-  case data_format::astc_10x6:
-  case data_format::astc_8x8:
-  case data_format::astc_10x8:
-  case data_format::astc_10x10:
-  case data_format::astc_12x10:
-  case data_format::astc_12x12:
-    return 16;
-  case data_format::bc1_rgb:
-  case data_format::bc1_rgba:
-    return 8;
-  case data_format::bc2:
-  case data_format::bc3:
-    return 16;
-  case data_format::d16_unorm:
-    return 2;
-  case data_format::d24_unorm:
-    return 3;
-  case data_format::d32_float:
-    return 4;
-  case data_format::s8_unorm:
-    return 1;
-  case data_format::d16_unorm_s8_uint:
-    return 3;
-  case data_format::d24_unorm_s8_uint:
-    return 4;
-  case data_format::d32_float_s8_uint:
-    return 38;
-  case data_format::max:
-    return 0;
+    case data_format::r8g8b8a8_unorm:
+      return 4;
+    case data_format::r32g32b32a32_sfloat:
+      return 16;
+    case data_format::r32g32b32_sfloat:
+      return 12;
+    case data_format::r32g32_sfloat:
+      return 8;
+    case data_format::astc_4x4:
+    case data_format::astc_5x4:
+    case data_format::astc_5x5:
+    case data_format::astc_6x5:
+    case data_format::astc_8x5:
+    case data_format::astc_10x5:
+    case data_format::astc_6x6:
+    case data_format::astc_8x6:
+    case data_format::astc_10x6:
+    case data_format::astc_8x8:
+    case data_format::astc_10x8:
+    case data_format::astc_10x10:
+    case data_format::astc_12x10:
+    case data_format::astc_12x12:
+      return 16;
+    case data_format::bc1_rgb:
+    case data_format::bc1_rgba:
+      return 8;
+    case data_format::bc2:
+    case data_format::bc3:
+      return 16;
+    case data_format::d16_unorm:
+      return 2;
+    case data_format::d24_unorm:
+      return 3;
+    case data_format::d32_float:
+      return 4;
+    case data_format::s8_unorm:
+      return 1;
+    case data_format::d16_unorm_s8_uint:
+      return 3;
+    case data_format::d24_unorm_s8_uint:
+      return 4;
+    case data_format::d32_float_s8_uint:
+      return 38;
+    case data_format::max:
+      return 0;
   }
   WN_DEBUG_ASSERT(false, "You should not end up here, update this enum");
   return false;
 }
-
 
 WN_FORCE_INLINE bool is_format_normalized(data_format _format) {
   switch (_format) {
@@ -496,7 +533,7 @@ enum class pipeline_stage : uint32_t {
   all_commands = 1 << 16,
 };
 
-using pipeline_stages = uint32_t;
+ADD_BITFIELD_OPS(pipeline_stage)
 
 enum class blend_factor {
   zero,
@@ -538,7 +575,8 @@ static const uint8_t k_all_write_components =
     static_cast<uint8_t>(write_component::g) |
     static_cast<uint8_t>(write_component::b) |
     static_cast<uint8_t>(write_component::a);
-using write_components = uint8_t;
+
+ADD_BITFIELD_OPS(write_component)
 
 enum class logic_op {  // s == source, d == dest
   disabled,            // ~
@@ -616,7 +654,8 @@ enum class resource_state : uint32_t {
 
 const static uint32_t k_all_resource_states =
     ((static_cast<uint32_t>(resource_state::max) - 1) << 1) - 1;
-using resource_states = uint32_t;
+
+ADD_BITFIELD_OPS(resource_state)
 
 enum class descriptor_type : uint16_t {
   sampler,
@@ -639,7 +678,7 @@ enum class image_component : uint8_t {
   stencil = 1 << 2
 };
 
-using image_components = uint8_t;
+ADD_BITFIELD_OPS(image_component)
 
 }  // namespace graphics
 }  // namespace runtime
