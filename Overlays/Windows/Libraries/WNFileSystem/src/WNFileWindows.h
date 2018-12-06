@@ -8,6 +8,7 @@
 #define __WN_FILE_SYSTEM_WINDOWS_FILE_WINDOWS_H__
 
 #include "WNFileSystem/inc/WNFile.h"
+#include "WNFileSystem/inc/object_info.h"
 #include "WNUtilities/inc/handle.h"
 
 namespace wn {
@@ -16,14 +17,14 @@ namespace internal {
 
 class file_windows final : public file {
 public:
-  WN_FORCE_INLINE file_windows(
+  file_windows(
       memory::allocator* _allocator, utilities::internal::handle&& _file_handle)
     : file(_allocator),
       m_file_handle(core::move(_file_handle)),
       m_mapped_memory(NULL),
       m_size({0}) {}
 
-  WN_FORCE_INLINE file_windows(memory::allocator* _allocator,
+  file_windows(memory::allocator* _allocator,
       utilities::internal::handle&& _file_handle,
       utilities::internal::handle&& _file_mapping_handle, LPVOID _mapped_memory,
       LARGE_INTEGER _size)
@@ -33,27 +34,30 @@ public:
       m_mapped_memory(_mapped_memory),
       m_size(_size) {}
 
-  WN_FORCE_INLINE virtual ~file_windows() override {
+  virtual ~file_windows() override {
     close();
   }
 
-  WN_FORCE_INLINE virtual pointer data() override {
+  virtual pointer data() override {
     return static_cast<pointer>(m_mapped_memory);
   }
 
-  WN_FORCE_INLINE virtual const_pointer data() const override {
+  virtual const_pointer data() const override {
     return static_cast<const_pointer>(m_mapped_memory);
   }
 
-  WN_FORCE_INLINE virtual size_type size() const override {
-    return static_cast<size_type>(m_size.QuadPart);
+  virtual object_info info() const override {
+    return object_info {
+        object_type::file,                       // type
+        static_cast<size_type>(m_size.QuadPart)  // size
+    };
   }
 
-  WN_FORCE_INLINE virtual bool is_open() const override {
+  virtual bool is_open() const override {
     return m_file_handle.is_valid();
   }
 
-  WN_FORCE_INLINE virtual bool flush() override {
+  virtual bool flush() override {
     if (is_open()) {
       if (m_mapped_memory != NULL) {
         if (::FlushViewOfFile(m_mapped_memory, 0) != TRUE) {
@@ -69,7 +73,7 @@ public:
 
   virtual bool resize(const size_type _size) override;
 
-  WN_FORCE_INLINE virtual void close() override {
+  virtual void close() override {
     if (is_open()) {
       flush();
       unmap();

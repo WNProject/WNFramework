@@ -45,8 +45,11 @@ file::const_pointer memory_backed_mapping::memory_backed_file::data() const {
   return m_store->m_data.empty() ? nullptr : m_store->m_data.data();
 }
 
-file::size_type memory_backed_mapping::memory_backed_file::size() const {
-  return m_store->m_data.size();
+object_info memory_backed_mapping::memory_backed_file::info() const {
+  return object_info {
+      object_type::file,                              // type
+      static_cast<size_type>(m_store->m_data.size())  // size
+  };
 }
 
 bool memory_backed_mapping::memory_backed_file::is_open() const {

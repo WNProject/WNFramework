@@ -18,37 +18,39 @@ namespace internal {
 
 class file_posix : public file {
 public:
-  WN_FORCE_INLINE file_posix(
-      memory::allocator* _allocator, file_descriptor&& _file_descriptor)
+  file_posix(memory::allocator* _allocator, file_descriptor&& _file_descriptor)
     : file(_allocator),
       m_file_descriptor(core::move(_file_descriptor)),
       m_mapped_memory(NULL),
       m_size(0) {}
 
-  WN_FORCE_INLINE file_posix(memory::allocator* _allocator,
-      file_descriptor&& _file_descriptor, void* _mapped_memory, size_t _size)
+  file_posix(memory::allocator* _allocator, file_descriptor&& _file_descriptor,
+      void* _mapped_memory, size_t _size)
     : file(_allocator),
       m_file_descriptor(core::move(_file_descriptor)),
       m_mapped_memory(_mapped_memory),
       m_size(_size) {}
 
-  WN_FORCE_INLINE virtual ~file_posix() override {
+  virtual ~file_posix() override {
     close();
   }
 
-  WN_FORCE_INLINE virtual pointer data() override {
+  virtual pointer data() override {
     return reinterpret_cast<pointer>(m_mapped_memory);
   }
 
-  WN_FORCE_INLINE virtual const_pointer data() const override {
+  virtual const_pointer data() const override {
     return reinterpret_cast<const_pointer>(m_mapped_memory);
   }
 
-  WN_FORCE_INLINE virtual size_type size() const override {
-    return static_cast<size_type>(m_size);
+  virtual object_info info() const override {
+    return object_info {
+        object_type::file,              // type
+        static_cast<size_type>(m_size)  // size
+    };
   }
 
-  WN_FORCE_INLINE virtual bool is_open() const override {
+  virtual bool is_open() const override {
     return m_file_descriptor.is_valid();
   }
 

@@ -18,14 +18,16 @@ bool mapping::sanitize_and_validate_path(
     if (!m_root_path.empty()) {
       _full_path.append(m_root_path);
     }
+
     internal::append_path(_full_path, path);
+
     return true;
   }
 
   return false;
 }
 
-result mapping::recursive_create_directory(containers::string_view _directory) {
+result mapping::create_directory_recursive(containers::string_view _directory) {
   containers::string sanitized_path(m_allocator, _directory);
 
   internal::sanitize_path(sanitized_path);
@@ -73,7 +75,7 @@ result mapping::initialize_files_internal(const T& _files) {
 
     result res;
 
-    if ((res = recursive_create_directory(directory)) != result::ok) {
+    if ((res = create_directory_recursive(directory)) != result::ok) {
       return res;
     }
 

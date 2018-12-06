@@ -2,6 +2,7 @@ enable_overlay_directory()
 
 add_wn_library(WNFileSystem
   SOURCES
+    inc/object_info.h
     inc/WNFactory.h
     inc/WNFile.h
     inc/WNMapping.h

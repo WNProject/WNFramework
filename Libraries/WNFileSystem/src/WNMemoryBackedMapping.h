@@ -7,6 +7,7 @@
 #include "WNFileSystem/inc/WNFile.h"
 #include "WNFileSystem/inc/WNMapping.h"
 #include "WNFileSystem/src/WNUtilities.h"
+#include "WNFileSystem/inc/object_info.h"
 #include "WNMultiTasking/inc/mutex.h"
 #include "WNMultiTasking/inc/spin_lock.h"
 
@@ -67,7 +68,7 @@ private:
 
     virtual pointer data();
     virtual const_pointer data() const;
-    virtual size_type size() const;
+    virtual object_info info() const;
     virtual bool is_open() const;
 
     // If 2 files try to flush back to the

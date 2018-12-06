@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "executable_test/inc/WNTestHarness.h"
 #include "WNFileSystem/inc/WNFactory.h"
 #include "WNFileSystem/inc/WNMapping.h"
 #include "WNFileSystem/test/src/TestFiles.h"
+#include "executable_test/inc/WNTestHarness.h"
 
 using mapping = ::testing::TestWithParam<wn::file_system::mapping_type>;
 
@@ -101,7 +101,7 @@ TEST_P(mapping, exists_directory) {
   }
 }
 
-TEST_P(mapping, recursive_create_directory) {
+TEST_P(mapping, create_directory_recursive) {
   wn::testing::allocator allocator;
 
   {
@@ -111,7 +111,7 @@ TEST_P(mapping, recursive_create_directory) {
 
     ASSERT_NE(mp, nullptr);
     const wn::file_system::result r =
-        mp->recursive_create_directory("temp/foo/bar/baz");
+        mp->create_directory_recursive("temp/foo/bar/baz");
     EXPECT_EQ(r, wn::file_system::result::ok);
 
     EXPECT_TRUE(mp->exists_directory("temp"));

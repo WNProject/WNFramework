@@ -9,6 +9,7 @@
 
 #include "WNContainers/inc/WNContiguousRange.h"
 #include "WNCore/inc/type_traits.h"
+#include "WNFileSystem/inc/object_info.h"
 #include "WNMemory/inc/allocator.h"
 #include "WNMemory/inc/intrusive_ptr.h"
 
@@ -17,10 +18,10 @@ namespace file_system {
 
 class file : public memory::intrusive_ptr_base {
 public:
-  typedef uint8_t value_type;
-  typedef size_t size_type;
-  typedef core::add_pointer<value_type>::type pointer;
-  typedef core::add_const<pointer>::type const_pointer;
+  using value_type = uint8_t;
+  using size_type = object_info::size_type;
+  using pointer = core::add_pointer<value_type>::type;
+  using const_pointer = core::add_const<pointer>::type;
 
   virtual ~file() = default;
 
@@ -28,42 +29,46 @@ public:
   virtual const_pointer data() const = 0;
 
   template <typename T>
-  WN_FORCE_INLINE T* typed_data() {
+  T* typed_data() {
     return reinterpret_cast<T*>(data());
   }
 
   template <typename T>
-  WN_FORCE_INLINE const T* typed_data() const {
+  const T* typed_data() const {
     return reinterpret_cast<const T*>(data());
   }
 
-  WN_FORCE_INLINE containers::contiguous_range<value_type> range() {
+  containers::contiguous_range<value_type> range() {
     return containers::contiguous_range<value_type>(data(), size());
   }
 
-  WN_FORCE_INLINE containers::contiguous_range<const value_type> range() const {
+  containers::contiguous_range<const value_type> range() const {
     return containers::contiguous_range<const value_type>(data(), size());
   }
 
   template <typename T>
-  WN_FORCE_INLINE containers::contiguous_range<T> typed_range() {
+  containers::contiguous_range<T> typed_range() {
     return containers::contiguous_range<T>(typed_data<T>(), typed_size<T>());
   }
 
   template <typename T>
-  WN_FORCE_INLINE containers::contiguous_range<const T> typed_range() const {
+  containers::contiguous_range<const T> typed_range() const {
     return containers::contiguous_range<const T>(
         typed_data<const T>(), typed_size<const T>());
   }
 
-  virtual size_type size() const = 0;
+  virtual object_info info() const = 0;
+
+  size_type size() const {
+    return info().size;
+  }
 
   template <typename T>
-  WN_FORCE_INLINE size_t typed_size() const {
+  size_type typed_size() const {
     return size() / sizeof(T);
   }
 
-  WN_FORCE_INLINE bool empty() const {
+  bool empty() const {
     return (size() == 0);
   }
 
@@ -72,14 +77,14 @@ public:
   virtual bool flush() = 0;
   virtual bool resize(const size_type _size) = 0;
 
-  WN_FORCE_INLINE bool clear() {
+  bool clear() {
     return resize(0);
   }
 
   virtual void close() = 0;
 
 protected:
-  WN_FORCE_INLINE file(memory::allocator* _allocator)
+  file(memory::allocator* _allocator)
     : memory::intrusive_ptr_base(_allocator) {}
 };
 

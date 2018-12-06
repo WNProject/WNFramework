@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "executable_test/inc/WNTestHarness.h"
 #include "WNFileSystem/inc/WNFactory.h"
 #include "WNFileSystem/inc/WNFile.h"
+#include "executable_test/inc/WNTestHarness.h"
 
 using file = ::testing::TestWithParam<wn::file_system::mapping_type>;
 
@@ -59,6 +59,39 @@ TEST_P(file, size) {
     EXPECT_EQ(r, wn::file_system::result::ok);
     EXPECT_EQ(fp->size(), 5u);
     EXPECT_FALSE(fp->empty());
+
+    fp->close();
+  }
+}
+
+TEST_P(file, info) {
+  wn::testing::allocator allocator;
+
+  {
+    wn::file_system::factory f(&allocator, wn::testing::k_executable_data);
+    const wn::file_system::mapping_ptr mp =
+        f.make_mapping(&allocator, GetParam());
+
+    ASSERT_NE(mp, nullptr);
+
+    wn::file_system::result r;
+    wn::file_system::file_ptr fp = mp->create_file("temp.txt", r);
+
+    ASSERT_NE(fp, nullptr);
+    EXPECT_EQ(r, wn::file_system::result::ok);
+    EXPECT_EQ(fp->info().type, wn::file_system::object_type::file);
+    EXPECT_EQ(fp->info().size, 0u);
+    EXPECT_TRUE(fp->resize(5));
+    EXPECT_EQ(fp->info().size, 5u);
+
+    fp->close();
+
+    fp = mp->open_file("temp.txt", r);
+
+    ASSERT_NE(fp, nullptr);
+    EXPECT_EQ(r, wn::file_system::result::ok);
+    EXPECT_EQ(fp->info().type, wn::file_system::object_type::file);
+    EXPECT_EQ(fp->info().size, 5u);
 
     fp->close();
   }

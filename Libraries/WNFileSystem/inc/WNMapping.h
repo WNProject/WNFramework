@@ -30,7 +30,7 @@ public:
 
   virtual result create_directory(const containers::string_view _path) = 0;
 
-  result recursive_create_directory(containers::string_view _directory);
+  result create_directory_recursive(containers::string_view _path);
 
   virtual file_ptr open_file(
       const containers::string_view _path, result& _result) = 0;
