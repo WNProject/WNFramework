@@ -35,6 +35,7 @@ add_wn_library(re2
 )
 
 add_subdirectory(stb_image)
+add_subdirectory(xxhash)
 
 set(EFFCEE_SOURCES
   effcee/effcee/check.cc
