@@ -70,3 +70,53 @@ TEST_P(range_partition_tests, allocate_all_by_1) {
 
 INSTANTIATE_TEST_CASE_P(various_sizes, range_partition_tests,
     ::testing::Values(10, 32, 41, 64, 129, 2048));
+
+TEST_P(range_partition_tests, aligned) {
+  wn::testing::allocator m_allocator;
+  using range_partition = wn::containers::range_partition<>;
+  range_partition l(&m_allocator, 1024 * 1024);
+  wn::containers::dynamic_array<range_partition::token> tokens(&m_allocator);
+  tokens.reserve(10);
+
+  for (size_t i = 0; i < 10; ++i) {
+    tokens.emplace_back(
+        l.get_aligned_interval(i + 1, (static_cast<size_t>(1) << i)));
+    EXPECT_TRUE(tokens.back().is_valid());
+    EXPECT_TRUE((tokens.back().offset() % (static_cast<size_t>(1) << i)) == 0);
+  }
+}
+
+TEST_P(range_partition_tests, small_aligned) {
+  wn::testing::allocator m_allocator;
+  using range_partition = wn::containers::range_partition<
+      wn::containers::default_node_allocator<uint64_t>, uint64_t>;
+  range_partition l(&m_allocator, 16);
+
+  auto tok0 = l.get_aligned_interval(1, 1);
+  auto tok1 = l.get_aligned_interval(1, 4);
+  auto tok2 = l.get_aligned_interval(1, 8);
+  EXPECT_TRUE(tok0.is_valid());
+  EXPECT_TRUE(tok1.is_valid());
+  EXPECT_TRUE(tok2.is_valid());
+  EXPECT_TRUE((tok0.offset() % 1) == 0);
+  EXPECT_TRUE((tok0.offset() % 4) == 0);
+  EXPECT_TRUE((tok0.offset() % 8) == 0);
+}
+
+TEST_P(range_partition_tests, aligned_release) {
+  wn::testing::allocator m_allocator;
+  using range_partition = wn::containers::range_partition<>;
+  range_partition l(&m_allocator, 1024 * 1024);
+
+  auto tok0 = l.get_aligned_interval(1, 1);
+  auto tok1 = l.get_aligned_interval(1, 4);
+  auto offs = tok1.offset();
+  auto tok2 = l.get_aligned_interval(1, 8);
+  EXPECT_TRUE(tok0.is_valid());
+  EXPECT_TRUE(tok1.is_valid());
+  EXPECT_TRUE(tok2.is_valid());
+  tok1.free();
+  EXPECT_EQ(2u, l.used());
+  tok1 = l.get_aligned_interval(1, 4);
+  EXPECT_EQ(offs, tok1.offset());
+}

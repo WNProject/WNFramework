@@ -13,39 +13,42 @@
 namespace wn {
 namespace containers {
 
+template <typename T_SIZE>
 struct partition_node;
 
+template <typename T_SIZE>
 class default_node_allocator {
 public:
   default_node_allocator() : m_allocator(nullptr) {}
   default_node_allocator(memory::allocator* _allocator)
     : m_allocator(_allocator) {}
-  partition_node* allocate_node_for(size_t, size_t);
-  void free_node(partition_node* node);
-  void move_node(size_t, size_t, size_t, size_t) {}
+  partition_node<T_SIZE>* allocate_node_for(T_SIZE, T_SIZE);
+  void free_node(partition_node<T_SIZE>* node);
+  void move_node(T_SIZE, T_SIZE, T_SIZE, T_SIZE) {}
 
 private:
   memory::allocator* m_allocator;
 };
 
-template <typename NodeAllocator = default_node_allocator>
+template <typename NodeAllocator = default_node_allocator<size_t>,
+    typename T_SIZE = size_t>
 class range_partition {
 private:
   // TODO(awoloszyn): If our small-type optimization only misses
   // by a small bit most of the time, consider expanding it.
-  static const size_t k_no_allocation_size = sizeof(size_t) * 8;
+  static const T_SIZE k_no_allocation_size = sizeof(T_SIZE) * 8;
   WN_FORCE_INLINE bool small_size() const {
     return m_num_elements <= k_no_allocation_size;
   }
-  partition_node* const dummy_partition_node =
-      reinterpret_cast<partition_node*>(0x1);
+  partition_node<T_SIZE>* const dummy_partition_node =
+      reinterpret_cast<partition_node<T_SIZE>*>(0x1);
   friend struct token;
 
 public:
   struct token : core::non_copyable {
   public:
-    size_t size() const;
-    size_t offset() const;
+    T_SIZE size() const;
+    T_SIZE offset() const;
     bool is_valid() const;
 
     token(token&& _other) {
@@ -80,22 +83,23 @@ public:
     token() : list(nullptr) {}
 
   private:
-    template <typename T>
+    template <typename A, typename S>
     friend class range_partition;
-    token(range_partition<NodeAllocator>* _list, partition_node* _node)
+    token(range_partition<NodeAllocator, T_SIZE>* _list,
+        partition_node<T_SIZE>* _node)
       : list(_list), node(_node) {}
-    token(range_partition<NodeAllocator>* _list, size_t _bits)
+    token(range_partition<NodeAllocator, T_SIZE>* _list, T_SIZE _bits)
       : list(_list), bits(_bits) {}
 
-    range_partition<NodeAllocator>* list;
+    range_partition<NodeAllocator, T_SIZE>* list;
 
     union {
-      partition_node* node;
-      size_t bits;
+      partition_node<T_SIZE>* node;
+      T_SIZE bits;
     };
   };
 
-  range_partition(const NodeAllocator& _node_allocator, size_t num_elements);
+  range_partition(const NodeAllocator& _node_allocator, T_SIZE num_elements);
 
   range_partition() : m_num_elements(0) {}
 
@@ -105,13 +109,14 @@ public:
   // considered no longer valid.
   ~range_partition();
 
-  size_t size() const;
+  T_SIZE size() const;
 
-  size_t used() const;
+  T_SIZE used() const;
 
   void release_interval(token token);
 
-  token get_interval(size_t size);
+  token get_interval(T_SIZE size);
+  token get_aligned_interval(T_SIZE size, T_SIZE alignment);
   range_partition& operator=(range_partition&& _other);
 
 private:
@@ -120,35 +125,36 @@ private:
   // Splits the given node if it is larger than _size elements,
   // returns the entire node if it is exactly _size elements.
   // It is an error to call this on a node with fewer than _size elements.
-  partition_node* split_at(partition_node* node, size_t _size);
+  partition_node<T_SIZE>* split_at(partition_node<T_SIZE>* node, T_SIZE _size);
 
-  size_t m_num_elements;
-  size_t m_used_space;
+  T_SIZE m_num_elements;
+  T_SIZE m_used_space;
   union {
-    partition_node* m_node;
-    size_t m_used_bucket;
+    partition_node<T_SIZE>* m_node;
+    T_SIZE m_used_bucket;
   };
-  partition_node* m_free_list;
+  partition_node<T_SIZE>* m_free_list;
   NodeAllocator m_node_allocator;
 };
 
+template <typename T_SIZE>
 struct partition_node {
 public:
-  size_t size() const {
+  T_SIZE size() const {
     return m_size;
   }
-  size_t offset() const {
+  T_SIZE offset() const {
     return m_offset;
   }
 
 private:
-  template <typename T>
+  template <typename A, typename S>
   friend class range_partition;
-  partition_node* m_next = nullptr;
-  partition_node* m_previous = nullptr;
-  partition_node* m_next_free = nullptr;
-  size_t m_offset = 0;
-  size_t m_size = 0;
+  partition_node<T_SIZE>* m_next = nullptr;
+  partition_node<T_SIZE>* m_previous = nullptr;
+  partition_node<T_SIZE>* m_next_free = nullptr;
+  T_SIZE m_offset = 0;
+  T_SIZE m_size = 0;
 
   bool is_first_node() const {
     return m_previous == nullptr;
@@ -160,19 +166,20 @@ private:
     return (m_previous == m_next) && m_previous == nullptr;
   }
 
-  void insert_before(partition_node* _next) {
+  void insert_before(partition_node<T_SIZE>* _next) {
     if (_next) {
       insert_between(_next->m_previous, _next);
     }
   }
 
-  void insert_after(partition_node* _previous) {
+  void insert_after(partition_node<T_SIZE>* _previous) {
     if (_previous) {
       insert_between(_previous, _previous->m_next);
     }
   }
 
-  void insert_between(partition_node* _previous, partition_node* _next) {
+  void insert_between(
+      partition_node<T_SIZE>* _previous, partition_node<T_SIZE>* _next) {
     if (_previous) {
       _previous->m_next = this;
       m_previous = _previous;
@@ -194,10 +201,10 @@ private:
     return true;
   }
 
-  WN_FORCE_INLINE partition_node* merge_left() {
+  WN_FORCE_INLINE partition_node<T_SIZE>* merge_left() {
     WN_DEBUG_ASSERT(m_next_free, "Cannot merge wiht previous non-free block");
     if (m_previous && m_previous->m_next_free) {
-      partition_node* p = m_previous;
+      partition_node<T_SIZE>* p = m_previous;
       m_next_free = m_previous->m_next_free;
       m_size += m_previous->m_size;
       m_previous = m_previous->m_previous;
@@ -209,10 +216,10 @@ private:
     return nullptr;
   }
 
-  partition_node* merge_right() {
+  partition_node<T_SIZE>* merge_right() {
     WN_DEBUG_ASSERT(m_next_free, "Cannot merge wiht previous non-free block");
     if (m_next && m_next->m_next_free) {
-      partition_node* n = m_next;
+      partition_node<T_SIZE>* n = m_next;
       m_next_free = m_next->m_next_free;
       m_size += m_next->m_size;
 
@@ -227,30 +234,34 @@ private:
   }
 };
 
-inline partition_node* default_node_allocator::allocate_node_for(
-    size_t, size_t) {
-  return m_allocator->construct<partition_node>();
+template <typename T_SIZE>
+inline partition_node<T_SIZE>*
+default_node_allocator<T_SIZE>::allocate_node_for(T_SIZE, T_SIZE) {
+  return m_allocator->construct<partition_node<T_SIZE>>();
 }
-inline void default_node_allocator::free_node(partition_node* node) {
+
+template <typename T_SIZE>
+inline void default_node_allocator<T_SIZE>::free_node(
+    partition_node<T_SIZE>* node) {
   m_allocator->destroy(node);
 }
 
-template <typename NodeAllocator>
-inline size_t range_partition<NodeAllocator>::token::size() const {
+template <typename NodeAllocator, typename T_SIZE>
+inline T_SIZE range_partition<NodeAllocator, T_SIZE>::token::size() const {
   return list->small_size() ? math::popcount_sparse(bits) : node->size();
 }
-template <typename NodeAllocator>
-inline size_t range_partition<NodeAllocator>::token::offset() const {
+template <typename NodeAllocator, typename T_SIZE>
+inline T_SIZE range_partition<NodeAllocator, T_SIZE>::token::offset() const {
   return list->small_size() ? math::trailing_zeros(bits) : node->offset();
 }
-template <typename NodeAllocator>
-inline bool range_partition<NodeAllocator>::token::is_valid() const {
+template <typename NodeAllocator, typename T_SIZE>
+inline bool range_partition<NodeAllocator, T_SIZE>::token::is_valid() const {
   return list && (node || bits);
 }
 
-template <typename NodeAllocator>
-range_partition<NodeAllocator>::range_partition(
-    const NodeAllocator& _node_allocator, size_t num_elements)
+template <typename NodeAllocator, typename T_SIZE>
+range_partition<NodeAllocator, T_SIZE>::range_partition(
+    const NodeAllocator& _node_allocator, T_SIZE num_elements)
   : m_num_elements(num_elements),
     m_used_space(0),
     m_free_list(dummy_partition_node),
@@ -260,7 +271,7 @@ range_partition<NodeAllocator>::range_partition(
       m_used_bucket = 0;
     } else {
       // Mask off all of the buckets that we cannot use.
-      m_used_bucket = ~((static_cast<size_t>(1) << num_elements) - 1);
+      m_used_bucket = ~((static_cast<T_SIZE>(1) << num_elements) - 1);
     }
   } else {
     m_node = m_node_allocator.allocate_node_for(0, num_elements);
@@ -270,11 +281,11 @@ range_partition<NodeAllocator>::range_partition(
   }
 }
 
-template <typename NodeAllocator>
-void range_partition<NodeAllocator>::reset() {
+template <typename NodeAllocator, typename T_SIZE>
+void range_partition<NodeAllocator, T_SIZE>::reset() {
   if (!small_size() && m_num_elements > 0) {
     while (!m_node->is_last_node()) {
-      partition_node* next = m_node->m_next;
+      partition_node<T_SIZE>* next = m_node->m_next;
       m_node_allocator.free_node(m_node);
       m_node = next;
     }
@@ -286,14 +297,14 @@ void range_partition<NodeAllocator>::reset() {
 // It is legal to call this while there are still some nodes that
 // are unaccounted for, but the contents of those nodes should be
 // considered no longer valid.
-template <typename NodeAllocator>
-range_partition<NodeAllocator>::~range_partition() {
+template <typename NodeAllocator, typename T_SIZE>
+range_partition<NodeAllocator, T_SIZE>::~range_partition() {
   reset();
 }
 
-template <typename NodeAllocator>
-range_partition<NodeAllocator>& range_partition<NodeAllocator>::operator=(
-    range_partition<NodeAllocator>&& _other) {
+template <typename NodeAllocator, typename T_SIZE>
+range_partition<NodeAllocator, T_SIZE>& range_partition<NodeAllocator, T_SIZE>::
+operator=(range_partition<NodeAllocator, T_SIZE>&& _other) {
   reset();
   m_num_elements = _other.m_num_elements;
   _other.m_num_elements = 0;
@@ -308,18 +319,19 @@ range_partition<NodeAllocator>& range_partition<NodeAllocator>::operator=(
   return *this;
 }
 
-template <typename NodeAllocator>
-inline size_t range_partition<NodeAllocator>::size() const {
+template <typename NodeAllocator, typename T_SIZE>
+inline T_SIZE range_partition<NodeAllocator, T_SIZE>::size() const {
   return m_num_elements;
 }
 
-template <typename NodeAllocator>
-inline size_t range_partition<NodeAllocator>::used() const {
+template <typename NodeAllocator, typename T_SIZE>
+inline T_SIZE range_partition<NodeAllocator, T_SIZE>::used() const {
   return m_used_space;
 }
 
-template <typename NodeAllocator>
-inline void range_partition<NodeAllocator>::release_interval(token token) {
+template <typename NodeAllocator, typename T_SIZE>
+inline void range_partition<NodeAllocator, T_SIZE>::release_interval(
+    token token) {
   if (small_size()) {
     m_used_bucket = m_used_bucket & ~token.bits;
     m_used_space -= token.size();
@@ -327,7 +339,7 @@ inline void range_partition<NodeAllocator>::release_interval(token token) {
     m_used_space -= token.size();
     token.node->m_next_free = m_free_list;
     m_free_list = token.node;
-    partition_node* node;
+    partition_node<T_SIZE>* node;
     if (0 != (node = m_free_list->merge_left())) {
       if (!node->m_previous) {
         m_node = m_free_list;
@@ -341,39 +353,71 @@ inline void range_partition<NodeAllocator>::release_interval(token token) {
   token.list = nullptr;
 }
 
-template <typename NodeAllocator>
-inline typename range_partition<NodeAllocator>::token
-range_partition<NodeAllocator>::get_interval(size_t _size) {
+template <typename NodeAllocator, typename T_SIZE>
+inline typename range_partition<NodeAllocator, T_SIZE>::token
+range_partition<NodeAllocator, T_SIZE>::get_aligned_interval(
+    T_SIZE _size, T_SIZE _alignment) {
+  WN_DEBUG_ASSERT(_size != 0, "Size must be > 0");
+  WN_DEBUG_ASSERT(_alignment > 0 && (_alignment & (_alignment - 1)) == 0,
+      "Alignment must be a power of 2");
   if (small_size()) {
-    size_t bit_mask = _size == k_no_allocation_size
-                          ? static_cast<size_t>(-1)
-                          : (static_cast<size_t>(1) << _size) - 1;
-    size_t inv_bucket = ~m_used_bucket;
-    size_t offset = math::trailing_zeros(inv_bucket);
+    T_SIZE bit_mask = _size == k_no_allocation_size
+                          ? static_cast<T_SIZE>(-1)
+                          : (static_cast<T_SIZE>(1) << _size) - 1;
+    T_SIZE inv_bucket = ~m_used_bucket;
+    T_SIZE offset = math::trailing_zeros(inv_bucket);
     inv_bucket >>= offset;
-    while (inv_bucket & ((inv_bucket & bit_mask) != bit_mask)) {
-      // We could not fit into the free bits on the end. Remove them
-      size_t new_offset = math::trailing_zeros(~inv_bucket);
-      inv_bucket >>= new_offset;
-      offset += new_offset;
-      // We definitely won't be able to fit in the used bits at the end
-      // so remove all of those as well.
-      new_offset = math::trailing_zeros(inv_bucket);
-      inv_bucket >>= new_offset;
-      offset += new_offset;
+
+    while (inv_bucket) {
+      while (inv_bucket & ((inv_bucket & bit_mask) != bit_mask)) {
+        // We could not fit into the free bits on the end. Remove them
+        T_SIZE new_offset = math::trailing_zeros(~inv_bucket);
+        inv_bucket >>= new_offset;
+        offset += new_offset;
+        // We definitely won't be able to fit in the used bits at the end
+        // so remove all of those as well.
+        new_offset = math::trailing_zeros(inv_bucket);
+        inv_bucket >>= new_offset;
+        offset += new_offset;
+      }
+      if (!inv_bucket) {
+        return token();
+      }
+      if ((offset & (_alignment - 1)) == 0) {
+        break;
+      }
+      offset += 1;
+      inv_bucket >>= 1;
     }
     if (!inv_bucket) {
       return token();
     }
+
     m_used_bucket |= bit_mask << offset;
     m_used_space += _size;
-    return token(this, bit_mask << offset);
+    return token(this, static_cast<T_SIZE>(bit_mask << offset));
   } else {
-    partition_node* free_node = m_free_list;
-    partition_node* last_free_node = nullptr;
+    partition_node<T_SIZE>* free_node = m_free_list;
+    partition_node<T_SIZE>* last_free_node = nullptr;
     while (free_node != dummy_partition_node) {
       if (free_node->m_size >= _size) {
-        partition_node* new_node = split_at(free_node, _size);
+        // We found a node that can fit us, but first lets also check the
+        // alignment
+        T_SIZE node_offset = free_node->m_offset & (_alignment - 1);
+        if (node_offset != 0) {
+          node_offset = _alignment - node_offset;
+        }
+        if (free_node->m_size < node_offset + _size) {
+          free_node = free_node->m_next_free;
+          continue;
+        }
+        // If we had to chop some of this off for alignment reasons:
+        if (node_offset != 0) {
+          partition_node<T_SIZE>* temp = split_at(free_node, node_offset);
+          temp->m_next_free = m_free_list;
+          m_free_list = temp;
+        }
+        partition_node<T_SIZE>* new_node = split_at(free_node, _size);
         m_used_space += _size;
         if (new_node != free_node) {
           return token(this, new_node);
@@ -395,9 +439,65 @@ range_partition<NodeAllocator>::get_interval(size_t _size) {
     return token();
   }
 }
-template <typename NodeAllocator>
-inline partition_node* range_partition<NodeAllocator>::split_at(
-    partition_node* node, size_t _size) {
+
+template <typename NodeAllocator, typename T_SIZE>
+inline typename range_partition<NodeAllocator, T_SIZE>::token
+range_partition<NodeAllocator, T_SIZE>::get_interval(T_SIZE _size) {
+  if (small_size()) {
+    T_SIZE bit_mask = _size == k_no_allocation_size
+                          ? static_cast<T_SIZE>(-1)
+                          : (static_cast<T_SIZE>(1) << _size) - 1;
+    T_SIZE inv_bucket = ~m_used_bucket;
+    T_SIZE offset = math::trailing_zeros(inv_bucket);
+    inv_bucket >>= offset;
+    while (inv_bucket & ((inv_bucket & bit_mask) != bit_mask)) {
+      // We could not fit into the free bits on the end. Remove them
+      T_SIZE new_offset = math::trailing_zeros(~inv_bucket);
+      inv_bucket >>= new_offset;
+      offset += new_offset;
+      // We definitely won't be able to fit in the used bits at the end
+      // so remove all of those as well.
+      new_offset = math::trailing_zeros(inv_bucket);
+      inv_bucket >>= new_offset;
+      offset += new_offset;
+    }
+    if (!inv_bucket) {
+      return token();
+    }
+    m_used_bucket |= bit_mask << offset;
+    m_used_space += _size;
+    return token(this, bit_mask << offset);
+  } else {
+    partition_node<T_SIZE>* free_node = m_free_list;
+    partition_node<T_SIZE>* last_free_node = nullptr;
+    while (free_node != dummy_partition_node) {
+      if (free_node->m_size >= _size) {
+        partition_node<T_SIZE>* new_node = split_at(free_node, _size);
+        m_used_space += _size;
+        if (new_node != free_node) {
+          return token(this, new_node);
+        }
+        // Otherwise: The node returned WAS the free-node, update free-list.
+        if (last_free_node == nullptr) {
+          // If we were the first free_node then we need to set the root
+          // free-list.
+          m_free_list = new_node->m_next_free;
+        } else {
+          last_free_node->m_next_free = new_node->m_next_free;
+        }
+        new_node->m_next_free = nullptr;
+        return token(this, new_node);
+      } else {
+        free_node = free_node->m_next_free;
+      }
+    }
+    return token();
+  }
+}
+
+template <typename NodeAllocator, typename T_SIZE>
+inline partition_node<T_SIZE>* range_partition<NodeAllocator, T_SIZE>::split_at(
+    partition_node<T_SIZE>* node, T_SIZE _size) {
   WN_DEBUG_ASSERT(node->m_next_free != nullptr, "Can only split free nodes");
   WN_DEBUG_ASSERT(
       node->m_size >= _size, "Can only split nodes that are large enough");
@@ -405,14 +505,14 @@ inline partition_node* range_partition<NodeAllocator>::split_at(
   if (node->m_size == _size) {
     return node;
   }
-  size_t old_offset = node->m_offset;
+  T_SIZE old_offset = node->m_offset;
   node->m_offset += _size;
   node->m_size -= _size;
 
   m_node_allocator.move_node(
       node->m_size + _size, old_offset, node->m_size, node->m_offset);
 
-  partition_node* new_node =
+  partition_node<T_SIZE>* new_node =
       m_node_allocator.allocate_node_for(old_offset, _size);
   new_node->m_size = _size;
   new_node->m_offset = old_offset;
