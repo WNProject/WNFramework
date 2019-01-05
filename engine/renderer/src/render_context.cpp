@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "renderer/inc/renderer.h"
+#include "renderer/inc/render_context.h"
 #include "WNGraphics/inc/WNCommandList.h"
 #include "WNGraphics/inc/WNGraphicsEnums.h"
 #include "WNGraphics/inc/WNSwapchain.h"
@@ -27,25 +27,25 @@ const uint32_t kNumDefaultBackings = 2;
 namespace wn {
 namespace scripting {
 template <>
-struct exported_script_type<renderer::renderer> {
+struct exported_script_type<renderer::render_context> {
   static containers::string_view exported_name() {
-    return "Renderer";
+    return "RenderContext";
   }
 
   template <typename T>
   static void export_type(T* _exporter) {
     _exporter->template register_nonvirtual_function<
-        decltype(&renderer::renderer::width), &renderer::renderer::width>(
+        decltype(&renderer::render_context::width), &renderer::render_context::width>(
         "width");
     _exporter->template register_nonvirtual_function<
-        decltype(&renderer::renderer::height), &renderer::renderer::height>(
+        decltype(&renderer::render_context::height), &renderer::render_context::height>(
         "height");
     _exporter->template register_nonvirtual_function<
-        decltype(&renderer::renderer::render), &renderer::renderer::render>(
+        decltype(&renderer::render_context::render), &renderer::render_context::render>(
         "render");
     _exporter->template register_nonvirtual_function<
-        decltype(&renderer::renderer::register_context),
-        &renderer::renderer::register_context>("register_context");
+        decltype(&renderer::render_context::register_description),
+        &renderer::render_context::register_description>("register_description");
   }
 };
 }  // namespace scripting
@@ -53,26 +53,26 @@ struct exported_script_type<renderer::renderer> {
 
 namespace {
 
-shared_cpp_pointer<engine::renderer::renderer> get_attachmentless_renderer(
+shared_cpp_pointer<engine::renderer::render_context> get_attachmentless_render_context(
     engine_base::context* _context) {
-  return _context->m_engine->make_shared_cpp<engine::renderer::renderer>(
+  return _context->m_engine->make_shared_cpp<engine::renderer::render_context>(
       _context->m_allocator, _context->m_log, nullptr, 0, 0);
 }
 
-shared_cpp_pointer<engine::renderer::renderer> get_renderer(
+shared_cpp_pointer<engine::renderer::render_context> get_render_context(
     engine_base::context* _context, int32_t _width, int32_t _height) {
   if (_width == 0 || _height == 0) {
     _context->m_log->log_error(
         "If you want to create a renderer without a default attachment"
         " do not specify a width or height");
   }
-  return _context->m_engine->make_shared_cpp<engine::renderer::renderer>(
+  return _context->m_engine->make_shared_cpp<engine::renderer::render_context>(
       _context->m_allocator, _context->m_log, nullptr, _width, _height);
 }
 
-shared_cpp_pointer<engine::renderer::renderer> get_renderer_with_window(
+shared_cpp_pointer<engine::renderer::render_context> get_render_context_with_window(
     engine_base::context* _context, window::window* _window) {
-  return _context->m_engine->make_shared_cpp<engine::renderer::renderer>(
+  return _context->m_engine->make_shared_cpp<engine::renderer::render_context>(
       _context->m_allocator, _context->m_log, _window, _window->width(),
       _window->height());
 }
@@ -169,34 +169,35 @@ int32_t test() {
   return 0;
 }
 
-void renderer::register_scripting(scripting::engine* _engine) {
+void render_context::register_scripting(scripting::engine* _engine) {
   register_graphics_enums(_engine);
   rt_description::register_scripting(_engine);
   render_dependency::register_scripting(_engine);
   render_target_usage::register_scripting(_engine);
   pass_data::register_scripting(_engine);
   render_data::register_scripting(_engine);
-  _engine->export_script_type<render_context>();
-  _engine->register_cpp_type<renderer>();
-  _engine->register_function<decltype(&get_attachmentless_renderer),
-      &get_attachmentless_renderer>("get_renderer");
-  _engine->register_function<decltype(&get_renderer), &get_renderer>(
-      "get_renderer");
-  _engine->register_function<decltype(&get_renderer_with_window),
-      &get_renderer_with_window>("get_renderer");
+  _engine->export_script_type<render_description>();
+  _engine->register_cpp_type<render_context>();
+  _engine->register_function<decltype(&get_attachmentless_render_context),
+      &get_attachmentless_render_context>("get_render_context");
+  _engine
+      ->register_function<decltype(&get_render_context), &get_render_context>(
+      "get_render_context");
+  _engine->register_function<decltype(&get_render_context_with_window),
+      &get_render_context_with_window>("get_render_context");
   _engine->register_function<decltype(&test), &test>("test");
 }
 
-bool renderer::resolve_scripting(scripting::engine* _engine) {
+bool render_context::resolve_scripting(scripting::engine* _engine) {
   return rt_description::resolve_scripting(_engine) &&
          render_data::resolve_scripting(_engine) &&
          render_dependency::resolve_scripting(_engine) &&
          render_target_usage::resolve_scripting(_engine) &&
          pass_data::resolve_scripting(_engine) &&
-         _engine->resolve_script_type<render_context>();
+         _engine->resolve_script_type<render_description>();
 }
 
-renderer::renderer(memory::allocator* _allocator, logging::log* _log,
+render_context::render_context(memory::allocator* _allocator, logging::log* _log,
     window::window* _window, int32_t _width, int32_t _height)
   : m_log(_log),
     m_window(_window),
@@ -275,15 +276,15 @@ renderer::renderer(memory::allocator* _allocator, logging::log* _log,
   }
 }
 
-void renderer::register_context(
-    scripting::script_pointer<render_context> _render_context) {
-  m_output_rt = _render_context.invoke(&render_context::get_output_target);
+void render_context::register_description(
+    scripting::script_pointer<render_description> _render_description) {
+  m_output_rt = _render_description.invoke(&render_description::get_output_target);
 
-  auto targets = _render_context.invoke(&render_context::get_render_targets);
+  auto targets = _render_description.invoke(&render_description::get_render_targets);
   containers::dynamic_array<uint32_t> num_backings(m_allocator);
   num_backings.resize(targets.size());
 
-  auto passes = _render_context.invoke(&render_context::get_passes);
+  auto passes = _render_description.invoke(&render_description::get_passes);
   containers::dynamic_array<
       containers::dynamic_array<runtime::graphics::render_pass_attachment>>
       all_rp_descs(m_allocator);
@@ -442,12 +443,12 @@ void renderer::register_context(
   }
 }
 
-gpu_allocation renderer::get_allocation_for_render_target(
+gpu_allocation render_context::get_allocation_for_render_target(
     uint64_t _size, uint64_t _alignment) {
   return m_render_target_heap->allocate_memory(_size, _alignment);
 }
 
-bool renderer::render() {
+bool render_context::render() {
   // TODO(awoloszyn): I don't like this tick, but it will do for now.
   size_t backing_idx = m_frame_num % kNumDefaultBackings;
   if (m_frame_num >= kNumDefaultBackings) {

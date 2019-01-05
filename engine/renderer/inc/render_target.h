@@ -20,7 +20,7 @@ class device;
 }  // namespace runtime
 namespace engine {
 namespace renderer {
-class renderer;
+class render_context;
 
 // rt_description is an exported type in scripting.
 // It defines all of the properties needed to create
@@ -54,7 +54,7 @@ struct rt_description : scripting::script_object_type {
 class render_target {
 public:
   render_target(memory::allocator* _allocator, logging::log* _log,
-      renderer* _renderer, runtime::graphics::device* _device,
+      render_context* _renderer, runtime::graphics::device* _device,
       wn::scripting::script_pointer<rt_description> desc,
       uint32_t _num_backings);
   bool is_valid() const {

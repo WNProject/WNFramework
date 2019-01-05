@@ -5,7 +5,7 @@
 include "renderer/pass_data.wns"
 include "renderer/rt_description.wns"
 
-class RenderContext {
+class RenderDescription {
   RTDescription[] render_targets = RTDescription[0](RTDescription());
   PassData[] passes  = PassData[0](PassData());
   Int output_target = -1;

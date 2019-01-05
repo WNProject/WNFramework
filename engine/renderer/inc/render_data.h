@@ -112,26 +112,26 @@ struct pass_data : scripting::script_object_type {
   static bool resolve_scripting(scripting::engine* _engine);
 };
 
-struct render_context : scripting::script_object_type {
+struct render_description : scripting::script_object_type {
   using parent_type = void;
   static wn::containers::string_view exported_name() {
-    return "RenderContext";
+    return "RenderDescription";
   }
 
   void export_type(
-      scripting::engine::script_type_importer<render_context>* _importer) {
+      scripting::engine::script_type_importer<render_description>* _importer) {
     _importer->register_function("get_render_targets", &get_render_targets);
     _importer->register_function("get_passes", &get_passes);
     _importer->register_function("get_output_target", &get_output_target);
   }
 
-  wn::scripting::scripting_object_function<render_context,
+  wn::scripting::scripting_object_function<render_description,
       scripting::wn_array<scripting::script_pointer<rt_description>>>
       get_render_targets;
-  wn::scripting::scripting_object_function<render_context,
+  wn::scripting::scripting_object_function<render_description,
       scripting::wn_array<scripting::script_pointer<pass_data>>>
       get_passes;
-  wn::scripting::scripting_object_function<render_context, int32_t>
+  wn::scripting::scripting_object_function<render_description, int32_t>
       get_output_target;
 };
 

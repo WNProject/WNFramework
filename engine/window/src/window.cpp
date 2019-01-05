@@ -6,7 +6,7 @@
 #include "WNWindow/inc/WNWindow.h"
 #include "WNWindow/inc/WNWindowFactory.h"
 #include "engine_base/inc/context.h"
-#include "renderer/inc/renderer.h"
+#include "renderer/inc/render_context.h"
 
 using namespace wn::engine;
 using wn::scripting::shared_cpp_pointer;

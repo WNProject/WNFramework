@@ -5,7 +5,7 @@
 #include "renderer/inc/render_target.h"
 #include "WNGraphics/inc/WNGraphicsEnums.h"
 #include "WNGraphics/inc/WNImage.h"
-#include "renderer/inc/renderer.h"
+#include "renderer/inc/render_context.h"
 
 using namespace wn::engine;
 using wn::scripting::script_object_type;
@@ -36,7 +36,7 @@ bool rt_description::resolve_scripting(scripting::engine* _engine) {
 }
 
 render_target::render_target(memory::allocator* _allocator, logging::log* _log,
-    renderer* _renderer, runtime::graphics::device* _device,
+    render_context* _renderer, runtime::graphics::device* _device,
     wn::scripting::script_pointer<rt_description> desc, uint32_t _num_backings)
   : m_images(_allocator),
     m_image_views(_allocator),

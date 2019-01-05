@@ -5,12 +5,12 @@ add_wn_library(
     inc/render_data.h
     inc/render_pass.h
     inc/render_target.h
-    inc/renderer.h
+    inc/render_context.h
     src/gpu_heap.cpp
     src/render_data.cpp
     src/render_pass.cpp
     src/render_target.cpp
-    src/renderer.cpp
+    src/render_context.cpp
   LIBS
     engine_base
     window

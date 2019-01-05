@@ -3,7 +3,7 @@
 // found in the LICENSE.txt file.
 
 include "renderer/render_data.wns"
-include "renderer/render_context.wns"
+include "renderer/render_description.wns"
 
 class MyPass : PassData {
   .render_targets = RenderTargetUsage[](
@@ -13,14 +13,14 @@ class MyPass : PassData {
   .pass_name = "Initial Pass";
 }
 
-class MainTarget: RTDescription(Renderer renderer) {
+class MainTarget: RTDescription(RenderContext renderer) {
   .name = "MainRT";
   .width = renderer.width();
   .height = renderer.height();
   .format = format_r8g8b8a8_unorm;
 }
 
-class DepthTarget: RTDescription(Renderer renderer) {
+class DepthTarget: RTDescription(RenderContext renderer) {
   .name = "DepthRT";
   .width = renderer.width();
   .height = renderer.height();
@@ -28,7 +28,7 @@ class DepthTarget: RTDescription(Renderer renderer) {
   .depth = true;
 }
 
-class MainContext: RenderContext(Renderer renderer) {
+class MainDesc: RenderDescription(RenderContext renderer) {
   .render_targets = RTDescription[](
     MainTarget(renderer),
     DepthTarget(renderer)
@@ -39,14 +39,14 @@ class MainContext: RenderContext(Renderer renderer) {
 
 Int main(Context ctx) {
   shared Window window = get_window(ctx, 1024, 768);
-  shared Renderer renderer = get_renderer(ctx, window);
+  shared RenderContext context = get_render_context(ctx, window);
   shared RenderData rd = shared RenderData();
 
-  MainContext context = MainContext(renderer);
-  renderer.register_context(context);
+  MainDesc desc = MainDesc(context);
+  context.register_description(desc);
 
   while(true) {
-    renderer.render();
+    context.render();
   }
 
   return 32;

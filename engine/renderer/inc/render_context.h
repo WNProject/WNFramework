@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef __WN_ENGINE_RENDERER_RENDERER_H__
-#define __WN_ENGINE_RENDERER_RENDERER_H__
+#ifndef __WN_ENGINE_RENDERER_RENDER_CONTEXT_H__
+#define __WN_ENGINE_RENDERER_RENDER_CONTEXT_H__
 
 #include "WNContainers/inc/WNRangePartition.h"
 #include "WNGraphics/inc/WNAdapter.h"
@@ -34,18 +34,18 @@ class window;
 }
 namespace renderer {
 
-class renderer {
+class render_context {
 public:
-  renderer(memory::allocator* _allocator, logging::log* _log,
+  render_context(memory::allocator* _allocator, logging::log* _log,
       window::window* _window, int32_t _width, int32_t _height);
 
-  ~renderer() {
+  ~render_context() {
     m_log->log_info("Destroyed Renderer");
   }
   static void register_scripting(scripting::engine* _engine);
   static bool resolve_scripting(scripting::engine* _engine);
 
-  void register_context(scripting::script_pointer<render_context> _context);
+  void register_description(scripting::script_pointer<render_description> _context);
 
   int32_t width() {
     return m_width;
@@ -99,4 +99,4 @@ private:
 }  // namespace engine
 }  // namespace wn
 
-#endif  // __WN_ENGINE_RENDERER_RENDERER_H__
+#endif  // __WN_ENGINE_RENDERER_RENDER_CONTEXT_H__

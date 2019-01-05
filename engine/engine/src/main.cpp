@@ -7,7 +7,7 @@
 #include "WNScripting/inc/WNFactory.h"
 #include "engine/inc/script_export.h"
 #include "engine_base/inc/context.h"
-#include "renderer/inc/renderer.h"
+#include "renderer/inc/render_context.h"
 #include "window/inc/window.h"
 
 using namespace wn;
@@ -40,7 +40,7 @@ int32_t wn_application_main(
     engine::register_scripting(scripting_engine.get());
     engine_base::register_context(scripting_engine.get());
     engine::window::window::register_scripting(scripting_engine.get());
-    engine::renderer::renderer::register_scripting(scripting_engine.get());
+    engine::renderer::render_context::register_scripting(scripting_engine.get());
 
     scripting::parse_error err = scripting_engine->parse_file("main.wns");
     if (err != scripting::parse_error::ok) {
@@ -48,7 +48,7 @@ int32_t wn_application_main(
       return -1;
     }
 
-    engine::renderer::renderer::resolve_scripting(scripting_engine.get());
+    engine::renderer::render_context::resolve_scripting(scripting_engine.get());
 
     wn::scripting::script_function<int32_t, engine_base::context*> main;
     scripting_engine->get_function("main", &main);
