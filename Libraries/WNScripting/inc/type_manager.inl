@@ -249,9 +249,10 @@ struct exporter : public exporter_base {
 
     template <R (T::*fn)(Args...)>
     void register_virtual(containers::string_view _name) {
+      using t = virtual_registrar<R, Args...>;
       m_exporter->register_pseudo_function<
-          decltype(&virtual_registrar<R, Args...>::dispatch<fn>),
-          &virtual_registrar<R, Args...>::dispatch<fn>>(_name);
+          decltype(&t::dispatch<fn>),
+          &t::dispatch<fn>>(_name);
     }
 
     template <R (T::*fn)(Args...)>

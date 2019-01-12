@@ -97,7 +97,10 @@ def handle_file(filename):
                 linect = 0
                 fc += "\n        "
             linect += 1
-            fc += "0x%02X," % ord(x)
+            if (sys.version_info > (3, 0)):
+                fc += "0x%02X," % x
+            else:
+                fc += "0x%02X," % ord(x)
             lc += 1
         return (lc, fc[:-1])
 

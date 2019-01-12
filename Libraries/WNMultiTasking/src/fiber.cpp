@@ -62,28 +62,29 @@ void fiber::create(
     }
 #elif defined _WN_ANDROID
     m_stack_pointer = m_allocator->allocate(_stack_size);
+    m_fiber_context = memory::make_unique<ucontext_t>(m_allocator);
+    memory::memory_zero(m_fiber_context.get());
 
-    memory::memory_zero(&m_fiber_context);
+    wn_get_context(m_fiber_context.get());
 
-    wn_get_context(&m_fiber_context);
+    m_fiber_context->uc_stack.ss_sp = m_stack_pointer;
+    m_fiber_context->uc_stack.ss_size = _stack_size;
 
-    m_fiber_context.uc_stack.ss_sp = m_stack_pointer;
-    m_fiber_context.uc_stack.ss_size = _stack_size;
-
-    wn_make_context(&m_fiber_context, &wrapper, NULL);
+    wn_make_context(m_fiber_context.get(), &wrapper, NULL);
 
     m_data = std::move(data);
 #elif defined _WN_POSIX
     m_stack_pointer = m_allocator->allocate(_stack_size);
+    m_fiber_context = memory::make_unique<ucontext_t>(m_allocator);
 
-    memory::memory_zero(&m_fiber_context);
+    memory::memory_zero(m_fiber_context.get());
 
-    getcontext(&m_fiber_context);
+    getcontext(m_fiber_context.get());
 
-    m_fiber_context.uc_stack.ss_sp = m_stack_pointer;
-    m_fiber_context.uc_stack.ss_size = _stack_size;
+    m_fiber_context->uc_stack.ss_sp = m_stack_pointer;
+    m_fiber_context->uc_stack.ss_size = _stack_size;
 
-    makecontext(&m_fiber_context, &wrapper, 0);
+    makecontext(m_fiber_context.get(), &wrapper, 0);
 
     m_data = std::move(data);
 #endif
@@ -126,9 +127,11 @@ void convert_to_fiber(memory::allocator* _allocator) {
                                                   FIBER_FLAG_FLOAT_SWITCH);
     tl_thread_as_fiber = f->m_fiber_context;
 #elif defined _WN_ANDROID
-    wn_get_context(&f->m_fiber_context);
+    f->m_fiber_context = memory::make_unique<ucontext_t>(_allocator);
+    wn_get_context(f->m_fiber_context.get());
 #elif defined _WN_POSIX
-    getcontext(&f->m_fiber_context);
+    f->m_fiber_context = memory::make_unique<ucontext_t>(_allocator);
+    getcontext(f->m_fiber_context.get());
 #endif
   }
 }
@@ -164,9 +167,9 @@ void swap_to(fiber* _fiber) {
 #if defined _WN_WINDOWS
   SwitchToFiber(_fiber->m_fiber_context);
 #elif defined _WN_ANDROID
-  wn_swap_context(&this_fiber->m_fiber_context, &_fiber->m_fiber_context);
+  wn_swap_context(this_fiber->m_fiber_context.get(), _fiber->m_fiber_context.get());
 #elif defined _WN_POSIX
-  swapcontext(&this_fiber->m_fiber_context, &_fiber->m_fiber_context);
+  swapcontext(this_fiber->m_fiber_context.get(), _fiber->m_fiber_context.get());
 #endif
   // We don't have to restore tl_this_fiber here, because
   // the only way to get here is for someone to call swap_to.

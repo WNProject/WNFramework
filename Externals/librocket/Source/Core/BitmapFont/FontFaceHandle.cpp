@@ -32,6 +32,7 @@
 #include "../TextureLayout.h"
 #include "../precompiled.h"
 #include "FontFaceLayer.h"
+#include <cmath>
 
 namespace Rocket {
 namespace Core {

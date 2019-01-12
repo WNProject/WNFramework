@@ -162,7 +162,7 @@ private:
 #ifdef _WN_WINDOWS
   LPVOID m_fiber_context;
 #elif defined _WN_POSIX
-  ucontext_t m_fiber_context;
+  memory::unique_ptr<ucontext_t> m_fiber_context;
   void* m_stack_pointer;
 #endif
 
