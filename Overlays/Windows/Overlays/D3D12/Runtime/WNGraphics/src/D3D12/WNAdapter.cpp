@@ -68,8 +68,11 @@ device_ptr d3d12_adapter::make_device(memory::allocator* _allocator,
 
 graphics_error d3d12_adapter::initialize_surface(
     surface* _surface, runtime::window::window* _window) {
-  WN_RELEASE_ASSERT(
-      _window->type() == runtime::window::window_type::system,
+  _surface->m_width = _window->get_width();
+  _surface->m_height = _window->get_height();
+  _surface->m_valid_formats.push_back(data_format::r8g8b8a8_unorm);
+  _surface->m_valid_formats.push_back(data_format::b8g8r8a8_unorm);
+  WN_RELEASE_ASSERT(_window->type() == runtime::window::window_type::system,
       "Unsupported: Null-windows");
   const runtime::window::native_handle* handle =
       reinterpret_cast<const runtime::window::native_handle*>(

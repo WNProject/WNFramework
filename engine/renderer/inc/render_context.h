@@ -37,7 +37,8 @@ namespace renderer {
 class render_context {
 public:
   render_context(memory::allocator* _allocator, logging::log* _log,
-      window::window* _window, int32_t _width, int32_t _height);
+      window::window* _window, int32_t _width, int32_t _height,
+      uint32_t _forced_adapter = 0);
 
   ~render_context() {
     m_log->log_info("Destroyed Renderer");
@@ -45,7 +46,8 @@ public:
   static void register_scripting(scripting::engine* _engine);
   static bool resolve_scripting(scripting::engine* _engine);
 
-  void register_description(scripting::script_pointer<render_description> _context);
+  void register_description(
+      scripting::script_pointer<render_description> _context);
 
   int32_t width() {
     return m_width;
@@ -85,6 +87,7 @@ private:
   containers::dynamic_array<runtime::graphics::signal> m_swapchain_get_signals;
   containers::dynamic_array<runtime::graphics::signal>
       m_swapchain_ready_signals;
+  containers::dynamic_array<bool> m_swapchain_image_initialized;
 
   memory::unique_ptr<gpu_heap> m_render_target_heap;
   // Keep the render targets below the render target heap, we need the

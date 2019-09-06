@@ -4,6 +4,7 @@
 
 #include "WNGraphics/inc/Internal/Vulkan/WNAdapter.h"
 #include "WNContainers/inc/WNDynamicArray.h"
+#include "WNGraphics/inc/Internal/Vulkan/WNImageFormats.h"
 #include "WNGraphics/inc/WNSurface.h"
 #include "WNLogging/inc/WNLog.h"
 
@@ -145,8 +146,9 @@ void vulkan_adapter::initialize_device() {
       {VK_FORMAT_D32_SFLOAT, &m_adapter_formats.has_d32_float},
       {VK_FORMAT_S8_UINT, &m_adapter_formats.has_s8_unorm},
       {VK_FORMAT_D16_UNORM_S8_UINT, &m_adapter_formats.has_d16_unorm_s8_unorm},
-      {VK_FORMAT_D24_UNORM_S8_UINT, &m_adapter_formats.has_d24_unorm_s8_unorm },
-      {VK_FORMAT_D32_SFLOAT_S8_UINT, &m_adapter_formats.has_d32_float_s8_unorm }};
+      {VK_FORMAT_D24_UNORM_S8_UINT, &m_adapter_formats.has_d24_unorm_s8_unorm},
+      {VK_FORMAT_D32_SFLOAT_S8_UINT,
+          &m_adapter_formats.has_d32_float_s8_unorm}};
 
   VkFormatProperties properties;
   for (auto& format : format_checks) {
@@ -171,6 +173,35 @@ graphics_error vulkan_adapter::initialize_surface(
       m_physical_device, m_compute_and_graphics_queue, vksurface, &support);
 
   if (VK_SUCCESS == error_code && support) {
+    uint32_t count = 0;
+    error_code = m_context->vkGetPhysicalDeviceSurfaceFormatsKHR(
+        m_physical_device, vksurface, &count, nullptr);
+    if (count == 0 || VK_SUCCESS != error_code) {
+      m_surface_helper.destroy_surface(vksurface);
+      m_log->log_error("Could not get valid formats");
+      return graphics_error::error;
+    }
+    containers::dynamic_array<VkSurfaceFormatKHR> formats(m_allocator, count);
+    error_code = m_context->vkGetPhysicalDeviceSurfaceFormatsKHR(
+        m_physical_device, vksurface, &count, formats.data());
+
+    for (uint32_t i = 0; i < count; ++i) {
+      data_format f = vulkan_format_to_image_format(formats[i].format);
+      if (f == data_format::max) {
+        continue;
+      }
+      _surface->m_valid_formats.push_back(f);
+    }
+    VkSurfaceCapabilitiesKHR caps;
+    error_code = m_context->vkGetPhysicalDeviceSurfaceCapabilitiesKHR(
+        m_physical_device, vksurface, &caps);
+    if (VK_SUCCESS != error_code) {
+      m_surface_helper.destroy_surface(vksurface);
+      m_log->log_error("Could not get surface capabilities");
+      return graphics_error::error;
+    }
+    _surface->m_width = caps.currentExtent.width;
+    _surface->m_height = caps.currentExtent.height;
     _surface->data_as<VkSurfaceKHR>() = vksurface;
     return graphics_error::ok;
   }

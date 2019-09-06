@@ -108,7 +108,7 @@ void render_pass::render(
     clears.back().depth.depth = 0.0f;
     clears.back().depth.stencil = 0;
   }
-  
+
   for (size_t i = 0; i < m_render_targets.size() - m_has_depth_target; ++i) {
     auto idx = m_render_targets[i]->get_index_for_frame(_frame_idx);
     m_render_targets[i]->transition_layout(

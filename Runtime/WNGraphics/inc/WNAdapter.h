@@ -47,7 +47,7 @@ using device_ptr = memory::unique_ptr<device>;
 class adapter : public internal::adapter_base {
 public:
   core::pair<surface, graphics_error> make_surface(
-      runtime::window::window* window);
+      memory::allocator* _allocator, runtime::window::window* window);
 
 #ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
   enum class api_type{invalid, vulkan, d3d12, max};

@@ -616,8 +616,9 @@ swapchain_ptr vulkan_device::create_swapchain(
           _surface.get_width(),  // width
           _surface.get_height()  // height
       },
-      1,                                      // imageArrayLayers
-      VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,    // imageUsage
+      1,  // imageArrayLayers
+      VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
+          VK_IMAGE_USAGE_TRANSFER_DST_BIT,    // imageUsage
       VK_SHARING_MODE_EXCLUSIVE,              // imageSharingMode
       0,                                      // queueFamilyIndexCount
       nullptr,                                // pQueueFamilyIndices

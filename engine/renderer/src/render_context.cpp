@@ -35,17 +35,18 @@ struct exported_script_type<renderer::render_context> {
   template <typename T>
   static void export_type(T* _exporter) {
     _exporter->template register_nonvirtual_function<
-        decltype(&renderer::render_context::width), &renderer::render_context::width>(
-        "width");
+        decltype(&renderer::render_context::width),
+        &renderer::render_context::width>("width");
     _exporter->template register_nonvirtual_function<
-        decltype(&renderer::render_context::height), &renderer::render_context::height>(
-        "height");
+        decltype(&renderer::render_context::height),
+        &renderer::render_context::height>("height");
     _exporter->template register_nonvirtual_function<
-        decltype(&renderer::render_context::render), &renderer::render_context::render>(
-        "render");
+        decltype(&renderer::render_context::render),
+        &renderer::render_context::render>("render");
     _exporter->template register_nonvirtual_function<
         decltype(&renderer::render_context::register_description),
-        &renderer::render_context::register_description>("register_description");
+        &renderer::render_context::register_description>(
+        "register_description");
   }
 };
 }  // namespace scripting
@@ -53,28 +54,47 @@ struct exported_script_type<renderer::render_context> {
 
 namespace {
 
-shared_cpp_pointer<engine::renderer::render_context> get_attachmentless_render_context(
-    engine_base::context* _context) {
+uint32_t select_adapter(engine_base::context* _context) {
+  uint32_t adapter = 0;
+
+  auto data = _context->m_application_data->executable_data;
+  for (size_t i = 0; i < data->argc; ++i) {
+    if (data->argv[i] == containers::string_view("--adapter") &&
+        i < data->argc - 1) {
+      memory::readuint32(
+          data->argv[i + 1], adapter, strnlen(data->argv[i + 1], 10));
+    }
+  }
+  return adapter;
+}
+
+shared_cpp_pointer<engine::renderer::render_context>
+get_attachmentless_render_context(engine_base::context* _context) {
+  uint32_t adapter = select_adapter(_context);
   return _context->m_engine->make_shared_cpp<engine::renderer::render_context>(
-      _context->m_allocator, _context->m_log, nullptr, 0, 0);
+      _context->m_allocator, _context->m_log, nullptr, 0, 0, adapter);
 }
 
 shared_cpp_pointer<engine::renderer::render_context> get_render_context(
     engine_base::context* _context, int32_t _width, int32_t _height) {
+  uint32_t adapter = select_adapter(_context);
   if (_width == 0 || _height == 0) {
     _context->m_log->log_error(
         "If you want to create a renderer without a default attachment"
         " do not specify a width or height");
   }
   return _context->m_engine->make_shared_cpp<engine::renderer::render_context>(
-      _context->m_allocator, _context->m_log, nullptr, _width, _height);
+      _context->m_allocator, _context->m_log, nullptr, _width, _height,
+      adapter);
 }
 
-shared_cpp_pointer<engine::renderer::render_context> get_render_context_with_window(
+shared_cpp_pointer<engine::renderer::render_context>
+get_render_context_with_window(
     engine_base::context* _context, window::window* _window) {
+  uint32_t adapter = select_adapter(_context);
   return _context->m_engine->make_shared_cpp<engine::renderer::render_context>(
       _context->m_allocator, _context->m_log, _window, _window->width(),
-      _window->height());
+      _window->height(), adapter);
 }
 
 struct render_data : script_object_type {
@@ -182,7 +202,7 @@ void render_context::register_scripting(scripting::engine* _engine) {
       &get_attachmentless_render_context>("get_render_context");
   _engine
       ->register_function<decltype(&get_render_context), &get_render_context>(
-      "get_render_context");
+          "get_render_context");
   _engine->register_function<decltype(&get_render_context_with_window),
       &get_render_context_with_window>("get_render_context");
   _engine->register_function<decltype(&test), &test>("test");
@@ -197,8 +217,9 @@ bool render_context::resolve_scripting(scripting::engine* _engine) {
          _engine->resolve_script_type<render_description>();
 }
 
-render_context::render_context(memory::allocator* _allocator, logging::log* _log,
-    window::window* _window, int32_t _width, int32_t _height)
+render_context::render_context(memory::allocator* _allocator,
+    logging::log* _log, window::window* _window, int32_t _width,
+    int32_t _height, uint32_t _forced_adapter)
   : m_log(_log),
     m_window(_window),
     m_allocator(_allocator),
@@ -210,6 +231,7 @@ render_context::render_context(memory::allocator* _allocator, logging::log* _log
     m_frame_fences(m_allocator),
     m_swapchain_get_signals(m_allocator),
     m_swapchain_ready_signals(m_allocator),
+    m_swapchain_image_initialized(m_allocator),
     m_render_targets(_allocator),
     m_render_passes(_allocator) {
   if (_window) {
@@ -222,12 +244,12 @@ render_context::render_context(memory::allocator* _allocator, logging::log* _log
   auto adapters = m_factory.query_adapters();
   m_log->log_info("Found ", adapters.size(), " adapters");
 
-  if (adapters.size() < 1) {
+  if (adapters.size() < _forced_adapter + 1) {
     m_log->log_error("Could not find graphics adapter.");
     return;
   }
-  auto& adapter = adapters[0];
-  m_log->log_info("Selecting Adapter 0");
+  auto& adapter = adapters[_forced_adapter];
+  m_log->log_info("Selecting Adapter ", _forced_adapter);
   m_device = adapter->make_device(
       m_allocator, m_log, wn::runtime::graphics::k_empty_adapter_features);
   m_queue = m_device->create_queue();
@@ -242,13 +264,13 @@ render_context::render_context(memory::allocator* _allocator, logging::log* _log
     }
   }
   if (!m_render_target_heap) {
-    m_log->log_error("Selecting Adapter 0");
+    m_log->log_error("Could not create window for adapter", _forced_adapter);
   }
 
   // TODO(awoloszyn): Figure out nil surface (or something),
   //    if we don't actually have a window to use.
   if (m_window) {
-    auto surface = adapter->make_surface(m_window->underlying());
+    auto surface = adapter->make_surface(m_allocator, m_window->underlying());
     if (surface.second != wn::runtime::graphics::graphics_error::ok) {
       m_log->log_error("Could not create surface");
       return;
@@ -257,14 +279,18 @@ render_context::render_context(memory::allocator* _allocator, logging::log* _log
     m_surface = memory::make_unique<runtime::graphics::surface>(
         m_allocator, core::move(surface.first));
 
+    runtime::graphics::data_format swapchain_format =
+        m_surface->valid_formats()[0];
     const runtime::graphics::swapchain_create_info create_info = {
-        wn::runtime::graphics::data_format::r8g8b8a8_unorm, 2,
-        wn::runtime::graphics::swap_mode::fifo,
+        swapchain_format, 2, wn::runtime::graphics::swap_mode::fifo,
         wn::runtime::graphics::discard_policy::discard};
     m_swapchain =
         m_device->create_swapchain(*m_surface, create_info, m_queue.get());
     m_log->log_info("Created swapchain");
   }
+
+  auto inf = m_swapchain->info();
+  m_swapchain_image_initialized.resize(inf.num_buffers);
 
   for (size_t i = 0; i < kNumDefaultBackings; ++i) {
     m_command_allocators.push_back(m_device->create_command_allocator());
@@ -278,9 +304,11 @@ render_context::render_context(memory::allocator* _allocator, logging::log* _log
 
 void render_context::register_description(
     scripting::script_pointer<render_description> _render_description) {
-  m_output_rt = _render_description.invoke(&render_description::get_output_target);
+  m_output_rt =
+      _render_description.invoke(&render_description::get_output_target);
 
-  auto targets = _render_description.invoke(&render_description::get_render_targets);
+  auto targets =
+      _render_description.invoke(&render_description::get_render_targets);
   containers::dynamic_array<uint32_t> num_backings(m_allocator);
   num_backings.resize(targets.size());
 
@@ -356,7 +384,7 @@ void render_context::register_description(
 
     int32_t dt =
         depth_attachment.invoke(&render_target_usage::get_render_target);
-    if (static_cast<uint32_t>(dt) > targets.size()) {
+    if (dt > static_cast<int32_t>(targets.size())) {
       m_log->log_error(pass_name, " references non-existant RenderTarget", dt);
       return;
     }
@@ -384,9 +412,9 @@ void render_context::register_description(
       //      we can use the final_state to get a (potentially) cheaper,
       //      transition.
       all_depth_descs.back().initial_state =
-          runtime::graphics::resource_state::render_target;
+          runtime::graphics::resource_state::depth_target;
       all_depth_descs.back().final_state =
-          runtime::graphics::resource_state::render_target;
+          runtime::graphics::resource_state::depth_target;
     } else {
       all_depth_descs.back().format = runtime::graphics::data_format::max;
     }
@@ -481,11 +509,21 @@ bool render_context::render() {
   auto swap_idx = m_swapchain->get_next_backbuffer_index(
       nullptr, &m_swapchain_get_signals[backing_idx]);
   auto swap_img = m_swapchain->get_image_for_index(swap_idx);
-  cmd_list->transition_resource(*swap_img,
-      static_cast<runtime::graphics::image_components>(
-          runtime::graphics::image_component::color),
-      0, 1, runtime::graphics::resource_state::present,
-      runtime::graphics::resource_state::copy_dest);
+  if (m_swapchain_image_initialized[swap_idx]) {
+    cmd_list->transition_resource(*swap_img,
+        static_cast<runtime::graphics::image_components>(
+            runtime::graphics::image_component::color),
+        0, 1, runtime::graphics::resource_state::present,
+        runtime::graphics::resource_state::copy_dest);
+
+  } else {
+    m_swapchain_image_initialized[swap_idx] = true;
+    cmd_list->transition_resource(*swap_img,
+        static_cast<runtime::graphics::image_components>(
+            runtime::graphics::image_component::color),
+        0, 1, runtime::graphics::resource_state::initial,
+        runtime::graphics::resource_state::copy_dest);
+  }
 
   cmd_list->copy_image(*output_img, 0, *swap_img, 0);
 

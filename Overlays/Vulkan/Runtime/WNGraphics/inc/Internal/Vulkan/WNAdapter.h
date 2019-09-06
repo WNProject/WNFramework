@@ -110,11 +110,12 @@ protected:
       m_device_id(uint32_t(-1)),
       m_compute_and_graphics_queue(0) {}
 
-  WN_FORCE_INLINE void initialize(
+  WN_FORCE_INLINE void initialize(memory::allocator* _allocator,
       const memory::intrusive_ptr<vulkan_context>& _context,
       VkPhysicalDevice _device, containers::string&& _name, logging::log* _log,
       const uint32_t _vendor_id, const uint32_t _device_id,
       const uint32_t _compute_and_graphics_queue) {
+    m_allocator = _allocator;
     m_context = _context;
     m_physical_device = _device;
     m_name = core::move(_name);
@@ -129,6 +130,7 @@ protected:
 
   void initialize_device();
 
+  memory::allocator* m_allocator;
   memory::intrusive_ptr<vulkan_context> m_context;
   VkPhysicalDeviceMemoryProperties m_memory_properties;
   VkPhysicalDevice m_physical_device;

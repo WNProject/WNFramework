@@ -1136,7 +1136,7 @@ int32_t wn_application_main(
     return -1;
   }
 
-  auto surface = adapter->make_surface(window.get());
+  auto surface = adapter->make_surface(allocator, window.get());
   if (surface.second != graphics_error::ok) {
     // TODO(awoloszyn): Retry policy with different adapters.
     log->log_error("Could not use adapter ", adapter->name(), " for rendering");

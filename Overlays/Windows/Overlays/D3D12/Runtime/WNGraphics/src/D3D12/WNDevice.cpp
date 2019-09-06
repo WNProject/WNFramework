@@ -522,7 +522,8 @@ void d3d12_device::update_descriptors(descriptor_set* _set,
       memory::unique_ptr<image_view_info>& info = get_data(binding.resource);
 
       D3D12_CPU_DESCRIPTOR_HANDLE handle = m_csv_heap.get_handle_at(
-        descriptor.base_offset + descriptor.offset.offset() + binding.array_offset);
+          descriptor.base_offset + descriptor.offset.offset() +
+          binding.array_offset);
 
       D3D12_SHADER_RESOURCE_VIEW_DESC desc{
           image_format_to_dxgi_format(info->infos[0].format),

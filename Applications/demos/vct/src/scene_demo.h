@@ -65,7 +65,8 @@ public:
       m_entities(_allocator),
       m_swapchain_data(_allocator) {
     bool choosing_adapter = false;
-    for (size_t i = 0; i < static_cast<size_t>(_data->executable_data->argc); ++i) {
+    for (size_t i = 0; i < static_cast<size_t>(_data->executable_data->argc);
+         ++i) {
       if (containers::string_view("--vulkan") ==
           containers::string_view(_data->executable_data->argv[i])) {
         WN_RELEASE_ASSERT(!m_force_api, "Cannot force 2 apis");
@@ -172,7 +173,7 @@ public:
       WN_RELEASE_ASSERT(
           m_forced_adapter < adapters.size(), "Cannot find specified adapter");
       m_adapter = adapters[m_forced_adapter].get();
-      auto surface = m_adapter->make_surface(m_window.get());
+      auto surface = m_adapter->make_surface(m_allocator, m_window.get());
       if (surface.second != graphics::graphics_error::ok) {
         WN_RELEASE_ASSERT(
             false, "Specified adapter could not render to the window");
@@ -196,7 +197,7 @@ public:
               " since it does not support the required texture formats");
           continue;
         }
-        auto surface = adapters[i]->make_surface(m_window.get());
+        auto surface = adapters[i]->make_surface(m_allocator, m_window.get());
         if (surface.second != graphics::graphics_error::ok) {
           m_log->log_warning(
               "Could not use adapter ", i, " since it cannot render to screen");

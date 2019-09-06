@@ -22,6 +22,7 @@ static WN_FORCE_INLINE VkFormat image_format_to_vulkan_format(
       VK_FORMAT_R32G32B32A32_SFLOAT,
       VK_FORMAT_R32G32B32_SFLOAT,
       VK_FORMAT_R32G32_SFLOAT,
+      VK_FORMAT_B8G8R8A8_UNORM,
       // Depth formats
       VK_FORMAT_D16_UNORM,
       VK_FORMAT_X8_D24_UNORM_PACK32,
@@ -57,6 +58,74 @@ static WN_FORCE_INLINE VkFormat image_format_to_vulkan_format(
   WN_DEBUG_ASSERT(_format < data_format::max, "Image format out of bounds");
 
   return formats[static_cast<uint32_t>(_format)];
+}
+
+static WN_FORCE_INLINE data_format vulkan_format_to_image_format(
+    VkFormat _format) {
+  switch (_format) {
+    case VK_FORMAT_R8G8B8A8_UNORM:
+      return data_format::r8g8b8a8_unorm;
+    case VK_FORMAT_R32G32B32A32_SFLOAT:
+      return data_format::r32g32b32a32_sfloat;
+    case VK_FORMAT_R32G32B32_SFLOAT:
+      return data_format::r32g32b32_sfloat;
+    case VK_FORMAT_R32G32_SFLOAT:
+      return data_format::r32g32_sfloat;
+    case VK_FORMAT_B8G8R8A8_UNORM:
+      return data_format::b8g8r8a8_unorm;
+    case VK_FORMAT_D16_UNORM:
+      return data_format::d16_unorm;
+    case VK_FORMAT_X8_D24_UNORM_PACK32:
+      return data_format::d24_unorm;
+    case VK_FORMAT_D32_SFLOAT:
+      return data_format::d32_float;
+    case VK_FORMAT_S8_UINT:
+      return data_format::s8_unorm;
+    case VK_FORMAT_D16_UNORM_S8_UINT:
+      return data_format::d16_unorm_s8_uint;
+    case VK_FORMAT_D24_UNORM_S8_UINT:
+      return data_format::d24_unorm_s8_uint;
+    case VK_FORMAT_D32_SFLOAT_S8_UINT:
+      return data_format::d32_float_s8_uint;
+    case VK_FORMAT_ASTC_4x4_UNORM_BLOCK:
+      return data_format::astc_4x4;
+    case VK_FORMAT_ASTC_5x4_UNORM_BLOCK:
+      return data_format::astc_5x4;
+    case VK_FORMAT_ASTC_5x5_UNORM_BLOCK:
+      return data_format::astc_5x5;
+    case VK_FORMAT_ASTC_6x5_UNORM_BLOCK:
+      return data_format::astc_6x5;
+    case VK_FORMAT_ASTC_6x6_UNORM_BLOCK:
+      return data_format::astc_6x6;
+    case VK_FORMAT_ASTC_8x5_UNORM_BLOCK:
+      return data_format::astc_8x5;
+    case VK_FORMAT_ASTC_8x6_UNORM_BLOCK:
+      return data_format::astc_8x6;
+    case VK_FORMAT_ASTC_8x8_UNORM_BLOCK:
+      return data_format::astc_8x8;
+    case VK_FORMAT_ASTC_10x5_UNORM_BLOCK:
+      return data_format::astc_10x5;
+    case VK_FORMAT_ASTC_10x6_UNORM_BLOCK:
+      return data_format::astc_10x6;
+    case VK_FORMAT_ASTC_10x8_UNORM_BLOCK:
+      return data_format::astc_10x8;
+    case VK_FORMAT_ASTC_10x10_UNORM_BLOCK:
+      return data_format::astc_10x10;
+    case VK_FORMAT_ASTC_12x10_UNORM_BLOCK:
+      return data_format::astc_12x10;
+    case VK_FORMAT_ASTC_12x12_UNORM_BLOCK:
+      return data_format::astc_12x12;
+    case VK_FORMAT_BC1_RGB_UNORM_BLOCK:
+      return data_format::bc1_rgb;
+    case VK_FORMAT_BC1_RGBA_UNORM_BLOCK:
+      return data_format::bc1_rgba;
+    case VK_FORMAT_BC2_UNORM_BLOCK:
+      return data_format::bc2;
+    case VK_FORMAT_BC3_UNORM_BLOCK:
+      return data_format::bc3;
+  }
+
+  return data_format::max;
 }
 
 static WN_FORCE_INLINE VkImageAspectFlags image_components_to_aspect(

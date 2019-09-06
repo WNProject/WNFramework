@@ -154,6 +154,9 @@ memory::intrusive_ptr<vulkan_context> get_vulkan_context(
 
   LOAD_VK_SYMBOL(context->instance, vkGetPhysicalDeviceMemoryProperties);
   LOAD_VK_SYMBOL(context->instance, vkGetPhysicalDeviceSurfaceSupportKHR);
+  LOAD_VK_SYMBOL(context->instance, vkGetPhysicalDeviceSurfaceFormatsKHR);
+  LOAD_VK_SYMBOL(context->instance, vkGetPhysicalDeviceSurfaceCapabilitiesKHR);
+
   LOAD_VK_SYMBOL(context->instance, vkGetPhysicalDeviceFeatures);
   LOAD_VK_SYMBOL(context->instance, vkGetPhysicalDeviceFormatProperties);
 
@@ -254,7 +257,7 @@ void enumerate_adapters(memory::allocator* _allocator, logging::log* _log,
             }));
 
     if (ptr) {
-      ptr->initialize(context, devices[i],
+      ptr->initialize(_allocator, context, devices[i],
           containers::string(_allocator, properties.deviceName), _log,
           properties.vendorID, properties.deviceID, graphics_and_compute_queue);
       ptr->initialize_device();

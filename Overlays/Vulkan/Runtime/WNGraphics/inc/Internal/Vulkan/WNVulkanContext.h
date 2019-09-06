@@ -57,6 +57,9 @@ struct vulkan_context : public memory::intrusive_ptr_base {
 
   PFN_vkGetPhysicalDeviceMemoryProperties vkGetPhysicalDeviceMemoryProperties;
   PFN_vkGetPhysicalDeviceSurfaceSupportKHR vkGetPhysicalDeviceSurfaceSupportKHR;
+  PFN_vkGetPhysicalDeviceSurfaceFormatsKHR vkGetPhysicalDeviceSurfaceFormatsKHR;
+  PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR
+      vkGetPhysicalDeviceSurfaceCapabilitiesKHR;
   PFN_vkGetPhysicalDeviceFeatures vkGetPhysicalDeviceFeatures;
   PFN_vkGetPhysicalDeviceFormatProperties vkGetPhysicalDeviceFormatProperties;
   library_type library;

@@ -68,7 +68,7 @@ public:
   ~swapchain() {}
 #endif
   WN_GRAPHICS_ADD_FRIENDS(device);
-  const swapchain_create_info info() const {
+  const swapchain_create_info& info() const {
     return m_create_info;
   }
 

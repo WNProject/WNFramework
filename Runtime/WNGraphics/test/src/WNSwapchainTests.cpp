@@ -49,13 +49,13 @@ TEST(swapchain, basic) {
 
     wn::core::pair<wn::runtime::graphics::surface,
         wn::runtime::graphics::graphics_error>
-        surface = adapter->make_surface(wind.get());
+        surface = adapter->make_surface(data->system_allocator, wind.get());
     ASSERT_EQ(wn::runtime::graphics::graphics_error::ok, surface.second);
     wn::runtime::graphics::fence done_present_fence = device->create_fence();
 
     // Create a swapchain for the window.
     const wn::runtime::graphics::swapchain_create_info create_info = {
-        wn::runtime::graphics::data_format::r8g8b8a8_unorm, 2,
+        surface.first.valid_formats()[0], 2,
         wn::runtime::graphics::swap_mode::fifo,
         wn::runtime::graphics::discard_policy::discard};
 

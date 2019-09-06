@@ -31,6 +31,7 @@ public:
     _other.m_adapter = nullptr;
     m_width = _other.m_width;
     m_height = _other.m_height;
+    m_valid_formats = core::move(_other.m_valid_formats);
     memory::memcpy(&m_data, &_other.m_data, sizeof(opaque_data));
     memory::memzero(&_other.m_data, sizeof(opaque_data));
   }
@@ -47,6 +48,10 @@ public:
     return m_height;
   }
 
+  const containers::dynamic_array<data_format>& valid_formats() const {
+    return m_valid_formats;
+  }
+
 private:
   WN_FORCE_INLINE void set_invalid() {
     m_adapter = nullptr;
@@ -55,9 +60,8 @@ private:
   WN_GRAPHICS_ADD_FRIENDS(adapter)
   WN_GRAPHICS_ADD_FRIENDS(device);
 
-  WN_FORCE_INLINE surface(
-      adapter* _adapter, uint32_t _width = 0, uint32_t _height = 0)
-    : m_data({0}), m_adapter(_adapter), m_width(_width), m_height(_height) {}
+  WN_FORCE_INLINE surface(memory::allocator* _allocator, adapter* _adapter)
+    : m_data({0}), m_adapter(_adapter), m_valid_formats(_allocator) {}
 
   template <typename T>
   WN_FORCE_INLINE T& data_as() {
@@ -83,8 +87,9 @@ private:
   } m_data;
 
   adapter* m_adapter;
-  uint32_t m_width;
-  uint32_t m_height;
+  uint32_t m_width = 0;
+  uint32_t m_height = 0;
+  containers::dynamic_array<data_format> m_valid_formats;
 };
 
 }  // namespace graphics

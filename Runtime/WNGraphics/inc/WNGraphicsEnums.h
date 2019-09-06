@@ -59,6 +59,7 @@ enum class data_format {
   r32g32b32a32_sfloat,
   r32g32b32_sfloat,
   r32g32_sfloat,
+  b8g8r8a8_unorm,
 
   // Depth/Stencil formats
   d16_unorm,
@@ -195,6 +196,7 @@ WN_FORCE_INLINE size_t format_block_width(data_format _format) {
     case data_format::r32g32b32a32_sfloat:
     case data_format::r32g32b32_sfloat:
     case data_format::r32g32_sfloat:
+    case data_format::b8g8r8a8_unorm:
       return 1;
     case data_format::astc_4x4:
       return 4;
@@ -242,6 +244,7 @@ WN_FORCE_INLINE size_t format_block_height(data_format _format) {
     case data_format::r32g32b32a32_sfloat:
     case data_format::r32g32b32_sfloat:
     case data_format::r32g32_sfloat:
+    case data_format::b8g8r8a8_unorm:
       return 1;
     case data_format::astc_4x4:
     case data_format::astc_5x4:
@@ -286,6 +289,7 @@ WN_FORCE_INLINE size_t format_block_height(data_format _format) {
 WN_FORCE_INLINE size_t format_block_size(data_format _format) {
   switch (_format) {
     case data_format::r8g8b8a8_unorm:
+    case data_format::b8g8r8a8_unorm:
       return 4;
     case data_format::r32g32b32a32_sfloat:
       return 16;
@@ -341,6 +345,7 @@ WN_FORCE_INLINE bool is_format_normalized(data_format _format) {
     case data_format::r32g32b32a32_sfloat:
     case data_format::r32g32b32_sfloat:
     case data_format::r32g32_sfloat:
+    case data_format::b8g8r8a8_unorm:
       return true;
     case data_format::astc_4x4:
     case data_format::astc_5x4:
@@ -383,6 +388,7 @@ WN_FORCE_INLINE bool is_format_depth_stencil(data_format _format) {
     case data_format::r32g32b32a32_sfloat:
     case data_format::r32g32b32_sfloat:
     case data_format::r32g32_sfloat:
+    case data_format::b8g8r8a8_unorm:
       return false;
     case data_format::max:
       return false;
@@ -398,6 +404,7 @@ WN_FORCE_INLINE bool is_format_uint(data_format _format) {
     case data_format::r32g32b32a32_sfloat:
     case data_format::r32g32b32_sfloat:
     case data_format::r32g32_sfloat:
+    case data_format::b8g8r8a8_unorm:
       return false;
     case data_format::astc_4x4:
     case data_format::astc_5x4:
@@ -439,6 +446,7 @@ WN_FORCE_INLINE bool is_format_int(data_format _format) {
     case data_format::r32g32b32a32_sfloat:
     case data_format::r32g32b32_sfloat:
     case data_format::r32g32_sfloat:
+    case data_format::b8g8r8a8_unorm:
       return false;
     case data_format::astc_4x4:
     case data_format::astc_5x4:
