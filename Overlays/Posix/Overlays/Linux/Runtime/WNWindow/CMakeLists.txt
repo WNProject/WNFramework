@@ -9,4 +9,6 @@ overlay_library_sources(
   LIBS
     xcb
     xcb-keysyms
+    X11
+    X11-xcb
 )

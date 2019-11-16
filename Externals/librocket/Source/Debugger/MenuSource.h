@@ -34,7 +34,7 @@ static const char* menu_rcss =
     "	z-index: top;\n"
     "	background: #888;\n"
     "	font-family: Lacuna;\n"
-    "	font-size: 14px;\n"
+    "	font-size: 15px;\n"
     "	color: black;\n"
     "}\n"
     "div\n"

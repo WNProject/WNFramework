@@ -40,11 +40,13 @@ struct android_native_data {
 
 class android_window : public window {
 public:
-  android_window(logging::log* _log, multi_tasking::job_pool* _job_pool,
+  android_window(memory::allocator* _allocator, logging::log* _log,
+      multi_tasking::job_pool* _job_pool,
       multi_tasking::job_signal* _creation_signal,
       const application::application_data* _data, uint32_t _x, uint32_t _y,
       uint32_t _width, uint32_t _height)
-    : m_log(_log),
+    : window(_allocator),
+      m_log(_log),
       m_job_pool(_job_pool),
       m_app_data(_data),
       m_destroy(false),
@@ -132,10 +134,6 @@ private:
   multi_tasking::job_signal m_destroy_signal;
 
   android_native_data m_data;
-  std::atomic_bool m_key_states[static_cast<uint32_t>(key_code::key_max) + 1] =
-      {};
-  std::atomic_bool
-      m_mouse_states[static_cast<uint32_t>(mouse_button::mouse_max) + 1] = {};
   std::atomic<uint32_t> m_cursor_x;
   std::atomic<uint32_t> m_cursor_y;
   utilities::WNAndroidEventPump::input_callback_tok m_callback_tok;

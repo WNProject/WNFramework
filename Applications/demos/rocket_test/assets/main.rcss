@@ -17,6 +17,14 @@ div {
   display: block;
   font-size: 12px;
 }
+button {
+  display: block;
+  font-size: 20px;
+}
+textarea {
+  display: block;
+  font-size: 20px;
+}
 
 body {
   font-family: Lacuna;

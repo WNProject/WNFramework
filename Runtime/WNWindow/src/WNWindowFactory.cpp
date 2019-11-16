@@ -20,8 +20,8 @@ memory::unique_ptr<window> window_factory::create_window(window_type _type,
   switch (_type) {
     case window_type::system:
       wnd = memory::make_unique<internal::default_window_type>(m_allocator,
-          m_log, _pool, _creation_complete_signal, _app_data, _x, _y, _width,
-          _height);
+          m_allocator, m_log, _pool, _creation_complete_signal, _app_data, _x,
+          _y, _width, _height);
       break;
     case window_type::null:
       // TODO(awoloszyn): Create a null window type that does "nothing"

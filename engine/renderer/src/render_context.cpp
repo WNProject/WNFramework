@@ -58,7 +58,7 @@ uint32_t select_adapter(engine_base::context* _context) {
   uint32_t adapter = 0;
 
   auto data = _context->m_application_data->executable_data;
-  for (size_t i = 0; i < data->argc; ++i) {
+  for (signed_t i = 0; i < data->argc; ++i) {
     if (data->argv[i] == containers::string_view("--adapter") &&
         i < data->argc - 1) {
       memory::readuint32(

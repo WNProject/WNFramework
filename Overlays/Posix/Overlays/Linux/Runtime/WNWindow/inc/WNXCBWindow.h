@@ -14,6 +14,8 @@
 #include <xcb/xcb.h>
 #include <xcb/xcb_keysyms.h>
 
+typedef struct _XDisplay Display;
+
 namespace wn {
 namespace memory {
 class allocator;
@@ -30,17 +32,20 @@ struct application_data;
 namespace window {
 
 struct xcb_native_data {
+  Display* display;
   xcb_connection_t* connection;
   xcb_window_t window;
 };
 
 class xcb_window : public window {
 public:
-  xcb_window(logging::log* _log, multi_tasking::job_pool* _job_pool,
+  xcb_window(memory::allocator* _allocator, logging::log* _log,
+      multi_tasking::job_pool* _job_pool,
       multi_tasking::job_signal* _creation_signal,
       const application::application_data* _data, uint32_t _x, uint32_t _y,
       uint32_t _width, uint32_t _height)
-    : m_log(_log),
+    : window(_allocator),
+      m_log(_log),
       m_job_pool(_job_pool),
       m_app_data(_data),
       m_x(_x),
@@ -126,10 +131,6 @@ private:
   multi_tasking::job_signal m_destroy_signal;
   multi_tasking::job_signal* m_creation_signal;
 
-  std::atomic_bool m_key_states[static_cast<uint32_t>(key_code::key_max) + 1] =
-      {};
-  std::atomic_bool
-      m_mouse_states[static_cast<uint32_t>(mouse_button::mouse_max) + 1] = {};
   std::atomic<uint32_t> m_cursor_x;
   std::atomic<uint32_t> m_cursor_y;
 

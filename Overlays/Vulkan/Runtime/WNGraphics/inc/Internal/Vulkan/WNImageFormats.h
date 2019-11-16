@@ -123,9 +123,9 @@ static WN_FORCE_INLINE data_format vulkan_format_to_image_format(
       return data_format::bc2;
     case VK_FORMAT_BC3_UNORM_BLOCK:
       return data_format::bc3;
+    default:
+      return data_format::max;
   }
-
-  return data_format::max;
 }
 
 static WN_FORCE_INLINE VkImageAspectFlags image_components_to_aspect(

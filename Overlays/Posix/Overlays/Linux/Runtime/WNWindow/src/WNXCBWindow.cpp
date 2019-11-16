@@ -4,10 +4,13 @@
 
 #include "WNWindow/inc/WNXCBWindow.h"
 #include "WNApplicationData/inc/WNApplicationData.h"
-#include "executable_data/inc/executable_data.h"
 #include "WNMultiTasking/inc/job_pool.h"
 #include "WNMultiTasking/inc/job_signal.h"
+#include "executable_data/inc/executable_data.h"
 
+#include <X11/Xlib-xcb.h>
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
 #include <X11/keysym.h>
 
 namespace wn {
@@ -63,6 +66,14 @@ inline key_code x_code_to_keycode(xcb_keysym_t keycode) {
       return key_code::key_right;
     case XK_Down:
       return key_code::key_down;
+    case XK_Delete:
+      return key_code::key_del;
+    case XK_Return:
+      return key_code::key_return;
+    case XK_Tab:
+      return key_code::key_tab;
+    case XK_BackSpace:
+      return key_code::key_backspace;
   }
 
   return key_code::key_max;
@@ -70,7 +81,12 @@ inline key_code x_code_to_keycode(xcb_keysym_t keycode) {
 
 void xcb_window::dispatch_loop(void*) {
   m_job_pool->call_blocking_function([&]() {
-    m_data.connection = xcb_connect(NULL, NULL);
+    m_data.display = XOpenDisplay(NULL);
+    if (m_data.display == nullptr) {
+      return;
+    }
+
+    m_data.connection = XGetXCBConnection(m_data.display);
     if (m_data.connection == nullptr) {
       return;
     }
@@ -129,6 +145,7 @@ void xcb_window::dispatch_loop(void*) {
     }
 
     m_create_signal.increment(1);
+    std::array<char, 16> buf{};
 
     xcb_generic_event_t* event;
     while ((event = xcb_wait_for_event(m_data.connection))) {
@@ -147,12 +164,15 @@ void xcb_window::dispatch_loop(void*) {
           switch (bp->detail) {
             case XCB_BUTTON_INDEX_1:
               m_mouse_states[static_cast<size_t>(mouse_button::mouse_l)] = true;
+              dispatch_input(input_event::mouse_down(mouse_button::mouse_l));
               break;
             case XCB_BUTTON_INDEX_2:
               m_mouse_states[static_cast<size_t>(mouse_button::mouse_r)] = true;
+              dispatch_input(input_event::mouse_down(mouse_button::mouse_r));
               break;
             case XCB_BUTTON_INDEX_3:
               m_mouse_states[static_cast<size_t>(mouse_button::mouse_m)] = true;
+              dispatch_input(input_event::mouse_down(mouse_button::mouse_m));
               break;
           }
           break;
@@ -163,14 +183,17 @@ void xcb_window::dispatch_loop(void*) {
             case XCB_BUTTON_INDEX_1:
               m_mouse_states[static_cast<size_t>(mouse_button::mouse_l)] =
                   false;
+              dispatch_input(input_event::mouse_up(mouse_button::mouse_l));
               break;
             case XCB_BUTTON_INDEX_2:
               m_mouse_states[static_cast<size_t>(mouse_button::mouse_r)] =
                   false;
+              dispatch_input(input_event::mouse_up(mouse_button::mouse_r));
               break;
             case XCB_BUTTON_INDEX_3:
               m_mouse_states[static_cast<size_t>(mouse_button::mouse_m)] =
                   false;
+              dispatch_input(input_event::mouse_up(mouse_button::mouse_m));
               break;
           }
           break;
@@ -192,6 +215,8 @@ void xcb_window::dispatch_loop(void*) {
           xcb_motion_notify_event_t* motion = (xcb_motion_notify_event_t*)event;
           m_cursor_x = motion->event_x;
           m_cursor_y = motion->event_y;
+          dispatch_input(input_event::mouse_move(m_cursor_x, m_cursor_y));
+
           break;
         }
         case XCB_KEY_PRESS: {
@@ -202,6 +227,17 @@ void xcb_window::dispatch_loop(void*) {
           key_code key = x_code_to_keycode(
               xcb_key_press_lookup_keysym(m_key_symbols, kp, 0));
           m_key_states[static_cast<size_t>(key)] = true;
+          dispatch_input(input_event::key_event(event_type::key_down, key));
+          XKeyEvent evt;
+          evt.display = m_data.display;
+          evt.keycode = kp->detail;
+          evt.state = kp->state;
+
+          if (XLookupString(&evt, buf.data(), buf.size(), nullptr, nullptr)) {
+            if (buf[0] != '\b') {
+              dispatch_input(input_event::text_input(buf[0]));
+            }
+          }
           break;
         }
         case XCB_KEY_RELEASE: {
@@ -209,6 +245,7 @@ void xcb_window::dispatch_loop(void*) {
           key_code key = x_code_to_keycode(
               xcb_key_release_lookup_keysym(m_key_symbols, kr, 0));
           m_key_states[static_cast<size_t>(key)] = false;
+          dispatch_input(input_event::key_event(event_type::key_up, key));
           break;
         }
         default:

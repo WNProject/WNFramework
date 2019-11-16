@@ -886,9 +886,8 @@ void WidgetTextInput::UpdateCursorPosition() {
       text_element,
       lines[cursor_line_index].content.Substring(0, cursor_character_index));
   cursor_position.y =
-      -1 +
-      cursor_line_index *
-          (float)Core::ElementUtilities::GetLineHeight(text_element);
+      -1 + cursor_line_index *
+               (float)Core::ElementUtilities::GetLineHeight(text_element);
 }
 
 // Expand the text selection to the position of the cursor.

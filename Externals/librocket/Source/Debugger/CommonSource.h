@@ -30,7 +30,7 @@ static const char* common_rcss =
     "{\n"
     "	font-family: Lacuna;\n"
     "	z-index: top;\n"
-    "	font-size: 12;\n"
+    "	font-size: 12px;\n"
     "	color: black;\n"
     "	padding-top: 30px;\n"
     "}\n"

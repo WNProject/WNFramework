@@ -5,8 +5,9 @@
 #include "WNWindow/inc/WNWindowsWindow.h"
 #include "WNApplicationData/inc/WNApplicationData.h"
 #include "WNCore/inc/base.h"
-#include "executable_data/inc/executable_data.h"
 #include "WNMultiTasking/inc/job_pool.h"
+#include "WNWindow/inc/WNInputContext.h"
+#include "executable_data/inc/executable_data.h"
 
 #include <tchar.h>
 
@@ -140,6 +141,14 @@ inline key_code wm_code_to_keycode(WPARAM wparam) {
       return key_code::key_lalt;
     case VK_RMENU:
       return key_code::key_ralt;
+    case VK_DELETE:
+      return key_code::key_del;
+    case VK_BACK:
+      return key_code::key_backspace;
+    case VK_TAB:
+      return key_code::key_tab;
+    case VK_RETURN:
+      return key_code::key_return;
   }
   if (wparam >= 0x30 && wparam <= 0x39) {
     return static_cast<key_code>(
@@ -179,20 +188,16 @@ LRESULT CALLBACK windows_window::wnd_proc(
     case WM_KEYDOWN: {
       key_code k = wm_code_to_keycode(wParam);
       if (k != key_code::key_max) {
-        if (window->m_key_states[static_cast<uint32_t>(k)] == false) {
-          window->m_log->flush();
-        }
         window->m_key_states[static_cast<uint32_t>(k)] = true;
+        window->dispatch_input(input_event::key_event(event_type::key_down, k));
       }
       return DefWindowProc(hwnd, uMsg, wParam, lParam);
     }
     case WM_KEYUP: {
       key_code k = wm_code_to_keycode(wParam);
       if (k != key_code::key_max) {
-        if (window->m_key_states[static_cast<uint32_t>(k)] == true) {
-          window->m_log->flush();
-        }
         window->m_key_states[static_cast<uint32_t>(k)] = false;
+        window->dispatch_input(input_event::key_event(event_type::key_up, k));
       }
       return DefWindowProc(hwnd, uMsg, wParam, lParam);
     }
@@ -212,31 +217,51 @@ LRESULT CALLBACK windows_window::wnd_proc(
     }
     case WM_LBUTTONDOWN:
       window->m_mouse_states[static_cast<size_t>(mouse_button::mouse_l)] = true;
+      window->dispatch_input(input_event::mouse_down(mouse_button::mouse_l));
       return DefWindowProc(hwnd, uMsg, wParam, lParam);
     case WM_LBUTTONUP:
       window->m_mouse_states[static_cast<size_t>(mouse_button::mouse_l)] =
           false;
+      window->dispatch_input(input_event::mouse_up(mouse_button::mouse_l));
       return DefWindowProc(hwnd, uMsg, wParam, lParam);
     case WM_MBUTTONDOWN:
       window->m_mouse_states[static_cast<size_t>(mouse_button::mouse_m)] = true;
+      window->dispatch_input(input_event::mouse_down(mouse_button::mouse_m));
       return DefWindowProc(hwnd, uMsg, wParam, lParam);
     case WM_MBUTTONUP:
       window->m_mouse_states[static_cast<size_t>(mouse_button::mouse_m)] =
           false;
+      window->dispatch_input(input_event::mouse_up(mouse_button::mouse_m));
       return DefWindowProc(hwnd, uMsg, wParam, lParam);
     case WM_RBUTTONDOWN:
       window->m_mouse_states[static_cast<size_t>(mouse_button::mouse_r)] = true;
+      window->dispatch_input(input_event::mouse_down(mouse_button::mouse_r));
       return DefWindowProc(hwnd, uMsg, wParam, lParam);
     case WM_RBUTTONUP:
       window->m_mouse_states[static_cast<size_t>(mouse_button::mouse_r)] =
           false;
+      window->dispatch_input(input_event::mouse_up(mouse_button::mouse_r));
       return DefWindowProc(hwnd, uMsg, wParam, lParam);
     case WM_MOUSEMOVE: {
-      uint16_t x_pos = lParam & 0xFF;
-      uint16_t y_pos = (lParam >> 16) & 0xFF;
+      uint16_t x_pos = lParam & 0xFFFF;
+      uint16_t y_pos = (lParam >> 16) & 0xFFFF;
       window->m_cursor_x = x_pos;
       window->m_cursor_y = y_pos;
+      window->dispatch_input(input_event::mouse_move(x_pos, y_pos));
       return DefWindowProc(hwnd, uMsg, wParam, lParam);
+    }
+    case WM_CHAR: {
+      switch (wParam) {
+        case 0x08:  // backspace
+        case 0x0A:  // linefeed
+        case 0x1B:  // escape
+        case 0x09:  // tab
+        case 0x0D:  // carriage return
+          break;    // Ignore these for now
+        default:
+          window->dispatch_input(input_event::text_input(wParam));
+          break;
+      }
     }
     default:
       return DefWindowProc(hwnd, uMsg, wParam, lParam);

@@ -16,12 +16,12 @@ wn_filesystem_files(rocket_assets
     assets/built_shaders/ui_no_tex.ps.dxbc
     assets/built_shaders/ui_tex.ps.dxbc
     assets/fonts/lc_regular_12.fnt
-    assets/fonts/lc_regular_20.fnt
     assets/fonts/lc_regular_12_0.png
+    assets/fonts/lc_regular_20.fnt
     assets/fonts/lc_regular_20_0.png
     assets/fonts/lc_italic_12.fnt
-    assets/fonts/lc_italic_20.fnt
     assets/fonts/lc_italic_12_0.png
+    assets/fonts/lc_italic_20.fnt
     assets/fonts/lc_italic_20_0.png
     assets/textures/gradient.png
     assets/main.rml

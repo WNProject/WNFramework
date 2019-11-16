@@ -265,8 +265,8 @@ enum KeyModifier {
   KM_NUMLOCK = 1 << 5,    // Set if num lock is enabled.
   KM_SCROLLLOCK = 1 << 6  // Set if scroll lock is enabled.
 };
-}
-}
-}
+}  // namespace Input
+}  // namespace Core
+}  // namespace Rocket
 
 #endif

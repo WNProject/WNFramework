@@ -29,10 +29,10 @@
 // found in the LICENSE.txt file.
 #include "FontFaceHandle.h"
 #include <algorithm>
+#include <cmath>
 #include "../TextureLayout.h"
 #include "../precompiled.h"
 #include "FontFaceLayer.h"
-#include <cmath>
 
 namespace Rocket {
 namespace Core {
@@ -269,7 +269,6 @@ int FontFaceHandle::GenerateString(GeometryList& geometry,
       if (prior_character != 0)
         line_width +=
             GetKerning(prior_character, *string_iterator) * size_multiplier;
-
       layer->GenerateGeometry(&geometry[geometry_index], *string_iterator,
           Vector2f(position.x + line_width, position.y), layer_colour,
           size_multiplier);
@@ -324,15 +323,18 @@ void FontFaceHandle::OnReferenceDeactivate() {
 }
 
 void FontFaceHandle::GenerateMetrics(BitmapFontDefinitions* _bm_face) {
-  line_height = static_cast<int>(
-      _bm_face->CommonCharactersInfo.LineHeight * size_multiplier);
-  baseline = static_cast<int>(
-      _bm_face->CommonCharactersInfo.BaseLine * size_multiplier);
+  line_height = bm_face->CommonCharactersInfo.LineHeight;
+  baseline = bm_face->CommonCharactersInfo.BaseLine;
 
   underline_position =
-      (float)line_height -
-      _bm_face->CommonCharactersInfo.BaseLine * size_multiplier;
+      (float)line_height - bm_face->CommonCharactersInfo.BaseLine;
   baseline += int(underline_position / 1.6f);
+  underline_thickness = 1.0f;
+
+  line_height = static_cast<int>(line_height * size_multiplier);
+  baseline = static_cast<int>(baseline * size_multiplier);
+  underline_position = underline_position * size_multiplier;
+
   underline_thickness = 1.0f;
 
   average_advance = 0;
@@ -342,7 +344,8 @@ void FontFaceHandle::GenerateMetrics(BitmapFontDefinitions* _bm_face) {
 
   // Bring the total advance down to the average advance, but scaled up 10%,
   // just to be on the safe side.
-  average_advance = Math::RealToInteger((float)av / (glyphs.size() * 0.9f));
+  average_advance =
+      Math::RealToInteger((float)av / (glyphs.size() * 0.9f * size_multiplier));
 
   // Determine the x-height of this font face.
   word x = (word)'x';

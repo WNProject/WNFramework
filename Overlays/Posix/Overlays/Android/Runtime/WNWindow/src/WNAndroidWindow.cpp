@@ -4,9 +4,9 @@
 
 #include "WNWindow/inc/WNAndroidWindow.h"
 #include "WNApplicationData/inc/WNApplicationData.h"
-#include "executable_data/inc/executable_data.h"
 #include "WNMultiTasking/inc/job_pool.h"
 #include "WNMultiTasking/inc/job_signal.h"
+#include "executable_data/inc/executable_data.h"
 
 namespace wn {
 namespace runtime {
@@ -123,7 +123,8 @@ void android_window::wait_for_window_loop(void*) {
         return;
       } else if (m_app_data->executable_data->host_data->window_initialized
                      ->load()) {
-        m_data.window = m_app_data->executable_data->host_data->android_app->window;
+        m_data.window =
+            m_app_data->executable_data->host_data->android_app->window;
         if (m_creation_signal) {
           m_creation_signal->increment(1);
         }
@@ -159,6 +160,7 @@ void android_window::handle_touch_event(AInputEvent* _event) {
     }
     m_activated_pointer_id = pointer_id;
     m_mouse_states[0] = true;
+    m_window->dispatch_input(input_event::mouse_down(event_type::mouse_down));
   }
 
   if (m_activated_pointer_id != pointer_id) {
@@ -166,12 +168,13 @@ void android_window::handle_touch_event(AInputEvent* _event) {
   }
   m_cursor_x = AMotionEvent_getX(_event, pointer_id);
   m_cursor_y = AMotionEvent_getY(_event, pointer_id);
-
+  m_window->dispatch_input(input_event::mouse_move(m_cursor_x, m_cursor_y));
   if (action_type == AMOTION_EVENT_ACTION_UP ||
       action_type == AMOTION_EVENT_ACTION_CANCEL ||
       action_type == AMOTION_EVENT_ACTION_POINTER_UP) {
     m_mouse_states[0] = false;
     m_activated_pointer_id = -1;
+    m_window->dispatch_input(input_event::mouse_down(event_type::mouse_up));
   }
 }
 
@@ -181,8 +184,11 @@ void android_window::handle_key_event(AInputEvent* _event) {
 
   if (action_type == AKEY_EVENT_ACTION_DOWN) {
     m_key_states[static_cast<uint32_t>(code)] = true;
+    m_window->dispatch_input(
+        input_event::key_event(event_type::key_down, code));
   } else if (action_type == AKEY_EVENT_ACTION_UP) {
     m_key_states[static_cast<uint32_t>(code)] = false;
+    m_window->dispatch_input(input_event::key_event(event_type::key_up, code));
   }
 }
 

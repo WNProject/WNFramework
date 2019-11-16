@@ -17,8 +17,8 @@ add_wn_library(WNWindow
     inc/WNWindowEnums.h
     inc/WNNullWindow.h
   LIBS
-    WNMultiTasking
     WNApplicationData
+    WNMultiTasking
 )
 
 option(WN_ALLOW_DEFAULT_NULL_WINDOW

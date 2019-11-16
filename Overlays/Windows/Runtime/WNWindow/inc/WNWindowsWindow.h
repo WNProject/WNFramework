@@ -7,6 +7,7 @@
 #ifndef __WN_RUNTIME_WINDOW_WINDOWS_WINDOW_H__
 #define __WN_RUNTIME_WINDOW_WINDOWS_WINDOW_H__
 
+#include "WNContainers/inc/WNHashMap.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNMultiTasking/inc/job_signal.h"
 #include "WNWindow/inc/WNWindow.h"
@@ -33,11 +34,13 @@ struct native_handle {
 
 class windows_window : public window {
 public:
-  windows_window(logging::log* _log, multi_tasking::job_pool* _job_pool,
+  windows_window(memory::allocator* _allocator, logging::log* _log,
+      multi_tasking::job_pool* _job_pool,
       multi_tasking::job_signal* _creation_signal,
       const application::application_data* _data, uint32_t _x, uint32_t _y,
       uint32_t _width, uint32_t _height)
-    : m_log(_log),
+    : window(_allocator),
+      m_log(_log),
       m_job_pool(_job_pool),
       m_app_data(_data),
       m_x(_x),
@@ -110,10 +113,7 @@ private:
   native_handle m_window;
   multi_tasking::job_signal m_signal;
   multi_tasking::job_signal* m_creation_signal;
-  std::atomic_bool m_key_states[static_cast<uint32_t>(key_code::key_max) + 1] =
-      {};
-  std::atomic_bool
-      m_mouse_states[static_cast<uint32_t>(mouse_button::mouse_max) + 1] = {};
+
   std::atomic<uint32_t> m_cursor_x;
   std::atomic<uint32_t> m_cursor_y;
 };

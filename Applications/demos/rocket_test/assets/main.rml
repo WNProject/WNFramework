@@ -6,6 +6,7 @@
   <div style="background-color: red; position:absolute; top: 0%; bottom:75%; border-width:5px; border-color: yellow;">
     <div style="background-color: blue; position:absolute; top: 0%; bottom:25%; border-color: gray; padding: 6px; border-width:1px; font-size: 20px;">
       Hello World
+      <textarea>Helloa</textarea>
     </div>
     <div class="foo" style="background-color: orange; position:absolute; top: 75%; bottom: 0%; border-color:gray; border-width:1px;"></div>
   </div>

@@ -51,9 +51,9 @@ class Context;
 namespace Controls {
 
 /// Registers the instancers for the custom controls.
-void Initialise();
+void Initialise(Core::Context* _context);
 void RegisterContextValues(Core::Context* _context);
-}
-}
+}  // namespace Controls
+}  // namespace Rocket
 
 #endif

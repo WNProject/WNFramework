@@ -23,12 +23,14 @@
 #include "WNMath/inc/WNVector.h"
 #include "WNMultiTasking/inc/job_pool.h"
 #include "WNMultiTasking/inc/job_signal.h"
+#include "WNWindow/inc/WNInputContext.h"
 #include "WNWindow/inc/WNWindow.h"
 #include "WNWindow/inc/WNWindowFactory.h"
 #include "rocket_test/inc/rocket_assets.h"
 
 #include <stb_public.h>
 #include <time.h>
+#include "Rocket/Controls/Controls.h"
 #include "Rocket/Core.h"
 #include "Rocket/Core/RenderInterface.h"
 #include "Rocket/Debugger/Debugger.h"
@@ -44,10 +46,96 @@ using wn::runtime::graphics::buffer;
 using wn::runtime::graphics::graphics_error;
 using wn::runtime::graphics::image;
 using wn::runtime::graphics::image_view;
+using wn::runtime::window::event_type;
+using wn::runtime::window::input_event;
+using wn::runtime::window::key_code;
+using wn::runtime::window::mouse_button;
 using wn::runtime::window::window_factory;
 
 static const uint32_t k_width = 1024;
 static const uint32_t k_height = 768;
+
+int get_key_modifier_state(wn::runtime::window::window* _window) {
+  bool ctrl = _window->get_key_state(key_code::key_lctrl) ||
+              _window->get_key_state(key_code::key_rctrl) ||
+              _window->get_key_state(key_code::key_any_ctrl);
+
+  bool alt = _window->get_key_state(key_code::key_lalt) ||
+             _window->get_key_state(key_code::key_ralt) ||
+             _window->get_key_state(key_code::key_any_alt);
+
+  bool shift = _window->get_key_state(key_code::key_lshift) ||
+               _window->get_key_state(key_code::key_rshift) ||
+               _window->get_key_state(key_code::key_any_shift);
+
+  return Rocket::Core::Input::KeyModifier::KM_CTRL * ctrl +
+         Rocket::Core::Input::KeyModifier::KM_ALT * alt +
+         Rocket::Core::Input::KeyModifier::KM_SHIFT * shift;
+}
+
+int mouse_button_to_index(mouse_button _button) {
+  switch (_button) {
+    case mouse_button::mouse_l:
+      return 0;
+    case mouse_button::mouse_r:
+      return 1;
+    case mouse_button::mouse_m:
+      return 2;
+    default:
+      return -1;
+  }
+}
+
+Rocket::Core::Input::KeyIdentifier key_code_to_key_index(key_code _key_code) {
+  if (_key_code >= key_code::key_0 && _key_code <= key_code::key_9) {
+    return static_cast<Rocket::Core::Input::KeyIdentifier>(
+        Rocket::Core::Input::KeyIdentifier::KI_0 + static_cast<int>(_key_code) -
+        static_cast<int>(key_code::key_0));
+  }
+  if (_key_code >= key_code::key_a && _key_code <= key_code::key_z) {
+    return static_cast<Rocket::Core::Input::KeyIdentifier>(
+        Rocket::Core::Input::KeyIdentifier::KI_A + static_cast<int>(_key_code) -
+        static_cast<int>(key_code::key_a));
+  }
+  if (_key_code >= key_code::key_num_0 && _key_code <= key_code::key_num_9) {
+    return static_cast<Rocket::Core::Input::KeyIdentifier>(
+        Rocket::Core::Input::KeyIdentifier::KI_NUMPAD0 +
+        static_cast<int>(_key_code) - static_cast<int>(key_code::key_num_0));
+  }
+
+  switch (_key_code) {
+    case key_code::key_space:
+      return Rocket::Core::Input::KeyIdentifier::KI_SPACE;
+    case key_code::key_lshift:
+      return Rocket::Core::Input::KeyIdentifier::KI_LSHIFT;
+    case key_code::key_rshift:
+      return Rocket::Core::Input::KeyIdentifier::KI_RSHIFT;
+    case key_code::key_lctrl:
+      return Rocket::Core::Input::KeyIdentifier::KI_LCONTROL;
+    case key_code::key_rctrl:
+      return Rocket::Core::Input::KeyIdentifier::KI_RCONTROL;
+    case key_code::key_lalt:
+      return Rocket::Core::Input::KeyIdentifier::KI_LMENU;
+    case key_code::key_ralt:
+      return Rocket::Core::Input::KeyIdentifier::KI_RMENU;
+    case key_code::key_backspace:
+      return Rocket::Core::Input::KeyIdentifier::KI_BACK;
+    case key_code::key_del:
+      return Rocket::Core::Input::KeyIdentifier::KI_DELETE;
+    case key_code::key_left:
+      return Rocket::Core::Input::KeyIdentifier::KI_LEFT;
+    case key_code::key_right:
+      return Rocket::Core::Input::KeyIdentifier::KI_RIGHT;
+    case key_code::key_up:
+      return Rocket::Core::Input::KeyIdentifier::KI_UP;
+    case key_code::key_down:
+      return Rocket::Core::Input::KeyIdentifier::KI_DOWN;
+    case key_code::key_tab:
+      return Rocket::Core::Input::KeyIdentifier::KI_TAB;
+    default:
+      return Rocket::Core::Input::KeyIdentifier::KI_UNKNOWN;
+  }
+}
 
 class WNSystemInterface : public Rocket::Core::SystemInterface {
 public:
@@ -317,6 +405,8 @@ public:
               _allocator, "assets/built_shaders/ui_no_tex.ps") +
               _device->get_shader_suffix().data())),
       m_per_target_data(_allocator),
+      m_cleanup_textures(_allocator),
+      m_cleanup_geometry(_allocator),
       m_sampler(_device->create_sampler({})),
       m_mapping(_mapping),
       m_texture_upload_arenas(_allocator),
@@ -428,7 +518,6 @@ public:
                         0, {0, 0, static_cast<float>(k_width),
                                static_cast<float>(k_height), 0, 1})
                     .set_cull_mode(wn::runtime::graphics::cull_mode::none)
-                    .set_static_scissor(0, {0, 0, k_width, k_height})
                     .set_index_type(wn::runtime::graphics::index_type::u32)
                     .add_color_output(0)
                     .set_shader(wn::runtime::graphics::shader_stage::vertex,
@@ -1136,6 +1225,7 @@ int32_t wn_application_main(
     return -1;
   }
 
+  auto input_context = window->get_input_context();
   auto surface = adapter->make_surface(allocator, window.get());
   if (surface.second != graphics_error::ok) {
     // TODO(awoloszyn): Retry policy with different adapters.
@@ -1187,7 +1277,6 @@ int32_t wn_application_main(
   Rocket::Core::SetFileInterface(&context, &file_interface);
 
   Rocket::Core::Initialise(&context);
-
   Rocket::Core::DocumentContext* documents =
       Rocket::Core::CreateDocumentContext(
           &context, "main", Rocket::Core::Vector2i(k_width, k_height));
@@ -1202,7 +1291,8 @@ int32_t wn_application_main(
       &context, "assets/fonts/lc_italic_20.fnt");
 
   Rocket::Debugger::Initialise(&context, documents);
-
+  Rocket::Controls::Initialise(&context);
+  // Rocket::Debugger::SetVisible(&context, true);
   Rocket::Core::ElementDocument* document =
       documents->LoadDocument("assets/main.rml");
   if (document != NULL) {
@@ -1211,6 +1301,7 @@ int32_t wn_application_main(
   }
 
   // DONE SETTING UP ROCKET
+  bool debugger_visible = false;
 
   for (;;) {
     image_fence.reset();
@@ -1283,7 +1374,44 @@ int32_t wn_application_main(
     completion_fence.wait();
 
     swapchain->present(queue.get(), nullptr, idx);
+    wn::runtime::window::input_event evt;
+    int key_modifier_state = get_key_modifier_state(window.get());
+    while (input_context->get_event(&evt)) {
+      switch (evt.type()) {
+        case wn::runtime::window::event_type::key_down:
+          documents->ProcessKeyDown(
+              key_code_to_key_index(evt.get_keycode()), key_modifier_state);
+          if (evt.get_keycode() == key_code::key_l &&
+              window->get_key_state(key_code::key_any_ctrl)) {
+            debugger_visible ^= true;
+            Rocket::Debugger::SetVisible(&context, debugger_visible);
+          }
+          break;
+        case wn::runtime::window::event_type::key_up:
+          documents->ProcessKeyUp(
+              key_code_to_key_index(evt.get_keycode()), key_modifier_state);
+          break;
+        case wn::runtime::window::event_type::mouse_down:
+          documents->ProcessMouseButtonDown(
+              mouse_button_to_index(evt.get_mouse_button()),
+              key_modifier_state);
+          break;
+        case wn::runtime::window::event_type::mouse_up:
+          documents->ProcessMouseButtonUp(
+              mouse_button_to_index(evt.get_mouse_button()),
+              key_modifier_state);
+          break;
+        case wn::runtime::window::event_type::mouse_move:
+          documents->ProcessMouseMove(
+              evt.get_mouse_x(), evt.get_mouse_y(), key_modifier_state);
+          break;
+        case wn::runtime::window::event_type::text_input:
+          documents->ProcessTextInput(
+              static_cast<Rocket::Core::word>(evt.get_character()));
+      }
+    }
   }
+  // window->release_input_context(input_context);
 
   return 0;
 }
