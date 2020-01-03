@@ -139,7 +139,9 @@ Rocket::Core::Input::KeyIdentifier key_code_to_key_index(key_code _key_code) {
 
 class WNSystemInterface : public Rocket::Core::SystemInterface {
 public:
-  WNSystemInterface(wn::logging::log* _log) : m_log(_log), m_start(time(0)) {}
+  WNSystemInterface(
+      wn::logging::log* _log, wn::runtime::window::window* _window)
+    : m_log(_log), m_start(time(0)), m_window(_window) {}
 
   bool LogMessage(Rocket::Core::Log::Type type,
       const Rocket::Core::String& message) override {
@@ -173,9 +175,20 @@ public:
     return float(difftime(time(0), m_start));
   }
 
+  // Activate keyboard (for touchscreen devices)
+  void ActivateKeyboard() override {
+    m_window->show_keyboard();
+  }
+
+  // Deactivate keyboard (for touchscreen devices)
+  void DeactivateKeyboard() override {
+    m_window->hide_keyboard();
+  }
+
 private:
   wn::logging::log* m_log;
   time_t m_start;
+  wn::runtime::window::window* m_window;
 };
 
 wn::containers::string_view get_string_view(
@@ -387,7 +400,8 @@ public:
       wn::runtime::graphics::device* _device,
       wn::containers::contiguous_range<wn::runtime::graphics::image*>
           _target_images,
-      wn::file_system::mapping* _mapping, Rocket::Core::Context* _context)
+      wn::file_system::mapping* _mapping, Rocket::Core::Context* _context,
+      uint32_t _width, uint32_t _height)
     : Rocket::Core::RenderInterface(_context),
       m_allocator(_allocator),
       m_device(_device),
@@ -413,7 +427,9 @@ public:
       m_texture_upload_buffers(_allocator),
       m_resource_init_command_list(
           m_init_command_allocator->create_command_list()),
-      m_screen_multiplier(_device->get_2d_transform_scale()) {
+      m_screen_multiplier(_device->get_2d_transform_scale()),
+      m_width(_width),
+      m_height(_height) {
     wn::runtime::graphics::descriptor_binding_info binding_infos[]{
         {
             0,  // binding
@@ -483,10 +499,10 @@ public:
                         wn::runtime::graphics::data_format::r32g32_sfloat)
                     .set_index_type(wn::runtime::graphics::index_type::u32)
                     .set_static_viewport(
-                        0, {0, 0, static_cast<float>(k_width),
-                               static_cast<float>(k_height), 0, 1})
+                        0, {0, 0, static_cast<float>(m_width),
+                               static_cast<float>(m_height), 0, 1})
                     .set_cull_mode(wn::runtime::graphics::cull_mode::none)
-                    .set_static_scissor(0, {0, 0, k_width, k_height})
+                    .set_static_scissor(0, {0, 0, m_width, m_height})
                     .add_color_output(0)
                     .set_shader(wn::runtime::graphics::shader_stage::vertex,
                         &m_vertex_shader, "main")
@@ -515,8 +531,8 @@ public:
                         wn::runtime::graphics::data_format::r32g32_sfloat)
                     .set_num_scissors(1)
                     .set_static_viewport(
-                        0, {0, 0, static_cast<float>(k_width),
-                               static_cast<float>(k_height), 0, 1})
+                        0, {0, 0, static_cast<float>(m_width),
+                               static_cast<float>(m_height), 0, 1})
                     .set_cull_mode(wn::runtime::graphics::cull_mode::none)
                     .set_index_type(wn::runtime::graphics::index_type::u32)
                     .add_color_output(0)
@@ -548,10 +564,10 @@ public:
                     .set_index_type(wn::runtime::graphics::index_type::u32)
                     .add_color_output(0)
                     .set_static_viewport(
-                        0, {0, 0, static_cast<float>(k_width),
-                               static_cast<float>(k_height), 0, 1})
+                        0, {0, 0, static_cast<float>(m_width),
+                               static_cast<float>(m_height), 0, 1})
                     .set_cull_mode(wn::runtime::graphics::cull_mode::none)
-                    .set_static_scissor(0, {0, 0, k_width, k_height})
+                    .set_static_scissor(0, {0, 0, m_width, m_height})
                     .set_shader(wn::runtime::graphics::shader_stage::vertex,
                         &m_vertex_shader, "main")
                     .set_shader(wn::runtime::graphics::shader_stage::pixel,
@@ -579,8 +595,8 @@ public:
                         wn::runtime::graphics::data_format::r32g32_sfloat)
                     .set_num_scissors(1)
                     .set_static_viewport(
-                        0, {0, 0, static_cast<float>(k_width),
-                               static_cast<float>(k_height), 0, 1})
+                        0, {0, 0, static_cast<float>(m_width),
+                               static_cast<float>(m_height), 0, 1})
                     .set_index_type(wn::runtime::graphics::index_type::u32)
                     .add_color_output(0)
                     .set_shader(wn::runtime::graphics::shader_stage::vertex,
@@ -738,11 +754,11 @@ public:
     for (int i = 0; i < num_vertices; ++i) {
       vertices[i].position.x =
           m_screen_multiplier[0] *
-              (2.0f * vertices[i].position.x / static_cast<float>(k_width)) -
+              (2.0f * vertices[i].position.x / static_cast<float>(m_width)) -
           1.0f;
       vertices[i].position.y =
           m_screen_multiplier[1] *
-          ((-2.0f * vertices[i].position.y / static_cast<float>(k_height)) +
+          ((-2.0f * vertices[i].position.y / static_cast<float>(m_height)) +
               1.0f);
     }
 
@@ -819,9 +835,9 @@ public:
         wn::runtime::graphics::index_type::u32, &index.first);
     float constants[2] = {
         m_screen_multiplier[0] *
-            (2.0f * translation.x / static_cast<float>(k_width)),
+            (2.0f * translation.x / static_cast<float>(m_width)),
         m_screen_multiplier[1] *
-            (-2.0f * translation.y / static_cast<float>(k_height))};
+            (-2.0f * translation.y / static_cast<float>(m_height))};
 
     dat.m_command_list->push_graphics_contants(
         0, 0, reinterpret_cast<const uint32_t*>(constants), 2);
@@ -924,11 +940,11 @@ public:
     for (int i = 0; i < num_vertices; ++i) {
       vertices[i].position.x =
           m_screen_multiplier[0] *
-          ((2.0f * vertices[i].position.x / static_cast<float>(k_width)) -
+          ((2.0f * vertices[i].position.x / static_cast<float>(m_width)) -
               1.0f);
       vertices[i].position.y =
           m_screen_multiplier[1] *
-          (-(2.0f * vertices[i].position.y / static_cast<float>(k_height)) +
+          (-(2.0f * vertices[i].position.y / static_cast<float>(m_height)) +
               1.0f);
     }
 
@@ -1023,9 +1039,9 @@ public:
         wn::runtime::graphics::index_type::u32, &geometry->m_index_buffer);
     float constants[2] = {
         m_screen_multiplier[0] *
-            (2.0f * translation.x / static_cast<float>(k_width)),
+            (2.0f * translation.x / static_cast<float>(m_width)),
         m_screen_multiplier[1] *
-            (-2.0f * translation.y / static_cast<float>(k_height))};
+            (-2.0f * translation.y / static_cast<float>(m_height))};
 
     dat.m_command_list->push_graphics_contants(
         0, 0, reinterpret_cast<const uint32_t*>(constants), 2);
@@ -1176,6 +1192,8 @@ private:
   wn::runtime::graphics::command_list_ptr m_resource_init_command_list;
   bool m_resource_command_list_dirty = false;
   wn::math::vec2f m_screen_multiplier;
+  uint32_t m_width;
+  uint32_t m_height;
 };
 
 int32_t wn_application_main(
@@ -1220,6 +1238,11 @@ int32_t wn_application_main(
   log->log_info("Selected adapter ", force_adapter, ": ", adapter->name());
   log->flush();
   s.wait_until(1);
+  float multiplier =
+      static_cast<float>(wn::runtime::window::k_default_density) /
+      static_cast<float>(window->get_dpi());
+  uint32_t width = static_cast<uint32_t>(window->get_width() * multiplier);
+  uint32_t height = static_cast<uint32_t>(window->get_height() * multiplier);
   if (!window->is_valid()) {
     log->log_error("Could not create a valid window");
     return -1;
@@ -1241,8 +1264,8 @@ int32_t wn_application_main(
   auto device = adapter->make_device(allocator, log, {});
 
   wn::runtime::graphics::queue_ptr queue = device->create_queue();
-  auto swapchain =
-      device->create_swapchain(surface.first, create_info, queue.get());
+  auto swapchain = device->create_swapchain(
+      surface.first, create_info, queue.get(), multiplier);
 
   wn::runtime::graphics::fence image_fence = device->create_fence();
 
@@ -1267,9 +1290,9 @@ int32_t wn_application_main(
   file_system->initialize_files(rocket_assets::get_files());
 
   Rocket::Core::Context context;
-  WNRenderer renderer(
-      allocator, device.get(), swapchain_images, file_system.get(), &context);
-  WNSystemInterface system_interface(log);
+  WNRenderer renderer(allocator, device.get(), swapchain_images,
+      file_system.get(), &context, width, height);
+  WNSystemInterface system_interface(log, window.get());
   WNFileInterface file_interface(log, wn::core::move(file_system));
 
   Rocket::Core::SetRenderInterface(&context, &renderer);
@@ -1279,7 +1302,7 @@ int32_t wn_application_main(
   Rocket::Core::Initialise(&context);
   Rocket::Core::DocumentContext* documents =
       Rocket::Core::CreateDocumentContext(
-          &context, "main", Rocket::Core::Vector2i(k_width, k_height));
+          &context, "main", Rocket::Core::Vector2i(width, height));
 
   Rocket::Core::FontDatabase::LoadFontFace(
       &context, "assets/fonts/lc_regular_12.fnt");
@@ -1377,6 +1400,8 @@ int32_t wn_application_main(
     wn::runtime::window::input_event evt;
     int key_modifier_state = get_key_modifier_state(window.get());
     while (input_context->get_event(&evt)) {
+      log->log_error("Event!! ", evt.type());
+      log->flush();
       switch (evt.type()) {
         case wn::runtime::window::event_type::key_down:
           documents->ProcessKeyDown(
@@ -1403,11 +1428,15 @@ int32_t wn_application_main(
           break;
         case wn::runtime::window::event_type::mouse_move:
           documents->ProcessMouseMove(
-              evt.get_mouse_x(), evt.get_mouse_y(), key_modifier_state);
+              static_cast<int>(evt.get_mouse_x() * multiplier),
+              static_cast<int>(evt.get_mouse_y() * multiplier),
+              key_modifier_state);
           break;
         case wn::runtime::window::event_type::text_input:
+          log->log_error("Character Input: ", evt.get_character());
           documents->ProcessTextInput(
               static_cast<Rocket::Core::word>(evt.get_character()));
+          break;
       }
     }
   }

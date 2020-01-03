@@ -5,7 +5,7 @@ android {
     buildToolsVersion = '27.0.3'
 
     defaultConfig {
-        applicationId = '@WN_PACKAGE_NAME@.@APPLICATION_NAME@'
+        applicationId = '@WN_PACKAGE_STRING@.@APPLICATION_NAME@'
         minSdkVersion   @WN_ANDROID_NATIVE_API_LEVEL@
         targetSdkVersion  @WN_ANDROID_NATIVE_API_LEVEL@
         ndk {
@@ -14,7 +14,7 @@ android {
     }
     sourceSets.main.jniLibs {
         srcDirs = ['src/main/jniLibs']
-    } 
+    }
     buildTypes {
         release {
             minifyEnabled false

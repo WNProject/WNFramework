@@ -51,4 +51,7 @@ message(STATUS "Using Android toolchain ${WN_ANDROID_TOOLCHAIN_FILE}")
 set(WN_ANDROID_WRAPPER ON)
 set(WN_FORCE_SYSTEM "Android")
 set(WN_DISABLE_CXX ON)
-set(WN_PACKAGE_NAME "org.wnproject")
+
+set(WN_PACKAGE_DOMAIN "org;wnproject")
+set(WN_PACKAGE_DOMAIN_STRING)
+list(JOIN WN_PACKAGE_DOMAIN "." WN_PACKAGE_DOMAIN_STRING)

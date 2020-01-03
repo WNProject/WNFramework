@@ -149,12 +149,15 @@ void android_main(struct android_app* state) {
   __android_log_print(ANDROID_LOG_INFO, packageName, "--STARTED");
 
 #if defined _WN_DEBUG
+  if (access("/proc/sys/kernel/yama/ptrace_scope", F_OK) != -1) {
+    prctl(PR_SET_PTRACER, PR_SET_PTRACER_ANY, 0, 0, 0);
+  }
   FILE* debugFile = fopen("/sdcard/wait-for-debugger.txt", "r");
 
   if (debugFile) {
     __android_log_print(ANDROID_LOG_INFO, packageName, "--SLEEPING");
 
-    sleep(10);  // sleep so that if we want to connect a debugger we can
+    sleep(20);  // sleep so that if we want to connect a debugger we can
 
     __android_log_print(ANDROID_LOG_INFO, packageName, "--WAKING UP");
 

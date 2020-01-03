@@ -578,7 +578,7 @@ void d3d12_device::destroy_image(image* _image) {
 }
 
 swapchain_ptr d3d12_device::create_swapchain(const surface& _surface,
-    const swapchain_create_info& _info, queue* _queue) {
+    const swapchain_create_info& _info, queue* _queue, float _multiplier) {
   const runtime::window::native_handle* handle =
       &_surface.data_as<runtime::window::native_handle>();
 
@@ -620,8 +620,10 @@ swapchain_ptr d3d12_device::create_swapchain(const surface& _surface,
     m_log->log_error("Could not successfully create swapchain.");
     return nullptr;
   }
-  swapchain->initialize(m_allocator, this, _surface.get_width(),
-      _surface.get_height(), _info, core::move(swp3));
+  swapchain->initialize(m_allocator, this,
+      static_cast<uint32_t>(_surface.get_width() * _multiplier),
+      static_cast<uint32_t>(_surface.get_height() * _multiplier), _info,
+      core::move(swp3));
   return core::move(swapchain);
 }
 

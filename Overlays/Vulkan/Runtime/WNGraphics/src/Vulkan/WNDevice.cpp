@@ -581,8 +581,8 @@ void vulkan_device::destroy_image(image* _image) {
   vkDestroyImage(m_device, img, nullptr);
 }
 
-swapchain_ptr vulkan_device::create_swapchain(
-    const surface& _surface, const swapchain_create_info& _info, queue*) {
+swapchain_ptr vulkan_device::create_swapchain(const surface& _surface,
+    const swapchain_create_info& _info, queue*, float _multiplier) {
   VkSurfaceKHR surface = _surface.data_as<VkSurfaceKHR>();
   VkPresentModeKHR mode;
   switch (_info.mode) {
@@ -613,8 +613,8 @@ swapchain_ptr vulkan_device::create_swapchain(
       VK_COLORSPACE_SRGB_NONLINEAR_KHR,             // imageColorSpace
       {
           // imageExtent
-          _surface.get_width(),  // width
-          _surface.get_height()  // height
+          static_cast<uint32_t>(_surface.get_width() * _multiplier),   // width
+          static_cast<uint32_t>(_surface.get_height() * _multiplier),  // height
       },
       1,  // imageArrayLayers
       VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |

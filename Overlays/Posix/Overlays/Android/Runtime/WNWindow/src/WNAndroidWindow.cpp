@@ -91,13 +91,19 @@ inline key_code android_keycode_to_keycode(int32_t keycode) {
     case AKEYCODE_SPACE:
       return key_code::key_space;
     case AKEYCODE_DPAD_LEFT:
+    case AKEYCODE_SOFT_LEFT:
       return key_code::key_left;
     case AKEYCODE_DPAD_RIGHT:
+    case AKEYCODE_SOFT_RIGHT:
       return key_code::key_right;
     case AKEYCODE_DPAD_UP:
       return key_code::key_up;
     case AKEYCODE_DPAD_DOWN:
       return key_code::key_down;
+    case AKEYCODE_DEL:
+      return key_code::key_backspace;
+    case AKEYCODE_FORWARD_DEL:
+      return key_code::key_del;
   }
   return key_code::key_max;
 }
@@ -107,7 +113,7 @@ window_error android_window::initialize() {
 }
 
 void android_window::wait_for_window_loop(void*) {
-  m_job_pool->call_blocking_function([&]() {
+  m_job_pool->call_blocking_function([this]() {
     if (!m_app_data->executable_data->host_data->window_initialized ||
         !m_app_data->executable_data->host_data->android_app) {
       if (m_creation_signal) {
@@ -125,6 +131,11 @@ void android_window::wait_for_window_loop(void*) {
                      ->load()) {
         m_data.window =
             m_app_data->executable_data->host_data->android_app->window;
+        auto width = ANativeWindow_getWidth(m_data.window);
+        auto height = ANativeWindow_getHeight(m_data.window);
+        m_width = width;    // width;
+        m_height = height;  // height;
+
         if (m_creation_signal) {
           m_creation_signal->increment(1);
         }
@@ -160,7 +171,7 @@ void android_window::handle_touch_event(AInputEvent* _event) {
     }
     m_activated_pointer_id = pointer_id;
     m_mouse_states[0] = true;
-    m_window->dispatch_input(input_event::mouse_down(event_type::mouse_down));
+    dispatch_input(input_event::mouse_down(mouse_button::mouse_l));
   }
 
   if (m_activated_pointer_id != pointer_id) {
@@ -168,13 +179,13 @@ void android_window::handle_touch_event(AInputEvent* _event) {
   }
   m_cursor_x = AMotionEvent_getX(_event, pointer_id);
   m_cursor_y = AMotionEvent_getY(_event, pointer_id);
-  m_window->dispatch_input(input_event::mouse_move(m_cursor_x, m_cursor_y));
+  dispatch_input(input_event::mouse_move(m_cursor_x, m_cursor_y));
   if (action_type == AMOTION_EVENT_ACTION_UP ||
       action_type == AMOTION_EVENT_ACTION_CANCEL ||
       action_type == AMOTION_EVENT_ACTION_POINTER_UP) {
     m_mouse_states[0] = false;
     m_activated_pointer_id = -1;
-    m_window->dispatch_input(input_event::mouse_down(event_type::mouse_up));
+    dispatch_input(input_event::mouse_up(mouse_button::mouse_l));
   }
 }
 
@@ -182,14 +193,101 @@ void android_window::handle_key_event(AInputEvent* _event) {
   int32_t action_type = AKeyEvent_getAction(_event);
   key_code code = android_keycode_to_keycode(AKeyEvent_getKeyCode(_event));
 
+  if (code == key_code::key_max) {
+    return;
+  }
   if (action_type == AKEY_EVENT_ACTION_DOWN) {
     m_key_states[static_cast<uint32_t>(code)] = true;
-    m_window->dispatch_input(
-        input_event::key_event(event_type::key_down, code));
+    dispatch_input(input_event::key_event(event_type::key_down, code));
   } else if (action_type == AKEY_EVENT_ACTION_UP) {
     m_key_states[static_cast<uint32_t>(code)] = false;
-    m_window->dispatch_input(input_event::key_event(event_type::key_up, code));
+    dispatch_input(input_event::key_event(event_type::key_up, code));
+    // Try to get a text event from this as well
+    {
+      ANativeActivity* activity =
+          m_app_data->executable_data->host_data->android_app->activity;
+      JNIEnv* env = 0;
+
+      activity->vm->AttachCurrentThread(&env, 0);
+      jclass cls = env->GetObjectClass(activity->clazz);
+      jmethodID method_id = env->GetMethodID(
+          cls, "GetEventString", "(JJIIIIIIII)Ljava/lang/String;");
+
+      jstring j_str = (jstring)env->CallObjectMethod(activity->clazz, method_id,
+          AKeyEvent_getDownTime(_event), AKeyEvent_getEventTime(_event),
+          AKeyEvent_getAction(_event), AKeyEvent_getKeyCode(_event),
+          AKeyEvent_getRepeatCount(_event), AKeyEvent_getMetaState(_event),
+          AInputEvent_getDeviceId(_event), AKeyEvent_getScanCode(_event),
+          AKeyEvent_getFlags(_event), AInputEvent_getSource(_event));
+
+      jsize len = env->GetStringLength(j_str);
+      const jchar* chars = env->GetStringChars(j_str, nullptr);
+      for (jsize i = 0; i < len; ++i) {
+        switch (chars[i]) {
+          case 0x00:  // null
+          case 0x08:  // backspace
+          case 0x0A:  // linefeed
+          case 0x1B:  // escape
+          case 0x09:  // tab
+          case 0x0D:  // carriage return
+            break;    // Ignore these for now
+          default:
+            dispatch_input(input_event::text_input(chars[i]));
+        }
+      }
+      env->ReleaseStringChars(j_str, chars);
+      activity->vm->DetachCurrentThread();
+    }
   }
+}
+
+void android_window::show_keyboard() {
+  if (m_keyboard_showing) {
+    return;
+  }
+
+  ANativeActivity* activity =
+      m_app_data->executable_data->host_data->android_app->activity;
+  JNIEnv* env = 0;
+
+  activity->vm->AttachCurrentThread(&env, 0);
+  jclass cls = env->GetObjectClass(activity->clazz);
+  jmethodID methodID = env->GetMethodID(cls, "ShowKeyboard", "()V");
+  env->CallVoidMethod(activity->clazz, methodID);
+
+  activity->vm->DetachCurrentThread();
+  m_keyboard_showing = true;
+}
+
+void android_window::hide_keyboard() {
+  if (!m_keyboard_showing) {
+    return;
+  }
+  ANativeActivity* activity =
+      m_app_data->executable_data->host_data->android_app->activity;
+  JNIEnv* env = 0;
+
+  activity->vm->AttachCurrentThread(&env, 0);
+  jclass cls = env->GetObjectClass(activity->clazz);
+  jmethodID methodID = env->GetMethodID(cls, "HideKeyboard", "()V");
+  env->CallVoidMethod(activity->clazz, methodID);
+
+  activity->vm->DetachCurrentThread();
+  m_keyboard_showing = false;
+}
+
+uint32_t android_window::get_dpi() {
+  ANativeActivity* activity =
+      m_app_data->executable_data->host_data->android_app->activity;
+  JNIEnv* env = 0;
+
+  activity->vm->AttachCurrentThread(&env, 0);
+  jclass cls = env->GetObjectClass(activity->clazz);
+  jmethodID methodID = env->GetMethodID(cls, "GetDPI", "()I");
+  jint i = env->CallIntMethod(activity->clazz, methodID);
+
+  activity->vm->DetachCurrentThread();
+  return i;
 }
 
 }  // namespace window

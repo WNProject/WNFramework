@@ -31,6 +31,9 @@ def run():
                         help="Delay before run and between install and run")
     parser.add_argument("--remove", action="store_true",
                         help="Remove the package on completion")
+    parser.add_argument('--target_arch', type=str, default='armeabi-v7a',
+                            help="target architecture to debug on. Must be supplied if debugging",
+                            required=False)
 
     args = parser.parse_args(sys.argv[1:])
 
@@ -40,11 +43,11 @@ def run():
         if args.delay:
             time.sleep(args.delay)
         run_args = [sys.executable, runner, 'uninstall',
-                    "${WN_PACKAGE}", '--sdk', sdk_dir]
+                    "${WN_PACKAGE_STRING}.${WN_ACTIVITY_NAME}", '--sdk', sdk_dir]
         subprocess.call(run_args)
         run_args = [sys.executable, runner, 'install',
                     "${WN_APK_LOCATION}", '--sdk', sdk_dir,
-                    '--package_name', '${WN_PACKAGE}']
+                    '--package_name', '${WN_PACKAGE_STRING}.${WN_ACTIVITY_NAME}']
         if subprocess.call(run_args) != 0:
             return(-1)
         run = False
@@ -52,11 +55,14 @@ def run():
     if args.run or run:
         if args.delay:
             time.sleep(args.delay)
-        run_args = [sys.executable, runner, 'run', "${WN_PACKAGE}", "android.app.NativeActivity",
+        run_args = [sys.executable, runner, 'run', "${WN_PACKAGE_STRING}.${WN_ACTIVITY_NAME}", "${WN_PACKAGE_STRING}.${WN_ACTIVITY_NAME}",
                     '--ndk_dir', ndk_dir, '--sdk', sdk_dir, '--build_dir',
                     "\"${WNFramework_BINARY_DIR}\""]
         if args.debug:
             run_args.append('--debug')
+            run_args.append("--target_arch")
+            run_args.append(args.target_arch)
+        print(run_args)
 
         ret = subprocess.call(run_args)
         if ret != 0:

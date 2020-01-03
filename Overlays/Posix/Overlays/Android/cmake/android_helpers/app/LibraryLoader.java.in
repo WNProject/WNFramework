@@ -1,12 +1,47 @@
-package ${WN_PACKAGE_NAME};
+package @WN_PACKAGE_STRING@;
 
 import android.app.NativeActivity;
+import android.view.inputmethod.InputMethodManager;
+import android.content.Context;
+import android.os.Bundle;
+import android.view.KeyEvent;
 
-public class ${WN_ACTIVITY_NAME} extends android.app.NativeActivity {
-  static {
-    String libraries = "${WN_NATIVE_LIBRARIES}";
-    for(String lib: libraries.split(";")) {
-      System.loadLibrary(lib);
+public class @WN_ACTIVITY_NAME@ extends android.app.NativeActivity {
+@Override
+  protected void onCreate(Bundle savedInstanceState) {
+      super.onCreate(savedInstanceState);
+     // setContentView(R.layout.main);
+  }
+
+  void ShowKeyboard() {
+    InputMethodManager imm = (InputMethodManager)   getSystemService(Context.INPUT_METHOD_SERVICE);
+    imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+  }
+
+  void HideKeyboard() {
+    InputMethodManager imm = (InputMethodManager)getSystemService(
+      Context.INPUT_METHOD_SERVICE);
+    imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY,0);
+  }
+
+  public String GetEventString(long down, long event,
+            int action, int key, int repeat, int meta,
+            int device, int scan, int flags, int src) {
+    KeyEvent keyEvent = new KeyEvent(down, event, action,
+            key, repeat, meta, device, scan, flags, src);
+
+    if (0 != meta) {
+        return Character.toString((char)(keyEvent.getUnicodeChar(meta)));
     }
+
+    int c = keyEvent.getUnicodeChar();
+    if (action == KeyEvent.ACTION_MULTIPLE && c == keyEvent.KEYCODE_UNKNOWN) {
+      return keyEvent.getCharacters();
+    }
+    return Character.toString((char)c);
+  }
+
+  public int GetDPI() {
+    return getResources().getDisplayMetrics().densityDpi;
   }
 }

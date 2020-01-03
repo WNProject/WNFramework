@@ -53,7 +53,6 @@ def run_p_silent(args):
 
 def run_p_background(args):
     file = open(os.devnull)
-    print args
     return subprocess.Popen(args, stdout=file, stderr=file)
 
 
@@ -85,25 +84,23 @@ def run_p_timeout_retry(timeout_count, retry_count, args):
         ret_code, timeout = run_p_timeout(timeout_count, args)
         if (not timeout):
             return ret_code
-        print "RETRYING"
+        print("RETRYING")
         time.sleep(10)
     return -1
 
 
 def info(message, *additional_args):
-    print message,
+    print(message),
     for arg in additional_args:
-        print " ", arg,
-    print ""
-
+        print(" ", arg),
+    print("")
 
 def error(message, *additional_args):
-    print message,
+    print(message),
     for arg in additional_args:
-        print " ", arg,
-    print ""
+        print(" ", arg),
+    print ("")
     exit(-1)
-
 
 class Runner:
     def run_adb_silent(self, args):
@@ -178,7 +175,6 @@ class Runner:
             info("Package install directory is %s" % data_dir)
 
             # Assume that the build was done with gdbserver getting packaged.
-            debug_port = '5039'
             abis = []
 
             ret_val, primary_abi = run_p_output([adb, "shell",
@@ -212,8 +208,6 @@ class Runner:
 
             info("Running program with abi: ", args.target_arch)
 
-            is_64 = '64' in args.target_arch
-
             arch_to_dir = {
                 'armeabi-v7a': 'armeabi',
                 'armeabi': 'armeabi',
@@ -245,8 +239,8 @@ class Runner:
             info("Starting %s/.%s" % (args.package_name, args.activity_name))
 
             startre = re.compile("^--STARTED..?$")
-            strip_stuff = re.compile("[A-Z]/" +
-                                     args.package_name + "\(([ 0-9]*)\): (.*)")
+            strip_stuff = re.compile(r"[A-Z]/" +
+                                     args.package_name + r"\(([ 0-9]*)\): (.*)")
 
             pid = args.attach
             while(pid == 0):
@@ -308,7 +302,10 @@ class Runner:
                 args.extend(['-X'])
             shell_p(args)
             server.kill()
-            self.run_as_shell_silent(['killall', '-9', 'lldb-server'])
+            try:
+                self.run_as_shell_silent(['killall', '-9', 'lldb-server'])
+            except:
+                pass
         else:
             try:
                 run_p([adb, "shell", "rm", "/sdcard/wait-for-debugger.txt"])
@@ -324,13 +321,13 @@ class Runner:
                 stdout=subprocess.PIPE,
                 bufsize=1)
 
-            returnre = re.compile("^RETURN ([0-9]*)\s*$", re.MULTILINE)
-            startre = re.compile("^--STARTED\s*$")
-            finishre = re.compile("^--FINISHED\s*$")
-            crashedre = re.compile("^--CRASHED--\s*$")
-            abortRE = ""
-            strip_stuff = re.compile("[A-Z]/" +
-                                     args.package_name + "\(([ 0-9]*)\): (.*)")
+            returnre = re.compile(r"^RETURN ([0-9]*)\s*$", re.MULTILINE)
+            startre = re.compile(r"^--STARTED\s*$")
+            finishre = re.compile(r"^--FINISHED\s*$")
+            crashedre = re.compile(r"^--CRASHED--\s*$")
+            abortRE = None
+            strip_stuff = re.compile(r"[A-Z]/" +
+                                     args.package_name + r"\(([ 0-9]*)\): (.*)")
             has_started = False
             pid = 0
             while(True):
@@ -346,7 +343,7 @@ class Runner:
                     if abortRE:
                         m = abortRE.search(original_line)
                         if not m:
-                            print line
+                            print(line)
                             continue
                         aborted = True
                     else:
@@ -364,7 +361,7 @@ class Runner:
                     continue
                 if not has_started:
                     abortRE = re.compile(
-                        "^F.*\((" + new_pid + ")\):(.*ABORTING.*)")
+                        r"^F.*\((" + new_pid + r")\):(.*ABORTING.*)")
                     m = startre.search(line)
                     if m:
                         has_started = True
@@ -383,7 +380,7 @@ class Runner:
                     run_p([adb, "pull", "/sdcard/crash"])
                     run_p([adb, "shell", "am", "force-stop", args.package_name])
                     run_p([adb, "shell", "rm", "/sdcard/crash"])
-                    print "CRASHED"
+                    print("CRASHED")
                     time.sleep(1)
                     run_p([adb, "shell", "am", "force-stop", args.package_name])
                     name = "crash.dmp"
@@ -396,7 +393,7 @@ class Runner:
                     p.kill()
                     sys.exit(-1)
                 else:
-                    print line
+                    print(line)
             p.kill()
             sys.exit(0)
 
@@ -432,7 +429,7 @@ class Runner:
                           "uninstall", "-k", args.package_name])
         except:
             pass
-        sys.exit(run_p([adb, "install", "-r", args.apk]))
+        sys.exit(run_p([adb, "install", "-g", "-r", args.apk]))
 
     def main(self):
         parser = argparse.ArgumentParser(

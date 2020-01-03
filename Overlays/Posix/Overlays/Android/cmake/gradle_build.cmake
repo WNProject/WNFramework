@@ -81,7 +81,9 @@ function(add_application name)
   set(ANDROID_RUNNER ${WNFramework_SOURCE_DIR}/Overlays/Posix/Overlays/Android/cmake/android_helpers/android_runner.py)
   set(WN_ACTIVITY_NAME ${APPLICATION_NAME})
   set(WN_APK_LOCATION ${WNFramework_BINARY_DIR}/apps/${name}-debug.apk)
-  set(WN_PACKAGE ${WN_PACKAGE_NAME}.${WN_ACTIVITY_NAME})
+  set(WN_PACKAGE ${WN_PACKAGE_DOMAIN})
+  list(APPEND WN_PACKAGE ${WN_ACTIVITY_NAME})
+  list(JOIN WN_PACKAGE "." WN_PACKAGE_STRING)
   foreach(config ${FILES_TO_CONFIGURE})
     configure_file(
       ${WNFramework_SOURCE_DIR}/Overlays/Posix/Overlays/Android/cmake/android_helpers/gradle/${config}.in
@@ -102,6 +104,7 @@ function(add_application name)
         OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ
         GROUP_EXECUTE
   )
+
   file(RENAME
     ${WNFramework_BINARY_DIR}/apps/${name}/gradlew.in
     ${WNFramework_BINARY_DIR}/apps/${name}/gradlew
@@ -109,6 +112,14 @@ function(add_application name)
   file(MAKE_DIRECTORY
     ${WNFramework_BINARY_DIR}/apps/${name}/gradle/wrapper/
   )
+  LIST(JOIN WN_PACKAGE "/" JAVA_SRC_DIR)
+  file(MAKE_DIRECTORY
+    ${WNFramework_BINARY_DIR}/apps/${name}/app/src/main/java/${JAVA_SRC_DIR}
+  )
+ configure_file(
+      ${WNFramework_SOURCE_DIR}/Overlays/Posix/Overlays/Android/cmake/android_helpers/app/LibraryLoader.java.in
+      ${WNFramework_BINARY_DIR}/apps/${name}/app/src/main/java/${JAVA_SRC_DIR}/${WN_ACTIVITY_NAME}.java
+      @ONLY)
   file(COPY
     ${WNFramework_SOURCE_DIR}/Overlays/Posix/Overlays/Android/cmake/android_helpers/gradle/gradle/wrapper/gradle-wrapper.jar.in
     DESTINATION

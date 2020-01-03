@@ -5,20 +5,23 @@
 
 if (WN_OVERLAY_IS_ENABLED AND NOT WN_DISABLE_CXX)
   string(TOLOWER ${ANDROID_NDK_HOST_SYSTEM_NAME} ANDROID_SYSTEM_LOWER)
-  set_overlay_var(WN_LLVM_TRIPLE ${ANDROID_LLVM_TRIPLE})
   if(${ANDROID_SYSROOT_ABI} STREQUAL "arm")
     set_overlay_var(WN_LLVM_TARGET "ARM")
+    set_overlay_var(WN_LLVM_TRIPLE "armv7-none-linux-androideabi")
   elseif (${ANDROID_SYSROOT_ABI} STREQUAL "arm64")
     set_overlay_var(WN_LLVM_TARGET "AArch64")
+    set_overlay_var(WN_LLVM_TRIPLE "aarch64-none-linux-android")
   elseif(${ANDROID_SYSROOT_ABI} STREQUAL "x86")
     set_overlay_var(WN_LLVM_TARGET "X86")
+    set_overlay_var(WN_LLVM_TRIPLE "i686-none-linux-android")
   elseif(${ANDROID_SYSROOT_ABI} STREQUAL "x86_64")
     set_overlay_var(WN_LLVM_TARGET "X86")
+    set_overlay_var(WN_LLVM_TRIPLE "x86_64-none-linux-android")
   endif()
 
   append_to_overlay_var(WN_LLVM_EXTRA_FLAGS
     "-DLLVM_TABLEGEN=${WN_ANDROID_LLVM_TBLGEN}")
-  
+
   append_to_overlay_var(WN_LLVM_EXTRA_FLAGS
     "-DCMAKE_CROSSCOMPILING=OFF")
   append_to_overlay_var(WN_LLVM_EXTRA_FLAGS

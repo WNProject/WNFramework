@@ -26,7 +26,7 @@ class job_pool;
 
 namespace runtime {
 namespace window {
-
+const uint32_t k_default_density = 96;
 class window {
 public:
   virtual window_error initialize() = 0;
@@ -47,6 +47,13 @@ public:
   input_context* get_input_context();
   void release_input_context(input_context* _context);
   void dispatch_input(const input_event& event);
+
+  virtual void show_keyboard() {}
+  virtual void hide_keyboard() {}
+  // TODO: Fix this up later, stick with this for now
+  virtual uint32_t get_dpi() {
+    return 96;
+  }
 
 protected:
   window(memory::allocator* _allocator)
