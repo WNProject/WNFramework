@@ -45,7 +45,15 @@ struct subprocess_return {
 
 subprocess_return call_subprocess(memory::allocator* _allocator,
     const containers::string_view application,
+    const containers::string_view input,
     const containers::contiguous_range<const containers::string_view> args);
+
+inline subprocess_return call_subprocess(memory::allocator* _allocator,
+    const containers::string_view application,
+    const containers::contiguous_range<const containers::string_view> args) {
+  return call_subprocess(
+      _allocator, application, containers::string_view(), args);
+}
 
 }  // namespace platform_utils
 }  // namespace runtime

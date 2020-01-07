@@ -42,6 +42,7 @@ bool CreatePipe2(HANDLE* _out_read, HANDLE* _out_write,
 
 subprocess_return call_subprocess(memory::allocator* _allocator,
     const containers::string_view _application,
+    const containers::string_view _input,
     const containers::contiguous_range<const containers::string_view> _args) {
   SECURITY_ATTRIBUTES saAttr;
 
@@ -54,6 +55,9 @@ subprocess_return call_subprocess(memory::allocator* _allocator,
   HANDLE stdout_write = NULL;
   HANDLE stderr_write = NULL;
 
+  HANDLE stdin_read = NULL;
+  HANDLE stdin_write = NULL;
+
   if (!CreatePipe2(&stdout_read, &stdout_write, &saAttr, true, false, 0)) {
     return subprocess_return(containers::string(), containers::string(),
         subprocess_error::cannot_create_pipe, 0);
@@ -62,6 +66,18 @@ subprocess_return call_subprocess(memory::allocator* _allocator,
   if (!CreatePipe2(&stderr_read, &stderr_write, &saAttr, true, false, 0)) {
     return subprocess_return(containers::string(), containers::string(),
         subprocess_error::cannot_create_pipe, 0);
+  }
+
+  if (!_input.empty()) {
+    if (!CreatePipe2(&stdin_read, &stdin_write, &saAttr, false, false, 0)) {
+      return subprocess_return(containers::string(), containers::string(),
+          subprocess_error::cannot_create_pipe, 0);
+    }
+
+    if (!SetHandleInformation(stdin_write, HANDLE_FLAG_INHERIT, 0)) {
+      return subprocess_return(containers::string(), containers::string(),
+          subprocess_error::eWNPlatformError, 0);
+    }
   }
 
   if (!SetHandleInformation(stdout_read, HANDLE_FLAG_INHERIT, 0)) {
@@ -82,6 +98,10 @@ subprocess_return call_subprocess(memory::allocator* _allocator,
   start_info.cb = sizeof(STARTUPINFOW);
   start_info.hStdError = stderr_write;
   start_info.hStdOutput = stdout_write;
+  if (!_input.empty()) {
+    start_info.hStdInput = stdin_read;
+  }
+
   start_info.dwFlags |= STARTF_USESTDHANDLES | CREATE_NO_WINDOW;
 
   const int application_data_size =
@@ -114,10 +134,14 @@ subprocess_return call_subprocess(memory::allocator* _allocator,
 
   CloseHandle(stderr_write);
   CloseHandle(stdout_write);
+  if (!_input.empty()) {
+    CloseHandle(stdin_read);
+  }
 
   if (!success) {
     CloseHandle(stderr_read);
     CloseHandle(stdout_read);
+    CloseHandle(stdin_write);
     return subprocess_return(containers::string(), containers::string(),
         subprocess_error::cannot_create_process, 0);
   }
@@ -140,6 +164,26 @@ subprocess_return call_subprocess(memory::allocator* _allocator,
     memory::memory_zero(&streams[i].overlapped);
     streams[i].overlapped.hEvent = read_events[i];
     streams[i].handle_data = containers::string(_allocator);
+  }
+
+  if (!_input.empty()) {
+    DWORD bytes_written = 0;
+    DWORD offset = 0;
+    while (success && (offset != _input.size())) {
+      size_t s = _input.size() - offset;
+      DWORD to_write = 0;
+      if (s > 4096) {
+        to_write = 4096;
+      } else {
+        to_write = static_cast<DWORD>(s);
+      }
+      success = WriteFile(stdin_write, _input.data() + offset, to_write,
+          &bytes_written, nullptr);
+      auto err = GetLastError();
+      (void)err;
+      offset += bytes_written;
+    }
+    CloseHandle(stdin_write);
   }
 
   success = ReadFile(stdout_read, streams[0].buffer, num_buffered_bytes, NULL,
