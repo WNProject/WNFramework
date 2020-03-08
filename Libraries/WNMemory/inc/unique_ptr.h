@@ -7,10 +7,10 @@
 #ifndef __WN_MEMORY_UNIQUE_PTR_H__
 #define __WN_MEMORY_UNIQUE_PTR_H__
 
+#include <memory>
+
 #include "WNCore/inc/type_traits.h"
 #include "WNMemory/inc/allocator.h"
-
-#include <memory>
 
 namespace wn {
 namespace memory {

@@ -8,23 +8,42 @@
 #define __WN_CORE_INTERNAL_CONFIG_H__
 
 // architecture
-#define ${_WN_ARCHITECTURE}
-#define ${_WN_ARCHITECTURE_BITNESS}
-#define ${_WN_ARCHITECTURE_ENDIANNESS}
+#define $                                                                      \
+  { _WN_ARCHITECTURE }
+#define $                                                                      \
+  { _WN_ARCHITECTURE_BITNESS }
+#define $                                                                      \
+  { _WN_ARCHITECTURE_ENDIANNESS }
 #define _WN_ARCH_NAME "${WN_ARCHITECTURE}"
 
 // platform
-#define ${_WN_PLATFORM}
+#define $                                                                      \
+  { _WN_PLATFORM }
 #define _WN_PLATFORM_NAME "${WN_PLATFORM}"
 
 // specifiers
-#define WN_FORCE_INLINE ${WN_FORCE_INLINE}
-#define WN_NO_INLINE ${WN_NO_INLINE}
-#define WN_WEAK_LINK ${WN_WEAK_LINK}
+#define WN_FORCE_INLINE                                                        \
+  $ {                                                                          \
+    WN_FORCE_INLINE                                                            \
+  }
+#define WN_NO_INLINE                                                           \
+  $ {                                                                          \
+    WN_NO_INLINE                                                               \
+  }
+#define WN_WEAK_LINK                                                           \
+  $ {                                                                          \
+    WN_WEAK_LINK                                                               \
+  }
 
 // calling conventions
-#define WN_CDECL_BEGIN ${WN_CDECL_BEGIN}
-#define WN_CDECL_END ${WN_CDECL_END}
+#define WN_CDECL_BEGIN                                                         \
+  $ {                                                                          \
+    WN_CDECL_BEGIN                                                             \
+  }
+#define WN_CDECL_END                                                           \
+  $ {                                                                          \
+    WN_CDECL_END                                                               \
+  }
 
 // stl features
 #cmakedefine _WN_HAS_CPP11_STD_IS_TRIVIALLY_COPYABLE

@@ -3,8 +3,8 @@
 // found in the LICENSE.txt file.
 
 #include "WNContainers/inc/WNDeque.h"
-#include "executable_test/inc/WNTestHarness.h"
 #include "WNMemory/inc/unique_ptr.h"
+#include "executable_test/inc/WNTestHarness.h"
 
 template <typename _Type>
 struct deque : ::testing::Test {};

@@ -21,9 +21,8 @@ TEST_P(image_transfer_tests, many_sizes) {
   wn::runtime::graphics::factory device_factory(&m_allocator, m_log);
 
   for (auto& adapter : device_factory.query_adapters()) {
-    wn::runtime::graphics::device_ptr device =
-        adapter->make_device(&m_allocator, m_log,
-            wn::runtime::graphics::k_empty_adapter_features);
+    wn::runtime::graphics::device_ptr device = adapter->make_device(
+        &m_allocator, m_log, wn::runtime::graphics::k_empty_adapter_features);
     ASSERT_NE(nullptr, device);
     // Everything should fit into a 16MB buffer.
     const size_t buffer_size = 16 * 1024 * 1024;
@@ -191,9 +190,8 @@ TEST_P(image_transfer_with_offset_tests, several_offsets) {
   wn::runtime::graphics::factory device_factory(&m_allocator, m_log);
 
   for (auto& adapter : device_factory.query_adapters()) {
-    wn::runtime::graphics::device_ptr device =
-        adapter->make_device(&m_allocator, m_log,
-            wn::runtime::graphics::k_empty_adapter_features);
+    wn::runtime::graphics::device_ptr device = adapter->make_device(
+        &m_allocator, m_log, wn::runtime::graphics::k_empty_adapter_features);
     ASSERT_NE(nullptr, device);
     // Everything should fit into a 16MB buffer.
     const size_t buffer_size = 16 * 1024 * 1024;
@@ -365,9 +363,8 @@ TEST_P(image_mip_tests, two_levels) {
   wn::runtime::graphics::factory device_factory(&m_allocator, m_log);
 
   for (auto& adapter : device_factory.query_adapters()) {
-    wn::runtime::graphics::device_ptr device =
-        adapter->make_device(&m_allocator, m_log,
-            wn::runtime::graphics::k_empty_adapter_features);
+    wn::runtime::graphics::device_ptr device = adapter->make_device(
+        &m_allocator, m_log, wn::runtime::graphics::k_empty_adapter_features);
     ASSERT_NE(nullptr, device);
     // Everything should fit into a 16MB buffer.
     const size_t buffer_size = 16 * 1024 * 1024;

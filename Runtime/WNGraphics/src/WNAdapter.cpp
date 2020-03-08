@@ -3,6 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "WNGraphics/inc/WNAdapter.h"
+
 #include "WNWindow/inc/WNWindow.h"
 
 namespace wn {

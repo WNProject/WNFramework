@@ -5,6 +5,8 @@
 #ifndef __WN_SCRIPTING_SCRIPT_HELPERS_H__
 #define __WN_SCRIPTING_SCRIPT_HELPERS_H__
 
+#include <atomic>
+
 #include "WNContainers/inc/WNArray.h"
 #include "WNContainers/inc/WNHashMap.h"
 #include "WNContainers/inc/WNStringView.h"
@@ -17,8 +19,6 @@
 #include "WNScripting/inc/WNEnums.h"
 #include "WNScripting/inc/WNScriptTLS.h"
 #include "WNScripting/inc/forward.h"
-
-#include <atomic>
 
 namespace wn {
 namespace scripting {
@@ -155,8 +155,7 @@ template <typename T>
 struct is_array : core::false_type {};
 
 template <typename T>
-struct is_array<wn_array<T>>
-  : core::true_type {};
+struct is_array<wn_array<T>> : core::true_type {};
 
 template <typename U,
     typename = typename core::enable_if<core::is_same<int32_t, U>::value>::type>

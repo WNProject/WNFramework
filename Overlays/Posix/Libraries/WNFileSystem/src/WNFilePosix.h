@@ -7,10 +7,10 @@
 #ifndef __WN_FILE_SYSTEM_POSIX_FILE_POSIX_H__
 #define __WN_FILE_SYSTEM_POSIX_FILE_POSIX_H__
 
+#include <sys/mman.h>
+
 #include "WNFileSystem/inc/WNFile.h"
 #include "WNFileSystem/src/WNFileDescriptor.h"
-
-#include <sys/mman.h>
 
 namespace wn {
 namespace file_system {
@@ -44,7 +44,7 @@ public:
   }
 
   virtual object_info info() const override {
-    return object_info {
+    return object_info{
         object_type::file,              // type
         static_cast<size_type>(m_size)  // size
     };

@@ -3,6 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "WNFileSystem/inc/WNMapping.h"
+
 #include "WNFileSystem/src/WNUtilities.h"
 
 namespace wn {

@@ -3,6 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "WNWindow/inc/WNAndroidWindow.h"
+
 #include "WNApplicationData/inc/WNApplicationData.h"
 #include "WNMultiTasking/inc/job_pool.h"
 #include "WNMultiTasking/inc/job_signal.h"

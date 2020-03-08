@@ -7,14 +7,14 @@
 #ifndef __WN_MULTI_TASKING_THREAD_H__
 #define __WN_MULTI_TASKING_THREAD_H__
 
+#include <chrono>
+#include <functional>
+
 #include "WNCore/inc/assert.h"
 #include "WNCore/inc/type_traits.h"
 #include "WNCore/inc/utilities.h"
 #include "WNFunctional/inc/WNFunction.h"
 #include "WNMultiTasking/inc/internal/thread_base.h"
-
-#include <chrono>
-#include <functional>
 
 namespace wn {
 namespace multi_tasking {

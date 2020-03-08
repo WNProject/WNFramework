@@ -3,6 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "WNGraphics/inc/Internal/Vulkan/WNAdapter.h"
+
 #include "WNContainers/inc/WNDynamicArray.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNImageFormats.h"
 #include "WNGraphics/inc/WNSurface.h"

@@ -7,13 +7,13 @@
 #ifndef __WN_GRAPHICS_QUEUE_H__
 #define __WN_GRAPHICS_QUEUE_H__
 
+#include <initializer_list>
+
 #include "WNContainers/inc/WNContiguousRange.h"
 #include "WNCore/inc/pair.h"
 #include "WNGraphics/inc/Internal/WNConfig.h"
 #include "WNGraphics/inc/WNGraphicsEnums.h"
 #include "WNMemory/inc/unique_ptr.h"
-
-#include <initializer_list>
 
 #ifdef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
 #include "WNGraphics/inc/Internal/WNQueueIncludes.h"

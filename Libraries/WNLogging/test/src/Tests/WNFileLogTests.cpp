@@ -3,10 +3,11 @@
 // found in the LICENSE.txt file.
 
 #include <fcntl.h>
-#include "executable_test/inc/WNTestHarness.h"
+
 #include "WNLogging/inc/WNConsoleLogger.h"
 #include "WNLogging/inc/WNFileLogger.h"
 #include "WNLogging/inc/WNLog.h"
+#include "executable_test/inc/WNTestHarness.h"
 
 #ifdef _WN_ANDROID
 #define FILE_PREFIX "/sdcard/"

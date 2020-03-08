@@ -3,10 +3,9 @@
 // found in the LICENSE.txt file.
 
 #include "WNApplicationData/inc/WNApplicationData.h"
-#include "WNGraphics/test/inc/WNPixelTestFixture.h"
-
 #include "WNFileSystem/inc/WNFactory.h"
 #include "WNGraphics/inc/WNSampler.h"
+#include "WNGraphics/test/inc/WNPixelTestFixture.h"
 #include "WNGraphics/test/inc/astc_test.h"
 #include "WNMultiTasking/inc/job_pool.h"
 #include "WNMultiTasking/inc/job_signal.h"
@@ -47,7 +46,8 @@ using astc_triangle_test = wn::runtime::graphics::testing::pixel_test<100, 100,
 // it is 128x128, so we can avoid parsing the file etc.
 
 TEST_F(astc_triangle_test, basic) {
-  wn::file_system::factory fs_factory(&m_allocator, wn::testing::k_executable_data);
+  wn::file_system::factory fs_factory(
+      &m_allocator, wn::testing::k_executable_data);
   auto files = fs_factory.make_mapping(
       &m_allocator, wn::file_system::mapping_type::memory_backed);
   files->initialize_files(astc_test::get_files());

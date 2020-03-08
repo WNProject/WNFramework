@@ -7,9 +7,9 @@
 #ifndef __WN_MEMORY_WINDOWS_INTERNAL_ALLOCATION_H__
 #define __WN_MEMORY_WINDOWS_INTERNAL_ALLOCATION_H__
 
-#include "WNCore/inc/types.h"
-
 #include <malloc.h>
+
+#include "WNCore/inc/types.h"
 
 #define __WN_INTERNAL_STACK_ALLOC(_size) ::_alloca(_size)
 

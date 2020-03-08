@@ -23,6 +23,9 @@
 #pragma warning(disable : 4245)
 #endif
 
+#include <llvm/ExecutionEngine/ExecutionEngine.h>
+#include <llvm/ExecutionEngine/MCJIT.h>
+#include <llvm/ExecutionEngine/SectionMemoryManager.h>
 #include <llvm/IR/BasicBlock.h>
 #include <llvm/IR/Constants.h>
 #include <llvm/IR/Function.h>
@@ -33,12 +36,7 @@
 #include <llvm/IR/Module.h>
 #include <llvm/IR/Value.h>
 #include <llvm/IR/Verifier.h>
-
-#include <llvm/ExecutionEngine/ExecutionEngine.h>
-#include <llvm/ExecutionEngine/MCJIT.h>
-#include <llvm/ExecutionEngine/SectionMemoryManager.h>
 #include <llvm/Support/TargetSelect.h>
-
 #include <llvm/Transforms/InstCombine/InstCombine.h>
 #include <llvm/Transforms/Scalar.h>
 #include <llvm/Transforms/Scalar/GVN.h>
@@ -52,6 +50,8 @@
 #undef PRIX64
 #pragma warning(pop)
 #endif
+
+#include <algorithm>
 
 #include "WNContainers/inc/WNArray.h"
 #include "WNContainers/inc/WNContiguousRange.h"
@@ -67,8 +67,6 @@
 #include "WNScripting/inc/WNScriptHelpers.h"
 #include "WNScripting/inc/ast_node_types.h"
 #include "WNScripting/inc/jit_compiler.h"
-
-#include <algorithm>
 extern "C" {
 #if defined(_WN_WINDOWS)
 #if defined(_WN_64_BIT)
@@ -215,7 +213,7 @@ jit_engine::jit_engine(memory::allocator* _allocator,
   llvm::InitializeNativeTarget();
   llvm::InitializeNativeTargetAsmPrinter();
   llvm::InitializeNativeTargetAsmParser();
-  register_function<decltype(&do_allocate),&do_allocate>("_allocate");
+  register_function<decltype(&do_allocate), &do_allocate>("_allocate");
   register_function<decltype(&do_free), &do_free>("_free");
   register_function<decltype(&do_allocate_array), &do_allocate_array>(
       "_allocate_runtime_array");

@@ -3,6 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "WNScripting/inc/WNScriptHelpers.h"
+
 #include "WNContainers/inc/WNStringView.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/allocator.h"

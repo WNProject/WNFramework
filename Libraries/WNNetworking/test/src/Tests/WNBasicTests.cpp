@@ -2,12 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "executable_test/inc/WNTestHarness.h"
 #include "WNLogging/inc/WNBufferLogger.h"
 #include "WNMemory/inc/allocator.h"
 #include "WNMultiTasking/inc/job_pool.h"
 #include "WNMultiTasking/inc/semaphore.h"
 #include "WNNetworking/inc/WNNetworkManager.h"
+#include "executable_test/inc/WNTestHarness.h"
 
 void flush_buffer(void* v, const char* bytes, size_t length,
     const wn::logging::color_element*, size_t) {

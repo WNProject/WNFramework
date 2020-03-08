@@ -15,8 +15,8 @@ const log_level s_default_log_level = log_level::${WN_MAX_LOG_LEVEL};
 
 #cmakedefine WN_ALLOW_TESTING_LOG
 
-} // namespace internal
-} // namespace logging
-} // namespace wn
+}  // namespace internal
+}  // namespace logging
+}  // namespace wn
 
-#endif // __WN_LOGGING_CONFIG_H__
+#endif  // __WN_LOGGING_CONFIG_H__

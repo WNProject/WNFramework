@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "executable_test/inc/WNTestHarness.h"
 #include "WNMath/inc/WNVector.h"
+#include "executable_test/inc/WNTestHarness.h"
 
 WN_ENABLE_TYPED_TEST(vector);
 

@@ -3,6 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "WNGraphics/inc/WNFactory.h"
+
 #include "WNFunctional/inc/WNFunction.h"
 #include "WNGraphics/inc/Internal/WNConfig.h"
 #include "WNGraphics/inc/Internal/WNHelperIncludes.h"

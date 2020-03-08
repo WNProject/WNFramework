@@ -3,4 +3,4 @@
 
 const char* k_test_image_path = "${CMAKE_TEST_IMAGE_PATH}";
 
-#endif //  _WN_GRAPHICS_TEST_PIXEL_TEST_FIXTURE_CONFIG_H__
+#endif  //  _WN_GRAPHICS_TEST_PIXEL_TEST_FIXTURE_CONFIG_H__

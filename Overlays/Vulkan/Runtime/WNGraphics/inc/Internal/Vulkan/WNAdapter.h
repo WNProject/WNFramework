@@ -14,10 +14,9 @@
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanContext.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanInclude.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanSurfaceHelper.h"
+#include "WNGraphics/inc/Internal/WNConfig.h"
 #include "WNGraphics/inc/WNAdapterFeatures.h"
 #include "WNGraphics/inc/WNErrors.h"
-
-#include "WNGraphics/inc/Internal/WNConfig.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/intrusive_ptr.h"
 #include "WNMemory/inc/unique_ptr.h"

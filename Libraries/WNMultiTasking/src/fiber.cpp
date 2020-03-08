@@ -167,7 +167,8 @@ void swap_to(fiber* _fiber) {
 #if defined _WN_WINDOWS
   SwitchToFiber(_fiber->m_fiber_context);
 #elif defined _WN_ANDROID
-  wn_swap_context(this_fiber->m_fiber_context.get(), _fiber->m_fiber_context.get());
+  wn_swap_context(
+      this_fiber->m_fiber_context.get(), _fiber->m_fiber_context.get());
 #elif defined _WN_POSIX
   swapcontext(this_fiber->m_fiber_context.get(), _fiber->m_fiber_context.get());
 #endif

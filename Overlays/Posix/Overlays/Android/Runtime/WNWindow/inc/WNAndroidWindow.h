@@ -7,6 +7,8 @@
 #ifndef __WN_RUNTIME_WINDOW_XCB_WINDOW_H__
 #define __WN_RUNTIME_WINDOW_XCB_WINDOW_H__
 
+#include <android/native_window.h>
+
 #include "WNApplicationData/inc/WNApplicationData.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNMultiTasking/inc/job_pool.h"
@@ -16,8 +18,6 @@
 #include "WNWindow/inc/WNWindow.h"
 #include "executable_data/inc/executable_data.h"
 #include "executable_data/inc/host_specific_data.h"
-
-#include <android/native_window.h>
 
 namespace wn {
 namespace memory {

@@ -341,7 +341,8 @@ bool parse_ast_convertor::convertor_context::resolve_declaration(
     init = make_implicit_cast(core::move(init), type);
   }
 
-  if (init && init->m_type != type && !init->m_type->can_implicitly_cast_to(type)) {
+  if (init && init->m_type != type &&
+      !init->m_type->can_implicitly_cast_to(type)) {
     _declaration->log_line(m_log, logging::log_level::error);
     m_log->log_error("You must initialize a type with the RHS type");
     return false;

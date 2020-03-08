@@ -13,7 +13,8 @@
 using push_constant_test = wn::runtime::graphics::testing::pixel_test<>;
 
 TEST_F(push_constant_test, basic) {
-  wn::file_system::factory fs_factory(&m_allocator, wn::testing::k_executable_data);
+  wn::file_system::factory fs_factory(
+      &m_allocator, wn::testing::k_executable_data);
   auto files = fs_factory.make_mapping(
       &m_allocator, wn::file_system::mapping_type::memory_backed);
   files->initialize_files(push_constants_test::get_files());
@@ -166,9 +167,9 @@ TEST_F(push_constant_test, basic) {
                 &layout, &render_pass, 0);
 
         wn::runtime::graphics::image_view image_view =
-            _device->create_image_view(
-                _image, 0, 1, static_cast<wn::runtime::graphics::image_components>(
-                            wn::runtime::graphics::image_component::color));
+            _device->create_image_view(_image, 0, 1,
+                static_cast<wn::runtime::graphics::image_components>(
+                    wn::runtime::graphics::image_component::color));
 
         const wn::runtime::graphics::image_view* views[] = {&image_view};
 

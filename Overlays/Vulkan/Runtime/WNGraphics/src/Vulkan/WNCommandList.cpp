@@ -3,6 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "WNGraphics/inc/Internal/Vulkan/WNCommandList.h"
+
 #include "WNGraphics/inc/Internal/Vulkan/WNBufferData.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNDataTypes.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNDevice.h"
@@ -152,8 +153,9 @@ void vulkan_command_list::copy_image(const image& _src, uint32_t _src_mip_level,
           0,                          // baseArrayLayer
           1                           // layerCount
       },
-      VkOffset3D{0, 0, 0}, VkExtent3D{static_cast<uint32_t>(width),
-                               static_cast<uint32_t>(height), 1}};
+      VkOffset3D{0, 0, 0},
+      VkExtent3D{
+          static_cast<uint32_t>(width), static_cast<uint32_t>(height), 1}};
 
   m_context->vkCmdCopyImage(m_command_buffer, src,
       VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, dst,

@@ -3,7 +3,9 @@
 // found in the LICENSE.txt file.
 
 #include "platform_utils/inc/subprocess.h"
+
 #include <inttypes.h>
+
 #include "WNContainers/inc/WNStringView.h"
 
 namespace wn {

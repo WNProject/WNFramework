@@ -34,6 +34,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "WNApplicationTest/inc/WNTestHarness.h"
+
 #include "WNLogging/inc/WNConsoleLogger.h"
 #include "WNLogging/inc/WNLog.h"
 namespace wn {

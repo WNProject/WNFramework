@@ -7,14 +7,14 @@
 #ifndef __WN_MEMORY_STRING_UTILITIES_H__
 #define __WN_MEMORY_STRING_UTILITIES_H__
 
-#include "WNCore/inc/assert.h"
-#include "WNMemory/inc/allocation.h"
-#include "WNMemory/inc/manipulation.h"
-
 #include <algorithm>
 #include <cmath>
 #include <cstdarg>
 #include <cstring>
+
+#include "WNCore/inc/assert.h"
+#include "WNMemory/inc/allocation.h"
+#include "WNMemory/inc/manipulation.h"
 
 namespace wn {
 namespace memory {
@@ -504,7 +504,8 @@ inline size_t writeint64(char* _buffer, int64_t _int, size_t _max_size) {
   return (counter);
 }
 
-inline size_t readuint32(const char* _buff, uint32_t& _number, size_t _max_size) {
+inline size_t readuint32(
+    const char* _buff, uint32_t& _number, size_t _max_size) {
   WN_RELEASE_ASSERT(
       _max_size > 0, "You cannot store a number in less than 1 byte");
 

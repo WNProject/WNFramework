@@ -7,10 +7,10 @@
 #ifndef __WN_CORE_UTILITIES_H__
 #define __WN_CORE_UTILITIES_H__
 
+#include <utility>
+
 #include "WNCore/inc/type_traits.h"
 #include "WNCore/inc/types.h"
-
-#include <utility>
 
 namespace wn {
 namespace core {

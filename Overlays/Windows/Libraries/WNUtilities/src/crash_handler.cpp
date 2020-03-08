@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNUtilities/inc/WNCrashHandler.h"
-
 #include <errno.h>
 #include <fcntl.h>
+
+#include "WNUtilities/inc/WNCrashHandler.h"
 
 #define COUNT_OF(x) (sizeof(x) / sizeof(x[0]))
 

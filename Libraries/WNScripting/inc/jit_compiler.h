@@ -25,7 +25,7 @@ struct jit_compiler_context;
 class jit_compiler {
 public:
   jit_compiler(memory::allocator* _allocator, llvm::Module* _module,
-    containers::hash_map<const ast_type*, struct_info>* _types);
+      containers::hash_map<const ast_type*, struct_info>* _types);
   ~jit_compiler();
 
   bool compile(ast_script_file* _file);

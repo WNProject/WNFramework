@@ -3,9 +3,9 @@
 // found in the LICENSE.txt file.
 
 #include "WNContainers/inc/WNArray.h"
-#include "executable_test/inc/WNTestHarness.h"
 #include "WNMultiTasking/inc/mutex.h"
 #include "WNMultiTasking/inc/thread.h"
+#include "executable_test/inc/WNTestHarness.h"
 
 namespace {
 

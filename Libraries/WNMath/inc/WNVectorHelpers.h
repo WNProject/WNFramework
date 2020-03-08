@@ -8,15 +8,16 @@
 #define __WN_VECTOR_HELPERS_H__
 
 #include <cmath>
+
 #include "WNMath/inc/WNVector.h"
 
 namespace wn {
 namespace math {
 
 inline vec3f cross(const vec3f& first, const vec3f& second) {
-	return vec3f({ first[1] * second[2] - first[2] * second[1],
-		first[2] * second[0] - first[0] * second[2],
-		first[0] * second[1] - first[1] * second[0] });
+  return vec3f({first[1] * second[2] - first[2] * second[1],
+      first[2] * second[0] - first[0] * second[2],
+      first[0] * second[1] - first[1] * second[0]});
 };
 
 }  // namespace math

@@ -3,8 +3,9 @@
 // found in the LICENSE.txt file.
 
 #include "renderer/inc/gpu_heap.h"
-#include "WNGraphics/inc/WNDevice.h"
+
 #include "WNGraphics/inc/WNArena.h"
+#include "WNGraphics/inc/WNDevice.h"
 
 namespace wn {
 namespace engine {
@@ -28,10 +29,8 @@ gpu_allocation gpu_heap::allocate_memory(uint64_t size, uint64_t alignment) {
 
 gpu_heap::~gpu_heap() {}
 
-
 gpu_allocation::gpu_allocation(runtime::graphics::arena* _arena,
-    uint64_t _offset, heap_range::token _token,
-    gpu_heap* _parent)
+    uint64_t _offset, heap_range::token _token, gpu_heap* _parent)
   : m_arena(_arena),
     m_offset(_offset),
     m_token(core::move(_token)),

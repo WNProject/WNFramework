@@ -1,4 +1,4 @@
-// Copyright (c) 2017, WNProject Authors. All rights reserved.
+ // Copyright (c) 2017, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
@@ -6,6 +6,7 @@
 #define __WN_SCRIPTING_AST_NODE_TYPES_H__
 
 #include <algorithm>
+
 #include "WNContainers/inc/WNDeque.h"
 #include "WNContainers/inc/WNHashMap.h"
 #include "WNContainers/inc/WNString.h"
@@ -251,14 +252,18 @@ public:
               case 32:
                 m_mangled_name = containers::string(_allocator, "i");
                 return;
-              default: { WN_RELEASE_ASSERT(false, "Cannot mangle type"); }
+              default: {
+                WN_RELEASE_ASSERT(false, "Cannot mangle type");
+              }
             }
           case builtin_type::floating_point_type:
             switch (m_bit_width) {
               case 32:
                 m_mangled_name = containers::string(_allocator, "f");
                 return;
-              default: { WN_RELEASE_ASSERT(false, "Cannot mangle type"); }
+              default: {
+                WN_RELEASE_ASSERT(false, "Cannot mangle type");
+              }
             }
           case builtin_type::bool_type:
             m_mangled_name = containers::string(_allocator, "b");
@@ -623,7 +628,7 @@ struct ast_declaration : public ast_statement {
     d->m_name = containers::string(_allocator, m_name);
     d->m_initializer = clone_ast_node(_allocator, m_initializer.get());
     d->m_indirected_on_this = m_indirected_on_this;
-    d->m_is_scope_bound = m_is_scope_bound;  
+    d->m_is_scope_bound = m_is_scope_bound;
     d->m_indirected_offset = m_indirected_offset;
     return core::move(d);
   }
@@ -935,7 +940,7 @@ struct ast_builtin_statement : public ast_statement {
       d->initialized_expressions(_allocator)
           .push_back(clone_ast_node(_allocator, e.get()));
     }
-    d->m_break_loop = m_break_loop; 
+    d->m_break_loop = m_break_loop;
     return core::move(d);
   }
 
@@ -1150,7 +1155,8 @@ struct ast_loop : public ast_statement {
     d->m_post_condition = clone_ast_node(_allocator, m_post_condition.get());
     d->m_condition_scope_block =
         clone_ast_node(_allocator, m_condition_scope_block.get());
-    d->m_increment_statements = clone_ast_node(_allocator, m_increment_statements.get());
+    d->m_increment_statements =
+        clone_ast_node(_allocator, m_increment_statements.get());
     d->m_post_condition = clone_ast_node(_allocator, m_post_condition.get());
     d->m_pre_condition = clone_ast_node(_allocator, m_pre_condition.get());
     return core::move(d);

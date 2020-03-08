@@ -3,10 +3,11 @@
 // found in the LICENSE.txt file.
 
 #include "WNNetworking/inc/WNNetworkManager.h"
-#include "WNNetworking/inc/WNReliableNetworkListenSocket.h"
-#include "WNNetworking/inc/WNReliableNetworkTransportSocket.h"
 
 #include <sys/socket.h>
+
+#include "WNNetworking/inc/WNReliableNetworkListenSocket.h"
+#include "WNNetworking/inc/WNReliableNetworkTransportSocket.h"
 
 namespace wn {
 namespace networking {

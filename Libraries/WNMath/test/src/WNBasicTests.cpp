@@ -3,8 +3,8 @@
 // found in the LICENSE.txt file.
 
 #include "WNCore/inc/types.h"
-#include "executable_test/inc/WNTestHarness.h"
 #include "WNMath/inc/WNBasic.h"
+#include "executable_test/inc/WNTestHarness.h"
 
 TEST(basic, abs) {
   ASSERT_EQ(wn::math::abs(int8_t(-1)), int8_t(1));

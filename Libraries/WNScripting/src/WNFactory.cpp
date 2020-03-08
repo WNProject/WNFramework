@@ -3,6 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "WNScripting/inc/WNFactory.h"
+
 #include "WNScripting/inc/WNCTranslator.h"
 #include "WNScripting/inc/WNJITEngine.h"
 

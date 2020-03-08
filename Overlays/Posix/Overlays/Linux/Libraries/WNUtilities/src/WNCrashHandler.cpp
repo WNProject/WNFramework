@@ -4,13 +4,14 @@
 
 #include "WNUtilities/inc/WNCrashHandler.h"
 
-#include <cstdio>
 #include <errno.h>
 #include <execinfo.h>
 #include <fcntl.h>
 #include <pthread.h>
 #include <signal.h>
 #include <unistd.h>
+
+#include <cstdio>
 
 #define COUNT_OF(x) (sizeof(x) / sizeof(x[0]))
 
@@ -92,7 +93,7 @@ void StackUnwinder::error_func(int sig, siginfo_t* info, void* context) {
       (void)throwaway;
     }
     ssize_t throwaway = write(file, "\n", 1);
-      (void)throwaway;
+    (void)throwaway;
   }
   close(file);
 

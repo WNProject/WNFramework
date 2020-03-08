@@ -11,7 +11,10 @@
 #include "WNCore/inc/macros.h"
 
 // number of graphics device types available
-#define _WN_GRAPHICS_DEVICE_TYPES_AVAILABLE ${WN_GRAPHICS_DEVICE_TYPES_AVAILABLE_COUNT}
+#define _WN_GRAPHICS_DEVICE_TYPES_AVAILABLE                                    \
+  $ {                                                                          \
+    WN_GRAPHICS_DEVICE_TYPES_AVAILABLE_COUNT                                   \
+  }
 
 // will be defined if only a single device type is available
 #cmakedefine _WN_GRAPHICS_SINGLE_DEVICE_TYPE
@@ -20,63 +23,77 @@
 #cmakedefine _WN_GRAPHICS_ALLOW_REFERENCE_DEVICES
 
 // debug mode (0 = Default, 1 = Enabled, 2 = Disabled)
-#define _WN_GRAPHICS_DEBUG_MODE ${_WN_GRAPHICS_DEBUG_MODE}
+#define _WN_GRAPHICS_DEBUG_MODE                                                \
+  $ {                                                                          \
+    _WN_GRAPHICS_DEBUG_MODE                                                    \
+  }
 
 // will be defined if we want to allow debug mode
 #if _WN_GRAPHICS_DEBUG_MODE == 0
 #ifdef _WN_DEBUG
-#define _WN_GRAPHICS_ALLOW_DEBUG_MODE // only on if debug build
+#define _WN_GRAPHICS_ALLOW_DEBUG_MODE  // only on if debug build
 #endif
 #elif _WN_GRAPHICS_DEBUG_MODE == 1
-#define _WN_GRAPHICS_ALLOW_DEBUG_MODE // always on
+#define _WN_GRAPHICS_ALLOW_DEBUG_MODE  // always on
 #elif _WN_GRAPHICS_DEBUG_MODE == 2
 // always off
 #endif
 
 #ifdef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
-#define _WN_GRAPHICS_DEVICE_TYPE ${_WN_GRAPHICS_DEVICE_TYPE}
-#define WN_GRAPHICS_PREFIXED_TYPE(element) \
-  ${_WN_GRAPHICS_DEVICE_TYPE}_##element
+#define _WN_GRAPHICS_DEVICE_TYPE                                               \
+  $ {                                                                          \
+    _WN_GRAPHICS_DEVICE_TYPE                                                   \
+  }
+#define WN_GRAPHICS_PREFIXED_TYPE(element)                                     \
+  ${_WN_GRAPHICS_DEVICE_TYPE} _##element
 #endif
 
 // will be defined as 'final' or 'override' if multiple device types are
 // available
-#define WN_GRAPHICS_FINAL ${WN_GRAPHICS_FINAL}
-#define WN_GRAPHICS_OVERRIDE ${WN_GRAPHICS_OVERRIDE}
+#define WN_GRAPHICS_FINAL                                                      \
+  $ {                                                                          \
+    WN_GRAPHICS_FINAL                                                          \
+  }
+#define WN_GRAPHICS_OVERRIDE                                                   \
+  $ {                                                                          \
+    WN_GRAPHICS_OVERRIDE                                                       \
+  }
 
 // will be defined as 'override final' if applicable
 #define WN_GRAPHICS_OVERRIDE_FINAL WN_GRAPHICS_OVERRIDE WN_GRAPHICS_FINAL
 
-#define add_friend(type,engine) \
-  friend class internal::engine::engine##_##type;
+#define add_friend(type, engine) friend class internal::engine::engine##_##type;
 
-#define WN_GRAPHICS_ADD_FRIENDS(graphics_type) \
-  friend class graphics_type; \
-  FOR_EACH(add_friend,graphics_type,${WN_GRAPHICS_TYPE_LIST})
+#define WN_GRAPHICS_ADD_FRIENDS(graphics_type)                                 \
+  friend class graphics_type;                                                  \
+  FOR_EACH(add_friend, graphics_type, ${WN_GRAPHICS_TYPE_LIST})
 
-#define forward_type(type, engine)\
-  namespace wn {                  \
-  namespace runtime {             \
-  namespace graphics {            \
-  namespace internal {            \
-  namespace engine {              \
-  class engine##_##type;          \
-  }                               \
-  }                               \
-  }                               \
-  }                               \
+#define forward_type(type, engine)                                             \
+  namespace wn {                                                               \
+  namespace runtime {                                                          \
+  namespace graphics {                                                         \
+  namespace internal {                                                         \
+  namespace engine {                                                           \
+  class engine##_##type;                                                       \
+  }                                                                            \
+  }                                                                            \
+  }                                                                            \
+  }                                                                            \
   }
 
-#define WN_GRAPHICS_FORWARD(graphics_type) \
-  namespace wn { \
-  namespace runtime { \
-  namespace graphics { \
-  class graphics_type; \
-  } \
-  } \
-  } \
-  FOR_EACH(forward_type,graphics_type,${WN_GRAPHICS_TYPE_LIST})
+#define WN_GRAPHICS_FORWARD(graphics_type)                                     \
+  namespace wn {                                                               \
+  namespace runtime {                                                          \
+  namespace graphics {                                                         \
+  class graphics_type;                                                         \
+  }                                                                            \
+  }                                                                            \
+  }                                                                            \
+  FOR_EACH(forward_type, graphics_type, ${WN_GRAPHICS_TYPE_LIST})
 
-#define _WN_GRAPHICS_TYPE_LIST ${WN_GRAPHICS_TYPE_LIST}
+#define _WN_GRAPHICS_TYPE_LIST                                                 \
+  $ {                                                                          \
+    WN_GRAPHICS_TYPE_LIST                                                      \
+  }
 
 #endif  // __WN_GRAPHICS_INTERNAL_CONFIG_H__

@@ -47,7 +47,7 @@ public:
   }
 
   virtual object_info info() const override {
-    return object_info {
+    return object_info{
         object_type::file,                       // type
         static_cast<size_type>(m_size.QuadPart)  // size
     };

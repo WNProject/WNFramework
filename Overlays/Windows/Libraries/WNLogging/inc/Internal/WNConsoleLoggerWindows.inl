@@ -6,15 +6,14 @@
 #define __WN_CONSOLE_LOGGER_WINDOWS_INL__
 #include "WNLogging/inc/WNConsoleLogger.h"
 
-
 namespace wn {
 namespace logging {
 
 #define __WN_FOREGROUND_WHITE                                                  \
   FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_GREEN
-const static uint16_t log_colors[static_cast<size_t>(log_level::max)] = {__WN_FOREGROUND_WHITE,
-    FOREGROUND_RED | FOREGROUND_INTENSITY, FOREGROUND_RED,
-    FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY,
+const static uint16_t log_colors[static_cast<size_t>(log_level::max)] = {
+    __WN_FOREGROUND_WHITE, FOREGROUND_RED | FOREGROUND_INTENSITY,
+    FOREGROUND_RED, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY,
     FOREGROUND_RED | FOREGROUND_GREEN, FOREGROUND_BLUE | FOREGROUND_INTENSITY,
     FOREGROUND_GREEN | FOREGROUND_INTENSITY};
 
@@ -55,11 +54,10 @@ inline void write_section_to_console(
 
 template <console_location T_Location>
 void console_logger<T_Location>::flush_buffer(const char* _buffer,
-    size_t _buffer_size,
-    const color_element* _colors, size_t _num_colors) {
+    size_t _buffer_size, const color_element* _colors, size_t _num_colors) {
   if (m_console_handle == INVALID_HANDLE_VALUE && !m_initialized) {
-    m_console_created = AllocConsole();  // If we cannot create a new console, we
-                                       // must already have one.. hopefully
+    m_console_created = AllocConsole();  // If we cannot create a new console,
+                                         // we must already have one.. hopefully
     m_console_handle = GetStdHandle(s_standard_handles[T_Location]);
     m_initialized = true;
   }
@@ -71,10 +69,11 @@ void console_logger<T_Location>::flush_buffer(const char* _buffer,
       }
 
       for (size_t i = 0; i < _num_colors; ++i) {
-        SetConsoleTextAttribute(m_console_handle, log_colors[static_cast<uint32_t>(_colors[i].m_level)]);
+        SetConsoleTextAttribute(m_console_handle,
+            log_colors[static_cast<uint32_t>(_colors[i].m_level)]);
         const char* end_color = (_num_colors == i + 1)
-                                   ? _buffer + _buffer_size
-                                   : _colors[i + 1].m_position;
+                                    ? _buffer + _buffer_size
+                                    : _colors[i + 1].m_position;
 
         size_t len = end_color - _colors[i].m_position;
         write_section_to_console(m_console_handle, _colors[i].m_position, len);
@@ -86,7 +85,7 @@ void console_logger<T_Location>::flush_buffer(const char* _buffer,
   }
 }
 
-} // namespace logging
-} // namespace wn
+}  // namespace logging
+}  // namespace wn
 
 #endif  //__WN_CONSOLE_LOGGER_WINDOWS_INL__

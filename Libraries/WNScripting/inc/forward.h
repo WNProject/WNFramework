@@ -8,6 +8,7 @@
 #define _WN_SCRIPTING_INC_FORWARD_H__
 
 #include <atomic>
+
 #include "WNMemory/inc/allocator.h"
 
 namespace wn {
@@ -393,7 +394,6 @@ public:
     return &(ptr->[ptr->size() - 1]) + 1;
   }*/
 };
-
 
 }  // namespace scripting
 }  // namespace wn

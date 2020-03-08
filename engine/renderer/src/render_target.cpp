@@ -3,6 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "renderer/inc/render_target.h"
+
 #include "WNGraphics/inc/WNGraphicsEnums.h"
 #include "WNGraphics/inc/WNImage.h"
 #include "renderer/inc/render_context.h"

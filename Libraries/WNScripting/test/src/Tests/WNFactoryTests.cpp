@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "executable_test/inc/WNTestHarness.h"
 #include "WNFileSystem/inc/WNFactory.h"
 #include "WNMemory/inc/allocator.h"
 #include "WNScripting/inc/WNFactory.h"
+#include "executable_test/inc/WNTestHarness.h"
 
 TEST(scripting_engine_factory, creation) {
   wn::scripting::factory factory;

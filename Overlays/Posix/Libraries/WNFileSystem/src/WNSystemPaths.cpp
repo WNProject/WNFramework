@@ -1,13 +1,14 @@
 #include "WNFileSystem/src/WNSystemPaths.h"
-#include "WNContainers/inc/WNString.h"
-#include "WNCore/inc/types.h"
-#include "WNFileSystem/src/WNSystemTempPath.h"
 
 #include <errno.h>
 #include <limits.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+
+#include "WNContainers/inc/WNString.h"
+#include "WNCore/inc/types.h"
+#include "WNFileSystem/src/WNSystemTempPath.h"
 
 namespace wn {
 namespace executable {

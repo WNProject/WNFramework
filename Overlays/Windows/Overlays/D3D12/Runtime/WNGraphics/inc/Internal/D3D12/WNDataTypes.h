@@ -7,6 +7,9 @@
 #ifndef __WN_RUNTIME_GRAPHICS_INTERNAL_D3D12_DATA_TYPES_H__
 #define __WN_RUNTIME_GRAPHICS_INTERNAL_D3D12_DATA_TYPES_H__
 
+#include <dxgi1_4.h>
+#include <wrl.h>
+
 #include "WNContainers/inc/WNDynamicArray.h"
 #include "WNContainers/inc/WNRangePartition.h"
 #include "WNCore/inc/pair.h"
@@ -19,11 +22,7 @@
 #include "WNGraphics/inc/WNImageView.h"
 #include "WNGraphics/inc/WNRenderPassTypes.h"
 #include "WNGraphics/inc/WNShaderModule.h"
-
 #include "WNUtilities/inc/handle.h"
-
-#include <dxgi1_4.h>
-#include <wrl.h>
 
 namespace wn {
 namespace runtime {
@@ -108,7 +107,6 @@ struct framebuffer_data {
   framebuffer_data(memory::allocator* _allocator,
       containers::contiguous_range<const image_view_info*> _views)
     : image_views(_allocator), image_view_handles(_allocator) {
-
     image_views.insert(image_views.begin(), _views.begin(), _views.end());
     image_view_handles.reserve(_views.size());
   }

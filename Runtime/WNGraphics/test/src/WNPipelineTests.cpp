@@ -137,9 +137,10 @@ TEST_F(pipeline_test, basic_pipeline) {
         device->create_arena(idx, reqs.size);
     image.bind_memory(&image_arena, 0);
 
-    wn::runtime::graphics::image_view view = device->create_image_view(
-        &image, 0, 1, static_cast<wn::runtime::graphics::image_components>(
-                    wn::runtime::graphics::image_component::color));
+    wn::runtime::graphics::image_view view =
+        device->create_image_view(&image, 0, 1,
+            static_cast<wn::runtime::graphics::image_components>(
+                wn::runtime::graphics::image_component::color));
     const wn::runtime::graphics::image_view* views[] = {&view};
     wn::runtime::graphics::framebuffer_create_info framebuffer_create = {
         &render_pass,

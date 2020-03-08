@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "executable_test/inc/WNTestHarness.h"
 #include "WNMultiTasking/inc/job_pool.h"
 #include "WNMultiTasking/inc/synchronized.h"
+#include "executable_test/inc/WNTestHarness.h"
 
 using wn::multi_tasking::async_blocking_function;
 using wn::multi_tasking::async_function;

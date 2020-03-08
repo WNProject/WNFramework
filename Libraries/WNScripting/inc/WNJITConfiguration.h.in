@@ -5,7 +5,8 @@
 #ifndef __WN_SCRIPTING_JIT_CONFIGURATION_H__
 #define __WN_SCRIPTING_JIT_CONFIGURATION_H__
 
-#define ${WN_LLVM_OVERRIDDEN_TRIPLE}
+#define $                                                                      \
+  { WN_LLVM_OVERRIDDEN_TRIPLE }
 
 #ifdef WN_LLVM_OVERRIDDEN_TRIPLE
 namespace wn {
@@ -13,8 +14,8 @@ namespace scripting {
 namespace internal {
 const char* llvm_triple = "${WN_LLVM_TRIPLE}";
 }
-}
-}
+}  // namespace scripting
+}  // namespace wn
 #endif
 
-#endif // __WN_SCRIPTING_JIT_CONFIGURATION_H_
+#endif  // __WN_SCRIPTING_JIT_CONFIGURATION_H_

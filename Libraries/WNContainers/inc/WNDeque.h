@@ -7,12 +7,12 @@
 #ifndef __WN_CONTAINERS_DEQUE_H__
 #define __WN_CONTAINERS_DEQUE_H__
 
+#include <iterator>
+
 #include "WNContainers/inc/WNDynamicArray.h"
 #include "WNCore/inc/type_traits.h"
 #include "WNMemory/inc/allocator.h"
 #include "WNMemory/inc/manipulation.h"
-
-#include <iterator>
 
 namespace wn {
 namespace containers {

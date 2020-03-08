@@ -6,8 +6,8 @@
 #include "WNContainers/inc/WNHashMap.h"
 #include "WNFileSystem/inc/WNFile.h"
 #include "WNFileSystem/inc/WNMapping.h"
-#include "WNFileSystem/src/WNUtilities.h"
 #include "WNFileSystem/inc/object_info.h"
+#include "WNFileSystem/src/WNUtilities.h"
 #include "WNMultiTasking/inc/mutex.h"
 #include "WNMultiTasking/inc/spin_lock.h"
 

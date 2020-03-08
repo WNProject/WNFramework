@@ -10,14 +10,16 @@
 namespace wn {
 namespace runtime {
 namespace window {
-class ${WN_DEFAULT_WINDOW_TYPE};
+class $ {
+  WN_DEFAULT_WINDOW_TYPE
+};
 namespace internal {
 
 using default_window_type = ${WN_DEFAULT_WINDOW_TYPE};
 
-} // namespace internal
-} // namespace window
-} // namespace runtime
-} // namespace wn
+}  // namespace internal
+}  // namespace window
+}  // namespace runtime
+}  // namespace wn
 
 #endif  // __WN_RUNTIME_WINDOW_CONFIG_H__

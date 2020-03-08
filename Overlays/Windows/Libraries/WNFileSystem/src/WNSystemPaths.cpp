@@ -3,6 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "WNFileSystem/src/WNSystemPaths.h"
+
 #include "WNContainers/inc/WNArray.h"
 #include "WNFileSystem/src/WNUtilities.h"
 

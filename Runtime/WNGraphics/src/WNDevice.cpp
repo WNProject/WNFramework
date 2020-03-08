@@ -3,6 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "WNGraphics/inc/WNDevice.h"
+
 #include "WNGraphics/inc/WNArena.h"
 #include "WNGraphics/inc/WNBuffer.h"
 #include "WNGraphics/inc/WNCommandAllocator.h"

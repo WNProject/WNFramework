@@ -3,6 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "WNGraphics/inc/Internal/D3D12/WNCommandList.h"
+
 #include "WNGraphics/inc/Internal/D3D12/WNDataTypes.h"
 #include "WNGraphics/inc/Internal/D3D12/WNDevice.h"
 #include "WNGraphics/inc/Internal/D3D12/WNImageFormats.h"

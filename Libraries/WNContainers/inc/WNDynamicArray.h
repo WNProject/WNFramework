@@ -7,12 +7,12 @@
 #ifndef __WN_CONTAINERS_DYNAMIC_ARRAY_H__
 #define __WN_CONTAINERS_DYNAMIC_ARRAY_H__
 
+#include <iterator>
+#include <limits>
+
 #include "WNContainers/inc/WNContiguousRange.h"
 #include "WNCore/inc/assert.h"
 #include "WNMemory/inc/allocator.h"
-
-#include <iterator>
-#include <limits>
 
 namespace wn {
 namespace containers {

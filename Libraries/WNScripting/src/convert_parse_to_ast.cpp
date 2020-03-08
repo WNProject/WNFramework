@@ -252,7 +252,7 @@ const ast_type* parse_ast_convertor::convertor_context::get_runtime_array_of(
 
 const ast_type* parse_ast_convertor::convertor_context::get_slice_of(
     const ast_type* _type, uint32_t _size) {
-  ast_type* tp = m_type_manager->get_slice_of(_type, _size, & m_used_types);
+  ast_type* tp = m_type_manager->get_slice_of(_type, _size, &m_used_types);
   return tp;
 }
 

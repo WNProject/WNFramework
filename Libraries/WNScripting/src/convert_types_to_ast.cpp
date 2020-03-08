@@ -32,8 +32,8 @@ const ast_type* parse_ast_convertor::convertor_context::resolve_type(
   if (!_type->custom_type_name().empty()) {
     auto it = m_type_manager->get_struct_definition(_type->custom_type_name());
     if (!it) {
-      auto extern_t =
-          m_type_manager->get_external_type(_type->custom_type_name(), &m_used_types);
+      auto extern_t = m_type_manager->get_external_type(
+          _type->custom_type_name(), &m_used_types);
       if (!extern_t) {
         _type->log_line(m_log, logging::log_level::error);
         m_log->log_error("Could not find type definition");

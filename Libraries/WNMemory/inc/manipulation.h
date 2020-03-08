@@ -7,10 +7,10 @@
 #ifndef __WN_MEMORY_MANIPULATION_H__
 #define __WN_MEMORY_MANIPULATION_H__
 
+#include <cstring>
+
 #include "WNCore/inc/type_traits.h"
 #include "WNCore/inc/types.h"
-
-#include <cstring>
 
 namespace wn {
 namespace memory {

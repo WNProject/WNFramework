@@ -15,7 +15,8 @@ namespace internal {
 
 template <template <typename, size_t, size_t, bool> class MatrixType,
     typename T, size_t Rows, size_t Columns, bool Precise>
-using matrix_base = ${WN_MATH_MATRIX_BASE_TYPE}<MatrixType, T, Rows, Columns, Precise>;
+using matrix_base =
+    ${WN_MATH_MATRIX_BASE_TYPE}<MatrixType, T, Rows, Columns, Precise>;
 
 }  // namespace internal
 }  // namespace math

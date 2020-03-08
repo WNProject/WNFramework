@@ -3,6 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "window/inc/window.h"
+
 #include "WNWindow/inc/WNWindow.h"
 #include "WNWindow/inc/WNWindowFactory.h"
 #include "engine_base/inc/context.h"
@@ -53,7 +54,8 @@ namespace wn {
 namespace engine {
 namespace window {
 
-window::window(engine_base::context* _context, int32_t _width, int32_t _height) {
+window::window(
+    engine_base::context* _context, int32_t _width, int32_t _height) {
   _context->m_log->log_info("Created Window");
   m_log = _context->m_log;
   wn::multi_tasking::job_signal signal(0);
@@ -80,7 +82,6 @@ int32_t window::width() {
 int32_t window::height() {
   return m_window->get_height();
 }
-
 
 }  // namespace window
 }  // namespace engine

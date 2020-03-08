@@ -7,9 +7,9 @@
 #ifndef __WN_CORE_ASSERT_H__
 #define __WN_CORE_ASSERT_H__
 
-#include "WNCore/inc/types.h"
-
 #include <iostream>
+
+#include "WNCore/inc/types.h"
 
 #ifdef NDEBUG
 #undef NDEBUG

@@ -2,13 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
+#include <limits.h>
+#include <unistd.h>
+
 #include "WNContainers/inc/WNString.h"
 #include "WNContainers/inc/WNStringView.h"
 #include "WNCore/inc/types.h"
 #include "WNFileSystem/src/WNSystemPaths.h"
-
-#include <limits.h>
-#include <unistd.h>
 
 namespace wn {
 namespace executable {

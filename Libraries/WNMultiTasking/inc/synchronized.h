@@ -7,12 +7,12 @@
 #ifndef __WN_MULTI_TASKING_SYNCHRONIZED_H__
 #define __WN_MULTI_TASKING_SYNCHRONIZED_H__
 
+#include <atomic>
+
 #include "WNContainers/inc/WNArray.h"
 #include "WNCore/inc/type_traits.h"
 #include "WNCore/inc/utilities.h"
 #include "WNMultiTasking/inc/job_signal.h"
-
-#include <atomic>
 
 namespace wn {
 namespace multi_tasking {

@@ -3,6 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "WNScripting/inc/type_manager.h"
+
 #include "WNScripting/inc/WNNodeTypes.h"
 #include "WNScripting/inc/ast_node_types.h"
 

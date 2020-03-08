@@ -4,7 +4,6 @@
 
 #include "WNApplicationData/inc/WNApplicationData.h"
 #include "WNGraphics/test/inc/WNPixelTestFixture.h"
-
 #include "WNMultiTasking/inc/job_pool.h"
 #include "WNMultiTasking/inc/job_signal.h"
 #include "WNWindow/inc/WNWindow.h"

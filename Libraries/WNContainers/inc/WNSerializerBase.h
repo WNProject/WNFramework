@@ -19,7 +19,7 @@ public:
   virtual size_t serialize(
       data_buffer& _buffer, const uint32_t _flags) const = 0;
 };
-}
-}
+}  // namespace containers
+}  // namespace wn
 
 #endif  // __WN_CONTAINERS_SERIALIZER_BASE_H__

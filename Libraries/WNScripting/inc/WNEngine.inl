@@ -7,12 +7,12 @@
 #ifndef __WN_SCRIPTING_ENGINE_INL__
 #define __WN_SCRIPTING_ENGINE_INL__
 
+#include <array>
+
 #include "WNContainers/inc/WNDynamicArray.h"
 #include "WNMemory/inc/allocation.h"
 #include "WNScripting/inc/WNEnums.h"
 #include "WNScripting/inc/type_mangler.h"
-
-#include <array>
 
 namespace wn {
 namespace scripting {

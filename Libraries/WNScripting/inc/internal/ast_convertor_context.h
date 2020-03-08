@@ -101,7 +101,8 @@ struct parse_ast_convertor::convertor_context {
       memory::unique_ptr<ast_expression> from, const ast_type* _type);
 
   memory::unique_ptr<ast_declaration> make_temp_declaration(
-      const node* _location, const containers::string& _name, const ast_type* _type);
+      const node* _location, const containers::string& _name,
+      const ast_type* _type);
   memory::unique_ptr<ast_id> id_to(
       const node* _location, ast_declaration* _decl);
   // Make implicit cast will take a reference pointer or a shared
@@ -123,61 +124,59 @@ struct parse_ast_convertor::convertor_context {
         containers::string(m_allocator, prefix ? prefix : "_wns_temp");
     str += buff;
     return core::move(str);
+  }
+  memory::unique_ptr<ast_statement> evaluate_expression(
+      memory::unique_ptr<ast_expression> _expr);
+
+  // Helpers
+  void transfer_temporaries(ast_expression* to, ast_expression* from);
+
+  // Scopes
+  void push_scope(ast_scope_block* _scope);
+  void pop_scope();
+  // Runs all destructors in this scope block up to _end_scope_block.
+  // If _end_scope_block == nullptr, then cleans all scopes.
+  void clean_scopes(ast_scope_block* _end_scope_block = nullptr);
+
+  void use_function(const ast_function* _function) {
+    if (_function && _function->m_is_external) {
+      m_used_externals.insert(_function);
     }
-    memory::unique_ptr<ast_statement> evaluate_expression(
-        memory::unique_ptr<ast_expression> _expr);
+  }
+  memory::allocator* m_allocator;
+  const parse_ast_convertor* m_convertor;
+  containers::hash_set<const ast_type*> m_used_types;
+  containers::hash_set<const ast_function*> m_used_builtins;
+  containers::hash_set<const ast_function*> m_used_externals;
 
-    // Helpers
-    void transfer_temporaries(ast_expression * to, ast_expression * from);
+  containers::deque<ast_scope_block*> m_nested_scopes;
+  containers::deque<memory::unique_ptr<ast_statement>>* m_current_statements;
+  containers::deque<memory::unique_ptr<ast_function>> m_constructor_destructors;
+  ast_function* m_current_function;
+  ast_declaration* m_return_decl;
+  ast_function::parameter* m_return_parameter;
 
-    // Scopes
-    void push_scope(ast_scope_block * _scope);
-    void pop_scope();
-    // Runs all destructors in this scope block up to _end_scope_block.
-    // If _end_scope_block == nullptr, then cleans all scopes.
-    void clean_scopes(ast_scope_block* _end_scope_block = nullptr);
+  containers::deque<memory::unique_ptr<ast_statement>> m_temporary_cleanup;
+  memory::unique_ptr<ast_expression> m_assigned_declaration;
+  bool m_declaration_succeeded;
 
-    void use_function(const ast_function* _function) {
-      if (_function && _function->m_is_external) {
-        m_used_externals.insert(_function);
-      }
-    }
-    memory::allocator* m_allocator;
-    const parse_ast_convertor* m_convertor;
-    containers::hash_set<const ast_type*> m_used_types;
-    containers::hash_set<const ast_function*> m_used_builtins;
-    containers::hash_set<const ast_function*> m_used_externals;
+  // Externals
+  containers::hash_map<containers::string, ast_function*> m_external_functions;
 
-    containers::deque<ast_scope_block*> m_nested_scopes;
-    containers::deque<memory::unique_ptr<ast_statement>>* m_current_statements;
-    containers::deque<memory::unique_ptr<ast_function>>
-        m_constructor_destructors;
-    ast_function* m_current_function;
-    ast_declaration* m_return_decl;
-    ast_function::parameter* m_return_parameter;
+  // Unmangled functions
+  containers::hash_map<containers::string,
+      containers::deque<const ast_function*>>
+      m_named_functions;
 
-    containers::deque<memory::unique_ptr<ast_statement>> m_temporary_cleanup;
-    memory::unique_ptr<ast_expression> m_assigned_declaration;
-    bool m_declaration_succeeded;
+  memory::unique_ptr<ast_script_file> m_script_file;
 
-    // Externals
-    containers::hash_map<containers::string, ast_function*>
-        m_external_functions;
+  ast_loop* m_current_loop;
 
-    // Unmangled functions
-    containers::hash_map<containers::string,
-        containers::deque<const ast_function*>>
-        m_named_functions;
+  uint32_t m_temporary_number;
+  logging::log* m_log;
 
-    memory::unique_ptr<ast_script_file> m_script_file;
-
-    ast_loop* m_current_loop;
-
-    uint32_t m_temporary_number;
-    logging::log* m_log;
-
-    type_manager* m_type_manager;
-  };
+  type_manager* m_type_manager;
+};
 }  // namespace scripting
 }  // namespace wn
 

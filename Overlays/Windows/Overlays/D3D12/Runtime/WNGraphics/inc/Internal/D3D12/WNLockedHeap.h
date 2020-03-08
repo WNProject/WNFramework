@@ -7,13 +7,13 @@
 #ifndef __WN_RUNTIME_GRAPHICS_INTERNAL_D3D12_LOCKED_HEAP_H__
 #define __WN_RUNTIME_GRAPHICS_INTERNAL_D3D12_LOCKED_HEAP_H__
 
+#include <d3d12.h>
+#include <wrl.h>
+
 #include "WNContainers/inc/WNRangePartition.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/allocator.h"
 #include "WNMultiTasking/inc/spin_lock.h"
-
-#include <d3d12.h>
-#include <wrl.h>
 
 namespace wn {
 namespace runtime {

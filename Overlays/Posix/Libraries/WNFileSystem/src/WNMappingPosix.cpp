@@ -3,9 +3,6 @@
 // found in the LICENSE.txt file.
 
 #include "WNFileSystem/src/WNMappingPosix.h"
-#include "WNCore/inc/assert.h"
-#include "WNFileSystem/src/WNFilePosix.h"
-#include "WNFileSystem/src/WNSystemUtilities.h"
 
 #include <fcntl.h>
 #include <stdio.h>
@@ -13,6 +10,10 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+
+#include "WNCore/inc/assert.h"
+#include "WNFileSystem/src/WNFilePosix.h"
+#include "WNFileSystem/src/WNSystemUtilities.h"
 
 #ifdef _WN_HAS_NFTW
 #include <ftw.h>

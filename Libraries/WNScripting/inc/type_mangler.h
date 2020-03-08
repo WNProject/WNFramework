@@ -54,22 +54,22 @@ struct mangled_name<void> {
 inline containers::string_view get_mangling(
     type_classification _type_classification) {
   switch (_type_classification) {
-  case type_classification::int_type:
-    return "i";
-  case type_classification::float_type:
-    return "f";
-  case type_classification::char_type:
-    return "h";
-  case type_classification::bool_type:
-    return "b";
-  case type_classification::void_type:
-    return "v";
-  case type_classification::size_type:
-    return "N3wns4sizeE";
-  case type_classification::void_ptr_type:
-    return "Pv";
-  default:
-    return "";
+    case type_classification::int_type:
+      return "i";
+    case type_classification::float_type:
+      return "f";
+    case type_classification::char_type:
+      return "h";
+    case type_classification::bool_type:
+      return "b";
+    case type_classification::void_type:
+      return "v";
+    case type_classification::size_type:
+      return "N3wns4sizeE";
+    case type_classification::void_ptr_type:
+      return "Pv";
+    default:
+      return "";
   }
 }
 
@@ -118,14 +118,13 @@ inline containers::string get_mangled_name(memory::allocator* _allocator,
 
   char count[11] = {0};
 
-
   str += "_ZN3wns";
   if (!object_type.empty()) {
     memory::writeuint32(count, static_cast<uint32_t>(object_type.size()), 10);
     str += count;
     str += object_type;
   }
-  
+
   memory::writeuint32(count, static_cast<uint32_t>(view.size()), 10);
   str += count;
   str += view;

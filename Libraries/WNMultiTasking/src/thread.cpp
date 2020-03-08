@@ -3,6 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "WNMultiTasking/inc/thread.h"
+
 #include "WNCore/inc/assert.h"
 #include "WNCore/inc/utilities.h"
 #include "WNMemory/inc/allocator.h"

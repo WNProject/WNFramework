@@ -7,10 +7,10 @@
 #ifndef __WN_CORE_TYPE_TRAITS_H__
 #define __WN_CORE_TYPE_TRAITS_H__
 
-#include "WNCore/inc/types.h"
-
 #include <type_traits>
 #include <utility>
+
+#include "WNCore/inc/types.h"
 
 #ifndef _WN_HAS_CPP11_STD_ALIGNED_UNION
 #include <algorithm>

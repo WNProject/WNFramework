@@ -55,7 +55,6 @@ public:
               multi_tasking::make_sync<accept_type>(
                   m_allocator, m_allocator, core::move(connection)),
               err);
-
         });
   }
 
@@ -96,7 +95,6 @@ public:
               multi_tasking::make_sync<connection_type>(m_allocator,
                   core::move(connected), core::forward<Args>(args)...),
               err);
-
         },
         core::forward<Args>(args)...);
   }

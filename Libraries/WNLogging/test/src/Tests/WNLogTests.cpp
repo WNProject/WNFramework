@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNLogging/inc/WNLog.h"
-#include "executable_test/inc/WNTestHarness.h"
 #include "WNLogging/inc/WNConsoleLogger.h"
 #include "WNLogging/inc/WNFileLogger.h"
+#include "WNLogging/inc/WNLog.h"
+#include "executable_test/inc/WNTestHarness.h"
 
 #ifndef __WN_USE_PRECOMPILED_HEADER
 #include "WNMultiTasking/inc/thread.h"

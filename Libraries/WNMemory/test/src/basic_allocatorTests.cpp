@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "executable_test/inc/WNTestHarness.h"
 #include "WNMemory/inc/allocator.h"
 #include "WNMemory/inc/basic_allocator.h"
+#include "executable_test/inc/WNTestHarness.h"
 
 TEST(basic_allocator, basic_usage) {
   wn::memory::basic_allocator basic_allocator;

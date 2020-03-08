@@ -5,8 +5,6 @@
 #ifndef __WN_APPLICATIONS_TEXTURE_H__
 #define __WN_APPLICATIONS_TEXTURE_H__
 
-#include "texture_file.h"
-
 #include "WNGraphics/inc/WNBuffer.h"
 #include "WNGraphics/inc/WNCommandAllocator.h"
 #include "WNGraphics/inc/WNCommandList.h"
@@ -14,6 +12,7 @@
 #include "WNGraphics/inc/WNFence.h"
 #include "WNGraphics/inc/WNImage.h"
 #include "WNGraphics/inc/WNQueue.h"
+#include "texture_file.h"
 
 using namespace wn;
 using namespace wn::runtime;

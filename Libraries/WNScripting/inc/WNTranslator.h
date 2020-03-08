@@ -46,10 +46,10 @@ public:
   bool inline register_cpp_function(
       containers::string_view _name, R (*)(Args...));
 
-  template<typename T>
+  template <typename T>
   bool register_cpp_type();
 
-  template<typename T>
+  template <typename T>
   bool register_child_cpp_type();
 
   template <typename T>
@@ -70,9 +70,9 @@ protected:
 template <typename R, typename... Args>
 bool inline translator::register_function(containers::string_view _name) {
   containers::dynamic_array<const ast_type*> params =
-    m_type_manager.get_types<R, Args...>();
+      m_type_manager.get_types<R, Args...>();
   m_type_manager.add_external(
-    external_function{ _name, core::move(params) }, true, false);
+      external_function{_name, core::move(params)}, true, false);
   return true;
 }
 
@@ -80,19 +80,19 @@ template <typename R, typename... Args>
 bool inline translator::register_cpp_function(
     containers::string_view _name, R (*)(Args...)) {
   containers::dynamic_array<const ast_type*> params =
-    m_type_manager.get_types<R, Args...>();
+      m_type_manager.get_types<R, Args...>();
   m_type_manager.add_external(
-    external_function{ _name, core::move(params) }, true, false);
+      external_function{_name, core::move(params)}, true, false);
   return true;
 }
 
-template<typename T>
+template <typename T>
 bool inline translator::register_cpp_type() {
   m_type_manager.register_cpp_type<T>(nullptr);
   return true;
 }
 
-template<typename T>
+template <typename T>
 bool inline translator::register_child_cpp_type() {
   m_type_manager.register_child_cpp_type<T>(nullptr);
   return true;

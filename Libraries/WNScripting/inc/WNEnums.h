@@ -101,7 +101,13 @@ static const char*
         "-", "*", "/", "%", "==", "!=", "<=", ">=", "<", ">", "&", "|", "^"};
 
 // All possible pre-unary operations in WNScript.
-enum class unary_type { pre_increment, pre_decrement, negation, inversion, max };
+enum class unary_type {
+  pre_increment,
+  pre_decrement,
+  negation,
+  inversion,
+  max
+};
 
 // All builtins that take exactly one parameter.
 enum class builtin_unary_type { length };

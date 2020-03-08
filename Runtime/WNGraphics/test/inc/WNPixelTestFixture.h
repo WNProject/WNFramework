@@ -1,7 +1,8 @@
 #ifndef _WN_GRAPHICS_TEST_PIXEL_TEST_FIXTURE_H__
 #define _WN_GRAPHICS_TEST_PIXEL_TEST_FIXTURE_H__
 
-#include "executable_test/inc/WNTestHarness.h"
+#include <stb_public.h>
+
 #include "WNGraphics/inc/WNArena.h"
 #include "WNGraphics/inc/WNCommandAllocator.h"
 #include "WNGraphics/inc/WNCommandList.h"
@@ -17,12 +18,10 @@
 #include "WNGraphics/inc/WNRenderPass.h"
 #include "WNGraphics/inc/WNShaderModule.h"
 #include "WNGraphics/inc/WNSwapchain.h"
+#include "WNGraphics/test/inc/WNPixelTestConfig.h"
 #include "WNLogging/inc/WNBufferLogger.h"
 #include "WNMath/inc/WNBasic.h"
-
-#include "WNGraphics/test/inc/WNPixelTestConfig.h"
-
-#include <stb_public.h>
+#include "executable_test/inc/WNTestHarness.h"
 
 namespace wn {
 namespace runtime {

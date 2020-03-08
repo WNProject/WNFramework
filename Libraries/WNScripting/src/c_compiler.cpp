@@ -3,6 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "WNScripting/inc/c_compiler.h"
+
 #include "WNContainers/inc/WNHashMap.h"
 #include "WNContainers/inc/WNHashSet.h"
 #include "WNScripting/inc/WNNodeTypes.h"

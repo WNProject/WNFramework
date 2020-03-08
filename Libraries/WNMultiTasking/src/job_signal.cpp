@@ -3,6 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "WNMultiTasking/inc/job_signal.h"
+
 #include "WNMultiTasking/inc/job_pool.h"
 
 namespace wn {

@@ -7,11 +7,11 @@
 #ifndef __WN_FILE_SYSTEM_POSIX_SYSTEM_UTILITIES_H__
 #define __WN_FILE_SYSTEM_POSIX_SYSTEM_UTILITIES_H__
 
-#include "WNContainers/inc/WNStringView.h"
-
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+
+#include "WNContainers/inc/WNStringView.h"
 
 namespace wn {
 namespace file_system {

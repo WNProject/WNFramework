@@ -40,7 +40,8 @@ int32_t wn_application_main(
     engine::register_scripting(scripting_engine.get());
     engine_base::register_context(scripting_engine.get());
     engine::window::window::register_scripting(scripting_engine.get());
-    engine::renderer::render_context::register_scripting(scripting_engine.get());
+    engine::renderer::render_context::register_scripting(
+        scripting_engine.get());
 
     scripting::parse_error err = scripting_engine->parse_file("main.wns");
     if (err != scripting::parse_error::ok) {

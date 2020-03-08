@@ -31,7 +31,7 @@ public:
   virtual data_buffer_type type() const = 0;
 };
 
-} // namespace containers
-} // namespace wn
+}  // namespace containers
+}  // namespace wn
 
 #endif  // __WN_CONTAINERS_DATA_BUFFER_H__

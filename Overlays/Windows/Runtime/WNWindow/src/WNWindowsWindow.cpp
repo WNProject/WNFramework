@@ -3,13 +3,14 @@
 // found in the LICENSE.txt file.
 
 #include "WNWindow/inc/WNWindowsWindow.h"
+
+#include <tchar.h>
+
 #include "WNApplicationData/inc/WNApplicationData.h"
 #include "WNCore/inc/base.h"
 #include "WNMultiTasking/inc/job_pool.h"
 #include "WNWindow/inc/WNInputContext.h"
 #include "executable_data/inc/executable_data.h"
-
-#include <tchar.h>
 
 #define WN_WINDOW_CLASS_NAME _T("WNWindowClass")
 

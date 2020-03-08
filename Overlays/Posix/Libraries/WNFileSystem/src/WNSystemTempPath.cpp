@@ -3,17 +3,18 @@
 // found in the LICENSE.txt file.
 
 #include "WNFileSystem/src/WNSystemTempPath.h"
+
+#include <stdlib.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+
 #include "WNContainers/inc/WNString.h"
 #include "WNCore/inc/types.h"
 #include "WNFileSystem/src/WNUtilities.h"
 #include "WNMemory/inc/allocator.h"
 #include "executable_data/inc/executable_data.h"
 #include "executable_entry/inc/executable_entry.h"
-
-#include <stdlib.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <unistd.h>
 
 namespace wn {
 namespace file_system {

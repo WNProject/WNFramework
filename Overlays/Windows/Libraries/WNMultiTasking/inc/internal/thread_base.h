@@ -7,14 +7,14 @@
 #ifndef __WN_MULTI_TASKING_WINDOWS_INTERNAL_THREAD_BASE_H__
 #define __WN_MULTI_TASKING_WINDOWS_INTERNAL_THREAD_BASE_H__
 
+#include <chrono>
+
 #include "WNCore/inc/utilities.h"
 #include "WNMemory/inc/allocator.h"
 #include "WNMemory/inc/intrusive_ptr.h"
 #include "WNMultiTasking/inc/call_once.h"
 #include "WNMultiTasking/inc/internal/thread_base_common.h"
 #include "WNUtilities/inc/handle.h"
-
-#include <chrono>
 
 namespace wn {
 namespace multi_tasking {

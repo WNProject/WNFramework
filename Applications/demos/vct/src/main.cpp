@@ -2,18 +2,18 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
+#include <chrono>
+
 #include "WNApplicationData/inc/WNApplicationData.h"
 #include "WNContainers/inc/WNStringView.h"
-#include "executable_entry/inc/executable_entry.h"
 #include "WNFileSystem/inc/WNFactory.h"
 #include "WNLogging/inc/WNConsoleLogger.h"
 #include "WNScripting/inc/WNFactory.h"
+#include "executable_entry/inc/executable_entry.h"
 #include "scene_demo.h"
 #include "scene_file.h"
 #include "texture_file.h"
 #include "texture_manager.h"
-
-#include <chrono>
 using namespace wn;
 int32_t wn_application_main(
     const runtime::application::application_data* _data) {
@@ -24,7 +24,8 @@ int32_t wn_application_main(
   bool has_data_dir = false;
   bool verbose = false;
 
-  for (size_t i = 0; i < static_cast<size_t>(_data->executable_data->argc); ++i) {
+  for (size_t i = 0; i < static_cast<size_t>(_data->executable_data->argc);
+       ++i) {
     if (containers::string_view("--data_dir") ==
         containers::string_view(_data->executable_data->argv[i])) {
       parse_data_dir = true;

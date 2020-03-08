@@ -1,7 +1,8 @@
 #include "WNUtilities/inc/WNAndroidEventPump.h"
-#include "WNUtilities/inc/WNAppData.h"
 
 #include <cstring>
+
+#include "WNUtilities/inc/WNAppData.h"
 
 namespace wn {
 namespace utilities {

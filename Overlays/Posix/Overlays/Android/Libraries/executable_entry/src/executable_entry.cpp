@@ -3,6 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "executable_entry/inc/executable_entry.h"
+
 #include "WNCore/inc/types.h"
 #include "WNUtilities/inc/WNAndroidEventPump.h"
 #include "WNUtilities/inc/WNAppData.h"
@@ -19,6 +20,7 @@
 #include <android_native_app_glue.h>
 #include <sys/prctl.h>
 #include <unistd.h>
+
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>

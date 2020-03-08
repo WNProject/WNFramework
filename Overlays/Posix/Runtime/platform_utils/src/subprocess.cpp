@@ -3,10 +3,12 @@
 // found in the LICENSE.txt file.
 
 #include "platform_utils/inc/subprocess.h"
+
 #include <fcntl.h>
 #include <poll.h>
 #include <sys/wait.h>
 #include <unistd.h>
+
 #include "WNContainers/inc/WNStringView.h"
 
 namespace wn {

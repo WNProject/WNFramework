@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "executable_test/inc/WNTestHarness.h"
 #include "WNThreadSafeContainers/inc/WNObjectPool.h"
+#include "executable_test/inc/WNTestHarness.h"
 
 struct counted_object {
   counted_object(const counted_object&) {

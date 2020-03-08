@@ -3,6 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "WNGraphics/inc/Internal/Vulkan/WNDevice.h"
+
 #include "WNContainers/inc/WNArray.h"
 #include "WNContainers/inc/WNDeque.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNBufferData.h"

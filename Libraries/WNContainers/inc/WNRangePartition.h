@@ -303,8 +303,9 @@ range_partition<NodeAllocator, T_SIZE>::~range_partition() {
 }
 
 template <typename NodeAllocator, typename T_SIZE>
-range_partition<NodeAllocator, T_SIZE>& range_partition<NodeAllocator, T_SIZE>::
-operator=(range_partition<NodeAllocator, T_SIZE>&& _other) {
+range_partition<NodeAllocator, T_SIZE>&
+range_partition<NodeAllocator, T_SIZE>::operator=(
+    range_partition<NodeAllocator, T_SIZE>&& _other) {
   reset();
   m_num_elements = _other.m_num_elements;
   _other.m_num_elements = 0;

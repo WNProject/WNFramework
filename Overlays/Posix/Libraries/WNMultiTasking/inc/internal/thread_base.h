@@ -7,12 +7,6 @@
 #ifndef __WN_MULTI_TASKING_POSIX_INTERNAL_THREAD_BASE_H__
 #define __WN_MULTI_TASKING_POSIX_INTERNAL_THREAD_BASE_H__
 
-#include "WNCore/inc/utilities.h"
-#include "WNMemory/inc/allocator.h"
-#include "WNMemory/inc/intrusive_ptr.h"
-#include "WNMultiTasking/inc/internal/system_thread_functions.h"
-#include "WNMultiTasking/inc/internal/thread_base_common.h"
-
 #include <limits.h>
 #include <pthread.h>
 #include <sys/types.h>
@@ -20,6 +14,12 @@
 #include <unistd.h>
 
 #include <chrono>
+
+#include "WNCore/inc/utilities.h"
+#include "WNMemory/inc/allocator.h"
+#include "WNMemory/inc/intrusive_ptr.h"
+#include "WNMultiTasking/inc/internal/system_thread_functions.h"
+#include "WNMultiTasking/inc/internal/thread_base_common.h"
 
 namespace wn {
 namespace multi_tasking {

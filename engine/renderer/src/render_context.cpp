@@ -3,6 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "renderer/inc/render_context.h"
+
 #include "WNGraphics/inc/WNCommandList.h"
 #include "WNGraphics/inc/WNGraphicsEnums.h"
 #include "WNGraphics/inc/WNSwapchain.h"

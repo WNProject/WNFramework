@@ -7,14 +7,14 @@
 #ifndef __WN_GRAPHICS_INC_INTERNAL_VULKAN_QUEUE_H__
 #define __WN_GRAPHICS_INC_INTERNAL_VULKAN_QUEUE_H__
 
+#include <initializer_list>
+
 #include "WNContainers/inc/WNContiguousRange.h"
 #include "WNCore/inc/pair.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanInclude.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanQueueContext.h"
 #include "WNGraphics/inc/Internal/WNConfig.h"
 #include "WNGraphics/inc/WNGraphicsEnums.h"
-
-#include <initializer_list>
 
 #ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
 #include "WNGraphics/inc/WNQueue.h"

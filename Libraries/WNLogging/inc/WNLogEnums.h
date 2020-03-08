@@ -5,6 +5,7 @@
 #ifndef __WN_LOGGING_LOG_ENUMS_H__
 #define __WN_LOGGING_LOG_ENUMS_H__
 #include <vector>
+
 #include "WNCore/inc/base.h"
 #include "WNLogging/inc/WNLog.h"
 
@@ -22,7 +23,7 @@ enum class log_level {  // starting at 1 so that we can turn off with 0
   max
 };
 
-}  // namesapce logging
+}  // namespace logging
 }  // namespace wn
 
 #endif  // __WN_LOGGING_LOG_ENUMS_H__

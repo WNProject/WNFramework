@@ -5,13 +5,6 @@
 #ifndef __WN_APPLICATIONS_SCENE_DEMO_H__
 #define __WN_APPLICATIONS_SCENE_DEMO_H__
 
-#include "object.h"
-#include "scene_file.h"
-#include "scene_object.h"
-#include "texture.h"
-#include "texture_file.h"
-#include "texture_manager.h"
-
 #include "WNApplicationData/inc/WNApplicationData.h"
 #include "WNContainers/inc/WNHashSet.h"
 #include "WNGraphics/inc/WNFactory.h"
@@ -27,6 +20,12 @@
 #include "WNMemory/inc/string_utility.h"
 #include "WNWindow/inc/WNWindow.h"
 #include "WNWindow/inc/WNWindowFactory.h"
+#include "object.h"
+#include "scene_file.h"
+#include "scene_object.h"
+#include "texture.h"
+#include "texture_file.h"
+#include "texture_manager.h"
 
 using namespace wn;
 using namespace wn::runtime;

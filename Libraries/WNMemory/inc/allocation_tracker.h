@@ -7,11 +7,11 @@
 #ifndef __WN_MEMORY_ALLOCATION_TRACKER_H__
 #define __WN_MEMORY_ALLOCATION_TRACKER_H__
 
-#include "WNCore/inc/assert.h"
-#include "WNMemory/inc/allocator.h"
-
 #include <mutex>
 #include <unordered_map>
+
+#include "WNCore/inc/assert.h"
+#include "WNMemory/inc/allocator.h"
 
 namespace wn {
 namespace memory {

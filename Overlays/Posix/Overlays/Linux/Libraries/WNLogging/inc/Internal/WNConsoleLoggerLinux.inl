@@ -24,33 +24,31 @@ console_logger<T_Location>::~console_logger() {
 
 template <console_location T_Location>
 void console_logger<T_Location>::flush_buffer(const char* _buffer,
-    size_t _buffer_size,
-    const color_element* _colors, size_t _num_colors) {
+    size_t _buffer_size, const color_element* _colors, size_t _num_colors) {
   if (_num_colors > 0) {
     {
       size_t len = _colors[0].m_position - _buffer;
       fprintf(s_files[static_cast<uint32_t>(T_Location)], "%.*s",
-        static_cast<int32_t>(len), _buffer);
+          static_cast<int32_t>(len), _buffer);
     }
 
-    for (size_t i = 0; i < _num_colors ; ++i) {
+    for (size_t i = 0; i < _num_colors; ++i) {
       fprintf(s_files[static_cast<uint32_t>(T_Location)], "%s",
-        log_colors[static_cast<size_t>(_colors[i].m_level)]);
+          log_colors[static_cast<size_t>(_colors[i].m_level)]);
       const char* end_color = (_num_colors == i + 1)
-                                 ? _buffer + _buffer_size
-                                 : _colors[i + 1].m_position;
+                                  ? _buffer + _buffer_size
+                                  : _colors[i + 1].m_position;
       size_t len = end_color - _colors[i].m_position;
       fprintf(s_files[static_cast<uint32_t>(T_Location)], "%.*s",
-        static_cast<int32_t>(len), _colors[i].m_position);
+          static_cast<int32_t>(len), _colors[i].m_position);
     }
   } else {
-    fprintf(
-        s_files[static_cast<uint32_t>(T_Location)], "%.*s",
-          static_cast<int32_t>(_buffer_size), _buffer);
+    fprintf(s_files[static_cast<uint32_t>(T_Location)], "%.*s",
+        static_cast<int32_t>(_buffer_size), _buffer);
   }
 }
 
-} // namespace logging
-} // namespace wn
+}  // namespace logging
+}  // namespace wn
 
 #endif  //__WN_CONSOLE_LOGGER_LINUX_INL__

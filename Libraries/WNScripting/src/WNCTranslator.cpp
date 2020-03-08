@@ -3,6 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "WNScripting/inc/WNCTranslator.h"
+
 #include "WNContainers/inc/WNArray.h"
 #include "WNContainers/inc/WNString.h"
 #include "WNFileSystem/inc/WNMapping.h"

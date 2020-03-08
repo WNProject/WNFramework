@@ -7,11 +7,11 @@
 #ifndef __WN_CONTAINERS_LIST_H__
 #define __WN_CONTAINERS_LIST_H__
 
-#include "WNCore/inc/types.h"
-#include "WNMemory/inc/allocator.h"
-
 #include <iterator>
 #include <utility>
+
+#include "WNCore/inc/types.h"
+#include "WNMemory/inc/allocator.h"
 
 namespace wn {
 namespace containers {
@@ -365,7 +365,7 @@ public:
 private:
   iterator unlink(iterator _start, iterator _end, size_t count) {
     WN_DEBUG_ASSERT(static_cast<void*>(_start.m_ptr) !=
-                             static_cast<void*>(&m_dummy_end_node),
+                        static_cast<void*>(&m_dummy_end_node),
         "You are trying to delete end()");
     list_node* ptr = _start.m_ptr;
     list_node* end_ptr = _end.m_ptr;

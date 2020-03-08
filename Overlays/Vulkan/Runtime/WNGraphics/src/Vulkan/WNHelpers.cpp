@@ -3,6 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "WNGraphics/src/Vulkan/WNHelpers.h"
+
 #include "WNGraphics/inc/Internal/Vulkan/WNAdapter.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanContext.h"
 #include "WNGraphics/inc/Internal/WNConfig.h"

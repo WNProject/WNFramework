@@ -15,7 +15,8 @@ namespace internal {
 
 template <template <typename, size_t, bool> class VectorType, typename T,
     size_t Dimension, bool Precise>
-using vector_base = ${WN_MATH_VECTOR_BASE_TYPE}<VectorType, T, Dimension, Precise>;
+using vector_base =
+    ${WN_MATH_VECTOR_BASE_TYPE}<VectorType, T, Dimension, Precise>;
 
 }  // namespace internal
 }  // namespace math

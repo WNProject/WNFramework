@@ -8,7 +8,6 @@
 #define __WN_GRAPHICS_INTERNAL_VULKAN_COMMAND_LIST_CONTEXT_H__
 
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanInclude.h"
-
 #include "WNMemory/inc/allocator.h"
 #include "WNMemory/inc/intrusive_ptr.h"
 

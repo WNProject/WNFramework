@@ -7,9 +7,9 @@
 #ifndef __WN_MULTI_TASKING_POSIX_INTERNAL_UTILITIES_H__
 #define __WN_MULTI_TASKING_POSIX_INTERNAL_UTILITIES_H__
 
-#include "WNMultiTasking/inc/internal/processor_relax.h"
-
 #include <unistd.h>
+
+#include "WNMultiTasking/inc/internal/processor_relax.h"
 
 namespace wn {
 namespace multi_tasking {

@@ -3,6 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "WNWindow/inc/WNWindow.h"
+
 #include "WNMultiTasking/inc/spin_lock.h"
 #include "WNWindow/inc/WNInputContext.h"
 

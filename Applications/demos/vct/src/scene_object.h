@@ -7,9 +7,6 @@
 
 class texture_file;
 
-#include "object.h"
-#include "texture.h"
-
 #include "WNContainers/inc/WNArray.h"
 #include "WNGraphics/inc/WNBuffer.h"
 #include "WNGraphics/inc/WNCommandAllocator.h"
@@ -21,6 +18,8 @@ class texture_file;
 #include "WNGraphics/inc/WNImage.h"
 #include "WNGraphics/inc/WNQueue.h"
 #include "WNGraphics/inc/WNShaderModule.h"
+#include "object.h"
+#include "texture.h"
 
 using namespace wn;
 using namespace wn::runtime;

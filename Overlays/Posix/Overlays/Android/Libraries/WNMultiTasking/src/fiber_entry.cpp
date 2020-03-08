@@ -3,9 +3,10 @@
 // found in the LICENSE.txt file.
 
 #include "WNMultiTasking/src/fiber_entry.h"
-#include "WNMultiTasking/src/context.h"
 
 #include <pthread.h>
+
+#include "WNMultiTasking/src/context.h"
 
 extern "C" {
 
