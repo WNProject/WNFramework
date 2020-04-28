@@ -7,11 +7,11 @@
 #ifndef __WN_MATRIX_HELPERS_H__
 #define __WN_MATRIX_HELPERS_H__
 
-#include <cmath>
-
 #include "WNMath/inc/WNMatrix.h"
 #include "WNMath/inc/WNVector.h"
 #include "WNMath/inc/WNVectorHelpers.h"
+
+#include <cmath>
 
 namespace wn {
 namespace math {

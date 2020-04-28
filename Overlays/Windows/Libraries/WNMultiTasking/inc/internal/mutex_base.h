@@ -7,12 +7,12 @@
 #ifndef __WN_MULTI_TASKING_WINDOWS_INTERNAL_MUTEX_BASE_H__
 #define __WN_MULTI_TASKING_WINDOWS_INTERNAL_MUTEX_BASE_H__
 
-#include <atomic>
-
 #include "WNCore/inc/assert.h"
 #include "WNCore/inc/types.h"
 #include "WNCore/inc/utilities.h"
 #include "WNUtilities/inc/handle.h"
+
+#include <atomic>
 
 namespace wn {
 namespace multi_tasking {

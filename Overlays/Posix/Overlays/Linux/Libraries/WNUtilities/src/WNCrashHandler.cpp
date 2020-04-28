@@ -10,7 +10,6 @@
 #include <pthread.h>
 #include <signal.h>
 #include <unistd.h>
-
 #include <cstdio>
 
 #define COUNT_OF(x) (sizeof(x) / sizeof(x[0]))

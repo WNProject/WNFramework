@@ -7,9 +7,9 @@
 #ifndef __WN_MULTI_TASKING_JOB_SIGNAL_H__
 #define __WN_MULTI_TASKING_JOB_SIGNAL_H__
 
-#include <atomic>
-
 #include "WNCore/inc/utilities.h"
+
+#include <atomic>
 
 namespace wn {
 namespace multi_tasking {

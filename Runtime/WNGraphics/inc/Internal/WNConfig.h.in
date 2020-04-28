@@ -12,9 +12,7 @@
 
 // number of graphics device types available
 #define _WN_GRAPHICS_DEVICE_TYPES_AVAILABLE                                    \
-  $ {                                                                          \
-    WN_GRAPHICS_DEVICE_TYPES_AVAILABLE_COUNT                                   \
-  }
+  ${WN_GRAPHICS_DEVICE_TYPES_AVAILABLE_COUNT}
 
 // will be defined if only a single device type is available
 #cmakedefine _WN_GRAPHICS_SINGLE_DEVICE_TYPE
@@ -23,10 +21,7 @@
 #cmakedefine _WN_GRAPHICS_ALLOW_REFERENCE_DEVICES
 
 // debug mode (0 = Default, 1 = Enabled, 2 = Disabled)
-#define _WN_GRAPHICS_DEBUG_MODE                                                \
-  $ {                                                                          \
-    _WN_GRAPHICS_DEBUG_MODE                                                    \
-  }
+#define _WN_GRAPHICS_DEBUG_MODE ${_WN_GRAPHICS_DEBUG_MODE}
 
 // will be defined if we want to allow debug mode
 #if _WN_GRAPHICS_DEBUG_MODE == 0
@@ -40,24 +35,15 @@
 #endif
 
 #ifdef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
-#define _WN_GRAPHICS_DEVICE_TYPE                                               \
-  $ {                                                                          \
-    _WN_GRAPHICS_DEVICE_TYPE                                                   \
-  }
+#define _WN_GRAPHICS_DEVICE_TYPE ${_WN_GRAPHICS_DEVICE_TYPE}
 #define WN_GRAPHICS_PREFIXED_TYPE(element)                                     \
-  ${_WN_GRAPHICS_DEVICE_TYPE} _##element
+  ${_WN_GRAPHICS_DEVICE_TYPE}_##element
 #endif
 
 // will be defined as 'final' or 'override' if multiple device types are
 // available
-#define WN_GRAPHICS_FINAL                                                      \
-  $ {                                                                          \
-    WN_GRAPHICS_FINAL                                                          \
-  }
-#define WN_GRAPHICS_OVERRIDE                                                   \
-  $ {                                                                          \
-    WN_GRAPHICS_OVERRIDE                                                       \
-  }
+#define WN_GRAPHICS_FINAL ${WN_GRAPHICS_FINAL}
+#define WN_GRAPHICS_OVERRIDE ${WN_GRAPHICS_OVERRIDE}
 
 // will be defined as 'override final' if applicable
 #define WN_GRAPHICS_OVERRIDE_FINAL WN_GRAPHICS_OVERRIDE WN_GRAPHICS_FINAL
@@ -91,9 +77,6 @@
   }                                                                            \
   FOR_EACH(forward_type, graphics_type, ${WN_GRAPHICS_TYPE_LIST})
 
-#define _WN_GRAPHICS_TYPE_LIST                                                 \
-  $ {                                                                          \
-    WN_GRAPHICS_TYPE_LIST                                                      \
-  }
+#define _WN_GRAPHICS_TYPE_LIST ${WN_GRAPHICS_TYPE_LIST}
 
 #endif  // __WN_GRAPHICS_INTERNAL_CONFIG_H__

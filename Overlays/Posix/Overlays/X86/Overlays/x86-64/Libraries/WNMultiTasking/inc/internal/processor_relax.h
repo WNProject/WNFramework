@@ -7,9 +7,9 @@
 #ifndef __WN_MULTI_TASKING_X86_64_INTERNAL_PROCESSOR_RELAX_H__
 #define __WN_MULTI_TASKING_X86_64_INTERNAL_PROCESSOR_RELAX_H__
 
-#include <xmmintrin.h>
-
 #include "WNCore/inc/base.h"
+
+#include <xmmintrin.h>
 
 namespace wn {
 namespace multi_tasking {

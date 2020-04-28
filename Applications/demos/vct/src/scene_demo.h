@@ -20,6 +20,7 @@
 #include "WNMemory/inc/string_utility.h"
 #include "WNWindow/inc/WNWindow.h"
 #include "WNWindow/inc/WNWindowFactory.h"
+
 #include "object.h"
 #include "scene_file.h"
 #include "scene_object.h"

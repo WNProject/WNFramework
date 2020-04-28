@@ -7,10 +7,11 @@
 #ifndef __WN_MULTI_TASKING_THREAD_TASK_H__
 #define __WN_MULTI_TASKING_THREAD_TASK_H__
 
-#include <atomic>
 
 #include "WNMemory/inc/intrusive_ptr.h"
 #include "WNMultiTasking/inc/semaphore.h"
+
+#include <atomic>
 
 namespace wn {
 namespace multi_tasking {

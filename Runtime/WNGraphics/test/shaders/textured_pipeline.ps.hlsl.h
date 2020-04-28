@@ -36,7 +36,7 @@ dcl_temps 1
 sample_indexable(texture2d)(float,float,float,float) r0.xyz, v1.xyxx, t0.xyzw, s0
 mov o0.xyz, r0.xyzx
 mov o0.w, l(1.000000)
-ret 
+ret
 // Approximately 4 instruction slots used
 #endif
 

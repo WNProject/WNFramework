@@ -15,13 +15,13 @@
 #include "WNCore/inc/utilities.h"
 #endif
 
-#include <d3d12.h>
-#include <dxgi1_4.h>
-#include <wrl.h>
-
 #include "WNContainers/inc/WNDynamicArray.h"
 #include "WNGraphics/inc/Internal/D3D12/WNDataTypes.h"
 #include "WNGraphics/inc/WNImage.h"
+
+#include <d3d12.h>
+#include <dxgi1_4.h>
+#include <wrl.h>
 
 namespace wn {
 namespace runtime {

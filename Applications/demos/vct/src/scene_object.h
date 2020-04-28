@@ -18,6 +18,7 @@ class texture_file;
 #include "WNGraphics/inc/WNImage.h"
 #include "WNGraphics/inc/WNQueue.h"
 #include "WNGraphics/inc/WNShaderModule.h"
+
 #include "object.h"
 #include "texture.h"
 

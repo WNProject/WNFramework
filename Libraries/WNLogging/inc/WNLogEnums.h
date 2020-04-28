@@ -4,10 +4,11 @@
 
 #ifndef __WN_LOGGING_LOG_ENUMS_H__
 #define __WN_LOGGING_LOG_ENUMS_H__
-#include <vector>
 
 #include "WNCore/inc/base.h"
 #include "WNLogging/inc/WNLog.h"
+
+#include <vector>
 
 namespace wn {
 namespace logging {

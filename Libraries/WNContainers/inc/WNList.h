@@ -7,11 +7,11 @@
 #ifndef __WN_CONTAINERS_LIST_H__
 #define __WN_CONTAINERS_LIST_H__
 
-#include <iterator>
-#include <utility>
-
 #include "WNCore/inc/types.h"
 #include "WNMemory/inc/allocator.h"
+
+#include <iterator>
+#include <utility>
 
 namespace wn {
 namespace containers {

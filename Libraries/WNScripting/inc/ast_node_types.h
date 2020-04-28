@@ -1,11 +1,9 @@
- // Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Copyright (c) 2017, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
 #ifndef __WN_SCRIPTING_AST_NODE_TYPES_H__
 #define __WN_SCRIPTING_AST_NODE_TYPES_H__
-
-#include <algorithm>
 
 #include "WNContainers/inc/WNDeque.h"
 #include "WNContainers/inc/WNHashMap.h"
@@ -20,6 +18,8 @@
 #include "WNScripting/inc/WNNodeTypes.h"
 #include "WNScripting/inc/source_location.h"
 #include "WNScripting/inc/type_manager.h"
+
+#include <algorithm>
 
 namespace wn {
 namespace scripting {

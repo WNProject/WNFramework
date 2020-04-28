@@ -33,7 +33,7 @@ mov o0.xyz, v1.xyzx
 mov o0.w, l(1.000000)
 
 #line 12
-ret 
+ret
 // Approximately 3 instruction slots used
 #endif
 

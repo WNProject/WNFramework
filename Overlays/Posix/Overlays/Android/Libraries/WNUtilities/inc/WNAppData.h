@@ -5,11 +5,10 @@
 #ifndef __WN_UTILITIES_APP_DATA_H__
 #define __WN_UTILITIES_APP_DATA_H__
 
-#include <android_native_app_glue.h>
-
-#include <atomic>
-
 #include "WNCore/inc/types.h"
+
+#include <android_native_app_glue.h>
+#include <atomic>
 
 namespace wn {
 namespace utilities {

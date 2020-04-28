@@ -7,9 +7,9 @@
 #ifndef __WN_MULTI_TASKING_ARM_INTERNAL_PROCESSOR_RELAX_H__
 #define __WN_MULTI_TASKING_ARM_INTERNAL_PROCESSOR_RELAX_H__
 
-#include <arm_acle.h>
-
 #include "WNCore/inc/base.h"
+
+#include <arm_acle.h>
 
 namespace wn {
 namespace multi_tasking {

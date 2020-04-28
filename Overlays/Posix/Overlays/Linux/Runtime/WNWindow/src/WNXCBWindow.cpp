@@ -4,15 +4,15 @@
 
 #include "WNWindow/inc/WNXCBWindow.h"
 
-#include <X11/Xlib-xcb.h>
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-#include <X11/keysym.h>
-
 #include "WNApplicationData/inc/WNApplicationData.h"
 #include "WNMultiTasking/inc/job_pool.h"
 #include "WNMultiTasking/inc/job_signal.h"
 #include "executable_data/inc/executable_data.h"
+
+#include <X11/Xlib-xcb.h>
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <X11/keysym.h>
 
 namespace wn {
 namespace runtime {

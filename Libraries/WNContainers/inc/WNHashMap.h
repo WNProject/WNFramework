@@ -7,15 +7,15 @@
 #ifndef __WN_CONTAINERS_HASH_MAP_H__
 #define __WN_CONTAINERS_HASH_MAP_H__
 
-#include <algorithm>
-#include <initializer_list>
-#include <iterator>
-#include <utility>
-
 #include "WNContainers/inc/WNDynamicArray.h"
 #include "WNContainers/inc/WNList.h"
 #include "WNCore/inc/pair.h"
 #include "WNMemory/inc/allocator.h"
+
+#include <algorithm>
+#include <initializer_list>
+#include <iterator>
+#include <utility>
 
 namespace wn {
 namespace containers {

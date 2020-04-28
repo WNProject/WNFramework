@@ -7,8 +7,6 @@
 #ifndef __WN_GRAPHICS_INC_INTERNAL_VULKAN_QUEUE_H__
 #define __WN_GRAPHICS_INC_INTERNAL_VULKAN_QUEUE_H__
 
-#include <initializer_list>
-
 #include "WNContainers/inc/WNContiguousRange.h"
 #include "WNCore/inc/pair.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanInclude.h"
@@ -21,6 +19,8 @@
 #else
 #include "WNCore/inc/utilities.h"
 #endif
+
+#include <initializer_list>
 
 namespace wn {
 namespace runtime {

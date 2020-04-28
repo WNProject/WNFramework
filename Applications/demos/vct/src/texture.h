@@ -12,6 +12,7 @@
 #include "WNGraphics/inc/WNFence.h"
 #include "WNGraphics/inc/WNImage.h"
 #include "WNGraphics/inc/WNQueue.h"
+
 #include "texture_file.h"
 
 using namespace wn;

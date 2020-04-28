@@ -1,13 +1,13 @@
 #include "WNUtilities/inc/WNCrashHandler.h"
 
+#include "WNUtilities/inc/WNLoggingData.h"
+
 #include <android/log.h>
 #include <dlfcn.h>
 #include <fcntl.h>
 #include <pthread.h>
 #include <sys/stat.h>
 #include <unistd.h>
-
-#include "WNUtilities/inc/WNLoggingData.h"
 
 #define COUNT_OF(x) (sizeof(x) / sizeof(x[0]))
 

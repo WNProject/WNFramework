@@ -7,10 +7,10 @@
 #ifndef __WN_MULTI_TASKING_MUTEX_H__
 #define __WN_MULTI_TASKING_MUTEX_H__
 
-#include <atomic>
-
 #include "WNMultiTasking/inc/internal/mutex_base.h"
 #include "WNMultiTasking/inc/lock_guard.h"
+
+#include <atomic>
 
 namespace wn {
 namespace multi_tasking {

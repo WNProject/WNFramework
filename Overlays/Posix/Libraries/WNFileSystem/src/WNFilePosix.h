@@ -7,10 +7,10 @@
 #ifndef __WN_FILE_SYSTEM_POSIX_FILE_POSIX_H__
 #define __WN_FILE_SYSTEM_POSIX_FILE_POSIX_H__
 
-#include <sys/mman.h>
-
 #include "WNFileSystem/inc/WNFile.h"
 #include "WNFileSystem/src/WNFileDescriptor.h"
+
+#include <sys/mman.h>
 
 namespace wn {
 namespace file_system {

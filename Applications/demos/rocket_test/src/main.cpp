@@ -2,13 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include <stb_public.h>
-#include <time.h>
-
-#include "Rocket/Controls/Controls.h"
-#include "Rocket/Core.h"
-#include "Rocket/Core/RenderInterface.h"
-#include "Rocket/Debugger/Debugger.h"
 #include "WNApplicationData/inc/WNApplicationData.h"
 #include "WNApplicationEntry/inc/WNApplicationHelper.h"
 #include "WNContainers/inc/WNList.h"
@@ -34,6 +27,14 @@
 #include "WNWindow/inc/WNWindow.h"
 #include "WNWindow/inc/WNWindowFactory.h"
 #include "rocket_test/inc/rocket_assets.h"
+
+#include "Rocket/Controls/Controls.h"
+#include "Rocket/Core.h"
+#include "Rocket/Core/RenderInterface.h"
+#include "Rocket/Debugger/Debugger.h"
+
+#include <stb_public.h>
+#include <time.h>
 
 using wn::containers::contiguous_range;
 using wn::runtime::graphics::adapter_ptr;

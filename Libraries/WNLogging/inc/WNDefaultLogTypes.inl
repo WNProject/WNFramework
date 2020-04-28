@@ -5,12 +5,12 @@
 #ifndef __WN_LOGGING_DEFAULT_LOG_TYPES_INL__
 #define __WN_LOGGING_DEFAULT_LOG_TYPES_INL__
 
-#include <cinttypes>
-
 #include "WNContainers/inc/WNDynamicArray.h"
 #include "WNContainers/inc/WNStringView.h"
 #include "WNCore/inc/types.h"
 #include "WNMemory/inc/string_utility.h"
+
+#include <cinttypes>
 
 namespace wn {
 namespace logging {

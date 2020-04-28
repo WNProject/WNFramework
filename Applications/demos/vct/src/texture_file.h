@@ -4,6 +4,7 @@
 
 #ifndef WN_APPLICATIONS_DEMOS_VCT_TEXTURE_HEADER_H__
 #define WN_APPLICATIONS_DEMOS_VCT_TEXTURE_HEADER_H__
+
 #include "WNContainers/inc/WNStringView.h"
 #include "WNCore/inc/endian.h"
 #include "WNFileSystem/inc/WNFactory.h"

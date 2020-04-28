@@ -6,8 +6,8 @@
 #include "TestFiles.h"
 
 namespace TestFiles {
-
 namespace {
+
 const char _0[] = "b/b.txt";
 const char _1[] = "a.txt";
 const char _0_data[] = {0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x20, 0x57, 0x6F, 0x72,
@@ -30,4 +30,5 @@ get_files() {
       wn::containers::string_view, wn::containers::string_view>>(
       &file_data[0], sizeof(file_data) / sizeof(file_data[0]));
 }
+
 }  // namespace TestFiles

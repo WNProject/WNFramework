@@ -7,9 +7,9 @@
 #ifndef _WN_SCRIPTING_INC_FORWARD_H__
 #define _WN_SCRIPTING_INC_FORWARD_H__
 
-#include <atomic>
-
 #include "WNMemory/inc/allocator.h"
+
+#include <atomic>
 
 namespace wn {
 namespace scripting {

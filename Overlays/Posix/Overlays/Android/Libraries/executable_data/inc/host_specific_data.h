@@ -7,11 +7,10 @@
 #ifndef __WN_EXECUTABLE_DATA_ANDROID_HOST_SPECIFIC_DATA_H__
 #define __WN_EXECUTABLE_DATA_ANDROID_HOST_SPECIFIC_DATA_H__
 
-#include <android_native_app_glue.h>
-
-#include <atomic>
-
 #include "WNCore/inc/base.h"
+
+#include <android_native_app_glue.h>
+#include <atomic>
 
 namespace wn {
 namespace utilities {

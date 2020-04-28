@@ -4,8 +4,6 @@
 
 #include "WNFileSystem/src/WNSystemTempPath.h"
 
-#include <jni.h>
-
 #include "WNContainers/inc/WNString.h"
 #include "WNCore/inc/types.h"
 #include "WNFileSystem/inc/jni_helper.h"
@@ -14,6 +12,8 @@
 #include "WNMemory/inc/allocator.h"
 #include "executable_data/inc/executable_data.h"
 #include "executable_data/inc/host_specific_data.h"
+
+#include <jni.h>
 
 namespace wn {
 namespace file_system {

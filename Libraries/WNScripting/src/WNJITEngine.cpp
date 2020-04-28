@@ -51,8 +51,6 @@
 #pragma warning(pop)
 #endif
 
-#include <algorithm>
-
 #include "WNContainers/inc/WNArray.h"
 #include "WNContainers/inc/WNContiguousRange.h"
 #include "WNContainers/inc/WNDynamicArray.h"
@@ -67,6 +65,9 @@
 #include "WNScripting/inc/WNScriptHelpers.h"
 #include "WNScripting/inc/ast_node_types.h"
 #include "WNScripting/inc/jit_compiler.h"
+
+#include <algorithm>
+
 extern "C" {
 #if defined(_WN_WINDOWS)
 #if defined(_WN_64_BIT)

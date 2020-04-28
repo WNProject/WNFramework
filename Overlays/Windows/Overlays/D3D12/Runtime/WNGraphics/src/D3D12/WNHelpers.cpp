@@ -4,18 +4,24 @@
 
 #include "WNGraphics/src/D3D12/WNHelpers.h"
 
-#include <d3d12.h>
-#include <dxgi1_4.h>
-
 #include "WNCore/inc/utilities.h"
 #include "WNGraphics/inc/Internal/D3D12/WNAdapter.h"
 #include "WNGraphics/inc/Internal/WNConfig.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/allocator.h"
+
+#include <d3d12.h>
+#include <dxgi1_4.h>
+
 #ifdef _WN_GRAPHICS_ALLOW_DEBUG_MODE
-// We cannot reorder these. dxgidebug will not work without initguid.
-#include <dxgidebug.h>
+
+// clang-format off
+
 #include <initguid.h>
+#include <dxgidebug.h>
+
+// clang-format on
+
 #endif
 
 namespace wn {

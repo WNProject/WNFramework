@@ -4,15 +4,15 @@
 
 #include "executable_entry/inc/executable_entry.h"
 
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <ctime>
-
 #include "WNCore/inc/types.h"
 #include "WNUtilities/inc/WNCrashHandler.h"
 #include "executable_data/inc/executable_data.h"
 #include "executable_data/inc/host_specific_data.h"
+
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <ctime>
 
 extern int32_t wn_main(const wn::executable::executable_data* _data);
 

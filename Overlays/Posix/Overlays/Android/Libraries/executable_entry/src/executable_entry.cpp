@@ -20,7 +20,6 @@
 #include <android_native_app_glue.h>
 #include <sys/prctl.h>
 #include <unistd.h>
-
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>

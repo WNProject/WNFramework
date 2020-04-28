@@ -7,9 +7,9 @@
 #ifndef __WN_VECTOR_HELPERS_H__
 #define __WN_VECTOR_HELPERS_H__
 
-#include <cmath>
-
 #include "WNMath/inc/WNVector.h"
+
+#include <cmath>
 
 namespace wn {
 namespace math {

@@ -4,9 +4,9 @@
 
 #include "platform_utils/inc/subprocess.h"
 
-#include <inttypes.h>
-
 #include "WNContainers/inc/WNStringView.h"
+
+#include <inttypes.h>
 
 namespace wn {
 namespace runtime {

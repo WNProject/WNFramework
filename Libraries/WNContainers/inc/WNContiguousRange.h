@@ -7,13 +7,13 @@
 #ifndef __WN_CONTAINERS_CONTIGUOUS_RANGE_H__
 #define __WN_CONTAINERS_CONTIGUOUS_RANGE_H__
 
-#include <iterator>
-
 #include "WNContainers/inc/WNArray.h"
 #include "WNCore/inc/assert.h"
 #include "WNCore/inc/type_traits.h"
 #include "WNCore/inc/utilities.h"
 #include "WNMemory/inc/manipulation.h"
+
+#include <iterator>
 
 namespace wn {
 namespace containers {

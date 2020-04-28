@@ -4,12 +4,12 @@
 
 #include "platform_utils/inc/subprocess.h"
 
+#include "WNContainers/inc/WNStringView.h"
+
 #include <fcntl.h>
 #include <poll.h>
 #include <sys/wait.h>
 #include <unistd.h>
-
-#include "WNContainers/inc/WNStringView.h"
 
 namespace wn {
 namespace runtime {

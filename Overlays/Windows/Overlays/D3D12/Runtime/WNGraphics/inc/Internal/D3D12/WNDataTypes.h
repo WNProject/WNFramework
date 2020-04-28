@@ -7,9 +7,6 @@
 #ifndef __WN_RUNTIME_GRAPHICS_INTERNAL_D3D12_DATA_TYPES_H__
 #define __WN_RUNTIME_GRAPHICS_INTERNAL_D3D12_DATA_TYPES_H__
 
-#include <dxgi1_4.h>
-#include <wrl.h>
-
 #include "WNContainers/inc/WNDynamicArray.h"
 #include "WNContainers/inc/WNRangePartition.h"
 #include "WNCore/inc/pair.h"
@@ -23,6 +20,9 @@
 #include "WNGraphics/inc/WNRenderPassTypes.h"
 #include "WNGraphics/inc/WNShaderModule.h"
 #include "WNUtilities/inc/handle.h"
+
+#include <dxgi1_4.h>
+#include <wrl.h>
 
 namespace wn {
 namespace runtime {

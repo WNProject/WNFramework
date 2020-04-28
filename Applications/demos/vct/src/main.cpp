@@ -2,8 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include <chrono>
-
 #include "WNApplicationData/inc/WNApplicationData.h"
 #include "WNContainers/inc/WNStringView.h"
 #include "WNFileSystem/inc/WNFactory.h"
@@ -14,7 +12,11 @@
 #include "scene_file.h"
 #include "texture_file.h"
 #include "texture_manager.h"
+
+#include <chrono>
+
 using namespace wn;
+
 int32_t wn_application_main(
     const runtime::application::application_data* _data) {
   memory::allocator* alloc = _data->system_allocator;
@@ -23,9 +25,10 @@ int32_t wn_application_main(
   bool parse_data_dir = false;
   bool has_data_dir = false;
   bool verbose = false;
+  const size_t argument_count =
+      static_cast<size_t>(_data->executable_data->argc);
 
-  for (size_t i = 0; i < static_cast<size_t>(_data->executable_data->argc);
-       ++i) {
+  for (size_t i = 0; i < argument_count; ++i) {
     if (containers::string_view("--data_dir") ==
         containers::string_view(_data->executable_data->argv[i])) {
       parse_data_dir = true;

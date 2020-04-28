@@ -46,7 +46,7 @@ dcl_output o1.xy
 add o0.xy, v0.xyxx, cb0[0].xyxx
 mov o0.zw, l(0,0,0,1.000000)
 mov o1.xy, v1.xyxx
-ret 
+ret
 // Approximately 4 instruction slots used
 #endif
 

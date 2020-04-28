@@ -7,12 +7,12 @@
 #ifndef __WN_RUNTIME_WINDOW_XCB_WINDOW_H__
 #define __WN_RUNTIME_WINDOW_XCB_WINDOW_H__
 
-#include <xcb/xcb.h>
-#include <xcb/xcb_keysyms.h>
-
 #include "WNLogging/inc/WNLog.h"
 #include "WNMultiTasking/inc/job_signal.h"
 #include "WNWindow/inc/WNWindow.h"
+
+#include <xcb/xcb.h>
+#include <xcb/xcb_keysyms.h>
 
 typedef struct _XDisplay Display;
 

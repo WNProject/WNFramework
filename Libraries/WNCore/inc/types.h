@@ -7,10 +7,10 @@
 #ifndef __WN_CORE_TYPES_H__
 #define __WN_CORE_TYPES_H__
 
+#include "WNCore/inc/base.h"
+
 #include <cstdint>
 #include <type_traits>
-
-#include "WNCore/inc/base.h"
 
 using signed_t = std::make_signed<size_t>::type;
 using nullptr_t = decltype(nullptr);

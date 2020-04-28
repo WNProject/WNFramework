@@ -7,9 +7,9 @@
 #ifndef __WN_MULTI_TASKING_LOCK_GUARD_H__
 #define __WN_MULTI_TASKING_LOCK_GUARD_H__
 
-#include <mutex>
-
 #include "WNCore/inc/types.h"
+
+#include <mutex>
 
 namespace wn {
 namespace multi_tasking {

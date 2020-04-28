@@ -4,12 +4,12 @@
 
 #include "WNNetworking/inc/WNReliableNetworkListenSocket.h"
 
+#include "WNNetworking/inc/WNReliableNetworkTransportSocket.h"
+
 #include <netdb.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <sys/types.h>
-
-#include "WNNetworking/inc/WNReliableNetworkTransportSocket.h"
 
 static const uint32_t kIncommingConnectionBacklog = 10;
 

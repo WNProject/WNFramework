@@ -4,10 +4,10 @@
 
 #include "WNNetworking/inc/WNNetworkManager.h"
 
-#include <sys/socket.h>
-
 #include "WNNetworking/inc/WNReliableNetworkListenSocket.h"
 #include "WNNetworking/inc/WNReliableNetworkTransportSocket.h"
+
+#include <sys/socket.h>
 
 namespace wn {
 namespace networking {

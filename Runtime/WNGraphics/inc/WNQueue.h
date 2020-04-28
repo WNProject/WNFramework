@@ -7,8 +7,6 @@
 #ifndef __WN_GRAPHICS_QUEUE_H__
 #define __WN_GRAPHICS_QUEUE_H__
 
-#include <initializer_list>
-
 #include "WNContainers/inc/WNContiguousRange.h"
 #include "WNCore/inc/pair.h"
 #include "WNGraphics/inc/Internal/WNConfig.h"
@@ -20,6 +18,8 @@
 #else
 #include "WNCore/inc/utilities.h"
 #endif
+
+#include <initializer_list>
 
 WN_GRAPHICS_FORWARD(device);
 

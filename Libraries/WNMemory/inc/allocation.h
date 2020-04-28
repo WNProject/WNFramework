@@ -7,14 +7,14 @@
 #ifndef __WN_MEMORY_ALLOCATION_H__
 #define __WN_MEMORY_ALLOCATION_H__
 
-#include <cstdlib>
-#include <new>
-
 #include "WNCore/inc/assert.h"
 #include "WNCore/inc/type_traits.h"
 #include "WNCore/inc/types.h"
 #include "WNCore/inc/utilities.h"
 #include "WNMemory/inc/internal/allocation.h"
+
+#include <cstdlib>
+#include <new>
 
 #define WN_STACK_ALLOC(_size) __WN_INTERNAL_STACK_ALLOC(_size)
 

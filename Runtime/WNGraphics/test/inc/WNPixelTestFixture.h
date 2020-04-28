@@ -1,8 +1,6 @@
 #ifndef _WN_GRAPHICS_TEST_PIXEL_TEST_FIXTURE_H__
 #define _WN_GRAPHICS_TEST_PIXEL_TEST_FIXTURE_H__
 
-#include <stb_public.h>
-
 #include "WNGraphics/inc/WNArena.h"
 #include "WNGraphics/inc/WNCommandAllocator.h"
 #include "WNGraphics/inc/WNCommandList.h"
@@ -22,6 +20,8 @@
 #include "WNLogging/inc/WNBufferLogger.h"
 #include "WNMath/inc/WNBasic.h"
 #include "executable_test/inc/WNTestHarness.h"
+
+#include <stb_public.h>
 
 namespace wn {
 namespace runtime {

@@ -7,14 +7,14 @@
 #ifndef __WN_MULTI_TASKING_ANDROID_INTERNAL_SYSTEM_THREAD_FUNCTIONS_H__
 #define __WN_MULTI_TASKING_ANDROID_INTERNAL_SYSTEM_THREAD_FUNCTIONS_H__
 
+#include "WNCore/inc/assert.h"
+#include "WNMultiTasking/inc/internal/system_thread_yield.h"
+
 #include <sys/resource.h>
 #include <sys/syscall.h>
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
-
-#include "WNCore/inc/assert.h"
-#include "WNMultiTasking/inc/internal/system_thread_yield.h"
 
 namespace wn {
 namespace multi_tasking {
