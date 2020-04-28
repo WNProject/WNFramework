@@ -113,10 +113,10 @@ TEST_P(resource_copy_test, many_sizes) {
   EXPECT_EQ("", m_buffer);
 }
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
     small_values, resource_copy_test, ::testing::Range<size_t>(1, 50, 7));
 
-INSTANTIATE_TEST_CASE_P(large_values, resource_copy_test,
+INSTANTIATE_TEST_SUITE_P(large_values, resource_copy_test,
     ::testing::Values(1024, 1024 - 1, 1024 * 1024, 1024 * 1024 - 1));
 
 // TODO(awoloszyn): Create a null device, and hook it up.

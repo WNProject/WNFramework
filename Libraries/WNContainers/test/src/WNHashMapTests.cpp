@@ -11,7 +11,7 @@ struct hash_map : ::testing::Test {};
 typedef ::testing::Types<uint8_t, uint16_t, uint32_t, uint64_t>
     hash_map_testing_types;
 
-TYPED_TEST_CASE(hash_map, hash_map_testing_types);
+TYPED_TEST_SUITE(hash_map, hash_map_testing_types);
 
 TYPED_TEST(hash_map, construction) {
   wn::testing::allocator allocator;

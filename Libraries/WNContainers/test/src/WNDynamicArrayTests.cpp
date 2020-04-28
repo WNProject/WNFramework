@@ -11,7 +11,7 @@ struct dynamic_array : ::testing::Test {};
 typedef ::testing::Types<uint8_t, uint16_t, uint32_t, uint64_t>
     dynamic_array_testing_types;
 
-TYPED_TEST_CASE(dynamic_array, dynamic_array_testing_types);
+TYPED_TEST_SUITE(dynamic_array, dynamic_array_testing_types);
 
 TYPED_TEST(dynamic_array, range_construct) {
   TypeParam buffer[5] = {

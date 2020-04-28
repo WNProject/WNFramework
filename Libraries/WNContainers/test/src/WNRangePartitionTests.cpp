@@ -68,7 +68,7 @@ TEST_P(range_partition_tests, allocate_all_by_1) {
   EXPECT_FALSE(token.is_valid());
 }
 
-INSTANTIATE_TEST_CASE_P(various_sizes, range_partition_tests,
+INSTANTIATE_TEST_SUITE_P(various_sizes, range_partition_tests,
     ::testing::Values(10, 32, 41, 64, 129, 2048));
 
 TEST_P(range_partition_tests, aligned) {

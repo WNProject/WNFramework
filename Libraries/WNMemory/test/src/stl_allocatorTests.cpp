@@ -13,7 +13,7 @@ struct stl_allocator : ::testing::Test {};
 typedef ::testing::Types<uint8_t, uint16_t, uint32_t, uint64_t>
     stl_allocator_testing_types;
 
-TYPED_TEST_CASE(stl_allocator, stl_allocator_testing_types);
+TYPED_TEST_SUITE(stl_allocator, stl_allocator_testing_types);
 
 TYPED_TEST(stl_allocator, default_allocator) {
   using vector_allocator =

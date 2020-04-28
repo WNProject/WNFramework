@@ -11,7 +11,7 @@ struct memory : ::testing::Test {};
 typedef ::testing::Types<uint8_t, uint16_t, uint32_t, uint64_t>
     memory_testing_types;
 
-TYPED_TEST_CASE(memory, memory_testing_types);
+TYPED_TEST_SUITE(memory, memory_testing_types);
 
 template <typename T>
 struct dummy_construct {

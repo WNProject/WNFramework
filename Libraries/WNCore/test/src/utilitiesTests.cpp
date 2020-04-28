@@ -15,7 +15,7 @@ using utilities_testing_types =
     ::testing::Types<int8_t, uint16_t, int32_t, uint64_t, void, size_t, void*,
         nullptr_t, std::function<int()>, const dummy_type>;
 
-TYPED_TEST_CASE(utilities, utilities_testing_types);
+TYPED_TEST_SUITE(utilities, utilities_testing_types);
 
 TYPED_TEST(utilities, type_id) {
   const size_t value1 = wn::core::type_id<TypeParam>::value();

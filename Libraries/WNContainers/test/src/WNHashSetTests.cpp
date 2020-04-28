@@ -11,7 +11,7 @@ struct hash_set : ::testing::Test {};
 typedef ::testing::Types<uint8_t, uint16_t, uint32_t, uint64_t>
     hash_set_testing_types;
 
-TYPED_TEST_CASE(hash_set, hash_set_testing_types);
+TYPED_TEST_SUITE(hash_set, hash_set_testing_types);
 
 TYPED_TEST(hash_set, construction) {
   wn::testing::allocator allocator;

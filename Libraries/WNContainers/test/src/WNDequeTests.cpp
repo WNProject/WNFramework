@@ -12,7 +12,7 @@ struct deque : ::testing::Test {};
 typedef ::testing::Types<uint8_t, uint16_t, uint32_t, uint64_t>
     deque_testing_types;
 
-TYPED_TEST_CASE(deque, deque_testing_types);
+TYPED_TEST_SUITE(deque, deque_testing_types);
 
 TYPED_TEST(deque, construction) {
   wn::testing::allocator allocator;

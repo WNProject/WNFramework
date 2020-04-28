@@ -30,7 +30,7 @@ using vector_testing_types =
         vector_test_type<int32_t, 17>, vector_test_type<int64_t, 17>,
         vector_test_type<float, 17>, vector_test_type<double, 17>>;
 
-TYPED_TEST_CASE(vector, vector_testing_types);
+TYPED_TEST_SUITE(vector, vector_testing_types);
 
 TYPED_TEST(vector, construction) {
   using value_type = typename TypeParam::type;

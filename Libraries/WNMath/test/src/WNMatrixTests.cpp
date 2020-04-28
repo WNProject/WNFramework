@@ -58,8 +58,8 @@ using matrix_square_testing_types = ::testing::Types<
     matrix_test_type<int32_t, 17, 17>, matrix_test_type<int64_t, 17, 17>,
     matrix_test_type<float, 17, 17>, matrix_test_type<double, 17, 17>>;
 
-TYPED_TEST_CASE(matrix, matrix_testing_types);
-TYPED_TEST_CASE(matrix_square, matrix_square_testing_types);
+TYPED_TEST_SUITE(matrix, matrix_testing_types);
+TYPED_TEST_SUITE(matrix_square, matrix_square_testing_types);
 
 // construction ///////////////////////////////////////////////////////////////
 

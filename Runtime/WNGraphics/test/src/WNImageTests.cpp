@@ -179,7 +179,7 @@ TEST_P(image_transfer_tests, many_sizes) {
   EXPECT_EQ("", m_buffer);
 }
 
-INSTANTIATE_TEST_CASE_P(large_values, image_transfer_tests,
+INSTANTIATE_TEST_SUITE_P(large_values, image_transfer_tests,
     ::testing::Values(37, 128, 1024 - 1, 1024 + 1));
 
 using image_transfer_with_offset_tests =
@@ -352,7 +352,7 @@ TEST_P(image_transfer_with_offset_tests, several_offsets) {
   EXPECT_EQ("", m_buffer);
 }
 
-INSTANTIATE_TEST_CASE_P(large_values, image_transfer_with_offset_tests,
+INSTANTIATE_TEST_SUITE_P(large_values, image_transfer_with_offset_tests,
     ::testing::Combine(
         ::testing::Values(1, 7, 10), ::testing::Values(10, 37, 128)));
 
@@ -543,4 +543,4 @@ TEST_P(image_mip_tests, two_levels) {
   EXPECT_EQ("", m_buffer);
 }
 
-INSTANTIATE_TEST_CASE_P(one_value, image_mip_tests, ::testing::Values(128));
+INSTANTIATE_TEST_SUITE_P(one_value, image_mip_tests, ::testing::Values(128));

@@ -11,7 +11,7 @@ struct list : ::testing::Test {};
 typedef ::testing::Types<uint8_t, uint16_t, uint32_t, uint64_t>
     list_testing_types;
 
-TYPED_TEST_CASE(list, list_testing_types);
+TYPED_TEST_SUITE(list, list_testing_types);
 
 TYPED_TEST(list, creation) {
   wn::memory::basic_allocator alloc;

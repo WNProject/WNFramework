@@ -46,7 +46,7 @@ WN_FORCE_INLINE bool operator==(const dummy2& _lhs, const dummy2& _rhs) {
 typedef ::testing::Types<uint8_t, uint16_t, uint32_t, uint64_t, dummy1>
     contiguous_range_testing_types;
 
-TYPED_TEST_CASE(contiguous_range, contiguous_range_testing_types);
+TYPED_TEST_SUITE(contiguous_range, contiguous_range_testing_types);
 
 TYPED_TEST(contiguous_range, construction) {
   TypeParam buffer[5] = {

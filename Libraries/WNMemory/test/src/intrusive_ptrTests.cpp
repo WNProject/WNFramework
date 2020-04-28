@@ -11,7 +11,7 @@ struct intrusive_ptr : testing::Test {};
 typedef ::testing::Types<uint8_t, uint16_t, uint32_t, uint64_t>
     intrusive_ptr_testing_types;
 
-TYPED_TEST_CASE(intrusive_ptr, intrusive_ptr_testing_types);
+TYPED_TEST_SUITE(intrusive_ptr, intrusive_ptr_testing_types);
 
 template <typename T>
 struct dummy_intrusive : wn::memory::intrusive_ptr_base {

@@ -204,6 +204,6 @@ TEST(raw_connection, multi_send) {
   t2.join();
 }
 
-INSTANTIATE_TEST_CASE_P(all_ip_types, connection_tests,
+INSTANTIATE_TEST_SUITE_P(all_ip_types, connection_tests,
     ::testing::Values(
         wn::networking::ip_protocol::ipv4, wn::networking::ip_protocol::ipv6));

@@ -284,6 +284,6 @@ TEST_P(mapping, initialized_from_filesystem) {
   }
 }
 
-INSTANTIATE_TEST_CASE_P(all_mappings, mapping,
+INSTANTIATE_TEST_SUITE_P(all_mappings, mapping,
     ::testing::Values(wn::file_system::mapping_type::scratch_directory,
         wn::file_system::mapping_type::memory_backed));

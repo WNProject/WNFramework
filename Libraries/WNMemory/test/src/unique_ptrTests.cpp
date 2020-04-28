@@ -11,7 +11,7 @@ struct unique_ptr : testing::Test {};
 typedef ::testing::Types<uint8_t, int16_t, uint32_t, int64_t>
     unique_ptr_testing_types;
 
-TYPED_TEST_CASE(unique_ptr, unique_ptr_testing_types);
+TYPED_TEST_SUITE(unique_ptr, unique_ptr_testing_types);
 
 template <typename T>
 class dummy_destroyer {

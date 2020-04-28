@@ -42,9 +42,9 @@ TEST_P(arena, many_sizes) {
   EXPECT_EQ("", m_buffer);
 }
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
     small_values, arena, ::testing::Values<size_t>(1, 8, 64, 128));
 
-INSTANTIATE_TEST_CASE_P(large_values, arena,
+INSTANTIATE_TEST_SUITE_P(large_values, arena,
     ::testing::Values<size_t>(
         1024, 4 * 1024, 4 * 1024 * 1024, 40 * 1024 * 1024));

@@ -86,5 +86,5 @@ TEST_P(buffer, many_sizes) {
   EXPECT_EQ("", m_buffer);
 }
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
     values, buffer, ::testing::Values<size_t>(1, 8, 64, 128));
