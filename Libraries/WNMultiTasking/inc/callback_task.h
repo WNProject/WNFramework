@@ -13,6 +13,8 @@
 #include "WNMemory/inc/intrusive_ptr.h"
 #include "WNMultiTasking/inc/thread_task.h"
 
+#include <functional>
+
 namespace wn {
 namespace multi_tasking {
 
