@@ -6,7 +6,25 @@ A set of cross platform libraries and tools built for game development.
 
 ## Development
 
-Currently development is supported on **Windows** and **Linux**.
+Currently development is supported on **Windows** and **Linux**. Only
+**Windows 10** and **Ubuntu 16+** have been tested with the steps laid out in
+this guide.
+
+### Environment
+
+All environment setups assumes you will be developing for all supported targets
+for that host.
+
+#### Linux
+
+The following packages are required.
+
+* cmake
+* ninja-build
+* build-essential
+* clang
+* libx11-xcb-dev
+* libxcb-keysyms1-dev
 
 ### Configuration
 
