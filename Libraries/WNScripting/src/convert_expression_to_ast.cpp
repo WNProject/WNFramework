@@ -52,6 +52,8 @@ parse_ast_convertor::convertor_context::resolve_expression(
     case node_type::builtin_unary_expression:
       return resolve_builtin_unary_expression(
           cast_to<builtin_unary_expression>(_expression));
+    case node_type::resource_expression:
+      return resolve_resource(cast_to<resource_expression>(_expression));
     default:
       WN_RELEASE_ASSERT(false, "Could not determine expression type");
   }
@@ -62,6 +64,26 @@ memory::unique_ptr<ast_expression>
 parse_ast_convertor::convertor_context::resolve_id(
     const id_expression* _expression) {
   return get_id(_expression, _expression->get_name().to_string(m_allocator));
+}
+
+memory::unique_ptr<ast_expression>
+parse_ast_convertor::convertor_context::resolve_resource(
+    const resource_expression* _resource) {
+  memory::unique_ptr<ast_resource> r =
+      memory::make_unique<ast_resource>(m_allocator, _resource);
+  void* v;
+  const ast_type* t = m_type_manager->get_resource(
+      _resource->get_type(), _resource->get_string(), &v);
+  if (t == nullptr) {
+    _resource->log_line(m_log, logging::log_level::error);
+    m_log->log_error("Invalid resource: ", _resource->get_type());
+    m_log->log_error("                : ", _resource->get_string());
+    return nullptr;
+  }
+  r->m_type = t;
+  r->m_resource_identifier = v;
+  r->m_string_value = _resource->get_type().to_string(m_allocator);
+  return core::move(r);
 }
 
 memory::unique_ptr<ast_constant>

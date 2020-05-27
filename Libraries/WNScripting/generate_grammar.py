@@ -60,6 +60,7 @@ def main():
             if not in_comment:
               line += line_left
             line_left = ""
+        line = line.replace("ImplTraits::CommonTokenType*", "ImplTraits::CommonTokenType const*")
         write_lines.append(line.rstrip() + '\n')
         if insert_clang_format_off:
           write_lines.append("// clang-format off\n")

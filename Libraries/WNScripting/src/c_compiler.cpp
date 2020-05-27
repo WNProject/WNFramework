@@ -1054,6 +1054,23 @@ bool c_compiler::write_function_pointer_expression(
   return true;
 }
 
+bool c_compiler::write_resource_expression(const ast_resource* _expr) {
+  const char* hexChars = "0123456789abcdef\n";
+
+  m_output += "__resource__";
+  m_output += _expr->m_string_value;
+  m_output += "((void*)";
+  m_output += "0x";
+  uintptr_t val = reinterpret_cast<uintptr_t>(_expr->m_resource_identifier);
+  for (size_t i = 0; i < sizeof(void*); ++i) {
+    const uint8_t t = (val >> (sizeof(void*) - i - 1)) & 0xFF;
+    m_output += *(hexChars + ((t >> 4) & 0xF));
+    m_output += *(hexChars + (t & 0xF));
+  }
+  m_output += ")";
+  return true;
+}
+
 bool c_compiler::write_array_destruction(const ast_array_destruction* _call) {
   align_line();
   containers::string op(m_allocator, ".");
@@ -1649,6 +1666,9 @@ bool c_compiler::write_expression(const ast_expression* _expression) {
     case ast_node_type::ast_function_pointer_expression: {
       return write_function_pointer_expression(
           cast_to<ast_function_pointer_expression>(_expression));
+    }
+    case ast_node_type::ast_resource: {
+      return write_resource_expression(cast_to<ast_resource>(_expression));
     }
     default:
       WN_RELEASE_ASSERT(false, "You should not get here");

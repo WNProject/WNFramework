@@ -28,7 +28,13 @@ class mapping;
 }
 
 namespace scripting {
-
+namespace internal {
+struct resource {
+  void_f function;
+  const ast_type* type;
+  scripting::resource* resource;
+};
+}  // namespace internal
 // All of the llvm data needed for a single compiled module.
 class CompiledModule : public core::non_copyable {
 public:
@@ -62,6 +68,9 @@ protected:
   bool register_mangled_c_function(containers::string_view _name,
       void_f _function, bool _is_virtual) override;
 
+  bool register_resource(
+      resource* _resource, const ast_type* _type, void_f _function) override;
+
   size_t get_vtable_offset(const ast_type* _t) override;
   void* allocate_shared(size_t size) override;
 
@@ -73,6 +82,10 @@ private:
   containers::deque<CompiledModule> m_modules;
   containers::hash_map<containers::string_view, void_f> m_pointers;
   containers::hash_map<containers::string, void_f> m_c_pointers;
+
+  containers::hash_map<containers::string, internal::resource> m_resources;
+  containers::hash_map<containers::string, resource*> m_extension_handlers;
+
   containers::hash_map<containers::string, memory::unique_ptr<ast_type>>
       m_external_types;
 

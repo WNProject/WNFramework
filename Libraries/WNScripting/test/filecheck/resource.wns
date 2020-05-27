@@ -1,0 +1,10 @@
+// Copyright (c) 2020, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE.txt file.
+
+// RUN: test -> 36
+// CHECK: {{.*test.*{}}
+Int test() {
+// CHECK: __resource__TestResource((void*)
+    return @TestResource("Hello World") + dummy_file_foo();
+}

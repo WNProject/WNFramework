@@ -125,13 +125,19 @@ public:
       containers::hash_map<containers::string, void (*)(void)>*
           _imported_functions,
       containers::hash_map<containers::string_view, void_f>*
-          _external_functions)
+          _external_functions,
+      containers::hash_map<containers::string, internal::resource>*
+          _resource_functions)
     : m_allocator(_allocator),
       m_log(_log),
       m_imported_functions(_imported_functions),
-      m_external_functions(_external_functions) {}
+      m_external_functions(_external_functions),
+      m_resource_functions(_resource_functions) {}
 
   llvm::JITSymbol findSymbol(const std::string& Name) override {
+    if (Name.empty()) {
+      return llvm::JITSymbol(0, llvm::JITSymbolFlags::Exported);
+    }
     m_log->log_debug("Resolving ", Name.c_str(), ".");
 #if defined(_WN_WINDOWS)
 #if defined(_WN_64_BIT)
@@ -178,6 +184,15 @@ public:
             llvm::JITSymbolFlags::Exported);
       }
     }
+    if (Nm[0] == '@') {
+      containers::string s(m_allocator, Nm.c_str() + 1);
+      auto it = m_resource_functions->find(s);
+      if (it != m_resource_functions->end()) {
+        return llvm::JITSymbol(static_cast<uint64_t>(reinterpret_cast<size_t>(
+                                   it->second.function)),
+            llvm::JITSymbolFlags::Exported);
+      }
+    }
     return llvm::JITSymbol(0, llvm::JITSymbolFlags::Exported);
   }
 
@@ -187,6 +202,8 @@ private:
   containers::hash_map<containers::string, void (*)(void)>*
       m_imported_functions;
   containers::hash_map<containers::string_view, void_f>* m_external_functions;
+  containers::hash_map<containers::string, internal::resource>*
+      m_resource_functions;
 };
 }  // namespace
 
@@ -210,7 +227,9 @@ jit_engine::jit_engine(memory::allocator* _allocator,
     m_external_types(_allocator),
     m_struct_infos(_allocator),
     m_started_files(_allocator),
-    m_finished_files(_allocator) {
+    m_finished_files(_allocator),
+    m_resources(_allocator),
+    m_extension_handlers(_allocator) {
   llvm::InitializeNativeTarget();
   llvm::InitializeNativeTargetAsmPrinter();
   llvm::InitializeNativeTargetAsmParser();
@@ -239,8 +258,9 @@ CompiledModule& jit_engine::add_module(containers::string_view _file) {
 
   llvm::EngineBuilder builder(core::move(module));
   builder.setEngineKind(llvm::EngineKind::JIT);
-  builder.setMCJITMemoryManager(memory::make_std_unique<CustomMemoryManager>(
-      m_allocator, m_compilation_log, &m_c_pointers, &m_pointers));
+  builder.setMCJITMemoryManager(
+      memory::make_std_unique<CustomMemoryManager>(m_allocator,
+          m_compilation_log, &m_c_pointers, &m_pointers, &m_resources));
 
   code_module.m_engine =
       std::unique_ptr<llvm::ExecutionEngine>(builder.create());
@@ -277,19 +297,65 @@ parse_error jit_engine::parse_file(const containers::string_view _file) {
       m_allocator, [this]() { m_started_files.pop_back(); }));
 
   file_system::result res;
-  file_system::file_ptr file = m_file_mapping->open_file(_file, res);
+  file_system::file_ptr file;
+  containers::string synthetic_contents(m_allocator);
+  bool use_synthetic_contents = false;
 
-  if (!file) {
-    m_compilation_log->log_error("Could not find file", _file);
-    return parse_error::does_not_exist;
+  if (!_file.ends_with(".wns")) {
+    auto pt = _file.find_last_of(".");
+    if (pt == containers::string_view::npos) {
+      m_compilation_log->log_error("Missing file extension");
+      return parse_error::eUnsupported;
+    }
+    if (m_extension_handlers.find(_file.substr(pt).to_string(m_allocator)) ==
+        m_extension_handlers.end()) {
+      m_compilation_log->log_error(
+          "Unhandled file extension ", _file.substr(pt));
+      return parse_error::eUnsupported;
+    }
+    auto ext_handler =
+        m_extension_handlers[_file.substr(pt).to_string(m_allocator)];
+    auto convert_res = ext_handler->convert_file(_file, &synthetic_contents);
+    if (convert_res == convert_type::failed) {
+      m_compilation_log->log_error(
+          "Resource file ", _file, " was not handled by resource handler");
+      return parse_error::eWNInvalidFile;
+    }
+    use_synthetic_contents = convert_res == convert_type::success;
+  }
+  if (!use_synthetic_contents) {
+    file = m_file_mapping->open_file(_file, res);
+
+    if (!file) {
+      m_compilation_log->log_error("Could not find file", _file);
+      return parse_error::does_not_exist;
+    }
   }
 
   memory::unique_ptr<ast_script_file> parsed_file = parse_script(m_allocator,
-      _file, file->typed_range<char>(),
+      _file,
+      use_synthetic_contents ? synthetic_contents.to_contiguous_range()
+                             : file->typed_range<char>(),
       functional::function<bool(containers::string_view)>(m_allocator,
           [this](containers::string_view include) {
             return parse_file(include) == scripting::parse_error::ok ? true
                                                                      : false;
+          }),
+      functional::function<bool(
+          containers::string_view, containers::string_view)>(m_allocator,
+          [this](containers::string_view resource_type,
+              containers::string_view resource_name) {
+            auto it = m_resources.find(resource_type.to_string(m_allocator));
+            if (it == m_resources.end()) {
+              return true;
+            }
+
+            auto str =
+                it->second.resource->get_include_for_resource(resource_name);
+            if (str.empty()) {
+              return true;
+            }
+            return parse_file(str) == scripting::parse_error::ok ? true : false;
           }),
       &m_type_manager, false, m_compilation_log, &m_num_warnings,
       &m_num_errors);
@@ -358,6 +424,20 @@ size_t jit_engine::get_vtable_offset(const ast_type* _type) {
     return it->second.vtable_offset;
   }
   return static_cast<size_t>(-1);
+}
+
+bool jit_engine::register_resource(
+    resource* _resource, const ast_type* _type, void_f _function) {
+  auto name = _resource->get_name().to_string(m_allocator);
+  if (m_resources.find(name) != m_resources.end()) {
+    return false;
+  }
+  m_resources[core::move(name)] = {_function, _type, _resource};
+  if (!_resource->get_file_extension().empty()) {
+    m_extension_handlers[_resource->get_file_extension().to_string(
+        m_allocator)] = _resource;
+  }
+  return true;
 }
 
 }  // namespace scripting

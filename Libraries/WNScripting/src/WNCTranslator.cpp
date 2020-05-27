@@ -69,14 +69,45 @@ parse_error c_translator::translate_file_with_error(
   functional::defer clean(functional::function<void()>(
       m_allocator, [this]() { m_started_files.pop_back(); }));
   file_system::result res;
-  file_system::file_ptr file = m_source_mapping->open_file(_file, res);
+  file_system::file_ptr file;
+  containers::string synthetic_contents(m_allocator);
+  bool use_synthetic_contents = false;
 
-  if (!file) {
-    return parse_error::does_not_exist;
+  if (!_file.ends_with(".wns")) {
+    auto pt = _file.find_last_of(".");
+    if (pt == containers::string_view::npos) {
+      m_compilation_log->log_error("Missing file extension");
+      return parse_error::eUnsupported;
+    }
+    if (m_extension_handlers.find(_file.substr(pt).to_string(m_allocator)) ==
+        m_extension_handlers.end()) {
+      m_compilation_log->log_error(
+          "Unhandled file extension ", _file.substr(pt));
+      return parse_error::eUnsupported;
+    }
+    auto ext_handler =
+        m_extension_handlers[_file.substr(pt).to_string(m_allocator)];
+    auto convert_res = ext_handler->convert_file(_file, &synthetic_contents);
+    if (convert_res == convert_type::failed) {
+      m_compilation_log->log_error(
+          "Resource file ", _file, " was not handled by resource handler");
+      return parse_error::eWNInvalidFile;
+    }
+    use_synthetic_contents = convert_res == convert_type::success;
+  }
+  if (!use_synthetic_contents) {
+    file = m_source_mapping->open_file(_file, res);
+
+    if (!file) {
+      m_compilation_log->log_error("Could not find file", _file);
+      return parse_error::does_not_exist;
+    }
   }
 
   memory::unique_ptr<ast_script_file> parsed_file = parse_script(m_allocator,
-      _file, file->typed_range<char>(),
+      _file,
+      use_synthetic_contents ? synthetic_contents.to_contiguous_range()
+                             : file->typed_range<char>(),
       functional::function<bool(containers::string_view)>(m_allocator,
           [this, _dump_ast_on_failure](containers::string_view include) {
             return translate_file_with_error(include, _dump_ast_on_failure) ==
@@ -84,6 +115,25 @@ parse_error c_translator::translate_file_with_error(
                        ? true
                        : false;
           }),
+      functional::function<bool(
+          containers::string_view, containers::string_view)>(m_allocator,
+          [this, _dump_ast_on_failure](containers::string_view resource_type,
+              containers::string_view resource_name) {
+            auto it = m_resources.find(resource_type.to_string(m_allocator));
+            if (it == m_resources.end()) {
+              return true;
+            }
+
+            auto str = it->second->get_include_for_resource(resource_name);
+            if (str.empty()) {
+              return true;
+            }
+            return translate_file_with_error(str, _dump_ast_on_failure) ==
+                           scripting::parse_error::ok
+                       ? true
+                       : false;
+          }),
+
       &m_type_manager, _dump_ast_on_failure, m_compilation_log, &m_num_warnings,
       &m_num_errors);
 

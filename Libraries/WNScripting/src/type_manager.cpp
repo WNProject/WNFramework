@@ -27,6 +27,7 @@ type_manager::type_manager(memory::allocator* _allocator, logging::log* _log)
     m_structure_types(_allocator),
     m_function_pointer_types(_allocator),
     m_slice_types(_allocator),
+    m_resource_types(_allocator),
     m_all_types(_allocator),
     m_struct_definitions(_allocator),
     m_vtables(_allocator),
@@ -806,6 +807,33 @@ bool type_manager::get_named_constant(
   _out->_type = it->second._type;
   _out->_value = containers::string(m_allocator, it->second._value);
   return true;
+}
+
+bool type_manager::register_resource_type(
+    const ast_type* _type, resource* resource) {
+  containers::string res(m_allocator, resource->get_name());
+
+  if (m_resource_types.find(res) != m_resource_types.end()) {
+    return false;
+  }
+
+  m_resource_types[res] = res_type{_type, resource};
+  return true;
+}
+
+const ast_type* type_manager::get_resource(
+    containers::string_view resource_name,
+    containers::string_view resource_data, void** data) {
+  auto res = m_resource_types.find(resource_name.to_string(m_allocator));
+  if (res == m_resource_types.end()) {
+    return nullptr;
+  }
+
+  if (!res->second.resource->convert_to_user_data(resource_data, data)) {
+    return nullptr;
+  }
+
+  return res->second.type;
 }
 
 }  // namespace scripting

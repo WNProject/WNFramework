@@ -28,6 +28,7 @@ public:
       memory::allocator* _allocator, type_manager* _type_manager,
       logging::log* _log,
       functional::function<bool(containers::string_view)> _handle_includes,
+      functional::function<bool(containers::string_view, containers::string_view)> _handle_resources,
       const script_file*) const;
 
 private:

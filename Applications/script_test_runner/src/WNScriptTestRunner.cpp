@@ -15,6 +15,39 @@
 
 using namespace wn;
 
+int res_fn(void* user_data) {
+  return (int)(uintptr_t)(user_data);
+}
+
+class test_resource : public scripting::resource {
+public:
+  test_resource(memory::allocator* _allocator)
+    : scripting::resource(containers::string(_allocator, "TestResource")),
+      m_allocator(_allocator) {}
+  bool convert_to_user_data(containers::string_view, void** dat) override {
+    *dat = (void*)(uintptr_t)32;
+    return true;
+  }
+  containers::string get_include_for_resource(
+      containers::string_view /*_res*/) override {
+    return containers::string(m_allocator, "dummy_file.dummy");
+  }
+  containers::string_view get_file_extension() const override {
+    return ".dummy";
+  }
+  scripting::convert_type convert_file(containers::string_view _file_name,
+      containers::string* out_string) override {
+    if (_file_name != "dummy_file.dummy") {
+      return scripting::convert_type::failed;
+    }
+    *out_string = "Int dummy_file_foo() { return 4; }";
+    return scripting::convert_type::success;
+  }
+
+private:
+  memory::allocator* m_allocator;
+};
+
 inline containers::string_view to_view(const re2::StringPiece& sp) {
   return containers::string_view(sp.data(), sp.size());
 }
@@ -259,6 +292,11 @@ int32_t wn_main(const ::wn::executable::executable_data* _executable_data) {
   jit->register_named_constant<int32_t>("named_constant_b", constant_b);
   translator->register_named_constant<int32_t>("named_constant_a", constant_a);
   translator->register_named_constant<int32_t>("named_constant_b", constant_b);
+
+  jit->register_resource<decltype(&res_fn), &res_fn>(
+      memory::make_unique<test_resource>(&allocator, &allocator));
+  translator->register_resource(
+      memory::make_unique<test_resource>(&allocator, &allocator), &res_fn);
 
   auto test_file_string = test_file.to_string(&allocator);
   file_system::result res;

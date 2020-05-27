@@ -62,6 +62,7 @@ wn_create_call_test(
       multiple_include_test.wns
       named_constant.wns
       partial_for_loops.wns
+      resource.wns
       shared_in_array.wns
       simple_functions.wns
       simple_inheritance.wns

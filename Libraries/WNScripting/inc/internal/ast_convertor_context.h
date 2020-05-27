@@ -92,6 +92,8 @@ struct parse_ast_convertor::convertor_context {
       const slice_expression* _slice);
   memory::unique_ptr<ast_expression> resolve_builtin_unary_expression(
       const builtin_unary_expression* _unary);
+  memory::unique_ptr<ast_expression> resolve_resource(
+      const resource_expression* _resource);
 
   // Helpers
   memory::unique_ptr<ast_expression> get_id(const node* _location,

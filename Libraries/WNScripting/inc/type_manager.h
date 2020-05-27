@@ -16,6 +16,7 @@
 #include "WNMemory/inc/unique_ptr.h"
 #include "WNScripting/inc/WNScriptHelpers.h"
 #include "WNScripting/inc/externals.h"
+#include "WNScripting/inc/resource.h"
 
 namespace wn {
 namespace scripting {
@@ -322,6 +323,23 @@ public:
   bool add_named_constant(const ast_type* _type, containers::string_view _name,
       const containers::string_view& _value);
 
+  // register_resource_type takes an ast_type, a resource_name and
+  // a callback. When a resource node is processed, the callback will
+  // be called with the parameter associated with the resource.
+  // The callback is expected to return a void* identifier if the
+  // resource is valid, and nullptr if the resource is not.
+
+  // Although not strictly required, it is generally expected that
+  //   multpile calls with the same parameter data will give the
+  //   same identifier.
+  bool register_resource_type(const ast_type* _type, resource* resource);
+
+  // get_resource tries to find the resource of the given name with the given
+  //  resource data.
+  // If the name or data is invalid, this is ignored.
+  const ast_type* get_resource(containers::string_view resource_name,
+      containers::string_view resource_data, void** data);
+
   struct named_constant {
     containers::string _value;
     const ast_type* _type;
@@ -403,6 +421,12 @@ private:
       containers::pair_equality<uint32_t, const ast_type*>>
       m_slice_types;
 
+  struct res_type {
+    const ast_type* type;
+    resource* resource;
+  };
+
+  containers::hash_map<containers::string, res_type> m_resource_types;
   containers::deque<ast_type*> m_all_types;
 
   struct struct_definition_data {

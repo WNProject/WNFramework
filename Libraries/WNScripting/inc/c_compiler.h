@@ -40,6 +40,7 @@ private:
   bool write_function_call(const ast_function_call_expression* _expression);
   bool write_function_pointer_expression(
       const ast_function_pointer_expression* _expression);
+  bool write_resource_expression(const ast_resource* _expression);
   bool write_call_function_pointer(
       const ast_function_call_expression* _expression);
   bool write_call_function(const ast_function_call_expression* _expression);

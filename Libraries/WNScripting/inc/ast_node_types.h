@@ -69,6 +69,7 @@ enum class ast_node_type {
   ast_expression,
     ast_binary_expression,
     ast_constant,
+    ast_resource,
     ast_id,
     ast_array_access_expression,
     ast_member_access_expression,
@@ -673,6 +674,22 @@ struct ast_constant : public ast_expression {
     d->copy_underlying_from(_allocator, this);
     d->m_string_value = containers::string(_allocator, m_string_value);
     memory::memcpy(&d->m_node_value, &m_node_value, sizeof(m_node_value));
+    return (core::move(d));
+  }
+};
+
+struct ast_resource : public ast_expression {
+  ast_resource(const node* _base_node)
+    : ast_expression(_base_node, ast_node_type::ast_resource) {}
+  containers::string m_string_value;
+
+  void* m_resource_identifier;
+
+  memory::unique_ptr<ast_node> clone(
+      memory::allocator* _allocator) const override {
+    auto d = memory::make_unique<ast_resource>(_allocator, nullptr);
+    d->copy_underlying_from(_allocator, this);
+    d->m_resource_identifier = m_resource_identifier;
     return (core::move(d));
   }
 };

@@ -149,6 +149,7 @@ tokens
 @parser::context {
 private:
   wn::memory::allocator* m_allocator;
+  scripting::script_file* m_file;
 public:
   void set_allocator(wn::memory::allocator* _allocator) {
     m_allocator = _allocator;
@@ -200,6 +201,9 @@ BOOL :  'true' | 'false';
 
 ID  :    ('a'..'z') ('a'..'z'|'A'..'Z'|'0'..'9'|'_')*
     ;
+
+RESOURCE : '@' ('A'..'Z') ('a'..'z'|'A'..'Z'|'0'..'9'|'_')*
+         ;
 
 TYPE  :    ('A'..'Z') ('a'..'z'|'A'..'Z'|'0'..'9'|'_')*
     ;
@@ -606,6 +610,7 @@ non_array_prim_ex returns[scripting::expression* node]
 }
     :   ID { node = m_allocator->construct<scripting::id_expression>(m_allocator, $ID.text.c_str()); SET_LOCATION(node, $ID);}
     |   ba=LBRACKET a=expr bb=RBRACKET {node = $a.node; SET_LOCATION(node, $ba); SET_END_LOCATION(node, $bb); }
+    |   RESOURCE rlb=LBRACKET rls=STRING rrb=RBRACKET { auto n = m_allocator->construct<scripting::resource_expression>(m_allocator, $RESOURCE.text.c_str()+1, $rls.text.c_str()); m_file->add_resource($RESOURCE.text.c_str()+1,$rls.text.c_str()); node = n; SET_LOCATION(node, $RESOURCE); SET_END_LOCATION(node, $rrb); }
     |   b=constant  {node = $b.node; }
     |   c=scalarType ( f=cast) { $f.node->set_type($c.node); node=$f.node; SET_START_LOCATION_FROM_NODE(node, $c.node); }
     |   e=objectType h=structInit { $h.node->set_type($e.node); node=$h.node; SET_START_LOCATION_FROM_NODE(node, $e.node); }
@@ -836,6 +841,7 @@ inc returns[containers::string file]
 program returns[scripting::script_file* node]
 @init{
     node = m_allocator->construct<scripting::script_file>(m_allocator);
+    m_file = node;
 }
     :   (inc        { node->add_include(core::move($inc.file)); })*
         (

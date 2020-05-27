@@ -186,6 +186,29 @@ bool inline engine::register_function(containers::string_view _name) {
   return register_c_function(_name, f.params, reinterpret_cast<void_f>(fn));
 }
 
+template <typename F, F _function>
+bool inline engine::register_resource(memory::unique_ptr<resource> res) {
+  containers::dynamic_array<const ast_type*> params =
+      get_function_params(_function, &m_type_manager);
+  if (params.size() != 2) {
+    return false;
+  }
+  // We expect this to be a function of type
+  //   resource_type function(void* type_tag)
+
+  if (params[1] != m_type_manager.get_type<void*>()) {
+    return false;
+  }
+
+  if (!m_type_manager.register_resource_type(params[0], res.get())) {
+    return false;
+  }
+  void* call = get_thunk<F, _function>();
+  auto ptr = res.get();
+  m_resources.push_back(core::move(res));
+  return register_resource(ptr, params[0], reinterpret_cast<void_f>(call));
+}
+
 template <typename T>
 void inline engine::register_cpp_type() {
   m_type_manager.register_cpp_type<T>(

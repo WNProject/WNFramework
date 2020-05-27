@@ -31,10 +31,18 @@ memory::unique_ptr<ast_script_file>
 parse_ast_convertor::convert_parse_tree_to_ast(memory::allocator* _allocator,
     type_manager* _type_manager, wn::logging::log* _log,
     functional::function<bool(containers::string_view)> _handle_includes,
+    functional::function<bool(containers::string_view, containers::string_view)>
+        _handle_resources,
     const script_file* _file) const {
   convertor_context context(_allocator, _log, _type_manager, this);
   for (auto& inc : _file->get_includes()) {
     if (!_handle_includes(inc.to_string_view().substr(1, inc.size() - 2))) {
+      return nullptr;
+    }
+  }
+  for (auto& inc : _file->get_resources()) {
+    if (!_handle_resources(
+            inc.first.to_string_view(), inc.second.to_string_view())) {
       return nullptr;
     }
   }

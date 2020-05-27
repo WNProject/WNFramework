@@ -7,6 +7,7 @@
 
 #include "WNContainers/inc/WNString.h"
 #include "WNScripting/inc/WNEngine.h"
+#include "WNScripting/inc/resource.h"
 #include "WNScripting/inc/type_manager.h"
 
 namespace wn {
@@ -20,6 +21,8 @@ public:
   translator(memory::allocator* _allocator, logging::log* _log)
     : m_num_warnings(0),
       m_num_errors(0),
+      m_resources(_allocator),
+      m_extension_handlers(_allocator),
       m_allocator(_allocator),
       m_type_manager(_allocator, _log) {}
 
@@ -46,6 +49,10 @@ public:
   bool inline register_cpp_function(
       containers::string_view _name, R (*)(Args...));
 
+  template <typename R>
+  bool inline register_resource(
+      memory::unique_ptr<resource> resource, R (*)(void*));
+
   template <typename T>
   bool register_cpp_type();
 
@@ -63,6 +70,9 @@ protected:
   virtual ast_type* register_external_type(containers::string_view _name) = 0;
   size_t m_num_warnings;
   size_t m_num_errors;
+  containers::hash_map<containers::string, memory::unique_ptr<resource>>
+      m_resources;
+  containers::hash_map<containers::string, resource*> m_extension_handlers;
   memory::allocator* m_allocator;
   type_manager m_type_manager;
 };
@@ -109,6 +119,22 @@ bool inline translator::register_named_constant(
   const ast_type* type = m_type_manager.get_type<T>();
   containers::string sc = get_script_constant<T>::str_const(m_allocator, value);
   return m_type_manager.add_named_constant(type, _name, sc);
+}
+
+template <typename R>
+bool inline translator::register_resource(
+    memory::unique_ptr<resource> _resource, R (*)(void*)) {
+  if (!m_type_manager.register_resource_type(
+          m_type_manager.get_type<R>(), _resource.get())) {
+    return false;
+  }
+  if (!_resource->get_file_extension().empty()) {
+    m_extension_handlers[_resource->get_file_extension().to_string(
+        m_allocator)] = _resource.get();
+  }
+  m_resources[_resource->get_name().to_string(m_allocator)] =
+      core::move(_resource);
+  return true;
 }
 
 }  // namespace scripting

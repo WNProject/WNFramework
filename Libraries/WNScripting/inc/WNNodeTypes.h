@@ -8,6 +8,7 @@
 #include "WNContainers/inc/WNDeque.h"
 #include "WNContainers/inc/WNString.h"
 #include "WNContainers/inc/WNStringView.h"
+#include "WNCore/inc/pair.h"
 #include "WNFunctional/inc/WNFunction.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/unique_ptr.h"
@@ -34,6 +35,7 @@ enum class node_type {
     cond_expression,
     constant_expression,
     id_expression,
+    resource_expression,
     null_allocation_expression,
     post_expression,
       array_access_expression,
@@ -839,6 +841,49 @@ public:
 
 private:
   containers::string m_name;
+};
+
+class resource_expression : public expression {
+public:
+  resource_expression(
+      memory::allocator* _allocator, const char* _type, const char* _str)
+    : expression(_allocator, node_type::resource_expression),
+      m_resource_type(_allocator, _type),
+      m_string(_allocator, _str) {}
+
+  resource_expression(memory::allocator* _allocator,
+      containers::string_view _type, containers::string_view _str)
+    : expression(_allocator, node_type::resource_expression),
+      m_resource_type(_type.to_string(_allocator)),
+      m_string(_str.to_string(_allocator)) {}
+
+  explicit resource_expression(memory::allocator* _allocator)
+    : expression(_allocator, node_type::resource_expression) {}
+  containers::string_view get_type() const {
+    return m_resource_type;
+  }
+  containers::string_view get_string() const {
+    return m_string;
+  }
+
+  void print_node_internal(print_context* c) const override {
+    c->print_header("Resource Expression");
+    c->print_value(m_type, "Type");
+    c->print_value(m_resource_type, "ResourceType");
+    c->print_value(m_string, "String");
+  }
+
+  memory::unique_ptr<node> clone(memory::allocator* _allocator) const override {
+    auto t = memory::make_unique<resource_expression>(_allocator, _allocator);
+    t->copy_underlying_from(_allocator, this);
+    t->m_resource_type = containers::string(_allocator, m_resource_type);
+    t->m_string = containers::string(_allocator, m_string);
+    return core::move(t);
+  }
+
+private:
+  containers::string m_resource_type;
+  containers::string m_string;
 };
 
 class null_allocation_expression : public expression {
@@ -2305,7 +2350,8 @@ public:
       m_functions(_allocator),
       m_external_functions(_allocator),
       m_structs(_allocator),
-      m_includes(_allocator) {}
+      m_includes(_allocator),
+      m_resources(_allocator) {}
   void add_function(function* _node) {
     m_functions.emplace_back(memory::unique_ptr<function>(m_allocator, _node));
   }
@@ -2335,6 +2381,16 @@ public:
 
   const containers::deque<containers::string>& get_includes() const {
     return m_includes;
+  }
+
+  void add_resource(const char* type, const char* value) {
+    m_resources.push_back(core::make_pair(containers::string(m_allocator, type),
+        containers::string(m_allocator, value)));
+  }
+
+  const containers::deque<core::pair<containers::string, containers::string>>&
+  get_resources() const {
+    return m_resources;
   }
 
   virtual void print_node_internal(print_context* c) const override {
@@ -2367,6 +2423,15 @@ public:
     for (auto& f : m_includes) {
       t->m_includes.push_back(containers::string(_allocator, f));
     }
+    t->m_resources =
+        containers::deque<core::pair<containers::string, containers::string>>(
+            _allocator);
+    for (auto& f : m_resources) {
+      t->m_resources.push_back(
+          core::pair<containers::string, containers::string>(
+              containers::string(_allocator, f.first),
+              containers::string(_allocator, f.second)));
+    }
 
     return core::move(t);
   }
@@ -2376,6 +2441,8 @@ private:
   containers::deque<memory::unique_ptr<function>> m_external_functions;
   containers::deque<memory::unique_ptr<struct_definition>> m_structs;
   containers::deque<containers::string> m_includes;
+  containers::deque<core::pair<containers::string, containers::string>>
+      m_resources;
 };
 
 }  // namespace scripting

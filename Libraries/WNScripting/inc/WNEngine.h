@@ -10,11 +10,13 @@
 #include "WNContainers/inc/WNHashMap.h"
 #include "WNContainers/inc/WNStringView.h"
 #include "WNCore/inc/utilities.h"
+#include "WNFunctional/inc/WNFunction.h"
 #include "WNMemory/inc/allocator.h"
 #include "WNScripting/inc/WNEnums.h"
 #include "WNScripting/inc/WNErrors.h"
 #include "WNScripting/inc/WNScriptHelpers.h"
 #include "WNScripting/inc/WNScriptTLS.h"
+#include "WNScripting/inc/resource.h"
 #include "WNScripting/inc/type_manager.h"
 
 namespace wn {
@@ -91,7 +93,8 @@ public:
       m_allocator(_allocator),
       m_log(_log),
       m_type_manager(_allocator, _log),
-      m_object_types(_allocator) {
+      m_object_types(_allocator),
+      m_resources(_allocator) {
     // These exists to stop the compiler from assuming these are unused.
     (void)assign_type_names;
     (void)short_circuit_type_names;
@@ -135,6 +138,9 @@ public:
 
   template <typename F, F function>
   bool inline register_function(containers::string_view _name);
+
+  template <typename F, F function>
+  bool inline register_resource(memory::unique_ptr<resource> res);
 
   template <typename T>
   size_t get_vtable_offset();
@@ -234,6 +240,8 @@ protected:
   virtual bool register_c_function(containers::string_view name,
       containers::contiguous_range<const ast_type*> _types,
       void_f function) = 0;
+  virtual bool register_resource(
+      resource* _resource, const ast_type* _type, void_f function) = 0;
   virtual bool register_mangled_c_function(
       containers::string_view _name, void_f _function, bool _is_virtual) = 0;
   virtual size_t get_vtable_offset(const ast_type* _type) = 0;
@@ -242,7 +250,7 @@ protected:
   type_manager m_type_manager;
   containers::hash_map<uintptr_t, memory::unique_ptr<script_object_type>>
       m_object_types;
-
+  containers::deque<memory::unique_ptr<resource>> m_resources;
   scripting_tls_data m_tls_data;
 };
 
